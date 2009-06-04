@@ -95,7 +95,7 @@ class StatusBubbleViews::StatusView : public views::Label,
   }
 
   // The bubble can be in one of many stages:
-  typedef enum BubbleStage {
+  enum BubbleStage {
     BUBBLE_HIDDEN,         // Entirely BUBBLE_HIDDEN.
     BUBBLE_HIDING_FADE,    // In a fade-out transition.
     BUBBLE_HIDING_TIMER,   // Waiting before a fade-out.
@@ -104,7 +104,7 @@ class StatusBubbleViews::StatusView : public views::Label,
     BUBBLE_SHOWN           // Fully visible.
   };
 
-  typedef enum BubbleStyle {
+  enum BubbleStyle {
     STYLE_BOTTOM,
     STYLE_FLOATING,
     STYLE_STANDARD,
@@ -691,4 +691,3 @@ void StatusBubbleViews::AvoidMouse() {
                                 size_.width(), size_.height()));
   }
 }
-

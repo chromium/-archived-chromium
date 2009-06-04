@@ -27,7 +27,7 @@ class LocationBarView;
 class GoButton : public views::ToggleImageButton,
                  public views::ButtonListener {
  public:
-  typedef enum Mode { MODE_GO = 0, MODE_STOP };
+  enum Mode { MODE_GO = 0, MODE_STOP };
 
   GoButton(LocationBarView* location_bar, Browser* Browser);
   virtual ~GoButton();

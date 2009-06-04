@@ -7,6 +7,7 @@
 #include "app/l10n_util.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "views/widget/root_view.h"
+#include "views/window/window.h"
 
 BrowserBubble::BrowserBubble(views::View* view, views::Widget* frame,
                              const gfx::Point& origin)
@@ -37,8 +38,8 @@ void BrowserBubble::DetachFromBrowser() {
   if (!attached_)
     return;
   attached_ = false;
-  BrowserView* browser_view =
-      BrowserView::GetBrowserViewForNativeWindow(frame_native_view_);
+  BrowserView* browser_view = BrowserView::GetBrowserViewForNativeWindow(
+      frame_->GetWindow()->GetNativeWindow());
   if (browser_view)
     browser_view->DetachBrowserBubble(this);
 }
@@ -47,8 +48,8 @@ void BrowserBubble::AttachToBrowser() {
   DCHECK(!attached_);
   if (attached_)
     return;
-  BrowserView* browser_view =
-      BrowserView::GetBrowserViewForNativeWindow(frame_native_view_);
+  BrowserView* browser_view = BrowserView::GetBrowserViewForNativeWindow(
+      frame_->GetWindow()->GetNativeWindow());
   DCHECK(browser_view);
   if (browser_view) {
     browser_view->AttachBrowserBubble(this);
@@ -99,4 +100,3 @@ void BrowserBubble::ResizeToView() {
   gfx::Size size = view_->GetPreferredSize();
   SetBounds(bounds_.x(), bounds_.y(), size.width(), size.height());
 }
-

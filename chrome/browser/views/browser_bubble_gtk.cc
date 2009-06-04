@@ -26,14 +26,6 @@ void BrowserBubble::InitPopup() {
     browser_view->AttachBrowserBubble(this);
 }
 
-void BrowserBubble::DestroyPopup() {
-  gfx::NativeWindow native_window = frame_->GetWindow()->GetNativeWindow();
-  BrowserView* browser_view =
-      BrowserView::GetBrowserViewForNativeWindow(native_window);
-  if (browser_view)
-    browser_view->DetachBrowserBubble(this);
-}
-
 void BrowserBubble::MovePopup(int x, int y, int w, int h) {
   views::WidgetGtk* pop = static_cast<views::WidgetGtk*>(popup_.get());
   pop->SetBounds(gfx::Rect(x, y, w, h));
