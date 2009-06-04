@@ -244,6 +244,7 @@ RemoteToolsAgentStub.prototype.SetResourceTrackingEnabled = function(enabled, al
 
 
 RemoteDebuggerAgentStub.ProfilerLogBuffer =
+  'profiler,begin,1\n' +
   'profiler,resume\n' +
   'code-creation,LazyCompile,0x1000,256,"test1 http://aaa.js:1"\n' +
   'code-creation,LazyCompile,0x2000,256,"test2 http://bbb.js:2"\n' +
