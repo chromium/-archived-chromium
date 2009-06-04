@@ -224,7 +224,6 @@
       'target_name': 'common',
       'type': '<(library)',
       'msvs_guid': '899F1280-3441-4D1F-BA04-CCD6208D9146',
-      'msvs_existing_vcproj': 'common/common.vcproj',
       'dependencies': [
         'chrome_resources',
         'chrome_strings',
@@ -1861,7 +1860,6 @@
       'target_name': 'debugger',
       'type': '<(library)',
       'msvs_guid': '57823D8C-A317-4713-9125-2C91FDFD12D6',
-      'msvs_existing_vcproj': 'browser/debugger/debugger.vcproj',
       'dependencies': [
         'chrome_resources',
         'theme_resources',
@@ -1932,7 +1930,6 @@
       'target_name': 'plugin',
       'type': '<(library)',
       'msvs_guid': '20A560A0-2CD0-4D9E-A58B-1F24B99C087A',
-      'msvs_existing_vcproj': 'plugin/plugin.vcproj',
       'dependencies': [
         'common',
         'chrome_resources',
@@ -2000,7 +1997,6 @@
       'target_name': 'renderer',
       'type': '<(library)',
       'msvs_guid': '9301A569-5D2B-4D11-9332-B1E30AEACB8D',
-      'msvs_existing_vcproj': 'renderer/renderer.vcproj',
       'dependencies': [
         'common',
         'plugin',
@@ -3831,7 +3827,6 @@
           'target_name': 'automation',
           'type': '<(library)',
           'msvs_guid': '1556EF78-C7E6-43C8-951F-F6B43AC0DD12',
-          'msvs_existing_vcproj': 'test/automation/automation.vcproj',
           'dependencies': [
             'theme_resources',
             '../skia/skia.gyp:skia',
