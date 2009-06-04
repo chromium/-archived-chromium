@@ -33,7 +33,7 @@ typedef std::map<std::string, DnsHostInfo> Results;
 class DnsMaster {
  public:
   // Specify how many concurrent (paralell) prefetches will be performed.
-  explicit DnsMaster(size_t max_concurrent);
+  DnsMaster(size_t max_concurrent);
   ~DnsMaster();
 
   // Cancel pending requests and prevent new ones from being made.
@@ -93,38 +93,9 @@ class DnsMaster {
   FRIEND_TEST(DnsMasterTest, SingleLookupTest);
   FRIEND_TEST(DnsMasterTest, ConcurrentLookupTest);
   FRIEND_TEST(DnsMasterTest, MassiveConcurrentLookupTest);
-  FRIEND_TEST(DnsMasterTest, PriorityQueuePushPopTest);
-  FRIEND_TEST(DnsMasterTest, PriorityQueueReorderTest);
   friend class WaitForResolutionHelper;  // For testing.
 
   class LookupRequest;
-
-  // A simple priority queue for handling host names.
-  // Some names that are queued up have |motivation| that requires very rapid
-  // handling.  For example, a sub-resource name lookup MUST be done before the
-  // actual sub-resource is fetched.  In contrast, a name that was speculatively
-  // noted in a page has to be resolved before the user "gets around to"
-  // clicking on a link.  By tagging (with a motivation) each push we make into
-  // this FIFO queue, the queue can re-order the more important names to service
-  // them sooner (relative to some low priority background resolutions).
-  class HostNameQueue {
-   public:
-    HostNameQueue();
-    ~HostNameQueue();
-    void Push(const std::string& hostname,
-              DnsHostInfo::ResolutionMotivation motivation);
-    bool IsEmpty() const;
-    std::string Pop();
-
-  private:
-    // The names in the queue that should be serviced (popped) ASAP.
-    std::queue<std::string> rush_queue_;
-    // The names in the queue that should only be serviced when rush_queue is
-    // empty.
-    std::queue<std::string> background_queue_;
-
-  DISALLOW_COPY_AND_ASSIGN(HostNameQueue);
-  };
 
   // A map that is keyed with the hostnames that we've learned were the cause
   // of loading additional hostnames.  The list of additional hostnames in held
@@ -162,29 +133,16 @@ class DnsMaster {
   DnsHostInfo* PreLockedResolve(const std::string& hostname,
                                 DnsHostInfo::ResolutionMotivation motivation);
 
-  // Check to see if too much queuing delay has been noted for the given info,
-  // which indicates that there is "congestion" or growing delay in handling the
-  // resolution of names.  Rather than letting this congestion potentially grow
-  // without bounds, we abandon our queued efforts at pre-resolutions in such a
-  // case.
-  // To do this, we will recycle |info|, as well as all queued items, back to
-  // the state they had before they were queued up.  We can't do anything about
-  // the resolutions we've already sent off for processing on another thread, so
-  // we just let them complete.  On a slow system, subject to congestion, this
-  // will greatly reduce the number of resolutions done, but it will assure that
-  // any resolutions that are done, are in a timely and hence potentially
-  // helpful manner.
-  bool PreLockedCongestionControlPerformed(DnsHostInfo* info);
-
-  // Take lookup requests from work_queue_ and tell HostResolver to look them up
-  // asynchronously, provided we don't exceed concurrent resolution limit.
+  // Take lookup requests from name_buffer_ and tell HostResolver
+  // to look them up asynchronously, provided we don't exceed
+  // concurrent resolution limit.
   void PreLockedScheduleLookups();
 
   // Synchronize access to variables listed below.
   Lock lock_;
 
-  // work_queue_ holds a list of names we need to look up.
-  HostNameQueue work_queue_;
+  // name_buffer_ holds a list of names we need to look up.
+  std::queue<std::string> name_buffer_;
 
   // results_ contains information for existing/prior prefetches.
   Results results_;

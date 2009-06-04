@@ -77,7 +77,6 @@ void DnsHostInfo::set_cache_expiration(TimeDelta time) {
 
 void DnsHostInfo::SetQueuedState(ResolutionMotivation motivation) {
   DCHECK(PENDING == state_ || FOUND == state_ || NO_SUCH_NAME == state_);
-  old_prequeue_state_ = state_;
   state_ = QUEUED;
   queue_duration_ = resolve_duration_ = kNullDuration;
   SetMotivation(motivation);
@@ -91,24 +90,6 @@ void DnsHostInfo::SetAssignedState() {
   queue_duration_ = GetDuration();
   DLogResultsStats("DNS Prefetch assigned");
   UMA_HISTOGRAM_TIMES("DNS.PrefetchQueue", queue_duration_);
-}
-
-void DnsHostInfo::RemoveFromQueue() {
-  DCHECK(ASSIGNED == state_);
-  state_ = old_prequeue_state_;
-  DLogResultsStats("DNS Prefetch reset to prequeue");
-  static const TimeDelta kBoundary = TimeDelta::FromSeconds(2);
-  if (queue_duration_ > kBoundary) {
-    UMA_HISTOGRAM_MEDIUM_TIMES("DNS.QueueRecycledDeltaOver2",
-                               queue_duration_ - kBoundary);
-    return;
-  }
-  // Make a custom linear histogram for the region from 0 to boundary.
-  const size_t kBucketCount = 52;
-  static LinearHistogram histogram("DNS.QueueRecycledUnder2", TimeDelta(),
-                                   kBoundary, kBucketCount);
-  histogram.SetFlags(kUmaTargetedHistogramFlag);
-  histogram.AddTime(queue_duration_);
 }
 
 void DnsHostInfo::SetPendingDeleteState() {
@@ -162,7 +143,7 @@ void DnsHostInfo::SetFinishedState(bool was_resolved) {
 
 void DnsHostInfo::SetHostname(const std::string& hostname) {
   if (hostname != hostname_) {
-    DCHECK_EQ(hostname_.size(), 0u);  // Not yet initialized.
+    DCHECK(hostname_.size() == 0);  // Not yet initialized.
     hostname_ = hostname;
   }
 }
@@ -190,7 +171,7 @@ bool DnsHostInfo::IsStillCached() const {
 DnsBenefit DnsHostInfo::AccruePrefetchBenefits(DnsHostInfo* navigation_info) {
   DCHECK(FINISHED == navigation_info->state_ ||
          FINISHED_UNRESOLVED == navigation_info->state_);
-  DCHECK_EQ(navigation_info->hostname_, hostname_.data());
+  DCHECK(0 == navigation_info->hostname_.compare(hostname_.data()));
 
   if ((0 == benefits_remaining_.InMilliseconds()) ||
       (FOUND != state_ && NO_SUCH_NAME != state_)) {

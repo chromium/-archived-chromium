@@ -82,47 +82,6 @@ TEST(DnsHostInfoTest, StateChangeTest) {
   EXPECT_TRUE(info.NeedsDnsUpdate(hostname1)) << "expiration time not honored";
 }
 
-// When a system gets "congested" relative to DNS, it means it is doing too many
-// DNS resolutions, and bogging down the system.  When we detect such a
-// situation, we divert the sequence of states a DnsHostInfo instance moves
-// through.  Rather than proceeding from QUEUED (waiting in a name queue for a
-// worker thread that can resolve the name) to ASSIGNED (where a worker thread
-// actively resolves the name), we enter the ASSIGNED state (without actually
-// getting sent to a resolver thread) and reset our state to what it was before
-// the corresponding name was put in the work_queue_.  This test drives through
-// the state transitions used in such congestion handling.
-TEST(DnsHostInfoTest, CongestionResetStateTest) {
-  DnsHostInfo info;
-  std::string hostname1("domain1.com");
-
-  info.SetHostname(hostname1);
-  info.SetQueuedState(DnsHostInfo::UNIT_TEST_MOTIVATED);
-  info.SetAssignedState();
-  EXPECT_TRUE(info.is_assigned());
-
-  info.RemoveFromQueue();  // Do the reset.
-  EXPECT_FALSE(info.is_assigned());
-
-  // Since this was a new info instance, and it never got resolved, we land back
-  // in a PENDING state rather than FOUND or NO_SUCH_NAME.
-  EXPECT_FALSE(info.was_found());
-  EXPECT_FALSE(info.was_nonexistant());
-
-  // Make sure we're completely re-usable, by going throug a normal flow.
-  info.SetQueuedState(DnsHostInfo::UNIT_TEST_MOTIVATED);
-  info.SetAssignedState();
-  info.SetFoundState();
-  EXPECT_TRUE(info.was_found());
-
-  // Use the congestion flow, and check that we end up in the found state.
-  info.SetQueuedState(DnsHostInfo::UNIT_TEST_MOTIVATED);
-  info.SetAssignedState();
-  info.RemoveFromQueue();  // Do the reset.
-  EXPECT_FALSE(info.is_assigned());
-  EXPECT_TRUE(info.was_found());  // Back to what it was before being queued.
-}
-
-
 // TODO(jar): Add death test for illegal state changes, and also for setting
 // hostname when already set.
 
