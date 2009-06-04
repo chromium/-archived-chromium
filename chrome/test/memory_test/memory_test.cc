@@ -420,11 +420,11 @@ class MemoryReferenceTest : public MemoryTest {
 
 }  // namespace
 
-TEST_F(MemoryTest, DISABLED_SingleTabTest) {
+TEST_F(MemoryTest, SingleTabTest) {
   RunTest("1t", 1);
 }
 
-TEST_F(MemoryTest, DISABLED_FiveTabTest) {
+TEST_F(MemoryTest, FiveTabTest) {
   RunTest("5t", 5);
 }
 
