@@ -332,7 +332,9 @@ void FirstRunBubble::OnActivate(UINT action, BOOL minimized, HWND window) {
         kLingerTime);
   }
 
-  InfoBubble::OnActivate(action, minimized, window);
+  // Keep window from automatically closing until kLingerTime has passed.
+  if (::IsWindowEnabled(GetParent()))
+    InfoBubble::OnActivate(action, minimized, window);
 }
 
 void FirstRunBubble::InfoBubbleClosing(InfoBubble* info_bubble,
@@ -369,4 +371,7 @@ FirstRunBubble* FirstRunBubble::Show(Profile* profile, views::Window* parent,
 
 void FirstRunBubble::EnableParent() {
   ::EnableWindow(GetParent(), true);
+  // Reactivate the FirstRunBubble so it responds to OnActivate messages.
+  SetWindowPos(GetParent(), 0, 0, 0, 0,
+               SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW | SWP_SHOWWINDOW);
 }
