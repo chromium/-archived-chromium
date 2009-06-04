@@ -365,9 +365,9 @@ TEST_F(ClientSocketPoolTest, TwoRequestsCancelOne) {
   TestSocketRequest req2(pool_.get(), &request_order_);
 
   EXPECT_EQ(ERR_IO_PENDING,
-            req.handle.Init("a", "127.0.0.1", 80, 5, &req));
+            req.handle.Init("a", "www.google.com", 80, 5, &req));
   EXPECT_EQ(ERR_IO_PENDING,
-            req.handle.Init("a", "127.0.0.1", 80, 5, &req));
+            req2.handle.Init("a", "www.google.com", 80, 5, &req));
 
   req.handle.Reset();
   PlatformThread::Sleep(100);
@@ -388,12 +388,12 @@ TEST_F(ClientSocketPoolTest, ConnectCancelConnect) {
   TestSocketRequest req(pool_.get(), &request_order_);
 
   EXPECT_EQ(ERR_IO_PENDING,
-            req.handle.Init("a", "127.0.0.1", 80, 5, &req));
+            req.handle.Init("a", "www.google.com", 80, 5, &req));
 
   req.handle.Reset();
 
   EXPECT_EQ(ERR_IO_PENDING,
-            req.handle.Init("a", "127.0.0.1", 80, 5, &req));
+            req.handle.Init("a", "www.google.com", 80, 5, &req));
 
   // There is a benign race condition here.  The worker pool may or may not post
   // the tasks before we get here.  It won't test the case properly if it
@@ -409,8 +409,9 @@ TEST_F(ClientSocketPoolTest, ConnectCancelConnect) {
   PlatformThread::Sleep(100);
   MessageLoop::current()->RunAllPending();
 
-  // Don't leak the ConnectingSocket, make sure it runs to completion.
-  req.WaitForResult();
+  req.handle.Reset();
+  // The handle's Reset method may have posted a task.
+  MessageLoop::current()->RunAllPending();
 }
 
 TEST_F(ClientSocketPoolTest, CancelRequest) {
