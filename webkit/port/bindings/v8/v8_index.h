@@ -338,12 +338,16 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   VIDEO_NONNODE_TYPES(V)                                                \
   WORKER_NONNODE_WRAPPER_TYPES(V)
 
+#if ENABLE(DATABASE)
 #define DOM_OBJECT_DATABASE_TYPES(V)                                    \
   V(DATABASE, Database)                                                 \
   V(SQLERROR, SQLError)                                                 \
   V(SQLRESULTSET, SQLResultSet)                                         \
   V(SQLRESULTSETROWLIST, SQLResultSetRowList)                           \
   V(SQLTRANSACTION, SQLTransaction)
+#else
+#define DOM_OBJECT_DATABASE_TYPES(V)
+#endif
 
 #define DOM_OBJECT_TYPES(V)                                             \
   DOM_OBJECT_TYPES_1(V)                                                 \

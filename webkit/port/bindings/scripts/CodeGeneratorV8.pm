@@ -257,15 +257,12 @@ sub GenerateHeader
     # - Add default header template
     @headerContent = split("\r", $headerTemplate);
 
-    # - Add header protection
-    if ($className =~ /^V8SVG/) {
-        push(@headerContent, "\n#if ENABLE(SVG)\n");
-    } elsif (IsVideoClassName($className)) {
-        push(@headerContent, "\n#if ENABLE(VIDEO)\n");
-    } elsif (IsWorkerClassName($className)) {
-        push(@headerContent, "\n#if ENABLE(WORKERS)\n");
+    my $conditionalString;
+    if ($conditional) {
+        $conditionalString = "ENABLE(" . join(") && ENABLE(", split(/&/, $conditional)) . ")";
+        push(@headerContent, "\n#if ${conditionalString}\n\n");
     }
-    
+
     push(@headerContent, "\n#ifndef $className" . "_H");
     push(@headerContent, "\n#define $className" . "_H\n\n");
 
@@ -308,13 +305,7 @@ END
     push(@headerContent, "}\n\n");
     push(@headerContent, "#endif // $className" . "_H\n");
 
-    if ($className =~ /^V8SVG/) {
-        push(@headerContent, "\n#endif // ENABLE(SVG)\n");
-    } elsif (IsVideoClassName($className)) {
-        push(@headerContent, "\n#endif // ENABLE(VIDEO)\n");
-    } elsif (IsWorkerClassName($className)) {
-        push(@headerContent, "\n#endif // ENABLE(WORKERS)\n");
-    }
+    push(@headerContent, "#endif // ${conditionalString}\n\n") if $conditional;
 }
 
 
@@ -1063,12 +1054,10 @@ sub GenerateImplementation
          "#include \"v8_binding.h\"\n\n" .
          "#undef LOG\n\n");
  
-    if ($className =~ /^V8SVG/) {
-        push(@implFixedHeader, "#if ENABLE(SVG)\n\n");
-    } elsif (IsVideoClassName($className)) {
-        push(@implFixedHeader, "#if ENABLE(VIDEO)\n\n");
-    } elsif (IsWorkerClassName($className)) {
-        push(@implFixedHeader, "#if ENABLE(WORKERS)\n\n");
+    my $conditionalString;
+    if ($conditional) {
+        $conditionalString = "ENABLE(" . join(") && ENABLE(", split(/&/, $conditional)) . ")";
+        push(@implFixedHeader, "\n#if ${conditionalString}\n\n");
     }
     
     if ($className =~ /^V8SVGAnimated/) {
@@ -1393,13 +1382,7 @@ END
 } // namespace WebCore 
 END
 
-    if ($className =~ /^V8SVG/) {
-        push(@implContent, "\n#endif // ENABLE(SVG)\n");
-    } elsif (IsVideoClassName($className)) {
-        push(@implContent, "\n#endif // ENABLE(VIDEO)\n");
-    } elsif (IsWorkerClassName($className)) {
-        push(@implContent, "\n#endif // ENABLE(WORKERS)\n");
-    }
+    push(@implContent, "\n#endif // ${conditionalString}\n") if $conditional;
 }
 
 
