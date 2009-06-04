@@ -523,36 +523,6 @@ bool TabContents::ShouldDisplayFavIcon() {
   return true;
 }
 
-#if defined(OS_WIN)
-SecurityStyle TabContents::GetSecurityStyle() const {
-  // We may not have a navigation entry yet.
-  NavigationEntry* entry = controller_.GetActiveEntry();
-  return entry ? entry->ssl().security_style() : SECURITY_STYLE_UNKNOWN;
-}
-
-bool TabContents::GetSSLEVText(std::wstring* ev_text,
-                               std::wstring* ev_tooltip_text) const {
-  DCHECK(ev_text && ev_tooltip_text);
-  ev_text->clear();
-  ev_tooltip_text->clear();
-
-  NavigationEntry* entry = controller_.GetActiveEntry();
-  if (!entry ||
-      net::IsCertStatusError(entry->ssl().cert_status()) ||
-      ((entry->ssl().cert_status() & net::CERT_STATUS_IS_EV) == 0))
-    return false;
-
-  scoped_refptr<net::X509Certificate> cert;
-  CertStore::GetSharedInstance()->RetrieveCert(entry->ssl().cert_id(), &cert);
-  if (!cert.get()) {
-    NOTREACHED();
-    return false;
-  }
-
-  return SSLManager::GetEVCertNames(*cert, ev_text, ev_tooltip_text);
-}
-#endif
-
 std::wstring TabContents::GetStatusText() const {
   if (!is_loading() || load_state_ == net::LOAD_STATE_IDLE)
     return std::wstring();

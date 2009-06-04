@@ -207,15 +207,6 @@ class TabContents : public PageNavigator,
   // space is provided for the favicon, and the favicon is never displayed.
   virtual bool ShouldDisplayFavIcon();
 
-  // SSL related states.
-  SecurityStyle GetSecurityStyle() const;
-
-  // Sets |ev_text| to the text that should be displayed in the EV label of
-  // the location bar and |ev_tooltip_text| to the tooltip for that label.
-  // Returns false and sets these strings to empty if the current page is either
-  // not served over HTTPS or if HTTPS does not use an EV cert.
-  bool GetSSLEVText(std::wstring* ev_text, std::wstring* ev_tooltip_text) const;
-
   // Returns a human-readable description the tab's loading state.
   virtual std::wstring GetStatusText() const;
 
