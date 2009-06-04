@@ -78,6 +78,9 @@ void LocationBarViewGtk::Init() {
   gtk_widget_set_app_paintable(alignment_.get(), TRUE);
   // Have GTK double buffer around the expose signal.
   gtk_widget_set_double_buffered(alignment_.get(), TRUE);
+  // Redraw the whole location bar when it changes size (e.g., when toggling
+  // the home button on/off.
+  gtk_widget_set_redraw_on_allocate(alignment_.get(), TRUE);
   g_signal_connect(alignment_.get(), "expose-event",
                    G_CALLBACK(&HandleExposeThunk), this);
 
