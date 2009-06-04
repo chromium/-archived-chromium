@@ -2692,14 +2692,12 @@ BUG12882 WIN : LayoutTests/http/tests/security/credentials-in-referer.html = TIM
 BUG12882 LINUX : LayoutTests/fast/frames/iframe-js-url-clientWidth.html = CRASH
 
 // WebKit 44252:44286
-BUG13105 REBASELINE : LayoutTests/fast/backgrounds/body-generated-image-propagated-to-root.html = FAIL
+BUG13105 REBASELINE MAC WIN : LayoutTests/fast/backgrounds/body-generated-image-propagated-to-root.html = FAIL
 
 // WebKit 44286:44342
 // This test crashes the next layout tests, so skip until resolved.
 BUG13176 SKIP : LayoutTests/fast/workers/worker-close.html = FAIL
 BUG13174 WIN REBASELINE : LayoutTests/transitions/shorthand-border-transitions.html = FAIL
-BUG13174 LINUX REBASELINE : LayoutTests/fast/dynamic/anchor-lock.html = FAIL
-BUG13174 LINUX REBASELINE : LayoutTests/fast/transforms/bounding-rect-zoom.html = FAIL
 
 // Skia 171:196
 BUG13218 LINUX : LayoutTests/fast/reflections/inline-crash.html = FAIL
@@ -2711,20 +2709,6 @@ BUG13267 LINUX : LayoutTests/svg/custom/mask-inside-defs.svg = PASS FAIL
 BUG13267 LINUX : LayoutTests/svg/custom/stroked-pattern.svg = PASS FAIL
 BUG13267 LINUX : LayoutTests/editing/selection/5131716-3.html = PASS FAIL
 
-// WebKit 44372:44405
-// Due to change http://trac.webkit.org/changeset/44401 Linux renders scrollbars differently.
-// The following tests failed and need rebaseline.
-BUG13313 LINUX REBASELINE : LayoutTests/fast/css/line-height-overflow.html = FAIL
-BUG13313 LINUX REBASELINE : LayoutTests/fast/flexbox/009.html = FAIL
-BUG13313 LINUX REBASELINE : LayoutTests/fast/frames/invalid.html = FAIL
-BUG13313 LINUX REBASELINE : LayoutTests/fast/frames/valid.html = FAIL
-BUG13313 LINUX REBASELINE : LayoutTests/fast/overflow/unreachable-overflow-rtl-bug.html = FAIL
-BUG13313 LINUX REBASELINE : LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
-BUG13313 LINUX REBASELINE : LayoutTests/svg/hixie/links/003-broken.xml = FAIL
-BUG13313 LINUX REBASELINE : LayoutTests/tables/mozilla/bugs/bug113235-1.html = FAIL
-BUG13313 LINUX REBASELINE : LayoutTests/tables/mozilla/core/cell_heights.html = FAIL
-BUG13313 LINUX REBASELINE : LayoutTests/editing/selection/5131716-2.html = FAIL
-  
-// WebKit 44372:44405
-// New Linux crashes and failures.
+// WebKit 44372:44405	
+// New Linux crashes and failures. Why are we running platform/mac test on Linux?
 BUG13314 LINUX : LayoutTests/platform/mac/accessibility/accesskey.html = CRASH FAIL
