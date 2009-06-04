@@ -228,7 +228,7 @@ bool PNGEncoder::EncodeBGRASkBitmap(const SkBitmap& input,
     }
   }
 
-  return Encode(divided.release(),
+  return Encode(divided.get(),
                 PNGEncoder::FORMAT_RGBA, input.width(), input.height(),
                 input.rowBytes(), discard_transparency, output);
 }
