@@ -2727,9 +2727,8 @@ BUG13313 LINUX REBASELINE : LayoutTests/fast/repaint/overflow-scroll-delete.html
 BUG13313 LINUX REBASELINE : LayoutTests/svg/hixie/links/003-broken.xml = FAIL
 BUG13313 LINUX REBASELINE : LayoutTests/tables/mozilla/bugs/bug113235-1.html = FAIL
 BUG13313 LINUX REBASELINE : LayoutTests/tables/mozilla/core/cell_heights.html = FAIL
+BUG13313 LINUX REBASELINE : LayoutTests/editing/selection/5131716-2.html = FAIL
   
 // WebKit 44372:44405
-// New Linux crashes.
-BUG13314 LINUX : LayoutTests/css2.1/atrule_longest_match.html = CRASH
-BUG13314 LINUX : LayoutTests/editing/deleting/25322-1.html = CRASH
-BUG13314 LINUX : LayoutTests/platform/mac/accessibility/accesskey.html = CRASH
+// New Linux crashes and failures.
+BUG13314 LINUX : LayoutTests/platform/mac/accessibility/accesskey.html = CRASH FAIL
