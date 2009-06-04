@@ -164,12 +164,20 @@ bool GetWindowFunction::RunImpl() {
 
 bool GetCurrentWindowFunction::RunImpl() {
   Browser* browser = dispatcher_->GetBrowser();
+  if (!browser) {
+    error_ = keys::kNoCurrentWindowError;
+    return false;
+  }
   result_.reset(CreateWindowValue(browser, false));
   return true;
 }
 
 bool GetLastFocusedWindowFunction::RunImpl() {
   Browser* browser = BrowserList::GetLastActiveWithProfile(profile());
+  if (!browser) {
+    error_ = keys::kNoLastFocusedWindowError;
+    return false;
+  }
   result_.reset(CreateWindowValue(browser, false));
   return true;
 }
@@ -218,7 +226,10 @@ bool CreateWindowFunction::RunImpl() {
   gfx::Rect bounds;
   bool maximized;
   // The call offsets the bounds by kWindowTilePixels (defined in WindowSizer to
-  // be 10).
+  // be 10)
+  //
+  // NOTE(rafaelw): It's ok if dispatcher_->GetBrowser() returns NULL here.
+  // GetBrowserWindowBounds will default to saved "default" values for the app.
   WindowSizer::GetBrowserWindowBounds(std::wstring(), empty_bounds,
                                       dispatcher_->GetBrowser(), &bounds,
                                       &maximized);
@@ -309,9 +320,6 @@ bool UpdateWindowFunction::RunImpl() {
     bounds.set_height(bounds_val);
   }
 
-  // TODO(rafaelw): This call to SetBounds() ends up resulting in the target
-  // window being activated (pushed to the front). On win32, this appears to be
-  // the result of HWND event handling.
   browser->window()->SetBounds(bounds);
   // TODO(rafaelw): Support |focused|.
   result_.reset(CreateWindowValue(browser, false));
@@ -342,16 +350,21 @@ bool GetSelectedTabFunction::RunImpl() {
   if (!args_->IsType(Value::TYPE_NULL)) {
     EXTENSION_FUNCTION_VALIDATE(args_->GetAsInteger(&window_id));
     browser = GetBrowserInProfileWithId(profile(), window_id, &error_);
-    if (!browser)
-      return false;
   } else {
     browser = dispatcher_->GetBrowser();
+    if (!browser)
+      error_ = keys::kNoCurrentWindowError;
   }
+  if (!browser)
+    return false;
 
   TabStripModel* tab_strip = browser->tabstrip_model();
-  result_.reset(ExtensionTabUtil::CreateTabValue(
-      tab_strip->GetSelectedTabContents(),
-      tab_strip,
+  TabContents* contents = tab_strip->GetSelectedTabContents();
+  if (!contents) {
+    error_ = keys::kNoSelectedTabError; 
+    return false;
+  }
+  result_.reset(ExtensionTabUtil::CreateTabValue(contents, tab_strip,
       tab_strip->selected_index()));
   return true;
 }
@@ -363,11 +376,13 @@ bool GetAllTabsInWindowFunction::RunImpl() {
   if (!args_->IsType(Value::TYPE_NULL)) {
     EXTENSION_FUNCTION_VALIDATE(args_->GetAsInteger(&window_id));
     browser = GetBrowserInProfileWithId(profile(), window_id, &error_);
-    if (!browser)
-      return false;
   } else {
     browser = dispatcher_->GetBrowser();
+    if (!browser)
+      error_ = keys::kNoCurrentWindowError;
   }
+  if (!browser)
+    return false;
 
   result_.reset(CreateTabList(browser));
 
@@ -385,11 +400,13 @@ bool CreateTabFunction::RunImpl() {
     EXTENSION_FUNCTION_VALIDATE(args->GetInteger(
         keys::kWindowIdKey, &window_id));
     browser = GetBrowserInProfileWithId(profile(), window_id, &error_);
-    if (!browser)
-      return false;
   } else {
-      browser = dispatcher_->GetBrowser();
+    browser = dispatcher_->GetBrowser();
+    if (!browser)
+      error_ = keys::kNoCurrentWindowError;
   }
+  if (!browser)
+    return false;
 
   TabStripModel* tab_strip = browser->tabstrip_model();
 

@@ -68,7 +68,7 @@ void FactoryRegistry::ResetFunctions() {
   namespace bookmarks = extension_bookmarks_module_constants;
 
   // Windows
-  factories_[tabs::kGetWindowFunction] = 
+  factories_[tabs::kGetWindowFunction] =
       &NewExtensionFunction<GetWindowFunction>;
   factories_[tabs::kGetCurrentWindowFunction] =
       &NewExtensionFunction<GetCurrentWindowFunction>;
@@ -76,27 +76,27 @@ void FactoryRegistry::ResetFunctions() {
       &NewExtensionFunction<GetLastFocusedWindowFunction>;
   factories_[tabs::kGetAllWindowsFunction] =
       &NewExtensionFunction<GetAllWindowsFunction>;
-  factories_[tabs::kCreateWindowFunction] = 
+  factories_[tabs::kCreateWindowFunction] =
       &NewExtensionFunction<CreateWindowFunction>;
-  factories_[tabs::kUpdateWindowFunction] = 
+  factories_[tabs::kUpdateWindowFunction] =
       &NewExtensionFunction<UpdateWindowFunction>;
-  factories_[tabs::kRemoveWindowFunction] = 
+  factories_[tabs::kRemoveWindowFunction] =
       &NewExtensionFunction<RemoveWindowFunction>;
 
   // Tabs
-  factories_[tabs::kGetTabFunction] = 
+  factories_[tabs::kGetTabFunction] =
       &NewExtensionFunction<GetTabFunction>;
   factories_[tabs::kGetSelectedTabFunction] =
       &NewExtensionFunction<GetSelectedTabFunction>;
   factories_[tabs::kGetAllTabsInWindowFunction] =
       &NewExtensionFunction<GetAllTabsInWindowFunction>;
-  factories_[tabs::kCreateTabFunction] = 
+  factories_[tabs::kCreateTabFunction] =
       &NewExtensionFunction<CreateTabFunction>;
-  factories_[tabs::kUpdateTabFunction] = 
+  factories_[tabs::kUpdateTabFunction] =
       &NewExtensionFunction<UpdateTabFunction>;
-  factories_[tabs::kMoveTabFunction] = 
+  factories_[tabs::kMoveTabFunction] =
       &NewExtensionFunction<MoveTabFunction>;
-  factories_[tabs::kRemoveTabFunction] = 
+  factories_[tabs::kRemoveTabFunction] =
       &NewExtensionFunction<RemoveTabFunction>;
 
   // Page Actions.
@@ -185,7 +185,6 @@ Browser* ExtensionFunctionDispatcher::GetBrowser() {
   DCHECK(delegate_);
 
   Browser* retval = delegate_->GetBrowser();
-  DCHECK(retval);
   return retval;
 }
 

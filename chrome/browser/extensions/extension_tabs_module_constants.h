@@ -40,8 +40,11 @@ extern const char kStatusValueComplete[];
 extern const char kStatusValueLoading[];
 
 // Error messages.
+extern const char kNoCurrentWindowError[];
+extern const char kNoLastFocusedWindowError[];
 extern const char kWindowNotFoundError[];
 extern const char kTabNotFoundError[];
+extern const char kNoSelectedTabError[];
 extern const char kInvalidUrlError[];
 
 // Function names, Windows API.

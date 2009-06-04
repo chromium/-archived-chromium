@@ -132,9 +132,13 @@ void ExtensionHost::ShowCreatedWindow(int route_id,
                                       const GURL& creator_url) {
   TabContents* contents = delegate_view_helper_.GetCreatedWindow(route_id);
   if (contents) {
+    Browser* browser = GetBrowser();
+    DCHECK(browser);
+    if (!browser)
+      return;
     // TODO(erikkay) is it safe to pass in NULL as source?
-    GetBrowser()->AddTabContents(contents, disposition, initial_pos,
-                                 user_gesture);
+    browser->AddTabContents(contents, disposition, initial_pos,
+                            user_gesture);
   }
 }
 
@@ -142,7 +146,11 @@ void ExtensionHost::ShowCreatedWidget(int route_id,
                                       const gfx::Rect& initial_pos) {
   RenderWidgetHostView* widget_host_view =
       delegate_view_helper_.GetCreatedWidget(route_id);
-  GetBrowser()->BrowserRenderWidgetShowing();
+  Browser *browser = GetBrowser();
+  DCHECK(browser);
+  if (!browser)
+    return;
+  browser->BrowserRenderWidgetShowing();
   // TODO(erikkay): These two lines could be refactored with TabContentsView.
   widget_host_view->InitAsPopup(render_view_host()->view(), initial_pos);
   widget_host_view->GetRenderWidgetHost()->Init();
@@ -186,8 +194,11 @@ Browser* ExtensionHost::GetBrowser() {
 #endif
   Browser* browser = BrowserList::GetLastActiveWithProfile(
       render_view_host()->process()->profile());
-  // TODO(mpcomplete): what this verifies doesn't actually happen yet.
-  CHECK(browser) << "ExtensionHost running in Profile with no Browser active."
-      " It should have been deleted.";
+  // NOTE(rafaelw): This can return NULL in some circumstances. In particular,
+  // a toolstrip or background_page onload chrome.tabs api call can make it
+  // into here before the browser is sufficiently initialized to return here.
+  // A similar situation may arise during shutdown.
+  // TODO(rafaelw): Delay creation of background_page until the browser
+  // is available. http://code.google.com/p/chromium/issues/detail?id=13284
   return browser;
 }

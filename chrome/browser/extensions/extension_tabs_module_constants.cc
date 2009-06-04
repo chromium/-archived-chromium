@@ -34,8 +34,11 @@ const wchar_t kWindowIdKey[] = L"windowId";
 const char kStatusValueComplete[] = "complete";
 const char kStatusValueLoading[] = "loading";
 
+const char kNoCurrentWindowError[] = "No current window";
+const char kNoLastFocusedWindowError[] = "No last-focused window";
 const char kWindowNotFoundError[] = "No window with id: *.";
 const char kTabNotFoundError[] = "No tab with id: *.";
+const char kNoSelectedTabError[] = "No selected tab";
 const char kInvalidUrlError[] = "Invalid url: \"*\".";
 
 const char kGetWindowFunction[] = "GetWindow";
