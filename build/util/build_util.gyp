@@ -17,7 +17,7 @@
         {
           'action_name': 'lastchange',
           'inputs': [
-            'lastchange.py',
+            './lastchange.py',
           ],
           'outputs': [
             '<(lastchange_out_path)',
