@@ -3667,6 +3667,7 @@
           'type': 'shared_library',
           'product_name': 'chrome',
           'msvs_guid': 'C0A7EE2C-2A6D-45BE-BA78-6D006FDF52D9',
+          'msvs_existing_vcproj': 'app/chrome_dll.vcproj',
           'include_dirs': [
             'third_party/wtl/include',
           ],
@@ -3742,19 +3743,6 @@
             '../webkit/glue/resources/vertical_text.cur',
             '../webkit/glue/resources/zoom_in.cur',
             '../webkit/glue/resources/zoom_out.cur',
-
-            # TODO:  It would be nice to have these pulled in
-            # automatically from direct_dependent_settings in
-            # their various targets (net.gyp:net_resources, etc.),
-            # but that causes errors in other targets when
-            # resulting .res files get referenced multiple times.
-            '<(SHARED_INTERMEDIATE_DIR)/chrome/browser_resources.rc',
-            '<(SHARED_INTERMEDIATE_DIR)/chrome/common_resources.rc',
-            '<(SHARED_INTERMEDIATE_DIR)/chrome/debugger_resources.rc',
-            '<(SHARED_INTERMEDIATE_DIR)/chrome/renderer_resources.rc',
-            '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.rc',
-            '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.rc',
-
             # TODO(sgk):  left-over from pre-gyp build, figure out
             # if we still need them and/or how to update to gyp.
             #'app/check_dependents.bat',
