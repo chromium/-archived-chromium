@@ -21,9 +21,9 @@ ImportLockDialogGtk::ImportLockDialogGtk(GtkWindow* parent,
       l10n_util::GetStringUTF8(IDS_IMPORTER_LOCK_TITLE).c_str(),
       parent,
       (GtkDialogFlags) (GTK_DIALOG_MODAL | GTK_DIALOG_NO_SEPARATOR),
-      GTK_STOCK_OK,
+      l10n_util::GetStringUTF8(IDS_IMPORTER_LOCK_OK).c_str(),
       GTK_RESPONSE_ACCEPT,
-      GTK_STOCK_CANCEL,
+      l10n_util::GetStringUTF8(IDS_IMPORTER_LOCK_CANCEL).c_str(),
       GTK_RESPONSE_REJECT,
       NULL);
 
@@ -31,7 +31,7 @@ ImportLockDialogGtk::ImportLockDialogGtk(GtkWindow* parent,
   gtk_box_set_spacing(GTK_BOX(content_area), 18);
   GtkWidget* label = gtk_label_new(
       l10n_util::GetStringUTF8(IDS_IMPORTER_LOCK_TEXT).c_str());
-  gtk_label_set_single_line_mode(GTK_LABEL(label), FALSE);
+  gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
   gtk_box_pack_start(GTK_BOX(content_area), label, FALSE, FALSE, 0);
 
   g_signal_connect(dialog_, "response",
