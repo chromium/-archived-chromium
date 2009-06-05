@@ -22,6 +22,10 @@
         '../build/build_config.h',
         'crypto/cssm_init.cc',
         'crypto/cssm_init.h',
+        'crypto/rsa_private_key.h',
+        'crypto/rsa_private_key_win.cc',
+        'crypto/signature_creator.h',
+        'crypto/signature_creator_win.cc',
         'crypto/signature_verifier.h',
         'crypto/signature_verifier_mac.cc',
         'crypto/signature_verifier_nss.cc',
@@ -591,6 +595,8 @@
         'clipboard_unittest.cc',
         'command_line_unittest.cc',
         'condition_variable_unittest.cc',
+        'crypto/rsa_private_key_unittest.cc',
+        'crypto/signature_creator_unittest.cc',
         'crypto/signature_verifier_unittest.cc',
         'data_pack_unittest.cc',
         'debug_util_unittest.cc',
@@ -704,6 +710,8 @@
           ],
         }, {  # OS != "win"
           'sources!': [
+            'crypto/rsa_private_key_unittest.cc',
+            'crypto/signature_creator_unittest.cc',
             'gfx/native_theme_unittest.cc',
             'object_watcher_unittest.cc',
             'pe_image_unittest.cc',
