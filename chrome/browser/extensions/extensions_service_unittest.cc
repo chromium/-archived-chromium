@@ -153,14 +153,14 @@ class ExtensionsServiceTest
       // Themes aren't loaded.
       if (is_theme)
         EXPECT_EQ(0u, loaded_.size()) << path.value();
-      else 
+      else
         EXPECT_EQ(1u, loaded_.size()) << path.value();
 
       EXPECT_EQ(0u, errors.size()) << path.value();
       EXPECT_EQ(total_successes_, service_->extensions()->size()) <<
           path.value();
       if (loaded_.size() > 0) {
-        EXPECT_TRUE(service_->GetExtensionByID(loaded_[0]->id())) << 
+        EXPECT_TRUE(service_->GetExtensionByID(loaded_[0]->id())) <<
             path.value();
       }
       for (std::vector<std::string>::iterator err = errors.begin();
@@ -387,6 +387,10 @@ TEST_F(ExtensionsServiceTest, InstallTheme) {
 
   // A theme with extension elements.
   path = extensions_path.AppendASCII("theme_with_extension.crx");
+  TestInstallTheme(path, false);
+
+  // A theme with image resources missing (misspelt path).
+  path = extensions_path.AppendASCII("theme_missing_image.crx");
   TestInstallTheme(path, false);
 }
 

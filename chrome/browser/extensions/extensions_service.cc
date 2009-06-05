@@ -544,7 +544,28 @@ Extension* ExtensionsServiceBackend::LoadExtension(
   else
     extension->set_location(Extension::INTERNAL);
 
-  // TODO(glen): Add theme resource validation here. http://crbug.com/11678
+  // Theme resource validation.
+  if (extension->IsTheme()) {
+    DictionaryValue* images_value = extension->GetThemeImages();
+    DictionaryValue::key_iterator iter = images_value->begin_keys();
+    while (iter != images_value->end_keys()) {
+      std::string val;
+      if (images_value->GetString(*iter, &val)) {
+        FilePath image_path = extension->path().AppendASCII(val);
+        if (!file_util::PathExists(image_path)) {
+          ReportExtensionLoadError(extension_path,
+              StringPrintf("Could not load '%s' for theme.",
+              WideToUTF8(image_path.ToWStringHack()).c_str()));
+          return NULL;
+        }
+      }
+      ++iter;
+    }
+
+    // Themes cannot contain other extension types.
+    return extension.release();
+  }
+
   // Validate that claimed script resources actually exist.
   for (size_t i = 0; i < extension->content_scripts().size(); ++i) {
     const UserScript& script = extension->content_scripts()[i];
