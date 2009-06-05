@@ -3,3 +3,4 @@
 
 # version = (major, minor, trunk, patch)
 plugin_version = (0, 1, 37, 0)
+sdk_version = plugin_version
