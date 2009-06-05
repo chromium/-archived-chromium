@@ -71,18 +71,23 @@ ImportDialogGtk::ImportDialogGtk(GtkWindow* parent, Profile* profile) :
   bookmarks_ = gtk_check_button_new_with_label(
       l10n_util::GetStringUTF8(IDS_IMPORT_FAVORITES_CHKBOX).c_str());
   gtk_box_pack_start(GTK_BOX(vbox), bookmarks_, FALSE, FALSE, 0);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bookmarks_), TRUE);
 
   search_engines_ = gtk_check_button_new_with_label(
       l10n_util::GetStringUTF8(IDS_IMPORT_SEARCH_ENGINES_CHKBOX).c_str());
   gtk_box_pack_start(GTK_BOX(vbox), search_engines_, FALSE, FALSE, 0);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(search_engines_), TRUE);
 
   passwords_ = gtk_check_button_new_with_label(
       l10n_util::GetStringUTF8(IDS_IMPORT_PASSWORDS_CHKBOX).c_str());
   gtk_box_pack_start(GTK_BOX(vbox), passwords_, FALSE, FALSE, 0);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(passwords_), TRUE);
 
   history_ = gtk_check_button_new_with_label(
       l10n_util::GetStringUTF8(IDS_IMPORT_HISTORY_CHKBOX).c_str());
   gtk_box_pack_start(GTK_BOX(vbox), history_, FALSE, FALSE, 0);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(history_), TRUE);
+
   gtk_box_pack_start(GTK_BOX(content_area), vbox, FALSE, FALSE, 0);
 
   g_signal_connect(dialog_, "response",
@@ -104,10 +109,15 @@ void ImportDialogGtk::OnDialogResponse(GtkWidget* widget, int response) {
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(history_)))
       items |= HISTORY;
 
-    const ProfileInfo& source_profile = importer_host_->GetSourceProfileInfoAt(
-        gtk_combo_box_get_active(GTK_COMBO_BOX(combo_)));
-    StartImportingWithUI(parent_, items, importer_host_.get(),
-                         source_profile, profile_, this, false);
+    if (items == 0) {
+      ImportComplete();
+    } else {
+      const ProfileInfo& source_profile =
+          importer_host_->GetSourceProfileInfoAt(
+          gtk_combo_box_get_active(GTK_COMBO_BOX(combo_)));
+      StartImportingWithUI(parent_, items, importer_host_.get(),
+                           source_profile, profile_, this, false);
+    }
   } else {
     ImportCanceled();
   }
