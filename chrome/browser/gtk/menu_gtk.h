@@ -79,11 +79,6 @@ class MenuGtk {
   // Closes the menu.
   void Cancel();
 
-  // Change windows accelerator style to GTK style. (GTK uses _ for
-  // accelerators.  Windows uses & with && as an escape for &.)
-  static std::string ConvertAcceleratorsFromWindowsStyle(
-      const std::string& label);
-
   // Repositions the menu to be right under the button.  Alignment is set as
   // object data on |void_widget| with the tag "left_align".  If "left_align"
   // is true, it aligns the left side of the menu with the left side of the

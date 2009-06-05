@@ -14,6 +14,7 @@
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/session_startup_pref.h"
 #include "chrome/browser/shell_integration.h"
+#include "chrome/common/gtk_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/url_constants.h"
@@ -229,22 +230,23 @@ GtkWidget* GeneralPageGtk::InitStartupGroup() {
   gtk_box_pack_end(GTK_BOX(url_list_container), url_list_buttons,
                    FALSE, FALSE, 0);
 
-  // TODO(mattm): fix mnemonics (see
-  // MenuGtk::ConvertAcceleratorsFromWindowsStyle)
-  startup_add_custom_page_button_ = gtk_button_new_with_label(
-      l10n_util::GetStringUTF8(IDS_OPTIONS_STARTUP_ADD_BUTTON).c_str());
+  startup_add_custom_page_button_ = gtk_button_new_with_mnemonic(
+      gtk_util::ConvertAcceleratorsFromWindowsStyle(
+          l10n_util::GetStringUTF8(IDS_OPTIONS_STARTUP_ADD_BUTTON)).c_str());
   g_signal_connect(G_OBJECT(startup_add_custom_page_button_), "clicked",
                    G_CALLBACK(OnStartupAddCustomPageClicked), this);
   gtk_box_pack_start(GTK_BOX(url_list_buttons), startup_add_custom_page_button_,
                      FALSE, FALSE, 0);
-  startup_remove_custom_page_button_ = gtk_button_new_with_label(
-      l10n_util::GetStringUTF8(IDS_OPTIONS_STARTUP_REMOVE_BUTTON).c_str());
+  startup_remove_custom_page_button_ = gtk_button_new_with_mnemonic(
+      gtk_util::ConvertAcceleratorsFromWindowsStyle(
+        l10n_util::GetStringUTF8(IDS_OPTIONS_STARTUP_REMOVE_BUTTON)).c_str());
   g_signal_connect(G_OBJECT(startup_remove_custom_page_button_), "clicked",
                    G_CALLBACK(OnStartupRemoveCustomPageClicked), this);
   gtk_box_pack_start(GTK_BOX(url_list_buttons),
                      startup_remove_custom_page_button_, FALSE, FALSE, 0);
-  startup_use_current_page_button_ = gtk_button_new_with_label(
-      l10n_util::GetStringUTF8(IDS_OPTIONS_STARTUP_USE_CURRENT).c_str());
+  startup_use_current_page_button_ = gtk_button_new_with_mnemonic(
+      gtk_util::ConvertAcceleratorsFromWindowsStyle(
+          l10n_util::GetStringUTF8(IDS_OPTIONS_STARTUP_USE_CURRENT)).c_str());
   g_signal_connect(G_OBJECT(startup_use_current_page_button_), "clicked",
                    G_CALLBACK(OnStartupUseCurrentPageClicked), this);
   gtk_box_pack_start(GTK_BOX(url_list_buttons),

@@ -6,6 +6,7 @@
 #define CHROME_COMMON_GTK_UTIL_H_
 
 #include <gtk/gtk.h>
+#include <string>
 
 #include "base/gfx/point.h"
 #include "base/gfx/rect.h"
@@ -49,6 +50,10 @@ void InitRCStyles();
 // otherwise expand to fill the vertical space of the hbox (e.g. buttons).
 void CenterWidgetInHBox(GtkWidget* hbox, GtkWidget* widget, bool pack_at_end,
                         int padding);
+
+// Change windows accelerator style to GTK style. (GTK uses _ for
+// accelerators.  Windows uses & with && as an escape for &.)
+std::string ConvertAcceleratorsFromWindowsStyle(const std::string& label);
 
 }  // namespace gtk_util
 

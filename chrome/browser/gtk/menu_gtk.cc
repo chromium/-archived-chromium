@@ -9,7 +9,10 @@
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
+#include "chrome/common/gtk_util.h"
 #include "third_party/skia/include/core/SkBitmap.h"
+
+using gtk_util::ConvertAcceleratorsFromWindowsStyle;
 
 MenuGtk::MenuGtk(MenuGtk::Delegate* delegate,
                  const MenuCreateMaterial* menu_data,
@@ -96,27 +99,6 @@ void MenuGtk::PopupAsContext(guint32 event_time) {
 
 void MenuGtk::Cancel() {
   gtk_menu_popdown(GTK_MENU(menu_.get()));
-}
-
-// static
-std::string MenuGtk::ConvertAcceleratorsFromWindowsStyle(
-    const std::string& label) {
-  std::string ret;
-  ret.reserve(label.length());
-  for (size_t i = 0; i < label.length(); ++i) {
-    if ('&' == label[i]) {
-      if (i + 1 < label.length() && '&' == label[i + 1]) {
-        ret.push_back(label[i]);
-        ++i;
-      } else {
-        ret.push_back('_');
-      }
-    } else {
-      ret.push_back(label[i]);
-    }
-  }
-
-  return ret;
 }
 
 void MenuGtk::BuildMenuIn(GtkWidget* menu,

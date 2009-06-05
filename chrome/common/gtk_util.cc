@@ -132,4 +132,23 @@ void CenterWidgetInHBox(GtkWidget* hbox, GtkWidget* widget, bool pack_at_end,
     gtk_box_pack_start(GTK_BOX(hbox), centering_vbox, FALSE, FALSE, padding);
 }
 
+std::string ConvertAcceleratorsFromWindowsStyle(const std::string& label) {
+  std::string ret;
+  ret.reserve(label.length());
+  for (size_t i = 0; i < label.length(); ++i) {
+    if ('&' == label[i]) {
+      if (i + 1 < label.length() && '&' == label[i + 1]) {
+        ret.push_back(label[i]);
+        ++i;
+      } else {
+        ret.push_back('_');
+      }
+    } else {
+      ret.push_back(label[i]);
+    }
+  }
+
+  return ret;
+}
+
 }  // namespace gtk_util
