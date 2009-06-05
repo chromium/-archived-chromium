@@ -191,8 +191,8 @@ static BOOL CALLBACK SendDwmCompositionChanged(HWND window, LPARAM param) {
 }  // namespace
 
 void WindowWin::FrameTypeChanged() {
-  // If we're not on Aero Glass, we don't care doing any of the DWM stuff. Just 
-  // tell the NCV to update and leave it there.
+  // If we're not on Aero Glass, we don't care about doing any of the DWM stuff.
+  // Just tell the NCV to update and leave it there.
   if (!win_util::ShouldUseVistaFrame()) {
     non_client_view_->UpdateFrame();
     return;
@@ -1372,8 +1372,13 @@ void WindowWin::InitClass() {
 namespace {
 // static
 static BOOL CALLBACK WindowCallbackProc(HWND hwnd, LPARAM lParam) {
-  WidgetWin* widget = reinterpret_cast<WidgetWin*>(
-      win_util::GetWindowUserData(hwnd));
+  // This is safer than calling GetWindowUserData, since it looks specifically
+  // for the RootView window property which should be unique.
+  RootView* root_view = GetRootViewForHWND(hwnd);
+  if (!root_view)
+    return TRUE;
+
+  Widget* widget = root_view->GetWidget();
   if (!widget)
     return TRUE;
 
