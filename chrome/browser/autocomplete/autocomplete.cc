@@ -659,16 +659,22 @@ void AutocompleteController::Start(const std::wstring& text,
                                    bool prevent_inline_autocomplete,
                                    bool prefer_keyword,
                                    bool synchronous_only) {
+  const std::wstring old_input_text(input_.text());
+  const bool old_synchronous_only = input_.synchronous_only();
+  input_ = AutocompleteInput(text, desired_tld, prevent_inline_autocomplete,
+                             prefer_keyword, synchronous_only);
+
   // See if we can avoid rerunning autocomplete when the query hasn't changed
   // much.  When the user presses or releases the ctrl key, the desired_tld
   // changes, and when the user finishes an IME composition, inline autocomplete
   // may no longer be prevented.  In both these cases the text itself hasn't
   // changed since the last query, and some providers can do much less work (and
   // get results back more quickly).  Taking advantage of this reduces flicker.
-  const bool minimal_changes = (input_.text() == text) &&
-      (input_.synchronous_only() == synchronous_only);
-  input_ = AutocompleteInput(text, desired_tld, prevent_inline_autocomplete,
-                             prefer_keyword, synchronous_only);
+  //
+  // NOTE: This comes after constructing |input_| above since that construction
+  // can change the text string (e.g. by stripping off a leading '?').
+  const bool minimal_changes = (input_.text() == old_input_text) &&
+      (input_.synchronous_only() == old_synchronous_only);
 
   // If we're starting a brand new query, stop caring about any old query.
   if (!minimal_changes && !done_) {
