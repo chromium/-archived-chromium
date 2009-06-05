@@ -4,6 +4,7 @@
 
 #include "chrome/browser/debugger/devtools_manager.h"
 
+#include "base/message_loop.h"
 #include "chrome/browser/debugger/devtools_window.h"
 #include "chrome/browser/debugger/devtools_client_host.h"
 #include "chrome/browser/profile.h"
@@ -14,7 +15,8 @@
 #include "chrome/common/pref_service.h"
 #include "googleurl/src/gurl.h"
 
-DevToolsManager::DevToolsManager() {
+DevToolsManager::DevToolsManager()
+    : inspected_rvh_for_reopen_(NULL) {
 }
 
 DevToolsManager::~DevToolsManager() {
@@ -139,18 +141,42 @@ void DevToolsManager::UnregisterDevToolsClientHostFor(
   host->InspectedTabClosing();
   inspected_rvh_to_client_host_.erase(inspected_rvh);
   client_host_to_inspected_rvh_.erase(host);
+  if (inspected_rvh_for_reopen_ == inspected_rvh) {
+    inspected_rvh_for_reopen_ = NULL;
+  }
 }
 
-void DevToolsManager::OnNavigatingToPendingEntry(RenderViewHost* inspected_rvh,
+void DevToolsManager::OnNavigatingToPendingEntry(RenderViewHost* rvh,
                                                  RenderViewHost* dest_rvh,
                                                  const GURL& gurl) {
   DevToolsClientHost* client_host =
-      GetDevToolsClientHostFor(inspected_rvh);
+      GetDevToolsClientHostFor(rvh);
   if (client_host) {
-    inspected_rvh_to_client_host_.erase(inspected_rvh);
+    // Navigating to URL in the inspected window.
+    inspected_rvh_to_client_host_.erase(rvh);
     inspected_rvh_to_client_host_[dest_rvh] = client_host;
     client_host_to_inspected_rvh_[client_host] = dest_rvh;
     SendAttachToAgent(dest_rvh);
+    return;
+  }
+
+  // Iterate over client hosts and if there is one that has render view host
+  // changing, reopen entire client window (this must be caused by the user
+  // manually refreshing its content).
+  for (ClientHostToInspectedRvhMap::iterator it =
+           client_host_to_inspected_rvh_.begin();
+       it != client_host_to_inspected_rvh_.end(); ++it) {
+    DevToolsWindow* window = it->first->AsDevToolsWindow();
+    if (window && window->GetRenderViewHost() == rvh) {
+      RenderViewHost* inspected_rvn = it->second;
+      UnregisterDevToolsClientHostFor(inspected_rvn);
+      SendDetachToAgent(inspected_rvn);
+      inspected_rvh_for_reopen_ = inspected_rvn;
+      MessageLoop::current()->PostTask(FROM_HERE,
+          NewRunnableMethod(this,
+                            &DevToolsManager::ForceReopenWindow));
+      return;
+    }
   }
 }
 
@@ -177,5 +203,12 @@ void DevToolsManager::EnableDevToolsInPrefs(RenderViewHost* inspected_rvh) {
     //TODO(pfeldman): Show message box with warning to the user.
     profile->GetPrefs()->SetBoolean(prefs::kWebKitDeveloperExtrasEnabled,
         true);
+  }
+}
+
+void DevToolsManager::ForceReopenWindow() {
+  if (inspected_rvh_for_reopen_) {
+    OpenDevToolsWindow(inspected_rvh_for_reopen_);
+    inspected_rvh_for_reopen_ = NULL;
   }
 }

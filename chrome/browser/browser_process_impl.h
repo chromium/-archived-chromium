@@ -246,7 +246,7 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
   scoped_refptr<DebuggerWrapper> debugger_wrapper_;
 
   bool created_devtools_manager_;
-  scoped_ptr<DevToolsManager> devtools_manager_;
+  scoped_refptr<DevToolsManager> devtools_manager_;
 
   scoped_ptr<Clipboard> clipboard_;
 

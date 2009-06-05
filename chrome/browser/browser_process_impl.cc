@@ -385,9 +385,9 @@ void BrowserProcessImpl::CreateDebuggerWrapper(int port) {
 }
 
 void BrowserProcessImpl::CreateDevToolsManager() {
-  DCHECK(!devtools_manager_.get());
+  DCHECK(devtools_manager_.get() == NULL);
   created_devtools_manager_ = true;
-  devtools_manager_.reset(new DevToolsManager());
+  devtools_manager_ = new DevToolsManager();
 }
 
 void BrowserProcessImpl::CreateAcceleratorHandler() {

@@ -7,6 +7,7 @@
 
 #include <map>
 
+#include "base/ref_counted.h"
 #include "chrome/browser/debugger/devtools_client_host.h"
 
 namespace IPC {
@@ -18,7 +19,8 @@ class RenderViewHost;
 
 // This class is a singleton that manages DevToolsClientHost instances and
 // routes messages between developer tools clients and agents.
-class DevToolsManager : public DevToolsClientHost::CloseListener {
+class DevToolsManager : public DevToolsClientHost::CloseListener,
+                        public base::RefCounted<DevToolsManager> {
  public:
   DevToolsManager();
   virtual ~DevToolsManager();
@@ -69,6 +71,8 @@ private:
 
   void EnableDevToolsInPrefs(RenderViewHost* inspected_rvh);
 
+  void ForceReopenWindow();
+
   // These two maps are for tracking dependencies between inspected tabs and
   // their DevToolsClientHosts. They are usful for routing devtools messages
   // and allow us to have at most one devtools client host per tab. We use
@@ -84,6 +88,7 @@ private:
   typedef std::map<DevToolsClientHost*, RenderViewHost*>
       ClientHostToInspectedRvhMap;
   ClientHostToInspectedRvhMap client_host_to_inspected_rvh_;
+  RenderViewHost* inspected_rvh_for_reopen_;
 
   DISALLOW_COPY_AND_ASSIGN(DevToolsManager);
 };

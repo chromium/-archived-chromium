@@ -71,38 +71,38 @@ class DevToolsManagerTest : public RenderViewHostTestHarness {
 };
 
 TEST_F(DevToolsManagerTest, OpenAndManuallyCloseDevToolsClientHost) {
-  DevToolsManager manager;
+  scoped_refptr<DevToolsManager> manager = new DevToolsManager();
 
-  DevToolsClientHost* host = manager.GetDevToolsClientHostFor(rvh());
+  DevToolsClientHost* host = manager->GetDevToolsClientHostFor(rvh());
   EXPECT_TRUE(NULL == host);
 
   TestDevToolsClientHost client_host;
-  manager.RegisterDevToolsClientHostFor(rvh(), &client_host);
+  manager->RegisterDevToolsClientHostFor(rvh(), &client_host);
   // Test that just registered devtools host is returned.
-  host = manager.GetDevToolsClientHostFor(rvh());
+  host = manager->GetDevToolsClientHostFor(rvh());
   EXPECT_TRUE(&client_host == host);
   EXPECT_EQ(0, TestDevToolsClientHost::close_counter);
 
   // Test that the same devtools host is returned.
-  host = manager.GetDevToolsClientHostFor(rvh());
+  host = manager->GetDevToolsClientHostFor(rvh());
   EXPECT_TRUE(&client_host == host);
   EXPECT_EQ(0, TestDevToolsClientHost::close_counter);
 
   client_host.Close();
   EXPECT_EQ(1, TestDevToolsClientHost::close_counter);
-  host = manager.GetDevToolsClientHostFor(rvh());
+  host = manager->GetDevToolsClientHostFor(rvh());
   EXPECT_TRUE(NULL == host);
 }
 
 TEST_F(DevToolsManagerTest, ForwardMessageToClient) {
-  DevToolsManager manager;
+  scoped_refptr<DevToolsManager> manager = new DevToolsManager();
 
   TestDevToolsClientHost client_host;
-  manager.RegisterDevToolsClientHostFor(rvh(), &client_host);
+  manager->RegisterDevToolsClientHostFor(rvh(), &client_host);
   EXPECT_EQ(0, TestDevToolsClientHost::close_counter);
 
   IPC::Message m;
-  manager.ForwardToDevToolsClient(rvh(), m);
+  manager->ForwardToDevToolsClient(rvh(), m);
   EXPECT_TRUE(&m == client_host.last_sent_message);
 
   client_host.Close();
