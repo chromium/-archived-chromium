@@ -3602,6 +3602,69 @@
         },
       ],
     }],  # OS!="mac"
+    ['OS!="win"',
+      { 'targets': [
+        {
+          # Executable that runs each browser test in a new process.
+          'target_name': 'browser_tests',
+          'type': 'executable',
+          'dependencies': [
+            'app',
+            'browser',
+            'chrome_resources',
+            'debugger',
+            'test_support_common',
+            '../skia/skia.gyp:skia',
+            '../testing/gtest.gyp:gtest',
+          ],
+          'include_dirs': [
+            '..',
+          ],
+          'sources': [
+            'test/browser/run_all_unittests.cc',
+            'test/in_process_browser_test.cc',
+            'test/in_process_browser_test.h',
+	    'test/browser/browser_test_launcher_out_of_proc.cc',
+	    'test/browser/browser_test_runner.cc',
+	    'test/browser/browser_test_runner.h',
+            'test/unit/chrome_test_suite.h',
+            'test/ui_test_utils.cc',
+            # Put your tests below.
+            # IMPORTANT NOTE: you must also put them in browser_tests_dll
+            'browser/ssl/ssl_browser_tests.cc',
+            'browser/child_process_security_policy_browser_test.cc',
+	    # TODO(jcampan): make the task manager test compile on Mac.
+            # 'browser/task_manager_browsertest.cc',
+            'browser/renderer_host/web_cache_manager_browser_test.cc',
+	    # Below is the list of Windows specific tests.
+            # 'browser/views/find_bar_win_browsertest.cc',
+          ],
+          'conditions': [
+            ['OS=="linux"', {
+              'dependencies': [
+                '../build/linux/system.gyp:gtk',
+              ],
+            }],
+            ['OS=="mac"', {
+              # The test fetches resources which means Mac need the app bundle to
+              # exist on disk so it can pull from it.
+              'dependencies': [
+                'app',
+              ],
+              'sources': [
+                'app/breakpad_mac_stubs.mm',
+                'app/keystone_glue.h',
+                'app/keystone_glue.m',
+              ],
+              # TODO(mark): We really want this for all non-static library targets,
+              # but when we tried to pull it up to the common.gypi level, it broke
+              # other things like the ui, startup, and page_cycler tests. *shrug*
+              'xcode_settings': {'OTHER_LDFLAGS': ['-Wl,-ObjC']},
+            }],
+          ],
+        },
+      ]
+    }],
     ['OS=="win"',
       { 'targets': [
         {
@@ -3864,83 +3927,128 @@
              'test/automation/window_proxy.h',
           ],
         },
-        # TODO(sgk,bradnelson):  re-enable once problems with
-        # LNK1104 errors for browser_tests.{ilk,pdb} have been fixed.
-        #{
-        #  'target_name': 'browser_tests',
-        #  'type': 'executable',
-        #  'msvs_guid': '9B87804D-2502-480B-95AE-5A572CE91809',
-        #  'msvs_existing_vcproj': 'test/browser/browser_tests_launcher.vcproj',
-        #  'dependencies': [
-        #    'installer/installer.gyp:installer_util',
-        #  ],
-        #  'include_dirs': [
-        #    '..',
-        #  ],
-        #  'sources': [
-        #    'test/browser/browser_tests_launcher.cc',
-        #  ],
-        #},
-        #{
-        #  'target_name': 'browser_tests_dll',
-        #  'type': 'shared_library',
-        #  'msvs_guid': 'D7589D0D-304E-4589-85A4-153B7D84B07F',
-        #  'msvs_existing_vcproj': 'test/browser/browser_tests_dll.vcproj',
-        #  'product_name': 'browser_tests',
-        #  'dependencies': [
-        #    'browser',
-        #    'chrome_resources',
-        #    'debugger',
-        #    'renderer',
-        #    'installer/installer.gyp:installer_util_strings',
-        #    '../base/base.gyp:base',
-        #    '../base/base.gyp:base_gfx',
-        #    '../net/net.gyp:net',
-        #    '../net/net.gyp:net_resources',
-        #    '../skia/skia.gyp:skia',
-        #    '../testing/gtest.gyp:gtest',
-        #    '../webkit/webkit.gyp:glue',
-        #    '../webkit/webkit.gyp:webkit_resources',
-        #  ],
-        #  'include_dirs': [
-        #    '..',
-        #    'third_party/wtl/include',
-        #  ],
-        #  'sources': [
-        #    '../webkit/glue/resources/aliasb.cur',
-        #    '../webkit/glue/resources/cell.cur',
-        #    '../webkit/glue/resources/col_resize.cur',
-        #    '../webkit/glue/resources/copy.cur',
-        #    '../webkit/glue/resources/row_resize.cur',
-        #    '../webkit/glue/resources/vertical_text.cur',
-        #    '../webkit/glue/resources/zoom_in.cur',
-        #    '../webkit/glue/resources/zoom_out.cur',
-        #    'app/chrome_dll.rc',
-        #    'app/chrome_dll_resource.h',
-        #    'app/chrome_dll_version.rc.version',
-        #    'browser/child_process_security_policy_browser_test.cc',
-        #    'browser/renderer_host/web_cache_manager_browser_test.cc',
-        #    'browser/ssl/ssl_browser_tests.cc',
-        #    'browser/task_manager_browsertest.cc',
-        #    'browser/views/find_bar_win_browsertest.cc',
-        #    'test/browser/run_all_unittests.cc',
-        #    'test/data/resource.h',
-        #    'test/data/resource.rc',
-        #    'test/in_process_browser_test.cc',
-        #    'test/in_process_browser_test.h',
-        #    'test/ui_test_utils.cc',
-        #    'test/ui_test_utils.h',
-        #    'test/unit/chrome_test_suite.h',
-        #    'tools/build/win/precompiled_wtl.cc',
-        #    'tools/build/win/precompiled_wtl.h',
-        #  ],
-        #  'configurations': {
-        #    'Debug': {
-        #      'msvs_precompiled_header': 'tools/build/win/precompiled_wtl.h',
-        #      'msvs_precompiled_source': 'tools/build/win/precompiled_wtl.cc',
-        #    },
-        #  },
-        #},
+        {
+          # Shared library used by the in-proc browser tests.
+          'target_name': 'browser_tests_dll',
+          'type': 'shared_library',
+          'product_name': 'browser_tests',
+          'msvs_guid': 'D7589D0D-304E-4589-85A4-153B7D84B07F',
+          'dependencies': [
+            'app',
+            'browser',
+            'chrome_resources',
+            'installer/installer.gyp:installer_util_strings',
+            'debugger',
+            'renderer',
+            '../skia/skia.gyp:skia',
+            '../testing/gtest.gyp:gtest',
+          ],
+          'include_dirs': [
+            '..',
+            'third_party/wtl/include',
+          ],
+          'configurations': {
+            'Debug': {
+              'msvs_precompiled_header': 'tools/build/win/precompiled_wtl.h',
+              'msvs_precompiled_source': 'tools/build/win/precompiled_wtl.cc',
+              'msvs_settings': {
+                'VCLinkerTool': {
+                  'LinkIncremental': '1',       # /INCREMENTAL:NO
+                },
+              },
+            },
+          },
+          'rules': [
+            {
+              'rule_name': 'win_version',
+              'extension': 'version',
+              'variables': {
+                'lastchange_path':
+                  '<(SHARED_INTERMEDIATE_DIR)/build/LASTCHANGE',
+                'version_py': 'tools/build/version.py',
+                'version_path': 'VERSION',
+                'template_input_path': 'app/chrome_dll_version.rc.version',
+                'template_output_path': '<(grit_out_dir)/chrome_dll_version.rc',
+              },
+              'conditions': [
+                [ 'branding == "Chrome"', {
+                  'variables': {
+                     'branding_path': 'app/theme/google_chrome/BRANDING',
+                  },
+                }, { # else branding!="Chrome"
+                  'variables': {
+                     'branding_path': 'app/theme/chromium/BRANDING',
+                  },
+                }],
+              ],
+              'inputs': [
+                '<(template_input_path)',
+                '<(version_path)',
+                '<(branding_path)',
+                '<(lastchange_path)',
+              ],
+              'outputs': [
+                # Use a non-existant output so this action always runs and
+                # generates version information, e.g. to capture revision
+                # changes, which aren't captured by file dependencies.
+                '<(grit_out_dir)/chrome_dll_version.always',
+
+                # And this is the real output, so that the build system knows
+                # what action generates it.
+                '<(template_output_path)',
+              ],
+              'action': [
+                'python',
+                '<(version_py)',
+                '-f', '<(version_path)',
+                '-f', '<(branding_path)',
+                '-f', '<(lastchange_path)',
+                '<(template_input_path)',
+                '<(template_output_path)',
+              ],
+              'process_outputs_as_sources': 1,
+              'message': 'Generating version information in <(template_output_path)'
+            },
+          ],
+          'sources': [
+	    'test/browser/run_all_unittests.cc',
+            'test/in_process_browser_test.cc',
+            'test/in_process_browser_test.h',
+            'test/unit/chrome_test_suite.h',
+            'test/ui_test_utils.cc',
+            'app/chrome_dll.rc',
+            'app/chrome_dll_resource.h',
+            'app/chrome_dll_version.rc.version',
+            'tools/build/win/precompiled_wtl.h',
+            'tools/build/win/precompiled_wtl.cc',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/common_resources.rc',
+            # Put your tests below.
+            # IMPORTANT NOTE: you must also put them in browser_tests in
+            # the Mac/Linux section.
+            'browser/views/find_bar_win_browsertest.cc',
+            'browser/ssl/ssl_browser_tests.cc',
+            'browser/child_process_security_policy_browser_test.cc',
+            'browser/task_manager_browsertest.cc',
+            'browser/renderer_host/web_cache_manager_browser_test.cc'
+          ],
+        },
+        {
+          # Executable that runs the browser tests in-process.
+          'target_name': 'browser_tests',
+          'type': 'executable',
+          'msvs_guid': '9B87804D-2502-480B-95AE-5A572CE91809',
+          'dependencies': [
+            '../base/base.gyp:base',
+          ],
+          'include_dirs': [
+            '..',
+          ],
+          'sources': [
+	    'test/browser/browser_test_launcher_in_proc.cc',
+	    'test/browser/browser_test_runner.cc',
+	    'test/browser/browser_test_runner.h',
+          ],
+        },
         {
           'target_name': 'crash_service',
           'type': 'executable',

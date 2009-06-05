@@ -73,6 +73,7 @@ class SSLUITest : public InProcessBrowserTest {
   DISALLOW_COPY_AND_ASSIGN(SSLUITest);
 };
 
+#if defined(OS_WIN)
 // Visits a regular page over http.
 IN_PROC_BROWSER_TEST_F(SSLUITest, TestHTTP) {
   scoped_refptr<HTTPTestServer> server = PlainServer();
@@ -280,7 +281,7 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestUnsafeContents) {
   // opened (the iframe content opens one).
   // Note: because of bug 1115868, no constrained window is opened right now.
   //       Once the bug is fixed, this will do the real check.
-  EXPECT_EQ(0, tab->constrained_window_count());
+  EXPECT_EQ(0, static_cast<int>(tab->constrained_window_count()));
 
   int img_width;
   EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractInt(
@@ -465,13 +466,13 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestCloseTabWithUnsafePopup) {
   // It is probably overkill to add a notification for a popup-opening, let's
   // just poll.
   for (int i = 0; i < 10; i++) {
-    if (tab1->constrained_window_count() > 0)
+    if (static_cast<int>(tab1->constrained_window_count()) > 0)
       break;
     MessageLoop::current()->PostDelayedTask(FROM_HERE,
                                             new MessageLoop::QuitTask(), 1000);
     ui_test_utils::RunMessageLoop();
   }
-  ASSERT_EQ(1, tab1->constrained_window_count());
+  ASSERT_EQ(1, static_cast<int>(tab1->constrained_window_count()));
 
   // Let's add another tab to make sure the browser does not exit when we close
   // the first tab.
@@ -699,7 +700,6 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestBadFrameNavigation) {
   InterstitialPage* interstitial_page = tab->interstitial_page();
   ASSERT_TRUE(interstitial_page);
   interstitial_page->Proceed();
-  // Wait for the navigation to be done.
   ui_test_utils::WaitForNavigation(&(tab->controller()));
 
   // Navigate to a good frame.
@@ -761,6 +761,20 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestUnauthenticatedFrameNavigation) {
       content_frame_xpath, is_frame_evil_js, &is_content_evil));
   EXPECT_FALSE(is_content_evil);
 }
+#else
+// TODO(port): enable the real tests.
+IN_PROC_BROWSER_TEST_F(SSLUITest, PhonyTest1) {
+  EXPECT_TRUE(true);
+}
+
+IN_PROC_BROWSER_TEST_F(SSLUITest, PhonyTest2) {
+  EXPECT_TRUE(false);
+}
+
+IN_PROC_BROWSER_TEST_F(SSLUITest, PhonyTest3) {
+  EXPECT_TRUE(true);
+}
+#endif
 
 // TODO(jcampan): more tests to do below.
 

@@ -15,14 +15,6 @@
 #include "webkit/glue/plugins/plugin_host.h"
 #include "webkit/glue/plugins/plugin_list.h"
 
-// A macro for converting string constants into appropriate
-// NativeLibraryFunctionNameTypes.
-#if defined(OS_MACOSX)
-#define NATIVE_LIBRARY_FUNCTION_NAME(x) CFSTR(x)
-#else
-#define NATIVE_LIBRARY_FUNCTION_NAME(x) x
-#endif  // OS_*
-
 namespace NPAPI
 {
 
@@ -176,22 +168,21 @@ bool PluginLib::Load() {
 
     entry_points_.np_initialize =
         (NP_InitializeFunc)base::GetFunctionPointerFromNativeLibrary(library,
-            NATIVE_LIBRARY_FUNCTION_NAME("NP_Initialize"));
+            "NP_Initialize");
     if (entry_points_.np_initialize == 0)
       rv = false;
 
 #if !defined(OS_LINUX)
     entry_points_.np_getentrypoints =
         (NP_GetEntryPointsFunc)base::GetFunctionPointerFromNativeLibrary(
-            library,
-            NATIVE_LIBRARY_FUNCTION_NAME("NP_GetEntryPoints"));
+            library, "NP_GetEntryPoints");
     if (entry_points_.np_getentrypoints == 0)
       rv = false;
 #endif
 
     entry_points_.np_shutdown =
         (NP_ShutdownFunc)base::GetFunctionPointerFromNativeLibrary(library,
-            NATIVE_LIBRARY_FUNCTION_NAME("NP_Shutdown"));
+            "NP_Shutdown");
     if (entry_points_.np_shutdown == 0)
       rv = false;
   } else {

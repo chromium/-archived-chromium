@@ -7,13 +7,14 @@
 
 #if defined(OS_WIN)
 #define DLLEXPORT __declspec(dllexport)
-#elif
+#else
 #define DLLEXPORT
+#define CDECL
 #endif
 
 // We use extern C for the prototype DLLEXPORT to avoid C++ name mangling.
 extern "C" {
-DLLEXPORT int __cdecl RunTests(int argc, char **argv) {
+DLLEXPORT int CDECL RunTests(int argc, char **argv) {
   return ChromeTestSuite(argc, argv).Run();
 }
 }

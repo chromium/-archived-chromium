@@ -11,10 +11,13 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_shutdown.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
+#if defined(OS_WIN)
 #include "chrome/browser/views/frame/browser_view.h"
+#endif
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
@@ -22,7 +25,6 @@
 #include "chrome/test/testing_browser_process.h"
 #include "chrome/test/ui_test_utils.h"
 #include "net/base/host_resolver_unittest.h"
-#include "sandbox/src/sandbox_factory.h"
 #include "sandbox/src/dep.h"
 
 extern int BrowserMain(const MainFunctionParams&);
@@ -78,9 +80,11 @@ void InProcessBrowserTest::SetUp() {
 
   SetUpCommandLine(command_line);
 
+#if defined(OS_WIN)
   // Hide windows on show.
   if (!command_line->HasSwitch(kUnitTestShowWindows) && !show_window_)
     BrowserView::SetShowState(SW_HIDE);
+#endif
 
   if (dom_automation_enabled_)
     command_line->AppendSwitch(switches::kDomAutomationController);
@@ -111,7 +115,6 @@ void InProcessBrowserTest::SetUp() {
   command_line->AppendSwitchWithValue(switches::kBrowserSubprocessPath,
                                       subprocess_path);
 
-  sandbox::SandboxInterfaceInfo sandbox_info = {0};
   SandboxInitWrapper sandbox_wrapper;
   MainFunctionParams params(*command_line, sandbox_wrapper, NULL);
   params.ui_task =
@@ -131,7 +134,9 @@ void InProcessBrowserTest::TearDown() {
 
   browser_shutdown::delete_resources_on_shutdown = true;
 
+#if defined(WIN)
   BrowserView::SetShowState(-1);
+#endif
 
   *CommandLine::ForCurrentProcessMutable() = *original_command_line_;
   RenderProcessHost::set_run_renderer_in_process(original_single_process_);

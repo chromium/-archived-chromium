@@ -169,7 +169,6 @@ bool CommandLine::IsSwitch(const StringType& parameter_string,
 
 // static
 void CommandLine::Init(int argc, const char* const* argv) {
-  DCHECK(current_process_commandline_ == NULL);
 #if defined(OS_WIN)
   current_process_commandline_ = new CommandLine;
   current_process_commandline_->ParseFromString(::GetCommandLineW());

@@ -16,19 +16,36 @@
 #import <Carbon/Carbon.h>
 #endif  // OS_*
 
+#include "base/string16.h"
+
+// Macro usefull for writing cross-platform function pointers.
+#if defined(OS_WIN) && !defined(CDECL)
+#define CDECL __cdecl
+#else
+#define CDECL
+#endif
+
 class FilePath;
 
 namespace base {
 
 #if defined(OS_WIN)
 typedef HMODULE NativeLibrary;
-typedef char* NativeLibraryFunctionNameType;
 #elif defined(OS_MACOSX)
-typedef CFBundleRef NativeLibrary;
-typedef CFStringRef NativeLibraryFunctionNameType;
+enum NativeLibraryType {
+  BUNDLE,
+  DYNAMIC_LIB
+};
+struct NativeLibraryStruct {
+  NativeLibraryType type;
+  union {
+    CFBundleRef bundle;
+    void* dylib;
+  };
+};
+typedef NativeLibraryStruct* NativeLibrary;
 #elif defined(OS_LINUX)
 typedef void* NativeLibrary;
-typedef const char* NativeLibraryFunctionNameType;
 #endif  // OS_*
 
 // Loads a native library from disk.  Release it with UnloadNativeLibrary when
@@ -40,7 +57,13 @@ void UnloadNativeLibrary(NativeLibrary library);
 
 // Gets a function pointer from a native library.
 void* GetFunctionPointerFromNativeLibrary(NativeLibrary library,
-                                          NativeLibraryFunctionNameType name);
+                                          const char* name);
+
+// Returns the full platform specific name for a native library.
+// For example:
+// "mylib" returns "mylib.dll" on Windows, "libmylib.so" on Linux,
+// "mylib.dylib" on Mac.
+string16 GetNativeLibraryName(const string16& name);
 
 }  // namespace base
 

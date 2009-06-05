@@ -8,6 +8,7 @@
 
 #include "base/file_path.h"
 #include "base/path_service.h"
+#include "base/string_util.h"
 
 namespace base {
 
@@ -39,8 +40,13 @@ void UnloadNativeLibrary(NativeLibrary library) {
 
 // static
 void* GetFunctionPointerFromNativeLibrary(NativeLibrary library,
-                                          NativeLibraryFunctionNameType name) {
+                                          const char* name) {
   return GetProcAddress(library, name);
+}
+
+// static
+string16 GetNativeLibraryName(const string16& name) {
+  return name + ASCIIToUTF16(".dll");
 }
 
 }  // namespace base
