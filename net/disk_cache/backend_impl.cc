@@ -136,19 +136,18 @@ bool DelayedCacheCleanup(const std::wstring& full_path) {
   return true;
 }
 
-// Sets |stored_value| for the current experiment. Returns false if the files
+// Sets |current_group| for the current experiment. Returns false if the files
 // should be discarded.
-bool InitExperiment(int* stored_value) {
-  if (*stored_value <= 2) {
+bool InitExperiment(int* current_group) {
+  if (*current_group <= 2) {
     // Not taking part of this experiment.
-    *stored_value = 5;
-    return true;
-  }
-
-  if (*stored_value < 5) {
+    *current_group = 5;
+  } else if (*current_group < 5) {
     // Discard current cache for groups 3 and 4.
     return false;
   }
+
+  UMA_HISTOGRAM_CACHE_ERROR("DiskCache.Experiment", *current_group);
 
   // Current experiment already set.
   return true;
@@ -231,6 +230,7 @@ bool BackendImpl::Init() {
 
 #ifdef USE_NEW_EVICTION
   new_eviction_ = true;
+  user_flags_ |= kNewEviction;
 #endif
 
   bool create_files = false;
@@ -566,6 +566,7 @@ bool BackendImpl::SetMaxSize(int max_bytes) {
   if (!max_bytes)
     return true;
 
+  user_flags_ |= kMaxSize;
   max_size_ = max_bytes;
   return true;
 }
@@ -788,10 +789,6 @@ void BackendImpl::CriticalError(int error) {
   LogStats();
   ReportError(error);
 
-  // Reset the mask_ if it was not given by the user.
-  if (static_cast<int>(mask_) == data_->header.table_len - 1)
-    mask_ = 0;
-
   // Setting the index table length to an invalid value will force re-creation
   // of the cache files.
   data_->header.table_len = 1;
@@ -843,14 +840,17 @@ void BackendImpl::DecrementIoCount() {
 }
 
 void BackendImpl::SetUnitTestMode() {
+  user_flags_ |= kUnitTestMode;
   unit_test_ = true;
 }
 
 void BackendImpl::SetUpgradeMode() {
+  user_flags_ |= kUpgradeMode;
   read_only_ = true;
 }
 
 void BackendImpl::SetNewEviction() {
+  user_flags_ |= kNewEviction;
   new_eviction_ = true;
 }
 
@@ -988,8 +988,11 @@ void BackendImpl::RestartCache() {
 
 void BackendImpl::PrepareForRestart() {
   // Reset the mask_ if it was not given by the user.
-  if (static_cast<int>(mask_) == data_->header.table_len - 1)
+  if (!(user_flags_ & kMask))
     mask_ = 0;
+
+  if (!(user_flags_ & kNewEviction))
+    new_eviction_ = false;
 
   data_->header.crash = 0;
   index_ = NULL;

@@ -17,6 +17,14 @@
 
 namespace disk_cache {
 
+enum BackendFlags {
+  kMask = 1,
+  kMaxSize = 1 << 1,
+  kUnitTestMode = 1 << 2,
+  kUpgradeMode = 1 << 3,
+  kNewEviction = 1 << 4
+};
+
 // This class implements the Backend interface. An object of this
 // class handles the operations of the cache for a particular profile.
 class BackendImpl : public Backend {
@@ -24,14 +32,14 @@ class BackendImpl : public Backend {
  public:
   explicit BackendImpl(const std::wstring& path)
       : path_(path), block_files_(path), mask_(0), max_size_(0),
-        cache_type_(net::DISK_CACHE), uma_report_(0), init_(false),
-        restarted_(false), unit_test_(false), read_only_(false),
+        cache_type_(net::DISK_CACHE), uma_report_(0), user_flags_(0),
+        init_(false), restarted_(false), unit_test_(false), read_only_(false),
         new_eviction_(false), first_timer_(true) {}
   // mask can be used to limit the usable size of the hash table, for testing.
   BackendImpl(const std::wstring& path, uint32 mask)
       : path_(path), block_files_(path), mask_(mask), max_size_(0),
-        cache_type_(net::DISK_CACHE), uma_report_(0), init_(false),
-        restarted_(false), unit_test_(false), read_only_(false),
+        cache_type_(net::DISK_CACHE), uma_report_(0), user_flags_(kMask),
+        init_(false), restarted_(false), unit_test_(false), read_only_(false),
         new_eviction_(false), first_timer_(true) {}
   ~BackendImpl();
 
@@ -235,6 +243,7 @@ class BackendImpl : public Backend {
   int num_pending_io_;  // Number of pending IO operations.
   net::CacheType cache_type_;
   int uma_report_;  // Controls transmision of UMA data.
+  uint32 user_flags_;  // Flags set by the user.
   bool init_;  // controls the initialization of the system.
   bool restarted_;
   bool unit_test_;

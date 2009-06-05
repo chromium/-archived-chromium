@@ -146,10 +146,22 @@ void Eviction::ReportTrimTimes(EntryImpl* entry) {
       ReportListStats();
     }
 
-    if (header_->create_time && !header_->lru.filled) {
+    if (header_->lru.filled)
+      return;
+
+    header_->lru.filled = 1;
+
+    if (header_->create_time) {
       // This is the first entry that we have to evict, generate some noise.
-      header_->lru.filled = 1;
       backend_->FirstEviction();
+    } else {
+      // This is an old file, but we may want more reports from this user so
+      // lets save some create_time.
+      Time::Exploded old = {0};
+      old.year = 2009;
+      old.month = 3;
+      old.day_of_month = 1;
+      header_->create_time = Time::FromLocalExploded(old).ToInternalValue();
     }
   }
 }
