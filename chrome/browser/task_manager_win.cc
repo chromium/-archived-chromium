@@ -266,6 +266,10 @@ TaskManagerViewImpl::TaskManagerViewImpl(TaskManager* task_manager,
 TaskManagerViewImpl::~TaskManagerViewImpl() {
   // Delete child views now, while our table model still exists.
   RemoveAllChildViews(true);
+
+  // Prevent the table from accessing the model as part of its destruction, as
+  // the model might already be destroyed.
+  tab_table_->SetModel(NULL);
 }
 
 void TaskManagerViewImpl::Init() {
