@@ -1011,12 +1011,10 @@ void Browser::ZoomOut() {
   GetSelectedTabContents()->render_view_host()->Zoom(PageZoom::SMALLER);
 }
 
-#if defined(OS_WIN)
 void Browser::FocusToolbar() {
   UserMetrics::RecordAction(L"FocusToolbar", profile_);
   window_->FocusToolbar();
 }
-#endif
 
 void Browser::FocusLocationBar() {
   UserMetrics::RecordAction(L"FocusLocation", profile_);
@@ -1042,13 +1040,17 @@ void Browser::OpenFile() {
                                   parent_window, NULL);
 }
 
-#if defined(OS_WIN)
 void Browser::OpenCreateShortcutsDialog() {
   UserMetrics::RecordAction(L"CreateShortcut", profile_);
+#if defined(OS_WIN)
   GetSelectedTabContents()->CreateShortcut();
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 void Browser::OpenDebuggerWindow() {
+#if defined(OS_WIN)
 #ifndef CHROME_DEBUGGER_DISABLED
   UserMetrics::RecordAction(L"Debugger", profile_);
   // Only one debugger instance can exist at a time right now.
@@ -1061,18 +1063,30 @@ void Browser::OpenDebuggerWindow() {
   }
   debugger_window_ = new DebuggerWindow();
   debugger_window_->Show(GetSelectedTabContents());
-#endif
+#endif  // CHROME_DEBUGGER_DISABLED
+#else
+  NOTIMPLEMENTED();
+#endif  // defined(OS_WIN)
 }
 
 void Browser::OpenJavaScriptConsole() {
   UserMetrics::RecordAction(L"ShowJSConsole", profile_);
+#if defined(OS_WIN)
   GetSelectedTabContents()->render_view_host()->
       ShowJavaScriptConsole();
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 void Browser::OpenTaskManager() {
   UserMetrics::RecordAction(L"TaskManager", profile_);
+// TODO(port)
+#if defined(OS_WIN)
   TaskManager::Open();
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 void Browser::OpenSelectProfileDialog() {
@@ -1095,20 +1109,16 @@ void Browser::OpenBugReportDialog() {
   UserMetrics::RecordAction(L"ReportBug", profile_);
   window_->ShowReportBugDialog();
 }
-#endif  // #if defined(OS_WIN)
-
 
 void Browser::ToggleBookmarkBar() {
   UserMetrics::RecordAction(L"ShowBookmarksBar", profile_);
   window_->ToggleBookmarkBar();
 }
 
-#if defined(OS_WIN)
 void Browser::OpenBookmarkManager() {
   UserMetrics::RecordAction(L"ShowBookmarkManager", profile_);
   window_->ShowBookmarkManager();
 }
-#endif  // #if defined(OS_WIN)
 
 void Browser::ShowHistoryTab() {
   UserMetrics::RecordAction(L"ShowHistory", profile_);
@@ -1130,7 +1140,6 @@ void Browser::OpenOptionsDialog() {
   ShowOptionsWindow(OPTIONS_PAGE_DEFAULT, OPTIONS_GROUP_NONE, profile_);
 }
 
-#if defined(OS_WIN)
 void Browser::OpenKeywordEditor() {
   UserMetrics::RecordAction(L"EditSearchEngines", profile_);
   window_->ShowSearchEnginesDialog();
@@ -1139,7 +1148,6 @@ void Browser::OpenKeywordEditor() {
 void Browser::OpenPasswordManager() {
   window_->ShowPasswordManager();
 }
-#endif
 
 void Browser::OpenImportSettingsDialog() {
   UserMetrics::RecordAction(L"Import_ShowDlg", profile_);
@@ -1347,15 +1355,12 @@ void Browser::ExecuteCommandWithDisposition(
     case IDC_ZOOM_MINUS:            ZoomOut();                     break;
 
     // Focus various bits of UI
-#if defined(OS_WIN)
     case IDC_FOCUS_TOOLBAR:         FocusToolbar();                break;
-#endif
     case IDC_FOCUS_LOCATION:        FocusLocationBar();            break;
     case IDC_FOCUS_SEARCH:          FocusSearch();                 break;
 
     // Show various bits of UI
     case IDC_OPEN_FILE:             OpenFile();                    break;
-#if defined(OS_WIN)
     case IDC_CREATE_SHORTCUTS:      OpenCreateShortcutsDialog();   break;
     case IDC_DEBUGGER:              OpenDebuggerWindow();          break;
     case IDC_JS_CONSOLE:            OpenJavaScriptConsole();       break;
@@ -1363,13 +1368,10 @@ void Browser::ExecuteCommandWithDisposition(
     case IDC_SELECT_PROFILE:        OpenSelectProfileDialog();     break;
     case IDC_NEW_PROFILE:           OpenNewProfileDialog();        break;
     case IDC_REPORT_BUG:            OpenBugReportDialog();         break;
-#endif
 
     case IDC_SHOW_BOOKMARK_BAR:     ToggleBookmarkBar();           break;
 
-#if defined(OS_WIN)
     case IDC_SHOW_BOOKMARK_MANAGER: OpenBookmarkManager();         break;
-#endif
     case IDC_SHOW_HISTORY:          ShowHistoryTab();              break;
     case IDC_SHOW_DOWNLOADS:        ShowDownloadsTab();            break;
 #if defined(OS_WIN)
@@ -1379,10 +1381,8 @@ void Browser::ExecuteCommandWithDisposition(
 #endif
 #endif
     case IDC_OPTIONS:               OpenOptionsDialog();           break;
-#if defined(OS_WIN)
     case IDC_EDIT_SEARCH_ENGINES:   OpenKeywordEditor();           break;
     case IDC_VIEW_PASSWORDS:        OpenPasswordManager();         break;
-#endif
     case IDC_CLEAR_BROWSING_DATA:   OpenClearBrowsingDataDialog(); break;
     case IDC_IMPORT_SETTINGS:       OpenImportSettingsDialog();    break;
     case IDC_ABOUT:                 OpenAboutChromeDialog();       break;

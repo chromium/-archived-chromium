@@ -345,16 +345,13 @@ class Browser : public TabStripModelDelegate,
   void ZoomReset();
   void ZoomOut();
 
-#if defined(OS_WIN)
   // Focus various bits of UI
   void FocusToolbar();
-#endif
   void FocusLocationBar();
   void FocusSearch();
 
   // Show various bits of UI
   void OpenFile();
-#if defined(OS_WIN)
   void OpenCreateShortcutsDialog();
   void OpenDebuggerWindow();
   void OpenJavaScriptConsole();
@@ -362,21 +359,16 @@ class Browser : public TabStripModelDelegate,
   void OpenSelectProfileDialog();
   void OpenNewProfileDialog();
   void OpenBugReportDialog();
-#endif  // defined(OS_WIN)
 
   void ToggleBookmarkBar();
 
-#if defined(OS_WIN)
   void OpenBookmarkManager();
-#endif
   void ShowHistoryTab();
   void ShowDownloadsTab();
   void OpenClearBrowsingDataDialog();
   void OpenOptionsDialog();
-#if defined(OS_WIN)
   void OpenKeywordEditor();
   void OpenPasswordManager();
-#endif
   void OpenImportSettingsDialog();
   void OpenAboutChromeDialog();
   void OpenHelpTab();
