@@ -41,6 +41,8 @@ static const char* kColorNTPBackground = "ntp_background";
 static const char* kColorNTPText = "ntp_text";
 static const char* kColorNTPLink = "ntp_link";
 static const char* kColorNTPSection = "ntp_section";
+static const char* kColorNTPSectionText = "ntp_section_text";
+static const char* kColorNTPSectionLink = "ntp_section_link";
 static const char* kColorControlBackground = "control_background";
 static const char* kColorButtonBackground = "button_background";
 
@@ -78,6 +80,8 @@ static const SkColor kDefaultColorNTPBackground = SkColorSetRGB(255, 255, 255);
 static const SkColor kDefaultColorNTPText = SkColorSetRGB(0, 0, 0);
 static const SkColor kDefaultColorNTPLink = SkColorSetRGB(0, 0, 204);
 static const SkColor kDefaultColorNTPSection = SkColorSetRGB(225, 236, 254);
+static const SkColor kDefaultColorNTPSectionText = SkColorSetRGB(0, 0, 0);
+static const SkColor kDefaultColorNTPSectionLink = SkColorSetRGB(0, 0, 204);
 static const SkColor kDefaultColorControlBackground = NULL;
 static const SkColor kDefaultColorButtonBackground = NULL;
 
@@ -220,6 +224,10 @@ SkColor BrowserThemeProvider::GetColor(int id) {
       return FindColor(kColorNTPLink, kDefaultColorNTPLink);
     case COLOR_NTP_SECTION:
       return FindColor(kColorNTPSection, kDefaultColorNTPSection);
+    case COLOR_NTP_SECTION_TEXT:
+      return FindColor(kColorNTPSectionText, kDefaultColorNTPSectionText);
+    case COLOR_NTP_SECTION_LINK:
+      return FindColor(kColorNTPSectionLink, kDefaultColorNTPSectionLink);
     case COLOR_CONTROL_BACKGROUND:
       return FindColor(kColorControlBackground, kDefaultColorControlBackground);
     case COLOR_BUTTON_BACKGROUND:
@@ -256,6 +264,10 @@ bool BrowserThemeProvider::ShouldUseNativeFrame() {
 #else
   return false;
 #endif
+}
+
+bool BrowserThemeProvider::HasCustomImage(int id) {
+  return (images_.find(id) != images_.end());
 }
 
 void BrowserThemeProvider::SetTheme(Extension* extension) {
@@ -687,9 +699,6 @@ void BrowserThemeProvider::SaveDisplayPropertyData() {
 }
 
 void BrowserThemeProvider::NotifyThemeChanged() {
-  // TODO(glen): If we're in glass and IDR_THEME_FRAME has been provided,
-  //    swap us back to opaque frame.
-
   // Redraw!
   for (BrowserList::const_iterator browser = BrowserList::begin();
       browser != BrowserList::end(); ++browser) {

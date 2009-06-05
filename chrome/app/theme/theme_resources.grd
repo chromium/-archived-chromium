@@ -257,7 +257,9 @@
       <include name="IDR_THEME_TAB_BACKGROUND_INCOGNITO" file="theme_tab_background_incognito.png" type="BINDATA" />
       <include name="IDR_THEME_TAB_BACKGROUND_V" file="theme_tab_background_glass.png" type="BINDATA" />
       <include name="IDR_THEME_NTP_BACKGROUND" file="ntp_background.png" type="BINDATA" />
+      <include name="IDR_THEME_FRAME_OVERLAY" file="notused.png" type="BINDATA" />
       <include name="IDR_THEME_BUTTON_BACKGROUND" file="notused.png" type="BINDATA" />
+      <include name="IDR_THEME_NTP_ATTRIBUTION" file="notused.png" type="BINDATA" />
 
       <include name="IDR_FORWARD_MASK" file="forward_mask.png" type="BINDATA" />
       <include name="IDR_BACK_MASK" file="back_mask.png" type="BINDATA" />

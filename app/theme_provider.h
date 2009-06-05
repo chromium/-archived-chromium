@@ -42,6 +42,10 @@ class ThemeProvider {
   // a custom frame.
   virtual bool ShouldUseNativeFrame() = 0;
 
+  // Whether or not we have a certain image. Used for when the default theme
+  // doesn't provide a certain image, but custom themes might (badges, etc).
+  virtual bool HasCustomImage(int id) = 0;
+
 #if defined(OS_LINUX) && !defined(TOOLKIT_VIEWS)
   // Gets the GdkPixbuf with the specified |id|.  Returns a pointer to a shared
   // instance of the GdkPixbuf.  This shared GdkPixbuf is owned by the theme

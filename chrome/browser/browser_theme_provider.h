@@ -44,6 +44,8 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
     COLOR_NTP_TEXT,
     COLOR_NTP_LINK,
     COLOR_NTP_SECTION,
+    COLOR_NTP_SECTION_TEXT,
+    COLOR_NTP_SECTION_LINK,
     COLOR_CONTROL_BACKGROUND,
     COLOR_BUTTON_BACKGROUND,
     TINT_BUTTONS,
@@ -71,6 +73,7 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
   virtual SkColor GetColor(int id);
   virtual bool GetDisplayProperty(int id, int* result);
   virtual bool ShouldUseNativeFrame();
+  virtual bool HasCustomImage(int id);
 #if defined(OS_LINUX)
   virtual GdkPixbuf* GetPixbufNamed(int id);
 #endif

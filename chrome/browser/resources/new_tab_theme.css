@@ -18,4 +18,8 @@ a {
 }
 .sidebar.themed {
   background-color: $7;
+  color: $8;
+}
+.sidebar.themed a {
+  color: $9;
 }

@@ -31,4 +31,8 @@ bool DefaultThemeProvider::ShouldUseNativeFrame() {
   return false;
 #endif
 }
+
+bool DefaultThemeProvider::HasCustomImage(int id) {
+  return false;
+}
 }  // namespace views

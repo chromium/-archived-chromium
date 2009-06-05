@@ -3391,6 +3391,10 @@ each locale. -->
                desc="Title of recently closed windows in the recently closed section of the new tab page when the window has more than one tab. The % is replaced by the number of tabs">
         % Tabs
       </message>
+      <message name="IDS_NEW_TAB_ATTRIBUTION_INTRO"
+               desc="Leading sentence above a custom logo that the theme artist has provided">
+        Theme created by
+      </message>
 
       <!-- SafeBrowsing -->
       <message name="IDS_SAFE_BROWSING_MALWARE_TITLE" desc="SafeBrowsing Malware HTML title">

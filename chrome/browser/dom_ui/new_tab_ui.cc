@@ -252,6 +252,9 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
   localized_strings.SetString(L"bookmarkbarattached",
       profile_->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar) ?
       "true" : "false");
+  localized_strings.SetString(L"hasattribution",
+      profile_->GetThemeProvider()->HasCustomImage(IDR_THEME_NTP_ATTRIBUTION) ?
+      "true" : "false");
   localized_strings.SetString(L"title", title);
   localized_strings.SetString(L"mostvisited", most_visited);
   localized_strings.SetString(L"searches",
@@ -285,6 +288,8 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
       l10n_util::GetString(IDS_NEW_TAB_RECENTLY_CLOSED_WINDOW_SINGLE));
   localized_strings.SetString(L"closedwindowmultiple",
       l10n_util::GetString(IDS_NEW_TAB_RECENTLY_CLOSED_WINDOW_MULTIPLE));
+  localized_strings.SetString(L"attributionintro",
+      l10n_util::GetString(IDS_NEW_TAB_ATTRIBUTION_INTRO));
 
   SetFontAndTextDirection(&localized_strings);
 
@@ -714,7 +719,7 @@ void MostVisitedHandler::OnSegmentUsageAvailable(
     std::string pinned_url;
     std::string pinned_title;
 
-    if (MostVisitedHandler::GetPinnedURLAtIndex(j, &pinned_url, 
+    if (MostVisitedHandler::GetPinnedURLAtIndex(j, &pinned_url,
                                                 &pinned_title)) {
       url = GURL(pinned_url);
       title = UTF8ToUTF16(pinned_title);

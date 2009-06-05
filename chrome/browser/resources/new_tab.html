@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html id="t" jsvalues="dir:textdirection;firstview:firstview;bookmarkbarattached:bookmarkbarattached;">
+<html id="t" jsvalues="dir:textdirection;firstview:firstview;bookmarkbarattached:bookmarkbarattached;hasattribution:hasattribution">
 <!--
  This page is optimized for perceived performance. Our enemies are the time
  taken for the backend to generate our data, and the time taken to parse
@@ -323,6 +323,9 @@ html[dir='rtl'] #searches input {
 #searches input:-webkit-input-placeholder-mode {
   color: #aaa;
 }
+html[hasattribution='false'] .attribution {
+  display:none;
+}
 .footer {
   border-top:1px solid #ccc;
   padding-top:4px;
@@ -352,7 +355,7 @@ html[dir='rtl'] #searches input {
 </style>
 <link id="themecss" rel="stylesheet" href="chrome://theme/css/newtab.css" />
 </head>
-<body onload="logEvent('body onload fired');"
+<body onload="updateAttribution(); logEvent('body onload fired');"
       jsvalues=".style.fontFamily:fontfamily;.style.fontSize:fontsize">
 <div id="l10n" style="display:none;">
   <span id="closedwindowsingle" jscontent="closedwindowsingle">1 Tab</span>
@@ -457,6 +460,11 @@ document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
     <div id="recentlyClosedTabs" class="sidebar" style="display:none">
       <div class="section-title" jscontent="recentlyclosed"></div>
       <div id="recentlyClosedContainer"></div>
+    </div>
+
+    <div id="attribution" class="sidebar attribution">
+      <span jscontent="attributionintro"></span><br />
+      <img id="attribution-img" />
     </div>
   </td>
   </tr>
@@ -935,6 +943,12 @@ function restoreThumbnails() {
 
 function themeChanged() {
   $('themecss').href = 'chrome://theme/css/newtab.css?' + Date.now();
+  updateAttribution();
+}
+
+function updateAttribution() {
+  $('attribution-img').src = 'chrome://theme/theme_ntp_attribution?' +
+      Date.now();
 }
 
 function bookmarkBarAttached() {

@@ -580,6 +580,12 @@ void OpaqueBrowserFrameView::PaintRestoredFrameBorder(gfx::Canvas* canvas) {
   // Draw the theme frame.
   canvas->TileImageInt(*theme_frame, 0, 0, width(), theme_frame->height());
 
+  // Draw the theme frame overlay
+  if (tp->HasCustomImage(IDR_THEME_FRAME_OVERLAY)) {
+    SkBitmap* theme_overlay = tp->GetBitmapNamed(IDR_THEME_FRAME_OVERLAY);
+    canvas->DrawBitmapInt(*theme_overlay, 0, 0);
+  }
+
   // Top.
   int top_left_height = std::min(top_left_corner->height(),
                                  height() - bottom_left_corner->height());
@@ -638,6 +644,12 @@ void OpaqueBrowserFrameView::PaintMaximizedFrameBorder(gfx::Canvas* canvas) {
 
   // Draw the theme frame.
   canvas->TileImageInt(*theme_frame, 0, 0, width(), theme_frame->height());
+
+  // Draw the theme frame overlay
+  if (tp->HasCustomImage(IDR_THEME_FRAME_OVERLAY)) {
+    SkBitmap* theme_overlay = tp->GetBitmapNamed(IDR_THEME_FRAME_OVERLAY);
+    canvas->DrawBitmapInt(*theme_overlay, 0, 0);
+  }
 
   if (!browser_view_->IsToolbarVisible()) {
     // There's no toolbar to edge the frame border, so we need to draw a bottom

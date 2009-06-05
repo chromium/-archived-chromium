@@ -22,6 +22,7 @@ class DefaultThemeProvider : public ThemeProvider {
   virtual SkColor GetColor(int id);
   virtual bool GetDisplayProperty(int id, int* result);
   virtual bool ShouldUseNativeFrame();
+  virtual bool HasCustomImage(int id);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(DefaultThemeProvider);

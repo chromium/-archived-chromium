@@ -95,6 +95,10 @@ void DOMUIThemeSource::SendNewTabCSS(int request_id) {
   SkColor color_link = tp->GetColor(BrowserThemeProvider::COLOR_NTP_LINK);
   SkColor color_section =
       tp->GetColor(BrowserThemeProvider::COLOR_NTP_SECTION);
+  SkColor color_section_text =
+      tp->GetColor(BrowserThemeProvider::COLOR_NTP_SECTION_TEXT);
+  SkColor color_section_link =
+      tp->GetColor(BrowserThemeProvider::COLOR_NTP_SECTION_LINK);
 
   // Generate the replacements.
   std::vector<string16> subst;
@@ -110,6 +114,8 @@ void DOMUIThemeSource::SendNewTabCSS(int request_id) {
   subst.push_back(SkColorToRGBAString(color_text));
   subst.push_back(SkColorToRGBAString(color_link));
   subst.push_back(SkColorToRGBAString(color_section));
+  subst.push_back(SkColorToRGBAString(color_section_text));
+  subst.push_back(SkColorToRGBAString(color_section_link));
 
   // Get our template.
   static const StringPiece new_tab_theme_css(
@@ -169,4 +175,3 @@ std::string DOMUIThemeSource::GetNewTabBackgroundCSS(bool bar_attached) {
   }
   return BrowserThemeProvider::AlignmentToString(alignment);
 }
-
