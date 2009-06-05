@@ -5,7 +5,6 @@
 #include "base/basictypes.h"
 #include "base/gfx/png_encoder.h"
 #include "base/logging.h"
-#include "base/scoped_ptr.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 
 extern "C" {
@@ -198,39 +197,9 @@ bool PNGEncoder::Encode(const unsigned char* input, ColorFormat format,
 bool PNGEncoder::EncodeBGRASkBitmap(const SkBitmap& input,
                                     bool discard_transparency,
                                     std::vector<unsigned char>* output) {
-  static const int bbp = 4;
-
-  SkAutoLockPixels lock_input(input);
-  DCHECK(input.bytesPerPixel() == bbp);
-  DCHECK(input.getConfig() == SkBitmap::kARGB_8888_Config);
-  DCHECK(input.width() > 1 && input.height() > 1);
-
-  // SkBitmaps are premultiplied, we need to unpremultiply them.
-  scoped_array<unsigned char> divided(
-      new unsigned char[input.width() * input.height() * bbp]);
-
-  int i = 0;
-  for (int y = 0; y < input.height(); y++) {
-    for (int x = 0; x < input.width(); x++) {
-      uint32 pixel = input.getAddr32(0, y)[x];
-
-      int alpha = SkColorGetA(pixel);
-      if (alpha != 0 && alpha != 255) {
-        divided[i + 0] = (SkColorGetR(pixel) << 8) / alpha;
-        divided[i + 1] = (SkColorGetG(pixel) << 8) / alpha;
-        divided[i + 2] = (SkColorGetB(pixel) << 8) / alpha;
-        divided[i + 3] = alpha;
-      } else {
-        divided[i + 0] = SkColorGetR(pixel);
-        divided[i + 1] = SkColorGetG(pixel);
-        divided[i + 2] = SkColorGetB(pixel);
-        divided[i + 3] = alpha;
-      }
-      i += bbp;
-    }
-  }
-
-  return Encode(divided.get(),
-                PNGEncoder::FORMAT_RGBA, input.width(), input.height(),
-                input.width() * bbp, discard_transparency, output);
+  SkAutoLockPixels input_lock(input);
+  DCHECK(input.empty() || input.bytesPerPixel() == 4);
+  return Encode(static_cast<unsigned char*>(input.getPixels()),
+                PNGEncoder::FORMAT_BGRA, input.width(), input.height(),
+                input.rowBytes(), discard_transparency, output);
 }

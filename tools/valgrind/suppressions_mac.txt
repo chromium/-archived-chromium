@@ -220,13 +220,3 @@
    fun:write$UNIX2003
    fun:_ZN24ExtensionsServiceBackend19OnExtensionUnpackedERK8FilePathS2_SsbRK15DictionaryValueRKSt6vectorI6Tuple2I8SkBitmapS0_ESaIS9_EE
 }
-{
-   bug_12640d
-   Memcheck:Cond
-   fun:_ZN10PNGEncoder18EncodeBGRASkBitmapERK8SkBitmapbPSt6vectorIhSaIhEE
-   fun:_ZN24ExtensionsServiceBackend19OnExtensionUnpackedERK8FilePathS2_SsbRK15DictionaryValueRKSt6vectorI6Tuple2I8SkBitmapS0_ESaIS9_EE
-   fun:_ZN24ExtensionsServiceBackend14UnpackerClient26OnUnpackExtensionSucceededERK15DictionaryValueRKSt6vectorI6Tuple2I8SkBitmap8FilePathESaIS8_EE
-   ...
-   fun:_ZN11MessageLoop13RunAllPendingEv
-}
-
