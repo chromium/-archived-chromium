@@ -40,6 +40,9 @@ class MockAffectedFile(object):
   def LocalPath(self):
     return self.path
 
+  def AbsoluteLocalPath(self):
+    return self.path
+
 
 class MockOutputApi(object):
   class PresubmitError(object):

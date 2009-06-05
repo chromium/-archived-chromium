@@ -40,18 +40,30 @@ def ReadFile(path):
 def CheckChangeOnUpload(input_api, output_api):
   # TODO(maruel): max_cols is temporarily disabled. Reenable once the source
   # tree is in better shape.
-  return (LocalChecks(input_api, output_api, max_cols=0) +
-      input_api.canned_checks.CheckChangeHasBugField(input_api, output_api) +
-      input_api.canned_checks.CheckChangeHasTestField(input_api, output_api))
+  results = []
+  results.extend(LocalChecks(input_api, output_api, max_cols=0))
+  results.extend(input_api.canned_checks.CheckChangeHasBugField(input_api,
+                                                                output_api))
+  results.extend(input_api.canned_checks.CheckChangeHasTestField(input_api,
+                                                                 output_api))
+  return results
 
 
 def CheckChangeOnCommit(input_api, output_api):
+  results = []
   # TODO(maruel): max_cols is temporarily disabled. Reenable once the source
   # tree is in better shape.
-  return (LocalChecks(input_api, output_api, max_cols=0) +
-      input_api.canned_checks.CheckDoNotSubmit(input_api, output_api) +
-      input_api.canned_checks.CheckChangeHasBugField(input_api, output_api) +
-      input_api.canned_checks.CheckChangeHasTestField(input_api, output_api))
+  results.extend(LocalChecks(input_api, output_api, max_cols=0))
+  results.extend(input_api.canned_checks.CheckChangeHasBugField(input_api,
+                                                                output_api))
+  results.extend(input_api.canned_checks.CheckChangeHasTestField(input_api,
+                                                                 output_api))
+  # Make sure the tree is 'open'.
+  results.extend(input_api.canned_checks.CheckTreeIsOpen(
+      input_api, output_api,
+      'http://chromium-status.appspot.com/status', '0'
+  ))
+  return results
 
 
 def LocalChecks(input_api, output_api, max_cols=80):
