@@ -78,14 +78,16 @@ class CanvasPaintT : public T {
   explicit CanvasPaintT(GdkEventExpose* event)
       : surface_(NULL),
         window_(event->window),
-        rectangle_(event->area) {
+        rectangle_(event->area),
+        composite_alpha_(false) {
     init(true);
   }
 
   CanvasPaintT(GdkEventExpose* event, bool opaque)
       : surface_(NULL),
         window_(event->window),
-        rectangle_(event->area) {
+        rectangle_(event->area),
+        composite_alpha_(false) {
     init(opaque);
   }
 
@@ -95,12 +97,21 @@ class CanvasPaintT : public T {
 
       // Blit the dirty rect to the window.
       cairo_t* cr = gdk_cairo_create(window_);
+      if (composite_alpha_)
+        cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
       cairo_set_source_surface(cr, surface_, rectangle_.x, rectangle_.y);
       cairo_rectangle(cr, rectangle_.x, rectangle_.y,
                       rectangle_.width, rectangle_.height);
       cairo_fill(cr);
       cairo_destroy(cr);
     }
+  }
+
+  // Sets whether the bitmap is composited in such a way that the alpha channel
+  // is honored. This is only useful if you've enabled an RGBA colormap on the
+  // widget. The default is false.
+  void set_composite_alpha(bool composite_alpha) {
+    composite_alpha_ = composite_alpha;
   }
 
   // Returns true if the invalid region is empty. The caller should call this
@@ -130,6 +141,8 @@ class CanvasPaintT : public T {
   cairo_surface_t* surface_;
   GdkWindow* window_;
   GdkRectangle rectangle_;
+  // See description above setter.
+  bool composite_alpha_;
 
   // Disallow copy and assign.
   CanvasPaintT(const CanvasPaintT&);
