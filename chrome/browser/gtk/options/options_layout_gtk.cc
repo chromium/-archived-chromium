@@ -30,7 +30,8 @@ OptionsLayoutBuilderGtk::OptionsLayoutBuilderGtk(int num_rows) {
 }
 
 void OptionsLayoutBuilderGtk::AddOptionGroup(const std::string& title,
-                                           GtkWidget* content) {
+                                             GtkWidget* content,
+                                             bool expandable) {
   GtkWidget* title_label = gtk_label_new(NULL);
   char* markup = g_markup_printf_escaped(kGroupTitleMarkup,
                                          title.c_str());
@@ -46,8 +47,8 @@ void OptionsLayoutBuilderGtk::AddOptionGroup(const std::string& title,
   gtk_container_add(GTK_CONTAINER(content_alignment), content);
 
   GtkWidget* group = gtk_vbox_new(FALSE, kOptionSpacing);
-  gtk_container_add(GTK_CONTAINER(group), title_alignment);
+  gtk_box_pack_start(GTK_BOX(group), title_alignment, FALSE, FALSE, 0);
   gtk_container_add(GTK_CONTAINER(group), content_alignment);
 
-  gtk_box_pack_start(GTK_BOX(page_), group, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(page_), group, expandable, expandable, 0);
 }

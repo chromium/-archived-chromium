@@ -19,8 +19,10 @@ class OptionsLayoutBuilderGtk {
   }
 
   // Adds an option group to the table.  Handles layout and the placing of
-  // separators between groups.
-  void AddOptionGroup(const std::string& title, GtkWidget* content);
+  // separators between groups.  If expandable is true, the content widget will
+  // be allowed to expand and fill any extra space when the dialog is resized.
+  void AddOptionGroup(const std::string& title, GtkWidget* content,
+                      bool expandable);
 
  private:
   // The parent widget

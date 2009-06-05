@@ -43,16 +43,16 @@ GeneralPageGtk::GeneralPageGtk(Profile* profile)
   OptionsLayoutBuilderGtk options_builder(4);
   options_builder.AddOptionGroup(
       l10n_util::GetStringUTF8(IDS_OPTIONS_STARTUP_GROUP_NAME),
-      InitStartupGroup());
+      InitStartupGroup(), true);
   options_builder.AddOptionGroup(
       l10n_util::GetStringUTF8(IDS_OPTIONS_HOMEPAGE_GROUP_NAME),
-      InitHomepageGroup());
+      InitHomepageGroup(), false);
   options_builder.AddOptionGroup(
       l10n_util::GetStringUTF8(IDS_OPTIONS_DEFAULTSEARCH_GROUP_NAME),
-      InitDefaultSearchGroup());
+      InitDefaultSearchGroup(), false);
   options_builder.AddOptionGroup(
       l10n_util::GetStringUTF8(IDS_OPTIONS_DEFAULTBROWSER_GROUP_NAME),
-      InitDefaultBrowserGroup());
+      InitDefaultBrowserGroup(), false);
   page_ = options_builder.get_page_widget();
 
   profile->GetPrefs()->AddPrefObserver(prefs::kRestoreOnStartup, this);
@@ -146,24 +146,25 @@ GtkWidget* GeneralPageGtk::InitStartupGroup() {
           IDS_OPTIONS_STARTUP_SHOW_DEFAULT_AND_NEWTAB).c_str());
   g_signal_connect(G_OBJECT(startup_homepage_radio_), "toggled",
                    G_CALLBACK(OnStartupRadioToggled), this);
-  gtk_container_add(GTK_CONTAINER(vbox), startup_homepage_radio_);
+  gtk_box_pack_start(GTK_BOX(vbox), startup_homepage_radio_, FALSE, FALSE, 0);
 
   startup_last_session_radio_ = gtk_radio_button_new_with_label_from_widget(
       GTK_RADIO_BUTTON(startup_homepage_radio_),
       l10n_util::GetStringUTF8(IDS_OPTIONS_STARTUP_SHOW_LAST_SESSION).c_str());
   g_signal_connect(G_OBJECT(startup_last_session_radio_), "toggled",
                    G_CALLBACK(OnStartupRadioToggled), this);
-  gtk_container_add(GTK_CONTAINER(vbox), startup_last_session_radio_);
+  gtk_box_pack_start(GTK_BOX(vbox), startup_last_session_radio_,
+                     FALSE, FALSE, 0);
 
   startup_custom_radio_ = gtk_radio_button_new_with_label_from_widget(
       GTK_RADIO_BUTTON(startup_homepage_radio_),
       l10n_util::GetStringUTF8(IDS_OPTIONS_STARTUP_SHOW_PAGES).c_str());
   g_signal_connect(G_OBJECT(startup_custom_radio_), "toggled",
                    G_CALLBACK(OnStartupRadioToggled), this);
-  gtk_container_add(GTK_CONTAINER(vbox), startup_custom_radio_);
+  gtk_box_pack_start(GTK_BOX(vbox), startup_custom_radio_, FALSE, FALSE, 0);
 
   GtkWidget* url_list_container = gtk_hbox_new(FALSE, kOptionSpacing);
-  gtk_container_add(GTK_CONTAINER(vbox), url_list_container);
+  gtk_box_pack_start(GTK_BOX(vbox), url_list_container, TRUE, TRUE, 0);
 
   GtkWidget* scroll_window = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll_window),
@@ -184,16 +185,16 @@ GtkWidget* GeneralPageGtk::InitStartupGroup() {
   // MenuGtk::ConvertAcceleratorsFromWindowsStyle)
   startup_add_custom_page_button_ = gtk_button_new_with_label(
       l10n_util::GetStringUTF8(IDS_OPTIONS_STARTUP_ADD_BUTTON).c_str());
-  gtk_container_add(GTK_CONTAINER(url_list_buttons),
-                    startup_add_custom_page_button_);
+  gtk_box_pack_start(GTK_BOX(url_list_buttons), startup_add_custom_page_button_,
+                     FALSE, FALSE, 0);
   startup_remove_custom_page_button_ = gtk_button_new_with_label(
       l10n_util::GetStringUTF8(IDS_OPTIONS_STARTUP_REMOVE_BUTTON).c_str());
-  gtk_container_add(GTK_CONTAINER(url_list_buttons),
-                    startup_remove_custom_page_button_);
+  gtk_box_pack_start(GTK_BOX(url_list_buttons),
+                     startup_remove_custom_page_button_, FALSE, FALSE, 0);
   startup_use_current_page_button_ = gtk_button_new_with_label(
       l10n_util::GetStringUTF8(IDS_OPTIONS_STARTUP_USE_CURRENT).c_str());
-  gtk_container_add(GTK_CONTAINER(url_list_buttons),
-                    startup_use_current_page_button_);
+  gtk_box_pack_start(GTK_BOX(url_list_buttons),
+                     startup_use_current_page_button_, FALSE, FALSE, 0);
 
   // TODO(mattm): hook up custom url list stuff
 
