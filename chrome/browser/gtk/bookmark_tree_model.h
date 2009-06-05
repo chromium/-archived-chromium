@@ -52,12 +52,6 @@ int GetIdFromTreeIter(GtkTreeModel* model, GtkTreeIter* iter);
 // Returns the title field of the row pointed to by |iter|.
 std::wstring GetTitleFromTreeIter(GtkTreeModel* model, GtkTreeIter* iter);
 
-// Get a pointer to the folder icon. The returned pointer should not be freed.
-GdkPixbuf* GetFolderIcon();
-
-// As above.
-GdkPixbuf* GetDefaultFavicon();
-
 }  // namespace bookmark_utils
 
 #endif  // CHROME_BROWSER_GTK_BOOKMARK_TREE_MODEL_H_

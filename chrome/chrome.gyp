@@ -885,6 +885,8 @@
         'browser/gtk/bookmark_manager_gtk.h',
         'browser/gtk/bookmark_menu_controller_gtk.cc',
         'browser/gtk/bookmark_menu_controller_gtk.h',
+        'browser/gtk/bookmark_utils_gtk.cc',
+        'browser/gtk/bookmark_utils_gtk.h',
         'browser/gtk/bookmark_tree_model.cc',
         'browser/gtk/bookmark_tree_model.h',
         'browser/gtk/browser_toolbar_gtk.cc',

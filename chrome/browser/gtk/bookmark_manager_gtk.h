@@ -65,12 +65,39 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
   // whatever folder is selected on the left.
   void BuildRightStore();
 
+  // Get the node from |model| at |iter|.
+  BookmarkNode* GetNodeAt(GtkTreeModel* model, GtkTreeIter* iter);
+
+  // Get the node selected in one of the tree views.
+  BookmarkNode* GetSelectedNode(GtkTreeSelection*);
+
+  // Stick node in the store that backs the right-side tree view.
+  void AppendNodeToRightStore(BookmarkNode* node, GtkTreeIter* iter);
+
   GtkTreeSelection* left_selection() {
     return gtk_tree_view_get_selection(GTK_TREE_VIEW(left_tree_view_));
   }
 
+  GtkTreeSelection* right_selection() {
+    return gtk_tree_view_get_selection(GTK_TREE_VIEW(right_tree_view_));
+  }
+
+  // Use this to temporarily disable updating the right store. When this is
+  // called again, the right store will be updated once.
+  void ToggleUpdatesToRightStore();
+
   static void OnLeftSelectionChanged(GtkTreeSelection* selection,
                                      BookmarkManagerGtk* bookmark_manager);
+
+  static void OnTreeViewDragGet(GtkWidget* tree_view, GdkDragContext* context,
+                                GtkSelectionData* selection_data,
+                                guint target_type, guint time,
+                                BookmarkManagerGtk* bookmark_manager);
+
+  static void OnTreeViewDragReceived(
+    GtkWidget* tree_view, GdkDragContext* context, gint x, gint y,
+    GtkSelectionData* selection_data, guint target_type, guint time,
+    BookmarkManagerGtk* bookmark_manager);
 
   GtkWidget* window_;
   Profile* profile_;
@@ -87,6 +114,7 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
   };
   GtkTreeStore* left_store_;
   GtkListStore* right_store_;
+  bool update_right_store_;
 };
 
 #endif  // CHROME_BROWSER_GTK_BOOKMARK_MANAGER_GTK_H_

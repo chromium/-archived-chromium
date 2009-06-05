@@ -15,6 +15,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/gtk/bookmark_menu_controller_gtk.h"
 #include "chrome/browser/gtk/bookmark_tree_model.h"
+#include "chrome/browser/gtk/bookmark_utils_gtk.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/dnd_registry.h"
 #include "chrome/browser/gtk/gtk_chrome_button.h"
@@ -35,10 +36,6 @@ const int kBookmarkBarHeight = 33;
 
 // Maximum number of characters on a bookmark button.
 const size_t kMaxCharsOnAButton = 15;
-
-// Used in gtk_selection_data_set(). (I assume from this parameter that gtk has
-// to some really exotic hardware...)
-const int kBitsInAByte = 8;
 
 // Dictionary key used to store a BookmarkNode* on a GtkWidget.
 const char kBookmarkNode[] = "bookmark-node";
@@ -62,15 +59,6 @@ const GdkColor kInstructionsColor = GDK_COLOR_RGB(128, 128, 142);
 
 // Only used for the background of the drag widget.
 const GdkColor kBackgroundColor = GDK_COLOR_RGB(0xe6, 0xed, 0xf4);
-
-// Table of the mime types that we accept with their options.
-const GtkTargetEntry kTargetTable[] = {
-  { const_cast<char*>(kInternalURIType), GTK_TARGET_SAME_APP,
-    dnd::X_CHROME_BOOKMARK_ITEM }
-  // TODO(erg): Add "text/uri-list" support.
-};
-
-const int kTargetTableSize = G_N_ELEMENTS(kTargetTable);
 
 // Recursively search for label among the children of |widget|.
 void SearchForLabel(GtkWidget* widget, gpointer data) {
@@ -179,7 +167,8 @@ void BookmarkBarGtk::Init(Profile* profile) {
                      TRUE, TRUE, 0);
 
   gtk_drag_dest_set(bookmark_toolbar_.get(), GTK_DEST_DEFAULT_DROP,
-                    kTargetTable, kTargetTableSize,
+                    bookmark_utils::kTargetTable,
+                    bookmark_utils::kTargetTableSize,
                     GDK_ACTION_MOVE);
   g_signal_connect(bookmark_toolbar_.get(), "drag-motion",
                    G_CALLBACK(&OnToolbarDragMotion), this);
@@ -403,34 +392,23 @@ void BookmarkBarGtk::ConfigureButtonForNode(BookmarkNode* node,
   title = title.substr(0, std::min(title.size(), kMaxCharsOnAButton));
   gtk_button_set_label(GTK_BUTTON(button), WideToUTF8(title).c_str());
 
-  if (node->is_url()) {
-    if (model_->GetFavIcon(node).width() != 0) {
-      GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(&model_->GetFavIcon(node));
-      gtk_button_set_image(GTK_BUTTON(button),
-                           gtk_image_new_from_pixbuf(pixbuf));
-      g_object_unref(pixbuf);
-    } else {
-      gtk_button_set_image(GTK_BUTTON(button),
-          gtk_image_new_from_pixbuf(bookmark_utils::GetDefaultFavicon()));
-    }
-  } else {
-    gtk_button_set_image(GTK_BUTTON(button),
-        gtk_image_new_from_pixbuf(bookmark_utils::GetFolderIcon()));
-  }
+  GdkPixbuf* pixbuf = bookmark_utils::GetPixbufForNode(node, model_);
+  gtk_button_set_image(GTK_BUTTON(button), gtk_image_new_from_pixbuf(pixbuf));
+  g_object_unref(pixbuf);
 
   SetButtonTextColors(button);
   g_object_set_data(G_OBJECT(button), kBookmarkNode,
                     reinterpret_cast<void*>(node));
 }
 
-GtkWidget* BookmarkBarGtk::CreateBookmarkButton(
-    BookmarkNode* node) {
+GtkWidget* BookmarkBarGtk::CreateBookmarkButton(BookmarkNode* node) {
   GtkWidget* button = gtk_chrome_button_new();
   ConfigureButtonForNode(node, button);
 
   // The tool item is also a source for dragging
   gtk_drag_source_set(button, GDK_BUTTON1_MASK,
-                      kTargetTable, kTargetTableSize,
+                      bookmark_utils::kTargetTable,
+                      bookmark_utils::kTargetTableSize,
                       GDK_ACTION_MOVE);
   g_signal_connect(G_OBJECT(button), "drag-begin",
                    G_CALLBACK(&OnButtonDragBegin), this);
@@ -603,14 +581,18 @@ gboolean BookmarkBarGtk::OnButtonReleased(GtkWidget* sender,
 void BookmarkBarGtk::OnButtonDragBegin(GtkWidget* button,
                                        GdkDragContext* drag_context,
                                        BookmarkBarGtk* bar) {
+  // The parent tool item might be removed during the drag. Ref it so |button|
+  // won't get destroyed.
+  g_object_ref(button->parent);
+
   // Signal to any future OnButtonReleased calls that we're dragging instead of
   // pressing.
   bar->ignore_button_release_ = true;
 
   BookmarkNode* node = bar->GetNodeForToolButton(button);
-  DCHECK(node);
-
+  DCHECK(!bar->dragged_node_);
   bar->dragged_node_ = node;
+  DCHECK(bar->dragged_node_);
 
   // Build a windowed representation for our button.
   GtkWidget* window = gtk_window_new(GTK_WINDOW_POPUP);
@@ -631,7 +613,7 @@ void BookmarkBarGtk::OnButtonDragBegin(GtkWidget* button,
   gtk_widget_get_pointer(button, &x, &y);
   gtk_drag_set_icon_widget(drag_context, window, x, y);
 
-  // Hide our node
+  // Hide our node.
   gtk_widget_hide(button);
 }
 
@@ -639,15 +621,13 @@ void BookmarkBarGtk::OnButtonDragBegin(GtkWidget* button,
 void BookmarkBarGtk::OnButtonDragEnd(GtkWidget* button,
                                      GdkDragContext* drag_context,
                                      BookmarkBarGtk* bar) {
-  // Cleanup everything from this drag
   if (bar->toolbar_drop_item_) {
     g_object_unref(bar->toolbar_drop_item_);
     bar->toolbar_drop_item_ = NULL;
   }
 
+  DCHECK(bar->dragged_node_);
   bar->dragged_node_ = NULL;
-
-  gtk_widget_show(button);
 }
 
 // static
@@ -658,24 +638,8 @@ void BookmarkBarGtk::OnButtonDragGet(GtkWidget* widget, GdkDragContext* context,
   BookmarkNode* node =
       reinterpret_cast<BookmarkNode*>(
           g_object_get_data(G_OBJECT(widget), kBookmarkNode));
-  DCHECK(node);
-
-  switch (target_type) {
-    case dnd::X_CHROME_BOOKMARK_ITEM: {
-      BookmarkDragData data(node);
-      Pickle pickle;
-      data.WriteToPickle(bar->profile_, &pickle);
-
-      gtk_selection_data_set(selection_data, selection_data->target,
-                             kBitsInAByte,
-                             static_cast<const guchar*>(pickle.data()),
-                             pickle.size());
-      break;
-    }
-    default: {
-      DLOG(ERROR) << "Unsupported drag get type!";
-    }
-  }
+  bookmark_utils::WriteBookmarkToSelection(node, selection_data, target_type,
+                                           bar->profile_);
 }
 
 // static
@@ -798,34 +762,18 @@ void BookmarkBarGtk::OnToolbarDragReceived(GtkWidget* widget,
   gboolean dnd_success = FALSE;
   gboolean delete_selection_data = FALSE;
 
-  // Deal with what we are given from source
-  if ((selection_data != NULL) && (selection_data->length >= 0)) {
-    if (context-> action == GDK_ACTION_MOVE) {
-      delete_selection_data = TRUE;
-    }
-
-    switch (target_type) {
-      case dnd::X_CHROME_BOOKMARK_ITEM: {
-        Pickle pickle(reinterpret_cast<char*>(selection_data->data),
-                      selection_data->length);
-        BookmarkDragData drag_data;
-        drag_data.ReadFromPickle(&pickle);
-
-        std::vector<BookmarkNode*> nodes = drag_data.GetNodes(bar->profile_);
-        for (std::vector<BookmarkNode*>::iterator it = nodes.begin();
-             it != nodes.end(); ++it) {
-          gint index = gtk_toolbar_get_drop_index(
-              GTK_TOOLBAR(bar->bookmark_toolbar_.get()), x, y);
-          bar->model_->Move(*it, bar->model_->GetBookmarkBarNode(), index);
-        }
-
-        dnd_success = TRUE;
-        break;
-      }
-      default: {
-        DLOG(ERROR) << "Unsupported drag received type: " << target_type;
-      }
-    }
+  std::vector<BookmarkNode*> nodes =
+      bookmark_utils::GetNodesFromSelection(context, selection_data,
+                                            target_type,
+                                            bar->profile_,
+                                            &delete_selection_data,
+                                            &dnd_success);
+  DCHECK(!nodes.empty());
+  for (std::vector<BookmarkNode*>::iterator it = nodes.begin();
+       it != nodes.end(); ++it) {
+    gint index = gtk_toolbar_get_drop_index(
+        GTK_TOOLBAR(bar->bookmark_toolbar_.get()), x, y);
+    bar->model_->Move(*it, bar->model_->GetBookmarkBarNode(), index++);
   }
 
   gtk_drag_finish(context, dnd_success, delete_selection_data, time);

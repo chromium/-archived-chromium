@@ -9,9 +9,7 @@
 #include "app/resource_bundle.h"
 #include "base/string_util.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
-#include "grit/app_resources.h"
-#include "grit/generated_resources.h"
-#include "grit/theme_resources.h"
+#include "chrome/browser/gtk/bookmark_utils_gtk.h"
 
 namespace {
 
@@ -168,20 +166,6 @@ std::wstring GetTitleFromTreeIter(GtkTreeModel* model, GtkTreeIter* iter) {
   }
 
   return ret_val;
-}
-
-GdkPixbuf* GetFolderIcon() {
-  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  static GdkPixbuf* default_folder_icon = rb.GetPixbufNamed(
-      IDR_BOOKMARK_BAR_FOLDER);
-  return default_folder_icon;
-}
-
-GdkPixbuf* GetDefaultFavicon() {
-  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  static GdkPixbuf* default_bookmark_icon = rb.GetPixbufNamed(
-      IDR_DEFAULT_FAVICON);
-  return default_bookmark_icon;
 }
 
 }  // namespace bookmark_utils

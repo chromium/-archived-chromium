@@ -12,6 +12,7 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/browser/gtk/bookmark_tree_model.h"
+#include "chrome/browser/gtk/bookmark_utils_gtk.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
