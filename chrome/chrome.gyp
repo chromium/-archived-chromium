@@ -3650,6 +3650,11 @@
           'type': '<(library)',
           'msvs_guid': 'FA537565-7B03-4FFC-AF15-F7A979B72E22',
           'msvs_existing_vcproj': 'browser/views/browser_views.vcproj',
+          'dependencies': [
+            '../app/app.gyp:app_resources',
+            'chrome_resources',
+            'chrome_strings',
+          ],
         },
         {
           'target_name': 'tcmalloc',
