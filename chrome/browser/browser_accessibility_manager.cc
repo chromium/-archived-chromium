@@ -77,7 +77,6 @@ bool BrowserAccessibilityManager::RequestAccessibilityInfo(
   in_params.object_id = in->object_id;
   in_params.function_id = in->function_id;
   in_params.child_id = in->child_id;
-  in_params.direct_descendant = in->direct_descendant;
   in_params.input_long1 = in->input_long1;
   in_params.input_long2 = in->input_long2;
 
@@ -103,10 +102,6 @@ bool BrowserAccessibilityManager::ChangeAccessibilityFocus(int acc_obj_id,
   BrowserAccessibility* browser_acc =
       GetBrowserAccessibility(process_id, routing_id);
   if (browser_acc) {
-    // Indicate that the request for child information is referring to a non-
-    // direct descendant of the root.
-    browser_acc->set_direct_descendant(false);
-
     // Notify Access Technology that there was a change in keyboard focus.
     ::NotifyWinEvent(EVENT_OBJECT_FOCUS, browser_acc->parent_hwnd(),
                      OBJID_CLIENT, static_cast<LONG>(acc_obj_id));

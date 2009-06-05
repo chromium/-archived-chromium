@@ -11,7 +11,9 @@ using webkit_glue::WebAccessibility;
 
 HRESULT BrowserAccessibility::Initialize(int iaccessible_id, int routing_id,
                                          int process_id, HWND parent_hwnd) {
-  if (!parent_hwnd || iaccessible_id < 0)
+  // Check input parameters. Root id is 1000, to avoid conflicts with the ids
+  // used by MSAA.
+  if (!parent_hwnd || iaccessible_id < 1000)
     return E_INVALIDARG;
 
   iaccessible_id_ = iaccessible_id;
@@ -21,10 +23,6 @@ HRESULT BrowserAccessibility::Initialize(int iaccessible_id, int routing_id,
 
   // Mark instance as active.
   instance_active_ = true;
-
-  // Treat child ids intitially as referring to direct children of the object.
-  direct_descendant_ = true;
-
   return S_OK;
 }
 
@@ -192,7 +190,7 @@ STDMETHODIMP BrowserAccessibility::get_accChild(VARIANT var_child,
     return E_INVALIDARG;
 
   // If var_child is the parent, remain with the same IDispatch.
-  if (var_child.lVal == CHILDID_SELF && iaccessible_id_ != 0)
+  if (var_child.lVal == CHILDID_SELF && iaccessible_id_ != 1000)
     return S_OK;
 
   if (!RequestAccessibilityInfo(WebAccessibility::FUNCTION_GETCHILD, var_child,
@@ -411,7 +409,7 @@ STDMETHODIMP BrowserAccessibility::get_accParent(IDispatch** disp_parent) {
     return E_INVALIDARG;
 
   // Root node's parent is the containing HWND's IAccessible.
-  if (iaccessible_id_ == 0) {
+  if (iaccessible_id_ == 1000) {
     // For an object that has no parent (e.g. root), point the accessible parent
     // to the default implementation.
     HRESULT hr =
@@ -548,12 +546,8 @@ bool BrowserAccessibility::RequestAccessibilityInfo(int iaccessible_func_id,
   in_params.object_id = iaccessible_id_;
   in_params.function_id = iaccessible_func_id;
   in_params.child_id = var_id.lVal;
-  in_params.direct_descendant = direct_descendant();
   in_params.input_long1 = input1;
   in_params.input_long2 = input2;
-
-  if (!direct_descendant())
-    set_direct_descendant(true);
 
   return BrowserAccessibilityManager::GetInstance()->
       RequestAccessibilityInfo(&in_params, routing_id_, process_id_);

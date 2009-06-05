@@ -35,6 +35,9 @@ class WebAccessibilityManagerImpl : public WebAccessibilityManager {
   // Needed so WebAccessibilityManager::Create can call our constructor.
   friend class WebAccessibilityManager;
 
+  // Constructor creates a new GlueAccessibilityObjectRoot, and initializes
+  // the root |acc_obj_id_| to 1000, to avoid conflicts with platform-specific
+  // child ids.
   WebAccessibilityManagerImpl();
   ~WebAccessibilityManagerImpl();
 

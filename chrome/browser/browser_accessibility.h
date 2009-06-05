@@ -116,11 +116,6 @@ class ATL_NO_VTABLE BrowserAccessibility
   }
   int instance_active() const { return instance_active_; }
 
-  void set_direct_descendant(bool direct_descendant) {
-    direct_descendant_ = direct_descendant;
-  }
-  bool direct_descendant() const { return direct_descendant_; }
-
   int routing_id() const { return routing_id_; }
 
  private:
@@ -170,14 +165,6 @@ class ATL_NO_VTABLE BrowserAccessibility
   int process_id_;
 
   HWND parent_hwnd_;
-
-  // Indicates if an incoming request for child information relates to a child
-  // id of a direct child of the BrowserAccessibility object, or if it refers
-  // to an object elsewhere in the MSAA tree. Set by BrowserAccessibilityManager
-  // and applicable only to the root BrowserAccessibility object (id 0). Needed
-  // to properly handled MSAA focus events, where the child id is the only
-  // parameter in our control.
-  bool direct_descendant_;
 
   // The instance should only be active if there is a non-terminated
   // RenderProcessHost associated with it. The BrowserAccessibilityManager keeps

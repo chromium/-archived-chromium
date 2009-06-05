@@ -1200,9 +1200,10 @@ LRESULT RenderWidgetHostViewWin::OnGetObject(UINT message, WPARAM wparam,
     // If our MSAA DOM root is already created, reuse that pointer. Otherwise,
     // create a new one.
     if (!browser_accessibility_root_) {
-      // Create a new instance of IAccessible. Root id is always 0.
+      // Create a new instance of IAccessible. Root id is 1000, to avoid
+      // conflicts with the ids used by MSAA.
       BrowserAccessibilityManager::GetInstance()->
-          CreateAccessibilityInstance(IID_IAccessible, 0,
+          CreateAccessibilityInstance(IID_IAccessible, 1000,
                                       render_widget_host_->routing_id(),
                                       render_widget_host_->process()->pid(),
                                       m_hWnd, reinterpret_cast<void **>

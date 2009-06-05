@@ -35,7 +35,7 @@ WebAccessibilityManager* WebAccessibilityManager::Create() {
 // class WebAccessibilityManagerImpl
 WebAccessibilityManagerImpl::WebAccessibilityManagerImpl()
     : root_(new GlueAccessibilityObjectRoot),
-      acc_obj_id_(0) {
+      acc_obj_id_(1000) {
 }
 
 WebAccessibilityManagerImpl::~WebAccessibilityManagerImpl() {
@@ -55,7 +55,10 @@ bool WebAccessibilityManagerImpl::GetAccObjInfo(WebView* view,
   int object_id = in_params.object_id;
   int child_id = in_params.child_id;
 
-  if (!in_params.direct_descendant) {
+  // Since ids assigned by Chrome starts at 1000, whereas platform-specific ids
+  // used to reference a child will be in a wholly different range, we know
+  // that any id that high should be treated as a non-direct descendant.
+  if (in_params.child_id >= 1000) {
     // Object is not a direct child, re-map the input parameters accordingly.
     // The object to be retrieved is referred to by the |in_params.child_id|, as
     // a result of e.g. a focus event. The local |child_id| is set to 0, to
@@ -247,7 +250,7 @@ bool WebAccessibilityManagerImpl::ClearAccObjMap(int acc_obj_id,
   }
   int_to_glue_acc_obj_map_.erase(it);
 
-  if (acc_obj_id == 0) {
+  if (acc_obj_id == 1000) {
     // Invalidate root.
     root_->acc_obj_root_ = 0;
   }
