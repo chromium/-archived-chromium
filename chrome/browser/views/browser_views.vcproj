@@ -460,11 +460,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\blocked_popup_container.cc"
+			RelativePath=".\blocked_popup_container_view.cc"
 			>
 		</File>
 		<File
-			RelativePath=".\blocked_popup_container.h"
+			RelativePath=".\blocked_popup_container_view.h"
 			>
 		</File>
 		<File

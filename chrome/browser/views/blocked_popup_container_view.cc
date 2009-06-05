@@ -8,7 +8,7 @@
 // isn't a strict Model/View separation), and BlockedPopupContainerView
 // presents the user interface controls, creates and manages the popup menu.
 
-#include "chrome/browser/views/blocked_popup_container.h"
+#include "chrome/browser/views/blocked_popup_container_view.h"
 
 #include <math.h>
 #include <windows.h>

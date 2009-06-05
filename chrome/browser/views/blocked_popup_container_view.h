@@ -2,8 +2,8 @@
 // source code is governed by a BSD-style license that can be found in the
 // LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_BLOCKED_POPUP_CONTAINER_H_
-#define CHROME_BROWSER_VIEWS_BLOCKED_POPUP_CONTAINER_H_
+#ifndef CHROME_BROWSER_VIEWS_BLOCKED_POPUP_CONTAINER_VIEW_H_
+#define CHROME_BROWSER_VIEWS_BLOCKED_POPUP_CONTAINER_VIEW_H_
 
 #include <set>
 #include <utility>

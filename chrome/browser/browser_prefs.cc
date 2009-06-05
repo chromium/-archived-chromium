@@ -25,7 +25,7 @@
 
 #if defined(OS_WIN)  // TODO(port): whittle this down as we port
 #include "chrome/browser/task_manager.h"
-#include "chrome/browser/views/blocked_popup_container.h"
+#include "chrome/browser/views/blocked_popup_container_view.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/browser/views/page_info_window.h"
