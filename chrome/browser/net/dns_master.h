@@ -92,7 +92,7 @@ class DnsMaster {
   FRIEND_TEST(DnsMasterTest, ShutdownWhenResolutionIsPendingTest);
   FRIEND_TEST(DnsMasterTest, SingleLookupTest);
   FRIEND_TEST(DnsMasterTest, ConcurrentLookupTest);
-  FRIEND_TEST(DnsMasterTest, DISABLED_MassiveConcurrentLookupTestodrda);
+  FRIEND_TEST(DnsMasterTest, DISABLED_MassiveConcurrentLookupTest);
   FRIEND_TEST(DnsMasterTest, PriorityQueuePushPopTest);
   FRIEND_TEST(DnsMasterTest, PriorityQueueReorderTest);
   friend class WaitForResolutionHelper;  // For testing.
