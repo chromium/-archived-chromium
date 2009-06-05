@@ -16,6 +16,12 @@ void SdchDictionaryFetcher::Schedule(const GURL& dictionary_url) {
         SdchManager::DICTIONARY_ALREADY_SCHEDULED_TO_DOWNLOAD);
     return;
   }
+  if (attempted_load_.find(dictionary_url) != attempted_load_.end()) {
+    SdchManager::SdchErrorRecovery(
+        SdchManager::DICTIONARY_ALREADY_TRIED_TO_DOWNLOAD);
+    return;
+  }
+  attempted_load_.insert(dictionary_url);
   fetch_queue_.push(dictionary_url);
   ScheduleDelayedRun();
 }

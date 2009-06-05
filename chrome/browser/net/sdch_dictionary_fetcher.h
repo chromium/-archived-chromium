@@ -10,6 +10,7 @@
 #define CHROME_BROWSER_NET_SDCH_DICTIONARY_FETCHER_H_
 
 #include <queue>
+#include <set>
 #include <string>
 
 #include "base/compiler_specific.h"
@@ -69,6 +70,22 @@ class SdchDictionaryFetcher : public URLFetcher::Delegate,
   // the download.
   ScopedRunnableMethodFactory<SdchDictionaryFetcher> method_factory_;
   bool task_is_pending_;
+
+  // Althought the SDCH spec does not preclude a server from using a single URL
+  // to load several distinct dictionaries (by telling a client to load a
+  // dictionary from an URL several times), current implementations seem to have
+  // that 1-1 relationship (i.e., each URL points at a single dictionary, and
+  // the dictionary content does not change over time, and hence is not worth
+  // trying to load more than once).  In addition, some dictionaries prove
+  // unloadable only after downloading them (because they are too large?  ...or
+  // malformed?). As a protective element, Chromium will *only* load a
+  // dictionary at most once from a given URL (so that it doesn't waste
+  // bandwidth trying repeatedly).
+  // The following set lists all the dictionary URLs that we've tried to load,
+  // so that we won't try to load from an URL more than once.
+  // TODO(jar): Try to augment the SDCH proposal to include this restiction.
+  std::set<GURL> attempted_load_;
+
 
   DISALLOW_COPY_AND_ASSIGN(SdchDictionaryFetcher);
 };
