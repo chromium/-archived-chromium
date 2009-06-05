@@ -314,7 +314,6 @@ GtkWidget* CreateMenuBar(TestShell* shell) {
 bool TestShell::Initialize(const std::wstring& startingURL) {
   m_mainWnd = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
   gtk_window_set_title(m_mainWnd, "Test Shell");
-  gtk_window_set_default_size(m_mainWnd, 640, 480);
   g_signal_connect(G_OBJECT(m_mainWnd), "destroy",
                    G_CALLBACK(MainWindowDestroyed), this);
   g_signal_connect(G_OBJECT(m_mainWnd), "focus-out-event",
@@ -370,11 +369,9 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
 
   gtk_container_add(GTK_CONTAINER(m_mainWnd), vbox);
   gtk_widget_show_all(GTK_WIDGET(m_mainWnd));
-  top_chrome_height_ = toolbar->allocation.height +
-      menu_bar->allocation.height + 2 * gtk_box_get_spacing(GTK_BOX(vbox));
 
-  // LoadURL will do a resize (which uses top_chrome_height_), so make
-  // sure we don't call LoadURL until we've completed all of our GTK setup.
+  // LoadURL will do a resize, so make sure we don't call LoadURL
+  // until we've completed all of our GTK setup.
   if (!startingURL.empty())
     LoadURL(startingURL.c_str());
 
@@ -400,8 +397,27 @@ void TestShell::TestFinished() {
 }
 
 void TestShell::SizeTo(int width, int height) {
-  gtk_window_resize(GTK_WINDOW(m_mainWnd), width,
-                    height + top_chrome_height_);
+  GtkWidget* widget = m_webViewHost->view_handle();
+  if (widget->allocation.width == width &&
+      widget->allocation.height == height) {
+    // Nothing to do.
+    return;
+  }
+
+  gtk_widget_set_size_request(widget, width, height);
+  if (widget->allocation.width > width ||
+      widget->allocation.height > height) {
+    // We've been sized smaller.  Shrink the window so it snaps back to the
+    // appropriate size.
+    gtk_window_resize(GTK_WINDOW(m_mainWnd), 1, 1);
+  }
+
+  // We've been asked to size the content area to a particular size.
+  // GTK works asynchronously: you request a size and then it
+  // eventually becomes that size.  But layout tests need to be sure
+  // the resize has gone into WebKit by the time SizeTo() returns.
+  // Force the webkit resize to happen now.
+  m_webViewHost->Resize(gfx::Size(width, height));
 }
 
 static void AlarmHandler(int signatl) {
