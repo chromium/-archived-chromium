@@ -392,15 +392,18 @@ int X509Certificate::Verify(const std::string& hostname,
   // We need to set up OCSP and install an HTTP client for NSS.
   bool use_ocsp = false;
 
+  // TODO(wtc): Use CERT_REV_M_REQUIRE_INFO_ON_MISSING_SOURCE and
+  // CERT_REV_MI_REQUIRE_SOME_FRESH_INFO_AVAILABLE for EV certificate
+  // verification.
   PRUint64 revocation_method_flags =
       CERT_REV_M_TEST_USING_THIS_METHOD |
       CERT_REV_M_ALLOW_NETWORK_FETCHING |
       CERT_REV_M_ALLOW_IMPLICIT_DEFAULT_SOURCE |
-      CERT_REV_M_REQUIRE_INFO_ON_MISSING_SOURCE |
+      CERT_REV_M_SKIP_TEST_ON_MISSING_SOURCE |
       CERT_REV_M_STOP_TESTING_ON_FRESH_INFO;
   PRUint64 revocation_method_independent_flags =
       CERT_REV_MI_TEST_ALL_LOCAL_INFORMATION_FIRST |
-      CERT_REV_MI_REQUIRE_SOME_FRESH_INFO_AVAILABLE;
+      CERT_REV_MI_NO_OVERALL_INFO_REQUIREMENT;
   PRUint64 method_flags[2];
   method_flags[cert_revocation_method_crl] = revocation_method_flags;
   method_flags[cert_revocation_method_ocsp] = revocation_method_flags;
