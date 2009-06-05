@@ -287,7 +287,9 @@ TabStripGtk* DraggedTabControllerGtk::GetTabStripForPoint(
     return NULL;
 
   TabStripGtk* other_tabstrip = browser->tabstrip();
-  // TODO(jhawkins): Make sure the tabstrips are compatible.
+  if (!other_tabstrip->IsCompatibleWith(source_tabstrip_))
+    return NULL;
+
   return GetTabStripIfItContains(other_tabstrip, screen_point);
 }
 

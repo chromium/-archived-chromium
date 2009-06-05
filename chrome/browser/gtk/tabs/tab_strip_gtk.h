@@ -59,6 +59,10 @@ class TabStripGtk : public TabStripModelObserver,
   // Updates loading animations for the TabStrip.
   void UpdateLoadingAnimations();
 
+  // Return true if this tab strip is compatible with the provided tab strip.
+  // Compatible tab strips can transfer tabs during drag and drop.
+  bool IsCompatibleWith(TabStripGtk* other);
+
   // Returns true if Tabs in this TabStrip are currently changing size or
   // position.
   bool IsAnimating() const;

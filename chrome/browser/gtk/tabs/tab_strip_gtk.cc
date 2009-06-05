@@ -544,6 +544,10 @@ void TabStripGtk::UpdateLoadingAnimations() {
   gtk_widget_queue_draw(tabstrip_.get());
 }
 
+bool TabStripGtk::IsCompatibleWith(TabStripGtk* other) {
+  return model_->profile() == other->model()->profile();
+}
+
 bool TabStripGtk::IsAnimating() const {
   return active_animation_.get() != NULL;
 }
