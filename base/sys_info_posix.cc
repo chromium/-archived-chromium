@@ -16,12 +16,27 @@
 #include <mach/mach_init.h>
 #endif
 
+#if defined(OS_OPENBSD)
+#include <sys/param.h>
+#include <sys/sysctl.h>
+#endif
+
 #include "base/logging.h"
 #include "base/string_util.h"
 
 namespace base {
 
 int SysInfo::NumberOfProcessors() {
+#if defined(OS_OPENBSD)
+  int mib[] = { CTL_HW, HW_NCPU };
+  int ncpu;
+  size_t size = sizeof(ncpu);
+  if (sysctl(mib, 2, &ncpu, &size, NULL, 0) == -1) {
+    NOTREACHED();
+    return 1;
+  }
+  return ncpu;
+#else
   // It seems that sysconf returns the number of "logical" processors on both
   // mac and linux.  So we get the number of "online logical" processors.
   static long res = sysconf(_SC_NPROCESSORS_ONLN);
@@ -31,6 +46,7 @@ int SysInfo::NumberOfProcessors() {
   }
 
   return static_cast<int>(res);
+#endif
 }
 
 // static
