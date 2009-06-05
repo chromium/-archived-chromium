@@ -49,7 +49,7 @@ class DraggedTabGtk : public AnimationDelegate {
   // to determine where to place the tab in the attached tabstrip.
   gfx::Size attached_tab_size() const { return attached_tab_size_; }
 
-  GtkWidget* widget() const { return container_; }
+  GtkWidget* widget() const { return container_.get(); }
 
  private:
   // Overridden from AnimationDelegate:
@@ -87,7 +87,7 @@ class DraggedTabGtk : public AnimationDelegate {
                                 DraggedTabGtk* dragged_tab);
 
   // The window that contains the dragged tab or tab contents.
-  GtkWidget* container_;
+  OwnedWidgetGtk container_;
 
   // The renderer that paints the dragged tab.
   scoped_ptr<TabRendererGtk> renderer_;

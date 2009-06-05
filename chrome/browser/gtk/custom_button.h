@@ -62,13 +62,13 @@ class CustomDrawButton {
   GtkWidget* widget() const { return widget_.get(); }
 
   gfx::Rect bounds() const {
-      return gfx::Rect(widget_.get()->allocation.x,
-                       widget_.get()->allocation.y,
-                       widget_.get()->allocation.width,
-                       widget_.get()->allocation.height);
+      return gfx::Rect(widget_->allocation.x,
+                       widget_->allocation.y,
+                       widget_->allocation.width,
+                       widget_->allocation.height);
   }
 
-  int width() const { return widget_.get()->allocation.width; }
+  int width() const { return widget_->allocation.width; }
 
   // Set the state to draw. We will paint the widget as if it were in this
   // state.

@@ -65,8 +65,8 @@ void StatusBubbleGtk::Show() {
 
   gtk_widget_show_all(container_.get());
 
-  if (container_.get()->window)
-    gdk_window_raise(container_.get()->window);
+  if (container_->window)
+    gdk_window_raise(container_->window);
 }
 
 void StatusBubbleGtk::Hide() {

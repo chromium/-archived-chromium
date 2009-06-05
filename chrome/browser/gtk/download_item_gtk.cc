@@ -327,7 +327,8 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
     gtk_alignment_set_padding(GTK_ALIGNMENT(dangerous_prompt_),
         0, 0, kDangerousElementPadding, kDangerousElementPadding);
     gtk_container_add(GTK_CONTAINER(dangerous_prompt_), dangerous_hbox_);
-    gtk_box_pack_start(GTK_BOX(hbox_.get()), dangerous_prompt_, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox_.get()), dangerous_prompt_, FALSE, FALSE,
+                       0);
     gtk_widget_set_app_paintable(dangerous_prompt_, TRUE);
     g_signal_connect(dangerous_prompt_, "expose-event",
                      G_CALLBACK(OnDangerousPromptExpose), this);
@@ -655,7 +656,7 @@ gboolean DownloadItemGtk::OnMenuButtonPressEvent(GtkWidget* button,
 void DownloadItemGtk::OnShelfResized(GtkWidget *widget,
                                      GtkAllocation *allocation,
                                      DownloadItemGtk* item) {
-  if (item->hbox_.get()->allocation.x + item->hbox_.get()->allocation.width >
+  if (item->hbox_->allocation.x + item->hbox_->allocation.width >
       item->bounding_widget_->allocation.x)
     gtk_widget_hide(item->hbox_.get());
   else

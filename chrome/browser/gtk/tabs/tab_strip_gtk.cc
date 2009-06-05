@@ -881,10 +881,10 @@ void TabStripGtk::LayoutNewTabButton(double last_tab_right,
     // We're shrinking tabs, so we need to anchor the New Tab button to the
     // right edge of the TabStrip's bounds, rather than the right edge of the
     // right-most Tab, otherwise it'll bounce when animating.
-    gtk_fixed_move(GTK_FIXED(tabstrip_.get()), newtab_button_.get()->widget(),
-        bounds_.width() - newtab_button_.get()->width(), kNewTabButtonVOffset);
+    gtk_fixed_move(GTK_FIXED(tabstrip_.get()), newtab_button_->widget(),
+        bounds_.width() - newtab_button_->width(), kNewTabButtonVOffset);
   } else {
-    gtk_fixed_move(GTK_FIXED(tabstrip_.get()), newtab_button_.get()->widget(),
+    gtk_fixed_move(GTK_FIXED(tabstrip_.get()), newtab_button_->widget(),
         Round(last_tab_right - kTabHOffset) + kNewTabButtonHOffset,
         kNewTabButtonVOffset);
   }
@@ -906,11 +906,11 @@ void TabStripGtk::GetDesiredTabWidths(int tab_count,
   }
 
   // Determine how much space we can actually allocate to tabs.
-  int available_width = tabstrip_.get()->allocation.width;
+  int available_width = tabstrip_->allocation.width;
   if (available_width_for_tabs_ < 0) {
     available_width = bounds_.width();
     available_width -=
-        (kNewTabButtonHOffset + newtab_button_.get()->width());
+        (kNewTabButtonHOffset + newtab_button_->width());
   } else {
     // Interesting corner case: if |available_width_for_tabs_| > the result
     // of the calculation in the conditional arm above, the strip is in
@@ -1072,7 +1072,7 @@ gboolean TabStripGtk::OnExpose(GtkWidget* widget, GdkEventExpose* event,
 
   // Paint the New Tab button.
   gtk_container_propagate_expose(GTK_CONTAINER(tabstrip->tabstrip_.get()),
-      tabstrip->newtab_button_.get()->widget(), event);
+      tabstrip->newtab_button_->widget(), event);
 
   // Paint the tabs in reverse order, so they stack to the left.
   TabGtk* selected_tab = NULL;

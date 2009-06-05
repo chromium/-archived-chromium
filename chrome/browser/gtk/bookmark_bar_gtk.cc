@@ -227,7 +227,7 @@ void BookmarkBarGtk::Hide() {
 }
 
 int BookmarkBarGtk::GetHeight() {
-  return bookmark_hbox_.get()->allocation.height;
+  return bookmark_hbox_->allocation.height;
 }
 
 bool BookmarkBarGtk::IsClosing() {

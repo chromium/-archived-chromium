@@ -37,7 +37,8 @@ bool IsScreenComposited() {
 DraggedTabGtk::DraggedTabGtk(TabContents* datasource,
                              const gfx::Point& mouse_tab_offset,
                              const gfx::Size& contents_size)
-    : renderer_(new TabRendererGtk),
+    : container_(gtk_window_new(GTK_WINDOW_POPUP)),
+      renderer_(new TabRendererGtk),
       attached_(false),
       mouse_tab_offset_(mouse_tab_offset),
       attached_tab_size_(TabRendererGtk::GetMinimumSelectedSize()),
@@ -45,18 +46,17 @@ DraggedTabGtk::DraggedTabGtk(TabContents* datasource,
       close_animation_(this) {
   renderer_->UpdateData(datasource, false);
 
-  container_ = gtk_window_new(GTK_WINDOW_POPUP);
   SetContainerColorMap();
-  gtk_widget_set_app_paintable(container_, TRUE);
-  g_signal_connect(G_OBJECT(container_), "expose-event",
+  gtk_widget_set_app_paintable(container_.get(), TRUE);
+  g_signal_connect(G_OBJECT(container_.get()), "expose-event",
                    G_CALLBACK(OnExposeEvent), this);
-  gtk_widget_add_events(container_, GDK_STRUCTURE_MASK);
-  gtk_container_add(GTK_CONTAINER(container_), renderer_->widget());
-  gtk_widget_show_all(container_);
+  gtk_widget_add_events(container_.get(), GDK_STRUCTURE_MASK);
+  gtk_container_add(GTK_CONTAINER(container_.get()), renderer_->widget());
+  gtk_widget_show_all(container_.get());
 }
 
 DraggedTabGtk::~DraggedTabGtk() {
-  gtk_widget_destroy(container_);
+  container_.Destroy();
 }
 
 void DraggedTabGtk::MoveTo(const gfx::Point& screen_point) {
@@ -65,7 +65,7 @@ void DraggedTabGtk::MoveTo(const gfx::Point& screen_point) {
   int y = screen_point.y() + mouse_tab_offset_.y() -
       ScaleValue(mouse_tab_offset_.y());
 
-  gtk_window_move(GTK_WINDOW(container_), x, y);
+  gtk_window_move(GTK_WINDOW(container_.get()), x, y);
 }
 
 void DraggedTabGtk::Attach(int selected_width) {
@@ -80,7 +80,7 @@ void DraggedTabGtk::Detach() {
 }
 
 void DraggedTabGtk::Update() {
-  gtk_widget_queue_draw(container_);
+  gtk_widget_queue_draw(container_.get());
 }
 
 void DraggedTabGtk::AnimateToBounds(const gfx::Rect& bounds,
@@ -138,7 +138,7 @@ gfx::Size DraggedTabGtk::GetPreferredSize() {
 
 void DraggedTabGtk::ResizeContainer() {
   gfx::Size size = GetPreferredSize();
-  gtk_window_resize(GTK_WINDOW(container_),
+  gtk_window_resize(GTK_WINDOW(container_.get()),
                     ScaleValue(size.width()), ScaleValue(size.height()));
   gfx::Rect bounds = renderer_->bounds();
   bounds.set_width(ScaleValue(size.width()));
@@ -153,20 +153,20 @@ int DraggedTabGtk::ScaleValue(int value) {
 
 gfx::Rect DraggedTabGtk::bounds() const {
   gint x, y, width, height;
-  gtk_window_get_position(GTK_WINDOW(container_), &x, &y);
-  gtk_window_get_size(GTK_WINDOW(container_), &width, &height);
+  gtk_window_get_position(GTK_WINDOW(container_.get()), &x, &y);
+  gtk_window_get_size(GTK_WINDOW(container_.get()), &width, &height);
   return gfx::Rect(x, y, width, height);
 }
 
 void DraggedTabGtk::SetContainerColorMap() {
-  GdkScreen* screen = gtk_widget_get_screen(container_);
+  GdkScreen* screen = gtk_widget_get_screen(container_.get());
   GdkColormap* colormap = gdk_screen_get_rgba_colormap(screen);
 
   // If rgba is not available, use rgb instead.
   if (!colormap)
     colormap = gdk_screen_get_rgb_colormap(screen);
 
-  gtk_widget_set_colormap(container_, colormap);
+  gtk_widget_set_colormap(container_.get(), colormap);
 }
 
 void DraggedTabGtk::SetContainerTransparency() {

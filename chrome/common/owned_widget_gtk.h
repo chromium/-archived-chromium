@@ -46,8 +46,8 @@
 //   gtk_destroy_widget(widget);  // Ask all code to destroy their references.
 //   g_object_unref(widget);  // Destroy the initial reference we had claimed.
 
-#ifndef BASE_OWNED_WIDGET_GTK_H_
-#define BASE_OWNED_WIDGET_GTK_H_
+#ifndef CHROME_COMMON_OWNED_WIDGET_GTK_H_
+#define CHROME_COMMON_OWNED_WIDGET_GTK_H_
 
 #include "base/basictypes.h"
 
@@ -64,6 +64,7 @@ class OwnedWidgetGtk {
 
   // Return the currently owned widget, or NULL if no widget is owned.
   GtkWidget* get() const { return widget_; }
+  GtkWidget* operator->() const { return widget_; }
 
   // Takes ownership of a widget, by taking the initial floating reference of
   // the GtkWidget.  It is expected that Own() is called right after the widget
@@ -85,4 +86,4 @@ class OwnedWidgetGtk {
   DISALLOW_COPY_AND_ASSIGN(OwnedWidgetGtk);
 };
 
-#endif  // BASE_OWNED_WIDGET_GTK_H_
+#endif  // CHROME_COMMON_OWNED_WIDGET_GTK_H_

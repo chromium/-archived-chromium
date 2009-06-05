@@ -500,11 +500,11 @@ void TabRendererGtk::Layout() {
 
 void TabRendererGtk::MoveCloseButtonWidget() {
   if (!close_button_bounds_.IsEmpty()) {
-    gtk_fixed_move(GTK_FIXED(tab_.get()), close_button_.get()->widget(),
+    gtk_fixed_move(GTK_FIXED(tab_.get()), close_button_->widget(),
                    close_button_bounds_.x(), close_button_bounds_.y());
-    gtk_widget_show(close_button_.get()->widget());
+    gtk_widget_show(close_button_->widget());
   } else {
-    gtk_widget_hide(close_button_.get()->widget());
+    gtk_widget_hide(close_button_->widget());
   }
 }
 
@@ -700,7 +700,7 @@ gboolean TabRendererGtk::OnExpose(GtkWidget* widget, GdkEventExpose* event,
                                   TabRendererGtk* tab) {
   tab->PaintTab(event);
   gtk_container_propagate_expose(GTK_CONTAINER(tab->tab_.get()),
-                                 tab->close_button_.get()->widget(), event);
+                                 tab->close_button_->widget(), event);
   return TRUE;
 }
 

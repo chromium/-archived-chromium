@@ -211,7 +211,7 @@ gboolean LocationBarViewGtk::HandleExpose(GtkWidget* widget,
   GdkDrawable* drawable = GDK_DRAWABLE(event->window);
   GdkGC* gc = gdk_gc_new(drawable);
 
-  GdkRectangle* alloc_rect = &alignment_.get()->allocation;
+  GdkRectangle* alloc_rect = &alignment_->allocation;
 
   // The area outside of our margin, which includes the border.
   GdkRectangle inner_rect = {

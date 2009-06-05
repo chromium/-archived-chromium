@@ -354,7 +354,7 @@ gboolean BrowserToolbarGtk::OnToolbarExpose(GtkWidget* widget,
   // coordinates for the IDR_THEME_TOOLBAR bitmap relative to the top of the
   // tab strip. Since the toolbar's GdkWindow has the same origin as the tab
   // strip's GdkWindow, we can just pass 0.
-  toolbar->background_ninebox_.get()->RenderTopCenterStrip(cr,
+  toolbar->background_ninebox_->RenderTopCenterStrip(cr,
       e->area.x, 0, e->area.width);
   cairo_destroy(cr);
 

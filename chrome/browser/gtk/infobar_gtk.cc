@@ -89,8 +89,8 @@ void InfoBar::AnimateOpen() {
 
 void InfoBar::Open() {
   slide_widget_->OpenWithoutAnimation();
-  if (border_bin_.get()->window)
-    gdk_window_lower(border_bin_.get()->window);
+  if (border_bin_->window)
+    gdk_window_lower(border_bin_->window);
 }
 
 void InfoBar::AnimateClose() {

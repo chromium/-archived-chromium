@@ -410,7 +410,7 @@ void DraggedTabControllerGtk::Detach() {
 gfx::Point DraggedTabControllerGtk::ConvertScreenPointToTabStripPoint(
     TabStripGtk* tabstrip, const gfx::Point& screen_point) {
   gint x, y;
-  gdk_window_get_origin(tabstrip->tabstrip_.get()->window, &x, &y);
+  gdk_window_get_origin(tabstrip->tabstrip_->window, &x, &y);
   return gfx::Point(screen_point.x() - x, screen_point.y() - y);
 }
 
