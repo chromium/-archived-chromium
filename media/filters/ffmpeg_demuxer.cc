@@ -12,6 +12,26 @@
 
 namespace media {
 
+// FFmpegLock is used to serialize calls to av_find_stream_info() for an entire
+// process because for whatever reason it does Very Bad Things to other demuxers
+// also calling av_find_stream_info().
+//
+// TODO(scherkus): track down and upstream a fix to FFmpeg.
+class FFmpegLock : public Singleton<FFmpegLock> {
+ public:
+  Lock& lock() { return lock_; }
+
+ private:
+  // Only allow Singleton to create and delete FFmpegLock.
+  friend struct DefaultSingletonTraits<FFmpegLock>;
+  FFmpegLock() {}
+  virtual ~FFmpegLock() {}
+
+  Lock lock_;
+  DISALLOW_COPY_AND_ASSIGN(FFmpegLock);
+};
+
+
 //
 // AVPacketBuffer
 //
@@ -254,11 +274,16 @@ void FFmpegDemuxer::InititalizeTask(DataSource* data_source) {
   DCHECK(context);
   format_context_.reset(context);
 
-  // Fully initialize AVFormatContext by parsing the stream a little.
-  result = av_find_stream_info(format_context_.get());
-  if (result < 0) {
-    host_->Error(DEMUXER_ERROR_COULD_NOT_PARSE);
-    return;
+  // Serialize calls to av_find_stream_info().
+  {
+    AutoLock auto_lock(FFmpegLock::get()->lock());
+
+    // Fully initialize AVFormatContext by parsing the stream a little.
+    result = av_find_stream_info(format_context_.get());
+    if (result < 0) {
+      host_->Error(DEMUXER_ERROR_COULD_NOT_PARSE);
+      return;
+    }
   }
 
   // Create demuxer streams for all supported streams.
