@@ -2707,3 +2707,7 @@ BUG13267 LINUX : LayoutTests/editing/selection/5131716-3.html = PASS FAIL
 // WebKit 44372:44405	
 // New Linux crashes and failures. Why are we running platform/mac test on Linux?
 BUG13314 LINUX : LayoutTests/platform/mac/accessibility/accesskey.html = CRASH FAIL
+
+// WebKit 44434:44438
+// introduced new layout_tests by webkit 44435
+BUG13417 : LayoutTests/editing/execCommand/convert-style-elements-to-spans.html = FAIL

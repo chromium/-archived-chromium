@@ -1580,6 +1580,8 @@
         '../third_party/WebKit/WebCore/editing/RemoveNodeCommand.h',
         '../third_party/WebKit/WebCore/editing/RemoveNodePreservingChildrenCommand.cpp',
         '../third_party/WebKit/WebCore/editing/RemoveNodePreservingChildrenCommand.h',
+        '../third_party/WebKit/WebCore/editing/ReplaceNodeWithSpanCommand.cpp',
+        '../third_party/WebKit/WebCore/editing/ReplaceNodeWithSpanCommand.h',
         '../third_party/WebKit/WebCore/editing/ReplaceSelectionCommand.cpp',
         '../third_party/WebKit/WebCore/editing/ReplaceSelectionCommand.h',
         '../third_party/WebKit/WebCore/editing/SelectionController.cpp',
