@@ -54,7 +54,7 @@ def git_fetch_id():
     git_re = re.compile('^\s*git-svn-id:\s+(\S+)@(\d+)', re.M)
     m = git_re.search(p.stdout.read())
     if m:
-      id = m.group(1)
+      id = m.group(2)
   return id
 
 
