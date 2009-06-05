@@ -605,8 +605,8 @@ void URLRequestHttpJob::AddExtraHeaders() {
       // eventually record statistics via either SDCH_EXPERIMENT_DECODE or
       // SDCH_EXPERIMENT_HOLDBACK, and we'll need some packet timing data.
       EnablePacketCounting(kSdchPacketHistogramCount);
-      if (base::RandDouble() < .5) {
-        sdch_test_control_ = true;
+      if (base::RandDouble() < .01) {
+        sdch_test_control_ = true;  // 1% probability.
         advertise_sdch = false;
       } else {
         sdch_test_activated_ = true;
