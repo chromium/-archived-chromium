@@ -408,6 +408,17 @@ bool RootView::ConvertPointToMouseHandler(const gfx::Point& l,
   return true;
 }
 
+void RootView::UpdateCursor(const MouseEvent& e) {
+  gfx::NativeCursor cursor = NULL;
+  View* v = GetViewForPoint(e.location());
+  if (v && v != this) {
+    gfx::Point l(e.location());
+    View::ConvertPointToView(this, v, &l);
+    cursor = v->GetCursorForPoint(e.GetType(), l.x(), l.y());
+  }
+  SetActiveCursor(cursor);
+}
+
 bool RootView::OnMouseDragged(const MouseEvent& e) {
   UpdateCursor(e);
 

@@ -22,21 +22,6 @@ ViewAccessibilityWrapper* View::GetViewAccessibilityWrapper() {
   return NULL;
 }
 
-bool View::HitTest(const gfx::Point& l) const {
-  if (l.x() >= 0 && l.x() < static_cast<int>(width()) &&
-      l.y() >= 0 && l.y() < static_cast<int>(height())) {
-    if (HasHitTestMask()) {
-      // TODO(port): port the windows hit test code here. Once that's factored
-      // out, we can probably move View::HitTest back into views.cc.
-      NOTIMPLEMENTED();
-    }
-    // No mask, but inside our bounds.
-    return true;
-  }
-  // Outside our bounds.
-  return false;
-}
-
 void View::Focus() {
   NOTIMPLEMENTED();
 }

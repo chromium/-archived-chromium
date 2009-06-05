@@ -11,6 +11,7 @@
 
 #include "app/drag_drop_types.h"
 #include "app/gfx/canvas.h"
+#include "app/gfx/path.h"
 #include "app/l10n_util.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
@@ -400,6 +401,29 @@ gfx::Insets View::GetInsets() const {
 gfx::NativeCursor View::GetCursorForPoint(Event::EventType event_type, int x,
                                           int y) {
   return NULL;
+}
+
+bool View::HitTest(const gfx::Point& l) const {
+  if (l.x() >= 0 && l.x() < static_cast<int>(width()) &&
+      l.y() >= 0 && l.y() < static_cast<int>(height())) {
+    if (HasHitTestMask()) {
+      gfx::Path mask;
+      GetHitTestMask(&mask);
+#if defined(OS_WIN)
+      ScopedHRGN rgn(mask.CreateHRGN());
+      return !!PtInRegion(rgn, l.x(), l.y());
+#elif defined(OS_LINUX)
+      GdkRegion* region = mask.CreateGdkRegion();
+      bool result = gdk_region_point_in(region, l.x(), l.y());
+      gdk_region_destroy(region);
+      return result;
+#endif
+    }
+    // No mask, but inside our bounds.
+    return true;
+  }
+  // Outside our bounds.
+  return false;
 }
 
 void View::SetContextMenuController(ContextMenuController* menu_controller) {

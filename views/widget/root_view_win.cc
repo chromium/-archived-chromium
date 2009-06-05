@@ -12,23 +12,6 @@
 
 namespace views {
 
-void RootView::UpdateCursor(const MouseEvent& e) {
-  View *v = GetViewForPoint(e.location());
-
-  if (v && v != this) {
-    gfx::Point l(e.location());
-    View::ConvertPointToView(this, v, &l);
-    HCURSOR cursor = v->GetCursorForPoint(e.GetType(), l.x(), l.y());
-    if (cursor) {
-      ::SetCursor(cursor);
-      return;
-    }
-  }
-  if (previous_cursor_) {
-    SetCursor(previous_cursor_);
-  }
-}
-
 void RootView::OnPaint(HWND hwnd) {
   gfx::Rect original_dirty_region = GetScheduledPaintRectConstrainedToSize();
   if (!original_dirty_region.IsEmpty()) {

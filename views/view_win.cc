@@ -50,22 +50,6 @@ ViewAccessibilityWrapper* View::GetViewAccessibilityWrapper() {
   return accessibility_.get();
 }
 
-bool View::HitTest(const gfx::Point& l) const {
-  if (l.x() >= 0 && l.x() < static_cast<int>(width()) &&
-      l.y() >= 0 && l.y() < static_cast<int>(height())) {
-    if (HasHitTestMask()) {
-      gfx::Path mask;
-      GetHitTestMask(&mask);
-      ScopedHRGN rgn(mask.CreateHRGN());
-      return !!PtInRegion(rgn, l.x(), l.y());
-    }
-    // No mask, but inside our bounds.
-    return true;
-  }
-  // Outside our bounds.
-  return false;
-}
-
 void View::Focus() {
   // Set the native focus to the root view window so it receives the keyboard
   // messages.

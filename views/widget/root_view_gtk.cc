@@ -12,10 +12,6 @@
 
 namespace views {
 
-void RootView::UpdateCursor(const MouseEvent& e) {
-  NOTIMPLEMENTED();
-}
-
 void RootView::OnPaint(GdkEventExpose* event) {
   gfx::CanvasPaint canvas(event);
 
