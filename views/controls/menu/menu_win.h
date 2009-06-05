@@ -46,6 +46,10 @@ class MenuWin : public Menu {
   virtual ~MenuWin();
 
   // Menu overrides.
+  virtual void AddMenuItemWithIcon(int index,
+                                   int item_id,
+                                   const std::wstring& label,
+                                   const SkBitmap& icon);
   virtual Menu* AddSubMenuWithIcon(int index,
                                    int item_id,
                                    const std::wstring& label,

@@ -265,6 +265,14 @@ MenuWin::~MenuWin() {
   DestroyMenu(menu_);
 }
 
+void MenuWin::AddMenuItemWithIcon(int index,
+                                  int item_id,
+                                  const std::wstring& label,
+                                  const SkBitmap& icon) {
+  owner_draw_ = true;
+  Menu::AddMenuItemWithIcon(index, item_id, label, icon);
+}
+
 Menu* MenuWin::AddSubMenuWithIcon(int index,
                                   int item_id,
                                   const std::wstring& label,

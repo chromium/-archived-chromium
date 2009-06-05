@@ -243,10 +243,10 @@ class Menu {
   void AppendMenuItemWithIcon(int item_id,
                               const std::wstring& label,
                               const SkBitmap& icon);
-  void AddMenuItemWithIcon(int index,
-                           int item_id,
-                           const std::wstring& label,
-                           const SkBitmap& icon);
+  virtual void AddMenuItemWithIcon(int index,
+                                   int item_id,
+                                   const std::wstring& label,
+                                   const SkBitmap& icon);
 
   // Enables or disables the item with the specified id.
   virtual void EnableMenuItemByID(int item_id, bool enabled) = 0;
