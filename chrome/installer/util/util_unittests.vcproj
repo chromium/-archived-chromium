@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="installer_unittests"
+	Name="util_unittests"
 	ProjectGUID="{903F8C1E-537A-4C9E-97BE-075147CBE769}"
-	RootNamespace="installer_unittests"
+	RootNamespace="util_unittests"
 	>
 	<Platforms>
 		<Platform
@@ -144,11 +144,11 @@
 			Name="resources"
 			>
 			<File
-				RelativePath="installer_unittests.rc"
+				RelativePath="util_unittests.rc"
 				>
 			</File>
 			<File
-				RelativePath="installer_unittests_resource.h"
+				RelativePath="unit_unittests_resource.h"
 				>
 			</File>
 		</Filter>

@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by installer_unittests.rc
+// Used by util_unittests.rc
 
 // Next default values for new objects
 // 
