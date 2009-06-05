@@ -9,6 +9,8 @@
 #include "base/message_loop.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/profile.h"
+#include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/views/event_utils.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "grit/generated_resources.h"
@@ -116,12 +118,22 @@ bool GoButton::GetTooltipText(int x, int y, std::wstring* tooltip) {
   if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
     l10n_util::WrapStringWithLTRFormatting(&current_text);
 
-  // TODO(pkasting): http://b/868940 Use the right strings at the right times by
-  // asking the autocomplete system what to do.  Don't hardcode "Google" as the
-  // search provider name.
-  tooltip->assign(true ?
-      l10n_util::GetStringF(IDS_TOOLTIP_GO_SITE, current_text) :
-      l10n_util::GetStringF(IDS_TOOLTIP_GO_SEARCH, L"Google", current_text));
+  AutocompleteEditModel* edit_model = location_bar_->location_entry()->model();
+  if (edit_model->CurrentTextIsURL()) {
+    tooltip->assign(l10n_util::GetStringF(IDS_TOOLTIP_GO_SITE, current_text));
+  } else {
+    std::wstring keyword(edit_model->keyword());
+    TemplateURLModel* template_url_model =
+        location_bar_->profile()->GetTemplateURLModel();
+    const TemplateURL* provider =
+        (keyword.empty() || edit_model->is_keyword_hint()) ?
+        template_url_model->GetDefaultSearchProvider() :
+        template_url_model->GetTemplateURLForKeyword(keyword);
+    if (!provider)
+        return false;
+    tooltip->assign(l10n_util::GetStringF(IDS_TOOLTIP_GO_SEARCH,
+        provider->AdjustedShortNameForLocaleDirection(), current_text));
+  }
   return true;
 }
 
