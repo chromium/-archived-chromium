@@ -90,33 +90,33 @@ void Watchdog::ThreadDelegate::ThreadMain() {
     if (remaining_duration.InMilliseconds() > 0) {
       // Spurios wake?  Timer drifts?  Go back to sleep for remaining time.
       watchdog_->condition_variable_.TimedWait(remaining_duration);
-    } else {
-      // We overslept, so this seems like a real alarm.
-      // Watch out for a user that stopped the debugger on a different alarm!
-      {
-        AutoLock static_lock(static_lock_);
-        if (last_debugged_alarm_time_ > watchdog_->start_time_) {
-          // False alarm: we started our clock before the debugger break (last
-          // alarm time).
-          watchdog_->start_time_ += last_debugged_alarm_delay_;
-          if (last_debugged_alarm_time_ > watchdog_->start_time_)
-            // Too many alarms must have taken place.
-            watchdog_->state_ = DISARMED;
-          continue;
-        }
-      }
-      watchdog_->state_ = DISARMED;  // Only alarm at most once.
-      TimeTicks last_alarm_time = TimeTicks::Now();
-      watchdog_->Alarm();  // Set a break point here to debug on alarms.
-      TimeDelta last_alarm_delay = TimeTicks::Now() - last_alarm_time;
-      if (last_alarm_delay > TimeDelta::FromMilliseconds(2)) {
-        // Ignore race of two alarms/breaks going off at roughly the same time.
-        AutoLock static_lock(static_lock_);
-        // This was a real debugger break.
-        last_debugged_alarm_time_ = last_alarm_time;
-        last_debugged_alarm_delay_ = last_alarm_delay;
+      continue;
+    }
+    // We overslept, so this seems like a real alarm.
+    // Watch out for a user that stopped the debugger on a different alarm!
+    {
+      AutoLock static_lock(static_lock_);
+      if (last_debugged_alarm_time_ > watchdog_->start_time_) {
+        // False alarm: we started our clock before the debugger break (last
+        // alarm time).
+        watchdog_->start_time_ += last_debugged_alarm_delay_;
+        if (last_debugged_alarm_time_ > watchdog_->start_time_)
+          // Too many alarms must have taken place.
+          watchdog_->state_ = DISARMED;
+        continue;
       }
     }
+    watchdog_->state_ = DISARMED;  // Only alarm at most once.
+    TimeTicks last_alarm_time = TimeTicks::Now();
+    watchdog_->Alarm();  // Set a break point here to debug on alarms.
+    TimeDelta last_alarm_delay = TimeTicks::Now() - last_alarm_time;
+    if (last_alarm_delay <= TimeDelta::FromMilliseconds(2))
+      continue;
+    // Ignore race of two alarms/breaks going off at roughly the same time.
+    AutoLock static_lock(static_lock_);
+    // This was a real debugger break.
+    last_debugged_alarm_time_ = last_alarm_time;
+    last_debugged_alarm_delay_ = last_alarm_delay;
   }
 }
 

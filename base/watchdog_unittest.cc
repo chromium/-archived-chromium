@@ -75,14 +75,18 @@ TEST(WatchdogTest, AlarmTest) {
   SPIN_FOR_TIMEDELTA_OR_UNTIL_TRUE(TimeDelta::FromMinutes(5),
                                    watchdog.alarm_counter() > 0);
   EXPECT_EQ(1, watchdog.alarm_counter());
+}
 
-  // Set a time greater than the timeout into the past.
+// Make sure a basic alarm fires when the time has expired.
+TEST(WatchdogTest, AlarmPriorTimeTest) {
+  WatchdogCounter watchdog(TimeDelta::TimeDelta(), "Enabled2", true);
+  // Set a time in the past.
   watchdog.ArmSomeTimeDeltaAgo(TimeDelta::FromSeconds(2));
   // It should instantly go off, but certainly in less than 5 minutes.
   SPIN_FOR_TIMEDELTA_OR_UNTIL_TRUE(TimeDelta::FromMinutes(5),
-                                   watchdog.alarm_counter() > 1);
+                                   watchdog.alarm_counter() > 0);
 
-  EXPECT_EQ(2, watchdog.alarm_counter());
+  EXPECT_EQ(1, watchdog.alarm_counter());
 }
 
 // Make sure a disable alarm does nothing, even if we arm it.
@@ -96,7 +100,7 @@ TEST(WatchdogTest, ConstructorDisabledTest) {
 
 // Make sure Disarming will prevent firing, even after Arming.
 TEST(WatchdogTest, DisarmTest) {
-  WatchdogCounter watchdog(TimeDelta::FromSeconds(5), "Enabled", true);
+  WatchdogCounter watchdog(TimeDelta::FromSeconds(5), "Enabled3", true);
   watchdog.Arm();
   PlatformThread::Sleep(100);  // Don't sleep too long
   watchdog.Disarm();
