@@ -151,7 +151,7 @@ int main(int argc, char**argv) {
   printf("\n");
   printf("Clients     : %d\n", num_clients);
   printf("Time        : %dms\n", test_time);
-  printf("Bytes Read  : %d\n", bytes_read); 
+  printf("Bytes Read  : %d\n", bytes_read);
   if (test_time > 0) {
     const char *units = "bps";
     double bps = static_cast<float>(bytes_read * 8) /
@@ -176,7 +176,6 @@ int main(int argc, char**argv) {
       if (name.length() > 0) {
         int value = table.GetRowValue(index);
         printf("%s:\t%d\n", name.c_str(), value);
-         
       }
     }
     printf("</stats>\n");
