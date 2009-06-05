@@ -446,8 +446,6 @@
           'dependencies': [
             'installer_util',
             'installer_util_strings',
-            '../chrome.gyp:app',
-            '../chrome.gyp:chrome_dll',
             '../../build/win/system.gyp:cygwin',
             '../../courgette/courgette.gyp:courgette_lib',
             '../../third_party/bspatch/bspatch.gyp:bspatch',
@@ -513,10 +511,6 @@
               },
               'inputs': [
                 '<scan_server_dlls_py)',
-                '<(PRODUCT_DIR)/chrome.exe',
-                '<(PRODUCT_DIR)/chrome.dll',
-                '<(PRODUCT_DIR)/locales/en-US.dll',
-                '<(PRODUCT_DIR)/icudt38.dll',
               ],
               'outputs': [
                 '<(INTERMEDIATE_DIR)/registered_dlls.h',
