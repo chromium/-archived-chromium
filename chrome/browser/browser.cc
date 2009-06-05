@@ -2071,8 +2071,18 @@ void Browser::InitCommandState() {
   // Clipboard commands
   command_updater_.UpdateCommandEnabled(IDC_CUT, true);
   command_updater_.UpdateCommandEnabled(IDC_COPY, true);
-  command_updater_.UpdateCommandEnabled(IDC_COPY_URL, true);
   command_updater_.UpdateCommandEnabled(IDC_PASTE, true);
+
+  // Find-in-page
+  command_updater_.UpdateCommandEnabled(IDC_FIND, true);
+  command_updater_.UpdateCommandEnabled(IDC_FIND_NEXT, true);
+  command_updater_.UpdateCommandEnabled(IDC_FIND_PREVIOUS, true);
+
+  // Zoom
+  command_updater_.UpdateCommandEnabled(IDC_ZOOM_MENU, true);
+  command_updater_.UpdateCommandEnabled(IDC_ZOOM_PLUS, true);
+  command_updater_.UpdateCommandEnabled(IDC_ZOOM_NORMAL, true);
+  command_updater_.UpdateCommandEnabled(IDC_ZOOM_MINUS, true);
 
   // Show various bits of UI
   command_updater_.UpdateCommandEnabled(IDC_OPEN_FILE, true);
@@ -2091,6 +2101,8 @@ void Browser::InitCommandState() {
   command_updater_.UpdateCommandEnabled(IDC_SHOW_BOOKMARK_MANAGER, true);
   command_updater_.UpdateCommandEnabled(IDC_SHOW_DOWNLOADS, true);
   command_updater_.UpdateCommandEnabled(IDC_HELP_PAGE, true);
+  command_updater_.UpdateCommandEnabled(IDC_PRINT, true);
+  command_updater_.UpdateCommandEnabled(IDC_JS_CONSOLE, true);
 
   // Initialize other commands based on the window type.
   {
@@ -2114,6 +2126,8 @@ void Browser::InitCommandState() {
     command_updater_.UpdateCommandEnabled(IDC_SELECT_LAST_TAB, normal_window);
     command_updater_.UpdateCommandEnabled(IDC_RESTORE_TAB,
         normal_window && !profile_->IsOffTheRecord());
+    command_updater_.UpdateCommandEnabled(IDC_STAR, normal_window);
+    command_updater_.UpdateCommandEnabled(IDC_COPY_URL, normal_window);
 
     // Show various bits of UI
     command_updater_.UpdateCommandEnabled(IDC_CLEAR_BROWSING_DATA,
@@ -2136,7 +2150,7 @@ void Browser::UpdateCommandsForTabState() {
 
   // Window management commands
   command_updater_.UpdateCommandEnabled(IDC_DUPLICATE_TAB,
-      CanDuplicateContentsAt(selected_index()));
+      !(type() & TYPE_APP) && CanDuplicateContentsAt(selected_index()));
 
   // Current navigation entry, may be NULL.
   NavigationEntry* active_entry = current_tab->controller().GetActiveEntry();
@@ -2145,34 +2159,19 @@ void Browser::UpdateCommandsForTabState() {
             current_tab->contents_mime_type().c_str());
 
   // Page-related commands
-  // Only allow bookmarking for web content in normal windows.
-  command_updater_.UpdateCommandEnabled(IDC_STAR, (type() == TYPE_NORMAL));
   window_->SetStarredState(current_tab->is_starred());
   // View-source should not be enabled if already in view-source mode or
   // the source is not viewable.
   command_updater_.UpdateCommandEnabled(IDC_VIEW_SOURCE,
       active_entry && !active_entry->IsViewSourceMode() &&
       is_source_viewable);
-  command_updater_.UpdateCommandEnabled(IDC_PRINT, true);
   command_updater_.UpdateCommandEnabled(IDC_SAVE_PAGE,
       SavePackage::IsSavableURL(current_tab->GetURL()));
   command_updater_.UpdateCommandEnabled(IDC_ENCODING_MENU,
       SavePackage::IsSavableContents(current_tab->contents_mime_type()) &&
       SavePackage::IsSavableURL(current_tab->GetURL()));
 
-  // Find-in-page
-  command_updater_.UpdateCommandEnabled(IDC_FIND, true);
-  command_updater_.UpdateCommandEnabled(IDC_FIND_NEXT, true);
-  command_updater_.UpdateCommandEnabled(IDC_FIND_PREVIOUS, true);
-
-  // Zoom
-  command_updater_.UpdateCommandEnabled(IDC_ZOOM_MENU, true);
-  command_updater_.UpdateCommandEnabled(IDC_ZOOM_PLUS, true);
-  command_updater_.UpdateCommandEnabled(IDC_ZOOM_NORMAL, true);
-  command_updater_.UpdateCommandEnabled(IDC_ZOOM_MINUS, true);
-
   // Show various bits of UI
-  command_updater_.UpdateCommandEnabled(IDC_JS_CONSOLE, true);
   command_updater_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS,
       !current_tab->GetFavIcon().isNull());
 }
