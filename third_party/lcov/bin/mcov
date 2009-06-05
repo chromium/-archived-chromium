@@ -252,8 +252,10 @@ sub read_gcov_file(@) {
   my $number;
   local *INPUT;
 
-  ## TODO(ajeya): Exit more gracefully here.
-  open(INPUT, $filename) or die("ERROR: cannot read $filename!\n");
+  if (!open(INPUT, $filename)) {
+    warn("WARNING: cannot read $filename!\n");
+    return @result;
+  }
   
   # Parse gcov output and populate the array
   my @lines = <INPUT>;

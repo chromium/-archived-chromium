@@ -7,7 +7,7 @@
     # Files/paths to include.  Specify these before the excludes, since rules
     # are in order.
     {
-      'regexp' : '^CHROMIUM/(base|media|net|printing)/',
+      'regexp' : '^CHROMIUM/(base|media|net|printing|chrome|v8|webkit/glue)/',
       'include' : 1,
     },
     # Don't include subversion or mercurial SCM dirs

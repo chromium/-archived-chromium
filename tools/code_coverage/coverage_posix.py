@@ -24,8 +24,15 @@ Linux:
   a "coverage" directory will be created containing the output html.
   Example name:   ..../chromium/src/xcodebuild/Debug
 
---all_unittests: is present, run all files named *_unittests that we
+--genhtml: generate html output.  If not specified only lcov is generated.
+
+--all_unittests: if present, run all files named *_unittests that we
   can find.
+
+--fast_test: make the tests run real fast (just for testing)
+
+--strict: if a test fails, we continue happily.  --strict will cause
+  us to die immediately.
 
 Strings after all options are considered tests to run.  Test names
 have all text before a ':' stripped to help with gyp compatibility.
@@ -44,9 +51,11 @@ import sys
 class Coverage(object):
   """Doitall class for code coverage."""
 
-  def __init__(self, directory):
+  def __init__(self, directory, options, args):
     super(Coverage, self).__init__()
     self.directory = directory
+    self.options = options
+    self.args = args
     self.directory_parent = os.path.dirname(self.directory)
     self.output_directory = os.path.join(self.directory, 'coverage')
     if not os.path.exists(self.output_directory):
@@ -60,20 +69,19 @@ class Coverage(object):
     self.ConfirmPlatformAndPaths()
     self.tests = []
 
-  def FindTests(self, options, args):
+  def FindTests(self):
     """Find unit tests to run; set self.tests to this list.
 
-    Obtain instructions from the command line seen in the provided
-    parsed options and post-option args.
+    Assume all non-option items in the arg list are tests to be run.
     """
     # Small tests: can be run in the "chromium" directory.
     # If asked, run all we can find.
-    if options.all_unittests:
+    if self.options.all_unittests:
       self.tests += glob.glob(os.path.join(self.directory, '*_unittests'))
 
     # If told explicit tests, run those (after stripping the name as
     # appropriate)
-    for testname in args:
+    for testname in self.args:
       if ':' in testname:
         self.tests += [os.path.join(self.directory, testname.split(':')[1])]
       else:
@@ -91,12 +99,14 @@ class Coverage(object):
     """Confirm OS and paths (e.g. lcov)."""
     if not self.IsPosix():
       logging.fatal('Not posix.')
+      sys.exit(1)
     programs = [self.lcov, self.genhtml]
     if self.IsMac():
       programs.append(self.mcov)
     for program in programs:
       if not os.path.exists(program):
         logging.fatal('lcov program missing: ' + program)
+        sys.exit(1)
 
   def IsPosix(self):
     """Return True if we are POSIX."""
@@ -120,15 +130,25 @@ class Coverage(object):
     for fulltest in self.tests:
       if not os.path.exists(fulltest):
         logging.fatal(fulltest + ' does not exist')
+        if self.options.strict:
+          sys.exit(2)
       # TODO(jrg): add timeout?
-      # TODO(jrg): check return value and choke if it failed?
-      # TODO(jrg): add --gtest_print_time like as run from XCode?
-      print 'Running test: ' + fulltest
-      # subprocess.call([fulltest, '--gtest_filter=TupleTest*'])  # quick check
-      subprocess.call([fulltest])
+      print >>sys.stderr, 'Running test: ' + fulltest
+      cmdlist = [fulltest, '--gtest_print_time']
 
-  def GenerateOutput(self):
-    """Convert profile data to html."""
+      # If asked, make this REAL fast for testing.
+      if self.options.fast_test:
+        cmdlist.append('--gtest_filter=TupleTest*')
+
+      retcode = subprocess.call(cmdlist)
+      if retcode:
+        logging.fatal('COVERAGE: test %s failed; return code: %d' %
+                      (fulltest, retcode))
+        if self.options.strict:
+          sys.exit(retcode)
+
+  def GenerateLcov(self):
+    """Convert profile data to lcov."""
     if self.IsLinux():
       command = [self.lcov,
                  '--directory', self.directory,
@@ -139,17 +159,34 @@ class Coverage(object):
       command = [self.mcov,
                  '--directory', self.directory_parent,
                  '--output', self.coverage_info_file]
-    print 'Assembly command: ' + ' '.join(command)
-    subprocess.call(command)
+    print >>sys.stderr, 'Assembly command: ' + ' '.join(command)
+    retcode = subprocess.call(command)
+    if retcode:
+      logging.fatal('COVERAGE: %s failed; return code: %d' %
+                    (command[0], retcode))
+      if self.options.strict:
+        sys.exit(retcode)
 
+  def GenerateHtml(self):
+    """Convert lcov to html."""
+    # TODO(jrg): This isn't happy when run with unit_tests since V8 has a
+    # different "base" so V8 includes can't be found in ".".  Fix.
     command = [self.genhtml,
                self.coverage_info_file,
                '--output-directory',
                self.output_directory]
-    print 'html generation command: ' + ' '.join(command)
-    subprocess.call(command)
+    print >>sys.stderr, 'html generation command: ' + ' '.join(command)
+    retcode = subprocess.call(command)
+    if retcode:
+      logging.fatal('COVERAGE: %s failed; return code: %d' %
+                    (command[0], retcode))
+      if self.options.strict:
+        sys.exit(retcode)
 
 def main():
+  # Print out the args to help someone do it by hand if needed
+  print >>sys.stderr, sys.argv
+
   parser = optparse.OptionParser()
   parser.add_option('-d',
                     '--directory',
@@ -161,15 +198,31 @@ def main():
                     dest='all_unittests',
                     default=False,
                     help='Run all tests we can find (*_unittests)')
+  parser.add_option('-g',
+                    '--genhtml',
+                    dest='genhtml',
+                    default=False,
+                    help='Generate html from lcov output')
+  parser.add_option('-f',
+                    '--fast_test',
+                    dest='fast_test',
+                    default=False,
+                    help='Make the tests run REAL fast by doing little.')
+  parser.add_option('-s',
+                    '--strict',
+                    dest='strict',
+                    default=False,
+                    help='Be strict and die on test failure.')
   (options, args) = parser.parse_args()
   if not options.directory:
     parser.error('Directory not specified')
-
-  coverage = Coverage(options.directory)
+  coverage = Coverage(options.directory, options, args)
   coverage.ClearData()
-  coverage.FindTests(options, args)
+  coverage.FindTests()
   coverage.RunTests()
-  coverage.GenerateOutput()
+  coverage.GenerateLcov()
+  if options.genhtml:
+    coverage.GenerateHtml()
   return 0
 
 

@@ -4403,6 +4403,7 @@
             '../media/media.gyp:media_unittests',
             '../net/net.gyp:net_unittests',
             '../printing/printing.gyp:printing_unittests',
+	    'unit_tests',
           ],
           'actions': [
             {
