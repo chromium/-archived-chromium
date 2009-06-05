@@ -330,10 +330,10 @@ void ExtensionsService::OnExtensionsLoaded(ExtensionList* new_extensions) {
        iter != new_extensions->end(); ++iter) {
     std::wstring extension_id = ASCIIToWide((*iter)->id());
     pref = GetOrCreateExtensionPref(extension_id);
-    Extension::Location location;
-    Extension::State state;
-    if (!pref->GetInteger(kLocation, reinterpret_cast<int*>(&location)) ||
-        !pref->GetInteger(kState, reinterpret_cast<int*>(&state))) {
+    int location;
+    int state;
+    if (!pref->GetInteger(kLocation, &location) ||
+        !pref->GetInteger(kState, &state)) {
       UpdateExtensionPref(extension_id,
           kLocation, Value::CreateIntegerValue(Extension::INTERNAL), false);
       UpdateExtensionPref(extension_id,
@@ -342,8 +342,10 @@ void ExtensionsService::OnExtensionsLoaded(ExtensionList* new_extensions) {
       // The kill-bit only applies to External extensions so this check fails
       // for internal locations that have the kill-bit set. In other words,
       // the kill-bit cannot be set unless the extension is external.
+      Extension::Location ext_location =
+          static_cast<Extension::Location>(location);
       DCHECK(state != Extension::KILLBIT ||
-             Extension::IsExternalLocation(location));
+             Extension::IsExternalLocation(ext_location));
     }
   }
 
@@ -437,8 +439,8 @@ void ExtensionsService::GetExternalExtensions(
     }
 
     // Check to see if the extension has been killed.
-    Extension::State state;
-    if (extension->GetInteger(kState, reinterpret_cast<int*>(&state)) &&
+    int state;
+    if (extension->GetInteger(kState, &state) &&
         state == static_cast<int>(Extension::KILLBIT)) {
       if (killed_extensions) {
         StringToLowerASCII(&key_name);
@@ -566,15 +568,17 @@ void ExtensionsServiceBackend::LoadExtensionsFromInstallDirectory(
     if (!ReadCurrentVersion(extension_path, &current_version))
       continue;
 
-    Extension::Location location;
+    int location;
     DictionaryValue* pref = NULL;
     external_extensions->GetDictionary(ASCIIToWide(extension_id), &pref);
     if (!pref ||
-        !pref->GetInteger(kLocation, reinterpret_cast<int*>(&location))) {
+        !pref->GetInteger(kLocation, &location)) {
       location = Extension::INTERNAL;
     }
+    Extension::Location ext_location =
+        static_cast<Extension::Location>(location);
     FilePath version_path = extension_path.AppendASCII(current_version);
-    if (Extension::IsExternalLocation(location) &&
+    if (Extension::IsExternalLocation(ext_location) &&
         CheckExternalUninstall(external_extensions.get(),
                                version_path, extension_id)) {
       // TODO(erikkay): Possibly defer this operation to avoid slowing initial
@@ -1103,13 +1107,13 @@ void ExtensionsServiceBackend::CheckForExternalUpdates(
       continue;
     }
 
-    Extension::Location location;
-    if (extension->GetInteger(kLocation, reinterpret_cast<int*>(&location)) &&
+    int location;
+    if (extension->GetInteger(kLocation, &location) &&
         location != Extension::EXTERNAL_PREF) {
       continue;
     }
-    Extension::State state;
-    if (extension->GetInteger(kState, reinterpret_cast<int*>(&state)) &&
+    int state;
+    if (extension->GetInteger(kState, &state) &&
         state == Extension::KILLBIT) {
       continue;
     }
@@ -1174,13 +1178,13 @@ bool ExtensionsServiceBackend::CheckExternalUninstall(
     DictionaryValue* extension_prefs, const FilePath& version_path,
     const std::string& id) {
   // First check the preferences for the kill-bit.
-  Extension::Location location = Extension::INVALID;
+  int location = Extension::INVALID;
   DictionaryValue* extension = NULL;
   if (extension_prefs->GetDictionary(ASCIIToWide(id), &extension)) {
-    Extension::State state;
-    if (extension->GetInteger(kLocation, reinterpret_cast<int*>(&location)) &&
+    int state;
+    if (extension->GetInteger(kLocation, &location) &&
         location == Extension::EXTERNAL_PREF) {
-      return extension->GetInteger(kState, reinterpret_cast<int*>(&state)) &&
+      return extension->GetInteger(kState, &state) &&
              state == Extension::KILLBIT;
     }
   }
