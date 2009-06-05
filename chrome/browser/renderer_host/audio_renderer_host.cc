@@ -32,6 +32,17 @@ void RecordProcessTime(base::TimeDelta latency) {
   histogram.AddTime(latency);
 }
 
+// This constant governs the hardware audio buffer size, this value should be
+// choosen carefully and is platform specific.
+const int kSamplesPerHardwarePacket = 8192;
+
+const size_t kMegabytes = 1024 * 1024;
+
+// The following parameters limit the request buffer and packet size from the
+// renderer to avoid renderer from requesting too much memory.
+const size_t kMaxDecodedPacketSize = 2 * kMegabytes;
+const size_t kMaxBufferCapacity = 5 * kMegabytes;
+
 }  // namespace
 
 //-----------------------------------------------------------------------------
@@ -43,17 +54,20 @@ AudioRendererHost::IPCAudioSource::IPCAudioSource(
     int route_id,
     int stream_id,
     AudioOutputStream* stream,
-    size_t packet_size)
+    size_t hardware_packet_size,
+    size_t decoded_packet_size,
+    size_t buffer_capacity)
     : host_(host),
       process_id_(process_id),
       route_id_(route_id),
       stream_id_(stream_id),
       stream_(stream),
-      packet_size_(packet_size),
+      hardware_packet_size_(hardware_packet_size),
+      decoded_packet_size_(decoded_packet_size),
+      buffer_capacity_(buffer_capacity),
       state_(AudioOutputStream::STATE_CREATED),
-      stop_providing_packets_(false),
-      packet_read_event_(false, false),
-      last_packet_size_(0) {
+      push_source_(hardware_packet_size),
+      outstanding_request_(false) {
 }
 
 AudioRendererHost::IPCAudioSource::~IPCAudioSource() {
@@ -71,34 +85,60 @@ AudioRendererHost::IPCAudioSource*
         int channels,
         int sample_rate,
         char bits_per_sample,
-        size_t packet_size) {
+        size_t decoded_packet_size,
+        size_t buffer_capacity) {
+  // Perform come preliminary checks on the parameters.
+  // Make sure the renderer didn't ask for too much memory.
+  if (buffer_capacity > kMaxBufferCapacity ||
+      decoded_packet_size > kMaxDecodedPacketSize)
+    return NULL;
+
+  // Make sure the packet size and buffer capacity parameters are valid.
+  if (buffer_capacity < decoded_packet_size)
+    return NULL;
+
   // Create the stream in the first place.
   AudioOutputStream* stream =
       AudioManager::GetAudioManager()->MakeAudioStream(
           format, channels, sample_rate, bits_per_sample);
-  if (stream && !stream->Open(packet_size)) {
+
+  size_t hardware_packet_size = kSamplesPerHardwarePacket * channels *
+                                bits_per_sample / 8;
+  if (stream && !stream->Open(hardware_packet_size)) {
     stream->Close();
     stream = NULL;
   }
 
   if (stream) {
     IPCAudioSource* source = new IPCAudioSource(
-        host, process_id, route_id, stream_id, stream, packet_size);
+        host,
+        process_id,
+        route_id,
+        stream_id,
+        stream,
+        hardware_packet_size,
+        decoded_packet_size,
+        buffer_capacity);
     // If we can open the stream, proceed with sharing the shared memory.
     base::SharedMemoryHandle foreign_memory_handle;
 
     // Try to create, map and share the memory for the renderer process.
     // If they all succeeded then send a message to renderer to indicate
     // success.
-    if (source->shared_memory_.Create(L"", false, false, packet_size) &&
-        source->shared_memory_.Map(packet_size) &&
+    if (source->shared_memory_.Create(L"",
+                                      false,
+                                      false,
+                                      decoded_packet_size) &&
+        source->shared_memory_.Map(decoded_packet_size) &&
         source->shared_memory_.ShareToProcess(process_handle,
                                               &foreign_memory_handle)) {
       host->Send(new ViewMsg_NotifyAudioStreamCreated(
-          route_id, stream_id, foreign_memory_handle, packet_size));
+          route_id, stream_id, foreign_memory_handle, decoded_packet_size));
+
+      // Also request the first packet to kick start the pre-rolling.
+      source->StartBuffering();
       return source;
     }
-
     source->Close();
     delete source;
   }
@@ -108,38 +148,47 @@ AudioRendererHost::IPCAudioSource*
 }
 
 void AudioRendererHost::IPCAudioSource::Start() {
-  // Only perform the start logic if this source has just created.
-  if (!stream_ || state_ != AudioOutputStream::STATE_CREATED)
+  // We can start from created or paused state.
+  if (!stream_ ||
+      (state_ != AudioOutputStream::STATE_CREATED &&
+       state_ != AudioOutputStream::STATE_PAUSED))
     return;
 
-  // We don't start the stream immediately but prefetch some initial buffers
-  // so as to fill all internal buffers of the AudioOutputStream. The number
-  // of buffers to prefetch can be determined by
-  // AudioOutputStream::GetNumBuffers().
-  if (stream_->GetNumBuffers()) {
-    // If the audio output stream does have internal buffer(s), request a
-    // packet from renderer and start the prefetching.
-    host_->Send(new ViewMsg_RequestAudioPacket(route_id_, stream_id_));
-  } else {
-    // If the audio output stream does not use any internal buffers, we are
-    // safe to start it here.
-    state_ = AudioOutputStream::STATE_STARTED;
-    stream_->Start(this);
-    host_->Send(new ViewMsg_NotifyAudioStreamStateChanged(
-        route_id_, stream_id_, AudioOutputStream::STATE_STARTED, 0));
-  }
+  stream_->Start(this);
+
+  // Update the state and notify renderer.
+  state_ = AudioOutputStream::STATE_STARTED;
+  host_->Send(new ViewMsg_NotifyAudioStreamStateChanged(
+      route_id_, stream_id_, state_, 0));
+}
+
+void AudioRendererHost::IPCAudioSource::Pause() {
+  // We can pause from started state.
+  if (!stream_ ||
+      state_ != AudioOutputStream::STATE_STARTED)
+    return;
+
+  // TODO(hclam): use stop to simulate pause, make sure the AudioOutpusStream
+  // can be started again after stop.
+  stream_->Stop();
+
+  // Update the state and notify renderer.
+  state_ = AudioOutputStream::STATE_PAUSED;
+  host_->Send(new ViewMsg_NotifyAudioStreamStateChanged(
+      route_id_, stream_id_, state_, 0));
 }
 
 void AudioRendererHost::IPCAudioSource::Close() {
-  // We need to wake up all waiting audio thread before calling stop.
-  StopWaitingForPacket();
-
   if (!stream_)
     return;
+
   stream_->Stop();
   stream_->Close();
   // After stream is closed it is destroyed, so don't keep a reference to it.
   stream_ = NULL;
+
+  // Update the current state.
+  state_ = AudioOutputStream::STATE_STOPPED;
 }
 
 void AudioRendererHost::IPCAudioSource::SetVolume(double left, double right) {
@@ -164,62 +213,16 @@ void AudioRendererHost::IPCAudioSource::GetVolume() {
 size_t AudioRendererHost::IPCAudioSource::OnMoreData(AudioOutputStream* stream,
                                                      void* dest,
                                                      size_t max_size) {
-#ifdef IPC_MESSAGE_LOG_ENABLED
-  base::Time tick_start = base::Time::Now();
-#endif
+  size_t size = push_source_.OnMoreData(stream, dest, max_size);
   {
     AutoLock auto_lock(lock_);
-    // If we are ever stopped, don't ask for more audio packet from the
-    // renderer.
-    if (stop_providing_packets_)
-      return 0;
+    SubmitPacketRequest(&auto_lock);
   }
-
-  // If we have an initial packet, use it immediately only in IO thread.
-  // There's a case when IO thread is blocked and audio hardware thread can
-  // reach here to consume initial packets.
-  if (MessageLoop::current() == host_->io_loop()) {
-    if (!initial_buffers_.empty()) {
-      uint8* initial_packet = initial_buffers_.front().first;
-      size_t initial_packet_size = initial_buffers_.front().second;
-      initial_buffers_.pop_front();
-      size_t copied =
-          SafeCopyBuffer(dest, max_size, initial_packet, initial_packet_size);
-      delete [] initial_packet;
-      return copied;
-    }
-    NOTREACHED();
-  }
-
-  // We reach here because we ran out of initial packets, we need to ask the
-  // renderer to give us more. In this case we have to wait until the renderer
-  // gives us packet so we can't sleep on IO thread.
-  DCHECK(MessageLoop::current() != host_->io_loop());
-
-  // Send an IPC message to request audio packet from renderer and wait on the
-  // audio hardware thread.
-  host_->Send(new ViewMsg_RequestAudioPacket(route_id_, stream_id_));
-  packet_read_event_.Wait();
-
-  size_t last_packet_size = 0;
-  {
-     AutoLock auto_lock(lock_);
-     last_packet_size = last_packet_size_;
-  }
-
-  size_t copied = SafeCopyBuffer(dest, max_size,
-                                 shared_memory_.memory(), last_packet_size);
-#ifdef IPC_MESSAGE_LOG_ENABLED
-  // The logging to round trip latency doesn't have dependency on IPC logging.
-  // But it's good we use IPC logging to trigger logging of total latency.
-  if (IPC::Logging::current()->Enabled())
-    RecordRoundTripLatency(base::Time::Now() - tick_start);
-#endif
-  return copied;
+  return size;
 }
 
 void AudioRendererHost::IPCAudioSource::OnClose(AudioOutputStream* stream) {
-  StopWaitingForPacket();
+  push_source_.OnClose(stream);
 }
 
 void AudioRendererHost::IPCAudioSource::OnError(AudioOutputStream* stream,
@@ -230,55 +233,60 @@ void AudioRendererHost::IPCAudioSource::OnError(AudioOutputStream* stream,
   host_->DestroySource(this);
 }
 
-void AudioRendererHost::IPCAudioSource::NotifyPacketReady(size_t packet_size) {
-  if (packet_size > packet_size_) {
-    // If reported size is greater than capacity of the shared memory, close the
-    // stream.
-    host_->SendErrorMessage(route_id_, stream_id_, 0);
-    // We don't need to do packet_read_event_.Signal() here because the
-    // contained stream should be closed by the following call and OnClose will
-    // be received.
-    host_->DestroySource(this);
-    return;
-  }
-
-  if (state_ == AudioOutputStream::STATE_CREATED) {
-    // If we are in a created state, that means we are performing prefetching.
-    uint8* packet = new uint8[packet_size];
-    memcpy(packet, shared_memory_.memory(), packet_size);
-    initial_buffers_.push_back(std::make_pair(packet, packet_size));
-    // If there's not enough initial packets prepared, ask more.
-    if (initial_buffers_.size() < stream_->GetNumBuffers()) {
-      host_->Send(new ViewMsg_RequestAudioPacket(route_id_, stream_id_));
-    } else {
-      state_ = AudioOutputStream::STATE_STARTED;
-      stream_->Start(this);
-      host_->Send(new ViewMsg_NotifyAudioStreamStateChanged(
-          route_id_, stream_id_, AudioOutputStream::STATE_STARTED, 0));
-    }
-  } else {
+void AudioRendererHost::IPCAudioSource::NotifyPacketReady(
+    size_t decoded_packet_size) {
+  bool ok = true;
+  {
     AutoLock auto_lock(lock_);
-    last_packet_size_ = packet_size;
-    packet_read_event_.Signal();
+    outstanding_request_ = false;
+    // If reported size is greater than capacity of the shared memory, we have
+    // an error.
+    if (decoded_packet_size <= decoded_packet_size_) {
+      for (size_t i = 0; i < decoded_packet_size; i += hardware_packet_size_) {
+        size_t size = std::min(decoded_packet_size - i, hardware_packet_size_);
+        ok &= push_source_.Write(
+            static_cast<char*>(shared_memory_.memory()) + i, size);
+        if (!ok)
+          break;
+      }
+
+      // Submit packet request if we have written something.
+      if (ok)
+        SubmitPacketRequest(&auto_lock);
+    }
+  }
+
+  // We have received a data packet but we didn't finish writing to push source.
+  // There's error an error and we should stop.
+  if (!ok) {
+    NOTREACHED();
   }
 }
 
-void AudioRendererHost::IPCAudioSource::StopWaitingForPacket() {
-  AutoLock auto_lock(lock_);
-  stop_providing_packets_ = true;
-  last_packet_size_ = 0;
-  packet_read_event_.Signal();
+void AudioRendererHost::IPCAudioSource::SubmitPacketRequest_Locked() {
+  lock_.AssertAcquired();
+  // Submit a new request when these two conditions are fulfilled:
+  // 1. No outstanding request
+  // 2. There's space for data of the new request.
+  if (!outstanding_request_ &&
+      (push_source_.UnProcessedBytes() + decoded_packet_size_ <=
+       buffer_capacity_)) {
+    outstanding_request_ = true;
+    host_->Send(new ViewMsg_RequestAudioPacket(route_id_, stream_id_));
+  }
 }
 
-size_t AudioRendererHost::IPCAudioSource::SafeCopyBuffer(
-    void* dest, size_t dest_size, const void* src, size_t src_size) {
-  if (src_size > dest_size) {
-    host_->SendErrorMessage(route_id_, stream_id_, 0);
-    host_->DestroySource(this);
-    return 0;
-  }
-  memcpy(dest, src, src_size);
-  return src_size;
+void AudioRendererHost::IPCAudioSource::SubmitPacketRequest(AutoLock* alock) {
+ if (alock) {
+   SubmitPacketRequest_Locked();
+ } else {
+   AutoLock auto_lock(lock_);
+   SubmitPacketRequest_Locked();
+ }
+}
+
+void AudioRendererHost::IPCAudioSource::StartBuffering() {
+  SubmitPacketRequest(NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -333,6 +341,7 @@ bool AudioRendererHost::OnMessageReceived(const IPC::Message& message,
   IPC_BEGIN_MESSAGE_MAP_EX(AudioRendererHost, message, *message_was_ok)
     IPC_MESSAGE_HANDLER(ViewHostMsg_CreateAudioStream, OnCreateStream)
     IPC_MESSAGE_HANDLER(ViewHostMsg_StartAudioStream, OnStartStream)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_PauseAudioStream, OnPauseStream)
     IPC_MESSAGE_HANDLER(ViewHostMsg_CloseAudioStream, OnCloseStream)
     IPC_MESSAGE_HANDLER(ViewHostMsg_NotifyAudioPacketReady, OnNotifyPacketReady)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetAudioVolume, OnGetVolume)
@@ -347,6 +356,7 @@ bool AudioRendererHost::IsAudioRendererHostMessage(
   switch (message.type()) {
     case ViewHostMsg_CreateAudioStream::ID:
     case ViewHostMsg_StartAudioStream::ID:
+    case ViewHostMsg_PauseAudioStream::ID:
     case ViewHostMsg_CloseAudioStream::ID:
     case ViewHostMsg_NotifyAudioPacketReady::ID:
     case ViewHostMsg_GetAudioVolume::ID:
@@ -374,13 +384,16 @@ void AudioRendererHost::OnCreateStream(
       params.channels,
       params.sample_rate,
       params.bits_per_sample,
-      params.packet_size);
+      params.packet_size,
+      params.buffer_capacity);
 
   // If we have created the source successfully, adds it to the map.
   if (source) {
     sources_.insert(
         std::make_pair(
             SourceID(source->route_id(), source->stream_id()), source));
+  } else {
+    SendErrorMessage(msg.routing_id(), stream_id, 0);
   }
 }
 
@@ -389,6 +402,16 @@ void AudioRendererHost::OnStartStream(const IPC::Message& msg, int stream_id) {
   IPCAudioSource* source = Lookup(msg.routing_id(), stream_id);
   if (source) {
     source->Start();
+  } else {
+    SendErrorMessage(msg.routing_id(), stream_id, 0);
+  }
+}
+
+void AudioRendererHost::OnPauseStream(const IPC::Message& msg, int stream_id) {
+  DCHECK(MessageLoop::current() == io_loop_);
+  IPCAudioSource* source = Lookup(msg.routing_id(), stream_id);
+  if (source) {
+    source->Pause();
   } else {
     SendErrorMessage(msg.routing_id(), stream_id, 0);
   }

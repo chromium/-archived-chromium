@@ -150,7 +150,9 @@ class AudioRendererImpl : public media::AudioRendererBase,
   // sends IPC messages on that thread.
   void OnCreateStream(AudioManager::Format format, int channels,
                       int sample_rate, int bits_per_sample,
-                      size_t packet_size);
+                      size_t packet_size, size_t buffer_capacity);
+  void OnPlay();
+  void OnPause();
   void OnSetVolume(double left, double right);
   void OnNotifyPacketReady();
   void OnDestroy();
@@ -164,13 +166,21 @@ class AudioRendererImpl : public media::AudioRendererBase,
   scoped_ptr<base::SharedMemory> shared_memory_;
   size_t shared_memory_size_;
 
-  // Message loop for the io thread.
+  // Message loop for the IO thread.
   MessageLoop* io_loop_;
 
+  // Protects:
+  // - |playback_rate_|
+  // - |stopped_|
+  // - |pending_request_|
   Lock lock_;
   bool stopped_;
+  bool pending_request_;
   float playback_rate_;
-  base::WaitableEvent packet_request_event_;
+
+  // State variables for prerolling.
+  bool prerolling_;
+  size_t preroll_bytes_;
 
   DISALLOW_COPY_AND_ASSIGN(AudioRendererImpl);
 };

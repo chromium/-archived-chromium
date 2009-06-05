@@ -444,3 +444,42 @@ TEST(WinAudioTest, PushSourceFile16KHz)  {
   oas->Stop();
   oas->Close();
 }
+
+// This test is to make sure an AudioOutputStream can be started after it was
+// stopped. You will here two 1.5 seconds wave signal separated by 0.5 seconds
+// of silence.
+TEST(WinAudioTest, PCMWaveStreamPlayTwice200HzTone44Kss) {
+  if (IsRunningHeadless())
+    return;
+  AudioManager* audio_man = AudioManager::GetAudioManager();
+  ASSERT_TRUE(NULL != audio_man);
+  if (!audio_man->HasAudioDevices())
+    return;
+  AudioOutputStream* oas =
+    audio_man->MakeAudioStream(AudioManager::AUDIO_PCM_LINEAR, 1,
+    AudioManager::kAudioCDSampleRate, 16);
+  ASSERT_TRUE(NULL != oas);
+
+  SineWaveAudioSource source(SineWaveAudioSource::FORMAT_16BIT_LINEAR_PCM, 1,
+    200.0, AudioManager::kAudioCDSampleRate);
+  size_t bytes_100_ms = (AudioManager::kAudioCDSampleRate / 10) * 2;
+
+  EXPECT_TRUE(oas->Open(bytes_100_ms));
+  oas->SetVolume(1.0, 1.0);
+
+  // Play the wave for 1.5 seconds.
+  oas->Start(&source);
+  ::Sleep(1500);
+  oas->Stop();
+
+  // Sleep to give silence after stopping the AudioOutputStream.
+  ::Sleep(500);
+
+  // Start again and play for 1.5 seconds.
+  oas->Start(&source);
+  ::Sleep(1500);
+  oas->Stop();
+
+  oas->Close();
+}
+

@@ -366,8 +366,13 @@ struct ViewHostMsg_Audio_CreateStream {
   // Number of bits per sample;
   int bits_per_sample;
 
-  // Number of bytes per packet.
+  // Number of bytes per packet. Determines the maximum number of bytes
+  // transported for each audio packet request.
   size_t packet_size;
+
+  // Maximum number of bytes of audio packets that should be kept in the browser
+  // process.
+  size_t buffer_capacity;
 };
 
 // This message is used for supporting popup menus on Mac OS X using native
@@ -1669,6 +1674,7 @@ struct ParamTraits<ViewHostMsg_Audio_CreateStream> {
     WriteParam(m, p.sample_rate);
     WriteParam(m, p.bits_per_sample);
     WriteParam(m, p.packet_size);
+    WriteParam(m, p.buffer_capacity);
   }
   static bool Read(const Message* m, void** iter, param_type* p) {
     return
@@ -1676,7 +1682,8 @@ struct ParamTraits<ViewHostMsg_Audio_CreateStream> {
       ReadParam(m, iter, &p->channels) &&
       ReadParam(m, iter, &p->sample_rate) &&
       ReadParam(m, iter, &p->bits_per_sample) &&
-      ReadParam(m, iter, &p->packet_size);
+      ReadParam(m, iter, &p->packet_size) &&
+      ReadParam(m, iter, &p->buffer_capacity);
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"<ViewHostMsg_Audio_CreateStream>(");
@@ -1689,6 +1696,8 @@ struct ParamTraits<ViewHostMsg_Audio_CreateStream> {
     LogParam(p.bits_per_sample, l);
     l->append(L", ");
     LogParam(p.packet_size, l);
+    l->append(L")");
+    LogParam(p.buffer_capacity, l);
     l->append(L")");
   }
 };

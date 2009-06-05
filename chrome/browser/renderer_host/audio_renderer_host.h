@@ -9,14 +9,6 @@
 // AudioOutputStream object when requested by the renderer provided with
 // render view id and stream id.
 //
-// AudioRendererHost::IPCAudioSource is a container of AudioOutputStream and
-// provide audio packets to the associated AudioOutputStream through IPC. It
-// transforms the pull data model to a push model used for IPC. When asked by
-// AudioOutputStream for an audio packet, it would send a message to renderer,
-// passing a SharedMemoryHandle for filling the buffer.
-// NotifyPacketReady(|route_id|, |stream_id|) would be called when the
-// buffer is filled and ready to be consumed.
-//
 // This class is owned by BrowserRenderProcessHost, and instantiated on UI
 // thread, but all other operations and method calls (except Destroy()) happens
 // in IO thread, so we need to be extra careful about the lifetime of this
@@ -29,6 +21,48 @@
 // which essentially post a task of OnDestroyed() on IO thread. Inside
 // OnDestroyed(), audio output streams are destroyed and Release() is called
 // which may result in self-destruction.
+//
+// AudioRendererHost::IPCAudioSource is a container of AudioOutputStream and
+// provide audio packets to the associated AudioOutputStream through IPC. It
+// performs the logic for buffering and controlling the AudioOutputStream.
+// 
+// Here is a state diagram for the IPCAudioSource:
+//
+//          .--------->  [ Stopped ]  <--------.
+//          |                ^                 |
+//          |                |                 |
+//    *[ Created ]  -->  [ Started ]  -->  [ Paused ]
+//                           ^                 |
+//                           |                 |
+//                           `-----------------`
+//
+// Here's an example of a typical IPC dialog for audio:
+//
+//   Renderer                                  AudioRendererHost
+//      |    >>>>>>>>>>> CreateStream >>>>>>>>>        |
+//      |    <<<<<<<<<<<< Created <<<<<<<<<<<<<        |
+//      |                                              |
+//      |    <<<<<< RequestAudioPacket <<<<<<<<        |
+//      |    >>>>>>> AudioPacketReady >>>>>>>>>        |
+//      |                   ...                        |
+//      |    <<<<<< RequestAudioPacket <<<<<<<<        |
+//      |    >>>>>>> AudioPacketReady >>>>>>>>>        |
+//      |                                              |
+//      |    >>>>>>>>>>>>> Start >>>>>>>>>>>>>>        |
+//      |    <<<<<<<<<<<< Started <<<<<<<<<<<<<        |  time
+//      |                   ...                        |
+//      |    <<<<<< RequestAudioPacket <<<<<<<<        |
+//      |    >>>>>>> AudioPacketReady >>>>>>>>>        |
+//      |                   ...                        |
+//      |    >>>>>>>>>>>>> Pause >>>>>>>>>>>>>>        |
+//      |    <<<<<<<<<<<< Paused <<<<<<<<<<<<<         |
+//      |                   ...                        |
+//      |    >>>>>>>>>>>>> Start >>>>>>>>>>>>>>        |
+//      |    <<<<<<<<<<<< Started <<<<<<<<<<<<<        |
+//      |                   ...                        |
+//      |    >>>>>>>>>>>>> Close >>>>>>>>>>>>>>        |
+//      v                                              v
+//
 
 #ifndef CHROME_BROWSER_RENDERER_HOST_AUDIO_RENDERER_HOST_H_
 #define CHROME_BROWSER_RENDERER_HOST_AUDIO_RENDERER_HOST_H_
@@ -43,6 +77,7 @@
 #include "base/waitable_event.h"
 #include "chrome/common/ipc_message.h"
 #include "media/audio/audio_output.h"
+#include "media/audio/simple_sources.h"
 
 class AudioManager;
 class MessageLoop;
@@ -94,11 +129,18 @@ class AudioRendererHost : public base::RefCountedThreadSafe<AudioRendererHost> {
   void OnCreateStream(const IPC::Message& msg, int stream_id,
                       const ViewHostMsg_Audio_CreateStream& params);
 
-  // Starts the audio output stream. Delegates the start method call to the
-  // corresponding IPCAudioSource::Start, ViewMsg_NotifyAudioStreamStateChanged
-  // with AudioOutputStream::AUDIO_STREAM_ERROR is sent back to renderer if the
+  // Starts buffering for the audio output stream. Delegates the start method
+  // call to the corresponding IPCAudioSource::Start.
+  // ViewMsg_NotifyAudioStreamStateChanged with
+  // AudioOutputStream::AUDIO_STREAM_ERROR is sent back to renderer if the
   // required IPCAudioSource is not found.
   void OnStartStream(const IPC::Message& msg, int stream_id);
+
+  // Pauses the audio output stream. Delegates the pause method call to the
+  // corresponding IPCAudioSource::Pause, ViewMsg_NotifyAudioStreamStateChanged
+  // with AudioOutputStream::AUDIO_STREAM_ERROR is sent back to renderer if the
+  // required IPCAudioSource is not found.
+  void OnPauseStream(const IPC::Message& msg, int stream_id);
 
   // Closes the audio output stream, delegates the close method call to the
   // corresponding IPCAudioSource::Close, no returning IPC message to renderer
@@ -168,14 +210,18 @@ class AudioRendererHost : public base::RefCountedThreadSafe<AudioRendererHost> {
 
   MessageLoop* io_loop() { return io_loop_; }
 
-  // The container for AudioOutputStream and serves audio packet for it by IPC.
-  // This class does nothing more than sending IPC when OnMoreData is called
-  // or error is received from the hardware audio thread, it also serves the
-  // purpose of containing the audio output stream and associated information.
-  // Lifetime of the audio output stream is not controlled by this class.
+  // The container for AudioOutputStream and serves the audio packet received
+  // via IPC.
   class IPCAudioSource : public AudioOutputStream::AudioSourceCallback {
    public:
     // Factory method for creating an IPCAudioSource, returns NULL if failed.
+    // The IPCAudioSource object will have an internal state of
+    // AudioOutputStream::STATE_CREATED after creation.
+    // If an IPCAudioSource is created successfully, a
+    // ViewMsg_NotifyAudioStreamCreated message is sent to the renderer.
+    // This factory method also starts requesting audio packet from the renderer
+    // after creation. The renderer will thus receive
+    // ViewMsg_RequestAudioPacket message.
     static IPCAudioSource* CreateIPCAudioSource(
         AudioRendererHost* host,             // Host of this source.
         int process_id,                      // Process ID of renderer.
@@ -186,18 +232,22 @@ class AudioRendererHost : public base::RefCountedThreadSafe<AudioRendererHost> {
         int channels,                        // Number of channels.
         int sample_rate,                     // Sampling frequency/rate.
         char bits_per_sample,                // Number of bits per sample.
-        size_t packet_size                   // Number of bytes per packet.
+        size_t decoded_packet_size,          // Number of bytes per packet.
+        size_t buffer_capacity               // Number of bytes in the buffer.
     );
     ~IPCAudioSource();
 
     // Methods to control playback of the stream.
-    // Starts the audio output stream. This method does not call to
-    // AudioOutputStream::Start immediately, but instead try get enough initial
-    // audio packets from the renderer before actual starting. If pre-rolling
-    // has completed and the audio output stream was actually called to start
-    // ViewMsg_NotifyAudioStreamStateChanged with
-    // AudioOutputStream::AUDIO_STREAM_STARTED is sent back to the renderer.
+    // Starts the playback of this audio output stream. The internal state will
+    // be updated to AudioOutputStream::STATE_STARTED and the state update is
+    // sent to the renderer.
     void Start();
+
+    // Pause this audio output stream. The audio output stream will stop
+    // reading from the |push_source_|. The internal state will be updated
+    // to AudioOutputStream::STATE_PAUSED and the state update is sent to
+    // the renderer.
+    void Pause();
 
     // Closes the audio output stream. After calling this method all activities
     // of the audio output stream are stopped.
@@ -232,26 +282,40 @@ class AudioRendererHost : public base::RefCountedThreadSafe<AudioRendererHost> {
                    int route_id,                // Routing ID to RenderView.
                    int stream_id,               // ID of this source.
                    AudioOutputStream* stream,   // Stream associated.
-                   size_t packet_size);         // Size of shared memory
+                   size_t hardware_packet_size,
+                   size_t decoded_packet_size,  // Size of shared memory
                                                 // buffer for writing.
-    void StopWaitingForPacket();
-    size_t SafeCopyBuffer(void* dest, size_t dest_size,
-                          const void* src, size_t src_size);
+                   size_t buffer_capacity);     // Capacity of transportation
+                                                // buffer.
+
+    // Check the condition of |outstanding_request_| and |push_source_| to
+    // determine if we should submit a new packet request.
+    void SubmitPacketRequest_Locked();
+
+    void SubmitPacketRequest(AutoLock* alock);
+
+    // A helper method to start buffering. This method is used by
+    // CreateIPCAudioSource to submit a packet request.
+    void StartBuffering();
 
     AudioRendererHost* host_;
     int process_id_;
     int route_id_;
     int stream_id_;
     AudioOutputStream* stream_;
-    size_t packet_size_;
+    size_t hardware_packet_size_;
+    size_t decoded_packet_size_;
+    size_t buffer_capacity_;
 
     AudioOutputStream::State state_;
-    bool stop_providing_packets_;
     base::SharedMemory shared_memory_;
-    base::WaitableEvent packet_read_event_;
+    PushSource push_source_;
+    bool outstanding_request_;
+
+    // Protects:
+    // - |outstanding_requests_|
+    // - |push_source_|
     Lock lock_;
-    size_t last_packet_size_;
-    std::deque<std::pair<uint8*, size_t> > initial_buffers_;
   };
 
   int process_id_;

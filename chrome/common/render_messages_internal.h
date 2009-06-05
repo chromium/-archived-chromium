@@ -1309,8 +1309,12 @@ IPC_BEGIN_MESSAGES(ViewHost)
                       int /* stream_id */,
                       size_t /* packet size */)
 
-  // Start playing the audio stream specified by (render_view_id, stream_id).
+  // Start buffering the audio stream specified by (render_view_id, stream_id).
   IPC_MESSAGE_ROUTED1(ViewHostMsg_StartAudioStream,
+                      int /* stream_id */)
+
+  // Pause the audio stream specified by (render_view_id, stream_id).
+  IPC_MESSAGE_ROUTED1(ViewHostMsg_PauseAudioStream,
                       int /* stream_id */)
 
   // Close an audio stream specified by (render_view_id, stream_id).

@@ -171,7 +171,9 @@ void PCMWaveOutAudioOutputStream::Stop() {
   if (res != MMSYSERR_NOERROR) {
     state_ = PCMA_PLAYING;
     HandleError(res);
+    return;
   }
+  state_ = PCMA_READY;
 }
 
 // We can Close in any state except that trying to close a stream that is

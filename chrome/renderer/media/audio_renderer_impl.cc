@@ -9,9 +9,22 @@
 #include "chrome/renderer/render_thread.h"
 #include "media/base/filter_host.h"
 
-// We'll try to fill 8192 samples per buffer, which is roughly ~194ms of audio
-// data for a 44.1kHz audio source.
-static const size_t kSamplesPerBuffer = 8192;
+namespace {
+
+// We will try to fill 200 ms worth of audio samples in each packet. A round
+// trip latency for IPC messages are typically 10 ms, this should give us
+// plenty of time to avoid clicks.
+const int kMillisecondsPerPacket = 200;
+
+// We have at most 3 packets in browser, i.e. 600 ms. This is a reasonable
+// amount to avoid clicks.
+const int kPacketsInBuffer = 3;
+
+// We want to preroll 400 milliseconds before starting to play. Again, 400 ms
+// of audio data should give us enough time to get more from the renderer.
+const int kMillisecondsPreroll = 400;
+
+}  // namespace
 
 AudioRendererImpl::AudioRendererImpl(AudioMessageFilter* filter)
     : AudioRendererBase(kDefaultMaxQueueSize),
@@ -21,8 +34,10 @@ AudioRendererImpl::AudioRendererImpl(AudioMessageFilter* filter)
       shared_memory_size_(0),
       io_loop_(filter->message_loop()),
       stopped_(false),
+      pending_request_(false),
       playback_rate_(0.0f),
-      packet_request_event_(true, false) {
+      prerolling_(true),
+      preroll_bytes_(0) {
   DCHECK(io_loop_);
 }
 
@@ -47,11 +62,17 @@ bool AudioRendererImpl::OnInitialize(const media::MediaFormat& media_format) {
   }
 
   // Create the audio output stream in browser process.
-  size_t packet_size = kSamplesPerBuffer * channels * sample_bits / 8;
+  size_t bytes_per_second = sample_rate * channels * sample_bits / 8;
+  size_t packet_size = bytes_per_second * kMillisecondsPerPacket / 1000;
+  size_t buffer_capacity = packet_size * kPacketsInBuffer;
+
+  // Calculate the amount for prerolling.
+  preroll_bytes_ = bytes_per_second * kMillisecondsPreroll / 1000;
+
   io_loop_->PostTask(FROM_HERE,
       NewRunnableMethod(this, &AudioRendererImpl::OnCreateStream,
           AudioManager::AUDIO_PCM_LINEAR, channels, sample_rate, sample_bits,
-          packet_size));
+          packet_size, buffer_capacity));
   return true;
 }
 
@@ -69,18 +90,44 @@ void AudioRendererImpl::OnReadComplete(media::Buffer* buffer_in) {
   AutoLock auto_lock(lock_);
   if (stopped_)
     return;
+
+  // TODO(hclam): handle end of stream here.
+
   // Use the base class to queue the buffer.
   AudioRendererBase::OnReadComplete(buffer_in);
+
   // Post a task to render thread to notify a packet reception.
   io_loop_->PostTask(FROM_HERE,
       NewRunnableMethod(this, &AudioRendererImpl::OnNotifyPacketReady));
 }
 
 void AudioRendererImpl::SetPlaybackRate(float rate) {
-  // TODO(hclam): This is silly.  We should use a playback rate of != 1.0 to
-  // stop the audio stream.  This does not work right now, so we just check
-  // for this in OnNotifyPacketReady().
+  DCHECK(rate >= 0.0f);
+
+  // We have two cases here:
+  // Play: playback_rate_ == 0.0 && rate != 0.0
+  // Pause: playback_rate_ != 0.0 && rate == 0.0
+  AutoLock auto_lock(lock_);
+  if (playback_rate_ == 0.0f && rate != 0.0f) {
+    // Play is a bit tricky, we can only play if we have done prerolling.
+    // TODO(hclam): I should check for end of streams status here.
+    if (!prerolling_)
+      io_loop_->PostTask(FROM_HERE,
+                         NewRunnableMethod(this, &AudioRendererImpl::OnPlay));
+  } else if (playback_rate_ != 0.0f && rate == 0.0f) {
+    // Pause is easy, we can always pause.
+    io_loop_->PostTask(FROM_HERE,
+                       NewRunnableMethod(this, &AudioRendererImpl::OnPause));
+  }
   playback_rate_ = rate;
+
+  // If we are playing, give a kick to try fulfilling the packet request as
+  // the previous packet request may be stalled by a pause.
+  if (rate > 0.0f) {
+    io_loop_->PostTask(
+        FROM_HERE,
+        NewRunnableMethod(this, &AudioRendererImpl::OnNotifyPacketReady));
+  }
 }
 
 void AudioRendererImpl::SetVolume(float volume) {
@@ -104,14 +151,16 @@ void AudioRendererImpl::OnCreated(base::SharedMemoryHandle handle,
   shared_memory_.reset(new base::SharedMemory(handle, false));
   shared_memory_->Map(length);
   shared_memory_size_ = length;
-
-  filter_->Send(new ViewHostMsg_StartAudioStream(0, stream_id_));
 }
 
 void AudioRendererImpl::OnRequestPacket() {
   DCHECK(MessageLoop::current() == io_loop_);
 
-  packet_request_event_.Signal();
+  {
+    AutoLock auto_lock(lock_);
+    DCHECK(!pending_request_);
+    pending_request_ = true;
+  }
 
   // Try to fill in the fulfil the packet request.
   OnNotifyPacketReady();
@@ -146,7 +195,7 @@ void AudioRendererImpl::OnVolume(double left, double right) {
 
 void AudioRendererImpl::OnCreateStream(
     AudioManager::Format format, int channels, int sample_rate,
-    int bits_per_sample, size_t packet_size) {
+    int bits_per_sample, size_t packet_size, size_t buffer_capacity) {
   DCHECK(MessageLoop::current() == io_loop_);
 
   AutoLock auto_lock(lock_);
@@ -163,8 +212,21 @@ void AudioRendererImpl::OnCreateStream(
   params.sample_rate = sample_rate;
   params.bits_per_sample = bits_per_sample;
   params.packet_size = packet_size;
+  params.buffer_capacity = buffer_capacity;
 
   filter_->Send(new ViewHostMsg_CreateAudioStream(0, stream_id_, params));
+}
+
+void AudioRendererImpl::OnPlay() {
+  DCHECK(MessageLoop::current() == io_loop_);
+
+  filter_->Send(new ViewHostMsg_StartAudioStream(0, stream_id_));
+}
+
+void AudioRendererImpl::OnPause() {
+  DCHECK(MessageLoop::current() == io_loop_);
+
+  filter_->Send(new ViewHostMsg_PauseAudioStream(0, stream_id_));
 }
 
 void AudioRendererImpl::OnDestroy() {
@@ -189,22 +251,28 @@ void AudioRendererImpl::OnNotifyPacketReady() {
   AutoLock auto_lock(lock_);
   if (stopped_)
     return;
-  if (packet_request_event_.IsSignaled()) {
-    size_t filled = 0;
+  if (pending_request_ && playback_rate_ > 0.0f) {
     DCHECK(shared_memory_.get());
-    // TODO(hclam):  This is a hack.  The stream should be stopped.
-    if (playback_rate_ > 0.0f) {
-      filled = FillBuffer(static_cast<uint8*>(shared_memory_->memory()),
-                          shared_memory_size_, playback_rate_);
-    } else {
-      memset(shared_memory_->memory(), 0, shared_memory_size_);
-      filled = shared_memory_size_;
-    }
+    size_t filled = FillBuffer(static_cast<uint8*>(shared_memory_->memory()),
+                               shared_memory_size_,
+                               playback_rate_);
+    // TODO(hclam): we should try to fill in the buffer as much as possible.
     if (filled > 0) {
-      packet_request_event_.Reset();
+      pending_request_ = false;
       // Then tell browser process we are done filling into the buffer.
       filter_->Send(
           new ViewHostMsg_NotifyAudioPacketReady(0, stream_id_, filled));
+
+      if (prerolling_) {
+        // We have completed prerolling.
+        if (filled > preroll_bytes_) {
+          prerolling_ = false;
+          preroll_bytes_ = 0;
+          filter_->Send(new ViewHostMsg_StartAudioStream(0, stream_id_));
+        } else {
+          preroll_bytes_ -= filled;
+        }
+      }
     }
   }
 }
