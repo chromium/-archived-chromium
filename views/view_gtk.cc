@@ -4,6 +4,8 @@
 
 #include "views/view.h"
 
+#include <gtk/gtk.h>
+
 #include "base/logging.h"
 
 namespace views {
@@ -27,15 +29,24 @@ void View::Focus() {
 }
 
 int View::GetHorizontalDragThreshold() {
-  static int threshold = -1;
-  NOTIMPLEMENTED();
-  return threshold;
+  static bool determined_threshold = false;
+  static int drag_threshold = 8;
+  if (determined_threshold)
+    return drag_threshold;
+  determined_threshold = true;
+  GtkSettings* settings = gtk_settings_get_default();
+  if (!settings)
+    return drag_threshold;
+  int value = 0;
+  g_object_get(G_OBJECT(settings), "gtk-dnd-drag-threshold", &value, NULL);
+  if (value)
+    drag_threshold = value;
+  return drag_threshold;
 }
 
 int View::GetVerticalDragThreshold() {
-  static int threshold = -1;
-  NOTIMPLEMENTED();
-  return threshold;
+  // Vertical and horizontal drag threshold are the same in Gtk.
+  return GetHorizontalDragThreshold();
 }
 
 }  // namespace views
