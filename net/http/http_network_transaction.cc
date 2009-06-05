@@ -241,10 +241,7 @@ void HttpNetworkTransaction::PrepareForAuthRestart(HttpAuth::Target target) {
   }
 
   bool keep_alive = false;
-  // If the auth scheme is connection-based but the proxy/server mistakenly
-  // marks the connection as non-keep-alive, we still keep it alive.
-  if (response_.headers->IsKeepAlive() ||
-      (auth_handler_[target]->is_connection_based() && has_auth_identity)) {
+  if (response_.headers->IsKeepAlive()) {
     // If there is a response body of known length, we need to drain it first.
     if (response_body_length_ > 0 || chunked_decoder_.get()) {
       next_state_ = STATE_DRAIN_BODY_FOR_AUTH_RESTART;
@@ -256,8 +253,43 @@ void HttpNetworkTransaction::PrepareForAuthRestart(HttpAuth::Target target) {
       keep_alive = true;
     // response_body_length_ is -1 and we're not using chunked encoding. We
     // don't know the length of the response body, so we can't reuse this
-    // connection even though the server says it's keep-alive or we need to
-    // keep it alive for authentication.
+    // connection even though the server says it's keep-alive.
+  }
+
+  // If the auth scheme is connection-based but the proxy/server mistakenly
+  // marks the connection as non-keep-alive, the auth is going to fail, so log
+  // an error message.
+  if (!keep_alive && auth_handler_[target]->is_connection_based() &&
+      has_auth_identity) {
+    LOG(ERROR) << "Can't perform " << auth_handler_[target]->scheme()
+               << " auth to the " << AuthTargetString(target) << " "
+               << AuthOrigin(target) << " over a non-keep-alive connection";
+
+    HttpVersion http_version = response_.headers->GetHttpVersion();
+    LOG(ERROR) << "  HTTP version is " << http_version.major_value() << "."
+               << http_version.minor_value();
+
+    std::string header_val;
+    void* iter = NULL;
+    while (response_.headers->EnumerateHeader(&iter, "connection",
+                                              &header_val)) {
+      LOG(ERROR) << "  Has header Connection: " << header_val;
+    }
+
+    iter = NULL;
+    while (response_.headers->EnumerateHeader(&iter, "proxy-connection",
+                                              &header_val)) {
+      LOG(ERROR) << "  Has header Proxy-Connection: " << header_val;
+    }
+
+    // RFC 4559 requires that a proxy indicate its support of NTLM/Negotiate
+    // authentication with a "Proxy-Support: Session-Based-Authentication"
+    // response header.
+    iter = NULL;
+    while (response_.headers->EnumerateHeader(&iter, "proxy-support",
+                                              &header_val)) {
+      LOG(ERROR) << "  Has header Proxy-Support: " << header_val;
+    }
   }
 
   // We don't need to drain the response body, so we act as if we had drained
