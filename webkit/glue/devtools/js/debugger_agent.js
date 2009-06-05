@@ -19,8 +19,8 @@ devtools.DebuggerAgent = function() {
       goog.bind(this.didGetContextId_, this);
   RemoteDebuggerAgent.DidIsProfilingStarted =
       goog.bind(this.didIsProfilingStarted_, this);
-  RemoteDebuggerAgent.DidGetLogLines =
-      goog.bind(this.didGetLogLines_, this);
+  RemoteDebuggerAgent.DidGetNextLogLines =
+      goog.bind(this.didGetNextLogLines_, this);
 
   /**
    * Id of the inspected page global context. It is used for filtering scripts.
@@ -75,17 +75,10 @@ devtools.DebuggerAgent = function() {
   this.isProfilingStarted_ = false;
 
   /**
-   * The position in log file to read from.
-   * @type {number}
-   */
-  this.lastProfileLogPosition_ = 0;
-
-  /**
    * Profiler processor instance.
    * @type {devtools.profiler.Processor}
    */
-  this.profilerProcessor_ = new devtools.profiler.Processor(
-      goog.bind(WebInspector.addProfile, WebInspector));
+  this.profilerProcessor_ = new devtools.profiler.Processor();
 };
 
 
@@ -99,6 +92,10 @@ devtools.DebuggerAgent.prototype.reset = function() {
   this.requestNumberToBreakpointInfo_ = {};
   this.currentCallFrame_ = null;
   this.requestSeqToCallback_ = {};
+
+  // Profiler isn't reset because it contains no data that is
+  // specific for a particular V8 instance. All such data is
+  // managed by an agent on the Render's side.
 };
 
 
@@ -341,6 +338,36 @@ devtools.DebuggerAgent.prototype.resolveChildren = function(object, callback) {
     }
     callback(object);
   }
+};
+
+
+/**
+ * Sets up callbacks that deal with profiles processing.
+ */
+devtools.DebuggerAgent.prototype.setupProfilerProcessorCallbacks = function() {
+  // A temporary icon indicating that the profile is being processed.
+  var processingIcon = new WebInspector.SidebarTreeElement(
+      "profile-sidebar-tree-item", "Processing...", "", null, false);
+  var profilesSidebar = WebInspector.panels.profiles.sidebarTree;
+
+  this.profilerProcessor_.setCallbacks(
+      function onProfileProcessingStarted() {
+        profilesSidebar.appendChild(processingIcon);
+      },
+      function onProfileProcessingFinished(profile) {
+        profilesSidebar.removeChild(processingIcon);
+        WebInspector.addProfile(profile);
+      }
+  );
+};
+
+
+/**
+ * Initializes profiling state.
+ */
+devtools.DebuggerAgent.prototype.initializeProfiling = function() {
+  this.setupProfilerProcessorCallbacks();
+  RemoteDebuggerAgent.IsProfilingStarted();
 };
 
 
@@ -610,24 +637,7 @@ devtools.DebuggerAgent.prototype.didIsProfilingStarted_ = function(
     is_started) {
   if (is_started && !this.isProfilingStarted_) {
     // Start to query log data.
-    RemoteDebuggerAgent.GetLogLines(this.lastProfileLogPosition_);
-  } else if (!is_started && this.isProfilingStarted_ &&
-             this.profilerProcessor_.isProcessingProfile()) {
-    // Display a temporary icon / message indicating that the profile
-    // is being processed.
-    var processingIcon = new WebInspector.SidebarTreeElement(
-        "profile-sidebar-tree-item", "Processing...", "", null, false);
-    var profilesSidebar = WebInspector.panels.profiles.sidebarTree;
-    profilesSidebar.appendChild(processingIcon);
-    var profilerProcessor = this.profilerProcessor_;
-    // Set a callback for adding a profile that removes the temporary element
-    // and restores plain "addProfile" callback.
-    profilerProcessor.setNewProfileCallback(function (profile) {
-      profilesSidebar.removeChild(processingIcon);
-      WebInspector.addProfile(profile);
-      profilerProcessor.setNewProfileCallback(
-          goog.bind(WebInspector.addProfile, WebInspector));
-    });
+    RemoteDebuggerAgent.GetNextLogLines();
   }
   this.isProfilingStarted_ = is_started;
   // Update button.
@@ -640,21 +650,17 @@ devtools.DebuggerAgent.prototype.didIsProfilingStarted_ = function(
 
 
 /**
- * Handles a portion of a profiler log retrieved by GetLogLines call.
+ * Handles a portion of a profiler log retrieved by GetNextLogLines call.
  * @param {string} log A portion of profiler log.
- * @param {number} newPosition The position in log file to read from
- *     next time.
  */
-devtools.DebuggerAgent.prototype.didGetLogLines_ = function(
-    log, newPosition) {
+devtools.DebuggerAgent.prototype.didGetNextLogLines_ = function(log) {
   if (log.length > 0) {
     this.profilerProcessor_.processLogChunk(log);
-    this.lastProfileLogPosition_ = newPosition;
   } else if (!this.isProfilingStarted_) {
     // No new data and profiling is stopped---suspend log reading.
     return;
   }
-  setTimeout(function() { RemoteDebuggerAgent.GetLogLines(newPosition); }, 500);
+  setTimeout(function() { RemoteDebuggerAgent.GetNextLogLines(); }, 500);
 };
 
 

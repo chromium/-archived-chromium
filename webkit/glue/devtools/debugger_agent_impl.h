@@ -44,7 +44,7 @@ class DebuggerAgentImpl : public DebuggerAgent {
 
   virtual void IsProfilingStarted();
 
-  virtual void GetLogLines(int position);
+  virtual void GetNextLogLines();
 
   void DebuggerOutput(const std::string& out);
 
@@ -67,6 +67,7 @@ class DebuggerAgentImpl : public DebuggerAgent {
   WebViewImpl* web_view_impl_;
   DebuggerAgentDelegate* delegate_;
   WebDevToolsAgentImpl* webdevtools_agent_;
+  int profiler_log_position_;
 
   DISALLOW_COPY_AND_ASSIGN(DebuggerAgentImpl);
 };

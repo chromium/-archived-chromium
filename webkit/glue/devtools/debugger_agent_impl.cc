@@ -43,7 +43,8 @@ DebuggerAgentImpl::DebuggerAgentImpl(
     WebDevToolsAgentImpl* webdevtools_agent)
     : web_view_impl_(web_view_impl),
       delegate_(delegate),
-      webdevtools_agent_(webdevtools_agent) {
+      webdevtools_agent_(webdevtools_agent),
+      profiler_log_position_(0) {
   DebuggerAgentManager::DebugAttach(this);
 }
 
@@ -75,11 +76,13 @@ void DebuggerAgentImpl::IsProfilingStarted() {
   delegate_->DidIsProfilingStarted(!v8::V8::IsProfilerPaused());
 }
 
-void DebuggerAgentImpl::GetLogLines(int position) {
+void DebuggerAgentImpl::GetNextLogLines() {
   static char buffer[65536];
-  int read_size = v8::V8::GetLogLines(position, buffer, sizeof(buffer) - 1);
+  int read_size = v8::V8::GetLogLines(
+      profiler_log_position_, buffer, sizeof(buffer) - 1);
+  profiler_log_position_ += read_size;
   buffer[read_size] = '\0';
-  delegate_->DidGetLogLines(buffer, position + read_size);
+  delegate_->DidGetNextLogLines(buffer);
 }
 
 void DebuggerAgentImpl::DebuggerOutput(const std::string& command) {

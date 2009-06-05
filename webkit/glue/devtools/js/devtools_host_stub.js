@@ -12,6 +12,7 @@
  */
 RemoteDebuggerAgentStub = function() {
   this.isProfiling_ = false;
+  this.profileLogPos_ = 0;
 };
 
 RemoteDebuggerAgentStub.prototype.DebugBreak = function() {
@@ -36,16 +37,16 @@ RemoteDebuggerAgentStub.prototype.IsProfilingStarted = function() {
   }, 100);
 };
 
-RemoteDebuggerAgentStub.prototype.GetLogLines = function(pos) {
-  if (pos < RemoteDebuggerAgentStub.ProfilerLogBuffer.length) {
+RemoteDebuggerAgentStub.prototype.GetNextLogLines = function() {
+  if (this.profileLogPos_ < RemoteDebuggerAgentStub.ProfilerLogBuffer.length) {
+    this.profileLogPos_ += RemoteDebuggerAgentStub.ProfilerLogBuffer.length;
     setTimeout(function() {
-        RemoteDebuggerAgent.DidGetLogLines(
-            RemoteDebuggerAgentStub.ProfilerLogBuffer,
-            pos + RemoteDebuggerAgentStub.ProfilerLogBuffer.length);
+        RemoteDebuggerAgent.DidGetNextLogLines(
+            RemoteDebuggerAgentStub.ProfilerLogBuffer);
         },
         100);
   } else {
-    setTimeout(function() { RemoteDebuggerAgent.DidGetLogLines('', pos); }, 100);
+    setTimeout(function() { RemoteDebuggerAgent.DidGetNextLogLines(''); }, 100);
   }
 };
 

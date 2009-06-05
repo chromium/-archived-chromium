@@ -142,18 +142,19 @@ devtools.profiler.JsProfile.prototype.skipThisFunction = function(name) {
  *     that receives a new processed profile.
  * @constructor
  */
-devtools.profiler.Processor = function(newProfileCallback) {
+devtools.profiler.Processor = function() {
   /**
-   * Callback that adds a new profile to view.
-   * @type {function(devtools.profiler.ProfileView)}
+   * Callback that is called when a new profile is encountered in the log.
+   * @type {function()}
    */
-  this.newProfileCallback_ = newProfileCallback;
+  this.startedProfileProcessing_ = null;
 
   /**
-   * Profiles array.
-   * @type {Array<devtools.profiler.JsProfile>}
+   * Callback that is called when a profile has been processed and is ready
+   * to be shown.
+   * @type {function(devtools.profiler.ProfileView)}
    */
-  this.profiles_ = [];
+  this.finishedProfileProcessing_ = null;
 
   /**
    * The current profile.
@@ -172,6 +173,20 @@ devtools.profiler.Processor = function(newProfileCallback) {
    * @type {number}
    */
   this.profileId_ = 1;
+};
+
+
+/**
+ * Sets profile processing callbacks.
+ *
+ * @param {function()} started Started processing callback.
+ * @param {function(devtools.profiler.ProfileView)} finished Finished
+ *     processing callback.
+ */
+devtools.profiler.Processor.prototype.setCallbacks = function(
+    started, finished) {
+  this.startedProfileProcessing_ = started;
+  this.finishedProfileProcessing_ = finished;
 };
 
 
@@ -209,15 +224,6 @@ devtools.profiler.Processor.RecordsDispatch_ = {
   'code-allocate': null,
   'begin-code-region': null,
   'end-code-region': null
-};
-
-
-/**
- * Returns whether a profile is currently processed.
- * @return {boolean}
- */
-devtools.profiler.Processor.prototype.isProcessingProfile = function() {
-  return this.currentProfile_ != null;
 };
 
 
@@ -310,16 +316,20 @@ devtools.profiler.Processor.prototype.processProfiler_ = function(
     case 'resume':
       if (this.currentProfile_ == null) {
         this.currentProfile_ = new devtools.profiler.JsProfile();
-        this.profiles_.push(this.currentProfile_);
         // see the comment for devtools.profiler.Processor.PROGRAM_ENTRY
         this.currentProfile_.addCode(
           'Function', '(program)',
           devtools.profiler.Processor.PROGRAM_ENTRY, 1);
+        if (this.startedProfileProcessing_) {
+          this.startedProfileProcessing_();
+        }
       }
       break;
     case 'pause':
       if (this.currentProfile_ != null) {
-        this.newProfileCallback_(this.createProfileForView());
+        if (this.finishedProfileProcessing_) {
+          this.finishedProfileProcessing_(this.createProfileForView());
+        }
         this.currentProfile_ = null;
       }
       break;

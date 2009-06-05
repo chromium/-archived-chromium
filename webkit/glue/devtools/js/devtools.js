@@ -114,7 +114,16 @@ devtools.ToolsAgent.prototype.updateFocusedNode_ = function(nodeId) {
 devtools.ToolsAgent.prototype.frameNavigate_ = function(url, topLevel) {
   if (topLevel) {
     this.reset();
+    // Do not reset Profiles panel.
+    var profiles = null;
+    if ('profiles' in WebInspector.panels) {
+      profiles = WebInspector.panels['profiles'];
+      delete WebInspector.panels['profiles'];
+    }
     WebInspector.reset();
+    if (profiles != null) {
+      WebInspector.panels['profiles'] = profiles;
+    }
   }
 };
 
@@ -882,6 +891,15 @@ WebInspector.Console.prototype._evalInInspectedWindow = function(expression) {
        Number.secondsToString = oldNumberSecondsToString;
        return data;
      });
+})();
+
+
+(function InterceptProfilesPanelEvents() {
+  var oldShow = WebInspector.ProfilesPanel.prototype.show;
+  WebInspector.ProfilesPanel.prototype.show = function() {
+    devtools.tools.getDebuggerAgent().initializeProfiling();
+    oldShow.call(this);
+  };
 })();
 
 

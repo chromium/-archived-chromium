@@ -26,8 +26,8 @@
   /* Requests current profiler status. */ \
   METHOD0(IsProfilingStarted) \
   \
-  /* Retrieves a portion of profiler log. */ \
-  METHOD1(GetLogLines, int /* position */)
+  /* Retrieves next portion of profiler log. */ \
+  METHOD0(GetNextLogLines)
 
 DEFINE_RPC_CLASS(DebuggerAgent, DEBUGGER_AGENT_STRUCT)
 
@@ -41,8 +41,8 @@ DEFINE_RPC_CLASS(DebuggerAgent, DEBUGGER_AGENT_STRUCT)
   /* Response to IsProfilingStarted. */ \
   METHOD1(DidIsProfilingStarted, bool /* is_started */) \
   \
-  /* Response to GetLogLines. */ \
-  METHOD2(DidGetLogLines, std::string /* log */, int /* new_position */)
+  /* Response to GetNextLogLines. */ \
+  METHOD1(DidGetNextLogLines, std::string /* log */)
 
 DEFINE_RPC_CLASS(DebuggerAgentDelegate, DEBUGGER_AGENT_DELEGATE_STRUCT)
 

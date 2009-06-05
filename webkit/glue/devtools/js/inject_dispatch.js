@@ -40,7 +40,10 @@ function devtools$$dispatch(functionName, node, json_args) {
  */
 var dispatch = function(method, var_args) {
   // Handle all messages with non-primitieve arguments here.
-  if (method == 'inspectedWindowCleared') {
+  if (method == 'inspectedWindowCleared' ||
+      // TODO(pfeldman): move this code from injected dispatch
+      // to the client dispatch.
+      method == 'reset') {
     return;
   }
   var args = Array.prototype.slice.call(arguments);
