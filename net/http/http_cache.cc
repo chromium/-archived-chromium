@@ -22,6 +22,7 @@
 #include "net/base/net_errors.h"
 #include "net/disk_cache/disk_cache.h"
 #include "net/http/http_network_layer.h"
+#include "net/http/http_network_session.h"
 #include "net/http/http_request_info.h"
 #include "net/http/http_response_headers.h"
 #include "net/http/http_response_info.h"
@@ -576,16 +577,23 @@ void HttpCache::Transaction::SetRequest(const HttpRequestInfo* request) {
   request_ = request;
   effective_load_flags_ = request_->load_flags;
 
-  // When in playback mode, we want to load exclusively from the cache.
-  if (cache_->mode() == PLAYBACK)
-    effective_load_flags_ |= LOAD_ONLY_FROM_CACHE;
-
-  // When in record mode, we want to NEVER load from the cache.
-  // The reason for this is beacuse we save the Set-Cookie headers
-  // (intentionally).  If we read from the cache, we replay them
-  // prematurely.
-  if (cache_->mode() == RECORD)
-    effective_load_flags_ |= LOAD_BYPASS_CACHE;
+  switch(cache_->mode()) {
+    case NORMAL:
+      break;
+    case RECORD:
+      // When in record mode, we want to NEVER load from the cache.
+      // The reason for this is beacuse we save the Set-Cookie headers
+      // (intentionally).  If we read from the cache, we replay them
+      // prematurely.
+      effective_load_flags_ |= LOAD_BYPASS_CACHE;
+    case PLAYBACK:
+      // When in playback mode, we want to load exclusively from the cache.
+      effective_load_flags_ |= LOAD_ONLY_FROM_CACHE;
+      break;
+    case DISABLE:
+      effective_load_flags_ |= LOAD_DISABLE_CACHE;
+      break;
+  }
 
   // Some headers imply load flags.  The order here is significant.
   //
@@ -1165,6 +1173,7 @@ std::string HttpCache::GenerateCacheKey(const HttpRequestInfo* request) {
   if (request->url.has_ref())
     url.erase(url.find_last_of('#'));
 
+  DCHECK(mode_ != DISABLE);
   if (mode_ == NORMAL) {
     // No valid URL can begin with numerals, so we should not have to worry
     // about collisions with normal URLs.
@@ -1459,6 +1468,15 @@ void HttpCache::OnProcessPendingQueue(ActiveEntry* entry) {
   entry->pending_queue.erase(entry->pending_queue.begin());
 
   AddTransactionToEntry(entry, next);
+}
+
+void HttpCache::CloseIdleConnections() {
+  net::HttpNetworkLayer* network =
+      static_cast<net::HttpNetworkLayer*>(network_layer_.get());
+  HttpNetworkSession* session = network->GetSession();
+  if (session) {
+    session->connection_pool()->CloseIdleSockets();
+  }
 }
 
 //-----------------------------------------------------------------------------

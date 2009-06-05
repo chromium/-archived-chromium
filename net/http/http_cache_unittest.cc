@@ -1314,3 +1314,23 @@ TEST(HttpCache, OutlivedTransactions) {
   delete cache;
   delete trans;
 }
+
+// Test that the disabled mode works.
+TEST(HttpCache, CacheDisabledMode) {
+  MockHttpCache cache;
+
+  // write to the cache
+  RunTransactionTest(cache.http_cache(), kSimpleGET_Transaction);
+
+  // go into disabled mode
+  cache.http_cache()->set_mode(net::HttpCache::DISABLE);
+
+  // force this transaction to write to the cache again
+  MockTransaction transaction(kSimpleGET_Transaction);
+
+  RunTransactionTest(cache.http_cache(), transaction);
+
+  EXPECT_EQ(2, cache.network_layer()->transaction_count());
+  EXPECT_EQ(0, cache.disk_cache()->open_count());
+  EXPECT_EQ(1, cache.disk_cache()->create_count());
+}

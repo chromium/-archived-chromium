@@ -48,7 +48,10 @@ class HttpCache : public HttpTransactionFactory {
     RECORD,
     // Playback mode replays from a cache without considering any
     // standard invalidations.
-    PLAYBACK
+    PLAYBACK,
+    // Disables reads and writes from the cache.
+    // Equivalent to setting LOAD_DISABLE_CACHE on every request.
+    DISABLE
   };
 
   // Initialize the cache from the directory where its data is stored. The
@@ -102,6 +105,9 @@ class HttpCache : public HttpTransactionFactory {
 
   void set_type(CacheType type) { type_ = type; }
   CacheType type() { return type_; }
+
+  // Close All Idle Sockets.  This is for debugging.
+  void CloseIdleConnections();
 
  private:
 
