@@ -392,10 +392,6 @@ struct ViewHostMsg_ShowPopup_Params {
   std::vector<WebMenuItem> popup_items;
 };
 
-// Used by UtilityHostMsg_UnpackExtension_Succeeded.  We must define a typedef
-// because the preprocessor is stupid about commas inside macros.
-typedef Tuple2<SkBitmap, FilePath> UnpackExtension_ImagePathPair;
-
 namespace IPC {
 
 template <>

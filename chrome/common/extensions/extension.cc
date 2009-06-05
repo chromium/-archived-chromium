@@ -805,3 +805,25 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
 
   return true;
 }
+
+std::set<FilePath> Extension::GetBrowserImages() {
+  std::set<FilePath> image_paths;
+
+  DictionaryValue* theme_images = GetThemeImages();
+  if (theme_images) {
+    for (DictionaryValue::key_iterator it = theme_images->begin_keys();
+         it != theme_images->end_keys(); ++it) {
+      std::wstring val;
+      if (theme_images->GetString(*it, &val)) {
+        image_paths.insert(FilePath::FromWStringHack(val));
+      }
+    }
+  }
+
+  for (PageActionMap::const_iterator it = page_actions().begin();
+       it != page_actions().end(); ++it) {
+    image_paths.insert(it->second->icon_path());
+  }
+
+  return image_paths;
+}

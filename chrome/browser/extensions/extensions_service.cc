@@ -144,8 +144,8 @@ class ExtensionsServiceBackend::UnpackerClient
       // in a unit test and run the unpacker directly in-process.
       ExtensionUnpacker unpacker(temp_extension_path_);
       if (unpacker.Run()) {
-        OnUnpackExtensionSucceeded(*unpacker.parsed_manifest(),
-                                   unpacker.decoded_images());
+        OnUnpackExtensionSucceededImpl(*unpacker.parsed_manifest(),
+                                       unpacker.decoded_images());
       } else {
         OnUnpackExtensionFailed(unpacker.error_message());
       }
@@ -162,9 +162,19 @@ class ExtensionsServiceBackend::UnpackerClient
     OnUnpackExtensionFailed("Chrome crashed while trying to install.");
   }
 
-  virtual void OnUnpackExtensionSucceeded(
+  virtual void OnUnpackExtensionSucceeded(const DictionaryValue& manifest) {
+     ExtensionUnpacker::DecodedImages images;
+     if (!ExtensionUnpacker::ReadImagesFromFile(temp_extension_path_,
+                                                &images)) {
+       OnUnpackExtensionFailed("Couldn't read image data from disk.");
+     } else {
+       OnUnpackExtensionSucceededImpl(manifest, images);
+     }
+  }
+
+  void OnUnpackExtensionSucceededImpl(
       const DictionaryValue& manifest,
-      const std::vector< Tuple2<SkBitmap, FilePath> >& images) {
+      const ExtensionUnpacker::DecodedImages& images) {
     // The extension was unpacked to the temp dir inside our unpacking dir.
     FilePath extension_dir = temp_extension_path_.DirName().AppendASCII(
         ExtensionsServiceBackend::kTempExtensionName);
@@ -963,6 +973,25 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
                             manifest_json.data(), manifest_json.size())) {
     ReportExtensionInstallError(extension_path, "Error saving manifest.json.");
     return;
+  }
+
+  // Delete any images that may be used by the browser.  We're going to write
+  // out our own versions of the parsed images, and we want to make sure the
+  // originals are gone for good.
+  std::set<FilePath> image_paths = extension.GetBrowserImages();
+  if (image_paths.size() != images.size()) {
+    ReportExtensionInstallError(extension_path,
+        "Decoded images don't match what's in the manifest.");
+    return;
+  }
+
+  for (std::set<FilePath>::iterator it = image_paths.begin();
+       it != image_paths.end(); ++it) {
+    if (!file_util::Delete(temp_extension_dir.Append(*it), false)) {
+      ReportExtensionInstallError(extension_path,
+                                  "Error removing old image file.");
+      return;
+    }
   }
 
   // Write our parsed images back to disk as well.

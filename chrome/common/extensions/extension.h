@@ -5,6 +5,7 @@
 #ifndef CHROME_COMMON_EXTENSIONS_EXTENSION_H_
 #define CHROME_COMMON_EXTENSIONS_EXTENSION_H_
 
+#include <set>
 #include <string>
 #include <vector>
 
@@ -201,6 +202,10 @@ class Extension {
     return theme_display_properties_.get();
   }
   bool IsTheme() { return is_theme_; }
+
+  // Returns a list of paths (relative to the extension dir) for images that
+  // the browser might load (like themes and page action icons).
+  std::set<FilePath> GetBrowserImages();
 
  private:
   // Helper method that loads a UserScript object from a

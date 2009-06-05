@@ -15,9 +15,10 @@
 class DictionaryValue;
 class SkBitmap;
 
-// Implements IO for the ExtensionsService.
-// TODO(aa): Extract an interface out of this for testing the frontend, once the
-// frontend has significant logic to test.
+// This class unpacks an extension.  It is designed to be used in a sandboxed
+// child process.  We unpack and parse various bits of the extension, then
+// report back to the browser process, who then transcodes the pre-parsed bits
+// and writes them back out to disk for later use.
 class ExtensionUnpacker {
  public:
   typedef std::vector< Tuple2<SkBitmap, FilePath> > DecodedImages;
@@ -28,6 +29,17 @@ class ExtensionUnpacker {
   // Install the extension file at |extension_path|.  Returns true on success.
   // Otherwise, error_message will contain a string explaining what went wrong.
   bool Run();
+
+  // Write the decoded images to kDecodedImagesFilename.  We do this instead
+  // of sending them over IPC, since they are so large.  Returns true on
+  // success.
+  bool DumpImagesToFile();
+
+  // Read the decoded images back from the file we saved them to.
+  // |extension_path| is the path to the extension we unpacked that wrote the
+  // data. Returns true on success.
+  static bool ReadImagesFromFile(const FilePath& extension_path,
+                                 DecodedImages* images);
 
   const std::string& error_message() { return error_message_; }
   DictionaryValue* parsed_manifest() {

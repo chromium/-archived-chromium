@@ -14,12 +14,13 @@
 #include "base/values.h"
 #include "net/base/file_stream.h"
 #include "chrome/common/extensions/extension.h"
+#include "chrome/common/ipc_message_utils.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/url_constants.h"
+#include "chrome/common/zip.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "webkit/glue/image_decoder.h"
-#include "chrome/common/zip.h"
 
 namespace {
 const char kCurrentVersionFileName[] = "Current Version";
@@ -27,6 +28,9 @@ const char kCurrentVersionFileName[] = "Current Version";
 // The name of a temporary directory to install an extension into for
 // validation before finalizing install.
 const char kTempExtensionName[] = "TEMP_INSTALL";
+
+// The file to write our decoded images to, relative to the extension_path.
+const char kDecodedImagesFilename[] = "DECODED_IMAGES";
 
 // Chromium Extension magic number
 const char kExtensionFileMagic[] = "Cr24";
@@ -262,25 +266,41 @@ bool ExtensionUnpacker::Run() {
   }
 
   // Decode any images that the browser needs to display.
-  DictionaryValue* images = extension.GetThemeImages();
-  if (images) {
-    for (DictionaryValue::key_iterator it = images->begin_keys();
-         it != images->end_keys(); ++it) {
-      std::wstring val;
-      if (images->GetString(*it, &val)) {
-        if (!AddDecodedImage(FilePath::FromWStringHack(val)))
-          return false;  // Error was already reported.
-      }
-    }
-  }
-
-  for (PageActionMap::const_iterator it = extension.page_actions().begin();
-       it != extension.page_actions().end(); ++it) {
-    if (!AddDecodedImage(it->second->icon_path()))
+  std::set<FilePath> image_paths = extension.GetBrowserImages();
+  for (std::set<FilePath>::iterator it = image_paths.begin();
+       it != image_paths.end(); ++it) {
+    if (!AddDecodedImage(*it))
       return false;  // Error was already reported.
   }
 
   return true;
+}
+
+bool ExtensionUnpacker::DumpImagesToFile() {
+  IPC::Message pickle;  // We use a Message so we can use WriteParam.
+  IPC::WriteParam(&pickle, decoded_images_);
+
+  FilePath path = extension_path_.DirName().AppendASCII(kDecodedImagesFilename);
+  if (!file_util::WriteFile(path, static_cast<const char*>(pickle.data()),
+                            pickle.size())) {
+    SetError("Could not write image data to disk.");
+    return false;
+  }
+
+  return true;
+}
+
+// static
+bool ExtensionUnpacker::ReadImagesFromFile(const FilePath& extension_path,
+                                           DecodedImages* images) {
+  FilePath path = extension_path.DirName().AppendASCII(kDecodedImagesFilename);
+  std::string file_str;
+  if (!file_util::ReadFileToString(path, &file_str))
+    return false;
+
+  IPC::Message pickle(file_str.data(), file_str.size());
+  void* iter = NULL;
+  return IPC::ReadParam(&pickle, &iter, images);
 }
 
 bool ExtensionUnpacker::AddDecodedImage(const FilePath& path) {
