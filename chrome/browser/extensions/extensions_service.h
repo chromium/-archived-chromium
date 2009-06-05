@@ -16,8 +16,10 @@
 #include "base/task.h"
 #include "base/values.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/extensions/extension.h"
 
 class Browser;
+class DictionaryValue;
 class Extension;
 class ExtensionsServiceBackend;
 class GURL;
@@ -63,6 +65,26 @@ class ExtensionsService
   // Lookup an extension by |id|.
   Extension* GetExtensionByID(std::string id);
 
+  // Gets a list of external extensions. If |external_extensions| is non-null,
+  // a dictionary with all external extensions (including extensions installed
+  // through the registry on Windows builds) and their preferences are
+  // returned. If |killed_extensions| is non-null, a set of string IDs
+  // containing all external extension IDs with the killbit set are returned.
+  void GetExternalExtensions(DictionaryValue* external_extensions,
+                             std::set<std::string>* killed_extensions);
+
+  // Gets the settings for an extension from preferences. If the key doesn't
+  // exist, this function creates it (don't need to check return for NULL).
+  DictionaryValue* GetOrCreateExtensionPref(const std::wstring& extension_id);
+
+  // Writes a preference value for a particular extension |extension_id| under
+  // the |key| specified. If |schedule_save| is true, it will also ask the
+  // preference system to schedule a save to disk.
+  bool UpdateExtensionPref(const std::wstring& extension_id,
+                           const std::wstring& key,
+                           Value* data_value,
+                           bool schedule_save);
+
   // The name of the file that the current active version number is stored in.
   static const char* kCurrentVersionFileName;
 
@@ -86,6 +108,10 @@ class ExtensionsService
 
   // Called by the backend when an extensoin hsa been installed.
   void OnExtensionInstalled(Extension* extension, bool is_update);
+
+  // Called by the backend when an external extension has been installed.
+  void OnExternalExtensionInstalled(
+      const std::string& id, Extension::Location location);
 
   // Called by the backend when an extension has been reinstalled.
   void OnExtensionVersionReinstalled(const std::string& id);
@@ -136,7 +162,8 @@ class ExtensionsServiceBackend
   // Errors are reported through ExtensionErrorReporter. On completion,
   // OnExtensionsLoaded() is called with any successfully loaded extensions.
   void LoadExtensionsFromInstallDirectory(
-      scoped_refptr<ExtensionsService> frontend);
+      scoped_refptr<ExtensionsService> frontend,
+      DictionaryValue* extension_prefs);
 
   // Loads a single extension from |path| where |path| is the top directory of
   // a specific extension where its manifest file lives.
@@ -158,6 +185,7 @@ class ExtensionsServiceBackend
   // Errors are reported through ExtensionErrorReporter. Succcess is not
   // reported.
   void CheckForExternalUpdates(std::set<std::string> ids_to_ignore,
+                               DictionaryValue* extension_prefs,
                                scoped_refptr<ExtensionsService> frontend);
 
   // Deletes all versions of the extension from the filesystem. Note that only
@@ -214,6 +242,18 @@ class ExtensionsServiceBackend
   // Notify the frontend that the extension had already been installed.
   void ReportExtensionVersionReinstalled(const std::string& id);
 
+  // Checks a set of strings (containing id's to ignore) in order to determine
+  // if the extension should be installed.
+  bool ShouldSkipInstallingExtension(const std::set<std::string>& ids_to_ignore,
+                                     const std::string& id);
+
+  // Installs the extension if the extension is a newer version or if the
+  // extension hasn't been installed before.
+  void CheckVersionAndInstallExtension(const std::string& id,
+                                       const std::string& extension_version,
+                                       const FilePath& extension_path,
+                                       bool from_external);
+
   // Read the manifest from the front of the extension file.
   // Caller takes ownership of return value.
   DictionaryValue* ReadManifest(const FilePath& extension_path);
@@ -238,7 +278,8 @@ class ExtensionsServiceBackend
   // For the extension in |version_path| with |id|, check to see if it's an
   // externally managed extension.  If so return true if it should be
   // uninstalled.
-  bool CheckExternalUninstall(const FilePath& version_path,
+  bool CheckExternalUninstall(DictionaryValue* extension_prefs,
+                              const FilePath& version_path,
                               const std::string& id);
 
   // Should an extension of |id| and |version| be installed?

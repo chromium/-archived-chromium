@@ -24,10 +24,17 @@ class Extension {
   // What an extension was loaded from.
   enum Location {
     INVALID,
-    INTERNAL,  // A crx file from the internal Extensions directory.
-    EXTERNAL,  // A crx file from an external directory (via eg the registry
-               // on Windows).
-    LOAD  // --load-extension.
+    INTERNAL,           // A crx file from the internal Extensions directory.
+    EXTERNAL_PREF,      // A crx file from an external directory (via prefs).
+    EXTERNAL_REGISTRY,  // A crx file from an external directory (via eg the
+                        // registry on Windows).
+    LOAD                // --load-extension.
+  };
+
+  enum State {
+    DISABLED,
+    ENABLED,
+    KILLBIT,  // Don't install/upgrade (applies to external extensions only).
   };
 
   // An NPAPI plugin included in the extension.
@@ -114,12 +121,25 @@ class Extension {
   static const char* kThemesCannotContainExtensionsError;
   static const char* kMissingFileError;
 
+#if defined(OS_WIN)
+  static const char* kExtensionRegistryPath;
+#endif
+
   // The number of bytes in a legal id.
   static const size_t kIdSize;
 
   Extension() : location_(INVALID), is_theme_(false) {}
   explicit Extension(const FilePath& path);
   virtual ~Extension();
+
+  // Checks to see if the extension has a valid ID.
+  static bool IdIsValid(const std::string& id);
+
+  // Whether the |location| is external or not.
+  static inline bool IsExternalLocation(Location location) {
+    return location == Extension::EXTERNAL_PREF ||
+           location == Extension::EXTERNAL_REGISTRY;
+  }
 
   // Returns an absolute url to a resource inside of an extension. The
   // |extension_url| argument should be the url() from an Extension object. The
@@ -169,7 +189,11 @@ class Extension {
   // Retrieves a page action by |id|.
   const PageAction* GetPageAction(std::string id) const;
 
-  // Theme-related
+  // Returns the origin of this extension. This function takes a |registry_path|
+  // so that the registry location can be overwritten during testing.
+  Location ExternalExtensionInstallType(std::string registry_path);
+
+  // Theme-related.
   DictionaryValue* GetThemeImages() const { return theme_images_.get(); }
   DictionaryValue* GetThemeColors() const { return theme_colors_.get(); }
   DictionaryValue* GetThemeTints() const { return theme_tints_.get(); }

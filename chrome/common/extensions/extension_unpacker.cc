@@ -41,19 +41,6 @@ struct ExtensionHeader {
 const size_t kZipHashBytes = 32;  // SHA-256
 const size_t kZipHashHexBytes = kZipHashBytes * 2;  // Hex string is 2x size.
 
-#if defined(OS_WIN)
-
-// Registry key where registry defined extension installers live.
-const wchar_t kRegistryExtensions[] = L"Software\\Google\\Chrome\\Extensions";
-
-// Registry value of of that key that defines the path to the .crx file.
-const wchar_t kRegistryExtensionPath[] = L"path";
-
-// Registry value of that key that defines the current version of the .crx file.
-const wchar_t kRegistryExtensionVersion[] = L"version";
-
-#endif
-
 // A marker file to indicate that an extension was installed from an external
 // source.
 const char kExternalInstallFile[] = "EXTERNAL_INSTALL";

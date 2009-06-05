@@ -15,6 +15,10 @@
 #include "chrome/common/extensions/user_script.h"
 #include "chrome/common/url_constants.h"
 
+#if defined(OS_WIN)
+#include "base/registry.h"
+#endif
+
 const char Extension::kManifestFilename[] = "manifest.json";
 
 const wchar_t* Extension::kContentScriptsKey = L"content_scripts";
@@ -142,6 +146,11 @@ const char* Extension::kInvalidThemeTintsError =
 const char* Extension::kThemesCannotContainExtensionsError =
     "A theme cannot contain extensions code.";
 
+#if defined(OS_WIN)
+const char* Extension::kExtensionRegistryPath =
+    "Software\\Google\\Chrome\\Extensions";
+#endif
+
 const size_t Extension::kIdSize = 20;  // SHA1 (160 bits) == 20 bytes
 
 Extension::~Extension() {
@@ -152,6 +161,24 @@ Extension::~Extension() {
 
 const std::string Extension::VersionString() const {
   return version_->GetString();
+}
+
+// static
+bool Extension::IdIsValid(const std::string& id) {
+  // Verify that the id is legal.  The id is a hex string of the SHA-1 hash of
+  // the public key.
+  std::vector<uint8> id_bytes;
+  if (!HexStringToBytes(id, &id_bytes) || id_bytes.size() != kIdSize)
+    return false;
+
+  // We only support lowercase IDs, because IDs can be used as URL components
+  // (where GURL will lowercase it).
+  std::string temp = id;
+  StringToLowerASCII(temp);
+  if (temp != id)
+    return false;
+
+  return true;
 }
 
 // static
@@ -172,6 +199,19 @@ const PageAction* Extension::GetPageAction(std::string id) const {
     return NULL;
 
   return it->second;
+}
+
+Extension::Location Extension::ExternalExtensionInstallType(
+    std::string registry_path) {
+#if defined(OS_WIN)
+  HKEY reg_root = HKEY_LOCAL_MACHINE;
+  RegKey key;
+  registry_path.append("\\");
+  registry_path.append(id_);
+  if (key.Open(reg_root, ASCIIToWide(registry_path).c_str()))
+    return Extension::EXTERNAL_REGISTRY;
+#endif
+  return Extension::EXTERNAL_PREF;
 }
 
 // Helper method that loads a UserScript object from a dictionary in the
@@ -449,10 +489,8 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
     // (where GURL will lowercase it).
     StringToLowerASCII(&id_);
 
-    // Verify that the id is legal.  The id is a hex string of the SHA-1 hash of
-    // the public key.
-    std::vector<uint8> id_bytes;
-    if (!HexStringToBytes(id_, &id_bytes) || id_bytes.size() != kIdSize) {
+    // Verify that the id is legal.
+    if (!IdIsValid(id_)) {
       *error = kInvalidIdError;
       return false;
     }
