@@ -2566,12 +2566,6 @@ BUG11613 MAC : LayoutTests/http/tests/security/cross-frame-access-call.html = FA
 BUG11613 WIN : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL
 BUG11613 WIN : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
 
-// These tests were broken by skia r171:
-// These ones seem to be mask/opacity-related:
-BUG12002 LINUX : LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
-// This one is flaky on Linux
-BUG12004 LINUX : LayoutTests/svg/custom/js-late-marker-creation.svg = FAIL PASS
-
 // This needs to be rebaselined.  See http://trac.webkit.org/changeset/43378
 BUG11669 LINUX : LayoutTests/fast/layers/remove-only-this-layer-update.html = FAIL
 
@@ -2693,16 +2687,6 @@ BUG13105 REBASELINE MAC WIN : LayoutTests/fast/backgrounds/body-generated-image-
 // This test crashes the next layout tests, so skip until resolved.
 BUG13176 SKIP : LayoutTests/fast/workers/worker-close.html = FAIL
 BUG13174 WIN REBASELINE : LayoutTests/transitions/shorthand-border-transitions.html = FAIL
-
-// Skia 171:196
-BUG13218 LINUX : LayoutTests/fast/reflections/inline-crash.html = FAIL
-BUG13218 LINUX : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
-
-// Flaky tests (not clear when they got introduced)
-BUG13267 LINUX : LayoutTests/fast/overflow/overflow-rtl-inline-scrollbar.html = PASS FAIL
-BUG13267 LINUX : LayoutTests/svg/custom/mask-inside-defs.svg = PASS FAIL
-BUG13267 LINUX : LayoutTests/svg/custom/stroked-pattern.svg = PASS FAIL
-BUG13267 LINUX : LayoutTests/editing/selection/5131716-3.html = PASS FAIL
 
 // WebKit 44372:44405	
 // New Linux crashes and failures. Why are we running platform/mac test on Linux?
