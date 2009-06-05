@@ -9,6 +9,8 @@
 
 #include "base/values.h"
 #include "base/scoped_ptr.h"
+#include "base/ref_counted.h"
+#include "chrome/browser/extensions/extension_function_dispatcher.h"
 
 class ExtensionFunctionDispatcher;
 class Profile;
@@ -25,7 +27,7 @@ class Profile;
 //
 // TODO(aa): This will have to become reference counted when we introduce
 // APIs that live beyond a single stack frame.
-class ExtensionFunction {
+class ExtensionFunction : public base::RefCounted<ExtensionFunction> {
  public:
   ExtensionFunction() : request_id_(-1), has_callback_(false) {}
   virtual ~ExtensionFunction() {}
@@ -43,8 +45,11 @@ class ExtensionFunction {
   // Retrieves any error string from the function.
   virtual const std::string GetError() = 0;
 
-  void set_dispatcher(ExtensionFunctionDispatcher* dispatcher) {
-    dispatcher_ = dispatcher;
+  void set_dispatcher_peer(ExtensionFunctionDispatcher::Peer* peer) {
+    peer_ = peer;
+  }
+  ExtensionFunctionDispatcher* dispatcher() {
+    return peer_->dispatcher_;
   }
 
   void set_request_id(int request_id) { request_id_ = request_id; }
@@ -60,8 +65,8 @@ class ExtensionFunction {
   virtual void Run() = 0;
 
  protected:
-  // The dispatcher that will service this extension function call.
-  ExtensionFunctionDispatcher* dispatcher_;
+  // The peer to the dispatcher that will service this extension function call.
+  scoped_refptr<ExtensionFunctionDispatcher::Peer> peer_;
 
   // Id of this request, used to map the response back to the caller.
   int request_id_;
@@ -76,6 +81,8 @@ class ExtensionFunction {
 
 // Base class for an extension function that runs asynchronously *relative to
 // the browser's UI thread*.
+// Note that once Run() returns, dispatcher() can be NULL, so be sure to
+// NULL-check.
 // TODO(aa) Remove this extra level of inheritance once the browser stops
 // parsing JSON (and instead uses custom serialization of Value objects).
 class AsyncExtensionFunction : public ExtensionFunction {
@@ -91,8 +98,9 @@ class AsyncExtensionFunction : public ExtensionFunction {
  protected:
   void SendResponse(bool success);
 
+  // Note: After Run() returns, dispatcher() can be NULL.  Since these getters
+  // rely on dispatcher(), make sure it is valid before using them.
   std::string extension_id();
-
   Profile* profile();
 
   // The arguments to the API. Only non-null if argument were specified.

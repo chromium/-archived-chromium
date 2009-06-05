@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+#include "base/ref_counted.h"
 #include "base/values.h"
 
 class Browser;
@@ -30,6 +31,13 @@ class ExtensionFunctionDispatcher {
     virtual Browser* GetBrowser() = 0;
   };
 
+  // The peer object allows us to notify ExtensionFunctions when we are
+  // destroyed.
+  struct Peer : public base::RefCounted<Peer> {
+    Peer(ExtensionFunctionDispatcher* dispatcher) : dispatcher_(dispatcher) {}
+    ExtensionFunctionDispatcher* dispatcher_;
+  };
+
   // Gets a list of all known extension function names.
   static void GetAllFunctionNames(std::vector<std::string>* names);
 
@@ -44,6 +52,7 @@ class ExtensionFunctionDispatcher {
   ExtensionFunctionDispatcher(RenderViewHost* render_view_host,
                               Delegate* delegate,
                               const std::string& extension_id);
+  ~ExtensionFunctionDispatcher();
 
   // Handle a request to execute an extension function.
   void HandleRequest(const std::string& name, const std::string& args,
@@ -72,6 +81,8 @@ class ExtensionFunctionDispatcher {
   Delegate* delegate_;
 
   std::string extension_id_;
+
+  scoped_refptr<Peer> peer_;
 
   // AutomationExtensionFunction requires access to the RenderViewHost
   // associated with us.  We make it a friend rather than exposing the

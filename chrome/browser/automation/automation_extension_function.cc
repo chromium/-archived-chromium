@@ -46,7 +46,7 @@ void AutomationExtensionFunction::Run() {
 
   std::string message;
   JSONWriter::Write(&message_to_host, false, &message);
-  dispatcher_->render_view_host_->delegate()->ProcessExternalHostMessage(
+  dispatcher()->render_view_host_->delegate()->ProcessExternalHostMessage(
       message, keys::kAutomationOrigin, keys::kAutomationRequestTarget);
 }
 

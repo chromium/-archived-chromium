@@ -172,13 +172,18 @@ ExtensionFunctionDispatcher::ExtensionFunctionDispatcher(
     const std::string& extension_id)
   : render_view_host_(render_view_host),
     delegate_(delegate),
-    extension_id_(extension_id) {
+    extension_id_(extension_id),
+    ALLOW_THIS_IN_INITIALIZER_LIST(peer_(new Peer(this))) {
   RenderProcessHost* process = render_view_host_->process();
   ExtensionMessageService* message_service =
       ExtensionMessageService::GetInstance(profile()->GetRequestContext());
   DCHECK(process);
   DCHECK(message_service);
   message_service->RegisterExtension(extension_id, process->pid());
+}
+
+ExtensionFunctionDispatcher::~ExtensionFunctionDispatcher() {
+  peer_->dispatcher_ = NULL;
 }
 
 Browser* ExtensionFunctionDispatcher::GetBrowser() {
@@ -192,11 +197,9 @@ void ExtensionFunctionDispatcher::HandleRequest(const std::string& name,
                                                 const std::string& args,
                                                 int request_id,
                                                 bool has_callback) {
-  // TODO(aa): This will get a bit more complicated when we support functions
-  // that live longer than the stack frame.
-  scoped_ptr<ExtensionFunction> function(
+  scoped_refptr<ExtensionFunction> function(
       FactoryRegistry::instance()->NewFunction(name));
-  function->set_dispatcher(this);
+  function->set_dispatcher_peer(peer_);
   function->SetArgs(args);
   function->set_request_id(request_id);
   function->set_has_callback(has_callback);

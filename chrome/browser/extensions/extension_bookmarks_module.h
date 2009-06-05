@@ -12,6 +12,7 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/extensions/extension_function.h"
 #include "chrome/browser/extensions/extension_tabs_module.h"
+#include "chrome/common/notification_registrar.h"
 
 // Observes BookmarkModel and then routes the notifications as events to
 // the extension system.
@@ -68,8 +69,16 @@ class ExtensionBookmarkEventRouter : public BookmarkModelObserver {
   DISALLOW_COPY_AND_ASSIGN(ExtensionBookmarkEventRouter);
 };
 
-class BookmarksFunction : public SyncExtensionFunction {
+class BookmarksFunction : public AsyncExtensionFunction,
+                          public NotificationObserver {
   virtual void Run();
+  virtual bool RunImpl() = 0;
+
+ private:
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
+  NotificationRegistrar registrar_;
 };
 
 class GetBookmarksFunction : public BookmarksFunction {

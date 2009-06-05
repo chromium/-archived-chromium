@@ -33,17 +33,21 @@ const std::string AsyncExtensionFunction::GetResult() {
 }
 
 void AsyncExtensionFunction::SendResponse(bool success) {
+  if (!dispatcher())
+    return;
   if (bad_message_) {
-    dispatcher_->HandleBadMessage(this);
+    dispatcher()->HandleBadMessage(this);
   } else {
-    dispatcher_->SendResponse(this, success);
+    dispatcher()->SendResponse(this, success);
   }
 }
 
 std::string AsyncExtensionFunction::extension_id() {
-  return dispatcher_->extension_id();
+  DCHECK(dispatcher());
+  return dispatcher()->extension_id();
 }
 
 Profile* AsyncExtensionFunction::profile() {
-  return dispatcher_->profile();
+  DCHECK(dispatcher());
+  return dispatcher()->profile();
 }

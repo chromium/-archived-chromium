@@ -12,6 +12,7 @@
 #include "chrome/browser/extensions/extension_bookmarks_module_constants.h"
 #include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/profile.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 
@@ -66,11 +67,28 @@ class ExtensionBookmarks {
 void BookmarksFunction::Run() {
   // TODO(erikkay) temporary hack until adding an event listener can notify the
   // browser.
+  BookmarkModel* model = profile()->GetBookmarkModel();
+  if (!model->IsLoaded()) {
+    // Bookmarks are not ready yet.  We'll wait.
+    registrar_.Add(this, NotificationType::BOOKMARK_MODEL_LOADED,
+                   NotificationService::AllSources());
+    AddRef();  // balanced in Observe()
+    return;
+  }
+
   ExtensionBookmarkEventRouter* event_router =
       ExtensionBookmarkEventRouter::GetSingleton();
-  BookmarkModel* model = profile()->GetBookmarkModel();
   event_router->Observe(model);
-  SyncExtensionFunction::Run();
+  SendResponse(RunImpl());
+}
+
+void BookmarksFunction::Observe(NotificationType type,
+                                const NotificationSource& source,
+                                const NotificationDetails& details) {
+  DCHECK(type == NotificationType::BOOKMARK_MODEL_LOADED);
+  DCHECK(profile()->GetBookmarkModel()->IsLoaded());
+  Run();
+  Release();  // balanced in Run()
 }
 
 // static

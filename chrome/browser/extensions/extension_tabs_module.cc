@@ -163,7 +163,7 @@ bool GetWindowFunction::RunImpl() {
 }
 
 bool GetCurrentWindowFunction::RunImpl() {
-  Browser* browser = dispatcher_->GetBrowser();
+  Browser* browser = dispatcher()->GetBrowser();
   if (!browser) {
     error_ = keys::kNoCurrentWindowError;
     return false;
@@ -231,7 +231,7 @@ bool CreateWindowFunction::RunImpl() {
   // NOTE(rafaelw): It's ok if dispatcher_->GetBrowser() returns NULL here.
   // GetBrowserWindowBounds will default to saved "default" values for the app.
   WindowSizer::GetBrowserWindowBounds(std::wstring(), empty_bounds,
-                                      dispatcher_->GetBrowser(), &bounds,
+                                      dispatcher()->GetBrowser(), &bounds,
                                       &maximized);
 
   // Any part of the bounds can optionally be set by the caller.
@@ -263,7 +263,7 @@ bool CreateWindowFunction::RunImpl() {
     }
   }
 
-  Browser* new_window = Browser::Create(dispatcher_->profile());
+  Browser* new_window = Browser::Create(dispatcher()->profile());
   new_window->AddTabWithURL(*(url.get()), GURL(), PageTransition::LINK, true,
                             -1, false, NULL);
 
@@ -351,7 +351,7 @@ bool GetSelectedTabFunction::RunImpl() {
     EXTENSION_FUNCTION_VALIDATE(args_->GetAsInteger(&window_id));
     browser = GetBrowserInProfileWithId(profile(), window_id, &error_);
   } else {
-    browser = dispatcher_->GetBrowser();
+    browser = dispatcher()->GetBrowser();
     if (!browser)
       error_ = keys::kNoCurrentWindowError;
   }
@@ -361,7 +361,7 @@ bool GetSelectedTabFunction::RunImpl() {
   TabStripModel* tab_strip = browser->tabstrip_model();
   TabContents* contents = tab_strip->GetSelectedTabContents();
   if (!contents) {
-    error_ = keys::kNoSelectedTabError; 
+    error_ = keys::kNoSelectedTabError;
     return false;
   }
   result_.reset(ExtensionTabUtil::CreateTabValue(contents, tab_strip,
@@ -377,7 +377,7 @@ bool GetAllTabsInWindowFunction::RunImpl() {
     EXTENSION_FUNCTION_VALIDATE(args_->GetAsInteger(&window_id));
     browser = GetBrowserInProfileWithId(profile(), window_id, &error_);
   } else {
-    browser = dispatcher_->GetBrowser();
+    browser = dispatcher()->GetBrowser();
     if (!browser)
       error_ = keys::kNoCurrentWindowError;
   }
@@ -401,7 +401,7 @@ bool CreateTabFunction::RunImpl() {
         keys::kWindowIdKey, &window_id));
     browser = GetBrowserInProfileWithId(profile(), window_id, &error_);
   } else {
-    browser = dispatcher_->GetBrowser();
+    browser = dispatcher()->GetBrowser();
     if (!browser)
       error_ = keys::kNoCurrentWindowError;
   }
