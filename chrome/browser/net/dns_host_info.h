@@ -52,11 +52,11 @@ class DnsHostInfo {
   enum DnsProcessingState {
       // When processed by our prefetching system, the states are:
       PENDING,       // Constructor has completed.
-      QUEUED,        // In prefetch queue but not yet being resolved.
-      ASSIGNED,      // Currently being processed.
+      QUEUED,        // In name queue but not yet being resolved.
+      ASSIGNED,      // Being resolved (or being reset to earlier state)
       ASSIGNED_BUT_MARKED,  // Needs to be deleted as soon as it's resolved.
-      FOUND,         // DNS prefetch search completed.
-      NO_SUCH_NAME,  // DNS prefetch search completed.
+      FOUND,         // DNS resolution completed.
+      NO_SUCH_NAME,  // DNS resolution completed.
       // When processed by the network stack during navigation, the states are:
       STARTED,               // Resolution has begun for a navigation.
       FINISHED,              // Resolution has completed for a navigation.
@@ -74,6 +74,7 @@ class DnsHostInfo {
   // initializing of the DnsMaster's map (of info for Hostnames).
   DnsHostInfo()
       : state_(PENDING),
+        old_prequeue_state_(state_),
         resolve_duration_(kNullDuration),
         queue_duration_(kNullDuration),
         benefits_remaining_(),
@@ -95,6 +96,7 @@ class DnsHostInfo {
   // The prefetching lifecycle.
   void SetQueuedState(ResolutionMotivation motivation);
   void SetAssignedState();
+  void RemoveFromQueue();
   void SetPendingDeleteState();
   void SetFoundState();
   void SetNoSuchNameState();
@@ -157,7 +159,13 @@ class DnsHostInfo {
   // The next declaration is non-const to facilitate testing.
   static base::TimeDelta kCacheExpirationDuration;
 
+  // The current state of this instance.
   DnsProcessingState state_;
+
+  // Record the state prior to going to a queued state, in case we have to back
+  // out of the queue.
+  DnsProcessingState old_prequeue_state_;
+
   std::string hostname_;  // Hostname for this info.
 
   // When was last state changed (usually lookup completed).

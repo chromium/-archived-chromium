@@ -360,22 +360,23 @@ DnsHostInfo* DnsMaster::PreLockedResolve(
   }
 
   info->SetQueuedState(motivation);
-  name_buffer_.push(hostname);
-
+  work_queue_.Push(hostname, motivation);
   PreLockedScheduleLookups();
-
   return info;
 }
 
 void DnsMaster::PreLockedScheduleLookups() {
-  while (!name_buffer_.empty() &&
+  while (!work_queue_.IsEmpty() &&
          pending_lookups_.size() < max_concurrent_lookups_) {
-    const std::string hostname(name_buffer_.front());
-    name_buffer_.pop();
-
+    const std::string hostname(work_queue_.Pop());
     DnsHostInfo* info = &results_[hostname];
     DCHECK(info->HasHostname(hostname));
     info->SetAssignedState();
+
+    if (PreLockedCongestionControlPerformed(info)) {
+      DCHECK(work_queue_.IsEmpty());
+      return;
+    }
 
     LookupRequest* request = new LookupRequest(this, hostname);
     if (request->Start()) {
@@ -389,14 +390,33 @@ void DnsMaster::PreLockedScheduleLookups() {
   }
 }
 
+bool DnsMaster::PreLockedCongestionControlPerformed(DnsHostInfo* info) {
+  // Note: queue_duration is ONLY valid after we go to assigned state.
+  // TODO(jar): Tune selection of arbitrary 1 second constant.  Add plumbing so
+  // that this can be set as part of an A/B experiment.
+  if (info->queue_duration() < base::TimeDelta::FromSeconds(1))
+    return false;
+  // We need to discard all entries in our queue, as we're keeping them waiting
+  // too long.  By doing this, we'll have a chance to quickly service urgent
+  // resolutions, and not have a bogged down system.
+  while (true) {
+    info->RemoveFromQueue();
+    if (work_queue_.IsEmpty())
+      break;
+    info = &results_[work_queue_.Pop()];
+    info->SetAssignedState();
+  }
+  return true;
+}
+
 void DnsMaster::OnLookupFinished(LookupRequest* request,
                                  const std::string& hostname, bool found) {
   AutoLock auto_lock(lock_);  // For map access (changing info values).
   DnsHostInfo* info = &results_[hostname];
   DCHECK(info->HasHostname(hostname));
-  if (info->is_marked_to_delete())
+  if (info->is_marked_to_delete()) {
     results_.erase(hostname);
-  else {
+  } else {
     if (found)
       info->SetFoundState();
     else
@@ -418,10 +438,9 @@ void DnsMaster::DiscardAllResults() {
 
 
   // Try to delete anything in our work queue.
-  while (!name_buffer_.empty()) {
+  while (!work_queue_.IsEmpty()) {
     // Emulate processing cycle as though host was not found.
-    std::string hostname = name_buffer_.front();
-    name_buffer_.pop();
+    std::string hostname = work_queue_.Pop();
     DnsHostInfo* info = &results_[hostname];
     DCHECK(info->HasHostname(hostname));
     info->SetAssignedState();
@@ -495,6 +514,46 @@ void DnsMaster::DeserializeReferrers(const ListValue& referral_list) {
       continue;
     referrers_[motivating_referrer].Deserialize(*subresource_list);
   }
+}
+
+
+//------------------------------------------------------------------------------
+
+DnsMaster::HostNameQueue::HostNameQueue() {
+}
+
+DnsMaster::HostNameQueue::~HostNameQueue() {
+}
+
+void DnsMaster::HostNameQueue::Push(const std::string& hostname,
+    DnsHostInfo::ResolutionMotivation motivation) {
+  switch (motivation) {
+    case DnsHostInfo::STATIC_REFERAL_MOTIVATED:
+    case DnsHostInfo::LEARNED_REFERAL_MOTIVATED:
+    case DnsHostInfo::MOUSE_OVER_MOTIVATED:
+      rush_queue_.push(hostname);
+      break;
+
+    default:
+      background_queue_.push(hostname);
+      break;
+  }
+}
+
+bool DnsMaster::HostNameQueue::IsEmpty() const {
+  return rush_queue_.empty() && background_queue_.empty();
+}
+
+std::string DnsMaster::HostNameQueue::Pop() {
+  DCHECK(!IsEmpty());
+  if (!rush_queue_.empty()) {
+    std::string hostname(rush_queue_.front());
+    rush_queue_.pop();
+    return hostname;
+  }
+  std::string hostname(background_queue_.front());
+  background_queue_.pop();
+  return hostname;
 }
 
 }  // namespace chrome_browser_net
