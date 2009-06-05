@@ -29,14 +29,15 @@ ProxyService* CreateNullProxyService() {
   return ProxyService::CreateNull();
 }
 
-// Helper to manage the lifetimes of the dependencies for a HttpNetworkTransaction.
+// Helper to manage the lifetimes of the dependencies for a
+// HttpNetworkTransaction.
 class SessionDependencies {
  public:
   // Default set of dependencies -- "null" proxy service.
   SessionDependencies() : proxy_service(CreateNullProxyService()) {}
 
   // Custom proxy service dependency.
-  SessionDependencies(ProxyService* proxy_service)
+  explicit SessionDependencies(ProxyService* proxy_service)
       : proxy_service(proxy_service) {}
 
   scoped_ptr<ProxyService> proxy_service;
@@ -115,7 +116,6 @@ class HttpNetworkTransactionTest : public PlatformTest {
                                              int expected_status);
 
   void ConnectStatusHelper(const MockRead& status);
-
 };
 
 // Fill |str| with a long header list that consumes >= |size| bytes.
@@ -953,12 +953,14 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyKeepAlive) {
   // Since we have proxy, should try to establish tunnel.
   MockWrite data_writes1[] = {
     MockWrite("CONNECT www.google.com:443 HTTP/1.1\r\n"
-              "Host: www.google.com\r\n\r\n"),
+              "Host: www.google.com\r\n"
+              "Proxy-Connection: keep-alive\r\n\r\n"),
 
     // After calling trans->RestartWithAuth(), this is the request we should
     // be issuing -- the final header line contains the credentials.
     MockWrite("CONNECT www.google.com:443 HTTP/1.1\r\n"
               "Host: www.google.com\r\n"
+              "Proxy-Connection: keep-alive\r\n"
               "Proxy-Authorization: Basic Zm9vOmJheg==\r\n\r\n"),
   };
 
@@ -1038,7 +1040,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyCancelTunnel) {
   // Configure against proxy server "myproxy:70".
   SessionDependencies session_deps(CreateFixedProxyService("myproxy:70"));
 
-  scoped_refptr<HttpNetworkSession> session( CreateSession(&session_deps));
+  scoped_refptr<HttpNetworkSession> session(CreateSession(&session_deps));
 
   scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       session.get(), &session_deps.socket_factory));
@@ -1051,7 +1053,8 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyCancelTunnel) {
   // Since we have proxy, should try to establish tunnel.
   MockWrite data_writes[] = {
     MockWrite("CONNECT www.google.com:443 HTTP/1.1\r\n"
-              "Host: www.google.com\r\n\r\n"),
+              "Host: www.google.com\r\n"
+              "Proxy-Connection: keep-alive\r\n\r\n"),
   };
 
   // The proxy responds to the connect with a 407.
@@ -1106,7 +1109,8 @@ void HttpNetworkTransactionTest::ConnectStatusHelperWithExpectedStatus(
   // Since we have proxy, should try to establish tunnel.
   MockWrite data_writes[] = {
     MockWrite("CONNECT www.google.com:443 HTTP/1.1\r\n"
-              "Host: www.google.com\r\n\r\n"),
+              "Host: www.google.com\r\n"
+              "Proxy-Connection: keep-alive\r\n\r\n"),
   };
 
   MockRead data_reads[] = {
@@ -1834,7 +1838,8 @@ TEST_F(HttpNetworkTransactionTest, DontRecycleTCPSocketForSSLTunnel) {
   // Since we have proxy, should try to establish tunnel.
   MockWrite data_writes1[] = {
     MockWrite("CONNECT www.google.com:443 HTTP/1.1\r\n"
-              "Host: www.google.com\r\n\r\n"),
+              "Host: www.google.com\r\n"
+              "Proxy-Connection: keep-alive\r\n\r\n"),
   };
 
   // The proxy responds to the connect with a 404, using a persistent
@@ -2696,7 +2701,8 @@ TEST_F(HttpNetworkTransactionTest, HTTPSBadCertificateViaProxy) {
 
   MockWrite proxy_writes[] = {
     MockWrite("CONNECT www.google.com:443 HTTP/1.1\r\n"
-              "Host: www.google.com\r\n\r\n"),
+              "Host: www.google.com\r\n"
+              "Proxy-Connection: keep-alive\r\n\r\n"),
   };
 
   MockRead proxy_reads[] = {
@@ -2706,7 +2712,8 @@ TEST_F(HttpNetworkTransactionTest, HTTPSBadCertificateViaProxy) {
 
   MockWrite data_writes[] = {
     MockWrite("CONNECT www.google.com:443 HTTP/1.1\r\n"
-              "Host: www.google.com\r\n\r\n"),
+              "Host: www.google.com\r\n"
+              "Proxy-Connection: keep-alive\r\n\r\n"),
     MockWrite("GET / HTTP/1.1\r\n"
               "Host: www.google.com\r\n"
               "Connection: keep-alive\r\n\r\n"),

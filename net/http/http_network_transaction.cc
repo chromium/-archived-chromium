@@ -104,8 +104,10 @@ void BuildTunnelRequest(const HttpRequestInfo* request_info,
                         const std::string& authorization_headers,
                         std::string* request_headers) {
   // RFC 2616 Section 9 says the Host request-header field MUST accompany all
-  // HTTP/1.1 requests.
-  *request_headers = StringPrintf("CONNECT %s HTTP/1.1\r\nHost: %s\r\n",
+  // HTTP/1.1 requests.  Add "Proxy-Connection: keep-alive" for compat with
+  // HTTP/1.0 proxies such as Squid (required for NTLM authentication).
+  *request_headers = StringPrintf(
+      "CONNECT %s HTTP/1.1\r\nHost: %s\r\nProxy-Connection: keep-alive\r\n",
       GetHostAndPort(request_info->url).c_str(),
       GetHostAndOptionalPort(request_info->url).c_str());
 
