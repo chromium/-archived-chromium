@@ -940,6 +940,8 @@
         'browser/gtk/options/options_layout_gtk.cc',
         'browser/gtk/options/options_layout_gtk.h',
         'browser/gtk/options/options_window_gtk.cc',
+        'browser/gtk/options/url_picker_dialog_gtk.cc',
+        'browser/gtk/options/url_picker_dialog_gtk.h',
         'browser/gtk/sad_tab_gtk.cc',
         'browser/gtk/sad_tab_gtk.h',
         'browser/gtk/slide_animator_gtk.cc',

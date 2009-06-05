@@ -5,6 +5,11 @@
 #include "chrome/browser/gtk/options/general_page_gtk.h"
 
 #include "app/l10n_util.h"
+#include "app/resource_bundle.h"
+#include "base/gfx/gtk_util.h"
+#include "base/gfx/png_decoder.h"
+#include "chrome/browser/browser.h"
+#include "chrome/browser/browser_list.h"
 #include "chrome/browser/gtk/options/options_layout_gtk.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/session_startup_pref.h"
@@ -12,6 +17,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/url_constants.h"
+#include "grit/app_resources.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 
@@ -21,7 +27,7 @@ namespace {
 // Spacing between options of the same group
 const int kOptionSpacing = 6;
 
-// Horizontal spacing between a label and it's control
+// Horizontal spacing between a label and its control
 const int kLabelSpacing = 12;
 
 // Markup for the text showing the current state of the default browser
@@ -33,13 +39,22 @@ const char kDefaultBrowserLabelColor[] = "008700";
 // Color of the default browser text when Chromium is not the default browser
 const char kNotDefaultBrowserLabelColor[] = "870000";
 
+// Column ids for |startup_custom_pages_model_|.
+enum {
+  COL_FAVICON_HANDLE,
+  COL_FAVICON,
+  COL_URL,
+  COL_COUNT,
+};
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // GeneralPageGtk, public:
 
 GeneralPageGtk::GeneralPageGtk(Profile* profile)
-    : OptionsPageBase(profile)  {
+    : OptionsPageBase(profile),
+      initializing_(true)  {
   OptionsLayoutBuilderGtk options_builder(4);
   options_builder.AddOptionGroup(
       l10n_util::GetStringUTF8(IDS_OPTIONS_STARTUP_GROUP_NAME),
@@ -77,6 +92,7 @@ GeneralPageGtk::~GeneralPageGtk() {
 // GeneralPageGtk, OptionsPageBase overrides:
 
 void GeneralPageGtk::NotifyPrefChanged(const std::wstring* pref_name) {
+  initializing_ = true;
   if (!pref_name || *pref_name == prefs::kRestoreOnStartup) {
     PrefService* prefs = profile()->GetPrefs();
     const SessionStartupPref startup_pref =
@@ -102,7 +118,12 @@ void GeneralPageGtk::NotifyPrefChanged(const std::wstring* pref_name) {
     }
   }
 
-  // TODO(mattm): kURLsToRestoreOnStartup
+  if (!pref_name || *pref_name == prefs::kURLsToRestoreOnStartup) {
+    PrefService* prefs = profile()->GetPrefs();
+    const SessionStartupPref startup_pref =
+        SessionStartupPref::GetStartupPref(prefs);
+    PopulateCustomUrlList(startup_pref.urls);
+  }
 
   if (!pref_name || *pref_name == prefs::kHomePageIsNewTabPage) {
     if (new_tab_page_is_home_page_.GetValue()) {
@@ -129,6 +150,7 @@ void GeneralPageGtk::NotifyPrefChanged(const std::wstring* pref_name) {
         GTK_TOGGLE_BUTTON(homepage_show_home_button_checkbox_),
         show_home_button_.GetValue());
   }
+  initializing_ = false;
 }
 
 void GeneralPageGtk::HighlightGroup(OptionsGroup highlight_group) {
@@ -166,16 +188,42 @@ GtkWidget* GeneralPageGtk::InitStartupGroup() {
   GtkWidget* url_list_container = gtk_hbox_new(FALSE, kOptionSpacing);
   gtk_box_pack_start(GTK_BOX(vbox), url_list_container, TRUE, TRUE, 0);
 
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  default_favicon_ = rb.GetPixbufNamed(IDR_DEFAULT_FAVICON);
+
   GtkWidget* scroll_window = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll_window),
-                                 GTK_POLICY_NEVER,
+                                 GTK_POLICY_AUTOMATIC,
                                  GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scroll_window),
                                       GTK_SHADOW_ETCHED_IN);
   gtk_container_add(GTK_CONTAINER(url_list_container),
                     scroll_window);
-  startup_custom_pages_tree_ = gtk_tree_view_new();
+  startup_custom_pages_model_ = gtk_list_store_new(COL_COUNT,
+                                                   G_TYPE_INT,
+                                                   GDK_TYPE_PIXBUF,
+                                                   G_TYPE_STRING);
+  startup_custom_pages_tree_ = gtk_tree_view_new_with_model(
+      GTK_TREE_MODEL(startup_custom_pages_model_));
   gtk_container_add(GTK_CONTAINER(scroll_window), startup_custom_pages_tree_);
+
+  gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(startup_custom_pages_tree_),
+                                    FALSE);
+  GtkTreeViewColumn* column = gtk_tree_view_column_new();
+  GtkCellRenderer* renderer = gtk_cell_renderer_pixbuf_new();
+  gtk_tree_view_column_pack_start(column, renderer, FALSE);
+  gtk_tree_view_column_add_attribute(column, renderer, "pixbuf", COL_FAVICON);
+  renderer = gtk_cell_renderer_text_new();
+  gtk_tree_view_column_pack_start(column, renderer, TRUE);
+  gtk_tree_view_column_add_attribute(column, renderer, "text", COL_URL);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(startup_custom_pages_tree_),
+                              column);
+  startup_custom_pages_selection_ = gtk_tree_view_get_selection(
+      GTK_TREE_VIEW(startup_custom_pages_tree_));
+  gtk_tree_selection_set_mode(startup_custom_pages_selection_,
+                              GTK_SELECTION_MULTIPLE);
+  g_signal_connect(G_OBJECT(startup_custom_pages_selection_), "changed",
+                   G_CALLBACK(OnStartupPagesSelectionChanged), this);
 
   GtkWidget* url_list_buttons = gtk_vbox_new(FALSE, kOptionSpacing);
   gtk_box_pack_end(GTK_BOX(url_list_container), url_list_buttons,
@@ -185,18 +233,22 @@ GtkWidget* GeneralPageGtk::InitStartupGroup() {
   // MenuGtk::ConvertAcceleratorsFromWindowsStyle)
   startup_add_custom_page_button_ = gtk_button_new_with_label(
       l10n_util::GetStringUTF8(IDS_OPTIONS_STARTUP_ADD_BUTTON).c_str());
+  g_signal_connect(G_OBJECT(startup_add_custom_page_button_), "clicked",
+                   G_CALLBACK(OnStartupAddCustomPageClicked), this);
   gtk_box_pack_start(GTK_BOX(url_list_buttons), startup_add_custom_page_button_,
                      FALSE, FALSE, 0);
   startup_remove_custom_page_button_ = gtk_button_new_with_label(
       l10n_util::GetStringUTF8(IDS_OPTIONS_STARTUP_REMOVE_BUTTON).c_str());
+  g_signal_connect(G_OBJECT(startup_remove_custom_page_button_), "clicked",
+                   G_CALLBACK(OnStartupRemoveCustomPageClicked), this);
   gtk_box_pack_start(GTK_BOX(url_list_buttons),
                      startup_remove_custom_page_button_, FALSE, FALSE, 0);
   startup_use_current_page_button_ = gtk_button_new_with_label(
       l10n_util::GetStringUTF8(IDS_OPTIONS_STARTUP_USE_CURRENT).c_str());
+  g_signal_connect(G_OBJECT(startup_use_current_page_button_), "clicked",
+                   G_CALLBACK(OnStartupUseCurrentPageClicked), this);
   gtk_box_pack_start(GTK_BOX(url_list_buttons),
                      startup_use_current_page_button_, FALSE, FALSE, 0);
-
-  // TODO(mattm): hook up custom url list stuff
 
   return vbox;
 }
@@ -277,6 +329,8 @@ GtkWidget* GeneralPageGtk::InitDefaultBrowserGroup() {
 // static
 void GeneralPageGtk::OnStartupRadioToggled(GtkToggleButton* toggle_button,
                                            GeneralPageGtk* general_page) {
+  if (general_page->initializing_)
+    return;
   if (!gtk_toggle_button_get_active(toggle_button)) {
     // When selecting a radio button, we get two signals (one for the old radio
     // being toggled off, one for the new one being toggled on.)  Ignore the
@@ -298,8 +352,37 @@ void GeneralPageGtk::OnStartupRadioToggled(GtkToggleButton* toggle_button,
 }
 
 // static
+void GeneralPageGtk::OnStartupAddCustomPageClicked(
+    GtkButton* button, GeneralPageGtk* general_page) {
+  new UrlPickerDialogGtk(
+      NewCallback(general_page, &GeneralPageGtk::OnAddCustomUrl),
+      general_page->profile(),
+      GTK_WINDOW(gtk_widget_get_toplevel(general_page->page_)));
+}
+
+// static
+void GeneralPageGtk::OnStartupRemoveCustomPageClicked(
+    GtkButton* button, GeneralPageGtk* general_page) {
+  general_page->RemoveSelectedCustomUrls();
+}
+
+// static
+void GeneralPageGtk::OnStartupUseCurrentPageClicked(
+    GtkButton* button, GeneralPageGtk* general_page) {
+  general_page->SetCustomUrlListFromCurrentPages();
+}
+
+// static
+void GeneralPageGtk::OnStartupPagesSelectionChanged(
+    GtkTreeSelection *selection, GeneralPageGtk* general_page) {
+  general_page->EnableCustomHomepagesControls(true);
+}
+
+// static
 void GeneralPageGtk::OnNewTabIsHomePageToggled(GtkToggleButton* toggle_button,
                                                GeneralPageGtk* general_page) {
+  if (general_page->initializing_)
+    return;
   if (!gtk_toggle_button_get_active(toggle_button)) {
     // Ignore the signal for toggling off the old button.
     return;
@@ -322,12 +405,16 @@ void GeneralPageGtk::OnNewTabIsHomePageToggled(GtkToggleButton* toggle_button,
 void GeneralPageGtk::OnHomepageUseUrlEntryChanged(
     GtkEditable* editable,
     GeneralPageGtk* general_page) {
+  if (general_page->initializing_)
+    return;
   general_page->SetHomepageFromEntry();
 }
 
 // static
 void GeneralPageGtk::OnShowHomeButtonToggled(GtkToggleButton* toggle_button,
                                              GeneralPageGtk* general_page) {
+  if (general_page->initializing_)
+    return;
   bool enabled = gtk_toggle_button_get_active(toggle_button);
   general_page->show_home_button_.SetValue(enabled);
   if (enabled) {
@@ -364,10 +451,166 @@ void GeneralPageGtk::SaveStartupPref() {
     pref.type = SessionStartupPref::URLS;
   }
 
-  // TODO(mattm): save custom URL list
-  // pref.urls = startup_custom_pages_table_model_->GetURLs();
+  pref.urls = GetCustomUrlList();
 
   SessionStartupPref::SetStartupPref(profile()->GetPrefs(), pref);
+}
+
+void GeneralPageGtk::PopulateCustomUrlList(const std::vector<GURL>& urls) {
+  gtk_list_store_clear(startup_custom_pages_model_);
+  for (size_t i = 0; i < urls.size(); ++i) {
+    GtkTreeIter iter;
+    gtk_list_store_append(startup_custom_pages_model_, &iter);
+    PopulateCustomUrlRow(urls[i], &iter);
+  }
+}
+
+void GeneralPageGtk::PopulateCustomUrlRow(const GURL& url, GtkTreeIter* iter) {
+  HistoryService* history =
+      profile()->GetHistoryService(Profile::EXPLICIT_ACCESS);
+  HistoryService::Handle handle(0);
+  if (history) {
+    handle = history->GetFavIconForURL(
+        url, &fav_icon_consumer_,
+        NewCallback(this, &GeneralPageGtk::OnGotFavIcon));
+  }
+  gtk_list_store_set(startup_custom_pages_model_, iter,
+                     COL_FAVICON_HANDLE, handle,
+                     COL_FAVICON, default_favicon_,
+                     COL_URL, url.spec().c_str(),
+                     -1);
+}
+
+bool GeneralPageGtk::GetRowByFavIconHandle(HistoryService::Handle handle,
+                                           GtkTreeIter* result_iter) {
+  GtkTreeIter iter;
+  gboolean valid = gtk_tree_model_get_iter_first(
+      GTK_TREE_MODEL(startup_custom_pages_model_), &iter);
+  while (valid) {
+    gint row_handle;
+    gtk_tree_model_get(GTK_TREE_MODEL(startup_custom_pages_model_), &iter,
+                       COL_FAVICON_HANDLE, &row_handle,
+                       -1);
+    if (row_handle == handle) {
+      *result_iter = iter;
+      return true;
+    }
+    valid = gtk_tree_model_iter_next(
+        GTK_TREE_MODEL(startup_custom_pages_model_), &iter);
+  }
+  return false;
+}
+
+void GeneralPageGtk::OnGotFavIcon(HistoryService::Handle handle,
+                                  bool know_fav_icon,
+                                  scoped_refptr<RefCountedBytes> image_data,
+                                  bool is_expired,
+                                  GURL icon_url) {
+  GtkTreeIter iter;
+  if (!GetRowByFavIconHandle(handle, &iter))
+    return;
+  gtk_list_store_set(startup_custom_pages_model_, &iter,
+                     COL_FAVICON_HANDLE, 0,
+                     -1);
+  if (know_fav_icon && image_data.get() && !image_data->data.empty()) {
+    int width, height;
+    std::vector<unsigned char> decoded_data;
+    if (PNGDecoder::Decode(&image_data->data.front(), image_data->data.size(),
+                           PNGDecoder::FORMAT_BGRA, &decoded_data, &width,
+                           &height)) {
+      SkBitmap icon;
+      icon.setConfig(SkBitmap::kARGB_8888_Config, width, height);
+      icon.allocPixels();
+      memcpy(icon.getPixels(), &decoded_data.front(),
+             width * height * 4);
+      GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(&icon);
+      gtk_list_store_set(startup_custom_pages_model_, &iter,
+                         COL_FAVICON, pixbuf,
+                         -1);
+      g_object_unref(pixbuf);
+    }
+  }
+}
+
+void GeneralPageGtk::SetCustomUrlListFromCurrentPages() {
+  std::vector<GURL> urls;
+  for (BrowserList::const_iterator browser_i = BrowserList::begin();
+       browser_i != BrowserList::end(); ++browser_i) {
+    Browser* browser = *browser_i;
+    if (browser->profile() != profile())
+      continue;  // Only want entries for open profile.
+
+    for (int tab_index = 0; tab_index < browser->tab_count(); ++tab_index) {
+      TabContents* tab = browser->GetTabContentsAt(tab_index);
+      if (tab->ShouldDisplayURL()) {
+        const GURL url = browser->GetTabContentsAt(tab_index)->GetURL();
+        if (!url.is_empty())
+          urls.push_back(url);
+      }
+    }
+  }
+  PopulateCustomUrlList(urls);
+  SaveStartupPref();
+}
+
+void GeneralPageGtk::OnAddCustomUrl(const GURL& url) {
+  GtkTreeIter iter;
+  if (gtk_tree_selection_count_selected_rows(
+      startup_custom_pages_selection_) == 1) {
+    GList* list = gtk_tree_selection_get_selected_rows(
+        startup_custom_pages_selection_, NULL);
+    GtkTreeIter sibling;
+    gtk_tree_model_get_iter(GTK_TREE_MODEL(startup_custom_pages_model_),
+                            &sibling, static_cast<GtkTreePath*>(list->data));
+    g_list_foreach(list, (GFunc)gtk_tree_path_free, NULL);
+    g_list_free(list);
+
+    gtk_list_store_insert_before(startup_custom_pages_model_,
+                                 &iter, &sibling);
+  } else {
+    gtk_list_store_append(startup_custom_pages_model_, &iter);
+  }
+  PopulateCustomUrlRow(url, &iter);
+  SaveStartupPref();
+}
+
+void GeneralPageGtk::RemoveSelectedCustomUrls() {
+  GList* list = gtk_tree_selection_get_selected_rows(
+      startup_custom_pages_selection_, NULL);
+  std::vector<GtkTreeIter> selected_iters(
+      gtk_tree_selection_count_selected_rows(startup_custom_pages_selection_));
+  GList* node;
+  size_t i;
+  for (i = 0, node = list; node != NULL; ++i, node = node->next) {
+    gtk_tree_model_get_iter(GTK_TREE_MODEL(startup_custom_pages_model_),
+                            &selected_iters[i],
+                            static_cast<GtkTreePath*>(node->data));
+  }
+  g_list_foreach(list, (GFunc)gtk_tree_path_free, NULL);
+  g_list_free(list);
+
+  for (i = 0; i < selected_iters.size(); ++i) {
+    gtk_list_store_remove(startup_custom_pages_model_, &selected_iters[i]);
+  }
+  SaveStartupPref();
+}
+
+std::vector<GURL> GeneralPageGtk::GetCustomUrlList() const {
+  std::vector<GURL> urls;
+  GtkTreeIter iter;
+  gboolean valid = gtk_tree_model_get_iter_first(
+      GTK_TREE_MODEL(startup_custom_pages_model_), &iter);
+  while (valid) {
+    gchar* url_data;
+    gtk_tree_model_get(GTK_TREE_MODEL(startup_custom_pages_model_), &iter,
+                       COL_URL, &url_data,
+                       -1);
+    urls.push_back(GURL(url_data));
+    g_free(url_data);
+    valid = gtk_tree_model_iter_next(
+        GTK_TREE_MODEL(startup_custom_pages_model_), &iter);
+  }
+  return urls;
 }
 
 void GeneralPageGtk::SetHomepage(const GURL& homepage) {
@@ -387,10 +630,9 @@ void GeneralPageGtk::SetHomepageFromEntry() {
 
 void GeneralPageGtk::EnableCustomHomepagesControls(bool enable) {
   gtk_widget_set_sensitive(startup_add_custom_page_button_, enable);
-  GtkTreeSelection* selection = gtk_tree_view_get_selection(
-      GTK_TREE_VIEW(startup_custom_pages_tree_));
   gtk_widget_set_sensitive(startup_remove_custom_page_button_,
-      enable && gtk_tree_selection_count_selected_rows(selection));
+      enable &&
+      gtk_tree_selection_count_selected_rows(startup_custom_pages_selection_));
   gtk_widget_set_sensitive(startup_use_current_page_button_, enable);
   gtk_widget_set_sensitive(startup_custom_pages_tree_, enable);
 }

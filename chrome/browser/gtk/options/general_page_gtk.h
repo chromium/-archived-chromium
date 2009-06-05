@@ -6,9 +6,12 @@
 #define CHROME_BROWSER_GTK_OPTIONS_GENERAL_PAGE_GTK_H_
 
 #include <gtk/gtk.h>
+#include <vector>
 
+#include "chrome/browser/history/history.h"
 #include "chrome/browser/options_page_base.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/gtk/options/url_picker_dialog_gtk.h"
 #include "chrome/common/pref_member.h"
 #include "googleurl/src/gurl.h"
 
@@ -35,6 +38,36 @@ class GeneralPageGtk : public OptionsPageBase {
   // Saves the startup preference from the values in the ui
   void SaveStartupPref();
 
+  // Fill the startup_custom_pages_model_
+  void PopulateCustomUrlList(const std::vector<GURL>& urls);
+
+  // Fill a single row in the startup_custom_pages_model_
+  void PopulateCustomUrlRow(const GURL& url, GtkTreeIter *iter);
+
+  // Find a row from the GetFavIconForURL handle.  Returns true if the row was
+  // found.
+  bool GetRowByFavIconHandle(HistoryService::Handle handle,
+                             GtkTreeIter* result_iter);
+
+  // Callback from HistoryService:::GetFavIconForURL
+  void OnGotFavIcon(HistoryService::Handle handle, bool know_fav_icon,
+                    scoped_refptr<RefCountedBytes> image_data, bool is_expired,
+                    GURL icon_url);
+
+  // Set the custom url list using the pages currently open
+  void SetCustomUrlListFromCurrentPages();
+
+  // Callback from UrlPickerDialogGtk, for adding custom urls manually.
+  // If a single row in the list is selected, the new url will be inserted
+  // before that row.  Otherwise the new row will be added to the end.
+  void OnAddCustomUrl(const GURL& url);
+
+  // Removes urls that are currently selected
+  void RemoveSelectedCustomUrls();
+
+  // Retrieve entries from the startup_custom_pages_model_
+  std::vector<GURL> GetCustomUrlList() const;
+
   // Sets the home page preferences for kNewTabPageIsHomePage and kHomePage.
   // If a blank string is passed in we revert to using NewTab page as the Home
   // page. When setting the Home Page to NewTab page, we preserve the old value
@@ -47,6 +80,18 @@ class GeneralPageGtk : public OptionsPageBase {
   // Callback for startup radio buttons
   static void OnStartupRadioToggled(GtkToggleButton* toggle_button,
                                     GeneralPageGtk* general_page);
+
+  // Callbacks for custom url list buttons
+  static void OnStartupAddCustomPageClicked(GtkButton* button,
+                                            GeneralPageGtk* general_page);
+  static void OnStartupRemoveCustomPageClicked(GtkButton* button,
+                                               GeneralPageGtk* general_page);
+  static void OnStartupUseCurrentPageClicked(GtkButton* button,
+                                             GeneralPageGtk* general_page);
+
+  // Callback for user selecting rows in custom pages list
+  static void OnStartupPagesSelectionChanged(GtkTreeSelection *selection,
+                                             GeneralPageGtk* general_page);
 
   // Callback for new tab behavior radio buttons
   static void OnNewTabIsHomePageToggled(GtkToggleButton* toggle_button,
@@ -76,6 +121,8 @@ class GeneralPageGtk : public OptionsPageBase {
   GtkWidget* startup_last_session_radio_;
   GtkWidget* startup_custom_radio_;
   GtkWidget* startup_custom_pages_tree_;
+  GtkListStore* startup_custom_pages_model_;
+  GtkTreeSelection* startup_custom_pages_selection_;
   GtkWidget* startup_add_custom_page_button_;
   GtkWidget* startup_remove_custom_page_button_;
   GtkWidget* startup_use_current_page_button_;
@@ -99,6 +146,17 @@ class GeneralPageGtk : public OptionsPageBase {
 
   // The parent GtkTable widget
   GtkWidget* page_;
+
+  // Flag to ignore gtk callbacks while we are loading prefs, to avoid
+  // then turning around and saving them again.
+  bool initializing_;
+
+  // Used in loading favicons.
+  CancelableRequestConsumer fav_icon_consumer_;
+
+  // Default icon to show when one can't be found for the URL.  This is owned by
+  // the ResourceBundle and we do not need to free it.
+  GdkPixbuf* default_favicon_;
 
   DISALLOW_COPY_AND_ASSIGN(GeneralPageGtk);
 };
