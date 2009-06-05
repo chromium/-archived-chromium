@@ -8,10 +8,10 @@
 #include "base/scoped_nsobject.h"
 #include "chrome/common/pref_member.h"
 
+@class CustomHomePagesModel;
 class PrefObserverBridge;
 class PrefService;
 class Profile;
-@class StartupURLDataSource;
 
 // A window controller that handles the preferences window. The bulk of the
 // work is handled via Cocoa Bindings and getter/setter methods that wrap
@@ -31,14 +31,17 @@ class Profile;
   PrefService* prefs_;  // weak ref - Obtained from profile_ for convenience.
   scoped_ptr<PrefObserverBridge> observer_;  // Watches for pref changes.
   IBOutlet NSTabView* tabView_;
+  IBOutlet NSArrayController* customPagesArrayController_;
 
   // Basics panel
   IntegerPrefMember restoreOnStartup_;
-  scoped_nsobject<StartupURLDataSource> customPagesSource_;
+  scoped_nsobject<CustomHomePagesModel> customPagesSource_;
   BooleanPrefMember newTabPageIsHomePage_;
   StringPrefMember homepage_;
   BooleanPrefMember showHomeButton_;
   BooleanPrefMember showPageOptionButtons_;
+  // Used when creating a new home page url to make the new cell editable.
+  BOOL pendingSelectForEdit_;
 
   // User Data panel
   BooleanPrefMember askSavePasswords_;
@@ -59,6 +62,9 @@ class Profile;
 
 // Basics panel
 - (IBAction)makeDefaultBrowser:(id)sender;
+- (IBAction)addHomepage:(id)sender;
+- (IBAction)removeSelectedHomepages:(id)sender;
+- (IBAction)useCurrentPagesAsHomepage:(id)sender;
 
 // User Data panel
 - (IBAction)showSavedPasswords:(id)sender;
@@ -66,7 +72,10 @@ class Profile;
 - (IBAction)clearData:(id)sender;
 - (IBAction)resetTheme:(id)sender;
 
-@end
+// Usable from cocoa bindings to hook up the custom home pages table.
+@property(readonly) CustomHomePagesModel* customPagesSource;
 
 // NSNotification sent when the prefs window is closed.
 extern NSString* const kUserDoneEditingPrefsNotification;
+
+@end

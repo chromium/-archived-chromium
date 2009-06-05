@@ -8,7 +8,10 @@
 #include "base/mac_util.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
+#include "chrome/browser/browser.h"
+#include "chrome/browser/browser_list.h"
 #import "chrome/browser/cocoa/clear_browsing_data_controller.h"
+#import "chrome/browser/cocoa/custom_home_pages_model.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
@@ -33,24 +36,6 @@ std::wstring GetNewTabUIURLString() {
 }
 }  // namespace
 
-// A data source object for the "startup urls" table.
-// TODO(pinkerton): hook this up to bindings.
-@interface StartupURLDataSource : NSObject {
- @private
-  Profile* profile_;  // weak, used to load icons
-}
-- (id)initWithProfile:(Profile*)profile;
-@end
-
-@implementation StartupURLDataSource
-- (id)initWithProfile:(Profile*)profile {
-  if ((self = [super init])) {
-    profile_ = profile;
-  }
-  return self;
-}
-@end
-
 //-------------------------------------------------------------------------
 
 @interface PreferencesWindowController(Private)
@@ -61,6 +46,8 @@ std::wstring GetNewTabUIURLString() {
 - (void)recordUserAction:(const wchar_t*)action;
 - (void)registerPrefObservers;
 - (void)unregisterPrefObservers;
+
+- (void)customHomePagesChanged;
 
 // KVC setter methods.
 - (void)setNewTabPageIsHomePageIndex:(NSInteger)val;
@@ -104,8 +91,25 @@ class PrefObserverBridge : public NotificationObserver {
     prefs_ = profile->GetPrefs();
     DCHECK(prefs_);
     observer_.reset(new PrefObserverBridge(self));
-    customPagesSource_.reset([[StartupURLDataSource alloc]
+
+    // Set up the model for the custom home page table. The KVO observation
+    // tells us when the number of items in the array changes. The normal
+    // observation tells us when one of the URLs of an item changes.
+    customPagesSource_.reset([[CustomHomePagesModel alloc]
                                 initWithProfile:profile_]);
+    const SessionStartupPref startupPref =
+        SessionStartupPref::GetStartupPref(prefs_);
+    [customPagesSource_ setURLs:startupPref.urls];
+    [customPagesSource_ addObserver:self
+                         forKeyPath:@"customHomePages"
+                            options:0L
+                            context:NULL];
+    [[NSNotificationCenter defaultCenter]
+        addObserver:self
+           selector:@selector(homepageEntryChanged:)
+               name:kHomepageEntryChangedNotification
+             object:nil];
+
     // This needs to be done before awakeFromNib: because the bindings set up
     // in the nib rely on it.
     [self registerPrefObservers];
@@ -128,6 +132,8 @@ class PrefObserverBridge : public NotificationObserver {
 }
 
 - (void)dealloc {
+  [customPagesSource_ removeObserver:self forKeyPath:@"customHomePages"];
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
   [self unregisterPrefObservers];
   [super dealloc];
 }
@@ -149,7 +155,7 @@ class PrefObserverBridge : public NotificationObserver {
   // TODO(pinkerton): Register Default search.
 
   // UserData panel
-  askSavePasswords_.Init(prefs::kPasswordManagerEnabled, 
+  askSavePasswords_.Init(prefs::kPasswordManagerEnabled,
                          prefs_, observer_.get());
   formAutofill_.Init(prefs::kFormAutofillEnabled, prefs_, observer_.get());
 
@@ -166,8 +172,23 @@ class PrefObserverBridge : public NotificationObserver {
 
   // User Data panel
   // Nothing to do here.
-  
+
   // TODO(pinkerton): do other panels...
+}
+
+// Called when a key we're observing via KVO changes.
+- (void)observeValueForKeyPath:(NSString*)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary*)change
+                       context:(void*)context {
+  if ([keyPath isEqualToString:@"customHomePages"]) {
+    [self customHomePagesChanged];
+    return;
+  }
+  [super observeValueForKeyPath:keyPath
+                       ofObject:object
+                         change:change
+                        context:context];
 }
 
 // Record the user performed a certain action and save the preferences.
@@ -228,15 +249,14 @@ class PrefObserverBridge : public NotificationObserver {
 
   // TODO(beng): Note that the kURLsToRestoreOnStartup pref is a mutable list,
   //             and changes to mutable lists aren't broadcast through the
-  //             observer system, so the second half of this condition will
+  //             observer system, so this condition will
   //             never match. Once support for broadcasting such updates is
   //             added, this will automagically start to work, and this comment
   //             can be removed.
   if (*prefName == prefs::kURLsToRestoreOnStartup) {
     const SessionStartupPref startupPref =
         SessionStartupPref::GetStartupPref(prefs_);
-    // Set table model.
-    NOTIMPLEMENTED();
+    [customPagesSource_ setURLs:startupPref.urls];
   }
 
   if (*prefName == prefs::kHomePageIsNewTabPage) {
@@ -261,18 +281,39 @@ class PrefObserverBridge : public NotificationObserver {
 // on the "restore on startup" pref. The ordering of the cells is in the
 // same order as the pref.
 - (NSInteger)restoreOnStartupIndex {
-  const SessionStartupPref startupPref =
-      SessionStartupPref::GetStartupPref(prefs_);
-  return startupPref.type;
+  const SessionStartupPref pref = SessionStartupPref::GetStartupPref(prefs_);
+  return pref.type;
+}
+
+// A helper function that takes the startup session type, grabs the URLs to
+// restore, and saves it all in prefs.
+- (void)saveSessionStartupWithType:(SessionStartupPref::Type)type {
+  SessionStartupPref pref;
+  pref.type = type;
+  pref.urls = [customPagesSource_.get() URLs];
+  SessionStartupPref::SetStartupPref(prefs_, pref);
+}
+
+// Called when the custom home pages array changes. Force a save to prefs, but
+// in order to save it, we have to look up what the current radio button
+// setting is (since they're set together). What a pain.
+- (void)customHomePagesChanged {
+  const SessionStartupPref pref = SessionStartupPref::GetStartupPref(prefs_);
+  [self saveSessionStartupWithType:pref.type];
+}
+
+// Called when an entry in the custom home page array changes URLs. Force
+// a save to prefs.
+- (void)homepageEntryChanged:(NSNotification*)notify {
+  [self customHomePagesChanged];
 }
 
 // Sets the pref based on the index of the selected cell in the matrix and
 // marks the appropriate user metric.
 - (void)setRestoreOnStartupIndex:(NSInteger)type {
-  SessionStartupPref pref;
-  pref.type = static_cast<SessionStartupPref::Type>(type);
-  // TODO(pinkerton): list of pages in |pref.urls|
-  switch (pref.type) {
+  SessionStartupPref::Type startupType =
+      static_cast<SessionStartupPref::Type>(type);
+  switch (startupType) {
     case SessionStartupPref::DEFAULT:
       [self recordUserAction:L"Options_Startup_Homepage"];
       break;
@@ -285,13 +326,72 @@ class PrefObserverBridge : public NotificationObserver {
     default:
       NOTREACHED();
   }
-  SessionStartupPref::SetStartupPref(prefs_, pref);
+  [self saveSessionStartupWithType:startupType];
 }
 
 // Returns whether or not the +/-/Current buttons should be enabled, based on
 // the current pref value for the startup urls.
 - (BOOL)enableRestoreButtons {
   return [self restoreOnStartupIndex] == SessionStartupPref::URLS;
+}
+
+// Getter for the |customPagesSource| property for bindings.
+- (id)customPagesSource {
+  return customPagesSource_.get();
+}
+
+// Called when the selection in the table changes. If a flag is set indicating
+// that we're waiting for a special select message, edit the cell. Otherwise
+// just ignore it, we don't normally care.
+- (void)tableViewSelectionDidChange:(NSNotification *)aNotification {
+  if (pendingSelectForEdit_) {
+    NSTableView* table = [aNotification object];
+    NSUInteger selectedRow = [table selectedRow];
+    [table editColumn:0 row:selectedRow withEvent:nil select:YES];
+    pendingSelectForEdit_ = NO;
+  }
+}
+
+// Called when the user hits the (+) button for adding a new homepage to the
+// list. This will also attempt to make the new item editable so the user can
+// just start typing.
+- (IBAction)addHomepage:(id)sender {
+  [customPagesArrayController_ add:sender];
+
+  // When the new item is added to the model, the array controller will select
+  // it. We'll watch for that notification (because we are the table view's
+  // delegate) and then make the cell editable. Note that this can't be
+  // accomplished simply by subclassing the array controller's add method (I
+  // did try). The update of the table is asynchronous with the controller
+  // updating the model.
+  pendingSelectForEdit_ = YES;
+}
+
+// Called when the user hits the (-) button for removing the selected items in
+// the homepage table. The controller does all the work.
+- (IBAction)removeSelectedHomepages:(id)sender {
+  [customPagesArrayController_ remove:sender];
+}
+
+// Add all entries for all open browsers with our profile.
+- (IBAction)useCurrentPagesAsHomepage:(id)sender {
+  std::vector<GURL> urls;
+  for (BrowserList::const_iterator browserIter = BrowserList::begin();
+       browserIter != BrowserList::end(); ++browserIter) {
+    Browser* browser = *browserIter;
+    if (browser->profile() != profile_)
+      continue;  // Only want entries for open profile.
+
+    for (int tabIndex = 0; tabIndex < browser->tab_count(); ++tabIndex) {
+      TabContents* tab = browser->GetTabContentsAt(tabIndex);
+      if (tab->ShouldDisplayURL()) {
+        const GURL url = browser->GetTabContentsAt(tabIndex)->GetURL();
+        if (!url.is_empty())
+          urls.push_back(url);
+      }
+    }
+  }
+  [customPagesSource_ setURLs:urls];
 }
 
 enum { kHomepageNewTabPage, kHomepageURL };
@@ -441,9 +541,9 @@ const int kDisabledIndex = 1;
 - (IBAction)showSavedPasswords:(id)sender {
   NSString* const kKeychainBundleId = @"com.apple.keychainaccess";
   [self recordUserAction:L"Options_ShowPasswordsExceptions"];
-  [[NSWorkspace sharedWorkspace] 
+  [[NSWorkspace sharedWorkspace]
       launchAppWithBundleIdentifier:kKeychainBundleId
-                            options:0L 
+                            options:0L
      additionalEventParamDescriptor:nil
                    launchIdentifier:nil];
 }
