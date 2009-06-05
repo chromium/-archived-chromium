@@ -3290,6 +3290,8 @@
         '../third_party/WebKit/WebCore/rendering/RenderTextFragment.h',
         '../third_party/WebKit/WebCore/rendering/RenderTheme.cpp',
         '../third_party/WebKit/WebCore/rendering/RenderTheme.h',
+        '../third_party/WebKit/WebCore/rendering/RenderThemeChromiumSkia.cpp',
+        '../third_party/WebKit/WebCore/rendering/RenderThemeChromiumSkia.h',
         '../third_party/WebKit/WebCore/rendering/RenderThemeChromiumLinux.cpp',
         '../third_party/WebKit/WebCore/rendering/RenderThemeChromiumLinux.h',
         '../third_party/WebKit/WebCore/rendering/RenderThemeChromiumMac.h',
