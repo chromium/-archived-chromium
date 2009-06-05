@@ -201,10 +201,9 @@ bool PNGEncoder::EncodeBGRASkBitmap(const SkBitmap& input,
   static const int bbp = 4;
 
   SkAutoLockPixels lock_input(input);
-  CHECK(!input.empty());
-  CHECK(input.bytesPerPixel() == bbp);
-  CHECK(input.getConfig() == SkBitmap::kARGB_8888_Config);
-  CHECK(input.width() > 1 && input.height() > 1);
+  DCHECK(input.bytesPerPixel() == bbp);
+  DCHECK(input.getConfig() == SkBitmap::kARGB_8888_Config);
+  DCHECK(input.width() > 1 && input.height() > 1);
 
   // SkBitmaps are premultiplied, we need to unpremultiply them.
   scoped_array<unsigned char> divided(
