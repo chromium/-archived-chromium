@@ -319,9 +319,17 @@ AutocompletePopupModel* AutocompletePopupViewMac::GetModel() {
 }
 
 void AutocompletePopupViewMac::AcceptInput() {
-  AutocompleteMatrix* matrix = [popup_ contentView];
-  model_->SetSelectedLine([matrix selectedRow], false);
-  edit_view_->AcceptInput(CURRENT_TAB, false);
+  const NSInteger selectedRow = [[popup_ contentView] selectedRow];
+
+  // -1 means no cells were selected.  This can happen if the user
+  // clicked and then dragged their mouse off the popup before
+  // releasing, so reset the selection and ignore the event.
+  if (selectedRow == -1) {
+    PaintUpdatesNow();
+  } else {
+    model_->SetSelectedLine(selectedRow, false);
+    edit_view_->AcceptInput(CURRENT_TAB, false);
+  }
 }
 
 @implementation AutocompleteButtonCell
