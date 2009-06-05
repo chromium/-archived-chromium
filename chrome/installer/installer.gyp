@@ -111,7 +111,6 @@
         ['OS=="win"', {
           'type': '<(library)',
           'msvs_guid': 'EFBB1436-A63F-4CD8-9E99-B89226E782EC',
-          'msvs_existing_vcproj': 'util/util.vcproj',
           'dependencies': [
             'installer_util_strings',
             '../chrome.gyp:common',
@@ -181,6 +180,8 @@
             'util/work_item.h',
             'util/work_item_list.cc',
             'util/work_item_list.h',
+            '../common/json_value_serializer.cc',
+            '../common/pref_names.cc',
           ],
         }],
       ],
@@ -272,7 +273,6 @@
           'target_name': 'installer_util_strings',
           'type': 'none',
           'msvs_guid': '0026A376-C4F1-4575-A1BA-578C69F07013',
-          'msvs_existing_vcproj': 'util/prebuild/util_prebuild.vcproj',
           'actions': [
             {
               # TODO(sgk):  Clean this up so that we pass in the

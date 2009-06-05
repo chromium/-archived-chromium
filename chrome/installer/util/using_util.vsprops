@@ -6,10 +6,10 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="$(IntDir)\..\util_prebuild\"
+		AdditionalIncludeDirectories="$(IntDir)\..\global_intermediate\installer_util_strings"
 	/>
 	<Tool
 		Name="VCResourceCompilerTool"
-		AdditionalIncludeDirectories="$(IntDir)\..\util_prebuild\"
+		AdditionalIncludeDirectories="$(IntDir)\..\global_intermediate\installer_util_strings"
 	/>
 </VisualStudioPropertySheet>
