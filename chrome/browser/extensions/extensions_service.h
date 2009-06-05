@@ -67,13 +67,13 @@ class ExtensionsService
   static const char* kCurrentVersionFileName;
 
   void set_extensions_enabled(bool enabled) { extensions_enabled_ = enabled; }
-  void set_show_extensions_disabled_notification(bool enabled) {
-    show_extensions_disabled_notification_ = enabled;
+  void set_show_extensions_prompts(bool enabled) {
+    show_extensions_prompts_ = enabled;
   }
 
   bool extensions_enabled() { return extensions_enabled_; }
-  bool show_extensions_disabled_notification() {
-    return show_extensions_disabled_notification_;
+  bool show_extensions_prompts() {
+    return show_extensions_prompts_;
   }
 
  private:
@@ -109,9 +109,8 @@ class ExtensionsService
   // Whether or not extensions are enabled.
   bool extensions_enabled_;
 
-  // Whether to notify users when they attempt to install an extension without
-  // the flag being enabled.
-  bool show_extensions_disabled_notification_;
+  // Whether to notify users when they attempt to install an extension.
+  bool show_extensions_prompts_;
 
   // The backend that will do IO on behalf of this instance.
   scoped_refptr<ExtensionsServiceBackend> backend_;

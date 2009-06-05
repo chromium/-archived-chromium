@@ -222,7 +222,7 @@ ExtensionsService::ExtensionsService(Profile* profile,
       extensions_enabled_(
           CommandLine::ForCurrentProcess()->
           HasSwitch(switches::kEnableExtensions)),
-      show_extensions_disabled_notification_(true),
+      show_extensions_prompts_(true),
       backend_(new ExtensionsServiceBackend(
           install_directory_, g_browser_process->resource_dispatcher_host(),
           frontend_loop, registry_path)) {
@@ -747,7 +747,7 @@ void ExtensionsServiceBackend::InstallExtension(
   LOG(INFO) << "Installing extension " << extension_path.value();
 
   frontend_ = frontend;
-  alert_on_error_ = false;
+  alert_on_error_ = true;
 
   bool from_external = false;
   InstallOrUpdateExtension(extension_path, std::string(), from_external);
@@ -779,7 +779,7 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
 
   if (!frontend_->extensions_enabled() && !extension.IsTheme()) {
 #if defined(OS_WIN)
-    if (frontend_->show_extensions_disabled_notification()) {
+    if (frontend_->show_extensions_prompts()) {
       win_util::MessageBox(GetActiveWindow(),
           L"Extensions are not enabled. Add --enable-extensions to the "
           L"command-line to enable extensions.\n\n"
@@ -792,6 +792,21 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
         "Extensions are not enabled.");
     return;
   }
+
+#if defined(OS_WIN)
+  if (!extension.IsTheme() &&
+      frontend_->show_extensions_prompts() &&
+      win_util::MessageBox(GetActiveWindow(),
+          L"Are you sure you want to install this extension?\n\n"
+          L"This is a temporary message and it will be removed when extensions "
+          L"UI is finalized.",
+          l10n_util::GetString(IDS_PRODUCT_NAME).c_str(),
+          MB_OKCANCEL) == IDOK) {
+    ReportExtensionInstallError(extension_path,
+        "User did not allow extension to be installed.");
+    return;
+  }
+#endif
 
   // If an expected id was provided, make sure it matches.
   if (!expected_id.empty() && expected_id != extension.id()) {

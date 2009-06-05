@@ -1218,7 +1218,7 @@ void DownloadManager::OpenDownload(const DownloadItem* download,
   if (extension.size() > 0)
     extension = extension.substr(1);
 
-  // Open Chrome extensions with ExtenstionsService. For everthing else do shell
+  // Open Chrome extensions with ExtensionsService. For everything else do shell
   // execute.
   if (extension == chrome::kExtensionFileExtension) {
     OpenChromeExtension(download->full_path());
@@ -1228,20 +1228,8 @@ void DownloadManager::OpenDownload(const DownloadItem* download,
 }
 
 void DownloadManager::OpenChromeExtension(const FilePath& full_path) {
-#if defined(OS_WIN)
-  if (win_util::MessageBox(GetActiveWindow(),
-      L"Are you sure you want to install this extension?\n\n"
-      L"This is a temporary message and it will be removed when extensions "
-      L"UI is finalized.",
-      l10n_util::GetString(IDS_PRODUCT_NAME).c_str(), MB_OKCANCEL) == IDOK) {
-    ExtensionsService* extensions_service = profile_->GetExtensionsService();
-    extensions_service->InstallExtension(full_path);
-  }
-#else
-  // TODO(port): Needs CreateChromeWindow.
   ExtensionsService* extensions_service = profile_->GetExtensionsService();
   extensions_service->InstallExtension(full_path);
-#endif
 }
 
 void DownloadManager::OpenDownloadInShell(const DownloadItem* download,

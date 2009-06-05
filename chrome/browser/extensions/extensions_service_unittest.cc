@@ -81,7 +81,7 @@ class ExtensionsServiceTest
     service_ = new ExtensionsService(profile_.get(), &loop_, &loop_,
                                      registry_path_);
     service_->set_extensions_enabled(true);
-    service_->set_show_extensions_disabled_notification(false);
+    service_->set_show_extensions_prompts(false);
     total_successes_ = 0;
   }
 
