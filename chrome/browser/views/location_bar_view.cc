@@ -1313,8 +1313,8 @@ void LocationBarView::FocusLocation() {
 }
 
 void LocationBarView::FocusSearch() {
-  location_entry_->SetUserText(L"?");
   location_entry_->SetFocus();
+  location_entry_->SetForcedQuery();
 }
 
 void LocationBarView::SaveStateToContents(TabContents* contents) {

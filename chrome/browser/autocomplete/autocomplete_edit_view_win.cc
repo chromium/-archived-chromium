@@ -666,6 +666,14 @@ void AutocompleteEditViewWin::SetWindowTextAndCaretPos(const std::wstring& text,
   PlaceCaretAt(caret_pos);
 }
 
+void AutocompleteEditViewWin::SetForcedQuery() {
+  const std::wstring current_text(GetText());
+  if (current_text.empty() || (current_text[0] != '?'))
+    SetUserText(L"?");
+  else
+    SetSelection(current_text.length(), 1);
+}
+
 bool AutocompleteEditViewWin::IsSelectAll() {
   CHARRANGE selection;
   GetSel(selection);
@@ -888,7 +896,7 @@ void AutocompleteEditViewWin::PasteAndGo(const std::wstring& text) {
 }
 
 bool AutocompleteEditViewWin::SkipDefaultKeyEventProcessing(
-    const views::KeyEvent& e) {  
+    const views::KeyEvent& e) {
   int c = e.GetCharacter();
   // We don't process ALT + numpad digit as accelerators, they are used for
   // entering special characters.  We do translate alt-home.

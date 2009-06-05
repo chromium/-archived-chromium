@@ -60,6 +60,11 @@ void LocationBarViewMac::FocusLocation() {
   edit_view_->FocusLocation();
 }
 
+void LocationBarViewMac::FocusSearch() {
+  edit_view_->SetForcedQuery();
+  // TODO(pkasting): Focus the edit a la Linux/Win
+}
+
 void LocationBarViewMac::SaveStateToContents(TabContents* contents) {
   // TODO(shess): Why SaveStateToContents vs SaveStateToTab?
   edit_view_->SaveStateToTab(contents);

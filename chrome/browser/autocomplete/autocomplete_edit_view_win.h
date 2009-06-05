@@ -100,6 +100,8 @@ class AutocompleteEditViewWin
   virtual void SetWindowTextAndCaretPos(const std::wstring& text,
                                         size_t caret_pos);
 
+  virtual void SetForcedQuery();
+
   virtual bool IsSelectAll();
   virtual void SelectAll(bool reversed);
   virtual void RevertAll();

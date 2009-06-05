@@ -190,8 +190,8 @@ void LocationBarViewGtk::FocusLocation() {
 }
 
 void LocationBarViewGtk::FocusSearch() {
-  location_entry_->SetUserText(L"?");
   location_entry_->SetFocus();
+  location_entry_->SetForcedQuery();
 }
 
 void LocationBarViewGtk::UpdatePageActions() {

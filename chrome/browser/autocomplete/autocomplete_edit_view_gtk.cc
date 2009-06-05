@@ -226,6 +226,19 @@ void AutocompleteEditViewGtk::SetWindowTextAndCaretPos(const std::wstring& text,
   gtk_text_buffer_place_cursor(text_buffer_, &cur_pos);
 }
 
+void AutocompleteEditViewGtk::SetForcedQuery() {
+  const std::wstring current_text(GetText());
+  if (current_text.empty() || (current_text[0] != '?')) {
+    SetUserText(L"?");
+  } else {
+    GtkTextIter start, end;
+    gtk_text_buffer_get_bounds(text_buffer_, &start, &end);
+    gtk_text_buffer_get_iter_at_offset(text_buffer_, &start, 1);
+    gtk_text_buffer_place_cursor(text_buffer_, &start);
+    gtk_text_buffer_select_range(text_buffer_, &start, &end);
+  }
+}
+
 bool AutocompleteEditViewGtk::IsSelectAll() {
   NOTIMPLEMENTED();
   return false;
