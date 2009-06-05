@@ -12,8 +12,11 @@
 IPC_BEGIN_MESSAGES(PluginProcess)
   // Tells the plugin process to create a new channel for communication with a
   // renderer.  The channel name is returned in a
-  // PluginProcessHostMsg_ChannelCreated message.
-  IPC_MESSAGE_CONTROL1(PluginProcessMsg_CreateChannel,
+  // PluginProcessHostMsg_ChannelCreated message.  The renderer's process_id is
+  // passed so that the plugin process reuses an existing channel to that
+  // process if it exists.
+  IPC_MESSAGE_CONTROL2(PluginProcessMsg_CreateChannel,
+                       int /* process_id */,
                        bool /* off_the_record */)
 
   // Allows a chrome plugin loaded in the browser process to send arbitrary

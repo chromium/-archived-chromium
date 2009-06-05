@@ -15,7 +15,8 @@
 // process.  On the renderer side there's a corresponding PluginChannelHost.
 class PluginChannel : public PluginChannelBase {
  public:
-  static PluginChannel* GetPluginChannel(MessageLoop* ipc_message_loop);
+  static PluginChannel* GetPluginChannel(
+      int process_id, MessageLoop* ipc_message_loop);
 
   ~PluginChannel();
 

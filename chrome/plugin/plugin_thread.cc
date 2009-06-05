@@ -97,10 +97,10 @@ void PluginThread::CleanUp() {
   ChildThread::CleanUp();
 }
 
-void PluginThread::OnCreateChannel(bool off_the_record) {
+void PluginThread::OnCreateChannel(int process_id, bool off_the_record) {
   std::string channel_name;
   scoped_refptr<PluginChannel> channel =
-      PluginChannel::GetPluginChannel(owner_loop());
+      PluginChannel::GetPluginChannel(process_id, owner_loop());
   if (channel.get()) {
     channel_name = channel->channel_name();
     channel->set_off_the_record(off_the_record);

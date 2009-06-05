@@ -524,6 +524,7 @@ void PluginProcessHost::RequestPluginChannel(
   // a deadlock can occur if the plugin creation request from the renderer is
   // a result of a sync message by the plugin process.
   PluginProcessMsg_CreateChannel* msg = new PluginProcessMsg_CreateChannel(
+      renderer_message_filter->GetProcessId(),
       renderer_message_filter->off_the_record());
   msg->set_unblock(true);
   if (Send(msg)) {

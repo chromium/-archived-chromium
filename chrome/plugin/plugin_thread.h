@@ -31,7 +31,7 @@ class PluginThread : public ChildThread {
   virtual void Init();
   virtual void CleanUp();
 
-  void OnCreateChannel(bool off_the_record);
+  void OnCreateChannel(int process_id, bool off_the_record);
   void OnPluginMessage(const std::vector<uint8> &data);
 
   scoped_ptr<NotificationService> notification_service_;

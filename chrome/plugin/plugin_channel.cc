@@ -12,10 +12,11 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/plugin/plugin_thread.h"
 
-PluginChannel* PluginChannel::GetPluginChannel(MessageLoop* ipc_message_loop) {
-  static int next_id;
+PluginChannel* PluginChannel::GetPluginChannel(
+    int process_id, MessageLoop* ipc_message_loop) {
+  // map renderer's process id to a (single) channel to that process
   std::string channel_name = StringPrintf(
-      "%d.r%d", base::GetCurrentProcId(), ++next_id);
+      "%d.r%d", base::GetCurrentProcId(), process_id);
 
   return static_cast<PluginChannel*>(PluginChannelBase::GetChannel(
       channel_name,
