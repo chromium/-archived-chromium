@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "net/base/client_socket_pool.h"
+#include "net/base/tcp_client_socket_pool.h"
 
 #include "base/compiler_specific.h"
 #include "base/field_trial.h"
@@ -34,29 +34,29 @@ const int kIdleTimeout = 300;  // 5 minutes.
 
 namespace net {
 
-ClientSocketPool::ConnectingSocket::ConnectingSocket(
+TCPClientSocketPool::ConnectingSocket::ConnectingSocket(
     const std::string& group_name,
     const ClientSocketHandle* handle,
     ClientSocketFactory* client_socket_factory,
-    ClientSocketPool* pool)
+    TCPClientSocketPool* pool)
     : group_name_(group_name),
       handle_(handle),
       client_socket_factory_(client_socket_factory),
       ALLOW_THIS_IN_INITIALIZER_LIST(
           callback_(this,
-                    &ClientSocketPool::ConnectingSocket::OnIOComplete)),
+                    &TCPClientSocketPool::ConnectingSocket::OnIOComplete)),
       pool_(pool),
       canceled_(false) {
   DCHECK(!ContainsKey(pool_->connecting_socket_map_, handle));
   pool_->connecting_socket_map_[handle] = this;
 }
 
-ClientSocketPool::ConnectingSocket::~ConnectingSocket() {
+TCPClientSocketPool::ConnectingSocket::~ConnectingSocket() {
   if (!canceled_)
     pool_->connecting_socket_map_.erase(handle_);
 }
 
-int ClientSocketPool::ConnectingSocket::Connect(
+int TCPClientSocketPool::ConnectingSocket::Connect(
     const std::string& host,
     int port,
     CompletionCallback* callback) {
@@ -75,11 +75,11 @@ int ClientSocketPool::ConnectingSocket::Connect(
   return rv;
 }
 
-ClientSocket* ClientSocketPool::ConnectingSocket::ReleaseSocket() {
+ClientSocket* TCPClientSocketPool::ConnectingSocket::ReleaseSocket() {
   return socket_.release();
 }
 
-void ClientSocketPool::ConnectingSocket::OnIOComplete(int result) {
+void TCPClientSocketPool::ConnectingSocket::OnIOComplete(int result) {
   DCHECK_NE(result, ERR_IO_PENDING);
 
   if (canceled_) {
@@ -154,21 +154,22 @@ void ClientSocketPool::ConnectingSocket::OnIOComplete(int result) {
   delete this;
 }
 
-void ClientSocketPool::ConnectingSocket::Cancel() {
+void TCPClientSocketPool::ConnectingSocket::Cancel() {
   DCHECK(!canceled_);
   DCHECK(ContainsKey(pool_->connecting_socket_map_, handle_));
   pool_->connecting_socket_map_.erase(handle_);
   canceled_ = true;
 }
 
-ClientSocketPool::ClientSocketPool(int max_sockets_per_group,
-                                   ClientSocketFactory* client_socket_factory)
+TCPClientSocketPool::TCPClientSocketPool(
+    int max_sockets_per_group,
+    ClientSocketFactory* client_socket_factory)
     : client_socket_factory_(client_socket_factory),
       idle_socket_count_(0),
       max_sockets_per_group_(max_sockets_per_group) {
 }
 
-ClientSocketPool::~ClientSocketPool() {
+TCPClientSocketPool::~TCPClientSocketPool() {
   // Clean up any idle sockets.  Assert that we have no remaining active
   // sockets or pending requests.  They should have all been cleaned up prior
   // to the manager being destroyed.
@@ -181,20 +182,20 @@ ClientSocketPool::~ClientSocketPool() {
 // prioritized over requests of equal priority.
 //
 // static
-void ClientSocketPool::InsertRequestIntoQueue(const Request& r,
-                                              RequestQueue* pending_requests) {
+void TCPClientSocketPool::InsertRequestIntoQueue(
+    const Request& r, RequestQueue* pending_requests) {
   RequestQueue::iterator it = pending_requests->begin();
   while (it != pending_requests->end() && r.priority <= it->priority)
     ++it;
   pending_requests->insert(it, r);
 }
 
-int ClientSocketPool::RequestSocket(const std::string& group_name,
-                                    const std::string& host,
-                                    int port,
-                                    int priority,
-                                    ClientSocketHandle* handle,
-                                    CompletionCallback* callback) {
+int TCPClientSocketPool::RequestSocket(const std::string& group_name,
+                                       const std::string& host,
+                                       int port,
+                                       int priority,
+                                       ClientSocketHandle* handle,
+                                       CompletionCallback* callback) {
   DCHECK(!host.empty());
   DCHECK_GE(priority, 0);
   Group& group = group_map_[group_name];
@@ -270,8 +271,8 @@ int ClientSocketPool::RequestSocket(const std::string& group_name,
   return rv;
 }
 
-void ClientSocketPool::CancelRequest(const std::string& group_name,
-                                     const ClientSocketHandle* handle) {
+void TCPClientSocketPool::CancelRequest(const std::string& group_name,
+                                        const ClientSocketHandle* handle) {
   DCHECK(ContainsKey(group_map_, group_name));
 
   Group& group = group_map_[group_name];
@@ -302,20 +303,20 @@ void ClientSocketPool::CancelRequest(const std::string& group_name,
   }
 }
 
-void ClientSocketPool::ReleaseSocket(const std::string& group_name,
-                                     ClientSocket* socket) {
+void TCPClientSocketPool::ReleaseSocket(const std::string& group_name,
+                                        ClientSocket* socket) {
   // Run this asynchronously to allow the caller to finish before we let
   // another to begin doing work.  This also avoids nasty recursion issues.
   // NOTE: We cannot refer to the handle argument after this method returns.
   MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &ClientSocketPool::DoReleaseSocket, group_name, socket));
+      this, &TCPClientSocketPool::DoReleaseSocket, group_name, socket));
 }
 
-void ClientSocketPool::CloseIdleSockets() {
+void TCPClientSocketPool::CloseIdleSockets() {
   CleanupIdleSockets(true);
 }
 
-int ClientSocketPool::IdleSocketCountInGroup(
+int TCPClientSocketPool::IdleSocketCountInGroup(
     const std::string& group_name) const {
   GroupMap::const_iterator i = group_map_.find(group_name);
   DCHECK(i != group_map_.end());
@@ -323,7 +324,7 @@ int ClientSocketPool::IdleSocketCountInGroup(
   return i->second.idle_sockets.size();
 }
 
-LoadState ClientSocketPool::GetLoadState(
+LoadState TCPClientSocketPool::GetLoadState(
     const std::string& group_name,
     const ClientSocketHandle* handle) const {
   DCHECK(ContainsKey(group_map_, group_name)) << group_name;
@@ -355,13 +356,13 @@ LoadState ClientSocketPool::GetLoadState(
   return LOAD_STATE_IDLE;
 }
 
-bool ClientSocketPool::IdleSocket::ShouldCleanup(base::TimeTicks now) const {
+bool TCPClientSocketPool::IdleSocket::ShouldCleanup(base::TimeTicks now) const {
   bool timed_out = (now - start_time) >=
       base::TimeDelta::FromSeconds(kIdleTimeout);
   return timed_out || !socket->IsConnectedAndIdle();
 }
 
-void ClientSocketPool::CleanupIdleSockets(bool force) {
+void TCPClientSocketPool::CleanupIdleSockets(bool force) {
   if (idle_socket_count_ == 0)
     return;
 
@@ -395,19 +396,19 @@ void ClientSocketPool::CleanupIdleSockets(bool force) {
   }
 }
 
-void ClientSocketPool::IncrementIdleCount() {
+void TCPClientSocketPool::IncrementIdleCount() {
   if (++idle_socket_count_ == 1)
     timer_.Start(TimeDelta::FromSeconds(kCleanupInterval), this,
-                 &ClientSocketPool::OnCleanupTimerFired);
+                 &TCPClientSocketPool::OnCleanupTimerFired);
 }
 
-void ClientSocketPool::DecrementIdleCount() {
+void TCPClientSocketPool::DecrementIdleCount() {
   if (--idle_socket_count_ == 0)
     timer_.Stop();
 }
 
-void ClientSocketPool::DoReleaseSocket(const std::string& group_name,
-                                       ClientSocket* socket) {
+void TCPClientSocketPool::DoReleaseSocket(const std::string& group_name,
+                                          ClientSocket* socket) {
   GroupMap::iterator i = group_map_.find(group_name);
   DCHECK(i != group_map_.end());
 

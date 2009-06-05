@@ -6,8 +6,8 @@
 #define NET_HTTP_HTTP_NETWORK_SESSION_H_
 
 #include "base/ref_counted.h"
-#include "net/base/client_socket_pool.h"
 #include "net/base/ssl_config_service.h"
+#include "net/base/tcp_client_socket_pool.h"
 #include "net/http/http_auth_cache.h"
 
 namespace net {
@@ -20,7 +20,7 @@ class HttpNetworkSession : public base::RefCounted<HttpNetworkSession> {
  public:
   HttpNetworkSession(ProxyService* proxy_service,
                      ClientSocketFactory* client_socket_factory)
-      : connection_pool_(new ClientSocketPool(
+      : connection_pool_(new TCPClientSocketPool(
             max_sockets_per_group_, client_socket_factory)),
         proxy_service_(proxy_service) {
     DCHECK(proxy_service);

@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "net/base/tcp_client_socket_pool.h"
+
 #include "base/message_loop.h"
 #include "net/base/client_socket.h"
 #include "net/base/client_socket_factory.h"
 #include "net/base/client_socket_handle.h"
-#include "net/base/client_socket_pool.h"
 #include "net/base/host_resolver_unittest.h"
 #include "net/base/net_errors.h"
 #include "net/base/test_completion_callback.h"
@@ -194,11 +195,11 @@ class TestSocketRequest : public CallbackRunner< Tuple1<int> > {
 
 int TestSocketRequest::completion_count = 0;
 
-class ClientSocketPoolTest : public testing::Test {
+class TCPClientSocketPoolTest : public testing::Test {
  protected:
-  ClientSocketPoolTest()
-      : pool_(new ClientSocketPool(kMaxSocketsPerGroup,
-                                   &client_socket_factory_)) {}
+  TCPClientSocketPoolTest()
+      : pool_(new TCPClientSocketPool(kMaxSocketsPerGroup,
+                                      &client_socket_factory_)) {}
 
   virtual void SetUp() {
     TestSocketRequest::completion_count = 0;
@@ -209,7 +210,7 @@ class ClientSocketPoolTest : public testing::Test {
   std::vector<TestSocketRequest*> request_order_;
 };
 
-TEST_F(ClientSocketPoolTest, Basic) {
+TEST_F(TCPClientSocketPoolTest, Basic) {
   TestCompletionCallback callback;
   ClientSocketHandle handle(pool_.get());
   int rv = handle.Init("a", "www.google.com", 80, 0, &callback);
@@ -227,7 +228,7 @@ TEST_F(ClientSocketPoolTest, Basic) {
   MessageLoop::current()->RunAllPending();
 }
 
-TEST_F(ClientSocketPoolTest, InitHostResolutionFailure) {
+TEST_F(TCPClientSocketPoolTest, InitHostResolutionFailure) {
   RuleBasedHostMapper* host_mapper = new RuleBasedHostMapper;
   host_mapper->AddSimulatedFailure("unresolvable.host.name");
   ScopedHostMapper scoped_host_mapper(host_mapper);
@@ -237,7 +238,7 @@ TEST_F(ClientSocketPoolTest, InitHostResolutionFailure) {
   EXPECT_EQ(ERR_NAME_NOT_RESOLVED, req.WaitForResult());
 }
 
-TEST_F(ClientSocketPoolTest, InitConnectionFailure) {
+TEST_F(TCPClientSocketPoolTest, InitConnectionFailure) {
   client_socket_factory_.set_client_socket_type(
       MockClientSocketFactory::MOCK_FAILING_CLIENT_SOCKET);
   TestSocketRequest req(pool_.get(), &request_order_);
@@ -246,7 +247,7 @@ TEST_F(ClientSocketPoolTest, InitConnectionFailure) {
   EXPECT_EQ(ERR_CONNECTION_FAILED, req.WaitForResult());
 }
 
-TEST_F(ClientSocketPoolTest, PendingRequests) {
+TEST_F(TCPClientSocketPoolTest, PendingRequests) {
   int rv;
 
   scoped_ptr<TestSocketRequest> reqs[kNumRequests];
@@ -302,7 +303,7 @@ TEST_F(ClientSocketPoolTest, PendingRequests) {
       "earlier into the queue.";
 }
 
-TEST_F(ClientSocketPoolTest, PendingRequests_NoKeepAlive) {
+TEST_F(TCPClientSocketPoolTest, PendingRequests_NoKeepAlive) {
   scoped_ptr<TestSocketRequest> reqs[kNumRequests];
   for (size_t i = 0; i < arraysize(reqs); ++i)
     reqs[i].reset(new TestSocketRequest(pool_.get(), &request_order_));
@@ -344,7 +345,7 @@ TEST_F(ClientSocketPoolTest, PendingRequests_NoKeepAlive) {
 // This test will start up a RequestSocket() and then immediately Cancel() it.
 // The pending host resolution will eventually complete, and destroy the
 // ClientSocketPool which will crash if the group was not cleared properly.
-TEST_F(ClientSocketPoolTest, CancelRequestClearGroup) {
+TEST_F(TCPClientSocketPoolTest, CancelRequestClearGroup) {
   TestSocketRequest req(pool_.get(), &request_order_);
   EXPECT_EQ(ERR_IO_PENDING,
             req.handle.Init("a", "www.google.com", 80, 5, &req));
@@ -360,7 +361,7 @@ TEST_F(ClientSocketPoolTest, CancelRequestClearGroup) {
   MessageLoop::current()->RunAllPending();
 }
 
-TEST_F(ClientSocketPoolTest, TwoRequestsCancelOne) {
+TEST_F(TCPClientSocketPoolTest, TwoRequestsCancelOne) {
   TestSocketRequest req(pool_.get(), &request_order_);
   TestSocketRequest req2(pool_.get(), &request_order_);
 
@@ -382,7 +383,7 @@ TEST_F(ClientSocketPoolTest, TwoRequestsCancelOne) {
   MessageLoop::current()->RunAllPending();
 }
 
-TEST_F(ClientSocketPoolTest, DISABLED_ConnectCancelConnect) {
+TEST_F(TCPClientSocketPoolTest, DISABLED_ConnectCancelConnect) {
   client_socket_factory_.set_client_socket_type(
       MockClientSocketFactory::MOCK_PENDING_CLIENT_SOCKET);
   TestSocketRequest req(pool_.get(), &request_order_);
@@ -414,7 +415,7 @@ TEST_F(ClientSocketPoolTest, DISABLED_ConnectCancelConnect) {
   MessageLoop::current()->RunAllPending();
 }
 
-TEST_F(ClientSocketPoolTest, CancelRequest) {
+TEST_F(TCPClientSocketPoolTest, CancelRequest) {
   scoped_ptr<TestSocketRequest> reqs[kNumRequests];
 
   for (size_t i = 0; i < arraysize(reqs); ++i)

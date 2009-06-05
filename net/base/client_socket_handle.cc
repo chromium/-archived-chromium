@@ -5,6 +5,7 @@
 #include "net/base/client_socket_handle.h"
 
 #include "base/compiler_specific.h"
+#include "base/logging.h"
 #include "net/base/client_socket.h"
 #include "net/base/client_socket_pool.h"
 #include "net/base/net_errors.h"
