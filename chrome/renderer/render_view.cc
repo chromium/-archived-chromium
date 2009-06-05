@@ -1720,9 +1720,13 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
   if (!PluginChannelHost::IsListening())
     return NULL;
 
+  GURL policy_url;
+  if (webview->GetMainFrame())
+    policy_url = webview->GetMainFrame()->GetURL();
+
   FilePath path;
   render_thread_->Send(
-      new ViewHostMsg_GetPluginPath(url, mime_type, clsid, &path,
+      new ViewHostMsg_GetPluginPath(url, policy_url, mime_type, clsid, &path,
                                     actual_mime_type));
   if (path.value().empty())
     return NULL;

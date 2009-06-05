@@ -19,6 +19,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/notification_registrar.h"
+#include "googleurl/src/gurl.h"
 #include "webkit/glue/webplugininfo.h"
 
 #if defined(OS_WIN)
@@ -29,7 +30,6 @@ namespace IPC {
 class Message;
 }
 
-class GURL;
 class MessageLoop;
 class PluginProcessHost;
 class URLRequestContext;
@@ -84,20 +84,14 @@ class PluginService
 
   bool HavePluginFor(const std::string& mime_type, bool allow_wildcard);
 
+  // Get the path to the plugin specified.  policy_url is the URL of the page
+  // requesting the plugin, so we can verify whether the plugin is allowed
+  // on that page.
   FilePath GetPluginPath(const GURL& url,
+                         const GURL& policy_url,
                          const std::string& mime_type,
                          const std::string& clsid,
                          std::string* actual_mime_type);
-
-  // Get plugin info by matching full path.
-  bool GetPluginInfoByPath(const FilePath& plugin_path,
-                           WebPluginInfo* info);
-
-  // Returns true if the plugin's mime-type supports a given mime-type.
-  // Checks for absolute matching and wildcards.  mime-types should be in
-  // lower case.
-  bool SupportsMimeType(const std::wstring& plugin_mime_type,
-                        const std::wstring& mime_type);
 
   // The UI thread's message loop
   MessageLoop* main_message_loop() { return main_message_loop_; }
@@ -121,6 +115,13 @@ class PluginService
   virtual void Observe(NotificationType type, const NotificationSource& source,
                        const NotificationDetails& details);
 
+  // Get plugin info by matching full path.
+  bool GetPluginInfoByPath(const FilePath& plugin_path, WebPluginInfo* info);
+
+  // Returns true if the given plugin is allowed to be used by a page with
+  // the given URL.
+  bool PluginAllowedForURL(const FilePath& plugin_path, const GURL& url);
+
   // mapping between plugin path and PluginProcessHost
   typedef base::hash_map<FilePath, PluginProcessHost*> PluginMap;
   PluginMap plugin_hosts_;
@@ -137,10 +138,15 @@ class PluginService
   // The browser's UI locale.
   const std::wstring ui_locale_;
 
+  // Map of plugin paths to the origin they are restricted to.  Used for
+  // extension-only plugins.
+  typedef base::hash_map<FilePath, GURL> PrivatePluginMap;
+  PrivatePluginMap private_plugins_;
+
   // Need synchronization whenever we access the plugin_list singelton through
   // webkit_glue since this class is called on the main and IO thread.
   Lock lock_;
-  
+
   NotificationRegistrar registrar_;
 
 #if defined(OS_WIN)

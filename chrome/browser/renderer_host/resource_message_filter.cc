@@ -510,11 +510,12 @@ void ResourceMessageFilter::OnGetPlugins(bool refresh,
 }
 
 void ResourceMessageFilter::OnGetPluginPath(const GURL& url,
+                                            const GURL& policy_url,
                                             const std::string& mime_type,
                                             const std::string& clsid,
                                             FilePath* filename,
                                             std::string* url_mime_type) {
-  *filename = plugin_service_->GetPluginPath(url, mime_type, clsid,
+  *filename = plugin_service_->GetPluginPath(url, policy_url, mime_type, clsid,
                                              url_mime_type);
 }
 

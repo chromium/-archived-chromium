@@ -158,7 +158,10 @@ void PluginService::OpenChannelToPlugin(
     const std::wstring& locale, IPC::Message* reply_msg) {
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
-  FilePath plugin_path = GetPluginPath(url, mime_type, clsid, NULL);
+  // We don't need a policy URL here because that was already checked by a
+  // previous call to GetPluginPath.
+  GURL policy_url;
+  FilePath plugin_path = GetPluginPath(url, policy_url, mime_type, clsid, NULL);
   PluginProcessHost* plugin_host = FindOrStartPluginProcess(plugin_path, clsid);
   if (plugin_host) {
     plugin_host->OpenChannelToPlugin(renderer_msg_filter, mime_type, reply_msg);
@@ -171,16 +174,21 @@ void PluginService::OpenChannelToPlugin(
 }
 
 FilePath PluginService::GetPluginPath(const GURL& url,
+                                      const GURL& policy_url,
                                       const std::string& mime_type,
                                       const std::string& clsid,
                                       std::string* actual_mime_type) {
   AutoLock lock(lock_);
   bool allow_wildcard = true;
   WebPluginInfo info;
-  NPAPI::PluginList::Singleton()->GetPluginInfo(url, mime_type, clsid,
-                                                allow_wildcard, &info,
-                                                actual_mime_type);
-  return info.path;
+  if (NPAPI::PluginList::Singleton()->GetPluginInfo(url, mime_type, clsid,
+                                                    allow_wildcard, &info,
+                                                    actual_mime_type) &&
+      PluginAllowedForURL(info.path, policy_url)) {
+    return info.path;
+  }
+
+  return FilePath();
 }
 
 bool PluginService::GetPluginInfoByPath(const FilePath& plugin_path,
@@ -233,10 +241,11 @@ void PluginService::Observe(NotificationType type,
            extension != extensions->end(); ++extension) {
         for (size_t i = 0; i < (*extension)->plugins().size(); ++i ) {
           const Extension::PluginInfo& plugin = (*extension)->plugins()[i];
-          // TODO(mpcomplete): pass through plugin.is_public
           AutoLock lock(lock_);
           NPAPI::PluginList::ResetPluginsLoaded();
           NPAPI::PluginList::AddExtraPluginPath(plugin.path);
+          if (!plugin.is_public)
+            private_plugins_[plugin.path] = (*extension)->url();
         }
       }
       break;
@@ -252,4 +261,20 @@ void PluginService::Observe(NotificationType type,
     default:
       DCHECK(false);
   }
+}
+
+bool PluginService::PluginAllowedForURL(const FilePath& plugin_path,
+                                        const GURL& url) {
+  if (url.is_empty())
+    return true;  // Caller wants all plugins.
+
+  PrivatePluginMap::iterator it = private_plugins_.find(plugin_path);
+  if (it == private_plugins_.end())
+    return true;  // This plugin is not private, so it's allowed everywhere.
+
+  // We do a dumb compare of scheme and host, rather than using the domain
+  // service, since we only care about this for extensions.
+  const GURL& required_url = it->second;
+  return (url.scheme() == required_url.scheme() &&
+          url.host() == required_url.host());
 }

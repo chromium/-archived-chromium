@@ -131,6 +131,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnGetScreenInfo(gfx::NativeViewId window, IPC::Message* reply);
   void OnGetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins);
   void OnGetPluginPath(const GURL& url,
+                       const GURL& policy_url,
                        const std::string& mime_type,
                        const std::string& clsid,
                        FilePath* filename,
