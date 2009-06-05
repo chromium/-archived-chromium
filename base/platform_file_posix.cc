@@ -6,6 +6,7 @@
 
 #include <fcntl.h>
 #include <errno.h>
+#include <sys/stat.h>
 
 #include "base/logging.h"
 #include "base/string_util.h"
@@ -28,7 +29,7 @@ PlatformFile CreatePlatformFile(const std::wstring& name,
   if (!open_flags && !(flags & PLATFORM_FILE_OPEN) &&
       !(flags & PLATFORM_FILE_OPEN_ALWAYS)) {
     NOTREACHED();
-    errno = ENOTSUP;
+    errno = EOPNOTSUPP;
     return kInvalidPlatformFileValue;
   }
 
