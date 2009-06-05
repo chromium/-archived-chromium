@@ -147,9 +147,9 @@ static void CPUFillFromThreadInfo(MDRawContextX86 *out,
 // Juggle an x86 ucontext into minidump format
 //   out: the minidump structure
 //   info: the collection of register structures.
-static void CPUFillFromUContext(MDRawContextX86 *out, const ucontext *uc) {
+static void CPUFillFromUContext(MDRawContextX86 *out, const ucontext *uc,
+                                const struct _libc_fpstate* fp) {
   const greg_t* regs = uc->uc_mcontext.gregs;
-  const fpregset_t fp = uc->uc_mcontext.fpregs;
 
   out->context_flags = MD_CONTEXT_X86_FULL |
                        MD_CONTEXT_X86_FLOATING_POINT;
@@ -247,9 +247,9 @@ static void CPUFillFromThreadInfo(MDRawContextAMD64 *out,
   memcpy(&out->flt_save.xmm_registers, &info.fpregs.xmm_space, 16 * 16);
 }
 
-static void CPUFillFromUContext(MDRawContextAMD64 *out, const ucontext *uc) {
+static void CPUFillFromUContext(MDRawContextAMD64 *out, const ucontext *uc,
+                                const struct _libc_fpstate* fpregs) {
   const greg_t* regs = uc->gregs;
-  const fpregset_t fpregs = uc->fpregs;
 
   out->context_flags = MD_CONTEXT_AMD64_FULL;
 
@@ -308,6 +308,7 @@ class MinidumpWriter {
       : filename_(filename),
         siginfo_(&context->siginfo),
         ucontext_(&context->context),
+        float_state_(&context->float_state),
         crashing_tid_(context->tid),
         dumper_(crashing_pid) {
   }
@@ -440,7 +441,7 @@ class MinidumpWriter {
         if (!cpu.Allocate())
           return false;
         my_memset(cpu.get(), 0, sizeof(RawContextCPU));
-        CPUFillFromUContext(cpu.get(), ucontext_);
+        CPUFillFromUContext(cpu.get(), ucontext_, float_state_);
         thread.thread_context = cpu.location();
         crashing_thread_context_ = cpu.location();
       } else {
@@ -675,6 +676,7 @@ class MinidumpWriter {
   const char* const filename_;  // output filename
   const siginfo_t* const siginfo_;  // from the signal handler (see sigaction)
   const struct ucontext* const ucontext_;  // also from the signal handler
+  const struct _libc_fpstate* const float_state_;  // ditto
   const pid_t crashing_tid_;  // the process which actually crashed
   LinuxDumper dumper_;
   MinidumpFileWriter minidump_writer_;

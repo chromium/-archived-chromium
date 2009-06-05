@@ -146,6 +146,7 @@ class ExceptionHandler {
     siginfo_t siginfo;
     pid_t tid;  // the crashing thread.
     struct ucontext context;
+    struct _libc_fpstate float_state;
   };
 
  private:

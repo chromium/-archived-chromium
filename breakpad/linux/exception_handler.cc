@@ -261,6 +261,8 @@ bool ExceptionHandler::HandleSignal(int sig, siginfo_t* info, void* uc) {
   CrashContext context;
   memcpy(&context.siginfo, info, sizeof(siginfo_t));
   memcpy(&context.context, uc, sizeof(struct ucontext));
+  memcpy(&context.float_state, ((struct ucontext *)uc)->uc_mcontext.fpregs,
+         sizeof(context.float_state));
   context.tid = sys_gettid();
 
   if (crash_handler_ && crash_handler_(&context, sizeof(context),
