@@ -48,13 +48,14 @@
 namespace net {
 
 struct ListState {
-  int64         now_time;             // needed for year determination.
-  struct tm     now_tm;               // needed for year determination.
-  int           lstyle;               // LISTing style.
-  int           parsed_one;           // returned anything yet?
-  char          carry_buf[84];        // for VMS multiline.
-  unsigned int  carry_buf_len;        // length of name in carry_buf.
-  unsigned int  numlines;             // number of lines seen.
+  void*         magic;          // to determine if previously initialized
+  int64         now_time;       // needed for year determination.
+  struct tm     now_tm;         // needed for year determination.
+  int           lstyle;         // LISTing style.
+  int           parsed_one;     // returned anything yet?
+  char          carry_buf[84];  // for VMS multiline.
+  unsigned int  carry_buf_len;  // length of name in carry_buf.
+  unsigned int  numlines;       // number of lines seen.
 };
 
 enum LineType {
@@ -73,6 +74,7 @@ struct ListResult {
   unsigned int  fe_lnlen;        // length of symlink name
   char          fe_size[40];     // size of file in bytes (<= (2^128 - 1))
   int           fe_cinfs;        // file system is definitely case insensitive
+  // TODO(ibrar): We should use "base::Time::Exploded" instead of "tm"
   struct tm     fe_time;         // last-modified time
 };
 

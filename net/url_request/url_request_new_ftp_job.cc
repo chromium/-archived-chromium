@@ -20,6 +20,8 @@
 URLRequestNewFtpJob::URLRequestNewFtpJob(URLRequest* request)
     : URLRequestJob(request),
       server_auth_state_(net::AUTH_STATE_DONT_NEED_AUTH),
+      response_info_(NULL),
+      dir_listing_buf_size_(0),
       ALLOW_THIS_IN_INITIALIZER_LIST(
           start_callback_(this, &URLRequestNewFtpJob::OnStartCompleted)),
       ALLOW_THIS_IN_INITIALIZER_LIST(
@@ -88,51 +90,22 @@ bool URLRequestNewFtpJob::ReadRawData(net::IOBuffer* buf,
     directory_html_.erase(0, bytes_to_copy);
     return true;
   }
+
   int rv = transaction_->Read(buf, buf_size, &read_callback_);
-  if (response_info_->is_directory_listing) {
-    std::string file_entry;
-    if (rv > 0) {
-      std::string line;
-      buf->data()[rv] = 0;
-      std::istringstream iss(buf->data());
-      while (getline(iss, line)) {
-        struct net::ListState state;
-        struct net::ListResult result;
-        // TODO(ibrar): Use a more descriptive variable name than 'lt', which
-        // looks like 'it'.
-        net::LineType lt = ParseFTPLine(line.c_str(), &state, &result);
-        switch (lt) {
-          case net::FTP_TYPE_DIRECTORY:
-            file_entry.append(net::GetDirectoryListingEntry(result.fe_fname,
-                                                            true,
-                                                            rv,
-                                                            base::Time()));
-            break;
-          case net::FTP_TYPE_FILE:
-            file_entry.append(net::GetDirectoryListingEntry(result.fe_fname,
-                                                            false,
-                                                            rv,
-                                                            base::Time()));
-            break;
-          case net::FTP_TYPE_SYMLINK:
-          case net::FTP_TYPE_JUNK:
-          case net::FTP_TYPE_COMMENT:
-            break;
-          default:
-            break;
-        }
-      }
-      memcpy(buf->data(), file_entry.c_str(), file_entry.length());
-      *bytes_read = file_entry.length();
-      return true;
-    }
-  } else {
-    rv = transaction_->Read(buf, buf_size, &read_callback_);
-  }
   if (rv >= 0) {
-    *bytes_read = rv;
+    if (response_info_->is_directory_listing) {
+      *bytes_read = ProcessFtpDir(buf, buf_size, rv);
+    } else {
+      *bytes_read = rv;
+    }
     return true;
   }
+
+  if (response_info_->is_directory_listing) {
+    dir_listing_buf_ = buf;
+    dir_listing_buf_size_ = buf_size;
+  }
+
   if (rv == net::ERR_IO_PENDING) {
     read_in_progress_ = true;
     SetStatus(URLRequestStatus(URLRequestStatus::IO_PENDING, 0));
@@ -140,6 +113,75 @@ bool URLRequestNewFtpJob::ReadRawData(net::IOBuffer* buf,
     NotifyDone(URLRequestStatus(URLRequestStatus::FAILED, rv));
   }
   return false;
+}
+
+int URLRequestNewFtpJob::ProcessFtpDir(net::IOBuffer *buf,
+                                       int buf_size,
+                                       int bytes_read) {
+  std::string file_entry;
+  std::string line;
+  buf->data()[bytes_read] = 0;
+  int64 file_size;
+  std::istringstream iss(buf->data());
+  while (getline(iss, line)) {
+    struct net::ListState state;
+    struct net::ListResult result;
+    base::Time::Exploded et;
+    std::replace(line.begin(), line.end(), '\r', '\0');
+    net::LineType line_type = ParseFTPLine(line.c_str(), &state, &result);
+    switch (line_type) {
+      case net::FTP_TYPE_DIRECTORY:
+        // TODO(ibrar): There is some problem in ParseFTPLine function or
+        // in conversion between tm and base::Time::Exploded.
+        // It returns wrong date/time (Differnce is 1 day and 17 Hours).
+        memset(&et, 0, sizeof(base::Time::Exploded));
+        et.second = result.fe_time.tm_sec;
+        et.minute = result.fe_time.tm_min;
+        et.hour = result.fe_time.tm_hour;
+        et.day_of_month = result.fe_time.tm_mday;
+        et.month = result.fe_time.tm_mon + 1;
+        et.year = result.fe_time.tm_year + 1900;
+        et.day_of_week = result.fe_time.tm_wday;
+
+        file_entry.append(net::GetDirectoryListingEntry(
+            result.fe_fname, true, 0, base::Time::FromLocalExploded(et)));
+        break;
+      case net::FTP_TYPE_FILE:
+        // TODO(ibrar): There should be a way to create a Time object based
+        // on "tm" structure. This will remove bunch of line of code to convert
+        // tm to Time object.
+        memset(&et, 0, sizeof(base::Time::Exploded));
+        et.second = result.fe_time.tm_sec;
+        et.minute = result.fe_time.tm_min;
+        et.hour = result.fe_time.tm_hour;
+        et.day_of_month = result.fe_time.tm_mday;
+        et.month = result.fe_time.tm_mon + 1;
+        et.year = result.fe_time.tm_year + 1900;
+        et.day_of_week = result.fe_time.tm_wday;
+        // TODO(ibrar): There is some problem in ParseFTPLine function or
+        // in conversion between tm and base::Time::Exploded.
+        // It returns wrong date/time (Differnce is 1 day and 17 Hours).
+        if (StringToInt64(result.fe_size, &file_size))
+          file_entry.append(net::GetDirectoryListingEntry(
+              result.fe_fname, false, file_size,
+              base::Time::FromLocalExploded(et)));
+        break;
+      case net::FTP_TYPE_SYMLINK:
+      case net::FTP_TYPE_JUNK:
+      case net::FTP_TYPE_COMMENT:
+        break;
+      default:
+        break;
+    }
+  }
+  directory_html_.append(file_entry);
+  size_t bytes_to_copy = std::min(static_cast<size_t>(buf_size),
+                                  directory_html_.length());
+  if (bytes_to_copy) {
+    memcpy(buf->data(), directory_html_.c_str(), bytes_to_copy);
+    directory_html_.erase(0, bytes_to_copy);
+  }
+  return bytes_to_copy;
 }
 
 void URLRequestNewFtpJob::OnStartCompleted(int result) {
@@ -166,6 +208,11 @@ void URLRequestNewFtpJob::OnReadCompleted(int result) {
   } else if (result < 0) {
     NotifyDone(URLRequestStatus(URLRequestStatus::FAILED, result));
   } else {
+    // TODO(ibrar): find the best place to delete dir_listing_buf_
+    // Filter for Directory listing.
+    if (response_info_->is_directory_listing)
+      result = ProcessFtpDir(dir_listing_buf_, dir_listing_buf_size_, result);
+
     // Clear the IO_PENDING status
     SetStatus(URLRequestStatus());
   }

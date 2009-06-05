@@ -84,7 +84,10 @@ LineType ParseFTPLine(const char *line,
     return FTP_TYPE_JUNK;
 
   memset(result, 0, sizeof(*result));
-
+  if (state->magic != ((void *)ParseFTPLine)) {
+    memset(state, 0, sizeof(*state));
+    state->magic = ((void *)ParseFTPLine);
+  }
   state->numlines++;
 
   // Carry buffer is only valid from one line to the next.

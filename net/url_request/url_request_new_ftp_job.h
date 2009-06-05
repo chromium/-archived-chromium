@@ -43,11 +43,16 @@ class URLRequestNewFtpJob : public URLRequestJob {
   void OnStartCompleted(int result);
   void OnReadCompleted(int result);
 
+  int ProcessFtpDir(net::IOBuffer *buf, int buf_size, int bytes_read);
+
+  net::AuthState server_auth_state_;
+
   net::FtpRequestInfo request_info_;
   scoped_ptr<net::FtpTransaction> transaction_;
   const net::FtpResponseInfo* response_info_;
 
-  net::AuthState server_auth_state_;
+  scoped_refptr<net::IOBuffer> dir_listing_buf_;
+  int dir_listing_buf_size_;
 
   net::CompletionCallbackImpl<URLRequestNewFtpJob> start_callback_;
   net::CompletionCallbackImpl<URLRequestNewFtpJob> read_callback_;

@@ -53,6 +53,7 @@ class FtpNetworkTransaction : public FtpTransaction {
     COMMAND_RETR,
     COMMAND_CWD,
     COMMAND_LIST,
+    COMMAND_MDTM,
     COMMAND_QUIT
   };
 
@@ -119,9 +120,13 @@ class FtpNetworkTransaction : public FtpTransaction {
   int ProcessResponseCWD(int response_code);
   int DoCtrlWriteLIST();
   int ProcessResponseLIST(int response_code);
+  int DoCtrlWriteMDTM();
+  int ProcessResponseMDTM(int response_code);
   int DoCtrlWriteQUIT();
   int ProcessResponseQUIT(int response_code);
 
+  int DoDataResolveHost();
+  int DoDataResolveHostComplete(int result);
   int DoDataConnect();
   int DoDataConnectComplete(int result);
   int DoDataRead();
@@ -155,6 +160,9 @@ class FtpNetworkTransaction : public FtpTransaction {
 
   int last_error_;
 
+  bool is_anonymous_;
+  bool retr_failed_;
+
   std::string data_connection_ip_;
   int data_connection_port_;
 
@@ -184,8 +192,11 @@ class FtpNetworkTransaction : public FtpTransaction {
     STATE_CTRL_WRITE_SIZE,
     STATE_CTRL_WRITE_CWD,
     STATE_CTRL_WRITE_LIST,
+    STATE_CTRL_WRITE_MDTM,
     STATE_CTRL_WRITE_QUIT,
     // Data connection states:
+    STATE_DATA_RESOLVE_HOST,
+    STATE_DATA_RESOLVE_HOST_COMPLETE,
     STATE_DATA_CONNECT,
     STATE_DATA_CONNECT_COMPLETE,
     STATE_DATA_READ,
