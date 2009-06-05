@@ -86,9 +86,9 @@ static const int kInfoBubbleHoverDelayMs = 500;
 // The tab key image.
 static const SkBitmap* kTabButtonBitmap = NULL;
 
-// Returns the description for a keyword.
-static std::wstring GetKeywordDescription(Profile* profile,
-                                          const std::wstring& keyword) {
+// Returns the short name for a keyword.
+static std::wstring GetKeywordName(Profile* profile,
+                                   const std::wstring& keyword) {
   // Make sure the TemplateURL still exists.
   // TODO(sky): Once LocationBarView adds a listener to the TemplateURLModel
   // to track changes to the model, this should become a DCHECK.
@@ -769,10 +769,10 @@ void LocationBarView::SelectedKeywordView::SetKeyword(
   if (!profile_->GetTemplateURLModel())
     return;
 
-  const std::wstring description = GetKeywordDescription(profile_, keyword);
+  const std::wstring short_name = GetKeywordName(profile_, keyword);
   full_label_.SetText(l10n_util::GetStringF(IDS_OMNIBOX_KEYWORD_TEXT,
-                                            description));
-  const std::wstring min_string = CalculateMinString(description);
+                                            short_name));
+  const std::wstring min_string = CalculateMinString(short_name);
   if (!min_string.empty()) {
     partial_label_.SetText(
         l10n_util::GetStringF(IDS_OMNIBOX_KEYWORD_TEXT, min_string));
@@ -842,7 +842,7 @@ void LocationBarView::KeywordHintView::SetKeyword(const std::wstring& keyword) {
   std::vector<size_t> content_param_offsets;
   const std::wstring keyword_hint(l10n_util::GetStringF(
       IDS_OMNIBOX_KEYWORD_HINT, std::wstring(),
-      GetKeywordDescription(profile_, keyword), &content_param_offsets));
+      GetKeywordName(profile_, keyword), &content_param_offsets));
   if (content_param_offsets.size() == 2) {
     leading_label_.SetText(keyword_hint.substr(0,
                                                content_param_offsets.front()));

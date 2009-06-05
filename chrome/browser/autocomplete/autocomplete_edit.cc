@@ -198,11 +198,10 @@ bool AutocompleteEditModel::CanPasteAndGo(const std::wstring& text) const {
   paste_and_go_alternate_nav_url_ = GURL();
 
   // Ask the controller what do do with this input.
+  // Setting the profile is cheap, and since there's one paste_and_go_controller
+  // for many tabs which may all have different profiles, it ensures we're
+  // always using the right one.
   paste_and_go_controller->SetProfile(profile_);
-                              // This is cheap, and since there's one
-                              // paste_and_go_controller for many tabs which
-                              // may all have different profiles, it ensures
-                              // we're always using the right one.
   paste_and_go_controller->Start(text, std::wstring(), true, false, true);
   DCHECK(paste_and_go_controller->done());
   const AutocompleteResult& result = paste_and_go_controller->result();

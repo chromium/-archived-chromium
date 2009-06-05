@@ -272,6 +272,8 @@ class TemplateURL {
   }
   const std::wstring& short_name() const { return short_name_; }
 
+  // An accessor for the short_name, but adjusted so it can be appropriately
+  // displayed even if it is LTR and the UI is RTL.
   std::wstring AdjustedShortNameForLocaleDirection() const;
 
   // A description of the template; this may be empty.

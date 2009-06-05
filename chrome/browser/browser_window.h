@@ -8,20 +8,16 @@
 #include "base/gfx/native_widget_types.h"
 
 class Browser;
-class BrowserList;
 class BrowserWindowTesting;
-class DownloadItem;
 class DownloadShelf;
 class FindBar;
 class GURL;
 class LocationBar;
 class HtmlDialogUIDelegate;
-class Profile;
 class StatusBubble;
 class TabContents;
 
 namespace gfx {
-class Point;
 class Rect;
 }
 
