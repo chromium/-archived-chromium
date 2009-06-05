@@ -238,10 +238,10 @@
           ],
         },
         {
-          'target_name': 'util_unittests',
+          'target_name': 'installer_unittests',
           'type': 'executable',
           'msvs_guid': '903F8C1E-537A-4C9E-97BE-075147CBE769',
-          'msvs_existing_vcproj': 'util/util_unittests.vcproj',
+          'msvs_existing_vcproj': 'util/installer_unittests.vcproj',
           'dependencies': [
             'installer_util',
             'installer_util_strings',
@@ -261,8 +261,8 @@
             'util/delete_tree_work_item_unittest.cc',
             'util/google_chrome_distribution_unittest.cc',
             'util/helper_unittest.cc',
-            'util/util_unittests.rc',
-            'util/util_unittests_resource.h',
+            'util/installer_unittests.rc',
+            'util/installer_unittests_resource.h',
             'util/move_tree_work_item_unittest.cc',
             'util/run_all_unittests.cc',
             'util/set_reg_value_work_item_unittest.cc',
@@ -544,24 +544,6 @@
                  'branding_dir': '../app/theme/chromium',
               },
             }],
-          ],
-        },
-        {
-          'target_name': 'setup_unittests',
-          'type': 'executable',
-          'msvs_guid': 'C0AE4E06-F023-460F-BC14-6302CEAC51F8',
-          'dependencies': [
-            'installer_util',
-            '../../base/base.gyp:base',
-            '../../testing/gtest.gyp:gtest',
-          ],
-          'include_dirs': [
-            '../..',
-          ],
-          'sources': [
-            'setup/run_all_unittests.cc',
-            'setup/setup_util.cc',
-            'setup/setup_util_unittest.cc',
           ],
         },
       ],

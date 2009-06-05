@@ -17,7 +17,6 @@
 #include "base/win_util.h"
 #include "chrome/installer/setup/setup.h"
 #include "chrome/installer/setup/setup_constants.h"
-#include "chrome/installer/setup/setup_util.h"
 #include "chrome/installer/setup/uninstall.h"
 #include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/delete_tree_work_item.h"
@@ -154,6 +153,36 @@ DWORD UnPackArchive(const std::wstring& archive, bool system_install,
     return ret;
 }
 
+
+// Find the version of Chrome from an install source directory.
+// Chrome_path should contain a complete and unpacked install package (i.e.
+// a Chrome directory under which there is a version folder).
+// Returns the version or NULL if no version is found.
+installer::Version* GetVersionFromDir(const std::wstring& chrome_path) {
+  LOG(INFO) << "Looking for Chrome version folder under " << chrome_path;
+  std::wstring root_path(chrome_path);
+  file_util::AppendToPath(&root_path, L"*");
+
+  WIN32_FIND_DATA find_file_data;
+  HANDLE file_handle = FindFirstFile(root_path.c_str(), &find_file_data);
+  BOOL ret = TRUE;
+  installer::Version *version = NULL;
+  // Here we are assuming that the installer we have is really valid so there
+  // can not be two version directories. We exit as soon as we find a valid
+  // version directory.
+  while (ret) {
+    if (find_file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+      LOG(INFO) << "directory found: " << find_file_data.cFileName;
+      version =
+          installer::Version::GetVersionFromString(find_file_data.cFileName);
+      if (version) break;
+    }
+    ret = FindNextFile(file_handle, &find_file_data);
+  }
+  FindClose(file_handle);
+
+  return version;
+}
 
 // This function is called when --rename-chrome-exe option is specified on
 // setup.exe command line. This function assumes an in-use update has happened
@@ -356,7 +385,7 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
     file_util::AppendToPath(&src_path,
         std::wstring(installer::kInstallSourceChromeDir));
     scoped_ptr<installer::Version>
-        installer_version(setup_util::GetVersionFromDir(src_path));
+        installer_version(GetVersionFromDir(src_path));
     if (!installer_version.get()) {
       LOG(ERROR) << "Did not find any valid version in installer.";
       install_status = installer_util::INVALID_ARCHIVE;
