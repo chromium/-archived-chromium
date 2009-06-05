@@ -1125,6 +1125,8 @@
         'extensions/v8/playback_extension.h',
         'extensions/v8/profiler_extension.cc',
         'extensions/v8/profiler_extension.h',
+        'extensions/v8/benchmarking_extension.cc',
+        'extensions/v8/benchmarking_extension.h',
         'port/bindings/v8/DOMObjectsInclude.h',
         'port/bindings/v8/JSXPathNSResolver.cpp',
         'port/bindings/v8/JSXPathNSResolver.h',

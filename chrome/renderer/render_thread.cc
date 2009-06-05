@@ -41,6 +41,7 @@
 #include "webkit/api/public/WebCache.h"
 #include "webkit/api/public/WebKit.h"
 #include "webkit/api/public/WebString.h"
+#include "webkit/extensions/v8/benchmarking_extension.h"
 #include "webkit/extensions/v8/gears_extension.h"
 #include "webkit/extensions/v8/interval_extension.h"
 #include "webkit/extensions/v8/playback_extension.h"
@@ -296,6 +297,14 @@ void RenderThread::InformHostOfCacheStatsLater() {
       kCacheStatsDelayMS);
 }
 
+void RenderThread::CloseIdleConnections() {
+  Send(new ViewHostMsg_CloseIdleConnections());
+}
+
+void RenderThread::SetCacheMode(bool enabled) {
+  Send(new ViewHostMsg_SetCacheMode(enabled));
+}
+
 static void* CreateHistogram(
     const char *name, int min, int max, size_t buckets) {
   Histogram* histogram = new Histogram(name, min, max, buckets);
@@ -349,6 +358,9 @@ void RenderThread::EnsureWebKitInitialized() {
     WebKit::registerExtension(EventBindings::Get());
     WebKit::registerExtension(RendererExtensionBindings::Get());
   }
+
+  if (command_line.HasSwitch(switches::kEnableBenchmarking))
+    WebKit::registerExtension(extensions_v8::BenchmarkingExtension::Get());
 
   if (command_line.HasSwitch(switches::kPlaybackMode) ||
       command_line.HasSwitch(switches::kRecordMode) ||

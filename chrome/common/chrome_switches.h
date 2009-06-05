@@ -179,6 +179,8 @@ extern const wchar_t kForceFieldTestNameAndValue[];
 
 extern const wchar_t kNewNewTabPage[];
 
+extern const wchar_t kEnableBenchmarking[];
+
 extern const wchar_t kNoDefaultBrowserCheck[];
 
 }  // namespace switches

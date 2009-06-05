@@ -240,5 +240,12 @@ void NotifyCacheStats() {
     RenderThread::current()->InformHostOfCacheStatsLater();
 }
 
+void CloseIdleConnections() {
+  RenderThread::current()->CloseIdleConnections();
+}
+
+void SetCacheMode(bool enabled) {
+  RenderThread::current()->SetCacheMode(enabled);
+}
 
 }  // namespace webkit_glue

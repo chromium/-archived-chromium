@@ -5,6 +5,7 @@
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 
 #include "base/clipboard.h"
+#include "base/command_line.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/histogram.h"
 #include "base/process_util.h"
@@ -23,6 +24,7 @@
 #include "chrome/common/app_cache/app_cache_dispatcher_host.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_plugin_util.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/histogram_synchronizer.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
@@ -32,6 +34,8 @@
 #include "net/base/cookie_monster.h"
 #include "net/base/mime_util.h"
 #include "net/base/load_flags.h"
+#include "net/http/http_cache.h"
+#include "net/http/http_transaction_factory.h"
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin.h"
@@ -303,6 +307,11 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
 #endif
       IPC_MESSAGE_HANDLER(ViewHostMsg_OpenChannelToExtension,
                           OnOpenChannelToExtension)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_CloseIdleConnections,
+                          OnCloseIdleConnections)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_SetCacheMode,
+                          OnSetCacheMode)
+
       IPC_MESSAGE_UNHANDLED(
           handled = false)
     IPC_END_MESSAGE_MAP_EX()
@@ -851,4 +860,35 @@ void ResourceMessageFilter::OnOpenChannelToExtension(
     int routing_id, const std::string& extension_id, int* port_id) {
   *port_id = ExtensionMessageService::GetInstance(request_context_.get())->
       OpenChannelToExtension(routing_id, extension_id, this);
+}
+
+bool ResourceMessageFilter::CheckBenchmarkingEnabled() {
+  static bool checked = false;
+  static bool result = false;
+  if (!checked) {
+    const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+    result = command_line.HasSwitch(switches::kEnableBenchmarking);
+    checked = true;
+  }
+  return result;
+}
+
+void ResourceMessageFilter::OnCloseIdleConnections() {
+  // This function is disabled unless the user has enabled
+  // benchmarking extensions.
+  if (!CheckBenchmarkingEnabled())
+    return;
+  request_context_->
+      http_transaction_factory()->GetCache()->CloseIdleConnections();
+}
+
+void ResourceMessageFilter::OnSetCacheMode(bool enabled) {
+  // This function is disabled unless the user has enabled
+  // benchmarking extensions.
+  if (!CheckBenchmarkingEnabled())
+    return;
+
+  net::HttpCache::Mode mode = enabled ?
+      net::HttpCache::NORMAL : net::HttpCache::DISABLE;
+  request_context_->http_transaction_factory()->GetCache()->set_mode(mode);
 }

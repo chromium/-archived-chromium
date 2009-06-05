@@ -103,6 +103,12 @@ class RenderThread : public RenderThreadBase,
   // bookkeeping operation off the critical latency path.
   void InformHostOfCacheStatsLater();
 
+  // Sends a message to the browser to close all idle connections.
+  void CloseIdleConnections();
+
+  // Sends a message to the browser to enable or disable the disk cache.
+  void SetCacheMode(bool enabled);
+
  private:
   virtual void OnControlMessageReceived(const IPC::Message& msg);
 

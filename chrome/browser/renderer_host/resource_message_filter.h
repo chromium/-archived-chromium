@@ -211,6 +211,9 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnOpenChannelToExtension(int routing_id,
                                 const std::string& extension_id, int* port_id);
 
+  void OnCloseIdleConnections();
+  void OnSetCacheMode(bool enabled);
+
 #if defined(OS_LINUX)
   void SendDelayedReply(IPC::Message* reply_msg);
   void DoOnGetScreenInfo(gfx::NativeViewId view, IPC::Message* reply_msg);
@@ -222,6 +225,8 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void DoOnClipboardReadAsciiText(IPC::Message* reply_msg);
   void DoOnClipboardReadHTML(IPC::Message* reply_msg);
 #endif
+
+  bool CheckBenchmarkingEnabled();
 
   // We have our own clipboard because we want to access the clipboard on the
   // IO thread instead of forwarding (possibly synchronous) messages to the UI

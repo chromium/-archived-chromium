@@ -199,6 +199,12 @@ bool FindProxyForUrl(const GURL& url, std::string* proxy_list);
 // the form language-country (e.g., en-US or pt-BR).
 std::wstring GetWebKitLocale();
 
+// Close idle connections.  Used for debugging.
+void CloseIdleConnections();
+
+// Enable or disable the disk cache.  Used for debugging.
+void SetCacheMode(bool enabled);
+
 // ---- END FUNCTIONS IMPLEMENTED BY EMBEDDER ---------------------------------
 
 

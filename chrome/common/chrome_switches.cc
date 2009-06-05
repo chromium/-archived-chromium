@@ -481,4 +481,7 @@ const wchar_t kNewNewTabPage[]                 = L"new-new-tab-page";
 // to avoid having the default browser info-bar displayed.
 const wchar_t kNoDefaultBrowserCheck[]         = L"no-default-browser-check";
 
+// Enables the benchmarking extensions.
+const wchar_t kEnableBenchmarking[]      = L"enable-benchmarking";
+
 }  // namespace switches
