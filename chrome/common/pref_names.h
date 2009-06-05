@@ -193,6 +193,7 @@ extern const wchar_t kEnableExtensions[];
 extern const wchar_t kEnableUserScripts[];
 
 extern const wchar_t kNTPMostVisitedURLsBlacklist[];
+extern const wchar_t kNTPMostVisitedPinnedURLs[];
 }
 
 #endif  // CHROME_COMMON_PREF_NAMES_H_

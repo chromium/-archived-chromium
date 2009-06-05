@@ -421,6 +421,12 @@ class MostVisitedHandler : public DOMMessageHandler,
   // Callback for the "clearMostVisitedURLsBlacklist" message.
   void HandleClearBlacklist(const Value* url);
 
+  // Callback for the "addPinnedURL" message.
+  void HandleAddPinnedURL(const Value* value);
+
+  // Callback for the "removePinnedURL" message.
+  void HandleRemovePinnedURL(const Value* value);
+
   // NotificationObserver implementation.
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
@@ -440,8 +446,17 @@ class MostVisitedHandler : public DOMMessageHandler,
   // Puts the passed URL in the blacklist (so it does not show as a thumbnail).
   void BlacklistURL(const GURL& url);
 
-  // Returns the key used in url_blacklist_ for the passed |url|.
-  std::wstring GetBlacklistKeyForURL(const std::string& url);
+  // Returns the key used in url_blacklist_ and pinned_urls_ for the passed
+  // |url|.
+  std::wstring GetDictionaryKeyForURL(const std::string& url);
+
+  // Gets the |url| and |title| for a pinned URL at a given index. This returns
+  // true if found.
+  const bool GetPinnedURLAtIndex(const int index, std::string* url,
+                                 std::string* title);
+
+  void AddPinnedURL(const GURL& url, const std::string& title, int index);
+  void RemovePinnedURL(const GURL& url);
 
   NotificationRegistrar registrar_;
 
@@ -458,6 +473,11 @@ class MostVisitedHandler : public DOMMessageHandler,
   // string).
   DictionaryValue* url_blacklist_;
 
+  // This is a dictionary for the pinned URLs for the the most visited part of
+  // the new tab page. The key of the dictionary is a hash of the URL and the
+  // value is a dictionary with title, url and index.
+  DictionaryValue* pinned_urls_;
+
   DISALLOW_COPY_AND_ASSIGN(MostVisitedHandler);
 };
 
@@ -468,7 +488,7 @@ MostVisitedHandler::MostVisitedHandler(DOMUI* dom_ui)
   dom_ui_->RegisterMessageCallback("getMostVisited",
       NewCallback(this, &MostVisitedHandler::HandleGetMostVisited));
 
-  // Also register ourselves for any most-visited item blacklisting.
+  // Register ourselves for any most-visited item blacklisting.
   dom_ui_->RegisterMessageCallback("blacklistURLFromMostVisited",
       NewCallback(this, &MostVisitedHandler::HandleBlacklistURL));
   dom_ui_->RegisterMessageCallback("removeURLsFromMostVisitedBlacklist",
@@ -478,6 +498,15 @@ MostVisitedHandler::MostVisitedHandler(DOMUI* dom_ui)
 
   url_blacklist_ = dom_ui_->GetProfile()->GetPrefs()->
       GetMutableDictionary(prefs::kNTPMostVisitedURLsBlacklist);
+
+  // Register ourself for pinned URL messages.
+  dom_ui->RegisterMessageCallback("addPinnedURL",
+      NewCallback(this, &MostVisitedHandler::HandleAddPinnedURL));
+  dom_ui->RegisterMessageCallback("removePinnedURL",
+      NewCallback(this, &MostVisitedHandler::HandleRemovePinnedURL));
+
+  pinned_urls_ = dom_ui_->GetProfile()->GetPrefs()->
+    GetMutableDictionary(prefs::kNTPMostVisitedPinnedURLs);
 
   // Set up our sources for thumbnail and favicon data. Since we may be in
   // testing mode with no I/O thread, only add our handler when an I/O thread
@@ -505,6 +534,8 @@ void MostVisitedHandler::HandleGetMostVisited(const Value* value) {
   const int kMostVisitedCount = 9;
   // Let's query for the number of items we want plus the blacklist size as
   // we'll be filtering-out the returned list with the blacklist URLs.
+  // We do not subtract the number of pinned URLs we have because the
+  // HistoryService does not know about those.
   int result_count = kMostVisitedCount + url_blacklist_->GetSize();
   HistoryService* hs =
       dom_ui_->GetProfile()->GetHistoryService(Profile::EXPLICIT_ACCESS);
@@ -550,7 +581,7 @@ void MostVisitedHandler::HandleRemoveURLsFromBlacklist(const Value* urls) {
       NOTREACHED();
       return;
     }
-    r = url_blacklist_->Remove(GetBlacklistKeyForURL(WideToUTF8(url)), NULL);
+    r = url_blacklist_->Remove(GetDictionaryKeyForURL(WideToUTF8(url)), NULL);
     DCHECK(r) << "Unknown URL removed from the NTP Most Visited blacklist.";
   }
 
@@ -564,25 +595,152 @@ void MostVisitedHandler::HandleClearBlacklist(const Value* value) {
   HandleGetMostVisited(NULL);
 }
 
+void MostVisitedHandler::HandleAddPinnedURL(const Value* value) {
+  if (!value->IsType(Value::TYPE_LIST)) {
+    NOTREACHED();
+    return;
+  }
+
+  const ListValue* list = static_cast<const ListValue*>(value);
+  std::string url;
+  std::string title;
+  std::string index_string;
+  int index;
+
+  bool r = list->GetString(0, &url);
+  DCHECK(r) << "Missing URL in addPinnedURL from the NTP Most Visited.";
+
+  r = list->GetString(1, &title);
+  DCHECK(r) << "Missing title in addPinnedURL from the NTP Most Visited.";
+
+  r = list->GetString(2, &index_string);
+  DCHECK(r) << "Missing index in addPinnedURL from the NTP Most Visited.";
+  index = StringToInt(index_string);
+
+  AddPinnedURL(GURL(url), title, index);
+}
+
+void MostVisitedHandler::AddPinnedURL(const GURL& url, const std::string& title,
+                                      int index) {
+  // Remove any pinned URL at the given index.
+  std::string old_url;
+  std::string old_title;
+  if (GetPinnedURLAtIndex(index, &old_url, &old_title))
+    RemovePinnedURL(GURL(old_url));
+
+  DictionaryValue* new_value = new DictionaryValue();
+  SetURLTitleAndDirection(new_value, UTF8ToUTF16(title), url);
+  bool r = new_value->SetInteger(L"index", index);
+  DCHECK(r) << "Failed to set the index for a pinned URL from the NTP Most "
+            << "Visited.";
+
+  r = pinned_urls_->Set(GetDictionaryKeyForURL(url.spec()), new_value);
+  DCHECK(r) << "Failed to add pinned URL from the NTP Most Visited.";
+
+  // TODO(arv): Notify observers?
+
+  // Don't call HandleGetMostVisited. Let the client call this as needed.
+}
+
+void MostVisitedHandler::HandleRemovePinnedURL(const Value* value) {
+  if (!value->IsType(Value::TYPE_LIST)) {
+    NOTREACHED();
+    return;
+  }
+
+  const ListValue* list = static_cast<const ListValue*>(value);
+  std::string url;
+
+  bool r = list->GetString(0, &url);
+  DCHECK(r) << "Failed to read the URL to remove from the NTP Most Visited.";
+
+  RemovePinnedURL(GURL(url));
+}
+
+void MostVisitedHandler::RemovePinnedURL(const GURL& url) {
+  const std::wstring key = GetDictionaryKeyForURL(url.spec());
+  if (pinned_urls_->HasKey(key))
+    pinned_urls_->Remove(key, NULL);
+
+  // TODO(arv): Notify observers?
+
+  // Don't call HandleGetMostVisited. Let the client call this as needed.
+}
+
+const bool MostVisitedHandler::GetPinnedURLAtIndex(const int index,
+                                                   std::string* url,
+                                                   std::string* title) {
+  // This iterates over all the pinned URLs. It might seem like it is worth
+  // having a map from the index to the item but the number of items is limited
+  // to the number of items the most visited section is showing on the NTP so
+  // this will be fast enough for now.
+  for (DictionaryValue::key_iterator it = pinned_urls_->begin_keys();
+      it != pinned_urls_->end_keys(); ++it) {
+    Value* value;
+    if (pinned_urls_->Get(*it, &value)) {
+      if (!value->IsType(DictionaryValue::TYPE_DICTIONARY)) {
+        NOTREACHED();
+        return false;
+      }
+
+      int dict_index;
+      DictionaryValue* dict = static_cast<DictionaryValue*>(value);
+      dict->GetInteger(L"index", &dict_index);
+      if (dict_index == index) {
+        if (dict->GetString(L"url", url))
+          return false;
+        return dict->GetString(L"title", title);
+      }
+    } else {
+      NOTREACHED() << "DictionaryValue iterators are filthy liars.";
+    }
+  }
+
+  return false;
+}
+
 void MostVisitedHandler::OnSegmentUsageAvailable(
     CancelableRequestProvider::Handle handle,
     std::vector<PageUsageData*>* data) {
   most_visited_urls_.clear();
-
   ListValue pages_value;
-  for (size_t i = 0; i < data->size(); ++i) {
-    const PageUsageData& page = *(*data)[i];
-    GURL url = page.GetURL();
 
-    if (url_blacklist_->HasKey(GetBlacklistKeyForURL(url.spec())))
-      continue;
-    DictionaryValue* page_value = new DictionaryValue;
-    SetURLTitleAndDirection(page_value, page.GetTitle(), page.GetURL());
+  size_t i = 0;
+  size_t j = 0;
+  while (j < kMostVisitedPages && i < data->size()) {
+    bool pinned = false;
+    GURL url;
+    string16 title;
+    std::string pinned_url;
+    std::string pinned_title;
+
+    if (MostVisitedHandler::GetPinnedURLAtIndex(j, &pinned_url, 
+                                                &pinned_title)) {
+      url = GURL(pinned_url);
+      title = UTF8ToUTF16(pinned_title);
+      pinned = true;
+      j++;
+    } else {
+      const PageUsageData& page = *(*data)[i];
+      i++;
+      url = page.GetURL();
+
+      // Don't include blacklisted or pinned URLs.
+      std::wstring key = GetDictionaryKeyForURL(url.spec());
+      if (pinned_urls_->HasKey(key) || url_blacklist_->HasKey(key))
+        continue;
+
+      title = page.GetTitle();
+    }
+
+    // Found a page.
+    DictionaryValue* page_value = new DictionaryValue();
+    SetURLTitleAndDirection(page_value, title, url);
+    page_value->SetBoolean(L"pinned", pinned);
     pages_value.Append(page_value);
-    most_visited_urls_.push_back(page.GetURL());
-    if (most_visited_urls_.size() >= kMostVisitedPages)
-      break;
+    most_visited_urls_.push_back(url);
   }
+
   dom_ui_->CallJavascriptFunction(L"mostVisitedPages", pages_value);
 }
 
@@ -599,19 +757,23 @@ void MostVisitedHandler::Observe(NotificationType type,
 }
 
 void MostVisitedHandler::BlacklistURL(const GURL& url) {
-  std::wstring key = GetBlacklistKeyForURL(url.spec());
+  RemovePinnedURL(url);
+
+  std::wstring key = GetDictionaryKeyForURL(url.spec());
   if (url_blacklist_->HasKey(key))
     return;
   url_blacklist_->SetBoolean(key, true);
 }
 
-std::wstring MostVisitedHandler::GetBlacklistKeyForURL(const std::string& url) {
+std::wstring MostVisitedHandler::GetDictionaryKeyForURL(
+    const std::string& url) {
   return ASCIIToWide(MD5String(url));
 }
 
 // static
 void MostVisitedHandler::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterDictionaryPref(prefs::kNTPMostVisitedURLsBlacklist);
+  prefs->RegisterDictionaryPref(prefs::kNTPMostVisitedPinnedURLs);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -524,4 +524,8 @@ const wchar_t kEnableUserScripts[] = L"extensions.user_scripts_enabled";
 // New Tab Page URLs that should not be shown as most visited thumbnails.
 const wchar_t kNTPMostVisitedURLsBlacklist[] = L"ntp.most_visited_blacklist";
 
+// The URLs that have been pinned to the Most Visited section of the New Tab
+// Page.
+const wchar_t kNTPMostVisitedPinnedURLs[] = L"ntp.pinned_urls";
+
 }  // namespace prefs
