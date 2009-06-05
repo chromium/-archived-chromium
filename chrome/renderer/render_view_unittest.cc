@@ -279,7 +279,6 @@ TEST_F(RenderViewTest, OnSetTextDirection) {
   }
 }
 
-
 // Tests that printing pages work and sending and receiving messages through
 // that channel all works.
 TEST_F(RenderViewTest, OnPrintPages) {
@@ -336,14 +335,13 @@ const struct {
   "<body style=\"background-color: white;\">"
   "<p style=\"font-family: arial;\">Hello World!</p>"
   "</body>",
-  1, 764, 42,
+  1, 764, 972,
   NULL,
   NULL,
   },
 };
 }  // namespace
 
-/*
 TEST_F(RenderViewTest, PrintLayoutTest) {
 #if defined(OS_WIN)
   bool baseline = false;
@@ -400,7 +398,6 @@ TEST_F(RenderViewTest, PrintLayoutTest) {
   NOTIMPLEMENTED();
 #endif
 }
-*/
 
 // Test that we can receive correct DOM events when we send input events
 // through the RenderWidget::OnHandleInputEvent() function.
