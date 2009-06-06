@@ -3043,7 +3043,6 @@
         'chrome_strings',
         'common',
         'debugger',
-        'installer/installer.gyp:installer_util_strings',
         'renderer',
         'utility',
         'test_support_unit',
@@ -3345,6 +3344,10 @@
             '_CRT_SECURE_NO_DEPRECATE',
             '_SCL_SECURE_NO_DEPRECATE',
           ],
+          'dependencies': [
+            'installer/installer.gyp:installer_util_strings',
+            '../views/views.gyp:views',
+          ],
           'include_dirs': [
             'third_party/wtl/include',
           ],
@@ -3368,9 +3371,6 @@
             'browser/gtk/tabs/tab_renderer_gtk_unittest.cc',
             'common/file_descriptor_set_unittest.cc',
             'common/net/url_util_unittest.cc',
-          ],
-          'dependencies': [
-            '../views/views.gyp:views',
           ],
           'configurations': {
             'Debug': {
