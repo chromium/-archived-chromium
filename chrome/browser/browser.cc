@@ -4,6 +4,7 @@
 
 #include "chrome/browser/browser.h"
 
+#include "app/animation.h"
 #include "app/l10n_util.h"
 #include "base/command_line.h"
 #include "base/idle_timer.h"
@@ -1178,7 +1179,8 @@ void Browser::OnStartDownload(DownloadItem* download) {
   if (download->total_bytes() > 0) {
     TabContents* current_tab = GetSelectedTabContents();
     // We make this check for the case of minimized windows, unit tests, etc.
-    if (platform_util::IsVisible(current_tab->GetNativeView()))
+    if (platform_util::IsVisible(current_tab->GetNativeView()) &&
+        Animation::ShouldRenderRichAnimation())
       DownloadStartedAnimation::Show(current_tab);
   }
 #endif

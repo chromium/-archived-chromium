@@ -6,6 +6,7 @@
 
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 
+#include "app/animation.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/command_line.h"
@@ -297,6 +298,11 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
   localized_strings.SetString(L"firstview",
                               first_view_ ? L"true" : std::wstring());
   first_view_ = false;
+
+  // Control fade and resize animations.
+  std::wstring anim =
+      Animation::ShouldRenderRichAnimation() ? L"true" : L"false";
+  localized_strings.SetString(L"anim", anim);
 
 #ifdef CHROME_PERSONALIZATION
   localized_strings.SetString(L"p13nsrc", Personalization::GetNewTabSource());

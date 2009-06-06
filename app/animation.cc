@@ -6,6 +6,10 @@
 
 #include "base/message_loop.h"
 
+#if defined(OS_WIN)
+#include "base/win_util.h"
+#endif
+
 using base::TimeDelta;
 
 Animation::Animation(int frame_rate,
@@ -122,3 +126,23 @@ int Animation::CalculateInterval(int frame_rate) {
     timer_interval = 10;
   return timer_interval;
 }
+
+// static
+bool Animation::ShouldRenderRichAnimation() {
+#if defined(OS_WIN)
+  if (win_util::GetWinVersion() >= win_util::WINVERSION_VISTA) {
+    BOOL result;
+    // Get "Turn off all unnecessary animations" value.
+    if (::SystemParametersInfo(SPI_GETCLIENTAREAANIMATION, 0, &result, 0)) {
+      // There seems to be a typo in the MSDN document (as of May 2009):
+      //   http://msdn.microsoft.com/en-us/library/ms724947(VS.85).aspx
+      // The document states that the result is TRUE when animations are
+      // _disabled_, but in fact, it is TRUE when they are _enabled_.
+      return !!result;
+    }
+  }
+  return !::GetSystemMetrics(SM_REMOTESESSION);
+#endif
+  return true;
+}
+

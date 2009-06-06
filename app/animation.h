@@ -89,6 +89,11 @@ class Animation {
   // state of the animation to the beginning.
   void SetDuration(int duration);
 
+  // Returns true if rich animations should be rendered.
+  // Looks at session type (e.g. remote desktop) and accessibility settings
+  // to give guidance for heavy animations such as "start download" arrow.
+  static bool ShouldRenderRichAnimation();
+
  protected:
   // Overriddable, called by Run.
   virtual void Step();

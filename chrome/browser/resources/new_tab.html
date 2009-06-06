@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html id="t" jsvalues="dir:textdirection;firstview:firstview;bookmarkbarattached:bookmarkbarattached;hasattribution:hasattribution">
+<html id="t" jsvalues="dir:textdirection;firstview:firstview;bookmarkbarattached:bookmarkbarattached;hasattribution:hasattribution;anim:anim">
 <!--
  This page is optimized for perceived performance. Our enemies are the time
  taken for the backend to generate our data, and the time taken to parse
@@ -142,6 +142,9 @@ html[firstview='true'] #main {
 }
 html[firstview='true'] #main.visible {
   opacity:1.0;
+}
+html[anim='false'] * {
+  -webkit-transition-property: none !important
 }
 #main {
   margin-left:auto;

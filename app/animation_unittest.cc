@@ -4,9 +4,10 @@
 
 #include "app/animation.h"
 #include "base/message_loop.h"
+#if defined(OS_WIN)
+#include "base/win_util.h"
+#endif
 #include "testing/gtest/include/gtest/gtest.h"
-
-using namespace std;
 
 class AnimationTest: public testing::Test {
  private:
@@ -100,3 +101,23 @@ TEST_F(AnimationTest, CancelCase) {
   EXPECT_TRUE(ad.finished());
   EXPECT_TRUE(ad.canceled());
 }
+
+TEST_F(AnimationTest, ShouldRenderRichAnimation) {
+#if defined(OS_WIN)
+  if (win_util::GetWinVersion() >= win_util::WINVERSION_VISTA) {
+    BOOL result;
+    ASSERT_NE(
+        0, ::SystemParametersInfo(SPI_GETCLIENTAREAANIMATION, 0, &result, 0));
+    // ShouldRenderRichAnimation() should check the SPI_GETCLIENTAREAANIMATION
+    // value on Vista.
+    EXPECT_EQ(!!result, Animation::ShouldRenderRichAnimation());
+  } else {
+    // On XP, the function should check the SM_REMOTESESSION value.
+    EXPECT_EQ(!::GetSystemMetrics(SM_REMOTESESSION),
+              Animation::ShouldRenderRichAnimation());
+  }
+#else
+  EXPECT_TRUE(Animation::ShouldRenderRichAnimation());
+#endif
+}
+
