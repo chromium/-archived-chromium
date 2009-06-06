@@ -26,76 +26,33 @@ class Browser;
 class Profile;
 class ToolbarStarToggle;
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// BrowserToolbarView class
-//
-//  The BrowserToolbarView is responsible for constructing the content of and
-//  rendering the Toolbar used in the Browser Window
-//
-///////////////////////////////////////////////////////////////////////////////
-class BrowserToolbarView : public views::View,
-                           public EncodingMenuControllerDelegate,
-                           public views::ViewMenuDelegate,
-                           public views::DragController,
-                           public LocationBarView::Delegate,
-                           public NotificationObserver,
-                           public GetProfilesHelper::Delegate,
-                           public CommandUpdater::CommandObserver,
-                           public views::ButtonListener,
-                           public AutocompletePopupPositioner {
+// The Browser Window's toolbar. Used within BrowserView.
+class ToolbarView : public views::View,
+                    public EncodingMenuControllerDelegate,
+                    public views::ViewMenuDelegate,
+                    public views::DragController,
+                    public LocationBarView::Delegate,
+                    public NotificationObserver,
+                    public GetProfilesHelper::Delegate,
+                    public CommandUpdater::CommandObserver,
+                    public views::ButtonListener,
+                    public AutocompletePopupPositioner {
  public:
-  explicit BrowserToolbarView(Browser* browser);
-  virtual ~BrowserToolbarView();
+  explicit ToolbarView(Browser* browser);
+  virtual ~ToolbarView();
 
   // Create the contents of the Browser Toolbar
   void Init(Profile* profile);
 
-  // views::View
-  virtual void Layout();
-  virtual void Paint(gfx::Canvas* canvas);
-  virtual void DidGainFocus();
-  virtual void WillLoseFocus();
-  virtual bool OnKeyPressed(const views::KeyEvent& e);
-  virtual bool OnKeyReleased(const views::KeyEvent& e);
-  virtual gfx::Size GetPreferredSize();
-  virtual bool GetAccessibleName(std::wstring* name);
-  virtual bool GetAccessibleRole(AccessibilityTypes::Role* role);
-  virtual void SetAccessibleName(const std::wstring& name);
-  virtual void ThemeChanged();
-
-  // Overridden from EncodingMenuControllerDelegate:
-  virtual bool IsItemChecked(int id) const;
-
-  // Overridden from Menu::BaseControllerDelegate:
-  virtual bool GetAcceleratorInfo(int id, views::Accelerator* accel);
-
-  // views::MenuDelegate
-  virtual void RunMenu(views::View* source, const gfx::Point& pt,
-                       gfx::NativeView hwnd);
-
-  // GetProfilesHelper::Delegate method.
-  virtual void OnGetProfilesDone(const std::vector<std::wstring>& profiles);
-
   // Sets the profile which is active on the currently-active tab.
   void SetProfile(Profile* profile);
   Profile* profile() { return profile_; }
-
-  ToolbarStarToggle* star_button() { return star_; }
-
-  GoButton* GetGoButton() { return go_; }
-
-  LocationBarView* GetLocationBarView() const { return location_bar_; }
 
   // Updates the toolbar (and transitively the location bar) with the states of
   // the specified |tab|.  If |should_restore_state| is true, we're switching
   // (back?) to this tab and should restore any previous location bar state
   // (such as user editing) as well.
   void Update(TabContents* tab, bool should_restore_state);
-
-  virtual void OnInputInProgress(bool in_progress);
-
-  virtual View* GetAccFocusedChildView() { return acc_focused_view_; }
 
   // Returns the index of the next view of the toolbar, starting from the given
   // view index (skipping the location bar), in the given navigation direction
@@ -107,10 +64,28 @@ class BrowserToolbarView : public views::View,
     acc_focused_view_ = acc_focused_view;
   }
 
-  // Returns the selected tab.
-  virtual TabContents* GetTabContents();
+  // Accessors...
+  Browser* browser() const { return browser_; }
+  ToolbarStarToggle* star_button() const { return star_; }
+  GoButton* go_button() const { return go_; }
+  LocationBarView* location_bar() const { return location_bar_; }
 
-  Browser* browser() { return browser_; }
+  // Overridden from EncodingMenuControllerDelegate:
+  virtual bool IsItemChecked(int id) const;
+
+  // Overridden from Menu::BaseControllerDelegate:
+  virtual bool GetAcceleratorInfo(int id, views::Accelerator* accel);
+
+  // Overridden from views::MenuDelegate:
+  virtual void RunMenu(views::View* source, const gfx::Point& pt,
+                       gfx::NativeView hwnd);
+
+  // Overridden from GetProfilesHelper::Delegate:
+  virtual void OnGetProfilesDone(const std::vector<std::wstring>& profiles);
+
+  // Overridden from LocationBarView::Delegate:
+  virtual TabContents* GetTabContents();
+  virtual void OnInputInProgress(bool in_progress);
 
   // Overridden from CommandUpdater::CommandObserver:
   virtual void EnabledStateChangedForCommand(int id, bool enabled);
@@ -121,20 +96,29 @@ class BrowserToolbarView : public views::View,
   // Overridden from AutocompletePopupPositioner:
   virtual gfx::Rect GetPopupBounds() const;
 
- private:
-  // Types of display mode this toolbar can have.
-  enum DisplayMode {
-    DISPLAYMODE_NORMAL,
-    DISPLAYMODE_LOCATION
-  };
-
-  // Returns the number of pixels above the location bar in non-normal display.
-  int PopupTopSpacing();
-
-  // NotificationObserver
+  // Overridden from NotificationObserver:
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details);
+
+  // Overridden from views::View:
+  virtual gfx::Size GetPreferredSize();
+  virtual void Layout();
+  virtual void Paint(gfx::Canvas* canvas);
+  virtual void ThemeChanged();
+  virtual void ShowContextMenu(int x, int y, bool is_mouse_gesture);
+  virtual void DidGainFocus();
+  virtual void WillLoseFocus();
+  virtual bool OnKeyPressed(const views::KeyEvent& e);
+  virtual bool OnKeyReleased(const views::KeyEvent& e);
+  virtual bool GetAccessibleName(std::wstring* name);
+  virtual bool GetAccessibleRole(AccessibilityTypes::Role* role);
+  virtual void SetAccessibleName(const std::wstring& name);
+  virtual View* GetAccFocusedChildView() { return acc_focused_view_; }
+
+ private:
+  // Returns the number of pixels above the location bar in non-normal display.
+  int PopupTopSpacing() const;
 
   // DragController methods for the star button. These allow the drag if the
   // user hasn't edited the text, the url is valid and should be displayed.
@@ -152,21 +136,16 @@ class BrowserToolbarView : public views::View,
   void LoadCenterStackImages();
   void LoadRightSideControlsImages();
 
-  // Updates the controls to display the security appropriately (highlighted if
-  // secure).
-  void SetSecurityLevel(ToolbarModel::SecurityLevel security_level);
-
-  // Show the page menu.
+  // Runs various menus.
   void RunPageMenu(const gfx::Point& pt, gfx::NativeView hwnd);
-
-  // Show the app menu.
   void RunAppMenu(const gfx::Point& pt, gfx::NativeView hwnd);
 
-  // Overridden from View, to pass keyboard triggering of the right-click
-  // context menu on to the toolbar child view that currently has the
-  // accessibility focus.
-  virtual void ShowContextMenu(int x, int y, bool is_mouse_gesture);
-
+  // Types of display mode this toolbar can have.
+  enum DisplayMode {
+    DISPLAYMODE_NORMAL,       // Normal toolbar with buttons, etc.
+    DISPLAYMODE_LOCATION      // Slimline toolbar showing only compact location
+                              // bar, used for popups.
+  };
   bool IsDisplayModeNormal() const {
     return display_mode_ == DISPLAYMODE_NORMAL;
   }

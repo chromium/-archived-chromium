@@ -80,7 +80,10 @@ static const int kOmniboxButtonsHorizontalMargin = 2;
 
 static SkBitmap* kPopupBackgroundEdge = NULL;
 
-BrowserToolbarView::BrowserToolbarView(Browser* browser)
+////////////////////////////////////////////////////////////////////////////////
+// ToolbarView, public:
+
+ToolbarView::ToolbarView(Browser* browser)
     : EncodingMenuControllerDelegate(browser),
       model_(browser->toolbar_model()),
       acc_focused_view_(NULL),
@@ -119,11 +122,11 @@ BrowserToolbarView::BrowserToolbarView(Browser* browser)
   }
 }
 
-BrowserToolbarView::~BrowserToolbarView() {
+ToolbarView::~ToolbarView() {
   profiles_helper_->OnDelegateDeleted();
 }
 
-void BrowserToolbarView::Init(Profile* profile) {
+void ToolbarView::Init(Profile* profile) {
   // Create all the individual Views in the Toolbar.
   CreateLeftSideControls();
   CreateCenterStack(profile);
@@ -134,7 +137,7 @@ void BrowserToolbarView::Init(Profile* profile) {
   SetProfile(profile);
 }
 
-void BrowserToolbarView::SetProfile(Profile* profile) {
+void ToolbarView::SetProfile(Profile* profile) {
   if (profile == profile_)
     return;
 
@@ -142,201 +145,130 @@ void BrowserToolbarView::SetProfile(Profile* profile) {
   location_bar_->SetProfile(profile);
 }
 
-void BrowserToolbarView::CreateLeftSideControls() {
-  back_ = new views::ButtonDropDown(this, back_menu_model_.get());
-  back_->set_triggerable_event_flags(views::Event::EF_LEFT_BUTTON_DOWN |
-                                  views::Event::EF_MIDDLE_BUTTON_DOWN);
-  back_->set_tag(IDC_BACK);
-  back_->SetImageAlignment(views::ImageButton::ALIGN_RIGHT,
-                           views::ImageButton::ALIGN_TOP);
-  back_->SetTooltipText(l10n_util::GetString(IDS_TOOLTIP_BACK));
-  back_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_BACK));
-  back_->SetID(VIEW_ID_BACK_BUTTON);
-
-  forward_ = new views::ButtonDropDown(this, forward_menu_model_.get());
-  forward_->set_triggerable_event_flags(views::Event::EF_LEFT_BUTTON_DOWN |
-                                        views::Event::EF_MIDDLE_BUTTON_DOWN);
-  forward_->set_tag(IDC_FORWARD);
-  forward_->SetTooltipText(l10n_util::GetString(IDS_TOOLTIP_FORWARD));
-  forward_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_FORWARD));
-  forward_->SetID(VIEW_ID_FORWARD_BUTTON);
-
-  reload_ = new views::ImageButton(this);
-  reload_->set_tag(IDC_RELOAD);
-  reload_->SetTooltipText(l10n_util::GetString(IDS_TOOLTIP_RELOAD));
-  reload_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_RELOAD));
-  reload_->SetID(VIEW_ID_RELOAD_BUTTON);
-
-  home_ = new views::ImageButton(this);
-  home_->set_triggerable_event_flags(views::Event::EF_LEFT_BUTTON_DOWN |
-                                  views::Event::EF_MIDDLE_BUTTON_DOWN);
-  home_->set_tag(IDC_HOME);
-  home_->SetTooltipText(l10n_util::GetString(IDS_TOOLTIP_HOME));
-  home_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_HOME));
-  home_->SetID(VIEW_ID_HOME_BUTTON);
-
-  LoadLeftSideControlsImages();
-
-  AddChildView(back_);
-  AddChildView(forward_);
-  AddChildView(reload_);
-  AddChildView(home_);
+void ToolbarView::Update(TabContents* tab, bool should_restore_state) {
+  tab_ = tab;
+  if (location_bar_)
+    location_bar_->Update(should_restore_state ? tab : NULL);
 }
 
-void BrowserToolbarView::CreateCenterStack(Profile *profile) {
-  star_ = new ToolbarStarToggle(this, this);
-  star_->set_tag(IDC_STAR);
-  star_->SetDragController(this);
-  star_->SetTooltipText(l10n_util::GetString(IDS_TOOLTIP_STAR));
-  star_->SetToggledTooltipText(l10n_util::GetString(IDS_TOOLTIP_STARRED));
-  star_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_STAR));
-  star_->SetID(VIEW_ID_STAR_BUTTON);
-  AddChildView(star_);
+int ToolbarView::GetNextAccessibleViewIndex(int view_index, bool nav_left) {
+  int modifier = 1;
 
-  location_bar_ = new LocationBarView(profile, browser_->command_updater(),
-                                      model_, this,
-                                      display_mode_ == DISPLAYMODE_LOCATION,
-                                      this);
+  if (nav_left)
+    modifier = -1;
 
-  // The Go button.
-  go_ = new GoButton(location_bar_, browser_);
-  go_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_GO));
-  go_->SetID(VIEW_ID_GO_BUTTON);
+  int current_view_index = view_index + modifier;
 
-  LoadCenterStackImages();
-
-  AddChildView(location_bar_);
-  location_bar_->Init();
-  AddChildView(go_);
+  while ((current_view_index >= 0) &&
+         (current_view_index < GetChildViewCount())) {
+    // Skip the location bar, as it has its own keyboard navigation. Also skip
+    // any views that cannot be interacted with.
+    if (current_view_index == GetChildIndex(location_bar_) ||
+        !GetChildViewAt(current_view_index)->IsEnabled() ||
+        !GetChildViewAt(current_view_index)->IsVisible()) {
+      current_view_index += modifier;
+      continue;
+    }
+    // Update view_index with the available button index found.
+    view_index = current_view_index;
+    break;
+  }
+  // Returns the next available button index, or if no button is available in
+  // the specified direction, remains where it was.
+  return view_index;
 }
 
-void BrowserToolbarView::CreateRightSideControls(Profile* profile) {
-  page_menu_ = new views::MenuButton(NULL, std::wstring(), this, false);
-  page_menu_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_PAGE));
-  page_menu_->SetTooltipText(l10n_util::GetString(IDS_PAGEMENU_TOOLTIP));
-  page_menu_->SetID(VIEW_ID_PAGE_MENU);
+////////////////////////////////////////////////////////////////////////////////
+// ToolbarView, EncodingMenuControllerDelegate implementation:
 
+bool ToolbarView::IsItemChecked(int id) const {
+  if (!profile_)
+    return false;
+  if (id == IDC_SHOW_BOOKMARK_BAR)
+    return profile_->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar);
+  return EncodingMenuControllerDelegate::IsItemChecked(id);
+}
 
-  app_menu_ = new views::MenuButton(NULL, std::wstring(), this, false);
-  app_menu_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_APP));
-  app_menu_->SetTooltipText(l10n_util::GetStringF(IDS_APPMENU_TOOLTIP,
-      l10n_util::GetString(IDS_PRODUCT_NAME)));
-  app_menu_->SetID(VIEW_ID_APP_MENU);
+////////////////////////////////////////////////////////////////////////////////
+// ToolbarView, Menu::BaseControllerDelegate overrides:
 
-  LoadRightSideControlsImages();
+bool ToolbarView::GetAcceleratorInfo(int id, views::Accelerator* accel) {
+  // The standard Ctrl-X, Ctrl-V and Ctrl-C are not defined as accelerators
+  // anywhere so we need to check for them explicitly here.
+  // TODO(cpu) Bug 1109102. Query WebKit land for the actual bindings.
+  switch (id) {
+    case IDC_CUT:
+      *accel = views::Accelerator(L'X', false, true, false);
+      return true;
+    case IDC_COPY:
+      *accel = views::Accelerator(L'C', false, true, false);
+      return true;
+    case IDC_PASTE:
+      *accel = views::Accelerator(L'V', false, true, false);
+      return true;
+  }
+  // Else, we retrieve the accelerator information from the frame.
+  return GetWidget()->GetAccelerator(id, accel);
+}
 
-  AddChildView(page_menu_);
-  AddChildView(app_menu_);
+////////////////////////////////////////////////////////////////////////////////
+// ToolbarView, views::MenuDelegate implementation:
 
-  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kBookmarkMenu)) {
-    bookmark_menu_ = new BookmarkMenuButton(browser_);
-    AddChildView(bookmark_menu_);
-  } else {
-    bookmark_menu_ = NULL;
+void ToolbarView::RunMenu(views::View* source, const gfx::Point& pt,
+                          gfx::NativeView parent) {
+  switch (source->GetID()) {
+    case VIEW_ID_PAGE_MENU:
+      RunPageMenu(pt, parent);
+      break;
+    case VIEW_ID_APP_MENU:
+      RunAppMenu(pt, parent);
+      break;
+    default:
+      NOTREACHED() << "Invalid source menu.";
   }
 }
 
-void BrowserToolbarView::LoadLeftSideControlsImages() {
-  ThemeProvider* tp = GetThemeProvider();
+////////////////////////////////////////////////////////////////////////////////
+// ToolbarView, GetProfilesHelper::Delegate implementation:
 
-  SkColor color = tp->GetColor(BrowserThemeProvider::COLOR_BUTTON_BACKGROUND);
-  SkBitmap* background = tp->GetBitmapNamed(IDR_THEME_BUTTON_BACKGROUND);
-
-  back_->SetImage(views::CustomButton::BS_NORMAL, tp->GetBitmapNamed(IDR_BACK));
-  back_->SetImage(views::CustomButton::BS_HOT, tp->GetBitmapNamed(IDR_BACK_H));
-  back_->SetImage(views::CustomButton::BS_PUSHED,
-      tp->GetBitmapNamed(IDR_BACK_P));
-  back_->SetImage(views::CustomButton::BS_DISABLED,
-      tp->GetBitmapNamed(IDR_BACK_D));
-  back_->SetBackground(color, background,
-      tp->GetBitmapNamed(IDR_BACK_MASK));
-
-  forward_->SetImage(views::CustomButton::BS_NORMAL,
-      tp->GetBitmapNamed(IDR_FORWARD));
-  forward_->SetImage(views::CustomButton::BS_HOT,
-      tp->GetBitmapNamed(IDR_FORWARD_H));
-  forward_->SetImage(views::CustomButton::BS_PUSHED,
-      tp->GetBitmapNamed(IDR_FORWARD_P));
-  forward_->SetImage(views::CustomButton::BS_DISABLED,
-      tp->GetBitmapNamed(IDR_FORWARD_D));
-  forward_->SetBackground(color, background,
-      tp->GetBitmapNamed(IDR_FORWARD_MASK));
-
-  reload_->SetImage(views::CustomButton::BS_NORMAL,
-      tp->GetBitmapNamed(IDR_RELOAD));
-  reload_->SetImage(views::CustomButton::BS_HOT,
-      tp->GetBitmapNamed(IDR_RELOAD_H));
-  reload_->SetImage(views::CustomButton::BS_PUSHED,
-      tp->GetBitmapNamed(IDR_RELOAD_P));
-  reload_->SetBackground(color, background,
-      tp->GetBitmapNamed(IDR_BUTTON_MASK));
-
-  home_->SetImage(views::CustomButton::BS_NORMAL, tp->GetBitmapNamed(IDR_HOME));
-  home_->SetImage(views::CustomButton::BS_HOT, tp->GetBitmapNamed(IDR_HOME_H));
-  home_->SetImage(views::CustomButton::BS_PUSHED,
-      tp->GetBitmapNamed(IDR_HOME_P));
-  home_->SetBackground(color, background,
-      tp->GetBitmapNamed(IDR_BUTTON_MASK));
-}
-
-void BrowserToolbarView::LoadCenterStackImages() {
-  ThemeProvider* tp = GetThemeProvider();
-
-  SkColor color = tp->GetColor(BrowserThemeProvider::COLOR_BUTTON_BACKGROUND);
-  SkBitmap* background = tp->GetBitmapNamed(IDR_THEME_BUTTON_BACKGROUND);
-
-  star_->SetImage(views::CustomButton::BS_NORMAL, tp->GetBitmapNamed(IDR_STAR));
-  star_->SetImage(views::CustomButton::BS_HOT, tp->GetBitmapNamed(IDR_STAR_H));
-  star_->SetImage(views::CustomButton::BS_PUSHED,
-      tp->GetBitmapNamed(IDR_STAR_P));
-  star_->SetImage(views::CustomButton::BS_DISABLED,
-      tp->GetBitmapNamed(IDR_STAR_D));
-  star_->SetToggledImage(views::CustomButton::BS_NORMAL,
-      tp->GetBitmapNamed(IDR_STARRED));
-  star_->SetToggledImage(views::CustomButton::BS_HOT,
-      tp->GetBitmapNamed(IDR_STARRED_H));
-  star_->SetToggledImage(views::CustomButton::BS_PUSHED,
-      tp->GetBitmapNamed(IDR_STARRED_P));
-  star_->SetBackground(color, background,
-      tp->GetBitmapNamed(IDR_STAR_MASK));
-
-  go_->SetImage(views::CustomButton::BS_NORMAL, tp->GetBitmapNamed(IDR_GO));
-  go_->SetImage(views::CustomButton::BS_HOT, tp->GetBitmapNamed(IDR_GO_H));
-  go_->SetImage(views::CustomButton::BS_PUSHED, tp->GetBitmapNamed(IDR_GO_P));
-  go_->SetToggledImage(views::CustomButton::BS_NORMAL,
-      tp->GetBitmapNamed(IDR_STOP));
-  go_->SetToggledImage(views::CustomButton::BS_HOT,
-      tp->GetBitmapNamed(IDR_STOP_H));
-  go_->SetToggledImage(views::CustomButton::BS_PUSHED,
-      tp->GetBitmapNamed(IDR_STOP_P));
-  go_->SetBackground(color, background,
-      tp->GetBitmapNamed(IDR_GO_MASK));
-}
-
-void BrowserToolbarView::LoadRightSideControlsImages() {
-  ThemeProvider* tp = GetThemeProvider();
-
-  // We use different menu button images if the locale is right-to-left.
-  if (UILayoutIsRightToLeft())
-    page_menu_->SetIcon(*tp->GetBitmapNamed(IDR_MENU_PAGE_RTL));
-  else
-    page_menu_->SetIcon(*tp->GetBitmapNamed(IDR_MENU_PAGE));
-  if (UILayoutIsRightToLeft())
-    app_menu_->SetIcon(*tp->GetBitmapNamed(IDR_MENU_CHROME_RTL));
-  else
-    app_menu_->SetIcon(*tp->GetBitmapNamed(IDR_MENU_CHROME));
-}
-
-void BrowserToolbarView::Update(TabContents* tab, bool should_restore_state) {
-  tab_ = tab;
-
-  if (!location_bar_)
+void ToolbarView::OnGetProfilesDone(
+    const std::vector<std::wstring>& profiles) {
+  // Nothing to do if the menu has gone away.
+  if (!profiles_menu_)
     return;
 
-  location_bar_->Update(should_restore_state ? tab : NULL);
+  // Store the latest list of profiles in the browser.
+  browser_->set_user_data_dir_profiles(profiles);
+
+  // Add direct sub menu items for profiles.
+  std::vector<std::wstring>::const_iterator iter = profiles.begin();
+  for (int i = IDC_NEW_WINDOW_PROFILE_0;
+       (i <= IDC_NEW_WINDOW_PROFILE_LAST) && (iter != profiles.end());
+       ++i, ++iter)
+    profiles_menu_->AppendMenuItemWithLabel(i, *iter);
+
+  // If there are more profiles then show "Other" link.
+  if (iter != profiles.end()) {
+    profiles_menu_->AppendSeparator();
+    profiles_menu_->AppendMenuItemWithLabel(
+        IDC_SELECT_PROFILE, l10n_util::GetString(IDS_SELECT_PROFILE));
+  }
+
+  // Always show a link to select a new profile.
+  profiles_menu_->AppendSeparator();
+  profiles_menu_->AppendMenuItemWithLabel(
+      IDC_NEW_PROFILE,
+      l10n_util::GetString(IDS_SELECT_PROFILE_DIALOG_NEW_PROFILE_ENTRY));
 }
 
-void BrowserToolbarView::OnInputInProgress(bool in_progress) {
+////////////////////////////////////////////////////////////////////////////////
+// ToolbarView, LocationBarView::Delegate implementation:
+
+TabContents* ToolbarView::GetTabContents() {
+  return tab_;
+}
+
+void ToolbarView::OnInputInProgress(bool in_progress) {
   // The edit should make sure we're only notified when something changes.
   DCHECK(model_->input_in_progress() != in_progress);
 
@@ -344,7 +276,112 @@ void BrowserToolbarView::OnInputInProgress(bool in_progress) {
   location_bar_->Update(NULL);
 }
 
-void BrowserToolbarView::Layout() {
+////////////////////////////////////////////////////////////////////////////////
+// ToolbarView, CommandUpdater::CommandObserver implementation:
+
+void ToolbarView::EnabledStateChangedForCommand(int id, bool enabled) {
+  views::Button* button = NULL;
+  switch (id) {
+    case IDC_BACK:
+      button = back_;
+      break;
+    case IDC_FORWARD:
+      button = forward_;
+      break;
+    case IDC_RELOAD:
+      button = reload_;
+      break;
+    case IDC_HOME:
+      button = home_;
+      break;
+    case IDC_STAR:
+      button = star_;
+      break;
+  }
+  if (button)
+    button->SetEnabled(enabled);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// ToolbarView, views::Button::ButtonListener implementation:
+
+void ToolbarView::ButtonPressed(views::Button* sender) {
+  browser_->ExecuteCommandWithDisposition(
+      sender->tag(),
+      event_utils::DispositionFromEventFlags(sender->mouse_event_flags()));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// ToolbarView, AutocompletePopupPositioner implementation:
+
+gfx::Rect ToolbarView::GetPopupBounds() const {
+  gfx::Point origin;
+  views::View::ConvertPointToScreen(star_, &origin);
+  origin.set_y(origin.y() + star_->height() + kOmniboxPopupVerticalSpacing);
+  gfx::Rect popup_bounds(origin.x(), origin.y(),
+                         star_->width() + location_bar_->width() + go_->width(),
+                         0);
+  if (UILayoutIsRightToLeft()) {
+    popup_bounds.set_x(
+        popup_bounds.x() - location_bar_->width() - go_->width());
+  } else {
+    popup_bounds.set_x(popup_bounds.x());
+  }
+  popup_bounds.set_y(popup_bounds.y());
+  popup_bounds.set_width(popup_bounds.width());
+  // Inset the bounds a little, since the buttons on either edge of the omnibox
+  // have invisible padding that makes the popup appear too wide.
+  popup_bounds.Inset(kOmniboxButtonsHorizontalMargin, 0);
+  return popup_bounds;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// ToolbarView, NotificationObserver implementation:
+
+void ToolbarView::Observe(NotificationType type,
+                          const NotificationSource& source,
+                          const NotificationDetails& details) {
+  if (type == NotificationType::PREF_CHANGED) {
+    std::wstring* pref_name = Details<std::wstring>(details).ptr();
+    if (*pref_name == prefs::kShowHomeButton) {
+      Layout();
+      SchedulePaint();
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// ToolbarView, views::View overrides:
+
+gfx::Size ToolbarView::GetPreferredSize() {
+  if (IsDisplayModeNormal()) {
+    int min_width = kControlIndent + back_->GetPreferredSize().width() +
+        forward_->GetPreferredSize().width() + kControlHorizOffset +
+        reload_->GetPreferredSize().width() + (show_home_button_.GetValue() ?
+        (home_->GetPreferredSize().width() + kControlHorizOffset) : 0) +
+        star_->GetPreferredSize().width() + go_->GetPreferredSize().width() +
+        kMenuButtonOffset +
+        (bookmark_menu_ ? bookmark_menu_->GetPreferredSize().width() : 0) +
+        page_menu_->GetPreferredSize().width() +
+        app_menu_->GetPreferredSize().width() + kPaddingRight;
+
+    static SkBitmap normal_background;
+    if (normal_background.isNull()) {
+      ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+      normal_background = *rb.GetBitmapNamed(IDR_CONTENT_TOP_CENTER);
+    }
+
+    return gfx::Size(min_width, normal_background.height());
+  }
+
+  int vertical_spacing = PopupTopSpacing() +
+      (GetWindow()->GetNonClientView()->UseNativeFrame() ?
+          kPopupBottomSpacingGlass : kPopupBottomSpacingNonGlass);
+  return gfx::Size(0, location_bar_->GetPreferredSize().height() +
+      vertical_spacing);
+}
+
+void ToolbarView::Layout() {
   // If we have not been initialized yet just do nothing.
   if (back_ == NULL)
     return;
@@ -423,7 +460,7 @@ void BrowserToolbarView::Layout() {
   app_menu_->SetBounds(next_menu_x, child_y, app_menu_width, child_height);
 }
 
-void BrowserToolbarView::Paint(gfx::Canvas* canvas) {
+void ToolbarView::Paint(gfx::Canvas* canvas) {
   View::Paint(canvas);
 
   if (IsDisplayModeNormal())
@@ -445,7 +482,18 @@ void BrowserToolbarView::Paint(gfx::Canvas* canvas) {
     canvas->FillRectInt(SK_ColorBLACK, 0, height() - 1, width(), 1);
 }
 
-void BrowserToolbarView::DidGainFocus() {
+void ToolbarView::ThemeChanged() {
+  LoadLeftSideControlsImages();
+  LoadCenterStackImages();
+  LoadRightSideControlsImages();
+}
+
+void ToolbarView::ShowContextMenu(int x, int y, bool is_mouse_gesture) {
+  if (acc_focused_view_)
+    acc_focused_view_->ShowContextMenu(x, y, is_mouse_gesture);
+}
+
+void ToolbarView::DidGainFocus() {
 #if defined(OS_WIN)
   // Check to see if MSAA focus should be restored to previously focused button,
   // and if button is an enabled, visibled child of toolbar.
@@ -489,7 +537,7 @@ void BrowserToolbarView::DidGainFocus() {
 #endif
 }
 
-void BrowserToolbarView::WillLoseFocus() {
+void ToolbarView::WillLoseFocus() {
 #if defined(OS_WIN)
   if (acc_focused_view_) {
     // Resetting focus state.
@@ -504,7 +552,7 @@ void BrowserToolbarView::WillLoseFocus() {
 #endif
 }
 
-bool BrowserToolbarView::OnKeyPressed(const views::KeyEvent& e) {
+bool ToolbarView::OnKeyPressed(const views::KeyEvent& e) {
 #if defined(OS_WIN)
   // Paranoia check, button should be initialized upon toolbar gaining focus.
   if (!acc_focused_view_)
@@ -580,7 +628,7 @@ bool BrowserToolbarView::OnKeyPressed(const views::KeyEvent& e) {
   return false;
 }
 
-bool BrowserToolbarView::OnKeyReleased(const views::KeyEvent& e) {
+bool ToolbarView::OnKeyReleased(const views::KeyEvent& e) {
   // Paranoia check, button should be initialized upon toolbar gaining focus.
   if (!acc_focused_view_)
     return false;
@@ -589,36 +637,264 @@ bool BrowserToolbarView::OnKeyReleased(const views::KeyEvent& e) {
   return acc_focused_view_->OnKeyReleased(e);
 }
 
-gfx::Size BrowserToolbarView::GetPreferredSize() {
-  if (IsDisplayModeNormal()) {
-    int min_width = kControlIndent + back_->GetPreferredSize().width() +
-        forward_->GetPreferredSize().width() + kControlHorizOffset +
-        reload_->GetPreferredSize().width() + (show_home_button_.GetValue() ?
-        (home_->GetPreferredSize().width() + kControlHorizOffset) : 0) +
-        star_->GetPreferredSize().width() + go_->GetPreferredSize().width() +
-        kMenuButtonOffset +
-        (bookmark_menu_ ? bookmark_menu_->GetPreferredSize().width() : 0) +
-        page_menu_->GetPreferredSize().width() +
-        app_menu_->GetPreferredSize().width() + kPaddingRight;
-
-    static SkBitmap normal_background;
-    if (normal_background.isNull()) {
-      ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-      normal_background = *rb.GetBitmapNamed(IDR_CONTENT_TOP_CENTER);
-    }
-
-    return gfx::Size(min_width, normal_background.height());
+bool ToolbarView::GetAccessibleName(std::wstring* name) {
+  if (!accessible_name_.empty()) {
+    (*name).assign(accessible_name_);
+    return true;
   }
-
-  int vertical_spacing = PopupTopSpacing() +
-      (GetWindow()->GetNonClientView()->UseNativeFrame() ?
-          kPopupBottomSpacingGlass : kPopupBottomSpacingNonGlass);
-  return gfx::Size(0, location_bar_->GetPreferredSize().height() +
-      vertical_spacing);
+  return false;
 }
 
-void BrowserToolbarView::RunPageMenu(const gfx::Point& pt,
-                                     gfx::NativeView parent) {
+bool ToolbarView::GetAccessibleRole(AccessibilityTypes::Role* role) {
+  DCHECK(role);
+
+  *role = AccessibilityTypes::ROLE_TOOLBAR;
+  return true;
+}
+
+void ToolbarView::SetAccessibleName(const std::wstring& name) {
+  accessible_name_.assign(name);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// ToolbarView, private:
+
+int ToolbarView::PopupTopSpacing() const {
+  return GetWindow()->GetNonClientView()->UseNativeFrame() ?
+      0 : kPopupTopSpacingNonGlass;
+}
+
+void ToolbarView::WriteDragData(views::View* sender,
+                                int press_x,
+                                int press_y,
+                                OSExchangeData* data) {
+  DCHECK(
+      GetDragOperations(sender, press_x, press_y) != DragDropTypes::DRAG_NONE);
+
+  UserMetrics::RecordAction(L"Toolbar_DragStar", profile_);
+
+#if defined(OS_WIN)
+  // If there is a bookmark for the URL, add the bookmark drag data for it. We
+  // do this to ensure the bookmark is moved, rather than creating an new
+  // bookmark.
+  if (profile_ && profile_->GetBookmarkModel()) {
+    BookmarkNode* node = profile_->GetBookmarkModel()->
+        GetMostRecentlyAddedNodeForURL(tab_->GetURL());
+    if (node) {
+      BookmarkDragData bookmark_data(node);
+      bookmark_data.Write(profile_, data);
+    }
+  }
+
+  drag_utils::SetURLAndDragImage(tab_->GetURL(),
+                                 UTF16ToWideHack(tab_->GetTitle()),
+                                 tab_->GetFavIcon(),
+                                 data);
+#else
+  // TODO(port): do bookmark item drag & drop
+  NOTIMPLEMENTED();
+#endif
+}
+
+int ToolbarView::GetDragOperations(views::View* sender, int x, int y) {
+  DCHECK(sender == star_);
+  if (!tab_ || !tab_->ShouldDisplayURL() || !tab_->GetURL().is_valid()) {
+    return DragDropTypes::DRAG_NONE;
+  }
+  if (profile_ && profile_->GetBookmarkModel() &&
+      profile_->GetBookmarkModel()->IsBookmarked(tab_->GetURL())) {
+    return DragDropTypes::DRAG_MOVE | DragDropTypes::DRAG_COPY |
+           DragDropTypes::DRAG_LINK;
+  }
+  return DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_LINK;
+}
+
+void ToolbarView::CreateLeftSideControls() {
+  back_ = new views::ButtonDropDown(this, back_menu_model_.get());
+  back_->set_triggerable_event_flags(views::Event::EF_LEFT_BUTTON_DOWN |
+                                  views::Event::EF_MIDDLE_BUTTON_DOWN);
+  back_->set_tag(IDC_BACK);
+  back_->SetImageAlignment(views::ImageButton::ALIGN_RIGHT,
+                           views::ImageButton::ALIGN_TOP);
+  back_->SetTooltipText(l10n_util::GetString(IDS_TOOLTIP_BACK));
+  back_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_BACK));
+  back_->SetID(VIEW_ID_BACK_BUTTON);
+
+  forward_ = new views::ButtonDropDown(this, forward_menu_model_.get());
+  forward_->set_triggerable_event_flags(views::Event::EF_LEFT_BUTTON_DOWN |
+                                        views::Event::EF_MIDDLE_BUTTON_DOWN);
+  forward_->set_tag(IDC_FORWARD);
+  forward_->SetTooltipText(l10n_util::GetString(IDS_TOOLTIP_FORWARD));
+  forward_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_FORWARD));
+  forward_->SetID(VIEW_ID_FORWARD_BUTTON);
+
+  reload_ = new views::ImageButton(this);
+  reload_->set_tag(IDC_RELOAD);
+  reload_->SetTooltipText(l10n_util::GetString(IDS_TOOLTIP_RELOAD));
+  reload_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_RELOAD));
+  reload_->SetID(VIEW_ID_RELOAD_BUTTON);
+
+  home_ = new views::ImageButton(this);
+  home_->set_triggerable_event_flags(views::Event::EF_LEFT_BUTTON_DOWN |
+                                  views::Event::EF_MIDDLE_BUTTON_DOWN);
+  home_->set_tag(IDC_HOME);
+  home_->SetTooltipText(l10n_util::GetString(IDS_TOOLTIP_HOME));
+  home_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_HOME));
+  home_->SetID(VIEW_ID_HOME_BUTTON);
+
+  LoadLeftSideControlsImages();
+
+  AddChildView(back_);
+  AddChildView(forward_);
+  AddChildView(reload_);
+  AddChildView(home_);
+}
+
+void ToolbarView::CreateCenterStack(Profile *profile) {
+  star_ = new ToolbarStarToggle(this, this);
+  star_->set_tag(IDC_STAR);
+  star_->SetDragController(this);
+  star_->SetTooltipText(l10n_util::GetString(IDS_TOOLTIP_STAR));
+  star_->SetToggledTooltipText(l10n_util::GetString(IDS_TOOLTIP_STARRED));
+  star_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_STAR));
+  star_->SetID(VIEW_ID_STAR_BUTTON);
+  AddChildView(star_);
+
+  location_bar_ = new LocationBarView(profile, browser_->command_updater(),
+                                      model_, this,
+                                      display_mode_ == DISPLAYMODE_LOCATION,
+                                      this);
+
+  // The Go button.
+  go_ = new GoButton(location_bar_, browser_);
+  go_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_GO));
+  go_->SetID(VIEW_ID_GO_BUTTON);
+
+  LoadCenterStackImages();
+
+  AddChildView(location_bar_);
+  location_bar_->Init();
+  AddChildView(go_);
+}
+
+void ToolbarView::CreateRightSideControls(Profile* profile) {
+  page_menu_ = new views::MenuButton(NULL, std::wstring(), this, false);
+  page_menu_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_PAGE));
+  page_menu_->SetTooltipText(l10n_util::GetString(IDS_PAGEMENU_TOOLTIP));
+  page_menu_->SetID(VIEW_ID_PAGE_MENU);
+
+
+  app_menu_ = new views::MenuButton(NULL, std::wstring(), this, false);
+  app_menu_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_APP));
+  app_menu_->SetTooltipText(l10n_util::GetStringF(IDS_APPMENU_TOOLTIP,
+      l10n_util::GetString(IDS_PRODUCT_NAME)));
+  app_menu_->SetID(VIEW_ID_APP_MENU);
+
+  LoadRightSideControlsImages();
+
+  AddChildView(page_menu_);
+  AddChildView(app_menu_);
+
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kBookmarkMenu)) {
+    bookmark_menu_ = new BookmarkMenuButton(browser_);
+    AddChildView(bookmark_menu_);
+  } else {
+    bookmark_menu_ = NULL;
+  }
+}
+
+void ToolbarView::LoadLeftSideControlsImages() {
+  ThemeProvider* tp = GetThemeProvider();
+
+  SkColor color = tp->GetColor(BrowserThemeProvider::COLOR_BUTTON_BACKGROUND);
+  SkBitmap* background = tp->GetBitmapNamed(IDR_THEME_BUTTON_BACKGROUND);
+
+  back_->SetImage(views::CustomButton::BS_NORMAL, tp->GetBitmapNamed(IDR_BACK));
+  back_->SetImage(views::CustomButton::BS_HOT, tp->GetBitmapNamed(IDR_BACK_H));
+  back_->SetImage(views::CustomButton::BS_PUSHED,
+      tp->GetBitmapNamed(IDR_BACK_P));
+  back_->SetImage(views::CustomButton::BS_DISABLED,
+      tp->GetBitmapNamed(IDR_BACK_D));
+  back_->SetBackground(color, background,
+      tp->GetBitmapNamed(IDR_BACK_MASK));
+
+  forward_->SetImage(views::CustomButton::BS_NORMAL,
+      tp->GetBitmapNamed(IDR_FORWARD));
+  forward_->SetImage(views::CustomButton::BS_HOT,
+      tp->GetBitmapNamed(IDR_FORWARD_H));
+  forward_->SetImage(views::CustomButton::BS_PUSHED,
+      tp->GetBitmapNamed(IDR_FORWARD_P));
+  forward_->SetImage(views::CustomButton::BS_DISABLED,
+      tp->GetBitmapNamed(IDR_FORWARD_D));
+  forward_->SetBackground(color, background,
+      tp->GetBitmapNamed(IDR_FORWARD_MASK));
+
+  reload_->SetImage(views::CustomButton::BS_NORMAL,
+      tp->GetBitmapNamed(IDR_RELOAD));
+  reload_->SetImage(views::CustomButton::BS_HOT,
+      tp->GetBitmapNamed(IDR_RELOAD_H));
+  reload_->SetImage(views::CustomButton::BS_PUSHED,
+      tp->GetBitmapNamed(IDR_RELOAD_P));
+  reload_->SetBackground(color, background,
+      tp->GetBitmapNamed(IDR_BUTTON_MASK));
+
+  home_->SetImage(views::CustomButton::BS_NORMAL, tp->GetBitmapNamed(IDR_HOME));
+  home_->SetImage(views::CustomButton::BS_HOT, tp->GetBitmapNamed(IDR_HOME_H));
+  home_->SetImage(views::CustomButton::BS_PUSHED,
+      tp->GetBitmapNamed(IDR_HOME_P));
+  home_->SetBackground(color, background,
+      tp->GetBitmapNamed(IDR_BUTTON_MASK));
+}
+
+void ToolbarView::LoadCenterStackImages() {
+  ThemeProvider* tp = GetThemeProvider();
+
+  SkColor color = tp->GetColor(BrowserThemeProvider::COLOR_BUTTON_BACKGROUND);
+  SkBitmap* background = tp->GetBitmapNamed(IDR_THEME_BUTTON_BACKGROUND);
+
+  star_->SetImage(views::CustomButton::BS_NORMAL, tp->GetBitmapNamed(IDR_STAR));
+  star_->SetImage(views::CustomButton::BS_HOT, tp->GetBitmapNamed(IDR_STAR_H));
+  star_->SetImage(views::CustomButton::BS_PUSHED,
+      tp->GetBitmapNamed(IDR_STAR_P));
+  star_->SetImage(views::CustomButton::BS_DISABLED,
+      tp->GetBitmapNamed(IDR_STAR_D));
+  star_->SetToggledImage(views::CustomButton::BS_NORMAL,
+      tp->GetBitmapNamed(IDR_STARRED));
+  star_->SetToggledImage(views::CustomButton::BS_HOT,
+      tp->GetBitmapNamed(IDR_STARRED_H));
+  star_->SetToggledImage(views::CustomButton::BS_PUSHED,
+      tp->GetBitmapNamed(IDR_STARRED_P));
+  star_->SetBackground(color, background,
+      tp->GetBitmapNamed(IDR_STAR_MASK));
+
+  go_->SetImage(views::CustomButton::BS_NORMAL, tp->GetBitmapNamed(IDR_GO));
+  go_->SetImage(views::CustomButton::BS_HOT, tp->GetBitmapNamed(IDR_GO_H));
+  go_->SetImage(views::CustomButton::BS_PUSHED, tp->GetBitmapNamed(IDR_GO_P));
+  go_->SetToggledImage(views::CustomButton::BS_NORMAL,
+      tp->GetBitmapNamed(IDR_STOP));
+  go_->SetToggledImage(views::CustomButton::BS_HOT,
+      tp->GetBitmapNamed(IDR_STOP_H));
+  go_->SetToggledImage(views::CustomButton::BS_PUSHED,
+      tp->GetBitmapNamed(IDR_STOP_P));
+  go_->SetBackground(color, background,
+      tp->GetBitmapNamed(IDR_GO_MASK));
+}
+
+void ToolbarView::LoadRightSideControlsImages() {
+  ThemeProvider* tp = GetThemeProvider();
+
+  // We use different menu button images if the locale is right-to-left.
+  if (UILayoutIsRightToLeft())
+    page_menu_->SetIcon(*tp->GetBitmapNamed(IDR_MENU_PAGE_RTL));
+  else
+    page_menu_->SetIcon(*tp->GetBitmapNamed(IDR_MENU_PAGE));
+  if (UILayoutIsRightToLeft())
+    app_menu_->SetIcon(*tp->GetBitmapNamed(IDR_MENU_CHROME_RTL));
+  else
+    app_menu_->SetIcon(*tp->GetBitmapNamed(IDR_MENU_CHROME));
+}
+
+void ToolbarView::RunPageMenu(const gfx::Point& pt, gfx::NativeView parent) {
   views::Menu::AnchorPoint anchor = views::Menu::TOPRIGHT;
   if (UILayoutIsRightToLeft())
     anchor = views::Menu::TOPLEFT;
@@ -693,8 +969,7 @@ void BrowserToolbarView::RunPageMenu(const gfx::Point& pt,
   menu->RunMenuAt(pt.x(), pt.y());
 }
 
-void BrowserToolbarView::RunAppMenu(const gfx::Point& pt,
-                                    gfx::NativeView parent) {
+void ToolbarView::RunAppMenu(const gfx::Point& pt, gfx::NativeView parent) {
   views::Menu::AnchorPoint anchor = views::Menu::TOPRIGHT;
   if (UILayoutIsRightToLeft())
     anchor = views::Menu::TOPLEFT;
@@ -753,251 +1028,4 @@ void BrowserToolbarView::RunAppMenu(const gfx::Point& pt,
 
   // Menu is going away, so set the profiles menu pointer to NULL.
   profiles_menu_ = NULL;
-}
-
-bool BrowserToolbarView::IsItemChecked(int id) const {
-  if (!profile_)
-    return false;
-  if (id == IDC_SHOW_BOOKMARK_BAR)
-    return profile_->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar);
-  return EncodingMenuControllerDelegate::IsItemChecked(id);
-}
-
-void BrowserToolbarView::RunMenu(views::View* source, const gfx::Point& pt,
-                                 gfx::NativeView parent) {
-  switch (source->GetID()) {
-    case VIEW_ID_PAGE_MENU:
-      RunPageMenu(pt, parent);
-      break;
-    case VIEW_ID_APP_MENU:
-      RunAppMenu(pt, parent);
-      break;
-    default:
-      NOTREACHED() << "Invalid source menu.";
-  }
-}
-
-void BrowserToolbarView::OnGetProfilesDone(
-    const std::vector<std::wstring>& profiles) {
-  // Nothing to do if the menu has gone away.
-  if (!profiles_menu_)
-    return;
-
-  // Store the latest list of profiles in the browser.
-  browser_->set_user_data_dir_profiles(profiles);
-
-  // Add direct sub menu items for profiles.
-  std::vector<std::wstring>::const_iterator iter = profiles.begin();
-  for (int i = IDC_NEW_WINDOW_PROFILE_0;
-       (i <= IDC_NEW_WINDOW_PROFILE_LAST) && (iter != profiles.end());
-       ++i, ++iter)
-    profiles_menu_->AppendMenuItemWithLabel(i, *iter);
-
-  // If there are more profiles then show "Other" link.
-  if (iter != profiles.end()) {
-    profiles_menu_->AppendSeparator();
-    profiles_menu_->AppendMenuItemWithLabel(
-        IDC_SELECT_PROFILE, l10n_util::GetString(IDS_SELECT_PROFILE));
-  }
-
-  // Always show a link to select a new profile.
-  profiles_menu_->AppendSeparator();
-  profiles_menu_->AppendMenuItemWithLabel(
-      IDC_NEW_PROFILE,
-      l10n_util::GetString(IDS_SELECT_PROFILE_DIALOG_NEW_PROFILE_ENTRY));
-}
-
-bool BrowserToolbarView::GetAccessibleName(std::wstring* name) {
-  if (!accessible_name_.empty()) {
-    (*name).assign(accessible_name_);
-    return true;
-  }
-  return false;
-}
-
-bool BrowserToolbarView::GetAccessibleRole(AccessibilityTypes::Role* role) {
-  DCHECK(role);
-
-  *role = AccessibilityTypes::ROLE_TOOLBAR;
-  return true;
-}
-
-void BrowserToolbarView::SetAccessibleName(const std::wstring& name) {
-  accessible_name_.assign(name);
-}
-
-void BrowserToolbarView::ThemeChanged() {
-  LoadLeftSideControlsImages();
-  LoadCenterStackImages();
-  LoadRightSideControlsImages();
-}
-
-int BrowserToolbarView::GetNextAccessibleViewIndex(int view_index,
-                                                   bool nav_left) {
-  int modifier = 1;
-
-  if (nav_left)
-    modifier = -1;
-
-  int current_view_index = view_index + modifier;
-
-  while ((current_view_index >= 0) &&
-         (current_view_index < GetChildViewCount())) {
-    // Skip the location bar, as it has its own keyboard navigation. Also skip
-    // any views that cannot be interacted with.
-    if (current_view_index == GetChildIndex(location_bar_) ||
-        !GetChildViewAt(current_view_index)->IsEnabled() ||
-        !GetChildViewAt(current_view_index)->IsVisible()) {
-      current_view_index += modifier;
-      continue;
-    }
-    // Update view_index with the available button index found.
-    view_index = current_view_index;
-    break;
-  }
-  // Returns the next available button index, or if no button is available in
-  // the specified direction, remains where it was.
-  return view_index;
-}
-
-void BrowserToolbarView::ShowContextMenu(int x, int y, bool is_mouse_gesture) {
-  if (acc_focused_view_)
-    acc_focused_view_->ShowContextMenu(x, y, is_mouse_gesture);
-}
-
-int BrowserToolbarView::GetDragOperations(views::View* sender, int x, int y) {
-  DCHECK(sender == star_);
-  if (!tab_ || !tab_->ShouldDisplayURL() || !tab_->GetURL().is_valid()) {
-    return DragDropTypes::DRAG_NONE;
-  }
-  if (profile_ && profile_->GetBookmarkModel() &&
-      profile_->GetBookmarkModel()->IsBookmarked(tab_->GetURL())) {
-    return DragDropTypes::DRAG_MOVE | DragDropTypes::DRAG_COPY |
-           DragDropTypes::DRAG_LINK;
-  }
-  return DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_LINK;
-}
-
-void BrowserToolbarView::WriteDragData(views::View* sender,
-                                       int press_x,
-                                       int press_y,
-                                       OSExchangeData* data) {
-  DCHECK(
-      GetDragOperations(sender, press_x, press_y) != DragDropTypes::DRAG_NONE);
-
-  UserMetrics::RecordAction(L"Toolbar_DragStar", profile_);
-
-#if defined(OS_WIN)
-  // If there is a bookmark for the URL, add the bookmark drag data for it. We
-  // do this to ensure the bookmark is moved, rather than creating an new
-  // bookmark.
-  if (profile_ && profile_->GetBookmarkModel()) {
-    BookmarkNode* node = profile_->GetBookmarkModel()->
-        GetMostRecentlyAddedNodeForURL(tab_->GetURL());
-    if (node) {
-      BookmarkDragData bookmark_data(node);
-      bookmark_data.Write(profile_, data);
-    }
-  }
-
-  drag_utils::SetURLAndDragImage(tab_->GetURL(),
-                                 UTF16ToWideHack(tab_->GetTitle()),
-                                 tab_->GetFavIcon(),
-                                 data);
-#else
-  // TODO(port): do bookmark item drag & drop
-  NOTIMPLEMENTED();
-#endif
-}
-
-TabContents* BrowserToolbarView::GetTabContents() {
-  return tab_;
-}
-
-void BrowserToolbarView::EnabledStateChangedForCommand(int id, bool enabled) {
-  views::Button* button = NULL;
-  switch (id) {
-    case IDC_BACK:
-      button = back_;
-      break;
-    case IDC_FORWARD:
-      button = forward_;
-      break;
-    case IDC_RELOAD:
-      button = reload_;
-      break;
-    case IDC_HOME:
-      button = home_;
-      break;
-    case IDC_STAR:
-      button = star_;
-      break;
-  }
-  if (button)
-    button->SetEnabled(enabled);
-}
-
-void BrowserToolbarView::ButtonPressed(views::Button* sender) {
-  browser_->ExecuteCommandWithDisposition(
-      sender->tag(),
-      event_utils::DispositionFromEventFlags(sender->mouse_event_flags()));
-}
-
-gfx::Rect BrowserToolbarView::GetPopupBounds() const {
-  gfx::Point origin;
-  views::View::ConvertPointToScreen(star_, &origin);
-  origin.set_y(origin.y() + star_->height() + kOmniboxPopupVerticalSpacing);
-  gfx::Rect popup_bounds(origin.x(), origin.y(),
-                         star_->width() + location_bar_->width() + go_->width(),
-                         0);
-  if (UILayoutIsRightToLeft()) {
-    popup_bounds.set_x(
-        popup_bounds.x() - location_bar_->width() - go_->width());
-  } else {
-    popup_bounds.set_x(popup_bounds.x());
-  }
-  popup_bounds.set_y(popup_bounds.y());
-  popup_bounds.set_width(popup_bounds.width());
-  // Inset the bounds a little, since the buttons on either edge of the omnibox
-  // have invisible padding that makes the popup appear too wide.
-  popup_bounds.Inset(kOmniboxButtonsHorizontalMargin, 0);
-  return popup_bounds;
-}
-
-// static
-int BrowserToolbarView::PopupTopSpacing() {
-  return GetWindow()->GetNonClientView()->UseNativeFrame() ?
-      0 : kPopupTopSpacingNonGlass;
-}
-
-void BrowserToolbarView::Observe(NotificationType type,
-                                 const NotificationSource& source,
-                                 const NotificationDetails& details) {
-  if (type == NotificationType::PREF_CHANGED) {
-    std::wstring* pref_name = Details<std::wstring>(details).ptr();
-    if (*pref_name == prefs::kShowHomeButton) {
-      Layout();
-      SchedulePaint();
-    }
-  }
-}
-
-bool BrowserToolbarView::GetAcceleratorInfo(int id,
-                                            views::Accelerator* accel) {
-  // The standard Ctrl-X, Ctrl-V and Ctrl-C are not defined as accelerators
-  // anywhere so we need to check for them explicitly here.
-  // TODO(cpu) Bug 1109102. Query WebKit land for the actual bindings.
-  switch (id) {
-    case IDC_CUT:
-      *accel = views::Accelerator(L'X', false, true, false);
-      return true;
-    case IDC_COPY:
-      *accel = views::Accelerator(L'C', false, true, false);
-      return true;
-    case IDC_PASTE:
-      *accel = views::Accelerator(L'V', false, true, false);
-      return true;
-  }
-  // Else, we retrieve the accelerator information from the frame.
-  return GetWidget()->GetAccelerator(id, accel);
 }

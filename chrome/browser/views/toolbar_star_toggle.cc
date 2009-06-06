@@ -28,7 +28,7 @@ using base::TimeTicks;
 static const int64 kDisallowClickMS = 40;
 
 ToolbarStarToggle::ToolbarStarToggle(views::ButtonListener* listener,
-                                     BrowserToolbarView* host)
+                                     ToolbarView* host)
     : ToggleImageButton(listener),
       host_(host),
       ignore_click_(false) {

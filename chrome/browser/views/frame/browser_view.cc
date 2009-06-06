@@ -379,8 +379,8 @@ void BrowserView::WindowMoved() {
   browser::HideBookmarkBubbleView();
 
   // Close the omnibox popup, if any.
-  if (toolbar_->GetLocationBarView())
-    toolbar_->GetLocationBarView()->location_entry()->ClosePopup();
+  if (toolbar_->location_bar())
+    toolbar_->location_bar()->location_entry()->ClosePopup();
 }
 
 void BrowserView::WindowMoveOrResizeStarted() {
@@ -708,7 +708,7 @@ void BrowserView::SetFullscreen(bool fullscreen) {
   //   * Ignoring all intervening Layout() calls, which resize the webpage and
   //     thus are slow and look ugly
   ignore_layout_ = true;
-  LocationBarView* location_bar = toolbar_->GetLocationBarView();
+  LocationBarView* location_bar = toolbar_->location_bar();
   AutocompleteEditViewWin* edit_view =
       static_cast<AutocompleteEditViewWin*>(location_bar->location_entry());
   if (IsFullscreen()) {
@@ -763,11 +763,11 @@ bool BrowserView::IsFullscreen() const {
 }
 
 LocationBar* BrowserView::GetLocationBar() const {
-  return toolbar_->GetLocationBarView();
+  return toolbar_->location_bar();
 }
 
 void BrowserView::SetFocusToLocationBar() {
-  LocationBarView* location_bar = toolbar_->GetLocationBarView();
+  LocationBarView* location_bar = toolbar_->location_bar();
   if (location_bar->IsFocusable()) {
     location_bar->FocusLocation();
   } else {
@@ -778,7 +778,7 @@ void BrowserView::SetFocusToLocationBar() {
 }
 
 void BrowserView::UpdateStopGoState(bool is_loading, bool force) {
-  toolbar_->GetGoButton()->ChangeMode(
+  toolbar_->go_button()->ChangeMode(
       is_loading ? GoButton::MODE_STOP : GoButton::MODE_GO, force);
 }
 
@@ -945,7 +945,7 @@ BookmarkBarView* BrowserView::GetBookmarkBarView() const {
 }
 
 LocationBarView* BrowserView::GetLocationBarView() const {
-  return toolbar_->GetLocationBarView();
+  return toolbar_->location_bar();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1356,7 +1356,7 @@ void BrowserView::Init() {
   AddChildView(tabstrip_);
   frame_->TabStripCreated(tabstrip_);
 
-  toolbar_ = new BrowserToolbarView(browser_.get());
+  toolbar_ = new ToolbarView(browser_.get());
   AddChildView(toolbar_);
   toolbar_->SetID(VIEW_ID_TOOLBAR);
   toolbar_->Init(browser_->profile());
@@ -1422,7 +1422,7 @@ int BrowserView::LayoutTabStrip() {
 int BrowserView::LayoutToolbar(int top) {
   int browser_view_width = width();
   bool visible = IsToolbarVisible();
-  toolbar_->GetLocationBarView()->SetFocusable(visible);
+  toolbar_->location_bar()->SetFocusable(visible);
   int y = top -
       ((visible && IsTabStripVisible()) ? kToolbarTabStripVerticalOverlap : 0);
   int height = visible ? toolbar_->GetPreferredSize().height() : 0;

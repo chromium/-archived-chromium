@@ -9,8 +9,8 @@
 #include "chrome/browser/views/info_bubble.h"
 #include "views/controls/button/image_button.h"
 
-class BrowserToolbarView;
 class GURL;
+class ToolbarView;
 
 // ToolbarStarToggle is used for the star button on the toolbar, allowing the
 // user to star the current page. ToolbarStarToggle manages showing the
@@ -19,7 +19,7 @@ class GURL;
 class ToolbarStarToggle : public views::ToggleImageButton,
                           public InfoBubbleDelegate {
  public:
-  ToolbarStarToggle(views::ButtonListener* listener, BrowserToolbarView* host);
+  ToolbarStarToggle(views::ButtonListener* listener, ToolbarView* host);
 
   // If the bubble isn't showing, shows it.
   void ShowStarBubble(const GURL& url, bool newly_bookmarked);
@@ -46,7 +46,7 @@ class ToolbarStarToggle : public views::ToggleImageButton,
   virtual bool CloseOnEscape();
 
   // Contains us.
-  BrowserToolbarView* host_;
+  ToolbarView* host_;
 
   // Time the bubble last closed.
   base::TimeTicks bubble_closed_time_;

@@ -27,7 +27,6 @@
 class BookmarkBarView;
 class Browser;
 class BrowserBubble;
-class BrowserToolbarView;
 class DownloadShelfView;
 class EncodingMenuControllerDelegate;
 class ExtensionShelf;
@@ -37,6 +36,7 @@ class InfoBarContainer;
 class StatusBubbleViews;
 class TabContentsContainer;
 class TabStrip;
+class ToolbarView;
 
 namespace views {
 class Menu;
@@ -368,7 +368,7 @@ class BrowserView : public BrowserWindow,
   TabStrip* tabstrip_;
 
   // The Toolbar containing the navigation buttons, menus and the address bar.
-  BrowserToolbarView* toolbar_;
+  ToolbarView* toolbar_;
 
   // The Bookmark Bar View for this window. Lazily created.
   scoped_ptr<BookmarkBarView> bookmark_bar_view_;
