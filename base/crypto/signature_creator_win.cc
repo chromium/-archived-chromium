@@ -48,13 +48,17 @@ bool SignatureCreator::Final(std::vector<uint8>* signature) {
     return false;
   }
 
-  signature->resize(signature_length);
-  if (!CryptSignHash(hash_object_, AT_SIGNATURE, NULL, 0, &signature->front(),
+  std::vector<uint8> temp;
+  temp.resize(signature_length);
+  if (!CryptSignHash(hash_object_, AT_SIGNATURE, NULL, 0, &temp.front(),
                      &signature_length)) {
     return false;
   }
 
-  signature->resize(signature_length);
+  temp.resize(signature_length);
+  for (size_t i = temp.size(); i > 0; --i)
+    signature->push_back(temp[i - 1]);
+
   hash_object_ = 0;
   return true;
 }

@@ -11,14 +11,20 @@
 
 TEST(SignatureCreatorTest, BasicTest) {
   // Do a verify round trip.
-  scoped_ptr<base::RSAPrivateKey> key(base::RSAPrivateKey::Create(1024));
-  ASSERT_TRUE(key.get());
+  scoped_ptr<base::RSAPrivateKey> key_original(
+      base::RSAPrivateKey::Create(1024));
+  ASSERT_TRUE(key_original.get());
+
+  std::vector<uint8> key_info;
+  key_original->ExportPrivateKey(&key_info);
+  scoped_ptr<base::RSAPrivateKey> key(
+      base::RSAPrivateKey::CreateFromPrivateKeyInfo(key_info));
 
   scoped_ptr<base::SignatureCreator> signer(
       base::SignatureCreator::Create(key.get()));
   ASSERT_TRUE(signer.get());
 
-  std::string data("Hello, world!");
+  std::string data("Hello, World!");
   ASSERT_TRUE(signer->Update(reinterpret_cast<const uint8*>(data.c_str()),
                              data.size()));
 
@@ -26,7 +32,7 @@ TEST(SignatureCreatorTest, BasicTest) {
   ASSERT_TRUE(signer->Final(&signature));
 
   std::vector<uint8> public_key_info;
-  ASSERT_TRUE(key->ExportPublicKey(&public_key_info));
+  ASSERT_TRUE(key_original->ExportPublicKey(&public_key_info));
 
   // This is the algorithm ID for SHA-1 with RSA encryption.
   // TODO(aa): Factor this out into some shared location.
@@ -39,6 +45,8 @@ TEST(SignatureCreatorTest, BasicTest) {
       kSHA1WithRSAAlgorithmID, sizeof(kSHA1WithRSAAlgorithmID),
       &signature.front(), signature.size(),
       &public_key_info.front(), public_key_info.size()));
-}
 
-// TODO(aa): Would be nice to test some well-known signatures.
+  verifier.VerifyUpdate(reinterpret_cast<const uint8*>(data.c_str()),
+                        data.size());
+  ASSERT_TRUE(verifier.VerifyFinal());
+}
