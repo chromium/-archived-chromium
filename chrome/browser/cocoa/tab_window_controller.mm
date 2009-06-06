@@ -100,6 +100,12 @@
   return overlayWindow_;
 }
 
+- (BOOL)canReceiveFrom:(TabWindowController*)source {
+  // subclass must implement
+  NOTIMPLEMENTED();
+  return NO;
+}
+
 - (void)moveTabView:(NSView*)view
      fromController:(TabWindowController*)dragController {
   NOTIMPLEMENTED();

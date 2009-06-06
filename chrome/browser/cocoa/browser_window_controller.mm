@@ -364,6 +364,21 @@ willPositionSheet:(NSWindow *)sheet
   return [tabStripController_ selectedTabGrowBoxRect];
 }
 
+// Accept tabs from a BrowserWindowController with the same Profile.
+- (BOOL)canReceiveFrom:(TabWindowController*)source {
+  if (![source isKindOfClass:[BrowserWindowController class]]) {
+    return NO;
+  }
+
+  BrowserWindowController* realSource =
+      static_cast<BrowserWindowController*>(source);
+  if (browser_->profile() != realSource->browser_->profile()) {
+    return NO;
+  }
+
+  return YES;
+}
+
 // Move a given tab view to the location of the current placeholder. If there is
 // no placeholder, it will go at the end. |controller| is the window controller
 // of a tab being dropped from a different window. It will be nil if the drag is

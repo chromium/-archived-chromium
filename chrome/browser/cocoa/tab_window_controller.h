@@ -62,6 +62,10 @@
 // Removes the placeholder installed by |-insertPlaceholderForTab:atLocation:|.
 - (void)removePlaceholder;
 
+// Called to check if the receiver can receive dragged tabs from
+// source.  Return YES if so.  The default implementation returns NO.
+- (BOOL)canReceiveFrom:(TabWindowController*)source;
+
 // Move a given tab view to the location of the current placeholder. If there is
 // no placeholder, it will go at the end. |controller| is the window controller
 // of a tab being dropped from a different window. It will be nil if the drag is

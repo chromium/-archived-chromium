@@ -182,7 +182,11 @@ static const double kDragStartDistance = 3.0;
       if (![window isVisible]) continue;
       NSWindowController *controller = [window windowController];
       if ([controller isKindOfClass:[TabWindowController class]]) {
-        [targets addObject:controller];
+        TabWindowController* realController =
+            static_cast<TabWindowController*>(controller);
+        if ([realController canReceiveFrom:sourceController_]) {
+          [targets addObject:controller];
+        }
       }
     }
   }
