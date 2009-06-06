@@ -56,6 +56,7 @@ View::View()
       registered_for_visible_bounds_notification_(false),
       next_focusable_view_(NULL),
       previous_focusable_view_(NULL),
+      registered_accelerator_count_(0),
       context_menu_controller_(NULL),
 #if defined(OS_WIN)
       accessibility_(NULL),
@@ -652,7 +653,7 @@ void View::ViewHierarchyChangedImpl(bool register_accelerators,
     if (is_add) {
       // If you get this registration, you are part of a subtree that has been
       // added to the view hierarchy.
-      RegisterAccelerators();
+      RegisterPendingAccelerators();
     } else {
       if (child == this)
         UnregisterAccelerators();
@@ -923,8 +924,14 @@ void View::PrintFocusHierarchyImp(int indent) {
 void View::AddAccelerator(const Accelerator& accelerator) {
   if (!accelerators_.get())
     accelerators_.reset(new std::vector<Accelerator>());
+
+  std::vector<Accelerator>::iterator iter =
+      std::find(accelerators_->begin(), accelerators_->end(), accelerator);
+  DCHECK(iter == accelerators_->end())
+      << "Registering the same accelerator multiple times";
+
   accelerators_->push_back(accelerator);
-  RegisterAccelerators();
+  RegisterPendingAccelerators();
 }
 
 void View::RemoveAccelerator(const Accelerator& accelerator) {
@@ -936,7 +943,14 @@ void View::RemoveAccelerator(const Accelerator& accelerator) {
     return;
   }
 
+  int index = iter - accelerators_->begin();
   accelerators_->erase(iter);
+  if (index >= registered_accelerator_count_) {
+    // The accelerator is not registered to FocusManager.
+    return;
+  }
+  --registered_accelerator_count_;
+
   RootView* root_view = GetRootView();
   if (!root_view) {
     // We are not part of a view hierarchy, so there is nothing to do as we
@@ -958,16 +972,16 @@ void View::RemoveAccelerator(const Accelerator& accelerator) {
 }
 
 void View::ResetAccelerators() {
-  if (accelerators_.get()) {
+  if (accelerators_.get())
     UnregisterAccelerators();
-    accelerators_->clear();
-    accelerators_.reset();
-  }
 }
 
-void View::RegisterAccelerators() {
-  if (!accelerators_.get())
+void View::RegisterPendingAccelerators() {
+  if (!accelerators_.get() ||
+      registered_accelerator_count_ == accelerators_->size()) {
+    // No accelerators are waiting for registration.
     return;
+  }
 
   RootView* root_view = GetRootView();
   if (!root_view) {
@@ -986,10 +1000,12 @@ void View::RegisterAccelerators() {
     NOTREACHED();
     return;
   }
-  for (std::vector<Accelerator>::const_iterator iter = accelerators_->begin();
+  std::vector<Accelerator>::const_iterator iter;
+  for (iter = accelerators_->begin() + registered_accelerator_count_;
        iter != accelerators_->end(); ++iter) {
     focus_manager->RegisterAccelerator(*iter, this);
   }
+  registered_accelerator_count_ = accelerators_->size();
 #endif
 }
 
@@ -1008,6 +1024,9 @@ void View::UnregisterAccelerators() {
       // nothing to unregister.
       focus_manager->UnregisterAccelerators(this);
     }
+    accelerators_->clear();
+    accelerators_.reset();
+    registered_accelerator_count_ = 0;
 #endif
   }
 }

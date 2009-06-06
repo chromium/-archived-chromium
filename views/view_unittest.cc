@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <map>
+
 #include "app/gfx/canvas.h"
 #include "app/gfx/path.h"
 #include "base/clipboard.h"
@@ -109,7 +111,7 @@ class EmptyWindow : public CWindowImpl<EmptyWindow,
 ////////////////////////////////////////////////////////////////////////////////
 class TestView : public View {
  public:
-   TestView() : View(){
+  TestView() : View() {
   }
 
   virtual ~TestView() {}
@@ -123,6 +125,7 @@ class TestView : public View {
     location_.x = 0;
     location_.y = 0;
     last_clip_.setEmpty();
+    accelerator_count_map_.clear();
   }
 
   virtual void DidChangeBounds(const gfx::Rect& previous,
@@ -132,6 +135,7 @@ class TestView : public View {
   virtual bool OnMouseDragged(const MouseEvent& event);
   virtual void OnMouseReleased(const MouseEvent& event, bool canceled);
   virtual void Paint(gfx::Canvas* canvas);
+  virtual bool AcceleratorPressed(const Accelerator& accelerator);
 
   // DidChangeBounds test
   bool did_change_bounds_;
@@ -150,6 +154,9 @@ class TestView : public View {
 
   // Painting
   SkRect last_clip_;
+
+  // Accelerators
+  std::map<Accelerator, int> accelerator_count_map_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -699,6 +706,80 @@ TEST_F(ViewTest, TextfieldCutCopyPaste) {
   ::SendMessage(normal->GetTestingHandle(), WM_PASTE, 0, 0);
   ::GetWindowText(normal->GetTestingHandle(), buffer, 1024);
   EXPECT_EQ(kReadOnlyText, std::wstring(buffer));
+}
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+// Accelerators
+////////////////////////////////////////////////////////////////////////////////
+bool TestView::AcceleratorPressed(const Accelerator& accelerator) {
+  accelerator_count_map_[accelerator]++;
+  return true;
+}
+
+#if defined(OS_WIN)
+TEST_F(ViewTest, ActivateAccelerator) {
+  // Register a keyboard accelerator before the view is added to a window.
+  views::Accelerator return_accelerator(VK_RETURN, false, false, false);
+  TestView* view = new TestView();
+  view->Reset();
+  view->AddAccelerator(return_accelerator);
+  EXPECT_EQ(view->accelerator_count_map_[return_accelerator], 0);
+
+  // Create a window and add the view as its child.
+  WidgetWin window;
+  window.Init(NULL, gfx::Rect(0, 0, 100, 100), true);
+  window.set_delete_on_destroy(false);
+  window.set_window_style(WS_OVERLAPPEDWINDOW);
+  RootView* root = window.GetRootView();
+  root->AddChildView(view);
+
+  // Get the focus manager.
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(window.GetNativeView());
+  ASSERT_TRUE(focus_manager);
+
+  // Hit the return key and see if it takes effect.
+  EXPECT_TRUE(focus_manager->ProcessAccelerator(return_accelerator));
+  EXPECT_EQ(view->accelerator_count_map_[return_accelerator], 1);
+
+  // Hit the escape key. Nothing should happen.
+  views::Accelerator escape_accelerator(VK_ESCAPE, false, false, false);
+  EXPECT_FALSE(focus_manager->ProcessAccelerator(escape_accelerator));
+  EXPECT_EQ(view->accelerator_count_map_[return_accelerator], 1);
+  EXPECT_EQ(view->accelerator_count_map_[escape_accelerator], 0);
+
+  // Now register the escape key and hit it again.
+  view->AddAccelerator(escape_accelerator);
+  EXPECT_TRUE(focus_manager->ProcessAccelerator(escape_accelerator));
+  EXPECT_EQ(view->accelerator_count_map_[return_accelerator], 1);
+  EXPECT_EQ(view->accelerator_count_map_[escape_accelerator], 1);
+
+  // Remove the return key accelerator.
+  view->RemoveAccelerator(return_accelerator);
+  EXPECT_FALSE(focus_manager->ProcessAccelerator(return_accelerator));
+  EXPECT_EQ(view->accelerator_count_map_[return_accelerator], 1);
+  EXPECT_EQ(view->accelerator_count_map_[escape_accelerator], 1);
+
+  // Add it again. Hit the return key and the escape key.
+  view->AddAccelerator(return_accelerator);
+  EXPECT_TRUE(focus_manager->ProcessAccelerator(return_accelerator));
+  EXPECT_EQ(view->accelerator_count_map_[return_accelerator], 2);
+  EXPECT_EQ(view->accelerator_count_map_[escape_accelerator], 1);
+  EXPECT_TRUE(focus_manager->ProcessAccelerator(escape_accelerator));
+  EXPECT_EQ(view->accelerator_count_map_[return_accelerator], 2);
+  EXPECT_EQ(view->accelerator_count_map_[escape_accelerator], 2);
+
+  // Remove all the accelerators.
+  view->ResetAccelerators();
+  EXPECT_FALSE(focus_manager->ProcessAccelerator(return_accelerator));
+  EXPECT_EQ(view->accelerator_count_map_[return_accelerator], 2);
+  EXPECT_EQ(view->accelerator_count_map_[escape_accelerator], 2);
+  EXPECT_FALSE(focus_manager->ProcessAccelerator(escape_accelerator));
+  EXPECT_EQ(view->accelerator_count_map_[return_accelerator], 2);
+  EXPECT_EQ(view->accelerator_count_map_[escape_accelerator], 2);
+
+  window.CloseNow();
 }
 #endif
 

@@ -638,10 +638,8 @@ void FocusManager::RegisterAccelerator(
     const Accelerator& accelerator,
     AcceleratorTarget* target) {
   AcceleratorTargetList& targets = accelerators_[accelerator];
-  // TODO(yutak): View::RegisterAccelerators() seems to register the same target
-  // multiple times. Should uncomment below after View is fixed.
-  // DCHECK(std::find(targets.begin(), targets.end(), target) == targets.end())
-  //     << "Registering the same target multiple times";
+  DCHECK(std::find(targets.begin(), targets.end(), target) == targets.end())
+      << "Registering the same target multiple times";
   targets.push_front(target);
 }
 

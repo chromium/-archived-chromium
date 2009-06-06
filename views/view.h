@@ -1127,9 +1127,11 @@ class View : public AcceleratorTarget {
   void PrintViewHierarchyImp(int indent);
   void PrintFocusHierarchyImp(int indent);
 
-  // Registers/unregister this view's keyboard accelerators with the
-  // FocusManager.
-  void RegisterAccelerators();
+  // Registers this view's keyboard accelerators that are not registered to
+  // FocusManager yet, if possible.
+  void RegisterPendingAccelerators();
+
+  // Unregisters all the keyboard accelerators associated with this view.
   void UnregisterAccelerators();
 
   // This View's bounds in the parent coordinate system.
@@ -1174,8 +1176,11 @@ class View : public AcceleratorTarget {
   // Next view to be focused when the Shift-Tab key combination is pressed.
   View* previous_focusable_view_;
 
-  // The list of accelerators.
+  // The list of accelerators. List elements in the range
+  // [0, registered_accelerator_count_) are already registered to FocusManager,
+  // and the rest are not yet.
   scoped_ptr<std::vector<Accelerator> > accelerators_;
+  int registered_accelerator_count_;
 
   // The menu controller.
   ContextMenuController* context_menu_controller_;
