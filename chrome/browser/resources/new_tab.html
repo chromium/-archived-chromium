@@ -102,10 +102,10 @@ function resizeP13N(new_height) {
    childf.style.display = "block";
 }
 
-chrome.send("getMostVisited");
-chrome.send("getMostSearched");
-chrome.send("getRecentlyBookmarked");
-chrome.send("getRecentlyClosedTabs");
+chrome.send('getMostVisited');
+chrome.send('getMostSearched');
+chrome.send('getRecentlyBookmarked');
+chrome.send('getRecentlyClosedTabs');
 
 function handleWindowResize() {
   if (!document.body || document.body.clientWidth < 10) {
@@ -926,19 +926,29 @@ function exitEditMode() {
 }
 
 function cancelEdits() {
-  if (blacklistedURLs.length > 0)
-    chrome.send("removeURLsFromMostVisitedBlacklist", blacklistedURLs);
+  if (blacklistedURLs.length > 0) {
+    chrome.send('removeURLsFromMostVisitedBlacklist', blacklistedURLs);
+    // NOTE(arv): According to evanm the order of messages should be the order
+    // they are called in. However, he wasn't sure and glen wasn't sure either.
+    // We should keep our eyes open for weird issues and if the order is not
+    // guaranteed we can call 'getMostVisited' in a timeout.
+    chrome.send('getMostVisited');
+  }
   exitEditMode();
 }
 
 function blacklistURL(url) {
  blacklistedURLs.push(url);
- chrome.send("blacklistURLFromMostVisited", [url]);
+ chrome.send('blacklistURLFromMostVisited', [url]);
+ // NOTE(arv): See note in cancelEdits.
+ chrome.send('getMostVisited');
 }
 
 function restoreThumbnails() {
   exitEditMode();
   chrome.send('clearMostVisitedURLsBlacklist');
+  // NOTE(arv): See note in cancelEdits.
+  chrome.send('getMostVisited');
 }
 
 function themeChanged() {

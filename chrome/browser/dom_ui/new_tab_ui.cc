@@ -563,8 +563,6 @@ void MostVisitedHandler::HandleBlacklistURL(const Value* value) {
     return;
   }
   BlacklistURL(GURL(url));
-  // Force a refresh of the thumbnails.
-  HandleGetMostVisited(NULL);
 }
 
 void MostVisitedHandler::HandleRemoveURLsFromBlacklist(const Value* urls) {
@@ -589,15 +587,10 @@ void MostVisitedHandler::HandleRemoveURLsFromBlacklist(const Value* urls) {
     r = url_blacklist_->Remove(GetDictionaryKeyForURL(WideToUTF8(url)), NULL);
     DCHECK(r) << "Unknown URL removed from the NTP Most Visited blacklist.";
   }
-
-  // Force a refresh of the thumbnails.
-  HandleGetMostVisited(NULL);
 }
 
 void MostVisitedHandler::HandleClearBlacklist(const Value* value) {
   url_blacklist_->Clear();
-  // Force a refresh of the thumbnails.
-  HandleGetMostVisited(NULL);
 }
 
 void MostVisitedHandler::HandleAddPinnedURL(const Value* value) {
@@ -692,7 +685,7 @@ const bool MostVisitedHandler::GetPinnedURLAtIndex(const int index,
       DictionaryValue* dict = static_cast<DictionaryValue*>(value);
       dict->GetInteger(L"index", &dict_index);
       if (dict_index == index) {
-        if (dict->GetString(L"url", url))
+        if (!dict->GetString(L"url", url))
           return false;
         return dict->GetString(L"title", title);
       }
@@ -710,24 +703,23 @@ void MostVisitedHandler::OnSegmentUsageAvailable(
   most_visited_urls_.clear();
   ListValue pages_value;
 
-  size_t i = 0;
-  size_t j = 0;
-  while (j < kMostVisitedPages && i < data->size()) {
+  size_t data_index = 0;
+  size_t output_index = 0;
+  while (output_index < kMostVisitedPages && data_index < data->size()) {
     bool pinned = false;
     GURL url;
     string16 title;
     std::string pinned_url;
     std::string pinned_title;
 
-    if (MostVisitedHandler::GetPinnedURLAtIndex(j, &pinned_url,
+    if (MostVisitedHandler::GetPinnedURLAtIndex(output_index, &pinned_url,
                                                 &pinned_title)) {
       url = GURL(pinned_url);
       title = UTF8ToUTF16(pinned_title);
       pinned = true;
-      j++;
     } else {
-      const PageUsageData& page = *(*data)[i];
-      i++;
+      const PageUsageData& page = *(*data)[data_index];
+      data_index++;
       url = page.GetURL();
 
       // Don't include blacklisted or pinned URLs.
@@ -743,6 +735,7 @@ void MostVisitedHandler::OnSegmentUsageAvailable(
     SetURLTitleAndDirection(page_value, title, url);
     page_value->SetBoolean(L"pinned", pinned);
     pages_value.Append(page_value);
+    output_index++;
     most_visited_urls_.push_back(url);
   }
 
