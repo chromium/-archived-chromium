@@ -431,11 +431,17 @@ const GURL& TabContents::GetURL() const {
 }
 
 const string16& TabContents::GetTitle() const {
+  // Transient entries take precedence. They are used for interstitial pages
+  // that are shown on top of existing pages.
+  NavigationEntry* entry = controller_.GetTransientEntry();
+  if (entry)
+    return entry->GetTitleForDisplay(&controller_);
+
   DOMUI* our_dom_ui = render_manager_.pending_dom_ui() ?
       render_manager_.pending_dom_ui() : render_manager_.dom_ui();
   if (our_dom_ui) {
     // Don't override the title in view source mode.
-    NavigationEntry* entry = controller_.GetActiveEntry();
+    entry = controller_.GetActiveEntry();
     if (!(entry && entry->IsViewSourceMode())) {
       // Give the DOM UI the chance to override our title.
       const string16& title = our_dom_ui->overridden_title();
@@ -448,12 +454,6 @@ const string16& TabContents::GetTitle() const {
   // navigation entry. For example, when the user types in a URL, we want to
   // keep the old page's title until the new load has committed and we get a new
   // title.
-  // The exception is with transient pages, for which we really want to use
-  // their title, as they are not committed.
-  NavigationEntry* entry = controller_.GetTransientEntry();
-  if (entry)
-    return entry->GetTitleForDisplay(&controller_);
-
   entry = controller_.GetLastCommittedEntry();
   if (entry)
     return entry->GetTitleForDisplay(&controller_);
