@@ -141,6 +141,13 @@ void SetMinLogLevel(int level);
 // Gets the current log level.
 int GetMinLogLevel();
 
+#if defined(OS_LINUX)
+// Get the file descriptor used for logging.
+// Returns -1 if none open.
+// Needed by ZygoteManager.
+int GetLoggingFileDescriptor();
+#endif
+
 // Sets the log filter prefix.  Any log message below LOG_ERROR severity that
 // doesn't start with this prefix with be silently ignored.  The filter defaults
 // to NULL (everything is logged) if this function is not called.  Messages

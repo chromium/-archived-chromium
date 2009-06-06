@@ -22,6 +22,7 @@
 #include "base/path_service.h"
 #include "base/process_util.h"
 #include "base/rand_util.h"
+#include "base/reserved_file_descriptors.h"
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
 #include "base/singleton.h"
@@ -345,9 +346,11 @@ bool BrowserRenderProcessHost::Init() {
     const int crash_signal_fd =
         Singleton<RenderCrashHandlerHostLinux>()->GetDeathSignalSocket();
     if (crash_signal_fd >= 0)
-      fds_to_map.push_back(std::make_pair(crash_signal_fd, 4));
-#endif
+      fds_to_map.push_back(std::make_pair(crash_signal_fd, kMagicCrashSignalFd));
+    base::ForkApp(cmd_line.argv(), fds_to_map, &process);
+#else
     base::LaunchApp(cmd_line.argv(), fds_to_map, false, &process);
+#endif
 #endif
     if (!process) {
       channel_.reset();

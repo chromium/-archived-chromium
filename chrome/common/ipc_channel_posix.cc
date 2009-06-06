@@ -20,6 +20,7 @@
 #include "base/lock.h"
 #include "base/logging.h"
 #include "base/process_util.h"
+#include "base/reserved_file_descriptors.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/singleton.h"
@@ -114,10 +115,6 @@ class PipeMap {
   ChannelToFDMap map_;
 };
 
-// This is the file descriptor number that a client process expects to find its
-// IPC socket.
-static const int kClientChannelFd = 3;
-
 // Used to map a channel name to the equivalent FD # in the client process.
 int ChannelNameToClientFD(const std::string& channel_id) {
   // See the large block comment above PipeMap for the reasoning here.
@@ -127,6 +124,9 @@ int ChannelNameToClientFD(const std::string& channel_id) {
 
   // If we don't find an entry, we assume that the correct value has been
   // inserted in the magic slot.
+  // kClientChannelFd is the file descriptor number that a client process
+  // expects to find its IPC socket; see reserved_file_descriptors.h.
+
   return kClientChannelFd;
 }
 

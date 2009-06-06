@@ -417,6 +417,9 @@
               # so use idle_timer_none.cc instead.
               'idle_timer.cc',
             ],
+            'sources': [
+              'zygote_manager.cc',
+            ],
             'dependencies': [
               '../build/util/build_util.gyp:lastchange',
               '../build/linux/system.gyp:gtk',
@@ -681,6 +684,9 @@
       ],
       'conditions': [
         ['OS == "linux"', {
+          'sources': [
+            'zygote_manager_unittest.cc',
+          ],
           'sources!': [
             'file_version_info_unittest.cc',
             # Linux has an implementation of idle_timer, but it's unclear

@@ -50,6 +50,7 @@ class CommandLine {
   // directly) because we don't trust the CRT's parsing of the command
   // line, but it still must be called to set up the command line.
   static void Init(int argc, const char* const* argv);
+  static void Init(const std::vector<std::string>& argv);
 
   // Destroys the current process CommandLine singleton. This is necessary if
   // you want to reset the base library to its initial state (for example in an

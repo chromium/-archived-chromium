@@ -17,6 +17,7 @@
 #include "base/logging.h"
 #include "base/string_tokenizer.h"
 #include "base/string_util.h"
+#include "base/zygote_manager.h"
 
 namespace {
 
@@ -40,6 +41,22 @@ void GetProcStats(pid_t pid, std::vector<std::string>* proc_stats) {
 }  // namespace
 
 namespace base {
+
+bool ForkApp(const std::vector<std::string>& argv,
+             const file_handle_mapping_vector& fds_to_remap,
+             ProcessHandle* process_handle) {
+  ZygoteManager* zm = ZygoteManager::Get();
+  if (!zm)
+    return LaunchApp(argv, fds_to_remap, false, process_handle);
+
+  pid_t pid = zm->LongFork(argv, fds_to_remap);
+  if (pid < 0)
+    return false;
+
+  if (process_handle)
+    *process_handle = pid;
+  return true;
+}
 
 bool LaunchApp(const std::vector<std::string>& argv,
                const file_handle_mapping_vector& fds_to_remap,
@@ -65,6 +82,8 @@ bool LaunchApp(const std::vector<std::string>& argv,
       argv_cstr[i] = const_cast<char*>(argv[i].c_str());
     argv_cstr[argv.size()] = NULL;
     execvp(argv_cstr[0], argv_cstr.get());
+    LOG(ERROR) << "LaunchApp: exec failed!, argv_cstr[0] " << argv_cstr[0]
+        << ", errno " << errno;
     exit(127);
   } else {
     if (wait)

@@ -21,8 +21,10 @@ bool PerformInjectiveMultimap(const InjectiveMultimap& m_in,
     int temp_fd = -1;
 
     // We DCHECK the injectiveness of the mapping.
-    for (InjectiveMultimap::iterator j = i + 1; j != m.end(); ++j)
-      DCHECK(i->dest != j->dest);
+    for (InjectiveMultimap::iterator j = i + 1; j != m.end(); ++j) {
+      DCHECK(i->dest != j->dest) << "Both fd " << i->source
+          << " and " << j->source << " map to " << i->dest;
+    }
 
     const bool is_identity = i->source == i->dest;
 

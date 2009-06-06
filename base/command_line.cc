@@ -177,6 +177,17 @@ void CommandLine::Init(int argc, const char* const* argv) {
 #endif
 }
 
+// static
+void CommandLine::Init(const std::vector<std::string>& argv) {
+  DCHECK(current_process_commandline_ == NULL);
+#if defined(OS_WIN)
+  current_process_commandline_ = new CommandLine;
+  current_process_commandline_->ParseFromString(::GetCommandLineW());
+#elif defined(OS_POSIX)
+  current_process_commandline_ = new CommandLine(argv);
+#endif
+}
+
 void CommandLine::Terminate() {
   DCHECK(current_process_commandline_ != NULL);
   delete current_process_commandline_;

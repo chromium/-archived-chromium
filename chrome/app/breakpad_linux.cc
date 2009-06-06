@@ -14,6 +14,7 @@
 #include "base/file_version_info_linux.h"
 #include "base/path_service.h"
 #include "base/rand_util.h"
+#include "base/reserved_file_descriptors.h"
 #include "breakpad/linux/directory_reader.h"
 #include "breakpad/linux/exception_handler.h"
 #include "breakpad/linux/linux_libc_support.h"
@@ -501,8 +502,7 @@ RendererCrashHandler(const void* crash_context, size_t crash_context_size,
 
 void EnableRendererCrashDumping() {
   // When the browser forks off our process, it installs the crash signal file
-  // descriptor in this slot:
-  static const int kMagicCrashSignalFd = 4;
+  // descriptor in slot kMagicCrashSignalFd.
 
   // We deliberately leak this object.
   google_breakpad::ExceptionHandler* handler =

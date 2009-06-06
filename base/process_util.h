@@ -132,6 +132,14 @@ typedef std::vector<std::pair<int, int> > file_handle_mapping_vector;
 bool LaunchApp(const std::vector<std::string>& argv,
                const file_handle_mapping_vector& fds_to_remap,
                bool wait, ProcessHandle* process_handle);
+
+#if defined(OS_LINUX)
+// Like LaunchApp, but if zygote manager is enabled,
+// forks the zygote instead of forking and exec'ing.
+bool ForkApp(const std::vector<std::string>& argv,
+             const file_handle_mapping_vector& fds_to_remap,
+             ProcessHandle* process_handle);
+#endif
 #endif
 
 // Executes the application specified by cl. This function delegates to one

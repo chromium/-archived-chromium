@@ -19,9 +19,12 @@ typedef HANDLE MutexHandle;
 #endif
 
 #if defined(OS_POSIX)
+#include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #define MAX_PATH PATH_MAX
 typedef FILE* FileHandle;
@@ -37,6 +40,7 @@ typedef pthread_mutex_t* MutexHandle;
 #include "base/command_line.h"
 #include "base/debug_util.h"
 #include "base/lock_impl.h"
+#include "base/reserved_file_descriptors.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
@@ -205,7 +209,17 @@ bool InitializeLogFileHandle() {
     }
     SetFilePointer(log_file, 0, 0, FILE_END);
 #elif defined(OS_POSIX)
+    // Reserve global fd slots.
+    int reserved_fds[kReservedFds];
+    for (int i=0; i < kReservedFds; i++)
+      reserved_fds[i] = open("/dev/null", O_RDONLY, 0);
+
     log_file = fopen(log_file_name->c_str(), "a");
+
+    // Release the reserved fds.
+    for (int i=0; i < kReservedFds; i++)
+      close(reserved_fds[i]);
+
     if (log_file == NULL)
       return false;
 #endif
@@ -213,6 +227,16 @@ bool InitializeLogFileHandle() {
 
   return true;
 }
+
+#if defined(OS_LINUX)
+int GetLoggingFileDescriptor() {
+  // No locking needed, since this is only called by the zygote server,
+  // which is single-threaded.
+  if (log_file)
+    return fileno(log_file);
+  return -1;
+}
+#endif
 
 void InitLogMutex() {
 #if defined(OS_WIN)

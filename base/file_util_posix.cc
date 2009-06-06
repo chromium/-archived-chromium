@@ -27,6 +27,7 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "base/time.h"
+#include "base/zygote_manager.h"
 
 namespace file_util {
 
@@ -625,20 +626,37 @@ MemoryMappedFile::MemoryMappedFile()
 }
 
 bool MemoryMappedFile::MapFileToMemory(const FilePath& file_name) {
-  file_ = open(file_name.value().c_str(), O_RDONLY);
+  file_ = -1;
+#if defined(OS_LINUX)
+  base::ZygoteManager* zm = base::ZygoteManager::Get();
+  if (zm) {
+    file_ = zm->OpenFile(file_name.value().c_str());
+    if (file_ == -1) {
+      LOG(INFO) << "Zygote manager can't open " << file_name.value()
+                << ", retrying locally";
+    }
+  }
+#endif  // defined(OS_LINUX)
   if (file_ == -1)
+    file_ = open(file_name.value().c_str(), O_RDONLY);
+  if (file_ == -1) {
+    LOG(ERROR) << "Couldn't open " << file_name.value();
     return false;
+  }
 
   struct stat file_stat;
-  if (fstat(file_, &file_stat) == -1)
+  if (fstat(file_, &file_stat) == -1) {
+    LOG(ERROR) << "Couldn't fstat " << file_name.value() << ", errno " << errno;
     return false;
+  }
   length_ = file_stat.st_size;
 
   data_ = static_cast<uint8*>(
       mmap(NULL, length_, PROT_READ, MAP_SHARED, file_, 0));
   if (data_ == MAP_FAILED)
-    data_ = NULL;
-  return data_ != NULL;
+    LOG(ERROR) << "Couldn't mmap " << file_name.value() << ", errno " << errno;
+
+  return data_ != MAP_FAILED;
 }
 
 void MemoryMappedFile::CloseHandles() {

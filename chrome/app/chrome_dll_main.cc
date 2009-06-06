@@ -45,6 +45,9 @@
 #if defined(OS_WIN)
 #include "base/win_util.h"
 #endif
+#if defined(OS_LINUX)
+#include "base/zygote_manager.h"
+#endif
 #if defined(OS_MACOSX)
 #include "chrome/app/breakpad_mac.h"
 #elif defined(OS_LINUX)
@@ -292,6 +295,18 @@ int ChromeMain(int argc, const char** argv) {
   // Initialize the command line.
 #if defined(OS_WIN)
   CommandLine::Init(0, NULL);
+#elif defined(OS_LINUX)
+  base::ZygoteManager* zm = base::ZygoteManager::Get();
+  std::vector<std::string>* zargv = NULL;
+  if (zm)
+    zargv = zm->Start();
+  if (zargv) {
+    // Forked child.
+    CommandLine::Init(*zargv);
+  } else {
+    // Original process.
+    CommandLine::Init(argc, argv);
+  }
 #else
   CommandLine::Init(argc, argv);
 #endif
