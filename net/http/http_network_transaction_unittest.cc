@@ -7,6 +7,7 @@
 #include "base/compiler_specific.h"
 #include "net/base/client_socket_factory.h"
 #include "net/base/completion_callback.h"
+#include "net/base/host_resolver_unittest.h"
 #include "net/base/socket_test_util.h"
 #include "net/base/ssl_client_socket.h"
 #include "net/base/ssl_info.h"
@@ -23,6 +24,20 @@
 //-----------------------------------------------------------------------------
 
 namespace net {
+
+namespace {
+
+// Config getter that returns a single config.
+class DummyProxyConfigService : public ProxyConfigService {
+ public:
+  // ProxyConfigService implementation:
+  virtual int GetProxyConfig(ProxyConfig* config) {
+    config->proxy_rules.ParseFromString("foobar:80");
+    return OK;
+  }
+};
+
+}  // namespace
 
 // Create a proxy service which fails on all requests (falls back to direct).
 ProxyService* CreateNullProxyService() {
@@ -3092,6 +3107,35 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_ExtraHeaders) {
 
   rv = callback.WaitForResult();
   EXPECT_EQ(OK, rv);
+}
+
+TEST_F(HttpNetworkTransactionTest, ReconsiderProxyAfterFailedConnection) {
+  scoped_refptr<RuleBasedHostMapper> host_mapper(new RuleBasedHostMapper());
+  ScopedHostMapper scoped_host_mapper(host_mapper.get());
+  host_mapper->AddSimulatedFailure("*");
+
+  SessionDependencies session_deps;
+  scoped_ptr<HttpTransaction> trans(
+      new HttpNetworkTransaction(
+          CreateSession(&session_deps),
+          &session_deps.socket_factory));
+
+  HttpRequestInfo request;
+  request.method = "GET";
+  request.url = GURL("http://www.google.com/");
+
+  TestCompletionCallback callback;
+
+  int rv = trans->Start(&request, &callback);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
+
+  // Set another config service so that ReconsiderProxyAfterError will fallback
+  // to another proxy config.
+  session_deps.proxy_service->ResetConfigService(
+      new DummyProxyConfigService());
+
+  rv = callback.WaitForResult();
+  EXPECT_EQ(ERR_NAME_NOT_RESOLVED, rv);
 }
 
 }  // namespace net

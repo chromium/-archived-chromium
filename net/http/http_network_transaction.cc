@@ -1337,7 +1337,10 @@ int HttpNetworkTransaction::ReconsiderProxyAfterError(int error) {
   int rv = session_->proxy_service()->ReconsiderProxyAfterError(
       request_->url, &proxy_info_, &io_callback_, &pac_request_);
   if (rv == OK || rv == ERR_IO_PENDING) {
-    connection_.socket()->Disconnect();
+    // If the error was during connection setup, there is no socket to
+    // disconnect.
+    if (connection_.socket())
+      connection_.socket()->Disconnect();
     connection_.Reset();
     DCHECK(!request_headers_bytes_sent_);
     next_state_ = STATE_RESOLVE_PROXY_COMPLETE;
