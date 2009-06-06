@@ -465,6 +465,12 @@ void RenderWidgetHostViewMac::ShutdownHost() {
 }
 
 - (BOOL)resignFirstResponder {
+  if (![self superview]) {
+    // We're dead, so touching renderWidgetHostView_ is probably a bad
+    // idea.
+    return YES;
+  }
+  
   if (closeOnDeactivate_)
     renderWidgetHostView_->KillSelf();
 
