@@ -5,12 +5,16 @@
 #ifndef CHROME_BROWSER_EXTENSIONS_EXTENSION_HOST_H_
 #define CHROME_BROWSER_EXTENSIONS_EXTENSION_HOST_H_
 
+#include <string>
+
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/render_view_host_delegate_helper.h"
 
 class Browser;
 class Extension;
+class ExtensionProcessManager;
 class ExtensionView;
+class RenderProcessHost;
 class RenderWidgetHost;
 class RenderWidgetHostView;
 class TabContents;
@@ -24,7 +28,8 @@ class ExtensionHost : public RenderViewHostDelegate,
                       public RenderViewHostDelegate::View,
                       public ExtensionFunctionDispatcher::Delegate {
  public:
-  ExtensionHost(Extension* extension, SiteInstance* site_instance);
+  ExtensionHost(Extension* extension, SiteInstance* site_instance,
+                ExtensionProcessManager* manager);
   ~ExtensionHost();
 
 #if defined(TOOLKIT_VIEWS)
@@ -33,6 +38,7 @@ class ExtensionHost : public RenderViewHostDelegate,
 #endif
   Extension* extension() { return extension_; }
   RenderViewHost* render_view_host() const { return render_view_host_; }
+  RenderProcessHost* render_process_host() const;
   SiteInstance* site_instance() const;
   bool did_stop_loading() const { return did_stop_loading_; }
 
@@ -85,6 +91,9 @@ class ExtensionHost : public RenderViewHostDelegate,
 
   // The extension that we're hosting in this view.
   Extension* extension_;
+
+  // Manager which created us (to notify upon destruction).
+  ExtensionProcessManager* manager_;
 
 #if defined(TOOLKIT_VIEWS)
   // Optional view that shows the rendered content in the UI.

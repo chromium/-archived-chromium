@@ -37,8 +37,11 @@ ExtensionProcessManager::ExtensionProcessManager(Profile* profile)
 }
 
 ExtensionProcessManager::~ExtensionProcessManager() {
-  for (ExtensionHostList::iterator iter = background_hosts_.begin();
-      iter != background_hosts_.end(); ++iter)
+  // Copy background_hosts_ to avoid iterator invalidation issues.
+  ExtensionHostSet to_delete(background_hosts_.begin(),
+                             background_hosts_.end());
+  ExtensionHostSet::iterator iter;
+  for (iter = to_delete.begin(); iter != to_delete.end(); ++iter)
     delete *iter;
 }
 
@@ -46,17 +49,20 @@ ExtensionProcessManager::~ExtensionProcessManager() {
 ExtensionView* ExtensionProcessManager::CreateView(Extension* extension,
                                                    const GURL& url,
                                                    Browser* browser) {
-  return new ExtensionView(
-      new ExtensionHost(extension, GetSiteInstanceForURL(url)), browser, url);
+  ExtensionHost* host = new ExtensionHost(extension,
+                                          GetSiteInstanceForURL(url), this);
+  all_hosts_.insert(host);
+  return new ExtensionView(host, browser, url);
 }
 #endif
 
 void ExtensionProcessManager::CreateBackgroundHost(Extension* extension,
                                                    const GURL& url) {
   ExtensionHost* host =
-      new ExtensionHost(extension, GetSiteInstanceForURL(url));
+      new ExtensionHost(extension, GetSiteInstanceForURL(url), this);
   host->CreateRenderView(url, NULL);  // create a RenderViewHost with no view
-  background_hosts_.push_back(host);
+  all_hosts_.insert(host);
+  background_hosts_.insert(host);
 }
 
 SiteInstance* ExtensionProcessManager::GetSiteInstanceForURL(const GURL& url) {
@@ -75,12 +81,13 @@ void ExtensionProcessManager::Observe(NotificationType type,
 
     case NotificationType::EXTENSION_UNLOADED: {
       Extension* extension = Details<Extension>(details).ptr();
-      for (ExtensionHostList::iterator iter = background_hosts_.begin();
+      for (ExtensionHostSet::iterator iter = background_hosts_.begin();
            iter != background_hosts_.end(); ++iter) {
         ExtensionHost* host = *iter;
         if (host->extension()->id() == extension->id()) {
-          background_hosts_.erase(iter);
           delete host;
+          // |host| should deregister itself from our structures.
+          DCHECK(background_hosts_.find(host) == background_hosts_.end());
           break;
         }
       }
@@ -90,4 +97,9 @@ void ExtensionProcessManager::Observe(NotificationType type,
     default:
       NOTREACHED();
   }
+}
+
+void ExtensionProcessManager::OnExtensionHostDestroyed(ExtensionHost* host) {
+  all_hosts_.erase(host);
+  background_hosts_.erase(host);
 }

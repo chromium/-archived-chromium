@@ -10,6 +10,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/extensions/extension_message_service.h"
+#include "chrome/browser/extensions/extension_process_manager.h"
 #include "chrome/browser/extensions/extension_view.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
@@ -28,8 +29,10 @@
 
 #include "webkit/glue/context_menu.h"
 
-ExtensionHost::ExtensionHost(Extension* extension, SiteInstance* site_instance)
+ExtensionHost::ExtensionHost(Extension* extension, SiteInstance* site_instance,
+                             ExtensionProcessManager* manager)
     : extension_(extension),
+      manager_(manager),
 #if defined(OS_WIN)
       view_(NULL),
 #endif
@@ -40,7 +43,13 @@ ExtensionHost::ExtensionHost(Extension* extension, SiteInstance* site_instance)
 }
 
 ExtensionHost::~ExtensionHost() {
+  if (manager_)  // To allow passing NULL in tests.
+    manager_->OnExtensionHostDestroyed(this);
   render_view_host_->Shutdown();  // deletes render_view_host
+}
+
+RenderProcessHost* ExtensionHost::render_process_host() const {
+  return render_view_host_->process();
 }
 
 SiteInstance* ExtensionHost::site_instance() const {

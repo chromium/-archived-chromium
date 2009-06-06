@@ -5,12 +5,17 @@
 #ifndef CHROME_BROWSER_TASK_MANAGER_RESOURCE_PROVIDERS_H_
 #define CHROME_BROWSER_TASK_MANAGER_RESOURCE_PROVIDERS_H_
 
+#include <map>
+#include <vector>
+
 #include "base/basictypes.h"
 #include "base/process_util.h"
 #include "chrome/browser/task_manager.h"
 #include "chrome/common/child_process_info.h"
 #include "chrome/common/notification_observer.h"
 
+class Extension;
+class ExtensionHost;
 class TabContents;
 
 // These file contains the resource providers used in the task manager.
@@ -28,7 +33,7 @@ class TaskManagerTabContentsResource : public TaskManager::Resource {
 
   // TabContents always provide the network usage.
   bool SupportNetworkUsage() const { return true; }
-  void SetSupportNetworkUsage() { };
+  void SetSupportNetworkUsage() { }
 
  private:
   TabContents* tab_contents_;
@@ -106,7 +111,7 @@ class TaskManagerChildProcessResource : public TaskManager::Resource {
   bool network_usage_support_;
 
   // The icon painted for the child processs.
-  // TODO (jcampan): we should have plugin specific icons for well-known
+  // TODO(jcampan): we should have plugin specific icons for well-known
   // plugins.
   static SkBitmap* default_icon_;
 
@@ -166,6 +171,67 @@ class TaskManagerChildProcessResourceProvider
   NotificationRegistrar registrar_;
 
   DISALLOW_COPY_AND_ASSIGN(TaskManagerChildProcessResourceProvider);
+};
+
+class TaskManagerExtensionProcessResource : public TaskManager::Resource {
+ public:
+  explicit TaskManagerExtensionProcessResource(ExtensionHost* extension_host);
+  ~TaskManagerExtensionProcessResource();
+
+  // TaskManagerResource methods:
+  std::wstring GetTitle() const;
+  SkBitmap GetIcon() const;
+  base::ProcessHandle GetProcess() const;
+  bool SupportNetworkUsage() const { return true; }
+  void SetSupportNetworkUsage() { NOTREACHED(); }
+
+  // Returns the pid of the extension process.
+  int process_id() const { return pid_; }
+
+ private:
+  Extension* extension() const;
+
+  // The icon painted for the extension process.
+  static SkBitmap* default_icon_;
+
+  ExtensionHost* extension_host_;
+
+  // Cached data about the extension.
+  base::ProcessHandle process_handle_;
+  int pid_;
+  std::wstring title_;
+
+  DISALLOW_COPY_AND_ASSIGN(TaskManagerExtensionProcessResource);
+};
+
+class TaskManagerExtensionProcessResourceProvider
+    : public TaskManager::ResourceProvider {
+ public:
+  explicit TaskManagerExtensionProcessResourceProvider(
+      TaskManager* task_manager);
+  virtual ~TaskManagerExtensionProcessResourceProvider();
+
+  virtual TaskManager::Resource* GetResource(int origin_pid,
+                                             int render_process_host_id,
+                                             int routing_id);
+  virtual void StartUpdating();
+  virtual void StopUpdating();
+
+ private:
+  void AddToTaskManager(ExtensionHost* extension_host);
+
+  TaskManager* task_manager_;
+
+  // Maps the actual resources (ExtensionHost*) to the Task Manager resources.
+  std::map<ExtensionHost*, TaskManagerExtensionProcessResource*> resources_;
+
+  // Maps the pids to the resources (used for quick access to the resource on
+  // byte read notifications).
+  std::map<int, TaskManagerExtensionProcessResource*> pid_to_resources_;
+
+  bool updating_;
+
+  DISALLOW_COPY_AND_ASSIGN(TaskManagerExtensionProcessResourceProvider);
 };
 
 class TaskManagerBrowserProcessResource : public TaskManager::Resource {

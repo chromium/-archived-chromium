@@ -60,6 +60,10 @@ TaskManagerModel::TaskManagerModel(TaskManager* task_manager)
       new TaskManagerChildProcessResourceProvider(task_manager);
   child_process_provider->AddRef();
   providers_.push_back(child_process_provider);
+  TaskManagerExtensionProcessResourceProvider* extension_process_provider =
+      new TaskManagerExtensionProcessResourceProvider(task_manager);
+  extension_process_provider->AddRef();
+  providers_.push_back(extension_process_provider);
 }
 
 TaskManagerModel::~TaskManagerModel() {

@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_EXTENSIONS_EXTENSION_PROCESS_MANAGER_H_
 #define CHROME_BROWSER_EXTENSIONS_EXTENSION_PROCESS_MANAGER_H_
 
-#include <list>
+#include <set>
 
 #include "base/ref_counted.h"
 #include "chrome/common/notification_registrar.h"
@@ -25,7 +25,7 @@ class SiteInstance;
 // of this class per Profile (including OTR).
 class ExtensionProcessManager : public NotificationObserver {
  public:
-  ExtensionProcessManager(Profile* profile);
+  explicit ExtensionProcessManager(Profile* profile);
   ~ExtensionProcessManager();
 
 #if defined(TOOLKIT_VIEWS)
@@ -48,13 +48,23 @@ class ExtensionProcessManager : public NotificationObserver {
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
- private:
-  typedef std::list<ExtensionHost*> ExtensionHostList;
+  typedef std::set<ExtensionHost*> ExtensionHostSet;
+  typedef ExtensionHostSet::const_iterator const_iterator;
+  const_iterator begin() const { return all_hosts_.begin(); }
+  const_iterator end() const { return all_hosts_.end(); }
 
+  // Called just before |host| is destroyed so it can be de-registered
+  // from our lists.
+  void OnExtensionHostDestroyed(ExtensionHost* host);
+
+ private:
   NotificationRegistrar registrar_;
 
-  // The list of running viewless background extensions.
-  ExtensionHostList background_hosts_;
+  // The set of all ExtensionHosts managed by this process manager.
+  ExtensionHostSet all_hosts_;
+
+  // The set of running viewless background extensions.
+  ExtensionHostSet background_hosts_;
 
   // The BrowsingInstance shared by all extensions in this profile.  This
   // controls process grouping.

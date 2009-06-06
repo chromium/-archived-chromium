@@ -136,6 +136,11 @@ class TabContents : public PageNavigator,
   // to the actual URL that will be used. It can be modified as needed.
   bool SupportsURL(GURL* url);
 
+  // Returns true if contains content rendered by an extension.
+  bool HostsExtension() const {
+    return render_view_host()->extension_function_dispatcher() != NULL;
+  }
+
   // Returns the AutofillManager, creating it if necessary.
   AutofillManager* GetAutofillManager();
 

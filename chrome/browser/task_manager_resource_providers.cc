@@ -24,11 +24,15 @@
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/extensions/extension_host.h"
+#include "chrome/browser/extensions/extension_process_manager.h"
+#include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/child_process_host.h"
+#include "chrome/common/extensions/extension.h"
 #include "chrome/common/notification_service.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
@@ -137,8 +141,11 @@ void TaskManagerTabContentsResourceProvider::StartUpdating() {
   for (TabContentsIterator iterator; !iterator.done(); iterator++) {
     TabContents* tab_contents = *iterator;
     // Don't add dead tabs or tabs that haven't yet connected.
+    // Also ignore tabs which display extension content. We collapse
+    // all of these into one extension row.
     if (tab_contents->process()->process().handle() &&
-        tab_contents->notify_disconnection())
+        tab_contents->notify_disconnection() &&
+        !tab_contents->HostsExtension())
       AddToTaskManager(tab_contents);
   }
   // Then we register for notifications to get new tabs.
@@ -154,7 +161,6 @@ void TaskManagerTabContentsResourceProvider::StartUpdating() {
   // (http://crbug.com/7321).
   registrar_.Add(this, NotificationType::TAB_CONTENTS_DESTROYED,
                  NotificationService::AllSources());
-
 }
 
 void TaskManagerTabContentsResourceProvider::StopUpdating() {
@@ -445,6 +451,122 @@ void TaskManagerChildProcessResourceProvider::ChildProcessInfoRetreived() {
     Add(*iter);
   }
   existing_child_process_info_.clear();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// TaskManagerExtensionProcessResource class
+////////////////////////////////////////////////////////////////////////////////
+
+SkBitmap* TaskManagerExtensionProcessResource::default_icon_ = NULL;
+
+TaskManagerExtensionProcessResource::TaskManagerExtensionProcessResource(
+    ExtensionHost* extension_host)
+    : extension_host_(extension_host) {
+  if (!default_icon_) {
+    ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+    default_icon_ = rb.GetBitmapNamed(IDR_PLUGIN);
+  }
+  base::Process process(extension_host_->render_process_host()->process());
+  process_handle_ = process.handle();
+  pid_ = process.pid();
+  std::wstring extension_name(UTF8ToWide(extension()->name()));
+  DCHECK(!extension_name.empty());
+  // Since the extension_name will be concatenated with a prefix, we need
+  // to explicitly set the extension_name to be LTR format if there is no
+  // strong RTL charater in it. Otherwise, if the prefix is an RTL word,
+  // the concatenated result might be wrong. For extension named
+  // "Great Extension!" the concatenated result would be something like
+  // "!Great Extension :NOISNETXE", in which capital letters "NOISNETXE"
+  // stand for the Hebrew word for "extension".
+  l10n_util::AdjustStringForLocaleDirection(extension_name, &extension_name);
+  title_ = l10n_util::GetStringF(IDS_TASK_MANAGER_EXTENSION_PREFIX,
+                                 extension_name);
+}
+
+TaskManagerExtensionProcessResource::~TaskManagerExtensionProcessResource() {
+}
+
+std::wstring TaskManagerExtensionProcessResource::GetTitle() const {
+  return title_;
+}
+
+SkBitmap TaskManagerExtensionProcessResource::GetIcon() const {
+  return *default_icon_;
+}
+
+base::ProcessHandle TaskManagerExtensionProcessResource::GetProcess() const {
+  return process_handle_;
+}
+
+Extension* TaskManagerExtensionProcessResource::extension() const {
+  return extension_host_->extension();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// TaskManagerExtensionProcessResourceProvider class
+////////////////////////////////////////////////////////////////////////////////
+
+TaskManagerExtensionProcessResourceProvider::
+    TaskManagerExtensionProcessResourceProvider(TaskManager* task_manager)
+    : task_manager_(task_manager),
+      updating_(false) {
+}
+
+TaskManagerExtensionProcessResourceProvider::
+    ~TaskManagerExtensionProcessResourceProvider() {
+}
+
+TaskManager::Resource* TaskManagerExtensionProcessResourceProvider::GetResource(
+    int origin_pid,
+    int render_process_host_id,
+    int routing_id) {
+  std::map<int, TaskManagerExtensionProcessResource*>::iterator iter =
+      pid_to_resources_.find(origin_pid);
+  if (iter != pid_to_resources_.end())
+    return iter->second;
+  else
+    return NULL;
+}
+
+void TaskManagerExtensionProcessResourceProvider::StartUpdating() {
+  DCHECK(!updating_);
+  updating_ = true;
+  // Add all the existing ExtensionHosts.
+  ProfileManager* profile_manager = g_browser_process->profile_manager();
+  for (ProfileManager::const_iterator it = profile_manager->begin();
+       it != profile_manager->end(); ++it) {
+      ExtensionProcessManager* process_manager =
+          (*it)->GetExtensionProcessManager();
+      ExtensionProcessManager::const_iterator jt;
+      for (jt = process_manager->begin(); jt != process_manager->end(); ++jt)
+        AddToTaskManager(*jt);
+  }
+  // TODO(phajdan.jr): Also look for TabContents which are displaying
+  // extension content to aggregate network usage.
+  // TODO(phajdan.jr): Register for notifications.
+}
+
+void TaskManagerExtensionProcessResourceProvider::StopUpdating() {
+  DCHECK(updating_);
+  updating_ = false;
+
+  // TODO(phajdan.jr): Unregister notifications.
+
+  // Delete all the resources.
+  STLDeleteContainerPairSecondPointers(resources_.begin(), resources_.end());
+
+  resources_.clear();
+  pid_to_resources_.clear();
+}
+
+void TaskManagerExtensionProcessResourceProvider::AddToTaskManager(
+    ExtensionHost* extension_host) {
+  TaskManagerExtensionProcessResource* resource =
+      new TaskManagerExtensionProcessResource(extension_host);
+  DCHECK(resources_.find(extension_host) == resources_.end());
+  resources_[extension_host] = resource;
+  pid_to_resources_[resource->process_id()] = resource;
+  task_manager_->AddResource(resource);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
