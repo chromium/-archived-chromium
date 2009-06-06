@@ -3698,6 +3698,7 @@
             '../third_party/modp_b64/modp_b64.gyp:*',
             '../third_party/npapi/npapi.gyp:*',
             '../third_party/sqlite/sqlite.gyp:*',
+            '../third_party/tcmalloc/tcmalloc.gyp:*',
             '../third_party/zlib/zlib.gyp:*',
             '../webkit/tools/test_shell/test_shell.gyp:*',
             '../webkit/webkit.gyp:*',
@@ -3727,12 +3728,6 @@
           ],
         },
         {
-          'target_name': 'tcmalloc',
-          'type': '<(library)',
-          'msvs_guid': 'C564F145-9172-42C3-BFCB-60FDEA124321',
-          'msvs_existing_vcproj': '../third_party/tcmalloc/tcmalloc.vcproj',
-        },
-        {
           'target_name': 'chrome_dll',
           'type': 'shared_library',
           'product_name': 'chrome',
@@ -3750,10 +3745,10 @@
             'worker',
             '../build/util/build_util.gyp:lastchange',
             '../net/net.gyp:net_resources',
+            '../third_party/tcmalloc/tcmalloc.gyp:tcmalloc',
             '../views/views.gyp:views',
             '../webkit/webkit.gyp:webkit_resources',
             '../gears/gears.gyp:gears',
-            'tcmalloc',
           ],
           'rules': [
             {

@@ -63,6 +63,7 @@
             '../sandbox/sandbox.gyp:*',
             '../third_party/bsdiff/bsdiff.gyp:*',
             '../third_party/bspatch/bspatch.gyp:*',
+            '../third_party/tcmalloc/tcmalloc.gyp:*',
             '../tools/memory_watcher/memory_watcher.gyp:*',
             '../webkit/activex_shim/activex_shim.gyp:*',
             '../webkit/activex_shim_dll/activex_shim_dll.gyp:*',
