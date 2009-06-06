@@ -927,7 +927,7 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
           L"This is a temporary message and it will be removed when extensions "
           L"UI is finalized.",
           l10n_util::GetString(IDS_PRODUCT_NAME).c_str(),
-          MB_OKCANCEL) == IDOK) {
+          MB_OKCANCEL) != IDOK) {
     ReportExtensionInstallError(extension_path,
         "User did not allow extension to be installed.");
     return;
