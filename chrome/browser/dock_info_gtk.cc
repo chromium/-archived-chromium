@@ -173,10 +173,6 @@ class LocalProcessWindowFinder : public BaseWindowFinder {
   DISALLOW_COPY_AND_ASSIGN(LocalProcessWindowFinder);
 };
 
-#if !defined(TOOLKIT_VIEWS)
-DockInfo::Factory* DockInfo::factory_ = NULL;
-#endif
-
 // static
 DockInfo DockInfo::GetDockInfoAtPoint(const gfx::Point& screen_point,
                                       const std::set<GtkWidget*>& ignore) {
