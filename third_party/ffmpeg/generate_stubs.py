@@ -575,7 +575,6 @@ void %s();
 
 // Umbrella initializer for all the modules in this stub file.
 bool InitializeStubs(const StubPathMap& path_map);
-
 }  // namespace %s
 
 #endif  // %s
@@ -589,17 +588,15 @@ bool InitializeStubs(const StubPathMap& path_map);
       outfile: The file handle to populate.
     """
     outfile.write('extern "C" {\n')
-    outfile.write('\n')
     self.WriteFunctionPointers(outfile)
     self.WriteStubFunctions(outfile)
-    outfile.write('\n')
     outfile.write('}  // extern "C"\n')
     outfile.write('\n')
 
     outfile.write('namespace %s {\n' % namespace)
     outfile.write('\n')
     self.WriteModuleInitializeFunctions(outfile)
-    outfile.write('}  // namespace %s\n\n' % namespace)
+    outfile.write('}  // namespace %s\n' % namespace)
 
   def WriteFunctionPointers(self, outfile):
     """Write the function pointer declarations needed by the stubs.
@@ -741,7 +738,7 @@ def main():
 
   if options.out_dir is None:
     parser.error('Output location not specified')
-  if len(args) == 0:
+  if args:
     parser.error('No inputs specified')
 
   if options.type not in [FILE_TYPE_WIN, FILE_TYPE_POSIX_STUB]:
@@ -791,7 +788,6 @@ def main():
                                                   impl_file)
       if options.extra_stub_header is not None:
         try:
-          impl_file.write('\n')
           extra_header_file = open(options.extra_stub_header, 'r')
           for line in extra_header_file:
             impl_file.write(line)
