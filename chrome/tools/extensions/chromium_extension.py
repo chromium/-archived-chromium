@@ -104,7 +104,7 @@ class ExtensionDir:
       out.write("Cr24")  # Extension file magic number
       # The rest of the header is currently made up of three ints:
       # version, header size, manifest size
-      header = array.array("l")
+      header = array.array("i")
       header.append(1)  # version
       header.append(16)  # header size
       manifest_json = json.dumps(manifest);
