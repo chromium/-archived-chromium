@@ -2714,13 +2714,13 @@
         'renderer/mock_keyboard.h',
         'renderer/mock_keyboard_driver_win.cc',
         'renderer/mock_keyboard_driver_win.h',
-        'renderer/mock_render_process.h',
-        'renderer/mock_render_thread.cc',
-        'renderer/mock_render_thread.h',
         'renderer/mock_printer.cc',
         'renderer/mock_printer.h',
         'renderer/mock_printer_driver_win.cc',
         'renderer/mock_printer_driver_win.h',
+        'renderer/mock_render_process.h',
+        'renderer/mock_render_thread.cc',
+        'renderer/mock_render_thread.h',
         'test/automation/autocomplete_edit_proxy.cc',
         'test/automation/autocomplete_edit_proxy.h',
         'test/automation/automation_constants.h',
@@ -2871,7 +2871,6 @@
       'target_name': 'ui_tests',
       'type': 'executable',
       'msvs_guid': '76235B67-1C27-4627-8A33-4B2E1EF93EDE',
-      'msvs_existing_vcproj': 'test/ui/ui_tests.vcproj',
       'dependencies': [
         'app',
         'browser',
@@ -2945,6 +2944,9 @@
         'test/ui/sunspider_uitest.cc',
         'test/ui/v8_benchmark_uitest.cc',
         'worker/worker_uitest.cc',
+
+        'tools/build/win/precompiled_wtl.h',
+        'tools/build/win/precompiled_wtl.cc',
       ],
       'conditions': [
         ['OS=="linux"', {
@@ -3001,6 +3003,12 @@
               '-lOleAcc.lib',
             ],
           },
+          'configurations': {
+            'Debug': {
+              'msvs_precompiled_header': 'tools/build/win/precompiled_wtl.h',
+              'msvs_precompiled_source': 'tools/build/win/precompiled_wtl.cc',
+            },
+          },
         }, { # else: OS != "win"
           'sources!': [
             # TODO(port)?  (Most of these include windows.h or similar.)
@@ -3028,17 +3036,18 @@
       'target_name': 'unit_tests',
       'type': 'executable',
       'msvs_guid': 'ECFC2BEC-9FC0-4AD9-9649-5F26793F65FC',
-      'msvs_existing_vcproj': 'test/unit/unittests.vcproj',
       'dependencies': [
         'app',
         'browser',
-        'common',
-        'debugger',
-        'renderer',
-        'utility',
         'chrome_resources',
         'chrome_strings',
+        'common',
+        'debugger',
+        'installer/installer.gyp:installer_util_strings',
+        'renderer',
+        'utility',
         'test_support_unit',
+        'third_party/hunspell/hunspell.gyp:hunspell',
         '../app/app.gyp:app_resources',
         '../net/net.gyp:net_resources',
         '../net/net.gyp:net_test_support',
@@ -3269,6 +3278,20 @@
         '../views/grid_layout_unittest.cc',
         '../views/view_unittest.cc',
 
+        # TODO(sgk):  put these in a convert_dict library.
+        'tools/convert_dict/aff_reader.cc',
+        'tools/convert_dict/aff_reader.h',
+        'tools/convert_dict/dic_reader.cc',
+        'tools/convert_dict/dic_reader.h',
+        'tools/convert_dict/hunspell_reader.cc',
+        'tools/convert_dict/hunspell_reader.h',
+        
+        '../views/controls/label_unittest.cc',
+        '../views/controls/table/table_view_unittest.cc',
+        '../views/focus/focus_manager_unittest.cc',
+        '../views/grid_layout_unittest.cc',
+        '../views/view_unittest.cc',
+
         'tools/build/win/precompiled_wtl.h',
         'tools/build/win/precompiled_wtl.cc',
       ],
@@ -3324,6 +3347,22 @@
           ],
           'include_dirs': [
             'third_party/wtl/include',
+          ],
+          'sources': [
+            'app/chrome_dll.rc',
+            'test/data/resource.rc',
+
+            # TODO:  It would be nice to have these pulled in
+            # automatically from direct_dependent_settings in
+            # their various targets (net.gyp:net_resources, etc.),
+            # but that causes errors in other targets when
+            # resulting .res files get referenced multiple times.
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/browser_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/common_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/debugger_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/renderer_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.rc',
           ],
           'sources!': [
             'browser/gtk/tabs/tab_renderer_gtk_unittest.cc',
@@ -3555,7 +3594,6 @@
           'target_name': 'perf_tests',
           'type': 'executable',
           'msvs_guid': '9055E088-25C6-47FD-87D5-D9DD9FD75C9F',
-          'msvs_existing_vcproj': 'test/perf/perftests.vcproj',
           'dependencies': [
             'browser',
             'common',
@@ -3570,7 +3608,11 @@
             '../webkit/webkit.gyp:glue',
           ],
           'sources': [
+            'browser/safe_browsing/database_perftest.cc',
+            'browser/safe_browsing/filter_false_positive_perftest.cc',
+            'browser/visitedlink_master.cc',
             'browser/visitedlink_perftest.cc',
+            'common/json_value_serializer_perftest.cc',
             'test/perf/perftests.cc',
             'test/perf/url_parse_perftest.cc',
           ],
@@ -4091,11 +4133,11 @@
           'target_name': 'interactive_ui_tests',
           'type': 'executable',
           'msvs_guid': '018D4F38-6272-448F-A864-976DA09F05D0',
-          'msvs_existing_vcproj': 'test/interactive_ui/interactive_ui.vcproj',
           'dependencies': [
             'chrome_resources',
             'chrome_strings',
             'debugger',
+            'installer/installer.gyp:installer_util_strings',
             'test_support_common',
             'test_support_ui',
             'third_party/hunspell/hunspell.gyp:hunspell',
@@ -4117,6 +4159,7 @@
           ],
           'sources': [
             'browser/browser_focus_uitest.cc',
+            'browser/debugger/devtools_sanity_unittest.cc',
             'browser/views/bookmark_bar_view_test.cc',
             'browser/views/constrained_window_impl_interactive_uitest.cc',
             'browser/views/find_bar_win_interactive_uitest.cc',
@@ -4124,6 +4167,33 @@
             'test/interactive_ui/npapi_interactive_test.cc',
             'test/interactive_ui/view_event_test_base.cc',
             'test/interactive_ui/view_event_test_base.h',
+
+            # Windows-only below here, will need addressing if/when
+            # this gets ported.
+            '../webkit/glue/resources/aliasb.cur',
+            '../webkit/glue/resources/cell.cur',
+            '../webkit/glue/resources/col_resize.cur',
+            '../webkit/glue/resources/copy.cur',
+            '../webkit/glue/resources/row_resize.cur',
+            '../webkit/glue/resources/vertical_text.cur',
+            '../webkit/glue/resources/zoom_in.cur',
+            '../webkit/glue/resources/zoom_out.cur',
+
+            'app/chrome_dll.rc',
+            'test/data/resource.rc',
+
+            # TODO:  It would be nice to have these pulled in
+            # automatically from direct_dependent_settings in
+            # their various targets (net.gyp:net_resources, etc.),
+            # but that causes errors in other targets when
+            # resulting .res files get referenced multiple times.
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/browser_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/common_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/debugger_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/renderer_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.rc',
+
             'tools/build/win/precompiled_wtl.h',
             'tools/build/win/precompiled_wtl.cc',
           ],
