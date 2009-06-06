@@ -326,7 +326,7 @@ class ChromeTests:
     # this code should be undone.
     # BUG=7516
     if ret:
-      return -88
+      return 88
     return 0
 
   def TestUI(self):
