@@ -146,6 +146,7 @@ void CloseSuperfluousFds(const base::InjectiveMultimap& saved_mapping) {
     }
     return;
   }
+  int dir_fd = dirfd(dir);
 
   struct dirent *ent;
   while ((ent = readdir(dir))) {
@@ -159,6 +160,8 @@ void CloseSuperfluousFds(const base::InjectiveMultimap& saved_mapping) {
     if (ent->d_name[0] == 0 || *endptr || fd < 0 || errno)
       continue;
     if (saved_fds.find(fd) != saved_fds.end())
+      continue;
+    if (fd == dir_fd)
       continue;
 
     // When running under Valgrind, Valgrind opens several FDs for its
