@@ -87,9 +87,11 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
     return gtk_tree_view_get_selection(GTK_TREE_VIEW(right_tree_view_));
   }
 
-  // Use this to temporarily disable updating the right store. When this is
-  // called again, the right store will be updated once.
-  void ToggleUpdatesToRightStore();
+  // Use these to temporarily disable updating the right store. You can stack
+  // calls to Suppress(), but they should always be matched by an equal number
+  // of calls to Allow().
+  void SuppressUpdatesToRightStore();
+  void AllowUpdatesToRightStore();
 
   static void OnLeftSelectionChanged(GtkTreeSelection* selection,
                                      BookmarkManagerGtk* bookmark_manager);
@@ -103,9 +105,21 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
                                 BookmarkManagerGtk* bookmark_manager);
 
   static void OnTreeViewDragReceived(
-    GtkWidget* tree_view, GdkDragContext* context, gint x, gint y,
-    GtkSelectionData* selection_data, guint target_type, guint time,
-    BookmarkManagerGtk* bookmark_manager);
+      GtkWidget* tree_view, GdkDragContext* context, gint x, gint y,
+      GtkSelectionData* selection_data, guint target_type, guint time,
+      BookmarkManagerGtk* bookmark_manager);
+
+  static void OnTreeViewDragBegin(GtkWidget* tree_view,
+                                  GdkDragContext* drag_context,
+                                  BookmarkManagerGtk* bookmark_manager);
+
+  static void OnTreeViewDragEnd(GtkWidget* tree_view,
+                                GdkDragContext* drag_context,
+                                BookmarkManagerGtk* bookmark_manager);
+
+  static gboolean OnTreeViewDragMotion(GtkWidget* tree_view,
+      GdkDragContext* context, gint x, gint y, guint time,
+      BookmarkManagerGtk* bookmark_manager);
 
   GtkWidget* window_;
   Profile* profile_;
@@ -122,7 +136,7 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
   };
   GtkTreeStore* left_store_;
   GtkListStore* right_store_;
-  bool update_right_store_;
+  int update_suppressions_;
 
   scoped_ptr<BookmarkContextMenu> organize_menu_;
 };
