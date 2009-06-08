@@ -77,13 +77,33 @@ ChromeProcessList GetRunningChromeProcesses(const FilePath& data_dir) {
   if (browser_pid < 0)
     return result;
 
-  ChromeProcessFilter filter(browser_pid);
+  // Normally, the browser is the parent process for all the renderers
+  base::ProcessId parent_pid = browser_pid;
+
+#if defined(OS_LINUX)
+  // But if the browser's parent is the same executable as the browser,
+  // then it's the zygote manager, and it's the parent for all the renderers.
+  base::ProcessId manager_pid = base::GetParentProcessId(browser_pid);
+  FilePath selfPath = base::GetProcessExecutablePath(browser_pid);
+  FilePath managerPath = base::GetProcessExecutablePath(manager_pid);
+  if (!selfPath.empty() && !managerPath.empty() && selfPath == managerPath) {
+    LOG(INFO) << "Zygote manager in use.";
+    parent_pid = manager_pid;
+  }
+#endif
+
+  ChromeProcessFilter filter(parent_pid);
   base::NamedProcessIterator it(chrome::kBrowserProcessExecutableName, &filter);
 
   const ProcessEntry* process_entry;
   while ((process_entry = it.NextProcessEntry())) {
 #if defined(OS_WIN)
     result.push_back(process_entry->th32ProcessID);
+#elif defined(OS_LINUX)
+    // Don't count the zygote manager, that screws up unit tests,
+    // and it will exit cleanly on its own when first client exits.
+    if (process_entry->pid != manager_pid)
+      result.push_back(process_entry->pid);
 #elif defined(OS_POSIX)
     result.push_back(process_entry->pid);
 #endif

@@ -208,7 +208,7 @@ bool InitializeLogFileHandle() {
       }
     }
     SetFilePointer(log_file, 0, 0, FILE_END);
-#elif defined(OS_POSIX)
+#elif defined(OS_LINUX)
     // Reserve global fd slots.
     int reserved_fds[kReservedFds];
     for (int i=0; i < kReservedFds; i++)
@@ -220,6 +220,10 @@ bool InitializeLogFileHandle() {
     for (int i=0; i < kReservedFds; i++)
       close(reserved_fds[i]);
 
+    if (log_file == NULL)
+      return false;
+#elif defined(OS_POSIX)
+    log_file = fopen(log_file_name->c_str(), "a");
     if (log_file == NULL)
       return false;
 #endif

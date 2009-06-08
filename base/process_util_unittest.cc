@@ -270,6 +270,13 @@ TEST_F(ProcessUtilTest, GetAppOutput) {
   EXPECT_STREQ("foobar42", output.c_str());
 }
 
+#if defined(OS_LINUX)
+TEST_F(ProcessUtilTest, GetParentProcessId) {
+  base::ProcessId ppid = GetParentProcessId(GetCurrentProcId());
+  EXPECT_EQ(ppid, getppid());
+}
+#endif
+
 #endif  // defined(OS_POSIX)
 
 }  // namespace base

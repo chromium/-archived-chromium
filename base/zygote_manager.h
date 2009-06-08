@@ -29,8 +29,8 @@ class ZygoteManager {
   // The normal way to get a ZygoteManager is via this singleton factory.
   static ZygoteManager* Get();
 
-  ZygoteManager() : server_fd_(-1), client_fd_(-1), canary_fd_(-1),
-      lockfd_(-1) {
+  ZygoteManager() :
+      server_fd_(-1), client_fd_(-1), canary_fd_(-1), lockfd_(-1) {
   }
 
   ~ZygoteManager();

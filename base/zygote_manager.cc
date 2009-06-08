@@ -54,6 +54,12 @@ ZygoteManager::~ZygoteManager() {
     close(canary_fd_);
     canary_fd_ = -1;
   }
+#ifndef OFFICIAL_BUILD
+  // Closing the canary kills the server,
+  // so after this it's ok for e.g. unit tests
+  // to start a new zygote server.
+  (void) unsetenv("ZYGOTE_MANAGER_STARTED");
+#endif
 }
 
 // Runs in client process
@@ -61,13 +67,7 @@ ZygoteManager* ZygoteManager::Get() {
   static bool checked = false;
   static bool enabled = false;
   if (!checked) {
-    enabled = (getenv("ENABLE_ZYGOTE_MANAGER") != NULL);
-    // sanity check - make sure all the places that relaunch chrome
-    // have been zygotified.
-    if (enabled)
-      DCHECK(getenv("ZYGOTE_MANAGER_STARTED") == NULL)
-          << "fork/exec used instead of LongFork";
-    (void) setenv("ZYGOTE_MANAGER_STARTED", "1", 1);
+    enabled = (getenv("DISABLE_ZYGOTE_MANAGER") == NULL);
     checked = true;
   }
   if (!enabled)
@@ -594,7 +594,6 @@ bool ZygoteManager::ReadAndHandleMessage(std::vector<std::string>** newargv) {
 
   if (nactive == -1) {
     if (errno == EINTR) {
-      LOG(INFO) << "poll interrupted";
       // Probably SIGCHLD.  Return to main loop so it can reap.
       return true;
     }
@@ -723,6 +722,12 @@ std::vector<std::string>* ZygoteManager::Start() {
   DCHECK(server_fd_ == -1);
   DCHECK(client_fd_ == -1);
 
+#ifndef OFFICIAL_BUILD
+  // Disallow nested ZygoteManager servers
+  CHECK(getenv("ZYGOTE_MANAGER_STARTED") == NULL) << "already started?!";
+  (void) setenv("ZYGOTE_MANAGER_STARTED", "1", 1);
+#endif
+
   int pipe_fds[2];
 
   // Avoid using the reserved fd slots.
@@ -761,11 +766,11 @@ std::vector<std::string>* ZygoteManager::Start() {
   // Fork a fork server.
   pid_t childpid = fork();
 
-  if (childpid) {
+  if (!childpid) {
     for (int i=0; i < kReservedFds; i++)
       close(reserved_fds[i]);
 
-    // Original parent.  Continues on with the main program
+    // Original child.  Continues on with the main program
     // and becomes the first client.
     close(server_fd_);
     server_fd_ = -1;
@@ -789,7 +794,7 @@ std::vector<std::string>* ZygoteManager::Start() {
     action.sa_handler = SIGCHLDHandler;
     CHECK(sigaction(SIGCHLD, &action, NULL) == 0);
 
-    // Original child.  Acts as the server.
+    // Original process.  Acts as the server.
     while (true) {
       std::vector<std::string>* newargv = NULL;
       if (!ReadAndHandleMessage(&newargv))
@@ -812,7 +817,6 @@ std::vector<std::string>* ZygoteManager::Start() {
       }
     }
     // Server cleanup after EOF or error reading from the socket.
-    // Chrome doesn't seem to get here in practice.
     Delete(FilePath(lockfile_), false);
     // TODO(dkegel): real error handling
     LOG(INFO) << "exiting.  " << cached_fds_.size() << " cached fds.";
@@ -821,7 +825,7 @@ std::vector<std::string>* ZygoteManager::Start() {
       LOG(INFO) << "Closing fd " << i->second << " filename " << i->first;
       close(i->second);
     }
-    exit(-1);
+    exit(0);
   }
 }
 }

@@ -7,10 +7,10 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <string>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 #include "base/eintr_wrapper.h"
 #include "base/file_util.h"
@@ -41,6 +41,50 @@ void GetProcStats(pid_t pid, std::vector<std::string>* proc_stats) {
 }  // namespace
 
 namespace base {
+
+ProcessId GetParentProcessId(ProcessHandle process) {
+  FilePath stat_file("/proc");
+  stat_file = stat_file.Append(IntToString(process));
+  stat_file = stat_file.Append("status");
+  std::string status;
+  if (!file_util::ReadFileToString(stat_file, &status))
+    return -1;
+
+  StringTokenizer tokenizer(status, ":\n");
+  ParsingState state = KEY_NAME;
+  std::string last_key_name;
+  while (tokenizer.GetNext()) {
+    switch (state) {
+      case KEY_NAME:
+        last_key_name = tokenizer.token();
+        state = KEY_VALUE;
+        break;
+      case KEY_VALUE:
+        DCHECK(!last_key_name.empty());
+        if (last_key_name == "PPid") {
+          pid_t ppid = StringToInt(tokenizer.token());
+          return ppid;
+        }
+        state = KEY_NAME;
+        break;
+    }
+  }
+  NOTREACHED();
+  return -1;
+}
+
+FilePath GetProcessExecutablePath(ProcessHandle process) {
+  FilePath stat_file("/proc");
+  stat_file = stat_file.Append(IntToString(process));
+  stat_file = stat_file.Append("exe");
+  char exename[2048];
+  ssize_t len = readlink(stat_file.value().c_str(), exename, sizeof(exename));
+  if (len < 1) {
+    // No such process.  Happens frequently in e.g. TerminateAllChromeProcesses
+    return FilePath();
+  }
+  return FilePath(std::string(exename, len));
+}
 
 bool ForkApp(const std::vector<std::string>& argv,
              const file_handle_mapping_vector& fds_to_remap,

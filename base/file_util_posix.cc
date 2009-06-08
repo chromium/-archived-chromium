@@ -633,7 +633,7 @@ bool MemoryMappedFile::MapFileToMemory(const FilePath& file_name) {
     file_ = zm->OpenFile(file_name.value().c_str());
     if (file_ == -1) {
       LOG(INFO) << "Zygote manager can't open " << file_name.value()
-                << ", retrying locally";
+                << ", retrying locally.  (OK at start of ui_tests.)";
     }
   }
 #endif  // defined(OS_LINUX)

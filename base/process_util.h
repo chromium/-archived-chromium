@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "base/command_line.h"
+#include "base/file_path.h"
 #include "base/process.h"
 
 #if defined(OS_WIN)
@@ -86,6 +87,14 @@ void CloseProcessHandle(ProcessHandle process);
 // same as Windows' GetProcessId(), but works on versions of Windows before
 // Win XP SP1 as well.
 ProcessId GetProcId(ProcessHandle process);
+
+#if defined(OS_LINUX)
+// Returns the ID for the parent of the given process.
+ProcessId GetParentProcessId(ProcessHandle process);
+
+// Returns the path to the executable of the given process.
+FilePath GetProcessExecutablePath(ProcessHandle process);
+#endif
 
 #if defined(OS_POSIX)
 // Sets all file descriptors to close on exec except for stdin, stdout
