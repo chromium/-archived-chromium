@@ -114,11 +114,11 @@ void ExternalTabContainer::ProcessUnhandledAccelerator(const MSG& msg) {
   DispatchMessage(&msg);
 }
 
-void ExternalTabContainer::SetInitialFocus(bool reverse) {
+void ExternalTabContainer::FocusThroughTabTraversal(bool reverse) {
   DCHECK(tab_contents_);
   if (tab_contents_) {
     static_cast<TabContents*>(tab_contents_)->Focus();
-    static_cast<TabContents*>(tab_contents_)->SetInitialFocus(reverse);
+    static_cast<TabContents*>(tab_contents_)->FocusThroughTabTraversal(reverse);
   }
 }
 
@@ -126,7 +126,7 @@ void ExternalTabContainer::SetInitialFocus(bool reverse) {
 bool ExternalTabContainer::IsExternalTabContainer(HWND window) {
   if (GetProp(window, kWindowObjectKey) != NULL)
     return true;
-  
+
   return false;
 }
 
@@ -378,4 +378,3 @@ void ExternalTabContainer::Uninitialize(HWND window) {
     tab_contents_ = NULL;
   }
 }
-

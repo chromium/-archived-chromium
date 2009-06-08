@@ -362,19 +362,13 @@ class TabContents : public PageNavigator,
   // Returns the bounds of this TabContents in the screen coordinate system.
   void GetContainerBounds(gfx::Rect *out) const;
 
-  // Make the tab the focused window.
+  // Makes the tab the focused window.
   void Focus();
 
-  // Invoked the first time this tab is getting the focus through TAB traversal.
-  // By default this does nothing, but is overridden to set the focus for the
-  // first element in the page.
-  //
-  // |reverse| indicates if the user is going forward or backward, so we know
-  // whether to set the first or last element focus.
-  //
-  // See also SetInitialFocus(no arg).
-  // FIXME(brettw) having two SetInitialFocus that do different things is silly.
-  void SetInitialFocus(bool reverse);
+  // Focuses the first (last if |reverse| is true) element in the page.
+  // Invoked when this tab is getting the focus through tab traversal (|reverse|
+  // is true when using Shift-Tab).
+  void FocusThroughTabTraversal(bool reverse);
 
   // Returns true if the location bar should be focused by default rather than
   // the page contents. The view calls this function when the tab is focused

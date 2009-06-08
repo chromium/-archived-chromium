@@ -44,8 +44,8 @@ class ExternalTabContainer : public TabContentsDelegate,
   // message it did not process
   void ProcessUnhandledAccelerator(const MSG& msg);
 
-  // See TabContents::SetInitialFocus. Called from AutomationProvider.
-  void SetInitialFocus(bool reverse);
+  // See TabContents::FocusThroughTabTraversal.  Called from AutomationProvider.
+  void FocusThroughTabTraversal(bool reverse);
 
   // A helper method that tests whether the given window is an
   // ExternalTabContainer window

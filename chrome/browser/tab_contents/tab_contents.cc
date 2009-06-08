@@ -819,7 +819,7 @@ void TabContents::Focus() {
   view_->Focus();
 }
 
-void TabContents::SetInitialFocus(bool reverse) {
+void TabContents::FocusThroughTabTraversal(bool reverse) {
   render_view_host()->SetInitialFocus(reverse);
 }
 

@@ -148,10 +148,11 @@ void NativeTabContentsContainerWin::AboutToRequestFocusFromTabTraversal(
     return;
   // Give an opportunity to the tab to reset its focus.
   if (container_->tab_contents()->interstitial_page()) {
-    container_->tab_contents()->interstitial_page()->SetInitialFocus(reverse);
+    container_->tab_contents()->interstitial_page()->
+        FocusThroughTabTraversal(reverse);
     return;
   }
-  container_->tab_contents()->SetInitialFocus(reverse);
+  container_->tab_contents()->FocusThroughTabTraversal(reverse);
 }
 
 bool NativeTabContentsContainerWin::GetAccessibleRole(

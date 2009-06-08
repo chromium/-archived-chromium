@@ -362,7 +362,7 @@ void InterstitialPage::Focus() {
   render_view_host_->view()->Focus();
 }
 
-void InterstitialPage::SetInitialFocus(bool reverse) {
+void InterstitialPage::FocusThroughTabTraversal(bool reverse) {
   render_view_host_->SetInitialFocus(reverse);
 }
 

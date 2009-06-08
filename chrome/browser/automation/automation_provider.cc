@@ -2509,7 +2509,7 @@ void AutomationProvider::SetInitialFocus(const IPC::Message& message,
 #if defined(OS_WIN)
   ExternalTabContainer* external_tab = GetExternalTabForHandle(handle);
   if (external_tab) {
-    external_tab->SetInitialFocus(reverse);
+    external_tab->FocusThroughTabTraversal(reverse);
   }
   // This message expects no response.
 #elif defined(OS_POSIX)

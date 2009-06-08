@@ -80,8 +80,9 @@ class InterstitialPage : public NotificationObserver,
   // Sets the focus to the interstitial.
   void Focus();
 
-  // Sets the focus to the interstitial.  Called when tab traversing.
-  void SetInitialFocus(bool reverse);
+  // Focus the first (last if reverse is true) element in the interstitial page.
+  // Called when tab traversing.
+  void FocusThroughTabTraversal(bool reverse);
 
  protected:
   // NotificationObserver method:
