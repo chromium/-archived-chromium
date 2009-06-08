@@ -359,25 +359,17 @@ void ExtensionsService::OnExtensionsLoaded(ExtensionList* new_extensions) {
     }
   }
 
-  // If extensions aren't enabled, we still want to add themes. However, themes
-  // should not trigger EXTENSIONS_LOADED.
-  // TODO(aa): This can be re-enabled when BUG 13128 is fixed.
-  bool has_extension = false;
   for (ExtensionList::iterator iter = new_extensions->begin();
        iter != new_extensions->end(); ++iter) {
-    if (extensions_enabled() || (*iter)->IsTheme()) {
+    if (extensions_enabled() || (*iter)->IsTheme())
       extensions_.push_back(*iter);
-      if (!(*iter)->IsTheme())
-        has_extension = true;
-    }
   }
 
-  if (has_extension) {
-    NotificationService::current()->Notify(
-        NotificationType::EXTENSIONS_LOADED,
-        NotificationService::AllSources(),
-        Details<ExtensionList>(new_extensions));
-  }
+  NotificationService::current()->Notify(
+      NotificationType::EXTENSIONS_LOADED,
+      NotificationService::AllSources(),
+      Details<ExtensionList>(new_extensions));
+
   delete new_extensions;
 }
 

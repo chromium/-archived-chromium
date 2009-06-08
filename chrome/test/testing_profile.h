@@ -106,11 +106,9 @@ class TestingProfile : public Profile {
     return NULL;
   }
   virtual PrefService* GetPrefs() {
-    FilePath prefs_filename;
-    PathService::Get(base::DIR_TEMP, &prefs_filename);
-    prefs_filename =
-        prefs_filename.Append(FILE_PATH_LITERAL("TestPreferences"));
     if (!prefs_.get()) {
+      FilePath prefs_filename =
+          path_.Append(FILE_PATH_LITERAL("TestPreferences"));
       prefs_.reset(new PrefService(prefs_filename, NULL));
       Profile::RegisterUserPrefs(prefs_.get());
       browser::RegisterAllPrefs(prefs_.get(), prefs_.get());

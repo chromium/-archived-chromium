@@ -138,20 +138,9 @@ class ExtensionsServiceTest
     service_->set_extensions_enabled(enabled);
   }
 
-  void TestInstallExtension(const FilePath& path,
-                            bool should_succeed) {
-    InstallExtension(path, should_succeed, false);
-  }
-
-  void TestInstallTheme(const FilePath& path,
-                        bool should_succeed) {
-    InstallExtension(path, should_succeed, true);
-  }
-
  protected:
   void InstallExtension(const FilePath& path,
-                        bool should_succeed,
-                        bool is_theme) {
+                        bool should_succeed) {
     ASSERT_TRUE(file_util::PathExists(path));
     service_->InstallExtension(path);
     loop_.RunAllPending();
@@ -161,19 +150,12 @@ class ExtensionsServiceTest
 
       EXPECT_TRUE(installed_) << path.value();
 
-      // Themes aren't loaded.
-      if (is_theme)
-        EXPECT_EQ(0u, loaded_.size()) << path.value();
-      else
-        EXPECT_EQ(1u, loaded_.size()) << path.value();
-
+      EXPECT_EQ(1u, loaded_.size()) << path.value();
       EXPECT_EQ(0u, errors.size()) << path.value();
       EXPECT_EQ(total_successes_, service_->extensions()->size()) <<
           path.value();
-      if (loaded_.size() > 0) {
-        EXPECT_TRUE(service_->GetExtensionByID(loaded_[0]->id())) <<
-            path.value();
-      }
+      EXPECT_TRUE(service_->GetExtensionByID(loaded_[0]->id())) <<
+          path.value();
       for (std::vector<std::string>::iterator err = errors.begin();
         err != errors.end(); ++err) {
         LOG(ERROR) << *err;
@@ -392,14 +374,14 @@ TEST_F(ExtensionsServiceTest, InstallExtension) {
   // Extensions not enabled.
   SetExtensionsEnabled(false);
   FilePath path = extensions_path.AppendASCII("good.crx");
-  TestInstallExtension(path, false);
+  InstallExtension(path, false);
   SetExtensionsEnabled(true);
 
   ValidatePrefKeyCount(0);
 
   // A simple extension that should install without error.
   path = extensions_path.AppendASCII("good.crx");
-  TestInstallExtension(path, true);
+  InstallExtension(path, true);
   // TODO(erikkay): verify the contents of the installed extension.
 
   int pref_count = 0;
@@ -409,29 +391,29 @@ TEST_F(ExtensionsServiceTest, InstallExtension) {
 
   // An extension with page actions.
   path = extensions_path.AppendASCII("page_action.crx");
-  TestInstallExtension(path, true);
+  InstallExtension(path, true);
   ValidatePrefKeyCount(++pref_count);
   ValidatePref(page_action, L"state", Extension::ENABLED);
   ValidatePref(page_action, L"location", Extension::INTERNAL);
 
   // 0-length extension file.
   path = extensions_path.AppendASCII("not_an_extension.crx");
-  TestInstallExtension(path, false);
+  InstallExtension(path, false);
   ValidatePrefKeyCount(pref_count);
 
   // Bad magic number.
   path = extensions_path.AppendASCII("bad_magic.crx");
-  TestInstallExtension(path, false);
+  InstallExtension(path, false);
   ValidatePrefKeyCount(pref_count);
 
   // Poorly formed JSON.
   path = extensions_path.AppendASCII("bad_json.crx");
-  TestInstallExtension(path, false);
+  InstallExtension(path, false);
   ValidatePrefKeyCount(pref_count);
 
   // Incorrect zip hash.
   path = extensions_path.AppendASCII("bad_hash.crx");
-  TestInstallExtension(path, false);
+  InstallExtension(path, false);
   ValidatePrefKeyCount(pref_count);
 
   // TODO(erikkay): add more tests for many of the failure cases.
@@ -445,7 +427,7 @@ TEST_F(ExtensionsServiceTest, InstallTheme) {
 
   // A theme.
   FilePath path = extensions_path.AppendASCII("theme.crx");
-  TestInstallTheme(path, true);
+  InstallExtension(path, true);
   int pref_count = 0;
   ValidatePrefKeyCount(++pref_count);
   ValidatePref(theme_crx, L"state", Extension::ENABLED);
@@ -455,7 +437,7 @@ TEST_F(ExtensionsServiceTest, InstallTheme) {
   // extensions are disabled.
   SetExtensionsEnabled(false);
   path = extensions_path.AppendASCII("theme2.crx");
-  TestInstallTheme(path, true);
+  InstallExtension(path, true);
   ValidatePrefKeyCount(++pref_count);
   ValidatePref(theme2_crx, L"state", Extension::ENABLED);
   ValidatePref(theme2_crx, L"location", Extension::INTERNAL);
@@ -464,12 +446,12 @@ TEST_F(ExtensionsServiceTest, InstallTheme) {
   // A theme with extension elements. Themes cannot have extension elements so
   // this test should fail.
   path = extensions_path.AppendASCII("theme_with_extension.crx");
-  TestInstallTheme(path, false);
+  InstallExtension(path, false);
   ValidatePrefKeyCount(pref_count);
 
   // A theme with image resources missing (misspelt path).
   path = extensions_path.AppendASCII("theme_missing_image.crx");
-  TestInstallTheme(path, false);
+  InstallExtension(path, false);
   ValidatePrefKeyCount(pref_count);
 }
 
@@ -515,7 +497,7 @@ TEST_F(ExtensionsServiceTest, UninstallExtension) {
 
   // A simple extension that should install without error.
   FilePath path = extensions_path.AppendASCII("good.crx");
-  TestInstallExtension(path, true);
+  InstallExtension(path, true);
 
   // The directory should be there now.
   FilePath install_path = profile_->GetPath().AppendASCII("Extensions");
@@ -549,7 +531,7 @@ TEST_F(ExtensionsServiceTest, UninstallExtension) {
   // Try uinstalling one that doesn't have a Current Version file for some
   // reason.
   unloaded_id_.clear();
-  TestInstallExtension(path, true);
+  InstallExtension(path, true);
   FilePath current_version_file =
       extension_path.AppendASCII(ExtensionsService::kCurrentVersionFileName);
   EXPECT_TRUE(file_util::Delete(current_version_file, true));

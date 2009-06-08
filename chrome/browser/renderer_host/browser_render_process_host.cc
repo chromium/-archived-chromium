@@ -483,9 +483,12 @@ void BrowserRenderProcessHost::InitExtensions() {
 void BrowserRenderProcessHost::SendUserScriptsUpdate(
     base::SharedMemory *shared_memory) {
   base::SharedMemoryHandle handle_for_process;
-  bool r = shared_memory->ShareToProcess(GetRendererProcessHandle(),
-                                         &handle_for_process);
-  DCHECK(r);
+  if (!shared_memory->ShareToProcess(GetRendererProcessHandle(),
+                                     &handle_for_process)) {
+    // This can legitimately fail if the renderer asserts at startup.
+    return;
+  }
+
   if (base::SharedMemory::IsHandleValid(handle_for_process)) {
     channel_->Send(new ViewMsg_UserScripts_UpdatedScripts(handle_for_process));
   }
