@@ -28,6 +28,20 @@ void OnWindowDestroy(GtkWidget* widget,
   manager = NULL;
 }
 
+void SetMenuBarStyle() {
+  static bool style_was_set = false;
+
+  if (style_was_set)
+    return;
+  style_was_set = true;
+
+  gtk_rc_parse_string(
+      "style \"chrome-bm-menubar\" {"
+      "  GtkMenuBar::shadow-type = GTK_SHADOW_NONE"
+      "}"
+      "widget \"*chrome-bm-menubar\" style \"chrome-bm-menubar\"");
+}
+
 }  // namespace
 
 // BookmarkManager -------------------------------------------------------------
@@ -53,6 +67,8 @@ void BookmarkManagerGtk::Show(Profile* profile) {
     return;
   if (!manager)
     manager = new BookmarkManagerGtk(profile);
+  else
+    gtk_window_present(GTK_WINDOW(manager->window_));
 }
 
 void BookmarkManagerGtk::BookmarkManagerGtk::Loaded(BookmarkModel* model) {
@@ -87,29 +103,40 @@ BookmarkManagerGtk::~BookmarkManagerGtk() {
 }
 
 void BookmarkManagerGtk::InitWidgets() {
-  GtkToolItem* organize = gtk_tool_button_new(NULL,
-      l10n_util::GetStringUTF8(IDS_BOOKMARK_MANAGER_ORGANIZE_MENU).c_str());
-  GtkToolItem* tools = gtk_tool_button_new(NULL,
-      l10n_util::GetStringUTF8(IDS_BOOKMARK_MANAGER_TOOLS_MENU).c_str());
+  window_ = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_title(GTK_WINDOW(window_),
+      l10n_util::GetStringUTF8(IDS_BOOKMARK_MANAGER_TITLE).c_str());
+  // TODO(estade): use dimensions based on
+  // IDS_BOOKMARK_MANAGER_DIALOG_WIDTH_CHARS and
+  // IDS_BOOKMARK_MANAGER_DIALOG_HEIGHT_LINES.
+  gtk_window_set_default_size(GTK_WINDOW(window_), 640, 480);
 
-  GtkToolItem* spacer = gtk_separator_tool_item_new();
-  gtk_separator_tool_item_set_draw(GTK_SEPARATOR_TOOL_ITEM(spacer), FALSE);
-  gtk_tool_item_set_expand(spacer, TRUE);
+  std::vector<BookmarkNode*> nodes;
+  organize_menu_.reset(new BookmarkContextMenu(window_, profile_, NULL, NULL,
+      NULL, nodes, BookmarkContextMenu::BOOKMARK_MANAGER_ORGANIZE_MENU));
+
+  GtkWidget* organize = gtk_menu_item_new_with_label(
+      l10n_util::GetStringUTF8(IDS_BOOKMARK_MANAGER_ORGANIZE_MENU).c_str());
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(organize), organize_menu_->menu());
+
+  GtkWidget* tools = gtk_menu_item_new_with_label(
+      l10n_util::GetStringUTF8(IDS_BOOKMARK_MANAGER_TOOLS_MENU).c_str());
+  // TODO(estade): create the tools menu.
+
+  GtkWidget* menu_bar = gtk_menu_bar_new();
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), organize);
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), tools);
+  SetMenuBarStyle();
+  gtk_widget_set_name(menu_bar, "chrome-bm-menubar");
 
   GtkWidget* search_label = gtk_label_new(
       l10n_util::GetStringUTF8(IDS_BOOKMARK_MANAGER_SEARCH_TITLE).c_str());
   GtkWidget* search_entry = gtk_entry_new();
-  GtkWidget* search_hbox = gtk_hbox_new(FALSE, kSearchPadding);
-  gtk_box_pack_start(GTK_BOX(search_hbox), search_label, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(search_hbox), search_entry, FALSE, FALSE, 0);
-  GtkToolItem* search = gtk_tool_item_new();
-  gtk_container_add(GTK_CONTAINER(search), search_hbox);
 
-  GtkWidget* toolbar = gtk_toolbar_new();
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), organize, 0);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tools, 1);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), spacer, 2);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), search, 3);
+  GtkWidget* hbox = gtk_hbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(hbox), menu_bar, FALSE, FALSE, 0);
+  gtk_box_pack_end(GTK_BOX(hbox), search_entry, FALSE, FALSE, 0);
+  gtk_box_pack_end(GTK_BOX(hbox), search_label, FALSE, FALSE, kSearchPadding);
 
   GtkWidget* left_pane = MakeLeftPane();
   GtkWidget* right_pane = MakeRightPane();
@@ -124,16 +151,8 @@ void BookmarkManagerGtk::InitWidgets() {
   gtk_paned_pack2(GTK_PANED(paned), right_pane, TRUE, FALSE);
 
   GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(vbox), toolbar, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(vbox), paned, TRUE, TRUE, 0);
-
-  window_ = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title(GTK_WINDOW(window_),
-      l10n_util::GetStringUTF8(IDS_BOOKMARK_MANAGER_TITLE).c_str());
-  // TODO(estade): use dimensions based on
-  // IDS_BOOKMARK_MANAGER_DIALOG_WIDTH_CHARS and
-  // IDS_BOOKMARK_MANAGER_DIALOG_HEIGHT_LINES.
-  gtk_window_set_default_size(GTK_WINDOW(window_), 640, 480);
   gtk_container_add(GTK_CONTAINER(window_), vbox);
 }
 
@@ -157,13 +176,11 @@ GtkWidget* BookmarkManagerGtk::MakeLeftPane() {
   GtkWidget* scrolled = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled),
                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled),
+                                      GTK_SHADOW_ETCHED_IN);
   gtk_container_add(GTK_CONTAINER(scrolled), left_tree_view_);
 
-  GtkWidget* frame = gtk_frame_new(NULL);
-  gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_ETCHED_IN);
-  gtk_container_add(GTK_CONTAINER(frame), scrolled);
-
-  return frame;
+  return scrolled;
 }
 
 GtkWidget* BookmarkManagerGtk::MakeRightPane() {
@@ -191,6 +208,8 @@ GtkWidget* BookmarkManagerGtk::MakeRightPane() {
   gtk_tree_view_append_column(GTK_TREE_VIEW(right_tree_view_), url_column);
   g_signal_connect(left_selection(), "changed",
                    G_CALLBACK(OnLeftSelectionChanged), this);
+  g_signal_connect(right_selection(), "changed",
+                   G_CALLBACK(OnRightSelectionChanged), this);
 
   gtk_tree_view_enable_model_drag_source(GTK_TREE_VIEW(right_tree_view_),
                                          GDK_BUTTON1_MASK,
@@ -209,13 +228,11 @@ GtkWidget* BookmarkManagerGtk::MakeRightPane() {
   GtkWidget* scrolled = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled),
                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled),
+                                      GTK_SHADOW_ETCHED_IN);
   gtk_container_add(GTK_CONTAINER(scrolled), right_tree_view_);
 
-  GtkWidget* frame = gtk_frame_new(NULL);
-  gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_ETCHED_IN);
-  gtk_container_add(GTK_CONTAINER(frame), scrolled);
-
-  return frame;
+  return scrolled;
 }
 
 void BookmarkManagerGtk::BuildLeftStore() {
@@ -231,7 +248,7 @@ void BookmarkManagerGtk::BuildRightStore() {
   if (!update_right_store_)
     return;
 
-  BookmarkNode* node = GetSelectedNode(left_selection());
+  BookmarkNode* node = GetFolder();
   // TODO(estade): eventually we may hit a fake node here (recently bookmarked
   // or search), but until then we require that node != NULL.
   DCHECK(node);
@@ -256,11 +273,27 @@ BookmarkNode* BookmarkManagerGtk::GetNodeAt(GtkTreeModel* model,
   return model_->GetNodeByID(id);
 }
 
-BookmarkNode* BookmarkManagerGtk::GetSelectedNode(GtkTreeSelection* selection) {
+BookmarkNode* BookmarkManagerGtk::GetFolder() {
   GtkTreeModel* model;
   GtkTreeIter iter;
-  gtk_tree_selection_get_selected(selection, &model, &iter);
+  gtk_tree_selection_get_selected(left_selection(), &model, &iter);
   return GetNodeAt(model, &iter);
+}
+
+std::vector<BookmarkNode*> BookmarkManagerGtk::GetRightSelection() {
+  GtkTreeModel* model;
+  GList* paths = gtk_tree_selection_get_selected_rows(right_selection(),
+                                                      &model);
+  std::vector<BookmarkNode*> nodes;
+  for (GList* item = paths; item; item = item->next) {
+    GtkTreeIter iter;
+    gtk_tree_model_get_iter(model, &iter,
+                            reinterpret_cast<GtkTreePath*>(item->data));
+    nodes.push_back(GetNodeAt(model, &iter));
+  }
+  g_list_free(paths);
+
+  return nodes;
 }
 
 void BookmarkManagerGtk::AppendNodeToRightStore(BookmarkNode* node,
@@ -281,9 +314,25 @@ void BookmarkManagerGtk::ToggleUpdatesToRightStore() {
     BuildRightStore();
 }
 
+// static
 void BookmarkManagerGtk::OnLeftSelectionChanged(GtkTreeSelection* selection,
     BookmarkManagerGtk* bookmark_manager) {
+  // Update the context menu.
+  BookmarkNode* parent = bookmark_manager->GetFolder();
+  bookmark_manager->organize_menu_->set_parent(parent);
+  std::vector<BookmarkNode*> nodes;
+  nodes.push_back(parent);
+  bookmark_manager->organize_menu_->set_selection(nodes);
+
   bookmark_manager->BuildRightStore();
+}
+
+// static
+void BookmarkManagerGtk::OnRightSelectionChanged(GtkTreeSelection* selection,
+    BookmarkManagerGtk* bookmark_manager) {
+  // Update the context menu.
+  bookmark_manager->organize_menu_->set_selection(
+      bookmark_manager->GetRightSelection());
 }
 
 // static
@@ -291,8 +340,8 @@ void BookmarkManagerGtk::OnTreeViewDragGet(
     GtkWidget* tree_view,
     GdkDragContext* context, GtkSelectionData* selection_data,
     guint target_type, guint time, BookmarkManagerGtk* bookmark_manager) {
-  BookmarkNode* node =
-      bookmark_manager->GetSelectedNode(bookmark_manager->right_selection());
+  // TODO(estade): support multiple target drag.
+  BookmarkNode* node = bookmark_manager->GetRightSelection().at(0);
   bookmark_utils::WriteBookmarkToSelection(node, selection_data, target_type,
                                            bookmark_manager->profile_);
 }
@@ -350,7 +399,7 @@ void BookmarkManagerGtk::OnTreeViewDragReceived(
     }
     int idx = !path ? 0 :
         gtk_tree_path_get_indices(path)[gtk_tree_path_get_depth(path) - 1];
-    BookmarkNode* parent = bm->GetSelectedNode(bm->left_selection());
+    BookmarkNode* parent = bm->GetFolder();
 
     bm->ToggleUpdatesToRightStore();
     for (std::vector<BookmarkNode*>::iterator it = nodes.begin();

@@ -364,7 +364,6 @@ void CopyToClipboard(BookmarkModel* model,
 #else
   // TODO(port): Clipboard integration.  Don't we have clipboard
   // implemented somewhere else?
-  NOTIMPLEMENTED();
 #endif
 
   if (remove_nodes) {
@@ -396,7 +395,6 @@ void PasteFromClipboard(BookmarkModel* model,
   bookmark_utils::CloneDragData(model, bookmark_data.elements, parent, index);
 #else
   // TODO(port): Clipboard integration.
-  NOTIMPLEMENTED();
 #endif
 }
 
@@ -414,7 +412,6 @@ bool CanPasteFromClipboard(BookmarkNode* node) {
   return bookmark_data.Read(data_wrapper);
 #else
   // TODO(port): Clipboard integration.
-  NOTIMPLEMENTED();
   return false;
 #endif
 }

@@ -6,7 +6,9 @@
 #define CHROME_BROWSER_GTK_BOOKMARK_MANAGER_GTK_H_
 
 #include <gtk/gtk.h>
+#include <vector>
 
+#include "chrome/browser/bookmarks/bookmark_context_menu.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 
 class BookmarkModel;
@@ -68,8 +70,11 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
   // Get the node from |model| at |iter|.
   BookmarkNode* GetNodeAt(GtkTreeModel* model, GtkTreeIter* iter);
 
-  // Get the node selected in one of the tree views.
-  BookmarkNode* GetSelectedNode(GtkTreeSelection*);
+  // Get the node that is selected in the left tree view.
+  BookmarkNode* GetFolder();
+
+  // Get the nodes that are selected in the right tree view.
+  std::vector<BookmarkNode*> GetRightSelection();
 
   // Stick node in the store that backs the right-side tree view.
   void AppendNodeToRightStore(BookmarkNode* node, GtkTreeIter* iter);
@@ -88,6 +93,9 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
 
   static void OnLeftSelectionChanged(GtkTreeSelection* selection,
                                      BookmarkManagerGtk* bookmark_manager);
+
+  static void OnRightSelectionChanged(GtkTreeSelection* selection,
+                                      BookmarkManagerGtk* bookmark_manager);
 
   static void OnTreeViewDragGet(GtkWidget* tree_view, GdkDragContext* context,
                                 GtkSelectionData* selection_data,
@@ -115,6 +123,8 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
   GtkTreeStore* left_store_;
   GtkListStore* right_store_;
   bool update_right_store_;
+
+  scoped_ptr<BookmarkContextMenu> organize_menu_;
 };
 
 #endif  // CHROME_BROWSER_GTK_BOOKMARK_MANAGER_GTK_H_

@@ -91,6 +91,8 @@ class MenuGtk {
                                gboolean* push_in,
                                void* void_widget);
 
+  GtkWidget* widget() const { return menu_.get(); }
+
  private:
   // A recursive function that transforms a MenuCreateMaterial tree into a set
   // of GtkMenuItems.
@@ -120,6 +122,9 @@ class MenuGtk {
 
   // Sets the check mark and enabled/disabled state on our menu items.
   static void SetMenuItemInfo(GtkWidget* widget, void* raw_menu);
+
+  // Updates all the menu items' state.
+  static void OnMenuShow(GtkWidget* widget, MenuGtk* menu);
 
   // Sets the activating widget back to a normal appearance.
   static void OnMenuHidden(GtkWidget* widget, MenuGtk* menu);

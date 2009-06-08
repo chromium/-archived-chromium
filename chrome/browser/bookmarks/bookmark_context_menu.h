@@ -73,7 +73,16 @@ class BookmarkContextMenu : public BookmarkModelObserver,
 #elif defined(OS_LINUX)
   // Pops up this menu. This call doesn't block.
   void PopupAsContext(guint32 event_time);
+
+  // Returns the menu.
+  GtkWidget* menu() const { return menu_->widget(); }
 #endif
+
+  void set_parent(BookmarkNode* parent) { parent_ = parent; }
+
+  void set_selection(const std::vector<BookmarkNode*>& selection) {
+      selection_ = selection;
+  }
 
   // Menu::Delegate / MenuGtk::Delegate methods.
   virtual void ExecuteCommand(int id);

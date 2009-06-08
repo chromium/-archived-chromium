@@ -40,6 +40,7 @@ MenuGtk::~MenuGtk() {
 }
 
 void MenuGtk::ConnectSignalHandlers() {
+  g_signal_connect(menu_.get(), "show", G_CALLBACK(OnMenuShow), this);
   g_signal_connect(menu_.get(), "hide", G_CALLBACK(OnMenuHidden), this);
 }
 
@@ -81,8 +82,6 @@ void MenuGtk::Popup(GtkWidget* widget, GdkEvent* event) {
 }
 
 void MenuGtk::Popup(GtkWidget* widget, gint button_type, guint32 timestamp) {
-  gtk_container_foreach(GTK_CONTAINER(menu_.get()), SetMenuItemInfo, this);
-
   gtk_menu_popup(GTK_MENU(menu_.get()), NULL, NULL,
                  MenuPositionFunc,
                  widget,
@@ -90,8 +89,6 @@ void MenuGtk::Popup(GtkWidget* widget, gint button_type, guint32 timestamp) {
 }
 
 void MenuGtk::PopupAsContext(guint32 event_time) {
-  gtk_container_foreach(GTK_CONTAINER(menu_.get()), SetMenuItemInfo, this);
-
   // TODO(estade): |button| value of 3 (6th argument) is not strictly true,
   // but does it matter?
   gtk_menu_popup(GTK_MENU(menu_.get()), NULL, NULL, NULL, NULL, 3, event_time);
@@ -281,6 +278,12 @@ void MenuGtk::MenuPositionFunc(GtkMenu* menu,
     *y -= menu_req.height;
 
   *push_in = FALSE;
+}
+
+// static
+void MenuGtk::OnMenuShow(GtkWidget* widget, MenuGtk* menu) {
+  gtk_container_foreach(GTK_CONTAINER(menu->menu_.get()),
+                        SetMenuItemInfo, menu);
 }
 
 // static
