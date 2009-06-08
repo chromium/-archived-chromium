@@ -502,6 +502,12 @@ class V8Proxy {
   void SetSecurityToken();
   void ClearDocumentWrapper();
   void UpdateDocumentWrapper(v8::Handle<v8::Value> wrapper);
+  // The JavaScript wrapper for the document object is cached on the global
+  // object for fast access.  UpdateDocumentWrapperCache sets the wrapper
+  // for the current document on the global object.  ClearDocumentWrapperCache
+  // deletes the document wrapper from the global object.
+  void UpdateDocumentWrapperCache();
+  void ClearDocumentWrapperCache();
   // Dispose global handles of m_contexts and friends.
   void DisposeContextHandles();
 

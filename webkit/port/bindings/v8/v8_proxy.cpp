@@ -1791,6 +1791,24 @@ void V8Proxy::ClearDocumentWrapper()
 }
 
 
+void V8Proxy::UpdateDocumentWrapperCache()
+{
+    v8::HandleScope handle_scope;
+    v8::Context::Scope context_scope(GetContext());
+    v8::Handle<v8::Value> document_wrapper = NodeToV8Object(m_frame->document());
+    m_context->Global()->ForceSet(v8::String::New("document"),
+                                  document_wrapper,
+                                  static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontDelete));
+}
+
+
+void V8Proxy::ClearDocumentWrapperCache()
+{
+    ASSERT(!m_context.IsEmpty());
+    m_context->Global()->ForceDelete(v8::String::New("document"));
+}
+
+
 void V8Proxy::DisposeContextHandles() {
     if (!m_context.IsEmpty()) {
         m_context.Dispose();
@@ -1835,6 +1853,11 @@ void V8Proxy::clearForNavigation()
         ClearDocumentWrapper();
 
         v8::Context::Scope context_scope(m_context);
+
+        // Clear the document wrapper cache before turning on access checks on
+        // the old DOMWindow wrapper.  This way, access to the document wrapper
+        // will be protected by the security checks on the DOMWindow wrapper.
+        ClearDocumentWrapperCache();
 
         // Turn on access check on the old DOMWindow wrapper.
         v8::Handle<v8::Object> wrapper =
@@ -1900,10 +1923,10 @@ void V8Proxy::updateDocument()
         return;
     }
 
-    {
-        v8::HandleScope scope;
-        SetSecurityToken();
-    }
+    // We have a new document and we need to update the cache.
+    UpdateDocumentWrapperCache();
+
+    updateSecurityOrigin();
 }
 
 void V8Proxy::updateSecurityOrigin()
@@ -2180,6 +2203,8 @@ void V8Proxy::InitContextIfNeeded()
   // Insert the window instance as the prototype of the shadow object.
   v8::Handle<v8::Object> v8_global = context->Global();
   v8_global->Set(implicit_proto_string, js_window);
+
+  updateDocument();
 
   SetSecurityToken();
 
