@@ -26,6 +26,8 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/event_utils.h"
+#include "chrome/browser/views/frame/browser_view.h"
+#include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/extensions/extension.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/page_transition_types.h"
@@ -1186,15 +1188,22 @@ void BookmarkBarView::ButtonPressed(views::Button* sender) {
     node = model_->GetBookmarkBarNode()->GetChild(index);
   }
   DCHECK(page_navigator_);
+
+  WindowOpenDisposition disposition_from_event_flags =
+      event_utils::DispositionFromEventFlags(sender->mouse_event_flags());
+
+  // Forcibly reset the location bar if the url is going to change in the
+  // current tab, since otherwise it won't discard any ongoing user edits,
+  // since it doesn't realize this is a user-initiated action.
+  if (disposition_from_event_flags == CURRENT_TAB)
+    browser()->window()->GetLocationBar()->Revert();
+
   if (node->is_url()) {
-    page_navigator_->OpenURL(
-        node->GetURL(), GURL(),
-        event_utils::DispositionFromEventFlags(sender->mouse_event_flags()),
-        PageTransition::AUTO_BOOKMARK);
+    page_navigator_->OpenURL(node->GetURL(), GURL(),
+        disposition_from_event_flags, PageTransition::AUTO_BOOKMARK);
   } else {
-    bookmark_utils::OpenAll(
-        GetWidget()->GetNativeView(), profile_, GetPageNavigator(), node,
-        event_utils::DispositionFromEventFlags(sender->mouse_event_flags()));
+    bookmark_utils::OpenAll(GetWidget()->GetNativeView(), profile_,
+        GetPageNavigator(), node, disposition_from_event_flags);
   }
   UserMetrics::RecordAction(L"ClickedBookmarkBarURLButton", profile_);
 }
