@@ -87,7 +87,13 @@ bool NeedOverrideDefaultUIFont(std::wstring* override_font_family,
 
   std::wstring ui_font_family = GetString(ui_font_family_id);
   int scaler100 = StringToInt(l10n_util::GetString(ui_font_size_scaler_id));
-  if (ui_font_family == L"default" && scaler100 == 100)
+  // We use the OS default in two cases:
+  // 1) The resource bundle has 'default' and '100' for font family and
+  //    font scaler.
+  // 2) The resource bundle is not available for some reason and
+  //    ui_font_family is empty.
+  if (ui_font_family == L"default" && scaler100 == 100 ||
+      ui_font_family.empty())
     return false;
   if (override_font_family && font_size_scaler) {
     override_font_family->swap(ui_font_family);
