@@ -4,6 +4,7 @@
 
 #include "views/widget/widget_gtk.h"
 
+#include "app/gfx/path.h"
 #include "base/compiler_specific.h"
 #include "views/fill_layout.h"
 #include "views/widget/default_theme_provider.h"
@@ -268,6 +269,16 @@ void WidgetGtk::SetBounds(const gfx::Rect& bounds) {
     gtk_window_resize(gtk_window, bounds.width(), bounds.height());
     gtk_window_move(gtk_window, bounds.x(), bounds.y());
   }
+}
+
+void WidgetGtk::SetShape(const gfx::Path& shape) {
+  DCHECK(widget_);
+  DCHECK(widget_->window);
+
+  gdk_window_shape_combine_region(widget_->window, NULL, 0, 0);
+  GdkRegion* region = shape.CreateGdkRegion();
+  gdk_window_shape_combine_region(widget_->window, region, 0, 0);
+  gdk_region_destroy(region);
 }
 
 void WidgetGtk::Close() {

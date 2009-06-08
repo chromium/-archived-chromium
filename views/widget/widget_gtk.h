@@ -71,6 +71,7 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
   // Overridden from Widget:
   virtual void GetBounds(gfx::Rect* out, bool including_frame) const;
   virtual void SetBounds(const gfx::Rect& bounds);
+  virtual void SetShape(const gfx::Path& shape);
   virtual void Close();
   virtual void CloseNow();
   virtual void Show();

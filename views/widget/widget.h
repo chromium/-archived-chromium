@@ -10,6 +10,7 @@
 class ThemeProvider;
 
 namespace gfx {
+class Path;
 class Rect;
 }
 
@@ -48,6 +49,9 @@ class Widget {
 
   // Sizes and/or places the widget to the specified bounds, size or position.
   virtual void SetBounds(const gfx::Rect& bounds) = 0;
+
+  // Sets a shape on the widget.
+  virtual void SetShape(const gfx::Path& shape) = 0;
 
   // Hides the widget then closes it after a return to the message loop.
   virtual void Close() = 0;

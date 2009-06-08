@@ -5,6 +5,7 @@
 #include "views/widget/widget_win.h"
 
 #include "app/gfx/canvas.h"
+#include "app/gfx/path.h"
 #include "app/win_util.h"
 #include "base/gfx/native_theme.h"
 #include "base/string_util.h"
@@ -256,6 +257,10 @@ void WidgetWin::GetBounds(gfx::Rect* out, bool including_frame) const {
 void WidgetWin::SetBounds(const gfx::Rect& bounds) {
   SetWindowPos(NULL, bounds.x(), bounds.y(), bounds.width(), bounds.height(),
                SWP_NOACTIVATE | SWP_NOZORDER);
+}
+
+void WidgetWin::SetShape(const gfx::Path& shape) {
+  SetWindowRgn(shape.CreateHRGN(), TRUE);
 }
 
 void WidgetWin::Close() {
