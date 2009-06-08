@@ -364,7 +364,7 @@ void PasswordFormManager::UpdateLogin() {
 
 void PasswordFormManager::CancelLoginsQuery() {
   PasswordStore* password_store =
-      profile_->GetPasswordStore(Profile::IMPLICIT_ACCESS);
+      profile_->GetPasswordStore(Profile::EXPLICIT_ACCESS);
   if (!password_store) {
     // Can be NULL in unit tests.
     return;
