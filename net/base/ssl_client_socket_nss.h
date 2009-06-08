@@ -97,8 +97,6 @@ class SSLClientSocketNSS : public SSLClientSocket {
   // Set when handshake finishes.
   scoped_refptr<X509Certificate> server_cert_;
   CertVerifyResult server_cert_verify_result_;
-  // Certificate chain.
-  CERTCertList* cert_list_;
 
   CertVerifier verifier_;
 

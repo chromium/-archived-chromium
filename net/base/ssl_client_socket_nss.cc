@@ -197,7 +197,6 @@ SSLClientSocketNSS::SSLClientSocketNSS(ClientSocket* transport_socket,
       ssl_config_(ssl_config),
       user_callback_(NULL),
       user_buf_len_(0),
-      cert_list_(NULL),
       completed_handshake_(false),
       next_state_(STATE_NONE),
       nss_fd_(NULL),
@@ -375,10 +374,6 @@ void SSLClientSocketNSS::Disconnect() {
   user_buf_            = NULL;
   user_buf_len_        = 0;
   server_cert_         = NULL;
-  if (cert_list_) {
-    CERT_DestroyCertList(cert_list_);
-    cert_list_ = NULL;
-  }
   server_cert_verify_result_.Reset();
   completed_handshake_ = false;
   nss_bufs_            = NULL;
@@ -460,10 +455,6 @@ X509Certificate *SSLClientSocketNSS::UpdateServerCert() {
     if (nss_cert) {
       server_cert_ = X509Certificate::CreateFromHandle(
           nss_cert, X509Certificate::SOURCE_FROM_NETWORK);
-      DCHECK(!cert_list_);
-      // TODO(ukai): don't need to copy cert list.
-      cert_list_ = CERT_GetCertChainFromCert(
-          nss_cert, PR_Now(), certUsageSSLCA);
     }
   }
   return server_cert_;
@@ -721,31 +712,36 @@ int SSLClientSocketNSS::DoVerifyCert(int result) {
 // Derived from AuthCertificateCallback() in
 // mozilla/source/security/manager/ssl/src/nsNSSCallbacks.cpp.
 int SSLClientSocketNSS::DoVerifyCertComplete(int result) {
-  if (result == OK && cert_list_) {
+  if (result == OK) {
     // Remember the intermediate CA certs if the server sends them to us.
-    for (CERTCertListNode* node = CERT_LIST_HEAD(cert_list_);
-         !CERT_LIST_END(node, cert_list_);
-         node = CERT_LIST_NEXT(node)) {
-      if (node->cert->slot || node->cert->isRoot || node->cert->isperm ||
-          node->cert == server_cert_->os_cert_handle()) {
-        // Some certs we don't want to remember are:
-        // - found on a token.
-        // - the root cert.
-        // - already stored in perm db.
-        // - the server cert itself.
-        continue;
-      }
+    CERTCertList* cert_list = CERT_GetCertChainFromCert(
+        server_cert_->os_cert_handle(), PR_Now(), certUsageSSLCA);
+    if (cert_list) {
+      for (CERTCertListNode* node = CERT_LIST_HEAD(cert_list);
+           !CERT_LIST_END(node, cert_list);
+           node = CERT_LIST_NEXT(node)) {
+        if (node->cert->slot || node->cert->isRoot || node->cert->isperm ||
+            node->cert == server_cert_->os_cert_handle()) {
+          // Some certs we don't want to remember are:
+          // - found on a token.
+          // - the root cert.
+          // - already stored in perm db.
+          // - the server cert itself.
+          continue;
+        }
 
-      // We have found a CA cert that we want to remember.
-      std::string nickname(GetDefaultCertNickname(node->cert));
-      if (!nickname.empty()) {
-        PK11SlotInfo* slot = PK11_GetInternalKeySlot();
-        if (slot) {
-          PK11_ImportCert(slot, node->cert, CK_INVALID_HANDLE,
-                          const_cast<char*>(nickname.c_str()), PR_FALSE);
-          PK11_FreeSlot(slot);
+        // We have found a CA cert that we want to remember.
+        std::string nickname(GetDefaultCertNickname(node->cert));
+        if (!nickname.empty()) {
+          PK11SlotInfo* slot = PK11_GetInternalKeySlot();
+          if (slot) {
+            PK11_ImportCert(slot, node->cert, CK_INVALID_HANDLE,
+                            const_cast<char*>(nickname.c_str()), PR_FALSE);
+            PK11_FreeSlot(slot);
+          }
         }
       }
+      CERT_DestroyCertList(cert_list);
     }
   }
 
