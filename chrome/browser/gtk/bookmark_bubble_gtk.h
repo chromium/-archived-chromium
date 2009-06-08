@@ -14,10 +14,13 @@
 
 #include <gtk/gtk.h>
 
+#include <vector>
+
 #include "base/basictypes.h"
 #include "chrome/browser/gtk/info_bubble_gtk.h"
 #include "googleurl/src/gurl.h"
 
+class BookmarkNode;
 class Profile;
 namespace gfx {
 class Rect;
@@ -61,6 +64,20 @@ class BookmarkBubbleGtk : public InfoBubbleGtkDelegate {
   }
   void HandleNameActivate();
 
+  static void HandleFolderChangedThunk(GtkWidget* widget,
+                                       gpointer user_data) {
+    return reinterpret_cast<BookmarkBubbleGtk*>(user_data)->
+        HandleFolderChanged();
+  }
+  void HandleFolderChanged();
+
+  static void HandleEditButtonThunk(GtkWidget* widget,
+                                    gpointer user_data) {
+    return reinterpret_cast<BookmarkBubbleGtk*>(user_data)->
+        HandleEditButton();
+  }
+  void HandleEditButton();
+
   static void HandleCloseButtonThunk(GtkWidget* widget,
                                      gpointer user_data) {
     return reinterpret_cast<BookmarkBubbleGtk*>(user_data)->
@@ -78,6 +95,9 @@ class BookmarkBubbleGtk : public InfoBubbleGtkDelegate {
   // Update the bookmark with any edits that have been made.
   void ApplyEdits();
 
+  // Open the bookmark editor for the current url and close the bubble.
+  void ShowEditor();
+
   // Return the UTF8 encoded title for the current |url_|.
   std::string GetTitle();
 
@@ -85,6 +105,9 @@ class BookmarkBubbleGtk : public InfoBubbleGtkDelegate {
   GURL url_;
   // Our current profile (used to access the bookmark system).
   Profile* profile_;
+
+  // The toplevel window our dialogs should be transient for.
+  GtkWindow* transient_toplevel_;
 
   // We let the InfoBubble own our content, and then we delete ourself
   // when the widget is destroyed (when the InfoBubble is destroyed).
@@ -95,6 +118,9 @@ class BookmarkBubbleGtk : public InfoBubbleGtkDelegate {
 
   // The combo box for selecting the bookmark folder.
   GtkWidget* folder_combo_;
+
+  // The bookmark nodes in |folder_combo_|.
+  std::vector<BookmarkNode*> folder_nodes_;
 
   InfoBubbleGtk* bubble_;
 
