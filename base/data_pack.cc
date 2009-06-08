@@ -4,6 +4,8 @@
 
 #include "base/data_pack.h"
 
+#include <errno.h>
+
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/string_piece.h"
@@ -48,8 +50,8 @@ DataPack::~DataPack() {
 bool DataPack::Load(const FilePath& path) {
   mmap_.reset(new file_util::MemoryMappedFile);
   if (!mmap_->Initialize(path)) {
-    mmap_.reset();
-    return false;
+    CHECK(false) << "Failed to mmap " << path.value() << " errno: " <<
+        strerror(errno);
   }
 
   // Parse the header of the file.
