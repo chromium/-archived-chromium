@@ -100,7 +100,9 @@ void RenderProcess::Init() {
 
   if (!command_line.HasSwitch(switches::kDisableOutOfProcessDevTools)) {
     // Out of process dev tools rely upon auto break behavior.
-    webkit_glue::SetJavaScriptFlags(L"--debugger-auto-break");
+    webkit_glue::SetJavaScriptFlags(L"--debugger-auto-break"
+                                    // Enable lazy in-memory profiling.
+                                    L" --prof --prof-lazy --logfile=*");
   }
 
   if (command_line.HasSwitch(switches::kEnableWatchdog)) {

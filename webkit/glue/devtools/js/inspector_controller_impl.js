@@ -29,7 +29,7 @@ devtools.InspectorController.prototype.clearMessages = function() {
  * {@inheritDoc}.
  */
 devtools.InspectorControllerImpl.prototype.hiddenPanels = function() {
-  return 'profiles,databases';
+  return 'databases';
 };
 
 
@@ -149,7 +149,7 @@ devtools.InspectorControllerImpl.prototype.stepOverStatementInDebugger =
 /**
  * @override
  */
-devtools.InspectorControllerImpl.prototype.pauseOnExceptions = function() { 
+devtools.InspectorControllerImpl.prototype.pauseOnExceptions = function() {
   return devtools.tools.getDebuggerAgent().pauseOnExceptions();
 };
 
