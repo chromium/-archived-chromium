@@ -127,9 +127,15 @@ void PrintWebViewHelper::SyncPrint(WebFrame* frame) {
                                           render_view_->host_window(),
                                           default_settings.document_cookie,
                                           expected_pages_count,
+                                          true,  // has_selection
                                           &print_settings);
       if (Send(msg)) {
         msg = NULL;
+
+        // Printing selection only not supported yet.
+        if (print_settings.params.selection_only) {
+          NOTIMPLEMENTED();
+        }
 
         // If the settings are invalid, early quit.
         if (print_settings.params.dpi &&

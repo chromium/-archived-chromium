@@ -92,6 +92,7 @@ class MockRenderThread : public RenderThreadBase {
   void OnScriptedPrint(gfx::NativeViewId host_window,
                        int cookie,
                        int expected_pages_count,
+                       bool has_selection,
                        ViewMsg_PrintPages_Params* settings);
 
   void OnDidGetPrintedPagesCount(int cookie, int number_pages);

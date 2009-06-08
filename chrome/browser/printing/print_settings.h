@@ -30,7 +30,8 @@ class PrintSettings {
   void Init(HDC hdc,
             const DEVMODE& dev_mode,
             const PageRanges& new_ranges,
-            const std::wstring& new_device_name);
+            const std::wstring& new_device_name,
+            bool selection_only);
 #endif
 
   // Set printer printable area in in pixels.
@@ -77,6 +78,9 @@ class PrintSettings {
 
   // The various overlays (headers and footers).
   PageOverlays overlays;
+
+  // Indicates if the user only wants to print the current selection.
+  bool selection_only;
 
   // Cookie generator. It is used to initialize PrintedDocument with its
   // associated PrintSettings, to be sure that each generated PrintedPage is

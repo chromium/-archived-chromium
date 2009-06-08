@@ -66,7 +66,8 @@ void PrintJobWorker::SetNewOwner(PrintJobWorkerOwner* new_owner) {
 
 void PrintJobWorker::GetSettings(bool ask_user_for_settings,
                                  HWND parent_window,
-                                 int document_page_count) {
+                                 int document_page_count,
+                                 bool has_selection) {
   DCHECK_EQ(message_loop(), MessageLoop::current());
   DCHECK_EQ(page_number_, PageNumber::npos());
 
@@ -77,7 +78,8 @@ void PrintJobWorker::GetSettings(bool ask_user_for_settings,
   PrintingContext::Result result;
   if (ask_user_for_settings) {
     result = printing_context_.AskUserForSettings(parent_window,
-                                                  document_page_count);
+                                                  document_page_count,
+                                                  has_selection);
   } else {
     result = printing_context_.UseDefaultSettings();
   }

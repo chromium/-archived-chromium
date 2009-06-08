@@ -199,6 +199,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnScriptedPrint(gfx::NativeViewId host_window,
                        int cookie,
                        int expected_pages_count,
+                       bool has_selection,
                        IPC::Message* reply_msg);
   void OnScriptedPrintReply(
       scoped_refptr<printing::PrinterQuery> printer_query,

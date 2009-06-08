@@ -64,6 +64,7 @@ PrintJobWorker* PrinterQuery::DetachWorker(PrintJobWorkerOwner* new_owner) {
 void PrinterQuery::GetSettings(GetSettingsAskParam ask_user_for_settings,
                                HWND parent_window,
                                int expected_page_count,
+                               bool has_selection,
                                CancelableTask* callback) {
   DCHECK_EQ(ui_message_loop_, MessageLoop::current());
   DCHECK(!is_print_dialog_box_shown_);
@@ -91,7 +92,8 @@ void PrinterQuery::GetSettings(GetSettingsAskParam ask_user_for_settings,
       &PrintJobWorker::GetSettings,
       is_print_dialog_box_shown_,
       parent_window,
-      expected_page_count));
+      expected_page_count,
+      has_selection));
 }
 
 void PrinterQuery::StopWorker() {

@@ -34,7 +34,8 @@ class PrintJobWorker : public base::Thread {
   // Print... dialog box will be shown to ask the user his preference.
   void GetSettings(bool ask_user_for_settings,
                    HWND parent_window,
-                   int document_page_count);
+                   int document_page_count,
+                   bool has_selection);
 
   // Starts the printing loop. Every pages are printed as soon as the data is
   // available. Makes sure the new_document is the right one.

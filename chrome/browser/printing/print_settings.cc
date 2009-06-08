@@ -18,6 +18,7 @@ PrintSettings::PrintSettings()
     : min_shrink(1.25),
       max_shrink(2.0),
       desired_dpi(72),
+      selection_only(false),
       dpi_(0),
       landscape_(false) {
 }
@@ -27,6 +28,7 @@ void PrintSettings::Clear() {
   min_shrink = 1.25;
   max_shrink = 2.;
   desired_dpi = 72;
+  selection_only = false;
   printer_name_.clear();
   device_name_.clear();
   page_setup_pixels_.Clear();
@@ -38,12 +40,14 @@ void PrintSettings::Clear() {
 void PrintSettings::Init(HDC hdc,
                          const DEVMODE& dev_mode,
                          const PageRanges& new_ranges,
-                         const std::wstring& new_device_name) {
+                         const std::wstring& new_device_name,
+                         bool print_selection_only) {
   DCHECK(hdc);
   printer_name_ = dev_mode.dmDeviceName;
   device_name_ = new_device_name;
   ranges = new_ranges;
   landscape_ = dev_mode.dmOrientation == DMORIENT_LANDSCAPE;
+  selection_only = print_selection_only;
 
   dpi_ = GetDeviceCaps(hdc, LOGPIXELSX);
   // No printer device is known to advertise different dpi in X and Y axis; even
@@ -101,6 +105,7 @@ void PrintSettings::RenderParams(ViewMsg_Print_Params* params) const {
   params->desired_dpi = desired_dpi;
   // Always use an invalid cookie.
   params->document_cookie = 0;
+  params->selection_only = selection_only;
 }
 
 bool PrintSettings::Equals(const PrintSettings& rhs) const {

@@ -20,6 +20,7 @@ MockPrinter::MockPrinter()
     max_shrink_(2.0),
     min_shrink_(1.25),
     desired_dpi_(72),
+    selection_only_(false),
     document_cookie_(-1),
     current_document_cookie_(0),
     printer_status_(PRINTER_READY),
@@ -49,6 +50,7 @@ void MockPrinter::GetDefaultPrintSettings(ViewMsg_Print_Params* params) {
   params->max_shrink = max_shrink_;
   params->min_shrink = min_shrink_;
   params->desired_dpi = desired_dpi_;
+  params->selection_only = selection_only_;
   params->document_cookie = document_cookie_;
   params->printable_size.set_width(printable_width_);
   params->printable_size.set_height(printable_height_);
@@ -59,12 +61,14 @@ void MockPrinter::SetDefaultPrintSettings(const ViewMsg_Print_Params& params) {
   max_shrink_ = params.max_shrink;
   min_shrink_ = params.min_shrink;
   desired_dpi_ = params.desired_dpi;
+  selection_only_ = params.selection_only;
   printable_width_ = params.printable_size.width();
   printable_height_ = params.printable_size.height();
 }
 
 void MockPrinter::ScriptedPrint(int cookie,
                                 int expected_pages_count,
+                                bool has_selection,
                                 ViewMsg_PrintPages_Params* settings) {
   // Verify the input parameters.
   EXPECT_EQ(document_cookie_, cookie);
@@ -74,6 +78,7 @@ void MockPrinter::ScriptedPrint(int cookie,
   settings->params.max_shrink = max_shrink_;
   settings->params.min_shrink = min_shrink_;
   settings->params.desired_dpi = desired_dpi_;
+  settings->params.selection_only = selection_only_;
   settings->params.document_cookie = document_cookie_;
   settings->params.printable_size.set_width(printable_width_);
   settings->params.printable_size.set_height(printable_height_);

@@ -105,6 +105,7 @@ class PrinterQuery : public base::RefCountedThreadSafe<PrinterQuery> {
   void GetSettings(GetSettingsAskParam ask_user_for_settings,
                    int parent_window,
                    int expected_page_count,
+                   bool has_selection,
                    CancelableTask* callback) { NOTIMPLEMENTED(); }
   PrintingContext::Result last_status() { return PrintingContext::FAILED; }
   const PrintSettings& settings() { NOTIMPLEMENTED(); return settings_; }

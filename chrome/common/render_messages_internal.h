@@ -1070,10 +1070,11 @@ IPC_BEGIN_MESSAGES(ViewHost)
   // by javascript. This step is about showing UI to the user to select the
   // final print settings. The output parameter is the same as
   // ViewMsg_PrintPages which is executed implicitly.
-  IPC_SYNC_MESSAGE_ROUTED3_1(ViewHostMsg_ScriptedPrint,
+  IPC_SYNC_MESSAGE_ROUTED4_1(ViewHostMsg_ScriptedPrint,
                              gfx::NativeViewId /* host_window */,
                              int /* cookie */,
                              int /* expected_pages_count */,
+                             bool /* has_selection */,
                              ViewMsg_PrintPages_Params /* settings choosen by
                                                           the user*/)
 #endif  // defined(OS_WIN)

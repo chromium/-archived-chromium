@@ -57,6 +57,7 @@ class PrinterQuery : public base::RefCountedThreadSafe<PrinterQuery>,
   void GetSettings(GetSettingsAskParam ask_user_for_settings,
                    HWND parent_window,
                    int expected_page_count,
+                   bool has_selection,
                    CancelableTask* callback);
 
   // Stops the worker thread since the client is done with this object.

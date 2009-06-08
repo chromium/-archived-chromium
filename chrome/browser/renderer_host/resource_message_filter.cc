@@ -692,6 +692,7 @@ void ResourceMessageFilter::OnGetDefaultPrintSettings(IPC::Message* reply_msg) {
   printer_query->GetSettings(printing::PrinterQuery::DEFAULTS,
                              NULL,
                              0,
+                             false,
                              task);
 }
 
@@ -720,6 +721,7 @@ void ResourceMessageFilter::OnGetDefaultPrintSettingsReply(
 void ResourceMessageFilter::OnScriptedPrint(gfx::NativeViewId host_window_id,
                                             int cookie,
                                             int expected_pages_count,
+                                            bool has_selection,
                                             IPC::Message* reply_msg) {
   HWND host_window = gfx::NativeViewFromId(host_window_id);
 
@@ -746,6 +748,7 @@ void ResourceMessageFilter::OnScriptedPrint(gfx::NativeViewId host_window_id,
   printer_query->GetSettings(printing::PrinterQuery::ASK_USER,
                              host_window,
                              expected_pages_count,
+                             has_selection,
                              task);
 }
 

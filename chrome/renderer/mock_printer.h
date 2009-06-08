@@ -100,6 +100,7 @@ class MockPrinter {
   void GetDefaultPrintSettings(ViewMsg_Print_Params* params);
   void ScriptedPrint(int cookie,
                      int expected_pages_count,
+                     bool has_selection,
                      ViewMsg_PrintPages_Params* settings);
   void SetPrintedPagesCount(int cookie, int number_pages);
   void PrintPage(const ViewHostMsg_DidPrintPage_Params& params);
@@ -132,6 +133,9 @@ class MockPrinter {
 
   // Desired apparent dpi on paper.
   int desired_dpi_;
+
+  // Print selection.
+  bool selection_only_;
 
   // Cookie for the document to ensure correctness.
   int document_cookie_;

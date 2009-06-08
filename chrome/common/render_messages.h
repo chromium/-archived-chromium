@@ -291,19 +291,23 @@ struct ViewMsg_Print_Params {
   // Cookie for the document to ensure correctness.
   int document_cookie;
 
+  // Should only print currently selected text.
+  bool selection_only;
+
   // Warning: do not compare document_cookie.
   bool Equals(const ViewMsg_Print_Params& rhs) const {
     return printable_size == rhs.printable_size &&
            dpi == rhs.dpi &&
            min_shrink == rhs.min_shrink &&
            max_shrink == rhs.max_shrink &&
-           desired_dpi == rhs.desired_dpi;
+           desired_dpi == rhs.desired_dpi &&
+           selection_only == rhs.selection_only;
   }
 
   // Checking if the current params is empty. Just initialized after a memset.
   bool IsEmpty() const {
     return !document_cookie && !desired_dpi && !max_shrink && !min_shrink &&
-           !dpi && printable_size.IsEmpty();
+           !dpi && printable_size.IsEmpty() && !selection_only;
   }
 };
 
@@ -1426,6 +1430,7 @@ struct ParamTraits<ViewMsg_Print_Params> {
     WriteParam(m, p.max_shrink);
     WriteParam(m, p.desired_dpi);
     WriteParam(m, p.document_cookie);
+    WriteParam(m, p.selection_only);
   }
   static bool Read(const Message* m, void** iter, param_type* p) {
     return ReadParam(m, iter, &p->printable_size) &&
@@ -1433,7 +1438,8 @@ struct ParamTraits<ViewMsg_Print_Params> {
            ReadParam(m, iter, &p->min_shrink) &&
            ReadParam(m, iter, &p->max_shrink) &&
            ReadParam(m, iter, &p->desired_dpi) &&
-           ReadParam(m, iter, &p->document_cookie);
+           ReadParam(m, iter, &p->document_cookie) &&
+           ReadParam(m, iter, &p->selection_only);
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"<ViewMsg_Print_Params>");
