@@ -97,19 +97,20 @@ void BackingStore::ScrollRect(base::ProcessHandle process,
     // For down scrolls, we copy bottom-up (in screen coordinates).
     // For up scrolls, we copy top-down.
     if (dy > 0) {
-      // Move |x| to the first pixel of this row.
+      // Move |x| to the first pixel of the first row of the clip rect.
+      x += clip_rect.y() * stride;
       x += clip_rect.x() * 4;
 
-      for (int i = clip_rect.y(); i < clip_rect.height() - dy; ++i) {
+      for (int i = 0; i < clip_rect.height() - dy; ++i) {
         memcpy(x, x + stride * dy, len);
         x += stride;
       }
     } else {
       // Move |x| to the first pixel of the last row of the clip rect.
-      x += clip_rect.x() * 4;
       x += (clip_rect.bottom() - 1) * stride;
+      x += clip_rect.x() * 4;
 
-      for (int i = clip_rect.y(); i < clip_rect.height() + dy; ++i) {
+      for (int i = 0; i < clip_rect.height() + dy; ++i) {
         memcpy(x, x + stride * dy, len);
         x -= stride;
       }
