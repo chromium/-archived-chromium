@@ -393,8 +393,7 @@ void LocationBarView::DoLayout(const bool force_layout) {
   for (size_t i = 0; i < page_action_image_views_.size(); i++) {
     if (page_action_image_views_[i]->IsVisible()) {
       page_action_size = page_action_image_views_[i]->GetPreferredSize();
-      entry_width -= (page_action_size.width() + kInnerPadding) *
-                     page_action_image_views_.size();
+      entry_width -= page_action_size.width() + kInnerPadding;
     }
   }
   gfx::Size security_image_size;
@@ -431,16 +430,23 @@ void LocationBarView::DoLayout(const bool force_layout) {
   // TODO(sky): baseline layout.
   int location_y = TopMargin();
   int location_height = std::max(height() - location_y - kVertMargin, 0);
-  if (info_label_.IsVisible()) {
-    info_label_.SetBounds(width() - kEntryPadding - info_label_size.width(),
-                          location_y,
-                          info_label_size.width(), location_height);
-  }
-  const int info_label_width = info_label_size.width() ?
-      info_label_size.width() + kInnerPadding : 0;
 
-  int offset = width() - kEntryPadding - info_label_width -
-      security_image_size.width();
+  // First set the bounds for the label that appears to the right of the
+  // security icon.
+  int offset = width() - kEntryPadding;
+  if (info_label_.IsVisible()) {
+    offset -= info_label_size.width();
+    info_label_.SetBounds(offset, location_y,
+                          info_label_size.width(), location_height);
+    offset -= kInnerPadding;
+  }
+  if (security_image_view_.IsVisible()) {
+    offset -= security_image_size.width();
+    security_image_view_.SetBounds(offset, location_y,
+                                   security_image_size.width(),
+                                   location_height);
+    offset -= kInnerPadding;
+  }
 
   for (size_t i = 0; i < page_action_image_views_.size(); i++) {
     if (page_action_image_views_[i]->IsVisible()) {
@@ -449,12 +455,8 @@ void LocationBarView::DoLayout(const bool force_layout) {
       page_action_image_views_[i]->SetBounds(offset, location_y,
                                              page_action_size.width(),
                                              location_height);
+      offset -= kInnerPadding;
     }
-  }
-  if (security_image_view_.IsVisible()) {
-    security_image_view_.SetBounds(width() - kEntryPadding - info_label_width -
-        security_image_size.width(), location_y, security_image_size.width(),
-        location_height);
   }
   gfx::Rect location_bounds(kEntryPadding, location_y, entry_width,
                             location_height);
