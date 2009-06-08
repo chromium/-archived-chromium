@@ -1046,7 +1046,26 @@ LRESULT CALLBACK WidgetWin::WndProc(HWND window, UINT message,
     widget->hwnd_ = NULL;
     widget->OnFinalMessage(window);
   }
+  if (message == WM_ACTIVATE)
+    PostProcessActivateMessage(widget, LOWORD(w_param));
   return result;
 }
 
+// static
+void WidgetWin::PostProcessActivateMessage(WidgetWin* widget,
+                                           int activation_state) {
+  FocusManager* focus_manager =
+      FocusManager::GetFocusManager(widget->GetNativeView());
+  if (!focus_manager) {
+    NOTREACHED();
+    return;
+  }
+  if (WA_INACTIVE == activation_state) {
+    focus_manager->StoreFocusedView();
+  } else {
+    // We must restore the focus after the message has been DefProc'ed as it
+    // does set the focus to the last focused HWND.
+    focus_manager->RestoreFocusedView();
+  }
+}
 }  // namespace views

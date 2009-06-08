@@ -555,6 +555,11 @@ class WidgetWin : public Widget,
                                   WPARAM w_param,
                                   LPARAM l_param);
 
+  // Called after the WM_ACTIVATE message has been processed by the default
+  // windows procedure.
+  static void PostProcessActivateMessage(WidgetWin* widget,
+                                         int activation_state);
+
   // Gets the window class name to use when creating the corresponding HWND.
   // If necessary, this registers the window class.
   std::wstring GetWindowClassName();

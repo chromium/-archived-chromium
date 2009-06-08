@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "views/focus/focus_manager.h"
+
 #include <algorithm>
 
 #include "build/build_config.h"
@@ -13,7 +15,6 @@
 #include "base/histogram.h"
 #include "base/logging.h"
 #include "views/accelerator.h"
-#include "views/focus/focus_manager.h"
 #include "views/focus/view_storage.h"
 #include "views/view.h"
 #include "views/widget/root_view.h"
@@ -78,20 +79,6 @@ static LRESULT CALLBACK FocusWindowCallback(HWND window, UINT message,
         if (!focus_manager->OnNCDestroy(window))
           return 0;
         break;
-      case WM_ACTIVATE: {
-        // We call the DefWindowProc before calling OnActivate as some of our
-        // windows need the OnActivate notifications.  The default activation on
-        // the window causes it to focus the main window, and since
-        // FocusManager::OnActivate attempts to restore the focused view, it
-        // needs to be called last so the focus it is setting does not get
-        // overridden.
-        LRESULT result = CallWindowProc(original_handler, window, WM_ACTIVATE,
-                                        wParam, lParam);
-        if (!focus_manager->OnPostActivate(window,
-                                           LOWORD(wParam), HIWORD(wParam)))
-          return 0;
-        return result;
-      }
       default:
         break;
     }
@@ -334,17 +321,6 @@ bool FocusManager::OnKeyUp(HWND window, UINT message, WPARAM wparam,
   }
 
   return true;
-}
-
-bool FocusManager::OnPostActivate(HWND window,
-                                  int activation_state,
-                                  int minimized_state) {
-  if (WA_INACTIVE == LOWORD(activation_state)) {
-    StoreFocusedView();
-  } else {
-    RestoreFocusedView();
-  }
-  return false;
 }
 #endif
 

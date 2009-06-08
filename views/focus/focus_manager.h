@@ -189,9 +189,6 @@ class FocusManager {
                UINT message,
                WPARAM wparam,
                LPARAM lparam);
-  // OnPostActivate is called after WM_ACTIVATE has been propagated to the
-  // DefWindowProc.
-  bool OnPostActivate(HWND window, int activation_state, int minimized_state);
 #endif
 
   // Returns true is the specified is part of the hierarchy of the window
