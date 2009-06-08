@@ -90,10 +90,9 @@ TEST_F(ExtensionAPIClientTest, CallbackDispatching) {
   int callback_id = params.c;
   ASSERT_TRUE(callback_id >= 0);
 
-  // Now send the callback a response
-  ExtensionProcessBindings::CallContext call(GetMainFrame(), "CreateTab");
-  ExtensionProcessBindings::ExecuteResponseInFrame(
-    &call, callback_id, true, "{\"foo\":\"bar\"}", "");
+  //// Now send the callback a response
+  ExtensionProcessBindings::HandleResponse(
+      callback_id, true, "{\"foo\":\"bar\"}", "");
 
   // And verify that it worked
   ASSERT_EQ("pass", GetConsoleMessage());

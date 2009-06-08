@@ -168,19 +168,6 @@ void EventBindings::CallFunction(const std::string& function_name,
                                  int argc, v8::Handle<v8::Value>* argv) {
   for (ContextList::iterator it = GetRegisteredContexts().begin();
        it != GetRegisteredContexts().end(); ++it) {
-    DCHECK(!it->IsEmpty());
-    v8::Context::Scope context_scope(*it);
-    v8::Local<v8::Object> global = (*it)->Global();
-
-    v8::Local<v8::Script> script = v8::Script::Compile(
-        v8::String::New(function_name.c_str()));
-    v8::Local<v8::Value> function_obj = script->Run();
-    if (!function_obj->IsFunction())
-      continue;
-
-    v8::Local<v8::Function> function =
-        v8::Local<v8::Function>::Cast(function_obj);
-    if (!function.IsEmpty())
-      function->Call(v8::Object::New(), argc, argv);
+    CallFunctionInContext(*it, function_name, argc, argv);
   }
 }

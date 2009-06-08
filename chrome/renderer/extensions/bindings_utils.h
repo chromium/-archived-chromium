@@ -8,6 +8,7 @@
 #include "app/resource_bundle.h"
 #include "base/singleton.h"
 #include "base/string_piece.h"
+#include "v8/include/v8.h"
 
 #include <string>
 
@@ -31,5 +32,9 @@ const char* GetStringResource() {
 // Returns the current RenderView, based on which V8 context is current.  It is
 // an error to call this when not in a V8 context.
 RenderView* GetRenderViewForCurrentContext();
+
+void CallFunctionInContext(v8::Handle<v8::Context> context,
+                           const std::string& function_name, int argc,
+                           v8::Handle<v8::Value>* argv);
 
 #endif  // CHROME_RENDERER_EXTENSIONS_BINDINGS_UTILS_H_

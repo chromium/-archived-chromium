@@ -5,6 +5,7 @@
 #include "chrome/renderer/extensions/extension_process_bindings.h"
 
 #include "base/singleton.h"
+#include "base/stl_util-inl.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/renderer/extensions/bindings_utils.h"
@@ -33,9 +34,40 @@ const char* kExtensionDeps[] = {
 // |extension_id| -> <List of v8 Contexts for the "views" of that extension>
 typedef std::list< v8::Persistent<v8::Context> > ContextList;
 typedef std::map<std::string, ContextList> ExtensionIdContextsMap;
-struct ExtensionViewContexts {
-  ExtensionIdContextsMap contexts;
+
+// Contains info relevant to a pending request.
+struct CallContext {
+ public :
+  CallContext(v8::Persistent<v8::Context> context, const std::string& name)
+      : context(context), name(name) {
+  }
+  v8::Persistent<v8::Context> context;
+  std::string name;
 };
+typedef std::map<int, CallContext*> PendingRequestMap;
+
+struct SingletonData {
+  std::set<std::string> function_names_;
+  ExtensionIdContextsMap contexts;
+  PendingRequestMap pending_requests;
+
+  ~SingletonData() {
+    STLDeleteContainerPairSecondPointers(pending_requests.begin(),
+                                         pending_requests.end());
+  }
+};
+
+static std::set<std::string>* GetFunctionNameSet() {
+  return &Singleton<SingletonData>()->function_names_;
+}
+
+static ContextList& GetRegisteredContexts(std::string extension_id) {
+  return Singleton<SingletonData>::get()->contexts[extension_id];
+}
+
+static PendingRequestMap& GetPendingRequestMap() {
+  return Singleton<SingletonData>::get()->pending_requests;
+}
 
 class ExtensionImpl : public v8::Extension {
  public:
@@ -69,18 +101,6 @@ class ExtensionImpl : public v8::Extension {
   }
 
  private:
-  struct SingletonData {
-    std::set<std::string> function_names_;
-  };
-
-  static std::set<std::string>* GetFunctionNameSet() {
-    return &Singleton<SingletonData>()->function_names_;
-  }
-
-  static ContextList& GetRegisteredContexts(std::string extension_id) {
-    return Singleton<ExtensionViewContexts>::get()->contexts[extension_id];
-  }
-
   static v8::Handle<v8::Value> RegisterExtension(const v8::Arguments& args) {
     RenderView* renderview = GetRenderViewForCurrentContext();
     DCHECK(renderview);
@@ -100,11 +120,24 @@ class ExtensionImpl : public v8::Extension {
     DCHECK_EQ(args.Length(), 1);
     DCHECK(args[0]->IsString());
 
-    std::string extension_id(*v8::String::Utf8Value(args[0]));
-    ContextList& contexts = GetRegisteredContexts(extension_id);
     v8::Local<v8::Context> current_context = v8::Context::GetCurrent();
     DCHECK(!current_context.IsEmpty());
 
+    // Remove all pending requests for this context.
+    PendingRequestMap pending_requests = GetPendingRequestMap();
+    for (PendingRequestMap::iterator it = pending_requests.begin();
+         it != pending_requests.end(); ) {
+      PendingRequestMap::iterator current = it++;
+      if (current->second->context == current_context) {
+        current->second->context.Dispose();
+        current->second->context.Clear();
+        delete current->second;
+        pending_requests.erase(current);
+      }
+    }
+
+    std::string extension_id(*v8::String::Utf8Value(args[0]));
+    ContextList& contexts = GetRegisteredContexts(extension_id);
     ContextList::iterator it = std::find(contexts.begin(), contexts.end(),
                                          current_context);
     if (it == contexts.end()) {
@@ -149,22 +182,26 @@ class ExtensionImpl : public v8::Extension {
   static v8::Handle<v8::Value> StartRequest(const v8::Arguments& args) {
     // Get the current RenderView so that we can send a routed IPC message from
     // the correct source.
-    WebFrame* webframe = WebFrame::RetrieveFrameForCurrentContext();
     RenderView* renderview = GetRenderViewForCurrentContext();
-    if (!webframe || !renderview)
+    if (!renderview)
       return v8::Undefined();
 
     if (args.Length() != 3 || !args[0]->IsString() || !args[1]->IsInt32() ||
         !args[2]->IsBoolean())
       return v8::Undefined();
 
+    std::string name = *v8::String::AsciiValue(args.Data());
+    std::string json_args = *v8::String::Utf8Value(args[0]);
     int request_id = args[1]->Int32Value();
     bool has_callback = args[2]->BooleanValue();
 
-    renderview->SendExtensionRequest(
-        std::string(*v8::String::AsciiValue(args.Data())),
-        std::string(*v8::String::Utf8Value(args[0])),
-        request_id, has_callback, webframe);
+    v8::Persistent<v8::Context> current_context =
+        v8::Persistent<v8::Context>::New(v8::Context::GetCurrent());
+    DCHECK(!current_context.IsEmpty());
+    GetPendingRequestMap()[request_id] =
+        new CallContext(current_context, *v8::String::AsciiValue(args.Data()));
+
+    renderview->SendExtensionRequest(name, json_args, request_id, has_callback);
 
     return v8::Undefined();
   }
@@ -186,31 +223,23 @@ void ExtensionProcessBindings::RegisterExtensionContext(WebFrame* frame) {
       "chrome.self.register_();")));
 }
 
-void ExtensionProcessBindings::ExecuteResponseInFrame(
-    CallContext *call, int request_id, bool success,
-    const std::string& response,
-    const std::string& error) {
-  std::string code = "chrome.handleResponse_(";
-  code += IntToString(request_id);
+void ExtensionProcessBindings::HandleResponse(int request_id, bool success,
+                                              const std::string& response,
+                                              const std::string& error) {
+  CallContext* call = GetPendingRequestMap()[request_id];
+  if (!call)
+    return;  // The frame went away.
 
-  code += ", '" + call->name_;
+  v8::HandleScope handle_scope;
+  v8::Handle<v8::Value> argv[5];
+  argv[0] = v8::Integer::New(request_id);
+  argv[1] = v8::String::New(call->name.c_str());
+  argv[2] = v8::Boolean::New(success);
+  argv[3] = v8::String::New(response.c_str());
+  argv[4] = v8::String::New(error.c_str());
+  CallFunctionInContext(call->context, "chrome.handleResponse_",
+                        arraysize(argv), argv);
 
-  if (success)
-    code += "', true";
-  else
-    code += "', false";
-
-  code += ", '";
-  size_t offset = code.length();
-  code += response;
-  ReplaceSubstringsAfterOffset(&code, offset, "\\", "\\\\");
-  ReplaceSubstringsAfterOffset(&code, offset, "'", "\\'");
-  code += "', '";
-  offset = code.length();
-  code += error;
-  ReplaceSubstringsAfterOffset(&code, offset, "\\", "\\\\");
-  ReplaceSubstringsAfterOffset(&code, offset, "'", "\\'");
-  code += "')";
-
-  call->frame_->ExecuteScript(WebScriptSource(WebString::fromUTF8(code)));
+  GetPendingRequestMap().erase(request_id);
+  delete call;
 }

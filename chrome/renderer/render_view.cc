@@ -207,13 +207,6 @@ RenderView::~RenderView() {
     it = plugin_delegates_.erase(it);
   }
 
-  // Clear any pending extension api call requests.
-  IDMap<ExtensionProcessBindings::CallContext>::const_iterator call =
-      pending_extension_requests_.begin();
-  for (; call != pending_extension_requests_.end(); ++call) {
-    delete call->second;
-  }
-
   render_thread_->RemoveFilter(debug_message_handler_);
   render_thread_->RemoveFilter(audio_message_filter_);
 }
@@ -1344,23 +1337,6 @@ void RenderView::DidCancelClientRedirect(WebView* webview,
 }
 
 void RenderView::WillCloseFrame(WebView* view, WebFrame* frame) {
-  // Remove all the pending extension callbacks for this frame.
-  if (pending_extension_requests_.IsEmpty())
-    return;
-
-  std::vector<int> orphaned_requests;
-  for (IDMap<ExtensionProcessBindings::CallContext>::const_iterator iter =
-       pending_extension_requests_.begin();
-       iter != pending_extension_requests_.end(); ++iter) {
-    if (iter->second->frame_ == frame)
-      orphaned_requests.push_back(iter->first);
-  }
-
-  for (std::vector<int>::const_iterator iter = orphaned_requests.begin();
-       iter != orphaned_requests.end(); ++iter) {
-    delete pending_extension_requests_.Lookup(*iter);
-    pending_extension_requests_.Remove(*iter);
-  }
 }
 
 void RenderView::DidCompleteClientRedirect(WebView* webview,
@@ -2755,32 +2731,17 @@ void RenderView::OnSetBackground(const SkBitmap& background) {
 void RenderView::SendExtensionRequest(const std::string& name,
                                       const std::string& args,
                                       int request_id,
-                                      bool has_callback,
-                                      WebFrame* request_frame) {
-  DCHECK(request_frame) << "Request specified without frame";
-  pending_extension_requests_.AddWithID(
-      new ExtensionProcessBindings::CallContext(request_frame, name),
-      request_id);
-
+                                      bool has_callback) {
   Send(new ViewHostMsg_ExtensionRequest(routing_id_, name, args, request_id,
-      has_callback));
+                                        has_callback));
 }
 
 void RenderView::OnExtensionResponse(int request_id,
                                      bool success,
                                      const std::string& response,
                                      const std::string& error) {
-  ExtensionProcessBindings::CallContext* call =
-      pending_extension_requests_.Lookup(request_id);
-
-  if (!call)
-    return;  // The frame went away.
-
-  ExtensionProcessBindings::ExecuteResponseInFrame(call, request_id,
-                                                   success, response,
-                                                   error);
-  pending_extension_requests_.Remove(request_id);
-  delete call;
+  ExtensionProcessBindings::HandleResponse(request_id, success, response,
+                                           error);
 }
 
 // Dump all load time histograms.
