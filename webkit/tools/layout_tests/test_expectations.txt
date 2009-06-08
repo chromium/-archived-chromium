@@ -48,7 +48,7 @@ BUG_OJAN SLOW : LayoutTests/http/tests/navigation/multiple-back-forward-entries.
 BUG_OJAN SLOW : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-progress-events.html = PASS
 BUG_OJAN SLOW MAC LINUX : LayoutTests/http/tests/xmlhttprequest/small-chunks-response-text.html = PASS
 BUG_OJAN SLOW WIN RELEASE : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = PASS
-BUG_OJAN SLOW LINUX : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = PASS
+BUG_OJAN SLOW LINUX MAC : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = PASS
 BUG_OJAN SLOW WIN MAC : LayoutTests/svg/custom/invisible-text-after-scrolling.xhtml = PASS
 BUG_OJAN SLOW : LayoutTests/tables/mozilla/other/slashlogo.html = PASS
 
@@ -2209,6 +2209,7 @@ BUG9992 WIN LINUX : LayoutTests/fast/text/shadow-no-blur.html = FAIL
 // Regressions from WebKit merge 43264:42403, unknown cause(s)
 BUG10055 LINUX DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
 BUG10055 MAC : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
+BUG10055 LINUX : LayoutTests/svg/text/text-tselect-02-f.svg = FAIL
 
 // This test was changed upstream in http://trac.webkit.org/changeset/42447
 // to include window.showModalDialog, which we give as undefined.
@@ -2601,9 +2602,6 @@ BUG11898 WIN DEBUG : LayoutTests/svg/dom/SVGScriptElement/script-set-href.svg = 
 BUG11898 WIN DEBUG : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = TIMEOUT PASS
 BUG11898 WIN : LayoutTests/http/tests/xmlhttprequest/web-apps/004.html = CRASH PASS
 
-// This test is marked as Slow on other platforms but still times out on Mac debug
-BUG11812 MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = TIMEOUT
-
 // Need LINUX/Mac rebaselines after WebKit Update 437150:43770
 BUG12053 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test1.html = FAIL
 BUG12053 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test2.html = FAIL
@@ -2658,7 +2656,6 @@ BUG12860 : LayoutTests/http/tests/xmlhttprequest/web-apps/003.html = CRASH PASS
 BUG12860 : LayoutTests/http/tests/xmlhttprequest/uri-resolution-opera-open-006.html = CRASH PASS
 BUG12860 : LayoutTests/http/tests/xmlhttprequest/web-apps/002-simple.html = CRASH PASS
 BUG12860 : LayoutTests/fast/frames/iframe-name-and-id.html = CRASH PASS
-BUG12860 LINUX : LayoutTests/fast/frames/iframe-double-attach.html = CRASH
 
 // WebKit 44202:44252 introduced new tests
 BUG12881 WIN LINUX : LayoutTests/fast/forms/isindex-placeholder.html = FAIL
@@ -2671,8 +2668,6 @@ BUG12881 WIN LINUX : LayoutTests/fast/borders/border-radius-split-inline.html = 
 BUG12882 WIN : LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = FAIL
 BUG12882 WIN : LayoutTests/fast/box-shadow/basic-shadows.html = FAIL
 BUG12882 : LayoutTests/fast/dom/Window/open-existing-pop-up-blocking.html = TIMEOUT
-BUG12882 LINUX : LayoutTests/fast/dom/Window/window-early-properties.html = CRASH
-BUG12882 LINUX : LayoutTests/fast/frames/iframe-js-url-clientWidth.html = CRASH
 
 // WebKit 44252:44286
 BUG13105 REBASELINE MAC WIN : LayoutTests/fast/backgrounds/body-generated-image-propagated-to-root.html = FAIL
