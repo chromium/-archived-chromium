@@ -61,18 +61,21 @@ typedef HWND NativeWindow;
 typedef HWND NativeEditView;
 typedef HDC NativeDrawingContext;
 typedef HCURSOR NativeCursor;
+typedef HMENU NativeMenu;
 #elif defined(OS_MACOSX)
 typedef NSView* NativeView;
 typedef NSWindow* NativeWindow;
 typedef NSTextField* NativeEditView;
 typedef CGContext* NativeDrawingContext;
 typedef void* NativeCursor;
+typedef void* NativeMenu;
 #elif defined(OS_LINUX)
 typedef GtkWidget* NativeView;
 typedef GtkWindow* NativeWindow;
 typedef GtkWidget* NativeEditView;
 typedef cairo_surface_t* NativeDrawingContext;
 typedef GdkCursor* NativeCursor;
+typedef GtkWidget* NativeMenu;
 #endif
 
 // Note: for test_shell we're packing a pointer into the NativeViewId. So, if

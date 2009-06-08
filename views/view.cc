@@ -943,7 +943,7 @@ void View::RemoveAccelerator(const Accelerator& accelerator) {
     return;
   }
 
-  int index = iter - accelerators_->begin();
+  size_t index = iter - accelerators_->begin();
   accelerators_->erase(iter);
   if (index >= registered_accelerator_count_) {
     // The accelerator is not registered to FocusManager.

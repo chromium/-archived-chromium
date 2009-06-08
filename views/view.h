@@ -1180,7 +1180,7 @@ class View : public AcceleratorTarget {
   // [0, registered_accelerator_count_) are already registered to FocusManager,
   // and the rest are not yet.
   scoped_ptr<std::vector<Accelerator> > accelerators_;
-  int registered_accelerator_count_;
+  size_t registered_accelerator_count_;
 
   // The menu controller.
   ContextMenuController* context_menu_controller_;
