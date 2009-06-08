@@ -86,7 +86,7 @@ void BookmarkManagerGtk::BookmarkModelBeingDeleted(BookmarkModel* model) {
 BookmarkManagerGtk::BookmarkManagerGtk(Profile* profile)
     : profile_(profile),
       model_(profile->GetBookmarkModel()),
-      updates_suppressions_(0) {
+      update_suppressions_(0) {
   InitWidgets();
   g_signal_connect(window_, "destroy",
                    G_CALLBACK(OnWindowDestroy), this);
@@ -421,14 +421,14 @@ void BookmarkManagerGtk::OnTreeViewDragReceived(
         gtk_tree_path_get_indices(path)[gtk_tree_path_get_depth(path) - 1];
   }
 
-  br->SuppressUpdatesToRightStore();
+  bm->SuppressUpdatesToRightStore();
   for (std::vector<BookmarkNode*>::iterator it = nodes.begin();
        it != nodes.end(); ++it) {
     // Don't try to drop a node into one of its descendants.
     if (!parent->HasAncestor(*it))
       bm->model_->Move(*it, parent, idx++);
   }
-  bookmark_manager->AllowUpdatesToRightStore();
+  bm->AllowUpdatesToRightStore();
 
   gtk_tree_path_free(path);
   gtk_drag_finish(context, dnd_success, delete_selection_data, time);
@@ -462,7 +462,7 @@ gboolean BookmarkManagerGtk::OnTreeViewDragMotion(
   gtk_tree_view_get_dest_row_at_pos(GTK_TREE_VIEW(tree_view), x, y,
                                     &path, &pos);
 
-  BookmarkNode* parent = bm->GetSelectedNode(bm->left_selection());
+  BookmarkNode* parent = bm->GetFolder();
   if (path) {
     int idx =
         gtk_tree_path_get_indices(path)[gtk_tree_path_get_depth(path) - 1];
