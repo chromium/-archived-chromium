@@ -5,6 +5,7 @@
 #include "views/controls/image_view.h"
 
 #include "app/gfx/canvas.h"
+#include "app/gfx/insets.h"
 #include "base/logging.h"
 
 namespace views {
@@ -53,12 +54,15 @@ void ImageView::ResetImageSize() {
 }
 
 gfx::Size ImageView::GetPreferredSize() {
+  gfx::Insets insets = GetInsets();
   if (image_size_set_) {
     gfx::Size image_size;
     GetImageSize(&image_size);
+    image_size.Enlarge(insets.width(), insets.height());
     return image_size;
   }
-  return gfx::Size(image_.width(), image_.height());
+  return gfx::Size(image_.width() + insets.width(),
+                   image_.height() + insets.height());
 }
 
 void ImageView::ComputeImageOrigin(int image_width, int image_height,
@@ -75,12 +79,14 @@ void ImageView::ComputeImageOrigin(int image_width, int image_height,
       actual_horiz_alignment = TRAILING;
   }
 
+  gfx::Insets insets = GetInsets();
+
   switch(actual_horiz_alignment) {
     case LEADING:
-      *x = 0;
+      *x = insets.left();
       break;
     case TRAILING:
-      *x = width() - image_width;
+      *x = width() - insets.right() - image_width;
       break;
     case CENTER:
       *x = (width() - image_width) / 2;
@@ -91,10 +97,10 @@ void ImageView::ComputeImageOrigin(int image_width, int image_height,
 
   switch (vert_alignment_) {
     case LEADING:
-      *y = 0;
+      *y = insets.top();
       break;
     case TRAILING:
-      *y = height() - image_height;
+      *y = height() - insets.bottom() - image_height;
       break;
     case CENTER:
       *y = (height() - image_height) / 2;

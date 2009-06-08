@@ -43,6 +43,13 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
             const gfx::Rect& bounds,
             bool has_own_focus_manager);
 
+  // Makes the background of the window totally transparent. This must be
+  // invoked before Init. This does a couple of checks and returns true if
+  // the window can be made transparent. The actual work of making the window
+  // transparent is done by ConfigureWidgetForTransparentBackground.
+  bool MakeTransparent();
+  bool is_transparent() const { return transparent_; }
+
   // Sets whether or not we are deleted when the widget is destroyed. The
   // default is true.
   void set_delete_on_destroy(bool delete_on_destroy) {
@@ -126,6 +133,8 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
  private:
   virtual RootView* CreateRootView();
 
+  void OnWindowPaint(GtkWidget* widget, GdkEventExpose* event);
+
   // Process a mouse click
   bool ProcessMousePressed(GdkEventButton* event);
   void ProcessMouseReleased(GdkEventButton* event);
@@ -141,6 +150,9 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
   // TODO(beng): alphabetize!
   static void CallSizeAllocate(GtkWidget* widget, GtkAllocation* allocation);
   static gboolean CallPaint(GtkWidget* widget, GdkEventExpose* event);
+  static gboolean CallWindowPaint(GtkWidget* widget,
+                                  GdkEventExpose* event,
+                                  WidgetGtk* widget_gtk);
   static gboolean CallEnterNotify(GtkWidget* widget, GdkEventCrossing* event);
   static gboolean CallLeaveNotify(GtkWidget* widget, GdkEventCrossing* event);
   static gboolean CallMotionNotify(GtkWidget* widget, GdkEventMotion* event);
@@ -162,6 +174,11 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
 
   // Creates the GtkWidget.
   void CreateGtkWidget();
+
+  // Invoked from create widget to enable the various bits needed for a
+  // transparent background. This is only invoked if MakeTransparent has been
+  // invoked.
+  void ConfigureWidgetForTransparentBackground();
 
   void HandleGrabBroke();
 
@@ -200,6 +217,9 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
 
   // See description above setter.
   bool delete_on_destroy_;
+
+  // See description above make_transparent for details.
+  bool transparent_;
 
   scoped_ptr<DefaultThemeProvider> default_theme_provider_;
 

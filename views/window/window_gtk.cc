@@ -208,7 +208,7 @@ void WindowGtk::UpdateWindowIcon() {
 }
 
 void WindowGtk::SetIsAlwaysOnTop(bool always_on_top) {
-  NOTIMPLEMENTED();
+  gtk_window_set_keep_above(GetNativeWindow(), always_on_top);
 }
 
 NonClientFrameView* WindowGtk::CreateFrameViewForWindow() {

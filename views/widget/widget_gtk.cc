@@ -64,7 +64,8 @@ WidgetGtk::WidgetGtk(Type type)
       has_capture_(false),
       last_mouse_event_was_move_(false),
       ALLOW_THIS_IN_INITIALIZER_LIST(close_widget_factory_(this)),
-      delete_on_destroy_(true) {
+      delete_on_destroy_(true),
+      transparent_(false) {
 }
 
 WidgetGtk::~WidgetGtk() {
@@ -146,6 +147,10 @@ void WidgetGtk::Init(GtkWidget* parent,
 
   g_signal_connect(G_OBJECT(widget_), "destroy",
                    G_CALLBACK(CallDestroy), NULL);
+  if (transparent_) {
+    g_signal_connect(G_OBJECT(widget_), "expose_event",
+                     G_CALLBACK(CallWindowPaint), this);
+  }
 
   // TODO(erg): Ignore these signals for now because they're such a drag.
   //
@@ -170,6 +175,26 @@ void WidgetGtk::Init(GtkWidget* parent,
       gtk_window_resize(GTK_WINDOW(widget_), bounds.width(), bounds.height());
     gtk_window_move(GTK_WINDOW(widget_), bounds.x(), bounds.y());
   }
+}
+
+bool WidgetGtk::MakeTransparent() {
+  // Transparency can only be enabled for windows/popups and only if we haven't
+  // realized the widget.
+  DCHECK(!widget_ && type_ != TYPE_CHILD);
+
+  if (!gdk_screen_is_composited(gdk_screen_get_default())) {
+    // Transparency is only supported for compositing window managers.
+    DLOG(WARNING) << "compsiting not supported";
+    return false;
+  }
+
+  if (!gdk_screen_get_rgba_colormap(gdk_screen_get_default())) {
+    // We need rgba to make the window transparent.
+    return false;
+  }
+
+  transparent_ = true;
+  return true;
 }
 
 void WidgetGtk::AddChild(GtkWidget* child) {
@@ -366,8 +391,10 @@ void WidgetGtk::CreateGtkWidget() {
     gtk_fixed_set_has_window(GTK_FIXED(child_widget_parent_), true);
     gtk_container_add(GTK_CONTAINER(widget_), child_widget_parent_);
     gtk_widget_show(child_widget_parent_);
-
     SetViewForNative(child_widget_parent_, this);
+
+    if (transparent_)
+      ConfigureWidgetForTransparentBackground();
   }
 
   // The widget needs to be realized before handlers like size-allocate can
@@ -483,6 +510,24 @@ RootView* WidgetGtk::CreateRootView() {
   return new RootView(this);
 }
 
+void WidgetGtk::OnWindowPaint(GtkWidget* widget, GdkEventExpose* event) {
+  // NOTE: for reasons I don't understand this code is never hit. It should
+  // be hit when transparent_, but we never get the expose-event for the
+  // window in this case, even though a stand alone test case triggers it. I'm
+  // leaving it in just in case.
+
+  // Fill the background totally transparent. We don't need to paint the root
+  // view here as that is done by OnPaint.
+  DCHECK(transparent_);
+  int width, height;
+  gtk_window_get_size (GTK_WINDOW (widget), &width, &height);
+  cairo_t* cr = gdk_cairo_create(widget->window);
+  cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+  cairo_set_source_rgba(cr, 0, 0, 0, 0);
+  cairo_rectangle(cr, 0, 0, width, height);
+  cairo_fill(cr);
+}
+
 bool WidgetGtk::ProcessMousePressed(GdkEventButton* event) {
   if (event->type == GDK_2BUTTON_PRESS || event->type == GDK_3BUTTON_PRESS) {
     // The sequence for double clicks is press, release, press, 2press, release.
@@ -557,10 +602,19 @@ void WidgetGtk::CallSizeAllocate(GtkWidget* widget, GtkAllocation* allocation) {
   widget_gtk->OnSizeAllocate(widget, allocation);
 }
 
+// static
 gboolean WidgetGtk::CallPaint(GtkWidget* widget, GdkEventExpose* event) {
   WidgetGtk* widget_gtk = GetViewForNative(widget);
   if (widget_gtk)
     widget_gtk->OnPaint(widget, event);
+  return false;  // False indicates other widgets should get the event as well.
+}
+
+// static
+gboolean WidgetGtk::CallWindowPaint(GtkWidget* widget,
+                                    GdkEventExpose* event,
+                                    WidgetGtk* widget_gtk) {
+  widget_gtk->OnWindowPaint(widget, event);
   return false;  // False indicates other widgets should get the event as well.
 }
 
@@ -690,6 +744,37 @@ Window* WidgetGtk::GetWindowImpl(GtkWidget* widget) {
     parent = gtk_widget_get_parent(parent);
   }
   return NULL;
+}
+
+void WidgetGtk::ConfigureWidgetForTransparentBackground() {
+  DCHECK(widget_ && child_widget_parent_ &&
+         widget_ != child_widget_parent_);
+
+  GdkColormap* rgba_colormap =
+      gdk_screen_get_rgba_colormap(gdk_screen_get_default());
+  if (!rgba_colormap) {
+    transparent_ = false;
+    return;
+  }
+  // To make the background transparent we need to install the RGBA colormap
+  // on both the window and fixed. In addition we need to turn off double
+  // buffering and make sure no decorations are drawn. The last bit is to make
+  // sure the widget doesn't attempt to draw a pixmap in it's background.
+  gtk_widget_set_colormap(widget_, rgba_colormap);
+  gtk_widget_set_app_paintable(widget_, true);
+  GTK_WIDGET_UNSET_FLAGS(widget_, GTK_DOUBLE_BUFFERED);
+  gtk_widget_realize(widget_);
+  gdk_window_set_decorations(widget_->window,
+                             static_cast<GdkWMDecoration>(0));
+  // Widget must be realized before setting pixmap.
+  gdk_window_set_back_pixmap(widget_->window, NULL, FALSE);
+
+  gtk_widget_set_colormap(child_widget_parent_, rgba_colormap);
+  gtk_widget_set_app_paintable(child_widget_parent_, true);
+  GTK_WIDGET_UNSET_FLAGS(child_widget_parent_, GTK_DOUBLE_BUFFERED);
+  gtk_widget_realize(child_widget_parent_);
+  // Widget must be realized before setting pixmap.
+  gdk_window_set_back_pixmap(child_widget_parent_->window, NULL, FALSE);
 }
 
 void WidgetGtk::HandleGrabBroke() {

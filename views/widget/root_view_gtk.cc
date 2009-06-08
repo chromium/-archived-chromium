@@ -8,7 +8,7 @@
 
 #include "app/gfx/canvas.h"
 #include "base/logging.h"
-#include "third_party/skia/include/core/SkColor.h"
+#include "views/widget/widget_gtk.h"
 
 namespace views {
 
@@ -16,6 +16,8 @@ void RootView::OnPaint(GdkEventExpose* event) {
   gfx::CanvasPaint canvas(event);
 
   if (!canvas.isEmpty()) {
+    canvas.set_composite_alpha(
+        static_cast<WidgetGtk*>(GetWidget())->is_transparent());
     SchedulePaint(gfx::Rect(canvas.rectangle()), false);
     if (NeedsPainting(false)) {
       ProcessPaint(&canvas);
