@@ -679,6 +679,16 @@ bool BrowserInit::ProcessCmdLineImpl(const CommandLine& command_line,
           profile,
           static_cast<size_t>(expected_tab_count));
     }
+
+    // Extension should be loaded from path which is specified by flag
+    // |kLoadExtension| once and only when the browser process is starting up.
+    if (command_line.HasSwitch(switches::kLoadExtension)) {
+      std::wstring path_string =
+          command_line.GetSwitchValue(switches::kLoadExtension);
+      FilePath path = FilePath::FromWStringHack(path_string);
+      profile->GetExtensionsService()->LoadExtension(path);
+      profile->GetUserScriptMaster()->AddWatchedPath(path);
+    }
   }
 
   // Allow the command line to override the persisted setting of home page.
@@ -697,14 +707,6 @@ bool BrowserInit::ProcessCmdLineImpl(const CommandLine& command_line,
       silent_launch = true;
     CreateAutomationProvider<AutomationProvider>(automation_channel_id,
                                                  profile, expected_tabs);
-  }
-
-  if (command_line.HasSwitch(switches::kLoadExtension)) {
-    std::wstring path_string =
-        command_line.GetSwitchValue(switches::kLoadExtension);
-    FilePath path = FilePath::FromWStringHack(path_string);
-    profile->GetExtensionsService()->LoadExtension(path);
-    profile->GetUserScriptMaster()->AddWatchedPath(path);
   }
 
   if (command_line.HasSwitch(switches::kInstallExtension)) {
