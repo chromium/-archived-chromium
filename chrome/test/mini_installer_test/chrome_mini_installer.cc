@@ -578,7 +578,7 @@ bool ChromeMiniInstaller::GetStandaloneVersion(std::wstring* return_file_name) {
   file_name = file_name.substr(0, last_dot);
   std::wstring::size_type pos = file_name.find(L'_');
   file_name.replace(pos, 1, L".");
-  file_name = L"1.0." + file_name;
+  file_name = L"2.0." + file_name;
   return_file_name->assign(file_name.c_str());
   printf("Standalone installer version is %ls\n", file_name.c_str());
   return true;

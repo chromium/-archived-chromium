@@ -1,6 +1,7 @@
 // Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+#include "base/command_line.h"
 #include "base/platform_thread.h"
 #include "base/win_util.h"
 #include "chrome/installer/util/install_util.h"
@@ -12,6 +13,20 @@
 namespace {
 class MiniInstallTest : public testing::Test {
    protected:
+    void CheckArgs() {
+    // Check command line to decide if the tests should continue
+    // with cleaning the system.
+    const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+    if (command_line.HasSwitch(L"clean")) {
+      CleanTheSystem();
+    } else {
+      printf("This test needs command line Arguments.\n");
+      printf("Usage: mini_installer_tests.exe -clean\n");
+      printf("Note: -clean arg will uninstall your chrome at all levels"
+             "and also delete profile.\n");
+      exit(1);
+    }
+    }
     void CleanTheSystem() {
       ChromeMiniInstaller userinstall(mini_installer_constants::kUserInstall,
           mini_installer_constants::kDevChannelBuild);
@@ -24,9 +39,8 @@ class MiniInstallTest : public testing::Test {
       }
     }
     virtual void SetUp() {
-      CleanTheSystem();
+      CheckArgs();
     }
-
     virtual void TearDown() {
       PlatformThread::Sleep(2000);
       CleanTheSystem();
@@ -100,7 +114,7 @@ TEST_F(MiniInstallTest, DISABLED_MiniInstallerOverChromeMetaInstallerTest) {
   installer.OverInstall();
 }
 
-TEST_F(MiniInstallTest, DISABLED_MiniInstallerSystemInstallTest) {
+TEST_F(MiniInstallTest, MiniInstallerSystemInstallTest) {
   if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
     ChromeMiniInstaller installer(mini_installer_constants::kSystemInstall,
                                   mini_installer_constants::kDevChannelBuild);
@@ -108,7 +122,7 @@ TEST_F(MiniInstallTest, DISABLED_MiniInstallerSystemInstallTest) {
   }
 }
 
-TEST_F(MiniInstallTest, DISABLED_MiniInstallerUserInstallTest) {
+TEST_F(MiniInstallTest, MiniInstallerUserInstallTest) {
   if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
     ChromeMiniInstaller installer(mini_installer_constants::kUserInstall,
                                   mini_installer_constants::kDevChannelBuild);
