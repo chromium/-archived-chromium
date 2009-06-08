@@ -1812,7 +1812,6 @@ BUG10437 LINUX : LayoutTests/fast/css-generated-content/hit-test-generated-conte
 BUG10438 MAC LINUX : LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
 BUG10438 MAC LINUX : LayoutTests/plugins/netscape-plugin-setwindow-size.html = FAIL
 BUG10438 MAC LINUX : LayoutTests/plugins/destroy-stream-twice.html = TIMEOUT
-BUG10438 MAC : LayoutTests/fast/dom/location-new-window-no-crash.html = CRASH FAIL
 
 // Crashes sometimes.  Race?  Memory corruption?
 // Might be related to https://bugs.webkit.org/show_bug.cgi?id=22834
@@ -1898,7 +1897,7 @@ BUG10456 LINUX : LayoutTests/fast/canvas/zero-size-fill-rect.html = CRASH PASS
 // release and debug mode on Linux and Mac.
 //
 //   http://code.google.com/p/v8/issues/detail?id=277
-BUG10457 MAC LINUX : LayoutTests/fast/js/large-expressions.html = FAIL
+BUG10457 MAC : LayoutTests/fast/js/large-expressions.html = FAIL
 BUG10457 DEBUG WIN : LayoutTests/fast/js/large-expressions.html = FAIL
 
 
@@ -2210,7 +2209,6 @@ BUG9992 WIN LINUX : LayoutTests/fast/text/shadow-no-blur.html = FAIL
 // Regressions from WebKit merge 43264:42403, unknown cause(s)
 BUG10055 LINUX DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
 BUG10055 MAC : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
-BUG10055 LINUX : LayoutTests/svg/text/text-tselect-02-f.svg = FAIL
 
 // This test was changed upstream in http://trac.webkit.org/changeset/42447
 // to include window.showModalDialog, which we give as undefined.
@@ -2295,7 +2293,6 @@ BUG11176 LINUX MAC WIN : LayoutTests/fast/forms/input-align-image.html = FAIL PA
 
 // New failures from WebKit Merge 42932:42994
 BUG11604 DEBUG WIN : LayoutTests/transitions/repeated-firing-background-color.html = FAIL PASS
-BUG11604 MAC : LayoutTests/fast/dom/Document/open-with-pending-load.html = CRASH
 
 // New tests from WebKit Merge 42932:42994
 BUG11179 : LayoutTests/http/tests/xmlhttprequest/detaching-frame-2.html = FAIL TIMEOUT
@@ -2361,7 +2358,7 @@ BUG11613 LINUX : LayoutTests/fast/overflow/overflow-x-y.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/parser/entity-comment-in-textarea.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/table/003.html = FAIL
-BUG11613 LINUX MAC : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL TIMEOUT
+BUG11613 LINUX : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL TIMEOUT
 BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug194024.html = FAIL
 BUG11613 LINUX : LayoutTests/tables/mozilla/bugs/bug30559.html = FAIL
 
@@ -2605,7 +2602,7 @@ BUG11898 WIN DEBUG : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = TI
 BUG11898 WIN : LayoutTests/http/tests/xmlhttprequest/web-apps/004.html = CRASH PASS
 
 // This test is marked as Slow on other platforms but still times out on Mac debug
-BUG11812 MAC : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = TIMEOUT
+BUG11812 MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = TIMEOUT
 
 // Need LINUX/Mac rebaselines after WebKit Update 437150:43770
 BUG12053 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test1.html = FAIL
@@ -2650,8 +2647,8 @@ BUG12477 : LayoutTests/http/tests/local/drag-over-remote-content.html = FAIL
 BUG12477 : LayoutTests/http/tests/security/drag-over-remote-content-iframe.html = FAIL
 
 // WebKit 44152-44202 introduced new tests
-BUG12753 : LayoutTests/fast/dynamic/window-resize-scrollbars-test.html = FAIL
-BUG12753 : LayoutTests/fast/dynamic/window-scrollbars-test.html = FAIL
+BUG12753 WIN LINUX : LayoutTests/fast/dynamic/window-resize-scrollbars-test.html = FAIL
+BUG12753 WIN LINUX : LayoutTests/fast/dynamic/window-scrollbars-test.html = FAIL
 
 // WebKit 44202:44252 introduced new crashes. There appears to be some flakyness
 // here where sometimes some tests pass or crash.
@@ -2661,17 +2658,14 @@ BUG12860 : LayoutTests/http/tests/xmlhttprequest/web-apps/003.html = CRASH PASS
 BUG12860 : LayoutTests/http/tests/xmlhttprequest/uri-resolution-opera-open-006.html = CRASH PASS
 BUG12860 : LayoutTests/http/tests/xmlhttprequest/web-apps/002-simple.html = CRASH PASS
 BUG12860 : LayoutTests/fast/frames/iframe-name-and-id.html = CRASH PASS
-BUG12860 LINUX : LayoutTests/http/tests/security/cross-frame-access-delete.html = CRASH
 BUG12860 LINUX : LayoutTests/fast/frames/iframe-double-attach.html = CRASH
-BUG12860 MAC : LayoutTests/fast/frames/frameElement-frame.html = CRASH
-BUG12860 MAC : LayoutTests/fast/frames/iframe-no-src-set-location.html = CRASH
 
 // WebKit 44202:44252 introduced new tests
-BUG12881 : LayoutTests/fast/forms/isindex-placeholder.html = FAIL
-BUG12881 : LayoutTests/fast/box-shadow/border-radius-big.html = FAIL
-BUG12881 : LayoutTests/fast/borders/border-radius-constraints.html = FAIL
-BUG12881 : LayoutTests/fast/borders/border-radius-huge-assert.html = FAIL
-BUG12881 : LayoutTests/fast/borders/border-radius-split-inline.html = FAIL
+BUG12881 WIN LINUX : LayoutTests/fast/forms/isindex-placeholder.html = FAIL
+BUG12881 WIN LINUX : LayoutTests/fast/box-shadow/border-radius-big.html = FAIL
+BUG12881 WIN LINUX : LayoutTests/fast/borders/border-radius-constraints.html = FAIL
+BUG12881 WIN LINUX : LayoutTests/fast/borders/border-radius-huge-assert.html = FAIL
+BUG12881 WIN LINUX : LayoutTests/fast/borders/border-radius-split-inline.html = FAIL
 
 // WebKit 44202:44252 introduced new failures (old tests)
 BUG12882 WIN : LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = FAIL
@@ -2691,7 +2685,3 @@ BUG13174 WIN REBASELINE : LayoutTests/transitions/shorthand-border-transitions.h
 // WebKit 44372:44405	
 // New Linux crashes and failures. Why are we running platform/mac test on Linux?
 BUG13314 LINUX : LayoutTests/platform/mac/accessibility/accesskey.html = CRASH FAIL
-
-// WebKit 44434:44438
-// introduced new layout_tests by webkit 44435
-BUG13417 : LayoutTests/editing/execCommand/convert-style-elements-to-spans.html = FAIL
