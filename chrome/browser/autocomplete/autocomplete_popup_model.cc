@@ -145,32 +145,38 @@ GURL AutocompletePopupModel::URLsForCurrentSelection(
     PageTransition::Type* transition,
     bool* is_history_what_you_typed_match,
     GURL* alternate_nav_url) const {
-  // We need to use the result on the controller, because if the popup is open,
-  // the user changes the contents of the edit, and then presses enter before
-  // any results have been displayed, results_ will be nonempty but wrong.  (In
-  // most other cases, the controller's results will match the popup's.)
-  // TODO(pkasting): If manually_selected_match_ moves to the controller, this
-  // can move to the edit.
-  if (controller_->result().empty())
-    return GURL();
-
-  const AutocompleteResult& result = controller_->result();
+  const AutocompleteResult* result;
   AutocompleteResult::const_iterator match;
   if (!controller_->done()) {
+    result = &controller_->latest_result();
+    // It's technically possible for |result| to be empty if no provider returns
+    // a synchronous result but the query has not completed synchronously;
+    // pratically, however, that should never actually happen.
+    if (result->empty())
+      return GURL();
     // The user cannot have manually selected a match, or the query would have
     // stopped.  So the default match must be the desired selection.
-    match = result.default_match();
+    match = result->default_match();
   } else {
-    // The query isn't running, so the popup can't possibly be out of date.
-    DCHECK(selected_line_ < result.size());
-    match = result.begin() + selected_line_;
+    // The query isn't running, so the standard result set can't possibly be out
+    // of date.
+    //
+    // NOTE: In practice, it should actually be safe to use
+    // controller_->latest_result() here too, since the controller keeps that
+    // up-to-date.  However we generally try to avoid referring to that.
+    result = &controller_->result();
+    // If there are no results, the popup is closed, so URLsForDefaultMatch()
+    // should have been called instead.
+    DCHECK(!result->empty());
+    DCHECK(selected_line_ < result->size());
+    match = result->begin() + selected_line_;
   }
   if (transition)
     *transition = match->transition;
   if (is_history_what_you_typed_match)
     *is_history_what_you_typed_match = match->is_history_what_you_typed_match;
   if (alternate_nav_url && manually_selected_match_.empty())
-    *alternate_nav_url = result.alternate_nav_url();
+    *alternate_nav_url = result->alternate_nav_url();
   return match->destination_url;
 }
 

@@ -703,8 +703,7 @@ void AutocompleteController::Stop(bool clear_result) {
   update_pending_ = false;
   if (clear_result)
     result_.Reset();
-  latest_result_.CopyFrom(result_);  // Not strictly necessary, but keeps
-                                     // internal state consistent.
+  latest_result_.CopyFrom(result_);
   coalesce_timer_.Stop();
   max_delay_timer_.Stop();
 }

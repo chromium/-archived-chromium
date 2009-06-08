@@ -86,6 +86,9 @@ class AutocompletePopupModel : public NotificationObserver {
   // If |alternate_nav_url| is non-NULL, it will be set to the alternate
   // navigation URL for |url| if one exists, or left unchanged otherwise.  See
   // comments on AutocompleteResult::GetAlternateNavURL().
+  //
+  // TODO(pkasting): When manually_selected_match_ moves to the controller, this
+  // can move too.
   GURL URLsForCurrentSelection(
       PageTransition::Type* transition,
       bool* is_history_what_you_typed_match,

@@ -764,6 +764,9 @@ class AutocompleteController : public ACProviderListener {
   // Getters
   const AutocompleteInput& input() const { return input_; }
   const AutocompleteResult& result() const { return result_; }
+  // This next is temporary and should go away when
+  // AutocompletePopup::URLsForCurrentSelection() moves to the controller.
+  const AutocompleteResult& latest_result() const { return latest_result_; }
   const bool done() const { return done_; }
 
   // From AutocompleteProvider::Listener
@@ -777,6 +780,7 @@ class AutocompleteController : public ACProviderListener {
 
   // Copies |latest_result_| to |result_| and notifies observers of updates.
   void CommitResult();
+
   // Returns the matches from |provider| whose destination urls are not in
   // |latest_result_|.
   ACMatches GetMatchesNotInLatestResult(
