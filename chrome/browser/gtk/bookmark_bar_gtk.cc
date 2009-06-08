@@ -147,6 +147,8 @@ void BookmarkBarGtk::Init(Profile* profile) {
   instructions_ = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
   gtk_alignment_set_padding(GTK_ALIGNMENT(instructions_), 0, 0,
                             kInstructionsPadding, 0);
+  g_signal_connect(instructions_, "destroy", G_CALLBACK(gtk_widget_destroyed),
+                   &instructions_);
   GtkWidget* instructions_label = gtk_label_new(
       l10n_util::GetStringUTF8(IDS_BOOKMARKS_NO_ITEMS).c_str());
   gtk_widget_modify_fg(instructions_label, GTK_STATE_NORMAL,
@@ -240,6 +242,10 @@ bool BookmarkBarGtk::OnNewTabPage() {
 }
 
 void BookmarkBarGtk::Loaded(BookmarkModel* model) {
+  // If |instructions_| has been nulled, we are in the middle of browser
+  // shutdown. Do nothing.
+  if (!instructions_)
+    return;
   RemoveAllBookmarkButtons();
 
   BookmarkNode* node = model_->GetBookmarkBarNode();
