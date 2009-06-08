@@ -1,0 +1,70 @@
+<script>
+var windowId = null;  // the browser window this toolstrip is in
+var currentPort = null;  // the port of the currently focused tab
+
+chrome.windows.getCurrent(function(win) {
+  // I think this is guaranteed to be called before our onConnect handler,
+  // because we asked for it first.
+  windowId = win.id;
+});
+
+chrome.self.onConnect.addListener(function (port) {
+  if (port.tab.windowId != windowId)
+    return;
+  port.onMessage.addListener(function (msg, port) {
+    if (msg.queryPassword) {
+      // A page is requesting a site password.
+      openDialog(port);
+    } else if (typeof(msg.canQueryPassword) != "undefined") {
+      currentPort = port;
+      setHasPassword(msg.canQueryPassword);
+    }
+  });
+});
+
+chrome.tabs.onSelectionChanged.addListener(function(tabId, data) {
+  // I think it's safe to assume we get this notification before a message
+  // from the content script about the 'focus' event.
+  if (data.windowId != windowId)
+    return;
+  currentPort = null;
+  setHasPassword(false);
+});
+
+function openHelp() {
+  window.open('help.html', 'PasswordMakerHelp', 'width=800, height=600');
+}
+
+function openDialog(port) {
+  height = Math.min(900, screen.availHeight);
+  var dialog = window.open('passwordmaker.html', 'PasswordMaker',
+                           'width=800, height=' + height);
+  dialog.contentURL = port.tab.url;
+  dialog.contentPort = port;
+}
+
+// ui stuff
+function setHasPassword(val) {
+  var visible = val ? 'hasPassword' : 'notHasPassword';
+  var invisible = !val ? 'hasPassword' : 'notHasPassword';
+  document.getElementById(visible).style.display = '';
+  document.getElementById(invisible).style.display = 'none';
+}
+
+function onClick() {
+  if (currentPort) {
+    openDialog(currentPort);
+  } else {
+    openHelp();
+  }
+}
+
+</script>
+
+<body>
+<div class="toolstrip-button" onclick="onClick()">
+  <img src="favicon.ico">
+  <span id="hasPassword" style="display:none;">Fill Password</span>
+  <span id="notHasPassword">PasswordMaker</span>
+</div>
+</body>
