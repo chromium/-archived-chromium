@@ -76,6 +76,7 @@ function TLEvent(e) {
   this.thread = toHex(e['thread']);
   this.cpu = toHex(e['cpu']);
   this.ms = e['ms'];
+  this.done = e['done'];
   this.e = e;
 }
 
@@ -240,7 +241,8 @@ function(json_data) {
     // If this is the first event ever seen on this thread, create a new
     // thread object and add it to our lists of threads.
     if (!(e.thread in this.threads_by_id)) {
-      var new_thread = new TLThread(e.thread, e.ms, e.ms);
+      var end_ms = e.done ? e.done : e.ms;
+      var new_thread = new TLThread(e.thread, e.ms, end_ms);
       this.threads_by_id[new_thread.id] = this.threads.length;
       this.threads.push(new_thread);
     }
@@ -249,8 +251,9 @@ function(json_data) {
     thread.AddEvent(e);
 
     // Keep trace of the time of the last event seen.
-    if (e.ms > this.endms) this.endms = e.ms;
-    if (e.ms > thread.endms) thread.endms = e.ms;
+    var end_ms = e.done ? e.done : e.ms;
+    if (end_ms > this.endms) this.endms = end_ms;
+    if (end_ms > thread.endms) thread.endms = end_ms;
 
     switch(e.eventtype) {
       case 'EVENT_TYPE_THREADNAME':
@@ -640,8 +643,17 @@ function(dom, scene, startms, curzoom) {
 
   var dur = this.kTimelineWidthPx / curzoom;
 
+  function min(a, b) {
+    return a < b ? a : b;
+  }
+
+  function max(a, b) {
+    return a > b ? a : b;
+  }
+
   function timeToPixel(x) {
-    var x = Math.floor(x*curzoom);
+    // TODO(deanm): This clip is a bit shady.
+    var x = min(max(Math.floor(x*curzoom), -100), 2000);
     return (x == 0 ? 1 : x);
   }
 
@@ -654,10 +666,8 @@ function(dom, scene, startms, curzoom) {
     if (thing.type == SVGSceneRect) {
       var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
       rect.setAttributeNS(null, 'class', thing.klass)
-      // TODO timeToPixel could be negative, clamp it at 0
       rect.setAttributeNS(null, 'x', timeToPixel(thing.x - startms));
       rect.setAttributeNS(null, 'y', thing.y);
-      // TODO thing.width can be larger than our current view, clamp it.
       rect.setAttributeNS(null, 'width', timeToPixel(thing.width));
       rect.setAttributeNS(null, 'height', thing.height);
       rect.msg = thing.msg;
@@ -665,7 +675,6 @@ function(dom, scene, startms, curzoom) {
     } else if (thing.type == SVGSceneLine) {
       var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       line.setAttributeNS(null, 'class', thing.klass)
-      // TODO timeToPixel could be negative, clamp it at 0
       line.setAttributeNS(null, 'x1', timeToPixel(thing.x1 - startms));
       line.setAttributeNS(null, 'y1', thing.y1);
       line.setAttributeNS(null, 'x2', timeToPixel(thing.x2 - startms));

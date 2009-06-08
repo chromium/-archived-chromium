@@ -990,11 +990,11 @@ class Playground {
 
 
   void Patch() {
-    //PatchCreateThread();
-
     if (options_.vista()) {
+      // TODO(deanm): Make PatchCreateThread work on Vista.
       PatchThreadBeginVista();
     } else {
+      PatchCreateThread();
       PatchThreadBegin();
     }
 
@@ -1309,7 +1309,8 @@ int main(int argc, char** argv) {
 
   // Wait until we have been notified that it's exiting.
   if (manual_quit) {
-    printf("Press enter when you want to collect.\n");
+    fprintf(stderr, "Press enter when you want stop tracing and collect.\n");
+    fflush(stderr);
     getchar();
   } else {
     HANDLE whs[] = {exiting, info.hProcess};

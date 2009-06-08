@@ -61,7 +61,11 @@ class SymResolver {
     // The name returned from SymEnumerateModules64 doesn't include the ext,
     // so we can't differentiate between a dll and exe of the same name. So
     // collect all of the base addresses and query for more info.
-    if (SymEnumerateModules64(proc_, &SymEnumer, &bases) != TRUE) {
+    // The prototype changed from PSTR to PCSTR, so in order to support older
+    // SDKs we have to cast SymEnumer.
+    PSYM_ENUMMODULES_CALLBACK64 enumer =
+        reinterpret_cast<PSYM_ENUMMODULES_CALLBACK64>(&SymEnumer);
+    if (SymEnumerateModules64(proc_, enumer, &bases) != TRUE) {
       NOTREACHED("SymEnumerateModules64 failed: %d\n", GetLastError());
     }
     for (size_t i = 0; i < bases.size(); ++i) {
