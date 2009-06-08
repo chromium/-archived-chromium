@@ -200,6 +200,11 @@ class AutocompleteEditViewGtk : public AutocompleteEditView {
   GtkTextTag* insecure_scheme_tag_;
   GtkTextTag* black_text_tag_;
 
+  // The primary selection clipboard for our text view widget.  This is used
+  // for working around some clipboard manager (klipper / glipper) bugs by
+  // removing and adding back the clipboard around inline autocomplete.
+  GtkClipboard* primary_clipboard_;
+
   scoped_ptr<AutocompleteEditModel> model_;
   scoped_ptr<AutocompletePopupViewGtk> popup_view_;
   AutocompleteEditController* controller_;

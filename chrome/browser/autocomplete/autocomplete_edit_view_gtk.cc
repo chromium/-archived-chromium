@@ -44,6 +44,7 @@ AutocompleteEditViewGtk::AutocompleteEditViewGtk(
       base_tag_(NULL),
       secure_scheme_tag_(NULL),
       insecure_scheme_tag_(NULL),
+      primary_clipboard_(NULL),
       model_(new AutocompleteEditModel(this, controller, profile)),
       popup_view_(new AutocompletePopupViewGtk(this, model_.get(), profile,
                                                popup_positioner)),
@@ -138,7 +139,6 @@ void AutocompleteEditViewGtk::Init() {
   // so we don't force a minimum width based on the text length.
   g_signal_connect(text_view_, "size-request",
                    G_CALLBACK(&HandleViewSizeRequestThunk), this);
-
 }
 
 void AutocompleteEditViewGtk::SetFocus() {
@@ -289,7 +289,17 @@ bool AutocompleteEditViewGtk::OnInlineAutocompleteTextMaybeChanged(
     size_t user_text_length) {
   if (display_text == GetText())
     return false;
+  
+  // We need to get the clipboard while it's attached to the toplevel.  The
+  // easiest thing to do is just to lazily pull the clipboard here.
+  if (primary_clipboard_ == NULL) {
+    primary_clipboard_ = gtk_widget_get_clipboard(text_view_,
+                                                  GDK_SELECTION_PRIMARY);
+  }
 
+  // Remove the PRIMARY clipboard to avoid having "clipboard helpers" like
+  // klipper and glipper race with / remove our inline autocomplete selection.
+  gtk_text_buffer_remove_selection_clipboard(text_buffer_, primary_clipboard_);
   SetWindowTextAndCaretPos(display_text, 0);
 
   // Select the part of the text that was inline autocompleted.
@@ -299,6 +309,9 @@ bool AutocompleteEditViewGtk::OnInlineAutocompleteTextMaybeChanged(
   gtk_text_buffer_select_range(text_buffer_, &insert, &bound);
 
   TextChanged();
+  // Put the PRIMARY clipboard back, so that selection still somewhat works.
+  gtk_text_buffer_add_selection_clipboard(text_buffer_, primary_clipboard_);
+
   return true;
 }
 
