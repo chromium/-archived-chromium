@@ -136,9 +136,10 @@ willPositionSheet:(NSWindow *)sheet
     // bar. It will show/hide itself based on the global preference and handle
     // positioning itself (if visible) above the content area, which is why
     // we need to do it after we've placed the toolbar.
-    bookmarkController_.reset([[BookmarkBarController alloc]
+    bookmarkBarController_.reset([[BookmarkBarController alloc]
                                 initWithProfile:browser_->profile()
-                                    contentArea:[self tabContentArea]]);
+                                    contentView:[self tabContentArea]
+                                       delegate:self]);
 
    [self fixWindowGradient];
 
@@ -233,11 +234,11 @@ willPositionSheet:(NSWindow *)sheet
                         defaultFrame:(NSRect)frame {
   // If the shift key is down, maximize. Hopefully this should make the
   // "switchers" happy.
-  if ([[[NSApplication sharedApplication] currentEvent] modifierFlags] & 
+  if ([[[NSApplication sharedApplication] currentEvent] modifierFlags] &
           NSShiftKeyMask) {
     return [[window screen] visibleFrame];
   }
-  
+
   const int kMinimumIntrinsicWidth = 700;
   const int kScrollbarWidth = 16;
   const int kSpaceForIcons = 50;
@@ -428,7 +429,7 @@ willPositionSheet:(NSWindow *)sheet
 
 - (NSView *)selectedTabView {
   return [tabStripController_ selectedTabView];
-}  
+}
 
 - (TabStripController *)tabStripController {
   return tabStripController_;
@@ -462,7 +463,7 @@ willPositionSheet:(NSWindow *)sheet
 - (TabWindowController*)detachTabToNewWindow:(TabView*)tabView {
   // Disable screen updates so that this appears as a single visual change.
   NSDisableScreenUpdates();
-  
+
   // Fetch the tab contents for the tab being dragged
   int index = [tabStripController_ indexForTabView:tabView];
   TabContents* contents = browser_->tabstrip_model()->GetTabContentsAt(index);
@@ -505,7 +506,7 @@ willPositionSheet:(NSWindow *)sheet
 
   // And make sure we use the correct frame in the new view.
   [[controller tabStripController] setFrameOfSelectedTab:tabRect];
-  
+
   NSEnableScreenUpdates();
   return controller;
 }
@@ -526,12 +527,12 @@ willPositionSheet:(NSWindow *)sheet
 }
 
 - (BOOL)isBookmarkBarVisible {
-  return [bookmarkController_ isBookmarkBarVisible];
+  return [bookmarkBarController_ isBookmarkBarVisible];
 
 }
 
 - (void)toggleBookmarkBar {
-  [bookmarkController_ toggleBookmarkBar];
+  [bookmarkBarController_ toggleBookmarkBar];
 }
 
 - (void)addFindBar:(FindBarCocoaController*)findBarCocoaController {
@@ -542,6 +543,15 @@ willPositionSheet:(NSWindow *)sheet
   findBarCocoaController_.reset([findBarCocoaController retain]);
   [[[self window] contentView] addSubview:[findBarCocoaController_ view]];
   [findBarCocoaController_ positionFindBarView:[self tabContentArea]];
+}
+
+// Called by the bookmark bar to open a URL.
+- (void)openBookmarkURL:(const GURL&)url
+            disposition:(WindowOpenDisposition)disposition {
+  TabContents* tab_contents = browser_->GetSelectedTabContents();
+  DCHECK(tab_contents);
+  tab_contents->OpenURL(url, GURL(), disposition,
+                        PageTransition::AUTO_BOOKMARK);
 }
 
 - (NSInteger)numberOfTabs {
@@ -637,7 +647,7 @@ willPositionSheet:(NSWindow *)sheet
 - (void)tabContentAreaFrameChanged:(id)sender {
   // TODO(rohitrao): This is triggered by window resizes also.  Make
   // sure we aren't doing anything wasteful in those cases.
-  [bookmarkController_ resizeBookmarkBar];
+  [bookmarkBarController_ resizeBookmarkBar];
 
   if (findBarCocoaController_.get()) {
     [findBarCocoaController_ positionFindBarView:[self tabContentArea]];
@@ -694,7 +704,7 @@ willPositionSheet:(NSWindow *)sheet
   NSArray* views = [super viewsToMoveToOverlay];
   NSArray* browserViews =
       [NSArray arrayWithObjects:[toolbarController_ view],
-                                [bookmarkController_ view],
+                                [bookmarkBarController_ view],
                                 nil];
   return [views arrayByAddingObjectsFromArray:browserViews];
 }

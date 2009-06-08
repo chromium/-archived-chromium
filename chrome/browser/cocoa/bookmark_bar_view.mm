@@ -2,5 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// This file is intentionally empty; there is no code in
-// ToolbarButtonCell to test.
+#include "chrome/browser/cocoa/bookmark_bar_view.h"
+
+@implementation BookmarkBarView
+@end

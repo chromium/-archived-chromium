@@ -6,20 +6,21 @@
 #define CHROME_BROWSER_COCOA_TOOLBAR_BUTTON_CELL_H_
 
 #import <Cocoa/Cocoa.h>
+#import "chrome/browser/cocoa/gradient_button_cell.h"
 
-// A button cell that handles drawing/highlighting of buttons in the
-// toolbar bar. The appearance is determined by setting the cell's tag (not the
-// view's) to one of the constants below (ButtonType).
+// A button cell for the toolbar.
 
-enum {
-  kLeftButtonType = -1,
-  kLeftButtonWithShadowType = -2,
-  kStandardButtonType = 0,
-  kRightButtonType = 1,
-};
-typedef NSInteger ButtonType;
+// TODO(jrg): Why have a class at all when the base class does it all?
+// I anticipate making changes for extensions.  Themes may also
+// require changes.  I don't yet know if those will be common across
+// the toolbar and bookmark bar or not.  The initial CL which made
+// this empty was the use of the base class for both toolbar and
+// bookmark bar button cells.  It seems wasteful to remove the files
+// then add them back in soon after.
+// TODO(jrg): If no differences come up, remove this file and use
+// the base class explicitly for both the toolbar and bookmark bar.
 
-@interface ToolbarButtonCell : NSButtonCell {
+@interface ToolbarButtonCell : GradientButtonCell {
 }
 @end
 

@@ -202,8 +202,10 @@ class BrowserWindow {
   virtual void DestroyBrowser() = 0;
 };
 
+#if defined(OS_WIN)
 class BookmarkBarView;
 class LocationBarView;
+#endif
 
 // A BrowserWindow utility interface used for accessing elements of the browser
 // UI used only by UI test automation.

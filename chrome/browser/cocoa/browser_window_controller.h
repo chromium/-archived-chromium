@@ -15,8 +15,8 @@
 #include "base/scoped_nsobject.h"
 #include "base/scoped_ptr.h"
 #import "chrome/browser/cocoa/tab_window_controller.h"
+#import "chrome/browser/cocoa/bookmark_bar_controller.h"
 
-@class BookmarkBarController;
 class Browser;
 class BrowserWindow;
 class BrowserWindowCocoa;
@@ -31,7 +31,7 @@ class TabStripModelObserverBridge;
 @class ToolbarController;
 
 @interface BrowserWindowController :
-    TabWindowController<NSUserInterfaceValidations> {
+  TabWindowController<NSUserInterfaceValidations,BookmarkURLOpener> {
  @private
   // The ordering of these members is important as it determines the order in
   // which they are destroyed. |browser_| needs to be destroyed last as most of
@@ -46,7 +46,7 @@ class TabStripModelObserverBridge;
   scoped_ptr<TabStripModelObserverBridge> tabObserver_;
   scoped_ptr<BrowserWindowCocoa> windowShim_;
   scoped_nsobject<ToolbarController> toolbarController_;
-  scoped_nsobject<BookmarkBarController> bookmarkController_;
+  scoped_nsobject<BookmarkBarController> bookmarkBarController_;
   scoped_nsobject<TabStripController> tabStripController_;
   scoped_nsobject<FindBarCocoaController> findBarCocoaController_;
   scoped_ptr<StatusBubble> statusBubble_;

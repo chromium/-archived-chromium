@@ -21,7 +21,8 @@ class BookmarkBarControllerTest : public testing::Test {
     content_area_.reset([[NSView alloc] initWithFrame:content_frame]);
     bar_.reset(
         [[BookmarkBarController alloc] initWithProfile:helper_.profile()
-                                           contentArea:content_area_.get()]);
+                                           contentView:content_area_.get()
+                                              delegate:nil]);
     NSView* parent = cocoa_helper_.contentView();
     [parent addSubview:content_area_.get()];
     [parent addSubview:[bar_ view]];
@@ -51,8 +52,36 @@ TEST_F(BookmarkBarControllerTest, ShowHide) {
   EXPECT_EQ(content_frame.size.height, kContentAreaHeight);
 }
 
+// TODO(jrg): replace getTabContents
+TEST_F(BookmarkBarControllerTest, OpenBookmark) {
+}
+
+// TODO(jrg): Make sure showing the bookmark bar calls loaded: (to process bookmarks)
+TEST_F(BookmarkBarControllerTest, ShowAndLoad) {
+}
+
+// TODO(jrg): Make sure a cleared bar has no subviews
+TEST_F(BookmarkBarControllerTest, Clear) {
+}
+
+// TODO(jrg): Make sure loaded: does something useful
+TEST_F(BookmarkBarControllerTest, Loaded) {
+  // Clear; make sure no views
+  // Call loaded:
+  // Make sure subviews
+}
+
+// TODO(jrg): Test cellForBookmarkNode:
+TEST_F(BookmarkBarControllerTest, Cell) {
+}
+
+// TODO(jrg): Test frameForBookmarkAtIndex
+TEST_F(BookmarkBarControllerTest, FrameAtIndex) {
+}
+
 TEST_F(BookmarkBarControllerTest, Contents) {
-  // TODO(jrg): When there are items on the bar, flesh this out.
+  // TODO(jrg): addNodesToBar has a LOT of TODOs; when flushed out, write
+  // appropriate tests.
 }
 
 // Test drawing, mostly to ensure nothing leaks or crashes.

@@ -31,7 +31,7 @@ class BookmarkMenuBridge : public BookmarkModelObserver,
                            public BrowserList::Observer {
  public:
   BookmarkMenuBridge();
-  ~BookmarkMenuBridge();
+  virtual ~BookmarkMenuBridge();
 
   // Overridden from BookmarkModelObserver
   virtual void Loaded(BookmarkModel* model);

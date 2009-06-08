@@ -3,4 +3,4 @@
 // found in the LICENSE file.
 
 // This file is intentionally empty; there is no code in
-// ToolbarButtonCell to test.
+// BookmarkBarView to test yet.
