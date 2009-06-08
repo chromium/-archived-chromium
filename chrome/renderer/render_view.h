@@ -380,7 +380,8 @@ class RenderView : public RenderWidget,
   void OnClearFocusedNode();
 
   void SendExtensionRequest(const std::string& name, const std::string& args,
-                            int request_id, bool has_callback);
+                            int request_id, bool has_callback,
+                            WebFrame* web_frame);
   void OnExtensionResponse(int request_id, bool success,
                            const std::string& response,
                            const std::string& error);
@@ -776,6 +777,9 @@ class RenderView : public RenderWidget,
   // browser process with every little thing that changes. This normally doesn't
   // change but is overridden by tests.
   int delay_seconds_for_form_state_sync_;
+
+  // Maps pending request IDs to their frames.
+  IDMap<ExtensionProcessBindings::CallContext> pending_extension_requests_;
 
   scoped_refptr<AudioMessageFilter> audio_message_filter_;
 
