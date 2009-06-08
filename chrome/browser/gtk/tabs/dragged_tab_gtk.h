@@ -13,7 +13,6 @@
 #include "base/gfx/size.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
-#include "chrome/common/owned_widget_gtk.h"
 
 class ChromeCanvas;
 class TabContents;
