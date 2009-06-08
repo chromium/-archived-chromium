@@ -1,14 +1,8 @@
-// Copyright (c) 2008 The Chromium Authors. All rights reserved.  Use of this
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.  Use of this
 // source code is governed by a BSD-style license that can be found in the
 // LICENSE file.
 
-// Implementation of BlockedPopupContainer and its corresponding View
-// class. The BlockedPopupContainer is the sort of Model class which owns the
-// blocked popups' TabContents (but like most Chromium interface code, it there
-// isn't a strict Model/View separation), and BlockedPopupContainerView
-// presents the user interface controls, creates and manages the popup menu.
-
-#include "chrome/browser/views/blocked_popup_container_view.h"
+#include "chrome/browser/views/blocked_popup_container_view_win.h"
 
 #include <math.h>
 #include <windows.h>
@@ -40,13 +34,6 @@ const SkColor kBackgroundColorBottom = SkColorSetRGB(250, 230, 145);
 // The border color of the blocked popup notification. This is the same as the
 // border around the inside of the tab contents.
 const SkColor kBorderColor = SkColorSetRGB(190, 205, 223);
-// Thickness of the border.
-const int kBorderSize = 1;
-
-// Duration of the showing/hiding animations.
-const int kShowAnimationDurationMS = 200;
-const int kHideAnimationDurationMS = 120;
-const int kFramerate = 25;
 
 // So that the MenuButton doesn't change its size as its text changes, during
 // construction we feed it the strings it will be displaying, so it can set the
@@ -76,8 +63,60 @@ const SkScalar kRoundedCornerRad[8] = {
 
 }  // namespace
 
-BlockedPopupContainerView::BlockedPopupContainerView(
-    BlockedPopupContainerImpl* container)
+
+// The view presented to the user notifying them of the number of popups
+// blocked. This view should only be used inside of BlockedPopupContainer.
+class BlockedPopupContainerInternalView : public views::View,
+                                  public views::ButtonListener,
+                                  public views::Menu::Delegate {
+ public:
+  explicit BlockedPopupContainerInternalView(
+      BlockedPopupContainerViewWin* container);
+  ~BlockedPopupContainerInternalView();
+
+  // Sets the label on the menu button.
+  void UpdateLabel();
+
+  std::wstring label() const { return popup_count_label_->text(); }
+
+  // Overridden from views::View:
+
+  // Paints our border and background. (Does not paint children.)
+  virtual void Paint(gfx::Canvas* canvas);
+  // Sets positions of all child views.
+  virtual void Layout();
+  // Gets the desired size of the popup notification.
+  virtual gfx::Size GetPreferredSize();
+
+  // Overridden from views::ButtonListener:
+  virtual void ButtonPressed(views::Button* sender);
+
+  // Overridden from Menu::Delegate:
+
+  // Displays the status of the "Show Blocked Popup Notification" item.
+  virtual bool IsItemChecked(int id) const;
+  // Called after user clicks a menu item.
+  virtual void ExecuteCommand(int id);
+
+ private:
+  // Our owner and HWND parent.
+  BlockedPopupContainerViewWin* container_;
+
+  // The button which brings up the popup menu.
+  views::MenuButton* popup_count_label_;
+
+  // Our "X" button.
+  views::ImageButton* close_button_;
+
+  // Popup menu shown to user.
+  scoped_ptr<views::Menu> launch_menu_;
+
+  DISALLOW_IMPLICIT_CONSTRUCTORS(BlockedPopupContainerInternalView);
+};
+
+
+BlockedPopupContainerInternalView::BlockedPopupContainerInternalView(
+    BlockedPopupContainerViewWin* container)
     : container_(container) {
   ResourceBundle &resource_bundle = ResourceBundle::GetSharedInstance();
 
@@ -108,10 +147,10 @@ BlockedPopupContainerView::BlockedPopupContainerView(
   UpdateLabel();
 }
 
-BlockedPopupContainerView::~BlockedPopupContainerView() {
+BlockedPopupContainerInternalView::~BlockedPopupContainerInternalView() {
 }
 
-void BlockedPopupContainerView::UpdateLabel() {
+void BlockedPopupContainerInternalView::UpdateLabel() {
   size_t blocked_popups = container_->GetBlockedPopupCount();
   popup_count_label_->SetText((blocked_popups > 0) ?
       l10n_util::GetStringF(IDS_POPUPS_BLOCKED_COUNT,
@@ -121,7 +160,7 @@ void BlockedPopupContainerView::UpdateLabel() {
   SchedulePaint();
 }
 
-void BlockedPopupContainerView::Paint(gfx::Canvas* canvas) {
+void BlockedPopupContainerInternalView::Paint(gfx::Canvas* canvas) {
   // Draw the standard background.
   View::Paint(canvas);
 
@@ -138,7 +177,7 @@ void BlockedPopupContainerView::Paint(gfx::Canvas* canvas) {
   canvas->drawPath(border_path, border_paint);
 }
 
-void BlockedPopupContainerView::Layout() {
+void BlockedPopupContainerInternalView::Layout() {
   gfx::Size panel_size = GetPreferredSize();
   gfx::Size button_size = close_button_->GetPreferredSize();
   gfx::Size size = popup_count_label_->GetPreferredSize();
@@ -156,7 +195,7 @@ void BlockedPopupContainerView::Layout() {
                            button_size.height());
 }
 
-gfx::Size BlockedPopupContainerView::GetPreferredSize() {
+gfx::Size BlockedPopupContainerInternalView::GetPreferredSize() {
   gfx::Size preferred_size = popup_count_label_->GetPreferredSize();
   preferred_size.Enlarge(close_button_->GetPreferredSize().width(), 0);
   // Add padding to all sides of the |popup_count_label_| except the right.
@@ -173,7 +212,7 @@ gfx::Size BlockedPopupContainerView::GetPreferredSize() {
   return preferred_size;
 }
 
-void BlockedPopupContainerView::ButtonPressed(views::Button* sender) {
+void BlockedPopupContainerInternalView::ButtonPressed(views::Button* sender) {
   if (sender == popup_count_label_) {
     launch_menu_.reset(views::Menu::Create(this, views::Menu::TOPLEFT,
                                            container_->GetNativeView()));
@@ -206,173 +245,112 @@ void BlockedPopupContainerView::ButtonPressed(views::Button* sender) {
     ::GetCursorPos(&cursor_position);
     launch_menu_->RunMenuAt(cursor_position.x, cursor_position.y);
   } else if (sender == close_button_) {
-    container_->set_dismissed();
-    container_->CloseAll();
+    container_->GetModel()->set_dismissed();
+    container_->GetModel()->CloseAll();
   }
 }
 
-bool BlockedPopupContainerView::IsItemChecked(int id) const {
+bool BlockedPopupContainerInternalView::IsItemChecked(int id) const {
   if (id > BlockedPopupContainer::kImpossibleNumberOfPopups) {
-    return container_->IsHostWhitelisted(static_cast<size_t>(
+    return container_->GetModel()->IsHostWhitelisted(static_cast<size_t>(
         id - BlockedPopupContainer::kImpossibleNumberOfPopups - 1));
   }
 
   return false;
 }
 
-void BlockedPopupContainerView::ExecuteCommand(int id) {
+void BlockedPopupContainerInternalView::ExecuteCommand(int id) {
   DCHECK_GT(id, 0);
   size_t id_size_t = static_cast<size_t>(id);
   if (id_size_t > BlockedPopupContainer::kImpossibleNumberOfPopups) {
     // Decrement id since all index based commands have 1 added to them. (See
     // ButtonPressed() for detail).
-    container_->ToggleWhitelistingForHost(
+    container_->GetModel()->ToggleWhitelistingForHost(
         id_size_t - BlockedPopupContainer::kImpossibleNumberOfPopups - 1);
   } else {
-    container_->LaunchPopupAtIndex(id_size_t - 1);
+    container_->GetModel()->LaunchPopupAtIndex(id_size_t - 1);
   }
 }
 
-BlockedPopupContainerImpl::~BlockedPopupContainerImpl() {
-}
 
 // static
-BlockedPopupContainer* BlockedPopupContainer::Create(
-    TabContents* owner, Profile* profile, const gfx::Point& initial_anchor) {
-  BlockedPopupContainerImpl* container =
-      new BlockedPopupContainerImpl(owner, profile->GetPrefs());
-  container->Init(initial_anchor);
-  return container;
+BlockedPopupContainerView* BlockedPopupContainerView::Create(
+    BlockedPopupContainer* container) {
+  return new BlockedPopupContainerViewWin(container);
 }
 
-void BlockedPopupContainerImpl::GetURLAndTitleForPopup(size_t index,
-                                                   std::wstring* url,
-                                                   std::wstring* title) const {
+
+BlockedPopupContainerViewWin::~BlockedPopupContainerViewWin() {
+}
+
+void BlockedPopupContainerViewWin::GetURLAndTitleForPopup(
+    size_t index, std::wstring* url, std::wstring* title) const {
   DCHECK(url);
   DCHECK(title);
-  TabContents* tab_contents = blocked_popups_[index].tab_contents;
+  TabContents* tab_contents = GetModel()->GetTabContentsAt(index);
   const GURL& tab_contents_url = tab_contents->GetURL().GetOrigin();
   *url = UTF8ToWide(tab_contents_url.possibly_invalid_spec());
   *title = UTF16ToWideHack(tab_contents->GetTitle());
 }
 
-std::vector<std::wstring> BlockedPopupContainerImpl::GetHosts() const {
+std::vector<std::wstring> BlockedPopupContainerViewWin::GetHosts() const {
+  std::vector<std::string> utf8_hosts(GetModel()->GetHosts());
+
   std::vector<std::wstring> hosts;
-  for (PopupHosts::const_iterator i(popup_hosts_.begin());
-       i != popup_hosts_.end(); ++i)
-    hosts.push_back(UTF8ToWide(i->first));
+  for (std::vector<std::string>::const_iterator it = utf8_hosts.begin();
+       it != utf8_hosts.end(); ++it)
+    hosts.push_back(UTF8ToWide(*it));
   return hosts;
 }
 
-// Overridden from ConstrainedWindow:
-void BlockedPopupContainerImpl::Destroy() {
-  ClearData();
-  Close();
+size_t BlockedPopupContainerViewWin::GetBlockedPopupCount() const {
+  return container_model_->GetBlockedPopupCount();
 }
 
-void BlockedPopupContainerImpl::RepositionBlockedPopupContainer(
-    gfx::NativeView view) {
-  if (::IsWindow(view)) {
-    CRect client_rect;
-    ::GetClientRect(view, &client_rect);
+// Overridden from AnimationDelegate:
 
-    // TODO(erg): There's no way to detect whether scroll bars are
-    // visible, so for beta, we're just going to assume that the
-    // vertical scroll bar is visible, and not care about covering up
-    // the horizontal scroll bar. Fixing this is half of
-    // http://b/1118139.
-    gfx::Point anchor_position(
-        client_rect.Width() -
-            views::NativeScrollBar::GetVerticalScrollBarWidth(),
-        client_rect.Height());
-
-    RepositionWindowTo(anchor_position);
-  }
-}
-
-// private:
-
-BlockedPopupContainerImpl::BlockedPopupContainerImpl(TabContents* owner,
-                                                     PrefService* prefs)
-    : BlockedPopupContainer(owner, prefs),
-      Animation(kFramerate, NULL),
-      container_view_(NULL),
-      in_show_animation_(false),
-      visibility_percentage_(0) {
-}
-
-void BlockedPopupContainerImpl::RepositionWindowTo(
-    const gfx::Point& anchor_point) {
-  anchor_point_ = anchor_point;
+void BlockedPopupContainerViewWin::AnimationStarted(
+    const Animation* animation) {
   SetPosition();
 }
 
-void BlockedPopupContainerImpl::AnimateToState(double state) {
-  visibility_percentage_ = in_show_animation_ ? state : (1 - state);
+void BlockedPopupContainerViewWin::AnimationEnded(const Animation* animation) {
   SetPosition();
 }
 
-void BlockedPopupContainerImpl::OnFinalMessage(HWND window) {
-  GetConstrainingContents(NULL)->WillCloseBlockedPopupContainer(this);
-  ClearData();
-  WidgetWin::OnFinalMessage(window);
+void BlockedPopupContainerViewWin::AnimationProgressed(
+    const Animation* animation) {
+  SetPosition();
 }
 
-void BlockedPopupContainerImpl::OnSize(UINT param, const CSize& size) {
-  // Set the window region so we have rounded corners on the top.
-  SkRect rect;
-  rect.set(0, 0, SkIntToScalar(size.cx), SkIntToScalar(size.cy));
-  gfx::Path path;
-  path.addRoundRect(rect, kRoundedCornerRad, SkPath::kCW_Direction);
-  SetWindowRgn(path.CreateHRGN(), TRUE);
+// Overridden from BlockedPopupContainerView:
 
-  ChangeSize(param, size);
-}
+void BlockedPopupContainerViewWin::SetPosition() {
+  // Get our parent's rect and size ourselves inside of it.
+  HWND parent = GetParent();
+  CRect client_rect;
+  ::GetClientRect(parent, &client_rect);
 
-void BlockedPopupContainerImpl::Init(const gfx::Point& initial_anchor) {
-  container_view_ = new BlockedPopupContainerView(this);
-  container_view_->SetVisible(true);
+  // TODO(erg): There's no way to detect whether scroll bars are
+  // visible, so for beta, we're just going to assume that the
+  // vertical scroll bar is visible, and not care about covering up
+  // the horizontal scroll bar. Fixing this is half of
+  // http://b/1118139.
+  gfx::Point anchor_point(
+      client_rect.Width() -
+          views::NativeScrollBar::GetVerticalScrollBarWidth(),
+      client_rect.Height());
 
-  set_window_style(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-  WidgetWin::Init(GetConstrainingContents(NULL)->GetNativeView(), gfx::Rect(),
-                  false);
-  SetContentsView(container_view_);
-  RepositionWindowTo(initial_anchor);
-}
-
-void BlockedPopupContainerImpl::ShowSelf() {
-  SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
-  if (!Animation::IsAnimating() && visibility_percentage_ < 1.0) {
-    in_show_animation_ = true;
-    Animation::SetDuration(kShowAnimationDurationMS);
-    Animation::Start();
-  }
-}
-
-void BlockedPopupContainerImpl::HideSelf() {
-  in_show_animation_ = false;
-  Animation::SetDuration(kHideAnimationDurationMS);
-  Animation::Start();
-  BlockedPopupContainer::HideSelf();
-}
-
-void BlockedPopupContainerImpl::UpdateLabel() {
-  if (blocked_popups_.empty() && unblocked_popups_.empty())
-    HideSelf();
-  else
-    container_view_->UpdateLabel();
-}
-
-void BlockedPopupContainerImpl::SetPosition() {
   gfx::Size size = container_view_->GetPreferredSize();
-  int base_x = anchor_point_.x() - size.width();
-  int base_y = anchor_point_.y() - size.height();
+  int base_x = anchor_point.x() - size.width();
+  int base_y = anchor_point.y() - size.height();
   // The bounds we report through the automation system are the real bounds;
   // the animation is short lived...
   bounds_ = gfx::Rect(gfx::Point(base_x, base_y), size);
 
-  int real_height = static_cast<int>(size.height() * visibility_percentage_);
-  int real_y = anchor_point_.y() - real_height;
+  int real_height =
+      static_cast<int>(size.height() * slide_animation_->GetCurrentValue());
+  int real_y = anchor_point.y() - real_height;
 
   if (real_height > 0) {
     int x;
@@ -392,4 +370,49 @@ void BlockedPopupContainerImpl::SetPosition() {
     SetWindowPos(HWND_TOP, 0, 0, 0, 0,
                  SWP_NOMOVE | SWP_NOSIZE | SWP_HIDEWINDOW);
   }
+}
+
+void BlockedPopupContainerViewWin::ShowView() {
+  SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+  slide_animation_->Show();
+}
+
+void BlockedPopupContainerViewWin::UpdateLabel() {
+  container_view_->UpdateLabel();
+}
+
+void BlockedPopupContainerViewWin::HideView() {
+  slide_animation_->Hide();
+}
+
+void BlockedPopupContainerViewWin::Destroy() {
+  Close();
+}
+
+// private:
+
+BlockedPopupContainerViewWin::BlockedPopupContainerViewWin(
+    BlockedPopupContainer* container)
+    : slide_animation_(new SlideAnimation(this)),
+      container_model_(container),
+      container_view_(NULL) {
+  container_view_ = new BlockedPopupContainerInternalView(this);
+  container_view_->SetVisible(true);
+
+  set_window_style(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
+  WidgetWin::Init(GetModel()->GetConstrainingContents(NULL)->GetNativeView(),
+                  gfx::Rect(), false);
+  SetContentsView(container_view_);
+  SetPosition();
+}
+
+void BlockedPopupContainerViewWin::OnSize(UINT param, const CSize& size) {
+  // Set the window region so we have rounded corners on the top.
+  SkRect rect;
+  rect.set(0, 0, SkIntToScalar(size.cx), SkIntToScalar(size.cy));
+  gfx::Path path;
+  path.addRoundRect(rect, kRoundedCornerRad, SkPath::kCW_Direction);
+  SetWindowRgn(path.CreateHRGN(), TRUE);
+
+  ChangeSize(param, size);
 }

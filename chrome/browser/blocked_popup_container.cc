@@ -12,6 +12,23 @@
 #include "chrome/common/notification_service.h"
 
 // static
+BlockedPopupContainer* BlockedPopupContainer::Create(
+    TabContents* owner, Profile* profile) {
+  BlockedPopupContainer* container =
+      new BlockedPopupContainer(owner, profile->GetPrefs());
+
+  // TODO(erg): Add different defined(OS_??) as they get subclasses of
+  // BlockedPopupContainerView.
+#if defined(OS_WIN)
+  BlockedPopupContainerView* view =
+      BlockedPopupContainerView::Create(container);
+  container->set_view(view);
+#endif
+
+  return container;
+}
+
+// static
 void BlockedPopupContainer::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterListPref(prefs::kPopupWhitelistedHosts);
 }
@@ -56,9 +73,8 @@ void BlockedPopupContainer::AddTabContents(TabContents* tab_contents,
   else
     DCHECK_EQ(whitelisted, i->second);
 
-  // Update UI.
-  UpdateLabel();
-  ShowSelf();
+  UpdateView();
+  view_->ShowView();
   owner_->PopupNotificationVisibilityChanged(true);
 }
 
@@ -109,7 +125,7 @@ void BlockedPopupContainer::ToggleWhitelistingForHost(size_t index) {
     whitelist_pref->Append(new StringValue(host));
 
     // Open the popups in order.
-    for (size_t j = 0; j < blocked_popups_.size(); ) {
+    for (size_t j = 0; j < blocked_popups_.size();) {
       if (blocked_popups_[j].host == host)
         LaunchPopupAtIndex(j);  // This shifts the rest of the entries down.
       else
@@ -149,6 +165,31 @@ void BlockedPopupContainer::ToggleWhitelistingForHost(size_t index) {
 void BlockedPopupContainer::CloseAll() {
   ClearData();
   HideSelf();
+}
+
+void BlockedPopupContainer::Destroy() {
+  view_->Destroy();
+
+  ClearData();
+  GetConstrainingContents(NULL)->WillCloseBlockedPopupContainer(this);
+
+  delete this;
+}
+
+void BlockedPopupContainer::RepositionBlockedPopupContainer() {
+  view_->SetPosition();
+}
+
+TabContents* BlockedPopupContainer::GetTabContentsAt(size_t index) {
+  return blocked_popups_[index].tab_contents;
+}
+
+std::vector<std::string> BlockedPopupContainer::GetHosts() const {
+  std::vector<std::string> hosts;
+  for (PopupHosts::const_iterator i(popup_hosts_.begin());
+       i != popup_hosts_.end(); ++i)
+    hosts.push_back(i->first);
+  return hosts;
 }
 
 // Overridden from TabContentsDelegate:
@@ -209,6 +250,7 @@ ExtensionFunctionDispatcher* BlockedPopupContainer::
 }
 
 void BlockedPopupContainer::HideSelf() {
+  view_->HideView();
   owner_->PopupNotificationVisibilityChanged(false);
 }
 
@@ -266,7 +308,7 @@ void BlockedPopupContainer::EraseDataForPopupAndUpdateUI(
 
   // Erase the popup and update the UI.
   blocked_popups_.erase(i);
-  UpdateLabel();
+  UpdateView();
 }
 
 void BlockedPopupContainer::EraseDataForPopupAndUpdateUI(
@@ -301,7 +343,7 @@ void BlockedPopupContainer::EraseDataForPopupAndUpdateUI(
 
   // Erase the popup and update the UI.
   unblocked_popups_.erase(i);
-  UpdateLabel();
+  UpdateView();
 }
 
 
@@ -324,6 +366,13 @@ BlockedPopupContainer::BlockedPopupContainer(TabContents* owner,
       whitelist_.insert(host);
     }
   }
+}
+
+void BlockedPopupContainer::UpdateView() {
+  if (blocked_popups_.empty() && unblocked_popups_.empty())
+    HideSelf();
+  else
+    view_->UpdateLabel();
 }
 
 void BlockedPopupContainer::Observe(NotificationType type,

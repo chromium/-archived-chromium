@@ -1076,13 +1076,7 @@ void TabContents::CreateBlockedPopupContainerIfNecessary() {
   if (blocked_popups_)
     return;
 
-  CRect client_rect;
-  GetClientRect(GetNativeView(), &client_rect);
-  gfx::Point anchor_position(
-      client_rect.Width() - views::NativeScrollBar::GetVerticalScrollBarWidth(),
-      client_rect.Height());
-  blocked_popups_ = BlockedPopupContainer::Create(this, profile(),
-                                                  anchor_position);
+  blocked_popups_ = BlockedPopupContainer::Create(this, profile());
 }
 
 void TabContents::AddPopup(TabContents* new_contents,
@@ -1096,7 +1090,7 @@ void TabContents::AddPopup(TabContents* new_contents,
 // TODO(brettw) This should be on the TabContentsView.
 void TabContents::RepositionSupressedPopupsToFit() {
   if (blocked_popups_)
-    blocked_popups_->RepositionBlockedPopupContainer(GetNativeView());
+    blocked_popups_->RepositionBlockedPopupContainer();
 }
 
 bool TabContents::ShowingBlockedPopupNotification() const {

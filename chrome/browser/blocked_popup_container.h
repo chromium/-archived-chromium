@@ -12,6 +12,8 @@
 
 #include <map>
 #include <set>
+#include <string>
+#include <vector>
 
 #include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
@@ -19,40 +21,43 @@
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/notification_registrar.h"
 
-class BlockedPopupContainerImpl;
+class BlockedPopupContainer;
 class PrefService;
 class Profile;
 class TabContents;
+
+// Interface that the BlockedPopupContainer model/controller uses to
+// communicate with its platform specific view.
+class BlockedPopupContainerView {
+ public:
+  // Platform specific constructor used by BlockedPopupContainer to create a
+  // view that is displayed to the user.
+  static BlockedPopupContainerView* Create(BlockedPopupContainer* container);
+
+  // Notification that the view should properly position itself in |view|.
+  virtual void SetPosition() = 0;
+
+  // Shows the blocked popup view / Animates the blocked popup view in.
+  virtual void ShowView() = 0;
+
+  // Sets the text in the blocked popup label.
+  virtual void UpdateLabel() = 0;
+
+  // Hides the blocked popup view / Animates the blocked popup view out.
+  virtual void HideView() = 0;
+
+  // Called by the BlockedPopupContainer that owns us. Destroys the view or
+  // starts a delayed Task to destroy the View at some later time.
+  virtual void Destroy() = 0;
+};
 
 // Takes ownership of TabContents that are unrequested popup windows and
 // presents an interface to the user for launching them. (Or never showing them
 // again). This class contains all the cross-platform bits that can be used in
 // all ports.
 //
-// Currently, BlockedPopupContainer only exists as a cross platform model
-// extracted from browser/views/blocked_popup_container.cc. This is what it
-// used to look like before:
-//
-// +- BlockedPopupContainer -------------------------------+
-// | <views::WidgetWin>                                    |
-// | All model logic.                                      |
-// | All views code.                                       |
-// +-------------------------------------------------------+
-//
-// As of now, it looks like this:
-//
-// +- BlockedPopupContainer -------------------------------+
-// | All model logic                                       |
-// +-------------------------------------------------------+
-//                         ^
-//                         |
-// +- BlockedPopupContainerImpl ---------------------------+
-// | views::WidgetWin                                      |
-// | All views code.                                       |
-// |                                                       |
-// +-------------------------------------------------------+
-//
-// TODO(erg): While it is not in this state yet, I want it to look like this:
+// TODO(erg): The GTK and Cocoa versions of the view class haven't been written
+// yet.
 //
 // +- BlockedPopupContainer ---+         +- BlockedPopupContainerView -----+
 // | All model logic           |    +--->| Abstract cross platform         |
@@ -75,10 +80,13 @@ class BlockedPopupContainer : public TabContentsDelegate,
  public:
   // Creates a BlockedPopupContainer, anchoring the container to the lower
   // right corner.
-  static BlockedPopupContainer* Create(
-      TabContents* owner, Profile* profile, const gfx::Point& initial_anchor);
+  static BlockedPopupContainer* Create(TabContents* owner, Profile* profile);
 
   static void RegisterUserPrefs(PrefService* prefs);
+
+  // Sets this BlockedPopupContainer's view. BlockedPopupContainer now owns
+  // |view| and is responsible for calling Destroy() on it.
+  void set_view(BlockedPopupContainerView* view) { view_ = view; }
 
   // Adds a popup to this container. |bounds| are the window bounds requested by
   // the popup window.
@@ -104,11 +112,20 @@ class BlockedPopupContainer : public TabContentsDelegate,
   void CloseAll();
 
   // Sets this object up to delete itself.
-  virtual void Destroy() = 0;
+  void Destroy();
 
   // Message called when a BlockedPopupContainer should move itself to the
-  // bottom right corner of |view|.
-  virtual void RepositionBlockedPopupContainer(gfx::NativeView view) = 0;
+  // bottom right corner of our parent view.
+  void RepositionBlockedPopupContainer();
+
+  // Returns the TabContents for the blocked popup |index|.
+  TabContents* GetTabContentsAt(size_t index);
+
+  // Returns the names of hosts showing popups.
+  std::vector<std::string> GetHosts() const;
+
+  // Deletes all local state.
+  void ClearData();
 
   // Called to force this container to never show itself again.
   void set_dismissed() { has_been_dismissed_ = true; }
@@ -189,17 +206,8 @@ class BlockedPopupContainer : public TabContentsDelegate,
   // string is hostname.  bool is whitelisted status.
   typedef std::map<std::string, bool> PopupHosts;
 
-  // Shows the UI.
-  virtual void ShowSelf() = 0;
-
   // Hides the UI portion of the container.
   virtual void HideSelf();
-
-  // Updates the text on the label on the notification.
-  virtual void UpdateLabel() = 0;
-
-  // Deletes all local state.
-  virtual void ClearData();
 
   // Helper function to convert a host index (which the view uses) into an
   // iterator into |popup_hosts_|.  Returns popup_hosts_.end() if |index| is
@@ -222,6 +230,10 @@ class BlockedPopupContainer : public TabContentsDelegate,
 
   // Creates a container for a certain TabContents:
   BlockedPopupContainer(TabContents* owner, PrefService* prefs);
+
+  // Either hides the view if there are no popups, or updates the label if
+  // there are.
+  void UpdateView();
 
   // Overridden from notificationObserver:
   virtual void Observe(NotificationType type,
@@ -251,6 +263,9 @@ class BlockedPopupContainer : public TabContentsDelegate,
 
   // Information about all popup hosts.
   PopupHosts popup_hosts_;
+
+  // Our platform specific view.
+  BlockedPopupContainerView* view_;
 
   DISALLOW_IMPLICIT_CONSTRUCTORS(BlockedPopupContainer);
 };
