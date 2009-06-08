@@ -47,7 +47,7 @@
             'plugin_main.h',
           ],
           'link_settings': {
-            'libraries': ['-lUrlmon.lib'],
+            'libraries': ['-lurlmon.lib'],
           },
         },
       ],
