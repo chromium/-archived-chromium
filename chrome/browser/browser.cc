@@ -2031,6 +2031,7 @@ void Browser::InitCommandState() {
 
   // Page-related commands
   command_updater_.UpdateCommandEnabled(IDC_CLOSE_POPUPS, true);
+  command_updater_.UpdateCommandEnabled(IDC_PRINT, true);
   command_updater_.UpdateCommandEnabled(IDC_ENCODING_AUTO_DETECT, true);
   command_updater_.UpdateCommandEnabled(IDC_ENCODING_UTF8, true);
   command_updater_.UpdateCommandEnabled(IDC_ENCODING_UTF16LE, true);
@@ -2097,14 +2098,13 @@ void Browser::InitCommandState() {
       // The debugger doesn't work in single process mode.
       in_proc_devtools && !RenderProcessHost::run_renderer_in_process());
 #endif
+  command_updater_.UpdateCommandEnabled(IDC_JS_CONSOLE, true);
   command_updater_.UpdateCommandEnabled(IDC_TASK_MANAGER, true);
   command_updater_.UpdateCommandEnabled(IDC_SELECT_PROFILE, true);
   command_updater_.UpdateCommandEnabled(IDC_SHOW_HISTORY, true);
   command_updater_.UpdateCommandEnabled(IDC_SHOW_BOOKMARK_MANAGER, true);
   command_updater_.UpdateCommandEnabled(IDC_SHOW_DOWNLOADS, true);
   command_updater_.UpdateCommandEnabled(IDC_HELP_PAGE, true);
-  command_updater_.UpdateCommandEnabled(IDC_PRINT, true);
-  command_updater_.UpdateCommandEnabled(IDC_JS_CONSOLE, true);
 
   // Initialize other commands based on the window type.
   {
@@ -2128,7 +2128,11 @@ void Browser::InitCommandState() {
     command_updater_.UpdateCommandEnabled(IDC_SELECT_LAST_TAB, normal_window);
     command_updater_.UpdateCommandEnabled(IDC_RESTORE_TAB,
         normal_window && !profile_->IsOffTheRecord());
+
+    // Page-related commands
     command_updater_.UpdateCommandEnabled(IDC_STAR, normal_window);
+
+    // Clipboard commands
     command_updater_.UpdateCommandEnabled(IDC_COPY_URL, normal_window);
 
     // Show various bits of UI
