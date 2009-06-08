@@ -21,6 +21,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/character_encoding.h"
+#include "chrome/browser/encoding_menu_controller.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
@@ -81,11 +82,87 @@ static const int kOmniboxButtonsHorizontalMargin = 2;
 static SkBitmap* kPopupBackgroundEdge = NULL;
 
 ////////////////////////////////////////////////////////////////////////////////
+// EncodingMenuModel
+
+EncodingMenuModel::EncodingMenuModel(Browser* browser)
+    : SimpleMenuModel(this),
+      browser_(browser) {
+  Build();
+}
+
+void EncodingMenuModel::Build() {
+  EncodingMenuController::EncodingMenuItemList encoding_menu_items;
+  EncodingMenuController encoding_menu_controller;
+  encoding_menu_controller.GetEncodingMenuItems(browser_->profile(),
+                                                &encoding_menu_items);
+
+  int group_id = 0;
+  EncodingMenuController::EncodingMenuItemList::iterator it =
+      encoding_menu_items.begin();
+  for (; it != encoding_menu_items.end(); ++it) {
+    int id = it->first;
+    std::wstring& label = it->second;
+    if (id == 0) {
+      AddSeparator();
+    } else {
+      if (id == IDC_ENCODING_AUTO_DETECT) {
+        AddCheckItem(id, label);
+      } else {
+        // Use the id of the first radio command as the id of the group.
+        if (group_id <= 0)
+          group_id = id;
+        AddRadioItem(id, label, group_id);
+      }
+    }
+  }
+}
+
+bool EncodingMenuModel::IsCommandIdChecked(int command_id) const {
+  TabContents* current_tab = browser_->GetSelectedTabContents();
+  EncodingMenuController controller;
+  return controller.IsItemChecked(browser_->profile(),
+                                  current_tab->encoding(), command_id);
+}
+
+bool EncodingMenuModel::IsCommandIdEnabled(int command_id) const {
+  return browser_->command_updater()->IsCommandEnabled(command_id);
+}
+
+bool EncodingMenuModel::GetAcceleratorForCommandId(
+    int command_id,
+    views::Accelerator* accelerator) {
+  return false;
+}
+
+bool EncodingMenuModel::IsLabelForCommandIdDynamic(int command_id) const {
+  // None of our items have dynamic labels.
+  return false;
+}
+
+std::wstring EncodingMenuModel::GetLabelForCommandId(int command_id) const {
+  return std::wstring();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// EncodingMenuModel
+
+ZoomMenuModel::ZoomMenuModel(views::SimpleMenuModel::Delegate* delegate)
+    : SimpleMenuModel(delegate) {
+  Build();
+}
+
+void ZoomMenuModel::Build() {
+  AddItemWithStringId(IDC_ZOOM_PLUS, IDS_ZOOM_PLUS);
+  AddItemWithStringId(IDC_ZOOM_NORMAL, IDS_ZOOM_NORMAL);
+  AddItemWithStringId(IDC_ZOOM_MINUS, IDS_ZOOM_MINUS);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // ToolbarView, public:
 
 ToolbarView::ToolbarView(Browser* browser)
-    : EncodingMenuControllerDelegate(browser),
-      model_(browser->toolbar_model()),
+    : model_(browser->toolbar_model()),
       acc_focused_view_(NULL),
       back_(NULL),
       forward_(NULL),
@@ -176,17 +253,6 @@ int ToolbarView::GetNextAccessibleViewIndex(int view_index, bool nav_left) {
   // Returns the next available button index, or if no button is available in
   // the specified direction, remains where it was.
   return view_index;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// ToolbarView, EncodingMenuControllerDelegate implementation:
-
-bool ToolbarView::IsItemChecked(int id) const {
-  if (!profile_)
-    return false;
-  if (id == IDC_SHOW_BOOKMARK_BAR)
-    return profile_->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar);
-  return EncodingMenuControllerDelegate::IsItemChecked(id);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -348,6 +414,55 @@ void ToolbarView::Observe(NotificationType type,
       SchedulePaint();
     }
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// ToolbarView, views::Menu2Delegate implementation:
+
+void ToolbarView::ExecuteCommand(views::Menu2Model* model, int command_id) {
+  browser_->ExecuteCommand(command_id);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// ToolbarView, views::SimpleMenuModel::Delegate implementation:
+
+bool ToolbarView::IsCommandIdChecked(int command_id) const {
+  if (command_id == IDC_SHOW_BOOKMARK_BAR)
+    return profile_->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar);
+  return false;
+}
+
+bool ToolbarView::IsCommandIdEnabled(int command_id) const {
+  return browser_->command_updater()->IsCommandEnabled(command_id);
+}
+
+bool ToolbarView::GetAcceleratorForCommandId(int command_id,
+                                             views::Accelerator* accelerator) {
+  // The standard Ctrl-X, Ctrl-V and Ctrl-C are not defined as accelerators
+  // anywhere so we need to check for them explicitly here.
+  // TODO(cpu) Bug 1109102. Query WebKit land for the actual bindings.
+  switch (command_id) {
+    case IDC_CUT:
+      *accelerator = views::Accelerator(L'X', false, true, false);
+      return true;
+    case IDC_COPY:
+      *accelerator = views::Accelerator(L'C', false, true, false);
+      return true;
+    case IDC_PASTE:
+      *accelerator = views::Accelerator(L'V', false, true, false);
+      return true;
+  }
+  // Else, we retrieve the accelerator information from the frame.
+  return GetWidget()->GetAccelerator(command_id, accelerator);
+}
+
+bool ToolbarView::IsLabelForCommandIdDynamic(int command_id) const {
+  // None of our menu items have dynamic labels.
+  return false;
+}
+
+std::wstring ToolbarView::GetLabelForCommandId(int command_id) const {
+  return std::wstring();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -657,12 +772,7 @@ void ToolbarView::SetAccessibleName(const std::wstring& name) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ToolbarView, private:
-
-int ToolbarView::PopupTopSpacing() const {
-  return GetWindow()->GetNonClientView()->UseNativeFrame() ?
-      0 : kPopupTopSpacingNonGlass;
-}
+// ToolbarView, views::DragController implementation:
 
 void ToolbarView::WriteDragData(views::View* sender,
                                 int press_x,
@@ -707,6 +817,14 @@ int ToolbarView::GetDragOperations(views::View* sender, int x, int y) {
            DragDropTypes::DRAG_LINK;
   }
   return DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_LINK;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// ToolbarView, private:
+
+int ToolbarView::PopupTopSpacing() const {
+  return GetWindow()->GetNonClientView()->UseNativeFrame() ?
+      0 : kPopupTopSpacingNonGlass;
 }
 
 void ToolbarView::CreateLeftSideControls() {
@@ -895,137 +1013,113 @@ void ToolbarView::LoadRightSideControlsImages() {
 }
 
 void ToolbarView::RunPageMenu(const gfx::Point& pt, gfx::NativeView parent) {
-  views::Menu::AnchorPoint anchor = views::Menu::TOPRIGHT;
-  if (UILayoutIsRightToLeft())
-    anchor = views::Menu::TOPLEFT;
-
-  scoped_ptr<views::Menu> menu(views::Menu::Create(this, anchor, parent));
-  menu->AppendMenuItemWithLabel(IDC_CREATE_SHORTCUTS,
-      l10n_util::GetString(IDS_CREATE_SHORTCUTS));
-  menu->AppendSeparator();
-  menu->AppendMenuItemWithLabel(IDC_CUT, l10n_util::GetString(IDS_CUT));
-  menu->AppendMenuItemWithLabel(IDC_COPY, l10n_util::GetString(IDS_COPY));
-  menu->AppendMenuItemWithLabel(IDC_PASTE, l10n_util::GetString(IDS_PASTE));
-  menu->AppendSeparator();
-
-  menu->AppendMenuItemWithLabel(IDC_FIND,
-                                l10n_util::GetString(IDS_FIND));
-  menu->AppendMenuItemWithLabel(IDC_SAVE_PAGE,
-                                l10n_util::GetString(IDS_SAVE_PAGE));
-  menu->AppendMenuItemWithLabel(IDC_PRINT, l10n_util::GetString(IDS_PRINT));
-  menu->AppendSeparator();
-
-  views::Menu* zoom_menu = menu->AppendSubMenu(
-      IDC_ZOOM_MENU, l10n_util::GetString(IDS_ZOOM_MENU));
-  zoom_menu->AppendMenuItemWithLabel(IDC_ZOOM_PLUS,
-                                     l10n_util::GetString(IDS_ZOOM_PLUS));
-  zoom_menu->AppendMenuItemWithLabel(IDC_ZOOM_NORMAL,
-                                     l10n_util::GetString(IDS_ZOOM_NORMAL));
-  zoom_menu->AppendMenuItemWithLabel(IDC_ZOOM_MINUS,
-                                     l10n_util::GetString(IDS_ZOOM_MINUS));
-
-  // Create encoding menu.
-  views::Menu* encoding_menu = menu->AppendSubMenu(
-      IDC_ENCODING_MENU, l10n_util::GetString(IDS_ENCODING_MENU));
-
-  EncodingMenuControllerDelegate::BuildEncodingMenu(profile_, encoding_menu);
-
-#if defined(OS_WIN)
-  const struct MenuCreateMaterial {
-    unsigned int menu_id;
-    unsigned int menu_label_id;
-  } developer_menu_materials[] = {
-    { IDC_VIEW_SOURCE, IDS_VIEW_SOURCE },
-    { IDC_DEBUGGER, IDS_DEBUGGER },
-    { IDC_JS_CONSOLE, IDS_JS_CONSOLE },
-    { IDC_TASK_MANAGER, IDS_TASK_MANAGER }
-  };
-  // Append developer menu.
-  menu->AppendSeparator();
-  views::Menu* developer_menu = menu->AppendSubMenu(IDC_DEVELOPER_MENU,
-      l10n_util::GetString(IDS_DEVELOPER_MENU));
-
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  bool new_tools = !command_line.HasSwitch(
-      switches::kDisableOutOfProcessDevTools);
-
-  for (int i = 0; i < arraysize(developer_menu_materials); ++i) {
-    if (new_tools && developer_menu_materials[i].menu_id == IDC_DEBUGGER)
-      continue;
-    if (developer_menu_materials[i].menu_id) {
-      developer_menu->AppendMenuItemWithLabel(
-          developer_menu_materials[i].menu_id,
-          l10n_util::GetString(developer_menu_materials[i].menu_label_id));
-    } else {
-      developer_menu->AppendSeparator();
-    }
-  }
-#endif
-
-  menu->AppendSeparator();
-
-  menu->AppendMenuItemWithLabel(IDC_REPORT_BUG,
-                               l10n_util::GetString(IDS_REPORT_BUG));
-  menu->RunMenuAt(pt.x(), pt.y());
+  CreatePageMenu();
+  page_menu_menu_->RunMenuAt(pt, views::Menu2::ALIGN_TOPRIGHT);
 }
 
 void ToolbarView::RunAppMenu(const gfx::Point& pt, gfx::NativeView parent) {
-  views::Menu::AnchorPoint anchor = views::Menu::TOPRIGHT;
-  if (UILayoutIsRightToLeft())
-    anchor = views::Menu::TOPLEFT;
+  CreateAppMenu();
+  app_menu_menu_->RunMenuAt(pt, views::Menu2::ALIGN_TOPRIGHT);
+}
 
-  scoped_ptr<views::Menu> menu(views::Menu::Create(this, anchor, parent));
-  menu->AppendMenuItemWithLabel(IDC_NEW_TAB, l10n_util::GetString(IDS_NEW_TAB));
-  menu->AppendMenuItemWithLabel(IDC_NEW_WINDOW,
-                                l10n_util::GetString(IDS_NEW_WINDOW));
-  menu->AppendMenuItemWithLabel(IDC_NEW_INCOGNITO_WINDOW,
-                                l10n_util::GetString(IDS_NEW_INCOGNITO_WINDOW));
+void ToolbarView::CreatePageMenu() {
+  if (page_menu_contents_.get())
+    return;
 
-  // Enumerate profiles asynchronously and then create the parent menu item.
-  // We will create the child menu items for this once the asynchronous call is
-  // done.  See OnGetProfilesDone().
+  page_menu_contents_.reset(new views::SimpleMenuModel(this));
+  page_menu_contents_->AddItemWithStringId(IDC_CREATE_SHORTCUTS,
+                                           IDS_CREATE_SHORTCUTS);
+  page_menu_contents_->AddSeparator();
+  page_menu_contents_->AddItemWithStringId(IDC_CUT, IDS_CUT);
+  page_menu_contents_->AddItemWithStringId(IDC_COPY, IDS_COPY);
+  page_menu_contents_->AddItemWithStringId(IDC_PASTE, IDS_PASTE);
+  page_menu_contents_->AddSeparator();
+  page_menu_contents_->AddItemWithStringId(IDC_FIND, IDS_FIND);
+  page_menu_contents_->AddItemWithStringId(IDC_SAVE_PAGE, IDS_SAVE_PAGE);
+  page_menu_contents_->AddItemWithStringId(IDC_PRINT, IDS_PRINT);
+  page_menu_contents_->AddSeparator();
+
+  zoom_menu_contents_.reset(new ZoomMenuModel(this));
+  page_menu_contents_->AddSubMenuWithStringId(
+      IDS_ZOOM_MENU, zoom_menu_contents_.get());
+
+  encoding_menu_contents_.reset(new EncodingMenuModel(browser_));
+  page_menu_contents_->AddSubMenuWithStringId(
+      IDS_ENCODING_MENU, encoding_menu_contents_.get());
+
+#if defined(OS_WIN)
+  CreateDevToolsMenuContents();
+  page_menu_contents_->AddSeparator();
+  page_menu_contents_->AddSubMenuWithStringId(
+      IDS_DEVELOPER_MENU, devtools_menu_contents_.get());
+#endif
+
+  page_menu_contents_->AddSeparator();
+  page_menu_contents_->AddItemWithStringId(IDC_REPORT_BUG, IDS_REPORT_BUG);
+
+  page_menu_menu_.reset(new views::Menu2(page_menu_contents_.get(), this));
+}
+
+#if defined(OS_WIN)
+void ToolbarView::CreateDevToolsMenuContents() {
+  devtools_menu_contents_.reset(new views::SimpleMenuModel(this));
+  devtools_menu_contents_->AddItem(IDC_VIEW_SOURCE,
+                                   l10n_util::GetString(IDS_VIEW_SOURCE));
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  if (command_line.HasSwitch(switches::kEnableUserDataDirProfiles)) {
-    profiles_helper_->GetProfiles(NULL);
-    profiles_menu_ = menu->AppendSubMenu(
-        IDC_PROFILE_MENU, l10n_util::GetString(IDS_PROFILE_MENU));
+  if (command_line.HasSwitch(switches::kDisableOutOfProcessDevTools)) {
+    devtools_menu_contents_->AddItem(IDC_DEBUGGER,
+                                     l10n_util::GetString(IDS_DEBUGGER));
   }
+  devtools_menu_contents_->AddItem(IDC_JS_CONSOLE,
+                                   l10n_util::GetString(IDS_JS_CONSOLE));
+  devtools_menu_contents_->AddItem(IDC_TASK_MANAGER,
+                                   l10n_util::GetString(IDS_TASK_MANAGER));
+}
+#endif
 
-  menu->AppendSeparator();
-  menu->AppendMenuItemWithLabel(IDC_SHOW_BOOKMARK_BAR,
-                                l10n_util::GetString(IDS_SHOW_BOOKMARK_BAR));
-  menu->AppendMenuItemWithLabel(IDC_FULLSCREEN,
-                                l10n_util::GetString(IDS_FULLSCREEN));
-  menu->AppendSeparator();
-  menu->AppendMenuItemWithLabel(IDC_SHOW_HISTORY,
-                                l10n_util::GetString(IDS_SHOW_HISTORY));
-  menu->AppendMenuItemWithLabel(IDC_SHOW_BOOKMARK_MANAGER,
-                                l10n_util::GetString(IDS_BOOKMARK_MANAGER));
-  menu->AppendMenuItemWithLabel(IDC_SHOW_DOWNLOADS,
-                                l10n_util::GetString(IDS_SHOW_DOWNLOADS));
-  menu->AppendSeparator();
+void ToolbarView::CreateAppMenu() {
+  if (app_menu_contents_.get())
+    return;
+
+  app_menu_contents_.reset(new views::SimpleMenuModel(this));
+  app_menu_contents_->AddItemWithStringId(IDC_NEW_TAB, IDS_NEW_TAB);
+  app_menu_contents_->AddItemWithStringId(IDC_NEW_WINDOW, IDS_NEW_WINDOW);
+  app_menu_contents_->AddItemWithStringId(IDC_NEW_INCOGNITO_WINDOW,
+                                          IDS_NEW_INCOGNITO_WINDOW);
+  app_menu_contents_->AddSeparator();
+  app_menu_contents_->AddCheckItemWithStringId(IDC_SHOW_BOOKMARK_BAR,
+                                               IDS_SHOW_BOOKMARK_BAR);
+  app_menu_contents_->AddItemWithStringId(IDC_FULLSCREEN, IDS_FULLSCREEN);
+  app_menu_contents_->AddSeparator();
+  app_menu_contents_->AddItemWithStringId(IDC_SHOW_HISTORY, IDS_SHOW_HISTORY);
+  app_menu_contents_->AddItemWithStringId(IDC_SHOW_BOOKMARK_MANAGER,
+                                          IDS_BOOKMARK_MANAGER);
+  app_menu_contents_->AddItemWithStringId(IDC_SHOW_DOWNLOADS,
+                                          IDS_SHOW_DOWNLOADS);
+  app_menu_contents_->AddSeparator();
 #ifdef CHROME_PERSONALIZATION
   if (!Personalization::IsP13NDisabled(profile_)) {
-    menu->AppendMenuItemWithLabel(IDC_P13N_INFO,
+    app_menu_contents_->AddItem(
+        IDC_P13N_INFO,
         Personalization::GetMenuItemInfoText(browser()));
   }
 #endif
-  menu->AppendMenuItemWithLabel(IDC_CLEAR_BROWSING_DATA,
-                                l10n_util::GetString(IDS_CLEAR_BROWSING_DATA));
-  menu->AppendMenuItemWithLabel(IDC_IMPORT_SETTINGS,
-                                l10n_util::GetString(IDS_IMPORT_SETTINGS));
-  menu->AppendSeparator();
-  menu->AppendMenuItemWithLabel(IDC_OPTIONS, l10n_util::GetStringF(IDS_OPTIONS,
-                                l10n_util::GetString(IDS_PRODUCT_NAME)));
-  menu->AppendMenuItemWithLabel(IDC_ABOUT, l10n_util::GetStringF(IDS_ABOUT,
-                                l10n_util::GetString(IDS_PRODUCT_NAME)));
-  menu->AppendMenuItemWithLabel(IDC_HELP_PAGE,
-                                l10n_util::GetString(IDS_HELP_PAGE));
-  menu->AppendSeparator();
-  menu->AppendMenuItemWithLabel(IDC_EXIT, l10n_util::GetString(IDS_EXIT));
+  app_menu_contents_->AddItemWithStringId(IDC_CLEAR_BROWSING_DATA,
+                                          IDS_CLEAR_BROWSING_DATA);
+  app_menu_contents_->AddItemWithStringId(IDC_IMPORT_SETTINGS,
+                                          IDS_IMPORT_SETTINGS);
+  app_menu_contents_->AddSeparator();
+  app_menu_contents_->AddItem(IDC_OPTIONS,
+                              l10n_util::GetStringF(
+                                  IDS_OPTIONS,
+                                  l10n_util::GetString(IDS_PRODUCT_NAME)));
+  app_menu_contents_->AddItem(IDC_ABOUT,
+                              l10n_util::GetStringF(
+                                  IDS_ABOUT,
+                                  l10n_util::GetString(IDS_PRODUCT_NAME)));
+  app_menu_contents_->AddItemWithStringId(IDC_HELP_PAGE, IDS_HELP_PAGE);
+  app_menu_contents_->AddSeparator();
+  app_menu_contents_->AddItemWithStringId(IDC_EXIT, IDS_EXIT);
 
-  menu->RunMenuAt(pt.x(), pt.y());
-
-  // Menu is going away, so set the profiles menu pointer to NULL.
-  profiles_menu_ = NULL;
+  app_menu_menu_.reset(new views::Menu2(app_menu_contents_.get(), this));
 }

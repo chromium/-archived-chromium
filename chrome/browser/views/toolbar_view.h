@@ -10,7 +10,6 @@
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/command_updater.h"
-#include "chrome/browser/encoding_menu_controller_delegate.h"
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/views/autocomplete/autocomplete_popup_contents_view.h"
 #include "chrome/browser/views/go_button.h"
@@ -18,6 +17,7 @@
 #include "chrome/common/pref_member.h"
 #include "views/controls/button/menu_button.h"
 #include "views/controls/menu/menu.h"
+#include "views/controls/menu/simple_menu_model.h"
 #include "views/controls/menu/view_menu_delegate.h"
 #include "views/view.h"
 
@@ -25,12 +25,50 @@ class BackForwardMenuModelViews;
 class Browser;
 class Profile;
 class ToolbarStarToggle;
+namespace views {
+class SimpleMenuModel;
+}
+
+// A menu model that builds the contents of an encoding menu.
+class EncodingMenuModel : public views::SimpleMenuModel,
+                          public views::SimpleMenuModel::Delegate {
+ public:
+  explicit EncodingMenuModel(Browser* browser);
+  virtual ~EncodingMenuModel() {}
+
+  // Overridden from views::SimpleMenuModel::Delegate:
+  virtual bool IsCommandIdChecked(int command_id) const;
+  virtual bool IsCommandIdEnabled(int command_id) const;
+  virtual bool GetAcceleratorForCommandId(int command_id,
+                                          views::Accelerator* accelerator);
+  virtual bool IsLabelForCommandIdDynamic(int command_id) const;
+  virtual std::wstring GetLabelForCommandId(int command_id) const;
+
+ private:
+  void Build();
+
+  Browser* browser_;
+
+  DISALLOW_COPY_AND_ASSIGN(EncodingMenuModel);
+};
+
+class ZoomMenuModel : public views::SimpleMenuModel {
+ public:
+  explicit ZoomMenuModel(views::SimpleMenuModel::Delegate* delegate);
+  virtual ~ZoomMenuModel() {}
+
+ private:
+  void Build();
+
+  DISALLOW_COPY_AND_ASSIGN(ZoomMenuModel);
+};
 
 // The Browser Window's toolbar. Used within BrowserView.
 class ToolbarView : public views::View,
-                    public EncodingMenuControllerDelegate,
                     public views::ViewMenuDelegate,
                     public views::DragController,
+                    public views::Menu2Delegate,
+                    public views::SimpleMenuModel::Delegate,
                     public LocationBarView::Delegate,
                     public NotificationObserver,
                     public GetProfilesHelper::Delegate,
@@ -70,9 +108,6 @@ class ToolbarView : public views::View,
   GoButton* go_button() const { return go_; }
   LocationBarView* location_bar() const { return location_bar_; }
 
-  // Overridden from EncodingMenuControllerDelegate:
-  virtual bool IsItemChecked(int id) const;
-
   // Overridden from Menu::BaseControllerDelegate:
   virtual bool GetAcceleratorInfo(int id, views::Accelerator* accel);
 
@@ -101,6 +136,17 @@ class ToolbarView : public views::View,
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
+  // Overridden from views::Menu2Delegate:
+  virtual void ExecuteCommand(views::Menu2Model* model, int command_id);
+
+  // Overridden from views::SimpleMenuModel::Delegate:
+  virtual bool IsCommandIdChecked(int command_id) const;
+  virtual bool IsCommandIdEnabled(int command_id) const;
+  virtual bool GetAcceleratorForCommandId(int command_id,
+                                          views::Accelerator* accelerator);
+  virtual bool IsLabelForCommandIdDynamic(int command_id) const;
+  virtual std::wstring GetLabelForCommandId(int command_id) const;
+
   // Overridden from views::View:
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
@@ -117,16 +163,15 @@ class ToolbarView : public views::View,
   virtual View* GetAccFocusedChildView() { return acc_focused_view_; }
 
  private:
-  // Returns the number of pixels above the location bar in non-normal display.
-  int PopupTopSpacing() const;
-
-  // DragController methods for the star button. These allow the drag if the
-  // user hasn't edited the text, the url is valid and should be displayed.
+  // Overridden from views::DragController:
   virtual void WriteDragData(View* sender,
                              int press_x,
                              int press_y,
                              OSExchangeData* data);
   virtual int GetDragOperations(View* sender, int x, int y);
+
+  // Returns the number of pixels above the location bar in non-normal display.
+  int PopupTopSpacing() const;
 
   // Set up the various Views in the toolbar
   void CreateLeftSideControls();
@@ -139,6 +184,14 @@ class ToolbarView : public views::View,
   // Runs various menus.
   void RunPageMenu(const gfx::Point& pt, gfx::NativeView hwnd);
   void RunAppMenu(const gfx::Point& pt, gfx::NativeView hwnd);
+
+  void CreatePageMenu();
+  void CreateZoomMenuContents();
+  void CreateEncodingMenuContents();
+#if defined(OS_WIN)
+  void CreateDevToolsMenuContents();
+#endif
+  void CreateAppMenu();
 
   // Types of display mode this toolbar can have.
   enum DisplayMode {
@@ -191,6 +244,17 @@ class ToolbarView : public views::View,
 
   // The display mode used when laying out the toolbar.
   DisplayMode display_mode_;
+
+  // The contents of the various menus.
+  scoped_ptr<views::SimpleMenuModel> page_menu_contents_;
+  scoped_ptr<ZoomMenuModel> zoom_menu_contents_;
+  scoped_ptr<EncodingMenuModel> encoding_menu_contents_;
+  scoped_ptr<views::SimpleMenuModel> devtools_menu_contents_;
+  scoped_ptr<views::SimpleMenuModel> app_menu_contents_;
+
+  // TODO(beng): build these into MenuButton.
+  scoped_ptr<views::Menu2> page_menu_menu_;
+  scoped_ptr<views::Menu2> app_menu_menu_;
 };
 
 #endif  // CHROME_BROWSER_VIEWS_TOOLBAR_VIEW_H_

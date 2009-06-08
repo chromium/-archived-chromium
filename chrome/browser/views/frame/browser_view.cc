@@ -22,7 +22,6 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/download/download_manager.h"
-#include "chrome/browser/encoding_menu_controller_delegate.h"
 #include "chrome/browser/extensions/extension_shelf.h"
 #include "chrome/browser/find_bar.h"
 #include "chrome/browser/find_bar_controller.h"
@@ -106,35 +105,6 @@ static int explicit_show_state = -1;
 
 // Returned from BrowserView::GetClassName.
 static const char kBrowserViewClassName[] = "browser/views/BrowserView";
-
-static const struct MenuLayout {
-  bool separator;
-  int command;
-  int label;
-} kMenuLayout[] = {
-  { true, 0, 0 },
-  { false, IDC_TASK_MANAGER, IDS_TASK_MANAGER },
-  { true, 0, 0 },
-  { false, IDC_ENCODING_MENU, IDS_ENCODING_MENU },
-  { false, IDC_ZOOM_MENU, IDS_ZOOM_MENU },
-  { false, IDC_PRINT, IDS_PRINT },
-  { false, IDC_SAVE_PAGE, IDS_SAVE_PAGE },
-  { false, IDC_FIND, IDS_FIND },
-  { true, 0, 0 },
-  { false, IDC_PASTE, IDS_PASTE },
-  { false, IDC_COPY, IDS_COPY },
-  { false, IDC_CUT, IDS_CUT },
-  { true, 0, 0 },
-  { false, IDC_NEW_TAB, IDS_APP_MENU_NEW_WEB_PAGE },
-  { false, IDC_SHOW_AS_TAB, IDS_SHOW_AS_TAB },
-  { false, IDC_COPY_URL, IDS_APP_MENU_COPY_URL },
-  { false, IDC_DUPLICATE_TAB, IDS_APP_MENU_DUPLICATE_APP_WINDOW },
-  { false, IDC_RESTORE_TAB, IDS_RESTORE_TAB },
-  { true, 0, 0 },
-  { false, IDC_RELOAD, IDS_APP_MENU_RELOAD },
-  { false, IDC_FORWARD, IDS_CONTENT_CONTEXT_FORWARD },
-  { false, IDC_BACK, IDS_CONTENT_CONTEXT_BACK }
-};
 
 ///////////////////////////////////////////////////////////////////////////////
 // ResizeCorner, private:
@@ -532,27 +502,7 @@ SkBitmap BrowserView::GetOTRAvatarIcon() {
 
 #if defined(OS_WIN)
 void BrowserView::PrepareToRunSystemMenu(HMENU menu) {
-  for (int i = 0; i < arraysize(kMenuLayout); ++i) {
-    int command = kMenuLayout[i].command;
-    // |command| can be zero on submenu items (IDS_ENCODING,
-    // IDS_ZOOM) and on separators.
-    if (command != 0) {
-      bool enabled = browser_->command_updater()->IsCommandEnabled(command);
-      if (enabled && command == IDC_RESTORE_TAB) {
-        TabRestoreService* tab_restore_service =
-          browser_->profile()->GetTabRestoreService();
-        if (tab_restore_service && !tab_restore_service->entries().empty()) {
-          system_menu_->SetMenuLabel(command, l10n_util::GetString(
-              tab_restore_service->entries().front()->type ==
-              TabRestoreService::WINDOW ? IDS_RESTORE_WINDOW :
-              IDS_RESTORE_TAB));
-        } else {
-          enabled = false;
-        }
-      }
-      system_menu_->EnableMenuItemByID(command, enabled);
-    }
-  }
+  system_menu_->UpdateStates();
 }
 #endif
 
@@ -1024,6 +974,50 @@ void BrowserView::TabStripEmpty() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// BrowserView, views::SimpleMenuModel::Delegate implementation:
+
+void BrowserView::ExecuteCommand(views::Menu2Model* model, int command_id) {
+  browser_->ExecuteCommand(command_id);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// BrowserView, views::SimpleMenuModel::Delegate implementation:
+
+bool BrowserView::IsCommandIdChecked(int command_id) const {
+  // TODO(beng): encoding menu.
+  // No items in our system menu are check-able.
+  return false;
+}
+
+bool BrowserView::IsCommandIdEnabled(int command_id) const {
+  if (command_id == IDC_RESTORE_TAB)
+    return browser_->CanRestoreTab();
+  return browser_->command_updater()->IsCommandEnabled(command_id);
+}
+
+bool BrowserView::GetAcceleratorForCommandId(int command_id,
+                                             views::Accelerator* accelerator) {
+  // Let's let the ToolbarView own the canonical implementation of this method.
+  return toolbar_->GetAcceleratorForCommandId(command_id, accelerator);
+}
+
+bool BrowserView::IsLabelForCommandIdDynamic(int command_id) const {
+  return command_id == IDC_RESTORE_TAB;
+}
+
+std::wstring BrowserView::GetLabelForCommandId(int command_id) const {
+  DCHECK(command_id == IDC_RESTORE_TAB);
+
+  int string_id = IDS_RESTORE_TAB;
+  if (IsCommandIdEnabled(command_id)) {
+    TabRestoreService* trs = browser_->profile()->GetTabRestoreService();
+    if (trs && trs->entries().front()->type == TabRestoreService::WINDOW)
+      string_id = IDS_RESTORE_WINDOW;
+  }
+  return l10n_util::GetString(string_id);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // BrowserView, views::WindowDelegate implementation:
 
 bool BrowserView::CanResize() const {
@@ -1377,32 +1371,26 @@ void BrowserView::Init() {
     AddChildView(extension_shelf_);
   }
 
-  InitSystemMenu();
-}
-
-void BrowserView::InitSystemMenu() {
 #if defined(OS_WIN)
-  system_menu_.reset(
-      views::Menu::GetSystemMenu(frame_->GetWindow()->GetNativeWindow()));
-  int insertion_index = std::max(0, system_menu_->ItemCount() - 1);
-  // We add the menu items in reverse order so that insertion_index never needs
-  // to change.
-  if (IsBrowserTypeNormal()) {
-    system_menu_->AddSeparator(insertion_index);
-    system_menu_->AddMenuItemWithLabel(insertion_index, IDC_TASK_MANAGER,
-                                       l10n_util::GetString(IDS_TASK_MANAGER));
-    system_menu_->AddSeparator(insertion_index);
-    system_menu_->AddMenuItemWithLabel(insertion_index, IDC_RESTORE_TAB,
-                                       l10n_util::GetString(IDS_RESTORE_TAB));
-    system_menu_->AddMenuItemWithLabel(insertion_index, IDC_NEW_TAB,
-                                       l10n_util::GetString(IDS_NEW_TAB));
-    // If it's a regular browser window with tabs, we don't add any more items,
-    // since it already has menus (Page, Chrome).
-  } else {
-    BuildMenuForTabStriplessWindow(system_menu_.get(), insertion_index);
-  }
+  InitSystemMenu();
 #endif
 }
+
+#if defined(OS_WIN)
+void BrowserView::InitSystemMenu() {
+  system_menu_contents_.reset(new views::SystemMenuModel(this));
+  // We add the menu items in reverse order so that insertion_index never needs
+  // to change.
+  if (IsBrowserTypeNormal())
+    BuildSystemMenuForBrowserWindow();
+  else
+    BuildSystemMenuForPopupWindow();
+  system_menu_.reset(
+      new views::NativeMenuWin(system_menu_contents_.get(), this,
+                               frame_->GetWindow()->GetNativeWindow()));
+  system_menu_->Rebuild();
+}
+#endif
 
 int BrowserView::LayoutTabStrip() {
   gfx::Rect tabstrip_bounds = frame_->GetBoundsForTabStrip(tabstrip_);
@@ -1630,44 +1618,54 @@ void BrowserView::LoadAccelerators() {
 #endif
 }
 
-void BrowserView::BuildMenuForTabStriplessWindow(views::Menu* menu,
-                                                 int insertion_index) {
-  encoding_menu_delegate_.reset(new EncodingMenuControllerDelegate(
-      browser_.get()));
-
-  for (size_t i = 0; i < arraysize(kMenuLayout); ++i) {
-    if (kMenuLayout[i].separator) {
-      menu->AddSeparator(insertion_index);
-    } else {
-      int command = kMenuLayout[i].command;
-      if (command == IDC_ENCODING_MENU) {
-        views::Menu* encoding_menu = menu->AddSubMenu(
-            insertion_index,
-            IDC_ENCODING_MENU,
-            l10n_util::GetString(IDS_ENCODING_MENU));
-        encoding_menu->set_delegate(encoding_menu_delegate_.get());
-        EncodingMenuControllerDelegate::BuildEncodingMenu(browser_->profile(),
-                                                          encoding_menu);
-      } else if (command == IDC_ZOOM_MENU) {
-        views::Menu* zoom_menu =
-            menu->AddSubMenu(insertion_index, IDC_ZOOM_MENU,
-                             l10n_util::GetString(IDS_ZOOM_MENU));
-        zoom_menu->AppendMenuItemWithLabel(
-            IDC_ZOOM_PLUS,
-            l10n_util::GetString(IDS_ZOOM_PLUS));
-        zoom_menu->AppendMenuItemWithLabel(
-            IDC_ZOOM_NORMAL,
-            l10n_util::GetString(IDS_ZOOM_NORMAL));
-        zoom_menu->AppendMenuItemWithLabel(
-            IDC_ZOOM_MINUS,
-            l10n_util::GetString(IDS_ZOOM_MINUS));
-      } else {
-        menu->AddMenuItemWithLabel(insertion_index, command,
-                                   l10n_util::GetString(kMenuLayout[i].label));
-      }
-    }
-  }
+#if defined(OS_WIN)
+void BrowserView::BuildSystemMenuForBrowserWindow() {
+  system_menu_contents_->AddSeparator();
+  system_menu_contents_->AddItemWithStringId(IDC_TASK_MANAGER,
+                                             IDS_TASK_MANAGER);
+  system_menu_contents_->AddSeparator();
+  system_menu_contents_->AddItemWithStringId(IDC_RESTORE_TAB, IDS_RESTORE_TAB);
+  system_menu_contents_->AddItemWithStringId(IDC_NEW_TAB, IDS_NEW_TAB);
+  // If it's a regular browser window with tabs, we don't add any more items,
+  // since it already has menus (Page, Chrome).
 }
+
+void BrowserView::BuildSystemMenuForPopupWindow() {
+  system_menu_contents_->AddSeparator();
+  system_menu_contents_->AddItemWithStringId(IDC_TASK_MANAGER,
+                                             IDS_TASK_MANAGER);
+  system_menu_contents_->AddSeparator();
+  encoding_menu_contents_.reset(new EncodingMenuModel(browser_.get()));
+  system_menu_contents_->AddSubMenuWithStringId(IDS_ENCODING_MENU,
+                                                encoding_menu_contents_.get());
+  zoom_menu_contents_.reset(new ZoomMenuModel(this));
+  system_menu_contents_->AddSubMenuWithStringId(IDS_ZOOM_MENU,
+                                                zoom_menu_contents_.get());
+  system_menu_contents_->AddItemWithStringId(IDC_PRINT, IDS_PRINT);
+  system_menu_contents_->AddItemWithStringId(IDC_SAVE_PAGE,
+                                             IDS_SAVE_PAGE);
+  system_menu_contents_->AddItemWithStringId(IDC_FIND, IDS_FIND);
+  system_menu_contents_->AddSeparator();
+  system_menu_contents_->AddItemWithStringId(IDC_PASTE, IDS_PASTE);
+  system_menu_contents_->AddItemWithStringId(IDC_COPY, IDS_COPY);
+  system_menu_contents_->AddItemWithStringId(IDC_CUT, IDS_CUT);
+  system_menu_contents_->AddSeparator();
+  system_menu_contents_->AddItemWithStringId(IDC_NEW_TAB,
+                                             IDS_APP_MENU_NEW_WEB_PAGE);
+  system_menu_contents_->AddItemWithStringId(IDC_SHOW_AS_TAB, IDS_SHOW_AS_TAB);
+  system_menu_contents_->AddItemWithStringId(IDC_COPY_URL,
+                                             IDS_APP_MENU_COPY_URL);
+  system_menu_contents_->AddItemWithStringId(IDC_DUPLICATE_TAB,
+                                             IDS_APP_MENU_DUPLICATE_APP_WINDOW);
+  system_menu_contents_->AddItemWithStringId(IDC_RESTORE_TAB, IDS_RESTORE_TAB);
+  system_menu_contents_->AddSeparator();
+  system_menu_contents_->AddItemWithStringId(IDC_RELOAD, IDS_APP_MENU_RELOAD);
+  system_menu_contents_->AddItemWithStringId(IDC_FORWARD,
+                                             IDS_CONTENT_CONTEXT_FORWARD);
+  system_menu_contents_->AddItemWithStringId(IDC_BACK,
+                                             IDS_CONTENT_CONTEXT_BACK);
+}
+#endif
 
 int BrowserView::GetCommandIDForAppCommandID(int app_command_id) const {
 #if defined(OS_WIN)

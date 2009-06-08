@@ -11,15 +11,18 @@
 #include "build/build_config.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_window.h"
-#include "chrome/browser/tabs/tab_strip_model.h"
-#include "chrome/browser/views/frame/browser_frame.h"
-#include "views/window/client_view.h"
-#include "views/window/window_delegate.h"
-
 #if defined(OS_WIN)
 #include "chrome/browser/hang_monitor/hung_plugin_action.h"
 #include "chrome/browser/hang_monitor/hung_window_detector.h"
 #endif
+#include "chrome/browser/tabs/tab_strip_model.h"
+#include "chrome/browser/views/frame/browser_frame.h"
+#if defined(OS_WIN)
+#include "views/controls/menu/native_menu_win.h"
+#endif
+#include "views/controls/menu/simple_menu_model.h"
+#include "views/window/client_view.h"
+#include "views/window/window_delegate.h"
 
 // NOTE: For more information about the objects and files in this directory,
 // view: http://dev.chromium.org/developers/design-documents/browser-window
@@ -28,15 +31,17 @@ class BookmarkBarView;
 class Browser;
 class BrowserBubble;
 class DownloadShelfView;
-class EncodingMenuControllerDelegate;
+class EncodingMenuModel;
 class ExtensionShelf;
 class FullscreenExitBubble;
 class HtmlDialogUIDelegate;
 class InfoBarContainer;
+class LocationBarView;
 class StatusBubbleViews;
 class TabContentsContainer;
 class TabStrip;
 class ToolbarView;
+class ZoomMenuModel;
 
 namespace views {
 class Menu;
@@ -52,6 +57,8 @@ class BrowserView : public BrowserWindow,
                     public BrowserWindowTesting,
                     public NotificationObserver,
                     public TabStripModelObserver,
+                    public views::Menu2Delegate,
+                    public views::SimpleMenuModel::Delegate,
                     public views::WindowDelegate,
                     public views::ClientView {
  public:
@@ -250,6 +257,17 @@ class BrowserView : public BrowserWindow,
                              bool user_gesture);
   virtual void TabStripEmpty();
 
+  // Overridden from views::Menu2Delegate:
+  virtual void ExecuteCommand(views::Menu2Model* model, int command_id);
+
+  // Overridden from views::SimpleMenuModel::Delegate:
+  virtual bool IsCommandIdChecked(int command_id) const;
+  virtual bool IsCommandIdEnabled(int command_id) const;
+  virtual bool GetAcceleratorForCommandId(int command_id,
+                                          views::Accelerator* accelerator);
+  virtual bool IsLabelForCommandIdDynamic(int command_id) const;
+  virtual std::wstring GetLabelForCommandId(int command_id) const;
+
   // Overridden from views::WindowDelegate:
   virtual bool CanResize() const;
   virtual bool CanMaximize() const;
@@ -286,8 +304,10 @@ class BrowserView : public BrowserWindow,
   // Browser window related initializations.
   void Init();
 
+#if defined(OS_WIN)
   // Creates the system menu.
   void InitSystemMenu();
+#endif
 
   // Layout the TabStrip, returns the coordinate of the bottom of the TabStrip,
   // for laying out subsequent controls.
@@ -338,8 +358,11 @@ class BrowserView : public BrowserWindow,
   // use.
   void LoadAccelerators();
 
+#if defined(OS_WIN)
   // Builds the correct menu for when we have minimal chrome.
-  void BuildMenuForTabStriplessWindow(views::Menu* menu, int insertion_index);
+  void BuildSystemMenuForBrowserWindow();
+  void BuildSystemMenuForPopupWindow();
+#endif
 
   // Retrieves the command id for the specified Windows app command.
   int GetCommandIDForAppCommandID(int app_command_id) const;
@@ -400,19 +423,20 @@ class BrowserView : public BrowserWindow,
 
   scoped_ptr<FullscreenExitBubble> fullscreen_bubble_;
 
-  // Lazily created representation of the system menu.
-  scoped_ptr<views::Menu> system_menu_;
-
   // The default favicon image.
   static SkBitmap default_favicon_;
 
   // The OTR avatar image.
   static SkBitmap otr_avatar_;
 
-  // The delegate for the encoding menu.
-  scoped_ptr<EncodingMenuControllerDelegate> encoding_menu_delegate_;
-
 #if defined(OS_WIN)
+  // The additional items we insert into the system menu.
+  scoped_ptr<views::SystemMenuModel> system_menu_contents_;
+  scoped_ptr<ZoomMenuModel> zoom_menu_contents_;
+  scoped_ptr<EncodingMenuModel> encoding_menu_contents_;
+  // The wrapped system menu itself.
+  scoped_ptr<views::NativeMenuWin> system_menu_;
+
   // This object is used to perform periodic actions in a worker
   // thread. It is currently used to monitor hung plugin windows.
   WorkerThreadTicker ticker_;
