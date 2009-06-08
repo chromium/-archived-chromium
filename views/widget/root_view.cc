@@ -70,7 +70,6 @@ RootView::RootView(Widget* widget)
     previous_cursor_(NULL),
 #endif
     default_keyboard_handler_(NULL),
-    focus_listener_(NULL),
     focus_on_mouse_pressed_(false),
     ignore_set_focus_calls_(false),
     focus_traversable_parent_(NULL),
@@ -534,10 +533,6 @@ void RootView::ProcessMouseDragCanceled() {
   }
 }
 
-void RootView::SetFocusListener(FocusListener* listener) {
-  focus_listener_ = listener;
-}
-
 void RootView::FocusView(View* view) {
   if (view != GetFocusedView()) {
 #if defined(OS_WIN)
@@ -549,9 +544,6 @@ void RootView::FocusView(View* view) {
 
     View* prev_focused_view = focus_manager->GetFocusedView();
     focus_manager->SetFocusedView(view);
-
-    if (focus_listener_)
-      focus_listener_->FocusChanged(prev_focused_view, view);
 #else
     // TODO(port): Port the focus manager and this goes away.
     NOTIMPLEMENTED();

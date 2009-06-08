@@ -21,17 +21,6 @@ class PaintTask;
 class RootViewDropTarget;
 class Widget;
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// FocusListener Interface
-//
-////////////////////////////////////////////////////////////////////////////////
-class FocusListener {
- public:
-  virtual void FocusChanged(View* lost_focus, View* got_focus) = 0;
-};
-
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // RootView class
@@ -150,9 +139,6 @@ class RootView : public View,
 
   // Overridden to handle special root view case.
   virtual bool IsVisibleInRootView() const;
-
-  // Sets a listener that receives focus changes events.
-  void SetFocusListener(FocusListener* listener);
 
   // FocusTraversable implementation.
   virtual View* FindNextFocusableView(View* starting_view,
@@ -307,9 +293,6 @@ class RootView : public View,
 
   // Default keyboard handler
   View* default_keyboard_handler_;
-
-  // The listener that gets focus change notifications.
-  FocusListener* focus_listener_;
 
   // Whether this root view should make our hwnd focused
   // when an unprocessed mouse press event occurs
