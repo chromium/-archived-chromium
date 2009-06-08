@@ -52,7 +52,7 @@ ColladaZipArchive::ColladaZipArchive(const std::string &zip_filename,
     GetInformationList(&infolist);
 
     bool dae_found = false;
-    for (int i = 0; i < infolist.size(); ++i) {
+    for (vector<ZipFileInfo>::size_type i = 0; i < infolist.size(); ++i) {
       const char *name = infolist[i].name.c_str();
       int length = strlen(name);
 

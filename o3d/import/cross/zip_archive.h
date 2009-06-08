@@ -108,11 +108,12 @@
 #include <string>
 #include <vector>
 
-#ifdef OS_MACOSX
-#define unix
-#endif
+#include "contrib/minizip/unzip.h"
 
-#include "third_party/zlib/files/contrib/minizip/unzip.h"
+#if defined(OS_WIN)
+// Windows #defines this.
+#undef DeleteFile
+#endif
 
 // structure containing the unz_file_info information plus the file name
 struct ZipFileInfo : public unz_file_info {

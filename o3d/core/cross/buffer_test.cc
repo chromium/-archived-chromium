@@ -482,10 +482,10 @@ TEST_F(BufferTest, TestVertexBufferFromRawData) {
   // Write out the data for each field
 
   float float_data[kNumElements * 3] = {
-    1.2, 2.3, 4.7,
-    -4.1, 3.14, 17.8,
-    17.3, -4.7, -1.1 ,
-    -0.1, 0.123, 5.720
+     1.2f,  2.3f,   4.7f,
+    -4.1f,  3.14f, 17.8f,
+    17.3f, -4.7f,  -1.1f,
+    -0.1f,  0.123f, 5.720f
   };
 
   uint32 int_data[kNumElements * 2] = {

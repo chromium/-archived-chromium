@@ -285,22 +285,22 @@ TEST_F(EffectTest, CreateAndDestroyEffect) {
   ParamFloat3 *lightpos =
       shape->CreateParam<ParamFloat3>("lightworldPos");
   EXPECT_TRUE(lightpos != NULL);
-  lightpos->set_value(Float3(0.2, 10.5, -3.14));
+  lightpos->set_value(Float3(0.2f, 10.5f, -3.14f));
 
   ParamFloat4 *lightcolor =
       shape->CreateParam<ParamFloat4>("lightColor");
   EXPECT_TRUE(lightcolor != NULL);
-  lightcolor->set_value(Float4(0.8, 0.2, 0.655, 1.0));
+  lightcolor->set_value(Float4(0.8f, 0.2f, 0.655f, 1.0f));
 
   ParamFloat4 *emissive =
       shape->CreateParam<ParamFloat4>("emissive");
   EXPECT_TRUE(emissive != NULL);
-  emissive->set_value(Float4(0.0, 0.0, 0.0, 1.0));
+  emissive->set_value(Float4(0.0f, 0.0f, 0.0f, 1.0f));
 
   ParamFloat4 *ambient =
       shape->CreateParam<ParamFloat4>("ambient");
   EXPECT_TRUE(ambient != NULL);
-  ambient->set_value(Float4(0.25, 0.25, 0.35, 1.0));
+  ambient->set_value(Float4(0.25f, 0.25f, 0.35f, 1.0f));
 
   String filepath = *g_program_path + "/unittest_data/rock01.tga";
   Texture *texture = pack->CreateTextureFromFile(filepath,
@@ -332,7 +332,7 @@ TEST_F(EffectTest, GetEffectParameters) {
   fx->GetParameterInfo(&info);
   EXPECT_EQ(arraysize(expected_params), info.size());
 
-  for (int ii = 0; ii < info.size(); ++ii) {
+  for (EffectParameterInfoArray::size_type ii = 0; ii < info.size(); ++ii) {
     EXPECT_TRUE(IsExpectedParam(info[ii]));
   }
 
@@ -354,7 +354,7 @@ TEST_F(EffectTest, GetEffectStreams) {
   fx->GetStreamInfo(&info);
   EXPECT_EQ(arraysize(expected_streams), info.size());
 
-  for (int ii = 0; ii < info.size(); ++ii) {
+  for (EffectStreamInfoArray::size_type ii = 0; ii < info.size(); ++ii) {
     EXPECT_TRUE(IsExpectedStream(info[ii]));
   }
 

@@ -38,7 +38,7 @@
 #define O3D_IMPORT_CROSS_GZ_DECOMPRESSOR_H_
 
 #include "base/basictypes.h"
-#include "third_party/zlib/files/zlib.h"
+#include "zlib.h"
 #include "import/cross/memory_stream.h"
 
 namespace o3d {

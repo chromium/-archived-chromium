@@ -95,7 +95,12 @@ class FileTextReaderTest : public testing::Test {
       if (file_pointers_[i]) {
         ::fclose(file_pointers_[i]);
       }
-      ::unlink((tmp_base + kFileInfo[i].file_name_).c_str());
+      std::string path = tmp_base + kFileInfo[i].file_name_;
+#if defined(OS_WIN)
+      ::_unlink(path.c_str());
+#else
+      ::unlink(path.c_str());
+#endif
       file_pointers_[i] = NULL;
     }
   }

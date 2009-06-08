@@ -35,7 +35,6 @@
 // precompiled header must appear before anything else.
 #include "core/cross/precompile.h"
 
-#include <png.h>
 #include <fstream>
 #include "core/cross/bitmap.h"
 #include "core/cross/types.h"
@@ -44,6 +43,7 @@
 #include "base/file_util.h"
 #include "import/cross/memory_buffer.h"
 #include "import/cross/memory_stream.h"
+#include "png.h"
 
 using file_util::OpenFile;
 using file_util::CloseFile;

@@ -330,7 +330,7 @@ bool ColladaConditioner::HandleNVImport(FCDocument* doc,
 
             // For each material which uses this effect,
             FCDMaterialLibrary* lib = doc->GetMaterialLibrary();
-            for (int i = 0; i < lib->GetEntityCount(); ++i) {
+            for (size_t i = 0; i < lib->GetEntityCount(); ++i) {
               FCDMaterial* material = lib->GetEntity(i);
               LOG_ASSERT(material != 0);
               if (material->GetEffect() == collada_effect) {

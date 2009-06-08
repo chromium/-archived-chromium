@@ -37,7 +37,7 @@
 
 namespace o3d {
 
-static const float kEpsilon = 0.000001;
+static const float kEpsilon = 0.000001f;
 
 // TODO: Someone who is better at math, please optimize this.
 bool RayIntersectionInfo::IntersectTriangle(const Point3& start,

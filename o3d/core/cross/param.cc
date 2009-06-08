@@ -238,7 +238,7 @@ void Param::IncrementNotCachableCountOnParamChainForInput(Param* input) {
     ++not_cachable_count_;
     ParamVector params;
     GetOutputs(&params);
-    for (int ii = 0; ii < params.size(); ++ii) {
+    for (ParamVector::size_type ii = 0; ii < params.size(); ++ii) {
       ++params[ii]->not_cachable_count_;
     }
   }
@@ -249,7 +249,7 @@ void Param::DecrementNotCachableCountOnParamChainForInput(Param* input) {
     --not_cachable_count_;
     ParamVector params;
     GetOutputs(&params);
-    for (int ii = 0; ii < params.size(); ++ii) {
+    for (ParamVector::size_type ii = 0; ii < params.size(); ++ii) {
       --params[ii]->not_cachable_count_;
     }
   }

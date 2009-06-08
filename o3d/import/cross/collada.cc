@@ -344,7 +344,7 @@ bool Collada::ImportDAEDocument(FCDocument* doc,
       // TODO: Add option to skip this step if user just wants what's
       // actually used by models. The rest of the code already deals with this.
       FCDImageLibrary* image_library = doc->GetImageLibrary();
-      for (int i = 0; i < image_library->GetEntityCount(); i++) {
+      for (uint32 i = 0; i < image_library->GetEntityCount(); i++) {
         FCDEntity* entity = image_library->GetEntity(i);
         LOG_ASSERT(entity);
         LOG_ASSERT(entity->GetType() == FCDEntity::IMAGE);
@@ -358,7 +358,7 @@ bool Collada::ImportDAEDocument(FCDocument* doc,
       // TODO: Add option to skip this step if user just wants what's
       // actually used by models. The rest of the code already deals with this.
       FCDMaterialLibrary* material_library = doc->GetMaterialLibrary();
-      for (int i = 0; i < material_library->GetEntityCount(); i++) {
+      for (uint32 i = 0; i < material_library->GetEntityCount(); i++) {
         FCDEntity* entity = material_library->GetEntity(i);
         LOG_ASSERT(entity);
         LOG_ASSERT(entity->GetType() == FCDEntity::MATERIAL);

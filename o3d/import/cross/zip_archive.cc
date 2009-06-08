@@ -58,6 +58,11 @@
 using std::vector;
 using std::string;
 
+#if defined(OS_WIN)
+// Windows #defines this...
+#undef DeleteFile
+#endif
+
 #ifndef ALLOW_USER_QUERY
 #define ALLOW_USER_QUERY      0   // 1: ask before overwriting files
 #endif
@@ -203,10 +208,17 @@ int ZipArchive::Extract() {
   const char *dirname = NULL;
 
   if (opt_do_extract == 1) {
-    if (opt_extractdir && chdir(dirname)) {
+#if defined(OS_WIN)
+    if (opt_extractdir && ::_chdir(dirname)) {
       DEBUGLOG("Error changing into %s, aborting\n", dirname);
       exit(-1);
     }
+#else
+    if (opt_extractdir && ::chdir(dirname)) {
+      DEBUGLOG("Error changing into %s, aborting\n", dirname);
+      exit(-1);
+    }
+#endif
 
     if (filename_to_extract == NULL) {
       return DoExtract(opt_do_extract_withoutpath,
@@ -221,6 +233,7 @@ int ZipArchive::Extract() {
   }
 
   unzCloseCurrentFile(zip_file_ref_);
+  return 1;
 }
 
 // Extracts a single file to disk
@@ -294,9 +307,9 @@ char  *ZipArchive::GetFileData(const string &filename, size_t *size) {
     // as string data and doesn't harm anything else
     buffer = reinterpret_cast<char*>(malloc(file_info.uncompressed_size + 1));
     buffer[file_info.uncompressed_size] = 0;
-    int buffer_index = 0;
+    uint32 buffer_index = 0;
 
-    int nbytes;
+    uint32 nbytes;
     do {
       nbytes = unzReadCurrentFile(uf, temp_buffer, kBufferChunkSize);
       if (nbytes < 0) {
@@ -511,7 +524,7 @@ int ZipArchive::DoExtract(int opt_extract_without_path,
   int result = unzGetGlobalInfo(zip_file_ref_, &gi);
 
   if (result != UNZ_OK)
-    DEBUGLOG("error %d with zipfile in unzGetGlobalInfo \n", result);
+    DEBUGLOG("error %d with zipfile in unzGetGlobalInfo \n", result)
 
   for (uLong i = 0; i < gi.number_entry; ++i) {
     if (ExtractCurrentFile(&opt_extract_without_path,
@@ -522,7 +535,7 @@ int ZipArchive::DoExtract(int opt_extract_without_path,
     if ((i + 1) < gi.number_entry) {
       result = unzGoToNextFile(zip_file_ref_);
       if (result != UNZ_OK) {
-        DEBUGLOG("error %d with zipfile in unzGoToNextFile\n", result);
+        DEBUGLOG("error %d with zipfile in unzGoToNextFile\n", result)
         break;
       }
     }
@@ -551,7 +564,7 @@ void ZipArchive::ChangeFileDate(const char *filename,
   SetFileTime(hFile, &ftm, &ftLastAcc, &ftm);
   CloseHandle(hFile);
 #else
-#ifdef unix
+#if defined(OS_LINUX) || defined(OS_MACOSX)
   struct utimbuf ut;
   struct tm newdate;
   newdate.tm_sec = tmu_date.tm_sec;
@@ -577,11 +590,11 @@ void ZipArchive::ChangeFileDate(const char *filename,
 
 int ZipArchive::MyMkDir(const char *dirname) {
   int ret = 0;
-#ifdef WIN32
-  ret = mkdir(dirname);
+#if defined(OS_WIN)
+  ret = ::_mkdir(dirname);
 #else
-#ifdef unix
-  ret = mkdir(dirname, 0775);
+#if defined(OS_LINUX) || defined(OS_MACOSX)
+  ret = ::mkdir(dirname, 0775);
 #endif
 #endif
   return ret;
@@ -642,7 +655,7 @@ int ZipArchive::Print() {
     printf(" Length  Method   Size  Ratio   Date    Time   CRC-32     Name\n");
     printf(" ------  ------   ----  -----   ----    ----   ------     ----\n");
 
-    for (int i = 0; i < gi.number_entry; ++i) {
+    for (uint32 i = 0; i < gi.number_entry; ++i) {
       char filename_inzip[MAXFILENAME];
       ZipFileInfo file_info;
       result = unzGetCurrentFileInfo(zip_file_ref_,
@@ -801,7 +814,7 @@ bool ZipArchive::GetTempFileFromFile(const string &filename,
   char *data = GetFileData(filename, &data_size);
 
   if (data) {
-#ifdef OS_WIN
+#if defined(OS_WIN)
     // get the temp directory
     char temp_path[MAX_PATH];
     if (!GetTempPathA(MAX_PATH, temp_path)) {
@@ -814,7 +827,7 @@ bool ZipArchive::GetTempFileFromFile(const string &filename,
 
     // and format into a wide-string
     char guid_string[37];
-    snprintf(
+    ::_snprintf(
         guid_string, sizeof(guid_string) / sizeof(guid_string[0]),
         "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
         guid.Data1, guid.Data2, guid.Data3,
@@ -828,14 +841,14 @@ bool ZipArchive::GetTempFileFromFile(const string &filename,
     int dot_position = filename.rfind('.');
     if (dot_position != string::npos) {
       // try to retain the original file suffix (.jpg, etc.)
-      snprintf(fullpath, MAX_PATH, "%s%s%s",
-               temp_path,
-               guid_string,
-               filename.substr(dot_position).c_str());
+      ::_snprintf(fullpath, MAX_PATH, "%s%s%s",
+                  temp_path,
+                  guid_string,
+                  filename.substr(dot_position).c_str());
     } else {
-      snprintf(fullpath, MAX_PATH, "%s\\%s",
-               temp_path,
-               guid_string);
+      ::_snprintf(fullpath, MAX_PATH, "%s\\%s",
+                  temp_path,
+                  guid_string);
     }
 
     FILE *tempfile = fopen(fullpath, "wb");
@@ -872,5 +885,9 @@ bool ZipArchive::GetTempFileFromFile(const string &filename,
 }
 
 void ZipArchive::DeleteFile(const string &filename) {
-  unlink(filename.c_str());
+#if defined(OS_WIN)
+  ::_unlink(filename.c_str());
+#else
+  ::unlink(filename.c_str());
+#endif
 }

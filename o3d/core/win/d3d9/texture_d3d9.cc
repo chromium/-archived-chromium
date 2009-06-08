@@ -293,7 +293,7 @@ Texture2DD3D9::~Texture2DD3D9() {
 }
 
 bool Texture2DD3D9::UpdateBackedMipLevel(unsigned int level) {
-  DCHECK_LT(level, levels());
+  DCHECK_LT(level, static_cast<unsigned int>(levels()));
   DCHECK(backing_bitmap_.image_data());
   DCHECK_EQ(backing_bitmap_.width(), width());
   DCHECK_EQ(backing_bitmap_.height(), height());
@@ -562,7 +562,7 @@ TextureCUBED3D9::~TextureCUBED3D9() {
 
 bool TextureCUBED3D9::UpdateBackedMipLevel(unsigned int level,
                                            TextureCUBE::CubeFace face) {
-  DCHECK_LT(level, levels());
+  DCHECK_LT(level, static_cast<unsigned int>(levels()));
   DCHECK(backing_bitmap_.image_data());
   DCHECK(backing_bitmap_.is_cubemap());
   DCHECK_EQ(backing_bitmap_.width(), edge_length());

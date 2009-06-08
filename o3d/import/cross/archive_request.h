@@ -103,7 +103,7 @@ class ArchiveRequest : public ObjectBase, public ArchiveCallbackClient {
 
   // ArchiveCallbackClient methods
   virtual void ReceiveFileHeader(const ArchiveFileInfo &file_info);
-  virtual bool ReceiveFileData(MemoryReadStream *stream, int nbytes);
+  virtual bool ReceiveFileData(MemoryReadStream *stream, size_t nbytes);
 
   Pack *pack() {
     return pack_.Get();  // Set at creation time and never changed.

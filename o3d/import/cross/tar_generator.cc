@@ -35,6 +35,10 @@
 
 using std::string;
 
+#if defined(OS_WIN)
+  #define snprintf _snprintf
+#endif
+
 namespace o3d {
 
 const int kMaxFilenameSize        = 100;
@@ -94,24 +98,24 @@ void TarGenerator::AddEntry(const String &file_name,
   strncpy(p, file_name.c_str(), kMaxFilenameSize - 1);
 
   // File mode
-  snprintf(p + kFileModeOffset, 8, "%07o", is_directory ? 0755 : 0644);
+  ::snprintf(p + kFileModeOffset, 8, "%07o", is_directory ? 0755 : 0644);
 
   // UserID
-  snprintf(p + kUserIDOffset, 8, "%07o", 0765);
+  ::snprintf(p + kUserIDOffset, 8, "%07o", 0765);
 
   // GroupID
-  snprintf(p + kGroupIDOffset, 8, "%07o", 0204);
+  ::snprintf(p + kGroupIDOffset, 8, "%07o", 0204);
 
   // File size
-  snprintf(p + kFileSizeOffset, 12, "%011o", file_size);
+  ::snprintf(p + kFileSizeOffset, 12, "%011o", file_size);
 
   // Modification time
   // TODO: write the correct current time here...
-  snprintf(p + kModifyTimeOffset, 12, "%07o", 011131753141);
+  ::snprintf(p + kModifyTimeOffset, 12, "%07o", 011131753141);
 
   // Initialize Header checksum so check sum can be computed
   // by ComputeCheckSum() which will fill in the value here
-  memset(p + kHeaderCheckSumOffset, 32, 8);
+  ::memset(p + kHeaderCheckSumOffset, 32, 8);
 
   // We only support ordinary files and directories, which is fine
   // for our use case
@@ -119,13 +123,13 @@ void TarGenerator::AddEntry(const String &file_name,
   p[kLinkFlagOffset] = link_flag;
 
   // Magic offset
-  snprintf(p + kMagicOffset, 8, "ustar  ");
+  ::snprintf(p + kMagicOffset, 8, "ustar  ");
 
   // User name
-  snprintf(p + kUserNameOffset, 32, "guest");
+  ::snprintf(p + kUserNameOffset, 32, "guest");
 
   // Group name
-  snprintf(p + kGroupNameOffset, 32, "staff");
+  ::snprintf(p + kGroupNameOffset, 32, "staff");
 
 
   // This has to be done at the end

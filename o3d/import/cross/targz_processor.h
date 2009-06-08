@@ -41,8 +41,7 @@
 #include "import/cross/archive_processor.h"
 #include "import/cross/gz_decompressor.h"
 #include "import/cross/tar_processor.h"
-
-#include "third_party/zlib/files/zlib.h"
+#include "zlib.h"
 
 namespace o3d {
 

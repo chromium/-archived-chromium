@@ -298,7 +298,7 @@ bool Verify(const FilePath& in_filename,
   // shader to the given output file, if there is one.
   if (options.condition && !out_filename.empty()) {
     if (file_util::WriteFile(out_filename, shader_source_in.c_str(),
-                             shader_source_in.size()) == -1) {
+                             static_cast<int>(shader_source_in.size())) == -1) {
       O3D_ERROR(&service_locator) << "Warning: Could not write to output file '"
                                   << FilePathToUTF8(in_filename).c_str() << "'";
     }

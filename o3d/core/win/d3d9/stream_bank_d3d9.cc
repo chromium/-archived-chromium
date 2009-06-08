@@ -90,7 +90,8 @@ bool StreamBankD3D9::CheckForMissingVertexStreams(
   DCHECK(missing_semantic_index);
   EffectStreamInfoArray streamInfos;
   effect->GetStreamInfo(&streamInfos);
-  for (int i = 0; i < streamInfos.size(); ++i) {
+  for (EffectStreamInfoArray::size_type i = 0;
+       i < streamInfos.size(); ++i) {
     Stream::Semantic semantic = streamInfos[i].semantic();
     int semantic_index = streamInfos[i].semantic_index();
     StreamParamVector::const_iterator iter;

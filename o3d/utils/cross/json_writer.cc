@@ -210,7 +210,7 @@ void JsonWriter::WritePending() {
 }
 
 void JsonWriter::WriteEscapedString(const string& unescaped) {
-  for (int i = 0; i < unescaped.length(); ++i) {
+  for (string::size_type i = 0; i < unescaped.length(); ++i) {
     char c = unescaped[i];
     switch (c) {
       case '\"':

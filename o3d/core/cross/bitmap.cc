@@ -125,7 +125,7 @@ void Bitmap::Allocate(Texture::Format format,
   }
   DCHECK(!cube_map || (width == height));
   DCHECK_LE(num_mipmaps, GetMipMapCount(width, height));
-  DCHECK_GT(num_mipmaps, 0);
+  DCHECK_GT(num_mipmaps, 0u);
 
   format_ = format;
   width_ = width;
@@ -223,7 +223,7 @@ bool Bitmap::LoadFromFile(const FilePath &filepath,
     DLOG(ERROR) << "bitmap file is too large \"" << filename << "\"";
     return false;
   }
-  size_t file_length = file_size64;
+  size_t file_length = static_cast<size_t>(file_size64);
 
   // Load the compressed image data into memory
   MemoryBuffer<uint8> file_contents(file_length);
@@ -318,7 +318,7 @@ Bitmap::ImageFileType Bitmap::GetFileTypeFromMimeType(const char *mime_type) {
 void Bitmap::XYZToXYZA(unsigned char *image_data, int pixel_count) {
   // We do this pixel by pixel, starting from the end to avoid overlapping
   // problems.
-  for (unsigned int i = pixel_count - 1; i < pixel_count; --i) {
+  for (int i = pixel_count - 1; i >= 0; --i) {
     image_data[i*4+3] = 0xff;
     image_data[i*4+2] = image_data[i*3+2];
     image_data[i*4+1] = image_data[i*3+1];
@@ -327,7 +327,7 @@ void Bitmap::XYZToXYZA(unsigned char *image_data, int pixel_count) {
 }
 
 void Bitmap::RGBAToBGRA(unsigned char *image_data, int pixel_count) {
-  for (unsigned int i = 0; i < pixel_count; ++i) {
+  for (int i = 0; i < pixel_count; ++i) {
     unsigned char c = image_data[i*4+0];
     image_data[i*4+0] = image_data[i*4+2];
     image_data[i*4+2] = c;
@@ -384,7 +384,7 @@ static void FilterTexel(unsigned int x,
   // NOTE: all of our formats use at most 4 components per pixel.
   // Instead of dynamically allocating a buffer for each pixel on the heap,
   // just allocate the worst case on the stack.
-  DCHECK_LE(components, 4);
+  DCHECK_LE(components, 4u);
   uint64 accum[4] = {0};
   for (unsigned int src_x = src_min_x; src_x <= src_max_x; ++src_x) {
     for (unsigned int src_y = src_min_y; src_y <= src_max_y; ++src_y) {
@@ -429,7 +429,8 @@ static void FilterTexel(unsigned int x,
   for (unsigned int c = 0; c < components; ++c) {
     uint64 value = accum[c] / (src_height * src_width);
     DCHECK_LE(value, 255);
-    dst_data[(y * dst_width + x) * components + c] = value;
+    dst_data[(y * dst_width + x) * components + c] =
+        static_cast<unsigned char>(value);
   }
 }
 
@@ -455,7 +456,7 @@ bool Bitmap::GenerateMipmaps(unsigned int base_width,
       DLOG(ERROR) << "Mip-map generation not supported for format: " << format;
       return false;
   }
-  DCHECK_GE(std::max(base_width, base_height) >> (num_mipmaps-1), 1);
+  DCHECK_GE(std::max(base_width, base_height) >> (num_mipmaps-1), 1u);
   unsigned char *mip_data = data;
   unsigned int mip_width = base_width;
   unsigned int mip_height = base_height;

@@ -635,15 +635,15 @@ struct KeyInfo {
 }  // anonymous namespace
 
 static const BezierKey bezier_data_0[] = {
-  { 0.083333, 3, 0.013888, -2.66667, 0.152778, 8.66667, },
-  { 0.291667, 20, 0.222222, -9.22377, 0.388889, 60.9133, },
-  { 0.583333, -5, 0.486111, 3.33333, 0.680556, -13.3333, }
+  { 0.083333f, 3, 0.013888f, -2.66667f, 0.152778f, 8.66667f, },
+  { 0.291667f, 20, 0.222222f, -9.22377f, 0.388889f, 60.9133f, },
+  { 0.583333f, -5, 0.486111f, 3.33333f, 0.680556f, -13.3333f, }
 };
 
 static const BezierKey bezier_data_1[] = {
-  { 0.083333, 3, 0.013888, -2.66667, 0.152778, 8.66667, },
-  { 0.291667, 20, 0.222222, -9.22377, 0.740598, 19.9773, },
-  { 0.583333, -5, 0.486111, 3.33333, 0.680556, -13.3333, },
+  { 0.083333f, 3, 0.013888f, -2.66667f, 0.152778f, 8.66667f, },
+  { 0.291667f, 20, 0.222222f, -9.22377f, 0.740598f, 19.9773f, },
+  { 0.583333f, -5, 0.486111f, 3.33333f, 0.680556f, -13.3333f, },
 };
 
 static const ExpectedResult expected_results_0[] = {
@@ -798,8 +798,8 @@ TEST_F(CurveTest, CurveRawDataIncomplete) {
   MemoryWriteStream write_stream(buffer, kDataLength);
   write_stream.WriteLittleEndianInt32(1);  // version 1
   write_stream.WriteByte(3);  // bezier
-  write_stream.WriteLittleEndianFloat32(3.4);
-  write_stream.WriteLittleEndianFloat32(1.7);
+  write_stream.WriteLittleEndianFloat32(3.4f);
+  write_stream.WriteLittleEndianFloat32(1.7f);
   // but DON'T write the tangent data
 
   // make note of amount we've written
@@ -834,7 +834,7 @@ TEST_F(CurveTest, CurveRawDataValid) {
   // Write out some bezier data (one that we tested above)
   size_t n = arraysize(bezier_data_0);
 
-  for (int i = 0; i < n; ++i) {
+  for (size_t i = 0; i < n; ++i) {
     const BezierKey &key = bezier_data_0[i];
 
     write_stream.WriteByte(3);  // bezier

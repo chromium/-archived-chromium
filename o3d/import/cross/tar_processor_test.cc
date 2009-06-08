@@ -60,7 +60,7 @@ class TarTestClient : public ArchiveCallbackClient {
   explicit TarTestClient() : file_count_(0), index_(0) {}
   // ArchiveCallbackClient methods
   virtual void ReceiveFileHeader(const ArchiveFileInfo &file_info);
-  virtual bool ReceiveFileData(MemoryReadStream *stream, int nbytes);
+  virtual bool ReceiveFileData(MemoryReadStream *stream, size_t nbytes);
 
   int GetFileCount() const { return file_count_; }
   size_t GetNumTotalBytesReceived() const { return index_; }
@@ -91,7 +91,7 @@ void TarTestClient::ReceiveFileHeader(const ArchiveFileInfo &file_info) {
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-bool TarTestClient::ReceiveFileData(MemoryReadStream *stream, int nbytes) {
+bool TarTestClient::ReceiveFileData(MemoryReadStream *stream, size_t nbytes) {
   const char *p = reinterpret_cast<const char*>(
       stream->GetDirectMemoryPointer());
 

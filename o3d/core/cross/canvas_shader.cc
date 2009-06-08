@@ -105,7 +105,7 @@ SkShader* CanvasLinearGradient::MakeNativeShader() {
     return NULL;
   }
   scoped_ptr<SkColor> colors(new SkColor[colors_.size()]);
-  for (int ii = 0; ii < colors_.size(); ii++) {
+  for (std::vector<Float4>::size_type ii = 0; ii < colors_.size(); ii++) {
     (colors.get())[ii] = Float4ToSkColor(colors_[ii]);
   }
   scoped_ptr<SkScalar> positions;
@@ -117,7 +117,7 @@ SkShader* CanvasLinearGradient::MakeNativeShader() {
       return NULL;
     }
     positions.reset(new SkScalar[positions_.size()]);
-    for (int ii = 0; ii < positions_.size(); ii++) {
+    for (std::vector<float>::size_type ii = 0; ii < positions_.size(); ii++) {
       (positions.get())[ii] = SkFloatToScalar(positions_[ii]);
     }
   } else {

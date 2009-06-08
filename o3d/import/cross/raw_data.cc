@@ -145,7 +145,7 @@ const char* GetValidUTF8(const RawData& data, size_t* utf8_length) {
       // It's a multi-byte character
       if (c >= 0xC2 && c <= 0xF4) {
         uint32 codepoint;
-        int remaining_code_length = 0;
+        size_t remaining_code_length = 0;
         if ((c & 0xE0) == 0xC0) {
           codepoint = c & 0x1F;
           remaining_code_length = 1;
@@ -161,7 +161,7 @@ const char* GetValidUTF8(const RawData& data, size_t* utf8_length) {
           return NULL;
         }
         length -= remaining_code_length;
-        for (int cc = 0; cc < remaining_code_length; ++cc) {
+        for (size_t cc = 0; cc < remaining_code_length; ++cc) {
           c = *s++;
           if ((c & 0xC0) != 0x80) {
             // Not valid UTF-8
@@ -268,6 +268,9 @@ static String GetUUIDString() {
 
   // and format into a wide-string
   char guid_string[37];
+#if defined(OS_WIN)
+#define snprintf _snprintf
+#endif
   snprintf(
       guid_string, sizeof(guid_string) / sizeof(guid_string[0]),
       "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",

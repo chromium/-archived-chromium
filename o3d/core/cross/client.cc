@@ -224,7 +224,8 @@ void Client::RenderClient() {
       // If nothing was rendered and there are no render graph nodes then
       // clear the client area.
       if (!rendergraph_root || rendergraph_root->children().empty()) {
-          renderer_->Clear(Float4(0.4, 0.3, 0.3, 1), true, 1.0, true, 0, true);
+          renderer_->Clear(Float4(0.4f, 0.3f, 0.3f, 1.0f),
+                           true, 1.0, true, 0, true);
       } else if (rendergraph_root) {
         RenderTree(rendergraph_root);
       }
@@ -259,7 +260,8 @@ void Client::RenderClient() {
     // Update render metrics
     metric_render_elapsed_time.AddSample(  // Convert to ms.
         static_cast<int>(1000 * render_event_.elapsed_time()));
-    metric_render_time_seconds += render_event_.render_time();
+    metric_render_time_seconds += static_cast<uint64>(
+        render_event_.render_time());
     metric_render_xforms_culled.AddSample(render_event_.transforms_culled());
     metric_render_xforms_processed.AddSample(
         render_event_.transforms_processed());

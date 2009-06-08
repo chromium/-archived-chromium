@@ -74,7 +74,7 @@ int GzDecompressor::ProcessBytes(MemoryReadStream *stream,
   size_t have;
 
   // Don't try to read more than our stream has
-  int remaining = stream->GetRemainingByteCount();
+  size_t remaining = stream->GetRemainingByteCount();
   if (bytes_to_process > remaining) {
     return Z_STREAM_ERROR;  // could have our own error code, but good enough...
   }

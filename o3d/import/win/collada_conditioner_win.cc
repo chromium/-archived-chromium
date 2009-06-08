@@ -114,7 +114,7 @@ bool ColladaConditioner::PreprocessShaderFile(const FilePath& in_filename,
 
   // Have to dup the string because CreateProcessW might modify the
   // contents.
-  wchar_t* buf = ::wcsdup(cmd.c_str());
+  wchar_t* buf = ::_wcsdup(cmd.c_str());
 
   // Initialize structure to zero with default array initializer.
   PROCESS_INFORMATION process_info = {0};

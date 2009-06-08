@@ -39,7 +39,7 @@
 #include <assert.h>
 #include "import/cross/memory_buffer.h"
 #include "import/cross/memory_stream.h"
-#include "third_party/zlib/files/zutil.h"
+#include "zutil.h"
 
 const size_t kChunkSize = 16384;
 
@@ -104,7 +104,7 @@ int GzCompressor::CompressBytes(MemoryReadStream *stream,
   int result = Z_OK;
 
   // Don't try to read more than our stream has
-  int remaining = stream->GetRemainingByteCount();
+  size_t remaining = stream->GetRemainingByteCount();
   if (bytes_to_process > remaining) {
     return Z_STREAM_ERROR;
   }

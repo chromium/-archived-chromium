@@ -171,7 +171,12 @@ std::string FileTextReader::ReadToEnd() {
 
 size_t FileTextReader::GetFileSize() const {
   struct stat file_info;
-  ::fstat(::fileno(input_), &file_info);
+#if defined(OS_WIN)
+  int file_number = ::_fileno(input_);
+#else
+  int file_number = ::fileno(input_);
+#endif
+  ::fstat(file_number, &file_info);
 
   return file_info.st_size;
 }

@@ -62,7 +62,7 @@ class ArchiveCallbackClient {
  public:
   virtual ~ArchiveCallbackClient() {}
   virtual void ReceiveFileHeader(const ArchiveFileInfo &file_info) = 0;
-  virtual bool ReceiveFileData(MemoryReadStream *stream, int nbytes) = 0;
+  virtual bool ReceiveFileData(MemoryReadStream *stream, size_t nbytes) = 0;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

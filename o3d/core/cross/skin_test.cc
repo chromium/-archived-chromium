@@ -692,7 +692,7 @@ TEST_F(SkinTest, SkinRawDataValid) {
   const Skin::Influences& influences = influences_array[0];
   EXPECT_EQ(kNumInfluences, influences.size());
 
-  for (int i = 0; i < influences.size(); ++i) {
+  for (Skin::Influences::size_type i = 0; i < influences.size(); ++i) {
     const Skin::Influence &influence = influences[i];
     EXPECT_EQ(i, influence.matrix_index);
     float expected_weight = 1.0f + 0.2f * static_cast<float>(i);

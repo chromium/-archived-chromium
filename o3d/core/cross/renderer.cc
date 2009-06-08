@@ -599,7 +599,7 @@ void Renderer::PushRenderStates(State *state) {
 
 // Pops rendering states to back to their previous settings.
 void Renderer::PopRenderStates() {
-  DCHECK_GT(state_stack_.size(), 1);
+  DCHECK_GT(state_stack_.size(), 1u);
   if (state_stack_.back() != state_stack_[state_stack_.size() - 2]) {
     State* state = state_stack_.back();
     // restore the states the top state object set.

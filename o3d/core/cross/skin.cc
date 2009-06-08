@@ -594,7 +594,7 @@ bool Skin::LoadFromBinaryData(MemoryReadStream *stream) {
 
     if (num_influences > 0) {
       Skin::Influences influences(num_influences);
-      for (int i = 0; i < num_influences; ++i) {
+      for (Skin::Influences::size_type i = 0; i < num_influences; ++i) {
         uint32 matrix_index = stream->ReadLittleEndianInt32();
         float weight = stream->ReadLittleEndianFloat32();
         influences[i] = Skin::Influence(matrix_index, weight);

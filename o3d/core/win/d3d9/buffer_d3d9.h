@@ -37,6 +37,7 @@
 
 #include <d3d9.h>
 #include <atlbase.h>
+#include "base/scoped_ptr.h"
 #include "core/cross/buffer.h"
 
 namespace o3d {
