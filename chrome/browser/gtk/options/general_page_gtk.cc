@@ -22,14 +22,7 @@
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 
-// TODO(mattm): spacing constants should be moved into a system-wide location
 namespace {
-
-// Spacing between options of the same group
-const int kOptionSpacing = 6;
-
-// Horizontal spacing between a label and its control
-const int kLabelSpacing = 12;
 
 // Markup for the text showing the current state of the default browser
 const char kDefaultBrowserLabelMarkup[] = "<span color='#%s'>%s</span>";
@@ -162,7 +155,7 @@ void GeneralPageGtk::HighlightGroup(OptionsGroup highlight_group) {
 // GeneralPageGtk, private:
 
 GtkWidget* GeneralPageGtk::InitStartupGroup() {
-  GtkWidget* vbox = gtk_vbox_new(FALSE, kOptionSpacing);
+  GtkWidget* vbox = gtk_vbox_new(FALSE, gtk_util::kControlSpacing);
 
   startup_homepage_radio_ = gtk_radio_button_new_with_label(NULL,
       l10n_util::GetStringUTF8(
@@ -186,7 +179,8 @@ GtkWidget* GeneralPageGtk::InitStartupGroup() {
                    G_CALLBACK(OnStartupRadioToggled), this);
   gtk_box_pack_start(GTK_BOX(vbox), startup_custom_radio_, FALSE, FALSE, 0);
 
-  GtkWidget* url_list_container = gtk_hbox_new(FALSE, kOptionSpacing);
+  GtkWidget* url_list_container = gtk_hbox_new(FALSE,
+                                               gtk_util::kControlSpacing);
   gtk_box_pack_start(GTK_BOX(vbox), url_list_container, TRUE, TRUE, 0);
 
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
@@ -226,7 +220,7 @@ GtkWidget* GeneralPageGtk::InitStartupGroup() {
   g_signal_connect(G_OBJECT(startup_custom_pages_selection_), "changed",
                    G_CALLBACK(OnStartupPagesSelectionChanged), this);
 
-  GtkWidget* url_list_buttons = gtk_vbox_new(FALSE, kOptionSpacing);
+  GtkWidget* url_list_buttons = gtk_vbox_new(FALSE, gtk_util::kControlSpacing);
   gtk_box_pack_end(GTK_BOX(url_list_container), url_list_buttons,
                    FALSE, FALSE, 0);
 
@@ -256,7 +250,7 @@ GtkWidget* GeneralPageGtk::InitStartupGroup() {
 }
 
 GtkWidget* GeneralPageGtk::InitHomepageGroup() {
-  GtkWidget* vbox = gtk_vbox_new(FALSE, kOptionSpacing);
+  GtkWidget* vbox = gtk_vbox_new(FALSE, gtk_util::kControlSpacing);
 
   homepage_use_newtab_radio_ = gtk_radio_button_new_with_label(NULL,
       l10n_util::GetStringUTF8(IDS_OPTIONS_HOMEPAGE_USE_NEWTAB).c_str());
@@ -264,7 +258,7 @@ GtkWidget* GeneralPageGtk::InitHomepageGroup() {
                    G_CALLBACK(OnNewTabIsHomePageToggled), this);
   gtk_container_add(GTK_CONTAINER(vbox), homepage_use_newtab_radio_);
 
-  GtkWidget* homepage_hbox = gtk_hbox_new(FALSE, kLabelSpacing);
+  GtkWidget* homepage_hbox = gtk_hbox_new(FALSE, gtk_util::kLabelSpacing);
   gtk_container_add(GTK_CONTAINER(vbox), homepage_hbox);
 
   homepage_use_url_radio_ = gtk_radio_button_new_with_label_from_widget(
@@ -290,7 +284,7 @@ GtkWidget* GeneralPageGtk::InitHomepageGroup() {
 }
 
 GtkWidget* GeneralPageGtk::InitDefaultSearchGroup() {
-  GtkWidget* hbox = gtk_hbox_new(FALSE, kOptionSpacing);
+  GtkWidget* hbox = gtk_hbox_new(FALSE, gtk_util::kControlSpacing);
 
   // TODO(mattm): hook these up
   default_search_engine_combobox_ = gtk_combo_box_new();
@@ -306,7 +300,7 @@ GtkWidget* GeneralPageGtk::InitDefaultSearchGroup() {
 }
 
 GtkWidget* GeneralPageGtk::InitDefaultBrowserGroup() {
-  GtkWidget* vbox = gtk_vbox_new(FALSE, kOptionSpacing);
+  GtkWidget* vbox = gtk_vbox_new(FALSE, gtk_util::kControlSpacing);
 
   default_browser_status_label_ = gtk_label_new(NULL);
   gtk_box_pack_start(GTK_BOX(vbox), default_browser_status_label_,

@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "chrome/browser/gtk/options/options_layout_gtk.h"
+#include "chrome/common/gtk_util.h"
 
 namespace {
 
@@ -10,23 +11,12 @@ namespace {
 const char kGroupTitleMarkup[] =
     "<span weight='bold'>%s</span>";
 
-// Space around the outsides of the page
-const int kBorderSize = 12;
-
-// Indent of the options within each group
-const int kOptionsIndent = 12;
-
-// Spacing between options of the same group
-const int kOptionSpacing = 6;
-
-// Spacing between groups
-const int kGroupSpacing = 18;
-
 }
 
 OptionsLayoutBuilderGtk::OptionsLayoutBuilderGtk(int num_rows) {
-  page_ = gtk_vbox_new(FALSE, kGroupSpacing);
-  gtk_container_set_border_width(GTK_CONTAINER(page_), kBorderSize);
+  page_ = gtk_vbox_new(FALSE, gtk_util::kContentAreaSpacing);
+  gtk_container_set_border_width(GTK_CONTAINER(page_),
+                                 gtk_util::kContentAreaBorder);
 }
 
 void OptionsLayoutBuilderGtk::AddOptionGroup(const std::string& title,
@@ -43,10 +33,10 @@ void OptionsLayoutBuilderGtk::AddOptionGroup(const std::string& title,
 
   GtkWidget* content_alignment = gtk_alignment_new(0.0, 0.5, 1.0, 1.0);
   gtk_alignment_set_padding(GTK_ALIGNMENT(content_alignment), 0, 0,
-                            kOptionsIndent, 0);
+                            gtk_util::kGroupIndent, 0);
   gtk_container_add(GTK_CONTAINER(content_alignment), content);
 
-  GtkWidget* group = gtk_vbox_new(FALSE, kOptionSpacing);
+  GtkWidget* group = gtk_vbox_new(FALSE, gtk_util::kControlSpacing);
   gtk_box_pack_start(GTK_BOX(group), title_alignment, FALSE, FALSE, 0);
   gtk_container_add(GTK_CONTAINER(group), content_alignment);
 

@@ -25,6 +25,24 @@ WindowOpenDisposition DispositionFromEventFlags(guint state);
 
 namespace gtk_util {
 
+// Constants relating to the layout of dialog windows:
+// (See http://library.gnome.org/devel/hig-book/stable/design-window.html.en)
+
+// Spacing between controls of the same group.
+const int kControlSpacing = 6;
+
+// Horizontal spacing between a label and its control.
+const int kLabelSpacing = 12;
+
+// Indent of the controls within each group.
+const int kGroupIndent = 12;
+
+// Space around the outsides of a dialog's contents.
+const int kContentAreaBorder = 12;
+
+// Spacing between groups of controls.
+const int kContentAreaSpacing = 18;
+
 // Create a GtkBin with |child| as its child widget.  This bin will paint a
 // border of color |color| with the sizes specified in pixels.
 GtkWidget* CreateGtkBorderBin(GtkWidget* child, const GdkColor* color,

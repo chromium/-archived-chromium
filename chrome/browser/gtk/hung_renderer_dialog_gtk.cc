@@ -11,6 +11,7 @@
 #include "base/gfx/gtk_util.h"
 #include "base/process_util.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/common/gtk_util.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/result_codes.h"
 #include "grit/chromium_strings.h"
@@ -93,7 +94,7 @@ void HungRendererDialogGtk::Init() {
   // |         kill button    wait button|
   // ·-----------------------------------·
   GtkWidget* contents_vbox = dialog_->vbox;
-  gtk_box_set_spacing(GTK_BOX(contents_vbox), 18);
+  gtk_box_set_spacing(GTK_BOX(contents_vbox), gtk_util::kContentAreaSpacing);
 
   GtkWidget* hbox = gtk_hbox_new(FALSE, 12);
   gtk_box_pack_start(GTK_BOX(contents_vbox), hbox, TRUE, TRUE, 0);
@@ -106,7 +107,7 @@ void HungRendererDialogGtk::Init() {
   GtkWidget* icon = gtk_image_new_from_pixbuf(icon_pixbuf);
   gtk_box_pack_start(GTK_BOX(icon_vbox), icon, FALSE, FALSE, 0);
 
-  GtkWidget* vbox = gtk_vbox_new(FALSE, 6);
+  GtkWidget* vbox = gtk_vbox_new(FALSE, gtk_util::kControlSpacing);
   gtk_box_pack_start(GTK_BOX(hbox), vbox, TRUE, TRUE, 0);
 
   GtkWidget* text = gtk_label_new(

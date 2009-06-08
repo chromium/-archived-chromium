@@ -6,6 +6,7 @@
 
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "chrome/common/gtk_util.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 
@@ -123,7 +124,7 @@ ImportProgressDialogGtk::ImportProgressDialogGtk(const string16& source_profile,
       NULL);
 
   GtkWidget* content_area = GTK_DIALOG(dialog_)->vbox;
-  gtk_box_set_spacing(GTK_BOX(content_area), 18);
+  gtk_box_set_spacing(GTK_BOX(content_area), gtk_util::kContentAreaSpacing);
 
   GtkWidget* import_info = gtk_label_new(
       l10n_util::GetStringFUTF8(IDS_IMPORT_PROGRESS_INFO,

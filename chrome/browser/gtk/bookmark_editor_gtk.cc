@@ -17,6 +17,7 @@
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/net/url_fixer_upper.h"
+#include "chrome/common/gtk_util.h"
 #include "googleurl/src/gurl.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
@@ -122,13 +123,13 @@ void BookmarkEditorGtk::Init(GtkWindow* parent_window) {
   // |+-------------------------------------------------------------+|
   // +---------------------------------------------------------------+
   GtkWidget* content_area = GTK_DIALOG(dialog_)->vbox;
-  gtk_box_set_spacing(GTK_BOX(content_area), 18);
+  gtk_box_set_spacing(GTK_BOX(content_area), gtk_util::kContentAreaSpacing);
 
   GtkWidget* vbox = gtk_vbox_new(FALSE, 12);
 
   GtkWidget* table = gtk_table_new(2, 2, FALSE);
-  gtk_table_set_col_spacing(GTK_TABLE(table), 0, 12);
-  gtk_table_set_row_spacings(GTK_TABLE(table), 6);
+  gtk_table_set_col_spacing(GTK_TABLE(table), 0, gtk_util::kLabelSpacing);
+  gtk_table_set_row_spacings(GTK_TABLE(table), gtk_util::kControlSpacing);
 
   GtkWidget* label = gtk_label_new(
       l10n_util::GetStringUTF8(IDS_BOOMARK_EDITOR_NAME_LABEL).c_str());

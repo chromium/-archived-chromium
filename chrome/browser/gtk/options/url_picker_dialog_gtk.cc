@@ -8,16 +8,11 @@
 #include "base/message_loop.h"
 #include "chrome/browser/gtk/options/url_picker_dialog_gtk.h"
 #include "chrome/browser/net/url_fixer_upper.h"
+#include "chrome/common/gtk_util.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 
 namespace {
-
-// Horizontal spacing between a label and its control.
-const int kLabelSpacing = 12;
-
-// Space inside edges of a dialog.
-const int kDialogSpacing = 18;
 
 // Initial width for dialog.
 const int kDialogDefaultWidth = 450;
@@ -43,7 +38,7 @@ UrlPickerDialogGtk::UrlPickerDialogGtk(UrlPickerCallback* callback,
   gtk_dialog_set_default_response(GTK_DIALOG(dialog_), GTK_RESPONSE_OK);
 
 
-  GtkWidget* url_hbox = gtk_hbox_new(FALSE, kLabelSpacing);
+  GtkWidget* url_hbox = gtk_hbox_new(FALSE, gtk_util::kLabelSpacing);
   GtkWidget* url_label = gtk_label_new(
       l10n_util::GetStringUTF8(IDS_ASI_URL).c_str());
   gtk_box_pack_start(GTK_BOX(url_hbox), url_label,
@@ -57,7 +52,8 @@ UrlPickerDialogGtk::UrlPickerDialogGtk(UrlPickerCallback* callback,
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog_)->vbox), url_hbox);
 
   gtk_window_set_default_size(GTK_WINDOW(dialog_), kDialogDefaultWidth, -1);
-  gtk_box_set_spacing(GTK_BOX(GTK_DIALOG(dialog_)->vbox), kDialogSpacing);
+  gtk_box_set_spacing(GTK_BOX(GTK_DIALOG(dialog_)->vbox),
+                      gtk_util::kContentAreaSpacing);
 
   EnableControls();
 

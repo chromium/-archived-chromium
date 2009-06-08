@@ -13,6 +13,7 @@
 #include "base/gfx/gtk_util.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/browser/profile.h"
+#include "chrome/common/gtk_util.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
@@ -142,8 +143,9 @@ void ShowAboutDialogForProfile(GtkWindow* parent, Profile* profile) {
 
   // We use a separate box for the licensing etc. text.  See the comment near
   // the top of this function about using a special layout for this dialog.
-  GtkWidget* vbox = gtk_vbox_new(FALSE, 6);
-  gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
+  GtkWidget* vbox = gtk_vbox_new(FALSE, gtk_util::kControlSpacing);
+  gtk_container_set_border_width(GTK_CONTAINER(vbox),
+                                 gtk_util::kContentAreaBorder);
 
   GtkWidget* copyright_label = MakeMarkupLabel(
       "<span size=\"smaller\">%s</span>",

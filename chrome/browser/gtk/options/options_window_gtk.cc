@@ -11,6 +11,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/gtk/options/general_page_gtk.h"
 #include "chrome/browser/profile.h"
+#include "chrome/common/gtk_util.h"
 #include "chrome/common/pref_member.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -93,7 +94,8 @@ OptionsWindowGtk::OptionsWindowGtk(Profile* profile)
       GTK_RESPONSE_CLOSE,
       NULL);
   gtk_window_set_default_size(GTK_WINDOW(dialog_), 500, -1);
-  gtk_box_set_spacing(GTK_BOX(GTK_DIALOG(dialog_)->vbox), 18);
+  gtk_box_set_spacing(GTK_BOX(GTK_DIALOG(dialog_)->vbox),
+                      gtk_util::kContentAreaSpacing);
 
   notebook_ = gtk_notebook_new();
 
@@ -119,8 +121,9 @@ OptionsWindowGtk::OptionsWindowGtk(Profile* profile)
   }
 #endif
 
-  GtkWidget* metrics_vbox = gtk_vbox_new(FALSE, 6);
-  gtk_container_set_border_width(GTK_CONTAINER(metrics_vbox), 12);
+  GtkWidget* metrics_vbox = gtk_vbox_new(FALSE, gtk_util::kControlSpacing);
+  gtk_container_set_border_width(GTK_CONTAINER(metrics_vbox),
+                                 gtk_util::kContentAreaBorder);
 
   GtkWidget* metrics = gtk_check_button_new();
   GtkWidget* metrics_label = gtk_label_new(
