@@ -127,7 +127,7 @@ void PrintWebViewHelper::SyncPrint(WebFrame* frame) {
                                           render_view_->host_window(),
                                           default_settings.document_cookie,
                                           expected_pages_count,
-                                          true,  // has_selection
+                                          false,  // has_selection
                                           &print_settings);
       if (Send(msg)) {
         msg = NULL;
