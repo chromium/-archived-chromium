@@ -27,8 +27,8 @@
 
 namespace {
 
-const int kPopupBlockingRadioGroup = 1;
-const int kPasswordSavingRadioGroup = 2;
+const int kPasswordSavingRadioGroup = 1;
+const int kFormAutofillRadioGroup = 2;
 }  // namespace
 
 ContentPageView::ContentPageView(Profile* profile)
@@ -75,7 +75,7 @@ void ContentPageView::ButtonPressed(views::Button* sender) {
       UserMetricsRecordAction(L"Options_FormAutofill_Disable",
                               profile()->GetPrefs());
     }
-    form_autofill_.SetValue(enabled);
+    ask_to_save_form_autofill_.SetValue(enabled);
   } else if (sender == passwords_exceptions_button_) {
     UserMetricsRecordAction(L"Options_ShowPasswordsExceptions", NULL);
     PasswordsExceptionsWindowView::Show(profile());
@@ -133,7 +133,8 @@ void ContentPageView::InitControlLayout() {
   // Init member prefs so we can update the controls if prefs change.
   ask_to_save_passwords_.Init(prefs::kPasswordManagerEnabled,
                               profile()->GetPrefs(), this);
-  form_autofill_.Init(prefs::kFormAutofillEnabled, profile()->GetPrefs(), this);
+  ask_to_save_form_autofill_.Init(prefs::kFormAutofillEnabled,
+                                  profile()->GetPrefs(), this);
 }
 
 void ContentPageView::NotifyPrefChanged(const std::wstring* pref_name) {
@@ -145,7 +146,7 @@ void ContentPageView::NotifyPrefChanged(const std::wstring* pref_name) {
     }
   }
   if (!pref_name || *pref_name == prefs::kFormAutofillEnabled) {
-    if (form_autofill_.GetValue()) {
+    if (ask_to_save_form_autofill_.GetValue()) {
       form_autofill_asktosave_radio_->SetChecked(true);
     } else {
       form_autofill_neversave_radio_->SetChecked(true);
@@ -215,12 +216,12 @@ void ContentPageView::InitPasswordSavingGroup() {
 void ContentPageView::InitFormAutofillGroup() {
   form_autofill_asktosave_radio_ = new views::RadioButton(
       l10n_util::GetString(IDS_OPTIONS_AUTOFILL_SAVE),
-      kPasswordSavingRadioGroup);
+      kFormAutofillRadioGroup);
   form_autofill_asktosave_radio_->set_listener(this);
   form_autofill_asktosave_radio_->SetMultiLine(true);
   form_autofill_neversave_radio_ = new views::RadioButton(
       l10n_util::GetString(IDS_OPTIONS_AUTOFILL_NEVERSAVE),
-      kPasswordSavingRadioGroup);
+      kFormAutofillRadioGroup);
   form_autofill_neversave_radio_->set_listener(this);
   form_autofill_neversave_radio_->SetMultiLine(true);
 

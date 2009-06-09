@@ -73,7 +73,7 @@ class ContentPageView : public OptionsPageView,
   views::NativeButton* clear_data_button_;
 
   BooleanPrefMember ask_to_save_passwords_;
-  BooleanPrefMember form_autofill_;
+  BooleanPrefMember ask_to_save_form_autofill_;
 
   DISALLOW_COPY_AND_ASSIGN(ContentPageView);
 };
