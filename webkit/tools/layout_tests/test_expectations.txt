@@ -2693,7 +2693,6 @@ BUG_DARIN WIN : LayoutTests/editing/deleting/4866671.html = FAIL
 BUG_DARIN WIN LINUX : LayoutTests/fast/canvas/canvas-transforms-during-path.html = FAIL
 BUG_DARIN WIN LINUX : LayoutTests/fast/canvas/drawImage-with-globalAlpha.html = FAIL
 BUG_DARIN WIN LINUX : LayoutTests/fast/canvas/quadraticCurveTo.xml = FAIL
-BUG_DARIN WIN LINUX : LayoutTests/fast/js/property-getters-and-setters.html = FAIL
 BUG_DARIN WIN LINUX : LayoutTests/http/tests/loading/deleted-host-in-resource-load-delegate-callback.html = TIMEOUT
 BUG_DARIN WIN LINUX : LayoutTests/fast/canvas/canvas-lineWidth.html = FAIL
 BUG_DARIN LINUX : LayoutTests/editing/deleting/4866671.html = FAIL
