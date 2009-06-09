@@ -1,0 +1,9 @@
+// These are some extra includes needed in the generated stub file for defining
+// various FFmpeg types.
+
+extern "C" {
+
+#include "third_party/ffmpeg/include/libavcodec/avcodec.h"
+#include "third_party/ffmpeg/include/libavformat/avformat.h"
+
+}

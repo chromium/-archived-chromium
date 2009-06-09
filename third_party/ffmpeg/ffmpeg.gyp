@@ -15,8 +15,16 @@
   },
   'targets': [
     {
+      'variables': {
+        'generate_stubs_script': 'generate_stubs.py',
+        'sig_files': [
+          'avcodec-52.sigs',
+          'avformat-52.sigs',
+          'avutil-50.sigs',
+        ],
+        'extra_header': 'ffmpeg_stub_headers.fragment',
+      },
       'target_name': 'ffmpeg',
-      'type': 'none',
       'msvs_guid': 'D7A94F58-576A-45D9-A45F-EB87C63ABBB0',
       'sources': [
         'include/libavcodec/avcodec.h',
@@ -43,57 +51,103 @@
         'include/libavutil/sha1.h',
         'include/win/inttypes.h',
         'include/win/stdint.h',
+        '<@(sig_files)',
+        '<(extra_header)'
       ],
+      'hard_dependency': 1,
       'direct_dependent_settings': {
         'include_dirs': [
           'include',
         ],
       },
       'conditions': [
-        ['OS=="win"', {
-          'sources': [
-            'avcodec-52.def',
-            'avformat-52.def',
-            'avutil-50.def',
-          ],
-          'direct_dependent_settings': {
-            'include_dirs': [
-              'include/win',
-            ],
-            'link_settings': {
-              'libraries': [
-                '<(PRODUCT_DIR)/lib/avcodec-52.lib',
-                '<(PRODUCT_DIR)/lib/avformat-52.lib',
-                '<(PRODUCT_DIR)/lib/avutil-50.lib',
-              ],
+        ['OS=="win"',
+          {
+            'variables': {
+              'outfile_type': 'windows_lib',
+              'output_dir': '<(SHARED_INTERMEDIATE_DIR)'
             },
-          },
-          'dependencies': [
-            'ffmpeg_binaries',
-            '../../build/win/system.gyp:cygwin',
-          ],
-          'rules': [
-            {
-              'rule_name': 'generate_libs',
-              'extension': 'def',
-              'inputs': [
-                'generate_libs.py',
-              ],
-              'outputs': [
-                '<(PRODUCT_DIR)/lib/<(RULE_INPUT_ROOT).lib',
-              ],
-              'variables': {
-                'def_files': [
-                  'avcodec-52.def',
-                  'avformat-52.def',
-                  'avutil-50.def',
+            'type': 'none',
+            'dependencies': [
+              'ffmpeg_binaries',
+            ],
+            'sources!': [
+              '<(extra_header)',
+            ],
+            'direct_dependent_settings': {
+              'link_settings': {
+                'libraries': [
+                  '<(output_dir)/avcodec-52.lib',
+                  '<(output_dir)/avformat-52.lib',
+                  '<(output_dir)/avutil-50.lib',
                 ],
               },
-              'action': ['python', '<@(_inputs)', '-o', '<(PRODUCT_DIR)/lib', '<@(RULE_INPUT_PATH)'],
-              'message': 'Generating import libraries',
             },
-          ],
-        }],
+            'rules': [
+              {
+                'rule_name': 'generate_libs',
+                'extension': 'sigs',
+                'inputs': [
+                  '<(generate_stubs_script)',
+                  '<@(sig_files)',
+                ],
+                'outputs': [
+                  '<(output_dir)/<(RULE_INPUT_ROOT).lib',
+                ],
+                'action': ['python', '<(generate_stubs_script)',
+                           '-o', '<(output_dir)',
+                           '-t', '<(outfile_type)',
+                           '<@(RULE_INPUT_PATH)',
+                ],
+                'message': 'Generating FFmpeg import libraries.',
+              },
+            ],
+          }, {  # else OS!="win"
+            'variables': {
+              'outfile_type': 'posix_stubs',
+              'stubs_filename_root': 'ffmpeg_stubs',
+              'project_path': 'third_party/ffmpeg',
+              'output_root': '<(SHARED_INTERMEDIATE_DIR)/ffmpeg',
+            },
+            'type': '<(library)',
+            'include_dirs': [
+              'include',
+              '<(output_root)',
+              '../..',  # The chromium 'src' directory.
+            ],
+            'direct_dependent_settings': {
+              'include_dirs': [
+                '<(output_root)',
+                '../..',  # The chromium 'src' directory.
+              ],
+            },
+            'actions': [
+              {
+                'action_name': 'generate_stubs',
+                'inputs': [
+                  '<(generate_stubs_script)',
+                  '<(extra_header)',
+                  '<@(sig_files)',
+                ],
+                'outputs': [
+                  '<(output_root)/<(project_path)/<(stubs_filename_root).cc',
+                  '<(output_root)/<(project_path)/<(stubs_filename_root).h',
+                ],
+                'action': ['python',
+                           '<(generate_stubs_script)',
+                           '-o', '<(output_root)/<(project_path)',
+                           '-t', '<(outfile_type)',
+                           '-e', '<(extra_header)',
+                           '-s', '<(stubs_filename_root)',
+                           '-p', '<(project_path)',
+                           '<@(_inputs)',
+                ],
+                'message': 'Generating FFmpeg stubs for dynamic loading.',
+                'process_outputs_as_sources': 1,
+              },
+            ],
+          }
+        ],
       ],
     },
     {
