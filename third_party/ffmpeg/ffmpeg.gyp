@@ -75,6 +75,9 @@
               '<(extra_header)',
             ],
             'direct_dependent_settings': {
+              'include_dirs': [
+                'include/win',
+              ],
               'link_settings': {
                 'libraries': [
                   '<(output_dir)/avcodec-52.lib',
