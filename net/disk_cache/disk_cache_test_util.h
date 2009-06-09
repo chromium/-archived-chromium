@@ -56,14 +56,14 @@ class ScopedTestCache {
 // Simple callback to process IO completions from the cache.
 class CallbackTest : public CallbackRunner< Tuple1<int> >  {
  public:
-  explicit CallbackTest(int id) : id_(id), reuse_(0) {}
-  explicit CallbackTest(int id, bool reuse) : id_(id), reuse_(reuse ? 0 : 1) {}
+  explicit CallbackTest(bool reuse) : result_(-1), reuse_(reuse ? 0 : 1) {}
   ~CallbackTest() {}
 
   virtual void RunWithParams(const Tuple1<int>& params);
+  int result() const { return result_; }
 
  private:
-  int id_;
+  int result_;
   int reuse_;
   DISALLOW_COPY_AND_ASSIGN(CallbackTest);
 };

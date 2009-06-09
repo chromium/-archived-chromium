@@ -22,7 +22,6 @@
 
 using base::Time;
 
-extern int g_cache_tests_max_id;
 extern volatile int g_cache_tests_received;
 extern volatile bool g_cache_tests_error;
 
@@ -49,9 +48,8 @@ int TimeWrite(int num_entries, disk_cache::Backend* cache,
   CacheTestFillBuffer(buffer1->data(), kSize1, false);
   CacheTestFillBuffer(buffer2->data(), kMaxSize, false);
 
-  CallbackTest callback(1);
+  CallbackTest callback(true);
   g_cache_tests_error = false;
-  g_cache_tests_max_id = 1;
   g_cache_tests_received = 0;
   int expected = 0;
 
@@ -99,9 +97,8 @@ int TimeRead(int num_entries, disk_cache::Backend* cache,
   CacheTestFillBuffer(buffer1->data(), kSize1, false);
   CacheTestFillBuffer(buffer2->data(), kMaxSize, false);
 
-  CallbackTest callback(1);
+  CallbackTest callback(true);
   g_cache_tests_error = false;
-  g_cache_tests_max_id = 1;
   g_cache_tests_received = 0;
   int expected = 0;
 

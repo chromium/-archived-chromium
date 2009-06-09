@@ -105,17 +105,13 @@ ScopedTestCache::~ScopedTestCache() {
 
 // -----------------------------------------------------------------------
 
-int g_cache_tests_max_id = 0;
 volatile int g_cache_tests_received = 0;
 volatile bool g_cache_tests_error = 0;
 
 // On the actual callback, increase the number of tests received and check for
 // errors (an unexpected test received)
 void CallbackTest::RunWithParams(const Tuple1<int>& params) {
-  if (id_ > g_cache_tests_max_id) {
-    NOTREACHED();
-    g_cache_tests_error = true;
-  } else if (reuse_) {
+  if (reuse_) {
     DCHECK(1 == reuse_);
     if (2 == reuse_)
       g_cache_tests_error = true;

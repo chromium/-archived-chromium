@@ -15,7 +15,6 @@
 
 using base::Time;
 
-extern int g_cache_tests_max_id;
 extern volatile int g_cache_tests_received;
 extern volatile bool g_cache_tests_error;
 
@@ -95,22 +94,21 @@ void DiskCacheEntryTest::InternalAsyncIO() {
   ASSERT_TRUE(NULL != entry1);
 
   // Let's verify that each IO goes to the right callback object.
-  CallbackTest callback1(1, false);
-  CallbackTest callback2(2, false);
-  CallbackTest callback3(3, false);
-  CallbackTest callback4(4, false);
-  CallbackTest callback5(5, false);
-  CallbackTest callback6(6, false);
-  CallbackTest callback7(7, false);
-  CallbackTest callback8(8, false);
-  CallbackTest callback9(9, false);
-  CallbackTest callback10(10, false);
-  CallbackTest callback11(11, false);
-  CallbackTest callback12(12, false);
-  CallbackTest callback13(13, false);
+  CallbackTest callback1(false);
+  CallbackTest callback2(false);
+  CallbackTest callback3(false);
+  CallbackTest callback4(false);
+  CallbackTest callback5(false);
+  CallbackTest callback6(false);
+  CallbackTest callback7(false);
+  CallbackTest callback8(false);
+  CallbackTest callback9(false);
+  CallbackTest callback10(false);
+  CallbackTest callback11(false);
+  CallbackTest callback12(false);
+  CallbackTest callback13(false);
 
   g_cache_tests_error = false;
-  g_cache_tests_max_id = 0;
   g_cache_tests_received = 0;
 
   MessageLoopHelper helper;
@@ -139,7 +137,6 @@ void DiskCacheEntryTest::InternalAsyncIO() {
   if (net::ERR_IO_PENDING == ret)
     expected++;
 
-  g_cache_tests_max_id = 3;
   EXPECT_TRUE(helper.WaitUntilCacheIoFinished(expected));
   EXPECT_STREQ("the data", buffer2->data());
 
@@ -155,7 +152,6 @@ void DiskCacheEntryTest::InternalAsyncIO() {
   if (net::ERR_IO_PENDING == ret)
     expected++;
 
-  g_cache_tests_max_id = 5;
   EXPECT_TRUE(helper.WaitUntilCacheIoFinished(expected));
   EXPECT_STREQ("big data goes here", buffer3->data());
   ret = entry1->ReadData(1, 0, buffer2, kSize2, &callback6);
@@ -165,7 +161,6 @@ void DiskCacheEntryTest::InternalAsyncIO() {
 
   memset(buffer3->data(), 0, kSize3);
 
-  g_cache_tests_max_id = 6;
   EXPECT_TRUE(helper.WaitUntilCacheIoFinished(expected));
   EXPECT_EQ(0, memcmp(buffer2->data(), buffer3->data(), 1500));
   ret = entry1->ReadData(1, 5000, buffer2, kSize2, &callback7);
@@ -201,7 +196,6 @@ void DiskCacheEntryTest::InternalAsyncIO() {
   if (net::ERR_IO_PENDING == ret)
     expected++;
 
-  g_cache_tests_max_id = 13;
   EXPECT_TRUE(helper.WaitUntilCacheIoFinished(expected));
 
   EXPECT_FALSE(g_cache_tests_error);
@@ -274,18 +268,17 @@ void DiskCacheEntryTest::ExternalAsyncIO() {
   ASSERT_TRUE(cache_->CreateEntry("the first key", &entry1));
 
   // Let's verify that each IO goes to the right callback object.
-  CallbackTest callback1(1, false);
-  CallbackTest callback2(2, false);
-  CallbackTest callback3(3, false);
-  CallbackTest callback4(4, false);
-  CallbackTest callback5(5, false);
-  CallbackTest callback6(6, false);
-  CallbackTest callback7(7, false);
-  CallbackTest callback8(8, false);
-  CallbackTest callback9(9, false);
+  CallbackTest callback1(false);
+  CallbackTest callback2(false);
+  CallbackTest callback3(false);
+  CallbackTest callback4(false);
+  CallbackTest callback5(false);
+  CallbackTest callback6(false);
+  CallbackTest callback7(false);
+  CallbackTest callback8(false);
+  CallbackTest callback9(false);
 
   g_cache_tests_error = false;
-  g_cache_tests_max_id = 0;
   g_cache_tests_received = 0;
   int expected = 0;
 
@@ -306,7 +299,6 @@ void DiskCacheEntryTest::ExternalAsyncIO() {
   if (net::ERR_IO_PENDING == ret)
     expected++;
 
-  g_cache_tests_max_id = 1;
   EXPECT_TRUE(helper.WaitUntilCacheIoFinished(expected));
 
   memset(buffer2->data(), 0, kSize1);
@@ -315,7 +307,6 @@ void DiskCacheEntryTest::ExternalAsyncIO() {
   if (net::ERR_IO_PENDING == ret)
     expected++;
 
-  g_cache_tests_max_id = 2;
   EXPECT_TRUE(helper.WaitUntilCacheIoFinished(expected));
   EXPECT_STREQ("the data", buffer1->data());
 
@@ -325,7 +316,6 @@ void DiskCacheEntryTest::ExternalAsyncIO() {
   if (net::ERR_IO_PENDING == ret)
     expected++;
 
-  g_cache_tests_max_id = 3;
   EXPECT_TRUE(helper.WaitUntilCacheIoFinished(expected));
 
   memset(buffer3->data(), 0, kSize3);
@@ -334,7 +324,6 @@ void DiskCacheEntryTest::ExternalAsyncIO() {
   if (net::ERR_IO_PENDING == ret)
     expected++;
 
-  g_cache_tests_max_id = 4;
   EXPECT_TRUE(helper.WaitUntilCacheIoFinished(expected));
   EXPECT_STREQ("big data goes here", buffer3->data());
   ret = entry1->ReadData(1, 0, buffer2, kSize2, &callback5);
@@ -342,7 +331,6 @@ void DiskCacheEntryTest::ExternalAsyncIO() {
   if (net::ERR_IO_PENDING == ret)
     expected++;
 
-  g_cache_tests_max_id = 5;
   EXPECT_TRUE(helper.WaitUntilCacheIoFinished(expected));
   EXPECT_EQ(0, memcmp(buffer2->data(), buffer2->data(), 10000));
   ret = entry1->ReadData(1, 30000, buffer2, kSize2, &callback6);
@@ -361,7 +349,6 @@ void DiskCacheEntryTest::ExternalAsyncIO() {
     expected++;
   EXPECT_EQ(37000, entry1->GetDataSize(1));
 
-  g_cache_tests_max_id = 9;
   EXPECT_TRUE(helper.WaitUntilCacheIoFinished(expected));
 
   EXPECT_FALSE(g_cache_tests_error);
