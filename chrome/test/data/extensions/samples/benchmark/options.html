@@ -1,0 +1,228 @@
+<head>
+  <title>Page Benchmark Options</title>
+  <script src="jst/util.js" type="text/javascript"></script> 
+  <script src="jst/jsevalcontext.js" type="text/javascript"></script> 
+  <script src="jst/jstemplate.js" type="text/javascript"></script> 
+  <script src="jst/jstemplate_example.js" type="text/javascript"></script> 
+
+<style>
+body {
+  font-size: 84%;
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 0.75em;
+  margin: 0;
+  min-width: 45em;
+}
+
+h1 {
+  font-size: 110%;
+  font-weight: bold;
+  color: #4a8ee6;
+  letter-spacing: -1px;
+  padding: 0;
+  margin: 0;
+}
+
+div#header {
+  padding: 0.75em 1em;
+  padding-top: 0.6em;
+  padding-left: 10;
+  margin-bottom: 0.75em;
+  position: relative;
+  overflow: hidden;
+  background: #5296de;
+  -webkit-background-size: 100%;
+  border: 1px solid #3a75bd;
+  -webkit-border-radius: 6px;
+  color: white;
+  text-shadow: 0 0 2px black;
+}
+div#header h1 {
+  padding-left: 37px;
+  margin: 0;
+  display: inline;
+  color: white;
+}
+div#header p {
+  font-size: 84%;
+  font-style: italic;
+  padding: 0;
+  margin: 0;
+  color: white;
+  padding-left: 0.4em;
+  display: inline;
+}
+
+table.list {
+  font-size: 84%;
+  table-layout: fixed;
+}
+
+table.list:not([class*='filtered']) tr:nth-child(odd) td:not([class*='filtered']) {
+  background: #eff3ff;
+}
+
+table.list th {
+  padding: 0 0.5em;
+  vertical-align: top;
+  font-weight: bold;
+  color: #315d94;
+  color: black;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.avg {
+  font-weight: bold;
+  text-align: center;
+}
+
+.data {
+  text-align: left;
+  white-space: nowrap;
+}
+
+.bggraph {
+  background-color: #faa;
+  white-space: nowrap;
+}
+</style>
+
+<script>
+
+var max_sample = 0;
+
+Array.max = function(array) {
+  return Math.max.apply( Math, array );
+}
+
+Array.min = function(array) {
+  return Math.min.apply( Math, array );
+};
+
+// Compute the average of an array
+Array.avg = function(array) {
+  var count = array.length;
+  var sum = 0;
+  for (var i = 0; i < count; i++) {
+    sum += array[i];
+  }
+  return (sum / count).toFixed(1);
+}
+
+// Compute the standard deviation of an array
+Array.stddev = function(array) {
+  var count = array.length;
+  var mean = Array.avg(array);
+  var variance = 0;
+  for (var i = 0; i < count; i++) {
+    var deviation = mean - array[i];
+    variance = variance + deviation * deviation;
+  }
+  variance = variance / count;
+  return Math.sqrt(variance).toFixed(2);
+}
+
+// Computes min/max/mean/stddev, etc all up front.
+function computeResults(data) {
+  for (var i = 0; i < data.data.length; i++) {
+    var obj = data.data[i];
+    obj.mean = Array.avg(data.data[i].results);
+    obj.stddev = Array.stddev(data.data[i].results);
+    obj.min = Array.min(data.data[i].results);
+    obj.max = Array.max(data.data[i].results);
+  }
+
+  // Find the biggest sample for our bar graph.
+  max_sample = 0;
+  for (var i = 0; i < data.data.length; i++) {
+    if (data.data[i].max > max_sample) {
+      max_sample = data.data[i].max;
+    }
+  }
+}
+
+function jsinit() {
+  // Run the template to show results
+  var data = window.opener.results;
+  computeResults(data);
+
+  var context = new JsEvalContext(data);
+  context.setVariable('$width', 0);
+  context.setVariable('$samples', 0);
+  var template = document.getElementById("t");
+  jstProcess(context, template);
+
+  // Set the options
+  var extension = window.opener;
+  document.getElementById("iterations").value = extension.iterations;
+  document.getElementById("clearconns").checked = extension.clearConnections;
+  document.getElementById("clearcache").checked = extension.clearCache;
+}
+
+function getWidth(mean, max_width) {
+  return Math.floor(max_width * (mean / max_sample));
+}
+
+// Apply configuration back to our extension
+function config() {
+  var extension = window.opener;
+  var iterations = parseInt(document.getElementById("iterations").value);
+  var clearConnections = document.getElementById("clearconns").checked;
+  var clearCache = document.getElementById("clearcache").checked;
+  if (iterations > 0) {
+    extension.iterations = iterations;
+    extension.clearConnections = clearConnections;
+    extension.clearCache = clearCache;
+  }
+}
+
+// Clear the results
+function clearResults() {
+  window.opener.results.data = new Array();
+  jsinit();
+}
+</script>
+
+</head>
+
+<body onload="jsinit()">
+
+<h1><div id="header">Page Benchmark Results</div></h1>
+
+<h1>Configuration</h1>
+
+<span>Iterations</span>
+<input id="iterations" type=text style="text-align:right">
+<input type="button" value="Clear Results" onclick="clearResults();">
+Clear Connections?<input id="clearconns" type="checkbox">
+Clear Cache?<input id="clearcache" type="checkbox">
+<input type="button" value="OK" onclick="config();">
+<p>
+
+<h1>Results</h1>
+
+<table class="list" width="100%">
+  <tr>
+  <th width=30%>url</th>
+  <th width=50>avg</th>
+  <th width=50>stddev</th>
+  <th width=50>min</th>
+  <th width=50>max</th>
+  <th samples</th>
+  </tr>
+
+  <tr id="t" jsselect="data">
+  <td class="url" jseval="$width = getWidth($this.mean, 600)"><div jsvalues=".style.width:$width" class="bggraph"><a jsvalues="href:$this.url" jscontent="url"></a></div></td>
+  <td class="avg" jscontent="mean"></td>
+  <td class="avg" jscontent="stddev"></td>
+  <td class="avg" jscontent="min"></td>
+  <td class="avg" jscontent="max"></td>
+  <td class="data"><span jsselect="results"><span jscontent="$this"></span>,</span> </td>
+  </tr>
+</table>
+
+<script>
+</script>
+
+</body>

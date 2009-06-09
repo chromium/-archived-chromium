@@ -1,0 +1,175 @@
+<style>
+#options {
+  position: absolute;
+  background-color: #FFFFCC;
+  display: none;
+  font-family: "Courier New";
+  font-size: 9pt;
+  padding: 5px;
+  border: 1px solid #CCCC88;
+  z-index: 3;
+}
+</style>
+
+<script>
+var optionsForm;
+function show_options() {
+  optionsForm = window.open("options.html", "optionswindow");
+}
+
+// Round a number to the 1's place.
+function formatNumber(str) {
+  str += '';
+  if (str == '0') {
+    return 'N/A ';
+  }
+  var x = str.split('.');
+  var x1 = x[0];
+  var x2 = x.length > 1 ? '.' + x[1] : '';
+  var regex = /(\d+)(\d{3})/;
+  while (regex.test(x1)) {
+    x1 = x1.replace(regex, '$1' + ',' + '$2');
+  }
+  return x1;
+}
+
+// Configuration and results are stored globally.
+window.iterations = 10;
+window.clearConnections = true;
+window.clearCache = true;
+window.results = {};
+window.results.data = new Array();
+
+function Benchmark() {
+  var runCount_ = 0;
+  var count_;
+  var totalTime_;
+  var lastWin_;
+  var me_ = this;
+  var current_;
+
+  // Start a test run
+  this.start = function(url) {
+    // Check if a run is already in progress.
+    if (me_.isRunning()) {
+      return;
+    }
+
+    runCount_ = window.iterations;
+    count_ = 0;
+    totalTime_ = 0;
+    lastWin_ = 0;
+
+    current_ = {};
+    current_.url = url;
+    current_.results = new Array();
+
+    me_.runPage();
+  }
+
+  // Is the benchmark currently in progress.
+  this.isRunning = function() {
+    return runCount_ > 0;
+  }
+
+  // Called when the test run completes.
+  this.finish = function() {
+    lastWin_.close();
+    lastWin_ = 0;
+
+    // push the result
+    window.results.data.push(current_);
+    current_ = 0;
+
+    // show the latest
+    show_options();
+  }
+
+  // Update the UI after a test run.
+  this.displayResults = function() {
+    var span = document.getElementById("result");
+    var score = 0;
+    if (count_ > 0) {
+      score = totalTime_ / count_;
+    }
+    span.innerHTML = score.toFixed(1) + " (" + (runCount_) + ")";
+  }
+
+  // Run a single page in the benchmark
+  this.runPage = function() {
+    if (window.clearCache) {
+      chromium.benchmarking.clearCache();
+    }
+    if (window.clearConnections) {
+      chromium.benchmarking.closeConnections();
+    }
+
+    if (lastWin_) {
+      lastWin_.location = current_.url;
+    } else {
+      lastWin_ = window.open(current_.url);
+    }
+  }
+
+  // Called when a page finishes loading.
+  this.pageFinished = function(csi) {
+    var t = Math.round((csi.finishLoadTime - csi.startLoadTime) * 1000.0);
+
+    // Record the result
+    current_.results.push(t);
+
+    // For our toolbar counters
+    totalTime_ += t;
+    count_++;
+
+    if (--runCount_ > 0) {
+      setTimeout(me_.runPage, 100);
+    } else {
+      me_.finish();
+    }
+
+    // Update the UI
+    me_.displayResults();
+  }
+}
+
+var benchmarks = new Array();
+
+chrome.self.onConnect.addListener(function(port) {
+  port.onMessage.addListener(function(data) {
+    if (data.message == "load") {
+      var benchmark = benchmarks[data.url];
+      if (benchmark != undefined && benchmark.isRunning()) {
+        benchmark.pageFinished(data.values);
+      }
+    }
+  });
+});
+
+function run() {
+  show_options();
+  var urls = document.getElementById("url").value.split(",");
+  for (var i = 0; i < urls.length; i++) {
+    var benchmark = new Benchmark();
+    benchmarks[urls[i]] = benchmark;
+    benchmark.start(urls[i]);  // XXXMB - move to constructor
+  }
+}
+</script>
+
+<style> 
+#result {
+  color: green;
+  text-align: center;
+  vertical-align: center;
+}
+</style> 
+
+<div id="bench">
+<img src="stopwatch.jpg" height="25" width="25" align=top onclick="show_options()">
+<input type="text" id="url" value="http://www.google.com/"></input>
+<div class="toolstrip-button"> 
+<span id="run" class="open" onclick="run()">Go</span> 
+</div> 
+<span id="result"></span> 
+</div>
