@@ -68,6 +68,10 @@ void NativeButtonGtk::SetFocus() {
   Focus();
 }
 
+gfx::NativeView NativeButtonWin::GetTestingHandle() const {
+  return native_view();
+}
+
 gfx::Size NativeButtonGtk::GetPreferredSize() {
   if (!native_view())
     return gfx::Size();

@@ -44,6 +44,9 @@ class NativeButtonWrapper {
   // Sets the focus to the button.
   virtual void SetFocus() = 0;
 
+  // Returns a handle to the underlying native view for testing.
+  virtual gfx::NativeView GetTestingHandle() const = 0;
+
   // Return the width of the button. Used for fixed size buttons (checkboxes and
   // radio buttons) only.
   static int GetFixedWidth();

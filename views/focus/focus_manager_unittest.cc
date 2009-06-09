@@ -26,12 +26,10 @@
 #include "views/widget/accelerator_handler.h"
 #include "views/widget/root_view.h"
 #include "views/widget/widget_win.h"
-#include "views/window/window.h"
 #include "views/window/window_delegate.h"
+#include "views/window/window_win.h"
 
-
-
-namespace {
+namespace views {
 
 static const int kWindowWidth = 600;
 static const int kWindowHeight = 500;
@@ -81,14 +79,16 @@ static const int kStyleContainerID = count++;
 static const int kBoldCheckBoxID = count++;
 static const int kItalicCheckBoxID = count++;
 static const int kUnderlinedCheckBoxID = count++;
+static const int kStyleHelpLinkID = count++;  // 40
+static const int kStyleTextEditID = count++;
 
-static const int kSearchContainerID = count++;  // 40
+static const int kSearchContainerID = count++;
 static const int kSearchTextfieldID = count++;
 static const int kSearchButtonID = count++;
-static const int kHelpLinkID = count++;
+static const int kHelpLinkID = count++;  // 45
 
 static const int kThumbnailContainerID = count++;
-static const int kThumbnailStarID = count++;  // 45
+static const int kThumbnailStarID = count++;
 static const int kThumbnailSuperStarID = count++;
 
 class FocusManagerTest;
@@ -100,7 +100,7 @@ class FocusManagerTest;
 // Taken from keyword_editor_view.cc.
 // It is interesting in our test as it is a native control containing another
 // RootView.
-class BorderView : public views::NativeControl {
+class BorderView : public NativeControl {
  public:
   explicit BorderView(View* child) : child_(child) {
     DCHECK(child);
@@ -118,7 +118,7 @@ class BorderView : public views::NativeControl {
                                         0, 0, width(), height(),
                                         parent_container, NULL, NULL, NULL);
     // Create the view container which is a child of the TabControl.
-    widget_ = new views::WidgetWin();
+    widget_ = new WidgetWin();
     widget_->Init(tab_control, gfx::Rect(), false);
     widget_->SetContentsView(child_);
     widget_->SetFocusTraversableParentView(this);
@@ -135,11 +135,11 @@ class BorderView : public views::NativeControl {
     ResizeContents(GetNativeControlHWND());
   }
 
-  virtual views::RootView* GetContentsRootView() {
+  virtual RootView* GetContentsRootView() {
     return widget_->GetRootView();
   }
 
-  virtual views::FocusTraversable* GetFocusTraversable() {
+  virtual FocusTraversable* GetFocusTraversable() {
     return widget_;
   }
 
@@ -153,7 +153,7 @@ class BorderView : public views::NativeControl {
     }
   }
 
-private:
+ private:
   void ResizeContents(HWND tab_control) {
     DCHECK(tab_control);
     CRect content_bounds;
@@ -166,110 +166,156 @@ private:
   }
 
   View* child_;
-  views::WidgetWin* widget_;
+  WidgetWin* widget_;
 
   DISALLOW_COPY_AND_ASSIGN(BorderView);
 };
 
-class DummyComboboxModel : public views::Combobox::Model {
+class DummyComboboxModel : public Combobox::Model {
  public:
-  virtual int GetItemCount(views::Combobox* source) { return 10; }
+  virtual int GetItemCount(Combobox* source) { return 10; }
 
-  virtual std::wstring GetItemAt(views::Combobox* source, int index) {
+  virtual std::wstring GetItemAt(Combobox* source, int index) {
     return L"Item " + IntToWString(index);
   }
 };
 
-class TestViewWindow : public views::WidgetWin {
+class FocusManagerTest : public testing::Test, public WindowDelegate {
  public:
-  explicit TestViewWindow(FocusManagerTest* test);
-  ~TestViewWindow() { }
-
-  void Init();
-
-  views::View* contents() const { return contents_; }
-
-  // Return the ID of the component that currently has the focus.
-  int GetFocusedComponentID();
-
-  // Simulate pressing the tab button in the window.
-  void PressTab(bool shift_pressed, bool ctrl_pressed);
-
-  views::RootView* GetContentsRootView() const {
-    return contents_->GetRootView();
+  FocusManagerTest()
+      : window_(NULL),
+        focus_change_listener_(NULL),
+        content_view_(NULL) {
+    OleInitialize(NULL);
   }
 
-  views::RootView* GetStyleRootView() const {
-    return style_tab_->GetContentsRootView();
+  ~FocusManagerTest() {
+    OleUninitialize();
   }
 
-  views::RootView* GetSearchRootView() const {
-    return search_border_view_->GetContentsRootView();
+  virtual void SetUp() {
+    window_ = static_cast<WindowWin*>(
+        Window::CreateChromeWindow(NULL, bounds(), this));
+    InitContentView();
+    window_->Show();
+  }
+
+  virtual void TearDown() {
+    if (focus_change_listener_)
+      GetFocusManager()->RemoveFocusChangeListener(focus_change_listener_);
+    window_->CloseNow();
+
+    // Flush the message loop to make Purify happy.
+    message_loop()->RunAllPending();
+  }
+
+  FocusManager* GetFocusManager() {
+    return FocusManager::GetFocusManager(window_->GetNativeWindow());
+  }
+
+  // WindowDelegate Implementation.
+  virtual View* GetContentsView() {
+    if (!content_view_)
+      content_view_ = new View();
+    return content_view_;
+  }
+
+  virtual void InitContentView() {
+  }
+
+ protected:
+  virtual gfx::Rect bounds() {
+    return gfx::Rect(0, 0, 500, 500);
+  }
+
+  // Mocks activating/deactivating the window.
+  void SimulateActivateWindow() {
+    ::SendMessage(window_->GetNativeWindow(), WM_ACTIVATE, WA_ACTIVE, NULL);
+  }
+  void SimulateDeactivateWindow() {
+    ::SendMessage(window_->GetNativeWindow(), WM_ACTIVATE, WA_INACTIVE, NULL);
+  }
+
+  MessageLoopForUI* message_loop() { return &message_loop_; }
+
+  WindowWin* window_;
+  View* content_view_;
+
+  void AddFocusChangeListener(FocusChangeListener* listener) {
+    ASSERT_FALSE(focus_change_listener_);
+    focus_change_listener_ = listener;
+    GetFocusManager()->AddFocusChangeListener(listener);
   }
 
  private:
-  views::View* contents_;
+  FocusChangeListener* focus_change_listener_;
+  MessageLoopForUI message_loop_;
 
-  views::TabbedPane* style_tab_;
-  BorderView* search_border_view_;
-
-  FocusManagerTest* test_;
-
-  DummyComboboxModel combobox_model_;
-
-  DISALLOW_COPY_AND_ASSIGN(TestViewWindow);
+  DISALLOW_COPY_AND_ASSIGN(FocusManagerTest);
 };
 
-class FocusManagerTest : public testing::Test {
+class FocusTraversalTest : public FocusManagerTest {
  public:
-  TestViewWindow* GetWindow();
-  ~FocusManagerTest();
+  ~FocusTraversalTest();
+
+  virtual void InitContentView();
 
  protected:
-  FocusManagerTest();
+  FocusTraversalTest();
 
-  virtual void SetUp();
-  virtual void TearDown();
+  virtual gfx::Rect bounds() {
+    return gfx::Rect(0, 0, 600, 460);
+  }
 
-  MessageLoopForUI message_loop_;
-  TestViewWindow* test_window_;
+  View* FindViewByID(int id) {
+    View* view = GetContentsView()->GetViewByID(id);
+    if (view)
+      return view;
+    view = style_tab_->GetContentsRootView()->GetViewByID(id);
+    if (view)
+      return view;
+    view = search_border_view_->GetContentsRootView()->GetViewByID(id);
+    if (view)
+      return view;
+    return NULL;
+  }
+
+ private:
+  TabbedPane* style_tab_;
+  BorderView* search_border_view_;
+  DummyComboboxModel combobox_model_;
+
+  DISALLOW_COPY_AND_ASSIGN(FocusTraversalTest);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// TestViewWindow
+// FocusTraversalTest
 ////////////////////////////////////////////////////////////////////////////////
 
-TestViewWindow::TestViewWindow(FocusManagerTest* test)
-    : test_(test),
-      contents_(NULL),
-      style_tab_(NULL),
-      search_border_view_(NULL) {
+FocusTraversalTest::FocusTraversalTest()
+  : style_tab_(NULL),
+    search_border_view_(NULL) {
 }
 
-// Initializes and shows the window with the contents view.
-void TestViewWindow::Init() {
-  gfx::Rect bounds(0, 0, 600, 460);
-  contents_ = new views::View();
-  contents_->set_background(
-      views::Background::CreateSolidBackground(255, 255, 255));
+FocusTraversalTest::~FocusTraversalTest() {
+}
 
-  WidgetWin::Init(NULL, bounds, true);
-  SetContentsView(contents_);
+void FocusTraversalTest::InitContentView() {
+  content_view_->set_background(
+      Background::CreateSolidBackground(255, 255, 255));
 
-  views::Checkbox* cb =
-      new views::Checkbox(L"This is a checkbox");
-  contents_->AddChildView(cb);
+  Checkbox* cb = new Checkbox(L"This is a checkbox");
+  content_view_->AddChildView(cb);
   // In this fast paced world, who really has time for non hard-coded layout?
   cb->SetBounds(10, 10, 200, 20);
   cb->SetID(kTopCheckBoxID);
 
-  views::View* left_container = new views::View();
-  left_container->set_border(
-      views::Border::CreateSolidBorder(1, SK_ColorBLACK));
+  View* left_container = new View();
+  left_container->set_border(Border::CreateSolidBorder(1, SK_ColorBLACK));
   left_container->set_background(
-      views::Background::CreateSolidBackground(240, 240, 240));
+      Background::CreateSolidBackground(240, 240, 240));
   left_container->SetID(kLeftContainerID);
-  contents_->AddChildView(left_container);
+  content_view_->AddChildView(left_container);
   left_container->SetBounds(10, 35, 250, 200);
 
   int label_x = 5;
@@ -279,12 +325,12 @@ void TestViewWindow::Init() {
   int y = 10;
   int gap_between_labels = 10;
 
-  views::Label* label = new views::Label(L"Apple:");
+  Label* label = new Label(L"Apple:");
   label->SetID(kAppleLabelID);
   left_container->AddChildView(label);
   label->SetBounds(label_x, y, label_width, label_height);
 
-  views::Textfield* text_field = new views::Textfield();
+  Textfield* text_field = new Textfield();
   text_field->SetID(kAppleTextfieldID);
   left_container->AddChildView(text_field);
   text_field->SetBounds(label_x + label_width + 5, y,
@@ -292,12 +338,12 @@ void TestViewWindow::Init() {
 
   y += label_height + gap_between_labels;
 
-  label = new views::Label(L"Orange:");
+  label = new Label(L"Orange:");
   label->SetID(kOrangeLabelID);
   left_container->AddChildView(label);
   label->SetBounds(label_x, y, label_width, label_height);
 
-  text_field = new views::Textfield();
+  text_field = new Textfield();
   text_field->SetID(kOrangeTextfieldID);
   left_container->AddChildView(text_field);
   text_field->SetBounds(label_x + label_width + 5, y,
@@ -305,12 +351,12 @@ void TestViewWindow::Init() {
 
   y += label_height + gap_between_labels;
 
-  label = new views::Label(L"Banana:");
+  label = new Label(L"Banana:");
   label->SetID(kBananaLabelID);
   left_container->AddChildView(label);
   label->SetBounds(label_x, y, label_width, label_height);
 
-  text_field = new views::Textfield();
+  text_field = new Textfield();
   text_field->SetID(kBananaTextfieldID);
   left_container->AddChildView(text_field);
   text_field->SetBounds(label_x + label_width + 5, y,
@@ -318,12 +364,12 @@ void TestViewWindow::Init() {
 
   y += label_height + gap_between_labels;
 
-  label = new views::Label(L"Kiwi:");
+  label = new Label(L"Kiwi:");
   label->SetID(kKiwiLabelID);
   left_container->AddChildView(label);
   label->SetBounds(label_x, y, label_width, label_height);
 
-  text_field = new views::Textfield();
+  text_field = new Textfield();
   text_field->SetID(kKiwiTextfieldID);
   left_container->AddChildView(text_field);
   text_field->SetBounds(label_x + label_width + 5, y,
@@ -331,73 +377,70 @@ void TestViewWindow::Init() {
 
   y += label_height + gap_between_labels;
 
-  views::NativeButton* button = new views::NativeButton(NULL, L"Click me");
+  NativeButton* button = new NativeButton(NULL, L"Click me");
   button->SetBounds(label_x, y + 10, 50, 20);
   button->SetID(kFruitButtonID);
   left_container->AddChildView(button);
   y += 40;
 
-  cb =  new views::Checkbox(L"This is another check box");
+  cb =  new Checkbox(L"This is another check box");
   cb->SetBounds(label_x + label_width + 5, y, 150, 20);
   cb->SetID(kFruitCheckBoxID);
   left_container->AddChildView(cb);
   y += 20;
-  
-  views::Combobox* combobox =  new views::Combobox(&combobox_model_);
+
+  Combobox* combobox =  new Combobox(&combobox_model_);
   combobox->SetBounds(label_x + label_width + 5, y, 150, 20);
   combobox->SetID(kComboboxID);
   left_container->AddChildView(combobox);
 
-  views::View* right_container = new views::View();
-  right_container->set_border(
-      views::Border::CreateSolidBorder(1, SK_ColorBLACK));
+  View* right_container = new View();
+  right_container->set_border(Border::CreateSolidBorder(1, SK_ColorBLACK));
   right_container->set_background(
-      views::Background::CreateSolidBackground(240, 240, 240));
+      Background::CreateSolidBackground(240, 240, 240));
   right_container->SetID(kRightContainerID);
-  contents_->AddChildView(right_container);
+  content_view_->AddChildView(right_container);
   right_container->SetBounds(270, 35, 300, 200);
 
   y = 10;
   int radio_button_height = 15;
   int gap_between_radio_buttons = 10;
-  views::View* radio_button =
-      new views::RadioButton(L"Asparagus", 1);
+  View* radio_button = new RadioButton(L"Asparagus", 1);
   radio_button->SetID(kAsparagusButtonID);
   right_container->AddChildView(radio_button);
   radio_button->SetBounds(5, y, 70, radio_button_height);
   radio_button->SetGroup(1);
   y += radio_button_height + gap_between_radio_buttons;
-  radio_button = new views::RadioButton(L"Broccoli", 1);
+  radio_button = new RadioButton(L"Broccoli", 1);
   radio_button->SetID(kBroccoliButtonID);
   right_container->AddChildView(radio_button);
   radio_button->SetBounds(5, y, 70, radio_button_height);
   radio_button->SetGroup(1);
   y += radio_button_height + gap_between_radio_buttons;
-  radio_button = new views::RadioButton(L"Cauliflower", 1);
+  radio_button = new RadioButton(L"Cauliflower", 1);
   radio_button->SetID(kCauliflowerButtonID);
   right_container->AddChildView(radio_button);
   radio_button->SetBounds(5, y, 70, radio_button_height);
   radio_button->SetGroup(1);
   y += radio_button_height + gap_between_radio_buttons;
 
-  views::View* inner_container = new views::View();
-  inner_container->set_border(
-      views::Border::CreateSolidBorder(1, SK_ColorBLACK));
+  View* inner_container = new View();
+  inner_container->set_border(Border::CreateSolidBorder(1, SK_ColorBLACK));
   inner_container->set_background(
-      views::Background::CreateSolidBackground(230, 230, 230));
+      Background::CreateSolidBackground(230, 230, 230));
   inner_container->SetID(kInnerContainerID);
   right_container->AddChildView(inner_container);
   inner_container->SetBounds(100, 10, 150, 180);
 
-  views::ScrollView* scroll_view = new views::ScrollView();
+  ScrollView* scroll_view = new ScrollView();
   scroll_view->SetID(kScrollViewID);
   inner_container->AddChildView(scroll_view);
   scroll_view->SetBounds(1, 1, 148, 178);
 
-  views::View* scroll_content = new views::View();
+  View* scroll_content = new View();
   scroll_content->SetBounds(0, 0, 200, 200);
   scroll_content->set_background(
-      views::Background::CreateSolidBackground(200, 200, 200));
+      Background::CreateSolidBackground(200, 200, 200));
   scroll_view->SetContents(scroll_content);
 
   static const wchar_t* const kTitles[] = {
@@ -418,8 +461,8 @@ void TestViewWindow::Init() {
 
   y = 5;
   for (int i = 0; i < arraysize(kTitles); ++i) {
-    views::Link* link = new views::Link(kTitles[i]);
-    link->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
+    Link* link = new Link(kTitles[i]);
+    link->SetHorizontalAlignment(Label::ALIGN_LEFT);
     link->SetID(kIDs[i]);
     scroll_content->AddChildView(link);
     link->SetBounds(5, y, 300, 15);
@@ -428,131 +471,362 @@ void TestViewWindow::Init() {
 
   y = 250;
   int width = 50;
-  button = new views::NativeButton(NULL, L"OK");
+  button = new NativeButton(NULL, L"OK");
   button->SetID(kOKButtonID);
 
-  contents_->AddChildView(button);
+  content_view_->AddChildView(button);
   button->SetBounds(150, y, width, 20);
 
-  button = new views::NativeButton(NULL, L"Cancel");
+  button = new NativeButton(NULL, L"Cancel");
   button->SetID(kCancelButtonID);
-  contents_->AddChildView(button);
+  content_view_->AddChildView(button);
   button->SetBounds(250, y, width, 20);
 
-  button = new views::NativeButton(NULL, L"Help");
+  button = new NativeButton(NULL, L"Help");
   button->SetID(kHelpButtonID);
-  contents_->AddChildView(button);
+  content_view_->AddChildView(button);
   button->SetBounds(350, y, width, 20);
 
   y += 40;
 
   // Left bottom box with style checkboxes.
-  views::View* contents = new views::View();
-  contents->set_background(
-      views::Background::CreateSolidBackground(SK_ColorWHITE));
-  cb = new views::Checkbox(L"Bold");
+  View* contents = new View();
+  contents->set_background(Background::CreateSolidBackground(SK_ColorWHITE));
+  cb = new Checkbox(L"Bold");
   contents->AddChildView(cb);
   cb->SetBounds(10, 10, 50, 20);
   cb->SetID(kBoldCheckBoxID);
 
-  cb = new views::Checkbox(L"Italic");
+  cb = new Checkbox(L"Italic");
   contents->AddChildView(cb);
   cb->SetBounds(70, 10, 50, 20);
   cb->SetID(kItalicCheckBoxID);
 
-  cb = new views::Checkbox(L"Underlined");
+  cb = new Checkbox(L"Underlined");
   contents->AddChildView(cb);
   cb->SetBounds(130, 10, 70, 20);
   cb->SetID(kUnderlinedCheckBoxID);
 
-  style_tab_ = new views::TabbedPane();
+  Link* link = new Link(L"Help");
+  contents->AddChildView(link);
+  link->SetBounds(10, 35, 70, 10);
+  link->SetID(kStyleHelpLinkID);
+
+  text_field = new Textfield();
+  contents->AddChildView(text_field);
+  text_field->SetBounds(10, 50, 100, 20);
+  text_field->SetID(kStyleTextEditID);
+
+  style_tab_ = new TabbedPane();
   style_tab_->SetID(kStyleContainerID);
-  contents_->AddChildView(style_tab_);
-  style_tab_->SetBounds(10, y, 210, 50);
+  content_view_->AddChildView(style_tab_);
+  style_tab_->SetBounds(10, y, 210, 100);
   style_tab_->AddTab(L"Style", contents);
-  style_tab_->AddTab(L"Other", new views::View());
+  style_tab_->AddTab(L"Other", new View());
 
   // Right bottom box with search.
-  contents = new views::View();
-  contents->set_background(
-      views::Background::CreateSolidBackground(SK_ColorWHITE));
-  text_field = new views::Textfield();
+  contents = new View();
+  contents->set_background(Background::CreateSolidBackground(SK_ColorWHITE));
+  text_field = new Textfield();
   contents->AddChildView(text_field);
   text_field->SetBounds(10, 10, 100, 20);
   text_field->SetID(kSearchTextfieldID);
 
-  button = new views::NativeButton(NULL, L"Search");
+  button = new NativeButton(NULL, L"Search");
   contents->AddChildView(button);
   button->SetBounds(115, 10, 50, 20);
   button->SetID(kSearchButtonID);
 
-  views::Link* link = new views::Link(L"Help");
-  link->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
+  link = new Link(L"Help");
+  link->SetHorizontalAlignment(Label::ALIGN_LEFT);
   link->SetID(kHelpLinkID);
   contents->AddChildView(link);
-  link->SetBounds(170, 10, 30, 15);
+  link->SetBounds(170, 20, 30, 15);
 
   search_border_view_ = new BorderView(contents);
   search_border_view_->SetID(kSearchContainerID);
 
-  contents_->AddChildView(search_border_view_);
+  content_view_->AddChildView(search_border_view_);
   search_border_view_->SetBounds(300, y, 200, 50);
 
   y += 60;
 
-  contents = new views::View();
+  contents = new View();
   contents->SetFocusable(true);
-  contents->set_background(
-      views::Background::CreateSolidBackground(SK_ColorBLUE));
+  contents->set_background(Background::CreateSolidBackground(SK_ColorBLUE));
   contents->SetID(kThumbnailContainerID);
-  button = new views::NativeButton(NULL, L"Star");
+  button = new NativeButton(NULL, L"Star");
   contents->AddChildView(button);
   button->SetBounds(5, 5, 50, 20);
   button->SetID(kThumbnailStarID);
-  button = new views::NativeButton(NULL, L"SuperStar");
+  button = new NativeButton(NULL, L"SuperStar");
   contents->AddChildView(button);
   button->SetBounds(60, 5, 100, 20);
   button->SetID(kThumbnailSuperStarID);
 
-  contents_->AddChildView(contents);
-  contents->SetBounds(200, y, 200, 50);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// FocusManagerTest
-////////////////////////////////////////////////////////////////////////////////
-
-FocusManagerTest::FocusManagerTest() {
-}
-
-FocusManagerTest::~FocusManagerTest() {
-}
-
-TestViewWindow* FocusManagerTest::GetWindow() {
-  return test_window_;
-}
-
-void FocusManagerTest::SetUp() {
-  OleInitialize(NULL);
-  test_window_ = new TestViewWindow(this);
-  test_window_->Init();
-  ShowWindow(test_window_->GetNativeView(), SW_SHOW);
-}
-
-void FocusManagerTest::TearDown() {
-  test_window_->CloseNow();
-
-  // Flush the message loop to make Purify happy.
-  message_loop_.RunAllPending();
-  OleUninitialize();
+  content_view_->AddChildView(contents);
+  contents->SetBounds(250, y, 200, 50);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // The tests
 ////////////////////////////////////////////////////////////////////////////////
 
+enum FocusTestEventType {
+  WILL_GAIN_FOCUS = 0,
+  DID_GAIN_FOCUS,
+  WILL_LOSE_FOCUS
+};
 
-TEST_F(FocusManagerTest, NormalTraversal) {
+struct FocusTestEvent {
+  FocusTestEvent(FocusTestEventType type, int view_id)
+      : type(type),
+        view_id(view_id) {
+  }
+
+  FocusTestEventType type;
+  int view_id;
+};
+
+class SimpleTestView : public View {
+ public:
+  SimpleTestView(std::vector<FocusTestEvent>* event_list, int view_id)
+      : event_list_(event_list) {
+    SetFocusable(true);
+    SetID(view_id);
+  }
+
+  virtual void WillGainFocus() {
+    event_list_->push_back(FocusTestEvent(WILL_GAIN_FOCUS, GetID()));
+  }
+
+  virtual void DidGainFocus() {
+    event_list_->push_back(FocusTestEvent(DID_GAIN_FOCUS, GetID()));
+  }
+
+  virtual void WillLoseFocus() {
+    event_list_->push_back(FocusTestEvent(WILL_LOSE_FOCUS, GetID()));
+  }
+
+ private:
+  std::vector<FocusTestEvent>* event_list_;
+};
+
+// Tests that the appropriate Focus related methods are called when a View
+// gets/loses focus.
+TEST_F(FocusManagerTest, ViewFocusCallbacks) {
+  std::vector<FocusTestEvent> event_list;
+  const int kView1ID = 1;
+  const int kView2ID = 2;
+
+  SimpleTestView* view1 = new SimpleTestView(&event_list, kView1ID);
+  SimpleTestView* view2 = new SimpleTestView(&event_list, kView2ID);
+  content_view_->AddChildView(view1);
+  content_view_->AddChildView(view2);
+
+  view1->RequestFocus();
+  ASSERT_EQ(2, event_list.size());
+  EXPECT_EQ(WILL_GAIN_FOCUS, event_list[0].type);
+  EXPECT_EQ(kView1ID, event_list[0].view_id);
+  EXPECT_EQ(DID_GAIN_FOCUS, event_list[1].type);
+  EXPECT_EQ(kView1ID, event_list[0].view_id);
+
+  event_list.clear();
+  view2->RequestFocus();
+  ASSERT_EQ(3, event_list.size());
+  EXPECT_EQ(WILL_LOSE_FOCUS, event_list[0].type);
+  EXPECT_EQ(kView1ID, event_list[0].view_id);
+  EXPECT_EQ(WILL_GAIN_FOCUS, event_list[1].type);
+  EXPECT_EQ(kView2ID, event_list[1].view_id);
+  EXPECT_EQ(DID_GAIN_FOCUS, event_list[2].type);
+  EXPECT_EQ(kView2ID, event_list[2].view_id);
+
+  event_list.clear();
+  GetFocusManager()->ClearFocus();
+  ASSERT_EQ(1, event_list.size());
+  EXPECT_EQ(WILL_LOSE_FOCUS, event_list[0].type);
+  EXPECT_EQ(kView2ID, event_list[0].view_id);
+}
+
+typedef std::pair<View*, View*> ViewPair;
+class TestFocusChangeListener : public FocusChangeListener {
+ public:
+  virtual void FocusWillChange(View* focused_before, View* focused_now) {
+    focus_changes_.push_back(ViewPair(focused_before, focused_now));
+  }
+
+  const std::vector<ViewPair>& focus_changes() const { return focus_changes_; }
+  void ClearFocusChanges() { focus_changes_.clear(); }
+
+ private:
+  // A vector of which views lost/gained focus.
+  std::vector<ViewPair> focus_changes_;
+};
+
+TEST_F(FocusManagerTest, FocusChangeListener) {
+  View* view1 = new View();
+  view1->SetFocusable(true);
+  View* view2 = new View();
+  view2->SetFocusable(true);
+  content_view_->AddChildView(view1);
+  content_view_->AddChildView(view2);
+
+  TestFocusChangeListener listener;
+  AddFocusChangeListener(&listener);
+
+  view1->RequestFocus();
+  ASSERT_EQ(1, listener.focus_changes().size());
+  EXPECT_TRUE(listener.focus_changes()[0] == ViewPair(NULL, view1));
+  listener.ClearFocusChanges();
+
+  view2->RequestFocus();
+  ASSERT_EQ(1, listener.focus_changes().size());
+  EXPECT_TRUE(listener.focus_changes()[0] == ViewPair(view1, view2));
+  listener.ClearFocusChanges();
+
+  GetFocusManager()->ClearFocus();
+  ASSERT_EQ(1, listener.focus_changes().size());
+  EXPECT_TRUE(listener.focus_changes()[0] == ViewPair(view2, NULL));
+}
+
+class TestNativeButton : public NativeButton {
+ public:
+  explicit TestNativeButton(const std::wstring& text)
+      : NativeButton(NULL, text) {
+  };
+  virtual HWND TestGetNativeControlHWND() {
+    return native_wrapper_->GetTestingHandle();
+  }
+};
+
+class TestTextfield : public Textfield {
+ public:
+  TestTextfield() { }
+  virtual HWND TestGetNativeComponent() {
+    return native_wrapper_->GetTestingHandle();
+  }
+};
+
+class TestTabbedPane : public TabbedPane {
+ public:
+  TestTabbedPane() { }
+  virtual HWND TestGetNativeControlHWND() {
+    return GetNativeControlHWND();
+  }
+};
+
+// Tests that NativeControls do set the focus View appropriately on the
+// FocusManager.
+TEST_F(FocusManagerTest, FocusNativeControls) {
+  TestNativeButton* button = new TestNativeButton(L"Press me");
+  TestTextfield* textfield = new TestTextfield();
+  TestTabbedPane* tabbed_pane = new TestTabbedPane();
+  TestNativeButton* tab_button = new TestNativeButton(L"tab button");
+
+  content_view_->AddChildView(button);
+  content_view_->AddChildView(textfield);
+  content_view_->AddChildView(tabbed_pane);
+  tabbed_pane->AddTab(L"Awesome tab", tab_button);
+
+  // Simulate the native HWNDs getting the native focus.
+  ::SendMessage(button->TestGetNativeControlHWND(), WM_SETFOCUS, NULL, NULL);
+  EXPECT_EQ(button, GetFocusManager()->GetFocusedView());
+
+  ::SendMessage(textfield->TestGetNativeComponent(), WM_SETFOCUS, NULL, NULL);
+  EXPECT_EQ(textfield, GetFocusManager()->GetFocusedView());
+
+  ::SendMessage(tabbed_pane->TestGetNativeControlHWND(), WM_SETFOCUS,
+                NULL, NULL);
+  EXPECT_EQ(tabbed_pane, GetFocusManager()->GetFocusedView());
+
+  ::SendMessage(tab_button->TestGetNativeControlHWND(), WM_SETFOCUS,
+                NULL, NULL);
+  EXPECT_EQ(tab_button, GetFocusManager()->GetFocusedView());
+}
+
+// Test that when activating/deactivating the top window, the focus is stored/
+// restored properly.
+TEST_F(FocusManagerTest, FocusStoreRestore) {
+  NativeButton* button = new NativeButton(NULL, L"Press me");
+  View* view = new View();
+  view->SetFocusable(true);
+
+  content_view_->AddChildView(button);
+  content_view_->AddChildView(view);
+
+  TestFocusChangeListener listener;
+  AddFocusChangeListener(&listener);
+
+  view->RequestFocus();
+
+  // Deacivate the window, it should store its focus.
+  SimulateDeactivateWindow();
+  EXPECT_EQ(NULL, GetFocusManager()->GetFocusedView());
+  ASSERT_EQ(2, listener.focus_changes().size());
+  EXPECT_TRUE(listener.focus_changes()[0] == ViewPair(NULL, view));
+  EXPECT_TRUE(listener.focus_changes()[1] == ViewPair(view, NULL));
+  listener.ClearFocusChanges();
+
+  // Reactivate, focus should come-back to the previously focused view.
+  SimulateActivateWindow();
+  EXPECT_EQ(view, GetFocusManager()->GetFocusedView());
+  ASSERT_EQ(1, listener.focus_changes().size());
+  EXPECT_TRUE(listener.focus_changes()[0] == ViewPair(NULL, view));
+  listener.ClearFocusChanges();
+
+  // Same test with a NativeControl.
+  button->RequestFocus();
+  SimulateDeactivateWindow();
+  EXPECT_EQ(NULL, GetFocusManager()->GetFocusedView());
+  ASSERT_EQ(2, listener.focus_changes().size());
+  EXPECT_TRUE(listener.focus_changes()[0] == ViewPair(view, button));
+  EXPECT_TRUE(listener.focus_changes()[1] == ViewPair(button, NULL));
+  listener.ClearFocusChanges();
+
+  SimulateActivateWindow();
+  EXPECT_EQ(button, GetFocusManager()->GetFocusedView());
+  ASSERT_EQ(1, listener.focus_changes().size());
+  EXPECT_TRUE(listener.focus_changes()[0] == ViewPair(NULL, button));
+  listener.ClearFocusChanges();
+
+  /*
+  // Now test that while the window is inactive we can change the focused view
+  // (we do that in several places).
+  SimulateDeactivateWindow();
+  // TODO: would have to mock the window being inactive (with a TestWidgetWin
+  //       that would return false on IsActive()).
+  GetFocusManager()->SetFocusedView(view);
+  ::SendMessage(window_->GetNativeWindow(), WM_ACTIVATE, WA_ACTIVE, NULL);
+
+  EXPECT_EQ(view, GetFocusManager()->GetFocusedView());
+  ASSERT_EQ(2, listener.focus_changes().size());
+  EXPECT_TRUE(listener.focus_changes()[0] == ViewPair(button, NULL));
+  EXPECT_TRUE(listener.focus_changes()[1] == ViewPair(NULL, view));
+  */
+}
+
+TEST_F(FocusManagerTest, ContainsView) {
+  View* view = new View();
+  View* detached_view = new View();
+  TabbedPane* tabbed_pane = new TabbedPane();
+  TabbedPane* nested_tabbed_pane = new TabbedPane();
+  NativeButton* tab_button = new NativeButton(NULL, L"tab button");
+
+  content_view_->AddChildView(view);
+  content_view_->AddChildView(tabbed_pane);
+  // Adding a View inside a TabbedPane to test the case of nested root view.
+
+  tabbed_pane->AddTab(L"Awesome tab", nested_tabbed_pane);
+  nested_tabbed_pane->AddTab(L"Awesomer tab", tab_button);
+
+  EXPECT_TRUE(GetFocusManager()->ContainsView(view));
+  EXPECT_TRUE(GetFocusManager()->ContainsView(tabbed_pane));
+  EXPECT_TRUE(GetFocusManager()->ContainsView(nested_tabbed_pane));
+  EXPECT_TRUE(GetFocusManager()->ContainsView(tab_button));
+  EXPECT_FALSE(GetFocusManager()->ContainsView(detached_view));
+}
+
+TEST_F(FocusTraversalTest, NormalTraversal) {
   const int kTraversalIDs[] = { kTopCheckBoxID,  kAppleTextfieldID,
       kOrangeTextfieldID, kBananaTextfieldID, kKiwiTextfieldID,
       kFruitButtonID, kFruitCheckBoxID, kComboboxID, kAsparagusButtonID,
@@ -561,22 +835,21 @@ TEST_F(FocusManagerTest, NormalTraversal) {
       kAmelieLinkID, kJoyeuxNoelLinkID, kCampingLinkID, kBriceDeNiceLinkID,
       kTaxiLinkID, kAsterixLinkID, kOKButtonID, kCancelButtonID, kHelpButtonID,
       kStyleContainerID, kBoldCheckBoxID, kItalicCheckBoxID,
-      kUnderlinedCheckBoxID, kSearchTextfieldID, kSearchButtonID, kHelpLinkID,
+      kUnderlinedCheckBoxID, kStyleHelpLinkID, kStyleTextEditID,
+      kSearchTextfieldID, kSearchButtonID, kHelpLinkID,
       kThumbnailContainerID, kThumbnailStarID, kThumbnailSuperStarID };
 
   // Uncomment the following line if you want to test manually the UI of this
   // test.
-  // MessageLoopForUI::current()->Run(new views::AcceleratorHandler());
+  // MessageLoopForUI::current()->Run(new AcceleratorHandler());
 
-  views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(test_window_->GetNativeView());
   // Let's traverse the whole focus hierarchy (several times, to make sure it
   // loops OK).
-  focus_manager->SetFocusedView(NULL);
+  GetFocusManager()->SetFocusedView(NULL);
   for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < arraysize(kTraversalIDs); j++) {
-      focus_manager->AdvanceFocus(false);
-      views::View* focused_view = focus_manager->GetFocusedView();
+      GetFocusManager()->AdvanceFocus(false);
+      View* focused_view = GetFocusManager()->GetFocusedView();
       EXPECT_TRUE(focused_view != NULL);
       if (focused_view)
         EXPECT_EQ(kTraversalIDs[j], focused_view->GetID());
@@ -584,75 +857,67 @@ TEST_F(FocusManagerTest, NormalTraversal) {
   }
 
   // Focus the 1st item.
-  views::RootView* root_view = test_window_->GetContentsRootView();
-  focus_manager->SetFocusedView(root_view->GetViewByID(kTraversalIDs[0]));
+  GetFocusManager()->SetFocusedView(
+      content_view_->GetViewByID(kTraversalIDs[0]));
 
-  /* BROKEN because of bug #1153276.  The reverse order of traversal in Tabbed
-     Panes is broken (we go to the tab before going to the content
   // Let's traverse in reverse order.
   for (int i = 0; i < 3; ++i) {
     for (int j = arraysize(kTraversalIDs) - 1; j >= 0; --j) {
-      focus_manager->AdvanceFocus(true);
-      views::View* focused_view = focus_manager->GetFocusedView();
+      // TODO(jcampan): Remove this hack.  The reverse order of traversal in
+      // Tabbed Panes is broken (we go to the tab before going to the content).
+      if (kTraversalIDs[j] == kStyleContainerID)
+        j--;  // Ignore the tab.
+
+      GetFocusManager()->AdvanceFocus(true);
+      View* focused_view = GetFocusManager()->GetFocusedView();
       EXPECT_TRUE(focused_view != NULL);
+
+      // TODO(jcampan): Remove this hack, same as above.
+      if (focused_view->GetID() == kStyleContainerID) {
+        j++;  // Ignore the tab.
+        continue;
+      }
+
       if (focused_view)
         EXPECT_EQ(kTraversalIDs[j], focused_view->GetID());
     }
   }
-  */
 }
 
-TEST_F(FocusManagerTest, TraversalWithNonEnabledViews) {
-  const int kMainContentsDisabledIDs[] = {
+TEST_F(FocusTraversalTest, TraversalWithNonEnabledViews) {
+  const int kDisabledIDs[] = {
       kBananaTextfieldID, kFruitCheckBoxID, kComboboxID, kAsparagusButtonID,
       kCauliflowerButtonID, kClosetLinkID, kVisitingLinkID, kBriceDeNiceLinkID,
-      kTaxiLinkID, kAsterixLinkID, kHelpButtonID };
-
-  const int kStyleContentsDisabledIDs[] = { kBoldCheckBoxID };
-
-  const int kSearchContentsDisabledIDs[] = { kSearchTextfieldID, kHelpLinkID };
+      kTaxiLinkID, kAsterixLinkID, kHelpButtonID, kBoldCheckBoxID,
+      kSearchTextfieldID, kHelpLinkID };
 
   const int kTraversalIDs[] = { kTopCheckBoxID,  kAppleTextfieldID,
       kOrangeTextfieldID, kKiwiTextfieldID, kFruitButtonID, kBroccoliButtonID,
       kRosettaLinkID, kStupeurEtTremblementLinkID, kDinerGameLinkID,
       kRidiculeLinkID, kAmelieLinkID, kJoyeuxNoelLinkID, kCampingLinkID,
-      kOKButtonID, kCancelButtonID, kStyleContainerID,
-      kItalicCheckBoxID, kUnderlinedCheckBoxID, kSearchButtonID,
-      kThumbnailContainerID, kThumbnailStarID, kThumbnailSuperStarID };
+      kOKButtonID, kCancelButtonID, kStyleContainerID, kItalicCheckBoxID,
+      kUnderlinedCheckBoxID, kStyleHelpLinkID, kStyleTextEditID,
+      kSearchButtonID, kThumbnailContainerID, kThumbnailStarID,
+      kThumbnailSuperStarID };
 
   // Let's disable some views.
-  views::RootView* root_view = test_window_->GetContentsRootView();
-  for (int i = 0; i < arraysize(kMainContentsDisabledIDs); i++) {
-    views::View* v = root_view->GetViewByID(kMainContentsDisabledIDs[i]);
-    ASSERT_TRUE(v != NULL);
-    if (v)
-      v->SetEnabled(false);
-  }
-  root_view = test_window_->GetStyleRootView();
-  for (int i = 0; i < arraysize(kStyleContentsDisabledIDs); i++) {
-    views::View* v = root_view->GetViewByID(kStyleContentsDisabledIDs[i]);
-    ASSERT_TRUE(v != NULL);
-    if (v)
-      v->SetEnabled(false);
-  }
-  root_view = test_window_->GetSearchRootView();
-  for (int i = 0; i < arraysize(kSearchContentsDisabledIDs); i++) {
-    views::View* v =
-        root_view->GetViewByID(kSearchContentsDisabledIDs[i]);
+  for (int i = 0; i < arraysize(kDisabledIDs); i++) {
+    View* v = FindViewByID(kDisabledIDs[i]);
     ASSERT_TRUE(v != NULL);
     if (v)
       v->SetEnabled(false);
   }
 
+  // Uncomment the following line if you want to test manually the UI of this
+  // test.
+  // MessageLoopForUI::current()->Run(new AcceleratorHandler());
 
-  views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(test_window_->GetNativeView());
-  views::View* focused_view;
+  View* focused_view;
   // Let's do one traversal (several times, to make sure it loops ok).
-  for (int i = 0; i < 3;++i) {
+  for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < arraysize(kTraversalIDs); j++) {
-      focus_manager->AdvanceFocus(false);
-      focused_view = focus_manager->GetFocusedView();
+      GetFocusManager()->AdvanceFocus(false);
+      focused_view = GetFocusManager()->GetFocusedView();
       EXPECT_TRUE(focused_view != NULL);
       if (focused_view)
         EXPECT_EQ(kTraversalIDs[j], focused_view->GetID());
@@ -660,35 +925,43 @@ TEST_F(FocusManagerTest, TraversalWithNonEnabledViews) {
   }
 
   // Focus the 1st item.
-  focus_manager->AdvanceFocus(false);
-  focused_view = focus_manager->GetFocusedView();
+  GetFocusManager()->AdvanceFocus(false);
+  focused_view = GetFocusManager()->GetFocusedView();
   EXPECT_TRUE(focused_view != NULL);
   if (focused_view)
     EXPECT_EQ(kTraversalIDs[0], focused_view->GetID());
 
   // Same thing in reverse.
-  /* BROKEN because of bug #1153276.  The reverse order of traversal in Tabbed
-  Panes is broken (we go to the tab before going to the content
-
   for (int i = 0; i < 3; ++i) {
     for (int j = arraysize(kTraversalIDs) - 1; j >= 0; --j) {
-      focus_manager->AdvanceFocus(true);
-      focused_view = focus_manager->GetFocusedView();
+      // TODO(jcampan): Remove this hack.  The reverse order of traversal in
+      // Tabbed Panes is broken (we go to the tab before going to the content).
+      if (kTraversalIDs[j] == kStyleContainerID)
+        j--;  // Ignore the tab.
+
+      GetFocusManager()->AdvanceFocus(true);
+      focused_view = GetFocusManager()->GetFocusedView();
       EXPECT_TRUE(focused_view != NULL);
+
+      // TODO(jcampan): Remove this hack, same as above.
+      if (focused_view->GetID() == kStyleContainerID) {
+        j++;  // Ignore the tab.
+        continue;
+      }
+
       if (focused_view)
         EXPECT_EQ(kTraversalIDs[j], focused_view->GetID());
     }
   }
-  */
 }
 
 // Counts accelerator calls.
-class TestAcceleratorTarget : public views::AcceleratorTarget {
+class TestAcceleratorTarget : public AcceleratorTarget {
  public:
   explicit TestAcceleratorTarget(bool process_accelerator)
       : accelerator_count_(0), process_accelerator_(process_accelerator) {}
 
-  virtual bool AcceleratorPressed(const views::Accelerator& accelerator) {
+  virtual bool AcceleratorPressed(const Accelerator& accelerator) {
     ++accelerator_count_;
     return process_accelerator_;
   }
@@ -703,10 +976,9 @@ class TestAcceleratorTarget : public views::AcceleratorTarget {
 };
 
 TEST_F(FocusManagerTest, CallsNormalAcceleratorTarget) {
-  views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(test_window_->GetNativeView());
-  views::Accelerator return_accelerator(VK_RETURN, false, false, false);
-  views::Accelerator escape_accelerator(VK_ESCAPE, false, false, false);
+  FocusManager* focus_manager = GetFocusManager();
+  Accelerator return_accelerator(VK_RETURN, false, false, false);
+  Accelerator escape_accelerator(VK_ESCAPE, false, false, false);
 
   TestAcceleratorTarget return_target(true);
   TestAcceleratorTarget escape_target(true);
@@ -796,16 +1068,16 @@ TEST_F(FocusManagerTest, CallsNormalAcceleratorTarget) {
 }
 
 // Unregisters itself when its accelerator is invoked.
-class SelfUnregisteringAcceleratorTarget : public views::AcceleratorTarget {
+class SelfUnregisteringAcceleratorTarget : public AcceleratorTarget {
  public:
-  SelfUnregisteringAcceleratorTarget(views::Accelerator accelerator,
-                                     views::FocusManager* focus_manager)
+  SelfUnregisteringAcceleratorTarget(Accelerator accelerator,
+                                     FocusManager* focus_manager)
       : accelerator_(accelerator),
         focus_manager_(focus_manager),
         accelerator_count_(0) {
   }
 
-  virtual bool AcceleratorPressed(const views::Accelerator& accelerator) {
+  virtual bool AcceleratorPressed(const Accelerator& accelerator) {
     ++accelerator_count_;
     focus_manager_->UnregisterAccelerator(accelerator, this);
     return true;
@@ -814,17 +1086,16 @@ class SelfUnregisteringAcceleratorTarget : public views::AcceleratorTarget {
   int accelerator_count() const { return accelerator_count_; }
 
  private:
-  views::Accelerator accelerator_;
-  views::FocusManager* focus_manager_;
+  Accelerator accelerator_;
+  FocusManager* focus_manager_;
   int accelerator_count_;
 
   DISALLOW_COPY_AND_ASSIGN(SelfUnregisteringAcceleratorTarget);
 };
 
 TEST_F(FocusManagerTest, CallsSelfDeletingAcceleratorTarget) {
-  views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(test_window_->GetNativeView());
-  views::Accelerator return_accelerator(VK_RETURN, false, false, false);
+  FocusManager* focus_manager = GetFocusManager();
+  Accelerator return_accelerator(VK_RETURN, false, false, false);
   SelfUnregisteringAcceleratorTarget target(return_accelerator, focus_manager);
   EXPECT_EQ(target.accelerator_count(), 0);
   EXPECT_EQ(NULL,
@@ -846,4 +1117,4 @@ TEST_F(FocusManagerTest, CallsSelfDeletingAcceleratorTarget) {
   EXPECT_EQ(target.accelerator_count(), 1);
 }
 
-}  // anonymous namespace
+}  // namespace views

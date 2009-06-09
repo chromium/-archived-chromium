@@ -24,6 +24,7 @@ class NativeButtonWin : public NativeControlWin,
   virtual void UpdateDefault();
   virtual View* GetView();
   virtual void SetFocus();
+  virtual gfx::NativeView GetTestingHandle() const;
 
   // Overridden from View:
   virtual gfx::Size GetPreferredSize();

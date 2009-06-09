@@ -183,10 +183,10 @@ class Textfield : public View {
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
   virtual std::string GetClassName() const;
 
- private:
   // The object that actually implements the native text field.
   NativeTextfieldWrapper* native_wrapper_;
 
+ private:
   // This is the current listener for events from this Textfield.
   Controller* controller_;
 

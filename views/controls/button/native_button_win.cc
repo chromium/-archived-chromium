@@ -63,6 +63,10 @@ void NativeButtonWin::SetFocus() {
   Focus();
 }
 
+gfx::NativeView NativeButtonWin::GetTestingHandle() const {
+  return native_view();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // NativeButtonWin, View overrides:
 
