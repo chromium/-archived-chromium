@@ -626,8 +626,6 @@ SkBitmap ImageOperations::CreateTiledBitmap(const SkBitmap& source,
 
 // static
 SkBitmap ImageOperations::DownsampleByTwo(const SkBitmap& bitmap) {
-  DCHECK(bitmap.getConfig() == SkBitmap::kARGB_8888_Config);
-
   // Handle the nop case.
   if (bitmap.width() <= 1 || bitmap.height() <= 1)
     return bitmap;
@@ -678,7 +676,7 @@ SkBitmap ImageOperations::DownsampleByTwo(const SkBitmap& bitmap) {
       ag += (tmp >> 8) & 0xFF00FF;
       rb += tmp & 0xFF00FF;
 
-      // PUt the channels back together, dividing each by 4 to get the average.
+      // Put the channels back together, dividing each by 4 to get the average.
       // |ag| has the alpha and green channels shifted right by 8 bits from
       // there they should end up, so shifting left by 6 gives them in the
       // correct position divided by 4.
