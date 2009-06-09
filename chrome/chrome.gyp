@@ -19,6 +19,17 @@
       '../webkit/webkit.gyp:inspector_resources',
     ],
     'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/chrome',
+    'browser_tests_sources': [
+      'browser/ssl/ssl_browser_tests.cc',
+      'browser/child_process_security_policy_browser_test.cc',
+      'browser/renderer_host/web_cache_manager_browser_test.cc',
+    ],
+    'browser_tests_sources_win_specific': [
+      'browser/views/find_bar_win_browsertest.cc',
+      # TODO(jcampan): once the task manager works on Mac, move this test to the
+      #                non win specific section.
+      'browser/task_manager_browsertest.cc',
+    ],
   },
   'includes': [
     '../build/common.gypi',
@@ -3680,15 +3691,10 @@
 	    'test/browser/browser_test_runner.h',
             'test/unit/chrome_test_suite.h',
             'test/ui_test_utils.cc',
-            # Put your tests below.
-            # IMPORTANT NOTE: you must also put them in browser_tests_dll
-            'browser/ssl/ssl_browser_tests.cc',
-            'browser/child_process_security_policy_browser_test.cc',
-	    # TODO(jcampan): make the task manager test compile on Mac.
-            # 'browser/task_manager_browsertest.cc',
-            'browser/renderer_host/web_cache_manager_browser_test.cc',
-	    # Below is the list of Windows specific tests.
-            # 'browser/views/find_bar_win_browsertest.cc',
+	    # browser_tests_sources is defined in 'variables' at the top of the
+	    # file.
+	    '<@(browser_tests_sources)',
+
           ],
           'conditions': [
             ['OS=="linux"', {
@@ -4067,15 +4073,12 @@
             'app/chrome_dll_version.rc.version',
             'tools/build/win/precompiled_wtl.h',
             'tools/build/win/precompiled_wtl.cc',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/browser_resources.rc',
             '<(SHARED_INTERMEDIATE_DIR)/chrome/common_resources.rc',
-            # Put your tests below.
-            # IMPORTANT NOTE: you must also put them in browser_tests in
-            # the Mac/Linux section.
-            'browser/views/find_bar_win_browsertest.cc',
-            'browser/ssl/ssl_browser_tests.cc',
-            'browser/child_process_security_policy_browser_test.cc',
-            'browser/task_manager_browsertest.cc',
-            'browser/renderer_host/web_cache_manager_browser_test.cc'
+	    # browser_tests_sources and browser_tests_source_win_specific are
+	    # defined in 'variables' at the top of the file.
+	    '<@(browser_tests_sources)',
+	    '<@(browser_tests_sources_win_specific)',
           ],
         },
         {
@@ -4084,6 +4087,7 @@
           'type': 'executable',
           'msvs_guid': '9B87804D-2502-480B-95AE-5A572CE91809',
           'dependencies': [
+	    'browser_tests_dll',
             '../base/base.gyp:base',
           ],
           'include_dirs': [
@@ -4094,6 +4098,12 @@
 	    'test/browser/browser_test_runner.cc',
 	    'test/browser/browser_test_runner.h',
           ],
+          'msvs_settings': {
+            'VCLinkerTool': {
+	      # Use a PDB name different than the one for the DLL.
+              'ProgramDatabaseFile': '$(OutDir)\\browser_tests_exe.pdb',
+            },
+          },
         },
         {
           'target_name': 'crash_service',

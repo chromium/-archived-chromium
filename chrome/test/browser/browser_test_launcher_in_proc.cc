@@ -4,6 +4,7 @@
 
 #include <string>
 
+#include "base/at_exit.h"
 #include "base/command_line.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
@@ -109,6 +110,8 @@ class InProcBrowserTestRunnerFactory
 }  // namespace
 
 int main(int argc, char** argv) {
+  base::AtExitManager at_exit_manager;
+
   CommandLine::Init(argc, argv);
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
 
