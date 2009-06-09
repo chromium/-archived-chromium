@@ -58,34 +58,27 @@ TCPClientSocketPool::ConnectingSocket::~ConnectingSocket() {
 
 int TCPClientSocketPool::ConnectingSocket::Connect(
     const std::string& host,
-    int port,
-    CompletionCallback* callback) {
+    int port) {
   DCHECK(!canceled_);
   DidStartDnsResolution(host, this);
   int rv = resolver_.Resolve(host, port, &addresses_, &callback_);
-  if (rv == OK) {
-    // TODO(willchan): This code is broken.  It should be fixed, but the code
-    // path is impossible in the current implementation since the host resolver
-    // always dumps the request to a worker pool, so it cannot complete
-    // synchronously.
-    NOTREACHED();
-    connect_start_time_ = base::Time::Now();
-    rv = socket_->Connect(&callback_);
-  }
+  if (rv != ERR_IO_PENDING)
+    rv = OnIOCompleteInternal(rv, true /* synchronous */);
   return rv;
 }
 
-ClientSocket* TCPClientSocketPool::ConnectingSocket::ReleaseSocket() {
-  return socket_.release();
+void TCPClientSocketPool::ConnectingSocket::OnIOComplete(int result) {
+  OnIOCompleteInternal(result, false /* asynchronous */);
 }
 
-void TCPClientSocketPool::ConnectingSocket::OnIOComplete(int result) {
+int TCPClientSocketPool::ConnectingSocket::OnIOCompleteInternal(
+    int result, bool synchronous) {
   DCHECK_NE(result, ERR_IO_PENDING);
 
   if (canceled_) {
     // We got canceled, so bail out.
     delete this;
-    return;
+    return result;
   }
 
   GroupMap::iterator group_it = pool_->group_map_.find(group_name_);
@@ -93,7 +86,7 @@ void TCPClientSocketPool::ConnectingSocket::OnIOComplete(int result) {
     // The request corresponding to this ConnectingSocket has been canceled.
     // Stop bothering with it.
     delete this;
-    return;
+    return result;
   }
 
   Group& group = group_it->second;
@@ -104,30 +97,30 @@ void TCPClientSocketPool::ConnectingSocket::OnIOComplete(int result) {
     // The request corresponding to this ConnectingSocket has been canceled.
     // Stop bothering with it.
     delete this;
-    return;
+    return result;
+  }
+
+  if (result == OK && it->second.load_state == LOAD_STATE_RESOLVING_HOST) {
+    it->second.load_state = LOAD_STATE_CONNECTING;
+    socket_.reset(client_socket_factory_->CreateTCPClientSocket(addresses_));
+    connect_start_time_ = base::Time::Now();
+    result = socket_->Connect(&callback_);
+    if (result == ERR_IO_PENDING)
+      return result;
   }
 
   if (result == OK) {
-    if (it->second.load_state == LOAD_STATE_RESOLVING_HOST) {
-      it->second.load_state = LOAD_STATE_CONNECTING;
-      socket_.reset(client_socket_factory_->CreateTCPClientSocket(addresses_));
-      connect_start_time_ = base::Time::Now();
-      result = socket_->Connect(&callback_);
-      if (result == ERR_IO_PENDING)
-        return;
-    } else {
-      DCHECK(connect_start_time_ != base::Time());
-      base::TimeDelta connect_duration =
-          base::Time::Now() - connect_start_time_;
+    DCHECK(connect_start_time_ != base::Time());
+    base::TimeDelta connect_duration =
+        base::Time::Now() - connect_start_time_;
 
-      UMA_HISTOGRAM_CLIPPED_TIMES(
-          FieldTrial::MakeName(
-              "Net.TCP_Connection_Latency", "DnsImpact").data(),
-          connect_duration,
-          base::TimeDelta::FromMilliseconds(1),
-          base::TimeDelta::FromMinutes(10),
-          100);
-    }
+    UMA_HISTOGRAM_CLIPPED_TIMES(
+        FieldTrial::MakeName(
+            "Net.TCP_Connection_Latency", "DnsImpact").data(),
+        connect_duration,
+        base::TimeDelta::FromMilliseconds(1),
+        base::TimeDelta::FromMinutes(10),
+        100);
   }
 
   // Now, we either succeeded at Connect()'ing, or we failed at host resolution
@@ -150,8 +143,10 @@ void TCPClientSocketPool::ConnectingSocket::OnIOComplete(int result) {
     }
   }
 
-  request.callback->Run(result);
+  if (!synchronous)
+    request.callback->Run(result);
   delete this;
+  return result;
 }
 
 void TCPClientSocketPool::ConnectingSocket::Cancel() {
@@ -238,36 +233,20 @@ int TCPClientSocketPool::RequestSocket(const std::string& group_name,
   if (ContainsKey(connecting_socket_map_, handle))
     connecting_socket_map_[handle]->Cancel();
 
-  scoped_ptr<ConnectingSocket> connecting_socket(
-      new ConnectingSocket(group_name, handle, client_socket_factory_, this));
-  int rv = connecting_socket->Connect(host, port, callback);
-  if (rv == OK) {
-    NOTREACHED();
-    handle->set_socket(connecting_socket->ReleaseSocket());
-    handle->set_is_reused(false);
-  } else if (rv == ERR_IO_PENDING) {
-    // The ConnectingSocket will delete itself.
-    connecting_socket.release();
-    Request r;
-    r.handle = handle;
-    DCHECK(callback);
-    r.callback = callback;
-    r.priority = priority;
-    r.host = host;
-    r.port = port;
-    r.load_state = LOAD_STATE_RESOLVING_HOST;
-    group_map_[group_name].connecting_requests[handle] = r;
-  } else {
-    group.active_socket_count--;
+  Request r;
+  r.handle = handle;
+  DCHECK(callback);
+  r.callback = callback;
+  r.priority = priority;
+  r.host = host;
+  r.port = port;
+  r.load_state = LOAD_STATE_RESOLVING_HOST;
+  group_map_[group_name].connecting_requests[handle] = r;
 
-    // Delete group if no longer needed.
-    if (group.active_socket_count == 0 && group.idle_sockets.empty()) {
-      DCHECK(group.pending_requests.empty());
-      DCHECK(group.connecting_requests.empty());
-      group_map_.erase(group_name);
-    }
-  }
-
+  // connecting_socket will delete itself.
+  ConnectingSocket* connecting_socket =
+      new ConnectingSocket(group_name, handle, client_socket_factory_, this);
+  int rv = connecting_socket->Connect(host, port);
   return rv;
 }
 

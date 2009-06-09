@@ -110,24 +110,26 @@ class TCPClientSocketPool : public ClientSocketPool {
                      TCPClientSocketPool* pool);
     ~ConnectingSocket();
 
-    // Begins the host resolution and the TCP connect.  Returns OK on success,
-    // in which case |callback| is not called.  On pending IO, Connect returns
-    // ERR_IO_PENDING and runs |callback| on completion.
-    int Connect(const std::string& host,
-                int port,
-                CompletionCallback* callback);
-
-    // If Connect() returns OK, TCPClientSocketPool may invoke this method to
-    // get the ConnectingSocket to release |socket_| to be set into the
-    // ClientSocketHandle immediately.
-    ClientSocket* ReleaseSocket();
+    // Begins the host resolution and the TCP connect.  Returns OK on success
+    // and ERR_IO_PENDING if it cannot immediately service the request.
+    // Otherwise, it returns a net error code.
+    int Connect(const std::string& host, int port);
 
     // Called by the TCPClientSocketPool to cancel this ConnectingSocket.  Only
     // necessary if a ClientSocketHandle is reused.
     void Cancel();
 
    private:
+    // Handles asynchronous completion of IO.  |result| represents the result of
+    // the IO operation.
     void OnIOComplete(int result);
+
+    // Handles both asynchronous and synchronous completion of IO.  |result|
+    // represents the result of the IO operation.  |synchronous| indicates
+    // whether or not the previous IO operation completed synchronously or
+    // asynchronously.  OnIOCompleteInternal returns the result of the next IO
+    // operation that executes, or just the value of |result|.
+    int OnIOCompleteInternal(int result, bool synchronous);
 
     const std::string group_name_;
     const ClientSocketHandle* const handle_;
