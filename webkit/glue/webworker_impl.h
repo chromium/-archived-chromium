@@ -10,6 +10,7 @@
 #if ENABLE(WORKERS)
 
 #include "ScriptExecutionContext.h"
+#include "WorkerLoaderProxy.h"
 #include "WorkerObjectProxy.h"
 #include <wtf/RefPtr.h>
 
@@ -24,6 +25,7 @@ class WorkerThread;
 // WebCore::WorkerObjectProxy, this class will conver to Chrome data types first
 // and then call the supplied WebWorkerClient.
 class WebWorkerImpl: public WebCore::WorkerObjectProxy,
+                     public WebCore::WorkerLoaderProxy,
                      public WebKit::WebWorker {
  public:
   explicit WebWorkerImpl(WebKit::WebWorkerClient* client);
@@ -44,6 +46,13 @@ class WebWorkerImpl: public WebCore::WorkerObjectProxy,
   virtual void confirmMessageFromWorkerObject(bool has_pending_activity);
   virtual void reportPendingActivity(bool has_pending_activity);
   virtual void workerContextDestroyed();
+
+  // WebCore::WorkerLoaderProxy methods:
+  virtual void postTaskToLoader(
+      WTF::PassRefPtr<WebCore::ScriptExecutionContext::Task>);
+  virtual void postTaskForModeToWorkerContext(
+      WTF::PassRefPtr<WebCore::ScriptExecutionContext::Task>,
+      const WebCore::String& mode);
 
   // WebWorker methods:
   virtual void startWorkerContext(const WebKit::WebURL& script_url,

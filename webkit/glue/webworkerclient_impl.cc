@@ -82,7 +82,7 @@ WebCore::WorkerContextProxy* WebCore::WorkerContextProxy::create(
     }
 
     WebCore::WorkerObjectProxy* worker_object_proxy =
-        current_context->workerContext()->thread()->workerObjectProxy();
+        &current_context->workerContext()->thread()->workerObjectProxy();
     WebWorkerImpl* impl = reinterpret_cast<WebWorkerImpl*>(worker_object_proxy);
     webworker = impl->client()->createWorker(proxy);
   }

@@ -250,6 +250,8 @@
         '../third_party/WebKit/JavaScriptCore/wtf/ByteArray.h',
         '../third_party/WebKit/JavaScriptCore/wtf/CurrentTime.h',
         '../third_party/WebKit/JavaScriptCore/wtf/CrossThreadRefCounted.h',
+        '../third_party/WebKit/JavaScriptCore/wtf/DateMath.cpp',
+        '../third_party/WebKit/JavaScriptCore/wtf/DateMath.h',
         '../third_party/WebKit/JavaScriptCore/wtf/Deque.h',
         '../third_party/WebKit/JavaScriptCore/wtf/DisallowCType.h',
         '../third_party/WebKit/JavaScriptCore/wtf/FastMalloc.cpp',

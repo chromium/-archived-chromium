@@ -169,22 +169,6 @@ void PopulateURLResponse(
   if (headers->GetLastModifiedValue(&time_val))
     response->setLastModifiedDate(time_val.ToDoubleT());
 
-  // Compute expiration date
-  TimeDelta freshness_lifetime =
-      headers->GetFreshnessLifetime(info.response_time);
-  if (freshness_lifetime != TimeDelta()) {
-    Time now = Time::Now();
-    TimeDelta current_age =
-        headers->GetCurrentAge(info.request_time, info.response_time, now);
-    time_val = now + freshness_lifetime - current_age;
-
-    response->setExpirationDate(time_val.ToDoubleT());
-  } else {
-    // WebKit uses 0 as a special expiration date that means never expire.
-    // 1 is a small enough value to let it always expire.
-    response->setExpirationDate(1);
-  }
-
   // Build up the header map.
   void* iter = NULL;
   std::string name;

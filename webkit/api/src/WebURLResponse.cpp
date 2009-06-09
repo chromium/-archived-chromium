@@ -182,16 +182,6 @@ void WebURLResponse::visitHTTPHeaderFields(WebHTTPHeaderVisitor* visitor) const
         visitor->visitHeader(String(it->first), it->second);
 }
 
-double WebURLResponse::expirationDate() const
-{
-    return static_cast<double>(m_private->m_resourceResponse->expirationDate());
-}
-
-void WebURLResponse::setExpirationDate(double expirationDate)
-{
-    m_private->m_resourceResponse->setExpirationDate(static_cast<time_t>(expirationDate));
-}
-
 double WebURLResponse::lastModifiedDate() const
 {
     return static_cast<double>(m_private->m_resourceResponse->lastModifiedDate());

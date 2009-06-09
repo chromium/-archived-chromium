@@ -91,9 +91,6 @@ namespace WebKit {
         WEBKIT_API void clearHTTPHeaderField(const WebString& name);
         WEBKIT_API void visitHTTPHeaderFields(WebHTTPHeaderVisitor*) const;
 
-        WEBKIT_API double expirationDate() const;
-        WEBKIT_API void setExpirationDate(double);
-
         WEBKIT_API double lastModifiedDate() const;
         WEBKIT_API void setLastModifiedDate(double);
 

@@ -85,7 +85,8 @@ void WebWorkerImpl::startWorkerContext(const WebURL& script_url,
       webkit_glue::WebURLToKURL(script_url),
       webkit_glue::WebStringToString(user_agent),
       webkit_glue::WebStringToString(source_code),
-      this);
+      *this,
+      *this);
 
   // Worker initialization means a pending activity.
   reportPendingActivity(true);
@@ -228,6 +229,19 @@ void WebWorkerImpl::workerContextDestroyed() {
   DispatchTaskToMainThread(WebCore::createCallbackTask(
       &WorkerContextDestroyedTask,
       this));
+}
+
+// WorkerLoaderProxy -----------------------------------------------------------
+
+void WebWorkerImpl::postTaskToLoader(
+    PassRefPtr<WebCore::ScriptExecutionContext::Task> task) {
+  NOTIMPLEMENTED();
+}
+
+void WebWorkerImpl::postTaskForModeToWorkerContext(
+    PassRefPtr<WebCore::ScriptExecutionContext::Task> task,
+    const WebCore::String& mode) {
+  NOTIMPLEMENTED();
 }
 
 void WebWorkerImpl::WorkerContextDestroyedTask(
