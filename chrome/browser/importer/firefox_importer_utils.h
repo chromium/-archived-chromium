@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -7,6 +7,7 @@
 
 #include "base/basictypes.h"
 #include "base/file_util.h"
+#include "base/native_library.h"
 #include "base/values.h"
 #include "build/build_config.h"
 #include "webkit/glue/password_form.h"
@@ -210,11 +211,9 @@ class NSSDecryptor {
   static const wchar_t kPLDS4Library[];
   static const wchar_t kNSPR4Library[];
 
-#if defined(OS_WIN)
   // NSS3 module handles.
-  HMODULE nss3_dll_;
-  HMODULE softokn3_dll_;
-#endif
+  base::NativeLibrary nss3_dll_;
+  base::NativeLibrary softokn3_dll_;
 
   // True if NSS_Init() has been called
   bool is_nss_initialized_;
