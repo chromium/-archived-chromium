@@ -53,9 +53,11 @@ env.Replace(
     ICU38_DIR = '$THIRD_PARTY/icu38/files',
     JPEG_DIR = '$THIRD_PARTY/jpeg/src',
     JSDOCTOOLKIT_DIR = '$THIRD_PARTY/jsdoctoolkit/files',
-    # Set this to run an hermetic version of Firefox with Selenium on the Mac.
+    # To run selenium tests you will need a tgz'ed copy of firefox.
+    # Specify the path to it below.
     # See tests/build.scons
-    MAC_HERMETIC_FIREFOX_DIR = None,
+    MAC_HERMETIC_FIREFOX_DIR = (
+        '$SCONSTRUCT_DIR/../o3d-internal/third_party/firefox'),
     # NACL has to be in this weird directory because it looks for
     # googleclient two levels above it.
     NACL_DIR = '$THIRD_PARTY/native_client/googleclient/native_client',
