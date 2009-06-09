@@ -60,7 +60,7 @@ o3djs.util.PLUGIN_NAME = 'O3D Plugin';
  * utility libraries.
  * @type {string}
  */
-o3djs.util.REQUIRED_VERSION = '0.1.34.4';
+o3djs.util.REQUIRED_VERSION = '0.1.35.0';
 
 /**
  * A URL at which to download the client.
@@ -713,10 +713,13 @@ o3djs.util.getScriptTagText_ = function() {
  *    available.
  */
 o3djs.util.createClient = function(element, opt_features, opt_requestVersion) {
-  if (opt_requestVersion &&
-      !o3djs.util.requiredVersionAvailable(opt_requestVersion)) {
+  opt_features = opt_features || '';
+  opt_requestVersion = opt_requestVersion || o3djs.util.REQUIRED_VERSION;
+  if (!o3djs.util.requiredVersionAvailable(opt_requestVersion)) {
     return null;
   }
+  opt_features += (opt_features ? ',' : '') + 'APIVersion=' +
+                  opt_requestVersion;
   var objElem;
   // TODO: Use opt_requiredVersion to set a version so the plugin
   //    can make sure it offers that version of the API.
@@ -728,7 +731,6 @@ o3djs.util.createClient = function(element, opt_features, opt_requestVersion) {
           'WIDTH="100%" HEIGHT="100%"' +
           'CLASSID="CLSID:9666A772-407E-4F90-BC37-982E8160EB2D">' +
             '<PARAM name="o3d_features" value="' + opt_features + '"/>' +
-            '<PARAM name="version" value="' + opt_requestVersion + '"/>' +
         '</OBJECT>';
     objElem = element.childNodes[0];
   } else {
@@ -737,7 +739,6 @@ o3djs.util.createClient = function(element, opt_features, opt_requestVersion) {
     objElem.style.width = '100%';
     objElem.style.height = '100%';
     objElem.setAttribute('o3d_features', opt_features);
-    objElem.version = opt_requestVersion;
     element.appendChild(objElem);
   }
 
@@ -804,8 +805,7 @@ o3djs.util.makeClients = function(callback,
   var tag = opt_tag || 'div';
   var id = opt_id || '^o3d';
   opt_failureCallback = opt_failureCallback || o3djs.util.informPluginFailure;
-  opt_requiredVersion = opt_requiredVersion ||
-      o3djs.util.REQUIRED_VERSION;
+  opt_requiredVersion = opt_requiredVersion || o3djs.util.REQUIRED_VERSION;
   if (!o3djs.util.requiredVersionAvailable(opt_requiredVersion)) {
     opt_failureCallback(o3djs.util.rendererInitStatus.NO_PLUGIN, '', id, tag);
   } else {

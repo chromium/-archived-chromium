@@ -63,6 +63,28 @@ class FeaturesTest : public testing::Test {
 TEST_F(FeaturesTest, Basic) {
   Features* features = new Features(service_locator());
 
+  // Check that the features start off correctly.
+  //
+  // NOTE: For backward compatibility floating_point_textures and
+  //     large_geometry default to true.  o3djs.util.makeClients before 0.1.35.0
+  //     does not set the o3d_features plugin parameters and therefore
+  //     Features::Init is not called.  o3djs,util.makeClients after and
+  //     including 0.1.35.0 do set o3d_features and therefore Init is called
+  //     which sets those to false to start.
+  EXPECT_TRUE(features->floating_point_textures());
+  EXPECT_TRUE(features->large_geometry());
+  EXPECT_FALSE(features->windowless());
+  EXPECT_FALSE(features->not_anti_aliased());
+  EXPECT_EQ(features->init_status(), Renderer::SUCCESS);
+
+  delete features;
+}
+
+TEST_F(FeaturesTest, Empty) {
+  Features* features = new Features(service_locator());
+
+  features->Init("");
+
   // Check that the features start off as false.
   EXPECT_FALSE(features->floating_point_textures());
   EXPECT_FALSE(features->large_geometry());

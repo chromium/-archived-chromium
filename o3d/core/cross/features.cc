@@ -45,14 +45,23 @@ const InterfaceId Features::kInterfaceId =
 
 Features::Features(ServiceLocator* service_locator)
     : service_(service_locator, this),
-      floating_point_textures_(false),
-      large_geometry_(false),
+      floating_point_textures_(true),
+      large_geometry_(true),
       windowless_(false),
       not_anti_aliased_(false),
       init_status_(Renderer::SUCCESS) {
+  // NOTE: For backward compatibility floating_point_textures and
+  //     large_geometry default to true.  o3djs.util.makeClients before 0.1.35.0
+  //     does not set the o3d_features plugin parameters and therefore
+  //     Features::Init is not called.  o3djs,util.makeClients after and
+  //     including 0.1.35.0 do set o3d_features and therefore Init is called
+  //     which sets those to false to start.
 }
 
 void Features::Init(const String& requested_features) {
+  large_geometry_ = false;
+  floating_point_textures_ = false;
+
   std::vector<std::string> features;
   SplitString(requested_features, ',', &features);
   for (size_t jj = 0; jj < features.size(); ++jj) {
