@@ -673,6 +673,10 @@ extern "C" {
   // We favor the newer Cocoa-based model, but can cope with browsers that
   // only support the original event model, or indeed can't even understand
   // what we are asking for.
+  // However, right at the minute, we shun the Cocoa event model because its
+  // NPP_SetWindow messages don't contain a WindowRef or NSWindow so we would
+  // not get enough info to create our AGL context. We'll go back to
+  // preferring Cocoa once we have worked out how to deal with that.
   // Cannot actually fail -
   static void Mac_SetBestEventModel(NPP instance, PluginObject* obj) {
     NPError err = NPERR_NO_ERROR;
@@ -703,20 +707,20 @@ extern "C" {
     // If we didn't successfully get TRUE for either question, the browser
     // just does not know about the new switchable event models, so must only
     // support the old Carbon event model.
-    if (!(supportsCocoaEventModel || supportsCocoaEventModel)) {
+    if (!(supportsCocoaEventModel || supportsCarbonEventModel)) {
       supportsCarbonEventModel = TRUE;
       obj->event_model_ = NPEventModelCarbon;
     }
 
-    if (supportsCocoaEventModel) {
-      NPN_SetValue(instance, NPPVpluginEventModel,
-                   reinterpret_cast<void*>(NPEventModelCocoa));
-      obj->event_model_ = NPEventModelCocoa;
-    } else {
-      NPN_SetValue(instance, NPPVpluginEventModel,
-                   reinterpret_cast<void*>(NPEventModelCocoa));
-      obj->event_model_ = NPEventModelCarbon;
-    }
+    // Default to Carbon event model, because the new version of the
+    // Cocoa event model spec does not supply sufficient window
+    // information in its Cocoa NPP_SetWindow calls for us to bind an
+    // AGL context to the browser window.
+    NPEventModel model_to_use =
+        (supportsCarbonEventModel) ? NPEventModelCarbon : NPEventModelCocoa;
+    NPN_SetValue(instance, NPPVpluginEventModel,
+                 reinterpret_cast<void*>(model_to_use));
+    obj->event_model_ = model_to_use;
   }
 
 
@@ -1078,8 +1082,8 @@ extern "C" {
     obj->client()->SetRenderOnDemandCallback(
         new RenderOnDemandCallbackHandler(obj));
 
-      
-      
+
+
     obj->renderer()->SetClientOriginOffset(gl_x_origin, gl_y_origin);
     obj->Resize(window->width, window->height);
 
