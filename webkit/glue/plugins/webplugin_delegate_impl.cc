@@ -740,10 +740,10 @@ void WebPluginDelegateImpl::WindowedSetWindow() {
 
   DCHECK(!instance()->windowless());
 
-  window_.clipRect.top = clip_rect_.y();
-  window_.clipRect.left = clip_rect_.x();
-  window_.clipRect.bottom = clip_rect_.y() + clip_rect_.height();
-  window_.clipRect.right = clip_rect_.x() + clip_rect_.width();
+  window_.clipRect.top = std::max(0, clip_rect_.y());
+  window_.clipRect.left = std::max(0, clip_rect_.x());
+  window_.clipRect.bottom = std::max(0, clip_rect_.y() + clip_rect_.height());
+  window_.clipRect.right = std::max(0, clip_rect_.x() + clip_rect_.width());
   window_.height = window_rect_.height();
   window_.width = window_rect_.width();
   window_.x = 0;

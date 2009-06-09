@@ -338,15 +338,20 @@ void RenderWidgetHostViewWin::MovePluginWindows(
     else
       flags |= SWP_HIDEWINDOW;
 
-    HRGN hrgn = ::CreateRectRgn(move.clip_rect.x(),
-                                move.clip_rect.y(),
-                                move.clip_rect.right(),
-                                move.clip_rect.bottom());
-    gfx::SubtractRectanglesFromRegion(hrgn, move.cutout_rects);
+    if (move.rects_valid) {
+      HRGN hrgn = ::CreateRectRgn(move.clip_rect.x(),
+                                  move.clip_rect.y(),
+                                  move.clip_rect.right(),
+                                  move.clip_rect.bottom());
+      gfx::SubtractRectanglesFromRegion(hrgn, move.cutout_rects);
 
-    // Note: System will own the hrgn after we call SetWindowRgn,
-    // so we don't need to call DeleteObject(hrgn)
-    ::SetWindowRgn(window, hrgn, !move.clip_rect.IsEmpty());
+      // Note: System will own the hrgn after we call SetWindowRgn,
+      // so we don't need to call DeleteObject(hrgn)
+      ::SetWindowRgn(window, hrgn, !move.clip_rect.IsEmpty());
+    } else {
+      flags |= SWP_NOMOVE;
+      flags |= SWP_NOSIZE;
+    }
 
     defer_window_pos_info = ::DeferWindowPos(defer_window_pos_info,
                                              window, NULL,

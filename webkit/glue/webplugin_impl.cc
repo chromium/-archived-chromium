@@ -172,28 +172,15 @@ void WebPluginContainer::setFocus() {
 }
 
 void WebPluginContainer::show() {
-  bool old_visible = isVisible();
   setSelfVisible(true);
-  // We don't want to force a geometry update when the plugin widget is
-  // already visible as this involves a geometry update which may lead
-  // to unnecessary window moves in the plugin process.
-  if (old_visible != isVisible()) {
-    // This is to force an updategeometry call to the plugin process
-    // where the plugin window can be hidden or shown.
-    frameRectsChanged();
-  }
+  impl_->UpdateVisibility();
 
   WebCore::Widget::show();
 }
 
 void WebPluginContainer::hide() {
-  bool old_visible = isVisible();
   setSelfVisible(false);
-  if (old_visible != isVisible()) {
-    // This is to force an updategeometry call to the plugin process
-    // where the plugin window can be hidden or shown.
-    frameRectsChanged();
-  }
+  impl_->UpdateVisibility();
 
   WebCore::Widget::hide();
 }
@@ -222,20 +209,7 @@ void WebPluginContainer::setParentVisible(bool visible) {
   if (!isSelfVisible())
     return;  // This widget has explicitely been marked as not visible.
 
-  // This is to force an updategeometry call to the plugin process
-  // where the plugin window can be hidden or shown.
-  frameRectsChanged();
-}
-
-// We override this function so that if the plugin is windowed, we can call
-// NPP_SetWindow at the first possible moment.  This ensures that NPP_SetWindow
-// is called before the manual load data is sent to a plugin.  If this order is
-// reversed, Flash won't load videos.
-void WebPluginContainer::setParent(WebCore::ScrollView* view) {
-  WebCore::Widget::setParent(view);
-  if (view) {
-    impl_->setFrameRect(frameRect());
-  }
+  impl_->UpdateVisibility();
 }
 
 void WebPluginContainer::windowCutoutRects(const WebCore::IntRect& bounds,
@@ -247,6 +221,10 @@ void WebPluginContainer::windowCutoutRects(const WebCore::IntRect& bounds,
 void WebPluginContainer::didReceiveResponse(
     const WebCore::ResourceResponse& response) {
   set_ignore_response_error(false);
+
+  // Manual loading, so make sure that the plugin receives window geometry
+  // before data, or else plugins misbehave.
+  frameRectsChanged();
 
   HttpResponseInfo http_response_info;
   ReadHttpResponseInfo(response, &http_response_info);
@@ -671,6 +649,7 @@ void WebPluginImpl::setFrameRect(const WebCore::IntRect& rect) {
     move.window_rect = webkit_glue::FromIntRect(window_rect);
     move.clip_rect = webkit_glue::FromIntRect(clip_rect);
     move.cutout_rects = cutout_rects;
+    move.rects_valid = true;
     move.visible = widget_->isVisible();
 
     webview->delegate()->DidMove(webview, move);
@@ -1350,4 +1329,24 @@ void WebPluginImpl::TearDownPluginInstance(
   // webframe_ might not be valid anymore.
   webframe_->set_plugin_delegate(NULL);
   webframe_ = NULL;
+}
+
+void WebPluginImpl::UpdateVisibility() {
+  if (!window_)
+    return;
+
+  WebCore::Frame* frame = element_->document()->frame();
+  WebFrameImpl* webframe = WebFrameImpl::FromFrame(frame);
+  WebViewImpl* webview = webframe->GetWebViewImpl();
+  if (!webview->delegate())
+    return;
+
+  WebPluginGeometry move;
+  move.window = window_;
+  move.window_rect = gfx::Rect();
+  move.clip_rect = gfx::Rect();
+  move.rects_valid = false;
+  move.visible = widget_->isVisible();
+
+  webview->delegate()->DidMove(webview, move);
 }

@@ -31,6 +31,7 @@ struct WebPluginGeometry {
   // window_rect origin.
   gfx::Rect clip_rect;
   std::vector<gfx::Rect> cutout_rects;
+  bool rects_valid;
   bool visible;
 };
 

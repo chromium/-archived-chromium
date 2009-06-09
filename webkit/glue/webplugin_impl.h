@@ -66,7 +66,6 @@ class WebPluginContainer : public WebCore::Widget {
   virtual void handleEvent(WebCore::Event* event);
   virtual void frameRectsChanged();
   virtual void setParentVisible(bool visible);
-  virtual void setParent(WebCore::ScrollView* view);
 
 #if USE(JSC)
   virtual bool isPluginView() const;
@@ -312,6 +311,9 @@ class WebPluginImpl : public WebPlugin,
   // Tears down the existing plugin instance and creates a new plugin instance
   // to handle the response identified by the response_handle parameter.
   bool ReinitializePluginForResponse(WebCore::ResourceHandle* response_handle);
+
+  // Notifies us that the visibility of the plugin has changed.
+  void UpdateVisibility();
 
   // Helper functions to convert an array of names/values to a vector.
   static void ArrayToVector(int total_values, char** values,

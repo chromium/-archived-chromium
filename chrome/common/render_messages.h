@@ -936,6 +936,7 @@ struct ParamTraits<WebPluginGeometry> {
     WriteParam(m, p.window_rect);
     WriteParam(m, p.clip_rect);
     WriteParam(m, p.cutout_rects);
+    WriteParam(m, p.rects_valid);
     WriteParam(m, p.visible);
   }
   static bool Read(const Message* m, void** iter, param_type* p) {
@@ -944,6 +945,7 @@ struct ParamTraits<WebPluginGeometry> {
       ReadParam(m, iter, &p->window_rect) &&
       ReadParam(m, iter, &p->clip_rect) &&
       ReadParam(m, iter, &p->cutout_rects) &&
+      ReadParam(m, iter, &p->rects_valid) &&
       ReadParam(m, iter, &p->visible);
   }
   static void Log(const param_type& p, std::wstring* l) {
@@ -955,6 +957,8 @@ struct ParamTraits<WebPluginGeometry> {
     LogParam(p.clip_rect, l);
     l->append(L", ");
     LogParam(p.cutout_rects, l);
+    l->append(L", ");
+    LogParam(p.rects_valid, l);
     l->append(L", ");
     LogParam(p.visible, l);
     l->append(L")");
