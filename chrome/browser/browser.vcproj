@@ -2036,6 +2036,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\extensions\extension_creator.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_creator.h"
+				>
+			</File>
+			<File
 				RelativePath=".\extensions\extension_event_names.cc"
 				>
 			</File>

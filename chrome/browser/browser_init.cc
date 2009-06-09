@@ -4,6 +4,9 @@
 
 #include "chrome/browser/browser_init.h"
 
+#if defined(OS_WIN)
+#include "app/win_util.h"
+#endif
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/basictypes.h"
@@ -11,6 +14,7 @@
 #include "base/compiler_specific.h"
 #include "base/event_recorder.h"
 #include "base/file_path.h"
+#include "base/file_util.h"
 #include "base/histogram.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
@@ -21,6 +25,9 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_window.h"
+#if defined(OS_WIN)  // TODO(port)
+#include "chrome/browser/extensions/extension_creator.h"
+#endif
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/browser/first_run.h"
@@ -688,6 +695,43 @@ bool BrowserInit::ProcessCmdLineImpl(const CommandLine& command_line,
       FilePath path = FilePath::FromWStringHack(path_string);
       profile->GetExtensionsService()->LoadExtension(path);
       profile->GetUserScriptMaster()->AddWatchedPath(path);
+    }
+
+    if (command_line.HasSwitch(switches::kPackExtension)) {
+      // Input Paths.
+      FilePath src_dir = FilePath::FromWStringHack(command_line.GetSwitchValue(
+          switches::kPackExtension));
+      FilePath private_key_path;
+      if (command_line.HasSwitch(switches::kPackExtensionKey)) {
+        private_key_path = FilePath::FromWStringHack(
+            command_line.GetSwitchValue(switches::kPackExtensionKey));
+      }
+
+      // Output Paths.
+      FilePath output(src_dir.DirName().Append(src_dir.BaseName().value()));
+      FilePath crx_path(output);
+      crx_path = crx_path.ReplaceExtension(chrome::kExtensionFileExtension);
+      FilePath output_private_key_path;
+      if (private_key_path.empty()) {
+        output_private_key_path = FilePath(output);
+        output_private_key_path =
+            output_private_key_path.ReplaceExtension(FILE_PATH_LITERAL("pem"));
+      }
+
+      // TODO(port): Creation & running is removed from mac & linux because
+      // ExtensionCreator depends on base/crypto/rsa_private_key and
+      // base/crypto/signature_creator, both of which only have windows
+      // implementations.
+#if defined(OS_WIN)
+      scoped_ptr<ExtensionCreator> creator(new ExtensionCreator());
+      if (!creator->Run(src_dir, crx_path, private_key_path,
+          output_private_key_path)) {
+        win_util::MessageBox(NULL, UTF8ToWide(creator->error_message()),
+            L"Extension Packaging Error", MB_OK | MB_SETFOREGROUND);
+        return false;
+      }
+#endif // defined(OS_WIN)
+      return false;
     }
   }
 

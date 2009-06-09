@@ -50,19 +50,9 @@ const char* ExtensionsService::kInstallDirectoryName = "Extensions";
 const char* ExtensionsService::kCurrentVersionFileName = "Current Version";
 const char* ExtensionsServiceBackend::kTempExtensionName = "TEMP_INSTALL";
 
+const char* ExtensionsService::kExtensionFileMagic = "Cr24";
+
 namespace {
-// Chromium Extension magic number
-const char kExtensionFileMagic[] = "Cr24";
-
-struct ExtensionHeader {
-  char magic[sizeof(kExtensionFileMagic) - 1];
-  uint32 version;
-  size_t header_size;
-  size_t manifest_size;
-};
-
-const size_t kZipHashBytes = 32;  // SHA-256
-const size_t kZipHashHexBytes = kZipHashBytes * 2;  // Hex string is 2x size.
 
 // A preference that keeps track of extension settings. This is a dictionary
 // object read from the Preferences file, keyed off of extension id's.

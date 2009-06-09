@@ -14,13 +14,28 @@
 #include "chrome/common/extensions/extension_error_utils.h"
 #include "chrome/common/extensions/user_script.h"
 #include "chrome/common/url_constants.h"
+#include "net/base/base64.h"
 
 #if defined(OS_WIN)
 #include "base/registry.h"
 #endif
 
+namespace {
+  const int kPEMOutputColumns = 65;
+
+  // KEY MARKERS
+  const char kKeyBeginHeaderMarker[] = "-----BEGIN";
+  const char kKeyBeginFooterMarker[] = "-----END";
+  const char kKeyInfoEndMarker[] = "KEY-----";
+  const char kPublic[] = "PUBLIC";
+  const char kPrivate[] = "PRIVATE";
+
+  const int kRSAKeySize = 1024;
+};
+
 const char Extension::kManifestFilename[] = "manifest.json";
 
+const wchar_t* Extension::kBackgroundKey = L"background_page";
 const wchar_t* Extension::kContentScriptsKey = L"content_scripts";
 const wchar_t* Extension::kCssKey = L"css";
 const wchar_t* Extension::kDescriptionKey = L"description";
@@ -34,8 +49,9 @@ const wchar_t* Extension::kPermissionsKey = L"permissions";
 const wchar_t* Extension::kPluginsKey = L"plugins";
 const wchar_t* Extension::kPluginsPathKey = L"path";
 const wchar_t* Extension::kPluginsPublicKey = L"public";
-const wchar_t* Extension::kBackgroundKey = L"background_page";
+const wchar_t* Extension::kPublicKeyKey = L"key";
 const wchar_t* Extension::kRunAtKey = L"run_at";
+const wchar_t* Extension::kSignatureKey = L"signature";
 const wchar_t* Extension::kThemeKey = L"theme";
 const wchar_t* Extension::kThemeImagesKey = L"images";
 const wchar_t* Extension::kThemeColorsKey = L"colors";
@@ -45,7 +61,6 @@ const wchar_t* Extension::kToolstripsKey = L"toolstrips";
 const wchar_t* Extension::kTooltipKey = L"tooltip";
 const wchar_t* Extension::kTypeKey = L"type";
 const wchar_t* Extension::kVersionKey = L"version";
-const wchar_t* Extension::kZipHashKey = L"zip_hash";
 
 const char* Extension::kRunAtDocumentStartValue = "document_start";
 const char* Extension::kRunAtDocumentEndValue = "document_end";
@@ -58,9 +73,10 @@ static const wchar_t* kValidThemeKeys[] = {
   Extension::kIconPathKey,
   Extension::kIdKey,
   Extension::kNameKey,
+  Extension::kPublicKeyKey,
+  Extension::kSignatureKey,
   Extension::kThemeKey,
-  Extension::kVersionKey,
-  Extension::kZipHashKey
+  Extension::kVersionKey
 };
 
 // Extension-related error messages. Some of these are simple patterns, where a
@@ -476,6 +492,76 @@ Extension::Extension(const FilePath& path) {
 #endif
 }
 
+
+// TODO(rafaelw): Move ParsePEMKeyBytes, ProducePEM & FormatPEMForOutput to a
+// util class in base:
+// http://code.google.com/p/chromium/issues/detail?id=13572
+bool Extension::ParsePEMKeyBytes(const std::string& input,
+                                        std::string* output) {
+  CHECK(output);
+  if (input.length() == 0)
+    return false;
+
+  std::string working = input;
+  if (StartsWithASCII(working, kKeyBeginHeaderMarker, true)) {
+    working = CollapseWhitespaceASCII(working, true);
+    size_t header_pos = working.find(kKeyInfoEndMarker,
+      sizeof(kKeyBeginHeaderMarker) - 1);
+    if (header_pos == std::string::npos)
+      return false;
+    size_t start_pos = header_pos + sizeof(kKeyInfoEndMarker) - 1;
+    size_t end_pos = working.rfind(kKeyBeginFooterMarker);
+    if (end_pos == std::string::npos)
+      return false;
+    if (start_pos >= end_pos)
+      return false;
+
+    working = working.substr(start_pos, end_pos - start_pos);
+    if (working.length() == 0)
+      return false;
+  }
+
+  return net::Base64Decode(working, output);
+}
+
+bool Extension::ProducePEM(const std::string& input,
+                                  std::string* output) {
+  CHECK(output);
+  if (input.length() == 0)
+    return false;
+
+  return net::Base64Encode(input, output);
+}
+
+bool Extension::FormatPEMForFileOutput(const std::string input,
+                                              std::string* output,
+                                              bool is_public) {
+  CHECK(output);
+  if (input.length() == 0)
+    return false;
+  *output = "";
+  output->append(kKeyBeginHeaderMarker);
+  output->append(" ");
+  output->append(is_public ? kPublic : kPrivate);
+  output->append(" ");
+  output->append(kKeyInfoEndMarker);
+  output->append("\n");
+  for (size_t i = 0; i < input.length(); ) {
+    int slice = std::min<int>(input.length() - i, kPEMOutputColumns);
+    output->append(input.substr(i, slice));
+    output->append("\n");
+    i += slice;
+  }
+  output->append(kKeyBeginFooterMarker);
+  output->append(" ");
+  output->append(is_public ? kPublic : kPrivate);
+  output->append(" ");
+  output->append(kKeyInfoEndMarker);
+  output->append("\n");
+
+  return true;
+}
+
 bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
                               std::string* error) {
   // Initialize id.
@@ -533,16 +619,6 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
   if (source.HasKey(kDescriptionKey)) {
     if (!source.GetString(kDescriptionKey, &description_)) {
       *error = kInvalidDescriptionError;
-      return false;
-    }
-  }
-
-  // Initialize zip hash (only present in zip)
-  // There's no need to verify it at this point. If it's in a bogus format
-  // it won't pass the hash verify step.
-  if (source.HasKey(kZipHashKey)) {
-    if (!source.GetString(kZipHashKey, &zip_hash_)) {
-      *error = kInvalidZipHashError;
       return false;
     }
   }

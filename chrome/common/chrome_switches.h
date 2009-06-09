@@ -143,6 +143,8 @@ extern const wchar_t kEnableUserScripts[];
 extern const wchar_t kEnableExtensions[];
 extern const wchar_t kInstallExtension[];
 extern const wchar_t kLoadExtension[];
+extern const wchar_t kPackExtension[];
+extern const wchar_t kPackExtensionKey[];
 extern const wchar_t kLoadPlugin[];
 extern const wchar_t kUserScriptsDir[];
 

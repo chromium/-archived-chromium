@@ -48,6 +48,7 @@ class Extension {
   static const char kManifestFilename[];
 
   // Keys used in JSON representation of extensions.
+  static const wchar_t* kBackgroundKey;
   static const wchar_t* kContentScriptsKey;
   static const wchar_t* kCssKey;
   static const wchar_t* kDescriptionKey;
@@ -61,8 +62,8 @@ class Extension {
   static const wchar_t* kPluginsKey;
   static const wchar_t* kPluginsPathKey;
   static const wchar_t* kPluginsPublicKey;
-
-  static const wchar_t* kBackgroundKey;
+  static const wchar_t* kPublicKeyKey;
+  static const wchar_t* kSignatureKey;
   static const wchar_t* kRunAtKey;
   static const wchar_t* kThemeKey;
   static const wchar_t* kThemeImagesKey;
@@ -73,7 +74,6 @@ class Extension {
   static const wchar_t* kTooltipKey;
   static const wchar_t* kTypeKey;
   static const wchar_t* kVersionKey;
-  static const wchar_t* kZipHashKey;
 
   // Some values expected in manifests.
   static const char* kRunAtDocumentStartValue;
@@ -163,6 +163,20 @@ class Extension {
   FilePath GetResourcePath(const std::string& relative_path) {
     return GetResourcePath(path(), relative_path);
   }
+
+  // |input| is expected to be the text of an rsa public or private key. It
+  // tolerates the presence or absence of bracking header/footer like this:
+  //     -----(BEGIN|END) [RSA PUBLIC/PRIVATE] KEY-----
+  // and may contain newlines.
+  static bool ParsePEMKeyBytes(const std::string& input, std::string* output);
+
+  // Does a simple base64 encoding of |input| into |output|.
+  static bool ProducePEM(const std::string& input, std::string* output);
+
+  // Expects base64 encoded |input| and formats into |output| including
+  // the appropriate header & footer.
+  static bool FormatPEMForFileOutput(const std::string input,
+      std::string* output, bool is_public);
 
   // Initialize the extension from a parsed manifest.
   // If |require_id| is true, will return an error if the "id" key is missing

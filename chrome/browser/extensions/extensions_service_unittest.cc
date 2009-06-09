@@ -12,6 +12,7 @@
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "base/time.h"
+#include "chrome/browser/extensions/extension_creator.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/common/extensions/extension.h"
 #include "chrome/common/extensions/url_pattern.h"
@@ -419,6 +420,70 @@ TEST_F(ExtensionsServiceTest, InstallExtension) {
   // TODO(erikkay): add more tests for many of the failure cases.
   // TODO(erikkay): add tests for upgrade cases.
 }
+
+#if defined(OS_WIN)  // TODO(port)
+// Test Packaging and installing an extension.
+// TODO(aa): add a test that uses an openssl-generate private key.
+// TODO(rafaelw): add more tests for failure cases.
+TEST_F(ExtensionsServiceTest, PackExtension) {
+  SetExtensionsEnabled(true);
+
+  FilePath extensions_path;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
+  extensions_path = extensions_path.AppendASCII("extensions");
+  FilePath input_directory = extensions_path.AppendASCII("good")
+      .AppendASCII("extension1").AppendASCII("1");
+
+  FilePath output_directory;
+  file_util::CreateNewTempDirectory(FILE_PATH_LITERAL("chrome_"),
+      &output_directory);
+  FilePath crx_path(output_directory.AppendASCII("ex1.crx"));
+  FilePath privkey_path(output_directory.AppendASCII("privkey.pem"));
+
+  scoped_ptr<ExtensionCreator> creator(new ExtensionCreator());
+  ASSERT_TRUE(creator->Run(input_directory, crx_path, FilePath(),
+      privkey_path));
+
+  InstallExtension(crx_path, true);
+
+  ASSERT_TRUE(file_util::PathExists(privkey_path));
+
+  file_util::Delete(crx_path, false);
+  file_util::Delete(privkey_path, false);
+}
+
+// Test Packaging and installing an extension using an openssl generated key.
+// The openssl is generated with the following:
+// > openssl genrsa -out privkey.pem 1024 
+// > openssl pkcs8 -topk8 -nocrypt -in privkey.pem -out privkey_asn1.pem
+// The privkey.pem is a PrivateKey, and the pcks8 -topk8 creates a 
+// PrivateKeyInfo ASN.1 structure, we our RSAPrivateKey expects.
+TEST_F(ExtensionsServiceTest, PackExtensionOpenSSLKey) {
+  SetExtensionsEnabled(true);
+
+  FilePath extensions_path;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
+  extensions_path = extensions_path.AppendASCII("extensions");
+  FilePath input_directory = extensions_path.AppendASCII("good")
+      .AppendASCII("extension1").AppendASCII("1");
+  FilePath privkey_path(extensions_path.AppendASCII(
+      "openssl_privkey_asn1.pem"));
+  ASSERT_TRUE(file_util::PathExists(privkey_path));
+
+  FilePath output_directory;
+  file_util::CreateNewTempDirectory(FILE_PATH_LITERAL("chrome_"),
+      &output_directory);
+  FilePath crx_path(output_directory.AppendASCII("ex1.crx"));
+
+  scoped_ptr<ExtensionCreator> creator(new ExtensionCreator());
+  ASSERT_TRUE(creator->Run(input_directory, crx_path, privkey_path,
+      FilePath()));
+
+  InstallExtension(crx_path, true);
+
+  file_util::Delete(crx_path, false);
+}
+#endif // defined(OS_WIN)
 
 TEST_F(ExtensionsServiceTest, InstallTheme) {
   FilePath extensions_path;

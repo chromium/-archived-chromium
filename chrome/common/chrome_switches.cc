@@ -393,6 +393,12 @@ const wchar_t kInstallExtension[]              = L"install-extension";
 // Load an extension from the specified directory.
 const wchar_t kLoadExtension[]                 = L"load-extension";
 
+// Package an extension to a .crx installable file from a given directory.
+const wchar_t kPackExtension[]              = L"pack-extension";
+
+// Optional PEM private key is to use in signing packaged .crx.
+const wchar_t kPackExtensionKey[]           = L"pack-extension-key";
+
 // Load an NPAPI plugin from the specified path.
 const wchar_t kLoadPlugin[]                    = L"load-plugin";
 

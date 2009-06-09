@@ -148,43 +148,6 @@ DictionaryValue* ExtensionUnpacker::ReadPackageHeader() {
   }
   DictionaryValue* manifest = static_cast<DictionaryValue*>(val.get());
 
-  std::string zip_hash;
-  if (!manifest->GetString(Extension::kZipHashKey, &zip_hash)) {
-    SetError("missing zip_hash key");
-    return NULL;
-  }
-  if (zip_hash.size() != kZipHashHexBytes) {
-    SetError("invalid zip_hash key");
-    return NULL;
-  }
-
-  // Read the rest of the zip file and compute a hash to compare against
-  // what the manifest claims.  Compute the hash incrementally since the
-  // zip file could be large.
-  const unsigned char* ubuf = reinterpret_cast<const unsigned char*>(buf);
-  SHA256Context ctx;
-  SHA256_Begin(&ctx);
-  while ((len = fread(buf, 1, sizeof(buf), file.get())) > 0)
-    SHA256_Update(&ctx, ubuf, len);
-  uint8 hash[32];
-  SHA256_End(&ctx, hash, NULL, sizeof(hash));
-
-  std::vector<uint8> zip_hash_bytes;
-  if (!HexStringToBytes(zip_hash, &zip_hash_bytes)) {
-    SetError("invalid zip_hash key");
-    return NULL;
-  }
-  if (zip_hash_bytes.size() != kZipHashBytes) {
-    SetError("invalid zip_hash key");
-    return NULL;
-  }
-  for (size_t i = 0; i < kZipHashBytes; ++i) {
-    if (zip_hash_bytes[i] != hash[i]) {
-      SetError("zip_hash key didn't match zip hash");
-      return NULL;
-    }
-  }
-
   // TODO(erikkay): The manifest will also contain a signature of the hash
   // (or perhaps the whole manifest) for authentication purposes.
 
