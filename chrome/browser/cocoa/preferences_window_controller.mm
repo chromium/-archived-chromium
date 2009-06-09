@@ -12,6 +12,7 @@
 #include "chrome/browser/browser_list.h"
 #import "chrome/browser/cocoa/clear_browsing_data_controller.h"
 #import "chrome/browser/cocoa/custom_home_pages_model.h"
+#import "chrome/browser/cocoa/search_engine_list_model.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
@@ -109,6 +110,17 @@ class PrefObserverBridge : public NotificationObserver {
            selector:@selector(homepageEntryChanged:)
                name:kHomepageEntryChangedNotification
              object:nil];
+
+    // Set up the model for the default search popup. Register for notifications
+    // about when the model changes so we can update the selection in the view.
+    searchEngineModel_.reset(
+        [[SearchEngineListModel alloc]
+            initWithModel:profile->GetTemplateURLModel()]);
+    [[NSNotificationCenter defaultCenter]
+        addObserver:self
+           selector:@selector(searchEngineModelChanged:)
+               name:kSearchEngineListModelChangedNotification
+             object:searchEngineModel_.get()];
 
     // This needs to be done before awakeFromNib: because the bindings set up
     // in the nib rely on it.
@@ -469,6 +481,29 @@ enum { kHomepageNewTabPage, kHomepageURL };
   else
     [self recordUserAction:L"Options_Homepage_HidePageOptionsButtons"];
   showPageOptionButtons_.SetValue(value ? true : false);
+}
+
+// Getter for the |searchEngineModel| property for bindings.
+- (id)searchEngineModel {
+  return searchEngineModel_.get();
+}
+
+// Bindings for the search engine popup. We not binding directly to the model
+// in order to siphon off the setter so we can record the metric. If we're
+// doing it with one, might as well do it with both.
+- (NSUInteger)searchEngineSelectedIndex {
+  return [searchEngineModel_ defaultIndex];
+}
+
+- (void)setSearchEngineSelectedIndex:(NSUInteger)index {
+  [self recordUserAction:L"Options_SearchEngineChanged"];
+  [searchEngineModel_ setDefaultIndex:index];
+}
+
+// Called when the search engine model changes. Update the selection in the
+// popup by tickling the bindings with the new value.
+- (void)searchEngineModelChanged:(NSNotification*)notify {
+  [self setSearchEngineSelectedIndex:[self searchEngineSelectedIndex]];
 }
 
 // Called when the user clicks the button to make Chromium the default

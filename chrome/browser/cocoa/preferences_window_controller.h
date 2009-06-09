@@ -12,6 +12,7 @@
 class PrefObserverBridge;
 class PrefService;
 class Profile;
+@class SearchEngineListModel;
 
 // A window controller that handles the preferences window. The bulk of the
 // work is handled via Cocoa Bindings and getter/setter methods that wrap
@@ -40,6 +41,7 @@ class Profile;
   StringPrefMember homepage_;
   BooleanPrefMember showHomeButton_;
   BooleanPrefMember showPageOptionButtons_;
+  scoped_nsobject<SearchEngineListModel> searchEngineModel_;
   // Used when creating a new home page url to make the new cell editable.
   BOOL pendingSelectForEdit_;
 
