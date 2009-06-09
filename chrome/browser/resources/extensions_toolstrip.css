@@ -27,6 +27,15 @@ body>* {
 }
 
 /**
+ * Set display property of <script> and <style> as none explicitly to avoid
+ * inheriting from <body>.
+ */
+body>script,
+body>style {
+ display:none;
+}
+
+/**
  * Toolstrip Buttons. The following styles make
  * <div class="toolstrip-button"><img><span>Woot</span></div> look like the
  * bookmarkbar buttons on Windows.
