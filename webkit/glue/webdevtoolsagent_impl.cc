@@ -54,6 +54,7 @@ WebDevToolsAgentImpl::WebDevToolsAgentImpl(
   debugger_agent_delegate_stub_.set(new DebuggerAgentDelegateStub(this));
   dom_agent_delegate_stub_.set(new DomAgentDelegateStub(this));
   tools_agent_delegate_stub_.set(new ToolsAgentDelegateStub(this));
+  tools_agent_native_delegate_stub_.set(new ToolsAgentNativeDelegateStub(this));
 }
 
 WebDevToolsAgentImpl::~WebDevToolsAgentImpl() {
@@ -230,7 +231,7 @@ void WebDevToolsAgentImpl::GetResourceContent(
   RefPtr<InspectorResource> resource =
       page->inspectorController()->resources().get(identifier);
   if (resource.get()) {
-    tools_agent_delegate_stub_->DidGetResourceContent(call_id,
+    tools_agent_native_delegate_stub_->DidGetResourceContent(call_id,
         resource->sourceString());
   }
 }

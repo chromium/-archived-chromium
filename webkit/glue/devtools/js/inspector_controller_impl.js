@@ -53,6 +53,19 @@ devtools.InspectorControllerImpl.prototype.addSourceToFrame =
 /**
  * {@inheritDoc}.
  */
+devtools.InspectorControllerImpl.prototype.addResourceSourceToFrame =
+    function(identifier, element) {
+  var resource = WebInspector.resources[identifier];
+  if (!resource) {
+    return;
+  }
+  DevToolsHost.addResourceSourceToFrame(identifier, resource.mimeType, element);
+};
+
+
+/**
+ * {@inheritDoc}.
+ */
 devtools.InspectorControllerImpl.prototype.hideDOMNodeHighlight = function() {
   RemoteToolsAgent.HideDOMNodeHighlight();
 };

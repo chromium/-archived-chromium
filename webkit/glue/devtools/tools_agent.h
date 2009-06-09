@@ -54,12 +54,16 @@ DEFINE_RPC_CLASS(ToolsAgent, TOOLS_AGENT_STRUCT)
   /* Sends InspectorFrontend message to be dispatched on client. */ \
   METHOD1(DispatchOnClient, String /* data */) \
   \
-  /* Response to the async call. */ \
-  METHOD2(DidGetResourceContent, int /* call_id */, String /* content */) \
-  \
   /* Tells frontend if resources panel should be enabled in the UI. */ \
   METHOD1(SetResourcesPanelEnabled, bool /* enabled. */)
 
 DEFINE_RPC_CLASS(ToolsAgentDelegate, TOOLS_AGENT_DELEGATE_STRUCT)
+
+#define TOOLS_AGENT_NATIVE_DELEGATE_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3, \
+    METHOD4) \
+  /* Response to the async call. */ \
+  METHOD2(DidGetResourceContent, int /* call_id */, String /* content */) \
+
+DEFINE_RPC_CLASS(ToolsAgentNativeDelegate, TOOLS_AGENT_NATIVE_DELEGATE_STRUCT)
 
 #endif  // WEBKIT_GLUE_DEVTOOLS_TOOLS_AGENT_H_

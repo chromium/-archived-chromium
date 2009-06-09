@@ -555,40 +555,6 @@ WebInspector.SidebarObjectPropertyTreeElement.prototype.onpopulate =
 
 
 /**
- * This override is necessary for starting highlighting after the resource
- * was added into the frame.
- * @override
- */
-WebInspector.SourceView.prototype.setupSourceFrameIfNeeded = function() {
-  if (!this._frameNeedsSetup) {
-    return;
-  }
-
-  this.attach();
-
-  var self = this;
-  var identifier = this.resource.identifier;
-  var element = this.sourceFrame.element;
-
-  devtools.tools.getResourceContentAsync(identifier, function(source) {
-    var resource = WebInspector.resources[identifier];
-    if (InspectorController.addSourceToFrame(resource.mimeType, source,
-                                             element)) {
-      delete self._frameNeedsSetup;
-      if (resource.type === WebInspector.Resource.Type.Script) {
-        self.sourceFrame.addEventListener('syntax highlighting complete',
-            self._syntaxHighlightingComplete, self);
-        self.sourceFrame.syntaxHighlightJavascript();
-      } else {
-        self._sourceFrameSetupFinished();
-      }
-    }
-  });
-  return true;
-};
-
-
-/**
  * This override is necessary for adding script source asynchronously.
  * @override
  */

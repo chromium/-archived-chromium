@@ -9,6 +9,7 @@
 
 #include <wtf/HashMap.h>
 #include <wtf/OwnPtr.h>
+#include <wtf/RefPtr.h>
 
 #include "v8.h"
 #include "webkit/glue/cpp_bound_class.h"
@@ -16,6 +17,7 @@
 #include "webkit/glue/webdevtoolsclient.h"
 
 namespace WebCore {
+class Node;
 class Page;
 class String;
 }
@@ -25,6 +27,7 @@ class JsDebuggerAgentBoundObj;
 class JsDomAgentBoundObj;
 class JsNetAgentBoundObj;
 class JsToolsAgentBoundObj;
+class ToolsAgentNativeDelegateImpl;
 class WebDevToolsClientDelegate;
 class WebViewImpl;
 
@@ -48,8 +51,14 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
                                         const std::string& raw_msg);
 
  private:
+  void AddResourceSourceToFrame(int resource_id,
+                                String mime_type,
+                                WebCore::Node* frame);
+
   void ExecuteScript(const std::string& expr);
   static v8::Handle<v8::Value> JsAddSourceToFrame(const v8::Arguments& args);
+  static v8::Handle<v8::Value> JsAddResourceSourceToFrame(
+      const v8::Arguments& args);
   static v8::Handle<v8::Value> JsLoaded(const v8::Arguments& args);
   static v8::Handle<v8::Value> JsActivateWindow(const v8::Arguments& args);
 
@@ -62,6 +71,7 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
   bool loaded_;
   Vector<std::string> pending_incoming_messages_;
   OwnPtr<BoundObject> dev_tools_host_;
+  OwnPtr<ToolsAgentNativeDelegateImpl> tools_agent_native_delegate_impl_;
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsClientImpl);
 };
 

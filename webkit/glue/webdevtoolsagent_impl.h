@@ -91,6 +91,7 @@ class WebDevToolsAgentImpl
   OwnPtr<DebuggerAgentDelegateStub> debugger_agent_delegate_stub_;
   OwnPtr<DomAgentDelegateStub> dom_agent_delegate_stub_;
   OwnPtr<ToolsAgentDelegateStub> tools_agent_delegate_stub_;
+  OwnPtr<ToolsAgentNativeDelegateStub> tools_agent_native_delegate_stub_;
   OwnPtr<DebuggerAgentImpl> debugger_agent_impl_;
   OwnPtr<DomAgentImpl> dom_agent_impl_;
   bool attached_;

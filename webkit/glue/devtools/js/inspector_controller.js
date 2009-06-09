@@ -152,7 +152,6 @@ devtools.InspectorController.prototype.moveByUnrestricted = function(x, y) {
  */
 devtools.InspectorController.prototype.addResourceSourceToFrame =
     function(identifier, element) {
-  return false;
 };
 
 

@@ -47,6 +47,44 @@ DEFINE_RPC_JS_BOUND_OBJ(DomAgent, DOM_AGENT_STRUCT,
 DEFINE_RPC_JS_BOUND_OBJ(ToolsAgent, TOOLS_AGENT_STRUCT,
     ToolsAgentDelegate, TOOLS_AGENT_DELEGATE_STRUCT)
 
+class ToolsAgentNativeDelegateImpl : public ToolsAgentNativeDelegate {
+ public:
+  struct ResourceContentRequestData {
+    String mime_type;
+    RefPtr<Node> frame;
+  };
+
+  ToolsAgentNativeDelegateImpl(WebFrameImpl* frame) : frame_(frame) {}
+  virtual ~ToolsAgentNativeDelegateImpl() {}
+
+  // ToolsAgentNativeDelegate implementation.
+  virtual void DidGetResourceContent(int request_id, const String& content) {
+    if (!resource_content_requests_.contains(request_id)) {
+      NOTREACHED();
+      return;
+    }
+    ResourceContentRequestData request =
+        resource_content_requests_.take(request_id);
+
+    InspectorController* ic = frame_->frame()->page()->inspectorController();
+
+    ic->addSourceToFrame(request.mime_type, content, request.frame.get());
+  }
+
+  void RequestSent(int resource_id, String mime_type, Node* frame) {
+    ResourceContentRequestData data;
+    data.mime_type = mime_type;
+    data.frame = frame;
+    DCHECK(!resource_content_requests_.contains(resource_id));
+    resource_content_requests_.set(resource_id, data);
+  }
+
+ private:
+  WebFrameImpl* frame_;
+  HashMap<int, ResourceContentRequestData> resource_content_requests_;
+  DISALLOW_COPY_AND_ASSIGN(ToolsAgentNativeDelegateImpl);
+};
+
 namespace {
 
 class RemoteDebuggerCommandExecutor : public CppBoundClass {
@@ -99,6 +137,8 @@ WebDevToolsClientImpl::WebDevToolsClientImpl(
   dom_agent_obj_.set(new JsDomAgentBoundObj(this, frame, L"RemoteDomAgent"));
   tools_agent_obj_.set(
       new JsToolsAgentBoundObj(this, frame, L"RemoteToolsAgent"));
+  tools_agent_native_delegate_impl_.set(
+      new ToolsAgentNativeDelegateImpl(frame));
 
   v8::HandleScope scope;
   v8::Handle<v8::Context> frame_context = V8Proxy::GetContext(frame->frame());
@@ -106,6 +146,9 @@ WebDevToolsClientImpl::WebDevToolsClientImpl(
   dev_tools_host_->AddProtoFunction(
       "addSourceToFrame",
       WebDevToolsClientImpl::JsAddSourceToFrame);
+  dev_tools_host_->AddProtoFunction(
+      "addResourceSourceToFrame",
+      WebDevToolsClientImpl::JsAddResourceSourceToFrame);
   dev_tools_host_->AddProtoFunction(
       "loaded",
       WebDevToolsClientImpl::JsLoaded);
@@ -125,6 +168,14 @@ void WebDevToolsClientImpl::DispatchMessageFromAgent(
       const std::string& class_name,
       const std::string& method_name,
       const std::string& raw_msg) {
+  if (ToolsAgentNativeDelegateDispatch::Dispatch(
+          tools_agent_native_delegate_impl_.get(),
+          class_name,
+          method_name,
+          raw_msg)) {
+    return;
+  }
+
   std::string expr = StringPrintf(
       "devtools.dispatch('%s','%s',%s)",
       class_name.c_str(),
@@ -135,6 +186,13 @@ void WebDevToolsClientImpl::DispatchMessageFromAgent(
     return;
   }
   ExecuteScript(expr);
+}
+
+void WebDevToolsClientImpl::AddResourceSourceToFrame(int resource_id,
+                                                     String mime_type,
+                                                     Node* frame) {
+  tools_agent_obj_->GetResourceContent(resource_id, resource_id);
+  tools_agent_native_delegate_impl_->RequestSent(resource_id, mime_type, frame);
 }
 
 void WebDevToolsClientImpl::ExecuteScript(const std::string& expr) {
@@ -175,6 +233,21 @@ v8::Handle<v8::Value> WebDevToolsClientImpl::JsAddSourceToFrame(
   InspectorController* inspectorController = page->inspectorController();
   return WebCore::v8Boolean(inspectorController->
       addSourceToFrame(mime_type, source_string, node));
+}
+
+// static
+v8::Handle<v8::Value> WebDevToolsClientImpl::JsAddResourceSourceToFrame(
+    const v8::Arguments& args) {
+  int resource_id = static_cast<int>(args[0]->NumberValue());
+  String mime_type = WebCore::toWebCoreStringWithNullCheck(args[1]);
+  if (mime_type.isEmpty()) {
+    return v8::Undefined();
+  }
+  Node* node = V8Proxy::DOMWrapperToNode<Node>(args[2]);
+  WebDevToolsClientImpl* client = static_cast<WebDevToolsClientImpl*>(
+      v8::External::Cast(*args.Data())->Value());
+  client->AddResourceSourceToFrame(resource_id, mime_type, node);
+  return v8::Undefined();
 }
 
 // static
