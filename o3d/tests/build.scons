@@ -640,14 +640,16 @@ if env.AnyBits('mac', 'windows'):
         'export PYTHONPATH=' + env.Dir('$MAIN_DIR/scripts').abspath)
   else:
     selenium_env['PREP_SELENIUM_ARCHIVE_NAME'] = 'O3Dtests'
-    selenium_env['GNU_SETUP_EXTRAS'] = r'..\third_party\gnu\setup_env.bat && '
+    selenium_env['GNU_SETUP_EXTRAS'] = r'..\o3d-internal\third_party\gnu\setup_env.bat && '
     selenium_env['SETUP_SCRIPTS'] = (
         'set PYTHONPATH=' + env.Dir('$MAIN_DIR/scripts').abspath)
+
+  selenium_env['ENV']['DXSDK_DIR'] = os.environ['DXSDK_DIR']
 
   selenium_env.AlwaysBuild(selenium_env.Alias('prep_selenium', [],
       [Delete('$TARGET_ROOT/${PREP_SELENIUM_ARCHIVE_NAME}'),
        '$SETUP_SCRIPTS && '
-       'cd tests && cd lab_automation && ' +
+       'cd ..\o3d-internal && cd tests && cd lab_automation && ' +
        sys.executable + ' prepare_selenium_tests.py '
        '$TARGET_ROOT/${PREP_SELENIUM_ARCHIVE_NAME}',
        Delete('$PREP_SELENIUM_ARCHIVE'),
