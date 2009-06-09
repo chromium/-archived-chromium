@@ -61,9 +61,9 @@ class ImageOperations {
   static SkBitmap CreateMaskedBitmap(const SkBitmap& first,
                                      const SkBitmap& alpha);
 
-  // We create a button background image by compositing the color and image 
-  // together, then applying the mask. This is a highly specialized composite 
-  // operation that is the equivalent of drawing a background in |color|, 
+  // We create a button background image by compositing the color and image
+  // together, then applying the mask. This is a highly specialized composite
+  // operation that is the equivalent of drawing a background in |color|,
   // tiling |image| over the top, and then masking the result out with |mask|.
   // The images must use kARGB_8888_Config config.
   static SkBitmap CreateButtonBackground(SkColor color,
@@ -74,17 +74,17 @@ class ImageOperations {
   // by |blur_amount|. The blur will wrap around image edges.
   static SkBitmap CreateBlurredBitmap(const SkBitmap& bitmap, int blur_amount);
 
-  // Shift a bitmap's HSL values. The shift values are in the range of 0-1, 
-  // with the option to specify -1 for 'no change'. The shift values are 
+  // Shift a bitmap's HSL values. The shift values are in the range of 0-1,
+  // with the option to specify -1 for 'no change'. The shift values are
   // defined as:
   // hsl_shift[0] (hue): The absolute hue value for the image - 0 and 1 map
   //    to 0 and 360 on the hue color wheel (red).
-  // hsl_shift[1] (saturation): A saturation shift for the image, with the 
+  // hsl_shift[1] (saturation): A saturation shift for the image, with the
   //    following key values:
   //    0 = remove all color.
   //    0.5 = leave unchanged.
   //    1 = fully saturate the image.
-  // hsl_shift[2] (lightness): A lightness shift for the image, with the 
+  // hsl_shift[2] (lightness): A lightness shift for the image, with the
   //    following key values:
   //    0 = remove all lightness (make all pixels black).
   //    0.5 = leave unchanged.
@@ -98,6 +98,19 @@ class ImageOperations {
   static SkBitmap CreateTiledBitmap(const SkBitmap& bitmap,
                                     int src_x, int src_y,
                                     int dst_w, int dst_h);
+
+  // Makes a bitmap half has large in each direction by averaging groups of
+  // 4 pixels. This is one step in generating a mipmap.
+  static SkBitmap DownsampleByTwo(const SkBitmap& bitmap);
+
+  // Iteratively downsamples by 2 until the bitmap is no smaller than the
+  // input size. The normal use of this is to downsample the bitmap "close" to
+  // the final size, and then use traditional resampling on the result.
+  // Because the bitmap will be closer to the final size, it will be faster,
+  // and linear interpolation will generally work well as a second step.
+  static SkBitmap DownsampleByTwoUntilSize(const SkBitmap& bitmap,
+                                           int min_w, int min_h);
+
  private:
   ImageOperations();  // Class for scoping only.
 };

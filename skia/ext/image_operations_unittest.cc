@@ -399,3 +399,116 @@ TEST(ImageOperations, CreateCroppedBitmapWrapping) {
   }
 }
 
+TEST(ImageOperations, DownsampleByTwo) {
+  // Use an odd-sized bitmap to make sure the edge cases where there isn't a
+  // 2x2 block of pixels is handled correctly.
+  // Here's the ARGB example
+  //
+  //    50% transparent green             opaque 50% blue           white
+  //        80008000                         FF000080              FFFFFFFF
+  //
+  //    50% transparent red               opaque 50% gray           black
+  //        80800000                         80808080              FF000000
+  //
+  //         black                            white                50% gray
+  //        FF000000                         FFFFFFFF              FF808080
+  //
+  // The result of this computation should be:
+  //        A0404040  FF808080
+  //        FF808080  FF808080
+  SkBitmap input;
+  input.setConfig(SkBitmap::kARGB_8888_Config, 3, 3);
+  input.allocPixels();
+
+  // The color order may be different, but we don't care (the channels are
+  // trated the same).
+  *input.getAddr32(0, 0) = 0x80008000;
+  *input.getAddr32(1, 0) = 0xFF000080;
+  *input.getAddr32(2, 0) = 0xFFFFFFFF;
+  *input.getAddr32(0, 1) = 0x80800000;
+  *input.getAddr32(1, 1) = 0x80808080;
+  *input.getAddr32(2, 1) = 0xFF000000;
+  *input.getAddr32(0, 2) = 0xFF000000;
+  *input.getAddr32(1, 2) = 0xFFFFFFFF;
+  *input.getAddr32(2, 2) = 0xFF808080;
+
+  SkBitmap result = skia::ImageOperations::DownsampleByTwo(input);
+  EXPECT_EQ(2, result.width());
+  EXPECT_EQ(2, result.height());
+
+  // Some of the values are off-by-one due to rounding.
+  SkAutoLockPixels lock(result);
+  EXPECT_EQ(0x9f404040, *result.getAddr32(0, 0));
+  EXPECT_EQ(0xFF7f7f7f, *result.getAddr32(1, 0));
+  EXPECT_EQ(0xFF7f7f7f, *result.getAddr32(0, 1));
+  EXPECT_EQ(0xFF808080, *result.getAddr32(1, 1));
+}
+
+// Test edge cases for DownsampleByTwo.
+TEST(ImageOperations, DownsampleByTwoSmall) {
+  SkPMColor reference = 0xFF4080FF;
+
+  // Test a 1x1 bitmap.
+  SkBitmap one_by_one;
+  one_by_one.setConfig(SkBitmap::kARGB_8888_Config, 1, 1);
+  one_by_one.allocPixels();
+  *one_by_one.getAddr32(0, 0) = reference;
+  SkBitmap result = skia::ImageOperations::DownsampleByTwo(one_by_one);
+  SkAutoLockPixels lock1(result);
+  EXPECT_EQ(1, result.width());
+  EXPECT_EQ(1, result.height());
+  EXPECT_EQ(reference, *result.getAddr32(0, 0));
+
+  // Test an n by 1 bitmap.
+  SkBitmap one_by_n;
+  one_by_n.setConfig(SkBitmap::kARGB_8888_Config, 300, 1);
+  one_by_n.allocPixels();
+  result = skia::ImageOperations::DownsampleByTwo(one_by_n);
+  SkAutoLockPixels lock2(result);
+  EXPECT_EQ(300, result.width());
+  EXPECT_EQ(1, result.height());
+
+  // Test a 1 by n bitmap.
+  SkBitmap n_by_one;
+  n_by_one.setConfig(SkBitmap::kARGB_8888_Config, 1, 300);
+  n_by_one.allocPixels();
+  result = skia::ImageOperations::DownsampleByTwo(n_by_one);
+  SkAutoLockPixels lock3(result);
+  EXPECT_EQ(1, result.width());
+  EXPECT_EQ(300, result.height());
+
+  // Test an empty bitmap
+  SkBitmap empty;
+  result = skia::ImageOperations::DownsampleByTwo(empty);
+  EXPECT_TRUE(result.isNull());
+  EXPECT_EQ(0, result.width());
+  EXPECT_EQ(0, result.height());
+}
+
+// Here we assume DownsampleByTwo works correctly (it's tested above) and
+// just make sure that the 
+TEST(ImageOperations, DownsampleByTwoUntilSize) {
+  // First make sure a "too small" bitmap doesn't get modified at all.
+  SkBitmap too_small;
+  too_small.setConfig(SkBitmap::kARGB_8888_Config, 10, 10);
+  too_small.allocPixels();
+  SkBitmap result = skia::ImageOperations::DownsampleByTwoUntilSize(
+      too_small, 16, 16);
+  EXPECT_EQ(10, result.width());
+  EXPECT_EQ(10, result.height());
+
+  // Now make sure giving it a 0x0 target returns something reasonable.
+  result = skia::ImageOperations::DownsampleByTwoUntilSize(too_small, 0, 0);
+  EXPECT_EQ(1, result.width());
+  EXPECT_EQ(1, result.height());
+
+  // Test multiple steps of downsampling.
+  SkBitmap large;
+  large.setConfig(SkBitmap::kARGB_8888_Config, 100, 43);
+  large.allocPixels();
+  result = skia::ImageOperations::DownsampleByTwoUntilSize(large, 6, 6);
+
+  // The result should be divided in half 100x43 -> 50x22 -> 25x11
+  EXPECT_EQ(25, result.width());
+  EXPECT_EQ(11, result.height());
+}

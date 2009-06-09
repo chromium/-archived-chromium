@@ -624,5 +624,86 @@ SkBitmap ImageOperations::CreateTiledBitmap(const SkBitmap& source,
   return cropped;
 }
 
+// static
+SkBitmap ImageOperations::DownsampleByTwo(const SkBitmap& bitmap) {
+  DCHECK(bitmap.getConfig() == SkBitmap::kARGB_8888_Config);
+
+  // Handle the nop case.
+  if (bitmap.width() <= 1 || bitmap.height() <= 1)
+    return bitmap;
+
+  SkBitmap result;
+  result.setConfig(SkBitmap::kARGB_8888_Config,
+                   (bitmap.width() + 1) / 2,
+                   (bitmap.height() + 1) / 2);
+  result.allocPixels();
+
+  SkAutoLockPixels lock(bitmap);
+  for (int dest_y = 0; dest_y < result.height(); dest_y++) {
+    for (int dest_x = 0; dest_x < result.width(); dest_x++ ) {
+      // This code is based on downsampleby2_proc32 in SkBitmap.cpp. It is very
+      // clever in that it does two channels at once: alpha and green ("ag")
+      // and red and blue ("rb"). Each channel gets averaged across 4 pixels
+      // to get the result.
+      int src_x = dest_x << 1;
+      int src_y = dest_y << 1;
+      const SkPMColor* cur_src = bitmap.getAddr32(src_x, src_y);
+      SkPMColor tmp, ag, rb;
+
+      // Top left pixel of the 2x2 block.
+      tmp = *cur_src;
+      ag = (tmp >> 8) & 0xFF00FF;
+      rb = tmp & 0xFF00FF;
+      if (src_x < bitmap.width() - 1)
+        cur_src += 1;
+
+      // Top right pixel of the 2x2 block.
+      tmp = *cur_src;
+      ag += (tmp >> 8) & 0xFF00FF;
+      rb += tmp & 0xFF00FF;
+      if (src_y < bitmap.height() - 1)
+        cur_src = bitmap.getAddr32(src_x, src_y + 1);
+      else
+        cur_src = bitmap.getAddr32(src_x, src_y);  // Move back to the first.
+
+      // Bottom left pixel of the 2x2 block.
+      tmp = *cur_src;
+      ag += (tmp >> 8) & 0xFF00FF;
+      rb += tmp & 0xFF00FF;
+      if (src_x < bitmap.width() - 1)
+        cur_src += 1;
+
+      // Bottom right pixel of the 2x2 block.
+      tmp = *cur_src;
+      ag += (tmp >> 8) & 0xFF00FF;
+      rb += tmp & 0xFF00FF;
+
+      // PUt the channels back together, dividing each by 4 to get the average.
+      // |ag| has the alpha and green channels shifted right by 8 bits from
+      // there they should end up, so shifting left by 6 gives them in the
+      // correct position divided by 4.
+      *result.getAddr32(dest_x, dest_y) =
+          ((rb >> 2) & 0xFF00FF) | ((ag << 6) & 0xFF00FF00);
+    }
+  }
+
+  return result;
+}
+
+// static
+SkBitmap ImageOperations::DownsampleByTwoUntilSize(const SkBitmap& bitmap,
+                                                   int min_w, int min_h) {
+  if (bitmap.width() <= min_w || bitmap.height() <= min_h ||
+      min_w < 0 || min_h < 0)
+    return bitmap;
+
+  // Since bitmaps are refcounted, this copy will be fast.
+  SkBitmap current = bitmap;
+  while (current.width() >= min_w * 2 && current.height() >= min_h * 2 &&
+         current.width() > 1 && current.height() > 1)
+    current = DownsampleByTwo(current);
+  return current;
+}
+
 }  // namespace skia
 
