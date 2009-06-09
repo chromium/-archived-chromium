@@ -186,6 +186,7 @@ PrintingContext::Result PrintingContext::AskUserForSettings(
     ranges[0].nToPage = max_pages;
     dialog_options.nPageRanges = 1;
     dialog_options.nMaxPageRanges = arraysize(ranges);
+    dialog_options.nMinPage = 1;
     dialog_options.nMaxPage = max_pages;
     dialog_options.lpPageRanges = ranges;
   } else {
