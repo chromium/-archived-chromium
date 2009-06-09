@@ -644,7 +644,10 @@ if env.AnyBits('mac', 'windows'):
     selenium_env['SETUP_SCRIPTS'] = (
         'set PYTHONPATH=' + env.Dir('$MAIN_DIR/scripts').abspath)
 
-  selenium_env['ENV']['DXSDK_DIR'] = os.environ['DXSDK_DIR']
+  try:
+    selenium_env['ENV']['DXSDK_DIR'] = os.environ['DXSDK_DIR']
+  except KeyError:
+    selenium_env['ENV']['DXSDK_DIR'] = ''
 
   selenium_env.AlwaysBuild(selenium_env.Alias('prep_selenium', [],
       [Delete('$TARGET_ROOT/${PREP_SELENIUM_ARCHIVE_NAME}'),
