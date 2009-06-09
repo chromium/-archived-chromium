@@ -13,9 +13,11 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/gtk/custom_button.h"
+#include "chrome/browser/gtk/dnd_registry.h"
 #include "chrome/browser/gtk/tabs/dragged_tab_controller_gtk.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/common/gtk_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/app_resources.h"
@@ -41,6 +43,10 @@ const int kTabHOffset = -16;
 // A linux specific menu item for toggling window decorations.
 const int kShowWindowDecorationsCommand = 200;
 
+// Size of the drop indicator.
+static int drop_indicator_width;
+static int drop_indicator_height;
+
 inline int Round(double x) {
   return static_cast<int>(x + 0.5);
 }
@@ -52,6 +58,20 @@ gfx::Rect GetInitialWidgetBounds(GtkWidget* widget) {
   gtk_widget_size_request(widget, &request);
   return gfx::Rect(0, 0, request.width, request.height);
 }
+
+// Mime types for DnD. Used to synchronize across applications.
+const char kTargetString[] = "STRING";
+const char kTargetTextPlain[] = "text/plain";
+const char kTargetTextUriList[] = "text/uri-list";
+
+// Table of the mime types that we accept with their options.
+const GtkTargetEntry kTargetTable[] = {
+  { const_cast<gchar*>(kTargetString), 0, dnd::X_CHROME_STRING },
+  { const_cast<gchar*>(kTargetTextPlain), 0, dnd::X_CHROME_TEXT_PLAIN },
+  { const_cast<gchar*>(kTargetTextUriList), 0, dnd::X_CHROME_TEXT_URI_LIST }
+};
+
+const int kTargetTableSize = G_N_ELEMENTS(kTargetTable);
 
 }  // namespace
 
@@ -359,7 +379,7 @@ class MoveTabAnimation : public TabStripGtk::TabAnimation {
   }
 
  protected:
-  // Overridden from TabStrip::TabAnimation:
+  // Overridden from TabStripGtk::TabAnimation:
   virtual int GetDuration() const { return kReorderAnimationDurationMs; }
 
  private:
@@ -469,18 +489,35 @@ void TabStripGtk::Init(int width, Profile* profile) {
   gtk_widget_set_size_request(tabstrip_.get(), width,
                               TabGtk::GetMinimumUnselectedSize().height());
   gtk_widget_set_app_paintable(tabstrip_.get(), TRUE);
+  gtk_drag_dest_set(tabstrip_.get(), GTK_DEST_DEFAULT_ALL,
+                    kTargetTable, kTargetTableSize,
+                    static_cast<GdkDragAction>(
+                        GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
   g_signal_connect(G_OBJECT(tabstrip_.get()), "expose-event",
                    G_CALLBACK(OnExpose), this);
   g_signal_connect(G_OBJECT(tabstrip_.get()), "size-allocate",
                      G_CALLBACK(OnSizeAllocate), this);
   g_signal_connect(G_OBJECT(tabstrip_.get()), "button-press-event",
                    G_CALLBACK(OnButtonPress), this);
+  g_signal_connect(G_OBJECT(tabstrip_.get()), "drag-motion",
+                   G_CALLBACK(OnDragMotion), this);
+  g_signal_connect(G_OBJECT(tabstrip_.get()), "drag-drop",
+                   G_CALLBACK(OnDragDrop), this);
+  g_signal_connect(G_OBJECT(tabstrip_.get()), "drag-data-received",
+                   G_CALLBACK(OnDragDataReceived), this);
 
   newtab_button_.reset(MakeNewTabButton());
 
   gtk_widget_show_all(tabstrip_.get());
 
   bounds_ = GetInitialWidgetBounds(tabstrip_.get());
+
+  if (drop_indicator_width == 0) {
+    // Direction doesn't matter, both images are the same size.
+    GdkPixbuf* drop_image = GetDropArrowImage(true);
+    drop_indicator_width = gdk_pixbuf_get_width(drop_image);
+    drop_indicator_height = gdk_pixbuf_get_height(drop_image);
+  }
 }
 
 void TabStripGtk::AddTabStripToBox(GtkWidget* box) {
@@ -974,6 +1011,231 @@ void TabStripGtk::ResizeLayoutTabs() {
     StartResizeLayoutAnimation();
 }
 
+gfx::Rect TabStripGtk::GetDropBounds(int drop_index,
+                                     bool drop_before,
+                                     bool* is_beneath) {
+  DCHECK(drop_index != -1);
+  int center_x;
+  if (drop_index < GetTabCount()) {
+    TabGtk* tab = GetTabAt(drop_index);
+    if (drop_before)
+      center_x = tab->x() - (kTabHOffset / 2);
+    else
+      center_x = tab->x() + (tab->width() / 2);
+  } else {
+    TabGtk* last_tab = GetTabAt(drop_index - 1);
+    center_x = last_tab->x() + last_tab->width() + (kTabHOffset / 2);
+  }
+
+  // TODO(jhawkins): Handle RTL layout.
+
+  // Determine the screen bounds.
+  gfx::Point drop_loc(center_x - drop_indicator_width / 2,
+                      -drop_indicator_height);
+  gtk_util::ConvertWidgetPointToScreen(tabstrip_.get(), &drop_loc);
+  gfx::Rect drop_bounds(drop_loc.x(), drop_loc.y(), drop_indicator_width,
+                        drop_indicator_height);
+
+  // TODO(jhawkins): We always display the arrow underneath the tab because we
+  // don't have custom frame support yet.
+  *is_beneath = true;
+  if (*is_beneath)
+    drop_bounds.Offset(0, drop_bounds.height() + bounds().height());
+
+  return drop_bounds;
+}
+
+void TabStripGtk::UpdateDropIndex(GdkDragContext* context, gint x, gint y) {
+  // TODO(jhawkins): Handle RTL layout.
+  for (int i = 0; i < GetTabCount(); ++i) {
+    TabGtk* tab = GetTabAt(i);
+    const int tab_max_x = tab->x() + tab->width();
+    const int hot_width = tab->width() / 3;
+    if (x < tab_max_x) {
+      if (x < tab->x() + hot_width)
+        SetDropIndex(i, true);
+      else if (x >= tab_max_x - hot_width)
+        SetDropIndex(i + 1, true);
+      else
+        SetDropIndex(i, false);
+      return;
+    }
+  }
+
+  // The drop isn't over a tab, add it to the end.
+  SetDropIndex(GetTabCount(), true);
+}
+
+void TabStripGtk::SetDropIndex(int index, bool drop_before) {
+  if (index == -1) {
+    if (drop_info_.get())
+      drop_info_.reset(NULL);
+    return;
+  }
+
+  if (drop_info_.get() && drop_info_->drop_index == index &&
+      drop_info_->drop_before == drop_before) {
+    return;
+  }
+
+  bool is_beneath;
+  gfx::Rect drop_bounds = GetDropBounds(index, drop_before, &is_beneath);
+
+  if (!drop_info_.get()) {
+    drop_info_.reset(new DropInfo(index, drop_before, !is_beneath));
+  } else {
+    drop_info_->drop_index = index;
+    drop_info_->drop_before = drop_before;
+    if (is_beneath == drop_info_->point_down) {
+      drop_info_->point_down = !is_beneath;
+      drop_info_->drop_arrow= GetDropArrowImage(drop_info_->point_down);
+    }
+  }
+
+  gtk_window_move(GTK_WINDOW(drop_info_->container),
+                  drop_bounds.x(), drop_bounds.y());
+  gtk_window_resize(GTK_WINDOW(drop_info_->container),
+                    drop_bounds.width(), drop_bounds.height());
+}
+
+void TabStripGtk::CompleteDrop(guchar* data) {
+  if (!drop_info_.get())
+    return;
+
+  const int drop_index = drop_info_->drop_index;
+  const bool drop_before = drop_info_->drop_before;
+
+  // Hide the drop indicator.
+  SetDropIndex(-1, false);
+
+  GURL url(reinterpret_cast<char*>(data));
+  if (!url.is_valid())
+    return;
+
+  if (drop_before) {
+    // Insert a new tab.
+    TabContents* contents =
+        model_->delegate()->CreateTabContentsForURL(
+            url, GURL(), model_->profile(), PageTransition::TYPED, false,
+            NULL);
+    model_->AddTabContents(contents, drop_index, false,
+                           PageTransition::GENERATED, true);
+  } else {
+    model_->GetTabContentsAt(drop_index)->controller().LoadURL(
+        url, GURL(), PageTransition::GENERATED);
+    model_->SelectTabContentsAt(drop_index, true);
+  }
+}
+
+// static
+GdkPixbuf* TabStripGtk::GetDropArrowImage(bool is_down) {
+  return ResourceBundle::GetSharedInstance().GetPixbufNamed(
+      is_down ? IDR_TAB_DROP_DOWN : IDR_TAB_DROP_UP);
+}
+
+// TabStripGtk::DropInfo -------------------------------------------------------
+
+TabStripGtk::DropInfo::DropInfo(int drop_index, bool drop_before,
+                                bool point_down)
+    : drop_index(drop_index),
+      drop_before(drop_before),
+      point_down(point_down) {
+  container = gtk_window_new(GTK_WINDOW_POPUP);
+  SetContainerColorMap();
+  gtk_widget_set_app_paintable(container, TRUE);
+  g_signal_connect(G_OBJECT(container), "expose-event",
+                   G_CALLBACK(OnExposeEvent), this);
+  gtk_widget_add_events(container, GDK_STRUCTURE_MASK);
+  gtk_widget_show_all(container);
+
+  drop_arrow = GetDropArrowImage(point_down);
+
+  gtk_window_move(GTK_WINDOW(container), 0, 0);
+  gtk_window_resize(GTK_WINDOW(container),
+                    drop_indicator_width, drop_indicator_height);
+}
+
+TabStripGtk::DropInfo::~DropInfo() {
+  gtk_widget_destroy(container);
+}
+
+// static
+gboolean TabStripGtk::DropInfo::OnExposeEvent(GtkWidget* widget,
+                                              GdkEventExpose* event,
+                                              DropInfo* drop_info) {
+  if (gtk_util::IsScreenComposited()) {
+    drop_info->SetContainerTransparency();
+  } else {
+    drop_info->SetContainerShapeMask();
+  }
+
+  gdk_pixbuf_render_to_drawable(drop_info->drop_arrow,
+                                drop_info->container->window,
+                                0, 0, 0,
+                                0, 0,
+                                drop_indicator_width,
+                                drop_indicator_height,
+                                GDK_RGB_DITHER_NONE, 0, 0);
+
+  return FALSE;
+}
+
+// Sets the color map of the container window to allow the window to be
+// transparent.
+void TabStripGtk::DropInfo::SetContainerColorMap() {
+  GdkScreen* screen = gtk_widget_get_screen(container);
+  GdkColormap* colormap = gdk_screen_get_rgba_colormap(screen);
+
+  // If rgba is not available, use rgb instead.
+  if (!colormap)
+    colormap = gdk_screen_get_rgb_colormap(screen);
+
+  gtk_widget_set_colormap(container, colormap);
+}
+
+// Sets full transparency for the container window.  This is used if
+// compositing is available for the screen.
+void TabStripGtk::DropInfo::SetContainerTransparency() {
+  cairo_t* cairo_context = gdk_cairo_create(container->window);
+  if (!cairo_context)
+      return;
+
+  // Make the background of the dragged tab window fully transparent.  All of
+  // the content of the window (child widgets) will be completely opaque.
+
+  cairo_scale(cairo_context, static_cast<double>(drop_indicator_width),
+              static_cast<double>(drop_indicator_height));
+  cairo_set_source_rgba(cairo_context, 1.0f, 1.0f, 1.0f, 0.0f);
+  cairo_set_operator(cairo_context, CAIRO_OPERATOR_SOURCE);
+  cairo_paint(cairo_context);
+  cairo_destroy(cairo_context);
+}
+
+// Sets the shape mask for the container window to emulate a transparent
+// container window.  This is used if compositing is not available for the
+// screen.
+void TabStripGtk::DropInfo::SetContainerShapeMask() {
+  // Create a 1bpp bitmap the size of |container|.
+  GdkPixmap* pixmap = gdk_pixmap_new(NULL,
+                                     drop_indicator_width,
+                                     drop_indicator_height, 1);
+  cairo_t* cairo_context = gdk_cairo_create(GDK_DRAWABLE(pixmap));
+
+  // Set the transparency.
+  cairo_set_source_rgba(cairo_context, 1, 1, 1, 0);
+
+  // Blit the rendered bitmap into a pixmap.  Any pixel set in the pixmap will
+  // be opaque in the container window.
+  cairo_set_operator(cairo_context, CAIRO_OPERATOR_SOURCE);
+  gdk_cairo_set_source_pixbuf(cairo_context, drop_arrow, 0, 0);
+  cairo_paint(cairo_context);
+  cairo_destroy(cairo_context);
+
+  // Set the shape mask.
+  gdk_window_shape_combine_mask(container->window, pixmap, 0, 0);
+  g_object_unref(pixmap);
+}
+
 // Called from:
 // - animation tick
 void TabStripGtk::AnimationLayout(double unselected_width) {
@@ -1136,6 +1398,53 @@ gboolean TabStripGtk::OnButtonPress(GtkWidget* widget, GdkEventButton* event,
         event->button, event->x_root, event->y_root, event->time);
   } else if (3 == event->button) {
     tabstrip->ShowContextMenu();
+  }
+
+  return TRUE;
+}
+
+// static
+gboolean TabStripGtk::OnDragMotion(GtkWidget* widget, GdkDragContext* context,
+                                   gint x, gint y, guint time,
+                                   TabStripGtk* tabstrip) {
+  tabstrip->UpdateDropIndex(context, x, y);
+  return TRUE;
+}
+
+// static
+gboolean TabStripGtk::OnDragDrop(GtkWidget* widget, GdkDragContext* context,
+                                 gint x, gint y, guint time,
+                                 TabStripGtk* tabstrip) {
+  if (!tabstrip->drop_info_.get())
+    return FALSE;
+
+  GtkTargetList* list = gtk_target_list_new(kTargetTable, kTargetTableSize);
+  DCHECK(list);
+
+  GList* target = context->targets;
+  for (; target != NULL; target = target->next) {
+    guint info;
+    GdkAtom target_atom = GDK_POINTER_TO_ATOM(target->data);
+    if (gtk_target_list_find(list, target_atom, &info)) {
+      gtk_drag_get_data(widget, context, target_atom, time);
+    }
+  }
+
+  g_free(list);
+  return TRUE;
+}
+
+// static
+gboolean TabStripGtk::OnDragDataReceived(GtkWidget* widget,
+                                         GdkDragContext* context,
+                                         gint x, gint y,
+                                         GtkSelectionData* data,
+                                         guint info, guint time,
+                                         TabStripGtk* tabstrip) {
+  // TODO(jhawkins): Parse URI lists.
+  if (info == dnd::X_CHROME_STRING || info == dnd::X_CHROME_TEXT_PLAIN) {
+    tabstrip->CompleteDrop(data->data);
+    gtk_drag_finish(context, TRUE, TRUE, time);
   }
 
   return TRUE;

@@ -93,6 +93,14 @@ gfx::Rect GetWidgetScreenBounds(GtkWidget* widget) {
                    widget->allocation.width, widget->allocation.height);
 }
 
+void ConvertWidgetPointToScreen(GtkWidget* widget, gfx::Point* p) {
+  DCHECK(widget);
+  DCHECK(p);
+
+  gfx::Point position = GetWidgetScreenPosition(widget);
+  p->SetPoint(p->x() + position.x(), p->y() + position.y());
+}
+
 void InitRCStyles() {
   static const char kRCText[] =
       // Make our dialogs styled like the GNOME HIG.
@@ -149,6 +157,11 @@ std::string ConvertAcceleratorsFromWindowsStyle(const std::string& label) {
   }
 
   return ret;
+}
+
+bool IsScreenComposited() {
+  GdkScreen* screen = gdk_screen_get_default();
+  return gdk_screen_is_composited(screen) == TRUE;
 }
 
 }  // namespace gtk_util

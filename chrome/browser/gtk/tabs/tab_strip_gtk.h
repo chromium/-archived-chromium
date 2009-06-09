@@ -121,6 +121,55 @@ class TabStripGtk : public TabStripModelObserver,
     gfx::Rect ideal_bounds;
   };
 
+  // Used during a drop session of a url. Tracks the position of the drop as
+  // well as a window used to highlight where the drop occurs.
+  class DropInfo {
+   public:
+    DropInfo(int index, bool drop_before, bool point_down);
+    ~DropInfo();
+
+    // TODO(jhawkins): Factor out this code into a TransparentContainer class.
+
+    // expose-event handler that redraws the drop indicator.
+    static gboolean OnExposeEvent(GtkWidget* widget, GdkEventExpose* event,
+                                  DropInfo* drop_info);
+
+    // Sets the color map of the container window to allow the window to be
+    // transparent.
+    void SetContainerColorMap();
+
+    // Sets full transparency for the container window.  This is used if
+    // compositing is available for the screen.
+    void SetContainerTransparency();
+
+    // Sets the shape mask for the container window to emulate a transparent
+    // container window.  This is used if compositing is not available for the
+    // screen.
+    void SetContainerShapeMask();
+
+    // Index of the tab to drop on. If drop_before is true, the drop should
+    // occur between the tab at drop_index - 1 and drop_index.
+    // WARNING: if drop_before is true it is possible this will == tab_count,
+    // which indicates the drop should create a new tab at the end of the tabs.
+    int drop_index;
+    bool drop_before;
+
+    // Direction the arrow should point in. If true, the arrow is displayed
+    // above the tab and points down. If false, the arrow is displayed beneath
+    // the tab and points up.
+    bool point_down;
+
+    // Transparent container window used to render the drop indicator over the
+    // tabstrip and toolbar.
+    GtkWidget* container;
+
+    // The drop indicator image.
+    GdkPixbuf* drop_arrow;
+
+   private:
+    DISALLOW_COPY_AND_ASSIGN(DropInfo);
+  };
+
   // expose-event handler that redraws the tabstrip
   static gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e,
                            TabStripGtk* tabstrip);
@@ -132,6 +181,23 @@ class TabStripGtk : public TabStripModelObserver,
   // Event handler for context menu popups.
   static gboolean OnButtonPress(GtkWidget* widget, GdkEventButton* event,
                                 TabStripGtk* tabstrip);
+
+  // drag-motion handler that is signaled when the user performs a drag in the
+  // tabstrip bounds.
+  static gboolean OnDragMotion(GtkWidget* widget, GdkDragContext* context,
+                               gint x, gint y, guint time,
+                               TabStripGtk* tabstrip);
+
+  // drag-drop handler that is notified when the user finishes a drag.
+  static gboolean OnDragDrop(GtkWidget* widget, GdkDragContext* context,
+                             gint x, gint y, guint time,
+                             TabStripGtk* tabstrip);
+
+  // drag-data-received handler that receives the data assocated with the drag.
+  static gboolean OnDragDataReceived(GtkWidget* widget, GdkDragContext* context,
+                                     gint x, gint y, GtkSelectionData* data,
+                                     guint info, guint time,
+                                     TabStripGtk* tabstrip);
 
   // Handles the clicked signal from the new tab button.
   static void OnNewTabClicked(GtkWidget* widget, TabStripGtk* tabstrip);
@@ -200,6 +266,27 @@ class TabStripGtk : public TabStripModelObserver,
   virtual bool IsItemChecked(int command_id) const;
   virtual void ExecuteCommand(int command_id);
 
+  // -- Link Drag & Drop ------------------------------------------------------
+
+  // Returns the bounds to render the drop at, in screen coordinates. Sets
+  // |is_beneath| to indicate whether the arrow is beneath the tab, or above
+  // it.
+  gfx::Rect GetDropBounds(int drop_index, bool drop_before, bool* is_beneath);
+
+  // Updates the location of the drop based on the event.
+  void UpdateDropIndex(GdkDragContext* context, gint x, gint y);
+
+  // Sets the location of the drop, repainting as necessary.
+  void SetDropIndex(int index, bool drop_before);
+
+  // Determines whether the data is acceptable by the tabstrip and opens a new
+  // tab with the data as URL if it is.
+  void CompleteDrop(guchar* data);
+
+  // Returns the image to use for indicating a drop on a tab. If is_down is
+  // true, this returns an arrow pointing down.
+  static GdkPixbuf* GetDropArrowImage(bool is_down);
+
   // -- Animations -------------------------------------------------------------
 
   // A generic Layout method for various classes of TabStrip animations,
@@ -263,6 +350,9 @@ class TabStripGtk : public TabStripModelObserver,
 
   // The New Tab button.
   scoped_ptr<CustomDrawButton> newtab_button_;
+
+  // Valid for the lifetime of a drag over us.
+  scoped_ptr<DropInfo> drop_info_;
 
   // The controller for a drag initiated from a Tab. Valid for the lifetime of
   // the drag session.

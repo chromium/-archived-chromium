@@ -11,6 +11,7 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/gtk/tabs/tab_renderer_gtk.h"
+#include "chrome/common/gtk_util.h"
 #include "third_party/skia/include/core/SkShader.h"
 
 namespace {
@@ -23,11 +24,6 @@ const int kTwiceDragFrameBorderSize = 2 * kDragFrameBorderSize;
 const float kScalingFactor = 0.5;
 
 const int kAnimateToBoundsDurationMs = 150;
-
-bool IsScreenComposited() {
-  GdkScreen* screen = gdk_screen_get_default();
-  return gdk_screen_is_composited(screen) == TRUE;
-}
 
 }  // namespace
 
@@ -215,7 +211,7 @@ void DraggedTabGtk::SetContainerShapeMask() {
 gboolean DraggedTabGtk::OnExposeEvent(GtkWidget* widget,
                                       GdkEventExpose* event,
                                       DraggedTabGtk* dragged_tab) {
-  if (IsScreenComposited()) {
+  if (gtk_util::IsScreenComposited()) {
     dragged_tab->SetContainerTransparency();
   } else {
     dragged_tab->SetContainerShapeMask();

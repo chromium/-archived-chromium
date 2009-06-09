@@ -16,6 +16,11 @@ enum {
   // Tab DND items:
   X_CHROME_TAB = 0,
 
+  // Tabstrip DND items:
+  X_CHROME_STRING,
+  X_CHROME_TEXT_PLAIN,
+  X_CHROME_TEXT_URI_LIST,
+
   // Bookmark DND items:
   X_CHROME_BOOKMARK_ITEM
 };
@@ -23,4 +28,3 @@ enum {
 };
 
 #endif  // CHROME_BROWSER_GTK_DND_REGISTRY_H_
-

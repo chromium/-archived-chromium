@@ -60,6 +60,9 @@ gfx::Point GetWidgetScreenPosition(GtkWidget* widget);
 // Returns the bounds of the specified widget in screen coordinates.
 gfx::Rect GetWidgetScreenBounds(GtkWidget* widget);
 
+// Converts a point in a widget to screen coordinates.
+void ConvertWidgetPointToScreen(GtkWidget* widget, gfx::Point* p);
+
 // Initialize some GTK settings so that our dialogs are consistent.
 void InitRCStyles();
 
@@ -72,6 +75,9 @@ void CenterWidgetInHBox(GtkWidget* hbox, GtkWidget* widget, bool pack_at_end,
 // Change windows accelerator style to GTK style. (GTK uses _ for
 // accelerators.  Windows uses & with && as an escape for &.)
 std::string ConvertAcceleratorsFromWindowsStyle(const std::string& label);
+
+// Returns true if the screen is composited, false otherwise.
+bool IsScreenComposited();
 
 }  // namespace gtk_util
 
