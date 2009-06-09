@@ -807,7 +807,7 @@ TEST_F(FocusManagerTest, FocusStoreRestore) {
 
 TEST_F(FocusManagerTest, ContainsView) {
   View* view = new View();
-  View* detached_view = new View();
+  scoped_ptr<View> detached_view(new View());
   TabbedPane* tabbed_pane = new TabbedPane();
   TabbedPane* nested_tabbed_pane = new TabbedPane();
   NativeButton* tab_button = new NativeButton(NULL, L"tab button");
@@ -823,7 +823,7 @@ TEST_F(FocusManagerTest, ContainsView) {
   EXPECT_TRUE(GetFocusManager()->ContainsView(tabbed_pane));
   EXPECT_TRUE(GetFocusManager()->ContainsView(nested_tabbed_pane));
   EXPECT_TRUE(GetFocusManager()->ContainsView(tab_button));
-  EXPECT_FALSE(GetFocusManager()->ContainsView(detached_view));
+  EXPECT_FALSE(GetFocusManager()->ContainsView(detached_view.get()));
 }
 
 TEST_F(FocusTraversalTest, NormalTraversal) {
