@@ -108,6 +108,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\setup_util.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\setup_util.h"
+			>
+		</File>
+		<File
 			RelativePath=".\setup_constants.cc"
 			>
 		</File>

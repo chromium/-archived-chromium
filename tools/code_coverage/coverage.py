@@ -37,7 +37,7 @@ windows_binaries = [#'chrome.exe',
                     'unit_tests.exe',
                     'automated_ui_tests.exe',
                     'ui_tests.exe',
-                    'installer_unittests.exe',
+                    'installer_util_unittests.exe',
                     'ipc_tests.exe',
                     'memory_test.exe',
                     'page_cycler_tests.exe',
@@ -58,7 +58,7 @@ windows_tests = [
                  ['unit_tests.exe', ''],
 #                 ['automated_ui_tests.exe', ''],
                  ['ui_tests.exe', '--no-sandbox'],
-                 ['installer_unittests.exe', ''],
+                 ['installer_util_unittests.exe', ''],
                  ['ipc_tests.exe', ''],
                  ['page_cycler_tests.exe', '--gtest_filter=*File --no-sandbox'],
                  ['plugin_tests.exe', '--no-sandbox'],
@@ -368,4 +368,3 @@ def main():
 
 if __name__ == '__main__':
   sys.exit(main())
-

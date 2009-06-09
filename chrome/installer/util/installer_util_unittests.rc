@@ -1,6 +1,6 @@
 // Microsoft Visual C++ generated resource script.
 //
-#include "installer_unittests_resource.h"
+#include "installer_util_unittests_resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////

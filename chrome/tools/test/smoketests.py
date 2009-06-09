@@ -65,7 +65,7 @@ COMMANDS = {'ipc':               ['ipc_tests.exe'],
                                   '--gtest_filter=DestinationsStartupTest.*'],
             'selenium':          ['selenium_tests.exe'],
             'plugin':            ['plugin_tests.exe'],
-            'installer':         ['installer_unittests.exe'],
+            'installer':         ['installer_util_unittests.exe'],
             'webkit':            ['%(python)s',
                                   '%(slave_scripts)s/layout_test_wrapper.py',
                                   '--build-type', '%(build_type)s',
@@ -241,4 +241,3 @@ if '__main__' == __name__:
     if _httpd:
       _httpd.StopServer(force=True)
   sys.exit(result)
-
