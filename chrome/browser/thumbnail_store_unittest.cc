@@ -68,7 +68,7 @@ void ThumbnailStoreTest::SetUp() {
 
   SkAutoLockPixels thumbnail_lock(image_);
   jpeg_image_ = new RefCountedBytes;
-  bool encoded = JPEGCodec::Encode(
+  JPEGCodec::Encode(
       reinterpret_cast<unsigned char*>(image_.getAddr32(0, 0)),
       JPEGCodec::FORMAT_BGRA, image_.width(),
       image_.height(),
