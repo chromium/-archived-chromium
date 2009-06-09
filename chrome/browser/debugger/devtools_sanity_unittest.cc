@@ -11,10 +11,32 @@
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/notification_registrar.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/test/in_process_browser_test.h"
 #include "chrome/test/ui_test_utils.h"
 
 namespace {
+
+// Used to block until a dev tools client window's browser is closed.
+class BrowserClosedObserver : public NotificationObserver {
+ public:
+  BrowserClosedObserver(Browser* browser) {
+    registrar_.Add(this, NotificationType::BROWSER_CLOSED,
+                   Source<Browser>(browser));
+    ui_test_utils::RunMessageLoop();
+  }
+
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details) {
+    MessageLoopForUI::current()->Quit();
+  }
+
+ private:
+  NotificationRegistrar registrar_;
+  DISALLOW_COPY_AND_ASSIGN(BrowserClosedObserver);
+};
 
 // The delay waited in some cases where we don't have a notifications for an
 // action we take.
@@ -29,22 +51,28 @@ class DevToolsSanityTest : public InProcessBrowserTest {
     EnableDOMAutomation();
   }
 
-  void OpenWebInspector(const std::wstring& page_url) {
+  void OpenDevToolsWindow() {
     HTTPTestServer* server = StartHTTPServer();
-    GURL url = server->TestServerPageW(page_url);
+    GURL url = server->TestServerPageW(kSimplePage);
     ui_test_utils::NavigateToURL(browser(), url);
 
-    TabContents* tab = browser()->GetSelectedTabContents();
-    RenderViewHost* inspected_rvh = tab->render_view_host();
+    TabContents* tab = browser()->GetTabContentsAt(0);
+    inspected_rvh_ = tab->render_view_host();
     DevToolsManager* devtools_manager = g_browser_process->devtools_manager();
-    devtools_manager->OpenDevToolsWindow(inspected_rvh);
+    devtools_manager->OpenDevToolsWindow(inspected_rvh_);
 
     DevToolsClientHost* client_host =
-        devtools_manager->GetDevToolsClientHostFor(inspected_rvh);
-    DevToolsWindow* window = client_host->AsDevToolsWindow();
-    RenderViewHost* client_rvh = window->GetRenderViewHost();
+        devtools_manager->GetDevToolsClientHostFor(inspected_rvh_);
+    window_ = client_host->AsDevToolsWindow();
+    RenderViewHost* client_rvh = window_->GetRenderViewHost();
     client_contents_ = client_rvh->delegate()->GetAsTabContents();
     ui_test_utils::WaitForNavigation(&client_contents_->controller());
+  }
+
+  void CloseDevToolsWindow() {
+    DevToolsManager* devtools_manager = g_browser_process->devtools_manager();
+    devtools_manager->UnregisterDevToolsClientHostFor(inspected_rvh_);
+    BrowserClosedObserver close_observer(window_->browser());
   }
 
   void AssertTrue(const std::string& expr) {
@@ -55,7 +83,6 @@ class DevToolsSanityTest : public InProcessBrowserTest {
     std::string call = StringPrintf(
         "try {"
         "  var domAgent = devtools.tools.getDomAgent();"
-        "  var netAgent = devtools.tools.getNetAgent();"
         "  var doc = domAgent.getDocument();"
         "  window.domAutomationController.send((%s) + '');"
         "} catch(e) {"
@@ -73,35 +100,40 @@ class DevToolsSanityTest : public InProcessBrowserTest {
 
  protected:
   TabContents* client_contents_;
+  DevToolsWindow* window_;
+  RenderViewHost* inspected_rvh_;
 };
 
 // WebInspector opens.
-IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, DISABLED_OpenWebInspector) {
-  OpenWebInspector(kSimplePage);
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, OpenWebInspector) {
+  OpenDevToolsWindow();
   AssertTrue("typeof DevToolsHost == 'object' && !DevToolsHost.isStub");
   AssertTrue("!!doc.documentElement");
+  CloseDevToolsWindow();
 }
 
 // Tests elements panel basics.
-IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, DISABLED_ElementsPanel) {
-  OpenWebInspector(kSimplePage);
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, ElementsPanel) {
+  OpenDevToolsWindow();
   AssertEquals("HTML", "doc.documentElement.nodeName");
   AssertTrue("doc.documentElement.hasChildNodes()");
+  CloseDevToolsWindow();
 }
 
 // Tests resources panel basics.
 IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, DISABLED_ResourcesPanel) {
-  OpenWebInspector(kSimplePage);
+  OpenDevToolsWindow();
   std::string func =
       "function() {"
       "  var tokens = [];"
       "  var resources = WebInspector.resources;"
       "  for (var id in resources) {"
-      "    tokens.push(resources[id].lastPathComponent);"
+      "    tokens.push(resources[id]);"
       "  }"
       "  return tokens.join(',');"
       "}()";
   AssertEquals("simple_page.html", func);
+  CloseDevToolsWindow();
 }
 
 }  // namespace

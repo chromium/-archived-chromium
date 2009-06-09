@@ -40,9 +40,12 @@ class DevToolsWindow : public DevToolsClientHost,
 
   // TabStripModelObserver implementation
   virtual void TabClosingAt(TabContents* contents, int index);
+  virtual void TabStripEmpty();
+
+  Browser* browser() { return browser_; }
 
  private:
-  scoped_ptr<Browser> browser_;
+  Browser* browser_;
   TabContents* tab_contents_;
   std::string inspected_url_;
   bool inspected_tab_closing_;

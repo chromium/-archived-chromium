@@ -24,30 +24,30 @@
 DevToolsWindow::DevToolsWindow(Profile* profile)
     : TabStripModelObserver(),
       inspected_tab_closing_(false) {
-  static std::wstring g_wp_key = L"";
-  if (g_wp_key.empty()) {
-    // TODO(pfeldman): Make browser's getter for this key static.
-    g_wp_key.append(prefs::kBrowserWindowPlacement);
-    g_wp_key.append(L"_");
-    g_wp_key.append(L"DevToolsApp");
 
-    PrefService* prefs = g_browser_process->local_state();
-    prefs->RegisterDictionaryPref(g_wp_key.c_str());
+  // TODO(pfeldman): Make browser's getter for this key static.
+  std::wstring wp_key = L"";
+  wp_key.append(prefs::kBrowserWindowPlacement);
+  wp_key.append(L"_");
+  wp_key.append(L"DevToolsApp");
 
-    const DictionaryValue* wp_pref = prefs->GetDictionary(g_wp_key.c_str());
-    if (!wp_pref) {
-      DictionaryValue* defaults = prefs->GetMutableDictionary(
-          g_wp_key.c_str());
-      defaults->SetInteger(L"left", 100);
-      defaults->SetInteger(L"top", 100);
-      defaults->SetInteger(L"right", 740);
-      defaults->SetInteger(L"bottom", 740);
-      defaults->SetBoolean(L"maximized", false);
-      defaults->SetBoolean(L"always_on_top", false);
-    }
+  PrefService* prefs = g_browser_process->local_state();
+  if (!prefs->FindPreference(wp_key.c_str())) {
+    prefs->RegisterDictionaryPref(wp_key.c_str());
   }
 
-  browser_.reset(Browser::CreateForApp(L"DevToolsApp", profile, false));
+  const DictionaryValue* wp_pref = prefs->GetDictionary(wp_key.c_str());
+  if (!wp_pref) {
+    DictionaryValue* defaults = prefs->GetMutableDictionary(wp_key.c_str());
+    defaults->SetInteger(L"left", 100);
+    defaults->SetInteger(L"top", 100);
+    defaults->SetInteger(L"right", 740);
+    defaults->SetInteger(L"bottom", 740);
+    defaults->SetBoolean(L"maximized", false);
+    defaults->SetBoolean(L"always_on_top", false);
+  }
+
+  browser_ = Browser::CreateForApp(L"DevToolsApp", profile, false);
   GURL contents(std::string(chrome::kChromeUIDevToolsURL) + "devtools.html");
   browser_->AddTabWithURL(contents, GURL(), PageTransition::START_PAGE, true,
                           -1, false, NULL);
@@ -93,9 +93,8 @@ void DevToolsWindow::TabClosingAt(TabContents* contents, int index) {
     // Notify manager that this DevToolsClientHost no longer exists.
     NotifyCloseListener();
   }
-  if (browser_->tabstrip_model()->empty()) {
-    // We are removing the last tab. Delete browser along with the
-    // tabstrip_model and its listeners.
-    delete this;
-  }
+}
+
+void DevToolsWindow::TabStripEmpty() {
+  delete this;
 }
