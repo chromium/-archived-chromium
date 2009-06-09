@@ -222,10 +222,7 @@ bool BookmarkCodec::DecodeChildren(const ListValue& child_value_list,
     if (child_value->GetType() != Value::TYPE_DICTIONARY)
       return false;
 
-    if (!DecodeNode(*static_cast<DictionaryValue*>(child_value), parent,
-                    NULL)) {
-      return false;
-    }
+    DecodeNode(*static_cast<DictionaryValue*>(child_value), parent, NULL);
   }
   return true;
 }
@@ -244,13 +241,11 @@ bool BookmarkCodec::DecodeNode(const DictionaryValue& value,
 
   std::wstring title;
   if (!value.GetString(kNameKey, &title))
-    return false;
+    title = std::wstring();
 
-  // TODO(sky): this should be more flexible. Don't hoark if we can't parse it
-  // all.
   std::wstring date_added_string;
   if (!value.GetString(kDateAddedKey, &date_added_string))
-    return false;
+    date_added_string = Int64ToWString(Time::Now().ToInternalValue());
 
   std::wstring type_string;
   if (!value.GetString(kTypeKey, &type_string))
@@ -263,12 +258,11 @@ bool BookmarkCodec::DecodeNode(const DictionaryValue& value,
     std::wstring url_string;
     if (!value.GetString(kURLKey, &url_string))
       return false;
-    // TODO(sky): this should ignore the node if not a valid URL.
+
     if (!node)
       node = new BookmarkNode(id, GURL(WideToUTF8(url_string)));
     else
-      NOTREACHED();  // In case of a URL type node should always be NULL.
-
+      return false; // Node invalid.
 
     if (parent)
       parent->Add(parent->GetChildCount(), node);
@@ -277,7 +271,7 @@ bool BookmarkCodec::DecodeNode(const DictionaryValue& value,
   } else {
     std::wstring last_modified_date;
     if (!value.GetString(kDateModifiedKey, &last_modified_date))
-      return false;
+      last_modified_date = Int64ToWString(Time::Now().ToInternalValue());
 
     Value* child_values;
     if (!value.Get(kChildrenKey, &child_values))
