@@ -1035,6 +1035,13 @@ BUG8402 MAC : LayoutTests/fast/forms/drag-out-of-textarea.html = FAIL PASS
 // URLs.
 BUG8407 : LayoutTests/fast/loader/main-document-url-for-non-http-loads.html = FAIL
 
+// These tests are flaky as of 2009/06/09. Need to investigate.
+BUG13692 WIN : LayoutTests/dom/html/level2/html/HTMLParamElement03.html = CRASH PASS
+BUG13692 WIN : LayoutTests/svg/custom/polyline-hittest.svg = CRASH PASS
+BUG13692 WIN : LayoutTests/tables/mozilla/marvin/tables_bgcolor_green.html = CRASH PASS
+BUG13692 MAC : LayoutTests/fast/dom/Document/open-with-pending-load.html = CRASH PASS
+BUG13692 MAC : LayoutTests/fast/invalid/019.html = CRASH PASS
+
 // ----------------------------------------------------------------------------
 // NEW FOR THE MERGE
 //
