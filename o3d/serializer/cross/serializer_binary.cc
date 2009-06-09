@@ -144,10 +144,10 @@ void SerializeBuffer(const Buffer &buffer, MemoryBuffer<uint8> *output) {
     } else if (field.IsA(UByteNField::GetApparentClass())) {
       const UByteNField &byte_field = static_cast<const UByteNField&>(field);
       uint8 *byte_destination = reinterpret_cast<uint8*>(destination);
-      byte_field.GetAsBytes(0,
-                            byte_destination,
-                            field.num_components(),
-                            num_elements);
+      byte_field.GetAsUByteNs(0,
+                              byte_destination,
+                              field.num_components(),
+                              num_elements);
       // Write out the bytes
       stream.Write(byte_destination, nitems);
     }

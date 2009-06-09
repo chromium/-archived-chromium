@@ -261,6 +261,19 @@ TEST_F(FloatFieldTest, TestBasic) {
                               kFloatsNumElements,
                               kFloatsNumComponents));
 
+  Field* new_field = buffer()->CreateField(FloatField::GetApparentClass(),
+                                           kFloatsNumComponents);
+  ASSERT_TRUE(new_field != NULL);
+  new_field->Copy(*field);
+  memset(&out_floats, 0, sizeof(out_floats));
+  new_field->GetAsFloats(0, &out_floats[0][0], kFloatsStride,
+                         kFloatsNumElements);
+
+  EXPECT_TRUE(CompareElements(&kInFloats[0][0],
+                              &out_floats[0][0],
+                              kFloatsNumElements,
+                              kFloatsNumComponents));
+
   field->SetFromUInt32s(&kInUInt32s[0][0], kUInt32sStride, 0,
                         kUInt32sNumElements);
 
@@ -348,6 +361,20 @@ TEST_F(UInt32FieldTest, TestBasic) {
   UInt32Field* uint32_field = down_cast<UInt32Field*>(field);
   uint32_field->GetAsUInt32s(0, &out_uint32s[0][0], kUInt32sStride,
                              kUInt32sNumElements);
+
+  for (unsigned jj = 0; jj < kUInt32sNumElements; ++jj) {
+    for (unsigned ii = 0; ii < kUInt32sNumComponents; ++ii) {
+      EXPECT_EQ(kInUInt32s[jj][ii], out_uint32s[jj][ii]);
+    }
+  }
+
+  Field* new_field = buffer()->CreateField(UInt32Field::GetApparentClass(),
+                                           kUInt32sNumComponents);
+  ASSERT_TRUE(new_field != NULL);
+  new_field->Copy(*field);
+  memset(&out_uint32s, 0, sizeof(out_uint32s));
+  down_cast<UInt32Field*>(new_field)->GetAsUInt32s(
+      0, &out_uint32s[0][0], kUInt32sStride, kUInt32sNumElements);
 
   for (unsigned jj = 0; jj < kUInt32sNumElements; ++jj) {
     for (unsigned ii = 0; ii < kUInt32sNumComponents; ++ii) {
@@ -451,16 +478,32 @@ TEST_F(UByteNFieldTest, TestBasic) {
 
   field->SetFromUByteNs(&kInUByteNs[0][0], kUByteNsStride, 0,
                         kUByteNsNumElements);
-
-  memset(&out_floats, 0, sizeof(out_floats));
-  field->GetAsFloats(0, &out_floats[0][0], kFloatsStride, kUByteNsNumElements);
+  uint8 out_ubytens[kUByteNsNumElements][kUByteNsNumComponents];
+  memset(&out_ubytens, 0, sizeof(out_ubytens));
+  down_cast<UByteNField*>(field)->GetAsUByteNs(
+      0, &out_ubytens[0][0], kUByteNsStride, kUByteNsNumElements);
 
   for (unsigned jj = 0; jj < kUByteNsNumElements; ++jj) {
     for (unsigned ii = 0; ii < kUByteNsNumComponents; ++ii) {
-      EXPECT_EQ(static_cast<float>(kInUByteNs[jj][ii] / 255.0f),
-                out_floats[jj][ii]);
+      EXPECT_EQ(kInUByteNs[jj][ii], out_ubytens[jj][ii]);
     }
   }
+
+  Field* new_field = buffer()->CreateField(UByteNField::GetApparentClass(),
+                                           kUByteNsNumComponents);
+  ASSERT_TRUE(new_field != NULL);
+  new_field->Copy(*field);
+
+  memset(&out_ubytens, 0, sizeof(out_ubytens));
+  down_cast<UByteNField*>(new_field)->GetAsUByteNs(
+      0, &out_ubytens[0][0], kUByteNsStride, kUByteNsNumElements);
+
+  for (unsigned jj = 0; jj < kUByteNsNumElements; ++jj) {
+    for (unsigned ii = 0; ii < kUByteNsNumComponents; ++ii) {
+      EXPECT_EQ(kInUByteNs[jj][ii], out_ubytens[jj][ii]);
+    }
+  }
+
 
   // Test that we can't make a UByteN field that is not multiple of 4
   EXPECT_TRUE(buffer()->CreateField(UByteNField::GetApparentClass(), 1) ==

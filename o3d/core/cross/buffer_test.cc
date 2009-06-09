@@ -551,7 +551,7 @@ TEST_F(BufferTest, TestVertexBufferFromRawData) {
       0, &buffer_float_data[0], 3, kNumElements);
   down_cast<UInt32Field*>(buffer->fields()[1].Get())->GetAsUInt32s(
       0, &buffer_int_data[0], 2, kNumElements);
-  down_cast<UByteNField*>(buffer->fields()[2].Get())->GetAsBytes(
+  down_cast<UByteNField*>(buffer->fields()[2].Get())->GetAsUByteNs(
       0, &buffer_byte_data[0], 4, kNumElements);
 
   for (int i = 0; i < kNumElements; ++i) {

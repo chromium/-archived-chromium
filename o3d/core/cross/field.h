@@ -163,6 +163,19 @@ class Field : public NamedObject {
   // outside the buffer associated with this field.
   bool RangeValid(unsigned int start_index, unsigned int num_elements);
 
+  // Copies a field. The field must be of the same type.
+  // Paremeters:
+  //   source: field to copy from.
+  void Copy(const Field& source);
+
+ protected:
+  // The concrete version of Copy. Copy calls this function to do the actual
+  // copying after it has verified the types are compatible and the buffers
+  // exist. ConcreteCopy does NOT have to check for those errors.
+  // Paremeters:
+  //   source: field to copy from.
+  virtual void ConcreteCopy(const Field& source) = 0;
+
  private:
   friend class Buffer;
   void set_offset(unsigned offset) {
@@ -225,6 +238,10 @@ class FloatField : public Field {
                            float* destination,
                            unsigned destination_stride,
                            unsigned num_elements) const;
+
+ protected:
+  // Overridden from Field.
+  virtual void ConcreteCopy(const Field& source);
 
  private:
   FloatField(ServiceLocator* service_locator,
@@ -297,6 +314,10 @@ class UInt32Field : public Field {
                     unsigned destination_stride,
                     unsigned num_elements) const;
 
+ protected:
+  // Overridden from Field.
+  virtual void ConcreteCopy(const Field& source);
+
  private:
   UInt32Field(ServiceLocator* service_locator,
               Buffer* buffer,
@@ -350,7 +371,7 @@ class UByteNField : public Field {
                            unsigned destination_stride,
                            unsigned num_elements) const;
 
-  // Gets this field as byte data.
+  // Gets this field as ubyten data.
   //
   // This function copies elements from the the field to the destination array.
   // It assumes that there are a multiple of N components in the destination
@@ -364,11 +385,14 @@ class UByteNField : public Field {
   //   destination_stride: stride between elements in the destination in
   //       destination units.
   //   num_elements: The number of elements to copy.
-  void GetAsBytes(unsigned source_start_index,
-                  uint8* destination,
-                  unsigned destination_stride,
-                  unsigned num_elements) const;
+  void GetAsUByteNs(unsigned source_start_index,
+                    uint8* destination,
+                    unsigned destination_stride,
+                    unsigned num_elements) const;
 
+ protected:
+  // Overridden from Field.
+  virtual void ConcreteCopy(const Field& source);
 
  private:
   UByteNField(ServiceLocator* service_locator,

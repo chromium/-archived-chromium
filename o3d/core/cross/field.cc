@@ -34,6 +34,7 @@
 // IndexBuffer.
 
 #include "core/cross/precompile.h"
+#include <vector>
 #include "core/cross/field.h"
 #include "core/cross/error.h"
 #include "core/cross/buffer.h"
@@ -283,6 +284,23 @@ bool Field::RangeValid(unsigned int start_index, unsigned int num_elements) {
   return true;
 }
 
+void Field::Copy(const Field& source) {
+  if (!source.IsA(GetClass())) {
+    O3D_ERROR(service_locator())
+      << "source field of type " << source.GetClassName()
+      << " is not compatible with field of type " << GetClassName();
+    return;
+  }
+  if (!source.buffer()) {
+    O3D_ERROR(service_locator()) << "source buffer is null";
+    return;
+  }
+  if (!buffer()) {
+    O3D_ERROR(service_locator()) << "destination buffer is null";
+    return;
+  }
+  ConcreteCopy(source);
+}
 
 // FloatField -------------------
 
@@ -359,6 +377,16 @@ void FloatField::GetAsFloats(unsigned source_start_index,
       destination,
       destination_stride,
       num_elements);
+}
+
+void FloatField::ConcreteCopy(const Field& source) {
+  DCHECK(source.IsA(GetClass()));
+  DCHECK(source.buffer());
+  unsigned num_components = source.num_components();
+  unsigned num_elements = source.buffer()->num_elements();
+  scoped_array<float> temp(new float[num_components * num_elements]);
+  source.GetAsFloats(0, temp.get(), num_components, num_elements);
+  SetFromFloats(temp.get(), num_components, 0, num_elements);
 }
 
 Field::Ref FloatField::Create(ServiceLocator* service_locator,
@@ -454,6 +482,17 @@ void UInt32Field::GetAsUInt32s(unsigned source_start_index,
       num_elements);
 }
 
+void UInt32Field::ConcreteCopy(const Field& source) {
+  DCHECK(source.IsA(GetClass()));
+  DCHECK(source.buffer());
+  unsigned num_components = source.num_components();
+  unsigned num_elements = source.buffer()->num_elements();
+  scoped_array<uint32> temp(new uint32[num_components * num_elements]);
+  down_cast<const UInt32Field*>(&source)->GetAsUInt32s(
+      0, temp.get(), num_components, num_elements);
+  SetFromUInt32s(temp.get(), num_components, 0, num_elements);
+}
+
 Field::Ref UInt32Field::Create(ServiceLocator* service_locator,
                                Buffer* buffer,
                                unsigned num_components,
@@ -543,10 +582,10 @@ void UByteNField::GetAsFloats(unsigned source_start_index,
       swizzle_table_);
 }
 
-void UByteNField::GetAsBytes(unsigned source_start_index,
-                             uint8* destination,
-                             unsigned destination_stride,
-                             unsigned num_elements) const {
+void UByteNField::GetAsUByteNs(unsigned source_start_index,
+                               uint8* destination,
+                               unsigned destination_stride,
+                               unsigned num_elements) const {
   GetAsWithSwizzle<const uint8, uint8, ConvertUByteNToUByteN>(
       this,
       source_start_index,
@@ -555,6 +594,18 @@ void UByteNField::GetAsBytes(unsigned source_start_index,
       num_elements,
       swizzle_table_);
 }
+
+void UByteNField::ConcreteCopy(const Field& source) {
+  DCHECK(source.IsA(GetClass()));
+  DCHECK(source.buffer());
+  unsigned num_components = source.num_components();
+  unsigned num_elements = source.buffer()->num_elements();
+  scoped_array<uint8> temp(new uint8[num_components * num_elements]);
+  down_cast<const UByteNField*>(&source)->GetAsUByteNs(
+      0, temp.get(), num_components, num_elements);
+  SetFromUByteNs(temp.get(), num_components, 0, num_elements);
+}
+
 
 Field::Ref UByteNField::Create(ServiceLocator* service_locator,
                                Buffer* buffer,

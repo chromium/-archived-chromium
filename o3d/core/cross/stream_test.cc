@@ -70,6 +70,8 @@ class FieldTest : public Field {
                            unsigned num_elements) const { }
 
   virtual bool SetFromMemoryStream(MemoryReadStream* stream) { return true; }
+
+  virtual void ConcreteCopy(const Field& source) { }
 };
 
 }  // end unnamed namespace

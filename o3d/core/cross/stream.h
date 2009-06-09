@@ -70,7 +70,7 @@ class Stream : public ObjectBase {
          int semantic_index);
 
   // Returns a pointer to the associated Field object.
-  const Field& field() const {
+  Field& field() const {
     // This is guaranteed to be not NULL.
     return *field_.Get();
   }

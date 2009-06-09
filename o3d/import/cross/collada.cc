@@ -1378,8 +1378,23 @@ Shape* Collada::BuildSkinnedShape(FCDocument* doc,
     Matrix4 matrix(bind_shape_matrix);
 
     // Copy shape->primitive buffers.
+    // Here we need to also split the original vertex buffer. The issue is
+    // the original VertexBuffer might contain POSITION, NORMAL, TEXCOORD,
+    // COLOR. Of those, only POSITION and NORMAL are copied to the SourceBuffer.
+    // The VertexBuffer still contains POSITON, NORMAL, TEXCOORD, and COLOR so
+    // two issues come up
+    //
+    // 1) If we serialize that VertexBuffer, POSITION and NORMAL are stored
+    // twice. Once in the SourceBuffer, again in the VertexBuffer. That's a lot
+    // of data to download just to throw it away.
+    //
+    // 2) If we want to instance the skin we'll need to make a new VertexBuffer
+    // so we can store the skinned vertices for the second instance. But we'd
+    // like to share the COLOR and TEXCOORDS. To do that they need to be in
+    // a separate VertexBuffer.
     StreamBank* stream_bank = primitive->stream_bank();
     SourceBuffer* buffer = pack_->Create<SourceBuffer>();
+    VertexBuffer* shared_buffer = pack_->Create<VertexBuffer>();
     const StreamParamVector& source_stream_params =
         stream_bank->vertex_stream_params();
     std::vector<Field*> new_fields(source_stream_params.size(), NULL);
@@ -1387,6 +1402,7 @@ Shape* Collada::BuildSkinnedShape(FCDocument* doc,
     for (unsigned ii = 0; ii < source_stream_params.size(); ++ii) {
       const Stream& source_stream = source_stream_params[ii]->stream();
       const Field& field = source_stream.field();
+      bool copied = false;
       if (field.IsA(FloatField::GetApparentClass()) &&
           (field.num_components() == 3 ||
            field.num_components() == 4)) {
@@ -1395,6 +1411,7 @@ Shape* Collada::BuildSkinnedShape(FCDocument* doc,
           case Stream::NORMAL:
           case Stream::BINORMAL:
           case Stream::TANGENT: {
+            copied = true;
             unsigned num_source_components = field.num_components();
             unsigned num_source_vertices = source_stream.GetMaxVertices();
             if (num_source_vertices != num_vertices) {
@@ -1410,9 +1427,15 @@ Shape* Collada::BuildSkinnedShape(FCDocument* doc,
           }
         }
       }
+      if (!copied) {
+        // It's a shared field, copy it to the shared buffer.
+        new_fields[ii] = shared_buffer->CreateField(field.GetClass(),
+                                                    field.num_components());
+      }
     }
 
-    if (!buffer->AllocateElements(num_vertices)) {
+    if (!buffer->AllocateElements(num_vertices) ||
+        !shared_buffer->AllocateElements(num_vertices)) {
       O3D_ERROR(service_locator_)
           << "Failed to allocate destination vertex buffer";
       return NULL;
@@ -1421,6 +1444,7 @@ Shape* Collada::BuildSkinnedShape(FCDocument* doc,
     for (unsigned ii = 0; ii < source_stream_params.size(); ++ii) {
       const Stream& source_stream = source_stream_params[ii]->stream();
       const Field& field = source_stream.field();
+      bool copied = false;
       if (field.IsA(FloatField::GetApparentClass()) &&
           (field.num_components() == 3 ||
            field.num_components() == 4)) {
@@ -1429,6 +1453,7 @@ Shape* Collada::BuildSkinnedShape(FCDocument* doc,
           case Stream::NORMAL:
           case Stream::BINORMAL:
           case Stream::TANGENT: {
+            copied = true;
             unsigned num_source_components = field.num_components();
             Field* new_field = new_fields[ii];
 
@@ -1484,6 +1509,15 @@ Shape* Collada::BuildSkinnedShape(FCDocument* doc,
             break;
           }
         }
+      }
+      if (!copied) {
+        Field* new_field = new_fields[ii];
+        new_field->Copy(field);
+        field.buffer()->RemoveField(&source_stream.field());
+        stream_bank->SetVertexStream(source_stream.semantic(),
+                                     source_stream.semantic_index(),
+                                     new_field,
+                                     0);
       }
     }
   }
