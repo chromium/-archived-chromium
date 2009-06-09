@@ -419,8 +419,9 @@ bool UpdateShortcutLink(const wchar_t *source, const wchar_t *destination,
 }
 
 bool IsDirectoryEmpty(const std::wstring& dir_path) {
-  FileEnumerator files(FilePath(dir_path),
-                       false, FileEnumerator::FILES_AND_DIRECTORIES);
+  FileEnumerator files(FilePath(dir_path), false,
+    static_cast<FileEnumerator::FILE_TYPE>(
+        FileEnumerator::FILES | FileEnumerator::DIRECTORIES));
   if (files.Next().value().empty())
     return true;
   return false;
@@ -675,6 +676,8 @@ FileEnumerator::FileEnumerator(const FilePath& root_path,
       file_type_(file_type),
       is_in_find_op_(false),
       find_handle_(INVALID_HANDLE_VALUE) {
+  // INCLUDE_DOT_DOT must not be specified if recursive.
+  DCHECK(!(recursive && (INCLUDE_DOT_DOT & file_type_)));
   pending_paths_.push(root_path);
 }
 
@@ -687,6 +690,8 @@ FileEnumerator::FileEnumerator(const FilePath& root_path,
       is_in_find_op_(false),
       pattern_(pattern),
       find_handle_(INVALID_HANDLE_VALUE) {
+  // INCLUDE_DOT_DOT must not be specified if recursive.
+  DCHECK(!(recursive && (INCLUDE_DOT_DOT & file_type_)));
   pending_paths_.push(root_path);
 }
 
@@ -746,8 +751,7 @@ FilePath FileEnumerator::Next() {
   }
 
   FilePath cur_file(find_data_.cFileName);
-  // Skip over . and ..
-  if (L"." == cur_file.value() || L".." == cur_file.value())
+  if (ShouldSkip(cur_file))
     return Next();
 
   // Construct the absolute filename.

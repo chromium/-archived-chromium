@@ -30,6 +30,11 @@
 
 namespace {
 
+const file_util::FileEnumerator::FILE_TYPE FILES_AND_DIRECTORIES =
+    static_cast<file_util::FileEnumerator::FILE_TYPE>(
+        file_util::FileEnumerator::FILES |
+        file_util::FileEnumerator::DIRECTORIES);
+
 // file_util winds up using autoreleased objects on the Mac, so this needs
 // to be a PlatformTest
 class FileUtilTest : public PlatformTest {
@@ -902,10 +907,18 @@ TEST_F(FileUtilTest, ReplaceExtensionTestWithPathSeparators) {
 
 TEST_F(FileUtilTest, FileEnumeratorTest) {
   // Test an empty directory.
-  file_util::FileEnumerator f0(test_dir_, true,
-      file_util::FileEnumerator::FILES_AND_DIRECTORIES);
+  file_util::FileEnumerator f0(test_dir_, true, FILES_AND_DIRECTORIES);
   EXPECT_EQ(f0.Next().value(), FILE_PATH_LITERAL(""));
   EXPECT_EQ(f0.Next().value(), FILE_PATH_LITERAL(""));
+
+  // Test an empty directory, non-recursively, including "..".
+  file_util::FileEnumerator f0_dotdot(test_dir_, false,
+      static_cast<file_util::FileEnumerator::FILE_TYPE>(
+          FILES_AND_DIRECTORIES | file_util::FileEnumerator::INCLUDE_DOT_DOT));
+  EXPECT_EQ(test_dir_.Append(FILE_PATH_LITERAL("..")).value(),
+            f0_dotdot.Next().value());
+  EXPECT_EQ(FILE_PATH_LITERAL(""),
+            f0_dotdot.Next().value());
 
   // create the directories
   FilePath dir1 = test_dir_.Append(FILE_PATH_LITERAL("dir1"));
@@ -955,9 +968,20 @@ TEST_F(FileUtilTest, FileEnumeratorTest) {
   EXPECT_TRUE(c2_non_recursive.HasFile(dir2));
   EXPECT_EQ(c2_non_recursive.size(), 2);
 
+  // Only enumerate directories, non-recursively, including "..".
+  file_util::FileEnumerator f2_dotdot(
+      test_dir_, false,
+      static_cast<file_util::FileEnumerator::FILE_TYPE>(
+          file_util::FileEnumerator::DIRECTORIES |
+          file_util::FileEnumerator::INCLUDE_DOT_DOT));
+  FindResultCollector c2_dotdot(f2_dotdot);
+  EXPECT_TRUE(c2_dotdot.HasFile(dir1));
+  EXPECT_TRUE(c2_dotdot.HasFile(dir2));
+  EXPECT_TRUE(c2_dotdot.HasFile(test_dir_.Append(FILE_PATH_LITERAL(".."))));
+  EXPECT_EQ(c2_dotdot.size(), 3);
+
   // Enumerate files and directories.
-  file_util::FileEnumerator f3(test_dir_, true,
-      file_util::FileEnumerator::FILES_AND_DIRECTORIES);
+  file_util::FileEnumerator f3(test_dir_, true, FILES_AND_DIRECTORIES);
   FindResultCollector c3(f3);
   EXPECT_TRUE(c3.HasFile(dir1));
   EXPECT_TRUE(c3.HasFile(dir2));
@@ -969,8 +993,7 @@ TEST_F(FileUtilTest, FileEnumeratorTest) {
   EXPECT_EQ(c3.size(), 7);
 
   // Non-recursive operation.
-  file_util::FileEnumerator f4(test_dir_, false,
-      file_util::FileEnumerator::FILES_AND_DIRECTORIES);
+  file_util::FileEnumerator f4(test_dir_, false, FILES_AND_DIRECTORIES);
   FindResultCollector c4(f4);
   EXPECT_TRUE(c4.HasFile(dir2));
   EXPECT_TRUE(c4.HasFile(dir2));
@@ -979,8 +1002,7 @@ TEST_F(FileUtilTest, FileEnumeratorTest) {
   EXPECT_EQ(c4.size(), 4);
 
   // Enumerate with a pattern.
-  file_util::FileEnumerator f5(test_dir_, true,
-      file_util::FileEnumerator::FILES_AND_DIRECTORIES,
+  file_util::FileEnumerator f5(test_dir_, true, FILES_AND_DIRECTORIES,
       FILE_PATH_LITERAL("dir*"));
   FindResultCollector c5(f5);
   EXPECT_TRUE(c5.HasFile(dir1));
@@ -992,12 +1014,45 @@ TEST_F(FileUtilTest, FileEnumeratorTest) {
 
   // Make sure the destructor closes the find handle while in the middle of a
   // query to allow TearDown to delete the directory.
-  file_util::FileEnumerator f6(test_dir_, true,
-      file_util::FileEnumerator::FILES_AND_DIRECTORIES);
+  file_util::FileEnumerator f6(test_dir_, true, FILES_AND_DIRECTORIES);
   EXPECT_FALSE(f6.Next().value().empty());  // Should have found something
                                             // (we don't care what).
 }
 
+TEST_F(FileUtilTest, FileEnumeratorOrderTest) {
+  FilePath fileA = test_dir_.Append(FILE_PATH_LITERAL("a"));
+  FilePath fileB = test_dir_.Append(FILE_PATH_LITERAL("B"));
+  FilePath dirC = test_dir_.Append(FILE_PATH_LITERAL("C"));
+  FilePath dirD = test_dir_.Append(FILE_PATH_LITERAL("d"));
+  FilePath dirE = test_dir_.Append(FILE_PATH_LITERAL("e"));
+  FilePath fileF = test_dir_.Append(FILE_PATH_LITERAL("f"));
+
+  // Create files/directories in near random order.
+  CreateTextFile(fileF, L"");
+  CreateTextFile(fileA, L"");
+  CreateTextFile(fileB, L"");
+  EXPECT_TRUE(file_util::CreateDirectory(dirE));
+  EXPECT_TRUE(file_util::CreateDirectory(dirC));
+  EXPECT_TRUE(file_util::CreateDirectory(dirD));
+
+  // Files and directories are enumerated in the lexicographical order,
+  // ignoring case and whether they are files or directories.
+  file_util::FileEnumerator enumerator(test_dir_, false, FILES_AND_DIRECTORIES);
+  FilePath cur_file = enumerator.Next();
+  EXPECT_EQ(fileA.value(), cur_file.value());
+  cur_file = enumerator.Next();
+  EXPECT_EQ(fileB.value(), cur_file.value());
+  cur_file = enumerator.Next();
+  EXPECT_EQ(dirC.value(), cur_file.value());
+  cur_file = enumerator.Next();
+  EXPECT_EQ(dirD.value(), cur_file.value());
+  cur_file = enumerator.Next();
+  EXPECT_EQ(dirE.value(), cur_file.value());
+  cur_file = enumerator.Next();
+  EXPECT_EQ(fileF.value(), cur_file.value());
+  cur_file = enumerator.Next();
+  EXPECT_EQ(FILE_PATH_LITERAL(""), cur_file.value());
+}
 
 void PathComponents(const std::wstring& path,
                     std::vector<std::wstring>* components) {

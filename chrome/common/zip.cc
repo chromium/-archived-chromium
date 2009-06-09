@@ -281,7 +281,9 @@ bool Zip(const FilePath& src_dir, const FilePath& dest_file) {
   bool success = true;
   file_util::FileEnumerator file_enumerator(
       src_dir, true,  // recursive
-      file_util::FileEnumerator::FILES_AND_DIRECTORIES);
+      static_cast<file_util::FileEnumerator::FILE_TYPE>(
+          file_util::FileEnumerator::FILES |
+          file_util::FileEnumerator::DIRECTORIES));
   for (FilePath path = file_enumerator.Next(); !path.value().empty();
        path = file_enumerator.Next()) {
     if (!AddEntryToZip(zip_file, path, src_dir)) {

@@ -426,4 +426,23 @@ void UpOneDirectoryOrEmpty(std::wstring* dir) {
 int WriteFile(const std::wstring& filename, const char* data, int size) {
   return WriteFile(FilePath::FromWStringHack(filename), data, size);
 }
+
+///////////////////////////////////////////////
+// FileEnumerator
+//
+// Note: the main logic is in file_util_<platform>.cc
+
+bool FileEnumerator::ShouldSkip(const FilePath& path) {
+  FilePath::StringType basename = path.BaseName().value();
+  return IsDot(path) || (IsDotDot(path) && !(INCLUDE_DOT_DOT & file_type_));
+}
+
+bool FileEnumerator::IsDot(const FilePath& path) {
+  return FILE_PATH_LITERAL(".") == path.BaseName().value();
+}
+
+bool FileEnumerator::IsDotDot(const FilePath& path) {
+  return FILE_PATH_LITERAL("..") == path.BaseName().value();
+}
+
 }  // namespace

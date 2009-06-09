@@ -409,9 +409,9 @@ class FileEnumerator {
 #endif
 
   enum FILE_TYPE {
-    FILES                 = 0x1,
-    DIRECTORIES           = 0x2,
-    FILES_AND_DIRECTORIES = 0x3
+    FILES                 = 1 << 0,
+    DIRECTORIES           = 1 << 1,
+    INCLUDE_DOT_DOT       = 1 << 2,
   };
 
   // |root_path| is the starting directory to search for. It may or may not end
@@ -462,6 +462,15 @@ class FileEnumerator {
   // A stack that keeps track of which subdirectories we still need to
   // enumerate in the breadth-first search.
   std::stack<FilePath> pending_paths_;
+
+  // Returns true if the given path should be skipped in enumeration.
+  bool ShouldSkip(const FilePath& path);
+
+  // Returns true if the given path's base name is ".".
+  bool IsDot(const FilePath& path);
+
+  // Returns true if the given path's base name is "..".
+  bool IsDotDot(const FilePath& path);
 
 #if defined(OS_WIN)
   WIN32_FIND_DATA find_data_;

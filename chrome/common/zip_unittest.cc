@@ -54,7 +54,9 @@ class ZipTest : public PlatformTest {
     ASSERT_TRUE(Unzip(path, test_dir_));
 
     file_util::FileEnumerator files(test_dir_, true,
-        file_util::FileEnumerator::FILES_AND_DIRECTORIES);
+        static_cast<file_util::FileEnumerator::FILE_TYPE>(
+            file_util::FileEnumerator::FILES |
+            file_util::FileEnumerator::DIRECTORIES));
     FilePath next_path = files.Next();
     size_t count = 0;
     while (!next_path.value().empty()) {

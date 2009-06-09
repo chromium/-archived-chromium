@@ -85,7 +85,10 @@ void DirectoryLister::ThreadMain() {
   }
 
   file_util::FileEnumerator file_enum(dir_, false,
-      file_util::FileEnumerator::FILES_AND_DIRECTORIES);
+      static_cast<file_util::FileEnumerator::FILE_TYPE>(
+          file_util::FileEnumerator::FILES |
+          file_util::FileEnumerator::DIRECTORIES |
+          file_util::FileEnumerator::INCLUDE_DOT_DOT));
 
   while (!canceled_ && !(file_enum.Next().value().empty())) {
     file_enum.GetFindInfo(&e->data[e->count]);

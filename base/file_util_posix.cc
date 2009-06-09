@@ -522,6 +522,8 @@ FileEnumerator::FileEnumerator(const FilePath& root_path,
       file_type_(file_type),
       is_in_find_op_(false),
       fts_(NULL) {
+  // INCLUDE_DOT_DOT must not be specified if recursive.
+  DCHECK(!(recursive && (INCLUDE_DOT_DOT & file_type_)));
   pending_paths_.push(root_path);
 }
 
@@ -534,6 +536,8 @@ FileEnumerator::FileEnumerator(const FilePath& root_path,
       pattern_(root_path.value()),
       is_in_find_op_(false),
       fts_(NULL) {
+  // INCLUDE_DOT_DOT must not be specified if recursive.
+  DCHECK(!(recursive && (INCLUDE_DOT_DOT & file_type_)));
   // The Windows version of this code only matches against items in the top-most
   // directory, and we're comparing fnmatch against full paths, so this is the
   // easiest way to get the right pattern.
@@ -556,6 +560,14 @@ void FileEnumerator::GetFindInfo(FindInfo* info) {
   info->filename.assign(fts_ent_->fts_name);
 }
 
+int CompareFiles(const FTSENT** a, const FTSENT** b) {
+  // Order lexicographically, ignoring case and whether they are files or
+  // directories.
+  // TODO(yuzo): make this case-sensitive, directories-then-files, and
+  // internationalized.
+  return base::strcasecmp((*a)->fts_name, (*b)->fts_name);
+}
+
 // As it stands, this method calls itself recursively when the next item of
 // the fts enumeration doesn't match (type, pattern, etc.).  In the case of
 // large directories with many files this can be quite deep.
@@ -571,11 +583,11 @@ FilePath FileEnumerator::Next() {
     pending_paths_.pop();
 
     // Start a new find operation.
-    int ftsflags = FTS_LOGICAL;
+    int ftsflags = FTS_LOGICAL | FTS_SEEDOT;
     char top_dir[PATH_MAX];
     base::strlcpy(top_dir, root_path_.value().c_str(), arraysize(top_dir));
     char* dir_list[2] = { top_dir, NULL };
-    fts_ = fts_open(dir_list, ftsflags, NULL);
+    fts_ = fts_open(dir_list, ftsflags, CompareFiles);
     if (!fts_)
       return Next();
     is_in_find_op_ = true;
@@ -604,6 +616,9 @@ FilePath FileEnumerator::Next() {
   }
 
   FilePath cur_file(fts_ent_->fts_path);
+  if (ShouldSkip(cur_file))
+    return Next();
+
   if (fts_ent_->fts_info == FTS_D) {
     // If not recursive, then prune children.
     if (!recursive_)
@@ -611,6 +626,11 @@ FilePath FileEnumerator::Next() {
     return (file_type_ & FileEnumerator::DIRECTORIES) ? cur_file : Next();
   } else if (fts_ent_->fts_info == FTS_F) {
     return (file_type_ & FileEnumerator::FILES) ? cur_file : Next();
+  } else if (fts_ent_->fts_info == FTS_DOT) {
+    if ((file_type_ & FileEnumerator::DIRECTORIES) && IsDotDot(cur_file)) {
+      return cur_file;
+    }
+    return Next();
   }
   // TODO(erikkay) - verify that the other fts_info types aren't interesting
   return Next();
