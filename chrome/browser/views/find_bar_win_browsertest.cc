@@ -582,3 +582,29 @@ IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, AcceleratorRestoring) {
   // The accelerator for Escape should be back to what it was before.
   EXPECT_EQ(old_target, focus_manager->GetCurrentTargetForAccelerator(escape));
 }
+
+// Make sure Find box does not become UI-inactive when no text is in the box as
+// we switch to a tab contents with an empty find string. See issue 13570.
+IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, StayActive) {
+  HTTPTestServer* server = StartHTTPServer();
+
+  // First we navigate to any page.
+  GURL url = server->TestServerPageW(kSimplePage);
+  ui_test_utils::NavigateToURL(browser(), url);
+
+  // Open the Find window with animations disabled.
+  FindBarWin::disable_animations_during_testing_ = true;
+  browser()->ShowFindBar();
+
+  // Simulate a user clearing the search string. Ideally, we should be
+  // simulating keypresses here for searching for something and pressing
+  // backspace, but that's been proven flaky in the past, so we go straight to
+  // tab_contents.
+  TabContents* tab_contents = browser()->GetSelectedTabContents();
+  // Stop the (non-existing) find operation, and clear the selection (which
+  // signals the UI is still active).
+  tab_contents->StopFinding(true);
+  // Make sure the Find UI flag hasn't been cleared, it must be so that the UI
+  // still responds to browser window resizing.
+  ASSERT_TRUE(tab_contents->find_ui_active());
+}

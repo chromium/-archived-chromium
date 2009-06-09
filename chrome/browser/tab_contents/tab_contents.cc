@@ -970,7 +970,10 @@ void TabContents::StartFinding(string16 find_text,
 }
 
 void TabContents::StopFinding(bool clear_selection) {
-  find_ui_active_ = false;
+  // When |clear_selection| is true, it means the find string has been cleared
+  // by the user, but the UI has not been dismissed.
+  if (!clear_selection)
+    find_ui_active_ = false;
   find_op_aborted_ = true;
   last_search_result_ = FindNotificationDetails();
   render_view_host()->StopFinding(clear_selection);
