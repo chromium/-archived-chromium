@@ -84,7 +84,7 @@ var extensionDataFormat = {
  */
 function showExtensionsData(extensionsData) {
   // This is the javascript code that processes the template:
-  var input = new JsExprContext(extensionsData);
+  var input = new JsEvalContext(extensionsData);
   var output = document.getElementById('extensionTemplate');
   jstProcess(input, output);
 }

@@ -4,11 +4,10 @@ and runtime requirements of AJAX based web applications.
 Specifically, support the case to update a previous template processing
 output with an incremental change to the original input data."
 
-This is a branch of jstemplate.js and its dependencies from the Google Maps
-code.
+This is a branch of http://code.google.com/p/google-jstemplate/
 
-Uncalled functions have been removed from base.js, dom.js and util.js to make
-the resulting javascript smaller.
+Uncalled functions have been removed from util.js to make the resulting
+javascript smaller.
 
 compile.sh is a simple shell script used to generate the single compiled
 jsfile.
