@@ -247,6 +247,7 @@
         'scoped_handle_win.h',
         'scoped_nsautorelease_pool.h',
         'scoped_nsautorelease_pool.mm',
+        'scoped_nsdisable_screen_updates.h',
         'scoped_nsobject.h',
         'scoped_ptr.h',
         'scoped_temp_dir.cc',

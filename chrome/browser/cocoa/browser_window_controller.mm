@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/mac_util.h"
+#include "base/scoped_nsdisable_screen_updates.h"
 #include "base/sys_string_conversions.h"
 #include "chrome/app/chrome_dll_resource.h"  // IDC_*
 #include "chrome/browser/browser.h"
@@ -193,7 +194,7 @@ willPositionSheet:(NSWindow *)sheet
 // going away) will again call to close the window when it's finally ready.
 - (BOOL)windowShouldClose:(id)sender {
   // Disable updates while closing all tabs to avoid flickering.
-  NSDisableScreenUpdates();
+  base::ScopedNSDisableScreenUpdates disabler;
   // Give beforeunload handlers the chance to cancel the close before we hide
   // the window below.
   if (!browser_->ShouldCloseWindow())
@@ -212,7 +213,6 @@ willPositionSheet:(NSWindow *)sheet
     browser_->OnWindowClosing();
     return NO;
   }
-  NSEnableScreenUpdates();
 
   // the tab strip is empty, it's ok to close the window
   return YES;
@@ -462,7 +462,7 @@ willPositionSheet:(NSWindow *)sheet
 
 - (TabWindowController*)detachTabToNewWindow:(TabView*)tabView {
   // Disable screen updates so that this appears as a single visual change.
-  NSDisableScreenUpdates();
+  base::ScopedNSDisableScreenUpdates disabler;
 
   // Fetch the tab contents for the tab being dragged
   int index = [tabStripController_ indexForTabView:tabView];
@@ -507,7 +507,6 @@ willPositionSheet:(NSWindow *)sheet
   // And make sure we use the correct frame in the new view.
   [[controller tabStripController] setFrameOfSelectedTab:tabRect];
 
-  NSEnableScreenUpdates();
   return controller;
 }
 
