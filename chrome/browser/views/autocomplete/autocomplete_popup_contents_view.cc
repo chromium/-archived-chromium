@@ -794,8 +794,8 @@ void AutocompletePopupContentsView::PaintChildren(gfx::Canvas* canvas) {
 
   SkShader* shader = SkShader::CreateBitmapShader(
       contents_canvas.getDevice()->accessBitmap(false),
-      SkShader::kRepeat_TileMode,
-      SkShader::kRepeat_TileMode);
+      SkShader::kClamp_TileMode,
+      SkShader::kClamp_TileMode);
   paint.setShader(shader);
   shader->unref();
 
