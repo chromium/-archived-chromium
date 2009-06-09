@@ -1072,12 +1072,8 @@ void Browser::OpenDebuggerWindow() {
 
 void Browser::OpenJavaScriptConsole() {
   UserMetrics::RecordAction(L"ShowJSConsole", profile_);
-#if defined(OS_WIN)
   GetSelectedTabContents()->render_view_host()->
       ShowJavaScriptConsole();
-#else
-  NOTIMPLEMENTED();
-#endif
 }
 
 void Browser::OpenTaskManager() {
