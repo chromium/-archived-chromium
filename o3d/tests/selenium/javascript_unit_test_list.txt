@@ -62,7 +62,8 @@ small   serialization-test
 small   math-test
 small   features-test         except(*iexplore)
 small   quaternion-test
-small   v8-test
+# TODO Temporarily removing until V8 bug is fixed
+#small   v8-test
 small   init-status-test
 small   quaternion-test
 small   base-test
