@@ -2772,13 +2772,13 @@
         'renderer/mock_keyboard.h',
         'renderer/mock_keyboard_driver_win.cc',
         'renderer/mock_keyboard_driver_win.h',
-        'renderer/mock_render_process.h',
-        'renderer/mock_render_thread.cc',
-        'renderer/mock_render_thread.h',
         'renderer/mock_printer.cc',
         'renderer/mock_printer.h',
         'renderer/mock_printer_driver_win.cc',
         'renderer/mock_printer_driver_win.h',
+        'renderer/mock_render_process.h',
+        'renderer/mock_render_thread.cc',
+        'renderer/mock_render_thread.h',
         'test/automation/autocomplete_edit_proxy.cc',
         'test/automation/autocomplete_edit_proxy.h',
         'test/automation/automation_constants.h',
@@ -3620,7 +3620,6 @@
           'target_name': 'perf_tests',
           'type': 'executable',
           'msvs_guid': '9055E088-25C6-47FD-87D5-D9DD9FD75C9F',
-          'msvs_existing_vcproj': 'test/perf/perftests.vcproj',
           'dependencies': [
             'browser',
             'common',
@@ -3635,7 +3634,10 @@
             '../webkit/webkit.gyp:glue',
           ],
           'sources': [
+            'browser/safe_browsing/database_perftest.cc',
+            'browser/safe_browsing/filter_false_positive_perftest.cc',
             'browser/visitedlink_perftest.cc',
+            'common/json_value_serializer_perftest.cc',
             'test/perf/perftests.cc',
             'test/perf/url_parse_perftest.cc',
           ],
@@ -3646,6 +3648,7 @@
               ],
               'sources!': [
                 # TODO(port):
+                'browser/safe_browsing/filter_false_positive_perftest.cc',
                 'browser/visitedlink_perftest.cc',
               ],
             }],
@@ -3800,65 +3803,21 @@
             # On Windows, link the dependencies (libraries) that make
             # up actual Chromium functionality into this .dll.
             '<@(chromium_dependencies)',
+            'chrome_dll_version',
             'chrome_resources',
             'installer/installer.gyp:installer_util_strings',
             'worker',
-            '../build/util/build_util.gyp:lastchange',
             '../net/net.gyp:net_resources',
             '../third_party/tcmalloc/tcmalloc.gyp:tcmalloc',
             '../views/views.gyp:views',
             '../webkit/webkit.gyp:webkit_resources',
             '../gears/gears.gyp:gears',
           ],
-          'rules': [
-            {
-              'rule_name': 'win_version',
-              'extension': 'version',
-              'variables': {
-                'lastchange_path':
-                  '<(SHARED_INTERMEDIATE_DIR)/build/LASTCHANGE',
-                'version_py': 'tools/build/version.py',
-                'version_path': 'VERSION',
-                'template_input_path': 'app/chrome_dll_version.rc.version',
-              },
-              'conditions': [
-                [ 'branding == "Chrome"', {
-                  'variables': {
-                     'branding_path': 'app/theme/google_chrome/BRANDING',
-                  },
-                }, { # else branding!="Chrome"
-                  'variables': {
-                     'branding_path': 'app/theme/chromium/BRANDING',
-                  },
-                }],
-              ],
-              'inputs': [
-                '<(template_input_path)',
-                '<(version_path)',
-                '<(branding_path)',
-                '<(lastchange_path)',
-              ],
-              'outputs': [
-                '<(grit_out_dir)/chrome_dll_version.rc',
-              ],
-              'action': [
-                'python',
-                '<(version_py)',
-                '-f', '<(version_path)',
-                '-f', '<(branding_path)',
-                '-f', '<(lastchange_path)',
-                '<(template_input_path)',
-                '<@(_outputs)',
-              ],
-              'process_outputs_as_sources': 1,
-              'message': 'Generating version information in <(_outputs)'
-            },
-          ],
           'sources': [
             'app/chrome_dll.rc',
             'app/chrome_dll_main.cc',
             'app/chrome_dll_resource.h',
-            'app/chrome_dll_version.rc.version',
+            '<(grit_out_dir)/chrome_dll_version/chrome_dll_version.rc',
 
             '../webkit/glue/resources/aliasb.cur',
             '../webkit/glue/resources/cell.cur',
@@ -3889,6 +3848,62 @@
               },
             },
           },
+        },
+        {
+          'target_name': 'chrome_dll_version',
+          'type': 'none',
+          #'msvs_guid': '414D4D24-5D65-498B-A33F-3A29AD3CDEDC',
+          'dependencies': [
+            '../build/util/build_util.gyp:lastchange',
+          ],
+          'direct_dependent_settings': {
+            'include_dirs': [
+              '<(grit_out_dir)/chrome_dll_version',
+            ],
+          },
+          'actions': [
+            {
+              'action_name': 'version',
+              'variables': {
+                'lastchange_path':
+                  '<(SHARED_INTERMEDIATE_DIR)/build/LASTCHANGE',
+                'version_py': 'tools/build/version.py',
+                'version_path': 'VERSION',
+                'template_input_path': 'app/chrome_dll_version.rc.version',
+              },
+              'conditions': [
+                [ 'branding == "Chrome"', {
+                  'variables': {
+                     'branding_path': 'app/theme/google_chrome/BRANDING',
+                  },
+                }, { # else branding!="Chrome"
+                  'variables': {
+                     'branding_path': 'app/theme/chromium/BRANDING',
+                  },
+                }],
+              ],
+              'inputs': [
+                '<(template_input_path)',
+                '<(version_path)',
+                '<(branding_path)',
+                '<(lastchange_path)',
+              ],
+              'outputs': [
+                '<(grit_out_dir)/chrome_dll_version/chrome_dll_version.rc',
+              ],
+              'action': [
+                'python',
+                '<(version_py)',
+                '-f', '<(version_path)',
+                '-f', '<(branding_path)',
+                '-f', '<(lastchange_path)',
+                '<(template_input_path)',
+                '<@(_outputs)',
+              ],
+              'process_outputs_as_sources': 1,
+              'message': 'Generating version information in <(_outputs)'
+            },
+          ],
         },
         {
           'target_name': 'activex_test_control',
@@ -4155,11 +4170,12 @@
           'target_name': 'interactive_ui_tests',
           'type': 'executable',
           'msvs_guid': '018D4F38-6272-448F-A864-976DA09F05D0',
-          'msvs_existing_vcproj': 'test/interactive_ui/interactive_ui.vcproj',
           'dependencies': [
+            'chrome_dll_version',
             'chrome_resources',
             'chrome_strings',
             'debugger',
+            'installer/installer.gyp:installer_util_strings',
             'test_support_common',
             'test_support_ui',
             'third_party/hunspell/hunspell.gyp:hunspell',
@@ -4181,6 +4197,7 @@
           ],
           'sources': [
             'browser/browser_focus_uitest.cc',
+            'browser/debugger/devtools_sanity_unittest.cc',
             'browser/views/bookmark_bar_view_test.cc',
             'browser/views/constrained_window_impl_interactive_uitest.cc',
             'browser/views/find_bar_win_interactive_uitest.cc',
@@ -4188,6 +4205,33 @@
             'test/interactive_ui/npapi_interactive_test.cc',
             'test/interactive_ui/view_event_test_base.cc',
             'test/interactive_ui/view_event_test_base.h',
+
+            # Windows-only below here, will need addressing if/when
+            # this gets ported.
+            '../webkit/glue/resources/aliasb.cur',
+            '../webkit/glue/resources/cell.cur',
+            '../webkit/glue/resources/col_resize.cur',
+            '../webkit/glue/resources/copy.cur',
+            '../webkit/glue/resources/row_resize.cur',
+            '../webkit/glue/resources/vertical_text.cur',
+            '../webkit/glue/resources/zoom_in.cur',
+            '../webkit/glue/resources/zoom_out.cur',
+
+            'app/chrome_dll.rc',
+            'test/data/resource.rc',
+
+            # TODO:  It would be nice to have these pulled in
+            # automatically from direct_dependent_settings in
+            # their various targets (net.gyp:net_resources, etc.),
+            # but that causes errors in other targets when
+            # resulting .res files get referenced multiple times.
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/browser_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/common_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/debugger_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/renderer_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.rc',
+
             'tools/build/win/precompiled_wtl.h',
             'tools/build/win/precompiled_wtl.cc',
           ],
