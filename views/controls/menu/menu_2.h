@@ -87,6 +87,13 @@ class Menu2Model {
   // Returns the model for the submenu at the specified index.
   virtual Menu2Model* GetSubmenuModelAt(int index) const = 0;
 
+  // Called when the highlighted menu item changes to the item at the specified
+  // index.
+  virtual void HighlightChangedTo(int index) = 0;
+
+  // Called when the item at the specified index has been activated.
+  virtual void ActivatedAt(int index) = 0;
+
   // Retrieves the model and index that contains a specific command id. Returns
   // true if an item with the specified command id is found. |model| is inout,
   // and specifies the model to start searching from.
@@ -94,18 +101,10 @@ class Menu2Model {
                                            int* index);
 };
 
-// The Menu2Delegate is an interface implemented by an object that performs
-// tasks that the Menu2 cannot itself.
-class Menu2Delegate {
- public:
-  // Executes the command with the specified identifier.
-  virtual void ExecuteCommand(Menu2Model* model, int command_id) = 0;
-};
-
 // A menu. Populated from a model, and relies on a delegate to execute commands.
 class Menu2 {
  public:
-  Menu2(Menu2Model* model, Menu2Delegate* delegate);
+  explicit Menu2(Menu2Model* model);
   virtual ~Menu2() {}
 
   // How the menu is aligned relative to the point it is shown at.
@@ -117,6 +116,9 @@ class Menu2 {
   // Runs the menu at the specified point. This may or may not block, depending
   // on the platform and type of menu in use.
   void RunMenuAt(const gfx::Point& point, Alignment alignment);
+
+  // Cancels the active menu.
+  void CancelMenu();
 
   // Called when the model supplying data to this menu has changed, and the menu
   // must be rebuilt.
@@ -131,11 +133,9 @@ class Menu2 {
 
   // Accessors.
   Menu2Model* model() const { return model_; }
-  Menu2Delegate* delegate() const { return delegate_; }
 
  private:
   Menu2Model* model_;
-  Menu2Delegate* delegate_;
 
   // The object that actually implements the menu.
   MenuWrapper* wrapper_;

@@ -122,6 +122,16 @@ bool SimpleMenuModel::IsEnabledAt(int index) const {
   return delegate_->IsCommandIdEnabled(command_id);
 }
 
+void SimpleMenuModel::HighlightChangedTo(int index) {
+  if (delegate_)
+    delegate_->CommandIdHighlighted(GetCommandIdAt(index));
+}
+
+void SimpleMenuModel::ActivatedAt(int index) {
+  if (delegate_)
+    delegate_->ExecuteCommand(GetCommandIdAt(index));
+}
+
 Menu2Model* SimpleMenuModel::GetSubmenuModelAt(int index) const {
   return items_.at(FlipIndex(index)).submenu;
 }

@@ -134,15 +134,9 @@ bool EncodingMenuModel::GetAcceleratorForCommandId(
   return false;
 }
 
-bool EncodingMenuModel::IsLabelForCommandIdDynamic(int command_id) const {
-  // None of our items have dynamic labels.
-  return false;
+void EncodingMenuModel::ExecuteCommand(int command_id) {
+  browser_->ExecuteCommand(command_id);
 }
-
-std::wstring EncodingMenuModel::GetLabelForCommandId(int command_id) const {
-  return std::wstring();
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // EncodingMenuModel
@@ -417,13 +411,6 @@ void ToolbarView::Observe(NotificationType type,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ToolbarView, views::Menu2Delegate implementation:
-
-void ToolbarView::ExecuteCommand(views::Menu2Model* model, int command_id) {
-  browser_->ExecuteCommand(command_id);
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // ToolbarView, views::SimpleMenuModel::Delegate implementation:
 
 bool ToolbarView::IsCommandIdChecked(int command_id) const {
@@ -456,13 +443,8 @@ bool ToolbarView::GetAcceleratorForCommandId(int command_id,
   return GetWidget()->GetAccelerator(command_id, accelerator);
 }
 
-bool ToolbarView::IsLabelForCommandIdDynamic(int command_id) const {
-  // None of our menu items have dynamic labels.
-  return false;
-}
-
-std::wstring ToolbarView::GetLabelForCommandId(int command_id) const {
-  return std::wstring();
+void ToolbarView::ExecuteCommand(int command_id) {
+  browser_->ExecuteCommand(command_id);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1057,7 +1039,7 @@ void ToolbarView::CreatePageMenu() {
   page_menu_contents_->AddSeparator();
   page_menu_contents_->AddItemWithStringId(IDC_REPORT_BUG, IDS_REPORT_BUG);
 
-  page_menu_menu_.reset(new views::Menu2(page_menu_contents_.get(), this));
+  page_menu_menu_.reset(new views::Menu2(page_menu_contents_.get()));
 }
 
 #if defined(OS_WIN)
@@ -1121,5 +1103,5 @@ void ToolbarView::CreateAppMenu() {
   app_menu_contents_->AddSeparator();
   app_menu_contents_->AddItemWithStringId(IDC_EXIT, IDS_EXIT);
 
-  app_menu_menu_.reset(new views::Menu2(app_menu_contents_.get(), this));
+  app_menu_menu_.reset(new views::Menu2(app_menu_contents_.get()));
 }

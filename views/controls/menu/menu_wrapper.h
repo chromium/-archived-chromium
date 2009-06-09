@@ -24,6 +24,9 @@ class MenuWrapper {
   // on the platform.
   virtual void RunMenuAt(const gfx::Point& point, int alignment) = 0;
 
+  // Cancels the active menu.
+  virtual void CancelMenu() = 0;
+
   // Called when the model supplying data to this menu has changed, and the menu
   // must be rebuilt.
   virtual void Rebuild() = 0;

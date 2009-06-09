@@ -41,8 +41,7 @@ class EncodingMenuModel : public views::SimpleMenuModel,
   virtual bool IsCommandIdEnabled(int command_id) const;
   virtual bool GetAcceleratorForCommandId(int command_id,
                                           views::Accelerator* accelerator);
-  virtual bool IsLabelForCommandIdDynamic(int command_id) const;
-  virtual std::wstring GetLabelForCommandId(int command_id) const;
+  virtual void ExecuteCommand(int command_id);
 
  private:
   void Build();
@@ -67,7 +66,6 @@ class ZoomMenuModel : public views::SimpleMenuModel {
 class ToolbarView : public views::View,
                     public views::ViewMenuDelegate,
                     public views::DragController,
-                    public views::Menu2Delegate,
                     public views::SimpleMenuModel::Delegate,
                     public LocationBarView::Delegate,
                     public NotificationObserver,
@@ -136,16 +134,12 @@ class ToolbarView : public views::View,
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
-  // Overridden from views::Menu2Delegate:
-  virtual void ExecuteCommand(views::Menu2Model* model, int command_id);
-
   // Overridden from views::SimpleMenuModel::Delegate:
   virtual bool IsCommandIdChecked(int command_id) const;
   virtual bool IsCommandIdEnabled(int command_id) const;
   virtual bool GetAcceleratorForCommandId(int command_id,
                                           views::Accelerator* accelerator);
-  virtual bool IsLabelForCommandIdDynamic(int command_id) const;
-  virtual std::wstring GetLabelForCommandId(int command_id) const;
+  virtual void ExecuteCommand(int command_id);
 
   // Overridden from views::View:
   virtual gfx::Size GetPreferredSize();

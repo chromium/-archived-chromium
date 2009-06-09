@@ -23,7 +23,8 @@ struct NativeMenuWin::ItemData {
   scoped_ptr<Menu2> submenu;
 };
 
-// TODO(beng): bring over owner draw from old menu system.
+// A window that receives messages from Windows relevant to the native menu
+// structure we have constructed in NativeMenuWin.
 class NativeMenuWin::MenuHostWindow {
  public:
   MenuHostWindow() {
@@ -59,11 +60,65 @@ class NativeMenuWin::MenuHostWindow {
     registered = true;
   }
 
+  NativeMenuWin* GetNativeMenuWinFromHMENU(HMENU hmenu) const {
+    MENUINFO mi = {0};
+    mi.cbSize = sizeof(mi);
+    mi.fMask = MIM_MENUDATA;
+    GetMenuInfo(hmenu, &mi);
+    return reinterpret_cast<NativeMenuWin*>(mi.dwMenuData);
+  }
+
+  // Converts the WPARAM value passed to WM_MENUSELECT into an index
+  // corresponding to the menu item that was selected.
+  int GetMenuItemIndexFromWPARAM(HMENU menu, WPARAM w_param) const {
+    int count = GetMenuItemCount(menu);
+    // For normal command menu items, Windows passes a command id as the LOWORD
+    // of WPARAM for WM_MENUSELECT. We need to walk forward through the menu
+    // items to find an item with a matching ID. Ugh!
+    for (int i = 0; i < count; ++i) {
+      MENUITEMINFO mii = {0};
+      mii.cbSize = sizeof(mii);
+      mii.fMask = MIIM_ID;
+      GetMenuItemInfo(menu, i, MF_BYPOSITION, &mii);
+      if (mii.wID == w_param)
+        return i;
+    }
+    // If we didn't find a matching command ID, this means a submenu has been
+    // selected instead, and rather than passing a command ID in
+    // LOWORD(w_param), Windows has actually passed us a position, so we just
+    // return it.
+    return w_param;
+  }
+
+  // Called when the user selects a specific item.
+  void OnMenuCommand(int position, HMENU menu) {
+    GetNativeMenuWinFromHMENU(menu)->model_->ActivatedAt(position);
+  }
+
+  // Called as the user moves their mouse or arrows through the contents of the
+  // menu.
+  void OnMenuSelect(WPARAM w_param, HMENU menu) {
+    int position = GetMenuItemIndexFromWPARAM(menu, w_param);
+    if (position >= 0)
+      GetNativeMenuWinFromHMENU(menu)->model_->HighlightChangedTo(position);
+  }
+
   bool ProcessWindowMessage(HWND window,
                             UINT message,
                             WPARAM w_param,
                             LPARAM l_param,
                             LRESULT* l_result) {
+    switch (message) {
+      case WM_MENUCOMMAND:
+        OnMenuCommand(w_param, reinterpret_cast<HMENU>(l_param));
+        *l_result = 0;
+        return true;
+      case WM_MENUSELECT:
+        OnMenuSelect(LOWORD(w_param), reinterpret_cast<HMENU>(l_param));
+        *l_result = 0;
+        return true;
+      // TODO(beng): bring over owner draw from old menu system.
+    }
     return false;
   }
 
@@ -97,11 +152,8 @@ const wchar_t* NativeMenuWin::MenuHostWindow::kMenuHostWindowKey =
 ////////////////////////////////////////////////////////////////////////////////
 // NativeMenuWin, public:
 
-NativeMenuWin::NativeMenuWin(Menu2Model* model,
-                             Menu2Delegate* delegate,
-                             HWND system_menu_for)
+NativeMenuWin::NativeMenuWin(Menu2Model* model, HWND system_menu_for)
     : model_(model),
-      delegate_(delegate),
       menu_(NULL),
       owner_draw_(false),
       system_menu_for_(system_menu_for),
@@ -118,17 +170,16 @@ NativeMenuWin::~NativeMenuWin() {
 void NativeMenuWin::RunMenuAt(const gfx::Point& point, int alignment) {
   CreateHostWindow();
   UpdateStates();
-  UINT flags = TPM_LEFTBUTTON | TPM_RETURNCMD | TPM_RECURSE;
+  UINT flags = TPM_LEFTBUTTON | TPM_RECURSE;
   flags |= GetAlignmentFlags(alignment);
-  UINT selected_command_id = TrackPopupMenuEx(menu_, flags, point.x(),
-                                              point.y(), host_window_->hwnd(),
-                                              NULL);
-  if (selected_command_id > 0) {
-    // Locate the correct delegate and model to notify about the selection.
-    // See comment in GetMenuForCommandId for details.
-    NativeMenuWin* menu = GetMenuForCommandId(selected_command_id);
-    menu->delegate_->ExecuteCommand(menu->model_, selected_command_id);
-  }
+  // Command dispatch is done through WM_MENUCOMMAND, handled by the host
+  // window.
+  TrackPopupMenuEx(menu_, flags, point.x(), point.y(), host_window_->hwnd(),
+                   NULL);
+}
+
+void NativeMenuWin::CancelMenu() {
+  EndMenu();
 }
 
 void NativeMenuWin::Rebuild() {
@@ -190,8 +241,7 @@ void NativeMenuWin::AddMenuItemAt(int menu_index, int model_index) {
   ItemData* item_data = new ItemData;
   Menu2Model::ItemType type = model_->GetTypeAt(model_index);
   if (type == Menu2Model::TYPE_SUBMENU) {
-    item_data->submenu.reset(new Menu2(model_->GetSubmenuModelAt(model_index),
-                                       delegate_));
+    item_data->submenu.reset(new Menu2(model_->GetSubmenuModelAt(model_index)));
     mii.fMask |= MIIM_SUBMENU;
     mii.hSubMenu = item_data->submenu->GetNativeMenu();
   } else {
@@ -312,10 +362,22 @@ void NativeMenuWin::ResetNativeMenu() {
     if (menu_)
       DestroyMenu(menu_);
     menu_ = CreatePopupMenu();
+    // Rather than relying on the return value of TrackPopupMenuEx, which is
+    // always a command identifier, instead we tell the menu to notify us via
+    // our host window and the WM_MENUCOMMAND message.
+    MENUINFO mi = {0};
+    mi.cbSize = sizeof(mi);
+    mi.fMask = MIM_STYLE | MIM_MENUDATA;
+    mi.dwStyle = MNS_NOTIFYBYPOS;
+    mi.dwMenuData = reinterpret_cast<ULONG_PTR>(this);
+    SetMenuInfo(menu_, &mi);
   }
 }
 
 void NativeMenuWin::CreateHostWindow() {
+  // This only gets called from RunMenuAt, and as such there is only ever one
+  // host window per menu hierarchy, no matter how many NativeMenuWin objects
+  // exist wrapping submenus.
   if (!host_window_.get())
     host_window_.reset(new MenuHostWindow());
 }
@@ -340,7 +402,7 @@ int SystemMenuModel::GetFirstItemIndex(gfx::NativeMenu native_menu) const {
 
 // static
 MenuWrapper* MenuWrapper::CreateWrapper(Menu2* menu) {
-  return new NativeMenuWin(menu->model(), menu->delegate(), NULL);
+  return new NativeMenuWin(menu->model(), NULL);
 }
 
 }  // namespace views

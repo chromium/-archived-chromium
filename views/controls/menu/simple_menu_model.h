@@ -30,8 +30,19 @@ class SimpleMenuModel : public Menu2Model {
         views::Accelerator* accelerator) = 0;
 
     // Some command ids have labels that change over time.
-    virtual bool IsLabelForCommandIdDynamic(int command_id) const = 0;
-    virtual std::wstring GetLabelForCommandId(int command_id) const = 0;
+    virtual bool IsLabelForCommandIdDynamic(int command_id) const {
+      return false;
+    }
+    virtual std::wstring GetLabelForCommandId(int command_id) const {
+      return std::wstring();
+    }
+
+    // Notifies the delegate that the item with the specified command id was
+    // visually highlighted within the menu.
+    virtual void CommandIdHighlighted(int command_id) {}
+
+    // Performs the action associated with the specified command id.
+    virtual void ExecuteCommand(int command_id) = 0;
   };
 
   // The Delegate can be NULL, though if it is items can't be checked or
@@ -63,6 +74,8 @@ class SimpleMenuModel : public Menu2Model {
   virtual int GetGroupIdAt(int index) const;
   virtual bool GetIconAt(int index, SkBitmap* icon) const;
   virtual bool IsEnabledAt(int index) const;
+  virtual void HighlightChangedTo(int index);
+  virtual void ActivatedAt(int index);
   virtual Menu2Model* GetSubmenuModelAt(int index) const;
 
  protected:

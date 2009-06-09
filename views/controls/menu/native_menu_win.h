@@ -13,7 +13,6 @@
 
 namespace views {
 
-class Menu2Delegate;
 class Menu2Model;
 
 // A Windows implementation of MenuWrapper.
@@ -23,13 +22,12 @@ class NativeMenuWin : public MenuWrapper {
   // Construct a NativeMenuWin, with a model and delegate. If |system_menu_for|
   // is non-NULL, the NativeMenuWin wraps the system menu for that window.
   // The caller owns the model and the delegate.
-  NativeMenuWin(Menu2Model* model,
-                Menu2Delegate* delegate,
-                HWND system_menu_for);
+  NativeMenuWin(Menu2Model* model, HWND system_menu_for);
   virtual ~NativeMenuWin();
 
   // Overridden from MenuWrapper:
   virtual void RunMenuAt(const gfx::Point& point, int alignment);
+  virtual void CancelMenu();
   virtual void Rebuild();
   virtual void UpdateStates();
   virtual gfx::NativeMenu GetNativeMenu() const;
@@ -90,7 +88,6 @@ class NativeMenuWin : public MenuWrapper {
 
   // Our attached model and delegate.
   Menu2Model* model_;
-  Menu2Delegate* delegate_;
 
   HMENU menu_;
 
@@ -105,6 +102,7 @@ class NativeMenuWin : public MenuWrapper {
 
   // The window that receives notifications from the menu.
   class MenuHostWindow;
+  friend MenuHostWindow;
   scoped_ptr<MenuHostWindow> host_window_;
 
   // The HWND this menu is the system menu for, or NULL if the menu is not a

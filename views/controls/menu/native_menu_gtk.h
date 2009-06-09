@@ -12,18 +12,17 @@
 namespace views {
 
 class Menu2Model;
-class Menu2Delegate;
 
 // A Gtk implementation of MenuWrapper.
 // TODO(beng): rename to MenuGtk once the old class is dead.
 class NativeMenuGtk : public MenuWrapper {
  public:
-  NativeMenuGtk(Menu2Model* model,
-                Menu2Delegate* delegate);
+  explicit NativeMenuGtk(Menu2Model* model);
   virtual ~NativeMenuGtk();
 
   // Overridden from MenuWrapper:
   virtual void RunMenuAt(const gfx::Point& point, int alignment);
+  virtual void CancelMenu();
   virtual void Rebuild();
   virtual void UpdateStates();
   virtual gfx::NativeMenu GetNativeMenu() const;
@@ -47,7 +46,6 @@ class NativeMenuGtk : public MenuWrapper {
   static void CallActivate(GtkMenuItem* menu_item, NativeMenuGtk* native_menu);
 
   Menu2Model* model_;
-  Menu2Delegate* delegate_;
 
   GtkWidget* menu_;
 

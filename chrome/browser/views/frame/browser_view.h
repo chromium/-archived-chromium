@@ -57,7 +57,6 @@ class BrowserView : public BrowserWindow,
                     public BrowserWindowTesting,
                     public NotificationObserver,
                     public TabStripModelObserver,
-                    public views::Menu2Delegate,
                     public views::SimpleMenuModel::Delegate,
                     public views::WindowDelegate,
                     public views::ClientView {
@@ -257,9 +256,6 @@ class BrowserView : public BrowserWindow,
                              bool user_gesture);
   virtual void TabStripEmpty();
 
-  // Overridden from views::Menu2Delegate:
-  virtual void ExecuteCommand(views::Menu2Model* model, int command_id);
-
   // Overridden from views::SimpleMenuModel::Delegate:
   virtual bool IsCommandIdChecked(int command_id) const;
   virtual bool IsCommandIdEnabled(int command_id) const;
@@ -267,6 +263,7 @@ class BrowserView : public BrowserWindow,
                                           views::Accelerator* accelerator);
   virtual bool IsLabelForCommandIdDynamic(int command_id) const;
   virtual std::wstring GetLabelForCommandId(int command_id) const;
+  virtual void ExecuteCommand(int command_id);
 
   // Overridden from views::WindowDelegate:
   virtual bool CanResize() const;

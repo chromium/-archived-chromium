@@ -976,13 +976,6 @@ void BrowserView::TabStripEmpty() {
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, views::SimpleMenuModel::Delegate implementation:
 
-void BrowserView::ExecuteCommand(views::Menu2Model* model, int command_id) {
-  browser_->ExecuteCommand(command_id);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// BrowserView, views::SimpleMenuModel::Delegate implementation:
-
 bool BrowserView::IsCommandIdChecked(int command_id) const {
   // TODO(beng): encoding menu.
   // No items in our system menu are check-able.
@@ -1015,6 +1008,10 @@ std::wstring BrowserView::GetLabelForCommandId(int command_id) const {
       string_id = IDS_RESTORE_WINDOW;
   }
   return l10n_util::GetString(string_id);
+}
+
+void BrowserView::ExecuteCommand(int command_id) {
+  browser_->ExecuteCommand(command_id);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1386,7 +1383,7 @@ void BrowserView::InitSystemMenu() {
   else
     BuildSystemMenuForPopupWindow();
   system_menu_.reset(
-      new views::NativeMenuWin(system_menu_contents_.get(), this,
+      new views::NativeMenuWin(system_menu_contents_.get(),
                                frame_->GetWindow()->GetNativeWindow()));
   system_menu_->Rebuild();
 }

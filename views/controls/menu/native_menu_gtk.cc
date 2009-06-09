@@ -59,11 +59,7 @@ namespace views {
 ////////////////////////////////////////////////////////////////////////////////
 // NativeMenuGtk, public:
 
-NativeMenuGtk::NativeMenuGtk(Menu2Model* model,
-                             Menu2Delegate* delegate)
-    : model_(model),
-      delegate_(delegate),
-      menu_(NULL) {
+NativeMenuGtk::NativeMenuGtk(Menu2Model* model) : model_(model), menu_(NULL) {
 }
 
 NativeMenuGtk::~NativeMenuGtk() {
@@ -78,6 +74,10 @@ void NativeMenuGtk::RunMenuAt(const gfx::Point& point, int alignment) {
   // TODO(beng): value of '1' will not work for context menus!
   gtk_menu_popup(GTK_MENU(menu_), NULL, NULL, MenuPositionFunc, &position, 1,
                  gtk_get_current_event_time());
+}
+
+void NativeMenuGtk::CancelMenu() {
+  NOTIMPLEMENTED();
 }
 
 void NativeMenuGtk::Rebuild() {
@@ -144,7 +144,7 @@ void NativeMenuGtk::AddMenuItemAt(int index,
   if (type == Menu2Model::TYPE_SUBMENU) {
     // TODO(beng): we're leaking these objects right now... consider some other
     //             arrangement.
-    Menu2* submenu = new Menu2(model_->GetSubmenuModelAt(index), delegate_);
+    Menu2* submenu = new Menu2(model_->GetSubmenuModelAt(index));
     g_object_set_data(G_OBJECT(menu_item), "submenu", submenu);
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),
                               submenu->GetNativeMenu());
@@ -212,7 +212,7 @@ void NativeMenuGtk::OnActivate(GtkMenuItem* menu_item) {
                                                          "position"));
   if (model_->IsEnabledAt(position) &&
       MenuTypeCanExecute(model_->GetTypeAt(position))) {
-    delegate_->ExecuteCommand(model_, model_->GetCommandIdAt(position));
+    model_->ActivatedAt(position);
   }
 }
 
@@ -227,7 +227,7 @@ void NativeMenuGtk::CallActivate(GtkMenuItem* menu_item,
 
 // static
 MenuWrapper* MenuWrapper::CreateWrapper(Menu2* menu) {
-  return new NativeMenuGtk(menu->model(), menu->delegate());
+  return new NativeMenuGtk(menu->model());
 }
 
 }  // namespace views

@@ -35,9 +35,8 @@ bool Menu2Model::GetModelAndIndexForCommandId(int command_id,
 ////////////////////////////////////////////////////////////////////////////////
 // Menu2, public:
 
-Menu2::Menu2(Menu2Model* model, Menu2Delegate* delegate)
+Menu2::Menu2(Menu2Model* model)
     : model_(model),
-      delegate_(delegate),
       ALLOW_THIS_IN_INITIALIZER_LIST(
           wrapper_(MenuWrapper::CreateWrapper(this))) {
   Rebuild();
@@ -49,6 +48,10 @@ gfx::NativeMenu Menu2::GetNativeMenu() const {
 
 void Menu2::RunMenuAt(const gfx::Point& point, Alignment alignment) {
   wrapper_->RunMenuAt(point, alignment);
+}
+
+void Menu2::CancelMenu() {
+  wrapper_->CancelMenu();
 }
 
 void Menu2::Rebuild() {
