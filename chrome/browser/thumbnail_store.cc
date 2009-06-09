@@ -89,7 +89,7 @@ bool ThumbnailStore::GetPageThumbnailFromDisk(const FilePath& file,
   int out_len;
 
   if (!packed.ReadData(&iter, &jpeg_data, &out_len) ||
-      out_len != jpeg_len)
+      out_len != static_cast<int>(jpeg_len))
     return false;
 
   // Copy jpeg data to the out parameter.
