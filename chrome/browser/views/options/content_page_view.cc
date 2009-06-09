@@ -36,13 +36,13 @@ ContentPageView::ContentPageView(Profile* profile)
       passwords_group_(NULL),
       passwords_asktosave_radio_(NULL),
       passwords_neversave_radio_(NULL),
+      form_autofill_asktosave_radio_(NULL),
+      form_autofill_neversave_radio_(NULL),
       themes_group_(NULL),
       themes_reset_button_(NULL),
-      import_group_(NULL),
-      import_label_(NULL),
+      browsing_data_label_(NULL),
+      browsing_data_group_(NULL),
       import_button_(NULL),
-      clear_data_group_(NULL),
-      clear_data_label_(NULL),
       clear_data_button_(NULL),
       OptionsPageView(profile) {
 }
@@ -65,11 +65,9 @@ void ContentPageView::ButtonPressed(views::Button* sender) {
                               profile()->GetPrefs());
     }
     ask_to_save_passwords_.SetValue(enabled);
-  } else if (sender == passwords_exceptions_button_) {
-    UserMetricsRecordAction(L"Options_ShowPasswordsExceptions", NULL);
-    PasswordsExceptionsWindowView::Show(profile());
-  } else if (sender == form_autofill_checkbox_) {
-    bool enabled = form_autofill_checkbox_->checked();
+  } else if (sender == form_autofill_asktosave_radio_ ||
+             sender == form_autofill_neversave_radio_) {
+    bool enabled = form_autofill_asktosave_radio_->checked();
     if (enabled) {
       UserMetricsRecordAction(L"Options_FormAutofill_Enable",
                               profile()->GetPrefs());
@@ -78,6 +76,9 @@ void ContentPageView::ButtonPressed(views::Button* sender) {
                               profile()->GetPrefs());
     }
     form_autofill_.SetValue(enabled);
+  } else if (sender == passwords_exceptions_button_) {
+    UserMetricsRecordAction(L"Options_ShowPasswordsExceptions", NULL);
+    PasswordsExceptionsWindowView::Show(profile());
   } else if (sender == themes_reset_button_) {
     UserMetricsRecordAction(L"Options_ThemesReset", profile()->GetPrefs());
     profile()->ClearTheme();
@@ -120,13 +121,8 @@ void ContentPageView::InitControlLayout() {
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
 
   layout->StartRow(0, single_column_view_set_id);
-  InitImportGroup();
-  layout->AddView(import_group_);
-  layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
-
-  layout->StartRow(0, single_column_view_set_id);
-  InitClearDataGroup();
-  layout->AddView(clear_data_group_);
+  InitBrowsingDataGroup();
+  layout->AddView(browsing_data_group_);
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
 
   layout->StartRow(0, single_column_view_set_id);
@@ -149,7 +145,11 @@ void ContentPageView::NotifyPrefChanged(const std::wstring* pref_name) {
     }
   }
   if (!pref_name || *pref_name == prefs::kFormAutofillEnabled) {
-    form_autofill_checkbox_->SetChecked(form_autofill_.GetValue());
+    if (form_autofill_.GetValue()) {
+      form_autofill_asktosave_radio_->SetChecked(true);
+    } else {
+      form_autofill_neversave_radio_->SetChecked(true);
+    }
   }
 }
 
@@ -163,8 +163,8 @@ void ContentPageView::Layout() {
       0, 0, passwords_group_->GetContentsWidth(), 0);
   passwords_neversave_radio_->SetBounds(
       0, 0, passwords_group_->GetContentsWidth(), 0);
-  import_label_->SetBounds(0, 0, import_group_->GetContentsWidth(), 0);
-  clear_data_label_->SetBounds(0, 0, clear_data_group_->GetContentsWidth(), 0);
+  browsing_data_label_->SetBounds(
+      0, 0, browsing_data_group_->GetContentsWidth(), 0);
   // ... and twice to get the height of multi-line items correct.
   View::Layout();
 }
@@ -193,17 +193,9 @@ void ContentPageView::InitPasswordSavingGroup() {
   GridLayout* layout = new GridLayout(contents);
   contents->SetLayoutManager(layout);
 
-  const int single_column_view_set_id = 1;
+  const int single_column_view_set_id = 0;
   ColumnSet* column_set = layout->AddColumnSet(single_column_view_set_id);
   column_set->AddColumn(GridLayout::LEADING, GridLayout::CENTER, 1,
-                        GridLayout::USE_PREF, 0, 0);
-
-  const int double_column_view_set_id = 0;
-  column_set = layout->AddColumnSet(double_column_view_set_id);
-  column_set->AddColumn(GridLayout::LEADING, GridLayout::CENTER, 0,
-                        GridLayout::USE_PREF, 0, 0);
-  column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
-  column_set->AddColumn(GridLayout::LEADING, GridLayout::CENTER, 0,
                         GridLayout::USE_PREF, 0, 0);
 
   layout->StartRow(0, single_column_view_set_id);
@@ -221,10 +213,16 @@ void ContentPageView::InitPasswordSavingGroup() {
 }
 
 void ContentPageView::InitFormAutofillGroup() {
-  form_autofill_checkbox_ = new views::Checkbox(
-      l10n_util::GetString(IDS_AUTOFILL_SAVEFORMS));
-  form_autofill_checkbox_->set_listener(this);
-  form_autofill_checkbox_->SetMultiLine(true);
+  form_autofill_asktosave_radio_ = new views::RadioButton(
+      l10n_util::GetString(IDS_OPTIONS_AUTOFILL_SAVE),
+      kPasswordSavingRadioGroup);
+  form_autofill_asktosave_radio_->set_listener(this);
+  form_autofill_asktosave_radio_->SetMultiLine(true);
+  form_autofill_neversave_radio_ = new views::RadioButton(
+      l10n_util::GetString(IDS_OPTIONS_AUTOFILL_NEVERSAVE),
+      kPasswordSavingRadioGroup);
+  form_autofill_neversave_radio_->set_listener(this);
+  form_autofill_neversave_radio_->SetMultiLine(true);
 
   using views::GridLayout;
   using views::ColumnSet;
@@ -233,13 +231,16 @@ void ContentPageView::InitFormAutofillGroup() {
   GridLayout* layout = new GridLayout(contents);
   contents->SetLayoutManager(layout);
 
-  const int single_column_view_set_id = 1;
+  const int single_column_view_set_id = 0;
   ColumnSet* column_set = layout->AddColumnSet(single_column_view_set_id);
   column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 1,
                         GridLayout::USE_PREF, 0, 0);
 
   layout->StartRow(0, single_column_view_set_id);
-  layout->AddView(form_autofill_checkbox_);
+  layout->AddView(form_autofill_asktosave_radio_);
+  layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
+  layout->StartRow(0, single_column_view_set_id);
+  layout->AddView(form_autofill_neversave_radio_);
 
   form_autofill_group_ = new OptionsGroupView(
       contents, l10n_util::GetString(IDS_AUTOFILL_SETTING_WINDOWS_GROUP_NAME),
@@ -270,44 +271,15 @@ void ContentPageView::InitThemesGroup() {
       L"", false);
 }
 
-void ContentPageView::InitClearDataGroup() {
+void ContentPageView::InitBrowsingDataGroup() {
   clear_data_button_ = new views::NativeButton(this,
       l10n_util::GetString(IDS_OPTIONS_CLEAR_DATA_BUTTON));
-  clear_data_label_ = new views::Label(
-      l10n_util::GetString(IDS_OPTIONS_CLEAR_DATA_INFO));
-  clear_data_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
-  clear_data_label_->SetMultiLine(true);
-
-  using views::GridLayout;
-  using views::ColumnSet;
-
-  views::View* contents = new views::View;
-  GridLayout* layout = new GridLayout(contents);
-  contents->SetLayoutManager(layout);
-
-  const int single_column_view_set_id = 1;
-  ColumnSet* column_set = layout->AddColumnSet(single_column_view_set_id);
-  column_set->AddColumn(GridLayout::LEADING, GridLayout::CENTER, 1,
-      GridLayout::USE_PREF, 0, 0);
-
-  layout->StartRow(0, single_column_view_set_id);
-  layout->AddView(clear_data_label_);
-  layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
-  layout->StartRow(0, single_column_view_set_id);
-  layout->AddView(clear_data_button_);
-
-  clear_data_group_ = new OptionsGroupView(
-      contents, l10n_util::GetString(IDS_OPTIONS_CLEAR_DATA_GROUP_NAME),
-      L"", true);
-}
-
-void ContentPageView::InitImportGroup() {
   import_button_ = new views::NativeButton(this,
       l10n_util::GetString(IDS_OPTIONS_IMPORT_DATA_BUTTON));
-  import_label_ = new views::Label(
-      l10n_util::GetString(IDS_OPTIONS_IMPORT_DATA_INFO));
-  import_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
-  import_label_->SetMultiLine(true);
+  browsing_data_label_ = new views::Label(
+      l10n_util::GetString(IDS_OPTIONS_BROWSING_DATA_INFO));
+  browsing_data_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
+  browsing_data_label_->SetMultiLine(true);
 
   using views::GridLayout;
   using views::ColumnSet;
@@ -316,18 +288,30 @@ void ContentPageView::InitImportGroup() {
   GridLayout* layout = new GridLayout(contents);
   contents->SetLayoutManager(layout);
 
-  const int single_column_view_set_id = 1;
+  // Add the browsing data label component.
+  const int single_column_view_set_id = 0;
   ColumnSet* column_set = layout->AddColumnSet(single_column_view_set_id);
   column_set->AddColumn(GridLayout::LEADING, GridLayout::CENTER, 1,
       GridLayout::USE_PREF, 0, 0);
-
   layout->StartRow(0, single_column_view_set_id);
-  layout->AddView(import_label_);
+  layout->AddView(browsing_data_label_);
+
+  // Add some padding for not making the next component close together.
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
-  layout->StartRow(0, single_column_view_set_id);
-  layout->AddView(import_button_);
 
-  import_group_ = new OptionsGroupView(
-      contents, l10n_util::GetString(IDS_OPTIONS_IMPORT_DATA_GROUP_NAME),
+  // Add double column layout for import and clear browsing buttons.
+  const int double_column_view_set_id = 1;
+  ColumnSet* double_col_set = layout->AddColumnSet(double_column_view_set_id);
+  double_col_set->AddColumn(GridLayout::LEADING, GridLayout::CENTER, 0,
+                            GridLayout::USE_PREF, 0, 0);
+  double_col_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
+  double_col_set->AddColumn(GridLayout::LEADING, GridLayout::CENTER, 0,
+                            GridLayout::USE_PREF, 0, 0);
+  layout->StartRow(0, double_column_view_set_id);
+  layout->AddView(import_button_);
+  layout->AddView(clear_data_button_);
+
+  browsing_data_group_ = new OptionsGroupView(
+      contents, l10n_util::GetString(IDS_OPTIONS_BROWSING_DATA_GROUP_NAME),
       L"", true);
 }

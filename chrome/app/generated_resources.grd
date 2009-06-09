@@ -2996,17 +2996,17 @@ each locale. -->
       <message name="IDS_OPTIONS_DIALOG_TITLE" desc="The title of the Options dialog box">
         <ph name="PRODUCT_NAME">$1<ex>Google Chrome</ex></ph> Options
       </message>
-      <message name="IDS_OPTIONS_GENERAL_TAB_LABEL" desc="The title of the General tab">
-        General
+      <message name="IDS_OPTIONS_GENERAL_TAB_LABEL" desc="The title of the Basics tab">
+        Basics
       </message>
-      <message name="IDS_OPTIONS_CONTENT_TAB_LABEL" desc="The title of the User Data tab">
-        User Data
+      <message name="IDS_OPTIONS_CONTENT_TAB_LABEL" desc="The title of the Personal Stuff tab">
+        Personal Stuff
       </message>
       <message name="IDS_OPTIONS_USER_DATA_TAB_LABEL" desc="The title of the User Data tab">
         User Data
       </message>
-      <message name="IDS_OPTIONS_ADVANCED_TAB_LABEL" desc="The title of the Advanced tab">
-        Advanced
+      <message name="IDS_OPTIONS_ADVANCED_TAB_LABEL" desc="The title of the Under the Hood tab">
+        Under the Hood
       </message>
       <message name="IDS_OPTIONS_LEARN_MORE_LABEL" desc="In the options dialog, we have links to the support web pages where the user can learn more about a feature.">
         Learn more
@@ -3128,8 +3128,11 @@ each locale. -->
       <message name="IDS_AUTOFILL_SETTING_WINDOWS_GROUP_NAME" desc="The title of the form autofill group">
         Form autofill:
       </message>
-      <message name="IDS_AUTOFILL_SAVEFORMS" desc="The autofill checkbox label">
+      <message name="IDS_OPTIONS_AUTOFILL_SAVE" desc="The label of the 'Ask me to save autofill' radio button">
         Save text from forms to make them easier to fill out
+      </message>
+      <message name="IDS_OPTIONS_AUTOFILL_NEVERSAVE" desc="The label of the 'Never save autofill' radio button">
+        Never save text from forms
       </message>
 
       <message name="IDS_THEMES_GROUP_NAME" desc="The title of the themes group">
@@ -3198,21 +3201,14 @@ each locale. -->
         Allow all content to load
       </message>
 
-      <message name="IDS_OPTIONS_IMPORT_DATA_GROUP_NAME" desc="The title of the 'Import' group.">
-        Import:
+      <message name="IDS_OPTIONS_BROWSING_DATA_GROUP_NAME" desc="The title of the 'Browsing Data' group.">
+        Browsing Data:
       </message>
-      <message name="IDS_OPTIONS_IMPORT_DATA_INFO" desc="Information text about import options.">
-        You can import your bookmarks and settings from other browsers and user accounts on this computer.
+      <message name="IDS_OPTIONS_BROWSING_DATA_INFO" desc="Information text about browsing data options.">
+        You can import your bookmarks and settings from other browsers or clear your browsing data from this computer.
       </message>
       <message name="IDS_OPTIONS_IMPORT_DATA_BUTTON" desc="Label for the import data button.">
         Import data...
-      </message>
-
-      <message name="IDS_OPTIONS_CLEAR_DATA_GROUP_NAME" desc="The title of the 'Clear data' group.">
-        Clear Data:
-      </message>
-      <message name="IDS_OPTIONS_CLEAR_DATA_INFO" desc="Information text about clear data options.">
-        Clear your browsing data from this computer. Be aware that this may adversely affect the contents of the New Tab Page.
       </message>
       <message name="IDS_OPTIONS_CLEAR_DATA_BUTTON" desc="Label for the Clear data button.">
         Clear browsing data...

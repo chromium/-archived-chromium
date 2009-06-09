@@ -43,8 +43,7 @@ class ContentPageView : public OptionsPageView,
   // Init all the dialog controls.
   void InitPasswordSavingGroup();
   void InitFormAutofillGroup();
-  void InitImportGroup();
-  void InitClearDataGroup();
+  void InitBrowsingDataGroup();
   void InitThemesGroup();
 
   // Controls for the Password Saving group
@@ -55,7 +54,8 @@ class ContentPageView : public OptionsPageView,
 
   // Controls for the Form Autofill group
   OptionsGroupView* form_autofill_group_;
-  views::Checkbox* form_autofill_checkbox_;
+  views::RadioButton* form_autofill_asktosave_radio_;
+  views::RadioButton* form_autofill_neversave_radio_;
 
   // Controls for the Themes group
   OptionsGroupView* themes_group_;
@@ -66,14 +66,10 @@ class ContentPageView : public OptionsPageView,
   views::RadioButton* popups_show_minimized_radio_;
   views::RadioButton* popups_block_all_radio_;
 
-  // Controls for the Import bookmarks and settings group.
-  OptionsGroupView* import_group_;
-  views::Label* import_label_;
+  // Controls for the browsing data group.
+  OptionsGroupView* browsing_data_group_;
+  views::Label* browsing_data_label_;
   views::NativeButton* import_button_;
-
-  // Controls for Clear browsing data group.
-  OptionsGroupView* clear_data_group_;
-  views::Label* clear_data_label_;
   views::NativeButton* clear_data_button_;
 
   BooleanPrefMember ask_to_save_passwords_;
