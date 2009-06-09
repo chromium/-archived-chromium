@@ -1,4 +1,4 @@
-// Copyright (c) 2009 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -23,6 +23,19 @@
 
 
 namespace {
+
+#if defined(OS_WIN)
+// NOTE: Keep these in order since we need test all those paths according
+// to priority. For example. One machine has multiple users. One non-admin
+// user installs Firefox 2, which causes there is a Firefox2 entry under HKCU.
+// One admin user installs Firefox 3, which causes there is a Firefox 3 entry
+// under HKLM. So when the non-admin user log in, we should deal with Firefox 2
+// related data instead of Firefox 3.
+static const HKEY kFireFoxRegistryPaths[] = {
+  HKEY_CURRENT_USER,
+  HKEY_LOCAL_MACHINE
+};
+#endif
 
 // FirefoxURLParameterFilter is used to remove parameter mentioning Firefox from
 // the search URL when importing search engines.
@@ -71,17 +84,6 @@ class SetDllDirectoryCaller {
 }  // namespace
 
 #if defined(OS_WIN)
-// NOTE: Keep these in order since we need test all those paths according
-// to priority. For example. One machine has multiple users. One non-admin
-// user installs Firefox 2, which causes there is a Firefox2 entry under HKCU.
-// One admin user installs Firefox 3, which causes there is a Firefox 3 entry
-// under HKLM. So when the non-admin user log in, we should deal with Firefox 2
-// related data instead of Firefox 3.
-static const HKEY kFireFoxRegistryPaths[] = {
-  HKEY_CURRENT_USER,
-  HKEY_LOCAL_MACHINE
-};
-
 int GetCurrentFirefoxMajorVersionFromRegistry() {
   TCHAR ver_buffer[128];
   DWORD ver_buffer_length = sizeof(ver_buffer);
@@ -452,7 +454,9 @@ NSSDecryptor::NSSDecryptor()
       PK11_CheckUserPassword(NULL), PK11_FreeSlot(NULL),
       PK11_Authenticate(NULL), PK11SDR_Decrypt(NULL), SECITEM_FreeItem(NULL),
       PL_ArenaFinish(NULL), PR_Cleanup(NULL),
+#if defined(OS_WIN)
       nss3_dll_(NULL), softokn3_dll_(NULL),
+#endif
       is_nss_initialized_(false) {
 }
 
@@ -510,48 +514,30 @@ bool NSSDecryptor::Init(const std::wstring& dll_path,
       return false;
     }
   }
-  HMODULE plds4_dll = GetModuleHandle(kPLDS4Library);
-  HMODULE nspr4_dll = GetModuleHandle(kNSPR4Library);
-#elif defined(OS_LINUX)
-  nss3_dll_ = base::LoadNativeLibrary(FilePath("libnss3.so"));
-  if (nss3_dll_ == NULL)
-    return false;
-  base::NativeLibrary plds4_dll = base::LoadNativeLibrary(
-      FilePath("libplds4.so"));
-  base::NativeLibrary nspr4_dll = base::LoadNativeLibrary(
-      FilePath("libnspr4.so"));
-#else
-  // TODO(port): Check on MAC
-  NOTIMPLEMENTED();
-  return false;
-#endif
 
   // NSPR DLLs are already loaded now.
+  HMODULE plds4_dll = GetModuleHandle(kPLDS4Library);
+  HMODULE nspr4_dll = GetModuleHandle(kNSPR4Library);
   if (plds4_dll == NULL || nspr4_dll == NULL) {
     Free();
     return false;
   }
 
   // Gets the function address.
-  NSS_Init = (NSSInitFunc)
-      base::GetFunctionPointerFromNativeLibrary(nss3_dll_, "NSS_Init");
-  NSS_Shutdown = (NSSShutdownFunc)
-      base::GetFunctionPointerFromNativeLibrary(nss3_dll_, "NSS_Shutdown");
+  NSS_Init = (NSSInitFunc)GetProcAddress(nss3_dll_, "NSS_Init");
+  NSS_Shutdown = (NSSShutdownFunc)GetProcAddress(nss3_dll_, "NSS_Shutdown");
   PK11_GetInternalKeySlot = (PK11GetInternalKeySlotFunc)
-      base::GetFunctionPointerFromNativeLibrary(nss3_dll_,
-                                                "PK11_GetInternalKeySlot");
-  PK11_FreeSlot = (PK11FreeSlotFunc)
-      base::GetFunctionPointerFromNativeLibrary(nss3_dll_, "PK11_FreeSlot");
+      GetProcAddress(nss3_dll_, "PK11_GetInternalKeySlot");
+  PK11_FreeSlot = (PK11FreeSlotFunc)GetProcAddress(nss3_dll_, "PK11_FreeSlot");
   PK11_Authenticate = (PK11AuthenticateFunc)
-      base::GetFunctionPointerFromNativeLibrary(nss3_dll_, "PK11_Authenticate");
+      GetProcAddress(nss3_dll_, "PK11_Authenticate");
   PK11SDR_Decrypt = (PK11SDRDecryptFunc)
-      base::GetFunctionPointerFromNativeLibrary(nss3_dll_, "PK11SDR_Decrypt");
+      GetProcAddress(nss3_dll_, "PK11SDR_Decrypt");
   SECITEM_FreeItem = (SECITEMFreeItemFunc)
-      base::GetFunctionPointerFromNativeLibrary(nss3_dll_, "SECITEM_FreeItem");
+      GetProcAddress(nss3_dll_, "SECITEM_FreeItem");
   PL_ArenaFinish = (PLArenaFinishFunc)
-      base::GetFunctionPointerFromNativeLibrary(plds4_dll, "PL_ArenaFinish");
-  PR_Cleanup = (PRCleanupFunc)
-      base::GetFunctionPointerFromNativeLibrary(nspr4_dll, "PR_Cleanup");
+      GetProcAddress(plds4_dll, "PL_ArenaFinish");
+  PR_Cleanup = (PRCleanupFunc)GetProcAddress(nspr4_dll, "PR_Cleanup");
 
   if (NSS_Init == NULL || NSS_Shutdown == NULL ||
       PK11_GetInternalKeySlot == NULL || PK11_FreeSlot == NULL ||
@@ -570,6 +556,11 @@ bool NSSDecryptor::Init(const std::wstring& dll_path,
 
   is_nss_initialized_ = true;
   return true;
+#else
+  // TODO(port): Load NSS.
+  NOTIMPLEMENTED();
+  return false;
+#endif
 }
 
 void NSSDecryptor::Free() {
@@ -579,11 +570,13 @@ void NSSDecryptor::Free() {
     PR_Cleanup();
     is_nss_initialized_ = false;
   }
-#if defined(OS_WIN) || defined(OS_LINUX)
+#if defined(OS_WIN)
   if (softokn3_dll_ != NULL)
-    base::UnloadNativeLibrary(softokn3_dll_);
+    FreeLibrary(softokn3_dll_);
+  softokn3_dll_ = NULL;
   if (nss3_dll_ != NULL)
-    base::UnloadNativeLibrary(nss3_dll_);
+    FreeLibrary(nss3_dll_);
+  nss3_dll_ = NULL;
 #endif
   NSS_Init = NULL;
   NSS_Shutdown = NULL;
@@ -594,8 +587,6 @@ void NSSDecryptor::Free() {
   SECITEM_FreeItem = NULL;
   PL_ArenaFinish = NULL;
   PR_Cleanup = NULL;
-  nss3_dll_ = NULL;
-  softokn3_dll_ = NULL;
 }
 
 // This method is based on some Firefox code in
@@ -639,19 +630,20 @@ void NSSDecryptor::Free() {
 * ***** END LICENSE BLOCK ***** */
 
 std::wstring NSSDecryptor::Decrypt(const std::string& crypt) const {
-#if !defined(OS_WIN) && !defined(OS_LINUX)
+#if defined(OS_WIN)
+  // Do nothing if NSS is not loaded.
+  if (!nss3_dll_)
+    return std::wstring();
+#else
   // TODO(port): Load nss3.
   NOTIMPLEMENTED();
   return std::wstring();
 #endif
 
-  // Do nothing if NSS is not loaded.
-  if (!nss3_dll_)
-    return std::wstring();
+  std::string plain;
 
   // The old style password is encoded in base64. They are identified
   // by a leading '~'. Otherwise, we should decrypt the text.
-  std::string plain;
   if (crypt[0] != '~') {
     std::string decoded_data;
     net::Base64Decode(crypt, &decoded_data);
