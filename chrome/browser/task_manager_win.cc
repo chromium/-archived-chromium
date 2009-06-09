@@ -546,7 +546,15 @@ void TaskManagerViewImpl::LinkActivated(views::Link* source,
   DCHECK(browser);
   browser->OpenURL(GURL("about:memory"), GURL(), NEW_FOREGROUND_TAB,
                    PageTransition::LINK);
-  // In case the browser window is minimzed, show it.
+  // In case the browser window is minimzed, show it. If this is an application
+  // or popup, we can only have one tab, hence we need to process this in a
+  // tabbed browser window. Currently, |browser| is pointing to the application,
+  // popup window. Therefore, we have to retrieve the last active tab again,
+  // since a new window has been used.
+  if (browser->type() & Browser::TYPE_APP_POPUP) {
+    browser = BrowserList::GetLastActive();
+    DCHECK(browser);
+  }
   browser->window()->Show();
 }
 
