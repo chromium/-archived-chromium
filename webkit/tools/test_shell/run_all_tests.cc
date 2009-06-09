@@ -71,12 +71,12 @@ int main(int argc, char* argv[]) {
   // request than automatically quit.
   TestShell::InitializeTestShell(true);
 
-  // Initialize WebKit for this scope.
-  TestShellWebKitInit test_shell_webkit_init(true);
-
   // Allocate a message loop for this thread.  Although it is not used
   // directly, its constructor sets up some necessary state.
-  MessageLoop main_message_loop;
+  MessageLoopForUI main_message_loop;
+
+  // Initialize WebKit for this scope.
+  TestShellWebKitInit test_shell_webkit_init(true);
 
   // Load ICU data tables
   icu_util::Initialize();

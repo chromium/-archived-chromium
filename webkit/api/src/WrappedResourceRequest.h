@@ -28,65 +28,40 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef WebHTTPBody_h
-#define WebHTTPBody_h
-
-#include "WebData.h"
-#include "WebNonCopyable.h"
-#include "WebString.h"
-
-#if WEBKIT_IMPLEMENTATION
-namespace WebCore { class FormData; }
-namespace WTF { template <typename T> class PassRefPtr; }
-#endif
+#include "WebURLRequestPrivate.h"
 
 namespace WebKit {
-    class WebHTTPBodyPrivate;
 
-    class WebHTTPBody : public WebNonCopyable {
+    class WrappedResourceRequest : public WebURLRequest {
     public:
-        struct Element {
-            enum { TypeData, TypeFile } type;
-            WebData data;
-            WebString filePath;
-        };
+        ~WrappedResourceRequest()
+        {
+            reset(); // Need to drop reference to m_handle
+        }
 
-        ~WebHTTPBody() { reset(); }
+        WrappedResourceRequest(WebCore::ResourceRequest& resourceRequest)
+        {
+            bind(&resourceRequest);
+        }
 
-        WebHTTPBody() : m_private(0) { }
-
-        bool isNull() const { return m_private == 0; }
-
-        WEBKIT_API void initialize();
-        WEBKIT_API void reset();
-
-        // Returns the number of elements comprising the http body.
-        WEBKIT_API size_t elementCount() const;
-
-        // Sets the values of the element at the given index.  Returns false if
-        // index is out of bounds.
-        WEBKIT_API bool elementAt(size_t index, Element&) const;
-
-        // Append to the list of elements.
-        WEBKIT_API void appendData(const WebData&);
-        WEBKIT_API void appendFile(const WebString&);
-
-        // Identifies a particular form submission instance.  A value of 0 is
-        // used to indicate an unspecified identifier.
-        WEBKIT_API long long identifier() const;
-        WEBKIT_API void setIdentifier(long long);
-
-#if WEBKIT_IMPLEMENTATION
-        void rebind(WTF::PassRefPtr<WebCore::FormData>);
-        operator WTF::PassRefPtr<WebCore::FormData>() const;
-#endif
+        WrappedResourceRequest(const WebCore::ResourceRequest& resourceRequest)
+        {
+            bind(const_cast<WebCore::ResourceRequest*>(&resourceRequest));
+        }
 
     private:
-        void assign(WebHTTPBodyPrivate*);
-        WebHTTPBodyPrivate* m_private;
+        void bind(WebCore::ResourceRequest* resourceRequest)
+        {
+            m_handle.m_resourceRequest = resourceRequest;
+            assign(&m_handle);
+        }
+
+        class Handle : public WebURLRequestPrivate {
+        public:
+            virtual void dispose() { m_resourceRequest = 0; }
+        };
+
+        Handle m_handle;
     };
 
-
 } // namespace WebKit
-
-#endif

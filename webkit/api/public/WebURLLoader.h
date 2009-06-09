@@ -1,10 +1,10 @@
 /*
  * Copyright (C) 2009 Google Inc. All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
  *     * Neither the name of Google Inc. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -31,16 +31,14 @@
 #ifndef WebURLLoader_h
 #define WebURLLoader_h
 
-#error "This header file is still a work in progress; do not include!"
-
 #include "WebCommon.h"
 
 namespace WebKit {
-    class WebCString;
-    class WebURLError;
+    class WebData;
     class WebURLLoaderClient;
     class WebURLRequest;
     class WebURLResponse;
+    struct WebURLError;
 
     class WebURLLoader {
     public:
@@ -50,7 +48,7 @@ namespace WebKit {
         // caller upon completion.  There is no mechanism to interrupt a
         // synchronous load!!
         virtual void loadSynchronously(const WebURLRequest&,
-            WebURLResponse&, WebURLError&, WebCString& data) = 0;
+            WebURLResponse&, WebURLError&, WebData& data) = 0;
 
         // Load the request asynchronously, sending notifications to the given
         // client.  The client will receive no further notifications if the

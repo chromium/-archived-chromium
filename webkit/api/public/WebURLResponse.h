@@ -1,10 +1,10 @@
 /*
  * Copyright (C) 2009 Google Inc. All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
  *     * Neither the name of Google Inc. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -31,12 +31,15 @@
 #ifndef WebURLResponse_h
 #define WebURLResponse_h
 
-#error "This header file is still a work in progress; do not include!"
-
 #include "WebCommon.h"
+
+#if defined(WEBKIT_IMPLEMENTATION)
+namespace WebCore { class ResourceResponse; }
+#endif
 
 namespace WebKit {
     class WebCString;
+    class WebHTTPHeaderVisitor;
     class WebString;
     class WebURL;
     class WebURLResponsePrivate;
@@ -49,51 +52,69 @@ namespace WebKit {
         WebURLResponse(const WebURLResponse& r) : m_private(0) { assign(r); }
         WebURLResponse& operator=(const WebURLResponse& r) { assign(r); return *this; }
 
+        explicit WebURLResponse(const WebURL& url) : m_private(0)
+        {
+            initialize();
+            setURL(url);
+        }
+
         WEBKIT_API void initialize();
         WEBKIT_API void reset();
         WEBKIT_API void assign(const WebURLResponse&);
 
         bool isNull() const { return m_private == 0; }
 
-        WEBKIT_API WebURL url() const = 0;
-        WEBKIT_API void setURL(const WebURL&) = 0;
+        WEBKIT_API WebURL url() const;
+        WEBKIT_API void setURL(const WebURL&);
 
-        WEBKIT_API WebString mimeType() const = 0;
-        WEBKIT_API void setMIMEType(const WebString&) = 0;
+        WEBKIT_API WebString mimeType() const;
+        WEBKIT_API void setMIMEType(const WebString&);
 
-        WEBKIT_API long long expectedContentLength() const = 0;
-        WEBKIT_API void setExpectedContentLength(long long) = 0;
+        WEBKIT_API long long expectedContentLength() const;
+        WEBKIT_API void setExpectedContentLength(long long);
 
-        WEBKIT_API WebString textEncodingName() const = 0;
-        WEBKIT_API void setTextEncodingName(const WebString&) = 0;
+        WEBKIT_API WebString textEncodingName() const;
+        WEBKIT_API void setTextEncodingName(const WebString&);
 
-        WEBKIT_API WebString suggestedFileName() const = 0;
-        WEBKIT_API void setSuggestedFileName(const WebString&) = 0;
+        WEBKIT_API WebString suggestedFileName() const;
+        WEBKIT_API void setSuggestedFileName(const WebString&);
 
-        WEBKIT_API int httpStatusCode() const = 0;
-        WEBKIT_API void setHTTPStatusCode(int) = 0;
+        WEBKIT_API int httpStatusCode() const;
+        WEBKIT_API void setHTTPStatusCode(int);
 
-        WEBKIT_API WebString httpStatusText() const = 0;
-        WEBKIT_API void setHTTPStatusText(const WebString&) = 0;
+        WEBKIT_API WebString httpStatusText() const;
+        WEBKIT_API void setHTTPStatusText(const WebString&);
 
-        WEBKIT_API WebString httpHeaderField(const WebString& name) const = 0;
-        WEBKIT_API void setHTTPHeaderField(const WebString& name, const WebString& value) = 0;
-        WEBKIT_API void addHTTPHeaderField(const WebString& name, const WebString& value) = 0;
-        WEBKIT_API void clearHTTPHeaderField(const WebString& name) = 0;
+        WEBKIT_API WebString httpHeaderField(const WebString& name) const;
+        WEBKIT_API void setHTTPHeaderField(const WebString& name, const WebString& value);
+        WEBKIT_API void addHTTPHeaderField(const WebString& name, const WebString& value);
+        WEBKIT_API void clearHTTPHeaderField(const WebString& name);
+        WEBKIT_API void visitHTTPHeaderFields(WebHTTPHeaderVisitor*) const;
 
-        WEBKIT_API double expirationDate() const = 0;
-        WEBKIT_API void setExpirationDate(double) = 0;
+        WEBKIT_API double expirationDate() const;
+        WEBKIT_API void setExpirationDate(double);
 
-        WEBKIT_API double lastModifiedDate() const = 0;
-        WEBKIT_API void setLastModifiedDate(double) = 0;
+        WEBKIT_API double lastModifiedDate() const;
+        WEBKIT_API void setLastModifiedDate(double);
 
-        WEBKIT_API bool isContentFiltered() const = 0;
-        WEBKIT_API void setIsContentFiltered(bool) = 0;
+        WEBKIT_API bool isContentFiltered() const;
+        WEBKIT_API void setIsContentFiltered(bool);
+
+        WEBKIT_API long long appCacheID() const;
+        WEBKIT_API void setAppCacheID(long long);
 
         // A consumer controlled value intended to be used to record opaque
         // security info related to this request.
-        WEBKIT_API WebCString securityInfo() const = 0;
-        WEBKIT_API void setSecurityInfo(const WebCString&) = 0;
+        WEBKIT_API WebCString securityInfo() const;
+        WEBKIT_API void setSecurityInfo(const WebCString&);
+
+#if defined(WEBKIT_IMPLEMENTATION)
+        WebCore::ResourceResponse& toMutableResourceResponse();
+        const WebCore::ResourceResponse& toResourceResponse() const;
+#endif
+
+    protected:
+        void assign(WebURLResponsePrivate*);
 
     private:
         WebURLResponsePrivate* m_private;

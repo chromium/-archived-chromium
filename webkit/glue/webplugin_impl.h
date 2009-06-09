@@ -9,40 +9,42 @@
 #include <map>
 #include <vector>
 
-#include "config.h"
-#include "base/compiler_specific.h"
-#include "base/gfx/native_widget_types.h"
-
-MSVC_PUSH_WARNING_LEVEL(0);
-#include "ResourceHandle.h"
-#include "ResourceHandleClient.h"
-#include "ResourceRequest.h"
 #include "Widget.h"
-MSVC_POP_WARNING();
 
 #include "base/basictypes.h"
+#include "base/gfx/native_widget_types.h"
+#include "base/linked_ptr.h"
+#include "webkit/api/public/WebURLLoaderClient.h"
+#include "webkit/api/public/WebURLRequest.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webplugin.h"
+
 
 class WebFrameImpl;
 class WebPluginDelegate;
 class WebPluginImpl;
-class MultipartResponseDelegate;
 
 namespace WebCore {
-  class Event;
-  class Frame;
-  class HTMLPlugInElement;
-  class IntRect;
-  class KeyboardEvent;
-  class KURL;
-  class MouseEvent;
-  class ResourceHandle;
-  class ResourceError;
-  class ResourceResponse;
-  class ScrollView;
-  class String;
-  class Widget;
+class Event;
+class Frame;
+class HTMLPlugInElement;
+class IntRect;
+class KeyboardEvent;
+class KURL;
+class MouseEvent;
+class ResourceError;
+class ResourceResponse;
+class ScrollView;
+class String;
+class Widget;
+}
+
+namespace WebKit {
+class WebURLResponse;
+}
+
+namespace webkit_glue {
+class MultipartResponseDelegate;
 }
 
 // Implements WebCore::Widget functions that WebPluginImpl needs.  This class
@@ -114,7 +116,7 @@ class WebPluginContainer : public WebCore::Widget {
 // after changing out of WebCore types, to a delegate.  The delegate will
 // be in a different process.
 class WebPluginImpl : public WebPlugin,
-                      public WebCore::ResourceHandleClient {
+                      public WebKit::WebURLLoaderClient {
  public:
   // Creates a WebPlugin instance, as long as the delegate's initialization
   // succeeds.  If it fails, the delegate is deleted and NULL is returned.
@@ -133,7 +135,7 @@ class WebPluginImpl : public WebPlugin,
   virtual NPObject* GetPluginScriptableObject();
 
   // Helper function for sorting post data.
-  static bool SetPostData(WebCore::ResourceRequest* request,
+  static bool SetPostData(WebKit::WebURLRequest* request,
                           const char* buf,
                           uint32 length);
 
@@ -239,27 +241,28 @@ class WebPluginImpl : public WebPlugin,
   // Destroys the plugin instance.
   // The response_handle_to_ignore parameter if not NULL indicates the
   // resource handle to be left valid during plugin shutdown.
-  void TearDownPluginInstance(
-      WebCore::ResourceHandle* response_handle_to_ignore);
+  void TearDownPluginInstance(WebKit::WebURLLoader* loader_to_ignore);
 
   WebCore::ScrollView* parent() const;
 
-  // ResourceHandleClient implementation.  We implement this interface in the
+  // WebURLLoaderClient implementation.  We implement this interface in the
   // renderer process, and then use the simple WebPluginResourceClient interface
   // to relay the callbacks to the plugin.
-  void willSendRequest(WebCore::ResourceHandle* handle,
-                       WebCore::ResourceRequest& request,
-                       const WebCore::ResourceResponse&);
-
-  void didReceiveResponse(WebCore::ResourceHandle* handle,
-                          const WebCore::ResourceResponse& response);
-  void didReceiveData(WebCore::ResourceHandle* handle, const char *buffer,
-                      int length, int);
-  void didFinishLoading(WebCore::ResourceHandle* handle);
-  void didFail(WebCore::ResourceHandle* handle, const WebCore::ResourceError&);
+  virtual void willSendRequest(WebKit::WebURLLoader* loader,
+                               WebKit::WebURLRequest& request,
+                               const WebKit::WebURLResponse&);
+  virtual void didSendData(WebKit::WebURLLoader* loader,
+                           unsigned long long bytes_sent,
+                           unsigned long long total_bytes_to_be_sent);
+  virtual void didReceiveResponse(WebKit::WebURLLoader* loader,
+                                  const WebKit::WebURLResponse& response);
+  virtual void didReceiveData(WebKit::WebURLLoader* loader, const char *buffer,
+                              int length, long long total_length);
+  virtual void didFinishLoading(WebKit::WebURLLoader* loader);
+  virtual void didFail(WebKit::WebURLLoader* loader, const WebKit::WebURLError&);
 
   // Helper function
-  WebPluginResourceClient* GetClientFromHandle(WebCore::ResourceHandle* handle);
+  WebPluginResourceClient* GetClientFromLoader(WebKit::WebURLLoader* loader);
 
   // Helper function to remove the stored information about a resource
   // request given its index in m_clients.
@@ -267,10 +270,7 @@ class WebPluginImpl : public WebPlugin,
 
   // Helper function to remove the stored information about a resource
   // request given a handle.
-  void RemoveClient(WebCore::ResourceHandle* handle);
-
-  // Returns all the response headers in one string, including the status code.
-  std::wstring GetAllHeaders(const WebCore::ResourceResponse& response);
+  void RemoveClient(WebKit::WebURLLoader* loader);
 
   WebCore::Frame* frame() { return webframe_ ? webframe_->frame() : NULL; }
 
@@ -299,7 +299,7 @@ class WebPluginImpl : public WebPlugin,
 
   // Handles HTTP multipart responses, i.e. responses received with a HTTP
   // status code of 206.
-  void HandleHttpMultipartResponse(const WebCore::ResourceResponse& response,
+  void HandleHttpMultipartResponse(const WebKit::WebURLResponse& response,
                                    WebPluginResourceClient* client);
 
   void HandleURLRequestInternal(const char *method, bool is_javascript_url,
@@ -310,8 +310,8 @@ class WebPluginImpl : public WebPlugin,
                                 bool use_plugin_src_as_referrer);
 
   // Tears down the existing plugin instance and creates a new plugin instance
-  // to handle the response identified by the response_handle parameter.
-  bool ReinitializePluginForResponse(WebCore::ResourceHandle* response_handle);
+  // to handle the response identified by the loader parameter.
+  bool ReinitializePluginForResponse(WebKit::WebURLLoader* loader);
 
   // Notifies us that the visibility of the plugin has changed.
   void UpdateVisibility();
@@ -323,8 +323,8 @@ class WebPluginImpl : public WebPlugin,
   struct ClientInfo {
     int id;
     WebPluginResourceClient* client;
-    WebCore::ResourceRequest request;
-    RefPtr<WebCore::ResourceHandle> handle;
+    WebKit::WebURLRequest request;
+    linked_ptr<WebKit::WebURLLoader> loader;
   };
 
   std::vector<ClientInfo> clients_;
@@ -338,7 +338,8 @@ class WebPluginImpl : public WebPlugin,
 
   WebPluginContainer* widget_;
 
-  typedef std::map<WebPluginResourceClient*, MultipartResponseDelegate*>
+  typedef std::map<WebPluginResourceClient*,
+                   webkit_glue::MultipartResponseDelegate*>
       MultiPartResponseHandlerMap;
   // Tracks HTTP multipart response handlers instantiated for
   // a WebPluginResourceClient instance.

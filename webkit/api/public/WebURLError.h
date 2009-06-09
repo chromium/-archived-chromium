@@ -1,10 +1,10 @@
 /*
  * Copyright (C) 2009 Google Inc. All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
  *     * Neither the name of Google Inc. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -31,8 +31,6 @@
 #ifndef WebURLError_h
 #define WebURLError_h
 
-#error "This header file is still a work in progress; do not include!"
-
 #include "WebString.h"
 #include "WebURL.h"
 
@@ -48,9 +46,10 @@ namespace WebKit {
         // string as it will just be passed via callbacks to the consumer.
         WebString domain;
 
-        // A numeric reason for the error.  WebKit does not care about the
-        // value of this field as it will just be passed via callbacks to the
-        // consumer.
+        // A numeric error code detailing the reason for this error.  A value
+        // of 0 means no error.  WebKit does not interpret the meaning of other
+        // values and normally just forwards this error information back to the
+        // embedder (see for example WebFrameClient).
         int reason;
 
         // The url that failed to load.

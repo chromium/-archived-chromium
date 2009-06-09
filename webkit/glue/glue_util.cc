@@ -35,6 +35,8 @@
 #include "webkit/api/public/WebSize.h"
 #include "webkit/api/public/WebString.h"
 #include "webkit/api/public/WebURL.h"
+#include "webkit/api/public/WebURLRequest.h"
+#include "webkit/api/public/WebURLResponse.h"
 
 namespace webkit_glue {
 
@@ -71,10 +73,9 @@ WebCore::String String16ToString(const string16& str) {
 }
 
 std::string StringToStdString(const WebCore::String& str) {
-  if (str.length() == 0)
-    return std::string();
   std::string ret;
-  UTF16ToUTF8(str.characters(), str.length(), &ret);
+  if (!str.isNull())
+    UTF16ToUTF8(str.characters(), str.length(), &ret);
   return ret;
 }
 
@@ -106,6 +107,17 @@ WebKit::WebCString CStringToWebCString(const WebCore::CString& str) {
 
 WebCore::CString WebCStringToCString(const WebKit::WebCString& str) {
   return str;
+}
+
+WebKit::WebString StdStringToWebString(const std::string& str) {
+  return WebKit::WebString::fromUTF8(str.data(), str.size());
+}
+
+std::string WebStringToStdString(const WebKit::WebString& str) {
+  std::string ret;
+  if (!str.isNull())
+    UTF16ToUTF8(str.data(), str.length(), &ret);
+  return ret;
 }
 
 FilePath::StringType StringToFilePathString(const WebCore::String& str) {
@@ -212,6 +224,30 @@ WebKit::WebDragData ChromiumDataObjectToWebDragData(
 PassRefPtr<WebCore::ChromiumDataObject> WebDragDataToChromiumDataObject(
     const WebKit::WebDragData& data) {
   return data;
+}
+
+// WebURLRequest conversions ---------------------------------------------------
+
+WebCore::ResourceRequest* WebURLRequestToMutableResourceRequest(
+    WebKit::WebURLRequest* request) {
+  return &request->toMutableResourceRequest();
+}
+
+const WebCore::ResourceRequest* WebURLRequestToResourceRequest(
+    const WebKit::WebURLRequest* request) {
+  return &request->toResourceRequest();
+}
+
+// WebURLResponse conversions --------------------------------------------------
+
+WebCore::ResourceResponse* WebURLResponseToMutableResourceResponse(
+    WebKit::WebURLResponse* response) {
+  return &response->toMutableResourceResponse();
+}
+
+const WebCore::ResourceResponse* WebURLResponseToResourceResponse(
+    const WebKit::WebURLResponse* response) {
+  return &response->toResourceResponse();
 }
 
 }  // namespace webkit_glue

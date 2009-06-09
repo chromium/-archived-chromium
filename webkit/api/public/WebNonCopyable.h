@@ -28,64 +28,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef WebHTTPBody_h
-#define WebHTTPBody_h
-
-#include "WebData.h"
-#include "WebNonCopyable.h"
-#include "WebString.h"
-
-#if WEBKIT_IMPLEMENTATION
-namespace WebCore { class FormData; }
-namespace WTF { template <typename T> class PassRefPtr; }
-#endif
+#ifndef WebNonCopyable_h
+#define WebNonCopyable_h
 
 namespace WebKit {
-    class WebHTTPBodyPrivate;
 
-    class WebHTTPBody : public WebNonCopyable {
-    public:
-        struct Element {
-            enum { TypeData, TypeFile } type;
-            WebData data;
-            WebString filePath;
-        };
-
-        ~WebHTTPBody() { reset(); }
-
-        WebHTTPBody() : m_private(0) { }
-
-        bool isNull() const { return m_private == 0; }
-
-        WEBKIT_API void initialize();
-        WEBKIT_API void reset();
-
-        // Returns the number of elements comprising the http body.
-        WEBKIT_API size_t elementCount() const;
-
-        // Sets the values of the element at the given index.  Returns false if
-        // index is out of bounds.
-        WEBKIT_API bool elementAt(size_t index, Element&) const;
-
-        // Append to the list of elements.
-        WEBKIT_API void appendData(const WebData&);
-        WEBKIT_API void appendFile(const WebString&);
-
-        // Identifies a particular form submission instance.  A value of 0 is
-        // used to indicate an unspecified identifier.
-        WEBKIT_API long long identifier() const;
-        WEBKIT_API void setIdentifier(long long);
-
-#if WEBKIT_IMPLEMENTATION
-        void rebind(WTF::PassRefPtr<WebCore::FormData>);
-        operator WTF::PassRefPtr<WebCore::FormData>() const;
-#endif
+    // A base class to extend from if you do not support copying.
+    class WebNonCopyable {
+    protected:
+        WebNonCopyable() { }
+        ~WebNonCopyable() { }
 
     private:
-        void assign(WebHTTPBodyPrivate*);
-        WebHTTPBodyPrivate* m_private;
+        WebNonCopyable(const WebNonCopyable&);
+        WebNonCopyable& operator=(const WebNonCopyable&);
     };
-
 
 } // namespace WebKit
 
