@@ -620,15 +620,17 @@ o3djs.effect.buildStandardShaderString = function(material,
    */
   var buildVertexDecls = function(material, diffuse, specular) {
     var str = 'struct InVertex {\n' +
-              '  float4 position     : POSITION;\n' +
-              '  float3 normal       : NORMAL;\n' +
-              buildTexCoords(material) +
-              buildBumpInputCoords() +
-              '};\n' +
-              'struct OutVertex {\n' +
-              '  float4 position     : POSITION;\n' +
-              buildTexCoords(material) +
-              buildBumpOutputCoords();
+              '  float4 position     : POSITION;\n';
+    if (diffuse || specular) {
+      str += '  float3 normal       : NORMAL;\n';
+    }
+    str += buildTexCoords(material) +
+           buildBumpInputCoords() +
+           '};\n' +
+           'struct OutVertex {\n' +
+           '  float4 position     : POSITION;\n' +
+           buildTexCoords(material) +
+           buildBumpOutputCoords();
     if (diffuse || specular) {
       str += '  float3 normal        : TEXCOORD' + interpolant++ + ';\n' +
              '  float3 surfaceToLight: TEXCOORD' + interpolant++ + ';\n';
