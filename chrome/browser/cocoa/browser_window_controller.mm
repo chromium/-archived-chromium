@@ -110,9 +110,18 @@ willPositionSheet:(NSWindow *)sheet
                name:nil
              object:[self tabContentArea]];
 
-    // Get the most appropriate size for the window. The window shim will handle
-    // flipping the coordinates for us so we can use it to save some code.
+    // Get the most appropriate size for the window, then enforce the
+    // minimum width and height. The window shim will handle flipping
+    // the coordinates for us so we can use it to save some code.
+    // Note that this may leave a significant portion of the window
+    // offscreen, but there will always be enough window onscreen to
+    // drag the whole window back into view.
+    NSSize minSize = [[self window] minSize];
     gfx::Rect windowRect = browser_->GetSavedWindowBounds();
+    if (windowRect.width() < minSize.width)
+      windowRect.set_width(minSize.width);
+    if (windowRect.height() < minSize.height)
+      windowRect.set_height(minSize.height);
     windowShim_->SetBounds(windowRect);
 
     // Create a controller for the tab strip, giving it the model object for

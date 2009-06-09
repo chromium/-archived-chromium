@@ -2,13 +2,14 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="7.03">
 	<data>
 		<int key="IBDocument.SystemTarget">1050</int>
-		<string key="IBDocument.SystemVersion">9G55</string>
+		<string key="IBDocument.SystemVersion">9J61</string>
 		<string key="IBDocument.InterfaceBuilderVersion">677</string>
-		<string key="IBDocument.AppKitVersion">949.43</string>
+		<string key="IBDocument.AppKitVersion">949.46</string>
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
 			<integer value="56"/>
+			<integer value="1"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -43,8 +44,9 @@
 				<string key="NSWindowClass">NSWindow</string>
 				<nil key="NSViewClass"/>
 				<string key="NSWindowContentMaxSize">{3.40282e+38, 3.40282e+38}</string>
+				<string key="NSWindowContentMinSize">{400, 250}</string>
 				<object class="NSView" key="NSWindowView" id="1006">
-					<nil key="NSNextResponder"/>
+					<reference key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -57,8 +59,10 @@
 						</object>
 					</object>
 					<string key="NSFrameSize">{750, 600}</string>
+					<reference key="NSSuperview"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
+				<string key="NSMinSize">{400, 272}</string>
 				<string key="NSMaxSize">{3.40282e+38, 3.40282e+38}</string>
 			</object>
 			<object class="NSCustomView" id="1029219716">
@@ -228,6 +232,8 @@
 					<string>1.NSWindowTemplate.visibleAtLaunch</string>
 					<string>1.WindowOrigin</string>
 					<string>1.editorWindowContentRectSynchronizationRect</string>
+					<string>1.windowTemplate.hasMinSize</string>
+					<string>1.windowTemplate.minSize</string>
 					<string>2.IBPluginDependency</string>
 					<string>2.IBViewIntegration.shadowBlurRadius</string>
 					<string>2.IBViewIntegration.shadowColor</string>
@@ -250,6 +256,8 @@
 					<boolean value="NO"/>
 					<string>{196, 240}</string>
 					<string>{{357, 418}, {480, 270}}</string>
+					<boolean value="YES"/>
+					<string>{400, 250}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<real value="0.000000e+00"/>
 					<object class="NSColor">

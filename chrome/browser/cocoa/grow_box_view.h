@@ -15,6 +15,9 @@
 @interface GrowBoxView : NSView {
  @private
   NSImage* image_;  // grow box image
+  NSPoint startPoint_;  // location of the mouseDown event.
+  NSRect startFrame_;  // original window frame.
+  NSRect clipRect_;  // constrain the resized window to this frame.
 }
 
 @end
