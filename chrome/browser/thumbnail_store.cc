@@ -23,62 +23,57 @@ ThumbnailStore::~ThumbnailStore() {
 }
 
 void ThumbnailStore::Init(const FilePath& file_path) {
-  file_path_ = file_path.DirName();
+  file_path_ = file_path;
   g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(this, &ThumbnailStore::GetAllThumbnailsFromDisk,
                         file_path_, MessageLoop::current()));
 }
 
-void ThumbnailStore::OnDiskDataAvailable(ThumbnailStore::Cache* cache) {
-  if (cache) {
-    cache_.reset(cache);
-    cache_initialized_ = true;
-  }
-}
-
 void ThumbnailStore::GetAllThumbnailsFromDisk(FilePath filepath,
                                               MessageLoop* cb_loop) {
-  // Create the specified directory if it does not exist.
-  if (!file_util::DirectoryExists(filepath) &&
-      !file_util::CreateDirectory(filepath))
-    return;
-
-  // Walk the directory and read the thumbnail data from disk.
-  FilePath path;
-  GURL url;
-  SkBitmap image;
-  ThumbnailScore score;
   ThumbnailStore::Cache* cache = new ThumbnailStore::Cache;
-  file_util::FileEnumerator fenum(filepath, false,
-                                  file_util::FileEnumerator::FILES);
 
-  while (!(path = fenum.Next()).empty()) {
-    if (GetPageThumbnailFromDisk(path, &url, &image, &score))
-      (*cache)[url] = std::make_pair(image, score);
+  // Create the specified directory if it does not exist.
+  if (!file_util::DirectoryExists(filepath)) {
+    file_util::CreateDirectory(filepath);
+  } else {
+    // Walk the directory and read the thumbnail data from disk.
+    FilePath path;
+    GURL url;
+    RefCountedBytes* data = new RefCountedBytes;
+    ThumbnailScore score;
+    file_util::FileEnumerator fenum(filepath, false,
+                                    file_util::FileEnumerator::FILES);
+
+    while (!(path = fenum.Next()).empty()) {
+      if (GetPageThumbnailFromDisk(path, &url, data, &score))
+        (*cache)[url] = std::make_pair(data, score);
+    }
   }
-
   cb_loop->PostTask(FROM_HERE,
       NewRunnableMethod(this, &ThumbnailStore::OnDiskDataAvailable, cache));
 }
 
 bool ThumbnailStore::GetPageThumbnailFromDisk(const FilePath& file,
-                                              GURL* url, SkBitmap* thumbnail,
+                                              GURL* url,
+                                              RefCountedBytes* data,
                                               ThumbnailScore* score) const {
   int64 file_size;
   if (!file_util::GetFileSize(file, &file_size))
     return false;
 
   // Read the file into a buffer.
-  std::vector<char> data;
-  data.resize(static_cast<unsigned int>(file_size));
-  if (file_util::ReadFile(file, &data[0], static_cast<int>(file_size)) == -1)
+  std::vector<char> file_data;
+  file_data.resize(static_cast<unsigned int>(file_size));
+  if (file_util::ReadFile(file, &file_data[0],
+                          static_cast<int>(file_size)) == -1)
     return false;
 
   // Unpack the url, ThumbnailScore and JPEG size from the buffer.
   std::string url_string;
   unsigned int jpeg_len;
   void* iter = NULL;
-  Pickle packed(&data[0], static_cast<int>(file_size));
+  Pickle packed(&file_data[0], static_cast<int>(file_size));
 
   if (!packed.ReadString(&iter, &url_string) ||
       !UnpackScore(score, packed, iter) ||
@@ -90,25 +85,28 @@ bool ThumbnailStore::GetPageThumbnailFromDisk(const FilePath& file,
   url->Swap(&temp_url);
 
   // Unpack the JPEG data from the buffer.
-  if (thumbnail) {
-    const char* jpeg_data = NULL;
-    int out_len;
+  const char* jpeg_data = NULL;
+  int out_len;
 
-    if (!packed.ReadData(&iter, &jpeg_data, &out_len) ||
-        out_len != jpeg_len)
-      return false;
+  if (!packed.ReadData(&iter, &jpeg_data, &out_len) ||
+      out_len != jpeg_len)
+    return false;
 
-    // Convert the jpeg_data to an SkBitmap.
-    SkBitmap* thumbnail_ = JPEGCodec::Decode(
-        reinterpret_cast<const unsigned char*>(jpeg_data), jpeg_len);
-    *thumbnail = *thumbnail_;
-    delete thumbnail_;
-  }
+  // Copy jpeg data to the out parameter.
+  data->data.resize(jpeg_len);
+  memcpy(&data->data[0], jpeg_data, jpeg_len);
   return true;
 }
 
+void ThumbnailStore::OnDiskDataAvailable(ThumbnailStore::Cache* cache) {
+  if (cache) {
+    cache_.reset(cache);
+    cache_initialized_ = true;
+  }
+}
+
 bool ThumbnailStore::SetPageThumbnail(const GURL& url,
-                                      SkBitmap& thumbnail,
+                                      const SkBitmap& thumbnail,
                                       const ThumbnailScore& score,
                                       bool write_to_disk) {
   if (!cache_initialized_)
@@ -119,8 +117,26 @@ bool ThumbnailStore::SetPageThumbnail(const GURL& url,
       !ShouldReplaceThumbnailWith((*cache_)[url].second, score))
     return true;
 
+  base::TimeTicks encode_start = base::TimeTicks::Now();
+
+  // Encode the SkBitmap to jpeg and add to cache.
+  RefCountedBytes* jpeg_data = new RefCountedBytes;
+  SkAutoLockPixels thumbnail_lock(thumbnail);
+  bool encoded = JPEGCodec::Encode(
+      reinterpret_cast<unsigned char*>(thumbnail.getAddr32(0, 0)),
+      JPEGCodec::FORMAT_BGRA, thumbnail.width(),
+      thumbnail.height(),
+      static_cast<int>(thumbnail.rowBytes()), 90,
+      &jpeg_data->data);
+
+  base::TimeDelta delta = base::TimeTicks::Now() - encode_start;
+  HISTOGRAM_TIMES("Thumbnail.Encode", delta);
+
+  if (!encoded)
+    return false;
+
   // Update the cache_ with the new thumbnail.
-  (*cache_)[url] = std::make_pair(thumbnail, score);
+  (*cache_)[url] = std::make_pair(jpeg_data, score);
 
   // Write the new thumbnail data to disk in the background on file_thread.
   if (write_to_disk) {
@@ -134,27 +150,14 @@ bool ThumbnailStore::WriteThumbnailToDisk(const GURL& url) const {
   // Thumbnail data will be stored in a file named url.host().
   FilePath file = file_path_.AppendASCII(url.host());
   Pickle packed;
-  SkBitmap thumbnail = (*cache_)[url].first;
+  scoped_refptr<RefCountedBytes> data((*cache_)[url].first);
   ThumbnailScore score = (*cache_)[url].second;
-
-  // Convert the SkBitmap to a JPEG.
-  std::vector<unsigned char> jpeg_data;
-  SkAutoLockPixels thumbnail_lock(thumbnail);
-  bool encoded = JPEGCodec::Encode(
-      reinterpret_cast<unsigned char*>(thumbnail.getAddr32(0, 0)),
-      JPEGCodec::FORMAT_BGRA, thumbnail.width(),
-      thumbnail.height(),
-      static_cast<int>(thumbnail.rowBytes()), 90,
-      &jpeg_data);
-
-  if (!encoded)
-    return false;
 
   // Pack the url, ThumbnailScore, and the JPEG data.
   packed.WriteString(url.spec());
   PackScore(score, &packed);
-  packed.WriteUInt32(jpeg_data.size());
-  packed.WriteData(reinterpret_cast<char*>(&jpeg_data[0]), jpeg_data.size());
+  packed.WriteUInt32(data->data.size());
+  packed.WriteData(reinterpret_cast<char*>(&data->data[0]), data->data.size());
 
   // Write the packed data to a file.
   file_util::Delete(file, false);
@@ -163,14 +166,13 @@ bool ThumbnailStore::WriteThumbnailToDisk(const GURL& url) const {
                               packed.size()) != -1;
 }
 
-bool ThumbnailStore::GetPageThumbnail(const GURL& url, SkBitmap* thumbnail,
-                                      ThumbnailScore* score) {
+bool ThumbnailStore::GetPageThumbnail(const GURL& url, RefCountedBytes** data) {
   if (!cache_initialized_ ||
       cache_->find(url) == cache_->end())
     return false;
 
-  *thumbnail = (*cache_)[url].first;
-  *score = (*cache_)[url].second;
+  *data = (*cache_)[url].first;
+  (*data)->AddRef();
   return true;
 }
 
@@ -178,7 +180,7 @@ void ThumbnailStore::PackScore(const ThumbnailScore& score,
                                Pickle* packed) const {
   // Pack the contents of the given ThumbnailScore into the given Pickle.
   packed->WriteData(reinterpret_cast<const char*>(&score.boring_score),
-                   sizeof(score.boring_score));
+                    sizeof(score.boring_score));
   packed->WriteBool(score.at_top);
   packed->WriteBool(score.good_clipping);
   packed->WriteInt64(score.time_at_snapshot.ToInternalValue());

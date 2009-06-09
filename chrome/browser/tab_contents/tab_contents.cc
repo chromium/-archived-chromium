@@ -37,6 +37,7 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
+#include "chrome/browser/thumbnail_store.h"
 #include "chrome/browser/search_engines/template_url_fetcher.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/chrome_switches.h"
@@ -1633,10 +1634,15 @@ void TabContents::UpdateThumbnail(const GURL& url,
                                   const SkBitmap& bitmap,
                                   const ThumbnailScore& score) {
   // Tell History about this thumbnail
-  HistoryService* hs;
-  if (!profile()->IsOffTheRecord() &&
-      (hs = profile()->GetHistoryService(Profile::IMPLICIT_ACCESS))) {
-    hs->SetPageThumbnail(url, bitmap, score);
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kThumbnailStore)) {
+    profile()->GetThumbnailStore()->
+        SetPageThumbnail(url, bitmap, score, !profile()->IsOffTheRecord());
+  } else {
+    HistoryService* hs;
+    if (!profile()->IsOffTheRecord() &&
+        (hs = profile()->GetHistoryService(Profile::IMPLICIT_ACCESS))) {
+      hs->SetPageThumbnail(url, bitmap, score);
+    }
   }
 }
 

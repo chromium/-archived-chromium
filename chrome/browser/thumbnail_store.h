@@ -11,6 +11,7 @@
 #include "base/file_path.h"
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
+#include "chrome/common/ref_counted_util.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
 class GURL;
@@ -37,23 +38,22 @@ class ThumbnailStore : public base::RefCountedThreadSafe<ThumbnailStore> {
   // If write_to_disk is true, the thumbnail data is written to disk on the
   // file_thread.
   bool SetPageThumbnail(const GURL& url,
-                        SkBitmap& thumbnail,
+                        const SkBitmap& thumbnail,
                         const ThumbnailScore& score,
                         bool write_to_disk);
 
-  // Retrieves the thumbnail and score for the given url.
+  // Sets *data to point to the thumbnail for the given url.
   // Returns false if there is not data for the given url or some other
   // error occurred.
-  bool GetPageThumbnail(const GURL& url,
-                        SkBitmap* thumbnail,
-                        ThumbnailScore* score);
+  bool GetPageThumbnail(const GURL& url, RefCountedBytes** data);
 
  private:
   FRIEND_TEST(ThumbnailStoreTest, RetrieveFromCache);
   FRIEND_TEST(ThumbnailStoreTest, RetrieveFromDisk);
 
   // Data structure used to store thumbnail data in memory.
-  typedef std::map<GURL, std::pair<SkBitmap, ThumbnailScore> > Cache;
+  typedef std::map<GURL, std::pair<scoped_refptr<RefCountedBytes>,
+                                   ThumbnailScore> > Cache;
 
   // The location of the thumbnail store.
   FilePath file_path_;
@@ -67,7 +67,7 @@ class ThumbnailStore : public base::RefCountedThreadSafe<ThumbnailStore> {
   // out parameters GURL, SkBitmap, and ThumbnailScore.
   bool GetPageThumbnailFromDisk(const FilePath& file,
                                 GURL* url,
-                                SkBitmap* thumbnail,
+                                RefCountedBytes* data,
                                 ThumbnailScore* score) const;
 
   // Once thumbnail data from the disk is available from the file_thread,
@@ -86,11 +86,11 @@ class ThumbnailStore : public base::RefCountedThreadSafe<ThumbnailStore> {
   bool UnpackScore(ThumbnailScore* score, const Pickle& packed,
                    void*& iter) const;
 
-  DISALLOW_COPY_AND_ASSIGN(ThumbnailStore);
-
   // The Cache maintained by the object.
   scoped_ptr<ThumbnailStore::Cache> cache_;
   bool cache_initialized_;
+
+  DISALLOW_COPY_AND_ASSIGN(ThumbnailStore);
 };
 
 #endif  // CHROME_BROWSER_THUMBNAIL_STORE_H_

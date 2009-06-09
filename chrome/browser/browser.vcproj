@@ -2805,6 +2805,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\thumbnail_store.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\thumbnail_store.h"
+			>
+		</File>
+		<File
 			RelativePath=".\toolbar_model.cc"
 			>
 		</File>

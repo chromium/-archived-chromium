@@ -24,6 +24,7 @@ namespace net {
 class ForceTLSState;
 }
 class BookmarkModel;
+class BrowserThemeProvider;
 class ChromeURLRequestContext;
 class DownloadManager;
 class Extension;
@@ -40,7 +41,7 @@ class SQLitePersistentCookieStore;
 class TabRestoreService;
 class TemplateURLFetcher;
 class TemplateURLModel;
-class BrowserThemeProvider;
+class ThumbnailStore;
 class URLRequestContext;
 class UserScriptMaster;
 class VisitedLinkMaster;
@@ -190,6 +191,8 @@ class Profile {
   // Returns or creates the ThemeProvider associated with this profile
   virtual ThemeProvider* GetThemeProvider() = 0;
 
+  virtual ThumbnailStore* GetThumbnailStore() = 0;
+
   // Returns the request context information associated with this profile.  Call
   // this only on the UI thread, since it can send notifications that should
   // happen on the UI thread.
@@ -327,6 +330,7 @@ class ProfileImpl : public Profile,
   virtual void SetTheme(Extension* extension);
   virtual void ClearTheme();
   virtual ThemeProvider* GetThemeProvider();
+  virtual ThumbnailStore* GetThumbnailStore();
   virtual bool HasCreatedDownloadManager() const;
   virtual URLRequestContext* GetRequestContext();
   virtual URLRequestContext* GetRequestContextForMedia();
@@ -391,6 +395,7 @@ class ProfileImpl : public Profile,
   scoped_ptr<SSLHostState> ssl_host_state_;
   scoped_ptr<net::ForceTLSState> force_tls_state_;
   scoped_ptr<PrefService> prefs_;
+  scoped_refptr<ThumbnailStore> thumbnail_store_;
   scoped_ptr<TemplateURLFetcher> template_url_fetcher_;
   scoped_ptr<TemplateURLModel> template_url_model_;
   scoped_ptr<BookmarkModel> bookmark_bar_model_;

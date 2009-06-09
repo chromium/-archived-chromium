@@ -814,6 +814,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\thumbnail_store_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\history\url_database_unittest.cc"
 				>
 			</File>

@@ -490,4 +490,8 @@ const wchar_t kNoDefaultBrowserCheck[]         = L"no-default-browser-check";
 // Enables the benchmarking extensions.
 const wchar_t kEnableBenchmarking[]      = L"enable-benchmarking";
 
+// Enables using ThumbnailStore instead of ThumbnailDatabase for setting and
+// getting thumbnails for the new tab page.
+const wchar_t kThumbnailStore[]                = L"thumbnail-store";
+
 }  // namespace switches

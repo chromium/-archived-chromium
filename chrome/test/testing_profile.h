@@ -121,6 +121,11 @@ class TestingProfile : public Profile {
   virtual TemplateURLFetcher* GetTemplateURLFetcher() {
     return NULL;
   }
+
+  virtual ThumbnailStore* GetThumbnailStore() {
+    return NULL;
+  }
+
   virtual DownloadManager* GetDownloadManager() {
     return NULL;
   }

@@ -28,6 +28,7 @@
 #include "chrome/browser/sessions/tab_restore_service.h"
 #include "chrome/browser/spellchecker.h"
 #include "chrome/browser/ssl/ssl_host_state.h"
+#include "chrome/browser/thumbnail_store.h"
 #include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/visitedlink_master.h"
 #include "chrome/browser/webdata/web_data_service.h"
@@ -341,6 +342,10 @@ class OffTheRecordProfileImpl : public Profile,
 
   virtual SpellChecker* GetSpellChecker() {
     return profile_->GetSpellChecker();
+  }
+
+  virtual ThumbnailStore* GetThumbnailStore() {
+    return NULL;
   }
 
   virtual void MarkAsCleanShutdown() {
@@ -924,6 +929,14 @@ TabRestoreService* ProfileImpl::GetTabRestoreService() {
   if (!tab_restore_service_.get())
     tab_restore_service_ = new TabRestoreService(this);
   return tab_restore_service_.get();
+}
+
+ThumbnailStore* ProfileImpl::GetThumbnailStore() {
+  if (!thumbnail_store_.get()) {
+    thumbnail_store_ = new ThumbnailStore;
+    thumbnail_store_->Init(GetPath().AppendASCII("thumbnailstore\\"));
+  }
+  return thumbnail_store_.get();
 }
 
 void ProfileImpl::ResetTabRestoreService() {
