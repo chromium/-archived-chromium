@@ -197,6 +197,9 @@ each locale. -->
       <message name="IDS_AUTOCOMPLETE_SEARCH_CONTENTS" desc="Contents for a search match.">
         Search <ph name="ENGINE">$1<ex>Google</ex></ph> for <ph name="SEARCH_TERMS">$2<ex>flowers</ex></ph>
       </message>
+      <message name="IDS_AUTOCOMPLETE_SEARCH_DESCRIPTION" desc="Description for the default search match.">
+        <ph name="ENGINE">$1<ex>Google</ex></ph> Search
+      </message>
       <message name="IDS_AUTOCOMPLETE_NO_QUERY" desc="Dummy search term displayed when the user has no query input.">
         &lt;enter query&gt;
       </message>

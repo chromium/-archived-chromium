@@ -5,6 +5,7 @@
 #include "chrome/browser/autocomplete/search_provider.h"
 
 #include "app/l10n_util.h"
+#include "base/command_line.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "chrome/browser/autocomplete/keyword_provider.h"
@@ -14,6 +15,7 @@
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url_model.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -668,26 +670,75 @@ void SearchProvider::AddMatchToMap(const std::wstring& query_string,
   std::vector<size_t> content_param_offsets;
   const TemplateURL& provider = is_keyword ? providers_.keyword_provider() :
                                              providers_.default_provider();
-  match.contents.assign(l10n_util::GetStringF(IDS_AUTOCOMPLETE_SEARCH_CONTENTS,
-                                              provider.short_name(),
-                                              query_string,
-                                              &content_param_offsets));
-  if (content_param_offsets.size() == 2) {
-    AutocompleteMatch::ClassifyLocationInString(content_param_offsets[1],
-                                                query_string.length(),
-                                                match.contents.length(),
-                                                ACMatchClassification::NONE,
-                                                &match.contents_class);
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kDisableOmnibox2)) {
+    match.contents.assign(l10n_util::GetStringF(
+        IDS_AUTOCOMPLETE_SEARCH_CONTENTS,
+        provider.short_name(),
+        query_string,
+        &content_param_offsets));
+    if (content_param_offsets.size() == 2) {
+      AutocompleteMatch::ClassifyLocationInString(content_param_offsets[1],
+                                                  query_string.length(),
+                                                  match.contents.length(),
+                                                  ACMatchClassification::NONE,
+                                                  &match.contents_class);
+    } else {
+      // |content_param_offsets| should only not be 2 if:
+      // (a) A translator screws up
+      // (b) The strings have been changed and we haven't been rebuilt properly
+      // (c) Some sort of crazy installer error/DLL version mismatch problem
+      //     that gets the wrong data out of the locale DLL?
+      // While none of these are supposed to happen, we've seen this get hit in
+      // the wild, so avoid the vector access in the conditional arm above,
+      // which will crash.
+      NOTREACHED();
+    }
   } else {
-    // |content_param_offsets| should only not be 2 if:
-    // (a) A translator screws up
-    // (b) The strings have been changed and we haven't been rebuilt properly
-    // (c) Some sort of crazy installer error/DLL version mismatch problem that
-    //     gets the wrong data out of the locale DLL?
-    // While none of these are supposed to happen, we've seen this get hit in
-    // the wild, so avoid the vector access in the conditional arm above, which
-    // will crash.
-    NOTREACHED();
+    // We do intra-string highlighting for suggestions - the suggested segment
+    // will be highlighted, e.g. for input_text = "you" the suggestion may be
+    // "youtube", so we'll bold the "tube" section: you*tube*.
+    if (input_text != query_string) {
+      match.contents.assign(query_string);
+      size_t input_position = match.contents.find(input_text);
+      if (input_position == std::wstring::npos) {
+        // The input text is not a substring of the query string, e.g. input
+        // text is "slasdot" and the query string is "slashdot", so we bold the
+        // whole thing.
+        match.contents_class.push_back(
+            ACMatchClassification(0, ACMatchClassification::MATCH));
+      } else {
+        // TODO(beng): ACMatchClassification::MATCH now seems to just mean
+        //             "bold" this. Consider modifying the terminology.
+        // We don't iterate over the string here annotating all matches because
+        // it looks odd to have every occurrence of a substring that may be as
+        // short as a single character highlighted in a query suggestion result,
+        // e.g. for input text "s" and query string "southwest airlines", it
+        // looks odd if both the first and last s are highlighted.
+        if (input_position != 0) {
+          match.contents_class.push_back(
+              ACMatchClassification(0, ACMatchClassification::MATCH));
+        }
+        match.contents_class.push_back(
+            ACMatchClassification(input_position, ACMatchClassification::NONE));
+        size_t next_fragment_position = input_position + input_text.length();
+        if (next_fragment_position < query_string.length()) {
+          match.contents_class.push_back(
+              ACMatchClassification(next_fragment_position,
+                                    ACMatchClassification::MATCH));
+        }
+      }
+    } else {
+      // Otherwise, we're dealing with the "default search" result which has no
+      // completion, but has the search provider name as the description.
+      match.contents.assign(query_string);
+      match.contents_class.push_back(
+          ACMatchClassification(0, ACMatchClassification::NONE));
+      match.description.assign(l10n_util::GetStringF(
+          IDS_AUTOCOMPLETE_SEARCH_DESCRIPTION,
+          provider.short_name()));
+      match.description_class.push_back(
+          ACMatchClassification(0, ACMatchClassification::DIM));
+    }
   }
 
   // When the user forced a query, we need to make sure all the fill_into_edit
