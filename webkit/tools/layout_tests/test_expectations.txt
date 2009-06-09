@@ -2072,7 +2072,7 @@ BUG9798 : LayoutTests/http/tests/xmlhttprequest/basic-auth.html = TIMEOUT PASS
 BUG9798 DEBUG : LayoutTests/editing/execCommand/paste-2.html = FAIL PASS
 BUG9798 DEBUG : LayoutTests/editing/selection/4776665.html = FAIL PASS
 BUG9798 DEBUG : LayoutTests/svg/custom/path-bad-data.svg = CRASH FAIL
-BUG9798 DEBUG : chrome/fast/dom/extensions/interval.html = FAIL PASS
+BUG9798 : chrome/fast/dom/extensions/interval.html = CRASH FAIL PASS
 BUG9798 LINUX : LayoutTests/animations/animation-iteration-event-destroy-renderer.html = TIMEOUT PASS
 BUG9798 LINUX : LayoutTests/animations/change-keyframes-name.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/animations/change-one-anim.html = FAIL PASS
@@ -2687,3 +2687,25 @@ BUG13174 WIN REBASELINE : LayoutTests/transitions/shorthand-border-transitions.h
 // WebKit 44372:44405	
 // New Linux crashes and failures. Why are we running platform/mac test on Linux?
 BUG13314 LINUX : LayoutTests/platform/mac/accessibility/accesskey.html = CRASH FAIL
+
+// WebKit 44438:44544
+BUG_DARIN WIN : LayoutTests/editing/deleting/4866671.html = FAIL
+BUG_DARIN WIN LINUX : LayoutTests/fast/canvas/canvas-transforms-during-path.html = FAIL
+BUG_DARIN WIN LINUX : LayoutTests/fast/canvas/drawImage-with-globalAlpha.html = FAIL
+BUG_DARIN WIN LINUX : LayoutTests/fast/canvas/quadraticCurveTo.xml = FAIL
+BUG_DARIN WIN LINUX : LayoutTests/fast/js/property-getters-and-setters.html = FAIL
+BUG_DARIN WIN LINUX : LayoutTests/http/tests/loading/deleted-host-in-resource-load-delegate-callback.html = TIMEOUT
+BUG_DARIN WIN LINUX : LayoutTests/fast/canvas/canvas-lineWidth.html = FAIL
+BUG_DARIN LINUX : LayoutTests/editing/deleting/4866671.html = FAIL
+BUG_DARIN LINUX : LayoutTests/fast/dynamic/positioned-movement-with-positioned-children.html = FAIL
+BUG_DARIN LINUX : LayoutTests/fast/forms/button-default-title.html = FAIL
+BUG_DARIN LINUX : LayoutTests/fast/forms/control-clip.html = FAIL
+BUG_DARIN LINUX : LayoutTests/fast/forms/file-input-direction.html = FAIL
+BUG_DARIN LINUX : LayoutTests/fast/forms/file-input-disabled.html = FAIL
+BUG_DARIN LINUX : LayoutTests/fast/forms/hidden-input-file.html = FAIL
+BUG_DARIN LINUX : LayoutTests/fast/forms/hidden-listbox.html = FAIL
+BUG_DARIN LINUX : LayoutTests/fast/forms/menulist-no-overflow.html = FAIL
+BUG_DARIN LINUX : LayoutTests/fast/forms/select-empty-option-height.html = FAIL
+BUG_DARIN LINUX : LayoutTests/fast/repaint/control-clip.html = FAIL
+BUG_DARIN LINUX : LayoutTests/fast/text/updateNewFont.html = FAIL
+BUG_DARIN LINUX : LayoutTests/tables/mozilla/bugs/bug2479-4.html = FAIL
