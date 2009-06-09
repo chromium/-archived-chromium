@@ -42,12 +42,11 @@ void AutocompletePopupWin::Init(AutocompleteEditViewWin* edit_view,
 }
 
 void AutocompletePopupWin::Show() {
-  // Move the popup
-  int flags = SWP_NOACTIVATE;
+  // Move the popup to the place appropriate for the window's current position -
+  // it may have been moved since it was last shown.
+  SetBounds(contents_->GetPopupBounds());
   if (!IsVisible())
-    flags |= SWP_SHOWWINDOW;
-  win_util::SetChildBounds(GetNativeView(), NULL, NULL,
-                           contents_->GetPopupBounds(), 0, flags);
+    WidgetWin::Show();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
