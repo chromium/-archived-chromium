@@ -60,6 +60,12 @@ static int MapSecurityError(SECURITY_STATUS err) {
   }
 }
 
+// Returns true if the two CERT_CONTEXTs contain the same certificate.
+bool SameCert(PCCERT_CONTEXT a, PCCERT_CONTEXT b) {
+  return a->cbCertEncoded == b->cbCertEncoded &&
+         memcmp(a->pbCertEncoded, b->pbCertEncoded, b->cbCertEncoded) == 0;
+}
+
 //-----------------------------------------------------------------------------
 
 // A bitmask consisting of these bit flags encodes which versions of the SSL
@@ -727,11 +733,7 @@ int SSLClientSocketWin::DoVerifyCertComplete(int result) {
 
   LogConnectionTypeMetrics();
   if (renegotiating_) {
-    // A rehandshake, started in the middle of a Read, has completed.
-    renegotiating_ = false;
-    // Pick up where we left off.  Go back to reading data.
-    if (result == OK)
-      SetNextStateForRead();
+    DidCompleteRenegotiation(result);
   } else {
     // The initial handshake, kicked off by a Connect, has completed.
     completed_handshake_ = true;
@@ -998,11 +1000,29 @@ int SSLClientSocketWin::DidCompleteHandshake() {
     DLOG(ERROR) << "QueryContextAttributes failed: " << status;
     return MapSecurityError(status);
   }
-  server_cert_ = X509Certificate::CreateFromHandle(
-      server_cert_handle, X509Certificate::SOURCE_FROM_NETWORK);
+  if (renegotiating_ &&
+      SameCert(server_cert_->os_cert_handle(), server_cert_handle)) {
+    // We already verified the server certificate.  Either it is good or the
+    // user has accepted the certificate error.
+    CertFreeCertificateContext(server_cert_handle);
+    DidCompleteRenegotiation(OK);
+  } else {
+    server_cert_ = X509Certificate::CreateFromHandle(
+        server_cert_handle, X509Certificate::SOURCE_FROM_NETWORK);
 
-  next_state_ = STATE_VERIFY_CERT;
+    next_state_ = STATE_VERIFY_CERT;
+  }
   return OK;
+}
+
+// Called when a renegotiation is completed.  |result| is the verification
+// result of the server certificate received during renegotiation.
+void SSLClientSocketWin::DidCompleteRenegotiation(int result) {
+  // A rehandshake, started in the middle of a Read, has completed.
+  renegotiating_ = false;
+  // Pick up where we left off.  Go back to reading data.
+  if (result == OK)
+    SetNextStateForRead();
 }
 
 void SSLClientSocketWin::LogConnectionTypeMetrics() const {

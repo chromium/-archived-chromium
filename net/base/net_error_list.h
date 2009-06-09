@@ -99,6 +99,13 @@ NET_ERROR(SSL_RENEGOTIATION_REQUESTED, -114)
 // The proxy requested authentication (for tunnel establishment).
 NET_ERROR(PROXY_AUTH_REQUESTED, -115)
 
+// During SSL renegotiation (rehandshake), the server sent a certificate with
+// an error.
+//
+// Note: this error is not in the -2xx range so that it won't be handled as a
+// certificate error.
+NET_ERROR(CERT_ERROR_IN_SSL_RENEGOTIATION, -116)
+
 // Certificate error codes
 //
 // The values of certificate error codes must be consecutive.

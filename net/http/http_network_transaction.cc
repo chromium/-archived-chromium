@@ -745,6 +745,15 @@ int HttpNetworkTransaction::HandleConnectionClosedBeforeEndOfHeaders() {
 }
 
 int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
+  if (using_ssl_ && IsCertificateError(result)) {
+    // We don't handle a certificate error during SSL renegotiation, so we
+    // have to return an error that's not in the certificate error range
+    // (-2xx).
+    LOG(ERROR) << "Got a server certificate with error " << result
+               << " during SSL renegotiation";
+    result = ERR_CERT_ERROR_IN_SSL_RENEGOTIATION;
+  }
+
   if (result < 0)
     return HandleIOError(result);
 
