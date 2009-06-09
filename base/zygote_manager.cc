@@ -67,7 +67,7 @@ ZygoteManager* ZygoteManager::Get() {
   static bool checked = false;
   static bool enabled = false;
   if (!checked) {
-    enabled = (getenv("DISABLE_ZYGOTE_MANAGER") == NULL);
+    enabled = (getenv("ENABLE_ZYGOTE_MANAGER") != NULL);
     checked = true;
   }
   if (!enabled)
