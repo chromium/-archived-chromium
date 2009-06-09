@@ -693,10 +693,9 @@ int FtpNetworkTransaction::DoCtrlWriteRETR() {
 int FtpNetworkTransaction::ProcessResponseRETR(int response_code) {
   switch (GetErrorClass(response_code)) {
     case ERROR_CLASS_INITIATED:
-      next_state_ = STATE_CTRL_WRITE_QUIT;
       break;
     case ERROR_CLASS_OK:
-      next_state_ = STATE_DATA_RESOLVE_HOST;
+      next_state_ = STATE_CTRL_WRITE_QUIT;
       break;
     case ERROR_CLASS_PENDING:
       next_state_ = STATE_CTRL_WRITE_PASV;
@@ -706,6 +705,8 @@ int FtpNetworkTransaction::ProcessResponseRETR(int response_code) {
         return Stop(ERR_FAILED);
       return ERR_FAILED;  // TODO(ibrar): Retry here.
     case ERROR_CLASS_ERROR:
+      if (retr_failed_)
+        return Stop(ERR_FAILED);
       retr_failed_ = true;
       next_state_ = STATE_CTRL_WRITE_PASV;
       break;
@@ -825,6 +826,9 @@ int FtpNetworkTransaction::ProcessResponseQUIT(int response_code) {
 // Data Connection
 
 int FtpNetworkTransaction::DoDataResolveHost() {
+  if (data_socket_ != NULL && data_socket_->IsConnected())
+    data_socket_->Disconnect();
+
   next_state_ = STATE_DATA_RESOLVE_HOST_COMPLETE;
 
   DidStartDnsResolution(data_connection_ip_, this);
@@ -843,9 +847,6 @@ int FtpNetworkTransaction::DoDataResolveHostComplete(int result) {
 }
 
 int FtpNetworkTransaction::DoDataConnect() {
-  if (data_socket_ != NULL && data_socket_->IsConnected())
-    data_socket_->Disconnect();
-
   next_state_ = STATE_DATA_CONNECT_COMPLETE;
   data_socket_.reset(socket_factory_->CreateTCPClientSocket(addresses_));
   return data_socket_->Connect(&io_callback_);
