@@ -2507,14 +2507,6 @@ void RenderView::OnSetAltErrorPageURL(const GURL& url) {
   alternate_error_page_url_ = url;
 }
 
-void RenderView::DidPaint() {
-  PluginDelegateList::iterator it = plugin_delegates_.begin();
-  while (it != plugin_delegates_.end()) {
-    (*it)->FlushGeometryUpdates();
-    ++it;
-  }
-}
-
 void RenderView::OnInstallMissingPlugin() {
   // This could happen when the first default plugin is deleted.
   if (first_default_plugin_ == NULL)

@@ -165,7 +165,6 @@ WebPluginDelegateProxy::WebPluginDelegateProxy(const std::string& mime_type,
       windowless_(false),
       mime_type_(mime_type),
       clsid_(clsid),
-      send_deferred_update_geometry_(false),
       npobject_(NULL),
       window_script_object_(NULL),
       sad_plugin_(NULL),
@@ -202,17 +201,6 @@ void WebPluginDelegateProxy::PluginDestroyed() {
 
   render_view_->PluginDestroyed(this);
   MessageLoop::current()->DeleteSoon(FROM_HERE, this);
-}
-
-void WebPluginDelegateProxy::FlushGeometryUpdates() {
-  if (send_deferred_update_geometry_) {
-    send_deferred_update_geometry_ = false;
-    Send(new PluginMsg_UpdateGeometry(instance_id_,
-                                      plugin_rect_,
-                                      deferred_clip_rect_,
-                                      TransportDIB::Id(),
-                                      TransportDIB::Id()));
-  }
 }
 
 bool WebPluginDelegateProxy::Initialize(const GURL& url, char** argn,
@@ -372,46 +360,43 @@ void WebPluginDelegateProxy::UpdateGeometry(
                 const gfx::Rect& window_rect,
                 const gfx::Rect& clip_rect) {
   plugin_rect_ = window_rect;
-  if (!windowless_) {
-    deferred_clip_rect_ = clip_rect;
-    send_deferred_update_geometry_ = true;
-    return;
-  }
 
   // Be careful to explicitly call the default constructors for these ids,
   // as they can be POD on some platforms and we want them initialized.
   TransportDIB::Id transport_store_id = TransportDIB::Id();
   TransportDIB::Id background_store_id = TransportDIB::Id();
 
+  if (windowless_) {
 #if defined(OS_WIN)
-  // TODO(port): use TransportDIB instead of allocating these directly.
-  if (!backing_store_canvas_.get() ||
-      (window_rect.width() != backing_store_canvas_->getDevice()->width() ||
-       window_rect.height() != backing_store_canvas_->getDevice()->height())) {
-    // Create a shared memory section that the plugin paints into
-    // asynchronously.
-    ResetWindowlessBitmaps();
-    if (!window_rect.IsEmpty()) {
-      if (!CreateBitmap(&backing_store_, &backing_store_canvas_) ||
-          !CreateBitmap(&transport_store_, &transport_store_canvas_) ||
-          (transparent_ &&
-           !CreateBitmap(&background_store_, &background_store_canvas_))) {
-        DCHECK(false);
-        ResetWindowlessBitmaps();
-        return;
-      }
+    // TODO(port): use TransportDIB instead of allocating these directly.
+    if (!backing_store_canvas_.get() ||
+        (window_rect.width() != backing_store_canvas_->getDevice()->width() ||
+         window_rect.height() != backing_store_canvas_->getDevice()->height())) {
+      // Create a shared memory section that the plugin paints into
+      // asynchronously.
+      ResetWindowlessBitmaps();
+      if (!window_rect.IsEmpty()) {
+        if (!CreateBitmap(&backing_store_, &backing_store_canvas_) ||
+            !CreateBitmap(&transport_store_, &transport_store_canvas_) ||
+            (transparent_ &&
+             !CreateBitmap(&background_store_, &background_store_canvas_))) {
+          DCHECK(false);
+          ResetWindowlessBitmaps();
+          return;
+        }
 
-      // TODO(port): once we use TransportDIB we will properly fill in these
-      // ids; for now we just fill in the HANDLE field.
-      transport_store_id.handle = transport_store_->handle();
-      if (background_store_.get())
-        background_store_id.handle = background_store_->handle();
+        // TODO(port): once we use TransportDIB we will properly fill in these
+        // ids; for now we just fill in the HANDLE field.
+        transport_store_id.handle = transport_store_->handle();
+        if (background_store_.get())
+          background_store_id.handle = background_store_->handle();
+      }
     }
-  }
 #else
-  // TODO(port): refactor our allocation of backing stores.
-  NOTIMPLEMENTED();
+    // TODO(port): refactor our allocation of backing stores.
+    NOTIMPLEMENTED();
 #endif
+  }
 
   IPC::Message* msg = new PluginMsg_UpdateGeometry(
       instance_id_, window_rect, clip_rect,

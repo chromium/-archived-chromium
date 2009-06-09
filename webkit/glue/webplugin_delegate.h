@@ -101,8 +101,6 @@ class WebPluginDelegate {
   // Returns the process id of the process that is running the plugin.
   virtual int GetProcessId() = 0;
 
-  virtual void FlushGeometryUpdates() = 0;
-
   // The result of the script execution is returned via this function.
   virtual void SendJavaScriptStream(const std::string& url,
                                     const std::wstring& result,

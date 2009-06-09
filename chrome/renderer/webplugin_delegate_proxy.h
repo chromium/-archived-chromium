@@ -48,9 +48,6 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   // Called to drop our pointer to the window script object.
   void DropWindowScriptObject() { window_script_object_ = NULL; }
 
-  // Called to flush any deferred geometry changes to the plugin process.
-  virtual void FlushGeometryUpdates();
-
   // WebPluginDelegate implementation:
   virtual void PluginDestroyed();
   virtual bool Initialize(const GURL& url, char** argn, char** argv, int argc,
@@ -174,8 +171,6 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   FilePath plugin_path_;
 
   gfx::Rect plugin_rect_;
-  gfx::Rect deferred_clip_rect_;
-  bool send_deferred_update_geometry_;
 
   NPObject* npobject_;
   NPObjectStub* window_script_object_;

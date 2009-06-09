@@ -61,8 +61,6 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   virtual void DidFinishLoadWithReason(NPReason reason);
   virtual int GetProcessId();
 
-  virtual void FlushGeometryUpdates() {
-  }
   virtual void SendJavaScriptStream(const std::string& url,
                                     const std::wstring& result,
                                     bool success, bool notify_needed,

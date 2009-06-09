@@ -336,9 +336,6 @@ void RenderWidget::PaintRect(const gfx::Rect& rect,
 
   // Flush to underlying bitmap.  TODO(darin): is this needed?
   canvas->getTopPlatformDevice().accessBitmap(false);
-
-  // Let the subclass observe this paint operations.
-  DidPaint();
 }
 
 void RenderWidget::DoDeferredPaint() {

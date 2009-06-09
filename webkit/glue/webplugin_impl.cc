@@ -235,7 +235,6 @@ void WebPluginContainer::setParent(WebCore::ScrollView* view) {
   WebCore::Widget::setParent(view);
   if (view) {
     impl_->setFrameRect(frameRect());
-    impl_->delegate_->FlushGeometryUpdates();
   }
 }
 
@@ -682,7 +681,8 @@ void WebPluginImpl::setFrameRect(const WebCore::IntRect& rect) {
                             webkit_glue::FromIntRect(clip_rect));
 
   // Initiate a download on the plugin url. This should be done for the
-  // first update geometry sequence.
+  // first update geometry sequence. We need to ensure that the plugin
+  // receives the geometry update before it starts receiving data.
   if (first_geometry_update_) {
     first_geometry_update_ = false;
     // An empty url corresponds to an EMBED tag with no src attribute.
@@ -1294,7 +1294,6 @@ bool WebPluginImpl::ReinitializePluginForResponse(
   // Force a geometry update to occur to ensure that the plugin becomes
   // visible.
   widget_->frameRectsChanged();
-  delegate_->FlushGeometryUpdates();
   // The plugin move sequences accumulated via DidMove are sent to the browser
   // whenever the renderer paints. Force a paint here to ensure that changes
   // to the plugin window are propagated to the browser.

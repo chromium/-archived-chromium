@@ -123,10 +123,6 @@ class RenderWidget : public IPC::Channel::Listener,
   void DoDeferredClose();
   void DoDeferredSetWindowRect(const WebKit::WebRect& pos);
 
-  // This method is called immediately after PaintRect but before the
-  // corresponding paint or scroll message is send to the widget host.
-  virtual void DidPaint() {}
-
   // Set the background of the render widget to a bitmap. The bitmap will be
   // tiled in both directions if it isn't big enough to fill the area. This is
   // mainly intended to be used in conjuction with WebView::SetIsTransparent().

@@ -604,9 +604,6 @@ class RenderView : public RenderWidget,
   // UI that is going to be hosted by this RenderView.
   void CreateDevToolsClient();
 
-  // Called by RenderWidget after it paints.
-  virtual void DidPaint();
-
   // Locates a sub frame with given xpath
   WebFrame* GetChildFrame(const std::wstring& frame_xpath) const;
 
