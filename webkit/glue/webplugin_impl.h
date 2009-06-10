@@ -320,6 +320,9 @@ class WebPluginImpl : public WebPlugin,
   static void ArrayToVector(int total_values, char** values,
                             std::vector<std::string>* value_vector);
 
+  // Delayed task for downloading the plugin source URL.
+  void OnDownloadPluginSrcUrl();
+
   struct ClientInfo {
     int id;
     WebPluginResourceClient* client;
@@ -362,6 +365,8 @@ class WebPluginImpl : public WebPlugin,
 
   // Holds the list of argument values passed to the plugin.
   std::vector<std::string> arg_values_;
+
+  ScopedRunnableMethodFactory<WebPluginImpl> method_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(WebPluginImpl);
 };

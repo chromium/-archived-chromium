@@ -378,7 +378,8 @@ WebPluginImpl::WebPluginImpl(WebCore::HTMLPlugInElement* element,
       plugin_url_(plugin_url),
       load_manually_(load_manually),
       first_geometry_update_(true),
-      mime_type_(mime_type) {
+      mime_type_(mime_type),
+      ALLOW_THIS_IN_INITIALIZER_LIST(method_factory_(this)) {
 
   ArrayToVector(arg_count, arg_names, &arg_names_);
   ArrayToVector(arg_count, arg_values, &arg_values_);
@@ -733,11 +734,23 @@ void WebPluginImpl::setFrameRect(const WebCore::IntRect& rect) {
     first_geometry_update_ = false;
     // An empty url corresponds to an EMBED tag with no src attribute.
     if (!load_manually_ && plugin_url_.is_valid()) {
-      HandleURLRequestInternal("GET", false, NULL, 0, NULL, false, false,
-                               plugin_url_.spec().c_str(), NULL, false,
-                               false);
+      // The Flash plugin hangs for a while if it receives data before
+      // receiving valid plugin geometry. By valid geometry we mean the
+      // geometry received by a call to setFrameRect in the Webkit
+      // layout code path. To workaround this issue we download the
+      // plugin source url on a timer.
+      MessageLoop::current()->PostDelayedTask(FROM_HERE,
+          method_factory_.NewRunnableMethod(
+              &WebPluginImpl::OnDownloadPluginSrcUrl),
+          0);
     }
   }
+}
+
+void WebPluginImpl::OnDownloadPluginSrcUrl() {
+  HandleURLRequestInternal("GET", false, NULL, 0, NULL, false, false,
+                           plugin_url_.spec().c_str(), NULL, false,
+                           false);
 }
 
 void WebPluginImpl::paint(WebCore::GraphicsContext* gc,
