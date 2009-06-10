@@ -92,8 +92,9 @@ base::RSAPrivateKey* ExtensionCreator::GenerateKey(const FilePath&
     error_message_ = "Failed to export private key.";
     return NULL;
   }
-  std::string private_key_bytes(private_key_vector.begin(),
-      private_key_vector.end());
+  std::string private_key_bytes(
+      reinterpret_cast<char*>(&private_key_vector.front()),
+      private_key_vector.size());
 
   std::string private_key;
   if (!Extension::ProducePEM(private_key_bytes, &private_key)) {
