@@ -2993,7 +2993,6 @@
         'test/reliability/page_load_test.h',
         'test/ui/dom_checker_uitest.cc',
         'test/ui/history_uitest.cc',
-        'test/ui/inspector_controller_uitest.cc',
         'test/ui/layout_plugin_uitest.cc',
         'test/ui/npapi_uitest.cc',
         'test/ui/omnibox_uitest.cc',
