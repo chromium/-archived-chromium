@@ -114,7 +114,10 @@ void ThumbnailStoreTest::PrintPixelDiff(SkBitmap* image_a, SkBitmap* image_b) {
             << maxv[3] << ")" << std::endl;
 }
 
-TEST_F(ThumbnailStoreTest, DISABLED_RetrieveFromCache) {
+// TODO(meelapshah) fix the leak in these tests and re-enable.
+#if 0
+
+TEST_F(ThumbnailStoreTest, RetrieveFromCache) {
   RefCountedBytes* read_image = NULL;
   scoped_refptr<ThumbnailStore> store = new ThumbnailStore;
 
@@ -138,7 +141,7 @@ TEST_F(ThumbnailStoreTest, DISABLED_RetrieveFromCache) {
   read_image->Release();
 }
 
-TEST_F(ThumbnailStoreTest, DISABLED_RetrieveFromDisk) {
+TEST_F(ThumbnailStoreTest, RetrieveFromDisk) {
   scoped_refptr<RefCountedBytes> read_image = new RefCountedBytes;
   scoped_refptr<ThumbnailStore> store = new ThumbnailStore;
 
@@ -159,3 +162,4 @@ TEST_F(ThumbnailStoreTest, DISABLED_RetrieveFromDisk) {
   EXPECT_EQ(0, memcmp(&read_image->data[0], &jpeg_image_->data[0],
                       jpeg_image_->data.size()));
 }
+#endif
