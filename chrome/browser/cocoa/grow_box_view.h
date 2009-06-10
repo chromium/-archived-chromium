@@ -7,6 +7,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+#include "base/scoped_nsobject.h"
+
 // A class that handles drawing and mouse tracking to replace the standard
 // window "grow box" grippy in cases where the OS one won't do. Relies on
 // an image named "grow_box" be included in the application's resources. The
@@ -14,7 +16,7 @@
 
 @interface GrowBoxView : NSView {
  @private
-  NSImage* image_;  // grow box image
+  scoped_nsobject<NSImage> image_;  // grow box image
   NSPoint startPoint_;  // location of the mouseDown event.
   NSRect startFrame_;  // original window frame.
   NSRect clipRect_;  // constrain the resized window to this frame.

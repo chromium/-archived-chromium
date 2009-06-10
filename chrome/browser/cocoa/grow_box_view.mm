@@ -21,11 +21,10 @@
 @implementation GrowBoxView
 
 - (void)awakeFromNib {
-  image_ = [[NSImage imageNamed:@"grow_box"] retain];
+  image_.reset([[NSImage imageNamed:@"grow_box"] retain]);
 }
 
 - (void)dealloc {
-  [image_ release];
   [super dealloc];
 }
 
