@@ -114,7 +114,7 @@ void ThumbnailStoreTest::PrintPixelDiff(SkBitmap* image_a, SkBitmap* image_b) {
             << maxv[3] << ")" << std::endl;
 }
 
-TEST_F(ThumbnailStoreTest, RetrieveFromCache) {
+TEST_F(ThumbnailStoreTest, DISABLED_RetrieveFromCache) {
   RefCountedBytes* read_image = NULL;
   scoped_refptr<ThumbnailStore> store = new ThumbnailStore;
 
@@ -138,7 +138,7 @@ TEST_F(ThumbnailStoreTest, RetrieveFromCache) {
   read_image->Release();
 }
 
-TEST_F(ThumbnailStoreTest, RetrieveFromDisk) {
+TEST_F(ThumbnailStoreTest, DISABLED_RetrieveFromDisk) {
   scoped_refptr<RefCountedBytes> read_image = new RefCountedBytes;
   scoped_refptr<ThumbnailStore> store = new ThumbnailStore;
 
