@@ -312,8 +312,7 @@ class RenderView : public RenderWidget,
   virtual void FocusAccessibilityObject(WebCore::AccessibilityObject* acc_obj);
   virtual void SpellCheck(const std::wstring& word, int& misspell_location,
                           int& misspell_length);
-  virtual void GetAutoCorrectWord(const std::wstring& misspelled_word,
-                                  std::wstring& autocorrect_word);
+  virtual std::wstring GetAutoCorrectWord(const std::wstring& word);
   virtual void SetInputMethodState(bool enabled);
   virtual void ScriptedPrint(WebFrame* frame);
   virtual void WebInspectorOpened(int num_resources);

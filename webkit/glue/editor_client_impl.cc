@@ -686,7 +686,7 @@ void EditorClientImpl::textFieldDidEndEditing(WebCore::Element* element) {
 
   // Hide any showing popup.
   web_view_->HideAutoCompletePopup();
-  
+
   // Notify any password-listener of the focus change.
   WebCore::HTMLInputElement* input_element =
       webkit_glue::ElementToHTMLInputElement(element);
@@ -846,6 +846,8 @@ void EditorClientImpl::checkSpellingOfString(const UChar* str, int length,
   int spell_location = -1;
   int spell_length = 0;
   WebViewDelegate* d = web_view_->delegate();
+
+  // Check to see if the provided str is spelled correctly.
   if (isContinuousSpellCheckingEnabled() && d) {
     std::wstring word =
         webkit_glue::StringToStdWString(WebCore::String(str, length));
@@ -866,12 +868,19 @@ void EditorClientImpl::checkSpellingOfString(const UChar* str, int length,
 WebCore::String EditorClientImpl::getAutoCorrectSuggestionForMisspelledWord(
     const WebCore::String& misspelledWord) {
   WebViewDelegate* d = web_view_->delegate();
-  std::wstring autocorrect_word;
-  if (isContinuousSpellCheckingEnabled() && d) {
-    std::wstring word = webkit_glue::StringToStdWString(misspelledWord);
-    d->GetAutoCorrectWord(word, autocorrect_word);
+  if (!(isContinuousSpellCheckingEnabled() && d))
+    return WebCore::String();
+
+  std::wstring word = webkit_glue::StringToStdWString(misspelledWord);
+
+  // Do not autocorrect words with capital letters in it except the
+  // first letter. This will remove cases changing "IMB" to "IBM".
+  for (size_t i = 1; i < word.length(); i++) {
+    if (u_isupper(static_cast<UChar32>(word[i])))
+      return WebCore::String();
   }
 
+  std::wstring autocorrect_word = d->GetAutoCorrectWord(word);
   return webkit_glue::StdWStringToString(autocorrect_word);
 }
 

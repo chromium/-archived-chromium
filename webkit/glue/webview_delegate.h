@@ -780,8 +780,8 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
 
   // Computes an auto correct word for a misspelled word. If no word is found,
   // empty string is computed.
-  virtual void GetAutoCorrectWord(const std::wstring& misspelled_word,
-                                  std::wstring& autocorrect_word) {
+  virtual std::wstring GetAutoCorrectWord(const std::wstring& misspelled_word) {
+    return std::wstring();
   }
 
   // Changes the state of the input method editor.
