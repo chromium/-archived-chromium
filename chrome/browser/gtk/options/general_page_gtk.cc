@@ -12,6 +12,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/gtk/options/options_layout_gtk.h"
 #include "chrome/browser/net/url_fixer_upper.h"
+#include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/session_startup_pref.h"
 #include "chrome/browser/shell_integration.h"
 #include "chrome/common/gtk_util.h"
@@ -41,6 +42,13 @@ enum {
   COL_COUNT,
 };
 
+// Column ids for |default_search_engines_model_|.
+enum {
+  SEARCH_ENGINES_COL_INDEX,
+  SEARCH_ENGINES_COL_TITLE,
+  SEARCH_ENGINES_COL_COUNT,
+};
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -48,6 +56,8 @@ enum {
 
 GeneralPageGtk::GeneralPageGtk(Profile* profile)
     : OptionsPageBase(profile),
+      template_url_model_(NULL),
+      default_search_initializing_(true),
       initializing_(true)  {
   OptionsLayoutBuilderGtk options_builder(4);
   options_builder.AddOptionGroup(
@@ -80,6 +90,9 @@ GeneralPageGtk::~GeneralPageGtk() {
   profile()->GetPrefs()->RemovePrefObserver(prefs::kRestoreOnStartup, this);
   profile()->GetPrefs()->RemovePrefObserver(
       prefs::kURLsToRestoreOnStartup, this);
+
+  if (template_url_model_)
+    template_url_model_->RemoveObserver(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -286,10 +299,31 @@ GtkWidget* GeneralPageGtk::InitHomepageGroup() {
 GtkWidget* GeneralPageGtk::InitDefaultSearchGroup() {
   GtkWidget* hbox = gtk_hbox_new(FALSE, gtk_util::kControlSpacing);
 
-  // TODO(mattm): hook these up
-  default_search_engine_combobox_ = gtk_combo_box_new();
+  default_search_engines_model_ = gtk_list_store_new(SEARCH_ENGINES_COL_COUNT,
+                                                     G_TYPE_UINT,
+                                                     G_TYPE_STRING);
+  default_search_engine_combobox_ = gtk_combo_box_new_with_model(
+      GTK_TREE_MODEL(default_search_engines_model_));
+  g_signal_connect(G_OBJECT(default_search_engine_combobox_), "changed",
+                   G_CALLBACK(OnDefaultSearchEngineChanged), this);
   gtk_container_add(GTK_CONTAINER(hbox), default_search_engine_combobox_);
 
+  GtkCellRenderer* renderer = gtk_cell_renderer_text_new();
+  gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(default_search_engine_combobox_),
+                             renderer, TRUE);
+  gtk_cell_layout_set_attributes(
+      GTK_CELL_LAYOUT(default_search_engine_combobox_), renderer,
+      "text", SEARCH_ENGINES_COL_TITLE,
+      NULL);
+
+  template_url_model_ = profile()->GetTemplateURLModel();
+  if (template_url_model_) {
+    template_url_model_->Load();
+    template_url_model_->AddObserver(this);
+  }
+  OnTemplateURLModelChanged();
+
+  // TODO(mattm): hook this up
   default_search_manage_engines_button_ = gtk_button_new_with_label(
       l10n_util::GetStringUTF8(
           IDS_OPTIONS_DEFAULTSEARCH_MANAGE_ENGINES_LINK).c_str());
@@ -420,6 +454,15 @@ void GeneralPageGtk::OnShowHomeButtonToggled(GtkToggleButton* toggle_button,
     general_page->UserMetricsRecordAction(L"Options_Homepage_HideHomeButton",
                                           general_page->profile()->GetPrefs());
   }
+}
+
+// static
+void GeneralPageGtk::OnDefaultSearchEngineChanged(
+    GtkComboBox* combo_box,
+    GeneralPageGtk* general_page) {
+  if (general_page->default_search_initializing_)
+    return;
+  general_page->SetDefaultSearchEngineFromComboBox();
 }
 
 // static
@@ -607,6 +650,61 @@ std::vector<GURL> GeneralPageGtk::GetCustomUrlList() const {
         GTK_TREE_MODEL(startup_custom_pages_model_), &iter);
   }
   return urls;
+}
+
+void GeneralPageGtk::OnTemplateURLModelChanged() {
+  if (!template_url_model_ || !template_url_model_->loaded()) {
+    EnableDefaultSearchEngineComboBox(false);
+    return;
+  }
+  default_search_initializing_ = true;
+  gtk_list_store_clear(default_search_engines_model_);
+  const TemplateURL* default_search_provider =
+      template_url_model_->GetDefaultSearchProvider();
+  std::vector<const TemplateURL*> model_urls =
+      template_url_model_->GetTemplateURLs();
+  bool populated = false;
+  for (size_t i = 0; i < model_urls.size(); ++i) {
+    if (!model_urls[i]->ShowInDefaultList())
+      continue;
+    populated = true;
+    GtkTreeIter iter;
+    gtk_list_store_append(default_search_engines_model_, &iter);
+    gtk_list_store_set(
+        default_search_engines_model_, &iter,
+        SEARCH_ENGINES_COL_INDEX, i,
+        SEARCH_ENGINES_COL_TITLE,
+        WideToUTF8(model_urls[i]->short_name()).c_str(),
+        -1);
+    if (model_urls[i] == default_search_provider) {
+      gtk_combo_box_set_active_iter(
+          GTK_COMBO_BOX(default_search_engine_combobox_), &iter);
+    }
+  }
+  EnableDefaultSearchEngineComboBox(populated);
+  default_search_initializing_ = false;
+}
+
+void GeneralPageGtk::SetDefaultSearchEngineFromComboBox() {
+  GtkTreeIter iter;
+  if (!gtk_combo_box_get_active_iter(
+      GTK_COMBO_BOX(default_search_engine_combobox_), &iter)) {
+    return;
+  }
+  guint index;
+  gtk_tree_model_get(GTK_TREE_MODEL(default_search_engines_model_), &iter,
+                     SEARCH_ENGINES_COL_INDEX, &index,
+                     -1);
+  std::vector<const TemplateURL*> model_urls =
+      template_url_model_->GetTemplateURLs();
+  if (index < model_urls.size())
+    template_url_model_->SetDefaultSearchProvider(model_urls[index]);
+  else
+    NOTREACHED();
+}
+
+void GeneralPageGtk::EnableDefaultSearchEngineComboBox(bool enable) {
+  gtk_widget_set_sensitive(default_search_engine_combobox_, enable);
 }
 
 void GeneralPageGtk::SetHomepage(const GURL& homepage) {

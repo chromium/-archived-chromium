@@ -8,14 +8,16 @@
 #include <gtk/gtk.h>
 #include <vector>
 
+#include "chrome/browser/gtk/options/url_picker_dialog_gtk.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/options_page_base.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/gtk/options/url_picker_dialog_gtk.h"
+#include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/pref_member.h"
 #include "googleurl/src/gurl.h"
 
-class GeneralPageGtk : public OptionsPageBase {
+class GeneralPageGtk : public OptionsPageBase,
+                       public TemplateURLModelObserver {
  public:
   explicit GeneralPageGtk(Profile* profile);
   ~GeneralPageGtk();
@@ -68,6 +70,16 @@ class GeneralPageGtk : public OptionsPageBase {
   // Retrieve entries from the startup_custom_pages_model_
   std::vector<GURL> GetCustomUrlList() const;
 
+  // Overridden from TemplateURLModelObserver.
+  // Populates the default search engine combobox from the model.
+  virtual void OnTemplateURLModelChanged();
+
+  // Set the default search engine pref to the combo box active item.
+  void SetDefaultSearchEngineFromComboBox();
+
+  // Set the default search engine combo box state.
+  void EnableDefaultSearchEngineComboBox(bool enable);
+
   // Sets the home page preferences for kNewTabPageIsHomePage and kHomePage.
   // If a blank string is passed in we revert to using NewTab page as the Home
   // page. When setting the Home Page to NewTab page, we preserve the old value
@@ -105,6 +117,10 @@ class GeneralPageGtk : public OptionsPageBase {
   static void OnShowHomeButtonToggled(GtkToggleButton* toggle_button,
                                       GeneralPageGtk* general_page);
 
+  // Callback for default search engine selection
+  static void OnDefaultSearchEngineChanged(GtkComboBox* combo_box,
+                                           GeneralPageGtk* general_page);
+
   // Callback for use as default browser button
   static void OnBrowserUseAsDefaultClicked(GtkButton* button,
                                            GeneralPageGtk* general_page);
@@ -136,9 +152,11 @@ class GeneralPageGtk : public OptionsPageBase {
   StringPrefMember homepage_;
   BooleanPrefMember show_home_button_;
 
-  // Widgets of the default search group
+  // Widgets and data of the default search group
   GtkWidget* default_search_engine_combobox_;
+  GtkListStore* default_search_engines_model_;
   GtkWidget* default_search_manage_engines_button_;
+  TemplateURLModel* template_url_model_;
 
   // Widgets of the default browser group
   GtkWidget* default_browser_status_label_;
@@ -146,6 +164,9 @@ class GeneralPageGtk : public OptionsPageBase {
 
   // The parent GtkTable widget
   GtkWidget* page_;
+
+  // Flag to ignore gtk callbacks while we are populating default search urls.
+  bool default_search_initializing_;
 
   // Flag to ignore gtk callbacks while we are loading prefs, to avoid
   // then turning around and saving them again.
