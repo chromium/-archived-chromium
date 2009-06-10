@@ -21,6 +21,7 @@
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "build/build_config.h"
+#include "chrome/browser/renderer_preferences.h"
 #include "chrome/common/bindings_policy.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/chrome_constants.h"
@@ -193,7 +194,8 @@ RenderView::RenderView(RenderThreadBase* render_thread)
       popup_notification_visible_(false),
       delay_seconds_for_form_state_sync_(kDefaultDelaySecondsForFormStateSync),
       preferred_width_(0),
-      send_preferred_width_changes_(false) {
+      send_preferred_width_changes_(false),
+      renderer_preferences_(*(new RendererPreferences)) {
 }
 
 RenderView::~RenderView() {
@@ -217,6 +219,7 @@ RenderView* RenderView::Create(
     gfx::NativeViewId parent_hwnd,
     base::WaitableEvent* modal_dialog_event,
     int32 opener_id,
+    const RendererPreferences& renderer_prefs,
     const WebPreferences& webkit_prefs,
     SharedRenderViewCounter* counter,
     int32 routing_id) {
@@ -225,6 +228,7 @@ RenderView* RenderView::Create(
   view->Init(parent_hwnd,
              modal_dialog_event,
              opener_id,
+             renderer_prefs,
              webkit_prefs,
              counter,
              routing_id);  // adds reference
@@ -265,6 +269,7 @@ void RenderView::JSOutOfMemory() {
 void RenderView::Init(gfx::NativeViewId parent_hwnd,
                       base::WaitableEvent* modal_dialog_event,
                       int32 opener_id,
+                      const RendererPreferences& renderer_prefs,
                       const WebPreferences& webkit_prefs,
                       SharedRenderViewCounter* counter,
                       int32 routing_id) {
@@ -281,6 +286,8 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
     shared_popup_counter_ = new SharedRenderViewCounter(0);
     decrement_shared_popup_at_destruction_ = false;
   }
+
+  OnSetRendererPrefs(renderer_prefs);
 
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
 
@@ -419,6 +426,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_SetBackground, OnSetBackground)
     IPC_MESSAGE_HANDLER(ViewMsg_EnableIntrinsicWidthChangedMode,
                         OnEnableIntrinsicWidthChangedMode)
+    IPC_MESSAGE_HANDLER(ViewMsg_SetRendererPrefs, OnSetRendererPrefs)
 
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidget::OnMessageReceived(message))
@@ -1002,6 +1010,10 @@ void RenderView::UpdateSessionHistory(WebFrame* frame) {
 
 ///////////////////////////////////////////////////////////////////////////////
 // WebViewDelegate
+
+bool RenderView::CanAcceptLoadDrops() const {
+  return renderer_preferences_.can_accept_load_drops;
+}
 
 void RenderView::DidStartLoading(WebView* webview) {
   if (is_loading_) {
@@ -1657,7 +1669,7 @@ WebView* RenderView::CreateWebView(WebView* webview,
   }
 
   // The WebView holds a reference to this new RenderView
-  const WebPreferences& prefs = webview->GetPreferences();
+  const WebPreferences& web_prefs = webview->GetPreferences();
   base::WaitableEvent* waitable_event = new base::WaitableEvent
 #if defined(OS_WIN)
       (modal_dialog_event.event);
@@ -1666,8 +1678,8 @@ WebView* RenderView::CreateWebView(WebView* webview,
 #endif
   RenderView* view = RenderView::Create(render_thread_,
                                         NULL, waitable_event, routing_id_,
-                                        prefs, shared_popup_counter_,
-                                        routing_id);
+                                        renderer_preferences_, web_prefs,
+                                        shared_popup_counter_, routing_id);
   view->opened_by_user_gesture_ = user_gesture;
   view->creator_url_ = creator_url;
 
@@ -2516,6 +2528,10 @@ void RenderView::OnEnableViewSourceMode() {
 
 void RenderView::OnEnableIntrinsicWidthChangedMode() {
   send_preferred_width_changes_ = true;
+}
+
+void RenderView::OnSetRendererPrefs(const RendererPreferences& renderer_prefs) {
+  renderer_preferences_ = renderer_prefs;
 }
 
 void RenderView::OnUpdateBackForwardListCount(int back_list_count,

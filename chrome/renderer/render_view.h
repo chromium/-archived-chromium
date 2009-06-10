@@ -18,6 +18,7 @@
 #include "base/timer.h"
 #include "base/values.h"
 #include "build/build_config.h"
+#include "chrome/browser/renderer_preferences.h"
 #include "chrome/renderer/automation/dom_automation_controller.h"
 #include "chrome/renderer/dom_ui_bindings.h"
 #include "chrome/renderer/extensions/extension_process_bindings.h"
@@ -113,6 +114,7 @@ class RenderView : public RenderWidget,
       gfx::NativeViewId parent_hwnd,
       base::WaitableEvent* modal_dialog_event,  // takes ownership
       int32 opener_id,
+      const RendererPreferences& renderer_prefs,
       const WebPreferences& webkit_prefs,
       SharedRenderViewCounter* counter,
       int32 routing_id);
@@ -137,6 +139,7 @@ class RenderView : public RenderWidget,
   virtual void OnMessageReceived(const IPC::Message& msg);
 
   // WebViewDelegate
+  virtual bool CanAcceptLoadDrops() const;
   virtual void ShowModalHTMLDialog(const GURL& url, int width, int height,
                                    const std::string& json_arguments,
                                    std::string* json_retval);
@@ -410,6 +413,7 @@ class RenderView : public RenderWidget,
   void Init(gfx::NativeViewId parent,
             base::WaitableEvent* modal_dialog_event,  // takes ownership
             int32 opener_id,
+            const RendererPreferences& renderer_prefs,
             const WebPreferences& webkit_prefs,
             SharedRenderViewCounter* counter,
             int32 routing_id);
@@ -540,6 +544,7 @@ class RenderView : public RenderWidget,
   void OnFileChooserResponse(const std::vector<FilePath>& file_names);
   void OnEnableViewSourceMode();
   void OnEnableIntrinsicWidthChangedMode();
+  void OnSetRendererPrefs(const RendererPreferences& renderer_prefs);
   void OnUpdateBackForwardListCount(int back_list_count,
                                     int forward_list_count);
   void OnGetAccessibilityInfo(
@@ -798,6 +803,8 @@ class RenderView : public RenderWidget,
 
   // Need for printing
   scoped_ptr<PrintWebViewHelper> print_render_view_;
+
+  RendererPreferences renderer_preferences_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderView);
 };

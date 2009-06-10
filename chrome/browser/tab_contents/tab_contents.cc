@@ -1482,6 +1482,13 @@ RenderViewHostDelegate::Save* TabContents::GetSaveDelegate() const {
   return save_package_.get();  // May be NULL, but we can return NULL.
 }
 
+RendererPreferences TabContents::GetRendererPrefs() const {
+  if (delegate())
+    return delegate()->GetRendererPrefs();
+  else
+    return RendererPreferences();
+}
+
 ExtensionFunctionDispatcher* TabContents::CreateExtensionFunctionDispatcher(
     RenderViewHost* render_view_host,
     const std::string& extension_id) {

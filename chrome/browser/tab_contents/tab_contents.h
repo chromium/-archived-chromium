@@ -23,6 +23,7 @@
 #include "chrome/browser/find_notification_details.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
+#include "chrome/browser/renderer_preferences.h"
 #include "chrome/browser/tab_contents/constrained_window.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
@@ -710,6 +711,7 @@ class TabContents : public PageNavigator,
 
   // RenderViewHostDelegate ----------------------------------------------------
 
+  virtual RendererPreferences GetRendererPrefs() const;
   virtual RenderViewHostDelegate::View* GetViewDelegate() const;
   virtual RenderViewHostDelegate::Save* GetSaveDelegate() const;
   virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(

@@ -181,6 +181,12 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
 
   // FrameLoaderClient -------------------------------------------------------
 
+  virtual bool CanAcceptLoadDrops() const {
+    // Always return true here so layout tests (which use the default WebView
+    // delegate) continue to pass.
+    return true;
+  }
+
   // Notifies the delegate that a load has begun.
   virtual void DidStartLoading(WebView* webview) {
   }

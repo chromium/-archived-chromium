@@ -41,9 +41,10 @@ IPC_BEGIN_MESSAGES(View)
   // Tells the renderer to create a new view.
   // This message is slightly different, the view it takes is the view to
   // create, the message itself is sent as a non-view control message.
-  IPC_MESSAGE_CONTROL4(ViewMsg_New,
+  IPC_MESSAGE_CONTROL5(ViewMsg_New,
                        gfx::NativeViewId, /* parent window */
                        ModalDialogEvent, /* model dialog box event */
+                       RendererPreferences,
                        WebPreferences,
                        int32 /* view id */)
 
@@ -58,6 +59,10 @@ IPC_BEGIN_MESSAGES(View)
   // first, and we need to update it
   IPC_MESSAGE_ROUTED1(ViewMsg_CreatingNew_ACK,
                       gfx::NativeViewId /* parent_hwnd */)
+
+  // Sends updated preferences to the renderer.
+  IPC_MESSAGE_ROUTED1(ViewMsg_SetRendererPrefs,
+                      RendererPreferences)
 
   // Tells the render view to close.
   IPC_MESSAGE_ROUTED0(ViewMsg_Close)

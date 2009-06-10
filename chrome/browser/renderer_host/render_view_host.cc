@@ -181,6 +181,7 @@ bool RenderViewHost::CreateRenderView() {
 
   Send(new ViewMsg_New(GetNativeViewId(),
                        modal_dialog_event,
+                       delegate_->GetRendererPrefs(),
                        delegate_->GetWebkitPrefs(),
                        routing_id()));
 
@@ -200,6 +201,11 @@ bool RenderViewHost::CreateRenderView() {
 
 bool RenderViewHost::IsRenderViewLive() const {
   return process()->channel() && renderer_initialized_;
+}
+
+void RenderViewHost::SetRendererPrefs(
+    const RendererPreferences& renderer_prefs) {
+  Send(new ViewMsg_SetRendererPrefs(routing_id(), renderer_prefs));
 }
 
 void RenderViewHost::NavigateToEntry(const NavigationEntry& entry,

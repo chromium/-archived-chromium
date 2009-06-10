@@ -12,6 +12,7 @@
 #include "base/file_path.h"
 #include "base/gfx/rect.h"
 #include "base/logging.h"
+#include "chrome/browser/renderer_preferences.h"
 #include "chrome/common/native_web_keyboard_event.h"
 #include "net/base/load_states.h"
 #include "webkit/glue/password_form.h"
@@ -364,6 +365,12 @@ class RenderViewHostDelegate {
   // unchanged, just use the error pages built into our webkit.
   virtual GURL GetAlternateErrorPageURL() const {
     return GURL();
+  }
+
+  // Return a dummy RendererPreferences object that will be used by the renderer
+  // associated with the owning RenderViewHost.
+  virtual RendererPreferences GetRendererPrefs() const {
+    return RendererPreferences();
   }
 
   // Returns a WebPreferences object that will be used by the renderer

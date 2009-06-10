@@ -44,7 +44,13 @@ void DragClientImpl::willPerformDragSourceAction(
 
 WebCore::DragDestinationAction DragClientImpl::actionMaskForDrag(
     WebCore::DragData*) {
-  return WebCore::DragDestinationActionAny;
+  if (webview_->delegate()->CanAcceptLoadDrops()) {
+    return WebCore::DragDestinationActionAny;
+  } else {
+    return static_cast<WebCore::DragDestinationAction>
+        (WebCore::DragDestinationActionDHTML |
+         WebCore::DragDestinationActionEdit);
+  }
 }
 
 WebCore::DragSourceAction DragClientImpl::dragSourceActionMaskForPoint(

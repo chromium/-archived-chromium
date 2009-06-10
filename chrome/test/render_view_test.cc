@@ -6,6 +6,7 @@
 
 #include "chrome/common/native_web_keyboard_event.h"
 #include "chrome/common/render_messages.h"
+#include "chrome/browser/renderer_preferences.h"
 #include "chrome/browser/extensions/extension_function_dispatcher.h"
 #include "chrome/renderer/extensions/event_bindings.h"
 #include "chrome/renderer/extensions/extension_process_bindings.h"
@@ -85,7 +86,7 @@ void RenderViewTest::SetUp() {
 
   // This needs to pass the mock render thread to the view.
   view_ = RenderView::Create(&render_thread_, NULL, NULL, kOpenerId,
-                             WebPreferences(),
+                             RendererPreferences(), WebPreferences(),
                              new SharedRenderViewCounter(0), kRouteId);
 
   // Attach a pseudo keyboard device to this object.

@@ -12,6 +12,7 @@
 #include "base/shared_memory.h"
 #include "base/task.h"
 #include "build/build_config.h"
+#include "chrome/browser/renderer_preferences.h"
 #include "chrome/common/child_thread.h"
 #include "chrome/renderer/renderer_histogram_snapshots.h"
 
@@ -122,6 +123,7 @@ class RenderThread : public RenderThreadBase,
   void OnSetNextPageID(int32 next_page_id);
   void OnCreateNewView(gfx::NativeViewId parent_hwnd,
                        ModalDialogEvent modal_dialog_event,
+                       const RendererPreferences& renderer_prefs,
                        const WebPreferences& webkit_prefs,
                        int32 view_id);
   void OnTransferBitmap(const SkBitmap& bitmap, int resource_id);

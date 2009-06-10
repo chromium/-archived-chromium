@@ -102,6 +102,8 @@ class RenderViewHost : public RenderWidgetHost {
   // Returns true if the RenderView is active and has not crashed.
   virtual bool IsRenderViewLive() const;
 
+  virtual void SetRendererPrefs(const RendererPreferences& renderer_prefs);
+
   // Load the specified entry, optionally reloading.
   virtual void NavigateToEntry(const NavigationEntry& entry, bool is_reload);
 

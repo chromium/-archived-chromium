@@ -10,6 +10,7 @@
 #include "base/command_line.h"
 #include "base/shared_memory.h"
 #include "base/stats_table.h"
+#include "chrome/browser/renderer_preferences.h"
 #include "chrome/common/app_cache/app_cache_context_impl.h"
 #include "chrome/common/app_cache/app_cache_dispatcher.h"
 #include "chrome/common/chrome_switches.h"
@@ -241,6 +242,7 @@ void RenderThread::OnSetNextPageID(int32 next_page_id) {
 
 void RenderThread::OnCreateNewView(gfx::NativeViewId parent_hwnd,
                                    ModalDialogEvent modal_dialog_event,
+                                   const RendererPreferences& renderer_prefs,
                                    const WebPreferences& webkit_prefs,
                                    int32 view_id) {
   EnsureWebKitInitialized();
@@ -256,8 +258,8 @@ void RenderThread::OnCreateNewView(gfx::NativeViewId parent_hwnd,
   // TODO(darin): once we have a RenderThread per RenderView, this will need to
   // change to assert that we are not creating more than one view.
   RenderView::Create(
-      this, parent_hwnd, waitable_event, MSG_ROUTING_NONE, webkit_prefs,
-      new SharedRenderViewCounter(0), view_id);
+      this, parent_hwnd, waitable_event, MSG_ROUTING_NONE, renderer_prefs,
+      webkit_prefs, new SharedRenderViewCounter(0), view_id);
 }
 
 void RenderThread::OnSetCacheCapacities(size_t min_dead_capacity,

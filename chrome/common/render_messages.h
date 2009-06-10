@@ -14,6 +14,7 @@
 #include "base/ref_counted.h"
 #include "base/shared_memory.h"
 #include "chrome/browser/renderer_host/resource_handler.h"
+#include "chrome/browser/renderer_preferences.h"
 #include "chrome/common/filter_policy.h"
 #include "chrome/common/ipc_message_utils.h"
 #include "chrome/common/modal_dialog_event.h"
@@ -1504,6 +1505,21 @@ struct ParamTraits<ViewHostMsg_DidPrintPage_Params> {
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"<ViewHostMsg_DidPrintPage_Params>");
+  }
+};
+
+// Traits for RendererPreferences structure to pack/unpack.
+template <>
+struct ParamTraits<RendererPreferences> {
+  typedef RendererPreferences param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.can_accept_load_drops);
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    return ReadParam(m, iter, &p->can_accept_load_drops);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"<RendererPreferences>");
   }
 };
 

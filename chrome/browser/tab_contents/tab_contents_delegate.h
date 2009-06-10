@@ -8,6 +8,7 @@
 #include "base/basictypes.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
+#include "chrome/browser/renderer_preferences.h"
 #include "chrome/common/page_transition_types.h"
 #include "webkit/glue/window_open_disposition.h"
 
@@ -179,8 +180,12 @@ class TabContentsDelegate {
   virtual void OnStartDownload(DownloadItem* download) {
   }
 
+  // Returns the renderer's current preferences settings.
+  RendererPreferences GetRendererPrefs() const { return renderer_preferences_; }
+
  protected:
   ~TabContentsDelegate() {}
+  RendererPreferences renderer_preferences_;
 
 };
 

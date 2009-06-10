@@ -1249,6 +1249,7 @@
         'browser/renderer_host/sync_resource_handler.h',
         'browser/renderer_host/web_cache_manager.cc',
         'browser/renderer_host/web_cache_manager.h',
+        'browser/renderer_preferences.h',
         'browser/rlz/rlz.cc',
         'browser/rlz/rlz.h',
         'browser/safe_browsing/bloom_filter.cc',
@@ -2087,6 +2088,7 @@
         # But app/ is the wrong directory for them.
         # Better is to remove the dep of *_tests on renderer, but in the
         # short term I'd like the build to work.
+        'browser/renderer_preferences.h',
         'renderer/automation/dom_automation_controller.cc',
         'renderer/automation/dom_automation_controller.h',
         'renderer/extensions/bindings_utils.cc',
