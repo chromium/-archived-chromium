@@ -65,7 +65,7 @@ ssize_t RecvMsg(int fd, void* buf, size_t length, std::vector<int>* fds) {
   if (r == -1)
     return -1;
 
-  int* wire_fds;
+  int* wire_fds = NULL;
   unsigned wire_fds_len = 0;
 
   if (msg.msg_controllen > 0) {
