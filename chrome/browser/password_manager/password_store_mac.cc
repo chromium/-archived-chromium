@@ -16,6 +16,139 @@
 
 namespace internal_keychain_helpers {
 
+// Utility class to handle the details of constructing and running a keychain
+// search from a set of attributes.
+class KeychainSearch {
+ public:
+  KeychainSearch(const MacKeychain& keychain);
+  ~KeychainSearch();
+
+  // Sets up a keycahin search based on an non "null" (NULL for char*,
+  // The appropriate "Any" entry for other types) arguments.
+  //
+  // IMPORTANT: Any paramaters passed in *must* remain valid for as long as the
+  // KeychainSearch object, since the search uses them by reference.
+  void Init(const char* server, const UInt32& port,
+            const SecProtocolType& protocol,
+            const SecAuthenticationType& auth_type, const char* security_domain,
+            const char* path, const char* username);
+
+  // Fills |items| with all Keychain items that match the Init'd search.
+  // If the search fails for any reason, |items| will be unchanged.
+  void FindMatchingItems(std::vector<SecKeychainItemRef>* matches);
+
+ private:
+  const MacKeychain* keychain_;
+  SecKeychainAttributeList search_attributes_;
+  SecKeychainSearchRef search_ref_;
+};
+
+KeychainSearch::KeychainSearch(const MacKeychain& keychain)
+    : keychain_(&keychain), search_ref_(NULL) {
+  search_attributes_.count = 0;
+  search_attributes_.attr = NULL;
+}
+
+KeychainSearch::~KeychainSearch() {
+  if (search_attributes_.attr) {
+    free(search_attributes_.attr);
+  }
+}
+
+void KeychainSearch::Init(const char* server, const UInt32& port,
+                          const SecProtocolType& protocol,
+                          const SecAuthenticationType& auth_type,
+                          const char* security_domain, const char* path,
+                          const char* username) {
+  // Allocate enough to hold everything we might use.
+  const unsigned int kMaxEntryCount = 7;
+  search_attributes_.attr =
+      static_cast<SecKeychainAttribute*>(calloc(kMaxEntryCount,
+                                                sizeof(SecKeychainAttribute)));
+  unsigned int entries = 0;
+  // We only use search_attributes_ with SearchCreateFromAttributes, which takes
+  // a "const SecKeychainAttributeList *", so we trust that they won't try
+  // to modify the list, and that casting away const-ness is thus safe.
+  if (server != NULL) {
+    DCHECK(entries < kMaxEntryCount);
+    search_attributes_.attr[entries].tag = kSecServerItemAttr;
+    search_attributes_.attr[entries].length = strlen(server);
+    search_attributes_.attr[entries].data =
+        const_cast<void*>(reinterpret_cast<const void*>(server));
+    ++entries;
+  }
+  if (port != kAnyPort) {
+    DCHECK(entries <= kMaxEntryCount);
+    search_attributes_.attr[entries].tag = kSecPortItemAttr;
+    search_attributes_.attr[entries].length = sizeof(port);
+    search_attributes_.attr[entries].data =
+        const_cast<void*>(reinterpret_cast<const void*>(&port));
+    ++entries;
+  }
+  if (protocol != kSecProtocolTypeAny) {
+    DCHECK(entries <= kMaxEntryCount);
+    search_attributes_.attr[entries].tag = kSecProtocolItemAttr;
+    search_attributes_.attr[entries].length = sizeof(protocol);
+    search_attributes_.attr[entries].data =
+        const_cast<void*>(reinterpret_cast<const void*>(&protocol));
+    ++entries;
+  }
+  if (auth_type != kSecAuthenticationTypeAny) {
+    DCHECK(entries <= kMaxEntryCount);
+    search_attributes_.attr[entries].tag = kSecAuthenticationTypeItemAttr;
+    search_attributes_.attr[entries].length = sizeof(auth_type);
+    search_attributes_.attr[entries].data =
+        const_cast<void*>(reinterpret_cast<const void*>(&auth_type));
+    ++entries;
+  }
+  if (security_domain != NULL && strlen(security_domain) > 0) {
+    DCHECK(entries <= kMaxEntryCount);
+    search_attributes_.attr[entries].tag = kSecSecurityDomainItemAttr;
+    search_attributes_.attr[entries].length = strlen(security_domain);
+    search_attributes_.attr[entries].data =
+        const_cast<void*>(reinterpret_cast<const void*>(security_domain));
+    ++entries;
+  }
+  if (path != NULL && strlen(path) > 0 && strcmp(path, "/") != 0) {
+    DCHECK(entries <= kMaxEntryCount);
+    search_attributes_.attr[entries].tag = kSecPathItemAttr;
+    search_attributes_.attr[entries].length = strlen(path);
+    search_attributes_.attr[entries].data =
+        const_cast<void*>(reinterpret_cast<const void*>(path));
+    ++entries;
+  }
+  if (username != NULL) {
+    DCHECK(entries <= kMaxEntryCount);
+    search_attributes_.attr[entries].tag = kSecAccountItemAttr;
+    search_attributes_.attr[entries].length = strlen(username);
+    search_attributes_.attr[entries].data =
+        const_cast<void*>(reinterpret_cast<const void*>(username));
+    ++entries;
+  }
+  search_attributes_.count = entries;
+}
+
+void KeychainSearch::FindMatchingItems(std::vector<SecKeychainItemRef>* items) {
+  OSStatus result = keychain_->SearchCreateFromAttributes(
+      NULL, kSecInternetPasswordItemClass, &search_attributes_, &search_ref_);
+
+  if (result != noErr) {
+    LOG(ERROR) << "Keychain lookup failed with error " << result;
+    return;
+  }
+
+  SecKeychainItemRef keychain_item;
+  while (keychain_->SearchCopyNext(search_ref_, &keychain_item) == noErr) {
+    // Consumer is responsible for deleting the forms when they are done.
+    items->push_back(keychain_item);
+  }
+
+  keychain_->Free(search_ref_);
+  search_ref_ = NULL;
+}
+
+#pragma mark -
+
 // TODO(stuartmorgan): signon_realm for proxies is not yet supported.
 bool ExtractSignonRealmComponents(const std::string& signon_realm,
                                   std::string* server, int* port,
@@ -124,52 +257,68 @@ void FindMatchingKeychainItems(const MacKeychain& keychain,
     return;
   }
 
-  const char* server_c_str = server.c_str();
-  UInt32 port_uint = port;
   SecProtocolType protocol = is_secure ? kSecProtocolTypeHTTPS
                                        : kSecProtocolTypeHTTP;
   SecAuthenticationType auth_type =
       internal_keychain_helpers::AuthTypeForScheme(scheme);
-  const char* security_domain_c_str = security_domain.c_str();
 
-  // kSecSecurityDomainItemAttr must be last, so that it can be "removed" when
-  // not applicable.
-  SecKeychainAttribute attributes[] = {
-    { kSecServerItemAttr, strlen(server_c_str),
-      const_cast<void*>(reinterpret_cast<const void*>(server_c_str)) },
-    { kSecPortItemAttr, sizeof(port_uint), static_cast<void*>(&port_uint) },
-    { kSecProtocolItemAttr, sizeof(protocol), static_cast<void*>(&protocol) },
-    { kSecAuthenticationTypeItemAttr, sizeof(auth_type),
-      static_cast<void*>(&auth_type) },
-    { kSecSecurityDomainItemAttr, strlen(security_domain_c_str),
-      const_cast<void*>(reinterpret_cast<const void*>(security_domain_c_str)) }
-  };
-  SecKeychainAttributeList search_attributes = { arraysize(attributes),
-                                                 attributes };
-  // For HTML forms, we don't want the security domain to be part of the
-  // search, so trim that off of the attribute list.
-  if (scheme == PasswordForm::SCHEME_HTML) {
-    search_attributes.count -= 1;
-  }
+  internal_keychain_helpers::KeychainSearch keychain_search(keychain);
+  keychain_search.Init(server.c_str(), port, protocol, auth_type,
+                       (scheme == PasswordForm::SCHEME_HTML) ?
+                           NULL : security_domain.c_str(),
+                       NULL, NULL);
+  keychain_search.FindMatchingItems(items);
+}
 
-  SecKeychainSearchRef keychain_search = NULL;
-  OSStatus result = keychain.SearchCreateFromAttributes(
-      NULL, kSecInternetPasswordItemClass, &search_attributes,
-      &keychain_search);
+void FindMatchingKeychainItem(const MacKeychain& keychain,
+                              const PasswordForm& form,
+                              SecKeychainItemRef* match) {
+  DCHECK(match);
+  *match = NULL;
 
-  if (result != noErr) {
-    LOG(ERROR) << "Keychain lookup failed for " << server << " with error "
-               << result;
+  // We don't store blacklist entries in the keychain, so the answer to "what
+  // Keychain item goes with this form" is always "nothing" for blacklists.
+  if (form.blacklisted_by_user) {
     return;
   }
 
-  SecKeychainItemRef keychain_item;
-  while (keychain.SearchCopyNext(keychain_search, &keychain_item) == noErr) {
-    // Consumer is responsible for deleting the forms when they are done.
-    items->push_back(keychain_item);
+  // Construct a keychain search based on all the unique attributes.
+  std::string server;
+  std::string security_domain;
+  int port;
+  bool is_secure;
+  if (!internal_keychain_helpers::ExtractSignonRealmComponents(
+          form.signon_realm, &server, &port, &is_secure, &security_domain)) {
+    // TODO(stuartmorgan): Proxies will currently fail here, since their
+    // signon_realm is not a URL. We need to detect the proxy case and handle
+    // it specially.
+    return;
   }
 
-  keychain.Free(keychain_search);
+  SecProtocolType protocol = is_secure ? kSecProtocolTypeHTTPS
+                                       : kSecProtocolTypeHTTP;
+  SecAuthenticationType auth_type =
+      internal_keychain_helpers::AuthTypeForScheme(form.scheme);
+  std::string path = form.origin.path();
+  std::string username = WideToUTF8(form.username_value);
+
+  internal_keychain_helpers::KeychainSearch keychain_search(keychain);
+  keychain_search.Init(server.c_str(), port, protocol, auth_type,
+                       (form.scheme == PasswordForm::SCHEME_HTML) ?
+                           NULL : security_domain.c_str(),
+                       path.c_str(), username.c_str());
+
+  std::vector<SecKeychainItemRef> matches;
+  keychain_search.FindMatchingItems(&matches);
+
+  if (matches.size() > 0) {
+    *match = matches[0];
+    // Free everything we aren't returning.
+    for (std::vector<SecKeychainItemRef>::iterator i = matches.begin() + 1;
+         i != matches.end(); ++i) {
+      keychain.Free(*i);
+    }
+  }
 }
 
 bool FillPasswordFormFromKeychainItem(const MacKeychain& keychain,
@@ -289,6 +438,7 @@ bool FillPasswordFormFromKeychainItem(const MacKeychain& keychain,
 
 }  // internal_keychain_helpers
 
+#pragma mark -
 
 PasswordStoreMac::PasswordStoreMac(MacKeychain* keychain)
     : keychain_(keychain) {

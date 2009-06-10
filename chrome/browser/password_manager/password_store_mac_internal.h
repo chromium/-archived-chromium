@@ -51,6 +51,13 @@ void FindMatchingKeychainItems(const MacKeychain& keychain,
                                PasswordForm::Scheme scheme,
                                std::vector<SecKeychainItemRef>* items);
 
+// Searches |keychain| for the specific keychain entry matching the given form.
+// If no match is found, |match| will be NULL on return.
+// The caller is responsible for calling keychain->Free on |match|.
+void FindMatchingKeychainItem(const MacKeychain& keychain,
+                              const PasswordForm& form,
+                              SecKeychainItemRef* match);
+
 // Sets the fields of |form| based on the keychain data from |keychain_item|.
 // Fields that can't be determined from |keychain_item| will be unchanged.
 //
