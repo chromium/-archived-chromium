@@ -31,18 +31,18 @@
 #include "base/registry.h"
 #endif
 
-// Extension ids used during testing.
-static const char* all_zero = "0000000000000000000000000000000000000000";
-static const char* zero_n_one = "0000000000000000000000000000000000000001";
-static const char* good0 = "00123456789abcdef0123456789abcdef0123456";
-static const char* good1 = "10123456789abcdef0123456789abcdef0123456";
-static const char* good2 = "20123456789abcdef0123456789abcdef0123456";
-static const char* good_crx = "00123456789abcdef0123456789abcdef0123456";
-static const char* page_action = "8a5e4cb023c61b431e9b603a97c293429ce057c8";
-static const char* theme_crx = "f0123456789abcdef0123456789abcdef0126456";
-static const char* theme2_crx = "f0123456789adddef0123456789abcdef0126456";
-
 namespace {
+
+// Extension ids used during testing.
+const char* const all_zero = "0000000000000000000000000000000000000000";
+const char* const zero_n_one = "0000000000000000000000000000000000000001";
+const char* const good0 = "00123456789abcdef0123456789abcdef0123456";
+const char* const good1 = "10123456789abcdef0123456789abcdef0123456";
+const char* const good2 = "20123456789abcdef0123456789abcdef0123456";
+const char* const good_crx = "00123456789abcdef0123456789abcdef0123456";
+const char* const page_action = "8a5e4cb023c61b431e9b603a97c293429ce057c8";
+const char* const theme_crx = "f0123456789abcdef0123456789abcdef0126456";
+const char* const theme2_crx = "f0123456789adddef0123456789abcdef0126456";
 
 struct ExtensionsOrder {
   bool operator()(const Extension* a, const Extension* b) {
