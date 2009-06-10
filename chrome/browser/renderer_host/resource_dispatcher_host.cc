@@ -325,7 +325,10 @@ void ResourceDispatcherHost::BeginRequest(
   request->set_first_party_for_cookies(request_data.first_party_for_cookies);
   request->set_referrer(request_data.referrer.spec());
   request->SetExtraRequestHeaders(request_data.headers);
-  request->set_load_flags(request_data.load_flags);
+  int load_flags = request_data.load_flags;
+  if (request_data.resource_type == ResourceType::MAIN_FRAME)
+    load_flags |= net::LOAD_VERIFY_EV_CERT;
+  request->set_load_flags(load_flags);
   request->set_context(context);
   request->set_origin_pid(request_data.origin_pid);
 

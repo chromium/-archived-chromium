@@ -67,6 +67,9 @@ enum {
 
   // Indicate this request is for a download, as opposed to viewing.
   LOAD_IS_DOWNLOAD = 1 << 15,
+
+  // Requires EV certificate verification.
+  LOAD_VERIFY_EV_CERT = 1 << 16,
 };
 
 }  // namespace net
