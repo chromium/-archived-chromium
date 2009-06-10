@@ -224,15 +224,28 @@ bool MessageQueue::CheckForNewMessages() {
 
   // Check all the sockets of the connected clients to see if they contain any
   // messages.
-  std::vector<ConnectedClient*>::const_iterator iter;
-  for (iter = connected_clients_.begin(); iter < connected_clients_.end();
-       ++iter) {
+  std::vector<ConnectedClient*>::iterator iter;
+  for (iter = connected_clients_.begin(); iter < connected_clients_.end();) {
     if (ReceiveMessageFromSocket((*iter)->client_handle(),
                                  &header,
                                  &message_id,
                                  &message_length)) {
-      ProcessClientRequest(*iter, message_length, message_id, &header, handles);
+      if (message_length == 0) {
+        // Message length of 0 means EOF (i.e., client closed its handle).
+        nacl::Close((*iter)->client_handle());
+        delete *iter;
+        iter = connected_clients_.erase(iter);  // Advances the iterator too.
+        continue;
+      }
+      if (message_length != -1) {  // Else no message waiting
+        ProcessClientRequest(*iter,
+                             message_length,
+                             message_id,
+                             &header,
+                             handles);
+      }
     }
+    ++iter;
   }
 
   return true;
@@ -261,11 +274,26 @@ bool MessageQueue::ReceiveMessageFromSocket(nacl::Handle socket,
     if (nacl::WouldBlock()) {
       *length = message_length;
       return true;
+#if defined(OS_WIN)
+    } else if (GetLastError() == ERROR_BROKEN_PIPE) {
+      // On Windows, the NACL library treats EOF as a failure with this failure
+      // code. We convert it to the traditional format of a successful read that
+      // returns zero bytes to match the Mac & Linux case below.
+      *length = 0;
+      return true;
+#endif
     } else {
       LOG_IMC_ERROR("nacl::ReceiveMessage failed");
       return false;
     }
   }
+
+#if defined(OS_MACOSX) | defined(OS_LINUX)
+  if (message_length == 0) {  // EOF
+    *length = 0;
+    return true;
+  }
+#endif
 
   // Valid messages must always contain at least the ID of the message
   if (message_length >= sizeof(*message_id)) {
