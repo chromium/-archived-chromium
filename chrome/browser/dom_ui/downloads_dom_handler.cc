@@ -343,6 +343,6 @@ std::wstring DownloadsDOMHandler::GetProgressStatusText(
     return l10n_util::GetStringF(IDS_DOWNLOAD_TAB_PROGRESS_STATUS_TIME_UNKNOWN, 
                                  speed_text, amount);
   }
-  return l10n_util::GetStringF(IDS_DOWNLOAD_TAB_PROGRESS_STATUS, amount, 
-                               time_remaining);
+  return l10n_util::GetStringF(IDS_DOWNLOAD_TAB_PROGRESS_STATUS, speed_text,
+                               amount, time_remaining);
 }
