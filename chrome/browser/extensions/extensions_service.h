@@ -29,6 +29,7 @@ class ResourceDispatcherHost;
 class SkBitmap;
 class SiteInstance;
 class UserScriptMaster;
+
 typedef std::vector<Extension*> ExtensionList;
 
 // Manages installed and running Chromium extensions.
