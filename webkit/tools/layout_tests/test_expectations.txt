@@ -2695,3 +2695,6 @@ BUG13721 WIN LINUX : LayoutTests/fast/canvas/quadraticCurveTo.xml = FAIL
 BUG13721 WIN LINUX : LayoutTests/http/tests/loading/deleted-host-in-resource-load-delegate-callback.html = TIMEOUT
 BUG13721 SKIP : LayoutTests/fast/canvas/canvas-lineWidth.html = FAIL
 BUG13721 LINUX : LayoutTests/fast/dynamic/positioned-movement-with-positioned-children.html = FAIL
+
+// We seem to be missing a line-break in the results for this first test.
+BUG13728 WIN LINUX : LayoutTests/editing/deleting/4866671.html = FAIL
