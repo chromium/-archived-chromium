@@ -723,7 +723,7 @@
         'browser/cocoa/gradient_button_cell.h',
         'browser/cocoa/gradient_button_cell.mm',
         'browser/cocoa/grow_box_view.h',
-        'browser/cocoa/grow_box_view.m',
+        'browser/cocoa/grow_box_view.mm',
         'browser/cocoa/location_bar_cell.h',
         'browser/cocoa/location_bar_cell.mm',
         'browser/cocoa/location_bar_view_mac.h',
