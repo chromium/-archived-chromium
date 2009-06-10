@@ -68,7 +68,7 @@ void NativeButtonGtk::SetFocus() {
   Focus();
 }
 
-gfx::NativeView NativeButtonWin::GetTestingHandle() const {
+gfx::NativeView NativeButtonGtk::GetTestingHandle() const {
   return native_view();
 }
 

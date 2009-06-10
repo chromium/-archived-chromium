@@ -5,6 +5,8 @@
 #ifndef VIEWS_CONTROLS_BUTTON_NATIVE_BUTTON_WRAPPER_H_
 #define VIEWS_CONTROLS_BUTTON_NATIVE_BUTTON_WRAPPER_H_
 
+#include "base/gfx/native_widget_types.h"
+
 namespace views {
 
 class Checkbox;
