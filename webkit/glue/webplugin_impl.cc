@@ -1395,6 +1395,7 @@ void WebPluginImpl::TearDownPluginInstance(
   // webframe_ might not be valid anymore.
   webframe_->set_plugin_delegate(NULL);
   webframe_ = NULL;
+  method_factory_.RevokeAll();
 }
 
 void WebPluginImpl::UpdateVisibility() {
