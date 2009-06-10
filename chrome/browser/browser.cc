@@ -2400,7 +2400,13 @@ void Browser::ProcessPendingTabs() {
   // unload tabs.
   if (!tabs_needing_before_unload_fired_.empty()) {
     TabContents* tab = *(tabs_needing_before_unload_fired_.begin());
-    tab->render_view_host()->FirePageBeforeUnload();
+    // Null check render_view_host here as this gets called on a PostTask and
+    // the tab's render_view_host may have been nulled out.
+    if (tab->render_view_host()) {
+      tab->render_view_host()->FirePageBeforeUnload();
+    } else {
+      ClearUnloadState(tab);
+    }
   } else if (!tabs_needing_unload_fired_.empty()) {
     // We've finished firing all beforeunload events and can proceed with unload
     // events.
@@ -2411,7 +2417,13 @@ void Browser::ProcessPendingTabs() {
     // get a perf benefit from that in the cases where the tab hangs in it's
     // unload handler or takes a long time to page in.
     TabContents* tab = *(tabs_needing_unload_fired_.begin());
-    tab->render_view_host()->FirePageUnload();
+    // Null check render_view_host here as this gets called on a PostTask and
+    // the tab's render_view_host may have been nulled out.
+    if (tab->render_view_host()) {
+      tab->render_view_host()->FirePageUnload();
+    } else {
+      ClearUnloadState(tab);
+    }
   } else {
     NOTREACHED();
   }
