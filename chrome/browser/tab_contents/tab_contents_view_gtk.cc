@@ -105,8 +105,6 @@ TabContentsViewGtk::TabContentsViewGtk(TabContents* tab_contents)
   gtk_widget_show(fixed_.get());
   registrar_.Add(this, NotificationType::TAB_CONTENTS_CONNECTED,
                  Source<TabContents>(tab_contents));
-  registrar_.Add(this, NotificationType::TAB_CONTENTS_DISCONNECTED,
-                 Source<TabContents>(tab_contents));
 }
 
 TabContentsViewGtk::~TabContentsViewGtk() {
@@ -193,8 +191,12 @@ void TabContentsViewGtk::SetPageTitle(const std::wstring& title) {
     gdk_window_set_title(content_view->window, WideToUTF8(title).c_str());
 }
 
-void TabContentsViewGtk::Invalidate() {
-  gtk_widget_queue_draw(sad_tab_->widget());
+void TabContentsViewGtk::OnTabCrashed() {
+  if (!sad_tab_.get()) {
+    sad_tab_.reset(new SadTabGtk);
+    InsertIntoContentArea(sad_tab_->widget());
+    gtk_widget_show(sad_tab_->widget());
+  }
 }
 
 void TabContentsViewGtk::SizeContents(const gfx::Size& size) {
@@ -271,12 +273,6 @@ void TabContentsViewGtk::Observe(NotificationType type,
       // the new RenderWidgetHostViewGtk instance already removed all the
       // vbox's children.
       sad_tab_.reset();
-      break;
-    }
-    case NotificationType::TAB_CONTENTS_DISCONNECTED: {
-      sad_tab_.reset(new SadTabGtk);
-      InsertIntoContentArea(sad_tab_->widget());
-      gtk_widget_show(sad_tab_->widget());
       break;
     }
     default:

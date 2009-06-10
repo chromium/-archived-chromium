@@ -218,7 +218,9 @@ void TabContentsViewWin::SetPageTitle(const std::wstring& title) {
   }
 }
 
-void TabContentsViewWin::Invalidate() {
+void TabContentsViewWin::OnTabCrashed() {
+  // Force an invalidation to render sad tab. We will notice we crashed when we
+  // paint.
   // Note that it's possible to get this message after the window was destroyed.
   if (::IsWindow(GetNativeView()))
     InvalidateRect(GetNativeView(), NULL, FALSE);

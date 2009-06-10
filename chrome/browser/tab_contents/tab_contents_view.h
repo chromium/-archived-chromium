@@ -91,10 +91,9 @@ class TabContentsView : public RenderViewHostDelegate::View {
   // trying to find a specific window.
   virtual void SetPageTitle(const std::wstring& title) = 0;
 
-  // Schedules a complete repaint of the window. This is used for cases where
-  // the existing contents became invalid due to an external event, such as the
-  // renderer crashing.
-  virtual void Invalidate() = 0;
+  // Used to notify the view that a tab has crashed so each platform can
+  // prepare the sad tab.
+  virtual void OnTabCrashed() = 0;
 
   // TODO(brettw) this is a hack. It's used in two places at the time of this
   // writing: (1) when render view hosts switch, we need to size the replaced

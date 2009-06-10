@@ -37,7 +37,7 @@ class TabContentsViewWin : public TabContentsView,
   virtual void GetContainerBounds(gfx::Rect* out) const;
   virtual void OnContentsDestroy();
   virtual void SetPageTitle(const std::wstring& title);
-  virtual void Invalidate();
+  virtual void OnTabCrashed();
   virtual void SizeContents(const gfx::Size& size);
   virtual void Focus();
   virtual void SetInitialFocus();

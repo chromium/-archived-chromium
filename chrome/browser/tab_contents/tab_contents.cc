@@ -1537,9 +1537,8 @@ void TabContents::RenderViewGone(RenderViewHost* rvh) {
   NotifyDisconnected();
   SetIsCrashed(true);
 
-  // Force an invalidation to render sad tab. The view will notice we crashed
-  // when it paints.
-  view_->Invalidate();
+  // Tell the view that we've crashed so it can prepare the sad tab page.
+  view_->OnTabCrashed();
 
   // Hide any visible hung renderer warning for this web contents' process.
   HungRendererDialog::HideForTabContents(AsWC(this));

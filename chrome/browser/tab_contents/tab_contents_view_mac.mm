@@ -30,8 +30,6 @@ TabContentsViewMac::TabContentsViewMac(TabContents* tab_contents)
     : TabContentsView(tab_contents) {
   registrar_.Add(this, NotificationType::TAB_CONTENTS_CONNECTED,
                  Source<TabContents>(tab_contents));
-  registrar_.Add(this, NotificationType::TAB_CONTENTS_DISCONNECTED,
-                 Source<TabContents>(tab_contents));
 }
 
 TabContentsViewMac::~TabContentsViewMac() {
@@ -102,8 +100,16 @@ void TabContentsViewMac::SetPageTitle(const std::wstring& title) {
   // Meaningless on the Mac; widgets don't have a "title" attribute
 }
 
-void TabContentsViewMac::Invalidate() {
-  [cocoa_view_.get() setNeedsDisplay:YES];
+void TabContentsViewMac::OnTabCrashed() {
+  if (!sad_tab_.get()) {
+    SadTabView* view = [[SadTabView alloc] initWithFrame:NSZeroRect];
+    sad_tab_.reset(view);
+
+    // Set as the dominant child.
+    [cocoa_view_.get() addSubview:view];
+    [view setFrame:[cocoa_view_.get() bounds]];
+    [view setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+  }
 }
 
 void TabContentsViewMac::SizeContents(const gfx::Size& size) {
@@ -215,16 +221,6 @@ void TabContentsViewMac::Observe(NotificationType type,
         [sad_tab_.get() removeFromSuperview];
         sad_tab_.reset();
       }
-      break;
-    }
-    case NotificationType::TAB_CONTENTS_DISCONNECTED: {
-      SadTabView* view = [[SadTabView alloc] initWithFrame:NSZeroRect];
-      sad_tab_.reset(view);
-
-      // Set as the dominant child.
-      [cocoa_view_.get() addSubview:view];
-      [view setFrame:[cocoa_view_.get() bounds]];
-      [view setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
       break;
     }
     default:
