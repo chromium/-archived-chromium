@@ -167,10 +167,7 @@ void DevToolsManager::OnNavigatingToPendingEntry(RenderViewHost* rvh,
        it != client_host_to_inspected_rvh_.end(); ++it) {
     DevToolsWindow* window = it->first->AsDevToolsWindow();
     if (window && window->GetRenderViewHost() == rvh) {
-      RenderViewHost* inspected_rvn = it->second;
-      UnregisterDevToolsClientHostFor(inspected_rvn);
-      SendDetachToAgent(inspected_rvn);
-      inspected_rvh_for_reopen_ = inspected_rvn;
+      inspected_rvh_for_reopen_ = it->second;
       MessageLoop::current()->PostTask(FROM_HERE,
           NewRunnableMethod(this,
                             &DevToolsManager::ForceReopenWindow));
@@ -197,7 +194,9 @@ void DevToolsManager::SendDetachToAgent(RenderViewHost* inspected_rvh) {
 
 void DevToolsManager::ForceReopenWindow() {
   if (inspected_rvh_for_reopen_) {
-    OpenDevToolsWindow(inspected_rvh_for_reopen_);
-    inspected_rvh_for_reopen_ = NULL;
+    RenderViewHost* inspected_rvn = inspected_rvh_for_reopen_;
+    SendDetachToAgent(inspected_rvn);
+    UnregisterDevToolsClientHostFor(inspected_rvn);
+    OpenDevToolsWindow(inspected_rvn);
   }
 }
