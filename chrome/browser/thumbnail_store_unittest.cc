@@ -48,7 +48,7 @@ class ThumbnailStoreTest : public testing::Test {
   // The directory where ThumbnailStore will store data.
   FilePath file_path_;
 
-  SkBitmap image_;
+  scoped_ptr<SkBitmap> image_;
   scoped_refptr<RefCountedBytes> jpeg_image_;
   ThumbnailScore score1_, score2_;
   GURL url1_, url2_;
@@ -64,15 +64,15 @@ void ThumbnailStoreTest::SetUp() {
   file_util::Delete(file_path_.AppendASCII(url2_.host()), false);
 
   // image is the original SkBitmap representing the thumbnail
-  image_ = *(JPEGCodec::Decode(kGoogleThumbnail, sizeof(kGoogleThumbnail)));
+  image_.reset(JPEGCodec::Decode(kGoogleThumbnail, sizeof(kGoogleThumbnail)));
 
-  SkAutoLockPixels thumbnail_lock(image_);
+  SkAutoLockPixels thumbnail_lock(*image_);
   jpeg_image_ = new RefCountedBytes;
   JPEGCodec::Encode(
-      reinterpret_cast<unsigned char*>(image_.getAddr32(0, 0)),
-      JPEGCodec::FORMAT_BGRA, image_.width(),
-      image_.height(),
-      static_cast<int>(image_.rowBytes()), 90,
+      reinterpret_cast<unsigned char*>(image_->getAddr32(0, 0)),
+      JPEGCodec::FORMAT_BGRA, image_->width(),
+      image_->height(),
+      static_cast<int>(image_->rowBytes()), 90,
       &(jpeg_image_->data));
 }
 
@@ -114,9 +114,6 @@ void ThumbnailStoreTest::PrintPixelDiff(SkBitmap* image_a, SkBitmap* image_b) {
             << maxv[3] << ")" << std::endl;
 }
 
-// TODO(meelapshah) fix the leak in these tests and re-enable.
-#if 0
-
 TEST_F(ThumbnailStoreTest, RetrieveFromCache) {
   RefCountedBytes* read_image = NULL;
   scoped_refptr<ThumbnailStore> store = new ThumbnailStore;
@@ -131,7 +128,7 @@ TEST_F(ThumbnailStoreTest, RetrieveFromCache) {
 
   // Store a thumbnail into the cache and retrieve it.
 
-  EXPECT_TRUE(store->SetPageThumbnail(url1_, image_, score1_, false));
+  EXPECT_TRUE(store->SetPageThumbnail(url1_, *image_, score1_, false));
   EXPECT_TRUE(store->GetPageThumbnail(url1_, &read_image));
   EXPECT_TRUE(score1_.Equals((*store->cache_)[url1_].second));
   EXPECT_TRUE(read_image->data.size() == jpeg_image_->data.size());
@@ -151,15 +148,13 @@ TEST_F(ThumbnailStoreTest, RetrieveFromDisk) {
 
   // Store a thumbnail onto the disk and retrieve it.
 
-  EXPECT_TRUE(store->SetPageThumbnail(url1_, image_, score1_, false));
+  EXPECT_TRUE(store->SetPageThumbnail(url1_, *image_, score1_, false));
   EXPECT_TRUE(store->WriteThumbnailToDisk(url1_));
   EXPECT_TRUE(store->GetPageThumbnailFromDisk(
       file_path_.AppendASCII(url1_.host()), &url2_, read_image, &score2_));
-  read_image->AddRef();
   EXPECT_TRUE(url1_ == url2_);
   EXPECT_TRUE(score1_.Equals(score2_));
   EXPECT_TRUE(read_image->data.size() == jpeg_image_->data.size());
   EXPECT_EQ(0, memcmp(&read_image->data[0], &jpeg_image_->data[0],
                       jpeg_image_->data.size()));
 }
-#endif
