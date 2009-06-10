@@ -67,6 +67,7 @@ class Eviction {
   int max_size_;
   bool new_eviction_;
   bool first_trim_;
+  bool trimming_;
   ScopedRunnableMethodFactory<Eviction> factory_;
 
   DISALLOW_COPY_AND_ASSIGN(Eviction);

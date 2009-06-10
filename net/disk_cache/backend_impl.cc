@@ -713,7 +713,7 @@ int BackendImpl::MaxFileSize() const {
 }
 
 void BackendImpl::ModifyStorageSize(int32 old_size, int32 new_size) {
-  if (disabled_)
+  if (disabled_ || old_size == new_size)
     return;
   if (old_size > new_size)
     SubstractStorageSize(old_size - new_size);

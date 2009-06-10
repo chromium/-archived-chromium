@@ -65,6 +65,7 @@ void Eviction::Init(BackendImpl* backend) {
   max_size_ = LowWaterAdjust(backend_->max_size_);
   new_eviction_ = backend->new_eviction_;
   first_trim_ = true;
+  trimming_ = false;
 }
 
 void Eviction::TrimCache(bool empty) {
@@ -72,9 +73,10 @@ void Eviction::TrimCache(bool empty) {
     return TrimCacheV2(empty);
 
   Trace("*** Trim Cache ***");
-  if (backend_->disabled_)
+  if (backend_->disabled_ || trimming_)
     return;
 
+  trimming_ = true;
   Time start = Time::Now();
   Rankings::ScopedRankingsBlock node(rankings_);
   Rankings::ScopedRankingsBlock next(rankings_,
@@ -103,6 +105,7 @@ void Eviction::TrimCache(bool empty) {
   }
 
   CACHE_UMA(AGE_MS, "TotalTrimTime", 0, start);
+  trimming_ = false;
   Trace("*** Trim Cache end ***");
   return;
 }
@@ -204,9 +207,10 @@ bool Eviction::EvictEntry(CacheRankingsBlock* node, bool empty) {
 
 void Eviction::TrimCacheV2(bool empty) {
   Trace("*** Trim Cache ***");
-  if (backend_->disabled_)
+  if (backend_->disabled_ || trimming_)
     return;
 
+  trimming_ = true;
   Time start = Time::Now();
 
   const int kListsToSearch = 3;
@@ -274,6 +278,7 @@ void Eviction::TrimCacheV2(bool empty) {
 
   CACHE_UMA(AGE_MS, "TotalTrimTime", 0, start);
   Trace("*** Trim Cache end ***");
+  trimming_ = false;
   return;
 }
 
