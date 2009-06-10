@@ -408,6 +408,10 @@ void BrowserWindowGtk::SetBounds(const gfx::Rect& bounds) {
 }
 
 void BrowserWindowGtk::Close() {
+  // We're already closing.  Do nothing.
+  if (!window_)
+    return;
+
   if (!CanClose())
     return;
 
