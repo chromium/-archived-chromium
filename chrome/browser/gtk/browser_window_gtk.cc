@@ -412,7 +412,7 @@ gboolean BrowserWindowGtk::OnContentAreaExpose(GtkWidget* widget,
                                                GdkEventExpose* e,
                                                BrowserWindowGtk* window) {
   if (window->use_custom_frame_.GetValue()) {
-    NOTIMPLEMENTED() << " needs custom drawing for the custom frame.";
+    // http://code.google.com/p/chromium/issues/detail?id=13430
     return FALSE;
   }
 
