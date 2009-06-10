@@ -38,6 +38,18 @@ class Grid : public views::View, public AnimationDelegate {
   // WARNING: this does NOT delete the view, it's up to the caller to do that.
   void RemoveCell(int index);
 
+  // Calculates the target bounds of each cell and starts the animation timer
+  // (assuming it isn't already running). This is invoked for you, but may
+  // be invoked to retrigger animation, perhaps after changing the floating
+  // index.
+  void AnimateToTargetBounds();
+
+  // Sets the index of the floating cell. The floating cells bounds are NOT
+  // updated along with the rest of the cells, and the floating cell is painted
+  // after all other cells. This is typically used during drag and drop when
+  // the user is dragging a cell around.
+  void set_floating_index(int index) { floating_index_ = index; }
+
   // Returns the number of columns.
   int columns() const { return columns_; }
 
@@ -50,12 +62,16 @@ class Grid : public views::View, public AnimationDelegate {
   // Returns the height of a cell.
   int cell_height() const { return cell_height_; }
 
+  // Returns the bounds of the specified cell.
+  gfx::Rect CellBounds(int index);
+
   // View overrides.
   virtual void ViewHierarchyChanged(bool is_add,
                                     views::View* parent,
                                     views::View* child);
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
+  void PaintChildren(gfx::Canvas* canvas);
 
   // AnimationDelegate overrides.
   virtual void AnimationEnded(const Animation* animation);
@@ -107,6 +123,9 @@ class Grid : public views::View, public AnimationDelegate {
   // Number of rows/columns.
   int columns_;
   int rows_;
+
+  // See description above setter.
+  int floating_index_;
 
   // Used during animation, gives the initial bounds of the views.
   std::vector<gfx::Rect> start_bounds_;

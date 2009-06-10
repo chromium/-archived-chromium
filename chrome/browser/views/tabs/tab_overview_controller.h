@@ -5,41 +5,82 @@
 #ifndef CHROME_BROWSER_VIEWS_TABS_TAB_OVERVIEW_CONTROLLER_H_
 #define CHROME_BROWSER_VIEWS_TABS_TAB_OVERVIEW_CONTROLLER_H_
 
+#include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
-#include "chrome/browser/views/tabs/tab_overview_grid.h"
+#include "chrome/browser/tabs/tab_strip_model.h"
 
+class Browser;
+class TabOverviewCell;
 class TabOverviewContainer;
-class TabStripModel;
+class TabOverviewGrid;
 
 namespace views {
 class Widget;
 }
-namespace gfx {
-class Point;
-}
 
-// TabOverviewController is responsible for showing a TabOverviewGrid.
-class TabOverviewController : public TabOverviewGrid::Host {
+// TabOverviewController is responsible for showing a TabOverviewGrid and
+// keeping it in sync with the TabStripModel of a browser.
+class TabOverviewController : public TabStripModelObserver {
  public:
   // Creates a TabOverviewController that will be shown on the monitor
   // containing |monitor_origin|.
   explicit TabOverviewController(const gfx::Point& monitor_origin);
   ~TabOverviewController();
 
-  // Sets the tarb strip to show.
-  void SetTabStripModel(TabStripModel* tab_strip_model);
+  // Sets the browser we're showing the tab strip for.
+  void SetBrowser(Browser* browser);
+  Browser* browser() const { return browser_; }
+  TabOverviewGrid* grid() const { return grid_; }
+  TabStripModel* model() const;
 
-  // Shows/hides the grid.
+  // Returns true if the grid has been moved off screen. The grid is moved
+  // offscren if the user detaches the last tab in the tab strip.
+  bool moved_offscreen() const { return moved_offscreen_; }
+
+  // Shows the grid.
   void Show();
-  void Hide();
 
-  // TabOverviewGrid::Host overrides.
-  virtual void TabOverviewGridPreferredSizeChanged();
+  // Configures a cell from the model.
+  void ConfigureCell(TabOverviewCell* cell, TabContents* contents);
+
+  // Invoked from TabOverviewDragController.
+  virtual void DragStarted();
+  virtual void DragEnded();
+  virtual void MoveOffscreen();
   virtual void SelectTabContents(TabContents* contents);
 
+  // TabStripModelObserver overrides.
+  virtual void TabInsertedAt(TabContents* contents,
+                             int index,
+                             bool foreground);
+  virtual void TabClosingAt(TabContents* contents, int index);
+  virtual void TabDetachedAt(TabContents* contents, int index);
+  virtual void TabMoved(TabContents* contents,
+                        int from_index,
+                        int to_index);
+  virtual void TabChangedAt(TabContents* contents, int index,
+                            bool loading_only);
+  virtual void TabStripEmpty();
+  // Currently don't care about these as we're not rendering the selection.
+  virtual void TabDeselectedAt(TabContents* contents, int index) { }
+  virtual void TabSelectedAt(TabContents* old_contents,
+                             TabContents* new_contents,
+                             int index,
+                             bool user_gesture) { }
+
  private:
+  // Configures a cell from the model.
+  void ConfigureCell(TabOverviewCell* cell, int index);
+
+  // Removes all the cells in the grid and populates it from the model.
+  void RecreateCells();
+
+  // Invoked when the count of the model changes. Notifies the host the pref
+  // size changed.
+  void TabCountChanged();
+
   // The widget showing the view.
-  scoped_ptr<views::Widget> host_;
+  views::Widget* host_;
 
   // Bounds of the monitor we're being displayed on. This is used to position
   // the widget.
@@ -49,10 +90,19 @@ class TabOverviewController : public TabOverviewGrid::Host {
   TabOverviewContainer* container_;
 
   // The view. This is owned by host.
-  TabOverviewGrid* view_;
+  TabOverviewGrid* grid_;
 
-  // The model, not owned by us.
-  TabStripModel* model_;
+  // The browser, not owned by us.
+  Browser* browser_;
+
+  // The browser a drag was started on.
+  Browser* drag_browser_;
+
+  // True if the host has been moved offscreen.
+  bool moved_offscreen_;
+
+  // Has Show been invoked?
+  bool shown_;
 
   DISALLOW_COPY_AND_ASSIGN(TabOverviewController);
 };

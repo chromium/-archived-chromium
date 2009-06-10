@@ -119,6 +119,10 @@ class BrowserWindowGtk : public BrowserWindow,
   // Add the find bar widget to the window hierarchy.
   void AddFindBar(FindBarGtk* findbar);
 
+  // Sets whether a drag is active. If a drag is active the window will not
+  // close.
+  void set_drag_active(bool drag_active) { drag_active_ = drag_active; }
+
   // Returns the BrowserWindowGtk registered with |window|.
   static BrowserWindowGtk* GetBrowserWindowForNativeWindow(
       gfx::NativeWindow window);
@@ -230,6 +234,9 @@ class BrowserWindowGtk : public BrowserWindow,
   // Whether we're showing the custom chrome frame or the window manager
   // decorations.
   BooleanPrefMember use_custom_frame_;
+
+  // True if a drag is active. See description above setter for details.
+  bool drag_active_;
 
   // A map which translates an X Window ID into its respective GtkWindow.
   static std::map<XID, GtkWindow*> xid_map_;

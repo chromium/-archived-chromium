@@ -22,7 +22,8 @@ Grid::Grid()
       cell_width_(0),
       cell_height_(0),
       columns_(0),
-      rows_(0) {
+      rows_(0),
+      floating_index_(-1) {
 }
 
 void Grid::MoveCell(int old_index, int new_index) {
@@ -44,8 +45,10 @@ void Grid::InsertCell(int index, View* cell) {
 
   // Set the bounds of the cell to it's target bounds. This way it won't appear
   // to animate.
-  start_bounds_[index] = target_bounds_[index];
-  cell->SetBounds(target_bounds_[index]);
+  if (index != floating_index_) {
+    start_bounds_[index] = target_bounds_[index];
+    cell->SetBounds(target_bounds_[index]);
+  }
 }
 
 void Grid::RemoveCell(int index) {
@@ -53,6 +56,10 @@ void Grid::RemoveCell(int index) {
   RemoveChildView(GetChildViewAt(index));
   modifying_children_ = false;
 
+  CalculateTargetBoundsAndStartAnimation();
+}
+
+void Grid::AnimateToTargetBounds() {
   CalculateTargetBoundsAndStartAnimation();
 }
 
@@ -64,6 +71,14 @@ void Grid::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
   // us as dirty (needs_layout_ = true).
   animation_.Stop();
   needs_layout_ = true;
+}
+
+gfx::Rect Grid::CellBounds(int index) {
+  int row = index / columns_;
+  int col = index % columns_;
+  return gfx::Rect(col * cell_width_ + std::max(0, col * kCellXPadding),
+                   row * cell_height_ + std::max(0, row * kCellYPadding),
+                   cell_width_, cell_height_);
 }
 
 gfx::Size Grid::GetPreferredSize() {
@@ -81,8 +96,29 @@ void Grid::Layout() {
   animation_.Stop();
   target_bounds_.clear();
   CalculateCellBounds(&target_bounds_);
-  for (size_t i = 0; i < target_bounds_.size(); ++i)
-    GetChildViewAt(i)->SetBounds(target_bounds_[i]);
+  for (size_t i = 0; i < target_bounds_.size(); ++i) {
+    if (static_cast<int>(i) != floating_index_)
+      GetChildViewAt(i)->SetBounds(target_bounds_[i]);
+  }
+}
+
+void Grid::PaintChildren(gfx::Canvas* canvas) {
+  int i, c;
+  for (i = 0, c = GetChildViewCount(); i < c; ++i) {
+    if (i != floating_index_) {
+      View* child = GetChildViewAt(i);
+      if (!child) {
+        NOTREACHED();
+        continue;
+      }
+      child->ProcessPaint(canvas);
+    }
+  }
+
+  // Paint the floating view last. This way it floats on top of all other
+  // views.
+  if (floating_index_ != -1 && floating_index_ < GetChildViewCount())
+    GetChildViewAt(floating_index_)->ProcessPaint(canvas);
 }
 
 void Grid::AnimationEnded(const Animation* animation) {
@@ -95,13 +131,15 @@ void Grid::AnimationProgressed(const Animation* animation) {
     View* view = GetChildViewAt(i);
     gfx::Rect start_bounds = start_bounds_[i];
     gfx::Rect target_bounds = target_bounds_[i];
-    view->SetBounds(
-        gfx::Rect(AnimationPosition(start_bounds.x(), target_bounds.x()),
-                  AnimationPosition(start_bounds.y(), target_bounds.y()),
-                  AnimationPosition(start_bounds.width(),
-                                    target_bounds.width()),
-                  AnimationPosition(start_bounds.height(),
-                                    target_bounds.height())));
+    if (static_cast<int>(i) != floating_index_) {
+      view->SetBounds(
+          gfx::Rect(AnimationPosition(start_bounds.x(), target_bounds.x()),
+                    AnimationPosition(start_bounds.y(), target_bounds.y()),
+                    AnimationPosition(start_bounds.width(),
+                                      target_bounds.width()),
+                    AnimationPosition(start_bounds.height(),
+                                      target_bounds.height())));
+    }
   }
   SchedulePaint();
 }
@@ -170,14 +208,8 @@ void Grid::CalculateCellBounds(std::vector<gfx::Rect>* bounds) {
   pref_height_ =
       std::max(0, row_count * (cell_height + kCellYPadding) - kCellYPadding);
 
-  for (int i = 0; i < cell_count; ++i) {
-    int row = i / columns_;
-    int col = i % columns_;
-    bounds->push_back(
-        gfx::Rect(col * cell_width_ + std::max(0, col * kCellXPadding),
-                  row * cell_height_ + std::max(0, row * kCellYPadding),
-                  cell_width_, cell_height_));
-  }
+  for (int i = 0; i < cell_count; ++i)
+    bounds->push_back(CellBounds(i));
 }
 
 void Grid::CalculateTargetBoundsAndStartAnimation() {
@@ -203,8 +235,10 @@ void Grid::CalculateTargetBoundsAndStartAnimation() {
 
 void Grid::SetViewBoundsToTarget() {
   DCHECK(GetChildViewCount() == static_cast<int>(target_bounds_.size()));
-  for (size_t i = 0; i < target_bounds_.size(); ++i)
-    GetChildViewAt(i)->SetBounds(target_bounds_[i]);
+  for (size_t i = 0; i < target_bounds_.size(); ++i) {
+    if (static_cast<int>(i) != floating_index_)
+      GetChildViewAt(i)->SetBounds(target_bounds_[i]);
+  }
 }
 
 int Grid::AnimationPosition(int start, int target) {

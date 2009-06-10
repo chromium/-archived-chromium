@@ -80,6 +80,9 @@ bool TabOverviewCell::IsPointInThumbnail(const gfx::Point& point) {
 }
 
 gfx::Size TabOverviewCell::GetPreferredSize() {
+  if (!preferred_size_.IsEmpty())
+    return preferred_size_;
+
   // Force the preferred width to that of the thumbnail.
   gfx::Size thumbnail_pref = thumbnail_view_->GetPreferredSize();
   gfx::Size pref = View::GetPreferredSize();

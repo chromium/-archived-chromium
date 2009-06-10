@@ -1504,7 +1504,7 @@ void Browser::DuplicateContentsAt(int index) {
 }
 
 void Browser::CloseFrameAfterDragSession() {
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   // This is scheduled to run after we return to the message loop because
   // otherwise the frame will think the drag session is still active and ignore
   // the request.

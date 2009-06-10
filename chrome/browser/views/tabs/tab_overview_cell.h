@@ -24,6 +24,13 @@ class TabOverviewCell : public views::View {
   void SetTitle(const string16& title);
   void SetFavIcon(const SkBitmap& favicon);
 
+  // Sets the preferred size. Normally the preferred size is calculate from
+  // the content, but this can be used to fix it at a particular value. Use an
+  // empty size to get the default preferred size.
+  void set_preferred_size(const gfx::Size& preferred_size) {
+    preferred_size_ = preferred_size;
+  }
+
   // Returns true if the specified point, in the bounds of the cell, is over
   // the thumbnail.
   bool IsPointInThumbnail(const gfx::Point& point);
@@ -35,6 +42,9 @@ class TabOverviewCell : public views::View {
   views::Label* title_label_;
   views::ImageView* thumbnail_view_;
   views::ImageView* fav_icon_view_;
+
+  // Specific preferred size. See set_preferred_size() for details.
+  gfx::Size preferred_size_;
 
   DISALLOW_COPY_AND_ASSIGN(TabOverviewCell);
 };
