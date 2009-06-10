@@ -114,6 +114,9 @@ BitmapPlatformDeviceMac::\
   clip_region_ = SkRegion(rect);
   transform_.reset();
   CGContextRetain(bitmap_context_);
+  // We must save the state once so that we can use the restore/save trick
+  // in LoadConfig().
+  CGContextSaveGState(bitmap_context_);
 }
 
 void BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData::SetMatrixClip(
@@ -131,6 +134,15 @@ void BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData::LoadConfig() {
 
   // Transform.
   SkMatrix t(transform_);
+
+  // We must restore and then save the state of the graphics context since the
+  // calls to Load the clipping region to the context are strictly cummulative,
+  // i.e., you can't replace a clip rect, other than with a save/restore.
+  // But this implies that no other changes to the state are done elsewhere.
+  // If we ever get to need to change this, then we must replace the clip rect
+  // calls in LoadClippingRegionToCGContext() with an image mask instead.
+  CGContextRestoreGState(bitmap_context_);
+  CGContextSaveGState(bitmap_context_);
   LoadTransformToCGContext(bitmap_context_, t);
   t.setTranslateX(-t.getTranslateX());
   t.setTranslateY(-t.getTranslateY());

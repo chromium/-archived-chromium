@@ -116,7 +116,10 @@ class RenderWidget : public IPC::Channel::Listener,
   // Paints the given rectangular region of the WebWidget into canvas (a
   // shared memory segment returned by AllocPaintBuf on Windows). The caller
   // must ensure that the given rect fits within the bounds of the WebWidget.
+  void PaintThisRect(const gfx::Rect& rect, skia::PlatformCanvas* canvas);
   void PaintRect(const gfx::Rect& rect, skia::PlatformCanvas* canvas);
+  void PaintRects(const std::vector<gfx::Rect>& rect,
+                  skia::PlatformCanvas* canvas);
 
   void DoDeferredPaint();
   void DoDeferredScroll();
@@ -221,7 +224,7 @@ class RenderWidget : public IPC::Channel::Listener,
 
   // The smallest bounding rectangle that needs to be re-painted.  This is non-
   // empty if a paint event is pending.
-  gfx::Rect paint_rect_;
+  std::vector<gfx::Rect> paint_rects_;
 
   // The clip rect for the pending scroll event.  This is non-empty if a
   // scroll event is pending.
