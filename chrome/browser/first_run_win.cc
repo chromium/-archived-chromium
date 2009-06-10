@@ -151,7 +151,6 @@ bool FirstRun::CreateChromeQuickLaunchShortcut() {
       true);  // create if doesn't exist.
 }
 
-
 bool FirstRun::ProcessMasterPreferences(const FilePath& user_data_dir,
                                         const FilePath& master_prefs_path,
                                         int* preference_details,
