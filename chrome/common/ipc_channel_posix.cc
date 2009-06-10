@@ -17,16 +17,15 @@
 
 #include "base/command_line.h"
 #include "base/eintr_wrapper.h"
-#include "base/global_descriptors_posix.h"
 #include "base/lock.h"
 #include "base/logging.h"
 #include "base/process_util.h"
+#include "base/reserved_file_descriptors.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/singleton.h"
 #include "base/stats_counters.h"
 #include "chrome/common/chrome_counters.h"
-#include "chrome/common/chrome_descriptors.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/file_descriptor_set_posix.h"
 #include "chrome/common/ipc_logging.h"
@@ -41,7 +40,7 @@ namespace IPC {
 //
 // When creating a child subprocess, the parent side of the fork
 // arranges it such that the initial control channel ends up on the
-// magic file descriptor kPrimaryIPCChannel in the child.  Future
+// magic file descriptor kClientChannelFd in the child.  Future
 // connections (file descriptors) can then be passed via that
 // connection via sendmsg().
 
@@ -51,7 +50,7 @@ namespace {
 // The PipeMap class works around this quirk related to unit tests:
 //
 // When running as a server, we install the client socket in a
-// specific file descriptor number (@kPrimaryIPCChannel). However, we
+// specific file descriptor number (@kClientChannelFd). However, we
 // also have to support the case where we are running unittests in the
 // same process.  (We do not support forking without execing.)
 //
@@ -59,7 +58,7 @@ namespace {
 //   The IPC server object will install a mapping in PipeMap from the
 //   name which it was given to the client pipe. When forking the client, the
 //   GetClientFileDescriptorMapping will ensure that the socket is installed in
-//   the magic slot (@kPrimaryIPCChannel). The client will search for the
+//   the magic slot (@kClientChannelFd). The client will search for the
 //   mapping, but it won't find any since we are in a new process. Thus the
 //   magic fd number is returned. Once the client connects, the server will
 //   close its copy of the client socket and remove the mapping.
@@ -125,7 +124,10 @@ int ChannelNameToClientFD(const std::string& channel_id) {
 
   // If we don't find an entry, we assume that the correct value has been
   // inserted in the magic slot.
-  return Singleton<base::GlobalDescriptors>()->Get(kPrimaryIPCChannel);
+  // kClientChannelFd is the file descriptor number that a client process
+  // expects to find its IPC socket; see reserved_file_descriptors.h.
+
+  return kClientChannelFd;
 }
 
 //------------------------------------------------------------------------------
@@ -669,8 +671,11 @@ bool Channel::ChannelImpl::Send(Message* message) {
   return true;
 }
 
-int Channel::ChannelImpl::GetClientFileDescriptor() const {
-  return client_pipe_;
+void Channel::ChannelImpl::GetClientFileDescriptorMapping(int *src_fd,
+                                                          int *dest_fd) const {
+  DCHECK(mode_ == MODE_SERVER);
+  *src_fd = client_pipe_;
+  *dest_fd = kClientChannelFd;
 }
 
 // Called by libevent when we can read from th pipe without blocking.
@@ -798,8 +803,8 @@ bool Channel::Send(Message* message) {
   return channel_impl_->Send(message);
 }
 
-int Channel::GetClientFileDescriptor() const {
-  return channel_impl_->GetClientFileDescriptor();
+void Channel::GetClientFileDescriptorMapping(int *src_fd, int *dest_fd) const {
+  return channel_impl_->GetClientFileDescriptorMapping(src_fd, dest_fd);
 }
 
 }  // namespace IPC

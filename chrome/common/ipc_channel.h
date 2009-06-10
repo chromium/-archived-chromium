@@ -87,13 +87,14 @@ class Channel : public Message::Sender {
 
 #if defined(OS_POSIX)
   // On POSIX an IPC::Channel wraps a socketpair(), this method returns the
-  // FD # for the client end of the socket.
+  // FD # for the client end of the socket and the equivalent FD# to use for
+  // mapping it into the Child process.
   // This method may only be called on the server side of a channel.
   //
   // If the kTestingChannelID flag is specified on the command line then
   // a named FIFO is used as the channel transport mechanism rather than a
-  // socketpair() in which case this method returns -1.
-  int GetClientFileDescriptor() const;
+  // socketpair() in which case this method returns -1 for both parameters.
+  void GetClientFileDescriptorMapping(int *src_fd, int *dest_fd) const;
 #endif  // defined(OS_POSIX)
 
  private:

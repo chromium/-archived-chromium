@@ -168,12 +168,6 @@ bool CommandLine::IsSwitch(const StringType& parameter_string,
 }
 
 // static
-void CommandLine::Reset() {
-  delete current_process_commandline_;
-  current_process_commandline_ = NULL;
-}
-
-// static
 void CommandLine::Init(int argc, const char* const* argv) {
 #if defined(OS_WIN)
   current_process_commandline_ = new CommandLine;

@@ -11,6 +11,7 @@
 
 #include "base/eintr_wrapper.h"
 #include "base/platform_thread.h"
+#include "base/zygote_manager.h"
 
 // Return true if the given child is dead. This will also reap the process.
 // Doesn't block.
@@ -69,8 +70,20 @@ class BackgroundReaper : public PlatformThread::Delegate {
 // static
 void ProcessWatcher::EnsureProcessTerminated(base::ProcessHandle process) {
   // If the child is already dead, then there's nothing to do
-  if (IsChildDead(process))
+  const int result = HANDLE_EINTR(waitpid(process, NULL, WNOHANG));
+  if (result > 0)
     return;
+  if (result == -1) {
+#if defined(OS_LINUX)
+    // If it wasn't our child, maybe it was the zygote manager's child
+    base::ZygoteManager* zm = base::ZygoteManager::Get();
+    if (zm) {
+      zm->EnsureProcessTerminated(process);
+      return;
+    }
+#endif  // defined(OS_LINUX)
+    NOTREACHED();
+  }
 
   BackgroundReaper* reaper = new BackgroundReaper(process);
   PlatformThread::CreateNonJoinable(0, reaper);

@@ -63,9 +63,6 @@ const wchar_t kHomePage[]                      = L"homepage";
 // Causes the process to run as renderer instead of as browser.
 const wchar_t kRendererProcess[]               = L"renderer";
 
-// Causes the process to run as a renderer zygote.
-const wchar_t kZygoteProcess[]                 = L"zygote";
-
 // Path to the exe to run for the renderer and plugin subprocesses.
 const wchar_t kBrowserSubprocessPath[]         = L"browser-subprocess-path";
 
@@ -492,9 +489,6 @@ const wchar_t kNoDefaultBrowserCheck[]         = L"no-default-browser-check";
 
 // Enables the benchmarking extensions.
 const wchar_t kEnableBenchmarking[]      = L"enable-benchmarking";
-
-// The prefix used when starting the zygote process. (i.e. 'gdb --args')
-const wchar_t kZygoteCmdPrefix[] = L"zygote-cmd-prefix";
 
 // Enables using ThumbnailStore instead of ThumbnailDatabase for setting and
 // getting thumbnails for the new tab page.

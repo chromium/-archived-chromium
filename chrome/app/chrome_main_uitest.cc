@@ -18,14 +18,9 @@ TEST_F(ChromeMainTest, AppLaunch) {
   if (UITest::in_process_renderer()) {
     EXPECT_EQ(1, UITest::GetBrowserProcessCount());
   } else {
-#if defined(OS_LINUX)
-    // On Linux we'll have three processes: browser, renderer and zygote.
-    EXPECT_EQ(3, UITest::GetBrowserProcessCount());
-#else
     // We should have two instances of the browser process alive -
     // one is the Browser and the other is the Renderer.
     EXPECT_EQ(2, UITest::GetBrowserProcessCount());
-#endif
   }
 }
 

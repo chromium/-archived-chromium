@@ -53,9 +53,11 @@ void RendererMainTest::TearDown() {
 ProcessHandle RendererMainTest::SpawnChild(const std::wstring &procname,
                                            IPC::Channel *channel) {
   base::file_handle_mapping_vector fds_to_map;
-  const int ipcfd = channel->GetClientFileDescriptor();
-  if (ipcfd > -1) {
-    fds_to_map.push_back(std::pair<int,int>(ipcfd, 3));
+  int src_fd;
+  int dest_fd;
+  channel->GetClientFileDescriptorMapping(&src_fd, &dest_fd);
+  if (src_fd > -1) {
+    fds_to_map.push_back(std::pair<int,int>(src_fd, dest_fd));
   }
 
    return MultiProcessTest::SpawnChild(procname, fds_to_map, false);

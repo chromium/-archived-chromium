@@ -27,6 +27,7 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "base/time.h"
+#include "base/zygote_manager.h"
 
 namespace file_util {
 
@@ -645,8 +646,19 @@ MemoryMappedFile::MemoryMappedFile()
 }
 
 bool MemoryMappedFile::MapFileToMemory(const FilePath& file_name) {
-  file_ = open(file_name.value().c_str(), O_RDONLY);
-
+  file_ = -1;
+#if defined(OS_LINUX)
+  base::ZygoteManager* zm = base::ZygoteManager::Get();
+  if (zm) {
+    file_ = zm->OpenFile(file_name.value().c_str());
+    if (file_ == -1) {
+      LOG(INFO) << "Zygote manager can't open " << file_name.value()
+                << ", retrying locally.  (OK at start of ui_tests.)";
+    }
+  }
+#endif  // defined(OS_LINUX)
+  if (file_ == -1)
+    file_ = open(file_name.value().c_str(), O_RDONLY);
   if (file_ == -1) {
     LOG(ERROR) << "Couldn't open " << file_name.value();
     return false;
