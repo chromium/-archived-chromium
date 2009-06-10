@@ -3210,8 +3210,20 @@ each locale. -->
       <message name="IDS_OPTIONS_BROWSING_DATA_INFO" desc="Information text about browsing data options.">
         You can import your bookmarks and settings from other browsers or clear your browsing data from this computer.
       </message>
+      <message name="IDS_OPTIONS_IMPORT_DATA_INFO" desc="Information text about import options.">
+        You can import your bookmarks and settings from other browsers and user accounts on this computer.
+      </message>
+      <message name="IDS_OPTIONS_IMPORT_DATA_GROUP_NAME" desc="The title of the 'Import' group.">
+        Import:
+      </message>
       <message name="IDS_OPTIONS_IMPORT_DATA_BUTTON" desc="Label for the import data button.">
         Import data...
+      </message>
+      <message name="IDS_OPTIONS_CLEAR_DATA_GROUP_NAME" desc="The title of the 'Clear data' group.">
+        Clear Data:
+      </message>
+      <message name="IDS_OPTIONS_CLEAR_DATA_INFO" desc="Information text about clear data options.">
+        Clear your browsing data from this computer. Be aware that this may adversely affect the contents of the New Tab Page.
       </message>
       <message name="IDS_OPTIONS_CLEAR_DATA_BUTTON" desc="Label for the Clear data button.">
         Clear browsing data...
