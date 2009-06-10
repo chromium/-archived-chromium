@@ -14,7 +14,7 @@
 
 ExtensionView::ExtensionView(ExtensionHost* host, Browser* browser)
     : host_(host), browser_(browser),
-      initialized_(false), container_(NULL) {
+      initialized_(false), pending_preferred_width_(0), container_(NULL) {
   host_->set_view(this);
 }
 
