@@ -96,6 +96,15 @@ class FirstRun {
 // the new browser.
 class Upgrade {
  public:
+  // Possible results of ShowTryChromeDialog().
+  enum TryResult {
+    TD_TRY_CHROME,          // Launch chrome right now.
+    TD_NOT_NOW,             // Don't launch chrome. Exit now.
+    TD_UNINSTALL_CHROME,    // Initiate chrome uninstall and exit.
+    TD_DIALOG_ERROR,        // An error occurred creating the dialog.
+    TD_LAST_ENUM
+  };
+
   // Check if current chrome.exe is already running as a browser process by
   // trying to create a Global event with name same as full path of chrome.exe.
   // This method caches the handle to this event so on subsequent calls also
@@ -111,6 +120,11 @@ class Upgrade {
   // to chrome.exe and the old chrome is renamed to old_chrome.exe. If there
   // is no new_chrome.exe or the swap fails the return is false;
   static bool SwapNewChromeExeIfPresent();
+
+  // Shows a modal dialog asking the user to give chrome another try. See
+  // above for the possible outcomes of the function. This is an experimental,
+  // non-localized dialog.
+  static TryResult ShowTryChromeDialog();
 };
 
 // A subclass of BrowserProcessImpl that does not have a GoogleURLTracker

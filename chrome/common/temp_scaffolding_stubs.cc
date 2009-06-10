@@ -184,6 +184,11 @@ bool Upgrade::SwapNewChromeExeIfPresent() {
   return true;
 }
 
+// static
+Upgrade::TryResult ShowTryChromeDialog() {
+  return Upgrade::TD_NOT_NOW;
+}
+
 //--------------------------------------------------------------------------
 
 void InstallJankometer(const CommandLine&) {

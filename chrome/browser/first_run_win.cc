@@ -34,7 +34,6 @@
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/views/first_run_view.h"
-#include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/result_codes.h"
@@ -46,8 +45,21 @@
 #include "chrome/installer/util/shell_util.h"
 #include "chrome/installer/util/util_constants.h"
 #include "google_update_idl.h"
+#include "grit/app_resources.h"
 #include "grit/locale_settings.h"
+#include "grit/theme_resources.h"
+#include "views/background.h"
+#include "views/controls/button/image_button.h"
+#include "views/controls/button/native_button.h"
+#include "views/controls/button/radio_button.h"
+#include "views/controls/image_view.h"
+#include "views/controls/label.h"
+#include "views/controls/link.h"
+#include "views/grid_layout.h"
+#include "views/standard_layout.h"
 #include "views/widget/accelerator_handler.h"
+#include "views/widget/root_view.h"
+#include "views/widget/widget_win.h"
 #include "views/window/window.h"
 
 namespace {
@@ -150,6 +162,7 @@ bool FirstRun::CreateChromeQuickLaunchShortcut() {
       ShellUtil::CURRENT_USER,  // create only for current user.
       true);  // create if doesn't exist.
 }
+
 
 bool FirstRun::ProcessMasterPreferences(const FilePath& user_data_dir,
                                         const FilePath& master_prefs_path,
@@ -602,4 +615,252 @@ bool FirstRun::SetShowWelcomePagePref() {
     local_state->SetBoolean(prefs::kShouldShowWelcomePage, true);
   }
   return true;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+namespace {
+
+// These strings are used by TryChromeDialog. They will need to be localized
+// if we use it for other locales.
+const wchar_t kHeading[] =
+    L"You stopped using Google Chrome. Would you like to ...";
+const wchar_t kGiveChromeATry[] =
+    L"Give the new version a try (already installed)";
+const wchar_t kNahUninstallIt[] = L"Uninstall Google Chrome";
+const wchar_t kDontBugMe[] = L"Don't bug me";
+const wchar_t kOKButn[] = L"OK";
+const wchar_t kWhyThis[] = L"Why am I seeing this?";
+const wchar_t kHelpCenterUrl[] =
+    L"http://www.google.com/support/chrome/bin/answer.py?hl=en&answer=150752";
+
+
+// This class displays a modal dialog using the views system. The dialog asks
+// the user to give chrome another try. This class only handles the UI so the
+// resulting actions are up to the caller. It looks like this:
+//
+//   /----------------------------------------\
+//   | |icon| You stopped using Google    [x] |
+//   | |icon| Chrome. Would you like to..     |
+//   |        [o] Give the new version a try  |
+//   |        [ ] Uninstall Google Chrome     |
+//   |        [ OK ] [Don't bug me]           |
+//   |        _why_am_I_seeign this?__        |
+//   ------------------------------------------
+class TryChromeDialog : public views::ButtonListener,
+                        public views::LinkController {
+ public:
+  TryChromeDialog()
+      : popup_(NULL),
+        try_chrome_(NULL),
+        kill_chrome_(NULL),
+        result_(Upgrade::TD_LAST_ENUM) {
+  }
+
+  virtual ~TryChromeDialog() {
+  };
+
+  // Shows the modal dialog asking the user to try chrome. Note that the dialog
+  // has no parent and it will position itself in a lower corner of the screen.
+  // The dialog does not steal focus and does not have an entry in the taskbar.
+  Upgrade::TryResult ShowModal() {
+    using views::GridLayout;
+    ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+
+    views::ImageView* icon = new views::ImageView();
+    icon->SetImage(*rb.GetBitmapNamed(IDR_PRODUCT_ICON_32));
+    gfx::Size icon_size = icon->GetPreferredSize();
+
+    const int width = 310;
+    const int height = 160;
+    gfx::Rect pos = ComputeWindowPosition(width, height);
+
+    views::WidgetWin* popup = new views::WidgetWin();
+    if (!popup) {
+      NOTREACHED();
+      return Upgrade::TD_DIALOG_ERROR;
+    }
+    popup->set_delete_on_destroy(true);
+    popup->set_window_style(WS_POPUP | WS_CLIPCHILDREN);
+    popup->set_window_ex_style(WS_EX_TOOLWINDOW);
+    popup->Init(NULL, pos, true);
+
+    views::RootView* root_view = popup->GetRootView();
+    // The window color is a tiny bit off-white.
+    root_view->set_background(
+        views::Background::CreateSolidBackground(0xfc, 0xfc, 0xfc));
+
+    views::GridLayout* layout = CreatePanelGridLayout(root_view);
+    if (!layout) {
+      NOTREACHED();
+      return Upgrade::TD_DIALOG_ERROR;
+    }
+    root_view->SetLayoutManager(layout);
+
+    views::ColumnSet* columns;
+    // First row: [icon][pad][text][button].
+    columns = layout->AddColumnSet(0);
+    columns->AddColumn(GridLayout::LEADING, GridLayout::LEADING, 0,
+                       GridLayout::FIXED, icon_size.width(),
+                       icon_size.height());
+    columns->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
+    columns->AddColumn(GridLayout::FILL, GridLayout::FILL, 1,
+                       GridLayout::USE_PREF, 0, 0);
+    columns->AddColumn(GridLayout::TRAILING, GridLayout::FILL, 1,
+                       GridLayout::USE_PREF, 0, 0);
+    // Second row: [pad][pad][radio 1].
+    columns = layout->AddColumnSet(1);
+    columns->AddPaddingColumn(0, icon_size.width());
+    columns->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
+    columns->AddColumn(GridLayout::LEADING, GridLayout::FILL, 1,
+                       GridLayout::USE_PREF, 0, 0);
+    // Third row: [pad][pad][radio 2].
+    columns = layout->AddColumnSet(2);
+    columns->AddPaddingColumn(0, icon_size.width());
+    columns->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
+    columns->AddColumn(GridLayout::LEADING, GridLayout::FILL, 1,
+                       GridLayout::USE_PREF, 0, 0);
+    // Fourth row: [pad][pad][button][pad][button].
+    columns = layout->AddColumnSet(3);
+    columns->AddPaddingColumn(0, icon_size.width());
+    columns->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
+    columns->AddColumn(GridLayout::LEADING, GridLayout::FILL, 0,
+                       GridLayout::USE_PREF, 0, 0);
+    columns->AddPaddingColumn(0, kRelatedButtonHSpacing);
+    columns->AddColumn(GridLayout::LEADING, GridLayout::FILL, 0,
+                       GridLayout::USE_PREF, 0, 0);
+    // Fifth row: [pad][pad][link].
+    columns = layout->AddColumnSet(4);
+    columns->AddPaddingColumn(0, icon_size.width());
+    columns->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
+    columns->AddColumn(GridLayout::LEADING, GridLayout::FILL, 1,
+                       GridLayout::USE_PREF, 0, 0);
+    // First row views.
+    layout->StartRow(0, 0);
+    layout->AddView(icon);
+    views::Label* label = new views::Label(kHeading);
+    label->SetFont(rb.GetFont(ResourceBundle::MediumBoldFont));
+    label->SetMultiLine(true);
+    label->SizeToFit(200);
+    label->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
+    layout->AddView(label);
+    views::ImageButton* close_button = new views::ImageButton(this);
+    close_button->SetImage(views::CustomButton::BS_NORMAL,
+                          rb.GetBitmapNamed(IDR_CLOSE_BAR));
+    close_button->SetImage(views::CustomButton::BS_HOT,
+                          rb.GetBitmapNamed(IDR_CLOSE_BAR_H));
+    close_button->SetImage(views::CustomButton::BS_PUSHED,
+                          rb.GetBitmapNamed(IDR_CLOSE_BAR_P));
+    close_button->set_tag(BT_CLOSE_BUTTON);
+    layout->AddView(close_button);
+    // Second row views.
+    layout->StartRowWithPadding(0, 1, 0, 10);
+    try_chrome_ = new views::RadioButton(kGiveChromeATry, 1);
+    try_chrome_->SetChecked(true);
+    layout->AddView(try_chrome_);
+    // Third row views.
+    layout->StartRow(0, 2);
+    kill_chrome_ = new views::RadioButton(kNahUninstallIt, 1);
+    layout->AddView(kill_chrome_);
+    // Fourth row views.
+    layout->StartRowWithPadding(0, 3, 0, 10);
+    views::Button* accept_button = new views::NativeButton(this, kOKButn);
+    accept_button->set_tag(BT_OK_BUTTON);
+    layout->AddView(accept_button);
+    views::Button* cancel_button = new views::NativeButton(this, kDontBugMe);
+    cancel_button->set_tag(BT_CLOSE_BUTTON);
+    layout->AddView(cancel_button);
+    // Fifth row views.
+    layout->StartRowWithPadding(0, 4, 0, 10);
+    views::Link* link = new views::Link(kWhyThis);
+    link->SetController(this);
+    layout->AddView(link);
+
+    layout->Layout(root_view);
+    SetToastRegion(popup->GetNativeView(), width, height);
+    // Time to show the window in a modal loop.
+    popup_ = popup;
+    popup_->Show();
+    MessageLoop::current()->Run();
+    return result_;
+  }
+
+ protected:
+  // Overridden from ButtonListener. We have two buttons and according to
+  // what the user clicked we set |result_| and we should always close and
+  // end the modal loop.
+  virtual void ButtonPressed(views::Button* sender) {
+    if (sender->tag() == BT_CLOSE_BUTTON) {
+      result_ = Upgrade::TD_NOT_NOW;
+    } else {
+      result_ = try_chrome_->checked() ? Upgrade::TD_TRY_CHROME :
+                                         Upgrade::TD_UNINSTALL_CHROME;
+    }
+    popup_->Close();
+    MessageLoop::current()->Quit();
+  }
+
+  // Overridden from LinkController. If the user selects the link we need to
+  // fire off the default browser that by some convoluted logic should not be
+  // chrome.
+  virtual void LinkActivated(views::Link* source, int event_flags) {
+    ::ShellExecuteW(NULL, L"open",  kHelpCenterUrl, NULL, NULL, SW_SHOW);
+  }
+
+ private:
+  enum ButtonTags {
+    BT_NONE,
+    BT_CLOSE_BUTTON,
+    BT_OK_BUTTON,
+  };
+
+  // Returns a screen rectangle that is fit to show the window. In particular
+  // it has the following properties: a) is visible and b) is attached to
+  // the bottom of the working area.
+  gfx::Rect ComputeWindowPosition(int width, int height) {
+    // The 'Shell_TrayWnd' is the taskbar. We like to show our window in that
+    // monitor if we can. This code works even if such window is not found.
+    HWND taskbar = ::FindWindowW(L"Shell_TrayWnd", NULL);
+    HMONITOR monitor =
+        ::MonitorFromWindow(taskbar, MONITOR_DEFAULTTOPRIMARY);
+    MONITORINFO info = {sizeof(info)};
+    if (!GetMonitorInfoW(monitor, &info)) {
+      // Quite unexpected. Do a best guess at a visible rectangle.
+      return gfx::Rect(20, 20, width + 20, height + 20);
+    }
+    // The |rcWork| is the work area. It should account for the taskbars that
+    // are in the screen when we called the function.
+    int left = info.rcWork.right - width;
+    int top = info.rcWork.bottom - height;
+    return gfx::Rect(left, top, width, height);
+  }
+
+  // Create a windows region that looks like a toast of width |w| and
+  // height |h|. This is best effort, so we don't care much if the operation
+  // fails.
+  void SetToastRegion(HWND window, int w, int h) {
+    static const POINT polygon[] = {
+      {0,   4}, {1,   2}, {2,   1}, {4, 0},   // Left side.
+      {w-4, 0}, {w-2, 1}, {w-1, 2}, {w, 4},   // Right side.
+      {w, h}, {0, h}
+    };
+    HRGN region = ::CreatePolygonRgn(polygon, arraysize(polygon), WINDING);
+    ::SetWindowRgn(window, region, FALSE);
+  }
+
+  // We don't own any of this pointers. The |popup_| owns itself and owns
+  // the other views.
+  views::WidgetWin* popup_;
+  views::RadioButton* try_chrome_;
+  views::RadioButton* kill_chrome_;
+  Upgrade::TryResult result_;
+
+  DISALLOW_COPY_AND_ASSIGN(TryChromeDialog);
+};
+
+}  // namespace
+
+Upgrade::TryResult Upgrade::ShowTryChromeDialog() {
+  TryChromeDialog td;
+  return td.ShowModal();
 }
