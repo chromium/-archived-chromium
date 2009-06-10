@@ -24,18 +24,6 @@ EXCLUDED_PATHS = [
     r"v8[\\\/].*",
 ]
 
-def ReadFile(path):
-  """Given a path, returns the full contents of the file.
-
-  Reads files in binary format.
-  """
-  fo = open(path, 'rb')
-  try:
-    contents = fo.read()
-  finally:
-    fo.close()
-  return contents
-
 
 def CheckChangeOnUpload(input_api, output_api):
   # TODO(maruel): max_cols is temporarily disabled. Reenable once the source
@@ -100,7 +88,7 @@ def LocalChecks(input_api, output_api, max_cols=80):
 
     # Need to read the file ourselves since AffectedFile.NewContents()
     # will normalize line endings.
-    contents = ReadFile(f.AbsoluteLocalPath())
+    contents = input_api.ReadFile(f)
     if '\r' in contents:
       cr_files.append(path)
 
