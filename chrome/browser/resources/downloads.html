@@ -203,6 +203,10 @@ function showInline(node, isShow) {
   node.style.display = isShow ? 'inline' : 'none';
 }
 
+function showInlineBlock(node, isShow) {
+  node.style.display = isShow ? 'inline-block' : 'none';
+}
+
 /**
  * Creates an element of a specified type with a specified class name.
  * @param {String} type The node type.
@@ -511,7 +515,11 @@ Download.prototype.update = function(download) {
     }
 
     showInline(this.nodeFileLink_, this.state_ == Download.States.COMPLETE);
-    showInline(this.nodeFileName_, this.state_ != Download.States.COMPLETE);
+    // nodeFileName_ has to be inline-block to avoid the 'interaction' with 
+    // nodeStatus_. If both are inline, it appears that their text contents
+    // are merged before the bidi algorithm is applied leading to an
+    // undesirable reordering. http://crbug.com/13216 
+    showInlineBlock(this.nodeFileName_, this.state_ != Download.States.COMPLETE);
 
     if (this.state_ == Download.States.IN_PROGRESS) {
       this.nodeProgressForeground_.style.display = 'block';
@@ -530,9 +538,8 @@ Download.prototype.update = function(download) {
                                Download.Progress.radius,
                                Download.Progress.base,
                                Download.Progress.base + Math.PI * 0.02 *
-                               Number(this.percent_) *
-                               (Download.Progress.dir ? -1 : 1),
-                               Download.Progress.dir);
+                               Number(this.percent_),
+                               false);
 
       this.canvasProgress_.lineTo(Download.Progress.centerX,
                                   Download.Progress.centerY);
@@ -657,7 +664,6 @@ var downloads, localStrings, resultsTimeout;
 
 function load() {
   localStrings = new LocalStrings($('l10n'));
-  Download.Progress.dir = document.documentElement.dir == 'rtl';
   downloads = new Downloads();
   $('term').focus();
   setSearch("");
