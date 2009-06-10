@@ -51,6 +51,20 @@ class DevToolsSanityTest : public InProcessBrowserTest {
     EnableDOMAutomation();
   }
 
+ protected:
+  void RunTest(const std::string& test_name) {
+    OpenDevToolsWindow();
+    std::string result;
+    ASSERT_TRUE(
+        ui_test_utils::ExecuteJavaScriptAndExtractString(
+            client_contents_,
+            L"",
+            UTF8ToWide(StringPrintf("uiTests.runTest('%s')", test_name.c_str())),
+            &result));
+    EXPECT_EQ("[OK]", result);
+    CloseDevToolsWindow();
+  }
+
   void OpenDevToolsWindow() {
     HTTPTestServer* server = StartHTTPServer();
     GURL url = server->TestServerPageW(kSimplePage);
@@ -75,65 +89,24 @@ class DevToolsSanityTest : public InProcessBrowserTest {
     BrowserClosedObserver close_observer(window_->browser());
   }
 
-  void AssertTrue(const std::string& expr) {
-    AssertEquals("true", expr);
-  }
-
-  void AssertEquals(const std::string& expected, const std::string& expr) {
-    std::string call = StringPrintf(
-        "try {"
-        "  var domAgent = devtools.tools.getDomAgent();"
-        "  var doc = domAgent.getDocument();"
-        "  window.domAutomationController.send((%s) + '');"
-        "} catch(e) {"
-        "  window.domAutomationController.send(e.toString());"
-        "}", expr.c_str());
-    std::string result;
-    ASSERT_TRUE(
-        ui_test_utils::ExecuteJavaScriptAndExtractString(
-            client_contents_,
-            L"",
-            UTF8ToWide(call),
-            &result));
-    ASSERT_EQ(expected, result);
-  }
-
- protected:
   TabContents* client_contents_;
   DevToolsWindow* window_;
   RenderViewHost* inspected_rvh_;
 };
 
 // WebInspector opens.
-IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, OpenWebInspector) {
-  OpenDevToolsWindow();
-  AssertTrue("typeof DevToolsHost == 'object' && !DevToolsHost.isStub");
-  AssertTrue("!!doc.documentElement");
-  CloseDevToolsWindow();
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestHostIsPresent) {
+  RunTest("testHostIsPresent");
 }
 
 // Tests elements panel basics.
-IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, ElementsPanel) {
-  OpenDevToolsWindow();
-  AssertEquals("HTML", "doc.documentElement.nodeName");
-  AssertTrue("doc.documentElement.hasChildNodes()");
-  CloseDevToolsWindow();
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestElementsTreeRoot) {
+  RunTest("testElementsTreeRoot");
 }
 
 // Tests resources panel basics.
-IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, DISABLED_ResourcesPanel) {
-  OpenDevToolsWindow();
-  std::string func =
-      "function() {"
-      "  var tokens = [];"
-      "  var resources = WebInspector.resources;"
-      "  for (var id in resources) {"
-      "    tokens.push(resources[id]);"
-      "  }"
-      "  return tokens.join(',');"
-      "}()";
-  AssertEquals("simple_page.html", func);
-  CloseDevToolsWindow();
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestMainResource) {
+  RunTest("testMainResource");
 }
 
 }  // namespace

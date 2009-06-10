@@ -132,7 +132,6 @@ const wchar_t* kPrefsToObserve[] = {
   prefs::kWebKitLoadsImagesAutomatically,
   prefs::kWebKitPluginsEnabled,
   prefs::kWebKitUsesUniversalDetector,
-  prefs::kWebKitDeveloperExtrasEnabled,
   prefs::kWebKitSerifFontFamily,
   prefs::kWebKitSansSerifFontFamily,
   prefs::kWebKitFixedFontFamily,
@@ -363,8 +362,6 @@ void TabContents::RegisterUserPrefs(PrefService* prefs) {
                              pref_defaults.dom_paste_enabled);
   prefs->RegisterBooleanPref(prefs::kWebKitShrinksStandaloneImagesToFit,
                              pref_defaults.shrinks_standalone_images_to_fit);
-  prefs->RegisterBooleanPref(prefs::kWebKitDeveloperExtrasEnabled,
-                             pref_defaults.developer_extras_enabled);
   prefs->RegisterStringPref(prefs::kWebKitInspectorSettings,
                             pref_defaults.inspector_settings);
   prefs->RegisterBooleanPref(prefs::kWebKitTextAreasAreResizable,

@@ -90,7 +90,6 @@ void DevToolsManager::ForwardToDevToolsClient(RenderViewHost* inspected_rvh,
 }
 
 void DevToolsManager::OpenDevToolsWindow(RenderViewHost* inspected_rvh) {
-  EnableDevToolsInPrefs(inspected_rvh);
   DevToolsClientHost* host = GetDevToolsClientHostFor(inspected_rvh);
   if (!host) {
     host = new DevToolsWindow(
@@ -193,16 +192,6 @@ void DevToolsManager::SendDetachToAgent(RenderViewHost* inspected_rvh) {
     IPC::Message* m = new DevToolsAgentMsg_Detach();
     m->set_routing_id(inspected_rvh->routing_id());
     inspected_rvh->Send(m);
-  }
-}
-
-void DevToolsManager::EnableDevToolsInPrefs(RenderViewHost* inspected_rvh) {
-  Profile* profile = inspected_rvh->site_instance()->browsing_instance()->
-      profile();
-  if (!profile->GetPrefs()->GetBoolean(prefs::kWebKitDeveloperExtrasEnabled)) {
-    //TODO(pfeldman): Show message box with warning to the user.
-    profile->GetPrefs()->SetBoolean(prefs::kWebKitDeveloperExtrasEnabled,
-        true);
   }
 }
 

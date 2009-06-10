@@ -276,6 +276,12 @@ RemoteDebuggerCommandExecutorStub.prototype.DebuggerCommand = function(cmd) {
  * @constructor
  */
 DevToolsHostStub = function() {
+  this.isStub = true;
+  window.domAutomationController = {
+    send: function(text) {
+        debugPrint(text);
+    }
+  };
 };
 
 
@@ -285,6 +291,7 @@ DevToolsHostStub.prototype.loaded = function() {
   RemoteDomAgentStub.sendChildNodes_(2);
   devtools.tools.updateFocusedNode_(4);
   devtools.tools.addMessageToConsole_('message', 'source', 3);
+  uiTests.runAllTests();
 };
 
 

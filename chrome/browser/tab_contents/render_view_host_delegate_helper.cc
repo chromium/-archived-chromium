@@ -148,8 +148,7 @@ WebPreferences RenderViewHostDelegateHelper::GetWebkitPrefs(
   {  // Command line switches are used for preferences with no user interface.
     const CommandLine& command_line = *CommandLine::ForCurrentProcess();
     web_prefs.developer_extras_enabled =
-        !command_line.HasSwitch(switches::kDisableDevTools) &&
-        prefs->GetBoolean(prefs::kWebKitDeveloperExtrasEnabled);
+        !command_line.HasSwitch(switches::kDisableDevTools);
     web_prefs.javascript_enabled =
         !command_line.HasSwitch(switches::kDisableJavaScript) &&
         prefs->GetBoolean(prefs::kWebKitJavascriptEnabled);

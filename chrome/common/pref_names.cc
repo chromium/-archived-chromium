@@ -115,8 +115,6 @@ const wchar_t kWebKitPluginsEnabled[] = L"webkit.webprefs.plugins_enabled";
 const wchar_t kWebKitDomPasteEnabled[] = L"webkit.webprefs.dom_paste_enabled";
 const wchar_t kWebKitShrinksStandaloneImagesToFit[] =
     L"webkit.webprefs.shrinks_standalone_images_to_fit";
-const wchar_t kWebKitDeveloperExtrasEnabled[] =
-    L"webkit.webprefs.developer_extras_enabled";
 const wchar_t kWebKitInspectorSettings[] =
     L"webkit.webprefs.inspector_settings";
 const wchar_t kWebKitUsesUniversalDetector[] =

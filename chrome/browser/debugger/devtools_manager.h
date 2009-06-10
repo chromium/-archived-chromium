@@ -69,8 +69,6 @@ private:
   void SendAttachToAgent(RenderViewHost* inspected_rvh);
   void SendDetachToAgent(RenderViewHost* inspected_rvh);
 
-  void EnableDevToolsInPrefs(RenderViewHost* inspected_rvh);
-
   void ForceReopenWindow();
 
   // These two maps are for tracking dependencies between inspected tabs and
