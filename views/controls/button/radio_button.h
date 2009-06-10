@@ -15,8 +15,6 @@ class RadioButton : public Checkbox {
   // The button's class name.
   static const char kViewClassName[];
 
-  RadioButton();
-  RadioButton(const std::wstring& label);
   RadioButton(const std::wstring& label, int group_id);
   virtual ~RadioButton();
 

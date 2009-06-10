@@ -4,6 +4,7 @@
 
 #include "views/controls/button/radio_button.h"
 
+#include "base/logging.h"
 #include "views/widget/root_view.h"
 
 namespace views {
@@ -13,12 +14,6 @@ const char RadioButton::kViewClassName[] = "views/RadioButton";
 
 ////////////////////////////////////////////////////////////////////////////////
 // RadioButton, public:
-
-RadioButton::RadioButton() : Checkbox() {
-}
-
-RadioButton::RadioButton(const std::wstring& label) : Checkbox(label) {
-}
 
 RadioButton::RadioButton(const std::wstring& label, int group_id)
     : Checkbox(label) {
@@ -47,6 +42,11 @@ void RadioButton::SetChecked(bool checked) {
       std::vector<View*>::iterator i;
       for (i = other.begin(); i != other.end(); ++i) {
         if (*i != this) {
+          if ((*i)->GetClassName() != kViewClassName) {
+            NOTREACHED() << "radio-button has same group as other non "
+                            "radio-button views.";
+            continue;
+          }
           RadioButton* peer = static_cast<RadioButton*>(*i);
           peer->SetChecked(false);
         }
