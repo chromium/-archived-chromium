@@ -500,7 +500,6 @@
       'target_name': 'browser',
       'type': '<(library)',
       'msvs_guid': '5BF908A7-68FB-4A4B-99E3-8C749F1FE4EA',
-      'msvs_existing_vcproj': 'browser/browser.vcproj',
       'dependencies': [
         'common',
         'chrome_resources',
@@ -1420,13 +1419,8 @@
         'browser/views/bookmark_menu_button.h',
         'browser/views/bookmark_menu_controller_views.cc',
         'browser/views/bookmark_menu_controller_views.h',
-        'browser/views/bookmark_table_model.cc',
-        'browser/views/bookmark_table_model.h',
-        'browser/views/bookmark_table_model_observer.h',
         'browser/views/bookmark_table_view.cc',
         'browser/views/bookmark_table_view.h',
-        'browser/views/bookmark_table_view_observer.h',
-        'browser/views/bookmark_table_observer.h',
         'browser/views/browser_bubble.cc',
         'browser/views/browser_bubble.h',
         'browser/views/browser_bubble_gtk.cc',
@@ -1734,7 +1728,6 @@
             '../printing/printing.gyp:printing',
             '../views/views.gyp:views',
             '../gears/gears.gyp:gears',
-            'browser_views',
           ],
           'export_dependent_settings': [
             '../views/views.gyp:views',
@@ -3791,17 +3784,6 @@
             '../webkit/activex_shim/activex_shim.gyp:*',
             '../webkit/activex_shim_dll/activex_shim_dll.gyp:*',
             '../v8/tools/gyp/v8.gyp:v8_shell',
-          ],
-        },
-        {
-          'target_name': 'browser_views',
-          'type': '<(library)',
-          'msvs_guid': 'FA537565-7B03-4FFC-AF15-F7A979B72E22',
-          'msvs_existing_vcproj': 'browser/views/browser_views.vcproj',
-          'dependencies': [
-            '../app/app.gyp:app_resources',
-            'chrome_resources',
-            'chrome_strings',
           ],
         },
         {
