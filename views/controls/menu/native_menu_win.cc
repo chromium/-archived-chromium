@@ -98,6 +98,9 @@ class NativeMenuWin::MenuHostWindow {
   // Called as the user moves their mouse or arrows through the contents of the
   // menu.
   void OnMenuSelect(WPARAM w_param, HMENU menu) {
+    if (!menu)
+      return;  // menu is null when closing on XP.
+
     int position = GetMenuItemIndexFromWPARAM(menu, w_param);
     if (position >= 0)
       GetNativeMenuWinFromHMENU(menu)->model_->HighlightChangedTo(position);
