@@ -377,11 +377,7 @@ var chrome;
   };
 
   chrome.bookmarks.get.params = [
-    {
-      type: "array",
-      items: chrome.types.pInt,
-      optional: true
-    },
+    chrome.types.singleOrListOf(chrome.types.pInt),
     chrome.types.fun
   ];
   
@@ -401,6 +397,7 @@ var chrome;
   };
   
   // TODO(erikkay): allow it to take an optional id as a starting point
+  // BUG=13727
   chrome.bookmarks.getTree.params = [
     chrome.types.fun
   ];
@@ -415,19 +412,23 @@ var chrome;
     chrome.types.fun
   ];
 
-  chrome.bookmarks.remove = function(bookmark, callback) {
+  chrome.bookmarks.remove = function(id, callback) {
     validate(arguments, arguments.callee.params);
-    sendRequest(RemoveBookmark, bookmark, callback);
+    sendRequest(RemoveBookmark, [id, false], callback);
   };
 
   chrome.bookmarks.remove.params = [
-    {
-      type: "object",
-      properties: {
-        id: chrome.types.pInt,
-        recursive: chrome.types.optBool
-      }
-    },
+    chrome.types.singleOrListOf(chrome.types.pInt),
+    chrome.types.optFun
+  ];
+
+  chrome.bookmarks.removeTree = function(id, callback) {
+    validate(arguments, arguments.callee.params);
+    sendRequest(RemoveBookmark, [id, true], callback);
+  };
+
+  chrome.bookmarks.removeTree.params = [
+    chrome.types.pInt,
     chrome.types.optFun
   ];
 
@@ -449,16 +450,16 @@ var chrome;
     chrome.types.optFun
   ];
 
-  chrome.bookmarks.move = function(obj, callback) {
+  chrome.bookmarks.move = function(id, destination, callback) {
     validate(arguments, arguments.callee.params);
-    sendRequest(MoveBookmark, obj, callback);
+    sendRequest(MoveBookmark, [id, destination], callback);
   };
 
   chrome.bookmarks.move.params = [
+    chrome.types.pInt,
     {
       type: "object",
       properties: {
-        id: chrome.types.pInt,
         parentId: chrome.types.optPInt,
         index: chrome.types.optPInt
       }
@@ -466,16 +467,16 @@ var chrome;
     chrome.types.optFun
   ];
 
-  chrome.bookmarks.setTitle = function(bookmark, callback) {
+  chrome.bookmarks.update = function(id, changes, callback) {
     validate(arguments, arguments.callee.params);
-    sendRequest(SetBookmarkTitle, bookmark, callback);
+    sendRequest(SetBookmarkTitle, [id, changes], callback);
   };
 
-  chrome.bookmarks.setTitle.params = [
+  chrome.bookmarks.update.params = [
+    chrome.types.pInt,
     {
       type: "object",
       properties: {
-        id: chrome.types.pInt,
         title: chrome.types.optStr
       }
     },
@@ -484,21 +485,21 @@ var chrome;
 
   // bookmark events
 
-  // Sends ({id, title, url, parentId, index})
-  chrome.bookmarks.onBookmarkAdded = new chrome.Event("bookmark-added");
+  // Sends (id, {title, url, parentId, index})
+  chrome.bookmarks.onAdded = new chrome.Event("bookmark-added");
 
   // Sends ({parentId, index})
-  chrome.bookmarks.onBookmarkRemoved = new chrome.Event("bookmark-removed");
+  chrome.bookmarks.onRemoved = new chrome.Event("bookmark-removed");
 
   // Sends (id, object) where object has list of properties that have changed.
   // Currently, this only ever includes 'title'.
-  chrome.bookmarks.onBookmarkChanged = new chrome.Event("bookmark-changed");
+  chrome.bookmarks.onChanged = new chrome.Event("bookmark-changed");
 
-  // Sends ({id, parentId, index, oldParentId, oldIndex})
-  chrome.bookmarks.onBookmarkMoved = new chrome.Event("bookmark-moved");
+  // Sends (id, {parentId, index, oldParentId, oldIndex})
+  chrome.bookmarks.onMoved = new chrome.Event("bookmark-moved");
   
   // Sends (id, [childrenIds])
-  chrome.bookmarks.onBookmarkChildrenReordered =
+  chrome.bookmarks.onChildrenReordered =
       new chrome.Event("bookmark-children-reordered");
 
 

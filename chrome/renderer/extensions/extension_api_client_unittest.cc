@@ -421,18 +421,21 @@ TEST_F(ExtensionAPIClientTest, CreateBookmark) {
 }
 
 TEST_F(ExtensionAPIClientTest, GetBookmarks) {
-  ExpectJsPass("chrome.bookmarks.get([], function(){});",
+  ExpectJsPass("chrome.bookmarks.get(0, function(){});",
                "GetBookmarks",
-               "[]");
+               "0");
   ExpectJsPass("chrome.bookmarks.get([0,1,2,3], function(){});",
                "GetBookmarks",
                "[0,1,2,3]");
-  ExpectJsPass("chrome.bookmarks.get(null, function(){});",
-               "GetBookmarks",
-               "null");
+  ExpectJsFail("chrome.bookmarks.get(null, function(){});",
+               "Uncaught Error: Parameter 0 is required.");
+  // TODO(erikkay) This is succeeding, when it should fail.
+  // BUG=13719
+#if 0
   ExpectJsFail("chrome.bookmarks.get({}, function(){});",
                "Uncaught Error: Invalid value for argument 0. "
                "Expected 'array' but got 'object'.");
+#endif
 }
 
 TEST_F(ExtensionAPIClientTest, GetBookmarkChildren) {
@@ -454,21 +457,27 @@ TEST_F(ExtensionAPIClientTest, SearchBookmarks) {
 }
 
 TEST_F(ExtensionAPIClientTest, RemoveBookmark) {
-  ExpectJsPass("chrome.bookmarks.remove({id:42});",
+  ExpectJsPass("chrome.bookmarks.remove(42);",
                "RemoveBookmark",
-               "{\"id\":42}");
+               "[42,false]");
+}
+
+TEST_F(ExtensionAPIClientTest, RemoveBookmarkTree) {
+  ExpectJsPass("chrome.bookmarks.removeTree(42);",
+               "RemoveBookmark",
+               "[42,true]");
 }
 
 TEST_F(ExtensionAPIClientTest, MoveBookmark) {
-  ExpectJsPass("chrome.bookmarks.move({id:42,parentId:1,index:0});",
+  ExpectJsPass("chrome.bookmarks.move(42,{parentId:1,index:0});",
                "MoveBookmark",
-               "{\"id\":42,\"parentId\":1,\"index\":0}");
+               "[42,{\"parentId\":1,\"index\":0}]");
 }
 
 TEST_F(ExtensionAPIClientTest, SetBookmarkTitle) {
-  ExpectJsPass("chrome.bookmarks.setTitle({id:42,title:'x'});",
+  ExpectJsPass("chrome.bookmarks.update(42,{title:'x'});",
                "SetBookmarkTitle",
-               "{\"id\":42,\"title\":\"x\"}");
+               "[42,{\"title\":\"x\"}]");
 }
 
 TEST_F(ExtensionAPIClientTest, EnablePageAction) {

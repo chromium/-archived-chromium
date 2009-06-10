@@ -13,7 +13,6 @@ const wchar_t kOldIndexKey[] = L"oldIndex";
 const wchar_t kOldParentIdKey[] = L"oldParentId";
 const wchar_t kUrlKey[] = L"url";
 const wchar_t kTitleKey[] = L"title";
-const wchar_t kChildrenIdsKey[] = L"childrenIds";
 const wchar_t kChildrenKey[] = L"childrenIds";
 const wchar_t kRecursiveKey[] = L"recursive";
 

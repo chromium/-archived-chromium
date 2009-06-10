@@ -17,7 +17,6 @@ extern const wchar_t kOldIndexKey[];
 extern const wchar_t kOldParentIdKey[];
 extern const wchar_t kUrlKey[];
 extern const wchar_t kTitleKey[];
-extern const wchar_t kChildrenIdsKey[];
 extern const wchar_t kChildrenKey[];
 extern const wchar_t kRecursiveKey[];
 

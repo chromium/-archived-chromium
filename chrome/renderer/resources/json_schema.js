@@ -376,7 +376,7 @@ chrome.JSONSchemaValidator.prototype.addError = function(path, key,
     return {
       choice: [
         type,
-        { type: "array",  item: type }
+        { type: "array",  item: type,  minItems: 1 }
       ]
     };
   };

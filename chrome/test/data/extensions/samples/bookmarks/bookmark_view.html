@@ -38,23 +38,23 @@ var logEvent = function(name, data) {
   console.log("got event: " + name);
 }
 
-chrome.bookmarks.onBookmarkAdded.addListener(function(data) {
+chrome.bookmarks.onAdded.addListener(function(data) {
   logEvent("onBookmarkAdded", data);
 });
 
-chrome.bookmarks.onBookmarkRemoved.addListener(function(data) {
+chrome.bookmarks.onRemoved.addListener(function(data) {
   logEvent("onBookmarkRemoved", data);
 });
 
-chrome.bookmarks.onBookmarkChanged.addListener(function(data) {
+chrome.bookmarks.onChanged.addListener(function(data) {
   logEvent("onBookmarkChanged", data);
 });
 
-chrome.bookmarks.onBookmarkMoved.addListener(function(data) {
+chrome.bookmarks.onMoved.addListener(function(data) {
   logEvent("onBookmarkMoved", data);
 });
 
-chrome.bookmarks.onBookmarkChildrenReordered.addListener(function(data) {
+chrome.bookmarks.onChildrenReordered.addListener(function(data) {
   logEvent("onBookmarkChildrenReordered", data);
 });
 
@@ -71,25 +71,21 @@ var toggleBookmark = function(event) {
     return;
   console.log("toggle: " + id);
   //console.dir(event);
-  chrome.bookmarks.get([id], function(bookmark) {
-    //console.log("toggle get");
-    console.dir(bookmark[0]);
-    if (bookmark[0].childrenIds && bookmark[0].childrenIds.length) {
-      if (node.childNodes.length != 1) {
-        //console.log("toggle collapse");
-        node.removeChild(node.childNodes[1]);
-      } else {
-        //console.log("before");
-        chrome.bookmarks.get(bookmark[0].childrenIds, function(children) {
-          //console.log("toggle expand");
-          if (children && children.length) {
-            console.dir(children);
-            addBookmarks(children, node);
-          }
-        });
-      }
+  if (node.childNodes.length > 1) {
+    var i = 0;
+    while (node.childNodes.length > i) {
+      var child = node.childNodes.item(i);
+      if (child.tagName == "UL")
+        node.removeChild(child);
+      else
+        i++;
     }
-  });
+  } else {
+    chrome.bookmarks.getChildren(id, function(children) {
+      console.dir(children);
+      addBookmarks(children, node);
+    });
+  }
 };
 
 var addBookmark = function(bookmark, parent) {
@@ -122,16 +118,13 @@ var addBookmarks = function(bookmarks, parent) {
 
 var loadBookmarks = function() {
   var container = document.getElementById('container');
-  chrome.bookmarks.get([], function(results) {
-    var root = results[0];
-    console.dir(root);
-    var rootElement = document.createElement("div");
-    rootElement.id = prefix + root.id;
-    // root element is empty / invisible, just an id to be looked up
-    container.appendChild(rootElement);
-    chrome.bookmarks.get(root.childrenIds, function(children) {
-      addBookmarks(children, rootElement);
-    });
+  var rootElement = document.createElement("div");
+  var rootId = 0;
+  rootElement.id = prefix + rootId;
+  // root element is empty / invisible, just an id to be looked up
+  container.appendChild(rootElement);
+  chrome.bookmarks.getChildren(rootId, function(children) {
+    addBookmarks(children, rootElement);
   });
 };
 
