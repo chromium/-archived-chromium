@@ -218,7 +218,7 @@ void TestShell::InitializeTestShell(bool layout_test_mode) {
 }
 
 NSButton* MakeTestButton(NSRect* rect, NSString* title, NSView* parent) {
-  NSButton* button = [[NSButton alloc] initWithFrame:*rect];
+  NSButton* button = [[[NSButton alloc] initWithFrame:*rect] autorelease];
   [button setTitle:title];
   [button setBezelStyle:NSSmallSquareBezelStyle];
   [button setAutoresizingMask:(NSViewMaxXMargin | NSViewMinYMargin)];
