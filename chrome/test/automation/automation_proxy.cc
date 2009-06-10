@@ -13,6 +13,7 @@
 #include "base/process_util.h"
 #include "base/ref_counted.h"
 #include "base/waitable_event.h"
+#include "chrome/common/chrome_descriptors.h"
 #include "chrome/test/automation/automation_constants.h"
 #include "chrome/test/automation/automation_messages.h"
 #include "chrome/test/automation/browser_proxy.h"
@@ -440,10 +441,9 @@ scoped_refptr<BrowserProxy> AutomationProxy::GetLastActiveBrowserWindow() {
 #if defined(OS_POSIX)
 base::file_handle_mapping_vector AutomationProxy::fds_to_map() const {
   base::file_handle_mapping_vector map;
-  int src_fd = -1, dest_fd = -1;
-  channel_->GetClientFileDescriptorMapping(&src_fd, &dest_fd);
-  if (src_fd > -1)
-    map.push_back(std::make_pair(src_fd, dest_fd));
+  const int ipcfd = channel_->GetClientFileDescriptor();
+  if (ipcfd > -1)
+    map.push_back(std::make_pair(ipcfd, kPrimaryIPCChannel + 3));
   return map;
 }
 #endif  // defined(OS_POSIX)

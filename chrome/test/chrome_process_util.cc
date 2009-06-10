@@ -5,6 +5,7 @@
 #include "chrome/test/chrome_process_util.h"
 
 #include <vector>
+#include <set>
 
 #include "base/process_util.h"
 #include "base/time.h"
@@ -13,26 +14,6 @@
 
 using base::Time;
 using base::TimeDelta;
-
-namespace {
-
-class ChromeProcessFilter : public base::ProcessFilter {
- public:
-  explicit ChromeProcessFilter(base::ProcessId browser_pid)
-      : browser_pid_(browser_pid) {}
-
-  virtual bool Includes(base::ProcessId pid, base::ProcessId parent_pid) const {
-    // Match browser process itself and its children.
-    return browser_pid_ == pid || browser_pid_ == parent_pid;
-  }
-
- private:
-  base::ProcessId browser_pid_;
-
-  DISALLOW_COPY_AND_ASSIGN(ChromeProcessFilter);
-};
-
-}  // namespace
 
 void TerminateAllChromeProcesses(const FilePath& data_dir) {
   // Total time the function will wait for chrome processes
@@ -70,6 +51,24 @@ void TerminateAllChromeProcesses(const FilePath& data_dir) {
     base::CloseProcessHandle(*it);
 }
 
+class ChildProcessFilter : public base::ProcessFilter {
+ public:
+  explicit ChildProcessFilter(base::ProcessId parent_pid)
+      : parent_pids_(&parent_pid, (&parent_pid) + 1) {}
+
+  explicit ChildProcessFilter(std::vector<base::ProcessId> parent_pids)
+      : parent_pids_(parent_pids.begin(), parent_pids.end()) {}
+
+  virtual bool Includes(base::ProcessId pid, base::ProcessId parent_pid) const {
+    return parent_pids_.find(parent_pid) != parent_pids_.end();
+  }
+
+ private:
+  const std::set<base::ProcessId> parent_pids_;
+
+  DISALLOW_COPY_AND_ASSIGN(ChildProcessFilter);
+};
+
 ChromeProcessList GetRunningChromeProcesses(const FilePath& data_dir) {
   ChromeProcessList result;
 
@@ -77,37 +76,32 @@ ChromeProcessList GetRunningChromeProcesses(const FilePath& data_dir) {
   if (browser_pid < 0)
     return result;
 
-  // Normally, the browser is the parent process for all the renderers
-  base::ProcessId parent_pid = browser_pid;
-
-#if defined(OS_LINUX)
-  // But if the browser's parent is the same executable as the browser,
-  // then it's the zygote manager, and it's the parent for all the renderers.
-  base::ProcessId manager_pid = base::GetParentProcessId(browser_pid);
-  FilePath selfPath = base::GetProcessExecutablePath(browser_pid);
-  FilePath managerPath = base::GetProcessExecutablePath(manager_pid);
-  if (!selfPath.empty() && !managerPath.empty() && selfPath == managerPath) {
-    LOG(INFO) << "Zygote manager in use.";
-    parent_pid = manager_pid;
-  }
-#endif
-
-  ChromeProcessFilter filter(parent_pid);
+  ChildProcessFilter filter(browser_pid);
   base::NamedProcessIterator it(chrome::kBrowserProcessExecutableName, &filter);
 
   const ProcessEntry* process_entry;
   while ((process_entry = it.NextProcessEntry())) {
 #if defined(OS_WIN)
     result.push_back(process_entry->th32ProcessID);
-#elif defined(OS_LINUX)
-    // Don't count the zygote manager, that screws up unit tests,
-    // and it will exit cleanly on its own when first client exits.
-    if (process_entry->pid != manager_pid)
-      result.push_back(process_entry->pid);
 #elif defined(OS_POSIX)
     result.push_back(process_entry->pid);
 #endif
   }
+
+#if defined(OS_LINUX)
+  // On Linux we might be running with a zygote process for the renderers.
+  // Because of that we sweep the list of processes again and pick those which
+  // are children of one of the processes that we've already seen.
+  {
+    ChildProcessFilter filter(result);
+    base::NamedProcessIterator it(chrome::kBrowserProcessExecutableName,
+                                  &filter);
+    while ((process_entry = it.NextProcessEntry()))
+      result.push_back(process_entry->pid);
+  }
+#endif
+
+  result.push_back(browser_pid);
 
   return result;
 }

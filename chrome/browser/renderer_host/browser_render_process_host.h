@@ -154,6 +154,9 @@ class BrowserRenderProcessHost : public RenderProcessHost,
   // Used in single-process mode.
   scoped_ptr<RendererMainThread> in_process_renderer_;
 
+  // True iff the renderer is a child of a zygote process.
+  bool zygote_child_;
+
   DISALLOW_COPY_AND_ASSIGN(BrowserRenderProcessHost);
 };
 

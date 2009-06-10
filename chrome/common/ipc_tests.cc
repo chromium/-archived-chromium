@@ -21,11 +21,16 @@
 #include "base/base_switches.h"
 #include "base/command_line.h"
 #include "base/debug_on_start.h"
+#if defined(OS_POSIX)
+#include "base/at_exit.h"
+#include "base/global_descriptors_posix.h"
+#endif
 #include "base/perftimer.h"
 #include "base/perf_test_suite.h"
 #include "base/test_suite.h"
 #include "base/thread.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/chrome_descriptors.h"
 #include "chrome/common/ipc_channel.h"
 #include "chrome/common/ipc_channel_proxy.h"
 #include "chrome/common/ipc_message_utils.h"
@@ -86,11 +91,9 @@ base::ProcessHandle IPCChannelTest::SpawnChild(ChildType child_type,
       CommandLine::ForCurrentProcess()->HasSwitch(switches::kDebugChildren);
 
   base::file_handle_mapping_vector fds_to_map;
-  int src_fd;
-  int dest_fd;
-  channel->GetClientFileDescriptorMapping(&src_fd, &dest_fd);
-  if (src_fd > -1) {
-    fds_to_map.push_back(std::pair<int,int>(src_fd, dest_fd));
+  const int ipcfd = channel->GetClientFileDescriptor();
+  if (ipcfd > -1) {
+    fds_to_map.push_back(std::pair<int,int>(ipcfd, kPrimaryIPCChannel + 3));
   }
 
   base::ProcessHandle ret = NULL;
@@ -258,11 +261,9 @@ TEST_F(IPCChannelTest, ChannelProxyTest) {
     bool debug_on_start = CommandLine::ForCurrentProcess()->HasSwitch(
                               switches::kDebugChildren);
     base::file_handle_mapping_vector fds_to_map;
-    int src_fd;
-    int dest_fd;
-    chan.GetClientFileDescriptorMapping(&src_fd, &dest_fd);
-    if (src_fd > -1) {
-      fds_to_map.push_back(std::pair<int,int>(src_fd, dest_fd));
+    const int ipcfd = chan.GetClientFileDescriptor();
+    if (ipcfd > -1) {
+      fds_to_map.push_back(std::pair<int,int>(ipcfd, kPrimaryIPCChannel + 3));
     }
 
     base::ProcessHandle process_handle = MultiProcessTest::SpawnChild(

@@ -45,6 +45,9 @@ class CommandLine {
   // TODO(port): should be a FilePath.
   explicit CommandLine(const std::wstring& program);
 
+  // Uninit and free the current process's command line.
+  static void Reset();
+
   // Initialize the current process CommandLine singleton.  On Windows,
   // ignores its arguments (we instead parse GetCommandLineW()
   // directly) because we don't trust the CRT's parsing of the command

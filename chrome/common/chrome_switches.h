@@ -26,6 +26,7 @@ extern const wchar_t kProcessChannelID[];
 extern const wchar_t kTestingChannelID[];
 extern const wchar_t kHomePage[];
 extern const wchar_t kRendererProcess[];
+extern const wchar_t kZygoteProcess[];
 extern const wchar_t kBrowserSubprocessPath[];
 extern const wchar_t kPluginProcess[];
 extern const wchar_t kWorkerProcess[];
@@ -184,6 +185,8 @@ extern const wchar_t kNewNewTabPage[];
 extern const wchar_t kEnableBenchmarking[];
 
 extern const wchar_t kNoDefaultBrowserCheck[];
+
+extern const wchar_t kZygoteCmdPrefix[];
 
 extern const wchar_t kThumbnailStore[];
 

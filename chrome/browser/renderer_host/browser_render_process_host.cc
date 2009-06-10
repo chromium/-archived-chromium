@@ -22,7 +22,6 @@
 #include "base/path_service.h"
 #include "base/process_util.h"
 #include "base/rand_util.h"
-#include "base/reserved_file_descriptors.h"
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
 #include "base/singleton.h"
@@ -35,9 +34,6 @@
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
-#if defined(OS_LINUX)
-#include "chrome/browser/renderer_host/render_crash_handler_host_linux.h"
-#endif
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
@@ -45,6 +41,7 @@
 #include "chrome/browser/renderer_host/web_cache_manager.h"
 #include "chrome/browser/visitedlink_master.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/chrome_descriptors.h"
 #include "chrome/common/child_process_info.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/notification_service.h"
@@ -53,6 +50,11 @@
 #include "chrome/common/result_codes.h"
 #include "chrome/renderer/render_process.h"
 #include "grit/generated_resources.h"
+
+#if defined(OS_LINUX)
+#include "chrome/browser/zygote_host_linux.h"
+#include "chrome/browser/renderer_host/render_crash_handler_host_linux.h"
+#endif
 
 using WebKit::WebCache;
 
@@ -134,7 +136,8 @@ BrowserRenderProcessHost::BrowserRenderProcessHost(Profile* profile)
       backgrounded_(true),
       ALLOW_THIS_IN_INITIALIZER_LIST(cached_dibs_cleaner_(
             base::TimeDelta::FromSeconds(5),
-            this, &BrowserRenderProcessHost::ClearTransportDIBCache)) {
+            this, &BrowserRenderProcessHost::ClearTransportDIBCache)),
+      zygote_child_(false) {
   widget_helper_ = new RenderWidgetHelper();
 
   registrar_.Add(this, NotificationType::USER_SCRIPTS_UPDATED,
@@ -170,7 +173,13 @@ BrowserRenderProcessHost::~BrowserRenderProcessHost() {
     audio_renderer_host_->Destroy();
 
   if (process_.handle() && !run_renderer_in_process()) {
-    ProcessWatcher::EnsureProcessTerminated(process_.handle());
+    if (zygote_child_) {
+#if defined(OS_LINUX)
+      Singleton<ZygoteHost>()->EnsureProcessTerminated(process_.handle());
+#endif
+    } else {
+      ProcessWatcher::EnsureProcessTerminated(process_.handle());
+    }
   }
 
   ClearTransportDIBCache();
@@ -294,7 +303,9 @@ bool BrowserRenderProcessHost::Init() {
         ASCIIToWide(field_trial->MakePersistentString()));
 
 #if defined(OS_POSIX)
-  if (browser_command_line.HasSwitch(switches::kRendererCmdPrefix)) {
+  const bool has_cmd_prefix =
+      browser_command_line.HasSwitch(switches::kRendererCmdPrefix);
+  if (has_cmd_prefix) {
     // launch the renderer child with some prefix (usually "gdb --args")
     const std::wstring prefix =
         browser_command_line.GetSwitchValue(switches::kRendererCmdPrefix);
@@ -334,24 +345,42 @@ bool BrowserRenderProcessHost::Init() {
     base::ProcessHandle process = 0;
 #if defined(OS_WIN)
     process = sandbox::StartProcess(&cmd_line);
-#else
-    // NOTE: This code is duplicated with plugin_process_host.cc, but
-    // there's not a good place to de-duplicate it.
-    base::file_handle_mapping_vector fds_to_map;
-    int src_fd = -1, dest_fd = -1;
-    channel_->GetClientFileDescriptorMapping(&src_fd, &dest_fd);
-    if (src_fd > -1)
-      fds_to_map.push_back(std::pair<int, int>(src_fd, dest_fd));
+#elif defined(OS_POSIX)
 #if defined(OS_LINUX)
-    const int crash_signal_fd =
-        Singleton<RenderCrashHandlerHostLinux>()->GetDeathSignalSocket();
-    if (crash_signal_fd >= 0)
-      fds_to_map.push_back(std::make_pair(crash_signal_fd, kMagicCrashSignalFd));
-    base::ForkApp(cmd_line.argv(), fds_to_map, &process);
-#else
-    base::LaunchApp(cmd_line.argv(), fds_to_map, false, &process);
+    if (!has_cmd_prefix) {
+      base::GlobalDescriptors::Mapping mapping;
+      const int ipcfd = channel_->GetClientFileDescriptor();
+      mapping.push_back(std::pair<uint32_t, int>(kPrimaryIPCChannel, ipcfd));
+      const int crash_signal_fd =
+          Singleton<RenderCrashHandlerHostLinux>()->GetDeathSignalSocket();
+      if (crash_signal_fd >= 0) {
+        mapping.push_back(std::pair<uint32_t, int>(kCrashDumpSignal,
+                                                   crash_signal_fd));
+      }
+      process = Singleton<ZygoteHost>()->ForkRenderer(cmd_line.argv(), mapping);
+      zygote_child_ = true;
+    } else {
+#endif
+      // NOTE: This code is duplicated with plugin_process_host.cc, but
+      // there's not a good place to de-duplicate it.
+      base::file_handle_mapping_vector fds_to_map;
+      const int ipcfd = channel_->GetClientFileDescriptor();
+      fds_to_map.push_back(std::make_pair(ipcfd, kPrimaryIPCChannel + 3));
+#if defined(OS_LINUX)
+      const int crash_signal_fd =
+          Singleton<RenderCrashHandlerHostLinux>()->GetDeathSignalSocket();
+      if (crash_signal_fd >= 0) {
+        fds_to_map.push_back(std::make_pair(crash_signal_fd,
+                                            kCrashDumpSignal + 3));
+      }
+#endif
+      base::LaunchApp(cmd_line.argv(), fds_to_map, false, &process);
+      zygote_child_ = false;
+#if defined(OS_LINUX)
+    }
 #endif
 #endif
+
     if (!process) {
       channel_.reset();
       return false;
@@ -666,7 +695,7 @@ void BrowserRenderProcessHost::OnChannelConnected(int32 peer_pid) {
       const CommandLine& cmd_line = *CommandLine::ForCurrentProcess();
       if (cmd_line.HasSwitch(switches::kRendererCmdPrefix))
         return;
-      CHECK(peer_pid == process_.pid());
+      CHECK(peer_pid == process_.pid()) << peer_pid << " " << process_.pid();
     }
   }
 }
