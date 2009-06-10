@@ -31,8 +31,7 @@ class TabStripGtk : public TabStripModelObserver,
   // TODO(jhawkins): We have to pass in |profile| in order to get a pointer to
   // the theme provider.  In views, all instances of views::View have access to
   // the theme provider.
-  void Init(int width, Profile* profile);
-  void AddTabStripToBox(GtkWidget* box);
+  void Init(Profile* profile);
 
   void Show();
   void Hide();
@@ -203,7 +202,7 @@ class TabStripGtk : public TabStripModelObserver,
   static void OnNewTabClicked(GtkWidget* widget, TabStripGtk* tabstrip);
 
   // Renders the tabstrip background.
-  void PaintBackground(GdkEventExpose* event);
+  void PaintBackground(GtkWidget* widget, GdkEventExpose* event);
 
   // Sets the bounds of the tab and moves the tab widget to those bounds.
   void SetTabBounds(TabGtk* tab, const gfx::Rect& bounds);

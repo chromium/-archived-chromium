@@ -475,7 +475,7 @@ TabStripGtk::~TabStripGtk() {
   tab_data_.clear();
 }
 
-void TabStripGtk::Init(int width, Profile* profile) {
+void TabStripGtk::Init(Profile* profile) {
   ThemeProvider* theme_provider = profile->GetThemeProvider();
 
   model_->AddObserver(this);
@@ -486,7 +486,7 @@ void TabStripGtk::Init(int width, Profile* profile) {
 
   tabstrip_.Own(gtk_fixed_new());
   gtk_fixed_set_has_window(GTK_FIXED(tabstrip_.get()), TRUE);
-  gtk_widget_set_size_request(tabstrip_.get(), width,
+  gtk_widget_set_size_request(tabstrip_.get(), -1,
                               TabGtk::GetMinimumUnselectedSize().height());
   gtk_widget_set_app_paintable(tabstrip_.get(), TRUE);
   gtk_drag_dest_set(tabstrip_.get(), GTK_DEST_DEFAULT_ALL,
@@ -518,10 +518,6 @@ void TabStripGtk::Init(int width, Profile* profile) {
     drop_indicator_width = gdk_pixbuf_get_width(drop_image);
     drop_indicator_height = gdk_pixbuf_get_height(drop_image);
   }
-}
-
-void TabStripGtk::AddTabStripToBox(GtkWidget* box) {
-  gtk_box_pack_start(GTK_BOX(box), tabstrip_.get(), FALSE, FALSE, 0);
 }
 
 void TabStripGtk::Show() {
@@ -1330,7 +1326,7 @@ gboolean TabStripGtk::OnExpose(GtkWidget* widget, GdkEventExpose* event,
   event->area.height = tabstrip->bounds_.height();
   gdk_region_union_with_rect(event->region, &event->area);
 
-  tabstrip->PaintBackground(event);
+  tabstrip->PaintBackground(widget, event);
 
   // Paint the New Tab button.
   gtk_container_propagate_expose(GTK_CONTAINER(tabstrip->tabstrip_.get()),
@@ -1455,9 +1451,11 @@ void TabStripGtk::OnNewTabClicked(GtkWidget* widget, TabStripGtk* tabstrip) {
   tabstrip->model_->delegate()->AddBlankTab(true);
 }
 
-void TabStripGtk::PaintBackground(GdkEventExpose* event) {
+void TabStripGtk::PaintBackground(GtkWidget* widget, GdkEventExpose* event) {
   gfx::CanvasPaint canvas(event);
-  canvas.TileImageInt(*background_, 0, 0, bounds_.width(), bounds_.height());
+  // Offset the background by the height of the titlebar.
+  canvas.TileImageInt(*background_, 0, widget->allocation.y, 0, 0,
+                      bounds_.width(), bounds_.height());
 }
 
 void TabStripGtk::SetTabBounds(TabGtk* tab, const gfx::Rect& bounds) {
