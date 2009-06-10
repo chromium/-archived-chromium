@@ -7,13 +7,16 @@
 
 #include <string>
 
+#include "base/scoped_ptr.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/render_view_host_delegate_helper.h"
+#if defined(TOOLKIT_VIEWS)
+#include "chrome/browser/extensions/extension_view.h"
+#endif
 
 class Browser;
 class Extension;
 class ExtensionProcessManager;
-class ExtensionView;
 class RenderProcessHost;
 class RenderWidgetHost;
 class RenderWidgetHostView;
@@ -29,13 +32,17 @@ class ExtensionHost : public RenderViewHostDelegate,
                       public ExtensionFunctionDispatcher::Delegate {
  public:
   ExtensionHost(Extension* extension, SiteInstance* site_instance,
-                ExtensionProcessManager* manager);
+                const GURL& url, ExtensionProcessManager* manager);
   ~ExtensionHost();
 
 #if defined(TOOLKIT_VIEWS)
-  void set_view(ExtensionView* view) { view_ = view; }
-  ExtensionView* view() const { return view_; }
+  void set_view(ExtensionView* view) { view_.reset(view); }
+  ExtensionView* view() const { return view_.get(); }
 #endif
+
+  // Create an ExtensionView and tie it to this host and |browser|.
+  void CreateView(Browser* browser);
+
   Extension* extension() { return extension_; }
   RenderViewHost* render_view_host() const { return render_view_host_; }
   RenderProcessHost* render_process_host() const;
@@ -43,9 +50,9 @@ class ExtensionHost : public RenderViewHostDelegate,
   bool did_stop_loading() const { return did_stop_loading_; }
 
   // Initializes our RenderViewHost by creating its RenderView and navigating
-  // to the given URL.  Uses host_view for the RenderViewHost's view (can be
+  // to this host's url.  Uses host_view for the RenderViewHost's view (can be
   // NULL).
-  void CreateRenderView(const GURL& url, RenderWidgetHostView* host_view);
+  void CreateRenderView(RenderWidgetHostView* host_view);
 
   // RenderViewHostDelegate
   virtual const GURL& GetURL() const { return url_; }
@@ -97,7 +104,7 @@ class ExtensionHost : public RenderViewHostDelegate,
 
 #if defined(TOOLKIT_VIEWS)
   // Optional view that shows the rendered content in the UI.
-  ExtensionView* view_;
+  scoped_ptr<ExtensionView> view_;
 #endif
 
   // The host for our HTML content.

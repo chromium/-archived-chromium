@@ -12,9 +12,8 @@
 #endif
 #include "views/widget/widget.h"
 
-ExtensionView::ExtensionView(ExtensionHost* host, Browser* browser,
-                             const GURL& content_url)
-    : host_(host), browser_(browser), content_url_(content_url),
+ExtensionView::ExtensionView(ExtensionHost* host, Browser* browser)
+    : host_(host), browser_(browser),
       initialized_(false), container_(NULL) {
   host_->set_view(this);
 }
@@ -22,6 +21,14 @@ ExtensionView::ExtensionView(ExtensionHost* host, Browser* browser,
 ExtensionView::~ExtensionView() {
   if (native_view())
     Detach();
+}
+
+Extension* ExtensionView::extension() const {
+  return host_->extension();
+}
+
+RenderViewHost* ExtensionView::render_view_host() const {
+  return host_->render_view_host();
 }
 
 void ExtensionView::SetVisible(bool is_visible) {
@@ -103,7 +110,7 @@ void ExtensionView::ViewHierarchyChanged(bool is_add,
     NOTIMPLEMENTED();
 #endif
 
-    host_->CreateRenderView(content_url_, view);
+    host_->CreateRenderView(view);
     SetVisible(false);
 
     if (!pending_background_.empty()) {

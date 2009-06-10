@@ -20,11 +20,15 @@
     ],
     'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/chrome',
     'browser_tests_sources': [
-      'browser/ssl/ssl_browser_tests.cc',
       'browser/child_process_security_policy_browser_test.cc',
       'browser/renderer_host/web_cache_manager_browser_test.cc',
+      'browser/ssl/ssl_browser_tests.cc',
     ],
     'browser_tests_sources_win_specific': [
+      'browser/extensions/extension_shelf_model_unittest.cc',
+      'browser/extensions/extension_view_unittest.cc',
+      'browser/extensions/test_extension_loader.cc',
+      'browser/extensions/test_extension_loader.h',
       'browser/views/find_bar_win_browsertest.cc',
       # TODO(jcampan): once the task manager works on Mac, move this test to the
       #                non win specific section.
@@ -855,6 +859,8 @@
         'browser/extensions/extension_protocols.h',
         'browser/extensions/extension_shelf.cc',
         'browser/extensions/extension_shelf.h',
+        'browser/extensions/extension_shelf_model.cc',
+        'browser/extensions/extension_shelf_model.h',
         'browser/extensions/extension_tabs_module.cc',
         'browser/extensions/extension_tabs_module.h',
         'browser/extensions/extension_tabs_module_constants.cc',
@@ -3195,7 +3201,6 @@
         'browser/extensions/extension_messages_unittest.cc',
         'browser/extensions/extension_process_manager_unittest.cc',
         'browser/extensions/extension_ui_unittest.cc',
-        'browser/extensions/extension_view_unittest.cc',
         'browser/extensions/extensions_service_unittest.cc',
         'browser/extensions/test_extension_loader.cc',
         'browser/extensions/user_script_master_unittest.cc',
@@ -3421,7 +3426,6 @@
             # Need to port browser/automation/ui_controls.h
             'browser/debugger/devtools_sanity_unittest.cc',
             'browser/extensions/extension_process_manager_unittest.cc',
-            'browser/extensions/extension_view_unittest.cc',
             'browser/extensions/test_extension_loader.cc',
             'browser/importer/firefox_importer_unittest.cc',
             'browser/importer/importer_unittest.cc',

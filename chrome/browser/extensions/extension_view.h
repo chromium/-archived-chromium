@@ -8,13 +8,15 @@
 #include "build/build_config.h"
 
 #include "base/scoped_ptr.h"
-#include "chrome/browser/extensions/extension_host.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "views/controls/native/native_view_host.h"
 
 class Browser;
 class Extension;
+class ExtensionHost;
+class ExtensionView;
+class RenderViewHost;
 
 // A class that represents the container that this view is in.
 // (bottom shelf, side bar, etc.)
@@ -28,13 +30,13 @@ class ExtensionContainer {
 // This handles the display portion of an ExtensionHost.
 class ExtensionView : public views::NativeViewHost {
  public:
-  ExtensionView(ExtensionHost* host, Browser* browser, const GURL& content_url);
+  ExtensionView(ExtensionHost* host, Browser* browser);
   ~ExtensionView();
 
-  ExtensionHost* host() const { return host_.get(); }
+  ExtensionHost* host() const { return host_; }
   Browser* browser() const { return browser_; }
-  Extension* extension() { return host_->extension(); }
-  RenderViewHost* render_view_host() { return host_->render_view_host(); }
+  Extension* extension() const;
+  RenderViewHost* render_view_host() const;
 
   // Notification from ExtensionHost.
   void DidContentsPreferredWidthChange(const int pref_width);
@@ -61,13 +63,11 @@ class ExtensionView : public views::NativeViewHost {
   void ShowIfCompletelyLoaded();
 
   // The running extension instance that we're displaying.
-  scoped_ptr<ExtensionHost> host_;
+  // Note that host_ owns view
+  ExtensionHost* host_;
 
   // The browser window that this view is in.
   Browser* browser_;
-
-  // The URL to navigate the host to upon initialization.
-  GURL content_url_;
 
   // True if we've been initialized.
   bool initialized_;

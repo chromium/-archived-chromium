@@ -28,17 +28,16 @@ class ExtensionProcessManager : public NotificationObserver {
   explicit ExtensionProcessManager(Profile* profile);
   ~ExtensionProcessManager();
 
-#if defined(TOOLKIT_VIEWS)
-  // Creates a new ExtensionView, grouping it in the appropriate SiteInstance
-  // (and therefore process) based on the URL and profile.
-  ExtensionView* CreateView(Extension* extension,
+  // Creates a new ExtensionHost with its associated view, grouping it in the
+  // appropriate SiteInstance (and therefore process) based on the URL and
+  // profile.
+  ExtensionHost* CreateView(Extension* extension,
                             const GURL& url,
                             Browser* browser);
-#endif
 
   // Creates a new UI-less extension instance.  Like CreateView, but not
   // displayed anywhere.
-  void CreateBackgroundHost(Extension* extension, const GURL& url);
+  ExtensionHost* CreateBackgroundHost(Extension* extension, const GURL& url);
 
   // Returns the SiteInstance that the given URL belongs to.
   SiteInstance* GetSiteInstanceForURL(const GURL& url);

@@ -35,9 +35,9 @@ class MockExtensionHost : public ExtensionHost {
  public:
   MockExtensionHost(Extension* extension, const GURL& url,
                     SiteInstance* instance)
-      : ExtensionHost(extension, instance, NULL),
+      : ExtensionHost(extension, instance, url, NULL),
         got_message_(false) {
-    CreateRenderView(url, NULL);
+    CreateRenderView(NULL);
     MessageLoop::current()->PostDelayedTask(FROM_HERE,
         new MessageLoop::QuitTask, kAlertTimeoutMs);
     ui_test_utils::RunMessageLoop();
@@ -113,12 +113,12 @@ IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Index) {
 // Tests that the ExtensionShelf initializes properly, notices that
 // an extension loaded and has a view available, and then sets that up
 // properly.
-IN_PROC_BROWSER_TEST_F(ExtensionViewTest, BottomBar) {
+IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Shelf) {
   // When initialized, there are no extension views and the preferred height
   // should be zero.
   scoped_ptr<ExtensionShelf> shelf(new ExtensionShelf(browser()));
-  ASSERT_FALSE(shelf->HasExtensionViews());
-  ASSERT_EQ(shelf->GetPreferredSize().height(), 0);
+  EXPECT_EQ(shelf->GetChildViewCount(), 0);
+  EXPECT_EQ(shelf->GetPreferredSize().height(), 0);
 
   // Get the path to our extension.
   FilePath path;
@@ -135,6 +135,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionViewTest, BottomBar) {
 
   // There should now be two extension views and preferred height of the view
   // should be non-zero.
-  ASSERT_TRUE(shelf->HasExtensionViews());
-  ASSERT_NE(shelf->GetPreferredSize().height(), 0);
+  EXPECT_EQ(shelf->GetChildViewCount(), 2);
+  EXPECT_NE(shelf->GetPreferredSize().height(), 0);
 }

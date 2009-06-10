@@ -7,11 +7,10 @@
 
 #include "app/gfx/canvas.h"
 #include "base/task.h"
+#include "chrome/browser/extensions/extension_shelf_model.h"
 #include "chrome/browser/extensions/extension_view.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/views/browser_bubble.h"
-#include "chrome/common/notification_observer.h"
-#include "chrome/common/notification_registrar.h"
 #include "views/view.h"
 
 class Browser;
@@ -23,11 +22,12 @@ namespace views {
 
 // A shelf that contains Extension toolstrips.
 class ExtensionShelf : public views::View,
-                       public NotificationObserver,
                        public ExtensionContainer,
-                       public BrowserBubble::Delegate {
+                       public BrowserBubble::Delegate,
+                       public ExtensionShelfModelObserver {
  public:
   explicit ExtensionShelf(Browser* browser);
+  virtual ~ExtensionShelf();
 
   // Return the current active ExtensionShelfHandle (if any).
   BrowserBubble* GetHandle();
@@ -39,14 +39,6 @@ class ExtensionShelf : public views::View,
   virtual void OnMouseExited(const views::MouseEvent& event);
   virtual void OnMouseEntered(const views::MouseEvent& event);
 
-  // NotificationService
-  virtual void Observe(NotificationType type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details);
-
-  bool AddExtensionViews(const ExtensionList* extensions);
-  bool HasExtensionViews();
-
   // ExtensionContainer
   virtual void OnExtensionMouseEvent(ExtensionView* view);
   virtual void OnExtensionMouseLeave(ExtensionView* view);
@@ -54,6 +46,16 @@ class ExtensionShelf : public views::View,
   // BrowserBubble::Delegate
   virtual void BubbleBrowserWindowMoved(BrowserBubble* bubble);
   virtual void BubbleBrowserWindowClosed(BrowserBubble* bubble);
+
+  // ExtensionShelfModelObserver
+  virtual void ToolstripInsertedAt(ExtensionHost* toolstrip, int index);
+  virtual void ToolstripRemovingAt(ExtensionHost* toolstrip, int index);
+  virtual void ToolstripDraggingFrom(ExtensionHost* toolstrip, int index);
+  virtual void ToolstripMoved(ExtensionHost* toolstrip,
+                              int from_index,
+                              int to_index);
+  virtual void ToolstripChangedAt(ExtensionHost* toolstrip, int index);
+  virtual void ExtensionShelfEmpty();
 
   // Dragging toolstrips
   void DragExtension();
@@ -68,8 +70,13 @@ class ExtensionShelf : public views::View,
   // Inits the background bitmap.
   void InitBackground(gfx::Canvas* canvas, const SkRect& subset);
 
-  // Removes any toolstrips associated with an extension.
-  bool RemoveExtensionViews(Extension* extension);
+  // Returns the toolstrip at |x| coordinate.  If |x| is < 0, returns
+  // the first toolstrip.  If |x| > the last toolstrip position, the
+  // last toolstrip is returned.
+  ExtensionHost* ToolstripAtX(int x);
+
+  // Returns the toolstrip associated with |view|.
+  ExtensionHost* ToolstripForView(ExtensionView* view);
 
   // Show / Hide the shelf handle.
   void ShowShelfHandle();
@@ -80,11 +87,8 @@ class ExtensionShelf : public views::View,
   // Adjust shelf handle size and position.
   void LayoutShelfHandle();
 
-  // Which browser window this shelf is in.
-  Browser* browser_;
-
-  // Manages our notification registrations.
-  NotificationRegistrar registrar_;
+  // Loads initial state from |model_|.
+  void LoadFromModel();
 
   // Background bitmap to draw under extension views.
   SkBitmap background_;
@@ -96,13 +100,16 @@ class ExtensionShelf : public views::View,
   bool handle_visible_;
 
   // Which child view the handle is currently over.
-  ExtensionView* current_handle_view_;
+  ExtensionHost* current_toolstrip_;
 
   // Timers for tracking mouse hovering.
   ScopedRunnableMethodFactory<ExtensionShelf> timer_factory_;
 
   // A placeholder for a pending drag
   View* drag_placeholder_view_;
+
+  // The model representing the toolstrips on the shelf.
+  scoped_ptr<ExtensionShelfModel> model_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionShelf);
 };

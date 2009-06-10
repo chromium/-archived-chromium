@@ -6,9 +6,6 @@
 
 #include "chrome/browser/browsing_instance.h"
 #include "chrome/browser/extensions/extension_host.h"
-#if defined(TOOLKIT_VIEWS)
-#include "chrome/browser/extensions/extension_view.h"
-#endif
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/site_instance.h"
@@ -45,24 +42,23 @@ ExtensionProcessManager::~ExtensionProcessManager() {
     delete *iter;
 }
 
-#if defined(TOOLKIT_VIEWS)
-ExtensionView* ExtensionProcessManager::CreateView(Extension* extension,
+ExtensionHost* ExtensionProcessManager::CreateView(Extension* extension,
                                                    const GURL& url,
                                                    Browser* browser) {
-  ExtensionHost* host = new ExtensionHost(extension,
-                                          GetSiteInstanceForURL(url), this);
-  all_hosts_.insert(host);
-  return new ExtensionView(host, browser, url);
-}
-#endif
-
-void ExtensionProcessManager::CreateBackgroundHost(Extension* extension,
-                                                   const GURL& url) {
   ExtensionHost* host =
-      new ExtensionHost(extension, GetSiteInstanceForURL(url), this);
-  host->CreateRenderView(url, NULL);  // create a RenderViewHost with no view
+      new ExtensionHost(extension, GetSiteInstanceForURL(url), url, this);
+  host->CreateView(browser);
+  return host;
+}
+
+ExtensionHost* ExtensionProcessManager::CreateBackgroundHost(
+    Extension* extension, const GURL& url) {
+  ExtensionHost* host =
+      new ExtensionHost(extension, GetSiteInstanceForURL(url), url, this);
+  host->CreateRenderView(NULL);  // create a RenderViewHost with no view
   all_hosts_.insert(host);
   background_hosts_.insert(host);
+  return host;
 }
 
 SiteInstance* ExtensionProcessManager::GetSiteInstanceForURL(const GURL& url) {

@@ -11,7 +11,6 @@
 #include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/extensions/extension_process_manager.h"
-#include "chrome/browser/extensions/extension_view.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
@@ -30,13 +29,11 @@
 #include "webkit/glue/context_menu.h"
 
 ExtensionHost::ExtensionHost(Extension* extension, SiteInstance* site_instance,
-                             ExtensionProcessManager* manager)
+                             const GURL& url, ExtensionProcessManager* manager)
     : extension_(extension),
       manager_(manager),
-#if defined(OS_WIN)
-      view_(NULL),
-#endif
-      did_stop_loading_(false) {
+      did_stop_loading_(false),
+      url_(url) {
   render_view_host_ = new RenderViewHost(
       site_instance, this, MSG_ROUTING_NONE, NULL);
   render_view_host_->AllowExtensionBindings();
@@ -48,6 +45,15 @@ ExtensionHost::~ExtensionHost() {
   render_view_host_->Shutdown();  // deletes render_view_host
 }
 
+void ExtensionHost::CreateView(Browser* browser) {
+#if defined(TOOLKIT_VIEWS)
+  view_.reset(new ExtensionView(this, browser));
+#else
+  // TODO(port)
+  NOTREACHED();
+#endif
+}
+
 RenderProcessHost* ExtensionHost::render_process_host() const {
   return render_view_host_->process();
 }
@@ -56,17 +62,15 @@ SiteInstance* ExtensionHost::site_instance() const {
   return render_view_host_->site_instance();
 }
 
-void ExtensionHost::CreateRenderView(const GURL& url,
-                                     RenderWidgetHostView* host_view) {
-  url_ = url;
+void ExtensionHost::CreateRenderView(RenderWidgetHostView* host_view) {
   render_view_host_->set_view(host_view);
   render_view_host_->CreateRenderView();
-  render_view_host_->NavigateToURL(url);
+  render_view_host_->NavigateToURL(url_);
 }
 
 void ExtensionHost::UpdatePreferredWidth(int pref_width) {
 #if defined(OS_WIN)
-  if (view_)
+  if (view_.get())
     view_->DidContentsPreferredWidthChange(pref_width);
 #endif
 }
@@ -102,7 +106,7 @@ void ExtensionHost::DidStopLoading(RenderViewHost* render_view_host) {
   did_stop_loading_ = true;
 
 #if defined(OS_WIN)
-  if (view_)
+  if (view_.get())
     view_->ShowIfCompletelyLoaded();
 #endif
 }
@@ -184,21 +188,21 @@ void ExtensionHost::HandleKeyboardEvent(const NativeWebKeyboardEvent& event) {
 
 void ExtensionHost::HandleMouseEvent() {
 #if defined(OS_WIN)
-  if (view_)
+  if (view_.get())
     view_->HandleMouseEvent();
 #endif
 }
 
 void ExtensionHost::HandleMouseLeave() {
 #if defined(OS_WIN)
-  if (view_)
+  if (view_.get())
     view_->HandleMouseLeave();
 #endif
 }
 
 Browser* ExtensionHost::GetBrowser() {
 #if defined(OS_WIN)
-  if (view_)
+  if (view_.get())
     return view_->browser();
 #endif
   Browser* browser = BrowserList::GetLastActiveWithProfile(
