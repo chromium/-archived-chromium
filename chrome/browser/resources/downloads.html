@@ -533,6 +533,7 @@ Download.prototype.update = function(download) {
       this.canvasProgress_.moveTo(Download.Progress.centerX,
                                   Download.Progress.centerY);
 
+      // Draw an arc CW for both RTL and LTR. http://crbug.com/13215
       this.canvasProgress_.arc(Download.Progress.centerX,
                                Download.Progress.centerY,
                                Download.Progress.radius,
