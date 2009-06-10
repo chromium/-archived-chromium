@@ -683,10 +683,12 @@ void ImporterHost::DetectFirefoxProfiles() {
     std::wstring is_relative, path, profile_path;
     if (root.GetString(current_profile + L".IsRelative", &is_relative) &&
         root.GetString(current_profile + L".Path", &path)) {
+#if defined(OS_WIN)
       string16 path16 = WideToUTF16Hack(path);
       ReplaceSubstringsAfterOffset(
           &path16, 0, ASCIIToUTF16("/"), ASCIIToUTF16("\\"));
       path.assign(UTF16ToWideHack(path16));
+#endif
 
       // IsRelative=1 means the folder path would be relative to the
       // path of profiles.ini. IsRelative=0 refers to a custom profile
