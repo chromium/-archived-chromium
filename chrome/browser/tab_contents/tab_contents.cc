@@ -769,8 +769,7 @@ void TabContents::AddNewContents(TabContents* new_contents,
   if (!delegate_)
     return;
 
-#if defined(OS_WIN)
-  bool constrain_popup = false;
+#if defined(OS_WIN) || defined(OS_LINUX)
   if ((disposition == NEW_POPUP) && !user_gesture &&
       !CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kDisablePopupBlocking)) {
@@ -1072,7 +1071,7 @@ void TabContents::SetIsLoading(bool is_loading,
       det);
 }
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
 void TabContents::CreateBlockedPopupContainerIfNecessary() {
   if (blocked_popups_)
     return;

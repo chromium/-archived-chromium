@@ -344,9 +344,6 @@ void BlockedPopupContainerViewWin::SetPosition() {
   gfx::Size size = container_view_->GetPreferredSize();
   int base_x = anchor_point.x() - size.width();
   int base_y = anchor_point.y() - size.height();
-  // The bounds we report through the automation system are the real bounds;
-  // the animation is short lived...
-  bounds_ = gfx::Rect(gfx::Point(base_x, base_y), size);
 
   int real_height =
       static_cast<int>(size.height() * slide_animation_->GetCurrentValue());

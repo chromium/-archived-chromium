@@ -119,7 +119,7 @@ class BlockedPopupContainer : public TabContentsDelegate,
   void RepositionBlockedPopupContainer();
 
   // Returns the TabContents for the blocked popup |index|.
-  TabContents* GetTabContentsAt(size_t index);
+  TabContents* GetTabContentsAt(size_t index) const;
 
   // Returns the names of hosts showing popups.
   std::vector<std::string> GetHosts() const;

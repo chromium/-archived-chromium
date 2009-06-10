@@ -67,6 +67,7 @@ class BlockedPopupContainerViewWin : public BlockedPopupContainerView,
   virtual void Destroy();
 
  private:
+  // For the static constructor BlockedPopupContainerView::Create().
   friend class BlockedPopupContainerView;
 
   // Creates a container for a certain TabContents.
@@ -85,10 +86,6 @@ class BlockedPopupContainerViewWin : public BlockedPopupContainerView,
 
   // The animation that slides us up and down.
   scoped_ptr<SlideAnimation> slide_animation_;
-
-  // The bounds to report to the automation system (may not equal our actual
-  // bounds while animating in or out).
-  gfx::Rect bounds_;
 
   DISALLOW_COPY_AND_ASSIGN(BlockedPopupContainerViewWin);
 };

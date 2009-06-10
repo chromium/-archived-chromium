@@ -1061,6 +1061,10 @@ std::wstring UintToWString(unsigned int value) {
   return IntToStringT<std::wstring, unsigned int, unsigned int, false>::
       IntToString(value);
 }
+string16 UintToString16(unsigned int value) {
+  return IntToStringT<string16, unsigned int, unsigned int, false>::
+      IntToString(value);
+}
 std::string Int64ToString(int64 value) {
   return IntToStringT<std::string, int64, uint64, true>::
       IntToString(value);

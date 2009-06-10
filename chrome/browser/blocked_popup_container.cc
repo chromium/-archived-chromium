@@ -17,9 +17,9 @@ BlockedPopupContainer* BlockedPopupContainer::Create(
   BlockedPopupContainer* container =
       new BlockedPopupContainer(owner, profile->GetPrefs());
 
-  // TODO(erg): Add different defined(OS_??) as they get subclasses of
-  // BlockedPopupContainerView.
-#if defined(OS_WIN)
+  // TODO(port): This ifdef goes away once Mac peeps write a Cocoa
+  // implementation of BlockedPopupContainerView.
+#if defined(OS_WIN) || defined(OS_LINUX)
   BlockedPopupContainerView* view =
       BlockedPopupContainerView::Create(container);
   container->set_view(view);
@@ -180,7 +180,7 @@ void BlockedPopupContainer::RepositionBlockedPopupContainer() {
   view_->SetPosition();
 }
 
-TabContents* BlockedPopupContainer::GetTabContentsAt(size_t index) {
+TabContents* BlockedPopupContainer::GetTabContentsAt(size_t index) const {
   return blocked_popups_[index].tab_contents;
 }
 

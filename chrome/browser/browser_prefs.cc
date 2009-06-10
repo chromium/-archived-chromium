@@ -6,6 +6,7 @@
 
 #include "chrome/browser/autofill_manager.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
+#include "chrome/browser/blocked_popup_container.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
@@ -25,7 +26,6 @@
 
 #if defined(OS_WIN)  // TODO(port): whittle this down as we port
 #include "chrome/browser/task_manager.h"
-#include "chrome/browser/views/blocked_popup_container_view_win.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/browser/views/page_info_window.h"
@@ -63,9 +63,7 @@ void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state) {
   TabContents::RegisterUserPrefs(user_prefs);
   TemplateURLPrepopulateData::RegisterUserPrefs(user_prefs);
   NewTabUI::RegisterUserPrefs(user_prefs);
-#if defined(OS_WIN)  // TODO(port): whittle this down as we port
   BlockedPopupContainer::RegisterUserPrefs(user_prefs);
-#endif
 }
 
 }  // namespace browser

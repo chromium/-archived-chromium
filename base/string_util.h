@@ -410,6 +410,7 @@ std::wstring IntToWString(int value);
 string16 IntToString16(int value);
 std::string UintToString(unsigned int value);
 std::wstring UintToWString(unsigned int value);
+string16 UintToString16(unsigned int value);
 std::string Int64ToString(int64 value);
 std::wstring Int64ToWString(int64 value);
 std::string Uint64ToString(uint64 value);

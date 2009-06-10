@@ -13,7 +13,9 @@
 #include "base/gfx/size.h"
 #include "build/build_config.h"
 #include "chrome/browser/download/download_shelf.h"
+#include "chrome/browser/gtk/blocked_popup_container_view_gtk.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
+#include "chrome/browser/gtk/gtk_floating_container.h"
 #include "chrome/browser/gtk/sad_tab_gtk.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_view_host_factory.h"
@@ -27,6 +29,10 @@
 #include "chrome/common/notification_type.h"
 
 namespace {
+
+// TODO(erg): I have no idea how to progromatically figure out how wide the
+// vertical scrollbar is. Hack it with a hardcoded value for now.
+const int kScrollbarWidthHack = 25;
 
 // Called when the content view gtk widget is tabbed to, or after the call to
 // gtk_widget_child_focus() in TakeFocus(). We return true
@@ -99,16 +105,38 @@ TabContentsView* TabContentsView::Create(TabContents* tab_contents) {
 
 TabContentsViewGtk::TabContentsViewGtk(TabContents* tab_contents)
     : TabContentsView(tab_contents),
-      fixed_(gtk_fixed_new()) {
-  g_signal_connect(fixed_.get(), "size-allocate",
+      floating_(gtk_floating_container_new()),
+      fixed_(gtk_fixed_new()),
+      popup_view_(NULL) {
+  g_signal_connect(fixed_, "size-allocate",
                    G_CALLBACK(OnSizeAllocate), this);
-  gtk_widget_show(fixed_.get());
+  g_signal_connect(floating_.get(), "set-floating-position",
+                   G_CALLBACK(OnSetFloatingPosition), this);
+
+  gtk_container_add(GTK_CONTAINER(floating_.get()), fixed_);
+  gtk_widget_show(fixed_);
+  gtk_widget_show(floating_.get());
   registrar_.Add(this, NotificationType::TAB_CONTENTS_CONNECTED,
                  Source<TabContents>(tab_contents));
 }
 
 TabContentsViewGtk::~TabContentsViewGtk() {
-  fixed_.Destroy();
+  floating_.Destroy();
+}
+
+void TabContentsViewGtk::AttachBlockedPopupView(
+    BlockedPopupContainerViewGtk* popup_view) {
+  DCHECK(popup_view_ == NULL);
+  popup_view_ = popup_view;
+  gtk_floating_container_add_floating(GTK_FLOATING_CONTAINER(floating_.get()),
+                                      popup_view->widget());
+}
+
+void TabContentsViewGtk::RemoveBlockedPopupView(
+    BlockedPopupContainerViewGtk* popup_view) {
+  DCHECK(popup_view_ == popup_view);
+  gtk_container_remove(GTK_CONTAINER(floating_.get()), popup_view->widget());
+  popup_view_ = NULL;
 }
 
 void TabContentsViewGtk::CreateView() {
@@ -150,7 +178,7 @@ RenderWidgetHostView* TabContentsViewGtk::CreateViewForWidget(
 }
 
 gfx::NativeView TabContentsViewGtk::GetNativeView() const {
-  return fixed_.get();
+  return floating_.get();
 }
 
 gfx::NativeView TabContentsViewGtk::GetContentNativeView() const {
@@ -172,10 +200,10 @@ void TabContentsViewGtk::GetContainerBounds(gfx::Rect* out) const {
   // animation.
   int x = 0;
   int y = 0;
-  if (fixed_.get()->window)
-    gdk_window_get_origin(fixed_.get()->window, &x, &y);
-  out->SetRect(x + fixed_.get()->allocation.x, y + fixed_.get()->allocation.y,
-               fixed_.get()->allocation.width, fixed_.get()->allocation.height);
+  if (fixed_->window)
+    gdk_window_get_origin(fixed_->window, &x, &y);
+  out->SetRect(x + fixed_->allocation.x, y + fixed_->allocation.y,
+               fixed_->allocation.width, fixed_->allocation.height);
 }
 
 void TabContentsViewGtk::OnContentsDestroy() {
@@ -299,7 +327,7 @@ void TabContentsViewGtk::StartDragging(const WebDropData& drop_data) {
 }
 
 void TabContentsViewGtk::InsertIntoContentArea(GtkWidget* widget) {
-  gtk_fixed_put(GTK_FIXED(fixed_.get()), widget, 0, 0);
+  gtk_fixed_put(GTK_FIXED(fixed_), widget, 0, 0);
 }
 
 gboolean TabContentsViewGtk::OnMouseDown(GtkWidget* widget,
@@ -320,4 +348,35 @@ gboolean TabContentsViewGtk::OnSizeAllocate(GtkWidget* widget,
   gtk_container_foreach(GTK_CONTAINER(widget), SetSizeRequest, &size);
 
   return FALSE;
+}
+
+// static
+void TabContentsViewGtk::OnSetFloatingPosition(
+    GtkFloatingContainer* floating_container, GtkAllocation* allocation,
+    TabContentsViewGtk* tab_contents_view) {
+  if (tab_contents_view->popup_view_) {
+    GtkWidget* widget = tab_contents_view->popup_view_->widget();
+
+    // Look at the size request of the status bubble and tell the
+    // GtkFloatingContainer where we want it positioned.
+    GtkRequisition requisition;
+    gtk_widget_size_request(widget, &requisition);
+
+    GValue value = { 0, };
+    g_value_init(&value, G_TYPE_INT);
+
+    int child_x = std::max(
+        allocation->x + allocation->width - requisition.width -
+        kScrollbarWidthHack, 0);
+    g_value_set_int(&value, child_x);
+    gtk_container_child_set_property(GTK_CONTAINER(floating_container),
+                                     widget, "x", &value);
+
+    int child_y = std::max(
+        allocation->y + allocation->height - requisition.height, 0);
+    g_value_set_int(&value, child_y);
+    gtk_container_child_set_property(GTK_CONTAINER(floating_container),
+                                     widget, "y", &value);
+    g_value_unset(&value);
+  }
 }

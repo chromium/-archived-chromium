@@ -14,8 +14,10 @@
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/owned_widget_gtk.h"
 
+class BlockedPopupContainerViewGtk;
 class RenderViewContextMenuGtk;
 class SadTabGtk;
+typedef struct _GtkFloatingContainer GtkFloatingContainer;
 
 class TabContentsViewGtk : public TabContentsView,
                            public NotificationObserver {
@@ -25,6 +27,11 @@ class TabContentsViewGtk : public TabContentsView,
   // because that's what was easiest when they were split.
   explicit TabContentsViewGtk(TabContents* tab_contents);
   virtual ~TabContentsViewGtk();
+
+  // Unlike Windows, the BlockedPopupContainerView needs to collaborate with
+  // the TabContentsViewGtk to position the notification.
+  void AttachBlockedPopupView(BlockedPopupContainerViewGtk* popup_view);
+  void RemoveBlockedPopupView(BlockedPopupContainerViewGtk* popup_view);
 
   // TabContentsView implementation --------------------------------------------
 
@@ -74,9 +81,17 @@ class TabContentsViewGtk : public TabContentsView,
                                  GtkAllocation* config,
                                  TabContentsViewGtk* view);
 
+  static void OnSetFloatingPosition(
+      GtkFloatingContainer* floating_container, GtkAllocation* allocation,
+      TabContentsViewGtk* tab_contents_view);
+
+  // Contains |fixed_| as its GtkBin member and a possible floating widget from
+  // |popup_view_|.
+  OwnedWidgetGtk floating_;
+
   // This container holds the tab's web page views. It is a GtkFixed so that we
   // can control the size of the web pages.
-  OwnedWidgetGtk fixed_;
+  GtkWidget* fixed_;
 
   // The context menu is reset every time we show it, but we keep a pointer to
   // between uses so that it won't go out of scope before we're done with it.
@@ -92,6 +107,8 @@ class TabContentsViewGtk : public TabContentsView,
   scoped_ptr<SadTabGtk> sad_tab_;
 
   FocusStoreGtk focus_store_;
+
+  BlockedPopupContainerViewGtk* popup_view_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContentsViewGtk);
 };

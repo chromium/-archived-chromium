@@ -903,6 +903,8 @@
         'browser/gtk/back_forward_button_gtk.h',
         'browser/gtk/back_forward_menu_model_gtk.cc',
         'browser/gtk/back_forward_menu_model_gtk.h',
+        'browser/gtk/blocked_popup_container_view_gtk.cc',
+        'browser/gtk/blocked_popup_container_view_gtk.h',
         'browser/gtk/bookmark_bar_gtk.cc',
         'browser/gtk/bookmark_bar_gtk.h',
         'browser/gtk/bookmark_bubble_gtk.cc',
