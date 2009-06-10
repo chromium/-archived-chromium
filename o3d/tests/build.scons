@@ -649,7 +649,7 @@ if env.AnyBits('mac', 'windows'):
   selenium_env.AlwaysBuild(selenium_env.Alias('prep_selenium', [],
       [Delete('$TARGET_ROOT/${PREP_SELENIUM_ARCHIVE_NAME}'),
        '$SETUP_SCRIPTS && '
-       'cd ..\o3d-internal && cd tests && cd lab_automation && ' +
+       'cd .. && cd o3d-internal && cd tests && cd lab_automation && ' +
        sys.executable + ' prepare_selenium_tests.py '
        '$TARGET_ROOT/${PREP_SELENIUM_ARCHIVE_NAME}',
        Delete('$PREP_SELENIUM_ARCHIVE'),

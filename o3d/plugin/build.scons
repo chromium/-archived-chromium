@@ -334,7 +334,8 @@ if env.Bit('mac'):
 
 
   env['MAC_INSTALLER_PROJECT'] = 'open_source_o3d_mac_npapi_metapackage.packproj'
-  make_installer = int(ARGUMENTS.get('MAKE_INSTALLER', 0))
+  # Default is make the installer.
+  make_installer = int(ARGUMENTS.get('MAKE_INSTALLER', 1))
 
 
 
