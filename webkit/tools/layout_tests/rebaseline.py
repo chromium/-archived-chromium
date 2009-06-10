@@ -292,7 +292,7 @@ class Rebaseliner(object):
             path_utils.ChromiumPlatformResultsEnclosingDir(),
             platform_dir,
             expected_filename)
-        expected_fullpath = os.path.normcase(expected_fullpath)
+        expected_fullpath = os.path.normpath(expected_fullpath)
         logging.debug('  Expected file full path: "%s"', expected_fullpath)
 
         data = zip_file.read(archive_test_name)
