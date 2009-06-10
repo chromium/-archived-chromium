@@ -187,6 +187,7 @@ class TaskManagerViewImpl : public TaskManagerView,
   virtual void GetSelection(std::vector<int>* selection);
   virtual void GetFocused(std::vector<int>* focused);
   virtual void OpenWindow();
+  virtual void ActivateWindow();
   virtual void CloseWindow();
 
   // ButtonListener implementation.
@@ -233,9 +234,9 @@ class TaskManagerViewImpl : public TaskManagerView,
   // Restores saved always on top state from a previous session.
   bool GetSavedAlwaysOnTopState(bool* always_on_top) const;
 
-  scoped_ptr<views::NativeButton> kill_button_;
-  scoped_ptr<views::Link> about_memory_link_;
-  scoped_ptr<views::GroupTableView> tab_table_;
+  views::NativeButton* kill_button_;
+  views::Link* about_memory_link_;
+  views::GroupTableView* tab_table_;
 
   TaskManager* task_manager_;
 
@@ -297,9 +298,9 @@ void TaskManagerViewImpl::Init() {
                                         views::TableColumn::RIGHT, -1, 0));
   columns_.back().sortable = true;
 
-  tab_table_.reset(new views::GroupTableView(table_model_.get(), columns_,
-                                             views::ICON_AND_TEXT, false, true,
-                                             true));
+  tab_table_ = new views::GroupTableView(table_model_.get(), columns_,
+                                         views::ICON_AND_TEXT, false, true,
+                                         true);
   tab_table_->SetParentOwned(false);
 
   // Hide some columns by default
@@ -315,12 +316,12 @@ void TaskManagerViewImpl::Init() {
   tab_table_->AddColumn(col);
   tab_table_->SetObserver(this);
   SetContextMenuController(this);
-  kill_button_.reset(new views::NativeButton(
-      this, l10n_util::GetString(IDS_TASK_MANAGER_KILL)));
+  kill_button_ = new views::NativeButton(
+      this, l10n_util::GetString(IDS_TASK_MANAGER_KILL));
   kill_button_->AddAccelerator(views::Accelerator('E', false, false, false));
   kill_button_->SetAccessibleKeyboardShortcut(L"E");
-  about_memory_link_.reset(new views::Link(
-      l10n_util::GetString(IDS_TASK_MANAGER_ABOUT_MEMORY_LINK)));
+  about_memory_link_ = new views::Link(
+      l10n_util::GetString(IDS_TASK_MANAGER_ABOUT_MEMORY_LINK));
   about_memory_link_->SetController(this);
 
   // Makes sure our state is consistent.
@@ -360,15 +361,12 @@ void TaskManagerViewImpl::ViewHierarchyChanged(bool is_add,
   // hierarchy, we must take care to clean up those items as well.
   if (child == this) {
     if (is_add) {
-      parent->AddChildView(kill_button_.get());
-      parent->AddChildView(about_memory_link_.get());
-      AddChildView(tab_table_.get());
+      parent->AddChildView(kill_button_);
+      parent->AddChildView(about_memory_link_);
+      AddChildView(tab_table_);
     } else {
-      parent->RemoveChildView(kill_button_.get());
-      parent->RemoveChildView(about_memory_link_.get());
-      // Note that these items aren't deleted here, since this object is owned
-      // by the TaskManager, whose lifetime surpasses the window, and the next
-      // time we are inserted into a window these items will need to be valid.
+      parent->RemoveChildView(kill_button_);
+      parent->RemoveChildView(about_memory_link_);
     }
   }
 }
@@ -432,25 +430,28 @@ void TaskManagerViewImpl::GetFocused(std::vector<int>* focused) {
 }
 
 void TaskManagerViewImpl::OpenWindow() {
-  if (window()) {
-    window()->Activate();
-  } else {
-    views::Window::CreateChromeWindow(NULL, gfx::Rect(), this);
-    InitAlwaysOnTopState();
-    model_->StartUpdating();
-    window()->Show();
-  }
+  DCHECK(!window());
+  views::Window::CreateChromeWindow(NULL, gfx::Rect(), this);
+  InitAlwaysOnTopState();
+  model_->StartUpdating();
+  window()->Show();
+}
+
+void TaskManagerViewImpl::ActivateWindow() {
+  DCHECK(window());
+  window()->Activate();
 }
 
 void TaskManagerViewImpl::CloseWindow() {
   if (!window())
     return;
+  // TODO(phajdan.jr): Destroy the window, not just hide it.
   window()->HideWindow();
 }
 
 // ButtonListener implementation.
 void TaskManagerViewImpl::ButtonPressed(views::Button* sender) {
-  if (sender == kill_button_.get())
+  if (sender == kill_button_)
     task_manager_->KillSelectedProcesses();
 }
 
@@ -508,10 +509,6 @@ int TaskManagerViewImpl::GetDialogButtons() const {
 }
 
 void TaskManagerViewImpl::WindowClosing() {
-  // Remove the view from its parent to trigger the contents'
-  // ViewHierarchyChanged notification to unhook the extra buttons from the
-  // non-client view.
-  GetParent()->RemoveChildView(this);
   task_manager_->OnWindowClosed();
 }
 
@@ -630,6 +627,7 @@ bool TaskManagerViewImpl::GetSavedAlwaysOnTopState(bool* always_on_top) const {
 
 }  // namespace
 
-void TaskManager::Init() {
-  view_.reset(new TaskManagerViewImpl(this, model_.get()));
+void TaskManager::CreateView() {
+  DCHECK(!view_);
+  view_ = new TaskManagerViewImpl(this, model_.get());
 }

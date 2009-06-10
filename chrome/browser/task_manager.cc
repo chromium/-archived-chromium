@@ -78,7 +78,6 @@ int TaskManagerModel::ResourceCount() const {
 }
 
 void TaskManagerModel::SetObserver(TaskManagerModelObserver* observer) {
-  DCHECK(!observer_) << "can set observer only once";
   observer_ = observer;
 }
 
@@ -444,8 +443,8 @@ void TaskManagerModel::AddResource(TaskManager::Resource* resource) {
   }
 
   // Notify the table that the contents have changed for it to redraw.
-  DCHECK(observer_);
-  observer_->OnItemsAdded(new_entry_index, 1);
+  if (observer_)
+    observer_->OnItemsAdded(new_entry_index, 1);
 }
 
 void TaskManagerModel::RemoveResource(TaskManager::Resource* resource) {
@@ -497,7 +496,8 @@ void TaskManagerModel::RemoveResource(TaskManager::Resource* resource) {
     displayed_network_usage_map_.erase(net_iter);
 
   // Notify the table that the contents have changed.
-  observer_->OnItemsRemoved(index, 1);
+  if (observer_)
+    observer_->OnItemsRemoved(index, 1);
 }
 
 void TaskManagerModel::Clear() {
@@ -524,7 +524,8 @@ void TaskManagerModel::Clear() {
     current_byte_count_map_.clear();
     displayed_network_usage_map_.clear();
 
-    observer_->OnItemsRemoved(0, size);
+    if (observer_)
+      observer_->OnItemsRemoved(0, size);
   }
 }
 
@@ -570,7 +571,7 @@ void TaskManagerModel::Refresh() {
     // Then we reset the current byte count.
     iter->second = 0;
   }
-  if (!resources_.empty())
+  if (!resources_.empty() && observer_)
     observer_->OnItemsChanged(0, ResourceCount());
 
   // Schedule the next update.
@@ -697,8 +698,8 @@ void TaskManager::RegisterPrefs(PrefService* prefs) {
 }
 
 TaskManager::TaskManager()
-    : ALLOW_THIS_IN_INITIALIZER_LIST(model_(new TaskManagerModel(this))) {
-  Init();
+    : ALLOW_THIS_IN_INITIALIZER_LIST(model_(new TaskManagerModel(this))),
+      view_(NULL) {
 }
 
 TaskManager::~TaskManager() {
@@ -707,7 +708,12 @@ TaskManager::~TaskManager() {
 // static
 void TaskManager::Open() {
   TaskManager* task_manager = GetInstance();
-  task_manager->view_->OpenWindow();
+  if (task_manager->view_) {
+    task_manager->view_->ActivateWindow();
+  } else {
+    task_manager->CreateView();
+    task_manager->view_->OpenWindow();
+  }
 }
 
 // static
@@ -717,7 +723,7 @@ void TaskManager::Close() {
 }
 
 bool TaskManager::BrowserProcessIsSelected() {
-  if (!view_.get())
+  if (!view_)
     return false;
   std::vector<int> selection;
   view_->GetSelection(&selection);
@@ -793,6 +799,7 @@ void TaskManager::RemoveResource(Resource* resource) {
 void TaskManager::OnWindowClosed() {
   model_->StopUpdating();
   model_->Clear();
+  view_ = NULL;
 }
 
 // static

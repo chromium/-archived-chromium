@@ -21,6 +21,7 @@ class TaskManagerViewImpl : public TaskManagerView,
   virtual void GetSelection(std::vector<int>* selection);
   virtual void GetFocused(std::vector<int>* focused);
   virtual void OpenWindow();
+  virtual void ActivateWindow();
   virtual void CloseWindow();
 
   // TaskManagerModelObserver
@@ -39,6 +40,10 @@ void TaskManagerViewImpl::GetFocused(std::vector<int>* focused) {
 }
 
 void TaskManagerViewImpl::OpenWindow() {
+  NOTIMPLEMENTED();
+}
+
+void TaskManagerViewImpl::ActivateWindow() {
   NOTIMPLEMENTED();
 }
 
@@ -64,6 +69,7 @@ void TaskManagerViewImpl::OnItemsRemoved(int start, int length) {
 
 }  // namespace
 
-void TaskManager::Init() {
-  view_.reset(new TaskManagerViewImpl(model_.get()));
+void TaskManager::CreateView() {
+  DCHECK(!view_);
+  view_= new TaskManagerViewImpl(model_.get());
 }

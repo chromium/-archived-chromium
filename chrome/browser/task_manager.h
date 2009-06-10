@@ -130,7 +130,7 @@ class TaskManager {
 
   ~TaskManager();
 
-  void Init();
+  void CreateView();
 
   // Returns the singleton instance (and initializes it if necessary).
   static TaskManager* GetInstance();
@@ -140,7 +140,7 @@ class TaskManager {
   scoped_refptr<TaskManagerModel> model_;
 
   // A container containing the buttons and table.
-  scoped_ptr<TaskManagerView> view_;
+  TaskManagerView* view_;
 
   DISALLOW_COPY_AND_ASSIGN(TaskManager);
 };
@@ -356,6 +356,7 @@ class TaskManagerView {
   virtual void GetFocused(std::vector<int>* focused) = 0;
 
   virtual void OpenWindow() = 0;
+  virtual void ActivateWindow() = 0;
   virtual void CloseWindow() = 0;
 };
 
