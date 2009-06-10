@@ -144,34 +144,20 @@ bool IsWindowVisible(XID window) {
 }
 
 bool GetWindowRect(XID window, gfx::Rect* rect) {
-  Window root_window;
+  Window root, child;
   int x, y;
   unsigned int width, height;
   unsigned int border_width, depth;
 
-  if (!XGetGeometry(GetXDisplay(), window, &root_window, &x, &y,
+  if (!XGetGeometry(GetXDisplay(), window, &root, &x, &y,
                     &width, &height, &border_width, &depth))
     return false;
 
-  *rect = gfx::Rect(x, y, width, height);
-  return true;
-}
-
-bool EnumerateChildWindows(XID root, EnumerateWindowsDelegate* delegate) {
-  XID parent;
-  XID* children;
-  unsigned int num_children;
-  int status = XQueryTree(GetXDisplay(), root, &root, &parent,
-                          &children, &num_children);
-  if (status == 0)
+  if (!XTranslateCoordinates(GetSecondaryDisplay(), window, root,
+                             0, 0, &x, &y, &child))
     return false;
 
-  for (unsigned int i = 0; i < num_children; i++) {
-    if (delegate->ShouldStopIterating(children[i]))
-      break;
-  }
-
-  XFree(children);
+  *rect = gfx::Rect(x, y, width, height);
   return true;
 }
 

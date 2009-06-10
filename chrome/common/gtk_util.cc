@@ -5,6 +5,7 @@
 #include "chrome/common/gtk_util.h"
 
 #include <gtk/gtk.h>
+#include <gdk/gdkx.h>
 
 #include "base/linux_util.h"
 #include "base/logging.h"
@@ -162,6 +163,22 @@ std::string ConvertAcceleratorsFromWindowsStyle(const std::string& label) {
 bool IsScreenComposited() {
   GdkScreen* screen = gdk_screen_get_default();
   return gdk_screen_is_composited(screen) == TRUE;
+}
+
+void EnumerateChildWindows(EnumerateWindowsDelegate* delegate) {
+  GdkScreen* screen = gdk_screen_get_default();
+  GList* stack = gdk_screen_get_window_stack(screen);
+  DCHECK(stack);
+
+  for (GList* iter = g_list_last(stack); iter; iter = iter->prev) {
+    GdkWindow* window = static_cast<GdkWindow*>(iter->data);
+    XID xid = GDK_WINDOW_XID(window);
+    if (delegate->ShouldStopIterating(xid))
+      break;
+  }
+
+  g_list_foreach(stack, (GFunc)g_object_unref, NULL);
+  g_list_free(stack);
 }
 
 }  // namespace gtk_util

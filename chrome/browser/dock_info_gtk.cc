@@ -12,14 +12,14 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
-#include "chrome/common/x11_util.h"
+#include "chrome/common/gtk_util.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // BaseWindowFinder
 //
 // Base class used to locate a window. A subclass need only override
 // ShouldStopIterating to determine when iteration should stop.
-class BaseWindowFinder : public x11_util::EnumerateWindowsDelegate {
+class BaseWindowFinder : public gtk_util::EnumerateWindowsDelegate {
  public:
   explicit BaseWindowFinder(const std::set<GtkWidget*>& ignore) {
     std::set<GtkWidget*>::iterator iter;
@@ -32,9 +32,14 @@ class BaseWindowFinder : public x11_util::EnumerateWindowsDelegate {
   virtual ~BaseWindowFinder() {}
 
  protected:
+  // Returns true if |window| is in the ignore list.
+  bool ShouldIgnoreWindow(XID window) {
+    return (ignore_.find(window) != ignore_.end());
+  }
+
   // Returns true if iteration should stop, false otherwise.
   virtual bool ShouldStopIterating(XID window) {
-    return (ignore_.find(window) != ignore_.end());
+    return false;
   }
 
  private:
@@ -61,8 +66,8 @@ class TopMostFinder : public BaseWindowFinder {
 
  protected:
   virtual bool ShouldStopIterating(XID window) {
-    if (BaseWindowFinder::ShouldStopIterating(window))
-      return true;
+    if (BaseWindowFinder::ShouldIgnoreWindow(window))
+      return false;
 
     if (window == target_) {
       // Window is topmost, stop iterating.
@@ -95,8 +100,7 @@ class TopMostFinder : public BaseWindowFinder {
       target_(window),
       screen_loc_(screen_loc),
       is_top_most_(false) {
-    XID root = x11_util::GetX11RootWindow();
-    x11_util::EnumerateChildWindows(root, this);
+    gtk_util::EnumerateChildWindows(this);
   }
 
   // The window we're looking for.
@@ -134,8 +138,8 @@ class LocalProcessWindowFinder : public BaseWindowFinder {
 
  protected:
   virtual bool ShouldStopIterating(XID window) {
-    if (BaseWindowFinder::ShouldStopIterating(window))
-      return true;
+    if (BaseWindowFinder::ShouldIgnoreWindow(window))
+      return false;
 
     // Check if this window is in our process.
     if (!BrowserWindowGtk::GetBrowserWindowForXID(window))
@@ -159,8 +163,7 @@ class LocalProcessWindowFinder : public BaseWindowFinder {
     : BaseWindowFinder(ignore),
       screen_loc_(screen_loc),
       result_(0) {
-    XID root = x11_util::GetX11RootWindow();
-    x11_util::EnumerateChildWindows(root, this);
+    gtk_util::EnumerateChildWindows(this);
   }
 
   // Position of the mouse.
