@@ -76,8 +76,8 @@ FindBarGtk::FindBarGtk(BrowserWindowGtk* browser)
 
   // Hook up signals after the widget has been added to the hierarchy so the
   // widget will be realized.
-  g_signal_connect(text_entry_, "changed",
-                   G_CALLBACK(OnChanged), this);
+  changed_handler_id_ = g_signal_connect(text_entry_, "changed",
+                                         G_CALLBACK(OnChanged), this);
   g_signal_connect(text_entry_, "key-press-event",
                    G_CALLBACK(OnKeyPressEvent), this);
   // When the user tabs to us or clicks on us, save where the focus used to
@@ -229,7 +229,13 @@ void FindBarGtk::MoveWindowIfNecessary(const gfx::Rect& selection_rect,
 
 void FindBarGtk::SetFindText(const string16& find_text) {
   std::string text_entry_utf8 = UTF16ToUTF8(find_text);
+
+  // Unhook the "changed" signal handler because programatically setting the
+  // text should not fire a "changed" event.
+  g_signal_handler_disconnect(text_entry_, changed_handler_id_);
   gtk_entry_set_text(GTK_ENTRY(text_entry_), text_entry_utf8.c_str());
+  changed_handler_id_ = g_signal_connect(text_entry_, "changed",
+                                         G_CALLBACK(OnChanged), this);
 }
 
 void FindBarGtk::UpdateUIForFindResult(const FindNotificationDetails& result,
