@@ -22,7 +22,8 @@ void ShowItemInFolder(const FilePath& full_path) {
 }
 
 void OpenItem(const FilePath& full_path) {
-  NOTIMPLEMENTED();
+  NSString* path_string = base::SysUTF8ToNSString(full_path.value());
+  [[NSWorkspace sharedWorkspace] openFile:path_string];
 }
 
 gfx::NativeWindow GetTopLevel(gfx::NativeView view) {

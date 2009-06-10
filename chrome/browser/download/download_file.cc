@@ -544,8 +544,13 @@ void DownloadFileManager::OnOpenDownloadInShell(const FilePath& full_path,
     } else {
       win_util::OpenItemViaShell(full_path);
     }
+#elif defined(OS_MACOSX)
+  // Quarantine takes care of asking the user about dangerous files, so we can
+  // just open it.
+  platform_util::OpenItem(full_path);
 #else
-  // TODO(port) implement me.
+  // TODO(port) implement me. (Does Linux need to use a "safe" open, or can it
+  // just share the Mac call to platform_util?)
   NOTIMPLEMENTED();
 #endif
 }
