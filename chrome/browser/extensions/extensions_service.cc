@@ -50,8 +50,6 @@ const char* ExtensionsService::kInstallDirectoryName = "Extensions";
 const char* ExtensionsService::kCurrentVersionFileName = "Current Version";
 const char* ExtensionsServiceBackend::kTempExtensionName = "TEMP_INSTALL";
 
-const char* ExtensionsService::kExtensionFileMagic = "Cr24";
-
 namespace {
 
 // A preference that keeps track of extension settings. This is a dictionary

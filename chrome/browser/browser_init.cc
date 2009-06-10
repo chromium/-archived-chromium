@@ -724,8 +724,25 @@ bool BrowserInit::ProcessCmdLineImpl(const CommandLine& command_line,
       // implementations.
 #if defined(OS_WIN)
       scoped_ptr<ExtensionCreator> creator(new ExtensionCreator());
-      if (!creator->Run(src_dir, crx_path, private_key_path,
+      if (creator->Run(src_dir, crx_path, private_key_path,
           output_private_key_path)) {
+        std::wstring message;
+        if (private_key_path.value().empty()) {
+          message = StringPrintf(
+              L"Created the following files:\n\n"
+              L"Extension: %ls\n"
+              L"Key File: %ls\n\n"
+              L"Keep your key file in a safe place. You will need it to create "
+              L"new versions of your extension.",
+              crx_path.ToWStringHack().c_str(),
+              output_private_key_path.ToWStringHack().c_str());
+        } else {
+          message = StringPrintf(L"Created the extension:\n\n%ls",
+                                 crx_path.ToWStringHack().c_str());
+        }
+        win_util::MessageBox(NULL, message, L"Extension Packaging Success",
+                             MB_OK | MB_SETFOREGROUND);
+      } else {
         win_util::MessageBox(NULL, UTF8ToWide(creator->error_message()),
             L"Extension Packaging Error", MB_OK | MB_SETFOREGROUND);
         return false;

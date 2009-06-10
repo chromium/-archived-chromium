@@ -36,16 +36,6 @@ typedef std::vector<Extension*> ExtensionList;
 class ExtensionsService
     : public base::RefCountedThreadSafe<ExtensionsService> {
  public:
-  static const int kExtensionFileMagicSize = 4;
-  static const char* kExtensionFileMagic;
-
-  struct ExtensionHeader {
-    char magic[kExtensionFileMagicSize];
-    uint32 version;
-    size_t header_size;
-    size_t manifest_size;
-  };
-
   ExtensionsService(Profile* profile,
                     MessageLoop* frontend_loop,
                     MessageLoop* backend_loop,

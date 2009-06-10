@@ -33,6 +33,8 @@ const char kTempExtensionName[] = "TEMP_INSTALL";
 const char kDecodedImagesFilename[] = "DECODED_IMAGES";
 
 // Chromium Extension magic number
+// TODO(aa): This should use the one in ExtensionCreator once we transition this
+// to ouptut the same format.
 const char kExtensionFileMagic[] = "Cr24";
 
 struct ExtensionHeader {
