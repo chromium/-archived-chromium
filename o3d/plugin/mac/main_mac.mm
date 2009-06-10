@@ -93,6 +93,17 @@ void RenderOnDemandCallbackHandler::Run() {
   obj_->SetWantsRedraw(true);
 }
 
+static unsigned char GetMacEventKeyChar(const EventRecord *the_event) {
+  unsigned char the_char = the_event->message & charCodeMask;
+  return the_char;
+}
+
+static unsigned char GetMacEventKeyCode(const EventRecord *the_event) {
+  unsigned char the_key_code = (the_event->message & keyCodeMask) >> 8;
+  return the_key_code;
+}
+
+
 // Cocoa key events for things like arrow key presses can have strange unicode
 // values in the 0xF700-0xF747 range, eg NSUpArrowFunctionKey is 0xF700.
 // These values are defined in NSEvent.h.
@@ -201,12 +212,10 @@ static void DispatchKeyboardEvent(PluginObject* obj,
 // Javascript.
 static void DispatchMacKeyboardEvent(PluginObject* obj,
                                      EventRecord* the_event) {
-  unsigned char theKeyCode = (the_event->message & keyCodeMask) >> 8;
-
   DispatchKeyboardEvent(obj,
                         the_event->what,
-                        the_event->message & charCodeMask,
-                        theKeyCode,
+                        GetMacEventKeyChar(the_event),
+                        GetMacEventKeyCode(the_event),
                         the_event->modifiers);
 }
 
@@ -561,8 +570,7 @@ bool HandleMacEvent(EventRecord* the_event, NPP instance) {
       break;
     case keyDown:
       // Hard-coded trapdoor to get out of fullscreen mode if user hits escape.
-      unsigned char theChar = the_event->message & charCodeMask;
-      if (theChar == '\e' && fullscreen_window) {
+      if ((GetMacEventKeyChar(the_event) == '\e') && fullscreen_window) {
         obj->CancelFullscreenDisplay();
         break;
       }  // otherwise fall through
@@ -840,6 +848,9 @@ extern "C" {
 
     assert(window != NULL);
 
+    if (window->window == NULL)
+      return NPERR_NO_ERROR;
+
     obj->last_plugin_loc_.h = window->x;
     obj->last_plugin_loc_.v = window->y;
 
@@ -857,14 +868,17 @@ extern "C" {
         break;
       }
       case NPDrawingModelCoreGraphics: {
-        NP_CGContext* np_cg = reinterpret_cast<NP_CGContext*>(window->window);
-        if (obj->event_model_ == NPEventModelCocoa) {
-          NSWindow * ns_window = reinterpret_cast<NSWindow*>(np_cg->window);
-          new_window = reinterpret_cast<WindowRef>([ns_window windowRef]);
-        } else {
-          new_window = np_cg->window;
+        // Safari 4 sets window->window to NULL when in Cocoa event mode.
+        if (window->window != NULL) {
+          NP_CGContext* np_cg = reinterpret_cast<NP_CGContext*>(window->window);
+          if (obj->event_model_ == NPEventModelCocoa) {
+            NSWindow * ns_window = reinterpret_cast<NSWindow*>(np_cg->window);
+            new_window = reinterpret_cast<WindowRef>([ns_window windowRef]);
+          } else {
+            new_window = np_cg->window;
+          }
+          obj->mac_2d_context_ = np_cg->context;
         }
-        obj->mac_2d_context_ = np_cg->context;
         break;
       }
       case NPDrawingModelQuickDraw: {
@@ -1048,8 +1062,13 @@ extern "C" {
       obj->last_buffer_rect_[3] = clipHeight;
       obj->mac_surface_hidden_ = false;
 
+      // If in fullscreen, just remember the desired change in geometry so
+      // we restore to the right rectangle.
+      if (obj->GetFullscreenMacWindow() != NULL)
+        return NPERR_NO_ERROR;
+
       aglSetInteger(obj->mac_agl_context_, AGL_BUFFER_RECT,
-                    obj->last_buffer_rect_);
+                      obj->last_buffer_rect_);
       aglEnable(obj->mac_agl_context_, AGL_BUFFER_RECT);
     }
 
@@ -1081,8 +1100,6 @@ extern "C" {
     obj->client()->Init();
     obj->client()->SetRenderOnDemandCallback(
         new RenderOnDemandCallbackHandler(obj));
-
-
 
     obj->renderer()->SetClientOriginOffset(gl_x_origin, gl_y_origin);
     obj->Resize(window->width, window->height);

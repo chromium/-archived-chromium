@@ -218,6 +218,7 @@ class PluginObject: public NPObject {
   bool SetRendererIsSoftware(bool state) {renderer_is_software_ = state;}
   bool renderer_is_software_;
 
+  Ptr mac_fullscreen_state_;
   NPDrawingModel drawing_model_;
   NPEventModel event_model_;
   WindowRef mac_window_;  // may be NULL in the Chrome case

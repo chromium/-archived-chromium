@@ -34,6 +34,7 @@
 #include "plugin_mac.h"
 #include <Breakpad/Breakpad.h>
 #include <Cocoa/Cocoa.h>
+#include <QuickTime/QuickTime.h>
 #include "plugin/cross/o3d_glue.h"
 #include "plugin/cross/main.h"
 #include "core/mac/display_window_mac.h"
@@ -525,6 +526,14 @@ static void DrawToOverlayWindow(WindowRef overlayWindow) {
 }
 
 
+static void SetWindowLevel(WindowRef window, int level) {
+  WindowGroupRef wGroup = NULL;
+  WindowGroupAttributes attrs = 0;
+  CreateWindowGroup(attrs, &wGroup);
+  SetWindowGroupLevel(wGroup, level);
+  SetWindowGroup(window, wGroup);
+}
+
 static WindowRef CreateOverlayWindow(void) {
   Rect        bounds = CGRect2Rect(CGDisplayBounds(CGMainDisplayID()));
   WindowClass wClass = kOverlayWindowClass;
@@ -539,7 +548,6 @@ static WindowRef CreateOverlayWindow(void) {
     kEventClassWindow, kEventWindowShown
   };
 
-
   err = CreateNewWindow(wClass,
                         overlayAttributes,
                         &bounds,
@@ -547,10 +555,12 @@ static WindowRef CreateOverlayWindow(void) {
   if (err)
     return NULL;
 
-  ShowWindow(window);
+  SetWindowLevel(window, CGShieldingWindowLevel() + 1);
   InstallEventHandler(GetWindowEventTarget(window), HandleOverlayWindow,
                       sizeof(eventTypes)/sizeof(eventTypes[0]), eventTypes,
                       NULL, NULL);
+  ShowWindow(window);
+
   return window;
 }
 
@@ -717,10 +727,11 @@ static OSStatus HandleFullscreenWindow(EventHandlerCallRef inHandlerCallRef,
   }
 }
 
-static WindowRef CreateFullscreenWindow(PluginObject *obj,
+
+static WindowRef CreateFullscreenWindow(WindowRef window,
+                                        PluginObject *obj,
                                         int mode_id) {
   Rect        bounds = CGRect2Rect(CGDisplayBounds(CGMainDisplayID()));
-  WindowRef   window = NULL;
   OSStatus    err = noErr;
   EventTypeSpec  eventTypes[] = {
     kEventClassKeyboard, kEventRawKeyDown,
@@ -734,12 +745,15 @@ static WindowRef CreateFullscreenWindow(PluginObject *obj,
     kEventClassMouse,    kEventMouseWheelMoved
   };
 
-  err = CreateNewWindow(kSimpleWindowClass,
-                        kWindowStandardHandlerAttribute,
-                        &bounds,
-                        &window);
+  if (window == NULL)
+    err = CreateNewWindow(kSimpleWindowClass,
+                          kWindowStandardHandlerAttribute,
+                          &bounds,
+                          &window);
   if (err)
     return NULL;
+
+  SetWindowLevel(window, CGShieldingWindowLevel() + 1);
 
   InstallEventHandler(GetWindowEventTarget(window), HandleFullscreenWindow,
                       sizeof(eventTypes)/sizeof(eventTypes[0]), eventTypes,
@@ -749,28 +763,191 @@ static WindowRef CreateFullscreenWindow(PluginObject *obj,
 }
 
 void CleanupFullscreenWindow(PluginObject *obj) {
-  if (obj->GetFullscreenMacWindow())   {
-    DisposeWindow(obj->GetFullscreenMacWindow());
-    obj->SetFullscreenMacWindow(NULL);
+  WindowRef fs_window = obj->GetFullscreenMacWindow();
+  WindowRef fs_o_window = obj->GetFullscreenOverlayMacWindow();
+
+  obj->SetFullscreenMacWindow(NULL);
+  obj->SetFullscreenOverlayMacWindow(NULL);
+
+  if (fs_window) {
+    ReleaseWindowGroup(GetWindowGroup(fs_window));
+    DisposeWindow(fs_window);
   }
 
-  if (obj->GetFullscreenOverlayMacWindow()) {
-    DisposeWindow(obj->GetFullscreenOverlayMacWindow());
-    obj->SetFullscreenOverlayMacWindow(NULL);
+  if(fs_o_window) {
+    ReleaseWindowGroup(GetWindowGroup(fs_o_window));
+    DisposeWindow(fs_o_window);
   }
 }
 
+#pragma mark ____SCREEN_RESOLUTION_MANAGEMENT
+
+
+// Constant kO3D_MODE_OFFSET is added to the position in the array returned by
+// CGDisplayAvailableModes to make it an ID. This makes IDs distinguishable from
+// array positions when debugging, and also means that ID 0 can have a special
+// meaning (current mode) rather than meaning the first resolution in the list.
+const int kO3D_MODE_OFFSET = 100;
+
+// Extracts data from the Core Graphics screen mode data passed in.
+// Returns false if the mode is an undesirable one, ie if it is not safe for
+// the current screen hardware, is stretched, or is interlaced.
+// Returns various information about the mode in the var parameters passed.
+static bool ExtractDisplayModeData(NSDictionary *mode_dict,
+                                   int *width,
+                                   int *height,
+                                   int *refresh_rate,
+                                   int *bits_per_pixel) {
+
+  *width = [[mode_dict objectForKey:(id)kCGDisplayWidth] intValue];
+  *height = [[mode_dict objectForKey:(id)kCGDisplayHeight] intValue];
+  *refresh_rate = [[mode_dict objectForKey:(id)kCGDisplayRefreshRate] intValue];
+  *bits_per_pixel =
+      [[mode_dict objectForKey:(id)kCGDisplayBitsPerPixel] intValue];
+
+  if (![mode_dict objectForKey:(id)kCGDisplayModeIsSafeForHardware])
+    return false;
+
+  if ([mode_dict objectForKey:(id)kCGDisplayModeIsStretched])
+    return false;
+
+  if ([mode_dict objectForKey:(id)kCGDisplayModeIsInterlaced])
+    return false;
+
+  return true;
+}
+
+void PluginObject::GetDisplayModes(std::vector<o3d::DisplayMode> *modes) {
+  NSArray* mac_modes = (NSArray*)CGDisplayAvailableModes(CGMainDisplayID());
+  int num_modes = [mac_modes count];
+  std::vector<o3d::DisplayMode> modes_found;
+
+  for (int i = 0; i < num_modes; ++i) {
+    int width = 0;
+    int height = 0;
+    int refresh_rate = 0;
+    int bpp = 0;
+
+    if (ExtractDisplayModeData([mac_modes objectAtIndex:i],
+        &width,
+        &height,
+        &refresh_rate,
+        &bpp) && bpp == 32)
+      modes_found.push_back(o3d::DisplayMode(width, height, refresh_rate,
+                                             i + kO3D_MODE_OFFSET));
+  }
+
+  modes->swap(modes_found);
+}
+
+
+// Returns information on a display mode, which is mode n - kO3D_MODE_OFFSET
+// in the raw list returned by CGDisplayAvailableModes on the main screen,
+// with kO3D_MODE_OFFSET + 0 being the first entry in the array.
+static bool GetDisplayMode(int id, o3d::DisplayMode *mode) {
+  NSArray *mac_modes = (NSArray*) CGDisplayAvailableModes(CGMainDisplayID());
+  int num_modes = [mac_modes count];
+  int array_offset = id - kO3D_MODE_OFFSET;
+
+  if (array_offset >= 0 && array_offset < num_modes) {
+    int width = 0;
+    int height = 0;
+    int refresh_rate = 0;
+    int bpp = 0;
+
+    ExtractDisplayModeData([mac_modes objectAtIndex:array_offset],
+                           &width, &height, &refresh_rate, &bpp);
+    mode->Set(width, height, refresh_rate, id);
+    return true;
+  }
+
+  return false;
+}
+
+static int GetCGDisplayModeID(NSDictionary* mode_dict) {
+  return [[mode_dict valueForKey:@"Mode"] intValue];
+}
+
+// Returns DisplayMode data for the current state of the main display.
+static void GetCurrentDisplayMode(o3d::DisplayMode *mode) {
+  int width = 0;
+  int height = 0;
+  int refresh_rate = 0;
+  int bpp = 0;
+  int mode_id = 0;
+
+  NSDictionary* current_mode =
+      (NSDictionary*)CGDisplayCurrentMode(CGMainDisplayID());
+
+  // To get the O3D mode id of the current mode, we need to find it in the list
+  // of all modes, since the id we use is it's index + kO3D_MODE_OFFSET.
+
+  // Get the CG id of current mode so that we will recognize it.
+  int current_cg_id = GetCGDisplayModeID(current_mode);
+
+  // Get list of all modes.
+  NSArray *modes = (NSArray*)CGDisplayAvailableModes(CGMainDisplayID());
+  int num_modes = [modes count];
+
+  // Find current mode in that list, and compute the O3D id for it.
+  for (int x = 0 ; x < num_modes ; x++) {
+    if (GetCGDisplayModeID([modes objectAtIndex:x]) == current_cg_id) {
+      mode_id = x + kO3D_MODE_OFFSET;
+      break;
+    }
+  }
+
+  ExtractDisplayModeData(current_mode, &width, &height, &refresh_rate, &bpp);
+  mode->Set(width, height, refresh_rate, mode_id);
+}
+
+#pragma mark ____FULLSCREEN_SWITCHING
+
 
 bool PluginObject::RequestFullscreenDisplay() {
-#ifndef NDEBUG  // TODO: Remove after all security is in.
   // If already in fullscreen mode, do nothing.
   if (GetFullscreenMacWindow())
     return false;
 
-  SetSystemUIMode(kUIModeAllSuppressed, kUIOptionAutoShowMenuBar);
-  SetFullscreenMacWindow(
-      CreateFullscreenWindow(this, fullscreen_region_mode_id_));
+  int target_width = 0;
+  int target_height = 0;
 
+  if (fullscreen_region_valid_) {
+    o3d::DisplayMode the_mode;
+    if (GetDisplayMode(fullscreen_region_mode_id_, &the_mode)) {
+      target_width = the_mode.width();
+      target_height = the_mode.height();
+    }
+  }
+
+  // check which mode we are in now
+  o3d::DisplayMode current_mode;
+  GetCurrentDisplayMode(&current_mode);
+
+  WindowRef fullscreen_window = NULL;
+
+  // Determine if screen mode switching is actually required.
+  if (target_width != 0 &&
+      target_height != 0 &&
+      target_width != current_mode.width() &&
+      target_height != current_mode.height()) {
+    short short_target_width = target_width;
+    short short_target_height = target_height;
+    BeginFullScreen(&mac_fullscreen_state_,
+                    GetMainDevice(),
+                    &short_target_width,
+                    &short_target_height,
+                    &fullscreen_window,
+                    NULL,
+                    fullScreenCaptureAllDisplays);
+  } else {
+    SetSystemUIMode(kUIModeAllSuppressed, kUIOptionAutoShowMenuBar);
+    mac_fullscreen_state_ = NULL;
+  }
+
+  SetFullscreenMacWindow(CreateFullscreenWindow(NULL,
+                                                this,
+                                                fullscreen_region_mode_id_));
   Rect bounds = {0,0,0,0};
   GetWindowBounds(GetFullscreenMacWindow(), kWindowContentRgn, &bounds);
 
@@ -779,33 +956,40 @@ bool PluginObject::RequestFullscreenDisplay() {
   renderer()->SetClientOriginOffset(0, 0);
   renderer_->Resize(bounds.right - bounds.left, bounds.bottom - bounds.top);
 
+
   const double kFadeOutTime = 3.0;
   SetFullscreenOverlayMacWindow(CreateOverlayWindow());
+
   DrawToOverlayWindow(GetFullscreenOverlayMacWindow());
   TransitionWindowOptions options = {0, kFadeOutTime, NULL, NULL};
   TransitionWindowWithOptions(GetFullscreenOverlayMacWindow(),
                               kWindowFadeTransitionEffect,
                               kWindowHideTransitionAction,
                               NULL, true, &options);
+
   return true;
-#else
-  return false;
-#endif
 }
 
 void PluginObject::CancelFullscreenDisplay() {
-#ifndef NDEBUG  // TODO: Remove after user-prompt feature goes in.
-
   // if not in fullscreen mode, do nothing
   if (!GetFullscreenMacWindow())
     return;
 
-  //fullscreen_ = false;
   SetWindowForAGLContext(mac_agl_context_, mac_window_);
+
+  CleanupFullscreenWindow(this);
+
+  renderer_->Resize(prev_width_, prev_height_);
   aglSetInteger(mac_agl_context_, AGL_BUFFER_RECT, last_buffer_rect_);
   aglEnable(mac_agl_context_, AGL_BUFFER_RECT);
-  renderer_->Resize(prev_width_, prev_height_);
-  CleanupFullscreenWindow(this);
+
+  if (mac_fullscreen_state_) {
+    EndFullScreen(mac_fullscreen_state_, 0);
+    mac_fullscreen_state_ = NULL;
+  } else {
+    SetSystemUIMode(kUIModeNormal, 0);
+  }
+
 
   // Somehow the browser window does not automatically activate again
   // when we close the fullscreen window, so explicitly reactivate it.
@@ -815,8 +999,5 @@ void PluginObject::CancelFullscreenDisplay() {
   } else {
     SelectWindow(mac_window_);
   }
-
-  SetSystemUIMode(kUIModeNormal, 0);
-#endif
 }
 

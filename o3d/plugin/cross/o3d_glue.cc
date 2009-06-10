@@ -114,6 +114,7 @@ PluginObject::PluginObject(NPP npp)
       painted_once_(false),
 #endif
 #ifdef OS_MACOSX
+      mac_fullscreen_state_(NULL),
       renderer_is_software_(false),
       scroll_is_in_progress_(false),
       drawing_model_(NPDrawingModelQuickDraw),
@@ -668,6 +669,9 @@ int PluginObject::height() const {
   return 0;
 }
 
+
+// On Mac there is a different implementation in plugin_mac.mm.
+#ifndef OS_MACOSX
 void PluginObject::GetDisplayModes(std::vector<o3d::DisplayMode> *modes) {
   if (renderer()) {
     renderer()->GetDisplayModes(modes);
@@ -675,6 +679,7 @@ void PluginObject::GetDisplayModes(std::vector<o3d::DisplayMode> *modes) {
     modes->clear();
   }
 }
+#endif
 
 void PluginObject::RedirectToFile(const char *url) {
   char cmd[] = "window.location = 'file:///%s';";
