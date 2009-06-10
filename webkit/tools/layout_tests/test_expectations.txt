@@ -2698,3 +2698,6 @@ BUG13721 LINUX : LayoutTests/fast/dynamic/positioned-movement-with-positioned-ch
 
 // We seem to be missing a line-break in the results for this first test.
 BUG13728 WIN LINUX : LayoutTests/editing/deleting/4866671.html = FAIL
+
+// New test added in WebKit 44550:
+BUG13767 : LayoutTests/fast/js/JSON-stringify.html = FAIL

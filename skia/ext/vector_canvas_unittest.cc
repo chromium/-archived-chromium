@@ -317,14 +317,16 @@ void Premultiply(SkBitmap bitmap) {
   }
 }
 
-void LoadPngFileToSkBitmap(const std::wstring& filename, SkBitmap* bitmap) {
+void LoadPngFileToSkBitmap(const std::wstring& filename,
+                           SkBitmap* bitmap,
+                           bool is_opaque) {
   Vector<char> compressed;
   ReadFileToVector(filename, &compressed);
   EXPECT_TRUE(compressed.size());
   WebCore::PNGImageDecoder decoder;
   decoder.setData(WebCore::SharedBuffer::adoptVector(compressed).get(), true);
   *bitmap = decoder.frameBufferAtIndex(0)->bitmap();
-  EXPECT_FALSE(bitmap->isOpaque());
+  EXPECT_EQ(is_opaque, bitmap->isOpaque());
   Premultiply(*bitmap);
 }
 
@@ -793,7 +795,7 @@ TEST_F(VectorCanvasTest, PathEffects) {
 TEST_F(VectorCanvasTest, Bitmaps) {
   {
     SkBitmap bitmap;
-    LoadPngFileToSkBitmap(test_file(L"bitmap_opaque.png"), &bitmap);
+    LoadPngFileToSkBitmap(test_file(L"bitmap_opaque.png"), &bitmap, true);
     vcanvas_->drawBitmap(bitmap, 13, 3, NULL);
     pcanvas_->drawBitmap(bitmap, 13, 3, NULL);
     EXPECT_EQ(0., ProcessImage(L"opaque"));
@@ -801,7 +803,7 @@ TEST_F(VectorCanvasTest, Bitmaps) {
 
   {
     SkBitmap bitmap;
-    LoadPngFileToSkBitmap(test_file(L"bitmap_alpha.png"), &bitmap);
+    LoadPngFileToSkBitmap(test_file(L"bitmap_alpha.png"), &bitmap, false);
     vcanvas_->drawBitmap(bitmap, 5, 15, NULL);
     pcanvas_->drawBitmap(bitmap, 5, 15, NULL);
     EXPECT_EQ(0., ProcessImage(L"alpha"));
@@ -810,7 +812,8 @@ TEST_F(VectorCanvasTest, Bitmaps) {
 
 TEST_F(VectorCanvasTest, ClippingRect) {
   SkBitmap bitmap;
-  LoadPngFileToSkBitmap(test_file(L"..\\bitmaps\\bitmap_opaque.png"), &bitmap);
+  LoadPngFileToSkBitmap(test_file(L"..\\bitmaps\\bitmap_opaque.png"), &bitmap,
+                        true);
   SkRect rect;
   rect.fLeft = 2;
   rect.fTop = 2;
@@ -826,7 +829,8 @@ TEST_F(VectorCanvasTest, ClippingRect) {
 
 TEST_F(VectorCanvasTest, ClippingPath) {
   SkBitmap bitmap;
-  LoadPngFileToSkBitmap(test_file(L"..\\bitmaps\\bitmap_opaque.png"), &bitmap);
+  LoadPngFileToSkBitmap(test_file(L"..\\bitmaps\\bitmap_opaque.png"), &bitmap,
+                        true);
   SkPath path;
   path.addCircle(20, 20, 10);
   vcanvas_->clipPath(path);
@@ -839,7 +843,8 @@ TEST_F(VectorCanvasTest, ClippingPath) {
 
 TEST_F(VectorCanvasTest, ClippingCombined) {
   SkBitmap bitmap;
-  LoadPngFileToSkBitmap(test_file(L"..\\bitmaps\\bitmap_opaque.png"), &bitmap);
+  LoadPngFileToSkBitmap(test_file(L"..\\bitmaps\\bitmap_opaque.png"), &bitmap,
+                        true);
 
   SkRect rect;
   rect.fLeft = 2;
@@ -860,7 +865,8 @@ TEST_F(VectorCanvasTest, ClippingCombined) {
 
 TEST_F(VectorCanvasTest, ClippingIntersect) {
   SkBitmap bitmap;
-  LoadPngFileToSkBitmap(test_file(L"..\\bitmaps\\bitmap_opaque.png"), &bitmap);
+  LoadPngFileToSkBitmap(test_file(L"..\\bitmaps\\bitmap_opaque.png"), &bitmap,
+                        true);
 
   SkRect rect;
   rect.fLeft = 2;
@@ -881,7 +887,8 @@ TEST_F(VectorCanvasTest, ClippingIntersect) {
 
 TEST_F(VectorCanvasTest, ClippingClean) {
   SkBitmap bitmap;
-  LoadPngFileToSkBitmap(test_file(L"..\\bitmaps\\bitmap_opaque.png"), &bitmap);
+  LoadPngFileToSkBitmap(test_file(L"..\\bitmaps\\bitmap_opaque.png"), &bitmap,
+                        true);
   {
     SkRegion old_region(pcanvas_->getTotalClip());
     SkRect rect;
@@ -908,7 +915,8 @@ TEST_F(VectorCanvasTest, ClippingClean) {
 
 TEST_F(VectorCanvasTest, DISABLED_Matrix) {
   SkBitmap bitmap;
-  LoadPngFileToSkBitmap(test_file(L"..\\bitmaps\\bitmap_opaque.png"), &bitmap);
+  LoadPngFileToSkBitmap(test_file(L"..\\bitmaps\\bitmap_opaque.png"), &bitmap,
+                        true);
   {
     vcanvas_->translate(15, 3);
     pcanvas_->translate(15, 3);
