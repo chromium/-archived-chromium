@@ -158,16 +158,11 @@ struct ViewHostMsg_PaintRect_Flags {
 };
 
 struct ViewHostMsg_PaintRect_Params {
-  // The bitmap to be painted into the rects given by paint_rects.
+  // The bitmap to be painted into the rect given by bitmap_rect.
   TransportDIB::Id bitmap;
 
-  // The position and size of the the bitmap relative to the view port.
+  // The position and size of the bitmap.
   gfx::Rect bitmap_rect;
-
-  // The position and size of the rects where the bitmap has data to be
-  // painted to the view. An empty vector means that the whole bitmap has
-  // data to be painted to the view.
-  std::vector<gfx::Rect> paint_rects;
 
   // The size of the RenderView when this message was generated.  This is
   // included so the host knows how large the view is from the perspective of
@@ -864,7 +859,6 @@ struct ParamTraits<ViewHostMsg_PaintRect_Params> {
   static void Write(Message* m, const param_type& p) {
     WriteParam(m, p.bitmap);
     WriteParam(m, p.bitmap_rect);
-    WriteParam(m, p.paint_rects);
     WriteParam(m, p.view_size);
     WriteParam(m, p.plugin_window_moves);
     WriteParam(m, p.flags);
@@ -873,7 +867,6 @@ struct ParamTraits<ViewHostMsg_PaintRect_Params> {
     return
       ReadParam(m, iter, &p->bitmap) &&
       ReadParam(m, iter, &p->bitmap_rect) &&
-      ReadParam(m, iter, &p->paint_rects) &&
       ReadParam(m, iter, &p->view_size) &&
       ReadParam(m, iter, &p->plugin_window_moves) &&
       ReadParam(m, iter, &p->flags);
@@ -883,8 +876,6 @@ struct ParamTraits<ViewHostMsg_PaintRect_Params> {
     LogParam(p.bitmap, l);
     l->append(L", ");
     LogParam(p.bitmap_rect, l);
-    l->append(L", ");
-    LogParam(p.paint_rects, l);
     l->append(L", ");
     LogParam(p.view_size, l);
     l->append(L", ");

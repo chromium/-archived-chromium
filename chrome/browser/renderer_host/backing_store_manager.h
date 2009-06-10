@@ -49,7 +49,6 @@ class BackingStoreManager {
                                            base::ProcessHandle process_handle,
                                            TransportDIB* bitmap,
                                            const gfx::Rect& bitmap_rect,
-                                           const gfx::Rect& paint_rect,
                                            bool* needs_full_paint);
 
   // Returns a matching backing store for the host.
