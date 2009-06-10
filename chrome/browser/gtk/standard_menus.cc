@@ -96,7 +96,7 @@ struct MenuCreateMaterial standard_app_menu_materials[] = {
   { MENU_NORMAL, IDC_ABOUT, IDS_ABOUT, IDS_PRODUCT_NAME },
   { MENU_NORMAL, IDC_HELP_PAGE, IDS_HELP_PAGE, 0, NULL, GDK_F1 },
   { MENU_SEPARATOR },
-  { MENU_NORMAL, IDC_EXIT, IDS_EXIT },
+  { MENU_NORMAL, IDC_EXIT, IDS_EXIT, 0, NULL, GDK_q, GDK_CONTROL_MASK },
   { MENU_END }
 };
 }  // namespace
