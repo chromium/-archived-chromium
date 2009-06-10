@@ -457,13 +457,6 @@ bool GetAppOutput(const CommandLine& cl, std::string* output) {
         // write to the pipe).
         close(pipe_fd[1]);
 
-        int exit_code = EXIT_FAILURE;
-        bool success = WaitForExitCode(pid, &exit_code);
-        if (!success || exit_code != EXIT_SUCCESS) {
-          close(pipe_fd[0]);
-          return false;
-        }
-
         char buffer[256];
         std::string buf_output;
 
@@ -474,8 +467,14 @@ bool GetAppOutput(const CommandLine& cl, std::string* output) {
             break;
           buf_output.append(buffer, bytes_read);
         }
-        output->swap(buf_output);
         close(pipe_fd[0]);
+
+        int exit_code = EXIT_FAILURE;
+        bool success = WaitForExitCode(pid, &exit_code);
+        if (!success || exit_code != EXIT_SUCCESS)
+          return false;
+
+        output->swap(buf_output);
         return true;
       }
   }
