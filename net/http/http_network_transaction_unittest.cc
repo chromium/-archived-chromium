@@ -25,20 +25,6 @@
 
 namespace net {
 
-namespace {
-
-// Config getter that returns a single config.
-class DummyProxyConfigService : public ProxyConfigService {
- public:
-  // ProxyConfigService implementation:
-  virtual int GetProxyConfig(ProxyConfig* config) {
-    config->proxy_rules.ParseFromString("foobar:80");
-    return OK;
-  }
-};
-
-}  // namespace
-
 // Create a proxy service which fails on all requests (falls back to direct).
 ProxyService* CreateNullProxyService() {
   return ProxyService::CreateNull();
@@ -3114,7 +3100,8 @@ TEST_F(HttpNetworkTransactionTest, ReconsiderProxyAfterFailedConnection) {
   ScopedHostMapper scoped_host_mapper(host_mapper.get());
   host_mapper->AddSimulatedFailure("*");
 
-  SessionDependencies session_deps;
+  SessionDependencies session_deps(
+      CreateFixedProxyService("myproxy:70;foobar:80"));
   scoped_ptr<HttpTransaction> trans(
       new HttpNetworkTransaction(
           CreateSession(&session_deps),
@@ -3128,11 +3115,6 @@ TEST_F(HttpNetworkTransactionTest, ReconsiderProxyAfterFailedConnection) {
 
   int rv = trans->Start(&request, &callback);
   EXPECT_EQ(ERR_IO_PENDING, rv);
-
-  // Set another config service so that ReconsiderProxyAfterError will fallback
-  // to another proxy config.
-  session_deps.proxy_service->ResetConfigService(
-      new DummyProxyConfigService());
 
   rv = callback.WaitForResult();
   EXPECT_EQ(ERR_NAME_NOT_RESOLVED, rv);
