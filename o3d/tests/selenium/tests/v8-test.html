@@ -319,7 +319,7 @@ g_suite.testV8CanInvokeBrowserConstructor = function() {
 g_suite.testV8ReceivesExceptionOnInvokingUndefinedConstructor = function() {
   var v8f = window.g_plugin.eval(
       'function(f) { try { new f(); } catch(e) { return e; } }');
-  g_test.assertEquals("TypeError: undefined is not a constructor",
+  g_test.assertEquals("TypeError: undefined is not a function",
   v8f(undefined).toString());
 };
 

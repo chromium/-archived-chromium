@@ -63,7 +63,7 @@ small   math-test
 small   features-test         except(*iexplore)
 small   quaternion-test
 # TODO Temporarily removing until V8 bug is fixed
-#small   v8-test
+small   v8-test
 small   init-status-test
 small   quaternion-test
 small   base-test

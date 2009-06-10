@@ -146,7 +146,7 @@ class NPV8Object : public NPObject {
   // Drop references between NPObject and V8 object. Must be called before the
   // NPObject is destroyed so V8 can garbage collect the associated V8 object.
   void UnlinkFromV8() {
-    HandleScope handleScope;
+    HandleScope handle_scope;
     if (!v8_object_.IsEmpty()) {
       v8_object_->DeleteHiddenValue(v8::String::NewSymbol(kInternalProperty));
       v8_object_.Dispose();
@@ -188,7 +188,7 @@ class NPV8Object : public NPObject {
     if (bridge == NULL)
       return false;
 
-    HandleScope handleScope;
+    HandleScope handle_scope;
     Context::Scope scope(bridge->script_context());
     TryCatch tryCatch;
 
@@ -228,7 +228,7 @@ class NPV8Object : public NPObject {
     if (bridge == NULL)
       return false;
 
-    HandleScope handleScope;
+    HandleScope handle_scope;
     Context::Scope scope(bridge->script_context());
     TryCatch tryCatch;
 
@@ -264,7 +264,7 @@ class NPV8Object : public NPObject {
     if (bridge == NULL)
       return false;
 
-    HandleScope handleScope;
+    HandleScope handle_scope;
     Context::Scope scope(bridge->script_context());
     TryCatch tryCatch;
 
@@ -299,7 +299,7 @@ class NPV8Object : public NPObject {
     if (bridge == NULL)
       return false;
 
-    HandleScope handleScope;
+    HandleScope handle_scope;
     Context::Scope scope(bridge->script_context());
     TryCatch tryCatch;
 
@@ -335,7 +335,7 @@ class NPV8Object : public NPObject {
     if (bridge == NULL)
       return false;
 
-    HandleScope handleScope;
+    HandleScope handle_scope;
     Context::Scope scope(bridge->script_context());
 
     v8::Handle<Object> v8_object = np_v8_object->v8_object_;
@@ -383,7 +383,7 @@ class NPV8Object : public NPObject {
     if (bridge == NULL)
       return false;
 
-    HandleScope handleScope;
+    HandleScope handle_scope;
     Context::Scope scope(bridge->script_context());
     TryCatch tryCatch;
 
@@ -414,7 +414,7 @@ class NPV8Object : public NPObject {
     if (bridge == NULL)
       return false;
 
-    HandleScope handleScope;
+    HandleScope handle_scope;
     Context::Scope scope(bridge->script_context());
     TryCatch tryCatch;
 
@@ -439,7 +439,7 @@ class NPV8Object : public NPObject {
     if (bridge == NULL)
       return false;
 
-    HandleScope handleScope;
+    HandleScope handle_scope;
     Context::Scope scope(bridge->script_context());
     TryCatch tryCatch;
 
@@ -472,7 +472,7 @@ class NPV8Object : public NPObject {
     if (bridge == NULL)
       return false;
 
-    HandleScope handleScope;
+    HandleScope handle_scope;
     Context::Scope scope(bridge->script_context());
 
     v8::Handle<Object> v8_object = np_v8_object->v8_object_;
@@ -611,7 +611,7 @@ String MakeWrapFunctionScript() {
 }  // namespace anonymous
 
 void NPV8Bridge::Initialize(const NPObjectPtr<NPObject>& global_np_object) {
-  HandleScope handleScope;
+  HandleScope handle_scope;
 
   global_np_object_ = global_np_object;
 
@@ -691,7 +691,7 @@ v8::Handle<Context> NPV8Bridge::script_context() {
 
 bool NPV8Bridge::Evaluate(const NPVariant* np_args, int numArgs,
                           NPVariant* np_result) {
-  HandleScope handleScope;
+  HandleScope handle_scope;
   Context::Scope scope(script_context_);
 
   Local<Value> v8_code;
@@ -728,14 +728,13 @@ bool NPV8Bridge::Evaluate(const NPVariant* np_args, int numArgs,
 
 void NPV8Bridge::SetGlobalProperty(const String& name,
                                    NPObjectPtr<NPObject>& np_object) {
-  HandleScope handleScope;
+  HandleScope handle_scope;
   Context::Scope scope(script_context_);
   script_context_->Global()->Set(v8::String::New(name.c_str()),
                                  NPToV8Object(np_object));
 }
 
 NPVariant NPV8Bridge::V8ToNPVariant(Local<Value> value) {
-  HandleScope handleScope;
   NPVariant np_variant;
   if (value.IsEmpty() || value->IsUndefined()) {
     VOID_TO_NPVARIANT(np_variant);
@@ -801,7 +800,6 @@ Local<Value> NPV8Bridge::NPToV8Variant(const NPVariant& np_variant) {
 }
 
 NPObjectPtr<NPObject> NPV8Bridge::V8ToNPObject(Local<Value> v8_value) {
-  HandleScope handleScope;
   NPObjectPtr<NPObject> np_object;
   if (!v8_value.IsEmpty() && v8_value->IsObject()) {
     Local<Object> v8_object = Local<Object>::Cast(v8_value);
@@ -1012,7 +1010,7 @@ void NPV8Bridge::InitializeV8ObjectTemplate(
 
 void NPV8Bridge::NPV8WeakReferenceCallback(Persistent<Value> v8_value,
                                            void* parameter) {
-  HandleScope handleScope;
+  HandleScope handle_scope;
   NPV8Bridge* bridge = static_cast<NPV8Bridge*>(parameter);
   NPObjectPtr<NPObject> np_object = bridge->V8ToNPObject(
       Local<Value>::New(v8_value));
@@ -1061,8 +1059,9 @@ v8::Local<v8::Array> NPV8Bridge::NPToV8IdentifierArray(
     if (v8_length.IsEmpty() || !v8_length->IsNumber())
       return v8_array;
 
-    v8_array = Array::New();
     int length = v8_length->Int32Value();
+    Local<Array> v8_untrimmed_array = Array::New(length);
+    int num_elements = 0;
     for (int i = 0; i < length; ++i) {
       NPVariant np_element;
       if (!NPN_GetProperty(npp_, np_array_object, NPN_GetIntIdentifier(i),
@@ -1071,8 +1070,14 @@ v8::Local<v8::Array> NPV8Bridge::NPToV8IdentifierArray(
       Local<Value> v8_element = NPToV8Variant(np_element);
       NPN_ReleaseVariantValue(&np_element);
       if (v8_element->IsString() == named) {
-        v8_array->Set(Int32::New(v8_array->Length()), v8_element);
+        v8_untrimmed_array->Set(Int32::New(num_elements), v8_element);
+        ++num_elements;
       }
+    }
+    v8_array = Array::New(num_elements);
+    for (int i = 0; i < num_elements; ++i) {
+      Local<Integer> i_handle = Integer::New(i);
+      v8_array->Set(i_handle, v8_untrimmed_array->Get(i_handle));
     }
   }
 
@@ -1081,10 +1086,18 @@ v8::Local<v8::Array> NPV8Bridge::NPToV8IdentifierArray(
 
 Local<Array> NPV8Bridge::NPToV8IdentifierArray(const NPIdentifier* ids,
                                                uint32_t id_count, bool named) {
-  Local<Array> v8_array = Array::New();
+  int num_elements = 0;
   for (uint32_t i = 0; i < id_count; ++i) {
     if (NPN_IdentifierIsString(ids[i]) == named) {
-      v8_array->Set(Int32::New(v8_array->Length()), NPToV8Identifier(ids[i]));
+      ++num_elements;
+    }
+  }
+  Local<Array> v8_array = Array::New(num_elements);
+  int j = 0;
+  for (uint32_t i = 0; i < id_count; ++i) {
+    if (NPN_IdentifierIsString(ids[i]) == named) {
+      v8_array->Set(Integer::New(j), NPToV8Identifier(ids[i]));
+      ++j;
     }
   }
   return v8_array;
@@ -1093,7 +1106,6 @@ Local<Array> NPV8Bridge::NPToV8IdentifierArray(const NPIdentifier* ids,
 Local<Array> NPV8Bridge::Enumerate(const NPObjectPtr<NPObject> np_object,
                                    bool named) {
   Local<Array> v8_array;
-  HandleScope handleScope;
 
   // First try calling NPN_Enumerate. This will return false if the browser
   // does not support NPN_Enumerate.
@@ -1131,7 +1143,6 @@ Local<Array> NPV8Bridge::Enumerate(const NPObjectPtr<NPObject> np_object,
 v8::Handle<Value> NPV8Bridge::V8PropertyGetter(Local<Value> v8_name,
                                                const AccessorInfo& info) {
   Local<Value> v8_result;
-  HandleScope handleScope;
 
   Local<Object> holder = info.Holder();
   NPV8Bridge* bridge = static_cast<NPV8Bridge*>(
@@ -1177,7 +1188,6 @@ v8::Handle<Value> NPV8Bridge::V8PropertySetter(
     Local<Value> v8_value,
     const AccessorInfo& info) {
   Local<Value> v8_result;
-  HandleScope handleScope;
 
   Local<Object> holder = info.Holder();
   NPV8Bridge* bridge = static_cast<NPV8Bridge*>(
@@ -1202,8 +1212,6 @@ v8::Handle<Value> NPV8Bridge::V8PropertySetter(
 
 v8::Handle<v8::Boolean> NPV8Bridge::V8PropertyQuery(Local<Value> v8_name,
                                                     const AccessorInfo& info) {
-  HandleScope handleScope;
-
   Local<Object> holder = info.Holder();
   NPV8Bridge* bridge = static_cast<NPV8Bridge*>(
       Local<External>::Cast(
@@ -1226,8 +1234,6 @@ v8::Handle<v8::Boolean> NPV8Bridge::V8PropertyQuery(Local<Value> v8_name,
 v8::Handle<v8::Boolean> NPV8Bridge::V8PropertyDeleter(
     Local<Value> v8_name,
     const AccessorInfo& info) {
-  HandleScope handleScope;
-
   Local<Object> holder = info.Holder();
   NPV8Bridge* bridge = static_cast<NPV8Bridge*>(
       Local<External>::Cast(
@@ -1276,8 +1282,6 @@ v8::Handle<v8::Boolean> NPV8Bridge::V8NamedPropertyDeleter(
 
 v8::Handle<Array> NPV8Bridge::V8NamedPropertyEnumerator(
     const AccessorInfo& info) {
-  HandleScope handleScope;
-
   Local<Object> holder = info.Holder();
   NPV8Bridge* bridge = static_cast<NPV8Bridge*>(
       Local<External>::Cast(
@@ -1318,8 +1322,6 @@ v8::Handle<v8::Boolean> NPV8Bridge::V8IndexedPropertyDeleter(
 
 v8::Handle<Array> NPV8Bridge::V8IndexedPropertyEnumerator(
     const AccessorInfo& info) {
-  HandleScope handleScope;
-
   Local<Object> holder = info.Holder();
   NPV8Bridge* bridge = static_cast<NPV8Bridge*>(
       Local<External>::Cast(
@@ -1335,7 +1337,6 @@ v8::Handle<Array> NPV8Bridge::V8IndexedPropertyEnumerator(
 
 v8::Handle<Value> NPV8Bridge::V8CallNamedMethod(const Arguments& args) {
   Local<Value> v8_result;
-  HandleScope handleScope;
 
   if (args.IsConstructCall())
     return v8_result;
@@ -1380,7 +1381,6 @@ v8::Handle<Value> NPV8Bridge::V8CallNamedMethod(const Arguments& args) {
 
 v8::Handle<Value> NPV8Bridge::V8CallFunction(const Arguments& args) {
   Local<Value> v8_result;
-  HandleScope handleScope;
 
   NPV8Bridge* bridge = static_cast<NPV8Bridge*>(
       Local<External>::Cast(args.Data())->Value());
@@ -1452,7 +1452,6 @@ v8::Handle<Value> NPV8Bridge::V8CallFunction(const Arguments& args) {
 
 v8::Handle<Value> NPV8Bridge::V8CallAsFunction(const Arguments& args) {
   Local<Value> v8_result;
-  HandleScope handleScope;
 
   Local<Object> v8_callee = args.This();
   NPV8Bridge* bridge = static_cast<NPV8Bridge*>(
