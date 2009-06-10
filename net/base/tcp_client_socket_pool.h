@@ -5,19 +5,15 @@
 #ifndef NET_BASE_TCP_CLIENT_SOCKET_POOL_H_
 #define NET_BASE_TCP_CLIENT_SOCKET_POOL_H_
 
-#include <deque>
-#include <map>
 #include <string>
 
-#include "base/scoped_ptr.h"
-#include "base/timer.h"
-#include "net/base/address_list.h"
 #include "net/base/client_socket_pool.h"
-#include "net/base/host_resolver.h"
+#include "net/base/client_socket_pool_base.h"
 
 namespace net {
 
 class ClientSocketFactory;
+class TCPConnectingSocket;
 
 // A TCPClientSocketPool is used to restrict the number of TCP sockets open at
 // a time.  It also maintains a list of idle persistent sockets.
@@ -44,9 +40,7 @@ class TCPClientSocketPool : public ClientSocketPool {
 
   virtual void CloseIdleSockets();
 
-  virtual int idle_socket_count() const {
-    return idle_socket_count_;
-  }
+  virtual int idle_socket_count() const { return base_->idle_socket_count(); }
 
   virtual int IdleSocketCountInGroup(const std::string& group_name) const;
 
@@ -54,136 +48,29 @@ class TCPClientSocketPool : public ClientSocketPool {
                                  const ClientSocketHandle* handle) const;
 
  private:
-  // A Request is allocated per call to RequestSocket that results in
-  // ERR_IO_PENDING.
-  struct Request {
-    ClientSocketHandle* handle;
-    CompletionCallback* callback;
-    int priority;
-    std::string host;
-    int port;
-    LoadState load_state;
-  };
-
-  // Entry for a persistent socket which became idle at time |start_time|.
-  struct IdleSocket {
-    ClientSocket* socket;
-    base::TimeTicks start_time;
-
-    // An idle socket should be removed if it can't be reused, or has been idle
-    // for too long. |now| is the current time value (TimeTicks::Now()).
-    //
-    // An idle socket can't be reused if it is disconnected or has received
-    // data unexpectedly (hence no longer idle).  The unread data would be
-    // mistaken for the beginning of the next response if we were to reuse the
-    // socket for a new request.
-    bool ShouldCleanup(base::TimeTicks now) const;
-  };
-
-  typedef std::deque<Request> RequestQueue;
-  typedef std::map<const ClientSocketHandle*, Request> RequestMap;
-
-  // A Group is allocated per group_name when there are idle sockets or pending
-  // requests.  Otherwise, the Group object is removed from the map.
-  struct Group {
-    Group() : active_socket_count(0) {}
-    std::deque<IdleSocket> idle_sockets;
-    RequestQueue pending_requests;
-    RequestMap connecting_requests;
-    int active_socket_count;
-  };
-
-  typedef std::map<std::string, Group> GroupMap;
-
-  // ConnectingSocket handles the host resolution necessary for socket creation
-  // and the Connect().
-  class ConnectingSocket {
+  class TCPConnectingSocketFactory
+      : public ClientSocketPoolBase::ConnectingSocketFactory {
    public:
-    enum State {
-      STATE_RESOLVE_HOST,
-      STATE_CONNECT
-    };
+    TCPConnectingSocketFactory(
+        const scoped_refptr<ClientSocketPoolBase>& base,
+        ClientSocketFactory* factory);
+    virtual ~TCPConnectingSocketFactory();
 
-    ConnectingSocket(const std::string& group_name,
-                     const ClientSocketHandle* handle,
-                     ClientSocketFactory* client_socket_factory,
-                     TCPClientSocketPool* pool);
-    ~ConnectingSocket();
-
-    // Begins the host resolution and the TCP connect.  Returns OK on success
-    // and ERR_IO_PENDING if it cannot immediately service the request.
-    // Otherwise, it returns a net error code.
-    int Connect(const std::string& host, int port);
-
-    // Called by the TCPClientSocketPool to cancel this ConnectingSocket.  Only
-    // necessary if a ClientSocketHandle is reused.
-    void Cancel();
+    virtual TCPConnectingSocket* CreateConnectingSocket(
+        const std::string& group_name,
+        const ClientSocketPoolBase::Request& request) const;
 
    private:
-    // Handles asynchronous completion of IO.  |result| represents the result of
-    // the IO operation.
-    void OnIOComplete(int result);
-
-    // Handles both asynchronous and synchronous completion of IO.  |result|
-    // represents the result of the IO operation.  |synchronous| indicates
-    // whether or not the previous IO operation completed synchronously or
-    // asynchronously.  OnIOCompleteInternal returns the result of the next IO
-    // operation that executes, or just the value of |result|.
-    int OnIOCompleteInternal(int result, bool synchronous);
-
-    const std::string group_name_;
-    const ClientSocketHandle* const handle_;
+    const scoped_refptr<ClientSocketPoolBase> base_;
     ClientSocketFactory* const client_socket_factory_;
-    CompletionCallbackImpl<ConnectingSocket> callback_;
-    scoped_ptr<ClientSocket> socket_;
-    scoped_refptr<TCPClientSocketPool> pool_;
-    HostResolver resolver_;
-    AddressList addresses_;
-    bool canceled_;
 
-    // The time the Connect() method was called (if it got called).
-    base::Time connect_start_time_;
-
-    DISALLOW_COPY_AND_ASSIGN(ConnectingSocket);
+    DISALLOW_COPY_AND_ASSIGN(TCPConnectingSocketFactory);
   };
 
   virtual ~TCPClientSocketPool();
 
-  static void InsertRequestIntoQueue(const Request& r,
-                                     RequestQueue* pending_requests);
-
-  // Closes all idle sockets if |force| is true.  Else, only closes idle
-  // sockets that timed out or can't be reused.
-  void CleanupIdleSockets(bool force);
-
-  // Called when the number of idle sockets changes.
-  void IncrementIdleCount();
-  void DecrementIdleCount();
-
-  // Called via PostTask by ReleaseSocket.
-  void DoReleaseSocket(const std::string& group_name, ClientSocket* socket);
-
-  // Called when timer_ fires.  This method scans the idle sockets removing
-  // sockets that timed out or can't be reused.
-  void OnCleanupTimerFired() {
-    CleanupIdleSockets(false);
-  }
-
-  ClientSocketFactory* const client_socket_factory_;
-
-  GroupMap group_map_;
-
-  std::map<const ClientSocketHandle*, ConnectingSocket*> connecting_socket_map_;
-
-  // Timer used to periodically prune idle sockets that timed out or can't be
-  // reused.
-  base::RepeatingTimer<TCPClientSocketPool> timer_;
-
-  // The total number of idle sockets in the system.
-  int idle_socket_count_;
-
-  // The maximum number of sockets kept per group.
-  const int max_sockets_per_group_;
+  const scoped_refptr<ClientSocketPoolBase> base_;
+  const TCPConnectingSocketFactory connecting_socket_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(TCPClientSocketPool);
 };
