@@ -804,7 +804,6 @@ class TryChromeDialog : public views::ButtonListener,
   // fire off the default browser that by some convoluted logic should not be
   // chrome.
   virtual void LinkActivated(views::Link* source, int event_flags) {
-    ::ShellExecuteW(NULL, L"open",  kHelpCenterUrl, NULL, NULL, SW_SHOW);
   }
 
  private:
