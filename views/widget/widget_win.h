@@ -318,6 +318,14 @@ class WidgetWin : public Widget,
     return ::GetClientRect(GetNativeView(), rect);
   }
 
+  // Resets the last move flag so that we can go around the optimization
+  // that disregards duplicate mouse moves when ending animation requires
+  // a new hit-test to do some highlighting as in TabStrip::RemoveTabAnimation
+  // to cause the close button to highlight.
+  void ResetLastMouseMoveFlag() {
+    last_mouse_event_was_move_ = false;
+  }
+
  protected:
 
   // Call close instead of this to Destroy the window.

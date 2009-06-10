@@ -346,6 +346,7 @@ class TabStrip::RemoveTabAnimation : public TabStrip::TabAnimation {
     pt.x -= wr.left;
     pt.y -= wr.top;
 
+    static_cast<views::WidgetWin*>(widget)->ResetLastMouseMoveFlag();
     // Return to message loop - otherwise we may disrupt some operation that's
     // in progress.
     PostMessage(widget->GetNativeView(), WM_MOUSEMOVE, 0,
