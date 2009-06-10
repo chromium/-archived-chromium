@@ -27,7 +27,7 @@ TestSuite = function() {
  */
 TestSuite.prototype.fail = function(message) {
   throw message;
-}
+};
 
 
 /**
@@ -39,7 +39,7 @@ TestSuite.prototype.assertEquals = function(expected, actual) {
   if (expected != actual) {
     this.fail('Expected: "' + expected + '", but was "' + actual + '"');
   }
-}
+};
 
 
 /**
@@ -49,7 +49,7 @@ TestSuite.prototype.assertEquals = function(expected, actual) {
  */
 TestSuite.prototype.assertTrue = function(value) {
   this.assertEquals(true, value);
-}
+};
 
 
 /**
@@ -63,20 +63,78 @@ TestSuite.prototype.runAllTests = function() {
       this.runTest(name);
     }
   }
-}
+};
+
+
+/**
+ * Async tests use this one to report that they are completed.
+ */
+TestSuite.prototype.reportOk = function() {
+  window.domAutomationController.send('[OK]');
+};
+
+
+/**
+ * Manual controller for async tests.
+ * @constructor.
+ */
+TestSuite.Controller = function() {
+  this.controlTaken_ = false;
+  this.timerId_ = -1;
+};
+
+
+/**
+ * Takes control over execution.
+ */
+TestSuite.Controller.prototype.takeControl = function() {
+  this.controlTaken_ = true;
+  // Set up guard timer.
+  var self = this;
+  this.timerId_ = setTimeout(function() {
+    self.reportFailure('Timeout exceeded: 20 sec');
+  }, 20000);
+};
+
+
+/**
+ * Async tests use this one to report that they are completed.
+ */
+TestSuite.Controller.prototype.reportOk = function() {
+  if (this.timerId_ != -1) {
+    this.timerId_ = -1;
+    clearTimeout(this.timerId_);
+  }
+  window.domAutomationController.send('[OK]');
+};
+
+
+/**
+ * Async tests use this one to report failures.
+ */
+TestSuite.Controller.prototype.reportFailure = function(error) {
+  if (this.timerId_ != -1) {
+    this.timerId_ = -1;
+    clearTimeout(this.timerId_);
+  }
+  window.domAutomationController.send('[FAILED] ' + error);
+};
 
 
 /**
  * Runs all global functions starting with 'test' as unit tests.
  */
 TestSuite.prototype.runTest = function(testName) {
+  var controller = new TestSuite.Controller();
   try {
-    this[testName]();
-    window.domAutomationController.send('[OK]');
+    this[testName](controller);
+    if (!controller.controlTaken_) {
+      controller.reportOk();
+    }
   } catch (e) {
-    window.domAutomationController.send('[FAILED] ' + testName + ': ' + e);
+    controller.reportFailure(e);
   }
-}
+};
 
 
 // UI Tests
@@ -90,7 +148,7 @@ TestSuite.prototype.testHostIsPresent = function() {
   var doc = domAgent.getDocument();
   this.assertTrue(typeof DevToolsHost == 'object' && !DevToolsHost.isStub);
   this.assertTrue(!!doc.documentElement);
-}
+};
 
 
 /**
@@ -101,7 +159,7 @@ TestSuite.prototype.testElementsTreeRoot = function() {
   var doc = domAgent.getDocument();
   this.assertEquals('HTML', doc.documentElement.nodeName); 
   this.assertTrue(doc.documentElement.hasChildNodes());
-}
+};
 
 
 /**
@@ -115,7 +173,35 @@ TestSuite.prototype.testMainResource = function() {
     tokens.push(resources[id].lastPathComponent);
   }
   this.assertEquals('simple_page.html', tokens.join(','));
-}
+};
+
+
+/**
+ * Tests that resources tab is enabled when corresponding item is selected.
+ */
+TestSuite.prototype.testEnableResourcesTab = function(controller) {
+  WebInspector.panels.elements.hide();
+  WebInspector.panels.resources.show();
+
+  var test = this;
+  var oldAddResource = WebInspector.addResource;
+  WebInspector.addResource = function(identifier, payload) {
+    WebInspector.addResource = oldAddResource;
+    oldAddResource.call(this, identifier, payload);
+    test.assertEquals('simple_page.html', payload.lastPathComponent);
+    WebInspector.panels.resources.refresh();
+    WebInspector.resources[identifier]._resourcesTreeElement.select();
+
+    controller.reportOk();
+  };
+
+  // Following call should lead to reload that we capture in the
+  // addResource override.
+  WebInspector.panels.resources._enableResourceTracking();
+
+  // We now have some time to report results to controller.
+  controller.takeControl();
+};
 
 
 var uiTests = new TestSuite();

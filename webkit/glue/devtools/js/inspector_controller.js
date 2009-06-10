@@ -41,6 +41,11 @@ devtools.InspectorController = function() {
    * @type {boolean}
    */
   this.profilerEnabled_ = true;
+
+  /**
+   * @type {boolean}
+   */
+  this.resourceTrackingEnabled_ = false;
 };
 
 

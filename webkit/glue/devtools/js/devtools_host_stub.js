@@ -241,6 +241,7 @@ RemoteToolsAgentStub.prototype.SetResourceTrackingEnabled = function(enabled, al
   } else {
     WebInspector.resourceTrackingWasDisabled();
   }
+  addDummyResource();
 };
 
 
@@ -285,13 +286,48 @@ DevToolsHostStub = function() {
 };
 
 
+function addDummyResource() {
+  var payload = {
+    requestHeaders : {},
+    requestURL: 'http://google.com/simple_page.html',
+    host: 'google.com',
+    path: 'simple_page.html',
+    lastPathComponent: 'simple_page.html',
+    isMainResource: true,
+    cached: false,
+    mimeType: 'text/html',
+    suggestedFilename: 'simple_page.html',
+    expectedContentLength: 10000,
+    statusCode: 200,
+    contentLength: 10000,
+    responseHeaders: {},
+    type: WebInspector.Resource.Type.Document,
+    finished: true,
+    startTime: new Date(),
+
+    didResponseChange: true,
+    didCompletionChange: true,
+    didTypeChange: true
+  };
+
+  WebInspector.addResource(1, payload);
+  WebInspector.updateResource(1, payload);
+}
+
+
 DevToolsHostStub.prototype.loaded = function() {
   RemoteDomAgentStub.sendDocumentElement_();
   RemoteDomAgentStub.sendChildNodes_(1);
   RemoteDomAgentStub.sendChildNodes_(2);
   devtools.tools.updateFocusedNode_(4);
-  devtools.tools.addMessageToConsole_('message', 'source', 3);
+  addDummyResource();
+
   uiTests.runAllTests();
+};
+
+
+DevToolsHostStub.prototype.addResourceSourceToFrame = function(
+    identifier, mimeType, element) {
 };
 
 

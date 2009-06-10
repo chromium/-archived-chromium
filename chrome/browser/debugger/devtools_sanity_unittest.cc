@@ -104,9 +104,14 @@ IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestElementsTreeRoot) {
   RunTest("testElementsTreeRoot");
 }
 
-// Tests resources panel basics.
+// Tests main resource load.
 IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestMainResource) {
   RunTest("testMainResource");
+}
+
+// Tests resources panel enabling.
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestEnableResourcesTab) {
+  RunTest("testEnableResourcesTab");
 }
 
 }  // namespace
