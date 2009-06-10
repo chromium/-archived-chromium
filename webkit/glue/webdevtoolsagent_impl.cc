@@ -224,16 +224,16 @@ void WebDevToolsAgentImpl::ClearConsoleMessages() {
 void WebDevToolsAgentImpl::GetResourceContent(
     int call_id,
     int identifier) {
+  String content;
   Page* page = web_view_impl_->page();
-  if (!page) {
-    return;
+  if (page) {
+    RefPtr<InspectorResource> resource =
+        page->inspectorController()->resources().get(identifier);
+    if (resource.get()) {
+      content = resource->sourceString();
+    }
   }
-  RefPtr<InspectorResource> resource =
-      page->inspectorController()->resources().get(identifier);
-  if (resource.get()) {
-    tools_agent_native_delegate_stub_->DidGetResourceContent(call_id,
-        resource->sourceString());
-  }
+  tools_agent_native_delegate_stub_->DidGetResourceContent(call_id, content);
 }
 
 void WebDevToolsAgentImpl::SetResourceTrackingEnabled(

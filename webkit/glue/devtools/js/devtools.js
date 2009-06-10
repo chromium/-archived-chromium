@@ -60,6 +60,7 @@ devtools.ToolsAgent = function() {
  * Resets tools agent to its initial state.
  */
 devtools.ToolsAgent.prototype.reset = function() {
+  DevToolsHost.reset();
   this.domAgent_.reset();
   this.debuggerAgent_.reset();
 

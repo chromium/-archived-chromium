@@ -56,6 +56,7 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
                                 WebCore::Node* frame);
 
   void ExecuteScript(const std::string& expr);
+  static v8::Handle<v8::Value> JsReset(const v8::Arguments& args);
   static v8::Handle<v8::Value> JsAddSourceToFrame(const v8::Arguments& args);
   static v8::Handle<v8::Value> JsAddResourceSourceToFrame(
       const v8::Arguments& args);

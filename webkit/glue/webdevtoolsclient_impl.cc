@@ -71,6 +71,15 @@ class ToolsAgentNativeDelegateImpl : public ToolsAgentNativeDelegate {
     ic->addSourceToFrame(request.mime_type, content, request.frame.get());
   }
 
+  bool WaitingForResponse(int resource_id, Node* frame) {
+    if (resource_content_requests_.contains(resource_id)) {
+      DCHECK(resource_content_requests_.get(resource_id).frame.get() == frame)
+          << "Only one frame is expected to display given resource";
+      return true;
+    }
+    return false;
+  }
+
   void RequestSent(int resource_id, String mime_type, Node* frame) {
     ResourceContentRequestData data;
     data.mime_type = mime_type;
@@ -137,12 +146,13 @@ WebDevToolsClientImpl::WebDevToolsClientImpl(
   dom_agent_obj_.set(new JsDomAgentBoundObj(this, frame, L"RemoteDomAgent"));
   tools_agent_obj_.set(
       new JsToolsAgentBoundObj(this, frame, L"RemoteToolsAgent"));
-  tools_agent_native_delegate_impl_.set(
-      new ToolsAgentNativeDelegateImpl(frame));
 
   v8::HandleScope scope;
   v8::Handle<v8::Context> frame_context = V8Proxy::GetContext(frame->frame());
   dev_tools_host_.set(new BoundObject(frame_context, this, "DevToolsHost"));
+  dev_tools_host_->AddProtoFunction(
+      "reset",
+      WebDevToolsClientImpl::JsReset);
   dev_tools_host_->AddProtoFunction(
       "addSourceToFrame",
       WebDevToolsClientImpl::JsAddSourceToFrame);
@@ -191,6 +201,10 @@ void WebDevToolsClientImpl::DispatchMessageFromAgent(
 void WebDevToolsClientImpl::AddResourceSourceToFrame(int resource_id,
                                                      String mime_type,
                                                      Node* frame) {
+  if (tools_agent_native_delegate_impl_->WaitingForResponse(resource_id,
+                                                            frame)) {
+    return;
+  }
   tools_agent_obj_->GetResourceContent(resource_id, resource_id);
   tools_agent_native_delegate_impl_->RequestSent(resource_id, mime_type, frame);
 }
@@ -205,6 +219,17 @@ void WebDevToolsClientImpl::SendRpcMessage(const std::string& class_name,
                                            const std::string& method_name,
                                            const std::string& raw_msg) {
   delegate_->SendMessageToAgent(class_name, method_name, raw_msg);
+}
+
+// static
+v8::Handle<v8::Value> WebDevToolsClientImpl::JsReset(
+    const v8::Arguments& args) {
+  WebDevToolsClientImpl* client = static_cast<WebDevToolsClientImpl*>(
+      v8::External::Cast(*args.Data())->Value());
+  WebFrameImpl* frame = client->web_view_impl_->main_frame();
+  client->tools_agent_native_delegate_impl_.set(
+      new ToolsAgentNativeDelegateImpl(frame));
+  return v8::Undefined();
 }
 
 // static
