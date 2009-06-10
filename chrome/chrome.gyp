@@ -2935,7 +2935,6 @@
       'target_name': 'ui_tests',
       'type': 'executable',
       'msvs_guid': '76235B67-1C27-4627-8A33-4B2E1EF93EDE',
-      'msvs_existing_vcproj': 'test/ui/ui_tests.vcproj',
       'dependencies': [
         'app',
         'browser',
@@ -3009,6 +3008,9 @@
         'test/ui/sunspider_uitest.cc',
         'test/ui/v8_benchmark_uitest.cc',
         'worker/worker_uitest.cc',
+
+        'tools/build/win/precompiled_wtl.h',
+        'tools/build/win/precompiled_wtl.cc',
       ],
       'conditions': [
         ['OS=="linux"', {
@@ -3020,6 +3022,7 @@
             'browser/crash_recovery_uitest.cc',
             'browser/login_prompt_uitest.cc',
             'browser/metrics/metrics_service_uitest.cc',
+            'browser/renderer_host/resource_dispatcher_host_uitest.cc',
             'test/reliability/page_load_test.cc',
             'test/ui/layout_plugin_uitest.cc',
           ],
@@ -3034,6 +3037,7 @@
             # TODO(port)
             'app/chrome_main_uitest.cc',
             'browser/crash_recovery_uitest.cc',
+            'browser/download/download_uitest.cc',
             # blocked on download shelf
             'browser/download/save_page_uitest.cc',
             'browser/login_prompt_uitest.cc',
@@ -3064,6 +3068,12 @@
             'libraries': [
               '-lOleAcc.lib',
             ],
+          },
+          'configurations': {
+            'Debug': {
+              'msvs_precompiled_header': 'tools/build/win/precompiled_wtl.h',
+              'msvs_precompiled_source': 'tools/build/win/precompiled_wtl.cc',
+            },
           },
         }, { # else: OS != "win"
           'sources!': [
