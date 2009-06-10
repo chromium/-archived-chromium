@@ -9,6 +9,7 @@
 #include "app/gfx/path.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "base/compiler_specific.h"
 #include "base/gfx/size.h"
 #include "grit/generated_resources.h"
 #include "views/controls/menu/simple_menu_model.h"
@@ -25,7 +26,7 @@ class Tab::TabContextMenuContents : public views::SimpleMenuModel,
                                     public views::SimpleMenuModel::Delegate {
  public:
   explicit TabContextMenuContents(Tab* tab)
-      : SimpleMenuModel(this),
+      : ALLOW_THIS_IN_INITIALIZER_LIST(SimpleMenuModel(this)),
         tab_(tab),
         last_command_(TabStripModel::CommandFirst) {
     Build();
