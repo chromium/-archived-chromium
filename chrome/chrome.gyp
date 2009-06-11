@@ -3090,7 +3090,6 @@
             'test/accessibility/tab_impl.cc',
             'test/ui/npapi_uitest.cc',
             'test/ui/sandbox_uitests.cc',
-            'test/ui/sunspider_uitest.cc',
             'worker/worker_uitest.cc',
           ],
         }],
