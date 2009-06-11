@@ -266,6 +266,7 @@ TEST(MasterPreferences, ParseDistroParams) {
     "     \"import_search_engine\": true,\n"
     "     \"import_history\": true,\n"
     "     \"import_bookmarks\": true,\n"
+    "     \"import_home_page\": true,\n"
     "     \"create_all_shortcuts\": true,\n"
     "     \"do_not_launch_chrome\": true,\n"
     "     \"make_chrome_default\": true,\n"
@@ -289,6 +290,7 @@ TEST(MasterPreferences, ParseDistroParams) {
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_IMPORT_SEARCH_ENGINE);
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_IMPORT_HISTORY);
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_IMPORT_BOOKMARKS);
+  EXPECT_TRUE(result & installer_util::MASTER_PROFILE_IMPORT_HOME_PAGE);
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_CREATE_ALL_SHORTCUTS);
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_DO_NOT_LAUNCH_CHROME);
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_MAKE_CHROME_DEFAULT);

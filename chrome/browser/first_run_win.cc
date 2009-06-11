@@ -253,6 +253,8 @@ bool FirstRun::ProcessMasterPreferences(const FilePath& user_data_dir,
     import_items += HISTORY;
   if (parse_result & installer_util::MASTER_PROFILE_IMPORT_BOOKMARKS)
     import_items += FAVORITES;
+  if (parse_result & installer_util::MASTER_PROFILE_IMPORT_HOME_PAGE)
+    import_items += HOME_PAGE;
 
   if (import_items) {
     // There is something to import from the default browser. This launches

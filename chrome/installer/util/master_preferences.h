@@ -55,7 +55,9 @@ enum MasterPrefResult {
   // Use an alternate description text for some shortcuts.
   MASTER_PROFILE_ALT_SHORTCUT_TXT              = 0x1 << 14,
   // Use a smaller OEM info bubble on first run.
-  MASTER_PROFILE_OEM_FIRST_RUN_BUBBLE          = 0x1 << 15
+  MASTER_PROFILE_OEM_FIRST_RUN_BUBBLE          = 0x1 << 15,
+  // Import home page from the default browser.
+  MASTER_PROFILE_IMPORT_HOME_PAGE              = 0x1 << 16
 };
 
 // The master preferences is a JSON file with the same entries as the
@@ -71,6 +73,7 @@ enum MasterPrefResult {
 //      "import_search_engine": true,
 //      "import_history": false,
 //      "import_bookmarks": false,
+//      "import_home_page": false,
 //      "create_all_shortcuts": true,
 //      "do_not_launch_chrome": false,
 //      "make_chrome_default": false,
