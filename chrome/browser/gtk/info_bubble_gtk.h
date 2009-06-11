@@ -64,6 +64,15 @@ class InfoBubbleGtk {
   // the close is the result of pressing escape.
   void Close(bool closed_by_escape);
 
+  static gboolean HandleEscapeThunk(GtkAccelGroup* group,
+                                    GObject* acceleratable,
+                                    guint keyval,
+                                    GdkModifierType modifier,
+                                    gpointer user_data) {
+    return reinterpret_cast<InfoBubbleGtk*>(user_data)->HandleEscape();
+  }
+  gboolean HandleEscape();
+
   static gboolean HandleConfigureThunk(GtkWidget* widget,
                                        GdkEventConfigure* event,
                                        gpointer user_data) {
@@ -100,6 +109,9 @@ class InfoBubbleGtk {
   // Our GtkWindow popup window, we don't technically "own" the widget, since
   // it deletes us when it is destroyed.
   GtkWidget* window_;
+
+  // The accel group attached to |window_|, to handle closing with escape.
+  GtkAccelGroup* accel_group_;
 
   // Where we want our window to be positioned on the screen.
   int screen_x_;

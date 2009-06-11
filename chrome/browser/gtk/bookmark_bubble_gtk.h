@@ -17,6 +17,7 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/task.h"
 #include "chrome/browser/gtk/info_bubble_gtk.h"
 #include "googleurl/src/gurl.h"
 
@@ -49,45 +50,45 @@ class BookmarkBubbleGtk : public InfoBubbleGtkDelegate {
                     bool newly_bookmarked);
   ~BookmarkBubbleGtk();
 
-  static gboolean HandleDestroyThunk(GtkWidget* widget,
-                                     gpointer userdata) {
-    return reinterpret_cast<BookmarkBubbleGtk*>(userdata)->
+  static void HandleDestroyThunk(GtkWidget* widget,
+                                 gpointer userdata) {
+    reinterpret_cast<BookmarkBubbleGtk*>(userdata)->
         HandleDestroy();
   }
   // Notified when |content_| is destroyed so we can delete our instance.
-  gboolean HandleDestroy();
+  void HandleDestroy();
 
   static void HandleNameActivateThunk(GtkWidget* widget,
                                       gpointer user_data) {
-    return reinterpret_cast<BookmarkBubbleGtk*>(user_data)->
+    reinterpret_cast<BookmarkBubbleGtk*>(user_data)->
         HandleNameActivate();
   }
   void HandleNameActivate();
 
   static void HandleFolderChangedThunk(GtkWidget* widget,
                                        gpointer user_data) {
-    return reinterpret_cast<BookmarkBubbleGtk*>(user_data)->
+    reinterpret_cast<BookmarkBubbleGtk*>(user_data)->
         HandleFolderChanged();
   }
   void HandleFolderChanged();
 
   static void HandleEditButtonThunk(GtkWidget* widget,
                                     gpointer user_data) {
-    return reinterpret_cast<BookmarkBubbleGtk*>(user_data)->
+    reinterpret_cast<BookmarkBubbleGtk*>(user_data)->
         HandleEditButton();
   }
   void HandleEditButton();
 
   static void HandleCloseButtonThunk(GtkWidget* widget,
                                      gpointer user_data) {
-    return reinterpret_cast<BookmarkBubbleGtk*>(user_data)->
+    reinterpret_cast<BookmarkBubbleGtk*>(user_data)->
         HandleCloseButton();
   }
   void HandleCloseButton();
 
   static void HandleRemoveButtonThunk(GtkWidget* widget,
                                       gpointer user_data) {
-    return reinterpret_cast<BookmarkBubbleGtk*>(user_data)->
+    reinterpret_cast<BookmarkBubbleGtk*>(user_data)->
         HandleRemoveButton();
   }
   void HandleRemoveButton();
@@ -123,6 +124,10 @@ class BookmarkBubbleGtk : public InfoBubbleGtkDelegate {
   std::vector<BookmarkNode*> folder_nodes_;
 
   InfoBubbleGtk* bubble_;
+
+  // We need to push some things on the back of the message loop, so we have
+  // a factory attached to our instance to manage task lifetimes.
+  ScopedRunnableMethodFactory<BookmarkBubbleGtk> factory_;
 
   // Whether the bubble is creating or editing an existing bookmark.
   bool newly_bookmarked_;

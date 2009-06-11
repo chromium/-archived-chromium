@@ -10,6 +10,7 @@
 #include "app/resource_bundle.h"
 #include "base/basictypes.h"
 #include "base/logging.h"
+#include "base/message_loop.h"
 #include "chrome/browser/bookmarks/bookmark_editor.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
@@ -18,6 +19,7 @@
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/gtk_util.h"
+#include "chrome/common/notification_service.h"
 #include "grit/generated_resources.h"
 
 namespace {
@@ -98,6 +100,15 @@ void BookmarkBubbleGtk::Show(GtkWindow* transient_toplevel,
 
 void BookmarkBubbleGtk::InfoBubbleClosing(InfoBubbleGtk* info_bubble,
                                           bool closed_by_escape) {
+  if (closed_by_escape) {
+    remove_bookmark_ = newly_bookmarked_;
+    apply_edits_ = false;
+  }
+
+  NotificationService::current()->Notify(
+      NotificationType::BOOKMARK_BUBBLE_HIDDEN,
+      Source<Profile>(profile_->GetOriginalProfile()),
+      NotificationService::NoDetails());
 }
 
 BookmarkBubbleGtk::BookmarkBubbleGtk(GtkWindow* transient_toplevel,
@@ -112,6 +123,7 @@ BookmarkBubbleGtk::BookmarkBubbleGtk(GtkWindow* transient_toplevel,
       name_entry_(NULL),
       folder_combo_(NULL),
       bubble_(NULL),
+      factory_(this),
       newly_bookmarked_(newly_bookmarked),
       apply_edits_(true),
       remove_bookmark_(false) {
@@ -211,12 +223,11 @@ BookmarkBubbleGtk::~BookmarkBubbleGtk() {
   }
 }
 
-gboolean BookmarkBubbleGtk::HandleDestroy() {
+void BookmarkBubbleGtk::HandleDestroy() {
   // We are self deleting, we have a destroy signal setup to catch when we
   // destroyed (via the InfoBubble being destroyed), and delete ourself.
   content_ = NULL;  // We are being destroyed.
   delete this;
-  return FALSE;  // Propagate.
 }
 
 void BookmarkBubbleGtk::HandleNameActivate() {
@@ -227,7 +238,12 @@ void BookmarkBubbleGtk::HandleFolderChanged() {
   size_t cur_folder = gtk_combo_box_get_active(GTK_COMBO_BOX(folder_combo_));
   if (cur_folder == folder_nodes_.size()) {
     UserMetrics::RecordAction(L"BookmarkBubble_EditFromCombobox", profile_);
-    ShowEditor();
+    // GTK doesn't handle having the combo box destroyed from the changed
+    // signal.  Since showing the editor also closes the bubble, delay this
+    // so that GTK can unwind.  Specifically gtk_menu_shell_button_release
+    // will run, and we need to keep the combo box alive until then.
+    MessageLoop::current()->PostTask(FROM_HERE,
+        factory_.NewRunnableMethod(&BookmarkBubbleGtk::ShowEditor));
   }
 }
 

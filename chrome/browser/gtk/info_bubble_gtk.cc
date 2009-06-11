@@ -4,6 +4,7 @@
 
 #include "chrome/browser/gtk/info_bubble_gtk.h"
 
+#include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
 #include "app/gfx/path.h"
@@ -129,12 +130,14 @@ InfoBubbleGtk* InfoBubbleGtk::Show(GtkWindow* transient_toplevel,
 InfoBubbleGtk::InfoBubbleGtk()
     : delegate_(NULL),
       window_(NULL),
+      accel_group_(gtk_accel_group_new()),
       screen_x_(0),
       screen_y_(0) {
 
 }
 
 InfoBubbleGtk::~InfoBubbleGtk() {
+  g_object_unref(accel_group_);
 }
 
 void InfoBubbleGtk::Init(GtkWindow* transient_toplevel,
@@ -155,6 +158,12 @@ void InfoBubbleGtk::Init(GtkWindow* transient_toplevel,
   gtk_widget_modify_bg(window_, GTK_STATE_NORMAL, &kBackgroundColor);
   // Make sure that our window can be focused.
   GTK_WIDGET_SET_FLAGS(window_, GTK_CAN_FOCUS);
+
+  // Attach our accelerator group to the window with an escape accelerator.
+  gtk_accel_group_connect(accel_group_, GDK_Escape,
+      static_cast<GdkModifierType>(0), static_cast<GtkAccelFlags>(0),
+      g_cclosure_new(G_CALLBACK(&HandleEscapeThunk), this, NULL));
+  gtk_window_add_accel_group(GTK_WINDOW(window_), accel_group_);
 
   GtkWidget* alignment = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
   gtk_alignment_set_padding(GTK_ALIGNMENT(alignment),
@@ -205,6 +214,11 @@ void InfoBubbleGtk::Close(bool closed_by_escape) {
   DCHECK(window_);
   gtk_widget_destroy(window_);
   // |this| has been deleted, see HandleDestroy.
+}
+
+gboolean InfoBubbleGtk::HandleEscape() {
+  Close(true);  // Close by escape.
+  return TRUE;
 }
 
 gboolean InfoBubbleGtk::HandleConfigure(GdkEventConfigure* event) {
