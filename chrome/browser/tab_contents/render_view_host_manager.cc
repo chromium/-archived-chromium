@@ -18,6 +18,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"
+#include "chrome/common/render_messages.h"
 
 namespace base {
 class WaitableEvent;
@@ -549,6 +550,13 @@ RenderViewHost* RenderViewHostManager::UpdateRendererStateForNavigate(
     render_view_host_->FirePageBeforeUnload();
 
     return pending_render_view_host_;
+  } else {
+    // The renderer can exit view source mode when any error or cancellation
+    // happen. We must overwrite to recover the mode.
+    if (entry.IsViewSourceMode()) {
+      render_view_host_->Send(
+          new ViewMsg_EnableViewSourceMode(render_view_host_->routing_id()));
+    }
   }
 
   // Same SiteInstance can be used.  Navigate render_view_host_ if we are not

@@ -221,7 +221,7 @@ TEST_F(TabContentsTest, NTPViewSource) {
   controller().LoadURL(kGURL, GURL(), PageTransition::TYPED);
   rvh()->delegate()->RenderViewCreated(rvh());
   // Did we get the expected message?
-  EXPECT_TRUE(process()->sink().GetUniqueMessageMatching(
+  EXPECT_TRUE(process()->sink().GetFirstMessageMatching(
       ViewMsg_EnableViewSourceMode::ID));
 
   ViewHostMsg_FrameNavigate_Params params;
