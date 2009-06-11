@@ -143,17 +143,6 @@ TabGtk::~TabGtk() {
 }
 
 // static
-void TabGtk::GdkEventHandler(GdkEvent* event, void* data) {
-  TabGtk* tab = static_cast<TabGtk*>(data);
-
-  if (event->type == GDK_MOTION_NOTIFY && tab && tab->dragging_) {
-    tab->delegate_->ContinueDrag(NULL);
-  }
-
-  gtk_main_do_event(event);
-}
-
-// static
 gboolean TabGtk::OnMousePress(GtkWidget* widget, GdkEventButton* event,
                               TabGtk* tab) {
   if (event->button == 1) {
@@ -198,7 +187,7 @@ gboolean TabGtk::OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event,
 // static
 void TabGtk::OnDragBegin(GtkWidget* widget, GdkDragContext* context,
                          TabGtk* tab) {
-  gdk_event_handler_set(TabGtk::GdkEventHandler, tab, NULL);
+  MessageLoopForUI::current()->AddObserver(tab);
 
   int x, y;
   gdk_window_get_pointer(tab->event_box_->window, &x, &y, NULL);
@@ -219,18 +208,7 @@ void TabGtk::OnDragEnd(GtkWidget* widget, GdkDragContext* context,
   // Clean up the drag helper, which is re-created on the next mouse press.
   tab->delegate_->EndDrag(false);
 
-  // Reset the user data pointer for our event handler.
-  gdk_event_handler_set(TabGtk::GdkEventHandler, NULL, NULL);
-}
-
-// static
-gboolean TabGtk::OnDragMotion(GtkWidget* widget,
-                              GdkDragContext* context,
-                              guint x, guint y,
-                              guint time,
-                              TabGtk* tab) {
-  tab->delegate_->ContinueDrag(context);
-  return TRUE;
+  MessageLoopForUI::current()->RemoveObserver(tab);
 }
 
 // static
@@ -242,6 +220,23 @@ gboolean TabGtk::OnDragFailed(GtkWidget* widget, GdkDragContext* context,
   // drag action.
   OnDragEnd(widget, context, tab);
   return TRUE;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// TabGtk, MessageLoop::Observer implementation:
+
+void TabGtk::WillProcessEvent(GdkEvent* event) {
+  // Nothing to do.
+}
+
+void TabGtk::DidProcessEvent(GdkEvent* event) {
+  switch (event->type) {
+    case GDK_MOTION_NOTIFY:
+      delegate_->ContinueDrag(NULL);
+      break;
+    default:
+      break;
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

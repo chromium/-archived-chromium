@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_GTK_TABS_TAB_GTK_H_
 
 #include "base/basictypes.h"
+#include "base/message_loop.h"
 #include "chrome/browser/gtk/tabs/tab_renderer_gtk.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 
@@ -13,7 +14,8 @@ namespace gfx {
 class Path;
 }
 
-class TabGtk : public TabRendererGtk {
+class TabGtk : public TabRendererGtk,
+               public MessageLoopForUI::Observer {
  public:
   // An interface implemented by an object that can help this Tab complete
   // various actions. The index parameter is the index of this Tab in the
@@ -83,10 +85,6 @@ class TabGtk : public TabRendererGtk {
   virtual void CloseButtonClicked();
   virtual void UpdateData(TabContents* contents, bool loading_only);
 
-  // The callback that is called for every gdk event.  We use it to inspect for
-  // drag-motion events when the drag is outside of the source tab.
-  static void GdkEventHandler(GdkEvent* event, void* tab);
-
   // button-press-event handler that handles mouse clicks.
   static gboolean OnMousePress(GtkWidget* widget, GdkEventButton* event,
                                TabGtk* tab);
@@ -111,14 +109,14 @@ class TabGtk : public TabRendererGtk {
   static void OnDragEnd(GtkWidget* widget, GdkDragContext* context,
                         TabGtk* tab);
 
-  // drag-motion handler that handles drag movements in the tabstrip.
-  static gboolean OnDragMotion(GtkWidget* widget, GdkDragContext* context,
-                               guint x, guint y, guint time,
-                               TabGtk* tab);
-
   // drag-failed handler that is emitted when the drag fails.
   static gboolean OnDragFailed(GtkWidget* widget, GdkDragContext* context,
                                GtkDragResult result, TabGtk* tab);
+
+ protected:
+  // MessageLoop::Observer implementation:
+  virtual void WillProcessEvent(GdkEvent* event);
+  virtual void DidProcessEvent(GdkEvent* event);
 
  private:
   class ContextMenuController;
