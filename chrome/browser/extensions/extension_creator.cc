@@ -12,7 +12,6 @@
 #include "base/file_util.h"
 #include "base/scoped_handle.h"
 #include "base/string_util.h"
-#include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/common/extensions/extension.h"
 #include "chrome/common/zip.h"
 #include "net/base/base64.h"
@@ -20,6 +19,8 @@
 namespace {
   const int kRSAKeySize = 1024;
 };
+
+const char ExtensionCreator::kExtensionHeaderMagic[] = "Cr24";
 
 bool ExtensionCreator::InitializeInput(
     const FilePath& extension_dir,
@@ -166,14 +167,14 @@ bool ExtensionCreator::WriteCRX(const FilePath& zip_path,
     return false;
   }
 
-  ExtensionsService::ExtensionHeader header;
-  memcpy(&header.magic, ExtensionsService::kExtensionHeaderMagic,
-         ExtensionsService::kExtensionHeaderMagicSize);
-  header.version = ExtensionsService::kCurrentVersion;
+  ExtensionCreator::ExtensionHeader header;
+  memcpy(&header.magic, ExtensionCreator::kExtensionHeaderMagic,
+         ExtensionCreator::kExtensionHeaderMagicSize);
+  header.version = kCurrentVersion;
   header.key_size = public_key.size();
   header.signature_size = signature.size();
 
-  fwrite(&header, sizeof(ExtensionsService::ExtensionHeader), 1,
+  fwrite(&header, sizeof(ExtensionCreator::ExtensionHeader), 1,
       crx_handle.get());
   fwrite(&public_key.front(), sizeof(uint8), public_key.size(),
       crx_handle.get());

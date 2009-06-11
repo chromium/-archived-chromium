@@ -1,5 +1,6 @@
 {
-  "description": "Buildbot waterfall monitor",
+  "description": "Buildbot waterfall monitor", 
+  "id": "7868865ECC233B0400ABE5D38D88355C03C4BB1A", 
   "name": "buildbot", 
   "toolstrips": [
     "buildbot.html"

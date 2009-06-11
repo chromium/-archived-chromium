@@ -48,6 +48,10 @@ class ExtensionUnpacker {
   const DecodedImages& decoded_images() { return decoded_images_; }
 
  private:
+  // Parse the header on the front of the extension file and return the manifest
+  // inside it. Caller takes ownership of return value.
+  DictionaryValue* ReadPackageHeader();
+
   // Parse the manifest.json file inside the extension (not in the header).
   // Caller takes ownership of return value.
   DictionaryValue* ReadManifest();

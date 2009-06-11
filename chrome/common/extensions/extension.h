@@ -38,13 +38,6 @@ class Extension {
     KILLBIT,  // Don't install/upgrade (applies to external extensions only).
   };
 
-  enum InstallType {
-    DOWNGRADE,
-    REINSTALL,
-    UPGRADE,
-    NEW_INSTALL
-  };
-
   // An NPAPI plugin included in the extension.
   struct PluginInfo {
     FilePath path;  // Path to the plugin.
@@ -60,10 +53,10 @@ class Extension {
   static const wchar_t* kCssKey;
   static const wchar_t* kDescriptionKey;
   static const wchar_t* kIconPathKey;
+  static const wchar_t* kIdKey;
   static const wchar_t* kJsKey;
   static const wchar_t* kMatchesKey;
   static const wchar_t* kNameKey;
-  static const wchar_t* kPageActionIdKey;
   static const wchar_t* kPageActionsKey;
   static const wchar_t* kPermissionsKey;
   static const wchar_t* kPluginsKey;
@@ -94,9 +87,9 @@ class Extension {
   static const char* kInvalidCssError;
   static const char* kInvalidCssListError;
   static const char* kInvalidDescriptionError;
+  static const char* kInvalidIdError;
   static const char* kInvalidJsError;
   static const char* kInvalidJsListError;
-  static const char* kInvalidKeyError;
   static const char* kInvalidManifestError;
   static const char* kInvalidMatchCountError;
   static const char* kInvalidMatchError;
@@ -108,14 +101,12 @@ class Extension {
 
   static const char* kInvalidBackgroundError;
   static const char* kInvalidRunAtError;
-  static const char* kInvalidSignatureError;
   static const char* kInvalidToolstripError;
   static const char* kInvalidToolstripsError;
   static const char* kInvalidVersionError;
   static const char* kInvalidPageActionError;
   static const char* kInvalidPageActionsListError;
   static const char* kInvalidPageActionIconPathError;
-  static const char* kInvalidPageActionIdError;
   static const char* kInvalidPageActionTooltipError;
   static const char* kInvalidPageActionTypeValueError;
   static const char* kInvalidPermissionsError;
@@ -141,11 +132,6 @@ class Extension {
   Extension() : location_(INVALID), is_theme_(false) {}
   explicit Extension(const FilePath& path);
   virtual ~Extension();
-
-  // Resets the id counter. This is only useful for unit tests.
-  static void ResetGeneratedIdCounter() {
-    id_counter_ = 0;
-  }
 
   // Checks to see if the extension has a valid ID.
   static bool IdIsValid(const std::string& id);
@@ -187,11 +173,6 @@ class Extension {
   // Does a simple base64 encoding of |input| into |output|.
   static bool ProducePEM(const std::string& input, std::string* output);
 
-  // Note: The result is coverted to lower-case because the browser enforces
-  // hosts to be lower-case in omni-bar.
-  static bool GenerateIdFromPublicKey(const std::string& input,
-                                      std::string* output);
-
   // Expects base64 encoded |input| and formats into |output| including
   // the appropriate header & footer.
   static bool FormatPEMForFileOutput(const std::string input,
@@ -212,7 +193,6 @@ class Extension {
   // String representation of the version number.
   const std::string VersionString() const;
   const std::string& name() const { return name_; }
-  const std::string& public_key() const { return public_key_; }
   const std::string& description() const { return description_; }
   const UserScriptList& content_scripts() const { return content_scripts_; }
   const PageActionMap& page_actions() const { return page_actions_; }
@@ -242,14 +222,6 @@ class Extension {
   std::set<FilePath> GetBrowserImages();
 
  private:
-  // Counter used to assign ids to extensions that are loaded using 
-  // --load-extension.
-  static int id_counter_;
-
-  // Returns the next counter id. Intentionally post-incrementing so that first
-  // value is 0.
-  static int NextGeneratedId() { return id_counter_++; }
-
   // Helper method that loads a UserScript object from a
   // dictionary in the content_script list of the manifest.
   bool LoadUserScriptHelper(const DictionaryValue* content_script,
@@ -309,9 +281,10 @@ class Extension {
   // Paths to HTML files to be displayed in the toolbar.
   std::vector<std::string> toolstrips_;
 
-  // The public key ('key' in the manifest) used to sign the contents of the
-  // crx package ('signature' in the manifest)
-  std::string public_key_;
+  // A SHA1 hash of the contents of the zip file.  Note that this key is only
+  // present in the manifest that's prepended to the zip.  The inner manifest
+  // will not have this key.
+  std::string zip_hash_;
 
   // A map of resource id's to relative file paths.
   scoped_ptr<DictionaryValue> theme_images_;

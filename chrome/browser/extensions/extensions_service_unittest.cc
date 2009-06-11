@@ -36,13 +36,13 @@ namespace {
 // Extension ids used during testing.
 const char* const all_zero = "0000000000000000000000000000000000000000";
 const char* const zero_n_one = "0000000000000000000000000000000000000001";
-const char* const good0 = "fc6f6ba6693faf6773c13701019f2e7a12f0febe";
-const char* const good1 = "e5ead92b2c6795c1d2b92df9c5cb37de5582471a";
-const char* const good2 = "a37fed892f622823f4daaec4426a32fc7f6147dc";
-const char* const good_crx = "b3dd733cd71a98fa83f387455e12f5c5501c519e";
-const char* const page_action = "a4ca7d01469a010acb200568a0b8f4d9b3ac1f91";
-const char* const theme_crx = "80c45f5ae9e0f839d105c6a6d2461a036bc40a04";
-const char* const theme2_crx = "f9f6c52c01efdd5edd7c396b5f995a15fc7ad6d1";
+const char* const good0 = "00123456789abcdef0123456789abcdef0123456";
+const char* const good1 = "10123456789abcdef0123456789abcdef0123456";
+const char* const good2 = "20123456789abcdef0123456789abcdef0123456";
+const char* const good_crx = "00123456789abcdef0123456789abcdef0123456";
+const char* const page_action = "8a5e4cb023c61b431e9b603a97c293429ce057c8";
+const char* const theme_crx = "f0123456789abcdef0123456789abcdef0126456";
+const char* const theme2_crx = "f0123456789adddef0123456789abcdef0126456";
 
 struct ExtensionsOrder {
   bool operator()(const Extension* a, const Extension* b) {
@@ -235,7 +235,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
   }
   ASSERT_EQ(3u, loaded_.size());
 
-  EXPECT_EQ(std::string(good0), loaded_[0]->id());
+  EXPECT_EQ(std::string(good_crx), loaded_[0]->id());
   EXPECT_EQ(std::string("My extension 1"),
             loaded_[0]->name());
   EXPECT_EQ(std::string("The first extension that I made."),
@@ -245,8 +245,8 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
   EXPECT_EQ(3u, service_->extensions()->size());
 
   ValidatePrefKeyCount(3);
-  ValidatePref(good0, L"state", Extension::ENABLED);
-  ValidatePref(good0, L"location", Extension::INTERNAL);
+  ValidatePref(good_crx, L"state", Extension::ENABLED);
+  ValidatePref(good_crx, L"location", Extension::INTERNAL);
   ValidatePref(good1, L"state", Extension::ENABLED);
   ValidatePref(good1, L"location", Extension::INTERNAL);
   ValidatePref(good2, L"state", Extension::ENABLED);
@@ -398,10 +398,6 @@ TEST_F(ExtensionsServiceTest, InstallExtension) {
   ValidatePref(page_action, L"state", Extension::ENABLED);
   ValidatePref(page_action, L"location", Extension::INTERNAL);
 
-  // Bad signature. 
-  path = extensions_path.AppendASCII("bad_signature.crx");
-  InstallExtension(path, false);
-
   // 0-length extension file.
   path = extensions_path.AppendASCII("not_an_extension.crx");
   InstallExtension(path, false);
@@ -409,6 +405,16 @@ TEST_F(ExtensionsServiceTest, InstallExtension) {
 
   // Bad magic number.
   path = extensions_path.AppendASCII("bad_magic.crx");
+  InstallExtension(path, false);
+  ValidatePrefKeyCount(pref_count);
+
+  // Poorly formed JSON.
+  path = extensions_path.AppendASCII("bad_json.crx");
+  InstallExtension(path, false);
+  ValidatePrefKeyCount(pref_count);
+
+  // Incorrect zip hash.
+  path = extensions_path.AppendASCII("bad_hash.crx");
   InstallExtension(path, false);
   ValidatePrefKeyCount(pref_count);
 
@@ -553,56 +559,6 @@ TEST_F(ExtensionsServiceTest, Reinstall) {
   ValidatePref(good_crx, L"location", Extension::INTERNAL);
 }
 
-// Test upgrading a signed extension.
-TEST_F(ExtensionsServiceTest, UpgradeSignedGood) {
-  FilePath extensions_path;
-  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
-  extensions_path = extensions_path.AppendASCII("extensions");
-
-  FilePath path = extensions_path.AppendASCII("good.crx");
-  service_->InstallExtension(path);
-  loop_.RunAllPending();
-
-  ASSERT_TRUE(installed_);
-  ASSERT_EQ(1u, loaded_.size());
-  ASSERT_EQ(0u, GetErrors().size());
-
-  // Upgrade to version 2.0
-  path = extensions_path.AppendASCII("good2.crx");
-  service_->InstallExtension(path);
-  loop_.RunAllPending();
-
-  ASSERT_TRUE(installed_);
-  ASSERT_EQ(2u, loaded_.size());
-  ASSERT_EQ(0u, GetErrors().size());
-}
-
-// Test upgrading a signed extension with a bad signature.
-TEST_F(ExtensionsServiceTest, UpgradeSignedBad) {
-  FilePath extensions_path;
-  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
-  extensions_path = extensions_path.AppendASCII("extensions");
-
-  FilePath path = extensions_path.AppendASCII("good.crx");
-  service_->InstallExtension(path);
-  loop_.RunAllPending();
-
-  ASSERT_TRUE(installed_);
-  ASSERT_EQ(1u, loaded_.size());
-  ASSERT_EQ(0u, GetErrors().size());
-  installed_ = NULL;
-
-  // Try upgrading with a bad signature. This should fail during the unpack,
-  // because the key will not match the signature.
-  path = extensions_path.AppendASCII("good2_bad_signature.crx");
-  service_->InstallExtension(path);
-  loop_.RunAllPending();
-
-  ASSERT_FALSE(installed_);
-  ASSERT_EQ(1u, loaded_.size());
-  ASSERT_EQ(1u, GetErrors().size());
-}
-
 // Tests uninstalling normal extensions
 TEST_F(ExtensionsServiceTest, UninstallExtension) {
   FilePath extensions_path;
@@ -700,8 +656,6 @@ TEST_F(ExtensionsServiceTest, LoadExtension) {
 // Tests that we generate IDs when they are not specified in the manifest for
 // --load-extension.
 TEST_F(ExtensionsServiceTest, GenerateID) {
-  Extension::ResetGeneratedIdCounter();
-
   FilePath extensions_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
@@ -743,7 +697,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
 
   RegKey key;
   std::wstring reg_path = ASCIIToWide(registry_path_);
-  reg_path += L"\\b3dd733cd71a98fa83f387455e12f5c5501c519e";
+  reg_path += L"\\00123456789ABCDEF0123456789ABCDEF0123456";
   ASSERT_TRUE(key.Create(HKEY_LOCAL_MACHINE, reg_path.c_str(), KEY_WRITE));
   ASSERT_TRUE(key.WriteValue(L"path", source_path.ToWStringHack().c_str()));
   ASSERT_TRUE(key.WriteValue(L"version", L"1.0.0.0"));
