@@ -135,11 +135,9 @@ bool ImporterView::Accept() {
 
   uint16 items = GetCheckedItems();
 
-  Browser* browser = BrowserList::GetLastActive();
   int selected_index = profile_combobox_->selected_item();
-  HWND parent_hwnd =
-      reinterpret_cast<HWND>(browser->window()->GetNativeHandle());
-  StartImportingWithUI(parent_hwnd, items, importer_host_.get(),
+  StartImportingWithUI(GetWidget()->GetNativeView(), items,
+                       importer_host_.get(),
                        importer_host_->GetSourceProfileInfoAt(selected_index),
                        profile_, this, false);
   // We return false here to prevent the window from being closed. We will be
