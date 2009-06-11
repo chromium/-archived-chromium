@@ -1795,6 +1795,19 @@ void V8Proxy::UpdateDocumentWrapperCache()
 {
     v8::HandleScope handle_scope;
     v8::Context::Scope context_scope(GetContext());
+
+    // If the document has no frame, NodeToV8Object might get the
+    // document wrapper for a document that is about to be deleted.
+    // If the ForceSet below causes a garbage collection, the document
+    // might get deleted and the global handle for the document
+    // wrapper cleared. Using the cleared global handle will lead to
+    // crashes.  In this case we clear the cache and let the DOMWindow
+    // accessor handle access to the document.
+    if (!m_frame->document()->frame()) {
+        ClearDocumentWrapperCache();
+        return;
+    }
+
     v8::Handle<v8::Value> document_wrapper = NodeToV8Object(m_frame->document());
     m_context->Global()->ForceSet(v8::String::New("document"),
                                   document_wrapper,
