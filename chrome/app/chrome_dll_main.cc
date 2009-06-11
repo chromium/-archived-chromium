@@ -133,7 +133,8 @@ void ChromeAssert(const std::string& str) {
   // Get the breakpad pointer from chrome.exe
   typedef void (__cdecl *DumpProcessFunction)();
   DumpProcessFunction DumpProcess = reinterpret_cast<DumpProcessFunction>(
-      ::GetProcAddress(::GetModuleHandle(L"chrome.exe"), "DumpProcess"));
+      ::GetProcAddress(::GetModuleHandle(chrome::kBrowserProcessExecutableName),
+                       "DumpProcess"));
   if (DumpProcess)
     DumpProcess();
 }
