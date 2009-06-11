@@ -381,9 +381,9 @@ devtools.Injected.prototype.getShorthandValue_ = function(style,
     shorthandProperty) {
   var value = style.getPropertyValue(shorthandProperty);
   if (!value) {
-    // Some shorthands (like border) return a null value, so compute a 
+    // Some shorthands (like border) return a null value, so compute a
     // shorthand value.
-    // FIXME: remove this when http://bugs.webkit.org/show_bug.cgi?id=15823 
+    // FIXME: remove this when http://bugs.webkit.org/show_bug.cgi?id=15823
     // is fixed.
 
     var foundProperties = {};

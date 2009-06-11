@@ -157,7 +157,7 @@ TestSuite.prototype.testHostIsPresent = function() {
 TestSuite.prototype.testElementsTreeRoot = function() {
   var domAgent = devtools.tools.getDomAgent();
   var doc = domAgent.getDocument();
-  this.assertEquals('HTML', doc.documentElement.nodeName); 
+  this.assertEquals('HTML', doc.documentElement.nodeName);
   this.assertTrue(doc.documentElement.hasChildNodes());
 };
 

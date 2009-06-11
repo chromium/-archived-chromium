@@ -16,12 +16,12 @@ goog.provide('devtools.InspectorController');
  * Creates inspector controller stub instance.
  * @constructor.
  */
-devtools.InspectorController = function() {  
+devtools.InspectorController = function() {
   /**
    * @type {boolean}
    */
   this.searchingForNode_ = false;
-  
+
   /**
    * @type {boolean}
    */
@@ -71,8 +71,8 @@ devtools.InspectorController.prototype.isWindowVisible = function() {
 /**
  * @return {string} Platform identifier.
  */
-devtools.InspectorController.prototype.platform = function() { 
-  return 'windows'; 
+devtools.InspectorController.prototype.platform = function() {
+  return 'windows';
 };
 
 
@@ -219,7 +219,7 @@ devtools.InspectorController.prototype.loaded = function() {
  * @return {string} Url of the i18n-ed strings map.
  */
 devtools.InspectorController.prototype.localizedStringsURL = function() {
-  return undefined; 
+  return undefined;
 };
 
 
@@ -242,7 +242,7 @@ devtools.InspectorController.prototype.hiddenPanels = function() {
 /**
  * @return {boolean} True iff debugger is enabled.
  */
-devtools.InspectorController.prototype.debuggerEnabled = function() { 
+devtools.InspectorController.prototype.debuggerEnabled = function() {
   return this.debuggerEnabled_;
 };
 
@@ -268,7 +268,7 @@ devtools.InspectorController.prototype.disableResourceTracking = function() {
 /**
  * @return {boolean} True iff resource tracking is enabled.
  */
-devtools.InspectorController.prototype.resourceTrackingEnabled = function() { 
+devtools.InspectorController.prototype.resourceTrackingEnabled = function() {
   return this.resourceTrackingEnabled_;
 };
 
@@ -321,7 +321,7 @@ devtools.InspectorController.prototype.pauseInDebugger = function() {
  * @return {boolean} True iff the debugger will pause execution on the
  * exceptions.
  */
-devtools.InspectorController.prototype.pauseOnExceptions = function() { 
+devtools.InspectorController.prototype.pauseOnExceptions = function() {
   // Does nothing in stub.
   return false;
 };
@@ -346,8 +346,8 @@ devtools.InspectorController.prototype.resumeDebugger = function() {
 /**
  * @return {boolean} True iff profiler is enabled.
  */
-devtools.InspectorController.prototype.profilerEnabled = function() { 
-  return true; 
+devtools.InspectorController.prototype.profilerEnabled = function() {
+  return true;
 };
 
 
@@ -393,8 +393,8 @@ devtools.InspectorController.prototype.stopProfiling = function() {
 /**
  * @return {Array.<Object>} Profile snapshots array.
  */
-devtools.InspectorController.prototype.profiles = function() { 
-  return []; 
+devtools.InspectorController.prototype.profiles = function() {
+  return [];
 };
 
 

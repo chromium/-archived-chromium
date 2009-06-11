@@ -4,12 +4,12 @@ Copyright (c) 2009 The Chromium Authors. All rights reserved.
 This is the Chromium version of the WebInspector. This html file serves
 as a deployment descriptor and specifies which js libraries to include into the
 app. Once the "main" frontend method that is building WebInspector
-from the js building blocks is extracted, we will be able have different 
-implementations of it for Chromium and WebKit. That would allow us for 
-example not to create WebKit Database tab and remove corresponding js files 
+from the js building blocks is extracted, we will be able have different
+implementations of it for Chromium and WebKit. That would allow us for
+example not to create WebKit Database tab and remove corresponding js files
 from here. Longer term we would like to employ closure + basic js compilation.
-That way js libraries would know their dependencies and js compiler would be 
-able to compile them into a single file. After that this HTML file will 
+That way js libraries would know their dependencies and js compiler would be
+able to compile them into a single file. After that this HTML file will
 include single <script src='fe-compiled.js'> and will become upstreamable.
 
 Copyright (C) 2006, 2007, 2008 Apple Inc.  All rights reserved.
@@ -19,13 +19,13 @@ modification, are permitted provided that the following conditions
 are met:
 
 1.  Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer. 
+    notice, this list of conditions and the following disclaimer.
 2.  Redistributions in binary form must reproduce the above copyright
     notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution. 
+    documentation and/or other materials provided with the distribution.
 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
     its contributors may be used to endorse or promote products derived
-    from this software without specific prior written permission. 
+    from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
 EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -100,9 +100,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <script type="text/javascript" src="DatabaseQueryView.js"></script>
     <script type="text/javascript" src="ScriptView.js"></script>
     <script type="text/javascript" src="ProfileView.js"></script>
-    <script type="text/javascript" src="ProfileDataGridTree.js"></script>    
-    <script type="text/javascript" src="BottomUpProfileDataGridTree.js"></script>    
-    <script type="text/javascript" src="TopDownProfileDataGridTree.js"></script>    
+    <script type="text/javascript" src="ProfileDataGridTree.js"></script>
+    <script type="text/javascript" src="BottomUpProfileDataGridTree.js"></script>
+    <script type="text/javascript" src="TopDownProfileDataGridTree.js"></script>
     <script type="text/javascript" src="devtools.js"></script>
     <script type="text/javascript" src="devtools_host_stub.js"></script>
     <script type="text/javascript" src="tests.js"></script>

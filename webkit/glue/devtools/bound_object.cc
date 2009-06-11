@@ -55,7 +55,7 @@ void BoundObject::Build() {
   v8::Local<v8::Function> constructor = host_template_->GetFunction();
   bound_object_ = v8::Persistent<v8::Object>::New(
       SafeAllocation::NewInstance(constructor));
-  
+
   v8::Handle<v8::Object> global = context_->Global();
   global->Set(v8::String::New(object_name_), bound_object_);
 }

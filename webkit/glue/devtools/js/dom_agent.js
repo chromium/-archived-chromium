@@ -179,8 +179,8 @@ devtools.DomNode.prototype.renumber_ = function() {
   }
   this.firstChild = this.children[0];
   for (var i = 0; i < this.childNodesCount_; ++i) {
-    var child = this.children[i]; 
-    child.nextSibling = i + 1 < this.childNodesCount_ ? 
+    var child = this.children[i];
+    child.nextSibling = i + 1 < this.childNodesCount_ ?
         this.children[i + 1] : null;
     child.prevSibling = i - 1 >= 0 ? this.children[i - 1] : null;
     child.parentNode = this;
@@ -223,13 +223,13 @@ devtools.DomNode.prototype.setAttribute = function(name, value) {
  * @param {string} name Attribute name to set value for.
  * @param {string} value Attribute value to set.
  */
-devtools.DomNode.prototype.addAttribute_ = function(name, value) {  
+devtools.DomNode.prototype.addAttribute_ = function(name, value) {
   var attr = {
     'name': name,
     'value': value,
     node_: this
   };
-    
+
   this.attributesMap_[name] = attr;
   this.attributes.push(attr);
 };
@@ -345,7 +345,7 @@ devtools.DomDocument = function(domAgent, defaultView) {
       0,   // id
       9,   // type = Node.DOCUMENT_NODE,
       '',  // nodeName
-      '',  // nodeValue 
+      '',  // nodeValue
       [],  // attributes
       0,   // childNodeCount
     ]);
@@ -627,7 +627,7 @@ devtools.DomAgent.prototype.setTextNodeValueAsync = function(node, text,
  * @param {boolean} success True iff operation has completed successfully.
  * @private
  */
-devtools.DomAgent.prototype.didApplyDomChange_ = function(node, 
+devtools.DomAgent.prototype.didApplyDomChange_ = function(node,
     callback, success) {
   if (!success) {
    return;
@@ -804,7 +804,7 @@ devtools.DomAgent.prototype.performSearchCallback_ = function(callback,
 
   if (this.searchResults_ !== searchResults)
     return; // another search has requested and this results are obsolete
-  
+
   var nodes = [];
 
   for (var i = 0; i < nodeIds.length; ++i) {
