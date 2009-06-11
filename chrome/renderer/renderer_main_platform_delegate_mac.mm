@@ -5,6 +5,7 @@
 #include "chrome/renderer/renderer_main_platform_delegate.h"
 
 #include "base/debug_util.h"
+#include "base/message_loop.h"
 
 #import <Foundation/Foundation.h>
 #import <ApplicationServices/ApplicationServices.h>
@@ -75,6 +76,32 @@ void SandboxWarmup() {
   }
 }
 
+namespace {
+
+// Since we use Cocoa in the renderer process <http://crbug.com/13890>, the
+// windowserver believes we are a UI process and sends events to us. If we do
+// not process them (or at least remove them from the queue), the windowserver
+// will mark us as "not responding" and will start doing bad things like run
+// spindump on us (see <http://crbug.com/11319>). This function just keeps the
+// event queue empty. TODO(avi):Once Cocoa is gone from the renderer, remove
+// this code <http://crbug.com/13893>.
+void PullAccumulatedWindowserverEvents() {
+  base::ScopedNSAutoreleasePool scoped_pool;
+
+  while ([[NSApplication sharedApplication]
+      nextEventMatchingMask:NSAnyEventMask
+                  untilDate:nil
+                     inMode:NSDefaultRunLoopMode
+                    dequeue:YES]) {
+    // just drop all pending events on the floor
+  }
+
+  MessageLoop::current()->PostDelayedTask(FROM_HERE,
+      NewRunnableFunction(PullAccumulatedWindowserverEvents), 1000);
+}
+
+}  // namepsace
+
 // TODO(mac-port): Any code needed to initialize a process for
 // purposes of running a renderer needs to also be reflected in
 // chrome_dll_main.cc for --single-process support.
@@ -84,29 +111,22 @@ void RendererMainPlatformDelegate::PlatformInitialize() {
 
   // Warmup APIs before turning on the Sandbox.
   SandboxWarmup();
-#if 0
 
-  // Note: by default, Cocoa is NOT thread safe.  Use of NSThreads
-  // tells Cocoa to be MT-aware and create and use locks.  The
-  // renderer process only uses Cocoa from the single renderer thread,
-  // so we don't need to tell Cocoa we are using threads (even though,
-  // oddly, we are using Cocoa from the non-main thread.)
-  // The current limit of renderer processes is 20.  Brett states that
-  // (despite comments to the contrary) when two tabs are using the
-  // same renderer, we do NOT create a 2nd renderer thread in that
-  // process.  Thus, we don't need to MT-aware Cocoa.
-  // (Code and comments left here in case that changes.)
   if (![NSThread isMultiThreaded]) {
     NSString *string = @"";
     [NSThread detachNewThreadSelector:@selector(length)
                              toTarget:string
                            withObject:nil];
   }
-#endif
 
   // Initialize Cocoa.  Without this call, drawing of native UI
   // elements (e.g. buttons) in WebKit will explode.
   [NSApplication sharedApplication];
+
+  // Start up the windowserver event pumping. (See comment on
+  // PullAccumulatedWindowserverEvents above.)
+  MessageLoop::current()->PostDelayedTask(FROM_HERE,
+      NewRunnableFunction(PullAccumulatedWindowserverEvents), 1000);
 }
 
 void RendererMainPlatformDelegate::PlatformUninitialize() {
