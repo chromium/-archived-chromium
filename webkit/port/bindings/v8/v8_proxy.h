@@ -485,6 +485,9 @@ class V8Proxy {
     return v8::Local<v8::Context>::New(m_context);
   }
 
+  bool SetContextDebugId(int id);
+  static int GetContextDebugId(v8::Handle<v8::Context> context);
+
   // Registers an extension to be available on webpages with a particular scheme
   // If the scheme argument is empty, the extension is available on all pages.
   // Will only affect v8 contexts initialized after this call. Takes ownership
@@ -496,6 +499,9 @@ class V8Proxy {
                                 v8::Handle<v8::Value> object);
 
  private:
+  static const char* kContextDebugDataType;
+  static const char* kContextDebugDataValue;
+
   v8::Persistent<v8::Context> createNewContext(v8::Handle<v8::Object> global);
   void InitContextIfNeeded();
   void DisconnectEventListeners();

@@ -179,17 +179,25 @@ void DebuggerAgentManager::OnV8DebugMessage(const v8::Debug::Message& message) {
   }
 
   v8::Handle<v8::Context> context = message.GetEventContext();
-  // If the context is from one of the inpected tabs it must have host_id in
-  // the data field. See DebuggerAgentManager::SetHostId for more details.
-  if (context.IsEmpty() || !context->GetData()->IsInt32()) {
+  // If the context is from one of the inpected tabs it should have its context
+  // data.
+  if (context.IsEmpty()) {
     // Unknown context, skip the event.
     return;
   }
-  int host_id = context->GetData()->Int32Value();
-  DebuggerAgentImpl* agent = DebuggerAgentForHostId(host_id);
-  if (agent) {
-    agent->DebuggerOutput(out);
-  } else if (!message.WillStartRunning()) {
+
+  // If the context is from one of the inpected tabs or injected extension
+  // scripts it must have host_id in the data field.
+  int host_id = WebCore::V8Proxy::GetContextDebugId(context);
+  if (host_id != -1) {
+    DebuggerAgentImpl* agent = DebuggerAgentForHostId(host_id);
+    if (agent) {
+      agent->DebuggerOutput(out);
+      return;
+    }
+  }
+
+  if (!message.WillStartRunning()) {
     // Autocontinue execution on break and exception  events if there is no
     // handler.
     SendContinueCommandToV8();
@@ -211,16 +219,11 @@ void DebuggerAgentManager::SetMessageLoopDispatchHandler(
 
 // static
 void DebuggerAgentManager::SetHostId(WebFrameImpl* webframe, int host_id) {
+  DCHECK(host_id > 0);
   WebCore::V8Proxy* proxy = WebCore::V8Proxy::retrieve(webframe->frame());
-  if (!proxy || !proxy->ContextInitialized()) {
-    return;
+  if (proxy) {
+    proxy->SetContextDebugId(host_id);
   }
-  v8::HandleScope scope;
-  v8::Handle<v8::Context> context = proxy->GetContext();
-  if (context.IsEmpty() || !context->GetData()->IsUndefined()) {
-    return;
-  }
-  context->SetData(v8::Integer::New(host_id));
 }
 
 // static

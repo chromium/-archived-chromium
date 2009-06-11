@@ -57,6 +57,9 @@ v8::Persistent<v8::Context> V8Proxy::m_utilityContext;
 // Static list of registered extensions
 V8ExtensionList V8Proxy::m_extensions;
 
+// static
+const char* V8Proxy::kContextDebugDataType = "type";
+const char* V8Proxy::kContextDebugDataValue = "value";
 
 #ifndef NDEBUG
 // Keeps track of global handles created (not JS wrappers
@@ -1012,6 +1015,21 @@ void V8Proxy::evaluateInNewContext(const Vector<ScriptSourceCode>& sources)
     v8::Persistent<v8::Context> context =
         createNewContext(v8::Handle<v8::Object>());
     v8::Context::Scope context_scope(context);
+
+    // Setup context id for JS debugger.
+    v8::Handle<v8::Object> context_data = v8::Object::New();
+    v8::Handle<v8::Value> window_context_data = windowContext->GetData();
+    if (window_context_data->IsObject()) {
+      v8::Handle<v8::String> property_name =
+          v8::String::New(kContextDebugDataValue);
+      context_data->Set(
+          property_name,
+          v8::Object::Cast(*window_context_data)->Get(property_name));
+    }
+    context_data->Set(v8::String::New(kContextDebugDataType),
+                      v8::String::New("injected"));
+    context->SetData(context_data);
+
     v8::Handle<v8::Object> global = context->Global();
 
     v8::Handle<v8::String> implicitProtoString = v8::String::New("__proto__");
@@ -3408,6 +3426,36 @@ void V8Proxy::RegisterExtension(v8::Extension* extension,
     v8::RegisterExtension(extension);
     V8ExtensionInfo info = {schemeRestriction, extension};
     m_extensions.push_back(info);
+}
+
+bool V8Proxy::SetContextDebugId(int debug_id) {
+  ASSERT(debug_id > 0);
+  if (m_context.IsEmpty()) {
+    return false;
+  }
+  v8::HandleScope scope;
+  if (!m_context->GetData()->IsUndefined()) {
+    return false;
+  }
+
+  v8::Handle<v8::Object> context_data = v8::Object::New();
+  context_data->Set(v8::String::New(kContextDebugDataType),
+                    v8::String::New("page"));
+  context_data->Set(v8::String::New(kContextDebugDataValue),
+                    v8::Integer::New(debug_id));
+  m_context->SetData(context_data);
+  return true;
+}
+
+// static
+int V8Proxy::GetContextDebugId(v8::Handle<v8::Context> context) {
+  v8::HandleScope scope;
+  if (!context->GetData()->IsObject()) {
+    return -1;
+  }
+  v8::Handle<v8::Value> data = context->GetData()->ToObject()->Get(
+      v8::String::New(kContextDebugDataValue));
+  return data->IsInt32() ? data->Int32Value() : -1;
 }
 
 }  // namespace WebCore

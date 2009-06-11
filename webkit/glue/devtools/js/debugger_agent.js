@@ -589,7 +589,7 @@ devtools.DebuggerAgent.prototype.isScriptFromInspectedContext_ = function(
   if (this.contextId_ === null) {
     return true;
   }
-  return (scriptContextId == this.contextId_);
+  return (scriptContextId.value == this.contextId_);
 };
 
 
