@@ -128,13 +128,11 @@ TEST_F(StartupTest, Perf) {
   RunStartupTest("warm", "t", false /* not cold */, true /* important */);
 }
 
-#if defined(OS_WIN) || defined(OS_LINUX)
 // TODO(port): We need a mac reference build checked in for this.
 TEST_F(StartupReferenceTest, Perf) {
   RunStartupTest("warm", "t_ref", false /* not cold */,
                  true /* important */);
 }
-#endif
 
 // TODO(mpcomplete): Should we have reference timings for all these?
 
