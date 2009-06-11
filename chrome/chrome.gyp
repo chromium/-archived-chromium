@@ -3818,6 +3818,7 @@
             'chrome_dll_version',
             'chrome_resources',
             'installer/installer.gyp:installer_util_strings',
+            'theme_dll',
             'worker',
             '../net/net.gyp:net_resources',
             '../third_party/tcmalloc/tcmalloc.gyp:tcmalloc',
