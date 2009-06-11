@@ -1,0 +1,28 @@
+;;
+;; Copyright (c) 2009 The Chromium Authors. All rights reserved.
+;; Use of this source code is governed by a BSD-style license that can be
+;; found in the LICENSE file.
+;;
+(version 1)
+(deny default)
+
+; Needed for full-page-zoomed checkboxes etc -- http://crbug.com/11325
+(allow sysctl-read)
+
+
+; Each line is marked with the System version that needs it.
+; This profile is tested with the following system versions:
+;     10.5.6, 10.6 seed release
+
+; Allow following symlinks
+(allow file-read-metadata)  ; 10.5.6
+; Allow reading files out of /System/Library
+(allow file-read-data (regex #"^/System/Library"))  ; 10.5.6
+
+; Needed for Fonts
+(allow mach-lookup (global-name "com.apple.FontObjectsServer"))  ; 10.5.6
+(allow mach-lookup (global-name "com.apple.FontServer"))  ; 10.6 seed release
+(allow file-read-data (regex #"^/Library/Fonts"))  ; 10.6 seed release
+
+; Needed for IPC on 10.6
+(allow ipc-posix-shm)

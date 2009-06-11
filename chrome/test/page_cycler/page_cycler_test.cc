@@ -264,13 +264,11 @@ TEST_F(PageCyclerTest, MozFile) {
   RunTest("moz", false);
 }
 
-// TODO(port): Enable PageCyclerReferenceTest when reference build is
-// available for non-windows
-#if !defined(OS_MACOSX)
 TEST_F(PageCyclerReferenceTest, MozFile) {
   RunTest("moz", false);
 }
 
+#if !defined(OS_MACOSX)
 // TODO(nirnimesh): Intl1File, Intl2File, Intl1Http, Intl2Http crash Chromium
 // on Mac. Revisit later.
 TEST_F(PageCyclerTest, Intl1File) {
@@ -294,32 +292,28 @@ TEST_F(PageCyclerTest, DomFile) {
   RunTest("dom", false);
 }
 
-#if !defined(OS_MACOSX)
 TEST_F(PageCyclerReferenceTest, DomFile) {
   RunTest("dom", false);
 }
-#endif
 
 TEST_F(PageCyclerTest, DhtmlFile) {
   RunTest("dhtml", false);
 }
 
-#if !defined(OS_MACOSX)
 TEST_F(PageCyclerReferenceTest, DhtmlFile) {
   RunTest("dhtml", false);
 }
-#endif
 
 // http (localhost) tests
 TEST_F(PageCyclerTest, MozHttp) {
   RunTest("moz", true);
 }
 
-#if !defined(OS_MACOSX)
 TEST_F(PageCyclerReferenceTest, MozHttp) {
   RunTest("moz", true);
 }
 
+#if !defined(OS_MACOSX)
 TEST_F(PageCyclerTest, Intl1Http) {
   RunTest("intl1", true);
 }
@@ -341,20 +335,16 @@ TEST_F(PageCyclerTest, DomHttp) {
   RunTest("dom", true);
 }
 
-#if !defined(OS_MACOSX)
 TEST_F(PageCyclerReferenceTest, DomHttp) {
   RunTest("dom", true);
 }
-#endif
 
 TEST_F(PageCyclerTest, BloatHttp) {
   RunTest("bloat", true);
 }
 
-#if !defined(OS_MACOSX)
 TEST_F(PageCyclerReferenceTest, BloatHttp) {
   RunTest("bloat", true);
 }
-#endif
 
 }  // namespace
