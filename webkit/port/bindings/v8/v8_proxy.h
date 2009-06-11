@@ -7,7 +7,6 @@
 
 #include <v8.h>
 #include "v8_index.h"
-#include "v8_custom.h"
 #include "v8_utility.h"
 #include "ChromiumBridge.h"
 #include "Node.h"
@@ -15,6 +14,7 @@
 #include "PlatformString.h"  // for WebCore::String
 #include "ScriptSourceCode.h"  // for WebCore::ScriptSourceCode
 #include "SecurityOrigin.h"  // for WebCore::SecurityOrigin
+#include "V8CustomBinding.h"
 #include "V8DOMMap.h"
 #include "V8EventListenerList.h"
 #include <wtf/Assertions.h>

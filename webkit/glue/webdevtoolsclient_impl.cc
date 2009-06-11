@@ -19,7 +19,7 @@
 #undef LOG
 
 #include "V8Binding.h"
-#include "v8_custom.h"
+#include "V8CustomBinding.h"
 #include "v8_proxy.h"
 #include "v8_utility.h"
 #include "base/string_util.h"

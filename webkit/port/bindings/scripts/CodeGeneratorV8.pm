@@ -1095,7 +1095,7 @@ sub GenerateImplementation
       #   for any event getter/setters anyway.
       if ($attrType eq "EventListener") {
         $attribute->signature->extendedAttributes->{"Custom"} = 1;
-        $implIncludes{"v8_custom.h"} = 1;
+        $implIncludes{"V8CustomBinding.h"} = 1;
         next;
       }
       
@@ -1104,19 +1104,19 @@ sub GenerateImplementation
       # implementation.
       if ($attribute->signature->extendedAttributes->{"Custom"} ||
           $attribute->signature->extendedAttributes->{"V8Custom"}) {
-        $implIncludes{"v8_custom.h"} = 1;
+        $implIncludes{"V8CustomBinding.h"} = 1;
         next;
       }
 
       # Generate the accessor.
       if ($attribute->signature->extendedAttributes->{"CustomGetter"}) {
-        $implIncludes{"v8_custom.h"} = 1;
+        $implIncludes{"V8CustomBinding.h"} = 1;
       } else {
 	    GenerateNormalAttrGetter($attribute, $dataNode, $classIndex, $implClassName);
       }
       if ($attribute->signature->extendedAttributes->{"CustomSetter"} ||
           $attribute->signature->extendedAttributes->{"V8CustomSetter"}) {
-        $implIncludes{"v8_custom.h"} = 1;
+        $implIncludes{"V8CustomBinding.h"} = 1;
       } elsif ($attribute->signature->extendedAttributes->{"Replaceable"}) {
         $dataNode->extendedAttributes->{"ExtendsDOMGlobalObject"} || die "Replaceable attribute can only be used in interface that defines ExtendsDOMGlobalObject attribute!";
 #        GenerateReplaceableAttrSetter($implClassName);
@@ -1136,7 +1136,7 @@ sub GenerateImplementation
       # TODO(fqian): avoid naming conflict
       if ($function->signature->extendedAttributes->{"Custom"} ||
           $function->signature->extendedAttributes->{"V8Custom"}) {
-        $implIncludes{"v8_custom.h"} = 1;
+        $implIncludes{"V8CustomBinding.h"} = 1;
 
       } else {
         GenerateFunctionCallback($function, $dataNode, $classIndex, $implClassName);

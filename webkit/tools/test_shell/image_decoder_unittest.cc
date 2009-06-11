@@ -46,21 +46,19 @@ std::wstring GetMD5SumPath(const std::wstring& path) {
 
 #ifdef CALCULATE_MD5_SUMS
 void SaveMD5Sum(const std::wstring& path, WebCore::RGBA32Buffer* buffer) {
-  // Create the file to write.
-  ScopedHandle handle(CreateFile(path.c_str(), GENERIC_WRITE, 0,
-                                 NULL, CREATE_ALWAYS,
-                                 FILE_ATTRIBUTE_NORMAL, NULL));
-  ASSERT_TRUE(handle.IsValid());
-
   // Calculate MD5 sum.
   MD5Digest digest;
-  SkAutoLockPixels bmp_lock(buffer->bitmap());
-  MD5Sum(buffer->bitmap().getPixels(),
-         buffer->rect().width() * buffer->rect().height() * sizeof(unsigned),
-         &digest);
+  scoped_ptr<NativeImageSkia> image_data(buffer->asNewNativeImage());
+  {
+    SkAutoLockPixels bmp_lock(*image_data);
+    MD5Sum(image_data->getPixels(),
+           image_data->width() * image_data->height() * sizeof(uint32_t),
+           &digest);
+  }
 
   // Write sum to disk.
-  int bytes_written = file_util::WriteFile(path, &digest, sizeof digest);
+  int bytes_written = file_util::WriteFile(path,
+      reinterpret_cast<const char*>(&digest), sizeof digest);
   ASSERT_EQ(sizeof digest, bytes_written);
 }
 #else
@@ -77,9 +75,13 @@ void VerifyImage(WebCore::ImageDecoder* decoder,
 
   // Calculate MD5 sum.
   MD5Digest actual_digest;
-  SkAutoLockPixels bmp_lock(image_buffer->bitmap());
-  MD5Sum(image_buffer->bitmap().getPixels(), image_buffer->rect().width() *
-      image_buffer->rect().height() * sizeof(unsigned), &actual_digest);
+  scoped_ptr<NativeImageSkia> image_data(image_buffer->asNewNativeImage());
+  {
+    SkAutoLockPixels bmp_lock(*image_data);
+    MD5Sum(image_data->getPixels(),
+           image_data->width() * image_data->height() * sizeof(uint32_t),
+           &actual_digest);
+  }
 
   // Read the MD5 sum off disk.
   std::string file_bytes;

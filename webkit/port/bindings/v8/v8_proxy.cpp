@@ -38,7 +38,6 @@
 #include "v8_proxy.h"
 #include "v8_index.h"
 #include "v8_binding.h"
-#include "v8_custom.h"
 #include "V8Collection.h"
 #include "V8DOMWindow.h"
 
@@ -47,6 +46,7 @@
 #include "DOMObjectsInclude.h"
 #include "DocumentLoader.h"
 #include "ScriptController.h"
+#include "V8CustomBinding.h"
 #include "V8DOMMap.h"
 
 namespace WebCore {

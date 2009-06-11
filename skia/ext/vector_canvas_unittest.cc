@@ -81,7 +81,9 @@ class Image {
     EXPECT_TRUE(compressed.size());
     WebCore::PNGImageDecoder decoder;
     decoder.setData(WebCore::SharedBuffer::adoptVector(compressed).get(), true);
-    SetSkBitmap(decoder.frameBufferAtIndex(0)->bitmap());
+    scoped_ptr<NativeImageSkia> image_data(
+        decoder.frameBufferAtIndex(0)->asNewNativeImage());
+    SetSkBitmap(*image_data);
   }
 
   // Loads the image from a canvas.
@@ -325,7 +327,9 @@ void LoadPngFileToSkBitmap(const std::wstring& filename,
   EXPECT_TRUE(compressed.size());
   WebCore::PNGImageDecoder decoder;
   decoder.setData(WebCore::SharedBuffer::adoptVector(compressed).get(), true);
-  *bitmap = decoder.frameBufferAtIndex(0)->bitmap();
+  scoped_ptr<NativeImageSkia> image_data(
+      decoder.frameBufferAtIndex(0)->asNewNativeImage());
+  *bitmap = *image_data;
   EXPECT_EQ(is_opaque, bitmap->isOpaque());
   Premultiply(*bitmap);
 }
