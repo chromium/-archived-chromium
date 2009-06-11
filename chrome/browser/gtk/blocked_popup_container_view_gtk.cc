@@ -4,6 +4,8 @@
 
 #include "chrome/browser/gtk/blocked_popup_container_view_gtk.h"
 
+#include "app/gfx/canvas.h"
+#include "app/gfx/path.h"
 #include "app/l10n_util.h"
 #include "base/gfx/gtk_util.h"
 #include "base/string_util.h"
@@ -15,22 +17,41 @@
 #include "chrome/common/gtk_util.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
+#include "skia/ext/skia_utils.h"
 
 namespace {
-
-// Inner padding between the border and the text label.
-const int kInternalTopBottomPadding = 1;
-const int kInternalLeftRightPadding = 2;
+// The minimal border around the edge of the notification.
+const int kSmallPadding = 2;
 
 // Size of the border painted in kBorderColor
 const int kBorderPadding = 1;
 
 // Color of the border.
-const GdkColor kFrameBorderColor = GDK_COLOR_RGB(190, 205, 223);
+const SkColor kBorderColor = SkColorSetRGB(190, 205, 223);
 
-// TODO(erg): The windows signal has a gradient on the background. I don't know
-// how to do that so we just fill with the bottom color.
-const GdkColor kBackgroundColorBottom = GDK_COLOR_RGB(219, 235, 255);
+// Color of the gradient in the background.
+const SkColor kBackgroundColorTop = SkColorSetRGB(246, 250, 255);
+const SkColor kBackgroundColorBottom = SkColorSetRGB(219, 235, 255);
+
+// Rounded corner radius (in pixels).
+const int kBackgroundCornerRadius = 4;
+
+// Rounded corner definition so the top corners are rounded, and the bottom are
+// normal 90 degree angles.
+const SkScalar kRoundedCornerRad[8] = {
+  // Top left corner
+  SkIntToScalar(kBackgroundCornerRadius),
+  SkIntToScalar(kBackgroundCornerRadius),
+  // Top right corner
+  SkIntToScalar(kBackgroundCornerRadius),
+  SkIntToScalar(kBackgroundCornerRadius),
+  // Bottom right corner
+  0,
+  0,
+  // Bottom left corner
+  0,
+  0
+};
 
 }  // namespace
 
@@ -132,18 +153,17 @@ void BlockedPopupContainerViewGtk::Init() {
                    G_CALLBACK(OnMenuButtonClicked), this);
 
   GtkWidget* hbox = gtk_hbox_new(FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(hbox), menu_button_, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(hbox), menu_button_, FALSE, FALSE, kSmallPadding);
   gtk_util::CenterWidgetInHBox(hbox, close_button_->widget(), true, 0);
   g_signal_connect(close_button_->widget(), "clicked",
                    G_CALLBACK(OnCloseButtonClicked), this);
 
-  GtkWidget* padding = gtk_util::CreateGtkBorderBin(
-      hbox, &kBackgroundColorBottom,
-      kInternalTopBottomPadding, kInternalTopBottomPadding,
-      kInternalLeftRightPadding, kInternalLeftRightPadding);
-
-  container_.Own(gtk_util::CreateGtkBorderBin(padding, &kFrameBorderColor,
-      kBorderPadding, kBorderPadding, kBorderPadding, kBorderPadding));
+  container_.Own(gtk_util::CreateGtkBorderBin(hbox, NULL,
+      kSmallPadding, kSmallPadding, kSmallPadding, kSmallPadding));
+  // Manually paint the event box.
+  gtk_widget_set_app_paintable(container_.get(), TRUE);
+  g_signal_connect(container_.get(), "expose-event",
+                   G_CALLBACK(OnContainerExpose), this);
 
   ContainingView()->AttachBlockedPopupView(this);
 }
@@ -184,3 +204,32 @@ void BlockedPopupContainerViewGtk::OnCloseButtonClicked(
   container->model_->CloseAll();
 }
 
+gboolean BlockedPopupContainerViewGtk::OnContainerExpose(
+    GtkWidget* widget, GdkEventExpose* event) {
+  // TODO(erg): When evanm comes through the code, adding gtk theme support,
+  // what's here needs to go in a if block and the else should just paint the
+  // normal theme background with a border around the outsides.
+  int width = widget->allocation.width;
+  int height = widget->allocation.height;
+
+  SkRect rect;
+  rect.set(0, 0, SkIntToScalar(width), SkIntToScalar(height));
+
+  gfx::CanvasPaint canvas(event);
+  SkPaint paint;
+  paint.setShader(skia::CreateGradientShader(
+      0, height, kBackgroundColorTop, kBackgroundColorBottom))->safeUnref();
+  paint.setStyle(SkPaint::kFill_Style);
+  canvas.drawRect(rect, paint);
+
+  // Draw the border
+  SkPaint border_paint;
+  border_paint.setFlags(SkPaint::kAntiAlias_Flag);
+  border_paint.setStyle(SkPaint::kStroke_Style);
+  border_paint.setColor(kBorderColor);
+  SkPath border_path;
+  border_path.addRoundRect(rect, kRoundedCornerRad, SkPath::kCW_Direction);
+  canvas.drawPath(border_path, border_paint);
+
+  return FALSE;  // Allow subwidgets to paint.
+}

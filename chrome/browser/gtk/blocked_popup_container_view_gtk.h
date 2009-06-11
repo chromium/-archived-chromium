@@ -80,6 +80,9 @@ class BlockedPopupContainerViewGtk : public BlockedPopupContainerView,
   static void OnCloseButtonClicked(GtkButton *button,
                                    BlockedPopupContainerViewGtk* container);
 
+  // Draws |container_| with a custom background.
+  static gboolean OnContainerExpose(GtkWidget* widget, GdkEventExpose* event);
+
   // Our model; calling the shots.
   BlockedPopupContainer* model_;
 
