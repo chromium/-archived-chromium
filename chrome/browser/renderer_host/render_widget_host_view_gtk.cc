@@ -145,7 +145,10 @@ class RenderWidgetHostViewGtkWidget {
     // Whenever we lose focus, set the cursor back to that of our parent window,
     // which should be the default arrow.
     gdk_window_set_cursor(widget->window, NULL);
-    host_view->GetRenderWidgetHost()->Blur();
+    // If we are showing a context menu, maintain the illusion that webkit has
+    // focus.
+    if (!host_view->is_showing_context_menu_)
+      host_view->GetRenderWidgetHost()->Blur();
     return FALSE;
   }
 
@@ -220,11 +223,12 @@ RenderWidgetHostView* RenderWidgetHostView::CreateViewForWidget(
 
 RenderWidgetHostViewGtk::RenderWidgetHostViewGtk(RenderWidgetHost* widget_host)
     : host_(widget_host),
+      about_to_validate_and_paint_(false),
+      is_hidden_(false),
+      is_loading_(false),
+      is_showing_context_menu_(false),
       parent_host_view_(NULL),
       parent_(NULL),
-      about_to_validate_and_paint_(false),
-      is_loading_(false),
-      is_hidden_(false),
       is_popup_first_mouse_release_(true) {
   host_->set_view(this);
 }
@@ -453,6 +457,14 @@ BackingStore* RenderWidgetHostViewGtk::AllocBackingStore(
 void RenderWidgetHostViewGtk::PasteFromSelectionClipboard() {
   GtkClipboard* x_clipboard = gtk_clipboard_get(GDK_SELECTION_PRIMARY);
   gtk_clipboard_request_text(x_clipboard, ReceivedSelectionText, this);
+}
+
+void RenderWidgetHostViewGtk::ShowingContextMenu(bool showing) {
+  is_showing_context_menu_ = showing;
+  // Note that GTK_WIDGET_HAS_FOCUS differs gtom gtk_widget_is_focus() in that
+  // the latter doesn't care whether the toplevel has focus.
+  if (!showing && !GTK_WIDGET_HAS_FOCUS(view_.get()))
+    GetRenderWidgetHost()->Blur();
 }
 
 void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {

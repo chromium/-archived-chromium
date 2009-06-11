@@ -59,6 +59,7 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   void SetTooltipText(const std::wstring& tooltip_text);
   void SelectionChanged(const std::string& text);
   void PasteFromSelectionClipboard();
+  void ShowingContextMenu(bool showing);
   BackingStore* AllocBackingStore(const gfx::Size& size);
   // ---------------------------------------------------------------------------
 
@@ -82,12 +83,7 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   RenderWidgetHost *const host_;
   // The native UI widget.
   OwnedWidgetGtk view_;
-  // Variables used only for popups --------------------------------------------
-  // Our parent widget.
-  RenderWidgetHostView* parent_host_view_;
-  // The native view of our parent, equivalent to
-  // parent_host_view_->GetNativeView().
-  GtkWidget* parent_;
+
   // This is true when we are currently painting and thus should handle extra
   // paint requests by expanding the invalid rect rather than actually
   // painting.
@@ -95,15 +91,23 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   // This is the rectangle which we'll paint.
   gfx::Rect invalid_rect_;
 
-  // Whether we are currently loading.
-  bool is_loading_;
-
-  // The cursor for the page. This is passed up from the renderer.
-  WebCursor current_cursor_;
-
   // Whether or not this widget is hidden.
   bool is_hidden_;
 
+  // Whether we are currently loading.
+  bool is_loading_;
+  // The cursor for the page. This is passed up from the renderer.
+  WebCursor current_cursor_;
+
+  // Whether we are showing a context menu.
+  bool is_showing_context_menu_;
+
+  // Variables used only for popups --------------------------------------------
+  // Our parent widget.
+  RenderWidgetHostView* parent_host_view_;
+  // The native view of our parent, equivalent to
+  // parent_host_view_->GetNativeView().
+  GtkWidget* parent_;
   // We ignore the first mouse release on popups.  This allows the popup to
   // stay open.
   bool is_popup_first_mouse_release_;

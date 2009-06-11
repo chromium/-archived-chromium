@@ -136,6 +136,10 @@ class RenderWidgetHostView {
   // back to the renderer asynchronously.
   virtual void PasteFromSelectionClipboard() { }
 
+  // Tells the View whether the context menu is showing. This is used on Linux
+  // to suppress updates to webkit focus for the duration of the show.
+  virtual void ShowingContextMenu(bool showing) { }
+
   // Allocate a backing store for this view
   virtual BackingStore* AllocBackingStore(const gfx::Size& size) = 0;
 

@@ -14,6 +14,7 @@
 #include "chrome/browser/tab_contents/render_view_context_menu.h"
 
 class ContextMenuParams;
+class RenderWidgetHostView;
 
 // TODO(port): we need accelerator support for this class.
 class RenderViewContextMenuGtk : public RenderViewContextMenu,
@@ -21,7 +22,8 @@ class RenderViewContextMenuGtk : public RenderViewContextMenu,
  public:
   RenderViewContextMenuGtk(TabContents* web_contents,
                            const ContextMenuParams& params,
-                           uint32_t triggering_event_time);
+                           uint32_t triggering_event_time,
+                           RenderWidgetHostView* rwhv);
 
   ~RenderViewContextMenuGtk();
 
@@ -33,6 +35,7 @@ class RenderViewContextMenuGtk : public RenderViewContextMenu,
   virtual bool IsItemChecked(int id) const;
   virtual void ExecuteCommand(int id);
   virtual std::string GetLabel(int id) const;
+  virtual void StoppedShowing();
 
  protected:
   // RenderViewContextMenu implementation --------------------------------------
@@ -55,6 +58,7 @@ class RenderViewContextMenuGtk : public RenderViewContextMenu,
   std::vector<MenuCreateMaterial> submenu_;
   bool making_submenu_;
   uint32_t triggering_event_time_;
+  RenderWidgetHostView* host_view_;
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_CONTEXT_MENU_GTK_H_

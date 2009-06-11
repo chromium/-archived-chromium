@@ -7,15 +7,19 @@
 #include <gtk/gtk.h>
 
 #include "base/string_util.h"
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "webkit/glue/context_menu.h"
 
 RenderViewContextMenuGtk::RenderViewContextMenuGtk(
     TabContents* web_contents,
     const ContextMenuParams& params,
-    guint32 triggering_event_time)
+    guint32 triggering_event_time,
+    RenderWidgetHostView* rwhv)
     : RenderViewContextMenu(web_contents, params),
       making_submenu_(false),
-      triggering_event_time_(triggering_event_time) {
+      triggering_event_time_(triggering_event_time),
+      host_view_(rwhv) {
   InitMenu(params.node);
   DoneMakingMenu(&menu_);
   gtk_menu_.reset(new MenuGtk(this, menu_.data(), NULL));
@@ -25,6 +29,7 @@ RenderViewContextMenuGtk::~RenderViewContextMenuGtk() {
 }
 
 void RenderViewContextMenuGtk::Popup() {
+  host_view_->ShowingContextMenu(true);
   gtk_menu_->PopupAsContext(triggering_event_time_);
 }
 
@@ -47,6 +52,10 @@ std::string RenderViewContextMenuGtk::GetLabel(int id) const {
     return label->second;
 
   return std::string();
+}
+
+void RenderViewContextMenuGtk::StoppedShowing() {
+  host_view_->ShowingContextMenu(false);
 }
 
 void RenderViewContextMenuGtk::AppendMenuItem(int id) {
