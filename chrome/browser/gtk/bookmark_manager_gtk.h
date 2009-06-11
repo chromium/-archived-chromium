@@ -29,28 +29,27 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
   // BookmarkModelObserver implementation.
   virtual void Loaded(BookmarkModel* model);
   virtual void BookmarkModelBeingDeleted(BookmarkModel* model);
-  // TODO(estade): Implement these.
   virtual void BookmarkNodeMoved(BookmarkModel* model,
                                  BookmarkNode* old_parent,
                                  int old_index,
                                  BookmarkNode* new_parent,
-                                 int new_index) {}
+                                 int new_index);
   virtual void BookmarkNodeAdded(BookmarkModel* model,
                                  BookmarkNode* parent,
-                                 int index) {}
+                                 int index);
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
                                    BookmarkNode* parent,
-                                   int index) {}
+                                   int index);
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
                                    BookmarkNode* parent,
                                    int old_index,
-                                   BookmarkNode* node) {}
+                                   BookmarkNode* node);
   virtual void BookmarkNodeChanged(BookmarkModel* model,
-                                   BookmarkNode* node) {}
+                                   BookmarkNode* node);
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                             BookmarkNode* node) {}
+                                             BookmarkNode* node);
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node) {}
+                                         BookmarkNode* node);
 
  private:
   explicit BookmarkManagerGtk(Profile* profile);
@@ -64,7 +63,7 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
   // This one should only be called once (when the bookmark model is loaded).
   void BuildLeftStore();
   // This one clears the old right pane and refills it with the contents of
-  // whatever folder is selected on the left.
+  // whatever folder is selected on the left. It can be called multiple times.
   void BuildRightStore();
 
   // Get the node from |model| at |iter|.
@@ -93,31 +92,41 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
   void SuppressUpdatesToRightStore();
   void AllowUpdatesToRightStore();
 
+  // Tries to find the node with id |target_id|. If found, returns true and set
+  // |iter| to point to the entry.
+  bool RecursiveFind(GtkTreeModel* model, GtkTreeIter* iter, int target_id);
+
   static void OnLeftSelectionChanged(GtkTreeSelection* selection,
                                      BookmarkManagerGtk* bookmark_manager);
 
   static void OnRightSelectionChanged(GtkTreeSelection* selection,
                                       BookmarkManagerGtk* bookmark_manager);
 
-  static void OnTreeViewDragGet(GtkWidget* tree_view, GdkDragContext* context,
-                                GtkSelectionData* selection_data,
-                                guint target_type, guint time,
-                                BookmarkManagerGtk* bookmark_manager);
-
-  static void OnTreeViewDragReceived(
+  static void OnLeftTreeViewDragReceived(
       GtkWidget* tree_view, GdkDragContext* context, gint x, gint y,
       GtkSelectionData* selection_data, guint target_type, guint time,
       BookmarkManagerGtk* bookmark_manager);
 
-  static void OnTreeViewDragBegin(GtkWidget* tree_view,
+  static gboolean OnLeftTreeViewDragMotion(GtkWidget* tree_view,
+      GdkDragContext* context, gint x, gint y, guint time,
+      BookmarkManagerGtk* bookmark_manager);
+
+
+  static void OnRightTreeViewDragGet(GtkWidget* tree_view, GdkDragContext* context,
+                                GtkSelectionData* selection_data,
+                                guint target_type, guint time,
+                                BookmarkManagerGtk* bookmark_manager);
+
+  static void OnRightTreeViewDragReceived(
+      GtkWidget* tree_view, GdkDragContext* context, gint x, gint y,
+      GtkSelectionData* selection_data, guint target_type, guint time,
+      BookmarkManagerGtk* bookmark_manager);
+
+  static void OnRightTreeViewDragBegin(GtkWidget* tree_view,
                                   GdkDragContext* drag_context,
                                   BookmarkManagerGtk* bookmark_manager);
 
-  static void OnTreeViewDragEnd(GtkWidget* tree_view,
-                                GdkDragContext* drag_context,
-                                BookmarkManagerGtk* bookmark_manager);
-
-  static gboolean OnTreeViewDragMotion(GtkWidget* tree_view,
+  static gboolean OnRightTreeViewDragMotion(GtkWidget* tree_view,
       GdkDragContext* context, gint x, gint y, guint time,
       BookmarkManagerGtk* bookmark_manager);
 

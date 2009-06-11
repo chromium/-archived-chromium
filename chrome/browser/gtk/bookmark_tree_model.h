@@ -27,7 +27,7 @@ enum FolderTreeStoreColumns {
 // Make a tree store that has two columns: name and id.
 GtkTreeStore* MakeFolderTreeStore();
 
-// Copies the tree of folders rooted at |node| into a GtkTreeStore. We
+// Copies the folders in the model's root node into a GtkTreeStore. We
 // want the user to be able to modify the tree of folders, but to be able to
 // click Cancel and discard their modifications. |selected_id| is the
 // node->id() of the BookmarkNode that should selected on
@@ -38,6 +38,12 @@ GtkTreeStore* MakeFolderTreeStore();
 // to include bookmarks in the tree, or to only show folders.
 void AddToTreeStore(BookmarkModel* model, int selected_id,
                     GtkTreeStore* store, GtkTreeIter* selected_iter);
+
+// As above, but inserts just the tree rooted at |node| as a child of |parent|.
+// If |parent| is NULL, add it at the top level.
+void AddToTreeStoreAt(BookmarkNode* node, int selected_id,
+                      GtkTreeStore* store, GtkTreeIter* selected_iter,
+                      GtkTreeIter* parent);
 
 // Commits changes to a GtkTreeStore built from BuildTreeStoreFrom() back
 // into the BookmarkModel it was generated from.  Returns the BookmarkNode that

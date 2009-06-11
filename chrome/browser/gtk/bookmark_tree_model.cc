@@ -13,35 +13,17 @@
 
 namespace {
 
-// Helper function for BuildTreeStoreFrom() which recursively inserts data from
-// a BookmarkNode tree into a GtkTreeStore.
-void RecursiveInsert(BookmarkNode* node, int selected_id,
-                     GtkTreeStore* store, GtkTreeIter* selected_iter,
-                     GtkTreeIter* parent) {
-  GtkTreeIter iter;
-
-  for (int i = 0; i < node->GetChildCount(); ++i) {
-    BookmarkNode* child = node->GetChild(i);
-    if (child->is_folder()) {
-      gtk_tree_store_append(store, &iter, parent);
-      // TODO(estade): we should show the folder open when it's expanded.
-      gtk_tree_store_set(store, &iter,
-                         bookmark_utils::FOLDER_ICON,
-                         bookmark_utils::GetFolderIcon(),
-                         bookmark_utils::FOLDER_NAME,
-                         WideToUTF8(child->GetTitle()).c_str(),
-                         bookmark_utils::ITEM_ID, child->id(),
-                         -1);
-      if (selected_id && child->id() == selected_id) {
-        // Save the iterator. Since we're using a GtkTreeStore, we're
-        // guaranteed that the iterator will remain valid as long as the above
-        // appended item exists.
-        *selected_iter = iter;
-      }
-
-      RecursiveInsert(child, selected_id, store, selected_iter, &iter);
-    }
-  }
+void AddSingleNodeToTreeStore(GtkTreeStore* store, BookmarkNode* node,
+                              GtkTreeIter *iter, GtkTreeIter* parent) {
+  gtk_tree_store_append(store, iter, parent);
+  // TODO(estade): we should show the folder open icon when it's expanded.
+  gtk_tree_store_set(store, iter,
+                     bookmark_utils::FOLDER_ICON,
+                     bookmark_utils::GetFolderIcon(),
+                     bookmark_utils::FOLDER_NAME,
+                     WideToUTF8(node->GetTitle()).c_str(),
+                     bookmark_utils::ITEM_ID, node->id(),
+                     -1);
 }
 
 // Helper function for CommitTreeStoreDifferencesBetween() which recursively
@@ -97,7 +79,32 @@ GtkTreeStore* MakeFolderTreeStore() {
 
 void AddToTreeStore(BookmarkModel* model, int selected_id,
                     GtkTreeStore* store, GtkTreeIter* selected_iter) {
-  RecursiveInsert(model->root_node(), selected_id, store, selected_iter, NULL);
+  BookmarkNode* root_node = model->root_node();
+  for (int i = 0; i < root_node->GetChildCount(); ++i) {
+    AddToTreeStoreAt(root_node->GetChild(i), selected_id, store,
+                     selected_iter, NULL);
+  }
+}
+
+void AddToTreeStoreAt(BookmarkNode* node, int selected_id,
+                      GtkTreeStore* store, GtkTreeIter* selected_iter,
+                      GtkTreeIter* parent) {
+  if (!node->is_folder())
+    return;
+
+  GtkTreeIter iter;
+  AddSingleNodeToTreeStore(store, node, &iter, parent);
+  if (selected_iter && node->id() == selected_id) {
+     // Save the iterator. Since we're using a GtkTreeStore, we're
+     // guaranteed that the iterator will remain valid as long as the above
+     // appended item exists.
+     *selected_iter = iter;
+  }
+
+  for (int i = 0; i < node->GetChildCount(); ++i) {
+    AddToTreeStoreAt(node->GetChild(i), selected_id, store,
+                     selected_iter, &iter);
+  }
 }
 
 BookmarkNode* CommitTreeStoreDifferencesBetween(
