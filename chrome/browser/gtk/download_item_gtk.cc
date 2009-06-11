@@ -250,9 +250,8 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
   gtk_box_pack_start(GTK_BOX(shelf_hbox), hbox_.get(), FALSE, FALSE, 0);
   // Insert as the leftmost item.
   gtk_box_reorder_child(GTK_BOX(shelf_hbox), hbox_.get(), 1);
-
-  resize_handler_id_ = g_signal_connect(G_OBJECT(shelf_hbox), "size-allocate",
-                                        G_CALLBACK(OnShelfResized), this);
+  g_signal_connect(G_OBJECT(shelf_hbox), "size-allocate",
+                   G_CALLBACK(OnShelfResized), this);
 
   get_download()->AddObserver(this);
 
@@ -346,6 +345,8 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
 DownloadItemGtk::~DownloadItemGtk() {
   StopDownloadProgress();
   get_download()->RemoveObserver(this);
+  g_signal_handlers_disconnect_by_func(parent_shelf_->GetHBox(),
+      reinterpret_cast<gpointer>(OnShelfResized), this);
 
   hbox_.Destroy();
   progress_area_.Destroy();
@@ -365,9 +366,6 @@ void DownloadItemGtk::OnDownloadUpdated(DownloadItem* download) {
 
   switch (download->state()) {
     case DownloadItem::REMOVING:
-      // We disconnect here rather than the d'tor because we don't want to
-      // explicitly disconnect if |parent_shelf_| has been destroyed.
-      g_signal_handler_disconnect(parent_shelf_->GetHBox(), resize_handler_id_);
       parent_shelf_->RemoveDownloadItem(this);  // This will delete us!
       return;
     case DownloadItem::CANCELLED:

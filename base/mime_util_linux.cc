@@ -511,6 +511,16 @@ void InitDefaultThemes() {
   }
   // hicolor needs to be last per icon theme spec.
   default_themes[3] = IconTheme::LoadTheme("hicolor");
+
+  for (size_t i = 0; i < MimeUtilConstants::kDefaultThemeNum; i++) {
+    if (default_themes[i] == NULL)
+      continue;
+    // NULL out duplicate pointers.
+    for (size_t j = i + 1; j < MimeUtilConstants::kDefaultThemeNum; j++) {
+      if (default_themes[j] == default_themes[i])
+        default_themes[j] = NULL;
+    }
+  }
 }
 
 // Try to find an icon with the name |icon_name| that's |size| pixels.

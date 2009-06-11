@@ -154,10 +154,6 @@ class DownloadItemGtk : public DownloadItem::Observer,
   int dangerous_hbox_start_width_;
   int dangerous_hbox_full_width_;
 
-  // The ID of the handler for the parent shelf's "size-allocate" event. We save
-  // it so we can disconnect when we are destroyed.
-  gulong resize_handler_id_;
-
   // The animation when this item is first added to the shelf.
   scoped_ptr<SlideAnimation> new_item_animation_;
 
