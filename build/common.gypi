@@ -287,13 +287,6 @@
               '-ffunction-sections',
             ],
           },
-          # Some utility binaries need to be build with the host's native
-          # config (i.e. no 32-bit override).
-          'Tool': {
-            'cflags!': ['-m32', '-march=pentium4', '-msse2', '-mfpmath=sse'],
-            'ldflags!': ['-m32'],
-            'cflags': [ '-O2' ],
-          },
         },
         'variants': {
           'coverage': {

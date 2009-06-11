@@ -210,6 +210,61 @@
       ],
     }],
     [ 'OS=="linux"', {
+      'conditions': [
+        # Tools needed for archiving official build symbols.
+        ['branding=="Chrome"', {
+          'targets': [
+            {
+              'target_name': 'symupload',
+              'type': 'executable',
+
+              # This uses the system libcurl, so don't use the default 32-bit
+              # compile flags when building on a 64-bit machine.
+              'variables': {
+                'host_arch': '<!(uname -m)',
+              },
+              'conditions': [
+                ['host_arch=="x86_64"', {
+                  'cflags!': ['-m32', '-march=pentium4', '-msse2',
+                              '-mfpmath=sse'],
+                  'ldflags!': ['-m32'],
+                  'cflags': ['-O2'],
+                }],
+              ],
+
+              'sources': [
+                'src/tools/linux/symupload/sym_upload.cc',
+                'src/common/linux/http_upload.cc',
+              ],
+              'include_dirs': [
+                'src',
+              ],
+              'link_settings': {
+                'libraries': [
+                  '-ldl',
+                ],
+              },
+            },
+            {
+              'target_name': 'dump_syms',
+              'type': 'executable',
+
+              'sources': [
+                'linux/dump_syms.cc',
+                'linux/dump_symbols.cc',
+                'linux/dump_symbols.h',
+                'linux/file_id.cc',
+                'linux/file_id.h',
+              ],
+
+              'include_dirs': [
+                'src',
+                '..',
+              ],
+            },
+          ],
+        }],
+      ],
       'targets': [
         {
           'target_name': 'breakpad_client',
@@ -287,43 +342,6 @@
             '..',
           ],
         },
-# This needs libcurl, which means that it cannot be built with the default
-# configuration as we don't have 32-bit libcurl. Uncomment this and use
-# BUILDTYPE=Tool to build with the default host config.
-#       {
-#          'target_name': 'symupload',
-#          'type': 'executable',
-#
-#          'sources': [
-#            'src/tools/linux/symupload/sym_upload.cc',
-#            'src/common/linux/http_upload.cc',
-#          ],
-#          'include_dirs': [
-#            'src',
-#          ],
-#         'link_settings': {
-#            'libraries': [
-#              '-ldl',
-#            ],
-#          },
-#        },
-#        {
-#          'target_name': 'dump_syms',
-#          'type': 'executable',
-#
-#          'sources': [
-#            'linux/dump_syms.cc',
-#            'linux/dump_symbols.cc',
-#            'linux/dump_symbols.h',
-#            'linux/file_id.cc',
-#            'linux/file_id.h',
-#          ],
-#
-#          'include_dirs': [
-#            'src',
-#            '..',
-#          ],
-#        },
       ],
     }],
   ],
