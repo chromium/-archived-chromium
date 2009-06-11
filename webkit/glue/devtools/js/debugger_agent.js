@@ -807,7 +807,7 @@ devtools.DebuggerAgent.propertiesToMap_ = function(properties, map) {
     // parameters is greater the that of formal. In that case the superfluous
     // parameters will be present in the arguments list as elements without
     // names.
-    if (nextValue.name) {
+    if (goog.isDef(nextValue.name)) {
       map[nextValue.name] =
           devtools.DebuggerAgent.formatObjectReference_(nextValue.value);
     }
