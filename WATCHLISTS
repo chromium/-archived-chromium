@@ -1,0 +1,30 @@
+# Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Watchlist Rules
+# Refer: http://dev.chromium.org/developers/contributing-code/watchlists
+
+
+{
+  'WATCHLIST_DEFINITIONS': {
+    'this_file': {
+        'filepath': '^WATCHLISTS$',
+    },
+    'gyp': {
+      'filepath': '\.gyp$',
+    },
+    'valgrind': {
+      'filepath': 'tools/valgrind/.*',
+    },
+    'mac': {
+      'filepath': 'cocoa|\.mm$|(_mac|_posix)\.(cc|h)$',
+    },
+  },
+
+  'WATCHLISTS': {
+    'this_file': ['nirnimesh@chromium.org'],
+    'gyp': ['mark@chromium.org'],
+    'valgrind': ['nirnimesh@chromium.org', 'dank@chromium.org'],
+  },
+}
