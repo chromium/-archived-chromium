@@ -2853,6 +2853,9 @@
         '..',
       ],
       'sources': [
+        'test/automated_ui_tests/automated_ui_test_base.cc',
+        'test/automated_ui_tests/automated_ui_test_base.h',
+        'test/automated_ui_tests/automated_ui_test_test.cc',
         'test/testing_browser_process.h',
         'test/ui/javascript_test_util.cc',
         'test/ui/npapi_test_helper.cc',
@@ -2871,6 +2874,8 @@
         }],
         ['OS!="win"', {
           'sources!': [
+            'test/automated_ui_tests/automated_ui_test_base.cc',
+            'test/automated_ui_tests/automated_ui_test_test.cc',
             'test/ui/javascript_test_util.cc',
             'test/ui/npapi_test_helper.cc',
           ],
@@ -3959,8 +3964,6 @@
           'sources': [
             'test/automated_ui_tests/automated_ui_tests.cc',
             'test/automated_ui_tests/automated_ui_tests.h',
-            'test/automated_ui_tests/automated_ui_test_base.cc',
-            'test/automated_ui_tests/automated_ui_test_base.h',
             'tools/build/win/precompiled_wtl.h',
             'tools/build/win/precompiled_wtl.cc',
           ],
