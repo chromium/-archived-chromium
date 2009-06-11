@@ -58,10 +58,10 @@ def CheckChangeOnCommit(input_api, output_api):
       input_api, output_api, sources))
   # Make sure the tree is 'open'.
   # TODO(maruel): Run it in a separate thread to parallelize checks?
-  results.extend(input_api.canned_checks.CheckTreeIsOpen(
-      input_api, output_api,
-      'http://chromium-status.appspot.com/status', '0'
-  ))
+  results.extend(CheckTreeIsOpen(input_api, output_api,
+                                 'http://chromium-status.appspot.com/status',
+                                 '0',
+                                 'http://chromium-status.appspot.com/current'))
   results.extend(CheckTryJobExecution(input_api, output_api))
   return results
 
@@ -109,3 +109,31 @@ def CheckTryJobExecution(input_api, output_api):
       outputs.append(output_api.PresubmitNotifyResult(
           'Got %s while looking for try job status.' % str(e)))
   return outputs
+
+
+def CheckTreeIsOpen(input_api, output_api, url, closed, url_text):
+  """Similar to the one in presubmit_canned_checks except it shows an helpful
+  status text instead.
+  """
+  assert(input_api.is_committing)
+  try:
+    connection = input_api.urllib2.urlopen(url)
+    status = connection.read()
+    connection.close()
+    if input_api.re.match(closed, status):
+      long_text = status + '\n' + url
+      try:
+        connection = input_api.urllib2.urlopen(url_text)
+        text = connection.read()
+        connection.close()
+        match = input_api.re.search(r"\<div class\=\"Notice\"\>(.*)\<\/div\>",
+                                    text)
+        if match:
+          long_text = match.group(1).strip()
+      except IOError:
+        pass
+      return [output_api.PresubmitPromptWarning("The tree is closed.",
+                                                long_text=long_text)]
+  except IOError:
+    pass
+  return []
