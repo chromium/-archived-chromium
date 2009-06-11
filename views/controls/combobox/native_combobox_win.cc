@@ -152,7 +152,11 @@ bool NativeComboboxWin::ProcessMessage(UINT message,
 }
 
 void NativeComboboxWin::CreateNativeControl() {
-  DWORD flags = WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBS_DROPDOWNLIST;
+  // It's ok to add WS_VSCROLL. The scrollbar will show up only when necessary
+  // as long as we don't use CBS_DISABLENOSCROLL.
+  // See http://msdn.microsoft.com/en-us/library/7h63bxbe(VS.80).aspx
+  DWORD flags = WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
+                CBS_DROPDOWNLIST | WS_VSCROLL;
   HWND control_hwnd = ::CreateWindowEx(GetAdditionalExStyle(), L"COMBOBOX", L"",
                                        flags, 0, 0, 100, 20, //width(), height(),
                                        GetWidget()->GetNativeView(), NULL, NULL,
