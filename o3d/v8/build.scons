@@ -93,20 +93,20 @@ if v8_env.Bit('windows'):
     v8_env['ENV']['USERPROFILE'] = ""
 
   include_path = ";".join(
-    [v8_env.subst("$INCLUDE"),
-     v8_env.subst("$PLATFORM_SDK_VISTA_6_0_DIR/Include")])
+    [v8_env.subst("$PLATFORM_SDK_VISTA_6_0_DIR/Include"),
+     v8_env.subst("$INCLUDE")])
 
   try:
-    v8_env['ENV']['INCLUDE'] += ";" + include_path
+    v8_env['ENV']['INCLUDE'] = include_path + ";" + v8_env['ENV']['INCLUDE']
   except KeyError:
     v8_env['ENV']['INCLUDE'] = include_path
 
   lib_path = ";".join(
-    [v8_env.subst("$LIB"),
-     v8_env.subst("$PLATFORM_SDK_VISTA_6_0_DIR/Lib")])
+    [v8_env.subst("$PLATFORM_SDK_VISTA_6_0_DIR/Lib"),
+     v8_env.subst("$LIB")])
 
   try:
-    v8_env['ENV']['LIB'] += ";" + lib_path
+    v8_env['ENV']['LIB'] =  lib_path  + ";" + v8_env['ENV']['LIB']
   except KeyError:
     v8_env['ENV']['LIB'] = lib_path
 
