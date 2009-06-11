@@ -31,6 +31,7 @@
 #include "webkit/glue/webview.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
+#include "webkit/glue/webmediaplayer_impl.h"
 #include "webkit/glue/window_open_disposition.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_shell.h"
@@ -113,6 +114,12 @@ WebView* TestWebViewDelegate::CreateWebView(WebView* webview,
 WebWidget* TestWebViewDelegate::CreatePopupWidget(WebView* webview,
                                                   bool activatable) {
   return shell_->CreatePopupWidget(webview);
+}
+
+WebKit::WebMediaPlayer* TestWebViewDelegate::CreateWebMediaPlayer(
+    WebKit::WebMediaPlayerClient* client) {
+  return new webkit_glue::WebMediaPlayerImpl(
+      client, new media::FilterFactoryCollection());
 }
 
 WebWorker* TestWebViewDelegate::CreateWebWorker(WebWorkerClient* client) {

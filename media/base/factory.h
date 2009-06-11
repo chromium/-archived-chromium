@@ -156,6 +156,28 @@ class FilterFactoryImpl1 : public FilterFactory {
   DISALLOW_COPY_AND_ASSIGN(FilterFactoryImpl1);
 };
 
+template <class Filter, class A, class B>
+class FilterFactoryImpl2 : public FilterFactory {
+ public:
+  FilterFactoryImpl2(A a, B b) : a_(a), b_(b) {}
+
+ protected:
+  virtual MediaFilter* Create(FilterType filter_type,
+                              const MediaFormat& media_format) {
+    Filter* filter = NULL;
+    if (Filter::filter_type() == filter_type &&
+        Filter::IsMediaFormatSupported(media_format)) {
+      filter = new Filter(a_, b_);
+    }
+    return filter;
+  }
+
+ private:
+  A const a_;
+  B const b_;
+
+  DISALLOW_COPY_AND_ASSIGN(FilterFactoryImpl2);
+};
 
 //------------------------------------------------------------------------------
 

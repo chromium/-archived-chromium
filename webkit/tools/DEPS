@@ -1,5 +1,6 @@
 include_rules = [
   "+chrome/common",
+  "+media",
   "+skia/ext",
 
   # Allow inclusion of WebKit mac headers.

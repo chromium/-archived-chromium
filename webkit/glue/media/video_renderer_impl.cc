@@ -2,9 +2,12 @@
 // source code is governed by a BSD-style license that can be found in the
 // LICENSE file.
 
-#include "chrome/renderer/media/video_renderer_impl.h"
 #include "media/base/buffers.h"
 #include "media/base/yuv_convert.h"
+#include "webkit/glue/media/video_renderer_impl.h"
+#include "webkit/glue/webmediaplayer_impl.h"
+
+namespace webkit_glue {
 
 VideoRendererImpl::VideoRendererImpl(WebMediaPlayerImpl* delegate)
     : delegate_(delegate),
@@ -44,7 +47,8 @@ bool VideoRendererImpl::OnInitialize(media::VideoDecoder* decoder) {
   return false;
 }
 
-void VideoRendererImpl::SetRect(const gfx::Rect& rect) {}
+void VideoRendererImpl::SetRect(const gfx::Rect& rect) {
+}
 
 void VideoRendererImpl::OnFrameAvailable() {
   delegate_->PostRepaintTask();
@@ -267,3 +271,5 @@ void VideoRendererImpl::TransformToSkIRect(const SkMatrix& matrix,
     matrix.mapRect(&transformed_rect, skia_dest_rect);
     transformed_rect.round(dest_rect);
 }
+
+}  // namespace webkit_glue

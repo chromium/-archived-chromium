@@ -11,18 +11,21 @@
 //   Paint()
 //   SetRect()
 
-#ifndef CHROME_RENDERER_MEDIA_VIDEO_RENDERER_IMPL_H_
-#define CHROME_RENDERER_MEDIA_VIDEO_RENDERER_IMPL_H_
+#ifndef WEBKIT_GLUE_MEDIA_VIDEO_RENDERER_IMPL_H_
+#define WEBKIT_GLUE_MEDIA_VIDEO_RENDERER_IMPL_H_
 
 #include "base/gfx/platform_canvas.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
-#include "chrome/renderer/webmediaplayer_impl.h"
 #include "media/base/buffers.h"
 #include "media/base/factory.h"
 #include "media/base/filters.h"
 #include "media/filters/video_thread.h"
 #include "webkit/api/public/WebMediaPlayer.h"
+
+namespace webkit_glue {
+
+class WebMediaPlayerImpl;
 
 class VideoRendererImpl : public media::VideoThread {
  public:
@@ -105,4 +108,6 @@ class VideoRendererImpl : public media::VideoThread {
   DISALLOW_COPY_AND_ASSIGN(VideoRendererImpl);
 };
 
-#endif  // CHROME_RENDERER_MEDIA_VIDEO_RENDERER_IMPL_H_
+}  // namespace webkit_glue
+
+#endif  // WEBKIT_GLUE_MEDIA_VIDEO_RENDERER_IMPL_H_

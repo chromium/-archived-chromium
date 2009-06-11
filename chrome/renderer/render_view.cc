@@ -38,12 +38,12 @@
 #include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/localized_error.h"
 #include "chrome/renderer/media/audio_renderer_impl.h"
+#include "chrome/renderer/media/buffered_data_source.h"
 #include "chrome/renderer/print_web_view_helper.h"
 #include "chrome/renderer/render_process.h"
 #include "chrome/renderer/renderer_logging.h"
 #include "chrome/renderer/user_script_slave.h"
 #include "chrome/renderer/visitedlink_slave.h"
-#include "chrome/renderer/webmediaplayer_impl.h"
 #include "chrome/renderer/webplugin_delegate_proxy.h"
 #include "chrome/renderer/webworker_proxy.h"
 #include "grit/generated_resources.h"
@@ -72,6 +72,7 @@
 #include "webkit/glue/weberror.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webkit_glue.h"
+#include "webkit/glue/webmediaplayer_impl.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webplugin_delegate.h"
 #include "webkit/glue/webresponse.h"
@@ -1751,7 +1752,20 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
 
 WebKit::WebMediaPlayer* RenderView::CreateWebMediaPlayer(
     WebKit::WebMediaPlayerClient* client) {
-  return new WebMediaPlayerImpl(this, client);
+  scoped_refptr<media::FilterFactoryCollection> factory =
+      new media::FilterFactoryCollection();
+  // Add in any custom filter factories first.
+  const CommandLine* cmd_line = CommandLine::ForCurrentProcess();
+  if (!cmd_line->HasSwitch(switches::kDisableAudio)) {
+    // Add the chrome specific audio renderer.
+    factory->AddFactory(
+        AudioRendererImpl::CreateFactory(audio_message_filter()));
+  }
+  if (!cmd_line->HasSwitch(switches::kSimpleDataSource)) {
+    // Add the chrome specific media data source.
+    factory->AddFactory(BufferedDataSource::CreateFactory(routing_id()));
+  }
+  return new webkit_glue::WebMediaPlayerImpl(client, factory);
 }
 
 void RenderView::OnMissingPluginStatus(WebPluginDelegate* delegate,

@@ -2,24 +2,28 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/message_loop.h"
 #include "base/process_util.h"
-#include "chrome/renderer/media/simple_data_source.h"
-#include "chrome/renderer/render_thread.h"
-#include "chrome/renderer/render_view.h"
 #include "media/base/filter_host.h"
 #include "net/base/load_flags.h"
 #include "net/http/http_response_headers.h"
 #include "net/url_request/url_request_status.h"
+#include "webkit/glue/media/simple_data_source.h"
+#include "webkit/glue/resource_loader_bridge.h"
 #include "webkit/glue/webappcachecontext.h"
 
-SimpleDataSource::SimpleDataSource(int32 routing_id)
+namespace webkit_glue {
+
+SimpleDataSource::SimpleDataSource(MessageLoop* render_loop, int32 routing_id)
     : routing_id_(routing_id),
-      render_loop_(RenderThread::current()->message_loop()),
+      render_loop_(render_loop),
       size_(-1),
       position_(0) {
+  DCHECK(render_loop);
 }
 
-SimpleDataSource::~SimpleDataSource() {}
+SimpleDataSource::~SimpleDataSource() {
+}
 
 void SimpleDataSource::Stop() {}
 
@@ -32,7 +36,7 @@ bool SimpleDataSource::Initialize(const std::string& url) {
   }
 
   // Create our bridge and post a task to start loading the resource.
-  bridge_.reset(RenderThread::current()->resource_dispatcher()->CreateBridge(
+  bridge_.reset(webkit_glue::ResourceLoaderBridge::Create(
       "GET",
       url_,
       url_,
@@ -43,7 +47,6 @@ bool SimpleDataSource::Initialize(const std::string& url) {
       net::LOAD_BYPASS_CACHE,
       base::GetCurrentProcId(),
       ResourceType::MEDIA,
-      0,
       // TODO(michaeln): delegate->mediaplayer->frame->
       //                    app_cache_context()->context_id()
       // For now don't service media resource requests from the appcache.
@@ -139,3 +142,5 @@ void SimpleDataSource::StartTask() {
   DCHECK(MessageLoop::current() == render_loop_);
   bridge_->Start(this);
 }
+
+}  // namespace webkit_glue

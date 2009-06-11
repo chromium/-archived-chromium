@@ -7,9 +7,10 @@
 // Primarily used to test <audio> and <video> with buffering/caching removed
 // from the equation.
 
-#ifndef CHROME_RENDERER_MEDIA_SIMPLE_DATA_SOURCE_H_
-#define CHROME_RENDERER_MEDIA_SIMPLE_DATA_SOURCE_H_
+#ifndef WEBKIT_GLUE_MEDIA_SIMPLE_DATA_SOURCE_H_
+#define WEBKIT_GLUE_MEDIA_SIMPLE_DATA_SOURCE_H_
 
+#include "base/message_loop.h"
 #include "base/scoped_ptr.h"
 #include "media/base/factory.h"
 #include "media/base/filters.h"
@@ -18,12 +19,16 @@
 class MessageLoop;
 class WebMediaPlayerDelegateImpl;
 
-class SimpleDataSource :
-    public media::DataSource,
-    public webkit_glue::ResourceLoaderBridge::Peer {
+namespace webkit_glue {
+
+class SimpleDataSource : public media::DataSource,
+                         public webkit_glue::ResourceLoaderBridge::Peer {
  public:
-  static media::FilterFactory* CreateFactory(int32 routing_id) {
-    return new media::FilterFactoryImpl1<SimpleDataSource, int32>(routing_id);
+  static media::FilterFactory* CreateFactory(MessageLoop* message_loop,
+                                             int32 routing_id) {
+    return new media::FilterFactoryImpl2<SimpleDataSource,
+                                         MessageLoop*,
+                                         int32>(message_loop, routing_id);
   }
 
   // MediaFilter implementation.
@@ -51,8 +56,8 @@ class SimpleDataSource :
   virtual std::string GetURLForDebugging();
 
  private:
-  friend class media::FilterFactoryImpl1<SimpleDataSource, int32>;
-  SimpleDataSource(int32 routing_id);
+  friend class media::FilterFactoryImpl2<SimpleDataSource, MessageLoop*, int32>;
+  SimpleDataSource(MessageLoop* render_loop, int32 routing_id);
   virtual ~SimpleDataSource();
 
   // Updates |url_| and |media_format_| with the given URL.
@@ -79,4 +84,6 @@ class SimpleDataSource :
   DISALLOW_COPY_AND_ASSIGN(SimpleDataSource);
 };
 
-#endif  // CHROME_RENDERER_MEDIA_SIMPLE_DATA_SOURCE_H_
+}  // namespace webkit_glue
+
+#endif  // WEBKIT_GLUE_MEDIA_SIMPLE_DATA_SOURCE_H_

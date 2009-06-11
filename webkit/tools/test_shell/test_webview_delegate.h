@@ -89,6 +89,8 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
     const std::string& mime_type,
     const std::string& clsid,
     std::string* actual_mime_type);
+  virtual WebKit::WebMediaPlayer* CreateWebMediaPlayer(
+      WebKit::WebMediaPlayerClient* client);
   virtual WebKit::WebWorker* CreateWebWorker(WebKit::WebWorkerClient* client);
   virtual void OpenURL(WebView* webview,
                        const GURL& url,

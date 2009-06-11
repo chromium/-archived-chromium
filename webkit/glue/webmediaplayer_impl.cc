@@ -2,15 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/renderer/webmediaplayer_impl.h"
-
 #include "base/command_line.h"
-#include "chrome/common/chrome_switches.h"
-#include "chrome/renderer/media/audio_renderer_impl.h"
-#include "chrome/renderer/media/buffered_data_source.h"
-#include "chrome/renderer/media/simple_data_source.h"
-#include "chrome/renderer/media/video_renderer_impl.h"
-#include "chrome/renderer/render_view.h"
 #include "googleurl/src/gurl.h"
 #include "media/filters/ffmpeg_audio_decoder.h"
 #include "media/filters/ffmpeg_demuxer.h"
@@ -19,9 +11,14 @@
 #include "webkit/api/public/WebRect.h"
 #include "webkit/api/public/WebSize.h"
 #include "webkit/api/public/WebURL.h"
+#include "webkit/glue/media/simple_data_source.h"
+#include "webkit/glue/media/video_renderer_impl.h"
+#include "webkit/glue/webmediaplayer_impl.h"
 
 using WebKit::WebRect;
 using WebKit::WebSize;
+
+namespace webkit_glue {
 
 /////////////////////////////////////////////////////////////////////////////
 // Task to be posted on main thread that fire WebMediaPlayer methods.
@@ -54,36 +51,24 @@ class NotifyWebMediaPlayerTask : public CancelableTask {
 /////////////////////////////////////////////////////////////////////////////
 // WebMediaPlayerImpl implementation
 
-WebMediaPlayerImpl::WebMediaPlayerImpl(RenderView* view,
-                                       WebKit::WebMediaPlayerClient* client)
+WebMediaPlayerImpl::WebMediaPlayerImpl(WebKit::WebMediaPlayerClient* client,
+                                       media::FilterFactoryCollection* factory)
     : network_state_(WebKit::WebMediaPlayer::Empty),
       ready_state_(WebKit::WebMediaPlayer::HaveNothing),
       main_loop_(NULL),
-      filter_factory_(new media::FilterFactoryCollection()),
+      filter_factory_(factory),
       video_renderer_(NULL),
       client_(client),
-      view_(view),
       tasks_(kLastTaskIndex) {
-  // Add in any custom filter factories first.
-  const CommandLine* cmd_line = CommandLine::ForCurrentProcess();
-  if (cmd_line->HasSwitch(switches::kDisableAudio)) {
-    filter_factory_->AddFactory(
-        media::NullAudioRenderer::CreateFilterFactory());
-  }
-  if (cmd_line->HasSwitch(switches::kSimpleDataSource)) {
-    filter_factory_->AddFactory(
-        SimpleDataSource::CreateFactory(view->routing_id()));
-  }
-
   // Add in the default filter factories.
   filter_factory_->AddFactory(media::FFmpegDemuxer::CreateFilterFactory());
   filter_factory_->AddFactory(media::FFmpegAudioDecoder::CreateFactory());
   filter_factory_->AddFactory(media::FFmpegVideoDecoder::CreateFactory());
-  filter_factory_->AddFactory(
-      AudioRendererImpl::CreateFactory(view_->audio_message_filter()));
-  filter_factory_->AddFactory(
-      BufferedDataSource::CreateFactory(view->routing_id()));
+  filter_factory_->AddFactory(media::NullAudioRenderer::CreateFilterFactory());
   filter_factory_->AddFactory(VideoRendererImpl::CreateFactory(this));
+  // TODO(hclam): Provide a valid routing id to simple data source.
+  filter_factory_->AddFactory(
+      SimpleDataSource::CreateFactory(MessageLoop::current(), 0));
 
   DCHECK(client_);
 
@@ -148,6 +133,7 @@ void WebMediaPlayerImpl::seek(float seconds) {
 
   // Try to preserve as much accuracy as possible.
   float microseconds = seconds * base::Time::kMicrosecondsPerSecond;
+  if (seconds != 0)
   pipeline_.Seek(
       base::TimeDelta::FromMicroseconds(static_cast<int64>(microseconds)),
       NewCallback(this, &WebMediaPlayerImpl::OnPipelineSeek));
@@ -358,3 +344,5 @@ void WebMediaPlayerImpl::PostTask(int index,
 void WebMediaPlayerImpl::PostRepaintTask() {
   PostTask(kRepaintTaskIndex, &WebKit::WebMediaPlayerClient::repaint);
 }
+
+}  // namespace webkit_glue

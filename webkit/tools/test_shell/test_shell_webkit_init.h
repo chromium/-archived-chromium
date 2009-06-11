@@ -5,8 +5,10 @@
 #ifndef WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_WEBKIT_INIT_H_
 #define WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_WEBKIT_INIT_H_
 
+#include "base/path_service.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
+#include "media/base/media.h"
 #include "webkit/api/public/WebData.h"
 #include "webkit/api/public/WebKit.h"
 #include "webkit/api/public/WebString.h"
@@ -35,6 +37,13 @@ class TestShellWebKitInit : public webkit_glue::WebKitClientImpl {
     WebKit::registerExtension(extensions_v8::GearsExtension::Get());
     WebKit::registerExtension(extensions_v8::IntervalExtension::Get());
     WebKit::enableWebWorkers();
+
+    // Load libraries for media and enable the media player.
+    FilePath module_path;
+    if (PathService::Get(base::DIR_MODULE, &module_path) &&
+        media::InitializeMediaLibrary(module_path)) {
+      WebKit::enableMediaPlayer();
+    }
   }
 
   ~TestShellWebKitInit() {

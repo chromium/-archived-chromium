@@ -137,7 +137,7 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
     return NULL;
   }
 
-  // Called when a WebMediaPlayerDelegate is needed.
+  // Called when a WebMediaPlayer is needed.
   virtual WebKit::WebMediaPlayer* CreateWebMediaPlayer(
       WebKit::WebMediaPlayerClient* client) {
     return NULL;
