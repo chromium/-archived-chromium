@@ -4,6 +4,7 @@
 
 #include "base/ref_counted.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_list.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/extensions/extension_shelf.h"
 #include "chrome/browser/extensions/extension_host.h"
@@ -15,6 +16,7 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/extensions/extension_error_reporter.h"
+#include "chrome/common/url_constants.h"
 #include "chrome/test/in_process_browser_test.h"
 #include "chrome/test/ui_test_utils.h"
 
@@ -24,8 +26,9 @@ namespace {
 // up.
 const int kAlertTimeoutMs = 20000;
 
-// The extension we're using as our test case.
-const char* kExtensionId = "00123456789abcdef0123456789abcdef0123456";
+// The extensions we're using as our test case.
+const char* kGoodExtension1Id = "00123456789abcdef0123456789abcdef0123456";
+const char* kGoodCrxId        = "00123456789abcdef0123456789abcdef0123456";
 
 };  // namespace
 
@@ -88,8 +91,8 @@ class ExtensionViewTest : public InProcessBrowserTest {
 };
 
 // Tests that ExtensionView starts an extension process and runs the script
-// contained in the extension's "index.html" file.
-IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Index) {
+// contained in the extension's toolstrip.
+IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Toolstrip) {
   // Get the path to our extension.
   FilePath path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &path));
@@ -99,7 +102,7 @@ IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Index) {
 
   // Wait for the extension to load and grab a pointer to it.
   TestExtensionLoader loader(browser()->profile());
-  Extension* extension = loader.Load(kExtensionId, path);
+  Extension* extension = loader.Load(kGoodExtension1Id, path);
   ASSERT_TRUE(extension);
   GURL url = Extension::GetResourceURL(extension->url(), "toolstrip1.html");
 
@@ -129,12 +132,42 @@ IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Shelf) {
 
   // Wait for the extension to load and grab a pointer to it.
   TestExtensionLoader loader(browser()->profile());
-  Extension* extension = loader.Load(kExtensionId, path);
+  Extension* extension = loader.Load(kGoodExtension1Id, path);
   ASSERT_TRUE(extension);
-  GURL url = Extension::GetResourceURL(extension->url(), "toolstrip1.html");
 
   // There should now be two extension views and preferred height of the view
   // should be non-zero.
   EXPECT_EQ(shelf->GetChildViewCount(), 2);
   EXPECT_NE(shelf->GetPreferredSize().height(), 0);
+}
+
+// Tests that installing and uninstalling extensions don't crash with an
+// incognito window open.
+IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Incognito) {
+  // Open an incognito window to the extensions management page.  We just
+  // want to make sure that we don't crash while playing with extensions when
+  // this guy is around.
+  Browser::OpenURLOffTheRecord(browser()->profile(),
+                               GURL(chrome::kChromeUIExtensionsURL));
+
+  // Get the path to our extension.
+  FilePath path;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &path));
+  path = path.AppendASCII("extensions").AppendASCII("good.crx");
+  ASSERT_TRUE(file_util::PathExists(path));  // sanity check
+
+  // Wait for the extension to load and grab a pointer to it.
+  TestExtensionLoader loader(browser()->profile());
+  Extension* extension = loader.Install(kGoodCrxId, path);
+  ASSERT_TRUE(extension);
+
+  // TODO(mpcomplete): wait for uninstall to complete?
+  browser()->profile()->GetExtensionsService()->UninstallExtension(kGoodCrxId);
+
+  // Close our incognito window.
+  Browser* otr_browser = BrowserList::FindBrowserWithType(
+      browser()->profile()->GetOffTheRecordProfile(),
+      Browser::TYPE_NORMAL);
+  if (otr_browser)
+    otr_browser->CloseAllTabs();
 }

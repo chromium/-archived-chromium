@@ -41,9 +41,12 @@ bool UtilityProcessHost::StartProcess(const FilePath& exposed_dir) {
   if (!CreateChannel())
     return false;
 
-  std::wstring exe_path;
-  if (!PathService::Get(base::FILE_EXE, &exe_path))
-    return false;
+  std::wstring exe_path = CommandLine::ForCurrentProcess()->GetSwitchValue(
+      switches::kBrowserSubprocessPath);
+  if (exe_path.empty()) {
+    if (!PathService::Get(base::FILE_EXE, &exe_path))
+      return false;
+  }
 
   CommandLine cmd_line(exe_path);
   cmd_line.AppendSwitchWithValue(switches::kProcessType,

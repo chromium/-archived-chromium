@@ -224,7 +224,7 @@ std::vector<ExtensionPage> ExtensionsDOMHandler::GetActivePagesForExtension(
   std::vector<ExtensionPage> result;
 
   ExtensionMessageService* ems = ExtensionMessageService::GetInstance(
-      dom_ui_->GetProfile()->GetRequestContext());
+      dom_ui_->GetProfile()->GetOriginalProfile()->GetRequestContext());
   RenderProcessHost* process_host = ems->GetProcessForExtension(extension_id);
   if (!process_host)
     return result;
@@ -260,7 +260,8 @@ void ExtensionsDOMHandler::Init() {
 }
 
 ExtensionsUI::ExtensionsUI(TabContents* contents) : DOMUI(contents) {
-  ExtensionsService *exstension_service = GetProfile()->GetExtensionsService();
+  ExtensionsService *exstension_service =
+      GetProfile()->GetOriginalProfile()->GetExtensionsService();
 
   ExtensionsDOMHandler* handler = new ExtensionsDOMHandler(this,
       exstension_service);

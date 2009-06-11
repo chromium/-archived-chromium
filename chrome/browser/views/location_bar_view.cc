@@ -601,6 +601,8 @@ void LocationBarView::DeletePageActionViews() {
 
 std::vector<PageAction*> LocationBarView::GetPageActions() {
   std::vector<PageAction*> result;
+  if (!profile_->GetExtensionsService())
+    return result;
 
   // Query the extension system to see how many page actions we have.
   // TODO(finnur): Sort the page icons in some meaningful way.

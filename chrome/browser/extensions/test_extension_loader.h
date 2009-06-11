@@ -17,7 +17,13 @@ class TestExtensionLoader : public NotificationObserver {
  public:
   explicit TestExtensionLoader(Profile* profile);
 
+  // Tells the extension service to load the extension at the given path.  It
+  // waits for the extension with the expected ID to load, then returns a
+  // handle to it.
   Extension* Load(const char* extension_id, const FilePath& path);
+
+  // Same as above, but installs from a CRX first.
+  Extension* Install(const char* extension_id, const FilePath& path);
 
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,

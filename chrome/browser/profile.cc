@@ -120,8 +120,6 @@ class OffTheRecordProfileImpl : public Profile,
     request_context_ = ChromeURLRequestContext::CreateOffTheRecord(this);
     request_context_->AddRef();
 
-    extension_process_manager_.reset(new ExtensionProcessManager(this));
-
     // Register for browser close notifications so we can detect when the last
     // off-the-record window is closed, in which case we can clean our states
     // (cookies, downloads...).
@@ -160,7 +158,7 @@ class OffTheRecordProfileImpl : public Profile,
   }
 
   virtual ExtensionsService* GetExtensionsService() {
-    return profile_->GetExtensionsService();
+    return NULL;
   }
 
   virtual UserScriptMaster* GetUserScriptMaster() {
@@ -168,7 +166,7 @@ class OffTheRecordProfileImpl : public Profile,
   }
 
   virtual ExtensionProcessManager* GetExtensionProcessManager() {
-    return extension_process_manager_.get();
+    return NULL;
   }
 
   virtual SSLHostState* GetSSLHostState() {
@@ -400,9 +398,6 @@ class OffTheRecordProfileImpl : public Profile,
 
   // The ForceTLSState that only stores enabled sites in memory.
   scoped_ptr<net::ForceTLSState> force_tls_state_;
-
-  // Extensions run in a different context in incognito mode.
-  scoped_ptr<ExtensionProcessManager> extension_process_manager_;
 
   // Time we were started.
   Time start_time_;

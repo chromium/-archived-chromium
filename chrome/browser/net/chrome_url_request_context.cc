@@ -294,10 +294,12 @@ ChromeURLRequestContext::ChromeURLRequestContext(Profile* profile)
   prefs_->AddPrefObserver(prefs::kAcceptLanguages, this);
   prefs_->AddPrefObserver(prefs::kCookieBehavior, this);
 
-  registrar_.Add(this, NotificationType::EXTENSIONS_LOADED,
-                 NotificationService::AllSources());
-  registrar_.Add(this, NotificationType::EXTENSION_UNLOADED,
-                 NotificationService::AllSources());
+  if (!is_off_the_record_) {
+    registrar_.Add(this, NotificationType::EXTENSIONS_LOADED,
+                   NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::EXTENSION_UNLOADED,
+                   NotificationService::AllSources());
+  }
 }
 
 // NotificationObserver implementation.

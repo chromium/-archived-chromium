@@ -1228,8 +1228,8 @@ void DownloadManager::OpenDownload(const DownloadItem* download,
 }
 
 void DownloadManager::OpenChromeExtension(const FilePath& full_path) {
-  ExtensionsService* extensions_service = profile_->GetExtensionsService();
-  extensions_service->InstallExtension(full_path);
+  profile_->GetOriginalProfile()->GetExtensionsService()->
+      InstallExtension(full_path);
 }
 
 void DownloadManager::OpenDownloadInShell(const DownloadItem* download,

@@ -107,6 +107,9 @@ void ExtensionShelfModel::Observe(NotificationType type,
 void ExtensionShelfModel::AddExtensions(const ExtensionList* extensions) {
   ExtensionProcessManager* manager =
       browser_->profile()->GetExtensionProcessManager();
+  if (!manager)
+    return;
+
   for (ExtensionList::const_iterator extension = extensions->begin();
        extension != extensions->end(); ++extension) {
     for (std::vector<std::string>::const_iterator toolstrip_path =

@@ -15,6 +15,7 @@ namespace {
 
 // How long to wait for the extension to load before giving up.
 const int kLoadTimeoutMs = 5000;
+const int kInstallTimeoutMs = 10000;
 
 }  // namespace
 
@@ -25,7 +26,8 @@ TestExtensionLoader::TestExtensionLoader(Profile* profile)
       NotificationService::AllSources());
 
   profile_->GetExtensionsService()->Init();
-  DCHECK(profile_->GetExtensionsService()->extensions()->empty()); 
+  profile_->GetExtensionsService()->set_show_extensions_prompts(false);
+  DCHECK(profile_->GetExtensionsService()->extensions()->empty());
 }
 
 Extension* TestExtensionLoader::Load(const char* extension_id,
@@ -40,6 +42,23 @@ Extension* TestExtensionLoader::Load(const char* extension_id,
   extension_ = NULL;
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
       new MessageLoop::QuitTask, kLoadTimeoutMs);
+  ui_test_utils::RunMessageLoop();
+
+  return extension_;
+}
+
+Extension* TestExtensionLoader::Install(const char* extension_id,
+                                        const FilePath& path) {
+  loading_extension_id_ = extension_id;
+
+  // Install the extension.  When installed, the extension will automatically
+  // be loaded.
+  profile_->GetExtensionsService()->InstallExtension(path);
+
+  // Wait for the load to complete.
+  extension_ = NULL;
+  MessageLoop::current()->PostDelayedTask(FROM_HERE,
+      new MessageLoop::QuitTask, kInstallTimeoutMs);
   ui_test_utils::RunMessageLoop();
 
   return extension_;
