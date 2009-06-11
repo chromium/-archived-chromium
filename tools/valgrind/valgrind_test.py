@@ -195,7 +195,7 @@ class ValgrindLinux(Valgrind):
     else:
       # construct the valgrind command
       proc = ["valgrind", "--smc-check=all", "--leak-check=full",
-              "--num-callers=30"]
+              "--num-callers=50"]
 
       if self._options.show_all_leaks:
         proc += ["--show-reachable=yes"];
