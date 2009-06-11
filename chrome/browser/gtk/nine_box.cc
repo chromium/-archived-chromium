@@ -73,6 +73,16 @@ void NineBox::RenderToWidget(GtkWidget* dst) const {
   int dst_width = dst->allocation.width;
   int dst_height = dst->allocation.height;
 
+  // The upper-left and lower-right corners of the center square in the
+  // rendering of the ninebox.
+  int x1 = gdk_pixbuf_get_width(images_[0]);
+  int y1 = gdk_pixbuf_get_height(images_[0]);
+  int x2 = images_[2] ? dst_width - gdk_pixbuf_get_width(images_[2]) : x1;
+  int y2 = images_[6] ? dst_height - gdk_pixbuf_get_height(images_[6]) : y1;
+  // Paint nothing if there's not enough room.
+  if (x2 < x1 || y2 < y1)
+    return;
+
   cairo_t* cr = gdk_cairo_create(GDK_DRAWABLE(dst->window));
   // For widgets that have their own window, the allocation (x,y) coordinates
   // are GdkWindow relative. For other widgets, the coordinates are relative
@@ -81,15 +91,6 @@ void NineBox::RenderToWidget(GtkWidget* dst) const {
     // Transform our cairo from window to widget coordinates.
     cairo_translate(cr, dst->allocation.x, dst->allocation.y);
   }
-
-  // The upper-left and lower-right corners of the center square in the
-  // rendering of the ninebox.
-  int x1 = gdk_pixbuf_get_width(images_[0]);
-  int y1 = gdk_pixbuf_get_height(images_[0]);
-  int x2 = images_[2] ? dst_width - gdk_pixbuf_get_width(images_[2]) : x1;
-  int y2 = images_[6] ? dst_height - gdk_pixbuf_get_height(images_[6]) : y1;
-  DCHECK_GE(x2, x1);
-  DCHECK_GE(y2, y1);
 
   // Top row, center image is horizontally tiled.
   if (images_[0])

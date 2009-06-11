@@ -42,10 +42,7 @@ const int kTextWidth = 140;
 // The minimum width we will ever draw the download item. Used as a lower bound
 // during animation. This number comes from the width of the images used to
 // make the download item.
-const int kMinDownloadItemWidth = 13 + download_util::kSmallProgressIconSize;
-
-// As above, but for the dangerous download prompt.
-const int kMinDangerousDownloadWidth = 16;
+const int kMinDownloadItemWidth = download_util::kSmallProgressIconSize;
 
 const char* kLabelColorMarkup = "<span color='#%s'>%s</span>";
 const char* kFilenameColor = "576C95";  // 87, 108, 149
@@ -421,7 +418,6 @@ void DownloadItemGtk::AnimationProgressed(const Animation* animation) {
                      dangerous_hbox_start_width_) *
                      new_item_animation_->GetCurrentValue();
       int showing_width = dangerous_hbox_start_width_ + progress;
-      showing_width = std::max(kMinDangerousDownloadWidth, showing_width);
       gtk_widget_set_size_request(dangerous_hbox_, showing_width, -1);
     } else {
       DCHECK(animation == new_item_animation_.get());
