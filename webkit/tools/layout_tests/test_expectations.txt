@@ -123,8 +123,8 @@ BUG13786 : LayoutTests/fast/dom/javascript-url-crash-function.html = FAIL
 // assigned to Darin.
 BUG13913 : LayoutTests/fast/dom/jsDevicePixelRatio.html = FAIL
 BUG13913 : LayoutTests/fast/events/tabindex-focus-chain.html = FAIL
-BUG13913 : LayoutTests/scrollbars/basic-scrollbar.html = FAIL
-BUG13913 : LayoutTests/fonts/cursive.html = FAIL
+BUG13913 MAC WIN : LayoutTests/scrollbars/basic-scrollbar.html = FAIL
+BUG13913 MAC WIN : LayoutTests/fonts/cursive.html = FAIL
 
 // We don't intend to pass all of these cases, so this is an expected fail.
 // Window resizing is not implemented in chrome.
@@ -1817,7 +1817,6 @@ BUG10435 LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug1647.html 
 BUG10435 MAC : LayoutTests/editing/pasteboard/copy-standalone-image.html = FAIL
 // See above comment about this test on linux/win.
 BUG10435 MAC : LayoutTests/editing/selection/designmode-no-caret.html = FAIL
-BUG10435 DEBUG WIN MAC : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH PASS
 BUG10435 MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT PASS
 BUG10435 DEBUG MAC WIN : LayoutTests/editing/selection/move-by-line-001.html = FAIL PASS
 
