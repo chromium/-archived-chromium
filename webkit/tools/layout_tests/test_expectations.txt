@@ -117,6 +117,7 @@ WONTFIX SKIP : LayoutTests/fast/regex/test1.html = PASS
 
 // Darin will fix soon
 BUG13786  SKIP : LayoutTests/fast/dom/javascript-backslash.html = FAIL
+BUG13786  SKIP : LayoutTests/fast/dom/javascript-url-crash-function.html = FAIL
 
 // We don't intend to pass all of these cases, so this is an expected fail.
 // Window resizing is not implemented in chrome.
