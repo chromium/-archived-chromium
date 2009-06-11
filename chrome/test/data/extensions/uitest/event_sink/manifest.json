@@ -1,6 +1,0 @@
-{
-  "id": "88884444789ABCDEF0123456789ABCDEF0123456",
-  "version": "1.0.0.0",
-  "name": "Browser Event Sink Test Extension",
-  "description": "An extension UITest for testing the sending of browser events."
-}
