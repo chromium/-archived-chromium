@@ -3614,12 +3614,24 @@
           'msvs_guid': '42ECD5EC-722F-41DE-B6B8-83764C8016DF',
           'dependencies': [
             '../base/base.gyp:base',
+            'convert_dict_lib',
             'third_party/hunspell/hunspell.gyp:hunspell',
+          ],
+          'sources': [
+            'tools/convert_dict/convert_dict.cc',
+          ],
+        },
+        {
+          'target_name': 'convert_dict_lib',
+          'product_name': 'convert_dict',
+          'type': 'static_library',
+          'msvs_guid': '1F669F6B-3F4A-4308-E496-EE480BDF0B89',
+          'include_dirs': [
+            '..',
           ],
           'sources': [
             'tools/convert_dict/aff_reader.cc',
             'tools/convert_dict/aff_reader.h',
-            'tools/convert_dict/convert_dict.cc',
             'tools/convert_dict/dic_reader.cc',
             'tools/convert_dict/dic_reader.h',
             'tools/convert_dict/hunspell_reader.cc',
