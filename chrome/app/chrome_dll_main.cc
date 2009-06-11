@@ -201,6 +201,10 @@ static void SetUpGLibLogHandler() {
 }
 #endif  // defined(OS_LINUX)
 
+#if defined(OS_WIN)
+extern "C" int _set_new_mode(int);
+#endif
+
 // Register the invalid param handler and pure call handler to be able to
 // notify breakpad when it happens.
 void RegisterInvalidParamHandler() {
@@ -209,6 +213,8 @@ void RegisterInvalidParamHandler() {
   _set_purecall_handler(PureCall);
   // Gather allocation failure.
   std::set_new_handler(&OnNoMemory);
+  // Also enable the new handler for malloc() based failures.
+  _set_new_mode(1);
 #endif
 }
 
