@@ -129,6 +129,11 @@ void AutocompletePopupModel::SetSelectedLine(size_t line,
   // call us back to get data about the old selection), and we must not call
   // UpdateWindow() before updating |selected_line_| (since the paint routine
   // relies on knowing the correct selected line).
+  //
+  // NOTE: We should never reach here with no selected line; the same code that
+  // opened the popup and made it possible to get here should have also set a
+  // selected line.
+  CHECK(selected_line_ != kNoMatch);
   view_->InvalidateLine(selected_line_);
   selected_line_ = line;
   view_->InvalidateLine(selected_line_);
@@ -308,6 +313,8 @@ void AutocompletePopupModel::Observe(NotificationType type,
     case NotificationType::AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED: {
       selected_line_ = (result->default_match() == result->end()) ?
           kNoMatch : (result->default_match() - result->begin());
+      // There had better not be a nonempty result set with no default match.
+      CHECK((selected_line_ != kNoMatch) || result->empty());
       // If we're going to trim the window size to no longer include the hovered
       // line, turn hover off.  Practically, this shouldn't happen, but it
       // doesn't hurt to be defensive.
