@@ -5,6 +5,7 @@
 #include "base/basictypes.h"
 #include "base/command_line.h"
 #include "base/file_path.h"
+#include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
@@ -56,6 +57,7 @@ class PageCyclerTest : public UITest {
       test_path = test_path.Append(FILE_PATH_LITERAL("page_cycler"));
       test_path = test_path.AppendASCII(name);
       test_path = test_path.Append(FILE_PATH_LITERAL("start.html"));
+      ASSERT_TRUE(file_util::PathExists(test_path)) << "Missing test data";
       test_url = net::FilePathToFileURL(test_path);
     }
 
