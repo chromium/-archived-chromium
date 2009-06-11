@@ -124,6 +124,8 @@ class WindowWin : public WidgetWin,
   virtual void OnNCPaint(HRGN rgn);
   virtual void OnNCLButtonDown(UINT ht_component, const CPoint& point);
   virtual void OnNCRButtonDown(UINT ht_component, const CPoint& point);
+  virtual void OnNCRButtonUp(UINT ht_component, const CPoint& point);
+  virtual void OnRButtonUp(UINT ht_component, const CPoint& point);
   virtual LRESULT OnNCUAHDrawCaption(UINT msg, WPARAM w_param, LPARAM l_param);
   virtual LRESULT OnNCUAHDrawFrame(UINT msg, WPARAM w_param, LPARAM l_param);
   virtual LRESULT OnSetCursor(HWND window, UINT hittest_code, UINT message);
@@ -275,6 +277,10 @@ class WindowWin : public WidgetWin,
   // ShowWindow(SW_RESTORE) make the window visible in addition to restoring it,
   // when all we want to do is restore it.
   int force_hidden_count_;
+
+  // Set to true when the user presses the right mouse button on the caption
+  // area. We need this so we can correctly show the context menu on mouse-up.
+  bool is_right_mouse_pressed_on_caption_;
 
   // The last-seen monitor containing us, and its rect and work area.  These are
   // used to catch updates to the rect and work area and react accordingly.

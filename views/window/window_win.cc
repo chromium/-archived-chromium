@@ -513,6 +513,7 @@ WindowWin::WindowWin(WindowDelegate* window_delegate)
       ignore_window_pos_changes_(false),
       ignore_pos_changes_factory_(this),
       force_hidden_count_(0),
+      is_right_mouse_pressed_on_caption_(false),
       last_monitor_(NULL) {
   is_window_ = true;
   InitClass();
@@ -946,10 +947,43 @@ void WindowWin::OnNCLButtonDown(UINT ht_component, const CPoint& point) {
 }
 
 void WindowWin::OnNCRButtonDown(UINT ht_component, const CPoint& point) {
-  if (ht_component == HTCAPTION || ht_component == HTSYSMENU)
-    RunSystemMenu(gfx::Point(point));
-  else
-    WidgetWin::OnNCRButtonDown(ht_component, point);
+  if (ht_component == HTCAPTION || ht_component == HTSYSMENU) {
+    is_right_mouse_pressed_on_caption_ = true;
+    // Using SetCapture() here matches Windows native behavior for right-clicks
+    // on the title bar. It's not obvious why Windows does this.
+    SetCapture();
+  }
+
+  WidgetWin::OnNCRButtonDown(ht_component, point);
+}
+
+void WindowWin::OnNCRButtonUp(UINT ht_component, const CPoint& point) {
+  if (is_right_mouse_pressed_on_caption_)
+    is_right_mouse_pressed_on_caption_ = false;
+
+  WidgetWin::OnNCRButtonUp(ht_component, point);
+}
+
+void WindowWin::OnRButtonUp(UINT ht_component, const CPoint& point) {
+  // We handle running the system menu on mouseup here because calling
+  // SetCapture() on mousedown makes the mouseup generate WM_RBUTTONUP instead
+  // of WM_NCRBUTTONUP.
+  if (is_right_mouse_pressed_on_caption_) {
+    is_right_mouse_pressed_on_caption_ = false;
+    ReleaseCapture();
+    // |point| is in window coordinates, but WM_NCHITTEST and RunSystemMenu()
+    // expect screen coordinates.
+    CPoint screen_point(point);
+    MapWindowPoints(GetNativeView(), HWND_DESKTOP, &screen_point, 1);
+    ht_component = ::SendMessage(GetNativeView(), WM_NCHITTEST, 0,
+                                 MAKELPARAM(screen_point.x, screen_point.y));
+    if (ht_component == HTCAPTION || ht_component == HTSYSMENU) {
+      RunSystemMenu(gfx::Point(screen_point));
+      return;
+    }
+  }
+
+  WidgetWin::OnRButtonUp(ht_component, point);
 }
 
 LRESULT WindowWin::OnNCUAHDrawCaption(UINT msg, WPARAM w_param,
