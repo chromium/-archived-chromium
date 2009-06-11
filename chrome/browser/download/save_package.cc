@@ -1025,9 +1025,11 @@ void SavePackage::GetSaveInfo() {
   if (can_save_as_complete) {
     file_type_info.extensions.resize(2);
     file_type_info.extensions[0].push_back(FILE_PATH_LITERAL("htm"));
+    file_type_info.extensions[0].push_back(FILE_PATH_LITERAL("html"));
     file_type_info.extension_description_overrides.push_back(
         WideToUTF16(l10n_util::GetString(IDS_SAVE_PAGE_DESC_HTML_ONLY)));
     file_type_info.extensions[1].push_back(FILE_PATH_LITERAL("htm"));
+    file_type_info.extensions[1].push_back(FILE_PATH_LITERAL("html"));
     file_type_info.extension_description_overrides.push_back(
         WideToUTF16(l10n_util::GetString(IDS_SAVE_PAGE_DESC_COMPLETE)));
     file_type_info.include_all_files = false;
