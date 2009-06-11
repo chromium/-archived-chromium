@@ -894,3 +894,16 @@ WebInspector.UIString = function(string) {
     }
   };
 })();
+
+
+// There is no clear way of rendering class name for scope variables yet.
+(function OverrideObjectDescribe() {
+  var oldDescribe = Object.describe;
+  Object.describe = function(obj, abbreviated) {
+    var result = oldDescribe.call(Object, obj, abbreviated);
+    if (result == 'Object' && obj.className) {
+      return obj.className;
+    }
+    return result;
+  };
+})();
