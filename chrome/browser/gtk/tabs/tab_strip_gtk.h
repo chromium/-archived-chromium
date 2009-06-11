@@ -235,6 +235,9 @@ class TabStripGtk : public TabStripModelObserver,
                            double* unselected_width,
                            double* selected_width) const;
 
+  // Returns the x-coordinate tabs start from.
+  int tab_start_x() const;
+
   // Perform an animated resize-relayout of the TabStrip immediately.
   void ResizeLayoutTabs();
 

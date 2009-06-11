@@ -923,7 +923,7 @@ void TabStripGtk::GenerateIdealBounds() {
   // NOTE: This currently assumes a tab's height doesn't differ based on
   // selected state or the number of tabs in the strip!
   int tab_height = TabGtk::GetStandardSize().height();
-  double tab_x = 0;
+  double tab_x = tab_start_x();
   for (int i = 0; i < tab_count; ++i) {
     TabGtk* tab = GetTabAt(i);
     double tab_width = unselected;
@@ -940,6 +940,10 @@ void TabStripGtk::GenerateIdealBounds() {
 
 void TabStripGtk::LayoutNewTabButton(double last_tab_right,
                                      double unselected_width) {
+#if defined(LINUX2)
+  gtk_fixed_move(GTK_FIXED(tabstrip_.get()), newtab_button_->widget(), 0,
+                 kNewTabButtonVOffset);
+#else
   int delta = abs(Round(unselected_width) - TabGtk::GetStandardSize().width());
   if (delta > 1 && !resize_layout_scheduled_) {
     // We're shrinking tabs, so we need to anchor the New Tab button to the
@@ -952,6 +956,7 @@ void TabStripGtk::LayoutNewTabButton(double last_tab_right,
         Round(last_tab_right - kTabHOffset) + kNewTabButtonHOffset,
         kNewTabButtonVOffset);
   }
+#endif
 }
 
 void TabStripGtk::GetDesiredTabWidths(int tab_count,
@@ -1023,6 +1028,14 @@ void TabStripGtk::GetDesiredTabWidths(int tab_count,
           (min_unselected_width * (tab_count - 1)), min_selected_width);
     }
   }
+}
+
+int TabStripGtk::tab_start_x() const {
+#if defined(LINUX2)
+  return newtab_button_->width() + kNewTabButtonHOffset;
+#else
+  return 0;
+#endif
 }
 
 void TabStripGtk::ResizeLayoutTabs() {
@@ -1303,7 +1316,7 @@ void TabStripGtk::DropInfo::SetContainerShapeMask() {
 // - animation tick
 void TabStripGtk::AnimationLayout(double unselected_width) {
   int tab_height = TabGtk::GetStandardSize().height();
-  double tab_x = 0;
+  double tab_x = tab_start_x();
   for (int i = 0; i < GetTabCount(); ++i) {
     TabAnimation* animation = active_animation_.get();
     double tab_width = TabAnimation::GetCurrentTabWidth(this, animation, i);
