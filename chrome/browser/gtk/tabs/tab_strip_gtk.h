@@ -10,6 +10,8 @@
 
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
+#include "base/task.h"
+#include "base/message_loop.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/browser/gtk/tabs/tab_gtk.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
@@ -20,7 +22,8 @@ class DraggedTabControllerGtk;
 
 class TabStripGtk : public TabStripModelObserver,
                     public TabGtk::TabDelegate,
-                    public MenuGtk::Delegate {
+                    public MenuGtk::Delegate,
+                    public MessageLoopForUI::Observer {
  public:
   class TabAnimation;
 
@@ -106,6 +109,10 @@ class TabStripGtk : public TabStripModelObserver,
   virtual void ContinueDrag(GdkDragContext* context);
   virtual bool EndDrag(bool canceled);
   virtual bool HasAvailableDragActions() const;
+
+  // MessageLoop::Observer implementation:
+  virtual void WillProcessEvent(GdkEvent* event);
+  virtual void DidProcessEvent(GdkEvent* event);
 
  private:
   friend class DraggedTabControllerGtk;
@@ -231,6 +238,15 @@ class TabStripGtk : public TabStripModelObserver,
   // Perform an animated resize-relayout of the TabStrip immediately.
   void ResizeLayoutTabs();
 
+  // Returns whether or not the cursor is currently in the "tab strip zone"
+  // which is defined as the region above the TabStrip and a bit below it.
+  bool IsCursorInTabStripZone() const;
+
+  // Ensure that the message loop observer used for event spying is added and
+  // removed appropriately so we can tell when to resize layout the tab strip.
+  void AddMessageLoopObserver();
+  void RemoveMessageLoopObserver();
+
   // Calculates the available width for tabs, assuming a Tab is to be closed.
   int GetAvailableWidthForTabs(TabGtk* last_tab) const;
 
@@ -241,6 +257,10 @@ class TabStripGtk : public TabStripModelObserver,
 
   // Cleans up the tab from the TabStrip at the specified |index|.
   void RemoveTabAt(int index);
+
+  // Called from the message loop observer when a mouse movement has occurred
+  // anywhere over our containing window.
+  void HandleGlobalMouseMoveEvent();
 
   // Generates the ideal bounds of the TabStrip when all Tabs have finished
   // animating to their desired position/bounds. This is used by the standard
@@ -359,6 +379,13 @@ class TabStripGtk : public TabStripModelObserver,
 
   // The context menu.
   scoped_ptr<MenuGtk> context_menu_;
+
+  // A factory that is used to construct a delayed callback to the
+  // ResizeLayoutTabsNow method.
+  ScopedRunnableMethodFactory<TabStripGtk> resize_layout_factory_;
+
+  // True if the tabstrip has already been added as a MessageLoop observer.
+  bool added_as_message_loop_observer_;
 
   DISALLOW_COPY_AND_ASSIGN(TabStripGtk);
 };

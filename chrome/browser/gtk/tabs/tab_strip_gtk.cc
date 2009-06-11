@@ -34,6 +34,14 @@ const int kAnimateToBoundsDurationMs = 150;
 const int kNewTabButtonHOffset = -5;
 const int kNewTabButtonVOffset = 5;
 
+// The delay between when the mouse leaves the tabstrip and the resize animation
+// is started.
+const int kResizeTabsTimeMs = 300;
+
+// The range outside of the tabstrip where the pointer must enter/leave to
+// start/stop the resize animation.
+const int kTabStripAnimationVSlop = 40;
+
 const int kHorizontalMoveThreshold = 16;  // pixels
 
 // The horizontal offset from one tab to the next,
@@ -151,8 +159,6 @@ class TabStripGtk::TabAnimation : public AnimationDelegate {
 
   virtual void AnimationEnded(const Animation* animation) {
     tabstrip_->FinishAnimation(this, layout_on_completion_);
-    // TODO(jhawkins): Remove this once each tab is its own widget.
-    SimulateMouseMotion();
     // This object is destroyed now, so we can't do anything else after this.
   }
 
@@ -203,23 +209,6 @@ class TabStripGtk::TabAnimation : public AnimationDelegate {
   double end_unselected_width_;
 
  private:
-  // When the animation completes, we send the Container a message to simulate
-  // a mouse moved event at the current mouse position. This tickles the Tab
-  // the mouse is currently over to show the "hot" state of the close button, or
-  // resets the hover index if it's now stale.
-  void SimulateMouseMotion() {
-    // Get default display and screen.
-    GdkDisplay* display = gdk_display_get_default();
-    GdkScreen* screen = gdk_display_get_default_screen(display);
-
-    // Get cursor position.
-    int x, y;
-    gdk_display_get_pointer(display, NULL, &x, &y, NULL);
-
-    // Reset cursor position.
-    gdk_display_warp_pointer(display, screen, x, y);
-  }
-
   // True if a complete re-layout is required upon completion of the animation.
   // Subclasses set this if they don't perform a complete layout
   // themselves and canceling the animation may leave the strip in an
@@ -457,7 +446,9 @@ TabStripGtk::TabStripGtk(TabStripModel* model)
       current_selected_width_(TabGtk::GetStandardSize().width()),
       available_width_for_tabs_(-1),
       resize_layout_scheduled_(false),
-      model_(model) {
+      model_(model),
+      resize_layout_factory_(this),
+      added_as_message_loop_observer_(false) {
 }
 
 TabStripGtk::~TabStripGtk() {
@@ -766,6 +757,10 @@ void TabStripGtk::CloseTab(TabGtk* tab) {
     // the TabStrip).
     available_width_for_tabs_ = GetAvailableWidthForTabs(last_tab);
     resize_layout_scheduled_ = true;
+    // We hook into the message loop in order to receive mouse move events when
+    // the mouse is outside of the tabstrip.  We unhook once the resize layout
+    // animation is started.
+    AddMessageLoopObserver();
     model_->CloseTabContentsAt(tab_index);
   }
 }
@@ -840,6 +835,24 @@ bool TabStripGtk::HasAvailableDragActions() const {
   return model_->delegate()->GetDragActions() != 0;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// TabStripGtk, MessageLoop::Observer implementation:
+
+void TabStripGtk::WillProcessEvent(GdkEvent* event) {
+  // Nothing to do.
+}
+
+void TabStripGtk::DidProcessEvent(GdkEvent* event) {
+  switch (event->type) {
+    case GDK_MOTION_NOTIFY:
+    case GDK_LEAVE_NOTIFY:
+      HandleGlobalMouseMoveEvent();
+      break;
+    default:
+      break;
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // TabStripGtk, private:
 
@@ -878,6 +891,24 @@ void TabStripGtk::RemoveTabAt(int index) {
   if (!IsDragSessionActive() || !drag_controller_->IsDragSourceTab(removed)) {
     gtk_container_remove(GTK_CONTAINER(tabstrip_.get()), removed->widget());
     delete removed;
+  }
+}
+
+void TabStripGtk::HandleGlobalMouseMoveEvent() {
+  if (!IsCursorInTabStripZone()) {
+    // Mouse moved outside the tab slop zone, start a timer to do a resize
+    // layout after a short while...
+    if (resize_layout_factory_.empty()) {
+      MessageLoop::current()->PostDelayedTask(FROM_HERE,
+          resize_layout_factory_.NewRunnableMethod(
+              &TabStripGtk::ResizeLayoutTabs),
+          kResizeTabsTimeMs);
+    }
+  } else {
+    // Mouse moved quickly out of the tab strip and then into it again, so
+    // cancel the timer so that the strip doesn't move when the mouse moves
+    // back over it.
+    resize_layout_factory_.RevokeAll();
   }
 }
 
@@ -995,6 +1026,12 @@ void TabStripGtk::GetDesiredTabWidths(int tab_count,
 }
 
 void TabStripGtk::ResizeLayoutTabs() {
+  resize_layout_factory_.RevokeAll();
+
+  // It is critically important that this is unhooked here, otherwise we will
+  // keep spying on messages forever.
+  RemoveMessageLoopObserver();
+
   available_width_for_tabs_ = -1;
   double unselected, selected;
   GetDesiredTabWidths(GetTabCount(), &unselected, &selected);
@@ -1005,6 +1042,36 @@ void TabStripGtk::ResizeLayoutTabs() {
   // size.
   if (abs(first_tab->width() - w) > 1)
     StartResizeLayoutAnimation();
+}
+
+bool TabStripGtk::IsCursorInTabStripZone() const {
+  gfx::Rect bds = bounds();
+  gfx::Point tabstrip_topleft(bds.origin());
+  gtk_util::ConvertWidgetPointToScreen(tabstrip_.get(), &tabstrip_topleft);
+  bds.set_origin(tabstrip_topleft);
+  bds.set_height(bds.height() + kTabStripAnimationVSlop);
+
+  GdkScreen* screen = gdk_screen_get_default();
+  GdkDisplay* display = gdk_screen_get_display(screen);
+  gint x, y;
+  gdk_display_get_pointer(display, NULL, &x, &y, NULL);
+  gfx::Point cursor_point(x, y);
+
+  return bds.Contains(cursor_point);
+}
+
+void TabStripGtk::AddMessageLoopObserver() {
+  if (!added_as_message_loop_observer_) {
+    MessageLoopForUI::current()->AddObserver(this);
+    added_as_message_loop_observer_ = true;
+  }
+}
+
+void TabStripGtk::RemoveMessageLoopObserver() {
+  if (added_as_message_loop_observer_) {
+    MessageLoopForUI::current()->RemoveObserver(this);
+    added_as_message_loop_observer_ = false;
+  }
 }
 
 gfx::Rect TabStripGtk::GetDropBounds(int drop_index,
