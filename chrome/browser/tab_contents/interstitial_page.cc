@@ -203,8 +203,12 @@ void InterstitialPage::Show() {
 }
 
 void InterstitialPage::Hide() {
-  // Show the original RVH since we're going away.
-  tab_->render_view_host()->view()->Show();
+  RenderWidgetHostView* old_view = tab_->render_view_host()->view();
+  if (old_view) {
+    // Show the original RVH since we're going away.  Note it might not exist if
+    // the renderer crashed while the interstitial was showing.
+    old_view->Show();
+  }
 
   render_view_host_->Shutdown();
   render_view_host_ = NULL;

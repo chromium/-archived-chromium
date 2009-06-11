@@ -934,6 +934,41 @@ TEST_F(TabContentsTest, ShowInterstitialThenGoBack) {
   EXPECT_EQ(url1.spec(), entry->url().spec());
 }
 
+// Test navigating to a page that shows an interstitial, has a renderer crash,
+// and then goes back.
+TEST_F(TabContentsTest, ShowInterstitialCrashRendererThenGoBack) {
+  // Navigate to a page so we have a navigation entry in the controller.
+  GURL url1("http://www.google.com");
+  rvh()->SendNavigate(1, url1);
+  EXPECT_EQ(1, controller().entry_count());
+
+  // Show interstitial.
+  TestInterstitialPage::InterstitialState state =
+      TestInterstitialPage::UNDECIDED;
+  bool deleted = false;
+  GURL interstitial_url("http://interstitial");
+  TestInterstitialPage* interstitial =
+      new TestInterstitialPage(contents(), true, interstitial_url,
+                               &state, &deleted);
+  TestInterstitialPageStateGuard state_guard(interstitial);
+  interstitial->Show();
+  interstitial->TestDidNavigate(2, interstitial_url);
+
+  // Crash the renderer
+  rvh()->TestOnMessageReceived(ViewHostMsg_RenderViewGone(0));
+
+  // While the interstitial is showing, go back.
+  controller().GoBack();
+  rvh()->SendNavigate(1, url1);
+
+  // Make sure we are back to the original page and that the interstitial is
+  // gone.
+  EXPECT_TRUE(deleted);
+  EXPECT_EQ(TestInterstitialPage::CANCELED, state);
+  NavigationEntry* entry = controller().GetActiveEntry();
+  ASSERT_TRUE(entry);
+  EXPECT_EQ(url1.spec(), entry->url().spec());
+}
 // Test navigating to a page that shows an interstitial, then close the tab.
 TEST_F(TabContentsTest, ShowInterstitialThenCloseTab) {
   // Show interstitial.

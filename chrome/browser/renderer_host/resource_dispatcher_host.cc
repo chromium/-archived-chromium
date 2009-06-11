@@ -1497,7 +1497,8 @@ void ResourceDispatcherHost::ProcessBlockedRequestsForRoute(
   BlockedRequestMap::iterator iter =
       blocked_requests_map_.find(std::pair<int, int>(process_id, route_id));
   if (iter == blocked_requests_map_.end()) {
-    NOTREACHED();
+    // It's possible to reach here if the renderer crashed while an interstitial
+    // page was showing.
     return;
   }
 
