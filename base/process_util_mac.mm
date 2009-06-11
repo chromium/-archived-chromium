@@ -7,9 +7,6 @@
 
 #import <Cocoa/Cocoa.h>
 #include <crt_externs.h>
-#include <mach/shared_memory_server.h>
-#include <mach/task_info.h>
-#include <mach/task.h>
 #include <spawn.h>
 #include <sys/sysctl.h>
 #include <sys/types.h>
@@ -237,29 +234,8 @@ bool ProcessMetrics::GetIOCounters(IoCounters* io_counters) const {
 }
 
 size_t ProcessMetrics::GetPagefileUsage() const {
-  size_t result = 0;
-
-  kern_return_t kr;
-  struct task_basic_info info;
-  mach_msg_type_number_t info_count = TASK_BASIC_INFO_COUNT;
-
-  kr = task_info(mach_task_self(), TASK_BASIC_INFO,
-                 reinterpret_cast<task_info_t>(static_cast<void*>(&info)),
-                 &info_count);
-  if (kr == KERN_SUCCESS) {
-    // The app's virtual address map contains lots of shared code that will
-    // show up as part of our virtual_size.  So, in order to reflect a "vsize"
-    // that is more inline with what Activity Monitor and top report, we need
-    // to subtract this stuff out.
-    if (info.virtual_size > (SHARED_TEXT_REGION_SIZE + SHARED_DATA_REGION_SIZE))
-      info.virtual_size -= (SHARED_TEXT_REGION_SIZE + SHARED_DATA_REGION_SIZE);
-
-    result = info.virtual_size;
-  } else {
-    LOG(ERROR) << "failed to collect the process virtual size";
-  }
-
-  return result;
+  NOTIMPLEMENTED();
+  return 0;
 }
 
 size_t ProcessMetrics::GetPeakPagefileUsage() const {
@@ -268,22 +244,8 @@ size_t ProcessMetrics::GetPeakPagefileUsage() const {
 }
 
 size_t ProcessMetrics::GetWorkingSetSize() const {
-  size_t result = 0;
-
-  kern_return_t kr;
-  struct task_basic_info info;
-  mach_msg_type_number_t info_count = TASK_BASIC_INFO_COUNT;
-
-  kr = task_info(mach_task_self(), TASK_BASIC_INFO,
-                 reinterpret_cast<task_info_t>(static_cast<void*>(&info)),
-                 &info_count);
-  if (kr == KERN_SUCCESS) {
-    result = info.resident_size;
-  } else {
-    LOG(ERROR) << "failed to collect the process resident size";
-  }
-
-  return result;
+  NOTIMPLEMENTED();
+  return 0;
 }
 
 size_t ProcessMetrics::GetPeakWorkingSetSize() const {
