@@ -187,6 +187,8 @@ extern const wchar_t kNoDefaultBrowserCheck[];
 
 extern const wchar_t kThumbnailStore[];
 
+extern const wchar_t kTryChromeAgain[];
+
 }  // namespace switches
 
 #endif  // CHROME_COMMON_CHROME_SWITCHES_H_

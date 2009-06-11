@@ -494,4 +494,8 @@ const wchar_t kEnableBenchmarking[]      = L"enable-benchmarking";
 // getting thumbnails for the new tab page.
 const wchar_t kThumbnailStore[]                = L"thumbnail-store";
 
+// Experimental. Shows a dialog asking the user to try chrome. This flag
+// is to be used only by the upgrade process.
+const wchar_t kTryChromeAgain[]      = L"try-chrome-again";
+
 }  // namespace switches
