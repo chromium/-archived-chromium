@@ -294,6 +294,9 @@ BrowserView::~BrowserView() {
   ticker_.Stop();
   ticker_.UnregisterTickHandler(&hung_window_detector_);
 #endif
+
+  // Explicitly set browser_ to NULL
+  browser_.reset();
 }
 
 // static
@@ -801,6 +804,11 @@ void BrowserView::ShowBookmarkBubble(const GURL& url, bool already_bookmarked) {
 }
 
 void BrowserView::SetDownloadShelfVisible(bool visible) {
+  // This can be called from the superclass destructor, when it destroys our
+  // child views. At that point, browser_ is already gone.
+  if (browser_ == NULL)
+    return;
+
   if (IsDownloadShelfVisible() != visible) {
     if (visible) {
       // Invoke GetDownloadShelf to force the shelf to be created.
