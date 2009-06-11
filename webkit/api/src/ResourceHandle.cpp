@@ -41,23 +41,12 @@
 #include "WrappedResourceRequest.h"
 #include "WrappedResourceResponse.h"
 
-#include "MainThread.h"
 #include "ResourceHandleClient.h"
 #include "ResourceRequest.h"
 
 using namespace WebKit;
 
 namespace WebCore {
-
-static void deleteLoader(void* param)
-{
-    delete static_cast<WebURLLoader*>(param);
-}
-
-static void deleteLoaderSoon(WebURLLoader* loader)
-{
-    callOnMainThread(deleteLoader, loader);
-}
 
 // ResourceHandleInternal -----------------------------------------------------
 
@@ -69,8 +58,6 @@ public:
         , m_client(client)
     {
     }
-
-    ~ResourceHandleInternal();
 
     void start();
     void cancel();
@@ -91,18 +78,6 @@ public:
     ResourceHandleClient* m_client;
     OwnPtr<WebURLLoader> m_loader;
 };
-
-ResourceHandleInternal::~ResourceHandleInternal()
-{
-    if (m_loader.get()) {
-        m_loader->cancel();
-        // The loader is typically already on the stack at this point, so we
-        // need to defer its destruction.
-        // FIXME: We should probably add a "dispose" method on WebURLLoader and
-        // push this deferred destruction logic into the loader implementation.
-        deleteLoaderSoon(m_loader.release());
-    }
-}
 
 void ResourceHandleInternal::start()
 {

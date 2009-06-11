@@ -42,6 +42,7 @@ namespace WebKit {
 
     class WebURLLoader {
     public:
+        // The WebURLLoader may be deleted in a call to its client.
         virtual ~WebURLLoader() {}
 
         // Load the request synchronously, returning results directly to the
