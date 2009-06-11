@@ -469,6 +469,12 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
       bool success,
       HistoryService::RedirectList* redirects);
 
+  // Determine if the message from the external host represents a browser
+  // event, and if so dispatch it.
+  bool InterceptBrowserEventMessageFromExternalHost(const std::string& message,
+                                                    const std::string& origin,
+                                                    const std::string& target);
+
   typedef ObserverList<NotificationObserver> NotificationObserverList;
   typedef std::map<NavigationController*, LoginHandler*> LoginHandlerMap;
   typedef std::map<int, ExtensionPortContainer*> PortContainerMap;
