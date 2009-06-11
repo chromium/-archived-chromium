@@ -17,6 +17,7 @@
 #include "chrome/browser/gtk/info_bubble_gtk.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
+#include "chrome/common/gtk_util.h"
 #include "grit/generated_resources.h"
 
 namespace {
@@ -119,10 +120,6 @@ BookmarkBubbleGtk::BookmarkBubbleGtk(GtkWindow* transient_toplevel,
                           IDS_BOOMARK_BUBBLE_PAGE_BOOKMARK).c_str());
   GtkWidget* remove_button = gtk_chrome_link_button_new(
       l10n_util::GetStringUTF8(IDS_BOOMARK_BUBBLE_REMOVE_BOOKMARK).c_str());
-  GtkWidget* name_label = gtk_label_new(
-      l10n_util::GetStringUTF8(IDS_BOOMARK_BUBBLE_TITLE_TEXT).c_str());
-  GtkWidget* folder_label = gtk_label_new(
-      l10n_util::GetStringUTF8(IDS_BOOMARK_BUBBLE_FOLDER_TEXT).c_str());
   GtkWidget* edit_button = gtk_button_new_with_label(
       l10n_util::GetStringUTF8(IDS_BOOMARK_BUBBLE_OPTIONS).c_str());
   GtkWidget* close_button = gtk_button_new_with_label(
@@ -154,21 +151,12 @@ BookmarkBubbleGtk::BookmarkBubbleGtk(GtkWindow* transient_toplevel,
 
   // We use a table to allow the labels to line up with each other, along
   // with the entry and folder combo lining up.
-  GtkWidget* table = gtk_table_new(2, 2, FALSE);
-  gtk_table_set_row_spacings(GTK_TABLE(table), 5);
-  gtk_table_set_col_spacings(GTK_TABLE(table), 10);
-  gtk_table_attach_defaults(GTK_TABLE(table),
-                            name_label,
-                            0, 1, 0, 1);
-  gtk_table_attach_defaults(GTK_TABLE(table),
-                            name_entry_,
-                            1, 2, 0, 1);
-  gtk_table_attach_defaults(GTK_TABLE(table),
-                            folder_label,
-                            0, 1, 1, 2);
-  gtk_table_attach_defaults(GTK_TABLE(table),
-                            folder_combo_,
-                            1, 2, 1, 2);
+  GtkWidget* table = gtk_util::CreateLabeledControlsGroup(
+      l10n_util::GetStringUTF8(IDS_BOOMARK_BUBBLE_TITLE_TEXT).c_str(),
+      name_entry_,
+      l10n_util::GetStringUTF8(IDS_BOOMARK_BUBBLE_FOLDER_TEXT).c_str(),
+      folder_combo_,
+      NULL);
 
   GtkWidget* bottom = gtk_hbox_new(FALSE, 0);
   // We want the buttons on the right, so just use an expanding label to fill

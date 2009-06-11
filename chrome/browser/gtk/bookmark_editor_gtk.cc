@@ -127,43 +127,26 @@ void BookmarkEditorGtk::Init(GtkWindow* parent_window) {
 
   GtkWidget* vbox = gtk_vbox_new(FALSE, 12);
 
-  GtkWidget* table = gtk_table_new(2, 2, FALSE);
-  gtk_table_set_col_spacing(GTK_TABLE(table), 0, gtk_util::kLabelSpacing);
-  gtk_table_set_row_spacings(GTK_TABLE(table), gtk_util::kControlSpacing);
-
-  GtkWidget* label = gtk_label_new(
-      l10n_util::GetStringUTF8(IDS_BOOMARK_EDITOR_NAME_LABEL).c_str());
-  gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
-  gtk_table_attach(GTK_TABLE(table), GTK_WIDGET(label),
-                   0, 1, 0, 1,
-                   (GtkAttachOptions)(GTK_FILL),
-                   (GtkAttachOptions)(GTK_FILL),
-                   0, 0);
   name_entry_ = gtk_entry_new();
   gtk_entry_set_text(GTK_ENTRY(name_entry_),
                      node_ ? WideToUTF8(node_->GetTitle()).c_str() : "");
   g_signal_connect(G_OBJECT(name_entry_), "changed",
                    G_CALLBACK(OnEntryChanged), this);
   gtk_entry_set_activates_default(GTK_ENTRY(name_entry_), TRUE);
-  gtk_table_attach_defaults(GTK_TABLE(table), GTK_WIDGET(name_entry_),
-                            1, 2, 0, 1);
 
-  label = gtk_label_new(
-      l10n_util::GetStringUTF8(IDS_BOOMARK_EDITOR_URL_LABEL).c_str());
-  gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
-  gtk_table_attach(GTK_TABLE(table), GTK_WIDGET(label),
-                   0, 1, 1, 2,
-                   (GtkAttachOptions)(GTK_FILL),
-                   (GtkAttachOptions)(GTK_FILL),
-                   0, 0);
   url_entry_ = gtk_entry_new();
   gtk_entry_set_text(GTK_ENTRY(url_entry_),
                      node_ ? node_->GetURL().spec().c_str() : "");
   g_signal_connect(G_OBJECT(url_entry_), "changed",
                    G_CALLBACK(OnEntryChanged), this);
   gtk_entry_set_activates_default(GTK_ENTRY(url_entry_), TRUE);
-  gtk_table_attach_defaults(GTK_TABLE(table), GTK_WIDGET(url_entry_),
-                            1, 2, 1, 2);
+
+  GtkWidget* table = gtk_util::CreateLabeledControlsGroup(
+      l10n_util::GetStringUTF8(IDS_BOOMARK_EDITOR_NAME_LABEL).c_str(),
+      name_entry_,
+      l10n_util::GetStringUTF8(IDS_BOOMARK_EDITOR_URL_LABEL).c_str(),
+      url_entry_,
+      NULL);
 
   gtk_box_pack_start(GTK_BOX(vbox), table, FALSE, FALSE, 0);
 

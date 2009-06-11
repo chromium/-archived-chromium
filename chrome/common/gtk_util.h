@@ -44,6 +44,14 @@ const int kContentAreaBorder = 12;
 // Spacing between groups of controls.
 const int kContentAreaSpacing = 18;
 
+// Create a table of labeled controls, using proper spacing and alignment.
+// Arguments should be pairs of const char*, GtkWidget*, concluding with a NULL.
+// For example:
+// controls = CreateLabeledControlsGroup("Name:", title_entry_,
+//                                       "Folder:", folder_combobox_,
+//                                       NULL);
+GtkWidget* CreateLabeledControlsGroup(const char* text, ...);
+
 // Create a GtkBin with |child| as its child widget.  This bin will paint a
 // border of color |color| with the sizes specified in pixels.
 GtkWidget* CreateGtkBorderBin(GtkWidget* child, const GdkColor* color,

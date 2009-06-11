@@ -4,6 +4,7 @@
 
 #include "chrome/common/gtk_util.h"
 
+#include <cstdarg>
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
 
@@ -36,6 +37,31 @@ WindowOpenDisposition DispositionFromEventFlags(guint event_flags) {
 }  // namespace event_utils
 
 namespace gtk_util {
+
+GtkWidget* CreateLabeledControlsGroup(const char* text, ...) {
+  va_list ap;
+  va_start(ap, text);
+  GtkWidget* table = gtk_table_new(0, 2, FALSE);
+  gtk_table_set_col_spacing(GTK_TABLE(table), 0, kLabelSpacing);
+  gtk_table_set_row_spacings(GTK_TABLE(table), kControlSpacing);
+
+  for (guint row = 0; text; ++row) {
+    gtk_table_resize(GTK_TABLE(table), row + 1, 2);
+    GtkWidget* control = va_arg(ap, GtkWidget*);
+    GtkWidget* label = gtk_label_new(text);
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    gtk_table_attach(GTK_TABLE(table), label,
+                 0, 1, row, row + 1,
+                 GTK_FILL, GTK_FILL,
+                 0, 0);
+    gtk_table_attach_defaults(GTK_TABLE(table), control,
+                              1, 2, row, row + 1);
+    text = va_arg(ap, const char*);
+  }
+  va_end(ap);
+
+  return table;
+}
 
 GtkWidget* CreateGtkBorderBin(GtkWidget* child, const GdkColor* color,
                               int top, int bottom, int left, int right) {
