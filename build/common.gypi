@@ -66,6 +66,8 @@
     'toolkit_views%': 0,
 
     'linux2%': 0,
+    
+    'chrome_personalization%': 0,
   },
   'target_defaults': {
     'conditions': [
@@ -84,6 +86,9 @@
       }],
       ['linux2==1', {
         'defines': ['LINUX2=1'],
+      }],
+      ['chrome_personalization==1', {
+        'defines': ['CHROME_PERSONALIZATION=1'],
       }],
       ['coverage!=0', {
         'conditions': [
