@@ -199,13 +199,7 @@ BitmapPlatformDeviceWin* BitmapPlatformDeviceWin::create(
                                      reinterpret_cast<BITMAPINFO*>(&hdr), 0,
                                      &data,
                                      shared_section, 0);
-
-  // If we run out of GDI objects or some other error occurs, we won't get a
-  // bitmap here. This will cause us to crash later because the data pointer is
-  // NULL. To make sure that we can assign blame for those crashes to this code,
-  // we deliberately crash here, even in release mode.
   if (!hbitmap) {
-    DWORD error = GetLastError();
     return NULL;
   }
 
