@@ -24,6 +24,5 @@ const wchar_t kAutomationPortIdKey[] = L"portid";
 const char kAutomationPortRequestTarget[] = "__priv_prtreq";
 const char kAutomationPortResponseTarget[] = "__priv_prtres";
 
-const char kAutomationBrowserEventRequestTarget[] = "__priv_evtreq";
 
 }  // namespace extension_automation_constants
