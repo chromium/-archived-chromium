@@ -168,6 +168,9 @@ WebDevToolsClientImpl::WebDevToolsClientImpl(
   dev_tools_host_->AddProtoFunction(
       "activateWindow",
       WebDevToolsClientImpl::JsActivateWindow);
+  dev_tools_host_->AddProtoFunction(
+      "getPlatform",
+      WebDevToolsClientImpl::JsGetPlatform);
   dev_tools_host_->Build();
 }
 
@@ -304,4 +307,16 @@ v8::Handle<v8::Value> WebDevToolsClientImpl::JsActivateWindow(
       v8::External::Cast(*args.Data())->Value());
   client->delegate_->ActivateWindow();
   return v8::Undefined();
+}
+
+// static
+v8::Handle<v8::Value> WebDevToolsClientImpl::JsGetPlatform(
+    const v8::Arguments& args) {
+#if defined OS_MACOSX
+  return v8String("mac-leopard");
+#elif defined OS_LINUX
+  return v8String("linux");
+#else
+  return v8String("windows");
+#endif
 }

@@ -62,6 +62,7 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
       const v8::Arguments& args);
   static v8::Handle<v8::Value> JsLoaded(const v8::Arguments& args);
   static v8::Handle<v8::Value> JsActivateWindow(const v8::Arguments& args);
+  static v8::Handle<v8::Value> JsGetPlatform(const v8::Arguments& args);
 
   WebViewImpl* web_view_impl_;
   WebDevToolsClientDelegate* delegate_;

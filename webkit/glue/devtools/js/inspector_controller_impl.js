@@ -20,6 +20,14 @@ goog.inherits(devtools.InspectorControllerImpl,
 /**
  * {@inheritDoc}.
  */
+devtools.InspectorController.prototype.platform = function() {
+  return DevToolsHost.getPlatform();
+};
+
+
+/**
+ * {@inheritDoc}.
+ */
 devtools.InspectorController.prototype.clearMessages = function() {
   RemoteToolsAgent.ClearConsoleMessages();
 };
