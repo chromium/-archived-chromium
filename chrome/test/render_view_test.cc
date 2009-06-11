@@ -4,10 +4,10 @@
 
 #include "chrome/test/render_view_test.h"
 
+#include "chrome/browser/extensions/extension_function_dispatcher.h"
 #include "chrome/common/native_web_keyboard_event.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/browser/renderer_preferences.h"
-#include "chrome/browser/extensions/extension_function_dispatcher.h"
+#include "chrome/common/renderer_preferences.h"
 #include "chrome/renderer/extensions/event_bindings.h"
 #include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/extensions/renderer_extension_bindings.h"

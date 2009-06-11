@@ -18,7 +18,7 @@
 #include "base/timer.h"
 #include "base/values.h"
 #include "build/build_config.h"
-#include "chrome/browser/renderer_preferences.h"
+#include "chrome/common/renderer_preferences.h"
 #include "chrome/renderer/automation/dom_automation_controller.h"
 #include "chrome/renderer/dom_ui_bindings.h"
 #include "chrome/renderer/extensions/extension_process_bindings.h"

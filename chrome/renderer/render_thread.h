@@ -12,7 +12,6 @@
 #include "base/shared_memory.h"
 #include "base/task.h"
 #include "build/build_config.h"
-#include "chrome/browser/renderer_preferences.h"
 #include "chrome/common/child_thread.h"
 #include "chrome/renderer/renderer_histogram_snapshots.h"
 
@@ -27,6 +26,7 @@ class SkBitmap;
 class UserScriptSlave;
 class VisitedLinkSlave;
 struct ModalDialogEvent;
+struct RendererPreferences;
 struct WebPreferences;
 
 // The RenderThreadBase is the minimal interface that a RenderView/Widget

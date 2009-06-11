@@ -21,13 +21,13 @@
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "build/build_config.h"
-#include "chrome/browser/renderer_preferences.h"
 #include "chrome/common/bindings_policy.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/page_zoom.h"
 #include "chrome/common/render_messages.h"
+#include "chrome/common/renderer_preferences.h"
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/renderer/about_handler.h"
@@ -194,8 +194,7 @@ RenderView::RenderView(RenderThreadBase* render_thread)
       popup_notification_visible_(false),
       delay_seconds_for_form_state_sync_(kDefaultDelaySecondsForFormStateSync),
       preferred_width_(0),
-      send_preferred_width_changes_(false),
-      renderer_preferences_(*(new RendererPreferences)) {
+      send_preferred_width_changes_(false) {
 }
 
 RenderView::~RenderView() {

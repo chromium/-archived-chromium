@@ -8,8 +8,8 @@
 #include "base/basictypes.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
-#include "chrome/browser/renderer_preferences.h"
 #include "chrome/common/page_transition_types.h"
+#include "chrome/common/renderer_preferences.h"
 #include "webkit/glue/window_open_disposition.h"
 
 class DownloadItem;

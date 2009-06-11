@@ -9,8 +9,8 @@
 // Adding new values to this class probably involves updating
 // common/render_messages.h, browser/browser.cc, etc.
 
-#ifndef CHROME_BROWSER_RENDERER_PREFERENCES_H_
-#define CHROME_BROWSER_RENDERER_PREFERENCES_H_
+#ifndef CHROME_COMMON_RENDERER_PREFERENCES_H_
+#define CHROME_COMMON_RENDERER_PREFERENCES_H_
 
 struct RendererPreferences {
   // Whether the renderer's current browser context accept drops from the OS
@@ -22,4 +22,4 @@ struct RendererPreferences {
   }
 };
 
-#endif  // CHROME_BROWSER_RENDERER_PREFERENCES_H_
+#endif  // CHROME_COMMON_RENDERER_PREFERENCES_H_
