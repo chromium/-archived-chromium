@@ -325,19 +325,17 @@ void ExtensionsService::OnExtensionsLoaded(ExtensionList* new_extensions) {
   ExtensionList enabled_extensions; 
   for (ExtensionList::iterator iter = new_extensions->begin();
        iter != new_extensions->end(); ++iter) {
-    if (extensions_enabled() || (*iter)->IsTheme())
+    if (extensions_enabled() || (*iter)->IsTheme()) {
       enabled_extensions.push_back(*iter);
+    } else {
+      // Extensions that get enabled get added to extensions_ and deleted later.
+      // Anything skipped must be deleted now so we don't leak.
+      delete *iter;
+    }
   }
 
   for (ExtensionList::const_iterator iter = enabled_extensions.begin();
        iter != enabled_extensions.end(); ++iter) {
-    // Skip updated extensions. We don't yet implement update (issue 12399).
-    // For now, just skip existing extensions so that at least we don't end up
-    // with duplicate toolstrips, etc. Later we will want to do live, in-place
-    // updates.
-    if (GetExtensionByID((*iter)->id()))
-      continue;
-
     std::wstring extension_id = ASCIIToWide((*iter)->id());
     DictionaryValue* pref = GetOrCreateExtensionPref(extension_id);
     int location;
