@@ -2701,3 +2701,9 @@ BUG13721 LINUX : LayoutTests/fast/dynamic/positioned-movement-with-positioned-ch
 
 // New test added in WebKit 44550:
 BUG13767 : LayoutTests/fast/js/JSON-stringify.html = FAIL
+
+// WebKit 44571:44597
+BUG13809 : LayoutTests/fast/dom/HTMLScriptElement/nested-execution.html = FAIL
+BUG13809 : LayoutTests/fast/gradients/crash-on-zero-radius.html = FAIL
+BUG13809 SKIP : LayoutTests/fast/canvas/canvas-empty-image-pattern.html = FAIL
+BUG13809 : LayoutTests/accessibility/image-map1.html = CRASH
