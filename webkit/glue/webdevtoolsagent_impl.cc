@@ -151,6 +151,10 @@ void WebDevToolsAgentImpl::DidCommitLoadForFrame(
   tools_agent_delegate_stub_->FrameNavigate(
       url.possibly_invalid_spec(),
       webview->GetMainFrame() == frame);
+  InspectorController* ic = webview->page()->inspectorController();
+  // Unhide resources panel if necessary.
+  tools_agent_delegate_stub_->SetResourcesPanelEnabled(
+      ic->resourceTrackingEnabled());
 }
 
 void WebDevToolsAgentImpl::WindowObjectCleared(WebFrameImpl* webframe) {
