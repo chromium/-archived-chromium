@@ -18,6 +18,7 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gtk_util.h"
 #include "grit/generated_resources.h"
+#include "webkit/api/public/gtk/WebInputEventFactory.h"
 
 namespace {
 
@@ -80,6 +81,8 @@ FindBarGtk::FindBarGtk(BrowserWindowGtk* browser)
                                          G_CALLBACK(OnChanged), this);
   g_signal_connect(text_entry_, "key-press-event",
                    G_CALLBACK(OnKeyPressEvent), this);
+  g_signal_connect(text_entry_, "key-release-event",
+                   G_CALLBACK(OnKeyReleaseEvent), this);
   // When the user tabs to us or clicks on us, save where the focus used to
   // be.
   g_signal_connect(text_entry_, "focus",
@@ -347,6 +350,39 @@ void FindBarGtk::StoreOutsideFocus() {
     focus_store_.Store(text_entry_);
 }
 
+bool FindBarGtk::MaybeForwardKeyEventToRenderer(GdkEventKey* event) {
+  switch (event->keyval) {
+    case GDK_Down:
+    case GDK_Up:
+    case GDK_Page_Up:
+    case GDK_Page_Down:
+      break;
+    case GDK_Home:
+    case GDK_End:
+      if ((event->state & gtk_accelerator_get_default_mod_mask()) ==
+          GDK_CONTROL_MASK) {
+        break;
+      }
+    // Fall through.
+    default:
+      return false;
+  }
+
+  TabContents* contents = find_bar_controller_->tab_contents();
+  if (!contents)
+    return false;
+
+  RenderViewHost* render_view_host = contents->render_view_host();
+
+  // Make sure we don't have a text field element interfering with keyboard
+  // input. Otherwise Up and Down arrow key strokes get eaten. "Nom Nom Nom".
+  render_view_host->ClearFocusedNode();
+
+  NativeWebKeyboardEvent wke(event);
+  render_view_host->ForwardKeyboardEvent(wke);
+  return true;
+}
+
 // static
 gboolean FindBarGtk::OnChanged(GtkWindow* window, FindBarGtk* find_bar) {
   find_bar->FindEntryTextInContents(true);
@@ -354,9 +390,11 @@ gboolean FindBarGtk::OnChanged(GtkWindow* window, FindBarGtk* find_bar) {
 }
 
 // static
-gboolean FindBarGtk::OnKeyPressEvent(GtkWindow* window, GdkEventKey* event,
+gboolean FindBarGtk::OnKeyPressEvent(GtkWidget* widget, GdkEventKey* event,
                                      FindBarGtk* find_bar) {
-  if (GDK_Escape == event->keyval) {
+  if (find_bar->MaybeForwardKeyEventToRenderer(event)) {
+    return TRUE;
+  } else if (GDK_Escape == event->keyval) {
     find_bar->find_bar_controller_->EndFindSession();
     return TRUE;
   } else if (GDK_Return == event->keyval) {
@@ -364,6 +402,12 @@ gboolean FindBarGtk::OnKeyPressEvent(GtkWindow* window, GdkEventKey* event,
     return TRUE;
   }
   return FALSE;
+}
+
+// static
+gboolean FindBarGtk::OnKeyReleaseEvent(GtkWidget* widget, GdkEventKey* event,
+                                       FindBarGtk* find_bar) {
+  return find_bar->MaybeForwardKeyEventToRenderer(event);
 }
 
 // static

@@ -64,6 +64,12 @@ class FindBarGtk : public FindBar,
   // This should always be called before we claim focus.
   void StoreOutsideFocus();
 
+  // For certain keystrokes, such as up or down, we want to forward the event
+  // to the renderer rather than handling it ourselves. Returns true if the
+  // key event was forwarded.
+  // See similar function in FindBarWin.
+  bool MaybeForwardKeyEventToRenderer(GdkEventKey* event);
+
   // Returns the child of |fixed_| that holds what the user perceives as the
   // findbar.
   GtkWidget* slide_widget();
@@ -75,9 +81,10 @@ class FindBarGtk : public FindBar,
   // Callback when the entry text changes.
   static gboolean OnChanged(GtkWindow* window, FindBarGtk* find_bar);
 
-  // Callback for key presses.
-  static gboolean OnKeyPressEvent(GtkWindow* window, GdkEventKey* event,
+  static gboolean OnKeyPressEvent(GtkWidget* widget, GdkEventKey* event,
                                   FindBarGtk* find_bar);
+  static gboolean OnKeyReleaseEvent(GtkWidget* widget, GdkEventKey* event,
+                                    FindBarGtk* find_bar);
 
   // Callback for previous, next, and close button.
   static void OnClicked(GtkWidget* button, FindBarGtk* find_bar);
