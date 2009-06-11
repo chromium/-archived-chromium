@@ -866,6 +866,9 @@ WebInspector.Console.prototype._evalInInspectedWindow = function(expression) {
   WebInspector.ProfilesPanel.prototype.show = function() {
     devtools.tools.getDebuggerAgent().initializeProfiling();
     oldShow.call(this);
+    // Show is called on every show event of a panel, so
+    // we only need to intercept it once.
+    WebInspector.ProfilesPanel.prototype.show = oldShow;
   };
 })();
 
