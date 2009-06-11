@@ -6,6 +6,7 @@
 
 #include "app/message_box_flags.h"
 #include "base/file_version_info.h"
+#include "base/json_reader.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/stl_util-inl.h"
@@ -17,6 +18,7 @@
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/automation/automation_extension_function.h"
 #include "chrome/browser/automation/automation_provider_list.h"
+#include "chrome/browser/automation/extension_automation_constants.h"
 #include "chrome/browser/automation/extension_port_container.h"
 #include "chrome/browser/automation/url_request_failed_dns_job.h"
 #include "chrome/browser/automation/url_request_mock_http_job.h"
@@ -26,6 +28,7 @@
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/download_shelf.h"
+#include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/find_bar.h"
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/find_notification_details.h"
@@ -2731,19 +2734,65 @@ void AutomationProvider::OnMessageFromExternalHost(int handle,
     }
 
     if (AutomationExtensionFunction::InterceptMessageFromExternalHost(
-            view_host, message, origin, target)) {
+        view_host, message, origin, target)) {
       // Message was diverted.
       return;
     }
 
     if (ExtensionPortContainer::InterceptMessageFromExternalHost(message,
-          origin, target, this, view_host, handle)) {
+        origin, target, this, view_host, handle)) {
+      // Message was diverted.
+      return;
+    }
+
+    if (InterceptBrowserEventMessageFromExternalHost(message, origin, target)) {
       // Message was diverted.
       return;
     }
 
     view_host->ForwardMessageFromExternalHost(message, origin, target);
   }
+}
+
+bool AutomationProvider::InterceptBrowserEventMessageFromExternalHost(
+      const std::string& message, const std::string& origin,
+      const std::string& target) {
+  if (target !=
+      extension_automation_constants::kAutomationBrowserEventRequestTarget)
+    return false;
+
+  if (origin != extension_automation_constants::kAutomationOrigin) {
+    LOG(WARNING) << "Wrong origin on automation browser event " << origin;
+    return false;
+  }
+
+  // The message is a JSON-encoded array with two elements, both strings. The
+  // first is the name of the event to dispatch.  The second is a JSON-encoding
+  // of the arguments specific to that event.
+  scoped_ptr<Value> message_value(JSONReader::Read(message, false));
+  if (!message_value.get() || !message_value->IsType(Value::TYPE_LIST)) {
+    LOG(WARNING) << "Invalid browser event specified through automation";
+    return false;
+  }
+
+  const ListValue* args = static_cast<const ListValue*>(message_value.get());
+
+  std::string event_name;
+  if (!args->GetString(0, &event_name)) {
+    LOG(WARNING) << "No browser event name specified through automation";
+    return false;
+  }
+
+  std::string json_args;
+  if (!args->GetString(1, &json_args)) {
+    LOG(WARNING) << "No browser event args specified through automation";
+    return false;
+  }
+
+  ExtensionMessageService::GetInstance(profile()->GetRequestContext())->
+      DispatchEventToRenderers(event_name.c_str(), json_args);
+
+  return true;
 }
 #endif  // defined(OS_WIN) || defined(OS_LINUX)
 

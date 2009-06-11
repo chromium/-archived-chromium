@@ -20,6 +20,8 @@ static const char kTestDirectorySimpleApiCall[] =
     "extensions/uitest/simple_api_call";
 static const char kTestDirectoryRoundtripApiCall[] =
     "extensions/uitest/roundtrip_api_call";
+static const char kTestDirectoryBrowserEvent[] =
+    "extensions/uitest/event_sink";
 
 // Base class to test extensions almost end-to-end by including browser
 // startup, manifest parsing, and the actual process model in the
@@ -276,6 +278,173 @@ TEST_F(RoundtripApiCallExtensionTest, RunTest) {
   // Validation is done in the RoundtripAutomationProxy, so we just check
   // something basic here.
   EXPECT_EQ(proxy->messages_received(), 2);
+}
+#endif  // defined(OS_WIN)
+
+// This proxy is specific to BrowserEventExtensionTest.
+class BrowserEventAutomationProxy : public MultiMessageAutomationProxy {
+ public:
+  explicit BrowserEventAutomationProxy(int execution_timeout)
+      : MultiMessageAutomationProxy(execution_timeout),
+        tab_(NULL) {
+  }
+
+  // Must set before initiating test.
+  TabProxy* tab_;
+
+  // Counts the number of times we got a given event.
+  std::map<std::string, int> event_count_;
+
+  // Array containing the names of the events to fire to the extension.
+  static const char* event_names_[];
+
+ protected:
+  // Process a message received from the test extension.
+  virtual void HandleMessageFromChrome();
+
+  // Fire an event of the given name to the test extension.
+  void FireEvent(const char* event_name);
+};
+
+const char* BrowserEventAutomationProxy::event_names_[] = {
+  // Window events.
+  "window-created",
+  "window-removed",
+  "window-focus-changed",
+
+  // Tab events.
+  "tab-created",
+  "tab-updated",
+  "tab-moved",
+  "tab-selection-changed",
+  "tab-attached",
+  "tab-detached",
+  "tab-removed",
+
+  // Page action events.
+  "page-action-executed",
+
+  // Bookmark events.
+  "bookmark-added",
+  "bookmark-removed",
+  "bookmark-changed",
+  "bookmark-moved",
+  "bookmark-children-reordered",
+};
+
+void BrowserEventAutomationProxy::HandleMessageFromChrome() {
+  namespace keys = extension_automation_constants;
+  ASSERT_TRUE(tab_ != NULL);
+
+  std::string message(message());
+  std::string origin(origin());
+  std::string target(target());
+
+  ASSERT_TRUE(message.length() > 0);
+  ASSERT_STREQ(keys::kAutomationOrigin, origin.c_str());
+
+  if (target == keys::kAutomationRequestTarget) {
+    // This should be a request for the current window.  We don't need to
+    // respond, as this is used only as an indication that the extension
+    // page is now loaded.
+    scoped_ptr<Value> message_value(JSONReader::Read(message, false));
+    ASSERT_TRUE(message_value->IsType(Value::TYPE_DICTIONARY));
+    DictionaryValue* message_dict =
+        reinterpret_cast<DictionaryValue*>(message_value.get());
+
+    std::string name;
+    message_dict->GetString(keys::kAutomationNameKey, &name);
+    ASSERT_STREQ(name.c_str(), "GetCurrentWindow");
+
+    // Send an OpenChannelToExtension message to chrome. Note: the JSON
+    // reader expects quoted property keys.
+    tab_->HandleMessageFromExternalHost(
+        "{\"rqid\":0, \"extid\": \"88884444789ABCDEF0123456789ABCDEF0123456\","
+        " \"connid\": 1}",
+        keys::kAutomationOrigin,
+        keys::kAutomationPortRequestTarget);
+  } else if (target == keys::kAutomationPortResponseTarget) {
+    // This is a response to the open channel request.  This means we know
+    // that the port is ready to send us messages.  Fire all the events now.
+    for (int i = 0; i < arraysize(event_names_); ++i) {
+      FireEvent(event_names_[i]);
+    }
+  } else if (target == keys::kAutomationPortRequestTarget) {
+    // This is the test extension calling us back.  Make sure its telling
+    // us that it received an event.  We do this by checking to see if the
+    // message is a simple string of one of the event names that is fired.
+    //
+    // There is a special message "ACK" which means that the extension
+    // received the port connection.  This is not an event response and
+    // should happen before all events.
+    scoped_ptr<Value> message_value(JSONReader::Read(message, false));
+    ASSERT_TRUE(message_value->IsType(Value::TYPE_DICTIONARY));
+    DictionaryValue* message_dict =
+        reinterpret_cast<DictionaryValue*>(message_value.get());
+
+    std::string event_name;
+    message_dict->GetString(L"data", &event_name);
+    if (event_name == "\"ACK\"") {
+      ASSERT_EQ(0, event_count_.size());
+    } else {
+      ++event_count_[event_name];
+    }
+  }
+}
+
+void BrowserEventAutomationProxy::FireEvent(const char* event_name) {
+  namespace keys = extension_automation_constants;
+
+  // Build the event message to send to the extension.  The only important
+  // part is the name, as the payload is not used by the test extension.
+  std::string message;
+  message += "[\"";
+  message += event_name;
+  message += "\", \"[]\"]";
+
+  tab_->HandleMessageFromExternalHost(
+      message,
+      keys::kAutomationOrigin,
+      keys::kAutomationBrowserEventRequestTarget);
+}
+
+class BrowserEventExtensionTest
+    : public ExtensionUITest<
+                 CustomAutomationProxyTest<BrowserEventAutomationProxy>> {
+ public:
+  BrowserEventExtensionTest()
+      : ExtensionUITest<
+          CustomAutomationProxyTest<
+              BrowserEventAutomationProxy> >(kTestDirectoryBrowserEvent) {
+  }
+
+  void DoAdditionalPreNavigateSetup(TabProxy* tab) {
+    BrowserEventAutomationProxy* proxy =
+      static_cast<BrowserEventAutomationProxy*>(automation());
+    proxy->tab_ = tab;
+  }
+
+ private:
+
+  DISALLOW_COPY_AND_ASSIGN(BrowserEventExtensionTest);
+};
+
+// TODO(port) Should become portable once
+// ExternalTabMessageLoop is ported.
+#if defined(OS_WIN)
+TEST_F(BrowserEventExtensionTest, RunTest) {
+  TestWithURL(GURL(
+      "chrome-extension://88884444789ABCDEF0123456789ABCDEF0123456/test.html"));
+  BrowserEventAutomationProxy* proxy =
+      static_cast<BrowserEventAutomationProxy*>(automation());
+
+  EXPECT_EQ(arraysize(BrowserEventAutomationProxy::event_names_),
+            proxy->event_count_.size());
+  for (std::map<std::string, int>::iterator i = proxy->event_count_.begin();
+      i != proxy->event_count_.end(); ++i) {
+    const std::pair<std::string, int>& value = *i;
+    ASSERT_EQ(1, value.second);
+  }
 }
 #endif  // defined(OS_WIN)
 
