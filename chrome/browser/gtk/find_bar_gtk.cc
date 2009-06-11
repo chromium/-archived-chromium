@@ -398,7 +398,9 @@ gboolean FindBarGtk::OnKeyPressEvent(GtkWidget* widget, GdkEventKey* event,
     find_bar->find_bar_controller_->EndFindSession();
     return TRUE;
   } else if (GDK_Return == event->keyval) {
-    find_bar->FindEntryTextInContents(true);
+    bool forward = (event->state & gtk_accelerator_get_default_mod_mask()) !=
+                   GDK_SHIFT_MASK;
+    find_bar->FindEntryTextInContents(forward);
     return TRUE;
   }
   return FALSE;
