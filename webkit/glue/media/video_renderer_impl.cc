@@ -207,19 +207,23 @@ void VideoRendererImpl::FastPaint(media::VideoFrame* video_frame,
       DCHECK_NE(0, dest_rect.width());
       DCHECK_NE(0, dest_rect.height());
       size_t frame_clip_width = local_dest_irect.width() *
-                                frame_in.width / dest_rect.width();
+                                frame_in.width /
+                                local_dest_irect_saved.width();
       size_t frame_clip_height = local_dest_irect.height() *
-                                 frame_in.height / dest_rect.height();
+                                 frame_in.height /
+                                 local_dest_irect_saved.height();
 
       // Project the "left" and "top" of the final destination rect to local
       // coordinates of the video frame, use these values to find the offsets
       // in the video frame to start reading.
       size_t frame_clip_left = (local_dest_irect.fLeft -
                                 local_dest_irect_saved.fLeft) *
-                               frame_in.width / dest_rect.width();
+                               frame_in.width /
+                               local_dest_irect_saved.width();
       size_t frame_clip_top = (local_dest_irect.fTop -
                                local_dest_irect_saved.fTop) *
-                              frame_in.height / dest_rect.height();
+                              frame_in.height /
+                              local_dest_irect_saved.height();
 
       // Use the "left" and "top" of the destination rect to locate the offset
       // in Y, U and V planes.
