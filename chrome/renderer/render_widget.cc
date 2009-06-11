@@ -32,92 +32,6 @@ using WebKit::WebRect;
 using WebKit::WebScreenInfo;
 using WebKit::WebSize;
 
-namespace {
-
-// A helper class to manage access to the RenderWidget::paint_rects vector.
-class PaintRegion {
- public:
-  explicit PaintRegion(std::vector<gfx::Rect>* rects)
-    : rects_(*rects),
-      coalesce_(false) {
-  }
-
-  gfx::Rect GetBoundingRect() const {
-    gfx::Rect bounding_rect;
-    for (size_t i = 0; i < rects_.size(); ++i)
-      bounding_rect = bounding_rect.Union(rects_[i]);
-    return bounding_rect;
-  }
-
-  void Add(gfx::Rect rect) {
-    if (rect.IsEmpty())
-      return;
-
-    if (rects_.size() >= kNumRectsThreshold) {
-      coalesce_ = true;
-      for (size_t i = rects_.size() - 1; i > 0; --i) {
-        rects_[0] = rects_[0].Union(rects_[i]);
-        rects_.pop_back();
-      }
-    }
-
-    if (coalesce_) {
-      DCHECK(rects_.size() == 1);
-      rects_[0] = rects_[0].Union(rect);
-    } else {
-      // Look for all rects that would intersect with this new
-      // rect, union them and remove them from the list so that we
-      // have only one rect for any pixel in the invalidation.
-      std::vector<gfx::Rect>::iterator it = rects_.begin();
-      while (it != rects_.end()) {
-        if (rect.Intersects(*it)) {
-          rect = rect.Union(*it);
-          rects_.erase(it);
-          // We must go back to the beginning since some rects we previously
-          // checked might now intersects with the union of the two rects,
-          // even though they didn't intersect with them individually.
-          it = rects_.begin();
-        } else {
-          ++it;
-        }
-      }
-      rects_.push_back(rect);
-    }
-  }
-
-  void Clip(const gfx::Rect& clip_rect) {
-    std::vector<gfx::Rect>::iterator it = rects_.begin();
-    while (it != rects_.end()) {
-      if (!clip_rect.Contains(*it))
-        *it = clip_rect.Intersect(*it);
-      ++it;
-    }
-  }
-
-  bool Intersects(const gfx::Rect& rect) const {
-    for (size_t i = 0; i < rects_.size(); ++i) {
-      if (rects_[i].Intersects(rect))
-        return true;
-    }
-    return false;
-  }
-
- private:
-  std::vector<gfx::Rect>& rects_;
-  bool coalesce_;
-  static const size_t kNumRectsThreshold;
-};
-// We use a threshold for the number of rects because in many cases as
-// described here:
-// http://my.opera.com/desktopteam/blog/2008/03/28/painting-performance-fixes
-// we get diminishing returns from using more sub-rectangles, it becomes more
-// efficient to Union the rects. The nubmer 25 is also used in WebKit for
-// deferred paints in the FrameView. It was chosen here based on some
-// manual experiments using the benchmark from the article sited above.
-const size_t PaintRegion::kNumRectsThreshold = 25;
-
-}  // namespace
-
 RenderWidget::RenderWidget(RenderThreadBase* render_thread, bool activatable)
     : routing_id_(MSG_ROUTING_NONE),
       webwidget_(NULL),
@@ -286,14 +200,13 @@ void RenderWidget::OnResize(const gfx::Size& new_size,
   // an ACK if we are resized to a non-empty rect.
   webwidget_->Resize(new_size);
   if (!new_size.IsEmpty()) {
-    DCHECK(!paint_rects_.empty());
+    DCHECK(!paint_rect_.IsEmpty());
 
     // This should have caused an invalidation of the entire view.  The damaged
     // rect could be larger than new_size if we are being made smaller.
-    DCHECK_GE(PaintRegion(&paint_rects_).GetBoundingRect().width(),
-              new_size.width());
-    DCHECK_GE(PaintRegion(&paint_rects_).GetBoundingRect().height(),
-              new_size.height());
+    DCHECK_GE(paint_rect_.width(), new_size.width());
+    DCHECK_GE(paint_rect_.height(), new_size.height());
+
     // We will send the Resize_ACK flag once we paint again.
     set_next_paint_is_resize_ack();
   }
@@ -401,12 +314,12 @@ void RenderWidget::ClearFocus() {
     webwidget_->SetFocus(false);
 }
 
-void RenderWidget::PaintThisRect(const gfx::Rect& rect,
-                                 skia::PlatformCanvas* canvas) {
-  // Make sure we don't erase previous rects in the canvas
-  SkRect clip_rect;
-  clip_rect.iset(rect.x(), rect.y(), rect.right(), rect.bottom());
-  canvas->clipRect(clip_rect, SkRegion::kReplace_Op);
+void RenderWidget::PaintRect(const gfx::Rect& rect,
+                             skia::PlatformCanvas* canvas) {
+
+  // Bring the canvas into the coordinate system of the paint rect.
+  canvas->translate(static_cast<SkScalar>(-rect.x()),
+                    static_cast<SkScalar>(-rect.y()));
 
   // If there is a custom background, tile it.
   if (!background_.empty()) {
@@ -420,36 +333,19 @@ void RenderWidget::PaintThisRect(const gfx::Rect& rect,
   }
 
   webwidget_->Paint(canvas, rect);
-}
-
-void RenderWidget::PaintRect(const gfx::Rect& rect,
-                             skia::PlatformCanvas* canvas) {
-  // Bring the canvas into the coordinate system of the paint rect.
-  canvas->translate(static_cast<SkScalar>(-rect.x()),
-                    static_cast<SkScalar>(-rect.y()));
-  PaintThisRect(rect, canvas);
-
-  // Flush to underlying bitmap.  TODO(darin): is this needed?
-  canvas->getTopPlatformDevice().accessBitmap(false);
-}
-
-void RenderWidget::PaintRects(const std::vector<gfx::Rect>& rects,
-    skia::PlatformCanvas* canvas) {
-  for (size_t i = 0; i < rects.size(); ++i)
-    PaintThisRect(rects[i], canvas);
 
   // Flush to underlying bitmap.  TODO(darin): is this needed?
   canvas->getTopPlatformDevice().accessBitmap(false);
 }
 
 void RenderWidget::DoDeferredPaint() {
-  if (!webwidget_ || paint_reply_pending() || paint_rects_.empty())
+  if (!webwidget_ || paint_reply_pending() || paint_rect_.IsEmpty())
     return;
 
   // When we are hidden, we want to suppress painting, but we still need to
   // mark this DoDeferredPaint as complete.
   if (is_hidden_ || size_.IsEmpty()) {
-    paint_rects_.clear();
+    paint_rect_ = gfx::Rect();
     needs_repainting_on_restore_ = true;
     return;
   }
@@ -459,36 +355,26 @@ void RenderWidget::DoDeferredPaint() {
 
   // OK, save the current paint_rect to a local since painting may cause more
   // invalidation.  Some WebCore rendering objects only layout when painted.
-  std::vector<gfx::Rect> paint_rects = paint_rects_;
-  paint_rects_.clear();
+  gfx::Rect damaged_rect = paint_rect_;
+  paint_rect_ = gfx::Rect();
 
   // Compute a buffer for painting and cache it.
-  DCHECK(!current_paint_buf_);
-
-  // we use the whole view size as opposed to damaged rect size we have a pool
-  // of paint buffers anyway, and this size has surely been used at least once
-  // to paint the whole view... And it also prevents, somehow, an intermittent
-  // bug we get when painting the sub-rectangles with StretchDIBits on Windows.
-  gfx::Rect bitmap_rect = gfx::Rect(gfx::Point(0, 0), size_);
   skia::PlatformCanvas* canvas =
       RenderProcess::current()->GetDrawingCanvas(&current_paint_buf_,
-                                                 bitmap_rect);
+                                                 damaged_rect);
   if (!canvas) {
     NOTREACHED();
     return;
   }
 
-  // We must make sure all our paint rects are within the bitmap bounds.
-  PaintRegion(&paint_rects).Clip(bitmap_rect);
-  PaintRects(paint_rects, canvas);
+  PaintRect(damaged_rect, canvas);
 
   ViewHostMsg_PaintRect_Params params;
-  params.bitmap = current_paint_buf_->id();
-  params.bitmap_rect = bitmap_rect;
-  params.paint_rects = paint_rects;
+  params.bitmap_rect = damaged_rect;
   params.view_size = size_;
   params.plugin_window_moves = plugin_window_moves_;
   params.flags = next_paint_flags_;
+  params.bitmap = current_paint_buf_->id();
 
   delete canvas;
 
@@ -591,21 +477,24 @@ gfx::NativeViewId RenderWidget::GetContainingView(WebWidget* webwidget) {
 void RenderWidget::DidInvalidateRect(WebWidget* webwidget,
                                      const WebRect& rect) {
   // We only want one pending DoDeferredPaint call at any time...
-  bool paint_pending = !paint_rects_.empty();
+  bool paint_pending = !paint_rect_.IsEmpty();
 
   // If this invalidate overlaps with a pending scroll, then we have to
   // downgrade to invalidating the scroll rect.
-  PaintRegion rect_vector(&paint_rects_);
   if (gfx::Rect(rect).Intersects(scroll_rect_)) {
-    rect_vector.Add(scroll_rect_);
+    paint_rect_ = paint_rect_.Union(scroll_rect_);
     scroll_rect_ = gfx::Rect();
   }
 
-  // We don't need to intersect with the view rect here since we have to
-  // do it later on in case the view rect changes between invalidations.
-  rect_vector.Add(rect);
+  gfx::Rect view_rect(0, 0, size_.width(), size_.height());
+  // TODO(iyengar) Investigate why we have painting issues when
+  // we ignore invalid regions outside the view.
+  // Ignore invalidates that occur outside the bounds of the view
+  // TODO(darin): maybe this should move into the paint code?
+  // paint_rect_ = view_rect.Intersect(paint_rect_.Union(rect));
+  paint_rect_ = paint_rect_.Union(view_rect.Intersect(rect));
 
-  if (paint_rects_.empty() || paint_reply_pending() || paint_pending)
+  if (paint_rect_.IsEmpty() || paint_reply_pending() || paint_pending)
     return;
 
   // Perform painting asynchronously.  This serves two purposes:
@@ -625,8 +514,7 @@ void RenderWidget::DidScrollRect(WebWidget* webwidget, int dx, int dy,
     dy = 0;
   }
 
-  bool intersects_with_painting =
-      PaintRegion(&paint_rects_).Intersects(clip_rect);
+  bool intersects_with_painting = paint_rect_.Intersects(clip_rect);
 
   // If we already have a pending scroll operation or if this scroll operation
   // intersects the existing paint region, then just failover to invalidating.
