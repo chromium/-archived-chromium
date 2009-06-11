@@ -119,14 +119,12 @@ WONTFIX SKIP : LayoutTests/fast/regex/test1.html = PASS
 BUG13786 : LayoutTests/fast/dom/javascript-backslash.html = FAIL
 BUG13786 : LayoutTests/fast/dom/javascript-url-crash-function.html = FAIL
 
-// Another batch of disabled layout tests. Filed http://crbugs/xxxxx and assigned
-// to Darin.
+// Another batch of disabled layout tests. Filed http://crbugs/13913 and
+// assigned to Darin.
 BUG13913 : LayoutTests/fast/dom/jsDevicePixelRatio.html = FAIL
 BUG13913 : LayoutTests/fast/events/tabindex-focus-chain.html = FAIL
 BUG13913 : LayoutTests/scrollbars/basic-scrollbar.html = FAIL
 BUG13913 : LayoutTests/fonts/cursive.html = FAIL
-BUG13913 : LayoutTests/security/block-test-no-port.html = FAIL
-BUG13913 : LayoutTests/security/block-test.html = FAIL
 
 // We don't intend to pass all of these cases, so this is an expected fail.
 // Window resizing is not implemented in chrome.
