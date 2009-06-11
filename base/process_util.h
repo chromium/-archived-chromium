@@ -332,13 +332,13 @@ class ProcessMetrics {
   ~ProcessMetrics();
 
   // Returns the current space allocated for the pagefile, in bytes (these pages
-  // may or may not be in memory).  On Linux, this returns the total virtual
-  // memory size.
+  // may or may not be in memory).  On Linux and Mac, this returns the total
+  // virtual memory size of the calling process.
   size_t GetPagefileUsage() const;
   // Returns the peak space allocated for the pagefile, in bytes.
   size_t GetPeakPagefileUsage() const;
-  // Returns the current working set size, in bytes.  On Linux, this returns
-  // the resident set size.
+  // Returns the current working set size, in bytes.  On Linux & Mac, this
+  // returns the resident set size.
   size_t GetWorkingSetSize() const;
   // Returns the peak working set size, in bytes.
   size_t GetPeakWorkingSetSize() const;

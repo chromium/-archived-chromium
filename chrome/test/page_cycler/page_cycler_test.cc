@@ -189,7 +189,7 @@ class PageCyclerTest : public UITest {
                   "ws_f" + chrome_name + trace_name,
                   process_metrics->GetWorkingSetSize(), "bytes",
                   false /* not important */);
-#elif defined(OS_LINUX)
+#else
       PrintResult("vm_size_final", chrome_name,
                   "vm_size_f" + chrome_name + trace_name,
                   process_metrics->GetPagefileUsage(), "bytes",
@@ -198,8 +198,6 @@ class PageCyclerTest : public UITest {
                   "vm_rss_f" + chrome_name + trace_name,
                   process_metrics->GetWorkingSetSize(), "bytes",
                   true /* important */);
-#else
-      NOTIMPLEMENTED();
 #endif
       base::CloseProcessHandle(process_handle);
     }
