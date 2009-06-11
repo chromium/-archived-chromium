@@ -30,6 +30,7 @@ namespace net {
 class ClientSocketFactory;
 class HttpChunkedDecoder;
 class HttpNetworkSession;
+class HttpStream;
 class UploadDataStream;
 
 class HttpNetworkTransaction : public HttpTransaction {
@@ -296,6 +297,7 @@ class HttpNetworkTransaction : public HttpTransaction {
 
   ClientSocketFactory* socket_factory_;
   ClientSocketHandle connection_;
+  scoped_ptr<HttpStream> http_stream_;
   bool reused_socket_;
 
   bool using_ssl_;     // True if handling a HTTPS request

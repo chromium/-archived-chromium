@@ -22,6 +22,7 @@
 #include "net/base/upload_data_stream.h"
 #include "net/http/http_auth.h"
 #include "net/http/http_auth_handler.h"
+#include "net/http/http_basic_stream.h"
 #include "net/http/http_chunked_decoder.h"
 #include "net/http/http_network_session.h"
 #include "net/http/http_request_info.h"
@@ -582,6 +583,7 @@ int HttpNetworkTransaction::DoInitConnectionComplete(int result) {
         establishing_tunnel_ = true;
     }
   }
+  http_stream_.reset(new HttpBasicStream(&connection_));
   return OK;
 }
 
@@ -657,7 +659,7 @@ int HttpNetworkTransaction::DoWriteHeaders() {
                                  request_headers_bytes_sent_);
   DCHECK_GT(buf_len, 0);
 
-  return connection_.socket()->Write(request_headers_, buf_len, &io_callback_);
+  return http_stream_->Write(request_headers_, buf_len, &io_callback_);
 }
 
 int HttpNetworkTransaction::DoWriteHeadersComplete(int result) {
@@ -684,8 +686,8 @@ int HttpNetworkTransaction::DoWriteBody() {
 
   int buf_len = static_cast<int>(request_body_stream_->buf_len());
 
-  return connection_.socket()->Write(request_body_stream_->buf(), buf_len,
-                                     &io_callback_);
+  return http_stream_->Write(request_body_stream_->buf(), buf_len,
+                             &io_callback_);
 }
 
 int HttpNetworkTransaction::DoWriteBodyComplete(int result) {
@@ -714,7 +716,7 @@ int HttpNetworkTransaction::DoReadHeaders() {
   int buf_len = header_buf_capacity_ - header_buf_len_;
   header_buf_->set_data(header_buf_len_);
 
-  return connection_.socket()->Read(header_buf_, buf_len, &io_callback_);
+  return http_stream_->Read(header_buf_, buf_len, &io_callback_);
 }
 
 int HttpNetworkTransaction::HandleConnectionClosedBeforeEndOfHeaders() {
@@ -845,7 +847,7 @@ int HttpNetworkTransaction::DoReadBody() {
   }
 
   reading_body_from_socket_ = true;
-  return connection_.socket()->Read(read_buf_, read_buf_len_, &io_callback_);
+  return http_stream_->Read(read_buf_, read_buf_len_, &io_callback_);
 }
 
 int HttpNetworkTransaction::DoReadBodyComplete(int result) {
