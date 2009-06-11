@@ -2869,7 +2869,6 @@
           'sources!': [
             'test/automated_ui_tests/automated_ui_test_base.cc',
             'test/automated_ui_tests/automated_ui_test_test.cc',
-            'test/ui/javascript_test_util.cc',
             'test/ui/npapi_test_helper.cc',
           ],
         }],
@@ -3092,7 +3091,6 @@
             'test/ui/npapi_uitest.cc',
             'test/ui/sandbox_uitests.cc',
             'test/ui/sunspider_uitest.cc',
-            'test/ui/v8_benchmark_uitest.cc',
             'worker/worker_uitest.cc',
           ],
         }],

@@ -127,13 +127,17 @@ class V8BenchmarkReferenceTest : public V8BenchmarkTest {
     FilePath dir;
     PathService::Get(chrome::DIR_TEST_TOOLS, &dir);
     dir = dir.AppendASCII("reference_build");
+#if defined(OS_WIN)
     dir = dir.AppendASCII("chrome");
+#elif defined(OS_LINUX)
+    dir = dir.AppendASCII("chrome_linux");
+#elif defined(OS_MACOSX)
+    dir = dir.AppendASCII("chrome_mac");
+#endif
     browser_directory_ = dir;
     UITest::SetUp();
   }
 };
-
-}  // namespace
 
 TEST_F(V8BenchmarkTest, Perf) {
   if (!CommandLine::ForCurrentProcess()->HasSwitch(kRunV8Benchmark))
@@ -148,3 +152,5 @@ TEST_F(V8BenchmarkReferenceTest, Perf) {
 
   RunTest();
 }
+
+}  // namespace
