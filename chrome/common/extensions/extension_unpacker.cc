@@ -8,8 +8,6 @@
 #include "base/scoped_handle.h"
 #include "base/scoped_temp_dir.h"
 #include "base/string_util.h"
-#include "base/third_party/nss/blapi.h"
-#include "base/third_party/nss/sha256.h"
 #include "base/thread.h"
 #include "base/values.h"
 #include "net/base/file_stream.h"
@@ -23,8 +21,6 @@
 #include "webkit/glue/image_decoder.h"
 
 namespace {
-const char kCurrentVersionFileName[] = "Current Version";
-
 // The name of a temporary directory to install an extension into for
 // validation before finalizing install.
 const char kTempExtensionName[] = "TEMP_INSTALL";
@@ -32,27 +28,14 @@ const char kTempExtensionName[] = "TEMP_INSTALL";
 // The file to write our decoded images to, relative to the extension_path.
 const char kDecodedImagesFilename[] = "DECODED_IMAGES";
 
-// Chromium Extension magic number
-// TODO(aa): This should use the one in ExtensionCreator once we transition this
-// to ouptut the same format.
-const char kExtensionFileMagic[] = "Cr24";
+// Errors
+const char* kCouldNotCreateDirectoryError =
+    "Could not create directory for unzipping.";
+const char* kCouldNotDecodeImageError = "Could not decode theme image.";
+const char* kCouldNotUnzipExtension = "Could not unzip extension.";
+const char* kPathNamesMustBeAbsoluteOrLocalError =
+    "Path names must not be absolute or contain '..'.";
 
-struct ExtensionHeader {
-  char magic[sizeof(kExtensionFileMagic) - 1];
-  uint32 version;
-  size_t header_size;
-  size_t manifest_size;
-};
-
-const size_t kZipHashBytes = 32;  // SHA-256
-const size_t kZipHashHexBytes = kZipHashBytes * 2;  // Hex string is 2x size.
-
-// A marker file to indicate that an extension was installed from an external
-// source.
-const char kExternalInstallFile[] = "EXTERNAL_INSTALL";
-
-// The version of the extension package that this code understands.
-const uint32 kExpectedVersion = 1;
 }  // namespace
 
 static SkBitmap DecodeImage(const FilePath& path) {
@@ -90,74 +73,6 @@ static bool PathContainsParentDirectory(const FilePath& path) {
   return false;
 }
 
-// The extension file format is a header, followed by the manifest, followed
-// by the zip file.  The header is a magic number, a version, the size of the
-// header, and the size of the manifest.  These ints are 4 byte little endian.
-DictionaryValue* ExtensionUnpacker::ReadPackageHeader() {
-  ScopedStdioHandle file(file_util::OpenFile(extension_path_, "rb"));
-  if (!file.get()) {
-    SetError("no such extension file");
-    return NULL;
-  }
-
-  // Read and verify the header.
-  ExtensionHeader header;
-  size_t len;
-
-  // TODO(erikkay): Yuck.  I'm not a big fan of this kind of code, but it
-  // appears that we don't have any endian/alignment aware serialization
-  // code in the code base.  So for now, this assumes that we're running
-  // on a little endian machine with 4 byte alignment.
-  len = fread(&header, 1, sizeof(ExtensionHeader), file.get());
-  if (len < sizeof(ExtensionHeader)) {
-    SetError("invalid extension header");
-    return NULL;
-  }
-  if (strncmp(kExtensionFileMagic, header.magic, sizeof(header.magic))) {
-    SetError("bad magic number");
-    return NULL;
-  }
-  if (header.version != kExpectedVersion) {
-    SetError("bad version number");
-    return NULL;
-  }
-  if (header.header_size > sizeof(ExtensionHeader))
-    fseek(file.get(), header.header_size - sizeof(ExtensionHeader), SEEK_CUR);
-
-  char buf[1 << 16];
-  std::string manifest_str;
-  size_t read_size = std::min(sizeof(buf), header.manifest_size);
-  size_t remainder = header.manifest_size;
-  while ((len = fread(buf, 1, read_size, file.get())) > 0) {
-    manifest_str.append(buf, len);
-    if (len <= remainder)
-      break;
-    remainder -= len;
-    read_size = std::min(sizeof(buf), remainder);
-  }
-
-  // Verify the JSON
-  JSONStringValueSerializer json(manifest_str);
-  std::string error;
-  scoped_ptr<Value> val(json.Deserialize(&error));
-  if (!val.get()) {
-    SetError(error);
-    return NULL;
-  }
-  if (!val->IsType(Value::TYPE_DICTIONARY)) {
-    SetError("manifest isn't a JSON dictionary");
-    return NULL;
-  }
-  DictionaryValue* manifest = static_cast<DictionaryValue*>(val.get());
-
-  // TODO(erikkay): The manifest will also contain a signature of the hash
-  // (or perhaps the whole manifest) for authentication purposes.
-
-  // The caller owns val (now cast to manifest).
-  val.release();
-  return manifest;
-}
-
 DictionaryValue* ExtensionUnpacker::ReadManifest() {
   FilePath manifest_path =
       temp_install_dir_.AppendASCII(Extension::kManifestFilename);
@@ -185,34 +100,16 @@ DictionaryValue* ExtensionUnpacker::ReadManifest() {
 bool ExtensionUnpacker::Run() {
   LOG(INFO) << "Installing extension " << extension_path_.value();
 
-  // Read and verify the extension.
-  scoped_ptr<DictionaryValue> header_manifest(ReadPackageHeader());
-  if (!header_manifest.get()) {
-    // ReadPackageHeader has already reported the extension error.
-    return false;
-  }
-
-  // TODO(mpcomplete): it looks like this isn't actually necessary.  We don't
-  // use header_extension, and we check that the unzipped manifest is valid.
-  Extension header_extension;
-  std::string error;
-  if (!header_extension.InitFromValue(*header_manifest,
-                                      true,  // require ID
-                                      &error)) {
-    SetError(error);
-    return false;
-  }
-
   // <profile>/Extensions/INSTALL_TEMP/<version>
   temp_install_dir_ =
       extension_path_.DirName().AppendASCII(kTempExtensionName);
   if (!file_util::CreateDirectory(temp_install_dir_)) {
-    SetError("Couldn't create directory for unzipping.");
+    SetError(kCouldNotCreateDirectoryError);
     return false;
   }
 
   if (!Unzip(extension_path_, temp_install_dir_)) {
-    SetError("Couldn't unzip extension.");
+    SetError(kCouldNotUnzipExtension);
     return false;
   }
 
@@ -220,16 +117,19 @@ bool ExtensionUnpacker::Run() {
   parsed_manifest_.reset(ReadManifest());
   if (!parsed_manifest_.get())
     return false;  // Error was already reported.
-
-  // Re-read the actual manifest into our extension struct.
+ 
+  // NOTE: Since the Unpacker doesn't have the extension's public_id, the
+  // InitFromValue is allowed to generate a temporary id for the extension.
+  // ANY CODE THAT FOLLOWS SHOULD NOT DEPEND ON THE CORRECT ID OF THIS
+  // EXTENSION.
   Extension extension;
+  std::string error;
   if (!extension.InitFromValue(*parsed_manifest_,
-                               true,  // require ID
+                               false,
                                &error)) {
     SetError(error);
     return false;
   }
-
   // Decode any images that the browser needs to display.
   std::set<FilePath> image_paths = extension.GetBrowserImages();
   for (std::set<FilePath>::iterator it = image_paths.begin();
@@ -271,13 +171,13 @@ bool ExtensionUnpacker::ReadImagesFromFile(const FilePath& extension_path,
 bool ExtensionUnpacker::AddDecodedImage(const FilePath& path) {
   // Make sure it's not referencing a file outside the extension's subdir.
   if (path.IsAbsolute() || PathContainsParentDirectory(path)) {
-    SetError("Path names must not be absolute or contain '..'.");
+    SetError(kPathNamesMustBeAbsoluteOrLocalError);
     return false;
   }
 
   SkBitmap image_bitmap = DecodeImage(temp_install_dir_.Append(path));
   if (image_bitmap.isNull()) {
-    SetError("Could not decode theme image.");
+    SetError(kCouldNotDecodeImageError);
     return false;
   }
 

@@ -6,6 +6,7 @@
 
 #include "app/l10n_util.h"
 #include "base/command_line.h"
+#include "base/crypto/signature_verifier.h"
 #include "base/file_util.h"
 #include "base/gfx/png_encoder.h"
 #include "base/scoped_handle.h"
@@ -20,6 +21,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_thread.h"
+#include "chrome/browser/extensions/extension_creator.h"
 #include "chrome/browser/extensions/extension_browser_event_router.h"
 #include "chrome/browser/extensions/extension_process_manager.h"
 #include "chrome/browser/profile.h"
@@ -36,6 +38,7 @@
 #include "chrome/common/url_constants.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
+#include "net/base/base64.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 
 #if defined(OS_WIN)
@@ -45,6 +48,8 @@
 #endif
 
 // ExtensionsService.
+
+const char ExtensionsService::kExtensionHeaderMagic[] = "Cr24";
 
 const char* ExtensionsService::kInstallDirectoryName = "Extensions";
 const char* ExtensionsService::kCurrentVersionFileName = "Current Version";
@@ -82,8 +87,17 @@ const char kExternalInstallFile[] = "EXTERNAL_INSTALL";
 // A temporary subdirectory where we unpack extensions.
 const char* kUnpackExtensionDir = "TEMP_UNPACK";
 
-// The version of the extension package that this code understands.
-const uint32 kExpectedVersion = 1;
+// Unpacking errors
+const char* kBadMagicNumberError = "Bad magic number";
+const char* kBadHeaderSizeError = "Excessively large key or signature";
+const char* kBadVersionNumberError = "Bad version number";
+const char* kInvalidExtensionHeaderError = "Invalid extension header";
+const char* kInvalidPublicKeyError = "Invalid public key";
+const char* kInvalidSignatureError = "Invalid signature";
+const char* kSignatureVerificationFailed = "Signature verification failed";
+const char* kSignatureVerificationInitFailed =
+    "Signature verification initialization failed. This is most likely "
+    "caused by a public key in the wrong format (should encode algorithm).";
 }
 
 // This class coordinates an extension unpack task which is run in a separate
@@ -94,11 +108,12 @@ class ExtensionsServiceBackend::UnpackerClient
  public:
   UnpackerClient(ExtensionsServiceBackend* backend,
                  const FilePath& extension_path,
+                 const std::string& public_key,
                  const std::string& expected_id,
                  bool from_external)
     : backend_(backend), extension_path_(extension_path),
-      expected_id_(expected_id), from_external_(from_external),
-      got_response_(false) {
+      public_key_(public_key), expected_id_(expected_id),
+      from_external_(from_external), got_response_(false) {
   }
 
   // Starts the unpack task.  We call back to the backend when the task is done,
@@ -163,6 +178,14 @@ class ExtensionsServiceBackend::UnpackerClient
   void OnUnpackExtensionSucceededImpl(
       const DictionaryValue& manifest,
       const ExtensionUnpacker::DecodedImages& images) {
+    // Add our public key into the parsed manifest. We want it to be saved so
+    // that we can later refer to it (eg for generating ids, validating
+    // signatures, etc).
+    // The const_cast is hacky, but seems like the right thing here, rather than
+    // making a full copy just to make this change.
+    const_cast<DictionaryValue*>(&manifest)->SetString(
+        Extension::kPublicKeyKey, public_key_);
+
     // The extension was unpacked to the temp dir inside our unpacking dir.
     FilePath extension_dir = temp_extension_path_.DirName().AppendASCII(
         ExtensionsServiceBackend::kTempExtensionName);
@@ -198,6 +221,9 @@ class ExtensionsServiceBackend::UnpackerClient
 
   // The path to the crx file that we're installing.
   FilePath extension_path_;
+
+  // The public key of the extension we're installing.
+  std::string public_key_;
 
   // The path to the copy of the crx file in the temporary directory where we're
   // unpacking it.
@@ -371,7 +397,7 @@ void ExtensionsService::OnExtensionsLoaded(ExtensionList* new_extensions) {
 }
 
 void ExtensionsService::OnExtensionInstalled(Extension* extension,
-                                             bool update) {
+    Extension::InstallType install_type) {
   UpdateExtensionPref(ASCIIToWide(extension->id()), kState,
                       Value::CreateIntegerValue(Extension::ENABLED), false);
   UpdateExtensionPref(ASCIIToWide(extension->id()), kLocation,
@@ -401,7 +427,7 @@ void ExtensionsService::OnExternalExtensionInstalled(
                       Value::CreateIntegerValue(location), true);
 }
 
-void ExtensionsService::OnExtensionVersionReinstalled(const std::string& id) {
+void ExtensionsService::OnExtensionOverinstallAttempted(const std::string& id) {
   Extension* extension = GetExtensionByID(id);
   if (extension && extension->IsTheme()) {
     NotificationService::current()->Notify(
@@ -622,6 +648,21 @@ void ExtensionsServiceBackend::LoadSingleExtension(
   }
 }
 
+DictionaryValue* ExtensionsServiceBackend::ReadManifest(FilePath manifest_path,
+                                                        std::string* error) {
+  JSONFileValueSerializer serializer(manifest_path);
+  scoped_ptr<Value> root(serializer.Deserialize(error));
+  if (!root.get())
+    return NULL;
+
+  if (!root->IsType(Value::TYPE_DICTIONARY)) {
+    *error = Extension::kInvalidManifestError;
+    return NULL;
+  }
+
+  return static_cast<DictionaryValue*>(root.release());
+}
+
 Extension* ExtensionsServiceBackend::LoadExtension(
     const FilePath& extension_path, bool require_id) {
   FilePath manifest_path =
@@ -631,22 +672,15 @@ Extension* ExtensionsServiceBackend::LoadExtension(
     return NULL;
   }
 
-  JSONFileValueSerializer serializer(manifest_path);
   std::string error;
-  scoped_ptr<Value> root(serializer.Deserialize(&error));
+  scoped_ptr<DictionaryValue> root(ReadManifest(manifest_path, &error));
   if (!root.get()) {
     ReportExtensionLoadError(extension_path, error);
     return NULL;
   }
 
-  if (!root->IsType(Value::TYPE_DICTIONARY)) {
-    ReportExtensionLoadError(extension_path, Extension::kInvalidManifestError);
-    return NULL;
-  }
-
   scoped_ptr<Extension> extension(new Extension(extension_path));
-  if (!extension->InitFromValue(*static_cast<DictionaryValue*>(root.get()),
-                                require_id, &error)) {
+  if (!extension->InitFromValue(*root.get(), require_id, &error)) {
     ReportExtensionLoadError(extension_path, error);
     return NULL;
   }
@@ -761,28 +795,36 @@ bool ExtensionsServiceBackend::ReadCurrentVersion(const FilePath& dir,
   return false;
 }
 
-bool ExtensionsServiceBackend::CheckCurrentVersion(
+Extension::InstallType ExtensionsServiceBackend::CompareToInstalledVersion(
+    const std::string& id,
     const std::string& new_version_str,
-    const std::string& current_version_str,
-    const FilePath& dest_dir) {
+    std::string *current_version_str) {
+  CHECK(current_version_str);
+  FilePath dir(install_directory_.AppendASCII(id.c_str()));
+  if (!ReadCurrentVersion(dir, current_version_str))
+    return Extension::NEW_INSTALL;
+
   scoped_ptr<Version> current_version(
-      Version::GetVersionFromString(current_version_str));
+    Version::GetVersionFromString(*current_version_str));
   scoped_ptr<Version> new_version(
-      Version::GetVersionFromString(new_version_str));
-  if (current_version->CompareTo(*new_version) >= 0) {
-    // Verify that the directory actually exists.  If it doesn't we'll return
-    // true so that the install code will repair the broken installation.
-    // TODO(erikkay): A further step would be to verify that the extension
-    // has actually loaded successfully.
-    FilePath version_dir = dest_dir.AppendASCII(current_version_str);
-    if (file_util::PathExists(version_dir)) {
-      std::string id = WideToASCII(dest_dir.BaseName().ToWStringHack());
-      StringToLowerASCII(&id);
-      ReportExtensionVersionReinstalled(id);
-      return false;
-    }
-  }
-  return true;
+    Version::GetVersionFromString(new_version_str));
+  int comp = new_version->CompareTo(*current_version);
+  if (comp > 0)
+    return Extension::UPGRADE;
+  else if (comp == 0)
+    return Extension::REINSTALL;
+  else
+    return Extension::DOWNGRADE;
+}
+
+bool ExtensionsServiceBackend::NeedsReinstall(const std::string& id,
+    const std::string& current_version) {
+  // Verify that the directory actually exists.
+  // TODO(erikkay): A further step would be to verify that the extension
+  // has actually loaded successfully.
+  FilePath dir(install_directory_.AppendASCII(id.c_str()));
+  FilePath version_dir(dir.AppendASCII(current_version));
+  return !file_util::PathExists(version_dir);
 }
 
 bool ExtensionsServiceBackend::InstallDirSafely(const FilePath& source_dir,
@@ -869,11 +911,105 @@ void ExtensionsServiceBackend::InstallExtension(
 }
 
 void ExtensionsServiceBackend::InstallOrUpdateExtension(
-    const FilePath& extension_path, const std::string& expected_id,
+    const FilePath& extension_path,
+    const std::string& expected_id,
     bool from_external) {
-  UnpackerClient* client =
-      new UnpackerClient(this, extension_path, expected_id, from_external);
+  std::string actual_public_key;
+  if (!ValidateSignature(extension_path, &actual_public_key))
+    return;  // Failures reported within ValidateSignature().
+
+  UnpackerClient* client = new UnpackerClient(
+      this, extension_path, actual_public_key, expected_id, from_external);
   client->Start();
+}
+
+bool ExtensionsServiceBackend::ValidateSignature(const FilePath& extension_path,
+                                                 std::string* key_out) {
+  ScopedStdioHandle file(file_util::OpenFile(extension_path, "rb"));
+  if (!file.get()) {
+    ReportExtensionInstallError(extension_path, "Could not open file.");
+    return NULL;
+  }
+
+  // Read and verify the header.
+  ExtensionsService::ExtensionHeader header;
+  size_t len;
+
+  // TODO(erikkay): Yuck.  I'm not a big fan of this kind of code, but it
+  // appears that we don't have any endian/alignment aware serialization
+  // code in the code base.  So for now, this assumes that we're running
+  // on a little endian machine with 4 byte alignment.
+  len = fread(&header, 1, sizeof(ExtensionsService::ExtensionHeader),
+      file.get());
+  if (len < sizeof(ExtensionsService::ExtensionHeader)) {
+    ReportExtensionInstallError(extension_path, kInvalidExtensionHeaderError);
+    return false;
+  }
+  if (strncmp(ExtensionsService::kExtensionHeaderMagic, header.magic,
+      sizeof(header.magic))) {
+    ReportExtensionInstallError(extension_path, kBadMagicNumberError);
+    return false;
+  }
+  if (header.version != ExtensionsService::kCurrentVersion) {
+    ReportExtensionInstallError(extension_path, kBadVersionNumberError);
+    return false;
+  }
+  if (header.key_size > ExtensionsService::kMaxPublicKeySize ||
+      header.signature_size > ExtensionsService::kMaxSignatureSize) {
+    ReportExtensionInstallError(extension_path, kBadHeaderSizeError);
+    return false;
+  }
+
+  std::vector<uint8> key;
+  key.resize(header.key_size);
+  len = fread(&key.front(), sizeof(uint8), header.key_size, file.get());
+  if (len < header.key_size) {
+    ReportExtensionInstallError(extension_path, kInvalidPublicKeyError);
+    return false;
+  }
+
+  std::vector<uint8> signature;
+  signature.resize(header.signature_size);
+  len = fread(&signature.front(), sizeof(uint8), header.signature_size,
+      file.get());
+  if (len < header.signature_size) {
+    ReportExtensionInstallError(extension_path, kInvalidSignatureError);
+    return false;
+  }
+
+  // Note: this structure is an ASN.1 which encodes the algorithm used
+  // with its parameters. This is defined in PKCS #1 v2.1 (RFC 3447).
+  // It is encoding: { OID sha1WithRSAEncryption      PARAMETERS NULL }
+  // TODO(aa): This needs to be factored away someplace common.
+  const uint8 signature_algorithm[15] = {
+    0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86,
+    0xf7, 0x0d, 0x01, 0x01, 0x05, 0x05, 0x00
+  };
+
+  base::SignatureVerifier verifier;
+  if (!verifier.VerifyInit(signature_algorithm,
+                           sizeof(signature_algorithm),
+                           &signature.front(),
+                           signature.size(),
+                           &key.front(),
+                           key.size())) {
+    ReportExtensionInstallError(extension_path,
+        kSignatureVerificationInitFailed);
+    return false;
+  }
+
+  unsigned char buf[1 << 12];
+  while ((len = fread(buf, 1, sizeof(buf), file.get())) > 0)
+    verifier.VerifyUpdate(buf, len);
+
+  if (!verifier.VerifyFinal()) {
+    ReportExtensionInstallError(extension_path, kSignatureVerificationFailed);
+    return false;
+  }
+
+  net::Base64Encode(std::string(reinterpret_cast<char*>(&key.front()),
+      key.size()), key_out);
+  return true;
 }
 
 void ExtensionsServiceBackend::OnExtensionUnpacked(
@@ -938,11 +1074,25 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
   FilePath dest_dir = install_directory_.AppendASCII(extension.id());
   std::string version = extension.VersionString();
   std::string current_version;
-  bool was_update = false;
-  if (ReadCurrentVersion(dest_dir, &current_version)) {
-    if (!CheckCurrentVersion(version, current_version, dest_dir))
+  Extension::InstallType install_type =
+      CompareToInstalledVersion(extension.id(), version, &current_version);
+
+  // Do not allow downgrade.
+  if (install_type == Extension::DOWNGRADE) {
+    ReportExtensionInstallError(extension_path,
+        "Error: Attempt to downgrade extension from more recent version.");
+    return;
+  }
+
+  if (install_type == Extension::REINSTALL) {
+    if (NeedsReinstall(extension.id(), current_version)) {
+      // Treat corrupted existing installation as new install case.
+      install_type = Extension::NEW_INSTALL;
+    } else {
+      // The client may use this as a signal (to switch themes, for instance).
+      ReportExtensionOverinstallAttempted(extension.id());
       return;
-    was_update = true;
+    }
   }
 
   // Write our parsed manifest back to disk, to ensure it doesn't contain an
@@ -1041,7 +1191,7 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
 
     frontend_loop_->PostTask(FROM_HERE, NewRunnableMethod(
         frontend_, &ExtensionsService::OnExtensionInstalled, extension,
-        was_update));
+        install_type));
 
     // Only one extension, but ReportExtensionsLoaded can handle multiple,
     // so we need to construct a list.
@@ -1071,10 +1221,10 @@ void ExtensionsServiceBackend::ReportExtensionInstallError(
   ExtensionErrorReporter::GetInstance()->ReportError(message, alert_on_error_);
 }
 
-void ExtensionsServiceBackend::ReportExtensionVersionReinstalled(
+void ExtensionsServiceBackend::ReportExtensionOverinstallAttempted(
     const std::string& id) {
   frontend_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-      frontend_, &ExtensionsService::OnExtensionVersionReinstalled, id));
+      frontend_, &ExtensionsService::OnExtensionOverinstallAttempted, id));
 }
 
 bool ExtensionsServiceBackend::ShouldSkipInstallingExtension(
@@ -1260,10 +1410,14 @@ void ExtensionsServiceBackend::UninstallExtension(
 
 bool ExtensionsServiceBackend::ShouldInstall(const std::string& id,
                                              const std::string& version) {
-  FilePath dir(install_directory_.AppendASCII(id.c_str()));
   std::string current_version;
-  if (ReadCurrentVersion(dir, &current_version)) {
-    return CheckCurrentVersion(version, current_version, dir);
-  }
-  return true;
+  Extension::InstallType install_type = CompareToInstalledVersion(id, version,
+      &current_version);
+
+  if (install_type == Extension::DOWNGRADE)
+    return false;
+
+  return (install_type == Extension::UPGRADE ||
+          install_type == Extension::NEW_INSTALL ||
+          NeedsReinstall(id, current_version));
 }

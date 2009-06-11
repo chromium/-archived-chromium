@@ -9,8 +9,7 @@
       ]
     }
   ], 
-  "description": "Adds one-click subscription with Google Reader to your toolbar", 
-  "id": "8962A8B1A1063945CEDE08181EA28D2D65124E86", 
+  "description": "Adds one-click subscription with Google Reader to your toolbar",
   "name": "Subscribe in Reader", 
   "permissions": [
     "http://www.google.com/*"

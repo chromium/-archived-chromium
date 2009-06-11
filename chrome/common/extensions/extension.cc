@@ -5,10 +5,14 @@
 #include "chrome/common/extensions/extension.h"
 
 #include "app/resource_bundle.h"
+#include "base/basictypes.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "base/third_party/nss/blapi.h"
+#include "base/third_party/nss/sha256.h"
+#include "net/base/base64.h"
 #include "net/base/net_util.h"
 #include "chrome/common/extensions/extension_error_reporter.h"
 #include "chrome/common/extensions/extension_error_utils.h"
@@ -33,6 +37,8 @@ namespace {
   const int kRSAKeySize = 1024;
 };
 
+int Extension::id_counter_ = 0;
+
 const char Extension::kManifestFilename[] = "manifest.json";
 
 const wchar_t* Extension::kBackgroundKey = L"background_page";
@@ -40,10 +46,10 @@ const wchar_t* Extension::kContentScriptsKey = L"content_scripts";
 const wchar_t* Extension::kCssKey = L"css";
 const wchar_t* Extension::kDescriptionKey = L"description";
 const wchar_t* Extension::kIconPathKey = L"icon";
-const wchar_t* Extension::kIdKey = L"id";
 const wchar_t* Extension::kJsKey = L"js";
 const wchar_t* Extension::kMatchesKey = L"matches";
 const wchar_t* Extension::kNameKey = L"name";
+const wchar_t* Extension::kPageActionIdKey = L"id";
 const wchar_t* Extension::kPageActionsKey = L"page_actions";
 const wchar_t* Extension::kPermissionsKey = L"permissions";
 const wchar_t* Extension::kPluginsKey = L"plugins";
@@ -71,7 +77,6 @@ const char* Extension::kPageActionTypePermanent = "permanent";
 static const wchar_t* kValidThemeKeys[] = {
   Extension::kDescriptionKey,
   Extension::kIconPathKey,
-  Extension::kIdKey,
   Extension::kNameKey,
   Extension::kPublicKeyKey,
   Extension::kSignatureKey,
@@ -93,12 +98,12 @@ const char* Extension::kInvalidCssListError =
     "Required value 'content_scripts[*].css is invalid.";
 const char* Extension::kInvalidDescriptionError =
     "Invalid value for 'description'.";
-const char* Extension::kInvalidIdError =
-    "Required value 'id' is missing or invalid.";
 const char* Extension::kInvalidJsError =
     "Invalid value for 'content_scripts[*].js[*]'.";
 const char* Extension::kInvalidJsListError =
     "Required value 'content_scripts[*].js is invalid.";
+const char* Extension::kInvalidKeyError =
+    "Value 'key' is missing or invalid.";
 const char* Extension::kInvalidManifestError =
     "Manifest is missing or invalid.";
 const char* Extension::kInvalidMatchCountError =
@@ -116,6 +121,8 @@ const char* Extension::kInvalidPageActionsListError =
     "Invalid value for 'page_actions'.";
 const char* Extension::kInvalidPageActionIconPathError =
     "Invalid value for 'page_actions[*].icon'.";
+const char* Extension::kInvalidPageActionIdError =
+    "Required value 'id' is missing or invalid.";
 const char* Extension::kInvalidPageActionTooltipError =
     "Invalid value for 'page_actions[*].tooltip'.";
 const char* Extension::kInvalidPageActionTypeValueError =
@@ -139,6 +146,8 @@ const char* Extension::kInvalidBackgroundError =
     "Invalid value for 'background'.";
 const char* Extension::kInvalidRunAtError =
     "Invalid value for 'content_scripts[*].run_at'.";
+const char* Extension::kInvalidSignatureError =
+    "Value 'signature' is missing or invalid.";
 const char* Extension::kInvalidToolstripError =
     "Invalid value for 'toolstrips[*]'";
 const char* Extension::kInvalidToolstripsError =
@@ -167,7 +176,8 @@ const char* Extension::kExtensionRegistryPath =
     "Software\\Google\\Chrome\\Extensions";
 #endif
 
-const size_t Extension::kIdSize = 20;  // SHA1 (160 bits) == 20 bytes
+// first 20 bytes of SHA256 hashed public key.
+const size_t Extension::kIdSize = 20;
 
 Extension::~Extension() {
   for (PageActionMap::iterator i = page_actions_.begin();
@@ -228,6 +238,23 @@ Extension::Location Extension::ExternalExtensionInstallType(
     return Extension::EXTERNAL_REGISTRY;
 #endif
   return Extension::EXTERNAL_PREF;
+}
+
+bool Extension::GenerateIdFromPublicKey(const std::string& input,
+                                        std::string* output) {
+  CHECK(output);
+  if (input.length() == 0)
+    return false;
+
+  const uint8* ubuf = reinterpret_cast<const unsigned char*>(input.data());
+  SHA256Context ctx;
+  SHA256_Begin(&ctx);
+  SHA256_Update(&ctx, ubuf, input.length());
+  uint8 hash[Extension::kIdSize];
+  SHA256_End(&ctx, hash, NULL, sizeof(hash));
+  *output = StringToLowerASCII(HexEncode(hash, sizeof(hash)));
+
+  return true;
 }
 
 // Helper method that loads a UserScript object from a dictionary in the
@@ -367,8 +394,8 @@ PageAction* Extension::LoadPageActionHelper(
 
   // Read the page action |id|.
   std::string id;
-  if (!page_action->GetString(kIdKey, &id)) {
-    *error = ExtensionErrorUtils::FormatErrorMessage(kInvalidIdError,
+  if (!page_action->GetString(kPageActionIdKey, &id)) {
+    *error = ExtensionErrorUtils::FormatErrorMessage(kInvalidPageActionIdError,
         IntToString(definition_index));
     return NULL;
   }
@@ -492,13 +519,14 @@ Extension::Extension(const FilePath& path) {
 #endif
 }
 
-
 // TODO(rafaelw): Move ParsePEMKeyBytes, ProducePEM & FormatPEMForOutput to a
 // util class in base:
 // http://code.google.com/p/chromium/issues/detail?id=13572
 bool Extension::ParsePEMKeyBytes(const std::string& input,
                                         std::string* output) {
-  CHECK(output);
+  DCHECK(output);
+  if (!output)
+    return false;
   if (input.length() == 0)
     return false;
 
@@ -564,33 +592,23 @@ bool Extension::FormatPEMForFileOutput(const std::string input,
 
 bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
                               std::string* error) {
-  // Initialize id.
-  if (source.HasKey(kIdKey)) {
-    if (!source.GetString(kIdKey, &id_)) {
-      *error = kInvalidIdError;
-      return false;
-    }
-
-    // Normalize the string to lowercase, so it can be used as an URL component
-    // (where GURL will lowercase it).
-    StringToLowerASCII(&id_);
-
-    // Verify that the id is legal.
-    if (!IdIsValid(id_)) {
-      *error = kInvalidIdError;
-      return false;
+  if (source.HasKey(kPublicKeyKey)) {
+    std::string public_key_bytes;
+    if (!source.GetString(kPublicKeyKey, &public_key_) ||
+      !ParsePEMKeyBytes(public_key_, &public_key_bytes) ||
+      !GenerateIdFromPublicKey(public_key_bytes, &id_)) {
+        *error = kInvalidKeyError;
+        return false;
     }
   } else if (require_id) {
-    *error = kInvalidIdError;
+    *error = kInvalidKeyError;
     return false;
   } else {
     // Generate a random ID
-    static int counter = 0;
-    id_ = StringPrintf("%x", counter);
-    ++counter;
+    id_ = StringPrintf("%x", NextGeneratedId());
 
-    // pad the string out to 40 chars with zeroes.
-    id_.insert(0, 40 - id_.length(), '0');
+    // pad the string out to kIdSize*2 chars with zeroes.
+    id_.insert(0, Extension::kIdSize*2 - id_.length(), '0');
   }
 
   // Initialize the URL.
