@@ -319,17 +319,34 @@ void ExtensionsService::LoadExtension(const FilePath& extension_path) {
 }
 
 void ExtensionsService::OnExtensionsLoaded(ExtensionList* new_extensions) {
-  // Sync with manually loaded extensions. Otherwise we won't know about them
-  // since they aren't installed in the normal way. Eventually, we want to not
-  // load extensions at all from directory, but use the Extension preferences
-  // as the truth for what is installed.
-  DictionaryValue* pref = NULL;
-  for (ExtensionList::const_iterator iter = new_extensions->begin();
+  // Filter out any extensions we don't want to enable. Themes are always
+  // enabled, but other extensions are only loaded if --enable-extensions is
+  // present.
+  ExtensionList enabled_extensions; 
+  for (ExtensionList::iterator iter = new_extensions->begin();
        iter != new_extensions->end(); ++iter) {
+    if (extensions_enabled() || (*iter)->IsTheme())
+      enabled_extensions.push_back(*iter);
+  }
+
+  for (ExtensionList::const_iterator iter = enabled_extensions.begin();
+       iter != enabled_extensions.end(); ++iter) {
+    // Skip updated extensions. We don't yet implement update (issue 12399).
+    // For now, just skip existing extensions so that at least we don't end up
+    // with duplicate toolstrips, etc. Later we will want to do live, in-place
+    // updates.
+    if (GetExtensionByID((*iter)->id()))
+      continue;
+
     std::wstring extension_id = ASCIIToWide((*iter)->id());
-    pref = GetOrCreateExtensionPref(extension_id);
+    DictionaryValue* pref = GetOrCreateExtensionPref(extension_id);
     int location;
     int state;
+    
+    // Ensure all loaded extensions have a preference set. This deals with a
+    // legacy problem where some extensions were installed before we were
+    // storing state in the preferences.
+    // TODO(aa): We should remove this eventually.
     if (!pref->GetInteger(kLocation, &location) ||
         !pref->GetInteger(kState, &state)) {
       UpdateExtensionPref(extension_id,
@@ -337,26 +354,20 @@ void ExtensionsService::OnExtensionsLoaded(ExtensionList* new_extensions) {
       UpdateExtensionPref(extension_id,
           kState, Value::CreateIntegerValue(Extension::ENABLED), false);
     } else {
-      // The kill-bit only applies to External extensions so this check fails
-      // for internal locations that have the kill-bit set. In other words,
-      // the kill-bit cannot be set unless the extension is external.
-      Extension::Location ext_location =
-          static_cast<Extension::Location>(location);
+      // Sanity check: The kill-bit should only ever be set on external
+      // extensions.
       DCHECK(state != Extension::KILLBIT ||
-             Extension::IsExternalLocation(ext_location));
+             Extension::IsExternalLocation(
+                static_cast<Extension::Location>(location)));
     }
-  }
 
-  for (ExtensionList::iterator iter = new_extensions->begin();
-       iter != new_extensions->end(); ++iter) {
-    if (extensions_enabled() || (*iter)->IsTheme())
-      extensions_.push_back(*iter);
+    extensions_.push_back(*iter);
   }
 
   NotificationService::current()->Notify(
       NotificationType::EXTENSIONS_LOADED,
       NotificationService::AllSources(),
-      Details<ExtensionList>(new_extensions));
+      Details<ExtensionList>(&enabled_extensions));
 
   delete new_extensions;
 }

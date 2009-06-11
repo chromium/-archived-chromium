@@ -163,6 +163,7 @@ class ExtensionsServiceTest
       }
     } else {
       EXPECT_FALSE(installed_) << path.value();
+      EXPECT_EQ(0u, loaded_.size()) << path.value();
       EXPECT_EQ(1u, errors.size()) << path.value();
     }
 
