@@ -4106,6 +4106,26 @@
             '../third_party/WebKit/WebCore/platform/graphics/skia/PathSkia.cpp',
             '../third_party/WebKit/WebCore/platform/graphics/skia/PatternSkia.cpp',
             '../third_party/WebKit/WebCore/platform/graphics/skia/TransformationMatrixSkia.cpp',
+
+            # Skia image-decoders are also not used on mac.  CoreGraphics
+            # is used directly instead.
+            '../third_party/WebKit/WebCore/platform/image-decoders/skia/BMPImageDecoder.cpp',
+            '../third_party/WebKit/WebCore/platform/image-decoders/skia/BMPImageDecoder.h',
+            '../third_party/WebKit/WebCore/platform/image-decoders/skia/BMPImageReader.cpp',
+            '../third_party/WebKit/WebCore/platform/image-decoders/skia/BMPImageReader.h',
+            '../third_party/WebKit/WebCore/platform/image-decoders/skia/GIFImageDecoder.cpp',
+            '../third_party/WebKit/WebCore/platform/image-decoders/skia/GIFImageDecoder.h',
+            '../third_party/WebKit/WebCore/platform/image-decoders/skia/GIFImageReader.cpp',
+            '../third_party/WebKit/WebCore/platform/image-decoders/skia/GIFImageReader.h',
+            '../third_party/WebKit/WebCore/platform/image-decoders/skia/ICOImageDecoder.cpp',
+            '../third_party/WebKit/WebCore/platform/image-decoders/skia/ICOImageDecoder.h',
+            '../third_party/WebKit/WebCore/platform/image-decoders/skia/ImageDecoder.h',
+            '../third_party/WebKit/WebCore/platform/image-decoders/skia/JPEGImageDecoder.cpp',
+            '../third_party/WebKit/WebCore/platform/image-decoders/skia/JPEGImageDecoder.h',
+            '../third_party/WebKit/WebCore/platform/image-decoders/skia/PNGImageDecoder.cpp',
+            '../third_party/WebKit/WebCore/platform/image-decoders/skia/PNGImageDecoder.h',
+            '../third_party/WebKit/WebCore/platform/image-decoders/skia/XBMImageDecoder.cpp',
+            '../third_party/WebKit/WebCore/platform/image-decoders/skia/XBMImageDecoder.h',
           ],
           'link_settings': {
             'libraries': [

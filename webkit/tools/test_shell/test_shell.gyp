@@ -504,6 +504,14 @@
           # disable plugin tests until we re-enable plugins for chromium.app
           'sources!': [
             'plugin_tests.cc',
+
+            # Disable the image decoder tests because we use CoreGraphics
+            # code on mac and these tests are for the Skia image-decoders.
+            '../webcore_unit_tests/BMPImageDecoder_unittest.cpp',
+            '../webcore_unit_tests/ICOImageDecoder_unittest.cpp',
+            '../webcore_unit_tests/XBMImageDecoder_unittest.cpp',
+            'image_decoder_unittest.cc',
+            'image_decoder_unittest.h',
           ]
         }],
         ['OS=="win"', {
