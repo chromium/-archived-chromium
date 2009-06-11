@@ -486,7 +486,7 @@ bool AutomationProxy::OpenNewBrowserWindow(bool show) {
 // TODO(port): Replace HWNDs.
 scoped_refptr<TabProxy> AutomationProxy::CreateExternalTab(HWND parent,
     const gfx::Rect& dimensions, unsigned int style, bool incognito,
-    HWND* external_tab_container) {
+    HWND* external_tab_container, HWND* tab) {
   IPC::Message* response = NULL;
   int handle = 0;
 
@@ -494,6 +494,7 @@ scoped_refptr<TabProxy> AutomationProxy::CreateExternalTab(HWND parent,
       Send(new AutomationMsg_CreateExternalTab(0, parent, dimensions, style,
                                                incognito,
                                                external_tab_container,
+                                               tab,
                                                &handle));
   if (!succeeded) {
     return NULL;

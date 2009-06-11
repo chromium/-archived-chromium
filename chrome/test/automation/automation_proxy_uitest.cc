@@ -759,8 +759,9 @@ void AutomationProxyForExternalTab::OnForwardMessageToExternalHost(
 
 TEST_F(ExternalTabTestType, CreateExternalTab) {
   HWND external_tab_container = NULL;
+  HWND tab_wnd = NULL;
   scoped_refptr<TabProxy> tab(automation()->CreateExternalTab(NULL, gfx::Rect(),
-      WS_POPUP, false, &external_tab_container));
+      WS_POPUP, false, &external_tab_container, &tab_wnd));
   EXPECT_TRUE(tab != NULL);
   EXPECT_NE(FALSE, ::IsWindow(external_tab_container));
   if (tab != NULL) {
@@ -774,12 +775,13 @@ TEST_F(ExternalTabTestType, CreateExternalTab) {
 
 TEST_F(ExternalTabTestType, IncognitoMode) {
   HWND external_tab_container = NULL;
+  HWND tab_wnd = NULL;
   GURL url("http://anatomyofmelancholy.net");
   std::string value_result;
 
   // Create incognito tab
   scoped_refptr<TabProxy> tab(automation()->CreateExternalTab(NULL, gfx::Rect(),
-      WS_POPUP, true, &external_tab_container));
+      WS_POPUP, true, &external_tab_container, &tab_wnd));
   EXPECT_TRUE(tab->SetCookie(url, "robert=burton; "
                                   "expires=Thu, 13 Oct 2011 05:04:03 UTC;"));
   EXPECT_TRUE(tab->GetCookieByName(url, "robert", &value_result));
@@ -790,9 +792,10 @@ TEST_F(ExternalTabTestType, IncognitoMode) {
   value_result.empty();
   clear_profile_ = false;
   external_tab_container = NULL;
+  tab_wnd = NULL;
   LaunchBrowserAndServer();
   tab = automation()->CreateExternalTab(NULL, gfx::Rect(),
-      WS_POPUP, false, &external_tab_container);
+      WS_POPUP, false, &external_tab_container, &tab_wnd);
   EXPECT_TRUE(tab->GetCookieByName(url, "robert", &value_result));
   EXPECT_EQ("", value_result);
 }
@@ -802,8 +805,9 @@ TEST_F(ExternalTabTestType, ExternalTabPostMessage) {
       static_cast<AutomationProxyForExternalTab*>(automation());
 
   HWND external_tab_container = NULL;
+  HWND tab_wnd = NULL;
   scoped_refptr<TabProxy> tab(proxy->CreateExternalTab(NULL, gfx::Rect(),
-      WS_POPUP, false, &external_tab_container));
+      WS_POPUP, false, &external_tab_container, &tab_wnd));
   EXPECT_TRUE(tab != NULL);
   EXPECT_NE(FALSE, ::IsWindow(external_tab_container));
   if (tab != NULL) {

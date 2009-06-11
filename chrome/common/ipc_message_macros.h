@@ -133,6 +133,7 @@
 #undef IPC_SYNC_MESSAGE_ROUTED4_0
 #undef IPC_SYNC_MESSAGE_ROUTED4_1
 #undef IPC_SYNC_MESSAGE_ROUTED4_2
+#undef IPC_SYNC_MESSAGE_ROUTED4_3
 
 #if defined(IPC_MESSAGE_MACROS_ENUMS)
 #undef IPC_MESSAGE_MACROS_ENUMS
@@ -300,6 +301,9 @@
   msg_class##__ID,
 
 #define IPC_SYNC_MESSAGE_ROUTED4_2(msg_class, type1_in, type2_in, type3_in, type4_in, type1_out, type2_out) \
+  msg_class##__ID,
+
+#define IPC_SYNC_MESSAGE_ROUTED4_3(msg_class, type1_in, type2_in, type3_in, type4_in, type1_out, type2_out, type3_out) \
   msg_class##__ID,
 
 // Message crackers and handlers.
@@ -570,6 +574,9 @@ LogFunction g_log_function_mapping[LastMsgIndex];
   IPC_MESSAGE_LOG(msg_class)
 
 #define IPC_SYNC_MESSAGE_ROUTED4_2(msg_class, type1_in, type2_in, type3_in, type4_in, type1_out, type2_out) \
+  IPC_MESSAGE_LOG(msg_class)
+
+#define IPC_SYNC_MESSAGE_ROUTED4_3(msg_class, type1_in, type2_in, type3_in, type4_in, type1_out, type2_out, type3_out) \
   IPC_MESSAGE_LOG(msg_class)
 
 #elif defined(IPC_MESSAGE_MACROS_CLASSES)
@@ -1148,6 +1155,18 @@ LogFunction g_log_function_mapping[LastMsgIndex];
         : IPC::MessageWithReply<Tuple4<type1_in, type2_in, type3_in, type4_in>, \
             Tuple2<type1_out&, type2_out&> >(routing_id, ID, \
             MakeRefTuple(arg1, arg2, arg3, arg4), MakeRefTuple(*arg5, *arg6)) {} \
+  };
+
+#define IPC_SYNC_MESSAGE_ROUTED4_3(msg_class, type1_in, type2_in, type3_in, type4_in, type1_out, type2_out, type3_out) \
+  class msg_class : \
+      public IPC::MessageWithReply<Tuple4<type1_in, type2_in, type3_in, type4_in>, \
+          Tuple3<type1_out&, type2_out&, type3_out&> > { \
+   public: \
+   enum { ID = msg_class##__ID }; \
+    msg_class(int routing_id, const type1_in& arg1, const type2_in& arg2, const type3_in& arg3, const type4_in& arg4, type1_out* arg5, type2_out* arg6, type3_out* arg7) \
+      : IPC::MessageWithReply<Tuple4<type1_in, type2_in, type3_in, type4_in>, \
+          Tuple3<type1_out&, type2_out&, type3_out&> >(routing_id, ID, \
+          MakeRefTuple(arg1, arg2, arg3, arg4), MakeRefTuple(*arg5, *arg6, *arg7)) {} \
   };
 
 #endif  // #if defined()

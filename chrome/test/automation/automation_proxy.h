@@ -194,7 +194,7 @@ class AutomationProxy : public IPC::Channel::Listener,
   // that can be reparented in another process.
   scoped_refptr<TabProxy> CreateExternalTab(HWND parent,
       const gfx::Rect& dimensions, unsigned int style, bool incognito,
-      HWND* external_tab_container);
+      HWND* external_tab_container, HWND* tab);
 #endif  // defined(OS_WIN)
 
   int command_execution_timeout_ms() const {

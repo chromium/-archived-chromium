@@ -2440,9 +2440,11 @@ void AutomationProvider::CreateExternalTab(HWND parent,
                                            unsigned int style,
                                            bool incognito,
                                            HWND* tab_container_window,
+                                           HWND* tab_window,
                                            int* tab_handle) {
   *tab_handle = 0;
   *tab_container_window = NULL;
+  *tab_window = NULL;
   ExternalTabContainer *external_tab_container =
       new ExternalTabContainer(this);
   Profile* profile = incognito? profile_->GetOffTheRecordProfile() : profile_;
@@ -2452,6 +2454,7 @@ void AutomationProvider::CreateExternalTab(HWND parent,
     *tab_handle = tab_tracker_->Add(&tab_contents->controller());
     external_tab_container->set_tab_handle(*tab_handle);
     *tab_container_window = external_tab_container->GetNativeView();
+    *tab_window = tab_contents->GetNativeView();
   } else {
     delete external_tab_container;
   }

@@ -301,7 +301,9 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
 #if defined(OS_WIN)
   void CreateExternalTab(HWND parent, const gfx::Rect& dimensions,
                          unsigned int style, bool incognito,
-                         HWND* tab_container_window, int* tab_handle);
+                         HWND* tab_container_window,
+                         HWND* tab_window,
+                         int* tab_handle);
 #endif  // defined(OS_WIN)
 
   void NavigateInExternalTab(
