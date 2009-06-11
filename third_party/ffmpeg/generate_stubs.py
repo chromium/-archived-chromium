@@ -144,18 +144,16 @@ class WindowsLibCreator(object):
   logic.
   """
 
-  def __init__(self, module_name, signatures, intermediate_dir, outdir_path):
+  def __init__(self, module_name, signatures, outdir_path):
     """Initializes the WindowsLibCreator for creating a library stub.
 
     Args:
       module_name: The name of the module we are writing a stub for.
       signatures: The list of signatures to create stubs for.
-      intermediate_dir: The directory where the generated .def files should go.
-      outdir_path: The directory where generated .lib files should go.
+      outdir_path: The directory that generated files should go into.
     """
     self.module_name = module_name
     self.signatures = signatures
-    self.intermediate_dir = intermediate_dir
     self.outdir_path = outdir_path
 
   def DefFilePath(self):
@@ -165,7 +163,7 @@ class WindowsLibCreator(object):
       A string with the path to the def file.
     """
     # Output file name is in the form "module_name.def".
-    return '%s/%s.def' % (self.intermediate_dir, self.module_name)
+    return '%s/%s.def' % (self.outdir_path, self.module_name)
 
   def LibFilePath(self):
     """Generates the path of the lib file for the given module_name.
@@ -577,7 +575,6 @@ void %s();
 
 // Umbrella initializer for all the modules in this stub file.
 bool InitializeStubs(const StubPathMap& path_map);
-
 }  // namespace %s
 
 #endif  // %s
@@ -591,17 +588,15 @@ bool InitializeStubs(const StubPathMap& path_map);
       outfile: The file handle to populate.
     """
     outfile.write('extern "C" {\n')
-    outfile.write('\n')
     self.WriteFunctionPointers(outfile)
     self.WriteStubFunctions(outfile)
-    outfile.write('\n')
     outfile.write('}  // extern "C"\n')
     outfile.write('\n')
 
     outfile.write('namespace %s {\n' % namespace)
     outfile.write('\n')
     self.WriteModuleInitializeFunctions(outfile)
-    outfile.write('}  // namespace %s\n\n' % namespace)
+    outfile.write('}  // namespace %s\n' % namespace)
 
   def WriteFunctionPointers(self, outfile):
     """Write the function pointer declarations needed by the stubs.
@@ -709,11 +704,6 @@ def main():
                     dest='out_dir',
                     default=None,
                     help='Output location.')
-  parser.add_option('-i',
-                    '--intermediate_dir',
-                    dest='intermediate_dir',
-                    default=None,
-                    help='Locaiton of intermediate files.')
   parser.add_option('-t',
                     '--type',
                     dest='type',
@@ -748,7 +738,7 @@ def main():
 
   if options.out_dir is None:
     parser.error('Output location not specified')
-  if len(args) == 0:
+  if args:
     parser.error('No inputs specified')
 
   if options.type not in [FILE_TYPE_WIN, FILE_TYPE_POSIX_STUB]:
@@ -760,17 +750,10 @@ def main():
     if options.path_from_source is None:
       parser.error('Path from source needed for %s' % FILE_TYPE_POSIX_STUB)
 
-  # Get the names for the output directory and intermdiate directory.
+  # Make sure output directory exists.
   out_dir = RemoveTrailingSlashes(options.out_dir)
-  intermediate_dir = RemoveTrailingSlashes(options.intermediate_dir)
-  if intermediate_dir is None:
-    intermediate_dir = out_dir
-
-  # Make sure the directories exists.
   if not os.path.exists(out_dir):
     os.makedirs(out_dir)
-  if not os.path.exists(intermediate_dir):
-    os.makedirs(intermediate_dir)
 
   if options.type == FILE_TYPE_WIN:
     for input_path in args:
@@ -779,7 +762,7 @@ def main():
         infile = open(input_path, 'r')
         signatures = ParseSignatures(infile)
         module_name = ExtractModuleName(os.path.basename(input_path))
-        WindowsLibCreator(module_name, signatures, intermediate_dir, out_dir).CreateLib()
+        WindowsLibCreator(module_name, signatures, out_dir).CreateLib()
       finally:
         if infile is not None:
           infile.close()
@@ -788,7 +771,7 @@ def main():
     header_path = PosixStubWriter.HeaderFilePath(options.stubfile_name,
                                                  out_dir)
     impl_path = PosixStubWriter.ImplementationFilePath(options.stubfile_name,
-                                                       intermediate_dir)
+                                                       out_dir)
 
     # Generate some convenience variables for bits of data needed below.
     module_names = [ExtractModuleName(path) for path in args]
@@ -808,7 +791,6 @@ def main():
       if options.extra_stub_header is not None:
         extra_header_file = None
         try:
-          impl_file.write('\n')
           extra_header_file = open(options.extra_stub_header, 'r')
           for line in extra_header_file:
             impl_file.write(line)

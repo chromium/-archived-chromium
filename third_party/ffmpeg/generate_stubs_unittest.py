@@ -136,15 +136,12 @@ class WindowsLibCreatorUnittest(unittest.TestCase):
     self.module_name = 'my_module-1'
     self.signatures = [sig[1] for sig in SIMPLE_SIGNATURES]
     self.out_dir = 'out_dir'
-    self.intermediate_dir = 'intermediate_dir'
     self.creator = gs.WindowsLibCreator(self.module_name,
                                         self.signatures,
-                                        self.intermediate_dir,
                                         self.out_dir)
 
   def testDefFilePath(self):
-    self.assertEqual('intermediate_dir/my_module-1.def',
-                     self.creator.DefFilePath())
+    self.assertEqual('out_dir/my_module-1.def', self.creator.DefFilePath())
 
   def testLibFilePath(self):
     self.assertEqual('out_dir/my_module-1.lib', self.creator.LibFilePath())
