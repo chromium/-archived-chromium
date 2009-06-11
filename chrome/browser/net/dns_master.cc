@@ -10,6 +10,7 @@
 
 #include "base/compiler_specific.h"
 #include "base/histogram.h"
+#include "base/message_loop.h"
 #include "base/lock.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
@@ -23,7 +24,9 @@ namespace chrome_browser_net {
 
 class DnsMaster::LookupRequest {
  public:
-  LookupRequest(DnsMaster* master, const std::string& hostname)
+  LookupRequest(DnsMaster* master,
+                net::HostResolver* /*host_resolver*/,
+                const std::string& hostname)
       : ALLOW_THIS_IN_INITIALIZER_LIST(
           net_callback_(this, &LookupRequest::OnLookupFinished)),
         master_(master),
@@ -53,10 +56,14 @@ class DnsMaster::LookupRequest {
   DISALLOW_COPY_AND_ASSIGN(LookupRequest);
 };
 
-DnsMaster::DnsMaster(size_t max_concurrent)
+DnsMaster::DnsMaster(net::HostResolver* host_resolver,
+                     MessageLoop* host_resolver_loop,
+                     size_t max_concurrent)
   : peak_pending_lookups_(0),
     shutdown_(false),
-    max_concurrent_lookups_(max_concurrent) {
+    max_concurrent_lookups_(max_concurrent),
+    host_resolver_(host_resolver),
+    host_resolver_loop_(host_resolver_loop) {
 }
 
 DnsMaster::~DnsMaster() {
@@ -79,6 +86,14 @@ void DnsMaster::ResolveList(const NameList& hostnames,
                             DnsHostInfo::ResolutionMotivation motivation) {
   AutoLock auto_lock(lock_);
 
+  // We need to run this on |host_resolver_loop_| since we may access
+  // |host_resolver_| which is not thread safe.
+  if (MessageLoop::current() != host_resolver_loop_) {
+    host_resolver_loop_->PostTask(FROM_HERE, NewRunnableMethod(this,
+        &DnsMaster::ResolveList, hostnames, motivation));
+    return;
+  }
+
   NameList::const_iterator it;
   for (it = hostnames.begin(); it < hostnames.end(); ++it)
     PreLockedResolve(*it, motivation);
@@ -91,6 +106,15 @@ void DnsMaster::Resolve(const std::string& hostname,
   if (0 == hostname.length())
     return;
   AutoLock auto_lock(lock_);
+
+  // We need to run this on |host_resolver_loop_| since we may access
+  // |host_resolver_| which is not thread safe.
+  if (MessageLoop::current() != host_resolver_loop_) {
+    host_resolver_loop_->PostTask(FROM_HERE, NewRunnableMethod(this,
+        &DnsMaster::Resolve, hostname, motivation));
+    return;
+  }
+
   PreLockedResolve(hostname, motivation);
 }
 
@@ -165,6 +189,15 @@ void DnsMaster::NonlinkNavigation(const GURL& referrer,
 
 void DnsMaster::NavigatingTo(const std::string& host_name) {
   AutoLock auto_lock(lock_);
+
+  // We need to run this on |host_resolver_loop_| since we may access
+  // |host_resolver_| which is not thread safe.
+  if (MessageLoop::current() != host_resolver_loop_) {
+    host_resolver_loop_->PostTask(FROM_HERE, NewRunnableMethod(this,
+        &DnsMaster::NavigatingTo, host_name));
+    return;
+  }
+
   Referrers::iterator it = referrers_.find(host_name);
   if (referrers_.end() == it)
     return;
@@ -366,6 +399,10 @@ DnsHostInfo* DnsMaster::PreLockedResolve(
 }
 
 void DnsMaster::PreLockedScheduleLookups() {
+  // We need to run this on |host_resolver_loop_| since we may access
+  // |host_resolver_| which is not thread safe.
+  DCHECK_EQ(MessageLoop::current(), host_resolver_loop_);
+
   while (!work_queue_.IsEmpty() &&
          pending_lookups_.size() < max_concurrent_lookups_) {
     const std::string hostname(work_queue_.Pop());
@@ -378,13 +415,14 @@ void DnsMaster::PreLockedScheduleLookups() {
       return;
     }
 
-    LookupRequest* request = new LookupRequest(this, hostname);
+    LookupRequest* request = new LookupRequest(this, host_resolver_, hostname);
     if (request->Start()) {
+      // Will complete asynchronously.
       pending_lookups_.insert(request);
       peak_pending_lookups_ = std::max(peak_pending_lookups_,
                                        pending_lookups_.size());
     } else {
-      NOTREACHED();
+      // Completed synchyronously (was already cached by HostResolver).
       delete request;
     }
   }
@@ -411,6 +449,8 @@ bool DnsMaster::PreLockedCongestionControlPerformed(DnsHostInfo* info) {
 
 void DnsMaster::OnLookupFinished(LookupRequest* request,
                                  const std::string& hostname, bool found) {
+  DCHECK_EQ(MessageLoop::current(), host_resolver_loop_);
+
   AutoLock auto_lock(lock_);  // For map access (changing info values).
   DnsHostInfo* info = &results_[hostname];
   DCHECK(info->HasHostname(hostname));

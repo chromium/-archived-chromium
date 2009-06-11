@@ -10,6 +10,7 @@
 #include "base/singleton.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
+#include "base/thread.h"
 #include "base/values.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
@@ -22,6 +23,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "net/base/dns_resolution_observer.h"
+#include "net/base/host_resolver.h"
 
 using base::TimeDelta;
 
@@ -379,7 +381,12 @@ void InitDnsPrefetch(size_t max_concurrent, PrefService* user_prefs) {
   const TimeDelta kAllowableShutdownTime(TimeDelta::FromSeconds(10));
   DCHECK(NULL == dns_master);
   if (!dns_master) {
-    dns_master = new DnsMaster(max_concurrent);
+    // Have the DnsMaster issue resolve requests through a global HostResolver
+    // that is shared by the main URLRequestContext, and lives on the IO thread.
+    dns_master = new DnsMaster(GetGlobalHostResolver(),
+                               g_browser_process->io_thread()->message_loop(),
+                               max_concurrent);
+    dns_master->AddRef();
     // We did the initialization, so we should prime the pump, and set up
     // the DNS resolution system to run.
     Singleton<OffTheRecordObserver>::get()->Register();
@@ -399,11 +406,12 @@ void InitDnsPrefetch(size_t max_concurrent, PrefService* user_prefs) {
 void EnsureDnsPrefetchShutdown() {
   if (NULL != dns_master)
     dns_master->Shutdown();
+  FreeGlobalHostResolver();
 }
 
 void FreeDnsPrefetchResources() {
   DCHECK(NULL != dns_master);
-  delete dns_master;
+  dns_master->Release();
   dns_master = NULL;
 }
 
@@ -411,6 +419,36 @@ static void DiscardAllPrefetchState() {
   if (!dns_master)
     return;
   dns_master->DiscardAllResults();
+}
+
+//------------------------------------------------------------------------------
+
+// Host resolver shared by DNS prefetcher, and the main URLRequestContext.
+static net::HostResolver* global_host_resolver = NULL;
+
+net::HostResolver* GetGlobalHostResolver() {
+  // Called from UI thread.
+  if (!global_host_resolver) {
+  // TODO(eroman):
+#if 0
+    static const size_t kMaxHostCacheEntries = 100;
+    static const size_t kHostCacheExpirationSeconds = 60;  // 1 minute.
+
+    global_host_resolver = new net::HostResolver(
+        kMaxHostCacheEntries, kHostCacheExpirationSeconds * 1000);
+#endif
+  }
+  return global_host_resolver;
+}
+
+void FreeGlobalHostResolver() {
+  if (global_host_resolver) {
+    // Called from IO thread.
+    DCHECK_EQ(MessageLoop::current(),
+              g_browser_process->io_thread()->message_loop());
+    delete global_host_resolver;
+    global_host_resolver = NULL;
+  }
 }
 
 //------------------------------------------------------------------------------

@@ -20,20 +20,31 @@
 #include <string>
 
 #include "base/lock.h"
+#include "base/ref_counted.h"
 #include "chrome/browser/net/dns_host_info.h"
 #include "chrome/browser/net/referrer.h"
 #include "chrome/common/net/dns.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
+
+namespace net {
+class HostResolver;
+}
+
+class MessageLoop;
 
 namespace chrome_browser_net {
 
 typedef chrome_common_net::NameList NameList;
 typedef std::map<std::string, DnsHostInfo> Results;
 
-class DnsMaster {
+class DnsMaster : public base::RefCountedThreadSafe<DnsMaster> {
  public:
-  // Specify how many concurrent (paralell) prefetches will be performed.
-  explicit DnsMaster(size_t max_concurrent);
+  // |max_concurrent| specifies how many concurrent (paralell) prefetches will
+  // be performed. Host lookups will be issued on the |host_resolver_loop|
+  // thread, using the |host_resolver| instance.
+  DnsMaster(net::HostResolver* host_resolver,
+            MessageLoop* host_resolver_loop,
+            size_t max_concurrent);
   ~DnsMaster();
 
   // Cancel pending requests and prevent new ones from being made.
@@ -210,6 +221,11 @@ class DnsMaster {
 
   // The number of concurrent lookups currently allowed.
   const size_t max_concurrent_lookups_;
+
+  // The host resovler we warm DNS entries for. The resolver (which is not
+  // thread safe) should be accessed only on |host_resolver_loop_|.
+  net::HostResolver* host_resolver_;
+  MessageLoop* host_resolver_loop_;
 
   DISALLOW_COPY_AND_ASSIGN(DnsMaster);
 };

@@ -17,6 +17,10 @@
 
 class PrefService;
 
+namespace net {
+class HostResolver;
+}
+
 namespace chrome_browser_net {
 
 // Initialize dns prefetching subsystem. Must be called before any other
@@ -30,6 +34,14 @@ void EnsureDnsPrefetchShutdown();
 // Free all resources allocated by InitDnsPrefetch. After that you must not call
 // any function from this file.
 void FreeDnsPrefetchResources();
+
+// Lazily allocates a HostResolver to be used by the DNS prefetch system, on
+// the IO thread. Must be matched by a call to FreeGlobalHostResolver().
+net::HostResolver* GetGlobalHostResolver();
+
+// Frees the HostResolver allocated by GetGlobalHostResolver(). Must be called
+// on the IO thread.
+void FreeGlobalHostResolver();
 
 //------------------------------------------------------------------------------
 // Global APIs relating to Prefetching in browser
@@ -62,7 +74,7 @@ class DnsPrefetcherInit {
   // OS cache before all resource loading is complete.  This is the default.
   static const size_t kMaxConcurrentLookups;
 
-  explicit DnsPrefetcherInit(size_t max_concurrent, PrefService* user_prefs) {
+  DnsPrefetcherInit(size_t max_concurrent, PrefService* user_prefs) {
     InitDnsPrefetch(max_concurrent, user_prefs);
   }
 
