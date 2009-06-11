@@ -489,6 +489,11 @@ bool TabContents::ShouldDisplayURL() {
   NavigationEntry* entry = controller_.GetActiveEntry();
   if (entry && entry->IsViewSourceMode())
     return true;
+
+  // Hide the URL in chrome-extension://.
+  if (GetURL().SchemeIs(chrome::kExtensionScheme))
+    return false;
+
   DOMUI* dom_ui = GetDOMUIForCurrentState();
   if (dom_ui)
     return !dom_ui->should_hide_url();
