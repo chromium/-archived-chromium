@@ -330,6 +330,7 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
     gtk_box_pack_start(GTK_BOX(hbox_.get()), dangerous_prompt_, FALSE, FALSE,
                        0);
     gtk_widget_set_app_paintable(dangerous_prompt_, TRUE);
+    gtk_widget_set_redraw_on_allocate(dangerous_prompt_, TRUE);
     g_signal_connect(dangerous_prompt_, "expose-event",
                      G_CALLBACK(OnDangerousPromptExpose), this);
     gtk_widget_show_all(dangerous_prompt_);
@@ -347,18 +348,6 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
 
 DownloadItemGtk::~DownloadItemGtk() {
   StopDownloadProgress();
-
-  // If the top-level window was already destroyed, the signal handler was
-  // already disconnected. Disconnect if that's not the case.
-  if (g_signal_handler_find(parent_shelf_->GetHBox(),
-                            G_SIGNAL_MATCH_ID,
-                            resize_handler_id_,
-                            0,
-                            NULL,
-                            NULL,
-                            NULL) != 0) {
-    g_signal_handler_disconnect(parent_shelf_->GetHBox(), resize_handler_id_);
-  }
   get_download()->RemoveObserver(this);
 
   hbox_.Destroy();
@@ -379,6 +368,9 @@ void DownloadItemGtk::OnDownloadUpdated(DownloadItem* download) {
 
   switch (download->state()) {
     case DownloadItem::REMOVING:
+      // We disconnect here rather than the d'tor because we don't want to
+      // explicitly disconnect if |parent_shelf_| has been destroyed.
+      g_signal_handler_disconnect(parent_shelf_->GetHBox(), resize_handler_id_);
       parent_shelf_->RemoveDownloadItem(this);  // This will delete us!
       return;
     case DownloadItem::CANCELLED:
