@@ -48,6 +48,10 @@ class ChromeMiniInstaller {
   // Closes specified process.
   void CloseProcesses(const std::wstring& executable_name);
 
+  // This method returns path to either program files
+  // or documents and setting based on the install type.
+  std::wstring GetChromeInstallDirectoryLocation();
+
   // Installs the latest full installer.
   void InstallFullInstaller(bool over_install);
 
@@ -104,15 +108,11 @@ class ChromeMiniInstaller {
   // Checks for registry key on uninstall.
   bool CheckRegistryKeyOnUninstall(const std::wstring& key_path);
 
-  // Deletes App folder after uninstall.
-  void DeleteAppFolder();
+  // Deletes User Data folder after uninstall.
+  void DeleteUserDataFolder();
 
   // This method verifies Chrome shortcut.
   void FindChromeShortcut();
-
-  // This method returns path to either program files
-  // or documents and setting based on the install type.
-  std::wstring GetChromeInstallDirectoryLocation();
 
   // This method will create a command line to run apply tag.
   bool GetCommandForTagging(std::wstring *return_command);

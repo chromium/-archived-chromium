@@ -159,7 +159,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\installer\util\run_all_unittests.cc"
+			RelativePath=".\run_all_unittests.cc"
 			>
 		</File>
 		<File

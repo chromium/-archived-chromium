@@ -224,7 +224,7 @@ void ChromeMiniInstaller::OverInstall() {
 // Handles uninstall confirm dialog.
 // Waits until setup.exe ends.
 // Checks if registry key exist even after uninstall.
-// Deletes App dir.
+// Deletes User Data dir.
 // Closes feedback form.
 void ChromeMiniInstaller::UnInstall() {
   printf("\n\nVerifying if Chrome is installed...\n\n");
@@ -253,7 +253,7 @@ void ChromeMiniInstaller::UnInstall() {
       mini_installer_constants::kChromeSetupExecutable);
   printf("\n\nUninstall Checks:\n\n");
   ASSERT_FALSE(CheckRegistryKeyOnUninstall(dist->GetVersionKey()));
-  DeleteAppFolder();
+  DeleteUserDataFolder();
   FindChromeShortcut();
   CloseProcesses(mini_installer_constants::kIEExecutable);
   ASSERT_EQ(0,
@@ -365,11 +365,12 @@ bool ChromeMiniInstaller::CheckRegistryKeyOnUninstall(
   return CheckRegistryKey(key_path);
 }
 
-// Deletes App folder after uninstall.
-void ChromeMiniInstaller::DeleteAppFolder() {
+// Deletes User data folder after uninstall.
+void ChromeMiniInstaller::DeleteUserDataFolder() {
   std::wstring path = GetChromeInstallDirectoryLocation();
   file_util::AppendToPath(&path, mini_installer_constants::kChromeAppDir);
   file_util::UpOneDirectory(&path);
+  file_util::AppendToPath(&path, mini_installer_constants::kChromeUserDataDir);
   printf("Deleting this path after uninstall%ls\n",  path.c_str());
   if (file_util::PathExists(path))
     ASSERT_TRUE(file_util::Delete(path.c_str(), true));
@@ -468,7 +469,8 @@ bool ChromeMiniInstaller::GetInstaller(const wchar_t* pattern,
   std::wstring chrome_diff_installer(
      mini_installer_constants::kChromeDiffInstallerLocation);
   chrome_diff_installer.append(L"*");
-  if (!GetLatestFile(chrome_diff_installer.c_str(), build_channel_.c_str(), &list))
+  if (!GetLatestFile(chrome_diff_installer.c_str(),
+                     build_channel_.c_str(), &list))
     return false;
   int list_size = (list.size())-1;
   while (list_size > 0) {
