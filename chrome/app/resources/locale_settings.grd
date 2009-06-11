@@ -411,12 +411,6 @@
         26
       </message>
 
-      <!-- The width of the font style column in the Fonts and Languages dialog box, -->
-      <!-- in character widths. -->
-      <message name="IDS_FONTSLANG_LABEL_WIDTH" use_name_for_id="true">
-        18
-      </message>
-
       <!-- The width and height of the Page Info dialog box in characters and lines -->
       <!-- (See above). -->
       <message name="IDS_PAGEINFO_DIALOG_WIDTH_CHARS" use_name_for_id="true">

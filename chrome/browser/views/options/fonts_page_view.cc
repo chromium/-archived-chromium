@@ -168,11 +168,10 @@ void FontDisplayView::Layout() {
 }
 
 gfx::Size FontDisplayView::GetPreferredSize() {
-  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  gfx::Font font = rb.GetFont(ResourceBundle::BaseFont);
-  return gfx::Size(font.GetExpectedTextWidth(kFontDisplayMaxWidthChars),
-                   font.height() * kFontDisplayMaxHeightChars
-                       + 2 * kFontDisplayLabelPadding);
+  gfx::Size size = font_text_label_->GetPreferredSize();
+  size.set_width(size.width() + 2 * kFontDisplayLabelPadding);
+  size.set_height(size.height() + 2 * kFontDisplayLabelPadding);
+  return size;
 }
 
 void EmbellishTitle(views::Label* title_label) {
@@ -383,7 +382,6 @@ void FontsPageView::InitFontLayout() {
       l10n_util::GetString(
           IDS_FONT_LANGUAGE_SETTING_FONT_SELECTOR_FIXED_WIDTH_LABEL));
   fixed_width_font_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
-  fixed_width_font_label_->SetMultiLine(true);
 
   // Serif font.
   serif_font_display_view_ = new FontDisplayView;
@@ -396,7 +394,6 @@ void FontsPageView::InitFontLayout() {
       l10n_util::GetString(
           IDS_FONT_LANGUAGE_SETTING_FONT_SELECTOR_SERIF_LABEL));
   serif_font_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
-  serif_font_label_->SetMultiLine(true);
 
   // Sans Serif font.
   sans_serif_font_display_view_ = new FontDisplayView;
@@ -409,7 +406,6 @@ void FontsPageView::InitFontLayout() {
       l10n_util::GetString(
           IDS_FONT_LANGUAGE_SETTING_FONT_SELECTOR_SANS_SERIF_LABEL));
   sans_serif_font_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
-  sans_serif_font_label_->SetMultiLine(true);
 
   // Now add the views.
   using views::GridLayout;
@@ -422,12 +418,10 @@ void FontsPageView::InitFontLayout() {
   const int triple_column_view_set_id = 0;
   ColumnSet* column_set = layout->AddColumnSet(triple_column_view_set_id);
 
-  int label_width = gfx::Font().GetExpectedTextWidth(
-      _wtoi(l10n_util::GetString(IDS_FONTSLANG_LABEL_WIDTH).c_str()));
-  column_set->AddColumn(GridLayout::FILL, GridLayout::FILL, 0,
-                        GridLayout::FIXED, label_width, 0);
+  column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 0,
+                        GridLayout::USE_PREF, 0, 0);
   column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
-  column_set->AddColumn(GridLayout::FILL, GridLayout::FILL, 0,
+  column_set->AddColumn(GridLayout::FILL, GridLayout::FILL, 1,
                         GridLayout::USE_PREF, 0, 0);
   column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
   column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 0,
