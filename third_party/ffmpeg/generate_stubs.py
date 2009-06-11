@@ -774,6 +774,7 @@ def main():
 
   if options.type == FILE_TYPE_WIN:
     for input_path in args:
+      infile = None
       try:
         infile = open(input_path, 'r')
         signatures = ParseSignatures(infile)
@@ -797,6 +798,7 @@ def main():
                                      os.path.basename(header_path))
 
     # First create the implementation file.
+    impl_file = None
     try:
       # Open the file, and create the preamble which consists of a file
       # header plus any necessary includes.
@@ -804,6 +806,7 @@ def main():
       PosixStubWriter.WriteImplementationPreamble(header_include_path,
                                                   impl_file)
       if options.extra_stub_header is not None:
+        extra_header_file = None
         try:
           impl_file.write('\n')
           extra_header_file = open(options.extra_stub_header, 'r')
@@ -818,6 +821,7 @@ def main():
       # for that file.  Each file represents one module.
       for input_path in args:
         name = ExtractModuleName(input_path)
+        infile = None
         try:
           infile = open(input_path, 'r')
           signatures = ParseSignatures(infile)
@@ -835,6 +839,7 @@ def main():
         impl_file.close()
 
     # Then create the associated header file.
+    header_file = None
     try:
       header_file = open(header_path, 'w')
       PosixStubWriter.WriteHeaderContents(module_names, namespace,
