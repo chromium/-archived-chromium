@@ -14,6 +14,7 @@
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
+#include "skia/ext/platform_canvas.h"
 #include "views/view.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webtextdirection.h"
@@ -40,6 +41,32 @@ static const int kPaintMsgTimeoutMS = 40;
 
 // How long to wait before we consider a renderer hung.
 static const int kHungRendererDelayMs = 20000;
+
+// Helper function to confirm if a set of rects completely cover a given area.
+// The caller already know that all the rects are contained within the area,
+// and they shold not overlap either, so all we need to do is compare the areas.
+static bool CoversArea(const std::vector<gfx::Rect>& rects,
+                       const gfx::Size& size) {
+#ifndef NDEBUG
+  // Make sure there are no overlapping rects. That would make the
+  // test below irrelevant. We only do it in the debug build since
+  // this case "should" be covered in the renderer.
+  gfx::Rect view_rect(size.width(), size.height());
+  size_t last_index = rects.size() - 1;
+  for (size_t i = 0; i < last_index; ++i) {
+    DCHECK(view_rect.Contains(rects[i]));
+    for (size_t j = i + 1; i < rects.size(); ++i)
+      DCHECK(!rects[i].Intersects(rects[j]));
+  }
+  DCHECK(view_rect.Contains(rects[last_index]));
+#endif
+  int target_area = size.height() * size.width();
+  int covered_area = 0;
+  for (size_t i = 0; i < rects.size(); ++i) {
+    covered_area += rects[i].height() * rects[i].width();
+  }
+  return covered_area < target_area;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // RenderWidgetHost
@@ -498,18 +525,19 @@ void RenderWidgetHost::OnMsgPaintRect(
   DCHECK(!params.bitmap_rect.IsEmpty());
   DCHECK(!params.view_size.IsEmpty());
 
-  const size_t size = params.bitmap_rect.height() *
-                      params.bitmap_rect.width() * 4;
   TransportDIB* dib = process_->GetTransportDIB(params.bitmap);
   if (dib) {
+    const size_t size = params.bitmap_rect.height() *
+        skia::PlatformCanvas::StrideForWidth(params.bitmap_rect.width());
     if (dib->size() < size) {
       DLOG(WARNING) << "Transport DIB too small for given rectangle";
       process()->ReceivedBadMessage(ViewHostMsg_PaintRect__ID);
     } else {
-      // Paint the backing store. This will update it with the renderer-supplied
-      // bits. The view will read out of the backing store later to actually
-      // draw to the screen.
-      PaintBackingStoreRect(dib, params.bitmap_rect, params.view_size);
+      // Paint the backing store. This will update it with the
+      // renderer-supplied bits. The view will read out of the backing
+      // store later to actually draw to the screen.
+      PaintBackingStoreRects(dib, params.bitmap_rect, params.paint_rects,
+                             params.view_size);
     }
   }
 
@@ -529,7 +557,12 @@ void RenderWidgetHost::OnMsgPaintRect(
   if (view_) {
     view_->MovePluginWindows(params.plugin_window_moves);
     view_being_painted_ = true;
-    view_->DidPaintRect(params.bitmap_rect);
+    if (params.paint_rects.empty()) {
+      view_->DidPaintRect(params.bitmap_rect);
+    } else {
+      for (size_t i = 0; i < params.paint_rects.size(); ++i)
+        view_->DidPaintRect(params.paint_rects[i]);
+    }
     view_being_painted_ = false;
   }
 
@@ -620,7 +653,7 @@ void RenderWidgetHost::OnMsgInputEventAck(const IPC::Message& message) {
   }
 
   if (WebInputEvent::isKeyboardEventType(type)) {
-    if (key_queue_.size() == 0) {
+    if (key_queue_.empty()) {
       LOG(ERROR) << "Got a KeyEvent back from the renderer but we "
                  << "don't seem to have sent it to the renderer!";
     } else if (key_queue_.front().type != type) {
@@ -688,9 +721,10 @@ void RenderWidgetHost::OnMsgShowPopup(const IPC::Message& message) {
 #endif
 }
 
-void RenderWidgetHost::PaintBackingStoreRect(TransportDIB* bitmap,
-                                             const gfx::Rect& bitmap_rect,
-                                             const gfx::Size& view_size) {
+void RenderWidgetHost::PaintBackingStoreRects(
+    TransportDIB* bitmap, const gfx::Rect& bitmap_rect,
+    const std::vector<gfx::Rect>& paint_rects,
+    const gfx::Size& view_size) {
   // The view may be destroyed already.
   if (!view_)
     return;
@@ -704,12 +738,36 @@ void RenderWidgetHost::PaintBackingStoreRect(TransportDIB* bitmap,
   }
 
   bool needs_full_paint = false;
-  BackingStore* backing_store =
-      BackingStoreManager::PrepareBackingStore(this, view_size,
-                                               process_->process().handle(),
-                                               bitmap, bitmap_rect,
-                                               &needs_full_paint);
-  DCHECK(backing_store != NULL);
+  base::ProcessHandle process_handle = process_->process().handle();
+  if (paint_rects.empty()) {
+    BackingStore* backing_store =
+        BackingStoreManager::PrepareBackingStore(this, view_size,
+            process_handle, bitmap, bitmap_rect, bitmap_rect,
+            &needs_full_paint);
+    DCHECK(backing_store != NULL);
+  } else {
+    bool checked_coverage = false;
+    // TODO(agl): Reduce the number of X server round trips on Linux.
+    for (size_t i = 0; i < paint_rects.size(); ++i) {
+      BackingStore* backing_store =
+          BackingStoreManager::PrepareBackingStore(this, view_size,
+              process_handle, bitmap, bitmap_rect, paint_rects[i],
+              &needs_full_paint);
+      DCHECK(backing_store != NULL);
+      if (needs_full_paint) {
+        // We should not need a full paint more than once for a given view size
+        DCHECK(!checked_coverage);
+        checked_coverage = true;
+
+        // Before we ask for a full repaint, we check if we already have a
+        // full coverage of the view size in out list of paint_rects
+        if (CoversArea(paint_rects, view_size))
+          break;
+        needs_full_paint = false;
+      }
+    }
+  }
+
   if (needs_full_paint) {
     repaint_start_time_ = TimeTicks::Now();
     repaint_ack_pending_ = true;

@@ -134,11 +134,8 @@ class ResizeCorner : public views::View {
   }
 
   static gfx::Size GetSize() {
-    // This is disabled until we find what makes us slower when we let
-    // WebKit know that we have a resizer rect...
-    // return gfx::Size(views::NativeScrollBar::GetVerticalScrollBarWidth(),
-    //     views::NativeScrollBar::GetHorizontalScrollBarHeight());
-    return gfx::Size();
+    return gfx::Size(views::NativeScrollBar::GetVerticalScrollBarWidth(),
+           views::NativeScrollBar::GetHorizontalScrollBarHeight());
   }
 
   virtual gfx::Size GetPreferredSize() {
@@ -1329,7 +1326,8 @@ void BrowserView::Init() {
 #if defined(OS_WIN)
   SetProp(GetWidget()->GetNativeView(), kBrowserViewKey, this);
 #else
-  g_object_set_data(G_OBJECT(GetWidget()->GetNativeView()), kBrowserViewKey, this);
+  g_object_set_data(G_OBJECT(GetWidget()->GetNativeView()), kBrowserViewKey,
+                    this);
 #endif
 
   // Start a hung plugin window detector for this browser object (as long as

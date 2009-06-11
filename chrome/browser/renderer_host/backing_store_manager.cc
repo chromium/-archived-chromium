@@ -49,6 +49,11 @@ BackingStore* CreateBackingStore(RenderWidgetHost* host,
 
 }  // namespace
 
+// Assume that somewhere along the line, someone will do width * height * 4
+// with signed numbers. If the maximum value is 2**31, then 2**31 / 4 =
+// 2**29 and floor(sqrt(2**29)) = 23170.
+int BackingStore::kMaxBitmapLengthAllowed = 23170;
+
 // BackingStoreManager ---------------------------------------------------------
 
 // static
@@ -74,13 +79,14 @@ BackingStore* BackingStoreManager::PrepareBackingStore(
     base::ProcessHandle process_handle,
     TransportDIB* bitmap,
     const gfx::Rect& bitmap_rect,
+    const gfx::Rect& paint_rect,
     bool* needs_full_paint) {
   BackingStore* backing_store = GetBackingStore(host, backing_store_size);
   if (!backing_store) {
     // We need to get Webkit to generate a new paint here, as we
     // don't have a previous snapshot.
-    if (bitmap_rect.size() != backing_store_size ||
-        bitmap_rect.x() != 0 || bitmap_rect.y() != 0) {
+    if (paint_rect.size() != backing_store_size ||
+        paint_rect.x() != 0 || paint_rect.y() != 0) {
       DCHECK(needs_full_paint != NULL);
       *needs_full_paint = true;
     }
@@ -88,7 +94,7 @@ BackingStore* BackingStoreManager::PrepareBackingStore(
   }
 
   DCHECK(backing_store != NULL);
-  backing_store->PaintRect(process_handle, bitmap, bitmap_rect);
+  backing_store->PaintRect(process_handle, bitmap, bitmap_rect, paint_rect);
   return backing_store;
 }
 
