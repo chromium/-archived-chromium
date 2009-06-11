@@ -15,9 +15,9 @@
 #include "chrome/test/ui/ui_test.h"
 #include "net/url_request/url_request_unittest.h"
 
-const std::string kTestDir = "save_page";
+const char* const kTestDir = "save_page";
 
-const std::string kAppendedExtension = ".htm";
+const char* const kAppendedExtension = ".htm";
 
 class SavePageTest : public UITest {
  protected:
@@ -26,11 +26,17 @@ class SavePageTest : public UITest {
   void CheckFile(const FilePath& client_file,
                  const FilePath& server_file,
                  bool check_equal) {
+    file_util::FileInfo previous, current;
     bool exist = false;
     for (int i = 0; i < 20; ++i) {
-      if (file_util::PathExists(client_file)) {
+      if (exist) {
+        file_util::GetFileInfo(client_file, &current);
+        if (current.size == previous.size)
+          break;
+        previous = current;
+      } else if (file_util::PathExists(client_file)) {
+        file_util::GetFileInfo(client_file, &previous);
         exist = true;
-        break;
       }
       PlatformThread::Sleep(sleep_timeout_ms());
     }
@@ -78,7 +84,7 @@ TEST_F(SavePageTest, SaveHTMLOnly) {
   FilePath dir = save_dir_.AppendASCII("a_files");
 
   GURL url = URLRequestMockHTTPJob::GetMockUrl(
-      UTF8ToWide(kTestDir + "/" + file_name));
+    UTF8ToWide(std::string(kTestDir) + "/" + file_name));
   scoped_refptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
@@ -98,8 +104,8 @@ TEST_F(SavePageTest, SaveCompleteHTML) {
   FilePath full_file_name = save_dir_.AppendASCII(file_name);
   FilePath dir = save_dir_.AppendASCII("b_files");
 
-  GURL url = URLRequestMockHTTPJob::GetMockUrl(UTF8ToWide(kTestDir + "/" +
-                                                          file_name));
+  GURL url = URLRequestMockHTTPJob::GetMockUrl(
+      UTF8ToWide(std::string(kTestDir) + "/" + file_name));
   scoped_refptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
@@ -138,12 +144,12 @@ TEST_F(SavePageTest, FilenameFromPageTitle) {
   std::string file_name = "b.htm";
 
   FilePath full_file_name = download_dir_.AppendASCII(
-      "Test page for saving page feature" + kAppendedExtension);
+      std::string("Test page for saving page feature") + kAppendedExtension);
   FilePath dir = download_dir_.AppendASCII(
       "Test page for saving page feature_files");
 
-  GURL url = URLRequestMockHTTPJob::GetMockUrl(UTF8ToWide(kTestDir + "/" +
-                                               file_name));
+  GURL url = URLRequestMockHTTPJob::GetMockUrl(
+      UTF8ToWide(std::string(kTestDir) + "/" + file_name));
   scoped_refptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
@@ -170,12 +176,12 @@ TEST_F(SavePageTest, FilenameFromPageTitle) {
 #if defined(OS_WIN)
 TEST_F(SavePageTest, CleanFilenameFromPageTitle) {
   std::string file_name = "c.htm";
-  FilePath full_file_name = download_dir_.AppendASCII("test.exe" +
-                                                      kAppendedExtension);
+  FilePath full_file_name =
+      download_dir_.AppendASCII(std::string("test.exe") + kAppendedExtension);
   FilePath dir = download_dir_.AppendASCII("test.exe_files");
 
-  GURL url = URLRequestMockHTTPJob::GetMockUrl(UTF8ToWide(kTestDir + "/" +
-                                               file_name));
+  GURL url = URLRequestMockHTTPJob::GetMockUrl(
+    UTF8ToWide(std::string(kTestDir) + "/" + file_name));
   scoped_refptr<TabProxy> tab(GetActiveTab());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
