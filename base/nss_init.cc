@@ -12,6 +12,7 @@
 // Work around https://bugzilla.mozilla.org/show_bug.cgi?id=455424
 // until NSS 3.12.2 comes out and we update to it.
 #define Lock FOO_NSS_Lock
+#include <pk11pub.h>
 #include <secmod.h>
 #include <ssl.h>
 #undef Lock
@@ -76,6 +77,16 @@ class NSSInitSingleton {
         PR_GetErrorText(buffer);
 
       NOTREACHED() << "Error initializing NSS: " << buffer;
+    }
+
+    // If we haven't initialized the password for the NSS databases,
+    // initialize an empty-string password so that we don't need to
+    // log in.
+    PK11SlotInfo* slot = PK11_GetInternalKeySlot();
+    if (slot) {
+      if (PK11_NeedUserInit(slot))
+        PK11_InitPin(slot, NULL, NULL);
+      PK11_FreeSlot(slot);
     }
 
     root_ = InitDefaultRootCerts();
