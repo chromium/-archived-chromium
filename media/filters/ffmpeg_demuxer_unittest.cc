@@ -404,26 +404,26 @@ TEST_F(FFmpegDemuxerTest, InitializeStreams) {
 
   // First stream should be video and support FFmpegDemuxerStream interface.
   scoped_refptr<DemuxerStream> stream = demuxer_->GetStream(0);
-  scoped_refptr<FFmpegDemuxerStream> ffmpeg_demuxer_stream;
+  AVStreamProvider* av_stream_provider = NULL;
   ASSERT_TRUE(stream);
   std::string mime_type;
   EXPECT_TRUE(
       stream->media_format().GetAsString(MediaFormat::kMimeType, &mime_type));
   EXPECT_STREQ(mime_type::kFFmpegVideo, mime_type.c_str());
-  EXPECT_TRUE(stream->QueryInterface(&ffmpeg_demuxer_stream));
-  EXPECT_TRUE(ffmpeg_demuxer_stream);
-  EXPECT_EQ(&g_streams[1], ffmpeg_demuxer_stream->av_stream());
+  EXPECT_TRUE(stream->QueryInterface(&av_stream_provider));
+  EXPECT_TRUE(av_stream_provider);
+  EXPECT_EQ(&g_streams[1], av_stream_provider->GetAVStream());
 
   // Second stream should be audio and support FFmpegDemuxerStream interface.
   stream = demuxer_->GetStream(1);
-  ffmpeg_demuxer_stream = NULL;
+  av_stream_provider = NULL;
   ASSERT_TRUE(stream);
   EXPECT_TRUE(stream->media_format().GetAsString(MediaFormat::kMimeType,
               &mime_type));
   EXPECT_STREQ(mime_type::kFFmpegAudio, mime_type.c_str());
-  EXPECT_TRUE(stream->QueryInterface(&ffmpeg_demuxer_stream));
-  EXPECT_TRUE(ffmpeg_demuxer_stream);
-  EXPECT_EQ(&g_streams[2], ffmpeg_demuxer_stream->av_stream());
+  EXPECT_TRUE(stream->QueryInterface(&av_stream_provider));
+  EXPECT_TRUE(av_stream_provider);
+  EXPECT_EQ(&g_streams[2], av_stream_provider->GetAVStream());
 }
 
 TEST_F(FFmpegDemuxerTest, ReadAndSeek) {

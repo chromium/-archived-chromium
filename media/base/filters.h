@@ -167,7 +167,7 @@ class DemuxerStream : public base::RefCountedThreadSafe<DemuxerStream> {
   // the class returns an interface pointer and assigns the pointer to
   // |interface_out|.  Otherwise this method returns false.
   template <class Interface>
-  bool QueryInterface(scoped_refptr<Interface>* interface_out) {
+  bool QueryInterface(Interface** interface_out) {
     void* i = QueryInterface(Interface::interface_id());
     *interface_out = reinterpret_cast<Interface*>(i);
     return (NULL != i);

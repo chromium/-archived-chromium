@@ -40,12 +40,12 @@ bool FFmpegVideoDecoder::IsMediaFormatSupported(const MediaFormat& format) {
 }
 
 bool FFmpegVideoDecoder::OnInitialize(DemuxerStream* demuxer_stream) {
-  scoped_refptr<FFmpegDemuxerStream> ffmpeg_demuxer_stream;
-  if (!demuxer_stream->QueryInterface(&ffmpeg_demuxer_stream)) {
+  // Get the AVStream by querying for the provider interface.
+  AVStreamProvider* av_stream_provider;
+  if (!demuxer_stream->QueryInterface(&av_stream_provider)) {
     return false;
   }
-
-  AVStream* av_stream = ffmpeg_demuxer_stream->av_stream();
+  AVStream* av_stream = av_stream_provider->GetAVStream();
 
   width_ = av_stream->codec->width;
   height_ = av_stream->codec->height;
@@ -55,7 +55,7 @@ bool FFmpegVideoDecoder::OnInitialize(DemuxerStream* demuxer_stream) {
   media_format_.SetAsInteger(MediaFormat::kWidth, width_);
   media_format_.SetAsInteger(MediaFormat::kHeight, height_);
 
-  codec_context_ = ffmpeg_demuxer_stream->av_stream()->codec;
+  codec_context_ = av_stream->codec;
   codec_context_->flags2 |= CODEC_FLAG2_FAST;  // Enable faster H264 decode.
   // Enable motion vector search (potentially slow), strong deblocking filter
   // for damaged macroblocks, and set our error detection sensitivity.

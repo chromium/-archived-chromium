@@ -2,15 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "media/filters/ffmpeg_common.h"
+#include "media/filters/ffmpeg_interfaces.h"
 
 namespace media {
 
-namespace mime_type {
+AVStreamProvider::AVStreamProvider() {}
 
-const char kFFmpegAudio[] = "audio/x-ffmpeg";
-const char kFFmpegVideo[] = "video/x-ffmpeg";
+AVStreamProvider::~AVStreamProvider() {}
 
-}  // namespace mime_type
+// static
+const char* AVStreamProvider::interface_id() {
+  return "AVStreamProvider";
+}
 
 }  // namespace media

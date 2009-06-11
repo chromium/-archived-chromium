@@ -101,15 +101,10 @@ FFmpegDemuxerStream::~FFmpegDemuxerStream() {
   }
 }
 
-// static
-const char* FFmpegDemuxerStream::interface_id() {
-  return interface_id::kFFmpegDemuxerStream;
-}
-
 void* FFmpegDemuxerStream::QueryInterface(const char* id) {
   DCHECK(id);
-  FFmpegDemuxerStream* interface_ptr = NULL;
-  if (0 == strcmp(id, interface_id())) {
+  AVStreamProvider* interface_ptr = NULL;
+  if (0 == strcmp(id, AVStreamProvider::interface_id())) {
     interface_ptr = this;
   }
   return interface_ptr;
@@ -361,7 +356,7 @@ void FFmpegDemuxer::DemuxTask() {
     // additional packets.
     //
     // TODO(scherkus): fix the MP3 packet copying hack.
-    if (demuxer_stream->av_stream()->codec->codec_id == CODEC_ID_MP3) {
+    if (demuxer_stream->GetAVStream()->codec->codec_id == CODEC_ID_MP3) {
       scoped_ptr<AVPacket> clone(ClonePacket(packet.get()));
       if (!clone.get()) {
         NOTREACHED();

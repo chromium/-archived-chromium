@@ -28,6 +28,7 @@
 #include "media/base/factory.h"
 #include "media/base/filters.h"
 #include "media/base/media_format.h"
+#include "media/filters/ffmpeg_interfaces.h"
 
 // FFmpeg forward declarations.
 struct AVCodecContext;
@@ -43,7 +44,7 @@ class FFmpegDemuxer;
 // Forward declaration for scoped_ptr_malloc.
 class ScopedPtrAVFree;
 
-class FFmpegDemuxerStream : public DemuxerStream {
+class FFmpegDemuxerStream : public DemuxerStream, public AVStreamProvider {
  public:
   // Maintains a reference to |demuxer| and initializes itself using information
   // inside |stream|.
@@ -70,9 +71,8 @@ class FFmpegDemuxerStream : public DemuxerStream {
   virtual const MediaFormat& media_format();
   virtual void Read(Callback1<Buffer*>::Type* read_callback);
 
-  AVStream* av_stream() const { return stream_; }
-
-  static const char* interface_id();
+  // AVStreamProvider implementation.
+  virtual AVStream* GetAVStream() { return stream_; }
 
  protected:
   virtual void* QueryInterface(const char* interface_id);

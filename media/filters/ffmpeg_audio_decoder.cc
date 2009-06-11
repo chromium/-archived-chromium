@@ -29,15 +29,15 @@ bool FFmpegAudioDecoder::IsMediaFormatSupported(const MediaFormat& format) {
 }
 
 bool FFmpegAudioDecoder::OnInitialize(DemuxerStream* demuxer_stream) {
-  scoped_refptr<FFmpegDemuxerStream> ffmpeg_demuxer_stream;
-
-  // Try to obtain a reference to FFmpegDemuxer.
-  if (!demuxer_stream->
-          QueryInterface<FFmpegDemuxerStream>(&ffmpeg_demuxer_stream))
+  // Get the AVStream by querying for the provider interface.
+  AVStreamProvider* av_stream_provider;
+  if (!demuxer_stream->QueryInterface(&av_stream_provider)) {
     return false;
+  }
+  AVStream* av_stream = av_stream_provider->GetAVStream();
 
   // Grab the AVStream's codec context and make sure we have sensible values.
-  codec_context_ = ffmpeg_demuxer_stream->av_stream()->codec;
+  codec_context_ = av_stream->codec;
   DCHECK_GT(codec_context_->channels, 0);
   DCHECK_GT(av_get_bits_per_sample_format(codec_context_->sample_fmt), 0);
   DCHECK_GT(codec_context_->sample_rate, 0);

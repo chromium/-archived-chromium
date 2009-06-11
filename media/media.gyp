@@ -88,6 +88,8 @@
         'filters/ffmpeg_demuxer.h',
         'filters/ffmpeg_glue.cc',
         'filters/ffmpeg_glue.h',
+        'filters/ffmpeg_interfaces.cc',
+        'filters/ffmpeg_interfaces.h',
         'filters/ffmpeg_video_decoder.cc',
         'filters/ffmpeg_video_decoder.h',
         'filters/file_data_source.cc',

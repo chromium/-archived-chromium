@@ -39,13 +39,6 @@ extern const char kFFmpegVideo[];
 
 }  // namespace mime_type
 
-namespace interface_id {
-
-extern const char kFFmpegDemuxerStream[];
-
-}  // namespace interface_id
-
-
 }  // namespace media
 
 #endif  // MEDIA_FILTERS_FFMPEG_COMMON_H_
