@@ -632,7 +632,9 @@ TEST_F(FFmpegDemuxerTest, ReadAndSeek) {
 
 // This tests our deep-copying workaround for FFmpeg's MP3 demuxer.  When we fix
 // the root cause this test will fail and should be removed.
-TEST_F(FFmpegDemuxerTest, MP3Hack) {
+//
+// TODO(scherkus): disabled due to flakiness http://crbug.com/13933
+TEST_F(FFmpegDemuxerTest, DISABLED_MP3Hack) {
   // Prepare some test data.
   const int kPacketAudio = 0;  // Stream index relative to the container.
   const int kAudio = 0;        // Stream index relative to Demuxer::GetStream().
