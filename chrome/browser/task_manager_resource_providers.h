@@ -244,13 +244,8 @@ class TaskManagerBrowserProcessResource : public TaskManager::Resource {
   SkBitmap GetIcon() const;
   base::ProcessHandle GetProcess() const;
 
-  bool SupportNetworkUsage() const {
-    return network_usage_support_;
-  }
-
-  void SetSupportNetworkUsage() {
-    network_usage_support_ = true;
-  }
+  bool SupportNetworkUsage() const { return true; }
+  void SetSupportNetworkUsage() { NOTREACHED(); }
 
   // Returns the pid of the browser process.
   int process_id() const { return pid_; }
@@ -258,7 +253,6 @@ class TaskManagerBrowserProcessResource : public TaskManager::Resource {
  private:
   base::ProcessHandle process_;
   int pid_;
-  bool network_usage_support_;
   mutable std::wstring title_;
 
   static SkBitmap* default_icon_;

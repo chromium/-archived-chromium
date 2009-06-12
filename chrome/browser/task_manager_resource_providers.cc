@@ -576,8 +576,7 @@ void TaskManagerExtensionProcessResourceProvider::AddToTaskManager(
 SkBitmap* TaskManagerBrowserProcessResource::default_icon_ = NULL;
 
 TaskManagerBrowserProcessResource::TaskManagerBrowserProcessResource()
-    : network_usage_support_(false),
-      title_() {
+    : title_() {
   pid_ = base::GetCurrentProcId();
   bool success = base::OpenPrivilegedProcessHandle(pid_, &process_);
   DCHECK(success);
