@@ -3836,7 +3836,7 @@
             'app/chrome_dll.rc',
             'app/chrome_dll_main.cc',
             'app/chrome_dll_resource.h',
-            '<(grit_out_dir)/chrome_dll_version/chrome_dll_version.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome_dll_version/chrome_dll_version.rc',
 
             '../webkit/glue/resources/aliasb.cur',
             '../webkit/glue/resources/cell.cur',
@@ -3877,7 +3877,7 @@
           ],
           'direct_dependent_settings': {
             'include_dirs': [
-              '<(grit_out_dir)/chrome_dll_version',
+              '<(SHARED_INTERMEDIATE_DIR)/chrome_dll_version',
             ],
           },
           'actions': [
@@ -3908,7 +3908,7 @@
                 '<(lastchange_path)',
               ],
               'outputs': [
-                '<(grit_out_dir)/chrome_dll_version/chrome_dll_version.rc',
+                '<(SHARED_INTERMEDIATE_DIR)/chrome_dll_version/chrome_dll_version.rc',
               ],
               'action': [
                 'python',
@@ -4058,7 +4058,7 @@
             'tools/build/win/precompiled_wtl.h',
             'tools/build/win/precompiled_wtl.cc',
             '<(SHARED_INTERMEDIATE_DIR)/chrome/browser_resources.rc',
-            '<(SHARED_INTERMEDIATE_DIR)/chrome/chrome_dll_version.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome_dll_version/chrome_dll_version.rc',
             '<(SHARED_INTERMEDIATE_DIR)/chrome/common_resources.rc',
 	    # browser_tests_sources and browser_tests_source_win_specific are
 	    # defined in 'variables' at the top of the file.
