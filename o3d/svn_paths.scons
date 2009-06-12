@@ -58,6 +58,10 @@ env.Replace(
     # See tests/build.scons
     MAC_HERMETIC_FIREFOX_DIR = (
         '$SCONSTRUCT_DIR/../o3d-internal/third_party/firefox'),
+    # If we have directx redistributables present,
+    # then build o3dextras.
+    DIRECTX_REDIST_DIR=(
+        '$SCONSTRUCT_DIR/../o3d-internal/third_party/dx_nov_2007_redist'),
     # NACL has to be in this weird directory because it looks for
     # googleclient two levels above it.
     NACL_DIR = '$THIRD_PARTY/native_client/googleclient/native_client',

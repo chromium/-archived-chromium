@@ -205,3 +205,32 @@ env.Depends(installer_msi,
 # Copy to artifacts.
 env.Replicate('$ARTIFACTS_DIR', installer_msi)
 
+
+
+# Path to DirectX redistribution files.
+dx_redist_path = env.Dir('$DIRECTX_REDIST_DIR')
+
+# Only build o3dextras if we have the dx redistributables.
+if os.path.exists(dx_redist_path.abspath):
+  # New WiX flags for the Extras package [currently just the d3dx9 dll].  Note
+  # that this DOESN'T make the above flags go away; it just adds new ones or
+  # overwrites name clashes.  So we use distinctive names so as to avoid
+  # surprises.  The only flag from above that's used in the extras installer is
+  # DxRedistPath.
+  env.Append(WIXCANDLEFLAGS = [
+    '-dDxRedistPath=' + dx_redist_path.abspath,
+    '-dExtrasD3DXComponentGuid=' + o3d_extras_d3dx_component_guid,
+    '-dExtrasProductGuid=' + o3d_extras_product_guid,
+    '-dExtrasUpgradeCode=' + o3d_extras_upgrade_code,
+    '-dExtrasPackageGuid=' + o3d_extras_package_guid,
+    '-dExtrasVersion=' + dotextrasversion,
+    '-dExtrasGoogleUpdateRegGuid=' + o3d_extras_google_update_guid,
+    '-dExtrasGoogleUpdateRegKey=' + o3d_extras_reg_key,
+  ])
+
+  # Build the installer
+  extras_msi = env.WiX('o3dextras.msi', ['o3d_extras.wxs'])
+
+  # copy to artifacts
+  env.Replicate('$ARTIFACTS_DIR', extras_msi)
+
