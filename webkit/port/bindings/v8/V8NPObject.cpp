@@ -37,12 +37,12 @@
 #include "NPV8Object.h"
 #include "V8CustomBinding.h"
 #include "V8DOMMap.h"
+#include "V8Helpers.h"
 #include "V8HTMLAppletElement.h"
 #include "V8HTMLEmbedElement.h"
 #include "V8HTMLObjectElement.h"
 #include "V8NPUtils.h"
 #include "V8Proxy.h"
-#include "v8_helpers.h"
 #include "wtf/OwnArrayPtr.h"
 
 using namespace WebCore;
@@ -340,13 +340,13 @@ v8::Local<v8::Object> createV8ObjectForNPObject(NPObject* object, NPObject* root
 
     v8::Handle<v8::Function> v8Function = npObjectDesc->GetFunction();
     v8::Local<v8::Object> value = SafeAllocation::NewInstance(v8Function);
-    
-    // If we were unable to allocate the instance, we avoid wrapping 
-    // and registering the NP object. 
-    if (value.IsEmpty()) 
+
+    // If we were unable to allocate the instance, we avoid wrapping
+    // and registering the NP object.
+    if (value.IsEmpty())
         return value;
 
-    WrapNPObject(value, object);
+    wrapNPObject(value, object);
 
     // KJS retains the object as part of its wrapper (see Bindings::CInstance).
     NPN_RetainObject(object);

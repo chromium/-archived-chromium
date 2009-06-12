@@ -12,7 +12,7 @@
 #include "EventNames.h"
 #include "MouseEvent.h"
 #include "NPV8Object.h"  // for PrivateIdentifier
-#include "v8_helpers.h"
+#include "V8Helpers.h"
 #include "v8_proxy.h"
 #elif USE(JAVASCRIPTCORE_BINDINGS)
 #include "bridge/c/c_utility.h"

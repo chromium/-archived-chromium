@@ -39,11 +39,13 @@
 #include "PlatformString.h"
 #include "ScriptController.h"
 #include "V8CustomBinding.h"
-#include "v8_helpers.h"
+#include "V8Helpers.h"
 #include "V8NPUtils.h"
 #include "v8_proxy.h"
 #include "DOMWindow.h"
 
+using WebCore::toV8Context;
+using WebCore::toV8Proxy;
 using WebCore::V8ClassIndex;
 using WebCore::V8Custom;
 using WebCore::V8Proxy;
@@ -132,7 +134,7 @@ bool NPN_Invoke(NPP npp, NPObject *npobj, NPIdentifier methodName,
 
         v8::HandleScope handleScope;
         // FIXME: should use the plugin's owner frame as the security context
-        v8::Handle<v8::Context> context = getV8Context(npp, npobj);
+        v8::Handle<v8::Context> context = toV8Context(npp, npobj);
         if (context.IsEmpty())
             return false;
 
@@ -157,7 +159,7 @@ bool NPN_Invoke(NPP npp, NPObject *npobj, NPIdentifier methodName,
             return false;
         }
 
-        WebCore::V8Proxy* proxy = GetV8Proxy(npobj);
+        V8Proxy* proxy = toV8Proxy(npobj);
         ASSERT(proxy);  // must not be null
 
         // FIXME: fix variable naming
@@ -199,7 +201,7 @@ bool NPN_InvokeDefault(NPP npp, NPObject *npobj, const NPVariant *args,
         VOID_TO_NPVARIANT(*result);
 
         v8::HandleScope handleScope;
-        v8::Handle<v8::Context> context = getV8Context(npp, npobj);
+        v8::Handle<v8::Context> context = toV8Context(npp, npobj);
         if (context.IsEmpty())
             return false;
 
@@ -214,7 +216,7 @@ bool NPN_InvokeDefault(NPP npp, NPObject *npobj, const NPVariant *args,
         v8::Local<v8::Value> resultObj;
         v8::Handle<v8::Function> func(v8::Function::Cast(*funcObj));
         if (!func->IsNull()) {
-            WebCore::V8Proxy* proxy = GetV8Proxy(npobj);
+            V8Proxy* proxy = toV8Proxy(npobj);
             ASSERT(proxy);
 
             // Create list of args to pass to v8
@@ -257,11 +259,11 @@ bool NPN_EvaluateHelper(NPP npp, bool popupsAllowed, NPObject* npobj, NPString* 
         return false;
 
     v8::HandleScope handleScope;
-    v8::Handle<v8::Context> context = getV8Context(npp, npobj);
+    v8::Handle<v8::Context> context = toV8Context(npp, npobj);
     if (context.IsEmpty())
         return false;
 
-    WebCore::V8Proxy* proxy = GetV8Proxy(npobj);
+    V8Proxy* proxy = toV8Proxy(npobj);
     ASSERT(proxy);
 
     v8::Context::Scope scope(context);
@@ -291,7 +293,7 @@ bool NPN_GetProperty(NPP npp, NPObject *npobj, NPIdentifier propertyName, NPVari
         V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
 
         v8::HandleScope handleScope;
-        v8::Handle<v8::Context> context = getV8Context(npp, npobj);
+        v8::Handle<v8::Context> context = toV8Context(npp, npobj);
         if (context.IsEmpty())
             return false;
 
@@ -322,7 +324,7 @@ bool NPN_SetProperty(NPP npp, NPObject *npobj, NPIdentifier propertyName, const 
         V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
 
         v8::HandleScope handleScope;
-        v8::Handle<v8::Context> context = getV8Context(npp, npobj);
+        v8::Handle<v8::Context> context = toV8Context(npp, npobj);
         if (context.IsEmpty())
             return false;
 
@@ -350,7 +352,7 @@ bool NPN_RemoveProperty(NPP npp, NPObject *npobj, NPIdentifier propertyName)
     V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
 
     v8::HandleScope handleScope;
-    v8::Handle<v8::Context> context = getV8Context(npp, npobj);
+    v8::Handle<v8::Context> context = toV8Context(npp, npobj);
     if (context.IsEmpty())
         return false;
     v8::Context::Scope scope(context);
@@ -370,7 +372,7 @@ bool NPN_HasProperty(NPP npp, NPObject *npobj, NPIdentifier propertyName)
         V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
 
         v8::HandleScope handleScope;
-        v8::Handle<v8::Context> context = getV8Context(npp, npobj);
+        v8::Handle<v8::Context> context = toV8Context(npp, npobj);
         if (context.IsEmpty())
             return false;
         v8::Context::Scope scope(context);
@@ -393,7 +395,7 @@ bool NPN_HasMethod(NPP npp, NPObject *npobj, NPIdentifier methodName)
         V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
 
         v8::HandleScope handleScope;
-        v8::Handle<v8::Context> context = getV8Context(npp, npobj);
+        v8::Handle<v8::Context> context = toV8Context(npp, npobj);
         if (context.IsEmpty())
             return false;
         v8::Context::Scope scope(context);
@@ -413,7 +415,7 @@ void NPN_SetException(NPObject *npobj, const NPUTF8 *message)
     if (npobj->_class != npScriptObjectClass)
         return;
     v8::HandleScope handleScope;
-    v8::Handle<v8::Context> context = getV8Context(0, npobj);
+    v8::Handle<v8::Context> context = toV8Context(0, npobj);
     if (context.IsEmpty())
         return;
 
@@ -430,7 +432,7 @@ bool NPN_Enumerate(NPP npp, NPObject *npobj, NPIdentifier **identifier, uint32_t
         V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
 
         v8::HandleScope handleScope;
-        v8::Handle<v8::Context> context = getV8Context(npp, npobj);
+        v8::Handle<v8::Context> context = toV8Context(npp, npobj);
         if (context.IsEmpty())
             return false;
         v8::Context::Scope scope(context);
@@ -486,7 +488,7 @@ bool NPN_Construct(NPP npp, NPObject* npobj, const NPVariant* args, uint32_t arg
         V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
 
         v8::HandleScope handleScope;
-        v8::Handle<v8::Context> context = getV8Context(npp, npobj);
+        v8::Handle<v8::Context> context = toV8Context(npp, npobj);
         if (context.IsEmpty())
             return false;
         v8::Context::Scope scope(context);
@@ -500,7 +502,7 @@ bool NPN_Construct(NPP npp, NPObject* npobj, const NPVariant* args, uint32_t arg
         v8::Local<v8::Value> resultObj;
         v8::Handle<v8::Function> ctor(v8::Function::Cast(*ctorObj));
         if (!ctor->IsNull()) {
-            WebCore::V8Proxy* proxy = GetV8Proxy(npobj);
+            V8Proxy* proxy = toV8Proxy(npobj);
             ASSERT(proxy);
 
             // Create list of args to pass to v8.
