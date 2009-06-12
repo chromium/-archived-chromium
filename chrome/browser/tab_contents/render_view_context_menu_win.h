@@ -28,6 +28,14 @@ class RenderViewContextMenuWin : public RenderViewContextMenu,
   // TODO(port): move the logic in this function to RenderViewContextMenu.
   virtual bool GetAcceleratorInfo(int id, views::Accelerator* accel);
 
+  HMENU GetMenuHandle() const {
+    return (menu_.get() ? menu_->GetMenuHandle() : NULL);
+  }
+
+  unsigned int GetTPMAlignFlags() const {
+    return (menu_.get() ? menu_->GetTPMAlignFlags() : 0);
+  }
+
  protected:
   // RenderViewContextMenu implementation --------------------------------------
   virtual void AppendMenuItem(int id);
@@ -46,6 +54,7 @@ class RenderViewContextMenuWin : public RenderViewContextMenu,
 
   scoped_ptr<views::MenuWin> menu_;
   views::Menu* sub_menu_;
+  HWND owner_;
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_CONTEXT_MENU_WIN_H_

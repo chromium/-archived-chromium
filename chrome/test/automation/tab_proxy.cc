@@ -662,6 +662,11 @@ void TabProxy::Reposition(HWND window, HWND window_insert_after, int left,
   sender_->Send(new AutomationMsg_TabReposition(0, handle_, params));
 }
 
+void TabProxy::SendContextMenuCommand(int selected_command) {
+  sender_->Send(new AutomationMsg_ForwardContextMenuCommandToChrome(
+      0, handle_, selected_command));
+}
+
 #endif  // defined(OS_WIN)
 
 void TabProxy::AddObserver(TabProxyDelegate* observer) {

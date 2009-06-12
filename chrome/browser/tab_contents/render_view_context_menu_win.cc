@@ -14,13 +14,13 @@ RenderViewContextMenuWin::RenderViewContextMenuWin(
     const ContextMenuParams& params,
     HWND owner)
     : RenderViewContextMenu(tab_contents, params),
-      sub_menu_(NULL) {
+      sub_menu_(NULL),
+      owner_(owner) {
   // anchor_position set per http://crbug.com/10827.
   views::Menu::AnchorPoint anchor_position = views::Menu::TOPLEFT;
   if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
     anchor_position = views::Menu::TOPRIGHT;
-  menu_.reset(new views::MenuWin(this, anchor_position, owner));
-  InitMenu(params.node);
+  menu_.reset(new views::MenuWin(this, anchor_position, owner_));
 }
 
 RenderViewContextMenuWin::~RenderViewContextMenuWin() {

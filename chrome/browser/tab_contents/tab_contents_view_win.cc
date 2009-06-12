@@ -380,9 +380,16 @@ void TabContentsViewWin::HandleKeyboardEvent(
 }
 
 void TabContentsViewWin::ShowContextMenu(const ContextMenuParams& params) {
+  // Allow delegates to handle the context menu operation first.
+  if (tab_contents()->delegate()->HandleContextMenu(params)) {
+    return;
+  }
+
   RenderViewContextMenuWin menu(tab_contents(),
                                 params,
                                 GetNativeView());
+
+  menu.Init();
 
   POINT screen_pt = { params.x, params.y };
   MapWindowPoints(GetNativeView(), HWND_DESKTOP, &screen_pt, 1);

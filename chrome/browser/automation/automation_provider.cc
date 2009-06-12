@@ -1028,6 +1028,8 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(AutomationMsg_SetInitialFocus, SetInitialFocus)
 #if defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_TabReposition, OnTabReposition)
+    IPC_MESSAGE_HANDLER(AutomationMsg_ForwardContextMenuCommandToChrome,
+                        OnForwardContextMenuCommandToChrome)
 #endif
     IPC_MESSAGE_HANDLER(AutomationMsg_GetSecurityState, GetSecurityState)
     IPC_MESSAGE_HANDLER(AutomationMsg_GetPageType, GetPageType)
@@ -3003,7 +3005,27 @@ void AutomationProvider::OnTabReposition(
     }
   }
 }
-#endif
+
+void AutomationProvider::OnForwardContextMenuCommandToChrome(int tab_handle,
+                                                             int command) {
+  if (tab_tracker_->ContainsHandle(tab_handle)) {
+    NavigationController* tab = tab_tracker_->GetResource(tab_handle);
+    if (!tab) {
+      NOTREACHED();
+      return;
+    }
+
+    TabContents* tab_contents = tab->tab_contents();
+    if (!tab_contents || !tab_contents->delegate()) {
+      NOTREACHED();
+      return;
+    }
+
+    tab_contents->delegate()->ExecuteContextMenuCommand(command);
+  }
+}
+
+#endif  // defined(OS_WIN)
 
 void AutomationProvider::GetWindowTitle(int handle, string16* text) {
   gfx::NativeWindow window = window_tracker_->GetResource(handle);

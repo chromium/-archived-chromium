@@ -43,6 +43,11 @@ RenderViewContextMenu::~RenderViewContextMenu() {
 
 // Menu construction functions -------------------------------------------------
 
+void RenderViewContextMenu::Init() {
+  InitMenu(params_.node);
+  DoInit();
+}
+
 void RenderViewContextMenu::InitMenu(ContextNode node) {
   if (node.type & ContextNode::PAGE)
     AppendPageItems();

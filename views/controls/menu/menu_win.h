@@ -63,6 +63,13 @@ class MenuWin : public Menu {
   virtual void Cancel();
   virtual int ItemCount();
 
+  virtual HMENU GetMenuHandle() const {
+    return menu_;
+  }
+
+  // Gets the Win32 TPM alignment flags for the specified AnchorPoint.
+  DWORD GetTPMAlignFlags() const;
+
  protected:
   virtual void AddMenuItemInternal(int index,
                                    int item_id,
@@ -90,9 +97,6 @@ class MenuWin : public Menu {
   // item with the specified id. |delegate| is consulted if non-NULL about
   // the state of the item in preference to |controller_|.
   UINT GetStateFlagsForItemID(int item_id) const;
-
-  // Gets the Win32 TPM alignment flags for the specified AnchorPoint.
-  DWORD GetTPMAlignFlags() const;
 
   // The Win32 Menu Handle we wrap
   HMENU menu_;

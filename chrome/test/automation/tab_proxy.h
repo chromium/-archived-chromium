@@ -303,6 +303,10 @@ class TabProxy : public AutomationResourceProxy {
   // passed in.
   void Reposition(HWND window, HWND window_insert_after, int left, int top,
                   int width, int height, int flags, HWND parent_window);
+
+  // Sends the selected context menu command to the chrome instance
+  void SendContextMenuCommand(int selected_command);
+
 #endif  // defined(OS_WIN)
 
   // Calls delegates

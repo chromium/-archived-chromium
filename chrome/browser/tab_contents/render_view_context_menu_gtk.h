@@ -39,6 +39,7 @@ class RenderViewContextMenuGtk : public RenderViewContextMenu,
 
  protected:
   // RenderViewContextMenu implementation --------------------------------------
+  virtual void DoInit();
   virtual void AppendMenuItem(int id);
   virtual void AppendMenuItem(int id, const std::wstring& label);
   virtual void AppendRadioMenuItem(int id, const std::wstring& label);

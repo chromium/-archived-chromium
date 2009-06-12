@@ -939,5 +939,17 @@ IPC_BEGIN_MESSAGES(Automation)
   IPC_SYNC_MESSAGE_ROUTED1_1(AutomationMsg_BlockedPopupCount,
                              int /* tab_handle */,
                              int /* blocked_popup_count */)
+#if defined(OS_WIN)
+  IPC_MESSAGE_ROUTED5(AutomationMsg_ForwardContextMenuToExternalHost,
+                      int /* tab_handle */,
+                      HANDLE /* source menu handle */,
+                      int    /* the x coordinate for displaying the menu */,
+                      int    /* the y coordinate for displaying the menu */,
+                      int    /* align flags */)
+
+  IPC_MESSAGE_ROUTED2(AutomationMsg_ForwardContextMenuCommandToChrome,
+                      int /* tab_handle */,
+                      int /* selected_command */)
+#endif  // OS_WIN
 
 IPC_END_MESSAGES(Automation)

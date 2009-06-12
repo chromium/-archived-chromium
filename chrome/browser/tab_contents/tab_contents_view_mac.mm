@@ -180,6 +180,7 @@ void TabContentsViewMac::ShowContextMenu(const ContextMenuParams& params) {
   RenderViewContextMenuMac menu(tab_contents(),
                                 params,
                                 GetNativeView());
+  menu.Init();
 }
 
 RenderWidgetHostView* TabContentsViewMac::CreateNewWidgetInternal(

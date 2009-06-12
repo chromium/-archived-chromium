@@ -46,20 +46,22 @@ RenderViewContextMenuMac::RenderViewContextMenuMac(
     : RenderViewContextMenu(web_contents, params),
       menu_([[NSMenu alloc] init]),
       insert_menu_(menu_),
-      target_(nil) {
+      target_(nil),
+      parent_view_(parent_view) {
   [menu_ setAutoenablesItems:NO];
   target_ = [[ContextMenuTarget alloc] initWithContext:this];
-  InitMenu(params.node);
-
-  // show the menu
-  [NSMenu popUpContextMenu:menu_
-                 withEvent:[NSApp currentEvent]
-                   forView:parent_view];
 }
 
 RenderViewContextMenuMac::~RenderViewContextMenuMac() {
   [target_ release];
   [menu_ release];
+}
+
+void RenderViewContextMenuMac::DoInit() {
+  // show the menu
+  [NSMenu popUpContextMenu:menu_
+                 withEvent:[NSApp currentEvent]
+                   forView:parent_view_];
 }
 
 // Do things like remove the windows accelerators.

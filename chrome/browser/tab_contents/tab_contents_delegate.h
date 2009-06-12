@@ -10,6 +10,7 @@
 #include "base/gfx/rect.h"
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/renderer_preferences.h"
+#include "webkit/glue/context_menu.h"
 #include "webkit/glue/window_open_disposition.h"
 
 class DownloadItem;
@@ -178,6 +179,16 @@ class TabContentsDelegate {
   }
 
   virtual void OnStartDownload(DownloadItem* download) {
+  }
+
+  // Returns true if the context menu operation was handled by the delegate.
+  virtual bool HandleContextMenu(const ContextMenuParams& params) {
+    return false;
+  }
+
+  // Returns true if the context menu command was handled
+  virtual bool ExecuteContextMenuCommand(int command) {
+    return false;
   }
 
   // Returns the renderer's current preferences settings.

@@ -1355,6 +1355,8 @@
         'browser/tab_contents/render_view_context_menu_mac.h',
         'browser/tab_contents/render_view_context_menu_win.cc',
         'browser/tab_contents/render_view_context_menu_win.h',
+        'browser/tab_contents/render_view_context_menu_external_win.cc',
+        'browser/tab_contents/render_view_context_menu_external_win.h',
         'browser/tab_contents/render_view_host_delegate_helper.cc',
         'browser/tab_contents/render_view_host_delegate_helper.h',
         'browser/tab_contents/render_view_host_manager.cc',

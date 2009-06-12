@@ -20,12 +20,14 @@ RenderViewContextMenuGtk::RenderViewContextMenuGtk(
       making_submenu_(false),
       triggering_event_time_(triggering_event_time),
       host_view_(rwhv) {
-  InitMenu(params.node);
-  DoneMakingMenu(&menu_);
-  gtk_menu_.reset(new MenuGtk(this, menu_.data(), NULL));
 }
 
 RenderViewContextMenuGtk::~RenderViewContextMenuGtk() {
+}
+
+void RenderViewContextMenuGtk::DoInit() {
+  DoneMakingMenu(&menu_);
+  gtk_menu_.reset(new MenuGtk(this, menu_.data(), NULL));
 }
 
 void RenderViewContextMenuGtk::Popup() {

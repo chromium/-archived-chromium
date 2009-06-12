@@ -21,10 +21,16 @@ class RenderViewContextMenu {
 
   virtual ~RenderViewContextMenu();
 
+  // Initializes the context menu.
+  void Init();
+
  protected:
   void InitMenu(ContextNode node);
 
   // Functions to be implemented by platform-specific subclasses ---------------
+
+  // Platform specific initialization goes here.
+  virtual void DoInit() {}
 
   // Append a normal menu item, taking the name from the id.
   virtual void AppendMenuItem(int id) = 0;

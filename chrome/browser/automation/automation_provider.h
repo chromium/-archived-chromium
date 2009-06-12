@@ -334,6 +334,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
 
   void OnTabReposition(int tab_handle,
                        const IPC::Reposition_Params& params);
+  void OnForwardContextMenuCommandToChrome(int tab_handle, int command);
 #endif  // defined(OS_WIN)
 
   // Gets the security state for the tab associated to the specified |handle|.

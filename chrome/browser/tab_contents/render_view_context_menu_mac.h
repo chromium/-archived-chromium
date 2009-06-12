@@ -27,6 +27,7 @@ class RenderViewContextMenuMac : public RenderViewContextMenu {
 
  protected:
   // RenderViewContextMenu implementation-
+  virtual void DoInit();
   virtual void AppendMenuItem(int id);
   virtual void AppendMenuItem(int id, const std::wstring& label);
   virtual void AppendRadioMenuItem(int id, const std::wstring& label);
@@ -43,6 +44,7 @@ class RenderViewContextMenuMac : public RenderViewContextMenu {
   NSMenu* insert_menu_;  // weak, where new items are inserted (usually
                          // |menu_| unless there's a submenu in progress).
   ContextMenuTarget* target_;  // obj-c target for menu actions
+  NSView* parent_view_;  // parent view
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_CONTEXT_MENU_MAC_H_

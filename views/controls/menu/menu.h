@@ -271,6 +271,11 @@ class Menu {
   // Returns the number of menu items.
   virtual int ItemCount() = 0;
 
+#if defined(OS_WIN)
+  // Returns the underlying menu handle
+  virtual HMENU GetMenuHandle() const = 0;
+#endif  // defined(OS_WIN)
+
  protected:
   explicit Menu(Menu* parent);
 

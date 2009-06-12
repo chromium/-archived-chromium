@@ -13,11 +13,14 @@
 #include "chrome/browser/load_notification_details.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/provisional_load_details.h"
+#include "chrome/browser/tab_contents/render_view_context_menu_external_win.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/tab_contents/tab_contents_container.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/test/automation/automation_messages.h"
+
+#include "grit/generated_resources.h"
 
 static const wchar_t kWindowObjectKey[] = L"ChromeWindowObject";
 
@@ -96,6 +99,9 @@ bool ExternalTabContainer::Init(Profile* profile,
     SetParent(GetNativeView(), parent);
 
   ::ShowWindow(tab_contents_->GetNativeView(), SW_SHOWNA);
+
+  disabled_context_menu_ids_.push_back(
+      IDS_CONTENT_CONTEXT_OPENLINKOFFTHERECORD);
   return true;
 }
 
@@ -250,6 +256,40 @@ bool ExternalTabContainer::TakeFocus(bool reverse) {
         win_util::IsShiftPressed()));
   }
 
+  return true;
+}
+
+bool ExternalTabContainer::HandleContextMenu(const ContextMenuParams& params) {
+  if (!automation_) {
+    NOTREACHED();
+    return false;
+  }
+
+  external_context_menu_.reset(
+      new RenderViewContextMenuExternalWin(tab_contents(),
+                                           params,
+                                           GetNativeView(),
+                                           disabled_context_menu_ids_));
+  external_context_menu_->Init();
+
+  POINT screen_pt = { params.x, params.y };
+  MapWindowPoints(GetNativeView(), HWND_DESKTOP, &screen_pt, 1);
+
+  automation_->Send(
+      new AutomationMsg_ForwardContextMenuToExternalHost(0, tab_handle_,
+          external_context_menu_->GetMenuHandle(), screen_pt.x, screen_pt.y,
+          external_context_menu_->GetTPMAlignFlags()));
+
+  return true;
+}
+
+bool ExternalTabContainer::ExecuteContextMenuCommand(int command) {
+  if (!external_context_menu_.get()) {
+    NOTREACHED();
+    return false;
+  }
+
+  external_context_menu_->ExecuteCommand(command);
   return true;
 }
 

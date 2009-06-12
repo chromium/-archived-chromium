@@ -5,6 +5,8 @@
 #ifndef CHROME_BROWSER_EXTERNAL_TAB_CONTAINER_H_
 #define CHROME_BROWSER_EXTERNAL_TAB_CONTAINER_H_
 
+#include <vector>
+
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/notification_registrar.h"
@@ -13,6 +15,7 @@
 class AutomationProvider;
 class Profile;
 class TabContentsContainer;
+class RenderViewContextMenuExternalWin;
 
 // This class serves as the container window for an external tab.
 // An external tab is a Chrome tab that is meant to displayed in an
@@ -83,6 +86,7 @@ class ExternalTabContainer : public TabContentsDelegate,
   virtual bool IsExternalTabContainer() const {
     return true;
   };
+
   virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(
       RenderViewHost* render_view_host,
       const std::string& extension_id);
@@ -96,6 +100,14 @@ class ExternalTabContainer : public TabContentsDelegate,
   // Overridden from views::KeystrokeListener:
   virtual bool ProcessKeyStroke(HWND window, UINT message, WPARAM wparam,
                                 LPARAM lparam);
+
+  // Handles the context menu display operation. This allows external
+  // hosts to customize the menu.
+  virtual bool HandleContextMenu(const ContextMenuParams& params);
+
+  // Executes the context menu command identified by the command
+  // parameter.
+  virtual bool ExecuteContextMenuCommand(int command);
 
  protected:
   // Overridden from views::WidgetWin:
@@ -125,6 +137,11 @@ class ExternalTabContainer : public TabContentsDelegate,
   // to avoid confusing the clients of the external tab. This member variable
   // is set when we need to ignore the next load notification.
   bool ignore_next_load_notification_;
+
+  // Contains the list of disabled context menu identifiers.
+  std::vector<int> disabled_context_menu_ids_;
+
+  scoped_ptr<RenderViewContextMenuExternalWin> external_context_menu_;
 
   DISALLOW_COPY_AND_ASSIGN(ExternalTabContainer);
 };
