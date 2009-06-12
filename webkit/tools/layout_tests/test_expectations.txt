@@ -2682,12 +2682,12 @@ BUG12882 WIN : LayoutTests/fast/box-shadow/basic-shadows.html = FAIL
 BUG12882 : LayoutTests/fast/dom/Window/open-existing-pop-up-blocking.html = TIMEOUT
 
 // WebKit 44252:44286
-BUG13105 REBASELINE MAC WIN : LayoutTests/fast/backgrounds/body-generated-image-propagated-to-root.html = FAIL
+BUG13105 MAC WIN : LayoutTests/fast/backgrounds/body-generated-image-propagated-to-root.html = FAIL
 
 // WebKit 44286:44342
 // This test crashes the next layout tests, so skip until resolved.
 BUG13176 SKIP : LayoutTests/fast/workers/worker-close.html = FAIL
-BUG13174 WIN REBASELINE : LayoutTests/transitions/shorthand-border-transitions.html = FAIL
+BUG13174 WIN : LayoutTests/transitions/shorthand-border-transitions.html = FAIL
 
 // WebKit 44372:44405	
 // New Linux crashes and failures. Why are we running platform/mac test on Linux?
