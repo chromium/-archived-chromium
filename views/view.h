@@ -347,6 +347,19 @@ class View : public AcceleratorTarget {
     return UILayoutIsRightToLeft() ? width() - x : x;
   }
 
+  // Given a X coordinate and a width inside the View, this function returns
+  // the mirrored X coordinate if the View's UI layout is right-to-left. If the
+  // layout is left-to-right, the same X coordinate is returned.
+  //
+  // Following are a few examples of the values returned by this function for
+  // a View with the bounds {0, 0, 100, 100} and a right-to-left layout:
+  //
+  // MirroredXCoordinateInsideView(0, 10) -> 90
+  // MirroredXCoordinateInsideView(20, 20) -> 60
+  int MirroredXWithWidthInsideView(int x, int w) const {
+    return UILayoutIsRightToLeft() ? width() - x - w : x;
+  }
+
   // Painting functions
 
   // Mark the specified rectangle as dirty (needing repaint). If |urgent| is

@@ -152,17 +152,6 @@ DownloadItemView::DownloadItemView(DownloadItem* download,
     disabled_while_opening_(false),
     creation_time_(base::Time::Now()),
     ALLOW_THIS_IN_INITIALIZER_LIST(reenable_method_factory_(this)) {
-  // TODO(idana) Bug# 1163334
-  //
-  // We currently do not mirror each download item on the download shelf (even
-  // though the download shelf itself is mirrored and the items appear from
-  // right to left on RTL UIs).
-  //
-  // We explicitly disable mirroring for the item because the code that draws
-  // the download progress animation relies on the View's UI layout setting
-  // when positioning the animation so we should make sure that code doesn't
-  // treat our View as a mirrored View.
-  EnableUIMirroringForRTLLanguages(false);
   DCHECK(download_);
   download_->AddObserver(this);
 
@@ -485,6 +474,17 @@ void DownloadItemView::Paint(gfx::Canvas* canvas) {
 
   // Paint the background images.
   int x = kLeftPadding;
+  bool rtl_ui = UILayoutIsRightToLeft();
+  if (rtl_ui) {
+    // Since we do not have the mirrored images for
+    // (hot_)body_image_set->top_left, (hot_)body_image_set->left,
+    // (hot_)body_image_set->bottom_left, and drop_down_image_set,
+    // for RTL UI, we flip the canvas to draw those images mirrored.
+    // Consequently, we do not need to mirror the x-axis of those images.
+    canvas->save();
+    canvas->TranslateInt(width(), 0);
+    canvas->ScaleInt(-1, 1);
+  }
   PaintBitmaps(canvas,
                body_image_set->top_left, body_image_set->left,
                body_image_set->bottom_left,
@@ -524,6 +524,13 @@ void DownloadItemView::Paint(gfx::Canvas* canvas) {
                  x, box_y_, box_height_,
                  hot_body_image_set_.top_right->width());
     canvas->restore();
+    if (rtl_ui) {
+      canvas->restore();
+      canvas->save();
+      // Flip it for drawing drop-down images for RTL locales.
+      canvas->TranslateInt(width(), 0);
+      canvas->ScaleInt(-1, 1);
+    }
   }
 
   x += body_image_set->top_right->width();
@@ -551,6 +558,13 @@ void DownloadItemView::Paint(gfx::Canvas* canvas) {
     }
   }
 
+  if (rtl_ui) {
+    // Restore the canvas to avoid file name etc. text are drawn flipped.
+    // Consequently, the x-axis of following canvas->DrawXXX() method should be
+    // mirrored so the text and images are down in the right positions.
+    canvas->restore();
+  }
+
   // Print the text, left aligned and always print the file extension.
   // Last value of x was the end of the right image, just before the button.
   // Note that in dangerous mode we use a label (as the text is multi-line).
@@ -571,6 +585,8 @@ void DownloadItemView::Paint(gfx::Canvas* canvas) {
       filename = gfx::ElideFilename(filepath, font_, kTextWidth);
     }
 
+    int mirrored_x = MirroredXWithWidthInsideView(
+        download_util::kSmallProgressIconSize, kTextWidth);
     if (show_status_text_) {
       int y = box_y_ + kVerticalPadding;
 
@@ -578,13 +594,11 @@ void DownloadItemView::Paint(gfx::Canvas* canvas) {
       canvas->DrawStringInt(filename, font_,
                             IsEnabled() ? kFileNameColor :
                                           kFileNameDisabledColor,
-                            download_util::kSmallProgressIconSize, y,
-                            kTextWidth, font_.height());
+                            mirrored_x, y, kTextWidth, font_.height());
 
       y += font_.height() + kVerticalTextPadding;
 
-      canvas->DrawStringInt(status_text_, font_, kStatusColor,
-                            download_util::kSmallProgressIconSize, y,
+      canvas->DrawStringInt(status_text_, font_, kStatusColor, mirrored_x, y,
                             kTextWidth, font_.height());
     } else {
       int y = box_y_ + (box_height_ - font_.height()) / 2;
@@ -593,8 +607,7 @@ void DownloadItemView::Paint(gfx::Canvas* canvas) {
       canvas->DrawStringInt(filename, font_,
                             IsEnabled() ? kFileNameColor :
                                           kFileNameDisabledColor,
-                            download_util::kSmallProgressIconSize, y,
-                            kTextWidth, font_.height());
+                            mirrored_x, y, kTextWidth, font_.height());
     }
   }
 
@@ -625,18 +638,17 @@ void DownloadItemView::Paint(gfx::Canvas* canvas) {
     }
 
     // Draw the icon image.
+    int mirrored_x = MirroredXWithWidthInsideView(
+        download_util::kSmallProgressIconOffset, icon->width());
     if (IsEnabled()) {
-      canvas->DrawBitmapInt(*icon,
-                            download_util::kSmallProgressIconOffset,
+      canvas->DrawBitmapInt(*icon, mirrored_x,
                             download_util::kSmallProgressIconOffset);
     } else {
       // Use an alpha to make the image look disabled.
       SkPaint paint;
       paint.setAlpha(120);
-      canvas->DrawBitmapInt(*icon,
-                            download_util::kSmallProgressIconOffset,
-                            download_util::kSmallProgressIconOffset,
-                            paint);
+      canvas->DrawBitmapInt(*icon, mirrored_x,
+                            download_util::kSmallProgressIconOffset, paint);
     }
   }
 }
@@ -771,11 +783,8 @@ bool DownloadItemView::OnMousePressed(const views::MouseEvent& event) {
     // The menu's position is different depending on the UI layout.
     // DownloadShelfContextMenu will take care of setting the right anchor for
     // the menu depending on the locale.
-    //
-    // TODO(idana): when bug# 1163334 is fixed the following check should be
-    // replaced with UILayoutIsRightToLeft().
     point.set_y(height());
-    if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
+    if (UILayoutIsRightToLeft()) {
       point.set_x(width());
     } else {
       point.set_x(drop_down_x_);
