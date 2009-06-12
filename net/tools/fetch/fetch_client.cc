@@ -9,6 +9,7 @@
 #include "base/stats_counters.h"
 #include "base/string_util.h"
 #include "net/base/completion_callback.h"
+#include "net/base/host_resolver.h"
 #include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/http/http_cache.h"
@@ -125,12 +126,13 @@ int main(int argc, char**argv) {
   // Do work here.
   MessageLoop loop;
 
+  net::HostResolver host_resolver;
   scoped_ptr<net::ProxyService> proxy_service(net::ProxyService::CreateNull());
   net::HttpTransactionFactory* factory = NULL;
   if (use_cache)
-    factory = new net::HttpCache(proxy_service.get(), 0);
+    factory = new net::HttpCache(&host_resolver, proxy_service.get(), 0);
   else
-    factory = new net::HttpNetworkLayer(proxy_service.get());
+    factory = new net::HttpNetworkLayer(&host_resolver, proxy_service.get());
 
   {
     StatsCounterTimer driver_time("FetchClient.total_time");

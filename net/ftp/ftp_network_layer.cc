@@ -10,17 +10,18 @@
 
 namespace net {
 
-FtpNetworkLayer::FtpNetworkLayer()
-    : suspended_(false) {
-  session_ = new FtpNetworkSession();
+FtpNetworkLayer::FtpNetworkLayer(HostResolver* host_resolver)
+    : session_(new FtpNetworkSession(host_resolver)),
+      suspended_(false) {
 }
 
 FtpNetworkLayer::~FtpNetworkLayer() {
 }
 
 // static
-FtpTransactionFactory* FtpNetworkLayer::CreateFactory() {
-  return new FtpNetworkLayer();
+FtpTransactionFactory* FtpNetworkLayer::CreateFactory(
+    HostResolver* host_resolver) {
+  return new FtpNetworkLayer(host_resolver);
 }
 
 FtpTransaction* FtpNetworkLayer::CreateTransaction() {

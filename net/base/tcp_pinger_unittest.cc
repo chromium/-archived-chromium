@@ -67,7 +67,7 @@ TEST_F(TCPPingerTest, Ping) {
   net::AddressList addr;
   net::HostResolver resolver;
 
-  int rv = resolver.Resolve("localhost", listen_port_, &addr, NULL);
+  int rv = resolver.Resolve("localhost", listen_port_, &addr, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
 
   net::TCPPinger pinger(addr);
@@ -82,7 +82,7 @@ TEST_F(TCPPingerTest, PingFail) {
   // "Kill" "server"
   listen_sock_ = NULL;
 
-  int rv = resolver.Resolve("localhost", listen_port_, &addr, NULL);
+  int rv = resolver.Resolve("localhost", listen_port_, &addr, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
 
   net::TCPPinger pinger(addr);

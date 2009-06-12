@@ -113,7 +113,7 @@ TimeDelta BlockingDnsLookup(const std::string& hostname) {
 
     net::HostResolver resolver;
     net::AddressList addresses;
-    resolver.Resolve(hostname, 80, &addresses, NULL);
+    resolver.Resolve(hostname, 80, &addresses, NULL, NULL);
 
     return Time::Now() - start;
 }

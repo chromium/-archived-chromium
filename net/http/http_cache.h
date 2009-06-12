@@ -31,6 +31,7 @@ class Entry;
 
 namespace net {
 
+class HostResolver;
 class HttpNetworkSession;
 class HttpRequestInfo;
 class HttpResponseInfo;
@@ -57,7 +58,8 @@ class HttpCache : public HttpTransactionFactory {
   // Initialize the cache from the directory where its data is stored. The
   // disk cache is initialized lazily (by CreateTransaction) in this case. If
   // |cache_size| is zero, a default value will be calculated automatically.
-  HttpCache(ProxyService* proxy_service,
+  HttpCache(HostResolver* host_resolver,
+            ProxyService* proxy_service,
             const std::wstring& cache_dir,
             int cache_size);
 
@@ -73,7 +75,9 @@ class HttpCache : public HttpTransactionFactory {
   // Initialize using an in-memory cache. The cache is initialized lazily
   // (by CreateTransaction) in this case. If |cache_size| is zero, a default
   // value will be calculated automatically.
-  HttpCache(ProxyService* proxy_service, int cache_size);
+  HttpCache(HostResolver* host_resolver,
+            ProxyService* proxy_service,
+            int cache_size);
 
   // Initialize the cache from its component parts, which is useful for
   // testing.  The lifetime of the network_layer and disk_cache are managed by

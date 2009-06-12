@@ -45,10 +45,12 @@ namespace {
 class URLRequestHttpCacheContext : public URLRequestContext {
  public:
   URLRequestHttpCacheContext() {
+    host_resolver_ = new net::HostResolver;
     proxy_service_ = net::ProxyService::CreateNull();
     http_transaction_factory_ =
-        new net::HttpCache(net::HttpNetworkLayer::CreateFactory(proxy_service_),
-                           disk_cache::CreateInMemoryCacheBackend(0));
+        new net::HttpCache(
+          net::HttpNetworkLayer::CreateFactory(host_resolver_, proxy_service_),
+          disk_cache::CreateInMemoryCacheBackend(0));
     // In-memory cookie store.
     cookie_store_ = new net::CookieMonster();
   }
@@ -57,6 +59,7 @@ class URLRequestHttpCacheContext : public URLRequestContext {
     delete cookie_store_;
     delete http_transaction_factory_;
     delete proxy_service_;
+    delete host_resolver_;
   }
 };
 

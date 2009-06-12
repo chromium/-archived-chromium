@@ -25,6 +25,7 @@ class ClientSocketFactory;
 class TCPClientSocketPool : public ClientSocketPool {
  public:
   TCPClientSocketPool(int max_sockets_per_group,
+                      HostResolver* host_resolver,
                       ClientSocketFactory* client_socket_factory);
 
   // ClientSocketPool methods:
@@ -43,6 +44,10 @@ class TCPClientSocketPool : public ClientSocketPool {
                              ClientSocket* socket);
 
   virtual void CloseIdleSockets();
+
+  virtual HostResolver* GetHostResolver() const {
+    return host_resolver_;
+  }
 
   virtual int idle_socket_count() const {
     return idle_socket_count_;
@@ -137,7 +142,7 @@ class TCPClientSocketPool : public ClientSocketPool {
     CompletionCallbackImpl<ConnectingSocket> callback_;
     scoped_ptr<ClientSocket> socket_;
     scoped_refptr<TCPClientSocketPool> pool_;
-    HostResolver resolver_;
+    SingleRequestHostResolver resolver_;
     AddressList addresses_;
     bool canceled_;
 
@@ -184,6 +189,10 @@ class TCPClientSocketPool : public ClientSocketPool {
 
   // The maximum number of sockets kept per group.
   const int max_sockets_per_group_;
+
+  // The host resolver that will be used to do DNS lookups for connecting
+  // sockets.
+  HostResolver* host_resolver_;
 
   DISALLOW_COPY_AND_ASSIGN(TCPClientSocketPool);
 };

@@ -41,6 +41,7 @@ class SessionDependencies {
   explicit SessionDependencies(ProxyService* proxy_service)
       : proxy_service(proxy_service) {}
 
+  HostResolver host_resolver;
   scoped_ptr<ProxyService> proxy_service;
   MockClientSocketFactory socket_factory;
 };
@@ -53,7 +54,8 @@ ProxyService* CreateFixedProxyService(const std::string& proxy) {
 
 
 HttpNetworkSession* CreateSession(SessionDependencies* session_deps) {
-  return new HttpNetworkSession(session_deps->proxy_service.get(),
+  return new HttpNetworkSession(&session_deps->host_resolver,
+                                session_deps->proxy_service.get(),
                                 &session_deps->socket_factory);
 }
 

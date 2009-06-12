@@ -21,6 +21,7 @@
 #include "base/thread.h"
 #include "base/time.h"
 #include "base/waitable_event.h"
+#include "net/base/host_resolver.h"
 #include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/base/ssl_test_util.h"
@@ -42,22 +43,27 @@ using base::TimeDelta;
 class TestURLRequestContext : public URLRequestContext {
  public:
   TestURLRequestContext() {
+    host_resolver_ = new net::HostResolver;
     proxy_service_ = net::ProxyService::CreateNull();
     http_transaction_factory_ =
-        net::HttpNetworkLayer::CreateFactory(proxy_service_);
+        net::HttpNetworkLayer::CreateFactory(host_resolver_,
+            proxy_service_);
   }
 
   explicit TestURLRequestContext(const std::string& proxy) {
+    host_resolver_ = new net::HostResolver;
     net::ProxyConfig proxy_config;
     proxy_config.proxy_rules.ParseFromString(proxy);
     proxy_service_ = net::ProxyService::CreateFixed(proxy_config);
     http_transaction_factory_ =
-        net::HttpNetworkLayer::CreateFactory(proxy_service_);
+        net::HttpNetworkLayer::CreateFactory(host_resolver_,
+            proxy_service_);
   }
 
   virtual ~TestURLRequestContext() {
     delete http_transaction_factory_;
     delete proxy_service_;
+    delete host_resolver_;
   }
 };
 

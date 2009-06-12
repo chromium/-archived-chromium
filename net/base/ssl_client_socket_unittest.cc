@@ -77,7 +77,7 @@ TEST_F(SSLClientSocketTest, MAYBE_Connect) {
   TestCompletionCallback callback;
 
   int rv = resolver.Resolve(server_.kHostName, server_.kOKHTTPSPort,
-                            &addr, NULL);
+                            &addr, NULL, NULL);
   EXPECT_EQ(net::OK, rv);
 
   net::ClientSocket *transport = new net::TCPClientSocket(addr);
@@ -115,7 +115,7 @@ TEST_F(SSLClientSocketTest, MAYBE_ConnectExpired) {
   TestCompletionCallback callback;
 
   int rv = resolver.Resolve(server_.kHostName, server_.kBadHTTPSPort,
-                            &addr, NULL);
+                            &addr, NULL, NULL);
   EXPECT_EQ(net::OK, rv);
 
   net::ClientSocket *transport = new net::TCPClientSocket(addr);
@@ -152,7 +152,7 @@ TEST_F(SSLClientSocketTest, MAYBE_ConnectMismatched) {
   TestCompletionCallback callback;
 
   int rv = resolver.Resolve(server_.kMismatchedHostName, server_.kOKHTTPSPort,
-                            &addr, NULL);
+                            &addr, NULL, NULL);
   EXPECT_EQ(net::OK, rv);
 
   net::ClientSocket *transport = new net::TCPClientSocket(addr);
@@ -194,7 +194,7 @@ TEST_F(SSLClientSocketTest, MAYBE_Read) {
   TestCompletionCallback callback;
 
   int rv = resolver.Resolve(server_.kHostName, server_.kOKHTTPSPort,
-                            &addr, &callback);
+                            &addr, &callback, NULL);
   EXPECT_EQ(net::ERR_IO_PENDING, rv);
 
   rv = callback.WaitForResult();
@@ -255,7 +255,7 @@ TEST_F(SSLClientSocketTest, MAYBE_Read_SmallChunks) {
   TestCompletionCallback callback;
 
   int rv = resolver.Resolve(server_.kHostName, server_.kOKHTTPSPort,
-                            &addr, NULL);
+                            &addr, NULL, NULL);
   EXPECT_EQ(net::OK, rv);
 
   net::ClientSocket *transport = new net::TCPClientSocket(addr);
@@ -311,7 +311,7 @@ TEST_F(SSLClientSocketTest, MAYBE_Read_Interrupted) {
   TestCompletionCallback callback;
 
   int rv = resolver.Resolve(server_.kHostName, server_.kOKHTTPSPort,
-                            &addr, NULL);
+                            &addr, NULL, NULL);
   EXPECT_EQ(net::OK, rv);
 
   net::ClientSocket *transport = new net::TCPClientSocket(addr);

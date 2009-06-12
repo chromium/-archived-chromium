@@ -17,6 +17,7 @@ namespace net {
 
 class ClientSocket;
 class ClientSocketHandle;
+class HostResolver;
 
 // A ClientSocketPool is used to restrict the number of sockets open at a time.
 // It also maintains a list of idle persistent sockets.
@@ -68,6 +69,9 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
 
   // Called to close any idle connections held by the connection manager.
   virtual void CloseIdleSockets() = 0;
+
+  // Returns the HostResolver that will be used for host lookups.
+  virtual HostResolver* GetHostResolver() const = 0;
 
   // The total number of idle sockets in the pool.
   virtual int idle_socket_count() const = 0;

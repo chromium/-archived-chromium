@@ -292,9 +292,6 @@ class HttpNetworkTransaction : public HttpTransaction {
   ProxyService::PacRequest* pac_request_;
   ProxyInfo proxy_info_;
 
-  HostResolver resolver_;
-  AddressList addresses_;
-
   ClientSocketFactory* socket_factory_;
   ClientSocketHandle connection_;
   scoped_ptr<HttpStream> http_stream_;

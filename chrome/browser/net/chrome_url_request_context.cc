@@ -10,6 +10,7 @@
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/extensions/user_script_master.h"
+#include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
@@ -109,11 +110,15 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginal(
   DCHECK(!profile->IsOffTheRecord());
   ChromeURLRequestContext* context = new ChromeURLRequestContext(profile);
 
+  // Global host resolver for the context.
+  context->host_resolver_ = chrome_browser_net::GetGlobalHostResolver();
+
   context->proxy_service_ = CreateProxyService(
       context, *CommandLine::ForCurrentProcess());
 
   net::HttpCache* cache =
-      new net::HttpCache(context->proxy_service_,
+      new net::HttpCache(context->host_resolver_,
+                         context->proxy_service_,
                          disk_cache_path.ToWStringHack(), 0);
 
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
@@ -133,9 +138,11 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginal(
   // implementations on Windows.
 #if defined(OS_WIN)
   if (command_line.HasSwitch(switches::kNewFtp))
-    context->ftp_transaction_factory_ = new net::FtpNetworkLayer;
+    context->ftp_transaction_factory_ =
+        new net::FtpNetworkLayer(context->host_resolver_);
 #else
-  context->ftp_transaction_factory_ = new net::FtpNetworkLayer;
+  context->ftp_transaction_factory_ =
+      new net::FtpNetworkLayer(context->host_resolver_);
 #endif
 
   // setup cookie store
@@ -183,14 +190,16 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOffTheRecord(
   DCHECK(profile->IsOffTheRecord());
   ChromeURLRequestContext* context = new ChromeURLRequestContext(profile);
 
-  // Share the same proxy service as the original profile. This proxy
-  // service's lifespan is dependent on the lifespan of the original profile,
-  // which we reference (see above).
+  // Share the same proxy service and host resolver as the original profile.
+  // This proxy service's lifespan is dependent on the lifespan of the original
+  // profile which we reference (see above).
+  context->host_resolver_ =
+      profile->GetOriginalProfile()->GetRequestContext()->host_resolver();
   context->proxy_service_ =
       profile->GetOriginalProfile()->GetRequestContext()->proxy_service();
 
   context->http_transaction_factory_ =
-      new net::HttpCache(context->proxy_service_, 0);
+      new net::HttpCache(context->host_resolver_, context->proxy_service_, 0);
   context->cookie_store_ = new net::CookieMonster;
 
   return context;
@@ -241,7 +250,8 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateRequestContextForMedia(
   } else {
     // If original HttpCache doesn't exist, simply construct one with a whole
     // new set of network stack.
-    cache = new net::HttpCache(original_context->proxy_service(),
+    cache = new net::HttpCache(original_context->host_resolver(),
+                               original_context->proxy_service(),
                                disk_cache_path.ToWStringHack(), 0);
   }
 
@@ -417,4 +427,7 @@ ChromeURLRequestContext::~ChromeURLRequestContext() {
   // it is owned by the original URLRequestContext.
   if (!is_off_the_record_ && !is_media_)
     delete proxy_service_;
+
+  // Do not delete host_resolver_; it will be freed by FreeGlobalHostResolver()
+  // during the teardown of DNS prefetching.
 }

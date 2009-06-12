@@ -5,6 +5,7 @@
 #include "webkit/tools/test_shell/test_shell_request_context.h"
 
 #include "net/base/cookie_monster.h"
+#include "net/base/host_resolver.h"
 #include "net/proxy/proxy_service.h"
 #include "webkit/glue/webkit_glue.h"
 
@@ -41,14 +42,15 @@ void TestShellRequestContext::Init(
   //  issues.
   no_proxy = true;
 #endif
+  host_resolver_ = new net::HostResolver();
   proxy_service_ = net::ProxyService::Create(no_proxy ? &proxy_config : NULL,
                                              false, NULL, NULL);
 
   net::HttpCache *cache;
   if (cache_path.empty()) {
-    cache = new net::HttpCache(proxy_service_, 0);
+    cache = new net::HttpCache(host_resolver_, proxy_service_, 0);
   } else {
-    cache = new net::HttpCache(proxy_service_, cache_path, 0);
+    cache = new net::HttpCache(host_resolver_, proxy_service_, cache_path, 0);
   }
   cache->set_mode(cache_mode);
   http_transaction_factory_ = cache;
@@ -58,6 +60,7 @@ TestShellRequestContext::~TestShellRequestContext() {
   delete cookie_store_;
   delete http_transaction_factory_;
   delete proxy_service_;
+  delete host_resolver_;
 }
 
 const std::string& TestShellRequestContext::GetUserAgent(

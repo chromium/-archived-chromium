@@ -6,6 +6,7 @@
 #include "base/string_util.h"
 #include "base/path_service.h"
 #include "googleurl/src/gurl.h"
+#include "net/base/host_resolver.h"
 #include "net/base/net_errors.h"
 #include "net/proxy/proxy_resolver_v8.h"
 #include "net/proxy/proxy_info.h"
@@ -377,8 +378,9 @@ TEST(ProxyResolverV8Test, V8Bindings) {
 
 TEST(ProxyResolverV8DefaultBindingsTest, DnsResolve) {
   // Get a hold of a DefaultJSBindings* (it is a hidden impl class).
-  net::ProxyResolverV8 resolver;
-  net::ProxyResolverV8::JSBindings* bindings = resolver.js_bindings();
+  net::HostResolver host_resolver;
+  scoped_ptr<net::ProxyResolverV8::JSBindings> bindings(
+      net::ProxyResolverV8::CreateDefaultBindings(&host_resolver, NULL));
 
   // Considered an error.
   EXPECT_EQ("", bindings->DnsResolve(""));
@@ -428,8 +430,9 @@ TEST(ProxyResolverV8DefaultBindingsTest, DnsResolve) {
 
 TEST(ProxyResolverV8DefaultBindingsTest, MyIpAddress) {
   // Get a hold of a DefaultJSBindings* (it is a hidden impl class).
-  net::ProxyResolverV8 resolver;
-  net::ProxyResolverV8::JSBindings* bindings = resolver.js_bindings();
+  net::HostResolver host_resolver;
+  scoped_ptr<net::ProxyResolverV8::JSBindings> bindings(
+      net::ProxyResolverV8::CreateDefaultBindings(&host_resolver, NULL));
 
   // Our ip address is always going to be 127.0.0.1, since we are using a
   // mock host mapper when running in unit-test mode.

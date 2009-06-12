@@ -23,6 +23,7 @@
 #endif
 #include "net/proxy/proxy_resolver.h"
 #include "net/proxy/proxy_resolver_v8.h"
+#include "net/url_request/url_request_context.h"
 
 using base::TimeDelta;
 using base::TimeTicks;
@@ -217,8 +218,18 @@ ProxyService* ProxyService::Create(
       new ProxyConfigServiceFixed(*pc) :
       CreateSystemProxyConfigService(io_loop);
 
-  ProxyResolver* proxy_resolver = use_v8_resolver ?
-      new ProxyResolverV8() : CreateNonV8ProxyResolver();
+  ProxyResolver* proxy_resolver;
+
+  if (use_v8_resolver) {
+    // Send javascript errors and alerts to LOG(INFO).
+    HostResolver* host_resolver = url_request_context->host_resolver();
+    ProxyResolverV8::JSBindings* js_bindings =
+        ProxyResolverV8::CreateDefaultBindings(host_resolver, io_loop);
+
+    proxy_resolver = new ProxyResolverV8(js_bindings);
+  } else {
+    proxy_resolver = CreateNonV8ProxyResolver();
+  }
 
   ProxyService* proxy_service = new ProxyService(
       proxy_config_service, proxy_resolver);

@@ -34,6 +34,7 @@ FtpNetworkTransaction::FtpNetworkTransaction(
       user_callback_(NULL),
       session_(session),
       request_(NULL),
+      resolver_(session->host_resolver()),
       read_ctrl_buf_size_(kCtrlBufLen),
       response_message_buf_len_(0),
       read_data_buf_len_(0),

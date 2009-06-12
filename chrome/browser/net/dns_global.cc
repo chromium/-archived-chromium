@@ -429,14 +429,11 @@ static net::HostResolver* global_host_resolver = NULL;
 net::HostResolver* GetGlobalHostResolver() {
   // Called from UI thread.
   if (!global_host_resolver) {
-  // TODO(eroman):
-#if 0
     static const size_t kMaxHostCacheEntries = 100;
     static const size_t kHostCacheExpirationSeconds = 60;  // 1 minute.
 
     global_host_resolver = new net::HostResolver(
         kMaxHostCacheEntries, kHostCacheExpirationSeconds * 1000);
-#endif
   }
   return global_host_resolver;
 }
@@ -444,8 +441,6 @@ net::HostResolver* GetGlobalHostResolver() {
 void FreeGlobalHostResolver() {
   if (global_host_resolver) {
     // Called from IO thread.
-    DCHECK_EQ(MessageLoop::current(),
-              g_browser_process->io_thread()->message_loop());
     delete global_host_resolver;
     global_host_resolver = NULL;
   }

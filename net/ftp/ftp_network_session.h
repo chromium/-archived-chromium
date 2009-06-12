@@ -10,14 +10,19 @@
 
 namespace net {
 
+class HostResolver;
+
 // This class holds session objects used by FtpNetworkTransaction objects.
 class FtpNetworkSession : public base::RefCounted<FtpNetworkSession> {
  public:
-  FtpNetworkSession() {}
+  explicit FtpNetworkSession(HostResolver* host_resolver)
+      : host_resolver_(host_resolver) {}
 
+  HostResolver* host_resolver() { return host_resolver_; }
   FtpAuthCache* auth_cache() { return &auth_cache_; }
 
  private:
+  HostResolver* host_resolver_;
   FtpAuthCache auth_cache_;
 };
 

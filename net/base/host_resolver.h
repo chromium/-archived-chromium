@@ -6,33 +6,72 @@
 #define NET_BASE_HOST_RESOLVER_H_
 
 #include <string>
+#include <vector>
 
 #include "base/basictypes.h"
+#include "base/lock.h"
 #include "base/ref_counted.h"
 #include "net/base/completion_callback.h"
+#include "net/base/host_cache.h"
+
+class MessageLoop;
 
 namespace net {
 
 class AddressList;
+class HostMapper;
 
-// This class represents the task of resolving a hostname (or IP address
-// literal) to an AddressList object.  It can only resolve a single hostname at
-// a time, so if you need to resolve multiple hostnames at the same time, you
-// will need to allocate a HostResolver object for each hostname.
+// This class represents the task of resolving hostnames (or IP address
+// literal) to an AddressList object.
 //
-// No attempt is made at this level to cache or pin resolution results.  For
-// each request, this API talks directly to the underlying name resolver of
-// the local system, which may or may not result in a DNS query.  The exact
-// behavior depends on the system configuration.
+// HostResolver handles multiple requests at a time, so when cancelling a
+// request the Request* handle that was returned by Resolve() needs to be
+// given.  A simpler alternative for consumers that only have 1 outstanding
+// request at a time is to create a SingleRequestHostResolver wrapper around
+// HostResolver (which will automatically cancel the single request when it
+// goes out of scope).
+//
+// For each hostname that is requested, HostResolver creates a
+// HostResolver::Job. This job gets dispatched to a thread in the global
+// WorkerPool, where it runs "getaddrinfo(hostname)". If requests for that same
+// host are made while the job is already outstanding, then they are attached
+// to the existing job rather than creating a new one. This avoids doing
+// parallel resolves for the same host.
+//
+// The way these classes fit together is illustrated by:
+//
+//
+//            +------------- HostResolver ---------------+
+//            |                    |                     |
+//           Job                  Job                   Job
+//       (for host1)          (for host2)           (for hostX)
+//       /    |   |            /   |   |             /   |   |
+//   Request ... Request  Request ... Request   Request ... Request
+//  (port1)     (port2)  (port3)      (port4)  (port5)      (portX)
+//
+//
+// When a HostResolver::Job finishes its work in the threadpool, the callbacks
+// of each waiting request are run on the origin thread.
+//
+// Thread safety: This class is not threadsafe, and must only be called
+// from one thread!
 //
 class HostResolver {
  public:
-  HostResolver();
+  // Creates a HostResolver that caches up to |max_cache_entries| for
+  // |cache_duration_ms| milliseconds.
+  //
+  // TODO(eroman): Get rid of the default parameters as it violate google
+  // style. This is temporary to help with refactoring.
+  HostResolver(int max_cache_entries = 100, int cache_duration_ms = 60000);
 
-  // If a completion callback is pending when the resolver is destroyed, the
-  // host resolution is cancelled, and the completion callback will not be
-  // called.
+  // If any completion callbacks are pending when the resolver is destroyed,
+  // the host resolutions are cancelled, and the completion callbacks will not
+  // be called.
   ~HostResolver();
+
+  // Opaque type used to cancel a request.
+  class Request;
 
   // Resolves the given hostname (or IP address literal), filling out the
   // |addresses| object upon success.  The |port| parameter will be set as the
@@ -43,15 +82,80 @@ class HostResolver {
   //
   // When callback is non-null, the operation will be performed asynchronously.
   // ERR_IO_PENDING is returned if it has been scheduled successfully. Real
-  // result code will be passed to the completion callback.
+  // result code will be passed to the completion callback. If |req| is
+  // non-NULL, then |*req| will be filled with a handle to the async request.
+  // This handle is not valid after the request has completed.
+  int Resolve(const std::string& hostname, int port,
+              AddressList* addresses, CompletionCallback* callback,
+              Request** req);
+
+  // Cancels the specified request. |req| is the handle returned by Resolve().
+  // After a request is cancelled, its completion callback will not be called.
+  void CancelRequest(Request* req);
+
+ private:
+  class Job;
+  typedef std::vector<Request*> RequestsList;
+  typedef base::hash_map<std::string, scoped_refptr<Job> > JobMap;
+
+  // Adds a job to outstanding jobs list.
+  void AddOutstandingJob(Job* job);
+
+  // Returns the outstanding job for |hostname|, or NULL if there is none.
+  Job* FindOutstandingJob(const std::string& hostname);
+
+  // Removes |job| from the outstanding jobs list.
+  void RemoveOutstandingJob(Job* job);
+
+  // Callback for when |job| has completed with |error| and |addrlist|.
+  void OnJobComplete(Job* job, int error, const AddressList& addrlist);
+
+  // Cache of host resolution results.
+  HostCache cache_;
+
+  // Map from hostname to outstanding job.
+  JobMap jobs_;
+
+  // The job that OnJobComplete() is currently processing (needed in case
+  // HostResolver gets deleted from within the callback).
+  scoped_refptr<Job> cur_completing_job_;
+
+  DISALLOW_COPY_AND_ASSIGN(HostResolver);
+};
+
+// This class represents the task of resolving a hostname (or IP address
+// literal) to an AddressList object.  It wraps HostResolver to resolve only a
+// single hostname at a time and cancels this request when going out of scope.
+class SingleRequestHostResolver {
+ public:
+  explicit SingleRequestHostResolver(HostResolver* resolver);
+
+  // If a completion callback is pending when the resolver is destroyed, the
+  // host resolution is cancelled, and the completion callback will not be
+  // called.
+  ~SingleRequestHostResolver();
+
+  // Resolves the given hostname (or IP address literal), filling out the
+  // |addresses| object upon success. See HostResolver::Resolve() for details.
   int Resolve(const std::string& hostname, int port,
               AddressList* addresses, CompletionCallback* callback);
 
  private:
-  class Request;
-  friend class Request;
-  scoped_refptr<Request> request_;
-  DISALLOW_COPY_AND_ASSIGN(HostResolver);
+  // Callback for when the request to |resolver_| completes, so we dispatch
+  // to the user's callback.
+  void OnResolveCompletion(int result);
+
+  // The actual host resolver that will handle the request.
+  HostResolver* resolver_;
+
+  // The current request (if any).
+  HostResolver::Request* cur_request_;
+  CompletionCallback* cur_request_callback_;
+
+  // Completion callback for when request to |resolver_| completes.
+  net::CompletionCallbackImpl<SingleRequestHostResolver> callback_;
+
+  DISALLOW_COPY_AND_ASSIGN(SingleRequestHostResolver);
 };
 
 // A helper class used in unit tests to alter hostname mappings.  See

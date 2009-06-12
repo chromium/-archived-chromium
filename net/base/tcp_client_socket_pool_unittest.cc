@@ -198,13 +198,19 @@ int TestSocketRequest::completion_count = 0;
 class TCPClientSocketPoolTest : public testing::Test {
  protected:
   TCPClientSocketPoolTest()
-      : pool_(new TCPClientSocketPool(kMaxSocketsPerGroup,
+      // We disable caching here since these unit tests don't expect
+      // host resolving to be able to complete synchronously.
+      // TODO(eroman): enable caching.
+      : host_resolver_(0, 0),
+        pool_(new TCPClientSocketPool(kMaxSocketsPerGroup,
+                                      &host_resolver_,
                                       &client_socket_factory_)) {}
 
   virtual void SetUp() {
     TestSocketRequest::completion_count = 0;
   }
 
+  HostResolver host_resolver_;
   MockClientSocketFactory client_socket_factory_;
   scoped_refptr<ClientSocketPool> pool_;
   std::vector<TestSocketRequest*> request_order_;

@@ -46,6 +46,7 @@ TCPClientSocketPool::ConnectingSocket::ConnectingSocket(
           callback_(this,
                     &TCPClientSocketPool::ConnectingSocket::OnIOComplete)),
       pool_(pool),
+      resolver_(pool->GetHostResolver()),
       canceled_(false) {
   DCHECK(!ContainsKey(pool_->connecting_socket_map_, handle));
   pool_->connecting_socket_map_[handle] = this;
@@ -158,10 +159,12 @@ void TCPClientSocketPool::ConnectingSocket::Cancel() {
 
 TCPClientSocketPool::TCPClientSocketPool(
     int max_sockets_per_group,
+    HostResolver* host_resolver,
     ClientSocketFactory* client_socket_factory)
     : client_socket_factory_(client_socket_factory),
       idle_socket_count_(0),
-      max_sockets_per_group_(max_sockets_per_group) {
+      max_sockets_per_group_(max_sockets_per_group),
+      host_resolver_(host_resolver) {
 }
 
 TCPClientSocketPool::~TCPClientSocketPool() {

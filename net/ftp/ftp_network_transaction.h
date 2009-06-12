@@ -142,7 +142,8 @@ class FtpNetworkTransaction : public FtpTransaction {
   const FtpRequestInfo* request_;
   FtpResponseInfo response_;
 
-  HostResolver resolver_;
+  // Cancels the outstanding request on destruction.
+  SingleRequestHostResolver resolver_;
   AddressList addresses_;
 
   // User buffer and length passed to the Read method.

@@ -15,8 +15,11 @@
 #include <resolv.h>
 #endif
 
+#include "base/compiler_specific.h"
 #include "base/message_loop.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
+#include "base/time.h"
 #include "base/worker_pool.h"
 #include "net/base/address_list.h"
 #include "net/base/net_errors.h"
@@ -24,7 +27,6 @@
 #if defined(OS_LINUX)
 #include "base/singleton.h"
 #include "base/thread_local_storage.h"
-#include "base/time.h"
 #endif
 
 #if defined(OS_WIN)
@@ -110,8 +112,7 @@ ThreadLocalStorage::Slot DnsReloadTimer::tls_index_(base::LINKER_INITIALIZED);
 
 #endif  // defined(OS_LINUX)
 
-static int HostResolverProc(
-    const std::string& host, const std::string& port, struct addrinfo** out) {
+static int HostResolverProc(const std::string& host, struct addrinfo** out) {
   struct addrinfo hints = {0};
   hints.ai_family = AF_UNSPEC;
 
@@ -144,7 +145,7 @@ static int HostResolverProc(
   // Restrict result set to only this socket type to avoid duplicates.
   hints.ai_socktype = SOCK_STREAM;
 
-  int err = getaddrinfo(host.c_str(), port.c_str(), &hints, out);
+  int err = getaddrinfo(host.c_str(), NULL, &hints, out);
 #if defined(OS_LINUX)
   net::DnsReloadTimer* dns_timer = Singleton<net::DnsReloadTimer>::get();
   // If we fail, re-initialise the resolver just in case there have been any
@@ -152,7 +153,7 @@ static int HostResolverProc(
   if (err && dns_timer->Expired()) {
     res_nclose(&_res);
     if (!res_ninit(&_res))
-      err = getaddrinfo(host.c_str(), port.c_str(), &hints, out);
+      err = getaddrinfo(host.c_str(), NULL, &hints, out);
   }
 #endif
 
@@ -160,50 +161,148 @@ static int HostResolverProc(
 }
 
 static int ResolveAddrInfo(HostMapper* mapper, const std::string& host,
-                           const std::string& port, struct addrinfo** out) {
+                           struct addrinfo** out) {
   if (mapper) {
     std::string mapped_host = mapper->Map(host);
 
     if (mapped_host.empty())
       return ERR_NAME_NOT_RESOLVED;
 
-    return HostResolverProc(mapped_host, port, out);
+    return HostResolverProc(mapped_host, out);
   } else {
-    return HostResolverProc(host, port, out);
+    return HostResolverProc(host, out);
   }
 }
 
 //-----------------------------------------------------------------------------
 
-class HostResolver::Request :
-    public base::RefCountedThreadSafe<HostResolver::Request> {
+class HostResolver::Request {
  public:
-  Request(HostResolver* resolver,
-          const std::string& host,
-          const std::string& port,
-          AddressList* addresses,
-          CompletionCallback* callback)
+  Request(CompletionCallback* callback, AddressList* addresses, int port)
+      : job_(NULL), callback_(callback), addresses_(addresses), port_(port) {}
+
+  // Mark the request as cancelled.
+  void Cancel() {
+    job_ = NULL;
+    callback_ = NULL;
+    addresses_ = NULL;
+  }
+
+  bool was_cancelled() const {
+    return callback_ == NULL;
+  }
+
+  void set_job(Job* job) {
+    DCHECK(job != NULL);
+    // Identify which job the request is waiting on.
+    job_ = job;
+  }
+
+  void OnComplete(int error, const AddressList& addrlist) {
+    if (error == OK)
+      addresses_->SetFrom(addrlist, port_);
+    callback_->Run(error);
+  }
+
+  int port() const {
+    return port_;
+  }
+
+  Job* job() const {
+    return job_;
+  }
+
+ private:
+  // The resolve job (running in worker pool) that this request is dependent on.
+  Job* job_;
+
+  // The user's callback to invoke when the request completes.
+  CompletionCallback* callback_;
+
+  // The address list to save result into.
+  AddressList* addresses_;
+
+  // The desired port number for the socket addresses.
+  int port_;
+
+  DISALLOW_COPY_AND_ASSIGN(Request);
+};
+
+//-----------------------------------------------------------------------------
+
+// This class represents a request to the worker pool for a "getaddrinfo()"
+// call.
+class HostResolver::Job : public base::RefCountedThreadSafe<HostResolver::Job> {
+ public:
+  Job(HostResolver* resolver, const std::string& host)
       : host_(host),
-        port_(port),
         resolver_(resolver),
-        addresses_(addresses),
-        callback_(callback),
         origin_loop_(MessageLoop::current()),
         host_mapper_(host_mapper),
         error_(OK),
         results_(NULL) {
   }
 
-  ~Request() {
+  ~Job() {
     if (results_)
       freeaddrinfo(results_);
+
+    // Free the requests attached to this job.
+    STLDeleteElements(&requests_);
   }
 
+  // Attaches a request to this job. The job takes ownership of |req| and will
+  // take care to delete it.
+  void AddRequest(HostResolver::Request* req) {
+    req->set_job(this);
+    requests_.push_back(req);
+  }
+
+  // Called from origin loop.
+  void Start() {
+    // Dispatch the job to a worker thread.
+    if (!WorkerPool::PostTask(FROM_HERE,
+            NewRunnableMethod(this, &Job::DoLookup), true)) {
+      NOTREACHED();
+
+      // Since we could be running within Resolve() right now, we can't just
+      // call OnLookupComplete().  Instead we must wait until Resolve() has
+      // returned (IO_PENDING).
+      error_ = ERR_UNEXPECTED;
+      MessageLoop::current()->PostTask(
+          FROM_HERE, NewRunnableMethod(this, &Job::OnLookupComplete));
+    }
+  }
+
+  // Cancels the current job. Callable from origin thread.
+  void Cancel() {
+    resolver_ = NULL;
+
+    AutoLock locked(origin_loop_lock_);
+    origin_loop_ = NULL;
+  }
+
+  // Called from origin thread.
+  bool was_cancelled() const {
+    return resolver_ == NULL;
+  }
+
+  // Called from origin thread.
+  const std::string& host() const {
+    return host_;
+  }
+
+  // Called from origin thread.
+  const RequestsList& requests() const {
+    return requests_;
+  }
+
+ private:
   void DoLookup() {
     // Running on the worker thread
-    error_ = ResolveAddrInfo(host_mapper_, host_, port_, &results_);
+    error_ = ResolveAddrInfo(host_mapper_, host_, &results_);
 
-    Task* reply = NewRunnableMethod(this, &Request::DoCallback);
+    Task* reply = NewRunnableMethod(this, &Job::OnLookupComplete);
 
     // The origin loop could go away while we are trying to post to it, so we
     // need to call its PostTask method inside a lock.  See ~HostResolver.
@@ -219,43 +318,33 @@ class HostResolver::Request :
     delete reply;
   }
 
-  void DoCallback() {
-    // Running on the origin thread.
+  // Callback for when DoLookup() completes (runs on origin thread).
+  void OnLookupComplete() {
+    DCHECK_EQ(origin_loop_, MessageLoop::current());
     DCHECK(error_ || results_);
 
-    // We may have been cancelled!
-    if (!resolver_)
+    if (was_cancelled())
       return;
 
-    if (!error_) {
-      addresses_->Adopt(results_);
+    DCHECK(!requests_.empty());
+
+     // Adopt the address list using the port number of the first request.
+    AddressList addrlist;
+    if (error_ == OK) {
+      addrlist.Adopt(results_);
+      addrlist.SetPort(requests_[0]->port());
       results_ = NULL;
     }
 
-    // Drop the resolver's reference to us.  Do this before running the
-    // callback since the callback might result in the resolver being
-    // destroyed.
-    resolver_->request_ = NULL;
-
-    callback_->Run(error_);
+    resolver_->OnJobComplete(this, error_, addrlist);
   }
 
-  void Cancel() {
-    resolver_ = NULL;
-
-    AutoLock locked(origin_loop_lock_);
-    origin_loop_ = NULL;
-  }
-
- private:
   // Set on the origin thread, read on the worker thread.
   std::string host_;
-  std::string port_;
 
   // Only used on the origin thread (where Resolve was called).
   HostResolver* resolver_;
-  AddressList* addresses_;
-  CompletionCallback* callback_;
+  RequestsList requests_;  // The requests waiting on this job.
 
   // Used to post ourselves onto the origin thread.
   Lock origin_loop_lock_;
@@ -270,48 +359,205 @@ class HostResolver::Request :
   // Assigned on the worker thread, read on the origin thread.
   int error_;
   struct addrinfo* results_;
+
+  DISALLOW_COPY_AND_ASSIGN(Job);
 };
 
 //-----------------------------------------------------------------------------
 
-HostResolver::HostResolver() {
+HostResolver::HostResolver(int max_cache_entries, int cache_duration_ms)
+    : cache_(max_cache_entries, cache_duration_ms) {
 #if defined(OS_WIN)
   EnsureWinsockInit();
 #endif
 }
 
 HostResolver::~HostResolver() {
-  if (request_)
-    request_->Cancel();
+  // Cancel the outstanding jobs. Those jobs may contain several attached
+  // requests, which will now never be completed.
+  for (JobMap::iterator it = jobs_.begin(); it != jobs_.end(); ++it)
+    it->second->Cancel();
+
+  // In case we are being deleted during the processing of a callback.
+  if (cur_completing_job_)
+    cur_completing_job_->Cancel();
 }
 
+// TODO(eroman): Don't create cache entries for hostnames which are simply IP
+// address literals.
 int HostResolver::Resolve(const std::string& hostname, int port,
                           AddressList* addresses,
-                          CompletionCallback* callback) {
-  DCHECK(!request_) << "resolver already in use";
+                          CompletionCallback* callback,
+                          Request** out_req) {
+  // If we have an unexpired cache entry, use it.
+  const HostCache::Entry* cache_entry = cache_.Lookup(
+      hostname, base::TimeTicks::Now());
+  if (cache_entry) {
+    addresses->SetFrom(cache_entry->addrlist, port);
+    return OK;
+  }
 
-  const std::string& port_str = IntToString(port);
-
-  // Do a synchronous resolution.
+  // If no callback was specified, do a synchronous resolution.
   if (!callback) {
     struct addrinfo* results;
-    int rv = ResolveAddrInfo(host_mapper, hostname, port_str, &results);
-    if (rv == OK)
-      addresses->Adopt(results);
-    return rv;
+    int error = ResolveAddrInfo(host_mapper, hostname, &results);
+
+    // Adopt the address list.
+    AddressList addrlist;
+    if (error == OK) {
+      addrlist.Adopt(results);
+      addrlist.SetPort(port);
+      *addresses = addrlist;
+    }
+
+    // Write to cache.
+    cache_.Set(hostname, error, addrlist, base::TimeTicks::Now());
+
+    return error;
   }
 
-  request_ = new Request(this, hostname, port_str, addresses, callback);
+  // Create a handle for this request, and pass it back to the user if they
+  // asked for it (out_req != NULL).
+  Request* req = new Request(callback, addresses, port);
+  if (out_req)
+    *out_req = req;
 
-  // Dispatch to worker thread...
-  if (!WorkerPool::PostTask(FROM_HERE,
-          NewRunnableMethod(request_.get(), &Request::DoLookup), true)) {
-    NOTREACHED();
-    request_ = NULL;
-    return ERR_FAILED;
+  // Next we need to attach our request to a "job". This job is responsible for
+  // calling "getaddrinfo(hostname)" on a worker thread.
+  scoped_refptr<Job> job;
+
+  // If there is already an outstanding job to resolve |hostname|, use it.
+  // This prevents starting concurrent resolves for the same hostname.
+  job = FindOutstandingJob(hostname);
+  if (job) {
+    job->AddRequest(req);
+  } else {
+    // Create a new job for this request.
+    job = new Job(this, hostname);
+    job->AddRequest(req);
+    AddOutstandingJob(job);
+    // TODO(eroman): Bound the total number of concurrent jobs.
+    // http://crbug.com/9598
+    job->Start();
   }
 
+  // Completion happens during OnJobComplete(Job*).
   return ERR_IO_PENDING;
+}
+
+// See OnJobComplete(Job*) for why it is important not to clean out
+// cancelled requests from Job::requests_.
+void HostResolver::CancelRequest(Request* req) {
+  DCHECK(req);
+  DCHECK(req->job());
+  // NULL out the fields of req, to mark it as cancelled.
+  req->Cancel();
+}
+
+void HostResolver::AddOutstandingJob(Job* job) {
+  scoped_refptr<Job>& found_job = jobs_[job->host()];
+  DCHECK(!found_job);
+  found_job = job;
+}
+
+HostResolver::Job* HostResolver::FindOutstandingJob(
+    const std::string& hostname) {
+  JobMap::iterator it = jobs_.find(hostname);
+  if (it != jobs_.end())
+    return it->second;
+  return NULL;
+}
+
+void HostResolver::RemoveOutstandingJob(Job* job) {
+  JobMap::iterator it = jobs_.find(job->host());
+  DCHECK(it != jobs_.end());
+  DCHECK_EQ(it->second.get(), job);
+  jobs_.erase(it);
+}
+
+void HostResolver::OnJobComplete(Job* job,
+                                 int error,
+                                 const AddressList& addrlist) {
+  RemoveOutstandingJob(job);
+
+  // Write result to the cache.
+  cache_.Set(job->host(), error, addrlist, base::TimeTicks::Now());
+
+  // Make a note that we are executing within OnJobComplete() in case the
+  // HostResolver is deleted by a callback invocation.
+  DCHECK(!cur_completing_job_);
+  cur_completing_job_ = job;
+
+  // Complete all of the requests that were attached to the job.
+  for (RequestsList::const_iterator it = job->requests().begin();
+       it != job->requests().end(); ++it) {
+    Request* req = *it;
+    if (!req->was_cancelled()) {
+      DCHECK_EQ(job, req->job());
+      req->OnComplete(error, addrlist);
+
+      // Check if the job was cancelled as a result of running the callback.
+      // (Meaning that |this| was deleted).
+      if (job->was_cancelled())
+        return;
+    }
+  }
+
+  cur_completing_job_ = NULL;
+}
+
+//-----------------------------------------------------------------------------
+
+SingleRequestHostResolver::SingleRequestHostResolver(HostResolver* resolver)
+    : resolver_(resolver),
+      cur_request_(NULL),
+      cur_request_callback_(NULL),
+      ALLOW_THIS_IN_INITIALIZER_LIST(
+          callback_(this, &SingleRequestHostResolver::OnResolveCompletion)) {
+  DCHECK(resolver_ != NULL);
+}
+
+SingleRequestHostResolver::~SingleRequestHostResolver() {
+  if (cur_request_) {
+    resolver_->CancelRequest(cur_request_);
+  }
+}
+
+int SingleRequestHostResolver::Resolve(
+    const std::string& hostname, int port,
+    AddressList* addresses,
+    CompletionCallback* callback) {
+  DCHECK(!cur_request_ && !cur_request_callback_) << "resolver already in use";
+
+  HostResolver::Request* request = NULL;
+
+  // We need to be notified of completion before |callback| is called, so that
+  // we can clear out |cur_request_*|.
+  CompletionCallback* transient_callback = callback ? &callback_ : NULL;
+
+  int rv = resolver_->Resolve(
+      hostname, port, addresses, transient_callback, &request);
+
+  if (rv == ERR_IO_PENDING) {
+    // Cleared in OnResolveCompletion().
+    cur_request_ = request;
+    cur_request_callback_ = callback;
+  }
+
+  return rv;
+}
+
+void SingleRequestHostResolver::OnResolveCompletion(int result) {
+  DCHECK(cur_request_ && cur_request_callback_);
+
+  CompletionCallback* callback = cur_request_callback_;
+
+  // Clear the outstanding request information.
+  cur_request_ = NULL;
+  cur_request_callback_ = NULL;
+
+  // Call the user's original callback.
+  callback->Run(result);
 }
 
 }  // namespace net

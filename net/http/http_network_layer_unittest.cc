@@ -26,15 +26,17 @@ class HttpNetworkLayerTest : public PlatformTest {
 };
 
 TEST_F(HttpNetworkLayerTest, CreateAndDestroy) {
+  net::HostResolver host_resolver;
   scoped_ptr<net::ProxyService> proxy_service(net::ProxyService::CreateNull());
-  net::HttpNetworkLayer factory(proxy_service.get());
+  net::HttpNetworkLayer factory(&host_resolver, proxy_service.get());
 
   scoped_ptr<net::HttpTransaction> trans(factory.CreateTransaction());
 }
 
 TEST_F(HttpNetworkLayerTest, Suspend) {
+  net::HostResolver host_resolver;
   scoped_ptr<net::ProxyService> proxy_service(net::ProxyService::CreateNull());
-  net::HttpNetworkLayer factory(proxy_service.get());
+  net::HttpNetworkLayer factory(&host_resolver, proxy_service.get());
 
   scoped_ptr<net::HttpTransaction> trans(factory.CreateTransaction());
   trans.reset();
@@ -50,8 +52,9 @@ TEST_F(HttpNetworkLayerTest, Suspend) {
 }
 
 TEST_F(HttpNetworkLayerTest, GoogleGET) {
+  net::HostResolver host_resolver;
   scoped_ptr<net::ProxyService> proxy_service(net::ProxyService::CreateNull());
-  net::HttpNetworkLayer factory(proxy_service.get());
+  net::HttpNetworkLayer factory(&host_resolver, proxy_service.get());
 
   TestCompletionCallback callback;
 

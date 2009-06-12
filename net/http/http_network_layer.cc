@@ -15,10 +15,11 @@ namespace net {
 
 // static
 HttpTransactionFactory* HttpNetworkLayer::CreateFactory(
+    HostResolver* host_resolver,
     ProxyService* proxy_service) {
   DCHECK(proxy_service);
 
-  return new HttpNetworkLayer(proxy_service);
+  return new HttpNetworkLayer(host_resolver, proxy_service);
 }
 
 // static
@@ -31,8 +32,12 @@ HttpTransactionFactory* HttpNetworkLayer::CreateFactory(
 
 //-----------------------------------------------------------------------------
 
-HttpNetworkLayer::HttpNetworkLayer(ProxyService* proxy_service)
-    : proxy_service_(proxy_service), session_(NULL), suspended_(false) {
+HttpNetworkLayer::HttpNetworkLayer(HostResolver* host_resolver,
+                                   ProxyService* proxy_service)
+    : host_resolver_(host_resolver),
+      proxy_service_(proxy_service),
+      session_(NULL),
+      suspended_(false) {
   DCHECK(proxy_service_);
 }
 
@@ -66,7 +71,7 @@ void HttpNetworkLayer::Suspend(bool suspend) {
 HttpNetworkSession* HttpNetworkLayer::GetSession() {
   if (!session_) {
     DCHECK(proxy_service_);
-    session_ = new HttpNetworkSession(proxy_service_,
+    session_ = new HttpNetworkSession(host_resolver_, proxy_service_,
                                       ClientSocketFactory::GetDefaultFactory());
   }
   return session_;

@@ -25,12 +25,13 @@ namespace chrome_browser_net {
 class DnsMaster::LookupRequest {
  public:
   LookupRequest(DnsMaster* master,
-                net::HostResolver* /*host_resolver*/,
+                net::HostResolver* host_resolver,
                 const std::string& hostname)
       : ALLOW_THIS_IN_INITIALIZER_LIST(
           net_callback_(this, &LookupRequest::OnLookupFinished)),
         master_(master),
-        hostname_(hostname) {
+        hostname_(hostname),
+        resolver_(host_resolver) {
   }
 
   bool Start() {
@@ -50,7 +51,7 @@ class DnsMaster::LookupRequest {
   DnsMaster* master_;  // Master which started us.
 
   const std::string hostname_;  // Hostname to resolve.
-  net::HostResolver resolver_;
+  net::SingleRequestHostResolver resolver_;
   net::AddressList addresses_;
 
   DISALLOW_COPY_AND_ASSIGN(LookupRequest);
