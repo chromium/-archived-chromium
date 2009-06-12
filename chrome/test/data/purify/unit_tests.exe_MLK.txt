@@ -1,0 +1,13 @@
+# See bug 13937
+Alloc Location
+   ...
+   chrome/browser/renderer_host/test_render_view_host.cc:18  TestRenderViewHost::TestRenderViewHost(SiteInstance *,RenderViewHostDelegate *,int,WaitableEvent::base *)
+   chrome/browser/renderer_host/test_render_view_host.h:166  TestRenderViewHostFactory::CreateRenderViewHost(SiteInstance *,RenderViewHostDelegate *,int,WaitableEvent::base *)
+   chrome/browser/renderer_host/render_view_host_factory.cc:21  RenderViewHostFactory::Create(SiteInstance *,RenderViewHostDelegate *,int,WaitableEvent::base *)
+   chrome/browser/tab_contents/render_view_host_manager.cc:60  RenderViewHostManager::Init(Profile *,SiteInstance *,int,WaitableEvent::base *)
+   chrome/browser/tab_contents/tab_contents.cc:258  TabContents::TabContents(Profile *,SiteInstance *,int,WaitableEvent::base *)
+   chrome/browser/tab_contents/test_web_contents.cc:11  TestTabContents::TestTabContents(Profile *,SiteInstance *)
+   chrome/browser/renderer_host/test_render_view_host.cc:85  RenderViewHostTestHarness::SetUp(void)
+   chrome/browser/tab_contents/web_contents_unittest.cc:199  TabContentsTest::SetUp(void)
+   testing/gtest/src/gtest.cc:2020  testing::Test::Run(void)
+   ^^^
