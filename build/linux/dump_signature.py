@@ -8,6 +8,7 @@
 # src/breakpad/linux/minidump_writer.cc@17081
 
 import sys
+import struct
 
 if len(sys.argv) != 2:
   sys.stderr.write("Error, no filename specified.\n")
@@ -17,15 +18,13 @@ bin = open(sys.argv[1])
 data = bin.read(4096)
 if len(data) != 4096:
   sys.stderr.write("Error, did not read first page of data.\n");
+  sys.exit(1)
 bin.close()
 
 signature = [0] * 16
 for i in range(0, 4096):
   signature[i % 16] ^= ord(data[i])
 
-out = ''
-# Assume we're running on little endian
-for i in [3, 2, 1, 0, 5, 4, 7, 6, 8, 9, 10, 11, 12, 13, 14, 15]:
-  out += '%02X' % signature[i]
-out += '0'
+out = ('%08x%04x%04x%02x%02x%02x%02x%02x%02x%02x%02x0' %
+      struct.unpack('I2H8B', struct.pack('16B', *signature)))
 sys.stdout.write(out)
