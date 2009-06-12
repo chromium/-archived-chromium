@@ -11,9 +11,6 @@
     'this_file': {
         'filepath': '^WATCHLISTS$',
     },
-    'gyp': {
-      'filepath': '\.gyp$',
-    },
     'valgrind': {
       'filepath': 'tools/valgrind/.*',
     },
@@ -24,7 +21,6 @@
 
   'WATCHLISTS': {
     'this_file': ['nirnimesh@chromium.org'],
-    'gyp': ['mark@chromium.org'],
     'valgrind': ['nirnimesh@chromium.org', 'dank@chromium.org'],
   },
 }
