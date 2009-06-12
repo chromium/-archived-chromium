@@ -3825,12 +3825,21 @@
             'chrome_dll_version',
             'chrome_resources',
             'installer/installer.gyp:installer_util_strings',
+            # TODO(sgk):  causes problems because theme_dll doesn't
+            # actually generate default.lib, but now expects it.
+            #'theme_dll',
             'worker',
             '../net/net.gyp:net_resources',
             '../third_party/tcmalloc/tcmalloc.gyp:tcmalloc',
             '../views/views.gyp:views',
             '../webkit/webkit.gyp:webkit_resources',
             '../gears/gears.gyp:gears',
+          ],
+          'defines': [
+            'CHROME_DLL',
+            'BROWSER_DLL',
+            'RENDERER_DLL',
+            'PLUGIN_DLL',
           ],
           'sources': [
             'app/chrome_dll.rc',
@@ -3846,6 +3855,19 @@
             '../webkit/glue/resources/vertical_text.cur',
             '../webkit/glue/resources/zoom_in.cur',
             '../webkit/glue/resources/zoom_out.cur',
+
+            # TODO:  It would be nice to have these pulled in
+            # automatically from direct_dependent_settings in
+            # their various targets (net.gyp:net_resources, etc.),
+            # but that causes errors in other targets when
+            # resulting .res files get referenced multiple times.
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/browser_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/common_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/debugger_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/renderer_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.rc',
+
             # TODO(sgk):  left-over from pre-gyp build, figure out
             # if we still need them and/or how to update to gyp.
             #'app/check_dependents.bat',
@@ -3853,6 +3875,8 @@
           ],
           'msvs_settings': {
             'VCLinkerTool': {
+              'BaseAddress': '0x01c30000',
+              'DelayLoadDLLs': 'crypt32.dll;cryptui.dll;winhttp.dll;wininet.dll;wsock32.dll;ws2_32.dll;winspool.drv;comdlg32.dll;imagehlp.dll;psapi.dll;urlmon.dll;imm32.dll',
               'ImportLibrary': '$(OutDir)\\lib\\chrome_dll.lib',
               # Set /SUBSYSTEM:WINDOWS for chrome.dll (for consistency).
               'SubSystem': '2',
@@ -3919,7 +3943,6 @@
                 '<(template_input_path)',
                 '<@(_outputs)',
               ],
-              'process_outputs_as_sources': 1,
               'message': 'Generating version information in <(_outputs)'
             },
           ],
