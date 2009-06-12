@@ -181,6 +181,7 @@
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/child_process_info.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/histogram_synchronizer.h"
 #include "chrome/common/libxml_utils.h"
 #include "chrome/common/notification_service.h"
@@ -709,6 +710,24 @@ void MetricsService::InitializeMetricsState() {
       prefs->ClearPref(prefs::kProfileMetrics);
     }
   }
+
+  // Get stats on use of command line.
+  const CommandLine* command_line(CommandLine::ForCurrentProcess());
+  size_t common_commands = 0;
+  if (command_line->HasSwitch(switches::kUserDataDir)) {
+    ++common_commands;
+    UMA_HISTOGRAM_COUNTS_100("Chrome.CommandLineDatDirCount", 1);
+  }
+
+  if (command_line->HasSwitch(switches::kApp)) {
+    ++common_commands;
+    UMA_HISTOGRAM_COUNTS_100("Chrome.CommandLineAppModeCount", 1);
+  }
+
+  UMA_HISTOGRAM_COUNTS_100("Chrome.CommandLineFlagCount",
+                           command_line->GetSwitchCount());
+  UMA_HISTOGRAM_COUNTS_100("Chrome.CommandLineUncommonFlagCount",
+                           command_line->GetSwitchCount() - common_commands);
 
   // Kick off the process of saving the state (so the uptime numbers keep
   // getting updated) every n minutes.
@@ -1558,7 +1577,7 @@ void MetricsService::LogWindowChange(NotificationType type,
   } else {
     controller_id = window_map_[window_or_tab];
   }
-  DCHECK(controller_id != -1);
+  DCHECK_NE(controller_id, -1);
 
   switch (type.value) {
     case NotificationType::TAB_PARENTED:

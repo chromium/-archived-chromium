@@ -75,6 +75,9 @@ class CommandLine {
   // the empty string.
   std::wstring GetSwitchValue(const std::wstring& switch_string) const;
 
+  // Get the number of switches in this process.
+  size_t GetSwitchCount() const { return switches_.size(); }
+
   // Get the remaining arguments to the command.
   // WARNING: this is incorrect on POSIX; we must do string conversions.
   std::vector<std::wstring> GetLooseValues() const;
