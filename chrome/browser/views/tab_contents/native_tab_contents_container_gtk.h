@@ -20,6 +20,7 @@ class NativeTabContentsContainerGtk : public NativeTabContentsContainer,
   virtual void SetFastResize(bool fast_resize);
   virtual void RenderViewHostChanged(RenderViewHost* old_host,
                                      RenderViewHost* new_host);
+  virtual void TabContentsFocused(TabContents* tab_contents);
   virtual views::View* GetView();
 
   // Overridden from views::View:

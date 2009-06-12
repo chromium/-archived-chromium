@@ -16,6 +16,7 @@
 #include "views/controls/native/native_view_host.h"
 #include "views/controls/textfield/native_textfield_win.h"
 #include "views/controls/textfield/textfield.h"
+#include "views/focus/focus_manager.h"
 #include "views/focus/focus_util_win.h"
 #include "views/views_delegate.h"
 #include "views/widget/widget.h"
@@ -665,6 +666,18 @@ void NativeTextfieldWin::OnPaste() {
     text_before_change_.clear();
     ReplaceSel(collapsed.c_str(), true);
   }
+}
+
+void NativeTextfieldWin::OnSetFocus(HWND hwnd) {
+  SetMsgHandled(FALSE);  // We still want the default processing of the message.
+
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(m_hWnd);
+  if (!focus_manager) {
+    NOTREACHED();
+    return;
+  }
+  focus_manager->SetFocusedView(textfield_);
 }
 
 void NativeTextfieldWin::OnSysChar(TCHAR ch, UINT repeat_count, UINT flags) {

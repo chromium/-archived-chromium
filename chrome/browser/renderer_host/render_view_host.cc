@@ -664,6 +664,14 @@ void RenderViewHost::MakeNavigateParams(const NavigationEntry& entry,
   params->request_time = base::Time::Now();
 }
 
+void RenderViewHost::GotFocus() {
+  RenderWidgetHost::GotFocus();  // Notifies the renderer it got focus.
+
+  RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
+  if (view)
+    view->GotFocus();
+}
+
 bool RenderViewHost::CanBlur() const {
   return delegate_->CanBlur();
 }

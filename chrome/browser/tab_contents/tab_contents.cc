@@ -34,6 +34,7 @@
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/renderer_host/web_cache_manager.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"
+#include "chrome/browser/tab_contents/interstitial_page.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
@@ -822,6 +823,10 @@ void TabContents::Focus() {
 }
 
 void TabContents::FocusThroughTabTraversal(bool reverse) {
+  if (showing_interstitial_page()) {
+    render_manager_.interstitial_page()->FocusThroughTabTraversal(reverse);
+    return;
+  }
   render_view_host()->SetInitialFocus(reverse);
 }
 

@@ -81,8 +81,6 @@ class NativeControlContainer : public CWindowImpl<NativeControlContainer,
   LRESULT OnCreate(LPCREATESTRUCT create_struct) {
     control_ = parent_->CreateNativeControl(m_hWnd);
 
-    FocusManager::InstallFocusSubclass(control_, parent_);
-
     // We subclass the control hwnd so we get the WM_KEYDOWN messages.
     WNDPROC original_handler =
         win_util::SetWindowProc(control_,
@@ -367,6 +365,15 @@ LRESULT CALLBACK NativeControl::NativeControlWndProc(HWND window, UINT message,
   if (message == WM_KEYDOWN && native_control->NotifyOnKeyDown()) {
     if (native_control->OnKeyDown(static_cast<int>(w_param)))
       return 0;
+  } else if (message == WM_SETFOCUS) {
+    // Let the focus manager know that the focus changed.
+    FocusManager* focus_manager =
+        FocusManager::GetFocusManager(native_control->GetNativeControlHWND());
+    if (focus_manager) {
+      focus_manager->SetFocusedView(native_control);
+    } else {
+      NOTREACHED();
+    }
   } else if (message == WM_DESTROY) {
     win_util::SetWindowProc(window,
                             reinterpret_cast<WNDPROC>(original_handler));

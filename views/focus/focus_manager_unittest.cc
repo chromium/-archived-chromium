@@ -699,6 +699,24 @@ class TestNativeButton : public NativeButton {
   }
 };
 
+class TestCheckbox : public Checkbox {
+ public:
+  explicit TestCheckbox(const std::wstring& text) : Checkbox(text) {
+  };
+  virtual HWND TestGetNativeControlHWND() {
+    return native_wrapper_->GetTestingHandle();
+  }
+};
+
+class TestRadioButton : public RadioButton {
+ public:
+  explicit TestRadioButton(const std::wstring& text) : RadioButton(text, 1) {
+  };
+  virtual HWND TestGetNativeControlHWND() {
+    return native_wrapper_->GetTestingHandle();
+  }
+};
+
 class TestTextfield : public Textfield {
  public:
   TestTextfield() { }
@@ -719,11 +737,15 @@ class TestTabbedPane : public TabbedPane {
 // FocusManager.
 TEST_F(FocusManagerTest, FocusNativeControls) {
   TestNativeButton* button = new TestNativeButton(L"Press me");
+  TestCheckbox* checkbox = new TestCheckbox(L"Checkbox");
+  TestRadioButton* radio_button = new TestRadioButton(L"RadioButton");
   TestTextfield* textfield = new TestTextfield();
   TestTabbedPane* tabbed_pane = new TestTabbedPane();
   TestNativeButton* tab_button = new TestNativeButton(L"tab button");
 
   content_view_->AddChildView(button);
+  content_view_->AddChildView(checkbox);
+  content_view_->AddChildView(radio_button);
   content_view_->AddChildView(textfield);
   content_view_->AddChildView(tabbed_pane);
   tabbed_pane->AddTab(L"Awesome tab", tab_button);
@@ -731,6 +753,13 @@ TEST_F(FocusManagerTest, FocusNativeControls) {
   // Simulate the native HWNDs getting the native focus.
   ::SendMessage(button->TestGetNativeControlHWND(), WM_SETFOCUS, NULL, NULL);
   EXPECT_EQ(button, GetFocusManager()->GetFocusedView());
+
+  ::SendMessage(checkbox->TestGetNativeControlHWND(), WM_SETFOCUS, NULL, NULL);
+  EXPECT_EQ(checkbox, GetFocusManager()->GetFocusedView());
+
+  ::SendMessage(radio_button->TestGetNativeControlHWND(), WM_SETFOCUS,
+                NULL, NULL);
+  EXPECT_EQ(radio_button, GetFocusManager()->GetFocusedView());
 
   ::SendMessage(textfield->TestGetNativeComponent(), WM_SETFOCUS, NULL, NULL);
   EXPECT_EQ(textfield, GetFocusManager()->GetFocusedView());

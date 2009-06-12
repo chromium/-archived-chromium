@@ -88,6 +88,7 @@ class BrowserWindowGtk : public BrowserWindow,
                               gfx::NativeWindow parent_window);
   virtual void UserChangedTheme();
   virtual int GetExtraRenderViewHeight() const;
+  virtual void TabContentsFocused(TabContents* tab_contents);
 
   // Overridden from NotificationObserver:
   virtual void Observe(NotificationType type,

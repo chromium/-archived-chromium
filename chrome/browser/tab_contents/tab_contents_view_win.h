@@ -48,6 +48,7 @@ class TabContentsViewWin : public TabContentsView,
   virtual void ShowContextMenu(const ContextMenuParams& params);
   virtual void StartDragging(const WebDropData& drop_data);
   virtual void UpdateDragCursor(bool is_drop_target);
+  virtual void GotFocus();
   virtual void TakeFocus(bool reverse);
   virtual void HandleKeyboardEvent(const NativeWebKeyboardEvent& event);
 
@@ -61,7 +62,6 @@ class TabContentsViewWin : public TabContentsView,
   virtual LRESULT OnMouseRange(UINT msg, WPARAM w_param, LPARAM l_param);
   virtual void OnPaint(HDC junk_dc);
   virtual LRESULT OnReflectedMessage(UINT msg, WPARAM w_param, LPARAM l_param);
-  virtual void OnSetFocus(HWND window);
   virtual void OnVScroll(int scroll_type, short position, HWND scrollbar);
   virtual void OnWindowPosChanged(WINDOWPOS* window_pos);
   virtual void OnSize(UINT param, const WTL::CSize& size);

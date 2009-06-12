@@ -160,16 +160,6 @@ class FocusManager {
   // The RootView specified should be the top RootView of the window.
   // This also invokes InstallFocusSubclass.
   static FocusManager* CreateFocusManager(HWND window, RootView* root_view);
-
-  // Subclasses the specified window. The subclassed window procedure listens
-  // for WM_SETFOCUS notification and keeps the FocusManager's focus owner
-  // property in sync.
-  // It's not necessary to explicitly invoke Uninstall, it's automatically done
-  // when the window is destroyed and Uninstall wasn't invoked.
-  static void InstallFocusSubclass(HWND window, View* view);
-
-  // Uninstalls the window subclass installed by InstallFocusSubclass.
-  static void UninstallFocusSubclass(HWND window);
 #endif
 
   static FocusManager* GetFocusManager(gfx::NativeView window);
@@ -294,6 +284,16 @@ class FocusManager {
  private:
 #if defined(OS_WIN)
   explicit FocusManager(HWND root, RootView* root_view);
+
+  // Subclasses the specified window. The subclassed window procedure listens
+  // for WM_SETFOCUS notification and keeps the FocusManager's focus owner
+  // property in sync.
+  // It's not necessary to explicitly invoke Uninstall, it's automatically done
+  // when the window is destroyed and Uninstall wasn't invoked.
+  static void InstallFocusSubclass(HWND window, View* view);
+
+  // Uninstalls the window subclass installed by InstallFocusSubclass.
+  static void UninstallFocusSubclass(HWND window);
 #endif
   ~FocusManager();
 

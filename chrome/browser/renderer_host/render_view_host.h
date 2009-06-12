@@ -418,6 +418,7 @@ class RenderViewHost : public RenderWidgetHost {
   virtual void Shutdown();
   virtual bool IsRenderView() { return true; }
   virtual void OnMessageReceived(const IPC::Message& msg);
+  virtual void GotFocus();
   virtual bool CanBlur() const;
   virtual void ForwardMouseEvent(const WebKit::WebMouseEvent& mouse_event);
   virtual gfx::Rect GetRootWindowResizerRect() const;

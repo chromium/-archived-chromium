@@ -183,6 +183,9 @@ void ExtensionHost::StartDragging(const WebDropData& drop_data) {
 void ExtensionHost::UpdateDragCursor(bool is_drop_target) {
 }
 
+void ExtensionHost::GotFocus() {
+}
+
 void ExtensionHost::TakeFocus(bool reverse) {
 }
 

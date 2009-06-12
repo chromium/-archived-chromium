@@ -895,6 +895,10 @@ int BrowserView::GetExtraRenderViewHeight() const {
   return 0;
 }
 
+void BrowserView::TabContentsFocused(TabContents* tab_contents) {
+  contents_container_->TabContentsFocused(tab_contents);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, BrowserWindowTesting implementation:
 
@@ -904,6 +908,10 @@ BookmarkBarView* BrowserView::GetBookmarkBarView() const {
 
 LocationBarView* BrowserView::GetLocationBarView() const {
   return toolbar_->location_bar();
+}
+
+views::View* BrowserView::GetTabContentsContainerView() const {
+  return contents_container_->GetFocusView();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

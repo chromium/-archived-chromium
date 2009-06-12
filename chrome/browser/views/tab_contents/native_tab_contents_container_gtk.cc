@@ -112,6 +112,18 @@ views::View* NativeTabContentsContainerGtk::GetView() {
   return this;
 }
 
+void NativeTabContentsContainerGtk::TabContentsFocused(
+    TabContents* tab_contents) {
+#if defined(OS_WIN)
+  views::FocusManager* focus_manager = GetFocusManager();
+  if (!focus_manager) {
+    NOTREACHED();
+    return;
+  }
+  focus_manager->SetFocusedView(this);
+#endif
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // NativeTabContentsContainerGtk, views::View overrides:
 

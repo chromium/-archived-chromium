@@ -71,10 +71,6 @@ static LRESULT CALLBACK FocusWindowCallback(HWND window, UINT message,
   // but that window may not have an associated FocusManager.
   if (focus_manager) {
     switch (message) {
-      case WM_SETFOCUS:
-        if (!focus_manager->OnSetFocus(window))
-          return 0;
-        break;
       case WM_NCDESTROY:
         if (!focus_manager->OnNCDestroy(window))
           return 0;
@@ -189,21 +185,6 @@ FocusManager::~FocusManager() {
 
 #if defined(OS_WIN)
 // Message handlers.
-bool FocusManager::OnSetFocus(HWND window) {
-  if (ignore_set_focus_msg_)
-    return true;
-
-  // Focus the view associated with that window.
-  View* v = static_cast<View*>(GetProp(window, kViewKey));
-  if (v && v->IsFocusable()) {
-    v->GetRootView()->FocusView(v);
-  } else {
-    SetFocusedView(NULL);
-  }
-
-  return true;
-}
-
 bool FocusManager::OnNCDestroy(HWND window) {
   // Window is being destroyed, undo the subclassing.
   FocusManager::UninstallFocusSubclass(window);

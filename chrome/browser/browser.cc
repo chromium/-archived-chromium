@@ -1851,6 +1851,10 @@ void Browser::ContentsZoomChange(bool zoom_in) {
   ExecuteCommand(zoom_in ? IDC_ZOOM_PLUS : IDC_ZOOM_MINUS);
 }
 
+void Browser::TabContentsFocused(TabContents* tab_content) {
+  window_->TabContentsFocused(tab_content);
+}
+
 bool Browser::IsApplication() const {
   return (type_ & TYPE_APP) != 0;
 }

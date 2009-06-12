@@ -188,6 +188,10 @@ void RenderWidgetHost::WasResized() {
     resize_ack_pending_ = false;
 }
 
+void RenderWidgetHost::GotFocus() {
+  Focus();
+}
+
 void RenderWidgetHost::Focus() {
   Send(new ViewMsg_SetFocus(routing_id_, true));
 }

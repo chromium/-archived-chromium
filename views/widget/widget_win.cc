@@ -189,10 +189,6 @@ void WidgetWin::Init(HWND parent, const gfx::Rect& bounds,
 
   if (has_own_focus_manager) {
     FocusManager::CreateFocusManager(hwnd_, GetRootView());
-  } else {
-    // Subclass the window so we get the tab key messages when a view with no
-    // associated native window is focused.
-    FocusManager::InstallFocusSubclass(hwnd_, NULL);
   }
 
   // Sets the RootView as a property, so the automation can introspect windows.

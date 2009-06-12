@@ -249,6 +249,10 @@ int BrowserWindowCocoa::GetExtraRenderViewHeight() const {
   return 0;
 }
 
+void BrowserWindowCocoa::TabContentsFocused(TabContents* tab_contents) {
+  NOTIMPLEMENTED();
+}
+
 void BrowserWindowCocoa::Observe(NotificationType type,
                                  const NotificationSource& source,
                                  const NotificationDetails& details) {

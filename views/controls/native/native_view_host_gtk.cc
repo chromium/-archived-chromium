@@ -71,8 +71,6 @@ void NativeViewHostGtk::NativeViewAttached() {
   host_->Layout();
 
   // TODO(port): figure out focus.
-  // FocusManager::InstallFocusSubclass(
-  // hwnd, associated_focus_view()_ ? associated_focus_view() : this);
 }
 
 void NativeViewHostGtk::NativeViewDetaching() {

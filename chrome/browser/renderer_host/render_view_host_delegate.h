@@ -110,6 +110,9 @@ class RenderViewHostDelegate {
     // |is_drop_target| is true if the mouse is over a valid drop target.
     virtual void UpdateDragCursor(bool is_drop_target) = 0;
 
+    // Notification that view for this delegate got the focus.
+    virtual void GotFocus() = 0;
+
     // Callback to inform the browser it should take back focus. If reverse is
     // true, it means the focus was retrieved by doing a Shift-Tab.
     virtual void TakeFocus(bool reverse) = 0;

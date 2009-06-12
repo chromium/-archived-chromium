@@ -66,6 +66,8 @@ class TestBrowserWindow : public BrowserWindow {
                               gfx::NativeWindow parent_window) {}
   virtual void UserChangedTheme() {}
   virtual int GetExtraRenderViewHeight() const { return 0; }
+  virtual void TabContentsFocused(TabContents* tab_contents) { }
+
  protected:
   virtual void DestroyBrowser() {}
 

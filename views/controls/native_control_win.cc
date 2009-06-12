@@ -7,6 +7,7 @@
 #include "app/l10n_util_win.h"
 #include "base/logging.h"
 #include "base/win_util.h"
+#include "views/focus/focus_manager.h"
 
 namespace views {
 
@@ -193,6 +194,15 @@ LRESULT NativeControlWin::NativeControlWndProc(HWND window,
   if (message == WM_KEYDOWN && native_control->NotifyOnKeyDown()) {
     if (native_control->OnKeyDown(static_cast<int>(w_param)))
       return 0;
+  } else if (message == WM_SETFOCUS) {
+    // Let the focus manager know that the focus changed.
+    FocusManager* focus_manager =
+        FocusManager::GetFocusManager(native_control->native_view());
+    if (focus_manager) {
+      focus_manager->SetFocusedView(native_control->focus_view());
+    } else {
+      NOTREACHED();
+    }
   } else if (message == WM_DESTROY) {
     win_util::SetWindowProc(window, native_control->original_wndproc_);
   }

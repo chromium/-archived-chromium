@@ -16,6 +16,7 @@ class LocationBar;
 class HtmlDialogUIDelegate;
 class StatusBubble;
 class TabContents;
+class TabContentsContainer;
 
 namespace gfx {
 class Rect;
@@ -190,6 +191,10 @@ class BrowserWindow {
   // during infobar animations).
   virtual int GetExtraRenderViewHeight() const = 0;
 
+  // Notification that |tab_contents| got the focus through user action (click
+  // on the page).
+  virtual void TabContentsFocused(TabContents* tab_contents) = 0;
+
   // Construct a BrowserWindow implementation for the specified |browser|.
   static BrowserWindow* CreateBrowserWindow(Browser* browser);
 
@@ -217,6 +222,9 @@ class BrowserWindowTesting {
 
   // Returns the LocationBarView.
   virtual LocationBarView* GetLocationBarView() const = 0;
+
+  // Returns the TabContentsContainer.
+  virtual views::View* GetTabContentsContainerView() const = 0;
 #endif
 };
 

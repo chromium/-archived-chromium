@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/tab_contents/tab_contents_container.h"
 
+#include "chrome/browser/tab_contents/interstitial_page.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/tab_contents/native_tab_contents_container.h"
@@ -36,6 +37,10 @@ void TabContentsContainer::ChangeTabContents(TabContents* contents) {
     native_container_->AttachContents(tab_contents_);
     AddObservers();
   }
+}
+
+void TabContentsContainer::TabContentsFocused(TabContents* tab_contents) {
+  native_container_->TabContentsFocused(tab_contents);
 }
 
 void TabContentsContainer::SetFastResize(bool fast_resize) {

@@ -686,6 +686,10 @@ int BrowserWindowGtk::GetExtraRenderViewHeight() const {
   return sum;
 }
 
+void BrowserWindowGtk::TabContentsFocused(TabContents* tab_contents) {
+  NOTIMPLEMENTED();
+}
+
 void BrowserWindowGtk::ConfirmBrowserCloseWithPendingDownloads() {
   NOTIMPLEMENTED();
   browser_->InProgressDownloadResponse(false);

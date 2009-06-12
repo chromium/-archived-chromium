@@ -9,8 +9,6 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/tab_contents/tab_contents_container.h"
 #include "views/focus/focus_manager.h"
-#include "views/widget/root_view.h"
-#include "views/widget/widget.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // NativeTabContentsContainerWin, public:
@@ -33,13 +31,11 @@ void NativeTabContentsContainerWin::AttachContents(TabContents* contents) {
   set_focus_view(this);
 
   Attach(contents->GetNativeView());
-  HWND contents_hwnd = contents->GetContentNativeView();
-  if (contents_hwnd)
-    views::FocusManager::InstallFocusSubclass(contents_hwnd, this);
 }
 
 void NativeTabContentsContainerWin::DetachContents(TabContents* contents) {
-  // TODO(brettw) should this move to NativeViewHost::Detach which is called below?
+  // TODO(brettw) should this move to NativeViewHost::Detach which is called
+  // below?
   // It needs cleanup regardless.
   HWND container_hwnd = contents->GetNativeView();
   if (container_hwnd) {
@@ -49,16 +45,6 @@ void NativeTabContentsContainerWin::DetachContents(TabContents* contents) {
 
     // Reset the parent to NULL to ensure hidden tabs don't receive messages.
     ::SetParent(container_hwnd, NULL);
-
-    // Unregister the tab contents window from the FocusManager.
-    views::FocusManager::UninstallFocusSubclass(container_hwnd);
-  }
-
-  HWND hwnd = contents->GetContentNativeView();
-  if (hwnd) {
-    // We may not have an HWND anymore, if the renderer crashed and we are
-    // displaying the sad tab for example.
-    views::FocusManager::UninstallFocusSubclass(hwnd);
   }
 
   // Now detach the TabContents.
@@ -72,20 +58,8 @@ void NativeTabContentsContainerWin::SetFastResize(bool fast_resize) {
 void NativeTabContentsContainerWin::RenderViewHostChanged(
     RenderViewHost* old_host,
     RenderViewHost* new_host) {
-  if (old_host && old_host->view()) {
-    views::FocusManager::UninstallFocusSubclass(
-        old_host->view()->GetNativeView());
-  }
-
-  if (new_host && new_host->view()) {
-    views::FocusManager::InstallFocusSubclass(
-        new_host->view()->GetNativeView(), this);
-  }
-
   // If we are focused, we need to pass the focus to the new RenderViewHost.
-  views::FocusManager* focus_manager = views::FocusManager::GetFocusManager(
-      GetRootView()->GetWidget()->GetNativeView());
-  if (focus_manager->GetFocusedView() == this)
+  if (GetFocusManager()->GetFocusedView() == this)
     Focus();
 }
 
@@ -93,22 +67,28 @@ views::View* NativeTabContentsContainerWin::GetView() {
   return this;
 }
 
+void NativeTabContentsContainerWin::TabContentsFocused(
+    TabContents* tab_contents) {
+  views::FocusManager* focus_manager = GetFocusManager();
+  if (!focus_manager) {
+    NOTREACHED();
+    return;
+  }
+  focus_manager->SetFocusedView(this);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // NativeTabContentsContainerWin, views::View overrides:
 
 bool NativeTabContentsContainerWin::SkipDefaultKeyEventProcessing(
     const views::KeyEvent& e) {
-  // Don't look-up accelerators or tab-traverse if we are showing a non-crashed
+  // Don't look-up accelerators or tab-traversal if we are showing a non-crashed
   // TabContents.
   // We'll first give the page a chance to process the key events.  If it does
   // not process them, they'll be returned to us and we'll treat them as
   // accelerators then.
   return container_->tab_contents() &&
          !container_->tab_contents()->is_crashed();
-}
-
-views::FocusTraversable* NativeTabContentsContainerWin::GetFocusTraversable() {
-  return NULL;
 }
 
 bool NativeTabContentsContainerWin::IsFocusable() const {
@@ -118,40 +98,24 @@ bool NativeTabContentsContainerWin::IsFocusable() const {
 }
 
 void NativeTabContentsContainerWin::Focus() {
-  if (container_->tab_contents()) {
-    // Set the native focus on the actual content of the tab, that is the
-    // interstitial if one is showing.
-    if (container_->tab_contents()->interstitial_page()) {
-      container_->tab_contents()->interstitial_page()->Focus();
-      return;
-    }
-    SetFocus(container_->tab_contents()->GetContentNativeView());
-  }
+  if (container_->tab_contents())
+    container_->tab_contents()->Focus();
 }
 
 void NativeTabContentsContainerWin::RequestFocus() {
-  // This is a hack to circumvent the fact that a view does not explicitly get
-  // a call to set the focus if it already has the focus. This causes a problem
-  // with tabs such as the TabContents that instruct the RenderView that it got
-  // focus when they actually get the focus. When switching from one TabContents
-  // tab that has focus to another TabContents tab that had focus, since the
-  // TabContentsContainerView already has focus, Focus() would not be called and
-  // the RenderView would not get notified it got focused.
-  // By clearing the focused view before-hand, we ensure Focus() will be called.
-  GetRootView()->FocusView(NULL);
+  // This is a hack to circumvent the fact that a the Focus() method is not
+  // invoked when RequestFocus() is called on an already focused view.
+  // The TabContentsContainer is the view focused when the TabContents has
+  // focus.  When switching between from one tab that has focus to another tab
+  // that should also have focus, RequestFocus() is invoked one the
+  // TabContentsContainer.  In order to make sure Focus() is invoked we need to
+  // clear the focus before hands.
+  GetFocusManager()->ClearFocus();
   View::RequestFocus();
 }
 
 void NativeTabContentsContainerWin::AboutToRequestFocusFromTabTraversal(
     bool reverse) {
-  if (!container_->tab_contents())
-    return;
-  // Give an opportunity to the tab to reset its focus.
-  if (container_->tab_contents()->interstitial_page()) {
-    container_->tab_contents()->interstitial_page()->
-        FocusThroughTabTraversal(reverse);
-    return;
-  }
   container_->tab_contents()->FocusThroughTabTraversal(reverse);
 }
 

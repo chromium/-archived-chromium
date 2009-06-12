@@ -185,12 +185,6 @@ class BrowserView : public BrowserWindow,
   void AttachBrowserBubble(BrowserBubble *bubble);
   void DetachBrowserBubble(BrowserBubble *bubble);
 
-#ifdef UNIT_TEST
-  TabContentsContainer* contents_container() const {
-    return contents_container_;
-  }
-#endif
-
   // Overridden from BrowserWindow:
   virtual void Show();
   virtual void SetBounds(const gfx::Rect& bounds);
@@ -237,10 +231,12 @@ class BrowserView : public BrowserWindow,
                               gfx::NativeWindow parent_window);
   virtual void UserChangedTheme();
   virtual int GetExtraRenderViewHeight() const;
+  virtual void TabContentsFocused(TabContents* source);
 
   // Overridden from BrowserWindowTesting:
   virtual BookmarkBarView* GetBookmarkBarView() const;
   virtual LocationBarView* GetLocationBarView() const;
+  virtual views::View* GetTabContentsContainerView() const;
 
   // Overridden from NotificationObserver:
   virtual void Observe(NotificationType type,

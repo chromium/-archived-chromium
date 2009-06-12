@@ -74,6 +74,7 @@ class NativeTextfieldWin
     MSG_WM_NCPAINT(OnNCPaint)
     MSG_WM_RBUTTONDOWN(OnNonLButtonDown)
     MSG_WM_PASTE(OnPaste)
+    MSG_WM_SETFOCUS(OnSetFocus)
     MSG_WM_SYSCHAR(OnSysChar)  // WM_SYSxxx == WM_xxx with ALT down
     MSG_WM_SYSKEYDOWN(OnKeyDown)
   END_MSG_MAP()
@@ -122,6 +123,7 @@ class NativeTextfieldWin
   void OnNCPaint(HRGN region);
   void OnNonLButtonDown(UINT keys, const CPoint& point);
   void OnPaste();
+  void OnSetFocus(HWND hwnd);
   void OnSysChar(TCHAR ch, UINT repeat_count, UINT flags);
 
   // Helper function for OnChar() and OnKeyDown() that handles keystrokes that

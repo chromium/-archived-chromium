@@ -5,9 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_TAB_CONTENTS_TAB_CONTENTS_CONTAINER_H_
 #define CHROME_BROWSER_VIEWS_TAB_CONTENTS_TAB_CONTENTS_CONTAINER_H_
 
-#ifdef UNIT_TEST
 #include "chrome/browser/views/tab_contents/native_tab_contents_container.h"
-#endif
 #include "chrome/common/notification_registrar.h"
 #include "views/view.h"
 
@@ -24,12 +22,13 @@ class TabContentsContainer : public views::View,
   // Changes the TabContents associated with this view.
   void ChangeTabContents(TabContents* contents);
 
+  View* GetFocusView() { return native_container_->GetView(); }
+
   // Accessor for |tab_contents_|.
   TabContents* tab_contents() const { return tab_contents_; }
 
-#ifdef UNIT_TEST
-  View* GetFocusView() { return native_container_->GetView(); }
-#endif
+  // Called by the BrowserView to notify that |tab_contents| got the focus.
+  void TabContentsFocused(TabContents* tab_contents);
 
   // Tells the container to update less frequently during resizing operations
   // so performance is better.
@@ -42,8 +41,8 @@ class TabContentsContainer : public views::View,
 
   // Overridden from views::View:
   virtual void Layout();
- protected:
 
+ protected:
   // Overridden from views::View:
   virtual void ViewHierarchyChanged(bool is_add, views::View* parent,
                                     views::View* child);

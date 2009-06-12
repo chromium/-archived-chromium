@@ -478,6 +478,7 @@ class Browser : public TabStripModelDelegate,
   virtual void UpdateTargetURL(TabContents* source, const GURL& url);
 
   virtual void ContentsZoomChange(bool zoom_in);
+  virtual void TabContentsFocused(TabContents* tab_content);
   virtual bool IsApplication() const;
   virtual void ConvertContentsToApplication(TabContents* source);
   virtual bool ShouldDisplayURLField();

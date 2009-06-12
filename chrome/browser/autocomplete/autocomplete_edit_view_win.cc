@@ -1621,6 +1621,16 @@ void AutocompleteEditViewWin::OnPaste() {
 }
 
 void AutocompleteEditViewWin::OnSetFocus(HWND focus_wnd) {
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(m_hWnd);
+  if (focus_manager) {
+    // Notify the FocusManager that the focused view is now the location bar
+    // (our parent view).
+    focus_manager->SetFocusedView(parent_view_);
+  } else {
+    NOTREACHED();
+  }
+
   model_->OnSetFocus(GetKeyState(VK_CONTROL) < 0);
 
   // Notify controller if it needs to show hint UI of some kind.

@@ -165,6 +165,11 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // Called to notify the RenderWidget that it has been resized.
   void WasResized();
 
+  // Called to notify the RenderWidget that its associated native window got
+  // focused.
+  virtual void GotFocus();
+
+  // Tells the renderer it got/lost focus.
   void Focus();
   void Blur();
   void LostCapture();

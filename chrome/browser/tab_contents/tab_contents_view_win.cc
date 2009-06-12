@@ -232,25 +232,34 @@ void TabContentsViewWin::SizeContents(const gfx::Size& size) {
 }
 
 void TabContentsViewWin::Focus() {
-  HWND container_hwnd = GetNativeView();
-  if (!container_hwnd)
-    return;
-
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(container_hwnd);
-  if (!focus_manager)
-    return;  // During testing we have no focus manager.
-  views::View* v = focus_manager->GetViewForWindow(container_hwnd, true);
-  DCHECK(v);
-  if (v)
-    v->RequestFocus();
+      views::FocusManager::GetFocusManager(GetNativeView());
+
+  if (tab_contents()->interstitial_page()) {
+    tab_contents()->interstitial_page()->Focus();
+    return;
+  }
+
+  if (sad_tab_.get()) {
+    sad_tab_->RequestFocus();
+    return;
+  }
+
+  RenderWidgetHostView* rwhv = tab_contents()->render_widget_host_view();
+  if (rwhv) {
+    ::SetFocus(rwhv->GetNativeView());
+    return;
+  }
+
+  // Default to focusing our HWND.
+  ::SetFocus(GetNativeView());
 }
 
 void TabContentsViewWin::SetInitialFocus() {
   if (tab_contents()->FocusLocationBarByDefault())
     tab_contents()->delegate()->SetFocusToLocationBar();
   else
-    ::SetFocus(GetNativeView());
+    Focus();
 }
 
 void TabContentsViewWin::StoreFocus() {
@@ -314,6 +323,10 @@ void TabContentsViewWin::RestoreFocus() {
 
 void TabContentsViewWin::UpdateDragCursor(bool is_drop_target) {
   drop_target_->set_is_drop_target(is_drop_target);
+}
+
+void TabContentsViewWin::GotFocus() {
+  tab_contents()->delegate()->TabContentsFocused(tab_contents());
 }
 
 void TabContentsViewWin::TakeFocus(bool reverse) {
@@ -483,19 +496,6 @@ LRESULT TabContentsViewWin::OnReflectedMessage(UINT msg, WPARAM w_param,
   }
 
   return 0;
-}
-
-void TabContentsViewWin::OnSetFocus(HWND window) {
-  // TODO(jcampan): figure out why removing this prevents tabs opened in the
-  //                background from properly taking focus.
-  // We NULL-check the render_view_host_ here because Windows can send us
-  // messages during the destruction process after it has been destroyed.
-  if (tab_contents()->render_widget_host_view()) {
-    HWND inner_hwnd =
-        tab_contents()->render_widget_host_view()->GetNativeView();
-    if (::IsWindow(inner_hwnd))
-      ::SetFocus(inner_hwnd);
-  }
 }
 
 void TabContentsViewWin::OnVScroll(int scroll_type, short position,

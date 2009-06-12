@@ -37,16 +37,9 @@ void NativeViewHostWin::NativeViewAttached() {
   // Need to set the HWND's parent before changing its size to avoid flashing.
   SetParent(host_->native_view(), host_->GetWidget()->GetNativeView());
   host_->Layout();
-
-  // Register with the focus manager so the associated view is focused when the
-  // native control gets the focus.
-  View* focus_view = host_->focus_view() ? host_->focus_view() : host_;
-  FocusManager::InstallFocusSubclass(host_->native_view(), focus_view);
 }
 
 void NativeViewHostWin::NativeViewDetaching() {
-  DCHECK(host_->native_view());
-  FocusManager::UninstallFocusSubclass(host_->native_view());
   installed_clip_ = false;
 }
 

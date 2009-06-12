@@ -35,6 +35,9 @@ class NativeTabContentsContainer {
   virtual void RenderViewHostChanged(RenderViewHost* old_host,
                                      RenderViewHost* new_host) = 0;
 
+  // Tells the container that |tab_contents| got the focus.
+  virtual void TabContentsFocused(TabContents* tab_contents) = 0;
+
   // Retrieves the views::View that hosts the TabContents.
   virtual views::View* GetView() = 0;
 };

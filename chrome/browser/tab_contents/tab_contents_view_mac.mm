@@ -161,6 +161,10 @@ void TabContentsViewMac::UpdateDragCursor(bool is_drop_target) {
   NOTIMPLEMENTED();
 }
 
+void TabContentsViewMac::GotFocus() {
+  NOTIMPLEMENTED();
+}
+
 // This is called when we the renderer asks us to take focus back (i.e., it has
 // iterated past the last focusable element on the page).
 void TabContentsViewMac::TakeFocus(bool reverse) {

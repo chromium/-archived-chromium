@@ -171,6 +171,9 @@ class TabContentsDelegate {
     return false;
   }
 
+  // Notification that |tab_contents| has gained focus.
+  virtual void TabContentsFocused(TabContents* tab_content) { }
+
   // Return much extra vertical space should be allotted to the
   // render view widget during various animations (e.g. infobar closing).
   // This is used to make painting look smoother.

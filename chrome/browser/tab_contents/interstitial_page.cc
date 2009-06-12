@@ -83,6 +83,7 @@ class InterstitialPage::InterstitialPageRVHViewDelegate
   virtual void ShowContextMenu(const ContextMenuParams& params);
   virtual void StartDragging(const WebDropData& drop_data);
   virtual void UpdateDragCursor(bool is_drop_target);
+  virtual void GotFocus();
   virtual void TakeFocus(bool reverse);
   virtual void HandleKeyboardEvent(const NativeWebKeyboardEvent& event);
   virtual void HandleMouseEvent();
@@ -208,6 +209,13 @@ void InterstitialPage::Hide() {
     // Show the original RVH since we're going away.  Note it might not exist if
     // the renderer crashed while the interstitial was showing.
     old_view->Show();
+  }
+
+  // If the focus was on the interstitial, let's keep it to the page.
+  // (Note that in unit-tests the RVH may not have a view).
+  if (render_view_host_->view() && render_view_host_->view()->HasFocus() &&
+      tab_->render_view_host()->view()) {
+    tab_->render_view_host()->view()->Focus();
   }
 
   render_view_host_->Shutdown();
@@ -517,6 +525,9 @@ void InterstitialPage::InterstitialPageRVHViewDelegate::StartDragging(
 void InterstitialPage::InterstitialPageRVHViewDelegate::UpdateDragCursor(
     bool is_drop_target) {
   NOTREACHED() << "InterstitialPage does not support dragging yet.";
+}
+
+void InterstitialPage::InterstitialPageRVHViewDelegate::GotFocus() {
 }
 
 void InterstitialPage::InterstitialPageRVHViewDelegate::UpdatePreferredWidth(

@@ -20,11 +20,11 @@ class NativeTabContentsContainerWin : public NativeTabContentsContainer,
   virtual void SetFastResize(bool fast_resize);
   virtual void RenderViewHostChanged(RenderViewHost* old_host,
                                      RenderViewHost* new_host);
+  virtual void TabContentsFocused(TabContents* tab_contents);
   virtual views::View* GetView();
 
   // Overridden from views::View:
   virtual bool SkipDefaultKeyEventProcessing(const views::KeyEvent& e);
-  virtual views::FocusTraversable* GetFocusTraversable();
   virtual bool IsFocusable() const;
   virtual void Focus();
   virtual void RequestFocus();

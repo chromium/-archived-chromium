@@ -791,7 +791,7 @@ LRESULT RenderWidgetHostViewWin::OnSetCursor(HWND window, UINT hittest_code,
 }
 
 void RenderWidgetHostViewWin::OnSetFocus(HWND window) {
-  render_widget_host_->Focus();
+  render_widget_host_->GotFocus();
 }
 
 void RenderWidgetHostViewWin::OnKillFocus(HWND window) {
