@@ -45,7 +45,9 @@ namespace {
 class URLRequestHttpCacheContext : public URLRequestContext {
  public:
   URLRequestHttpCacheContext() {
-    host_resolver_ = new net::HostResolver;
+    // TODO(eroman): we turn off host caching to see if synchronous
+    // host resolving interacts poorly with client socket pool. [experiment]
+    host_resolver_ = new net::HostResolver(0, 0);
     proxy_service_ = net::ProxyService::CreateNull();
     http_transaction_factory_ =
         new net::HttpCache(
