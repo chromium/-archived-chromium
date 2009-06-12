@@ -397,7 +397,7 @@ TEST_F(URLRequestTest, CancelTest3) {
 #endif
 }
 
-TEST_F(URLRequestTest, CancelTest4) {
+TEST_F(URLRequestTest, DISABLED_CancelTest4) {
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(L"", NULL);
   ASSERT_TRUE(NULL != server.get());
