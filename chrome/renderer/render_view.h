@@ -313,8 +313,8 @@ class RenderView : public RenderWidget,
                                          const WebKit::WebRect& selection);
   virtual bool WasOpenedByUserGesture() const;
   virtual void FocusAccessibilityObject(WebCore::AccessibilityObject* acc_obj);
-  virtual void SpellCheck(const std::wstring& word, int& misspell_location,
-                          int& misspell_length);
+  virtual void SpellCheck(const std::wstring& word, int* misspell_location,
+                          int* misspell_length);
   virtual std::wstring GetAutoCorrectWord(const std::wstring& word);
   virtual void SetInputMethodState(bool enabled);
   virtual void ScriptedPrint(WebFrame* frame);

@@ -851,7 +851,7 @@ void EditorClientImpl::checkSpellingOfString(const UChar* str, int length,
   if (isContinuousSpellCheckingEnabled() && d) {
     std::wstring word =
         webkit_glue::StringToStdWString(WebCore::String(str, length));
-    d->SpellCheck(word, spell_location, spell_length);
+    d->SpellCheck(word, &spell_location, &spell_length);
   } else {
     spell_location = 0;
     spell_length = 0;

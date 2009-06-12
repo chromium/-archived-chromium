@@ -2184,10 +2184,10 @@ bool RenderView::WasOpenedByUserGesture() const {
   return opened_by_user_gesture_;
 }
 
-void RenderView::SpellCheck(const std::wstring& word, int& misspell_location,
-                            int& misspell_length) {
-  Send(new ViewHostMsg_SpellCheck(routing_id_, word, &misspell_location,
-                                  &misspell_length));
+void RenderView::SpellCheck(const std::wstring& word, int* misspell_location,
+                            int* misspell_length) {
+  Send(new ViewHostMsg_SpellCheck(routing_id_, word, misspell_location,
+                                  misspell_length));
 }
 
 std::wstring RenderView::GetAutoCorrectWord(
