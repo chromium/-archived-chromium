@@ -119,7 +119,7 @@ void BrowserTitlebar::UpdateCustomFrame(bool use_custom_frame) {
   if (use_custom_frame) {
     gtk_alignment_set_padding(GTK_ALIGNMENT(titlebar_alignment_),
         kTitlebarHeight, 0, 0, 0);
-    gtk_widget_show_all(titlebar_buttons_box_);
+    gtk_widget_show(titlebar_buttons_box_);
   } else {
     gtk_alignment_set_padding(GTK_ALIGNMENT(titlebar_alignment_), 0, 0, 0, 0);
     gtk_widget_hide(titlebar_buttons_box_);
