@@ -600,13 +600,86 @@ BUG4360 SKIP : LayoutTests/http/tests/loading/deleted-host-in-resource-load-dele
 BUG1124568 : LayoutTests/fast/dom/Window/window-function-name-getter-precedence.html = FAIL
 
 // These tests are disabled until <audio> and <video> tags are supported.
-BUG4363 SKIP : LayoutTests/media = TIMEOUT
-BUG4363 SKIP : LayoutTests/fast/media = PASS FAIL
-BUG4363 : LayoutTests/http/tests/media = FAIL
+// Disable <video> and <audio> tests for mac and linux until there is
+// proper support.
+BUG4363 LINUX MAC SKIP : LayoutTests/media = TIMEOUT
+BUG4363 LINUX MAC SKIP : LayoutTests/fast/media = PASS FAIL
+BUG4363 LINUX MAC SKIP : LayoutTests/http/tests/media = FAIL
 BUG4363 : LayoutTests/http/tests/security/local-video-poster-from-remote.html = FAIL TIMEOUT
 BUG4363 SLOW : LayoutTests/http/tests/security/local-video-source-from-remote.html = FAIL
 BUG4363 SLOW : LayoutTests/http/tests/security/local-video-src-from-remote.html = FAIL
 BUG4363 : LayoutTests/fast/dom/Window/custom-constructors.html = FAIL
+
+// These tests are for <audio> and <video> and they do not run well on Windows.
+BUG13907 WIN : LayoutTests/fast/media/mq-animation.html = FAIL
+BUG13907 WIN : LayoutTests/fast/media/mq-aspect-ratio.html = FAIL
+BUG13907 WIN : LayoutTests/fast/media/mq-orientation.html = FAIL
+BUG13907 WIN : LayoutTests/fast/media/mq-transform-01.html = FAIL
+BUG13907 WIN : LayoutTests/fast/media/mq-transform-02.html = FAIL
+BUG13907 WIN : LayoutTests/fast/media/mq-transform-03.html = FAIL
+BUG13907 WIN : LayoutTests/fast/media/mq-transform-04.html = FAIL
+BUG13907 WIN : LayoutTests/fast/media/mq-transition.html = FAIL
+BUG13907 WIN DEBUG : LayoutTests/fast/media/resources/viewport-media-query.html = FAIL
+BUG13907 WIN : LayoutTests/fast/media/viewport-media-query.html = FAIL
+BUG13907 WIN : LayoutTests/http/tests/media/remove-while-loading.html = FAIL
+BUG13907 WIN : LayoutTests/http/tests/media/video-play-stall-seek.html = FAIL
+BUG13907 WIN : LayoutTests/http/tests/media/video-play-stall.html = FAIL
+BUG13907 WIN : LayoutTests/http/tests/media/video-seekable-stall.html = FAIL
+BUG13907 WIN : LayoutTests/media/audio-constructor-src.html = FAIL
+BUG13907 WIN : LayoutTests/media/audio-constructor.html = FAIL
+BUG13907 WIN : LayoutTests/media/audio-controls-rendering.html = FAIL
+BUG13907 WIN : LayoutTests/media/audio-mpeg-supported.html = FAIL
+BUG13907 WIN : LayoutTests/media/constructors.html = FAIL
+// This test crashes in both release and debug build.
+BUG13907 WIN : LayoutTests/media/controls-css-overload.html = CRASH
+// This test is flaky.
+BUG13907 WIN DEBUG : LayoutTests/media/progress-event-total.html = PASS FAIL
+BUG13907 WIN DEBUG : LayoutTests/media/remove-from-document.html = FAIL
+BUG13907 WIN : LayoutTests/media/unsupported-rtsp.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-aspect-ratio.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-buffered.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-can-play-type.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-controls-rendering.html = FAIL
+// This test sometimes crashes in debug build.
+BUG13907 WIN : LayoutTests/media/video-currentTime-set.html = FAIL CRASH
+// This test crashes in debug build.
+BUG13907 WIN : LayoutTests/media/video-currentTime-set2.html = PASS FAIL CRASH
+BUG13907 WIN : LayoutTests/media/video-display-toggle.html = FAIL
+// This test is flaky.
+BUG13907 WIN DEBUG : LayoutTests/media/video-dom-autobuffer.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-empty-source.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-error-does-not-exist.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-layer-crash.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-load-networkState.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-loop.html = FAIL
+// This test crashes in debug build.
+BUG13907 WIN : LayoutTests/media/video-muted.html = PASS FAIL CRASH
+// This test is flaky and may not only happen in debug build.
+BUG13907 WIN DEBUG : LayoutTests/media/video-no-autoplay.html = PASS FAIL
+// This test is flaky.
+BUG13907 WIN : LayoutTests/media/video-play-pause-events.html = PASS FAIL
+BUG13907 WIN : LayoutTests/media/video-play-pause-exception.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-played-collapse.html = FAIL
+// This test crashes in debug build.
+BUG13907 WIN : LayoutTests/media/video-played.html = PASS FAIL CRASH
+// This test crashes in debug build.
+BUG13907 WIN : LayoutTests/media/video-seek-past-end-playing.html = PASS FAIL CRASH
+BUG13907 WIN : LayoutTests/media/video-size-intrinsic-scale.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-source-add-src.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-source-error.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-source-type-params.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-source-type.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-src-change.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-src-invalid-remove.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-src-plus-source.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-src-remove.html = FAIL
+BUG13907 WIN DEBUG : LayoutTests/media/video-src.html = FAIL
+// This test is flaky and may not only happen in debug build.
+BUG13907 WIN DEBUG : LayoutTests/media/video-src-source.html = FAIL
+BUG13907 WIN DEBUG : LayoutTests/media/video-timeupdate-during-playback.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-transformed.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-zoom-controls.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-zoom.html = FAIL
 
 // Function arguments object is copied for each access.
 BUG941049 : LayoutTests/fast/js/kde/function_arguments.html = FAIL
