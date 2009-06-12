@@ -310,7 +310,7 @@ class ModelessHtmlDialogDelegate : public HtmlDialogUIDelegate {
 
   // HtmlDialogUIDelegate implementation:
   virtual bool IsDialogModal() const { return false; }
-  virtual std::wstring GetDialogTitle() const { return L"Google Gears"; }
+  virtual std::wstring GetDialogTitle() const { return L"Gears"; }
   virtual GURL GetDialogContentURL() const { return params_.url; }
   virtual void GetDialogSize(gfx::Size* size) const {
     size->set_width(params_.width);

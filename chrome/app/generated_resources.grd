@@ -3099,10 +3099,10 @@ each locale. -->
 
       
       <message name="IDS_OPTIONS_GEARSSETTINGS_GROUP_NAME" desc="The label of the 'Gears Settings' group">
-        Google Gears:
+        Gears:
       </message>
       <message name="IDS_OPTIONS_GEARSSETTINGS_CONFIGUREGEARS_BUTTON" desc="The label of the 'configure gears' button">
-        Change Google Gears settings
+        Change Gears settings
       </message>
 
       <message name="IDS_OPTIONS_CERTIFICATES_LABEL" desc="The info label for the 'Manage certificates' button">

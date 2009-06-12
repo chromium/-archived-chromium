@@ -31,7 +31,7 @@ class ModalHtmlDialogDelegate
 
   // HTMLDialogUIDelegate implementation:
   virtual bool IsDialogModal() const;
-  virtual std::wstring GetDialogTitle() const { return L"Google Gears"; }
+  virtual std::wstring GetDialogTitle() const { return L"Gears"; }
   virtual GURL GetDialogContentURL() const;
   virtual void GetDialogSize(gfx::Size* size) const;
   virtual std::string GetDialogArgs() const;
