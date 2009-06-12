@@ -14,6 +14,7 @@
 #include "base/time.h"
 #include "chrome/browser/extensions/extension_creator.h"
 #include "chrome/browser/extensions/extensions_service.h"
+#include "chrome/browser/extensions/external_extension_provider.h"
 #include "chrome/common/extensions/extension.h"
 #include "chrome/common/extensions/url_pattern.h"
 #include "chrome/common/chrome_paths.h"
@@ -26,10 +27,6 @@
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
-
-#if defined(OS_WIN)
-#include "base/registry.h"
-#endif
 
 namespace {
 
@@ -71,6 +68,54 @@ static std::vector<std::string> GetErrors() {
 
 }  // namespace
 
+class MockExtensionProvider : public ExternalExtensionProvider {
+ public:
+  explicit MockExtensionProvider(Extension::Location location)
+    : location_(location) {}
+  virtual ~MockExtensionProvider() {}
+
+  void UpdateOrAddExtension(const std::string& id,
+                            const std::string& version,
+                            FilePath path) {
+    extension_map_[id] = std::make_pair(version, path);
+  }
+
+  void RemoveExtension(const std::string& id) {
+    extension_map_.erase(id);
+  }
+
+  // ExternalExtensionProvider implementation:
+  virtual void VisitRegisteredExtension(
+      Visitor* visitor, const std::set<std::string>& ids_to_ignore) const {
+    for (DataMap::const_iterator i = extension_map_.begin();
+         i != extension_map_.end(); ++i) {
+      if (ids_to_ignore.find(i->first) != ids_to_ignore.end())
+        continue;
+      scoped_ptr<Version> version;
+      version.reset(Version::GetVersionFromString(i->second.first));
+
+      visitor->OnExternalExtensionFound(
+          i->first, version.get(), i->second.second);
+    }
+  }
+
+  virtual Version* RegisteredVersion(std::string id,
+                                     Extension::Location* location) const {
+    DataMap::const_iterator it = extension_map_.find(id);
+    if (it == extension_map_.end())
+      return NULL;
+
+    if (location)
+      *location = location_;
+    return Version::GetVersionFromString(it->second.first);
+  }
+
+ private:
+  typedef std::map< std::string, std::pair<std::string, FilePath> > DataMap;
+  DataMap extension_map_;
+  Extension::Location location_;
+};
+
 class ExtensionsServiceTest
   : public testing::Test, public NotificationObserver {
  public:
@@ -84,16 +129,18 @@ class ExtensionsServiceTest
     registrar_.Add(this, NotificationType::THEME_INSTALLED,
                    NotificationService::AllSources());
 
-    // Create a temporary area in the registry to test external extensions.
-    registry_path_ = "Software\\Google\\Chrome\\ExtensionsServiceTest_";
-    registry_path_ += IntToString(
-        static_cast<int>(base::Time::Now().ToDoubleT()));
-
     profile_.reset(new TestingProfile());
-    service_ = new ExtensionsService(profile_.get(), &loop_, &loop_,
-                                     registry_path_);
+    service_ = new ExtensionsService(profile_.get(), &loop_, &loop_);
     service_->set_extensions_enabled(true);
     service_->set_show_extensions_prompts(false);
+
+    // When we start up, we want to make sure there is no external provider,
+    // since the ExtensionService on Windows will use the Registry as a default
+    // provider and if there is something already registered there then it will
+    // interfere with the tests. Those tests that need an external provider
+    // will register one specifically.
+    service_->ClearProvidersForTesting();
+
     total_successes_ = 0;
   }
 
@@ -139,6 +186,11 @@ class ExtensionsServiceTest
     service_->set_extensions_enabled(enabled);
   }
 
+  void SetMockExternalProvider(Extension::Location location,
+                               ExternalExtensionProvider* provider) {
+    service_->SetProviderForTesting(location, provider);
+  }
+
  protected:
   void InstallExtension(const FilePath& path,
                         bool should_succeed) {
@@ -151,7 +203,7 @@ class ExtensionsServiceTest
 
       EXPECT_TRUE(installed_) << path.value();
 
-      EXPECT_EQ(1u, loaded_.size()) << path.value();
+      ASSERT_EQ(1u, loaded_.size()) << path.value();
       EXPECT_EQ(0u, errors.size()) << path.value();
       EXPECT_EQ(total_successes_, service_->extensions()->size()) <<
           path.value();
@@ -200,6 +252,23 @@ class ExtensionsServiceTest
     EXPECT_EQ(must_equal, val) << msg;
   }
 
+  void SetPref(std::string extension_id, std::wstring pref_path, int value) {
+    std::wstring msg = L" while setting: ";
+    msg += ASCIIToWide(extension_id);
+    msg += L" ";
+    msg += pref_path;
+    msg += L" = ";
+    msg += IntToWString(value);
+
+    const DictionaryValue* dict =
+        profile_->GetPrefs()->GetMutableDictionary(L"extensions.settings");
+    ASSERT_TRUE(dict != NULL) << msg;
+    DictionaryValue* pref = NULL;
+    ASSERT_TRUE(dict->GetDictionary(ASCIIToWide(extension_id), &pref)) << msg;
+    EXPECT_TRUE(pref != NULL) << msg;
+    pref->SetInteger(pref_path, value);
+  }
+
  protected:
   scoped_ptr<TestingProfile> profile_;
   scoped_refptr<ExtensionsService> service_;
@@ -208,7 +277,6 @@ class ExtensionsServiceTest
   std::vector<Extension*> loaded_;
   std::string unloaded_id_;
   Extension* installed_;
-  std::string registry_path_;
 
  private:
   NotificationRegistrar registrar_;
@@ -457,9 +525,9 @@ TEST_F(ExtensionsServiceTest, PackExtension) {
 
 // Test Packaging and installing an extension using an openssl generated key.
 // The openssl is generated with the following:
-// > openssl genrsa -out privkey.pem 1024 
+// > openssl genrsa -out privkey.pem 1024
 // > openssl pkcs8 -topk8 -nocrypt -in privkey.pem -out privkey_asn1.pem
-// The privkey.pem is a PrivateKey, and the pcks8 -topk8 creates a 
+// The privkey.pem is a PrivateKey, and the pcks8 -topk8 creates a
 // PrivateKeyInfo ASN.1 structure, we our RSAPrivateKey expects.
 TEST_F(ExtensionsServiceTest, PackExtensionOpenSSLKey) {
   SetExtensionsEnabled(true);
@@ -488,7 +556,7 @@ TEST_F(ExtensionsServiceTest, PackExtensionOpenSSLKey) {
 
   file_util::Delete(crx_path, false);
 }
-#endif // defined(OS_WIN)
+#endif  // defined(OS_WIN)
 
 TEST_F(ExtensionsServiceTest, InstallTheme) {
   FilePath extensions_path;
@@ -690,17 +758,23 @@ TEST_F(ExtensionsServiceTest, GenerateID) {
 #if defined(OS_WIN)
 
 TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
-  // Register a test extension externally using the registry.
+  // Verify that starting with no providers loads no extensions.
+  service_->Init();
+  loop_.RunAllPending();
+  ASSERT_EQ(0u, loaded_.size());
+
+  // Now add providers. Extension system takes ownership of the objects.
+  MockExtensionProvider* reg_provider =
+      new MockExtensionProvider(Extension::EXTERNAL_REGISTRY);
+  SetMockExternalProvider(Extension::EXTERNAL_REGISTRY, reg_provider);
+
+  // Register a test extension externally using the mock registry provider.
   FilePath source_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &source_path));
   source_path = source_path.AppendASCII("extensions").AppendASCII("good.crx");
 
-  RegKey key;
-  std::wstring reg_path = ASCIIToWide(registry_path_);
-  reg_path += L"\\00123456789ABCDEF0123456789ABCDEF0123456";
-  ASSERT_TRUE(key.Create(HKEY_LOCAL_MACHINE, reg_path.c_str(), KEY_WRITE));
-  ASSERT_TRUE(key.WriteValue(L"path", source_path.ToWStringHack().c_str()));
-  ASSERT_TRUE(key.WriteValue(L"version", L"1.0.0.0"));
+  // Add the extension.
+  reg_provider->UpdateOrAddExtension(good_crx, "1.0.0.0", source_path);
 
   // Start up the service, it should find our externally registered extension
   // and install it.
@@ -728,8 +802,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
 
   // Now update the extension with a new version. We should get upgraded.
   source_path = source_path.DirName().AppendASCII("good2.crx");
-  ASSERT_TRUE(key.WriteValue(L"path", source_path.ToWStringHack().c_str()));
-  ASSERT_TRUE(key.WriteValue(L"version", L"1.0.0.1"));
+  reg_provider->UpdateOrAddExtension(good_crx, "1.0.0.1", source_path);
 
   loaded_.clear();
   service_->Init();
@@ -762,13 +835,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
 
   // Now clear the preference, reinstall, then remove the reg key. The extension
   // should be uninstalled.
-  std::wstring pref_path = L"extensions.settings.";
-  pref_path += ASCIIToWide(good_crx);
-  profile_->GetPrefs()->RegisterDictionaryPref(pref_path.c_str());
-  DictionaryValue* extension_prefs;
-  extension_prefs =
-      profile_->GetPrefs()->GetMutableDictionary(pref_path.c_str());
-  extension_prefs->SetInteger(L"state", 0);
+  SetPref(good_crx, L"state", Extension::ENABLED);
   profile_->GetPrefs()->ScheduleSavePersistentPrefs();
 
   loaded_.clear();
@@ -779,9 +846,8 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
   ValidatePref(good_crx, L"state", Extension::ENABLED);
   ValidatePref(good_crx, L"location", Extension::EXTERNAL_REGISTRY);
 
-  RegKey parent_key;
-  key.Open(HKEY_LOCAL_MACHINE, ASCIIToWide(registry_path_).c_str(), KEY_WRITE);
-  key.DeleteKey(ASCIIToWide(id).c_str());
+  reg_provider->RemoveExtension(good_crx);
+
   loaded_.clear();
   service_->Init();
   loop_.RunAllPending();
@@ -791,20 +857,23 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
 #endif
 
 TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
+  // Verify that starting with no providers loads no extensions.
+  service_->Init();
+  loop_.RunAllPending();
+  ASSERT_EQ(0u, loaded_.size());
+
+  // Now add providers. Extension system takes ownership of the objects.
+  MockExtensionProvider* pref_provider =
+      new MockExtensionProvider(Extension::EXTERNAL_PREF);
+  SetMockExternalProvider(Extension::EXTERNAL_PREF, pref_provider);
+
   // Register a external extension using preinstalled preferences.
   FilePath source_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &source_path));
   source_path = source_path.AppendASCII("extensions").AppendASCII("good.crx");
 
-  DictionaryValue* extension_prefs;
-  extension_prefs =
-      profile_->GetPrefs()->GetMutableDictionary(L"extensions.settings");
-
-  DictionaryValue* extension = new DictionaryValue();
-  ASSERT_TRUE(extension->SetString(L"external_crx",
-                                   source_path.ToWStringHack()));
-  ASSERT_TRUE(extension->SetString(L"external_version", L"1.0"));
-  ASSERT_TRUE(extension_prefs->Set(ASCIIToWide(good_crx), extension));
+  // Add the extension.
+  pref_provider->UpdateOrAddExtension(good_crx, "1.0", source_path);
 
   // Start up the service, it should find our externally registered extension
   // and install it.
@@ -834,9 +903,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
 
   // Now update the extension with a new version. We should get upgraded.
   source_path = source_path.DirName().AppendASCII("good2.crx");
-  ASSERT_TRUE(extension->SetString(L"external_crx",
-                                   source_path.ToWStringHack()));
-  ASSERT_TRUE(extension->SetString(L"external_version", L"1.0.0.1"));
+  pref_provider->UpdateOrAddExtension(good_crx, "1.0.0.1", source_path);
 
   loaded_.clear();
   service_->Init();
@@ -870,7 +937,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   ValidatePref(good_crx, L"location", Extension::EXTERNAL_PREF);
 
   // Now clear the preference and reinstall.
-  extension->SetInteger(L"state", Extension::ENABLED);
+  SetPref(good_crx, L"state", Extension::ENABLED);
   profile_->GetPrefs()->ScheduleSavePersistentPrefs();
 
   loaded_.clear();
@@ -883,7 +950,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   ValidatePref(good_crx, L"location", Extension::EXTERNAL_PREF);
 
   // Now set the kill bit and watch the extension go away.
-  extension->SetInteger(L"state", Extension::KILLBIT);
+  SetPref(good_crx, L"state", Extension::KILLBIT);
   profile_->GetPrefs()->ScheduleSavePersistentPrefs();
 
   loaded_.clear();

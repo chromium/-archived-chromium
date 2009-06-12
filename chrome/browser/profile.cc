@@ -475,8 +475,7 @@ void ProfileImpl::InitExtensions() {
       script_dir);
   extensions_service_ = new ExtensionsService(
       this, MessageLoop::current(),
-      g_browser_process->file_thread()->message_loop(),
-      std::string());  // Use default registry path
+      g_browser_process->file_thread()->message_loop());
 
   extensions_service_->Init();
 }

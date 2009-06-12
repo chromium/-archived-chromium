@@ -22,6 +22,8 @@
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/extensions/extension_browser_event_router.h"
 #include "chrome/browser/extensions/extension_process_manager.h"
+#include "chrome/browser/extensions/external_extension_provider.h"
+#include "chrome/browser/extensions/external_pref_extension_provider.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/utility_process_host.h"
 #include "chrome/common/chrome_switches.h"
@@ -40,8 +42,8 @@
 
 #if defined(OS_WIN)
 #include "app/win_util.h"
-#include "base/registry.h"
 #include "base/win_util.h"
+#include "chrome/browser/extensions/external_registry_extension_provider_win.h"
 #endif
 
 // ExtensionsService.
@@ -59,25 +61,6 @@ const wchar_t kExternalExtensionsPref[] = L"extensions.settings";
 // A preference keeping track of how the extension was installed.
 const wchar_t kLocation[] = L"location";
 const wchar_t kState[] = L"state";
-
-// Registry key where registry defined extension installers live.
-// TODO(port): Assuming this becomes a similar key into the appropriate
-// platform system.
-const char kRegistryExtensions[] = "Software\\Google\\Chrome\\Extensions";
-
-#if defined(OS_WIN)
-
-// Registry value of of that key that defines the path to the .crx file.
-const wchar_t kRegistryExtensionPath[] = L"path";
-
-// Registry value of that key that defines the current version of the .crx file.
-const wchar_t kRegistryExtensionVersion[] = L"version";
-
-#endif
-
-// A marker file to indicate that an extension was installed from an external
-// source.
-const char kExternalInstallFile[] = "EXTERNAL_INSTALL";
 
 // A temporary subdirectory where we unpack extensions.
 const char* kUnpackExtensionDir = "TEMP_UNPACK";
@@ -216,19 +199,21 @@ class ExtensionsServiceBackend::UnpackerClient
 
 ExtensionsService::ExtensionsService(Profile* profile,
                                      MessageLoop* frontend_loop,
-                                     MessageLoop* backend_loop,
-                                     const std::string& registry_path)
+                                     MessageLoop* backend_loop)
     : prefs_(profile->GetPrefs()),
       backend_loop_(backend_loop),
       install_directory_(profile->GetPath().AppendASCII(kInstallDirectoryName)),
       extensions_enabled_(
           CommandLine::ForCurrentProcess()->
           HasSwitch(switches::kEnableExtensions)),
-      show_extensions_prompts_(true),
-      backend_(new ExtensionsServiceBackend(
-          install_directory_, g_browser_process->resource_dispatcher_host(),
-          frontend_loop, registry_path)) {
+      show_extensions_prompts_(true) {
+  // We pass ownership of this object to the Backend.
+  DictionaryValue* external_extensions = new DictionaryValue;
   prefs_->RegisterDictionaryPref(kExternalExtensionsPref);
+  GetExternalExtensions(external_extensions, NULL);
+  backend_ = new ExtensionsServiceBackend(
+          install_directory_, g_browser_process->resource_dispatcher_host(),
+          frontend_loop, external_extensions);
 }
 
 ExtensionsService::~ExtensionsService() {
@@ -252,7 +237,6 @@ bool ExtensionsService::Init() {
   backend_loop_->PostTask(FROM_HERE, NewRunnableMethod(backend_.get(),
       &ExtensionsServiceBackend::CheckForExternalUpdates,
       *killed_extensions.get(),
-      external_extensions.get(),
       scoped_refptr<ExtensionsService>(this)));
 
   backend_loop_->PostTask(FROM_HERE, NewRunnableMethod(backend_.get(),
@@ -322,7 +306,7 @@ void ExtensionsService::OnExtensionsLoaded(ExtensionList* new_extensions) {
   // Filter out any extensions we don't want to enable. Themes are always
   // enabled, but other extensions are only loaded if --enable-extensions is
   // present.
-  ExtensionList enabled_extensions; 
+  ExtensionList enabled_extensions;
   for (ExtensionList::iterator iter = new_extensions->begin();
        iter != new_extensions->end(); ++iter) {
     if (extensions_enabled() || (*iter)->IsTheme()) {
@@ -340,7 +324,7 @@ void ExtensionsService::OnExtensionsLoaded(ExtensionList* new_extensions) {
     DictionaryValue* pref = GetOrCreateExtensionPref(extension_id);
     int location;
     int state;
-    
+
     // Ensure all loaded extensions have a preference set. This deals with a
     // legacy problem where some extensions were installed before we were
     // storing state in the preferences.
@@ -469,6 +453,18 @@ DictionaryValue* ExtensionsService::GetOrCreateExtensionPref(
   return extension;
 }
 
+void ExtensionsService::ClearProvidersForTesting() {
+  backend_loop_->PostTask(FROM_HERE, NewRunnableMethod(backend_.get(),
+      &ExtensionsServiceBackend::ClearProvidersForTesting));
+}
+
+void ExtensionsService::SetProviderForTesting(
+    Extension::Location location, ExternalExtensionProvider* test_provider) {
+  backend_loop_->PostTask(FROM_HERE, NewRunnableMethod(backend_.get(),
+      &ExtensionsServiceBackend::SetProviderForTesting,
+      location, test_provider));
+}
+
 bool ExtensionsService::UpdateExtensionPref(const std::wstring& extension_id,
                                             const std::wstring& key,
                                             Value* data_value,
@@ -489,17 +485,23 @@ bool ExtensionsService::UpdateExtensionPref(const std::wstring& extension_id,
 
 ExtensionsServiceBackend::ExtensionsServiceBackend(
     const FilePath& install_directory, ResourceDispatcherHost* rdh,
-    MessageLoop* frontend_loop, const std::string& registry_path)
+    MessageLoop* frontend_loop, DictionaryValue* extension_prefs)
         : frontend_(NULL),
           install_directory_(install_directory),
           resource_dispatcher_host_(rdh),
           alert_on_error_(false),
-          frontend_loop_(frontend_loop),
-          registry_path_(registry_path) {
-  // Default the registry path if unspecified.
-  if (registry_path_.empty()) {
-    registry_path_ = kRegistryExtensions;
-  }
+          frontend_loop_(frontend_loop) {
+  external_extension_providers_[Extension::EXTERNAL_PREF] =
+      new ExternalPrefExtensionProvider(extension_prefs);
+#if defined(OS_WIN)
+  external_extension_providers_[Extension::EXTERNAL_REGISTRY] =
+      new ExternalRegistryExtensionProvider();
+#endif
+}
+
+ExtensionsServiceBackend::~ExtensionsServiceBackend() {
+  STLDeleteContainerPairSecondPointers(external_extension_providers_.begin(),
+                                       external_extension_providers_.end());
 }
 
 void ExtensionsServiceBackend::LoadExtensionsFromInstallDirectory(
@@ -539,7 +541,7 @@ void ExtensionsServiceBackend::LoadExtensionsFromInstallDirectory(
   // Find all child directories in the install directory and load their
   // manifests. Post errors and results to the frontend.
   file_util::FileEnumerator enumerator(install_directory_,
-                                       false,  // not recursive
+                                       false,  // Not recursive.
                                        file_util::FileEnumerator::DIRECTORIES);
   FilePath extension_path;
   for (extension_path = enumerator.Next(); !extension_path.value().empty();
@@ -567,17 +569,21 @@ void ExtensionsServiceBackend::LoadExtensionsFromInstallDirectory(
     if (!ReadCurrentVersion(extension_path, &current_version))
       continue;
 
-    int location;
+    Extension::Location location = Extension::INVALID;
+    int location_value;
     DictionaryValue* pref = NULL;
     external_extensions->GetDictionary(ASCIIToWide(extension_id), &pref);
     if (!pref ||
-        !pref->GetInteger(kLocation, &location)) {
-      location = Extension::INTERNAL;
+        !pref->GetInteger(kLocation, &location_value)) {
+      // Check with the external providers.
+      if (!LookupExternalExtension(extension_id, NULL, &location))
+        location = Extension::INTERNAL;
+    } else {
+      location = static_cast<Extension::Location>(location_value);
     }
-    Extension::Location ext_location =
-        static_cast<Extension::Location>(location);
+
     FilePath version_path = extension_path.AppendASCII(current_version);
-    if (Extension::IsExternalLocation(ext_location) &&
+    if (Extension::IsExternalLocation(location) &&
         CheckExternalUninstall(external_extensions.get(),
                                version_path, extension_id)) {
       // TODO(erikkay): Possibly defer this operation to avoid slowing initial
@@ -589,7 +595,9 @@ void ExtensionsServiceBackend::LoadExtensionsFromInstallDirectory(
       continue;
     }
 
-    Extension* extension = LoadExtension(version_path, true);  // require id
+    Extension* extension = LoadExtension(version_path,
+                                         location,
+                                         true);  // require id
     if (extension)
       extensions->push_back(extension);
   }
@@ -613,9 +621,9 @@ void ExtensionsServiceBackend::LoadSingleExtension(
       WideToASCII(extension_path.BaseName().ToWStringHack());
 
   Extension* extension = LoadExtension(extension_path,
+                                       Extension::LOAD,
                                        false);  // don't require ID
   if (extension) {
-    extension->set_location(Extension::LOAD);
     ExtensionList* extensions = new ExtensionList;
     extensions->push_back(extension);
     ReportExtensionsLoaded(extensions);
@@ -623,7 +631,9 @@ void ExtensionsServiceBackend::LoadSingleExtension(
 }
 
 Extension* ExtensionsServiceBackend::LoadExtension(
-    const FilePath& extension_path, bool require_id) {
+    const FilePath& extension_path,
+    Extension::Location location,
+    bool require_id) {
   FilePath manifest_path =
       extension_path.AppendASCII(Extension::kManifestFilename);
   if (!file_util::PathExists(manifest_path)) {
@@ -651,13 +661,7 @@ Extension* ExtensionsServiceBackend::LoadExtension(
     return NULL;
   }
 
-  FilePath external_marker = extension_path.AppendASCII(kExternalInstallFile);
-  if (file_util::PathExists(external_marker)) {
-    extension->set_location(
-      extension->ExternalExtensionInstallType(registry_path_));
-  } else {
-    extension->set_location(Extension::INTERNAL);
-  }
+  extension->set_location(location);
 
   // Theme resource validation.
   if (extension->IsTheme()) {
@@ -909,7 +913,7 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
   }
 
 #if defined(OS_WIN)
-  if (!extension.IsTheme() &&
+  if (!extension.IsTheme() && !from_external &&
       frontend_->show_extensions_prompts() &&
       win_util::MessageBox(GetActiveWindow(),
           L"Are you sure you want to install this extension?\n\n"
@@ -1020,14 +1024,11 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
   if (!SetCurrentVersion(dest_dir, version))
     return;
 
-  // To mark that this extension was installed from an external source, create a
-  // zero-length file.  At load time, this is used to indicate that the
-  // extension should be uninstalled.
-  // TODO(erikkay): move this into per-extension config storage when it appears.
-  if (from_external) {
-    FilePath marker = version_dir.AppendASCII(kExternalInstallFile);
-    file_util::WriteFile(marker, NULL, 0);
-  }
+  Extension::Location location = Extension::INVALID;
+  if (from_external)
+    LookupExternalExtension(extension.id(), NULL, &location);
+  else
+    location = Extension::INTERNAL;
 
   // Load the extension immediately and then report installation success. We
   // don't load extensions for external installs because external installation
@@ -1036,7 +1037,9 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
   // the preferences for these extensions to reflect that they've just been
   // installed.
   if (!from_external) {
-    Extension* extension = LoadExtension(version_dir, true);  // require id
+    Extension* extension = LoadExtension(version_dir,
+                                         location,
+                                         true);  // require id
     CHECK(extension);
 
     frontend_loop_->PostTask(FROM_HERE, NewRunnableMethod(
@@ -1053,8 +1056,7 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
   } else {
     frontend_loop_->PostTask(FROM_HERE, NewRunnableMethod(
         frontend_, &ExtensionsService::OnExternalExtensionInstalled,
-        extension.id(),
-        extension.ExternalExtensionInstallType(registry_path_)));
+        extension.id(), location));
   }
 
   scoped_version_dir.Take();
@@ -1088,10 +1090,26 @@ bool ExtensionsServiceBackend::ShouldSkipInstallingExtension(
 }
 
 void ExtensionsServiceBackend::CheckVersionAndInstallExtension(
-    const std::string& id, const std::string& extension_version,
+    const std::string& id, const Version* extension_version,
     const FilePath& extension_path, bool from_external) {
   if (ShouldInstall(id, extension_version))
     InstallOrUpdateExtension(FilePath(extension_path), id, from_external);
+}
+
+bool ExtensionsServiceBackend::LookupExternalExtension(
+    const std::string& id, Version** version, Extension::Location* location) {
+  scoped_ptr<Version> extension_version;
+  for (ProviderMap::const_iterator i = external_extension_providers_.begin();
+       i != external_extension_providers_.end(); ++i) {
+    const ExternalExtensionProvider* provider = i->second;
+    extension_version.reset(provider->RegisteredVersion(id, location));
+    if (extension_version.get()) {
+      if (version)
+        *version = extension_version.release();
+      return true;
+    }
+  }
+  return false;
 }
 
 // Some extensions will autoupdate themselves externally from Chrome.  These
@@ -1102,7 +1120,6 @@ void ExtensionsServiceBackend::CheckVersionAndInstallExtension(
 // a new version is available.
 void ExtensionsServiceBackend::CheckForExternalUpdates(
     std::set<std::string> ids_to_ignore,
-    DictionaryValue* extension_prefs,
     scoped_refptr<ExtensionsService> frontend) {
   // Note that this installation is intentionally silent (since it didn't
   // go through the front-end).  Extensions that are registered in this
@@ -1112,115 +1129,43 @@ void ExtensionsServiceBackend::CheckForExternalUpdates(
   alert_on_error_ = false;
   frontend_ = frontend;
 
-  for (DictionaryValue::key_iterator i = extension_prefs->begin_keys();
-       i != extension_prefs->end_keys(); ++i) {
-    const std::wstring& extension_id = *i;
-    if (ShouldSkipInstallingExtension(ids_to_ignore, WideToASCII(extension_id)))
-      continue;
-
-    DictionaryValue* extension = NULL;
-    if (!extension_prefs->GetDictionary(extension_id, &extension)) {
-      NOTREACHED() << "Cannot read extension " << extension_id.c_str()
-                   << " from dictionary.";
-      continue;
-    }
-
-    int location;
-    if (extension->GetInteger(kLocation, &location) &&
-        location != Extension::EXTERNAL_PREF) {
-      continue;
-    }
-    int state;
-    if (extension->GetInteger(kState, &state) &&
-        state == Extension::KILLBIT) {
-      continue;
-    }
-
-    FilePath::StringType external_crx;
-    std::string external_version;
-    if (!extension->GetString(L"external_crx", &external_crx) ||
-        !extension->GetString(L"external_version", &external_version)) {
-      LOG(WARNING) << "Malformed extension dictionary for extension: "
-                   << extension_id.c_str();
-      continue;
-    }
-
-    bool from_external = true;
-    CheckVersionAndInstallExtension(WideToASCII(extension_id), external_version,
-                                    FilePath(external_crx), from_external);
+  // Ask each external extension provider to give us a call back for each
+  // extension they know about. See OnExternalExtensionFound.
+  for (ProviderMap::const_iterator i = external_extension_providers_.begin();
+       i != external_extension_providers_.end(); ++i) {
+    ExternalExtensionProvider* provider = i->second;
+    provider->VisitRegisteredExtension(this, ids_to_ignore);
   }
-
-#if defined(OS_WIN)
-  // TODO(port): Pull this out into an interface. That will also allow us to
-  // test the behavior of external extensions.
-  HKEY reg_root = HKEY_LOCAL_MACHINE;
-  RegistryKeyIterator iterator(reg_root, ASCIIToWide(registry_path_).c_str());
-  while (iterator.Valid()) {
-    // Fold
-    std::string id = StringToLowerASCII(WideToASCII(iterator.Name()));
-    if (ShouldSkipInstallingExtension(ids_to_ignore, id)) {
-      ++iterator;
-      continue;
-    }
-
-    RegKey key;
-    std::wstring key_path = ASCIIToWide(registry_path_);
-    key_path.append(L"\\");
-    key_path.append(iterator.Name());
-    if (key.Open(reg_root, key_path.c_str())) {
-      std::wstring extension_path;
-      if (key.ReadValue(kRegistryExtensionPath, &extension_path)) {
-        std::wstring extension_version;
-        if (key.ReadValue(kRegistryExtensionVersion, &extension_version)) {
-          bool from_external = true;
-          CheckVersionAndInstallExtension(
-              id, WideToASCII(extension_version), FilePath(extension_path),
-              from_external);
-        } else {
-          // TODO(erikkay): find a way to get this into about:extensions
-          LOG(WARNING) << "Missing value " << kRegistryExtensionVersion <<
-              " for key " << key_path;
-        }
-      } else {
-        // TODO(erikkay): find a way to get this into about:extensions
-        LOG(WARNING) << "Missing value " << kRegistryExtensionPath <<
-            " for key " << key_path;
-      }
-    }
-    ++iterator;
-  }
-#endif
 }
 
 bool ExtensionsServiceBackend::CheckExternalUninstall(
     DictionaryValue* extension_prefs, const FilePath& version_path,
     const std::string& id) {
   // First check the preferences for the kill-bit.
-  int location = Extension::INVALID;
+  int location_value = Extension::INVALID;
   DictionaryValue* extension = NULL;
-  if (extension_prefs->GetDictionary(ASCIIToWide(id), &extension)) {
-    int state;
-    if (extension->GetInteger(kLocation, &location) &&
-        location == Extension::EXTERNAL_PREF) {
-      return extension->GetInteger(kState, &state) &&
-             state == Extension::KILLBIT;
-    }
+  if (!extension_prefs->GetDictionary(ASCIIToWide(id), &extension))
+    return false;
+  int state;
+  if (extension->GetInteger(kLocation, &location_value) &&
+      location_value == Extension::EXTERNAL_PREF) {
+    return extension->GetInteger(kState, &state) &&
+           state == Extension::KILLBIT;
   }
 
-#if defined(OS_WIN)
-  if (location == Extension::EXTERNAL_REGISTRY) {
-    HKEY reg_root = HKEY_LOCAL_MACHINE;
-    RegKey key;
-    std::wstring key_path = ASCIIToWide(registry_path_);
-    key_path.append(L"\\");
-    key_path.append(ASCIIToWide(id));
+  Extension::Location location =
+      static_cast<Extension::Location>(location_value);
 
-    // If the key doesn't exist, then we should uninstall.
-    return !key.Open(reg_root, key_path.c_str());
+  // Check if the providers know about this extension.
+  ProviderMap::const_iterator i = external_extension_providers_.find(location);
+  if (i != external_extension_providers_.end()) {
+    scoped_ptr<Version> version;
+    version.reset(i->second->RegisteredVersion(id, NULL));
+    if (version.get())
+      return false;  // Yup, known extension, don't uninstall.
   }
-#endif
 
-  return false;
+  return true;  // This is not a known extension, uninstall.
 }
 
 // Assumes that the extension isn't currently loaded or in use.
@@ -1248,7 +1193,7 @@ void ExtensionsServiceBackend::UninstallExtension(
     }
   }
 
-  // Ok, now try and delete the entire rest of the directory. One major place
+  // OK, now try and delete the entire rest of the directory. One major place
   // this can fail is if the extension contains a plugin (stupid plugins). It's
   // not a big deal though, because we'll notice next time we startup that the
   // Current Version file is gone and finish the delete then.
@@ -1258,12 +1203,28 @@ void ExtensionsServiceBackend::UninstallExtension(
   }
 }
 
+void ExtensionsServiceBackend::ClearProvidersForTesting() {
+  external_extension_providers_.clear();
+}
+
+void ExtensionsServiceBackend::SetProviderForTesting(
+    Extension::Location location,
+    ExternalExtensionProvider* test_provider) {
+  DCHECK(test_provider);
+  external_extension_providers_[location] = test_provider;
+}
+
+void ExtensionsServiceBackend::OnExternalExtensionFound(
+    const std::string& id, const Version* version, const FilePath& path) {
+  bool from_external = true;
+  CheckVersionAndInstallExtension(id, version, path, from_external);
+}
+
 bool ExtensionsServiceBackend::ShouldInstall(const std::string& id,
-                                             const std::string& version) {
+                                             const Version* version) {
   FilePath dir(install_directory_.AppendASCII(id.c_str()));
   std::string current_version;
-  if (ReadCurrentVersion(dir, &current_version)) {
-    return CheckCurrentVersion(version, current_version, dir);
-  }
+  if (ReadCurrentVersion(dir, &current_version))
+    return CheckCurrentVersion(version->GetString(), current_version, dir);
   return true;
 }

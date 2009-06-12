@@ -5,6 +5,7 @@
 #ifndef CHROME_BROWSER_EXTENSIONS_EXTENSIONS_SERVICE_H_
 #define CHROME_BROWSER_EXTENSIONS_EXTENSIONS_SERVICE_H_
 
+#include <list>
 #include <set>
 #include <string>
 #include <vector>
@@ -15,6 +16,7 @@
 #include "base/ref_counted.h"
 #include "base/task.h"
 #include "base/values.h"
+#include "chrome/browser/extensions/external_extension_provider.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/extensions/extension.h"
 
@@ -38,8 +40,7 @@ class ExtensionsService
  public:
   ExtensionsService(Profile* profile,
                     MessageLoop* frontend_loop,
-                    MessageLoop* backend_loop,
-                    const std::string& registry_path);
+                    MessageLoop* backend_loop);
   ~ExtensionsService();
 
   // Gets the list of currently installed extensions.
@@ -85,6 +86,14 @@ class ExtensionsService
                            const std::wstring& key,
                            Value* data_value,
                            bool schedule_save);
+
+  // Clear all ExternalExtensionProviders.
+  void ClearProvidersForTesting();
+
+  // Sets an ExternalExtensionProvider for the service to use during testing.
+  // |location| specifies what type of provider should be added.
+  void SetProviderForTesting(Extension::Location location,
+                             ExternalExtensionProvider* test_provider);
 
   // The name of the file that the current active version number is stored in.
   static const char* kCurrentVersionFileName;
@@ -148,15 +157,18 @@ class ExtensionsService
 // Implements IO for the ExtensionsService.
 // TODO(aa): This can probably move into the .cc file.
 class ExtensionsServiceBackend
-    : public base::RefCountedThreadSafe<ExtensionsServiceBackend> {
+    : public base::RefCountedThreadSafe<ExtensionsServiceBackend>,
+      public ExternalExtensionProvider::Visitor {
  public:
   // |rdh| can be NULL in the case of test environment.
-  // |registry_path| can be NULL *except* in the case of the test environment,
-  // where it is specified to a temp location.
+  // |extension_prefs| contains a dictionary value that points to the extension
+  // preferences.
   ExtensionsServiceBackend(const FilePath& install_directory,
-                          ResourceDispatcherHost* rdh,
-                          MessageLoop* frontend_loop,
-                          const std::string& registry_path);
+                           ResourceDispatcherHost* rdh,
+                           MessageLoop* frontend_loop,
+                           DictionaryValue* extension_prefs);
+
+  virtual ~ExtensionsServiceBackend();
 
   // Loads extensions from the install directory. The extensions are assumed to
   // be unpacked in directories that are direct children of the specified path.
@@ -186,7 +198,6 @@ class ExtensionsServiceBackend
   // Errors are reported through ExtensionErrorReporter. Succcess is not
   // reported.
   void CheckForExternalUpdates(std::set<std::string> ids_to_ignore,
-                               DictionaryValue* extension_prefs,
                                scoped_refptr<ExtensionsService> frontend);
 
   // Deletes all versions of the extension from the filesystem. Note that only
@@ -194,13 +205,27 @@ class ExtensionsServiceBackend
   // uninstall other extensions will silently fail.
   void UninstallExtension(const std::string& extension_id);
 
+  // Clear all ExternalExtensionProviders.
+  void ClearProvidersForTesting();
+
+  // Sets an ExternalExtensionProvider for the service to use during testing.
+  // |location| specifies what type of provider should be added.
+  void SetProviderForTesting(Extension::Location location,
+                             ExternalExtensionProvider* test_provider);
+
+  // ExternalExtensionProvider::Visitor implementation.
+  virtual void OnExternalExtensionFound(const std::string& id,
+                                        const Version* version,
+                                        const FilePath& path);
  private:
   class UnpackerClient;
   friend class UnpackerClient;
 
   // Load a single extension from |extension_path|, the top directory of
   // a specific extension where its manifest file lives.
-  Extension* LoadExtension(const FilePath& extension_path, bool require_id);
+  Extension* LoadExtension(const FilePath& extension_path,
+                           Extension::Location location,
+                           bool require_id);
 
   // Load a single extension from |extension_path|, the top directory of
   // a versioned extension where its Current Version file lives.
@@ -251,9 +276,19 @@ class ExtensionsServiceBackend
   // Installs the extension if the extension is a newer version or if the
   // extension hasn't been installed before.
   void CheckVersionAndInstallExtension(const std::string& id,
-                                       const std::string& extension_version,
+                                       const Version* extension_version,
                                        const FilePath& extension_path,
                                        bool from_external);
+
+  // Lookup an external extension by |id| by going through all registered
+  // external extension providers until we find a provider that contains an
+  // extension that matches. If |version| is not NULL, the extension version
+  // will be returned (caller is responsible for deleting that pointer).
+  // |location| can also be null, if not needed. Returns true if extension is
+  // found, false otherwise.
+  bool LookupExternalExtension(const std::string& id,
+                               Version** version,
+                               Extension::Location* location);
 
   // Read the manifest from the front of the extension file.
   // Caller takes ownership of return value.
@@ -286,7 +321,7 @@ class ExtensionsServiceBackend
   // Should an extension of |id| and |version| be installed?
   // Returns true if no extension of type |id| is installed or if |version|
   // is greater than the current installed version.
-  bool ShouldInstall(const std::string& id, const std::string& version);
+  bool ShouldInstall(const std::string& id, const Version* version);
 
   // The name of a temporary directory to install an extension into for
   // validation before finalizing install.
@@ -308,10 +343,9 @@ class ExtensionsServiceBackend
   // The message loop to use to call the frontend.
   MessageLoop* frontend_loop_;
 
-  // The path to look for externally registered extensions in. This is a
-  // registry key on windows, but it could be a similar string for the
-  // appropriate system on other platforms in the future.
-  std::string registry_path_;
+  // A map of all external extension providers.
+  typedef std::map<Extension::Location, ExternalExtensionProvider*> ProviderMap;
+  ProviderMap external_extension_providers_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionsServiceBackend);
 };
