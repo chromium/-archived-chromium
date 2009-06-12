@@ -2516,6 +2516,13 @@
             'worker',
             'app/locales/locales.gyp:*',
           ],
+          'sources': [
+            'app/chrome_exe.rc',
+            'app/chrome_exe_version.rc.version',
+          ],
+          'include_dirs': [
+            '<(SHARED_INTERMEDIATE_DIR)/app',
+          ],
           'msvs_settings': {
             'VCLinkerTool': {
               'ImportLibrary': '$(OutDir)\\lib\\chrome_exe.lib',
@@ -2523,6 +2530,49 @@
               'SubSystem': '2',
             },
           },
+          'actions': [
+            {
+              'action_name': 'version',
+              'variables': {
+                'lastchange_path':
+                  '<(SHARED_INTERMEDIATE_DIR)/build/LASTCHANGE',
+                'version_py': 'tools/build/version.py',
+                'version_path': 'VERSION',
+                'template_input_path': 'app/chrome_exe_version.rc.version',
+              },
+              'conditions': [
+                [ 'branding == "Chrome"', {
+                  'variables': {
+                     'branding_path': 'app/theme/google_chrome/BRANDING',
+                  },
+                }, { # else branding!="Chrome"
+                  'variables': {
+                     'branding_path': 'app/theme/chromium/BRANDING',
+                  },
+                }],
+              ],
+              'inputs': [
+                '<(template_input_path)',
+                '<(version_path)',
+                '<(branding_path)',
+                '<(lastchange_path)',
+              ],
+              'outputs': [
+                '<(SHARED_INTERMEDIATE_DIR)/app/chrome_exe_version.rc',
+              ],
+              'action': [
+                'python',
+                '<(version_py)',
+                '-f', '<(version_path)',
+                '-f', '<(branding_path)',
+                '-f', '<(lastchange_path)',
+                '<(template_input_path)',
+                '<@(_outputs)',
+              ],
+              'process_outputs_as_sources': 1,
+              'message': 'Generating version information in <(_outputs)'
+            },
+          ],
         },{  # 'OS!="win"
           'dependencies': [
             # On Linux and Mac, link the dependencies (libraries)
