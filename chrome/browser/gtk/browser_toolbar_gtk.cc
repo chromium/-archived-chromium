@@ -15,12 +15,14 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/gtk/back_forward_button_gtk.h"
+#include "chrome/browser/gtk/browser_window_gtk.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/go_button_gtk.h"
 #include "chrome/browser/gtk/gtk_chrome_button.h"
 #include "chrome/browser/gtk/location_bar_view_gtk.h"
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/standard_menus.h"
+#include "chrome/browser/gtk/tabs/tab_strip_gtk.h"
 #include "chrome/browser/gtk/toolbar_star_toggle_gtk.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
@@ -53,13 +55,14 @@ const int kPopupLeftRightMargin = 1;
 
 // BrowserToolbarGtk, public ---------------------------------------------------
 
-BrowserToolbarGtk::BrowserToolbarGtk(Browser* browser)
+BrowserToolbarGtk::BrowserToolbarGtk(Browser* browser, BrowserWindowGtk* window)
     : toolbar_(NULL),
       location_bar_(new LocationBarViewGtk(browser->command_updater(),
                                            browser->toolbar_model(),
                                            this)),
       model_(browser->toolbar_model()),
       browser_(browser),
+      window_(window),
       profile_(NULL) {
   browser_->command_updater()->AddCommandObserver(IDC_BACK, this);
   browser_->command_updater()->AddCommandObserver(IDC_FORWARD, this);
@@ -349,13 +352,12 @@ gboolean BrowserToolbarGtk::OnToolbarExpose(GtkWidget* widget,
   cairo_t* cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
   cairo_rectangle(cr, e->area.x, e->area.y, e->area.width, e->area.height);
   cairo_clip(cr);
-  // It would be more intuitive to pass |e->area.y| rather than 0, but the
-  // toolbar is supposed to blend in with the active tab, so we have to pass
+  // The toolbar is supposed to blend in with the active tab, so we have to pass
   // coordinates for the IDR_THEME_TOOLBAR bitmap relative to the top of the
-  // tab strip. Since the toolbar's GdkWindow has the same origin as the tab
-  // strip's GdkWindow, we can just pass 0.
-  toolbar->background_ninebox_->RenderTopCenterStrip(cr,
-      e->area.x, 0, e->area.width);
+  // tab strip.
+  int y = toolbar->window_->tabstrip()->GetTabStripOriginForWidget(widget).y();
+  toolbar->background_ninebox_->RenderTopCenterStrip(cr, e->area.x,
+                                                     y, e->area.width);
   cairo_destroy(cr);
 
   return FALSE;  // Allow subwidgets to paint.

@@ -353,11 +353,12 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
                    G_CALLBACK(&OnContentAreaExpose), this);
   gtk_widget_show(content_vbox_);
 
-  toolbar_.reset(new BrowserToolbarGtk(browser_.get()));
+  toolbar_.reset(new BrowserToolbarGtk(browser_.get(), this));
   toolbar_->Init(browser_->profile(), window_);
   toolbar_->AddToolbarToBox(content_vbox_);
 
-  bookmark_bar_.reset(new BookmarkBarGtk(browser_->profile(), browser_.get()));
+  bookmark_bar_.reset(new BookmarkBarGtk(browser_->profile(), browser_.get(),
+                                         this));
   bookmark_bar_->AddBookmarkbarToBox(content_vbox_);
 
   // This vbox surrounds the render area: find bar, info bars and render view.

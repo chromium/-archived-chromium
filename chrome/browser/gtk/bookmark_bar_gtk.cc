@@ -16,10 +16,12 @@
 #include "chrome/browser/gtk/bookmark_menu_controller_gtk.h"
 #include "chrome/browser/gtk/bookmark_tree_model.h"
 #include "chrome/browser/gtk/bookmark_utils_gtk.h"
+#include "chrome/browser/gtk/browser_window_gtk.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/dnd_registry.h"
 #include "chrome/browser/gtk/gtk_chrome_button.h"
 #include "chrome/browser/gtk/nine_box.h"
+#include "chrome/browser/gtk/tabs/tab_strip_gtk.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/gtk_util.h"
@@ -86,10 +88,12 @@ void SetButtonTextColors(GtkWidget* button) {
 
 }  // namespace
 
-BookmarkBarGtk::BookmarkBarGtk(Profile* profile, Browser* browser)
+BookmarkBarGtk::BookmarkBarGtk(Profile* profile, Browser* browser,
+                               BrowserWindowGtk* window)
     : profile_(NULL),
       page_navigator_(NULL),
       browser_(browser),
+      window_(window),
       model_(NULL),
       instructions_(NULL),
       dragged_node_(NULL),
@@ -795,8 +799,9 @@ gboolean BookmarkBarGtk::OnHBoxExpose(GtkWidget* widget,
                   event->area.width, event->area.height);
   cairo_clip(cr);
   bar->InitBackground();
+  int y = bar->window_->tabstrip()->GetTabStripOriginForWidget(widget).y();
   bar->background_ninebox_->RenderTopCenterStrip(cr, event->area.x,
-                                                 0, event->area.width);
+                                                 y, event->area.width);
   cairo_destroy(cr);
 
   return FALSE;  // Propagate expose to children.

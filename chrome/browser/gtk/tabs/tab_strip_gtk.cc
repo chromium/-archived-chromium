@@ -613,6 +613,21 @@ gfx::Rect TabStripGtk::GetIdealBounds(int index) {
   return tab_data_.at(index).ideal_bounds;
 }
 
+gfx::Point TabStripGtk::GetTabStripOriginForWidget(GtkWidget* target) {
+  int x, y;
+  if (!gtk_widget_translate_coordinates(widget(), target, 0, 0, &x, &y)) {
+    // If the tab strip isn't showing, give the coordinates relative to the
+    // toplevel instead.
+    gtk_widget_translate_coordinates(
+        gtk_widget_get_toplevel(widget()), target, 0, 0, &x, &y);
+  }
+  if (GTK_WIDGET_NO_WINDOW(target)) {
+    x += target->allocation.x;
+    y += target->allocation.y;
+  }
+  return gfx::Point(x, y);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // TabStripGtk, TabStripModelObserver implementation:
 

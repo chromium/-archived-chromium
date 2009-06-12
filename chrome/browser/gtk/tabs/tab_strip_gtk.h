@@ -78,6 +78,11 @@ class TabStripGtk : public TabStripModelObserver,
   // Retrieve the ideal bounds for the Tab at the specified index.
   gfx::Rect GetIdealBounds(int index);
 
+  // Return the origin of the tab strip in coordinates relative to the GdkWindow
+  // of |widget|. Used to help other widgets draw their background relative to
+  // the tabstrip.
+  gfx::Point GetTabStripOriginForWidget(GtkWidget* widget);
+
  protected:
   // TabStripModelObserver implementation:
   virtual void TabInsertedAt(TabContents* contents,

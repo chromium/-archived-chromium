@@ -17,6 +17,7 @@
 class BookmarkContextMenu;
 class BookmarkMenuController;
 class Browser;
+class BrowserWindowGtk;
 class CustomContainerButton;
 class NineBox;
 class PageNavigator;
@@ -25,7 +26,8 @@ class Profile;
 class BookmarkBarGtk : public AnimationDelegate,
                        public BookmarkModelObserver {
  public:
-  explicit BookmarkBarGtk(Profile* profile, Browser* browser);
+  explicit BookmarkBarGtk(Profile* profile, Browser* browser,
+                          BrowserWindowGtk* window);
   virtual ~BookmarkBarGtk();
 
   // Resets the profile. This removes any buttons for the current profile and
@@ -195,6 +197,7 @@ class BookmarkBarGtk : public AnimationDelegate,
   PageNavigator* page_navigator_;
 
   Browser* browser_;
+  BrowserWindowGtk* window_;
 
   // Model providing details as to the starred entries/groups that should be
   // shown. This is owned by the Profile.

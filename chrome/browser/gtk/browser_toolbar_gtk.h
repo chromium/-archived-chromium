@@ -16,6 +16,7 @@
 
 class BackForwardButtonGtk;
 class Browser;
+class BrowserWindowGtk;
 class CustomDrawButton;
 class GoButtonGtk;
 class LocationBar;
@@ -33,7 +34,7 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
                           public NotificationObserver,
                           public AutocompletePopupPositioner {
  public:
-  explicit BrowserToolbarGtk(Browser* browser);
+  explicit BrowserToolbarGtk(Browser* browser, BrowserWindowGtk* window);
   virtual ~BrowserToolbarGtk();
 
   // Create the contents of the toolbar. |top_level_window| is the GtkWindow
@@ -144,6 +145,7 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   scoped_ptr<MenuGtk> app_menu_;
 
   Browser* browser_;
+  BrowserWindowGtk* window_;
   Profile* profile_;
 
   // Controls whether or not a home button should be shown on the toolbar.
