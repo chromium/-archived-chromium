@@ -860,7 +860,7 @@ class PurifyAnalyze:
       if fixes:
         logging.warning("%d total errors unexpectedly fixed" % fixes)
         # magic return code to turn the builder orange (via ReturnCodeCommand)
-        return -88
+        return 88
     return 0
 
 

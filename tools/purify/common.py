@@ -282,7 +282,7 @@ class Rational(object):
   def Analyze(self):
     '''Analyze step after a successful Execution.  Should be overridden
     by the subclasser if instrumentation is desired.
-    Returns 0 for success, -88 for warning (see ReturnCodeCommand) and anything
+    Returns 0 for success, 88 for warning (see ReturnCodeCommand) and anything
     else for error
     '''
     return -1
