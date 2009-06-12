@@ -655,7 +655,7 @@ void RenderView::OnNavigate(const ViewMsg_Navigate_Params& params) {
   // back/forward navigation event.
   if (!is_reload && !params.state.empty()) {
     // We must know the page ID of the page we are navigating back to.
-    DCHECK(params.page_id != -1);
+    DCHECK_NE(params.page_id, -1);
     main_frame->LoadHistoryState(params.state);
   } else {
     // Navigate to the given URL.
@@ -668,7 +668,7 @@ void RenderView::OnNavigate(const ViewMsg_Navigate_Params& params) {
       cache_policy = WebRequestReloadIgnoringCacheData;
     } else {
       // A session history navigation should have been accompanied by state.
-      DCHECK(params.page_id == -1);
+      DCHECK_EQ(params.page_id, -1);
       if (main_frame->GetInViewSourceMode()) {
         cache_policy = WebRequestReturnCacheDataElseLoad;
       } else {
@@ -2809,33 +2809,23 @@ void RenderView::DumpLoadHistograms() const {
 
   // Client side redirects will have no request time
   if (request_time.ToInternalValue() != 0) {
-    UMA_HISTOGRAM_MEDIUM_TIMES(
-        FieldTrial::MakeName("Renderer2.RequestToStart", "DnsImpact").data(),
-        request_to_start);
-    UMA_HISTOGRAM_MEDIUM_TIMES(
-        FieldTrial::MakeName("Renderer2.RequestToFinish", "DnsImpact").data(),
-        request_to_finish);
+    UMA_HISTOGRAM_MEDIUM_TIMES("Renderer2.RequestToStart", request_to_start);
+    UMA_HISTOGRAM_CLIPPED_TIMES(
+        FieldTrial::MakeName("Renderer2.RequestToFinish_L", "DnsImpact").data(),
+        request_to_finish, base::TimeDelta::FromMilliseconds(10),
+        base::TimeDelta::FromMinutes(10), 100);
     if (request_to_first_layout.ToInternalValue() >= 0) {
-      UMA_HISTOGRAM_MEDIUM_TIMES(
-          FieldTrial::MakeName("Renderer2.RequestToFirstLayout",
-                               "DnsImpact").data(),
+      UMA_HISTOGRAM_MEDIUM_TIMES("Renderer2.RequestToFirstLayout",
           request_to_first_layout);
     }
   }
-  UMA_HISTOGRAM_MEDIUM_TIMES(
-      FieldTrial::MakeName("Renderer2.StartToFinishDoc", "DnsImpact").data(),
-      start_to_finish_doc);
-  UMA_HISTOGRAM_MEDIUM_TIMES(
-      FieldTrial::MakeName("Renderer2.FinishDocToFinish", "DnsImpact").data(),
-      finish_doc_to_finish);
-  UMA_HISTOGRAM_MEDIUM_TIMES(
-      FieldTrial::MakeName("Renderer2.StartToFinish", "DnsImpact").data(),
-      start_to_finish);
+  UMA_HISTOGRAM_MEDIUM_TIMES("Renderer2.StartToFinishDoc", start_to_finish_doc);
+  UMA_HISTOGRAM_MEDIUM_TIMES("Renderer2.FinishDocToFinish",
+                             finish_doc_to_finish);
+  UMA_HISTOGRAM_MEDIUM_TIMES("Renderer2.StartToFinish", start_to_finish);
   if (start_to_first_layout.ToInternalValue() >= 0) {
-    UMA_HISTOGRAM_MEDIUM_TIMES(
-        FieldTrial::MakeName("Renderer2.StartToFirstLayout",
-                             "DnsImpact").data(),
-        start_to_first_layout);
+    UMA_HISTOGRAM_MEDIUM_TIMES("Renderer2.StartToFirstLayout",
+                               start_to_first_layout);
   }
 }
 

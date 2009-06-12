@@ -115,9 +115,7 @@ int TCPClientSocketPool::ConnectingSocket::OnIOCompleteInternal(
     base::TimeDelta connect_duration =
         base::Time::Now() - connect_start_time_;
 
-    UMA_HISTOGRAM_CLIPPED_TIMES(
-        FieldTrial::MakeName(
-            "Net.TCP_Connection_Latency", "DnsImpact").data(),
+    UMA_HISTOGRAM_CLIPPED_TIMES("Net.TCP_Connection_Latency",
         connect_duration,
         base::TimeDelta::FromMilliseconds(1),
         base::TimeDelta::FromMinutes(10),

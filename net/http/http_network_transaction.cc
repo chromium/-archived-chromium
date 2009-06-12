@@ -971,15 +971,13 @@ void HttpNetworkTransaction::LogTCPConnectedMetrics() const {
       base::Time::Now() - host_resolution_start_time_;
 
   UMA_HISTOGRAM_CLIPPED_TIMES(
-      FieldTrial::MakeName(
-          "Net.Dns_Resolution_And_TCP_Connection_Latency", "DnsImpact").data(),
+      "Net.Dns_Resolution_And_TCP_Connection_Latency",
       host_resolution_and_tcp_connection_latency,
       base::TimeDelta::FromMilliseconds(1), base::TimeDelta::FromMinutes(10),
       100);
 
   UMA_HISTOGRAM_COUNTS_100(
-      FieldTrial::MakeName(
-          "Net.TCP_Connection_Idle_Sockets", "DnsImpact").data(),
+      "Net.TCP_Connection_Idle_Sockets",
       session_->connection_pool()->IdleSocketCountInGroup(
           connection_.group_name()));
 }
@@ -988,17 +986,13 @@ void HttpNetworkTransaction::LogTransactionConnectedMetrics() const {
   base::TimeDelta total_duration = response_.response_time - start_time_;
 
   UMA_HISTOGRAM_CLIPPED_TIMES(
-      FieldTrial::MakeName(
-          "Net.Transaction_Connected_Under_10",
-          "DnsImpact").data(),
+      "Net.Transaction_Connected_Under_10",
       total_duration,
       base::TimeDelta::FromMilliseconds(1), base::TimeDelta::FromMinutes(10),
       100);
   if (!reused_socket_)
     UMA_HISTOGRAM_CLIPPED_TIMES(
-        FieldTrial::MakeName(
-            "Net.Transaction_Connected_New",
-            "DnsImpact").data(),
+        "Net.Transaction_Connected_New",
         total_duration,
         base::TimeDelta::FromMilliseconds(1), base::TimeDelta::FromMinutes(10),
         100);
@@ -1008,17 +1002,13 @@ void HttpNetworkTransaction::LogTransactionConnectedMetrics() const {
   // css, js, etc.
   if (request_->priority) {
     UMA_HISTOGRAM_CLIPPED_TIMES(
-        FieldTrial::MakeName(
-            "Net.Priority_High_Latency",
-            "HttpPrioritization").data(),
+        "Net.Priority_High_Latency",
         total_duration,
         base::TimeDelta::FromMilliseconds(1), base::TimeDelta::FromMinutes(10),
         100);
   } else {
     UMA_HISTOGRAM_CLIPPED_TIMES(
-        FieldTrial::MakeName(
-            "Net.Priority_Low_Latency",
-            "HttpPrioritization").data(),
+        "Net.Priority_Low_Latency",
         total_duration,
         base::TimeDelta::FromMilliseconds(1), base::TimeDelta::FromMinutes(10),
         100);
@@ -1032,20 +1022,16 @@ void HttpNetworkTransaction::LogTransactionMetrics() const {
 
   base::TimeDelta total_duration = base::Time::Now() - start_time_;
 
-  UMA_HISTOGRAM_LONG_TIMES(FieldTrial::MakeName("Net.Transaction_Latency",
-      "DnsImpact").data(), duration);
-  UMA_HISTOGRAM_CLIPPED_TIMES(FieldTrial::MakeName(
-      "Net.Transaction_Latency_Under_10", "DnsImpact").data(), duration,
+  UMA_HISTOGRAM_LONG_TIMES("Net.Transaction_Latency", duration);
+  UMA_HISTOGRAM_CLIPPED_TIMES("Net.Transaction_Latency_Under_10", duration,
       base::TimeDelta::FromMilliseconds(1), base::TimeDelta::FromMinutes(10),
       100);
-  UMA_HISTOGRAM_CLIPPED_TIMES(FieldTrial::MakeName(
-      "Net.Transaction_Latency_Total_Under_10", "DnsImpact").data(),
+  UMA_HISTOGRAM_CLIPPED_TIMES("Net.Transaction_Latency_Total_Under_10",
       total_duration, base::TimeDelta::FromMilliseconds(1),
       base::TimeDelta::FromMinutes(10), 100);
   if (!reused_socket_) {
-    UMA_HISTOGRAM_CLIPPED_TIMES(FieldTrial::MakeName(
+    UMA_HISTOGRAM_CLIPPED_TIMES(
         "Net.Transaction_Latency_Total_New_Connection_Under_10",
-        "DnsImpact").data(),
         total_duration, base::TimeDelta::FromMilliseconds(1),
         base::TimeDelta::FromMinutes(10), 100);
   }
