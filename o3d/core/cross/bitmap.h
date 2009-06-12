@@ -40,6 +40,8 @@
 #ifndef O3D_CORE_CROSS_BITMAP_H_
 #define O3D_CORE_CROSS_BITMAP_H_
 
+#include <stdlib.h>
+
 #include "base/cross/bits.h"
 #include "core/cross/types.h"
 #include "core/cross/texture.h"
@@ -118,9 +120,11 @@ class Bitmap {
                 unsigned int num_mipmaps,
                 bool cube_map);
 
-  // Allocates a bitmap with initialized paramters.
+  // Allocates a bitmap with initialized parameters.
+  // data is zero-initialized
   void AllocateData() {
     image_data_.reset(new unsigned char[GetTotalSize()]);
+    memset(image_data_.get(), 0, GetTotalSize());
   }
 
   // Frees the data owned by the bitmap.
