@@ -41,7 +41,7 @@ std::wstring ToolbarModel::GetText() {
       url = entry->display_url();
     }
   }
-  return net::FormatUrl(url, languages);
+  return net::FormatUrl(url, languages, true, UnescapeRule::NORMAL, NULL, NULL);
 }
 
 ToolbarModel::SecurityLevel ToolbarModel::GetSecurityLevel() {
