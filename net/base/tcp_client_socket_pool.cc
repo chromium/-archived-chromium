@@ -48,7 +48,7 @@ TCPClientSocketPool::ConnectingSocket::ConnectingSocket(
       pool_(pool),
       resolver_(pool->GetHostResolver()),
       canceled_(false) {
-  DCHECK(!ContainsKey(pool_->connecting_socket_map_, handle));
+  CHECK(!ContainsKey(pool_->connecting_socket_map_, handle));
   pool_->connecting_socket_map_[handle] = this;
 }
 
@@ -60,7 +60,7 @@ TCPClientSocketPool::ConnectingSocket::~ConnectingSocket() {
 int TCPClientSocketPool::ConnectingSocket::Connect(
     const std::string& host,
     int port) {
-  DCHECK(!canceled_);
+  CHECK(!canceled_);
   DidStartDnsResolution(host, this);
   int rv = resolver_.Resolve(host, port, &addresses_, &callback_);
   if (rv != ERR_IO_PENDING)
@@ -74,7 +74,7 @@ void TCPClientSocketPool::ConnectingSocket::OnIOComplete(int result) {
 
 int TCPClientSocketPool::ConnectingSocket::OnIOCompleteInternal(
     int result, bool synchronous) {
-  DCHECK_NE(result, ERR_IO_PENDING);
+  CHECK(result != ERR_IO_PENDING);
 
   if (canceled_) {
     // We got canceled, so bail out.
@@ -111,7 +111,7 @@ int TCPClientSocketPool::ConnectingSocket::OnIOCompleteInternal(
   }
 
   if (result == OK) {
-    DCHECK(connect_start_time_ != base::Time());
+    CHECK(connect_start_time_ != base::Time());
     base::TimeDelta connect_duration =
         base::Time::Now() - connect_start_time_;
 
@@ -138,8 +138,8 @@ int TCPClientSocketPool::ConnectingSocket::OnIOCompleteInternal(
 
     // Delete group if no longer needed.
     if (group.active_socket_count == 0 && group.idle_sockets.empty()) {
-      DCHECK(group.pending_requests.empty());
-      DCHECK(group.connecting_requests.empty());
+      CHECK(group.pending_requests.empty());
+      CHECK(group.connecting_requests.empty());
       pool_->group_map_.erase(group_it);
     }
   }
@@ -151,8 +151,8 @@ int TCPClientSocketPool::ConnectingSocket::OnIOCompleteInternal(
 }
 
 void TCPClientSocketPool::ConnectingSocket::Cancel() {
-  DCHECK(!canceled_);
-  DCHECK(ContainsKey(pool_->connecting_socket_map_, handle_));
+  CHECK(!canceled_);
+  CHECK(ContainsKey(pool_->connecting_socket_map_, handle_));
   pool_->connecting_socket_map_.erase(handle_);
   canceled_ = true;
 }
@@ -202,7 +202,7 @@ int TCPClientSocketPool::RequestSocket(const std::string& group_name,
   if (group.active_socket_count == max_sockets_per_group_) {
     Request r;
     r.handle = handle;
-    DCHECK(callback);
+    CHECK(callback);
     r.callback = callback;
     r.priority = priority;
     r.host = host;
@@ -238,7 +238,7 @@ int TCPClientSocketPool::RequestSocket(const std::string& group_name,
 
   Request r;
   r.handle = handle;
-  DCHECK(callback);
+  CHECK(callback);
   r.callback = callback;
   r.priority = priority;
   r.host = host;
@@ -255,7 +255,7 @@ int TCPClientSocketPool::RequestSocket(const std::string& group_name,
 
 void TCPClientSocketPool::CancelRequest(const std::string& group_name,
                                         const ClientSocketHandle* handle) {
-  DCHECK(ContainsKey(group_map_, group_name));
+  CHECK(ContainsKey(group_map_, group_name));
 
   Group& group = group_map_[group_name];
 
@@ -269,7 +269,7 @@ void TCPClientSocketPool::CancelRequest(const std::string& group_name,
   }
 
   // It's invalid to cancel a non-existent request.
-  DCHECK(ContainsKey(group.connecting_requests, handle));
+  CHECK(ContainsKey(group.connecting_requests, handle));
 
   RequestMap::iterator map_it = group.connecting_requests.find(handle);
   if (map_it != group.connecting_requests.end()) {
@@ -278,8 +278,8 @@ void TCPClientSocketPool::CancelRequest(const std::string& group_name,
 
     // Delete group if no longer needed.
     if (group.active_socket_count == 0 && group.idle_sockets.empty()) {
-      DCHECK(group.pending_requests.empty());
-      DCHECK(group.connecting_requests.empty());
+      CHECK(group.pending_requests.empty());
+      CHECK(group.connecting_requests.empty());
       group_map_.erase(group_name);
     }
   }
@@ -301,7 +301,7 @@ void TCPClientSocketPool::CloseIdleSockets() {
 int TCPClientSocketPool::IdleSocketCountInGroup(
     const std::string& group_name) const {
   GroupMap::const_iterator i = group_map_.find(group_name);
-  DCHECK(i != group_map_.end());
+  CHECK(i != group_map_.end());
 
   return i->second.idle_sockets.size();
 }
@@ -309,7 +309,11 @@ int TCPClientSocketPool::IdleSocketCountInGroup(
 LoadState TCPClientSocketPool::GetLoadState(
     const std::string& group_name,
     const ClientSocketHandle* handle) const {
-  DCHECK(ContainsKey(group_map_, group_name)) << group_name;
+  if (!ContainsKey(group_map_, group_name)) {
+    NOTREACHED() << "ClientSocketPool does not contain group: " << group_name
+                 << " for handle: " << handle;
+    return LOAD_STATE_IDLE;
+  }
 
   // Can't use operator[] since it is non-const.
   const Group& group = group_map_.find(group_name)->second;
@@ -318,8 +322,8 @@ LoadState TCPClientSocketPool::GetLoadState(
   RequestMap::const_iterator map_it = group.connecting_requests.find(handle);
   if (map_it != group.connecting_requests.end()) {
     const LoadState load_state = map_it->second.load_state;
-    DCHECK(load_state == LOAD_STATE_RESOLVING_HOST ||
-           load_state == LOAD_STATE_CONNECTING);
+    CHECK(load_state == LOAD_STATE_RESOLVING_HOST ||
+          load_state == LOAD_STATE_CONNECTING);
     return load_state;
   }
 
@@ -327,7 +331,7 @@ LoadState TCPClientSocketPool::GetLoadState(
   RequestQueue::const_iterator it = group.pending_requests.begin();
   for (; it != group.pending_requests.end(); ++it) {
     if (it->handle == handle) {
-      DCHECK_EQ(LOAD_STATE_IDLE, it->load_state);
+      CHECK(LOAD_STATE_IDLE == it->load_state);
       // TODO(wtc): Add a state for being on the wait list.
       // See http://www.crbug.com/5077.
       return LOAD_STATE_IDLE;
@@ -369,8 +373,8 @@ void TCPClientSocketPool::CleanupIdleSockets(bool force) {
 
     // Delete group if no longer needed.
     if (group.active_socket_count == 0 && group.idle_sockets.empty()) {
-      DCHECK(group.pending_requests.empty());
-      DCHECK(group.connecting_requests.empty());
+      CHECK(group.pending_requests.empty());
+      CHECK(group.connecting_requests.empty());
       group_map_.erase(i++);
     } else {
       ++i;
@@ -392,11 +396,11 @@ void TCPClientSocketPool::DecrementIdleCount() {
 void TCPClientSocketPool::DoReleaseSocket(const std::string& group_name,
                                           ClientSocket* socket) {
   GroupMap::iterator i = group_map_.find(group_name);
-  DCHECK(i != group_map_.end());
+  CHECK(i != group_map_.end());
 
   Group& group = i->second;
 
-  DCHECK_GT(group.active_socket_count, 0);
+  CHECK(group.active_socket_count > 0);
   group.active_socket_count--;
 
   const bool can_reuse = socket->IsConnectedAndIdle();
@@ -425,8 +429,8 @@ void TCPClientSocketPool::DoReleaseSocket(const std::string& group_name,
 
   // Delete group if no longer needed.
   if (group.active_socket_count == 0 && group.idle_sockets.empty()) {
-    DCHECK(group.pending_requests.empty());
-    DCHECK(group.connecting_requests.empty());
+    CHECK(group.pending_requests.empty());
+    CHECK(group.connecting_requests.empty());
     group_map_.erase(i);
   }
 }

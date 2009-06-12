@@ -57,13 +57,13 @@ void ClientSocketHandle::ResetInternal(bool cancel) {
 }
 
 LoadState ClientSocketHandle::GetLoadState() const {
-  DCHECK(!is_initialized());
-  DCHECK(!group_name_.empty());
+  CHECK(!is_initialized());
+  CHECK(!group_name_.empty());
   return pool_->GetLoadState(group_name_, this);
 }
 
 void ClientSocketHandle::OnIOComplete(int result) {
-  DCHECK_NE(ERR_IO_PENDING, result);
+  CHECK(ERR_IO_PENDING != result);
   CompletionCallback* callback = user_callback_;
   user_callback_ = NULL;
   if (result != OK)
