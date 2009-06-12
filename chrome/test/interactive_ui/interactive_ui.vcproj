@@ -357,6 +357,22 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="TestAutomatedUI"
+			>
+			<File
+				RelativePath="..\automated_ui_tests\automated_ui_test_base.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\automated_ui_tests\automated_ui_test_base.h"
+				>
+			</File>
+			<File
+				RelativePath="..\automated_ui_tests\automated_ui_test_interactive_test.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="TestTabDragging"
 			>
 			<File

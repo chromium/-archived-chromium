@@ -284,11 +284,11 @@ bool AutomatedUITest::DoAction(const std::string & action) {
   } else if (LowerCaseEqualsASCII(action, "downloads")) {
     did_complete_action = ShowDownloads();
   } else if (LowerCaseEqualsASCII(action, "dragtableft")) {
-    did_complete_action = DragActiveTab(false, false);
+    did_complete_action = DragActiveTab(false);
   } else if (LowerCaseEqualsASCII(action, "dragtabout")) {
-    did_complete_action = DragActiveTab(false, true);
+    did_complete_action = DragTabOut();
   } else if (LowerCaseEqualsASCII(action, "dragtabright")) {
-    did_complete_action = DragActiveTab(true, false);
+    did_complete_action = DragActiveTab(true);
   } else if (LowerCaseEqualsASCII(action, "duplicatetab")) {
     did_complete_action = DuplicateTab();
   } else if (LowerCaseEqualsASCII(action, "editsearchengines")) {
@@ -601,105 +601,6 @@ bool AutomatedUITest::ForceCrash() {
   }
   return true;
 }
-
-bool AutomatedUITest::DragActiveTab(bool drag_right, bool drag_out) {
-  BrowserProxy* browser = active_browser();
-  if (browser == NULL) {
-    AddErrorAttribute("browser_window_not_found");
-    return false;
-  }
-
-  scoped_refptr<WindowProxy> window(
-      GetAndActivateWindowForBrowser(browser));
-  if (window.get() == NULL) {
-    AddErrorAttribute("active_window_not_found");
-    return false;
-  }
-  bool is_timeout;
-
-  int tab_count;
-  browser->GetTabCountWithTimeout(&tab_count,
-                                  action_max_timeout_ms(),
-                                  &is_timeout);
-  // As far as we're concerned, if we can't get a view for a tab, it doesn't
-  // exist, so cap tab_count at the number of tab view ids there are.
-  tab_count = std::min(tab_count, VIEW_ID_TAB_LAST - VIEW_ID_TAB_0);
-
-  int tab_index;
-  if (!browser->GetActiveTabIndexWithTimeout(&tab_index,
-                                             action_max_timeout_ms(),
-                                             &is_timeout)) {
-    AddWarningAttribute("no_active_tab");
-    return false;
-  }
-
-  gfx::Rect dragged_tab_bounds;
-  if (!window->GetViewBoundsWithTimeout(VIEW_ID_TAB_0 + tab_index,
-                                        &dragged_tab_bounds, false,
-                                        action_max_timeout_ms(),
-                                        &is_timeout)) {
-    AddWarningAttribute("no_tab_view_found");
-    return false;
-  }
-
-  // Click on the center of the tab, and drag it to the left or the right.
-  POINT dragged_tab_point(dragged_tab_bounds.CenterPoint().ToPOINT());
-  POINT destination_point(dragged_tab_point);
-
-  int window_count;
-  if (drag_out) {
-    destination_point.y += 3*dragged_tab_bounds.height();
-    automation()->GetBrowserWindowCount(&window_count);
-  } else if (drag_right) {
-    if (tab_index >= (tab_count-1)) {
-      AddInfoAttribute("index_cant_be_moved");
-      return false;
-    }
-    destination_point.x += 2*dragged_tab_bounds.width()/3;
-  } else {
-    if (tab_index <= 0) {
-      AddInfoAttribute("index_cant_be_moved");
-      return false;
-    }
-    destination_point.x -= 2*dragged_tab_bounds.width()/3;
-  }
-
-  if (!browser->SimulateDragWithTimeout(dragged_tab_point,
-                                        destination_point,
-                                        views::Event::EF_LEFT_BUTTON_DOWN,
-                                        action_max_timeout_ms(),
-                                        &is_timeout, false)) {
-    AddWarningAttribute("failed_to_simulate_drag");
-    return false;
-  }
-
-  // If we try to drag the tab out and the window we drag from contains more
-  // than just the dragged tab, we would expect the window count to increase
-  // because the dragged tab should open in a new window. If not, we probably
-  // just dragged into another tabstrip.
-  if (drag_out && tab_count > 1) {
-      int new_window_count;
-      automation()->GetBrowserWindowCount(&new_window_count);
-      if (new_window_count == window_count) {
-        AddInfoAttribute("no_new_browser_window");
-        return false;
-      }
-  }
-  return true;
-}
-
-scoped_refptr<WindowProxy> AutomatedUITest::GetAndActivateWindowForBrowser(
-    BrowserProxy* browser) {
-  bool did_timeout;
-  if (!browser->BringToFrontWithTimeout(action_max_timeout_ms(),
-                                        &did_timeout)) {
-    AddWarningAttribute("failed_to_bring_window_to_front");
-    return NULL;
-  }
-
-  return browser->GetWindow();
-}
-
 
 bool AutomatedUITest::SimulateKeyPressInActiveWindow(wchar_t key, int flags) {
   scoped_refptr<WindowProxy> window(automation()->GetActiveWindow());

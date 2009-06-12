@@ -323,26 +323,7 @@ class AutomatedUITest : public AutomatedUITestBase {
   // XML element: <Crash/>
   bool ForceCrash();
 
-  // Drags the active tab. If |drag_out| is true, |drag_right| is ignored and
-  // the tab is dragged vertically to remove it from the tabstrip. Otherwise,
-  // If |drag_right| is true, if there is a tab to the right of the active tab,
-  // the active tab is dragged to that tabs position. If |drag_right| is false,
-  // if there is a tab to the left of the active tab, the active tab is dragged
-  // to that tabs position. Returns false if the tab isn't dragged, or if an
-  // attempt to drag out doesn't create a new window (likely because it was
-  // dragged in to another window).
-  // XML element (multiple elements use this):
-  // <DragTabRight/> - Calls DragActiveTab(true, false) (attempt to drag right)
-  // <DragTabLeft/> - Calls DragActiveTab(false, false) (attempt to drag left)
-  // <DragTabOut/> - Calls DragActiveTab(false, true) (attempt to drag tab out)
-  bool DragActiveTab(bool drag_right, bool drag_out);
-
   // Utility functions --------------------------------------------------------
-
-  // Returns the WindowProxy associated with the given BrowserProxy
-  // (transferring ownership of the pointer to the caller) and brings that
-  // window to the top.
-  scoped_refptr<WindowProxy> GetAndActivateWindowForBrowser(BrowserProxy* browser);
 
   // Calls SimulateOSKeyPress on the active window. Simulates a key press at
   // the OS level. |key| is the key pressed  and |flags| specifies which

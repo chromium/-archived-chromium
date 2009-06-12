@@ -42,6 +42,21 @@ class AutomatedUITestBase : public UITest {
   // Returns true if a duplicated tab is added.
   bool DuplicateTab();
 
+  // Drags the active tab. The tab is dragged vertically to remove it from the
+  // tabstrip. Returns true if the tab is dragged, false otherwise.
+  // Note: returning true doesn't necessarily create a new window as the tab
+  // could be dragged in to another window.
+  bool DragTabOut();
+
+  // Drags the active tab.
+  // If |drag_right| is true, if there is a tab to the right of the active tab,
+  // the active tab is dragged to that tabs position. If |drag_right| is false,
+  // if there is a tab to the left of the active tab, the active tab is dragged
+  // to that tabs position. Returns true if the tab is dragged. If it returns
+  // false, the tab is not dragged, probably because no other tab exists to
+  // drag the active tab over.
+  bool DragActiveTab(bool drag_right);
+
   // Go forward in active tab.
   // Returns true if successful, false otherwise.
   bool ForwardButton();
@@ -99,6 +114,13 @@ class AutomatedUITestBase : public UITest {
   // If success return the pointer to the newly created TabProxy and the
   // caller owns the TabProxy. Return NULL otherwise.
   scoped_refptr<TabProxy> GetActiveTab();
+
+  // Returns the WindowProxy associated with the given BrowserProxy
+  // (transferring ownership of the pointer to the caller) and brings that
+  // window to the top.
+  scoped_refptr<WindowProxy> GetAndActivateWindowForBrowser(
+      BrowserProxy* browser);
+
  private:
   scoped_refptr<BrowserProxy> active_browser_;
 

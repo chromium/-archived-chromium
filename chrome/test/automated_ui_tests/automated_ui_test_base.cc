@@ -3,11 +3,13 @@
 // found in the LICENSE file.
 
 #include "chrome/app/chrome_dll_resource.h"
+#include "chrome/browser/view_ids.h"
 #include "chrome/test/automated_ui_tests/automated_ui_test_base.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/ui/ui_test.h"
+#include "views/view.h"
 
 AutomatedUITestBase::AutomatedUITestBase() {}
 
@@ -15,7 +17,8 @@ AutomatedUITestBase::~AutomatedUITestBase() {}
 
 void AutomatedUITestBase::LogErrorMessage(const std::string& error) {}
 
-void AutomatedUITestBase::LogWarningMessage(const std::string& warning) {}
+void AutomatedUITestBase::LogWarningMessage(const std::string& warning) {
+}
 
 void AutomatedUITestBase::LogInfoMessage(const std::string& info) {}
 
@@ -76,6 +79,161 @@ bool AutomatedUITestBase::CloseActiveWindow() {
 
 bool AutomatedUITestBase::DuplicateTab() {
   return RunCommand(IDC_DUPLICATE_TAB);
+}
+
+bool AutomatedUITestBase::DragTabOut() {
+  BrowserProxy* browser = active_browser();
+  if (browser == NULL) {
+    LogErrorMessage("browser_window_not_found");
+    return false;
+  }
+
+  scoped_refptr<WindowProxy> window(
+      GetAndActivateWindowForBrowser(browser));
+  if (window.get() == NULL) {
+    LogErrorMessage("active_window_not_found");
+    return false;
+  }
+  bool is_timeout;
+
+  int tab_count;
+  browser->GetTabCountWithTimeout(&tab_count,
+                                  action_max_timeout_ms(),
+                                  &is_timeout);
+
+  if (tab_count < 2) {
+    LogWarningMessage("not_enough_tabs_to_drag_out");
+    return false;
+  }
+
+  int tab_index;
+  if (!browser->GetActiveTabIndexWithTimeout(&tab_index,
+                                             action_max_timeout_ms(),
+                                             &is_timeout)) {
+    LogWarningMessage("no_active_tab");
+    return false;
+  }
+
+  if (tab_index < 0) {
+    LogInfoMessage("invalid_active_tab_index");
+    return false;
+  }
+
+  gfx::Rect dragged_tab_bounds;
+  if (!window->GetViewBoundsWithTimeout(VIEW_ID_TAB_0 + tab_index,
+                                        &dragged_tab_bounds, false,
+                                        action_max_timeout_ms(),
+                                        &is_timeout)) {
+    LogWarningMessage("no_tab_view_found");
+    return false;
+  }
+
+  gfx::Rect urlbar_bounds;
+  if (!window->GetViewBoundsWithTimeout(VIEW_ID_LOCATION_BAR,
+                                        &urlbar_bounds, false,
+                                        action_max_timeout_ms(),
+                                        &is_timeout)) {
+    LogWarningMessage("no_location_bar_found");
+    return false;
+  }
+
+  // Click on the center of the tab, and drag it downwads.
+  POINT start;
+  POINT end;
+  start.x = dragged_tab_bounds.x() + dragged_tab_bounds.width()/2;
+  start.y = dragged_tab_bounds.y() + dragged_tab_bounds.height()/2;
+  end.x = start.x;
+  end.y = start.y + 3*urlbar_bounds.height();
+
+  if (!browser->SimulateDragWithTimeout(start, end,
+                                        views::Event::EF_LEFT_BUTTON_DOWN,
+                                        action_max_timeout_ms(),
+                                        &is_timeout, false)) {
+    LogWarningMessage("failed_to_simulate_drag");
+    return false;
+  }
+
+  return true;
+}
+
+bool AutomatedUITestBase::DragActiveTab(bool drag_right) {
+  BrowserProxy* browser = active_browser();
+  if (browser == NULL) {
+    LogErrorMessage("browser_window_not_found");
+    return false;
+  }
+
+  scoped_refptr<WindowProxy> window(
+      GetAndActivateWindowForBrowser(browser));
+  if (window.get() == NULL) {
+    LogErrorMessage("active_window_not_found");
+    return false;
+  }
+  bool is_timeout;
+
+  int tab_count;
+  browser->GetTabCountWithTimeout(&tab_count,
+                                  action_max_timeout_ms(),
+                                  &is_timeout);
+
+  if (tab_count < 2) {
+    LogWarningMessage("not_enough_tabs_to_drag_around");
+    return false;
+  }
+
+  int tab_index;
+  if (!browser->GetActiveTabIndexWithTimeout(&tab_index,
+                                             action_max_timeout_ms(),
+                                             &is_timeout)) {
+    LogWarningMessage("no_active_tab");
+    return false;
+  }
+
+  gfx::Rect dragged_tab_bounds;
+  if (!window->GetViewBoundsWithTimeout(VIEW_ID_TAB_0 + tab_index,
+                                        &dragged_tab_bounds, false,
+                                        action_max_timeout_ms(),
+                                        &is_timeout)) {
+    LogWarningMessage("no_tab_view_found");
+    return false;
+  }
+
+  // Click on the center of the tab, and drag it to the left or the right.
+  POINT dragged_tab_point(dragged_tab_bounds.CenterPoint().ToPOINT());
+  POINT destination_point(dragged_tab_point);
+
+  int new_tab_index;
+  if (drag_right) {
+    if (tab_index >= (tab_count - 1)) {
+      LogInfoMessage("cant_drag_to_right");
+      return false;
+    }
+    new_tab_index = tab_index + 1;
+    destination_point.x += 2 * dragged_tab_bounds.width() / 3;
+  } else {
+    if (tab_index <= 0) {
+      LogInfoMessage("cant_drag_to_left");
+      return false;
+    }
+    new_tab_index = tab_index - 1;
+    destination_point.x -= 2 * dragged_tab_bounds.width() / 3;
+  }
+
+  if (!browser->SimulateDragWithTimeout(dragged_tab_point,
+                                        destination_point,
+                                        views::Event::EF_LEFT_BUTTON_DOWN,
+                                        action_max_timeout_ms(),
+                                        &is_timeout, false)) {
+    LogWarningMessage("failed_to_simulate_drag");
+    return false;
+  }
+
+  if (!browser->WaitForTabToBecomeActive(new_tab_index, action_timeout_ms())) {
+    LogWarningMessage("failed_to_reindex_tab");
+    return false;
+  }
+
+  return true;
 }
 
 bool AutomatedUITestBase::ForwardButton() {
@@ -191,4 +349,16 @@ scoped_refptr<TabProxy> AutomatedUITestBase::GetActiveTab() {
   if (did_timeout)
     return NULL;
   return tab;
+}
+
+scoped_refptr<WindowProxy> AutomatedUITestBase::GetAndActivateWindowForBrowser(
+    BrowserProxy* browser) {
+  bool did_timeout;
+  if (!browser->BringToFrontWithTimeout(action_max_timeout_ms(),
+                                        &did_timeout)) {
+    LogWarningMessage("failed_to_bring_window_to_front");
+    return NULL;
+  }
+
+  return browser->GetWindow();
 }
