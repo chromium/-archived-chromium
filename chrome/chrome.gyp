@@ -2317,6 +2317,25 @@
       },
       'conditions': [
         ['OS=="linux"', {
+          'conditions': [
+            ['branding=="Chrome"', {
+              'actions': [
+                {
+                  'action_name': 'dump_symbols',
+                  'inputs': [
+                    '<(PRODUCT_DIR)/dump_syms',
+                    '<(PRODUCT_DIR)/chrome',
+                  ],
+                  'outputs': [
+                    '<(PRODUCT_DIR)/chrome.breakpad',
+                  ],
+                  'action': ['<(DEPTH)/build/linux/dump_app_syms',
+                             '<(PRODUCT_DIR)/dump_syms',
+                             '<(PRODUCT_DIR)/chrome', '<@(_outputs)'],
+                },
+              ],
+            }],
+          ],
           'dependencies': [
             # Needed for chrome_dll_main.cc #include of gtk/gtk.h
             '../build/linux/system.gyp:gtk',
