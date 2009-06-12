@@ -65,7 +65,6 @@ bool FFmpegVideoDecoder::OnInitialize(DemuxerStream* demuxer_stream) {
   if (!codec ||
       avcodec_thread_init(codec_context_, kDecodeThreads) < 0 ||
       avcodec_open(codec_context_, codec) < 0) {
-    host_->Error(media::PIPELINE_ERROR_DECODE);
     return false;
   }
   return true;

@@ -71,15 +71,17 @@ class DecoderBase : public Decoder {
         return false;
       }
     }
-    if (OnInitialize(demuxer_stream)) {
-      DCHECK(!media_format_.empty());
-      host()->InitializationComplete();
-      return true;
-    } else {
+
+    if (!OnInitialize(demuxer_stream)) {
+      host()->Error(PIPELINE_ERROR_DECODE);
       demuxer_stream_ = NULL;
       decode_thread_.reset();
       return false;
     }
+
+    DCHECK(!media_format_.empty());
+    host()->InitializationComplete();
+    return true;
   }
 
   virtual const MediaFormat& media_format() { return media_format_; }

@@ -141,6 +141,7 @@
       'dependencies': [
         'media',
         '../base/base.gyp:base',
+        '../testing/gmock.gyp:gmock',
         '../testing/gtest.gyp:gtest',
         '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
       ],
@@ -156,6 +157,7 @@
         'base/yuv_convert_unittest.cc',
         'filters/ffmpeg_demuxer_unittest.cc',
         'filters/ffmpeg_glue_unittest.cc',
+        'filters/ffmpeg_video_decoder_unittest.cc',
         'filters/file_data_source_unittest.cc',
         'filters/video_decoder_unittest.cc',
         'filters/video_renderer_unittest.cc',
@@ -172,12 +174,14 @@
           'sources!': [
             'filters/ffmpeg_demuxer_unittest.cc',
             'filters/ffmpeg_glue_unittest.cc',
+            'filters/ffmpeg_video_decoder_unittest.cc',
           ],
         }],
         ['OS=="mac"', {
           'sources!': [
             'filters/ffmpeg_demuxer_unittest.cc',
             'filters/ffmpeg_glue_unittest.cc',
+            'filters/ffmpeg_video_decoder_unittest.cc',
           ],
         }],
       ],
