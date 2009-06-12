@@ -190,6 +190,7 @@
       # theme_resources also generates a .cc file, so it can't use the rules above.
       'target_name': 'theme_resources',
       'type': 'none',
+      'msvs_guid' : 'A158FB0A-25E4-6523-6B5A-4BB294B73D31',
       'variables': {
         'grit_path': '../tools/grit/grit.py',
       },
