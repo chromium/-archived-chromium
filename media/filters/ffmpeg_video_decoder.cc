@@ -24,7 +24,7 @@ namespace media {
 static const int kDecodeThreads = 2;
 
 FFmpegVideoDecoder::FFmpegVideoDecoder()
-    : DecoderBase<VideoDecoder, VideoFrame>(NULL),
+    : DecoderBase<VideoDecoder, VideoFrame>("VideoDecoderThread"),
       width_(0),
       height_(0) {
 }

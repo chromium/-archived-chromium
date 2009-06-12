@@ -77,6 +77,11 @@ class AudioRendererBase : public AudioRenderer {
                                int* sample_bits_out);
 
  private:
+  // Helper method that schedules an asynchronous read from the decoder.
+  //
+  // Safe to call from any thread.
+  void ScheduleRead();
+
   // Audio decoder.
   AudioDecoder* decoder_;
 
@@ -100,12 +105,6 @@ class AudioRendererBase : public AudioRenderer {
   // Audio time at end of last call to FillBuffer().
   // TODO(ralphl): Update this value after seeking.
   base::TimeDelta last_fill_buffer_time_;
-
-  // Posts a task on the pipeline thread to read a sample from the decoder.  The
-  // resulting buffer will be placed in the queue.
-  //
-  // Safe to call on any thread.
-  void ScheduleRead();
 
   DISALLOW_COPY_AND_ASSIGN(AudioRendererBase);
 };

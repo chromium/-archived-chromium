@@ -205,8 +205,7 @@ size_t AudioRendererBase::FillBuffer(uint8* dest, size_t dest_len,
 }
 
 void AudioRendererBase::ScheduleRead() {
-  host_->PostTask(NewRunnableMethod(decoder_, &AudioDecoder::Read,
-      NewCallback(this, &AudioRendererBase::OnReadComplete)));
+  decoder_->Read(NewCallback(this, &AudioRendererBase::OnReadComplete));
 }
 
 // static

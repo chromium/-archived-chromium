@@ -14,7 +14,7 @@ const size_t FFmpegAudioDecoder::kOutputBufferSize =
     AVCODEC_MAX_AUDIO_FRAME_SIZE;
 
 FFmpegAudioDecoder::FFmpegAudioDecoder()
-    : DecoderBase<AudioDecoder, Buffer>(NULL),
+    : DecoderBase<AudioDecoder, Buffer>("AudioDecoderThread"),
       codec_context_(NULL) {
 }
 

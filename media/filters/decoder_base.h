@@ -33,49 +33,49 @@ class DecoderBase : public Decoder {
         process_task_->Cancel();
         process_task_ = NULL;
       }
-      DiscardQueues();
+      DiscardQueues_Locked();
     }
 
-    // Because decode_thread_ is a scoped_ptr this will destroy the thread,
-    // if there was one, which causes it to be shut down in an orderly way.
-    decode_thread_.reset();
+    // Stop our decoding thread.
+    thread_.Stop();
   }
 
   virtual void Seek(base::TimeDelta time) {
     // Delegate to the subclass first.
     OnSeek(time);
-    {
-      AutoLock auto_lock(lock_);
 
-      // Flush the result queue.
-      result_queue_.clear();
+    // Flush the result queue.
+    AutoLock auto_lock(lock_);
+    result_queue_.clear();
 
-      // Flush the input queue. This will trigger more reads from the demuxer.
-      input_queue_.clear();
+    // Flush the input queue. This will trigger more reads from the demuxer.
+    input_queue_.clear();
 
-      // Turn on the seeking flag so that we can discard buffers until a
-      // discontinuous buffer is received.
-      seeking_ = true;
-    }
-    // ScheduleProcessTask to trigger more reads and keep the process loop
-    // rolling.
-    ScheduleProcessTask();
+    // Turn on the seeking flag so that we can discard buffers until a
+    // discontinuous buffer is received.
+    seeking_ = true;
+
+    // Trigger more reads and keep the process loop rolling.
+    ScheduleProcessTask_Locked();
   }
 
   // Decoder implementation.
   virtual bool Initialize(DemuxerStream* demuxer_stream) {
     demuxer_stream_ = demuxer_stream;
-    if (decode_thread_.get()) {
-      if (!decode_thread_->Start()) {
-        NOTREACHED();
-        return false;
-      }
+
+    // Start our internal decoding thread.
+    if (!thread_.Start()) {
+      host()->Error(PIPELINE_ERROR_DECODE);
+      return false;
     }
 
     if (!OnInitialize(demuxer_stream)) {
+      // Release our resources and stop our thread.
+      // TODO(scherkus): shouldn't stop a thread inside Initialize(), but until I
+      // figure out proper error signaling semantics we're going to do it anyway!!
       host()->Error(PIPELINE_ERROR_DECODE);
       demuxer_stream_ = NULL;
-      decode_thread_.reset();
+      thread_.Stop();
       return false;
     }
 
@@ -91,7 +91,7 @@ class DecoderBase : public Decoder {
     AutoLock auto_lock(lock_);
     if (IsRunning()) {
       read_queue_.push_back(read_callback);
-      ScheduleProcessTask();
+      ScheduleProcessTask_Locked();
     } else {
       delete read_callback;
     }
@@ -113,26 +113,24 @@ class DecoderBase : public Decoder {
       if (!seeking_)
         input_queue_.push_back(buffer);
       --pending_reads_;
-      ScheduleProcessTask();
+      ScheduleProcessTask_Locked();
     }
   }
 
  protected:
-  // If NULL is passed for the |thread_name| then all processing of decodes
-  // will happen on the pipeline thread.  If the name is non-NULL then a new
-  // thread will be created for this decoder, and it will be assigned the
-  // name provided by |thread_name|.
+  // |thread_name| is mandatory and is used to identify the thread in debuggers.
   explicit DecoderBase(const char* thread_name)
       : running_(true),
         demuxer_stream_(NULL),
-        decode_thread_(thread_name ? new base::Thread(thread_name) : NULL),
+        thread_(thread_name),
         pending_reads_(0),
         process_task_(NULL),
         seeking_(false) {
   }
 
   virtual ~DecoderBase() {
-    Stop();
+    DCHECK(!thread_.IsRunning());
+    DCHECK(!process_task_);
   }
 
   // This method is called by the derived class from within the OnDecode method.
@@ -178,30 +176,27 @@ class DecoderBase : public Decoder {
   FilterHost* host() const { return Decoder::host_; }
 
   // Schedules a task that will execute the ProcessTask method.
-  void ScheduleProcessTask() {
+  void ScheduleProcessTask_Locked() {
+    lock_.AssertAcquired();
     DCHECK(IsRunning());
     if (!process_task_) {
       process_task_ = NewRunnableMethod(this, &DecoderBase::ProcessTask);
-      if (decode_thread_.get()) {
-        decode_thread_->message_loop()->PostTask(FROM_HERE, process_task_);
-      } else {
-        host()->PostTask(process_task_);
-      }
+      thread_.message_loop()->PostTask(FROM_HERE, process_task_);
     }
   }
 
   // The core work loop of the decoder base.  This method will run the methods
-  // SubmitReads(), ProcessInput(), and ProcessOutput() in a loop until they
-  // either produce no further work, or the filter is stopped.  Once there is
-  // no further work to do, the method returns.  A later call to the
-  // ScheduleProcessTask() method will start this task again.
+  // SubmitReads_Locked(), ProcessInput_Locked(), and ProcessOutput_Locked() in
+  // a loop until they either produce no further work, or the filter is stopped.
+  // Once there is no further work to do, the method returns.  A later call to
+  // the ScheduleProcessTask_Locked() method will start this task again.
   void ProcessTask() {
     AutoLock auto_lock(lock_);
     bool did_some_work;
     do {
-      did_some_work  = SubmitReads();
-      did_some_work |= ProcessInput();
-      did_some_work |= ProcessOutput();
+      did_some_work  = SubmitReads_Locked();
+      did_some_work |= ProcessInput_Locked();
+      did_some_work |= ProcessOutput_Locked();
     } while (IsRunning() && did_some_work);
     DCHECK(process_task_ || !IsRunning());
     process_task_ = NULL;
@@ -211,7 +206,7 @@ class DecoderBase : public Decoder {
   // if reads have happened, else false.  This method must be called with
   // |lock_| acquired.  If the method submits any reads, then it will Release()
   // the |lock_| when calling the demuxer and then re-Acquire() the |lock_|.
-  bool SubmitReads() {
+  bool SubmitReads_Locked() {
     lock_.AssertAcquired();
     bool did_read = false;
     if (IsRunning() &&
@@ -233,7 +228,7 @@ class DecoderBase : public Decoder {
 
   // If the |input_queue_| has any buffers, this method will call the derived
   // class's OnDecode() method.
-  bool ProcessInput() {
+  bool ProcessInput_Locked() {
     lock_.AssertAcquired();
     bool did_decode = false;
     while (IsRunning() && !input_queue_.empty()) {
@@ -251,7 +246,7 @@ class DecoderBase : public Decoder {
 
   // Removes any buffers from the |result_queue_| and calls the next callback
   // in the |read_queue_|.
-  bool ProcessOutput() {
+  bool ProcessOutput_Locked() {
     lock_.AssertAcquired();
     bool called_renderer = false;
     while (IsRunning() && !read_queue_.empty() && !result_queue_.empty()) {
@@ -270,7 +265,7 @@ class DecoderBase : public Decoder {
   }
 
   // Throw away all buffers in all queues.
-  void DiscardQueues() {
+  void DiscardQueues_Locked() {
     lock_.AssertAcquired();
     input_queue_.clear();
     result_queue_.clear();
@@ -290,9 +285,8 @@ class DecoderBase : public Decoder {
   // Pointer to the demuxer stream that will feed us compressed buffers.
   scoped_refptr<DemuxerStream> demuxer_stream_;
 
-  // If this pointer is NULL then there is no thread dedicated to this decoder
-  // and decodes will happen on the pipeline thread.
-  scoped_ptr<base::Thread> decode_thread_;
+  // The dedicated decoding thread for this filter.
+  base::Thread thread_;
 
   // Number of times we have called Read() on the demuxer that have not yet
   // been satisfied.

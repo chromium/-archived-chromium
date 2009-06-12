@@ -251,9 +251,7 @@ void VideoThread::OnReadComplete(VideoFrame* frame) {
 }
 
 void VideoThread::ScheduleRead() {
-  host_->PostTask(
-      NewRunnableMethod(decoder_.get(), &VideoDecoder::Read,
-      NewCallback(this, &VideoThread::OnReadComplete)));
+  decoder_->Read(NewCallback(this, &VideoThread::OnReadComplete));
 }
 
 bool VideoThread::WaitForInitialized() {

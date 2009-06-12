@@ -71,7 +71,9 @@ class VideoThread : public VideoRenderer,
   // Read complete callback from video decoder.
   void OnReadComplete(VideoFrame* frame);
 
-  // Helper method that asynchronously schedules a read on the pipeline thread.
+  // Helper method that schedules an asynchronous read from the decoder.
+  //
+  // Safe to call from any thread.
   void ScheduleRead();
 
   // Called by ThreadMain() to handle preroll.  Returns false if the thread
