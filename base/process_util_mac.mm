@@ -227,30 +227,31 @@ bool NamedProcessIterator::IncludeEntry() {
   return filter_->Includes(entry_.pid, entry_.ppid);
 }
 
+
+// ------------------------------------------------------------------------
+// NOTE: about ProcessMetrics
+//
+// Mac doesn't have /proc, and getting a mach task from a pid for another
+// process requires permissions, so there doesn't really seem to be a way
+// to do these (and spinning up ps to fetch each stats seems dangerous to
+// put in a base api for anyone to call.
+//
 bool ProcessMetrics::GetIOCounters(IoCounters* io_counters) const {
-  // TODO(pinkerton): can we implement this? On linux it relies on /proc.
-  NOTIMPLEMENTED();
   return false;
 }
-
 size_t ProcessMetrics::GetPagefileUsage() const {
-  NOTIMPLEMENTED();
   return 0;
 }
-
 size_t ProcessMetrics::GetPeakPagefileUsage() const {
-  NOTIMPLEMENTED();
   return 0;
 }
-
 size_t ProcessMetrics::GetWorkingSetSize() const {
-  NOTIMPLEMENTED();
+  return 0;
+}
+size_t ProcessMetrics::GetPeakWorkingSetSize() const {
   return 0;
 }
 
-size_t ProcessMetrics::GetPeakWorkingSetSize() const {
-  NOTIMPLEMENTED();
-  return 0;
-}
+// ------------------------------------------------------------------------
 
 }  // namespace base
