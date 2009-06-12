@@ -22,6 +22,9 @@
 #if defined(OS_WIN)
 #include "chrome/test/injection_test_dll.h"
 #include "sandbox/src/sandbox.h"
+#elif defined(OS_LINUX)
+#include "chrome/common/chrome_descriptors.h"
+#include "base/global_descriptors_posix.h"
 #endif
 
 // main() routine for running as the plugin process.

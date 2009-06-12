@@ -34,6 +34,9 @@
 #include "base/at_exit.h"
 #include "base/command_line.h"
 #include "base/debug_util.h"
+#if defined(OS_POSIX)
+#include "base/global_descriptors_posix.h"
+#endif
 #include "base/icu_util.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
@@ -45,9 +48,6 @@
 #if defined(OS_WIN)
 #include "base/win_util.h"
 #endif
-#if defined(OS_LINUX)
-#include "base/zygote_manager.h"
-#endif
 #if defined(OS_MACOSX)
 #include "chrome/app/breakpad_mac.h"
 #elif defined(OS_LINUX)
@@ -57,6 +57,7 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_counters.h"
+#include "chrome/common/chrome_descriptors.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/logging_chrome.h"
@@ -75,6 +76,7 @@ extern int RendererMain(const MainFunctionParams&);
 extern int PluginMain(const MainFunctionParams&);
 extern int WorkerMain(const MainFunctionParams&);
 extern int UtilityMain(const MainFunctionParams&);
+extern int ZygoteMain(const MainFunctionParams&);
 
 #if defined(OS_WIN)
 // TODO(erikkay): isn't this already defined somewhere?
@@ -299,21 +301,19 @@ int ChromeMain(int argc, const char** argv) {
   // its main event loop to get rid of the cruft.
   base::ScopedNSAutoreleasePool autorelease_pool;
 
+#if defined(OS_POSIX)
+  base::GlobalDescriptors* g_fds = Singleton<base::GlobalDescriptors>::get();
+  g_fds->Set(kPrimaryIPCChannel,
+             kPrimaryIPCChannel + base::GlobalDescriptors::kBaseDescriptor);
+#if defined(OS_LINUX)
+  g_fds->Set(kCrashDumpSignal,
+             kCrashDumpSignal + base::GlobalDescriptors::kBaseDescriptor);
+#endif
+#endif
+
   // Initialize the command line.
 #if defined(OS_WIN)
   CommandLine::Init(0, NULL);
-#elif defined(OS_LINUX)
-  base::ZygoteManager* zm = base::ZygoteManager::Get();
-  std::vector<std::string>* zargv = NULL;
-  if (zm)
-    zargv = zm->Start();
-  if (zargv) {
-    // Forked child.
-    CommandLine::Init(*zargv);
-  } else {
-    // Original process.
-    CommandLine::Init(argc, argv);
-  }
 #else
   CommandLine::Init(argc, argv);
 #endif
@@ -346,11 +346,15 @@ int ChromeMain(int argc, const char** argv) {
     CHECK(sigaction(SIGPIPE, &action, 0) == 0);
 #endif  // OS_POSIX
   } else {
+#if defined(OS_WIN)
     std::wstring channel_name =
       parsed_command_line.GetSwitchValue(switches::kProcessChannelID);
 
     browser_pid = StringToInt(WideToASCII(channel_name));
     DCHECK(browser_pid != 0);
+#else
+    browser_pid = base::GetCurrentProcId();
+#endif
 
 #if defined(OS_POSIX)
     // When you hit Ctrl-C in a terminal running the browser
@@ -493,6 +497,13 @@ int ChromeMain(int argc, const char** argv) {
   } else if (process_type == switches::kWorkerProcess) {
 #if defined(OS_WIN)
     rv = WorkerMain(main_params);
+#else
+    NOTIMPLEMENTED();
+#endif
+  } else if (process_type == switches::kZygoteProcess) {
+#if defined(OS_LINUX)
+    if (ZygoteMain(main_params))
+      RendererMain(main_params);
 #else
     NOTIMPLEMENTED();
 #endif

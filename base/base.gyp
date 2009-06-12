@@ -133,6 +133,8 @@
         'fix_wp64.h',
         'float_util.h',
         'foundation_utils_mac.h',
+        'global_descriptors_posix.h',
+        'global_descriptors_posix.cc',
         'hash_tables.h',
         'histogram.cc',
         'histogram.h',
@@ -324,6 +326,7 @@
         'tracked_objects.cc',
         'tracked_objects.h',
         'tuple.h',
+        'unix_domain_socket_posix.cc',
         'values.cc',
         'values.h',
         'version.cc',
@@ -417,9 +420,6 @@
               # on XScreenSaver, but it's unclear if we want it yet,
               # so use idle_timer_none.cc instead.
               'idle_timer.cc',
-            ],
-            'sources': [
-              'zygote_manager.cc',
             ],
             'dependencies': [
               '../build/util/build_util.gyp:lastchange',
@@ -685,9 +685,6 @@
       ],
       'conditions': [
         ['OS == "linux"', {
-          'sources': [
-            'zygote_manager_unittest.cc',
-          ],
           'sources!': [
             'file_version_info_unittest.cc',
             # Linux has an implementation of idle_timer, but it's unclear

@@ -14,13 +14,13 @@
 #include "base/file_version_info_linux.h"
 #include "base/path_service.h"
 #include "base/rand_util.h"
-#include "base/reserved_file_descriptors.h"
 #include "breakpad/linux/directory_reader.h"
 #include "breakpad/linux/exception_handler.h"
 #include "breakpad/linux/linux_libc_support.h"
 #include "breakpad/linux/linux_syscall_support.h"
 #include "breakpad/linux/memory.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/chrome_descriptors.h"
 #include "chrome/installer/util/google_update_settings.h"
 
 static const char kUploadURL[] =
@@ -501,13 +501,11 @@ RendererCrashHandler(const void* crash_context, size_t crash_context_size,
 }
 
 void EnableRendererCrashDumping() {
-  // When the browser forks off our process, it installs the crash signal file
-  // descriptor in slot kMagicCrashSignalFd.
-
+  const int fd = Singleton<base::GlobalDescriptors>()->Get(kCrashDumpSignal);
   // We deliberately leak this object.
   google_breakpad::ExceptionHandler* handler =
       new google_breakpad::ExceptionHandler("" /* unused */, NULL, NULL,
-                                            (void*) kMagicCrashSignalFd, true);
+                                            (void*) fd, true);
   handler->set_crash_handler(RendererCrashHandler);
 }
 

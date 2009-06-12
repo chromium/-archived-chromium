@@ -29,7 +29,7 @@ class Channel::ChannelImpl : public MessageLoopForIO::Watcher {
   void Close();
   void set_listener(Listener* listener) { listener_ = listener; }
   bool Send(Message* message);
-  void GetClientFileDescriptorMapping(int *src_fd, int *dest_fd) const;
+  int GetClientFileDescriptor() const;
 
  private:
   bool CreatePipe(const std::string& channel_id, Mode mode);

@@ -14,6 +14,9 @@
 
 #include "app/app_switches.h"
 #include "base/command_line.h"
+#if defined(OS_POSIX)
+#include "base/global_descriptors_posix.h"
+#endif
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/file_version_info.h"
@@ -30,6 +33,7 @@
 #include "chrome/browser/renderer_host/browser_render_process_host.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
+#include "chrome/common/chrome_descriptors.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_switches.h"
@@ -393,10 +397,10 @@ bool PluginProcessHost::Init(const WebPluginInfo& info,
   // This code is duplicated with browser_render_process_host.cc, but
   // there's not a good place to de-duplicate it.
   base::file_handle_mapping_vector fds_to_map;
-  int src_fd = -1, dest_fd = -1;
-  channel().GetClientFileDescriptorMapping(&src_fd, &dest_fd);
-  if (src_fd > -1)
-    fds_to_map.push_back(std::pair<int, int>(src_fd, dest_fd));
+  const int ipcfd = channel().GetClientFileDescriptor();
+  if (ipcfd > -1)
+    fds_to_map.push_back(std::pair<int, int>(
+        ipcfd, kPrimaryIPCChannel + base::GlobalDescriptors::kBaseDescriptor));
   base::LaunchApp(cmd_line.argv(), fds_to_map, false, &process);
 #endif
 
