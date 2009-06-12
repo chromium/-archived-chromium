@@ -1,3 +1,0 @@
-include_rules = [
-  "+webkit/third_party/WebCore/platform",  # For URL parsing perf test.
-]

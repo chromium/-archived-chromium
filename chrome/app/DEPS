@@ -2,8 +2,6 @@ include_rules = [
   "+breakpad",
   "+chrome/browser",
   "+chrome/installer",
-  "+chrome/personalization",
   "+sandbox",
-  "+skia/include/corecg",
   "+tools/memory_watcher",
 ]
