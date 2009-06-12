@@ -837,8 +837,7 @@ TEST_F(TabContentsTest,
 // Test navigating to a page that shows an interstitial without creating a new
 // navigation entry (this happens when the interstitial is triggered by a
 // sub-resource in the page), then proceeding.
-// http://crbug.com/13937: Disabling because it's leaky on win/mac.
-TEST_F(TabContentsTest, DISABLED_ShowInterstitialNoNewNavigationProceed) {
+TEST_F(TabContentsTest, ShowInterstitialNoNewNavigationProceed) {
   // Navigate to a page so we have a navigation entry in the controller.
   GURL url1("http://www.google.com");
   rvh()->SendNavigate(1, url1);
@@ -937,7 +936,8 @@ TEST_F(TabContentsTest, ShowInterstitialThenGoBack) {
 
 // Test navigating to a page that shows an interstitial, has a renderer crash,
 // and then goes back.
-TEST_F(TabContentsTest, ShowInterstitialCrashRendererThenGoBack) {
+// http://crbug.com/13937: Disabling because it's leaky on win/mac.
+TEST_F(TabContentsTest, DISABLED_ShowInterstitialCrashRendererThenGoBack) {
   // Navigate to a page so we have a navigation entry in the controller.
   GURL url1("http://www.google.com");
   rvh()->SendNavigate(1, url1);
