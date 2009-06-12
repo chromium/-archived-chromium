@@ -3534,6 +3534,32 @@
         }],
       ],
     },
+    {
+      'target_name': 'tab_switching_test',
+      'type': 'executable',
+      'msvs_guid': 'A34770EA-A574-43E8-9327-F79C04770E98',
+      'dependencies': [
+        'test_support_common',
+        'test_support_ui',
+        'theme_resources',
+        '../skia/skia.gyp:skia',
+        '../testing/gtest.gyp:gtest',
+        'app',
+      ],
+      'include_dirs': [
+        '..',
+      ],
+      'sources': [
+        'test/tab_switching/tab_switching_test.cc',
+      ],
+      'conditions': [
+        ['OS=="linux"', {
+          'dependencies': [
+            '../build/linux/system.gyp:gtk',
+          ],
+        }],
+      ],
+    },
   ],
   'conditions': [
     # We set feature variables so the different parts that need to check for
@@ -3722,14 +3748,14 @@
             'test/browser/run_all_unittests.cc',
             'test/in_process_browser_test.cc',
             'test/in_process_browser_test.h',
-	    'test/browser/browser_test_launcher_out_of_proc.cc',
-	    'test/browser/browser_test_runner.cc',
-	    'test/browser/browser_test_runner.h',
+            'test/browser/browser_test_launcher_out_of_proc.cc',
+            'test/browser/browser_test_runner.cc',
+            'test/browser/browser_test_runner.h',
             'test/unit/chrome_test_suite.h',
             'test/ui_test_utils.cc',
-	    # browser_tests_sources is defined in 'variables' at the top of the
-	    # file.
-	    '<@(browser_tests_sources)',
+            # browser_tests_sources is defined in 'variables' at the top of the
+            # file.
+            '<@(browser_tests_sources)',
 
           ],
           'conditions': [
@@ -4070,7 +4096,7 @@
             },
           },
           'sources': [
-	    'test/browser/run_all_unittests.cc',
+            'test/browser/run_all_unittests.cc',
             'test/in_process_browser_test.cc',
             'test/in_process_browser_test.h',
             'test/unit/chrome_test_suite.h',
@@ -4083,10 +4109,10 @@
             '<(SHARED_INTERMEDIATE_DIR)/chrome/browser_resources.rc',
             '<(SHARED_INTERMEDIATE_DIR)/chrome_dll_version/chrome_dll_version.rc',
             '<(SHARED_INTERMEDIATE_DIR)/chrome/common_resources.rc',
-	    # browser_tests_sources and browser_tests_source_win_specific are
-	    # defined in 'variables' at the top of the file.
-	    '<@(browser_tests_sources)',
-	    '<@(browser_tests_sources_win_specific)',
+            # browser_tests_sources and browser_tests_source_win_specific are
+            # defined in 'variables' at the top of the file.
+            '<@(browser_tests_sources)',
+            '<@(browser_tests_sources_win_specific)',
           ],
         },
         {
@@ -4095,20 +4121,20 @@
           'type': 'executable',
           'msvs_guid': '9B87804D-2502-480B-95AE-5A572CE91809',
           'dependencies': [
-	    'browser_tests_dll',
+            'browser_tests_dll',
             '../base/base.gyp:base',
           ],
           'include_dirs': [
             '..',
           ],
           'sources': [
-	    'test/browser/browser_test_launcher_in_proc.cc',
-	    'test/browser/browser_test_runner.cc',
-	    'test/browser/browser_test_runner.h',
+            'test/browser/browser_test_launcher_in_proc.cc',
+            'test/browser/browser_test_runner.cc',
+            'test/browser/browser_test_runner.h',
           ],
           'msvs_settings': {
             'VCLinkerTool': {
-	      # Use a PDB name different than the one for the DLL.
+              # Use a PDB name different than the one for the DLL.
               'ProgramDatabaseFile': '$(OutDir)\\browser_tests_exe.pdb',
             },
           },
@@ -4352,24 +4378,6 @@
           },
         },
         {
-          'target_name': 'tab_switching_test',
-          'type': 'executable',
-          'msvs_guid': 'A34770EA-A574-43E8-9327-F79C04770E98',
-          'dependencies': [
-            'test_support_common',
-            'test_support_ui',
-            'theme_resources',
-            '../skia/skia.gyp:skia',
-            '../testing/gtest.gyp:gtest',
-          ],
-          'include_dirs': [
-            '..',
-          ],
-          'sources': [
-            'test/tab_switching/tab_switching_test.cc',
-          ],
-        },
-        {
           'target_name': 'test_chrome_plugin',
           'type': 'shared_library',
           'msvs_guid': '7F0A70F6-BE3F-4C19-B435-956AB8F30BA4',
@@ -4491,14 +4499,14 @@
           # In gyp, booleans are 0/1 not True/False.
           'suppress_wildcard': 1,
           'type': 'none',
-	  # If you add new tests here you may need to update the croc configs.
-	  # E.g. build/{linux|mac}/chrome_linux.croc
+          # If you add new tests here you may need to update the croc configs.
+          # E.g. build/{linux|mac}/chrome_linux.croc
           'dependencies': [
             '../base/base.gyp:base_unittests',
             '../media/media.gyp:media_unittests',
             '../net/net.gyp:net_unittests',
             '../printing/printing.gyp:printing_unittests',
-	    'unit_tests',
+            'unit_tests',
           ],
           'actions': [
             {

@@ -8,6 +8,7 @@
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
+#include "base/mac_util.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "base/sys_info.h"
@@ -42,8 +43,23 @@ bool PathProvider(int key, FilePath* result) {
       return PathService::Get(chrome::DIR_USER_DATA, result);
 #else
       // Debug builds write next to the binary (in the build tree)
+#if defined(OS_MACOSX)
+      if (!PathService::Get(base::DIR_EXE, result))
+        return false;
+      if (mac_util::AmIBundled()) {
+        // If we're called from chrome, dump it beside the app (outside the
+        // app bundle), if we're called from a unittest, we'll already
+        // outside the bundle so use the exe dir.
+        // exe_dir gave us .../Chromium.app/Contents/MacOS/Chromium.
+        *result = result->DirName();
+        *result = result->DirName();
+        *result = result->DirName();
+      }
+      return true;
+#else
       return PathService::Get(base::DIR_EXE, result);
-#endif
+#endif // defined(OS_MACOSX)
+#endif // NDEBUG
     case chrome::FILE_RESOURCE_MODULE:
       return PathService::Get(base::FILE_MODULE, result);
   }

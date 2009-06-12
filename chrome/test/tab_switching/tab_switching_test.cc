@@ -3,7 +3,9 @@
 // found in the LICENSE file.
 
 #include "base/command_line.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
+#include "base/platform_thread.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
@@ -28,11 +30,10 @@ class TabSwitchingUITest : public UITest {
  public:
    TabSwitchingUITest() {
     PathService::Get(base::DIR_EXE, &path_prefix_);
-    file_util::UpOneDirectory(&path_prefix_);
-    file_util::UpOneDirectory(&path_prefix_);
-    file_util::AppendToPath(&path_prefix_, L"data");
-    file_util::AppendToPath(&path_prefix_, L"tab_switching");
-    path_prefix_ += FilePath::kSeparators[0];
+    path_prefix_ = path_prefix_.DirName();
+    path_prefix_ = path_prefix_.DirName();
+    path_prefix_ = path_prefix_.AppendASCII("data");
+    path_prefix_ = path_prefix_.AppendASCII("tab_switching");
 
     show_window_ = true;
   }
@@ -63,16 +64,20 @@ class TabSwitchingUITest : public UITest {
 
     // Now open the corresponding log file and collect average and std dev from
     // the histogram stats generated for RenderWidgetHostHWND_WhiteoutDuration
-    std::wstring log_file_name;
+    FilePath log_file_name;
     PathService::Get(chrome::DIR_LOGS, &log_file_name);
-    file_util::AppendToPath(&log_file_name, L"chrome_debug.log");
+    log_file_name = log_file_name.AppendASCII("chrome_debug.log");
 
     bool log_has_been_dumped = false;
     std::string contents;
+    int max_tries = 20;
     do {
       log_has_been_dumped = file_util::ReadFileToString(log_file_name,
                                                         &contents);
-    } while (!log_has_been_dumped);
+      if (!log_has_been_dumped)
+        PlatformThread::Sleep(100);
+    } while (!log_has_been_dumped && max_tries--);
+    ASSERT_TRUE(log_has_been_dumped) << "Failed to read the log file";
 
     // Parse the contents to get average and std deviation.
     std::string average("0.0"), std_dev("0.0");
@@ -96,6 +101,8 @@ class TabSwitchingUITest : public UITest {
       comma_pos = contents.find(" ", pos);
       number_length = comma_pos - pos;
       std_dev = contents.substr(pos, number_length);
+    } else {
+      LOG(WARNING) << "Histogram: MPArch.RWHH_WhiteoutDuration wasn't found";
     }
 
     // Print the average and standard deviation.
@@ -115,8 +122,8 @@ class TabSwitchingUITest : public UITest {
                                    "126.com", "www.altavista.com"};
     int number_of_new_tabs_opened = 0;
     FilePath file_name;
-    for (int i = 0; i < arraysize(files); ++i) {
-      file_name = FilePath::FromWStringHack(path_prefix_);
+    for (size_t i = 0; i < arraysize(files); ++i) {
+      file_name = path_prefix_;
       file_name = file_name.AppendASCII(files[i]);
       file_name = file_name.AppendASCII("index.html");
       browser_proxy_->AppendTab(net::FilePathToFileURL(file_name));
@@ -126,7 +133,7 @@ class TabSwitchingUITest : public UITest {
     return number_of_new_tabs_opened;
   }
 
-  std::wstring path_prefix_;
+  FilePath path_prefix_;
   int number_of_tabs_to_open_;
   scoped_refptr<BrowserProxy> browser_proxy_;
 
@@ -134,8 +141,8 @@ class TabSwitchingUITest : public UITest {
   DISALLOW_EVIL_CONSTRUCTORS(TabSwitchingUITest);
 };
 
-}  // namespace
-
 TEST_F(TabSwitchingUITest, GenerateTabSwitchStats) {
   RunTabSwitchingUITest();
 }
+
+}  // namespace
