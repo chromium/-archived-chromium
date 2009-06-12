@@ -1356,7 +1356,7 @@ BUG10353 LINUX : LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
 BUG10353 LINUX : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
 BUG10668 : chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 // This test sometimes fails indefinitely, other times it takes 1-2 seconds.
-BUG10353 WIN LINUX : LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT PASS
+BUG14009 WIN LINUX : LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT PASS FAIL
 
 // This is failing on the mac debug only, not sure why, but it's pretty repeatable on the bots, so we
 // go to the complexity to split out that one case to track any other changes for the other platforms.
