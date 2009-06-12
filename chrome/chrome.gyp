@@ -3924,7 +3924,20 @@
           'msvs_settings': {
             'VCLinkerTool': {
               'BaseAddress': '0x01c30000',
-              'DelayLoadDLLs': 'crypt32.dll;cryptui.dll;winhttp.dll;wininet.dll;wsock32.dll;ws2_32.dll;winspool.drv;comdlg32.dll;imagehlp.dll;psapi.dll;urlmon.dll;imm32.dll',
+              'DelayLoadDLLs': [
+                'crypt32.dll',
+                'cryptui.dll',
+                'winhttp.dll',
+                'wininet.dll',
+                'wsock32.dll',
+                'ws2_32.dll',
+                'winspool.drv',
+                'comdlg32.dll',
+                'imagehlp.dll',
+                'psapi.dll',
+                'urlmon.dll',
+		'imm32.dll',
+              ],
               'ImportLibrary': '$(OutDir)\\lib\\chrome_dll.lib',
               # Set /SUBSYSTEM:WINDOWS for chrome.dll (for consistency).
               'SubSystem': '2',
