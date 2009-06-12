@@ -114,12 +114,12 @@ void SimpleDataSource::OnCompletedRequest(const URLRequestStatus& status,
   // If we don't get a content length or the request has failed, report it
   // as a network error.
   DCHECK(size_ == -1 || size_ == data_.length());
-  if (size_ == -1)
+  if (size_ == -1) {
     size_ = data_.length();
+  }
   if (!status.is_success()) {
     host_->Error(media::PIPELINE_ERROR_NETWORK);
-  } else {
-    host_->InitializationComplete();
+    return;
   }
   host_->SetTotalBytes(size_);
   host_->SetBufferedBytes(size_);
