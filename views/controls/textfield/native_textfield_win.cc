@@ -97,21 +97,6 @@ NativeTextfieldWin::NativeTextfieldWin(Textfield* textfield)
   ole_interface.Attach(GetOleInterface());
   text_object_model_ = ole_interface;
 
-  context_menu_.reset(new MenuWin(this, Menu::TOPLEFT, m_hWnd));
-  context_menu_->AppendMenuItemWithLabel(IDS_APP_UNDO,
-                                         l10n_util::GetString(IDS_APP_UNDO));
-  context_menu_->AppendSeparator();
-  context_menu_->AppendMenuItemWithLabel(IDS_APP_CUT,
-                                         l10n_util::GetString(IDS_APP_CUT));
-  context_menu_->AppendMenuItemWithLabel(IDS_APP_COPY,
-                                         l10n_util::GetString(IDS_APP_COPY));
-  context_menu_->AppendMenuItemWithLabel(IDS_APP_PASTE,
-                                         l10n_util::GetString(IDS_APP_PASTE));
-  context_menu_->AppendSeparator();
-  context_menu_->AppendMenuItemWithLabel(
-      IDS_APP_SELECT_ALL,
-      l10n_util::GetString(IDS_APP_SELECT_ALL));
-
   container_view_ = new NativeViewHost;
   textfield_->AddChildView(container_view_);
   container_view_->set_focus_view(textfield_);
@@ -227,13 +212,17 @@ gfx::NativeView NativeTextfieldWin::GetTestingHandle() const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// NativeTextfieldWin, Menu::Delegate implementation:
+// NativeTextfieldWin, SimpleMenuModel::Delegate implementation:
 
-bool NativeTextfieldWin::IsCommandEnabled(int id) const {
-  switch (id) {
+bool NativeTextfieldWin::IsCommandIdChecked(int command_id) const {
+  return false;
+}
+
+bool NativeTextfieldWin::IsCommandIdEnabled(int command_id) const {
+  switch (command_id) {
     case IDS_APP_UNDO:       return !textfield_->read_only() && !!CanUndo();
     case IDS_APP_CUT:        return !textfield_->read_only() &&
-                                 !textfield_->IsPassword() && !!CanCut();
+                                    !textfield_->IsPassword() && !!CanCut();
     case IDS_APP_COPY:       return !!CanCopy() && !textfield_->IsPassword();
     case IDS_APP_PASTE:      return !textfield_->read_only() && !!CanPaste();
     case IDS_APP_SELECT_ALL: return !!CanSelectAll();
@@ -242,10 +231,28 @@ bool NativeTextfieldWin::IsCommandEnabled(int id) const {
   }
 }
 
-void NativeTextfieldWin::ExecuteCommand(int id) {
+bool NativeTextfieldWin::GetAcceleratorForCommandId(int command_id,
+                                                    Accelerator* accelerator) {
+  // The standard Ctrl-X, Ctrl-V and Ctrl-C are not defined as accelerators
+  // anywhere so we need to check for them explicitly here.
+  switch (command_id) {
+    case IDS_APP_CUT:
+      *accelerator = views::Accelerator(L'X', false, true, false);
+      return true;
+    case IDS_APP_COPY:
+      *accelerator = views::Accelerator(L'C', false, true, false);
+      return true;
+    case IDS_APP_PASTE:
+      *accelerator = views::Accelerator(L'V', false, true, false);
+      return true;
+  }
+  return container_view_->GetWidget()->GetAccelerator(command_id, accelerator);
+}
+
+void NativeTextfieldWin::ExecuteCommand(int command_id) {
   ScopedFreeze freeze(this, GetTextObjectModel());
   OnBeforePossibleChange();
-  switch (id) {
+  switch (command_id) {
     case IDS_APP_UNDO:       Undo();       break;
     case IDS_APP_CUT:        Cut();        break;
     case IDS_APP_COPY:       Copy();       break;
@@ -269,7 +276,8 @@ void NativeTextfieldWin::OnContextMenu(HWND window, const CPoint& point) {
     GetCaretPos(&p);
     MapWindowPoints(HWND_DESKTOP, &p, 1);
   }
-  context_menu_->RunMenuAt(p.x, p.y);
+  BuildContextMenu();
+  context_menu_->RunContextMenuAt(gfx::Point(p));
 }
 
 void NativeTextfieldWin::OnCopy() {
@@ -835,6 +843,21 @@ ITextDocument* NativeTextfieldWin::GetTextObjectModel() const {
     text_object_model_ = ole_interface;
   }
   return text_object_model_;
+}
+
+void NativeTextfieldWin::BuildContextMenu() {
+  if (context_menu_contents_.get())
+    return;
+  context_menu_contents_.reset(new SimpleMenuModel(this));
+  context_menu_contents_->AddItemWithStringId(IDS_APP_UNDO, IDS_APP_UNDO);
+  context_menu_contents_->AddSeparator();
+  context_menu_contents_->AddItemWithStringId(IDS_APP_CUT, IDS_APP_CUT);
+  context_menu_contents_->AddItemWithStringId(IDS_APP_COPY, IDS_APP_COPY);
+  context_menu_contents_->AddItemWithStringId(IDS_APP_PASTE, IDS_APP_PASTE);
+  context_menu_contents_->AddSeparator();
+  context_menu_contents_->AddItemWithStringId(IDS_APP_SELECT_ALL,
+                                              IDS_APP_SELECT_ALL);
+  context_menu_.reset(new Menu2(context_menu_contents_.get()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -227,8 +227,8 @@ class ToolbarView : public views::View,
   // Current tab we're showing state for.
   TabContents* tab_;
 
-  // Profiles menu to populate with profile names.
-  views::Menu* profiles_menu_;
+  // Contents of the profiles menu to populate with profile names.
+  scoped_ptr<views::SimpleMenuModel> profiles_menu_contents_;
 
   // Helper class to enumerate profiles information on the file thread.
   scoped_refptr<GetProfilesHelper> profiles_helper_;

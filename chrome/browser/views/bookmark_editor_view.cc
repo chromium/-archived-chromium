@@ -187,18 +187,28 @@ void BookmarkEditorView::ButtonPressed(Button* sender) {
   }
 }
 
-void BookmarkEditorView::ExecuteCommand(int id) {
-  DCHECK(tree_view_->GetSelectedNode());
-  if (id == IDS_EDIT) {
-    tree_view_->StartEditing(tree_view_->GetSelectedNode());
-  } else {
-    DCHECK(id == IDS_BOOMARK_EDITOR_NEW_FOLDER_MENU_ITEM);
-    NewGroup();
-  }
+bool BookmarkEditorView::IsCommandIdChecked(int command_id) const {
+  return false;
 }
 
-bool BookmarkEditorView::IsCommandEnabled(int id) const {
-  return (id != IDS_EDIT || !running_menu_for_root_);
+bool BookmarkEditorView::IsCommandIdEnabled(int command_id) const {
+  return (command_id != IDS_EDIT || !running_menu_for_root_);
+}
+
+bool BookmarkEditorView::GetAcceleratorForCommandId(
+    int command_id,
+    views::Accelerator* accelerator) {
+  return GetWidget()->GetAccelerator(command_id, accelerator);
+}
+
+void BookmarkEditorView::ExecuteCommand(int command_id) {
+  DCHECK(tree_view_->GetSelectedNode());
+  if (command_id == IDS_EDIT) {
+    tree_view_->StartEditing(tree_view_->GetSelectedNode());
+  } else {
+    DCHECK(command_id == IDS_BOOMARK_EDITOR_NEW_FOLDER_MENU_ITEM);
+    NewGroup();
+  }
 }
 
 void BookmarkEditorView::Show(HWND parent_hwnd) {
@@ -228,14 +238,15 @@ void BookmarkEditorView::ShowContextMenu(View* source,
   running_menu_for_root_ =
       (tree_model_->GetParent(tree_view_->GetSelectedNode()) ==
        tree_model_->GetRoot());
-  context_menu_.reset(views::Menu::Create(this, views::Menu::TOPLEFT,
-                                          GetWidget()->GetNativeView()));
-  context_menu_->AppendMenuItemWithLabel(IDS_EDIT,
-      l10n_util::GetString(IDS_EDIT));
-  context_menu_->AppendMenuItemWithLabel(
-      IDS_BOOMARK_EDITOR_NEW_FOLDER_MENU_ITEM,
-      l10n_util::GetString(IDS_BOOMARK_EDITOR_NEW_FOLDER_MENU_ITEM));
-  context_menu_->RunMenuAt(x, y);
+  if (!context_menu_contents_.get()) {
+    context_menu_contents_.reset(new views::SimpleMenuModel(this));
+    context_menu_contents_->AddItemWithStringId(IDS_EDIT, IDS_EDIT);
+    context_menu_contents_->AddItemWithStringId(
+        IDS_BOOMARK_EDITOR_NEW_FOLDER_MENU_ITEM,
+        IDS_BOOMARK_EDITOR_NEW_FOLDER_MENU_ITEM);
+    context_menu_.reset(new views::Menu2(context_menu_contents_.get()));
+  }
+  context_menu_->RunContextMenuAt(gfx::Point(x, y));
 }
 
 void BookmarkEditorView::Init() {

@@ -15,7 +15,6 @@ class RenderViewContextMenuExternalWin : public RenderViewContextMenuWin {
  public:
   RenderViewContextMenuExternalWin(TabContents* tab_contents,
                                    const ContextMenuParams& params,
-                                   HWND window,
                                    const std::vector<int> disabled_menu_ids);
 
   ~RenderViewContextMenuExternalWin() {}

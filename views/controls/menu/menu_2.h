@@ -114,8 +114,10 @@ class Menu2 {
   };
 
   // Runs the menu at the specified point. This may or may not block, depending
-  // on the platform and type of menu in use.
+  // on the platform and type of menu in use. RunContextMenuAt is the same, but
+  // the alignment is the default for a context menu.
   void RunMenuAt(const gfx::Point& point, Alignment alignment);
+  void RunContextMenuAt(const gfx::Point& point);
 
   // Cancels the active menu.
   void CancelMenu();

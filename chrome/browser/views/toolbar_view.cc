@@ -171,8 +171,9 @@ ToolbarView::ToolbarView(Browser* browser)
       profile_(NULL),
       browser_(browser),
       tab_(NULL),
-      profiles_menu_(NULL),
-      profiles_helper_(new GetProfilesHelper(this)) {
+      profiles_menu_contents_(NULL),
+      ALLOW_THIS_IN_INITIALIZER_LIST(
+          profiles_helper_(new GetProfilesHelper(this))) {
   browser_->command_updater()->AddCommandObserver(IDC_BACK, this);
   browser_->command_updater()->AddCommandObserver(IDC_FORWARD, this);
   browser_->command_updater()->AddCommandObserver(IDC_RELOAD, this);
@@ -253,21 +254,6 @@ int ToolbarView::GetNextAccessibleViewIndex(int view_index, bool nav_left) {
 // ToolbarView, Menu::BaseControllerDelegate overrides:
 
 bool ToolbarView::GetAcceleratorInfo(int id, views::Accelerator* accel) {
-  // The standard Ctrl-X, Ctrl-V and Ctrl-C are not defined as accelerators
-  // anywhere so we need to check for them explicitly here.
-  // TODO(cpu) Bug 1109102. Query WebKit land for the actual bindings.
-  switch (id) {
-    case IDC_CUT:
-      *accel = views::Accelerator(L'X', false, true, false);
-      return true;
-    case IDC_COPY:
-      *accel = views::Accelerator(L'C', false, true, false);
-      return true;
-    case IDC_PASTE:
-      *accel = views::Accelerator(L'V', false, true, false);
-      return true;
-  }
-  // Else, we retrieve the accelerator information from the frame.
   return GetWidget()->GetAccelerator(id, accel);
 }
 
@@ -294,7 +280,7 @@ void ToolbarView::RunMenu(views::View* source, const gfx::Point& pt,
 void ToolbarView::OnGetProfilesDone(
     const std::vector<std::wstring>& profiles) {
   // Nothing to do if the menu has gone away.
-  if (!profiles_menu_)
+  if (!profiles_menu_contents_.get())
     return;
 
   // Store the latest list of profiles in the browser.
@@ -305,20 +291,20 @@ void ToolbarView::OnGetProfilesDone(
   for (int i = IDC_NEW_WINDOW_PROFILE_0;
        (i <= IDC_NEW_WINDOW_PROFILE_LAST) && (iter != profiles.end());
        ++i, ++iter)
-    profiles_menu_->AppendMenuItemWithLabel(i, *iter);
+    profiles_menu_contents_->AddItem(i, *iter);
 
   // If there are more profiles then show "Other" link.
   if (iter != profiles.end()) {
-    profiles_menu_->AppendSeparator();
-    profiles_menu_->AppendMenuItemWithLabel(
-        IDC_SELECT_PROFILE, l10n_util::GetString(IDS_SELECT_PROFILE));
+    profiles_menu_contents_->AddSeparator();
+    profiles_menu_contents_->AddItemWithStringId(IDC_SELECT_PROFILE,
+                                                 IDS_SELECT_PROFILE);
   }
 
   // Always show a link to select a new profile.
-  profiles_menu_->AppendSeparator();
-  profiles_menu_->AppendMenuItemWithLabel(
+  profiles_menu_contents_->AddSeparator();
+  profiles_menu_contents_->AddItemWithStringId(
       IDC_NEW_PROFILE,
-      l10n_util::GetString(IDS_SELECT_PROFILE_DIALOG_NEW_PROFILE_ENTRY));
+      IDS_SELECT_PROFILE_DIALOG_NEW_PROFILE_ENTRY);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1068,6 +1054,17 @@ void ToolbarView::CreateAppMenu() {
   app_menu_contents_->AddItemWithStringId(IDC_NEW_WINDOW, IDS_NEW_WINDOW);
   app_menu_contents_->AddItemWithStringId(IDC_NEW_INCOGNITO_WINDOW,
                                           IDS_NEW_INCOGNITO_WINDOW);
+  // Enumerate profiles asynchronously and then create the parent menu item.
+  // We will create the child menu items for this once the asynchronous call is
+  // done.  See OnGetProfilesDone().
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  if (command_line.HasSwitch(switches::kEnableUserDataDirProfiles)) {
+    profiles_helper_->GetProfiles(NULL);
+    profiles_menu_contents_.reset(new views::SimpleMenuModel(this));
+    app_menu_contents_->AddSubMenuWithStringId(IDS_PROFILE_MENU,
+                                               profiles_menu_contents_.get());
+  }
+
   app_menu_contents_->AddSeparator();
   app_menu_contents_->AddCheckItemWithStringId(IDC_SHOW_BOOKMARK_BAR,
                                                IDS_SHOW_BOOKMARK_BAR);

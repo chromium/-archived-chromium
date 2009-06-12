@@ -13,7 +13,6 @@
 #include "chrome/common/notification_registrar.h"
 #include "views/controls/button/menu_button.h"
 #include "views/controls/label.h"
-#include "views/controls/menu/menu.h"
 #include "views/controls/menu/view_menu_delegate.h"
 #include "views/view.h"
 #include "third_party/skia/include/core/SkRect.h"
@@ -37,7 +36,6 @@ class BookmarkBarView : public views::View,
                         public BookmarkModelObserver,
                         public views::ViewMenuDelegate,
                         public views::ButtonListener,
-                        public views::Menu::Delegate,
                         public NotificationObserver,
                         public views::ContextMenuController,
                         public views::DragController,

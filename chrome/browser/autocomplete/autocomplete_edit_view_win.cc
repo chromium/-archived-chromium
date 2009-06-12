@@ -41,6 +41,7 @@
 #include "skia/ext/skia_utils_win.h"
 #include "views/drag_utils.h"
 #include "views/focus/focus_util_win.h"
+#include "views/widget/widget.h"
 
 #pragma comment(lib, "oleacc.lib")  // Needed for accessibility support.
 
@@ -467,33 +468,6 @@ AutocompleteEditViewWin::AutocompleteEditViewWin(
   cf.yOffset = -font_y_adjustment_ * kTwipsPerPixel;
   cf.crTextColor = GetSysColor(COLOR_GRAYTEXT);
   SetDefaultCharFormat(cf);
-
-  // Set up context menu.
-  context_menu_.reset(views::Menu::Create(this, views::Menu::TOPLEFT, m_hWnd));
-  if (popup_window_mode_) {
-    context_menu_->AppendMenuItemWithLabel(IDS_COPY,
-                                           l10n_util::GetString(IDS_COPY));
-  } else {
-    context_menu_->AppendMenuItemWithLabel(IDS_UNDO,
-                                           l10n_util::GetString(IDS_UNDO));
-    context_menu_->AppendSeparator();
-    context_menu_->AppendMenuItemWithLabel(IDS_CUT,
-                                           l10n_util::GetString(IDS_CUT));
-    context_menu_->AppendMenuItemWithLabel(IDS_COPY,
-                                           l10n_util::GetString(IDS_COPY));
-    context_menu_->AppendMenuItemWithLabel(IDS_PASTE,
-                                           l10n_util::GetString(IDS_PASTE));
-    // GetContextualLabel() will override this next label with the
-    // IDS_PASTE_AND_SEARCH label as needed.
-    context_menu_->AppendMenuItemWithLabel(
-        IDS_PASTE_AND_GO, l10n_util::GetString(IDS_PASTE_AND_GO));
-    context_menu_->AppendSeparator();
-    context_menu_->AppendMenuItemWithLabel(
-        IDS_SELECT_ALL, l10n_util::GetString(IDS_SELECT_ALL));
-    context_menu_->AppendSeparator();
-    context_menu_->AppendMenuItemWithLabel(
-        IDS_EDIT_SEARCH_ENGINES, l10n_util::GetString(IDS_EDIT_SEARCH_ENGINES));
-  }
 
   // By default RichEdit has a drop target. Revoke it so that we can install our
   // own. Revoke takes care of deleting the existing one.
@@ -954,12 +928,16 @@ void AutocompleteEditViewWin::HandleExternalMsg(UINT msg,
   SendMessage(msg, flags, MAKELPARAM(client_point.x, client_point.y));
 }
 
-bool AutocompleteEditViewWin::IsCommandEnabled(int id) const {
-  switch (id) {
+bool AutocompleteEditViewWin::IsCommandIdChecked(int command_id) const {
+  return false;
+}
+
+bool AutocompleteEditViewWin::IsCommandIdEnabled(int command_id) const {
+  switch (command_id) {
     case IDS_UNDO:         return !!CanUndo();
-    case IDS_CUT:          return !!CanCut();
-    case IDS_COPY:         return !!CanCopy();
-    case IDS_PASTE:        return !!CanPaste();
+    case IDC_CUT:          return !!CanCut();
+    case IDC_COPY:         return !!CanCopy();
+    case IDC_PASTE:        return !!CanPaste();
     case IDS_PASTE_AND_GO: return CanPasteAndGo(GetClipboardText());
     case IDS_SELECT_ALL:   return !!CanSelectAll();
     case IDS_EDIT_SEARCH_ENGINES:
@@ -968,21 +946,28 @@ bool AutocompleteEditViewWin::IsCommandEnabled(int id) const {
   }
 }
 
-bool AutocompleteEditViewWin::GetContextualLabel(int id,
-                                                 std::wstring* out) const {
-  if ((id != IDS_PASTE_AND_GO) ||
-      // No need to change the default IDS_PASTE_AND_GO label unless this is a
-      // search.
-      !model_->is_paste_and_search())
-    return false;
-
-  out->assign(l10n_util::GetString(IDS_PASTE_AND_SEARCH));
-  return true;
+bool AutocompleteEditViewWin::GetAcceleratorForCommandId(
+    int command_id,
+    views::Accelerator* accelerator) {
+  return parent_view_->GetWidget()->GetAccelerator(command_id, accelerator);
 }
 
-void AutocompleteEditViewWin::ExecuteCommand(int id) {
+bool AutocompleteEditViewWin::IsLabelForCommandIdDynamic(int command_id) const {
+  // No need to change the default IDS_PASTE_AND_GO label unless this is a
+  // search.
+  return command_id == IDS_PASTE_AND_GO;
+}
+
+std::wstring AutocompleteEditViewWin::GetLabelForCommandId(
+    int command_id) const {
+  DCHECK(command_id == IDS_PASTE_AND_GO);
+  return l10n_util::GetString(model_->is_paste_and_search() ?
+      IDS_PASTE_AND_SEARCH : IDS_PASTE_AND_GO);
+}
+
+void AutocompleteEditViewWin::ExecuteCommand(int command_id) {
   ScopedFreeze freeze(this, GetTextObjectModel());
-  if (id == IDS_PASTE_AND_GO) {
+  if (command_id == IDS_PASTE_AND_GO) {
     // This case is separate from the switch() below since we don't want to wrap
     // it in OnBefore/AfterPossibleChange() calls.
     model_->PasteAndGo();
@@ -990,20 +975,20 @@ void AutocompleteEditViewWin::ExecuteCommand(int id) {
   }
 
   OnBeforePossibleChange();
-  switch (id) {
+  switch (command_id) {
     case IDS_UNDO:
       Undo();
       break;
 
-    case IDS_CUT:
+    case IDC_CUT:
       Cut();
       break;
 
-    case IDS_COPY:
+    case IDC_COPY:
       Copy();
       break;
 
-    case IDS_PASTE:
+    case IDC_PASTE:
       Paste();
       break;
 
@@ -1173,13 +1158,14 @@ void AutocompleteEditViewWin::OnChar(TCHAR ch, UINT repeat_count, UINT flags) {
 }
 
 void AutocompleteEditViewWin::OnContextMenu(HWND window, const CPoint& point) {
+  BuildContextMenu();
   if (point.x == -1 || point.y == -1) {
     POINT p;
     GetCaretPos(&p);
     MapWindowPoints(HWND_DESKTOP, &p, 1);
-    context_menu_->RunMenuAt(p.x, p.y);
+    context_menu_->RunContextMenuAt(gfx::Point(p));
   } else {
-    context_menu_->RunMenuAt(point.x, point.y);
+    context_menu_->RunContextMenuAt(gfx::Point(point));
   }
 }
 
@@ -2328,4 +2314,31 @@ void AutocompleteEditViewWin::RepaintDropHighlight(int position) {
         min_loc.x + 2, font_ascent_ + font_descent_ + font_y_adjustment_};
     InvalidateRect(&highlight_bounds, false);
   }
+}
+
+void AutocompleteEditViewWin::BuildContextMenu() {
+  if (context_menu_contents_.get())
+    return;
+
+  context_menu_contents_.reset(new views::SimpleMenuModel(this));
+  // Set up context menu.
+  if (popup_window_mode_) {
+    context_menu_contents_->AddItemWithStringId(IDS_COPY, IDS_COPY);
+  } else {
+    context_menu_contents_->AddItemWithStringId(IDS_UNDO, IDS_UNDO);
+    context_menu_contents_->AddSeparator();
+    context_menu_contents_->AddItemWithStringId(IDC_CUT, IDS_CUT);
+    context_menu_contents_->AddItemWithStringId(IDC_COPY, IDS_COPY);
+    context_menu_contents_->AddItemWithStringId(IDC_PASTE, IDS_PASTE);
+    // GetContextualLabel() will override this next label with the
+    // IDS_PASTE_AND_SEARCH label as needed.
+    context_menu_contents_->AddItemWithStringId(IDS_PASTE_AND_GO,
+                                                IDS_PASTE_AND_GO);
+    context_menu_contents_->AddSeparator();
+    context_menu_contents_->AddItemWithStringId(IDS_SELECT_ALL, IDS_SELECT_ALL);
+    context_menu_contents_->AddSeparator();
+    context_menu_contents_->AddItemWithStringId(IDS_EDIT_SEARCH_ENGINES,
+                                                IDS_EDIT_SEARCH_ENGINES);
+  }
+  context_menu_.reset(new views::Menu2(context_menu_contents_.get()));
 }

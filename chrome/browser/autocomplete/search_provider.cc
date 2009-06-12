@@ -716,15 +716,15 @@ void SearchProvider::AddMatchToMap(const std::wstring& query_string,
         // looks odd if both the first and last s are highlighted.
         if (input_position != 0) {
           match.contents_class.push_back(
-              ACMatchClassification(0, ACMatchClassification::MATCH));
+              ACMatchClassification(0, ACMatchClassification::NONE));
         }
         match.contents_class.push_back(
-            ACMatchClassification(input_position, ACMatchClassification::NONE));
+            ACMatchClassification(input_position, ACMatchClassification::DIM));
         size_t next_fragment_position = input_position + input_text.length();
         if (next_fragment_position < query_string.length()) {
           match.contents_class.push_back(
               ACMatchClassification(next_fragment_position,
-                                    ACMatchClassification::MATCH));
+                                    ACMatchClassification::NONE));
         }
       }
     } else {

@@ -394,15 +394,10 @@ void TabContentsViewWin::HandleKeyboardEvent(
 
 void TabContentsViewWin::ShowContextMenu(const ContextMenuParams& params) {
   // Allow delegates to handle the context menu operation first.
-  if (tab_contents()->delegate()->HandleContextMenu(params)) {
+  if (tab_contents()->delegate()->HandleContextMenu(params))
     return;
-  }
 
-  RenderViewContextMenuWin menu(tab_contents(),
-                                params,
-                                GetNativeView());
-
-  menu.Init();
+  context_menu_.reset(new RenderViewContextMenuWin(tab_contents(), params));
 
   POINT screen_pt = { params.x, params.y };
   MapWindowPoints(GetNativeView(), HWND_DESKTOP, &screen_pt, 1);
@@ -411,7 +406,7 @@ void TabContentsViewWin::ShowContextMenu(const ContextMenuParams& params) {
   // the context menu is being displayed.
   bool old_state = MessageLoop::current()->NestableTasksAllowed();
   MessageLoop::current()->SetNestableTasksAllowed(true);
-  menu.RunMenuAt(screen_pt.x, screen_pt.y);
+  context_menu_->RunMenuAt(screen_pt.x, screen_pt.y);
   MessageLoop::current()->SetNestableTasksAllowed(old_state);
 }
 

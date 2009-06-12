@@ -63,7 +63,7 @@ class NativeMenuWin::MenuHostWindow {
   NativeMenuWin* GetNativeMenuWinFromHMENU(HMENU hmenu) const {
     MENUINFO mi = {0};
     mi.cbSize = sizeof(mi);
-    mi.fMask = MIM_MENUDATA;
+    mi.fMask = MIM_MENUDATA | MIM_STYLE;
     GetMenuInfo(hmenu, &mi);
     return reinterpret_cast<NativeMenuWin*>(mi.dwMenuData);
   }
@@ -92,7 +92,9 @@ class NativeMenuWin::MenuHostWindow {
 
   // Called when the user selects a specific item.
   void OnMenuCommand(int position, HMENU menu) {
-    GetNativeMenuWinFromHMENU(menu)->model_->ActivatedAt(position);
+    NativeMenuWin* intergoat = GetNativeMenuWinFromHMENU(menu);
+    Menu2Model* model = intergoat->model_;
+    model->ActivatedAt(position);
   }
 
   // Called as the user moves their mouse or arrows through the contents of the
@@ -165,6 +167,7 @@ NativeMenuWin::NativeMenuWin(Menu2Model* model, HWND system_menu_for)
 
 NativeMenuWin::~NativeMenuWin() {
   STLDeleteContainerPointers(items_.begin(), items_.end());
+  DestroyMenu(menu_);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

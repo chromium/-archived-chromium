@@ -10,10 +10,10 @@
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "views/widget/widget_win.h"
 
+class RenderViewContextMenuWin;
 class SadTabView;
 struct WebDropData;
 class WebDropTarget;
-
 
 // Windows-specific implementation of the TabContentsView. It is a HWND that
 // contains all of the contents of the tab and associated child views.
@@ -100,6 +100,9 @@ class TabContentsViewWin : public TabContentsView,
 
   // The id used in the ViewStorage to store the last focused view.
   int last_focused_view_storage_id_;
+
+  // The context menu. Callbacks are asynchronous so we need to keep it around.
+  scoped_ptr<RenderViewContextMenuWin> context_menu_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContentsViewWin);
 };

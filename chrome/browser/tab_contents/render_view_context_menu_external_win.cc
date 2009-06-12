@@ -9,9 +9,8 @@
 RenderViewContextMenuExternalWin::RenderViewContextMenuExternalWin(
     TabContents* tab_contents,
     const ContextMenuParams& params,
-    HWND owner,
     const std::vector<int> disabled_ids)
-    : RenderViewContextMenuWin(tab_contents, params, owner),
+    : RenderViewContextMenuWin(tab_contents, params),
       disabled_menu_ids_(disabled_ids) {
 }
 

@@ -9,90 +9,44 @@
 #include "chrome/browser/profile.h"
 #include "grit/generated_resources.h"
 
+////////////////////////////////////////////////////////////////////////////////
+// RenderViewContextMenuWin, public:
+
 RenderViewContextMenuWin::RenderViewContextMenuWin(
     TabContents* tab_contents,
-    const ContextMenuParams& params,
-    HWND owner)
+    const ContextMenuParams& params)
     : RenderViewContextMenu(tab_contents, params),
-      sub_menu_(NULL),
-      owner_(owner) {
-  // anchor_position set per http://crbug.com/10827.
-  views::Menu::AnchorPoint anchor_position = views::Menu::TOPLEFT;
-  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
-    anchor_position = views::Menu::TOPRIGHT;
-  menu_.reset(new views::MenuWin(this, anchor_position, owner_));
+      current_radio_group_id_(-1),
+      sub_menu_contents_(NULL) {
+  menu_contents_.reset(new views::SimpleMenuModel(this));
+  InitMenu(params.node);
+  menu_.reset(new views::Menu2(menu_contents_.get()));
 }
 
 RenderViewContextMenuWin::~RenderViewContextMenuWin() {
 }
 
 void RenderViewContextMenuWin::RunMenuAt(int x, int y) {
-  menu_->RunMenuAt(x, y);
+  menu_->RunContextMenuAt(gfx::Point(x, y));
 }
 
-void RenderViewContextMenuWin::AppendMenuItem(int id) {
-  AppendItem(id, l10n_util::GetString(id), views::Menu::NORMAL);
+////////////////////////////////////////////////////////////////////////////////
+// RenderViewContextMenuWin, views::SimpleMenuModel::Delegate implementation:
+
+bool RenderViewContextMenuWin::IsCommandIdChecked(int command_id) const {
+  return ItemIsChecked(command_id);
 }
 
-void RenderViewContextMenuWin::AppendMenuItem(int id,
-                                              const std::wstring& label) {
-  AppendItem(id, label, views::Menu::NORMAL);
+bool RenderViewContextMenuWin::IsCommandIdEnabled(int command_id) const {
+  return IsItemCommandEnabled(command_id);
 }
 
-void RenderViewContextMenuWin::AppendRadioMenuItem(int id,
-                                                   const std::wstring& label) {
-  AppendItem(id, label, views::Menu::RADIO);
-}
-
-void RenderViewContextMenuWin::AppendCheckboxMenuItem(int id,
-    const std::wstring& label) {
-  AppendItem(id, label, views::Menu::CHECKBOX);
-}
-
-void RenderViewContextMenuWin::AppendSeparator() {
-  views::Menu* menu = sub_menu_ ? sub_menu_ : menu_.get();
-  menu->AppendSeparator();
-}
-
-void RenderViewContextMenuWin::StartSubMenu(int id, const std::wstring& label) {
-  if (sub_menu_) {
-    NOTREACHED();
-    return;
-  }
-  sub_menu_ = menu_->AppendSubMenu(id, label);
-}
-
-void RenderViewContextMenuWin::FinishSubMenu() {
-  DCHECK(sub_menu_);
-  sub_menu_ = NULL;
-}
-
-void RenderViewContextMenuWin::AppendItem(
-    int id,
-    const std::wstring& label,
-    views::Menu::MenuItemType type) {
-  views::Menu* menu = sub_menu_ ? sub_menu_ : menu_.get();
-  menu->AppendMenuItem(id, label, type);
-}
-
-bool RenderViewContextMenuWin::IsCommandEnabled(int id) const {
-  return IsItemCommandEnabled(id);
-}
-
-bool RenderViewContextMenuWin::IsItemChecked(int id) const {
-  return ItemIsChecked(id);
-}
-
-void RenderViewContextMenuWin::ExecuteCommand(int id) {
-  ExecuteItemCommand(id);
-}
-
-bool RenderViewContextMenuWin::GetAcceleratorInfo(
-    int id,
+bool RenderViewContextMenuWin::GetAcceleratorForCommandId(
+    int command_id,
     views::Accelerator* accel) {
   // There are no formally defined accelerators we can query so we assume
   // that Ctrl+C, Ctrl+V, Ctrl+X, Ctrl-A, etc do what they normally do.
-  switch (id) {
+  switch (command_id) {
     case IDS_CONTENT_CONTEXT_UNDO:
       *accel = views::Accelerator(L'Z', false, true, false);
       return true;
@@ -120,4 +74,65 @@ bool RenderViewContextMenuWin::GetAcceleratorInfo(
     default:
       return false;
   }
+}
+
+void RenderViewContextMenuWin::ExecuteCommand(int command_id) {
+  ExecuteItemCommand(command_id);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// RenderViewContextMenuWin, protected:
+
+void RenderViewContextMenuWin::AppendMenuItem(int id) {
+  current_radio_group_id_ = -1;
+  GetTargetModel()->AddItemWithStringId(id, id);
+}
+
+void RenderViewContextMenuWin::AppendMenuItem(int id,
+                                              const std::wstring& label) {
+  current_radio_group_id_ = -1;
+  GetTargetModel()->AddItem(id, label);
+}
+
+void RenderViewContextMenuWin::AppendRadioMenuItem(int id,
+                                                   const std::wstring& label) {
+  if (current_radio_group_id_ < 0)
+    current_radio_group_id_ = id;
+  GetTargetModel()->AddRadioItem(id, label, current_radio_group_id_);
+}
+
+void RenderViewContextMenuWin::AppendCheckboxMenuItem(
+    int id,
+    const std::wstring& label) {
+  current_radio_group_id_ = -1;
+  GetTargetModel()->AddCheckItem(id, label);
+}
+
+void RenderViewContextMenuWin::AppendSeparator() {
+  current_radio_group_id_ = -1;
+  GetTargetModel()->AddSeparator();
+}
+
+void RenderViewContextMenuWin::StartSubMenu(int id, const std::wstring& label) {
+  if (sub_menu_contents_) {
+    NOTREACHED() << "nested submenus not supported yet";
+    return;
+  }
+  current_radio_group_id_ = -1;
+  sub_menu_contents_ = new views::SimpleMenuModel(this);
+  menu_contents_->AddSubMenu(label, sub_menu_contents_);
+  submenu_models_.push_back(sub_menu_contents_);
+}
+
+void RenderViewContextMenuWin::FinishSubMenu() {
+  DCHECK(sub_menu_contents_);
+  current_radio_group_id_ = -1;
+  sub_menu_contents_ = NULL;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// RenderViewContextMenuWin, private:
+
+views::SimpleMenuModel* RenderViewContextMenuWin::GetTargetModel() const {
+  return sub_menu_contents_ ? sub_menu_contents_ : menu_contents_.get();
 }

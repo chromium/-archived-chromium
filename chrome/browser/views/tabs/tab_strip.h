@@ -10,7 +10,6 @@
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/tabs/tab.h"
 #include "views/controls/button/image_button.h"
-#include "views/controls/menu/menu.h"
 #include "views/view.h"
 #if defined(OS_WIN)
 #include "views/widget/widget_win.h"

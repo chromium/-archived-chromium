@@ -11,7 +11,7 @@
 #include "chrome/browser/bookmarks/bookmark_editor.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "views/controls/button/button.h"
-#include "views/controls/menu/menu.h"
+#include "views/controls/menu/simple_menu_model.h"
 #include "views/controls/textfield/textfield.h"
 #include "views/controls/tree/tree_view.h"
 #include "views/window/dialog_delegate.h"
@@ -40,7 +40,7 @@ class BookmarkEditorView : public BookmarkEditor,
                            public views::DialogDelegate,
                            public views::Textfield::Controller,
                            public views::ContextMenuController,
-                           public views::Menu::Delegate,
+                           public views::SimpleMenuModel::Delegate,
                            public BookmarkModelObserver {
   FRIEND_TEST(BookmarkEditorViewTest, ChangeParent);
   FRIEND_TEST(BookmarkEditorViewTest, ChangeParentAndURL);
@@ -91,12 +91,12 @@ class BookmarkEditorView : public BookmarkEditor,
   // NativeButton.
   virtual void ButtonPressed(views::Button* sender);
 
-  // Menu::Delegate method.
-  virtual void ExecuteCommand(int id);
-
-  // Menu::Delegate method, return false if id is edit and the bookmark node
-  // was selected, true otherwise.
-  virtual bool IsCommandEnabled(int id) const;
+  // SimpleMenuModel::Delegate.
+  virtual bool IsCommandIdChecked(int command_id) const;
+  virtual bool IsCommandIdEnabled(int command_id) const;
+  virtual bool GetAcceleratorForCommandId(int command_id,
+                                          views::Accelerator* accelerator);
+  virtual void ExecuteCommand(int command_id);
 
   // Creates a Window and adds the BookmarkEditorView to it. When the window is
   // closed the BookmarkEditorView is deleted.
@@ -244,7 +244,8 @@ class BookmarkEditorView : public BookmarkEditor,
   BookmarkNode* node_;
 
   // The context menu.
-  scoped_ptr<views::Menu> context_menu_;
+  scoped_ptr<views::SimpleMenuModel> context_menu_contents_;
+  scoped_ptr<views::Menu2> context_menu_;
 
   // Mode used to create nodes from.
   BookmarkModel* bb_model_;

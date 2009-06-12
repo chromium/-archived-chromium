@@ -10,7 +10,6 @@
 #include "app/throb_animation.h"
 #include "base/gfx/point.h"
 #include "views/controls/button/image_button.h"
-#include "views/controls/menu/menu.h"
 #include "views/view.h"
 
 class TabContents;

@@ -13,6 +13,7 @@
 #include <tom.h>  // For ITextDocument, a COM interface to CRichEditCtrl
 #include <vsstyle.h>
 
+#include "views/controls/menu/simple_menu_model.h"
 #include "views/controls/textfield/native_textfield_wrapper.h"
 
 namespace views {
@@ -28,7 +29,7 @@ class NativeTextfieldWin
                          CWinTraits<kDefaultEditStyle> >,
       public CRichEditCommands<NativeTextfieldWin>,
       public NativeTextfieldWrapper,
-      public Menu::Delegate {
+      public SimpleMenuModel::Delegate {
  public:
   DECLARE_WND_CLASS(L"ViewsTextfieldEdit");
 
@@ -51,6 +52,13 @@ class NativeTextfieldWin
   virtual void SetFocus();
   virtual View* GetView();
   virtual gfx::NativeView GetTestingHandle() const;
+
+  // Overridden from SimpleMenuModel::Delegate:
+  virtual bool IsCommandIdChecked(int command_id) const;
+  virtual bool IsCommandIdEnabled(int command_id) const;
+  virtual bool GetAcceleratorForCommandId(int command_id,
+                                          Accelerator* accelerator);
+  virtual void ExecuteCommand(int command_id);
 
   // CWindowImpl
   BEGIN_MSG_MAP(Edit)
@@ -78,10 +86,6 @@ class NativeTextfieldWin
     MSG_WM_SYSCHAR(OnSysChar)  // WM_SYSxxx == WM_xxx with ALT down
     MSG_WM_SYSKEYDOWN(OnKeyDown)
   END_MSG_MAP()
-
-  // Menu::Delegate
-  virtual bool IsCommandEnabled(int id) const;
-  virtual void ExecuteCommand(int id);
 
  private:
   // This object freezes repainting of the edit until the object is destroyed.
@@ -156,6 +160,9 @@ class NativeTextfieldWin
   // alive.
   ITextDocument* GetTextObjectModel() const;
 
+  // Generates the contents of the context menu.
+  void BuildContextMenu();
+
   // The Textfield this object is bound to.
   Textfield* textfield_;
 
@@ -177,8 +184,9 @@ class NativeTextfieldWin
 
   static bool did_load_library_;
 
-  // The context menu for the edit.
-  scoped_ptr<Menu> context_menu_;
+  // The contents of the context menu for the edit.
+  scoped_ptr<SimpleMenuModel> context_menu_contents_;
+  scoped_ptr<Menu2> context_menu_;
 
   // Border insets.
   gfx::Insets content_insets_;

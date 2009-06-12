@@ -6,34 +6,30 @@
 #define CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_CONTEXT_MENU_WIN_H_
 
 #include "base/scoped_ptr.h"
+#include "base/scoped_vector.h"
 #include "chrome/browser/tab_contents/render_view_context_menu.h"
 #include "views/accelerator.h"
-#include "views/controls/menu/menu_win.h"
+#include "views/controls/menu/simple_menu_model.h"
 
 class RenderViewContextMenuWin : public RenderViewContextMenu,
-                                 public views::Menu::Delegate {
+                                 public views::SimpleMenuModel::Delegate {
  public:
   RenderViewContextMenuWin(TabContents* tab_contents,
-                           const ContextMenuParams& params,
-                           HWND window);
+                           const ContextMenuParams& params);
 
   ~RenderViewContextMenuWin();
 
   void RunMenuAt(int x, int y);
 
-  // Menu::Delegate implementation ---------------------------------------------
-  virtual bool IsCommandEnabled(int id) const;
-  virtual bool IsItemChecked(int id) const;
-  virtual void ExecuteCommand(int id);
-  // TODO(port): move the logic in this function to RenderViewContextMenu.
-  virtual bool GetAcceleratorInfo(int id, views::Accelerator* accel);
+  // Overridden from SimpleMenuModel::Delegate:
+  virtual bool IsCommandIdChecked(int command_id) const;
+  virtual bool IsCommandIdEnabled(int command_id) const;
+  virtual bool GetAcceleratorForCommandId(int command_id,
+                                          views::Accelerator* accelerator);
+  virtual void ExecuteCommand(int command_id);
 
   HMENU GetMenuHandle() const {
-    return (menu_.get() ? menu_->GetMenuHandle() : NULL);
-  }
-
-  unsigned int GetTPMAlignFlags() const {
-    return (menu_.get() ? menu_->GetTPMAlignFlags() : 0);
+    return (menu_.get() ? menu_->GetNativeMenu() : NULL);
   }
 
  protected:
@@ -47,13 +43,21 @@ class RenderViewContextMenuWin : public RenderViewContextMenu,
   virtual void FinishSubMenu();
 
  private:
-  // Append the item to |sub_menu_| if it exists, or |menu_| otherwise.
-  void AppendItem(int id,
-                  const std::wstring& label,
-                  views::Menu::MenuItemType type);
+  // Gets the target model to append items to. This is either the main context
+  // menu, or a submenu if we've descended into one.
+  views::SimpleMenuModel* GetTargetModel() const;
 
-  scoped_ptr<views::MenuWin> menu_;
-  views::Menu* sub_menu_;
+  // The current radio group for radio menu items.
+  int current_radio_group_id_;
+
+  // The context menu itself and its contents.
+  scoped_ptr<views::SimpleMenuModel> menu_contents_;
+  scoped_ptr<views::Menu2> menu_;
+  // TODO(beng): This way of building submenus is kind of retarded, but it
+  //             hasn't hurt us yet. It's just a bit awkward.
+  views::SimpleMenuModel* sub_menu_contents_;
+  // We own submenu models that we create, so we store them here.
+  ScopedVector<views::SimpleMenuModel> submenu_models_;
   HWND owner_;
 };
 

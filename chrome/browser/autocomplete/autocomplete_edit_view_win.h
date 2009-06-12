@@ -19,7 +19,7 @@
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/browser/views/autocomplete/autocomplete_popup_contents_view.h"
 #include "chrome/common/page_transition_types.h"
-#include "views/controls/menu/menu.h"
+#include "views/controls/menu/simple_menu_model.h"
 #include "webkit/glue/window_open_disposition.h"
 
 class AutocompletePopupModel;
@@ -44,7 +44,7 @@ class AutocompleteEditViewWin
                          CWinTraits<WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL |
                                     ES_NOHIDESEL> >,
       public CRichEditCommands<AutocompleteEditViewWin>,
-      public views::Menu::Delegate,
+      public views::SimpleMenuModel::Delegate,
       public AutocompleteEditView {
  public:
   struct State {
@@ -179,10 +179,14 @@ class AutocompleteEditViewWin
     DEFAULT_REFLECTION_HANDLER()  // avoids black margin area
   END_MSG_MAP()
 
-  // Menu::Delegate
-  virtual bool IsCommandEnabled(int id) const;
-  virtual bool GetContextualLabel(int id, std::wstring* out) const;
-  virtual void ExecuteCommand(int id);
+  // SimpleMenuModel::Delegate
+  virtual bool IsCommandIdChecked(int command_id) const;
+  virtual bool IsCommandIdEnabled(int command_id) const;
+  virtual bool GetAcceleratorForCommandId(int command_id,
+                                          views::Accelerator* accelerator);
+  virtual bool IsLabelForCommandIdDynamic(int command_id) const;
+  virtual std::wstring GetLabelForCommandId(int command_id) const;
+  virtual void ExecuteCommand(int command_id);
 
  private:
   // This object freezes repainting of the edit until the object is destroyed.
@@ -357,6 +361,9 @@ class AutocompleteEditViewWin
   // text.
   void RepaintDropHighlight(int position);
 
+  // Generates the context menu for the edit field.
+  void BuildContextMenu();
+
   scoped_ptr<AutocompleteEditModel> model_;
 
   scoped_ptr<AutocompletePopupView> popup_view_;
@@ -426,7 +433,8 @@ class AutocompleteEditViewWin
   CHARRANGE saved_selection_for_focus_change_;
 
   // The context menu for the edit.
-  scoped_ptr<views::Menu> context_menu_;
+  scoped_ptr<views::SimpleMenuModel> context_menu_contents_;
+  scoped_ptr<views::Menu2> context_menu_;
 
   // Font we're using.  We keep a reference to make sure the font supplied to
   // the constructor doesn't go away before we do.

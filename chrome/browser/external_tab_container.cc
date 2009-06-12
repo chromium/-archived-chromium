@@ -4,6 +4,7 @@
 
 #include "chrome/browser/external_tab_container.h"
 
+#include "app/l10n_util.h"
 #include "app/win_util.h"
 #include "base/logging.h"
 #include "base/win_util.h"
@@ -268,17 +269,17 @@ bool ExternalTabContainer::HandleContextMenu(const ContextMenuParams& params) {
   external_context_menu_.reset(
       new RenderViewContextMenuExternalWin(tab_contents(),
                                            params,
-                                           GetNativeView(),
                                            disabled_context_menu_ids_));
   external_context_menu_->Init();
 
   POINT screen_pt = { params.x, params.y };
   MapWindowPoints(GetNativeView(), HWND_DESKTOP, &screen_pt, 1);
 
+  bool rtl = l10n_util::TextDirection() == l10n_util::RIGHT_TO_LEFT;
   automation_->Send(
       new AutomationMsg_ForwardContextMenuToExternalHost(0, tab_handle_,
           external_context_menu_->GetMenuHandle(), screen_pt.x, screen_pt.y,
-          external_context_menu_->GetTPMAlignFlags()));
+          rtl ? TPM_RIGHTALIGN : TPM_LEFTALIGN));
 
   return true;
 }

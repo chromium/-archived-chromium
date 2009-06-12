@@ -50,6 +50,10 @@ void Menu2::RunMenuAt(const gfx::Point& point, Alignment alignment) {
   wrapper_->RunMenuAt(point, alignment);
 }
 
+void Menu2::RunContextMenuAt(const gfx::Point& point) {
+  wrapper_->RunMenuAt(point, ALIGN_TOPLEFT);
+}
+
 void Menu2::CancelMenu() {
   wrapper_->CancelMenu();
 }

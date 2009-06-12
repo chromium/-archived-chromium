@@ -55,7 +55,6 @@
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "grit/webkit_resources.h"
-#include "views/controls/menu/menu.h"
 #if defined(OS_WIN)
 #include "views/controls/scrollbar/native_scroll_bar.h"
 #endif
@@ -461,6 +460,20 @@ bool BrowserView::AcceleratorPressed(const views::Accelerator& accelerator) {
 }
 
 bool BrowserView::GetAccelerator(int cmd_id, views::Accelerator* accelerator) {
+  // The standard Ctrl-X, Ctrl-V and Ctrl-C are not defined as accelerators
+  // anywhere so we need to check for them explicitly here.
+  switch (cmd_id) {
+    case IDC_CUT:
+      *accelerator = views::Accelerator(L'X', false, true, false);
+      return true;
+    case IDC_COPY:
+      *accelerator = views::Accelerator(L'C', false, true, false);
+      return true;
+    case IDC_PASTE:
+      *accelerator = views::Accelerator(L'V', false, true, false);
+      return true;
+  }
+  // Else, we retrieve the accelerator information from the accelerator table.
   std::map<views::Accelerator, int>::iterator it =
       accelerator_table_->begin();
   for (; it != accelerator_table_->end(); ++it) {
