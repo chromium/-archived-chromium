@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -36,6 +36,7 @@ class SSLClientSocketWin : public SSLClientSocket {
 
   // SSLClientSocket methods:
   virtual void GetSSLInfo(SSLInfo* ssl_info);
+  virtual void GetSSLCertRequestInfo(SSLCertRequestInfo* cert_request_info);
 
   // ClientSocket methods:
   virtual int Connect(CompletionCallback* callback);
@@ -146,9 +147,6 @@ class SSLClientSocketWin : public SSLClientSocket {
   // We have to pass a 'result' of OK to the DoLoop method, and don't want it
   // to be interpreted as EOF.
   bool ignore_ok_result_;
-
-  // True if the user has no client certificate.
-  bool no_client_cert_;
 
   // Renegotiation is in progress.
   bool renegotiating_;

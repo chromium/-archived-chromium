@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -24,6 +24,7 @@ class Time;
 
 namespace net {
 class IOBuffer;
+class SSLCertRequestInfo;
 class UploadData;
 class X509Certificate;
 }  // namespace net
@@ -143,6 +144,17 @@ class URLRequest {
     virtual void OnAuthRequired(URLRequest* request,
                                 net::AuthChallengeInfo* auth_info) {
       request->CancelAuth();
+    }
+
+    // Called when we receive an SSL CertificateRequest message for client
+    // authentication.  The delegate should call
+    // request->ContinueWithCertificate() with the client certificate the user
+    // selected, or request->ContinueWithCertificate(NULL) to continue the SSL
+    // handshake without a client certificate.
+    virtual void OnCertificateRequested(
+        URLRequest* request,
+        net::SSLCertRequestInfo* cert_request_info) {
+      request->ContinueWithCertificate(NULL);
     }
 
     // Called when using SSL and the server responds with a certificate with
@@ -422,6 +434,11 @@ class URLRequest {
   // CancelAuth will give up and display the error page.
   void SetAuth(const std::wstring& username, const std::wstring& password);
   void CancelAuth();
+
+  // This method can be called after the user selects a client certificate to
+  // instruct this URLRequest to continue with the request with the
+  // certificate.  Pass NULL if the user doesn't have a client certificate.
+  void ContinueWithCertificate(net::X509Certificate* client_cert);
 
   // This method can be called after some error notifications to instruct this
   // URLRequest to ignore the current error and continue with the request.  To

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -13,6 +13,7 @@ namespace net {
 class HttpRequestInfo;
 class HttpResponseInfo;
 class IOBuffer;
+class X509Certificate;
 
 // Represents a single HTTP transaction (i.e., a single request/response pair).
 // HTTP redirects are not followed and authentication challenges are not
@@ -49,6 +50,10 @@ class HttpTransaction {
   // NOTE: The transaction is not responsible for deleting the callback object.
   //
   virtual int RestartIgnoringLastError(CompletionCallback* callback) = 0;
+
+  // Restarts the HTTP transaction with a client certificate.
+  virtual int RestartWithCertificate(X509Certificate* client_cert,
+                                     CompletionCallback* callback) = 0;
 
   // Restarts the HTTP transaction with authentication credentials.
   virtual int RestartWithAuth(const std::wstring& username,

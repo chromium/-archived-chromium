@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -13,6 +13,7 @@
 namespace net {
 
 class HttpResponseHeaders;
+class SSLCertRequestInfo;
 
 class HttpResponseInfo {
  public:
@@ -40,6 +41,12 @@ class HttpResponseInfo {
   // If the response headers indicate a 401 or 407 failure, then this structure
   // will contain additional information about the authentication challenge.
   scoped_refptr<AuthChallengeInfo> auth_challenge;
+
+  // The SSL client certificate request info.
+  // TODO(wtc): does this really belong in HttpResponseInfo?  I put it here
+  // because it is similar to |auth_challenge|, but unlike HTTP authentication
+  // challenge, client certificate request is not part of an HTTP response.
+  scoped_refptr<SSLCertRequestInfo> cert_request_info;
 
   // The SSL connection info (if HTTPS).
   SSLInfo ssl_info;

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -19,6 +19,7 @@ class AuthChallengeInfo;
 class HttpResponseInfo;
 class IOBuffer;
 class UploadData;
+class X509Certificate;
 }
 
 class GURL;
@@ -175,6 +176,8 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob>,
 
   // Display the error page without asking for credentials again.
   virtual void CancelAuth();
+
+  virtual void ContinueWithCertificate(net::X509Certificate* client_cert);
 
   // Continue processing the request ignoring the last error.
   virtual void ContinueDespiteLastError();

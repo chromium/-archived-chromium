@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -44,6 +44,8 @@ class HttpNetworkTransaction : public HttpTransaction {
   virtual int Start(const HttpRequestInfo* request_info,
                     CompletionCallback* callback);
   virtual int RestartIgnoringLastError(CompletionCallback* callback);
+  virtual int RestartWithCertificate(X509Certificate* client_cert,
+                                     CompletionCallback* callback);
   virtual int RestartWithAuth(const std::wstring& username,
                               const std::wstring& password,
                               CompletionCallback* callback);
@@ -159,6 +161,9 @@ class HttpNetworkTransaction : public HttpTransaction {
   // ignored.  Otherwise, stores the certificate in response_.ssl_info and
   // returns the same error code.
   int HandleCertificateError(int error);
+
+  // Called to handle a client certificate request.
+  void HandleCertificateRequest();
 
   // Called to possibly recover from an SSL handshake error.  Sets next_state_
   // and returns OK if recovering from the error.  Otherwise, the same error

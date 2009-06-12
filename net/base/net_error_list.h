@@ -106,6 +106,9 @@ NET_ERROR(PROXY_AUTH_REQUESTED, -115)
 // certificate error.
 NET_ERROR(CERT_ERROR_IN_SSL_RENEGOTIATION, -116)
 
+// The SSL handshake failed because of a bad or missing client certificate.
+NET_ERROR(BAD_SSL_CLIENT_AUTH_CERT, -117)
+
 // Certificate error codes
 //
 // The values of certificate error codes must be consecutive.

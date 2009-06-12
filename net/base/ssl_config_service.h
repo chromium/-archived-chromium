@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -18,7 +18,7 @@ struct SSLConfig {
   // Default to SSL 2.0 off, SSL 3.0 on, and TLS 1.0 on.
   SSLConfig()
       : rev_checking_enabled(false), ssl2_enabled(false),
-        ssl3_enabled(true), tls1_enabled(true) {
+        ssl3_enabled(true), tls1_enabled(true), send_client_cert(false) {
   }
 
   bool rev_checking_enabled;  // True if server certificate revocation
@@ -27,11 +27,19 @@ struct SSLConfig {
   bool ssl3_enabled;  // True if SSL 3.0 is enabled.
   bool tls1_enabled;  // True if TLS 1.0 is enabled.
 
+  // TODO(wtc): move the following members to a new SSLParams structure.  They
+  // are not SSL configuration settings.
+
   // Add any known-bad SSL certificates to allowed_bad_certs_ that should not
   // trigger an ERR_CERT_*_INVALID error when calling SSLClientSocket::Connect.
   // This would normally be done in response to the user explicitly accepting
   // the bad certificate.
   std::set<scoped_refptr<X509Certificate> > allowed_bad_certs_;
+
+  // True if we should send client_cert to the server.
+  bool send_client_cert;
+
+  scoped_refptr<X509Certificate> client_cert;
 };
 
 // This class is responsible for getting and setting the SSL configuration.

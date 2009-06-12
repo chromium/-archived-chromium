@@ -1,4 +1,4 @@
-// Copyright (c) 2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2008-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -418,6 +418,11 @@ void SSLClientSocketMac::GetSSLInfo(SSLInfo* ssl_info) {
     ssl_info->security_bits = KeySizeOfCipherSuite(suite);
 }
 
+void SSLClientSocketMac::GetSSLCertRequestInfo(
+    SSLCertRequestInfo* cert_request_info) {
+  // TODO(wtc): implement this.
+}
+
 void SSLClientSocketMac::DoCallback(int rv) {
   DCHECK(rv != ERR_IO_PENDING);
   DCHECK(user_callback_);
@@ -743,7 +748,6 @@ OSStatus SSLClientSocketMac::SSLWriteCallback(SSLConnectionRef connection,
     if (rv > 0) {
       us->send_buffer_.erase(us->send_buffer_.begin(),
                              us->send_buffer_.begin() + rv);
-
     }
   } while (rv > 0 && !us->send_buffer_.empty());
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -20,6 +20,7 @@
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
 #include "net/base/sdch_manager.h"
+#include "net/base/ssl_cert_request_info.h"
 #include "net/http/http_response_headers.h"
 #include "net/http/http_response_info.h"
 #include "net/http/http_transaction.h"
@@ -384,6 +385,26 @@ void URLRequestHttpJob::CancelAuth() {
       this, &URLRequestHttpJob::OnStartCompleted, net::OK));
 }
 
+void URLRequestHttpJob::ContinueWithCertificate(
+    net::X509Certificate* client_cert) {
+  DCHECK(transaction_.get());
+
+  DCHECK(!response_info_) << "should not have a response yet";
+
+  // No matter what, we want to report our status as IO pending since we will
+  // be notifying our consumer asynchronously via OnStartCompleted.
+  SetStatus(URLRequestStatus(URLRequestStatus::IO_PENDING, 0));
+
+  int rv = transaction_->RestartWithCertificate(client_cert, &start_callback_);
+  if (rv == net::ERR_IO_PENDING)
+    return;
+
+  // The transaction started synchronously, but we need to notify the
+  // URLRequest delegate via the message loop.
+  MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
+      this, &URLRequestHttpJob::OnStartCompleted, rv));
+}
+
 void URLRequestHttpJob::ContinueDespiteLastError() {
   // If the transaction was destroyed, then the job was cancelled.
   if (!transaction_.get())
@@ -453,6 +474,9 @@ void URLRequestHttpJob::OnStartCompleted(int result) {
     // ssl_info.
     request_->delegate()->OnSSLCertificateError(
         request_, result, transaction_->GetResponseInfo()->ssl_info.cert);
+  } else if (result == net::ERR_SSL_CLIENT_AUTH_CERT_NEEDED) {
+    request_->delegate()->OnCertificateRequested(
+        request_, transaction_->GetResponseInfo()->cert_request_info);
   } else {
     NotifyStartError(URLRequestStatus(URLRequestStatus::FAILED, result));
   }

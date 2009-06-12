@@ -20,6 +20,7 @@
 #include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
+#include "net/base/ssl_cert_request_info.h"
 #include "net/disk_cache/disk_cache.h"
 #include "net/http/http_network_layer.h"
 #include "net/http/http_network_session.h"
@@ -166,6 +167,8 @@ class HttpCache::Transaction
   // HttpTransaction methods:
   virtual int Start(const HttpRequestInfo*, CompletionCallback*);
   virtual int RestartIgnoringLastError(CompletionCallback*);
+  virtual int RestartWithCertificate(X509Certificate* client_cert,
+                                     CompletionCallback* callback);
   virtual int RestartWithAuth(const std::wstring& username,
                               const std::wstring& password,
                               CompletionCallback* callback);
@@ -248,6 +251,10 @@ class HttpCache::Transaction
   // Called to restart a network transaction after an error.  Returns network
   // error code.
   int RestartNetworkRequest();
+
+  // Called to restart a network transaction with a client certificate.
+  // Returns network error code.
+  int RestartNetworkRequestWithCertificate(X509Certificate* client_cert);
 
   // Called to restart a network transaction with authentication credentials.
   // Returns network error code.
@@ -414,6 +421,25 @@ int HttpCache::Transaction::RestartIgnoringLastError(
   return rv;
 }
 
+int HttpCache::Transaction::RestartWithCertificate(
+    X509Certificate* client_cert,
+    CompletionCallback* callback) {
+  DCHECK(callback);
+
+  // ensure that we only have one asynchronous call at a time.
+  DCHECK(!callback_);
+
+  if (revoked())
+    return ERR_UNEXPECTED;
+
+  int rv = RestartNetworkRequestWithCertificate(client_cert);
+
+  if (rv == ERR_IO_PENDING)
+    callback_ = callback;
+
+  return rv;
+}
+
 int HttpCache::Transaction::RestartWithAuth(
     const std::wstring& username,
     const std::wstring& password,
@@ -499,7 +525,8 @@ const HttpResponseInfo* HttpCache::Transaction::GetResponseInfo() const {
   // Null headers means we encountered an error or haven't a response yet
   if (auth_response_.headers)
     return &auth_response_;
-  return (response_.headers || response_.ssl_info.cert) ? &response_ : NULL;
+  return (response_.headers || response_.ssl_info.cert ||
+          response_.cert_request_info) ? &response_ : NULL;
 }
 
 LoadState HttpCache::Transaction::GetLoadState() const {
@@ -805,6 +832,18 @@ int HttpCache::Transaction::RestartNetworkRequest() {
   return rv;
 }
 
+int HttpCache::Transaction::RestartNetworkRequestWithCertificate(
+    X509Certificate* client_cert) {
+  DCHECK(mode_ & WRITE || mode_ == NONE);
+  DCHECK(network_trans_.get());
+
+  int rv = network_trans_->RestartWithCertificate(client_cert,
+                                                  &network_info_callback_);
+  if (rv != ERR_IO_PENDING)
+    OnNetworkInfoAvailable(rv);
+  return rv;
+}
+
 int HttpCache::Transaction::RestartNetworkRequestWithAuth(
     const std::wstring& username,
     const std::wstring& password) {
@@ -1092,6 +1131,10 @@ void HttpCache::Transaction::OnNetworkInfoAvailable(int result) {
     // so GetResponseInfo() should never returns NULL here.
     DCHECK(response);
     response_.ssl_info = response->ssl_info;
+  } else if (result == ERR_SSL_CLIENT_AUTH_CERT_NEEDED) {
+    const HttpResponseInfo* response = network_trans_->GetResponseInfo();
+    DCHECK(response);
+    response_.cert_request_info = response->cert_request_info;
   }
   HandleResult(result);
 }

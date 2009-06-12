@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -9,6 +9,7 @@
 
 namespace net {
 
+class SSLCertRequestInfo;
 class SSLInfo;
 
 // A client socket that uses SSL as the transport layer.
@@ -21,6 +22,11 @@ class SSLClientSocket : public ClientSocket {
  public:
   // Gets the SSL connection information of the socket.
   virtual void GetSSLInfo(SSLInfo* ssl_info) = 0;
+
+  // Gets the SSL CertificateRequest info of the socket after Connect failed
+  // with ERR_SSL_CLIENT_AUTH_CERT_NEEDED.
+  virtual void GetSSLCertRequestInfo(
+      SSLCertRequestInfo* cert_request_info) = 0;
 };
 
 }  // namespace net

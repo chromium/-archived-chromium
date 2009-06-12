@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -488,6 +488,11 @@ void SSLClientSocketNSS::GetSSLInfo(SSLInfo* ssl_info) {
   DCHECK(server_cert_ != NULL);
   ssl_info->cert = server_cert_;
   LeaveFunction("");
+}
+
+void SSLClientSocketNSS::GetSSLCertRequestInfo(
+    SSLCertRequestInfo* cert_request_info) {
+  // TODO(wtc): implement this.
 }
 
 void SSLClientSocketNSS::DoCallback(int rv) {

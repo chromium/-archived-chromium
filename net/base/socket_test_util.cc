@@ -24,6 +24,8 @@ class MockClientSocket : public net::SSLClientSocket {
 
   // SSLClientSocket methods:
   virtual void GetSSLInfo(net::SSLInfo* ssl_info);
+  virtual void GetSSLCertRequestInfo(
+      net::SSLCertRequestInfo* cert_request_info);
   virtual void Disconnect();
   virtual bool IsConnected() const;
   virtual bool IsConnectedAndIdle() const;
@@ -102,6 +104,11 @@ MockClientSocket::MockClientSocket()
 }
 
 void MockClientSocket::GetSSLInfo(net::SSLInfo* ssl_info) {
+  NOTREACHED();
+}
+
+void MockClientSocket::GetSSLCertRequestInfo(
+    net::SSLCertRequestInfo* cert_request_info) {
   NOTREACHED();
 }
 

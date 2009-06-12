@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -31,6 +31,7 @@ class SSLClientSocketMac : public SSLClientSocket {
 
   // SSLClientSocket methods:
   virtual void GetSSLInfo(SSLInfo* ssl_info);
+  virtual void GetSSLCertRequestInfo(SSLCertRequestInfo* cert_request_info);
 
   // ClientSocket methods:
   virtual int Connect(CompletionCallback* callback);

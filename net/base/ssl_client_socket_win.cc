@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -232,7 +232,6 @@ SSLClientSocketWin::SSLClientSocketWin(ClientSocket* transport_socket,
       writing_first_token_(false),
       completed_handshake_(false),
       ignore_ok_result_(false),
-      no_client_cert_(false),
       renegotiating_(false) {
   memset(&stream_sizes_, 0, sizeof(stream_sizes_));
   memset(in_buffers_, 0, sizeof(in_buffers_));
@@ -259,6 +258,11 @@ void SSLClientSocketWin::GetSSLInfo(SSLInfo* ssl_info) {
     // normalized.
     ssl_info->security_bits = connection_info.dwCipherStrength;
   }
+}
+
+void SSLClientSocketWin::GetSSLCertRequestInfo(
+    SSLCertRequestInfo* cert_request_info) {
+  // TODO(wtc): implement this.
 }
 
 int SSLClientSocketWin::Connect(CompletionCallback* callback) {
@@ -544,14 +548,7 @@ int SSLClientSocketWin::DoHandshakeReadComplete(int result) {
                 ISC_REQ_ALLOCATE_MEMORY |
                 ISC_REQ_STREAM;
 
-  // When InitializeSecurityContext returns SEC_I_INCOMPLETE_CREDENTIALS,
-  // John Banes (a Microsoft security developer) said we need to pass in the
-  // ISC_REQ_USE_SUPPLIED_CREDS flag if we skip finding a client certificate
-  // and just call InitializeSecurityContext again.  (See
-  // (http://www.derkeiler.com/Newsgroups/microsoft.public.platformsdk.security/2004-08/0187.html.)
-  // My testing on XP SP2 and Vista SP1 shows that it still works without
-  // passing in this flag, but I pass it in to be safe.
-  if (no_client_cert_)
+  if (ssl_config_.send_client_cert)
     flags |= ISC_REQ_USE_SUPPLIED_CREDS;
 
   SecBufferDesc in_buffer_desc, out_buffer_desc;
@@ -623,28 +620,21 @@ int SSLClientSocketWin::DidCallInitializeSecurityContext() {
     int result = MapSecurityError(isc_status_);
     // We told Schannel to not verify the server certificate
     // (SCH_CRED_MANUAL_CRED_VALIDATION), so any certificate error returned by
-    // InitializeSecurityContext must be referring to the (missing) client
-    // certificate.
+    // InitializeSecurityContext must be referring to the bad or missing
+    // client certificate.
     if (IsCertificateError(result)) {
-      // TODO(wtc): When we support SSL client authentication, we will need to
-      // add new error codes for client certificate errors reported by the
-      // server using SSL/TLS alert messages.  See http://crbug.com/318.  See
-      // also the MSDN page "Schannel Error Codes for TLS and SSL Alerts",
-      // which maps TLS alert messages to Windows error codes:
+      // TODO(wtc): Add new error codes for client certificate errors reported
+      // by the server using SSL/TLS alert messages.  See the MSDN page
+      // "Schannel Error Codes for TLS and SSL Alerts", which maps TLS alert
+      // messages to Windows error codes:
       // http://msdn.microsoft.com/en-us/library/dd721886%28VS.85%29.aspx
-      return ERR_SSL_CLIENT_AUTH_CERT_NEEDED;
+      return ERR_BAD_SSL_CLIENT_AUTH_CERT;
     }
     return result;
   }
 
-  if (isc_status_ == SEC_I_INCOMPLETE_CREDENTIALS) {
-    // We don't support SSL client authentication yet.  For now we just set
-    // no_client_cert_ to true and call InitializeSecurityContext again.
-    no_client_cert_ = true;
-    next_state_ = STATE_HANDSHAKE_READ_COMPLETE;
-    ignore_ok_result_ = true;  // OK doesn't mean EOF.
-    return OK;
-  }
+  if (isc_status_ == SEC_I_INCOMPLETE_CREDENTIALS)
+    return ERR_SSL_CLIENT_AUTH_CERT_NEEDED;
 
   DCHECK(isc_status_ == SEC_I_CONTINUE_NEEDED);
   if (in_buffers_[1].BufferType == SECBUFFER_EXTRA) {
@@ -989,7 +979,7 @@ int SSLClientSocketWin::DidCompleteHandshake() {
   SECURITY_STATUS status = QueryContextAttributes(
       &ctxt_, SECPKG_ATTR_STREAM_SIZES, &stream_sizes_);
   if (status != SEC_E_OK) {
-    DLOG(ERROR) << "QueryContextAttributes failed: " << status;
+    DLOG(ERROR) << "QueryContextAttributes (stream sizes) failed: " << status;
     return MapSecurityError(status);
   }
   DCHECK(!server_cert_ || renegotiating_);
@@ -997,7 +987,7 @@ int SSLClientSocketWin::DidCompleteHandshake() {
   status = QueryContextAttributes(
       &ctxt_, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &server_cert_handle);
   if (status != SEC_E_OK) {
-    DLOG(ERROR) << "QueryContextAttributes failed: " << status;
+    DLOG(ERROR) << "QueryContextAttributes (remote cert) failed: " << status;
     return MapSecurityError(status);
   }
   if (renegotiating_ &&

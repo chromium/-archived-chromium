@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -54,6 +54,7 @@ class URLRequestHttpJob : public URLRequestJob {
   virtual void SetAuth(const std::wstring& username,
                        const std::wstring& password);
   virtual void CancelAuth();
+  virtual void ContinueWithCertificate(net::X509Certificate* client_cert);
   virtual void ContinueDespiteLastError();
   virtual bool GetMoreData();
   virtual bool ReadRawData(net::IOBuffer* buf, int buf_size, int *bytes_read);

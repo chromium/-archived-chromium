@@ -116,6 +116,7 @@
         'base/sdch_manager.cc',
         'base/sdch_manager.h',
         'base/socket.h',
+        'base/ssl_cert_request_info.h',
         'base/ssl_client_socket.h',
         'base/ssl_client_socket_mac.cc',
         'base/ssl_client_socket_nss.cc',

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -17,6 +17,7 @@
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
+#include "net/base/ssl_cert_request_info.h"
 #include "net/base/ssl_client_socket.h"
 #include "net/base/upload_data_stream.h"
 #include "net/http/http_auth.h"
@@ -189,6 +190,21 @@ int HttpNetworkTransaction::RestartIgnoringLastError(
   return rv;
 }
 
+int HttpNetworkTransaction::RestartWithCertificate(
+    X509Certificate* client_cert,
+    CompletionCallback* callback) {
+  ssl_config_.client_cert = client_cert;
+  ssl_config_.send_client_cert = true;
+  next_state_ = STATE_INIT_CONNECTION;
+  // Reset the other member variables.
+  // Note: this is necessary only with SSL renegotiation.
+  ResetStateForRestart();
+  int rv = DoLoop(OK);
+  if (rv == ERR_IO_PENDING)
+    user_callback_ = callback;
+  return rv;
+}
+
 int HttpNetworkTransaction::RestartWithAuth(
     const std::wstring& username,
     const std::wstring& password,
@@ -346,7 +362,8 @@ int HttpNetworkTransaction::Read(IOBuffer* buf, int buf_len,
 }
 
 const HttpResponseInfo* HttpNetworkTransaction::GetResponseInfo() const {
-  return (response_.headers || response_.ssl_info.cert) ? &response_ : NULL;
+  return (response_.headers || response_.ssl_info.cert ||
+          response_.cert_request_info) ? &response_ : NULL;
 }
 
 LoadState HttpNetworkTransaction::GetLoadState() const {
@@ -603,6 +620,8 @@ int HttpNetworkTransaction::DoSSLConnectComplete(int result) {
 
   if (result == OK) {
     next_state_ = STATE_WRITE_HEADERS;
+  } else if (result == ERR_SSL_CLIENT_AUTH_CERT_NEEDED) {
+    HandleCertificateRequest();
   } else {
     result = HandleSSLHandshakeError(result);
   }
@@ -746,13 +765,19 @@ int HttpNetworkTransaction::HandleConnectionClosedBeforeEndOfHeaders() {
 }
 
 int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
-  if (using_ssl_ && IsCertificateError(result)) {
-    // We don't handle a certificate error during SSL renegotiation, so we
-    // have to return an error that's not in the certificate error range
-    // (-2xx).
-    LOG(ERROR) << "Got a server certificate with error " << result
-               << " during SSL renegotiation";
-    result = ERR_CERT_ERROR_IN_SSL_RENEGOTIATION;
+  // We can get a certificate error or ERR_SSL_CLIENT_AUTH_CERT_NEEDED here
+  // due to SSL renegotiation.
+  if (using_ssl_) {
+    if (IsCertificateError(result)) {
+      // We don't handle a certificate error during SSL renegotiation, so we
+      // have to return an error that's not in the certificate error range
+      // (-2xx).
+      LOG(ERROR) << "Got a server certificate with error " << result
+                 << " during SSL renegotiation";
+      result = ERR_CERT_ERROR_IN_SSL_RENEGOTIATION;
+    } else if (result == ERR_SSL_CLIENT_AUTH_CERT_NEEDED) {
+      HandleCertificateRequest();
+    }
   }
 
   if (result < 0)
@@ -1215,6 +1240,18 @@ int HttpNetworkTransaction::HandleCertificateError(int error) {
     ssl_config_.allowed_bad_certs_.insert(response_.ssl_info.cert);
   }
   return error;
+}
+
+void HttpNetworkTransaction::HandleCertificateRequest() {
+  response_.cert_request_info = new SSLCertRequestInfo;
+  SSLClientSocket* ssl_socket =
+      reinterpret_cast<SSLClientSocket*>(connection_.socket());
+  ssl_socket->GetSSLCertRequestInfo(response_.cert_request_info);
+
+  // Close the connection while the user is selecting a certificate to send
+  // to the server.
+  connection_.socket()->Disconnect();
+  connection_.Reset();
 }
 
 int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
