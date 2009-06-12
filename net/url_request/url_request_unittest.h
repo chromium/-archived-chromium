@@ -45,6 +45,7 @@ class TestURLRequestContext : public URLRequestContext {
   TestURLRequestContext() {
     // TODO(eroman): we turn off host caching to see if synchronous
     // host resolving interacts poorly with client socket pool. [experiment]
+    // http://crbug.com/13952
     host_resolver_ = new net::HostResolver(0, 0);
     proxy_service_ = net::ProxyService::CreateNull();
     http_transaction_factory_ =
@@ -55,6 +56,7 @@ class TestURLRequestContext : public URLRequestContext {
   explicit TestURLRequestContext(const std::string& proxy) {
     // TODO(eroman): we turn off host caching to see if synchronous
     // host resolving interacts poorly with client socket pool. [experiment]
+    // http://crbug.com/13952
     host_resolver_ = new net::HostResolver(0, 0);
     net::ProxyConfig proxy_config;
     proxy_config.proxy_rules.ParseFromString(proxy);
