@@ -37,7 +37,7 @@ class MimeUtil : public PlatformMimeUtil {
   bool MatchesMimeType(const std::string &mime_type_pattern,
                        const std::string &mime_type) const;
 
-private:
+ private:
   friend struct DefaultSingletonTraits<MimeUtil>;
   MimeUtil() {
     InitializeMimeTypeMaps();
@@ -52,7 +52,7 @@ private:
   MimeMappings non_image_map_;
   MimeMappings javascript_map_;
   MimeMappings view_source_map_;
-}; // class MimeUtil
+};  // class MimeUtil
 
 struct MimeInfo {
   const char* mime_type;
@@ -196,8 +196,14 @@ static const char* const supported_non_image_types[] = {
   "text/xml",
   "text/xsl",
   "text/plain",
+  // Many users complained about css files served for
+  // download instead of displaying in the browser:
+  // http://code.google.com/p/chromium/issues/detail?id=7192
+  // So, by including "text/css" into this list we choose Firefox
+  // behavior - css files will be displayed:
+  "text/css",
   "text/",
-  "image/svg+xml", // SVG is text-based XML, even though it has an image/ type
+  "image/svg+xml",  // SVG is text-based XML, even though it has an image/ type
   "application/xml",
   "application/xhtml+xml",
   "application/rss+xml",

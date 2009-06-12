@@ -48,8 +48,10 @@ TEST_F(MimeTypeTests, MimeTypeTests) {
     //   Firefox 3: Display
     //   Internet Explorer 7: Download
     //   Safari 3.2: Download
-    // We choose to match Safari.
-    // "text/css",
+    // We choose to match Firefox due to the lot of complains
+    // from the users if css files are downloaded:
+    // http://code.google.com/p/chromium/issues/detail?id=7192
+    "text/css",
     "text/javascript",
     "text/plain",
     "application/x-javascript",
