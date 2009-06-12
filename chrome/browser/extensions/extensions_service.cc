@@ -1204,6 +1204,8 @@ void ExtensionsServiceBackend::UninstallExtension(
 }
 
 void ExtensionsServiceBackend::ClearProvidersForTesting() {
+  STLDeleteContainerPairSecondPointers(external_extension_providers_.begin(),
+                                       external_extension_providers_.end());
   external_extension_providers_.clear();
 }
 
