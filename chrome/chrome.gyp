@@ -3185,13 +3185,13 @@
       'dependencies': [
         'app',
         'browser',
+        'chrome_resources',
+        'chrome_strings',
         'common',
         'debugger',
         'renderer',
-        'utility',
-        'chrome_resources',
-        'chrome_strings',
         'test_support_unit',
+        'utility',
         '../app/app.gyp:app_resources',
         '../net/net.gyp:net_resources',
         '../net/net.gyp:net_test_support',
@@ -3422,6 +3422,7 @@
         'test/test_notification_tracker.h',
         'test/v8_unit_test.cc',
         'test/v8_unit_test.h',
+
         '../views/controls/label_unittest.cc',
         '../views/controls/table/table_view_unittest.cc',
         '../views/focus/focus_manager_unittest.cc',
@@ -3469,11 +3470,17 @@
             'browser/task_manager_unittest.cc',
             'test/test_notification_tracker.cc',
             'test/test_notification_tracker.h',
+            'third_party/hunspell/google/hunspell_tests.cc',
           ],
           # TODO(mark): We really want this for all non-static library targets,
           # but when we tried to pull it up to the common.gypi level, it broke
           # other things like the ui, startup, and page_cycler tests. *shrug*
           'xcode_settings': {'OTHER_LDFLAGS': ['-Wl,-ObjC']},
+        }, { # OS != "mac"
+          'dependencies': [
+            'convert_dict_lib',
+            'third_party/hunspell/hunspell.gyp:hunspell',
+          ],
         }],
         ['OS=="win"', {
           'defines': [
@@ -3481,17 +3488,40 @@
             '_CRT_SECURE_NO_DEPRECATE',
             '_SCL_SECURE_NO_DEPRECATE',
           ],
+          'dependencies': [
+            'installer/installer.gyp:installer_util_strings',
+            '../views/views.gyp:views',
+          ],
           'include_dirs': [
             'third_party/wtl/include',
+          ],
+          'sources': [
+            'app/chrome_dll.rc',
+            'test/data/resource.rc',
+
+            # TODO:  It would be nice to have these pulled in
+            # automatically from direct_dependent_settings in
+            # their various targets (net.gyp:net_resources, etc.),
+            # but that causes errors in other targets when
+            # resulting .res files get referenced multiple times.
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/browser_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/common_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/debugger_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome/renderer_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.rc',
+            '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.rc',
           ],
           'sources!': [
             'browser/gtk/tabs/tab_renderer_gtk_unittest.cc',
             'common/file_descriptor_set_unittest.cc',
             'common/net/url_util_unittest.cc',
           ],
-          'dependencies': [
-            '../views/views.gyp:views',
-          ],
+          'link_settings': {
+            'libraries': [
+              '-loleacc.lib',
+              '-lcomsupp.lib',
+            ],
+          },
           'configurations': {
             'Debug': {
               'msvs_precompiled_header': 'tools/build/win/precompiled_wtl.h',
