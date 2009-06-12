@@ -10,6 +10,7 @@
 #else
 #include <netdb.h>
 #endif
+#include <stdlib.h>
 
 #include "base/logging.h"
 
