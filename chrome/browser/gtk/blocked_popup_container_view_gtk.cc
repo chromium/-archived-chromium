@@ -4,8 +4,6 @@
 
 #include "chrome/browser/gtk/blocked_popup_container_view_gtk.h"
 
-#include "app/gfx/canvas.h"
-#include "app/gfx/path.h"
 #include "app/l10n_util.h"
 #include "base/gfx/gtk_util.h"
 #include "base/string_util.h"
@@ -17,7 +15,6 @@
 #include "chrome/common/gtk_util.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
-#include "skia/ext/skia_utils.h"
 
 namespace {
 // The minimal border around the edge of the notification.
@@ -27,31 +24,14 @@ const int kSmallPadding = 2;
 const int kBorderPadding = 1;
 
 // Color of the border.
-const SkColor kBorderColor = SkColorSetRGB(190, 205, 223);
+const double kBorderColor[] = { 190.0 / 255, 205.0 / 255, 223.0 / 255 };
 
 // Color of the gradient in the background.
-const SkColor kBackgroundColorTop = SkColorSetRGB(246, 250, 255);
-const SkColor kBackgroundColorBottom = SkColorSetRGB(219, 235, 255);
+const double kBackgroundColorTop[] = { 246.0 / 255, 250.0 / 255, 1.0 };
+const double kBackgroundColorBottom[] = { 219.0 / 255, 235.0 / 255, 1.0 };
 
 // Rounded corner radius (in pixels).
 const int kBackgroundCornerRadius = 4;
-
-// Rounded corner definition so the top corners are rounded, and the bottom are
-// normal 90 degree angles.
-const SkScalar kRoundedCornerRad[8] = {
-  // Top left corner
-  SkIntToScalar(kBackgroundCornerRadius),
-  SkIntToScalar(kBackgroundCornerRadius),
-  // Top right corner
-  SkIntToScalar(kBackgroundCornerRadius),
-  SkIntToScalar(kBackgroundCornerRadius),
-  // Bottom right corner
-  0,
-  0,
-  // Bottom left corner
-  0,
-  0
-};
 
 }  // namespace
 
@@ -211,25 +191,46 @@ gboolean BlockedPopupContainerViewGtk::OnContainerExpose(
   // normal theme background with a border around the outsides.
   int width = widget->allocation.width;
   int height = widget->allocation.height;
+  int half_width = width / 2;
 
-  SkRect rect;
-  rect.set(0, 0, SkIntToScalar(width), SkIntToScalar(height));
+  // Clip to our damage rect
+  cairo_t* cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+  cairo_rectangle(cr, event->area.x, event->area.y,
+                  event->area.width, event->area.height);
+  cairo_clip(cr);
 
-  gfx::CanvasPaint canvas(event);
-  SkPaint paint;
-  paint.setShader(skia::CreateGradientShader(
-      0, height, kBackgroundColorTop, kBackgroundColorBottom))->safeUnref();
-  paint.setStyle(SkPaint::kFill_Style);
-  canvas.drawRect(rect, paint);
+  // Draws our background gradient.
+  cairo_pattern_t* pattern = cairo_pattern_create_linear(
+      half_width, 0,  half_width, height);
+  cairo_pattern_add_color_stop_rgb(
+      pattern, 0.0,
+      kBackgroundColorTop[0], kBackgroundColorTop[1], kBackgroundColorTop[2]);
+  cairo_pattern_add_color_stop_rgb(
+      pattern, 1.0,
+      kBackgroundColorBottom[0], kBackgroundColorBottom[1],
+      kBackgroundColorBottom[2]);
+  cairo_set_source(cr, pattern);
+  cairo_paint(cr);
+  cairo_pattern_destroy(pattern);
 
-  // Draw the border
-  SkPaint border_paint;
-  border_paint.setFlags(SkPaint::kAntiAlias_Flag);
-  border_paint.setStyle(SkPaint::kStroke_Style);
-  border_paint.setColor(kBorderColor);
-  SkPath border_path;
-  border_path.addRoundRect(rect, kRoundedCornerRad, SkPath::kCW_Direction);
-  canvas.drawPath(border_path, border_paint);
+  // Sets up our stroke pen.
+  cairo_set_source_rgb(cr, kBorderColor[0], kBorderColor[1], kBorderColor[2]);
+  cairo_set_line_width(cr, 1.5);
+
+  // Draws rounded corners around the edge of the notification, clockwise
+  // starting from the bottom left. (A bezier curve with control points at 90
+  // degree angles forms a circular arc.)
+  cairo_move_to(cr, 0, height);
+  cairo_line_to(cr, 0, kBackgroundCornerRadius);
+  cairo_curve_to(cr, 0, kBackgroundCornerRadius,
+                 0, 0, kBackgroundCornerRadius, 0);
+  cairo_line_to(cr, width - kBackgroundCornerRadius, 0);
+  cairo_curve_to(cr, width - kBackgroundCornerRadius, 0,
+                 width, 0, width, kBackgroundCornerRadius);
+  cairo_line_to(cr, width, height);
+  cairo_stroke(cr);
+
+  cairo_destroy(cr);
 
   return FALSE;  // Allow subwidgets to paint.
 }
