@@ -837,7 +837,8 @@ TEST_F(TabContentsTest,
 // Test navigating to a page that shows an interstitial without creating a new
 // navigation entry (this happens when the interstitial is triggered by a
 // sub-resource in the page), then proceeding.
-TEST_F(TabContentsTest, ShowInterstitialNoNewNavigationProceed) {
+// http://crbug.com/13937: Disabling because it's leaky on win/mac.
+TEST_F(TabContentsTest, DISABLED_ShowInterstitialNoNewNavigationProceed) {
   // Navigate to a page so we have a navigation entry in the controller.
   GURL url1("http://www.google.com");
   rvh()->SendNavigate(1, url1);
