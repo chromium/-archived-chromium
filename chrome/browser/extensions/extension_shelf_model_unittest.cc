@@ -15,7 +15,7 @@
 namespace {
 
 // The extension we're using as our test case.
-const char* kExtensionId = "00123456789abcdef0123456789abcdef0123456";
+const char* kExtensionId = "fc6f6ba6693faf6773c13701019f2e7a12f0febe";
 
 };  // namespace
 

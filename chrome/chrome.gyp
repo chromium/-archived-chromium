@@ -1644,6 +1644,7 @@
             # '../build/linux/system.gyp:dbus-glib',
             # '../build/linux/system.gyp:gnome-keyring',
             '../build/linux/system.gyp:gtk',
+            '../build/linux/system.gyp:nss',
           ],
           'sources!': [
             'browser/extensions/extension_shelf.cc',

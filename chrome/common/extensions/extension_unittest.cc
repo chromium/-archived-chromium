@@ -43,17 +43,6 @@ TEST(ExtensionTest, InitFromValueInvalid) {
 
   scoped_ptr<DictionaryValue> input_value;
 
-  // Test missing and invalid ids
-  input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
-  input_value->Remove(Extension::kIdKey, NULL);
-  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
-  EXPECT_EQ(Extension::kInvalidIdError, error);
-
-  input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
-  input_value->SetInteger(Extension::kIdKey, 42);
-  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
-  EXPECT_EQ(Extension::kInvalidIdError, error);
-
   // Test missing and invalid versions
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
   input_value->Remove(Extension::kVersionKey, NULL);
@@ -204,22 +193,22 @@ TEST(ExtensionTest, InitFromValueValid) {
 #elif defined(OS_POSIX)
   FilePath path(FILE_PATH_LITERAL("/foo"));
 #endif
+  Extension::ResetGeneratedIdCounter();
+
   Extension extension(path);
   std::string error;
   DictionaryValue input_value;
 
   // Test minimal extension
-  input_value.SetString(Extension::kIdKey,
-      "00123456789ABCDEF0123456789ABCDEF0123456");
   input_value.SetString(Extension::kVersionKey, "1.0.0.0");
   input_value.SetString(Extension::kNameKey, "my extension");
 
-  EXPECT_TRUE(extension.InitFromValue(input_value, true, &error));
+  EXPECT_TRUE(extension.InitFromValue(input_value, false, &error));
   EXPECT_EQ("", error);
-  EXPECT_EQ("00123456789abcdef0123456789abcdef0123456", extension.id());
+  EXPECT_EQ("0000000000000000000000000000000000000000", extension.id());
   EXPECT_EQ("1.0.0.0", extension.VersionString());
   EXPECT_EQ("my extension", extension.name());
-  EXPECT_EQ("chrome-extension://00123456789abcdef0123456789abcdef0123456/",
+  EXPECT_EQ("chrome-extension://0000000000000000000000000000000000000000/",
             extension.url().spec());
   EXPECT_EQ(path.value(), extension.path().value());
 }
@@ -232,11 +221,9 @@ TEST(ExtensionTest, GetResourceURLAndPath) {
 #endif
   Extension extension(path);
   DictionaryValue input_value;
-  input_value.SetString(Extension::kIdKey,
-      "00123456789ABCDEF0123456789ABCDEF0123456");
   input_value.SetString(Extension::kVersionKey, "1.0.0.0");
   input_value.SetString(Extension::kNameKey, "my extension");
-  EXPECT_TRUE(extension.InitFromValue(input_value, true, NULL));
+  EXPECT_TRUE(extension.InitFromValue(input_value, false, NULL));
 
   EXPECT_EQ(extension.url().spec() + "bar/baz.js",
             Extension::GetResourceURL(extension.url(), "bar/baz.js").spec());

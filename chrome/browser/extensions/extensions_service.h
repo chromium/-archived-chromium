@@ -34,10 +34,43 @@ class UserScriptMaster;
 
 typedef std::vector<Extension*> ExtensionList;
 
+
 // Manages installed and running Chromium extensions.
 class ExtensionsService
     : public base::RefCountedThreadSafe<ExtensionsService> {
  public:
+
+   // TODO(port): Move Crx package definitions to ExtentionCreator. They are
+   // currently here because ExtensionCreator is excluded on linux & mac.
+
+   // The size of the magic character sequence at the beginning of each crx
+   // file, in bytes. This should be a multiple of 4.
+   static const size_t kExtensionHeaderMagicSize = 4;
+
+   // The maximum size the crx parser will tolerate for a public key.
+   static const size_t kMaxPublicKeySize = 1 << 16;
+
+   // The maximum size the crx parser will tolerate for a signature.
+   static const size_t kMaxSignatureSize = 1 << 16;
+
+   // The magic character sequence at the beginning of each crx file.
+   static const char kExtensionHeaderMagic[];
+
+   // The current version of the crx format.
+   static const uint32 kCurrentVersion = 2;
+
+   // This header is the first data at the beginning of an extension. Its
+   // contents are purposely 32-bit aligned so that it can just be slurped into
+   // a struct without manual parsing.
+   struct ExtensionHeader {
+     char magic[kExtensionHeaderMagicSize];
+     uint32 version;
+     size_t key_size;  // The size of the public key, in bytes.
+     size_t signature_size;  // The size of the signature, in bytes.
+     // An ASN.1-encoded PublicKeyInfo structure follows.
+     // The signature follows.
+   };
+
   ExtensionsService(Profile* profile,
                     MessageLoop* frontend_loop,
                     MessageLoop* backend_loop);
@@ -117,14 +150,16 @@ class ExtensionsService
   void OnExtensionsLoaded(ExtensionList* extensions);
 
   // Called by the backend when an extensoin hsa been installed.
-  void OnExtensionInstalled(Extension* extension, bool is_update);
+  void OnExtensionInstalled(Extension* extension,
+      Extension::InstallType install_type);
 
   // Called by the backend when an external extension has been installed.
   void OnExternalExtensionInstalled(
       const std::string& id, Extension::Location location);
 
-  // Called by the backend when an extension has been reinstalled.
-  void OnExtensionVersionReinstalled(const std::string& id);
+  // Called by the backend when an attempt was made to reinstall the same
+  // version of an existing extension.
+  void OnExtensionOverinstallAttempted(const std::string& id);
 
   // The name of the directory inside the profile where extensions are
   // installed to.
@@ -221,6 +256,11 @@ class ExtensionsServiceBackend
   class UnpackerClient;
   friend class UnpackerClient;
 
+  // Utility function to read an extension manifest and return it as a
+  // DictionaryValue. If it fails, NULL is returned and |error| contains an
+  // appropriate message.
+  DictionaryValue* ReadManifest(FilePath manifest_path, std::string* error);
+
   // Load a single extension from |extension_path|, the top directory of
   // a specific extension where its manifest file lives.
   Extension* LoadExtension(const FilePath& extension_path,
@@ -240,6 +280,10 @@ class ExtensionsServiceBackend
   void InstallOrUpdateExtension(const FilePath& extension_path,
                                 const std::string& expected_id,
                                 bool from_external);
+
+  // Validates the signature of the extension in |extension_path|. Returns true
+  // and the public key (in |key|) if the signature validates, false otherwise.
+  bool ValidateSignature(const FilePath& extension_path, std::string* key_out);
 
   // Finish installing an extension after it has been unpacked to
   // |temp_extension_dir| by our utility process.  If |expected_id| is not
@@ -265,8 +309,9 @@ class ExtensionsServiceBackend
   void ReportExtensionInstallError(const FilePath& extension_path,
                                    const std::string& error);
 
-  // Notify the frontend that the extension had already been installed.
-  void ReportExtensionVersionReinstalled(const std::string& id);
+  // Notify the frontend that an attempt was made (but not carried out) to
+  // install the same version of an existing extension.
+  void ReportExtensionOverinstallAttempted(const std::string& id);
 
   // Checks a set of strings (containing id's to ignore) in order to determine
   // if the extension should be installed.
@@ -297,11 +342,14 @@ class ExtensionsServiceBackend
   // Reads the Current Version file from |dir| into |version_string|.
   bool ReadCurrentVersion(const FilePath& dir, std::string* version_string);
 
-  // Check that the version to be installed is greater than the current
-  // installed extension.
-  bool CheckCurrentVersion(const std::string& version,
-                           const std::string& current_version,
-                           const FilePath& dest_dir);
+  // Look for an existing installation of the extension |id| & return
+  // an InstallType that would result from installing |new_version_str|.
+  Extension::InstallType CompareToInstalledVersion(const std::string& id,
+      const std::string& new_version_str, std::string* current_version_str);
+
+  // Does an existing installed extension need to be reinstalled.
+  bool NeedsReinstall(const std::string& id,
+                      const std::string& current_version);
 
   // Install the extension dir by moving it from |source| to |dest| safely.
   bool InstallDirSafely(const FilePath& source,
