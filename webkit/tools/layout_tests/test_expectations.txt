@@ -635,35 +635,52 @@ BUG13907 WIN : LayoutTests/media/controls-css-overload.html = CRASH
 // This test is flaky.
 BUG13907 WIN DEBUG : LayoutTests/media/progress-event-total.html = PASS FAIL
 BUG13907 WIN DEBUG : LayoutTests/media/remove-from-document.html = FAIL
-BUG13907 WIN : LayoutTests/media/unsupported-rtsp.html = FAIL
+// This test crashes in debug build.
+BUG13907 WIN : LayoutTests/media/unsupported-rtsp.html = FAIL CRASH
 BUG13907 WIN : LayoutTests/media/video-aspect-ratio.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-buffered.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-can-play-type.html = FAIL
+// This test crashes in debug build.
+BUG13907 WIN : LayoutTests/media/video-click-dblckick-standalone.html = PASS CRASH
+// This test crashes in debug build.
+BUG13907 WIN : LayoutTests/media/video-controls.html = PASS CRASH
 BUG13907 WIN : LayoutTests/media/video-controls-rendering.html = FAIL
+// This test crashes in debug build.
+BUG13907 WIN : LayoutTests/media/video-controls-visible-audio-only.html = PASS CRASH
 // This test sometimes crashes in debug build.
 BUG13907 WIN : LayoutTests/media/video-currentTime-set.html = FAIL CRASH
 // This test crashes in debug build.
-BUG13907 WIN : LayoutTests/media/video-currentTime-set2.html = PASS FAIL CRASH
+BUG13907 WIN : LayoutTests/media/video-currentTime-set2.html = PASS FAIL CRASH TIMEOUT
+// This test crashes in debug build.
+BUG13907 WIN : LayoutTests/media/video-display-none-crash.html = PASS CRASH
 BUG13907 WIN : LayoutTests/media/video-display-toggle.html = FAIL
+// This test crashes in debug build.
+BUG13907 WIN : LayoutTests/media/video-dom-src.html = PASS CRASH
 // This test is flaky.
 BUG13907 WIN DEBUG : LayoutTests/media/video-dom-autobuffer.html = FAIL
+// This test crashes in debug build.
+BUG13907 WIN : LayoutTests/media/video-document-types.html = PASS CRASH
 BUG13907 WIN : LayoutTests/media/video-empty-source.html = FAIL
+// This test times out in release build.
+BUG13907 WIN : LayoutTests/media/video-error-abort.html = PASS TIMEOUT
 BUG13907 WIN : LayoutTests/media/video-error-does-not-exist.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-layer-crash.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-load-networkState.html = FAIL
-BUG13907 WIN : LayoutTests/media/video-loop.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-loop.html = FAIL CRASH
 // This test crashes in debug build.
-BUG13907 WIN : LayoutTests/media/video-muted.html = PASS FAIL CRASH
+BUG13907 WIN : LayoutTests/media/video-muted.html = PASS FAIL CRASH TIMEOUT
 // This test is flaky and may not only happen in debug build.
 BUG13907 WIN DEBUG : LayoutTests/media/video-no-autoplay.html = PASS FAIL
 // This test is flaky.
-BUG13907 WIN : LayoutTests/media/video-play-pause-events.html = PASS FAIL
+BUG13907 WIN : LayoutTests/media/video-play-pause-events.html = PASS FAIL CRASH
 BUG13907 WIN : LayoutTests/media/video-play-pause-exception.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-played-collapse.html = FAIL
 // This test crashes in debug build.
 BUG13907 WIN : LayoutTests/media/video-played.html = PASS FAIL CRASH
+// This test is flaky in debug build.
+BUG13907 WIN DEBUG : LayoutTests/media/video-poster.html = PASS TIMEOUT
 // This test crashes in debug build.
-BUG13907 WIN : LayoutTests/media/video-seek-past-end-playing.html = PASS FAIL CRASH
+BUG13907 WIN : LayoutTests/media/video-seek-past-end-playing.html = PASS FAIL CRASH TIMEOUT
 BUG13907 WIN : LayoutTests/media/video-size-intrinsic-scale.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-source-add-src.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-source-error.html = FAIL
