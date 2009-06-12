@@ -12,6 +12,7 @@
 #include "base/command_line.h"
 #include "base/eintr_wrapper.h"
 #include "base/file_version_info_linux.h"
+#include "base/global_descriptors_posix.h"
 #include "base/path_service.h"
 #include "base/rand_util.h"
 #include "breakpad/linux/directory_reader.h"
