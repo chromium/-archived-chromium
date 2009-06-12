@@ -246,6 +246,8 @@
         'http/http_vary_data.h',
         'http/md4.cc',
         'http/md4.h',
+        'http/partial_data.cc',
+        'http/partial_data.h',
         'proxy/proxy_config.cc',
         'proxy/proxy_config.h',
         'proxy/proxy_config_service.h',

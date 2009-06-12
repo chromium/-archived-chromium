@@ -121,6 +121,9 @@ void HttpResponseHeaders::Persist(Pickle* pickle, PersistOptions options) {
   if ((options & PERSIST_SANS_HOP_BY_HOP) == PERSIST_SANS_HOP_BY_HOP)
     AddHopByHopHeaders(&filter_headers);
 
+  if ((options & PERSIST_SANS_RANGES) == PERSIST_SANS_RANGES)
+    AddHopContentRangeHeaders(&filter_headers);
+
   std::string blob;
   blob.reserve(raw_headers_.size());
 
@@ -643,6 +646,10 @@ void HttpResponseHeaders::AddCookieHeaders(HeaderSet* result) {
 void HttpResponseHeaders::AddChallengeHeaders(HeaderSet* result) {
   for (size_t i = 0; i < arraysize(kChallengeResponseHeaders); ++i)
     result->insert(std::string(kChallengeResponseHeaders[i]));
+}
+
+void HttpResponseHeaders::AddHopContentRangeHeaders(HeaderSet* result) {
+  result->insert("content-range");
 }
 
 void HttpResponseHeaders::GetMimeTypeAndCharset(std::string* mime_type,

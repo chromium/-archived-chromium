@@ -52,6 +52,7 @@ class HttpResponseHeaders :
   static const PersistOptions PERSIST_SANS_CHALLENGES = 1 << 1;
   static const PersistOptions PERSIST_SANS_HOP_BY_HOP = 1 << 2;
   static const PersistOptions PERSIST_SANS_NON_CACHEABLE = 1 << 3;
+  static const PersistOptions PERSIST_SANS_RANGES = 1 << 4;
 
   // Appends a representation of this object to the given pickle.
   // The options argument can be a combination of PersistOptions.
@@ -275,6 +276,9 @@ class HttpResponseHeaders :
 
   // Adds the set of cookie response headers.
   static void AddCookieHeaders(HeaderSet* header_names);
+
+  // Adds the set of content range response headers.
+  static void AddHopContentRangeHeaders(HeaderSet* header_names);
 
   // The members of this structure point into raw_headers_.
   struct ParsedHeader {

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -10,10 +10,12 @@
 #include "net/base/net_errors.h"
 #include "net/base/load_flags.h"
 #include "net/disk_cache/disk_cache.h"
+#include "net/http/http_byte_range.h"
 #include "net/http/http_request_info.h"
 #include "net/http/http_response_info.h"
 #include "net/http/http_transaction.h"
 #include "net/http/http_transaction_unittest.h"
+#include "net/http/http_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using base::Time;
@@ -409,6 +411,77 @@ const MockTransaction kFastNoStoreGET_Transaction = {
   "<html><body>Google Blah Blah</body></html>",
   TEST_MODE_SYNC_NET_START,
   &FastTransactionServer::FastNoStoreHandler,
+  0
+};
+
+// This class provides a handler for kRangeGET_TransactionOK so that the range
+// request can be served on demand.
+class RangeTransactionServer {
+ public:
+  RangeTransactionServer() {
+    no_store = false;
+  }
+  ~RangeTransactionServer() {}
+
+  void set_no_store(bool value) { no_store = value; }
+
+  static void RangeHandler(const net::HttpRequestInfo* request,
+                           std::string* response_status,
+                           std::string* response_headers,
+                           std::string* response_data);
+
+ private:
+  static bool no_store;
+  DISALLOW_COPY_AND_ASSIGN(RangeTransactionServer);
+};
+
+// Static.
+void RangeTransactionServer::RangeHandler(const net::HttpRequestInfo* request,
+                                          std::string* response_status,
+                                          std::string* response_headers,
+                                          std::string* response_data) {
+  if (request->extra_headers.empty())
+    return;
+
+  std::vector<net::HttpByteRange> ranges;
+  if (!net::HttpUtil::ParseRanges(request->extra_headers, &ranges) ||
+      ranges.size() != 1)
+    return;
+  // We can handle this range request.
+  net::HttpByteRange byte_range = ranges[0];
+  EXPECT_TRUE(byte_range.ComputeBounds(80));
+  int start = static_cast<int>(byte_range.first_byte_position());
+  int end = static_cast<int>(byte_range.last_byte_position());
+
+  EXPECT_LT(end, 80);
+
+  std::string content_range = StringPrintf("Content-Range: bytes %d-%d/80\n",
+                                           start, end);
+  response_headers->append(content_range);
+
+  if (request->extra_headers.find("If-None-Match") == std::string::npos) {
+    EXPECT_EQ(9, end - start);
+    std::string data = StringPrintf("rg: %d-%d ", start, end);
+    *response_data = data;
+  } else {
+    response_status->assign("HTTP/1.1 304 Not Modified");
+    response_data->clear();
+  }
+}
+
+const MockTransaction kRangeGET_TransactionOK = {
+  "http://www.google.com/range",
+  "GET",
+  "Range: bytes = 40-49\r\n",
+  net::LOAD_NORMAL,
+  "HTTP/1.1 206 Partial Content",
+  "Last-Modified: Sat, 18 Apr 2009 01:10:43 GMT\n"
+  "ETag: \"foo\"\n"
+  "Accept-Ranges: bytes\n"
+  "Content-Length: 10\n",
+  "rg: 40-49 ",
+  TEST_MODE_NORMAL,
+  &RangeTransactionServer::RangeHandler,
   0
 };
 
@@ -1048,9 +1121,9 @@ TEST(HttpCache, SimplePOST_LoadOnlyFromCache_Hit) {
 TEST(HttpCache, RangeGET_SkipsCache) {
   MockHttpCache cache;
 
-  // Test that we skip the cache for POST requests.  Eventually, we will want
-  // to cache these, but we'll still have cases where skipping the cache makes
-  // sense, so we want to make sure that it works properly.
+  // Test that we skip the cache for range GET requests.  Eventually, we will
+  // want to cache these, but we'll still have cases where skipping the cache
+  // makes sense, so we want to make sure that it works properly.
 
   RunTransactionTest(cache.http_cache(), kRangeGET_Transaction);
 
@@ -1073,6 +1146,55 @@ TEST(HttpCache, RangeGET_SkipsCache) {
   EXPECT_EQ(3, cache.network_layer()->transaction_count());
   EXPECT_EQ(0, cache.disk_cache()->open_count());
   EXPECT_EQ(0, cache.disk_cache()->create_count());
+}
+
+TEST(HttpCache, DISABLED_RangeGET_OK) {
+  MockHttpCache cache;
+  AddMockTransaction(&kRangeGET_TransactionOK);
+
+  // Test that we can cache range requests and fetch random blocks from the
+  // cache and the network.
+
+  // Write to the cache (40-49).
+  RunTransactionTest(cache.http_cache(), kRangeGET_TransactionOK);
+
+  EXPECT_EQ(1, cache.network_layer()->transaction_count());
+  EXPECT_EQ(0, cache.disk_cache()->open_count());
+  EXPECT_EQ(1, cache.disk_cache()->create_count());
+
+  // Read from the cache (40-49).
+  RunTransactionTest(cache.http_cache(), kRangeGET_TransactionOK);
+
+  EXPECT_EQ(2, cache.network_layer()->transaction_count());
+  EXPECT_EQ(1, cache.disk_cache()->open_count());
+  EXPECT_EQ(1, cache.disk_cache()->create_count());
+
+  // Make sure we are done with the previous transaction.
+  MessageLoop::current()->RunAllPending();
+
+  // Write to the cache (30-39).
+  MockTransaction transaction(kRangeGET_TransactionOK);
+  transaction.request_headers = "Range: bytes = 30-39\r\n";
+  transaction.data = "rg: 30-39 ";
+  RunTransactionTest(cache.http_cache(), transaction);
+
+  EXPECT_EQ(3, cache.network_layer()->transaction_count());
+  EXPECT_EQ(2, cache.disk_cache()->open_count());
+  EXPECT_EQ(1, cache.disk_cache()->create_count());
+
+  // Make sure we are done with the previous transaction.
+  MessageLoop::current()->RunAllPending();
+
+  // Write and read from the cache (20-59).
+  transaction.request_headers = "Range: bytes = 20-59\r\n";
+  transaction.data = "rg: 20-29 rg: 30-39 rg: 40-49 rg: 50-59 ";
+  RunTransactionTest(cache.http_cache(), transaction);
+
+  EXPECT_EQ(6, cache.network_layer()->transaction_count());
+  EXPECT_EQ(3, cache.disk_cache()->open_count());
+  EXPECT_EQ(1, cache.disk_cache()->create_count());
+
+  RemoveMockTransaction(&kRangeGET_TransactionOK);
 }
 
 TEST(HttpCache, SyncRead) {
