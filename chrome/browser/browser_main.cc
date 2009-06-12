@@ -395,6 +395,17 @@ int BrowserMain(const MainFunctionParams& parameters) {
     ResourceBundle::GetSharedInstance().LoadThemeResources();
   }
 
+#if defined(OS_WIN)
+  // This is experimental code. See first_run_win.cc for more info.
+  if (parsed_command_line.HasSwitch(switches::kTryChromeAgain)) {
+    Upgrade::TryResult answer = Upgrade::ShowTryChromeDialog();
+    if (answer == Upgrade::TD_NOT_NOW)
+      return ResultCodes::NORMAL_EXIT;
+    if (answer == Upgrade::TD_UNINSTALL_CHROME)
+      return ResultCodes::UNINSTALL_CHROME_ALIVE;
+  }
+#endif  // OS_WIN
+
   BrowserInit browser_init;
 
   if (is_first_run) {

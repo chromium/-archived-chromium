@@ -7,6 +7,7 @@
 #include <atlbase.h>
 #include <atlcom.h>
 #include <windows.h>
+#include <shellapi.h>
 #include <shlobj.h>
 
 #include <sstream>
@@ -673,10 +674,8 @@ class TryChromeDialog : public views::ButtonListener,
     icon->SetImage(*rb.GetBitmapNamed(IDR_PRODUCT_ICON_32));
     gfx::Size icon_size = icon->GetPreferredSize();
 
-    const int width = 310;
-    const int height = 160;
-    gfx::Rect pos = ComputeWindowPosition(width, height);
-
+    // An approximate window size. After Layout() we'll get better bounds.
+    gfx::Rect pos(310, 160);
     views::WidgetWin* popup = new views::WidgetWin();
     if (!popup) {
       NOTREACHED();
@@ -778,8 +777,16 @@ class TryChromeDialog : public views::ButtonListener,
     link->SetController(this);
     layout->AddView(link);
 
+    // We resize the window according to the layout manager. This takes into
+    // account the differences between XP and Vista fonts and buttons.
     layout->Layout(root_view);
-    SetToastRegion(popup->GetNativeView(), width, height);
+    gfx::Size preferred = layout->GetPreferredSize(root_view);
+    pos = ComputeWindowPosition(preferred.width(), preferred.height());
+    popup->SetBounds(pos);
+
+    // Carve the toast shape into the window.
+    SetToastRegion(popup->GetNativeView(),
+                   preferred.width(), preferred.height());
     // Time to show the window in a modal loop.
     popup_ = popup;
     popup_->Show();
@@ -806,6 +813,7 @@ class TryChromeDialog : public views::ButtonListener,
   // fire off the default browser that by some convoluted logic should not be
   // chrome.
   virtual void LinkActivated(views::Link* source, int event_flags) {
+    ::ShellExecuteW(NULL, L"open", kHelpCenterUrl, NULL, NULL, SW_SHOW);
   }
 
  private:
