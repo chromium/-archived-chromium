@@ -4488,7 +4488,7 @@
         },
         {
           'target_name': 'theme_dll',
-          'type': 'shared_library',
+          'type': 'loadable_module',
           'msvs_guid': 'FD683DD6-D9BF-4B1B-AB6D-A3AC03EDAA4D',
           'product_name': 'default',
           'dependencies': [
