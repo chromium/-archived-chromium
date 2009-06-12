@@ -892,21 +892,9 @@ TEST_F(FocusTraversalTest, NormalTraversal) {
   // Let's traverse in reverse order.
   for (int i = 0; i < 3; ++i) {
     for (int j = arraysize(kTraversalIDs) - 1; j >= 0; --j) {
-      // TODO(jcampan): Remove this hack.  The reverse order of traversal in
-      // Tabbed Panes is broken (we go to the tab before going to the content).
-      if (kTraversalIDs[j] == kStyleContainerID)
-        j--;  // Ignore the tab.
-
       GetFocusManager()->AdvanceFocus(true);
       View* focused_view = GetFocusManager()->GetFocusedView();
       EXPECT_TRUE(focused_view != NULL);
-
-      // TODO(jcampan): Remove this hack, same as above.
-      if (focused_view->GetID() == kStyleContainerID) {
-        j++;  // Ignore the tab.
-        continue;
-      }
-
       if (focused_view)
         EXPECT_EQ(kTraversalIDs[j], focused_view->GetID());
     }
@@ -963,21 +951,9 @@ TEST_F(FocusTraversalTest, TraversalWithNonEnabledViews) {
   // Same thing in reverse.
   for (int i = 0; i < 3; ++i) {
     for (int j = arraysize(kTraversalIDs) - 1; j >= 0; --j) {
-      // TODO(jcampan): Remove this hack.  The reverse order of traversal in
-      // Tabbed Panes is broken (we go to the tab before going to the content).
-      if (kTraversalIDs[j] == kStyleContainerID)
-        j--;  // Ignore the tab.
-
       GetFocusManager()->AdvanceFocus(true);
       focused_view = GetFocusManager()->GetFocusedView();
       EXPECT_TRUE(focused_view != NULL);
-
-      // TODO(jcampan): Remove this hack, same as above.
-      if (focused_view->GetID() == kStyleContainerID) {
-        j++;  // Ignore the tab.
-        continue;
-      }
-
       if (focused_view)
         EXPECT_EQ(kTraversalIDs[j], focused_view->GetID());
     }

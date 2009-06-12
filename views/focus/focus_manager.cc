@@ -360,12 +360,19 @@ View* FocusManager::GetNextFocusableView(View* original_starting_view,
 
   View* starting_view = NULL;
   if (original_starting_view) {
-    // If the starting view has a focus traversable, use it.
-    // This is the case with WidgetWins for example.
-    focus_traversable = original_starting_view->GetFocusTraversable();
+    if (!reverse) {
+      // If the starting view has a focus traversable, use it.
+      // This is the case with WidgetWins for example.
+      focus_traversable = original_starting_view->GetFocusTraversable();
 
-    // Otherwise default to the root view.
-    if (!focus_traversable) {
+      // Otherwise default to the root view.
+      if (!focus_traversable) {
+        focus_traversable = original_starting_view->GetRootView();
+        starting_view = original_starting_view;
+      }
+    } else {
+      // When you are going back, starting view's FocusTraversable should not be
+      // used.
       focus_traversable = original_starting_view->GetRootView();
       starting_view = original_starting_view;
     }
@@ -374,8 +381,7 @@ View* FocusManager::GetNextFocusableView(View* original_starting_view,
   }
 
   // Traverse the FocusTraversable tree down to find the focusable view.
-  View* v = FindFocusableView(focus_traversable, starting_view,
-                              reverse, dont_loop);
+  View* v = FindFocusableView(focus_traversable, starting_view, reverse);
   if (v) {
     return v;
   } else {
@@ -386,15 +392,17 @@ View* FocusManager::GetNextFocusableView(View* original_starting_view,
     while (parent_focus_traversable) {
       FocusTraversable* new_focus_traversable = NULL;
       View* new_starting_view = NULL;
-      v = parent_focus_traversable ->FindNextFocusableView(
-          starting_view, reverse, FocusTraversable::UP, dont_loop,
-          &new_focus_traversable, &new_starting_view);
+      // When we are going backward, the parent view might gain the next focus.
+      bool check_starting_view = reverse;
+      v = parent_focus_traversable->FindNextFocusableView(
+          starting_view, reverse, FocusTraversable::UP,
+          check_starting_view, &new_focus_traversable, &new_starting_view);
 
       if (new_focus_traversable) {
         DCHECK(!v);
 
         // There is a FocusTraversable, traverse it down.
-        v = FindFocusableView(new_focus_traversable, NULL, reverse, dont_loop);
+        v = FindFocusableView(new_focus_traversable, NULL, reverse);
       }
 
       if (v)
@@ -563,14 +571,13 @@ FocusManager* FocusManager::GetParentFocusManager() const {
 // FocusTraversable hierarchy.
 View* FocusManager::FindFocusableView(FocusTraversable* focus_traversable,
                                       View* starting_view,
-                                      bool reverse,
-                                      bool dont_loop) {
+                                      bool reverse) {
   FocusTraversable* new_focus_traversable = NULL;
   View* new_starting_view = NULL;
   View* v = focus_traversable->FindNextFocusableView(starting_view,
                                                      reverse,
                                                      FocusTraversable::DOWN,
-                                                     dont_loop,
+                                                     false,
                                                      &new_focus_traversable,
                                                      &new_starting_view);
 
@@ -584,7 +591,7 @@ View* FocusManager::FindFocusableView(FocusTraversable* focus_traversable,
     v = focus_traversable->FindNextFocusableView(starting_view,
                                                  reverse,
                                                  FocusTraversable::DOWN,
-                                                 dont_loop,
+                                                 false,
                                                  &new_focus_traversable,
                                                  &new_starting_view);
   }

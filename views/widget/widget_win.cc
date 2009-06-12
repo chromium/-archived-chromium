@@ -475,12 +475,13 @@ void WidgetWin::DidProcessMessage(const MSG& msg) {
 // FocusTraversable
 
 View* WidgetWin::FindNextFocusableView(
-    View* starting_view, bool reverse, Direction direction, bool dont_loop,
-    FocusTraversable** focus_traversable, View** focus_traversable_view) {
+    View* starting_view, bool reverse, Direction direction,
+    bool check_starting_view, FocusTraversable** focus_traversable,
+    View** focus_traversable_view) {
   return root_view_->FindNextFocusableView(starting_view,
                                            reverse,
                                            direction,
-                                           dont_loop,
+                                           check_starting_view,
                                            focus_traversable,
                                            focus_traversable_view);
 }

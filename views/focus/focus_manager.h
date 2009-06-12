@@ -107,8 +107,7 @@ class FocusTraversable {
   //   previous (reverse is true) view.
   // - |direction| specifies whether we are traversing down (meaning we should
   //   look into child views) or traversing up (don't look at child views).
-  // - |dont_loop| if true specifies that if there is a loop in the focus
-  //   hierarchy, we should keep traversing after the last view of the loop.
+  // - |check_starting_view| is true if starting_view may obtain the next focus.
   // - |focus_traversable| is set to the focus traversable that should be
   //   traversed if one is found (in which case the call returns NULL).
   // - |focus_traversable_view| is set to the view associated with the
@@ -118,7 +117,7 @@ class FocusTraversable {
   virtual View* FindNextFocusableView(View* starting_view,
                                       bool reverse,
                                       Direction direction,
-                                      bool dont_loop,
+                                      bool check_starting_view,
                                       FocusTraversable** focus_traversable,
                                       View** focus_traversable_view) = 0;
 
@@ -309,8 +308,7 @@ class FocusManager {
   // Returns NULL if no focusable view were found.
   View* FindFocusableView(FocusTraversable* focus_traversable,
                           View* starting_view,
-                          bool reverse,
-                          bool dont_loop);
+                          bool reverse);
 
   // The RootView of the window associated with this FocusManager.
   RootView* top_root_view_;

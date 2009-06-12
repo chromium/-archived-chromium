@@ -239,7 +239,7 @@ class WidgetWin : public Widget,
   virtual View* FindNextFocusableView(View* starting_view,
                                       bool reverse,
                                       Direction direction,
-                                      bool dont_loop,
+                                      bool check_starting_view,
                                       FocusTraversable** focus_traversable,
                                       View** focus_traversable_view);
   virtual FocusTraversable* GetFocusTraversableParent();

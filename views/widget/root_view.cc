@@ -570,7 +570,7 @@ View* RootView::GetFocusedView() {
 View* RootView::FindNextFocusableView(View* starting_view,
                                       bool reverse,
                                       Direction direction,
-                                      bool dont_loop,
+                                      bool check_starting_view,
                                       FocusTraversable** focus_traversable,
                                       View** focus_traversable_view) {
   *focus_traversable = NULL;
@@ -582,14 +582,13 @@ View* RootView::FindNextFocusableView(View* starting_view,
     return NULL;
   }
 
-  bool skip_starting_view = true;
   if (!starting_view) {
     // Default to the first/last child
     starting_view = reverse ? GetChildViewAt(GetChildViewCount() - 1) :
                               GetChildViewAt(0) ;
     // If there was no starting view, then the one we select is a potential
     // focus candidate.
-    skip_starting_view = false;
+    check_starting_view = true;
   } else {
     // The starting view should be part of this RootView.
     DCHECK(IsParentOf(starting_view));
@@ -597,25 +596,31 @@ View* RootView::FindNextFocusableView(View* starting_view,
 
   View* v = NULL;
   if (!reverse) {
-    v = FindNextFocusableViewImpl(starting_view, skip_starting_view,
+    v = FindNextFocusableViewImpl(starting_view, check_starting_view,
                                   true,
                                   (direction == DOWN) ? true : false,
-                                  starting_view->GetGroup());
+                                  starting_view->GetGroup(),
+                                  focus_traversable,
+                                  focus_traversable_view);
   } else {
     // If the starting view is focusable, we don't want to go down, as we are
     // traversing the view hierarchy tree bottom-up.
     bool can_go_down = (direction == DOWN) && !starting_view->IsFocusable();
-    v = FindPreviousFocusableViewImpl(starting_view, true,
+    v = FindPreviousFocusableViewImpl(starting_view, check_starting_view,
                                       true,
                                       can_go_down,
-                                      starting_view->GetGroup());
+                                      starting_view->GetGroup(),
+                                      focus_traversable,
+                                      focus_traversable_view);
   }
+
+  // Doing some sanity checks.
   if (v) {
-    if (v->IsFocusable())
-      return v;
-    *focus_traversable = v->GetFocusTraversable();
-    DCHECK(*focus_traversable);
-    *focus_traversable_view = v;
+    DCHECK(v->IsFocusable());
+    return v;
+  }
+  if (*focus_traversable) {
+    DCHECK(*focus_traversable_view);
     return NULL;
   }
   // Nothing found.
@@ -631,23 +636,31 @@ View* RootView::FindNextFocusableView(View* starting_view,
 // - if the view has no right sibling, go up the parents until you find a parent
 //   with a right sibling and start the search from there.
 View* RootView::FindNextFocusableViewImpl(View* starting_view,
-                                          bool skip_starting_view,
+                                          bool check_starting_view,
                                           bool can_go_up,
                                           bool can_go_down,
-                                          int skip_group_id) {
-  if (!skip_starting_view) {
+                                          int skip_group_id,
+                                          FocusTraversable** focus_traversable,
+                                          View** focus_traversable_view) {
+  if (check_starting_view) {
     if (IsViewFocusableCandidate(starting_view, skip_group_id))
       return FindSelectedViewForGroup(starting_view);
-    if (starting_view->GetFocusTraversable())
-      return starting_view;
+
+    *focus_traversable = starting_view->GetFocusTraversable();
+    if (*focus_traversable) {
+      *focus_traversable_view = starting_view;
+      return NULL;
+    }
   }
 
   // First let's try the left child.
   if (can_go_down) {
     if (starting_view->GetChildViewCount() > 0) {
       View* v = FindNextFocusableViewImpl(starting_view->GetChildViewAt(0),
-                                          false, false, true, skip_group_id);
-      if (v)
+                                          true, false, true, skip_group_id,
+                                          focus_traversable,
+                                          focus_traversable_view);
+      if (v || *focus_traversable)
         return v;
     }
   }
@@ -656,8 +669,10 @@ View* RootView::FindNextFocusableViewImpl(View* starting_view,
   View* sibling = starting_view->GetNextFocusableView();
   if (sibling) {
     View* v = FindNextFocusableViewImpl(sibling,
-                                        false, false, true, skip_group_id);
-    if (v)
+                                        true, false, true, skip_group_id,
+                                        focus_traversable,
+                                        focus_traversable_view);
+    if (v || *focus_traversable)
       return v;
   }
 
@@ -668,8 +683,10 @@ View* RootView::FindNextFocusableViewImpl(View* starting_view,
       sibling = parent->GetNextFocusableView();
       if (sibling) {
         return FindNextFocusableViewImpl(sibling,
-                                         false, true, true,
-                                         skip_group_id);
+                                         true, true, true,
+                                         skip_group_id,
+                                         focus_traversable,
+                                         focus_traversable_view);
       }
       parent = parent->GetParent();
     }
@@ -685,36 +702,51 @@ View* RootView::FindNextFocusableViewImpl(View* starting_view,
 // - start the search on the left sibling.
 // - if there are no left sibling, start the search on the parent (without going
 //   down).
-View* RootView::FindPreviousFocusableViewImpl(View* starting_view,
-                                              bool skip_starting_view,
-                                              bool can_go_up,
-                                              bool can_go_down,
-                                              int skip_group_id) {
+View* RootView::FindPreviousFocusableViewImpl(
+    View* starting_view,
+    bool check_starting_view,
+    bool can_go_up,
+    bool can_go_down,
+    int skip_group_id,
+    FocusTraversable** focus_traversable,
+    View** focus_traversable_view) {
   // Let's go down and right as much as we can.
   if (can_go_down) {
+    // Before we go into the direct children, we have to check if this view has
+    // a FocusTraversable.
+    *focus_traversable = starting_view->GetFocusTraversable();
+    if (*focus_traversable) {
+      *focus_traversable_view = starting_view;
+      return NULL;
+    }
+
     if (starting_view->GetChildViewCount() > 0) {
       View* view =
           starting_view->GetChildViewAt(starting_view->GetChildViewCount() - 1);
-      View* v = FindPreviousFocusableViewImpl(view, false, false, true,
-                                              skip_group_id);
-      if (v)
+      View* v = FindPreviousFocusableViewImpl(view, true, false, true,
+                                              skip_group_id,
+                                              focus_traversable,
+                                              focus_traversable_view);
+      if (v || *focus_traversable)
         return v;
     }
   }
 
-  if (!skip_starting_view) {
-    if (IsViewFocusableCandidate(starting_view, skip_group_id))
-      return FindSelectedViewForGroup(starting_view);
-    if (starting_view->GetFocusTraversable())
-      return starting_view;
+  // Then look at this view. Here, we do not need to see if the view has
+  // a FocusTraversable, since we do not want to go down any more.
+  if (check_starting_view &&
+      IsViewFocusableCandidate(starting_view, skip_group_id)) {
+    return FindSelectedViewForGroup(starting_view);
   }
 
   // Then try the left sibling.
   View* sibling = starting_view->GetPreviousFocusableView();
   if (sibling) {
     return FindPreviousFocusableViewImpl(sibling,
-                                         false, true, true,
-                                         skip_group_id);
+                                         true, true, true,
+                                         skip_group_id,
+                                         focus_traversable,
+                                         focus_traversable_view);
   }
 
   // Then go up the parent.
@@ -722,8 +754,10 @@ View* RootView::FindPreviousFocusableViewImpl(View* starting_view,
     View* parent = starting_view->GetParent();
     if (parent)
       return FindPreviousFocusableViewImpl(parent,
-                                           false, true, false,
-                                           skip_group_id);
+                                           true, true, false,
+                                           skip_group_id,
+                                           focus_traversable,
+                                           focus_traversable_view);
   }
 
   // We found nothing.
