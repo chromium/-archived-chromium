@@ -67,7 +67,7 @@ class TestRenderWidgetHostView : public RenderWidgetHostView {
   virtual void IMEUpdateStatus(int control, const gfx::Rect& caret_rect) {}
   virtual void DidPaintRect(const gfx::Rect& rect) {}
   virtual void DidScrollRect(const gfx::Rect& rect, int dx, int dy) {}
-  virtual void RenderViewGone() {}
+  virtual void RenderViewGone() { delete this; }
   virtual void Destroy() {}
   virtual void PrepareToDestroy() {}
   virtual void SetTooltipText(const std::wstring& tooltip_text) {}

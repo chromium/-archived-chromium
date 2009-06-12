@@ -937,7 +937,7 @@ TEST_F(TabContentsTest, ShowInterstitialThenGoBack) {
 // Test navigating to a page that shows an interstitial, has a renderer crash,
 // and then goes back.
 // http://crbug.com/13937: Disabling because it's leaky on win/mac.
-TEST_F(TabContentsTest, DISABLED_ShowInterstitialCrashRendererThenGoBack) {
+TEST_F(TabContentsTest, ShowInterstitialCrashRendererThenGoBack) {
   // Navigate to a page so we have a navigation entry in the controller.
   GURL url1("http://www.google.com");
   rvh()->SendNavigate(1, url1);
