@@ -48,6 +48,9 @@ ExtensionHost::~ExtensionHost() {
 void ExtensionHost::CreateView(Browser* browser) {
 #if defined(TOOLKIT_VIEWS)
   view_.reset(new ExtensionView(this, browser));
+  // We own |view_|, so don't auto delete when it's removed from the view
+  // hierarchy.
+  view_->SetParentOwned(false);
 #else
   // TODO(port)
   NOTREACHED();

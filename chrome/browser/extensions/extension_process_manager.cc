@@ -34,9 +34,9 @@ ExtensionProcessManager::ExtensionProcessManager(Profile* profile)
 }
 
 ExtensionProcessManager::~ExtensionProcessManager() {
-  // Copy background_hosts_ to avoid iterator invalidation issues.
-  ExtensionHostSet to_delete(background_hosts_.begin(),
-                             background_hosts_.end());
+  // Copy all_hosts_ to avoid iterator invalidation issues.
+  ExtensionHostSet to_delete(all_hosts_.begin(),
+                             all_hosts_.end());
   ExtensionHostSet::iterator iter;
   for (iter = to_delete.begin(); iter != to_delete.end(); ++iter)
     delete *iter;
@@ -45,9 +45,12 @@ ExtensionProcessManager::~ExtensionProcessManager() {
 ExtensionHost* ExtensionProcessManager::CreateView(Extension* extension,
                                                    const GURL& url,
                                                    Browser* browser) {
+  DCHECK(extension);
+  DCHECK(browser);
   ExtensionHost* host =
       new ExtensionHost(extension, GetSiteInstanceForURL(url), url, this);
   host->CreateView(browser);
+  all_hosts_.insert(host);
   return host;
 }
 
