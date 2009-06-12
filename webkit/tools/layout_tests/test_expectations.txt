@@ -593,6 +593,7 @@ BUG849072 SKIP : chrome/http/mime = PASS
 // We don't support the storage APIs.  Some of the them hang.
 BUG4360 SKIP : LayoutTests/storage = PASS
 BUG4360 SKIP : LayoutTests/fast/js/exceptions-thrown-in-callbacks.html = PASS
+BUG4360 SKIP : LayoutTests/http/tests/loading/deleted-host-in-resource-load-delegate-callback.html = TIMEOUT
 
 // Fails due to storage APIs not implemented.  Might be worth re-baselining
 // temporarily so the rest of the conditions are still tested.
@@ -2696,7 +2697,6 @@ BUG13314 LINUX : LayoutTests/platform/mac/accessibility/accesskey.html = CRASH F
 BUG13721 WIN LINUX : LayoutTests/fast/canvas/canvas-transforms-during-path.html = FAIL
 BUG13721 WIN LINUX : LayoutTests/fast/canvas/drawImage-with-globalAlpha.html = FAIL
 BUG13721 WIN LINUX : LayoutTests/fast/canvas/quadraticCurveTo.xml = FAIL
-BUG13721 WIN LINUX : LayoutTests/http/tests/loading/deleted-host-in-resource-load-delegate-callback.html = TIMEOUT
 BUG13721 LINUX : LayoutTests/fast/dynamic/positioned-movement-with-positioned-children.html = FAIL
 
 // New test added in WebKit 44550:
