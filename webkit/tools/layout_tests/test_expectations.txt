@@ -2694,8 +2694,6 @@ BUG13174 WIN REBASELINE : LayoutTests/transitions/shorthand-border-transitions.h
 BUG13314 LINUX : LayoutTests/platform/mac/accessibility/accesskey.html = CRASH FAIL
 
 // WebKit 44438:44544
-BUG13721 WIN LINUX : LayoutTests/fast/canvas/canvas-transforms-during-path.html = FAIL
-BUG13721 WIN LINUX : LayoutTests/fast/canvas/quadraticCurveTo.xml = FAIL
 BUG13721 LINUX : LayoutTests/fast/dynamic/positioned-movement-with-positioned-children.html = FAIL
 
 // New test added in WebKit 44550:
