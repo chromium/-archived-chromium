@@ -146,9 +146,8 @@ class FindBarGtk : public FindBar,
   // Saves where the focus used to be whenever we get it.
   FocusStoreGtk focus_store_;
 
-  // Keep track of the "changed" signal handler so we can unhook it when we
-  // don't need it.
-  unsigned int changed_handler_id_;
+  // If true, the change signal for the text entry is ignored.
+  bool ignore_changed_signal_;
 
   DISALLOW_COPY_AND_ASSIGN(FindBarGtk);
 };

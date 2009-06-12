@@ -69,7 +69,8 @@ gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e, gpointer userdata) {
 }  // namespace
 
 FindBarGtk::FindBarGtk(BrowserWindowGtk* browser)
-    : container_shaped_(false) {
+    : container_shaped_(false),
+      ignore_changed_signal_(false) {
   InitWidgets();
 
   // Insert the widget into the browser gtk hierarchy.
@@ -77,8 +78,8 @@ FindBarGtk::FindBarGtk(BrowserWindowGtk* browser)
 
   // Hook up signals after the widget has been added to the hierarchy so the
   // widget will be realized.
-  changed_handler_id_ = g_signal_connect(text_entry_, "changed",
-                                         G_CALLBACK(OnChanged), this);
+  g_signal_connect(text_entry_, "changed",
+                   G_CALLBACK(OnChanged), this);
   g_signal_connect(text_entry_, "key-press-event",
                    G_CALLBACK(OnKeyPressEvent), this);
   g_signal_connect(text_entry_, "key-release-event",
@@ -233,12 +234,11 @@ void FindBarGtk::MoveWindowIfNecessary(const gfx::Rect& selection_rect,
 void FindBarGtk::SetFindText(const string16& find_text) {
   std::string text_entry_utf8 = UTF16ToUTF8(find_text);
 
-  // Unhook the "changed" signal handler because programatically setting the
+  // Ignore the "changed" signal handler because programatically setting the
   // text should not fire a "changed" event.
-  g_signal_handler_disconnect(text_entry_, changed_handler_id_);
+  ignore_changed_signal_ = true;
   gtk_entry_set_text(GTK_ENTRY(text_entry_), text_entry_utf8.c_str());
-  changed_handler_id_ = g_signal_connect(text_entry_, "changed",
-                                         G_CALLBACK(OnChanged), this);
+  ignore_changed_signal_ = false;
 }
 
 void FindBarGtk::UpdateUIForFindResult(const FindNotificationDetails& result,
@@ -385,7 +385,8 @@ bool FindBarGtk::MaybeForwardKeyEventToRenderer(GdkEventKey* event) {
 
 // static
 gboolean FindBarGtk::OnChanged(GtkWindow* window, FindBarGtk* find_bar) {
-  find_bar->FindEntryTextInContents(true);
+  if (!find_bar->ignore_changed_signal_)
+    find_bar->FindEntryTextInContents(true);
   return FALSE;
 }
 
