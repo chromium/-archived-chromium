@@ -225,7 +225,14 @@ bool SharedMemory::CreateOrOpen(const std::wstring &name,
   }
 
   mapped_file_ = dup(fileno(fp));
-  DCHECK(mapped_file_ >= 0);
+  if (mapped_file_ == -1) {
+    if (errno == EMFILE) {
+      LOG(WARNING) << "Shared memory creation failed; out of file descriptors";
+      return false;
+    } else {
+      NOTREACHED() << "Call to dup failed, errno=" << errno;
+    }
+  }
 
   struct stat st;
   if (fstat(mapped_file_, &st))
