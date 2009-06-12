@@ -486,7 +486,11 @@
             ],
             'AdditionalLibraryDirectories':
               '<(DEPTH)/third_party/platformsdk_win2008_6_1/files/Lib',
-            'DelayLoadDLLs': 'dbghelp.dll,dwmapi.dll,uxtheme.dll',
+            'DelayLoadDLLs': [
+              'dbghelp.dll',
+              'dwmapi.dll',
+              'uxtheme.dll',
+            ],
             'GenerateDebugInformation': 'true',
             'MapFileName': '$(OutDir)\\$(TargetName).map',
             'ImportLibrary': '$(OutDir)\\lib\\$(TargetName).lib',

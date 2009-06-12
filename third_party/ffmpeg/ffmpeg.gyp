@@ -88,7 +88,11 @@
               },
               'msvs_settings': {
                 'VCLinkerTool': {
-                  'DelayLoadDLLs': 'avcodec-52.dll,avformat-52.dll,avutil-50.dll',
+                  'DelayLoadDLLs': [
+                    'avcodec-52.dll',
+                    'avformat-52.dll',
+                    'avutil-50.dll',
+		  ],
                 },
               },
             },
