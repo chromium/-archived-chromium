@@ -18,10 +18,7 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gtk_util.h"
-#include "chrome/common/pref_names.h"
-#include "chrome/common/pref_service.h"
 #include "grit/app_resources.h"
-#include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
 namespace {
@@ -488,8 +485,6 @@ void TabStripGtk::Init(Profile* profile) {
                    G_CALLBACK(OnExpose), this);
   g_signal_connect(G_OBJECT(tabstrip_.get()), "size-allocate",
                      G_CALLBACK(OnSizeAllocate), this);
-  g_signal_connect(G_OBJECT(tabstrip_.get()), "button-press-event",
-                   G_CALLBACK(OnButtonPress), this);
   g_signal_connect(G_OBJECT(tabstrip_.get()), "drag-motion",
                    G_CALLBACK(OnDragMotion), this);
   g_signal_connect(G_OBJECT(tabstrip_.get()), "drag-drop",
@@ -1482,19 +1477,6 @@ void TabStripGtk::OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation,
 }
 
 // static
-gboolean TabStripGtk::OnButtonPress(GtkWidget* widget, GdkEventButton* event,
-                                    TabStripGtk* tabstrip) {
-  if (1 == event->button) {
-    gtk_window_begin_move_drag(GTK_WINDOW(gtk_widget_get_toplevel(widget)),
-        event->button, event->x_root, event->y_root, event->time);
-  } else if (3 == event->button) {
-    tabstrip->ShowContextMenu();
-  }
-
-  return TRUE;
-}
-
-// static
 gboolean TabStripGtk::OnDragMotion(GtkWidget* widget, GdkDragContext* context,
                                    gint x, gint y, guint time,
                                    TabStripGtk* tabstrip) {
@@ -1569,83 +1551,4 @@ CustomDrawButton* TabStripGtk::MakeNewTabButton() {
   gtk_fixed_put(GTK_FIXED(tabstrip_.get()), button->widget(), 0, 0);
 
   return button;
-}
-
-void TabStripGtk::ShowContextMenu() {
-  if (!context_menu_.get()) {
-    context_menu_.reset(new MenuGtk(this, false));
-    context_menu_->AppendMenuItemWithLabel(
-        TabStripModel::CommandNewTab,
-        l10n_util::GetStringUTF8(IDS_TAB_CXMENU_NEWTAB));
-    context_menu_->AppendMenuItemWithLabel(
-        TabStripModel::CommandRestoreTab,
-        l10n_util::GetStringUTF8(IDS_RESTORE_TAB));
-
-    context_menu_->AppendSeparator();
-
-    context_menu_->AppendMenuItemWithLabel(
-        TabStripModel::CommandTaskManager,
-        l10n_util::GetStringUTF8(IDS_TASK_MANAGER));
-
-    context_menu_->AppendSeparator();
-
-    context_menu_->AppendCheckMenuItemWithLabel(
-        kShowWindowDecorationsCommand,
-        l10n_util::GetStringUTF8(IDS_SHOW_WINDOW_DECORATIONS));
-  }
-
-  context_menu_->PopupAsContext(gtk_get_current_event_time());
-}
-
-bool TabStripGtk::IsCommandEnabled(int command_id) const {
-  switch (command_id) {
-    case TabStripModel::CommandNewTab:
-    case kShowWindowDecorationsCommand:
-      return true;
-
-    case TabStripModel::CommandRestoreTab:
-      return model_->delegate()->CanRestoreTab();
-
-    case TabStripModel::CommandTaskManager:
-      // TODO(tc): This needs to be implemented in the TabStripModelDelegate.
-      return false;
-
-    default:
-      NOTREACHED();
-  }
-  return false;
-}
-
-bool TabStripGtk::IsItemChecked(int command_id) const {
-  DCHECK(command_id == kShowWindowDecorationsCommand);
-  PrefService* prefs = model_->profile()->GetPrefs();
-  return !prefs->GetBoolean(prefs::kUseCustomChromeFrame);
-}
-
-void TabStripGtk::ExecuteCommand(int command_id) {
-  switch (command_id) {
-    case TabStripModel::CommandNewTab:
-      model_->delegate()->AddBlankTab(true);
-      break;
-
-    case TabStripModel::CommandRestoreTab:
-      model_->delegate()->RestoreTab();
-      break;
-
-    case TabStripModel::CommandTaskManager:
-      // TODO(tc): This needs to be implemented in the TabStripModelDelegate.
-      NOTIMPLEMENTED();
-      break;
-
-    case kShowWindowDecorationsCommand:
-    {
-      PrefService* prefs = model_->profile()->GetPrefs();
-      prefs->SetBoolean(prefs::kUseCustomChromeFrame,
-                        !prefs->GetBoolean(prefs::kUseCustomChromeFrame));
-      break;
-    }
-
-    default:
-      NOTREACHED();
-  }
 }

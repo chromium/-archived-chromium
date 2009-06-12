@@ -19,6 +19,8 @@
 #include "chrome/common/x11_util.h"
 
 class BookmarkBarGtk;
+class Browser;
+class BrowserTitlebar;
 class BrowserToolbarGtk;
 class CustomDrawButton;
 class DownloadShelfGtk;
@@ -133,18 +135,16 @@ class BrowserWindowGtk : public BrowserWindow,
   // ID of the top-level X window of this object.
   static GtkWindow* GetBrowserWindowForXID(XID xid);
 
+  Browser* browser() {
+    return browser_.get();
+  }
+
  protected:
   virtual void DestroyBrowser();
   // Top level window.
   GtkWindow* window_;
   // GtkAlignment that holds the interior components of the chromium window.
   GtkWidget* window_container_;
-  // Box that holds the min/max/close buttons if the user turns off window
-  // manager decorations.
-  GtkWidget* titlebar_buttons_box_;
-  // Gtk alignment that contains the tab strip.  If the user turns off window
-  // manager decorations, we draw this taller.
-  GtkWidget* titlebar_alignment_;
   // VBox that holds everything below the tabs.
   GtkWidget* content_vbox_;
   // VBox that holds everything below the toolbar.
@@ -167,17 +167,6 @@ class BrowserWindowGtk : public BrowserWindow,
   // ctrl-l, etc.).
   void ConnectAccelerators();
 
-  // Build the titlebar which includes the tab strip, the space above the tab
-  // strip, and (maybe) the min, max, close buttons.  |container| is the gtk
-  // continer that we put the widget into.
-  void BuildTitlebar(GtkWidget* container);
-
-  // Constructs a CustomDraw button given 3 image ids (IDR_), the box to place
-  // the button into, and a tooltip id (IDS_).
-  CustomDrawButton* BuildTitlebarButton(int image, int image_pressed,
-                                        int image_hot, GtkWidget* box,
-                                        int tooltip);
-
   // Change whether we're showing the custom blue frame.
   // Must be called once at startup.
   // Triggers relayout of the content.
@@ -190,14 +179,6 @@ class BrowserWindowGtk : public BrowserWindow,
   // The content area includes the toolbar and web page but not the tab strip.
   static gboolean OnContentAreaExpose(GtkWidget* widget, GdkEventExpose* e,
                                       BrowserWindowGtk* window);
-
-  // Callback for when the titlebar (include the background of the tab strip)
-  // needs to be redrawn.
-  static gboolean OnTitlebarExpose(GtkWidget* widget, GdkEventExpose* e,
-                                   BrowserWindowGtk* window);
-
-  // Callback for min/max/close buttons.
-  static void OnButtonClicked(GtkWidget* button, BrowserWindowGtk* window);
 
   static gboolean OnGtkAccelerator(GtkAccelGroup* accel_group,
                                    GObject* acceleratable,
@@ -234,6 +215,9 @@ class BrowserWindowGtk : public BrowserWindow,
   // OnStateChanged(), we can't rely on |state_| & GDK_WINDOW_STATE_FULLSCREEN.
   bool full_screen_;
 
+  // The container for the titlebar + tab strip.
+  scoped_ptr<BrowserTitlebar> titlebar_;
+
   // The object that manages all of the widgets in the toolbar.
   scoped_ptr<BrowserToolbarGtk> toolbar_;
 
@@ -253,16 +237,6 @@ class BrowserWindowGtk : public BrowserWindow,
 
   // The container for info bars. Always non-NULL.
   scoped_ptr<InfoBarContainerGtk> infobar_container_;
-
-  // Maximize and restore widgets in the titlebar.
-  scoped_ptr<CustomDrawButton> minimize_button_;
-  scoped_ptr<CustomDrawButton> maximize_button_;
-  scoped_ptr<CustomDrawButton> restore_button_;
-  scoped_ptr<CustomDrawButton> close_button_;
-
-  // The background of the title bar and tab strip.
-  scoped_ptr<NineBox> titlebar_background_;
-  scoped_ptr<NineBox> titlebar_background_otr_;
 
   // The timer used to update frames for the Loading Animation.
   base::RepeatingTimer<BrowserWindowGtk> loading_animation_timer_;

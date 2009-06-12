@@ -7,7 +7,6 @@
 #include <gdk/gdkkeysyms.h>
 
 #include "app/resource_bundle.h"
-#include "app/l10n_util.h"
 #include "base/base_paths_linux.h"
 #include "base/gfx/gtk_util.h"
 #include "base/logging.h"
@@ -23,15 +22,14 @@
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/gtk/about_chrome_dialog.h"
 #include "chrome/browser/gtk/bookmark_bar_gtk.h"
+#include "chrome/browser/gtk/browser_titlebar.h"
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
 #include "chrome/browser/gtk/clear_browsing_data_dialog_gtk.h"
-#include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/download_shelf_gtk.h"
 #include "chrome/browser/gtk/go_button_gtk.h"
 #include "chrome/browser/gtk/import_dialog_gtk.h"
 #include "chrome/browser/gtk/infobar_container_gtk.h"
 #include "chrome/browser/gtk/find_bar_gtk.h"
-#include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/status_bubble_gtk.h"
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
 #include "chrome/browser/gtk/tabs/tab_strip_gtk.h"
@@ -43,8 +41,6 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "grit/app_resources.h"
-#include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
 namespace {
@@ -58,9 +54,6 @@ const char* kBrowserWindowKey = "__BROWSER_WINDOW_GTK__";
 
 // The width of the custom frame.
 const int kCustomFrameWidth = 3;
-
-// The space above the titlebars.
-const int kTitlebarHeight = 14;
 
 gboolean MainWindowConfigured(GtkWindow* window, GdkEventConfigure* event,
                               BrowserWindowGtk* browser_win) {
@@ -323,13 +316,6 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   ConnectAccelerators();
   bounds_ = GetInitialWindowBounds(window_);
 
-  titlebar_background_.reset(new NineBox(
-      browser_->profile()->GetThemeProvider(),
-      0, IDR_THEME_FRAME, 0, 0, 0, 0, 0, 0, 0));
-  titlebar_background_otr_.reset(new NineBox(
-      browser_->profile()->GetThemeProvider(),
-      0, IDR_THEME_FRAME_INCOGNITO, 0, 0, 0, 0, 0, 0, 0));
-
   // This vbox encompasses all of the widgets within the browser, including the
   // tabstrip and the content vbox.  The vbox is put in a floating container
   // (see gtk_floating_container.h) so we can position the
@@ -342,8 +328,13 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   window_container_ = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
   gtk_container_add(GTK_CONTAINER(window_container_), window_vbox);
 
+  tabstrip_.reset(new TabStripGtk(browser_->tabstrip_model()));
+  tabstrip_->Init(browser_->profile());
+
   // Build the titlebar (tabstrip + header space + min/max/close buttons).
-  BuildTitlebar(window_vbox);
+  titlebar_.reset(new BrowserTitlebar(this, window_));
+  gtk_box_pack_start(GTK_BOX(window_vbox), titlebar_->widget(), FALSE, FALSE,
+                     0);
 
   // The content_vbox_ surrounds the "content": toolbar+bookmarks bar+page.
   content_vbox_ = gtk_vbox_new(FALSE, 0);
@@ -418,34 +409,6 @@ gboolean BrowserWindowGtk::OnContentAreaExpose(GtkWidget* widget,
   }
 
   return FALSE;  // Allow subwidgets to paint.
-}
-
-gboolean BrowserWindowGtk::OnTitlebarExpose(GtkWidget* widget,
-                                            GdkEventExpose* e,
-                                            BrowserWindowGtk* window) {
-  cairo_t* cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-  cairo_rectangle(cr, e->area.x, e->area.y, e->area.width, e->area.height);
-  cairo_clip(cr);
-  NineBox* image = window->browser_->profile()->IsOffTheRecord()
-      ? window->titlebar_background_otr_.get()
-      : window->titlebar_background_.get();
-  image->RenderTopCenterStrip(cr, e->area.x, e->area.y, e->area.width);
-  cairo_destroy(cr);
-
-  return FALSE;  // Allow subwidgets to paint.
-}
-
-void BrowserWindowGtk::OnButtonClicked(GtkWidget* button,
-                                       BrowserWindowGtk* window) {
-  if (window->close_button_->widget() == button) {
-    window->Close();
-  } else if (window->restore_button_->widget() == button) {
-    gtk_window_unmaximize(window->window_);
-  } else if (window->maximize_button_->widget() == button) {
-    gtk_window_maximize(window->window_);
-  } else if (window->minimize_button_->widget() == button) {
-    gtk_window_iconify(window->window_);
-  }
 }
 
 void BrowserWindowGtk::Show() {
@@ -794,15 +757,6 @@ void BrowserWindowGtk::OnBoundsChanged(const gfx::Rect& bounds) {
 void BrowserWindowGtk::OnStateChanged(GdkWindowState state) {
   state_ = state;
 
-  // Update the maximize/restore button.
-  if (IsMaximized()) {
-    gtk_widget_hide(maximize_button_->widget());
-    gtk_widget_show(restore_button_->widget());
-  } else {
-    gtk_widget_hide(restore_button_->widget());
-    gtk_widget_show(maximize_button_->widget());
-  }
-
   SaveWindowPosition();
 }
 
@@ -908,88 +862,16 @@ void BrowserWindowGtk::ConnectAccelerators() {
   }
 }
 
-void BrowserWindowGtk::BuildTitlebar(GtkWidget* container) {
-  // +- HBox (titlebar_hbox) -----------------------------------------------+
-  // |+- Alignment (titlebar_alignment_)-++- VBox (titlebar_buttons_box_) -+|
-  // ||                                  ||+- HBox -----------------------+||
-  // ||                                  |||+- button -++- button -+      |||
-  // ||+- TabStripGtk ------------------+|||| minimize || restore  | ...  |||
-  // ||| tab   tab   tab    tabclose    +|||+----------++----------+      |||
-  // ||+--------------------------------+||+------------------------------+||
-  // |+----------------------------------++--------------------------------+|
-  // +----------------------------------------------------------------------+
-  //
-  GtkWidget* titlebar_hbox = gtk_hbox_new(FALSE, 0);
-  g_signal_connect(G_OBJECT(titlebar_hbox), "expose-event",
-                   G_CALLBACK(&OnTitlebarExpose), this);
-
-  // We use an alignment to control the titlebar height.
-  titlebar_alignment_ = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
-  gtk_box_pack_start(GTK_BOX(titlebar_hbox), titlebar_alignment_, TRUE,
-                     TRUE, 0);
-
-  tabstrip_.reset(new TabStripGtk(browser_->tabstrip_model()));
-  tabstrip_->Init(browser_->profile());
-  gtk_container_add(GTK_CONTAINER(titlebar_alignment_), tabstrip_->widget());
-
-  // We put the min/max/restore/close buttons in a vbox so they are top aligned
-  // and don't vertically stretch.
-  titlebar_buttons_box_ = gtk_vbox_new(FALSE, 0);
-  GtkWidget* buttons_hbox = gtk_hbox_new(FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(titlebar_buttons_box_), buttons_hbox, FALSE,
-                     FALSE, 0);
-
-  close_button_.reset(BuildTitlebarButton(IDR_CLOSE, IDR_CLOSE_P, IDR_CLOSE_H,
-                      buttons_hbox, IDS_XPFRAME_CLOSE_TOOLTIP));
-  restore_button_.reset(BuildTitlebarButton(IDR_RESTORE, IDR_RESTORE_P,
-                        IDR_RESTORE_H, buttons_hbox,
-                        IDS_XPFRAME_RESTORE_TOOLTIP));
-  maximize_button_.reset(BuildTitlebarButton(IDR_MAXIMIZE, IDR_MAXIMIZE_P,
-                         IDR_MAXIMIZE_H, buttons_hbox,
-                         IDS_XPFRAME_MAXIMIZE_TOOLTIP));
-  minimize_button_.reset(BuildTitlebarButton(IDR_MINIMIZE, IDR_MINIMIZE_P,
-                         IDR_MINIMIZE_H, buttons_hbox,
-                         IDS_XPFRAME_MINIMIZE_TOOLTIP));
-
-  gtk_box_pack_end(GTK_BOX(titlebar_hbox), titlebar_buttons_box_, FALSE,
-                   FALSE, 0);
-
-  gtk_widget_show_all(titlebar_hbox);
-  if (IsMaximized()) {
-    gtk_widget_hide(maximize_button_->widget());
-  } else {
-    gtk_widget_hide(restore_button_->widget());
-  }
-
-  gtk_box_pack_start(GTK_BOX(container), titlebar_hbox, FALSE, FALSE, 0);
-}
-
-CustomDrawButton* BrowserWindowGtk::BuildTitlebarButton(int image,
-    int image_pressed, int image_hot, GtkWidget* box, int tooltip) {
-  CustomDrawButton* button = new CustomDrawButton(image, image_pressed,
-      image_hot, 0);
-  g_signal_connect(button->widget(), "clicked", G_CALLBACK(OnButtonClicked),
-                   this);
-  std::string localized_tooltip = l10n_util::GetStringUTF8(tooltip);
-  gtk_widget_set_tooltip_text(button->widget(),
-                              localized_tooltip.c_str());
-  gtk_box_pack_end(GTK_BOX(box), button->widget(), FALSE, FALSE, 0);
-  return button;
-}
 
 void BrowserWindowGtk::UpdateCustomFrame() {
   gtk_window_set_decorated(window_,
                            !use_custom_frame_.GetValue());
+  titlebar_->UpdateCustomFrame(use_custom_frame_.GetValue());
   if (use_custom_frame_.GetValue()) {
     gtk_alignment_set_padding(GTK_ALIGNMENT(window_container_), 0,
         kCustomFrameWidth, kCustomFrameWidth, kCustomFrameWidth);
-    gtk_alignment_set_padding(GTK_ALIGNMENT(titlebar_alignment_),
-        kTitlebarHeight, 0, 0, 0);
-    gtk_widget_show_all(titlebar_buttons_box_);
   } else {
     gtk_alignment_set_padding(GTK_ALIGNMENT(window_container_), 0, 0, 0, 0);
-    gtk_alignment_set_padding(GTK_ALIGNMENT(titlebar_alignment_), 0, 0, 0, 0);
-    gtk_widget_hide(titlebar_buttons_box_);
   }
 }
 
