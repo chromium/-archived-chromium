@@ -111,6 +111,15 @@ void FFmpegVideoDecoder::OnDecode(Buffer* buffer) {
               << buffer->GetDataSize() << " bytes";
   }
 
+  // We queue all incoming timestamps as long as decoding succeeded and it's not
+  // end of stream.
+  if (!buffer->IsEndOfStream()) {
+    TimeTuple times;
+    times.timestamp = buffer->GetTimestamp();
+    times.duration = buffer->GetDuration();
+    time_queue_.push(times);
+  }
+
   // Check for a decoded frame instead of checking the return value of
   // avcodec_decode_video(). We don't need to stop the pipeline on
   // decode errors.
@@ -127,12 +136,6 @@ void FFmpegVideoDecoder::OnDecode(Buffer* buffer) {
     }
     return;
   }
-
-  // Queue the incoming timestamp only if we can decode the frame successfully.
-  TimeTuple times;
-  times.timestamp = buffer->GetTimestamp();
-  times.duration = buffer->GetDuration();
-  time_queue_.push(times);
 
   // J (Motion JPEG) versions of YUV are full range 0..255.
   // Regular (MPEG) YUV is 16..240.
