@@ -172,8 +172,8 @@ GURL AutocompletePopupModel::URLsForCurrentSelection(
     result = &controller_->result();
     // If there are no results, the popup is closed, so URLsForDefaultMatch()
     // should have been called instead.
-    DCHECK(!result->empty());
-    DCHECK(selected_line_ < result->size());
+    CHECK(!result->empty());
+    CHECK(selected_line_ < result->size());
     match = result->begin() + selected_line_;
   }
   if (transition)
