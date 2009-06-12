@@ -536,23 +536,16 @@ void DownloadFileManager::OnShowDownloadInShell(const FilePath& full_path) {
 void DownloadFileManager::OnOpenDownloadInShell(const FilePath& full_path,
                                                 const GURL& url,
                                                 gfx::NativeView parent_window) {
+  DCHECK(MessageLoop::current() == file_loop_);
 #if defined(OS_WIN)
-    DCHECK(MessageLoop::current() == file_loop_);
-    if (NULL != parent_window) {
-      win_util::SaferOpenItemViaShell(parent_window, L"", full_path,
-                                      UTF8ToWide(url.spec()));
-    } else {
-      win_util::OpenItemViaShell(full_path);
-    }
-#elif defined(OS_MACOSX)
-  // Quarantine takes care of asking the user about dangerous files, so we can
-  // just open it.
-  platform_util::OpenItem(full_path);
-#else
-  // TODO(port) implement me. (Does Linux need to use a "safe" open, or can it
-  // just share the Mac call to platform_util?)
-  NOTIMPLEMENTED();
+  if (NULL != parent_window) {
+    win_util::SaferOpenItemViaShell(parent_window, L"", full_path,
+                                    UTF8ToWide(url.spec()));
+    return;
+  }
 #endif
+
+  platform_util::OpenItem(full_path);
 }
 
 // The DownloadManager in the UI thread has provided a final name for the
