@@ -124,12 +124,9 @@ void BrowserToolbarGtk::Init(Profile* profile,
 
   reload_.reset(BuildToolbarButton(IDR_RELOAD, IDR_RELOAD_P, IDR_RELOAD_H, 0,
       l10n_util::GetStringUTF8(IDS_TOOLTIP_RELOAD)));
-  AddAcceleratorToButton(reload_->widget(),
-                         GDK_r, GDK_CONTROL_MASK);
-  // Any modifier except alt can be combined with f5 (this matches windows
-  // chromium).
-  AddAcceleratorToButton(reload_->widget(),
-                         GDK_F5, GDK_MODIFIER_MASK & ~GDK_MOD1_MASK);
+  AddAcceleratorToButton(reload_->widget(), GDK_r, GDK_CONTROL_MASK);
+  AddAcceleratorToButton(reload_->widget(), GDK_F5, GdkModifierType(0));
+  AddAcceleratorToButton(reload_->widget(), GDK_F5, GDK_CONTROL_MASK);
 
   home_.reset(BuildToolbarButton(IDR_HOME, IDR_HOME_P, IDR_HOME_H, 0,
                                  l10n_util::GetStringUTF8(IDS_TOOLTIP_HOME)));
