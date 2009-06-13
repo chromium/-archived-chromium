@@ -21,7 +21,7 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
   Profile* profile() { return profile_; }
 
   // Show the node in the tree.
-  static void SelectInTree(BookmarkNode* node);
+  void SelectInTree(BookmarkNode* node);
 
   // Shows the bookmark manager. Only one bookmark manager exists.
   static void Show(Profile* profile);
@@ -93,7 +93,8 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
   void AllowUpdatesToRightStore();
 
   // Tries to find the node with id |target_id|. If found, returns true and set
-  // |iter| to point to the entry.
+  // |iter| to point to the entry. If you pass a |iter| with stamp of 0, then it
+  // will be treated as the first row of |model|.
   bool RecursiveFind(GtkTreeModel* model, GtkTreeIter* iter, int target_id);
 
   static void OnLeftSelectionChanged(GtkTreeSelection* selection,
@@ -111,11 +112,13 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
       GdkDragContext* context, gint x, gint y, guint time,
       BookmarkManagerGtk* bookmark_manager);
 
+  static void OnLeftTreeViewRowCollapsed(GtkTreeView* tree_view,
+      GtkTreeIter* iter, GtkTreePath* path,
+      BookmarkManagerGtk* bookmark_manager);
 
-  static void OnRightTreeViewDragGet(GtkWidget* tree_view, GdkDragContext* context,
-                                GtkSelectionData* selection_data,
-                                guint target_type, guint time,
-                                BookmarkManagerGtk* bookmark_manager);
+  static void OnRightTreeViewDragGet(GtkWidget* tree_view,
+      GdkDragContext* context, GtkSelectionData* selection_data,
+      guint target_type, guint time, BookmarkManagerGtk* bookmark_manager);
 
   static void OnRightTreeViewDragReceived(
       GtkWidget* tree_view, GdkDragContext* context, gint x, gint y,
@@ -123,11 +126,14 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
       BookmarkManagerGtk* bookmark_manager);
 
   static void OnRightTreeViewDragBegin(GtkWidget* tree_view,
-                                  GdkDragContext* drag_context,
-                                  BookmarkManagerGtk* bookmark_manager);
+      GdkDragContext* drag_context, BookmarkManagerGtk* bookmark_manager);
 
   static gboolean OnRightTreeViewDragMotion(GtkWidget* tree_view,
       GdkDragContext* context, gint x, gint y, guint time,
+      BookmarkManagerGtk* bookmark_manager);
+
+  static void OnRightTreeViewRowActivated(GtkTreeView* tree_view,
+      GtkTreePath* path, GtkTreeViewColumn* column,
       BookmarkManagerGtk* bookmark_manager);
 
   GtkWidget* window_;
