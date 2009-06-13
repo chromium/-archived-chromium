@@ -398,6 +398,7 @@ void TabContentsViewWin::ShowContextMenu(const ContextMenuParams& params) {
     return;
 
   context_menu_.reset(new RenderViewContextMenuWin(tab_contents(), params));
+  context_menu_->Init();
 
   POINT screen_pt = { params.x, params.y };
   MapWindowPoints(GetNativeView(), HWND_DESKTOP, &screen_pt, 1);

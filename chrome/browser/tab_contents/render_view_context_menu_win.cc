@@ -19,8 +19,6 @@ RenderViewContextMenuWin::RenderViewContextMenuWin(
       current_radio_group_id_(-1),
       sub_menu_contents_(NULL) {
   menu_contents_.reset(new views::SimpleMenuModel(this));
-  InitMenu(params.node);
-  menu_.reset(new views::Menu2(menu_contents_.get()));
 }
 
 RenderViewContextMenuWin::~RenderViewContextMenuWin() {
@@ -82,6 +80,10 @@ void RenderViewContextMenuWin::ExecuteCommand(int command_id) {
 
 ////////////////////////////////////////////////////////////////////////////////
 // RenderViewContextMenuWin, protected:
+
+void RenderViewContextMenuWin::DoInit() {
+  menu_.reset(new views::Menu2(menu_contents_.get()));
+}
 
 void RenderViewContextMenuWin::AppendMenuItem(int id) {
   current_radio_group_id_ = -1;

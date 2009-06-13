@@ -34,6 +34,7 @@ class RenderViewContextMenuWin : public RenderViewContextMenu,
 
  protected:
   // RenderViewContextMenu implementation --------------------------------------
+  virtual void DoInit();
   virtual void AppendMenuItem(int id);
   virtual void AppendMenuItem(int id, const std::wstring& label);
   virtual void AppendRadioMenuItem(int id, const std::wstring& label);
@@ -58,7 +59,6 @@ class RenderViewContextMenuWin : public RenderViewContextMenu,
   views::SimpleMenuModel* sub_menu_contents_;
   // We own submenu models that we create, so we store them here.
   ScopedVector<views::SimpleMenuModel> submenu_models_;
-  HWND owner_;
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_CONTEXT_MENU_WIN_H_
