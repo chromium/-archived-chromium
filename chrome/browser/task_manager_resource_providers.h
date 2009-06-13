@@ -205,7 +205,8 @@ class TaskManagerExtensionProcessResource : public TaskManager::Resource {
 };
 
 class TaskManagerExtensionProcessResourceProvider
-    : public TaskManager::ResourceProvider {
+    : public TaskManager::ResourceProvider,
+      public NotificationObserver {
  public:
   explicit TaskManagerExtensionProcessResourceProvider(
       TaskManager* task_manager);
@@ -217,8 +218,14 @@ class TaskManagerExtensionProcessResourceProvider
   virtual void StartUpdating();
   virtual void StopUpdating();
 
+  // NotificationObserver method:
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
+
  private:
   void AddToTaskManager(ExtensionHost* extension_host);
+  void RemoveFromTaskManager(ExtensionHost* extension_host);
 
   TaskManager* task_manager_;
 
@@ -228,6 +235,9 @@ class TaskManagerExtensionProcessResourceProvider
   // Maps the pids to the resources (used for quick access to the resource on
   // byte read notifications).
   std::map<int, TaskManagerExtensionProcessResource*> pid_to_resources_;
+
+  // A scoped container for notification registries.
+  NotificationRegistrar registrar_;
 
   bool updating_;
 

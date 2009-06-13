@@ -568,6 +568,14 @@ class NotificationType {
     // state.
     EXTENSION_UNLOADED,
 
+    // Sent after a new ExtensionHost is created. The details are
+    // an ExtensionHost*.
+    EXTENSION_HOST_CREATED,
+
+    // Sent before an ExtensionHost is destroyed. The details are
+    // an ExtensionHost*.
+    EXTENSION_HOST_DESTROYED,
+
     // Debugging ---------------------------------------------------------------
 
     // Sent from ~RenderViewHost. The source is the RenderViewHost.

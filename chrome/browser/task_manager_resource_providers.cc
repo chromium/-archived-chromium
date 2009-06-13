@@ -137,17 +137,11 @@ TaskManager::Resource* TaskManagerTabContentsResourceProvider::GetResource(
 void TaskManagerTabContentsResourceProvider::StartUpdating() {
   DCHECK(!updating_);
   updating_ = true;
+
   // Add all the existing TabContents.
-  for (TabContentsIterator iterator; !iterator.done(); iterator++) {
-    TabContents* tab_contents = *iterator;
-    // Don't add dead tabs or tabs that haven't yet connected.
-    // Also ignore tabs which display extension content. We collapse
-    // all of these into one extension row.
-    if (tab_contents->process()->process().handle() &&
-        tab_contents->notify_disconnection() &&
-        !tab_contents->HostsExtension())
-      AddToTaskManager(tab_contents);
-  }
+  for (TabContentsIterator iterator; !iterator.done(); iterator++)
+    Add(*iterator);
+
   // Then we register for notifications to get new tabs.
   registrar_.Add(this, NotificationType::TAB_CONTENTS_CONNECTED,
                  NotificationService::AllSources());
@@ -195,9 +189,12 @@ void TaskManagerTabContentsResourceProvider::Add(TabContents* tab_contents) {
   if (!updating_)
     return;
 
-  if (!tab_contents->process()->process().handle()) {
-    // Don't add sad tabs, we would have no information to show for them since
-    // they have no associated process.
+  // Don't add dead tabs or tabs that haven't yet connected.
+  // Also ignore tabs which display extension content. We collapse
+  // all of these into one extension row.
+  if (!tab_contents->process()->process().handle() ||
+      !tab_contents->notify_disconnection() ||
+      tab_contents->HostsExtension()) {
     return;
   }
 
@@ -531,6 +528,7 @@ TaskManager::Resource* TaskManagerExtensionProcessResourceProvider::GetResource(
 void TaskManagerExtensionProcessResourceProvider::StartUpdating() {
   DCHECK(!updating_);
   updating_ = true;
+
   // Add all the existing ExtensionHosts.
   ProfileManager* profile_manager = g_browser_process->profile_manager();
   for (ProfileManager::const_iterator it = profile_manager->begin();
@@ -541,22 +539,46 @@ void TaskManagerExtensionProcessResourceProvider::StartUpdating() {
       for (jt = process_manager->begin(); jt != process_manager->end(); ++jt)
         AddToTaskManager(*jt);
   }
-  // TODO(phajdan.jr): Also look for TabContents which are displaying
-  // extension content to aggregate network usage.
-  // TODO(phajdan.jr): Register for notifications.
+
+  // Register for notifications to get new extension processes.
+  registrar_.Add(this, NotificationType::EXTENSION_HOST_CREATED,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::EXTENSION_HOST_DESTROYED,
+                 NotificationService::AllSources());
 }
 
 void TaskManagerExtensionProcessResourceProvider::StopUpdating() {
   DCHECK(updating_);
   updating_ = false;
 
-  // TODO(phajdan.jr): Unregister notifications.
+  // Unregister for notifications to get new extension processes.
+  registrar_.Remove(this, NotificationType::EXTENSION_HOST_CREATED,
+                    NotificationService::AllSources());
+  registrar_.Remove(this, NotificationType::EXTENSION_HOST_DESTROYED,
+                    NotificationService::AllSources());
 
   // Delete all the resources.
   STLDeleteContainerPairSecondPointers(resources_.begin(), resources_.end());
 
   resources_.clear();
   pid_to_resources_.clear();
+}
+
+void TaskManagerExtensionProcessResourceProvider::Observe(
+    NotificationType type,
+    const NotificationSource& source,
+    const NotificationDetails& details) {
+  switch (type.value) {
+    case NotificationType::EXTENSION_HOST_CREATED:
+      AddToTaskManager(Details<ExtensionHost>(details).ptr());
+      break;
+    case NotificationType::EXTENSION_HOST_DESTROYED:
+      RemoveFromTaskManager(Details<ExtensionHost>(details).ptr());
+      break;
+    default:
+      NOTREACHED() << "Unexpected notification.";
+      return;
+  }
 }
 
 void TaskManagerExtensionProcessResourceProvider::AddToTaskManager(
@@ -567,6 +589,33 @@ void TaskManagerExtensionProcessResourceProvider::AddToTaskManager(
   resources_[extension_host] = resource;
   pid_to_resources_[resource->process_id()] = resource;
   task_manager_->AddResource(resource);
+}
+
+void TaskManagerExtensionProcessResourceProvider::RemoveFromTaskManager(
+    ExtensionHost* extension_host) {
+  if (!updating_)
+    return;
+  std::map<ExtensionHost*, TaskManagerExtensionProcessResource*>
+      ::iterator iter = resources_.find(extension_host);
+  if (iter == resources_.end())
+    return;
+
+  // Remove the resource from the Task Manager.
+  TaskManagerExtensionProcessResource* resource = iter->second;
+  task_manager_->RemoveResource(resource);
+
+  // Remove it from the provider.
+  resources_.erase(iter);
+
+  // Remove it from our pid map.
+  std::map<int, TaskManagerExtensionProcessResource*>::iterator pid_iter =
+      pid_to_resources_.find(resource->process_id());
+  DCHECK(pid_iter != pid_to_resources_.end());
+  if (pid_iter != pid_to_resources_.end())
+    pid_to_resources_.erase(pid_iter);
+
+  // Finally, delete the resource.
+  delete resource;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -11,6 +11,7 @@
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/common/extensions/extension.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/notification_type.h"
 
 static void CreateBackgroundHosts(
     ExtensionProcessManager* manager, const ExtensionList* extensions) {
@@ -50,7 +51,7 @@ ExtensionHost* ExtensionProcessManager::CreateView(Extension* extension,
   ExtensionHost* host =
       new ExtensionHost(extension, GetSiteInstanceForURL(url), url, this);
   host->CreateView(browser);
-  all_hosts_.insert(host);
+  OnExtensionHostCreated(host, false);
   return host;
 }
 
@@ -59,8 +60,7 @@ ExtensionHost* ExtensionProcessManager::CreateBackgroundHost(
   ExtensionHost* host =
       new ExtensionHost(extension, GetSiteInstanceForURL(url), url, this);
   host->CreateRenderView(NULL);  // create a RenderViewHost with no view
-  all_hosts_.insert(host);
-  background_hosts_.insert(host);
+  OnExtensionHostCreated(host, true);
   return host;
 }
 
@@ -101,4 +101,19 @@ void ExtensionProcessManager::Observe(NotificationType type,
 void ExtensionProcessManager::OnExtensionHostDestroyed(ExtensionHost* host) {
   all_hosts_.erase(host);
   background_hosts_.erase(host);
+  NotificationService::current()->Notify(
+      NotificationType::EXTENSION_HOST_DESTROYED,
+      Source<ExtensionProcessManager>(this),
+      Details<ExtensionHost>(host));
+}
+
+void ExtensionProcessManager::OnExtensionHostCreated(ExtensionHost* host,
+                                                     bool is_background) {
+  all_hosts_.insert(host);
+  if (is_background)
+    background_hosts_.insert(host);
+  NotificationService::current()->Notify(
+      NotificationType::EXTENSION_HOST_CREATED,
+      Source<ExtensionProcessManager>(this),
+      Details<ExtensionHost>(host));
 }

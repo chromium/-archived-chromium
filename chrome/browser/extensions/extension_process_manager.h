@@ -57,6 +57,9 @@ class ExtensionProcessManager : public NotificationObserver {
   void OnExtensionHostDestroyed(ExtensionHost* host);
 
  private:
+  // Called just after |host| is created so it can be registered in our lists.
+  void OnExtensionHostCreated(ExtensionHost* host, bool is_background);
+
   NotificationRegistrar registrar_;
 
   // The set of all ExtensionHosts managed by this process manager.

@@ -953,8 +953,6 @@ void RenderViewHost::OnMsgNavigate(const IPC::Message& msg) {
   FilterURL(policy, renderer_id, &validated_params.password_form.origin);
   FilterURL(policy, renderer_id, &validated_params.password_form.action);
 
-  delegate_->DidNavigate(this, validated_params);
-
   if (PageTransition::IsMainFrame(validated_params.transition)) {
     ExtensionFunctionDispatcher* new_efd = NULL;
     if (validated_params.url.SchemeIs(chrome::kExtensionScheme)) {
@@ -963,6 +961,8 @@ void RenderViewHost::OnMsgNavigate(const IPC::Message& msg) {
     }
     extension_function_dispatcher_.reset(new_efd);
   }
+
+  delegate_->DidNavigate(this, validated_params);
 
   UpdateBackForwardListCount();
 }
