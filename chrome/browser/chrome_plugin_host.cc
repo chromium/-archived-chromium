@@ -40,6 +40,7 @@
 #include "net/base/base64.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/io_buffer.h"
+#include "net/base/net_errors.h"
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_error_job.h"
 #include "third_party/skia/include/core/SkBitmap.h"

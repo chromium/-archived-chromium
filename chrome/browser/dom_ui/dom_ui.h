@@ -12,7 +12,6 @@
 #include "base/string16.h"
 #include "base/task.h"
 #include "chrome/common/page_transition_types.h"
-#include "webkit/glue/window_open_disposition.h"
 
 class DictionaryValue;
 class DOMMessageHandler;

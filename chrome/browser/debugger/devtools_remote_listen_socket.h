@@ -7,7 +7,6 @@
 
 #include <string>
 
-#include "base/hash_tables.h"
 #include "chrome/browser/debugger/devtools_remote_message.h"
 #include "net/base/listen_socket.h"
 

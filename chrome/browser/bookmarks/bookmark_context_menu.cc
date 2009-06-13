@@ -16,13 +16,13 @@
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/generated_resources.h"
 
 // TODO(port): Port these files.
 #if defined(OS_WIN)
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "views/window/window.h"
 #endif
 

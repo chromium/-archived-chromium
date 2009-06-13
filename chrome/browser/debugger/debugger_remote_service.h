@@ -11,7 +11,6 @@
 #include <string>
 
 #include "base/basictypes.h"
-#include "base/scoped_ptr.h"
 #include "chrome/browser/debugger/devtools_remote.h"
 
 class DevToolsProtocolHandler;

@@ -17,6 +17,7 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/repost_form_warning.h"
 #include "chrome/browser/tab_contents/site_instance.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/navigation_types.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
@@ -30,7 +31,6 @@
 
 #if defined(OS_WIN)
 #include "chrome/browser/tab_contents/repost_form_warning.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #endif
 

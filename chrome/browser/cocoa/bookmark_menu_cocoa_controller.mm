@@ -6,6 +6,7 @@
 #import "chrome/browser/cocoa/bookmark_menu_bridge.h"
 #import "chrome/browser/cocoa/bookmark_menu_cocoa_controller.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "webkit/glue/window_open_disposition.h"  // CURRENT_TAB
 
 @implementation BookmarkMenuCocoaController

@@ -6,7 +6,6 @@
 #define CHROME_BROWSER_DEBUGGER_DEBUGGER_IO_H_
 
 #include <string>
-#include <vector>
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"

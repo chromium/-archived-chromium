@@ -10,6 +10,7 @@
 #include "base/string_piece.h"
 #include "base/thread.h"
 #include "base/time_format.h"
+#include "base/values.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/dom_ui/fileicon_source.h"
@@ -340,7 +341,7 @@ std::wstring DownloadsDOMHandler::GetProgressStatusText(
     time_remaining = TimeFormat::TimeRemaining(remaining);
 
   if (time_remaining.empty()) {
-    return l10n_util::GetStringF(IDS_DOWNLOAD_TAB_PROGRESS_STATUS_TIME_UNKNOWN, 
+    return l10n_util::GetStringF(IDS_DOWNLOAD_TAB_PROGRESS_STATUS_TIME_UNKNOWN,
                                  speed_text, amount);
   }
   return l10n_util::GetStringF(IDS_DOWNLOAD_TAB_PROGRESS_STATUS, speed_text,

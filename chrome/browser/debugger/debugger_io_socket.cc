@@ -8,6 +8,7 @@
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/debugger/debugger_shell.h"
+#include "net/base/telnet_server.h"
 #include "v8/include/v8.h"
 
 ////////////////////////////////////////////////

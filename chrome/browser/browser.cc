@@ -14,6 +14,7 @@
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/character_encoding.h"
@@ -289,6 +290,18 @@ void Browser::CreateBrowserWindow() {
   find_bar_controller_.reset(new FindBarController(find_bar));
   find_bar->SetFindBarController(find_bar_controller_.get());
 #endif
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Getters & Setters
+
+const std::vector<std::wstring>& Browser::user_data_dir_profiles() const {
+  return g_browser_process->user_data_dir_profiles();
+}
+
+void Browser::set_user_data_dir_profiles(
+    const std::vector<std::wstring>& profiles) {
+  g_browser_process->user_data_dir_profiles() = profiles;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2708,4 +2721,15 @@ void Browser::RegisterAppPrefs(const std::wstring& app_name) {
   DCHECK(prefs);
 
   prefs->RegisterDictionaryPref(window_pref.c_str());
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// BrowserToolbarModel (private):
+
+NavigationController* Browser::BrowserToolbarModel::GetNavigationController() {
+  // This |current_tab| can be NULL during the initialization of the
+  // toolbar during window creation (i.e. before any tabs have been added
+  // to the window).
+  TabContents* current_tab = browser_->GetSelectedTabContents();
+  return current_tab ? &current_tab->controller() : NULL;
 }

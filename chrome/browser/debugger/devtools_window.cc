@@ -5,6 +5,7 @@
 #include "app/l10n_util.h"
 #include "base/command_line.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/debugger/devtools_client_host.h"
 #include "chrome/browser/debugger/devtools_manager.h"

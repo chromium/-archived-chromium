@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_DEBUGGER_DEBUGGER_IO_SOCKET_H__
 
 #include "chrome/browser/debugger/debugger_io.h"
-#include "net/base/telnet_server.h"
+#include "net/base/listen_socket.h"
 
 class DebuggerHost;
 class MessageLoop;
@@ -16,8 +16,8 @@ class MessageLoop;
 // result we wind up having helper methods that we call with InvokeLater into
 // the IO thread.
 
-class DebuggerInputOutputSocket: public DebuggerInputOutput,
-                              public ListenSocket::ListenSocketDelegate {
+class DebuggerInputOutputSocket : public DebuggerInputOutput,
+                                  public ListenSocket::ListenSocketDelegate {
 public:
   DebuggerInputOutputSocket(int port);
   virtual ~DebuggerInputOutputSocket();

@@ -5,8 +5,6 @@
 #ifndef CHROME_BROWSER_DEBUGGER_DEVTOOLS_CLIENT_HOST_H_
 #define CHROME_BROWSER_DEBUGGER_DEVTOOLS_CLIENT_HOST_H_
 
-#include <string>
-
 #include "base/basictypes.h"
 
 namespace IPC {

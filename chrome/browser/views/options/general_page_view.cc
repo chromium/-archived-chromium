@@ -21,6 +21,7 @@
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/shell_integration.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/browser/views/options/options_group_view.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"

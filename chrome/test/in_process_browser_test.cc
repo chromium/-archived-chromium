@@ -15,6 +15,7 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #if defined(OS_WIN)
 #include "chrome/browser/views/frame/browser_view.h"
 #endif

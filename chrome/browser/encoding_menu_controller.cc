@@ -6,7 +6,7 @@
 
 #include "app/l10n_util.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/browser/browser.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/pref_names.h"

@@ -4,6 +4,8 @@
 
 #import "chrome/browser/cocoa/command_observer_bridge.h"
 
+#include "base/logging.h"
+
 CommandObserverBridge::CommandObserverBridge(
     id<CommandObserverProtocol> observer, CommandUpdater* commands)
         : observer_(observer), commands_(commands) {

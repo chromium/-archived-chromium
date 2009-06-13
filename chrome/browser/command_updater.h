@@ -5,11 +5,8 @@
 #ifndef CHROME_BROWSER_COMMAND_UPDATER_H_
 #define CHROME_BROWSER_COMMAND_UPDATER_H_
 
-#include <vector>
-
 #include "base/basictypes.h"
 #include "base/hash_tables.h"
-#include "base/observer_list.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -74,13 +71,7 @@ class CommandUpdater {
  private:
   // A piece of data about a command - whether or not it is enabled, and a list
   // of objects that observe the enabled state of this command.
-  class Command {
-   public:
-    bool enabled;
-    ObserverList<CommandObserver> observers;
-
-    Command() : enabled(true) {}
-  };
+  class Command;
 
   // Get a Command node for a given command ID, creating an entry if it doesn't
   // exist if desired.

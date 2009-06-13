@@ -9,7 +9,6 @@
 
 #include "base/basictypes.h"
 #include "base/hash_tables.h"
-#include "base/logging.h"
 
 // Contains DevTools protocol message header names
 // and the Flags header bit field constants.

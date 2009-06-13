@@ -5,10 +5,13 @@
 #ifndef CHROME_BROWSER_DOM_UI_HTML_DIALOG_UI_H_
 #define CHROME_BROWSER_DOM_UI_HTML_DIALOG_UI_H_
 
-#include "base/gfx/size.h"
 #include "chrome/browser/dom_ui/dom_ui.h"
 #include "chrome/common/property_bag.h"
 #include "googleurl/src/gurl.h"
+
+namespace gfx {
+class Size;
+}
 
 // Implement this class to receive notifications.
 class HtmlDialogUIDelegate {

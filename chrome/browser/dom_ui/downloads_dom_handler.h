@@ -7,9 +7,11 @@
 
 #include <vector>
 
-#include "base/values.h"
 #include "chrome/browser/dom_ui/dom_ui.h"
 #include "chrome/browser/download/download_manager.h"
+
+class DictionaryValue;
+class Value;
 
 // The handler for Javascript messages related to the "downloads" view,
 // also observes changes to the download manager.

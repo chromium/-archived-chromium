@@ -210,7 +210,11 @@ class BrowserWindow {
 #if defined(OS_WIN)
 class BookmarkBarView;
 class LocationBarView;
-#endif
+
+namespace views {
+class View;
+}
+#endif  // defined(OS_WIN)
 
 // A BrowserWindow utility interface used for accessing elements of the browser
 // UI used only by UI test automation.

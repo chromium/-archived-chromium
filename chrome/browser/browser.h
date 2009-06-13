@@ -5,25 +5,24 @@
 #ifndef CHROME_BROWSER_BROWSER_H_
 #define CHROME_BROWSER_BROWSER_H_
 
-#include "base/basictypes.h"
-
 #include <set>
 #include <vector>
 
+#include "base/basictypes.h"
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
-#include "chrome/browser/browser_process.h"
+#include "base/task.h"
 #include "chrome/browser/command_updater.h"
 #include "chrome/browser/extensions/extension_function_dispatcher.h"
 #include "chrome/browser/sessions/session_id.h"
 #include "chrome/browser/shell_dialogs.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
+#include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/pref_member.h"
-#include "third_party/skia/include/core/SkBitmap.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 
 class BrowserIdleTimer;
 class BrowserWindow;
@@ -33,6 +32,7 @@ class GoButton;
 class LocationBar;
 class PrefService;
 class Profile;
+class SkBitmap;
 class StatusBubble;
 class TabNavigation;
 
@@ -114,9 +114,8 @@ class Browser : public TabStripModelDelegate,
 
   Type type() const { return type_; }
   Profile* profile() const { return profile_; }
-  const std::vector<std::wstring>& user_data_dir_profiles() const {
-    return g_browser_process->user_data_dir_profiles();
-  }
+  const std::vector<std::wstring>& user_data_dir_profiles() const;
+
 #if defined(UNIT_TEST)
   // Sets the BrowserWindow. This is intended for testing and generally not
   // useful outside of testing. Use CreateBrowserWindow outside of testing, or
@@ -135,9 +134,7 @@ class Browser : public TabStripModelDelegate,
 
   // Setters /////////////////////////////////////////////////////////////////
 
-  void set_user_data_dir_profiles(const std::vector<std::wstring>& profiles) {
-    g_browser_process->user_data_dir_profiles() = profiles;
-  }
+  void set_user_data_dir_profiles(const std::vector<std::wstring>& profiles);
 
   // Browser Creation Helpers /////////////////////////////////////////////////
 
@@ -685,13 +682,7 @@ class Browser : public TabStripModelDelegate,
     virtual ~BrowserToolbarModel() { }
 
     // ToolbarModel implementation.
-    virtual NavigationController* GetNavigationController() {
-      // This |current_tab| can be NULL during the initialization of the
-      // toolbar during window creation (i.e. before any tabs have been added
-      // to the window).
-      TabContents* current_tab = browser_->GetSelectedTabContents();
-      return current_tab ? &current_tab->controller() : NULL;
-    }
+    virtual NavigationController* GetNavigationController();
 
   private:
     Browser* browser_;

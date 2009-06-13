@@ -22,7 +22,6 @@
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
-#include "base/scoped_ptr.h"
 
 class DebuggerHost;
 class DevToolsProtocolHandler;

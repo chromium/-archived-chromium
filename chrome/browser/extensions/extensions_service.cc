@@ -11,6 +11,7 @@
 #include "base/gfx/png_encoder.h"
 #include "base/scoped_handle.h"
 #include "base/scoped_temp_dir.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "base/third_party/nss/blapi.h"
 #include "base/third_party/nss/sha256.h"

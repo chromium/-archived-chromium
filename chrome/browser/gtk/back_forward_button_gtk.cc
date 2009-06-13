@@ -13,6 +13,7 @@
 #include "chrome/browser/gtk/back_forward_menu_model_gtk.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 
 // The time in milliseconds between when the user clicks and the menu appears.
 static const int kMenuTimerDelay = 500;

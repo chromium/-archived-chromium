@@ -25,6 +25,7 @@
 #include "chrome/browser/gears_integration.h"
 #include "chrome/browser/metrics/metrics_service.h"
 #include "chrome/browser/net/dns_global.h"
+#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/views/options/cookies_view.h"

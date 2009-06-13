@@ -7,8 +7,10 @@
 #ifndef CHROME_BROWSER_DEBUGGER_DEBUGGER_HOST_H_
 #define CHROME_BROWSER_DEBUGGER_DEBUGGER_HOST_H_
 
+#include <string>
+
 #include "base/basictypes.h"
-#include "base/thread.h"
+#include "base/ref_counted.h"
 
 class ListValue;
 

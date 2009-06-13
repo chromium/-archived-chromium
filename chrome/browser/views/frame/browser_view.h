@@ -8,6 +8,7 @@
 #include <set>
 
 #include "base/gfx/native_widget_types.h"
+#include "base/timer.h"
 #include "build/build_config.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_window.h"

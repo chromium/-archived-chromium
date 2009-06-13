@@ -36,6 +36,7 @@
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/process_singleton.h"
 #include "chrome/browser/profile_manager.h"
+#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/common/chrome_constants.h"
