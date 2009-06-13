@@ -207,7 +207,7 @@ class BlockedPopupContainer : public TabContentsDelegate,
   typedef std::map<std::string, bool> PopupHosts;
 
   // Hides the UI portion of the container.
-  virtual void HideSelf();
+  void HideSelf();
 
   // Helper function to convert a host index (which the view uses) into an
   // iterator into |popup_hosts_|.  Returns popup_hosts_.end() if |index| is
@@ -224,6 +224,7 @@ class BlockedPopupContainer : public TabContentsDelegate,
 
  private:
   friend class BlockedPopupContainerImpl;
+  friend class BlockedPopupContainerTest;
 
   // string is hostname.
   typedef std::set<std::string> Whitelist;

@@ -2834,6 +2834,7 @@
         'chrome_strings',
         'theme_resources',
         '../skia/skia.gyp:skia',
+        '../testing/gmock.gyp:gmock',
         '../testing/gtest.gyp:gtest',
       ],
       'include_dirs': [
@@ -3201,6 +3202,7 @@
         '../webkit/webkit.gyp:webkit',
         '../webkit/webkit.gyp:webkit_resources',
         '../skia/skia.gyp:skia',
+        '../testing/gmock.gyp:gmock',
         '../testing/gtest.gyp:gtest',
         '../third_party/icu38/icu38.gyp:icui18n',
         '../third_party/icu38/icu38.gyp:icuuc',
@@ -3225,6 +3227,7 @@
         'browser/autocomplete/keyword_provider_unittest.cc',
         'browser/autocomplete/search_provider_unittest.cc',
         'browser/back_forward_menu_model_unittest.cc',
+        'browser/blocked_popup_container_unittest.cc',
         'browser/bookmarks/bookmark_codec_unittest.cc',
         'browser/bookmarks/bookmark_context_menu_test.cc',
         'browser/bookmarks/bookmark_drag_data_unittest.cc',

@@ -558,8 +558,10 @@ class TabContents : public PageNavigator,
   // Used to access the child_windows_ (ConstrainedWindowList) for testing
   // automation purposes.
   friend class AutomationProvider;
+  friend class BlockedPopupContainerTest;
 
   FRIEND_TEST(TabContentsTest, UpdateTitle);
+  FRIEND_TEST(BlockedPopupContainerTest, TestReposition);
 
   // Temporary until the view/contents separation is complete.
   friend class TabContentsView;
@@ -619,6 +621,13 @@ class TabContents : public PageNavigator,
   // (We keep the notification object around even when it's not shown since it
   // determines whether to show itself).
   bool ShowingBlockedPopupNotification() const;
+
+  // Only used during unit testing; otherwise |blocked_popups_| will be created
+  // on demand.
+  void set_blocked_popup_container(BlockedPopupContainer* container) {
+    DCHECK(blocked_popups_ == NULL);
+    blocked_popups_ = container;
+  }
 
   // Called by derived classes to indicate that we're no longer waiting for a
   // response. This won't actually update the throbber, but it will get picked
