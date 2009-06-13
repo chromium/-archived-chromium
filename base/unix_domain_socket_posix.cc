@@ -6,7 +6,6 @@
 
 #include <unistd.h>
 #include <sys/uio.h>
-#include <sys/types.h>
 #include <sys/socket.h>
 
 #include "base/eintr_wrapper.h"

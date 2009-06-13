@@ -5,6 +5,7 @@
 #ifndef BASE_UNIX_DOMAIN_SOCKET_POSIX_H_
 #define BASE_UNIX_DOMAIN_SOCKET_POSIX_H_
 
+#include <sys/types.h>
 #include <vector>
 
 namespace base {
