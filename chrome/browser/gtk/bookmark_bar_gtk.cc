@@ -799,9 +799,11 @@ gboolean BookmarkBarGtk::OnHBoxExpose(GtkWidget* widget,
                   event->area.width, event->area.height);
   cairo_clip(cr);
   bar->InitBackground();
-  int y = bar->window_->tabstrip()->GetTabStripOriginForWidget(widget).y();
-  bar->background_ninebox_->RenderTopCenterStrip(cr, event->area.x,
-                                                 y, event->area.width);
+  gfx::Point tabstrip_origin =
+      bar->window_->tabstrip()->GetTabStripOriginForWidget(widget);
+  bar->background_ninebox_->RenderTopCenterStrip(
+      cr, tabstrip_origin.x(), tabstrip_origin.y(),
+      event->area.x + event->area.width - tabstrip_origin.x());
   cairo_destroy(cr);
 
   return FALSE;  // Propagate expose to children.

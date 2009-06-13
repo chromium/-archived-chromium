@@ -13,5 +13,5 @@ BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser) {
 }
 
 FindBar* BrowserWindow::CreateFindBar(Browser* browser) {
-  return new FindBarGtk(static_cast<BrowserWindowGtk*>(browser->window()));
+  return new FindBarGtk(browser);
 }

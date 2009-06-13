@@ -9,12 +9,15 @@
 #include "app/l10n_util.h"
 #include "base/gfx/gtk_util.h"
 #include "base/string_util.h"
+#include "chrome/browser/browser.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/slide_animator_gtk.h"
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
+#include "chrome/browser/gtk/tabs/tab_strip_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gtk_util.h"
 #include "grit/generated_resources.h"
@@ -40,41 +43,52 @@ const int kFindBarHeight = 32;
 // The width of the text entry field.
 const int kTextEntryWidth = 220;
 
-// Get the ninebox that draws the background of |container_|. It is also used
-// to change the shape of |container_|. The pointer is shared by all instances
-// of FindBarGtk.
-const NineBox* GetDialogBackground() {
-  static NineBox* dialog_background = NULL;
-  if (!dialog_background) {
-    dialog_background = new NineBox(
+// Give the findbar dialog its unique shape.
+void SetDialogShape(GtkWidget* widget) {
+  static NineBox* dialog_shape = NULL;
+  if (!dialog_shape) {
+    dialog_shape = new NineBox(
       IDR_FIND_DLG_LEFT_BACKGROUND,
       IDR_FIND_DLG_MIDDLE_BACKGROUND,
       IDR_FIND_DLG_RIGHT_BACKGROUND,
       NULL, NULL, NULL, NULL, NULL, NULL);
-    dialog_background->ChangeWhiteToTransparent();
+    dialog_shape->ChangeWhiteToTransparent();
   }
 
-  return dialog_background;
+  dialog_shape->ContourWidget(widget);
 }
 
-// Used to handle custom painting of |container_|.
-gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e, gpointer userdata) {
-  GetDialogBackground()->RenderToWidget(widget);
-  GtkWidget* child = gtk_bin_get_child(GTK_BIN(widget));
-  if (child)
-    gtk_container_propagate_expose(GTK_CONTAINER(widget), child, e);
-  return TRUE;
+// Return a ninebox that will paint the border of the findbar dialog. This is
+// shared across all instances of the findbar. Do not free the returned pointer.
+const NineBox* GetDialogBorder() {
+  static NineBox* dialog_border = NULL;
+  if (!dialog_border) {
+    dialog_border = new NineBox(
+      IDR_FIND_DIALOG_LEFT,
+      IDR_FIND_DIALOG_MIDDLE,
+      IDR_FIND_DIALOG_RIGHT,
+      NULL, NULL, NULL, NULL, NULL, NULL);
+  }
+
+  return dialog_border;
 }
 
 }  // namespace
 
-FindBarGtk::FindBarGtk(BrowserWindowGtk* browser)
-    : container_shaped_(false),
+FindBarGtk::FindBarGtk(Browser* browser)
+    : browser_(browser),
+      window_(static_cast<BrowserWindowGtk*>(browser->window())),
+      container_shaped_(false),
       ignore_changed_signal_(false) {
   InitWidgets();
 
+  dialog_background_.reset(new NineBox(browser->profile()->GetThemeProvider(),
+                                       0, IDR_THEME_TOOLBAR, 0,
+                                       0, 0, 0, 0, 0, 0));
+
+
   // Insert the widget into the browser gtk hierarchy.
-  browser->AddFindBar(this);
+  window_->AddFindBar(this);
 
   // Hook up signals after the widget has been added to the hierarchy so the
   // widget will be realized.
@@ -98,7 +112,7 @@ FindBarGtk::FindBarGtk(BrowserWindowGtk* browser)
   g_signal_connect(container_, "size-allocate",
                    G_CALLBACK(OnContainerSizeAllocate), this);
   g_signal_connect(container_, "expose-event",
-                   G_CALLBACK(OnExpose), NULL);
+                   G_CALLBACK(OnExpose), this);
 }
 
 FindBarGtk::~FindBarGtk() {
@@ -451,12 +465,36 @@ void FindBarGtk::OnFixedSizeAllocate(GtkWidget* fixed,
   }
 }
 
+// Used to handle custom painting of |container_|.
+gboolean FindBarGtk::OnExpose(GtkWidget* widget, GdkEventExpose* e,
+                              FindBarGtk* bar) {
+  // Draw the background theme image.
+  cairo_t* cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+  cairo_rectangle(cr, e->area.x, e->area.y, e->area.width, e->area.height);
+  cairo_clip(cr);
+  gfx::Point tabstrip_origin =
+      bar->window_->tabstrip()->GetTabStripOriginForWidget(widget);
+  bar->dialog_background_->RenderTopCenterStrip(
+      cr, tabstrip_origin.x(), tabstrip_origin.y(),
+      e->area.x + e->area.width - tabstrip_origin.x());
+  cairo_destroy(cr);
+
+  // Draw the border.
+  GetDialogBorder()->RenderToWidget(widget);
+
+  // Propagate to the container's child.
+  GtkWidget* child = gtk_bin_get_child(GTK_BIN(widget));
+  if (child)
+    gtk_container_propagate_expose(GTK_CONTAINER(widget), child, e);
+  return TRUE;
+}
+
 // static
 void FindBarGtk::OnContainerSizeAllocate(GtkWidget* container,
                                          GtkAllocation* allocation,
                                          FindBarGtk* findbar) {
   if (!findbar->container_shaped_) {
-    GetDialogBackground()->ContourWidget(container);
+    SetDialogShape(container);
     findbar->container_shaped_ = true;
   }
 }

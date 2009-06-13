@@ -355,9 +355,11 @@ gboolean BrowserToolbarGtk::OnToolbarExpose(GtkWidget* widget,
   // The toolbar is supposed to blend in with the active tab, so we have to pass
   // coordinates for the IDR_THEME_TOOLBAR bitmap relative to the top of the
   // tab strip.
-  int y = toolbar->window_->tabstrip()->GetTabStripOriginForWidget(widget).y();
-  toolbar->background_ninebox_->RenderTopCenterStrip(cr, e->area.x,
-                                                     y, e->area.width);
+  gfx::Point tabstrip_origin =
+      toolbar->window_->tabstrip()->GetTabStripOriginForWidget(widget);
+  toolbar->background_ninebox_->RenderTopCenterStrip(
+      cr, tabstrip_origin.x(), tabstrip_origin.y(),
+      e->area.x + e->area.width - tabstrip_origin.x());
   cairo_destroy(cr);
 
   return FALSE;  // Allow subwidgets to paint.

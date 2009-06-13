@@ -13,9 +13,11 @@
 #include "chrome/browser/gtk/focus_store_gtk.h"
 #include "chrome/common/owned_widget_gtk.h"
 
+class Browser;
 class BrowserWindowGtk;
 class CustomDrawButton;
 class FindBarController;
+class NineBox;
 class SlideAnimatorGtk;
 class TabContentsContainerGtk;
 
@@ -24,7 +26,7 @@ class TabContentsContainerGtk;
 class FindBarGtk : public FindBar,
                    public FindBarTesting {
  public:
-  explicit FindBarGtk(BrowserWindowGtk* browser);
+  explicit FindBarGtk(Browser* browser);
   virtual ~FindBarGtk();
 
   GtkWidget* widget() const { return fixed_.get(); }
@@ -100,11 +102,17 @@ class FindBarGtk : public FindBar,
                                       GtkAllocation* allocation,
                                       FindBarGtk* findbar);
 
+  static gboolean OnExpose(GtkWidget* widget, GdkEventExpose* event,
+                           FindBarGtk* bar);
+
   // These are both used for focus management.
   static gboolean OnFocus(GtkWidget* text_entry, GtkDirectionType focus,
                           FindBarGtk* find_bar);
   static gboolean OnButtonPress(GtkWidget* text_entry, GdkEventButton* e,
                                 FindBarGtk* find_bar);
+
+  Browser* browser_;
+  BrowserWindowGtk* window_;
 
   // GtkFixed containing the find bar widgets.
   OwnedWidgetGtk fixed_;
@@ -148,6 +156,8 @@ class FindBarGtk : public FindBar,
 
   // If true, the change signal for the text entry is ignored.
   bool ignore_changed_signal_;
+
+  scoped_ptr<NineBox> dialog_background_;
 
   DISALLOW_COPY_AND_ASSIGN(FindBarGtk);
 };
