@@ -31,15 +31,15 @@
 namespace {
 
 // Extension ids used during testing.
-const char* const all_zero = "0000000000000000000000000000000000000000";
-const char* const zero_n_one = "0000000000000000000000000000000000000001";
-const char* const good0 = "fc6f6ba6693faf6773c13701019f2e7a12f0febe";
-const char* const good1 = "e5ead92b2c6795c1d2b92df9c5cb37de5582471a";
-const char* const good2 = "a37fed892f622823f4daaec4426a32fc7f6147dc";
-const char* const good_crx = "b3dd733cd71a98fa83f387455e12f5c5501c519e";
-const char* const page_action = "a4ca7d01469a010acb200568a0b8f4d9b3ac1f91";
-const char* const theme_crx = "80c45f5ae9e0f839d105c6a6d2461a036bc40a04";
-const char* const theme2_crx = "f9f6c52c01efdd5edd7c396b5f995a15fc7ad6d1";
+const char* const all_zero = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+const char* const zero_n_one = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab";
+const char* const good0 = "behllobkkfkfnphdnhnkndlbkcpglgmj";
+const char* const good1 = "hpiknbiabeeppbpihjehijgoemciehgk";
+const char* const good2 = "bjafgdebaacbbbecmhlhpofkepfkgcpa";
+const char* const good_crx = "ldnnhddmnhbkjipkidpdiheffobcpfmf";
+const char* const page_action = "kemkhnabegjkabakmlcaafgikalipenj";
+const char* const theme_crx = "iamefpfkojoapidjnbafmgkgncegbkad";
+const char* const theme2_crx = "pjpgmfcmabopnnfonnhmdjglfpjjfkbf";
 
 struct ExtensionsOrder {
   bool operator()(const Extension* a, const Extension* b) {
@@ -394,11 +394,11 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectoryFail) {
 
   EXPECT_TRUE(MatchPattern(GetErrors()[1],
       std::string("Could not load extension from '*'. ") +
-      Extension::kMissingFileError)) << GetErrors()[1];
+      Extension::kInvalidManifestError)) << GetErrors()[1];
 
   EXPECT_TRUE(MatchPattern(GetErrors()[2],
       std::string("Could not load extension from '*'. ") +
-      Extension::kInvalidManifestError)) << GetErrors()[2];
+      Extension::kMissingFileError)) << GetErrors()[2];
 };
 
 // Test that partially deleted extensions are cleaned up during startup
@@ -414,7 +414,7 @@ TEST_F(ExtensionsServiceTest, CleanupOnStartup) {
 
   // Simulate that one of them got partially deleted by deling the
   // Current Version file.
-  dest_path = dest_path.AppendASCII("extension1")
+  dest_path = dest_path.AppendASCII("behllobkkfkfnphdnhnkndlbkcpglgmj")
                        .AppendASCII(ExtensionsService::kCurrentVersionFileName);
   ASSERT_TRUE(file_util::Delete(dest_path, false));  // not recursive
 
@@ -486,7 +486,6 @@ TEST_F(ExtensionsServiceTest, InstallExtension) {
 
 #if defined(OS_WIN)  // TODO(port)
 // Test Packaging and installing an extension.
-// TODO(aa): add a test that uses an openssl-generate private key.
 // TODO(rafaelw): add more tests for failure cases.
 TEST_F(ExtensionsServiceTest, PackExtension) {
   SetExtensionsEnabled(true);
@@ -495,7 +494,7 @@ TEST_F(ExtensionsServiceTest, PackExtension) {
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
   FilePath input_directory = extensions_path.AppendASCII("good")
-      .AppendASCII("extension1").AppendASCII("1");
+      .AppendASCII("behllobkkfkfnphdnhnkndlbkcpglgmj").AppendASCII("1.0.0.0");
 
   FilePath output_directory;
   file_util::CreateNewTempDirectory(FILE_PATH_LITERAL("chrome_"),
@@ -508,10 +507,7 @@ TEST_F(ExtensionsServiceTest, PackExtension) {
       privkey_path));
 
   ASSERT_TRUE(file_util::PathExists(privkey_path));
-
-  // TODO(aa): Re-enable this when ExtensionUnpacker expects the same format we
-  // are generating in ExtensionCreator.
-  // InstallExtension(crx_path, true);
+  InstallExtension(crx_path, true);
 
   file_util::Delete(crx_path, false);
   file_util::Delete(privkey_path, false);
@@ -530,7 +526,7 @@ TEST_F(ExtensionsServiceTest, PackExtensionOpenSSLKey) {
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
   FilePath input_directory = extensions_path.AppendASCII("good")
-      .AppendASCII("extension1").AppendASCII("1");
+      .AppendASCII("behllobkkfkfnphdnhnkndlbkcpglgmj").AppendASCII("1.0.0.0");
   FilePath privkey_path(extensions_path.AppendASCII(
       "openssl_privkey_asn1.pem"));
   ASSERT_TRUE(file_util::PathExists(privkey_path));
@@ -544,9 +540,7 @@ TEST_F(ExtensionsServiceTest, PackExtensionOpenSSLKey) {
   ASSERT_TRUE(creator->Run(input_directory, crx_path, privkey_path,
       FilePath()));
 
-  // TODO(aa): Re-enable this when ExtensionUnpacker expects the same format we
-  // are generating in ExtensionCreator.
-  // InstallExtension(crx_path, true);
+  InstallExtension(crx_path, true);
 
   file_util::Delete(crx_path, false);
 }
@@ -732,8 +726,9 @@ TEST_F(ExtensionsServiceTest, LoadExtension) {
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
 
-  FilePath ext1 = extensions_path.AppendASCII("good").AppendASCII("extension1")
-      .AppendASCII("1");
+  FilePath ext1 = extensions_path.AppendASCII("good")
+      .AppendASCII("behllobkkfkfnphdnhnkndlbkcpglgmj")
+      .AppendASCII("1.0.0.0");
   service_->LoadExtension(ext1);
   loop_.RunAllPending();
   EXPECT_EQ(0u, GetErrors().size());
@@ -781,7 +776,7 @@ TEST_F(ExtensionsServiceTest, GenerateID) {
   ASSERT_EQ(1u, loaded_.size());
   std::string id1 = loaded_[0]->id();
   ASSERT_EQ(all_zero, id1);
-  ASSERT_EQ("chrome-extension://0000000000000000000000000000000000000000/",
+  ASSERT_EQ("chrome-extension://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/",
             loaded_[0]->url().spec());
 
   ValidatePrefKeyCount(1);
@@ -792,7 +787,7 @@ TEST_F(ExtensionsServiceTest, GenerateID) {
   loop_.RunAllPending();
   std::string id2 = loaded_[1]->id();
   ASSERT_EQ(zero_n_one, id2);
-  ASSERT_EQ("chrome-extension://0000000000000000000000000000000000000001/",
+  ASSERT_EQ("chrome-extension://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab/",
             loaded_[1]->url().spec());
 
   ValidatePrefKeyCount(2);

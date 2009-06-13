@@ -35,6 +35,15 @@ namespace {
   const char kPrivate[] = "PRIVATE";
 
   const int kRSAKeySize = 1024;
+
+  // Converts a normal hexadecimal string into the alphabet used by extensions.
+  // We use the characters 'a'-'p' instead of '0'-'f' to avoid ever having a
+  // completely numeric host, since some software interprets that as an IP
+  // address.
+  static void ConvertHexadecimalToIDAlphabet(std::string* id) {
+    for (size_t i = 0; i < id->size(); ++i)
+      (*id)[i] = HexStringToInt(id->substr(i, 1)) + 'a';
+  }
 };
 
 int Extension::id_counter_ = 0;
@@ -176,8 +185,8 @@ const char* Extension::kExtensionRegistryPath =
     "Software\\Google\\Chrome\\Extensions";
 #endif
 
-// first 20 bytes of SHA256 hashed public key.
-const size_t Extension::kIdSize = 20;
+// first 16 bytes of SHA256 hashed public key.
+const size_t Extension::kIdSize = 16;
 
 Extension::~Extension() {
   for (PageActionMap::iterator i = page_actions_.begin();
@@ -191,18 +200,16 @@ const std::string Extension::VersionString() const {
 
 // static
 bool Extension::IdIsValid(const std::string& id) {
-  // Verify that the id is legal.  The id is a hex string of the SHA-1 hash of
-  // the public key.
-  std::vector<uint8> id_bytes;
-  if (!HexStringToBytes(id, &id_bytes) || id_bytes.size() != kIdSize)
+  // Verify that the id is legal.
+  if (id.size() != (kIdSize * 2))
     return false;
 
   // We only support lowercase IDs, because IDs can be used as URL components
   // (where GURL will lowercase it).
-  std::string temp = id;
-  StringToLowerASCII(temp);
-  if (temp != id)
-    return false;
+  std::string temp = StringToLowerASCII(id);
+  for (size_t i = 0; i < temp.size(); i++)
+    if (temp[i] < 'a' || temp[i] > 'p')
+      return false;
 
   return true;
 }
@@ -253,6 +260,7 @@ bool Extension::GenerateIdFromPublicKey(const std::string& input,
   uint8 hash[Extension::kIdSize];
   SHA256_End(&ctx, hash, NULL, sizeof(hash));
   *output = StringToLowerASCII(HexEncode(hash, sizeof(hash)));
+  ConvertHexadecimalToIDAlphabet(output);
 
   return true;
 }
@@ -609,6 +617,9 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
 
     // pad the string out to kIdSize*2 chars with zeroes.
     id_.insert(0, Extension::kIdSize*2 - id_.length(), '0');
+
+    // Convert to our mp-decimal.
+    ConvertHexadecimalToIDAlphabet(&id_);
   }
 
   // Initialize the URL.

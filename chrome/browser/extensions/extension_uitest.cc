@@ -103,7 +103,7 @@ TEST_F(SimpleApiCallExtensionTest, RunTest) {
   namespace keys = extension_automation_constants;
 
   TestWithURL(GURL(
-      "chrome-extension://fc6f6ba6693faf6773c13701019f2e7a12f0febe/test.html"));
+      "chrome-extension://pmgpglkggjdpkpghhdmbdhababjpcohk/test.html"));
   AutomationProxyForExternalTab* proxy =
       static_cast<AutomationProxyForExternalTab*>(automation());
   ASSERT_GT(proxy->messages_received(), 0);
@@ -270,7 +270,7 @@ class RoundtripApiCallExtensionTest
 #if defined(OS_WIN)
 TEST_F(RoundtripApiCallExtensionTest, RunTest) {
   TestWithURL(GURL(
-      "chrome-extension://e5ead92b2c6795c1d2b92df9c5cb37de5582471a/test.html"));
+      "chrome-extension://ofoknjclcmghjfmbncljcnpjmfmldhno/test.html"));
   RoundtripAutomationProxy* proxy =
       static_cast<RoundtripAutomationProxy*>(automation());
 

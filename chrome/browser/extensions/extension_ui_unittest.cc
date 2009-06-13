@@ -67,14 +67,16 @@ TEST(ExtensionUITest, GenerateExtensionsJSONData) {
   // Test Extension1
   extension_path = data_test_dir_path.AppendASCII("extensions")
       .AppendASCII("good")
-      .AppendASCII("extension1")
-      .AppendASCII("1");
+      .AppendASCII("behllobkkfkfnphdnhnkndlbkcpglgmj")
+      .AppendASCII("1.0.0.0");
 
   std::vector<ExtensionPage> pages;
-  pages.push_back(ExtensionPage(GURL("chrome-extension://foo/bar.html"),
-                                42, 88));
-  pages.push_back(ExtensionPage(GURL("chrome-extension://hot/dog.html"),
-                                0, 0));
+  pages.push_back(ExtensionPage(
+      GURL("chrome-extension://behllobkkfkfnphdnhnkndlbkcpglgmj/bar.html"),
+      42, 88));
+  pages.push_back(ExtensionPage(
+      GURL("chrome-extension://behllobkkfkfnphdnhnkndlbkcpglgmj/dog.html"),
+      0, 0));
 
   expected_output_path = data_test_dir_path.AppendASCII("extensions")
       .AppendASCII("ui")
@@ -87,7 +89,7 @@ TEST(ExtensionUITest, GenerateExtensionsJSONData) {
   // Test Extension2
   extension_path = data_test_dir_path.AppendASCII("extensions")
       .AppendASCII("good")
-      .AppendASCII("extension2")
+      .AppendASCII("hpiknbiabeeppbpihjehijgoemciehgk")
       .AppendASCII("2");
 
   expected_output_path = data_test_dir_path.AppendASCII("extensions")
@@ -104,7 +106,7 @@ TEST(ExtensionUITest, GenerateExtensionsJSONData) {
   // Test Extension3
   extension_path = data_test_dir_path.AppendASCII("extensions")
       .AppendASCII("good")
-      .AppendASCII("extension3")
+      .AppendASCII("bjafgdebaacbbbecmhlhpofkepfkgcpa")
       .AppendASCII("1.0");
 
   expected_output_path = data_test_dir_path.AppendASCII("extensions")

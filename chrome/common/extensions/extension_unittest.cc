@@ -29,8 +29,8 @@ TEST(ExtensionTest, InitFromValueInvalid) {
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions")
       .AppendASCII("good")
-      .AppendASCII("extension1")
-      .AppendASCII("1")
+      .AppendASCII("behllobkkfkfnphdnhnkndlbkcpglgmj")
+      .AppendASCII("1.0.0.0")
       .AppendASCII(Extension::kManifestFilename);
 
   JSONFileValueSerializer serializer(extensions_path);
@@ -205,10 +205,10 @@ TEST(ExtensionTest, InitFromValueValid) {
 
   EXPECT_TRUE(extension.InitFromValue(input_value, false, &error));
   EXPECT_EQ("", error);
-  EXPECT_EQ("0000000000000000000000000000000000000000", extension.id());
+  EXPECT_EQ("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", extension.id());
   EXPECT_EQ("1.0.0.0", extension.VersionString());
   EXPECT_EQ("my extension", extension.name());
-  EXPECT_EQ("chrome-extension://0000000000000000000000000000000000000000/",
+  EXPECT_EQ("chrome-extension://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/",
             extension.url().spec());
   EXPECT_EQ(path.value(), extension.path().value());
 }
@@ -240,4 +240,43 @@ TEST(ExtensionTest, GetResourceURLAndPath) {
                 .value());
   EXPECT_EQ(FilePath().value(),
             Extension::GetResourcePath(extension.path(), "../baz.js").value());
+}
+
+TEST(ExtensionTest, IdIsValid) {
+  EXPECT_TRUE(Extension::IdIsValid("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
+  EXPECT_TRUE(Extension::IdIsValid("pppppppppppppppppppppppppppppppp"));
+  EXPECT_TRUE(Extension::IdIsValid("abcdefghijklmnopabcdefghijklmnop"));
+  EXPECT_TRUE(Extension::IdIsValid("ABCDEFGHIJKLMNOPABCDEFGHIJKLMNOP"));
+  EXPECT_FALSE(Extension::IdIsValid("abcdefghijklmnopabcdefghijklmno"));
+  EXPECT_FALSE(Extension::IdIsValid("abcdefghijklmnopabcdefghijklmnopa"));
+  EXPECT_FALSE(Extension::IdIsValid("0123456789abcdef0123456789abcdef"));
+  EXPECT_FALSE(Extension::IdIsValid("abcdefghijklmnopabcdefghijklmnoq"));
+  EXPECT_FALSE(Extension::IdIsValid("abcdefghijklmnopabcdefghijklmno0"));
+}
+
+TEST(ExtensionTest, GenerateIDFromPublicKey) {
+  const uint8 public_key_info[] = {
+    0x30, 0x81, 0x9f, 0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7,
+    0x0d, 0x01, 0x01, 0x01, 0x05, 0x00, 0x03, 0x81, 0x8d, 0x00, 0x30, 0x81,
+    0x89, 0x02, 0x81, 0x81, 0x00, 0xb8, 0x7f, 0x2b, 0x20, 0xdc, 0x7c, 0x9b,
+    0x0c, 0xdc, 0x51, 0x61, 0x99, 0x0d, 0x36, 0x0f, 0xd4, 0x66, 0x88, 0x08, 
+    0x55, 0x84, 0xd5, 0x3a, 0xbf, 0x2b, 0xa4, 0x64, 0x85, 0x7b, 0x0c, 0x04,
+    0x13, 0x3f, 0x8d, 0xf4, 0xbc, 0x38, 0x0d, 0x49, 0xfe, 0x6b, 0xc4, 0x5a,
+    0xb0, 0x40, 0x53, 0x3a, 0xd7, 0x66, 0x09, 0x0f, 0x9e, 0x36, 0x74, 0x30,
+    0xda, 0x8a, 0x31, 0x4f, 0x1f, 0x14, 0x50, 0xd7, 0xc7, 0x20, 0x94, 0x17, 
+    0xde, 0x4e, 0xb9, 0x57, 0x5e, 0x7e, 0x0a, 0xe5, 0xb2, 0x65, 0x7a, 0x89,
+    0x4e, 0xb6, 0x47, 0xff, 0x1c, 0xbd, 0xb7, 0x38, 0x13, 0xaf, 0x47, 0x85,
+    0x84, 0x32, 0x33, 0xf3, 0x17, 0x49, 0xbf, 0xe9, 0x96, 0xd0, 0xd6, 0x14,
+    0x6f, 0x13, 0x8d, 0xc5, 0xfc, 0x2c, 0x72, 0xba, 0xac, 0xea, 0x7e, 0x18,
+    0x53, 0x56, 0xa6, 0x83, 0xa2, 0xce, 0x93, 0x93, 0xe7, 0x1f, 0x0f, 0xe6,
+    0x0f, 0x02, 0x03, 0x01, 0x00, 0x01
+  };
+
+  std::string extension_id;
+  EXPECT_TRUE(
+      Extension::GenerateIdFromPublicKey(
+          std::string(reinterpret_cast<const char*>(&public_key_info[0]),
+                      arraysize(public_key_info)),
+          &extension_id));
+  EXPECT_EQ("melddjfinppjdikinhbgehiennejpfhp", extension_id);
 }

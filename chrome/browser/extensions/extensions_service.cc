@@ -440,7 +440,12 @@ void ExtensionsService::GetExternalExtensions(
   for (DictionaryValue::key_iterator i = dict->begin_keys();
        i != dict->end_keys(); ++i) {
     std::wstring key_name = *i;
-    DCHECK(Extension::IdIsValid(WideToASCII(key_name)));
+    if (!Extension::IdIsValid(WideToASCII(key_name))) {
+      LOG(WARNING) << "Invalid external extension ID encountered: "
+                   << WideToASCII(key_name);
+      continue;
+    }
+
     DictionaryValue* extension = NULL;
     if (!dict->GetDictionary(key_name, &extension)) {
       NOTREACHED();
@@ -574,10 +579,18 @@ void ExtensionsServiceBackend::LoadExtensionsFromInstallDirectory(
        extension_path = enumerator.Next()) {
     std::string extension_id = WideToASCII(
         extension_path.BaseName().ToWStringHack());
+
     // The utility process might be in the middle of unpacking an extension, so
     // ignore the temp unpacking directory.
     if (extension_id == kUnpackExtensionDir)
       continue;
+
+    // Ignore directories that aren't valid IDs.
+    if (!Extension::IdIsValid(extension_id)) {
+      LOG(WARNING) << "Invalid extension ID encountered in extensions "
+                      "directory: " << extension_id;
+      continue;
+    }
 
     // If there is no Current Version file, just delete the directory and move
     // on. This can legitimately happen when an uninstall does not complete, for
