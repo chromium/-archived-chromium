@@ -384,6 +384,9 @@
         #'../third_party/skia/src/ports/SkXMLPullParser_expat.cpp',
         '../third_party/skia/src/ports/sk_predefined_gamma.h',
 
+	'../third_party/skia/src/include/utils/mac/SkCGUtils.h',
+	'../third_party/skia/src/utils/mac/SkCreateCGImageRef.cpp',
+
         '../third_party/skia/include/core/Sk64.h',
         '../third_party/skia/include/core/SkAutoKern.h',
         '../third_party/skia/include/core/SkBitmap.h',
@@ -555,7 +558,9 @@
       ],
       'conditions': [
         [ 'OS != "mac"', {
-          'sources/': [ ['exclude', '_mac\\.(cc|cpp)$'] ],
+          'sources/': [
+            ['exclude', '_mac\\.(cc|cpp)$'],
+            ['exclude', '/mac/'] ],
         }],
         [ 'OS != "linux"', {
           'sources/': [ ['exclude', '_linux\\.(cc|cpp)$'] ],
@@ -601,6 +606,9 @@
           'defines': [
             'SK_BUILD_FOR_MAC',
           ],
+	  'include_dirs': [
+	    '../third_party/skia/include/utils/mac',
+	  ],
         }],
         [ 'OS == "win"', {
           'sources!': [

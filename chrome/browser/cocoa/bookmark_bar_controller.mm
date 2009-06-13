@@ -10,9 +10,12 @@
 #import "chrome/browser/cocoa/bookmark_bar_controller.h"
 #import "chrome/browser/cocoa/bookmark_bar_view.h"
 #import "chrome/browser/cocoa/bookmark_button_cell.h"
+#import "chrome/browser/cocoa/cocoa_utils.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+
+using namespace CocoaUtils;
 
 @interface BookmarkBarController(Private)
 - (void)applyContentAreaOffset:(BOOL)apply;
@@ -149,7 +152,7 @@ const CGFloat kBookmarkHorizontalPadding = 8.0;
   [delegate_ openBookmarkURL:node->GetURL() disposition:CURRENT_TAB];
 }
 
-// Return an NSCell suitable for a bookmark button.
+// Return an autoreleased NSCell suitable for a bookmark button.
 - (NSCell *)cellForBookmarkNode:(BookmarkNode*)node frame:(NSRect)frame {
   NSString* title = base::SysWideToNSString(node->GetTitle());
   NSButtonCell *cell = [[[BookmarkButtonCell alloc] initTextCell:nil]
@@ -160,10 +163,16 @@ const CGFloat kBookmarkHorizontalPadding = 8.0;
   [cell setBezelStyle:NSShadowlessSquareBezelStyle];
   [cell setShowsBorderOnlyWhileMouseInside:YES];
 
-  // TODO(jrg): add the real image.  Find or write an SkBitmap-to-NSImage helper.
-  // For now I'm using the nav icon just to have something.
-  [cell setImage:[NSImage imageNamed:@"nav"]];
-  [cell setImagePosition:NSImageLeft];
+  // The favicon may be NULL if we haven't loaded it yet.  Bookmarks
+  // (and their icons) are loaded on the IO thread to speed launch.
+  const SkBitmap& favicon = bookmarkModel_->GetFavIcon(node);
+  if (!favicon.isNull()) {
+    NSImage* image = SkBitmapToNSImage(favicon);
+    if (image) {
+      [cell setImage:image];
+      [cell setImagePosition:NSImageLeft];
+    }
+  }
 
   [cell setTitle:title];
   [cell setControlSize:NSSmallControlSize];
@@ -243,6 +252,7 @@ const CGFloat kBookmarkHorizontalPadding = 8.0;
 
 // TODO(jrg): for now this is brute force.
 - (void)loaded:(BookmarkModel*)model {
+  DCHECK(model == bookmarkModel_);
   // Do nothing if not visible or too early
   if ((barIsVisible_ == NO) || !model->IsLoaded())
     return;
@@ -275,9 +285,24 @@ const CGFloat kBookmarkHorizontalPadding = 8.0;
   [self loaded:model];
 }
 
+// TODO(jrg): linear searching is bad.
+// Need a BookmarkNode-->NSCell mapping.
 - (void)nodeFavIconLoaded:(BookmarkModel*)model
                      node:(BookmarkNode*)node {
-  // TODO(jrg): no icons yet
+  NSArray* views = [bookmarkBarView_ subviews];
+  for (NSButton* button in views) {
+    NSButtonCell* cell = [button cell];
+    void* pointer = [[cell representedObject] pointerValue];
+    BookmarkNode* cellnode = static_cast<BookmarkNode*>(pointer);
+    if (cellnode == node) {
+      NSImage* image = SkBitmapToNSImage(bookmarkModel_->GetFavIcon(node));
+      if (image) {
+        [cell setImage:image];
+        [cell setImagePosition:NSImageLeft];
+      }
+      return;
+    }
+  }
 }
 
 // TODO(jrg): for now this is brute force.
