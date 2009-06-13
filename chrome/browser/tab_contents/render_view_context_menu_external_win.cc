@@ -22,3 +22,18 @@ void RenderViewContextMenuExternalWin::AppendMenuItem(int id) {
     RenderViewContextMenuWin::AppendMenuItem(id);
   }
 }
+
+void RenderViewContextMenuExternalWin::DoInit() {
+  RenderViewContextMenuWin::DoInit();
+  // The external tab container needs to be notified by command
+  // and not by index. So we are turning off the MNS_NOTIFYBYPOS
+  // style.
+  HMENU menu = GetMenuHandle();
+  DCHECK(menu != NULL);
+
+  MENUINFO mi = {0};
+  mi.cbSize = sizeof(mi);
+  mi.fMask = MIM_STYLE | MIM_MENUDATA;
+  mi.dwMenuData = reinterpret_cast<ULONG_PTR>(this);
+  SetMenuInfo(menu, &mi);
+}
