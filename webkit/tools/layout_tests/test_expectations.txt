@@ -2781,7 +2781,7 @@ BUG13314 LINUX : LayoutTests/platform/mac/accessibility/accesskey.html = CRASH F
 BUG13721 LINUX : LayoutTests/fast/dynamic/positioned-movement-with-positioned-children.html = FAIL
 
 // New test added in WebKit 44550:
-BUG13767 : LayoutTests/fast/js/JSON-stringify.html = FAIL
+BUG13767 : LayoutTests/fast/js/JSON-stringify.html = FAIL TIMEOUT
 
 // WebKit 44571:44597
 // Needs pixel results generated upstream, may need rebaselining afterwards
