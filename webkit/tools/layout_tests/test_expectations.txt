@@ -611,15 +611,6 @@ BUG4363 SLOW : LayoutTests/http/tests/security/local-video-src-from-remote.html 
 BUG4363 : LayoutTests/fast/dom/Window/custom-constructors.html = FAIL
 
 // These tests are for <audio> and <video> and they do not run well on Windows.
-BUG13907 WIN : LayoutTests/fast/media/mq-animation.html = FAIL
-BUG13907 WIN : LayoutTests/fast/media/mq-aspect-ratio.html = FAIL
-BUG13907 WIN : LayoutTests/fast/media/mq-orientation.html = FAIL
-BUG13907 WIN : LayoutTests/fast/media/mq-transform-01.html = FAIL
-BUG13907 WIN : LayoutTests/fast/media/mq-transform-02.html = FAIL
-BUG13907 WIN : LayoutTests/fast/media/mq-transform-03.html = FAIL
-BUG13907 WIN : LayoutTests/fast/media/mq-transform-04.html = FAIL
-BUG13907 WIN : LayoutTests/fast/media/mq-transition.html = FAIL
-BUG13907 WIN DEBUG : LayoutTests/fast/media/resources/viewport-media-query.html = FAIL
 BUG13907 WIN : LayoutTests/fast/media/viewport-media-query.html = FAIL
 BUG13907 WIN : LayoutTests/http/tests/media/remove-while-loading.html = FAIL
 BUG13907 WIN : LayoutTests/http/tests/media/video-play-stall-seek.html = FAIL
