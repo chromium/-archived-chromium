@@ -235,6 +235,10 @@ void PasswordFormManager::OnRequestDone(int handle,
   // We're done matching now.
   state_ = POST_MATCHING_PHASE;
 
+  if (best_score <= 0) {
+    return;
+  }
+
   for (std::vector<PasswordForm>::const_iterator it = empties.begin();
        it != empties.end(); ++it) {
     // If we don't already have a result with the same username, add the
