@@ -42,12 +42,6 @@
             'web_activex_site.cc',
             'web_activex_site.h',
           ],
-          # TODO(bradnelson): Add direct support for this kind of thing to gyp.
-          'msvs_settings': {
-            'VCLibrarianTool': {
-              'AdditionalDependencies': 'urlmon.lib',
-            },
-          },
           'link_settings': {
             'libraries': [
               '-lurlmon.lib',
