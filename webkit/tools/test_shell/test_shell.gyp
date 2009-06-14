@@ -486,6 +486,9 @@
       ],
       'conditions': [
         ['OS=="win"', {
+          'resource_include_dirs': [
+            '<(SHARED_INTERMEDIATE_DIR)/webkit',
+          ],
           'sources': [ '<@(test_shell_windows_resource_files)' ],
         }],
         ['OS=="linux"', {
