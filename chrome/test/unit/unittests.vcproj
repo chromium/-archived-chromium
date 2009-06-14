@@ -56,7 +56,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="urlmon.lib winmm.lib"
+				AdditionalDependencies="winmm.lib"
 				LinkIncremental="1"
 			/>
 			<Tool
@@ -123,7 +123,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="urlmon.lib winmm.lib"
+				AdditionalDependencies="winmm.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"

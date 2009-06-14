@@ -15,14 +15,13 @@
           'target_name': 'default_plugin',
           'type': '<(library)',
           'dependencies': [
-            '../../net/net.gyp:net_resources',
+            '../../third_party/libxml/libxml.gyp:libxml',
             '../../third_party/icu38/icu38.gyp:icui18n',
             '../../third_party/icu38/icu38.gyp:icuuc',
-            '../../third_party/libxml/libxml.gyp:libxml',
             '../../third_party/npapi/npapi.gyp:npapi',
-            '../activex_shim/activex_shim.gyp:activex_shim',
             '../webkit.gyp:webkit_resources',
             '../webkit.gyp:webkit_strings',
+            '../../net/net.gyp:net_resources',
           ],
           'include_dirs': [
             '../..',
