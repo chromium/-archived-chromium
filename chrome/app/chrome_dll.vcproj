@@ -56,7 +56,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(OutDir)\obj\global_intermediate\tcmalloc\libcmt.lib"
+				AdditionalDependencies="urlmon.lib $(OutDir)\obj\global_intermediate\tcmalloc\libcmt.lib"
 				OutputFile="$(IntDir)\chrome.dll"
 				LinkIncremental="1"
 				IgnoreDefaultLibraryNames="libcmtd.lib"
@@ -126,7 +126,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(OutDir)\obj\global_intermediate\tcmalloc\libcmt.lib"
+				AdditionalDependencies="urlmon.lib $(OutDir)\obj\global_intermediate\tcmalloc\libcmt.lib"
 				OutputFile="$(OutDir)\chrome.dll"
 				IgnoreDefaultLibraryNames="libcmt.lib"
 				ImportLibrary="$(OutDir)\lib\$(ProjectName).lib"
