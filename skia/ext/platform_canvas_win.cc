@@ -5,9 +5,8 @@
 #include <windows.h>
 #include <psapi.h>
 
-#include "skia/ext/platform_canvas_win.h"
-
 #include "skia/ext/bitmap_platform_device_win.h"
+#include "skia/ext/platform_canvas.h"
 
 namespace skia {
 
@@ -54,20 +53,20 @@ __declspec(noinline) void CrashIfInvalidSection(HANDLE shared_section) {
   CHECK(::GetHandleInformation(shared_section, &handle_info) == TRUE);
 }
 
-PlatformCanvasWin::PlatformCanvasWin() : SkCanvas() {
+PlatformCanvas::PlatformCanvas() : SkCanvas() {
 }
 
-PlatformCanvasWin::PlatformCanvasWin(int width, int height, bool is_opaque)
+PlatformCanvas::PlatformCanvas(int width, int height, bool is_opaque)
     : SkCanvas() {
   bool initialized = initialize(width, height, is_opaque, NULL);
   if (!initialized)
     CrashForBitmapAllocationFailure(width, height);
 }
 
-PlatformCanvasWin::PlatformCanvasWin(int width,
-                                     int height,
-                                     bool is_opaque,
-                                     HANDLE shared_section)
+PlatformCanvas::PlatformCanvas(int width,
+                               int height,
+                               bool is_opaque,
+                               HANDLE shared_section)
     : SkCanvas() {
   bool initialized = initialize(width, height, is_opaque, shared_section);
   if (!initialized) {
@@ -76,15 +75,15 @@ PlatformCanvasWin::PlatformCanvasWin(int width,
   }
 }
 
-PlatformCanvasWin::~PlatformCanvasWin() {
+PlatformCanvas::~PlatformCanvas() {
 }
 
-bool PlatformCanvasWin::initialize(int width,
-                                   int height,
-                                   bool is_opaque,
-                                   HANDLE shared_section) {
-  SkDevice* device =
-      createPlatformDevice(width, height, is_opaque, shared_section);
+bool PlatformCanvas::initialize(int width,
+                               int height,
+                               bool is_opaque,
+                               HANDLE shared_section) {
+  SkDevice* device = BitmapPlatformDevice::create(width, height,
+                                                  is_opaque, shared_section);
   if (!device)
     return false;
 
@@ -93,48 +92,21 @@ bool PlatformCanvasWin::initialize(int width,
   return true;
 }
 
-HDC PlatformCanvasWin::beginPlatformPaint() {
+HDC PlatformCanvas::beginPlatformPaint() {
   return getTopPlatformDevice().getBitmapDC();
 }
 
-void PlatformCanvasWin::endPlatformPaint() {
+void PlatformCanvas::endPlatformPaint() {
   // we don't clear the DC here since it will be likely to be used again
   // flushing will be done in onAccessBitmap
 }
 
-PlatformDeviceWin& PlatformCanvasWin::getTopPlatformDevice() const {
-  // All of our devices should be our special PlatformDevice.
-  SkCanvas::LayerIter iter(const_cast<PlatformCanvasWin*>(this), false);
-  return *static_cast<PlatformDeviceWin*>(iter.device());
-}
-
-SkDevice* PlatformCanvasWin::createDevice(SkBitmap::Config config,
-                                          int width,
-                                          int height,
-                                          bool is_opaque, bool isForLayer) {
+SkDevice* PlatformCanvas::createDevice(SkBitmap::Config config,
+                                       int width,
+                                       int height,
+                                       bool is_opaque, bool isForLayer) {
   SkASSERT(config == SkBitmap::kARGB_8888_Config);
-  return createPlatformDevice(width, height, is_opaque, NULL);
-}
-
-SkDevice* PlatformCanvasWin::createPlatformDevice(int width,
-                                                  int height,
-                                                  bool is_opaque,
-                                                  HANDLE shared_section) {
-  HDC screen_dc = GetDC(NULL);
-  SkDevice* device = BitmapPlatformDeviceWin::create(screen_dc, width, height,
-                                                  is_opaque, shared_section);
-  ReleaseDC(NULL, screen_dc);
-  return device;
-}
-
-SkDevice* PlatformCanvasWin::setBitmapDevice(const SkBitmap&) {
-  SkASSERT(false);  // Should not be called.
-  return NULL;
-}
-
-// static
-size_t PlatformCanvasWin::StrideForWidth(unsigned width) {
-  return 4 * width;
+  return BitmapPlatformDevice::create(width, height, is_opaque, NULL);
 }
 
 }  // namespace skia

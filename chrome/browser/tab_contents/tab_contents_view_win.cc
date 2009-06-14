@@ -6,7 +6,7 @@
 
 #include <windows.h>
 
-#include "app/gfx/canvas.h"
+#include "app/gfx/canvas_paint.h"
 #include "app/os_exchange_data.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/browser.h"  // TODO(beng): this dependency is awful.

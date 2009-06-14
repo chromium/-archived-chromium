@@ -120,10 +120,10 @@ int ComputeFormatFlags(int flags, const std::wstring& text) {
 namespace gfx {
 
 Canvas::Canvas(int width, int height, bool is_opaque)
-    : skia::PlatformCanvasWin(width, height, is_opaque) {
+    : skia::PlatformCanvas(width, height, is_opaque) {
 }
 
-Canvas::Canvas() : skia::PlatformCanvasWin() {
+Canvas::Canvas() : skia::PlatformCanvas() {
 }
 
 Canvas::~Canvas() {

@@ -204,7 +204,7 @@ void PrintWebViewHelper::PrintPage(const ViewMsg_PrintPage_Params& params,
   emf.CreateDc(NULL, NULL);
   HDC hdc = emf.hdc();
   DCHECK(hdc);
-  skia::PlatformDeviceWin::InitializeDC(hdc);
+  skia::PlatformDevice::InitializeDC(hdc);
   // Since WebKit extends the page width depending on the magical shrink
   // factor we make sure the canvas covers the worst case scenario
   // (x2.0 currently).  PrintContext will then set the correct clipping region.
@@ -220,7 +220,7 @@ void PrintWebViewHelper::PrintPage(const ViewMsg_PrintPage_Params& params,
   // GDI drawing code fails.
 
   // Mix of Skia and GDI based.
-  skia::PlatformCanvasWin canvas(size_x, size_y, true);
+  skia::PlatformCanvas canvas(size_x, size_y, true);
   canvas.drawARGB(255, 255, 255, 255, SkPorterDuff::kSrc_Mode);
   float webkit_shrink = frame->PrintPage(params.page_number, &canvas);
   if (shrink <= 0) {

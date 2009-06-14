@@ -8,7 +8,7 @@
 #include <atlapp.h>
 #include <atlmisc.h>
 
-#include "app/gfx/canvas.h"
+#include "app/gfx/canvas_paint.h"
 #include "app/gfx/icon_util.h"
 #include "app/l10n_util.h"
 #include "app/l10n_util_win.h"

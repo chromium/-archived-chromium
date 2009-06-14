@@ -4,7 +4,9 @@
 
 #include "app/gfx/canvas.h"
 
+#include <cairo/cairo.h>
 #include <pango/pango.h>
+#include <pango/pangocairo.h>
 
 #include "app/gfx/font.h"
 #include "base/gfx/rect.h"
@@ -44,10 +46,10 @@ PangoFontDescription* PangoFontFromGfxFont(const gfx::Font& gfx_font) {
 namespace gfx {
 
 Canvas::Canvas(int width, int height, bool is_opaque)
-    : skia::PlatformCanvasLinux(width, height, is_opaque) {
+    : skia::PlatformCanvas(width, height, is_opaque) {
 }
 
-Canvas::Canvas() : skia::PlatformCanvasLinux() {
+Canvas::Canvas() : skia::PlatformCanvas() {
 }
 
 Canvas::~Canvas() {
@@ -58,7 +60,7 @@ void Canvas::SizeStringInt(const std::wstring& text,
                            const gfx::Font& font,
                            int* width, int* height, int flags) {
   cairo_surface_t* surface =
-    cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 0, 0);
+      cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 0, 0);
   cairo_t* cr = cairo_create(surface);
   PangoLayout* layout = pango_cairo_create_layout(cr);
 

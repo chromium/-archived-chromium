@@ -432,7 +432,7 @@ bool WebPluginDelegateProxy::CreateBitmap(
   if (!new_shared_memory->Create(L"", false, true, size))
     return false;
 
-  scoped_ptr<skia::PlatformCanvasWin> new_canvas(new skia::PlatformCanvasWin);
+  scoped_ptr<skia::PlatformCanvas> new_canvas(new skia::PlatformCanvas);
   if (!new_canvas->initialize(plugin_rect_.width(), plugin_rect_.height(),
                               true, new_shared_memory->handle())) {
     return false;

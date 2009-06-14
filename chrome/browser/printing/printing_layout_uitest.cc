@@ -169,7 +169,7 @@ class Image {
                                       &bits, NULL, 0);
     EXPECT_TRUE(bitmap);
     EXPECT_TRUE(SelectObject(hdc, bitmap));
-    skia::PlatformDeviceWin::InitializeDC(hdc);
+    skia::PlatformDevice::InitializeDC(hdc);
     EXPECT_TRUE(emf.Playback(hdc, NULL));
     row_length_ = size_.width() * sizeof(uint32);
     size_t bytes = row_length_ * size_.height();

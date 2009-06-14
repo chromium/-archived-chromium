@@ -9,9 +9,9 @@
 
 #include "base/basictypes.h"
 #include "base/logging.h"
-#include "skia/ext/bitmap_platform_device_linux.h"
-#include "skia/ext/platform_canvas_linux.h"
-#include "skia/ext/platform_device_linux.h"
+#include "skia/ext/bitmap_platform_device.h"
+#include "skia/ext/platform_canvas.h"
+#include "skia/ext/platform_device.h"
 #include "webkit/api/public/gtk/WebInputEventFactory.h"
 #include "webkit/api/public/x11/WebScreenInfoFactory.h"
 #include "webkit/api/public/WebInputEvent.h"
@@ -357,9 +357,9 @@ void WebWidgetHost::Paint() {
   gdk_window_begin_paint_rect(window, &grect);
 
   // BitBlit to the gdk window.
-  skia::PlatformDeviceLinux &platdev = canvas_->getTopPlatformDevice();
-  skia::BitmapPlatformDeviceLinux* const bitdev =
-      static_cast<skia::BitmapPlatformDeviceLinux* >(&platdev);
+  skia::PlatformDevice& platdev = canvas_->getTopPlatformDevice();
+  skia::BitmapPlatformDevice* const bitdev =
+      static_cast<skia::BitmapPlatformDevice*>(&platdev);
   cairo_t* cairo_drawable = gdk_cairo_create(window);
   cairo_set_source_surface(cairo_drawable, bitdev->surface(), 0, 0);
   cairo_paint(cairo_drawable);

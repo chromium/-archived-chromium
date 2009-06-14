@@ -4,6 +4,7 @@
 
 #include "chrome/browser/gtk/tabs/tab_renderer_gtk.h"
 
+#include "app/gfx/canvas_paint.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "chrome/browser/browser.h"
@@ -510,7 +511,7 @@ void TabRendererGtk::MoveCloseButtonWidget() {
 
 void TabRendererGtk::PaintTab(GdkEventExpose* event) {
   gfx::CanvasPaint canvas(event, false);
-  if (canvas.isEmpty())
+  if (canvas.is_empty())
     return;
 
   // The tab is rendered into a windowless widget whose offset is at the

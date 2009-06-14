@@ -6,7 +6,7 @@
 
 #include <string>
 
-#include "app/gfx/canvas.h"
+#include "app/gfx/canvas_paint.h"
 #include "app/gfx/font.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"

@@ -12,12 +12,12 @@
 
 namespace skia {
 
-PlatformDeviceWin::PlatformDeviceWin(const SkBitmap& bitmap)
+PlatformDevice::PlatformDevice(const SkBitmap& bitmap)
     : SkDevice(bitmap) {
 }
 
 // static
-void PlatformDeviceWin::InitializeDC(HDC context) {
+void PlatformDevice::InitializeDC(HDC context) {
   // Enables world transformation.
   // If the GM_ADVANCED graphics mode is set, GDI always draws arcs in the
   // counterclockwise direction in logical space. This is equivalent to the
@@ -57,7 +57,7 @@ void PlatformDeviceWin::InitializeDC(HDC context) {
 }
 
 // static
-void PlatformDeviceWin::LoadPathToDC(HDC context, const SkPath& path) {
+void PlatformDevice::LoadPathToDC(HDC context, const SkPath& path) {
   switch (path.getFillType()) {
     case SkPath::kWinding_FillType: {
       int res = SetPolyFillMode(context, WINDING);
@@ -117,7 +117,7 @@ void PlatformDeviceWin::LoadPathToDC(HDC context, const SkPath& path) {
 }
 
 // static
-void PlatformDeviceWin::LoadTransformToDC(HDC dc, const SkMatrix& matrix) {
+void PlatformDevice::LoadTransformToDC(HDC dc, const SkMatrix& matrix) {
   XFORM xf;
   xf.eM11 = matrix[SkMatrix::kMScaleX];
   xf.eM21 = matrix[SkMatrix::kMSkewX];
@@ -129,8 +129,8 @@ void PlatformDeviceWin::LoadTransformToDC(HDC dc, const SkMatrix& matrix) {
 }
 
 // static
-bool PlatformDeviceWin::SkPathToCubicPaths(CubicPaths* paths,
-                                           const SkPath& skpath) {
+bool PlatformDevice::SkPathToCubicPaths(CubicPaths* paths,
+                                        const SkPath& skpath) {
   paths->clear();
   CubicPath* current_path = NULL;
   SkPoint current_points[4];
@@ -192,9 +192,9 @@ bool PlatformDeviceWin::SkPathToCubicPaths(CubicPaths* paths,
 }
 
 // static
-void PlatformDeviceWin::LoadClippingRegionToDC(HDC context,
-                                               const SkRegion& region,
-                                               const SkMatrix& transformation) {
+void PlatformDevice::LoadClippingRegionToDC(HDC context,
+                                            const SkRegion& region,
+                                            const SkMatrix& transformation) {
   HRGN hrgn;
   if (region.isEmpty()) {
     // region can be empty, in which case everything will be clipped.

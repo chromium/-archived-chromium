@@ -22,8 +22,10 @@ namespace skia {
 // to. It also provides functionality to play well with GDI drawing functions.
 // This class is abstract and must be subclassed. It provides the basic
 // interface to implement it either with or without a bitmap backend.
-class PlatformDeviceWin : public SkDevice {
+class PlatformDevice : public SkDevice {
  public:
+  typedef HDC PlatformSurface;
+
   // The DC that corresponds to the bitmap, used for GDI operations drawing
   // into the bitmap. This is possibly heavyweight, so it should be existant
   // only during one pass of rendering.
@@ -62,7 +64,7 @@ class PlatformDeviceWin : public SkDevice {
   typedef std::vector<CubicPath> CubicPaths;
 
   // Forwards |bitmap| to SkDevice's constructor.
-  PlatformDeviceWin(const SkBitmap& bitmap);
+  PlatformDevice(const SkBitmap& bitmap);
 
   // Loads the specified Skia transform into the device context, excluding
   // perspective (which GDI doesn't support).

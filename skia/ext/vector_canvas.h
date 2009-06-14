@@ -5,8 +5,8 @@
 #ifndef SKIA_EXT_VECTOR_CANVAS_H_
 #define SKIA_EXT_VECTOR_CANVAS_H_
 
-#include "skia/ext/platform_canvas_win.h"
-#include "skia/ext/vector_device.h"
+#include "skia/ext/platform_canvas.h"
+#include "skia/ext/vector_platform_device_win.h"
 
 namespace skia {
 
@@ -14,7 +14,7 @@ namespace skia {
 // to work with a VectorDevice to manage platform-specific drawing. It allows
 // using both Skia operations and platform-specific operations. It *doesn't*
 // support reading back from the bitmap backstore since it is not used.
-class VectorCanvas : public PlatformCanvasWin {
+class VectorCanvas : public PlatformCanvas {
  public:
   VectorCanvas();
   VectorCanvas(HDC dc, int width, int height);

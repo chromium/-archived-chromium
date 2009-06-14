@@ -54,19 +54,18 @@ namespace skia {
 // shared memory between the renderer and the main process at least. In this
 // case we'll probably create the buffer from a precreated region of memory.
 // -----------------------------------------------------------------------------
-class BitmapPlatformDeviceLinux : public PlatformDeviceLinux {
+class BitmapPlatformDevice : public PlatformDevice {
   // A reference counted cairo surface
-  class BitmapPlatformDeviceLinuxData;
+  class BitmapPlatformDeviceData;
 
  public:
-  static BitmapPlatformDeviceLinux* Create(int width, int height,
-                                           bool is_opaque);
+  static BitmapPlatformDevice* Create(int width, int height, bool is_opaque);
+
   // This doesn't take ownership of |data|
-  static BitmapPlatformDeviceLinux* Create(int width, int height,
-                                           bool is_opaque, uint8_t* data);
-  static BitmapPlatformDeviceLinux* Create(int width, int height,
-                                           bool is_opaque,
-                                           cairo_surface_t* surface);
+  static BitmapPlatformDevice* Create(int width, int height,
+                                      bool is_opaque, uint8_t* data);
+  static BitmapPlatformDevice* Create(int width, int height,
+                                      bool is_opaque, cairo_surface_t* surface);
 
   // Create a BitmapPlatformDeviceLinux from an already constructed bitmap;
   // you should probably be using Create(). This may become private later if
@@ -74,13 +73,12 @@ class BitmapPlatformDeviceLinux : public PlatformDeviceLinux {
   // the Windows and Mac versions of this class do.
   //
   // This object takes ownership of @data.
-  BitmapPlatformDeviceLinux(const SkBitmap& other,
-                            BitmapPlatformDeviceLinuxData* data);
-  virtual ~BitmapPlatformDeviceLinux();
-  BitmapPlatformDeviceLinux& operator=(const BitmapPlatformDeviceLinux& other);
+  BitmapPlatformDevice(const SkBitmap& other, BitmapPlatformDeviceData* data);
+  virtual ~BitmapPlatformDevice();
+  BitmapPlatformDevice& operator=(const BitmapPlatformDevice& other);
 
   // A stub copy constructor.  Needs to be properly implemented.
-  BitmapPlatformDeviceLinux(const BitmapPlatformDeviceLinux& other);
+  BitmapPlatformDevice(const BitmapPlatformDevice& other);
 
   // Bitmaps aren't vector graphics.
   virtual bool IsVectorial() { return false; }
@@ -92,7 +90,7 @@ class BitmapPlatformDeviceLinux : public PlatformDeviceLinux {
   cairo_surface_t* surface() const;
 
  private:
-  scoped_refptr<BitmapPlatformDeviceLinuxData> data_;
+  scoped_refptr<BitmapPlatformDeviceData> data_;
 };
 
 }  // namespace skia

@@ -46,9 +46,9 @@ bool Constrain(int available_size, int* position, int *size) {
 
 }  // namespace
 
-class BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData : public SkRefCnt {
+class BitmapPlatformDevice::BitmapPlatformDeviceData : public SkRefCnt {
  public:
-  explicit BitmapPlatformDeviceMacData(CGContextRef bitmap);
+  explicit BitmapPlatformDeviceData(CGContextRef bitmap);
 
   // Create/destroy CoreGraphics context for our bitmap data.
   CGContextRef GetBitmapContext() {
@@ -88,19 +88,18 @@ class BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData : public SkRefCnt {
   SkRegion clip_region_;
 
  private:
-  friend class base::RefCounted<BitmapPlatformDeviceMacData>;
-  ~BitmapPlatformDeviceMacData() {
+  friend class base::RefCounted<BitmapPlatformDeviceData>;
+  ~BitmapPlatformDeviceData() {
     if (bitmap_context_)
       CGContextRelease(bitmap_context_);
   }
 
   // Disallow copy & assign.
-  BitmapPlatformDeviceMacData(const BitmapPlatformDeviceMacData&);
-  BitmapPlatformDeviceMacData& operator=(const BitmapPlatformDeviceMacData&);
+  BitmapPlatformDeviceData(const BitmapPlatformDeviceData&);
+  BitmapPlatformDeviceData& operator=(const BitmapPlatformDeviceData&);
 };
 
-BitmapPlatformDeviceMac::\
-    BitmapPlatformDeviceMacData::BitmapPlatformDeviceMacData(
+BitmapPlatformDevice::BitmapPlatformDeviceData::BitmapPlatformDeviceData(
     CGContextRef bitmap)
     : bitmap_context_(bitmap),
       config_dirty_(true) {  // Want to load the config next time.
@@ -119,7 +118,7 @@ BitmapPlatformDeviceMac::\
   CGContextSaveGState(bitmap_context_);
 }
 
-void BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData::SetMatrixClip(
+void BitmapPlatformDevice::BitmapPlatformDeviceData::SetMatrixClip(
     const SkMatrix& transform,
     const SkRegion& region) {
   transform_ = transform;
@@ -127,7 +126,7 @@ void BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData::SetMatrixClip(
   config_dirty_ = true;
 }
 
-void BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData::LoadConfig() {
+void BitmapPlatformDevice::BitmapPlatformDeviceData::LoadConfig() {
   if (!config_dirty_ || !bitmap_context_)
     return;  // Nothing to do.
   config_dirty_ = false;
@@ -154,10 +153,10 @@ void BitmapPlatformDeviceMac::BitmapPlatformDeviceMacData::LoadConfig() {
 // that we can create the pixel data before calling the constructor. This is
 // required so that we can call the base class' constructor with the pixel
 // data.
-BitmapPlatformDeviceMac* BitmapPlatformDeviceMac::Create(CGContextRef context,
-                                                         int width,
-                                                         int height,
-                                                         bool is_opaque) {
+BitmapPlatformDevice* BitmapPlatformDevice::Create(CGContextRef context,
+                                                   int width,
+                                                   int height,
+                                                   bool is_opaque) {
   SkBitmap bitmap;
   bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
   if (bitmap.allocPixels() != true)
@@ -197,51 +196,51 @@ BitmapPlatformDeviceMac* BitmapPlatformDeviceMac::Create(CGContextRef context,
   }
 
   // The device object will take ownership of the graphics context.
-  return new BitmapPlatformDeviceMac(
-      new BitmapPlatformDeviceMacData(context), bitmap);
+  return new BitmapPlatformDevice(
+      new BitmapPlatformDeviceData(context), bitmap);
 }
 
 // The device will own the bitmap, which corresponds to also owning the pixel
 // data. Therefore, we do not transfer ownership to the SkDevice's bitmap.
-BitmapPlatformDeviceMac::BitmapPlatformDeviceMac(
-    BitmapPlatformDeviceMacData* data, const SkBitmap& bitmap)
-    : PlatformDeviceMac(bitmap),
+BitmapPlatformDevice::BitmapPlatformDevice(
+    BitmapPlatformDeviceData* data, const SkBitmap& bitmap)
+    : PlatformDevice(bitmap),
       data_(data) {
 }
 
 // The copy constructor just adds another reference to the underlying data.
 // We use a const cast since the default Skia definitions don't define the
 // proper constedness that we expect (accessBitmap should really be const).
-BitmapPlatformDeviceMac::BitmapPlatformDeviceMac(
-    const BitmapPlatformDeviceMac& other)
-    : PlatformDeviceMac(
-          const_cast<BitmapPlatformDeviceMac&>(other).accessBitmap(true)),
+BitmapPlatformDevice::BitmapPlatformDevice(
+    const BitmapPlatformDevice& other)
+    : PlatformDevice(
+          const_cast<BitmapPlatformDevice&>(other).accessBitmap(true)),
       data_(other.data_) {
   data_->ref();
 }
 
-BitmapPlatformDeviceMac::~BitmapPlatformDeviceMac() {
+BitmapPlatformDevice::~BitmapPlatformDevice() {
   data_->unref();
 }
 
-BitmapPlatformDeviceMac& BitmapPlatformDeviceMac::operator=(
-    const BitmapPlatformDeviceMac& other) {
+BitmapPlatformDevice& BitmapPlatformDevice::operator=(
+    const BitmapPlatformDevice& other) {
   data_ = other.data_;
   data_->ref();
   return *this;
 }
 
-CGContextRef BitmapPlatformDeviceMac::GetBitmapContext() {
+CGContextRef BitmapPlatformDevice::GetBitmapContext() {
   return data_->GetBitmapContext();
 }
 
-void BitmapPlatformDeviceMac::setMatrixClip(const SkMatrix& transform,
-                                            const SkRegion& region) {
+void BitmapPlatformDevice::setMatrixClip(const SkMatrix& transform,
+                                         const SkRegion& region) {
   data_->SetMatrixClip(transform, region);
 }
 
-void BitmapPlatformDeviceMac::DrawToContext(CGContextRef context, int x, int y,
-                                            const CGRect* src_rect) {
+void BitmapPlatformDevice::DrawToContext(CGContextRef context, int x, int y,
+                                         const CGRect* src_rect) {
   bool created_dc = false;
   if (!data_->bitmap_context_) {
     created_dc = true;
@@ -273,20 +272,20 @@ void BitmapPlatformDeviceMac::DrawToContext(CGContextRef context, int x, int y,
 }
 
 // Returns the color value at the specified location.
-SkColor BitmapPlatformDeviceMac::getColorAt(int x, int y) {
+SkColor BitmapPlatformDevice::getColorAt(int x, int y) {
   const SkBitmap& bitmap = accessBitmap(true);
   SkAutoLockPixels lock(bitmap);
   uint32_t* data = bitmap.getAddr32(0, 0);
   return static_cast<SkColor>(data[x + y * width()]);
 }
 
-void BitmapPlatformDeviceMac::onAccessBitmap(SkBitmap*) {
+void BitmapPlatformDevice::onAccessBitmap(SkBitmap*) {
   // Not needed in CoreGraphics
 }
 
-void BitmapPlatformDeviceMac::processPixels(int x, int y,
-                                            int width, int height,
-                                            adjustAlpha adjustor) {
+void BitmapPlatformDevice::processPixels(int x, int y,
+                                         int width, int height,
+                                         adjustAlpha adjustor) {
   const SkBitmap& bitmap = accessBitmap(true);
   SkMatrix& matrix = data_->transform_;
   int bitmap_start_x = SkScalarRound(matrix.getTranslateX()) + x;

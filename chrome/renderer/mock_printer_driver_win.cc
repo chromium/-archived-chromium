@@ -75,7 +75,7 @@ class EmfRenderer {
 
     SelectObject(dc_, bitmap_);
 
-    skia::PlatformDeviceWin::InitializeDC(dc_);
+    skia::PlatformDevice::InitializeDC(dc_);
     emf->Playback(dc_, NULL);
 
     return reinterpret_cast<uint8*>(bits);

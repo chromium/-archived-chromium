@@ -4,7 +4,8 @@
 
 #include "skia/ext/vector_canvas.h"
 
-#include "skia/ext/vector_device.h"
+#include "skia/ext/bitmap_platform_device_win.h"
+#include "skia/ext/vector_platform_device_win.h"
 
 namespace skia {
 
@@ -32,7 +33,7 @@ bool VectorCanvas::initialize(HDC context, int width, int height) {
 
 SkBounder* VectorCanvas::setBounder(SkBounder* bounder) {
   if (!IsTopDeviceVectorial())
-    return PlatformCanvasWin::setBounder(bounder);
+    return PlatformCanvas::setBounder(bounder);
 
   // This function isn't used in the code. Verify this assumption.
   SkASSERT(false);
@@ -59,13 +60,13 @@ SkDevice* VectorCanvas::createPlatformDevice(int width,
     // TODO(maruel):  http://b/1184002 1184002 When restoring a semi-transparent
     // layer, i.e. merging it, we need to rasterize it because GDI doesn't
     // support transparency except for AlphaBlend(). Right now, a
-    // BitmapPlatformDeviceWin is created when VectorCanvas think a saveLayers()
+    // BitmapPlatformDevice is created when VectorCanvas think a saveLayers()
     // call is being done. The way to save a layer would be to create an
     // EMF-based VectorDevice and have this device registers the drawing. When
     // playing back the device into a bitmap, do it at the printer's dpi instead
     // of the layout's dpi (which is much lower).
-    return PlatformCanvasWin::createPlatformDevice(width, height, is_opaque,
-                                                shared_section);
+    return BitmapPlatformDevice::create(width, height,
+                                        is_opaque, shared_section);
   }
 
   // TODO(maruel):  http://b/1183870 Look if it would be worth to increase the
@@ -77,7 +78,7 @@ SkDevice* VectorCanvas::createPlatformDevice(int width,
   // SkScalarRound(value * 10). Safari is already doing the same for text
   // rendering.
   SkASSERT(shared_section);
-  PlatformDeviceWin* device = VectorDevice::create(
+  PlatformDevice* device = VectorPlatformDevice::create(
       reinterpret_cast<HDC>(shared_section), width, height);
   return device;
 }

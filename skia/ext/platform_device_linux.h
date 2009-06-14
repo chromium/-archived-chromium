@@ -12,8 +12,10 @@ typedef struct _cairo_surface cairo_surface_t;
 namespace skia {
 
 // Blindly copying the mac hierarchy.
-class PlatformDeviceLinux : public SkDevice {
+class PlatformDevice : public SkDevice {
  public:
+  typedef cairo_surface_t* PlatformSurface;
+
   // Returns if the preferred rendering engine is vectorial or bitmap based.
   virtual bool IsVectorial() = 0;
 
@@ -21,7 +23,7 @@ class PlatformDeviceLinux : public SkDevice {
 
  protected:
   // Forwards |bitmap| to SkDevice's constructor.
-  PlatformDeviceLinux(const SkBitmap& bitmap);
+  PlatformDevice(const SkBitmap& bitmap);
 };
 
 }  // namespace skia

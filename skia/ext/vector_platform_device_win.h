@@ -1,11 +1,11 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef SKIA_EXT_VECTOR_DEVICE_H_
-#define SKIA_EXT_VECTOR_DEVICE_H_
+#ifndef SKIA_EXT_VECTOR_PLATFORM_DEVICE_WIN_H_
+#define SKIA_EXT_VECTOR_PLATFORM_DEVICE_WIN_H_
 
-#include "skia/ext/platform_device_win.h"
+#include "skia/ext/platform_device.h"
 #include "third_party/skia/include/core/SkMatrix.h"
 #include "third_party/skia/include/core/SkRegion.h"
 
@@ -15,13 +15,13 @@ namespace skia {
 // SkCanvas to draw into. This specific device is not not backed by a surface
 // and is thus unreadable. This is because the backend is completely vectorial.
 // This device is a simple wrapper over a Windows device context (HDC) handle.
-class VectorDevice : public PlatformDeviceWin {
+class VectorPlatformDevice : public PlatformDevice {
  public:
   // Factory function. The DC is kept as the output context.
-  static VectorDevice* create(HDC dc, int width, int height);
+  static VectorPlatformDevice* create(HDC dc, int width, int height);
 
-  VectorDevice(HDC dc, const SkBitmap& bitmap);
-  virtual ~VectorDevice();
+  VectorPlatformDevice(HDC dc, const SkBitmap& bitmap);
+  virtual ~VectorPlatformDevice();
 
   virtual HDC getBitmapDC() {
     return hdc_;
@@ -110,11 +110,11 @@ class VectorDevice : public PlatformDeviceWin {
   HGDIOBJ previous_pen_;
 
   // Copy & assign are not supported.
-  VectorDevice(const VectorDevice&);
-  const VectorDevice& operator=(const VectorDevice&);
+  VectorPlatformDevice(const VectorPlatformDevice&);
+  const VectorPlatformDevice& operator=(const VectorPlatformDevice&);
 };
 
 }  // namespace skia
 
-#endif  // SKIA_EXT_VECTOR_DEVICE_H_
+#endif  // SKIA_EXT_VECTOR_PLATFORM_DEVICE_WIN_H_
 

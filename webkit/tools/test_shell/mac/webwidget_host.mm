@@ -6,7 +6,7 @@
 
 #include "webkit/tools/test_shell/webwidget_host.h"
 
-#include "base/gfx/platform_canvas_mac.h"
+#include "base/gfx/platform_canvas.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
 #include "base/logging.h"

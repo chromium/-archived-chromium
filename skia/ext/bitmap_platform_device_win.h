@@ -11,7 +11,7 @@ namespace skia {
 
 // A device is basically a wrapper around SkBitmap that provides a surface for
 // SkCanvas to draw into. Our device provides a surface Windows can also write
-// to. BitmapPlatformDeviceWin creates a bitmap using CreateDIBSection() in a
+// to. BitmapPlatformDevice creates a bitmap using CreateDIBSection() in a
 // format that Skia supports and can then use this to draw ClearType into, etc.
 // This pixel data is provided to the bitmap that the device contains so that it
 // can be shared.
@@ -23,7 +23,7 @@ namespace skia {
 // For us, that other bitmap will become invalid as soon as the device becomes
 // invalid, which may lead to subtle bugs. Therefore, DO NOT ASSIGN THE
 // DEVICE'S PIXEL DATA TO ANOTHER BITMAP, make sure you copy instead.
-class BitmapPlatformDeviceWin : public PlatformDeviceWin {
+class BitmapPlatformDevice : public PlatformDevice {
  public:
   // Factory function. The screen DC is used to create the bitmap, and will not
   // be stored beyond this function. is_opaque should be set if the caller
@@ -32,11 +32,17 @@ class BitmapPlatformDeviceWin : public PlatformDeviceWin {
   // The shared_section parameter is optional (pass NULL for default behavior).
   // If shared_section is non-null, then it must be a handle to a file-mapping
   // object returned by CreateFileMapping.  See CreateDIBSection for details.
-  static BitmapPlatformDeviceWin* create(HDC screen_dc,
-                                         int width,
-                                         int height,
-                                         bool is_opaque,
-                                         HANDLE shared_section);
+  static BitmapPlatformDevice* create(HDC screen_dc,
+                                      int width,
+                                      int height,
+                                      bool is_opaque,
+                                      HANDLE shared_section);
+
+  // This version is the same as above but will get the screen DC itself.
+  static BitmapPlatformDevice* create(int width,
+                                      int height,
+                                      bool is_opaque,
+                                      HANDLE shared_section);
 
   // Copy constructor. When copied, devices duplicate their internal data, so
   // stay linked. This is because their implementation is very heavyweight
@@ -49,11 +55,11 @@ class BitmapPlatformDeviceWin : public PlatformDeviceWin {
   //
   // Copy constucting and "=" is designed for saving the device or passing it
   // around to another routine willing to deal with the bitmap data directly.
-  BitmapPlatformDeviceWin(const BitmapPlatformDeviceWin& other);
-  virtual ~BitmapPlatformDeviceWin();
+  BitmapPlatformDevice(const BitmapPlatformDevice& other);
+  virtual ~BitmapPlatformDevice();
 
   // See warning for copy constructor above.
-  BitmapPlatformDeviceWin& operator=(const BitmapPlatformDeviceWin& other);
+  BitmapPlatformDevice& operator=(const BitmapPlatformDevice& other);
 
   // Retrieves the bitmap DC, which is the memory DC for our bitmap data. The
   // bitmap DC is lazy created.
@@ -78,15 +84,15 @@ class BitmapPlatformDeviceWin : public PlatformDeviceWin {
   // Reference counted data that can be shared between multiple devices. This
   // allows copy constructors and operator= for devices to work properly. The
   // bitmaps used by the base device class are already refcounted and copyable.
-  class BitmapPlatformDeviceWinData;
+  class BitmapPlatformDeviceData;
 
   // Private constructor. The data should already be ref'ed for us.
-  BitmapPlatformDeviceWin(BitmapPlatformDeviceWinData* data,
-                          const SkBitmap& bitmap);
+  BitmapPlatformDevice(BitmapPlatformDeviceData* data,
+                       const SkBitmap& bitmap);
 
   // Data associated with this device, guaranteed non-null. We hold a reference
   // to this object.
-  BitmapPlatformDeviceWinData* data_;
+  BitmapPlatformDeviceData* data_;
 };
 
 }  // namespace skia

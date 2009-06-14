@@ -1,8 +1,10 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "skia/ext/vector_device.h"
+#include <windows.h>
+
+#include "skia/ext/vector_platform_device_win.h"
 
 #include "base/gfx/gdi_util.h"
 #include "skia/ext/skia_utils_win.h"
@@ -10,7 +12,8 @@
 
 namespace skia {
 
-VectorDevice* VectorDevice::create(HDC dc, int width, int height) {
+VectorPlatformDevice* VectorPlatformDevice::create(HDC dc,
+                                                   int width, int height) {
   InitializeDC(dc);
 
   // Link the SkBitmap to the current selected bitmap in the device context.
@@ -22,9 +25,9 @@ VectorDevice* VectorDevice::create(HDC dc, int width, int height) {
     if (GetObject(selected_bitmap, sizeof(BITMAP), &bitmap_data) ==
         sizeof(BITMAP)) {
       // The context has a bitmap attached. Attach our SkBitmap to it.
-      // Warning: If the bitmap gets unselected from the HDC, VectorDevice has
-      // no way to detect this, so the HBITMAP could be released while SkBitmap
-      // still has a reference to it. Be cautious.
+      // Warning: If the bitmap gets unselected from the HDC,
+      // VectorPlatformDevice has no way to detect this, so the HBITMAP could be
+      // released while SkBitmap still has a reference to it. Be cautious.
       if (width == bitmap_data.bmWidth &&
           height == bitmap_data.bmHeight) {
         bitmap.setConfig(SkBitmap::kARGB_8888_Config,
@@ -40,24 +43,24 @@ VectorDevice* VectorDevice::create(HDC dc, int width, int height) {
   if (!succeeded)
     bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
 
-  return new VectorDevice(dc, bitmap);
+  return new VectorPlatformDevice(dc, bitmap);
 }
 
-VectorDevice::VectorDevice(HDC dc, const SkBitmap& bitmap)
-    : PlatformDeviceWin(bitmap),
+VectorPlatformDevice::VectorPlatformDevice(HDC dc, const SkBitmap& bitmap)
+    : PlatformDevice(bitmap),
       hdc_(dc),
       previous_brush_(NULL),
       previous_pen_(NULL) {
   transform_.reset();
 }
 
-VectorDevice::~VectorDevice() {
+VectorPlatformDevice::~VectorPlatformDevice() {
   SkASSERT(previous_brush_ == NULL);
   SkASSERT(previous_pen_ == NULL);
 }
 
 
-void VectorDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
+void VectorPlatformDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
   // TODO(maruel):  Bypass the current transformation matrix.
   SkRect rect;
   rect.fLeft = 0;
@@ -67,9 +70,11 @@ void VectorDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
   drawRect(draw, rect, paint);
 }
 
-void VectorDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
-                              size_t count, const SkPoint pts[],
-                              const SkPaint& paint) {
+void VectorPlatformDevice::drawPoints(const SkDraw& draw,
+                                      SkCanvas::PointMode mode,
+                                      size_t count,
+                                      const SkPoint pts[],
+                                      const SkPaint& paint) {
   if (!count)
     return;
 
@@ -108,8 +113,9 @@ void VectorDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
   drawPath(draw, path, tmp_paint);
 }
 
-void VectorDevice::drawRect(const SkDraw& draw, const SkRect& rect,
-                            const SkPaint& paint) {
+void VectorPlatformDevice::drawRect(const SkDraw& draw,
+                                    const SkRect& rect,
+                                    const SkPaint& paint) {
   if (paint.getPathEffect()) {
     // Draw a path instead.
     SkPath path_orginal;
@@ -141,8 +147,9 @@ void VectorDevice::drawRect(const SkDraw& draw, const SkRect& rect,
   Cleanup();
 }
 
-void VectorDevice::drawPath(const SkDraw& draw, const SkPath& path,
-                            const SkPaint& paint) {
+void VectorPlatformDevice::drawPath(const SkDraw& draw,
+                                    const SkPath& path,
+                                    const SkPaint& paint) {
   if (paint.getPathEffect()) {
     // Apply the path effect forehand.
     SkPath path_modified;
@@ -161,7 +168,7 @@ void VectorDevice::drawPath(const SkDraw& draw, const SkPath& path,
     return;
   }
   HDC dc = getBitmapDC();
-  PlatformDeviceWin::LoadPathToDC(dc, path);
+  PlatformDevice::LoadPathToDC(dc, path);
   switch (paint.getStyle()) {
     case SkPaint::kFill_Style: {
       BOOL res = StrokeAndFillPath(dc);
@@ -185,8 +192,10 @@ void VectorDevice::drawPath(const SkDraw& draw, const SkPath& path,
   Cleanup();
 }
 
-void VectorDevice::drawBitmap(const SkDraw& draw, const SkBitmap& bitmap,
-                              const SkMatrix& matrix, const SkPaint& paint) {
+void VectorPlatformDevice::drawBitmap(const SkDraw& draw,
+                                      const SkBitmap& bitmap,
+                                      const SkMatrix& matrix,
+                                      const SkPaint& paint) {
   // Load the temporary matrix. This is what will translate, rotate and resize
   // the bitmap.
   SkMatrix actual_transform(transform_);
@@ -199,8 +208,10 @@ void VectorDevice::drawBitmap(const SkDraw& draw, const SkBitmap& bitmap,
   LoadTransformToDC(hdc_, transform_);
 }
 
-void VectorDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
-                              int x, int y, const SkPaint& paint) {
+void VectorPlatformDevice::drawSprite(const SkDraw& draw,
+                                      const SkBitmap& bitmap,
+                                      int x, int y,
+                                      const SkPaint& paint) {
   SkMatrix identity;
   identity.reset();
   LoadTransformToDC(hdc_, identity);
@@ -211,45 +222,62 @@ void VectorDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
   LoadTransformToDC(hdc_, transform_);
 }
 
-void VectorDevice::drawText(const SkDraw& draw, const void* text, size_t byteLength,
-                            SkScalar x, SkScalar y, const SkPaint& paint) {
+void VectorPlatformDevice::drawText(const SkDraw& draw,
+                                    const void* text,
+                                    size_t byteLength,
+                                    SkScalar x,
+                                    SkScalar y,
+                                    const SkPaint& paint) {
   // This function isn't used in the code. Verify this assumption.
   SkASSERT(false);
 }
 
-void VectorDevice::drawPosText(const SkDraw& draw, const void* text, size_t len,
-                               const SkScalar pos[], SkScalar constY,
-                               int scalarsPerPos, const SkPaint& paint) {
+void VectorPlatformDevice::drawPosText(const SkDraw& draw,
+                                       const void* text,
+                                       size_t len,
+                                       const SkScalar pos[],
+                                       SkScalar constY,
+                                       int scalarsPerPos,
+                                       const SkPaint& paint) {
   // This function isn't used in the code. Verify this assumption.
   SkASSERT(false);
 }
 
-void VectorDevice::drawTextOnPath(const SkDraw& draw, const void* text,
-                                  size_t len,
-                                  const SkPath& path, const SkMatrix* matrix,
-                                  const SkPaint& paint) {
+void VectorPlatformDevice::drawTextOnPath(const SkDraw& draw,
+                                          const void* text,
+                                          size_t len,
+                                          const SkPath& path,
+                                          const SkMatrix* matrix,
+                                          const SkPaint& paint) {
   // This function isn't used in the code. Verify this assumption.
   SkASSERT(false);
 }
 
-void VectorDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
-                                int vertexCount,
-                                const SkPoint vertices[], const SkPoint texs[],
-                                const SkColor colors[], SkXfermode* xmode,
-                                const uint16_t indices[], int indexCount,
-                                const SkPaint& paint) {
+void VectorPlatformDevice::drawVertices(const SkDraw& draw,
+                                        SkCanvas::VertexMode vmode,
+                                        int vertexCount,
+                                        const SkPoint vertices[],
+                                        const SkPoint texs[],
+                                        const SkColor colors[],
+                                        SkXfermode* xmode,
+                                        const uint16_t indices[],
+                                        int indexCount,
+                                        const SkPaint& paint) {
   // This function isn't used in the code. Verify this assumption.
   SkASSERT(false);
 }
 
-void VectorDevice::drawDevice(const SkDraw& draw, SkDevice* device, int x,
-                              int y, const SkPaint& paint) {
+void VectorPlatformDevice::drawDevice(const SkDraw& draw,
+                                      SkDevice* device,
+                                      int x,
+                                      int y,
+                                      const SkPaint& paint) {
   // TODO(maruel):  http://b/1183870 Playback the EMF buffer at printer's dpi if
   // it is a vectorial device.
   drawSprite(draw, device->accessBitmap(false), x, y, paint);
 }
 
-bool VectorDevice::ApplyPaint(const SkPaint& paint) {
+bool VectorPlatformDevice::ApplyPaint(const SkPaint& paint) {
   // Note: The goal here is to transfert the SkPaint's state to the HDC's state.
   // This function does not execute the SkPaint drawing commands. These should
   // be executed in drawPaint().
@@ -328,7 +356,7 @@ bool VectorDevice::ApplyPaint(const SkPaint& paint) {
   return true;
 }
 
-void VectorDevice::setMatrixClip(const SkMatrix& transform,
+void VectorPlatformDevice::setMatrixClip(const SkMatrix& transform,
                                  const SkRegion& region) {
   transform_ = transform;
   LoadTransformToDC(hdc_, transform_);
@@ -337,17 +365,18 @@ void VectorDevice::setMatrixClip(const SkMatrix& transform,
     LoadClipRegion();
 }
 
-void VectorDevice::drawToHDC(HDC dc, int x, int y, const RECT* src_rect) {
+void VectorPlatformDevice::drawToHDC(HDC dc, int x, int y,
+                                     const RECT* src_rect) {
   SkASSERT(false);
 }
 
-void VectorDevice::LoadClipRegion() {
+void VectorPlatformDevice::LoadClipRegion() {
   SkMatrix t;
   t.reset();
   LoadClippingRegionToDC(hdc_, clip_region_, t);
 }
 
-bool VectorDevice::CreateBrush(bool use_brush, COLORREF color) {
+bool VectorPlatformDevice::CreateBrush(bool use_brush, COLORREF color) {
   SkASSERT(previous_brush_ == NULL);
   // We can't use SetDCBrushColor() or DC_BRUSH when drawing to a EMF buffer.
   // SetDCBrushColor() calls are not recorded at all and DC_BRUSH will use
@@ -376,8 +405,11 @@ bool VectorDevice::CreateBrush(bool use_brush, COLORREF color) {
   return previous_brush_ != NULL;
 }
 
-bool VectorDevice::CreatePen(bool use_pen, COLORREF color, int stroke_width,
-                             float stroke_miter, DWORD pen_style) {
+bool VectorPlatformDevice::CreatePen(bool use_pen,
+                                     COLORREF color,
+                                     int stroke_width,
+                                     float stroke_miter,
+                                     DWORD pen_style) {
   SkASSERT(previous_pen_ == NULL);
   // We can't use SetDCPenColor() or DC_PEN when drawing to a EMF buffer.
   // SetDCPenColor() calls are not recorded at all and DC_PEN will use BLACK_PEN
@@ -414,7 +446,7 @@ bool VectorDevice::CreatePen(bool use_pen, COLORREF color, int stroke_width,
   return true;
 }
 
-void VectorDevice::Cleanup() {
+void VectorPlatformDevice::Cleanup() {
   if (previous_brush_) {
     HGDIOBJ result = SelectObject(previous_brush_);
     previous_brush_ = NULL;
@@ -435,7 +467,7 @@ void VectorDevice::Cleanup() {
   AbortPath(hdc_);
 }
 
-HGDIOBJ VectorDevice::SelectObject(HGDIOBJ object) {
+HGDIOBJ VectorPlatformDevice::SelectObject(HGDIOBJ object) {
   HGDIOBJ result = ::SelectObject(hdc_, object);
   SkASSERT(result != HGDI_ERROR);
   if (result == HGDI_ERROR)
@@ -443,7 +475,7 @@ HGDIOBJ VectorDevice::SelectObject(HGDIOBJ object) {
   return result;
 }
 
-bool VectorDevice::CreateBrush(bool use_brush, const SkPaint& paint) {
+bool VectorPlatformDevice::CreateBrush(bool use_brush, const SkPaint& paint) {
   // Make sure that for transparent color, no brush is used.
   if (paint.getAlpha() == 0) {
     // Test if it ever happen.
@@ -454,7 +486,7 @@ bool VectorDevice::CreateBrush(bool use_brush, const SkPaint& paint) {
   return CreateBrush(use_brush, SkColorToCOLORREF(paint.getColor()));
 }
 
-bool VectorDevice::CreatePen(bool use_pen, const SkPaint& paint) {
+bool VectorPlatformDevice::CreatePen(bool use_pen, const SkPaint& paint) {
   // Make sure that for transparent color, no pen is used.
   if (paint.getAlpha() == 0) {
     // Test if it ever happen.
@@ -505,8 +537,9 @@ bool VectorDevice::CreatePen(bool use_pen, const SkPaint& paint) {
                    pen_style);
 }
 
-void VectorDevice::InternalDrawBitmap(const SkBitmap& bitmap, int x, int y,
-                                      const SkPaint& paint) {
+void VectorPlatformDevice::InternalDrawBitmap(const SkBitmap& bitmap,
+                                              int x, int y,
+                                              const SkPaint& paint) {
   unsigned char alpha = paint.getAlpha();
   if (alpha == 0)
     return;

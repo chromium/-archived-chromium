@@ -330,7 +330,7 @@ HRESULT NativeTheme::PaintScrollbarTrack(
     int classic_state,
     RECT* target_rect,
     RECT* align_rect,
-    skia::PlatformCanvasWin* canvas) const {
+    skia::PlatformCanvas* canvas) const {
   HANDLE handle = GetThemeHandle(SCROLLBAR);
   if (handle && draw_theme_)
     return draw_theme_(handle, hdc, part_id, state_id, target_rect, NULL);
@@ -401,7 +401,7 @@ HRESULT NativeTheme::PaintTrackbar(HDC hdc,
                                    int state_id,
                                    int classic_state,
                                    RECT* rect,
-                                   skia::PlatformCanvasWin* canvas) const {
+                                   skia::PlatformCanvas* canvas) const {
   // Make the channel be 4 px thick in the center of the supplied rect.  (4 px
   // matches what XP does in various menus; GetThemePartSize() doesn't seem to
   // return good values here.)

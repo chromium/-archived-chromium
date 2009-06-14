@@ -384,7 +384,7 @@ bool PrintingContext::InitializeSettings(const DEVMODE& dev_mode,
                                          const PRINTPAGERANGE* ranges,
                                          int number_ranges,
                                          bool selection_only) {
-  skia::PlatformDeviceWin::InitializeDC(hdc_);
+  skia::PlatformDevice::InitializeDC(hdc_);
   DCHECK(GetDeviceCaps(hdc_, CLIPCAPS));
   DCHECK(GetDeviceCaps(hdc_, RASTERCAPS) & RC_STRETCHDIB);
   DCHECK(GetDeviceCaps(hdc_, RASTERCAPS) & RC_BITMAP64);

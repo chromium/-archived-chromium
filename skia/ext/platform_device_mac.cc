@@ -35,18 +35,17 @@ bool constrain(int available_size, int* position, int *size) {
 
 } // namespace
 
-PlatformDeviceMac::PlatformDeviceMac(const SkBitmap& bitmap)
-    : SkDevice(bitmap) {
+PlatformDevice::PlatformDevice(const SkBitmap& bitmap) : SkDevice(bitmap) {
 }
 
 // Set up the CGContextRef for peaceful coexistence with Skia
-void PlatformDeviceMac::InitializeCGContext(CGContextRef context) {
+void PlatformDevice::InitializeCGContext(CGContextRef context) {
   // CG defaults to the same settings as Skia
 }
 
 // static
-void PlatformDeviceMac::LoadPathToCGContext(CGContextRef context,
-                                            const SkPath& path) {
+void PlatformDevice::LoadPathToCGContext(CGContextRef context,
+                                         const SkPath& path) {
   // instead of a persistent attribute of the context, CG specifies the fill
   // type per call, so we just have to load up the geometry.
   CGContextBeginPath(context);
@@ -89,8 +88,8 @@ void PlatformDeviceMac::LoadPathToCGContext(CGContextRef context,
 }
 
 // static
-void PlatformDeviceMac::LoadTransformToCGContext(CGContextRef context,
-                                                 const SkMatrix& matrix) {
+void PlatformDevice::LoadTransformToCGContext(CGContextRef context,
+                                              const SkMatrix& matrix) {
   // CoreGraphics can concatenate transforms, but not reset the current one.
   // So in order to get the required behavior here, we need to first make
   // the current transformation matrix identity and only then load the new one.
@@ -120,7 +119,7 @@ void PlatformDeviceMac::LoadTransformToCGContext(CGContextRef context,
 }
 
 // static
-void PlatformDeviceMac::LoadClippingRegionToCGContext(
+void PlatformDevice::LoadClippingRegionToCGContext(
          CGContextRef context,
          const SkRegion& region,
          const SkMatrix& transformation) {

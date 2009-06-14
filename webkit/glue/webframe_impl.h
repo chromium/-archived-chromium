@@ -61,7 +61,7 @@ struct WindowFeatures;
 }
 
 namespace gfx {
-class BitmapPlatformDeviceWin;
+class BitmapPlatformDevice;
 }
 
 // Implementation of WebFrame, note that this is a reference counted object.

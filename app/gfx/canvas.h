@@ -208,10 +208,6 @@ class Canvas : public skia::PlatformCanvas {
   DISALLOW_COPY_AND_ASSIGN(Canvas);
 };
 
-#if defined(OS_WIN) || defined(OS_LINUX)
-typedef skia::CanvasPaintT<Canvas> CanvasPaint;
-#endif
-
 }  // namespace gfx;
 
 #endif  // #ifndef APP_GFX_CANVAS_H_

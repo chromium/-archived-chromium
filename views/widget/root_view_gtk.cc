@@ -6,7 +6,7 @@
 
 #include <gtk/gtk.h>
 
-#include "app/gfx/canvas.h"
+#include "app/gfx/canvas_paint.h"
 #include "base/logging.h"
 #include "views/widget/widget_gtk.h"
 
@@ -15,7 +15,7 @@ namespace views {
 void RootView::OnPaint(GdkEventExpose* event) {
   gfx::CanvasPaint canvas(event);
 
-  if (!canvas.isEmpty()) {
+  if (!canvas.is_empty()) {
     canvas.set_composite_alpha(
         static_cast<WidgetGtk*>(GetWidget())->is_transparent());
     SchedulePaint(gfx::Rect(canvas.rectangle()), false);

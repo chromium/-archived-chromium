@@ -87,7 +87,7 @@ class Image {
   }
 
   // Loads the image from a canvas.
-  Image(const skia::PlatformCanvasWin& canvas) : ignore_alpha_(true) {
+  Image(const skia::PlatformCanvas& canvas) : ignore_alpha_(true) {
     // Use a different way to access the bitmap. The normal way would be to
     // query the SkBitmap.
     HDC context = canvas.getTopPlatformDevice().getBitmapDC();
@@ -256,7 +256,7 @@ class ImageTest : public testing::Test {
   // kGenerating value. Returns 0 on success or any positive value between ]0,
   // 100] on failure. The return value is the percentage of difference between
   // the image in the file and the image in the canvas.
-  double ProcessCanvas(const skia::PlatformCanvasWin& canvas,
+  double ProcessCanvas(const skia::PlatformCanvas& canvas,
                        std::wstring filename) const {
     filename +=  L".png";
     switch (action_) {
@@ -275,7 +275,7 @@ class ImageTest : public testing::Test {
 
   // Compares the bitmap currently loaded in the context with the file. Returns
   // the percentage of pixel difference between both images, between 0 and 100.
-  double CompareImage(const skia::PlatformCanvasWin& canvas,
+  double CompareImage(const skia::PlatformCanvas& canvas,
                       const std::wstring& filename) const {
     Image image1(canvas);
     Image image2(test_file(filename));
@@ -284,7 +284,7 @@ class ImageTest : public testing::Test {
   }
 
   // Saves the bitmap currently loaded in the context into the file.
-  void SaveImage(const skia::PlatformCanvasWin& canvas,
+  void SaveImage(const skia::PlatformCanvas& canvas,
                  const std::wstring& filename) const {
     Image(canvas).SaveToFile(test_file(filename));
   }
@@ -379,7 +379,7 @@ class VectorCanvasTest : public ImageTest {
     context_ = new Context();
     bitmap_ = new Bitmap(*context_, size_, size_);
     vcanvas_ = new VectorCanvas(context_->context(), size_, size_);
-    pcanvas_ = new PlatformCanvasWin(size_, size_, false);
+    pcanvas_ = new PlatformCanvas(size_, size_, false);
 
     // Clear white.
     vcanvas_->drawARGB(255, 255, 255, 255, SkPorterDuff::kSrc_Mode);
@@ -424,7 +424,7 @@ class VectorCanvasTest : public ImageTest {
   VectorCanvas* vcanvas_;
 
   // Pixel based canvas.
-  PlatformCanvasWin* pcanvas_;
+  PlatformCanvas* pcanvas_;
 
   // When true (default), vcanvas_ and pcanvas_ contents are compared and
   // verified to be identical.
@@ -445,7 +445,7 @@ TEST_F(VectorCanvasTest, Uninitialized) {
   context_ = new Context();
   bitmap_ = new Bitmap(*context_, size_, size_);
   vcanvas_ = new VectorCanvas(context_->context(), size_, size_);
-  pcanvas_ = new PlatformCanvasWin(size_, size_, false);
+  pcanvas_ = new PlatformCanvas(size_, size_, false);
 
   // VectorCanvas default initialization is black.
   // PlatformCanvas default initialization is almost white 0x01FFFEFD (invalid

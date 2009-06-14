@@ -1,10 +1,12 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// Declare a platform-neutral name for this platform's bitmap device class
-// that can be used by upper-level classes that just need to pass a reference
-// around.
+#ifndef SKIA_EXT_BITMAP_PLATFORM_DEVICE_H_
+#define SKIA_EXT_BITMAP_PLATFORM_DEVICE_H_
+
+// This file provides an easy way to include the appropriate
+// BitmapPlatformDevice header file for your platform.
 
 #if defined(WIN32)
 #include "skia/ext/bitmap_platform_device_win.h"
@@ -14,14 +16,5 @@
 #include "skia/ext/bitmap_platform_device_linux.h"
 #endif
 
-namespace skia {
+#endif  // SKIA_EXT_BITMAP_PLATFORM_DEVICE_H_
 
-#if defined(WIN32)
-typedef BitmapPlatformDeviceWin BitmapPlatformDevice;
-#elif defined(__APPLE__)
-typedef BitmapPlatformDeviceMac BitmapPlatformDevice;
-#elif defined(__linux__)
-typedef BitmapPlatformDeviceLinux BitmapPlatformDevice;
-#endif
-
-}  // namespace skia

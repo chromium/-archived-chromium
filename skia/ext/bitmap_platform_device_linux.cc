@@ -11,13 +11,13 @@ namespace skia {
 // -----------------------------------------------------------------------------
 // These objects are reference counted and own a Cairo surface. The surface is
 // the backing store for a Skia bitmap and we reference count it so that we can
-// copy BitmapPlatformDeviceLinux objects without having to copy all the image
+// copy BitmapPlatformDevice objects without having to copy all the image
 // data.
 // -----------------------------------------------------------------------------
-class BitmapPlatformDeviceLinux::BitmapPlatformDeviceLinuxData
-    : public base::RefCounted<BitmapPlatformDeviceLinuxData> {
+class BitmapPlatformDevice::BitmapPlatformDeviceData
+    : public base::RefCounted<BitmapPlatformDeviceData> {
  public:
-  explicit BitmapPlatformDeviceLinuxData(cairo_surface_t* surface)
+  explicit BitmapPlatformDeviceData(cairo_surface_t* surface)
       : surface_(surface) { }
 
   cairo_surface_t* surface() const { return surface_; }
@@ -25,23 +25,24 @@ class BitmapPlatformDeviceLinux::BitmapPlatformDeviceLinuxData
  protected:
   cairo_surface_t *const surface_;
 
-  friend class base::RefCounted<BitmapPlatformDeviceLinuxData>;
-  ~BitmapPlatformDeviceLinuxData() {
+  friend class base::RefCounted<BitmapPlatformDeviceData>;
+  ~BitmapPlatformDeviceData() {
     cairo_surface_destroy(surface_);
   }
 
   // Disallow copy & assign.
-  BitmapPlatformDeviceLinuxData(const BitmapPlatformDeviceLinuxData&);
-  BitmapPlatformDeviceLinuxData& operator=(
-      const BitmapPlatformDeviceLinuxData&);
+  BitmapPlatformDeviceData(const BitmapPlatformDeviceData&);
+  BitmapPlatformDeviceData& operator=(
+      const BitmapPlatformDeviceData&);
 };
 
 // We use this static factory function instead of the regular constructor so
 // that we can create the pixel data before calling the constructor. This is
 // required so that we can call the base class' constructor with the pixel
 // data.
-BitmapPlatformDeviceLinux* BitmapPlatformDeviceLinux::Create(
-    int width, int height, bool is_opaque, cairo_surface_t* surface) {
+BitmapPlatformDevice* BitmapPlatformDevice::Create(int width, int height,
+                                                   bool is_opaque,
+                                                   cairo_surface_t* surface) {
   SkBitmap bitmap;
   bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height,
                    cairo_image_surface_get_stride(surface));
@@ -55,12 +56,12 @@ BitmapPlatformDeviceLinux* BitmapPlatformDeviceLinux::Create(
 #endif
 
   // The device object will take ownership of the graphics context.
-  return new BitmapPlatformDeviceLinux
-      (bitmap, new BitmapPlatformDeviceLinuxData(surface));
+  return new BitmapPlatformDevice
+      (bitmap, new BitmapPlatformDeviceData(surface));
 }
 
-BitmapPlatformDeviceLinux* BitmapPlatformDeviceLinux::Create(
-    int width, int height, bool is_opaque) {
+BitmapPlatformDevice* BitmapPlatformDevice::Create(int width, int height,
+                                                   bool is_opaque) {
   cairo_surface_t* surface =
       cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
                                  width, height);
@@ -68,8 +69,9 @@ BitmapPlatformDeviceLinux* BitmapPlatformDeviceLinux::Create(
   return Create(width, height, is_opaque, surface);
 }
 
-BitmapPlatformDeviceLinux* BitmapPlatformDeviceLinux::Create(
-    int width, int height, bool is_opaque, uint8_t* data) {
+BitmapPlatformDevice* BitmapPlatformDevice::Create(int width, int height,
+                                                   bool is_opaque,
+                                                   uint8_t* data) {
   cairo_surface_t* surface = cairo_image_surface_create_for_data(
       data, CAIRO_FORMAT_ARGB32, width, height,
       cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, width));
@@ -79,29 +81,29 @@ BitmapPlatformDeviceLinux* BitmapPlatformDeviceLinux::Create(
 
 // The device will own the bitmap, which corresponds to also owning the pixel
 // data. Therefore, we do not transfer ownership to the SkDevice's bitmap.
-BitmapPlatformDeviceLinux::BitmapPlatformDeviceLinux(
+BitmapPlatformDevice::BitmapPlatformDevice(
     const SkBitmap& bitmap,
-    BitmapPlatformDeviceLinuxData* data)
-    : PlatformDeviceLinux(bitmap),
+    BitmapPlatformDeviceData* data)
+    : PlatformDevice(bitmap),
       data_(data) {
 }
 
-BitmapPlatformDeviceLinux::BitmapPlatformDeviceLinux(
-    const BitmapPlatformDeviceLinux& other)
-    : PlatformDeviceLinux(const_cast<BitmapPlatformDeviceLinux&>(
+BitmapPlatformDevice::BitmapPlatformDevice(
+    const BitmapPlatformDevice& other)
+    : PlatformDevice(const_cast<BitmapPlatformDevice&>(
                           other).accessBitmap(true)),
       data_(other.data_) {
 }
 
-BitmapPlatformDeviceLinux::~BitmapPlatformDeviceLinux() {
+BitmapPlatformDevice::~BitmapPlatformDevice() {
 }
 
-cairo_surface_t* BitmapPlatformDeviceLinux::surface() const {
+cairo_surface_t* BitmapPlatformDevice::surface() const {
   return data_->surface();
 }
 
-BitmapPlatformDeviceLinux& BitmapPlatformDeviceLinux::operator=(
-    const BitmapPlatformDeviceLinux& other) {
+BitmapPlatformDevice& BitmapPlatformDevice::operator=(
+    const BitmapPlatformDevice& other) {
   data_ = other.data_;
   return *this;
 }

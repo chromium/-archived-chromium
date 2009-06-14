@@ -18,7 +18,7 @@
 #include "third_party/skia/include/core/SkColor.h"
 
 namespace skia {
-class PlatformCanvasWin;
+class PlatformCanvas;
 }  // namespace skia
 
 namespace gfx {
@@ -174,7 +174,7 @@ class NativeTheme {
                               int classic_state,
                               RECT* target_rect,
                               RECT* align_rect,
-                              skia::PlatformCanvasWin* canvas) const;
+                              skia::PlatformCanvas* canvas) const;
 
   // Paints a scrollbar thumb or gripper.
   HRESULT PaintScrollbarThumb(HDC hdc,
@@ -205,7 +205,7 @@ class NativeTheme {
                         int state_id,
                         int classic_state,
                         RECT* rect,
-                        skia::PlatformCanvasWin* canvas) const;
+                        skia::PlatformCanvas* canvas) const;
 
   bool IsThemingActive() const;
 

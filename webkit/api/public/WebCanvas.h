@@ -33,27 +33,16 @@
 
 #include "WebCommon.h"
 
-// FIXME: PlatformCanvas should not be a typedef
-#if WEBKIT_USING_SKIA
+#if WEBKIT_USING_SKIA && (defined(WIN32) || defined(__linux__))
+
 namespace skia {
-#if defined(WIN32)
-    class PlatformCanvasWin;
-#elif defined(__linux__)
-    class PlatformCanvasLinux;
-#endif
+    class PlatformCanvas;
 }
-#endif
 
 namespace WebKit {
+    typedef skia::PlatformCanvas WebCanvas;
+}
 
-#if WEBKIT_USING_SKIA
-#if defined(WIN32)
-    typedef skia::PlatformCanvasWin WebCanvas;
-#elif defined(__linux__)
-    typedef skia::PlatformCanvasLinux WebCanvas;
 #endif
-#endif
-
-} // namespace WebKit
 
 #endif

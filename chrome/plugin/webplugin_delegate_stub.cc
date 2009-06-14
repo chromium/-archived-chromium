@@ -236,7 +236,7 @@ void WebPluginDelegateStub::OnPrint(base::SharedMemoryHandle* shared_memory,
     return;
   }
   HDC hdc = emf.hdc();
-  skia::PlatformDeviceWin::InitializeDC(hdc);
+  skia::PlatformDevice::InitializeDC(hdc);
   delegate_->Print(hdc);
   if (!emf.CloseDc()) {
     NOTREACHED();

@@ -6,8 +6,7 @@
 
 namespace skia {
 
-PlatformDeviceLinux::PlatformDeviceLinux(const SkBitmap& bitmap)
-    : SkDevice(bitmap) {
+PlatformDevice::PlatformDevice(const SkBitmap& bitmap) : SkDevice(bitmap) {
 }
 
 }  // namespace skia

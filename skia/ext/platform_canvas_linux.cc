@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "skia/ext/platform_canvas_linux.h"
+#include "skia/ext/platform_canvas.h"
 
 #include <cairo/cairo.h>
 
@@ -12,39 +12,28 @@
 
 namespace skia {
 
-PlatformCanvasLinux::PlatformCanvasLinux() : SkCanvas() {
+PlatformCanvas::PlatformCanvas() : SkCanvas() {
 }
 
-PlatformCanvasLinux::PlatformCanvasLinux(int width, int height, bool is_opaque)
+PlatformCanvas::PlatformCanvas(int width, int height, bool is_opaque)
     : SkCanvas() {
   if (!initialize(width, height, is_opaque))
     SK_CRASH();
 }
 
-PlatformCanvasLinux::PlatformCanvasLinux(int width, int height, bool is_opaque,
-                                         uint8_t* data)
+PlatformCanvas::PlatformCanvas(int width, int height, bool is_opaque,
+                               uint8_t* data)
     : SkCanvas() {
   if (!initialize(width, height, is_opaque, data))
     SK_CRASH();
 }
 
-PlatformCanvasLinux::~PlatformCanvasLinux() {
+PlatformCanvas::~PlatformCanvas() {
 }
-
-bool PlatformCanvasLinux::initialize(int width, int height, bool is_opaque) {
-  SkDevice* device = createPlatformDevice(width, height, is_opaque);
-  if (!device)
-    return false;
-
-  setDevice(device);
-  device->unref(); // was created with refcount 1, and setDevice also refs
-  return true;
-}
-
-bool PlatformCanvasLinux::initialize(int width, int height, bool is_opaque,
-                                     uint8_t* data) {
+bool PlatformCanvas::initialize(int width, int height, bool is_opaque,
+                                uint8_t* data) {
   SkDevice* device =
-    BitmapPlatformDeviceLinux::Create(width, height, is_opaque, data);
+      BitmapPlatformDevice::Create(width, height, is_opaque, data);
   if (!device)
     return false;
 
@@ -53,33 +42,21 @@ bool PlatformCanvasLinux::initialize(int width, int height, bool is_opaque,
   return true;
 }
 
-cairo_surface_t* PlatformCanvasLinux::beginPlatformPaint() {
+cairo_surface_t* PlatformCanvas::beginPlatformPaint() {
   return getTopPlatformDevice().beginPlatformPaint();
 }
 
-PlatformDeviceLinux& PlatformCanvasLinux::getTopPlatformDevice() const {
-  // All of our devices should be our special PlatformDevice.
-  SkCanvas::LayerIter iter(const_cast<PlatformCanvasLinux*>(this), false);
-  return *static_cast<PlatformDeviceLinux*>(iter.device());
+void PlatformCanvas::endPlatformPaint() {
+  // We don't need to do anything on Linux here.
 }
 
-SkDevice* PlatformCanvasLinux::createDevice(SkBitmap::Config config,
-                                            int width,
-                                            int height,
-                                            bool is_opaque, bool isForLayer) {
+SkDevice* PlatformCanvas::createDevice(SkBitmap::Config config,
+                                       int width,
+                                       int height,
+                                       bool is_opaque,
+                                       bool isForLayer) {
   SkASSERT(config == SkBitmap::kARGB_8888_Config);
-  return createPlatformDevice(width, height, is_opaque);
-}
-
-SkDevice* PlatformCanvasLinux::createPlatformDevice(int width,
-                                                    int height,
-                                                    bool is_opaque) {
-  return BitmapPlatformDeviceLinux::Create(width, height, is_opaque);
-}
-
-// static
-size_t PlatformCanvasLinux::StrideForWidth(unsigned width) {
-  return cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, width);
+  return BitmapPlatformDevice::Create(width, height, is_opaque);
 }
 
 }  // namespace skia

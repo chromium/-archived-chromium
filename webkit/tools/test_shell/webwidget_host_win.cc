@@ -8,7 +8,6 @@
 #include "base/logging.h"
 #include "base/win_util.h"
 #include "skia/ext/platform_canvas.h"
-#include "skia/ext/platform_canvas_win.h"
 #include "webkit/api/public/WebInputEvent.h"
 #include "webkit/api/public/WebScreenInfo.h"
 #include "webkit/api/public/WebSize.h"

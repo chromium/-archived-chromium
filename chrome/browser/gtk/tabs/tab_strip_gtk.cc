@@ -4,7 +4,7 @@
 
 #include "chrome/browser/gtk/tabs/tab_strip_gtk.h"
 
-#include "app/gfx/canvas.h"
+#include "app/gfx/canvas_paint.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "app/slide_animation.h"

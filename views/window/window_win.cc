@@ -6,7 +6,7 @@
 
 #include <shellapi.h>
 
-#include "app/gfx/canvas.h"
+#include "app/gfx/canvas_paint.h"
 #include "app/gfx/font.h"
 #include "app/gfx/icon_util.h"
 #include "app/gfx/path.h"
