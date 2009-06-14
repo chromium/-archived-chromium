@@ -87,12 +87,12 @@ bool layoutTestMode()
 
 void registerURLSchemeAsLocal(const WebString& scheme)
 {
-    WebCore::FrameLoader::registerURLSchemeAsLocal(scheme);
+    WebCore::SecurityOrigin::registerURLSchemeAsLocal(scheme);
 }
 
 void registerURLSchemeAsNoAccess(const WebString& scheme)
 {
-    WebCore::FrameLoader::registerURLSchemeAsNoAccess(scheme);
+    WebCore::SecurityOrigin::registerURLSchemeAsNoAccess(scheme);
 }
 
 void registerExtension(v8::Extension* extension)
