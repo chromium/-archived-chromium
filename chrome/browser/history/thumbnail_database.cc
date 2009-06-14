@@ -119,10 +119,10 @@ InitStatus ThumbnailDatabase::Init(const FilePath& db_name,
     statement.column_blob_as_vector(1, &data);
 
     char filename[256];
-    sprintf(filename, "<<< YOUR PATH HERE >>>\\%d.jpeg", idx);
+    sprintf(filename, "<<< YOUR PATH HERE >>>\\%d.png", idx);
     if (!data.empty()) {
       file_util::WriteFile(ASCIIToWide(std::string(filename)),
-                           reinterpret_cast<char*>(data.data()),
+                           reinterpret_cast<char*>(&data[0]),
                            data.size());
     }
   }
