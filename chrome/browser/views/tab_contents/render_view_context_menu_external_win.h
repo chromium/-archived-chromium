@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#include "chrome/browser/tab_contents/render_view_context_menu_win.h"
+#include "chrome/browser/views/tab_contents/render_view_context_menu_win.h"
 
 // This class provides a facility for an external host to customize the context
 // menu displayed in Chrome.

@@ -14,7 +14,7 @@
 #include "chrome/browser/load_notification_details.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/provisional_load_details.h"
-#include "chrome/browser/tab_contents/render_view_context_menu_external_win.h"
+#include "chrome/browser/views/tab_contents/render_view_context_menu_external_win.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/tab_contents/tab_contents_container.h"
 #include "chrome/common/chrome_constants.h"

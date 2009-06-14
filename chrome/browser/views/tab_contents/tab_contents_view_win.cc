@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/tab_contents/tab_contents_view_win.h"
+#include "chrome/browser/views/tab_contents/tab_contents_view_win.h"
 
 #include <windows.h>
 
@@ -16,13 +16,13 @@
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_view_host_factory.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_win.h"
-#include "chrome/browser/tab_contents/render_view_context_menu_win.h"
 #include "chrome/browser/tab_contents/interstitial_page.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/web_drag_source.h"
 #include "chrome/browser/tab_contents/web_drop_target.h"
 #include "chrome/browser/views/sad_tab_view.h"
+#include "chrome/browser/views/tab_contents/render_view_context_menu_win.h"
 #include "chrome/common/url_constants.h"
 #include "net/base/net_util.h"
 #include "views/focus/view_storage.h"
