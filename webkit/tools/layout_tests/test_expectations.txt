@@ -2790,3 +2790,7 @@ BUG13809 SKIP : LayoutTests/fast/canvas/canvas-empty-image-pattern.html = FAIL
 // DCHECK failure about current message loop.
 BUG14014 DEBUG : LayoutTests/fast/events/tabindex-focus-chain.html = FAIL
 
+// WebKit 44646:44668
+BUG14061 : LayoutTests/svg/filters/subRegion-one-effect.svg = FAIL
+BUG14061 : LayoutTests/svg/filters/subRegion-two-effects.svg = FAIL
+
