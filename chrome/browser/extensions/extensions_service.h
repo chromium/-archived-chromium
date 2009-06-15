@@ -82,7 +82,7 @@ class ExtensionsService
   }
 
   // Initialize and start all installed extensions.
-  bool Init();
+  void Init();
 
   // Install the extension file at |extension_path|.  Will install as an
   // update if an older version is already installed.
@@ -97,8 +97,29 @@ class ExtensionsService
   // Load the extension from the directory |extension_path|.
   void LoadExtension(const FilePath& extension_path);
 
+  // Load all known extensions (used by startup and testing code).
+  void LoadAllExtensions();
+
+  // Check for updates (or potentially new extensions from external providers)
+  void CheckForUpdates();
+
+  // Unload the specified extension.
+  void UnloadExtension(const std::string& extension_id);
+
+  // Unload all extensions.
+  void UnloadAllExtensions();
+
+  // Called only by testing.
+  void ReloadExtensions();
+
+  // Scan the extension directory and clean up the cruft.
+  void GarbageCollectExtensions();
+
   // Lookup an extension by |id|.
-  Extension* GetExtensionByID(std::string id);
+  Extension* GetExtensionById(const std::string& id);
+
+  // Lookup an extension by |url|.  This uses the host of the URL as the id.
+  Extension* GetExtensionByURL(const GURL& url);
 
   // Gets a list of external extensions. If |external_extensions| is non-null,
   // a dictionary with all external extensions (including extensions installed
@@ -119,6 +140,9 @@ class ExtensionsService
                            const std::wstring& key,
                            Value* data_value,
                            bool schedule_save);
+
+  // Removes the entire tree of prefs for |extension_id|.
+  void DeleteExtensionPrefs(const std::wstring& extension_id);
 
   // Clear all ExternalExtensionProviders.
   void ClearProvidersForTesting();
@@ -152,10 +176,6 @@ class ExtensionsService
   // Called by the backend when an extensoin hsa been installed.
   void OnExtensionInstalled(Extension* extension,
       Extension::InstallType install_type);
-
-  // Called by the backend when an external extension has been installed.
-  void OnExternalExtensionInstalled(
-      const std::string& id, Extension::Location location);
 
   // Called by the backend when an attempt was made to reinstall the same
   // version of an existing extension.
@@ -205,13 +225,16 @@ class ExtensionsServiceBackend
 
   virtual ~ExtensionsServiceBackend();
 
-  // Loads extensions from the install directory. The extensions are assumed to
-  // be unpacked in directories that are direct children of the specified path.
+  // Loads extensions from the prefs.
   // Errors are reported through ExtensionErrorReporter. On completion,
   // OnExtensionsLoaded() is called with any successfully loaded extensions.
-  void LoadExtensionsFromInstallDirectory(
+  void LoadExtensionsFromPrefs(
       scoped_refptr<ExtensionsService> frontend,
       DictionaryValue* extension_prefs);
+
+  // Scans the extension installation directory to look for partially installed
+  // or extensions to uninstall.
+  void GarbageCollectExtensions(scoped_refptr<ExtensionsService> frontend);
 
   // Loads a single extension from |path| where |path| is the top directory of
   // a specific extension where its manifest file lives.
@@ -272,14 +295,11 @@ class ExtensionsServiceBackend
   Extension* LoadExtensionCurrentVersion(const FilePath& extension_path);
 
   // Install a crx file at |extension_path|. If |expected_id| is not empty, it's
-  // verified against the extension's manifest before installation. If
-  // |from_external| is true, this extension install is from an external source,
-  // ie the Windows registry, and will be marked as such. If the extension is
-  // already installed, install the new version only if its version number is
-  // greater than the current installed version.
+  // verified against the extension's manifest before installation. If the
+  // extension is already installed, install the new version only if its version
+  // number is greater than the current installed version.
   void InstallOrUpdateExtension(const FilePath& extension_path,
-                                const std::string& expected_id,
-                                bool from_external);
+                                const std::string& expected_id);
 
   // Validates the signature of the extension in |extension_path|. Returns true
   // and the public key (in |key|) if the signature validates, false otherwise.
@@ -294,7 +314,6 @@ class ExtensionsServiceBackend
       const FilePath& extension_path,
       const FilePath& temp_extension_dir,
       const std::string expected_id,
-      bool from_external,
       const DictionaryValue& manifest,
       const std::vector< Tuple2<SkBitmap, FilePath> >& images);
 
@@ -322,8 +341,7 @@ class ExtensionsServiceBackend
   // extension hasn't been installed before.
   void CheckVersionAndInstallExtension(const std::string& id,
                                        const Version* extension_version,
-                                       const FilePath& extension_path,
-                                       bool from_external);
+                                       const FilePath& extension_path);
 
   // Lookup an external extension by |id| by going through all registered
   // external extension providers until we find a provider that contains an
@@ -362,7 +380,7 @@ class ExtensionsServiceBackend
   // For the extension in |version_path| with |id|, check to see if it's an
   // externally managed extension.  If so return true if it should be
   // uninstalled.
-  bool CheckExternalUninstall(DictionaryValue* extension_prefs,
+  bool CheckExternalUninstall(const DictionaryValue* extension_prefs,
                               const FilePath& version_path,
                               const std::string& id);
 

@@ -672,7 +672,7 @@ static Browser* GetBrowserInProfileWithId(Profile* profile,
 static GURL AbsolutePath(Profile* profile, std::string extension_id,
                          std::string relative_url) {
   ExtensionsService* service = profile->GetExtensionsService();
-  Extension* extension = service->GetExtensionByID(extension_id);
+  Extension* extension = service->GetExtensionById(extension_id);
   return Extension::GetResourceURL(extension->url(), relative_url);
 }
 

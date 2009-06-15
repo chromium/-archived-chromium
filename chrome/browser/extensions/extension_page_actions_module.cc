@@ -50,7 +50,7 @@ bool EnablePageActionFunction::RunImpl() {
   // Find our extension.
   Extension* extension = NULL;
   ExtensionsService* service = profile()->GetExtensionsService();
-  extension = service->GetExtensionByID(extension_id());
+  extension = service->GetExtensionById(extension_id());
   if (!extension) {
     error_ = ExtensionErrorUtils::FormatErrorMessage(keys::kNoExtensionError,
                                                      extension_id());

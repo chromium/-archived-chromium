@@ -34,6 +34,7 @@ class ExtensionProcessManager : public NotificationObserver {
   ExtensionHost* CreateView(Extension* extension,
                             const GURL& url,
                             Browser* browser);
+  ExtensionHost* CreateView(const GURL& url, Browser* browser);
 
   // Creates a new UI-less extension instance.  Like CreateView, but not
   // displayed anywhere.

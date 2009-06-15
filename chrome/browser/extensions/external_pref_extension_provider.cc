@@ -33,8 +33,6 @@ void ExternalPrefExtensionProvider::VisitRegisteredExtension(
 
     DictionaryValue* extension = NULL;
     if (!prefs_->GetDictionary(extension_id, &extension)) {
-      NOTREACHED() << "Cannot read extension " << extension_id.c_str()
-                   << " from dictionary.";
       continue;
     }
 

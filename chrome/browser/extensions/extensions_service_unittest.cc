@@ -168,10 +168,18 @@ class ExtensionsServiceTest
         break;
       }
 
-      case NotificationType::EXTENSION_UNLOADED:
-        unloaded_id_ = Details<Extension>(details).ptr()->id();
+      case NotificationType::EXTENSION_UNLOADED: {
+        Extension* e = Details<Extension>(details).ptr();
+        unloaded_id_ = e->id();
+        ExtensionList::iterator i =
+            std::find(loaded_.begin(), loaded_.end(), e);
+        // TODO(erikkay) fix so this can be an assert.  Right now the tests
+        // are manually calling clear() on loaded_, so this isn't doable.
+        if (i == loaded_.end())
+          return;
+        loaded_.erase(i);
         break;
-
+      }
       case NotificationType::EXTENSION_INSTALLED:
       case NotificationType::THEME_INSTALLED:
         installed_ = Details<Extension>(details).ptr();
@@ -207,7 +215,7 @@ class ExtensionsServiceTest
       EXPECT_EQ(0u, errors.size()) << path.value();
       EXPECT_EQ(total_successes_, service_->extensions()->size()) <<
           path.value();
-      EXPECT_TRUE(service_->GetExtensionByID(loaded_[0]->id())) <<
+      EXPECT_TRUE(service_->GetExtensionById(loaded_[0]->id())) <<
           path.value();
       for (std::vector<std::string>::iterator err = errors.begin();
         err != errors.end(); ++err) {
@@ -274,7 +282,7 @@ class ExtensionsServiceTest
   scoped_refptr<ExtensionsService> service_;
   size_t total_successes_;
   MessageLoop loop_;
-  std::vector<Extension*> loaded_;
+  ExtensionList loaded_;
   std::string unloaded_id_;
   Extension* installed_;
 
@@ -282,8 +290,10 @@ class ExtensionsServiceTest
   NotificationRegistrar registrar_;
 };
 
+// TODO(erikkay) this test and the next need to be replaced with equivalent
+// versions that load from prefs.
 // Test loading good extensions from the profile directory.
-TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
+TEST_F(ExtensionsServiceTest, DISABLED_LoadAllExtensionsFromDirectorySuccess) {
   // Copy the test extensions into the test profile.
   FilePath source_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &source_path));
@@ -293,7 +303,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
   FilePath dest_path = profile_->GetPath().AppendASCII("Extensions");
   file_util::CopyDirectory(source_path, dest_path, true);  // Recursive.
 
-  ASSERT_TRUE(service_->Init());
+  service_->Init();
   loop_.RunAllPending();
 
   std::vector<std::string> errors = GetErrors();
@@ -309,7 +319,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
   EXPECT_EQ(std::string("The first extension that I made."),
             loaded_[0]->description());
   EXPECT_EQ(Extension::INTERNAL, loaded_[0]->location());
-  EXPECT_TRUE(service_->GetExtensionByID(loaded_[0]->id()));
+  EXPECT_TRUE(service_->GetExtensionById(loaded_[0]->id()));
   EXPECT_EQ(3u, service_->extensions()->size());
 
   ValidatePrefKeyCount(3);
@@ -370,7 +380,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
 };
 
 // Test loading bad extensions from the profile directory.
-TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectoryFail) {
+TEST_F(ExtensionsServiceTest, DISABLED_LoadAllExtensionsFromDirectoryFail) {
   FilePath source_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &source_path));
   source_path = source_path.AppendASCII("extensions");
@@ -379,7 +389,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectoryFail) {
   FilePath dest_path = profile_->GetPath().AppendASCII("Extensions");
   file_util::CopyDirectory(source_path, dest_path, true);  // Recursive.
 
-  ASSERT_TRUE(service_->Init());
+  service_->Init();
   loop_.RunAllPending();
 
   EXPECT_EQ(3u, GetErrors().size());
@@ -414,25 +424,25 @@ TEST_F(ExtensionsServiceTest, CleanupOnStartup) {
 
   // Simulate that one of them got partially deleted by deling the
   // Current Version file.
-  dest_path = dest_path.AppendASCII("behllobkkfkfnphdnhnkndlbkcpglgmj")
-                       .AppendASCII(ExtensionsService::kCurrentVersionFileName);
-  ASSERT_TRUE(file_util::Delete(dest_path, false));  // not recursive
+  FilePath vers = dest_path.AppendASCII("behllobkkfkfnphdnhnkndlbkcpglgmj")
+      .AppendASCII(ExtensionsService::kCurrentVersionFileName);
+  ASSERT_TRUE(file_util::Delete(vers, false));  // not recursive
 
   service_->Init();
   loop_.RunAllPending();
 
+  file_util::FileEnumerator dirs(dest_path, false,
+                                 file_util::FileEnumerator::DIRECTORIES);
+  size_t count = 0;
+  while (!dirs.Next().empty())
+    count++;
+
   // We should have only gotten two extensions now.
-  EXPECT_EQ(2u, loaded_.size());
+  EXPECT_EQ(2u, count);
 
   // And extension1 dir should now be toast.
-  dest_path = dest_path.DirName();
-  ASSERT_FALSE(file_util::PathExists(dest_path));
-
-  ValidatePrefKeyCount(2);
-  ValidatePref(good1, L"state", Extension::ENABLED);
-  ValidatePref(good1, L"location", Extension::INTERNAL);
-  ValidatePref(good2, L"state", Extension::ENABLED);
-  ValidatePref(good2, L"location", Extension::INTERNAL);
+  vers = vers.DirName();
+  ASSERT_FALSE(file_util::PathExists(vers));
 }
 
 // Test installing extensions.
@@ -466,7 +476,7 @@ TEST_F(ExtensionsServiceTest, InstallExtension) {
   ValidatePref(page_action, L"state", Extension::ENABLED);
   ValidatePref(page_action, L"location", Extension::INTERNAL);
 
-  // Bad signature. 
+  // Bad signature.
   path = extensions_path.AppendASCII("bad_signature.crx");
   InstallExtension(path, false);
 
@@ -627,6 +637,7 @@ TEST_F(ExtensionsServiceTest, UpgradeSignedGood) {
 
   ASSERT_TRUE(installed_);
   ASSERT_EQ(1u, loaded_.size());
+  ASSERT_EQ("1.0.0.0", loaded_[0]->version()->GetString());
   ASSERT_EQ(0u, GetErrors().size());
 
   // Upgrade to version 2.0
@@ -635,7 +646,8 @@ TEST_F(ExtensionsServiceTest, UpgradeSignedGood) {
   loop_.RunAllPending();
 
   ASSERT_TRUE(installed_);
-  ASSERT_EQ(2u, loaded_.size());
+  ASSERT_EQ(1u, loaded_.size());
+  ASSERT_EQ("1.0.0.1", loaded_[0]->version()->GetString());
   ASSERT_EQ(0u, GetErrors().size());
 }
 
@@ -693,12 +705,10 @@ TEST_F(ExtensionsServiceTest, UninstallExtension) {
   ASSERT_TRUE(unloaded_id_.length());
   EXPECT_EQ(extension_id, unloaded_id_);
 
-  ValidatePrefKeyCount(1);
-  ValidatePref(good_crx, L"state", Extension::DISABLED);
-  ValidatePref(good_crx, L"location", Extension::INTERNAL);
+  ValidatePrefKeyCount(0);
 
   // The extension should not be in the service anymore.
-  ASSERT_FALSE(service_->GetExtensionByID(extension_id));
+  ASSERT_FALSE(service_->GetExtensionById(extension_id));
   loop_.RunAllPending();
 
   // The directory should be gone.
@@ -715,9 +725,7 @@ TEST_F(ExtensionsServiceTest, UninstallExtension) {
   loop_.RunAllPending();
   EXPECT_FALSE(file_util::PathExists(extension_path));
 
-  ValidatePrefKeyCount(1);
-  ValidatePref(good_crx, L"state", Extension::DISABLED);
-  ValidatePref(good_crx, L"location", Extension::INTERNAL);
+  ValidatePrefKeyCount(0);
 }
 
 // Tests loading single extensions (like --load-extension)
@@ -733,11 +741,11 @@ TEST_F(ExtensionsServiceTest, LoadExtension) {
   loop_.RunAllPending();
   EXPECT_EQ(0u, GetErrors().size());
   ASSERT_EQ(1u, loaded_.size());
-  ASSERT_EQ(Extension::LOAD, loaded_[0]->location());
+  EXPECT_EQ(Extension::LOAD, loaded_[0]->location());
+  EXPECT_EQ(1u, service_->extensions()->size());
 
-  ValidatePrefKeyCount(1);
-  ValidatePref(good0, L"state", Extension::ENABLED);
-  ValidatePref(good0, L"location", Extension::INTERNAL);
+  // --load-extension doesn't add entries to prefs
+  ValidatePrefKeyCount(0);
 
   FilePath no_manifest = extensions_path.AppendASCII("bad")
       .AppendASCII("no_manifest").AppendASCII("1");
@@ -745,8 +753,7 @@ TEST_F(ExtensionsServiceTest, LoadExtension) {
   loop_.RunAllPending();
   EXPECT_EQ(1u, GetErrors().size());
   ASSERT_EQ(1u, loaded_.size());
-
-  ValidatePrefKeyCount(1);
+  EXPECT_EQ(1u, service_->extensions()->size());
 
   // Test uninstall.
   std::string id = loaded_[0]->id();
@@ -754,10 +761,8 @@ TEST_F(ExtensionsServiceTest, LoadExtension) {
   service_->UninstallExtension(id);
   loop_.RunAllPending();
   EXPECT_EQ(id, unloaded_id_);
-
-  ValidatePrefKeyCount(1);
-  ValidatePref(good0, L"state", Extension::DISABLED);
-  ValidatePref(good0, L"location", Extension::INTERNAL);
+  ASSERT_EQ(0u, loaded_.size());
+  EXPECT_EQ(0u, service_->extensions()->size());
 }
 
 // Tests that we generate IDs when they are not specified in the manifest for
@@ -775,24 +780,24 @@ TEST_F(ExtensionsServiceTest, GenerateID) {
   EXPECT_EQ(0u, GetErrors().size());
   ASSERT_EQ(1u, loaded_.size());
   std::string id1 = loaded_[0]->id();
-  ASSERT_EQ(all_zero, id1);
-  ASSERT_EQ("chrome-extension://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/",
+  EXPECT_EQ(all_zero, id1);
+  EXPECT_EQ("chrome-extension://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/",
             loaded_[0]->url().spec());
+  EXPECT_EQ(loaded_[0]->location(), Extension::LOAD);
 
-  ValidatePrefKeyCount(1);
-  ValidatePref(all_zero, L"state", Extension::ENABLED);
-  ValidatePref(all_zero, L"location", Extension::INTERNAL);
+  // --load-extension doesn't add entries to prefs
+  ValidatePrefKeyCount(0);
 
   service_->LoadExtension(no_id_ext);
   loop_.RunAllPending();
   std::string id2 = loaded_[1]->id();
-  ASSERT_EQ(zero_n_one, id2);
-  ASSERT_EQ("chrome-extension://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab/",
+  EXPECT_EQ(zero_n_one, id2);
+  EXPECT_EQ("chrome-extension://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab/",
             loaded_[1]->url().spec());
+  EXPECT_EQ(loaded_[1]->location(), Extension::LOAD);
 
-  ValidatePrefKeyCount(2);
-  ValidatePref(zero_n_one, L"state", Extension::ENABLED);
-  ValidatePref(zero_n_one, L"location", Extension::INTERNAL);
+  // --load-extension doesn't add entries to prefs
+  ValidatePrefKeyCount(0);
 }
 
 // Tests the external installation feature
@@ -817,9 +822,9 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
   // Add the extension.
   reg_provider->UpdateOrAddExtension(good_crx, "1.0.0.0", source_path);
 
-  // Start up the service, it should find our externally registered extension
+  // Reloading extensions should find our externally registered extension
   // and install it.
-  service_->Init();
+  service_->CheckForUpdates();
   loop_.RunAllPending();
 
   ASSERT_EQ(0u, GetErrors().size());
@@ -830,10 +835,10 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
   ValidatePref(good_crx, L"state", Extension::ENABLED);
   ValidatePref(good_crx, L"location", Extension::EXTERNAL_REGISTRY);
 
-  // Reinit the service without changing anything. The extension should be
+  // Reload extensions without changing anything. The extension should be
   // loaded again.
   loaded_.clear();
-  service_->Init();
+  service_->ReloadExtensions();
   loop_.RunAllPending();
   ASSERT_EQ(0u, GetErrors().size());
   ASSERT_EQ(1u, loaded_.size());
@@ -846,7 +851,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
   reg_provider->UpdateOrAddExtension(good_crx, "1.0.0.1", source_path);
 
   loaded_.clear();
-  service_->Init();
+  service_->CheckForUpdates();
   loop_.RunAllPending();
   ASSERT_EQ(0u, GetErrors().size());
   ASSERT_EQ(1u, loaded_.size());
@@ -867,7 +872,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
   ASSERT_FALSE(file_util::PathExists(install_path));
 
   loaded_.clear();
-  service_->Init();
+  service_->CheckForUpdates();
   loop_.RunAllPending();
   ASSERT_EQ(0u, loaded_.size());
   ValidatePrefKeyCount(1);
@@ -880,7 +885,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
   profile_->GetPrefs()->ScheduleSavePersistentPrefs();
 
   loaded_.clear();
-  service_->Init();
+  service_->CheckForUpdates();
   loop_.RunAllPending();
   ASSERT_EQ(1u, loaded_.size());
   ValidatePrefKeyCount(1);
@@ -890,7 +895,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
   reg_provider->RemoveExtension(good_crx);
 
   loaded_.clear();
-  service_->Init();
+  service_->CheckForUpdates();
   loop_.RunAllPending();
   ASSERT_EQ(0u, loaded_.size());
 }
@@ -916,9 +921,9 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   // Add the extension.
   pref_provider->UpdateOrAddExtension(good_crx, "1.0", source_path);
 
-  // Start up the service, it should find our externally registered extension
+  // Checking for updates should find our externally registered extension
   // and install it.
-  service_->Init();
+  service_->CheckForUpdates();
   loop_.RunAllPending();
 
   ASSERT_EQ(0u, GetErrors().size());
@@ -930,10 +935,10 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   ValidatePref(good_crx, L"state", Extension::ENABLED);
   ValidatePref(good_crx, L"location", Extension::EXTERNAL_PREF);
 
-  // Reinit the service without changing anything. The extension should be
+  // Reload extensions without changing anything. The extension should be
   // loaded again.
   loaded_.clear();
-  service_->Init();
+  service_->ReloadExtensions();
   loop_.RunAllPending();
   ASSERT_EQ(0u, GetErrors().size());
   ASSERT_EQ(1u, loaded_.size());
@@ -947,7 +952,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   pref_provider->UpdateOrAddExtension(good_crx, "1.0.0.1", source_path);
 
   loaded_.clear();
-  service_->Init();
+  service_->CheckForUpdates();
   loop_.RunAllPending();
   ASSERT_EQ(0u, GetErrors().size());
   ASSERT_EQ(1u, loaded_.size());
@@ -957,7 +962,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   ValidatePref(good_crx, L"state", Extension::ENABLED);
   ValidatePref(good_crx, L"location", Extension::EXTERNAL_PREF);
 
-  // Uninstall the extension and re-init. Nothing should happen because the
+  // Uninstall the extension and reload. Nothing should happen because the
   // preference should prevent us from reinstalling.
   std::string id = loaded_[0]->id();
   service_->UninstallExtension(id);
@@ -969,7 +974,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   ASSERT_FALSE(file_util::PathExists(install_path));
 
   loaded_.clear();
-  service_->Init();
+  service_->CheckForUpdates();
   loop_.RunAllPending();
   ASSERT_EQ(0u, loaded_.size());
 
@@ -982,7 +987,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   profile_->GetPrefs()->ScheduleSavePersistentPrefs();
 
   loaded_.clear();
-  service_->Init();
+  service_->CheckForUpdates();
   loop_.RunAllPending();
   ASSERT_EQ(1u, loaded_.size());
 
@@ -995,7 +1000,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   profile_->GetPrefs()->ScheduleSavePersistentPrefs();
 
   loaded_.clear();
-  service_->Init();
+  service_->ReloadExtensions();
   loop_.RunAllPending();
   ASSERT_EQ(0u, loaded_.size());
 

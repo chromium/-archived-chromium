@@ -55,6 +55,19 @@ ExtensionHost* ExtensionProcessManager::CreateView(Extension* extension,
   return host;
 }
 
+ExtensionHost* ExtensionProcessManager::CreateView(const GURL& url,
+                                                   Browser* browser) {
+  DCHECK(browser);
+  ExtensionsService* service =
+    browsing_instance_->profile()->GetExtensionsService();
+  if (service) {
+    Extension* extension = service->GetExtensionByURL(url);
+    if (extension)
+      return CreateView(extension, url, browser);
+  }
+  return NULL;
+}
+
 ExtensionHost* ExtensionProcessManager::CreateBackgroundHost(
     Extension* extension, const GURL& url) {
   ExtensionHost* host =
