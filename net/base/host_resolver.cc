@@ -22,7 +22,6 @@
 #include "base/time.h"
 #include "base/worker_pool.h"
 #include "net/base/address_list.h"
-#include "net/base/dns_resolution_observer.h"
 #include "net/base/net_errors.h"
 
 #if defined(OS_LINUX)
@@ -482,11 +481,11 @@ void HostResolver::CancelRequest(Request* req) {
   req->Cancel();
 }
 
-void HostResolver::AddObserver(DnsResolutionObserver* observer) {
+void HostResolver::AddObserver(Observer* observer) {
   observers_.push_back(observer);
 }
 
-void HostResolver::RemoveObserver(DnsResolutionObserver* observer) {
+void HostResolver::RemoveObserver(Observer* observer) {
   ObserversList::iterator it =
       std::find(observers_.begin(), observers_.end(), observer);
 

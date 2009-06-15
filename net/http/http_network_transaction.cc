@@ -12,7 +12,6 @@
 #include "build/build_config.h"
 #include "net/base/client_socket_factory.h"
 #include "net/base/connection_type_histograms.h"
-#include "net/base/dns_resolution_observer.h"
 #include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"

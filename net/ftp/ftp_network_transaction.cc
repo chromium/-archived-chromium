@@ -9,7 +9,6 @@
 #include "net/base/client_socket.h"
 #include "net/base/client_socket_factory.h"
 #include "net/base/connection_type_histograms.h"
-#include "net/base/dns_resolution_observer.h"
 #include "net/base/net_errors.h"
 #include "net/ftp/ftp_network_session.h"
 #include "net/ftp/ftp_request_info.h"

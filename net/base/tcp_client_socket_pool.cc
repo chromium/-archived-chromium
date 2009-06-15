@@ -11,7 +11,6 @@
 #include "base/stl_util-inl.h"
 #include "net/base/client_socket_factory.h"
 #include "net/base/client_socket_handle.h"
-#include "net/base/dns_resolution_observer.h"
 #include "net/base/net_errors.h"
 #include "net/base/tcp_client_socket.h"
 

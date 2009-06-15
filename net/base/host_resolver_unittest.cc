@@ -18,7 +18,6 @@
 #include "base/ref_counted.h"
 #include "net/base/address_list.h"
 #include "net/base/completion_callback.h"
-#include "net/base/dns_resolution_observer.h"
 #include "net/base/host_resolver_unittest.h"
 #include "net/base/net_errors.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -697,7 +696,7 @@ bool operator==(const net::HostResolver::RequestInfo& a,
 
 // Observer that just makes note of how it was called. The test code can then
 // inspect to make sure it was called with the right parameters.
-class CapturingObserver : public net::DnsResolutionObserver {
+class CapturingObserver : public net::HostResolver::Observer {
  public:
   // DnsResolutionObserver methods:
   virtual void OnStartResolution(int id,

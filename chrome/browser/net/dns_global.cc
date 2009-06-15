@@ -22,7 +22,6 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "net/base/dns_resolution_observer.h"
 #include "net/base/host_resolver.h"
 
 using base::TimeDelta;
@@ -138,7 +137,7 @@ typedef std::map<int, DnsHostInfo> ObservedResolutionMap;
 // There will only be one instance ever created of the following Observer
 // class.  As a result, we get away with using static members for data local
 // to that instance (to better comply with a google style guide exemption).
-class PrefetchObserver : public net::DnsResolutionObserver {
+class PrefetchObserver : public net::HostResolver::Observer {
  public:
   PrefetchObserver();
   ~PrefetchObserver();

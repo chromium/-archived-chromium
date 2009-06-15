@@ -20,7 +20,6 @@ class MessageLoop;
 namespace net {
 
 class AddressList;
-class DnsResolutionObserver;
 class HostMapper;
 
 // This class represents the task of resolving hostnames (or IP address
@@ -100,6 +99,22 @@ class HostResolver {
     GURL referrer_;
   };
 
+  // Interface for observing the requests that flow through a HostResolver.
+  class Observer {
+   public:
+    virtual ~Observer() {}
+
+    // Called at the start of HostResolver::Resolve(). |id| is a unique number
+    // given to the request, so it can be matched up with a corresponding call
+    // to OnFinishResolutionWithStatus().
+    virtual void OnStartResolution(int id, const RequestInfo& info) = 0;
+
+    // Called on completion of request |id|. Note that if the request was
+    // cancelled, OnFinishResolutionWithStatus() will not be called.
+    virtual void OnFinishResolutionWithStatus(int id, bool was_resolved,
+                                              const RequestInfo& info) = 0;
+  };
+
   // Creates a HostResolver that caches up to |max_cache_entries| for
   // |cache_duration_ms| milliseconds.
   //
@@ -137,16 +152,16 @@ class HostResolver {
   // Adds an observer to this resolver. The observer will be notified of the
   // start and completion of all requests (excluding cancellation). |observer|
   // must remain valid for the duration of this HostResolver's lifetime.
-  void AddObserver(DnsResolutionObserver* observer);
+  void AddObserver(Observer* observer);
 
   // Unregisters an observer previously added by AddObserver().
-  void RemoveObserver(DnsResolutionObserver* observer);
+  void RemoveObserver(Observer* observer);
 
  private:
   class Job;
   typedef std::vector<Request*> RequestsList;
   typedef base::hash_map<std::string, scoped_refptr<Job> > JobMap;
-  typedef std::vector<DnsResolutionObserver*> ObserversList;
+  typedef std::vector<Observer*> ObserversList;
 
   // Adds a job to outstanding jobs list.
   void AddOutstandingJob(Job* job);

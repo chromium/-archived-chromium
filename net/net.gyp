@@ -61,7 +61,6 @@
         'base/data_url.h',
         'base/directory_lister.cc',
         'base/directory_lister.h',
-        'base/dns_resolution_observer.h',
         'base/effective_tld_names.cc',
         'base/effective_tld_names.dat',
         'base/escape.cc',
