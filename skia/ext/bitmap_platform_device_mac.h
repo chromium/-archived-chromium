@@ -26,11 +26,11 @@ namespace skia {
 class BitmapPlatformDevice : public PlatformDevice {
  public:
   // |context| may be NULL.
-  static BitmapPlatformDevice* CreateWithContext(CGContextRef context,
-                                                 int width, int height,
-                                                 bool is_opaque);
+  static BitmapPlatformDevice* Create(CGContextRef context,
+                                      int width, int height,
+                                      bool is_opaque);
 
-  // Creates a context for |data| and calls CreateWithContext.
+  // Creates a context for |data| and calls Create.
   static BitmapPlatformDevice* CreateWithData(uint8_t* data,
                                               int width, int height,
                                               bool is_opaque);

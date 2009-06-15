@@ -63,8 +63,7 @@ SkDevice* PlatformCanvas::createDevice(SkBitmap::Config config,
                                        int height,
                                        bool is_opaque, bool isForLayer) {
   SkASSERT(config == SkBitmap::kARGB_8888_Config);
-  return BitmapPlatformDevice::CreateWithContext(NULL, width, height,
-                                                 is_opaque);
+  return BitmapPlatformDevice::Create(NULL, width, height, is_opaque);
 }
 
 }  // namespace skia

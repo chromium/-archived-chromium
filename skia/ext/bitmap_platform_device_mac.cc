@@ -175,8 +175,10 @@ void BitmapPlatformDevice::BitmapPlatformDeviceData::LoadConfig() {
 // that we can create the pixel data before calling the constructor. This is
 // required so that we can call the base class' constructor with the pixel
 // data.
-BitmapPlatformDevice* BitmapPlatformDevice::CreateWithContext(
-    CGContextRef context, int width, int height, bool is_opaque) {
+BitmapPlatformDevice* BitmapPlatformDevice::Create(CGContextRef context,
+                                                   int width,
+                                                   int height,
+                                                   bool is_opaque) {
   SkBitmap bitmap;
   bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
   if (bitmap.allocPixels() != true)
@@ -221,7 +223,7 @@ BitmapPlatformDevice* BitmapPlatformDevice::CreateWithData(uint8_t* data,
   if (data)
     context = CGContextForData(data, width, height);
 
-  return CreateWithContext(context, width, height, is_opaque);
+  return Create(context, width, height, is_opaque);
 }
 
 // The device will own the bitmap, which corresponds to also owning the pixel
