@@ -8,8 +8,10 @@
 #include <vector>
 
 #include "base/command_line.h"
+#include "base/lazy_instance.h"
 #include "base/shared_memory.h"
 #include "base/stats_table.h"
+#include "base/thread_local.h"
 #include "chrome/common/app_cache/app_cache_context_impl.h"
 #include "chrome/common/app_cache/app_cache_dispatcher.h"
 #include "chrome/common/chrome_switches.h"
@@ -57,6 +59,9 @@ using WebKit::WebString;
 
 static const unsigned int kCacheStatsDelayMS = 2000 /* milliseconds */;
 
+static base::LazyInstance<base::ThreadLocalPointer<RenderThread> > lazy_tls(
+    base::LINKER_INITIALIZED);
+
 //-----------------------------------------------------------------------------
 // Methods below are only called on the owner's thread:
 
@@ -81,8 +86,7 @@ RenderThread::~RenderThread() {
 }
 
 RenderThread* RenderThread::current() {
-  DCHECK(!IsPluginProcess());
-  return static_cast<RenderThread*>(ChildThread::current());
+  return lazy_tls.Pointer()->Get();
 }
 
 void RenderThread::AddFilter(IPC::ChannelProxy::MessageFilter* filter) {
@@ -128,6 +132,7 @@ class SuicideOnChannelErrorFilter : public IPC::ChannelProxy::MessageFilter {
 #endif
 
 void RenderThread::Init() {
+  lazy_tls.Pointer()->Set(this);
 #if defined(OS_WIN)
   // If you are running plugins in this thread you need COM active but in
   // the normal case you don't.
@@ -172,8 +177,8 @@ void RenderThread::CleanUp() {
   }
 
   notification_service_.reset();
-
   ChildThread::CleanUp();
+  lazy_tls.Pointer()->Set(NULL);
 
   // TODO(port)
 #if defined(OS_WIN)

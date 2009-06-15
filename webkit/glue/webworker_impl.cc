@@ -72,7 +72,7 @@ void WebWorkerImpl::PostMessageToWorkerContextTask(
       static_cast<WebCore::WorkerContext*>(context);
   worker_context->dispatchMessage(message);
 
-  this_ptr->client_->confirmMessageFromWorkerObject(
+  this_ptr->confirmMessageFromWorkerObject(
       worker_context->hasPendingActivity());
 }
 

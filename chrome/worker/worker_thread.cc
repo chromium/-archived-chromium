@@ -4,10 +4,16 @@
 
 #include "chrome/worker/worker_thread.h"
 
+#include "base/lazy_instance.h"
+#include "base/thread_local.h"
 #include "chrome/common/worker_messages.h"
 #include "chrome/worker/webworkerclient_proxy.h"
 #include "chrome/worker/worker_webkitclient_impl.h"
 #include "webkit/api/public/WebKit.h"
+
+static base::LazyInstance<base::ThreadLocalPointer<WorkerThread> > lazy_tls(
+    base::LINKER_INITIALIZED);
+
 
 WorkerThread::WorkerThread()
     : ChildThread(base::Thread::Options(MessageLoop::TYPE_DEFAULT,
@@ -17,7 +23,12 @@ WorkerThread::WorkerThread()
 WorkerThread::~WorkerThread() {
 }
 
+WorkerThread* WorkerThread::current() {
+  return lazy_tls.Pointer()->Get();
+}
+
 void WorkerThread::Init() {
+  lazy_tls.Pointer()->Set(this);
   ChildThread::Init();
   webkit_client_.reset(new WorkerWebKitClientImpl);
   WebKit::initialize(webkit_client_.get());
@@ -35,6 +46,7 @@ void WorkerThread::CleanUp() {
   }
 
   ChildThread::CleanUp();
+  lazy_tls.Pointer()->Set(NULL);
 }
 
 void WorkerThread::OnControlMessageReceived(const IPC::Message& msg) {

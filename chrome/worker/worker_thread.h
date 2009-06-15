@@ -17,9 +17,7 @@ class WorkerThread : public ChildThread {
   ~WorkerThread();
 
   // Returns the one worker thread.
-  static WorkerThread* current() {
-    return static_cast<WorkerThread*>(ChildThread::current());
-  }
+  static WorkerThread* current();
 
  private:
   virtual void OnControlMessageReceived(const IPC::Message& msg);

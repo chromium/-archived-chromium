@@ -12,7 +12,9 @@
 #endif
 
 #include "base/command_line.h"
+#include "base/lazy_instance.h"
 #include "base/process_util.h"
+#include "base/thread_local.h"
 #include "chrome/common/child_process.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_switches.h"
@@ -26,6 +28,8 @@
 #include "webkit/glue/plugins/plugin_lib.h"
 #include "webkit/glue/webkit_glue.h"
 
+static base::LazyInstance<base::ThreadLocalPointer<PluginThread> > lazy_tls(
+    base::LINKER_INITIALIZED);
 
 PluginThread::PluginThread()
     : ChildThread(base::Thread::Options(MessageLoop::TYPE_UI, 0)),
@@ -38,8 +42,7 @@ PluginThread::~PluginThread() {
 }
 
 PluginThread* PluginThread::current() {
-  DCHECK(IsPluginProcess());
-  return static_cast<PluginThread*>(ChildThread::current());
+  return lazy_tls.Pointer()->Get();
 }
 
 void PluginThread::OnControlMessageReceived(const IPC::Message& msg) {
@@ -50,6 +53,7 @@ void PluginThread::OnControlMessageReceived(const IPC::Message& msg) {
 }
 
 void PluginThread::Init() {
+  lazy_tls.Pointer()->Set(this);
   ChildThread::Init();
 
   PatchNPNFunctions();
@@ -95,6 +99,7 @@ void PluginThread::CleanUp() {
   // in some of the above cleanup.
   // See http://code.google.com/p/chromium/issues/detail?id=8980
   ChildThread::CleanUp();
+  lazy_tls.Pointer()->Set(NULL);
 }
 
 void PluginThread::OnCreateChannel(int process_id, bool off_the_record) {

@@ -40,7 +40,9 @@ class RenderThreadTest : public testing::Test {
 };
 
 TEST_F(RenderThreadTest, TestGlobal) {
-  ASSERT_TRUE(RenderThread::current());
+  // Can't reach the RenderThread object on other threads, since it's not
+  // thread-safe!
+  ASSERT_FALSE(RenderThread::current());
 }
 
 TEST_F(RenderThreadTest, TestVisitedMsg) {
