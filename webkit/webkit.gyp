@@ -1143,8 +1143,6 @@
         'extensions/v8/benchmarking_extension.cc',
         'extensions/v8/benchmarking_extension.h',
         'port/bindings/v8/DOMObjectsInclude.h',
-        'port/bindings/v8/JSXPathNSResolver.cpp',
-        'port/bindings/v8/JSXPathNSResolver.h',
         'port/bindings/v8/RGBColor.cpp',
         'port/bindings/v8/RGBColor.h',
         'port/bindings/v8/V8SVGPODTypeWrapper.h',
