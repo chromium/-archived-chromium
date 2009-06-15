@@ -262,6 +262,11 @@ void WidgetGtk::SetBounds(const gfx::Rect& bounds) {
     WidgetGtk* parent_widget = GetViewForNative(gtk_widget_get_parent(widget_));
     parent_widget->PositionChild(widget_, bounds.x(), bounds.y(),
                                  bounds.width(), bounds.height());
+  } else if (GTK_WIDGET_MAPPED(widget_)) {
+    // If the widget is mapped (on screen), we can move and resize with one
+    // call, which avoids two separate window manager steps.
+    gdk_window_move_resize(widget_->window, bounds.x(), bounds.y(),
+                           bounds.width(), bounds.height());
   } else {
     GtkWindow* gtk_window = GTK_WINDOW(widget_);
     // TODO: this may need to set an initial size if not showing.
