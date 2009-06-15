@@ -965,9 +965,6 @@ BUG10300 MAC LINUX : LayoutTests/svg/text/text-text-08-b.svg = FAIL PASS
 BUG3244 LINUX WIN : LayoutTests/fast/backgrounds/svg-as-mask.html = FAIL
 BUG3244 LINUX WIN : LayoutTests/fast/backgrounds/animated-svg-as-mask.html = FAIL
 
-// Needs rebaseline.
-BUG10301 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
-
 BUG10302 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
 
 BUG10303 MAC : LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
@@ -1205,7 +1202,7 @@ BUG10330 : LayoutTests/animations/big-rotation.html = FAIL PASS
 // We should be able to pass this -- not sure what's wrong.
 BUG10331 LINUX : LayoutTests/css2.1/t1008-c44-ln-box-02-d-ag.html = FAIL
 
-// Text is different, likely just needs a rebaseline.
+// Looks like we're failing the test -- there are red boogers in the box that should be all green.
 BUG10332 LINUX : LayoutTests/css2.1/t1605-c545-txttrans-00-b-ag.html = FAIL
 
 // Linux: color off by one.  Rounding error?
@@ -1820,7 +1817,7 @@ BUG10425 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/backgr_posi
 
 // Regressions from WebKit merge 40875:41017
 BUG10426 LINUX : LayoutTests/fast/css-generated-content/beforeAfter-interdocument.html = FAIL
-// just need to be rebaselined
+// Selection highlight colors are wrong.
 BUG10426 LINUX : LayoutTests/fast/lists/drag-into-marker.html = FAIL
 
 BUG10427 LINUX : LayoutTests/fast/clip/008.html = CRASH PASS
@@ -1852,14 +1849,11 @@ BUG10431 LINUX WIN : LayoutTests/fast/dom/getBoundingClientRect-getClientRects-r
 // Upstream regression. https://bugs.webkit.org/show_bug.cgi?id=24248
 // Defer until fixed upstream.
 BUG10432 WIN LINUX : LayoutTests/fast/overflow/004.html = FAIL
-// These need to be rebaselined.
-BUG10432 LINUX : LayoutTests/fast/overflow/hidden-scrollbar-resize.html = FAIL
-BUG10432 LINUX : LayoutTests/fast/overflow/hit-test-overflow-controls.html = FAIL
 
 // Regressions from merge 41217:41268
 // New tests
+// There are some failures, investigate whether they are due to platform/coord differences.
 BUG10433 : LayoutTests/fast/dom/Window/webkitConvertPoint.html = FAIL
-BUG10433 WIN LINUX : LayoutTests/fast/gradients/background-clipped.html = FAIL
 
 // Regressions from merge 41217:41268
 // Other failures
@@ -1869,37 +1863,14 @@ BUG10434 LINUX : LayoutTests/fast/repaint/transform-absolute-in-positioned-conta
 BUG10434 LINUX : LayoutTests/svg/W3C-SVG-1.1/masking-intro-01-f.svg = FAIL
 
 // Regression from merge 41268:41286
+// We don't render linear gradient on text stroke.
 BUG10435 LINUX : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
-BUG10435 LINUX : LayoutTests/scrollbars/listbox-scrollbar-combinations.html = FAIL
-BUG10435 LINUX : LayoutTests/scrollbars/overflow-scrollbar-combinations.html = FAIL
-BUG10435 LINUX : LayoutTests/tables/mozilla/bugs/bug86708.html = FAIL
-BUG10435 LINUX : LayoutTests/fast/borders/border-image-rotate-transform.html = FAIL
-BUG10435 LINUX : LayoutTests/fast/css/resize-corner-tracking-transformed.html = FAIL
-BUG10435 LINUX : LayoutTests/fast/forms/input-appearance-height.html = FAIL
-BUG10435 LINUX : LayoutTests/fast/replaced/001.html = FAIL
-BUG10435 LINUX : LayoutTests/fast/replaced/002.html = FAIL
-BUG10435 LINUX : LayoutTests/fast/replaced/003.html = FAIL
-BUG10435 LINUX : LayoutTests/svg/W3C-SVG-1.1/filters-blend-01-b.svg = FAIL
-BUG10435 LINUX : LayoutTests/svg/W3C-SVG-1.1/render-groups-01-b.svg = FAIL
-BUG10435 LINUX : LayoutTests/svg/W3C-SVG-1.1/render-groups-03-t.svg = FAIL
 BUG10435 LINUX : LayoutTests/svg/carto.net/scrollbar.svg = TIMEOUT FAIL
-BUG10435 LINUX : LayoutTests/tables/mozilla/bugs/bug1296.html = FAIL
-BUG10435 LINUX : LayoutTests/tables/mozilla/bugs/bug137388-2.html = FAIL
-BUG10435 LINUX : LayoutTests/tables/mozilla/bugs/bug1430.html = FAIL
-BUG10435 LINUX : LayoutTests/tables/mozilla/bugs/bug4093.html = FAIL
-BUG10435 LINUX : LayoutTests/tables/mozilla/bugs/bug4427.html = FAIL
-BUG10435 LINUX : LayoutTests/tables/mozilla/bugs/bug4523.html = FAIL
-BUG10435 LINUX : LayoutTests/tables/mozilla/bugs/bug625.html = FAIL
-BUG10435 LINUX : LayoutTests/tables/mozilla/core/bloomberg.html = FAIL
-BUG10435 LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug1647.html = FAIL
 BUG10435 MAC : LayoutTests/editing/pasteboard/copy-standalone-image.html = FAIL
 // See above comment about this test on linux/win.
 BUG10435 MAC : LayoutTests/editing/selection/designmode-no-caret.html = FAIL
 BUG10435 MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT PASS
 BUG10435 DEBUG MAC WIN : LayoutTests/editing/selection/move-by-line-001.html = FAIL PASS
-
-// New test added in the 41286:41362 merge. Not clear whether we pass.
-BUG8404 LINUX WIN : LayoutTests/fast/layers/inline-dirty-z-order-lists.html = FAIL
 
 // New with the 41420:41447 merge, but rebaselining is not the right answer.
 // See https://bugs.webkit.org/show_bug.cgi?id=24467 for details.
