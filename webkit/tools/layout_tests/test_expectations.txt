@@ -2794,6 +2794,3 @@ BUG14014 DEBUG : LayoutTests/fast/events/tabindex-focus-chain.html = FAIL
 // WebKit 44646:44668
 BUG14061 : LayoutTests/svg/filters/subRegion-one-effect.svg = FAIL
 BUG14061 : LayoutTests/svg/filters/subRegion-two-effects.svg = FAIL
-
-// Webkit 44668:44682
-BUGMERGE REBASELINE WIN : LayoutTests/fast/css/nth-child-dynamic.html = FAIL
