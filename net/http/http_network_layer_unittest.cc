@@ -69,7 +69,7 @@ TEST_F(HttpNetworkLayerTest, GoogleGET) {
   int rv = trans->Start(&request_info, &callback);
   if (rv == net::ERR_IO_PENDING)
     rv = callback.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  ASSERT_EQ(net::OK, rv);
 
   std::string contents;
   rv = ReadTransaction(trans.get(), &contents);
