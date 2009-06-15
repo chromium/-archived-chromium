@@ -1359,7 +1359,8 @@ void BrowserView::Init() {
 #if defined(OS_WIN)
   SetProp(GetWidget()->GetNativeView(), kBrowserViewKey, this);
 #else
-  g_object_set_data(G_OBJECT(GetWidget()->GetNativeView()), kBrowserViewKey, this);
+  g_object_set_data(G_OBJECT(GetWidget()->GetNativeView()), kBrowserViewKey,
+                    this);
 #endif
 
   // Start a hung plugin window detector for this browser object (as long as

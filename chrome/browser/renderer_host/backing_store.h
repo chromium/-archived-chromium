@@ -63,9 +63,12 @@ class BackingStore {
 #endif
 
   // Paints the bitmap from the renderer onto the backing store.
+  // bitmap_rect is the rect of the whole bitmap, and paint_rect
+  // is a sub-rect of bitmap that we want to draw.
   void PaintRect(base::ProcessHandle process,
                  TransportDIB* bitmap,
-                 const gfx::Rect& bitmap_rect);
+                 const gfx::Rect& bitmap_rect,
+                 const gfx::Rect& paint_rect);
 
   // Scrolls the given rect in the backing store, replacing the given region
   // identified by |bitmap_rect| by the bitmap in the file identified by the
@@ -95,8 +98,11 @@ class BackingStore {
 #elif defined(OS_LINUX)
   // Paints the bitmap from the renderer onto the backing store without
   // using Xrender to composite the pixmaps.
+  // bitmap_rect is the rect of the whole bitmap, and paint_rect
+  // is a sub-rect of bitmap that we want to draw.
   void PaintRectWithoutXrender(TransportDIB* bitmap,
-                               const gfx::Rect& bitmap_rect);
+                               const gfx::Rect& bitmap_rect,
+                               const gfx::Rect& paint_rect);
 
   // This is the connection to the X server where this backing store will be
   // displayed.
@@ -118,6 +124,10 @@ class BackingStore {
   // This is a default graphic context, used in XCopyArea
   void* pixmap_gc_;
 #endif
+
+  // Sanity checks on the size of the rects to draw so that we don't allocate
+  // enourmous pixmaps.
+  static int kMaxBitmapLengthAllowed;
 
   DISALLOW_COPY_AND_ASSIGN(BackingStore);
 };
