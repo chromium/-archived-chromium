@@ -605,7 +605,6 @@ BUG1124568 : LayoutTests/fast/dom/Window/window-function-name-getter-precedence.
 BUG4363 LINUX MAC SKIP : LayoutTests/media = TIMEOUT
 BUG4363 LINUX MAC SKIP : LayoutTests/fast/media = PASS FAIL
 BUG4363 LINUX MAC SKIP : LayoutTests/http/tests/media = FAIL
-BUG4363 : LayoutTests/http/tests/security/local-video-poster-from-remote.html = FAIL TIMEOUT
 BUG4363 SLOW : LayoutTests/http/tests/security/local-video-source-from-remote.html = FAIL
 BUG4363 SLOW : LayoutTests/http/tests/security/local-video-src-from-remote.html = FAIL
 BUG4363 : LayoutTests/fast/dom/Window/custom-constructors.html = FAIL
@@ -622,10 +621,11 @@ BUG13907 WIN : LayoutTests/media/audio-controls-rendering.html = FAIL
 BUG13907 WIN : LayoutTests/media/audio-mpeg-supported.html = FAIL
 BUG13907 WIN : LayoutTests/media/constructors.html = FAIL
 // This test crashes in both release and debug build.
-BUG13907 WIN : LayoutTests/media/controls-css-overload.html = CRASH
+BUG13907 WIN DEBUG : LayoutTests/media/controls-css-overload.html = CRASH
 // This test is flaky.
 BUG13907 WIN DEBUG : LayoutTests/media/progress-event-total.html = PASS FAIL
-BUG13907 WIN DEBUG : LayoutTests/media/remove-from-document.html = FAIL
+// This test also times out.
+BUG13907 WIN : LayoutTests/media/remove-from-document.html = FAIL TIMEOUT
 // This test crashes in debug build.
 BUG13907 WIN : LayoutTests/media/unsupported-rtsp.html = FAIL CRASH
 BUG13907 WIN : LayoutTests/media/video-aspect-ratio.html = FAIL
@@ -649,12 +649,12 @@ BUG13907 WIN : LayoutTests/media/video-display-toggle.html = FAIL
 // This test crashes in debug build.
 BUG13907 WIN : LayoutTests/media/video-dom-src.html = PASS CRASH
 // This test is flaky.
-BUG13907 WIN DEBUG : LayoutTests/media/video-dom-autobuffer.html = FAIL
+BUG13907 WIN DEBUG : LayoutTests/media/video-dom-autobuffer.html = PASS FAIL
 // This test crashes in debug build.
 BUG13907 WIN : LayoutTests/media/video-document-types.html = PASS CRASH
 BUG13907 WIN : LayoutTests/media/video-empty-source.html = FAIL
-// This test times out in release build.
-BUG13907 WIN : LayoutTests/media/video-error-abort.html = PASS TIMEOUT
+// This test times out in release build, it is really flaky.
+BUG13907 WIN : LayoutTests/media/video-error-abort.html = PASS FAIL TIMEOUT
 BUG13907 WIN : LayoutTests/media/video-error-does-not-exist.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-layer-crash.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-load-networkState.html = FAIL
@@ -665,7 +665,8 @@ BUG13907 WIN : LayoutTests/media/video-muted.html = PASS FAIL CRASH TIMEOUT
 BUG13907 WIN DEBUG : LayoutTests/media/video-no-autoplay.html = PASS FAIL
 // This test is flaky.
 BUG13907 WIN : LayoutTests/media/video-play-pause-events.html = PASS FAIL CRASH
-BUG13907 WIN : LayoutTests/media/video-play-pause-exception.html = FAIL
+// This test is flaky too.
+BUG13907 WIN : LayoutTests/media/video-play-pause-exception.html = PASS FAIL
 BUG13907 WIN : LayoutTests/media/video-played-collapse.html = FAIL
 // This test crashes in debug build.
 BUG13907 WIN : LayoutTests/media/video-played.html = PASS FAIL CRASH
