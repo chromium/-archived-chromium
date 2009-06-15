@@ -102,6 +102,12 @@ SkBitmap ImageDecoder::Decode(const unsigned char* data, size_t size) const {
   CGRect rect = CGRectMake(0, 0,
                            CGImageGetWidth(image.get()),
                            CGImageGetHeight(image.get()));
+
+  // We want to copy transparent pixels from |image| over to |result|, instead
+  // of blending |image| onto the uninitialized pixels of |result|. Since
+  // |context| is used only locally, there's no need to restore the blend mode.
+  CGContextSetBlendMode(context.get(), kCGBlendModeCopy);
+
   CGContextDrawImage(context.get(), rect, image.get());
 
   return result;
