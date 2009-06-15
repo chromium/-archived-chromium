@@ -358,7 +358,6 @@
         '../third_party/skia/src/ports/SkFontHost_FreeType.cpp',
         #'../third_party/skia/src/ports/SkFontHost_android.cpp',
         #'../third_party/skia/src/ports/SkFontHost_ascender.cpp',
-        '../third_party/skia/src/ports/SkFontHost_fontconfig.cpp',
         '../third_party/skia/src/ports/SkFontHost_tables.cpp',
         #'../third_party/skia/src/ports/SkFontHost_gamma.cpp',
         '../third_party/skia/src/ports/SkFontHost_gamma_none.cpp',
@@ -566,7 +565,6 @@
             '../third_party/skia/src/ports/SkFontHost_FreeType.cpp',
             '../third_party/skia/src/ports/SkFontHost_TryeType_Tables.cpp',
             '../third_party/skia/src/ports/SkFontHost_gamma_none.cpp',
-            '../third_party/skia/src/ports/SkFontHost_fontconfig.cpp',
             '../third_party/skia/src/ports/SkFontHost_gamma_none.cpp',
             '../third_party/skia/src/ports/SkFontHost_tables.cpp',
             '../third_party/skia/src/core/SkTypeface.cpp',
@@ -594,6 +592,12 @@
           'sources!': [
             '../third_party/skia/src/ports/SkFontHost_none.cpp',
             'ext/SkTypeface_fake.cpp',
+          ],
+          'sources': [
+            # http://code.google.com/p/chromium/wiki/LinuxSandboxIPC
+            'ext/SkFontHost_fontconfig.cpp',
+            'ext/SkFontHost_fontconfig_direct.cpp',
+            'ext/SkFontHost_fontconfig_ipc.cpp',
           ],
           'export_dependent_settings': [
             '../third_party/harfbuzz/harfbuzz.gyp:harfbuzz',

@@ -1229,6 +1229,8 @@
         'browser/renderer_host/download_throttling_resource_handler.h',
         'browser/renderer_host/render_process_host.cc',
         'browser/renderer_host/render_process_host.h',
+        'browser/renderer_host/render_sandbox_host_linux.h',
+        'browser/renderer_host/render_sandbox_host_linux.cc',
         'browser/renderer_host/render_view_host.cc',
         'browser/renderer_host/render_view_host.h',
         'browser/renderer_host/render_view_host_delegate.h',

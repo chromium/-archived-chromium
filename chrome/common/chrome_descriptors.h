@@ -10,6 +10,7 @@
 enum {
   kPrimaryIPCChannel = 0,
   kCrashDumpSignal = 1,
+  kSandboxIPCChannel = 2,  // http://code.google.com/p/chromium/LinuxSandboxIPC
 };
 
 #endif  // CHROME_COMMON_CHROME_DESCRIPTORS_H_

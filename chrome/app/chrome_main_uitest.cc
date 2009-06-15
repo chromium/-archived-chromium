@@ -19,8 +19,9 @@ TEST_F(ChromeMainTest, AppLaunch) {
     EXPECT_EQ(1, UITest::GetBrowserProcessCount());
   } else {
 #if defined(OS_LINUX)
-    // On Linux we'll have three processes: browser, renderer and zygote.
-    EXPECT_EQ(3, UITest::GetBrowserProcessCount());
+    // On Linux we'll have four processes: browser, renderer, zygote and
+    // sandbox helper.
+    EXPECT_EQ(4, UITest::GetBrowserProcessCount());
 #else
     // We should have two instances of the browser process alive -
     // one is the Browser and the other is the Renderer.

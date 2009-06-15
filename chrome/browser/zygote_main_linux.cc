@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/signal.h>
+#include <sys/prctl.h>
 
 #include "base/command_line.h"
 #include "base/eintr_wrapper.h"
@@ -19,6 +20,8 @@
 #include "chrome/common/main_function_params.h"
 #include "chrome/common/process_watcher.h"
 
+#include "skia/ext/SkFontHost_fontconfig_control.h"
+
 // http://code.google.com/p/chromium/wiki/LinuxZygote
 
 // This is the object which implements the zygote. The ZygoteMain function,
@@ -29,6 +32,8 @@ class Zygote {
   bool ProcessRequests() {
     // A SOCK_SEQPACKET socket is installed in fd 3. We get commands from the
     // browser on it.
+    // A SOCK_DGRAM is installed in fd 4. This is the sandbox IPC channel.
+    // See http://code.google.com/p/chromium/wiki/LinuxSandboxIPC
 
     // We need to accept SIGCHLD, even though our handler is a no-op because
     // otherwise we cannot wait on children. (According to POSIX 2001.)
@@ -54,7 +59,7 @@ class Zygote {
   // new process and thus need to unwind back into ChromeMain.
   bool HandleRequestFromBrowser(int fd) {
     std::vector<int> fds;
-    static const unsigned kMaxMessageLength = 2048;
+    static const unsigned kMaxMessageLength = 1024;
     char buf[kMaxMessageLength];
     const ssize_t len = base::RecvMsg(fd, buf, sizeof(buf), &fds);
     if (len == -1) {
@@ -135,6 +140,9 @@ class Zygote {
       mapping.push_back(std::make_pair(key, fds[i]));
     }
 
+    mapping.push_back(std::make_pair(
+        static_cast<uint32_t>(kSandboxIPCChannel), 4));
+
     child = fork();
 
     if (!child) {
@@ -159,10 +167,55 @@ class Zygote {
       close(*i);
     return false;
   }
-  // ---------------------------------------------------------------------------
 };
 
+static bool MaybeEnterChroot() {
+  const char* const sandbox_fd_string = getenv("SBX_D");
+  if (sandbox_fd_string) {
+    // The SUID sandbox sets this environment variable to a file descriptor
+    // over which we can signal that we have completed our startup and can be
+    // chrooted.
+
+    char* endptr;
+    const long fd_long = strtol(sandbox_fd_string, &endptr, 10);
+    if (!*sandbox_fd_string || *endptr || fd_long < 0 || fd_long > INT_MAX)
+      return false;
+    const int fd = fd_long;
+
+    static const char kChrootMe = 'C';
+    static const char kChrootMeSuccess = 'O';
+
+    if (HANDLE_EINTR(write(fd, &kChrootMe, 1)) != 1)
+      return false;
+
+    char reply;
+    if (HANDLE_EINTR(read(fd, &reply, 1)) != 1)
+      return false;
+    if (reply != kChrootMeSuccess)
+      return false;
+    if (chdir("/") == -1)
+      return false;
+
+    static const int kMagicSandboxIPCDescriptor = 4;
+    SkiaFontConfigUseIPCImplementation(kMagicSandboxIPCDescriptor);
+
+    prctl(PR_SET_DUMPABLE, 0, 0, 0, 0);
+    if (prctl(PR_GET_DUMPABLE, 0, 0, 0, 0))
+      return false;
+  } else {
+    SkiaFontConfigUseDirectImplementation();
+  }
+
+  return true;
+}
+
 bool ZygoteMain(const MainFunctionParams& params) {
+  if (!MaybeEnterChroot()) {
+    LOG(FATAL) << "Failed to enter sandbox. Fail safe abort. (errno: "
+               << errno << ")";
+    return false;
+  }
+
   Zygote zygote;
   return zygote.ProcessRequests();
 }

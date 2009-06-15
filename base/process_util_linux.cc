@@ -102,6 +102,11 @@ bool LaunchApp(const std::vector<std::string>& argv,
     if (!ShuffleFileDescriptors(fd_shuffle))
       exit(127);
 
+    // If we are using the SUID sandbox, it sets a magic environment variable
+    // ("SBX_D"), so we remove that variable from the environment here on the
+    // off chance that it's already set.
+    unsetenv("SBX_D");
+
     CloseSuperfluousFds(fd_shuffle);
 
     scoped_array<char*> argv_cstr(new char*[argv.size() + 1]);

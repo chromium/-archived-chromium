@@ -16,6 +16,7 @@
 #include "base/process_util.h"
 #include "base/unix_domain_socket_posix.h"
 
+#include "chrome/browser/renderer_host/render_sandbox_host_linux.h"
 #include "chrome/common/chrome_switches.h"
 
 ZygoteHost::ZygoteHost() {
@@ -37,6 +38,11 @@ ZygoteHost::ZygoteHost() {
         browser_command_line.GetSwitchValue(switches::kZygoteCmdPrefix);
     cmd_line.PrependWrapper(prefix);
   }
+
+  // Start up the sandbox host process and get the file descriptor for the
+  // renderers to talk to it.
+  const int sfd = Singleton<RenderSandboxHostLinux>()->GetRendererSocket();
+  fds_to_map.push_back(std::make_pair(sfd, 4));
 
   base::ProcessHandle process;
   base::LaunchApp(cmd_line.argv(), fds_to_map, false, &process);
