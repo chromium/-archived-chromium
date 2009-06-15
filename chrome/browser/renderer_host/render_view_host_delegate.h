@@ -288,6 +288,10 @@ class RenderViewHostDelegate {
                                           const std::string& target) {
   }
 
+  // A document has been loaded in a frame.
+  virtual void DocumentLoadedInFrame() {
+  }
+
   // Navigate to the history entry for the given offset from the current
   // position within the NavigationController.  Makes no change if offset is
   // not valid.

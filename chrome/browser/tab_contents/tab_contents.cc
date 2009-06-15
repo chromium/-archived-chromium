@@ -1867,6 +1867,10 @@ void TabContents::ProcessDOMUIMessage(const std::string& message,
   render_manager_.dom_ui()->ProcessDOMUIMessage(message, content);
 }
 
+void TabContents::DocumentLoadedInFrame() {
+  controller_.DocumentLoadedInFrame();
+}
+
 void TabContents::ProcessExternalHostMessage(const std::string& message,
                                              const std::string& origin,
                                              const std::string& target) {
@@ -2203,6 +2207,7 @@ void TabContents::OnUserGesture() {
   if (drm)
     drm->OnUserGesture(this);
 #endif
+  controller_.OnUserGesture();
 }
 
 void TabContents::OnFindReply(int request_id,

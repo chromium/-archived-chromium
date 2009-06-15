@@ -90,6 +90,12 @@ bool AreURLsInPageNavigation(const GURL& existing_url, const GURL& new_url) {
       new_url.ReplaceComponents(replacements);
 }
 
+// Navigation within this limit since the last document load is considered to
+// be automatic (i.e., machine-initiated) rather than user-initiated unless
+// a user gesture has been observed.
+const base::TimeDelta kMaxAutoNavigationTimeDelta =
+    base::TimeDelta::FromSeconds(5);
+
 }  // namespace
 
 // NavigationController ---------------------------------------------------
@@ -424,6 +430,14 @@ const SkBitmap& NavigationController::GetLazyFavIcon() const {
   }
 }
 
+void NavigationController::DocumentLoadedInFrame() {
+  last_document_loaded_ = base::TimeTicks::Now();
+}
+
+void NavigationController::OnUserGesture() {
+  user_gesture_observed_ = true;
+}
+
 bool NavigationController::RendererDidNavigate(
     const ViewHostMsg_FrameNavigate_Params& params,
     LoadCommittedDetails* details) {
@@ -505,6 +519,8 @@ bool NavigationController::RendererDidNavigate(
   details->http_status_code = params.http_status_code;
   NotifyNavigationEntryCommitted(details);
 
+  user_gesture_observed_ = false;
+
   return true;
 }
 
@@ -585,6 +601,21 @@ NavigationType::Type NavigationController::ClassifyNavigation(
   return NavigationType::EXISTING_PAGE;
 }
 
+bool NavigationController::IsRedirect(
+  const ViewHostMsg_FrameNavigate_Params& params) {
+  // For main frame transition, we judge by params.transition.
+  // Otherwise, by params.redirects.
+  if (PageTransition::IsMainFrame(params.transition)) {
+    return PageTransition::IsRedirect(params.transition);
+  }
+  return params.redirects.size() > 1;
+}
+
+bool NavigationController::IsLikelyAutoNavigation(base::TimeTicks now) {
+  return !user_gesture_observed_ &&
+         (now - last_document_loaded_) < kMaxAutoNavigationTimeDelta;
+}
+
 void NavigationController::RendererDidNavigateToNewPage(
     const ViewHostMsg_FrameNavigate_Params& params) {
   NavigationEntry* new_entry;
@@ -611,11 +642,14 @@ void NavigationController::RendererDidNavigateToNewPage(
   new_entry->set_site_instance(tab_contents_->GetSiteInstance());
   new_entry->set_has_post_data(params.is_post);
 
-  // If the current entry is a redirection source, it needs to be replaced with
-  // the new entry to avoid unwanted redirections in navigating backward /
-  // forward. Otherwise, just insert the new entry.
+  // If the current entry is a redirection source and the redirection has
+  // occurred within kMaxAutoNavigationTimeDelta since the last document load,
+  // this is likely to be machine-initiated redirect and the entry needs to be
+  // replaced with the new entry to avoid unwanted redirections in navigating
+  // backward/forward.
+  // Otherwise, just insert the new entry.
   InsertOrReplaceEntry(new_entry,
-      PageTransition::IsRedirect(new_entry->transition_type()));
+      IsRedirect(params) && IsLikelyAutoNavigation(base::TimeTicks::Now()));
 }
 
 void NavigationController::RendererDidNavigateToExistingPage(
@@ -687,11 +721,22 @@ void NavigationController::RendererDidNavigateInPage(
   NavigationEntry* new_entry = new NavigationEntry(*existing_entry);
   new_entry->set_page_id(params.page_id);
   new_entry->set_url(params.url);
-  InsertOrReplaceEntry(new_entry, false);
+  InsertOrReplaceEntry(new_entry,
+      IsRedirect(params) && IsLikelyAutoNavigation(base::TimeTicks::Now()));
 }
 
 void NavigationController::RendererDidNavigateNewSubframe(
     const ViewHostMsg_FrameNavigate_Params& params) {
+  if (PageTransition::StripQualifier(params.transition) ==
+      PageTransition::AUTO_SUBFRAME) {
+    // This is not user-initiated. Ignore.
+    return;
+  }
+  if (IsRedirect(params)) {
+    // This is redirect. Ignore.
+    return;
+  }
+
   // Manual subframe navigations just get the current entry cloned so the user
   // can go back or forward to it. The actual subframe information will be
   // stored in the page state for each of those entries. This happens out of
