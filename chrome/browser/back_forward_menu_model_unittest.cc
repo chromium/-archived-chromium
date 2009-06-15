@@ -65,12 +65,12 @@ class BackFwdMenuModelTest : public RenderViewHostTestHarness {
 };
 
 TEST_F(BackFwdMenuModelTest, BasicCase) {
-  scoped_ptr<BackForwardMenuModel> back_model(BackForwardMenuModel::Create(
-      NULL, BackForwardMenuModel::BACKWARD_MENU_DELEGATE));
+  scoped_ptr<BackForwardMenuModel> back_model(new BackForwardMenuModel(
+      NULL, BackForwardMenuModel::BACKWARD_MENU));
   back_model->set_test_tab_contents(contents());
 
-  scoped_ptr<BackForwardMenuModel> forward_model(BackForwardMenuModel::Create(
-      NULL, BackForwardMenuModel::FORWARD_MENU_DELEGATE));
+  scoped_ptr<BackForwardMenuModel> forward_model(new BackForwardMenuModel(
+      NULL, BackForwardMenuModel::FORWARD_MENU));
   forward_model->set_test_tab_contents(contents());
 
   EXPECT_EQ(0, back_model->GetTotalItemCount());
@@ -132,12 +132,12 @@ TEST_F(BackFwdMenuModelTest, BasicCase) {
 }
 
 TEST_F(BackFwdMenuModelTest, MaxItemsTest) {
-  scoped_ptr<BackForwardMenuModel> back_model(BackForwardMenuModel::Create(
-      NULL, BackForwardMenuModel::BACKWARD_MENU_DELEGATE));
+  scoped_ptr<BackForwardMenuModel> back_model(new BackForwardMenuModel(
+      NULL, BackForwardMenuModel::BACKWARD_MENU));
   back_model->set_test_tab_contents(contents());
 
-  scoped_ptr<BackForwardMenuModel> forward_model(BackForwardMenuModel::Create(
-      NULL, BackForwardMenuModel::FORWARD_MENU_DELEGATE));
+  scoped_ptr<BackForwardMenuModel> forward_model(new BackForwardMenuModel(
+      NULL, BackForwardMenuModel::FORWARD_MENU));
   forward_model->set_test_tab_contents(contents());
 
   // Seed the controller with 32 URLs
@@ -214,12 +214,12 @@ TEST_F(BackFwdMenuModelTest, MaxItemsTest) {
 }
 
 TEST_F(BackFwdMenuModelTest, ChapterStops) {
-  scoped_ptr<BackForwardMenuModel> back_model(BackForwardMenuModel::Create(
-    NULL, BackForwardMenuModel::BACKWARD_MENU_DELEGATE));
+  scoped_ptr<BackForwardMenuModel> back_model(new BackForwardMenuModel(
+    NULL, BackForwardMenuModel::BACKWARD_MENU));
   back_model->set_test_tab_contents(contents());
 
-  scoped_ptr<BackForwardMenuModel> forward_model(BackForwardMenuModel::Create(
-      NULL, BackForwardMenuModel::FORWARD_MENU_DELEGATE));
+  scoped_ptr<BackForwardMenuModel> forward_model(new BackForwardMenuModel(
+      NULL, BackForwardMenuModel::FORWARD_MENU));
   forward_model->set_test_tab_contents(contents());
 
   // Seed the controller with 32 URLs.

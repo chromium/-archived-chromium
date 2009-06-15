@@ -23,9 +23,9 @@ static const int kMenuTimerDelay = 500;
 ////////////////////////////////////////////////////////////////////////////////
 
 ButtonDropDown::ButtonDropDown(ButtonListener* listener,
-                               Menu::Delegate* menu_delegate)
+                               Menu2Model* model)
     : ImageButton(listener),
-      menu_delegate_(menu_delegate),
+      model_(model),
       y_position_on_lbuttondown_(0),
       ALLOW_THIS_IN_INITIALIZER_LIST(show_menu_factory_(this)) {
 }
@@ -112,7 +112,7 @@ void ButtonDropDown::ShowContextMenu(int x, int y, bool is_mouse_gesture) {
 }
 
 void ButtonDropDown::ShowDropDownMenu(gfx::NativeView window) {
-  if (menu_delegate_) {
+  if (model_) {
     gfx::Rect lb = GetLocalBounds(true);
 
     // Both the menu position and the menu anchor type change if the UI layout
@@ -121,10 +121,6 @@ void ButtonDropDown::ShowDropDownMenu(gfx::NativeView window) {
     menu_position.Offset(0, lb.height() - 1);
     if (UILayoutIsRightToLeft())
       menu_position.Offset(lb.width() - 1, 0);
-
-    Menu::AnchorPoint anchor = Menu::TOPLEFT;
-    if (UILayoutIsRightToLeft())
-      anchor = Menu::TOPRIGHT;
 
     View::ConvertPointToScreen(this, &menu_position);
 
@@ -137,24 +133,11 @@ void ButtonDropDown::ShowDropDownMenu(gfx::NativeView window) {
     if (menu_position.x() < left_bound)
       menu_position.set_x(left_bound);
 
-    scoped_ptr<Menu> menu(Menu::Create(menu_delegate_, anchor, window));
-
-    // ID's for AppendMenu is 1-based because RunMenu will ignore the user
-    // selection if id=0 is selected (0 = NO-OP) so we add 1 here and subtract 1
-    // in the handlers above to get the actual index
-    int item_count = menu_delegate_->GetItemCount();
-    for (int i = 0; i < item_count; i++) {
-      if (menu_delegate_->IsItemSeparator(i + 1)) {
-        menu->AppendSeparator();
-      } else {
-        if (menu_delegate_->HasIcon(i + 1))
-          menu->AppendMenuItemWithIcon(i + 1, L"", SkBitmap());
-        else
-          menu->AppendMenuItem(i+1, L"", Menu::NORMAL);
-      }
-    }
-
-    menu->RunMenuAt(menu_position.x(), menu_position.y());
+    menu_.reset(new Menu2(model_));
+    Menu2::Alignment align = Menu2::ALIGN_TOPLEFT;
+    if (UILayoutIsRightToLeft())
+      align = Menu2::ALIGN_TOPLEFT;
+    menu_->RunMenuAt(menu_position, align);
 
     // Need to explicitly clear mouse handler so that events get sent
     // properly after the menu finishes running. If we don't do this, then

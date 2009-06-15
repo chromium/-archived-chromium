@@ -94,6 +94,9 @@ class Menu2Model {
   // Called when the item at the specified index has been activated.
   virtual void ActivatedAt(int index) = 0;
 
+  // Called when the menu is about to be shown.
+  virtual void MenuWillShow() {}
+
   // Retrieves the model and index that contains a specific command id. Returns
   // true if an item with the specified command id is found. |model| is inout,
   // and specifies the model to start searching from.

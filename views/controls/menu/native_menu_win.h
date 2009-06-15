@@ -71,10 +71,6 @@ class NativeMenuWin : public MenuWrapper {
                                    int model_index,
                                    const std::wstring& label);
 
-  // Returns the NativeMenuWin object that contains an item with the specified
-  // command id. This function must only be called from RunMenuAt!
-  NativeMenuWin* GetMenuForCommandId(UINT command_id) const;
-
   // Returns the alignment flags to be passed to TrackPopupMenuEx, based on the
   // supplied alignment and the UI text direction.
   UINT GetAlignmentFlags(int alignment) const;

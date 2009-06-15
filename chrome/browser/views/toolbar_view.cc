@@ -179,10 +179,6 @@ ToolbarView::ToolbarView(Browser* browser)
   browser_->command_updater()->AddCommandObserver(IDC_RELOAD, this);
   browser_->command_updater()->AddCommandObserver(IDC_HOME, this);
   browser_->command_updater()->AddCommandObserver(IDC_STAR, this);
-  back_menu_model_.reset(new BackForwardMenuModelViews(
-      browser, BackForwardMenuModel::BACKWARD_MENU_DELEGATE));
-  forward_menu_model_.reset(new BackForwardMenuModelViews(
-      browser, BackForwardMenuModel::FORWARD_MENU_DELEGATE));
   if (browser->type() == Browser::TYPE_NORMAL)
     display_mode_ = DISPLAYMODE_NORMAL;
   else
@@ -199,6 +195,11 @@ ToolbarView::~ToolbarView() {
 }
 
 void ToolbarView::Init(Profile* profile) {
+  back_menu_model_.reset(new BackForwardMenuModelViews(
+      browser_, BackForwardMenuModel::BACKWARD_MENU, GetWidget()));
+  forward_menu_model_.reset(new BackForwardMenuModelViews(
+      browser_, BackForwardMenuModel::FORWARD_MENU, GetWidget()));
+
   // Create all the individual Views in the Toolbar.
   CreateLeftSideControls();
   CreateCenterStack(profile);

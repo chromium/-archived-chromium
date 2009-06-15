@@ -8,27 +8,45 @@
 #include "base/basictypes.h"
 
 #include "chrome/browser/back_forward_menu_model.h"
-#include "views/controls/menu/menu.h"
+#include "views/controls/menu/menu_2.h"
 
 class SkBitmap;
 
-class BackForwardMenuModelViews : public BackForwardMenuModel,
-                                  public views::Menu::Delegate {
- public:
-  BackForwardMenuModelViews(Browser* browser, ModelType model_type);
+namespace views {
+class Widget;
+}
 
-  // Menu::Delegate
-  virtual std::wstring GetLabel(int menu_id) const;
-  virtual const SkBitmap& GetIcon(int menu_id) const;
-  virtual bool SupportsCommand(int menu_id) const;
-  virtual bool IsCommandEnabled(int menu_id) const;
-  virtual bool IsItemSeparator(int menu_id) const;
-  virtual bool HasIcon(int menu_id) const;
-  virtual void ExecuteCommand(int menu_id);
-  virtual void MenuWillShow();
+class BackForwardMenuModelViews : public BackForwardMenuModel,
+                                  public views::Menu2Model {
+ public:
+  // Construct a BackForwardMenuModel. |frame| is used to locate the accelerator
+  // for the history item.
+  BackForwardMenuModelViews(Browser* browser,
+                            ModelType model_type,
+                            views::Widget* frame);
+
+  // Overridden from views::Menu2Model:
+  virtual bool HasIcons() const;
   virtual int GetItemCount() const;
+  virtual ItemType GetTypeAt(int index) const;
+  virtual int GetCommandIdAt(int index) const;
+  virtual std::wstring GetLabelAt(int index) const;
+  virtual bool IsLabelDynamicAt(int index) const;
+  virtual bool GetAcceleratorAt(int index,
+                                views::Accelerator* accelerator) const;
+  virtual bool IsItemCheckedAt(int index) const;
+  virtual int GetGroupIdAt(int index) const;
+  virtual bool GetIconAt(int index, SkBitmap* icon) const;
+  virtual bool IsEnabledAt(int index) const;
+  virtual Menu2Model* GetSubmenuModelAt(int index) const;
+  virtual void HighlightChangedTo(int index);
+  virtual void ActivatedAt(int index);
+  virtual void MenuWillShow();
 
  private:
+  // The frame we ask about accelerator info.
+  views::Widget* frame_;
+
   DISALLOW_COPY_AND_ASSIGN(BackForwardMenuModelViews);
 };
 

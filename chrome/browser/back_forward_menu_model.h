@@ -26,15 +26,11 @@ class BackForwardMenuModel {
   // These are IDs used to identify individual UI elements within the
   // browser window using View::GetViewByID.
   enum ModelType {
-    FORWARD_MENU_DELEGATE = 1,
-    BACKWARD_MENU_DELEGATE = 2
+    FORWARD_MENU = 1,
+    BACKWARD_MENU = 2
   };
 
-  // Factory function. Defined in back_forward_menu_model_{platform}.cc.
-  // This is only used in unit tests. In the browser we use the platform-
-  // specific constructors directly.
-  static BackForwardMenuModel* Create(Browser* browser, ModelType model_type);
-
+  BackForwardMenuModel(Browser* browser, ModelType model_type);
   virtual ~BackForwardMenuModel() { }
 
   // Returns how many history items the menu should show. For example, if the
@@ -108,10 +104,12 @@ class BackForwardMenuModel {
   // Does the item does something when you click on it?
   bool ItemHasCommand(int menu_id) const;
 
+#ifdef UNIT_TEST
   // Allows the unit test to use its own dummy tab contents.
   void set_test_tab_contents(TabContents* test_tab_contents) {
     test_tab_contents_ = test_tab_contents;
   }
+#endif
 
   // Allow the unit test to use the "Show Full History" label.
   std::wstring GetShowFullHistoryLabel() const;
@@ -128,20 +126,6 @@ class BackForwardMenuModel {
   static const int kMaxChapterStops;
 
  protected:
-  BackForwardMenuModel()
-      : browser_(NULL),
-        test_tab_contents_(NULL),
-        model_type_(FORWARD_MENU_DELEGATE) {}
-
-  Browser* browser_;
-
-  // The unit tests will provide their own TabContents to use.
-  TabContents* test_tab_contents_;
-
-  // Represents whether this is the delegate for the forward button or the
-  // back button.
-  ModelType model_type_;
-
   // Converts a menu item id, as passed in through one of the menu delegate
   // functions and converts it into an absolute index into the
   // NavigationEntryList vector. |menu_id| can point to a separator, or the
@@ -156,6 +140,15 @@ class BackForwardMenuModel {
   // E.g. BuildActionName("Click", 2) returns "BackMenu_Click2".
   // An index of -1 means no index.
   std::wstring BuildActionName(const std::wstring& name, int index) const;
+
+  Browser* browser_;
+
+  // The unit tests will provide their own TabContents to use.
+  TabContents* test_tab_contents_;
+
+  // Represents whether this is the delegate for the forward button or the
+  // back button.
+  ModelType model_type_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(BackForwardMenuModel);

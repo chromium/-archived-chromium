@@ -7,6 +7,7 @@
 #include "chrome/browser/back_forward_menu_model.h"
 
 #include "app/l10n_util.h"
+#include "app/resource_bundle.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
@@ -14,16 +15,24 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/url_constants.h"
 #include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 #include "net/base/registry_controlled_domain.h"
 
 const int BackForwardMenuModel::kMaxHistoryItems = 12;
 const int BackForwardMenuModel::kMaxChapterStops = 5;
 
+BackForwardMenuModel::BackForwardMenuModel(Browser* browser,
+                                           ModelType model_type)
+    : browser_(browser),
+      test_tab_contents_(NULL),
+      model_type_(model_type) {
+}
+
 int BackForwardMenuModel::GetHistoryItemCount() const {
   TabContents* contents = GetTabContents();
   int items = 0;
 
-  if (model_type_ == FORWARD_MENU_DELEGATE) {
+  if (model_type_ == FORWARD_MENU) {
     // Only count items from n+1 to end (if n is current entry)
     items = contents->controller().entry_count() -
             contents->controller().GetCurrentEntryIndex() - 1;
@@ -47,7 +56,7 @@ int BackForwardMenuModel::GetChapterStopCount(int history_items) const {
 
   if (history_items == kMaxHistoryItems) {
     int chapter_id = current_entry;
-    if (model_type_ == FORWARD_MENU_DELEGATE) {
+    if (model_type_ == FORWARD_MENU) {
       chapter_id += history_items;
     } else {
       chapter_id -= history_items;
@@ -55,7 +64,7 @@ int BackForwardMenuModel::GetChapterStopCount(int history_items) const {
 
     do {
       chapter_id = GetIndexOfNextChapterStop(chapter_id,
-          model_type_ == FORWARD_MENU_DELEGATE);
+          model_type_ == FORWARD_MENU);
       if (chapter_id != -1)
         ++chapter_stops;
     } while (chapter_id != -1 && chapter_stops < kMaxChapterStops);
@@ -213,14 +222,17 @@ std::wstring BackForwardMenuModel::GetItemLabel(int menu_id) const {
 const SkBitmap& BackForwardMenuModel::GetItemIcon(int menu_id) const {
   DCHECK(ItemHasIcon(menu_id));
 
+  if (menu_id == GetTotalItemCount()) {
+    return *ResourceBundle::GetSharedInstance().GetBitmapNamed(
+        IDR_HISTORY_FAVICON);
+  }
+
   NavigationEntry* entry = GetNavigationEntry(menu_id);
   return entry->favicon().bitmap();
 }
 
 bool BackForwardMenuModel::ItemHasIcon(int menu_id) const {
-  // Using "id" not "id - 1" because the last item "Show Full History"
-  // doesn't have an icon.
-  return menu_id < GetTotalItemCount() && !IsSeparator(menu_id);
+  return menu_id - 1 < GetTotalItemCount() && !IsSeparator(menu_id);
 }
 
 bool BackForwardMenuModel::ItemHasCommand(int menu_id) const {
@@ -245,7 +257,7 @@ int BackForwardMenuModel::MenuIdToNavEntryIndex(int menu_id) const {
 
   // Convert anything above the History items separator.
   if (menu_id <= history_items) {
-    if (model_type_ == FORWARD_MENU_DELEGATE) {
+    if (model_type_ == FORWARD_MENU) {
       // The |menu_id| is relative to our current position, so we need to add.
       menu_id += contents->controller().GetCurrentEntryIndex();
     } else {
@@ -262,7 +274,7 @@ int BackForwardMenuModel::MenuIdToNavEntryIndex(int menu_id) const {
 
   // This menu item is a chapter stop located between the two separators.
   menu_id = FindChapterStop(history_items,
-                            model_type_ == FORWARD_MENU_DELEGATE,
+                            model_type_ == FORWARD_MENU,
                             menu_id - history_items - 1 - 1);
 
   return menu_id;
@@ -278,7 +290,7 @@ std::wstring BackForwardMenuModel::BuildActionName(
   DCHECK(!action.empty());
   DCHECK(index >= -1);
   std::wstring metric_string;
-  if (model_type_ == FORWARD_MENU_DELEGATE)
+  if (model_type_ == FORWARD_MENU)
     metric_string += L"ForwardMenu_";
   else
     metric_string += L"BackMenu_";

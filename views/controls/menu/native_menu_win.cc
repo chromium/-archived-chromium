@@ -4,14 +4,31 @@
 
 #include "views/controls/menu/native_menu_win.h"
 
+#include "app/gfx/canvas.h"
+#include "app/gfx/font.h"
 #include "app/l10n_util.h"
 #include "app/l10n_util_win.h"
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "views/accelerator.h"
 #include "views/controls/menu/menu_2.h"
 
 namespace views {
+
+// The width of an icon, including the pixels between the icon and
+// the item label.
+static const int kIconWidth = 23;
+// Margins between the top of the item and the label.
+static const int kItemTopMargin = 3;
+// Margins between the bottom of the item and the label.
+static const int kItemBottomMargin = 4;
+// Margins between the left of the item and the icon.
+static const int kItemLeftMargin = 4;
+// Margins between the right of the item and the label.
+static const int kItemRightMargin = 10;
+// The width for displaying the sub-menu arrow.
+static const int kArrowWidth = 10;
 
 struct NativeMenuWin::ItemData {
   // The Windows API requires that whoever creates the menus must own the
@@ -21,6 +38,12 @@ struct NativeMenuWin::ItemData {
 
   // Someone needs to own submenus, it may as well be us.
   scoped_ptr<Menu2> submenu;
+
+  // We need a pointer back to the containing menu in various circumstances.
+  NativeMenuWin* native_menu_win;
+
+  // The index of the item within the menu's model.
+  int model_index;
 };
 
 // A window that receives messages from Windows relevant to the native menu
@@ -90,6 +113,10 @@ class NativeMenuWin::MenuHostWindow {
     return w_param;
   }
 
+  NativeMenuWin::ItemData* GetItemData(ULONG_PTR item_data) {
+    return reinterpret_cast<NativeMenuWin::ItemData*>(item_data);
+  }
+
   // Called when the user selects a specific item.
   void OnMenuCommand(int position, HMENU menu) {
     NativeMenuWin* intergoat = GetNativeMenuWinFromHMENU(menu);
@@ -108,6 +135,112 @@ class NativeMenuWin::MenuHostWindow {
       GetNativeMenuWinFromHMENU(menu)->model_->HighlightChangedTo(position);
   }
 
+  // Called by Windows to measure the size of an owner-drawn menu item.
+  void OnMeasureItem(WPARAM w_param, MEASUREITEMSTRUCT* measure_item_struct) {
+    NativeMenuWin::ItemData* data = GetItemData(measure_item_struct->itemData);
+    if (data) {
+      gfx::Font font;
+      measure_item_struct->itemWidth = font.GetStringWidth(data->label) +
+          kIconWidth + kItemLeftMargin + kItemRightMargin -
+          GetSystemMetrics(SM_CXMENUCHECK);
+      if (data->submenu.get())
+        measure_item_struct->itemWidth += kArrowWidth;
+      // If the label contains an accelerator, make room for tab.
+      if (data->label.find(L'\t') != std::wstring::npos)
+        measure_item_struct->itemWidth += font.GetStringWidth(L" ");
+      measure_item_struct->itemHeight =
+          font.height() + kItemBottomMargin + kItemTopMargin;
+    } else {
+      // Measure separator size.
+      measure_item_struct->itemHeight = GetSystemMetrics(SM_CYMENU) / 2;
+      measure_item_struct->itemWidth = 0;
+    }
+  }
+
+  // Called by Windows to paint an owner-drawn menu item.
+  void OnDrawItem(UINT w_param, DRAWITEMSTRUCT* draw_item_struct) {
+    HDC dc = draw_item_struct->hDC;
+    COLORREF prev_bg_color, prev_text_color;
+
+    // Set background color and text color
+    if (draw_item_struct->itemState & ODS_SELECTED) {
+      prev_bg_color = SetBkColor(dc, GetSysColor(COLOR_HIGHLIGHT));
+      prev_text_color = SetTextColor(dc, GetSysColor(COLOR_HIGHLIGHTTEXT));
+    } else {
+      prev_bg_color = SetBkColor(dc, GetSysColor(COLOR_MENU));
+      if (draw_item_struct->itemState & ODS_DISABLED)
+        prev_text_color = SetTextColor(dc, GetSysColor(COLOR_GRAYTEXT));
+      else
+        prev_text_color = SetTextColor(dc, GetSysColor(COLOR_MENUTEXT));
+    }
+
+    if (draw_item_struct->itemData) {
+      NativeMenuWin::ItemData* data = GetItemData(draw_item_struct->itemData);
+      // Draw the background.
+      HBRUSH hbr = CreateSolidBrush(GetBkColor(dc));
+      FillRect(dc, &draw_item_struct->rcItem, hbr);
+      DeleteObject(hbr);
+
+      // Draw the label.
+      RECT rect = draw_item_struct->rcItem;
+      rect.top += kItemTopMargin;
+      // Should we add kIconWidth only when icon.width() != 0 ?
+      rect.left += kItemLeftMargin + kIconWidth;
+      rect.right -= kItemRightMargin;
+      UINT format = DT_TOP | DT_SINGLELINE;
+      // Check whether the mnemonics should be underlined.
+      BOOL underline_mnemonics;
+      SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, &underline_mnemonics, 0);
+      if (!underline_mnemonics)
+        format |= DT_HIDEPREFIX;
+      gfx::Font font;
+      HGDIOBJ old_font = static_cast<HFONT>(SelectObject(dc, font.hfont()));
+      int fontsize = font.FontSize();
+
+      // If an accelerator is specified (with a tab delimiting the rest of the
+      // label from the accelerator), we have to justify the fist part on the
+      // left and the accelerator on the right.
+      // TODO(jungshik): This will break in RTL UI. Currently, he/ar use the
+      //                 window system UI font and will not hit here.
+      std::wstring label = data->label;
+      std::wstring accel;
+      std::wstring::size_type tab_pos = label.find(L'\t');
+      if (tab_pos != std::wstring::npos) {
+        accel = label.substr(tab_pos);
+        label = label.substr(0, tab_pos);
+      }
+      DrawTextEx(dc, const_cast<wchar_t*>(label.data()),
+                 static_cast<int>(label.size()), &rect, format | DT_LEFT, NULL);
+      if (!accel.empty())
+        DrawTextEx(dc, const_cast<wchar_t*>(accel.data()),
+                   static_cast<int>(accel.size()), &rect,
+                   format | DT_RIGHT, NULL);
+      SelectObject(dc, old_font);
+
+      // Draw the icon after the label, otherwise it would be covered
+      // by the label.
+      SkBitmap icon;
+      if (data->native_menu_win->model_->GetIconAt(data->model_index, &icon)) {
+        gfx::Canvas canvas(icon.width(), icon.height(), false);
+        canvas.drawColor(SK_ColorBLACK, SkPorterDuff::kClear_Mode);
+        canvas.DrawBitmapInt(icon, 0, 0);
+        canvas.getTopPlatformDevice().drawToHDC(dc,
+            draw_item_struct->rcItem.left + kItemLeftMargin,
+            draw_item_struct->rcItem.top + (draw_item_struct->rcItem.bottom -
+                draw_item_struct->rcItem.top - icon.height()) / 2, NULL);
+      }
+
+    } else {
+      // Draw the separator
+      draw_item_struct->rcItem.top +=
+          (draw_item_struct->rcItem.bottom - draw_item_struct->rcItem.top) / 3;
+      DrawEdge(dc, &draw_item_struct->rcItem, EDGE_ETCHED, BF_TOP);
+    }
+
+    SetBkColor(dc, prev_bg_color);
+    SetTextColor(dc, prev_text_color);
+  }
+
   bool ProcessWindowMessage(HWND window,
                             UINT message,
                             WPARAM w_param,
@@ -120,6 +253,14 @@ class NativeMenuWin::MenuHostWindow {
         return true;
       case WM_MENUSELECT:
         OnMenuSelect(LOWORD(w_param), reinterpret_cast<HMENU>(l_param));
+        *l_result = 0;
+        return true;
+      case WM_MEASUREITEM:
+        OnMeasureItem(w_param, reinterpret_cast<MEASUREITEMSTRUCT*>(l_param));
+        *l_result = 0;
+        return true;
+      case WM_DRAWITEM:
+        OnDrawItem(w_param, reinterpret_cast<DRAWITEMSTRUCT*>(l_param));
         *l_result = 0;
         return true;
       // TODO(beng): bring over owner draw from old menu system.
@@ -213,7 +354,7 @@ void NativeMenuWin::UpdateStates() {
       SetMenuItemLabel(menu_index, model_index,
                        model_->GetLabelAt(model_index));
     }
-    Menu2* submenu = items_.at(model_index)->submenu.get();
+    Menu2* submenu = items_[model_index]->submenu.get();
     if (submenu)
       submenu->UpdateStates();
   }
@@ -242,9 +383,9 @@ void NativeMenuWin::AddMenuItemAt(int menu_index, int model_index) {
     mii.fType = MFT_STRING;
   else
     mii.fType = MFT_OWNERDRAW;
-  mii.dwItemData = reinterpret_cast<ULONG_PTR>(this);
 
   ItemData* item_data = new ItemData;
+  item_data->label = std::wstring();
   Menu2Model::ItemType type = model_->GetTypeAt(model_index);
   if (type == Menu2Model::TYPE_SUBMENU) {
     item_data->submenu.reset(new Menu2(model_->GetSubmenuModelAt(model_index)));
@@ -255,7 +396,10 @@ void NativeMenuWin::AddMenuItemAt(int menu_index, int model_index) {
       mii.fType |= MFT_RADIOCHECK;
     mii.wID = model_->GetCommandIdAt(model_index);
   }
+  item_data->native_menu_win = this;
+  item_data->model_index = model_index;
   items_.insert(items_.begin() + model_index, item_data);
+  mii.dwItemData = reinterpret_cast<ULONG_PTR>(item_data);
   UpdateMenuItemInfoForString(&mii, model_index,
                               model_->GetLabelAt(model_index));
   InsertMenuItem(menu_, menu_index, TRUE, &mii);
@@ -329,24 +473,6 @@ void NativeMenuWin::UpdateMenuItemInfoForString(
     mii->dwTypeData =
         const_cast<wchar_t*>(items_.at(model_index)->label.c_str());
   }
-}
-
-NativeMenuWin* NativeMenuWin::GetMenuForCommandId(UINT command_id) const {
-  // Menus can have nested submenus. In the views Menu system, each submenu is
-  // wrapped in a NativeMenu instance, which may have a different model and
-  // delegate from the parent menu. The trouble is, RunMenuAt is called on the
-  // parent NativeMenuWin, and so it's not possible to assume that we can just
-  // dispatch the command id returned by TrackPopupMenuEx to the parent's
-  // delegate. For this reason, we stow a pointer on every menu item we create
-  // to the NativeMenuWin that most closely contains it. Fortunately, Windows
-  // provides GetMenuItemInfo, which can walk down the menu item tree from
-  // the root |menu_| to find the data for a given item even if it's in a
-  // submenu.
-  MENUITEMINFO mii = {0};
-  mii.cbSize = sizeof(mii);
-  mii.fMask = MIIM_DATA;
-  GetMenuItemInfo(menu_, command_id, FALSE, &mii);
-  return reinterpret_cast<NativeMenuWin*>(mii.dwItemData);
 }
 
 UINT NativeMenuWin::GetAlignmentFlags(int alignment) const {

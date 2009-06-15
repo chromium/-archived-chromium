@@ -7,7 +7,7 @@
 
 #include "base/task.h"
 #include "views/controls/button/image_button.h"
-#include "views/controls/menu/menu.h"
+#include "views/controls/menu/menu_2.h"
 
 namespace views {
 
@@ -21,7 +21,7 @@ namespace views {
 ////////////////////////////////////////////////////////////////////////////////
 class ButtonDropDown : public ImageButton {
  public:
-  ButtonDropDown(ButtonListener* listener, Menu::Delegate* menu_delegate);
+  ButtonDropDown(ButtonListener* listener, Menu2Model* model);
   virtual ~ButtonDropDown();
 
   // Accessibility accessors, overridden from View.
@@ -45,8 +45,9 @@ class ButtonDropDown : public ImageButton {
   // Internal function to show the dropdown menu
   void ShowDropDownMenu(gfx::NativeView window);
 
-  // Specifies who to delegate populating the menu
-  Menu::Delegate* menu_delegate_;
+  // The model that populates the attached menu.
+  Menu2Model* model_;
+  scoped_ptr<Menu2> menu_;
 
   // Y position of mouse when left mouse button is pressed
   int y_position_on_lbuttondown_;
