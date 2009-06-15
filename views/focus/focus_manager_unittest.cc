@@ -885,11 +885,8 @@ TEST_F(FocusTraversalTest, NormalTraversal) {
     }
   }
 
-  // Focus the 1st item.
-  GetFocusManager()->SetFocusedView(
-      content_view_->GetViewByID(kTraversalIDs[0]));
-
   // Let's traverse in reverse order.
+  GetFocusManager()->SetFocusedView(NULL);
   for (int i = 0; i < 3; ++i) {
     for (int j = arraysize(kTraversalIDs) - 1; j >= 0; --j) {
       GetFocusManager()->AdvanceFocus(true);
@@ -931,6 +928,7 @@ TEST_F(FocusTraversalTest, TraversalWithNonEnabledViews) {
 
   View* focused_view;
   // Let's do one traversal (several times, to make sure it loops ok).
+  GetFocusManager()->SetFocusedView(NULL);
   for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < arraysize(kTraversalIDs); j++) {
       GetFocusManager()->AdvanceFocus(false);
@@ -941,14 +939,8 @@ TEST_F(FocusTraversalTest, TraversalWithNonEnabledViews) {
     }
   }
 
-  // Focus the 1st item.
-  GetFocusManager()->AdvanceFocus(false);
-  focused_view = GetFocusManager()->GetFocusedView();
-  EXPECT_TRUE(focused_view != NULL);
-  if (focused_view)
-    EXPECT_EQ(kTraversalIDs[0], focused_view->GetID());
-
   // Same thing in reverse.
+  GetFocusManager()->SetFocusedView(NULL);
   for (int i = 0; i < 3; ++i) {
     for (int j = arraysize(kTraversalIDs) - 1; j >= 0; --j) {
       GetFocusManager()->AdvanceFocus(true);

@@ -299,9 +299,6 @@ class FocusManager {
   // Returns the next focusable view.
   View* GetNextFocusableView(View* starting_view, bool reverse, bool dont_loop);
 
-  // Returns the last view of the focus traversal hierarchy.
-  View* FindLastFocusableView();
-
   // Returns the focusable view found in the FocusTraversable specified starting
   // at the specified view. This traverses down along the FocusTraversable
   // hierarchy.

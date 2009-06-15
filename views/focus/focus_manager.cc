@@ -413,35 +413,17 @@ View* FocusManager::GetNextFocusableView(View* original_starting_view,
           parent_focus_traversable->GetFocusTraversableParent();
     }
 
-    if (!dont_loop) {
-      // If we get here, we have reached the end of the focus hierarchy, let's
-      // loop.
-      if (reverse) {
-         // When reversing from the top, the next focusable view is at the end
-         // of the focus hierarchy.
-        return FindLastFocusableView();
-      } else {
-        // Easy, just clear the selection and press tab again.
-        if (original_starting_view) {  // Make sure there was at least a view to
-                                       // start with, to prevent infinitely
-                                       // looping in empty windows.
-          // By calling with NULL as the starting view, we'll start from the
-          // top_root_view.
-          return GetNextFocusableView(NULL, false, true);
-        }
-      }
+    // If we get here, we have reached the end of the focus hierarchy, let's
+    // loop. Make sure there was at least a view to start with, to prevent
+    // infinitely looping in empty windows.
+    if (!dont_loop && original_starting_view) {
+      // Easy, just clear the selection and press tab again.
+      // By calling with NULL as the starting view, we'll start from the
+      // top_root_view.
+      return GetNextFocusableView(NULL, reverse, true);
     }
   }
   return NULL;
-}
-
-View* FocusManager::FindLastFocusableView() {
-  // Just walk the entire focus loop from where we're at until we reach the end.
-  View* new_focused = NULL;
-  View* last_focused = focused_view_;
-  while ((new_focused = GetNextFocusableView(last_focused, false, true)))
-    last_focused = new_focused;
-  return last_focused;
 }
 
 void FocusManager::SetFocusedView(View* view) {
