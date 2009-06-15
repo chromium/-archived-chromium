@@ -185,21 +185,16 @@ void WebDevToolsAgentImpl::HideDOMNodeHighlight() {
 }
 
 void WebDevToolsAgentImpl::EvaluateJavaScript(int call_id, const String& js) {
+  String result;
+  bool is_exception = false;
+
   Page* page = web_view_impl_->page();
-  if (!page->mainFrame()) {
-    return;
+  if (page->mainFrame()) {
+    result = debugger_agent_impl_->EvaluateJavaScript(page->mainFrame(),
+        js, &is_exception);
   }
-  ScriptValue result = page->mainFrame()->loader()->executeScript(js);
-  String result_string;
-  if (!result.hasNoValue()) {
-    // toString() may need global context.
-    v8::HandleScope scope;
-    v8::Handle<v8::Context> context = WebCore::V8Proxy::GetContext(
-        page->mainFrame());
-    v8::Context::Scope context_scope(context);
-    result_string = result.toString(NULL);
-  }
-  tools_agent_delegate_stub_->DidEvaluateJavaScript(call_id, result_string);
+  tools_agent_delegate_stub_->DidEvaluateJavaScript(
+      call_id, result, is_exception);
 }
 
 void WebDevToolsAgentImpl::ExecuteUtilityFunction(

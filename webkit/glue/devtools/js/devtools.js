@@ -805,9 +805,7 @@ WebInspector.Console.prototype._evalInInspectedWindow = function(expression) {
     return WebInspector.panels.scripts.evaluateInSelectedCallFrame(expression);
 
   var console = this;
-  devtools.tools.evaluateJavaScript(expression, function(response) {
-    // TODO(yurys): send exception information along with the response
-    var exception = false;
+  devtools.tools.evaluateJavaScript(expression, function(response, exception) {
     console.addMessage(new WebInspector.ConsoleCommandResult(
         response, exception, null /* commandMessage */));
   });

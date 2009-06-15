@@ -42,7 +42,8 @@ DEFINE_RPC_CLASS(ToolsAgent, TOOLS_AGENT_STRUCT)
   METHOD1(UpdateFocusedNode, int /* node_id */) \
   \
   /* Response message to EvaluateJavaScript. */ \
-  METHOD2(DidEvaluateJavaScript, int /* call_id */, String /* result */) \
+  METHOD3(DidEvaluateJavaScript, int /* call_id */, String /* result */, \
+      bool /* isException */) \
   \
   /* Updates focused node on the client. */ \
   METHOD2(FrameNavigate, std::string /* url */, bool /* top_level */) \

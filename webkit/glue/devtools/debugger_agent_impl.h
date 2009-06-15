@@ -58,6 +58,11 @@ class DebuggerAgentImpl : public DebuggerAgent {
       const WebCore::String& json_args,
       WebCore::String* exception);
 
+  WebCore::String EvaluateJavaScript(
+      WebCore::Frame* frame,
+      const WebCore::String& source_code,
+      bool* is_exception);
+
   WebCore::Page* GetPage();
   WebDevToolsAgentImpl* webdevtools_agent() { return webdevtools_agent_; };
 

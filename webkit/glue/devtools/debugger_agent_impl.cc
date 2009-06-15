@@ -29,6 +29,7 @@
 
 using WebCore::DOMWindow;
 using WebCore::Document;
+using WebCore::Frame;
 using WebCore::Node;
 using WebCore::Page;
 using WebCore::String;
@@ -182,6 +183,27 @@ String DebuggerAgentImpl::ExecuteUtilityFunction(
   } else {
     v8::Handle<v8::String> res_json = v8::Handle<v8::String>::Cast(res_obj);
     return WebCore::toWebCoreString(res_json);
+  }
+}
+
+String DebuggerAgentImpl::EvaluateJavaScript(
+    Frame* frame,
+    const String &source_code,
+    bool* is_exception) {
+  v8::HandleScope scope;
+  v8::Handle<v8::Context> context = V8Proxy::GetContext(frame);
+  v8::Context::Scope context_scope(context);
+  v8::Local<v8::String> code = v8ExternalString(source_code);
+
+  V8Proxy* proxy = V8Proxy::retrieve(frame);
+  v8::TryCatch try_catch;
+  v8::Handle<v8::Script> script = proxy->CompileScript(code, "", 0);
+  v8::Local<v8::Value> object = proxy->RunScript(script, true);
+  if (try_catch.HasCaught()) {
+    *is_exception = true;
+    return WebCore::ToWebCoreString(try_catch.Message()->Get());
+  } else {
+    return WebCore::toWebCoreStringWithNullCheck(object);
   }
 }
 
