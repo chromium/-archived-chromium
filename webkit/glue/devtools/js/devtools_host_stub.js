@@ -326,6 +326,15 @@ DevToolsHostStub.prototype.loaded = function() {
 };
 
 
+DevToolsHostStub.prototype.reset = function() {
+};
+
+
+DevToolsHostStub.prototype.getPlatform = function() {
+  return "windows";
+};
+
+
 DevToolsHostStub.prototype.addResourceSourceToFrame = function(
     identifier, mimeType, element) {
 };

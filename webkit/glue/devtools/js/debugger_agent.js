@@ -1042,31 +1042,40 @@ devtools.CallFrame = function() {
  * This method is called by
  * WebInspector.ScriptsPanel.evaluateInSelectedCallFrame. This method issues
  * asynchronous evaluate request.
+ * TODO(pfeldman): Remove this method once new console API is landed.
  * @param {string} expression An expression to be evaluated in the context of
  *     this call frame.
  * @return {string} User message that the expression is being evaluated.
  */
 devtools.CallFrame.prototype.evaluate = function(expression) {
-  devtools.tools.getDebuggerAgent().requestEvaluate({
-        'expression': expression,
-        'frame': this.frameNumber,
-        'global': false,
-        'disable_break': false
-      },
-      devtools.CallFrame.handleEvaluateResponse_);
+  devtools.CallFrame.doEvalInCallFrame(this, expression, function(value) {
+    WebInspector.console.addMessage(new WebInspector.ConsoleCommandResult(
+        value, false /* exception */, null /* commandMessage */));
+  });
   return 'evaluating...';
 };
 
 
 /**
- * Handles 'evaluate' response for a call frame
- * @param {devtools.DebuggerMessage} response
+ * This method issues asynchronous evaluate request, reports result to the
+ * callback.
+ * @param {devtools.CallFrame} callFrame Call frame to evaluate in.
+ * @param {string} expression An expression to be evaluated in the context of
+ *     this call frame.
+ * @param {function(Object):undefined} callback Callback to report result to.
  */
-devtools.CallFrame.handleEvaluateResponse_ = function(response) {
-  var body = response.getBody();
-  var value = devtools.DebuggerAgent.formatObjectReference_(body);
-  WebInspector.console.addMessage(new WebInspector.ConsoleCommandResult(
-      value, false /* exception */, null /* commandMessage */));
+devtools.CallFrame.doEvalInCallFrame =
+    function(callFrame, expression, callback) {
+  devtools.tools.getDebuggerAgent().requestEvaluate({
+        'expression': expression,
+        'frame': callFrame.frameNumber,
+        'global': false,
+        'disable_break': false
+      },
+      function(response) {
+        var body = response.getBody();
+        callback(devtools.DebuggerAgent.formatObjectReference_(body));
+      });
 };
 
 

@@ -353,25 +353,6 @@ WebInspector.ElementsPanel.prototype.jumpToPreviousSearchResult = function() {
 /**
  * @override
  */
-WebInspector.Console.prototype._evalInInspectedWindow = function(expr) {
-  return devtools.tools.evaluate(expr);
-};
-
-
-/**
- * Disable autocompletion in the console.
- * TODO(yurys): change WebKit implementation to allow asynchronous completion.
- * @override
- */
-WebInspector.Console.prototype.completions = function(
-    wordRange, bestMatchOnly) {
-  return null;
-};
-
-
-/**
- * @override
- */
 WebInspector.ElementsPanel.prototype.updateStyles = function(forceUpdate) {
   var stylesSidebarPane = this.sidebarPanes.styles;
   if (!stylesSidebarPane.expanded || !stylesSidebarPane.needsUpdate) {
@@ -798,9 +779,27 @@ WebInspector.ScriptsPanel.prototype.__defineGetter__(
     WebInspector.searchableViews_);
 
 
-/**
- * @override
- */
+// Console API provisional fix.
+if (WebInspector.Console.prototype.doEvalInWindow) {
+
+
+WebInspector.Console.prototype.doEvalInWindow =
+    function(expression, callback) {
+  devtools.tools.evaluateJavaScript(expression, callback);
+};
+
+
+WebInspector.ScriptsPanel.prototype.doEvalInCallFrame =
+    function(callFrame, expression, callback) {
+  devtools.CallFrame.doEvalInCallFrame(callFrame, expression, callback);
+};
+
+
+} else {
+
+// TODO(pfeldman): remove onces https://bugs.webkit.org/attachment.cgi?id=31255
+// is landed and pushed into Chromium.
+
 WebInspector.Console.prototype._evalInInspectedWindow = function(expression) {
   if (WebInspector.panels.scripts.paused)
     return WebInspector.panels.scripts.evaluateInSelectedCallFrame(expression);
@@ -812,11 +811,15 @@ WebInspector.Console.prototype._evalInInspectedWindow = function(expression) {
     console.addMessage(new WebInspector.ConsoleCommandResult(
         response, exception, null /* commandMessage */));
   });
-  // TODO(yurys): refactor WebInspector.Console so that the result is added into
-  // the command log message.
   return 'evaluating...';
 };
 
+WebInspector.Console.prototype.completions = function(
+    wordRange, bestMatchOnly) {
+  return null;
+};
+
+}  // end of Console API provisional fix.
 
 (function() {
   var oldShow = WebInspector.ScriptsPanel.prototype.show;
