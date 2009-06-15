@@ -17,11 +17,20 @@
     'mac': {
       'filepath': 'cocoa|\.mm$|(_mac|_posix)\.(cc|h)$',
     },
+    'views': {
+      # Applies to all files and subdirs within this directory.
+      'filepath': 'views/.*',
+    },
+    'browser': {
+      'filepath': 'chrome/browser/.*',
+    },
   },
 
   'WATCHLISTS': {
     'this_file': ['nirnimesh@chromium.org'],
     'valgrind': ['nirnimesh@chromium.org', 'dank@chromium.org'],
     'mac': ['jrg@chromium.org'],
+    'views': ['ben@chromium.org'],
+    'browser': ['ben@chromium.org'],
   },
 }
