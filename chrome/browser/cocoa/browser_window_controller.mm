@@ -10,6 +10,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/encoding_menu_controller.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
@@ -37,6 +38,7 @@ const int kWindowGradientHeight = 24;
 @interface BrowserWindowController(Private)
 
 - (void)positionToolbar;
+- (void)installIncognitoBadge;
 
 // Leopard's gradient heuristic gets confused by our tabs and makes the title
 // gradient jump when creating a tab that is less than a tab width from the
@@ -132,6 +134,9 @@ willPositionSheet:(NSWindow *)sheet
                                 initWithView:[self tabStripView]
                                   switchView:[self tabContentArea]
                                        model:browser_->tabstrip_model()]);
+
+    // Puts the incognito badge on the window frame, if necessary.
+    [self installIncognitoBadge];
 
     // Create a controller for the toolbar, giving it the toolbar model object
     // and the toolbar view from the nib. The controller will handle
@@ -639,6 +644,29 @@ willPositionSheet:(NSWindow *)sheet
   toolbarFrame.size.width = contentFrame.size.width;
   [toolbarView setFrame:toolbarFrame];
   [[[self window] contentView] addSubview:toolbarView];
+}
+
+// If the browser is in incognito mode, install the image view to decordate
+// the window at the upper right. Use the same base y coordinate as the
+// tab strip.
+- (void)installIncognitoBadge {
+  if (!browser_->profile()->IsOffTheRecord())
+    return;
+
+  NSString *incognitoPath = [mac_util::MainAppBundle()
+                                pathForResource:@"otr_icon"
+                                         ofType:@"png"];
+  scoped_nsobject<NSImage> incognitoImage(
+      [[NSImage alloc] initWithContentsOfFile:incognitoPath]);
+  const NSSize imageSize = [incognitoImage size];
+  const NSRect tabFrame = [[self tabStripView] frame];
+  NSRect incognitoFrame = tabFrame;
+  incognitoFrame.origin.x = NSMaxX(incognitoFrame) - imageSize.width;
+  incognitoFrame.size = imageSize;
+  scoped_nsobject<NSImageView> incognitoView(
+      [[NSImageView alloc] initWithFrame:incognitoFrame]);
+  [incognitoView setImage:incognitoImage];
+  [[[[self window] contentView] superview] addSubview:incognitoView.get()];
 }
 
 - (void)fixWindowGradient {
