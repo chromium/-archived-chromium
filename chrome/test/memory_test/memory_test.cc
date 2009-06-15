@@ -4,6 +4,7 @@
 
 #include "base/basictypes.h"
 #include "base/command_line.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
@@ -17,13 +18,16 @@
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/chrome_process_util.h"
 #include "chrome/test/ui/ui_test.h"
+#if defined(OS_WIN)
 #include "chrome/test/perf/mem_usage.h"
+#endif
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 
 namespace {
 
-static const wchar_t kTempDirName[] = L"memory_test_profile";
+static const FilePath::CharType kTempDirName[] =
+    FILE_PATH_LITERAL("memory_test_profile");
 
 class MemoryTest : public UITest {
  public:
@@ -41,17 +45,17 @@ class MemoryTest : public UITest {
     launch_arguments_.AppendSwitch(switches::kNoEvents);
 
     // Get the specified user data dir (optional)
-    std::wstring profile_dir =
-      CommandLine::ForCurrentProcess()->GetSwitchValue(switches::kUserDataDir);
+    FilePath profile_dir = FilePath::FromWStringHack(
+      CommandLine::ForCurrentProcess()->GetSwitchValue(switches::kUserDataDir));
 
-    if (profile_dir.length() == 0) {
+    if (profile_dir.empty()) {
       // Compute the user-data-dir which contains our test cache.
       PathService::Get(base::DIR_EXE, &profile_dir);
-      file_util::UpOneDirectory(&profile_dir);
-      file_util::UpOneDirectory(&profile_dir);
-      file_util::AppendToPath(&profile_dir, L"data");
-      file_util::AppendToPath(&profile_dir, L"memory_test");
-      file_util::AppendToPath(&profile_dir, L"general_mix");
+      profile_dir = profile_dir.DirName();
+      profile_dir = profile_dir.DirName();
+      profile_dir = profile_dir.AppendASCII("data");
+      profile_dir = profile_dir.AppendASCII("memory_test");
+      profile_dir = profile_dir.AppendASCII("general_mix");
 
       if (!SetupTempDirectory(profile_dir)) {
         // There isn't really a way to fail gracefully here.
@@ -64,7 +68,7 @@ class MemoryTest : public UITest {
     }
 
     launch_arguments_.AppendSwitchWithValue(switches::kUserDataDir,
-                                            user_data_dir_);
+                                            user_data_dir_.ToWStringHack());
   }
 
   ~MemoryTest() {
@@ -210,7 +214,9 @@ class MemoryTest : public UITest {
     // Record the initial CommitCharge.  This is a system-wide measurement,
     // so if other applications are running, they can create variance in this
     // test.
+#if defined(OS_WIN)
     size_t start_size = GetSystemCommitCharge();
+#endif
 
     // Cycle through the URLs.
     scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
@@ -253,9 +259,14 @@ class MemoryTest : public UITest {
       // To make these tests more reliable, slowing them down a bit.
       PlatformThread::Sleep(100);
     }
+#if defined(OS_WIN)
     size_t stop_size = GetSystemCommitCharge();
 
     PrintResults(test_name, stop_size - start_size);
+#else
+    NOTIMPLEMENTED() << "need to map SystemCommitCharge";
+    PrintResults(test_name, 0);
+#endif
   }
 
   void PrintResults(const char* test_name, size_t commit_size) {
@@ -277,14 +288,14 @@ class MemoryTest : public UITest {
     ChromeProcessList::const_iterator it;
     for (it = chrome_processes.begin(); it != chrome_processes.end(); ++it) {
       scoped_ptr<base::ProcessMetrics> process_metrics;
-      IO_COUNTERS io_counters;
+      IoCounters io_counters;
       base::ProcessHandle process_handle;
       if (!base::OpenProcessHandle(*it, &process_handle)) {
         NOTREACHED();
       }
       process_metrics.reset(
           base::ProcessMetrics::CreateProcessMetrics(process_handle));
-      ZeroMemory(&io_counters, sizeof(io_counters));
+      bzero(&io_counters, sizeof(io_counters));
 
       if (process_metrics.get()->GetIOCounters(&io_counters)) {
         std::string chrome_name = (*it == browser_process_pid) ? "_b" : "_r";
@@ -319,7 +330,9 @@ class MemoryTest : public UITest {
     printf("\n");
 
     FilePath data_dir(user_data_dir());
+#if defined(OS_WIN)
     int browser_process_pid = ChromeBrowserProcessId(data_dir);
+#endif
     ChromeProcessList chrome_processes(GetRunningChromeProcesses(data_dir));
 
     size_t browser_virtual_size = 0;
@@ -329,6 +342,7 @@ class MemoryTest : public UITest {
     size_t num_chrome_processes = 0;
     ChromeProcessList::const_iterator it;
     for (it = chrome_processes.begin(); it != chrome_processes.end(); ++it) {
+#if defined(OS_WIN)
       size_t peak_virtual_size;
       size_t current_virtual_size;
       size_t peak_working_set_size;
@@ -343,6 +357,11 @@ class MemoryTest : public UITest {
         working_set_size += current_working_set_size;
         num_chrome_processes++;
       }
+#else
+      // TODO(port)
+      NOTIMPLEMENTED()
+        << "need to port GetMemoryInfo or map it to the existing primitives";
+#endif
     }
 
     std::string trace_name(test_name);
@@ -371,18 +390,16 @@ class MemoryTest : public UITest {
   // Output:
   //   On success, modifies user_data_dir_ to be a new profile directory
   //   and sets cleanup_temp_dir_on_exit_ to true.
-  bool SetupTempDirectory(std::wstring src_dir) {
-    LOG(INFO) << "Setting up temp directory in " << src_dir.c_str();
+  bool SetupTempDirectory(const FilePath &src_dir) {
+    LOG(INFO) << "Setting up temp directory in " << src_dir.value();
     // We create a copy of the test dir and use it so that each
     // run of this test starts with the same data.  Running this
     // test has the side effect that it will change the profile.
-    std::wstring temp_dir;
+    FilePath temp_dir;
     if (!file_util::CreateNewTempDirectory(kTempDirName, &temp_dir)) {
       LOG(ERROR) << "Could not create temp directory:" << kTempDirName;
       return false;
     }
-
-    src_dir.append(L"\\*");
 
     if (!file_util::CopyDirectory(src_dir, temp_dir, true)) {
       LOG(ERROR) << "Could not copy temp directory";
@@ -396,7 +413,7 @@ class MemoryTest : public UITest {
   }
 
   bool cleanup_temp_dir_on_exit_;
-  std::wstring user_data_dir_;
+  FilePath user_data_dir_;
 };
 
 class MemoryReferenceTest : public MemoryTest {
@@ -407,7 +424,13 @@ class MemoryReferenceTest : public MemoryTest {
     FilePath dir;
     PathService::Get(chrome::DIR_TEST_TOOLS, &dir);
     dir = dir.AppendASCII("reference_build");
+#if defined(OS_WIN)
     dir = dir.AppendASCII("chrome");
+#elif defined(OS_LINUX)
+    dir = dir.AppendASCII("chrome_linux");
+#elif defined(OS_MACOSX)
+    dir = dir.AppendASCII("chrome_mac");
+#endif
     browser_directory_ = dir;
     UITest::SetUp();
   }
@@ -417,8 +440,6 @@ class MemoryReferenceTest : public MemoryTest {
     MemoryTest::RunTest(test_name, num_target_tabs);
   }
 };
-
-}  // namespace
 
 TEST_F(MemoryTest, SingleTabTest) {
   RunTest("1t", 1);
@@ -431,3 +452,5 @@ TEST_F(MemoryTest, FiveTabTest) {
 TEST_F(MemoryTest, TwelveTabTest) {
   RunTest("12t", 12);
 }
+
+}  // namespace

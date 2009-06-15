@@ -3660,18 +3660,44 @@
       'type': 'executable',
       'msvs_guid': 'A34770EA-A574-43E8-9327-F79C04770E98',
       'dependencies': [
+        'app',
         'test_support_common',
         'test_support_ui',
         'theme_resources',
         '../skia/skia.gyp:skia',
         '../testing/gtest.gyp:gtest',
-        'app',
       ],
       'include_dirs': [
         '..',
       ],
       'sources': [
         'test/tab_switching/tab_switching_test.cc',
+      ],
+      'conditions': [
+        ['OS=="linux"', {
+          'dependencies': [
+            '../build/linux/system.gyp:gtk',
+          ],
+        }],
+      ],
+    },
+    {
+      'target_name': 'memory_test',
+      'type': 'executable',
+      'msvs_guid': 'A5F831FD-9B9C-4FEF-9FBA-554817B734CE',
+      'dependencies': [
+        'app',
+        'test_support_common',
+        'test_support_ui',
+        'theme_resources',
+        '../skia/skia.gyp:skia',
+        '../testing/gtest.gyp:gtest',
+      ],
+      'include_dirs': [
+        '..',
+      ],
+      'sources': [
+        'test/memory_test/memory_test.cc',
       ],
       'conditions': [
         ['OS=="linux"', {
@@ -4396,24 +4422,6 @@
               },
             },
           },
-        },
-        {
-          'target_name': 'memory_test',
-          'type': 'executable',
-          'msvs_guid': 'A5F831FD-9B9C-4FEF-9FBA-554817B734CE',
-          'dependencies': [
-            'test_support_common',
-            'test_support_ui',
-            'theme_resources',
-            '../skia/skia.gyp:skia',
-            '../testing/gtest.gyp:gtest',
-          ],
-          'include_dirs': [
-            '..',
-          ],
-          'sources': [
-            'test/memory_test/memory_test.cc',
-          ],
         },
         {
           'target_name': 'plugin_tests',
