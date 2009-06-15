@@ -44,6 +44,28 @@ bool Constrain(int available_size, int* position, int *size) {
   return true;
 }
 
+static CGContextRef CGContextForData(void* data, int width, int height) {
+  CGColorSpaceRef color_space =
+      CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+  // Allocate a bitmap context with 4 components per pixel (BGRA).  Apple
+  // recommends these flags for improved CG performance.
+  CGContextRef context =
+      CGBitmapContextCreate(data, width, height, 8, width * 4,
+                            color_space,
+                            kCGImageAlphaPremultipliedFirst |
+                                kCGBitmapByteOrder32Host);
+  CGColorSpaceRelease(color_space);
+
+  if (!context)
+    return NULL;
+
+  // Change the coordinate system to match WebCore's
+  CGContextTranslateCTM(context, 0, height);
+  CGContextScaleCTM(context, 1.0, -1.0);
+
+  return context;
+}
+
 }  // namespace
 
 class BitmapPlatformDevice::BitmapPlatformDeviceData : public SkRefCnt {
@@ -153,15 +175,20 @@ void BitmapPlatformDevice::BitmapPlatformDeviceData::LoadConfig() {
 // that we can create the pixel data before calling the constructor. This is
 // required so that we can call the base class' constructor with the pixel
 // data.
-BitmapPlatformDevice* BitmapPlatformDevice::Create(CGContextRef context,
-                                                   int width,
-                                                   int height,
-                                                   bool is_opaque) {
+BitmapPlatformDevice* BitmapPlatformDevice::CreateWithContext(
+    CGContextRef context, int width, int height, bool is_opaque) {
   SkBitmap bitmap;
   bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
   if (bitmap.allocPixels() != true)
     return NULL;
-  void* data = bitmap.getPixels();
+
+  void* data = NULL;
+  if (context) {
+    data = CGBitmapContextGetData(context);
+    bitmap.setPixels(data);
+  } else {
+    data = bitmap.getPixels();
+  }
 
   // Note: The Windows implementation clears the Bitmap later on.
   // This bears mentioning since removal of this line makes the
@@ -170,34 +197,31 @@ BitmapPlatformDevice* BitmapPlatformDevice::Create(CGContextRef context,
 
   bitmap.setIsOpaque(is_opaque);
 
-  if (is_opaque) {
 #ifndef NDEBUG
+  if (is_opaque) {
     // To aid in finding bugs, we set the background color to something
     // obviously wrong so it will be noticable when it is not cleared
     bitmap.eraseARGB(255, 0, 255, 128);  // bright bluish green
+  }
 #endif
-  }
 
-  if (!context) {
-    CGColorSpaceRef color_space =
-      CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
-    // allocate a bitmap context with 4 components per pixel (BGRA). Apple
-    // recommends these flags for improved CG performance.
-    context =
-      CGBitmapContextCreate(data, width, height, 8, width*4,
-                            color_space,
-                            kCGImageAlphaPremultipliedFirst |
-                                kCGBitmapByteOrder32Host);
-
-    // Change the coordinate system to match WebCore's
-    CGContextTranslateCTM(context, 0, height);
-    CGContextScaleCTM(context, 1.0, -1.0);
-    CGColorSpaceRelease(color_space);
-  }
+  if (!context)
+    context = CGContextForData(data, width, height);
 
   // The device object will take ownership of the graphics context.
   return new BitmapPlatformDevice(
       new BitmapPlatformDeviceData(context), bitmap);
+}
+
+BitmapPlatformDevice* BitmapPlatformDevice::CreateWithData(uint8_t* data,
+                                                           int width,
+                                                           int height,
+                                                           bool is_opaque) {
+  CGContextRef context = NULL;
+  if (data)
+    context = CGContextForData(data, width, height);
+
+  return CreateWithContext(context, width, height, is_opaque);
 }
 
 // The device will own the bitmap, which corresponds to also owning the pixel

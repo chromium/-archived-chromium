@@ -25,17 +25,15 @@ namespace skia {
 // DEVICE'S PIXEL DATA TO ANOTHER BITMAP, make sure you copy instead.
 class BitmapPlatformDevice : public PlatformDevice {
  public:
-  // Factory function. The screen DC is used to create the bitmap, and will not
-  // be stored beyond this function. is_opaque should be set if the caller
-  // knows the bitmap will be completely opaque and allows some optimizations.
-  //
-  // The shared_section parameter is optional (pass NULL for default behavior).
-  // If shared_section is non-null, then it must be a handle to a file-mapping
-  // object returned by CreateFileMapping.  See CreateDIBSection for details.
-  static BitmapPlatformDevice* Create(CGContextRef context,
-                                      int width,
-                                      int height,
-                                      bool is_opaque);
+  // |context| may be NULL.
+  static BitmapPlatformDevice* CreateWithContext(CGContextRef context,
+                                                 int width, int height,
+                                                 bool is_opaque);
+
+  // Creates a context for |data| and calls CreateWithContext.
+  static BitmapPlatformDevice* CreateWithData(uint8_t* data,
+                                              int width, int height,
+                                              bool is_opaque);
 
   // Copy constructor. When copied, devices duplicate their internal data, so
   // stay linked. This is because their implementation is very heavyweight
