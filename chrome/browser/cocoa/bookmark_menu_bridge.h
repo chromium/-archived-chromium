@@ -72,6 +72,9 @@ class BookmarkMenuBridge : public BookmarkModelObserver,
   // Return the Bookmark menu.
   NSMenu* BookmarkMenu();
 
+  // Start watching the bookmarks for changes.
+  void ObserveBookmarkModel();
+
  private:
   friend class BookmarkMenuBridgeTest;
 

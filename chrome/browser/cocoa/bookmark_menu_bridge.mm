@@ -14,9 +14,20 @@
 #include "chrome/browser/profile_manager.h"
 
 BookmarkMenuBridge::BookmarkMenuBridge()
-    : controller_([[BookmarkMenuCocoaController alloc] initWithBridge:this]),
-      observing_(true) {
-  BrowserList::AddObserver(this);
+    : controller_([[BookmarkMenuCocoaController alloc] initWithBridge:this]) {
+  // Depending on when this is constructed, we may or may not have a
+  // browser yet.  If we do, start watching the bookmarks.  If we do
+  // not, delay watching until we see a SetLastActive().  At this time
+  // (6/12/09), the BookmarkMenuBridge object is constructed AFTER the
+  // first SetLastActive in -[AppController applicationDidFinishLaunching:].
+  Browser* browser = BrowserList::GetLastActive();
+  if (browser) {
+    observing_ = false;  // not observing browser activation
+    ObserveBookmarkModel();
+  } else {
+    observing_ = true;
+    BrowserList::AddObserver(this);
+  }
 }
 
 BookmarkMenuBridge::~BookmarkMenuBridge() {
@@ -104,6 +115,11 @@ void BookmarkMenuBridge::OnBrowserRemoving(const Browser* browser) {
 void BookmarkMenuBridge::OnBrowserSetLastActive(const Browser* browser) {
   BrowserList::RemoveObserver(this);
   observing_ = false;
+  ObserveBookmarkModel();
+}
+
+// Watch for changes.
+void BookmarkMenuBridge::ObserveBookmarkModel() {
   BookmarkModel* model = GetBookmarkModel();
   model->AddObserver(this);
   if (model->IsLoaded())
