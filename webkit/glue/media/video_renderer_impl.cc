@@ -71,14 +71,23 @@ void VideoRendererImpl::Paint(skia::PlatformCanvas* canvas,
 
 // CanFastPaint is a helper method to determine the conditions for fast
 // painting. The conditions are:
-//   1. No skew in canvas matrix.
-//   2. Canvas has pixel format ARGB8888.
-//   3. Canvas is opaque.
+// 1. No skew in canvas matrix.
+// 2. No flipping nor mirroring.
+// 3. Canvas has pixel format ARGB8888.
+// 4. Canvas is opaque.
+// TODO(hclam): The fast paint method should support flipping and mirroring.
+// Disable the flipping and mirroring checks once we have it.
 bool VideoRendererImpl::CanFastPaint(skia::PlatformCanvas* canvas,
                                      const gfx::Rect& dest_rect) {
   const SkMatrix& total_matrix = canvas->getTotalMatrix();
+  // Perform the following checks here:
+  // 1. Check for skewing factors of the transformation matrix. They should be
+  //    zero.
+  // 2. Check for mirroring and flipping. Make sure they are greater than zero.
   if (SkScalarNearlyZero(total_matrix.getSkewX()) &&
-      SkScalarNearlyZero(total_matrix.getSkewY())) {
+      SkScalarNearlyZero(total_matrix.getSkewY()) &&
+      total_matrix.getScaleX() > 0 &&
+      total_matrix.getScaleY() > 0) {
     // Get the properties of the SkDevice and the clip rect.
     SkDevice* device = canvas->getDevice();
 
