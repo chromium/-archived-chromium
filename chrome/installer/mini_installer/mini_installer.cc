@@ -233,7 +233,6 @@ BOOL CALLBACK OnResourceFound(HMODULE module, const wchar_t* type,
   return TRUE;
 }
 
-
 // Finds and writes to disk resources of various types. Returns false
 // if there is a problem in writing any resource to disk. setup.exe resource
 // can come in one of three possible forms:
@@ -285,7 +284,7 @@ bool UnpackBinaryResources(HMODULE module, const wchar_t* base_path,
     int exit_code = 0;
     if (!RunProcessAndWait(NULL, cmd_line, &exit_code) ||
         (exit_code != 0))
-      return FALSE;
+      return false;
 
     if (!SafeStrCopy(setup_path, setup_path_size, setup_dest_path))
       return false;
@@ -423,24 +422,15 @@ void DeleteExtractedFiles(const wchar_t* base_path,
   ::RemoveDirectory(base_path);
 }
 
-// Creates and returns a temporary directory that can be used to extract
-// mini_installer payload.
-bool GetWorkDir(HMODULE module, wchar_t* work_dir) {
-  wchar_t base_path[MAX_PATH];
-  DWORD len = ::GetTempPath(_countof(base_path), base_path);
-  if (len >= _countof(base_path) || len <= 0) {
-    // Problem in getting TEMP path so just use current directory as base path
-    len = ::GetModuleFileName(module, base_path, _countof(base_path));
-    if (len >= _countof(base_path) || len <= 0)
-      return false;  // Can't even get current directory? Return with error.
-    wchar_t* name = GetNameFromPathExt(base_path, len);
-    *name = L'\0';
-  }
-
+// Creates a temporary directory under |base_path| and returns the full path
+// of created directory in |work_dir|. If successful return true, otherwise
+// false.
+bool CreateWorkDir(const wchar_t* base_path, wchar_t* work_dir) {
   wchar_t temp_name[MAX_PATH];
   if (!GetTempFileName(base_path, kTempPrefix, 0, temp_name))
     return false;  // Didn't get any temp name to use. Return error.
-  len = GetLongPathName(temp_name, work_dir, _countof(temp_name));
+
+  DWORD len = GetLongPathName(temp_name, work_dir, _countof(temp_name));
   if (len >= _countof(temp_name) || len <= 0)
     return false;  // Couldn't get full path to temp dir. Return error.
 
@@ -449,6 +439,28 @@ bool GetWorkDir(HMODULE module, wchar_t* work_dir) {
   if (!::DeleteFile(work_dir) || !::CreateDirectory(work_dir, NULL))
     return false;  // What's the use of temp dir if we can not create it?
   ::lstrcat(work_dir, L"\\");
+
+  return true;
+}
+
+// Creates and returns a temporary directory that can be used to extract
+// mini_installer payload.
+bool GetWorkDir(HMODULE module, wchar_t* work_dir) {
+  wchar_t base_path[MAX_PATH];
+  DWORD len = ::GetTempPath(_countof(base_path), base_path);
+  if (len >= _countof(base_path) || len <= 0 ||
+      !CreateWorkDir(base_path, work_dir)) {
+    // Problem in creating work dir under TEMP path, so try using current
+    // directory as base path.
+    len = ::GetModuleFileName(module, base_path, _countof(base_path));
+    if (len >= _countof(base_path) || len <= 0)
+      return false;  // Can't even get current directory? Return with error.
+
+    wchar_t* name = GetNameFromPathExt(base_path, len);
+    *name = L'\0';
+
+    return CreateWorkDir(base_path, work_dir);
+  }
   return true;
 }
 
