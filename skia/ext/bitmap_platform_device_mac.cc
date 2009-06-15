@@ -209,10 +209,17 @@ BitmapPlatformDevice* BitmapPlatformDevice::Create(CGContextRef context,
 
   if (!context)
     context = CGContextForData(data, width, height);
+  else
+    CGContextRetain(context);
 
-  // The device object will take ownership of the graphics context.
-  return new BitmapPlatformDevice(
+  BitmapPlatformDevice* rv = new BitmapPlatformDevice(
       new BitmapPlatformDeviceData(context), bitmap);
+
+  // The device object took ownership of the graphics context with its own
+  // CGContextRetain call.
+  CGContextRelease(context);
+
+  return rv;
 }
 
 BitmapPlatformDevice* BitmapPlatformDevice::CreateWithData(uint8_t* data,
@@ -223,7 +230,14 @@ BitmapPlatformDevice* BitmapPlatformDevice::CreateWithData(uint8_t* data,
   if (data)
     context = CGContextForData(data, width, height);
 
-  return Create(context, width, height, is_opaque);
+  BitmapPlatformDevice* rv = Create(context, width, height, is_opaque);
+
+  // The device object took ownership of the graphics context with its own
+  // CGContextRetain call.
+  if (context)
+    CGContextRelease(context);
+
+  return rv;
 }
 
 // The device will own the bitmap, which corresponds to also owning the pixel
