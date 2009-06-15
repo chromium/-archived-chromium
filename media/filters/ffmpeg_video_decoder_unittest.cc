@@ -6,11 +6,11 @@
 
 #include "base/singleton.h"
 #include "media/base/filters.h"
+#include "media/base/mock_ffmpeg.h"
 #include "media/base/mock_filter_host.h"
 #include "media/filters/ffmpeg_common.h"
 #include "media/filters/ffmpeg_interfaces.h"
 #include "media/filters/ffmpeg_video_decoder.h"
-#include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using ::testing::Return;
@@ -29,64 +29,7 @@ class MockDemuxerStream : public DemuxerStream, public AVStreamProvider {
   MOCK_METHOD0(GetAVStream, AVStream*());
 };
 
-class MockFFmpeg {
- public:
-  MOCK_METHOD1(AVCodecFindDecoder, AVCodec*(enum CodecID id));
-  MOCK_METHOD2(AVCodecOpen, int(AVCodecContext* avctx, AVCodec* codec));
-  MOCK_METHOD2(AVCodecThreadInit, int(AVCodecContext* avctx, int threads));
-
-  // Setter/getter for the global instance of MockFFmpeg.
-  static void set(MockFFmpeg* instance) {
-    instance_ = instance;
-  }
-
-  static MockFFmpeg* get() {
-    return instance_;
-  }
-
- private:
-  static MockFFmpeg* instance_;
-};
-
-MockFFmpeg* MockFFmpeg::instance_ = NULL;
-
 }  // namespace media
-
-// FFmpeg mocks to remove dependency on having the DLLs present.
-extern "C" {
-
-AVCodec* avcodec_find_decoder(enum CodecID id) {
-  return media::MockFFmpeg::get()->AVCodecFindDecoder(id);
-}
-
-int avcodec_open(AVCodecContext* avctx, AVCodec* codec) {
-  return media::MockFFmpeg::get()->AVCodecOpen(avctx, codec);
-}
-
-int avcodec_thread_init(AVCodecContext* avctx, int threads) {
-  return media::MockFFmpeg::get()->AVCodecThreadInit(avctx, threads);
-}
-
-void avcodec_flush_buffers(AVCodecContext* avctx) {
-  NOTREACHED();
-}
-
-AVFrame* avcodec_alloc_frame() {
-  NOTREACHED();
-  return NULL;
-}
-
-int avcodec_decode_video2(AVCodecContext* avctx, AVFrame* picture,
-                          int* got_picture_ptr, AVPacket* avpkt) {
-  NOTREACHED();
-  return 0;
-}
-
-void av_init_packet(AVPacket* pkt) {
-  NOTREACHED();
-}
-
-}  // extern "C"
 
 namespace media {
 
