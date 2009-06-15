@@ -90,8 +90,7 @@ class HttpNetworkTransactionTest : public PlatformTest {
     request.url = GURL("http://www.google.com/");
     request.load_flags = 0;
 
-    MockSocket data;
-    data.reads = data_reads;
+    StaticMockSocket data(data_reads, NULL);
     session_deps.socket_factory.AddMockSocket(&data);
 
     TestCompletionCallback callback;
@@ -307,9 +306,7 @@ TEST_F(HttpNetworkTransactionTest, Head) {
     MockRead(false, ERR_UNEXPECTED),  // Should not be reached.
   };
 
-  MockSocket data1;
-  data1.reads = data_reads1;
-  data1.writes = data_writes1;
+  StaticMockSocket data1(data_reads1, data_writes1);
   session_deps.socket_factory.AddMockSocket(&data1);
 
   TestCompletionCallback callback1;
@@ -354,8 +351,7 @@ TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
     MockRead("world"),
     MockRead(false, OK),
   };
-  MockSocket data;
-  data.reads = data_reads;
+  StaticMockSocket data(data_reads, NULL);
   session_deps.socket_factory.AddMockSocket(&data);
 
   const char* kExpectedResponseData[] = {
@@ -412,8 +408,7 @@ TEST_F(HttpNetworkTransactionTest, Ignores100) {
     MockRead("hello world"),
     MockRead(false, OK),
   };
-  MockSocket data;
-  data.reads = data_reads;
+  StaticMockSocket data(data_reads, NULL);
   session_deps.socket_factory.AddMockSocket(&data);
 
   TestCompletionCallback callback;
@@ -457,8 +452,7 @@ TEST_F(HttpNetworkTransactionTest, Ignores1xx) {
     MockRead("hello world"),
     MockRead(false, OK),
   };
-  MockSocket data;
-  data.reads = data_reads;
+  StaticMockSocket data(data_reads, NULL);
   session_deps.socket_factory.AddMockSocket(&data);
 
   TestCompletionCallback callback;
@@ -498,8 +492,7 @@ void HttpNetworkTransactionTest::KeepAliveConnectionResendRequestTest(
     MockRead("hello"),
     read_failure,  // Now, we reuse the connection and fail the first read.
   };
-  MockSocket data1;
-  data1.reads = data1_reads;
+  StaticMockSocket data1(data1_reads, NULL);
   session_deps.socket_factory.AddMockSocket(&data1);
 
   MockRead data2_reads[] = {
@@ -507,8 +500,7 @@ void HttpNetworkTransactionTest::KeepAliveConnectionResendRequestTest(
     MockRead("world"),
     MockRead(true, OK),
   };
-  MockSocket data2;
-  data2.reads = data2_reads;
+  StaticMockSocket data2(data2_reads, NULL);
   session_deps.socket_factory.AddMockSocket(&data2);
 
   const char* kExpectedResponseData[] = {
@@ -568,8 +560,7 @@ TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionReset) {
     MockRead("hello world"),
     MockRead(false, OK),
   };
-  MockSocket data;
-  data.reads = data_reads;
+  StaticMockSocket data(data_reads, NULL);
   session_deps.socket_factory.AddMockSocket(&data);
 
   TestCompletionCallback callback;
@@ -654,12 +645,8 @@ TEST_F(HttpNetworkTransactionTest, BasicAuth) {
     MockRead(false, OK),
   };
 
-  MockSocket data1;
-  data1.reads = data_reads1;
-  data1.writes = data_writes1;
-  MockSocket data2;
-  data2.reads = data_reads2;
-  data2.writes = data_writes2;
+  StaticMockSocket data1(data_reads1, data_writes1);
+  StaticMockSocket data2(data_reads2, data_writes2);
   session_deps.socket_factory.AddMockSocket(&data1);
   session_deps.socket_factory.AddMockSocket(&data2);
 
@@ -736,9 +723,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAlive) {
     MockRead(false, OK),
   };
 
-  MockSocket data1;
-  data1.reads = data_reads1;
-  data1.writes = data_writes1;
+  StaticMockSocket data1(data_reads1, data_writes1);
   session_deps.socket_factory.AddMockSocket(&data1);
 
   TestCompletionCallback callback1;
@@ -817,9 +802,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveNoBody) {
     MockRead(false, OK),
   };
 
-  MockSocket data1;
-  data1.reads = data_reads1;
-  data1.writes = data_writes1;
+  StaticMockSocket data1(data_reads1, data_writes1);
   session_deps.socket_factory.AddMockSocket(&data1);
 
   TestCompletionCallback callback1;
@@ -901,9 +884,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveLargeBody) {
     MockRead(false, OK),
   };
 
-  MockSocket data1;
-  data1.reads = data_reads1;
-  data1.writes = data_writes1;
+  StaticMockSocket data1(data_reads1, data_writes1);
   session_deps.socket_factory.AddMockSocket(&data1);
 
   TestCompletionCallback callback1;
@@ -984,9 +965,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyKeepAlive) {
     MockRead(false, ERR_UNEXPECTED),  // Should not be reached.
   };
 
-  MockSocket data1;
-  data1.writes = data_writes1;
-  data1.reads = data_reads1;
+  StaticMockSocket data1(data_reads1, data_writes1);
   session_deps.socket_factory.AddMockSocket(&data1);
 
   TestCompletionCallback callback1;
@@ -1068,9 +1047,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyCancelTunnel) {
     MockRead(false, ERR_UNEXPECTED),  // Should not be reached.
   };
 
-  MockSocket data;
-  data.writes = data_writes;
-  data.reads = data_reads;
+  StaticMockSocket data(data_reads, data_writes);
   session_deps.socket_factory.AddMockSocket(&data);
 
   TestCompletionCallback callback;
@@ -1123,9 +1100,7 @@ void HttpNetworkTransactionTest::ConnectStatusHelperWithExpectedStatus(
     MockRead(false, ERR_UNEXPECTED),  // Should not be reached.
   };
 
-  MockSocket data;
-  data.writes = data_writes;
-  data.reads = data_reads;
+  StaticMockSocket data(data_reads, data_writes);
   session_deps.socket_factory.AddMockSocket(&data);
 
   TestCompletionCallback callback;
@@ -1381,15 +1356,9 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
     MockRead(false, OK),
   };
 
-  MockSocket data1;
-  data1.reads = data_reads1;
-  data1.writes = data_writes1;
-  MockSocket data2;
-  data2.reads = data_reads2;
-  data2.writes = data_writes2;
-  MockSocket data3;
-  data3.reads = data_reads3;
-  data3.writes = data_writes3;
+  StaticMockSocket data1(data_reads1, data_writes1);
+  StaticMockSocket data2(data_reads2, data_writes2);
+  StaticMockSocket data3(data_reads3, data_writes3);
   session_deps.socket_factory.AddMockSocket(&data1);
   session_deps.socket_factory.AddMockSocket(&data2);
   session_deps.socket_factory.AddMockSocket(&data3);
@@ -1524,12 +1493,8 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth1) {
     MockRead(false, OK),
   };
 
-  MockSocket data1;
-  data1.reads = data_reads1;
-  data1.writes = data_writes1;
-  MockSocket data2;
-  data2.reads = data_reads2;
-  data2.writes = data_writes2;
+  StaticMockSocket data1(data_reads1, data_writes1);
+  StaticMockSocket data2(data_reads2, data_writes2);
   session_deps.socket_factory.AddMockSocket(&data1);
   session_deps.socket_factory.AddMockSocket(&data2);
 
@@ -1700,15 +1665,9 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
     MockRead(false, OK),
   };
 
-  MockSocket data1;
-  data1.reads = data_reads1;
-  data1.writes = data_writes1;
-  MockSocket data2;
-  data2.reads = data_reads2;
-  data2.writes = data_writes2;
-  MockSocket data3;
-  data3.reads = data_reads3;
-  data3.writes = data_writes3;
+  StaticMockSocket data1(data_reads1, data_writes1);
+  StaticMockSocket data2(data_reads2, data_writes2);
+  StaticMockSocket data3(data_reads3, data_writes3);
   session_deps.socket_factory.AddMockSocket(&data1);
   session_deps.socket_factory.AddMockSocket(&data2);
   session_deps.socket_factory.AddMockSocket(&data3);
@@ -1805,8 +1764,7 @@ TEST_F(HttpNetworkTransactionTest, LargeHeadersNoBody) {
     MockRead("\r\nBODY"),
     MockRead(false, OK),
   };
-  MockSocket data;
-  data.reads = data_reads;
+  StaticMockSocket data(data_reads, NULL);
   session_deps.socket_factory.AddMockSocket(&data);
 
   TestCompletionCallback callback;
@@ -1854,9 +1812,7 @@ TEST_F(HttpNetworkTransactionTest, DontRecycleTCPSocketForSSLTunnel) {
     MockRead(false, ERR_UNEXPECTED),  // Should not be reached.
   };
 
-  MockSocket data1;
-  data1.writes = data_writes1;
-  data1.reads = data_reads1;
+  StaticMockSocket data1(data_reads1, data_writes1);
   session_deps.socket_factory.AddMockSocket(&data1);
 
   TestCompletionCallback callback1;
@@ -1906,8 +1862,7 @@ TEST_F(HttpNetworkTransactionTest, RecycleSocket) {
     MockRead(false, OK),
   };
 
-  MockSocket data;
-  data.reads = data_reads;
+  StaticMockSocket data(data_reads, NULL);
   session_deps.socket_factory.AddMockSocket(&data);
 
   TestCompletionCallback callback;
@@ -1965,8 +1920,7 @@ TEST_F(HttpNetworkTransactionTest, RecycleSocketAfterZeroContentLength) {
     MockRead(false, OK),
   };
 
-  MockSocket data;
-  data.reads = data_reads;
+  StaticMockSocket data(data_reads, NULL);
   session_deps.socket_factory.AddMockSocket(&data);
 
   TestCompletionCallback callback;
@@ -2035,9 +1989,7 @@ TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
     MockWrite(false, 93),  // POST
     MockWrite(false, ERR_CONNECTION_ABORTED),  // POST data
   };
-  MockSocket data1;
-  data1.reads = data_reads1;
-  data1.writes = data_writes1;
+  StaticMockSocket data1(data_reads1, data_writes1);
 
   // The second socket is used for the second attempt of transaction 2.
 
@@ -2052,9 +2004,7 @@ TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
     MockWrite(false, 93),  // POST
     MockWrite(false, 3),  // POST data
   };
-  MockSocket data2;
-  data2.reads = data_reads2;
-  data2.writes = data_writes2;
+  StaticMockSocket data2(data_reads2, data_writes2);
 
   session_deps.socket_factory.AddMockSocket(&data1);
   session_deps.socket_factory.AddMockSocket(&data2);
@@ -2132,12 +2082,8 @@ TEST_F(HttpNetworkTransactionTest, AuthIdentityInUrl) {
     MockRead(false, OK),
   };
 
-  MockSocket data1;
-  data1.reads = data_reads1;
-  data1.writes = data_writes1;
-  MockSocket data2;
-  data2.reads = data_reads2;
-  data2.writes = data_writes2;
+  StaticMockSocket data1(data_reads1, data_writes1);
+  StaticMockSocket data2(data_reads2, data_writes2);
   session_deps.socket_factory.AddMockSocket(&data1);
   session_deps.socket_factory.AddMockSocket(&data2);
 
@@ -2212,12 +2158,8 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
       MockRead(false, OK),
     };
 
-    MockSocket data1;
-    data1.reads = data_reads1;
-    data1.writes = data_writes1;
-    MockSocket data2;
-    data2.reads = data_reads2;
-    data2.writes = data_writes2;
+    StaticMockSocket data1(data_reads1, data_writes1);
+    StaticMockSocket data2(data_reads2, data_writes2);
     session_deps.socket_factory.AddMockSocket(&data1);
     session_deps.socket_factory.AddMockSocket(&data2);
 
@@ -2300,13 +2242,8 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
       MockRead(false, OK),
     };
 
-    MockSocket data1;
-    data1.reads = data_reads1;
-    data1.writes = data_writes1;
-    MockSocket data2;
-    data2.reads = data_reads2;
-    data2.writes = data_writes2;
-
+    StaticMockSocket data1(data_reads1, data_writes1);
+    StaticMockSocket data2(data_reads2, data_writes2);
     session_deps.socket_factory.AddMockSocket(&data1);
     session_deps.socket_factory.AddMockSocket(&data2);
 
@@ -2372,9 +2309,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
       MockRead(false, OK),
     };
 
-    MockSocket data1;
-    data1.reads = data_reads1;
-    data1.writes = data_writes1;
+    StaticMockSocket data1(data_reads1, data_writes1);
     session_deps.socket_factory.AddMockSocket(&data1);
 
     TestCompletionCallback callback1;
@@ -2433,12 +2368,8 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
       MockRead(false, OK),
     };
 
-    MockSocket data1;
-    data1.reads = data_reads1;
-    data1.writes = data_writes1;
-    MockSocket data2;
-    data2.reads = data_reads2;
-    data2.writes = data_writes2;
+    StaticMockSocket data1(data_reads1, data_writes1);
+    StaticMockSocket data2(data_reads2, data_writes2);
     session_deps.socket_factory.AddMockSocket(&data1);
     session_deps.socket_factory.AddMockSocket(&data2);
 
@@ -2522,15 +2453,9 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
       MockRead(false, OK),
     };
 
-    MockSocket data1;
-    data1.reads = data_reads1;
-    data1.writes = data_writes1;
-    MockSocket data2;
-    data2.reads = data_reads2;
-    data2.writes = data_writes2;
-    MockSocket data3;
-    data3.reads = data_reads3;
-    data3.writes = data_writes3;
+    StaticMockSocket data1(data_reads1, data_writes1);
+    StaticMockSocket data2(data_reads2, data_writes2);
+    StaticMockSocket data3(data_reads3, data_writes3);
     session_deps.socket_factory.AddMockSocket(&data1);
     session_deps.socket_factory.AddMockSocket(&data2);
     session_deps.socket_factory.AddMockSocket(&data3);
@@ -2662,8 +2587,8 @@ TEST_F(HttpNetworkTransactionTest, HTTPSBadCertificate) {
     MockRead(false, OK),
   };
 
-  MockSocket ssl_bad_certificate;
-  MockSocket data(data_reads, data_writes);
+  StaticMockSocket ssl_bad_certificate;
+  StaticMockSocket data(data_reads, data_writes);
   MockSSLSocket ssl_bad(true, ERR_CERT_AUTHORITY_INVALID);
   MockSSLSocket ssl(true, OK);
 
@@ -2730,8 +2655,8 @@ TEST_F(HttpNetworkTransactionTest, HTTPSBadCertificateViaProxy) {
     MockRead(false, OK),
   };
 
-  MockSocket ssl_bad_certificate(proxy_reads, proxy_writes);
-  MockSocket data(data_reads, data_writes);
+  StaticMockSocket ssl_bad_certificate(proxy_reads, proxy_writes);
+  StaticMockSocket data(data_reads, data_writes);
   MockSSLSocket ssl_bad(true, ERR_CERT_AUTHORITY_INVALID);
   MockSSLSocket ssl(true, OK);
 
@@ -2796,9 +2721,7 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_UserAgent) {
     MockRead(false, OK),
   };
 
-  MockSocket data;
-  data.reads = data_reads;
-  data.writes = data_writes;
+  StaticMockSocket data(data_reads, data_writes);
   session_deps.socket_factory.AddMockSocket(&data);
 
   TestCompletionCallback callback;
@@ -2838,9 +2761,7 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_Referer) {
     MockRead(false, OK),
   };
 
-  MockSocket data;
-  data.reads = data_reads;
-  data.writes = data_writes;
+  StaticMockSocket data(data_reads, data_writes);
   session_deps.socket_factory.AddMockSocket(&data);
 
   TestCompletionCallback callback;
@@ -2878,9 +2799,7 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_PostContentLengthZero) {
     MockRead(false, OK),
   };
 
-  MockSocket data;
-  data.reads = data_reads;
-  data.writes = data_writes;
+  StaticMockSocket data(data_reads, data_writes);
   session_deps.socket_factory.AddMockSocket(&data);
 
   TestCompletionCallback callback;
@@ -2918,9 +2837,7 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_PutContentLengthZero) {
     MockRead(false, OK),
   };
 
-  MockSocket data;
-  data.reads = data_reads;
-  data.writes = data_writes;
+  StaticMockSocket data(data_reads, data_writes);
   session_deps.socket_factory.AddMockSocket(&data);
 
   TestCompletionCallback callback;
@@ -2958,9 +2875,7 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_HeadContentLengthZero) {
     MockRead(false, OK),
   };
 
-  MockSocket data;
-  data.reads = data_reads;
-  data.writes = data_writes;
+  StaticMockSocket data(data_reads, data_writes);
   session_deps.socket_factory.AddMockSocket(&data);
 
   TestCompletionCallback callback;
@@ -3000,9 +2915,7 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_CacheControlNoCache) {
     MockRead(false, OK),
   };
 
-  MockSocket data;
-  data.reads = data_reads;
-  data.writes = data_writes;
+  StaticMockSocket data(data_reads, data_writes);
   session_deps.socket_factory.AddMockSocket(&data);
 
   TestCompletionCallback callback;
@@ -3042,9 +2955,7 @@ TEST_F(HttpNetworkTransactionTest,
     MockRead(false, OK),
   };
 
-  MockSocket data;
-  data.reads = data_reads;
-  data.writes = data_writes;
+  StaticMockSocket data(data_reads, data_writes);
   session_deps.socket_factory.AddMockSocket(&data);
 
   TestCompletionCallback callback;
@@ -3083,9 +2994,7 @@ TEST_F(HttpNetworkTransactionTest, BuildRequest_ExtraHeaders) {
     MockRead(false, OK),
   };
 
-  MockSocket data;
-  data.reads = data_reads;
-  data.writes = data_writes;
+  StaticMockSocket data(data_reads, data_writes);
   session_deps.socket_factory.AddMockSocket(&data);
 
   TestCompletionCallback callback;

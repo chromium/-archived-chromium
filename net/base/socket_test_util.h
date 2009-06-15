@@ -58,13 +58,82 @@ struct MockRead {
 // {async, result}.
 typedef MockRead MockWrite;
 
-struct MockSocket {
-  MockSocket() : reads(NULL), writes(NULL) { }
-  MockSocket(MockRead* r, MockWrite* w) : reads(r), writes(w) { }
+struct MockWriteResult {
+  MockWriteResult(bool async, int result) : async(async), result(result) {}
 
-  MockConnect connect;
-  MockRead* reads;
-  MockWrite* writes;
+  bool async;
+  int result;
+};
+
+class MockSocket {
+ public:
+  MockSocket() : unexpected_read_(true, ERR_UNEXPECTED) {
+  }
+
+  virtual ~MockSocket() {}
+  virtual MockRead* GetNextRead() = 0;
+  virtual MockWriteResult OnWrite(const std::string& data) = 0;
+  virtual void Reset() = 0;
+
+  MockConnect connect_data() const { return connect_; }
+
+ protected:
+  MockRead* unexpected_read() { return &unexpected_read_; }
+
+ private:
+  MockRead unexpected_read_;
+  MockConnect connect_;
+
+  DISALLOW_COPY_AND_ASSIGN(MockSocket);
+};
+
+// MockSocket which responds based on static tables of mock reads and writes.
+class StaticMockSocket : public MockSocket {
+ public:
+  StaticMockSocket() : reads_(NULL), read_index_(0),
+      writes_(NULL), write_index_(0) {}
+  StaticMockSocket(MockRead* r, MockWrite* w) : reads_(r), read_index_(0),
+      writes_(w), write_index_(0) {}
+
+  // MockSocket methods:
+  virtual MockRead* GetNextRead();
+  virtual MockWriteResult OnWrite(const std::string& data);
+  virtual void Reset();
+
+ private:
+  MockRead* reads_;
+  int read_index_;
+  MockWrite* writes_;
+  int write_index_;
+
+  DISALLOW_COPY_AND_ASSIGN(StaticMockSocket);
+};
+
+// MockSocket which can make decisions about next mock reads based on
+// received writes. It can also be used to enforce order of operations,
+// for example that tested code must send the "Hello!" message before
+// receiving response. This is useful for testing conversation-like
+// protocols like FTP.
+class DynamicMockSocket : public MockSocket {
+ public:
+  DynamicMockSocket();
+
+  // MockSocket methods:
+  virtual MockRead* GetNextRead();
+  virtual MockWriteResult OnWrite(const std::string& data) = 0;
+  virtual void Reset();
+
+ protected:
+  // The next time there is a read from this socket, it will return |data|.
+  // Before calling SimulateRead next time, the previous data must be consumed.
+  void SimulateRead(const char* data);
+
+ private:
+  MockRead read_;
+  bool has_read_;
+  bool consumed_read_;
+
+  DISALLOW_COPY_AND_ASSIGN(DynamicMockSocket);
 };
 
 // MockSSLSockets only need to keep track of the return code from calls to

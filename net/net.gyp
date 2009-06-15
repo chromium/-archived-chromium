@@ -438,6 +438,7 @@
         'disk_cache/mapped_file_unittest.cc',
         'disk_cache/storage_block_unittest.cc',
         'ftp/ftp_auth_cache_unittest.cc',
+        'ftp/ftp_network_transaction_unittest.cc',
         'http/des_unittest.cc',
         'http/http_auth_cache_unittest.cc',
         'http/http_auth_handler_basic_unittest.cc',
