@@ -512,6 +512,49 @@ TEST_F(TCPClientSocketPoolTest, CancelRequest) {
       "earlier into the queue.";
 }
 
+class RequestSocketCallback : public CallbackRunner< Tuple1<int> > {
+ public:
+  RequestSocketCallback(ClientSocketHandle* handle)
+      : handle_(handle),
+        within_callback_(false) {}
+
+  virtual void RunWithParams(const Tuple1<int>& params) {
+    callback_.RunWithParams(params);
+    ASSERT_EQ(OK, params.a);
+
+    if (!within_callback_) {
+      handle_->Reset();
+      within_callback_ = true;
+      int rv = handle_->Init(
+          "a", HostResolver::RequestInfo("www.google.com", 80), 0, this);
+      EXPECT_EQ(OK, rv);
+    }
+  }
+
+  int WaitForResult() {
+    return callback_.WaitForResult();
+  }
+
+ private:
+  ClientSocketHandle* const handle_;
+  bool within_callback_;
+  TestCompletionCallback callback_;
+};
+
+TEST_F(TCPClientSocketPoolTest, RequestTwice) {
+  ClientSocketHandle handle(pool_.get());
+  RequestSocketCallback callback(&handle);
+  int rv = handle.Init(
+      "a", HostResolver::RequestInfo("www.google.com", 80), 0, &callback);
+  ASSERT_EQ(ERR_IO_PENDING, rv);
+
+  EXPECT_EQ(OK, callback.WaitForResult());
+
+  handle.Reset();
+  // The handle's Reset method may have posted a task.
+  MessageLoop::current()->RunAllPending();
+}
+
 }  // namespace
 
 }  // namespace net

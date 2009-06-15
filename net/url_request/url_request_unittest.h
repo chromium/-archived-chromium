@@ -43,10 +43,7 @@ using base::TimeDelta;
 class TestURLRequestContext : public URLRequestContext {
  public:
   TestURLRequestContext() {
-    // TODO(eroman): we turn off host caching to see if synchronous
-    // host resolving interacts poorly with client socket pool. [experiment]
-    // http://crbug.com/13952
-    host_resolver_ = new net::HostResolver(0, 0);
+    host_resolver_ = new net::HostResolver;
     proxy_service_ = net::ProxyService::CreateNull();
     http_transaction_factory_ =
         net::HttpNetworkLayer::CreateFactory(host_resolver_,

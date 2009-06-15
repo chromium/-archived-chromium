@@ -45,20 +45,15 @@ TCPClientSocketPool::ConnectingSocket::ConnectingSocket(
           callback_(this,
                     &TCPClientSocketPool::ConnectingSocket::OnIOComplete)),
       pool_(pool),
-      resolver_(pool->GetHostResolver()),
-      canceled_(false) {
-  CHECK(!ContainsKey(pool_->connecting_socket_map_, handle));
-  pool_->connecting_socket_map_[handle] = this;
-}
+      resolver_(pool->GetHostResolver()) {}
 
 TCPClientSocketPool::ConnectingSocket::~ConnectingSocket() {
-  if (!canceled_)
-    pool_->connecting_socket_map_.erase(handle_);
+  // We don't worry about cancelling the host resolution and TCP connect, since
+  // ~SingleRequestHostResolver and ~ClientSocket will take care of it.
 }
 
 int TCPClientSocketPool::ConnectingSocket::Connect(
     const HostResolver::RequestInfo& resolve_info) {
-  CHECK(!canceled_);
   int rv = resolver_.Resolve(resolve_info, &addresses_, &callback_);
   if (rv != ERR_IO_PENDING)
     rv = OnIOCompleteInternal(rv, true /* synchronous */);
@@ -73,30 +68,14 @@ int TCPClientSocketPool::ConnectingSocket::OnIOCompleteInternal(
     int result, bool synchronous) {
   CHECK(result != ERR_IO_PENDING);
 
-  if (canceled_) {
-    // We got canceled, so bail out.
-    delete this;
-    return result;
-  }
-
   GroupMap::iterator group_it = pool_->group_map_.find(group_name_);
-  if (group_it == pool_->group_map_.end()) {
-    // The request corresponding to this ConnectingSocket has been canceled.
-    // Stop bothering with it.
-    delete this;
-    return result;
-  }
+  CHECK(group_it != pool_->group_map_.end());
 
   Group& group = group_it->second;
 
   RequestMap* request_map = &group.connecting_requests;
   RequestMap::iterator it = request_map->find(handle_);
-  if (it == request_map->end()) {
-    // The request corresponding to this ConnectingSocket has been canceled.
-    // Stop bothering with it.
-    delete this;
-    return result;
-  }
+  CHECK(it != request_map->end());
 
   if (result == OK && it->second.load_state == LOAD_STATE_RESOLVING_HOST) {
     it->second.load_state = LOAD_STATE_CONNECTING;
@@ -108,6 +87,7 @@ int TCPClientSocketPool::ConnectingSocket::OnIOCompleteInternal(
   }
 
   if (result == OK) {
+    CHECK(it->second.load_state == LOAD_STATE_CONNECTING);
     CHECK(connect_start_time_ != base::Time());
     base::TimeDelta connect_duration =
         base::Time::Now() - connect_start_time_;
@@ -139,17 +119,11 @@ int TCPClientSocketPool::ConnectingSocket::OnIOCompleteInternal(
     }
   }
 
+  pool_->RemoveConnectingSocket(handle_);  // will delete |this|.
+
   if (!synchronous)
     request.callback->Run(result);
-  delete this;
   return result;
-}
-
-void TCPClientSocketPool::ConnectingSocket::Cancel() {
-  CHECK(!canceled_);
-  CHECK(ContainsKey(pool_->connecting_socket_map_, handle_));
-  pool_->connecting_socket_map_.erase(handle_);
-  canceled_ = true;
 }
 
 TCPClientSocketPool::TCPClientSocketPool(
@@ -168,6 +142,7 @@ TCPClientSocketPool::~TCPClientSocketPool() {
   // to the manager being destroyed.
   CloseIdleSockets();
   DCHECK(group_map_.empty());
+  DCHECK(connecting_socket_map_.empty());
 }
 
 // InsertRequestIntoQueue inserts the request into the queue based on
@@ -219,20 +194,16 @@ int TCPClientSocketPool::RequestSocket(
 
   // We couldn't find a socket to reuse, so allocate and connect a new one.
 
-  // First, we need to make sure we aren't already servicing a request for this
-  // handle (which could happen if we requested, canceled, and then requested
-  // with the same handle).
-  if (ContainsKey(connecting_socket_map_, handle))
-    connecting_socket_map_[handle]->Cancel();
-
   CHECK(callback);
   Request r(handle, callback, priority, resolve_info,
             LOAD_STATE_RESOLVING_HOST);
   group_map_[group_name].connecting_requests[handle] = r;
 
-  // connecting_socket will delete itself.
+  CHECK(!ContainsKey(connecting_socket_map_, handle));
+
   ConnectingSocket* connecting_socket =
       new ConnectingSocket(group_name, handle, client_socket_factory_, this);
+  connecting_socket_map_[handle] = connecting_socket;
   int rv = connecting_socket->Connect(resolve_info);
   return rv;
 }
@@ -257,6 +228,8 @@ void TCPClientSocketPool::CancelRequest(const std::string& group_name,
 
   RequestMap::iterator map_it = group.connecting_requests.find(handle);
   if (map_it != group.connecting_requests.end()) {
+    RemoveConnectingSocket(handle);
+
     group.connecting_requests.erase(map_it);
     group.active_socket_count--;
 
@@ -417,6 +390,14 @@ void TCPClientSocketPool::DoReleaseSocket(const std::string& group_name,
     CHECK(group.connecting_requests.empty());
     group_map_.erase(i);
   }
+}
+
+void TCPClientSocketPool::RemoveConnectingSocket(
+    const ClientSocketHandle* handle) {
+  ConnectingSocketMap::iterator it = connecting_socket_map_.find(handle);
+  CHECK(it != connecting_socket_map_.end());
+  delete it->second;
+  connecting_socket_map_.erase(it);
 }
 
 }  // namespace net
