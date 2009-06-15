@@ -138,6 +138,10 @@ class SiteInstance : public base::RefCounted<SiteInstance>,
   // GetRelatedSiteInstance instead.
   SiteInstance(BrowsingInstance* browsing_instance);
 
+  // Returns the type of renderer process this instance belongs in, for grouping
+  // purposes.
+  RenderProcessHost::Type GetRendererType();
+
  private:
   // NotificationObserver implementation.
   void Observe(NotificationType type,

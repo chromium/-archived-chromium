@@ -28,6 +28,16 @@ class RenderProcessHost : public IPC::Channel::Sender,
  public:
   typedef IDMap<RenderProcessHost>::const_iterator iterator;
 
+  // We classify renderers according to their highest privilege, and try
+  // to group pages into renderers with similar privileges.
+  // Note: it may be possible for a renderer to have multiple privileges,
+  // in which case we call it an "extension" renderer.
+  enum Type {
+    TYPE_NORMAL,     // Normal renderer, no extra privileges.
+    TYPE_DOMUI,      // Renderer with DOMUI privileges, like New Tab.
+    TYPE_EXTENSION,  // Renderer with extension privileges.
+  };
+
   RenderProcessHost(Profile* profile);
   virtual ~RenderProcessHost();
 
@@ -174,14 +184,18 @@ class RenderProcessHost : public IPC::Channel::Sender,
   static bool ShouldTryToUseExistingProcessHost();
 
   // Get an existing RenderProcessHost associated with the given profile, if
-  // possible.  The renderer process is chosen randomly from the
-  // processes associated with the given profile.
-  // Returns NULL if no suitable renderer process is available.
-  static RenderProcessHost* GetExistingProcessHost(Profile* profile);
+  // possible.  The renderer process is chosen randomly from suitable renderers
+  // that share the same profile and type.
+  // Returns NULL if no suitable renderer process is available, in which case
+  // the caller is free to create a new renderer.
+  static RenderProcessHost* GetExistingProcessHost(Profile* profile, Type type);
 
  protected:
-  // Sets the process  of this object, so that others access it using FromID.
+  // Sets the process of this object, so that others access it using FromID.
   void SetProcessID(int pid);
+
+  // For testing.  Removes this host from the list of hosts.
+  void RemoveFromList();
 
   base::Process process_;
 

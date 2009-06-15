@@ -12,6 +12,7 @@ MockRenderProcessHost::MockRenderProcessHost(Profile* profile)
 }
 
 MockRenderProcessHost::~MockRenderProcessHost() {
+  RemoveFromList();
   delete transport_dib_;
 }
 

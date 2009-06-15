@@ -4,6 +4,7 @@
 
 #include "chrome/browser/tab_contents/site_instance.h"
 
+#include "chrome/browser/dom_ui/dom_ui_factory.h"
 #include "chrome/browser/renderer_host/browser_render_process_host.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/common/notification_service.h"
@@ -35,7 +36,7 @@ RenderProcessHost* SiteInstance::GetProcess() {
     // See if we should reuse an old process
     if (RenderProcessHost::ShouldTryToUseExistingProcessHost())
       process_ = RenderProcessHost::GetExistingProcessHost(
-          browsing_instance_->profile());
+          browsing_instance_->profile(), GetRendererType());
 
     // Otherwise (or if that fails), create a new one.
     if (!process_) {
@@ -164,6 +165,21 @@ bool SiteInstance::IsSameWebSite(const GURL& url1, const GURL& url2) {
   }
 
   return net::RegistryControlledDomainService::SameDomainOrHost(url1, url2);
+}
+
+RenderProcessHost::Type SiteInstance::GetRendererType() {
+  // We may not have a site at this point, which generally means this is a
+  // normal navigation.
+  if (!has_site_ || !site_.is_valid())
+    return RenderProcessHost::TYPE_NORMAL;
+
+  if (site_.SchemeIs(chrome::kExtensionScheme))
+    return RenderProcessHost::TYPE_EXTENSION;
+
+  if (DOMUIFactory::HasDOMUIScheme(site_))
+    return RenderProcessHost::TYPE_DOMUI;
+
+  return RenderProcessHost::TYPE_NORMAL;
 }
 
 void SiteInstance::Observe(NotificationType type,

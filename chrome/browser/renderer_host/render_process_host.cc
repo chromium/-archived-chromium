@@ -6,12 +6,13 @@
 
 #include "base/rand_util.h"
 #include "base/sys_info.h"
+#include "chrome/browser/child_process_security_policy.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/notification_service.h"
 
 namespace {
 
-unsigned int GetMaxRendererProcessCount() {
+size_t GetMaxRendererProcessCount() {
   // Defines the maximum number of renderer processes according to the
   // amount of installed memory as reported by the OS. The table
   // values are calculated by assuming that you want the renderers to
@@ -21,7 +22,7 @@ unsigned int GetMaxRendererProcessCount() {
   // If you modify this table you need to adjust browser\browser_uitest.cc
   // to match the expected number of processes.
 
-  static const int kMaxRenderersByRamTier[] = {
+  static const size_t kMaxRenderersByRamTier[] = {
     3,                        // less than 256MB
     6,                        //  256MB
     9,                        //  512MB
@@ -39,7 +40,7 @@ unsigned int GetMaxRendererProcessCount() {
     40                        // 3584MB
   };
 
-  static unsigned int max_count = 0;
+  static size_t max_count = 0;
   if (!max_count) {
     size_t memory_tier = base::SysInfo::AmountOfPhysicalMemoryMB() / 256;
     if (memory_tier >= arraysize(kMaxRenderersByRamTier))
@@ -52,8 +53,24 @@ unsigned int GetMaxRendererProcessCount() {
 
 // Returns true if the given host is suitable for launching a new view
 // associated with the given profile.
-static bool IsSuitableHost(Profile* profile, RenderProcessHost* host) {
-  return host->profile() == profile;
+static bool IsSuitableHost(RenderProcessHost* host, Profile* profile,
+                           RenderProcessHost::Type type) {
+  // If the host doesn't have a PID yet, we don't know what it will be used
+  // for, so just say it's unsuitable to be safe.
+  if (host->pid() == -1)
+    return false;
+
+  if (host->profile() != profile)
+    return false;
+
+  RenderProcessHost::Type host_type = RenderProcessHost::TYPE_NORMAL;
+  if (ChildProcessSecurityPolicy::GetInstance()->HasDOMUIBindings(host->pid()))
+    host_type = RenderProcessHost::TYPE_DOMUI;
+  if (ChildProcessSecurityPolicy::GetInstance()->
+        HasExtensionBindings(host->pid()))
+    host_type = RenderProcessHost::TYPE_EXTENSION;
+
+  return host_type == type;
 }
 
 // the global list of all renderer processes
@@ -127,8 +144,7 @@ RenderProcessHost* RenderProcessHost::FromID(int render_process_id) {
 
 // static
 bool RenderProcessHost::ShouldTryToUseExistingProcessHost() {
-  unsigned int renderer_process_count =
-      static_cast<unsigned int>(all_hosts.size());
+  size_t renderer_process_count = all_hosts.size();
 
   // NOTE: Sometimes it's necessary to create more render processes than
   //       GetMaxRendererProcessCount(), for instance when we want to create
@@ -141,13 +157,15 @@ bool RenderProcessHost::ShouldTryToUseExistingProcessHost() {
 }
 
 // static
-RenderProcessHost* RenderProcessHost::GetExistingProcessHost(Profile* profile) {
+RenderProcessHost* RenderProcessHost::GetExistingProcessHost(Profile* profile,
+                                                             Type type) {
   // First figure out which existing renderers we can use.
   std::vector<RenderProcessHost*> suitable_renderers;
   suitable_renderers.reserve(size());
 
   for (iterator iter = begin(); iter != end(); ++iter) {
-    if (IsSuitableHost(profile, iter->second))
+    if (run_renderer_in_process() ||
+        IsSuitableHost(iter->second, profile, type))
       suitable_renderers.push_back(iter->second);
   }
 
@@ -169,4 +187,9 @@ void RenderProcessHost::SetProcessID(int pid) {
 
   pid_ = pid;
   all_hosts.AddWithID(this, pid);
+}
+
+void RenderProcessHost::RemoveFromList() {
+  if (all_hosts.Lookup(pid_))
+    all_hosts.Remove(pid_);
 }

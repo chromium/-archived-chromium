@@ -3,11 +3,13 @@
 // found in the LICENSE file.
 
 #include "base/string16.h"
+#include "chrome/browser/child_process_security_policy.h"
 #include "chrome/browser/renderer_host/browser_render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/test_render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/common/chrome_constants.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -170,12 +172,12 @@ TEST_F(SiteInstanceTest, CloneNavigationEntry) {
 // Test to ensure UpdateMaxPageID is working properly.
 TEST_F(SiteInstanceTest, UpdateMaxPageID) {
   scoped_refptr<SiteInstance> instance(SiteInstance::CreateSiteInstance(NULL));
-  EXPECT_EQ(-1, instance.get()->max_page_id());
+  EXPECT_EQ(-1, instance->max_page_id());
 
   // Make sure max_page_id_ is monotonically increasing.
-  instance.get()->UpdateMaxPageID(3);
-  instance.get()->UpdateMaxPageID(1);
-  EXPECT_EQ(3, instance.get()->max_page_id());
+  instance->UpdateMaxPageID(3);
+  instance->UpdateMaxPageID(1);
+  EXPECT_EQ(3, instance->max_page_id());
 }
 
 // Test to ensure GetProcess returns and creates processes correctly.
@@ -185,13 +187,13 @@ TEST_F(SiteInstanceTest, GetProcess) {
   scoped_ptr<RenderProcessHost> host1;
   scoped_refptr<SiteInstance> instance(
       SiteInstance::CreateSiteInstance(profile.get()));
-  host1.reset(instance.get()->GetProcess());
+  host1.reset(instance->GetProcess());
   EXPECT_TRUE(host1.get() != NULL);
 
   // Ensure that GetProcess creates a new process.
   scoped_refptr<SiteInstance> instance2(
       SiteInstance::CreateSiteInstance(profile.get()));
-  scoped_ptr<RenderProcessHost> host2(instance2.get()->GetProcess());
+  scoped_ptr<RenderProcessHost> host2(instance2->GetProcess());
   EXPECT_TRUE(host2.get() != NULL);
   EXPECT_NE(host1.get(), host2.get());
 }
@@ -200,10 +202,10 @@ TEST_F(SiteInstanceTest, GetProcess) {
 TEST_F(SiteInstanceTest, SetSite) {
   scoped_refptr<SiteInstance> instance(SiteInstance::CreateSiteInstance(NULL));
   EXPECT_FALSE(instance->has_site());
-  EXPECT_TRUE(instance.get()->site().is_empty());
+  EXPECT_TRUE(instance->site().is_empty());
 
-  instance.get()->SetSite(GURL("http://www.google.com/index.html"));
-  EXPECT_EQ(GURL("http://google.com"), instance.get()->site());
+  instance->SetSite(GURL("http://www.google.com/index.html"));
+  EXPECT_EQ(GURL("http://google.com"), instance->site());
 
   EXPECT_TRUE(instance->has_site());
 }
@@ -291,14 +293,14 @@ TEST_F(SiteInstanceTest, OneSiteInstancePerSite) {
   // Getting the new SiteInstance from the BrowsingInstance and from another
   // SiteInstance in the BrowsingInstance should give the same result.
   EXPECT_EQ(site_instance_b1.get(),
-            site_instance_a1.get()->GetRelatedSiteInstance(url_b1));
+            site_instance_a1->GetRelatedSiteInstance(url_b1));
 
   // A second visit to the original site should return the same SiteInstance.
   const GURL url_a2("http://www.google.com/2.html");
   EXPECT_EQ(site_instance_a1.get(),
             browsing_instance->GetSiteInstanceForURL(url_a2));
   EXPECT_EQ(site_instance_a1.get(),
-            site_instance_a1.get()->GetRelatedSiteInstance(url_a2));
+            site_instance_a1->GetRelatedSiteInstance(url_a2));
 
   // A visit to the original site in a new BrowsingInstance (same or different
   // profile) should return a different SiteInstance.
@@ -349,14 +351,14 @@ TEST_F(SiteInstanceTest, OneSiteInstancePerSiteInProfile) {
   // Getting the new SiteInstance from the BrowsingInstance and from another
   // SiteInstance in the BrowsingInstance should give the same result.
   EXPECT_EQ(site_instance_b1.get(),
-            site_instance_a1.get()->GetRelatedSiteInstance(url_b1));
+            site_instance_a1->GetRelatedSiteInstance(url_b1));
 
   // A second visit to the original site should return the same SiteInstance.
   const GURL url_a2("http://www.google.com/2.html");
   EXPECT_EQ(site_instance_a1.get(),
             browsing_instance->GetSiteInstanceForURL(url_a2));
   EXPECT_EQ(site_instance_a1.get(),
-            site_instance_a1.get()->GetRelatedSiteInstance(url_a2));
+            site_instance_a1->GetRelatedSiteInstance(url_a2));
 
   // A visit to the original site in a new BrowsingInstance (same profile)
   // should also return the same SiteInstance.
@@ -397,4 +399,60 @@ TEST_F(SiteInstanceTest, OneSiteInstancePerSiteInProfile) {
       GURL("http://www.yahoo.com")));  // different BI, different profile
 
   // browsing_instances will be deleted when their SiteInstances are deleted
+}
+
+static SiteInstance* CreateSiteInstance(RenderProcessHostFactory* factory,
+                                        const GURL& url) {
+  SiteInstance* instance = SiteInstance::CreateSiteInstanceForURL(NULL, url);
+  instance->set_render_process_host_factory(factory);
+  return instance;
+}
+
+// Test to ensure that pages that require certain privileges are grouped
+// in processes with similar pages.
+TEST_F(SiteInstanceTest, ProcessSharingByType) {
+  MockRenderProcessHostFactory rph_factory;
+  ChildProcessSecurityPolicy* policy =
+      ChildProcessSecurityPolicy::GetInstance();
+
+  // Make a bunch of mock renderers so that we hit the limit.
+  std::vector<MockRenderProcessHost*> hosts;
+  for (size_t i = 0; i < chrome::kMaxRendererProcessCount; ++i)
+    hosts.push_back(new MockRenderProcessHost(NULL));
+
+  // Create some extension instances and make sure they share a process.
+  scoped_refptr<SiteInstance> extension1_instance(
+      CreateSiteInstance(&rph_factory, GURL("chrome-extension://foo/bar")));
+  policy->Add(extension1_instance->GetProcess()->pid());
+  policy->GrantExtensionBindings(extension1_instance->GetProcess()->pid());
+
+  scoped_refptr<SiteInstance> extension2_instance(
+      CreateSiteInstance(&rph_factory, GURL("chrome-extension://baz/bar")));
+
+  scoped_ptr<RenderProcessHost> extension_host(
+      extension1_instance->GetProcess());
+  EXPECT_EQ(extension1_instance->GetProcess(),
+            extension2_instance->GetProcess());
+
+  // Create some DOMUI instances and make sure they share a process.
+  scoped_refptr<SiteInstance> dom1_instance(
+      CreateSiteInstance(&rph_factory, GURL("chrome://newtab")));
+  policy->Add(dom1_instance->GetProcess()->pid());
+  policy->GrantDOMUIBindings(dom1_instance->GetProcess()->pid());
+
+  scoped_refptr<SiteInstance> dom2_instance(
+      CreateSiteInstance(&rph_factory, GURL("chrome://history")));
+
+  scoped_ptr<RenderProcessHost> dom_host(dom1_instance->GetProcess());
+  EXPECT_EQ(dom1_instance->GetProcess(), dom2_instance->GetProcess());
+
+  // Make sure none of differing privilege processes are mixed.
+  EXPECT_NE(extension1_instance->GetProcess(), dom1_instance->GetProcess());
+
+  for (size_t i = 0; i < chrome::kMaxRendererProcessCount; ++i) {
+    EXPECT_NE(extension1_instance->GetProcess(), hosts[i]);
+    EXPECT_NE(dom1_instance->GetProcess(), hosts[i]);
+  }
+
+  STLDeleteContainerPointers(hosts.begin(), hosts.end());
 }
