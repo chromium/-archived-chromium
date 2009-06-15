@@ -605,6 +605,7 @@ BUG1124568 : LayoutTests/fast/dom/Window/window-function-name-getter-precedence.
 BUG4363 LINUX MAC SKIP : LayoutTests/media = TIMEOUT
 BUG4363 LINUX MAC SKIP : LayoutTests/fast/media = PASS FAIL
 BUG4363 LINUX MAC SKIP : LayoutTests/http/tests/media = FAIL
+BUG4363 LINUX MAC SKIP : LayoutTests/http/tests/security/local-video-poster-from-remote.html = FAIL TIMEOUT
 BUG4363 SLOW : LayoutTests/http/tests/security/local-video-source-from-remote.html = FAIL
 BUG4363 SLOW : LayoutTests/http/tests/security/local-video-src-from-remote.html = FAIL
 BUG4363 : LayoutTests/fast/dom/Window/custom-constructors.html = FAIL
@@ -618,16 +619,15 @@ BUG13907 WIN : LayoutTests/http/tests/media/video-seekable-stall.html = FAIL
 BUG13907 WIN : LayoutTests/media/audio-constructor-src.html = FAIL
 BUG13907 WIN : LayoutTests/media/audio-constructor.html = FAIL
 BUG13907 WIN : LayoutTests/media/audio-controls-rendering.html = FAIL
-BUG13907 WIN : LayoutTests/media/audio-mpeg-supported.html = FAIL
+// We don't support MP2 audio so skip this test.
+BUG13907 SKIP : LayoutTests/media/audio-mpeg-supported.html = FAIL
 BUG13907 WIN : LayoutTests/media/constructors.html = FAIL
 // This test crashes in release build.
 BUG13907 WIN : LayoutTests/media/video-currentTime.html = PASS CRASH
-// This test crashes in both release and debug build.
-BUG13907 WIN DEBUG : LayoutTests/media/controls-css-overload.html = CRASH
 // This test is flaky.
 BUG13907 WIN DEBUG : LayoutTests/media/progress-event-total.html = PASS FAIL
-// This test also times out.
-BUG13907 WIN : LayoutTests/media/remove-from-document.html = FAIL TIMEOUT
+// This test also times out, it is really flaky.
+BUG13907 WIN : LayoutTests/media/remove-from-document.html = PASS FAIL TIMEOUT
 // This test crashes in debug build.
 BUG13907 WIN : LayoutTests/media/unsupported-rtsp.html = FAIL CRASH
 BUG13907 WIN : LayoutTests/media/video-aspect-ratio.html = FAIL
@@ -688,10 +688,12 @@ BUG13907 WIN : LayoutTests/media/video-src-change.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-src-invalid-remove.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-src-plus-source.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-src-remove.html = FAIL
-BUG13907 WIN DEBUG : LayoutTests/media/video-src.html = FAIL
+// This test is flaky.
+BUG13907 WIN DEBUG : LayoutTests/media/video-src.html = PASS FAIL
 // This test is flaky and may not only happen in debug build.
 BUG13907 WIN DEBUG : LayoutTests/media/video-src-source.html = FAIL
-BUG13907 WIN DEBUG : LayoutTests/media/video-timeupdate-during-playback.html = FAIL
+// Flaky test.
+BUG13907 WIN DEBUG : LayoutTests/media/video-timeupdate-during-playback.html = PASS FAIL
 BUG13907 WIN : LayoutTests/media/video-transformed.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-zoom-controls.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-zoom.html = FAIL
