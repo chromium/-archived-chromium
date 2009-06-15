@@ -3498,6 +3498,7 @@
             '_SCL_SECURE_NO_DEPRECATE',
           ],
           'dependencies': [
+            'chrome_dll_version',
             'installer/installer.gyp:installer_util_strings',
             '../views/views.gyp:views',
           ],

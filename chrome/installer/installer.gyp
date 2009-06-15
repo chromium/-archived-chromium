@@ -333,7 +333,15 @@
             'mini_installer/pe_resource.h',
           ],
           'msvs_settings': {
+            'VCCLCompilerTool': {
+              'EnableIntrinicFunctions': 'true',
+              'BasicRuntimeChekcs': '0',
+              'BufferSecurityCheck': 'false',
+            },
             'VCLinkerTool': {
+              'EntryPointSymbol': 'MainEntryPoint',
+              'IgnoreAllDefaultLibraries': 'true',
+              'OptimizeForWindows98': '1',
               'SubSystem': '2',     # Set /SUBSYSTEM:WINDOWS
             },
           },
