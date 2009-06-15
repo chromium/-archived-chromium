@@ -1091,7 +1091,7 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
   if (!frontend_->extensions_enabled() && !extension.IsTheme()) {
 #if defined(OS_WIN)
     if (frontend_->show_extensions_prompts()) {
-      win_util::MessageBox(GetActiveWindow(),
+      win_util::MessageBox(GetForegroundWindow(),
           L"Extensions are not enabled. Add --enable-extensions to the "
           L"command-line to enable extensions.\n\n"
           L"This is a temporary message and it will be removed when extensions "
@@ -1111,7 +1111,7 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
 
   if (!extension.IsTheme() && !from_external &&
       frontend_->show_extensions_prompts() &&
-      win_util::MessageBox(GetActiveWindow(),
+      win_util::MessageBox(GetForegroundWindow(),
           L"Are you sure you want to install this extension?\n\n"
           L"This is a temporary message and it will be removed when extensions "
           L"UI is finalized.",
