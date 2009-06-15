@@ -3031,4 +3031,77 @@ TEST_F(HttpNetworkTransactionTest, ReconsiderProxyAfterFailedConnection) {
   EXPECT_EQ(ERR_NAME_NOT_RESOLVED, rv);
 }
 
+// Host resolution observer used by
+// HttpNetworkTransactionTest.ResolveMadeWithReferrer to check that host
+// resovle requests are issued with a referrer of |expected_referrer|.
+class ResolutionReferrerObserver : public HostResolver::Observer {
+ public:
+  explicit ResolutionReferrerObserver(const GURL& expected_referrer)
+      : expected_referrer_(expected_referrer),
+        called_start_with_referrer_(false),
+        called_finish_with_referrer_(false) {
+  }
+
+  virtual void OnStartResolution(int id,
+                                 const HostResolver::RequestInfo& info) {
+    if (info.referrer() == expected_referrer_)
+      called_start_with_referrer_ = true;
+  }
+
+  virtual void OnFinishResolutionWithStatus(
+      int id, bool was_resolved, const HostResolver::RequestInfo& info ) {
+    if (info.referrer() == expected_referrer_)
+      called_finish_with_referrer_ = true;
+  }
+
+  bool did_complete_with_expected_referrer() const {
+    return called_start_with_referrer_ && called_finish_with_referrer_;
+  }
+
+ private:
+  GURL expected_referrer_;
+  bool called_start_with_referrer_;
+  bool called_finish_with_referrer_;
+
+  DISALLOW_COPY_AND_ASSIGN(ResolutionReferrerObserver);
+};
+
+// Make sure that when HostResolver::Resolve() is invoked, it passes through
+// the "referrer". This is depended on by the DNS prefetch observer.
+TEST_F(HttpNetworkTransactionTest, ResolveMadeWithReferrer) {
+  GURL referrer = GURL("http://expected-referrer/");
+  EXPECT_TRUE(referrer.is_valid());
+  ResolutionReferrerObserver resolution_observer(referrer);
+
+  SessionDependencies session_deps;
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(&session_deps), &session_deps.socket_factory));
+
+  // Attach an observer to watch the host resolutions being made.
+  session_deps.host_resolver.AddObserver(&resolution_observer);
+
+  // Connect up a mock socket which will fail when reading.
+  MockRead data_reads[] = {
+    MockRead(false, ERR_FAILED),
+  };
+  StaticMockSocket data(data_reads, NULL);
+  session_deps.socket_factory.AddMockSocket(&data);
+
+  // Issue a request, containing an HTTP referrer.
+  HttpRequestInfo request;
+  request.method = "GET";
+  request.referrer = referrer;
+  request.url = GURL("http://www.google.com/");
+
+  // Run the request until it fails reading from the socket.
+  TestCompletionCallback callback;
+  int rv = trans->Start(&request, &callback);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
+  rv = callback.WaitForResult();
+  EXPECT_EQ(ERR_FAILED, rv);
+
+  // Check that the host resolution observer saw |referrer|.
+  EXPECT_TRUE(resolution_observer.did_complete_with_expected_referrer());
+}
+
 }  // namespace net
