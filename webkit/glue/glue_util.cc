@@ -17,6 +17,7 @@
 
 #include "ChromiumDataObject.h"
 #include "CString.h"
+#include "HTMLFormElement.h"
 #include "IntPoint.h"
 #include "IntRect.h"
 #include "PlatformString.h"
@@ -30,6 +31,7 @@
 #include "base/sys_string_conversions.h"
 #include "googleurl/src/gurl.h"
 #include "webkit/api/public/WebDragData.h"
+#include "webkit/api/public/WebForm.h"
 #include "webkit/api/public/WebPoint.h"
 #include "webkit/api/public/WebRect.h"
 #include "webkit/api/public/WebSize.h"
@@ -224,6 +226,18 @@ WebKit::WebDragData ChromiumDataObjectToWebDragData(
 PassRefPtr<WebCore::ChromiumDataObject> WebDragDataToChromiumDataObject(
     const WebKit::WebDragData& data) {
   return data;
+}
+
+// FormElement conversions -----------------------------------------------------
+
+WebKit::WebForm HTMLFormElementToWebForm(
+    const WTF::PassRefPtr<WebCore::HTMLFormElement>& form) {
+  return form;
+}
+
+WTF::PassRefPtr<WebCore::HTMLFormElement> WebFormToHTMLFormElement(
+    const WebKit::WebForm& form) {
+  return form;
 }
 
 // WebURLRequest conversions ---------------------------------------------------

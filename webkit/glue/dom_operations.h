@@ -14,6 +14,7 @@
 
 namespace WebCore {
 class Element;
+class HTMLInputElement;
 class Node;
 }
 

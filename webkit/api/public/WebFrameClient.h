@@ -1,10 +1,10 @@
 /*
  * Copyright (C) 2009 Google Inc. All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
  *     * Neither the name of Google Inc. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -37,6 +37,7 @@
 #include "WebNavigationGesture.h"
 
 namespace WebKit {
+    class WebForm;
     class WebFrame;
     class WebMediaPlayer;
     class WebMediaPlayerClient;
@@ -47,7 +48,7 @@ namespace WebKit {
 
     class WebFrameClient {
     public:
-        // Factory methods ----------------------------------------------------- 
+        // Factory methods -----------------------------------------------------
 
         // May return null.
         virtual WebPlugin* createPlugin(
@@ -84,6 +85,9 @@ namespace WebKit {
 
 
         // Navigational notifications ------------------------------------------
+
+        // A form submission is about to occur.
+        virtual void willSubmitForm(WebFrame*, const WebForm&) = 0;
 
         // A client-side redirect will occur.  This may correspond to a <META
         // refresh> or some script activity.
@@ -139,7 +143,7 @@ namespace WebKit {
 
         // The navigation resulted in scrolling the page to a named anchor instead
         // of downloading a new document.
-        virtual void didChangeLocationWithinPage(WebFrame*, bool isNewNavigation) = 0; 
+        virtual void didChangeLocationWithinPage(WebFrame*, bool isNewNavigation) = 0;
 
         // Called upon update to scroll position, document state, and other
         // non-navigational events related to the data held by WebHistoryItem.

@@ -207,23 +207,15 @@ class RenderView : public RenderWidget,
   virtual void DidChangeLocationWithinPageForFrame(WebView* webview,
                                                    WebFrame* frame,
                                                    bool is_new_navigation);
-  virtual void DidReceiveIconForFrame(WebView* webview, WebFrame* frame);
   virtual void DidContentsSizeChange(WebWidget* webwidget,
                                      int new_width,
                                      int new_height);
 
-  virtual void WillPerformClientRedirect(WebView* webview,
-                                         WebFrame* frame,
-                                         const GURL& src_url,
-                                         const GURL& dest_url,
-                                         unsigned int delay_seconds,
-                                         unsigned int fire_date);
-  virtual void DidCancelClientRedirect(WebView* webview,
-                                       WebFrame* frame);
   virtual void DidCompleteClientRedirect(WebView* webview,
                                          WebFrame* frame,
                                          const GURL& source);
-  virtual void WillCloseFrame(WebView* webview, WebFrame* frame);
+  virtual void WillSubmitForm(WebView* webview, WebFrame* frame,
+                              const WebKit::WebForm& form);
   virtual void WillSendRequest(WebView* webview,
                                uint32 identifier,
                                WebRequest* request);
@@ -299,12 +291,6 @@ class RenderView : public RenderWidget,
   virtual WebDevToolsAgentDelegate* GetWebDevToolsAgentDelegate();
 
   virtual void PasteFromSelectionClipboard();
-
-  virtual void OnPasswordFormsSeen(WebView* webview,
-                                   const std::vector<PasswordForm>& forms);
-
-  virtual void OnAutofillFormSubmitted(WebView* webview,
-                                       const AutofillForm& form);
 
   virtual void ReportFindInPageMatchCount(int count, int request_id,
                                           bool final_update);
@@ -506,7 +492,8 @@ class RenderView : public RenderWidget,
       const FilePath& local_directory_name);
   void OnUploadFileRequest(const ViewMsg_UploadFile_Params& p);
   void OnFormFill(const FormData& form);
-  void OnFillPasswordForm(const PasswordFormDomManager::FillData& form_data);
+  void OnFillPasswordForm(
+      const webkit_glue::PasswordFormDomManager::FillData& form_data);
   void OnDragTargetDragEnter(const WebDropData& drop_data,
                              const gfx::Point& client_pt,
                              const gfx::Point& screen_pt);
@@ -619,6 +606,9 @@ class RenderView : public RenderWidget,
   SkBitmap ImageFromDataUrl(const GURL&) const;
 
   void DumpLoadHistograms() const;
+
+  // Scan the given frame for password forms and send them up to the browser.
+  void SendPasswordForms(WebFrame* frame);
 
   // Bitwise-ORed set of extra bindings that have been enabled.  See
   // BindingsPolicy for details.

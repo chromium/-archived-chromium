@@ -1730,24 +1730,6 @@ bool WebViewImpl::SetDropEffect(bool accept) {
   }
 }
 
-SearchableFormData* WebViewImpl::CreateSearchableFormDataForFocusedNode() {
-  if (!page_.get())
-    return NULL;
-
-  if (RefPtr<Frame> focused = page_->focusController()->focusedFrame()) {
-    RefPtr<Document> document = focused->document();
-    if (document.get()) {
-      RefPtr<Node> focused_node = document->focusedNode();
-      if (focused_node.get() &&
-          focused_node->nodeType() == Node::ELEMENT_NODE) {
-        return SearchableFormData::Create(
-          static_cast<Element*>(focused_node.get()));
-      }
-    }
-  }
-  return NULL;
-}
-
 void WebViewImpl::AutofillSuggestionsForNode(
       int64 node_id,
       const std::vector<std::wstring>& suggestions,

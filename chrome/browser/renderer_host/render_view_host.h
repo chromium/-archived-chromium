@@ -19,7 +19,6 @@
 #include "webkit/glue/password_form_dom_manager.h"
 #include "webkit/glue/window_open_disposition.h"
 
-class AutofillForm;
 class NavigationEntry;
 class RenderViewHostDelegate;
 class SiteInstance;
@@ -44,6 +43,7 @@ enum LoadState;
 }
 
 namespace webkit_glue {
+class AutofillForm;
 struct WebApplicationInfo;
 }
 
@@ -213,7 +213,8 @@ class RenderViewHost : public RenderWidgetHost {
 
   // Fill out a password form and trigger DOM autocomplete in the case
   // of multiple matching logins.
-  void FillPasswordForm(const PasswordFormDomManager::FillData& form_data);
+  void FillPasswordForm(
+      const webkit_glue::PasswordFormDomManager::FillData& form_data);
 
   // D&d drop target messages that get sent to WebKit.
   void DragTargetDragEnter(const WebDropData& drop_data,
@@ -518,7 +519,7 @@ class RenderViewHost : public RenderWidgetHost {
                                 const std::string& json_arguments,
                                 IPC::Message* reply_msg);
   void OnMsgPasswordFormsSeen(const std::vector<PasswordForm>& forms);
-  void OnMsgAutofillFormSubmitted(const AutofillForm& forms);
+  void OnMsgAutofillFormSubmitted(const webkit_glue::AutofillForm& forms);
   void OnMsgStartDragging(const WebDropData& drop_data);
   void OnUpdateDragCursor(bool is_drop_target);
   void OnTakeFocus(bool reverse);

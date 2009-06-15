@@ -293,7 +293,7 @@ IPC_BEGIN_MESSAGES(View)
   // Fill a password form and prepare field autocomplete for multiple
   // matching logins.
   IPC_MESSAGE_ROUTED1(ViewMsg_FillPasswordForm,
-                      PasswordFormDomManager::FillData /* form_data */)
+                      webkit_glue::PasswordFormDomManager::FillData)
 
   // D&d drop target messages.
   IPC_MESSAGE_ROUTED3(ViewMsg_DragTargetDragEnter,
@@ -988,7 +988,7 @@ IPC_BEGIN_MESSAGES(ViewHost)
 
   // Notification that a form has been submitted.  The user hit the button.
   IPC_MESSAGE_ROUTED1(ViewHostMsg_AutofillFormSubmitted,
-                      AutofillForm /* form */)
+                      webkit_glue::AutofillForm /* form */)
 
   // Used to tell the parent the user started dragging in the content area. The
   // WebDropData struct contains contextual information about the pieces of the

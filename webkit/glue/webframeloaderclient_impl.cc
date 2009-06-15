@@ -44,6 +44,7 @@ MSVC_POP_WARNING();
 #if defined(OS_WIN)
 #include "webkit/activex_shim/activex_shared.h"
 #endif
+#include "webkit/api/public/WebForm.h"
 #include "webkit/glue/autofill_form.h"
 #include "webkit/glue/alt_404_page_resource_fetcher.h"
 #include "webkit/glue/glue_util.h"
@@ -376,35 +377,6 @@ void WebFrameLoaderClient::dispatchDidFinishDocumentLoad() {
   // listeners and their associated HTMLInputElements.
   webframe_->ClearPasswordListeners();
 
-  // The document has now been fully loaded.
-  // Scan for password forms to be sent to the browser
-  PassRefPtr<WebCore::HTMLCollection> forms =
-      webframe_->frame()->document()->forms();
-
-  std::vector<PasswordForm> passwordForms;
-
-  unsigned int form_count = forms->length();
-  for (unsigned int i = 0; i < form_count; ++i) {
-    // Strange but true, sometimes item can be NULL.
-    WebCore::Node* item = forms->item(i);
-    if (item) {
-      WebCore::HTMLFormElement* form =
-          static_cast<WebCore::HTMLFormElement*>(item);
-
-      // Honour autocomplete=off.
-      if (!form->autoComplete())
-        continue;
-
-      scoped_ptr<PasswordForm> passwordFormPtr(
-          PasswordFormDomManager::CreatePasswordForm(form));
-
-      if (passwordFormPtr.get())
-        passwordForms.push_back(*passwordFormPtr);
-    }
-  }
-
-  if (d && (passwordForms.size() > 0))
-    d->OnPasswordFormsSeen(webview, passwordForms);
   if (d)
     d->DidFinishDocumentLoadForFrame(webview, webframe_);
   data_source->set_finish_document_load_time(base::Time::Now());
@@ -1010,32 +982,12 @@ void WebFrameLoaderClient::dispatchUnableToImplementPolicy(const ResourceError&)
 
 void WebFrameLoaderClient::dispatchWillSubmitForm(FramePolicyFunction function,
     PassRefPtr<FormState> form_ref) {
-  SearchableFormData* form_data = SearchableFormData::Create(form_ref->form());
-  WebDataSourceImpl* ds = WebDataSourceImpl::FromLoader(
-      webframe_->frame()->loader()->provisionalDocumentLoader());
-  // Don't free the SearchableFormData, the datasource will do that.
-  ds->set_searchable_form_data(form_data);
-
-  PasswordForm* pass_data =
-      PasswordFormDomManager::CreatePasswordForm(form_ref->form());
-  // Don't free the PasswordFormData, the datasource will do that.
-  ds->set_password_form_data(pass_data);
-
   WebViewImpl* webview = webframe_->GetWebViewImpl();
   WebViewDelegate* d = webview->delegate();
-
-  // Unless autocomplete=off, record what the user put in it for future
-  // autofilling.
-  if (form_ref->form()->autoComplete()) {
-    scoped_ptr<AutofillForm> autofill_form(
-        AutofillForm::CreateAutofillForm(form_ref->form()));
-    if (autofill_form.get()) {
-      d->OnAutofillFormSubmitted(webview, *autofill_form);
-    }
+  if (d) {
+    d->WillSubmitForm(webview, webframe_,
+                      webkit_glue::HTMLFormElementToWebForm(form_ref->form()));
   }
-
-  ds->set_form_submit(true);
-
   (webframe_->frame()->loader()->*function)(PolicyUse);
 }
 

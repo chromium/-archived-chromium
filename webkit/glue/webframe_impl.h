@@ -110,6 +110,7 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   virtual WebFrame* GetTop() const;
   virtual WebFrame* GetChildFrame(const std::wstring& xpath) const;
   virtual WebView* GetView() const;
+  virtual void GetForms(std::vector<WebKit::WebForm>* forms) const;
   virtual std::string GetSecurityOrigin() const;
   virtual bool CaptureImage(scoped_ptr<skia::BitmapPlatformDevice>* image,
                             bool scroll_to_zero);
@@ -119,7 +120,6 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   virtual void BindToWindowObject(const std::wstring& name, NPObject* object);
   virtual void CallJSGC();
 
-  virtual void* GetFrameImplementation() { return frame(); }
   virtual void GrantUniversalAccess();
 
   virtual NPObject* GetWindowNPObject();

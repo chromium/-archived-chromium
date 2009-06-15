@@ -48,20 +48,24 @@ namespace gfx {
 class Rect;
 class Size;
 }
+
 namespace views {
 class WindowDelegate;
 }
+
 namespace base {
 class WaitableEvent;
 }
+
 namespace webkit_glue {
+class AutofillForm;
 struct WebApplicationInfo;
 }
+
 namespace IPC {
 class Message;
 }
 
-class AutofillForm;
 class AutofillManager;
 class BlockedPopupContainer;
 class DOMUI;
@@ -801,7 +805,7 @@ class TabContents : public PageNavigator,
                                    const std::string& json_arguments,
                                    IPC::Message* reply_msg);
   virtual void PasswordFormsSeen(const std::vector<PasswordForm>& forms);
-  virtual void AutofillFormSubmitted(const AutofillForm& form);
+  virtual void AutofillFormSubmitted(const webkit_glue::AutofillForm& form);
   virtual void GetAutofillSuggestions(const std::wstring& field_name,
       const std::wstring& user_text, int64 node_id, int request_id);
   virtual void RemoveAutofillEntry(const std::wstring& field_name,

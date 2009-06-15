@@ -226,11 +226,12 @@ void PasswordManager::Autofill(
       // schemed password form may have been freed, so we need to distinguish.
       bool action_mismatch = form_for_autofill.action.GetWithEmptyPath() !=
                              preferred_match->action.GetWithEmptyPath();
-      PasswordFormDomManager::FillData fill_data;
-      PasswordFormDomManager::InitFillData(form_for_autofill,
-                                           best_matches, preferred_match,
-                                           action_mismatch,
-                                           &fill_data);
+      webkit_glue::PasswordFormDomManager::FillData fill_data;
+      webkit_glue::PasswordFormDomManager::InitFillData(form_for_autofill,
+                                                        best_matches,
+                                                        preferred_match,
+                                                        action_mismatch,
+                                                        &fill_data);
       tab_contents_->render_view_host()->FillPasswordForm(fill_data);
       return;
     }

@@ -10,7 +10,6 @@
 #include "base/string16.h"
 
 class GURL;
-class SearchableFormData;
 class WebFrame;
 class WebRequest;
 class WebResponse;
@@ -81,21 +80,6 @@ class WebDataSource {
   // redirects, it will contain exactly the current URL, and if there is one
   // redirect, it will contain the source and destination URL).
   virtual const std::vector<GURL>& GetRedirectChain() const = 0;
-
-  // Returns the SearchableFormData, or NULL if the request wasn't a search
-  // request. The returned object is owned by the WebDataSource (actually
-  // the WebDocumentLoader) and shouldn't be freed.
-  virtual const SearchableFormData* GetSearchableFormData() const = 0;
-
-  // Returns the PasswordFormData, or NULL if the request isn't a form submission
-  // or doesn't have any password fields. The returned object is owned by the
-  // WebDataSource (actually the WebDocumentLoader) and shouldn't be freed.
-  virtual const PasswordForm* GetPasswordFormData() const = 0;
-
-  // Returns true if this request was the result of submitting a form.
-  // NOTE: this returns false if the user submitted a form, but the form used
-  // script to do the actuall submission.
-  virtual bool IsFormSubmit() const = 0;
 
   // Returns the page title.
   virtual string16 GetPageTitle() const = 0;

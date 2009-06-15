@@ -13,6 +13,7 @@ class GURL;
 namespace WebCore {
 class ChromiumDataObject;
 class CString;
+class HTMLFormElement;
 class IntPoint;
 class IntRect;
 class IntSize;
@@ -25,6 +26,7 @@ struct ResourceRequest;
 namespace WebKit {
 class WebCString;
 class WebDragData;
+class WebForm;
 class WebString;
 class WebURL;
 class WebURLRequest;
@@ -106,6 +108,12 @@ WebKit::WebDragData ChromiumDataObjectToWebDragData(
     const WTF::PassRefPtr<WebCore::ChromiumDataObject>&);
 WTF::PassRefPtr<WebCore::ChromiumDataObject> WebDragDataToChromiumDataObject(
     const WebKit::WebDragData&);
+
+// WebForm <-> HTMLFormElement
+WebKit::WebForm HTMLFormElementToWebForm(
+    const WTF::PassRefPtr<WebCore::HTMLFormElement>&);
+WTF::PassRefPtr<WebCore::HTMLFormElement> WebFormToHTMLFormElement(
+    const WebKit::WebForm&);
 
 // Exposes the ResourceRequest contained by a WebURLRequest
 WebCore::ResourceRequest* WebURLRequestToMutableResourceRequest(

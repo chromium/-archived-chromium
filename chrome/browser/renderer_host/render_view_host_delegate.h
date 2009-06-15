@@ -21,7 +21,6 @@
 
 #include "chrome/browser/extensions/extension_function_dispatcher.h"
 
-class AutofillForm;
 class ExtensionFunctionDispatcher;
 class NavigationEntry;
 class Profile;
@@ -45,6 +44,7 @@ class Message;
 }
 
 namespace webkit_glue {
+class AutofillForm;
 struct WebApplicationInfo;
 }
 
@@ -329,7 +329,7 @@ class RenderViewHostDelegate {
   virtual void PasswordFormsSeen(const std::vector<PasswordForm>& forms) { }
 
   // Forms fillable by autofill have been detected in the page.
-  virtual void AutofillFormSubmitted(const AutofillForm& form) { }
+  virtual void AutofillFormSubmitted(const webkit_glue::AutofillForm& form) { }
 
   // Called to retrieve a list of suggestions from the web database given
   // the name of the field |field_name| and what the user has already typed in

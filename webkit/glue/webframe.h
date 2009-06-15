@@ -5,6 +5,8 @@
 #ifndef WEBKIT_GLUE_WEBFRAME_H_
 #define WEBKIT_GLUE_WEBFRAME_H_
 
+#include <vector>
+
 #include "base/scoped_ptr.h"
 #include "base/string16.h"
 #include "skia/ext/bitmap_platform_device.h"
@@ -20,6 +22,7 @@ class WebTextInput;
 struct NPObject;
 
 namespace WebKit {
+class WebForm;
 struct WebConsoleMessage;
 struct WebFindOptions;
 struct WebRect;
@@ -58,14 +61,6 @@ class WebFrame {
                                   NPObject* object) = 0;
 
   virtual void CallJSGC() = 0;
-
-  // WARNING: DON'T USE THIS METHOD unless you know what it is doing.
-  //
-  // Returns a pointer to the underlying implementation WebCore::Frame.
-  // Currently it is a hack to avoid including "Frame.h". The caller
-  // casts the return value to WebCore::Frame.
-  // TODO(fqian): Remove this method when V8 supports NP runtime.
-  virtual void* GetFrameImplementation() = 0;
 
   // This grants the currently loaded Document access to all security origins
   // (including file URLs).  Use with care.  The access is revoked when a new
@@ -213,6 +208,9 @@ class WebFrame {
   // pointer is not AddRef'd and is only valid for the lifetime of the WebFrame
   // unless it is AddRef'd separately by the caller.
   virtual WebView* GetView() const = 0;
+
+  // Returns a vector of WebForms (corresponds to document.forms).
+  virtual void GetForms(std::vector<WebKit::WebForm>* forms) const = 0;
 
   // Returns the serialization of the frame's security origin.
   virtual std::string GetSecurityOrigin() const = 0;

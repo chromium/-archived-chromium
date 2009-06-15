@@ -28,6 +28,7 @@ MSVC_POP_WARNING();
 #include "testing/gtest/include/gtest/gtest.h"
 
 using webkit_glue::PasswordAutocompleteListener;
+using webkit_glue::PasswordFormDomManager;
 using webkit_glue::HTMLInputDelegate;
 
 class TestHTMLInputDelegate : public HTMLInputDelegate {

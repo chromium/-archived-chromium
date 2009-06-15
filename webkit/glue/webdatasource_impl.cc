@@ -32,8 +32,7 @@ PassRefPtr<WebDataSourceImpl> WebDataSourceImpl::Create(
 
 WebDataSourceImpl::WebDataSourceImpl(const WebCore::ResourceRequest& request,
                                      const WebCore::SubstituteData& data)
-    : WebCore::DocumentLoader(request, data),
-      form_submit_(false) {
+    : WebCore::DocumentLoader(request, data) {
 }
 
 WebDataSourceImpl::~WebDataSourceImpl() {
@@ -77,18 +76,6 @@ void WebDataSourceImpl::ClearRedirectChain() {
 
 void WebDataSourceImpl::AppendRedirect(const GURL& url) {
   redirect_chain_.push_back(url);
-}
-
-const SearchableFormData* WebDataSourceImpl::GetSearchableFormData() const {
-  return searchable_form_data();
-}
-
-const PasswordForm* WebDataSourceImpl::GetPasswordFormData() const {
-  return password_form_data();
-}
-
-bool WebDataSourceImpl::IsFormSubmit() const {
-  return is_form_submit();
 }
 
 string16 WebDataSourceImpl::GetPageTitle() const {

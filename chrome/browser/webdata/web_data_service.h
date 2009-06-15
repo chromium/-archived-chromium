@@ -368,7 +368,7 @@ class WebDataService : public base::RefCountedThreadSafe<WebDataService> {
 
   // Schedules a task to add form elements to the web database.
   void AddAutofillFormElements(
-      const std::vector<AutofillForm::Element>& elements);
+      const std::vector<webkit_glue::AutofillForm::Element>& elements);
 
   // Initiates the request for a vector of values which have been entered in
   // form input fields named |name|.  The method OnWebDataServiceRequestDone of
@@ -457,7 +457,7 @@ class WebDataService : public base::RefCountedThreadSafe<WebDataService> {
   //
   //////////////////////////////////////////////////////////////////////////////
   void AddAutofillFormElementsImpl(
-      GenericRequest<std::vector<AutofillForm::Element> >* request);
+      GenericRequest<std::vector<webkit_glue::AutofillForm::Element> >* request);
   void GetFormValuesForElementNameImpl(WebDataRequest* request,
       const std::wstring& name, const std::wstring& prefix, int limit);
   void RemoveFormElementsAddedBetweenImpl(

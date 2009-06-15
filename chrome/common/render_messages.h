@@ -704,11 +704,11 @@ struct ParamTraits<PasswordForm> {
 
 // Traits for AutofillForm_Params structure to pack/unpack.
 template <>
-struct ParamTraits<AutofillForm> {
-  typedef AutofillForm param_type;
+struct ParamTraits<webkit_glue::AutofillForm> {
+  typedef webkit_glue::AutofillForm param_type;
   static void Write(Message* m, const param_type& p) {
     WriteParam(m, p.elements.size());
-    for (std::vector<AutofillForm::Element>::const_iterator itr =
+    for (std::vector<webkit_glue::AutofillForm::Element>::const_iterator itr =
         p.elements.begin();
         itr != p.elements.end();
         itr++) {
@@ -1127,10 +1127,10 @@ struct ParamTraits<scoped_refptr<net::UploadData> > {
   }
 };
 
-// Traits for PasswordFormDomManager::FillData.
+// Traits for webkit_glue::PasswordFormDomManager::FillData.
 template <>
-struct ParamTraits<PasswordFormDomManager::FillData> {
-  typedef PasswordFormDomManager::FillData param_type;
+struct ParamTraits<webkit_glue::PasswordFormDomManager::FillData> {
+  typedef webkit_glue::PasswordFormDomManager::FillData param_type;
   static void Write(Message* m, const param_type& p) {
     WriteParam(m, p.basic_data);
     WriteParam(m, p.additional_logins);

@@ -42,6 +42,7 @@ class AccessibilityObject;
 
 namespace WebKit {
 class WebDragData;
+class WebForm;
 class WebWorker;
 class WebWorkerClient;
 class WebMediaPlayer;
@@ -50,9 +51,7 @@ struct WebPoint;
 struct WebRect;
 }
 
-struct PasswordForm;
 struct WebPreferences;
-class AutofillForm;
 class FilePath;
 class SkBitmap;
 class WebDevToolsAgentDelegate;
@@ -418,6 +417,12 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
                                          WebFrame* frame,
                                          const GURL& source) {
   }
+
+  // Notifies the delegate that a form is about to be submitted.
+  virtual void WillSubmitForm(WebView* webview, WebFrame* frame,
+                              const WebKit::WebForm& form) {
+  }
+
   //
   //  @method webView:willCloseFrame:
   //  @abstract Notifies the delegate that a frame will be closed
@@ -468,18 +473,6 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
                                    const std::wstring& message,
                                    unsigned int line_no,
                                    const std::wstring& source_id) {
-  }
-
-  // Notification of possible password forms to be filled/submitted by
-  // the password manager
-  virtual void OnPasswordFormsSeen(WebView* webview,
-                                   const std::vector<PasswordForm>& forms) {
-  }
-
-  // Notification of the submission of a form so that its contents can be
-  // recorded for future autofilling.
-  virtual void OnAutofillFormSubmitted(WebView* webview,
-                                       const AutofillForm& form) {
   }
 
   // Queries the browser for suggestions to be shown for the form text field

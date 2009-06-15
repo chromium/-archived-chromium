@@ -48,6 +48,8 @@
 #endif
 
 using base::TimeDelta;
+using webkit_glue::AutofillForm;
+using webkit_glue::PasswordFormDomManager;
 using WebKit::WebConsoleMessage;
 using WebKit::WebFindOptions;
 using WebKit::WebInputEvent;

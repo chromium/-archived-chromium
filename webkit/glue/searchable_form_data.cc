@@ -36,10 +36,15 @@ MSVC_POP_WARNING();
 #include "webkit/glue/searchable_form_data.h"
 #include "webkit/glue/webframe_impl.h"
 
+using WebCore::HTMLFormElement;
 using WebCore::HTMLInputElement;
 using WebCore::HTMLOptionElement;
+using WebKit::WebForm;
+
+namespace webkit_glue {
 
 namespace {
+
 // TODO(eseidel): appendString and appendEncodedString do *not* follow Google
 // style because they are copy/paste from WebKit and will go away as soon as the
 // WebKit functions are made public.
@@ -154,8 +159,7 @@ bool IsSelectInDefaultState(WebCore::HTMLSelectElement* select) {
     // least one item is selected, determine which one.
     HTMLOptionElement* initial_selected = NULL;
     while (node) {
-      HTMLOptionElement* option_element =
-          webkit_glue::CastToHTMLOptionElement(node);
+      HTMLOptionElement* option_element = CastToHTMLOptionElement(node);
       if (option_element) {
         if (!initial_selected)
           initial_selected = option_element;
@@ -171,8 +175,7 @@ bool IsSelectInDefaultState(WebCore::HTMLSelectElement* select) {
       return initial_selected->selected();
   } else {
     while (node) {
-      HTMLOptionElement* option_element =
-          webkit_glue::CastToHTMLOptionElement(node);
+      HTMLOptionElement* option_element = CastToHTMLOptionElement(node);
       if (option_element &&
           option_element->selected() != option_element->defaultSelected()) {
         return false;
@@ -296,37 +299,20 @@ WebCore::HTMLInputElement* GetTextElement(
 
 } // namespace
 
-SearchableFormData* SearchableFormData::Create(WebCore::Element* element) {
-  if (!element->isFormControlElement() || !element->isHTMLElement()) {
-    return NULL;
-  }
+SearchableFormData* SearchableFormData::Create(const WebForm& webform) {
+  RefPtr<HTMLFormElement> form = WebFormToHTMLFormElement(webform);
 
-  WebCore::Frame* frame = element->document()->frame();
-  if (frame == NULL)
-    return NULL;
-
-  WebCore::HTMLFormControlElement* input_element =
-    static_cast<WebCore::HTMLFormControlElement*>(element);
-
-  WebCore::HTMLFormElement* form = input_element->form();
-  if (form == NULL)
-    return NULL;
-
-  return Create(form);
-}
-
-SearchableFormData* SearchableFormData::Create(WebCore::HTMLFormElement* form) {
   WebCore::Frame* frame = form->document()->frame();
   if (frame == NULL)
     return NULL;
 
   // Only consider forms that GET data and the action targets an http page.
-  if (!IsFormMethodGet(form) || !IsHTTPFormSubmit(form))
+  if (!IsFormMethodGet(form.get()) || !IsHTTPFormSubmit(form.get()))
     return NULL;
 
   Vector<char> enc_string;
   WebCore::HTMLFormControlElement* first_submit_button =
-    GetButtonToActivate(form);
+      GetButtonToActivate(form.get());
 
   if (first_submit_button) {
     // The form does not have an active submit button, make the first button
@@ -337,7 +323,7 @@ SearchableFormData* SearchableFormData::Create(WebCore::HTMLFormElement* form) {
 
   std::string encoding;
   WebCore::HTMLInputElement* text_element =
-      GetTextElement(form, &enc_string, &encoding);
+      GetTextElement(form.get(), &enc_string, &encoding);
 
   if (first_submit_button)
     first_submit_button->setActivatedSubmit(false);
@@ -354,11 +340,10 @@ SearchableFormData* SearchableFormData::Create(WebCore::HTMLFormElement* form) {
   WebCore::FrameLoader* loader = frame->loader();
   WebCore::KURL url = loader->completeURL(action.isNull() ? "" : action);
   url.setQuery(form_data->flattenToString());
-  std::wstring current_value = webkit_glue::StringToStdWString(
-    static_cast<WebCore::HTMLInputElement*>(text_element)->value());
-  std::wstring text_name =
-    webkit_glue::StringToStdWString(text_element->name());
-  GURL gurl(webkit_glue::KURLToGURL(url));
+  std::wstring current_value = StringToStdWString(
+      static_cast<WebCore::HTMLInputElement*>(text_element)->value());
+  std::wstring text_name = StringToStdWString(text_element->name());
+  GURL gurl(KURLToGURL(url));
   return new SearchableFormData(gurl, text_name, current_value, encoding);
 }
 
@@ -382,3 +367,5 @@ SearchableFormData::SearchableFormData(const GURL& url,
       element_value_(element_value),
       encoding_(encoding) {
 }
+
+}  // namespace webkit_glue

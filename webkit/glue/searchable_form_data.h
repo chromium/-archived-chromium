@@ -9,10 +9,11 @@
 
 #include "googleurl/src/gurl.h"
 
-namespace WebCore {
-class Element;
-class HTMLFormElement;
+namespace WebKit {
+class WebForm;
 }
+
+namespace webkit_glue {
 
 // SearchableFormData encapsulates a URL and class name of an INPUT field
 // that correspond to a searchable form request.
@@ -20,11 +21,7 @@ class SearchableFormData {
  public:
   // If form contains elements that constitutes a valid searchable form
   // request, a SearchableFormData is created and returned.
-  static SearchableFormData* Create(WebCore::HTMLFormElement* form);
-
-  // If the element is contained in a form that constitutes a valid searchable
-  // form, a SearchableFormData is created and returned.
-  static SearchableFormData* Create(WebCore::Element* element);
+  static SearchableFormData* Create(const WebKit::WebForm& form);
 
   // Returns true if the two SearchableFormData are equal, false otherwise.
   // Either argument may be NULL. If both elements are NULL, true is returned.
@@ -53,7 +50,9 @@ class SearchableFormData {
   const std::wstring element_value_;
   const std::string encoding_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(SearchableFormData);
+  DISALLOW_COPY_AND_ASSIGN(SearchableFormData);
 };
+
+}  // namespace webkit_glue
 
 #endif // WEBKIT_GLUE_SEARCHABLE_FORM_H__

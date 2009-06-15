@@ -142,6 +142,7 @@ MSVC_POP_WARNING();
 #include "skia/ext/platform_canvas.h"
 #include "webkit/api/public/WebConsoleMessage.h"
 #include "webkit/api/public/WebFindOptions.h"
+#include "webkit/api/public/WebForm.h"
 #include "webkit/api/public/WebRect.h"
 #include "webkit/api/public/WebScriptSource.h"
 #include "webkit/api/public/WebSize.h"
@@ -185,6 +186,7 @@ using WebCore::FrameLoadType;
 using WebCore::FrameTree;
 using WebCore::FrameView;
 using WebCore::HistoryItem;
+using WebCore::HTMLFormElement;
 using WebCore::IntRect;
 using WebCore::KURL;
 using WebCore::Node;
@@ -204,6 +206,7 @@ using WebCore::XPathResult;
 
 using WebKit::WebConsoleMessage;
 using WebKit::WebFindOptions;
+using WebKit::WebForm;
 using WebKit::WebRect;
 using WebKit::WebScriptSource;
 using WebKit::WebSize;
@@ -748,6 +751,22 @@ bool WebFrameImpl::GetInViewSourceMode() const {
 
 WebView* WebFrameImpl::GetView() const {
   return GetWebViewImpl();
+}
+
+void WebFrameImpl::GetForms(std::vector<WebForm>* results) const {
+  results->clear();
+  if (!frame_)
+    return;
+  RefPtr<WebCore::HTMLCollection> forms = frame_->document()->forms();
+  unsigned int form_count = forms->length();
+  for (unsigned int i = 0; i < form_count; ++i) {
+    Node* node = forms->item(i);
+    // Strange but true, sometimes item can be NULL.
+    if (node) {
+      results->push_back(webkit_glue::HTMLFormElementToWebForm(
+          static_cast<HTMLFormElement*>(node)));
+    }
+  }
 }
 
 std::string WebFrameImpl::GetSecurityOrigin() const {

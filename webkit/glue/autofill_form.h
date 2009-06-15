@@ -9,13 +9,17 @@
 #include <vector>
 
 namespace WebCore {
-  class HTMLInputElement;
-  class HTMLFormElement;
+class HTMLInputElement;
 }
+
+namespace WebKit {
+class WebForm;
+}
+
+namespace webkit_glue {
 
 // The AutofillForm struct represents a single HTML form together with the
 // values entered in the fields.
-
 class AutofillForm {
  public:
   // Struct for storing name/value pairs.
@@ -29,7 +33,7 @@ class AutofillForm {
     std::wstring value;
   };
 
-  static AutofillForm* CreateAutofillForm(WebCore::HTMLFormElement* form);
+  static AutofillForm* Create(const WebKit::WebForm& form);
 
   // Returns the name that should be used for the specified |element| when
   // storing autofill data.  This is either the field name or its id, an empty
@@ -40,5 +44,7 @@ class AutofillForm {
   // A vector of all the input fields in the form.
   std::vector<Element> elements;
 };
+
+}  // namespace webkit_glue
 
 #endif  // WEBKIT_GLUE_AUTOFILL_FORM_H_

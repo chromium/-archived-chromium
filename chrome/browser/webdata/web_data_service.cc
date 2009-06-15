@@ -19,6 +19,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 using base::Time;
+using webkit_glue::AutofillForm;
 
 WebDataService::WebDataService() : thread_(NULL),
                                    db_(NULL),

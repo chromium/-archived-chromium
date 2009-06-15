@@ -54,6 +54,7 @@
 #include "skia/ext/bitmap_platform_device.h"
 #include "skia/ext/image_operations.h"
 #include "webkit/api/public/WebDragData.h"
+#include "webkit/api/public/WebForm.h"
 #include "webkit/api/public/WebPoint.h"
 #include "webkit/api/public/WebRect.h"
 #include "webkit/api/public/WebScriptSource.h"
@@ -88,8 +89,12 @@
 
 using base::Time;
 using base::TimeDelta;
+using webkit_glue::AutofillForm;
+using webkit_glue::PasswordFormDomManager;
+using webkit_glue::SearchableFormData;
 using WebKit::WebConsoleMessage;
 using WebKit::WebDragData;
+using WebKit::WebForm;
 using WebKit::WebRect;
 using WebKit::WebScriptSource;
 using WebKit::WebWorker;
@@ -139,13 +144,21 @@ static const char* const kBackForwardNavigationScheme = "history";
 // Associated with browser-initiated navigations to hold tracking data.
 class RenderView::NavigationState : public WebDataSource::ExtraData {
  public:
-  NavigationState(int32 pending_page_id,
-                  PageTransition::Type transition,
-                  Time request_time)
-      : transition_type(transition),
-        request_time(request_time),
-        request_committed(false),
-        pending_page_id_(pending_page_id) {
+  static NavigationState* CreateBrowserInitiated(
+      int32 pending_page_id,
+      PageTransition::Type transition_type,
+      Time request_time) {
+    return new NavigationState(transition_type, request_time, false,
+                               pending_page_id);
+  }
+
+  static NavigationState* CreateContentInitiated() {
+    // We assume navigations initiated by content are link clicks.
+    return new NavigationState(PageTransition::LINK, Time(), true, -1);
+  }
+
+  static NavigationState* FromDataSource(WebDataSource* ds) {
+    return static_cast<NavigationState*>(ds->GetExtraData());
   }
 
   // Contains the page_id for this navigation or -1 if there is none yet.
@@ -156,17 +169,55 @@ class RenderView::NavigationState : public WebDataSource::ExtraData {
 
   // Contains the transition type that the browser specified when it
   // initiated the load.
-  PageTransition::Type transition_type;
+  PageTransition::Type transition_type() const { return transition_type_; }
+  void set_transition_type(PageTransition::Type type) {
+    transition_type_ = type;
+  }
 
   // The time that this navigation was requested.
-  Time request_time;
+  const Time& request_time() const { return request_time_; }
 
   // True if we have already processed the "DidCommitLoad" event for this
   // request.  Used by session history.
-  bool request_committed;
+  bool request_committed() const { return request_committed_; }
+  void set_request_committed(bool value) { request_committed_ = value; }
+
+  // True if this navigation was not initiated via WebFrame::LoadRequest.
+  bool is_content_initiated() const { return is_content_initiated_; }
+
+  SearchableFormData* searchable_form_data() const {
+    return searchable_form_data_.get();
+  }
+  void set_searchable_form_data(SearchableFormData* data) {
+    searchable_form_data_.reset(data);
+  }
+
+  PasswordForm* password_form_data() const {
+    return password_form_data_.get();
+  }
+  void set_password_form_data(PasswordForm* data) {
+    password_form_data_.reset(data);
+  }
 
  private:
+  NavigationState(PageTransition::Type transition_type,
+                  const Time& request_time,
+                  bool is_content_initiated,
+                  int32 pending_page_id)
+      : transition_type_(transition_type),
+        request_time_(request_time),
+        request_committed_(false),
+        is_content_initiated_(is_content_initiated),
+        pending_page_id_(pending_page_id) {
+  }
+
+  PageTransition::Type transition_type_;
+  Time request_time_;
+  bool request_committed_;
+  bool is_content_initiated_;
   int32 pending_page_id_;
+  scoped_ptr<SearchableFormData> searchable_form_data_;
+  scoped_ptr<PasswordForm> password_form_data_;
 
   DISALLOW_COPY_AND_ASSIGN(NavigationState);
 };
@@ -645,7 +696,7 @@ void RenderView::OnNavigate(const ViewMsg_Navigate_Params& params) {
   // as a browser initiated event.  Instead, we want it to look as if the page
   // initiated any load resulting from JS execution.
   if (!params.url.SchemeIs(chrome::kJavaScriptScheme)) {
-    pending_navigation_state_.reset(new NavigationState(
+    pending_navigation_state_.reset(NavigationState::CreateBrowserInitiated(
         params.page_id, params.transition, params.request_time));
   }
 
@@ -841,9 +892,8 @@ void RenderView::UpdateURL(WebFrame* frame) {
   const WebRequest& initial_request = ds->GetInitialRequest();
   const WebResponse& response = ds->GetResponse();
 
-  // This will be null if we did not initiate the navigation.
-  NavigationState* navigation_state =
-      static_cast<NavigationState*>(ds->GetExtraData());
+  NavigationState* navigation_state = NavigationState::FromDataSource(ds);
+  DCHECK(navigation_state);
 
   ViewHostMsg_FrameNavigate_Params params;
   params.http_status_code = response.GetHttpStatusCode();
@@ -872,7 +922,7 @@ void RenderView::UpdateURL(WebFrame* frame) {
   params.should_update_history = !ds->HasUnreachableURL();
 
   const SearchableFormData* searchable_form_data =
-      frame->GetDataSource()->GetSearchableFormData();
+      navigation_state->searchable_form_data();
   if (searchable_form_data) {
     params.searchable_form_url = searchable_form_data->url();
     params.searchable_form_element_name = searchable_form_data->element_name();
@@ -880,7 +930,7 @@ void RenderView::UpdateURL(WebFrame* frame) {
   }
 
   const PasswordForm* password_form_data =
-      frame->GetDataSource()->GetPasswordFormData();
+      navigation_state->password_form_data();
   if (password_form_data)
     params.password_form = *password_form_data;
 
@@ -893,10 +943,7 @@ void RenderView::UpdateURL(WebFrame* frame) {
     // Update contents MIME type for main frame.
     params.contents_mime_type = ds->GetResponse().GetMimeType();
 
-    // We assume top level navigations initiated by the renderer are link
-    // clicks.
-    params.transition = navigation_state ?
-        navigation_state->transition_type : PageTransition::LINK;
+    params.transition = navigation_state->transition_type();
     if (!PageTransition::IsMainFrame(params.transition)) {
       // If the main frame does a load, it should not be reported as a subframe
       // navigation.  This can occur in the following case:
@@ -910,11 +957,6 @@ void RenderView::UpdateURL(WebFrame* frame) {
       // frame should be tracked as a toplevel navigation (this allows us to
       // update the URL bar, etc).
       params.transition = PageTransition::LINK;
-    }
-
-    if (params.transition == PageTransition::LINK &&
-        frame->GetDataSource()->IsFormSubmit()) {
-      params.transition = PageTransition::FORM_SUBMIT;
     }
 
     // If we have a valid consumed client redirect source,
@@ -954,9 +996,8 @@ void RenderView::UpdateURL(WebFrame* frame) {
       std::max(last_page_id_sent_to_browser_, page_id_);
 
   // If we end up reusing this WebRequest (for example, due to a #ref click),
-  // we don't want the transition type to persist.
-  if (navigation_state)
-    navigation_state->transition_type = PageTransition::LINK;  // Just clear it.
+  // we don't want the transition type to persist.  Just clear it.
+  navigation_state->set_transition_type(PageTransition::LINK);
 
 #if defined(OS_WIN)
   if (web_accessibility_manager_.get()) {
@@ -1065,7 +1106,13 @@ void RenderView::DidStopLoading(WebView* webview) {
 }
 
 void RenderView::DidCreateDataSource(WebFrame* frame, WebDataSource* ds) {
-  ds->SetExtraData(pending_navigation_state_.release());
+  // The rest of RenderView assumes that a WebDataSource will always have a
+  // non-null NavigationState.
+  if (pending_navigation_state_.get()) {
+    ds->SetExtraData(pending_navigation_state_.release());
+  } else {
+    ds->SetExtraData(NavigationState::CreateContentInitiated());
+  }
 }
 
 void RenderView::DidStartProvisionalLoadForFrame(
@@ -1079,13 +1126,14 @@ void RenderView::DidStartProvisionalLoadForFrame(
     completed_client_redirect_src_ = GURL();
   }
 
+  // We may have better knowledge of when this navigation was requested.
   WebDataSource* ds = frame->GetProvisionalDataSource();
   if (ds) {
-    NavigationState* navigation_state =
-        static_cast<NavigationState*>(ds->GetExtraData());
-    if (navigation_state)
-      ds->SetRequestTime(navigation_state->request_time);
+    NavigationState* navigation_state = NavigationState::FromDataSource(ds);
+    if (!navigation_state->request_time().is_null())
+      ds->SetRequestTime(navigation_state->request_time());
   }
+
   Send(new ViewHostMsg_DidStartProvisionalLoadForFrame(
        routing_id_, webview->GetMainFrame() == frame,
        frame->GetProvisionalDataSource()->GetRequest().GetURL()));
@@ -1156,9 +1204,7 @@ void RenderView::DidFailProvisionalLoadWithError(WebView* webview,
   // 'replace' load.  This is necessary to avoid messing up session history.
   // Otherwise, we do a normal load, which simulates a 'go' navigation as far
   // as session history is concerned.
-  NavigationState* navigation_state =
-      static_cast<NavigationState*>(ds->GetExtraData());
-  bool replace = navigation_state && !navigation_state->is_new_navigation();
+  bool replace = !NavigationState::FromDataSource(ds)->is_new_navigation();
 
   // Use the alternate error page service if this is a DNS failure or
   // connection failure.  ERR_CONNECTION_FAILED can be dropped once we no longer
@@ -1225,8 +1271,8 @@ void RenderView::LoadNavigationErrorPage(WebFrame* frame,
 
 void RenderView::DidCommitLoadForFrame(WebView *webview, WebFrame* frame,
                                        bool is_new_navigation) {
-  NavigationState* navigation_state = static_cast<NavigationState*>(
-      frame->GetDataSource()->GetExtraData());
+  NavigationState* navigation_state =
+      NavigationState::FromDataSource(frame->GetDataSource());
 
   if (is_new_navigation) {
     // When we perform a new navigation, we need to update the previous session
@@ -1251,8 +1297,8 @@ void RenderView::DidCommitLoadForFrame(WebView *webview, WebFrame* frame,
     // Note that we need to check if the page ID changed. In the case of a
     // reload, the page ID doesn't change, and UpdateSessionHistory gets the
     // previous URL and the current page ID, which would be wrong.
-    if (navigation_state && !navigation_state->is_new_navigation() &&
-        !navigation_state->request_committed &&
+    if (!navigation_state->is_new_navigation() &&
+        !navigation_state->request_committed() &&
         page_id_ != navigation_state->pending_page_id()) {
       // This is a successful session history navigation!
       UpdateSessionHistory(frame);
@@ -1265,8 +1311,7 @@ void RenderView::DidCommitLoadForFrame(WebView *webview, WebFrame* frame,
   // a session history navigation, because if we attempted a session history
   // navigation without valid HistoryItem state, WebCore will think it is a
   // new navigation.
-  if (navigation_state)
-    navigation_state->request_committed = true;
+  navigation_state->set_request_committed(true);
 
   UpdateURL(frame);
 
@@ -1304,6 +1349,10 @@ void RenderView::DidFinishDocumentLoadForFrame(WebView* webview,
                                                WebFrame* frame) {
   Send(new ViewHostMsg_DocumentLoadedInFrame(routing_id_));
 
+  // The document has now been fully loaded.  Scan for password forms to be
+  // sent up to the browser.
+  SendPasswordForms(frame);
+
   // Check whether we have new encoding name.
   UpdateEncoding(frame, webview->GetMainFrameEncodingName());
 
@@ -1323,9 +1372,10 @@ void RenderView::DidChangeLocationWithinPageForFrame(WebView* webview,
   // could end up having a non-null pending navigation state.  We just need to
   // update the ExtraData on the datasource so that others who read the
   // ExtraData will get the new NavigationState.  Similarly, if we did not
-  // initiate this navigation, then we need to take care to clear any pre-
-  // existing navigation state.
-  frame->GetDataSource()->SetExtraData(pending_navigation_state_.release());
+  // initiate this navigation, then we need to take care to reset any pre-
+  // existing navigation state to a content-initiated navigation state.
+  // DidCreateDataSource conveniently takes care of this for us.
+  DidCreateDataSource(frame, frame->GetDataSource());
 
   DidCommitLoadForFrame(webview, frame, is_new_navigation);
 
@@ -1334,30 +1384,32 @@ void RenderView::DidChangeLocationWithinPageForFrame(WebView* webview,
   UpdateTitle(frame, UTF16ToWideHack(title));
 }
 
-void RenderView::DidReceiveIconForFrame(WebView* webview,
-                                        WebFrame* frame) {
-}
-
-void RenderView::WillPerformClientRedirect(WebView* webview,
-                                           WebFrame* frame,
-                                           const GURL& src_url,
-                                           const GURL& dest_url,
-                                           unsigned int delay_seconds,
-                                           unsigned int fire_date) {
-}
-
-void RenderView::DidCancelClientRedirect(WebView* webview,
-                                         WebFrame* frame) {
-}
-
-void RenderView::WillCloseFrame(WebView* view, WebFrame* frame) {
-}
-
 void RenderView::DidCompleteClientRedirect(WebView* webview,
                                            WebFrame* frame,
                                            const GURL& source) {
   if (webview->GetMainFrame() == frame)
     completed_client_redirect_src_ = source;
+}
+
+void RenderView::WillSubmitForm(WebView* webview, WebFrame* frame,
+                                const WebForm& form) {
+  NavigationState* navigation_state =
+      NavigationState::FromDataSource(frame->GetProvisionalDataSource());
+
+  if (navigation_state->transition_type() == PageTransition::LINK)
+    navigation_state->set_transition_type(PageTransition::FORM_SUBMIT);
+
+  // Save these to be processed when the ensuing navigation is committed.
+  navigation_state->set_searchable_form_data(
+      SearchableFormData::Create(form));
+  navigation_state->set_password_form_data(
+      PasswordFormDomManager::CreatePasswordForm(form));
+
+  if (form.isAutoCompleteEnabled()) {
+    scoped_ptr<AutofillForm> autofill_form(AutofillForm::Create(form));
+    if (autofill_form.get())
+      Send(new ViewHostMsg_AutofillFormSubmitted(routing_id_, *autofill_form));
+  }
 }
 
 void RenderView::WillSendRequest(WebView* webview,
@@ -1414,11 +1466,11 @@ WindowOpenDisposition RenderView::DispositionForNavigationAction(
     WebNavigationType type,
     WindowOpenDisposition disposition,
     bool is_redirect) {
-  // GetExtraData is NULL when we did not issue the request ourselves (see
-  // OnNavigate), and so such a request may correspond to a link-click,
-  // script, or drag-n-drop initiated navigation.
+  // A content initiated navigation may have originated from a link-click,
+  // script, drag-n-drop operation, etc.
   bool is_content_initiated =
-      !frame->GetProvisionalDataSource()->GetExtraData();
+      NavigationState::FromDataSource(frame->GetProvisionalDataSource())->
+          is_content_initiated();
 
   // Webkit is asking whether to navigate to a new URL.
   // This is fine normally, except if we're showing UI from one security
@@ -2262,16 +2314,6 @@ void RenderView::OnSetPageEncoding(const std::wstring& encoding_name) {
   webview()->SetPageEncoding(encoding_name);
 }
 
-void RenderView::OnPasswordFormsSeen(WebView* webview,
-                                     const std::vector<PasswordForm>& forms) {
-  Send(new ViewHostMsg_PasswordFormsSeen(routing_id_, forms));
-}
-
-void RenderView::OnAutofillFormSubmitted(WebView* webview,
-                                         const AutofillForm& form) {
-  Send(new ViewHostMsg_AutofillFormSubmitted(routing_id_, form));
-}
-
 void RenderView::NavigateBackForwardSoon(int offset) {
   history_back_list_count_ += offset;
   history_forward_list_count_ -= offset;
@@ -2472,7 +2514,7 @@ void RenderView::OnFormFill(const FormData& form) {
 }
 
 void RenderView::OnFillPasswordForm(
-    const PasswordFormDomManager::FillData& form_data) {
+    const webkit_glue::PasswordFormDomManager::FillData& form_data) {
   webkit_glue::FillPasswordForm(this->webview(), form_data);
 }
 
@@ -2679,11 +2721,8 @@ void RenderView::DidAddHistoryItem() {
   WebDataSource* ds = main_frame->GetDataSource();
   DCHECK(ds != NULL);
 
-  NavigationState* navigation_state =
-      static_cast<NavigationState*>(ds->GetExtraData());
-
-  if (navigation_state &&
-      navigation_state->transition_type == PageTransition::START_PAGE)
+  NavigationState* navigation_state = NavigationState::FromDataSource(ds);
+  if (navigation_state->transition_type() == PageTransition::START_PAGE)
     return;
 
   history_back_list_count_++;
@@ -2851,4 +2890,25 @@ void RenderView::FocusAccessibilityObject(
   // TODO(port): accessibility not yet implemented
   NOTIMPLEMENTED();
 #endif
+}
+
+void RenderView::SendPasswordForms(WebFrame* frame) {
+  std::vector<WebForm> forms;
+  frame->GetForms(&forms);
+
+  std::vector<PasswordForm> password_forms;
+  for (size_t i = 0; i < forms.size(); ++i) {
+    const WebForm& form = forms[i];
+
+    // Respect autocomplete=off.
+    if (form.isAutoCompleteEnabled()) {
+      scoped_ptr<PasswordForm> password_form(
+          PasswordFormDomManager::CreatePasswordForm(form));
+      if (password_form.get())
+        password_forms.push_back(*password_form);
+    }
+  }
+
+  if (!password_forms.empty())
+    Send(new ViewHostMsg_PasswordFormsSeen(routing_id_, password_forms));
 }

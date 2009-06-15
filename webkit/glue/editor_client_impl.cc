@@ -35,6 +35,8 @@
 #include "webkit/glue/webview.h"
 #include "webkit/glue/webview_impl.h"
 
+using webkit_glue::AutofillForm;
+
 // Arbitrary depth limit for the undo stack, to keep it from using
 // unbounded memory.  This is the maximum number of distinct undoable
 // actions -- unbroken stretches of typed characters are coalesced

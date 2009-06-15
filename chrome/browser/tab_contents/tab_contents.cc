@@ -1960,7 +1960,7 @@ void TabContents::PasswordFormsSeen(
 }
 
 void TabContents::AutofillFormSubmitted(
-    const AutofillForm& form) {
+    const webkit_glue::AutofillForm& form) {
   GetAutofillManager()->AutofillFormSubmitted(form);
 }
 

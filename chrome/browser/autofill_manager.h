@@ -10,7 +10,10 @@
 #include "chrome/browser/webdata/web_data_service.h"
 #include "chrome/common/pref_member.h"
 
+namespace webkit_glue {
 class AutofillForm;
+}
+
 class Profile;
 class TabContents;
 
@@ -27,7 +30,7 @@ class AutofillManager : public WebDataServiceConsumer {
 
   // Called when a form is submitted (i.e. when the user hits the submit button)
   // to store the form entries in the profile's sql database.
-  void AutofillFormSubmitted(const AutofillForm& form);
+  void AutofillFormSubmitted(const webkit_glue::AutofillForm& form);
 
   // Starts a query into the database for the values corresponding to name.
   // OnWebDataServiceRequestDone gets called when the query completes.
@@ -47,7 +50,7 @@ class AutofillManager : public WebDataServiceConsumer {
   static void RegisterUserPrefs(PrefService* prefs);
 
  private:
-  void StoreFormEntriesInWebDatabase(const AutofillForm& form);
+  void StoreFormEntriesInWebDatabase(const webkit_glue::AutofillForm& form);
 
   TabContents* tab_contents_;
 

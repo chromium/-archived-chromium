@@ -94,6 +94,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 using base::Time;
+using webkit_glue::AutofillForm;
 
 // Current version number.
 static const int kCurrentVersionNumber = 22;

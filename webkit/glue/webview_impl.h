@@ -230,11 +230,6 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
                        WebCore::Frame* frame,
                        const WebCore::PlatformKeyboardEvent& e);
 
-  // Creates and returns a new SearchableFormData for the focused node.
-  // It's up to the caller to free the returned SearchableFormData.
-  // This returns NULL if the focused node is NULL, or not in a valid form.
-  SearchableFormData* CreateSearchableFormDataForFocusedNode();
-
   scoped_refptr<WebViewDelegate> delegate_;
   WebKit::WebSize size_;
 
