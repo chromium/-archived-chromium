@@ -1486,6 +1486,7 @@ WindowOpenDisposition RenderView::DispositionForNavigationAction(
     // When we received such unsolicited navigations, we sometimes want to
     // punt them up to the browser to handle.
     if (BindingsPolicy::is_dom_ui_enabled(enabled_bindings_) ||
+        BindingsPolicy::is_extension_enabled(enabled_bindings_) ||
         frame->GetInViewSourceMode() ||
         url.SchemeIs(chrome::kViewSourceScheme)) {
       OpenURL(webview, url, GURL(), disposition);
