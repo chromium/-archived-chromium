@@ -8,6 +8,7 @@
 
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
+#include "build/build_config.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/sessions/tab_restore_service.h"
@@ -341,8 +342,12 @@ void TabStripModel::AddTabContents(TabContents* contents,
         contents, transition, foreground);
   } else {
     // For all other types, respect what was passed to us, normalizing -1s.
+#if defined(LINUX2)
+    index = 0;
+#else
     if (index < 0)
       index = count();
+#endif
   }
 
   // Tabs opened from links inherit the "group" attribute of the Tab from which

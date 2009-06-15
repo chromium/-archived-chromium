@@ -7,6 +7,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/dock_info.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/tabs/tab_overview_cell.h"
 #include "chrome/browser/views/tabs/tab_overview_controller.h"

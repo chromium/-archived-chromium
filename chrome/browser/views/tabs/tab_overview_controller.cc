@@ -6,6 +6,7 @@
 
 #include "chrome/browser/browser.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/tabs/tab_overview_cell.h"
 #include "chrome/browser/views/tabs/tab_overview_container.h"
 #include "chrome/browser/views/tabs/tab_overview_grid.h"
