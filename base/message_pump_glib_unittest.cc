@@ -5,8 +5,11 @@
 #include "base/message_pump_glib.h"
 
 #include <gtk/gtk.h>
+#include <math.h>
+
 #include <algorithm>
 #include <vector>
+
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/platform_thread.h"
