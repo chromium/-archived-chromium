@@ -5,9 +5,7 @@
   "permissions": [
     "http://*/*"
   ],
-  "toolstrips": [
-    "toolstrip.html"
-  ],
+  "background_page": "background.html",
   "content_scripts": [
     {
       "matches": ["http://*/*"],
