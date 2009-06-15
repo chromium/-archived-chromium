@@ -166,6 +166,8 @@ bool FontConfigDirect::Match(std::string* result_family,
     if (result_family)
         *result_family = (char *) c_family;
 
+    FcPatternDestroy(match);
+
     return true;
 }
 
