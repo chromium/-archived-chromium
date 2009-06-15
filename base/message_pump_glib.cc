@@ -59,11 +59,11 @@ int GetTimeIntervalMilliseconds(base::Time from) {
 //
 // gtk_events_pending just calls g_main_context_pending, which does the
 // following:
-// - call prepare on all the sources
-// - do the poll with a timeout of 0 (not blocking)
-// - call check on all the sources
-// - *does not* call dispatch on the sources
-// - return true iff any of prepare() or check() returned true
+// - Call prepare on all the sources.
+// - Do the poll with a timeout of 0 (not blocking).
+// - Call check on all the sources.
+// - *Does not* call dispatch on the sources.
+// - Return true if any of prepare() or check() returned true.
 //
 // gtk_main_iteration just calls g_main_context_iteration, which does the whole
 // thing, respecting the timeout for the poll (and block, although it is
@@ -76,10 +76,10 @@ int GetTimeIntervalMilliseconds(base::Time from) {
 // after, from gtk_main_iteration.
 //
 // For the GLib pump we try to follow the Windows UI pump model:
-// - whenever we receive a wakeup event or the timer for delayed work expires,
+// - Whenever we receive a wakeup event or the timer for delayed work expires,
 // we run DoWork and/or DoDelayedWork. That part will also run in the other
-// event pumps
-// - we also run DoWork, DoDelayedWork, and possibly DoIdleWork in the main
+// event pumps.
+// - We also run DoWork, DoDelayedWork, and possibly DoIdleWork in the main
 // loop, around event handling.
 
 struct WorkSource : public GSource {
@@ -197,7 +197,6 @@ void MessagePumpForUI::Run(Delegate* delegate) {
 
     more_work_is_plausible |=
         state_->delegate->DoDelayedWork(&delayed_work_time_);
-
     if (state_->should_quit)
       break;
 
@@ -254,7 +253,8 @@ bool MessagePumpForUI::HandleCheck() {
 void MessagePumpForUI::HandleDispatch() {
   state_->has_work = false;
   if (state_->delegate->DoWork()) {
-    // NOTE: on Windows at this point we would call ScheduleWork. But here,
+    // NOTE: on Windows at this point we would call ScheduleWork (see
+    // MessagePumpForUI::HandleWorkMessage in message_pump_win.cc). But here,
     // instead of posting a message on the wakeup pipe, we can avoid the
     // syscalls and just signal that we have more work.
     state_->has_work = true;

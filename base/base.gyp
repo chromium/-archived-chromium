@@ -624,6 +624,7 @@
         'linked_ptr_unittest.cc',
         'mac_util_unittest.cc',
         'message_loop_unittest.cc',
+        'message_pump_glib_unittest.cc',
         'object_watcher_unittest.cc',
         'observer_list_unittest.cc',
         'path_service_unittest.cc',
@@ -696,6 +697,10 @@
             '../build/linux/system.gyp:gtk',
             '../build/linux/system.gyp:nss',
           ],
+        }, {  # OS != "linux"
+          'sources!': [
+            'message_pump_glib_unittest.cc',
+          ]
         }],
         ['OS != "mac"', {
           'sources!': [
