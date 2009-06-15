@@ -45,10 +45,7 @@ namespace {
 class URLRequestHttpCacheContext : public URLRequestContext {
  public:
   URLRequestHttpCacheContext() {
-    // TODO(eroman): we turn off host caching to see if synchronous
-    // host resolving interacts poorly with client socket pool. [experiment]
-    // http://crbug.com/13952
-    host_resolver_ = new net::HostResolver(0, 0);
+    host_resolver_ = new net::HostResolver;
     proxy_service_ = net::ProxyService::CreateNull();
     http_transaction_factory_ =
         new net::HttpCache(
@@ -318,8 +315,7 @@ TEST_F(HTTPSRequestTest, MAYBE_HTTPSExpiredTest) {
   }
 }
 
-// http://crbug.com/13952
-TEST_F(URLRequestTest, DISABLED_CancelTest) {
+TEST_F(URLRequestTest, CancelTest) {
   TestDelegate d;
   {
     TestURLRequest r(GURL("http://www.google.com/"), &d);
@@ -342,8 +338,7 @@ TEST_F(URLRequestTest, DISABLED_CancelTest) {
 #endif
 }
 
-// http://crbug.com/13952
-TEST_F(URLRequestTest, DISABLED_CancelTest2) {
+TEST_F(URLRequestTest, CancelTest2) {
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(L"", NULL);
   ASSERT_TRUE(NULL != server.get());
@@ -372,8 +367,7 @@ TEST_F(URLRequestTest, DISABLED_CancelTest2) {
 #endif
 }
 
-// http://crbug.com/13952
-TEST_F(URLRequestTest, DISABLED_CancelTest3) {
+TEST_F(URLRequestTest, CancelTest3) {
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(L"", NULL);
   ASSERT_TRUE(NULL != server.get());
@@ -401,8 +395,7 @@ TEST_F(URLRequestTest, DISABLED_CancelTest3) {
 #endif
 }
 
-// http://crbug.com/13952
-TEST_F(URLRequestTest, DISABLED_CancelTest4) {
+TEST_F(URLRequestTest, CancelTest4) {
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(L"", NULL);
   ASSERT_TRUE(NULL != server.get());
