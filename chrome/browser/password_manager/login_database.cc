@@ -4,6 +4,9 @@
 
 #include "chrome/browser/password_manager/login_database.h"
 
+#include <algorithm>
+#include <limits>
+
 #include "base/time.h"
 #include "chrome/common/sqlite_utils.h"
 
