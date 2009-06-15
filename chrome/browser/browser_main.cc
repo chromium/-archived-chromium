@@ -65,7 +65,6 @@
 
 #if defined(OS_LINUX)
 #include "chrome/app/breakpad_linux.h"
-#include <sys/prctl.h>
 #endif
 
 // TODO(port): several win-only methods have been pulled out of this, but
@@ -269,11 +268,6 @@ int BrowserMain(const MainFunctionParams& parameters) {
   std::wstring app_name = chrome::kBrowserAppName;
   std::string thread_name_string = WideToASCII(app_name + L"_BrowserMain");
 
-#if defined(OS_LINUX)
-  // Set the process name so it is easier to distinguish this process from
-  // others.  The process name will be trimmed to 15 characters.
-  prctl(PR_SET_NAME, WideToASCII(app_name + L"_Browser").c_str(), 0, 0, 0);
-#endif
   const char* thread_name = thread_name_string.c_str();
   PlatformThread::SetName(thread_name);
   main_message_loop.set_thread_name(thread_name);
