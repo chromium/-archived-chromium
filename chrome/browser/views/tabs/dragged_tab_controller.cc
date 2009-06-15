@@ -9,6 +9,7 @@
 
 #include "app/animation.h"
 #include "app/gfx/canvas.h"
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/extensions/extension_function_dispatcher.h"
@@ -70,14 +71,31 @@ class DockView : public views::View {
     SkBitmap* high_icon = rb.GetBitmapNamed(IDR_DOCK_HIGH);
     SkBitmap* wide_icon = rb.GetBitmapNamed(IDR_DOCK_WIDE);
 
+    bool rtl_ui = l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT;
+    if (rtl_ui) {
+      // Flip canvas to draw the mirrored tab images for RTL UI.
+      canvas->save();
+      canvas->TranslateInt(width(), 0);
+      canvas->ScaleInt(-1, 1);
+    }
+    int x_of_active_tab = -1;
+    int x_of_inactive_tab = -1;
     switch (type_) {
       case DockInfo::LEFT_OF_WINDOW:
       case DockInfo::LEFT_HALF:
-        canvas->DrawBitmapInt(*high_icon,
-            width() / 2 - high_icon->width() - kTabSpacing / 2,
-            (height() - high_icon->height()) / 2);
+        if (!rtl_ui) {
+          x_of_active_tab = width() / 2 - high_icon->width() - kTabSpacing / 2;
+          x_of_inactive_tab = width() / 2 + kTabSpacing / 2;
+        } else {
+          // Adjust x axis for RTL UI after flippping canvas.
+          x_of_active_tab = width() / 2 + kTabSpacing / 2;
+          x_of_inactive_tab = width() / 2 - high_icon->width() -
+                              kTabSpacing / 2;
+        }
+        canvas->DrawBitmapInt(*high_icon, x_of_active_tab,
+                              (height() - high_icon->height()) / 2);
         if (type_ == DockInfo::LEFT_OF_WINDOW) {
-          DrawBitmapWithAlpha(canvas, *high_icon, width() / 2 + kTabSpacing / 2,
+          DrawBitmapWithAlpha(canvas, *high_icon, x_of_inactive_tab,
                               (height() - high_icon->height()) / 2);
         }
         break;
@@ -85,12 +103,20 @@ class DockView : public views::View {
 
       case DockInfo::RIGHT_OF_WINDOW:
       case DockInfo::RIGHT_HALF:
-        canvas->DrawBitmapInt(*high_icon, width() / 2 + kTabSpacing / 2,
+        if (!rtl_ui) {
+          x_of_active_tab = width() / 2 + kTabSpacing / 2;
+          x_of_inactive_tab = width() / 2 - high_icon->width() -
+                              kTabSpacing / 2;
+        } else {
+          // Adjust x axis for RTL UI after flippping canvas.
+          x_of_active_tab = width() / 2 - high_icon->width() - kTabSpacing / 2;
+          x_of_inactive_tab = width() / 2 + kTabSpacing / 2;
+        }
+        canvas->DrawBitmapInt(*high_icon, x_of_active_tab,
                               (height() - high_icon->height()) / 2);
         if (type_ == DockInfo::RIGHT_OF_WINDOW) {
-         DrawBitmapWithAlpha(canvas, *high_icon,
-              width() / 2 - high_icon->width() - kTabSpacing / 2,
-              (height() - high_icon->height()) / 2);
+         DrawBitmapWithAlpha(canvas, *high_icon, x_of_inactive_tab,
+                             (height() - high_icon->height()) / 2);
         }
         break;
 
@@ -121,6 +147,8 @@ class DockView : public views::View {
         NOTREACHED();
         break;
     }
+    if (rtl_ui)
+      canvas->restore();
   }
 
  private:
@@ -301,6 +329,7 @@ DraggedTabController::~DraggedTabController() {
 void DraggedTabController::CaptureDragInfo(const gfx::Point& mouse_offset) {
   start_screen_point_ = GetCursorScreenPoint();
   mouse_offset_ = mouse_offset;
+  InitWindowCreatePoint();
 }
 
 void DraggedTabController::Drag() {
@@ -461,7 +490,14 @@ void DraggedTabController::DidProcessEvent(GdkEvent* event) {
 
 void DraggedTabController::InitWindowCreatePoint() {
   window_create_point_.SetPoint(mouse_offset_.x(), mouse_offset_.y());
-  Tab* first_tab = attached_tabstrip_->GetTabAt(0);
+  // window_create_point_ is only used in CompleteDrag() (through
+  // GetWindowCreatePoint() to get the start point of the docked window) when
+  // the attached_tabstrip_ is NULL and all the window's related bound
+  // information are obtained from source_tabstrip_. So, we need to get the
+  // first_tab based on source_tabstrip_, not attached_tabstrip_. Otherwise,
+  // the window_create_point_ is not in the correct coordinate system. Please
+  // refer to http://crbug.com/6223 comment #15 for detailed information.
+  Tab* first_tab = source_tabstrip_->GetTabAt(0);
   views::View::ConvertPointToWidget(first_tab, &window_create_point_);
 }
 
@@ -688,7 +724,6 @@ TabStrip* DraggedTabController::GetTabStripIfItContains(
 void DraggedTabController::Attach(TabStrip* attached_tabstrip,
                                   const gfx::Point& screen_point) {
   attached_tabstrip_ = attached_tabstrip;
-  InitWindowCreatePoint();
   attached_tabstrip_->GenerateIdealBounds();
 
   // We don't need the photo-booth while we're attached.
@@ -1051,6 +1086,15 @@ bool DraggedTabController::CompleteDrag() {
     gfx::Rect window_bounds(
         GetWindowCreatePoint(),
         gfx::Size(browser_rect.width(), browser_rect.height()));
+    // When modifying the following if statement, please make sure not to
+    // introduce issue listed in http://crbug.com/6223 comment #11.
+    bool rtl_ui = (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT);
+    bool has_dock_position = (dock_info_.type() != DockInfo::NONE);
+    if (rtl_ui && has_dock_position) {
+      // Mirror X axis so the docked tab is aligned using the mouse click as
+      // the top-right corner.
+      window_bounds.set_x(window_bounds.x() - window_bounds.width());
+    }
     Browser* new_browser =
         source_tabstrip_->model()->delegate()->CreateNewStripWithContents(
             dragged_contents_, window_bounds, dock_info_);
