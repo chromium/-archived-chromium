@@ -73,7 +73,7 @@ bool FontConfigDirect::Match(std::string* result_family,
     }
     if (is_italic > 0) {
         fcvalue.type = FcTypeInteger;
-        fcvalue.u.i = is_bold ? FC_SLANT_ITALIC : FC_SLANT_ROMAN;
+        fcvalue.u.i = is_italic ? FC_SLANT_ITALIC : FC_SLANT_ROMAN;
         FcPatternAdd(pattern, FC_SLANT, fcvalue, 0);
     }
 
