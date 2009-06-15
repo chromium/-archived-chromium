@@ -1419,11 +1419,14 @@ gfx::Rect RenderViewHost::GetRootWindowResizerRect() const {
 
 void RenderViewHost::ForwardMouseEvent(
     const WebKit::WebMouseEvent& mouse_event) {
-  RenderWidgetHost::ForwardMouseEvent(mouse_event);
+  // We make a copy of the mouse event because
+  // RenderWidgetHost::ForwardMouseEvent will delete |mouse_event|.
+  WebKit::WebMouseEvent event_copy(mouse_event);
+  RenderWidgetHost::ForwardMouseEvent(event_copy);
 
   RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
   if (view) {
-    switch (mouse_event.type) {
+    switch (event_copy.type) {
       case WebInputEvent::MouseMove:
         view->HandleMouseEvent();
         break;
