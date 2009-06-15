@@ -190,7 +190,8 @@ TEST_F(TabRestoreUITest, MiddleTab) {
 
 // Close a tab, switch windows, then restore the tab. The tab should be in its
 // original window and position, and active.
-TEST_F(TabRestoreUITest, RestoreToDifferentWindow) {
+// Disabled because flacky. See http://crbug.com/14132
+TEST_F(TabRestoreUITest, DISABLED_RestoreToDifferentWindow) {
   scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
 
   // This call is virtually guaranteed to pass, assuming that Chromium is the
@@ -283,7 +284,8 @@ TEST_F(TabRestoreUITest, BasicRestoreFromClosedWindow) {
 
 // Open a window with multiple tabs, close a tab, then close the window.
 // Restore both and make sure the tab goes back into the window.
-TEST_F(TabRestoreUITest, RestoreWindowAndTab) {
+// Disabled because flacky. See http://crbug.com/14132
+TEST_F(TabRestoreUITest, DISABLED_RestoreWindowAndTab) {
   scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   CheckActiveWindow(browser_proxy.get());
 
