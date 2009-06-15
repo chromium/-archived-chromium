@@ -154,15 +154,13 @@ class TCPClientSocketPool : public ClientSocketPool {
     scoped_refptr<TCPClientSocketPool> pool_;
     SingleRequestHostResolver resolver_;
     AddressList addresses_;
+    bool canceled_;
 
     // The time the Connect() method was called (if it got called).
     base::Time connect_start_time_;
 
     DISALLOW_COPY_AND_ASSIGN(ConnectingSocket);
   };
-
-  typedef std::map<const ClientSocketHandle*, ConnectingSocket*>
-      ConnectingSocketMap;
 
   virtual ~TCPClientSocketPool();
 
@@ -186,15 +184,11 @@ class TCPClientSocketPool : public ClientSocketPool {
     CleanupIdleSockets(false);
   }
 
-  // Removes the ConnectingSocket corresponding to |handle| from the
-  // |connecting_socket_map_|.
-  void RemoveConnectingSocket(const ClientSocketHandle* handle);
-
   ClientSocketFactory* const client_socket_factory_;
 
   GroupMap group_map_;
 
-  ConnectingSocketMap connecting_socket_map_;
+  std::map<const ClientSocketHandle*, ConnectingSocket*> connecting_socket_map_;
 
   // Timer used to periodically prune idle sockets that timed out or can't be
   // reused.
