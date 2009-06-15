@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -128,6 +128,9 @@ bool MemBackendImpl::DoomEntry(const std::string& key) {
 }
 
 void MemBackendImpl::InternalDoomEntry(MemEntryImpl* entry) {
+  // Only parent entries can be passed into this method.
+  DCHECK(entry->type() == MemEntryImpl::kParentEntry);
+
   rankings_.Remove(entry);
   EntryMap::iterator it = entries_.find(entry->GetKey());
   if (it != entries_.end())
@@ -162,38 +165,33 @@ bool MemBackendImpl::DoomEntriesBetween(const Time initial_time,
     if (node->GetLastUsed() < initial_time)
       break;
 
-    if (node->GetLastUsed() < end_time) {
+    if (node->GetLastUsed() < end_time)
       node->Doom();
-    }
   }
 
   return true;
 }
 
-// We use OpenNextEntry to retrieve elements from the cache, until we get
-// entries that are too old.
 bool MemBackendImpl::DoomEntriesSince(const Time initial_time) {
   for (;;) {
-    Entry* entry;
-    void* iter = NULL;
-    if (!OpenNextEntry(&iter, &entry))
-      return true;
+    // Get the entry in the front.
+    Entry* entry = rankings_.GetNext(NULL);
 
-    if (initial_time > entry->GetLastUsed()) {
-      entry->Close();
-      EndEnumeration(&iter);
+    // Break the loop when there are no more entries or the entry is too old.
+    if (!entry || entry->GetLastUsed() < initial_time)
       return true;
-    }
-
     entry->Doom();
-    entry->Close();
-    EndEnumeration(&iter);  // Dooming the entry invalidates the iterator.
   }
 }
 
 bool MemBackendImpl::OpenNextEntry(void** iter, Entry** next_entry) {
   MemEntryImpl* current = reinterpret_cast<MemEntryImpl*>(*iter);
   MemEntryImpl* node = rankings_.GetNext(current);
+  // We should never return a child entry so iterate until we hit a parent
+  // entry.
+  while (node && node->type() != MemEntryImpl::kParentEntry) {
+    node = rankings_.GetNext(node);
+  }
   *next_entry = node;
   *iter = node;
 
@@ -250,6 +248,14 @@ void MemBackendImpl::UpdateRank(MemEntryImpl* node) {
 
 int MemBackendImpl::MaxFileSize() const {
   return max_size_ / 8;
+}
+
+void MemBackendImpl::InsertIntoRankingList(MemEntryImpl* entry) {
+  rankings_.Insert(entry);
+}
+
+void MemBackendImpl::RemoveFromRankingList(MemEntryImpl* entry) {
+  rankings_.Remove(entry);
 }
 
 }  // namespace disk_cache

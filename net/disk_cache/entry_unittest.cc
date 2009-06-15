@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -11,6 +11,7 @@
 #include "net/disk_cache/disk_cache_test_base.h"
 #include "net/disk_cache/disk_cache_test_util.h"
 #include "net/disk_cache/entry_impl.h"
+#include "net/disk_cache/mem_entry_impl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using base::Time;
@@ -818,4 +819,47 @@ TEST_F(DiskCacheEntryTest, MemoryOnlyDoomedEntry) {
   SetMemoryOnlyMode();
   InitCache();
   DoomEntry();
+}
+
+// Test that child entries in a memory cache backend are not visible from
+// enumerations.
+TEST_F(DiskCacheEntryTest, MemoryOnlyEnumerationWithSlaveEntries) {
+  SetMemoryOnlyMode();
+  SetDirectMode();
+  SetMaxSize(1024);
+  InitCache();
+
+  disk_cache::Entry* entry;
+  disk_cache::MemEntryImpl* parent_entry;
+
+  ASSERT_TRUE(cache_->CreateEntry("parent", &entry));
+  parent_entry = reinterpret_cast<disk_cache::MemEntryImpl*>(entry);
+  EXPECT_EQ(disk_cache::MemEntryImpl::kParentEntry, parent_entry->type());
+  parent_entry->Close();
+
+  disk_cache::MemEntryImpl* child_entry =
+      new disk_cache::MemEntryImpl(mem_cache_);
+  // TODO(hclam): we shouldn't create a child entry explicit. Once a parent
+  // entry can be triggered to create a child entry, we should change this
+  // to use another public method to do the creation.
+  EXPECT_TRUE(child_entry->CreateChildEntry(parent_entry));
+  EXPECT_EQ(disk_cache::MemEntryImpl::kChildEntry, child_entry->type());
+
+  // Perform the enumerations.
+  void* iter = NULL;
+  int count = 0;
+  while (cache_->OpenNextEntry(&iter, &entry)) {
+    ASSERT_TRUE(entry != NULL);
+    disk_cache::MemEntryImpl* mem_entry =
+        reinterpret_cast<disk_cache::MemEntryImpl*>(entry);
+    EXPECT_EQ(disk_cache::MemEntryImpl::kParentEntry, mem_entry->type());
+    EXPECT_TRUE(mem_entry == parent_entry);
+    mem_entry->Close();
+    ++count;
+  }
+  EXPECT_EQ(1, count);
+
+  // TODO(hclam): remove this when parent entry can doom child entries
+  // internally. Now we have to doom this child entry manually.
+  child_entry->Doom();
 }

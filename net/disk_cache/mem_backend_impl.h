@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -17,7 +17,7 @@ namespace disk_cache {
 class MemEntryImpl;
 
 // This class implements the Backend interface. An object of this class handles
-// the operations of the cache without writting to disk.
+// the operations of the cache without writing to disk.
 class MemBackendImpl : public Backend {
  public:
   MemBackendImpl() : max_size_(0), current_size_(0) {}
@@ -54,6 +54,15 @@ class MemBackendImpl : public Backend {
 
   // Returns the maximum size for a file to reside on the cache.
   int MaxFileSize() const;
+
+  // Insert an MemEntryImpl into the ranking list. This method is only called
+  // from MemEntryImpl to insert child entries. The reference can be removed
+  // by calling RemoveFromRankingList(|entry|).
+  void InsertIntoRankingList(MemEntryImpl* entry);
+
+  // Remove |entry| from ranking list. This method is only called from
+  // MemEntryImpl to remove a child entry from the ranking list.
+  void RemoveFromRankingList(MemEntryImpl* entry);
 
  private:
   // Deletes entries from the cache until the current size is below the limit.

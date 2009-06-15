@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -17,6 +17,7 @@ MemEntryImpl::MemEntryImpl(MemBackendImpl* backend) {
   doomed_ = false;
   backend_ = backend;
   ref_count_ = 0;
+  parent_ = NULL;
   next_ = NULL;
   prev_ = NULL;
   for (int i = 0; i < NUM_STREAMS; i++)
@@ -33,12 +34,25 @@ bool MemEntryImpl::CreateEntry(const std::string& key) {
   key_ = key;
   last_modified_ = Time::Now();
   last_used_ = Time::Now();
+  type_ = kParentEntry;
   Open();
   backend_->ModifyStorageSize(0, static_cast<int32>(key.size()));
   return true;
 }
 
+bool MemEntryImpl::CreateChildEntry(MemEntryImpl* parent) {
+  parent_ = parent;
+  last_modified_ = Time::Now();
+  last_used_ = Time::Now();
+  type_ = kChildEntry;
+  // Insert this to the backend's ranking list.
+  backend_->InsertIntoRankingList(this);
+  return true;
+}
+
 void MemEntryImpl::Close() {
+  // Only a parent entry can be closed.
+  DCHECK(type_ == kParentEntry);
   ref_count_--;
   DCHECK(ref_count_ >= 0);
   if (!ref_count_ && doomed_)
@@ -46,28 +60,52 @@ void MemEntryImpl::Close() {
 }
 
 void MemEntryImpl::Open() {
+  // Only a parent entry can be opened.
+  DCHECK(type_ == kParentEntry);
   ref_count_++;
   DCHECK(ref_count_ >= 0);
   DCHECK(!doomed_);
 }
 
 bool MemEntryImpl::InUse() {
-  return ref_count_ > 0;
+  if (type_ == kParentEntry) {
+    return ref_count_ > 0;
+  } else {
+    // A child entry is always not in use. The consequence is that a child entry
+    // can always be evicted while the associated parent entry is currently in
+    // used (i.e. opened).
+    return false;
+  }
 }
 
 void MemEntryImpl::Doom() {
   if (doomed_)
     return;
-  backend_->InternalDoomEntry(this);
+  if (type_ == kParentEntry) {
+    // Perform internal doom from the backend if this is a parent entry.
+    backend_->InternalDoomEntry(this);
+  } else {
+    // Manually detach from the parent entry and perform internal doom.
+    backend_->RemoveFromRankingList(this);
+    InternalDoom();
+  }
 }
 
 void MemEntryImpl::InternalDoom() {
   doomed_ = true;
-  if (!ref_count_)
+  if (!ref_count_) {
+    if (type_ == kParentEntry) {
+      // TODO(hclam): doom all child entries associated with this entry.
+    } else {
+      // TODO(hclam): detach this child entry from the parent entry.
+    }
     delete this;
+  }
 }
 
 std::string MemEntryImpl::GetKey() const {
+  // A child entry doesn't have key so this method should not be called.
+  DCHECK(type_ == kParentEntry);
   return key_;
 }
 
@@ -83,11 +121,16 @@ int32 MemEntryImpl::GetDataSize(int index) const {
   if (index < 0 || index >= NUM_STREAMS)
     return 0;
 
+  // TODO(hclam): handle the case when this is a parent entry and has associated
+  // child entries.
   return data_size_[index];
 }
 
 int MemEntryImpl::ReadData(int index, int offset, net::IOBuffer* buf,
     int buf_len, net::CompletionCallback* completion_callback) {
+  // This method can only be called with a parent entry.
+  DCHECK(type_ == kParentEntry);
+
   if (index < 0 || index >= NUM_STREAMS)
     return net::ERR_INVALID_ARGUMENT;
 
@@ -109,6 +152,9 @@ int MemEntryImpl::ReadData(int index, int offset, net::IOBuffer* buf,
 
 int MemEntryImpl::WriteData(int index, int offset, net::IOBuffer* buf,
     int buf_len, net::CompletionCallback* completion_callback, bool truncate) {
+  // This method can only be called with a parent entry.
+  DCHECK(type_ == kParentEntry);
+
   if (index < 0 || index >= NUM_STREAMS)
     return net::ERR_INVALID_ARGUMENT;
 
