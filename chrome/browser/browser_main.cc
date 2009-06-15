@@ -60,7 +60,9 @@
 // TODO(port): get rid of this include. It's used just to provide declarations
 // and stub definitions for classes we encouter during the porting effort.
 #include "chrome/common/temp_scaffolding_stubs.h"
+#include <errno.h>
 #include <signal.h>
+#include <sys/resource.h>
 #endif
 
 #if defined(OS_LINUX)
@@ -197,6 +199,24 @@ void RunUIMessageLoop(BrowserProcess* browser_process) {
 // See comment below, where sigaction is called.
 void SIGCHLDHandler(int signal) {
 }
+
+// Sets the file descriptor soft limit to |max_descriptors| or the OS hard
+// limit, whichever is lower.
+void SetFileDescriptorLimit(unsigned int max_descriptors) {
+  struct rlimit limits;
+  if (getrlimit(RLIMIT_NOFILE, &limits) == 0) {
+    unsigned int new_limit = max_descriptors;
+    if (limits.rlim_max > 0 && limits.rlim_max < max_descriptors) {
+      new_limit = limits.rlim_max;
+    }
+    limits.rlim_cur = new_limit;
+    if (setrlimit(RLIMIT_NOFILE, &limits) != 0) {
+      LOG(INFO) << "Failed to set file descriptor limit: " << strerror(errno);
+    }
+  } else {
+    LOG(INFO) << "Failed to get file descriptor limit: " << strerror(errno);
+  }
+}
 #endif
 
 #if defined(OS_WIN)
@@ -245,7 +265,24 @@ int BrowserMain(const MainFunctionParams& parameters) {
   memset(&action, 0, sizeof(action));
   action.sa_handler = SIGCHLDHandler;
   CHECK(sigaction(SIGCHLD, &action, NULL) == 0);
-#endif
+
+  const std::wstring fd_limit_string =
+      parsed_command_line.GetSwitchValue(switches::kFileDescriptorLimit);
+  int fd_limit = 0;
+  if (!fd_limit_string.empty()) {
+    StringToInt(WideToUTF16Hack(fd_limit_string), &fd_limit);
+  }
+#if defined(OS_MACOSX)
+  // We use quite a few file descriptors for our IPC, and the default limit on
+  // the Mac is low (256), so bump it up if there is no explicit override.
+  if (fd_limit == 0) {
+    fd_limit = 1024;
+  }
+#endif  // OS_MACOSX
+  if (fd_limit > 0) {
+    SetFileDescriptorLimit(fd_limit);
+  }
+#endif  // OS_POSIX
 
   // Do platform-specific things (such as finishing initializing Cocoa)
   // prior to instantiating the message loop. This could be turned into a

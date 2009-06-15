@@ -504,4 +504,9 @@ const wchar_t kThumbnailStore[]                = L"thumbnail-store";
 // is to be used only by the upgrade process.
 const wchar_t kTryChromeAgain[]      = L"try-chrome-again";
 
+// The file descriptor limit is set to the value of this switch, subject to the
+// OS hard limits. Useful for testing that file descriptor exhaustion is handled
+// gracefully.
+const wchar_t kFileDescriptorLimit[]           = L"file-descriptor-limit";
+
 }  // namespace switches
