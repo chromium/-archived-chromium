@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject Keyword="Win32Proj" Name="cld" ProjectGUID="{05B678A6-4921-3039-DF16-4D969BA68C70}" ProjectType="Visual C++" RootNamespace="cld" Version="8.00">
+  <Platforms>
+    <Platform Name="Win32"/>
+  </Platforms>
+  <ToolFiles/>
+  <Configurations>
+    <Configuration CharacterSet="1" ConfigurationType="4" InheritedPropertySheets="" IntermediateDirectory="$(OutDir)\obj\$(ProjectName)" Name="Debug|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)">
+      <Tool AdditionalIncludeDirectories="..\..\third_party\platformsdk_win2008_6_1\files\Include;$(VSInstallDir)\VC\atlmfc\include;..\.." BasicRuntimeChecks="3" BufferSecurityCheck="true" DebugInformationFormat="3" Detect64BitPortabilityProblems="false" DisableSpecificWarnings="4396;4503;4819;4800;4005;4006;4018;4244;4309" EnableFunctionLevelLinking="true" ExceptionHandling="0" MinimalRebuild="false" Name="VCCLCompilerTool" Optimization="0" PreprocessorDefinitions="_DEBUG;_WIN32_WINNT=0x0600;WINVER=0x0600;WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;NOMINMAX;_CRT_RAND_S;CERT_CHAIN_PARA_HAS_EXTRA_FIELDS;WIN32_LEAN_AND_MEAN;_SECURE_ATL;_HAS_TR1=1;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;CHROMIUM_BUILD;CLD_WINDOWS" ProgramDataBaseFileName="$(IntDir)\$(ProjectName)\vc80.pdb" RuntimeLibrary="1" RuntimeTypeInfo="false" WarnAsError="false" WarningLevel="3"/>
+      <Tool AdditionalIncludeDirectories="..\..;..\..\third_party\platformsdk_win2008_6_1\files\Include;$(VSInstallDir)\VC\atlmfc\include;..\.." Culture="1033" Name="VCResourceCompilerTool" PreprocessorDefinitions="_DEBUG;_WIN32_WINNT=0x0600;WINVER=0x0600;WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;NOMINMAX;_CRT_RAND_S;CERT_CHAIN_PARA_HAS_EXTRA_FIELDS;WIN32_LEAN_AND_MEAN;_SECURE_ATL;_HAS_TR1=1;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;CHROMIUM_BUILD;CLD_WINDOWS"/>
+      <Tool DLLDataFileName="dlldata.c" GenerateStublessProxies="true" HeaderFileName="$(InputName).h" InterfaceIdentifierFileName="$(InputName)_i.c" Name="VCMIDLTool" OutputDirectory="$(IntDir)" ProxyFileName="$(InputName)_p.c" TypeLibraryName="$(InputName).tlb"/>
+      <Tool AdditionalLibraryDirectories="..\../third_party/platformsdk_win2008_6_1/files/Lib" AdditionalOptions="/ignore:4221" Name="VCLibrarianTool" OutputFile="$(OutDir)\lib\$(ProjectName).lib"/>
+      <Tool AdditionalDependencies="wininet.lib version.lib msimg32.lib ws2_32.lib usp10.lib psapi.lib dbghelp.lib" AdditionalLibraryDirectories="..\../third_party/platformsdk_win2008_6_1/files/Lib" AdditionalOptions="/safeseh /dynamicbase /ignore:4199 /ignore:4221 /nxcompat" DelayLoadDLLs="dbghelp.dll;dwmapi.dll;uxtheme.dll" FixedBaseAddress="1" GenerateDebugInformation="true" ImportLibrary="$(OutDir)\lib\$(TargetName).lib" LinkIncremental="2" MapFileName="$(OutDir)\$(TargetName).map" Name="VCLinkerTool" SubSystem="1" TargetMachine="1"/>
+    </Configuration>
+    <Configuration ConfigurationType="4" InheritedPropertySheets="..\..\build\release.vsprops" Name="Release|Win32">
+      <Tool AdditionalIncludeDirectories="..\..\third_party\platformsdk_win2008_6_1\files\Include;$(VSInstallDir)\VC\atlmfc\include;..\.." BufferSecurityCheck="true" DebugInformationFormat="3" Detect64BitPortabilityProblems="false" DisableSpecificWarnings="4396;4503;4819;4800;4005;4006;4018;4244;4309" EnableFunctionLevelLinking="true" ExceptionHandling="0" MinimalRebuild="false" Name="VCCLCompilerTool" PreprocessorDefinitions="_WIN32_WINNT=0x0600;WINVER=0x0600;WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;NOMINMAX;_CRT_RAND_S;CERT_CHAIN_PARA_HAS_EXTRA_FIELDS;WIN32_LEAN_AND_MEAN;_SECURE_ATL;_HAS_TR1=1;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;CHROMIUM_BUILD;CLD_WINDOWS;NDEBUG" ProgramDataBaseFileName="$(IntDir)\$(ProjectName)\vc80.pdb" RuntimeTypeInfo="false" WarnAsError="false" WarningLevel="3"/>
+      <Tool AdditionalIncludeDirectories="..\..;..\..\third_party\platformsdk_win2008_6_1\files\Include;$(VSInstallDir)\VC\atlmfc\include;..\.." Culture="1033" Name="VCResourceCompilerTool" PreprocessorDefinitions="_WIN32_WINNT=0x0600;WINVER=0x0600;WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;NOMINMAX;_CRT_RAND_S;CERT_CHAIN_PARA_HAS_EXTRA_FIELDS;WIN32_LEAN_AND_MEAN;_SECURE_ATL;_HAS_TR1=1;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_SCL_SECURE_NO_DEPRECATE;CHROMIUM_BUILD;CLD_WINDOWS;NDEBUG"/>
+      <Tool DLLDataFileName="dlldata.c" GenerateStublessProxies="true" HeaderFileName="$(InputName).h" InterfaceIdentifierFileName="$(InputName)_i.c" Name="VCMIDLTool" OutputDirectory="$(IntDir)" ProxyFileName="$(InputName)_p.c" TypeLibraryName="$(InputName).tlb"/>
+      <Tool AdditionalLibraryDirectories="..\../third_party/platformsdk_win2008_6_1/files/Lib" AdditionalOptions="/ignore:4221" Name="VCLibrarianTool" OutputFile="$(OutDir)\lib\$(ProjectName).lib"/>
+      <Tool AdditionalDependencies="wininet.lib version.lib msimg32.lib ws2_32.lib usp10.lib psapi.lib dbghelp.lib" AdditionalLibraryDirectories="..\../third_party/platformsdk_win2008_6_1/files/Lib" AdditionalOptions="/safeseh /dynamicbase /ignore:4199 /ignore:4221 /nxcompat" DelayLoadDLLs="dbghelp.dll;dwmapi.dll;uxtheme.dll" FixedBaseAddress="1" GenerateDebugInformation="true" ImportLibrary="$(OutDir)\lib\$(TargetName).lib" LinkIncremental="1" MapFileName="$(OutDir)\$(TargetName).map" Name="VCLinkerTool" SubSystem="1" TargetMachine="1"/>
+    </Configuration>
+  </Configurations>
+  <References/>
+  <Files>
+    <File RelativePath="cld.gyp"/>
+    <Filter Name="base">
+      <File RelativePath="base\vlog_is_on.h"/>
+      <File RelativePath="base\template_util.h"/>
+      <File RelativePath="base\commandlineflags.h"/>
+      <File RelativePath="base\strtoint.h"/>
+      <File RelativePath="base\log_severity.h"/>
+      <File RelativePath="base\logging.h"/>
+      <File RelativePath="base\casts.h"/>
+      <File RelativePath="base\type_traits.h"/>
+      <File RelativePath="base\macros.h"/>
+      <File RelativePath="base\scoped_ptr.h"/>
+      <File RelativePath="base\dynamic_annotations.h"/>
+      <File RelativePath="base\global_strip_options.h"/>
+      <File RelativePath="base\stl_decl.h"/>
+      <File RelativePath="base\crash.h"/>
+      <File RelativePath="base\stl_decl_msvc.h"/>
+    </Filter>
+    <Filter Name="bar">
+      <Filter Name="common">
+        <File RelativePath="bar\common\scopedptr.h"/>
+        <File RelativePath="bar\common\scopedlibrary.h"/>
+      </Filter>
+      <Filter Name="toolbar">
+        <Filter Name="cld">
+          <Filter Name="i18n">
+            <Filter Name="languages">
+              <Filter Name="internal">
+                <File RelativePath="bar\toolbar\cld\i18n\languages\internal\languages.cc"/>
+              </Filter>
+              <Filter Name="public">
+                <File RelativePath="bar\toolbar\cld\i18n\languages\public\languages.h"/>
+              </Filter>
+              <Filter Name="proto">
+                <File RelativePath="bar\toolbar\cld\i18n\languages\proto\languages.pb.h"/>
+              </Filter>
+            </Filter>
+            <Filter Name="encodings">
+              <Filter Name="compact_lang_det">
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\compact_lang_det.h"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\tote.cc"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\letterscript_enum.cc"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\cldutil_dbg.h"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\letterscript_enum.h"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\cldutil.cc"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\getonescriptspan.h"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\getonescriptspan.cc"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\compact_lang_det_generated_longwords8_0.cc"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\compact_lang_det_generated_quads_128.cc"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\utf8propjustletter.h"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\cldutil_dbg_empty.cc"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\compact_lang_det_impl.h"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\compact_lang_det_impl.cc"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\unittest_data.h"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\ext_lang_enc.h"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\utf8scannotjustletterspecial.h"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\utf8propletterscriptnum.h"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\compact_lang_det_generated_meanscore.h"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\cldutil.h"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\compact_lang_det_generated_ctjkvz.cc"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\subsetsequence.cc"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\subsetsequence.h"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\compact_lang_det_generated_cjkbis_0.cc"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\ext_lang_enc.cc"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\compact_lang_det.cc"/>
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\tote.h"/>
+                <Filter Name="win">
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\cld_strtoint.h"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\cld_unicodetext.h"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\cld_utf8statetable.cc"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\cld_commandlineflags.h"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\cld_scoped_ptr.h"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\cld_google.h"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\cld_utf8utils.h"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\cld_unicodetext.cc"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\normalizedunicodetext.cc"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\cld_unilib_windows.cc"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\cld_utf8statetable.h"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\normalizedunicodetext.h"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\cld_htmlutils.h"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\cld_logging.h"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\cld_scopedptr.h"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\cld_utf8utils_windows.cc"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\cld_unilib.h"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\cld_basictypes.h"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\cld_macros.h"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\cld_htmlutils_windows.cc"/>
+                  <File RelativePath="bar\toolbar\cld\i18n\encodings\compact_lang_det\win\cld_utf.h"/>
+                </Filter>
+              </Filter>
+              <Filter Name="internal">
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\internal\encodings.cc"/>
+              </Filter>
+              <Filter Name="public">
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\public\encodings.h"/>
+              </Filter>
+              <Filter Name="proto">
+                <File RelativePath="bar\toolbar\cld\i18n\encodings\proto\encodings.pb.h"/>
+              </Filter>
+            </Filter>
+          </Filter>
+        </Filter>
+      </Filter>
+    </Filter>
+  </Files>
+  <Globals/>
+</VisualStudioProject>

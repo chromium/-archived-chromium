@@ -1,0 +1,191 @@
+Stuff in this folder is copied from google3/i18n/ folder.
+Folder structure was preserved to not affect #include statements,
+thus it'll require less effort to maintain.
+
+
+What was done and how to update this stuff to a newer version, by folder:
+
+
+--- google3/i18n/languages/ ----------------------------------------------------
+
+1) google3/i18n/languages/public/languages.h  copied into
+   googleclient/bar/toolbar/cld/i18n/languages/public/languages.h
+   and modified:
+
+   - we do not currently use SWIG, but if we will in the future,
+     we'll have to take care about #ifndef SWIG blocks in the code
+
+   - IsScriptRequiringLongerSnippets(UnicodeScript script) was commented out
+     to avoid a dependency on util/utf8/util/utf8/proptables/script_enum.h
+
+   - #include "util/utf8/proptables/script_enum.h" was commented out
+     for the same reason
+
+   - using namespace i18n::languages; was commented out, we do not have
+     this namespace defined and we do not use anything from this namespace
+
+2) google3/i18n/languages/proto/languages.proto  copied into
+   googleclient/bar/toolbar/cld/i18n/languages/proto/languages.pb.h
+   and stripped down to just Language enum and formatted as a regular header
+   file.  The original file was also copied to be able to detect if it was
+   changed in google3 later (it was renamed to languages_proto since
+   .proto file submission is permitted only in main code line).
+
+3) google3/i18n/languages/internal/languages.cc copied into
+   googleclient/bar/toolbar/cld/i18n/languages/internal/languages.cc
+   and stripped of all unused functions and includes.
+
+
+
+--- google3/i18n/encodings/ ----------------------------------------------------
+
+1) google3/i18n/encodings/lang_enc.h  copied into
+   googleclient/bar/toolbar/cld/i18n/encodings/lang_enc.h as is.
+
+2) google3/i18n/encodings/public/encodings.h  copied into
+   googleclient/bar/toolbar/cld/i18n/encodings/public/encodings.h
+   and modified:
+
+   - we do not currently use SWIG, but if we will in the future,
+     we'll have to take care about #ifndef SWIG blocks in the code
+
+   - using namespace i18n::languages; was commented out, we do not have
+     this namespace defined and we do not use anything from this namespace
+
+3) google3/i18n/encodings/proto/encodings.proto  copied into
+   googleclient/bar/toolbar/cld/i18n/encodings/proto/encodings.pb.h
+   and stripped down to just Language enum and formatted as a regular header
+   file.  The original file was also copied to be able to detect if it was
+   changed in google3 later (it was renamed to encodings_proto since
+   .proto file submission is permitted only in main code line).
+
+
+
+--- google3/i18n/encodings/compact_lang_det/ -----------------------------------
+
+1) Merge new stuff from google3/i18n/encodings/compact_lang_det/
+   to googleclient/bar/toolbar/cld/i18n/encodings/compact_lang_det/
+
+
+2) Fix header file dependencies.  Replace:
+
+       #include "base/basictypes.h" ->
+       #include "bar/toolbar/cld/i18n/encodings/compact_lang_det/win/cld_basictypes.h"
+
+       #include "base/commandlineflags.h" ->
+       #include "bar/toolbar/cld/i18n/encodings/compact_lang_det/win/cld_commandlineflags.h"
+
+       #include "base/google.h" ->
+       #include "bar/toolbar/cld/i18n/encodings/compact_lang_det/win/cld_google.h"
+
+       #include "base/logging.h" ->
+       #include "bar/toolbar/cld/i18n/encodings/compact_lang_det/win/cld_logging.h"
+
+       #include "base/macros.h" ->
+       #include "bar/toolbar/cld/i18n/encodings/compact_lang_det/win/cld_macros.h"
+
+       #include "base/strtoint.h" ->
+       #include "bar/toolbar/cld/i18n/encodings/compact_lang_det/win/cld_strtoint.h"
+
+       #include "third_party/utf/utf.h" ->
+       #include "bar/toolbar/cld/i18n/encodings/compact_lang_det/win/cld_utf.h"
+
+       #include "util/utf8/proptables/script_enum.h" ->
+       not used at the moment, just delete it
+
+       #include "util/utf8/unicodeprops.h" ->
+       not used at the moment, just delete it
+
+       #include "util/utf8/unilib.h" ->
+       #include "bar/toolbar/cld/i18n/encodings/compact_lang_det/win/cld_unilib.h"
+
+       #include "util/utf8/utf8statetable.h" ->
+       #include "bar/toolbar/cld/i18n/encodings/compact_lang_det/win/cld_utf8statetable.h"
+
+       #include "webutil/html/htmlutils.h" ->
+       #include "bar/toolbar/cld/i18n/encodings/compact_lang_det/win/cld_htmlutils.h"
+       
+       Check for the new dependencies to the code located outside
+       bar/toolbar/cld/ folder and isolate them in the same manner.
+
+
+3) Fix function calls:
+
+       UniLib::OneCharLen() -> cld_UniLib::OneCharLen()
+
+
+4) In the unit tests, do a Windows specific initialization, for example:
+
+       #if !defined(CLD_WINDOWS)
+         FLAGS_logtostderr = true;
+         InitGoogle("Unit test for CLD", &argc, &argv, false);
+       #else
+         testing::ParseGUnitFlags(&argc, argv);
+       #endif
+
+
+5) Look fore the new functions from google3 code:
+
+   - functions from util/utf8/public/utf8statetable.h  copied into
+     cld_utf8statetable.h (do not forget to delete all DCHECKs from the code)
+
+
+6) Replaced 'int' with 'size_t' or casted srclen() result to 'int'
+   in couple functions to avoid the following warning:
+
+       warning C4267: 'initializing' : conversion from 'size_t' to 'int',
+           possible loss of data
+
+   This is stemming from google3 rule to use int instead of size_t
+   for buffer size and string length.
+
+
+7) Alter UTF8StateMachineObj declaration, make it
+  
+       typedef struct UTF8StateMachineObj {
+   
+   instead of "typedef struct {". We have to have it writeable to be able
+   to load tables from the resources.
+
+
+8) In the CompactLangDet::DetectLanguage() function, comment out a statement
+   returning English in case of unknown language. It's better not to offer
+   a translation at all for the unknown language than to assume that this page
+   is in English and offer a translation from English to all non-English users.
+
+
+9) Add new member:
+
+       const int kCLDTableIndSize;
+
+   to struct CLDTableSummary, cldutils.h. Table size is required
+   for cldtables.rc generation (see "Update cldtables.rc" section).
+
+   Also, do not forget to assign a value to this new member in all places
+   this structure is instantiated.  At the moment, there are four such files:
+
+   - compact_lang_det_generated_cjkbis_0.cc
+   - compact_lang_det_generated_longwords8_0.cc
+   - compact_lang_det_generated_quads_0.cc
+   - compact_lang_det_generated_quads_128.cc
+
+
+
+--- For all files --------------------------------------------------------------
+
+1) Modify paths in the #includes by prepending them with "bar/toolbar/cld/"
+
+2) Strip constness from two extern table declarations:
+
+       extern /*const*/ UTF8PropObj compact_lang_det_generated_ctjkvz_b1_obj;
+       extern /*const*/ cld::CLDTableSummary kQuadTable_obj;
+
+   Leave the rest of them const, we do not load them dynamically.
+
+
+
+--- Update cldtables.rc --------------------------------------------------------
+
+See bar/toolbar/cld/i18n/encodings/compact_lang_det/win/cldtablegen/readme
+for detailed instructions how to update cldtables.rc.
+

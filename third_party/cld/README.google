@@ -1,0 +1,24 @@
+CLD - list of changes (sidchat, May 2009)
+- cld_interface.cc - comment out 
+//#include "cld/bar/common/component.h"
+//#include "cld/bar/common/execute/execute_utils.h"
+and comment out requirements in function ::GetVerifiedDllFileName
+
+-------------
+Commented out the following in commandlineflags.h
+class FlagSaver {
+ public:
+  FlagSaver();
+  ~FlagSaver();
+
+ private:
+  class FlagSaverImpl* impl_;   // we use pimpl here to keep API steady
+
+  FlagSaver(const FlagSaver&);  // no copying!
+  void operator=(const FlagSaver&);
+}
+#ifndef SWIG   // swig seems to have trouble with this for some reason
+ATTRIBUTE_UNUSED
+#endif
+;
+----------------
