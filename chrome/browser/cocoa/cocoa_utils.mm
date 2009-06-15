@@ -90,6 +90,7 @@ NSImage* SkBitmapToNSImage(const SkBitmap& icon) {
   // Now convert to NSImage.
   NSBitmapImageRep* bitmap = [[[NSBitmapImageRep alloc]
                                    initWithCGImage:cgimage] autorelease];
+  CFRelease(cgimage);
   NSImage* image = [[[NSImage alloc] init] autorelease];
   [image addRepresentation:bitmap];
   return image;
