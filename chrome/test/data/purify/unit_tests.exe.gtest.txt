@@ -19,3 +19,6 @@ ExtensionContentScriptInjectTest.Simple
 
 # issue 12661
 ExtensionsServiceTest.InstallExtension
+
+# issue 14103
+ExtensionsServiceTest.PackExtension
