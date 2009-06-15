@@ -53,6 +53,15 @@ class TabOverviewTypes {
     //   param[3]: Y component of cursor's offset
     WINDOW_TYPE_CHROME_FLOATING_TAB,
 
+    // The contents of a popup window.
+    //   param[0]: X ID of associated titlebar, which must be mapped before
+    //             its panel
+    WINDOW_TYPE_CHROME_PANEL,
+
+    // A small window representing a collapsed panel in the panel bar and
+    // drawn above the panel when it's expanded.
+    WINDOW_TYPE_CHROME_PANEL_TITLEBAR,
+
     kNumWindowTypes,
   };
 
@@ -61,10 +70,34 @@ class TabOverviewTypes {
     enum Type {
       UNKNOWN = 0,
 
+      // Notify Chrome when a floating tab has entered or left a tab
+      // summary window.  Sent to the summary window.
+      //   param[0]: X ID of the floating tab window
+      //   param[1]: state (0 means left, 1 means entered or currently in)
+      //   param[2]: X coordinate relative to summary window
+      //   param[3]: Y coordinate
+      CHROME_NOTIFY_FLOATING_TAB_OVER_TAB_SUMMARY,
+
+      // Notify Chrome when a floating tab has entered or left a top-level
+      // window.  Sent to the window being entered/left.
+      //   param[0]: X ID of the floating tab window
+      //   param[1]: state (0 means left, 1 means entered)
+      CHROME_NOTIFY_FLOATING_TAB_OVER_TOPLEVEL,
+
       // Instruct a top-level Chrome window to change the visibility of its
       // tab summary window.
       //   param[0]: desired visibility (0 means hide, 1 means show)
       CHROME_SET_TAB_SUMMARY_VISIBILITY,
+
+      // Tell the WM to collapse or expand a panel.
+      //   param[0]: X ID of the panel window
+      //   param[1]: desired state (0 means collapsed, 1 means expanded)
+      WM_SET_PANEL_STATE,
+
+      // Notify Chrome that the panel state has changed.  Sent to the panel
+      // window.
+      //   param[0]: new state (0 means collapsed, 1 means expanded)
+      CHROME_NOTIFY_PANEL_STATE,
 
       // Instruct the WM to move a floating tab.  The passed-in position is
       // that of the cursor; the tab's composited window is displaced based
@@ -75,19 +108,16 @@ class TabOverviewTypes {
       //   param[2]: Y coordinate
       WM_MOVE_FLOATING_TAB,
 
-      // Notify Chrome when a floating tab has entered or left a top-level
-      // window.  Sent to the window being entered/left.
-      //   param[0]: X ID of the floating tab window
-      //   param[1]: state (0 means left, 1 means entered)
-      CHROME_NOTIFY_FLOATING_TAB_OVER_TOPLEVEL,
+      // Instruct the WM to move a panel.
+      //   param[0]: X ID of the panel window
+      //   param[1]: X coordinate to which the panel should be moved
+      //   param[2]: Y coordinate
+      WM_MOVE_PANEL,
 
-      // Notify Chrome when a floating tab has entered or left a tab
-      // summary window.  Sent to the summary window.
-      //   param[0]: X ID of the floating tab window
-      //   param[1]: state (0 means left, 1 means entered or currently in)
-      //   param[2]: X coordinate relative to summary window
-      //   param[3]: Y coordinate
-      CHROME_NOTIFY_FLOATING_TAB_OVER_TAB_SUMMARY,
+      // Notify the WM that the panel drag is complete (that is, the mouse
+      // button has been released).
+      //   param[0]: X ID of the panel window
+      WM_NOTIFY_PANEL_DRAG_COMPLETE,
 
       kNumTypes,
     };
