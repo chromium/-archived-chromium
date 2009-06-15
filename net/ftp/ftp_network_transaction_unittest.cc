@@ -15,6 +15,13 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 
+namespace {
+
+// Size we use for IOBuffers used to receive data from the test data socket.
+const int kBufferSize = 128;
+
+}  // namespace
+
 namespace net {
 
 class FtpMockControlSocket : public DynamicMockSocket {
@@ -278,9 +285,10 @@ TEST_F(FtpNetworkTransactionTest, DirectoryTransaction) {
   ASSERT_EQ(ERR_IO_PENDING, transaction_.Start(&request_info, &callback_));
   EXPECT_EQ(OK, callback_.WaitForResult());
   EXPECT_EQ(FtpMockControlSocket::QUIT, ctrl_socket.state());
-  scoped_refptr<IOBuffer> io_buffer(new IOBuffer(128));
+  scoped_refptr<IOBuffer> io_buffer(new IOBuffer(kBufferSize));
+  memset(io_buffer->data(), 0, kBufferSize);
   EXPECT_EQ(ERR_IO_PENDING,
-            transaction_.Read(io_buffer.get(), 128, &callback_));
+            transaction_.Read(io_buffer.get(), kBufferSize, &callback_));
   EXPECT_EQ(static_cast<int>(test_string.length()), callback_.WaitForResult());
   EXPECT_EQ(test_string, std::string(io_buffer->data(), test_string.length()));
 }
@@ -298,9 +306,10 @@ TEST_F(FtpNetworkTransactionTest, DownloadTransaction) {
   ASSERT_EQ(ERR_IO_PENDING, transaction_.Start(&request_info, &callback_));
   EXPECT_EQ(OK, callback_.WaitForResult());
   EXPECT_EQ(FtpMockControlSocket::QUIT, ctrl_socket.state());
-  scoped_refptr<IOBuffer> io_buffer(new IOBuffer(128));
+  scoped_refptr<IOBuffer> io_buffer(new IOBuffer(kBufferSize));
+  memset(io_buffer->data(), 0, kBufferSize);
   EXPECT_EQ(ERR_IO_PENDING,
-            transaction_.Read(io_buffer.get(), 128, &callback_));
+            transaction_.Read(io_buffer.get(), kBufferSize, &callback_));
   EXPECT_EQ(static_cast<int>(test_string.length()), callback_.WaitForResult());
   EXPECT_EQ(test_string, std::string(io_buffer->data(), test_string.length()));
 }
