@@ -98,6 +98,11 @@ class AutomationProxy : public IPC::Channel::Listener,
   // False likely indicates an IPC error.
   bool GetNormalBrowserWindowCount(int* num_windows);
 
+  // Gets the locale of the chrome browser, currently all browsers forked from
+  // the main chrome share the same UI locale, returning true on success.
+  // False likely indicates an IPC error.
+  bool GetBrowserLocale(string16* locale);
+
   // Returns whether an app modal dialog window is showing right now (i.e., a
   // javascript alert), and what buttons it contains.
   bool GetShowingAppModalDialog(bool* showing_app_modal_dialog,

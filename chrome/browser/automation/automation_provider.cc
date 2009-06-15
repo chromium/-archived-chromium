@@ -4,6 +4,7 @@
 
 #include "chrome/browser/automation/automation_provider.h"
 
+#include "app/l10n_util.h"
 #include "app/message_box_flags.h"
 #include "base/file_version_info.h"
 #include "base/message_loop.h"
@@ -956,6 +957,7 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(AutomationMsg_NormalBrowserWindowCount,
                         GetNormalBrowserWindowCount)
     IPC_MESSAGE_HANDLER(AutomationMsg_BrowserWindow, GetBrowserWindow)
+    IPC_MESSAGE_HANDLER(AutomationMsg_GetBrowserLocale, GetBrowserLocale)
     IPC_MESSAGE_HANDLER(AutomationMsg_LastActiveBrowserWindow,
                         GetLastActiveBrowserWindow)
     IPC_MESSAGE_HANDLER(AutomationMsg_ActiveWindow, GetActiveWindow)
@@ -1336,6 +1338,11 @@ void AutomationProvider::GetActiveTabIndex(int handle, int* active_tab_index) {
     Browser* browser = browser_tracker_->GetResource(handle);
     *active_tab_index = browser->selected_index();
   }
+}
+
+void AutomationProvider::GetBrowserLocale(string16* locale) {
+  DCHECK(g_browser_process);
+  *locale = WideToUTF16(g_browser_process->GetApplicationLocale());
 }
 
 void AutomationProvider::GetBrowserWindowCount(int* window_count) {

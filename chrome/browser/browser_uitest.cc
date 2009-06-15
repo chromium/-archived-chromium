@@ -59,6 +59,29 @@ class BrowserTest : public UITest {
     EXPECT_TRUE(window->GetWindowTitle(&title));
     return UTF16ToWide(title);
   }
+
+  // In RTL locales wrap the page title with RTL embedding characters so that it
+  // matches the value returned by GetWindowTitle().
+  std::wstring LocaleWindowCaptionFromPageTitle(
+      const std::wstring& expected_title) {
+    std::wstring page_title = WindowCaptionFromPageTitle(expected_title);
+#if defined(OS_WIN)
+    string16  browser_locale;
+
+    EXPECT_TRUE(automation()->GetBrowserLocale(&browser_locale));
+
+    const std::string& locale_utf8 = UTF16ToUTF8(browser_locale);
+    if (l10n_util::GetTextDirectionForLocale(locale_utf8.c_str()) ==
+        l10n_util::RIGHT_TO_LEFT) {
+      l10n_util::WrapStringWithLTRFormatting(&page_title);
+    }
+
+    return page_title;
+#else
+    // Do we need to use the above code on POSIX as well?
+    return page_title;
+#endif
+  }
 };
 
 class VisibleBrowserTest : public UITest {
@@ -77,7 +100,7 @@ TEST_F(BrowserTest, NoTitle) {
   NavigateToURL(net::FilePathToFileURL(test_file));
   // The browser lazily updates the title.
   PlatformThread::Sleep(sleep_timeout_ms());
-  EXPECT_EQ(WindowCaptionFromPageTitle(L"title1.html"), GetWindowTitle());
+  EXPECT_EQ(LocaleWindowCaptionFromPageTitle(L"title1.html"), GetWindowTitle());
   EXPECT_EQ(L"title1.html", GetActiveTabTitle());
 }
 
@@ -92,7 +115,7 @@ TEST_F(BrowserTest, Title) {
   PlatformThread::Sleep(sleep_timeout_ms());
 
   const std::wstring test_title(L"Title Of Awesomeness");
-  EXPECT_EQ(WindowCaptionFromPageTitle(test_title), GetWindowTitle());
+  EXPECT_EQ(LocaleWindowCaptionFromPageTitle(test_title), GetWindowTitle());
   EXPECT_EQ(test_title, GetActiveTabTitle());
 }
 

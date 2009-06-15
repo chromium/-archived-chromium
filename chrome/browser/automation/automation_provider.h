@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/scoped_ptr.h"
 #include "chrome/browser/automation/automation_autocomplete_edit_tracker.h"
 #include "chrome/browser/automation/automation_browser_tracker.h"
 #include "chrome/browser/automation/automation_tab_tracker.h"
@@ -149,6 +150,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
                  int handle,
                  int* response_value);
   void GetBrowserWindowCount(int* window_count);
+  void GetBrowserLocale(string16* locale);
   void GetNormalBrowserWindowCount(int* window_count);
   void GetShowingAppModalDialog(bool* showing_dialog, int* dialog_button);
   void ClickAppModalDialogButton(int button, bool* success);

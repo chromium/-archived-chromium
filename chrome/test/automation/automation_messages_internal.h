@@ -939,6 +939,13 @@ IPC_BEGIN_MESSAGES(Automation)
   IPC_SYNC_MESSAGE_ROUTED1_1(AutomationMsg_BlockedPopupCount,
                              int /* tab_handle */,
                              int /* blocked_popup_count */)
+
+  // This message retrieves the locale of the browser process.  On success
+  // |chrome_locale| will contain the locale as reported by ICU.  On failure
+  // |chrome_locale| is the empty string.
+  IPC_SYNC_MESSAGE_ROUTED0_1(AutomationMsg_GetBrowserLocale,
+                             string16 /* chrome_locale */)
+
 #if defined(OS_WIN)
   IPC_MESSAGE_ROUTED5(AutomationMsg_ForwardContextMenuToExternalHost,
                       int /* tab_handle */,

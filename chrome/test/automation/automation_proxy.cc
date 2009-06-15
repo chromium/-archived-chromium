@@ -414,6 +414,20 @@ scoped_refptr<BrowserProxy> AutomationProxy::GetBrowserWindow(
   return ProxyObjectFromHandle<BrowserProxy>(handle);
 }
 
+bool AutomationProxy::GetBrowserLocale(string16* locale) {
+  DCHECK(locale != NULL);
+  if (!SendWithTimeout(new AutomationMsg_GetBrowserLocale(0, locale),
+                       command_execution_timeout_ms(), NULL)) {
+    DLOG(ERROR) << "GetBrowserLocale did not complete in a timely fashion";
+    return false;
+  }
+
+  // An empty locale means that the browser has no UI language
+  // which is impossible.
+  DCHECK(!locale->empty());
+  return !locale->empty();
+}
+
 scoped_refptr<BrowserProxy> AutomationProxy::FindNormalBrowserWindow() {
   int handle = 0;
 

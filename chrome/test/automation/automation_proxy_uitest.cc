@@ -5,6 +5,7 @@
 #include <string>
 
 #include "app/app_switches.h"
+#include "app/l10n_util.h"
 #include "app/message_box_flags.h"
 #include "base/command_line.h"
 #include "base/file_path.h"
@@ -94,7 +95,20 @@ TEST_F(AutomationProxyVisibleTest, WindowGetViewBounds) {
     ASSERT_TRUE(window->GetViewBounds(VIEW_ID_TAB_LAST, &bounds2, false));
     EXPECT_GT(bounds2.width(), 0);
     EXPECT_GT(bounds2.height(), 0);
-    EXPECT_GT(bounds2.x(), bounds.x());
+
+    // The tab logic is mirrored in RTL locales, so what is to the right in
+    // LTR locales is now on the left with RTL ones.
+    string16 browser_locale;
+
+    EXPECT_TRUE(automation()->GetBrowserLocale(&browser_locale));
+
+    const std::string& locale_utf8 = UTF16ToUTF8(browser_locale);
+    if (l10n_util::GetTextDirectionForLocale(locale_utf8.c_str()) ==
+        l10n_util::RIGHT_TO_LEFT) {
+      EXPECT_LT(bounds2.x(), bounds.x());
+    } else {
+      EXPECT_GT(bounds2.x(), bounds.x());
+    }
     EXPECT_EQ(bounds2.y(), bounds.y());
 
     gfx::Rect urlbar_bounds;
