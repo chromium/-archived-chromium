@@ -66,11 +66,8 @@ void ExternalPrefExtensionProvider::VisitRegisteredExtension(
 Version* ExternalPrefExtensionProvider::RegisteredVersion(
     std::string id, Extension::Location* location) const {
   DictionaryValue* extension = NULL;
-  if (!prefs_->GetDictionary(ASCIIToWide(id), &extension)) {
-    NOTREACHED() << "Cannot read extension " << id.c_str()
-                 << " from dictionary.";
+  if (!prefs_->GetDictionary(ASCIIToWide(id), &extension))
     return NULL;
-  }
 
   std::string external_version;
   if (!extension->GetString(kExternalVersion, &external_version))
