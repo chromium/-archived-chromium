@@ -25,6 +25,10 @@
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 
+#if defined(OS_LINUX)
+#include <sys/prctl.h>
+#endif
+
 // This function provides some ways to test crash and assertion handling
 // behavior of the renderer.
 static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
@@ -79,6 +83,11 @@ int RendererMain(const MainFunctionParams& parameters) {
   MessageLoopForIO main_message_loop;
   std::wstring app_name = chrome::kBrowserAppName;
   PlatformThread::SetName(WideToASCII(app_name + L"_RendererMain").c_str());
+#if defined(OS_LINUX)
+  // Set the process name so it is easier to distinguish this process from
+  // others.  The process name will be trimmed to 15 characters.
+  prctl(PR_SET_NAME, WideToASCII(app_name + L"_Renderer").c_str(), 0, 0, 0);
+#endif
 
   // Initialize the SystemMonitor
   base::SystemMonitor::Start();
