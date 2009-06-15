@@ -7,6 +7,7 @@
 
 #import <Cocoa/Cocoa.h>
 
+#include "base/scoped_nsobject.h"
 #include "base/task.h"
 #include "base/time.h"
 #include "chrome/browser/cocoa/base_view.h"
@@ -14,6 +15,7 @@
 #include "webkit/glue/webcursor.h"
 
 class RenderWidgetHostViewMac;
+@class ToolTip;
 
 // This is the view that lives in the Cocoa view hierarchy. In Windows-land,
 // RenderWidgetHostViewWin is both the view and the delegate. We split the roles
@@ -133,6 +135,10 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
   // Tooltips
   // The text to be shown in the tooltip, supplied by the renderer.
   std::wstring tooltip_text_;
+  // Used to display tooltips. We can't use the [NSView -setToolTip:] methods
+  // because we need to be able to show and hide the tooltip without the mouse
+  // leaving a region and NSView isn't set up for that to happen.
+  scoped_nsobject<ToolTip> tooltip_;
 
   // Factory used to safely scope delayed calls to ShutdownHost().
   ScopedRunnableMethodFactory<RenderWidgetHostViewMac> shutdown_factory_;

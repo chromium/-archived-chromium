@@ -12,6 +12,7 @@
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/common/native_web_keyboard_event.h"
 #include "skia/ext/platform_canvas.h"
+#import "third_party/mozilla/include/ToolTip.h"
 #include "webkit/api/public/mac/WebInputEventFactory.h"
 #include "webkit/api/public/WebInputEvent.h"
 #include "webkit/glue/webmenurunner_mac.h"
@@ -51,6 +52,7 @@ RenderWidgetHostViewMac::RenderWidgetHostViewMac(RenderWidgetHost* widget)
       parent_view_(NULL) {
   cocoa_view_ = [[[RenderWidgetHostViewCocoa alloc]
                   initWithRenderWidgetHostViewMac:this] autorelease];
+  tooltip_.reset([[ToolTip alloc] init]);
   render_widget_host_->set_view(this);
 }
 
@@ -251,17 +253,41 @@ void RenderWidgetHostViewMac::Destroy() {
   [cocoa_view_ autorelease];
 }
 
+// Called from the renderer to tell us what the tooltip text should be. It
+// calls us frequently so we need to cache the value to prevent doing a lot
+// of repeat work. We cannot simply use [-NSView setToolTip:] because NSView
+// can't handle the case where the tooltip text changes while the mouse is
+// still inside the view. Since the page elements that get tooltips are all
+// contained within this view (and are unknown to the NSView system), we
+// are forced to implement our own tooltips with child windows.
+// TODO(pinkerton): Do we want these tooltips to time out after a certain time?
+// Gecko does this automatically in the back-end, hence the ToolTip class not
+// needing that functionality. We can either modify ToolTip or add this
+// functionality here with a timer.
 void RenderWidgetHostViewMac::SetTooltipText(const std::wstring& tooltip_text) {
   if (tooltip_text != tooltip_text_) {
     tooltip_text_ = tooltip_text;
 
     // Clamp the tooltip length to kMaxTooltipLength. It's a DOS issue on
-    // Windows; we're just trying to be polite.
+    // Windows; we're just trying to be polite. Don't persist the trimmed
+    // string, as then the comparison above will always fail and we'll try to
+    // set it again every single time the mouse moves.
+    std::wstring display_text = tooltip_text_;
     if (tooltip_text_.length() > kMaxTooltipLength)
-      tooltip_text_ = tooltip_text_.substr(0, kMaxTooltipLength);
+      display_text = tooltip_text_.substr(0, kMaxTooltipLength);
 
-    NSString* tooltip_nsstring = base::SysWideToNSString(tooltip_text_);
-    [cocoa_view_ setToolTip:tooltip_nsstring];
+    NSString* tooltip_nsstring = base::SysWideToNSString(display_text);
+    if ([tooltip_nsstring length] == 0) {
+      [tooltip_ closeToolTip];
+    } else {
+      // Get the current mouse location in the window's coordinate system and
+      // use that as the point for displaying the tooltip.
+      NSPoint event_point =
+          [[cocoa_view_ window] mouseLocationOutsideOfEventStream];
+      [tooltip_ showToolTipAtPoint:event_point
+                        withString:tooltip_nsstring
+                        overWindow:[cocoa_view_ window]];
+    }
   }
 }
 
@@ -459,7 +485,7 @@ void RenderWidgetHostViewMac::ShutdownHost() {
     // We're dead, so becoming first responder is probably a bad idea.
     return NO;
   }
-  
+
   renderWidgetHostView_->render_widget_host_->Focus();
   return YES;
 }
@@ -470,7 +496,7 @@ void RenderWidgetHostViewMac::ShutdownHost() {
     // idea.
     return YES;
   }
-  
+
   if (closeOnDeactivate_)
     renderWidgetHostView_->KillSelf();
 

@@ -1722,8 +1722,12 @@
             '../third_party/GTM/AppKit/GTMUILocalizer.h',
             '../third_party/GTM/AppKit/GTMUILocalizer.m',
             # Build necessary Mozilla sources
+            '../third_party/mozilla/include/NSScreen+Utils.h',
+            '../third_party/mozilla/include/NSScreen+Utils.m',
             '../third_party/mozilla/include/NSWorkspace+Utils.h',
             '../third_party/mozilla/include/NSWorkspace+Utils.m',
+            '../third_party/mozilla/include/ToolTip.h',
+            '../third_party/mozilla/include/ToolTip.mm',
           ],
           'include_dirs': [
             '../third_party/GTM',
