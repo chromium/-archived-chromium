@@ -8,6 +8,7 @@
 #import <Cocoa/Cocoa.h>
 
 #include "base/scoped_ptr.h"
+#include "base/scoped_nsobject.h"
 #import "chrome/browser/cocoa/command_observer_bridge.h"
 
 class CommandUpdater;
@@ -17,6 +18,15 @@ class Profile;
 class TabContents;
 class ToolbarModel;
 class ToolbarView;
+
+// Field editor used for the location bar.
+@interface LocationBarFieldEditor : NSTextView
+// Copy contents of the TextView to the designated clipboard as plain text.
+- (void)performCopy:(NSPasteboard*)pb;
+
+// Same as above, note that this calls through to performCopy.
+- (void)performCut:(NSPasteboard*)pb;
+@end
 
 // A controller for the toolbar in the browser window. Manages updating the
 // state for location bar and back/fwd/reload/go buttons.
@@ -28,6 +38,7 @@ class ToolbarView;
   Profile* profile_;  // weak, one per window
   scoped_ptr<CommandObserverBridge> commandObserver_;
   scoped_ptr<LocationBarViewMac> locationBarView_;
+  scoped_nsobject<LocationBarFieldEditor> locationBarFieldEditor_;  // strong
 
   // The ordering is important for unit tests. If new items are added or the
   // ordering is changed, make sure to update |-toolbarViews| and the
@@ -48,6 +59,12 @@ class ToolbarView;
 
 // Get the C++ bridge object representing the location bar for this tab.
 - (LocationBar*)locationBar;
+
+// Called by the Window delegate so we can provide a custom field editor if
+// needed.
+// Note that this may be called for objects unrelated to the toolbar.
+// returns nil if we don't want to override the custom field editor for |obj|.
+- (id)customFieldEditorForObject:(id)obj;
 
 // Make the location bar the first responder, if possible.
 - (void)focusLocationBar;

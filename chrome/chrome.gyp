@@ -3283,6 +3283,7 @@
         'browser/cocoa/find_bar_view_unittest.mm',
         'browser/cocoa/location_bar_cell_unittest.mm',
         'browser/cocoa/location_bar_view_mac_unittest.mm',
+        'browser/cocoa/location_bar_fieldeditor_unittest.mm',
         'browser/cocoa/gradient_button_cell_unittest.mm',
         'browser/cocoa/grow_box_view_unittest.mm',
         'browser/cocoa/preferences_window_controller_unittest.mm',

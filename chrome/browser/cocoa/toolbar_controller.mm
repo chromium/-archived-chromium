@@ -14,6 +14,30 @@
 static NSString* const kStarImageName = @"star";
 static NSString* const kStarredImageName = @"starred";
 
+@implementation LocationBarFieldEditor
+- (void)copy:(id)sender {
+  NSPasteboard* pb = [NSPasteboard generalPasteboard];
+  [self performCopy:pb];
+}
+
+- (void)cut:(id)sender {
+  NSPasteboard* pb = [NSPasteboard generalPasteboard];
+  [self performCut:pb];
+}
+
+- (void)performCopy:(NSPasteboard*)pb {
+  [pb declareTypes:[NSArray array] owner:nil];
+  [self writeSelectionToPasteboard:pb types:
+      [NSArray arrayWithObject:NSStringPboardType]];
+}
+
+- (void)performCut:(NSPasteboard*)pb {
+  [self performCopy:pb];
+  [self delete:nil];
+}
+
+@end
+
 @interface ToolbarController(Private)
 - (void)initCommandStatus:(CommandUpdater*)commands;
 @end
@@ -49,10 +73,6 @@ static NSString* const kStarredImageName = @"starred";
   locationBarView_.reset(new LocationBarViewMac(locationBar_, commands_,
                                                 toolbarModel_, profile_));
   [locationBar_ setFont:[NSFont systemFontOfSize:[NSFont systemFontSize]]];
-}
-
-- (void)dealloc {
-  [super dealloc];
 }
 
 - (LocationBar*)locationBar {
@@ -119,6 +139,23 @@ static NSString* const kStarredImageName = @"starred";
   }
   [goButton_ setImage:[NSImage imageNamed:imageName]];
   [goButton_ setTag:tag];
+}
+
+- (id)customFieldEditorForObject:(id)obj {
+  if (obj == locationBar_) {
+    // Lazilly construct Field editor, Cocoa UI code always runs on the
+    // same thread, so there shoudn't be a race condition here.
+    if (locationBarFieldEditor_.get() == nil) {
+      locationBarFieldEditor_.reset([[LocationBarFieldEditor alloc] init]);
+    }
+
+    // This needs to be called every time, otherwise notifications
+    // aren't sent correctly.
+    DCHECK(locationBarFieldEditor_.get());
+    [locationBarFieldEditor_.get() setFieldEditor:YES];
+    return locationBarFieldEditor_.get();
+  }
+  return nil;
 }
 
 // Returns an array of views in the order of the outlets above.
