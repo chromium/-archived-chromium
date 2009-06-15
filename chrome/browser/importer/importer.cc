@@ -191,9 +191,9 @@ static std::string BuildHostPathKey(const TemplateURL* t_url,
 
     if (t_url->url()->SupportsReplacement()) {
       return HostPathKeyForURL(
-          t_url->url()->ReplaceSearchTerms(
+          GURL(WideToUTF8(t_url->url()->ReplaceSearchTerms(
               *t_url, L"random string",
-              TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring()));
+              TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring()))));
     }
   }
   return std::string();

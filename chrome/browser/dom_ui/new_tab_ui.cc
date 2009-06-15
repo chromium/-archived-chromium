@@ -879,8 +879,8 @@ void TemplateURLHandler::HandleDoSearch(const Value* content) {
     NOTREACHED();
     return;
   }
-  GURL url = url_ref->ReplaceSearchTerms(*template_url, search,
-      TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring());
+  GURL url = GURL(WideToUTF8(url_ref->ReplaceSearchTerms(*template_url, search,
+      TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring())));
 
   if (url.is_valid()) {
     // Record the user action

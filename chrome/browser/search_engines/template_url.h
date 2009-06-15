@@ -63,7 +63,7 @@ class TemplateURLRef {
   // returns false), an empty string is returned.
   //
   // The TemplateURL is used to determine the input encoding for the term.
-  GURL ReplaceSearchTerms(
+  std::wstring ReplaceSearchTerms(
       const TemplateURL& host,
       const std::wstring& terms,
       int accepted_suggestion,

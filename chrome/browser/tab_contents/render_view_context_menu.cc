@@ -533,9 +533,9 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
                                  // item when there is no provider.
       const TemplateURLRef* const search_url = default_provider->url();
       DCHECK(search_url->SupportsReplacement());
-      OpenURL(GURL(search_url->ReplaceSearchTerms(*default_provider,
+      OpenURL(GURL(WideToUTF8(search_url->ReplaceSearchTerms(*default_provider,
           params_.selection_text, TemplateURLRef::NO_SUGGESTIONS_AVAILABLE,
-          std::wstring())), NEW_FOREGROUND_TAB, PageTransition::GENERATED);
+          std::wstring()))), NEW_FOREGROUND_TAB, PageTransition::GENERATED);
       break;
     }
 

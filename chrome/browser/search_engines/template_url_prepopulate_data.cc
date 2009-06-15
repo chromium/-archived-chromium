@@ -3185,7 +3185,7 @@ void RegisterUserPrefs(PrefService* prefs) {
 }
 
 int GetDataVersion() {
-  return 21;  // Increment this if you change the above data in ways that mean
+  return 22;  // Increment this if you change the above data in ways that mean
               // users with existing data should get a new version.
 }
 

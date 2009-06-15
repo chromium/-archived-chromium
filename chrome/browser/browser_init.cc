@@ -567,9 +567,9 @@ std::vector<GURL> BrowserInit::LaunchWithProfile::GetURLsFromCommandLine(
       }
       const TemplateURLRef* search_url = default_provider->url();
       DCHECK(search_url->SupportsReplacement());
-      urls.push_back(GURL(search_url->ReplaceSearchTerms(*default_provider,
-          value.substr(2), TemplateURLRef::NO_SUGGESTIONS_AVAILABLE,
-          std::wstring())));
+      urls.push_back(GURL(WideToUTF8(search_url->ReplaceSearchTerms(
+          *default_provider, value.substr(2),
+          TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring()))));
     } else {
       // This will create a file URL or a regular URL.
       urls.push_back(GURL(WideToUTF8(

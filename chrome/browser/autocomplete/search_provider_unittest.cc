@@ -99,8 +99,8 @@ void SearchProviderTest::SetUp() {
   // Add url1, with search term term1_.
   HistoryService* history =
       profile_.GetHistoryService(Profile::EXPLICIT_ACCESS);
-  term1_url_ = default_t_url_->url()->ReplaceSearchTerms(
-      *default_t_url_, term1_, 0, std::wstring());
+  term1_url_ = GURL(WideToUTF8(default_t_url_->url()->ReplaceSearchTerms(
+      *default_t_url_, term1_, 0, std::wstring())));
   history->AddPageWithDetails(term1_url_, std::wstring(), 1, 1,
                               base::Time::Now(), false);
   history->SetKeywordSearchTermsForURL(term1_url_, default_t_url_->id(),
@@ -116,8 +116,8 @@ void SearchProviderTest::SetUp() {
   ASSERT_NE(0, keyword_t_url_->id());
 
   // Add a page and search term for keyword_t_url_.
-  keyword_url_ = keyword_t_url_->url()->ReplaceSearchTerms(
-      *keyword_t_url_, keyword_term_, 0, std::wstring());
+  keyword_url_ = GURL(WideToUTF8(keyword_t_url_->url()->ReplaceSearchTerms(
+      *keyword_t_url_, keyword_term_, 0, std::wstring())));
   history->AddPageWithDetails(keyword_url_, std::wstring(), 1, 1,
                               base::Time::Now(), false);
   history->SetKeywordSearchTermsForURL(keyword_url_, keyword_t_url_->id(),
@@ -190,8 +190,8 @@ TEST_F(SearchProviderTest, QueryDefaultProvider) {
   ASSERT_TRUE(fetcher);
 
   // And the URL matches what we expected.
-  GURL expected_url = default_t_url_->suggestions_url()->ReplaceSearchTerms(
-      *default_t_url_, term, 0, std::wstring());
+  GURL expected_url = GURL(WideToUTF8(default_t_url_->suggestions_url()->
+      ReplaceSearchTerms(*default_t_url_, term, 0, std::wstring())));
   ASSERT_TRUE(fetcher->original_url() == expected_url);
 
   // Tell the SearchProvider the suggest query is done.
@@ -232,8 +232,8 @@ TEST_F(SearchProviderTest, QueryKeywordProvider) {
   ASSERT_TRUE(keyword_fetcher);
 
   // And the URL matches what we expected.
-  GURL expected_url = keyword_t_url_->suggestions_url()->ReplaceSearchTerms(
-      *keyword_t_url_, term, 0, std::wstring());
+  GURL expected_url = GURL(WideToUTF8(keyword_t_url_->suggestions_url()->
+      ReplaceSearchTerms(*keyword_t_url_, term, 0, std::wstring())));
   ASSERT_TRUE(keyword_fetcher->original_url() == expected_url);
 
   // Tell the SearchProvider the keyword suggest query is done.

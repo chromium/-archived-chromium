@@ -211,9 +211,9 @@ void KeywordProvider::FillInURLAndContents(
     // input, but we rely on later canonicalization functions to do more
     // fixup to make the URL valid if necessary.
     DCHECK(element->url()->SupportsReplacement());
-    match->destination_url = element->url()->ReplaceSearchTerms(
+    match->destination_url = GURL(WideToUTF8(element->url()->ReplaceSearchTerms(
       *element, remaining_input, TemplateURLRef::NO_SUGGESTIONS_AVAILABLE,
-      std::wstring());
+      std::wstring())));
     std::vector<size_t> content_param_offsets;
     match->contents.assign(l10n_util::GetStringF(IDS_KEYWORD_SEARCH,
                                                  element->short_name(),

@@ -196,10 +196,9 @@ GURL TemplateURLModel::GenerateSearchURL(const TemplateURL* t_url) {
   if (!search_ref->SupportsReplacement())
     return GURL(WideToUTF8(search_ref->url()));
 
-  return search_ref->ReplaceSearchTerms(
-      *t_url,
-      kReplacementTerm,
-      TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring());
+  return GURL(WideToUTF8(search_ref->ReplaceSearchTerms(
+      *t_url, kReplacementTerm, TemplateURLRef::NO_SUGGESTIONS_AVAILABLE,
+      std::wstring())));
 }
 
 bool TemplateURLModel::CanReplaceKeyword(

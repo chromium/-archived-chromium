@@ -298,8 +298,8 @@ bool EditKeywordController::IsURLValid() const {
   // If the url has a search term, replace it with a random string and make
   // sure the resulting URL is valid. We don't check the validity of the url
   // with the search term as that is not necessarily valid.
-  return template_ref.ReplaceSearchTerms(TemplateURL(), L"a",
-      TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring()).is_valid();
+  return GURL(WideToUTF8(template_ref.ReplaceSearchTerms(TemplateURL(), L"a",
+      TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring()))).is_valid();
 }
 
 std::wstring EditKeywordController::GetURL() const {
@@ -309,14 +309,19 @@ std::wstring EditKeywordController::GetURL() const {
   if (url.empty())
     return url;
 
-  // Parse the string as a URL to determine the scheme. If a scheme hasn't been
-  // specified, we add it.
+  // Parse the string as a URL to determine the scheme. If we need to, add the
+  // scheme. As the scheme may be expanded (as happens with {google:baseURL})
+  // we need to replace the search terms before testing for the scheme.
+  TemplateURL t_url;
+  t_url.SetURL(url, 0, 0);
+  std::wstring expanded_url =
+      t_url.url()->ReplaceSearchTerms(t_url, L"x", 0, std::wstring());
   url_parse::Parsed parts;
-  std::wstring scheme(URLFixerUpper::SegmentURL(url, &parts));
-  if (!parts.scheme.is_valid()) {
-    std::wstring fixed_scheme(scheme);
-    fixed_scheme.append(L"://");
-    url.insert(0, fixed_scheme);
+  std::string scheme(
+      URLFixerUpper::SegmentURL(WideToUTF8(expanded_url), &parts));
+  if(!parts.scheme.is_valid()) {
+    scheme.append("://");
+    url.insert(0, UTF8ToWide(scheme));
   }
 
   return url;
