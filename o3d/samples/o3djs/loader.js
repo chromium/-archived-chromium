@@ -116,6 +116,8 @@ o3djs.loader.Loader.prototype.loadTexture = function(pack,
  * @param {!o3d.Pack} pack Pack to load texture into.
  * @param {!o3d.Transform} parent Transform to parent scene under.
  * @param {string} url URL of scene to load.
+ * @param {!o3djs.serialization.Options} opt_options Options passed into the
+ *     loader.
  * @param {!function(!o3d.Pack, !o3d.Transform, *): void}
  *     opt_onSceneLoaded optional callback when scene is loaded. It will be
  *     passed the pack and parent and an exception which is null on success.
@@ -124,16 +126,18 @@ o3djs.loader.Loader.prototype.loadScene = function(client,
                                                    pack,
                                                    parent,
                                                    url,
-                                                   opt_onSceneLoaded) {
+                                                   opt_onSceneLoaded,
+                                                   opt_options) {
   var that = this;  // so the function below can see "this".
   ++this.count_;
   var loadInfo = o3djs.scene.loadScene(
       client, pack, parent, url, function(pack, parent, exception) {
-    if (opt_onSceneLoaded) {
-      opt_onSceneLoaded(pack, parent, exception);
-    }
-    that.countDown_();
-  });
+        if (opt_onSceneLoaded) {
+          opt_onSceneLoaded(pack, parent, exception);
+        }
+        that.countDown_();
+      },
+      opt_options);
   this.loadInfo.addChild(loadInfo);
 };
 
