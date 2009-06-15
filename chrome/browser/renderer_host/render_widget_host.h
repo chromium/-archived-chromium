@@ -333,10 +333,9 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   void OnMsgShowPopup(const IPC::Message& message);
 
   // Paints the given bitmap to the current backing store at the given location.
-  void PaintBackingStoreRects(TransportDIB* bitmap,
-                              const gfx::Rect& bitmap_rect,
-                              const std::vector<gfx::Rect>& paint_rects,
-                              const gfx::Size& view_size);
+  void PaintBackingStoreRect(TransportDIB* dib,
+                             const gfx::Rect& bitmap_rect,
+                             const gfx::Size& view_size);
 
   // Scrolls the given |clip_rect| in the backing by the given dx/dy amount. The
   // |dib| and its corresponding location |bitmap_rect| in the backing store

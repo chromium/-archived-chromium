@@ -21,24 +21,14 @@ BackingStore::~BackingStore() {
 
 void BackingStore::PaintRect(base::ProcessHandle process,
                              TransportDIB* bitmap,
-                             const gfx::Rect& bitmap_rect,
-                             const gfx::Rect& paint_rect) {
-  DCHECK(bitmap_rect.Contains(paint_rect) &&
-         paint_rect.x() < kMaxBitmapLengthAllowed &&
-         paint_rect.y() < kMaxBitmapLengthAllowed);
+                             const gfx::Rect& bitmap_rect) {
   SkBitmap skbitmap;
   skbitmap.setConfig(SkBitmap::kARGB_8888_Config, bitmap_rect.width(),
                      bitmap_rect.height(), 4 * bitmap_rect.width());
 
   skbitmap.setPixels(bitmap->memory());
-  SkIRect src_rect;
-  src_rect.set(paint_rect.x(), paint_rect.y(),
-               paint_rect.right(), paint_rect.bottom());
-  src_rect.offset(-bitmap_rect.x(), -bitmap_rect.y());
-  SkRect dst_rect;
-  dst_rect.iset(paint_rect.x(), paint_rect.y(),
-                paint_rect.right(), paint_rect.bottom());
-  canvas_.drawBitmapRect(skbitmap, &src_rect, dst_rect);
+
+  canvas_.drawBitmap(skbitmap, bitmap_rect.x(), bitmap_rect.y());
 }
 
 void BackingStore::ScrollRect(base::ProcessHandle process,
@@ -128,6 +118,6 @@ void BackingStore::ScrollRect(base::ProcessHandle process,
   }
 
   // Now paint the new bitmap data.
-  PaintRect(process, bitmap, bitmap_rect, bitmap_rect);
+  PaintRect(process, bitmap, bitmap_rect);
   return;
 }

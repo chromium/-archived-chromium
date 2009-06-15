@@ -54,11 +54,7 @@ BackingStore::~BackingStore() {
 
 void BackingStore::PaintRect(base::ProcessHandle process,
                              TransportDIB* bitmap,
-                             const gfx::Rect& bitmap_rect,
-                             const gfx::Rect& paint_rect) {
-  DCHECK(bitmap_rect.Contains(paint_rect) &&
-         paint_rect.x() < kMaxBitmapLengthAllowed &&
-         paint_rect.y() < kMaxBitmapLengthAllowed);
+                             const gfx::Rect& bitmap_rect) {
   if (!backing_store_dib_) {
     backing_store_dib_ = CreateDIB(hdc_, size_.width(),
                                    size_.height(), color_depth_);
@@ -71,33 +67,16 @@ void BackingStore::PaintRect(base::ProcessHandle process,
 
   BITMAPINFOHEADER hdr;
   gfx::CreateBitmapHeader(bitmap_rect.width(), bitmap_rect.height(), &hdr);
-  // Account for a paint_rect that exceeds the bounds of our view.
+  // Account for a bitmap_rect that exceeds the bounds of our view
   gfx::Rect view_rect(0, 0, size_.width(), size_.height());
-  gfx::Rect paint_view_rect = view_rect.Intersect(paint_rect);
+  gfx::Rect paint_rect = view_rect.Intersect(bitmap_rect);
 
-  // CreateBitmapHeader specifies a negative height,
-  // so the y destination is from the bottom.
-  int source_x = paint_view_rect.x() - bitmap_rect.x();
-  int source_y = bitmap_rect.bottom() - paint_view_rect.bottom();
-  int source_height = paint_view_rect.height();
-  int destination_y = paint_view_rect.y();
-  int destination_height = paint_view_rect.height();
-  if (source_y == 0 && source_x == 0 &&
-      paint_view_rect.height() != bitmap_rect.height()) {
-    // StretchDIBits has a bug where it won't take the proper source
-    // rect if it starts at (0, 0) in the source but not in the destination,
-    // so we must use a mirror blit trick as proposed here:
-    // http://wiki.allegro.cc/index.php?title=StretchDIBits
-    destination_y += destination_height - 1;
-    destination_height = -destination_height;
-    source_y = bitmap_rect.height() - paint_view_rect.y() + 1;
-    source_height = -source_height;
-  }
-
-  int rv = StretchDIBits(hdc_, paint_view_rect.x(), destination_y,
-                         paint_view_rect.width(), destination_height,
-                         source_x, source_y, paint_view_rect.width(),
-                         source_height, bitmap->memory(),
+  int rv = StretchDIBits(hdc_,
+                         paint_rect.x(), paint_rect.y(),
+                         paint_rect.width(), paint_rect.height(),
+                         0, 0,  // source x,y.
+                         paint_rect.width(), paint_rect.height(),
+                         bitmap->memory(),
                          reinterpret_cast<BITMAPINFO*>(&hdr),
                          DIB_RGB_COLORS, SRCCOPY);
   DCHECK(rv != GDI_ERROR);
@@ -118,5 +97,5 @@ void BackingStore::ScrollRect(base::ProcessHandle process,
   // We expect that damaged_rect should equal bitmap_rect.
   DCHECK(gfx::Rect(damaged_rect) == bitmap_rect);
 
-  PaintRect(process, bitmap, bitmap_rect, bitmap_rect);
+  PaintRect(process, bitmap, bitmap_rect);
 }
