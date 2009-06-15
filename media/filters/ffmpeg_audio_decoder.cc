@@ -42,7 +42,16 @@ bool FFmpegAudioDecoder::OnInitialize(DemuxerStream* demuxer_stream) {
   DCHECK_GT(av_get_bits_per_sample_format(codec_context_->sample_fmt), 0);
   DCHECK_GT(codec_context_->sample_rate, 0);
 
-  // Set the media format.
+  // Grab the codec context from FFmpeg demuxer.
+  AVCodec* codec = avcodec_find_decoder(codec_context_->codec_id);
+  if (!codec || avcodec_open(codec_context_, codec) < 0) {
+    host_->Error(PIPELINE_ERROR_DECODE);
+    return false;
+  }
+
+  // When calling avcodec_find_decoder(), |codec_context_| might be altered by
+  // the decoder to give more accurate values of the output format of the
+  // decoder. So set the media format after a decoder is allocated.
   // TODO(hclam): Reuse the information provided by the demuxer for now, we may
   // need to wait until the first buffer is decoded to know the correct
   // information.
@@ -53,13 +62,6 @@ bool FFmpegAudioDecoder::OnInitialize(DemuxerStream* demuxer_stream) {
       codec_context_->sample_rate);
   media_format_.SetAsString(MediaFormat::kMimeType,
       mime_type::kUncompressedAudio);
-
-  // Grab the codec context from FFmpeg demuxer.
-  AVCodec* codec = avcodec_find_decoder(codec_context_->codec_id);
-  if (!codec || avcodec_open(codec_context_, codec) < 0) {
-    host_->Error(PIPELINE_ERROR_DECODE);
-    return false;
-  }
 
   // Prepare the output buffer.
   output_buffer_.reset(static_cast<uint8*>(av_malloc(kOutputBufferSize)));
