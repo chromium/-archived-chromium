@@ -11,13 +11,13 @@
 
 #include "base/ref_counted.h"
 #include "net/base/completion_callback.h"
+#include "net/base/host_resolver.h"
 #include "net/base/load_states.h"
 
 namespace net {
 
 class ClientSocket;
 class ClientSocketHandle;
-class HostResolver;
 
 // A ClientSocketPool is used to restrict the number of sockets open at a time.
 // It also maintains a list of idle persistent sockets.
@@ -47,8 +47,7 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
   // client of completion.
   //
   virtual int RequestSocket(const std::string& group_name,
-                            const std::string& host,
-                            int port,
+                            const HostResolver::RequestInfo& resolve_info,
                             int priority,
                             ClientSocketHandle* handle,
                             CompletionCallback* callback) = 0;

@@ -232,7 +232,8 @@ class TCPClientSocketPoolTest : public testing::Test {
 TEST_F(TCPClientSocketPoolTest, Basic) {
   TestCompletionCallback callback;
   ClientSocketHandle handle(pool_.get());
-  int rv = handle.Init("a", "www.google.com", 80, 0, &callback);
+  HostResolver::RequestInfo info("www.google.com", 80);
+  int rv = handle.Init("a", info, 0, &callback);
   EXPECT_EQ(ERR_IO_PENDING, rv);
   EXPECT_FALSE(handle.is_initialized());
   EXPECT_FALSE(handle.socket());
@@ -252,8 +253,8 @@ TEST_F(TCPClientSocketPoolTest, InitHostResolutionFailure) {
   host_mapper->AddSimulatedFailure("unresolvable.host.name");
   ScopedHostMapper scoped_host_mapper(host_mapper);
   TestSocketRequest req(pool_.get(), &request_order_);
-  EXPECT_EQ(ERR_IO_PENDING,
-            req.handle.Init("a", "unresolvable.host.name", 80, 5, &req));
+  HostResolver::RequestInfo info("unresolvable.host.name", 80);
+  EXPECT_EQ(ERR_IO_PENDING, req.handle.Init("a", info, 5, &req));
   EXPECT_EQ(ERR_NAME_NOT_RESOLVED, req.WaitForResult());
 }
 
@@ -261,8 +262,9 @@ TEST_F(TCPClientSocketPoolTest, InitConnectionFailure) {
   client_socket_factory_.set_client_socket_type(
       MockClientSocketFactory::MOCK_FAILING_CLIENT_SOCKET);
   TestSocketRequest req(pool_.get(), &request_order_);
+  HostResolver::RequestInfo info("unresolvable.host.name", 80);
   EXPECT_EQ(ERR_IO_PENDING,
-            req.handle.Init("a", "unresolvable.host.name", 80, 5, &req));
+            req.handle.Init("a", info, 5, &req));
   EXPECT_EQ(ERR_CONNECTION_FAILED, req.WaitForResult());
 }
 
@@ -275,13 +277,14 @@ TEST_F(TCPClientSocketPoolTest, PendingRequests) {
   // Create connections or queue up requests.
 
   // First request finishes asynchronously.
-  int rv = reqs[0]->handle.Init("a", "www.google.com", 80, 5, reqs[0].get());
+  HostResolver::RequestInfo info("www.google.com", 80);
+  int rv = reqs[0]->handle.Init("a", info, 5, reqs[0].get());
   EXPECT_EQ(ERR_IO_PENDING, rv);
   EXPECT_EQ(OK, reqs[0]->WaitForResult());
 
   // Rest of them finish synchronously, since they're in the HostCache.
   for (int i = 1; i < kMaxSocketsPerGroup; ++i) {
-    rv = reqs[i]->handle.Init("a", "www.google.com", 80, 5, reqs[i].get());
+    rv = reqs[i]->handle.Init("a", info, 5, reqs[i].get());
     EXPECT_EQ(OK, rv);
     request_order_.push_back(reqs[i].get());
   }
@@ -289,8 +292,7 @@ TEST_F(TCPClientSocketPoolTest, PendingRequests) {
   // The rest are pending since we've used all active sockets.
   for (int i = 0; i < kNumPendingRequests; ++i) {
     rv = reqs[kMaxSocketsPerGroup + i]->handle.Init(
-        "a", "www.google.com", 80, kPriorities[i],
-        reqs[kMaxSocketsPerGroup + i].get());
+        "a", info, kPriorities[i], reqs[kMaxSocketsPerGroup + i].get());
     EXPECT_EQ(ERR_IO_PENDING, rv);
   }
 
@@ -336,13 +338,14 @@ TEST_F(TCPClientSocketPoolTest, PendingRequests_NoKeepAlive) {
   // Create connections or queue up requests.
 
   // First request finishes asynchronously.
-  int rv = reqs[0]->handle.Init("a", "www.google.com", 80, 5, reqs[0].get());
+  HostResolver::RequestInfo info("www.google.com", 80);
+  int rv = reqs[0]->handle.Init("a", info, 5, reqs[0].get());
   EXPECT_EQ(ERR_IO_PENDING, rv);
   EXPECT_EQ(OK, reqs[0]->WaitForResult());
 
   // Rest of them finish synchronously, since they're in the HostCache.
   for (int i = 1; i < kMaxSocketsPerGroup; ++i) {
-    rv = reqs[i]->handle.Init("a", "www.google.com", 80, 5, reqs[i].get());
+    rv = reqs[i]->handle.Init("a", info, 5, reqs[i].get());
     EXPECT_EQ(OK, rv);
     request_order_.push_back(reqs[i].get());
   }
@@ -350,7 +353,7 @@ TEST_F(TCPClientSocketPoolTest, PendingRequests_NoKeepAlive) {
   // The rest are pending since we've used all active sockets.
   for (int i = 0; i < kNumPendingRequests; ++i) {
     EXPECT_EQ(ERR_IO_PENDING, reqs[kMaxSocketsPerGroup + i]->handle.Init(
-        "a", "www.google.com", 80, 0, reqs[kMaxSocketsPerGroup + i].get()));
+        "a", info, 0, reqs[kMaxSocketsPerGroup + i].get()));
   }
 
   // Release any connections until we have no connections.
@@ -379,8 +382,8 @@ TEST_F(TCPClientSocketPoolTest, PendingRequests_NoKeepAlive) {
 // ClientSocketPool which will crash if the group was not cleared properly.
 TEST_F(TCPClientSocketPoolTest, CancelRequestClearGroup) {
   TestSocketRequest req(pool_.get(), &request_order_);
-  EXPECT_EQ(ERR_IO_PENDING,
-            req.handle.Init("a", "www.google.com", 80, 5, &req));
+  HostResolver::RequestInfo info("www.google.com", 80);
+  EXPECT_EQ(ERR_IO_PENDING, req.handle.Init("a", info, 5, &req));
   req.handle.Reset();
 
   PlatformThread::Sleep(100);
@@ -397,10 +400,9 @@ TEST_F(TCPClientSocketPoolTest, TwoRequestsCancelOne) {
   TestSocketRequest req(pool_.get(), &request_order_);
   TestSocketRequest req2(pool_.get(), &request_order_);
 
-  EXPECT_EQ(ERR_IO_PENDING,
-            req.handle.Init("a", "www.google.com", 80, 5, &req));
-  EXPECT_EQ(ERR_IO_PENDING,
-            req2.handle.Init("a", "www.google.com", 80, 5, &req2));
+  HostResolver::RequestInfo info("www.google.com", 80);
+  EXPECT_EQ(ERR_IO_PENDING, req.handle.Init("a", info, 5, &req));
+  EXPECT_EQ(ERR_IO_PENDING, req2.handle.Init("a", info, 5, &req2));
 
   req.handle.Reset();
 
@@ -417,14 +419,13 @@ TEST_F(TCPClientSocketPoolTest, ConnectCancelConnect) {
   TestCompletionCallback callback;
   TestSocketRequest req(pool_.get(), &request_order_);
 
-  EXPECT_EQ(ERR_IO_PENDING,
-            handle.Init("a", "www.google.com", 80, 5, &callback));
+  HostResolver::RequestInfo info("www.google.com", 80);
+  EXPECT_EQ(ERR_IO_PENDING, handle.Init("a", info, 5, &callback));
 
   handle.Reset();
 
   TestCompletionCallback callback2;
-  EXPECT_EQ(ERR_IO_PENDING,
-            handle.Init("a", "www.google.com", 80, 5, &callback2));
+  EXPECT_EQ(ERR_IO_PENDING, handle.Init("a", info, 5, &callback2));
 
   // At this point, handle has two ConnectingSockets out for it.  Due to the
   // host cache, the host resolution for both will return in the same loop of
@@ -449,15 +450,16 @@ TEST_F(TCPClientSocketPoolTest, CancelRequest) {
     reqs[i].reset(new TestSocketRequest(pool_.get(), &request_order_));
 
   // Create connections or queue up requests.
+  HostResolver::RequestInfo info("www.google.com", 80);
 
   // First request finishes asynchronously.
-  int rv = reqs[0]->handle.Init("a", "www.google.com", 80, 5, reqs[0].get());
+  int rv = reqs[0]->handle.Init("a", info, 5, reqs[0].get());
   EXPECT_EQ(ERR_IO_PENDING, rv);
   EXPECT_EQ(OK, reqs[0]->WaitForResult());
 
   // Rest of them finish synchronously, since they're in the HostCache.
   for (int i = 1; i < kMaxSocketsPerGroup; ++i) {
-    rv = reqs[i]->handle.Init("a", "www.google.com", 80, 5, reqs[i].get());
+    rv = reqs[i]->handle.Init("a", info, 5, reqs[i].get());
     EXPECT_EQ(OK, rv);
     request_order_.push_back(reqs[i].get());
   }
@@ -465,8 +467,7 @@ TEST_F(TCPClientSocketPoolTest, CancelRequest) {
   // The rest are pending since we've used all active sockets.
   for (int i = 0; i < kNumPendingRequests; ++i) {
     EXPECT_EQ(ERR_IO_PENDING, reqs[kMaxSocketsPerGroup + i]->handle.Init(
-        "a", "www.google.com", 80, kPriorities[i],
-        reqs[kMaxSocketsPerGroup + i].get()));
+        "a", info, kPriorities[i], reqs[kMaxSocketsPerGroup + i].get()));
   }
 
   // Cancel a request.

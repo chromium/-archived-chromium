@@ -339,13 +339,13 @@ int FtpNetworkTransaction::DoCtrlResolveHost() {
   host = request_->url.host();
   port = request_->url.EffectiveIntPort();
 
-  DidStartDnsResolution(host, this);
-  return resolver_.Resolve(host, port, &addresses_, &io_callback_);
+  HostResolver::RequestInfo info(host, port);
+  // No known referrer.
+  return resolver_.Resolve(info, &addresses_, &io_callback_);
 }
 
 int FtpNetworkTransaction::DoCtrlResolveHostComplete(int result) {
   bool ok = (result == OK);
-  DidFinishDnsResolutionWithStatus(ok, GURL(), this);
   if (ok) {
     next_state_ = STATE_CTRL_CONNECT;
     return result;
@@ -832,14 +832,14 @@ int FtpNetworkTransaction::DoDataResolveHost() {
 
   next_state_ = STATE_DATA_RESOLVE_HOST_COMPLETE;
 
-  DidStartDnsResolution(data_connection_ip_, this);
-  return resolver_.Resolve(data_connection_ip_, data_connection_port_,
-      &addresses_, &io_callback_);
+  HostResolver::RequestInfo info(data_connection_ip_,
+                                 data_connection_port_);
+  // No known referrer.
+  return resolver_.Resolve(info, &addresses_, &io_callback_);
 }
 
 int FtpNetworkTransaction::DoDataResolveHostComplete(int result) {
   bool ok = (result == OK);
-  DidFinishDnsResolutionWithStatus(ok, GURL(), this);
   if (ok) {
     next_state_ = STATE_DATA_CONNECT;
     return result;

@@ -570,7 +570,26 @@ int HttpNetworkTransaction::DoInitConnection() {
     connection_group.append(request_->url.GetOrigin().spec());
 
   DCHECK(!connection_group.empty());
-  int rv = connection_.Init(connection_group, host, port, request_->priority,
+
+  HostResolver::RequestInfo resolve_info(host, port);
+
+  // The referrer is used by the DNS prefetch system to corellate resolutions
+  // with the page that triggered them. It doesn't impact the actual addresses
+  // that we resolve to.
+  resolve_info.set_referrer(request_->referrer);
+
+// TODO(eroman): Enable this!
+// Needs some unit-tests before turning on.
+// http://crbug.com/13163
+#if 0
+  // If the user is refreshing the page, bypass the host cache.
+  if (request_->load_flags & LOAD_BYPASS_CACHE ||
+      request_->load_flags & LOAD_DISABLE_CACHE) {
+    resolve_info.allow_cached_response = false;
+  }
+#endif
+
+  int rv = connection_.Init(connection_group, resolve_info, request_->priority,
                             &io_callback_);
   return rv;
 }

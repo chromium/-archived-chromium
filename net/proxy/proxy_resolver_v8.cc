@@ -70,15 +70,16 @@ class SyncHostResolverBridge
 
   // Run the resolve on host_resolver_loop, and wait for result.
   int Resolve(const std::string& hostname, net::AddressList* addresses) {
-    int kPort = 80;   // Doesn't matter.
+    // Port number doesn't matter.
+    HostResolver::RequestInfo info(hostname, 80);
 
     // Hack for tests -- run synchronously on current thread.
     if (!host_resolver_loop_)
-      return host_resolver_->Resolve(hostname, kPort, addresses, NULL, NULL);
+      return host_resolver_->Resolve(info, addresses, NULL, NULL);
 
     // Otherwise start an async resolve on the resolver's thread.
     host_resolver_loop_->PostTask(FROM_HERE, NewRunnableMethod(this,
-        &SyncHostResolverBridge::StartResolve, hostname, kPort, addresses));
+        &SyncHostResolverBridge::StartResolve, info, addresses));
 
     // Wait for the resolve to complete in the resolver's thread.
     event_.Wait();
@@ -87,12 +88,10 @@ class SyncHostResolverBridge
 
  private:
   // Called on host_resolver_loop_.
-  void StartResolve(const std::string& hostname,
-                    int port,
+  void StartResolve(const HostResolver::RequestInfo& info,
                     net::AddressList* addresses) {
     DCHECK_EQ(host_resolver_loop_, MessageLoop::current());
-    int error = host_resolver_->Resolve(
-        hostname, port, addresses, &callback_, NULL);
+    int error = host_resolver_->Resolve(info, addresses, &callback_, NULL);
     if (error != ERR_IO_PENDING)
       OnResolveCompletion(error);  // Completed synchronously.
   }

@@ -24,15 +24,14 @@ ClientSocketHandle::~ClientSocketHandle() {
 }
 
 int ClientSocketHandle::Init(const std::string& group_name,
-                             const std::string& host,
-                             int port,
+                             const HostResolver::RequestInfo& resolve_info,
                              int priority,
                              CompletionCallback* callback) {
   ResetInternal(true);
   group_name_ = group_name;
   user_callback_ = callback;
   return pool_->RequestSocket(
-      group_name, host, port, priority, this, &callback_);
+      group_name, resolve_info, priority, this, &callback_);
 }
 
 void ClientSocketHandle::Reset() {

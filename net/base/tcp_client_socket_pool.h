@@ -31,8 +31,7 @@ class TCPClientSocketPool : public ClientSocketPool {
   // ClientSocketPool methods:
 
   virtual int RequestSocket(const std::string& group_name,
-                            const std::string& host,
-                            int port,
+                            const HostResolver::RequestInfo& resolve_info,
                             int priority,
                             ClientSocketHandle* handle,
                             CompletionCallback* callback);
@@ -62,11 +61,22 @@ class TCPClientSocketPool : public ClientSocketPool {
   // A Request is allocated per call to RequestSocket that results in
   // ERR_IO_PENDING.
   struct Request {
+    // HostResolver::RequestInfo has no default constructor, so fudge something.
+    Request() : resolve_info(std::string(), 0) {}
+
+    Request(ClientSocketHandle* handle,
+            CompletionCallback* callback,
+            int priority,
+            const HostResolver::RequestInfo& resolve_info,
+            LoadState load_state)
+        : handle(handle), callback(callback), priority(priority),
+          resolve_info(resolve_info), load_state(load_state) {
+    }
+
     ClientSocketHandle* handle;
     CompletionCallback* callback;
     int priority;
-    std::string host;
-    int port;
+    HostResolver::RequestInfo resolve_info;
     LoadState load_state;
   };
 
@@ -118,7 +128,7 @@ class TCPClientSocketPool : public ClientSocketPool {
     // Begins the host resolution and the TCP connect.  Returns OK on success
     // and ERR_IO_PENDING if it cannot immediately service the request.
     // Otherwise, it returns a net error code.
-    int Connect(const std::string& host, int port);
+    int Connect(const HostResolver::RequestInfo& resolve_info);
 
     // Called by the TCPClientSocketPool to cancel this ConnectingSocket.  Only
     // necessary if a ClientSocketHandle is reused.

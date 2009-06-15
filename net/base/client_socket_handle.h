@@ -11,6 +11,7 @@
 #include "base/scoped_ptr.h"
 #include "net/base/client_socket.h"
 #include "net/base/completion_callback.h"
+#include "net/base/host_resolver.h"
 #include "net/base/load_states.h"
 
 namespace net {
@@ -37,8 +38,8 @@ class ClientSocketHandle {
   // connected socket if an existing connected socket was available to reuse,
   // otherwise it will be set to a new connected socket.  Consumers can then
   // call is_reused() to see if the socket was reused.  If not reusing an
-  // existing socket, ClientSocketPool may need to establish a new 
-  // connection to the |host| |port| pair.
+  // existing socket, ClientSocketPool may need to establish a new
+  // connection to the |resolve_info.host| |resolve_info.port| pair.
   //
   // This method returns ERR_IO_PENDING if it cannot complete synchronously, in
   // which case the consumer will be notified of completion via |callback|.
@@ -46,8 +47,7 @@ class ClientSocketHandle {
   // Init may be called multiple times.
   //
   int Init(const std::string& group_name,
-           const std::string& host,
-           int port,
+           const HostResolver::RequestInfo& resolve_info,
            int priority,
            CompletionCallback* callback);
 

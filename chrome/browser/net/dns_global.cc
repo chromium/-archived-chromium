@@ -133,7 +133,7 @@ static void NavigatingTo(const std::string& host_name) {
 
 // The observer class needs to connect starts and finishes of HTTP network
 // resolutions.  We use the following type for that map.
-typedef std::map<void*, DnsHostInfo> ObservedResolutionMap;
+typedef std::map<int, DnsHostInfo> ObservedResolutionMap;
 
 // There will only be one instance ever created of the following Observer
 // class.  As a result, we get away with using static members for data local
@@ -143,11 +143,13 @@ class PrefetchObserver : public net::DnsResolutionObserver {
   PrefetchObserver();
   ~PrefetchObserver();
 
-  virtual void OnStartResolution(const std::string& host_name,
-                                 void* context);
-  virtual void OnFinishResolutionWithStatus(bool was_resolved,
-                                            const GURL& referrer,
-                                            void* context);
+  virtual void OnStartResolution(
+      int request_id,
+      const net::HostResolver::RequestInfo& request_info);
+  virtual void OnFinishResolutionWithStatus(
+      int request_id,
+      bool was_resolved,
+      const net::HostResolver::RequestInfo& request_info);
 
   static void DnsGetFirstResolutionsHtml(std::string* output);
   static void SaveStartupListAsPref(PrefService* local_state);
@@ -189,27 +191,37 @@ PrefetchObserver::~PrefetchObserver() {
   lock = NULL;
 }
 
-void PrefetchObserver::OnStartResolution(const std::string& host_name,
-                                         void* context) {
-  DCHECK_NE(0U, host_name.length());
+void PrefetchObserver::OnStartResolution(
+    int request_id,
+    const net::HostResolver::RequestInfo& request_info) {
+  if (request_info.is_speculative())
+    return;  // One of our own requests.
+  DCHECK_NE(0U, request_info.hostname().length());
   DnsHostInfo navigation_info;
-  navigation_info.SetHostname(host_name);
+  navigation_info.SetHostname(request_info.hostname());
   navigation_info.SetStartedState();
 
-  NavigatingTo(host_name);
+  NavigatingTo(request_info.hostname());
+
+  // TODO(eroman): If the resolve request is cancelled, then
+  // OnFinishResolutionWithStatus will not be called, and |resolutions| will
+  // grow unbounded!
 
   AutoLock auto_lock(*lock);
-  (*resolutions)[context] = navigation_info;
+  (*resolutions)[request_id] = navigation_info;
 }
 
-void PrefetchObserver::OnFinishResolutionWithStatus(bool was_resolved,
-                                                    const GURL& referrer,
-                                                    void* context) {
+void PrefetchObserver::OnFinishResolutionWithStatus(
+    int request_id,
+    bool was_resolved,
+    const net::HostResolver::RequestInfo& request_info) {
+  if (request_info.is_speculative())
+    return;  // One of our own requests.
   DnsHostInfo navigation_info;
   size_t startup_count;
   {
     AutoLock auto_lock(*lock);
-    ObservedResolutionMap::iterator it = resolutions->find(context);
+    ObservedResolutionMap::iterator it = resolutions->find(request_id);
     if (resolutions->end() == it) {
       DCHECK(false);
       return;
@@ -219,7 +231,7 @@ void PrefetchObserver::OnFinishResolutionWithStatus(bool was_resolved,
     startup_count = first_resolutions->size();
   }
   navigation_info.SetFinishedState(was_resolved);  // Get timing info
-  AccruePrefetchBenefits(referrer, &navigation_info);
+  AccruePrefetchBenefits(request_info.referrer(), &navigation_info);
   if (kStartupResolutionCount <= startup_count || !was_resolved)
     return;
   // TODO(jar): Don't add host to our list if it is a non-linked lookup, and
@@ -399,7 +411,10 @@ void InitDnsPrefetch(size_t max_concurrent, PrefService* user_prefs) {
     DLOG(INFO) << "DNS Prefetch service started";
 
     // Start observing real HTTP stack resolutions.
-    net::AddDnsResolutionObserver(&dns_resolution_observer);
+    // TODO(eroman): really this should be called from IO thread (since that is
+    // where the host resolver lives). Since this occurs before requests have
+    // started it is not a race yet.
+    GetGlobalHostResolver()->AddObserver(&dns_resolution_observer);
   }
 }
 

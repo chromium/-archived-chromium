@@ -35,8 +35,16 @@ class DnsMaster::LookupRequest {
   }
 
   bool Start() {
-    const int result = resolver_.Resolve(hostname_, 80, &addresses_,
-                                         &net_callback_);
+    // Port doesn't really matter.
+    net::HostResolver::RequestInfo resolve_info(hostname_, 80);
+
+    // Make a note that this is a speculative resolve request. This allows us
+    // to separate it from real navigations in the observer's callback, and
+    // lets the HostResolver know it can de-prioritize it.
+    resolve_info.set_is_speculative(true);
+
+    const int result = resolver_.Resolve(
+        resolve_info, &addresses_, &net_callback_);
     return (result == net::ERR_IO_PENDING);
   }
 

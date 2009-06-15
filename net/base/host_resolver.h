@@ -11,6 +11,7 @@
 #include "base/basictypes.h"
 #include "base/lock.h"
 #include "base/ref_counted.h"
+#include "googleurl/src/gurl.h"
 #include "net/base/completion_callback.h"
 #include "net/base/host_cache.h"
 
@@ -19,6 +20,7 @@ class MessageLoop;
 namespace net {
 
 class AddressList;
+class DnsResolutionObserver;
 class HostMapper;
 
 // This class represents the task of resolving hostnames (or IP address
@@ -58,6 +60,46 @@ class HostMapper;
 //
 class HostResolver {
  public:
+  // The parameters for doing a Resolve(). |hostname| and |port| are required,
+  // the rest are optional (and have reasonable defaults).
+  class RequestInfo {
+   public:
+    RequestInfo(const std::string& hostname, int port)
+        : hostname_(hostname),
+          port_(port),
+          allow_cached_response_(true),
+          is_speculative_(false) {}
+
+    const int port() const { return port_; }
+    const std::string& hostname() const { return hostname_; }
+
+    bool allow_cached_response() const { return allow_cached_response_; }
+    void set_allow_cached_response(bool b) { allow_cached_response_ = b; }
+
+    bool is_speculative() const { return is_speculative_; }
+    void set_is_speculative(bool b) { is_speculative_ = b; }
+
+    const GURL& referrer() const { return referrer_; }
+    void set_referrer(const GURL& referrer) { referrer_ = referrer; }
+
+   private:
+    // The hostname to resolve.
+    std::string hostname_;
+
+    // The port number to set in the result's sockaddrs.
+    int port_;
+
+    // Whether it is ok to return a result from the host cache.
+    bool allow_cached_response_;
+
+    // Whether this request was started by the DNS prefetcher.
+    bool is_speculative_;
+
+    // Optional data for consumption by observers. This is the URL of the
+    // page that lead us to the navigation, for DNS prefetcher's benefit.
+    GURL referrer_;
+  };
+
   // Creates a HostResolver that caches up to |max_cache_entries| for
   // |cache_duration_ms| milliseconds.
   //
@@ -74,9 +116,9 @@ class HostResolver {
   class Request;
 
   // Resolves the given hostname (or IP address literal), filling out the
-  // |addresses| object upon success.  The |port| parameter will be set as the
-  // sin(6)_port field of the sockaddr_in{6} struct.  Returns OK if successful
-  // or an error code upon failure.
+  // |addresses| object upon success.  The |info.port| parameter will be set as
+  // the sin(6)_port field of the sockaddr_in{6} struct.  Returns OK if
+  // successful or an error code upon failure.
   //
   // When callback is null, the operation completes synchronously.
   //
@@ -85,18 +127,26 @@ class HostResolver {
   // result code will be passed to the completion callback. If |req| is
   // non-NULL, then |*req| will be filled with a handle to the async request.
   // This handle is not valid after the request has completed.
-  int Resolve(const std::string& hostname, int port,
-              AddressList* addresses, CompletionCallback* callback,
-              Request** req);
+  int Resolve(const RequestInfo& info, AddressList* addresses,
+              CompletionCallback* callback, Request** req);
 
   // Cancels the specified request. |req| is the handle returned by Resolve().
   // After a request is cancelled, its completion callback will not be called.
   void CancelRequest(Request* req);
 
+  // Adds an observer to this resolver. The observer will be notified of the
+  // start and completion of all requests (excluding cancellation). |observer|
+  // must remain valid for the duration of this HostResolver's lifetime.
+  void AddObserver(DnsResolutionObserver* observer);
+
+  // Unregisters an observer previously added by AddObserver().
+  void RemoveObserver(DnsResolutionObserver* observer);
+
  private:
   class Job;
   typedef std::vector<Request*> RequestsList;
   typedef base::hash_map<std::string, scoped_refptr<Job> > JobMap;
+  typedef std::vector<DnsResolutionObserver*> ObserversList;
 
   // Adds a job to outstanding jobs list.
   void AddOutstandingJob(Job* job);
@@ -110,6 +160,15 @@ class HostResolver {
   // Callback for when |job| has completed with |error| and |addrlist|.
   void OnJobComplete(Job* job, int error, const AddressList& addrlist);
 
+  // Notify all obsevers of the start of a resolve request.
+  void NotifyObserversStartRequest(int request_id,
+                                   const RequestInfo& info);
+
+  // Notify all obsevers of the completion of a resolve request.
+  void NotifyObserversFinishRequest(int request_id,
+                                    const RequestInfo& info,
+                                    int error);
+
   // Cache of host resolution results.
   HostCache cache_;
 
@@ -119,6 +178,13 @@ class HostResolver {
   // The job that OnJobComplete() is currently processing (needed in case
   // HostResolver gets deleted from within the callback).
   scoped_refptr<Job> cur_completing_job_;
+
+  // The observers to notify when a request starts/ends.
+  ObserversList observers_;
+
+  // Monotonically increasing ID number to assign to the next request.
+  // Observers are the only consumers of this ID number.
+  int next_request_id_;
 
   DISALLOW_COPY_AND_ASSIGN(HostResolver);
 };
@@ -137,7 +203,7 @@ class SingleRequestHostResolver {
 
   // Resolves the given hostname (or IP address literal), filling out the
   // |addresses| object upon success. See HostResolver::Resolve() for details.
-  int Resolve(const std::string& hostname, int port,
+  int Resolve(const HostResolver::RequestInfo& info,
               AddressList* addresses, CompletionCallback* callback);
 
  private:

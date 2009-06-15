@@ -247,7 +247,8 @@ bool TestServerLauncher::WaitToStart(const std::string& host_name, int port) {
   // Otherwise tests can fail if they run faster than Python can start.
   net::AddressList addr;
   net::HostResolver resolver;
-  int rv = resolver.Resolve(host_name, port, &addr, NULL, NULL);
+  net::HostResolver::RequestInfo info(host_name, port);
+  int rv = resolver.Resolve(info, &addr, NULL, NULL);
   if (rv != net::OK)
     return false;
 

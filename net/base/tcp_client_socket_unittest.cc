@@ -87,7 +87,8 @@ void TCPClientSocketTest::SetUp() {
 
   AddressList addr;
   HostResolver resolver;
-  int rv = resolver.Resolve("localhost", listen_port_, &addr, NULL, NULL);
+  HostResolver::RequestInfo info("localhost", listen_port_);
+  int rv = resolver.Resolve(info, &addr, NULL, NULL);
   CHECK(rv == OK);
   sock_.reset(new TCPClientSocket(addr));
 }

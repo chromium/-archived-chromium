@@ -58,11 +58,9 @@ TCPClientSocketPool::ConnectingSocket::~ConnectingSocket() {
 }
 
 int TCPClientSocketPool::ConnectingSocket::Connect(
-    const std::string& host,
-    int port) {
+    const HostResolver::RequestInfo& resolve_info) {
   CHECK(!canceled_);
-  DidStartDnsResolution(host, this);
-  int rv = resolver_.Resolve(host, port, &addresses_, &callback_);
+  int rv = resolver_.Resolve(resolve_info, &addresses_, &callback_);
   if (rv != ERR_IO_PENDING)
     rv = OnIOCompleteInternal(rv, true /* synchronous */);
   return rv;
@@ -186,26 +184,20 @@ void TCPClientSocketPool::InsertRequestIntoQueue(
   pending_requests->insert(it, r);
 }
 
-int TCPClientSocketPool::RequestSocket(const std::string& group_name,
-                                       const std::string& host,
-                                       int port,
-                                       int priority,
-                                       ClientSocketHandle* handle,
-                                       CompletionCallback* callback) {
-  DCHECK(!host.empty());
+int TCPClientSocketPool::RequestSocket(
+    const std::string& group_name,
+    const HostResolver::RequestInfo& resolve_info,
+    int priority,
+    ClientSocketHandle* handle,
+    CompletionCallback* callback) {
+  DCHECK(!resolve_info.hostname().empty());
   DCHECK_GE(priority, 0);
   Group& group = group_map_[group_name];
 
   // Can we make another active socket now?
   if (group.active_socket_count == max_sockets_per_group_) {
-    Request r;
-    r.handle = handle;
     CHECK(callback);
-    r.callback = callback;
-    r.priority = priority;
-    r.host = host;
-    r.port = port;
-    r.load_state = LOAD_STATE_IDLE;
+    Request r(handle, callback, priority, resolve_info, LOAD_STATE_IDLE);
     InsertRequestIntoQueue(r, &group.pending_requests);
     return ERR_IO_PENDING;
   }
@@ -234,20 +226,15 @@ int TCPClientSocketPool::RequestSocket(const std::string& group_name,
   if (ContainsKey(connecting_socket_map_, handle))
     connecting_socket_map_[handle]->Cancel();
 
-  Request r;
-  r.handle = handle;
   CHECK(callback);
-  r.callback = callback;
-  r.priority = priority;
-  r.host = host;
-  r.port = port;
-  r.load_state = LOAD_STATE_RESOLVING_HOST;
+  Request r(handle, callback, priority, resolve_info,
+            LOAD_STATE_RESOLVING_HOST);
   group_map_[group_name].connecting_requests[handle] = r;
 
   // connecting_socket will delete itself.
   ConnectingSocket* connecting_socket =
       new ConnectingSocket(group_name, handle, client_socket_factory_, this);
-  int rv = connecting_socket->Connect(host, port);
+  int rv = connecting_socket->Connect(resolve_info);
   return rv;
 }
 
@@ -419,7 +406,7 @@ void TCPClientSocketPool::DoReleaseSocket(const std::string& group_name,
     group.pending_requests.pop_front();
 
     int rv = RequestSocket(
-        group_name, r.host, r.port, r.priority, r.handle, r.callback);
+        group_name, r.resolve_info, r.priority, r.handle, r.callback);
     if (rv != ERR_IO_PENDING)
       r.callback->Run(rv);
     return;
