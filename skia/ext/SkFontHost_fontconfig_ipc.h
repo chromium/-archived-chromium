@@ -41,32 +41,6 @@ class FontConfigIPC : public FontConfigInterface {
         METHOD_OPEN = 1,
     };
 
-    struct MatchRequest {
-        uint16_t method;
-        uint8_t fileid_valid;
-        uint32_t fileid;
-        int8_t is_bold;
-        int8_t is_italic;
-        uint8_t family_len;
-        // char family[0] follows.
-    };
-
-    struct MatchReply {
-        uint8_t result;
-        uint32_t result_fileid;
-        uint16_t filename_len;
-        // char filename[0] follows.
-    };
-
-    struct OpenRequest {
-        uint16_t method;
-        unsigned fileid;
-    };
-
-    struct OpenReply {
-        uint8_t result;
-    };
-
   private:
     const int fd_;
 };
