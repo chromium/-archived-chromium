@@ -5,13 +5,14 @@
 #ifndef CHROME_BROWSER_EXTENSIONS_EXTENSIONS_SERVICE_H_
 #define CHROME_BROWSER_EXTENSIONS_EXTENSIONS_SERVICE_H_
 
-#include <list>
+#include <map>
 #include <set>
 #include <string>
 #include <vector>
 
 #include "base/command_line.h"
 #include "base/file_path.h"
+#include "base/linked_ptr.h"
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "base/task.h"
@@ -40,36 +41,36 @@ class ExtensionsService
     : public base::RefCountedThreadSafe<ExtensionsService> {
  public:
 
-   // TODO(port): Move Crx package definitions to ExtentionCreator. They are
-   // currently here because ExtensionCreator is excluded on linux & mac.
+  // TODO(port): Move Crx package definitions to ExtentionCreator. They are
+  // currently here because ExtensionCreator is excluded on linux & mac.
 
-   // The size of the magic character sequence at the beginning of each crx
-   // file, in bytes. This should be a multiple of 4.
-   static const size_t kExtensionHeaderMagicSize = 4;
+  // The size of the magic character sequence at the beginning of each crx
+  // file, in bytes. This should be a multiple of 4.
+  static const size_t kExtensionHeaderMagicSize = 4;
 
-   // The maximum size the crx parser will tolerate for a public key.
-   static const size_t kMaxPublicKeySize = 1 << 16;
+  // The maximum size the crx parser will tolerate for a public key.
+  static const size_t kMaxPublicKeySize = 1 << 16;
 
-   // The maximum size the crx parser will tolerate for a signature.
-   static const size_t kMaxSignatureSize = 1 << 16;
+  // The maximum size the crx parser will tolerate for a signature.
+  static const size_t kMaxSignatureSize = 1 << 16;
 
-   // The magic character sequence at the beginning of each crx file.
-   static const char kExtensionHeaderMagic[];
+  // The magic character sequence at the beginning of each crx file.
+  static const char kExtensionHeaderMagic[];
 
-   // The current version of the crx format.
-   static const uint32 kCurrentVersion = 2;
+  // The current version of the crx format.
+  static const uint32 kCurrentVersion = 2;
 
-   // This header is the first data at the beginning of an extension. Its
-   // contents are purposely 32-bit aligned so that it can just be slurped into
-   // a struct without manual parsing.
-   struct ExtensionHeader {
-     char magic[kExtensionHeaderMagicSize];
-     uint32 version;
-     size_t key_size;  // The size of the public key, in bytes.
-     size_t signature_size;  // The size of the signature, in bytes.
-     // An ASN.1-encoded PublicKeyInfo structure follows.
-     // The signature follows.
-   };
+  // This header is the first data at the beginning of an extension. Its
+  // contents are purposely 32-bit aligned so that it can just be slurped into
+  // a struct without manual parsing.
+  struct ExtensionHeader {
+    char magic[kExtensionHeaderMagicSize];
+    uint32 version;
+    size_t key_size;  // The size of the public key, in bytes.
+    size_t signature_size;  // The size of the signature, in bytes.
+    // An ASN.1-encoded PublicKeyInfo structure follows.
+    // The signature follows.
+  };
 
   ExtensionsService(Profile* profile,
                     MessageLoop* frontend_loop,
@@ -410,7 +411,8 @@ class ExtensionsServiceBackend
   MessageLoop* frontend_loop_;
 
   // A map of all external extension providers.
-  typedef std::map<Extension::Location, ExternalExtensionProvider*> ProviderMap;
+  typedef std::map<Extension::Location,
+                   linked_ptr<ExternalExtensionProvider> > ProviderMap;
   ProviderMap external_extension_providers_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionsServiceBackend);

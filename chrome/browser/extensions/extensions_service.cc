@@ -577,16 +577,16 @@ ExtensionsServiceBackend::ExtensionsServiceBackend(
           alert_on_error_(false),
           frontend_loop_(frontend_loop) {
   external_extension_providers_[Extension::EXTERNAL_PREF] =
-      new ExternalPrefExtensionProvider(extension_prefs);
+      linked_ptr<ExternalExtensionProvider>(
+          new ExternalPrefExtensionProvider(extension_prefs));
 #if defined(OS_WIN)
   external_extension_providers_[Extension::EXTERNAL_REGISTRY] =
-      new ExternalRegistryExtensionProvider();
+      linked_ptr<ExternalExtensionProvider>(
+          new ExternalRegistryExtensionProvider());
 #endif
 }
 
 ExtensionsServiceBackend::~ExtensionsServiceBackend() {
-  STLDeleteContainerPairSecondPointers(external_extension_providers_.begin(),
-                                       external_extension_providers_.end());
 }
 
 void ExtensionsServiceBackend::LoadExtensionsFromPrefs(
@@ -1293,7 +1293,7 @@ bool ExtensionsServiceBackend::LookupExternalExtension(
   scoped_ptr<Version> extension_version;
   for (ProviderMap::const_iterator i = external_extension_providers_.begin();
        i != external_extension_providers_.end(); ++i) {
-    const ExternalExtensionProvider* provider = i->second;
+    const ExternalExtensionProvider* provider = i->second.get();
     extension_version.reset(provider->RegisteredVersion(id, location));
     if (extension_version.get()) {
       if (version)
@@ -1325,7 +1325,7 @@ void ExtensionsServiceBackend::CheckForExternalUpdates(
   // extension they know about. See OnExternalExtensionFound.
   for (ProviderMap::const_iterator i = external_extension_providers_.begin();
        i != external_extension_providers_.end(); ++i) {
-    ExternalExtensionProvider* provider = i->second;
+    ExternalExtensionProvider* provider = i->second.get();
     provider->VisitRegisteredExtension(this, ids_to_ignore);
   }
 }
@@ -1396,8 +1396,6 @@ void ExtensionsServiceBackend::UninstallExtension(
 }
 
 void ExtensionsServiceBackend::ClearProvidersForTesting() {
-  STLDeleteContainerPairSecondPointers(external_extension_providers_.begin(),
-                                       external_extension_providers_.end());
   external_extension_providers_.clear();
 }
 
@@ -1405,7 +1403,8 @@ void ExtensionsServiceBackend::SetProviderForTesting(
     Extension::Location location,
     ExternalExtensionProvider* test_provider) {
   DCHECK(test_provider);
-  external_extension_providers_[location] = test_provider;
+  external_extension_providers_[location] =
+      linked_ptr<ExternalExtensionProvider>(test_provider);
 }
 
 void ExtensionsServiceBackend::OnExternalExtensionFound(
