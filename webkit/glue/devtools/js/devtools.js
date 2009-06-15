@@ -907,3 +907,19 @@ WebInspector.UIString = function(string) {
     return result;
   };
 })();
+
+
+// Highlight extension content scripts in the scripts list.
+(function () {
+  var original = WebInspector.ScriptsPanel.prototype._addScriptToFilesMenu;
+  WebInspector.ScriptsPanel.prototype._addScriptToFilesMenu = function(script) {
+    var result = original.apply(this, arguments);
+    var debuggerAgent = devtools.tools.getDebuggerAgent();
+    var type = debuggerAgent.getScriptContextType(script.sourceID);
+    if (type == 'injected') {
+      var option = script.filesSelectOption;
+      option.addStyleClass('injected');
+    }
+    return result;
+  };
+})();

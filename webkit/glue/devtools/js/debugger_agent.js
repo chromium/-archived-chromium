@@ -389,6 +389,15 @@ devtools.DebuggerAgent.prototype.stopProfiling = function() {
 
 
 /**
+ * @param{number} scriptId
+ * @return {string} Type of the context of the script with specified id.
+ */
+devtools.DebuggerAgent.prototype.getScriptContextType = function(scriptId) {
+  return this.parsedScripts_[scriptId].getContextType();
+};
+
+
+/**
  * Removes specified breakpoint from the v8 debugger.
  * @param {number} breakpointId Id of the breakpoint in the v8 debugger.
  */
@@ -566,7 +575,7 @@ devtools.DebuggerAgent.prototype.handleScriptsResponse_ = function(msg) {
     if (script.id in this.parsedScripts_) {
       continue;
     }
-    this.addScriptInfo_(script);
+    this.addScriptInfo_(script, msg);
   }
 };
 
@@ -626,7 +635,7 @@ devtools.DebuggerAgent.prototype.handleAfterCompileEvent_ = function(msg) {
   if (!this.isScriptFromInspectedContext_(script, msg)) {
     return;
   }
-  this.addScriptInfo_(script);
+  this.addScriptInfo_(script, msg);
 };
 
 
@@ -668,10 +677,14 @@ devtools.DebuggerAgent.prototype.didGetNextLogLines_ = function(log) {
  * Adds the script info to the local cache. This method assumes that the script
  * is not in the cache yet.
  * @param {Object} script Script json object from the debugger message.
+ * @param {devtools.DebuggerMessage} msg Debugger message containing the script
+ *     data.
  */
-devtools.DebuggerAgent.prototype.addScriptInfo_ = function(script) {
+devtools.DebuggerAgent.prototype.addScriptInfo_ = function(script, msg) {
+  var context = msg.lookup(script.context.ref);
+  var contextType = context.data.type;
   this.parsedScripts_[script.id] = new devtools.ScriptInfo(
-      script.id, script.lineOffset);
+      script.id, script.lineOffset, contextType);
   WebInspector.parsedScriptSource(
       script.id, script.name, script.source, script.lineOffset);
 };
@@ -885,11 +898,15 @@ devtools.DebuggerAgent.v8ToWwebkitLineNumber_ = function(line) {
  * @param {number} scriptId Id of the script.
  * @param {number} lineOffset First line 0-based offset in the containing
  *     document.
+ * @param {string} contextType Type of the script's context:
+ *     "page" - regular script from html page
+ *     "injected" - extension content script
  * @constructor
  */
-devtools.ScriptInfo = function(scriptId, lineOffset) {
+devtools.ScriptInfo = function(scriptId, lineOffset, contextType) {
   this.scriptId_ = scriptId;
   this.lineOffset_ = lineOffset;
+  this.contextType_ = contextType;
 
   this.lineToBreakpointInfo_ = {};
 };
@@ -900,6 +917,14 @@ devtools.ScriptInfo = function(scriptId, lineOffset) {
  */
 devtools.ScriptInfo.prototype.getLineOffset = function() {
   return this.lineOffset_;
+};
+
+
+/**
+ * @return {string}
+ */
+devtools.ScriptInfo.prototype.getContextType = function() {
+  return this.contextType_;
 };
 
 
