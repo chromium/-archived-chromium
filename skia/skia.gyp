@@ -556,7 +556,7 @@
       'conditions': [
         [ 'OS != "mac"', {
           'sources/': [
-            ['exclude', '_mac\\.(cc|cpp)$'],
+            ['exclude', '_mac\\.(cc|cpp|mm?)$'],
             ['exclude', '/mac/'] ],
         }],
         [ 'OS != "linux"', {
