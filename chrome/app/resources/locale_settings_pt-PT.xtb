@@ -53,8 +53,8 @@
 <translation id="IDS_IMPORTPROGRESS_DIALOG_HEIGHT_LINES">16</translation>
 <translation id="IDS_IMPORTLOCK_DIALOG_WIDTH_CHARS">50</translation>
 <translation id="IDS_IMPORTLOCK_DIALOG_HEIGHT_LINES">8</translation>
-<translation id="IDS_FIRSTRUNBUBBLE_DIALOG_WIDTH_CHARS">93</translation>
-<translation id="IDS_FIRSTRUNBUBBLE_DIALOG_HEIGHT_LINES">12</translation>
+<translation id="IDS_FIRSTRUNBUBBLE_DIALOG_WIDTH_CHARS">95</translation>
+<translation id="IDS_FIRSTRUNBUBBLE_DIALOG_HEIGHT_LINES">13</translation>
 <translation id="IDS_FIRSTRUNOEMBUBBLE_DIALOG_WIDTH_CHARS">70</translation>
 <translation id="IDS_FIRSTRUNOEMBUBBLE_DIALOG_HEIGHT_LINES">4</translation>
 <translation id="IDS_STATIC_ENCODING_LIST">ISO-8859-1,windows-1252</translation>
