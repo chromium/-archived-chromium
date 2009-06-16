@@ -2763,6 +2763,9 @@ BUG14014 DEBUG : LayoutTests/fast/events/tabindex-focus-chain.html = FAIL
 BUG14061 : LayoutTests/svg/filters/subRegion-one-effect.svg = FAIL
 BUG14061 : LayoutTests/svg/filters/subRegion-two-effects.svg = FAIL
 
+// New version of V8.  Seems unrelated, see test.
+BUG14207 LINUX DEBUG : LayoutTests/tables/mozilla/bugs/bug28341.html = FAIL
+
 // WebKit 44682:44699
 // Test expectation changed upstream in
 // http://trac.webkit.org/changeset/44695
