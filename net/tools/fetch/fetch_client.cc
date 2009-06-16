@@ -8,6 +8,7 @@
 #include "base/singleton.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
+#include "net/base/client_socket_factory.h"
 #include "net/base/completion_callback.h"
 #include "net/base/host_resolver.h"
 #include "net/base/io_buffer.h"
@@ -129,10 +130,13 @@ int main(int argc, char**argv) {
   net::HostResolver host_resolver;
   scoped_ptr<net::ProxyService> proxy_service(net::ProxyService::CreateNull());
   net::HttpTransactionFactory* factory = NULL;
-  if (use_cache)
+  if (use_cache) {
     factory = new net::HttpCache(&host_resolver, proxy_service.get(), 0);
-  else
-    factory = new net::HttpNetworkLayer(&host_resolver, proxy_service.get());
+  } else {
+    factory = new net::HttpNetworkLayer(
+        net::ClientSocketFactory::GetDefaultFactory(), &host_resolver,
+        proxy_service.get());
+  }
 
   {
     StatsCounterTimer driver_time("FetchClient.total_time");

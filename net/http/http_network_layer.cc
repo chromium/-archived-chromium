@@ -19,7 +19,8 @@ HttpTransactionFactory* HttpNetworkLayer::CreateFactory(
     ProxyService* proxy_service) {
   DCHECK(proxy_service);
 
-  return new HttpNetworkLayer(host_resolver, proxy_service);
+  return new HttpNetworkLayer(ClientSocketFactory::GetDefaultFactory(),
+                              host_resolver, proxy_service);
 }
 
 // static
@@ -32,9 +33,11 @@ HttpTransactionFactory* HttpNetworkLayer::CreateFactory(
 
 //-----------------------------------------------------------------------------
 
-HttpNetworkLayer::HttpNetworkLayer(HostResolver* host_resolver,
+HttpNetworkLayer::HttpNetworkLayer(ClientSocketFactory* socket_factory,
+                                   HostResolver* host_resolver,
                                    ProxyService* proxy_service)
-    : host_resolver_(host_resolver),
+    : socket_factory_(socket_factory),
+      host_resolver_(host_resolver),
       proxy_service_(proxy_service),
       session_(NULL),
       suspended_(false) {
@@ -42,7 +45,11 @@ HttpNetworkLayer::HttpNetworkLayer(HostResolver* host_resolver,
 }
 
 HttpNetworkLayer::HttpNetworkLayer(HttpNetworkSession* session)
-    : proxy_service_(NULL), session_(session), suspended_(false) {
+    : socket_factory_(ClientSocketFactory::GetDefaultFactory()),
+      host_resolver_(NULL),
+      proxy_service_(NULL),
+      session_(session),
+      suspended_(false) {
   DCHECK(session_.get());
 }
 
@@ -53,8 +60,7 @@ HttpTransaction* HttpNetworkLayer::CreateTransaction() {
   if (suspended_)
     return NULL;
 
-  return new HttpNetworkTransaction(
-      GetSession(), ClientSocketFactory::GetDefaultFactory());
+  return new HttpNetworkTransaction(GetSession(), socket_factory_);
 }
 
 HttpCache* HttpNetworkLayer::GetCache() {
@@ -72,7 +78,7 @@ HttpNetworkSession* HttpNetworkLayer::GetSession() {
   if (!session_) {
     DCHECK(proxy_service_);
     session_ = new HttpNetworkSession(host_resolver_, proxy_service_,
-                                      ClientSocketFactory::GetDefaultFactory());
+                                      socket_factory_);
   }
   return session_;
 }

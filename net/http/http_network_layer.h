@@ -11,6 +11,7 @@
 
 namespace net {
 
+class ClientSocketFactory;
 class HostResolver;
 class HttpNetworkSession;
 class ProxyInfo;
@@ -18,9 +19,10 @@ class ProxyService;
 
 class HttpNetworkLayer : public HttpTransactionFactory {
  public:
-  // |proxy_service| and |host_resolver| must remain valid for the lifetime of
-  // HttpNetworkLayer.
-  HttpNetworkLayer(HostResolver* host_resolver, ProxyService* proxy_service);
+  // |socket_factory|, |proxy_service| and |host_resolver| must remain valid
+  // for the lifetime of HttpNetworkLayer.
+  HttpNetworkLayer(ClientSocketFactory* socket_factory,
+                   HostResolver* host_resolver, ProxyService* proxy_service);
   // Construct a HttpNetworkLayer with an existing HttpNetworkSession which
   // contains a valid ProxyService.
   explicit HttpNetworkLayer(HttpNetworkSession* session);
@@ -46,6 +48,9 @@ class HttpNetworkLayer : public HttpTransactionFactory {
   HttpNetworkSession* GetSession();
 
  private:
+  // The factory we will use to create network sockets.
+  ClientSocketFactory* socket_factory_;
+
   // The host resolver being used for the session.
   HostResolver* host_resolver_;
 
