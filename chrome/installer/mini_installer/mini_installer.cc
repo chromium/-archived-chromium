@@ -143,6 +143,29 @@ bool ReadValueFromRegistry(HKEY root_key, const wchar_t *sub_key,
   return false;
 }
 
+// This function sets the flag in registry to indicate that Google Update
+// should try full installer next time. If the current installer works, this
+// flag is cleared by setup.exe at the end of install.
+void SetFullInstallerFlag(HKEY root_key) {
+  HKEY key;
+  if (::RegOpenKeyEx(root_key, kApRegistryKey, NULL,
+                     KEY_READ | KEY_SET_VALUE, &key) != ERROR_SUCCESS)
+    return;
+
+  wchar_t value[128];
+  size_t size = _countof(value);
+  if ((::RegQueryValueEx(key, kApRegistryValueName, NULL, NULL,
+                         reinterpret_cast<LPBYTE>(value),
+                         reinterpret_cast<LPDWORD>(&size)) == ERROR_SUCCESS) &&
+      (!StrEndsWith(value, kFullInstallerSuffix)) &&
+      (SafeStrCat(value, size, kFullInstallerSuffix))) {
+    ::RegSetValueEx(key, kApRegistryValueName, 0, REG_SZ,
+                    reinterpret_cast<LPBYTE>(value),
+                    lstrlen(value) * sizeof(wchar_t));
+  }
+
+  ::RegCloseKey(key);
+}
 
 // Gets the setup.exe path from Registry by looking the value of Uninstall
 // string, strips the arguments for uninstall and returns only the full path
@@ -471,6 +494,12 @@ int WMain(HMODULE module) {
   wchar_t base_path[MAX_PATH];
   if (!GetWorkDir(module, base_path))
     return 101;
+
+  // Set the magic suffix in registry to try full installer next time. We ignore
+  // any errors here and we try to set the suffix for user level as well as
+  // system level.
+  SetFullInstallerFlag(HKEY_LOCAL_MACHINE);
+  SetFullInstallerFlag(HKEY_CURRENT_USER);
 
   wchar_t archive_path[MAX_PATH] = {0};
   wchar_t setup_path[MAX_PATH] = {0};
