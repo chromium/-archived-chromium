@@ -591,13 +591,6 @@ void TabContents::WasHidden() {
     // OnWindowPosChanged() notices and calls HideContents() (which calls us).
     if (render_widget_host_view())
       render_widget_host_view()->WasHidden();
-
-    // Loop through children and send WasHidden to them, too.
-    int count = static_cast<int>(child_windows_.size());
-    for (int i = count - 1; i >= 0; --i) {
-      ConstrainedWindow* window = child_windows_.at(i);
-      window->WasHidden();
-    }
   }
 
   NotificationService::current()->Notify(
@@ -614,13 +607,6 @@ void TabContents::Activate() {
 void TabContents::ShowContents() {
   if (render_widget_host_view())
     render_widget_host_view()->DidBecomeSelected();
-
-  // Loop through children and send DidBecomeSelected to them, too.
-  int count = static_cast<int>(child_windows_.size());
-  for (int i = count - 1; i >= 0; --i) {
-    ConstrainedWindow* window = child_windows_.at(i);
-    window->DidBecomeSelected();
-  }
 }
 
 void TabContents::HideContents() {

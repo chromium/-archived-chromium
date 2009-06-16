@@ -10,7 +10,6 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/test/automation/automation_constants.h"
 #include "chrome/test/automation/browser_proxy.h"
-#include "chrome/test/automation/constrained_window_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/ui/ui_test.h"
@@ -18,9 +17,9 @@
 #include "net/base/net_util.h"
 #include "views/event.h"
 
-class InteractiveConstrainedWindowTest : public UITest {
+class BlockedPopupContainerInteractiveTest : public UITest {
  protected:
-  InteractiveConstrainedWindowTest() {
+  BlockedPopupContainerInteractiveTest() {
     show_window_ = true;
   }
 
@@ -62,7 +61,7 @@ class InteractiveConstrainedWindowTest : public UITest {
   scoped_refptr<TabProxy> tab_;
 };
 
-TEST_F(InteractiveConstrainedWindowTest, TestOpenAndResizeTo) {
+TEST_F(BlockedPopupContainerInteractiveTest, TestOpenAndResizeTo) {
   NavigateMainTabTo(L"constrained_window_onload_resizeto.html");
   SimulateClickInCenterOf(window_);
 
@@ -121,7 +120,7 @@ bool ParseCountOutOfTitle(const std::wstring& title, int* output) {
 
 // Tests that in the window.open() equivalent of a fork bomb, we stop building
 // windows.
-TEST_F(InteractiveConstrainedWindowTest, DontSpawnEndlessPopups) {
+TEST_F(BlockedPopupContainerInteractiveTest, DontSpawnEndlessPopups) {
   NavigateMainTabTo(L"infinite_popups.html");
   SimulateClickInCenterOf(window_);
 
@@ -164,7 +163,7 @@ TEST_F(InteractiveConstrainedWindowTest, DontSpawnEndlessPopups) {
 
 // Make sure that we refuse to close windows when a constrained popup is
 // displayed.
-TEST_F(InteractiveConstrainedWindowTest, WindowOpenWindowClosePopup) {
+TEST_F(BlockedPopupContainerInteractiveTest, WindowOpenWindowClosePopup) {
   NavigateMainTabTo(L"openclose_main.html");
   SimulateClickInCenterOf(window_);
 
@@ -183,7 +182,7 @@ TEST_F(InteractiveConstrainedWindowTest, WindowOpenWindowClosePopup) {
   ASSERT_FALSE(automation()->WaitForWindowCountToBecome(1, 3000));
 }
 
-TEST_F(InteractiveConstrainedWindowTest, BlockAlertFromBlockedPopup) {
+TEST_F(BlockedPopupContainerInteractiveTest, BlockAlertFromBlockedPopup) {
   NavigateMainTabTo(L"block_alert.html");
 
   // Wait for there to be an app modal dialog (and fail if it's shown).
@@ -200,7 +199,7 @@ TEST_F(InteractiveConstrainedWindowTest, BlockAlertFromBlockedPopup) {
   ASSERT_EQ(1, popup_count);
 }
 
-TEST_F(InteractiveConstrainedWindowTest, ShowAlertFromNormalPopup) {
+TEST_F(BlockedPopupContainerInteractiveTest, ShowAlertFromNormalPopup) {
   NavigateMainTabTo(L"show_alert.html");
   SimulateClickInCenterOf(window_);
 
@@ -221,7 +220,7 @@ TEST_F(InteractiveConstrainedWindowTest, ShowAlertFromNormalPopup) {
 
 // Make sure that window focus works while creating a popup window so that we
 // don't
-TEST_F(InteractiveConstrainedWindowTest, DontBreakOnBlur) {
+TEST_F(BlockedPopupContainerInteractiveTest, DontBreakOnBlur) {
   NavigateMainTabTo(L"window_blur_test.html");
   SimulateClickInCenterOf(window_);
 

@@ -21,7 +21,6 @@
 #include "chrome/test/automation/automation_constants.h"
 #include "chrome/test/automation/automation_handle_tracker.h"
 
-class ConstrainedWindowProxy;
 class GURL;
 class Value;
 namespace IPC {
@@ -54,12 +53,6 @@ class TabProxy : public AutomationResourceProxy {
 
   // Gets the number of constrained window for this tab.
   bool GetConstrainedWindowCount(int* count) const;
-
-  // Gets the proxy object for constrained window within this tab. Ownership
-  // for the returned object is transfered to the caller. Returns NULL on
-  // failure.
-  scoped_refptr<ConstrainedWindowProxy> GetConstrainedWindow(
-      int window_index) const;
 
   // Executes a javascript in a frame's context whose xpath is provided as the
   // first parameter and extract the values from the resulting json string.

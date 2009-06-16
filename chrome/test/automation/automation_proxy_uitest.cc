@@ -17,7 +17,6 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/test/automation/automation_proxy_uitest.h"
-#include "chrome/test/automation/constrained_window_proxy.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
@@ -622,7 +621,7 @@ TEST_F(AutomationProxyTest3, FrameDocumentCanBeAccessed) {
 
 // TODO(port): Need to port constrained_window_proxy.* first.
 #if defined(OS_WIN)
-TEST_F(AutomationProxyTest, ConstrainedWindowTest) {
+TEST_F(AutomationProxyTest, BlockedPopupTest) {
   scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
 

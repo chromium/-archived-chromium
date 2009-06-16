@@ -592,28 +592,6 @@ views::NonClientFrameView* ConstrainedWindowImpl::CreateFrameViewForWindow() {
   return new ConstrainedWindowFrameView(this);
 }
 
-void ConstrainedWindowImpl::ActivateConstrainedWindow() {
-  // Other pop-ups are simply moved to the front of the z-order.
-  SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
-
-  // Store the focus of our parent focus manager so we can restore it when we
-  // close.
-  views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetNativeView());
-  DCHECK(focus_manager);
-  focus_manager = focus_manager->GetParentFocusManager();
-  if (focus_manager) {
-    // We could not have a parent focus manager if the ConstrainedWindow is
-    // displayed in a tab that is not currently selected.
-    // TODO(jcampan): we should store the ConstrainedWindow active events in
-    // that case and replay them when the TabContents becomes selected.
-    focus_manager->StoreFocusedView();
-
-    // Give our window the focus so we get keyboard messages.
-    ::SetFocus(GetNativeView());
-  }
-}
-
 void ConstrainedWindowImpl::CloseConstrainedWindow() {
   // Broadcast to all observers of NOTIFY_CWINDOW_CLOSED.
   // One example of such an observer is AutomationCWindowTracker in the
@@ -623,14 +601,6 @@ void ConstrainedWindowImpl::CloseConstrainedWindow() {
                                          NotificationService::NoDetails());
 
   Close();
-}
-
-void ConstrainedWindowImpl::WasHidden() {
-  DLOG(INFO) << "WasHidden";
-}
-
-void ConstrainedWindowImpl::DidBecomeSelected() {
-  DLOG(INFO) << "DidBecomeSelected";
 }
 
 std::wstring ConstrainedWindowImpl::GetWindowTitle() const {
@@ -669,6 +639,28 @@ void ConstrainedWindowImpl::Init() {
 void ConstrainedWindowImpl::InitAsDialog(const gfx::Rect& initial_bounds) {
   WindowWin::Init(owner_->GetNativeView(), initial_bounds);
   ActivateConstrainedWindow();
+}
+
+void ConstrainedWindowImpl::ActivateConstrainedWindow() {
+  // Other pop-ups are simply moved to the front of the z-order.
+  SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+
+  // Store the focus of our parent focus manager so we can restore it when we
+  // close.
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(GetNativeView());
+  DCHECK(focus_manager);
+  focus_manager = focus_manager->GetParentFocusManager();
+  if (focus_manager) {
+    // We could not have a parent focus manager if the ConstrainedWindow is
+    // displayed in a tab that is not currently selected.
+    // TODO(jcampan): we should store the ConstrainedWindow active events in
+    // that case and replay them when the TabContents becomes selected.
+    focus_manager->StoreFocusedView();
+
+    // Give our window the focus so we get keyboard messages.
+    ::SetFocus(GetNativeView());
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

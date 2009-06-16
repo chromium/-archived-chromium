@@ -805,12 +805,6 @@ AutomationProvider::AutomationProvider(Profile* profile)
   window_tracker_.reset(new AutomationWindowTracker(this));
   autocomplete_edit_tracker_.reset(
       new AutomationAutocompleteEditTracker(this));
-#if defined(OS_WIN)
-  // TODO(port): Enable as the trackers get ported.
-  cwindow_tracker_.reset(new AutomationConstrainedWindowTracker(this));
-#else
-  NOTIMPLEMENTED() << "hook up constrained window tracker";
-#endif
   new_tab_ui_load_observer_.reset(new NewTabUILoadObserver(this));
   dom_operation_observer_.reset(new DomOperationNotificationObserver(this));
   dom_inspector_observer_.reset(new DomInspectorNotificationObserver(this));
@@ -996,8 +990,6 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                                     ExecuteJavascript)
     IPC_MESSAGE_HANDLER(AutomationMsg_ConstrainedWindowCount,
                         GetConstrainedWindowCount)
-    IPC_MESSAGE_HANDLER(AutomationMsg_ConstrainedWindow, GetConstrainedWindow)
-    IPC_MESSAGE_HANDLER(AutomationMsg_ConstrainedTitle, GetConstrainedTitle)
     IPC_MESSAGE_HANDLER(AutomationMsg_FindInPage, HandleFindInPageRequest)
     IPC_MESSAGE_HANDLER(AutomationMsg_GetFocusedViewID, GetFocusedViewID)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_InspectElement,
@@ -1051,8 +1043,6 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         AutocompleteEditIsQueryInProgress)
     IPC_MESSAGE_HANDLER(AutomationMsg_AutocompleteEditGetMatches,
                         AutocompleteEditGetMatches)
-    IPC_MESSAGE_HANDLER(AutomationMsg_ConstrainedWindowBounds,
-                        GetConstrainedWindowBounds)
     IPC_MESSAGE_HANDLER(AutomationMsg_OpenFindInPage,
                         HandleOpenFindInPageRequest)
     IPC_MESSAGE_HANDLER(AutomationMsg_HandleMessageFromExternalHost,
@@ -2000,58 +1990,6 @@ void AutomationProvider::GetConstrainedWindowCount(int handle, int* count) {
         *count = static_cast<int>(tab_contents->child_windows_.size());
       }
   }
-}
-
-void AutomationProvider::GetConstrainedWindow(int handle, int index,
-                                              int* cwindow_handle) {
-  *cwindow_handle = 0;
-  if (tab_tracker_->ContainsHandle(handle) && index >= 0) {
-    NavigationController* nav_controller =
-        tab_tracker_->GetResource(handle);
-    TabContents* tab = nav_controller->tab_contents();
-    if (tab && index < static_cast<int>(tab->child_windows_.size())) {
-#if defined(OS_WIN)
-      ConstrainedWindow* window = tab->child_windows_[index];
-      *cwindow_handle = cwindow_tracker_->Add(window);
-#else
-      // TODO(port): Enable when cwindow_tracker is ported.
-      NOTIMPLEMENTED();
-#endif
-    }
-  }
-}
-
-void AutomationProvider::GetConstrainedTitle(int handle,
-                                             int* title_string_size,
-                                             std::wstring* title) {
-  *title_string_size = -1;  // -1 is the error code
-#if defined(OS_WIN)
-  if (cwindow_tracker_->ContainsHandle(handle)) {
-    ConstrainedWindow* window = cwindow_tracker_->GetResource(handle);
-    *title = window->GetWindowTitle();
-    *title_string_size = static_cast<int>(title->size());
-  }
-#else
-  // TODO(port): Enable when cwindow_tracker is ported.
-  NOTIMPLEMENTED();
-#endif
-}
-
-void AutomationProvider::GetConstrainedWindowBounds(int handle, bool* exists,
-                                                    gfx::Rect* rect) {
-  *rect = gfx::Rect(0, 0, 0, 0);
-#if defined(OS_WIN)
-  if (cwindow_tracker_->ContainsHandle(handle)) {
-    ConstrainedWindow* window = cwindow_tracker_->GetResource(handle);
-    if (window) {
-      *exists = true;
-      *rect = window->GetCurrentBounds();
-    }
-  }
-#else
-  // TODO(port): Enable when cwindow_tracker is ported.
-  NOTIMPLEMENTED();
-#endif
 }
 
 void AutomationProvider::HandleFindInPageRequest(

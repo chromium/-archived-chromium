@@ -36,10 +36,6 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
 
   // Overridden from ConstrainedWindow:
   virtual void CloseConstrainedWindow();
-  virtual void ActivateConstrainedWindow();
-  virtual void RepositionConstrainedWindowTo(const gfx::Point& anchor_point) {}
-  virtual void WasHidden();
-  virtual void DidBecomeSelected();
   virtual std::wstring GetWindowTitle() const;
   virtual const gfx::Rect& GetCurrentBounds() const;
 
@@ -62,6 +58,10 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   // Initialize the Constrained Window as a Constrained Dialog containing a
   // views::View client area.
   void InitAsDialog(const gfx::Rect& initial_bounds);
+
+  // Moves this window to the front of the Z-order and registers us with the
+  // focus manager.
+  void ActivateConstrainedWindow();
 
   // The TabContents that owns and constrains this ConstrainedWindow.
   TabContents* owner_;

@@ -11,7 +11,6 @@
 #include "chrome/test/automation/automation_constants.h"
 #include "chrome/test/automation/automation_messages.h"
 #include "chrome/test/automation/automation_proxy.h"
-#include "chrome/test/automation/constrained_window_proxy.h"
 #include "googleurl/src/gurl.h"
 
 bool TabProxy::GetTabTitle(std::wstring* title) const {
@@ -322,33 +321,6 @@ bool TabProxy::GetConstrainedWindowCount(int* count) const {
 
   return sender_->Send(new AutomationMsg_ConstrainedWindowCount(
       0, handle_, count));
-}
-
-scoped_refptr<ConstrainedWindowProxy> TabProxy::GetConstrainedWindow(
-    int window_index) const {
-  if (!is_valid())
-    return NULL;
-
-  int handle = 0;
-  if (!sender_->Send(new AutomationMsg_ConstrainedWindow(0, handle_,
-                                                        window_index,
-                                                        &handle)))
-    return NULL;
-
-  if (handle == 0)
-    return NULL;
-
-  ConstrainedWindowProxy* w = static_cast<ConstrainedWindowProxy*>(
-      tracker_->GetResource(handle));
-  if (!w) {
-    w = new ConstrainedWindowProxy(sender_, tracker_, handle);
-    w->AddRef();
-  }
-
-  // Since there is no scoped_refptr::attach.
-  scoped_refptr<ConstrainedWindowProxy> result;
-  result.swap(&w);
-  return result;
 }
 
 bool TabProxy::WaitForChildWindowCountToChange(int count, int* new_count,

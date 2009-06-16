@@ -32,11 +32,6 @@
 #include "views/event.h"
 #endif  // defined(OS_WIN)
 
-#if defined(OS_WIN)
-// TODO(port): enable these.
-#include "chrome/browser/automation/automation_constrained_window_tracker.h"
-#endif
-
 struct AutomationMsg_Find_Params;
 
 namespace IPC {
@@ -239,13 +234,6 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   void ApplyAccelerator(int handle, int id);
 
   void GetConstrainedWindowCount(int handle, int* count);
-  void GetConstrainedWindow(int handle, int index, int* cwindow_handle);
-
-  void GetConstrainedTitle(int handle, int* title,
-                           std::wstring* title_string_size);
-
-  void GetConstrainedWindowBounds(int handle, bool* exists,
-                                  gfx::Rect* rect);
 
   // This function has been deprecated, please use HandleFindRequest.
   void HandleFindInPageRequest(int handle,
@@ -487,10 +475,6 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   scoped_ptr<AutomationBrowserTracker> browser_tracker_;
   scoped_ptr<AutomationTabTracker> tab_tracker_;
   scoped_ptr<AutomationWindowTracker> window_tracker_;
-#if defined(OS_WIN)
-  // TODO(port): Enable as trackers get ported.
-  scoped_ptr<AutomationConstrainedWindowTracker> cwindow_tracker_;
-#endif
   scoped_ptr<AutomationAutocompleteEditTracker> autocomplete_edit_tracker_;
   scoped_ptr<NavigationControllerRestoredObserver> restore_tracker_;
   LoginHandlerMap login_handler_map_;

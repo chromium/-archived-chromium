@@ -244,22 +244,6 @@ IPC_BEGIN_MESSAGES(Automation)
                              int /* tab_handle */,
                              int /* constrained_window_count */)
 
-  // This message requests the handle of the constrained window with the given
-  // (zero-based) index in the given tab. First parameter specifies the given
-  // tab handle, second specifies the given child_index. On error, the returned
-  // handle value is 0.
-  IPC_SYNC_MESSAGE_ROUTED2_1(AutomationMsg_ConstrainedWindow,
-                             int, /* window_handle */
-                             int, /* child_index */
-                             int) /* constrained_handle */
-
-  // This message requests the the title of the constrained window with the
-  // given handle. The return value contains the size of the title string and
-  // title string. On error, this value should be -1 and empty string. Note
-  // that the title can be empty in which case the size would be 0.
-  IPC_SYNC_MESSAGE_ROUTED1_2(AutomationMsg_ConstrainedTitle, int,
-                             int, std::wstring)
-
   // This message requests the bounds of the specified View element in
   // window coordinates.
   // Request:
@@ -666,14 +650,6 @@ IPC_BEGIN_MESSAGES(Automation)
   // active browser, or it no longer exists. Returns 0 if no browser windows
   // exist.
   IPC_SYNC_MESSAGE_ROUTED0_1(AutomationMsg_LastActiveBrowserWindow, int)
-
-  // This message requests the bounds of a constrained window (relative to its
-  // containing TabContents). On an internal error, the boolean in the result
-  // will be set to false.
-  IPC_SYNC_MESSAGE_ROUTED1_2(AutomationMsg_ConstrainedWindowBounds,
-                             int /* tab_handle */,
-                             bool /* the requested window exists */,
-                             gfx::Rect /* constrained_window_count */)
 
   // This message notifies the AutomationProvider to save the page with given
   // handle. The first parameter is the handle to the tab resource. The second

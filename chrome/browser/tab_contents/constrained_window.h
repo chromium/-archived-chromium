@@ -42,27 +42,6 @@ class ConstrainedWindow {
 
   // Closes the Constrained Window.
   virtual void CloseConstrainedWindow() = 0;
-
-  // Repositions the Constrained Window so that the lower right corner
-  // of the titlebar is at the passed in |anchor_point|.
-  virtual void RepositionConstrainedWindowTo(
-      const gfx::Point& anchor_point) = 0;
-
-  // Tells the Constrained Window that the constraining TabContents was hidden,
-  // e.g. via a tab switch.
-  virtual void WasHidden() = 0;
-
-  // Tells the Constrained Window that the constraining TabContents became
-  // visible, e.g. via a tab switch.
-  virtual void DidBecomeSelected() = 0;
-
-  // Returns the title of the Constrained Window.
-  virtual std::wstring GetWindowTitle() const = 0;
-
-  // Returns the current display rectangle (relative to its
-  // parent). This method is only called from the unit tests to check
-  // the location/size of a constrained window.
-  virtual const gfx::Rect& GetCurrentBounds() const = 0;
 };
 
 #endif  // #ifndef CHROME_TAB_CONTENTS_BROWSER_CONSTRAINED_WINDOW_H_
