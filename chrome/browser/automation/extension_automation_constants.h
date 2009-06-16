@@ -35,6 +35,9 @@ extern const char kAutomationPortRequestTarget[];
 // All external port message responses have this target.
 extern const char kAutomationPortResponseTarget[];
 
+// All external browser events have this target.
+extern const char kAutomationBrowserEventRequestTarget[];
+
 // The command codes for our private port protocol.
 enum PrivatePortCommand {
   OPEN_CHANNEL = 0,
