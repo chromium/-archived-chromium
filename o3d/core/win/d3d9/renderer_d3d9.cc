@@ -1295,8 +1295,9 @@ void RendererD3D9::GetDisplayModes(std::vector<DisplayMode> *modes) {
       LOG(ERROR) << "Failed to enumerate adapter display modes.";
     } else {
       DCHECK(mode.Format == D3DFMT_X8R8G8B8);
+      // Display mode IDs are one higher than D3D display modes.
       modes_found.push_back(
-          DisplayMode(mode.Width, mode.Height, mode.RefreshRate, i));
+          DisplayMode(mode.Width, mode.Height, mode.RefreshRate, i + 1));
     }
   }
   modes->swap(modes_found);
@@ -1304,10 +1305,17 @@ void RendererD3D9::GetDisplayModes(std::vector<DisplayMode> *modes) {
 
 bool RendererD3D9::GetDisplayMode(int id, DisplayMode *mode) {
   D3DDISPLAYMODE d3d_mode;
-  bool success = SUCCEEDED(d3d_->EnumAdapterModes(D3DADAPTER_DEFAULT,
-                                                  D3DFMT_X8R8G8B8,
-                                                  id,
-                                                  &d3d_mode));
+  bool success = false;
+  if (id == DISPLAY_MODE_DEFAULT) {
+    success = SUCCEEDED(d3d_->GetAdapterDisplayMode(D3DADAPTER_DEFAULT,
+                                                    &d3d_mode));
+  } else {
+    // Display mode IDs are one higher than D3D display modes.
+    success = SUCCEEDED(d3d_->EnumAdapterModes(D3DADAPTER_DEFAULT,
+                                               D3DFMT_X8R8G8B8,
+                                               id - 1,
+                                               &d3d_mode));
+  }
   if (success) {
     mode->Set(d3d_mode.Width, d3d_mode.Height, d3d_mode.RefreshRate, id);
   }
@@ -1325,15 +1333,12 @@ bool RendererD3D9::SetFullscreen(bool fullscreen,
       int refresh_rate = 0;
       if (fullscreen) {
         // Look up the refresh rate.
-        D3DDISPLAYMODE mode;
-        if (FAILED(d3d_->EnumAdapterModes(D3DADAPTER_DEFAULT,
-                                          D3DFMT_X8R8G8B8,
-                                          mode_id,
-                                          &mode))) {
-          LOG(ERROR) << "Failed to EnumAdapterModes";
+        DisplayMode mode;
+        if (!GetDisplayMode(mode_id, &mode)) {
+          LOG(ERROR) << "Failed to GetDisplayMode";
           return false;
         }
-        refresh_rate = mode.RefreshRate;
+        refresh_rate = mode.refresh_rate();
         showing_fullscreen_message_ = true;
         fullscreen_message_timer_.GetElapsedTimeAndReset();  // Reset the timer.
       } else {

@@ -53,18 +53,24 @@ callback void LostResourcesCallback();
 
 callback void EventCallback(Event event_descriptor);
 
+%[
+  The Renderer class provides the abstract interface to each platform's
+  rendering library.
+%]
 [binding_model=by_pointer, include="core/cross/renderer.h", nocpp, glue_iface]
 class Renderer {
   %[
     The initialization status of the renderer.
-    \li UNINITIALIZED
-    \li SUCCESS  The renderer is initialized.
-    \li GPU_NOT_UP_TO_SPEC  The renderer determined the user's machine can not
-        run O3D
-    \li OUT_OF_RESOURCES  The user's machine does not have enough graphic
+
+    \var InitStatus,
+    \li UNINITIALIZED,
+    \li SUCCESS,  The renderer is initialized.
+    \li GPU_NOT_UP_TO_SPEC,  The renderer determined the user's machine cannot
+        run O3D.
+    \li OUT_OF_RESOURCES,  The user's machine does not have enough graphic
         resources available to start another instance of the O3D renderer.
-    \li INITIALIZATION_ERROR  Some unknown error like possibly drivers not being
-        installed correctly.
+    \li INITIALIZATION_ERROR,  Some unknown error such as e.g. drivers not
+        being installed correctly.
   %]
   enum InitStatus {
     UNINITIALIZED,
@@ -72,6 +78,18 @@ class Renderer {
     GPU_NOT_UP_TO_SPEC,
     OUT_OF_RESOURCES,
     INITIALIZATION_ERROR
+  };
+
+  %[
+    This is used in SetFullscreenClickRegion to request the current display
+    mode, such that the change to full-screen mode won't change the screen
+    resolution or refresh rate.
+
+    \var DisplayModes,
+    \li DISPLAY_MODE_DEFAULT
+  %]
+  enum DisplayModes {
+    DISPLAY_MODE_DEFAULT
   };
 };
 
@@ -138,7 +156,7 @@ class Client {
   [const] ObjectArray GetObjectsByClassName(String class_name);
 
   %[
-    \var Property,
+    \var RenderMode,
     \li RENDERMODE_CONTINUOUS,  Draw as often as possible up to refresh rate.
     \li RENDERMODE_ON_DEMAND,   Draw once then only when the OS requests it
          (like uncovering part of a window.)
@@ -178,44 +196,54 @@ class Client {
   void RenderTree(RenderNode render_node);
 
   %[
-    Returns an array of DisplayModes which are available for use in fullscreen
+    Returns an array of DisplayModes which are available for use in full-screen
     mode.
   %]
   [userglue, plugin_data] DisplayMode[] GetDisplayModes();
 
   %[
-    Makes a region of the plugin area that will invoke fullscreen mode if
+    Makes a region of the plugin area that will invoke full-screen mode if
     clicked.  The developer is responsible for communicating this to the user,
     as this region has no visible marker.  The developer is also responsible for
     updating this region if the plugin gets resized, as we don't know whether or
-    how to scale it.
+    how to scale it.  There can be only one full-screen click region at a time;
+    calling this again will override any previous call.
+
+    Returns true on success, false if the mode_id is invalid.
   %]
   [userglue, plugin_data]
   void SetFullscreenClickRegion(int x, int y, int width, int height, int
       mode_id);
   %[
-    Cancels fullscreen display, reverting to displaying content only in the
-    plugin region.  If the plugin is already not in fullscreen mode, this has
-    no effect.
+    Deactivates the plugin click region that was previously created with
+    SetFullscreenClickRegion().
+  %]
+  [userglue, plugin_data]
+  void ClearFullscreenClickRegion();
+  %[
+    Cancels full-screen display, reverting to displaying content only in the
+    plugin region.  If the plugin is already not in full-screen mode, this has
+    no effect.  This does not deactivate the plugin click region--if the user
+    clicks there again, we'll go back to full-screen display.
   %]
   [userglue, plugin_data] void CancelFullscreenDisplay();
 
   %[
-    Whether content is displayed in fullscreen mode or in a plugin window.  The
-    default is false [not fullscreen].
+    Whether content is displayed in full-screen mode or in a plugin window.  The
+    default is false [not full-screen].
   %]
   [userglue_getter, getter, plugin_data]
   bool fullscreen;
 
   %[
-    Returns the width of the current drawing area [plugin or fullscreen] in
+    Returns the width of the current drawing area [plugin or full-screen] in
     pixels.
   %]
   [userglue_getter, getter, plugin_data]
   int width;
 
   %[
-    Returns the height of the current drawing area [plugin or fullscreen] in
+    Returns the height of the current drawing area [plugin or full-screen] in
     pixels.
   %]
   [userglue_getter, getter, plugin_data]
@@ -305,12 +333,12 @@ class Client {
   void ClearLostResourcesCallback();
 
   %[
-    Sets a callback for a given event type.  See @Event for a list of event
-    types.  However, only mousedown, mousemove, mouseup, and dblclick will
-    actually do anything at present.
-
+    Sets a callback for a given event type.
+    types.
     There can be only one callback for a given event type at a time; setting a
     new one deletes the old one.
+
+    \sa Event for a list of event
   %]
   void SetEventCallback(String type, EventCallback? handler);
 
@@ -493,8 +521,17 @@ class Client {
     void userglue_method_SetFullscreenClickRegion(
         void *plugin_data, o3d::Client *self, int x, int y, int width,
         int height, int mode_id) {
+      glue::_o3d::PluginObject *plugin =
+          static_cast<glue::_o3d::PluginObject*>(plugin_data);
+      if (!plugin->SetFullscreenClickRegion(x, y, width, height, mode_id)) {
+        O3D_ERROR(plugin->service_locator())
+            << "Call to SetFullscreenClickRegion failed.";
+      }
+    }
+    void userglue_method_ClearFullscreenClickRegion(
+        void *plugin_data, o3d::Client *self) {
       static_cast<glue::_o3d::PluginObject*>(plugin_data)->
-          SetFullscreenClickRegion(x, y, width, height, mode_id);
+          ClearFullscreenClickRegion();
     }
     void userglue_method_CancelFullscreenDisplay(
         void *plugin_data, o3d::Client *self) {

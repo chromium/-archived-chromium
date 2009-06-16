@@ -306,15 +306,9 @@ class PluginObject: public NPObject {
   // user, as this region has no visible marker.  The user is also responsible
   // for updating this region if the plugin gets resized, as we don't know
   // whether or how to scale it.
-  void SetFullscreenClickRegion(int x, int y, int width, int height,
-      int mode_id) {
-    fullscreen_region_valid_ = true;
-    fullscreen_region_x_ = x;
-    fullscreen_region_y_ = y;
-    fullscreen_region_width_ = width;
-    fullscreen_region_height_ = height;
-    fullscreen_region_mode_id_ = mode_id;
-  }
+  // Fails if the mode_id supplied isn't valid.  Returns true on success.
+  bool SetFullscreenClickRegion(int x, int y, int width, int height,
+      int mode_id);
   void ClearFullscreenClickRegion() {
     fullscreen_region_valid_ = false;
   }

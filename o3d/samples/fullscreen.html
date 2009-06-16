@@ -68,6 +68,7 @@ var g_pack;
 var g_finished = false;  // for selenium testing
 var g_teapotRoot;
 var g_orthoRoot;
+var g_bannerTexture;
 var g_o3dElement;
 
 /**
@@ -120,7 +121,7 @@ function createBannerSurfaceAndClickableRegion(clientHeight, viewInfo) {
       var paramSampler = g_orthoRoot.createParam('texSampler0', 'ParamSampler');
       paramSampler.value = sampler;
 
-      sampler.texture = texture;
+      g_bannerTexture = sampler.texture = texture;
       g_orthoRoot.addShape(g_planeShape);
 
       // Convert to a top-left-corner-based coordinate system from the
@@ -137,8 +138,7 @@ function createBannerSurfaceAndClickableRegion(clientHeight, viewInfo) {
       g_orthoRoot.scale(texture.width, -texture.height, 1);
 
       o3djs.event.addEventListener(g_o3dElement, 'resize', handleResizeEvent);
-      g_client.setFullscreenClickRegion(10, clientHeight - texture.height - 10,
-          texture.width, texture.height, getFullscreenModeId());
+      updateBanner();
     }
     g_finished = true;  // for selenium testing.
   });
@@ -302,23 +302,35 @@ function getFullscreenModeId() {
   }
   if (bestMode) {
     return bestMode.id;
-  } else {
-    return 0;  // getDisplayModes isn't implemented on all platforms yet
+  } else {  // getDisplayModes isn't implemented on all platforms yet.
+    return g_o3d.Renderer.DISPLAY_MODE_DEFAULT;
   }
 }
 
 function handleResizeEvent(event) {
   // Only show the fullscreen banner if we're in plugin mode.
-  g_orthoRoot.visible = !event.fullscreen;
+  g_orthoRoot.visible = !event.fullscreen &&
+    document.getElementById("show_banner").checked;
 
   setupCamera(g_teapotRoot);
 }
 
+function updateBanner() {
+  if (document.getElementById("show_banner").checked) {
+    g_client.setFullscreenClickRegion(10,
+        g_client.height - g_bannerTexture.height - 10, g_bannerTexture.width,
+        g_bannerTexture.height, getFullscreenModeId());
+    g_orthoRoot.visible = true;
+  } else {
+    g_client.clearFullscreenClickRegion();
+    g_orthoRoot.visible = false;
+  }
+}
 
 </script>
 </head>
 <body>
-<h1>Fullscreen mode.</h1>
+<h1>Full-screen mode.</h1>
 This tutorial shows how to toggle between plugin and full-screen display.
 <p>It's built on top of helloworld.html; diff the two to see what changes were
 necessary.
@@ -326,5 +338,7 @@ necessary.
 <!-- Start of O3D plugin -->
 <div id="o3d" style="width: 600px; height: 600px;"></div>
 <!-- End of O3D plugin -->
+<input type="checkbox" id="show_banner" checked onclick=updateBanner()>
+Show full-screen banner when not full-screen.</input>
 </body>
 </html>

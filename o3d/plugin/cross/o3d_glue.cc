@@ -669,6 +669,22 @@ int PluginObject::height() const {
   return 0;
 }
 
+bool PluginObject::SetFullscreenClickRegion(int x, int y, int width, int height,
+    int mode_id) {
+  bool success = false;
+  o3d::DisplayMode mode;
+  // Make sure it's a valid ID first.
+  if (renderer()->GetDisplayMode(mode_id, &mode)) {
+    fullscreen_region_valid_ = true;
+    fullscreen_region_x_ = x;
+    fullscreen_region_y_ = y;
+    fullscreen_region_width_ = width;
+    fullscreen_region_height_ = height;
+    fullscreen_region_mode_id_ = mode_id;
+    success = true;
+  }
+  return success;
+}
 
 // On Mac there is a different implementation in plugin_mac.mm.
 #ifndef OS_MACOSX

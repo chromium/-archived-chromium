@@ -191,7 +191,7 @@ typedef EffectStreamInfo[] EffectStreamInfoArray;
   [userglue] EffectStreamInfoArray GetStreamInfo();
 
   %[
-    \var Property,
+    \var MatrixLoadOrder,
     \li ROW_MAJOR,  Matrix parameters are loaded in row-major order (DX-style).
     \li COLUMN_MAJOR,   Matrix parameters are loaded in column-major order
         (OpenGL-style).

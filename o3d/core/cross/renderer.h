@@ -104,6 +104,14 @@ class Renderer {
     INITIALIZATION_ERROR,
   };
 
+  // This is exposed to JavaScript, but as long as users always refer to it
+  // symbolically, it should be possible to change it without breaking anyone.
+  // NOTE: windows d3d display modes are internally implemented via adding 1 to
+  // their normal values of [0, NUM) so as not to collide with this value.
+  enum DisplayModes {
+    DISPLAY_MODE_DEFAULT = 0
+  };
+
   // A StateHandler takes a param and sets or resets a render state.
   class StateHandler {
    public:
