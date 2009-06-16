@@ -526,39 +526,72 @@ plugin_path = '$ARTIFACTS_DIR/${LIBPREFIX}npo3dautoplugin$SHLIBSUFFIX'
 browser_path = ''
 plugin_install_steps = []
 cleanup_steps = []
+selenium_good_to_go = True
+
 if run_env.Bit('mac'):
   plugin_path = '$ARTIFACTS_DIR/O3D.plugin'
+  
   if run_env['MAC_HERMETIC_FIREFOX_DIR']:
-    run_env['MAC_FIREFOX_DIR'] = '$MAC_HERMETIC_FIREFOX_DIR'
-    run_env['MAC_FIREFOX_APP'] = '$MAC_FIREFOX_DIR/Firefox.app'
-    run_env['MAC_FIREFOX_TGZ'] = '$MAC_FIREFOX_DIR/firefox.tgz'
-    browser_path = '$MAC_FIREFOX_APP/Contents/MacOS/firefox-bin'
-    plugin_install_steps = [
-        'rm -rf "$MAC_FIREFOX_APP"',
-        'cd $MAC_FIREFOX_DIR && tar xfz "$MAC_FIREFOX_TGZ"',
-        'ln -fs "' + plugin_path + '" "$MAC_FIREFOX_APP/Contents/MacOS/plugins"',
-    ]
-    cleanup_steps = [
-        'rm -rf "$MAC_FIREFOX_APP"',
-    ]
+    # if we have a hermetic version of Firefox, then run it
+    if os.path.exists(run_env.subst('$MAC_HERMETIC_FIREFOX_DIR')):
+      run_env['MAC_FIREFOX_DIR'] = '$MAC_HERMETIC_FIREFOX_DIR'
+      run_env['MAC_FIREFOX_APP'] = '$MAC_FIREFOX_DIR/Firefox.app'
+      run_env['MAC_FIREFOX_TGZ'] = '$MAC_FIREFOX_DIR/firefox.tgz'
+      browser_path = '$MAC_FIREFOX_APP/Contents/MacOS/firefox-bin'
+      plugin_install_steps = [
+          'rm -rf "$MAC_FIREFOX_APP"',
+          'cd $MAC_FIREFOX_DIR && tar xfz "$MAC_FIREFOX_TGZ"',
+          'ln -fs "' + plugin_path + '" "$MAC_FIREFOX_APP/Contents/MacOS/plugins"',
+      ]
+      cleanup_steps = [
+          'rm -rf "$MAC_FIREFOX_APP"',
+      ]
+    else:
+      # No hermetic version, look for Firefox.app in /Applications
+      run_env['MAC_FIREFOX_ORIG_DIR'] = '/Applications'
+      run_env['MAC_FIREFOX_ORIG_APP'] = '$MAC_FIREFOX_ORIG_DIR/Firefox.app'
+
+      if not os.path.exists(run_env.subst('$MAC_FIREFOX_ORIG_APP')):
+        selenium_good_to_go = False
+      else:
+        run_env['MAC_FIREFOX_DIR'] = '$TARGET_ROOT/firefox_selenium'
+        run_env['MAC_FIREFOX_APP'] = '$MAC_FIREFOX_DIR/Firefox.app'
+        browser_path = '$MAC_FIREFOX_APP/Contents/MacOS/firefox-bin'
+        plugin_install_steps = [
+            # copy user's version of Firefox into $MAC_FIREFOX_DIR
+            'rm -rf "$MAC_FIREFOX_DIR"',
+            'mkdir "$MAC_FIREFOX_DIR"',
+            'ditto "$MAC_FIREFOX_ORIG_APP" "$MAC_FIREFOX_APP"',
+            'ln -fs "' + plugin_path + '" "$MAC_FIREFOX_APP/Contents/MacOS/plugins"',
+        ]
+        cleanup_steps = [
+            'rm -rf "$MAC_FIREFOX_DIR"',
+        ]
+      
 
 def DeferSelenium(env):
-  run_selenium_firefox = run_env.Alias(
-      'selenium_firefox',
-      [plugin_path, env.GetPublished('samples', 'asset_files')],
-      # TODO: have a cleaner way to do this.
-      [Delete('$ARTIFACTS_DIR/selenium/screenshots_firefox'),
-       Mkdir('$ARTIFACTS_DIR/selenium/screenshots_firefox')] +
-       plugin_install_steps +
-       [run_env.Python([
-          'tests/selenium/main.py',
-          '$SELENIUM_FLAGS',
-          '--browser=*firefox',
-          '--browserpath="' + browser_path + '"',
-          '--referencedir=$TEST_REFERENCE_IMAGES',
-          '--screenshotsdir=$ARTIFACTS_DIR/selenium/screenshots_firefox'])] +
-      cleanup_steps,
-  )
+  if not selenium_good_to_go:
+    run_selenium_firefox = run_env.Alias(
+        'selenium_firefox', [],
+        'echo "******* Firefox.app MUST be installed in /Applications!!!"'
+    )
+  else:
+    run_selenium_firefox = run_env.Alias(
+        'selenium_firefox',
+        [plugin_path, env.GetPublished('samples', 'asset_files')],
+        # TODO: have a cleaner way to do this.
+        [Delete('$ARTIFACTS_DIR/selenium/screenshots_firefox'),
+         Mkdir('$ARTIFACTS_DIR/selenium/screenshots_firefox')] +
+         plugin_install_steps +
+         [run_env.Python([
+            'tests/selenium/main.py',
+            '$SELENIUM_FLAGS',
+            '--browser=*firefox',
+            '--browserpath="' + browser_path + '"',
+            '--referencedir=$TEST_REFERENCE_IMAGES',
+            '--screenshotsdir=$ARTIFACTS_DIR/selenium/screenshots_firefox'])] +
+        cleanup_steps,
+    )
 
   if run_env.Bit('windows'):
     run_selenium_ie = run_env.Alias(
