@@ -41,8 +41,8 @@ BackForwardButtonGtk::BackForwardButtonGtk(Browser* browser, bool is_forward)
                               l10n_util::GetStringUTF8(tooltip).c_str());
   menu_model_.reset(new BackForwardMenuModelGtk(browser,
       is_forward ?
-          BackForwardMenuModel::FORWARD_MENU_DELEGATE :
-          BackForwardMenuModel::BACKWARD_MENU_DELEGATE,
+          BackForwardMenuModel::FORWARD_MENU :
+          BackForwardMenuModel::BACKWARD_MENU,
       this));
 
   g_signal_connect(widget(), "clicked",
