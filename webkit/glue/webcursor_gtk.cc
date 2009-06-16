@@ -71,9 +71,9 @@ GdkCursorType WebCursor::GetCursorType() const {
     case PlatformCursor::TypeSouthResize:
       return GDK_BOTTOM_SIDE;
     case PlatformCursor::TypeSouthEastResize:
-      return GDK_BOTTOM_LEFT_CORNER;
-    case PlatformCursor::TypeSouthWestResize:
       return GDK_BOTTOM_RIGHT_CORNER;
+    case PlatformCursor::TypeSouthWestResize:
+      return GDK_BOTTOM_LEFT_CORNER;
     case PlatformCursor::TypeWestResize:
       return GDK_LEFT_SIDE;
     case PlatformCursor::TypeNorthSouthResize:
