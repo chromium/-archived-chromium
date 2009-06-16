@@ -2770,3 +2770,7 @@ BUG14207 LINUX DEBUG : LayoutTests/tables/mozilla/bugs/bug28341.html = FAIL
 // Test expectation changed upstream in
 // http://trac.webkit.org/changeset/44695
 BUGMERGE REBASELINE WIN : LayoutTests/fast/frames/viewsource-attribute.html = FAIL
+
+// WebKit 44699:44726
+// Test expectation changed upstream in r44712
+BUGMERGE REBASELINE WIN : LayoutTests/editing/pasteboard/5368833.html = FAIL
