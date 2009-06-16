@@ -471,7 +471,7 @@ BUG1089231 : LayoutTests/fast/events/stopPropagation-submit.html = FAIL
 // Workers
 // -----------------------------------------------------------------
 
-BUG10271 SKIP MAC LINUX : LayoutTests/fast/workers = TIMEOUT FAIL
+BUG10271 SKIP : LayoutTests/fast/workers = TIMEOUT FAIL
 BUG10271 SKIP : LayoutTests/fast/workers/stress-js-execution.html = TIMEOUT FAIL
 BUG10271 SKIP : LayoutTests/http/tests/workers = TIMEOUT FAIL
 BUG10271 SKIP : LayoutTests/http/tests/xmlhttprequest/workers = TIMEOUT FAIL
