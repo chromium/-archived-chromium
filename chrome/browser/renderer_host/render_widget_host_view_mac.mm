@@ -52,7 +52,6 @@ RenderWidgetHostViewMac::RenderWidgetHostViewMac(RenderWidgetHost* widget)
       parent_view_(NULL) {
   cocoa_view_ = [[[RenderWidgetHostViewCocoa alloc]
                   initWithRenderWidgetHostViewMac:this] autorelease];
-  tooltip_.reset([[ToolTip alloc] init]);
   render_widget_host_->set_view(this);
 }
 
@@ -278,10 +277,12 @@ void RenderWidgetHostViewMac::SetTooltipText(const std::wstring& tooltip_text) {
 
     NSString* tooltip_nsstring = base::SysWideToNSString(display_text);
     if ([tooltip_nsstring length] == 0) {
-      [tooltip_ closeToolTip];
+      tooltip_.reset(NULL);  // The dtor closes the tooltip.
     } else {
       // Get the current mouse location in the window's coordinate system and
       // use that as the point for displaying the tooltip.
+      if (!tooltip_.get())
+        tooltip_.reset([[ToolTip alloc] init]);
       NSPoint event_point =
           [[cocoa_view_ window] mouseLocationOutsideOfEventStream];
       [tooltip_ showToolTipAtPoint:event_point
