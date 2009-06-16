@@ -2312,6 +2312,9 @@
         'app/keystone_glue.m',
         'app/scoped_ole_initializer.h',
       ],
+      'dependencies': [
+        '../support/support.gyp:*',
+      ],
       'mac_bundle_resources': [
         # put any pdfs down in the sources block below so pdfsqueeze runs on
         # them.
@@ -4068,6 +4071,7 @@
             #'theme_dll',
             'worker',
             '../net/net.gyp:net_resources',
+            '../support/support.gyp:*',
             '../third_party/cld/cld.gyp:cld',
             '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
             '../third_party/tcmalloc/tcmalloc.gyp:tcmalloc',
