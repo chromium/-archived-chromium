@@ -179,7 +179,7 @@ RemoteToolsAgentStub.prototype.EvaluateJavaScript = function(callId, script) {
 
 
 RemoteToolsAgentStub.prototype.ExecuteUtilityFunction = function(callId,
-    functionName, nodeId, args) {
+    functionName, args) {
   setTimeout(function() {
     var result = [];
     if (functionName == 'getProperties') {
@@ -212,7 +212,13 @@ RemoteToolsAgentStub.prototype.ExecuteUtilityFunction = function(callId,
     } else if (functionName == 'toggleNodeStyle' ||
         functionName == 'applyStyleText' ||
         functionName == 'setStyleProperty') {
-      alert(functionName + '(' + nodeId + ', ' + args + ')');
+      alert(functionName + '(' + args + ')');
+    } else if (functionName == 'evaluate') {
+      try {
+        result = [ window.eval(JSON.parse(args)[0]), false ];
+      } catch (e) {
+        result = [ e.toString(), true ];
+      }
     } else {
       alert('Unexpected utility function:' + functionName);
     }
