@@ -81,6 +81,7 @@ bool AutomatedUITestBase::DuplicateTab() {
   return RunCommand(IDC_DUPLICATE_TAB);
 }
 
+#if defined(OS_WIN)
 bool AutomatedUITestBase::DragTabOut() {
   BrowserProxy* browser = active_browser();
   if (browser == NULL) {
@@ -235,6 +236,7 @@ bool AutomatedUITestBase::DragActiveTab(bool drag_right) {
 
   return true;
 }
+#endif
 
 bool AutomatedUITestBase::ForwardButton() {
   return RunCommand(IDC_FORWARD);
@@ -246,7 +248,7 @@ bool AutomatedUITestBase::GoOffTheRecord() {
 
 bool AutomatedUITestBase::OpenAndActivateNewBrowserWindow(
     scoped_refptr<BrowserProxy>* previous_browser) {
-  if (!automation()->OpenNewBrowserWindow(SW_SHOWNORMAL)) {
+  if (!automation()->OpenNewBrowserWindow(true /* SW_SHOWNORMAL */)) {
     LogWarningMessage("failed_to_open_new_browser_window");
     return false;
   }

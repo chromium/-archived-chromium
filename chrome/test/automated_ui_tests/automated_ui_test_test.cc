@@ -10,6 +10,17 @@
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 
+#if defined(OS_MACOSX)
+// The window pops up, but doesn't close.
+#define MAYBE_IncognitoWindow DISABLED_IncognitoWindow
+#define MAYBE_OpenCloseBrowserWindowWithAccelerator \
+    DISABLED_OpenCloseBrowserWindowWithAccelerator
+#else
+#define MAYBE_IncognitoWindow IncognitoWindow
+#define MAYBE_OpenCloseBrowserWindowWithAccelerator \
+    OpenCloseBrowserWindowWithAccelerator
+#endif
+
 TEST_F(AutomatedUITestBase, NewTab) {
   int tab_count;
   active_browser()->GetTabCount(&tab_count);
@@ -34,7 +45,7 @@ TEST_F(AutomatedUITestBase, DuplicateTab) {
   ASSERT_EQ(3, tab_count);
 }
 
-TEST_F(AutomatedUITestBase, RestoreTab) {
+TEST_F(AutomatedUITestBase, DISABLED_RestoreTab) {
   int tab_count;
   active_browser()->GetTabCount(&tab_count);
   ASSERT_EQ(1, tab_count);
@@ -178,7 +189,7 @@ TEST_F(AutomatedUITestBase, CloseBrowserWindow) {
   ASSERT_FALSE(CloseActiveWindow());
 }
 
-TEST_F(AutomatedUITestBase, IncognitoWindow) {
+TEST_F(AutomatedUITestBase, MAYBE_IncognitoWindow) {
   int num_browser_windows;
   int num_normal_browser_windows;
   automation()->GetBrowserWindowCount(&num_browser_windows);
@@ -208,7 +219,7 @@ TEST_F(AutomatedUITestBase, IncognitoWindow) {
   ASSERT_EQ(1, num_browser_windows);
 }
 
-TEST_F(AutomatedUITestBase, OpenCloseBrowserWindowWithAccelerator) {
+TEST_F(AutomatedUITestBase, MAYBE_OpenCloseBrowserWindowWithAccelerator) {
   // Note: we don't use RunCommand(IDC_OPEN/CLOSE_WINDOW) to open/close
   // browser window in automated ui tests. Instead we use
   // OpenAndActivateNewBrowserWindow and CloseActiveWindow.

@@ -2947,7 +2947,6 @@
       'sources': [
         'test/automated_ui_tests/automated_ui_test_base.cc',
         'test/automated_ui_tests/automated_ui_test_base.h',
-        'test/automated_ui_tests/automated_ui_test_test.cc',
         'test/testing_browser_process.h',
         'test/ui/javascript_test_util.cc',
         'test/ui/npapi_test_helper.cc',
@@ -2966,8 +2965,6 @@
         }],
         ['OS!="win"', {
           'sources!': [
-            'test/automated_ui_tests/automated_ui_test_base.cc',
-            'test/automated_ui_tests/automated_ui_test_test.cc',
             'test/ui/npapi_test_helper.cc',
           ],
         }],
@@ -3094,6 +3091,7 @@
         'test/accessibility/tab_impl.cc',
         'test/accessibility/tab_impl.h',
         'test/automation/automation_proxy_uitest.cc',
+        'test/automated_ui_tests/automated_ui_test_test.cc',
         'test/chrome_process_util_uitest.cc',
         'test/reliability/page_load_test.cc',
         'test/reliability/page_load_test.h',
