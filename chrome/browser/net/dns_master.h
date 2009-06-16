@@ -162,9 +162,14 @@ class DnsMaster : public base::RefCountedThreadSafe<DnsMaster> {
   // Only for testing;
   size_t peak_pending_lookups() const { return peak_pending_lookups_; }
 
-  // Access method for use by lookup request to pass resolution result.
+  // Access method for use by async lookup request to pass resolution result.
   void OnLookupFinished(LookupRequest* request,
                         const std::string& hostname, bool found);
+
+  // Underlying method for both async and synchronous lookup to update state.
+  void PrelockedLookupFinished(LookupRequest* request,
+                               const std::string& hostname,
+                               bool found);
 
   // "PreLocked" means that the caller has already Acquired lock_ in the
   // following method names.

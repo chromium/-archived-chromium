@@ -34,7 +34,11 @@ class DnsMaster::LookupRequest {
         resolver_(host_resolver) {
   }
 
-  bool Start() {
+  // Return underlying network resolver status.
+  // net::OK ==> Host was found synchronously.
+  // net:ERR_IO_PENDING ==> Network will callback later with result.
+  // anything else ==> Host was not found synchronously.
+  int Start() {
     // Port doesn't really matter.
     net::HostResolver::RequestInfo resolve_info(hostname_, 80);
 
@@ -42,10 +46,7 @@ class DnsMaster::LookupRequest {
     // to separate it from real navigations in the observer's callback, and
     // lets the HostResolver know it can de-prioritize it.
     resolve_info.set_is_speculative(true);
-
-    const int result = resolver_.Resolve(
-        resolve_info, &addresses_, &net_callback_);
-    return (result == net::ERR_IO_PENDING);
+    return resolver_.Resolve(resolve_info, &addresses_, &net_callback_);
   }
 
  private:
@@ -425,13 +426,17 @@ void DnsMaster::PreLockedScheduleLookups() {
     }
 
     LookupRequest* request = new LookupRequest(this, host_resolver_, hostname);
-    if (request->Start()) {
+    int status = request->Start();
+    if (status == net::ERR_IO_PENDING) {
       // Will complete asynchronously.
       pending_lookups_.insert(request);
       peak_pending_lookups_ = std::max(peak_pending_lookups_,
                                        pending_lookups_.size());
     } else {
-      // Completed synchyronously (was already cached by HostResolver).
+      // Completed synchyronously (was already cached by HostResolver), or else
+      // there was (equivalently) some network error that prevents us from
+      // finding the name.  Status net::OK means it was "found."
+      PrelockedLookupFinished(request, hostname, status == net::OK);
       delete request;
     }
   }
@@ -461,6 +466,16 @@ void DnsMaster::OnLookupFinished(LookupRequest* request,
   DCHECK_EQ(MessageLoop::current(), host_resolver_loop_);
 
   AutoLock auto_lock(lock_);  // For map access (changing info values).
+  PrelockedLookupFinished(request, hostname, found);
+  pending_lookups_.erase(request);
+  delete request;
+
+  PreLockedScheduleLookups();
+}
+
+void DnsMaster::PrelockedLookupFinished(LookupRequest* request,
+                                        const std::string& hostname,
+                                        bool found) {
   DnsHostInfo* info = &results_[hostname];
   DCHECK(info->HasHostname(hostname));
   if (info->is_marked_to_delete()) {
@@ -471,11 +486,6 @@ void DnsMaster::OnLookupFinished(LookupRequest* request,
     else
       info->SetNoSuchNameState();
   }
-
-  pending_lookups_.erase(request);
-  delete request;
-
-  PreLockedScheduleLookups();
 }
 
 void DnsMaster::DiscardAllResults() {
