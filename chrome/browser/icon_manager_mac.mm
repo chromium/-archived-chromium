@@ -5,8 +5,8 @@
 #include "chrome/browser/icon_manager.h"
 
 #include "base/file_path.h"
+#include "base/sys_string_conversions.h"
 
 IconGroupID IconManager::GetGroupIDFromFilepath(const FilePath& filepath) {
-  NOTIMPLEMENTED();
-  return std::string();
+  return filepath.Extension();
 }

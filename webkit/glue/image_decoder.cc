@@ -15,6 +15,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #elif defined(OS_MACOSX)
 #include "ImageSource.h"
 #include "RetainPtr.h"
+#include "skia/ext/skia_utils_mac.h"
 #endif
 #include "IntSize.h"
 #include "RefPtr.h"
@@ -73,44 +74,7 @@ SkBitmap ImageDecoder::Decode(const unsigned char* data, size_t size) const {
   // BitmapImage releases automatically, but we're bypassing it so we'll need
   // to do the releasing.
   RetainPtr<CGImageRef> image(AdoptCF, frame0);
-
-  SkBitmap result;
-  result.setConfig(SkBitmap::kARGB_8888_Config, CGImageGetWidth(image.get()),
-                   CGImageGetHeight(image.get()));
-
-  // TODO(port):
-  // This line is a waste, but is needed when the renderer sends a
-  // ViewHostMsg_DidDownloadImage and tries to pickle the SkBitmap.
-  // Presumably this will be removed when we (ImageDecoder::Decode())
-  // are changed to not return a fake SkBitmap.
-  result.allocPixels();
-
-  RetainPtr<CGColorSpace> cg_color(AdoptCF, CGColorSpaceCreateDeviceRGB());
-  // The last parameter is a total guess. Feel free to adjust it if images draw
-  // incorrectly. TODO(avi): Verify byte ordering; it should be possible to
-  // swizzle bytes with various combinations of the byte order and alpha
-  // constants.
-  RetainPtr<CGContextRef> context(AdoptCF, CGBitmapContextCreate(
-                                             result.getPixels(),
-                                             result.width(),
-                                             result.height(),
-                                             result.bytesPerPixel() * 8 / 4,
-                                             result.rowBytes(),
-                                             cg_color.get(),
-                                             kCGImageAlphaPremultipliedFirst |
-                                             kCGBitmapByteOrder32Host));
-  CGRect rect = CGRectMake(0, 0,
-                           CGImageGetWidth(image.get()),
-                           CGImageGetHeight(image.get()));
-
-  // We want to copy transparent pixels from |image| over to |result|, instead
-  // of blending |image| onto the uninitialized pixels of |result|. Since
-  // |context| is used only locally, there's no need to restore the blend mode.
-  CGContextSetBlendMode(context.get(), kCGBlendModeCopy);
-
-  CGContextDrawImage(context.get(), rect, image.get());
-
-  return result;
+  return gfx::CGImageToSkBitmap(image.get());
 #endif
 }
 

@@ -25,13 +25,12 @@ void FileIconSource::StartDataRequest(const std::string& path,
                                       int request_id) {
   IconManager* im = g_browser_process->icon_manager();
 
+  std::string escaped_path = UnescapeURLComponent(path, UnescapeRule::SPACES);
+
+#if defined(OS_WIN)
   // The path we receive has the wrong slashes and escaping for what we need;
   // this only appears to matter for getting icons from .exe files.
-  std::string escaped_path = UnescapeURLComponent(path, UnescapeRule::SPACES);
   std::replace(escaped_path.begin(), escaped_path.end(), '/', '\\');
-
-  // Fast look up.
-#if defined(OS_WIN)
   FilePath escaped_filepath(UTF8ToWide(escaped_path));
 #elif defined(OS_POSIX)
   // The correct encoding on Linux may not actually be UTF8.

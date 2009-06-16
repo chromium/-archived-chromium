@@ -525,7 +525,7 @@
         'ext/SkTypeface_fake.cpp',
         'ext/skia_utils.cc',
         'ext/skia_utils.h',
-        'ext/skia_utils_mac.cc',
+        'ext/skia_utils_mac.mm',
         'ext/skia_utils_mac.h',
         'ext/skia_utils_win.cc',
         'ext/skia_utils_win.h',
@@ -608,9 +608,14 @@
           'defines': [
             'SK_BUILD_FOR_MAC',
           ],
-	  'include_dirs': [
-	    '../third_party/skia/include/utils/mac',
-	  ],
+          'include_dirs': [
+            '../third_party/skia/include/utils/mac',
+          ],
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/AppKit.framework',
+            ],
+          },
         }],
         [ 'OS == "win"', {
           'sources!': [
