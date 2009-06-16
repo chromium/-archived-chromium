@@ -637,7 +637,7 @@ BUG13907 WIN : LayoutTests/media/video-aspect-ratio.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-buffered.html = FAIL CRASH
 BUG13907 WIN : LayoutTests/media/video-can-play-type.html = FAIL
 // This test crashes in debug build.
-BUG13907 WIN : LayoutTests/media/video-click-dblckick-standalone.html = PASS CRASH
+BUG13907 WIN : LayoutTests/media/video-click-dblckick-standalone.html = PASS TIMEOUT CRASH
 // This test crashes in debug build.
 BUG13907 WIN : LayoutTests/media/video-controls.html = PASS CRASH
 // This test crashes in release build.
@@ -656,7 +656,7 @@ BUG13907 WIN : LayoutTests/media/video-dom-src.html = PASS CRASH
 // This test is flaky.
 BUG13907 WIN DEBUG : LayoutTests/media/video-dom-autobuffer.html = PASS FAIL
 // This test crashes in debug build.
-BUG13907 WIN : LayoutTests/media/video-document-types.html = PASS CRASH
+BUG13907 WIN : LayoutTests/media/video-document-types.html = PASS FAIL CRASH
 BUG13907 WIN : LayoutTests/media/video-empty-source.html = FAIL
 // This test times out in release build, it is really flaky.
 BUG13907 WIN : LayoutTests/media/video-error-abort.html = PASS FAIL TIMEOUT
@@ -2762,3 +2762,8 @@ BUG14014 DEBUG : LayoutTests/fast/events/tabindex-focus-chain.html = FAIL
 // WebKit 44646:44668
 BUG14061 : LayoutTests/svg/filters/subRegion-one-effect.svg = FAIL
 BUG14061 : LayoutTests/svg/filters/subRegion-two-effects.svg = FAIL
+
+// WebKit 44682:44699
+// Test expectation changed upstream in
+// http://trac.webkit.org/changeset/44695
+BUGMERGE REBASELINE WIN : LayoutTests/fast/frames/viewsource-attribute.html = FAIL
