@@ -220,8 +220,20 @@
             '<(grit_out_dir)/theme_resources.pak',
             '<(grit_out_dir)/theme_resources.rc',
           ],
-          'action': ['python', '<(grit_path)', '-i', '<(input_path)', 'build',
-            '-o', '<(grit_out_dir)', '-D', '<(chrome_build)'],
+          'action': [
+            'python', '<(grit_path)',
+            '-i', '<(input_path)', 'build',
+            '-o', '<(grit_out_dir)',
+            '-D', '<(chrome_build)'
+          ],
+          'conditons': [
+            ['VAR=="foo"', {
+              'action': [
+                'extra',
+                'arguments',
+              ],
+            }]
+          ],
           'message': 'Generating resources from <(input_path)',
         },
       ],
@@ -2541,6 +2553,7 @@
           'msvs_settings': {
             'VCLinkerTool': {
               'ImportLibrary': '$(OutDir)\\lib\\chrome_exe.lib',
+              'ProgramDatabaseFile': '$(OutDir)\\chrome_exe.pdb',
               # Set /SUBSYSTEM:WINDOWS for chrome.exe itself.
               'SubSystem': '2',
             },
@@ -4104,6 +4117,7 @@
 		'imm32.dll',
               ],
               'ImportLibrary': '$(OutDir)\\lib\\chrome_dll.lib',
+              'ProgramDatabaseFile': '$(OutDir)\\chrome_dll.pdb',
               # Set /SUBSYSTEM:WINDOWS for chrome.dll (for consistency).
               'SubSystem': '2',
             },
