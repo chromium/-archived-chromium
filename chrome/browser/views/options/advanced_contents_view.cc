@@ -32,7 +32,6 @@
 #include "chrome/browser/views/options/fonts_languages_window_view.h"
 #include "chrome/browser/views/options/language_combobox_model.h"
 #include "chrome/browser/views/restart_message_box.h"
-#include "chrome/common/filter_policy.h"
 #include "chrome/common/pref_member.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -869,58 +868,14 @@ void WebContentSection::InitControlLayout() {
 ////////////////////////////////////////////////////////////////////////////////
 // SecuritySection
 
-class MixedContentComboModel : public views::Combobox::Model {
- public:
-  MixedContentComboModel() {}
-
-  // Return the number of items in the combo box.
-  virtual int GetItemCount(views::Combobox* source) {
-    return 3;
-  }
-
-  virtual std::wstring GetItemAt(views::Combobox* source, int index) {
-    const int kStringIDs[] = {
-      IDS_OPTIONS_INCLUDE_MIXED_CONTENT,
-      IDS_OPTIONS_INCLUDE_MIXED_CONTENT_IMAGE_ONLY,
-      IDS_OPTIONS_INCLUDE_NO_MIXED_CONTENT
-    };
-    if (index >= 0 && index < arraysize(kStringIDs))
-      return l10n_util::GetString(kStringIDs[index]);
-
-    NOTREACHED();
-    return L"";
-  }
-
-  static int FilterPolicyToIndex(FilterPolicy::Type policy) {
-    return policy;
-  }
-
-  static FilterPolicy::Type IndexToFilterPolicy(int index) {
-    if (FilterPolicy::ValidType(index))
-      return FilterPolicy::FromInt(index);
-
-    NOTREACHED();
-    return FilterPolicy::DONT_FILTER;
-  }
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(MixedContentComboModel);
-};
-
 class SecuritySection : public AdvancedSection,
-                        public views::ButtonListener,
-                        public views::Combobox::Listener {
+                        public views::ButtonListener {
  public:
   explicit SecuritySection(Profile* profile);
   virtual ~SecuritySection() {}
 
   // Overridden from views::ButtonListener:
   virtual void ButtonPressed(views::Button* sender);
-
-  // Overridden from views::Combobox::Listener:
-  virtual void ItemChanged(views::Combobox* sender,
-                           int prev_index,
-                           int new_index);
 
  protected:
   // OptionsPageView overrides:
@@ -932,15 +887,8 @@ class SecuritySection : public AdvancedSection,
   views::Label* ssl_info_label_;
   views::Checkbox* enable_ssl2_checkbox_;
   views::Checkbox* check_for_cert_revocation_checkbox_;
-  views::Label* mixed_content_info_label_;
-  views::Combobox* mixed_content_combobox_;
   views::Label* manage_certificates_label_;
   views::NativeButton* manage_certificates_button_;
-
-  // The contents of the mixed content combobox.
-  scoped_ptr<MixedContentComboModel> mixed_content_model_;
-
-  IntegerPrefMember filter_mixed_content_;
 
   DISALLOW_COPY_AND_ASSIGN(SecuritySection);
 };
@@ -949,8 +897,6 @@ SecuritySection::SecuritySection(Profile* profile)
     : ssl_info_label_(NULL),
       enable_ssl2_checkbox_(NULL),
       check_for_cert_revocation_checkbox_(NULL),
-      mixed_content_info_label_(NULL),
-      mixed_content_combobox_(NULL),
       manage_certificates_label_(NULL),
       manage_certificates_button_(NULL),
       AdvancedSection(profile,
@@ -983,25 +929,6 @@ void SecuritySection::ButtonPressed(views::Button* sender) {
   }
 }
 
-void SecuritySection::ItemChanged(views::Combobox* sender,
-                                  int prev_index,
-                                  int new_index) {
-  if (sender == mixed_content_combobox_) {
-    // TODO(jcampan): bug #1112812: change this to the real enum once we have
-    // piped the images only filtering.
-    FilterPolicy::Type filter_policy =
-        MixedContentComboModel::IndexToFilterPolicy(new_index);
-    const wchar_t* kUserMetrics[] = {
-      L"Options_FilterNone",
-      L"Options_FilterAllExceptImages",
-      L"Options_FilterAll"
-    };
-    DCHECK(filter_policy >= 0 && filter_policy < arraysize(kUserMetrics));
-    UserMetricsRecordAction(kUserMetrics[filter_policy], profile()->GetPrefs());
-    filter_mixed_content_.SetValue(filter_policy);
-  }
-}
-
 void SecuritySection::InitControlLayout() {
   AdvancedSection::InitControlLayout();
 
@@ -1013,12 +940,6 @@ void SecuritySection::InitControlLayout() {
   check_for_cert_revocation_checkbox_ = new views::Checkbox(
       l10n_util::GetString(IDS_OPTIONS_SSL_CHECKREVOCATION));
   check_for_cert_revocation_checkbox_->set_listener(this);
-  mixed_content_info_label_ = new views::Label(
-      l10n_util::GetString(IDS_OPTIONS_MIXED_CONTENT_LABEL));
-  mixed_content_model_.reset(new MixedContentComboModel);
-  mixed_content_combobox_ = new views::Combobox(
-      mixed_content_model_.get());
-  mixed_content_combobox_->set_listener(this);
   manage_certificates_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_CERTIFICATES_LABEL));
   manage_certificates_button_ = new views::NativeButton(
@@ -1049,25 +970,10 @@ void SecuritySection::InitControlLayout() {
                          indented_column_set_id, true);
   AddWrappingCheckboxRow(layout, check_for_cert_revocation_checkbox_,
                          indented_column_set_id, false);
-
-  // Mixed content controls.
-  AddWrappingLabelRow(layout, mixed_content_info_label_,
-                      single_column_view_set_id, true);
-  AddLeadingControl(layout, mixed_content_combobox_,
-                    indented_column_set_id, false);
-
-  // Init member prefs so we can update the controls if prefs change.
-  filter_mixed_content_.Init(prefs::kMixedContentFiltering,
-                             profile()->GetPrefs(), this);
 }
 
 // This method is called with a null pref_name when the dialog is initialized.
 void SecuritySection::NotifyPrefChanged(const std::wstring* pref_name) {
-  if (!pref_name || *pref_name == prefs::kMixedContentFiltering) {
-    mixed_content_combobox_->SetSelectedItem(
-        MixedContentComboModel::FilterPolicyToIndex(
-            FilterPolicy::FromInt(filter_mixed_content_.GetValue())));
-  }
   // These SSL options are system settings and stored in the OS.
   if (!pref_name) {
     net::SSLConfig config;

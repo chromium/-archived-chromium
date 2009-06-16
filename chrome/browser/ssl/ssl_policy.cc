@@ -113,10 +113,7 @@ void SSLPolicy::OnCertError(SSLCertErrorHandler* handler) {
 }
 
 void SSLPolicy::OnMixedContent(SSLMixedContentHandler* handler) {
-  // Get the user's mixed content preference.
-  PrefService* prefs = handler->GetTabContents()->profile()->GetPrefs();
-  FilterPolicy::Type filter_policy =
-      FilterPolicy::FromInt(prefs->GetInteger(prefs::kMixedContentFiltering));
+  FilterPolicy::Type filter_policy = FilterPolicy::DONT_FILTER;
 
   // If the user has added an exception, doctor the |filter_policy|.
   std::string host = GURL(handler->main_frame_origin()).host();
