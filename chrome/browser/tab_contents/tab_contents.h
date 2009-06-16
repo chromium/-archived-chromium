@@ -783,7 +783,6 @@ class TabContents : public PageNavigator,
                                     int automation_id);
   virtual void ProcessDOMUIMessage(const std::string& message,
                                    const std::string& content);
-  virtual void DocumentLoadedInFrame();
   virtual void ProcessExternalHostMessage(const std::string& message,
                                           const std::string& origin,
                                           const std::string& target);

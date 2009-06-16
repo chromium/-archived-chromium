@@ -13,18 +13,17 @@ History Test Page 1....
 
 function onLoad() {
   if (readCookie(navigate_backward_cookie) != null) {
-    setTimeout(OnNavigateBackward, 50);
+    setTimeout(OnNavigateBackward, 100);
     return true;
   }
-  setTimeout(OnInitialLoad, 50);
+  setTimeout(OnInitialLoad, 100);
   return true;
 }
 
 function OnNavigateBackward() {
   if (window.history.length != 2) {
     onFailure("History_Length_Test_3", 1,
-              "History length mismatch on navigate backward at page 1: " +
-              window.history.length);
+              "History length mismatch on navigate backward at page 1");
     return false;
   }
   // Navigate forward from this point on.
@@ -36,8 +35,7 @@ function OnNavigateBackward() {
 function OnInitialLoad() {
   if (window.history.length != 2) {
     onFailure("History_Length_Test_1", 1,
-              "History length mismatch on initial load at page 1: " +
-              window.history.length);
+              "History length mismatch on initial load at page 1");
     return false;
   }
   onSuccess("History_Length_Test_1", 1);
