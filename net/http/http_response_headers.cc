@@ -1000,8 +1000,13 @@ bool HttpResponseHeaders::GetContentRange(int64* first_byte_position,
     return false;
 
   // Invalid header if it doesn't contain "bytes-unit".
-  if (!LowerCaseEqualsASCII(content_range_spec.begin(),
-                            content_range_spec.begin() + space_position,
+  std::string::const_iterator content_range_spec_begin =
+      content_range_spec.begin();
+  std::string::const_iterator content_range_spec_end =
+      content_range_spec.begin() + space_position;
+  HttpUtil::TrimLWS(&content_range_spec_begin, &content_range_spec_end);
+  if (!LowerCaseEqualsASCII(content_range_spec_begin,
+                            content_range_spec_end,
                             "bytes")) {
     return false;
   }

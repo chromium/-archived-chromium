@@ -1136,7 +1136,13 @@ TEST(HttpResponseHeaders, GetContentRange) {
       50,
       51
     },
-
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range:   \tbytes\t\t\t 0\t-\t50\t/\t51\t",
+      true,
+      0,
+      50,
+      51
+    },
     { "HTTP/1.1 206 Partial Content\n"
       "Content-Range: \t   bytes \t  0    -   50   /   5   1",
       false,
