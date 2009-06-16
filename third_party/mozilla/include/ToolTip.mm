@@ -65,17 +65,17 @@ const float kVOffset = 20.0;
     // we don't want closing the window to release it, because we aren't always in control
     // of the close (AppKit may do it on quit).
     [mTooltipWindow setReleasedWhenClosed:NO];
-    
+
     // Create a textfield as the content of our new window.
     // Field occupies all but the top 2 and bottom 2 pixels of the panel (bug 149635)
     mTextView = [[NSTextView alloc] initWithFrame:NSMakeRect(0.0, kBorderPadding, kMaxTextFieldWidth, 0.0)];
     [[mTooltipWindow contentView] addSubview:mTextView];
     [mTextView release]; // window holds ref
-    
+
     // set up the panel
     [mTooltipWindow setHasShadow:YES];
     [mTooltipWindow setBackgroundColor:[NSColor colorWithCalibratedRed:1.0 green:1.0 blue:0.81 alpha:1.0]];
-    
+
 
     // set up the text view
     [mTextView setDrawsBackground:NO];
@@ -91,6 +91,8 @@ const float kVOffset = 20.0;
 
 - (void)dealloc
 {
+  [self closeToolTip];
+
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 
   [mTooltipWindow close];   // we set the window not to release on -close
@@ -137,10 +139,10 @@ const float kVOffset = 20.0;
     textViewWidth = kMaxTextFieldWidth;
 
   textViewWidth += 2.0 * 5.0;   // magic numbers required to make the text not wrap. No, this isn't -textContainerInset.
-  
+
   // set up the text view
   [mTextView setMaxSize:NSMakeSize(kMaxTextFieldWidth, screenSize.height - 2 * kBorderPadding)]; // do this here since we know screen size
-  [mTextView setString:string]; // do this after setting max size, before setting constrained frame size, 
+  [mTextView setString:string]; // do this after setting max size, before setting constrained frame size,
                                 // reset to max width - it will not grow horizontally when resizing, only vertically
   [mTextView setConstrainedFrameSize:NSMakeSize(kMaxTextFieldWidth, 0.0)];
   // to avoid wrapping when we don't want it, set the min width
@@ -155,15 +157,15 @@ const float kVOffset = 20.0;
     [mTextView sizeToFit];
     textViewFrame = [mTextView frame];
   }
-  
+
   // set the origin back where its supposed to be
   [mTextView setFrameOrigin:NSMakePoint(0, kBorderPadding)];
-  
+
   // size the panel correctly, taking border into account
   NSSize textSize = textViewFrame.size;
   textSize.height += kBorderPadding + kBorderPadding;
   [mTooltipWindow setContentSize:textSize];
-  
+
   // We try to put the top left point right below the cursor. If that doesn't fit
   // on screen, put the bottom left point above the cursor.
   if (point.y - kVOffset - textSize.height > NSMinY(screenFrame)) {
@@ -174,7 +176,7 @@ const float kVOffset = 20.0;
     point.y += kVOffset / 2.5;
     [mTooltipWindow setFrameOrigin:point];
   }
-  
+
   // if it doesn't fit on screen horizontally, adjust so that it does
   float amountOffScreenX = NSMaxX(screenFrame) - NSMaxX([mTooltipWindow frame]);
   if (amountOffScreenX < 0) {
@@ -183,7 +185,7 @@ const float kVOffset = 20.0;
     [mTooltipWindow setFrame:movedFrame display:NO];
   }
 
-  // add as a child window    
+  // add as a child window
   [inWindow addChildWindow:mTooltipWindow ordered:NSWindowAbove];
   // show the panel
   [mTooltipWindow orderFront:nil];
