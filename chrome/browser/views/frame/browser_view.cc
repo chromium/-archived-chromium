@@ -274,7 +274,6 @@ BrowserView::BrowserView(Browser* browser)
       active_bookmark_bar_(NULL),
       tabstrip_(NULL),
       toolbar_(NULL),
-      download_shelf_(NULL),
       infobar_container_(NULL),
       find_bar_y_(0),
       contents_container_(NULL),
@@ -297,6 +296,12 @@ BrowserView::~BrowserView() {
   ticker_.Stop();
   ticker_.UnregisterTickHandler(&hung_window_detector_);
 #endif
+
+  // We destroy the download shelf before |browser_| to remove its child
+  // download views from the set of download observers (since the observed
+  // downloads can be destroyed along with |browser_| and the observer
+  // notifications will call back into deleted objects).
+  download_shelf_.reset();
 
   // Explicitly set browser_ to NULL
   browser_.reset();
@@ -787,7 +792,7 @@ gfx::Rect BrowserView::GetRootWindowResizerRect() const {
   // shelf, so we don't want others to do it for us in this case.
   // Currently, the only visible bottom shelf is the download shelf.
   // Other tests should be added here if we add more bottom shelves.
-  if (download_shelf_ && download_shelf_->IsShowing()) {
+  if (download_shelf_.get() && download_shelf_->IsShowing()) {
     return gfx::Rect();
   }
 
@@ -842,13 +847,15 @@ void BrowserView::SetDownloadShelfVisible(bool visible) {
 }
 
 bool BrowserView::IsDownloadShelfVisible() const {
-  return download_shelf_ && download_shelf_->IsShowing();
+  return download_shelf_.get() && download_shelf_->IsShowing();
 }
 
 DownloadShelf* BrowserView::GetDownloadShelf() {
-  if (!download_shelf_)
-    download_shelf_ = new DownloadShelfView(browser_.get(), this);
-  return download_shelf_;
+  if (!download_shelf_.get()) {
+    download_shelf_.reset(new DownloadShelfView(browser_.get(), this));
+    download_shelf_->SetParentOwned(false);
+  }
+  return download_shelf_.get();
 }
 
 void BrowserView::ShowReportBugDialog() {
@@ -1493,7 +1500,7 @@ int BrowserView::LayoutDownloadShelf(int bottom) {
   if (IsDownloadShelfVisible()) {
     bool visible = browser_->SupportsWindowFeature(
         Browser::FEATURE_DOWNLOADSHELF);
-    DCHECK(download_shelf_);
+    DCHECK(download_shelf_.get());
     int height = visible ? download_shelf_->GetPreferredSize().height() : 0;
     download_shelf_->SetVisible(visible);
     download_shelf_->SetBounds(0, bottom - height, width(), height);

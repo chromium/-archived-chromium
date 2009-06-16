@@ -391,7 +391,7 @@ class BrowserView : public BrowserWindow,
   scoped_ptr<BookmarkBarView> bookmark_bar_view_;
 
   // The download shelf view (view at the bottom of the page).
-  DownloadShelfView* download_shelf_;
+  scoped_ptr<DownloadShelfView> download_shelf_;
 
   // The InfoBarContainer that contains InfoBars for the current tab.
   InfoBarContainer* infobar_container_;
