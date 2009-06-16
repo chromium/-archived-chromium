@@ -10,7 +10,6 @@
 #include "chrome/common/extensions/url_pattern.h"
 #include "chrome/renderer/media/buffered_data_source.h"
 #include "chrome/renderer/render_view.h"
-#include "chrome/renderer/render_thread.h"
 #include "media/base/filter_host.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
@@ -63,7 +62,8 @@ bool IsSchemeSupported(const GURL& url) {
 
 /////////////////////////////////////////////////////////////////////////////
 // BufferedResourceLoader
-BufferedResourceLoader::BufferedResourceLoader(int32 routing_id,
+BufferedResourceLoader::BufferedResourceLoader(MessageLoop* message_loop,
+                                               int32 routing_id,
                                                const GURL& url,
                                                int64 first_byte_position,
                                                int64 last_byte_position)
@@ -82,7 +82,7 @@ BufferedResourceLoader::BufferedResourceLoader(int32 routing_id,
       url_(url),
       first_byte_position_(first_byte_position),
       last_byte_position_(last_byte_position),
-      render_loop_(RenderThread::current()->message_loop()),
+      render_loop_(message_loop),
       buffer_available_(&lock_) {
 }
 
@@ -101,40 +101,6 @@ int BufferedResourceLoader::Start(net::CompletionCallback* start_callback) {
   // start_callback_ may get reset, we can't rely on it.
   if (start_callback_.get())
     async_start_ = true;
-
-  std::string header;
-  if (first_byte_position_ != kPositionNotSpecified &&
-      last_byte_position_ != kPositionNotSpecified) {
-    header = StringPrintf("Range: bytes=%lld-%lld",
-                          first_byte_position_,
-                          last_byte_position_);
-    range_requested_ = true;
-    offset_ = first_byte_position_;
-  } else if (first_byte_position_ != kPositionNotSpecified) {
-    header = StringPrintf("Range: bytes=%lld-", first_byte_position_);
-    range_requested_ = true;
-    offset_ = first_byte_position_;
-  } else if (last_byte_position_ != kPositionNotSpecified) {
-    NOTIMPLEMENTED() << "Suffix length range request not implemented.";
-  }
-
-  bridge_.reset(RenderThread::current()->resource_dispatcher()->CreateBridge(
-      "GET",
-      GURL(url_),
-      GURL(url_),
-      GURL(),         // TODO(hclam): provide referer here.
-      "null",         // TODO(abarth): provide frame_origin
-      "null",         // TODO(abarth): provide main_frame_origin
-      header,
-      net::LOAD_BYPASS_CACHE,
-      base::GetCurrentProcId(),
-      ResourceType::MEDIA,
-      0,
-      // TODO(michaeln): delegate->mediaplayer->frame->
-      //                    app_cache_context()->context_id()
-      // For now don't service media resource requests from the appcache.
-      WebAppCacheContext::kNoAppCacheContextId,
-      routing_id_));
 
   // We may receive stop signal while we are inside this method, it's because
   // Start() may get called on demuxer thread while Stop() is called on
@@ -478,7 +444,49 @@ bool BufferedResourceLoader::ShouldDisableDefer() {
 
 void BufferedResourceLoader::OnStart() {
   DCHECK(MessageLoop::current() == render_loop_);
-  DCHECK(bridge_.get());
+  DCHECK(!bridge_.get());
+
+  AutoLock auto_lock(lock_);
+  if (stopped_)
+    return;
+
+  // Construct the range header.
+  std::string header;
+  if (first_byte_position_ != kPositionNotSpecified &&
+      last_byte_position_ != kPositionNotSpecified) {
+    header = StringPrintf("Range: bytes=%lld-%lld",
+                          first_byte_position_,
+                          last_byte_position_);
+    range_requested_ = true;
+    offset_ = first_byte_position_;
+  } else if (first_byte_position_ != kPositionNotSpecified) {
+    header = StringPrintf("Range: bytes=%lld-", first_byte_position_);
+    range_requested_ = true;
+    offset_ = first_byte_position_;
+  } else if (last_byte_position_ != kPositionNotSpecified) {
+    NOTIMPLEMENTED() << "Suffix length range request not implemented.";
+  }
+
+  // Creates the bridge on render thread since we can only access
+  // ResourceDispatcher on this thread.
+  bridge_.reset(webkit_glue::ResourceLoaderBridge::Create(
+      "GET",
+      GURL(url_),
+      GURL(url_),
+      GURL(),         // TODO(hclam): provide referer here.
+      "null",         // TODO(abarth): provide frame_origin
+      "null",         // TODO(abarth): provide main_frame_origin
+      header,
+      net::LOAD_BYPASS_CACHE,
+      base::GetCurrentProcId(),
+      ResourceType::MEDIA,
+      // TODO(michaeln): delegate->mediaplayer->frame->
+      //                    app_cache_context()->context_id()
+      // For now don't service media resource requests from the appcache.
+      WebAppCacheContext::kNoAppCacheContextId,
+      routing_id_));
+
+  // And start the resource loading.
   bridge_->Start(this);
 }
 
@@ -515,12 +523,13 @@ void BufferedResourceLoader::InvokeAndResetStartCallback(int error) {
 
 //////////////////////////////////////////////////////////////////////////////
 // BufferedDataSource
-BufferedDataSource::BufferedDataSource(int routing_id)
+BufferedDataSource::BufferedDataSource(MessageLoop* render_loop, int routing_id)
     : routing_id_(routing_id),
       stopped_(false),
       position_(0),
       total_bytes_(kPositionNotSpecified),
       buffered_resource_loader_(NULL),
+      render_loop_(render_loop),
       pipeline_loop_(MessageLoop::current()) {
 }
 
@@ -562,7 +571,11 @@ bool BufferedDataSource::Initialize(const std::string& url) {
     AutoLock auto_lock(lock_);
     if (!stopped_) {
       buffered_resource_loader_ = new BufferedResourceLoader(
-          routing_id_, url_, kPositionNotSpecified, kPositionNotSpecified);
+          render_loop_,
+          routing_id_,
+          url_,
+          kPositionNotSpecified,
+          kPositionNotSpecified);
       resource_loader = buffered_resource_loader_;
     }
   }
@@ -622,7 +635,10 @@ size_t BufferedDataSource::Read(uint8* data, size_t size) {
 
         // Create a new resource loader.
         buffered_resource_loader_ =
-            new BufferedResourceLoader(routing_id_, url_, position_,
+            new BufferedResourceLoader(render_loop_,
+                                       routing_id_,
+                                       url_,
+                                       position_,
                                        kPositionNotSpecified);
         // Save the local copy.
         resource_loader = buffered_resource_loader_;

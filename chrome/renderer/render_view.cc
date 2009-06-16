@@ -1816,7 +1816,9 @@ WebKit::WebMediaPlayer* RenderView::CreateWebMediaPlayer(
   }
   if (!cmd_line->HasSwitch(switches::kSimpleDataSource)) {
     // Add the chrome specific media data source.
-    factory->AddFactory(BufferedDataSource::CreateFactory(routing_id()));
+    factory->AddFactory(
+        BufferedDataSource::CreateFactory(MessageLoop::current(),
+                                          routing_id()));
   }
   return new webkit_glue::WebMediaPlayerImpl(client, factory);
 }
