@@ -5,8 +5,6 @@
 #ifndef CHROME_TEST_IN_PROCESS_BROWSER_TEST_H_
 #define CHROME_TEST_IN_PROCESS_BROWSER_TEST_H_
 
-#include "chrome/common/notification_registrar.h"
-#include "chrome/common/notification_observer.h"
 #include "net/url_request/url_request_unittest.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -39,7 +37,7 @@ class RuleBasedHostMapper;
 // InProcessBrowserTest disables the sandbox when running.
 //
 // See ui_test_utils for a handful of methods designed for use with this class.
-class InProcessBrowserTest : public testing::Test, public NotificationObserver {
+class InProcessBrowserTest : public testing::Test {
  public:
   InProcessBrowserTest();
 
@@ -53,12 +51,6 @@ class InProcessBrowserTest : public testing::Test, public NotificationObserver {
 
   // Restores state configured in SetUp.
   virtual void TearDown();
-
-  // Used to track when the browser_ is destroyed. Resets the |browser_| field
-  // to NULL.
-  virtual void Observe(NotificationType type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details);
 
  protected:
   // Returns the browser created by CreateBrowser.
@@ -97,9 +89,6 @@ class InProcessBrowserTest : public testing::Test, public NotificationObserver {
 
   // Browser created from CreateBrowser.
   Browser* browser_;
-
-  // Used to track when the browser is deleted.
-  NotificationRegistrar registrar_;
 
   // HTTPServer, created when StartHTTPServer is invoked.
   scoped_refptr<HTTPTestServer> http_server_;

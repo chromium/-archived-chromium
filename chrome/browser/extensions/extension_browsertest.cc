@@ -163,11 +163,4 @@ IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Incognito) {
 
   // TODO(mpcomplete): wait for uninstall to complete?
   browser()->profile()->GetExtensionsService()->UninstallExtension(kGoodCrxId);
-
-  // Close our incognito window.
-  Browser* otr_browser = BrowserList::FindBrowserWithType(
-      browser()->profile()->GetOffTheRecordProfile(),
-      Browser::TYPE_NORMAL);
-  if (otr_browser)
-    otr_browser->CloseAllTabs();
 }

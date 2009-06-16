@@ -9,6 +9,7 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/browser_window.h"
@@ -143,17 +144,6 @@ void InProcessBrowserTest::TearDown() {
   RenderProcessHost::set_run_renderer_in_process(original_single_process_);
 }
 
-void InProcessBrowserTest::Observe(NotificationType type,
-                                   const NotificationSource& source,
-                                   const NotificationDetails& details) {
-  if (type == NotificationType::BROWSER_CLOSED) {
-    DCHECK(Source<Browser>(source).ptr() == browser_);
-    browser_ = NULL;
-  } else {
-    NOTREACHED();
-  }
-}
-
 HTTPTestServer* InProcessBrowserTest::StartHTTPServer() {
   // The HTTPServer must run on the IO thread.
   DCHECK(!http_server_.get());
@@ -199,18 +189,12 @@ void InProcessBrowserTest::RunTestOnMainThreadLoop() {
 
   browser_ = CreateBrowser(profile);
 
-  registrar_.Add(this,
-                 NotificationType::BROWSER_CLOSED,
-                 Source<Browser>(browser_));
-
   RunTestOnMainThread();
 
-  if (browser_)
-    browser_->CloseAllTabs();
-
-  // Remove all registered notifications, otherwise by the time the
-  // destructor is run the NotificationService is dead.
-  registrar_.RemoveAll();
+  BrowserList::const_reverse_iterator browser =
+      BrowserList::begin_last_active();
+  for (; browser != BrowserList::end_last_active(); ++browser)
+    (*browser)->CloseAllTabs();
 
   // Stop the HTTP server.
   http_server_ = NULL;
