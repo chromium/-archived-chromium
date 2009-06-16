@@ -61,11 +61,6 @@ class ContentPageView : public OptionsPageView,
   OptionsGroupView* themes_group_;
   views::NativeButton* themes_reset_button_;
 
-  // Controls for the Popup Blocking group.
-  OptionsGroupView* popups_group_;
-  views::RadioButton* popups_show_minimized_radio_;
-  views::RadioButton* popups_block_all_radio_;
-
   // Controls for the browsing data group.
   OptionsGroupView* browsing_data_group_;
   views::Label* browsing_data_label_;
