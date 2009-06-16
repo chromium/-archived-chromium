@@ -15,6 +15,7 @@
 #include "base/path_service.h"
 #include "base/platform_thread.h"
 #include "base/string_util.h"
+#include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/automation/url_request_mock_http_job.h"
 #include "chrome/browser/automation/url_request_slow_download_job.h"
 #include "chrome/common/chrome_constants.h"
@@ -263,7 +264,6 @@ TEST_F(DownloadTest, PerWindowShelf) {
   ASSERT_FALSE(shelf_visible);
 }
 
-
 // UnknownSize and KnownSize are tests which depend on
 // URLRequestSlowDownloadJob to serve content in a certain way. Data will be
 // sent in two chunks where the first chunk is 35K and the second chunk is 10K.
@@ -287,6 +287,48 @@ TEST_F(DownloadTest, DISABLED_KnownSize) {
   filename = filename.BaseName();
   RunSizeTest(url, L"71% - " + filename.ToWStringHack(),
               L"100% - " + filename.ToWStringHack());
+}
+
+// Test that when downloading an item in Incognito mode, we don't crash when
+// closing the last Incognito window (http://crbug.com/13983).
+TEST_F(DownloadTest, IncognitoDownload) {
+  // Open a regular window and sanity check default values for window / tab
+  // count and shelf visibility.
+  scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  int window_count = 0;
+  automation()->GetBrowserWindowCount(&window_count);
+  ASSERT_EQ(1, window_count);
+  EXPECT_EQ(1, GetTabCount());
+  bool is_shelf_visible;
+  browser->IsShelfVisible(&is_shelf_visible);
+  EXPECT_FALSE(is_shelf_visible);
+
+  // Open an Incognito window.
+  ASSERT_TRUE(browser->RunCommand(IDC_NEW_INCOGNITO_WINDOW));
+  scoped_refptr<BrowserProxy> incognito(automation()->GetBrowserWindow(1));
+  scoped_refptr<TabProxy> tab(incognito->GetTab(0));
+  automation()->GetBrowserWindowCount(&window_count);
+  ASSERT_EQ(2, window_count);
+
+  // Download something.
+  FilePath file(FILE_PATH_LITERAL("download-test1.lib"));
+  ASSERT_TRUE(tab->NavigateToURL(
+      URLRequestMockHTTPJob::GetMockUrl(file.ToWStringHack())));
+  PlatformThread::Sleep(action_timeout_ms());
+
+  // Verify that the download shelf is showing for the Incognito window.
+  EXPECT_TRUE(WaitForDownloadShelfVisible(incognito.get()));
+
+  // Close the Incognito window and don't crash.
+  ASSERT_TRUE(incognito->RunCommand(IDC_CLOSE_WINDOW));
+  automation()->GetBrowserWindowCount(&window_count);
+  ASSERT_EQ(1, window_count);
+
+  // Verify that the regular window does not have a download shelf.
+  browser->IsShelfVisible(&is_shelf_visible);
+  EXPECT_FALSE(is_shelf_visible);
+
+  CleanUpDownload(file);
 }
 
 }  // namespace
