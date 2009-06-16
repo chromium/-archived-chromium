@@ -234,6 +234,11 @@
               ],
             }]
           ],
+          'conditions': [
+            ['linux2==1', {
+              'action': ['-D', 'linux2'],
+            }],
+          ],
           'message': 'Generating resources from <(input_path)',
         },
       ],
