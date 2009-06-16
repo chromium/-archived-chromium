@@ -8,13 +8,18 @@
 #include <gtk/gtk.h>
 #include <vector>
 
+#include "app/table_model_observer.h"
+#include "base/ref_counted.h"
+#include "base/task.h"
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 
 class BookmarkModel;
+class BookmarkTableModel;
 class Profile;
 
-class BookmarkManagerGtk : public BookmarkModelObserver {
+class BookmarkManagerGtk : public BookmarkModelObserver,
+                           public TableModelObserver {
  public:
   virtual ~BookmarkManagerGtk();
 
@@ -27,6 +32,8 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
   static void Show(Profile* profile);
 
   // BookmarkModelObserver implementation.
+  // The implementations of these functions only affect the left side tree view
+  // as changes to the right side are handled via TableModelObserver callbacks.
   virtual void Loaded(BookmarkModel* model);
   virtual void BookmarkModelBeingDeleted(BookmarkModel* model);
   virtual void BookmarkNodeMoved(BookmarkModel* model,
@@ -51,6 +58,12 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
                                          BookmarkNode* node);
 
+  // TableModelObserver implementation.
+  virtual void OnModelChanged();
+  virtual void OnItemsChanged(int start, int length);
+  virtual void OnItemsAdded(int start, int length);
+  virtual void OnItemsRemoved(int start, int length);
+
  private:
   explicit BookmarkManagerGtk(Profile* profile);
 
@@ -66,17 +79,27 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
   // whatever folder is selected on the left. It can be called multiple times.
   void BuildRightStore();
 
-  // Get the node from |model| at |iter|.
+  // Get the ID of the item at |iter|.
+  int GetRowIDAt(GtkTreeModel* model, GtkTreeIter* iter);
+
+  // Get the node from |model| at |iter|. If the item is not a node, return
+  // NULL.
   BookmarkNode* GetNodeAt(GtkTreeModel* model, GtkTreeIter* iter);
 
   // Get the node that is selected in the left tree view.
   BookmarkNode* GetFolder();
 
+  // Get the ID of the selected row.
+  int GetSelectedRowID();
+
   // Get the nodes that are selected in the right tree view.
   std::vector<BookmarkNode*> GetRightSelection();
 
-  // Stick node in the store that backs the right-side tree view.
-  void AppendNodeToRightStore(BookmarkNode* node, int index);
+  // Set the fields for a row.
+  void SetRightSideColumnValues(int row, GtkTreeIter* iter);
+
+  // Stick update the right store to reflect |row| from |right_tree_model_|.
+  void AddNodeToRightStore(int row);
 
   GtkTreeSelection* left_selection() {
     return gtk_tree_view_get_selection(GTK_TREE_VIEW(left_tree_view_));
@@ -97,6 +120,17 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
   // will be treated as the first row of |model|.
   bool RecursiveFind(GtkTreeModel* model, GtkTreeIter* iter, int target_id);
 
+  // Search helpers.
+  void PerformSearch();
+
+  void OnSearchTextChanged();
+
+  static void OnSearchTextChangedThunk(GtkWidget* search_entry,
+      BookmarkManagerGtk* bookmark_manager) {
+    bookmark_manager->OnSearchTextChanged();
+  }
+
+  // TreeView signal handlers.
   static void OnLeftSelectionChanged(GtkTreeSelection* selection,
                                      BookmarkManagerGtk* bookmark_manager);
 
@@ -137,6 +171,7 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
       BookmarkManagerGtk* bookmark_manager);
 
   GtkWidget* window_;
+  GtkWidget* search_entry_;
   Profile* profile_;
   BookmarkModel* model_;
   GtkWidget* left_tree_view_;
@@ -146,14 +181,19 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
     RIGHT_PANE_PIXBUF,
     RIGHT_PANE_TITLE,
     RIGHT_PANE_URL,
+    RIGHT_PANE_PATH,
     RIGHT_PANE_ID,
     RIGHT_PANE_NUM
   };
   GtkTreeStore* left_store_;
   GtkListStore* right_store_;
-  int update_suppressions_;
+  GtkTreeViewColumn* path_column_;
+  scoped_ptr<BookmarkTableModel> right_tree_model_;
 
   scoped_ptr<BookmarkContextMenu> organize_menu_;
+
+  // Factory used for delaying search.
+  ScopedRunnableMethodFactory<BookmarkManagerGtk> search_factory_;
 };
 
 #endif  // CHROME_BROWSER_GTK_BOOKMARK_MANAGER_GTK_H_

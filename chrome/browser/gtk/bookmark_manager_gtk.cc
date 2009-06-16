@@ -7,16 +7,34 @@
 #include <vector>
 
 #include "app/l10n_util.h"
+#include "app/resource_bundle.h"
 #include "chrome/browser/bookmarks/bookmark_manager.h"
+#include "chrome/browser/bookmarks/bookmark_table_model.h"
 #include "chrome/browser/gtk/bookmark_tree_model.h"
 #include "chrome/browser/gtk/bookmark_utils_gtk.h"
 #include "chrome/browser/profile.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
+#include "grit/app_resources.h"
 #include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 
 namespace {
 
+// Number of bookmarks shown in recently bookmarked.
+const int kRecentlyBookmarkedCount = 50;
+
+// IDs for the recently added and search nodes. These values assume that node
+// IDs will be strictly non-negative, which is an implementation detail of
+// BookmarkModel, so this is sort of a hack.
+const int kRecentID = -1;
+const int kSearchID = -2;
+
 // Padding between "Search:" and the entry field, in pixels.
 const int kSearchPadding = 5;
+
+// Time between a user action in the search box and when we perform the search.
+const int kSearchDelayMS = 200;
 
 // We only have one manager open at a time.
 BookmarkManagerGtk* manager = NULL;
@@ -103,16 +121,10 @@ void BookmarkManagerGtk::BookmarkNodeAdded(BookmarkModel* model,
                                            BookmarkNode* parent,
                                            int index) {
   BookmarkNode* node = parent->GetChild(index);
-  // Update left store.
   if (node->is_folder()) {
     GtkTreeIter iter = { 0, };
     if (RecursiveFind(GTK_TREE_MODEL(left_store_), &iter, parent->id()))
       bookmark_utils::AddToTreeStoreAt(node, 0, left_store_, NULL, &iter);
-  }
-
-  // Update right store.
-  if (parent->id() == GetFolder()->id()) {
-    AppendNodeToRightStore(node, index);
   }
 }
 
@@ -140,33 +152,66 @@ void BookmarkManagerGtk::BookmarkNodeRemoved(BookmarkModel* model,
       gtk_tree_store_remove(left_store_, &iter);
     }
   }
-
-  GtkTreeIter iter = { 0, };
-  if (RecursiveFind(GTK_TREE_MODEL(right_store_), &iter, node->id()))
-    gtk_list_store_remove(right_store_, &iter);
 }
 
 void BookmarkManagerGtk::BookmarkNodeChanged(BookmarkModel* model,
                                              BookmarkNode* node) {
-  // TODO(estade): implement.
+  // TODO(estade): rename in the left tree view.
 }
 
 void BookmarkManagerGtk::BookmarkNodeChildrenReordered(BookmarkModel* model,
                                                        BookmarkNode* node) {
-  if (node->id() == GetFolder()->id())
-    BuildRightStore();
+  // TODO(estade): reorder in the left tree view.
 }
 
 void BookmarkManagerGtk::BookmarkNodeFavIconLoaded(BookmarkModel* model,
                                                    BookmarkNode* node) {
-  // TODO(estade): implement.
+  // I don't think we have anything to do, as we should never get this for a
+  // folder node and we handle it via OnItemsChanged for any URL node.
+}
+
+void BookmarkManagerGtk::OnModelChanged() {
+  BuildRightStore();
+}
+
+void BookmarkManagerGtk::OnItemsChanged(int start, int length) {
+  GtkTreeIter iter;
+  bool rv = gtk_tree_model_iter_nth_child(GTK_TREE_MODEL(right_store_), &iter,
+                                          NULL, start);
+  for (int i = 0; i < length; ++i) {
+    if (!rv) {
+      NOTREACHED();
+      return;
+    }
+    SetRightSideColumnValues(start + i, &iter);
+    rv = gtk_tree_model_iter_next(GTK_TREE_MODEL(right_store_), &iter);
+  }
+}
+
+void BookmarkManagerGtk::OnItemsAdded(int start, int length) {
+  for (int i = 0; i < length; ++i) {
+    AddNodeToRightStore(start + i);
+  }
+}
+
+void BookmarkManagerGtk::OnItemsRemoved(int start, int length) {
+  for (int i = 0; i < length; ++i) {
+    GtkTreeIter iter;
+    if (!gtk_tree_model_iter_nth_child(GTK_TREE_MODEL(right_store_), &iter,
+                                       NULL, start + i)) {
+      NOTREACHED();
+      return;
+    }
+    gtk_list_store_remove(right_store_, &iter);
+  }
 }
 
 // BookmarkManagerGtk, private -------------------------------------------------
 
 BookmarkManagerGtk::BookmarkManagerGtk(Profile* profile)
     : profile_(profile),
-      model_(profile->GetBookmarkModel()) {
+      model_(profile->GetBookmarkModel()),
+      search_factory_(this) {
   InitWidgets();
   g_signal_connect(window_, "destroy",
                    G_CALLBACK(OnWindowDestroy), this);
@@ -211,11 +256,13 @@ void BookmarkManagerGtk::InitWidgets() {
 
   GtkWidget* search_label = gtk_label_new(
       l10n_util::GetStringUTF8(IDS_BOOKMARK_MANAGER_SEARCH_TITLE).c_str());
-  GtkWidget* search_entry = gtk_entry_new();
+  search_entry_ = gtk_entry_new();
+  g_signal_connect(search_entry_, "changed",
+                   G_CALLBACK(OnSearchTextChangedThunk), this);
 
   GtkWidget* hbox = gtk_hbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(hbox), menu_bar, FALSE, FALSE, 0);
-  gtk_box_pack_end(GTK_BOX(hbox), search_entry, FALSE, FALSE, 0);
+  gtk_box_pack_end(GTK_BOX(hbox), search_entry_, FALSE, FALSE, 0);
   gtk_box_pack_end(GTK_BOX(hbox), search_label, FALSE, FALSE, kSearchPadding);
 
   GtkWidget* left_pane = MakeLeftPane();
@@ -280,8 +327,7 @@ GtkWidget* BookmarkManagerGtk::MakeLeftPane() {
 
 GtkWidget* BookmarkManagerGtk::MakeRightPane() {
   right_store_ = gtk_list_store_new(RIGHT_PANE_NUM,
-                                    GDK_TYPE_PIXBUF, G_TYPE_STRING,
-                                    G_TYPE_STRING, G_TYPE_INT);
+      GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_INT);
 
   GtkTreeViewColumn* title_column = gtk_tree_view_column_new();
   gtk_tree_view_column_set_title(title_column,
@@ -297,27 +343,32 @@ GtkWidget* BookmarkManagerGtk::MakeRightPane() {
   GtkTreeViewColumn* url_column = gtk_tree_view_column_new_with_attributes(
       l10n_util::GetStringUTF8(IDS_BOOKMARK_TABLE_URL).c_str(),
       gtk_cell_renderer_text_new(), "text", RIGHT_PANE_URL, NULL);
+  path_column_ = gtk_tree_view_column_new_with_attributes(
+      l10n_util::GetStringUTF8(IDS_BOOKMARK_TABLE_PATH).c_str(),
+      gtk_cell_renderer_text_new(), "text", RIGHT_PANE_PATH, NULL);
 
   right_tree_view_ = gtk_tree_view_new_with_model(GTK_TREE_MODEL(right_store_));
   // Let |tree_view| own the store.
   g_object_unref(right_store_);
   gtk_tree_view_append_column(GTK_TREE_VIEW(right_tree_view_), title_column);
   gtk_tree_view_append_column(GTK_TREE_VIEW(right_tree_view_), url_column);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(right_tree_view_), path_column_);
   g_signal_connect(right_tree_view_, "row-activated",
                    G_CALLBACK(OnRightTreeViewRowActivated), this);
   g_signal_connect(right_selection(), "changed",
                    G_CALLBACK(OnRightSelectionChanged), this);
 
-  // TODO(estade): support GDK_ACTION_COPY for dragging to other apps.
+  // We don't advertise GDK_ACTION_COPY, but since we don't explicitly do
+  // any deleting following a succesful move, this should work.
   gtk_drag_source_set(right_tree_view_,
                       GDK_BUTTON1_MASK,
                       bookmark_utils::kTargetTable,
                       bookmark_utils::kTargetTableSize,
                       GDK_ACTION_MOVE);
-  gtk_drag_dest_set(right_tree_view_, GTK_DEST_DEFAULT_ALL,
-                    bookmark_utils::kTargetTable,
-                    bookmark_utils::kTargetTableSize,
-                    GDK_ACTION_MOVE);
+
+  // We connect to drag dest signals, but we don't actually enable the widget
+  // as a drag destination unless it corresponds to the contents of a folder.
+  // See BuildRightStore().
   g_signal_connect(right_tree_view_, "drag-data-get",
                    G_CALLBACK(&OnRightTreeViewDragGet), this);
   g_signal_connect(right_tree_view_, "drag-data-received",
@@ -343,22 +394,72 @@ void BookmarkManagerGtk::BuildLeftStore() {
       model_->GetBookmarkBarNode()->id(), left_store_, &select_iter);
   gtk_tree_selection_select_iter(left_selection(), &select_iter);
 
-  // TODO(estade): Add recently bookmarked node and search node.
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  gtk_tree_store_append(left_store_, &select_iter, NULL);
+  gtk_tree_store_set(left_store_, &select_iter,
+      bookmark_utils::FOLDER_ICON,
+      rb.GetPixbufNamed(IDR_BOOKMARK_MANAGER_RECENT_ICON),
+      bookmark_utils::FOLDER_NAME,
+      l10n_util::GetStringUTF8(
+          IDS_BOOKMARK_TREE_RECENTLY_BOOKMARKED_NODE_TITLE).c_str(),
+      bookmark_utils::ITEM_ID, kRecentID,
+      -1);
+
+  gtk_tree_store_append(left_store_, &select_iter, NULL);
+  gtk_tree_store_set(left_store_, &select_iter,
+      bookmark_utils::FOLDER_ICON,
+      rb.GetPixbufNamed(IDR_BOOKMARK_MANAGER_SEARCH_ICON),
+      bookmark_utils::FOLDER_NAME,
+      l10n_util::GetStringUTF8(
+          IDS_BOOKMARK_TREE_SEARCH_NODE_TITLE).c_str(),
+      bookmark_utils::ITEM_ID, kSearchID,
+      -1);
 }
 
 void BookmarkManagerGtk::BuildRightStore() {
   BookmarkNode* node = GetFolder();
-  // TODO(estade): eventually we may hit a fake node here (recently bookmarked
-  // or search), but until then we require that node != NULL.
-  DCHECK(node);
+
   gtk_list_store_clear(right_store_);
 
-  for (int i = 0; i < node->GetChildCount(); ++i)
-    AppendNodeToRightStore(node->GetChild(i), i);
+  if (node) {
+    gtk_tree_view_column_set_visible(path_column_, FALSE);
+
+    right_tree_model_.reset(
+        BookmarkTableModel::CreateBookmarkTableModelForFolder(model_, node));
+
+    gtk_drag_dest_set(right_tree_view_, GTK_DEST_DEFAULT_ALL,
+                      bookmark_utils::kTargetTable,
+                      bookmark_utils::kTargetTableSize,
+                      GDK_ACTION_MOVE);
+  } else {
+    gtk_tree_view_column_set_visible(path_column_, TRUE);
+
+    int id = GetSelectedRowID();
+    if (kRecentID == id) {
+      right_tree_model_.reset(
+          BookmarkTableModel::CreateRecentlyBookmarkedModel(model_));
+    } else {  // kSearchID == id
+      search_factory_.RevokeAll();
+
+      std::wstring search_text(
+          UTF8ToWide(gtk_entry_get_text(GTK_ENTRY(search_entry_))));
+      std::wstring languages =
+          profile_->GetPrefs()->GetString(prefs::kAcceptLanguages);
+      right_tree_model_.reset(
+          BookmarkTableModel::CreateSearchTableModel(model_, search_text,
+                                                     languages));
+    }
+
+    gtk_drag_dest_unset(right_tree_view_);
+  }
+
+  right_tree_model_->SetObserver(this);
+
+  for (int i = 0; i < right_tree_model_->RowCount(); ++i)
+    AddNodeToRightStore(i);
 }
 
-BookmarkNode* BookmarkManagerGtk::GetNodeAt(GtkTreeModel* model,
-                                            GtkTreeIter* iter) {
+int BookmarkManagerGtk::GetRowIDAt(GtkTreeModel* model, GtkTreeIter* iter) {
   bool left = model == GTK_TREE_MODEL(left_store_);
   GValue value = { 0, };
   if (left)
@@ -367,7 +468,16 @@ BookmarkNode* BookmarkManagerGtk::GetNodeAt(GtkTreeModel* model,
     gtk_tree_model_get_value(model, iter, RIGHT_PANE_ID, &value);
   int id = g_value_get_int(&value);
   g_value_unset(&value);
-  return model_->GetNodeByID(id);
+  return id;
+}
+
+BookmarkNode* BookmarkManagerGtk::GetNodeAt(GtkTreeModel* model,
+                                            GtkTreeIter* iter) {
+  int id = GetRowIDAt(model, iter);
+  if (id > 0)
+    return model_->GetNodeByID(id);
+  else
+    return NULL;
 }
 
 BookmarkNode* BookmarkManagerGtk::GetFolder() {
@@ -376,6 +486,13 @@ BookmarkNode* BookmarkManagerGtk::GetFolder() {
   if (!gtk_tree_selection_get_selected(left_selection(), &model, &iter))
     return NULL;
   return GetNodeAt(model, &iter);
+}
+
+int BookmarkManagerGtk::GetSelectedRowID() {
+  GtkTreeModel* model;
+  GtkTreeIter iter;
+  gtk_tree_selection_get_selected(left_selection(), &model, &iter);
+  return GetRowIDAt(model, &iter);
 }
 
 std::vector<BookmarkNode*> BookmarkManagerGtk::GetRightSelection() {
@@ -394,25 +511,36 @@ std::vector<BookmarkNode*> BookmarkManagerGtk::GetRightSelection() {
   return nodes;
 }
 
-void BookmarkManagerGtk::AppendNodeToRightStore(BookmarkNode* node,
-                                                int index) {
+void BookmarkManagerGtk::SetRightSideColumnValues(int row, GtkTreeIter* iter) {
+  // TODO(estade): building the path could be optimized out when we aren't
+  // showing the path column.
+  BookmarkNode* node = right_tree_model_->GetNodeForRow(row);
+  GdkPixbuf* pixbuf = bookmark_utils::GetPixbufForNode(node, model_);
+  std::wstring title =
+      right_tree_model_->GetText(row, IDS_BOOKMARK_TABLE_TITLE);
+  std::wstring url = right_tree_model_->GetText(row, IDS_BOOKMARK_TABLE_URL);
+  std::wstring path = right_tree_model_->GetText(row, IDS_BOOKMARK_TABLE_PATH);
+  gtk_list_store_set(right_store_, iter,
+                     RIGHT_PANE_PIXBUF, pixbuf,
+                     RIGHT_PANE_TITLE, WideToUTF8(title).c_str(),
+                     RIGHT_PANE_URL, WideToUTF8(url).c_str(),
+                     RIGHT_PANE_PATH, WideToUTF8(path).c_str(),
+                     RIGHT_PANE_ID, node->id(), -1);
+  g_object_unref(pixbuf);
+}
+
+void BookmarkManagerGtk::AddNodeToRightStore(int row) {
   GtkTreeIter iter;
-  if (index == 0) {
+  if (row == 0) {
     gtk_tree_model_get_iter_first(GTK_TREE_MODEL(right_store_), &iter);
     gtk_list_store_prepend(right_store_, &iter);
   } else {
     gtk_tree_model_iter_nth_child(GTK_TREE_MODEL(right_store_), &iter, NULL,
-                                  index - 1);
+                                  row - 1);
     gtk_list_store_append(right_store_, &iter);
   }
 
-  GdkPixbuf* pixbuf = bookmark_utils::GetPixbufForNode(node, model_);
-  gtk_list_store_set(right_store_, &iter,
-                     RIGHT_PANE_PIXBUF, pixbuf,
-                     RIGHT_PANE_TITLE, WideToUTF8(node->GetTitle()).c_str(),
-                     RIGHT_PANE_URL, node->GetURL().spec().c_str(),
-                     RIGHT_PANE_ID, node->id(), -1);
-  g_object_unref(pixbuf);
+  SetRightSideColumnValues(row, &iter);
 }
 
 bool BookmarkManagerGtk::RecursiveFind(GtkTreeModel* model, GtkTreeIter* iter,
@@ -455,24 +583,51 @@ bool BookmarkManagerGtk::RecursiveFind(GtkTreeModel* model, GtkTreeIter* iter,
   return false;
 }
 
+void BookmarkManagerGtk::PerformSearch() {
+  bool search_selected = GetSelectedRowID() == kSearchID;
+  std::wstring search_text(
+      UTF8ToWide(gtk_entry_get_text(GTK_ENTRY(search_entry_))));
+
+  // If the search node is not selected, we'll select it to force a search.
+  if (!search_selected) {
+    int index =
+        gtk_tree_model_iter_n_children(GTK_TREE_MODEL(left_store_), NULL) - 1;
+    GtkTreeIter iter;
+    gtk_tree_model_iter_nth_child(GTK_TREE_MODEL(left_store_), &iter, NULL,
+                                  index);
+    gtk_tree_selection_select_iter(left_selection(), &iter);
+  } else {
+    BuildRightStore();
+  }
+}
+
+void BookmarkManagerGtk::OnSearchTextChanged() {
+  search_factory_.RevokeAll();
+  MessageLoop::current()->PostDelayedTask(FROM_HERE,
+      search_factory_.NewRunnableMethod(&BookmarkManagerGtk::PerformSearch),
+      kSearchDelayMS);
+}
+
 // static
 void BookmarkManagerGtk::OnLeftSelectionChanged(GtkTreeSelection* selection,
-    BookmarkManagerGtk* bookmark_manager) {
-  BookmarkNode* parent = bookmark_manager->GetFolder();
+    BookmarkManagerGtk* bm) {
   // Sometimes we won't have a selection for a short period of time
   // (specifically, when the user collapses an ancestor of the selected row).
   // The context menu and right store will momentarily be stale, but we should
   // presently receive another selection changed event that will refresh them.
-  if (!parent)
+  if (gtk_tree_selection_count_selected_rows(bm->left_selection()) == 0)
     return;
 
-  // Update the context menu.
-  bookmark_manager->organize_menu_->set_parent(parent);
-  std::vector<BookmarkNode*> nodes;
-  nodes.push_back(parent);
-  bookmark_manager->organize_menu_->set_selection(nodes);
+  BookmarkNode* parent = bm->GetFolder();
 
-  bookmark_manager->BuildRightStore();
+  // Update the context menu.
+  bm->organize_menu_->set_parent(parent);
+  std::vector<BookmarkNode*> nodes;
+  if (parent)
+    nodes.push_back(parent);
+  bm->organize_menu_->set_selection(nodes);
+
+  bm->BuildRightStore();
 }
 
 // static
