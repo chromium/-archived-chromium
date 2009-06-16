@@ -155,7 +155,7 @@ void WebWorkerImpl::startWorkerContext(const WebURL& script_url,
 
   // Construct substitute data source for the 'shadow page'. We only need it
   // to have same origin as the worker so the loading checks work correctly.
-  WebCore::CString content("Shadow page");
+  WebCore::CString content("");
   int len = static_cast<int>(content.length());
   RefPtr<WebCore::SharedBuffer> buf(
       WebCore::SharedBuffer::create(content.data(), len));
