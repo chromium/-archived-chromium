@@ -107,7 +107,8 @@ void FillBuffer(char* buffer, size_t len) {
 class URLRequestTest : public PlatformTest {
 };
 
-TEST_F(URLRequestTest, ProxyTunnelRedirectTest) {
+// http://crbug.com/14218
+TEST_F(URLRequestTest, DISABLED_ProxyTunnelRedirectTest) {
   // In this unit test, we're using the HTTPTestServer as a proxy server and
   // issuing a CONNECT request with the magic host name "www.redirect.com".
   // The HTTPTestServer will return a 302 response, which we should not
