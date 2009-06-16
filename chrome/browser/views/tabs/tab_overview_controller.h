@@ -9,6 +9,7 @@
 #include "base/scoped_ptr.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 
+class Animation;
 class Browser;
 class TabOverviewCell;
 class TabOverviewContainer;
@@ -27,8 +28,9 @@ class TabOverviewController : public TabStripModelObserver {
   explicit TabOverviewController(const gfx::Point& monitor_origin);
   ~TabOverviewController();
 
-  // Sets the browser we're showing the tab strip for.
-  void SetBrowser(Browser* browser);
+  // Sets the browser we're showing the tab strip for. |horizontal_center|
+  // gives the center of the window.
+  void SetBrowser(Browser* browser, int horizontal_center);
   Browser* browser() const { return browser_; }
   TabOverviewGrid* grid() const { return grid_; }
   TabStripModel* model() const;
@@ -44,10 +46,15 @@ class TabOverviewController : public TabStripModelObserver {
   void ConfigureCell(TabOverviewCell* cell, TabContents* contents);
 
   // Invoked from TabOverviewDragController.
-  virtual void DragStarted();
-  virtual void DragEnded();
-  virtual void MoveOffscreen();
-  virtual void SelectTabContents(TabContents* contents);
+  void DragStarted();
+  void DragEnded();
+  void MoveOffscreen();
+  void SelectTabContents(TabContents* contents);
+
+  // Forwarded from TabOverviewGrid as the animation of the grid changes.
+  void GridAnimationEnded();
+  void GridAnimationProgressed();
+  void GridAnimationCanceled();
 
   // TabStripModelObserver overrides.
   virtual void TabInsertedAt(TabContents* contents,
@@ -75,9 +82,14 @@ class TabOverviewController : public TabStripModelObserver {
   // Removes all the cells in the grid and populates it from the model.
   void RecreateCells();
 
-  // Invoked when the count of the model changes. Notifies the host the pref
-  // size changed.
-  void TabCountChanged();
+  // Updates the target and start bounds.
+  void UpdateStartAndTargetBounds();
+
+  // Sets the bounds of the hosting window to |bounds|.
+  void SetHostBounds(const gfx::Rect& bounds);
+
+  // Returns the bounds for the window based on the current content.
+  gfx::Rect CalculateHostBounds();
 
   // The widget showing the view.
   views::Widget* host_;
@@ -103,6 +115,23 @@ class TabOverviewController : public TabStripModelObserver {
 
   // Has Show been invoked?
   bool shown_;
+
+  // Position of the center of the window along the horizontal axis. This is
+  // used to position the overview window.
+  int horizontal_center_;
+
+  // Should we change the window bounds on animate? This is true while the
+  // animation is running on the grid to move things around.
+  bool change_window_bounds_on_animate_;
+
+  // When the model changes we animate the bounds of the window. These two
+  // give the start and target bounds of the window.
+  gfx::Rect start_bounds_;
+  gfx::Rect target_bounds_;
+
+  // Are we in the process of mutating the grid? This is used to avoid changing
+  // bounds when we're responsible for the mutation.
+  bool mutating_grid_;
 
   DISALLOW_COPY_AND_ASSIGN(TabOverviewController);
 };

@@ -34,11 +34,12 @@ void TabOverviewContainer::SetMaxSize(const gfx::Size& max_size) {
                 max_size.height() - kVerticalPadding * 2 - kArrowHeight));
 }
 
-void TabOverviewContainer::UpdateWidgetShape(int width, int height) {
+void TabOverviewContainer::UpdateWidgetShape(int horizontal_center,
+                                             int width, int height) {
   int bottom_y = height - kArrowHeight;
   int right_edge = width - 1;
   int center = width / 2;
-  // The points in alternating x,y pairs.
+  // The points, in alternating x,y pairs.
   int points[] = {
       kEdgeInset, 0,
       right_edge - kEdgeInset, 0,

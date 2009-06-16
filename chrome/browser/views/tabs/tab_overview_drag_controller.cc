@@ -9,9 +9,11 @@
 #include "chrome/browser/dock_info.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/tabs/tab_overview_cell.h"
 #include "chrome/browser/views/tabs/tab_overview_controller.h"
 #include "chrome/browser/views/tabs/tab_overview_grid.h"
+#include "chrome/browser/views/tabs/tab_overview_types.h"
 #include "chrome/common/notification_service.h"
 #include "views/fill_layout.h"
 #include "views/view.h"
@@ -262,7 +264,7 @@ void TabOverviewDragController::DragCell(const gfx::Point& location) {
   }
   int new_index = std::min(model()->count() - 1,
                            row * grid()->columns() + col);
-  if (detached_tab_ ) {
+  if (detached_tab_) {
     // The user dragged a detached tab back over the grid, reattach it.
     Attach(new_index);
   } else if (new_index != current_index_) {
@@ -370,6 +372,17 @@ views::Widget* TabOverviewDragController::CreateDetachedWindow(
   widget->Init(NULL, gfx::Rect(screen_loc, cell->GetPreferredSize()), true);
   widget->GetRootView()->SetLayoutManager(new views::FillLayout());
   widget->GetRootView()->AddChildView(cell);
+
+  std::vector<int> params(4);
+  params[0] = screen_loc.x() + x_offset_;
+  params[1] = screen_loc.y() + y_offset_;
+  params[2] = x_offset_;
+  params[3] = y_offset_;
+  TabOverviewTypes::instance()->SetWindowType(
+      widget->GetNativeView(),
+      TabOverviewTypes::WINDOW_TYPE_CHROME_FLOATING_TAB,
+      &params);
+
   return widget;
 }
 

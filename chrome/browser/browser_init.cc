@@ -60,6 +60,10 @@
 #include "base/win_util.h"
 #endif
 
+#if defined(LINUX2)
+#include "chrome/browser/views/tabs/tab_overview_message_listener.h"
+#endif
+
 namespace {
 
 class SetAsDefaultBrowserTask : public Task {
@@ -336,6 +340,12 @@ bool LaunchBrowser(const CommandLine& command_line, Profile* profile,
       *return_code = ResultCodes::INVALID_CMDLINE_URL;
     return false;
   }
+
+#if defined(LINUX2)
+  // Create the TabOverviewMessageListener so that it can listen for messages
+  // regardless of what window has focus.
+  TabOverviewMessageListener::instance();
+#endif
   return true;
 }
 

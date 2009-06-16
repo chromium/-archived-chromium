@@ -21,8 +21,10 @@ class TabOverviewContainer : public views::View {
   // adjusting for our borders.
   void SetMaxSize(const gfx::Size& max_size);
 
-  // Updates the shape on the containing widget.
-  void UpdateWidgetShape(int width, int height);
+  // Updates the shape on the containing widget. |horizontal_center| gives the
+  // center of the window the parent window we're contained in is centered
+  // over.
+  void UpdateWidgetShape(int horizontal_center, int width, int height);
 
   // View overrides.
   virtual gfx::Size GetPreferredSize();

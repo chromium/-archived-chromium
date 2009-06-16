@@ -1,0 +1,76 @@
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#include "chrome/browser/views/tabs/tab_overview_message_listener.h"
+
+#include "chrome/browser/browser.h"
+#include "chrome/browser/gtk/browser_window_gtk.h"
+#include "chrome/common/x11_util.h"
+#include "chrome/browser/views/tabs/tab_overview_controller.h"
+
+// static
+TabOverviewMessageListener* TabOverviewMessageListener::instance() {
+  static TabOverviewMessageListener* instance = NULL;
+  if (!instance) {
+    instance = Singleton<TabOverviewMessageListener>::get();
+    MessageLoopForUI::current()->AddObserver(instance);
+  }
+  return instance;
+}
+
+void TabOverviewMessageListener::WillProcessEvent(GdkEvent* event) {
+}
+
+void TabOverviewMessageListener::DidProcessEvent(GdkEvent* event) {
+  if (event->type == GDK_CLIENT_EVENT) {
+    TabOverviewTypes::Message message;
+    GdkEventClient* client_event = reinterpret_cast<GdkEventClient*>(event);
+    if (TabOverviewTypes::instance()->DecodeMessage(*client_event, &message))
+      ProcessMessage(message, client_event->window);
+  }
+}
+
+TabOverviewMessageListener::TabOverviewMessageListener() {
+}
+
+TabOverviewMessageListener::~TabOverviewMessageListener() {
+}
+
+void TabOverviewMessageListener::ProcessMessage(
+    const TabOverviewTypes::Message& message,
+    GdkWindow* window) {
+  switch (message.type()) {
+    case TabOverviewTypes::Message::CHROME_SET_TAB_SUMMARY_VISIBILITY: {
+      if (message.param(0) == 0) {
+        HideOverview();
+      } else {
+        BrowserWindowGtk* browser_window =
+            BrowserWindowGtk::GetBrowserWindowForNativeWindow(
+                BrowserWindowGtk::GetBrowserWindowForXID(
+                    x11_util::GetX11WindowFromGdkWindow(window)));
+        if (browser_window)
+          ShowOverview(browser_window->browser());
+        else
+          HideOverview();
+      }
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+void TabOverviewMessageListener::ShowOverview(Browser* browser) {
+  if (!controller_.get()) {
+    controller_.reset(new TabOverviewController(
+                          browser->window()->GetNormalBounds().origin()));
+  }
+  // TODO: get x-coordinate when available.
+  controller_->SetBrowser(browser, -1);
+  controller_->Show();
+}
+
+void TabOverviewMessageListener::HideOverview() {
+  controller_.reset(NULL);
+}

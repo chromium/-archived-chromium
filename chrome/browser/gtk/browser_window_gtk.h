@@ -43,6 +43,8 @@ class BrowserWindowGtk : public BrowserWindow,
   explicit BrowserWindowGtk(Browser* browser);
   virtual ~BrowserWindowGtk();
 
+  Browser* browser() const { return browser_.get(); }
+
   // Process a keyboard input and try to find an accelerator for it.
   void HandleAccelerator(guint keyval, GdkModifierType modifier);
 

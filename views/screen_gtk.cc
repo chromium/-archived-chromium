@@ -11,7 +11,7 @@ namespace views {
 // static
 gfx::Point Screen::GetCursorScreenPoint() {
   gint x, y;
-  gdk_display_get_pointer(NULL, NULL, &x, &y, NULL);
+  gdk_display_get_pointer(gdk_display_get_default(), NULL, &x, &y, NULL);
   return gfx::Point(x, y);
 }
 

@@ -44,6 +44,10 @@
 #include "chrome/common/pref_service.h"
 #include "grit/theme_resources.h"
 
+#if defined(LINUX2)
+#include "chrome/browser/views/tabs/tab_overview_types.h"
+#endif
+
 namespace {
 
 // The number of milliseconds between loading animation frames.
@@ -414,6 +418,11 @@ gboolean BrowserWindowGtk::OnContentAreaExpose(GtkWidget* widget,
 
 void BrowserWindowGtk::Show() {
   gtk_widget_show(GTK_WIDGET(window_));
+#if defined(LINUX2)
+  TabOverviewTypes::instance()->SetWindowType(
+      GTK_WIDGET(window_), TabOverviewTypes::WINDOW_TYPE_CHROME_TOPLEVEL,
+      NULL);
+#endif
 }
 
 void BrowserWindowGtk::SetBounds(const gfx::Rect& bounds) {

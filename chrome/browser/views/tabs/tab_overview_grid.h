@@ -30,10 +30,19 @@ class TabOverviewGrid : public Grid {
   // Cancels the drag. Does nothing if a drag is not underway.
   void CancelDrag();
 
+  // If a drag is under way, this invokes Drag on the DragController with the
+  // current position of the mouse.
+  void UpdateDragController();
+
   // View overrides.
   virtual bool OnMousePressed(const views::MouseEvent& event);
   virtual bool OnMouseDragged(const views::MouseEvent& event);
   virtual void OnMouseReleased(const views::MouseEvent& event, bool canceled);
+
+  // AnimationDelegate overrides.
+  virtual void AnimationEnded(const Animation* animation);
+  virtual void AnimationProgressed(const Animation* animation);
+  virtual void AnimationCanceled(const Animation* animation);
 
  private:
   TabOverviewController* controller_;

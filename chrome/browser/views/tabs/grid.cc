@@ -63,6 +63,21 @@ void Grid::AnimateToTargetBounds() {
   CalculateTargetBoundsAndStartAnimation();
 }
 
+int Grid::AnimationPosition(int start, int target) {
+  return start + static_cast<int>(
+      static_cast<double>(target - start) * animation_.GetCurrentValue());
+}
+
+gfx::Rect Grid::AnimationPosition(const gfx::Rect& start_bounds,
+                                  const gfx::Rect& target_bounds) {
+  return gfx::Rect(AnimationPosition(start_bounds.x(), target_bounds.x()),
+                   AnimationPosition(start_bounds.y(), target_bounds.y()),
+                   AnimationPosition(start_bounds.width(),
+                                     target_bounds.width()),
+                   AnimationPosition(start_bounds.height(),
+                                     target_bounds.height()));
+}
+
 void Grid::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
   if (modifying_children_ || parent != this)
     return;
@@ -131,15 +146,8 @@ void Grid::AnimationProgressed(const Animation* animation) {
     View* view = GetChildViewAt(i);
     gfx::Rect start_bounds = start_bounds_[i];
     gfx::Rect target_bounds = target_bounds_[i];
-    if (static_cast<int>(i) != floating_index_) {
-      view->SetBounds(
-          gfx::Rect(AnimationPosition(start_bounds.x(), target_bounds.x()),
-                    AnimationPosition(start_bounds.y(), target_bounds.y()),
-                    AnimationPosition(start_bounds.width(),
-                                      target_bounds.width()),
-                    AnimationPosition(start_bounds.height(),
-                                      target_bounds.height())));
-    }
+    if (static_cast<int>(i) != floating_index_)
+      view->SetBounds(AnimationPosition(start_bounds, target_bounds));
   }
   SchedulePaint();
 }
@@ -226,11 +234,9 @@ void Grid::CalculateTargetBoundsAndStartAnimation() {
   target_bounds_.clear();
   CalculateCellBounds(&target_bounds_);
 
-  // And make sure the animation is running.
-  if (!animation_.IsAnimating()) {
-    animation_.Reset();
-    animation_.Show();
-  }
+  // And restart the animation.
+  animation_.Reset();
+  animation_.Show();
 }
 
 void Grid::SetViewBoundsToTarget() {
@@ -239,9 +245,4 @@ void Grid::SetViewBoundsToTarget() {
     if (static_cast<int>(i) != floating_index_)
       GetChildViewAt(i)->SetBounds(target_bounds_[i]);
   }
-}
-
-int Grid::AnimationPosition(int start, int target) {
-  return start + static_cast<int>(
-      static_cast<double>(target - start) * animation_.GetCurrentValue());
 }

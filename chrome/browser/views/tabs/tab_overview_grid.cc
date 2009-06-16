@@ -7,6 +7,7 @@
 #include "chrome/browser/views/tabs/tab_overview_cell.h"
 #include "chrome/browser/views/tabs/tab_overview_controller.h"
 #include "chrome/browser/views/tabs/tab_overview_drag_controller.h"
+#include "views/screen.h"
 
 TabOverviewGrid::TabOverviewGrid(TabOverviewController* controller)
     : controller_(controller) {
@@ -25,6 +26,14 @@ TabOverviewCell* TabOverviewGrid::GetTabOverviewCellAt(int index) {
 
 void TabOverviewGrid::CancelDrag() {
   drag_controller_.reset(NULL);
+}
+
+void TabOverviewGrid::UpdateDragController() {
+  if (drag_controller_.get()) {
+    gfx::Point mouse_loc = views::Screen::GetCursorScreenPoint();
+    ConvertPointToView(NULL, this, &mouse_loc);
+    drag_controller_->Drag(mouse_loc);
+  }
 }
 
 bool TabOverviewGrid::OnMousePressed(const views::MouseEvent& event) {
@@ -60,4 +69,19 @@ void TabOverviewGrid::OnMouseReleased(const views::MouseEvent& event,
   else
     drag_controller_->CommitDrag(event.location());
   drag_controller_.reset(NULL);
+}
+
+void TabOverviewGrid::AnimationEnded(const Animation* animation) {
+  Grid::AnimationEnded(animation);
+  controller_->GridAnimationEnded();
+}
+
+void TabOverviewGrid::AnimationProgressed(const Animation* animation) {
+  Grid::AnimationProgressed(animation);
+  controller_->GridAnimationProgressed();
+}
+
+void TabOverviewGrid::AnimationCanceled(const Animation* animation) {
+  Grid::AnimationCanceled(animation);
+  controller_->GridAnimationCanceled();
 }
