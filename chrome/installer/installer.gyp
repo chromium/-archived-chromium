@@ -35,6 +35,7 @@
                   'files': [
                     'linux/internal/debian/changelog.template',
                     'linux/internal/debian/postinst',
+                    'linux/internal/debian/postrm',
                     'linux/internal/debian/prerm',
                     'linux/internal/debian/build.sh',
                     'linux/internal/debian/control.template',
