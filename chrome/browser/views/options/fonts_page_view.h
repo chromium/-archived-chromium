@@ -17,12 +17,12 @@ namespace views {
 class GroupboxView;
 class Label;
 class NativeButton;
-class TableModel;
 class TableView;
 }
 
-class FontDisplayView;
 class DefaultEncodingComboboxModel;
+class FontDisplayView;
+class TableModel;
 
 ///////////////////////////////////////////////////////////////////////////////
 // FontsPageView

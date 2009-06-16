@@ -2,18 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "app/table_model_observer.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "views/controls/table/table_model_observer.h"
 
 // Base class for keyword editor tests. Creates a profile containing an
 // empty TemplateURLModel.
 class KeywordEditorViewTest : public testing::Test,
-                              public views::TableModelObserver {
+                              public TableModelObserver {
  public:
   virtual void SetUp() {
     model_changed_count_ = items_changed_count_ = added_count_ =

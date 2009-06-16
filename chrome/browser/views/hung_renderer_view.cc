@@ -48,14 +48,14 @@ class HungPagesTableModel : public views::GroupTableModel {
   virtual int RowCount();
   virtual std::wstring GetText(int row, int column_id);
   virtual SkBitmap GetIcon(int row);
-  virtual void SetObserver(views::TableModelObserver* observer);
+  virtual void SetObserver(TableModelObserver* observer);
   virtual void GetGroupRangeForItem(int item, views::GroupRange* range);
 
  private:
   typedef std::vector<TabContents*> TabContentsVector;
   TabContentsVector tab_contentses_;
 
-  views::TableModelObserver* observer_;
+  TableModelObserver* observer_;
 
   DISALLOW_EVIL_CONSTRUCTORS(HungPagesTableModel);
 };
@@ -104,7 +104,7 @@ SkBitmap HungPagesTableModel::GetIcon(int row) {
   return tab_contentses_.at(row)->GetFavIcon();
 }
 
-void HungPagesTableModel::SetObserver(views::TableModelObserver* observer) {
+void HungPagesTableModel::SetObserver(TableModelObserver* observer) {
   observer_ = observer;
 }
 
@@ -343,8 +343,8 @@ void HungRendererDialogView::Init() {
   info_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
 
   hung_pages_table_model_.reset(new HungPagesTableModel);
-  std::vector<views::TableColumn> columns;
-  columns.push_back(views::TableColumn());
+  std::vector<TableColumn> columns;
+  columns.push_back(TableColumn());
   hung_pages_table_ = new views::GroupTableView(
       hung_pages_table_model_.get(), columns, views::ICON_AND_TEXT, true,
       false, true);

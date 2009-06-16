@@ -16,13 +16,13 @@
 #include "app/gfx/icon_util.h"
 #include "app/l10n_util_win.h"
 #include "app/resource_bundle.h"
+#include "app/table_model.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "skia/ext/skia_utils_win.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "third_party/skia/include/core/SkColorFilter.h"
 #include "views/controls/native/native_view_host.h"
-#include "views/controls/table/table_model.h"
 #include "views/controls/table/table_view_observer.h"
 
 namespace views {
@@ -32,53 +32,10 @@ const int kListViewTextPadding = 15;
 // Additional column width necessary if column has icons.
 const int kListViewIconWidthAndPadding = 18;
 
-// TableModel -----------------------------------------------------------------
+// TableView ------------------------------------------------------------------
 
 // static
 const int TableView::kImageSize = 18;
-
-// Used for sorting.
-static Collator* collator = NULL;
-
-SkBitmap TableModel::GetIcon(int row) {
-  return SkBitmap();
-}
-
-int TableModel::CompareValues(int row1, int row2, int column_id) {
-  DCHECK(row1 >= 0 && row1 < RowCount() &&
-         row2 >= 0 && row2 < RowCount());
-  std::wstring value1 = GetText(row1, column_id);
-  std::wstring value2 = GetText(row2, column_id);
-  Collator* collator = GetCollator();
-
-  if (collator) {
-    UErrorCode compare_status = U_ZERO_ERROR;
-    UCollationResult compare_result = collator->compare(
-        static_cast<const UChar*>(value1.c_str()),
-        static_cast<int>(value1.length()),
-        static_cast<const UChar*>(value2.c_str()),
-        static_cast<int>(value2.length()),
-        compare_status);
-    DCHECK(U_SUCCESS(compare_status));
-    return compare_result;
-  }
-  NOTREACHED();
-  return 0;
-}
-
-Collator* TableModel::GetCollator() {
-  if (!collator) {
-    UErrorCode create_status = U_ZERO_ERROR;
-    collator = Collator::createInstance(create_status);
-    if (!U_SUCCESS(create_status)) {
-      collator = NULL;
-      NOTREACHED();
-    }
-  }
-  return collator;
-}
-
-// TableView ------------------------------------------------------------------
 
 TableView::TableView(TableModel* model,
                      const std::vector<TableColumn>& columns,
@@ -961,11 +918,7 @@ void TableView::SortItemsAndUpdateMapping() {
   // Sort the items.
   ListView_SortItems(list_view_, &TableView::SortFunc, this);
 
-  // Cleanup the collator.
-  if (collator) {
-    delete collator;
-    collator = NULL;
-  }
+  model_->ClearCollator();
 
   // Update internal mapping to match how items were actually sorted.
   int row_count = RowCount();

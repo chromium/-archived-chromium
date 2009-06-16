@@ -15,13 +15,15 @@ typedef struct tagNMLVCUSTOMDRAW NMLVCUSTOMDRAW;
 #include <map>
 #include <vector>
 
+#include "app/table_model_observer.h"
 #include "third_party/skia/include/core/SkColor.h"
 #if defined(OS_WIN)
 // TODO(port): remove the ifdef when native_control.h is ported.
 #include "views/controls/native_control.h"
 #endif  // defined(OS_WIN)
-#include "views/controls/table/table_model_observer.h"
 
+struct TableColumn;
+class TableModel;
 class SkBitmap;
 
 // A TableView is a view that displays multiple rows with any number of columns.
@@ -51,8 +53,6 @@ namespace views {
 class ListView;
 class ListViewParent;
 class TableView;
-struct TableColumn;
-class TableModel;
 class TableViewObserver;
 
 // The cells in the first column of a table can contain:

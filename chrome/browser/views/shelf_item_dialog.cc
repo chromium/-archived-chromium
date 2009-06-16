@@ -7,6 +7,8 @@
 #include "app/gfx/text_elider.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "app/table_model.h"
+#include "app/table_model_observer.h"
 #include "base/gfx/png_decoder.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
@@ -21,8 +23,6 @@
 #include "net/base/net_util.h"
 #include "views/background.h"
 #include "views/controls/label.h"
-#include "views/controls/table/table_model.h"
-#include "views/controls/table/table_model_observer.h"
 #include "views/controls/table/table_view.h"
 #include "views/controls/textfield/textfield.h"
 #include "views/focus/focus_manager.h"
@@ -51,7 +51,7 @@ static SkBitmap* default_fav_icon = NULL;
 // How long we query entry points for.
 static const int kPossibleURLTimeScope = 30;
 
-class PossibleURLModel : public views::TableModel {
+class PossibleURLModel : public TableModel {
  public:
   PossibleURLModel() : profile_(NULL) {
     if (!default_fav_icon) {
@@ -215,7 +215,7 @@ class PossibleURLModel : public views::TableModel {
     }
   }
 
-  virtual void SetObserver(views::TableModelObserver* observer) {
+  virtual void SetObserver(TableModelObserver* observer) {
     observer_ = observer;
   }
 
@@ -237,7 +237,7 @@ class PossibleURLModel : public views::TableModel {
   Profile* profile_;
 
   // Our observer.
-  views::TableModelObserver* observer_;
+  TableModelObserver* observer_;
 
   // Our consumer for favicon requests.
   CancelableRequestConsumerT<size_t, NULL> consumer_;
@@ -269,13 +269,13 @@ ShelfItemDialog::ShelfItemDialog(ShelfItemDialogDelegate* delegate,
 
   url_table_model_.reset(new PossibleURLModel());
 
-  views::TableColumn col1(IDS_ASI_PAGE_COLUMN, views::TableColumn::LEFT, -1,
+  TableColumn col1(IDS_ASI_PAGE_COLUMN, TableColumn::LEFT, -1,
                           50);
   col1.sortable = true;
-  views::TableColumn col2(IDS_ASI_URL_COLUMN, views::TableColumn::LEFT, -1,
+  TableColumn col2(IDS_ASI_URL_COLUMN, TableColumn::LEFT, -1,
                           50);
   col2.sortable = true;
-  std::vector<views::TableColumn> cols;
+  std::vector<TableColumn> cols;
   cols.push_back(col1);
   cols.push_back(col2);
 

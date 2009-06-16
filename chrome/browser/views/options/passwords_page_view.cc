@@ -97,8 +97,7 @@ int PasswordsTableModel::CompareValues(int row1, int row2,
   return TableModel::CompareValues(row1, row2, column_id);
 }
 
-void PasswordsTableModel::SetObserver(
-    views::TableModelObserver* observer) {
+void PasswordsTableModel::SetObserver(TableModelObserver* observer) {
   observer_ = observer;
 }
 
@@ -306,12 +305,12 @@ void PasswordsPageView::SetupTable() {
 
   // Creates the different columns for the table.
   // The float resize values are the result of much tinkering.
-  std::vector<views::TableColumn> columns;
-  columns.push_back(views::TableColumn(IDS_PASSWORDS_PAGE_VIEW_SITE_COLUMN,
-                                       views::TableColumn::LEFT, -1, 0.55f));
+  std::vector<TableColumn> columns;
+  columns.push_back(TableColumn(IDS_PASSWORDS_PAGE_VIEW_SITE_COLUMN,
+                                       TableColumn::LEFT, -1, 0.55f));
   columns.back().sortable = true;
-  columns.push_back(views::TableColumn(
-      IDS_PASSWORDS_PAGE_VIEW_USERNAME_COLUMN, views::TableColumn::LEFT,
+  columns.push_back(TableColumn(
+      IDS_PASSWORDS_PAGE_VIEW_USERNAME_COLUMN, TableColumn::LEFT,
       -1, 0.37f));
   columns.back().sortable = true;
   table_view_ = new views::TableView(&table_model_, columns, views::TEXT_ONLY,

@@ -171,7 +171,7 @@ void GeneralPageView::DefaultBrowserWorker::UpdateUI(bool is_default) {
 // CustomHomePagesTableModel is the model for the TableView showing the list
 // of pages the user wants opened on startup.
 
-class CustomHomePagesTableModel : public views::TableModel {
+class CustomHomePagesTableModel : public TableModel {
  public:
   explicit CustomHomePagesTableModel(Profile* profile);
   virtual ~CustomHomePagesTableModel() {}
@@ -188,11 +188,11 @@ class CustomHomePagesTableModel : public views::TableModel {
   // Returns the set of urls this model contains.
   std::vector<GURL> GetURLs();
 
-  // views::TableModel overrides:
+  // TableModel overrides:
   virtual int RowCount();
   virtual std::wstring GetText(int row, int column_id);
   virtual SkBitmap GetIcon(int row);
-  virtual void SetObserver(views::TableModelObserver* observer);
+  virtual void SetObserver(TableModelObserver* observer);
 
  private:
   // Each item in the model is represented as an Entry. Entry stores the URL
@@ -236,7 +236,7 @@ class CustomHomePagesTableModel : public views::TableModel {
   // Profile used to load icons.
   Profile* profile_;
 
-  views::TableModelObserver* observer_;
+  TableModelObserver* observer_;
 
   // Used in loading favicons.
   CancelableRequestConsumer fav_icon_consumer_;
@@ -317,8 +317,7 @@ SkBitmap CustomHomePagesTableModel::GetIcon(int row) {
   return default_favicon_;
 }
 
-void CustomHomePagesTableModel::SetObserver(
-    views::TableModelObserver* observer) {
+void CustomHomePagesTableModel::SetObserver(TableModelObserver* observer) {
   observer_ = observer;
 }
 
@@ -798,8 +797,8 @@ void GeneralPageView::InitStartupGroup() {
 
   startup_custom_pages_table_model_.reset(
       new CustomHomePagesTableModel(profile()));
-  std::vector<views::TableColumn> columns;
-  columns.push_back(views::TableColumn());
+  std::vector<TableColumn> columns;
+  columns.push_back(TableColumn());
   startup_custom_pages_table_ = new views::TableView(
       startup_custom_pages_table_model_.get(), columns,
       views::ICON_AND_TEXT, true, false, true);

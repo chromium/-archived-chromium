@@ -8,6 +8,7 @@
 
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "app/table_model_observer.h"
 #include "base/string_util.h"
 #include "base/time_format.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
@@ -20,10 +21,6 @@
 #include "grit/theme_resources.h"
 #include "net/base/escape.h"
 #include "net/base/net_util.h"
-
-#if defined(TOOLKIT_VIEWS)
-#include "views/controls/table/table_model_observer.h"
-#endif
 
 namespace {
 

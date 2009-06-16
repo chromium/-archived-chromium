@@ -5,21 +5,16 @@
 #ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_TABLE_MODEL_H_
 #define CHROME_BROWSER_BOOKMARKS_BOOKMARK_TABLE_MODEL_H_
 
+#include "app/table_model.h"
 #include "build/build_config.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
-
-#if defined(TOOLKIT_VIEWS)
-#include "views/controls/table/table_model.h"
-#else
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
 
 // BookmarkTableModel provides a view of the BookmarkModel as a TableModel.
 // Three variations are provided:
 // . Recently created bookmarks.
 // . The children of a particular folder.
 // . All bookmarks matching the specified text.
-class BookmarkTableModel : public views::TableModel,
+class BookmarkTableModel : public TableModel,
                            public BookmarkModelObserver {
  public:
   // Methods for creating the various BookmarkTableModels. Ownership passes
@@ -41,7 +36,7 @@ class BookmarkTableModel : public views::TableModel,
   // TableModel methods.
   virtual std::wstring GetText(int row, int column_id);
   virtual SkBitmap GetIcon(int row);
-  virtual void SetObserver(views::TableModelObserver* observer) {
+  virtual void SetObserver(TableModelObserver* observer) {
     observer_ = observer;
   }
 
@@ -63,14 +58,14 @@ class BookmarkTableModel : public views::TableModel,
   BookmarkModel* model() const { return model_; }
 
  protected:
-  views::TableModelObserver* observer() const { return observer_; }
+  TableModelObserver* observer() const { return observer_; }
 
  private:
   // Builds the path shown in the path column for the specified node.
   void BuildPath(BookmarkNode* node, std::wstring* path);
 
   BookmarkModel* model_;
-  views::TableModelObserver* observer_;
+  TableModelObserver* observer_;
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkTableModel);
 };

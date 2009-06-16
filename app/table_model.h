@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef VIEWS_CONTROLS_TABLE_TABLE_MODEL_H_
-#define VIEWS_CONTROLS_TABLE_TABLE_MODEL_H_
+#ifndef APP_TABLE_MODEL_H_
+#define APP_TABLE_MODEL_H_
 
 #include <string>
 #include <vector>
@@ -12,8 +12,6 @@
 #include "unicode/coll.h"
 
 class SkBitmap;
-
-namespace views {
 
 class TableModelObserver;
 
@@ -92,6 +90,9 @@ class TableModel {
   // comparison.
   virtual int CompareValues(int row1, int row2, int column_id);
 
+  // Reset the collator.
+  void ClearCollator();
+
  protected:
   // Returns the collator used by CompareValues.
   Collator* GetCollator();
@@ -149,6 +150,4 @@ struct TableColumn {
   bool sortable;
 };
 
-}  // namespace views
-
-#endif  // VIEWS_CONTROLS_TABLE_TABLE_MODEL_H_
+#endif  // APP_TABLE_MODEL_H_

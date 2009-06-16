@@ -37,7 +37,6 @@
 
 using views::GridLayout;
 using views::NativeButton;
-using views::TableColumn;
 
 // Group IDs used by TemplateURLTableModel.
 static const int kMainGroupID = 0;
@@ -237,7 +236,7 @@ SkBitmap TemplateURLTableModel::GetIcon(int row) {
   return entries_[row]->GetIcon();
 }
 
-void TemplateURLTableModel::SetObserver(views::TableModelObserver* observer) {
+void TemplateURLTableModel::SetObserver(TableModelObserver* observer) {
   observer_ = observer;
 }
 

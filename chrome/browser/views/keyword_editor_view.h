@@ -8,9 +8,9 @@
 #include <Windows.h>
 #include <map>
 
+#include "app/table_model.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "views/controls/button/button.h"
-#include "views/controls/table/table_model.h"
 #include "views/controls/table/table_view_observer.h"
 #include "views/view.h"
 #include "views/window/dialog_delegate.h"
@@ -40,7 +40,7 @@ class TemplateURLTableModel;
 // the favicon. The entries in the model are sorted such that non-generated
 // appear first (grouped together) and are followed by generated keywords.
 
-class TemplateURLTableModel : public views::TableModel {
+class TemplateURLTableModel : public TableModel {
  public:
   explicit TemplateURLTableModel(TemplateURLModel* template_url_model);
 
@@ -54,7 +54,7 @@ class TemplateURLTableModel : public views::TableModel {
   virtual int RowCount();
   virtual std::wstring GetText(int row, int column);
   virtual SkBitmap GetIcon(int row);
-  virtual void SetObserver(views::TableModelObserver* observer);
+  virtual void SetObserver(TableModelObserver* observer);
   virtual bool HasGroups();
   virtual Groups GetGroups();
   virtual int GetGroupID(int row);
@@ -96,7 +96,7 @@ class TemplateURLTableModel : public views::TableModel {
   // Notification that a model entry has fetched its icon.
   void FavIconAvailable(ModelEntry* entry);
 
-  views::TableModelObserver* observer_;
+  TableModelObserver* observer_;
 
   // The entries.
   std::vector<ModelEntry*> entries_;

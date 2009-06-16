@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "app/gfx/text_elider.h"
+#include "app/table_model.h"
 #include "base/scoped_ptr.h"
 #include "base/stl_util-inl.h"
 #include "chrome/browser/views/options/options_page_view.h"
@@ -15,7 +16,6 @@
 #include "views/controls/button/native_button.h"
 #include "views/controls/label.h"
 #include "views/controls/table/table_view.h"
-#include "views/controls/table/table_model.h"
 #include "views/controls/table/table_view_observer.h"
 #include "views/window/dialog_delegate.h"
 #include "views/window/window.h"
@@ -29,9 +29,9 @@ class Profile;
 // allow the container view of TableView(i.e. PasswordsPageView and
 // ExceptionsPageView), to be notified of row count changes directly
 // from the TableModel. We have two different observers in
-// PasswordsTableModel, namely views::TableModelObserver and
+// PasswordsTableModel, namely TableModelObserver and
 // PasswordsTableModelObserver, rather than adding this event to
-// views::TableModelObserver because only container view of
+// TableModelObserver because only container view of
 // PasswordsTableModel cares about this event.
 class PasswordsTableModelObserver {
  public:
@@ -60,7 +60,7 @@ class MultiLabelButtons : public views::NativeButton {
 
 ///////////////////////////////////////////////////////////////////////////////
 // PasswordsTableModel
-class PasswordsTableModel : public views::TableModel,
+class PasswordsTableModel : public TableModel,
                             public WebDataServiceConsumer {
  public:
   explicit PasswordsTableModel(Profile* profile);
@@ -70,7 +70,7 @@ class PasswordsTableModel : public views::TableModel,
   virtual int RowCount();
   virtual std::wstring GetText(int row, int column);
   virtual int CompareValues(int row1, int row2, int column_id);
-  virtual void SetObserver(views::TableModelObserver* observer);
+  virtual void SetObserver(TableModelObserver* observer);
 
   // Delete the PasswordForm at specified row from the database (and remove
   // from view).
@@ -116,7 +116,7 @@ class PasswordsTableModel : public views::TableModel,
   }
 
   // The TableView observing this model.
-  views::TableModelObserver* observer_;
+  TableModelObserver* observer_;
 
   // Dispatching row count events specific to this password manager table model
   // to this observer.

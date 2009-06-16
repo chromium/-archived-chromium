@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "views/controls/table/table_model.h"
+#include "app/table_model.h"
 
 #include "app/l10n_util.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
-namespace views {
+// TableColumn -----------------------------------------------------------------
 
 TableColumn::TableColumn()
     : id(0),
@@ -64,5 +65,42 @@ TableColumn::TableColumn(int id, Alignment alignment, int width, float percent)
   title = l10n_util::GetString(id);
 }
 
-}  // namespace views
+// TableModel -----------------------------------------------------------------
 
+// Used for sorting.
+static Collator* collator = NULL;
+
+SkBitmap TableModel::GetIcon(int row) {
+  return SkBitmap();
+}
+
+int TableModel::CompareValues(int row1, int row2, int column_id) {
+  DCHECK(row1 >= 0 && row1 < RowCount() &&
+         row2 >= 0 && row2 < RowCount());
+  std::wstring value1 = GetText(row1, column_id);
+  std::wstring value2 = GetText(row2, column_id);
+  Collator* collator = GetCollator();
+
+  if (collator)
+    return l10n_util::CompareStringWithCollator(collator, value1, value2);
+
+  NOTREACHED();
+  return 0;
+}
+
+Collator* TableModel::GetCollator() {
+  if (!collator) {
+    UErrorCode create_status = U_ZERO_ERROR;
+    collator = Collator::createInstance(create_status);
+    if (!U_SUCCESS(create_status)) {
+      collator = NULL;
+      NOTREACHED();
+    }
+  }
+  return collator;
+}
+
+void TableModel::ClearCollator() {
+  delete collator;
+  collator = NULL;
+}

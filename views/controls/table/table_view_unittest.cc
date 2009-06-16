@@ -4,10 +4,11 @@
 
 #include <vector>
 
+#include "app/table_model.h"
+#include "app/table_model_observer.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "views/controls/table/table_model.h"
 #include "views/controls/table/table_view.h"
 #include "views/window/window_delegate.h"
 #include "views/window/window_win.h"
@@ -24,7 +25,7 @@ using views::TableView;
 // 0, 1
 // 1, 1
 // 2, 2
-class TestTableModel : public views::TableModel {
+class TestTableModel : public TableModel {
  public:
   TestTableModel();
 
@@ -40,11 +41,11 @@ class TestTableModel : public views::TableModel {
   // TableModel
   virtual int RowCount();
   virtual std::wstring GetText(int row, int column_id);
-  virtual void SetObserver(views::TableModelObserver* observer);
+  virtual void SetObserver(TableModelObserver* observer);
   virtual int CompareValues(int row1, int row2, int column_id);
 
  private:
-  views::TableModelObserver* observer_;
+  TableModelObserver* observer_;
 
   // The data.
   std::vector<std::vector<int>> rows_;
@@ -90,7 +91,7 @@ std::wstring TestTableModel::GetText(int row, int column_id) {
   return IntToWString(rows_[row][column_id]);
 }
 
-void TestTableModel::SetObserver(views::TableModelObserver* observer) {
+void TestTableModel::SetObserver(TableModelObserver* observer) {
   observer_ = observer;
 }
 
@@ -141,7 +142,7 @@ class TableViewTest : public testing::Test, views::WindowDelegate {
 void TableViewTest::SetUp() {
   OleInitialize(NULL);
   model_.reset(CreateModel());
-  std::vector<views::TableColumn> columns;
+  std::vector<TableColumn> columns;
   columns.resize(2);
   columns[0].id = 0;
   columns[1].id = 1;

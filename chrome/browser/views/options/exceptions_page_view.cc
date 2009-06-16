@@ -168,10 +168,10 @@ void ExceptionsPageView::SetupTable() {
 
   // Creates the different columns for the table.
   // The float resize values are the result of much tinkering.
-  std::vector<views::TableColumn> columns;
-  columns.push_back(views::TableColumn(
+  std::vector<TableColumn> columns;
+  columns.push_back(TableColumn(
       IDS_PASSWORDS_PAGE_VIEW_SITE_COLUMN,
-      views::TableColumn::LEFT, -1, 0.55f));
+      TableColumn::LEFT, -1, 0.55f));
   columns.back().sortable = true;
   table_view_ = new views::TableView(&table_model_, columns, views::TEXT_ONLY,
                                      true, true, true);

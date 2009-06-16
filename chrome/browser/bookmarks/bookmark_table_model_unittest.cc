@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "app/table_model_observer.h"
 #include "base/string_util.h"
 #include "base/time.h"
 #include "chrome/browser/bookmarks/bookmark_table_model.h"
 #include "chrome/test/testing_profile.h"
 #include "grit/generated_resources.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "views/controls/table/table_model_observer.h"
 
 using base::Time;
 using base::TimeDelta;
@@ -23,7 +23,7 @@ using base::TimeDelta;
 //   f2
 //   url3 (t0 + 1)
 class BookmarkTableModelTest : public testing::Test,
-                               public views::TableModelObserver {
+                               public TableModelObserver {
  public:
   BookmarkTableModelTest()
       : url1_("http://1"),

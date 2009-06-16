@@ -12,6 +12,8 @@
 #include "app/gfx/font.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "app/table_model.h"
+#include "app/table_model_observer.h"
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/string_util.h"
@@ -32,8 +34,6 @@
 #include "unicode/uloc.h"
 #include "views/controls/button/radio_button.h"
 #include "views/controls/tabbed_pane.h"
-#include "views/controls/table/table_model.h"
-#include "views/controls/table/table_model_observer.h"
 #include "views/controls/table/table_view.h"
 #include "views/grid_layout.h"
 #include "views/standard_layout.h"
@@ -314,7 +314,7 @@ void AddLanguageWindowView::Init() {
   AddChildView(accept_language_combobox_);
 }
 
-class LanguageOrderTableModel : public views::TableModel {
+class LanguageOrderTableModel : public TableModel {
  public:
   LanguageOrderTableModel();
 
@@ -340,10 +340,10 @@ class LanguageOrderTableModel : public views::TableModel {
   // Returns the set of languagess this model contains.
   std::string GetLanguageList() { return VectorToList(languages_); }
 
-  // views::TableModel overrides:
+  // TableModel overrides:
   virtual int RowCount();
   virtual std::wstring GetText(int row, int column_id);
-  virtual void SetObserver(views::TableModelObserver* observer);
+  virtual void SetObserver(TableModelObserver* observer);
 
  private:
   // This method converts a comma separated list to a vector of strings.
@@ -357,7 +357,7 @@ class LanguageOrderTableModel : public views::TableModel {
   std::vector<std::string> languages_;
   std::string comma_separated_language_list_;
 
-  views::TableModelObserver* observer_;
+  TableModelObserver* observer_;
 
   DISALLOW_COPY_AND_ASSIGN(LanguageOrderTableModel);
 };
@@ -375,8 +375,7 @@ void LanguageOrderTableModel::SetAcceptLanguagesString(
   }
 }
 
-void LanguageOrderTableModel::SetObserver(
-    views::TableModelObserver* observer) {
+void LanguageOrderTableModel::SetObserver(TableModelObserver* observer) {
   observer_ = observer;
 }
 
@@ -569,8 +568,8 @@ void LanguagesPageView::InitControlLayout() {
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
 
   // Add two columns - for table, and for button stack.
-  std::vector<views::TableColumn> columns;
-  columns.push_back(views::TableColumn());
+  std::vector<TableColumn> columns;
+  columns.push_back(TableColumn());
   language_order_table_model_.reset(new LanguageOrderTableModel);
   language_order_table_ = new views::TableView(
       language_order_table_model_.get(), columns,

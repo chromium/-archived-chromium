@@ -19,13 +19,13 @@ class GroupboxView;
 class Label;
 class NativeButton;
 class RadioButton;
-class TableModel;
 class TableView;
 class Textfield;
 }
 class CustomHomePagesTableModel;
 class OptionsGroupView;
 class SearchEngineListModel;
+class TableModel;
 
 ///////////////////////////////////////////////////////////////////////////////
 // GeneralPageView

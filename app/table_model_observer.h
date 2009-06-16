@@ -2,10 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef VIEWS_CONTROL_TABLE_TABLE_MODEL_OBSERVER_H_
-#define VIEWS_CONTROL_TABLE_TABLE_MODEL_OBSERVER_H_
-
-namespace views {
+#ifndef APP_TABLE_MODEL_OBSERVER_H_
+#define APP_TABLE_MODEL_OBSERVER_H_
 
 // Observer for a TableModel. Anytime the model changes, it must notify its
 // observer.
@@ -24,6 +22,4 @@ class TableModelObserver {
   virtual void OnItemsRemoved(int start, int length) = 0;
 };
 
-}  // namespace views
-
-#endif  // VIEWS_CONTROL_TABLE_TABLE_MODEL_OBSERVER_H_
+#endif  // APP_TABLE_MODEL_OBSERVER_H_

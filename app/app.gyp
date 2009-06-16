@@ -104,6 +104,9 @@
         'theme_provider.h',
         'throb_animation.cc',
         'throb_animation.h',
+        'table_model.cc',
+        'table_model.h',
+        'table_model_observer.h',
       ],
       'direct_dependent_settings': {
         'include_dirs': [

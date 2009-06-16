@@ -10,6 +10,7 @@
 #include "app/gfx/color_utils.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "app/table_model.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/time_format.h"
@@ -23,7 +24,6 @@
 #include "views/grid_layout.h"
 #include "views/controls/label.h"
 #include "views/controls/button/native_button.h"
-#include "views/controls/table/table_model.h"
 #include "views/controls/table/table_view.h"
 #include "views/controls/textfield/textfield.h"
 #include "views/standard_layout.h"
@@ -37,7 +37,7 @@ static const int kSearchFilterDelayMs = 500;
 ///////////////////////////////////////////////////////////////////////////////
 // CookiesTableModel
 
-class CookiesTableModel : public views::TableModel {
+class CookiesTableModel : public TableModel {
  public:
   explicit CookiesTableModel(Profile* profile);
   virtual ~CookiesTableModel() {}
@@ -50,11 +50,11 @@ class CookiesTableModel : public views::TableModel {
   void RemoveCookies(int start_index, int remove_count);
   void RemoveAllShownCookies();
 
-  // views::TableModel implementation:
+  // TableModel implementation:
   virtual int RowCount();
   virtual std::wstring GetText(int row, int column_id);
   virtual SkBitmap GetIcon(int row);
-  virtual void SetObserver(views::TableModelObserver* observer);
+  virtual void SetObserver(TableModelObserver* observer);
   virtual int CompareValues(int row1, int row2, int column_id);
 
   // Filter the cookies to only display matched results.
@@ -74,7 +74,7 @@ class CookiesTableModel : public views::TableModel {
   CookieList all_cookies_;
   CookiePtrList shown_cookies_;
 
-  views::TableModelObserver* observer_;
+  TableModelObserver* observer_;
 
   DISALLOW_COPY_AND_ASSIGN(CookiesTableModel);
 };
@@ -138,7 +138,7 @@ void CookiesTableModel::RemoveAllShownCookies() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CookiesTableModel, views::TableModel implementation:
+// CookiesTableModel, TableModel implementation:
 
 int CookiesTableModel::RowCount() {
   return static_cast<int>(shown_cookies_.size());
@@ -180,7 +180,7 @@ SkBitmap CookiesTableModel::GetIcon(int row) {
   return *icon;
 }
 
-void CookiesTableModel::SetObserver(views::TableModelObserver* observer) {
+void CookiesTableModel::SetObserver(TableModelObserver* observer) {
   observer_ = observer;
 }
 
@@ -255,7 +255,7 @@ void CookiesTableModel::UpdateSearchResults(const std::wstring& filter) {
 class CookiesTableView : public views::TableView {
  public:
   CookiesTableView(CookiesTableModel* cookies_model,
-                   std::vector<views::TableColumn> columns);
+                   std::vector<TableColumn> columns);
   virtual ~CookiesTableView() {}
 
   // Removes the cookies associated with the selected rows in the TableView.
@@ -270,7 +270,7 @@ class CookiesTableView : public views::TableView {
 
 CookiesTableView::CookiesTableView(
     CookiesTableModel* cookies_model,
-    std::vector<views::TableColumn> columns)
+    std::vector<TableColumn> columns)
     : views::TableView(cookies_model, columns, views::ICON_AND_TEXT, false,
                        true, true),
       cookies_model_(cookies_model) {
@@ -623,7 +623,7 @@ void CookiesView::ContentsChanged(views::Textfield* sender,
 
 bool CookiesView::HandleKeystroke(views::Textfield* sender,
                                   const views::Textfield::Keystroke& key) {
-  if (views::Textfield::IsKeystrokeEscape(key)) { 
+  if (views::Textfield::IsKeystrokeEscape(key)) {
     ResetSearchQuery();
   } else if (views::Textfield::IsKeystrokeEnter(key)) {
     search_update_factory_.RevokeAll();
@@ -711,12 +711,12 @@ void CookiesView::Init() {
 
   cookies_table_model_.reset(new CookiesTableModel(profile_));
   info_view_ = new CookieInfoView;
-  std::vector<views::TableColumn> columns;
-  columns.push_back(views::TableColumn(IDS_COOKIES_DOMAIN_COLUMN_HEADER,
-                                       views::TableColumn::LEFT, 200, 0.5f));
+  std::vector<TableColumn> columns;
+  columns.push_back(TableColumn(IDS_COOKIES_DOMAIN_COLUMN_HEADER,
+                                TableColumn::LEFT, 200, 0.5f));
   columns.back().sortable = true;
-  columns.push_back(views::TableColumn(IDS_COOKIES_NAME_COLUMN_HEADER,
-                                       views::TableColumn::LEFT, 150, 0.5f));
+  columns.push_back(TableColumn(IDS_COOKIES_NAME_COLUMN_HEADER,
+                                TableColumn::LEFT, 150, 0.5f));
   columns.back().sortable = true;
   cookies_table_ = new CookiesTableView(cookies_table_model_.get(), columns);
   cookies_table_->SetObserver(this);

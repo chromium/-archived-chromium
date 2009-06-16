@@ -16,13 +16,13 @@ namespace views {
 class Checkbox;
 class Label;
 class NativeButton;
-class TableModel;
 class TableView;
 }
 
+class AddLanguageView;
 class LanguageComboboxModel;
 class LanguageOrderTableModel;
-class AddLanguageView;
+class TableModel;
 
 ///////////////////////////////////////////////////////////////////////////////
 // LanguagesPageView

@@ -28,7 +28,7 @@ namespace {
 // Height of the drop indicator used when dropping between rows.
 const int kDropHighlightHeight = 2;
 
-int GetWidthOfColumn(const std::vector<views::TableColumn>& columns,
+int GetWidthOfColumn(const std::vector<TableColumn>& columns,
                      const std::vector<int> widths,
                      int column_id) {
   for (size_t i = 0; i < columns.size(); ++i) {
@@ -47,7 +47,7 @@ void BookmarkTableView::DropInfo::Scrolled() {
 
 BookmarkTableView::BookmarkTableView(Profile* profile,
                                      BookmarkTableModel* model)
-    : views::TableView(model, std::vector<views::TableColumn>(),
+    : views::TableView(model, std::vector<TableColumn>(),
                        views::ICON_AND_TEXT, false, true, true),
       profile_(profile),
       show_path_column_(false) {
@@ -362,15 +362,14 @@ RECT BookmarkTableView::GetDropBetweenHighlightRect(int index) {
 
 void BookmarkTableView::UpdateColumns() {
   PrefService* prefs = profile_->GetPrefs();
-  views::TableColumn name_column =
-      views::TableColumn(IDS_BOOKMARK_TABLE_TITLE, views::TableColumn::LEFT,
-                         -1);
-  views::TableColumn url_column =
-      views::TableColumn(IDS_BOOKMARK_TABLE_URL, views::TableColumn::LEFT, -1);
-  views::TableColumn path_column =
-      views::TableColumn(IDS_BOOKMARK_TABLE_PATH, views::TableColumn::LEFT, -1);
+  TableColumn name_column =
+      TableColumn(IDS_BOOKMARK_TABLE_TITLE, TableColumn::LEFT, -1);
+  TableColumn url_column =
+      TableColumn(IDS_BOOKMARK_TABLE_URL, TableColumn::LEFT, -1);
+  TableColumn path_column =
+      TableColumn(IDS_BOOKMARK_TABLE_PATH, TableColumn::LEFT, -1);
 
-  std::vector<views::TableColumn> columns;
+  std::vector<TableColumn> columns;
   if (show_path_column_) {
     int name_width = -1;
     int url_width = -1;
