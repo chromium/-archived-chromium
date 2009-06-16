@@ -655,7 +655,7 @@ willPositionSheet:(NSWindow *)sheet
 
   NSString *incognitoPath = [mac_util::MainAppBundle()
                                 pathForResource:@"otr_icon"
-                                         ofType:@"png"];
+                                         ofType:@"pdf"];
   scoped_nsobject<NSImage> incognitoImage(
       [[NSImage alloc] initWithContentsOfFile:incognitoPath]);
   const NSSize imageSize = [incognitoImage size];

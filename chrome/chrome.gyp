@@ -2315,7 +2315,7 @@
         'app/theme/o2_more.png',
         'app/theme/o2_search.png',
         'app/theme/o2_star.png',
-        'app/theme/otr_icon.png',
+        'app/theme/otr_icon.pdf',
         'app/theme/reload.pdf',
         'app/theme/sadtab.png',
         'app/theme/star.pdf',
