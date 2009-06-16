@@ -43,9 +43,12 @@ std::string GetTemplateHtml(const StringPiece& html_template,
   output.append(jstemplate_src.data(), jstemplate_src.size());
   output.append("var tp = document.getElementById('");
   output.append(template_id.data(), template_id.size());
-  output.append("'); var cx = new JsEvalContext(");
+  output.append("');");
+  output.append("var templateData = ");
   output.append(jstext);
-  output.append("); jstProcess(cx, tp);</script>");
+  output.append(";");
+  output.append("jstProcess(new JsEvalContext(templateData), tp);");
+  output.append("</script>");
 
   return output;
 }

@@ -142,46 +142,8 @@ html[dir='rtl'] .name {
   height:24px;
 }
 </style>
+<script src="local_strings.js"></script>
 <script>
-///////////////////////////////////////////////////////////////////////////////
-// localStrings:
-/**
- * We get strings into the page by using JSTemplate to populate some elements
- * with localized content, then reading the content of those elements into
- * this global strings object.
- * @param {Node} node The DOM node containing all our strings.
- */
-function LocalStrings(node) {
-  this.strings_ = {};
-
-  var children = node.children;
-  for (var i = 0, child; child = children[i]; i++) {
-    var id = child.id;
-    if (id) {
-      this.strings_[id] = child.innerHTML;
-    }
-  }
-}
-
-/**
- * Gets a localized string by its id.
- * @param {string} s The id of the string we want
- * @return {string} The localized string
- */
-LocalStrings.prototype.getString = function(s) {
-  return this.strings_[s] || '';
-}
-
-/**
- * Returns a formatted localized string (where all %s contents are replaced
- * by the second argument).
- * @param {string} s The id of the string we want
- * @param {string} d The string to include in the formatted string
- * @return {string} The formatted string.
- */
-LocalStrings.prototype.formatString = function(s, d) {
-  return this.getString(s).replace(/\%s/, d);
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Helper functions
@@ -664,7 +626,7 @@ Download.prototype.cancel_ = function() {
 var downloads, localStrings, resultsTimeout;
 
 function load() {
-  localStrings = new LocalStrings($('l10n'));
+  localStrings = new LocalStrings();
   downloads = new Downloads();
   $('term').focus();
   setSearch("");
@@ -740,23 +702,6 @@ function downloadUpdated(results) {
   <div id="downloads-display"></div>
 </div>
 <div class="footer">
-</div>
-<div id="l10n" style="display:none;">
-  <span id="searchresultsfor" jscontent="searchresultsfor">Search results for '%s'</span>
-  <span id="no_results" jscontent="no_results">No results found.</span>
-  <span id="downloads" jscontent="downloads">Downloads</span>
-
-  <span id="status_cancelled" jscontent="status_cancelled">Cancelled</span>
-  <span id="status_paused" jscontent="status_paused">Paused</span>
-
-  <span id="danger_desc" jscontent="danger_desc">This is a dangerous file</span>
-  <span id="danger_save" jscontent="danger_save">Save</span>
-  <span id="danger_discard" jscontent="danger_discard">Discard</span>
-
-  <span id="control_pause" jscontent="control_pause">Pause</span>
-  <span id="control_showinfolder" jscontent="control_showinfolder">Show in folder</span>
-  <span id="control_cancel" jscontent="control_cancel">Cancel</span>
-  <span id="control_resume" jscontent="control_resume">Resume</span>
 </div>
 </body>
 </html>

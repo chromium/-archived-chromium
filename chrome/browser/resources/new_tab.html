@@ -360,10 +360,6 @@ html[hasattribution='false'] .attribution {
 </head>
 <body onload="updateAttribution(); logEvent('body onload fired');"
       jsvalues=".style.fontFamily:fontfamily;.style.fontSize:fontsize">
-<div id="l10n" style="display:none;">
-  <span id="closedwindowsingle" jscontent="closedwindowsingle">1 Tab</span>
-  <span id="closedwindowmultiple" jscontent="closedwindowmultiple">% Tabs</span>
-</div>
 <script>
 // We apply the size class here so that we don't trigger layout animations onload.
 handleWindowResize();
@@ -987,7 +983,7 @@ function viewLog() {
 
 logEvent('end of second script block');
 
-localStrings = new LocalStrings($('l10n'));
+localStrings = new LocalStrings();
 
 // We've got all the JS we need, render any unprocessed data.
 renderFunctionsDefined = true;

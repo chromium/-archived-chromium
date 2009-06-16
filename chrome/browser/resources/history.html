@@ -700,7 +700,7 @@ PageState.getHashString = function(term, page) {
 function load() {
   $('term').focus();
 
-  localStrings = new LocalStrings($('l10n'));
+  localStrings = new LocalStrings();
   historyModel = new HistoryModel();
   historyView = new HistoryView(historyModel);
   pageState = new PageState(historyModel, historyView);
@@ -916,19 +916,6 @@ html[dir='rtl'] .entry .title > a {
   <div id="results-pagination"></div>
 </div>
 <div class="footer">
-</div>
-<div id="l10n" style="display:none;">
-  <span id="loading" jscontent="loading">Loading...</span>
-  <span id="newest" jscontent="newest">&laquo; Newest</span>
-  <span id="newer" jscontent="newer">&#8249; Newer</span>
-  <span id="older" jscontent="older">Older &#8250;</span>
-  <span id="searchresultsfor" jscontent="searchresultsfor">Search results for '%s'</span>
-  <span id="history" jscontent="history">History</span>
-  <span id="cont" jscontent="cont">(cont.)</span>
-  <span id="noresults" jscontent="noresults">No results</span>
-  <span id="noitems" jscontent="noitems">No items</span>
-  <span id="deleteday" jscontent="deleteday">Delete history for this day</span>
-  <span id="deletedaywarning" jscontent="deletedaywarning">Are you sure you want to delete this day?</span>
 </div>
 </body>
 </html>

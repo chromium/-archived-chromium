@@ -1,21 +1,10 @@
-///////////////////////////////////////////////////////////////////////////////
-// localStrings:
 /**
- * We get strings into the page by using JSTemplate to populate some elements
- * with localized content, then reading the content of those elements into
- * this global strings object.
- * @param {Node} node The DOM node containing all our strings.
+ * The local strings get injected into the page usig a varaible named
+ * {@code templateData}. This class provides a simpler interface to access those
+ * strings.
+ * @constructor
  */
-function LocalStrings(node) {
-  this.strings_ = {};
-
-  var children = node.children;
-  for (var i = 0, child; child = children[i]; i++) {
-    var id = child.id;
-    if (id) {
-      this.strings_[id] = child.innerHTML;
-    }
-  }
+function LocalStrings() {
 }
 
 /**
@@ -24,7 +13,7 @@ function LocalStrings(node) {
  * @return {string} The localized string.
  */
 LocalStrings.prototype.getString = function(s) {
-  return this.strings_[s] || '';
+  return templateData[s] || '';
 };
 
 /**
@@ -35,5 +24,5 @@ LocalStrings.prototype.getString = function(s) {
  * @return {string} The formatted string.
  */
 LocalStrings.prototype.formatString = function(s, d) {
-  return this.getString(s).replace(/\%s/, d);
+  return this.getString(s).replace(/%s/, d);
 };
