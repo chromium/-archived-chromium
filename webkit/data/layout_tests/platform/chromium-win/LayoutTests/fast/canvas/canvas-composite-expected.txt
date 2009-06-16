@@ -1,9 +1,9 @@
-layer at (0,0) size 800x600
-  RenderView at (0,0) size 800x600
-layer at (0,0) size 800x600
-  RenderBlock {HTML} at (0,0) size 800x600
-    RenderBody {BODY} at (20,20) size 760x560 [bgcolor=#FFFFFF]
-      RenderBlock {DIV} at (0,0) size 760x509
+layer at (0,0) size 785x549
+  RenderView at (0,0) size 785x534
+layer at (0,0) size 785x549
+  RenderBlock {HTML} at (0,0) size 785x549
+    RenderBody {BODY} at (20,20) size 745x509 [bgcolor=#FFFFFF]
+      RenderBlock {DIV} at (0,0) size 745x509
         RenderTable {TABLE} at (0,0) size 582x509
           RenderTableSection {TBODY} at (0,0) size 582x509
             RenderTableRow {TR} at (0,2) size 582x167

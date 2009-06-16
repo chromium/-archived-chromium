@@ -2710,8 +2710,6 @@ BUG12310 SKIP : LayoutTests/fast/wcss/marquee-style.xhtml = FAIL
 // Details for all of these are in the bugs.
 BUG12340 WIN : LayoutTests/fast/body-propagation/overflow/004-xhtml.xhtml = PASS FAIL
 BUG12341 WIN : LayoutTests/editing/selection/4975120.html = PASS FAIL
-BUG12353 WIN LINUX : LayoutTests/fast/canvas/canvas-composite.html = FAIL
-BUG12352 WIN LINUX : LayoutTests/fast/backgrounds/bgCompositeCopy.html = FAIL
 BUG12354 : LayoutTests/plugins/netscape-invoke-browserfuncs.html = FAIL
 BUG12355 : LayoutTests/editing/pasteboard/file-input-files-access.html = FAIL
 BUG12361 : LayoutTests/http/tests/cookies/double-quoted-value-with-semi-colon.html = FAIL
