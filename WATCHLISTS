@@ -14,8 +14,14 @@
     'valgrind': {
       'filepath': 'tools/valgrind/.*',
     },
+    'purify': {
+      'filepath': 'purify',
+    },
     'mac': {
       'filepath': 'cocoa|\.mm$|(_mac|_posix)\.(cc|h)$',
+    },
+    'extension': {
+      'filepath': 'extension',
     },
     'views': {
       # Applies to all files and subdirs within this directory.
@@ -44,5 +50,7 @@
     'renderer': ['darin@chromium.org'],
     'webkit': ['darin@chromium.org'],
     'plugin': ['darin@chromium.org'],
+    'extension': ['erikkay@chromium.org'],
+    'purify': ['erikkay@chromium.org'],
   },
 }
