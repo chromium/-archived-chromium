@@ -5,11 +5,11 @@
 #ifndef CHROME_BROWSER_GTK_IMPORT_PROGRESS_DIALOG_GTK_H_
 #define CHROME_BROWSER_GTK_IMPORT_PROGRESS_DIALOG_GTK_H_
 
-#include "chrome/browser/importer/importer.h"
-
 #include <gtk/gtk.h>
 
-#include "chrome/browser/profile.h"
+#include "chrome/browser/importer/importer.h"
+
+class Profile;
 
 class ImportProgressDialogGtk : public ImporterHost::Observer {
  public:

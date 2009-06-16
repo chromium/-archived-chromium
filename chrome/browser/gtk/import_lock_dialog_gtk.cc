@@ -6,6 +6,8 @@
 
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "base/message_loop.h"
+#include "chrome/browser/importer/importer.h"
 #include "chrome/common/gtk_util.h"
 #include "grit/generated_resources.h"
 #include "grit/chromium_strings.h"

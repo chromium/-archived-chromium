@@ -12,6 +12,7 @@
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/extensions/extension_tabs_module.h"
 #include "chrome/browser/extensions/extension_view.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/browser/tab_contents/tab_contents.h"

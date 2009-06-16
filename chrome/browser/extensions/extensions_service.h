@@ -10,15 +10,12 @@
 #include <string>
 #include <vector>
 
-#include "base/command_line.h"
 #include "base/file_path.h"
 #include "base/linked_ptr.h"
-#include "base/message_loop.h"
 #include "base/ref_counted.h"
-#include "base/task.h"
+#include "base/tuple.h"
 #include "base/values.h"
 #include "chrome/browser/extensions/external_extension_provider.h"
-#include "chrome/common/chrome_switches.h"
 #include "chrome/common/extensions/extension.h"
 
 class Browser;
@@ -26,6 +23,7 @@ class DictionaryValue;
 class Extension;
 class ExtensionsServiceBackend;
 class GURL;
+class MessageLoop;
 class PrefService;
 class Profile;
 class ResourceDispatcherHost;

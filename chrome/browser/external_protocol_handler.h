@@ -5,10 +5,12 @@
 #ifndef CHROME_BROWSER_EXTERNAL_PROTOCOL_HANDLER_H__
 #define CHROME_BROWSER_EXTERNAL_PROTOCOL_HANDLER_H__
 
-#include "chrome/common/pref_service.h"
+#include <string>
 
+class DictionaryValue;
 class GURL;
 class MessageLoop;
+class PrefService;
 
 class ExternalProtocolHandler {
  public:

@@ -10,6 +10,7 @@
 #include "app/resource_bundle.h"
 #include "base/histogram.h"
 #include "base/string_util.h"
+#include "base/values.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"

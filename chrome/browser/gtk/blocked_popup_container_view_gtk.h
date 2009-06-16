@@ -7,19 +7,10 @@
 
 #include <gtk/gtk.h>
 
-#include <set>
-#include <utility>
-#include <vector>
-
-#include "app/slide_animation.h"
 #include "base/basictypes.h"
-#include "base/gfx/native_widget_types.h"
-#include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
-#include "base/string_util.h"
 #include "chrome/browser/blocked_popup_container.h"
 #include "chrome/browser/gtk/menu_gtk.h"
-#include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/owned_widget_gtk.h"
 
 class BlockedPopupContainerInternalView;

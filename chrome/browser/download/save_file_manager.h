@@ -58,13 +58,10 @@
 #ifndef CHROME_BROWSER_DOWNLOAD_SAVE_FILE_MANAGER_H__
 #define CHROME_BROWSER_DOWNLOAD_SAVE_FILE_MANAGER_H__
 
-#include <utility>
-
 #include "base/basictypes.h"
 #include "base/file_path.h"
 #include "base/hash_tables.h"
 #include "base/ref_counted.h"
-#include "base/thread.h"
 #include "chrome/browser/download/save_types.h"
 
 namespace net {

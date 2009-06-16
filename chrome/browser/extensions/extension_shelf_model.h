@@ -11,10 +11,10 @@
 #include "base/observer_list.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/notification_registrar.h"
-#include "chrome/browser/extensions/extension_host.h"
 #include "chrome/browser/extensions/extensions_service.h"
 
 class Browser;
+class ExtensionHost;
 class ExtensionView;
 
 // Objects implement this interface when they wish to be notified of changes to

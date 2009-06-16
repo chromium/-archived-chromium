@@ -10,13 +10,16 @@
 #include <set>
 #include <string>
 
-#include "app/gfx/canvas.h"
 #include "base/basictypes.h"
 #include "base/task.h"
 
 #if defined(OS_WIN) || defined(TOOLKIT_VIEWS)
 #include "views/view.h"
 #endif
+
+namespace gfx {
+class Canvas;
+}
 
 class BaseDownloadItemModel;
 class DownloadItem;

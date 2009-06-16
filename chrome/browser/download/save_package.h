@@ -7,21 +7,17 @@
 
 #include <queue>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include "base/basictypes.h"
 #include "base/file_path.h"
-#include "base/gfx/native_widget_types.h"
 #include "base/hash_tables.h"
 #include "base/ref_counted.h"
-#include "chrome/common/pref_member.h"
-#include "chrome/browser/download/save_item.h"
-#include "chrome/browser/download/save_types.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/shell_dialogs.h"
 
 class SaveFileManager;
+class SaveItem;
 class SavePackage;
 class DownloadItem;
 class DownloadManager;
@@ -38,6 +34,7 @@ class Thread;
 class Time;
 }
 
+struct SaveFileCreateInfo;
 struct SavePackageParam;
 
 // The SavePackage object manages the process of saving a page as only-html or

@@ -8,14 +8,16 @@
 #include <string>
 #include <vector>
 
-#include "base/values.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/dom_ui/dom_ui.h"
-#include "chrome/browser/extensions/extensions_service.h"
 #include "googleurl/src/gurl.h"
 
-class GURL;
+class DictionaryValue;
+class Extension;
+class ExtensionsService;
+class FilePath;
 class UserScript;
+class Value;
 
 // Information about a page running in an extension, for example a toolstrip,
 // a background page, or a tab contents.

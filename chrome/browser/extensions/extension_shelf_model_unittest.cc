@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "chrome/browser/browser.h"
+#include "chrome/browser/extensions/extension_host.h"
 #include "chrome/browser/extensions/extension_shelf_model.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/extensions/test_extension_loader.h"

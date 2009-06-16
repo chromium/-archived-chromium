@@ -5,13 +5,14 @@
 #ifndef CHROME_BROWSER_FIRST_RUN_H_
 #define CHROME_BROWSER_FIRST_RUN_H_
 
+#include <string>
 #include <vector>
 
 #include "base/basictypes.h"
-#include "base/command_line.h"
 #include "base/gfx/native_widget_types.h"
 #include "chrome/browser/browser_process_impl.h"
 
+class CommandLine;
 class FilePath;
 class Profile;
 class ProcessSingleton;

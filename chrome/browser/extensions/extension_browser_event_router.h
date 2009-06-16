@@ -6,7 +6,6 @@
 #define CHROME_BROWSER_EXTENSIONS_EXTENSION_BROWSER_EVENT_ROUTER_H_
 
 #include <map>
-#include <vector>
 #include <string>
 
 #include "base/basictypes.h"

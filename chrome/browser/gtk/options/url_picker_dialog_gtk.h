@@ -7,8 +7,9 @@
 
 #include "base/basictypes.h"
 #include "base/task.h"
-#include "chrome/browser/profile.h"
-#include "googleurl/src/gurl.h"
+
+class GURL;
+class Profile;
 
 class UrlPickerDialogGtk {
  public:

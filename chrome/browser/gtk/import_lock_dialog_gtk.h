@@ -5,9 +5,12 @@
 #ifndef CHROME_BROWSER_GTK_IMPORT_LOCK_DIALOG_GTK_H_
 #define CHROME_BROWSER_GTK_IMPORT_LOCK_DIALOG_GTK_H_
 
-#include "chrome/browser/importer/importer.h"
-
 #include <gtk/gtk.h>
+
+#include "base/basictypes.h"
+#include "base/ref_counted.h"
+
+class ImporterHost;
 
 class ImportLockDialogGtk {
  public:

@@ -41,24 +41,23 @@
 #ifndef CHROME_BROWSER_DOWNLOAD_DOWNLOAD_FILE_H_
 #define CHROME_BROWSER_DOWNLOAD_DOWNLOAD_FILE_H_
 
-#include <string>
+#include <map>
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/hash_tables.h"
 #include "base/lock.h"
 #include "base/ref_counted.h"
-#include "base/thread.h"
 #include "base/timer.h"
-#include "chrome/browser/history/download_types.h"
+#include "googleurl/src/gurl.h"
 
 namespace net {
 class IOBuffer;
 }
+struct DownloadCreateInfo;
 class DownloadManager;
-class FilePath;
-class GURL;
 class MessageLoop;
 class ResourceDispatcherHost;
 class URLRequestContext;

@@ -21,6 +21,7 @@
 #include "chrome/browser/gtk/download_shelf_gtk.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/browser/gtk/nine_box.h"
+#include "chrome/browser/gtk/standard_menus.h"
 #include "chrome/common/gtk_util.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"

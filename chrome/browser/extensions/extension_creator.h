@@ -5,10 +5,16 @@
 #ifndef CHROME_COMMON_EXTENSIONS_EXTENSION_CREATOR_H_
 #define CHROME_COMMON_EXTENSIONS_EXTENSION_CREATOR_H_
 
-#include "base/command_line.h"
-#include "base/crypto/rsa_private_key.h"
-#include "base/file_path.h"
-#include "base/values.h"
+#include <string>
+#include <vector>
+
+#include "base/basictypes.h"
+
+namespace base {
+class RSAPrivateKey;
+}
+
+class FilePath;
 
 // This class create an installable extension (.crx file) given an input
 // directory that contains a valid manifest.json and the extension's resources

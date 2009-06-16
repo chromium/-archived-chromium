@@ -6,12 +6,10 @@
 #define CHROME_BROWSER_EXTENSIONS_EXTENSION_BOOKMARKS_MODULE_H_
 
 #include <string>
-#include <vector>
 
 #include "base/singleton.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/extensions/extension_function.h"
-#include "chrome/browser/extensions/extension_tabs_module.h"
 #include "chrome/common/notification_registrar.h"
 
 // Observes BookmarkModel and then routes the notifications as events to

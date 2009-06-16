@@ -19,6 +19,7 @@
 #include "chrome/browser/download/download_shelf.h"
 #include "chrome/browser/download/save_file.h"
 #include "chrome/browser/download/save_file_manager.h"
+#include "chrome/browser/download/save_item.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"

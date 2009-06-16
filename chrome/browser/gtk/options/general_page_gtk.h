@@ -6,15 +6,17 @@
 #define CHROME_BROWSER_GTK_OPTIONS_GENERAL_PAGE_GTK_H_
 
 #include <gtk/gtk.h>
+
+#include <string>
 #include <vector>
 
-#include "chrome/browser/gtk/options/url_picker_dialog_gtk.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/options_page_base.h"
-#include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/pref_member.h"
 #include "googleurl/src/gurl.h"
+
+class Profile;
 
 class GeneralPageGtk : public OptionsPageBase,
                        public TemplateURLModelObserver {

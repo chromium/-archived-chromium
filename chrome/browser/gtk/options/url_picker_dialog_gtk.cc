@@ -9,6 +9,7 @@
 #include "chrome/browser/gtk/options/url_picker_dialog_gtk.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/common/gtk_util.h"
+#include "googleurl/src/gurl.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 

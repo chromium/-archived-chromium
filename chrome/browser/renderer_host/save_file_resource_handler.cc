@@ -4,6 +4,7 @@
 
 #include "chrome/browser/renderer_host/save_file_resource_handler.h"
 
+#include "base/message_loop.h"
 #include "base/string_util.h"
 #include "chrome/browser/download/save_file_manager.h"
 #include "net/base/io_buffer.h"

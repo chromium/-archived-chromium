@@ -5,10 +5,13 @@
 #ifndef CHROME_BROWSER_GTK_CLEAR_BROWSING_DATA_DIALOG_GTK_H_
 #define CHROME_BROWSER_GTK_CLEAR_BROWSING_DATA_DIALOG_GTK_H_
 
-#include "chrome/browser/browsing_data_remover.h"
+#include "base/basictypes.h"
 
-class Profile;
+typedef struct _GtkWidget GtkWidget;
 typedef struct _GtkWindow GtkWindow;
+
+class BrowsingDataRemover;
+class Profile;
 
 class ClearBrowsingDataDialogGtk {
  public:

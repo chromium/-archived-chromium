@@ -9,15 +9,13 @@
 
 #include "base/directory_watcher.h"
 #include "base/file_path.h"
-#include "base/message_loop.h"
-#include "base/process.h"
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
 #include "chrome/common/extensions/user_script.h"
 #include "chrome/common/notification_registrar.h"
-#include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
+class MessageLoop;
 class StringPiece;
 
 // Manages a segment of shared memory that contains the user scripts the user
@@ -78,8 +76,7 @@ class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
     static void LoadScriptsFromDirectory(const FilePath script_dir,
                                          UserScriptList* result);
 
-    explicit ScriptReloader(UserScriptMaster* master)
-        : master_(master), master_message_loop_(MessageLoop::current()) {}
+    explicit ScriptReloader(UserScriptMaster* master);
 
     // Start a scan for scripts.
     // Will always send a message to the master upon completion.

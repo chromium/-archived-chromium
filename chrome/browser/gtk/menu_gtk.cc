@@ -9,6 +9,7 @@
 #include "base/logging.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
+#include "chrome/browser/gtk/standard_menus.h"
 #include "chrome/common/gtk_util.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 

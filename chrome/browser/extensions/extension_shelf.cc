@@ -4,10 +4,14 @@
 
 #include "chrome/browser/extensions/extension_shelf.h"
 
+#include <algorithm>
+
 #include "app/resource_bundle.h"
 #include "base/logging.h"
+#include "base/message_loop.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/extensions/extension_host.h"
 #include "chrome/browser/extensions/extension_process_manager.h"
 #include "chrome/browser/extensions/extension_view.h"
 #include "chrome/browser/extensions/extensions_service.h"

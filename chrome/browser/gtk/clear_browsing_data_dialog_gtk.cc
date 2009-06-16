@@ -6,6 +6,7 @@
 
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "chrome/browser/browsing_data_remover.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/gtk_util.h"
 #include "chrome/common/pref_names.h"

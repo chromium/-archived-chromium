@@ -9,6 +9,7 @@
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "base/task.h"
+#include "base/thread.h"
 #include "build/build_config.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_manager.h"

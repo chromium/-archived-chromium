@@ -10,7 +10,7 @@
 #include <string>
 
 #include "base/lock.h"
-#include "chrome/browser/renderer_host/render_process_host.h"
+#include "chrome/common/ipc_message.h"
 #include "chrome/common/notification_registrar.h"
 
 class MessageLoop;

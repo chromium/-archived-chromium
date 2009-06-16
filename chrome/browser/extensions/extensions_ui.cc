@@ -13,6 +13,7 @@
 #include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/common/extensions/extension.h"

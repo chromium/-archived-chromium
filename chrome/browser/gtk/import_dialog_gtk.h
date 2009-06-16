@@ -7,7 +7,7 @@
 
 #include "chrome/browser/importer/importer.h"
 
-#include "chrome/browser/profile.h"
+class Profile;
 
 class ImportDialogGtk : public ImportObserver {
  public:

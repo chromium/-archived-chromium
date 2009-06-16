@@ -8,11 +8,11 @@
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/gtk/slide_animator_gtk.h"
-#include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/common/owned_widget_gtk.h"
 
 class CustomDrawButton;
 class InfoBarContainerGtk;
+class InfoBarDelegate;
 
 class InfoBar : public SlideAnimatorGtk::Delegate {
  public:

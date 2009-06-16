@@ -7,6 +7,7 @@
 #include "base/json_reader.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
+#include "base/values.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"

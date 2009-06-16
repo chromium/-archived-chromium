@@ -8,7 +8,6 @@
 #include <gtk/gtk.h>
 
 #include <string>
-#include <vector>
 
 #include "app/slide_animation.h"
 #include "chrome/common/owned_widget_gtk.h"

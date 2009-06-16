@@ -5,12 +5,10 @@
 #ifndef CHROME_BROWSER_EXTENSIONS_EXTENSION_FUNCTION_DISPATCHER_H_
 #define CHROME_BROWSER_EXTENSIONS_EXTENSION_FUNCTION_DISPATCHER_H_
 
-#include <map>
 #include <string>
 #include <vector>
 
 #include "base/ref_counted.h"
-#include "base/values.h"
 
 class Browser;
 class ExtensionFunction;

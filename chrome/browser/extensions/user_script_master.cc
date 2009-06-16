@@ -34,6 +34,11 @@ static bool GetDeclarationValue(const StringPiece& line,
   return true;
 }
 
+UserScriptMaster::ScriptReloader::ScriptReloader(UserScriptMaster* master)
+    : master_(master),
+      master_message_loop_(MessageLoop::current()) {
+}
+
 // static
 bool UserScriptMaster::ScriptReloader::ParseMetadataHeader(
       const StringPiece& script_text, UserScript* script) {

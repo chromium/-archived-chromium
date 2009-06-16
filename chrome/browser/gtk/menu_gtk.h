@@ -6,13 +6,14 @@
 #define CHROME_BROWSER_GTK_MENU_GTK_H_
 
 #include <gtk/gtk.h>
-#include <string>
-#include <vector>
 
-#include "chrome/browser/gtk/standard_menus.h"
+#include <string>
+
 #include "chrome/common/owned_widget_gtk.h"
 
 class SkBitmap;
+
+struct MenuCreateMaterial;
 
 class MenuGtk {
  public:

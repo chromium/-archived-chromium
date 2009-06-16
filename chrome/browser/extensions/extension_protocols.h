@@ -5,8 +5,6 @@
 #ifndef CHROME_BROWSER_EXTENSIONS_EXTENSION_PROTOCOLS_H_
 #define CHROME_BROWSER_EXTENSIONS_EXTENSION_PROTOCOLS_H_
 
-#include "base/file_path.h"
-
 // Registers support for the extension URL scheme.
 void RegisterExtensionProtocols();
 
