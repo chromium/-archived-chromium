@@ -5,13 +5,10 @@
 #ifndef MEDIA_BASE_MOCK_FFMPEG_H_
 #define MEDIA_BASE_MOCK_FFMPEG_H_
 
-#include "testing/gmock/include/gmock/gmock.h"
+// TODO(scherkus): See if we can remove ffmpeg_common from this file.
+#include "media/filters/ffmpeg_common.h"
 
-struct AVCodec;
-struct AVCodecContext;
-struct AVFrame;
-struct AVPacket;
-enum CodecID;
+#include "testing/gmock/include/gmock/gmock.h"
 
 namespace media {
 
