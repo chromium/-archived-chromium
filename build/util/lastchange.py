@@ -23,13 +23,14 @@ def svn_fetch_revision():
   try:
     p = subprocess.Popen(['svn', 'info'],
                          stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
-  except OSError:
+                         stderr=subprocess.PIPE,
+                         shell=(sys.platform=='win32'))
+  except OSError, e:
     # 'svn' is apparently either not installed or not executable.
     return None
   revision = None
   if p:
-    svn_re = re.compile('^Revision:\s+(\S+)$', re.M)
+    svn_re = re.compile('^Revision:\s+(\d+)', re.M)
     m = svn_re.search(p.stdout.read())
     if m:
       revision = m.group(1)
@@ -45,7 +46,8 @@ def git_fetch_id():
   try:
     p = subprocess.Popen(['git', 'log', '-1'],
                          stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE)
+                         stderr=subprocess.PIPE,
+                         shell=(sys.platform=='win32'))
   except OSError:
     # 'git' is apparently either not installed or not executable.
     return None
