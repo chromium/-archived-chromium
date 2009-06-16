@@ -44,11 +44,9 @@ class WebDevToolsAgentImpl
   // ToolsAgent implementation.
   virtual void HighlightDOMNode(int node_id);
   virtual void HideDOMNodeHighlight();
-  virtual void EvaluateJavaScript(int call_id, const String& js);
   virtual void ExecuteUtilityFunction(
       int call_id,
       const WebCore::String& function_name,
-      int node_id,
       const WebCore::String& json_args);
   virtual void ClearConsoleMessages();
   virtual void GetResourceContent(
@@ -83,6 +81,9 @@ class WebDevToolsAgentImpl
 
  private:
   static v8::Handle<v8::Value> JsDispatchOnClient(const v8::Arguments& args);
+  static v8::Handle<v8::Value> JsGetNodeForId(const v8::Arguments& args);
+
+  void InitDevToolsAgentHost();
 
   int host_id_;
   WebDevToolsAgentDelegate* delegate_;
@@ -98,7 +99,7 @@ class WebDevToolsAgentImpl
   // TODO(pfeldman): This should not be needed once GC styles issue is fixed
   // for matching rules.
   v8::Persistent<v8::Context> utility_context_;
-  OwnPtr<BoundObject> web_inspector_stub_;
+  OwnPtr<BoundObject> devtools_agent_host_;
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsAgentImpl);
 };
 
