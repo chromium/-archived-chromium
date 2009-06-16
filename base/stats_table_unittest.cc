@@ -39,7 +39,7 @@ TEST_F(StatsTableTest, VerifySlots) {
   // Register a single thread.
   std::string thread_name = "mainThread";
   int slot_id = table.RegisterThread(thread_name);
-  EXPECT_TRUE(slot_id);
+  EXPECT_NE(slot_id, 0);
 
   // Fill up the table with counters.
   std::string counter_base_name = "counter";
@@ -261,9 +261,9 @@ TEST_F(StatsTableTest, StatsCounter) {
 
   // Test initial state.
   EXPECT_TRUE(foo.Enabled());
-  EXPECT_NE(foo.Pointer(), static_cast<int*>(0));
-  EXPECT_EQ(0, table.GetCounterValue("c:foo"));
+  ASSERT_NE(foo.Pointer(), static_cast<int*>(0));
   EXPECT_EQ(0, *(foo.Pointer()));
+  EXPECT_EQ(0, table.GetCounterValue("c:foo"));
 
   // Test Increment.
   while(*(foo.Pointer()) < 123) foo.Increment();

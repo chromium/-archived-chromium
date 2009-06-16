@@ -287,6 +287,8 @@ StatsTable::~StatsTable() {
 
 int StatsTable::RegisterThread(const std::string& name) {
   int slot = 0;
+  if (!impl_)
+    return 0;
 
   // Registering a thread requires that we lock the shared memory
   // so that two threads don't grab the same slot.  Fortunately,
@@ -297,8 +299,6 @@ int StatsTable::RegisterThread(const std::string& name) {
     if (!slot) {
       return 0;
     }
-
-    DCHECK(impl_);
 
     // We have space, so consume a column in the table.
     std::string thread_name = name;
@@ -448,8 +448,6 @@ int StatsTable::FindCounter(const std::string& name) {
 }
 
 int StatsTable::AddCounter(const std::string& name) {
-  DCHECK(impl_);
-
   if (!impl_)
     return 0;
 
