@@ -9,6 +9,7 @@
 #include <wtf/Vector.h>
 
 #include "Document.h"
+#include "Node.h"
 #include "Page.h"
 #undef LOG
 
@@ -29,6 +30,7 @@
 using WebCore::DOMWindow;
 using WebCore::Document;
 using WebCore::Frame;
+using WebCore::Node;
 using WebCore::Page;
 using WebCore::String;
 using WebCore::V8ClassIndex;
@@ -152,6 +154,7 @@ void DebuggerAgentImpl::ResetUtilityContext(
 String DebuggerAgentImpl::ExecuteUtilityFunction(
     v8::Handle<v8::Context> context,
     const String &function_name,
+    Node* node,
     const String& json_args,
     String* exception) {
   v8::HandleScope scope;
@@ -160,23 +163,47 @@ String DebuggerAgentImpl::ExecuteUtilityFunction(
   v8::Handle<v8::Function> function = v8::Local<v8::Function>::Cast(
       context->Global()->Get(v8::String::New("devtools$$dispatch")));
 
+  v8::Handle<v8::Value> node_wrapper =
+      V8Proxy::ToV8Object(V8ClassIndex::NODE, node);
   v8::Handle<v8::String> function_name_wrapper = v8::Handle<v8::String>(
       v8::String::New(function_name.utf8().data()));
   v8::Handle<v8::String> json_args_wrapper = v8::Handle<v8::String>(
       v8::String::New(json_args.utf8().data()));
   v8::Handle<v8::Value> args[] = {
     function_name_wrapper,
+    node_wrapper,
     json_args_wrapper
   };
 
   v8::TryCatch try_catch;
-  v8::Handle<v8::Value> res_obj = function->Call(context->Global(), 2, args);
+  v8::Handle<v8::Value> res_obj = function->Call(context->Global(), 3, args);
   if (try_catch.HasCaught()) {
     *exception = WebCore::ToWebCoreString(try_catch.Message()->Get());
     return "";
   } else {
     v8::Handle<v8::String> res_json = v8::Handle<v8::String>::Cast(res_obj);
     return WebCore::toWebCoreString(res_json);
+  }
+}
+
+String DebuggerAgentImpl::EvaluateJavaScript(
+    Frame* frame,
+    const String &source_code,
+    bool* is_exception) {
+  v8::HandleScope scope;
+  v8::Handle<v8::Context> context = V8Proxy::GetContext(frame);
+  v8::Context::Scope context_scope(context);
+  v8::Local<v8::String> code = v8ExternalString(source_code);
+
+  V8Proxy* proxy = V8Proxy::retrieve(frame);
+  v8::TryCatch try_catch;
+  v8::Handle<v8::Script> script = proxy->CompileScript(code, "", 0);
+  v8::Local<v8::Value> object = proxy->RunScript(script, true);
+  if (try_catch.HasCaught()) {
+    *is_exception = true;
+    return WebCore::ToWebCoreString(try_catch.Message()->Get());
+  } else {
+    return WebCore::toWebCoreStringWithNullCheck(object);
   }
 }
 

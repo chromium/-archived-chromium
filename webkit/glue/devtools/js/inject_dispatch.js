@@ -21,11 +21,13 @@ var devtools$$obj = new devtools.Injected();
 /**
  * Main dispatch method, all calls from the host go through this one.
  * @param {string} functionName Function to call
+ * @param {Node} node Node context of the call.
  * @param {string} json_args JSON-serialized call parameters.
  * @return {string} JSON-serialized result of the dispatched call.
  */
-function devtools$$dispatch(functionName, json_args) {
+function devtools$$dispatch(functionName, node, json_args) {
   var params = JSON.parse(json_args);
+  params.splice(0, 0, node);
   var result = devtools$$obj[functionName].apply(devtools$$obj, params);
   return JSON.stringify(result);
 };
@@ -51,9 +53,14 @@ var dispatch = function(method, var_args) {
     // Skip first argument since it is serializable.
     // Method has index 0, first argument has index 1. Skip both.
     for (var i = 2; i < args.length; ++i) {
-      args[i] = devtools$$obj.wrapConsoleObject(args[i]);
+      var type = typeof args[i];
+      if (type == 'object') {
+        args[i] = Object.prototype.toString(args[i]);
+      } else if (type == 'function') {
+        args[i] = args[i].toString();
+      }
     }
   }
   var call = JSON.stringify(args);
-  DevToolsAgentHost.dispatch(call);
+  RemoteWebInspector.dispatch(call);
 };

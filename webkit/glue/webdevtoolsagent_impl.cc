@@ -42,8 +42,6 @@ using WebCore::Node;
 using WebCore::Page;
 using WebCore::ScriptValue;
 using WebCore::String;
-using WebCore::V8ClassIndex;
-using WebCore::V8Proxy;
 
 WebDevToolsAgentImpl::WebDevToolsAgentImpl(
     WebViewImpl* web_view_impl,
@@ -85,15 +83,21 @@ void WebDevToolsAgentImpl::Attach() {
     // Reuse existing context in case detached/attached.
     if (utility_context_.IsEmpty()) {
       debugger_agent_impl_->ResetUtilityContext(doc, &utility_context_);
-      InitDevToolsAgentHost();
     }
-
     dom_agent_impl_->SetDocument(doc);
+    web_inspector_stub_.set(
+        new BoundObject(utility_context_, this, "RemoteWebInspector"));
+    web_inspector_stub_->AddProtoFunction(
+        "dispatch",
+        WebDevToolsAgentImpl::JsDispatchOnClient);
+    web_inspector_stub_->Build();
 
     InspectorController* ic = web_view_impl_->page()->inspectorController();
+
     // Unhide resources panel if necessary.
     tools_agent_delegate_stub_->SetResourcesPanelEnabled(
         ic->resourceTrackingEnabled());
+
     v8::HandleScope scope;
     ic->setFrontendProxyObject(
         scriptStateFromPage(web_view_impl_->page()),
@@ -109,7 +113,7 @@ void WebDevToolsAgentImpl::Detach() {
   InspectorController* ic = web_view_impl_->page()->inspectorController();
   ic->setWindowVisible(false, false);
   HideDOMNodeHighlight();
-  devtools_agent_host_.set(NULL);
+  web_inspector_stub_.set(NULL);
   debugger_agent_impl_.set(NULL);
   dom_agent_impl_.set(NULL);
   attached_ = false;
@@ -129,9 +133,6 @@ void WebDevToolsAgentImpl::SetMainFrameDocumentReady(bool ready) {
     doc = NULL;
   }
   debugger_agent_impl_->ResetUtilityContext(doc, &utility_context_);
-  if (doc) {
-    InitDevToolsAgentHost();
-  }
   dom_agent_impl_->SetDocument(doc);
 }
 
@@ -183,14 +184,31 @@ void WebDevToolsAgentImpl::HideDOMNodeHighlight() {
   }
 }
 
+void WebDevToolsAgentImpl::EvaluateJavaScript(int call_id, const String& js) {
+  String result;
+  bool is_exception = false;
+
+  Page* page = web_view_impl_->page();
+  if (page->mainFrame()) {
+    result = debugger_agent_impl_->EvaluateJavaScript(page->mainFrame(),
+        js, &is_exception);
+  }
+  tools_agent_delegate_stub_->DidEvaluateJavaScript(
+      call_id, result, is_exception);
+}
+
 void WebDevToolsAgentImpl::ExecuteUtilityFunction(
       int call_id,
       const String& function_name,
+      int node_id,
       const String& json_args) {
+  Node* node = dom_agent_impl_->GetNodeForId(node_id);
   String result;
   String exception;
-  result = debugger_agent_impl_->ExecuteUtilityFunction(utility_context_,
-      function_name, json_args, &exception);
+  if (node) {
+    result = debugger_agent_impl_->ExecuteUtilityFunction(utility_context_,
+        function_name, node, json_args, &exception);
+  }
   tools_agent_delegate_stub_->DidExecuteUtilityFunction(call_id,
       result, exception);
 }
@@ -276,18 +294,6 @@ void WebDevToolsAgentImpl::SendRpcMessage(
   delegate_->SendMessageToClient(class_name, method_name, raw_msg);
 }
 
-void WebDevToolsAgentImpl::InitDevToolsAgentHost() {
-  devtools_agent_host_.set(
-      new BoundObject(utility_context_, this, "DevToolsAgentHost"));
-  devtools_agent_host_->AddProtoFunction(
-      "dispatch",
-      WebDevToolsAgentImpl::JsDispatchOnClient);
-  devtools_agent_host_->AddProtoFunction(
-      "getNodeForId",
-      WebDevToolsAgentImpl::JsGetNodeForId);
-  devtools_agent_host_->Build();
-}
-
 // static
 v8::Handle<v8::Value> WebDevToolsAgentImpl::JsDispatchOnClient(
     const v8::Arguments& args) {
@@ -300,16 +306,6 @@ v8::Handle<v8::Value> WebDevToolsAgentImpl::JsDispatchOnClient(
       v8::External::Cast(*args.Data())->Value());
   agent->tools_agent_delegate_stub_->DispatchOnClient(message);
   return v8::Undefined();
-}
-
-// static
-v8::Handle<v8::Value> WebDevToolsAgentImpl::JsGetNodeForId(
-    const v8::Arguments& args) {
-  int node_id = static_cast<int>(args[0]->NumberValue());
-  WebDevToolsAgentImpl* agent = static_cast<WebDevToolsAgentImpl*>(
-      v8::External::Cast(*args.Data())->Value());
-  Node* node = agent->dom_agent_impl_->GetNodeForId(node_id);
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, node);
 }
 
 // static

@@ -840,8 +840,8 @@ devtools.DomAgent.prototype.getNodePropertiesAsync = function(nodeId,
     path, protoDepth, callback) {
   var callbackId = this.utilityFunctionCallbackWrapper_(callback);
   RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
-      'getProperties',
-      JSON.stringify([nodeId, path, protoDepth]));
+      'getProperties', nodeId,
+      JSON.stringify([path, protoDepth]));
 };
 
 
@@ -854,7 +854,7 @@ devtools.DomAgent.prototype.getNodePrototypesAsync = function(nodeId,
     callback) {
   var callbackId = this.utilityFunctionCallbackWrapper_(callback);
   RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
-      'getPrototypes', JSON.stringify([nodeId]));
+      'getPrototypes', nodeId, '[]');
 };
 
 
@@ -869,7 +869,8 @@ devtools.DomAgent.prototype.getNodeStylesAsync = function(node,
   var callbackId = this.utilityFunctionCallbackWrapper_(callback);
   RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
       'getStyles',
-      JSON.stringify([node.id_, authorOnly]));
+      node.id_,
+      JSON.stringify([authorOnly]));
 };
 
 
@@ -885,7 +886,8 @@ devtools.DomAgent.prototype.toggleNodeStyleAsync = function(
   var callbackId = this.utilityFunctionCallbackWrapper_(callback);
   RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
       'toggleNodeStyle',
-      JSON.stringify([style.nodeId_, style.id_, enabled, name]));
+      style.nodeId_,
+      JSON.stringify([style.id_, enabled, name]));
 };
 
 
@@ -902,7 +904,8 @@ devtools.DomAgent.prototype.applyStyleTextAsync = function(
   RemoteToolsAgent.ExecuteUtilityFunction(
       callbackId,
       'applyStyleText',
-      JSON.stringify([style.nodeId_, style.id_, name, styleText]));
+      style.nodeId_,
+      JSON.stringify([style.id_, name, styleText]));
 };
 
 
@@ -919,7 +922,8 @@ devtools.DomAgent.prototype.setStylePropertyAsync = function(
   RemoteToolsAgent.ExecuteUtilityFunction(
       callbackId,
       'setStyleProperty',
-      JSON.stringify([node.id_, name, value]));
+      node.id_,
+      JSON.stringify([name, value]));
 };
 
 
