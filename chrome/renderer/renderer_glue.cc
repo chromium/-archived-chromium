@@ -225,7 +225,7 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
     ResourceType::Type resource_type,
     int app_cache_context_id,
     int routing_id) {
-  ResourceDispatcher* dispatch = RenderThread::current()->resource_dispatcher();
+  ResourceDispatcher* dispatch = ChildThread::current()->resource_dispatcher();
   return dispatch->CreateBridge(method, url, first_party_for_cookies, referrer,
                                 frame_origin, main_frame_origin, headers,
                                 load_flags, origin_pid, resource_type, 0,
@@ -236,7 +236,7 @@ void NotifyCacheStats() {
   // Update the browser about our cache
   // NOTE: Since this can be called from the plugin process, we might not have
   // a RenderThread.  Do nothing in that case.
-  if (!IsPluginProcess())
+  if (RenderThread::current())
     RenderThread::current()->InformHostOfCacheStatsLater();
 }
 

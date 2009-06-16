@@ -19,6 +19,8 @@ class Strng;
 class WorkerThread;
 };
 
+class WebView;
+
 // This class is used by the worker process code to talk to the WebCore::Worker
 // implementation.  It can't use it directly since it uses WebKit types, so this
 // class converts the data types.  When the WebCore::Worker object wants to call
@@ -113,6 +115,11 @@ class WebWorkerImpl: public WebCore::WorkerObjectProxy,
       WebWorkerImpl* this_ptr);
 
   WebKit::WebWorkerClient* client_;
+
+  // 'shadow page' - created to proxy loading requests from the worker.
+  WTF::RefPtr<WebCore::ScriptExecutionContext> loading_document_;
+  WebView* web_view_;
+
   WTF::RefPtr<WebCore::WorkerThread> worker_thread_;
 
   DISALLOW_COPY_AND_ASSIGN(WebWorkerImpl);

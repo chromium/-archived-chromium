@@ -34,6 +34,9 @@ class ChildThread : public IPC::Channel::Listener,
     return resource_dispatcher_.get();
   }
 
+  // Returns the one child thread.
+  static ChildThread* current();
+
  protected:
   friend class ChildProcess;
 
@@ -51,9 +54,6 @@ class ChildThread : public IPC::Channel::Listener,
   static const size_t kV8StackSize;
 
   virtual void OnControlMessageReceived(const IPC::Message& msg) { }
-
-  // Returns the one child thread.
-  static ChildThread* current();
 
   IPC::SyncChannel* channel() { return channel_.get(); }
 
