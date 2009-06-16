@@ -3104,4 +3104,56 @@ TEST_F(HttpNetworkTransactionTest, ResolveMadeWithReferrer) {
   EXPECT_TRUE(resolution_observer.did_complete_with_expected_referrer());
 }
 
+// Make sure that when the load flags contain LOAD_BYPASS_CACHE, the resolver's
+// host cache is bypassed.
+TEST_F(HttpNetworkTransactionTest, BypassHostCacheOnRefresh) {
+  SessionDependencies session_deps;
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(&session_deps), &session_deps.socket_factory));
+
+  // Warm up the host cache so it has an entry for "www.google.com" (by doing
+  // a synchronous lookup.)
+  AddressList addrlist;
+  int rv = session_deps.host_resolver.Resolve(
+    HostResolver::RequestInfo("www.google.com", 80), &addrlist, NULL, NULL);
+  EXPECT_EQ(OK, rv);
+
+  // Verify that it was added to host cache, by doing a subsequent async lookup
+  // and confirming it completes synchronously.
+  TestCompletionCallback resolve_callback;
+  rv = session_deps.host_resolver.Resolve(
+      HostResolver::RequestInfo("www.google.com", 80), &addrlist,
+      &resolve_callback, NULL);
+  EXPECT_EQ(OK, rv);
+
+  // Inject a failure the next time that "www.google.com" is resolved. This way
+  // we can tell if the next lookup hit the cache, or the "network".
+  // (cache --> success, "network" --> failure).
+  scoped_refptr<RuleBasedHostMapper> host_mapper(new RuleBasedHostMapper());
+  ScopedHostMapper scoped_host_mapper(host_mapper.get());
+  host_mapper->AddSimulatedFailure("www.google.com");
+
+  // Connect up a mock socket which will fail with ERR_UNEXPECTED during the
+  // first read -- this won't be reached as the host resolution will fail first.
+  MockRead data_reads[] = { MockRead(false, ERR_UNEXPECTED) };
+  StaticMockSocket data(data_reads, NULL);
+  session_deps.socket_factory.AddMockSocket(&data);
+
+  // Issue a request, asking to bypass the cache(s).
+  HttpRequestInfo request;
+  request.method = "GET";
+  request.load_flags = LOAD_BYPASS_CACHE;
+  request.url = GURL("http://www.google.com/");
+
+  // Run the request.
+  TestCompletionCallback callback;
+  rv = trans->Start(&request, &callback);
+  ASSERT_EQ(ERR_IO_PENDING, rv);
+  rv = callback.WaitForResult();
+
+  // If we bypassed the cache, we would have gotten a failure while resolving
+  // "www.google.com".
+  EXPECT_EQ(ERR_NAME_NOT_RESOLVED, rv);
+}
+
 }  // namespace net

@@ -577,16 +577,11 @@ int HttpNetworkTransaction::DoInitConnection() {
   // that we resolve to.
   resolve_info.set_referrer(request_->referrer);
 
-// TODO(eroman): Enable this!
-// Needs some unit-tests before turning on.
-// http://crbug.com/13163
-#if 0
   // If the user is refreshing the page, bypass the host cache.
   if (request_->load_flags & LOAD_BYPASS_CACHE ||
       request_->load_flags & LOAD_DISABLE_CACHE) {
-    resolve_info.allow_cached_response = false;
+    resolve_info.set_allow_cached_response(false);
   }
-#endif
 
   int rv = connection_.Init(connection_group, resolve_info, request_->priority,
                             &io_callback_);
