@@ -263,8 +263,11 @@ void RenderWidgetHostViewMac::Destroy() {
 // Gecko does this automatically in the back-end, hence the ToolTip class not
 // needing that functionality. We can either modify ToolTip or add this
 // functionality here with a timer.
+// TODO(pinkerton): This code really needs to live at a higher level because
+// right now it allows multiple views in multiple tabs to each be displaying
+// a tooltip simultaneously (http://crbug.com/14178).
 void RenderWidgetHostViewMac::SetTooltipText(const std::wstring& tooltip_text) {
-  if (tooltip_text != tooltip_text_) {
+  if (tooltip_text != tooltip_text_ && [[cocoa_view_ window] isMainWindow]) {
     tooltip_text_ = tooltip_text;
 
     // Clamp the tooltip length to kMaxTooltipLength. It's a DOS issue on
