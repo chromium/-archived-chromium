@@ -305,11 +305,40 @@ void WebMediaPlayerClientImpl::setSize(const IntSize& size)
 
 void WebMediaPlayerClientImpl::paint(GraphicsContext* context, const IntRect& rect)
 {
-    // FIXME: enable this for mac.
+    if (m_webMediaPlayer.get()) {
 #if WEBKIT_USING_SKIA
-    if (m_webMediaPlayer.get())
         m_webMediaPlayer->paint(context->platformContext()->canvas(), rect);
+#elif WEBKIT_USING_CG
+        // If there is no preexisting platform canvas, or if the size has
+        // changed, recreate the canvas.  This is to avoid recreating the bitmap
+        // buffer over and over for each frame of video.
+        if (!m_webCanvas ||
+            m_webCanvas->getDevice()->width() != rect.width() ||
+            m_webCanvas->getDevice()->height() != rect.height()) {
+            m_webCanvas.set(new WebCanvas(rect.width(), rect.height(), true));
+        }
+
+        IntRect normalized_rect(0, 0, rect.width(), rect.height());
+        m_webMediaPlayer->paint(m_webCanvas.get(), normalized_rect);
+
+        // The mac coordinate system is flipped vertical from the normal skia
+        // coordinates.  During painting of the frame, flip the coordinates
+        // system and, for simplicity, also translate the clip rectangle to
+        // start at 0,0.
+        CGContext* cgContext = context->platformContext();
+        CGContextSaveGState(cgContext);
+        CGContextTranslateCTM(cgContext, rect.x(), rect.height() + rect.y());
+        CGContextScaleCTM(cgContext, 1.0, -1.0);
+        CGRect normalized_cgrect = normalized_rect;  // For DrawToContext.
+
+        m_webCanvas->getTopPlatformDevice().DrawToContext(
+            context->platformContext(), 0, 0, &normalized_cgrect);
+
+        CGContextRestoreGState(cgContext);
+#else
+        notImplemented();
 #endif
+    }
 }
 
 void WebMediaPlayerClientImpl::setAutobuffer(bool autoBuffer)

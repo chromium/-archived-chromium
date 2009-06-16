@@ -80,10 +80,7 @@ namespace WebKit {
 
         virtual void setSize(const WebSize&) = 0;
 
-        // TODO(hclam): enable this for mac.
-#if WEBKIT_USING_SKIA
         virtual void paint(WebCanvas*, const WebRect&) = 0;
-#endif
 
         // True if a video is loaded.
         virtual bool hasVideo() const = 0;

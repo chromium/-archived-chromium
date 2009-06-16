@@ -93,10 +93,7 @@ class WebMediaPlayerImpl : public WebKit::WebMediaPlayer,
   // Methods for painting.
   virtual void setSize(const WebKit::WebSize& size);
 
-  // TODO(hclam): enable this for mac.
-#if WEBKIT_USING_SKIA
   virtual void paint(WebKit::WebCanvas* canvas, const WebKit::WebRect& rect);
-#endif
 
   // True if a video is loaded.
   virtual bool hasVideo() const;

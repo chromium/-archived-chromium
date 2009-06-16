@@ -33,8 +33,6 @@
 
 #include "WebCommon.h"
 
-#if WEBKIT_USING_SKIA && (defined(WIN32) || defined(__linux__))
-
 namespace skia {
     class PlatformCanvas;
 }
@@ -42,7 +40,5 @@ namespace skia {
 namespace WebKit {
     typedef skia::PlatformCanvas WebCanvas;
 }
-
-#endif
 
 #endif

@@ -36,6 +36,7 @@
 #include "WebMediaPlayerClient.h"
 
 #include "MediaPlayerPrivate.h"
+#include "WebCanvas.h"
 #include <wtf/OwnPtr.h>
 
 namespace WebKit {
@@ -98,6 +99,7 @@ namespace WebKit {
 
         WebCore::MediaPlayer* m_mediaPlayer;
         OwnPtr<WebMediaPlayer> m_webMediaPlayer;
+        OwnPtr<WebKit::WebCanvas> m_webCanvas;
     };
 
 } // namespace WebKit
