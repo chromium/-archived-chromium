@@ -35,6 +35,7 @@ class DownloadShelfView : public DownloadShelf,
                           public AnimationDelegate {
  public:
   explicit DownloadShelfView(Browser* browser, BrowserView* parent);
+  virtual ~DownloadShelfView();
 
   // Implementation of View.
   virtual gfx::Size GetPreferredSize();

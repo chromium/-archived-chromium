@@ -77,6 +77,10 @@ DownloadShelfView::DownloadShelfView(Browser* browser, BrowserView* parent)
   Init();
 }
 
+DownloadShelfView::~DownloadShelfView() {
+  parent_->RemoveChildView(this);
+}
+
 void DownloadShelfView::Init() {
   ResourceBundle &rb = ResourceBundle::GetSharedInstance();
   arrow_image_ = new views::ImageView();
