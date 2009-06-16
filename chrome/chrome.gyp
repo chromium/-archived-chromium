@@ -3711,6 +3711,43 @@
         }],
       ],
     },
+    {
+      'target_name': 'url_fetch_test',
+      'type': 'executable',
+      'msvs_guid': '7EFD0C91-198E-4043-9E71-4A4C7879B929',
+      'dependencies': [
+        'app',
+        'test_support_common',
+        'test_support_ui',
+        'theme_resources',
+        '../net/net.gyp:net',
+        '../skia/skia.gyp:skia',
+        '../testing/gtest.gyp:gtest',
+      ],
+      'include_dirs': [
+        '..',
+      ],
+      'sources': [
+        'test/url_fetch_test/url_fetch_test.cc',
+      ],
+      'conditions': [
+        ['OS=="win"', {
+          'include_dirs': [
+            'third_party/wtl/include',
+          ],
+          'sources': [
+            'tools/build/win/precompiled_wtl.cc',
+            'tools/build/win/precompiled_wtl.h',
+          ],
+          'configurations': {
+            'Debug': {
+              'msvs_precompiled_header': 'tools/build/win/precompiled_wtl.h',
+              'msvs_precompiled_source': 'tools/build/win/precompiled_wtl.cc',
+            },
+          },
+        }], # OS="win"
+      ], # conditions
+    },
   ],
   'conditions': [
     # We set feature variables so the different parts that need to check for
@@ -4574,35 +4611,6 @@
                   'LinkIncremental': '1',       # /INCREMENTAL:NO
                 },
               },
-            },
-          },
-        },
-        {
-          'target_name': 'url_fetch_test',
-          'type': 'executable',
-          'msvs_guid': '7EFD0C91-198E-4043-9E71-4A4C7879B929',
-          'dependencies': [
-            'test_support_common',
-            'test_support_ui',
-            'theme_resources',
-            '../net/net.gyp:net',
-            '../skia/skia.gyp:skia',
-            '../testing/gtest.gyp:gtest',
-          ],
-          'include_dirs': [
-            '..',
-            'third_party/wtl/include',
-          ],
-          'sources': [
-            'test/url_fetch_test/url_fetch_test.cc',
-
-            'tools/build/win/precompiled_wtl.cc',
-            'tools/build/win/precompiled_wtl.h',
-          ],
-          'configurations': {
-            'Debug': {
-              'msvs_precompiled_header': 'tools/build/win/precompiled_wtl.h',
-              'msvs_precompiled_source': 'tools/build/win/precompiled_wtl.cc',
             },
           },
         },

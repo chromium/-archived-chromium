@@ -54,13 +54,10 @@ class UrlFetchTest : public UITest {
   }
 };
 
-}  // namespace
-
-
 bool writeValueToFile(std::string value, std::wstring filePath) {
   int retval = file_util::WriteFile(
-      FilePath(filePath), value.c_str(), value.length());
-  return retval == value.length();
+      FilePath::FromWStringHack(filePath), value.c_str(), value.length());
+  return retval == static_cast<int>(value.length());
 }
 
 // To actually do anything useful, this test should have a url
@@ -102,7 +99,7 @@ TEST_F(UrlFetchTest, UrlFetch) {
   std::wstring jsvar = cmdLine->GetSwitchValue(L"jsvar");
 
   UrlFetchTestResult result;
-  RunTest(GURL(cmdLine->GetSwitchValue(L"url")),
+  RunTest(GURL(WideToASCII(cmdLine->GetSwitchValue(L"url"))),
           cookieName.length() > 0 ? cookieName.c_str() : NULL,
           cookieValue.length() > 0 ? cookieValue.c_str() : NULL,
           jsvar.length() > 0 ? jsvar.c_str() : NULL,
@@ -121,3 +118,5 @@ TEST_F(UrlFetchTest, UrlFetch) {
     ASSERT_TRUE(writeValueToFile(result.javascript_variable, jsvarOutputPath));
   }
 }
+
+}  // namespace
