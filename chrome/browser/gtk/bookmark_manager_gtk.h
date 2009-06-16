@@ -76,7 +76,7 @@ class BookmarkManagerGtk : public BookmarkModelObserver {
   std::vector<BookmarkNode*> GetRightSelection();
 
   // Stick node in the store that backs the right-side tree view.
-  void AppendNodeToRightStore(BookmarkNode* node, GtkTreeIter* iter);
+  void AppendNodeToRightStore(BookmarkNode* node, int index);
 
   GtkTreeSelection* left_selection() {
     return gtk_tree_view_get_selection(GTK_TREE_VIEW(left_tree_view_));

@@ -112,11 +112,7 @@ void BookmarkManagerGtk::BookmarkNodeAdded(BookmarkModel* model,
 
   // Update right store.
   if (parent->id() == GetFolder()->id()) {
-    GtkTreeIter iter = { 0, };
-    if (RecursiveFind(GTK_TREE_MODEL(right_store_), &iter,
-        parent->GetChild(index - 1)->id())) {
-      AppendNodeToRightStore(node, &iter);
-    }
+    AppendNodeToRightStore(node, index);
   }
 }
 
@@ -312,24 +308,24 @@ GtkWidget* BookmarkManagerGtk::MakeRightPane() {
   g_signal_connect(right_selection(), "changed",
                    G_CALLBACK(OnRightSelectionChanged), this);
 
-  gtk_tree_view_enable_model_drag_source(GTK_TREE_VIEW(right_tree_view_),
-                                         GDK_BUTTON1_MASK,
-                                         bookmark_utils::kTargetTable,
-                                         bookmark_utils::kTargetTableSize,
-                                         GDK_ACTION_MOVE);
-  gtk_tree_view_enable_model_drag_dest(GTK_TREE_VIEW(right_tree_view_),
-                                       bookmark_utils::kTargetTable,
-                                       bookmark_utils::kTargetTableSize,
-                                       GDK_ACTION_MOVE);
+  // TODO(estade): support GDK_ACTION_COPY for dragging to other apps.
+  gtk_drag_source_set(right_tree_view_,
+                      GDK_BUTTON1_MASK,
+                      bookmark_utils::kTargetTable,
+                      bookmark_utils::kTargetTableSize,
+                      GDK_ACTION_MOVE);
+  gtk_drag_dest_set(right_tree_view_, GTK_DEST_DEFAULT_ALL,
+                    bookmark_utils::kTargetTable,
+                    bookmark_utils::kTargetTableSize,
+                    GDK_ACTION_MOVE);
   g_signal_connect(right_tree_view_, "drag-data-get",
                    G_CALLBACK(&OnRightTreeViewDragGet), this);
   g_signal_connect(right_tree_view_, "drag-data-received",
                    G_CALLBACK(&OnRightTreeViewDragReceived), this);
   g_signal_connect(right_tree_view_, "drag-motion",
                    G_CALLBACK(&OnRightTreeViewDragMotion), this);
-  // Connect after so we can overwrite the drag icon.
-  g_signal_connect_after(right_tree_view_, "drag-begin",
-                         G_CALLBACK(&OnRightTreeViewDragBegin), this);
+  g_signal_connect(right_tree_view_, "drag-begin",
+                   G_CALLBACK(&OnRightTreeViewDragBegin), this);
 
   GtkWidget* scrolled = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled),
@@ -356,11 +352,9 @@ void BookmarkManagerGtk::BuildRightStore() {
   // or search), but until then we require that node != NULL.
   DCHECK(node);
   gtk_list_store_clear(right_store_);
-  GtkTreeIter iter;
 
-  for (int i = 0; i < node->GetChildCount(); ++i) {
-    AppendNodeToRightStore(node->GetChild(i), &iter);
-  }
+  for (int i = 0; i < node->GetChildCount(); ++i)
+    AppendNodeToRightStore(node->GetChild(i), i);
 }
 
 BookmarkNode* BookmarkManagerGtk::GetNodeAt(GtkTreeModel* model,
@@ -401,10 +395,19 @@ std::vector<BookmarkNode*> BookmarkManagerGtk::GetRightSelection() {
 }
 
 void BookmarkManagerGtk::AppendNodeToRightStore(BookmarkNode* node,
-                                                GtkTreeIter* iter) {
+                                                int index) {
+  GtkTreeIter iter;
+  if (index == 0) {
+    gtk_tree_model_get_iter_first(GTK_TREE_MODEL(right_store_), &iter);
+    gtk_list_store_prepend(right_store_, &iter);
+  } else {
+    gtk_tree_model_iter_nth_child(GTK_TREE_MODEL(right_store_), &iter, NULL,
+                                  index - 1);
+    gtk_list_store_append(right_store_, &iter);
+  }
+
   GdkPixbuf* pixbuf = bookmark_utils::GetPixbufForNode(node, model_);
-  gtk_list_store_append(right_store_, iter);
-  gtk_list_store_set(right_store_, iter,
+  gtk_list_store_set(right_store_, &iter,
                      RIGHT_PANE_PIXBUF, pixbuf,
                      RIGHT_PANE_TITLE, WideToUTF8(node->GetTitle()).c_str(),
                      RIGHT_PANE_URL, node->GetURL().spec().c_str(),
@@ -516,7 +519,7 @@ void BookmarkManagerGtk::OnLeftTreeViewDragReceived(
        it != nodes.end(); ++it) {
     // Don't try to drop a node into one of its descendants.
     if (!folder->HasAncestor(*it))
-      bm->model_->Move(*it, folder, 0);
+      bm->model_->Move(*it, folder, folder->GetChildCount());
   }
 
   gtk_tree_path_free(path);

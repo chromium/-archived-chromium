@@ -632,6 +632,8 @@ void BookmarkBarGtk::OnButtonDragBegin(GtkWidget* button,
 void BookmarkBarGtk::OnButtonDragEnd(GtkWidget* button,
                                      GdkDragContext* drag_context,
                                      BookmarkBarGtk* bar) {
+  gtk_widget_show(button);
+
   if (bar->toolbar_drop_item_) {
     g_object_unref(bar->toolbar_drop_item_);
     bar->toolbar_drop_item_ = NULL;
@@ -639,6 +641,8 @@ void BookmarkBarGtk::OnButtonDragEnd(GtkWidget* button,
 
   DCHECK(bar->dragged_node_);
   bar->dragged_node_ = NULL;
+
+  g_object_unref(button->parent);
 }
 
 // static
