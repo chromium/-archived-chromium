@@ -516,6 +516,10 @@ TEST_F(ExtensionsServiceTest, PackExtension) {
   ASSERT_TRUE(creator->Run(input_directory, crx_path, FilePath(),
       privkey_path));
 
+  std::string priv_key;
+  file_util::ReadFileToString(crx_path, &priv_key);
+  LOG(INFO) << "Private key:\n" << priv_key;
+
   ASSERT_TRUE(file_util::PathExists(privkey_path));
   InstallExtension(crx_path, true);
 
