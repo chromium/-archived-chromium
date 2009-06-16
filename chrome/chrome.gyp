@@ -2267,7 +2267,6 @@
       'type': 'executable',
       'mac_bundle': 1,
       'msvs_guid': '7B219FAA-E360-43C8-B341-804A94EEFFAC',
-      'msvs_existing_vcproj': 'app/chrome_exe.vcproj',
       'sources': [
         # All .cc, .h, .m, and .mm files under app except for tests.
         'app/breakpad_win.cc',
