@@ -4,7 +4,10 @@
 
 #include "chrome/browser/extensions/external_pref_extension_provider.h"
 
+#include "app/app_paths.h"
 #include "base/file_path.h"
+#include "base/file_util.h"
+#include "base/path_service.h"
 #include "base/string_util.h"
 #include "base/version.h"
 
@@ -56,10 +59,31 @@ void ExternalPrefExtensionProvider::VisitRegisteredExtension(
       continue;
     }
 
+    if (external_crx.find(FilePath::kParentDirectory) != StringPiece::npos) {
+      LOG(WARNING) << "Path traversal not allowed in path: "
+                   << external_crx.c_str();
+      continue;
+    }
+
+    // See if it's an absolute path...
+    FilePath path(external_crx);
+    if (!path.IsAbsolute()) {
+      // Try path as relative path from external extension dir.
+      FilePath base_path;
+      PathService::Get(app::DIR_EXTERNAL_EXTENSIONS, &base_path);
+      path = base_path.Append(external_crx);
+    }
+
+    if (!file_util::PathExists(path)) {
+      LOG(WARNING) << "Cannot find extension: " << external_crx.c_str();
+      continue;  // Path is neither absolute nor relative. Might be
+                 // meta-physical, but we don't support those (yet).
+    }
+
     scoped_ptr<Version> version;
     version.reset(Version::GetVersionFromString(external_version));
     visitor->OnExternalExtensionFound(
-        WideToASCII(extension_id), version.get(), FilePath(external_crx));
+        WideToASCII(extension_id), version.get(), path);
   }
 }
 

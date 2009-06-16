@@ -37,6 +37,12 @@ bool PathProvider(int key, FilePath* result) {
 #endif
       create_dir = true;
       break;
+    case app::DIR_EXTERNAL_EXTENSIONS:
+      if (!PathService::Get(base::DIR_MODULE, &cur))
+        return false;
+      cur = cur.Append(FILE_PATH_LITERAL("extensions"));
+      create_dir = true;
+      break;
     // The following are only valid in the development environment, and
     // will fail if executed from an installed executable (because the
     // generated path won't exist).
