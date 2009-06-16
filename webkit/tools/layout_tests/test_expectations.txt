@@ -2120,6 +2120,7 @@ BUG9786 : LayoutTests/fast/dom/Window/dom-access-from-closure-iframe.html = FAIL
 BUG9786 : LayoutTests/fast/dom/Window/dom-access-from-closure-window.html = FAIL
 BUG9786 : LayoutTests/http/tests/security/cross-frame-access-history-prototype.html = FAIL
 BUG9786 : LayoutTests/http/tests/security/cross-frame-access-location-prototype.html = FAIL
+BUG9786 : LayoutTests/http/tests/security/cross-frame-access-document-direct.html = TIMEOUT
 BUG9787 WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
 BUG9787 : LayoutTests/svg/W3C-SVG-1.1/coords-trans-01-b.svg = FAIL
 BUG9787 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
@@ -2722,15 +2723,6 @@ BUG12477 : LayoutTests/http/tests/security/drag-over-remote-content-iframe.html 
 // WebKit 44152-44202 introduced new tests
 BUG12753 WIN LINUX : LayoutTests/fast/dynamic/window-resize-scrollbars-test.html = FAIL
 BUG12753 WIN LINUX : LayoutTests/fast/dynamic/window-scrollbars-test.html = FAIL
-
-// WebKit 44202:44252 introduced new crashes. There appears to be some flakyness
-// here where sometimes some tests pass or crash.
-BUG12860 : LayoutTests/http/tests/security/cross-frame-access-document-direct.html = CRASH TIMEOUT
-BUG12860 : LayoutTests/http/tests/xmlhttprequest/uri-resolution-opera-open-007.html = CRASH PASS TIMEOUT
-BUG12860 : LayoutTests/http/tests/xmlhttprequest/web-apps/003.html = CRASH PASS
-BUG12860 : LayoutTests/http/tests/xmlhttprequest/uri-resolution-opera-open-006.html = CRASH PASS
-BUG12860 : LayoutTests/http/tests/xmlhttprequest/web-apps/002-simple.html = CRASH PASS
-BUG12860 : LayoutTests/fast/frames/iframe-name-and-id.html = CRASH PASS
 
 // WebKit 44202:44252 introduced new tests
 BUG12881 WIN LINUX : LayoutTests/fast/forms/isindex-placeholder.html = FAIL
