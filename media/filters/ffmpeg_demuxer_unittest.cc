@@ -10,6 +10,7 @@
 #include "media/base/filters.h"
 #include "media/base/mock_filter_host.h"
 #include "media/base/mock_media_filters.h"
+#include "media/base/mock_reader.h"
 #include "media/filters/ffmpeg_common.h"
 #include "media/filters/ffmpeg_demuxer.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -192,60 +193,7 @@ int av_seek_frame(AVFormatContext *format, int stream_index, int64_t timestamp,
 
 }  // extern "C"
 
-using namespace media;
-
-namespace {
-
-// Ref counted object so we can create callbacks to call DemuxerStream::Read().
-class TestReader : public base::RefCountedThreadSafe<TestReader> {
- public:
-  TestReader()
-      : called_(false),
-        expecting_call_(false),
-        wait_for_read_(false, false) {
-  }
-
-  virtual ~TestReader() {}
-
-  void Reset() {
-    EXPECT_FALSE(expecting_call_);
-    expecting_call_ = false;
-    called_ = false;
-    buffer_ = NULL;
-    wait_for_read_.Reset();
-  }
-
-  void Read(DemuxerStream* stream) {
-    EXPECT_FALSE(expecting_call_);
-    called_ = false;
-    expecting_call_ = true;
-    stream->Read(NewCallback(this, &TestReader::ReadComplete));
-  }
-
-  void ReadComplete(Buffer* buffer) {
-    EXPECT_FALSE(called_);
-    EXPECT_TRUE(expecting_call_);
-    expecting_call_ = false;
-    called_ = true;
-    buffer_ = buffer;
-    wait_for_read_.Signal();
-  }
-
-  bool WaitForRead() {
-    return wait_for_read_.TimedWait(base::TimeDelta::FromMilliseconds(500));
-  }
-
-  // Mock getters/setters.
-  Buffer* buffer() { return buffer_; }
-  bool called() { return called_; }
-  bool expecting_call() { return expecting_call_; }
-
- private:
-  scoped_refptr<Buffer> buffer_;
-  bool called_;
-  bool expecting_call_;
-  base::WaitableEvent wait_for_read_;
-};
+namespace media {
 
 // Fixture class to facilitate writing tests.  Takes care of setting up the
 // FFmpeg, pipeline and filter host mocks.
@@ -476,7 +424,7 @@ TEST_F(FFmpegDemuxerTest, ReadAndSeek) {
   PacketQueue::get()->Enqueue(kPacketAudio, kDataSize, audio_data);
 
   // Attempt a read from the audio stream and run the message loop until done.
-  scoped_refptr<TestReader> reader(new TestReader());
+  scoped_refptr<DemuxerStreamReader> reader(new DemuxerStreamReader());
   reader->Read(audio_stream);
   pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
@@ -523,7 +471,7 @@ TEST_F(FFmpegDemuxerTest, ReadAndSeek) {
   PacketQueue::get()->Enqueue(kPacketAudio, kDataSize, audio_data);
 
   // Audio read #1, should be discontinuous.
-  reader = new TestReader();
+  reader = new DemuxerStreamReader();
   reader->Read(audio_stream);
   pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
@@ -583,7 +531,7 @@ TEST_F(FFmpegDemuxerTest, ReadAndSeek) {
 
   // Attempt a read from video stream, which will force the demuxer to queue
   // the audio packets preceding the video packet.
-  reader = new TestReader();
+  reader = new DemuxerStreamReader();
   reader->Read(video_stream);
   pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
@@ -617,7 +565,7 @@ TEST_F(FFmpegDemuxerTest, ReadAndSeek) {
   g_av_read_frame = AVERROR_IO;
 
   // Attempt a read from the audio stream and run the message loop until done.
-  reader = new TestReader();
+  reader = new DemuxerStreamReader();
   reader->Read(audio_stream);
   pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
@@ -665,7 +613,7 @@ TEST_F(FFmpegDemuxerTest, DISABLED_MP3Hack) {
   // Audio read should perform a deep copy on the packet and instantly release
   // the original packet.  The data pointers should not be the same, but the
   // contents should match.
-  scoped_refptr<TestReader> reader = new TestReader();
+  scoped_refptr<DemuxerStreamReader> reader = new DemuxerStreamReader();
   reader->Read(audio_stream);
   pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
@@ -686,4 +634,4 @@ TEST_F(FFmpegDemuxerTest, DISABLED_MP3Hack) {
   EXPECT_EQ(0, g_outstanding_packets_av_new_frame);
 }
 
-}  // namespace
+}  // namespace media

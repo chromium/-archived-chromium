@@ -152,6 +152,7 @@
         'base/mock_filter_host.h',
         'base/mock_media_filters.h',
         'base/mock_pipeline.h',
+        'base/mock_reader.h',
         'base/pipeline_impl_unittest.cc',
         'base/run_all_unittests.cc',
         'base/seekable_buffer_unittest.cc',
