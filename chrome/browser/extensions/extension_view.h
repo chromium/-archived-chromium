@@ -8,6 +8,7 @@
 #include "build/build_config.h"
 
 #include "base/scoped_ptr.h"
+#include "chrome/common/notification_registrar.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "views/controls/native/native_view_host.h"
@@ -28,7 +29,8 @@ class ExtensionContainer {
 };
 
 // This handles the display portion of an ExtensionHost.
-class ExtensionView : public views::NativeViewHost {
+class ExtensionView : public views::NativeViewHost,
+                      public NotificationObserver {
  public:
   ExtensionView(ExtensionHost* host, Browser* browser);
   ~ExtensionView();
@@ -55,6 +57,11 @@ class ExtensionView : public views::NativeViewHost {
                                const gfx::Rect& current);
   virtual void ViewHierarchyChanged(bool is_add,
                                     views::View *parent, views::View *child);
+
+  // NotificationObserver:
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
 
  private:
   friend class ExtensionHost;
@@ -83,6 +90,9 @@ class ExtensionView : public views::NativeViewHost {
   // The container this view is in (not necessarily its direct superview).
   // Note: the view does not own its container.
   ExtensionContainer* container_;
+
+  // So that we can track browser window closing.
+  NotificationRegistrar registrar_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionView);
 };

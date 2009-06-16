@@ -10,12 +10,16 @@
 #if defined(OS_WIN)
 #include "chrome/browser/renderer_host/render_widget_host_view_win.h"
 #endif
+#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_type.h"
 #include "views/widget/widget.h"
 
 ExtensionView::ExtensionView(ExtensionHost* host, Browser* browser)
     : host_(host), browser_(browser),
       initialized_(false), pending_preferred_width_(0), container_(NULL) {
   host_->set_view(this);
+  registrar_.Add(this, NotificationType::BROWSER_CLOSED,
+                 Source<Browser>(browser_));
 }
 
 ExtensionView::~ExtensionView() {
@@ -117,6 +121,16 @@ void ExtensionView::ViewHierarchyChanged(bool is_add,
       render_view_host()->view()->SetBackground(pending_background_);
       pending_background_.reset();
     }
+  }
+}
+
+void ExtensionView::Observe(NotificationType type,
+                            const NotificationSource& source,
+                            const NotificationDetails& details) {
+  if (type == NotificationType::BROWSER_CLOSED) {
+    delete host_;  // which in turn deletes this
+  } else {
+    NOTREACHED();
   }
 }
 
