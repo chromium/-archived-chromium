@@ -9,6 +9,8 @@
 #include "base/logging.h"
 #include "base/task.h"
 
+using webkit_glue::PasswordForm;
+
 PasswordStoreDefault::PasswordStoreDefault(WebDataService* web_data_service)
     : web_data_service_(web_data_service) {
 }

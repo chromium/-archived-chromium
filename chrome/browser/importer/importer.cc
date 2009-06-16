@@ -47,6 +47,8 @@
 #include "chrome/browser/gtk/import_lock_dialog_gtk.h"
 #endif
 
+using webkit_glue::PasswordForm;
+
 // ProfileWriter.
 
 bool ProfileWriter::BookmarkModelIsLoaded() const {

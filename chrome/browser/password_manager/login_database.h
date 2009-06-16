@@ -28,13 +28,13 @@ class LoginDatabase {
   bool Init(const std::string& db_name);
 
   // Adds |form| to the list of remembered password forms.
-  bool AddLogin(const PasswordForm& form);
+  bool AddLogin(const webkit_glue::PasswordForm& form);
 
   // Updates remembered password form.
-  bool UpdateLogin(const PasswordForm& form);
+  bool UpdateLogin(const webkit_glue::PasswordForm& form);
 
   // Removes |form| from the list of remembered password forms.
-  bool RemoveLogin(const PasswordForm& form);
+  bool RemoveLogin(const webkit_glue::PasswordForm& form);
 
   // Removes all logins created from |delete_begin| onwards (inclusive) and
   // before |delete_end|. You may use a null Time value to do an unbounded
@@ -45,14 +45,14 @@ class LoginDatabase {
   // Loads a list of matching password forms into the specified vector |forms|.
   // The list will contain all possibly relevant entries to the observed |form|,
   // including blacklisted matches.
-  bool GetLogins(const PasswordForm& form,
-                 std::vector<PasswordForm*>* forms) const;
+  bool GetLogins(const webkit_glue::PasswordForm& form,
+                 std::vector<webkit_glue::PasswordForm*>* forms) const;
 
   // Loads the complete list of password forms into the specified vector |forms|
   // if include_blacklisted is true, otherwise only loads those which are
   // actually autofillable; i.e haven't been blacklisted by the user selecting
   // the 'Never for this site' button.
-  bool GetAllLogins(std::vector<PasswordForm*>* forms,
+  bool GetAllLogins(std::vector<webkit_glue::PasswordForm*>* forms,
                     bool include_blacklisted) const;
 
  protected:
@@ -69,7 +69,7 @@ class LoginDatabase {
  private:
   // Fills |form| from the values in the given statement (which is assumed to
   // be of the form used by GetLogins/GetAllLogins).
-  void InitPasswordFormFromStatement(PasswordForm* form,
+  void InitPasswordFormFromStatement(webkit_glue::PasswordForm* form,
                                      SQLStatement* s) const;
 
   sqlite3* db_;

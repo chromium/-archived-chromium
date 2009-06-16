@@ -7,8 +7,6 @@
 
 #include "DocumentLoader.h"
 
-#include "base/scoped_ptr.h"
-#include "base/time.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webresponse_impl.h"
 #include "webkit/glue/weburlrequest_impl.h"
@@ -33,12 +31,7 @@ class WebDataSourceImpl : public WebCore::DocumentLoader, public WebDataSource {
   virtual bool HasUnreachableURL() const;
   virtual const std::vector<GURL>& GetRedirectChain() const;
   virtual string16 GetPageTitle() const;
-  virtual base::Time GetRequestTime() const;
-  virtual void SetRequestTime(base::Time time);
-  virtual base::Time GetStartLoadTime() const;
-  virtual base::Time GetFinishDocumentLoadTime() const;
-  virtual base::Time GetFinishLoadTime() const;
-  virtual base::Time GetFirstLayoutTime() const;
+  virtual double GetTriggeringEventTime() const;
   virtual WebNavigationType GetNavigationType() const;
   virtual ExtraData* GetExtraData() const;
   virtual void SetExtraData(ExtraData*);
@@ -48,26 +41,6 @@ class WebDataSourceImpl : public WebCore::DocumentLoader, public WebDataSource {
 
   void ClearRedirectChain();
   void AppendRedirect(const GURL& url);
-
-  void set_request_time(base::Time request_time) {
-    request_time_ = request_time;
-  }
-
-  void set_start_load_time(base::Time start_load_time) {
-    start_load_time_ = start_load_time;
-  }
-
-  void set_finish_document_load_time(base::Time finish_document_load_time) {
-    finish_document_load_time_ = finish_document_load_time;
-  }
-
-  void set_finish_load_time(base::Time finish_load_time) {
-    finish_load_time_ = finish_load_time;
-  }
-
-  void set_first_layout_time(base::Time first_layout_time) {
-    first_layout_time_ = first_layout_time;
-  }
 
  private:
   WebDataSourceImpl(const WebCore::ResourceRequest&,
@@ -87,13 +60,6 @@ class WebDataSourceImpl : public WebCore::DocumentLoader, public WebDataSource {
   std::vector<GURL> redirect_chain_;
 
   OwnPtr<ExtraData> extra_data_;
-
-  // See webdatasource.h for a description of these time stamps.
-  base::Time request_time_;
-  base::Time start_load_time_;
-  base::Time finish_document_load_time_;
-  base::Time finish_load_time_;
-  base::Time first_layout_time_;
 
   DISALLOW_COPY_AND_ASSIGN(WebDataSourceImpl);
 };

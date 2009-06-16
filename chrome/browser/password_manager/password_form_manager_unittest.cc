@@ -10,6 +10,8 @@
 #include "chrome/test/testing_profile.h"
 #include "webkit/glue/password_form.h"
 
+using webkit_glue::PasswordForm;
+
 class PasswordFormManagerTest : public testing::Test {
  public:
   PasswordFormManagerTest() {

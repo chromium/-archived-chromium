@@ -12,6 +12,8 @@
 #include "webkit/glue/password_form_dom_manager.h"
 
 using base::Time;
+using webkit_glue::PasswordForm;
+using webkit_glue::PasswordFormMap;
 
 PasswordFormManager::PasswordFormManager(Profile* profile,
                                          PasswordManager* password_manager,

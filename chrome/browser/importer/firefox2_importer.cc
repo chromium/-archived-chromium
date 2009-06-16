@@ -20,6 +20,7 @@
 #include "net/base/data_url.h"
 
 using base::Time;
+using webkit_glue::PasswordForm;
 
 // Firefox2Importer.
 

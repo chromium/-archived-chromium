@@ -17,6 +17,8 @@
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using webkit_glue::PasswordForm;
+
 static void InitNavigateParams(ViewHostMsg_FrameNavigate_Params* params,
                                int page_id,
                                const GURL& url) {

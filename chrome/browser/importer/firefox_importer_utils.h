@@ -190,7 +190,7 @@ class NSSDecryptor {
   // username/password and reads other related information.
   // The result will be stored in |forms|.
   void ParseSignons(const std::string& content,
-                    std::vector<PasswordForm>* forms);
+                    std::vector<webkit_glue::PasswordForm>* forms);
 
  private:
   // Methods in Firefox security components.

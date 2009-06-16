@@ -47,8 +47,9 @@ class DebugMessageHandler;
 class DevToolsAgent;
 class DevToolsClient;
 class FilePath;
-class PrintWebViewHelper;
 class GURL;
+class NavigationState;
+class PrintWebViewHelper;
 class RenderThread;
 class ResourceDispatcher;
 class WebError;
@@ -788,7 +789,6 @@ class RenderView : public RenderWidget,
   // the WebDataSource::ExtraData attribute.  We use pending_navigation_state_
   // as a temporary holder for the state until the WebDataSource corresponding
   // to the new navigation is created.  See DidCreateDataSource.
-  class NavigationState;
   scoped_ptr<NavigationState> pending_navigation_state_;
 
   // Need for printing

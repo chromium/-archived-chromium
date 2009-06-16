@@ -1925,7 +1925,7 @@ void TabContents::ShowModalHTMLDialog(const GURL& url, int width, int height,
 }
 
 void TabContents::PasswordFormsSeen(
-    const std::vector<PasswordForm>& forms) {
+    const std::vector<webkit_glue::PasswordForm>& forms) {
   GetPasswordManager()->PasswordFormsSeen(forms);
 }
 

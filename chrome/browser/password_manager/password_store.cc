@@ -8,6 +8,7 @@
 #include "base/task.h"
 
 using std::vector;
+using webkit_glue::PasswordForm;
 
 PasswordStore::PasswordStore() : handle_(0) {
 }

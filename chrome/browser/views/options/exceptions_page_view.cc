@@ -17,6 +17,7 @@
 
 using views::ColumnSet;
 using views::GridLayout;
+using webkit_glue::PasswordForm;
 
 ///////////////////////////////////////////////////////////////////////////////
 // ExceptionsTableModel

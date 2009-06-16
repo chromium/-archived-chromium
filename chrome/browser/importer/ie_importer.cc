@@ -28,6 +28,7 @@
 #include "grit/generated_resources.h"
 
 using base::Time;
+using webkit_glue::PasswordForm;
 
 namespace {
 

@@ -10,6 +10,8 @@
 #include "base/time.h"
 #include "chrome/common/sqlite_utils.h"
 
+using webkit_glue::PasswordForm;
+
 static const int kCurrentVersionNumber = 1;
 static const int kCompatibleVersionNumber = 1;
 

@@ -22,6 +22,8 @@
 #include "chrome/browser/profile.h"
 #include "chrome/common/chrome_paths.h"
 
+using webkit_glue::PasswordForm;
+
 class ImporterTest : public testing::Test {
  public:
  protected:

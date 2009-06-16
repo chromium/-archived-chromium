@@ -39,6 +39,7 @@
 #include "chrome/renderer/localized_error.h"
 #include "chrome/renderer/media/audio_renderer_impl.h"
 #include "chrome/renderer/media/buffered_data_source.h"
+#include "chrome/renderer/navigation_state.h"
 #include "chrome/renderer/print_web_view_helper.h"
 #include "chrome/renderer/render_process.h"
 #include "chrome/renderer/renderer_logging.h"
@@ -90,6 +91,7 @@
 using base::Time;
 using base::TimeDelta;
 using webkit_glue::AutofillForm;
+using webkit_glue::PasswordForm;
 using webkit_glue::PasswordFormDomManager;
 using webkit_glue::SearchableFormData;
 using WebKit::WebConsoleMessage;
@@ -140,87 +142,6 @@ static const char* const kUnreachableWebDataURL =
     "chrome://chromewebdata/";
 
 static const char* const kBackForwardNavigationScheme = "history";
-
-// Associated with browser-initiated navigations to hold tracking data.
-class RenderView::NavigationState : public WebDataSource::ExtraData {
- public:
-  static NavigationState* CreateBrowserInitiated(
-      int32 pending_page_id,
-      PageTransition::Type transition_type,
-      Time request_time) {
-    return new NavigationState(transition_type, request_time, false,
-                               pending_page_id);
-  }
-
-  static NavigationState* CreateContentInitiated() {
-    // We assume navigations initiated by content are link clicks.
-    return new NavigationState(PageTransition::LINK, Time(), true, -1);
-  }
-
-  static NavigationState* FromDataSource(WebDataSource* ds) {
-    return static_cast<NavigationState*>(ds->GetExtraData());
-  }
-
-  // Contains the page_id for this navigation or -1 if there is none yet.
-  int32 pending_page_id() const { return pending_page_id_; }
-
-  // Is this a new navigation?
-  bool is_new_navigation() const { return pending_page_id_ == -1; }
-
-  // Contains the transition type that the browser specified when it
-  // initiated the load.
-  PageTransition::Type transition_type() const { return transition_type_; }
-  void set_transition_type(PageTransition::Type type) {
-    transition_type_ = type;
-  }
-
-  // The time that this navigation was requested.
-  const Time& request_time() const { return request_time_; }
-
-  // True if we have already processed the "DidCommitLoad" event for this
-  // request.  Used by session history.
-  bool request_committed() const { return request_committed_; }
-  void set_request_committed(bool value) { request_committed_ = value; }
-
-  // True if this navigation was not initiated via WebFrame::LoadRequest.
-  bool is_content_initiated() const { return is_content_initiated_; }
-
-  SearchableFormData* searchable_form_data() const {
-    return searchable_form_data_.get();
-  }
-  void set_searchable_form_data(SearchableFormData* data) {
-    searchable_form_data_.reset(data);
-  }
-
-  PasswordForm* password_form_data() const {
-    return password_form_data_.get();
-  }
-  void set_password_form_data(PasswordForm* data) {
-    password_form_data_.reset(data);
-  }
-
- private:
-  NavigationState(PageTransition::Type transition_type,
-                  const Time& request_time,
-                  bool is_content_initiated,
-                  int32 pending_page_id)
-      : transition_type_(transition_type),
-        request_time_(request_time),
-        request_committed_(false),
-        is_content_initiated_(is_content_initiated),
-        pending_page_id_(pending_page_id) {
-  }
-
-  PageTransition::Type transition_type_;
-  Time request_time_;
-  bool request_committed_;
-  bool is_content_initiated_;
-  int32 pending_page_id_;
-  scoped_ptr<SearchableFormData> searchable_form_data_;
-  scoped_ptr<PasswordForm> password_form_data_;
-
-  DISALLOW_COPY_AND_ASSIGN(NavigationState);
-};
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1119,24 +1040,28 @@ void RenderView::DidStartProvisionalLoadForFrame(
     WebView* webview,
     WebFrame* frame,
     NavigationGesture gesture) {
-  if (webview->GetMainFrame() == frame) {
+  WebDataSource* ds = frame->GetProvisionalDataSource();
+  NavigationState* navigation_state = NavigationState::FromDataSource(ds);
+
+  navigation_state->set_start_load_time(Time::Now());
+
+  // Update the request time if WebKit has better knowledge of it.
+  if (navigation_state->request_time().is_null()) {
+    double event_time = ds->GetTriggeringEventTime();
+    if (event_time != 0.0)
+      navigation_state->set_request_time(Time::FromDoubleT(event_time));
+  }
+
+  bool is_top_most = !frame->GetParent();
+  if (is_top_most) {
     navigation_gesture_ = gesture;
 
     // Make sure redirect tracking state is clear for the new load.
     completed_client_redirect_src_ = GURL();
   }
 
-  // We may have better knowledge of when this navigation was requested.
-  WebDataSource* ds = frame->GetProvisionalDataSource();
-  if (ds) {
-    NavigationState* navigation_state = NavigationState::FromDataSource(ds);
-    if (!navigation_state->request_time().is_null())
-      ds->SetRequestTime(navigation_state->request_time());
-  }
-
   Send(new ViewHostMsg_DidStartProvisionalLoadForFrame(
-       routing_id_, webview->GetMainFrame() == frame,
-       frame->GetProvisionalDataSource()->GetRequest().GetURL()));
+       routing_id_, is_top_most, ds->GetRequest().GetURL()));
 }
 
 bool RenderView::DidLoadResourceFromMemoryCache(WebView* webview,
@@ -2834,12 +2759,16 @@ void RenderView::OnExtensionResponse(int request_id,
 // so firstLayout can be 0.
 void RenderView::DumpLoadHistograms() const {
   WebFrame* main_frame = webview()->GetMainFrame();
-  WebDataSource* ds = main_frame->GetDataSource();
-  Time request_time = ds->GetRequestTime();
-  Time start_load_time = ds->GetStartLoadTime();
-  Time finish_document_load_time = ds->GetFinishDocumentLoadTime();
-  Time finish_load_time = ds->GetFinishLoadTime();
-  Time first_layout_time = ds->GetFirstLayoutTime();
+  NavigationState* navigation_state =
+      NavigationState::FromDataSource(main_frame->GetDataSource());
+
+  Time request_time = navigation_state->request_time();
+  Time start_load_time = navigation_state->start_load_time();
+  Time finish_document_load_time =
+      navigation_state->finish_document_load_time();
+  Time finish_load_time = navigation_state->finish_load_time();
+  Time first_layout_time = navigation_state->first_layout_time();
+
   TimeDelta request_to_start = start_load_time - request_time;
   TimeDelta start_to_finish_doc = finish_document_load_time - start_load_time;
   TimeDelta finish_doc_to_finish =
@@ -2854,8 +2783,8 @@ void RenderView::DumpLoadHistograms() const {
     UMA_HISTOGRAM_MEDIUM_TIMES("Renderer2.RequestToStart", request_to_start);
     UMA_HISTOGRAM_CLIPPED_TIMES(
         FieldTrial::MakeName("Renderer2.RequestToFinish_L", "DnsImpact").data(),
-        request_to_finish, base::TimeDelta::FromMilliseconds(10),
-        base::TimeDelta::FromMinutes(10), 100);
+        request_to_finish, TimeDelta::FromMilliseconds(10),
+        TimeDelta::FromMinutes(10), 100);
     if (request_to_first_layout.ToInternalValue() >= 0) {
       UMA_HISTOGRAM_MEDIUM_TIMES("Renderer2.RequestToFirstLayout",
           request_to_first_layout);

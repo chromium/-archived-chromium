@@ -2169,6 +2169,7 @@
         'renderer/js_only_v8_extensions.h',
         'renderer/localized_error.cc',
         'renderer/localized_error.h',
+        'renderer/navigation_state.h',
         'renderer/plugin_channel_host.cc',
         'renderer/plugin_channel_host.h',
         'renderer/print_web_view_helper.cc',

@@ -30,9 +30,9 @@ class PasswordManager : public views::LoginModel {
 
   // Called by a PasswordFormManager when it decides a form can be autofilled
   // on the page.
-  void Autofill(const PasswordForm& form_for_autofill,
-                const PasswordFormMap& best_matches,
-                const PasswordForm* const preferred_match) const;
+  void Autofill(const webkit_glue::PasswordForm& form_for_autofill,
+                const webkit_glue::PasswordFormMap& best_matches,
+                const webkit_glue::PasswordForm* const preferred_match) const;
 
   // Notification that the user navigated away from the current page.
   // Unless this is a password form submission, for our purposes this
@@ -44,12 +44,12 @@ class PasswordManager : public views::LoginModel {
   void DidStopLoading();
 
   // Notifies the password manager that password forms were parsed on the page.
-  void PasswordFormsSeen(const std::vector<PasswordForm>& forms);
+  void PasswordFormsSeen(const std::vector<webkit_glue::PasswordForm>& forms);
 
   // When a form is submitted, we prepare to save the password but wait
   // until we decide the user has successfully logged in. This is step 1
   // of 2 (see SavePassword).
-  void ProvisionallySavePassword(PasswordForm form);
+  void ProvisionallySavePassword(webkit_glue::PasswordForm form);
 
   // Clear any pending saves
   void ClearProvisionalSave();

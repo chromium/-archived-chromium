@@ -981,7 +981,7 @@ IPC_BEGIN_MESSAGES(ViewHost)
   // Notification that password forms have been seen that are candidates for
   // filling/submitting by the password manager
   IPC_MESSAGE_ROUTED1(ViewHostMsg_PasswordFormsSeen,
-                      std::vector<PasswordForm> /* forms */)
+                      std::vector<webkit_glue::PasswordForm> /* forms */)
 
   // Notification that a form has been submitted.  The user hit the button.
   IPC_MESSAGE_ROUTED1(ViewHostMsg_AutofillFormSubmitted,

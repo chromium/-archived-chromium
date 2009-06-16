@@ -16,6 +16,8 @@
 #include "chrome/common/chrome_paths.h"
 #include "webkit/glue/password_form.h"
 
+using webkit_glue::PasswordForm;
+
 class LoginDatabaseTest : public testing::Test {
  protected:
   virtual void SetUp() {

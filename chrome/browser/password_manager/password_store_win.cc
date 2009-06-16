@@ -12,6 +12,7 @@
 
 using std::map;
 using std::vector;
+using webkit_glue::PasswordForm;
 
 PasswordStoreWin::PasswordStoreWin(WebDataService* web_data_service)
     : PasswordStoreDefault(web_data_service) {

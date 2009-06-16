@@ -17,9 +17,9 @@ class PasswordStoreMac : public PasswordStore {
   virtual ~PasswordStoreMac() {}
 
  private:
-  void AddLoginImpl(const PasswordForm& form);
-  void UpdateLoginImpl(const PasswordForm& form);
-  void RemoveLoginImpl(const PasswordForm& form);
+  void AddLoginImpl(const webkit_glue::PasswordForm& form);
+  void UpdateLoginImpl(const webkit_glue::PasswordForm& form);
+  void RemoveLoginImpl(const webkit_glue::PasswordForm& form);
   void GetLoginsImpl(GetLoginsRequest* request);
 
   scoped_ptr<MacKeychain> keychain_;

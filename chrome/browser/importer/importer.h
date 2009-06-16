@@ -94,7 +94,7 @@ class ProfileWriter : public base::RefCounted<ProfileWriter> {
   };
 
   // Helper methods for adding data to local stores.
-  virtual void AddPasswordForm(const PasswordForm& form);
+  virtual void AddPasswordForm(const webkit_glue::PasswordForm& form);
 #if defined(OS_WIN)
   virtual void AddIE7PasswordInfo(const IE7PasswordInfo& info);
 #endif

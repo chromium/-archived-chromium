@@ -30,8 +30,9 @@ class PasswordStoreWin : public PasswordStoreDefault {
 
   // Gets logins from IE7 if no others are found. Also copies them into
   // Chrome's WebDatabase so we don't need to look next time.
-  PasswordForm* GetIE7Result(const WDTypedResult* result,
-                             const PasswordForm& form);
+  webkit_glue::PasswordForm* GetIE7Result(
+      const WDTypedResult* result,
+      const webkit_glue::PasswordForm& form);
 
   DISALLOW_COPY_AND_ASSIGN(PasswordStoreWin);
 };

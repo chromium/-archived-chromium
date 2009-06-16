@@ -87,7 +87,7 @@ class PasswordsTableModel : public views::TableModel,
   void GetAllSavedLoginsForProfile();
 
   // Return the PasswordForm at the specified index.
-  PasswordForm* GetPasswordFormAt(int row);
+  webkit_glue::PasswordForm* GetPasswordFormAt(int row);
 
   // Set the observer who concerns about how many rows are in the table.
   void set_row_count_observer(PasswordsTableModelObserver* observer) {
@@ -98,7 +98,8 @@ class PasswordsTableModel : public views::TableModel,
   // Wraps the PasswordForm from the database and caches the display URL for
   // quick sorting.
   struct PasswordRow {
-    PasswordRow(const gfx::SortedDisplayURL& url, PasswordForm* password_form)
+    PasswordRow(const gfx::SortedDisplayURL& url,
+                webkit_glue::PasswordForm* password_form)
         : display_url(url), form(password_form) {
     }
 
@@ -106,7 +107,7 @@ class PasswordsTableModel : public views::TableModel,
     gfx::SortedDisplayURL display_url;
 
     // The underlying PasswordForm. We own this.
-    scoped_ptr<PasswordForm> form;
+    scoped_ptr<webkit_glue::PasswordForm> form;
   };
 
   // The web data service associated with the currently active profile.

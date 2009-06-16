@@ -21,6 +21,7 @@
 #include "googleurl/src/gurl.h"
 #include "net/base/base64.h"
 
+using webkit_glue::PasswordForm;
 
 namespace {
 

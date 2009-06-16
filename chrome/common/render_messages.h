@@ -115,7 +115,7 @@ struct ViewHostMsg_FrameNavigate_Params {
   std::string searchable_form_encoding;
 
   // See password_form.h.
-  PasswordForm password_form;
+  webkit_glue::PasswordForm password_form;
 
   // Information regarding the security of the connection (empty if the
   // connection was not secure).
@@ -664,8 +664,8 @@ struct ParamTraits<ViewMsg_Navigate_Params> {
 
 // Traits for PasswordForm_Params structure to pack/unpack.
 template <>
-struct ParamTraits<PasswordForm> {
-  typedef PasswordForm param_type;
+struct ParamTraits<webkit_glue::PasswordForm> {
+  typedef webkit_glue::PasswordForm param_type;
   static void Write(Message* m, const param_type& p) {
     WriteParam(m, p.signon_realm);
     WriteParam(m, p.origin);

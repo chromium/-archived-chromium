@@ -11,6 +11,8 @@
 #include "base/time.h"
 #include "googleurl/src/gurl.h"
 
+namespace webkit_glue {
+
 // The PasswordForm struct encapsulates information about a login form,
 // which can be an HTML form or a dialog with username/password text fields.
 //
@@ -142,5 +144,7 @@ struct PasswordForm {
 
 // Map username to PasswordForm* for convenience. See password_form_manager.h.
 typedef std::map<std::wstring, PasswordForm*> PasswordFormMap;
+
+}  // namespace webkit_glue
 
 #endif  // WEBKIT_GLUE_PASSWORD_FORM_H__

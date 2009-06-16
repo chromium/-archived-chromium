@@ -38,24 +38,26 @@ bool TimeFromKeychainTimeString(const char* time_string_bytes,
                                 base::Time* time);
 
 // Returns the Keychain SecAuthenticationType type corresponding to |scheme|.
-SecAuthenticationType AuthTypeForScheme(PasswordForm::Scheme scheme);
+SecAuthenticationType AuthTypeForScheme(
+    webkit_glue::PasswordForm::Scheme scheme);
 
 // Returns the PasswordForm Scheme corresponding to |auth_type|.
-PasswordForm::Scheme SchemeForAuthType(SecAuthenticationType auth_type);
+webkit_glue::PasswordForm::Scheme SchemeForAuthType(
+    SecAuthenticationType auth_type);
 
 // Searches |keychain| for all items usable for the given signon_realm, and
 // puts them in |items|. The caller is responsible for calling keychain->Free
 // on each of them when it is finished with them.
 void FindMatchingKeychainItems(const MacKeychain& keychain,
                                const std::string& signon_realm,
-                               PasswordForm::Scheme scheme,
+                               webkit_glue::PasswordForm::Scheme scheme,
                                std::vector<SecKeychainItemRef>* items);
 
 // Searches |keychain| for the specific keychain entry matching the given form.
 // If no match is found, |match| will be NULL on return.
 // The caller is responsible for calling keychain->Free on |match|.
 void FindMatchingKeychainItem(const MacKeychain& keychain,
-                              const PasswordForm& form,
+                              const webkit_glue::PasswordForm& form,
                               SecKeychainItemRef* match);
 
 // Sets the fields of |form| based on the keychain data from |keychain_item|.
@@ -71,7 +73,7 @@ void FindMatchingKeychainItem(const MacKeychain& keychain,
 // require authorization).
 bool FillPasswordFormFromKeychainItem(const MacKeychain& keychain,
                                       const SecKeychainItemRef& keychain_item,
-                                      PasswordForm* form);
+                                      webkit_glue::PasswordForm* form);
 
 }  // internal_keychain_helpers
 

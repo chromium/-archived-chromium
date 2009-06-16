@@ -6,6 +6,7 @@
 
 #include "base/time.h"
 #include "v8/include/v8.h"
+#include "chrome/renderer/navigation_state.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webdatasource.h"
 
@@ -55,27 +56,29 @@ class LoadTimesExtensionWrapper : public v8::Extension {
   }
 
   static v8::Handle<v8::Value> GetLoadTimes(const v8::Arguments& args) {
-    WebFrame* win_frame = WebFrame::RetrieveFrameForEnteredContext();
-    if (win_frame) {
-      WebDataSource* data_source = win_frame->GetDataSource();
+    WebFrame* frame = WebFrame::RetrieveFrameForEnteredContext();
+    if (frame) {
+      WebDataSource* data_source = frame->GetDataSource();
+      NavigationState* navigation_state =
+          NavigationState::FromDataSource(data_source);
       if (data_source) {
         v8::Local<v8::Object> load_times = v8::Object::New();
         load_times->Set(
             v8::String::New("requestTime"),
-            v8::Number::New(data_source->GetRequestTime().ToDoubleT()));
+            v8::Number::New(navigation_state->request_time().ToDoubleT()));
         load_times->Set(
             v8::String::New("startLoadTime"),
-            v8::Number::New(data_source->GetStartLoadTime().ToDoubleT()));
+            v8::Number::New(navigation_state->start_load_time().ToDoubleT()));
         load_times->Set(
             v8::String::New("finishDocumentLoadTime"),
             v8::Number::New(
-                data_source->GetFinishDocumentLoadTime().ToDoubleT()));
+                navigation_state->finish_document_load_time().ToDoubleT()));
         load_times->Set(
             v8::String::New("finishLoadTime"),
-            v8::Number::New(data_source->GetFinishLoadTime().ToDoubleT()));
+            v8::Number::New(navigation_state->finish_load_time().ToDoubleT()));
         load_times->Set(
             v8::String::New("firstLayoutTime"),
-            v8::Number::New(data_source->GetFirstLayoutTime().ToDoubleT()));
+            v8::Number::New(navigation_state->first_layout_time().ToDoubleT()));
         load_times->Set(
             v8::String::New("navigationType"),
             v8::String::New(

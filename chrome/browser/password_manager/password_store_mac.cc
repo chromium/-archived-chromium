@@ -14,6 +14,8 @@
 #include "base/time.h"
 #include "chrome/browser/keychain_mac.h"
 
+using webkit_glue::PasswordForm;
+
 namespace internal_keychain_helpers {
 
 // Utility class to handle the details of constructing and running a keychain

@@ -8,6 +8,8 @@
 #include "chrome/browser/password_manager/password_store_mac.h"
 #include "chrome/browser/password_manager/password_store_mac_internal.h"
 
+using webkit_glue::PasswordForm;
+
 #pragma mark Mock Keychain
 
 // TODO(stuartmorgan): Replace this with gMock. You know, once we have it.

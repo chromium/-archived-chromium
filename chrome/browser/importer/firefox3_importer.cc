@@ -16,6 +16,7 @@
 #include "grit/generated_resources.h"
 
 using base::Time;
+using webkit_glue::PasswordForm;
 
 // Wraps the function sqlite3_close() in a class that is
 // used in scoped_ptr_malloc.

@@ -19,6 +19,9 @@
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
+using webkit_glue::PasswordForm;
+using webkit_glue::PasswordFormMap;
+
 // After a successful *new* login attempt, we take the PasswordFormManager in
 // provisional_save_manager_ and move it to a SavePasswordInfoBarDelegate while
 // the user makes up their mind with the "save password" infobar. Note if the

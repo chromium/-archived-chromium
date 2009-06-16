@@ -8,6 +8,8 @@
 #include "chrome/browser/tab_contents/test_web_contents.h"
 #include "chrome/common/render_messages.h"
 
+using webkit_glue::PasswordForm;
+
 TestRenderViewHost::TestRenderViewHost(SiteInstance* instance,
                                        RenderViewHostDelegate* delegate,
                                        int routing_id,

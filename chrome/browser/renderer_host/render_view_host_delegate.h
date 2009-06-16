@@ -322,7 +322,8 @@ class RenderViewHostDelegate {
                                    IPC::Message* reply_msg) { }
 
   // Password forms have been detected in the page.
-  virtual void PasswordFormsSeen(const std::vector<PasswordForm>& forms) { }
+  virtual void PasswordFormsSeen(
+      const std::vector<webkit_glue::PasswordForm>& forms) { }
 
   // Forms fillable by autofill have been detected in the page.
   virtual void AutofillFormSubmitted(const webkit_glue::AutofillForm& form) { }

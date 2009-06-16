@@ -24,6 +24,8 @@
 // http://code.google.com/p/chromium/issues/detail?id=8205 (Linux)
 #include "chrome/browser/password_manager/encryptor.h"
 
+using webkit_glue::PasswordForm;
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Schema

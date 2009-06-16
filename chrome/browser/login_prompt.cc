@@ -26,6 +26,7 @@
 
 using namespace std;
 using views::LoginView;
+using webkit_glue::PasswordForm;
 
 class LoginHandlerImpl;
 

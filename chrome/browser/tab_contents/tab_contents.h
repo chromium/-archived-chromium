@@ -803,7 +803,8 @@ class TabContents : public PageNavigator,
   virtual void ShowModalHTMLDialog(const GURL& url, int width, int height,
                                    const std::string& json_arguments,
                                    IPC::Message* reply_msg);
-  virtual void PasswordFormsSeen(const std::vector<PasswordForm>& forms);
+  virtual void PasswordFormsSeen(
+      const std::vector<webkit_glue::PasswordForm>& forms);
   virtual void AutofillFormSubmitted(const webkit_glue::AutofillForm& form);
   virtual void GetAutofillSuggestions(const std::wstring& field_name,
       const std::wstring& user_text, int64 node_id, int request_id);

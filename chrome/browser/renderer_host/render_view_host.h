@@ -517,7 +517,8 @@ class RenderViewHost : public RenderWidgetHost {
   void OnMsgShowModalHTMLDialog(const GURL& url, int width, int height,
                                 const std::string& json_arguments,
                                 IPC::Message* reply_msg);
-  void OnMsgPasswordFormsSeen(const std::vector<PasswordForm>& forms);
+  void OnMsgPasswordFormsSeen(
+      const std::vector<webkit_glue::PasswordForm>& forms);
   void OnMsgAutofillFormSubmitted(const webkit_glue::AutofillForm& forms);
   void OnMsgStartDragging(const WebDropData& drop_data);
   void OnUpdateDragCursor(bool is_drop_target);

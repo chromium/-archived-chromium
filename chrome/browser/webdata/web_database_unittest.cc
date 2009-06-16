@@ -19,6 +19,7 @@
 using base::Time;
 using base::TimeDelta;
 using webkit_glue::AutofillForm;
+using webkit_glue::PasswordForm;
 
 class WebDatabaseTest : public testing::Test {
  protected:

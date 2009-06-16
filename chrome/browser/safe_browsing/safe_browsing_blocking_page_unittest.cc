@@ -8,6 +8,8 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/common/render_messages.h"
 
+using webkit_glue::PasswordForm;
+
 static const char* kGoogleURL = "http://www.google.com/";
 static const char* kGoodURL = "http://www.goodguys.com/";
 static const char* kBadURL = "http://www.badguys.com/";

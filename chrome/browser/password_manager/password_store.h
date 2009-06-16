@@ -22,7 +22,7 @@ class PasswordStoreConsumer {
   // Call this when the request is finished. If there are no results, call it
   // anyway with an empty vector.
   virtual void OnPasswordStoreRequestDone(
-      int handle, const std::vector<PasswordForm*>& result) = 0;
+      int handle, const std::vector<webkit_glue::PasswordForm*>& result) = 0;
 };
 
 // Interface for storing form passwords in a platform-specific secure way.
@@ -39,15 +39,15 @@ class PasswordStore : public base::RefCountedThreadSafe<PasswordStore> {
   // password_store_default; once that is fixed, they can become non-virtual.
 
   // Adds the given PasswordForm to the secure password store asynchronously.
-  virtual void AddLogin(const PasswordForm& form);
+  virtual void AddLogin(const webkit_glue::PasswordForm& form);
   // Updates the matching PasswordForm in the secure password store (async).
-  virtual void UpdateLogin(const PasswordForm& form);
+  virtual void UpdateLogin(const webkit_glue::PasswordForm& form);
   // Removes the matching PasswordForm from the secure password store (async).
-  virtual void RemoveLogin(const PasswordForm& form);
+  virtual void RemoveLogin(const webkit_glue::PasswordForm& form);
   // Searches for a matching PasswordForm and returns a handle so the async
   // request can be tracked. Implement the PasswordStoreConsumer interface to
   // be notified on completion.
-  virtual int GetLogins(const PasswordForm& form,
+  virtual int GetLogins(const webkit_glue::PasswordForm& form,
                         PasswordStoreConsumer* consumer);
 
   // Cancels a previous GetLogins query (async)
@@ -57,12 +57,12 @@ class PasswordStore : public base::RefCountedThreadSafe<PasswordStore> {
   // Simple container class that represents a GetLogins request.
   // Created in GetLogins and passed to GetLoginsImpl.
   struct GetLoginsRequest {
-    GetLoginsRequest(const PasswordForm& f,
+    GetLoginsRequest(const webkit_glue::PasswordForm& f,
                      PasswordStoreConsumer* c,
                      int handle);
 
     // The query form that was originally passed to GetLogins
-    PasswordForm form;
+    webkit_glue::PasswordForm form;
     // The consumer to notify when this GetLogins request is complete
     PasswordStoreConsumer* consumer;
     // A unique handle for the request
@@ -79,11 +79,11 @@ class PasswordStore : public base::RefCountedThreadSafe<PasswordStore> {
 
   // These will be run in PasswordStore's own thread.
   // Synchronous implementation to add the given login.
-  virtual void AddLoginImpl(const PasswordForm& form) = 0;
+  virtual void AddLoginImpl(const webkit_glue::PasswordForm& form) = 0;
   // Synchronous implementation to update the given login.
-  virtual void UpdateLoginImpl(const PasswordForm& form) = 0;
+  virtual void UpdateLoginImpl(const webkit_glue::PasswordForm& form) = 0;
   // Synchronous implementation to remove the given login.
-  virtual void RemoveLoginImpl(const PasswordForm& form) = 0;
+  virtual void RemoveLoginImpl(const webkit_glue::PasswordForm& form) = 0;
   // Should find all PasswordForms with the same signon_realm. The results
   // will then be scored by the PasswordFormManager. Once they are found
   // (or not), the consumer should be notified.
@@ -91,7 +91,7 @@ class PasswordStore : public base::RefCountedThreadSafe<PasswordStore> {
 
   // Notifies the consumer that GetLoginsImpl() is complete.
   void NotifyConsumer(GetLoginsRequest* request,
-                      const std::vector<PasswordForm*> forms);
+                      const std::vector<webkit_glue::PasswordForm*> forms);
 
   // Next handle to return from GetLogins() to allow callers to track
   // their request.
@@ -106,7 +106,7 @@ class PasswordStore : public base::RefCountedThreadSafe<PasswordStore> {
   // that PasswordStoreConsumer doesn't have to be reference counted (we assume
   // consumers will cancel their requests before they are destroyed).
   void NotifyConsumerImpl(PasswordStoreConsumer* consumer, int handle,
-                          const std::vector<PasswordForm*> forms);
+                          const std::vector<webkit_glue::PasswordForm*> forms);
 
   // List of pending request handles.  Handles are removed from the set when
   // they finish or are canceled.

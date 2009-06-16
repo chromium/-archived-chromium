@@ -1218,7 +1218,7 @@ void RenderViewHost::OnMsgShowModalHTMLDialog(
 }
 
 void RenderViewHost::OnMsgPasswordFormsSeen(
-    const std::vector<PasswordForm>& forms) {
+    const std::vector<webkit_glue::PasswordForm>& forms) {
   delegate_->PasswordFormsSeen(forms);
 }
 
