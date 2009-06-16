@@ -451,6 +451,8 @@
         'common/webkit_param_traits.h',
         'common/win_safe_util.cc',
         'common/win_safe_util.h',
+        'common/worker_messages.h',
+        'common/worker_messages_internal.h',
         'common/worker_thread_ticker.cc',
         'common/worker_thread_ticker.h',
         'common/x11_util.cc',

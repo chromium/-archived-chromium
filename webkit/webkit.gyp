@@ -3738,6 +3738,7 @@
         '../third_party/WebKit/WebCore/workers/WorkerContextProxy.h',
         '../third_party/WebKit/WebCore/workers/WorkerImportScriptsClient.cpp',
         '../third_party/WebKit/WebCore/workers/WorkerImportScriptsClient.h',
+        '../third_party/WebKit/WebCore/workers/WorkerLoaderProxy.h',
         '../third_party/WebKit/WebCore/workers/WorkerLocation.cpp',
         '../third_party/WebKit/WebCore/workers/WorkerLocation.h',
         '../third_party/WebKit/WebCore/workers/WorkerMessagingProxy.cpp',
