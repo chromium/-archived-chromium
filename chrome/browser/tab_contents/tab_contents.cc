@@ -167,11 +167,6 @@ BOOL CALLBACK InvalidateWindow(HWND hwnd, LPARAM lparam) {
 }
 #endif
 
-// TODO(brettw) TabContents should be removed, then this hack is unnecessary.
-TabContents* AsWC(TabContents* tc) {
-  return static_cast<TabContents*>(tc);
-}
-
 }  // namespace
 
 // -----------------------------------------------------------------------------
@@ -197,9 +192,6 @@ class TabContents::GearsCreateShortcutCallbackFunctor {
   TabContents* contents_;
 };
 
-// TODO(brettw) many of the data members here have casts to TabContents.
-// This object is the same as TabContents and is currently being merged.
-// When this merge is done, the casts can be removed.
 TabContents::TabContents(Profile* profile,
                          SiteInstance* site_instance,
                          int routing_id,
@@ -207,21 +199,17 @@ TabContents::TabContents(Profile* profile,
     : delegate_(NULL),
       ALLOW_THIS_IN_INITIALIZER_LIST(controller_(this, profile)),
       ALLOW_THIS_IN_INITIALIZER_LIST(view_(
-          TabContentsView::Create(static_cast<TabContents*>(this)))),
-      ALLOW_THIS_IN_INITIALIZER_LIST(render_manager_(
-          static_cast<TabContents*>(this),
-          static_cast<TabContents*>(this))),
+          TabContentsView::Create(this))),
+      ALLOW_THIS_IN_INITIALIZER_LIST(render_manager_(this, this)),
       property_bag_(),
       registrar_(),
-      ALLOW_THIS_IN_INITIALIZER_LIST(printing_(
-          *static_cast<TabContents*>(this))),
+      ALLOW_THIS_IN_INITIALIZER_LIST(printing_(*this)),
       save_package_(),
       cancelable_consumer_(),
       autofill_manager_(),
       password_manager_(),
       plugin_installer_(),
-      ALLOW_THIS_IN_INITIALIZER_LIST(fav_icon_helper_(
-          static_cast<TabContents*>(this))),
+      ALLOW_THIS_IN_INITIALIZER_LIST(fav_icon_helper_(this)),
       select_file_dialog_(),
       pending_install_(),
       is_loading_(false),
@@ -297,7 +285,7 @@ TabContents::~TabContents() {
   view_->OnContentsDestroy();
 
   NotifyDisconnected();
-  HungRendererDialog::HideForTabContents(AsWC(this));
+  HungRendererDialog::HideForTabContents(this);
 
   if (pending_install_.callback_functor)
     pending_install_.callback_functor->Cancel();
@@ -1002,7 +990,7 @@ void TabContents::OnSavePage() {
     DownloadManager* dlm = profile()->GetDownloadManager();
     const GURL& current_page_url = GetURL();
     if (dlm && current_page_url.is_valid())
-      dlm->DownloadUrl(current_page_url, GURL(), "", AsWC(this));
+      dlm->DownloadUrl(current_page_url, GURL(), "", this);
     return;
   }
 
@@ -1011,7 +999,7 @@ void TabContents::OnSavePage() {
   // Create the save package and possibly prompt the user for the name to save
   // the page as. The user prompt is an asynchronous operation that runs on
   // another thread.
-  save_package_ = new SavePackage(AsWC(this));
+  save_package_ = new SavePackage(this);
   save_package_->GetSaveInfo();
 }
 
@@ -1024,7 +1012,7 @@ void TabContents::SavePage(const std::wstring& main_file,
   // Stop the page from navigating.
   Stop();
 
-  save_package_ = new SavePackage(AsWC(this), save_type,
+  save_package_ = new SavePackage(this, save_type,
                                   FilePath::FromWStringHack(main_file),
                                   FilePath::FromWStringHack(dir_path));
   save_package_->Init();
@@ -1386,7 +1374,7 @@ void TabContents::NotifySwapped() {
   notify_disconnection_ = true;
   NotificationService::current()->Notify(
       NotificationType::TAB_CONTENTS_SWAPPED,
-      Source<TabContents>(AsWC(this)),
+      Source<TabContents>(this),
       NotificationService::NoDetails());
 }
 
@@ -1394,7 +1382,7 @@ void TabContents::NotifyConnected() {
   notify_disconnection_ = true;
   NotificationService::current()->Notify(
       NotificationType::TAB_CONTENTS_CONNECTED,
-      Source<TabContents>(AsWC(this)),
+      Source<TabContents>(this),
       NotificationService::NoDetails());
 }
 
@@ -1405,7 +1393,7 @@ void TabContents::NotifyDisconnected() {
   notify_disconnection_ = false;
   NotificationService::current()->Notify(
       NotificationType::TAB_CONTENTS_DISCONNECTED,
-      Source<TabContents>(AsWC(this)),
+      Source<TabContents>(this),
       NotificationService::NoDetails());
 }
 
@@ -1557,7 +1545,7 @@ void TabContents::RenderViewGone(RenderViewHost* rvh) {
   view_->OnTabCrashed();
 
   // Hide any visible hung renderer warning for this web contents' process.
-  HungRendererDialog::HideForTabContents(AsWC(this));
+  HungRendererDialog::HideForTabContents(this);
 }
 
 void TabContents::DidNavigate(RenderViewHost* rvh,
@@ -1851,7 +1839,7 @@ void TabContents::DomOperationResponse(const std::string& json_string,
                                        int automation_id) {
   DomOperationNotificationDetails details(json_string, automation_id);
   NotificationService::current()->Notify(
-      NotificationType::DOM_OPERATION_RESPONSE, Source<TabContents>(AsWC(this)),
+      NotificationType::DOM_OPERATION_RESPONSE, Source<TabContents>(this),
       Details<DomOperationNotificationDetails>(&details));
 }
 
@@ -1929,7 +1917,7 @@ void TabContents::RunJavaScriptMessage(
         base::TimeDelta::FromMilliseconds(kJavascriptMessageExpectedDelay))
       show_suppress_checkbox = true;
 
-    RunJavascriptMessageBox(AsWC(this), frame_url, flags, message, default_prompt,
+    RunJavascriptMessageBox(this, frame_url, flags, message, default_prompt,
                             show_suppress_checkbox, reply_msg);
   } else {
     // If we are suppressing messages, just reply as is if the user immediately
@@ -1940,7 +1928,7 @@ void TabContents::RunJavaScriptMessage(
 
 void TabContents::RunBeforeUnloadConfirm(const std::wstring& message,
                                          IPC::Message* reply_msg) {
-  RunBeforeUnloadDialog(AsWC(this), message, reply_msg);
+  RunBeforeUnloadDialog(this, message, reply_msg);
 }
 
 void TabContents::ShowModalHTMLDialog(const GURL& url, int width, int height,
@@ -1949,7 +1937,7 @@ void TabContents::ShowModalHTMLDialog(const GURL& url, int width, int height,
   if (delegate()) {
     HtmlDialogUIDelegate* dialog_delegate =
         new ModalHtmlDialogDelegate(url, width, height, json_arguments,
-                                    reply_msg, AsWC(this));
+                                    reply_msg, this);
     delegate()->ShowHtmlDialog(dialog_delegate, NULL);
   }
 }
@@ -2053,7 +2041,7 @@ void TabContents::InspectElementReply(int num_resources) {
   // We have received reply from inspect element request. Notify the
   // automation provider in case we need to notify automation client.
   NotificationService::current()->Notify(
-      NotificationType::DOM_INSPECT_ELEMENT_RESPONSE, Source<TabContents>(AsWC(this)),
+      NotificationType::DOM_INSPECT_ELEMENT_RESPONSE, Source<TabContents>(this),
       Details<int>(&num_resources));
 }
 
@@ -2165,11 +2153,11 @@ void TabContents::RendererUnresponsive(RenderViewHost* rvh,
   }
 
   if (render_view_host() && render_view_host()->IsRenderViewLive())
-    HungRendererDialog::ShowForTabContents(AsWC(this));
+    HungRendererDialog::ShowForTabContents(this);
 }
 
 void TabContents::RendererResponsive(RenderViewHost* render_view_host) {
-  HungRendererDialog::HideForTabContents(AsWC(this));
+  HungRendererDialog::HideForTabContents(this);
 }
 
 void TabContents::LoadStateChanged(const GURL& url,
@@ -2277,7 +2265,7 @@ void TabContents::UpdateRenderViewSizeForRenderManager() {
 }
 
 DOMUI* TabContents::CreateDOMUIForRenderManager(const GURL& url) {
-  return DOMUIFactory::CreateDOMUIForURL(AsWC(this), url);
+  return DOMUIFactory::CreateDOMUIForURL(this, url);
 }
 
 NavigationEntry*
