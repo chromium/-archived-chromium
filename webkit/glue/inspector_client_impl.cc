@@ -274,7 +274,7 @@ void WebInspectorClient::SaveSettings() {
         break;
       case InspectorController::Setting::IntegerType:
         entry = String::format(
-            "%s:integer:%d",
+            "%s:integer:%ld",
             name.utf8().data(),
             value.integerValue());
         break;
