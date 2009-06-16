@@ -110,7 +110,6 @@ class BrowserWindowGtk : public BrowserWindow,
   // Accessor for the tab strip.
   TabStripGtk* tabstrip() const { return tabstrip_.get(); }
 
-  void MaybeShowBookmarkBar(TabContents* contents);
   void UpdateUIForContents(TabContents* contents);
 
   void OnBoundsChanged(const gfx::Rect& bounds);
@@ -158,6 +157,9 @@ class BrowserWindowGtk : public BrowserWindow,
   scoped_ptr<DownloadShelfGtk> download_shelf_;
 
  private:
+  // Show or hide the bookmark bar.
+  void MaybeShowBookmarkBar(TabContents* contents, bool animate);
+
   // Sets the default size for the window and the the way the user is allowed to
   // resize it.
   void SetGeometryHints();

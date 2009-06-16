@@ -673,7 +673,7 @@ void BrowserWindowGtk::Observe(NotificationType type,
                                const NotificationSource& source,
                                const NotificationDetails& details) {
   if (type == NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED) {
-    MaybeShowBookmarkBar(browser_->GetSelectedTabContents());
+    MaybeShowBookmarkBar(browser_->GetSelectedTabContents(), true);
   } else if (type == NotificationType::PREF_CHANGED) {
     std::wstring* pref_name = Details<std::wstring>(details).ptr();
     if (*pref_name == prefs::kUseCustomChromeFrame) {
@@ -729,7 +729,8 @@ void BrowserWindowGtk::TabStripEmpty() {
   UpdateUIForContents(NULL);
 }
 
-void BrowserWindowGtk::MaybeShowBookmarkBar(TabContents* contents) {
+void BrowserWindowGtk::MaybeShowBookmarkBar(TabContents* contents,
+                                            bool animate) {
   bool show_bar = false;
 
   if (browser_->SupportsWindowFeature(Browser::FEATURE_BOOKMARKBAR)
@@ -745,14 +746,14 @@ void BrowserWindowGtk::MaybeShowBookmarkBar(TabContents* contents) {
   }
 
   if (show_bar) {
-    bookmark_bar_->Show();
+    bookmark_bar_->Show(animate);
   } else {
-    bookmark_bar_->Hide();
+    bookmark_bar_->Hide(animate);
   }
 }
 
 void BrowserWindowGtk::UpdateUIForContents(TabContents* contents) {
-  MaybeShowBookmarkBar(contents);
+  MaybeShowBookmarkBar(contents, false);
 }
 
 void BrowserWindowGtk::DestroyBrowser() {

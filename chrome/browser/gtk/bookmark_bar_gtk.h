@@ -55,8 +55,8 @@ class BookmarkBarGtk : public AnimationDelegate,
 
   // Change the visibility of the bookmarks bar. (Starts out hidden, per GTK's
   // default behaviour).
-  void Show();
-  void Hide();
+  void Show(bool animate);
+  void Hide(bool animate);
 
   // Get the current height of the bookmark bar.
   int GetHeight();

@@ -214,9 +214,14 @@ void BookmarkBarGtk::AddBookmarkbarToBox(GtkWidget* box) {
   gtk_box_pack_start(GTK_BOX(box), bookmark_hbox_.get(), FALSE, FALSE, 0);
 }
 
-void BookmarkBarGtk::Show() {
+void BookmarkBarGtk::Show(bool animate) {
   gtk_widget_show_all(bookmark_hbox_.get());
-  slide_animation_->Show();
+  if (animate) {
+    slide_animation_->Show();
+  } else {
+    slide_animation_->Reset(1);
+    AnimationProgressed(slide_animation_.get());
+  }
 
   // Maybe show the instructions
   if (show_instructions_) {
@@ -226,13 +231,16 @@ void BookmarkBarGtk::Show() {
   }
 }
 
-void BookmarkBarGtk::Hide() {
+void BookmarkBarGtk::Hide(bool animate) {
   // Sometimes we get called without a matching call to open. If that happens
   // then force hide.
-  if (slide_animation_->IsShowing())
+  if (slide_animation_->IsShowing() && animate) {
     slide_animation_->Hide();
-  else
+  } else {
     gtk_widget_hide(bookmark_hbox_.get());
+    slide_animation_->Reset(0);
+    AnimationProgressed(slide_animation_.get());
+  }
 }
 
 int BookmarkBarGtk::GetHeight() {
