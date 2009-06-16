@@ -24,6 +24,9 @@
 #include "webkit/api/public/gtk/WebInputEventFactory.h"
 #include "webkit/glue/webcursor_gtk_data.h"
 
+static const int kMaxPopupWidth = 2000;
+static const int kMaxPopupHeight = 2000;
+
 using WebKit::WebInputEventFactory;
 
 // This class is a simple convenience wrapper for Gtk functions. It has only
@@ -274,7 +277,9 @@ void RenderWidgetHostViewGtk::InitAsPopup(
     parent_host_view->Blur();
   }
 
-  gtk_widget_set_size_request(view_.get(), pos.width(), pos.height());
+  gtk_widget_set_size_request(view_.get(),
+                              std::min(pos.width(), kMaxPopupWidth),
+                              std::min(pos.height(), kMaxPopupHeight));
 
   gtk_window_set_default_size(GTK_WINDOW(popup), -1, -1);
   // Don't allow the window to be resized. This also forces the window to
