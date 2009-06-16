@@ -9,9 +9,12 @@
 
 #include <algorithm>
 
+#include "app/l10n_util.h"
 #include "app/l10n_util_win.h"
 #include "base/logging.h"
+#include "base/string_util.h"
 #include "base/win_util.h"
+#include "grit/app_locale_settings.h"
 
 namespace gfx {
 
@@ -21,6 +24,25 @@ Font::HFontRef* Font::base_font_ref_;
 // If the tmWeight field of a TEXTMETRIC structure has a value >= this, the
 // font is bold.
 static const int kTextMetricWeightBold = 700;
+
+// Returns either minimum font allowed for a current locale or
+// lf_height + size_delta value.
+static int AdjustFontSize(int lf_height, int size_delta) {
+  if (lf_height < 0) {
+    lf_height -= size_delta;
+  } else {
+    lf_height += size_delta;
+  }
+  int min_font_size =
+    StringToInt(l10n_util::GetString(IDS_MINIMUM_UI_FONT_SIZE).c_str());
+  // Make sure lf_height is not smaller than allowed min font size for current
+  // locale.
+  if (abs(lf_height) < min_font_size) {
+    return lf_height < 0 ? -min_font_size : min_font_size;
+  } else {
+    return lf_height;
+  }
+}
 
 //
 // Font
@@ -78,12 +100,8 @@ Font::HFontRef* Font::GetBaseFontRef() {
     win_util::GetNonClientMetrics(&metrics);
 
     l10n_util::AdjustUIFont(&metrics.lfMessageFont);
-
-    // See comment in Font::DeriveFont() about font size.
-    // TODO(jungshik): Add a per-locale resource entry for the minimum
-    // font size  and actually enforce the lower-bound. 5 is way too small
-    // for CJK, Thai, and Indian locales.
-    DCHECK_GE(abs(metrics.lfMessageFont.lfHeight), 5);
+    metrics.lfMessageFont.lfHeight =
+        AdjustFontSize(metrics.lfMessageFont.lfHeight, 0);
     HFONT font = CreateFontIndirect(&metrics.lfMessageFont);
     DLOG_ASSERT(font);
     base_font_ref_ = Font::CreateHFontRef(font);
@@ -133,21 +151,10 @@ Font::HFontRef::~HFontRef() {
   DeleteObject(hfont_);
 }
 
-
 Font Font::DeriveFont(int size_delta, int style) const {
   LOGFONT font_info;
   GetObject(hfont(), sizeof(LOGFONT), &font_info);
-  // LOGFONT returns two types of font heights, negative is measured slightly
-  // differently (character height, vs cell height).
-  if (font_info.lfHeight < 0) {
-    font_info.lfHeight -= size_delta;
-  } else {
-    font_info.lfHeight += size_delta;
-  }
-  // Even with "Small Fonts", the smallest readable font size is 5. It is easy
-  // to create a non-drawing font and forget about the fact that text should be
-  // drawn in the UI. This test ensures that the font will be readable.
-  DCHECK_GE(abs(font_info.lfHeight), 5);
+  font_info.lfHeight = AdjustFontSize(font_info.lfHeight, size_delta);
   font_info.lfUnderline = ((style & UNDERLINED) == UNDERLINED);
   font_info.lfItalic = ((style & ITALIC) == ITALIC);
   font_info.lfWeight = (style & BOLD) ? FW_BOLD : FW_NORMAL;

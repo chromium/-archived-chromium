@@ -56,4 +56,23 @@ TEST_F(FontTest, Widths) {
   ASSERT_GT(cf.GetStringWidth(L"abc"), cf.GetStringWidth(L"ab"));
 }
 
+#if defined(OS_WIN)
+TEST_F(FontTest, DeriveFontResizesIfSizeTooSmall) {
+  // This creates font of height -8.
+  Font cf(Font::CreateFont(L"Arial", 6));
+  Font derived_font = cf.DeriveFont(-4);
+  LOGFONT font_info;
+  GetObject(derived_font.hfont(), sizeof(LOGFONT), &font_info);
+  EXPECT_EQ(-5, font_info.lfHeight);
+}
+
+TEST_F(FontTest, DeriveFontKeepsOriginalSizeIfHeightOk) {
+  // This creates font of height -8.
+  Font cf(Font::CreateFont(L"Arial", 6));
+  Font derived_font = cf.DeriveFont(-2);
+  LOGFONT font_info;
+  GetObject(derived_font.hfont(), sizeof(LOGFONT), &font_info);
+  EXPECT_EQ(-6, font_info.lfHeight);
+}
+#endif
 }  // anonymous namespace

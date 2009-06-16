@@ -193,6 +193,12 @@
       <message name="IDS_UI_FONT_SIZE_SCALER_XP" use_name_for_id="true">
         100
       </message>
+      
+      <!-- Limit minimum UI font size to 5 for all locales.
+           TODO(cira): add exceptions once we create xtb files. -->
+      <message name="IDS_MINIMUM_UI_FONT_SIZE" use_name_for_id="true">
+        5
+      </message>
     </messages>
   </release>
 </grit>

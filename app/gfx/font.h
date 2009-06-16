@@ -65,7 +65,7 @@ class Font {
   }
 
   // Returns a new Font derived from the existing font.
-  // size_deta is the size to add to the current font. See the single
+  // size_delta is the size to add to the current font. See the single
   // argument version of this method for an example.
   // The style parameter specifies the new style for the font, and is a
   // bitmask of the values: BOLD, ITALIC and UNDERLINED.
