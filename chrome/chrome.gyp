@@ -3993,7 +3993,6 @@
           'type': 'shared_library',
           'product_name': 'chrome',
           'msvs_guid': 'C0A7EE2C-2A6D-45BE-BA78-6D006FDF52D9',
-          'msvs_existing_vcproj': 'app/chrome_dll.vcproj',
           'include_dirs': [
             'third_party/wtl/include',
           ],
@@ -4010,6 +4009,7 @@
             'worker',
             '../net/net.gyp:net_resources',
             '../third_party/cld/cld.gyp:cld',
+            '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
             '../third_party/tcmalloc/tcmalloc.gyp:tcmalloc',
             '../views/views.gyp:views',
             '../webkit/webkit.gyp:webkit_resources',
