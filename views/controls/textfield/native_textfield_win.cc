@@ -446,6 +446,8 @@ void NativeTextfieldWin::OnKeyDown(TCHAR key, UINT repeat_count, UINT flags) {
       return;
 
     case 0xbb:  // Ctrl-'='.  Triggers subscripting, even in plain text mode.
+                // We don't use VK_OEM_PLUS in case the macro isn't defined.
+                // (e.g., we don't have this symbol in embeded environment).
       return;
 
     case VK_PROCESSKEY:

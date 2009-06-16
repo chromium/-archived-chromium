@@ -907,7 +907,8 @@ bool AutocompleteEditViewWin::SkipDefaultKeyEventProcessing(
       return !e.IsAltDown() && e.IsControlDown();
 
     case VK_BACK:
-    case 0xbb:
+    case 0xbb:  // We don't use VK_OEM_PLUS in case the macro isn't defined.
+                // (e.g., we don't have this symbol in embeded environment).
       return true;
 
     default:
@@ -1815,6 +1816,8 @@ bool AutocompleteEditViewWin::OnKeyDownOnlyWritable(TCHAR key,
     }
 
     case 0xbb:  // Ctrl-'='.  Triggers subscripting (even in plain text mode).
+                // We don't use VK_OEM_PLUS in case the macro isn't defined.
+                // (e.g., we don't have this symbol in embeded environment).
       return true;
 
     default:
