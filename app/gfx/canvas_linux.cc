@@ -92,6 +92,7 @@ void Canvas::SizeStringInt(const std::wstring& text,
   g_object_unref(layout);
   pango_font_description_free(desc);
   cairo_destroy(cr);
+  cairo_surface_destroy(surface);
 }
 
 void Canvas::ApplySkiaMatrixToCairoContext(cairo_t* cr) {
