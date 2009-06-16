@@ -4,6 +4,8 @@
 
 #include "chrome/browser/external_protocol_handler.h"
 
+#include "build/build_config.h"
+
 #if defined(OS_WIN)
 #include <windows.h>
 #include <shellapi.h>
