@@ -149,6 +149,9 @@ class PrefetchObserver : public net::HostResolver::Observer {
       int request_id,
       bool was_resolved,
       const net::HostResolver::RequestInfo& request_info);
+  virtual void OnCancelResolution(
+      int request_id,
+      const net::HostResolver::RequestInfo& request_info);
 
   static void DnsGetFirstResolutionsHtml(std::string* output);
   static void SaveStartupListAsPref(PrefService* local_state);
@@ -202,12 +205,9 @@ void PrefetchObserver::OnStartResolution(
 
   NavigatingTo(request_info.hostname());
 
-  // TODO(eroman): If the resolve request is cancelled, then
-  // OnFinishResolutionWithStatus will not be called, and |resolutions| will
-  // grow unbounded!
-  // http://crbug.com/14138
-
   AutoLock auto_lock(*lock);
+  // This entry will be deleted either by OnFinishResolutionWithStatus(), or
+  // by  OnCancelResolution().
   (*resolutions)[request_id] = navigation_info;
 }
 
@@ -238,6 +238,22 @@ void PrefetchObserver::OnFinishResolutionWithStatus(
   // instead rely on Referrers to pull this in automatically with the enclosing
   // page load (once we start to persist elements of our referrer tree).
   StartupListAppend(navigation_info);
+}
+
+void PrefetchObserver::OnCancelResolution(
+    int request_id,
+    const net::HostResolver::RequestInfo& request_info) {
+  if (request_info.is_speculative())
+    return;  // One of our own requests.
+
+  // Remove the entry from |resolutions| that was added by OnStartResolution().
+  AutoLock auto_lock(*lock);
+  ObservedResolutionMap::iterator it = resolutions->find(request_id);
+  if (resolutions->end() == it) {
+    DCHECK(false);
+    return;
+  }
+  resolutions->erase(it);
 }
 
 // static

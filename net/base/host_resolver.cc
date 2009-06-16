@@ -184,7 +184,7 @@ class HostResolver::Request {
         addresses_(addresses) {}
 
   // Mark the request as cancelled.
-  void Cancel() {
+  void MarkAsCancelled() {
     job_ = NULL;
     callback_ = NULL;
     addresses_ = NULL;
@@ -289,10 +289,26 @@ class HostResolver::Job : public base::RefCountedThreadSafe<HostResolver::Job> {
 
   // Cancels the current job. Callable from origin thread.
   void Cancel() {
+    HostResolver* resolver = resolver_;
     resolver_ = NULL;
 
-    AutoLock locked(origin_loop_lock_);
-    origin_loop_ = NULL;
+    // Mark the job as cancelled, so when worker thread completes it will
+    // not try to post completion to origin loop.
+    {
+      AutoLock locked(origin_loop_lock_);
+      origin_loop_ = NULL;
+    }
+
+    // We don't have to do anything further to actually cancel the requests
+    // that were attached to this job (since they are unreachable now).
+    // But we will call HostResolver::CancelRequest(Request*) on each one
+    // in order to notify any observers.
+    for (RequestsList::const_iterator it = requests_.begin();
+         it != requests_.end(); ++it) {
+      HostResolver::Request* req = *it;
+      if (!req->was_cancelled())
+        resolver->CancelRequest(req);
+    }
   }
 
   // Called from origin thread.
@@ -390,7 +406,7 @@ HostResolver::HostResolver(int max_cache_entries, int cache_duration_ms)
 
 HostResolver::~HostResolver() {
   // Cancel the outstanding jobs. Those jobs may contain several attached
-  // requests, which will now never be completed.
+  // requests, which will also be cancelled.
   for (JobMap::iterator it = jobs_.begin(); it != jobs_.end(); ++it)
     it->second->Cancel();
 
@@ -417,7 +433,12 @@ int HostResolver::Resolve(const RequestInfo& info,
         info.hostname(), base::TimeTicks::Now());
     if (cache_entry) {
       addresses->SetFrom(cache_entry->addrlist, info.port());
-      return OK;
+      int error = OK;
+
+      // Notify registered observers.
+      NotifyObserversFinishRequest(request_id, info, error);
+
+      return error;
     }
   }
 
@@ -478,7 +499,8 @@ void HostResolver::CancelRequest(Request* req) {
   DCHECK(req);
   DCHECK(req->job());
   // NULL out the fields of req, to mark it as cancelled.
-  req->Cancel();
+  req->MarkAsCancelled();
+  NotifyObserversCancelRequest(req->id(), req->info());
 }
 
 void HostResolver::AddObserver(Observer* observer) {
@@ -566,6 +588,14 @@ void HostResolver::NotifyObserversFinishRequest(int request_id,
   for (ObserversList::iterator it = observers_.begin();
        it != observers_.end(); ++it) {
     (*it)->OnFinishResolutionWithStatus(request_id, was_resolved, info);
+  }
+}
+
+void HostResolver::NotifyObserversCancelRequest(int request_id,
+                                                const RequestInfo& info) {
+  for (ObserversList::iterator it = observers_.begin();
+       it != observers_.end(); ++it) {
+    (*it)->OnCancelResolution(request_id, info);
   }
 }
 
