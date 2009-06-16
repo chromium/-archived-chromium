@@ -205,6 +205,7 @@ void PrefetchObserver::OnStartResolution(
   // TODO(eroman): If the resolve request is cancelled, then
   // OnFinishResolutionWithStatus will not be called, and |resolutions| will
   // grow unbounded!
+  // http://crbug.com/14138
 
   AutoLock auto_lock(*lock);
   (*resolutions)[request_id] = navigation_info;
