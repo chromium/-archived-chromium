@@ -1,6 +1,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head><title>History Test Page 3</title>
-<script src="HistoryHelper.js"></script>
+<script type="text/javascript" src="HistoryHelper.js"></script>
 </head>
 
 <body onload="onLoad();">
@@ -13,45 +13,48 @@ History Test Page 3....
 
 function onLoad() {
   if (readCookie(navigate_forward_cookie) != null) {
-    setTimeout(OnNavigateForward, 100);
+    setTimeout(OnNavigateForward, 50);
     return true;
   }
-  if (readCookie(navigate_backward_cookie)) {
-    setTimeout(OnNavigateBackward, 100);
+  if (readCookie(navigate_backward_cookie) != null) {
+    setTimeout(OnNavigateBackward, 50);
     return true;
   }
-  setTimeout(OnInitialLoad, 100);
+  setTimeout(OnInitialLoad, 50);
   return true;
 }
 
 function OnInitialLoad() {
   if (window.history.length != 3) {
     onFailure("History_Length_Test_2", 1,
-              "History length mismatch on initial load at page 3");
+              "History length mismatch on initial load at page 3: " +
+              window.history.length);
     return false;
   }
   onSuccess("History_Length_Test_2", 1);
-  return true; 
+  return true;
 }
 
 function OnNavigateBackward() {
   if (window.history.length != 3) {
     onFailure("History_Length_Test_3", 1,
-              "History length mismatch on navigating backward at page 3");
+              "History length mismatch on navigating backward at page 3: " +
+              window.history.length);
     return false;
   }
   window.history.back();
-  return true; 
+  return true;
 }
 
 function OnNavigateForward() {
   if (window.history.length != 3) {
     onFailure("History_Length_Test_3", 1,
-              "History length mismatch on navigating forward at page 3");
+              "History length mismatch on navigating forward at page 3: " +
+              window.history.length);
     return false;
   }
   window.history.forward();
-  return true; 
+  return true;
 }
 
 </script>

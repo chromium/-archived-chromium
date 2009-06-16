@@ -18,19 +18,20 @@ function onLoad() {
               "Page 2 must not be visited in navigating backward/forward");
     return false;
   }
-  setTimeout(OnInitialLoad, 100);
+  setTimeout(OnInitialLoad, 50);
   return true;
 }
 
 function OnInitialLoad() {
   if (window.history.length != 3) {
     onFailure("History_Length_Test_2", 1,
-              "History length mismatch on initial load at page 2");
+              "History length mismatch on initial load at page 2: " +
+              window.history.length);
     return false;
   }
   // Redirect to page 3.
   window.location.href = "history_length_test_page_3.html";
-  return true; 
+  return true;
 }
 
 </script>

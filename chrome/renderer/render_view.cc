@@ -1272,6 +1272,8 @@ void RenderView::DidFailLoadWithError(WebView* webview,
 
 void RenderView::DidFinishDocumentLoadForFrame(WebView* webview,
                                                WebFrame* frame) {
+  Send(new ViewHostMsg_DocumentLoadedInFrame(routing_id_));
+
   // The document has now been fully loaded.  Scan for password forms to be
   // sent up to the browser.
   SendPasswordForms(frame);

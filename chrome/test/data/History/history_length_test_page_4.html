@@ -1,6 +1,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head><title>History Test Page 4</title>
-<script src="HistoryHelper.js"></script>
+<script type="text/javascript" src="HistoryHelper.js"></script>
 </head>
 
 <body onload="onLoad();">
@@ -9,33 +9,35 @@ History Test Page 4....
 </div>
 </body>
 
-<SCRIPT type="text/javascript">
+<script type="text/javascript">
 
 function onLoad() {
   if (readCookie(navigate_forward_cookie) != null) {
-    setTimeout(OnNavigateForward, 100);
+    setTimeout(OnNavigateForward, 50);
     return true;
   }
-  setTimeout(OnInitialLoad, 100);
+  setTimeout(OnInitialLoad, 50);
   return true;
 }
 
 function OnInitialLoad() {
   if (window.history.length != 4) {
     onFailure("History_Length_Test_3", 1,
-              "History length mismatch on initial load at page 4");
+              "History length mismatch on initial load at page 4: " +
+              window.history.length);
     return false;
   }
   // Navigate backward from this point on.
   createCookie(navigate_backward_cookie, "1", "1");
   window.history.back();
-  return true; 
+  return true;
 }
 
 function OnNavigateForward() {
   if (window.history.length != 4) {
     onFailure("History_Length_Test_3", 1,
-              "History length mismatch on navigating forward at page 4");
+              "History length mismatch on navigating forward at page 4: " +
+              window.history.length);
     return false;
   }
   eraseCookie(navigate_forward_cookie);
@@ -44,5 +46,5 @@ function OnNavigateForward() {
   return true;
 }
 
-</SCRIPT>
+</script>
 </html>
