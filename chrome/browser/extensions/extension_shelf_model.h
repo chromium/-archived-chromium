@@ -94,7 +94,7 @@ class ExtensionShelfModel : public NotificationObserver {
   // Manages our notification registrations.
   NotificationRegistrar registrar_;
 
-  // The Toolstrips in this model.
+  // The Toolstrips in this model.  The model owns these objects.
   typedef std::vector<ExtensionHost*> ExtensionToolstripList;
   ExtensionToolstripList toolstrips_;
 

@@ -29,6 +29,11 @@ ExtensionShelfModel::ExtensionShelfModel(Browser* browser) : browser_(browser) {
 }
 
 ExtensionShelfModel::~ExtensionShelfModel() {
+  int count = toolstrips_.size();
+  while (count) {
+    count--;
+    RemoveToolstripAt(count);
+  }
   DCHECK(observers_.size() == 0);
 }
 
