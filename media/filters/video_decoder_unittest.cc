@@ -15,16 +15,11 @@
 
 using media::FilterFactoryCollection;
 using media::InstanceFilterFactory;
-using media::MockAudioDecoder;
-using media::MockAudioRenderer;
-using media::MockDataSource;
-using media::MockDemuxer;
-using media::MockFilterConfig;
-using media::MockFilterFactory;
-using media::MockVideoRenderer;
 using media::PipelineImpl;
 using media::TestVideoDecoder;
-using media::VideoFrame;
+using media::old_mocks::InitializationHelper;
+using media::old_mocks::MockFilterConfig;
+using media::old_mocks::MockFilterFactory;
 
 TEST(VideoDecoder, CreateTestDecoder) {
   std::string url("");
@@ -34,7 +29,7 @@ TEST(VideoDecoder, CreateTestDecoder) {
   scoped_refptr<FilterFactoryCollection> c = new FilterFactoryCollection();
   c->AddFactory(new InstanceFilterFactory<TestVideoDecoder>(test_decoder));
   c->AddFactory(new MockFilterFactory(&config));
-  media::InitializationHelper h;
+  InitializationHelper h;
   h.Start(&p, c, url);
   p.SetPlaybackRate(1.0f);
   p.Stop();

@@ -37,8 +37,8 @@ namespace media {
 // FFmpeg, pipeline and filter host mocks.
 class FFmpegVideoDecoderTest : public testing::Test {
  protected:
-  static const int kWidth = 1280;
-  static const int kHeight = 720;
+  static const int kWidth;
+  static const int kHeight;
 
   FFmpegVideoDecoderTest() {
     MediaFormat media_format;
@@ -79,7 +79,7 @@ class FFmpegVideoDecoderTest : public testing::Test {
   scoped_refptr<FilterFactory> factory_;
   scoped_refptr<VideoDecoder> decoder_;
   scoped_ptr<MockPipeline> pipeline_;
-  scoped_ptr< MockFilterHost<VideoDecoder> > filter_host_;
+  scoped_ptr<MockFilterHost<VideoDecoder> > filter_host_;
   scoped_refptr<MockDemuxerStream> demuxer_;
 
   // FFmpeg fixtures.
@@ -91,6 +91,9 @@ class FFmpegVideoDecoderTest : public testing::Test {
  private:
   DISALLOW_COPY_AND_ASSIGN(FFmpegVideoDecoderTest);
 };
+
+const int FFmpegVideoDecoderTest::kWidth = 1280;
+const int FFmpegVideoDecoderTest::kHeight = 720;
 
 TEST(FFmpegVideoDecoderFactoryTest, Create) {
   // Should only accept video/x-ffmpeg mime type.
@@ -112,7 +115,7 @@ TEST(FFmpegVideoDecoderFactoryTest, Create) {
 TEST_F(FFmpegVideoDecoderTest, Initialize_QueryInterfaceFails) {
   // Test QueryInterface returning NULL.
   EXPECT_CALL(*demuxer_, QueryInterface(AVStreamProvider::interface_id()))
-    .WillOnce(ReturnNull());
+      .WillOnce(ReturnNull());
 
   EXPECT_FALSE(decoder_->Initialize(demuxer_));
   EXPECT_TRUE(filter_host_->WaitForError(PIPELINE_ERROR_DECODE));

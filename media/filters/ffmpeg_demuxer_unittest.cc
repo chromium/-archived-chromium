@@ -268,8 +268,8 @@ class FFmpegDemuxerTest : public testing::Test {
     // Prepare a filter host and data source for the demuxer.
     pipeline_.reset(new MockPipeline());
     filter_host_.reset(new MockFilterHost<Demuxer>(pipeline_.get(), demuxer_));
-    MockFilterConfig config;
-    data_source_ = new MockDataSource(&config);
+    old_mocks::MockFilterConfig config;
+    data_source_ = new old_mocks::MockDataSource(&config);
   }
 
   virtual void TearDown() {
@@ -281,8 +281,8 @@ class FFmpegDemuxerTest : public testing::Test {
   scoped_refptr<FilterFactory> factory_;
   scoped_refptr<Demuxer> demuxer_;
   scoped_ptr<MockPipeline> pipeline_;
-  scoped_ptr< MockFilterHost<Demuxer> > filter_host_;
-  scoped_refptr<MockDataSource> data_source_;
+  scoped_ptr<MockFilterHost<Demuxer> > filter_host_;
+  scoped_refptr<old_mocks::MockDataSource> data_source_;
 
  private:
   static void InitializeFFmpegMocks() {
@@ -400,7 +400,7 @@ TEST_F(FFmpegDemuxerTest, InitializeStreams) {
   EXPECT_EQ(g_streams[1].duration, pipeline_->GetDuration().InMicroseconds());
 
   // Verify that 2 out of 3 streams were created.
-  EXPECT_EQ(2, demuxer_->GetNumberOfStreams());
+  EXPECT_EQ(2u, demuxer_->GetNumberOfStreams());
 
   // First stream should be video and support FFmpegDemuxerStream interface.
   scoped_refptr<DemuxerStream> stream = demuxer_->GetStream(0);
@@ -459,7 +459,7 @@ TEST_F(FFmpegDemuxerTest, ReadAndSeek) {
   EXPECT_EQ(PIPELINE_OK, pipeline_->GetError());
 
   // Verify both streams were created.
-  EXPECT_EQ(2, demuxer_->GetNumberOfStreams());
+  EXPECT_EQ(2u, demuxer_->GetNumberOfStreams());
 
   // Get our streams.
   scoped_refptr<DemuxerStream> audio_stream = demuxer_->GetStream(kAudio);
@@ -655,7 +655,7 @@ TEST_F(FFmpegDemuxerTest, DISABLED_MP3Hack) {
   EXPECT_EQ(PIPELINE_OK, pipeline_->GetError());
 
   // Verify the stream was created.
-  EXPECT_EQ(1, demuxer_->GetNumberOfStreams());
+  EXPECT_EQ(1u, demuxer_->GetNumberOfStreams());
   scoped_refptr<DemuxerStream> audio_stream = demuxer_->GetStream(kAudio);
   ASSERT_TRUE(audio_stream);
 

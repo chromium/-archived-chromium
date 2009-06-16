@@ -173,20 +173,6 @@
             #   gtk/gtk.h
             '../build/linux/system.gyp:gtk',
           ],
-          'sources!': [
-            'base/mock_ffmpeg.cc',
-            'filters/ffmpeg_demuxer_unittest.cc',
-            'filters/ffmpeg_glue_unittest.cc',
-            'filters/ffmpeg_video_decoder_unittest.cc',
-          ],
-        }],
-        ['OS=="mac"', {
-          'sources!': [
-            'base/mock_ffmpeg.cc',
-            'filters/ffmpeg_demuxer_unittest.cc',
-            'filters/ffmpeg_glue_unittest.cc',
-            'filters/ffmpeg_video_decoder_unittest.cc',
-          ],
         }],
       ],
     },

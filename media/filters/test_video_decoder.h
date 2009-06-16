@@ -11,6 +11,7 @@
 #include "media/base/buffers.h"
 #include "media/base/factory.h"
 #include "media/base/filters.h"
+#include "media/base/mock_media_filters.h"
 #include "media/base/video_frame_impl.h"
 #include "media/filters/decoder_base.h"
 
@@ -52,7 +53,7 @@ class TestVideoDecoder : public DecoderBase<VideoDecoder, VideoFrame> {
                                 buffer->GetDuration(),
                                 &frame);
     if (frame) {
-      MockVideoDecoder::InitializeYV12Frame(frame, 0.5f);
+      old_mocks::MockVideoDecoder::InitializeYV12Frame(frame, 0.5f);
       EnqueueResult(frame);
     } else {
       host_->Error(PIPELINE_ERROR_OUT_OF_MEMORY);

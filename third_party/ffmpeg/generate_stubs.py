@@ -377,6 +377,10 @@ class PosixStubWriter(object):
   def StubFunction(cls, signature):
     """Generates a stub function definition for the given signature.
 
+    The function definitions are created with __attribute__((weak)) so that
+    they may be overridden by a real static link or mock versions to be used
+    when testing.
+
     Args:
       signature: The hash representing the function signature.
 
@@ -395,7 +399,8 @@ class PosixStubWriter(object):
     if arg_list == 'void':
       arg_list = ''
 
-    return """%(return_type)s %(name)s(%(params)s) {
+    return """extern %(return_type)s %(name)s(%(params)s) __attribute__((weak));
+%(return_type)s %(name)s(%(params)s) {
   %(return_prefix)s%(name)s_ptr(%(arg_list)s);
 }""" % {'return_type': signature['return_type'],
         'name': signature['name'],

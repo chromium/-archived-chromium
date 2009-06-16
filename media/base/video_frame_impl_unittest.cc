@@ -98,9 +98,9 @@ TEST(VideoFrameImpl, Basic) {
   EXPECT_FALSE(frame->IsDiscontinuous());
 
   // Test VideoFrame implementation.
-  media::MockVideoDecoder::InitializeYV12Frame(frame, 0.0f);
+  media::old_mocks::MockVideoDecoder::InitializeYV12Frame(frame, 0.0f);
   ExpectFrameColor(frame, 0xFF000000);
-  media::MockVideoDecoder::InitializeYV12Frame(frame, 1.0f);
+  media::old_mocks::MockVideoDecoder::InitializeYV12Frame(frame, 1.0f);
   ExpectFrameColor(frame, 0xFFFFFFFF);
 
   // Test an empty frame.

@@ -25,16 +25,13 @@
 using media::FileDataSource;
 using media::FilterFactory;
 using media::FilterFactoryCollection;
-using media::InitializationHelper;
 using media::MediaFormat;
-using media::MockDemuxer;
-using media::MockAudioDecoder;
-using media::MockAudioRenderer;
-using media::MockFilterConfig;
-using media::MockFilterFactory;
 using media::MockFilterHost;
 using media::MockPipeline;
 using media::PipelineImpl;
+using media::old_mocks::InitializationHelper;
+using media::old_mocks::MockFilterConfig;
+using media::old_mocks::MockFilterFactory;
 
 namespace {
 

@@ -1,6 +1,11 @@
 // Copyright (c) 2009 The Chromium Authors. All rights reserved.  Use of this
 // source code is governed by a BSD-style license that can be found in the
 // LICENSE file.
+//
+// TODO(ajwong): This whole file is deprecated in favor or gmock style mocks.
+// The deprecated classes have been moved into the old_mocks to avoid colliding
+// with the newer mock classes.  Once all the unittests have been migrated, this
+// should be deleted.
 
 #ifndef MEDIA_BASE_MOCK_MEDIA_FILTERS_H_
 #define MEDIA_BASE_MOCK_MEDIA_FILTERS_H_
@@ -19,6 +24,8 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace media {
+
+namespace old_mocks {
 
 // Behaviors for MockDataSource filter.
 enum MockDataSourceBehavior {
@@ -666,6 +673,8 @@ class InitializationHelper {
 
   DISALLOW_COPY_AND_ASSIGN(InitializationHelper);
 };
+
+}  // namespace old_mocks
 
 }  // namespace media
 

@@ -36,7 +36,7 @@ class PipelineImplTest : public testing::Test {
   // was executed, false otherwise.
   bool InitializeAndWait() {
     DCHECK(!filters_);
-    filters_ = new media::MockFilterFactory(&config_);
+    filters_ = new media::old_mocks::MockFilterFactory(&config_);
     pipeline_.Start(filters_, "",
                     NewCallback(this, &PipelineImplTest::OnInitialize));
     return initialize_event_.TimedWait(base::TimeDelta::FromMilliseconds(500));
@@ -51,8 +51,8 @@ class PipelineImplTest : public testing::Test {
 
   // Fixture members.
   media::PipelineImpl pipeline_;
-  scoped_refptr<media::MockFilterFactory> filters_;
-  media::MockFilterConfig config_;
+  scoped_refptr<media::old_mocks::MockFilterFactory> filters_;
+  media::old_mocks::MockFilterConfig config_;
   bool initialize_result_;
   bool seek_result_;
 
@@ -75,7 +75,7 @@ class PipelineImplTest : public testing::Test {
 };
 
 TEST_F(PipelineImplTest, NeverInitializes) {
-  config_.data_source_behavior = media::MOCK_DATA_SOURCE_NEVER_INIT;
+  config_.data_source_behavior = media::old_mocks::MOCK_DATA_SOURCE_NEVER_INIT;
 
   // This test hangs during initialization by never calling
   // InitializationComplete().  Make sure we tear down the pipeline properly.
@@ -96,7 +96,8 @@ TEST_F(PipelineImplTest, RequiredFilterMissing) {
 }
 
 TEST_F(PipelineImplTest, URLNotFound) {
-  config_.data_source_behavior = media::MOCK_DATA_SOURCE_URL_ERROR_IN_INIT;
+  config_.data_source_behavior =
+      media::old_mocks::MOCK_DATA_SOURCE_URL_ERROR_IN_INIT;
 
   ASSERT_TRUE(InitializeAndWait());
   EXPECT_FALSE(initialize_result_);

@@ -55,18 +55,18 @@ TEST(FFmpegGlueTest, AddRemoveGetDataSource) {
   // Create our data sources and add them to the glue layer.
   bool deleted_a = false;
   bool deleted_b = false;
-  media::MockFilterConfig config_a;
-  media::MockFilterConfig config_b;
-  scoped_refptr<media::MockDataSource> data_source_a
-      = new media::MockDataSource(&config_a, &deleted_a);
-  scoped_refptr<media::MockDataSource> data_source_b
-      = new media::MockDataSource(&config_b, &deleted_b);
+  media::old_mocks::MockFilterConfig config_a;
+  media::old_mocks::MockFilterConfig config_b;
+  scoped_refptr<media::old_mocks::MockDataSource> data_source_a
+      = new media::old_mocks::MockDataSource(&config_a, &deleted_a);
+  scoped_refptr<media::old_mocks::MockDataSource> data_source_b
+      = new media::old_mocks::MockDataSource(&config_b, &deleted_b);
 
   // Make sure the keys are unique.
   std::string key_a = glue->AddDataSource(data_source_a);
   std::string key_b = glue->AddDataSource(data_source_b);
-  EXPECT_EQ(0, key_a.find("http://"));
-  EXPECT_EQ(0, key_b.find("http://"));
+  EXPECT_EQ(0u, key_a.find("http://"));
+  EXPECT_EQ(0u, key_b.find("http://"));
   EXPECT_NE(key_a, key_b);
 
   // Our keys should return our data sources.
@@ -108,9 +108,9 @@ TEST(FFmpegGlueTest, OpenClose) {
 
   // Create our data source and add them to the glue layer.
   bool deleted = false;
-  media::MockFilterConfig config;
-  scoped_refptr<media::MockDataSource> data_source
-      = new media::MockDataSource(&config, &deleted);
+  media::old_mocks::MockFilterConfig config;
+  scoped_refptr<media::old_mocks::MockDataSource> data_source
+      = new media::old_mocks::MockDataSource(&config, &deleted);
   std::string key = glue->AddDataSource(data_source);
 
   // Prepare FFmpeg URLContext structure.
@@ -147,8 +147,8 @@ TEST(FFmpegGlueTest, ReadingWriting) {
 
   // Configure MockDataSource to be 8 characters long and fill reads with
   // periods.  Therefore our expected string should be a character of 8 periods.
-  const size_t kExpectedSize = 8;
-  media::MockFilterConfig config;
+  const int kExpectedSize = 8;
+  media::old_mocks::MockFilterConfig config;
   config.media_total_bytes = kExpectedSize;
   config.data_source_value = '.';
   const char kExpected[] = "........";
@@ -156,8 +156,8 @@ TEST(FFmpegGlueTest, ReadingWriting) {
 
   // Create our data source and add them to the glue layer.
   bool deleted = false;
-  scoped_refptr<media::MockDataSource> data_source
-      = new media::MockDataSource(&config, &deleted);
+  scoped_refptr<media::old_mocks::MockDataSource> data_source
+      = new media::old_mocks::MockDataSource(&config, &deleted);
   std::string key = glue->AddDataSource(data_source);
 
   // Open our data source and then remove it from the glue layer.
@@ -204,10 +204,10 @@ TEST(FFmpegGlueTest, Seeking) {
 
   // Create our data source and add them to the glue layer.
   bool deleted = false;
-  media::MockFilterConfig config;
+  media::old_mocks::MockFilterConfig config;
   config.media_total_bytes = kSize;
-  scoped_refptr<media::MockDataSource> data_source
-      = new media::MockDataSource(&config, &deleted);
+  scoped_refptr<media::old_mocks::MockDataSource> data_source
+      = new media::old_mocks::MockDataSource(&config, &deleted);
   std::string key = glue->AddDataSource(data_source);
 
   // Open our data source and then remove it from the glue layer.
@@ -292,9 +292,9 @@ TEST(FFmpegGlueTest, Destructor) {
   static bool deleted = false;
 
   // Create our data source and add them to the glue layer.
-  media::MockFilterConfig config;
-  scoped_refptr<media::MockDataSource> data_source
-      = new media::MockDataSource(&config, &deleted);
+  media::old_mocks::MockFilterConfig config;
+  scoped_refptr<media::old_mocks::MockDataSource> data_source
+      = new media::old_mocks::MockDataSource(&config, &deleted);
   std::string key = glue->AddDataSource(data_source);
 
   // Remove our own reference.

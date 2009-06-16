@@ -9,12 +9,11 @@
 #include "media/filters/test_video_renderer.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-using media::FilterFactory;
-using media::MockFilterConfig;
 using media::MockFilterHost;
 using media::MockPipeline;
-using media::MockVideoDecoder;
 using media::TestVideoRenderer;
+using media::old_mocks::MockFilterConfig;
+using media::old_mocks::MockVideoDecoder;
 
 TEST(VideoRenderer, CreateAndPlay) {
   // Prepare test data.
