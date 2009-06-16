@@ -297,7 +297,7 @@ bool CheckDeviceCaps(LPDIRECT3D9 d3d, Features* features) {
           << " for depth/stencil buffers.";
       return false;
     }
-  }
+  }  
 
   return true;
 }
@@ -325,6 +325,34 @@ Renderer::InitStatus CreateDirect3D(Direct3DCreate9_Ptr d3d_create_function,
 
   return Renderer::SUCCESS;
 }
+
+// For certain GPU drivers we need to force anti-aliasing off to avoid a
+// a huge performance hit when certain types of windows are used on the same
+// desktop as O3D. This function returns true if O3D is running on one
+// of these GPUs/Drivers.  
+bool ForceAntiAliasingOff(LPDIRECT3D9* d3d) {
+  D3DADAPTER_IDENTIFIER9 identifier;
+  HRESULT hr = (*d3d)->GetAdapterIdentifier(D3DADAPTER_DEFAULT, 0, &identifier);
+  
+  unsigned int vendor_id = identifier.VendorId;
+  unsigned int device_id = identifier.DeviceId;
+  unsigned int product = HIWORD(identifier.DriverVersion.HighPart);
+  unsigned int version = LOWORD(identifier.DriverVersion.HighPart);
+  unsigned int subversion = HIWORD(identifier.DriverVersion.LowPart);
+  unsigned int build = LOWORD(identifier.DriverVersion.LowPart);
+
+  // Disable ATI drivers 6.14.10.x where x is 6800 or lower.
+  if (vendor_id == 4098 &&   // ATI
+      product == 6 &&
+      version == 14 &&
+      subversion == 10 && 
+      build <= 6800) {
+    return true;
+  } 
+
+  return false;
+}
+
 
 // Helper function that gets the D3D Interface, checks the available
 // multisampling modes and selects the most advanced one available to create
@@ -405,7 +433,7 @@ Renderer::InitStatus InitializeD3D9Context(
     }
   }
 
-  if (features->not_anti_aliased()) {
+  if (features->not_anti_aliased() || ForceAntiAliasingOff(d3d)) {
     d3d_present_parameters->MultiSampleType = D3DMULTISAMPLE_NONE;
     d3d_present_parameters->MultiSampleQuality = 0;
   } else {
