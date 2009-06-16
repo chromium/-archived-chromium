@@ -24,8 +24,8 @@ include_rules = [
   # Allow usage of Google Toolbox for Mac.
   "+third_party/GTM",
 
-  # Brett's test. Contact him for questions.
-  "+frame_window",
+  # Our Skia extensions.
+  "+skia/ext",
 
   # On Linux, we include some breakpad headers
   "+breakpad/linux",

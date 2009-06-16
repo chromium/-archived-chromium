@@ -10,8 +10,9 @@
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "third_party/skia/include/core/SkCanvas.h"
 
-BackingStore::BackingStore(const gfx::Size& size)
-    : size_(size) {
+BackingStore::BackingStore(RenderWidgetHost* widget, const gfx::Size& size)
+    : render_widget_host_(widget),
+      size_(size) {
   if (!canvas_.initialize(size.width(), size.height(), true))
     SK_CRASH();
 }

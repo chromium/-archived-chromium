@@ -131,7 +131,7 @@ class PropertyAccessor : public PropertyAccessorBase {
   PropertyAccessor() : PropertyAccessorBase() {}
   virtual ~PropertyAccessor() {}
 
-  // Takes ownership of the |prop| pointer.
+  // Makes a copy of the |prop| object for storage.
   void SetProperty(PropertyBag* bag, const T& prop) {
     SetPropertyInternal(bag, new Container(prop));
   }

@@ -14,6 +14,7 @@
 #include "base/timer.h"
 #include "chrome/common/ipc_channel.h"
 #include "chrome/common/native_web_keyboard_event.h"
+#include "chrome/common/property_bag.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 #include "webkit/glue/webtextdirection.h"
 
@@ -31,6 +32,7 @@ class BackingStore;
 class PaintObserver;
 class RenderProcessHost;
 class RenderWidgetHostView;
+class RenderWidgetHostPaintingObserver;
 class TransportDIB;
 class WebCursor;
 struct ViewHostMsg_PaintRect_Params;
@@ -140,6 +142,22 @@ class RenderWidgetHost : public IPC::Channel::Listener {
     paint_observer_.reset(paint_observer);
   }
 
+  // Returns the property bag for this widget, where callers can add extra data
+  // they may wish to associate with it. Returns a pointer rather than a
+  // reference since the PropertyAccessors expect this.
+  const PropertyBag* property_bag() const { return &property_bag_; }
+  PropertyBag* property_bag() { return &property_bag_; }
+
+  // The painting observer that will be called for paint events. This
+  // pointer's ownership will remain with the caller and must remain valid
+  // until this class is destroyed or the observer is replaced.
+  RenderWidgetHostPaintingObserver* painting_observer() const {
+    return painting_observer_;
+  }
+  void set_painting_observer(RenderWidgetHostPaintingObserver* observer) {
+    painting_observer_ = observer;
+  }
+
   // Called when a renderer object already been created for this host, and we
   // just need to be attached to it. Used for window.open, <select> dropdown
   // menus, and other times when the renderer initiates creating an object.
@@ -182,9 +200,11 @@ class RenderWidgetHost : public IPC::Channel::Listener {
 
   // Get access to the widget's backing store.  If a resize is in progress,
   // then the current size of the backing store may be less than the size of
-  // the widget's view.  This method returns NULL if the backing store could
-  // not be created.
-  BackingStore* GetBackingStore();
+  // the widget's view.  If you pass |force_create| as true, then the backing
+  // store will be created if it doesn't exist. Otherwise, NULL will be returned
+  // if the backing store doesn't already exist. It will also return NULL if the
+  // backing store could not be created.
+  BackingStore* GetBackingStore(bool force_create);
 
   // Allocate a new backing store of the given size. Returns NULL on failure
   // (for example, if we don't currently have a RenderWidgetHostView.)
@@ -357,6 +377,13 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // is guaranteed never to be NULL, but its channel may be NULL if the
   // renderer crashed, so you must always check that.
   RenderProcessHost* process_;
+
+  // Stores random bits of data for others to associate with this object.
+  PropertyBag property_bag_;
+
+  // Observer that will be called for paint events. This may be NULL. The
+  // pointer is not owned by this class.
+  RenderWidgetHostPaintingObserver* painting_observer_;
 
   // The ID of the corresponding object in the Renderer Instance.
   int routing_id_;

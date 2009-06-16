@@ -11,6 +11,7 @@
 #include "base/logging.h"
 #include "chrome/common/transport_dib.h"
 #include "chrome/common/x11_util.h"
+#include "skia/ext/platform_canvas.h"
 
 // The shmat system call uses this as it's invalid return address
 static void *const kInvalidAddress = (void*) -1;
@@ -78,6 +79,11 @@ TransportDIB* TransportDIB::Map(Handle shmkey) {
   dib->size_ = shmst.shm_segsz;
   dib->key_ = shmkey;
   return dib;
+}
+
+skia::PlatformCanvas* TransportDIB::GetPlatformCanvas(int w, int h) {
+  return new skia::PlatformCanvas(w, h, true,
+                                  reinterpret_cast<uint8_t*>(memory()));
 }
 
 void* TransportDIB::memory() const {

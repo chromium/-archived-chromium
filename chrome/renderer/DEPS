@@ -6,7 +6,6 @@ include_rules = [
   "+media/base",
   "+media/filters",
   "+sandbox/src",
-  "+skia/ext",
   "+skia/include",
   "+webkit/default_plugin",
   "+webkit/extensions",

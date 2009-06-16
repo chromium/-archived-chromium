@@ -21,6 +21,7 @@
 #endif
 
 class RenderWidgetHost;
+class SkBitmap;
 class TransportDIB;
 
 // BackingStore ----------------------------------------------------------------
@@ -29,31 +30,31 @@ class TransportDIB;
 class BackingStore {
  public:
 #if defined(OS_WIN) || defined(OS_MACOSX)
-  explicit BackingStore(const gfx::Size& size);
+  BackingStore(RenderWidgetHost* widget, const gfx::Size& size);
 #elif defined(OS_LINUX)
-  // Create a backing store on the X server.
-  //   size: the size of the server-side pixmap
-  //   x_connection: the display to target
-  //   depth: the depth of the X window which will be drawn into
-  //   visual: An Xlib Visual describing the format of the target window
-  //   root_window: The X id of the root window
-  //   use_render: if true, the X server supports Xrender
-  //   use_shared_memory: if true, the X server is local
-  BackingStore(const gfx::Size& size, Display* x_connection, int depth,
-               void* visual, XID root_window, bool use_render,
-               bool use_shared_memory);
+  // Create a backing store on the X server. The visual is an Xlib Visual
+  // describing the format of the target window and the depth is the color
+  // depth of the X window which will be drawn into.
+  BackingStore(RenderWidgetHost* widget,
+               const gfx::Size& size,
+               void* visual,
+               int depth);
+
   // This is for unittesting only. An object constructed using this constructor
   // will silently ignore all paints
-  explicit BackingStore(const gfx::Size& size);
+  BackingStore(RenderWidgetHost* widget, const gfx::Size& size);
 #endif
   ~BackingStore();
 
+  RenderWidgetHost* render_widget_host() const { return render_widget_host_; }
   const gfx::Size& size() { return size_; }
 
 #if defined(OS_WIN)
   HDC hdc() { return hdc_; }
+
 #elif defined(OS_MACOSX)
   skia::PlatformCanvas* canvas() { return &canvas_; }
+
 #elif defined(OS_LINUX)
   // Copy from the server-side backing store to the target window
   //   display: the display of the backing store and target window
@@ -77,6 +78,9 @@ class BackingStore {
                   const gfx::Size& view_size);
 
  private:
+  // The owner of this backing store.
+  RenderWidgetHost* render_widget_host_;
+
   // The size of the backing store.
   gfx::Size size_;
 

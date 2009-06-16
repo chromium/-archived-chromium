@@ -17,7 +17,7 @@ TestRenderViewHost::TestRenderViewHost(SiteInstance* instance,
     : RenderViewHost(instance, delegate, routing_id, modal_dialog_event),
       render_view_created_(false),
       delete_counter_(NULL) {
-  set_view(new TestRenderWidgetHostView());
+  set_view(new TestRenderWidgetHostView(this));
 }
 
 TestRenderViewHost::~TestRenderViewHost() {
@@ -66,9 +66,14 @@ void TestRenderViewHost::SendNavigate(int page_id, const GURL& url) {
   OnMsgNavigate(msg);
 }
 
+TestRenderWidgetHostView::TestRenderWidgetHostView(RenderWidgetHost* rwh)
+    : rwh_(rwh),
+      is_showing_(false) {
+}
+
 BackingStore* TestRenderWidgetHostView::AllocBackingStore(
     const gfx::Size& size) {
-  return new BackingStore(size);
+  return new BackingStore(rwh_, size);
 }
 
 void RenderViewHostTestHarness::NavigateAndCommit(const GURL& url) {

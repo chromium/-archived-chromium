@@ -8,6 +8,7 @@
 #include "base/logging.h"
 #include "base/sys_info.h"
 #include "chrome/common/transport_dib.h"
+#include "skia/ext/platform_canvas.h"
 
 TransportDIB::TransportDIB() {
 }
@@ -57,6 +58,10 @@ TransportDIB* TransportDIB::Map(TransportDIB::Handle handle) {
   dib->size_ = std::numeric_limits<size_t>::max();
 
   return dib;
+}
+
+skia::PlatformCanvas* TransportDIB::GetPlatformCanvas(int w, int h) {
+  return new skia::PlatformCanvas(w, h, true, handle());
 }
 
 void* TransportDIB::memory() const {

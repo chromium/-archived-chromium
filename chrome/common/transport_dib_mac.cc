@@ -9,6 +9,7 @@
 
 #include "base/eintr_wrapper.h"
 #include "base/shared_memory.h"
+#include "skia/ext/platform_canvas.h"
 
 TransportDIB::TransportDIB()
     : size_(0) {
@@ -50,6 +51,11 @@ TransportDIB* TransportDIB::Map(TransportDIB::Handle handle) {
   dib->size_ = st.st_size;
 
   return dib;
+}
+
+skia::PlatformCanvas* TransportDIB::GetPlatformCanvas(int w, int h) {
+  return new skia::PlatformCanvas(w, h, true,
+                                  reinterpret_cast<uint8_t*>(dib->memory()));
 }
 
 void* TransportDIB::memory() const {

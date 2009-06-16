@@ -24,41 +24,39 @@
 // shared memory or over the wire, and XRENDER is used to convert them to the
 // correct format for the backing store.
 
-BackingStore::BackingStore(const gfx::Size& size,
-                           Display* display,
-                           int depth,
+BackingStore::BackingStore(RenderWidgetHost* widget,
+                           const gfx::Size& size,
                            void* visual,
-                           Drawable root_window,
-                           bool use_render,
-                           bool use_shared_memory)
-    : size_(size),
-      display_(display),
-      use_shared_memory_(use_shared_memory),
-      use_render_(use_render),
+                           int depth)
+    : render_widget_host_(widget),
+      size_(size),
+      display_(x11_util::GetXDisplay()),
+      use_shared_memory_(x11_util::QuerySharedMemorySupport(display_)),
+      use_render_(x11_util::QueryRenderSupport(display_)),
       visual_depth_(depth),
-      root_window_(root_window) {
-  const int width = size.width();
-  const int height = size.height();
-
+      root_window_(x11_util::GetX11RootWindow()) {
   COMPILE_ASSERT(__BYTE_ORDER == __LITTLE_ENDIAN, assumes_little_endian);
 
-  pixmap_ = XCreatePixmap(display_, root_window, width, height, depth);
+  pixmap_ = XCreatePixmap(display_, root_window_,
+                          size.width(), size.height(), depth);
 
   if (use_render_) {
     picture_ = XRenderCreatePicture(
         display_, pixmap_,
-        x11_util::GetRenderVisualFormat(display_, static_cast<Visual*>(visual)),
-        0, NULL);
+        x11_util::GetRenderVisualFormat(display_,
+                                        static_cast<Visual*>(visual)),
+                                        0, NULL);
   } else {
     picture_ = 0;
-    pixmap_bpp_ = x11_util::BitsPerPixelForPixmapDepth(display, depth);
+    pixmap_bpp_ = x11_util::BitsPerPixelForPixmapDepth(display_, depth);
   }
 
   pixmap_gc_ = XCreateGC(display_, pixmap_, 0, NULL);
 }
 
-BackingStore::BackingStore(const gfx::Size& size)
-    : size_(size),
+BackingStore::BackingStore(RenderWidgetHost* widget, const gfx::Size& size)
+    : render_widget_host_(widget),
+      size_(size),
       display_(NULL),
       use_shared_memory_(false),
       use_render_(false),

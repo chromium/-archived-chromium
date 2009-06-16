@@ -136,21 +136,6 @@ bool RenderProcess::InProcessPlugins() {
 // -----------------------------------------------------------------------------
 // Platform specific code for dealing with bitmap transport...
 
-// -----------------------------------------------------------------------------
-// Create a platform canvas object which renders into the given transport
-// memory.
-// -----------------------------------------------------------------------------
-static skia::PlatformCanvas* CanvasFromTransportDIB(
-    TransportDIB* dib, const gfx::Rect& rect) {
-#if defined(OS_WIN)
-  return new skia::PlatformCanvas(rect.width(), rect.height(), true,
-                                  dib->handle());
-#elif defined(OS_LINUX) || defined(OS_MACOSX)
-  return new skia::PlatformCanvas(rect.width(), rect.height(), true,
-                                  reinterpret_cast<uint8_t*>(dib->memory()));
-#endif
-}
-
 TransportDIB* RenderProcess::CreateTransportDIB(size_t size) {
 #if defined(OS_WIN) || defined(OS_LINUX)
   // Windows and Linux create transport DIBs inside the renderer
@@ -196,7 +181,7 @@ skia::PlatformCanvas* RenderProcess::GetDrawingCanvas(
       return false;
   }
 
-  return CanvasFromTransportDIB(*memory, rect);
+  return (*memory)->GetPlatformCanvas(rect.width(), rect.height());
 }
 
 void RenderProcess::ReleaseTransportDIB(TransportDIB* mem) {

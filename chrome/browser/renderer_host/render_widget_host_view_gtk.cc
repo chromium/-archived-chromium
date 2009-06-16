@@ -446,19 +446,6 @@ void RenderWidgetHostViewGtk::SelectionChanged(const std::string& text) {
   gtk_clipboard_set_text(x_clipboard, text.c_str(), text.length());
 }
 
-BackingStore* RenderWidgetHostViewGtk::AllocBackingStore(
-    const gfx::Size& size) {
-  Display* display = x11_util::GetXDisplay();
-  void* visual = x11_util::GetVisualFromGtkWidget(view_.get());
-  XID root_window = x11_util::GetX11RootWindow();
-  bool use_render = x11_util::QueryRenderSupport(display);
-  bool use_shared_memory = x11_util::QuerySharedMemorySupport(display);
-  int depth = gtk_widget_get_visual(view_.get())->depth;
-
-  return new BackingStore(size, display, depth, visual, root_window,
-                          use_render, use_shared_memory);
-}
-
 void RenderWidgetHostViewGtk::PasteFromSelectionClipboard() {
   GtkClipboard* x_clipboard = gtk_clipboard_get(GDK_SELECTION_PRIMARY);
   gtk_clipboard_request_text(x_clipboard, ReceivedSelectionText, this);
@@ -472,12 +459,19 @@ void RenderWidgetHostViewGtk::ShowingContextMenu(bool showing) {
     GetRenderWidgetHost()->Blur();
 }
 
+BackingStore* RenderWidgetHostViewGtk::AllocBackingStore(
+    const gfx::Size& size) {
+  return new BackingStore(host_, size,
+                          x11_util::GetVisualFromGtkWidget(view_.get()),
+                          gtk_widget_get_visual(view_.get())->depth);
+}
+
 void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
   DCHECK(!about_to_validate_and_paint_);
 
   invalid_rect_ = damage_rect;
   about_to_validate_and_paint_ = true;
-  BackingStore* backing_store = host_->GetBackingStore();
+  BackingStore* backing_store = host_->GetBackingStore(true);
   // Calling GetBackingStore maybe have changed |invalid_rect_|...
   about_to_validate_and_paint_ = false;
 

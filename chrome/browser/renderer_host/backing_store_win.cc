@@ -25,8 +25,9 @@ HANDLE CreateDIB(HDC dc, int width, int height, int color_depth) {
 
 // BackingStore (Windows) ------------------------------------------------------
 
-BackingStore::BackingStore(const gfx::Size& size)
-    : size_(size),
+BackingStore::BackingStore(RenderWidgetHost* widget, const gfx::Size& size)
+    : render_widget_host_(widget),
+      size_(size),
       backing_store_dib_(NULL),
       original_bitmap_(NULL) {
   HDC screen_dc = ::GetDC(NULL);

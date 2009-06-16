@@ -58,6 +58,11 @@ class BackingStoreManager {
   // Removes the backing store for the host.
   static void RemoveBackingStore(RenderWidgetHost* host);
 
+  // Expires the given backing store. This emulates something getting evicted
+  // from the cache for the purpose of testing. Returns true if the host was
+  // removed, false if it wasn't found.
+  static bool ExpireBackingStoreForTest(RenderWidgetHost* host);
+
  private:
   // Not intended for instantiation.
   BackingStoreManager() {}

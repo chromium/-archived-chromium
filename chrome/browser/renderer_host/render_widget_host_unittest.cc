@@ -100,7 +100,7 @@ bool RenderWidgetHostProcess::WaitForPaintMsg(int render_widget_id,
 // This test view allows us to specify the size.
 class TestView : public TestRenderWidgetHostView {
  public:
-  TestView() {}
+  TestView(RenderWidgetHost* rwh) : TestRenderWidgetHostView(rwh) {}
 
   // Sets the bounds returned by GetViewBounds.
   void set_bounds(const gfx::Rect& bounds) {
@@ -110,10 +110,6 @@ class TestView : public TestRenderWidgetHostView {
   // RenderWidgetHostView override.
   virtual gfx::Rect GetViewBounds() const {
     return bounds_;
-  }
-
-  BackingStore* AllocBackingStore(const gfx::Size& size) {
-    return new BackingStore(size);
   }
 
  protected:
@@ -160,7 +156,7 @@ class RenderWidgetHostTest : public testing::Test {
     profile_.reset(new TestingProfile());
     process_ = new RenderWidgetHostProcess(profile_.get());
     host_.reset(new MockRenderWidgetHost(process_, 1));
-    view_.reset(new TestView);
+    view_.reset(new TestView(host_.get()));
     host_->set_view(view_.get());
     host_->Init();
   }
@@ -303,7 +299,7 @@ TEST_F(RenderWidgetHostTest, GetBackingStore_NoRepaintAck) {
   // We don't currently have a backing store, and if the renderer doesn't send
   // one in time, we should get nothing.
   process_->set_paint_msg_should_reply(false);
-  BackingStore* backing = host_->GetBackingStore();
+  BackingStore* backing = host_->GetBackingStore(true);
   EXPECT_FALSE(backing);
   // The widget host should have sent a request for a repaint, and there should
   // be no paint ACK.
@@ -315,7 +311,7 @@ TEST_F(RenderWidgetHostTest, GetBackingStore_NoRepaintAck) {
   process_->sink().ClearMessages();
   process_->set_paint_msg_should_reply(true);
   process_->set_paint_msg_reply_flags(0);
-  backing = host_->GetBackingStore();
+  backing = host_->GetBackingStore(true);
   EXPECT_TRUE(backing);
   // The widget host should NOT have sent a request for a repaint, since there
   // was an ACK already pending.
@@ -331,7 +327,7 @@ TEST_F(RenderWidgetHostTest, GetBackingStore_RepaintAck) {
   process_->set_paint_msg_should_reply(true);
   process_->set_paint_msg_reply_flags(
       ViewHostMsg_PaintRect_Flags::IS_REPAINT_ACK);
-  BackingStore* backing = host_->GetBackingStore();
+  BackingStore* backing = host_->GetBackingStore(true);
   EXPECT_TRUE(backing);
   // We still should not have sent out a repaint request since the last flags
   // didn't have the repaint ack set, and the pending flag will still be set.
@@ -342,7 +338,7 @@ TEST_F(RenderWidgetHostTest, GetBackingStore_RepaintAck) {
   // Asking again for the backing store should just re-use the existing one
   // and not send any messagse.
   process_->sink().ClearMessages();
-  backing = host_->GetBackingStore();
+  backing = host_->GetBackingStore(true);
   EXPECT_TRUE(backing);
   EXPECT_FALSE(process_->sink().GetUniqueMessageMatching(ViewMsg_Repaint::ID));
   EXPECT_FALSE(process_->sink().GetUniqueMessageMatching(

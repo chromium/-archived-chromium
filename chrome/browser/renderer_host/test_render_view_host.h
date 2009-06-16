@@ -38,7 +38,7 @@ class TestTabContents;
 // without having side-effects.
 class TestRenderWidgetHostView : public RenderWidgetHostView {
  public:
-  TestRenderWidgetHostView() : is_showing_(false) {}
+  explicit TestRenderWidgetHostView(RenderWidgetHost* rwh);
 
   virtual void InitAsPopup(RenderWidgetHostView* parent_host_view,
                            const gfx::Rect& pos) {}
@@ -82,6 +82,7 @@ class TestRenderWidgetHostView : public RenderWidgetHostView {
   bool is_showing() const { return is_showing_; }
 
  private:
+  RenderWidgetHost* rwh_;
   bool is_showing_;
 };
 

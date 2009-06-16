@@ -286,6 +286,12 @@ class NotificationType {
     // Source<TabContents>.
     TAB_CONTENTS_DESTROYED,
 
+    // A RenderViewHost was created for a TabContents. The source is the
+    // RenderViewHostManager who owns it, and the details is the RenderViewHost
+    // pointer. Note that the source will be NULL in some cases for testing,
+    // when there is no RVHManager.
+    RENDER_VIEW_HOST_CREATED_FOR_TAB,
+
     // Stuff inside the tabs ---------------------------------------------------
 
     // This message is sent after a constrained window has been closed.  The
@@ -325,6 +331,11 @@ class NotificationType {
     // This is sent when a RenderWidgetHost is being destroyed. The source is
     // the RenderWidgetHost, the details are not used.
     RENDER_WIDGET_HOST_DESTROYED,
+
+    // Indicates a RenderWidgetHost has been hidden or restored. The source is
+    // the RWH whose visibility changed, the details is a bool set to true if
+    // the new state is "visible."
+    RENDER_WIDGET_VISIBILITY_CHANGED,
 
     // Notification from TabContents that we have received a response from the
     // renderer after using the dom inspector.

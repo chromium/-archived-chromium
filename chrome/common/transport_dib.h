@@ -20,6 +20,9 @@
 namespace gfx {
 class Size;
 }
+namespace skia {
+class PlatformCanvas;
+}
 
 // -----------------------------------------------------------------------------
 // A TransportDIB is a block of memory that is used to transport pixels
@@ -83,6 +86,11 @@ class TransportDIB {
 
   // Map the referenced transport DIB. Returns NULL on failure.
   static TransportDIB* Map(Handle transport_dib);
+
+  // Returns a canvas using the memory of this TransportDIB. The returned
+  // pointer will be owned by the caller. The bitmap will be of the given size,
+  // which should fit inside this memory.
+  skia::PlatformCanvas* GetPlatformCanvas(int w, int h);
 
   // Return a pointer to the shared memory
   void* memory() const;

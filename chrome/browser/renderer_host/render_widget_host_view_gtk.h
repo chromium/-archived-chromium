@@ -30,38 +30,34 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   // Initialize this object for use as a drawing area.
   void InitAsChild();
 
-  // ---------------------------------------------------------------------------
-  // Implementation of RenderWidgetHostView...
-
-  void InitAsPopup(RenderWidgetHostView* parent_host_view,
-                   const gfx::Rect& pos);
-  RenderWidgetHost* GetRenderWidgetHost() const { return host_; }
-  void DidBecomeSelected();
-  void WasHidden();
-  void SetSize(const gfx::Size& size);
-  gfx::NativeView GetNativeView();
-  void MovePluginWindows(
+  // RenderWidgetHostView implementation.
+  virtual void InitAsPopup(RenderWidgetHostView* parent_host_view,
+                           const gfx::Rect& pos);
+  virtual RenderWidgetHost* GetRenderWidgetHost() const { return host_; }
+  virtual void DidBecomeSelected();
+  virtual void WasHidden();
+  virtual void SetSize(const gfx::Size& size);
+  virtual gfx::NativeView GetNativeView();
+  virtual void MovePluginWindows(
       const std::vector<WebPluginGeometry>& plugin_window_moves);
-  void Focus();
-  void Blur();
-  bool HasFocus();
-  void Show();
-  void Hide();
-  gfx::Rect GetViewBounds() const;
-  void UpdateCursor(const WebCursor& cursor);
-  void SetIsLoading(bool is_loading);
-  void IMEUpdateStatus(int control, const gfx::Rect& caret_rect);
-  void DidPaintRect(const gfx::Rect& rect);
-  void DidScrollRect(
-      const gfx::Rect& rect, int dx, int dy);
-  void RenderViewGone();
-  void Destroy();
-  void SetTooltipText(const std::wstring& tooltip_text);
-  void SelectionChanged(const std::string& text);
-  void PasteFromSelectionClipboard();
-  void ShowingContextMenu(bool showing);
-  BackingStore* AllocBackingStore(const gfx::Size& size);
-  // ---------------------------------------------------------------------------
+  virtual void Focus();
+  virtual void Blur();
+  virtual bool HasFocus();
+  virtual void Show();
+  virtual void Hide();
+  virtual gfx::Rect GetViewBounds() const;
+  virtual void UpdateCursor(const WebCursor& cursor);
+  virtual void SetIsLoading(bool is_loading);
+  virtual void IMEUpdateStatus(int control, const gfx::Rect& caret_rect);
+  virtual void DidPaintRect(const gfx::Rect& rect);
+  virtual void DidScrollRect(const gfx::Rect& rect, int dx, int dy);
+  virtual void RenderViewGone();
+  virtual void Destroy();
+  virtual void SetTooltipText(const std::wstring& tooltip_text);
+  virtual void SelectionChanged(const std::string& text);
+  virtual void PasteFromSelectionClipboard();
+  virtual void ShowingContextMenu(bool showing);
+  virtual BackingStore* AllocBackingStore(const gfx::Size& size);
 
   gfx::NativeView native_view() const { return view_.get(); }
 
@@ -80,7 +76,8 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
                                     gpointer userdata);
 
   // The model object.
-  RenderWidgetHost *const host_;
+  RenderWidgetHost* const host_;
+
   // The native UI widget.
   OwnedWidgetGtk view_;
 
@@ -88,6 +85,7 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   // paint requests by expanding the invalid rect rather than actually
   // painting.
   bool about_to_validate_and_paint_;
+
   // This is the rectangle which we'll paint.
   gfx::Rect invalid_rect_;
 

@@ -18,6 +18,7 @@
 #include "base/scoped_ptr.h"
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/tab_contents/thumbnail_generator.h"
 
 #if defined(OS_WIN)
 #include "sandbox/src/sandbox.h"
@@ -269,6 +270,16 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
 
   bool checked_for_new_frames_;
   bool using_new_frames_;
+
+#if defined(LINUX2)
+  // TODO(brettw) enable this for all builds when we have a need for it. This
+  // component has some overhead, so we don't want to have it running without
+  // any consumers. Since it integrates by listening to notifications, it's
+  // sufficient to just not instatiate it to make it disabled.
+
+  // This service just sits around and makes thumanails for tabs.
+  ThumbnailGenerator thumbnail_generator_;
+#endif
 
   // An event that notifies when we are shutting-down.
   scoped_ptr<base::WaitableEvent> shutdown_event_;

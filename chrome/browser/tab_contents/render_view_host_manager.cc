@@ -58,6 +58,10 @@ void RenderViewHostManager::Init(Profile* profile,
     site_instance = SiteInstance::CreateSiteInstance(profile);
   render_view_host_ = RenderViewHostFactory::Create(
       site_instance, render_view_delegate_, routing_id, modal_dialog_event);
+  NotificationService::current()->Notify(
+      NotificationType::RENDER_VIEW_HOST_CREATED_FOR_TAB,
+      Source<RenderViewHostManager>(this),
+      Details<RenderViewHost>(render_view_host_));
 }
 
 RenderViewHost* RenderViewHostManager::Navigate(const NavigationEntry& entry) {
@@ -407,6 +411,10 @@ bool RenderViewHostManager::CreatePendingRenderView(SiteInstance* instance) {
 
   pending_render_view_host_ = RenderViewHostFactory::Create(
       instance, render_view_delegate_, MSG_ROUTING_NONE, NULL);
+  NotificationService::current()->Notify(
+      NotificationType::RENDER_VIEW_HOST_CREATED_FOR_TAB,
+      Source<RenderViewHostManager>(this),
+      Details<RenderViewHost>(pending_render_view_host_));
 
   bool success = delegate_->CreateRenderViewForRenderManager(
       pending_render_view_host_);

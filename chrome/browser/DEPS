@@ -8,7 +8,6 @@ include_rules = [
   "+grit",  # For generated headers
   "+sandbox/src",
   "+skia/include",
-  "+skia/ext",
   "+webkit/default_plugin",
   "+webkit/glue",  # Defines some types that are marshalled over IPC.
 

@@ -650,7 +650,7 @@ void RenderWidgetHostViewWin::SetTooltipText(const std::wstring& tooltip_text) {
 
 BackingStore* RenderWidgetHostViewWin::AllocBackingStore(
     const gfx::Size& size) {
-  return new BackingStore(size);
+  return new BackingStore(render_widget_host_, size);
 }
 
 void RenderWidgetHostViewWin::SetBackground(const SkBitmap& background) {
@@ -692,7 +692,7 @@ void RenderWidgetHostViewWin::OnPaint(HDC dc) {
   DCHECK(render_widget_host_->process()->channel());
 
   about_to_validate_and_paint_ = true;
-  BackingStore* backing_store = render_widget_host_->GetBackingStore();
+  BackingStore* backing_store = render_widget_host_->GetBackingStore(true);
 
   // We initialize |paint_dc| (and thus call BeginPaint()) after calling
   // GetBackingStore(), so that if it updates the invalid rect we'll catch the

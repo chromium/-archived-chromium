@@ -297,7 +297,7 @@ void RenderWidgetHostViewMac::SetTooltipText(const std::wstring& tooltip_text) {
 
 BackingStore* RenderWidgetHostViewMac::AllocBackingStore(
     const gfx::Size& size) {
-  return new BackingStore(size);
+  return new BackingStore(render_widget_host_, size);
 }
 
 // Display a popup menu for WebKit using Cocoa widgets.
@@ -415,7 +415,7 @@ void RenderWidgetHostViewMac::ShutdownHost() {
   renderWidgetHostView_->invalid_rect_ = dirtyRect;
   renderWidgetHostView_->about_to_validate_and_paint_ = true;
   BackingStore* backing_store =
-      renderWidgetHostView_->render_widget_host_->GetBackingStore();
+      renderWidgetHostView_->render_widget_host_->GetBackingStore(true);
   skia::PlatformCanvas* canvas = backing_store->canvas();
   renderWidgetHostView_->about_to_validate_and_paint_ = false;
   dirtyRect = renderWidgetHostView_->invalid_rect_;

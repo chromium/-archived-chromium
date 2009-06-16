@@ -11,6 +11,7 @@
 #include "chrome/browser/renderer_host/backing_store_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
+#include "chrome/browser/renderer_host/render_widget_host_painting_observer.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
@@ -49,6 +50,7 @@ RenderWidgetHost::RenderWidgetHost(RenderProcessHost* process,
     : renderer_initialized_(false),
       view_(NULL),
       process_(process),
+      painting_observer_(NULL),
       routing_id_(routing_id),
       is_loading_(false),
       is_hidden_(false),
@@ -142,6 +144,12 @@ void RenderWidgetHost::WasHidden() {
 
   // Tell the RenderProcessHost we were hidden.
   process_->WidgetHidden();
+
+  bool is_visible = false;
+  NotificationService::current()->Notify(
+      NotificationType::RENDER_WIDGET_VISIBILITY_CHANGED,
+      Source<RenderWidgetHost>(this),
+      Details<bool>(&is_visible));
 }
 
 void RenderWidgetHost::WasRestored() {
@@ -163,6 +171,12 @@ void RenderWidgetHost::WasRestored() {
   Send(new ViewMsg_WasRestored(routing_id_, needs_repainting));
 
   process_->WidgetRestored();
+
+  bool is_visible = true;
+  NotificationService::current()->Notify(
+      NotificationType::RENDER_WIDGET_VISIBILITY_CHANGED,
+      Source<RenderWidgetHost>(this),
+      Details<bool>(&is_visible));
 }
 
 void RenderWidgetHost::WasResized() {
@@ -217,10 +231,13 @@ void RenderWidgetHost::SetIsLoading(bool is_loading) {
   view_->SetIsLoading(is_loading);
 }
 
-BackingStore* RenderWidgetHost::GetBackingStore() {
+BackingStore* RenderWidgetHost::GetBackingStore(bool force_create) {
   // We should not be asked to paint while we are hidden.  If we are hidden,
-  // then it means that our consumer failed to call WasRestored.
-  DCHECK(!is_hidden_) << "GetBackingStore called while hidden!";
+  // then it means that our consumer failed to call WasRestored. If we're not
+  // force creating the backing store, it's OK since we can feel free to give
+  // out our cached one if we have it.
+  DCHECK(!is_hidden_ || !force_create) <<
+      "GetBackingStore called while hidden!";
 
   // We should never be called recursively; this can theoretically lead to
   // infinite recursion and almost certainly leads to lower performance.
@@ -230,6 +247,11 @@ BackingStore* RenderWidgetHost::GetBackingStore() {
   // We might have a cached backing store that we can reuse!
   BackingStore* backing_store =
       BackingStoreManager::GetBackingStore(this, current_size_);
+  if (!force_create) {
+    in_get_backing_store_ = false;
+    return backing_store;
+  }
+
   // If we fail to find a backing store in the cache, send out a request
   // to the renderer to paint the view if required.
   if (!backing_store && !repaint_ack_pending_ && !resize_ack_pending_ &&
@@ -259,7 +281,6 @@ BackingStore* RenderWidgetHost::GetBackingStore() {
 BackingStore* RenderWidgetHost::AllocBackingStore(const gfx::Size& size) {
   if (!view_)
     return NULL;
-
   return view_->AllocBackingStore(size);
 }
 
@@ -549,6 +570,9 @@ void RenderWidgetHost::OnMsgPaintRect(
     }
   }
 
+  if (painting_observer_)
+    painting_observer_->WidgetDidUpdateBackingStore(this);
+
   // Log the time delta for processing a paint message.
   TimeDelta delta = TimeTicks::Now() - paint_start;
   UMA_HISTOGRAM_TIMES("MPArch.RWH_OnMsgPaintRect", delta);
@@ -594,6 +618,9 @@ void RenderWidgetHost::OnMsgScrollRect(
     view_->DidScrollRect(params.clip_rect, params.dx, params.dy);
     view_being_painted_ = false;
   }
+
+  if (painting_observer_)
+    painting_observer_->WidgetDidUpdateBackingStore(this);
 
   // Log the time delta for processing a scroll message.
   TimeDelta delta = TimeTicks::Now() - scroll_start;

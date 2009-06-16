@@ -810,6 +810,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\tab_contents\thumbnail_generator_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\thumbnail_store_unittest.cc"
 				>
 			</File>
