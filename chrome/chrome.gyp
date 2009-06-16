@@ -3098,6 +3098,7 @@
         'browser/images_uitest.cc',
         'browser/locale_tests_uitest.cc',
         'browser/login_prompt_uitest.cc',
+        'browser/media_uitest.cc',
         'browser/metrics/metrics_service_uitest.cc',
         'browser/printing/printing_layout_uitest.cc',
         'browser/printing/printing_test.h',
@@ -3210,6 +3211,7 @@
           'sources!': [
             # TODO(port)?  (Most of these include windows.h or similar.)
             'browser/extensions/extension_uitest.cc',
+            'browser/media_uitest.cc',
             'browser/printing/printing_layout_uitest.cc',
             'browser/ssl/ssl_uitest.cc',
             'browser/views/find_bar_win_uitest.cc',

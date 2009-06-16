@@ -1,0 +1,46 @@
+<html>
+<body>
+<div id="player_container"></div>
+<script>
+var player = null;
+function InstallEventHandler(event, action) {
+  player.addEventListener(event, function(e) {
+    eval(action);
+  }, false);
+}
+
+// Parse the location and load the media file accordingly.
+var url = window.location.href;
+var url_parts = url.split('?');
+
+// Make sure the URL is of the form "player.html?query".
+var ok = false;
+if (url_parts.length > 1) {
+  var query = url_parts[1];
+  var query_parts = query.split('=');
+  if (query_parts.length == 2) {
+    var tag = query_parts[0];
+    var media_url = query_parts[1];
+    if (tag == 'audio' || tag == 'video') {
+      ok = true;
+      var container = document.getElementById('player_container');
+      container.innerHTML = '<' + tag + ' controls id="player"></' + tag + '>';
+      player = document.getElementById('player');
+
+      // Install event handlers.
+      InstallEventHandler('error',
+                          'document.title = "ERROR = " + player.error.code');
+      InstallEventHandler('playing', 'document.title = "PLAYING"');
+
+      // Starts the player.
+      player.src = media_url;
+      player.play();
+    }
+  }
+}
+if (!ok) {
+  document.title = 'FAILED';
+}
+</script>
+</body>
+</html>
