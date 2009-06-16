@@ -55,7 +55,8 @@ TransportDIB* TransportDIB::Map(TransportDIB::Handle handle) {
 
 skia::PlatformCanvas* TransportDIB::GetPlatformCanvas(int w, int h) {
   return new skia::PlatformCanvas(w, h, true,
-                                  reinterpret_cast<uint8_t*>(dib->memory()));
+                                  reinterpret_cast<uint8_t*>(memory()));
+
 }
 
 void* TransportDIB::memory() const {
