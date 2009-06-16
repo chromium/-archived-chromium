@@ -25,7 +25,7 @@
 // AudioRendererHost::IPCAudioSource is a container of AudioOutputStream and
 // provide audio packets to the associated AudioOutputStream through IPC. It
 // performs the logic for buffering and controlling the AudioOutputStream.
-// 
+//
 // Here is a state diagram for the IPCAudioSource:
 //
 //          .--------->  [ Stopped ]  <--------.
@@ -310,10 +310,17 @@ class AudioRendererHost : public base::RefCountedThreadSafe<AudioRendererHost> {
     AudioOutputStream::State state_;
     base::SharedMemory shared_memory_;
     PushSource push_source_;
+
+    // Flag that indicates there is an outstanding request.
     bool outstanding_request_;
+    base::Time outstanding_request_time_;
+
+    // Number of bytes copied in the last OnMoreData call.
+    size_t last_copied_bytes_;
 
     // Protects:
     // - |outstanding_requests_|
+    // - |last_copied_bytes_|
     // - |push_source_|
     Lock lock_;
   };

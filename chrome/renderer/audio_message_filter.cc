@@ -74,7 +74,9 @@ void AudioMessageFilter::OnChannelClosing() {
 }
 
 void AudioMessageFilter::OnRequestPacket(const IPC::Message& msg,
-                                         int stream_id) {
+                                         int stream_id,
+                                         size_t bytes_in_buffer,
+                                         int64 message_timestamp) {
   Delegate* delegate = delegates_.Lookup(stream_id);
   if (!delegate) {
     DLOG(WARNING) << "Got audio packet request for a non-existent or removed"
@@ -90,7 +92,8 @@ void AudioMessageFilter::OnRequestPacket(const IPC::Message& msg,
   }
 #endif
 
-  delegate->OnRequestPacket();
+  delegate->OnRequestPacket(bytes_in_buffer,
+                            base::Time::FromInternalValue(message_timestamp));
 
 #ifdef IPC_MESSAGE_LOG_ENABLED
   if (logger->Enabled()) {

@@ -508,8 +508,10 @@ IPC_BEGIN_MESSAGES(View)
                       bool /* Whether it is visible */)
 
   // Sent by AudioRendererHost to renderer to request an audio packet.
-  IPC_MESSAGE_ROUTED1(ViewMsg_RequestAudioPacket,
-                      int /* stream id */)
+  IPC_MESSAGE_ROUTED3(ViewMsg_RequestAudioPacket,
+                      int /* stream id */,
+                      size_t /* bytes in buffer */,
+                      int64 /* message timestamp */)
 
   // Tell the renderer process that the audio stream has been created, renderer
   // process would be given a ShareMemoryHandle that it should write to from

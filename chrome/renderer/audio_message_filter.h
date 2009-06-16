@@ -21,7 +21,8 @@ class AudioMessageFilter : public IPC::ChannelProxy::MessageFilter {
   class Delegate {
    public:
     // Called when an audio packet is requested from the browser process.
-    virtual void OnRequestPacket() = 0;
+    virtual void OnRequestPacket(size_t bytes_in_buffer,
+                                 const base::Time& message_timestamp) = 0;
 
     // Called when state of an audio stream has changed in the browser process.
     virtual void OnStateChanged(AudioOutputStream::State state, int info) = 0;
@@ -59,7 +60,8 @@ class AudioMessageFilter : public IPC::ChannelProxy::MessageFilter {
   virtual void OnChannelClosing();
 
   // Received when browser process wants more audio packet.
-  void OnRequestPacket(const IPC::Message& msg, int stream_id);
+  void OnRequestPacket(const IPC::Message& msg, int stream_id,
+                       size_t bytes_in_buffer, int64 message_timestamp);
 
   // Received when browser process has created an audio output stream.
   void OnStreamCreated(int stream_id, base::SharedMemoryHandle handle,

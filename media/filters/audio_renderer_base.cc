@@ -99,10 +99,15 @@ void AudioRendererBase::OnReadComplete(Buffer* buffer_in) {
 }
 
 // TODO(scherkus): clean up FillBuffer().. it's overly complex!!
-size_t AudioRendererBase::FillBuffer(uint8* dest, size_t dest_len,
-                                     float rate) {
+size_t AudioRendererBase::FillBuffer(uint8* dest,
+                                     size_t dest_len,
+                                     float rate,
+                                     const base::TimeDelta& playback_delay) {
   size_t buffers_released = 0;
   size_t dest_written = 0;
+
+  // The timestamp of the last buffer written during the last call to
+  // FillBuffer().
   base::TimeDelta last_fill_buffer_time;
   {
     AutoLock auto_lock(lock_);
@@ -198,6 +203,14 @@ size_t AudioRendererBase::FillBuffer(uint8* dest, size_t dest_len,
 
   // Update the pipeline's time if it was set last time.
   if (last_fill_buffer_time.InMicroseconds() > 0) {
+    // Adjust the |last_fill_buffer_time| with the playback delay.
+    // TODO(hclam): If there is a playback delay, the pipeline would not be
+    // updated with a correct timestamp when the stream is played at the very
+    // end since we use decoded packets to trigger time updates. A better
+    // solution is to start a timer when an audio packet is decoded to allow
+    // finer time update events.
+    if (playback_delay < last_fill_buffer_time)
+      last_fill_buffer_time -= playback_delay;
     host_->SetTime(last_fill_buffer_time);
   }
 

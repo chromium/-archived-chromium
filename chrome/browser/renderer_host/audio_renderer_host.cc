@@ -216,6 +216,7 @@ size_t AudioRendererHost::IPCAudioSource::OnMoreData(AudioOutputStream* stream,
   size_t size = push_source_.OnMoreData(stream, dest, max_size);
   {
     AutoLock auto_lock(lock_);
+    last_copied_bytes_ = size;
     SubmitPacketRequest(&auto_lock);
   }
   return size;
@@ -239,6 +240,11 @@ void AudioRendererHost::IPCAudioSource::NotifyPacketReady(
   {
     AutoLock auto_lock(lock_);
     outstanding_request_ = false;
+#ifdef IPC_MESSAGE_LOG_ENABLED
+    if (IPC::Logging::current()->Enabled()) {
+      RecordRoundTripLatency(base::Time::Now() - outstanding_request_time_);
+    }
+#endif
     // If reported size is greater than capacity of the shared memory, we have
     // an error.
     if (decoded_packet_size <= decoded_packet_size_) {
@@ -272,7 +278,24 @@ void AudioRendererHost::IPCAudioSource::SubmitPacketRequest_Locked() {
       (push_source_.UnProcessedBytes() + decoded_packet_size_ <=
        buffer_capacity_)) {
     outstanding_request_ = true;
-    host_->Send(new ViewMsg_RequestAudioPacket(route_id_, stream_id_));
+    outstanding_request_time_ = base::Time::Now();
+
+    // This variable keeps track of the total amount of bytes buffered for
+    // the associated AudioOutputStream. This value should consist of bytes
+    // buffered in AudioOutputStream and those kept inside |push_source_|.
+    // TODO(hclam): since we have no information about the amount of buffered
+    // bytes in the hardware buffer in AudioOutputStream, we make our best
+    // guess by using the amount of the last copy. This should be a good guess
+    // for Windows since it does double buffering but we shold change this
+    // when AudioOutputStream has the API to query remaining buffer.
+    size_t buffered_bytes = last_copied_bytes_ +
+                            push_source_.UnProcessedBytes();
+    host_->Send(
+        new ViewMsg_RequestAudioPacket(
+            route_id_,
+            stream_id_,
+            buffered_bytes,
+            outstanding_request_time_.ToInternalValue()));
   }
 }
 

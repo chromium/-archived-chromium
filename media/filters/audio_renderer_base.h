@@ -58,7 +58,7 @@ class AudioRendererBase : public AudioRenderer {
   virtual void OnReadComplete(Buffer* buffer_in);
 
   // Fills the given buffer with audio data by dequeuing buffers and copying the
-  // data into the |dest|.  FillBuffer also takes care of updating the clock.
+  // data into the |dest|.  FillBuffer() also takes care of updating the clock.
   // Returns the number of bytes copied into |dest|, which may be less than
   // equal to |len|.
   //
@@ -67,8 +67,18 @@ class AudioRendererBase : public AudioRenderer {
   // enough.  In such scenarios, the callee should zero out unused portions
   // of their buffer to playback silence.
   //
+  // FillBuffer() updates the pipeline's playback timestamp. If FillBuffer() is
+  // not called at the same rate as audio samples are played, then the reported
+  // timestamp in the pipeline will be ahead of the actual audio playback. In
+  // this case |playback_delay| should be used to indicate when in the future
+  // should the filled buffer be played. If FillBuffer() is called as the audio
+  // hardware plays the buffer, then |playback_delay| should be zero.
+  //
   // Safe to call on any thread.
-  size_t FillBuffer(uint8* dest, size_t len, float rate);
+  size_t FillBuffer(uint8* dest,
+                    size_t len,
+                    float rate,
+                    const base::TimeDelta& playback_delay);
 
   // Helper to parse a media format and return whether we were successful
   // retrieving all the information we care about.

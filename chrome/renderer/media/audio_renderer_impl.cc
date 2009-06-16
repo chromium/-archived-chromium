@@ -28,20 +28,32 @@ const int kMillisecondsPreroll = 400;
 
 AudioRendererImpl::AudioRendererImpl(AudioMessageFilter* filter)
     : AudioRendererBase(kDefaultMaxQueueSize),
+      channels_(0),
+      sample_rate_(0),
+      sample_bits_(0),
+      bytes_per_second_(0),
       filter_(filter),
       stream_id_(0),
       shared_memory_(NULL),
       shared_memory_size_(0),
       io_loop_(filter->message_loop()),
       stopped_(false),
-      pending_request_(false),
       playback_rate_(0.0f),
+      pending_request_(false),
       prerolling_(true),
       preroll_bytes_(0) {
   DCHECK(io_loop_);
 }
 
 AudioRendererImpl::~AudioRendererImpl() {
+}
+
+base::TimeDelta AudioRendererImpl::ConvertToDuration(int bytes) {
+  if (bytes_per_second_) {
+    return base::TimeDelta::FromMicroseconds(
+        base::Time::kMicrosecondsPerSecond * bytes / bytes_per_second_);
+  }
+  return base::TimeDelta();
 }
 
 bool AudioRendererImpl::IsMediaFormatSupported(
@@ -54,24 +66,24 @@ bool AudioRendererImpl::IsMediaFormatSupported(
 
 bool AudioRendererImpl::OnInitialize(const media::MediaFormat& media_format) {
   // Parse integer values in MediaFormat.
-  int channels;
-  int sample_rate;
-  int sample_bits;
-  if (!ParseMediaFormat(media_format, &channels, &sample_rate, &sample_bits)) {
+  if (!ParseMediaFormat(media_format,
+                        &channels_,
+                        &sample_rate_,
+                        &sample_bits_)) {
     return false;
   }
 
   // Create the audio output stream in browser process.
-  size_t bytes_per_second = sample_rate * channels * sample_bits / 8;
-  size_t packet_size = bytes_per_second * kMillisecondsPerPacket / 1000;
+  bytes_per_second_ = sample_rate_ * channels_ * sample_bits_ / 8;
+  size_t packet_size = bytes_per_second_ * kMillisecondsPerPacket / 1000;
   size_t buffer_capacity = packet_size * kPacketsInBuffer;
 
   // Calculate the amount for prerolling.
-  preroll_bytes_ = bytes_per_second * kMillisecondsPreroll / 1000;
+  preroll_bytes_ = bytes_per_second_ * kMillisecondsPreroll / 1000;
 
   io_loop_->PostTask(FROM_HERE,
       NewRunnableMethod(this, &AudioRendererImpl::OnCreateStream,
-          AudioManager::AUDIO_PCM_LINEAR, channels, sample_rate, sample_bits,
+          AudioManager::AUDIO_PCM_LINEAR, channels_, sample_rate_, sample_bits_,
           packet_size, buffer_capacity));
   return true;
 }
@@ -153,13 +165,19 @@ void AudioRendererImpl::OnCreated(base::SharedMemoryHandle handle,
   shared_memory_size_ = length;
 }
 
-void AudioRendererImpl::OnRequestPacket() {
+void AudioRendererImpl::OnRequestPacket(size_t bytes_in_buffer,
+                                        const base::Time& message_timestamp) {
   DCHECK(MessageLoop::current() == io_loop_);
 
   {
     AutoLock auto_lock(lock_);
     DCHECK(!pending_request_);
     pending_request_ = true;
+
+    // Use the information provided by the IPC message to adjust the playback
+    // delay.
+    request_timestamp_ = message_timestamp;
+    request_delay_ = ConvertToDuration(bytes_in_buffer);
   }
 
   // Try to fill in the fulfil the packet request.
@@ -253,12 +271,32 @@ void AudioRendererImpl::OnNotifyPacketReady() {
     return;
   if (pending_request_ && playback_rate_ > 0.0f) {
     DCHECK(shared_memory_.get());
+
+    // Adjust the playback delay.
+    base::Time current_time = base::Time::Now();
+
+    // Save a local copy of the request delay.
+    base::TimeDelta request_delay = request_delay_;
+    if (current_time > request_timestamp_) {
+      base::TimeDelta receive_latency = current_time - request_timestamp_;
+
+      // If the receive latency is too much it may offset all the delay.
+      if (receive_latency >= request_delay) {
+        request_delay = base::TimeDelta();
+      } else {
+        request_delay -= receive_latency;
+      }
+    }
+
     size_t filled = FillBuffer(static_cast<uint8*>(shared_memory_->memory()),
                                shared_memory_size_,
-                               playback_rate_);
+                               playback_rate_,
+                               request_delay);
     // TODO(hclam): we should try to fill in the buffer as much as possible.
     if (filled > 0) {
       pending_request_ = false;
+      request_delay_ = base::TimeDelta();
+      request_timestamp_ = base::Time();
       // Then tell browser process we are done filling into the buffer.
       filter_->Send(
           new ViewHostMsg_NotifyAudioPacketReady(0, stream_id_, filled));

@@ -116,7 +116,8 @@ class AudioRendererImpl : public media::AudioRendererBase,
 
   // Methods called on IO thread ----------------------------------------------
   // AudioMessageFilter::Delegate methods, called by AudioMessageFilter.
-  void OnRequestPacket();
+  void OnRequestPacket(size_t bytes_in_buffer,
+                       const base::Time& message_timestamp);
   void OnStateChanged(AudioOutputStream::State state, int info);
   void OnCreated(base::SharedMemoryHandle handle, size_t length);
   void OnVolume(double left, double right);
@@ -144,6 +145,11 @@ class AudioRendererImpl : public media::AudioRendererBase,
   explicit AudioRendererImpl(AudioMessageFilter* filter);
   virtual ~AudioRendererImpl();
 
+  // Helper methods.
+  // Convert number of bytes to duration of time using information about the
+  // number of channels, sample rate and sample bits.
+  base::TimeDelta ConvertToDuration(int bytes);
+
   // Methods call on IO thread ------------------------------------------------
   // The following methods are tasks posted on the IO thread that needs to
   // be executed on that thread. They interact with AudioMessageFilter and
@@ -156,6 +162,12 @@ class AudioRendererImpl : public media::AudioRendererBase,
   void OnSetVolume(double left, double right);
   void OnNotifyPacketReady();
   void OnDestroy();
+
+  // Information about the audio stream.
+  int channels_;
+  int sample_rate_;
+  int sample_bits_;
+  size_t bytes_per_second_;
 
   scoped_refptr<AudioMessageFilter> filter_;
 
@@ -170,16 +182,32 @@ class AudioRendererImpl : public media::AudioRendererBase,
   MessageLoop* io_loop_;
 
   // Protects:
-  // - |playback_rate_|
   // - |stopped_|
+  // - |playback_rate_|
   // - |pending_request_|
+  // - |request_timestamp_|
+  // - |request_delay_|
   Lock lock_;
+
+  // A flag that indicates this filter is called to stop.
   bool stopped_;
-  bool pending_request_;
+
+  // Keeps the current playback rate.
   float playback_rate_;
+
+  // A flag that indicates an outstanding packet request.
+  bool pending_request_;
+
+  // The time when a request is made.
+  base::Time request_timestamp_;
+
+  // The delay for the requested packet to be played.
+  base::TimeDelta request_delay_;
 
   // State variables for prerolling.
   bool prerolling_;
+
+  // Remaining bytes for prerolling to complete.
   size_t preroll_bytes_;
 
   DISALLOW_COPY_AND_ASSIGN(AudioRendererImpl);
