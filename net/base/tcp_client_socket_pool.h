@@ -18,12 +18,83 @@
 namespace net {
 
 class ClientSocketFactory;
+class TCPClientSocketPool;
+
+// ConnectingSocket handles the host resolution necessary for socket creation
+// and the socket Connect().
+class ConnectingSocket {
+ public:
+  ConnectingSocket(const std::string& group_name,
+                   const HostResolver::RequestInfo& resolve_info,
+                   const ClientSocketHandle* handle,
+                   ClientSocketFactory* client_socket_factory,
+                   TCPClientSocketPool* pool);
+  ~ConnectingSocket();
+
+  // Begins the host resolution and the TCP connect.  Returns OK on success
+  // and ERR_IO_PENDING if it cannot immediately service the request.
+  // Otherwise, it returns a net error code.
+  int Connect();
+
+  // Called by the TCPClientSocketPool to cancel this ConnectingSocket.  Only
+  // necessary if a ClientSocketHandle is reused.
+  void Cancel();
+
+ private:
+  // Handles asynchronous completion of IO.  |result| represents the result of
+  // the IO operation.
+  void OnIOComplete(int result);
+
+  // Handles both asynchronous and synchronous completion of IO.  |result|
+  // represents the result of the IO operation.  |synchronous| indicates
+  // whether or not the previous IO operation completed synchronously or
+  // asynchronously.  OnIOCompleteInternal returns the result of the next IO
+  // operation that executes, or just the value of |result|.
+  int OnIOCompleteInternal(int result, bool synchronous);
+
+  const std::string group_name_;
+  const HostResolver::RequestInfo resolve_info_;
+  const ClientSocketHandle* const handle_;
+  ClientSocketFactory* const client_socket_factory_;
+  CompletionCallbackImpl<ConnectingSocket> callback_;
+  scoped_ptr<ClientSocket> socket_;
+  scoped_refptr<TCPClientSocketPool> pool_;
+  SingleRequestHostResolver resolver_;
+  AddressList addresses_;
+
+  // The time the Connect() method was called (if it got called).
+  base::TimeTicks connect_start_time_;
+
+  DISALLOW_COPY_AND_ASSIGN(ConnectingSocket);
+};
 
 // A TCPClientSocketPool is used to restrict the number of TCP sockets open at
 // a time.  It also maintains a list of idle persistent sockets.
 //
 class TCPClientSocketPool : public ClientSocketPool {
  public:
+  // A Request is allocated per call to RequestSocket that results in
+  // ERR_IO_PENDING.
+  struct Request {
+    // HostResolver::RequestInfo has no default constructor, so fudge something.
+    Request() : resolve_info(std::string(), 0) {}
+
+    Request(ClientSocketHandle* handle,
+            CompletionCallback* callback,
+            int priority,
+            const HostResolver::RequestInfo& resolve_info,
+            LoadState load_state)
+        : handle(handle), callback(callback), priority(priority),
+          resolve_info(resolve_info), load_state(load_state) {
+    }
+
+    ClientSocketHandle* handle;
+    CompletionCallback* callback;
+    int priority;
+    HostResolver::RequestInfo resolve_info;
+    LoadState load_state;
+  };
+
   TCPClientSocketPool(int max_sockets_per_group,
                       HostResolver* host_resolver,
                       ClientSocketFactory* client_socket_factory);
@@ -57,29 +128,29 @@ class TCPClientSocketPool : public ClientSocketPool {
   virtual LoadState GetLoadState(const std::string& group_name,
                                  const ClientSocketHandle* handle) const;
 
+  // Used by ConnectingSocket until we remove the coupling between a specific
+  // ConnectingSocket and a ClientSocketHandle:
+ 
+  // Returns NULL if not found.  Otherwise it returns the Request*
+  // corresponding to the ConnectingSocket (keyed by |group_name| and |handle|.
+  // Note that this pointer may be invalidated after any call that might mutate
+  // the RequestMap or GroupMap, so the user should not hold onto the pointer
+  // for long.
+  Request* GetConnectingRequest(const std::string& group_name,
+                                const ClientSocketHandle* handle);
+ 
+  // Handles the completed Request corresponding to the ConnectingSocket (keyed
+  // by |group_name| and |handle|.  |deactivate| indicates whether or not to
+  // deactivate the socket, making the socket slot available for a new socket
+  // connection.  If |deactivate| is false, then set |socket| into |handle|.
+  // Returns the callback to run.
+  CompletionCallback* OnConnectingRequestComplete(
+      const std::string& group_name,
+      const ClientSocketHandle* handle,
+      bool deactivate,
+      ClientSocket* socket);
+
  private:
-  // A Request is allocated per call to RequestSocket that results in
-  // ERR_IO_PENDING.
-  struct Request {
-    // HostResolver::RequestInfo has no default constructor, so fudge something.
-    Request() : resolve_info(std::string(), 0) {}
-
-    Request(ClientSocketHandle* handle,
-            CompletionCallback* callback,
-            int priority,
-            const HostResolver::RequestInfo& resolve_info,
-            LoadState load_state)
-        : handle(handle), callback(callback), priority(priority),
-          resolve_info(resolve_info), load_state(load_state) {
-    }
-
-    ClientSocketHandle* handle;
-    CompletionCallback* callback;
-    int priority;
-    HostResolver::RequestInfo resolve_info;
-    LoadState load_state;
-  };
-
   // Entry for a persistent socket which became idle at time |start_time|.
   struct IdleSocket {
     ClientSocket* socket;
@@ -109,57 +180,6 @@ class TCPClientSocketPool : public ClientSocketPool {
   };
 
   typedef std::map<std::string, Group> GroupMap;
-
-  // ConnectingSocket handles the host resolution necessary for socket creation
-  // and the Connect().
-  class ConnectingSocket {
-   public:
-    enum State {
-      STATE_RESOLVE_HOST,
-      STATE_CONNECT
-    };
-
-    ConnectingSocket(const std::string& group_name,
-                     const ClientSocketHandle* handle,
-                     ClientSocketFactory* client_socket_factory,
-                     TCPClientSocketPool* pool);
-    ~ConnectingSocket();
-
-    // Begins the host resolution and the TCP connect.  Returns OK on success
-    // and ERR_IO_PENDING if it cannot immediately service the request.
-    // Otherwise, it returns a net error code.
-    int Connect(const HostResolver::RequestInfo& resolve_info);
-
-    // Called by the TCPClientSocketPool to cancel this ConnectingSocket.  Only
-    // necessary if a ClientSocketHandle is reused.
-    void Cancel();
-
-   private:
-    // Handles asynchronous completion of IO.  |result| represents the result of
-    // the IO operation.
-    void OnIOComplete(int result);
-
-    // Handles both asynchronous and synchronous completion of IO.  |result|
-    // represents the result of the IO operation.  |synchronous| indicates
-    // whether or not the previous IO operation completed synchronously or
-    // asynchronously.  OnIOCompleteInternal returns the result of the next IO
-    // operation that executes, or just the value of |result|.
-    int OnIOCompleteInternal(int result, bool synchronous);
-
-    const std::string group_name_;
-    const ClientSocketHandle* const handle_;
-    ClientSocketFactory* const client_socket_factory_;
-    CompletionCallbackImpl<ConnectingSocket> callback_;
-    scoped_ptr<ClientSocket> socket_;
-    scoped_refptr<TCPClientSocketPool> pool_;
-    SingleRequestHostResolver resolver_;
-    AddressList addresses_;
-
-    // The time the Connect() method was called (if it got called).
-    base::Time connect_start_time_;
-
-    DISALLOW_COPY_AND_ASSIGN(ConnectingSocket);
-  };
 
   typedef std::map<const ClientSocketHandle*, ConnectingSocket*>
       ConnectingSocketMap;

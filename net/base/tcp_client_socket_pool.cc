@@ -33,64 +33,60 @@ const int kIdleTimeout = 300;  // 5 minutes.
 
 namespace net {
 
-TCPClientSocketPool::ConnectingSocket::ConnectingSocket(
+ConnectingSocket::ConnectingSocket(
     const std::string& group_name,
+    const HostResolver::RequestInfo& resolve_info,
     const ClientSocketHandle* handle,
     ClientSocketFactory* client_socket_factory,
     TCPClientSocketPool* pool)
     : group_name_(group_name),
+      resolve_info_(resolve_info),
       handle_(handle),
       client_socket_factory_(client_socket_factory),
       ALLOW_THIS_IN_INITIALIZER_LIST(
           callback_(this,
-                    &TCPClientSocketPool::ConnectingSocket::OnIOComplete)),
+                    &ConnectingSocket::OnIOComplete)),
       pool_(pool),
       resolver_(pool->GetHostResolver()) {}
 
-TCPClientSocketPool::ConnectingSocket::~ConnectingSocket() {
+ConnectingSocket::~ConnectingSocket() {
   // We don't worry about cancelling the host resolution and TCP connect, since
   // ~SingleRequestHostResolver and ~ClientSocket will take care of it.
 }
 
-int TCPClientSocketPool::ConnectingSocket::Connect(
-    const HostResolver::RequestInfo& resolve_info) {
-  int rv = resolver_.Resolve(resolve_info, &addresses_, &callback_);
+int ConnectingSocket::Connect() {
+  int rv = resolver_.Resolve(resolve_info_, &addresses_, &callback_);
   if (rv != ERR_IO_PENDING)
     rv = OnIOCompleteInternal(rv, true /* synchronous */);
   return rv;
 }
 
-void TCPClientSocketPool::ConnectingSocket::OnIOComplete(int result) {
+void ConnectingSocket::OnIOComplete(int result) {
   OnIOCompleteInternal(result, false /* asynchronous */);
 }
 
-int TCPClientSocketPool::ConnectingSocket::OnIOCompleteInternal(
+int ConnectingSocket::OnIOCompleteInternal(
     int result, bool synchronous) {
   CHECK(result != ERR_IO_PENDING);
 
-  GroupMap::iterator group_it = pool_->group_map_.find(group_name_);
-  CHECK(group_it != pool_->group_map_.end());
+  TCPClientSocketPool::Request* request = pool_->GetConnectingRequest(
+      group_name_, handle_);
+  CHECK(request);
 
-  Group& group = group_it->second;
-
-  RequestMap* request_map = &group.connecting_requests;
-  RequestMap::iterator it = request_map->find(handle_);
-  CHECK(it != request_map->end());
-
-  if (result == OK && it->second.load_state == LOAD_STATE_RESOLVING_HOST) {
-    it->second.load_state = LOAD_STATE_CONNECTING;
+  if (result == OK && request->load_state == LOAD_STATE_RESOLVING_HOST) {
+    request->load_state = LOAD_STATE_CONNECTING;
     socket_.reset(client_socket_factory_->CreateTCPClientSocket(addresses_));
-    connect_start_time_ = base::Time::Now();
+    connect_start_time_ = base::TimeTicks::Now();
     result = socket_->Connect(&callback_);
     if (result == ERR_IO_PENDING)
       return result;
   }
 
   if (result == OK) {
-    CHECK(it->second.load_state == LOAD_STATE_CONNECTING);
-    CHECK(connect_start_time_ != base::Time());
+    CHECK(request->load_state == LOAD_STATE_CONNECTING);
+    CHECK(connect_start_time_ != base::TimeTicks());
     base::TimeDelta connect_duration =
-        base::Time::Now() - connect_start_time_;
+        base::TimeTicks::Now() - connect_start_time_;
 
     UMA_HISTOGRAM_CLIPPED_TIMES("Net.TCP_Connection_Latency",
         connect_duration,
@@ -102,27 +98,28 @@ int TCPClientSocketPool::ConnectingSocket::OnIOCompleteInternal(
   // Now, we either succeeded at Connect()'ing, or we failed at host resolution
   // or Connect()'ing.  Either way, we'll run the callback to alert the client.
 
-  Request request = it->second;
-  request_map->erase(it);
+  CompletionCallback* callback = NULL;
 
   if (result == OK) {
-    request.handle->set_socket(socket_.release());
-    request.handle->set_is_reused(false);
+    callback = pool_->OnConnectingRequestComplete(
+        group_name_,
+        handle_,
+        false /* don't deactivate socket */,
+        socket_.release());
   } else {
-    group.active_socket_count--;
-
-    // Delete group if no longer needed.
-    if (group.active_socket_count == 0 && group.idle_sockets.empty()) {
-      CHECK(group.pending_requests.empty());
-      CHECK(group.connecting_requests.empty());
-      pool_->group_map_.erase(group_it);
-    }
+    callback = pool_->OnConnectingRequestComplete(
+        group_name_,
+        handle_,
+        true /* deactivate socket */,
+        NULL /* no connected socket to give */);
   }
 
-  pool_->RemoveConnectingSocket(handle_);  // will delete |this|.
+  // |this| is deleted after this point.
+
+  CHECK(callback);
 
   if (!synchronous)
-    request.callback->Run(result);
+    callback->Run(result);
   return result;
 }
 
@@ -202,9 +199,10 @@ int TCPClientSocketPool::RequestSocket(
   CHECK(!ContainsKey(connecting_socket_map_, handle));
 
   ConnectingSocket* connecting_socket =
-      new ConnectingSocket(group_name, handle, client_socket_factory_, this);
+      new ConnectingSocket(group_name, resolve_info, handle,
+                           client_socket_factory_, this);
   connecting_socket_map_[handle] = connecting_socket;
-  int rv = connecting_socket->Connect(resolve_info);
+  int rv = connecting_socket->Connect();
   return rv;
 }
 
@@ -390,6 +388,59 @@ void TCPClientSocketPool::DoReleaseSocket(const std::string& group_name,
     CHECK(group.connecting_requests.empty());
     group_map_.erase(i);
   }
+}
+
+TCPClientSocketPool::Request* TCPClientSocketPool::GetConnectingRequest(
+    const std::string& group_name, const ClientSocketHandle* handle) {
+  GroupMap::iterator group_it = group_map_.find(group_name);
+  if (group_it == group_map_.end())
+    return NULL;
+
+  Group& group = group_it->second;
+
+  RequestMap* request_map = &group.connecting_requests;
+  RequestMap::iterator it = request_map->find(handle);
+  if (it == request_map->end())
+    return NULL;
+
+  return &it->second;
+}
+
+CompletionCallback* TCPClientSocketPool::OnConnectingRequestComplete(
+    const std::string& group_name,
+    const ClientSocketHandle* handle,
+    bool deactivate,
+    ClientSocket* socket) {
+  CHECK((deactivate && !socket) || (!deactivate && socket));
+  GroupMap::iterator group_it = group_map_.find(group_name);
+  CHECK(group_it != group_map_.end());
+  Group& group = group_it->second;
+
+  RequestMap* request_map = &group.connecting_requests;
+
+  RequestMap::iterator it = request_map->find(handle);
+  CHECK(it != request_map->end());
+  Request request = it->second;
+  request_map->erase(it);
+  DCHECK_EQ(request.handle, handle);
+
+  if (deactivate) {
+    group.active_socket_count--;
+
+    // Delete group if no longer needed.
+    if (group.active_socket_count == 0 && group.idle_sockets.empty()) {
+      DCHECK(group.pending_requests.empty());
+      DCHECK(group.connecting_requests.empty());
+      group_map_.erase(group_name);
+    }
+  } else {
+    request.handle->set_socket(socket);
+    request.handle->set_is_reused(false);
+  }
+
+  RemoveConnectingSocket(request.handle);
+
+  return request.callback;
 }
 
 void TCPClientSocketPool::RemoveConnectingSocket(
