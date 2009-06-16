@@ -44,7 +44,7 @@ class UrlFetchTest : public UITest {
     }
     if (varToFetch) {
       std::wstring script = StringPrintf(
-          L"window.domAutomationController.send(%s);", varToFetch);
+          L"window.domAutomationController.send(%ls);", varToFetch);
 
       std::wstring value;
       bool success = tab->ExecuteAndExtractString(L"", script, &value);
