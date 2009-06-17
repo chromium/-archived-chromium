@@ -2055,7 +2055,7 @@ BUG10472 MAC : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = FAIL 
 // <input type="search">; various failures, some tests may simply need new
 // baselines, others have more problems.
 BUG10473 LINUX : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
-BUG9158 LINUX : LayoutTests/fast/forms/placeholder-set-value.html = FAIL
+BUG10473 LINUX : LayoutTests/fast/forms/placeholder-set-value.html = FAIL
 BUG10473 LINUX : LayoutTests/fast/forms/search-display-none-cancel-button.html = FAIL
 BUG10473 LINUX : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
 BUG10473 LINUX : LayoutTests/fast/forms/searchfield-heights.html = FAIL
