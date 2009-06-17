@@ -6,6 +6,7 @@
 #define BASE_PROCESS_H_
 
 #include "base/basictypes.h"
+#include "build/build_config.h"
 
 #include <sys/types.h>
 #ifdef OS_WIN

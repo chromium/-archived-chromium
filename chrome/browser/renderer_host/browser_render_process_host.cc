@@ -721,7 +721,18 @@ void BrowserRenderProcessHost::OnChannelError() {
   DCHECK(channel_.get());
 
   bool child_exited;
-  bool did_crash = base::DidProcessCrash(&child_exited, process_.handle());
+  bool did_crash;
+  if (zygote_child_) {
+#if defined(OS_LINUX)
+    did_crash = Singleton<ZygoteHost>()->DidProcessCrash(
+        process_.handle(), &child_exited);
+#else
+    NOTREACHED();
+    did_crash = true;
+#endif
+  } else {
+    did_crash = base::DidProcessCrash(&child_exited, process_.handle());
+  }
 
   NotificationService::current()->Notify(
       NotificationType::RENDERER_PROCESS_CLOSED,
