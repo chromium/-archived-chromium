@@ -2008,10 +2008,7 @@ BUG10462 WIN LINUX : LayoutTests/fast/replaced/percent-height-in-anonymous-block
 BUG10462 WIN LINUX : LayoutTests/http/tests/misc/generated-content-inside-table.html = FAIL
 
 // New failures from merge
-BUG10463 LINUX : LayoutTests/fast/css/clip-zooming.html = FAIL
-BUG10463 LINUX : LayoutTests/fast/forms/search-zoomed.html = FAIL
 BUG10463 WIN LINUX : LayoutTests/editing/selection/hit-test-anonymous.html = FAIL
-BUG10463 LINUX : LayoutTests/fast/clip/016.html = FAIL
 BUG10463 WIN LINUX : LayoutTests/fast/forms/listbox-hit-test-zoomed.html = FAIL
 BUG10463 WIN LINUX : LayoutTests/fast/forms/slider-zoomed.html = FAIL
 BUG10463 WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
