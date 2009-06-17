@@ -47,6 +47,6 @@ class MediaTest : public UITest {
   }
 };
 
-TEST_F(MediaTest, VideoBearH264_DISABLED) {
+TEST_F(MediaTest, DISABLED_VideoBearH264) {
   PlayVideo("bear.mp4");
 }
