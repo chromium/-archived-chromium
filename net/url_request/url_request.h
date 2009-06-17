@@ -515,6 +515,9 @@ class URLRequest {
   // Origin).
   static std::string StripPostSpecificHeaders(const std::string& headers);
 
+  // Contextual information used for this request (can be NULL).
+  scoped_refptr<URLRequestContext> context_;
+
   scoped_refptr<URLRequestJob> job_;
   scoped_refptr<net::UploadData> upload_;
   GURL url_;
@@ -555,9 +558,6 @@ class URLRequest {
   // Number of times we're willing to redirect.  Used to guard against
   // infinite redirects.
   int redirect_limit_;
-
-  // Contextual information used for this request (can be NULL).
-  scoped_refptr<URLRequestContext> context_;
 
   // Cached value for use after we've orphaned the job handling the
   // first transaction in a request involving redirects.
