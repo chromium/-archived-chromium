@@ -289,6 +289,7 @@ class HostResolver::Job : public base::RefCountedThreadSafe<HostResolver::Job> {
 
   // Cancels the current job. Callable from origin thread.
   void Cancel() {
+    HostResolver* resolver = resolver_;
     resolver_ = NULL;
 
     // Mark the job as cancelled, so when worker thread completes it will
@@ -296,6 +297,17 @@ class HostResolver::Job : public base::RefCountedThreadSafe<HostResolver::Job> {
     {
       AutoLock locked(origin_loop_lock_);
       origin_loop_ = NULL;
+    }
+
+    // We don't have to do anything further to actually cancel the requests
+    // that were attached to this job (since they are unreachable now).
+    // But we will call HostResolver::CancelRequest(Request*) on each one
+    // in order to notify any observers.
+    for (RequestsList::const_iterator it = requests_.begin();
+         it != requests_.end(); ++it) {
+      HostResolver::Request* req = *it;
+      if (!req->was_cancelled())
+        resolver->CancelRequest(req);
     }
   }
 
@@ -394,7 +406,7 @@ HostResolver::HostResolver(int max_cache_entries, int cache_duration_ms)
 
 HostResolver::~HostResolver() {
   // Cancel the outstanding jobs. Those jobs may contain several attached
-  // requests, which will now never be completed.
+  // requests, which will also be cancelled.
   for (JobMap::iterator it = jobs_.begin(); it != jobs_.end(); ++it)
     it->second->Cancel();
 
