@@ -903,7 +903,7 @@ extern "C" {
 
     if (obj->drawing_model_ == NPDrawingModelOpenGL) {
       CGLSetCurrentContext(obj->mac_cgl_context_);
-    } else if (!had_a_window && obj->mac_agl_context_ == NULL) {  // setup AGL context
+    } else if (obj->mac_agl_context_ == NULL) {  // setup AGL context
       AGLPixelFormat myAGLPixelFormat = NULL;
 
     // We need to spec out a few similar but different sets of renderer
@@ -1075,10 +1075,8 @@ extern "C" {
     // Renderer is already initialized from a previous call to this function,
     // just update size and position and return.
     if (had_a_window) {
-      if (obj->renderer()) {
-        obj->renderer()->SetClientOriginOffset(gl_x_origin, gl_y_origin);
-        obj->Resize(window->width, window->height);
-      }
+      obj->renderer()->SetClientOriginOffset(gl_x_origin, gl_y_origin);
+      obj->Resize(window->width, window->height);
       return NPERR_NO_ERROR;
     }
 
@@ -1096,22 +1094,22 @@ extern "C" {
         ::aglDestroyContext(obj->mac_agl_context_);
         obj->mac_agl_context_ = NULL;
       }
+      return NPERR_NO_ERROR;
     }
 
     obj->client()->Init();
     obj->client()->SetRenderOnDemandCallback(
         new RenderOnDemandCallbackHandler(obj));
 
-    if (obj->renderer()) {
-      obj->renderer()->SetClientOriginOffset(gl_x_origin, gl_y_origin);
-      obj->Resize(window->width, window->height);
+    obj->renderer()->SetClientOriginOffset(gl_x_origin, gl_y_origin);
+    obj->Resize(window->width, window->height);
+
 
 #ifdef CFTIMER
-      // now that the grahics context is setup, add this instance to the timer
-      // list so it gets drawn repeatedly
-      gRenderTimer.AddInstance(instance);
+    // now that the grahics context is setup, add this instance to the timer
+    // list so it gets drawn repeatedly
+    gRenderTimer.AddInstance(instance);
 #endif  // CFTIMER
-    }
 
     return NPERR_NO_ERROR;
   }
