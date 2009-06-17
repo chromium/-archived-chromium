@@ -268,6 +268,11 @@
             'util/set_reg_value_work_item_unittest.cc',
             'util/work_item_list_unittest.cc',
           ],
+          'msvs_settings': {
+            'VCManifestTool': {
+              'AdditionalManifestFiles': '$(SolutionDir)installer\\mini_installer\\mini_installer.exe.manifest',
+            },
+          },
         },
         {
           'target_name': 'installer_util_strings',
@@ -444,6 +449,11 @@
             '../test/mini_installer_test/mini_installer_test_constants.h',
             '../test/mini_installer_test/test.cc',
           ],
+          'msvs_settings': {
+            'VCManifestTool': {
+              'AdditionalManifestFiles': '$(SolutionDir)installer\\mini_installer\\mini_installer.exe.manifest',
+            },
+          },
         },
         {
           'target_name': 'setup',
