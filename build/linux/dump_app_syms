@@ -31,7 +31,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Dump the symbols from the given binary.
-if [ "$INFILE" -nt "$OUTFILE" ]; then
+if [ ! -e "$OUTFILE" -o "$INFILE" -nt "$OUTFILE" ]; then
   "$DUMPSYMS" "$INFILE" > "$OUTFILE"
 fi
 
