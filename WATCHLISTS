@@ -39,6 +39,9 @@
     'plugin': {
       'filepath': 'chrome/browser/plugin.*|chrome/plugin/.*|chrome/common/plugin.*',
     },
+    'net': {
+      'filepath': 'net/.*',
+    }
   },
 
   'WATCHLISTS': {
@@ -52,5 +55,6 @@
     'plugin': ['darin@chromium.org'],
     'extension': ['erikkay@chromium.org'],
     'purify': ['erikkay@chromium.org'],
+    'net': ['darin@chromium.org', 'willchan@chromium.org'],
   },
 }
