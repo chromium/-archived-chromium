@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="bn">
+<translation id="IDS_UI_FONT_FAMILY_XP">vrinda</translation> 
+<translation id="IDS_UI_FONT_FAMILY">vrinda</translation>
+<translation id="IDS_UI_FONT_SIZE_SCALER_XP">160</translation>
+<translation id="IDS_UI_FONT_SIZE_SCALER">120</translation>
+<translation id="IDS_MINIMUM_UI_FONT_SIZE">5</translation>
+</translationbundle>

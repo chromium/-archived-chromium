@@ -111,7 +111,6 @@
     <output filename="app_locale_settings_zh-TW.pak" type="data_package" lang="zh-TW" />
   </outputs>
   <translations>
-  <!-- TODO(beng): uncomment when we have these xtb files.
     <file path="app_locale_settings_ar.xtb" lang="ar" />
     <file path="app_locale_settings_bg.xtb" lang="bg" />
     <file path="app_locale_settings_bn.xtb" lang="bn" />
@@ -161,10 +160,9 @@
     <file path="app_locale_settings_vi.xtb" lang="vi" />
     <file path="app_locale_settings_zh-CN.xtb" lang="zh-CN" />
     <file path="app_locale_settings_zh-TW.xtb" lang="zh-TW" />
-    -->
   </translations>
   <release seq="1" allow_pseudo="false">
-    <messages fallback_to_english="true">
+    <messages>
       <!-- The UI font used in native UI components (e.g. menu). 'default'
            indicates that the font obtained from the system be used.
            Otherwise, the system default UI font will be overriden with
@@ -193,9 +191,8 @@
       <message name="IDS_UI_FONT_SIZE_SCALER_XP" use_name_for_id="true">
         100
       </message>
-      
-      <!-- Limit minimum UI font size to 5 for all locales.
-           TODO(cira): add exceptions once we create xtb files. -->
+
+      <!-- Limit minimum UI font size to 5 by default. -->
       <message name="IDS_MINIMUM_UI_FONT_SIZE" use_name_for_id="true">
         5
       </message>
