@@ -15,20 +15,25 @@ RemoteDebuggerAgentStub = function() {
   this.profileLogPos_ = 0;
 };
 
+
 RemoteDebuggerAgentStub.prototype.DebugBreak = function() {
 };
+
 
 RemoteDebuggerAgentStub.prototype.GetContextId = function() {
   RemoteDebuggerAgent.DidGetContextId(3);
 };
 
+
 RemoteDebuggerAgentStub.prototype.StopProfiling = function() {
   this.isProfiling_ = false;
 };
 
+
 RemoteDebuggerAgentStub.prototype.StartProfiling = function() {
   this.isProfiling_ = true;
 };
+
 
 RemoteDebuggerAgentStub.prototype.IsProfilingStarted = function() {
   var self = this;
@@ -36,6 +41,7 @@ RemoteDebuggerAgentStub.prototype.IsProfilingStarted = function() {
       RemoteDebuggerAgent.DidIsProfilingStarted(self.isProfiling_);
   }, 100);
 };
+
 
 RemoteDebuggerAgentStub.prototype.GetNextLogLines = function() {
   if (this.profileLogPos_ < RemoteDebuggerAgentStub.ProfilerLogBuffer.length) {
@@ -49,6 +55,7 @@ RemoteDebuggerAgentStub.prototype.GetNextLogLines = function() {
     setTimeout(function() { RemoteDebuggerAgent.DidGetNextLogLines(''); }, 100);
   }
 };
+
 
 /**
  * @constructor

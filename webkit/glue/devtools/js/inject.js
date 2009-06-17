@@ -28,20 +28,50 @@ devtools.Injected = function() {
    * @private
    */
   this.styles_ = [];
+
+  /**
+   * This cache contains mapping from object it to an object instance for
+   * all results of the evaluation / console logs.
+   */
+  this.cachedConsoleObjects_ = {};
+
+  /**
+   * Last id for the cache above.
+   */
+  this.lastCachedConsoleObjectId_ = 1;
+};
+
+
+/**
+ * Returns object for given id. This can be either node wrapper for
+ * integer ids or evaluation results that recide in cached console
+ * objects cache for arbitrary keys.
+ * @param {number|string} id Id to get object for.
+ * @return {Object} resolved object.
+ */
+devtools.Injected.prototype.getObjectForId_ = function(id) {
+  if (typeof id == 'number') {
+    return DevToolsAgentHost.getNodeForId(id);
+  }
+  return this.cachedConsoleObjects_[id];
 };
 
 
 /**
  * Returns array of properties for a given node on a given path.
- * @param {Node} node Node to get property value for.
+ * @param {number} nodeId Id of node to get prorotypes for.
  * @param {Array.<string>} path Path to the nested object.
  * @param {number} protoDepth Depth of the actual proto to inspect.
  * @return {Array.<Object>} Array where each property is represented
  *     by the tree entries [{string} type, {string} name, {Object} value].
  */
-devtools.Injected.prototype.getProperties = function(node, path, protoDepth) {
+devtools.Injected.prototype.getProperties =
+    function(nodeId, path, protoDepth) {
   var result = [];
-  var obj = node;
+  var obj = this.getObjectForId_(nodeId);
+  if (!obj) {
+    return [];
+  }
 
   // Follow the path.
   for (var i = 0; obj && i < path.length; ++i) {
@@ -73,8 +103,7 @@ devtools.Injected.prototype.getProperties = function(node, path, protoDepth) {
     if (type == 'string') {
       var str = obj[name];
       result.push(str.length > 99 ? str.substr(0, 99) + '...' : str);
-    } else if (type != 'object' && type != 'array' &&
-         type != 'function') {
+    } else if (type != 'object' && type != 'function') {
       result.push(obj[name]);
     } else {
       result.push(undefined);
@@ -86,10 +115,15 @@ devtools.Injected.prototype.getProperties = function(node, path, protoDepth) {
 
 /**
  * Returns array of prototypes for a given node.
- * @param {Node} node Node to get prorotypes for.
+ * @param {number} nodeId Id of node to get prorotypes for.
  * @return {Array<string>} Array of proto names.
  */
-devtools.Injected.prototype.getPrototypes = function(node) {
+devtools.Injected.prototype.getPrototypes = function(nodeId) {
+  var node = DevToolsAgentHost.getNodeForId(nodeId);
+  if (!node) {
+    return [];
+  }
+
   var result = [];
   for (var prototype = node; prototype; prototype = prototype.__proto__) {
     var description = Object.prototype.toString.call(prototype);
@@ -101,13 +135,18 @@ devtools.Injected.prototype.getPrototypes = function(node) {
 
 /**
  * Returns style information that is used in devtools.js.
- * @param {Node} node Node to get prorotypes for.
+ * @param {number} nodeId Id of node to get prorotypes for.
  * @param {boolean} authorOnly Determines whether only author styles need to
  *     be added.
  * @return {string} Style collection descriptor.
  */
-devtools.Injected.prototype.getStyles = function(node, authorOnly) {
-  if (!node.nodeType == Node.ELEMENT_NODE) {
+devtools.Injected.prototype.getStyles = function(nodeId, authorOnly) {
+  var node = DevToolsAgentHost.getNodeForId(nodeId);
+  if (!node) {
+    return {};
+  }
+
+  if (node.nodeType != Node.ELEMENT_NODE) {
     return {};
   }
   var matchedRules = window.getMatchedCSSRules(node, '', false);
@@ -182,8 +221,6 @@ devtools.Injected.prototype.getStyleForId_ = function(node, id) {
 };
 
 
-
-
 /**
  * Converts given style into serializable object.
  * @param {CSSStyleDeclaration} style Style to serialize.
@@ -224,13 +261,18 @@ devtools.Injected.prototype.serializeStyle_ = function(style, opt_bind) {
 
 /**
  * Toggles style with given id on/off.
- * @param {Node} node Node to get prorotypes for.
+ * @param {number} nodeId Id of node to get prorotypes for.
  * @param {number} styleId Id of style to toggle.
  * @param {boolean} enabled Determines value to toggle to,
  * @param {string} name Name of the property.
  */
-devtools.Injected.prototype.toggleNodeStyle = function(node, styleId, enabled,
-    name) {
+devtools.Injected.prototype.toggleNodeStyle = function(nodeId, styleId,
+    enabled, name) {
+  var node = DevToolsAgentHost.getNodeForId(nodeId);
+  if (!node) {
+    return false;
+  }
+
   var style = this.getStyleForId_(node, styleId);
   if (!style) {
     return false;
@@ -273,14 +315,19 @@ devtools.Injected.prototype.toggleNodeStyle = function(node, styleId, enabled,
 
 /**
  * Applies given text to a style.
- * @param {Node} node Node to get prorotypes for.
+ * @param {number} nodeId Id of node to get prorotypes for.
  * @param {number} styleId Id of style to toggle.
  * @param {string} name Style element name.
  * @param {string} styleText New style text.
  * @return {boolean} True iff style has been edited successfully.
  */
-devtools.Injected.prototype.applyStyleText = function(node, styleId,
+devtools.Injected.prototype.applyStyleText = function(nodeId, styleId,
     name, styleText) {
+  var node = DevToolsAgentHost.getNodeForId(nodeId);
+  if (!node) {
+    return false;
+  }
+
   var style = this.getStyleForId_(node, styleId);
   if (!style) {
     return false;
@@ -341,13 +388,18 @@ devtools.Injected.prototype.applyStyleText = function(node, styleId,
 
 /**
  * Sets style property with given name to a value.
- * @param {Node} node Node to get prorotypes for.
+ * @param {number} nodeId Id of node to get prorotypes for.
  * @param {string} name Style element name.
  * @param {string} value Value.
  * @return {boolean} True iff style has been edited successfully.
  */
-devtools.Injected.prototype.setStyleProperty = function(node,
+devtools.Injected.prototype.setStyleProperty = function(nodeId,
     name, value) {
+  var node = DevToolsAgentHost.getNodeForId(nodeId);
+  if (!node) {
+    return false;
+  }
+
   node.style.setProperty(name, value, "");
   return true;
 };
@@ -460,4 +512,40 @@ devtools.Injected.prototype.getUniqueStyleProperties_ = function(style) {
     properties.push(property);
   }
   return properties;
+};
+
+
+/**
+ * Caches console object for subsequent calls to getConsoleObjectProperties.
+ * @param {Object} obj Object to cache.
+ * @return {Object} console object wrapper.
+ */
+devtools.Injected.prototype.wrapConsoleObject = function(obj) {
+  var type = typeof obj;
+  if (type == 'object' || type == 'function') {
+    var objId = '#consoleobj#' + this.lastCachedConsoleObjectId_++;
+    this.cachedConsoleObjects_[objId] = obj;
+    var result = { ___devtools_id : objId };
+    // Loop below fills dummy object with properties for completion.
+    for (var name in obj) {
+      result[name] = '';
+    }
+    return result;
+  } else {
+    return obj;
+  }
+};
+
+
+/**
+ * Caches console object for subsequent calls to getConsoleObjectProperties.
+ * @param {Object} obj Object to cache.
+ * @return {string} console object id.
+ */
+devtools.Injected.prototype.evaluate = function(expression) {
+  try {
+    return [ this.wrapConsoleObject(window.eval(expression)), false ];
+  } catch (e) {
+    return [ e.toString(), true ];
+  }
 };

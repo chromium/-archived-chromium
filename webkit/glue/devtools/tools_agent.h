@@ -16,13 +16,9 @@
   /* Clears Dom Node highlight. */ \
   METHOD0(HideDOMNodeHighlight) \
   \
-  /* Executes JavaScript in the context of the inspected window. */ \
-  METHOD2(EvaluateJavaScript, int /* call_id */, String /* JS expression */) \
-  \
   /* Requests that utility js function is executed with the given args. */ \
-  METHOD4(ExecuteUtilityFunction, int /* call_id */, \
-      String /* function_name */, int /* context_node_id */, \
-      String /* json_args */) \
+  METHOD3(ExecuteUtilityFunction, int /* call_id */, \
+      String /* function_name */, String /* json_args */) \
   \
   /* Clears cached console messages. */ \
   METHOD0(ClearConsoleMessages) \
@@ -40,10 +36,6 @@ DEFINE_RPC_CLASS(ToolsAgent, TOOLS_AGENT_STRUCT)
     METHOD4) \
   /* Updates focused node on the client. */ \
   METHOD1(UpdateFocusedNode, int /* node_id */) \
-  \
-  /* Response message to EvaluateJavaScript. */ \
-  METHOD3(DidEvaluateJavaScript, int /* call_id */, String /* result */, \
-      bool /* isException */) \
   \
   /* Updates focused node on the client. */ \
   METHOD2(FrameNavigate, std::string /* url */, bool /* top_level */) \

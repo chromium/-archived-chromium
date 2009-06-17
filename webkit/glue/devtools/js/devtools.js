@@ -73,8 +73,12 @@ devtools.ToolsAgent.prototype.reset = function() {
  *     result.
  */
 devtools.ToolsAgent.prototype.evaluateJavaScript = function(script, callback) {
-  var callbackId = devtools.Callback.wrap(callback);
-  RemoteToolsAgent.EvaluateJavaScript(callbackId, script);
+  var callbackId = devtools.Callback.wrap(function(result) {
+    var pair = JSON.parse(result);
+    callback(pair[0], pair[1]);
+  });
+  RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
+      'evaluate', JSON.stringify([script]));
 };
 
 
@@ -860,7 +864,26 @@ WebInspector.UIString = function(string) {
     }
     return result;
   };
+
+  // This is needed to evaluate 'instanceof' against win.Node, etc.
+  // Need a real window, not just InspectorController.inspectedWindow wrapper.
+  var oldType = Object.type;
+  Object.type = function(obj) {
+    return oldType.call(this, obj, window);
+  };
 })();
+
+
+Object.sortedProperties = function(obj) {
+  var properties = [];
+  for (var prop in obj) {
+    if (prop != '___devtools_id') {
+      properties.push(prop);
+    }
+  }
+  properties.sort();
+  return properties;
+};
 
 
 // Highlight extension content scripts in the scripts list.
@@ -877,3 +900,12 @@ WebInspector.UIString = function(string) {
     return result;
   };
 })();
+
+
+WebInspector.Console.prototype._formatobject = function(object, elem) {
+  var wrapper = {};
+  wrapper.id_ = object.___devtools_id;
+  wrapper.protoDepth_ = -1;
+  var section = new WebInspector.SidebarObjectPropertiesSection(wrapper, null);
+  elem.appendChild(section.element);
+};
