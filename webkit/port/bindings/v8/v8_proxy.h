@@ -72,6 +72,11 @@ class CSSValueList;
 class NodeFilter;
 class ScriptExecutionContext;
 
+#if ENABLE(DOM_STORAGE)
+class Storage;
+class StorageEvent;
+#endif
+
 #if ENABLE(SVG)
 class SVGElementInstance;
 #endif

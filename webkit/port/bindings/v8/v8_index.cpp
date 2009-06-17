@@ -202,6 +202,11 @@
 #include "V8XSLTProcessor.h"
 #include "V8RGBColor.h"
 
+#if ENABLE(DOM_STORAGE)
+#include "V8Storage.h"
+#include "V8StorageEvent.h"
+#endif
+
 #if ENABLE(SVG_ANIMATION)
 #include "V8SVGAnimateColorElement.h"
 #include "V8SVGAnimateElement.h"

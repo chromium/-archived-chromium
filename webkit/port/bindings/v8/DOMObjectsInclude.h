@@ -127,6 +127,11 @@
 #include "XPathNSResolver.h"
 #include "XPathResult.h"
 
+#if ENABLE(DOM_STORAGE)
+#include "Storage.h"
+#include "StorageEvent.h"
+#endif
+
 #if ENABLE(SVG)
 #include "SVGAngle.h"
 #include "SVGAnimatedPoints.h"

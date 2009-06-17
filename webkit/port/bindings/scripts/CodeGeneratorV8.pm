@@ -1728,6 +1728,7 @@ my %typeCanFailConversion = (
     "NSResolver" => 0,
     "Range" => 0,
     "SQLResultSet" => 0,
+    "Storage" => 0,
     "SVGAngle" => 0,
     "SVGElement" => 0,
     "SVGLength" => 1,
