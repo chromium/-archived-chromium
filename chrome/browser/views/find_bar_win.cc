@@ -89,29 +89,23 @@ FindBar* CreateFindBar(BrowserView* browser_view) {
 FindBarWin::FindBarWin(BrowserView* browser_view)
     : browser_view_(browser_view),
       find_dialog_animation_offset_(0),
-      focus_manager_(NULL),
       esc_accel_target_registered_(false),
       find_bar_controller_(NULL) {
-  gfx::NativeView parent_view = browser_view->GetWidget()->GetNativeView();
-
-  // Start listening to focus changes, so we can register and unregister our
-  // own handler for Escape.
-  SetFocusChangeListener(parent_view);
-
   view_ = new FindBarView(this);
-
-  views::FocusManager* focus_manager = views::FocusManager::GetFocusManager(
-      parent_view);
-  DCHECK(focus_manager);
-
-  // Stores the currently focused view, and tracks focus changes so that we can
-  // restore focus when the find box is closed.
-  focus_tracker_.reset(new views::ExternalFocusTracker(view_, focus_manager));
 
   // Initialize the host.
   host_.reset(new Host(this));
-  host_->Init(parent_view, gfx::Rect(), false);
+  host_->Init(browser_view->GetWidget()->GetNativeView(), gfx::Rect(), false);
   host_->SetContentsView(view_);
+
+  // Start listening to focus changes, so we can register and unregister our
+  // own handler for Escape.
+  focus_manager_ = views::FocusManager::GetFocusManager(host_->GetNativeView());
+  focus_manager_->AddFocusChangeListener(this);
+
+  // Stores the currently focused view, and tracks focus changes so that we can
+  // restore focus when the find box is closed.
+  focus_tracker_.reset(new views::ExternalFocusTracker(view_, focus_manager_));
 
   // Start the process of animating the opening of the window.
   animation_.reset(new SlideAnimation(this));
@@ -565,26 +559,6 @@ void FindBarWin::SetDialogPosition(const gfx::Rect& new_pos, bool no_redraw) {
                  new_pos.width(), new_pos.height(), swp_flags);
 #else
   host_->SetBounds(new_pos);
-#endif
-}
-
-void FindBarWin::SetFocusChangeListener(gfx::NativeView parent_view) {
-#if defined(OS_WIN)
-  // When tabs get torn off the tab-strip they get a new window with a new
-  // FocusManager, which means we need to clean up old listener and start a new
-  // one with the new FocusManager.
-  if (focus_manager_) {
-    if (esc_accel_target_registered_)
-      UnregisterEscAccelerator();
-    focus_manager_->RemoveFocusChangeListener(this);
-  }
-
-  // Register as a listener with the new focus manager.
-  focus_manager_ = views::FocusManager::GetFocusManager(parent_view);
-  DCHECK(focus_manager_);
-  focus_manager_->AddFocusChangeListener(this);
-#else
-  NOTIMPLEMENTED();
 #endif
 }
 

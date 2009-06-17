@@ -53,13 +53,6 @@ class FindBarWin : public views::AcceleratorTarget,
   // Whether we are animating the position of the Find window.
   bool IsAnimating();
 
-  // We need to monitor focus changes so that we can register a handler for
-  // Escape when we get focus and unregister it when we looses focus. This
-  // function unregisters our old Escape accelerator (if registered) and
-  // registers a new one with the FocusManager associated with the
-  // new |parent_view|.
-  void SetFocusChangeListener(gfx::NativeView parent_view);
-
 #if defined(OS_WIN)
   // Forwards selected keystrokes to the renderer. This is useful to make sure
   // that arrow keys and PageUp and PageDown result in scrolling, instead of
