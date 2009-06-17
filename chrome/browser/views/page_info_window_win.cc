@@ -1,8 +1,8 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/views/page_info_window.h"
+#include "chrome/browser/views/page_info_window_win.h"
 
 #if defined(OS_WIN)
 #include <cryptuiapi.h>
@@ -29,6 +29,7 @@
 #include "views/background.h"
 #include "views/grid_layout.h"
 #include "views/controls/button/native_button.h"
+#include "views/controls/button/button.h"
 #include "views/controls/image_view.h"
 #include "views/controls/label.h"
 #include "views/controls/separator.h"
@@ -100,11 +101,6 @@ class SecurityTabView : public views::View {
 
     DISALLOW_EVIL_CONSTRUCTORS(Section);
   };
-
-  // Returns a name that can be used to represent the issuer.  It tries in this
-  // order CN, O and OU and returns the first non-empty one found.
-  static std::string GetIssuerName(
-      const net::X509Certificate::Principal& issuer);
 
   // Callback from history service with number of visits to url.
   void OnGotVisitCountToHost(HistoryService::Handle handle,
@@ -282,14 +278,15 @@ SecurityTabView::SecurityTabView(Profile* profile,
           IDS_PAGE_INFO_SECURITY_TAB_SECURE_IDENTITY_EV,
           UTF8ToWide(cert->subject().organization_names[0]),
           locality,
-          UTF8ToWide(GetIssuerName(cert->issuer()))));
+          UTF8ToWide(PageInfoWindow::GetIssuerName(cert->issuer()))));
     } else {
       // Non EV OK HTTPS.
       if (empty_subject_name)
         identity_title.clear();  // Don't display any title.
       else
         identity_title.assign(subject_name);
-      std::wstring issuer_name(UTF8ToWide(GetIssuerName(cert->issuer())));
+      std::wstring issuer_name(UTF8ToWide(
+          PageInfoWindow::GetIssuerName(cert->issuer())));
       if (issuer_name.empty()) {
         issuer_name.assign(
             l10n_util::GetString(IDS_PAGE_INFO_SECURITY_TAB_UNKNOWN_PARTY));
@@ -390,19 +387,6 @@ void SecurityTabView::Layout() {
   }
 }
 
-// static
-std::string SecurityTabView::GetIssuerName(
-    const net::X509Certificate::Principal& issuer) {
-  if (!issuer.common_name.empty())
-    return issuer.common_name;
-  if (!issuer.organization_names.empty())
-    return issuer.organization_names[0];
-  if (!issuer.organization_unit_names.empty())
-    return issuer.organization_unit_names[0];
-
-  return std::string();
-}
-
 void SecurityTabView::OnGotVisitCountToHost(HistoryService::Handle handle,
                                             bool found_visits,
                                             int count,
@@ -472,52 +456,29 @@ class PageInfoContentView : public views::View {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// PageInfoWindow
+// PageInfoWindowWin
 
-int PageInfoWindow::opened_window_count_ = 0;
+int PageInfoWindowWin::opened_window_count_ = 0;
 
-// static
-void PageInfoWindow::CreatePageInfo(Profile* profile,
-                                    NavigationEntry* nav_entry,
-                                    HWND parent_hwnd,
-                                    PageInfoWindow::TabID tab) {
-  PageInfoWindow* window = new PageInfoWindow();
-  window->Init(profile, nav_entry->url(), nav_entry->ssl(),
-               nav_entry->page_type(), true, parent_hwnd);
-  window->Show();
+PageInfoWindow* PageInfoWindow::Factory() {
+  return new PageInfoWindowWin();
 }
 
-// static
-void PageInfoWindow::CreateFrameInfo(Profile* profile,
-                                     const GURL& url,
-                                     const NavigationEntry::SSLStatus& ssl,
-                                     HWND parent_hwnd,
-                                     TabID tab) {
-  PageInfoWindow* window = new PageInfoWindow();
-  window->Init(profile, url, ssl, NavigationEntry::NORMAL_PAGE,
-               false, parent_hwnd);
-  window->Show();
+PageInfoWindowWin::PageInfoWindowWin()
+    : PageInfoWindow() {
 }
 
-// static
-void PageInfoWindow::RegisterPrefs(PrefService* prefs) {
-  prefs->RegisterDictionaryPref(prefs::kPageInfoWindowPlacement);
-}
-
-PageInfoWindow::PageInfoWindow() : cert_id_(0), contents_(NULL) {
-}
-
-PageInfoWindow::~PageInfoWindow() {
+PageInfoWindowWin::~PageInfoWindowWin() {
   DCHECK(opened_window_count_ > 0);
   opened_window_count_--;
 }
 
-void PageInfoWindow::Init(Profile* profile,
-                          const GURL& url,
-                          const NavigationEntry::SSLStatus& ssl,
-                          NavigationEntry::PageType page_type,
-                          bool show_history,
-                          HWND parent) {
+void PageInfoWindowWin::Init(Profile* profile,
+                             const GURL& url,
+                             const NavigationEntry::SSLStatus& ssl,
+                             NavigationEntry::PageType page_type,
+                             bool show_history,
+                             gfx::NativeView parent) {
   cert_id_ = ssl.cert_id();
 
   cert_info_button_ = new views::NativeButton(
@@ -582,11 +543,11 @@ void PageInfoWindow::Init(Profile* profile,
   }
 }
 
-views::View* PageInfoWindow::CreateGeneralTabView() {
+views::View* PageInfoWindowWin::CreateGeneralTabView() {
   return new views::View();
 }
 
-views::View* PageInfoWindow::CreateSecurityTabView(
+views::View* PageInfoWindowWin::CreateSecurityTabView(
     Profile* profile,
     const GURL& url,
     const NavigationEntry::SSLStatus& ssl,
@@ -595,28 +556,28 @@ views::View* PageInfoWindow::CreateSecurityTabView(
   return new SecurityTabView(profile, url, ssl, page_type, show_history);
 }
 
-void PageInfoWindow::Show() {
+void PageInfoWindowWin::Show() {
   window()->Show();
   opened_window_count_++;
 }
 
-int PageInfoWindow::GetDialogButtons() const {
+int PageInfoWindowWin::GetDialogButtons() const {
   return MessageBoxFlags::DIALOGBUTTON_CANCEL;
 }
 
-std::wstring PageInfoWindow::GetWindowTitle() const {
+std::wstring PageInfoWindowWin::GetWindowTitle() const {
   return l10n_util::GetString(IDS_PAGEINFO_WINDOW_TITLE);
 }
 
-std::wstring PageInfoWindow::GetWindowName() const {
+std::wstring PageInfoWindowWin::GetWindowName() const {
   return prefs::kPageInfoWindowPlacement;
 }
 
-views::View* PageInfoWindow::GetContentsView() {
+views::View* PageInfoWindowWin::GetContentsView() {
   return contents_;
 }
 
-void PageInfoWindow::ButtonPressed(views::Button* sender) {
+void PageInfoWindowWin::ButtonPressed(views::Button* sender) {
   if (sender == cert_info_button_) {
     DCHECK(cert_id_ != 0);
     ShowCertDialog(cert_id_);
@@ -625,16 +586,10 @@ void PageInfoWindow::ButtonPressed(views::Button* sender) {
   }
 }
 
-void PageInfoWindow::CalculateWindowBounds(gfx::Rect* bounds) {
+void PageInfoWindowWin::CalculateWindowBounds(gfx::Rect* bounds) {
   const int kDefaultOffset = 15;
 
-#if defined(OS_WIN)
   gfx::Rect monitor_bounds(win_util::GetMonitorBoundsForRect(*bounds));
-#else
-  gfx::Rect monitor_bounds;
-  NOTIMPLEMENTED();
-#endif
-
   if (monitor_bounds.IsEmpty())
     return;
 
@@ -666,8 +621,7 @@ void PageInfoWindow::CalculateWindowBounds(gfx::Rect* bounds) {
   bounds->Offset(x_offset, y_offset);
 }
 
-void PageInfoWindow::ShowCertDialog(int cert_id) {
-#if defined(OS_WIN)
+void PageInfoWindowWin::ShowCertDialog(int cert_id) {
   scoped_refptr<net::X509Certificate> cert;
   CertStore::GetSharedInstance()->RetrieveCert(cert_id, &cert);
   if (!cert.get()) {
@@ -693,5 +647,4 @@ void PageInfoWindow::ShowCertDialog(int cert_id) {
   // This next call blocks but keeps processing windows messages, making it
   // modal to the browser window.
   BOOL rv = ::CryptUIDlgViewCertificate(&view_info, &properties_changed);
-#endif
 }

@@ -26,6 +26,7 @@
 #include "chrome/browser/extensions/extension_browser_event_router.h"
 #include "chrome/browser/extensions/extension_tabs_module.h"
 #include "chrome/browser/extensions/extensions_service.h"
+#include "chrome/browser/page_info_window.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
@@ -45,7 +46,6 @@
 #if defined(OS_WIN)
 #include "app/win_util.h"
 #include "chrome/browser/views/first_run_bubble.h"
-#include "chrome/browser/views/page_info_window.h"
 #else
 #include "base/gfx/gtk_util.h"
 #include "chrome/browser/gtk/location_bar_view_gtk.h"
@@ -1115,14 +1115,10 @@ bool LocationBarView::SecurityImageView::OnMousePressed(
     NOTREACHED();
     return true;
   }
-#if defined(OS_WIN)
   PageInfoWindow::CreatePageInfo(profile_,
                                  nav_entry,
                                  GetRootView()->GetWidget()->GetNativeView(),
                                  PageInfoWindow::SECURITY);
-#else
-  NOTIMPLEMENTED();
-#endif
   return true;
 }
 

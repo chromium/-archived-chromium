@@ -12,6 +12,7 @@
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/page_info_window.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/spellchecker.h"
@@ -27,7 +28,6 @@
 
 #if defined(OS_WIN)
 #include "chrome/browser/views/options/fonts_languages_window_view.h"
-#include "chrome/browser/views/page_info_window.h"
 #endif
 
 RenderViewContextMenu::RenderViewContextMenu(
@@ -429,7 +429,7 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
       break;
 
     case IDS_CONTENT_CONTEXT_VIEWPAGEINFO: {
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_MACOSX)
       NavigationEntry* nav_entry =
           source_tab_contents_->controller().GetActiveEntry();
       PageInfoWindow::CreatePageInfo(
@@ -484,7 +484,7 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
         ssl.set_cert_status(cert_status);
         ssl.set_security_bits(security_bits);
       }
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_MACOSX)
       PageInfoWindow::CreateFrameInfo(
           profile_,
           params_.frame_url,

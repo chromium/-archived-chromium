@@ -376,25 +376,6 @@ class RepostFormWarningDialog {
   virtual ~RepostFormWarningDialog() { }
 };
 
-#if !defined(TOOLKIT_VIEWS)
-class PageInfoWindow {
- public:
-  enum TabID {
-    GENERAL = 0,
-    SECURITY,
-  };
-  static void CreatePageInfo(Profile* profile, NavigationEntry* nav_entry,
-                             gfx::NativeView parent_hwnd, TabID tab) {
-    NOTIMPLEMENTED();
-  }
-  static void CreateFrameInfo(Profile* profile, const GURL& url,
-                              const NavigationEntry::SSLStatus& ssl,
-                              gfx::NativeView parent_hwnd, TabID tab) {
-    NOTIMPLEMENTED();
-  }
-};
-#endif
-
 class FontsLanguagesWindowView {
  public:
   explicit FontsLanguagesWindowView(Profile* profile) { NOTIMPLEMENTED(); }

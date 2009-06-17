@@ -226,14 +226,6 @@
             '-o', '<(grit_out_dir)',
             '-D', '<(chrome_build)'
           ],
-          'conditons': [
-            ['VAR=="foo"', {
-              'action': [
-                'extra',
-                'arguments',
-              ],
-            }]
-          ],
           'conditions': [
             ['linux2==1', {
               'action': ['-D', 'linux2'],
@@ -752,6 +744,10 @@
         'browser/cocoa/location_bar_view_mac.mm',
         'browser/cocoa/menu_localizer.h',
         'browser/cocoa/menu_localizer.mm',
+        'browser/cocoa/page_info_window_controller.h',
+        'browser/cocoa/page_info_window_controller.mm',
+        'browser/cocoa/page_info_window_mac.h',
+        'browser/cocoa/page_info_window_mac.mm',
         'browser/cocoa/preferences_localizer.h',
         'browser/cocoa/preferences_localizer.mm',
         'browser/cocoa/preferences_window_controller.h',
@@ -1157,6 +1153,8 @@
         'browser/options_page_base.cc',
         'browser/options_page_base.h',
         'browser/options_window.h',
+        'browser/page_info_window.cc',
+        'browser/page_info_window.h',
         'browser/page_state.cc',
         'browser/page_state.h',
         'browser/password_manager/encryptor_linux.cc',
@@ -1570,8 +1568,8 @@
         'browser/views/options/passwords_exceptions_window_view.h',
         'browser/views/options/passwords_page_view.cc',
         'browser/views/options/passwords_page_view.h',
-        'browser/views/page_info_window.cc',
-        'browser/views/page_info_window.h',
+        'browser/views/page_info_window_win.cc',
+        'browser/views/page_info_window_win.h',
         'browser/views/repost_form_warning_view.cc',
         'browser/views/repost_form_warning_view.h',
         'browser/views/restart_message_box.cc',
@@ -1768,6 +1766,7 @@
           ],
           'link_settings': {
             'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/SecurityInterface.framework',
               '$(SDKROOT)/System/Library/Frameworks/QuartzCore.framework',
             ],
           },
@@ -2349,6 +2348,7 @@
         'app/nibs/en.lproj/FindBar.xib',
         'app/nibs/en.lproj/FirstRunDialog.xib',
         'app/nibs/en.lproj/MainMenu.xib',
+        'app/nibs/en.lproj/PageInfo.xib',
         'app/nibs/en.lproj/Preferences.xib',
         'app/nibs/en.lproj/SaveAccessoryView.xib',
         'app/nibs/en.lproj/TabContents.xib',
@@ -2369,6 +2369,8 @@
         'app/theme/o2_search.png',
         'app/theme/o2_star.png',
         'app/theme/otr_icon.pdf',
+        'app/theme/pageinfo_bad.png',
+        'app/theme/pageinfo_good.png',
         'app/theme/reload.pdf',
         'app/theme/sadtab.png',
         'app/theme/star.pdf',

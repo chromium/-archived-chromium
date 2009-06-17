@@ -1,10 +1,11 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_H_
-#define CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_H_
+#ifndef CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_WIN_H__
+#define CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_WIN_H__
 
+#include "chrome/browser/page_info_window.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "googleurl/src/gurl.h"
 #include "views/controls/button/button.h"
@@ -23,44 +24,29 @@ class PageInfoContentView;
 class PrefService;
 class Profile;
 class X509Certificate;
+class SecurityTabView;
 
-class PageInfoWindow : public views::DialogDelegate,
-                       public views::ButtonListener {
+class PageInfoWindowWin : public PageInfoWindow,
+                          public views::DialogDelegate,
+                          public views::ButtonListener {
  public:
-  enum TabID {
-    GENERAL = 0,
-    SECURITY,
+  // We need access to PageInfoWindow::GetIssuerName() which is protected
+  friend class SecurityTabView;
 
-  };
+  PageInfoWindowWin();
+  virtual ~PageInfoWindowWin();
 
-  // Creates and shows a new page info window for the main page.
-  static void CreatePageInfo(Profile* profile,
-                             NavigationEntry* nav_entry,
-                             HWND parent_hwnd,
-                             TabID tab);
-
-  // Creates and shows a new page info window for the frame at |url| with the
-  // specified SSL information.
-  static void CreateFrameInfo(Profile* profile,
-                              const GURL& url,
-                              const NavigationEntry::SSLStatus& ssl,
-                              HWND parent_hwnd,
-                              TabID tab);
-
-  static void RegisterPrefs(PrefService* prefs);
-
-  PageInfoWindow();
-  virtual ~PageInfoWindow();
-
+  // This is the main initializer that creates the window.
   virtual void Init(Profile* profile,
                     const GURL& url,
                     const NavigationEntry::SSLStatus& ssl,
                     NavigationEntry::PageType page_type,
                     bool show_history,
-                    HWND parent);
+                    gfx::NativeView parent);
 
   // views::Window overridden method.
-  void Show();
+  virtual void Show();
+  virtual void ShowCertDialog(int cert_id);
 
   // views::ButtonListener method.
   virtual void ButtonPressed(views::Button* sender);
@@ -72,8 +58,8 @@ class PageInfoWindow : public views::DialogDelegate,
   virtual views::View* GetContentsView();
 
  private:
-  views::View* CreateGeneralTabView();
-  views::View* CreateSecurityTabView(
+  virtual views::View* CreateGeneralTabView();
+  virtual views::View* CreateSecurityTabView(
       Profile* profile,
       const GURL& url,
       const NavigationEntry::SSLStatus& ssl,
@@ -84,13 +70,7 @@ class PageInfoWindow : public views::DialogDelegate,
   // from its original location.
   void CalculateWindowBounds(gfx::Rect* bounds);
 
-  // Shows various information for the specified certificate in a new dialog.
-  void ShowCertDialog(int cert_id);
-
   views::NativeButton* cert_info_button_;
-
-  // The id of the server cert for this page (0 means no cert).
-  int cert_id_;
 
   // The page info contents.
   PageInfoContentView* contents_;
@@ -98,7 +78,7 @@ class PageInfoWindow : public views::DialogDelegate,
   // A counter of how many page info windows are currently opened.
   static int opened_window_count_;
 
-  DISALLOW_COPY_AND_ASSIGN(PageInfoWindow);
+  DISALLOW_COPY_AND_ASSIGN(PageInfoWindowWin);
 };
 
-#endif  // #define CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_H_
+#endif  // #define CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_WIN_H__
