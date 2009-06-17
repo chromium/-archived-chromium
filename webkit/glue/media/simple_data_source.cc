@@ -18,42 +18,39 @@ SimpleDataSource::SimpleDataSource(MessageLoop* render_loop, int32 routing_id)
     : routing_id_(routing_id),
       render_loop_(render_loop),
       size_(-1),
-      position_(0) {
+      position_(0),
+      state_(UNINITIALIZED) {
   DCHECK(render_loop);
 }
 
 SimpleDataSource::~SimpleDataSource() {
+  AutoLock auto_lock(lock_);
+  DCHECK(state_ == UNINITIALIZED || state_ == STOPPED);
 }
 
-void SimpleDataSource::Stop() {}
+void SimpleDataSource::Stop() {
+  AutoLock auto_lock(lock_);
+  state_ = STOPPED;
+
+  // Post a task to the render thread to cancel loading the resource.
+  render_loop_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &SimpleDataSource::CancelTask));
+}
 
 bool SimpleDataSource::Initialize(const std::string& url) {
-  SetURL(GURL(url));
+  AutoLock auto_lock(lock_);
+  DCHECK_EQ(state_, UNINITIALIZED);
+  state_ = INITIALIZING;
 
   // Validate the URL.
+  SetURL(GURL(url));
   if (!url_.is_valid()) {
     return false;
   }
 
-  // Create our bridge and post a task to start loading the resource.
-  bridge_.reset(webkit_glue::ResourceLoaderBridge::Create(
-      "GET",
-      url_,
-      url_,
-      GURL::EmptyGURL(),  // TODO(scherkus): provide referer here.
-      "null",             // TODO(abarth): provide frame_origin
-      "null",             // TODO(abarth): provide main_frame_origin
-      "",
-      net::LOAD_BYPASS_CACHE,
-      base::GetCurrentProcId(),
-      ResourceType::MEDIA,
-      // TODO(michaeln): delegate->mediaplayer->frame->
-      //                    app_cache_context()->context_id()
-      // For now don't service media resource requests from the appcache.
-      WebAppCacheContext::kNoAppCacheContextId,
-      routing_id_));
+  // Post a task to the render thread to start loading the resource.
   render_loop_->PostTask(FROM_HERE,
-                         NewRunnableMethod(this, &SimpleDataSource::StartTask));
+      NewRunnableMethod(this, &SimpleDataSource::StartTask));
   return true;
 }
 
@@ -110,7 +107,18 @@ void SimpleDataSource::OnReceivedData(const char* data, int len) {
 
 void SimpleDataSource::OnCompletedRequest(const URLRequestStatus& status,
                                           const std::string& security_info) {
+  AutoLock auto_lock(lock_);
+  // It's possible this gets called after Stop(), in which case |host_| is no
+  // longer valid.
+  if (state_ == STOPPED) {
+    return;
+  }
+
+  // Otherwise we should be initializing and have created a bridge.
+  DCHECK_EQ(state_, INITIALIZING);
+  DCHECK(bridge_.get());
   bridge_.reset();
+
   // If we don't get a content length or the request has failed, report it
   // as a network error.
   DCHECK(size_ == -1 || size_ == data_.length());
@@ -121,6 +129,9 @@ void SimpleDataSource::OnCompletedRequest(const URLRequestStatus& status,
     host_->Error(media::PIPELINE_ERROR_NETWORK);
     return;
   }
+
+  // We're initialized!
+  state_ = INITIALIZED;
   host_->SetTotalBytes(size_);
   host_->SetBufferedBytes(size_);
   host_->InitializationComplete();
@@ -139,8 +150,39 @@ void SimpleDataSource::SetURL(const GURL& url) {
 }
 
 void SimpleDataSource::StartTask() {
+  AutoLock auto_lock(lock_);
   DCHECK(MessageLoop::current() == render_loop_);
+  DCHECK_EQ(state_, INITIALIZING);
+
+  // Create our bridge and start loading the resource.
+  bridge_.reset(webkit_glue::ResourceLoaderBridge::Create(
+      "GET",
+      url_,
+      url_,
+      GURL::EmptyGURL(),  // TODO(scherkus): provide referer here.
+      "null",             // TODO(abarth): provide frame_origin
+      "null",             // TODO(abarth): provide main_frame_origin
+      "",
+      net::LOAD_BYPASS_CACHE,
+      base::GetCurrentProcId(),
+      ResourceType::MEDIA,
+      // TODO(michaeln): delegate->mediaplayer->frame->
+      //                    app_cache_context()->context_id()
+      // For now don't service media resource requests from the appcache.
+      WebAppCacheContext::kNoAppCacheContextId,
+      routing_id_));
   bridge_->Start(this);
+}
+
+void SimpleDataSource::CancelTask() {
+  AutoLock auto_lock(lock_);
+  DCHECK_EQ(state_, STOPPED);
+
+  // Cancel any pending requests.
+  if (bridge_.get()) {
+    bridge_->Cancel();
+    bridge_.reset();
+  }
 }
 
 }  // namespace webkit_glue

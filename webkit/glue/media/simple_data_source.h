@@ -63,8 +63,11 @@ class SimpleDataSource : public media::DataSource,
   // Updates |url_| and |media_format_| with the given URL.
   void SetURL(const GURL& url);
 
-  // Start the resource loading on the render thread.
+  // Creates and starts the resource loading on the render thread.
   void StartTask();
+
+  // Cancels and deletes the resource loading on the render thread.
+  void CancelTask();
 
   // Passed in during construction, used when creating the bridge.
   int32 routing_id_;
@@ -80,6 +83,18 @@ class SimpleDataSource : public media::DataSource,
   std::string data_;
   int64 size_;
   int64 position_;
+
+  // Simple state tracking variable.
+  enum State {
+    UNINITIALIZED,
+    INITIALIZING,
+    INITIALIZED,
+    STOPPED,
+  };
+  State state_;
+
+  // Used for accessing |state_|.
+  Lock lock_;
 
   DISALLOW_COPY_AND_ASSIGN(SimpleDataSource);
 };
