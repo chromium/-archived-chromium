@@ -620,6 +620,20 @@
         }],
       ],
     },
+    {
+      'target_name': 'fetch_client',
+      'type': 'executable',
+      'dependencies': [
+        'net',
+        '../base/base.gyp:base',
+        '../base/base.gyp:test_support_base',
+        '../testing/gtest.gyp:gtest',
+      ],
+      'msvs_guid': 'DABB8796-B9A2-4CD9-BF89-09B03E92B123',
+      'sources': [
+        'tools/fetch/fetch_client.cc',
+      ],
+    },
   ],
   'conditions': [
     ['OS=="win"', {
@@ -639,20 +653,7 @@
           ],
         },
         {
-          'target_name': 'fetch_client',
-          'type': 'executable',
-          'dependencies': [
-            'net',
-            '../base/base.gyp:base',
-            '../base/base.gyp:test_support_base',
-            '../testing/gtest.gyp:gtest',
-          ],
-          'msvs_guid': 'DABB8796-B9A2-4CD9-BF89-09B03E92B123',
-          'sources': [
-            'tools/fetch/fetch_client.cc',
-          ],
-        },
-        {
+          # TODO(port): fetch_server uses Windows-specific SOCKET.
           'target_name': 'fetch_server',
           'type': 'executable',
           'dependencies': [
