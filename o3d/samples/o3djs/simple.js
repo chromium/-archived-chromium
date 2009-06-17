@@ -29,6 +29,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+
 /**
  * @fileoverview This file contains functions to make it extremely simple
  *     to get something on the screen in o3d. The disadvantage is it
@@ -86,8 +87,6 @@ o3djs.require('o3djs.rendergraph');
 o3djs.require('o3djs.pack');
 o3djs.require('o3djs.primitives');
 o3djs.require('o3djs.io');
-o3djs.require('o3djs.scene');
-o3djs.require('o3djs.camera');
 
 /**
  * A Module for using o3d in a very simple way.
@@ -141,52 +140,16 @@ o3djs.simple.create = function(clientObject) {
  * @param {!Element} clientObject O3D.Plugin Object.
  */
 o3djs.simple.SimpleInfo = function(clientObject) {
-  /**
-   * The O3D Element.
-   * @type {!Element}
-   */
   this.clientObject = clientObject;
-
-  /**
-   * The O3D namespace object.
-   * @type {!o3d}
-   */
   this.o3d = clientObject.o3d;
-
-  /**
-   * The client object used by the SimpleInfo
-   * @type {!o3d.Client}
-   */
+  this.math = o3djs.math;
   this.client = clientObject.client;
-
-  /**
-   * The main pack for this SimpleInfo.
-   * @type {!o3d.Pack}
-   */
   this.pack = this.client.createPack();
-
-  /**
-   * The root transform for this SimpleInfo
-   * @type {!o3d.Transform}
-   */
-  this.root = this.pack.createObject('Transform');
-
-  /**
-   * The ViewInfo created by this SimpleInfo.
-   * @type {!o3d.ViewInfo}
-   */
   this.viewInfo = o3djs.rendergraph.createBasicView(
       this.pack,
-      this.root,
+      this.client.root,
       this.client.renderGraphRoot);
-
-
-  /**
-   * The list of objects that need to have an update function called.
-   * @private
-   * @type {!Array.<!o3djs.simple.SimpleObject>}
-   */
-  this.updateObjects_ = { };
+  this.id = 0;
 
   // Create 1 non-textured material and 1 textured material.
   //
@@ -208,7 +171,7 @@ o3djs.simple.SimpleInfo = function(clientObject) {
                                          [0, 0, 0],
                                          'phong');
 
-  this.nonTexturedEffect_ = material.effect;
+  this.nonTexturedEffect = material.effect;
   this.pack.removeObject(material);
 
   var material = this.pack.createObject('Material');
@@ -218,7 +181,7 @@ o3djs.simple.SimpleInfo = function(clientObject) {
                                          [0, 0, 0],
                                          'phong');
 
-  this.texturedEffect_ = material.effect;
+  this.texturedEffect = material.effect;
   this.pack.removeObject(material);
 
   this.globalParamObject = this.pack.createObject('ParamObject');
@@ -232,7 +195,7 @@ o3djs.simple.SimpleInfo = function(clientObject) {
   // Attempt to setup a resonable default perspective matrix.
   this.zNear = 0.1;
   this.zFar = 1000;
-  this.fieldOfView = o3djs.math.degToRad(45);
+  this.fieldOfView = this.math.degToRad(45);
   this.setPerspectiveMatrix_();
 
   // Attempt to setup a resonable default view.
@@ -240,50 +203,22 @@ o3djs.simple.SimpleInfo = function(clientObject) {
   this.cameraTarget = [0, 0, 0];
   this.cameraUp = [0, 1, 0];
   this.setViewMatrix_();
-
-  var that = this;
-
-  this.client.setRenderCallback(function(renderEvent) {
-        that.onRender(renderEvent.elapsedTime);
-      });
 };
 
 /**
  * Creates a SimpleShape. A SimpleShape manages a transform with 1 shape that
  * holds 1 primitive and 1 unique material.
  * @param {!o3d.Shape} shape that holds 1 primitive and 1 unique material.
+ * @param {!o3d.Material} material assigned to shape.
  * @return {!o3djs.simple.SimpleShape} the created SimpleShape.
  */
-o3djs.simple.SimpleInfo.prototype.createSimpleShape = function(shape) {
+o3djs.simple.SimpleInfo.prototype.createSimpleShape = function(shape,
+                                                               material) {
   shape.createDrawElements(this.pack, null);
   var transform = this.pack.createObject('Transform');
-  transform.parent = this.root;
+  transform.parent = this.client.root;
   transform.addShape(shape);
-  return new o3djs.simple.SimpleShape(this, transform);
-};
-
-o3djs.simple.SimpleInfo.prototype.onRender = function(elapsedTime) {
-  for (var simpleObject in this.updateObjects_) {
-    simpleObject.onUpdate(elapsedTime);
-  }
-};
-
-/**
- * Register an object for updating. You should not call this directly.
- * @param {!o3djs.simple.SimpleObject} simpleObject SimpleObject to register.
- */
-o3djs.simple.SimpleInfo.prototype.registerObjectForUpdate =
-    function (simpleObject) {
-  this.updateObjects_[simpleObject] = true;
-};
-
-/**
- * Unregister an object for updating. You should not call this directly.
- * @param {!o3djs.simple.SimpleObject} simpleObject SimpleObject to register.
- */
-o3djs.simple.SimpleInfo.prototype.unregisterObjectForUpdate =
-    function (simpleObject) {
-  delete this.updateObjects_[simpleObject];
+  return new o3djs.simple.SimpleShape(this, transform, material);
 };
 
 /**
@@ -291,7 +226,7 @@ o3djs.simple.SimpleInfo.prototype.unregisterObjectForUpdate =
  * @private
  */
 o3djs.simple.SimpleInfo.prototype.setPerspectiveMatrix_ = function() {
-  this.viewInfo.drawContext.projection = o3djs.math.matrix4.perspective(
+  this.viewInfo.drawContext.projection = this.math.matrix4.perspective(
       this.fieldOfView,
       this.client.width / this.client.height,
       this.zNear,
@@ -303,7 +238,7 @@ o3djs.simple.SimpleInfo.prototype.setPerspectiveMatrix_ = function() {
  * @private
  */
 o3djs.simple.SimpleInfo.prototype.setViewMatrix_ = function() {
-  this.viewInfo.drawContext.view = o3djs.math.matrix4.lookAt(
+  this.viewInfo.drawContext.view = this.math.matrix4.lookAt(
       this.cameraPosition,
       this.cameraTarget,
       this.cameraUp);
@@ -409,7 +344,7 @@ o3djs.simple.SimpleInfo.prototype.createMaterialFromEffect =
  */
 o3djs.simple.SimpleInfo.prototype.createNonTexturedMaterial =
     function(type) {
-  var material = this.createMaterialFromEffect(this.nonTexturedEffect_);
+  var material = this.createMaterialFromEffect(this.nonTexturedEffect);
   material.getParam('diffuse').set(1, 1, 1, 1);
   material.getParam('emissive').set(0, 0, 0, 1);
   material.getParam('ambient').set(0, 0, 0, 1);
@@ -424,7 +359,7 @@ o3djs.simple.SimpleInfo.prototype.createNonTexturedMaterial =
  */
 o3djs.simple.SimpleInfo.prototype.createTexturedMaterial =
     function(type) {
-  var material = this.createMaterialFromEffect(this.texturedEffect_);
+  var material = this.createMaterialFromEffect(this.texturedEffect);
   var samplerParam = material.getParam('diffuseSampler');
   var sampler = this.pack.createObject('Sampler');
   samplerParam.value = sampler;
@@ -440,7 +375,7 @@ o3djs.simple.SimpleInfo.prototype.createTexturedMaterial =
 o3djs.simple.SimpleInfo.prototype.createCube = function(size) {
   var material = this.createNonTexturedMaterial('phong');
   var shape = o3djs.primitives.createCube(this.pack, material, size);
-  return this.createSimpleShape(shape);
+  return this.createSimpleShape(shape, material);
 };
 
 /**
@@ -460,7 +395,7 @@ o3djs.simple.SimpleInfo.prototype.createBox = function(width,
                                          width,
                                          height,
                                          depth);
-  return this.createSimpleShape(shape);
+  return this.createSimpleShape(shape, material);
 };
 
 /**
@@ -479,57 +414,35 @@ o3djs.simple.SimpleInfo.prototype.createSphere = function(radius,
                                             radius,
                                             smoothness * 2,
                                             smoothness);
-  return this.createSimpleShape(shape);
+  return this.createSimpleShape(shape, material);
 };
 
 /**
  * Loads a scene from a URL.
+ * TODO: Implement
  * @param {string} url Url of scene to load.
- * @param {!function(o3djs.simple.SimpleScene, *): void} a callback to
- *     call when the scene is loaded. The first argument will be null if the
- *     scene failed to load and last object will be an exception.
- * @return {!o3djs.io.loadInfo}
+ * @return {!o3djs.simple.Scene} A Javascript object to manage the scene.
  */
-o3djs.simple.SimpleInfo.prototype.loadScene = function(url, callback) {
-  var pack = this.client.createPack();
-  var root = pack.createObject('Transform');
-  var paramObject = pack.createObject('ParamObject');
-  var animTimeParam = paramObject.createParam('animTime', 'ParamFloat');
-  var that = this;
-
-  var prepScene = function(pack, root, exception) {
-    var simpleScene = null;
-    if (exception) {
-      pack.destroy();
-    } else {
-      simpleScene = new o3djs.simple.SimpleScene(
-          that, url, pack, root, paramObject);
-    }
-    callback(simpleScene, exception);
-  };
-
-  return o3djs.scene.loadScene(
-      this.client,
-      pack,
-      root,
-      url,
-      prepScene,
-      {opt_animSource: animTimeParam});
+o3djs.simple.SimpleInfo.prototype.loadScene = function(url) {
+  if (true) {
+    throw('not implemented');
+  }
+  return null;
 };
 
 /**
  * Moves the camera so everything in the current scene is visible.
  */
 o3djs.simple.SimpleInfo.prototype.viewAll = function() {
-  var bbox = o3djs.util.getBoundingBoxOfTree(this.root);
-  var target = o3djs.math.lerpVector(bbox.minExtent, bbox.maxExtent, 0.5);
+  var bbox = o3djs.util.getBoundingBoxOfTree(this.client.root);
+  var target = this.math.lerpVector(bbox.minExtent, bbox.maxExtent, 0.5);
   this.setCameraTarget(target[0], target[1], target[2]);
   // TODO: Refactor this so it takes a vector from the current camera
   // position to the center of the scene and moves the camera along that
   // vector away from the center of the scene until for the given fieldOfView
   // everything is visible.
-  var diag = o3djs.math.distance(bbox.minExtent, bbox.maxExtent);
-  var eye = o3djs.math.addVector(target, [
+  var diag = this.math.distance(bbox.minExtent, bbox.maxExtent);
+  var eye = this.math.addVector(target, [
       bbox.maxExtent[0],
       bbox.minExtent[1] + 0.5 * diag,
       bbox.maxExtent[2]]);
@@ -538,100 +451,32 @@ o3djs.simple.SimpleInfo.prototype.viewAll = function() {
 };
 
 /**
- * An object for managing things simply.
+ * A SimpleShape manages a transform with 1 shape that holds 1 primitive
+ * and 1 unique material.
  * @constructor
+ * @param {!o3djs.simple.SimpleInfo} simpleInfo SimpleInfo to manage this shape.
+ * @param {!o3d.Transform} transform Transform with 1 shape that holds 1
+ *     primitive and 1 unique material.
+ * @param {!o3d.Material} material assigned to shape.
  */
-o3djs.simple.SimpleObject = function() {
-};
-
-/**
- * @param {!o3djs.simple.SimpleInfo} simpleInfo The SimpleInfo to manage this
- *     object.
- * @param {!o3d.Transform} transform Transform that orients this object.
- */
-o3djs.simple.SimpleObject.prototype.init = function(simpleInfo, transform) {
+o3djs.simple.SimpleShape = function(simpleInfo, transform, material) {
   /**
-   * The SimpleInfo managing this object.
+   * The SimpleInfo managing this SimpleShape.
    * @type {!o3djs.simple.SimpleInfo}
    */
   this.simpleInfo = simpleInfo;
 
   /**
-   * The Transform that orients this object.
+   * The transform for this SimpleShape.
    * @type {!o3d.Transform}
    */
   this.transform = transform;
 
   /**
-   * The update callback for this object.
-   * @private
-   * @type {function(number): void}
+   * The material for this SimpleShape.
+   * @type {!o3d.Material}
    */
-  this.updateCallback_ = null;
-
-  /**
-   * The pick callback for this object.
-   * @private
-   * @type {function(number): void}
-   */
-  this.pickCallback_ = null;
-};
-
-o3djs.simple.SimpleObject.prototype.onPicked = function(onPickedCallback) {
-};
-
-/**
- * Used to call the update callback on this object. You should not call this
- * directly. Use o3djs.simple.SimpleObject.setOnUpdate to add your own update
- * callback.
- * @param {number} elapsedTime ElapsedTime in seconds for this frame.
- * @see o3djs.simple.SimpleObject.setOnUpdate
- */
-o3djs.simple.SimpleObject.prototype.onUpdate = function(elapsedTime) {
-  if (this.updateCallback_) {
-    this.updateCallback_(elapsedTime);
-  }
-};
-
-/**
- * Sets a function to be called every frame for this object.
- * @param {function(number): void} onUpdateCallback A function that is passed
- *     the elapsed time in seconds. Pass in null to clear the callback function.
- * @return {function(number): void} The previous callback function.
- */
-o3djs.simple.SimpleObject.prototype.setOnUpdate = function(onUpdateCallback) {
-  if (onUpdateCallback) {
-    this.simpleInfo.registerObjectForUpdate(this);
-  } else {
-    this.simpleInfo.unregisterObjectForUpdate(this);
-  }
-  var oldCallback = this.updateCallback_;
-  this.updateCallback_ = onUpdateCallback;
-  return oldCallback;
-};
-
-/**
- * A SimpleShape manages a transform with 1 shape that holds 1 primitive
- * and 1 unique material.
- * @constructor
- * @extends o3djs.simple.SimpleObject
- * @param {!o3djs.simple.SimpleInfo} simpleInfo The SimpleInfo to manage this
- *     shape.
- * @param {!o3d.Transform} transform Transform with 1 shape that holds 1
- *     primitive and 1 unique material.
- */
-o3djs.simple.SimpleShape = function(simpleInfo, transform) {
-  this.init(simpleInfo, transform);
-};
-
-o3djs.simple.SimpleShape.prototype = new o3djs.simple.SimpleObject();
-
-/**
- * Gets the current material for this shape.
- * @return {!o3d.Material} the material for this SimpleShape.
- */
-o3djs.simple.SimpleShape.prototype.getMaterial = function() {
-  return this.transform.shapes[0].elements[0].material;
+  this.material = material;
 };
 
 /**
@@ -639,11 +484,10 @@ o3djs.simple.SimpleShape.prototype.getMaterial = function() {
  * @param {!o3d.Material} material new material.
  */
 o3djs.simple.SimpleShape.prototype.setMaterial = function(material) {
-  var old_material = this.getMaterial();
-  if (old_material != null) {
-    this.simpleInfo.pack.removeObject(old_material);
-  }
+  var old_material = this.material;
+  this.simpleInfo.pack.removeObject(old_material);
   this.transform.shapes[0].elements[0].material = material;
+  this.material = material;
 };
 
 /**
@@ -655,7 +499,7 @@ o3djs.simple.SimpleShape.prototype.setMaterial = function(material) {
  */
 o3djs.simple.SimpleShape.prototype.setDiffuseColor =
     function(r, g, b, a) {
-  var material = this.getMaterial();
+  var material = this.material;
   material.getParam('diffuse').set(r, g, b, a);
   if (a < 1) {
     material.drawList = this.simpleInfo.viewInfo.zOrderedDrawList;
@@ -669,7 +513,7 @@ o3djs.simple.SimpleShape.prototype.setDiffuseColor =
  * @return {o3d.Texture} The texture on this shape. May be null.
  */
 o3djs.simple.SimpleShape.prototype.getTexture = function() {
-  var material = this.getMaterial();
+  var material = this.material;
   var samplerParam = material.getParam('diffuseSampler');
   if (samplerParam.className == 'o3d.ParamSampler') {
     return samplerParam.texture;
@@ -693,14 +537,14 @@ o3djs.simple.SimpleShape.prototype.loadTexture = function(url) {
       function(texture, exception) {
         if (!exception) {
           // See if this is a textured material.
-          var material = that.getMaterial();
-          if (material.effect != that.simpleInfo.texturedEffect_) {
+          var material = that.material;
+          if (material.effect != that.simpleInfo.texturedEffect) {
             // replace the material with a textured one.
             var new_material = that.simpleInfo.createTexturedMaterial('phong');
             new_material.copyParams(material);
             // Reset the effect since copy Params just copied the non-textured
             // one.
-            new_material.effect = that.simpleInfo.texturedEffect_;
+            new_material.effect = that.simpleInfo.texturedEffect;
             that.setMaterial(new_material);
             material = new_material;
           }
@@ -711,84 +555,4 @@ o3djs.simple.SimpleShape.prototype.loadTexture = function(url) {
         }
       });
 };
-
-/**
- * An object to simply manage a scene.
- * @constructor
- * @extends o3djs.simple.SimpleObject
- * @param {!o3djs.simple.SimpleInfo} simpleInfo The SimpleInfo to manage this
- *     scene.
- * @param {string} url Url scene was loaded from.
- * @param {!o3d.Pack} pack Pack that is managing scene.
- * @param {!o3d.Transform} root Root transform of scene.
- * @param {!o3d.ParamObject} paramObject the holds global parameters.
- */
-o3djs.simple.SimpleScene = function(
-    simpleInfo, url, pack, root, paramObject) {
-  this.init(simpleInfo, root);
-  /**
-   * The url this scene was loaded from.
-   * @type {string}
-   */
-  this.url = url;
-
-  /**
-   * The pack managing this scene.
-   * @type {!o3d.Pack}
-   */
-  this.pack = pack;
-
-  /**
-   * The param object holding global parameters for this scene.
-   * @type {!o3d.Pack}
-   */
-  this.paramObject = paramObject;
-
-  /**
-   * The animation parameter for this scene.
-   * @type {!o3d.ParamFloat}
-   */
-  this.animTimeParam = paramObject.getParam('animTime');
-
-  o3djs.pack.preparePack(pack, simpleInfo.viewInfo);
-
-  this.cameraInfos_ = o3djs.camera.getCameraInfos(
-      root,
-      simpleInfo.client.width,
-      simpleInfo.client.height);
-
-
-  /**
-   * Binds a param if it exists.
-   * @param {!o3d.ParamObject} paramObject The object that has the param.
-   * @param {string} paramName name of param.
-   * @param {!o3d.Param} sourceParam The param to bind to.
-   */
-  var bindParam = function(paramObject, paramName, sourceParam) {
-    var param = paramObject.getParam(paramName);
-    if (param) {
-      param.bind(sourceParam);
-    }
-  }
-
-  var materials = pack.getObjectsByClassName('o3d.Material');
-  for (var m = 0; m < materials.length; ++m) {
-    var material = materials[m];
-    bindParam(material, 'lightWorldPos', simpleInfo.lightWorldPosParam);
-    bindParam(material, 'lightColor', simpleInfo.lightColorParam);
-  }
-
-  this.transform.parent = this.simpleInfo.root;
-};
-
-o3djs.simple.SimpleScene.prototype = new o3djs.simple.SimpleObject();
-
-/**
- * Sets the animation time for the scene.
- * @param {number} time Animation time in seconds.
- */
-o3djs.simple.SimpleScene.prototype.setAnimTime = function(time) {
-  this.animTimeParam.value = time;
-};
-
 

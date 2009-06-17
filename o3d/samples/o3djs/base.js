@@ -641,17 +641,6 @@ o3djs.base.maybeDeobfuscateFunctionName_ = function(name) {
 };
 
 /**
- * Makes one class inherit from another.
- * @param {!Object} subClass Class that wants to inherit.
- * @param {!Object} superClass Class to inherit from.
- */
-o3djs.base.inherit = function(subClass, superClass) {
-  var tmpClass = function() { };
-  tmpClass.prototype = superClass.prototype;
-  subClass.prototype = new tmpClass();
-};
-
-/**
  * Parses an error stack from an exception
  * @param {!Exception} excp The exception to get a stack trace from.
  * @return {!Array.<string>} An array of strings of the stack trace.
