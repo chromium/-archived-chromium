@@ -122,13 +122,13 @@ void PCMQueueOutAudioOutputStream::Close() {
 
 void PCMQueueOutAudioOutputStream::Stop() {
   // We request a synchronous stop, so the next call can take some time. In
-  // the windows implementation we block here as well. 
+  // the windows implementation we block here as well.
   source_ = NULL;
   // We set the source to null to signal to the data queueing thread it can stop
   // queueing data, however at most one callback might still be in flight which
   // could attempt to enqueue right after the next call. Rather that trying to
   // use a lock we rely on the internal Mac queue lock so the enqueue might
-  // succeed or might fail but it won't crash or leave the queue itself in an 
+  // succeed or might fail but it won't crash or leave the queue itself in an
   // inconsistent state.
   OSStatus err = AudioQueueStop(audio_queue_, true);
   if (err != noErr)
@@ -194,7 +194,7 @@ void PCMQueueOutAudioOutputStream::Start(AudioSourceCallback* callback) {
     HandleError(err);
     return;
   }
-  source_ = callback;    
+  source_ = callback;
   // Ask the source to pre-fill all our buffers before playing.
   for(size_t ix = 0; ix != kNumBuffers; ++ix) {
     RenderCallback(this, NULL, buffer_[ix]);
@@ -202,7 +202,7 @@ void PCMQueueOutAudioOutputStream::Start(AudioSourceCallback* callback) {
   // Queue the buffers to the audio driver, sounds starts now.
   for(size_t ix = 0; ix != kNumBuffers; ++ix) {
     err = AudioQueueEnqueueBuffer(audio_queue_, buffer_[ix], 0, NULL);
-    if (err != noErr) { 
+    if (err != noErr) {
       HandleError(err);
       return;
     }

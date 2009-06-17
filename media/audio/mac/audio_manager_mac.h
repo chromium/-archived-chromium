@@ -14,8 +14,9 @@ class PCMQueueOutAudioOutputStream;
 // to the audio output and only internal users can call methods not exposed by
 // the AudioManager class.
 class AudioManagerMac : public AudioManager {
-public:
+ public:
   AudioManagerMac() {};
+
   // Implementation of AudioManager.
   virtual bool HasAudioDevices();
   virtual AudioOutputStream* MakeAudioStream(Format format, int channels,
@@ -24,13 +25,13 @@ public:
   virtual void MuteAll();
   virtual void UnMuteAll();
   virtual const void* GetLastMockBuffer();
-  
+
   // Mac-only method to free a stream created in MakeAudioStream.
   // It is called internally by the audio stream when it has been closed.
   void ReleaseStream(PCMQueueOutAudioOutputStream* stream);
 
-private:
-  friend void DestroyAudioManagerMac(void *);
+ private:
+  friend void DestroyAudioManagerMac(void*);
   virtual ~AudioManagerMac() {};
   DISALLOW_COPY_AND_ASSIGN(AudioManagerMac);
 };

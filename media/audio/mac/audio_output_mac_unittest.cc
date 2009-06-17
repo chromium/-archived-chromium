@@ -9,14 +9,14 @@
 
 
 // Validate that the SineWaveAudioSource writes the expected values for
-// the FORMAT_16BIT_MONO. 
+// the FORMAT_16BIT_MONO.
 TEST(MacAudioTest, SineWaveAudio16MonoTest) {
   const size_t samples = 1024;
   const int freq = 200;
-  
+
   SineWaveAudioSource source(SineWaveAudioSource::FORMAT_16BIT_LINEAR_PCM, 1,
                              freq, AudioManager::kTelephoneSampleRate);
-  
+
   // TODO(cpu): Put the real test when the mock renderer is ported.
   int16 buffer[samples] = { 0xffff };
   source.OnMoreData(NULL, buffer, sizeof(buffer));
@@ -68,11 +68,11 @@ TEST(MacAudioTest, PCMWaveStreamPlay200HzTone44KssMono) {
   audio_man->MakeAudioStream(AudioManager::AUDIO_PCM_LINEAR, 1,
                              AudioManager::kAudioCDSampleRate, 16);
   ASSERT_TRUE(NULL != oas);
-  
+
   SineWaveAudioSource source(SineWaveAudioSource::FORMAT_16BIT_LINEAR_PCM, 1,
                              200.0, AudioManager::kAudioCDSampleRate);
   size_t bytes_100_ms = (AudioManager::kAudioCDSampleRate / 10) * 2;
-  
+
   EXPECT_TRUE(oas->Open(bytes_100_ms));
   oas->Start(&source);
   usleep(1500000);
@@ -93,14 +93,14 @@ TEST(MacAudioTest, PCMWaveStreamPlay200HzTone22KssMono) {
   audio_man->MakeAudioStream(AudioManager::AUDIO_PCM_LINEAR, 1,
                              AudioManager::kAudioCDSampleRate/2, 16);
   ASSERT_TRUE(NULL != oas);
-  
+
   SineWaveAudioSource source(SineWaveAudioSource::FORMAT_16BIT_LINEAR_PCM, 1,
                              200.0, AudioManager::kAudioCDSampleRate/2);
   size_t bytes_100_ms = (AudioManager::kAudioCDSampleRate / 20) * 2;
-  
+
   EXPECT_TRUE(oas->Open(bytes_100_ms));
   oas->Start(&source);
-  usleep(1500000);  
+  usleep(1500000);
   oas->Stop();
   oas->Close();
 }
