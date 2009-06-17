@@ -349,6 +349,9 @@
               'OptimizeForWindows98': '1',
               'SubSystem': '2',     # Set /SUBSYSTEM:WINDOWS
             },
+            'VCManifestTool': {
+              'AdditionalManifestFiles': '$(SolutionDir)installer\\mini_installer\\mini_installer.exe.manifest',
+            },
           },
           'rules': [
             {
@@ -496,6 +499,9 @@
           'msvs_settings': {
             'VCLinkerTool': {
               'SubSystem': '2',     # Set /SUBSYSTEM:WINDOWS
+            },
+            'VCManifestTool': {
+              'AdditionalManifestFiles': '$(SolutionDir)installer\\setup\\setup.exe.manifest',
             },
           },
           'rules': [
