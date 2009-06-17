@@ -131,7 +131,7 @@ class TreeNode : public TreeModelNode {
   }
 
   // Returns the title of the node.
-  std::wstring GetTitle() {
+  virtual const std::wstring& GetTitle() const {
     return title_;
   }
 

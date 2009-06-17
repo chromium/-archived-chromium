@@ -20,7 +20,7 @@ class TreeModel;
 class TreeModelNode {
  public:
   // Returns the title for the node.
-  virtual std::wstring GetTitle() = 0;
+  virtual const std::wstring& GetTitle() const = 0;
 };
 
 // Observer for the TreeModel. Notified of significant events to the model.
