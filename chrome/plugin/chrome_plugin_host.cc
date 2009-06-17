@@ -31,6 +31,8 @@ namespace {
 
 using webkit_glue::ResourceLoaderBridge;
 
+static MessageLoop* g_plugin_thread_message_loop;
+
 // This class manages a network request made by the plugin, handling the
 // data as it comes in from the ResourceLoaderBridge and is requested by the
 // plugin.
@@ -581,11 +583,8 @@ CPError STDCALL CPB_SendSyncMessage(CPID id, const void *data, uint32 data_len,
 CPError STDCALL CPB_PluginThreadAsyncCall(CPID id,
                                           void (*func)(void *),
                                           void *user_data) {
-  MessageLoop *message_loop = PluginThread::current()->message_loop();
-  if (!message_loop) {
-    return CPERR_FAILURE;
-  }
-  message_loop->PostTask(FROM_HERE, NewRunnableFunction(func, user_data));
+  g_plugin_thread_message_loop->PostTask(
+      FROM_HERE, NewRunnableFunction(func, user_data));
 
   return CPERR_SUCCESS;
 }
@@ -611,6 +610,8 @@ CPBrowserFuncs* GetCPBrowserFuncsForPlugin() {
   static bool initialized = false;
   if (!initialized) {
     initialized = true;
+
+    g_plugin_thread_message_loop = PluginThread::current()->message_loop();
 
     browser_funcs.size = sizeof(browser_funcs);
     browser_funcs.version = CP_VERSION;
