@@ -94,38 +94,3 @@ void ZygoteHost::EnsureProcessTerminated(pid_t process) {
 
   HANDLE_EINTR(write(control_fd_, pickle.data(), pickle.size()));
 }
-
-bool ZygoteHost::DidProcessCrash(base::ProcessHandle handle,
-                                 bool* child_exited) {
-  Pickle pickle;
-  pickle.WriteInt(kCmdDidProcessCrash);
-  pickle.WriteInt(handle);
-
-  HANDLE_EINTR(write(control_fd_, pickle.data(), pickle.size()));
-
-  static const unsigned kMaxMessageLength = 128;
-  char buf[kMaxMessageLength];
-  const ssize_t len = HANDLE_EINTR(read(control_fd_, buf, sizeof(buf)));
-
-  if (len == -1) {
-    LOG(WARNING) << "Error reading message from zygote: " << errno;
-    return false;
-  } else if (len == 0) {
-    LOG(WARNING) << "Socket closed prematurely.";
-    return false;
-  }
-
-  Pickle read_pickle(buf, len);
-  bool did_crash, tmp_child_exited;
-  void* iter = NULL;
-  if (!read_pickle.ReadBool(&iter, &did_crash) ||
-      !read_pickle.ReadBool(&iter, &tmp_child_exited)) {
-    LOG(WARNING) << "Error parsing DidProcessCrash response from zygote.";
-    return false;
-  }
-
-  if (child_exited)
-    *child_exited = tmp_child_exited;
-
-  return did_crash;
-}

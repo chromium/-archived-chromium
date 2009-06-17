@@ -77,24 +77,18 @@ class Zygote {
     void* iter = NULL;
 
     int kind;
-    if (pickle.ReadInt(&iter, &kind)) {
-      switch (kind) {
-        case ZygoteHost::kCmdFork:
-          return HandleForkRequest(fd, pickle, iter, fds);
-        case ZygoteHost::kCmdReap:
-          if (!fds.empty())
-            break;
-          return HandleReapRequest(fd, pickle, iter);
-        case ZygoteHost::kCmdDidProcessCrash:
-          if (!fds.empty())
-            break;
-          return HandleDidProcessCrash(fd, pickle, iter);
-        default:
-          NOTREACHED();
-          break;
-      }
+    if (!pickle.ReadInt(&iter, &kind))
+      goto error;
+
+    if (kind == ZygoteHost::kCmdFork) {
+      return HandleForkRequest(fd, pickle, iter, fds);
+    } else if (kind == ZygoteHost::kCmdReap) {
+      if (fds.size())
+        goto error;
+      return HandleReapRequest(fd, pickle, iter);
     }
 
+   error:
     LOG(WARNING) << "Error parsing message from browser";
     for (std::vector<int>::const_iterator
          i = fds.begin(); i != fds.end(); ++i)
@@ -111,25 +105,6 @@ class Zygote {
     }
 
     ProcessWatcher::EnsureProcessTerminated(child);
-
-    return false;
-  }
-
-  bool HandleDidProcessCrash(int fd, Pickle& pickle, void* iter) {
-    base::ProcessHandle child;
-
-    if (!pickle.ReadInt(&iter, &child)) {
-      LOG(WARNING) << "Error parsing DidProcessCrash request from browser";
-      return false;
-    }
-
-    bool child_exited;
-    bool did_crash = base::DidProcessCrash(&child_exited, child);
-
-    Pickle write_pickle;
-    write_pickle.WriteBool(did_crash);
-    write_pickle.WriteBool(child_exited);
-    HANDLE_EINTR(write(fd, write_pickle.data(), write_pickle.size()));
 
     return false;
   }

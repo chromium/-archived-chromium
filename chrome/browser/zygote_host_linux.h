@@ -9,10 +9,7 @@
 #include <vector>
 
 #include "base/global_descriptors_posix.h"
-#include "base/process.h"
-
-template<typename Type>
-struct DefaultSingletonTraits;
+#include "base/singleton.h"
 
 // http://code.google.com/p/chromium/wiki/LinuxZygote
 
@@ -26,17 +23,11 @@ class ZygoteHost {
                      const base::GlobalDescriptors::Mapping& mapping);
   void EnsureProcessTerminated(pid_t process);
 
-  // Get the termination status (exit code) of the process and return true if
-  // the status indicates the process crashed. |child_exited| is set to true
-  // iff the child process has terminated. (|child_exited| may be NULL.)
-  bool DidProcessCrash(base::ProcessHandle handle, bool* child_exited);
-
   // These are the command codes used on the wire between the browser and the
   // zygote.
   enum {
-    kCmdFork = 0,             // Fork off a new renderer.
-    kCmdReap = 1,             // Reap a renderer child.
-    kCmdDidProcessCrash = 2,  // Check if child process crashed.
+    kCmdFork = 0,  // Fork off a new renderer.
+    kCmdReap = 1,  // Reap a renderer child.
   };
 
  private:

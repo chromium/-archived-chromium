@@ -90,8 +90,14 @@ TEST_F(MetricsServiceTest, CrashRenderers) {
   // kill the process for one of the tabs
   scoped_refptr<TabProxy> tab(window_->GetTab(1));
   ASSERT_TRUE(tab.get());
-
-  tab->NavigateToURLAsync(GURL("about:crash"));
+  int process_id = 0;
+  ASSERT_TRUE(tab->GetProcessID(&process_id));
+  ASSERT_NE(0, process_id);
+  base::ProcessHandle process_handle;
+  ASSERT_TRUE(base::OpenProcessHandle(process_id, &process_handle));
+  // Fake Access Violation.
+  base::KillProcess(process_handle, 0xc0000005, true);
+  base::CloseProcessHandle(process_handle);
 
   // Give the browser a chance to notice the crashed tab.
   PlatformThread::Sleep(1000);
@@ -105,6 +111,6 @@ TEST_F(MetricsServiceTest, CrashRenderers) {
   local_state->RegisterIntegerPref(prefs::kStabilityRendererCrashCount, 0);
   EXPECT_TRUE(local_state->GetBoolean(prefs::kStabilityExitedCleanly));
   EXPECT_EQ(1, local_state->GetInteger(prefs::kStabilityLaunchCount));
-  EXPECT_EQ(4, local_state->GetInteger(prefs::kStabilityPageLoadCount));
+  EXPECT_EQ(3, local_state->GetInteger(prefs::kStabilityPageLoadCount));
   EXPECT_EQ(1, local_state->GetInteger(prefs::kStabilityRendererCrashCount));
 }
