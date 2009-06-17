@@ -15,6 +15,7 @@
 #include "base/basictypes.h"
 #include "base/command_line.h"
 #include "base/compiler_specific.h"
+#include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/histogram.h"
 #include "base/path_service.h"
@@ -30,6 +31,18 @@
 #include "chrome/renderer/render_view.h"
 #include "media/base/media.h"
 #include "webkit/glue/webkit_glue.h"
+
+static size_t GetMaxSharedMemorySize() {
+  static int size = 0;
+#if defined(OS_LINUX)
+  if (size == 0) {
+    std::string contents;
+    file_util::ReadFileToString(FilePath("/proc/sys/kernel/shmmax"), &contents);
+    size = strtoul(contents.c_str(), NULL, 0);
+  }
+#endif
+  return size;
+}
 
 //-----------------------------------------------------------------------------
 
@@ -172,8 +185,18 @@ void RenderProcess::FreeTransportDIB(TransportDIB* dib) {
 
 skia::PlatformCanvas* RenderProcess::GetDrawingCanvas(
     TransportDIB** memory, const gfx::Rect& rect) {
+  int width = rect.width();
+  int height = rect.height();
   const size_t stride = skia::PlatformCanvas::StrideForWidth(rect.width());
-  const size_t size = stride * rect.height();
+  const size_t max_size = GetMaxSharedMemorySize();
+
+  // If the requested size is too big, reduce the height. Ideally we might like
+  // to reduce the width as well to make the size reduction more "balanced", but
+  // it rarely comes up in practice.
+  if ((max_size != 0) && (height * stride > max_size))
+    height = max_size / stride;
+
+  const size_t size = height * stride;
 
   if (!GetTransportDIBFromCache(memory, size)) {
     *memory = CreateTransportDIB(size);
@@ -181,7 +204,7 @@ skia::PlatformCanvas* RenderProcess::GetDrawingCanvas(
       return false;
   }
 
-  return (*memory)->GetPlatformCanvas(rect.width(), rect.height());
+  return (*memory)->GetPlatformCanvas(width, height);
 }
 
 void RenderProcess::ReleaseTransportDIB(TransportDIB* mem) {

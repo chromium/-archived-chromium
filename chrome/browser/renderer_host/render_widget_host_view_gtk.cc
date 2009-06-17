@@ -24,8 +24,8 @@
 #include "webkit/api/public/gtk/WebInputEventFactory.h"
 #include "webkit/glue/webcursor_gtk_data.h"
 
-static const int kMaxPopupWidth = 2000;
-static const int kMaxPopupHeight = 2000;
+static const int kMaxWindowWidth = 4000;
+static const int kMaxWindowHeight = 4000;
 
 using WebKit::WebInputEventFactory;
 
@@ -278,8 +278,8 @@ void RenderWidgetHostViewGtk::InitAsPopup(
   }
 
   gtk_widget_set_size_request(view_.get(),
-                              std::min(pos.width(), kMaxPopupWidth),
-                              std::min(pos.height(), kMaxPopupHeight));
+                              std::min(pos.width(), kMaxWindowWidth),
+                              std::min(pos.height(), kMaxWindowHeight));
 
   gtk_window_set_default_size(GTK_WINDOW(popup), -1, -1);
   // Don't allow the window to be resized. This also forces the window to
@@ -316,8 +316,11 @@ void RenderWidgetHostViewGtk::SetSize(const gfx::Size& size) {
   // If we are a popup, we want to handle this.
   // TODO(estade): are there other situations where we want to respect the
   // request?
-  if (parent_)
-    gtk_widget_set_size_request(view_.get(), size.width(), size.height());
+  if (parent_) {
+    gtk_widget_set_size_request(view_.get(),
+                                std::min(size.width(), kMaxWindowWidth),
+                                std::min(size.height(), kMaxWindowHeight));
+  }
 }
 
 gfx::NativeView RenderWidgetHostViewGtk::GetNativeView() {
@@ -453,7 +456,7 @@ void RenderWidgetHostViewGtk::PasteFromSelectionClipboard() {
 
 void RenderWidgetHostViewGtk::ShowingContextMenu(bool showing) {
   is_showing_context_menu_ = showing;
-  // Note that GTK_WIDGET_HAS_FOCUS differs gtom gtk_widget_is_focus() in that
+  // Note that GTK_WIDGET_HAS_FOCUS differs from gtk_widget_is_focus() in that
   // the latter doesn't care whether the toplevel has focus.
   if (!showing && !GTK_WIDGET_HAS_FOCUS(view_.get()))
     GetRenderWidgetHost()->Blur();
@@ -475,6 +478,9 @@ void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
   // Calling GetBackingStore maybe have changed |invalid_rect_|...
   about_to_validate_and_paint_ = false;
 
+  gfx::Rect paint_rect = gfx::Rect(0, 0, kMaxWindowWidth, kMaxWindowHeight);
+  paint_rect = paint_rect.Intersect(invalid_rect_);
+
   GdkWindow* window = view_.get()->window;
   if (backing_store) {
     // Only render the widget if it is attached to a window; there's a short
@@ -482,7 +488,7 @@ void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
     // Destroy()ed yet and it receives paint messages...
     if (window) {
       backing_store->ShowRect(
-          invalid_rect_, x11_util::GetX11WindowFromGtkWidget(view_.get()));
+          paint_rect, x11_util::GetX11WindowFromGtkWidget(view_.get()));
     }
   } else {
     if (window)

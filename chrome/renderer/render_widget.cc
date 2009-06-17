@@ -367,6 +367,10 @@ void RenderWidget::DoDeferredPaint() {
     return;
   }
 
+  // We may get back a smaller canvas than we asked for.
+  damaged_rect.set_width(canvas->getDevice()->width());
+  damaged_rect.set_height(canvas->getDevice()->height());
+
   PaintRect(damaged_rect, canvas);
 
   ViewHostMsg_PaintRect_Params params;
@@ -444,6 +448,10 @@ void RenderWidget::DoDeferredScroll() {
     NOTREACHED();
     return;
   }
+
+  // We may get back a smaller canvas than we asked for.
+  damaged_rect.set_width(canvas->getDevice()->width());
+  damaged_rect.set_height(canvas->getDevice()->height());
 
   // Set these parameters before calling Paint, since that could result in
   // further invalidates (uncommon).
