@@ -75,6 +75,7 @@ static const ObjectBase::Class* CgTypeToParamType(CGtype cg_type) {
     case CG_FLOAT2      : return ParamFloat2::GetApparentClass();
     case CG_FLOAT3      : return ParamFloat3::GetApparentClass();
     case CG_FLOAT4      : return ParamFloat4::GetApparentClass();
+    case CG_INT         : return ParamInteger::GetApparentClass();
     case CG_INT1        : return ParamInteger::GetApparentClass();
     case CG_FLOAT4x4    : return ParamMatrix4::GetApparentClass();
     case CG_BOOL        :
@@ -82,6 +83,7 @@ static const ObjectBase::Class* CgTypeToParamType(CGtype cg_type) {
     case CG_SAMPLER     :
     case CG_SAMPLER1D   :
     case CG_SAMPLER2D   :
+    case CG_SAMPLER3D   :
     case CG_SAMPLERCUBE : return ParamSampler::GetApparentClass();
     default : {
       DLOG(ERROR) << "Cannot convert CGtype "

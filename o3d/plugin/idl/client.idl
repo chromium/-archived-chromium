@@ -138,7 +138,7 @@ class Client {
     \param id The id of the object to look for.
     \return The object or null if a object with the given id is not found.
   %]
-  [const] ObjectBase? GetObjectById(Id id);
+  [const, noreturndocs] ObjectBase? GetObjectById(Id id);
 
   %[
     Searches the Client for objects of a particular name and type.
@@ -146,14 +146,14 @@ class Client {
     \param class_name name of class to look for.
     \return Array of objects found.
   %]
-  [const] ObjectArray GetObjects(String name, String class_name);
+  [const, noretundocs] ObjectArray GetObjects(String name, String class_name);
 
   %[
     Searches the Client for objects of a particular type.
     \param class_name name of class to look for.
     \return Array of objects found.
   %]
-  [const] ObjectArray GetObjectsByClassName(String class_name);
+  [const, noreturndocs] ObjectArray GetObjectsByClassName(String class_name);
 
   %[
     \var RenderMode,

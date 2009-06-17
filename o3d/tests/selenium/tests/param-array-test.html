@@ -1,0 +1,307 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+Param Array Test
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Param Array Test.
+</title>
+<script type="text/javascript" src="../../../samples/o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.effect');
+
+// global variables
+var g_o3d;
+var g_math;
+var g_client;
+var g_pack;
+var g_viewInfo;
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  // Comment out the line below to run the sample in the browser
+  // JavaScript engine.  This may be helpful for debugging.
+  o3djs.util.setMainEngine(o3djs.util.Engine.V8);
+  o3djs.util.makeClients(initStep2, 'FloatingPointTextures,NotAntiAliased');
+}
+
+/**
+ * Initializes O3D, loads an effect, creates some textures
+ * and quads to display them.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initializes global variables and libraries.
+  var o3dElement = clientElements[0];
+  g_o3d = o3dElement.o3d;
+  g_math = o3djs.math;
+
+  // Set window.g_client as well.  Otherwise when the sample runs in
+  // V8, selenium won't be able to find this variable (it can only see
+  // the browser environment).
+  window.g_client = g_client = o3dElement.client;
+
+  // Create a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  var clientWidth = g_client.width;
+  var clientHeight = g_client.height;
+
+  // The + 0.5 makes this pixel aligned.
+  g_viewInfo.drawContext.projection = g_math.matrix4.orthographic(
+      -clientWidth * 0.5 + 0.5,
+      clientWidth * 0.5 + 0.5,
+      -clientHeight * 0.5 + 0.5,
+      clientHeight * 0.5 + 0.5,
+      0.001,
+      1000);
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      [0, 500, 0], // eye
+      [0, 0, 0],   // target
+      [0, 0, -1]); // up
+
+  var textures = [];
+  for (var ii = 0; ii < 2; ++ii) {
+    var texture = g_pack.createTexture2D(1, 1, g_o3d.Texture.ARGB8, 1, false);
+    texture.set(0, [ii, 0.7, 0.9, 1]);
+    textures[ii] = texture;
+  }
+
+  for (var ii = 0; ii < 2; ++ii) {
+    var effect = g_pack.createObject('Effect');
+    effect.loadFromFXString(o3djs.util.getElementContentById('fx' + (ii + 1)));
+
+    // Create a Material for the effect.
+    var material = g_pack.createObject('Material');
+
+    // Set the material's drawList for transparent objects.
+    material.drawList = g_viewInfo.zOrderedDrawList;
+
+    // Apply the effect to this material.
+    material.effect = effect;
+
+    // Create the params that effect requires on the material.
+    o3djs.effect.createUniformParameters(g_pack, effect, material);
+
+    // Create a quad.
+    var shape = o3djs.primitives.createPlane(g_pack,
+                                             material,
+                                             1,
+                                             1,
+                                             1,
+                                             1);
+
+    if (ii == 0) {
+      var paramArray = material.getParam('colors1').value;
+      paramArray.getParam(0).value = 0.3;
+      paramArray.getParam(1).value = 0.7;
+      var paramArray = material.getParam('colors2').value;
+      paramArray.getParam(0).value = [1, 0.5];
+      paramArray.getParam(1).value = [0.5, 1];
+      var paramArray = material.getParam('colors3').value;
+      paramArray.getParam(0).value = [1, 1, 0];
+      paramArray.getParam(1).value = [1, 0, 1];
+      var paramArray = material.getParam('colors4').value;
+      paramArray.getParam(0).value = [1, 0, 0, 1];
+      paramArray.getParam(1).value = [0, 0, 1, 1];
+    } else {
+      var paramArray = material.getParam('colorsb').value;
+      paramArray.getParam(0).value = true;
+      paramArray.getParam(1).value = false;
+      var paramArray = material.getParam('colorsi').value;
+      paramArray.getParam(0).value = 254;
+      paramArray.getParam(1).value = 255;
+      var paramArray = material.getParam('colors4x4').value;
+      paramArray.getParam(0).value = [[0, 0, 0, 0],
+                                      [0, 0, 0, 0],
+                                      [0, 0, 0, 0],
+                                      [0, 1, 1, 1]];
+      paramArray.getParam(1).value = [[0, 0, 0, 0],
+                                      [0, 0, 0, 0],
+                                      [0, 0, 0, 0],
+                                      [0.5, 0.3, 0.3, 1]];
+      var paramArray = material.getParam('texSamplers').value;
+      paramArray.getParam(0).value.texture = textures[0];
+      paramArray.getParam(1).value.texture = textures[1];
+    }
+
+    var transform = g_pack.createObject('Transform');
+    transform.translate(-100 + ii * 200, 0, 0);
+    transform.scale(180, 1, 360);
+    transform.parent = g_client.root;
+    transform.addShape(shape);
+  }
+
+  window.g_testResult = true;  // for selenium testing.
+}
+
+</script>
+</head>
+<body onload="init()">
+<h1>Param Array Test</h1>
+<br/>
+
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 400px; height: 400px;"></div>
+<!-- End of O3D plugin -->
+<script type="test/o3deffect" id="fx1">
+float colors1[2];
+float2 colors2[2];
+float3 colors3[2];
+float4 colors4[2];
+float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+
+// input parameters for our vertex shader
+struct PixelShaderInput {
+  float4 position : POSITION;
+  float2 texcoord : TEXCOORD0;  // Texture coordinates
+};
+
+// input parameters for our pixel shader
+struct VertexShaderInput {
+  float4 position : POSITION;
+  float2 texcoord : TEXCOORD0;  // Texture coordinates
+};
+
+/**
+ * The vertex shader
+ */
+PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
+  PixelShaderInput output;
+  output.position = mul(input.position, worldViewProjection);
+  output.texcoord = input.texcoord;
+  return output;
+}
+
+bool segment(float id, float position) {
+  return position * 4 >= id && position * 4 < (id + 1);
+}
+
+/**
+ * The pixel shader
+ */
+float4 pixelShaderFunction(PixelShaderInput input): COLOR {
+  if (segment(0, input.texcoord.y)) {
+    return float4(input.texcoord.x > 0.5 ? colors1[1].xxx : colors1[0].xxx, 1);
+  }
+  if (segment(1, input.texcoord.y)) {
+    return float4(input.texcoord.x > 0.5 ? colors2[1] : colors2[0], 0, 1);
+  }
+  if (segment(2, input.texcoord.y)) {
+    return float4(input.texcoord.x > 0.5 ? colors3[1] : colors3[0], 1);
+  }
+  return input.texcoord.x > 0.5 ? colors4[1] : colors4[0];
+}
+
+// Here we tell our effect file *which* functions are
+// our vertex and pixel shaders.
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</script>
+<script type="test/o3deffect" id="fx2">
+float4x4 colors4x4[2];
+int colorsi[2];
+bool colorsb[2];
+sampler texSamplers[2];
+float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+
+// input parameters for our vertex shader
+struct PixelShaderInput {
+  float4 position : POSITION;
+  float2 texcoord : TEXCOORD0;  // Texture coordinates
+};
+
+// input parameters for our pixel shader
+struct VertexShaderInput {
+  float4 position : POSITION;
+  float2 texcoord : TEXCOORD0;  // Texture coordinates
+};
+
+/**
+ * The vertex shader
+ */
+PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
+  PixelShaderInput output;
+  output.position = mul(input.position, worldViewProjection);
+  output.texcoord = input.texcoord;
+  return output;
+}
+
+bool segment(float id, float position) {
+  return position * 4 >= id && position * 4 < (id + 1);
+}
+
+/**
+ * The pixel shader
+ */
+float4 pixelShaderFunction(PixelShaderInput input): COLOR {
+  if (segment(0, input.texcoord.y)) {
+    return input.texcoord.x > 0.5 ? colors4x4[1][3] : colors4x4[0][3];
+  }
+  if (segment(1, input.texcoord.y)) {
+    return float4(input.texcoord.x > 0.5 ? colorsb[1] : colorsb[0], 0, 0, 1);
+  }
+  if (segment(2, input.texcoord.y)) {
+    return float4((input.texcoord.x > 0.5 ? colorsi[1] : colorsi[0]) / 255,
+                  0, 0, 1);
+  }
+  float4 t0 = tex2D(texSamplers[0], input.texcoord);
+  float4 t1 = tex2D(texSamplers[1], input.texcoord);
+  return input.texcoord.x > 0.5 ? t1 : t0;
+}
+
+// Here we tell our effect file *which* functions are
+// our vertex and pixel shaders.
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</script>
+</body>
+</html>
