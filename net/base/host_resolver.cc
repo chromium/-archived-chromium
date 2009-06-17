@@ -417,7 +417,12 @@ int HostResolver::Resolve(const RequestInfo& info,
         info.hostname(), base::TimeTicks::Now());
     if (cache_entry) {
       addresses->SetFrom(cache_entry->addrlist, info.port());
-      return OK;
+      int error = OK;
+
+      // Notify registered observers.
+      NotifyObserversFinishRequest(request_id, info, error);
+
+      return error;
     }
   }
 

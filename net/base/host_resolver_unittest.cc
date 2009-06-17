@@ -20,6 +20,7 @@
 #include "net/base/completion_callback.h"
 #include "net/base/host_resolver_unittest.h"
 #include "net/base/net_errors.h"
+#include "net/base/test_completion_callback.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using net::RuleBasedHostMapper;
@@ -757,25 +758,40 @@ TEST_F(HostResolverTest, Observers) {
 
   // Resolve "host1".
   net::HostResolver::RequestInfo info1("host1", 70);
-  host_resolver.Resolve(info1, &addrlist, NULL, NULL);
+  int rv = host_resolver.Resolve(info1, &addrlist, NULL, NULL);
+  EXPECT_EQ(net::OK, rv);
 
   EXPECT_EQ(1U, observer.start_log.size());
   EXPECT_EQ(1U, observer.finish_log.size());
-  EXPECT_TRUE(
-      observer.start_log[0] == CapturingObserver::StartEntry(0, info1));
-  EXPECT_TRUE(
-      observer.finish_log[0] == CapturingObserver::FinishEntry(0, true, info1));
+  EXPECT_TRUE(observer.start_log[0] ==
+              CapturingObserver::StartEntry(0, info1));
+  EXPECT_TRUE(observer.finish_log[0] ==
+              CapturingObserver::FinishEntry(0, true, info1));
+
+  // Resolve "host1" again -- this time it  will be served from cache, but it
+  // should still notify of completion.
+  TestCompletionCallback callback;
+  rv = host_resolver.Resolve(info1, &addrlist, &callback, NULL);
+  ASSERT_EQ(net::OK, rv);  // Should complete synchronously.
+
+  EXPECT_EQ(2U, observer.start_log.size());
+  EXPECT_EQ(2U, observer.finish_log.size());
+  EXPECT_TRUE(observer.start_log[1] ==
+              CapturingObserver::StartEntry(1, info1));
+  EXPECT_TRUE(observer.finish_log[1] ==
+              CapturingObserver::FinishEntry(1, true, info1));
 
   // Resolve "host2", setting referrer to "http://foobar.com"
   net::HostResolver::RequestInfo info2("host2", 70);
   info2.set_referrer(GURL("http://foobar.com"));
-  host_resolver.Resolve(info2, &addrlist, NULL, NULL);
+  rv = host_resolver.Resolve(info2, &addrlist, NULL, NULL);
+  EXPECT_EQ(net::OK, rv);
 
-  EXPECT_EQ(2U, observer.start_log.size());
-  EXPECT_EQ(2U, observer.finish_log.size());
-  EXPECT_TRUE(observer.start_log[1] == CapturingObserver::StartEntry(1, info2));
-  EXPECT_TRUE(observer.finish_log[1] == CapturingObserver::FinishEntry(
-      1, true, info2));
+  EXPECT_EQ(3U, observer.start_log.size());
+  EXPECT_EQ(3U, observer.finish_log.size());
+  EXPECT_TRUE(observer.start_log[2] == CapturingObserver::StartEntry(2, info2));
+  EXPECT_TRUE(observer.finish_log[2] ==
+              CapturingObserver::FinishEntry(2, true, info2));
 
   // Unregister the observer.
   host_resolver.RemoveObserver(&observer);
@@ -785,8 +801,8 @@ TEST_F(HostResolverTest, Observers) {
   host_resolver.Resolve(info3, &addrlist, NULL, NULL);
 
   // No effect this time, since observer was removed.
-  EXPECT_EQ(2U, observer.start_log.size());
-  EXPECT_EQ(2U, observer.finish_log.size());
+  EXPECT_EQ(3U, observer.start_log.size());
+  EXPECT_EQ(3U, observer.finish_log.size());
 }
 
 }  // namespace
