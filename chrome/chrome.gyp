@@ -1309,6 +1309,8 @@
         'browser/safe_browsing/safe_browsing_util.h',
         'browser/sandbox_policy.cc',
         'browser/sandbox_policy.h',
+        'browser/search_engines/edit_keyword_controller_base.cc',
+        'browser/search_engines/edit_keyword_controller_base.h',
         'browser/search_engines/template_url.cc',
         'browser/search_engines/template_url.h',
         'browser/search_engines/template_url_fetcher.cc',

@@ -375,6 +375,17 @@ KeywordEditorView::~KeywordEditorView() {
   }
 }
 
+void KeywordEditorView::OnEditedKeyword(const TemplateURL* template_url,
+                                        const std::wstring& title,
+                                        const std::wstring& keyword,
+                                        const std::wstring& url) {
+  if (template_url) {
+    ModifyTemplateURL(template_url, title, keyword, url);
+  } else {
+    AddTemplateURL(title, keyword, url);
+  }
+}
+
 void KeywordEditorView::AddTemplateURL(const std::wstring& title,
                                        const std::wstring& keyword,
                                        const std::wstring& url) {

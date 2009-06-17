@@ -9,6 +9,7 @@
 #include <map>
 
 #include "app/table_model.h"
+#include "chrome/browser/search_engines/edit_keyword_controller_base.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "views/controls/button/button.h"
 #include "views/controls/table/table_view_observer.h"
@@ -119,7 +120,8 @@ class KeywordEditorView : public views::View,
                           public views::TableViewObserver,
                           public views::ButtonListener,
                           public TemplateURLModelObserver,
-                          public views::DialogDelegate {
+                          public views::DialogDelegate,
+                          public EditKeywordControllerBase::Delegate {
   friend class KeywordEditorViewTest;
   FRIEND_TEST(KeywordEditorViewTest, MakeDefault);
  public:
@@ -129,6 +131,13 @@ class KeywordEditorView : public views::View,
 
   explicit KeywordEditorView(Profile* profile);
   virtual ~KeywordEditorView();
+
+  // Overridden from EditKeywordControllerBase::Delegate.
+  // Calls AddTemplateURL or ModifyTemplateURL as appropriate.
+  virtual void OnEditedKeyword(const TemplateURL* template_url,
+                               const std::wstring& title,
+                               const std::wstring& keyword,
+                               const std::wstring& url);
 
   // Invoked when the user succesfully fills out the add keyword dialog.
   // Propagates the change to the TemplateURLModel and updates the table model.

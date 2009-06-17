@@ -7,12 +7,7 @@
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/string_util.h"
-#include "chrome/browser/metrics/user_metrics.h"
-#include "chrome/browser/net/url_fixer_upper.h"
-#include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url.h"
-#include "chrome/browser/search_engines/template_url_model.h"
-#include "chrome/browser/views/keyword_editor_view.h"
 #include "googleurl/src/gurl.h"
 #include "grit/app_resources.h"
 #include "grit/generated_resources.h"
@@ -40,13 +35,10 @@ std::wstring GetDisplayURL(const TemplateURL& turl) {
 EditKeywordController::EditKeywordController(
     HWND parent,
     const TemplateURL* template_url,
-    KeywordEditorView* keyword_editor_view,
+    Delegate* delegate,
     Profile* profile)
-    : parent_(parent),
-      template_url_(template_url),
-      keyword_editor_view_(keyword_editor_view),
-      profile_(profile) {
-  DCHECK(profile_);
+    : EditKeywordControllerBase(template_url, delegate, profile),
+      parent_(parent) {
   Init();
 }
 
@@ -73,7 +65,7 @@ bool EditKeywordController::IsModal() const {
 }
 
 std::wstring EditKeywordController::GetWindowTitle() const {
-  return l10n_util::GetString(template_url_ ?
+  return l10n_util::GetString(template_url() ?
       IDS_SEARCH_ENGINES_EDITOR_EDIT_WINDOW_TITLE :
       IDS_SEARCH_ENGINES_EDITOR_NEW_WINDOW_TITLE);
 }
@@ -81,7 +73,7 @@ std::wstring EditKeywordController::GetWindowTitle() const {
 bool EditKeywordController::IsDialogButtonEnabled(
     MessageBoxFlags::DialogButton button) const {
   if (button == MessageBoxFlags::DIALOGBUTTON_OK) {
-    return (IsKeywordValid() && !title_tf_->text().empty() && IsURLValid());
+    return (IsKeywordValid() && IsTitleValid() && IsURLValid());
   }
   return true;
 }
@@ -97,55 +89,7 @@ bool EditKeywordController::Cancel() {
 }
 
 bool EditKeywordController::Accept() {
-  std::wstring url_string = GetURL();
-  DCHECK(!url_string.empty());
-  const std::wstring& keyword = keyword_tf_->text();
-
-  const TemplateURL* existing =
-      profile_->GetTemplateURLModel()->GetTemplateURLForKeyword(keyword);
-  if (existing &&
-      (!keyword_editor_view_ || existing != template_url_)) {
-    // An entry may have been added with the same keyword string while the
-    // user edited the dialog, either automatically or by the user (if we're
-    // confirming a JS addition, they could have the Options dialog open at the
-    // same time). If so, just ignore this add.
-    // TODO(pamg): Really, we should modify the entry so this later one
-    // overwrites it. But we don't expect this case to be common.
-    CleanUpCancelledAdd();
-    return true;
-  }
-
-  if (!keyword_editor_view_) {
-    // Confiming an entry we got from JS. We have a template_url_, but it
-    // hasn't yet been added to the model.
-    DCHECK(template_url_);
-    // const_cast is ugly, but this is the same thing the TemplateURLModel
-    // does in a similar situation (updating an existing TemplateURL with
-    // data from a new one).
-    TemplateURL* modifiable_url = const_cast<TemplateURL*>(template_url_);
-    modifiable_url->set_short_name(title_tf_->text());
-    modifiable_url->set_keyword(keyword);
-    modifiable_url->SetURL(url_string, 0, 0);
-    // TemplateURLModel takes ownership of template_url_.
-    profile_->GetTemplateURLModel()->Add(modifiable_url);
-    UserMetrics::RecordAction(L"KeywordEditor_AddKeywordJS", profile_);
-  } else if (!template_url_) {
-    // Adding a new entry via the KeywordEditorView.
-    DCHECK(keyword_editor_view_);
-    if (keyword_editor_view_)
-      keyword_editor_view_->AddTemplateURL(title_tf_->text(),
-                                           keyword_tf_->text(),
-                                           url_string);
-  } else {
-    // Modifying an entry via the KeywordEditorView.
-    DCHECK(keyword_editor_view_);
-    if (keyword_editor_view_) {
-      keyword_editor_view_->ModifyTemplateURL(template_url_,
-                                              title_tf_->text(),
-                                              keyword_tf_->text(),
-                                              url_string);
-    }
-  }
+  AcceptAddOrEdit();
   return true;
 }
 
@@ -168,13 +112,13 @@ bool EditKeywordController::HandleKeystroke(
 void EditKeywordController::Init() {
   // Create the views we'll need.
   view_ = new views::View();
-  if (template_url_) {
-    title_tf_ = CreateTextfield(template_url_->short_name(), false);
-    keyword_tf_ = CreateTextfield(template_url_->keyword(), true);
-    url_tf_ = CreateTextfield(GetDisplayURL(*template_url_), false);
+  if (template_url()) {
+    title_tf_ = CreateTextfield(template_url()->short_name(), false);
+    keyword_tf_ = CreateTextfield(template_url()->keyword(), true);
+    url_tf_ = CreateTextfield(GetDisplayURL(*template_url()), false);
     // We don't allow users to edit prepopulate URLs. This is done as
     // occasionally we need to update the URL of prepopulated TemplateURLs.
-    url_tf_->SetReadOnly(template_url_->prepopulate_id() != 0);
+    url_tf_->SetReadOnly(template_url()->prepopulate_id() != 0);
   } else {
     title_tf_ = CreateTextfield(std::wstring(), false);
     keyword_tf_ = CreateTextfield(std::wstring(), true);
@@ -282,65 +226,23 @@ Textfield* EditKeywordController::CreateTextfield(const std::wstring& text,
   return text_field;
 }
 
-bool EditKeywordController::IsURLValid() const {
-  std::wstring url = GetURL();
-  if (url.empty())
-    return false;
-
-  // Use TemplateURLRef to extract the search placeholder.
-  TemplateURLRef template_ref(url, 0, 0);
-  if (!template_ref.IsValid())
-    return false;
-
-  if (!template_ref.SupportsReplacement())
-    return GURL(url).is_valid();
-
-  // If the url has a search term, replace it with a random string and make
-  // sure the resulting URL is valid. We don't check the validity of the url
-  // with the search term as that is not necessarily valid.
-  return GURL(WideToUTF8(template_ref.ReplaceSearchTerms(TemplateURL(), L"a",
-      TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring()))).is_valid();
+std::wstring EditKeywordController::GetURLInput() const {
+  return url_tf_->text();
 }
 
-std::wstring EditKeywordController::GetURL() const {
-  std::wstring url;
-  TrimWhitespace(TemplateURLRef::DisplayURLToURLRef(url_tf_->text()),
-                 TRIM_ALL, &url);
-  if (url.empty())
-    return url;
-
-  // Parse the string as a URL to determine the scheme. If we need to, add the
-  // scheme. As the scheme may be expanded (as happens with {google:baseURL})
-  // we need to replace the search terms before testing for the scheme.
-  TemplateURL t_url;
-  t_url.SetURL(url, 0, 0);
-  std::wstring expanded_url =
-      t_url.url()->ReplaceSearchTerms(t_url, L"x", 0, std::wstring());
-  url_parse::Parsed parts;
-  std::string scheme(
-      URLFixerUpper::SegmentURL(WideToUTF8(expanded_url), &parts));
-  if(!parts.scheme.is_valid()) {
-    scheme.append("://");
-    url.insert(0, UTF8ToWide(scheme));
-  }
-
-  return url;
+std::wstring EditKeywordController::GetKeywordInput() const {
+  return keyword_tf_->text();
 }
 
-bool EditKeywordController::IsKeywordValid() const {
-  std::wstring keyword = keyword_tf_->text();
-  if (keyword.empty())
-    return true;  // Always allow no keyword.
-  const TemplateURL* turl_with_keyword =
-      profile_->GetTemplateURLModel()->GetTemplateURLForKeyword(keyword);
-  return (turl_with_keyword == NULL || turl_with_keyword == template_url_);
+std::wstring EditKeywordController::GetTitleInput() const {
+  return title_tf_->text();
 }
 
 void EditKeywordController::UpdateImageViews() {
   UpdateImageView(keyword_iv_, IsKeywordValid(),
                   IDS_SEARCH_ENGINES_INVALID_KEYWORD_TT);
   UpdateImageView(url_iv_, IsURLValid(), IDS_SEARCH_ENGINES_INVALID_URL_TT);
-  UpdateImageView(title_iv_, !title_tf_->text().empty(),
+  UpdateImageView(title_iv_, IsTitleValid(),
                   IDS_SEARCH_ENGINES_INVALID_TITLE_TT);
 }
 
@@ -357,14 +259,5 @@ void EditKeywordController::UpdateImageView(ImageView* image_view,
     image_view->SetImage(
         ResourceBundle::GetSharedInstance().GetBitmapNamed(
             IDR_INPUT_ALERT));
-  }
-}
-
-void EditKeywordController::CleanUpCancelledAdd() {
-  if (!keyword_editor_view_ && template_url_) {
-    // When we have no KeywordEditorView, we know that the template_url_
-    // hasn't yet been added to the model, so we need to clean it up.
-    delete template_url_;
-    template_url_ = NULL;
   }
 }

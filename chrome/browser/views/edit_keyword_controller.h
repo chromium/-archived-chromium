@@ -12,6 +12,7 @@
 
 #include <windows.h>
 
+#include "chrome/browser/search_engines/edit_keyword_controller_base.h"
 #include "views/controls/textfield/textfield.h"
 #include "views/window/dialog_delegate.h"
 
@@ -21,18 +22,18 @@ class ImageView;
 class Window;
 }
 
-class KeywordEditorView;
 class Profile;
 class TemplateURL;
 class TemplateURLModel;
 
 class EditKeywordController : public views::Textfield::Controller,
-                              public views::DialogDelegate {
+                              public views::DialogDelegate,
+                              public EditKeywordControllerBase {
  public:
-  // The template_url and/or keyword_editor_view may be NULL.
+  // The |template_url| and/or |delegate| may be NULL.
   EditKeywordController(HWND parent,
                         const TemplateURL* template_url,
-                        KeywordEditorView* keyword_editor_view,
+                        Delegate* delegate,
                         Profile* profile);
 
   virtual ~EditKeywordController() {}
@@ -69,20 +70,10 @@ class EditKeywordController : public views::Textfield::Controller,
   // Textfield is configured to map all input to lower case.
   views::Textfield* CreateTextfield(const std::wstring& text, bool lowercase);
 
-  // Returns true if the currently input URL is valid. The URL is valid if it
-  // contains no search terms and is a valid url, or if it contains a search
-  // term and replacing that search term with a character results in a valid
-  // url.
-  bool IsURLValid() const;
-
-  // Returns the URL the user has input. The returned URL is suitable for use
-  // by TemplateURL.
-  std::wstring GetURL() const;
-
-  // Returns whether the currently entered keyword is valid. The keyword is
-  // valid if it is non-empty and does not conflict with an existing entry.
-  // NOTE: this is just the keyword, not the title and url.
-  bool IsKeywordValid() const;
+  // EditKeywordControllerBase overrides
+  virtual std::wstring GetURLInput() const;
+  virtual std::wstring GetKeywordInput() const;
+  virtual std::wstring GetTitleInput() const;
 
   // Invokes UpdateImageView for each of the images views.
   void UpdateImageViews();
@@ -94,27 +85,11 @@ class EditKeywordController : public views::Textfield::Controller,
                        bool is_valid,
                        int invalid_message_id);
 
-  // Deletes an unused TemplateURL, if its add was cancelled and it's not
-  // already owned by the TemplateURLModel.
-  void CleanUpCancelledAdd();
-
-  // The TemplateURL we're displaying information for. It may be NULL. If we
-  // have a keyword_editor_view, we assume that this TemplateURL is already in
-  // the TemplateURLModel; if not, we assume it isn't.
-  const TemplateURL* template_url_;
-
   // Used to parent window to. May be NULL or an invalid window.
   HWND parent_;
 
   // View containing the buttons, text fields ...
   views::View* view_;
-
-  // We may have been created by this, in which case we will call back to it on
-  // success to add/modify the entry.  May be NULL.
-  KeywordEditorView* keyword_editor_view_;
-
-  // Profile whose TemplateURLModel we're modifying.
-  Profile* profile_;
 
   // Text fields.
   views::Textfield* title_tf_;
