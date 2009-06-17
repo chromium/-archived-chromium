@@ -108,6 +108,10 @@
 
 #endif  // defined(OS_WIN)
 
+#if defined(LINUX2)
+#include "chrome/browser/extensions/extension_protocols.h"
+#endif // defined(LINUX2)
+
 #if defined(TOOLKIT_GTK)
 #include "chrome/common/gtk_util.h"
 #endif
@@ -699,7 +703,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // chrome-extension:// URLs.
   RegisterURLRequestChromeJob();
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(LINUX2)
   RegisterExtensionProtocols();
 #endif
 
