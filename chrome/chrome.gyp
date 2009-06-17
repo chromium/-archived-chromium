@@ -2596,10 +2596,20 @@
           ],
           'msvs_settings': {
             'VCLinkerTool': {
+              'DelayLoadDLLs': [
+                'dbghelp.dll',
+                'dwmapi.dll',
+                'uxtheme.dll',
+                'ole32.dll',
+                'oleaut32.dll',
+              ],
               'ImportLibrary': '$(OutDir)\\lib\\chrome_exe.lib',
               'ProgramDatabaseFile': '$(OutDir)\\chrome_exe.pdb',
               # Set /SUBSYSTEM:WINDOWS for chrome.exe itself.
               'SubSystem': '2',
+            },
+            'VCManifestTool': {
+              'AdditionalManifestFiles': '$(SolutionDir)\\app\\chrome.exe.manifest',
             },
           },
           'actions': [
@@ -2643,6 +2653,17 @@
               ],
               'process_outputs_as_sources': 1,
               'message': 'Generating version information in <(_outputs)'
+            },
+            {
+              'action_name': 'first_run',
+              'inputs': [
+                  'app/FirstRun',
+              ],
+              'outputs': [
+                  '<(PRODUCT_DIR)/First Run',
+              ],
+              'action': ['copy', '<@(_inputs)', '<@(_outputs)'],
+              'message': 'Copy first run complete sentinel file',
             },
           ],
         },{  # 'OS!="win"
@@ -4169,6 +4190,9 @@
               'ProgramDatabaseFile': '$(OutDir)\\chrome_dll.pdb',
               # Set /SUBSYSTEM:WINDOWS for chrome.dll (for consistency).
               'SubSystem': '2',
+            },
+            'VCManifestTool': {
+              'AdditionalManifestFiles': '$(SolutionDir)\\app\\chrome.dll.manifest',
             },
           },
           'configurations': {
