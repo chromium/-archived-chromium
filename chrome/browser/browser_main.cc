@@ -392,6 +392,10 @@ int BrowserMain(const MainFunctionParams& parameters) {
     // method at present.
     Profile* profile = NULL;
     OpenFirstRunDialog(profile, &process_singleton);
+    // If user cancelled the first run dialog box, the first run sentinel file
+    // didn't get created and we should exit Chrome.
+    if (FirstRun::IsChromeFirstRun())
+      return ResultCodes::NORMAL_EXIT;
   }
 #endif  // OS_POSIX
 
@@ -610,6 +614,10 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // touches reads preferences.
   if (is_first_run && !first_run_ui_bypass) {
     OpenFirstRunDialog(profile, &process_singleton);
+    // If user cancelled the first run dialog box, the first run sentinel file
+    // didn't get created and we should exit Chrome.
+    if (FirstRun::IsChromeFirstRun())
+      return ResultCodes::NORMAL_EXIT;
   }
 #endif  // OS_POSIX
 

@@ -45,8 +45,6 @@ FirstRunView::FirstRunView(Profile* profile)
 }
 
 FirstRunView::~FirstRunView() {
-  FirstRunComplete();
-
   // Exit the message loop we were started with so that startup can continue.
   MessageLoop::current()->Quit();
 }
@@ -186,6 +184,7 @@ bool FirstRunView::Accept() {
   if (default_browser_->checked())
     SetDefaultBrowser();
 
+  FirstRunComplete();
   return true;
 }
 

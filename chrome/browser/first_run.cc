@@ -59,7 +59,7 @@ bool GetFirstRunSentinelFilePath(FilePath* path) {
 #if !defined(OS_MACOSX)
 bool FirstRun::IsChromeFirstRun() {
   // A troolean, 0 means not yet set, 1 means set to true, 2 set to false.
-  static int first_run = 0;
+  int first_run = 0;
   if (first_run != 0)
     return first_run == 1;
 

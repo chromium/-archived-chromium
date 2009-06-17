@@ -211,6 +211,7 @@ bool FirstRunCustomizeView::Accept() {
   // Exit the message loop we were started with so that startup can continue.
   MessageLoop::current()->Quit();
 
+  FirstRunComplete();
   return true;
 }
 

@@ -112,6 +112,8 @@ void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
   // End of above TODO.
 
   if (response == GTK_RESPONSE_ACCEPT) {
+    // Mark that first run has ran.
+    FirstRun::CreateSentinel();
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check))) {
       // They opted in.
       if (GoogleUpdateSettings::SetCollectStatsConsent(true)) {
@@ -123,8 +125,7 @@ void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
   }
 
   gtk_widget_destroy(dialog);
-#endif  // defined(GOOGLE_CHROME_BUILD)
-
-  // Mark that first run has ran.
+#else  // defined(GOOGLE_CHROME_BUILD)
   FirstRun::CreateSentinel();
+#endif
 }
