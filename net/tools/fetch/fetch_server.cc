@@ -27,7 +27,9 @@ int main(int argc, char**argv) {
   StatsTable table("fetchserver", 50, 1000);
   table.set_current(&table);
 
+#if defined(OS_WIN)
   net::EnsureWinsockInit();
+#endif  // defined(OS_WIN)
 
   CommandLine::Init(0, NULL);
   const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();

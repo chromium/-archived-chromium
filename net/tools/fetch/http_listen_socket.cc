@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/compiler_specific.h"
+#include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "net/tools/fetch/http_listen_socket.h"
@@ -10,8 +11,8 @@
 #include "net/tools/fetch/http_server_response_info.h"
 
 // must run in the IO thread
-HttpListenSocket::HttpListenSocket(SOCKET s, 
-    HttpListenSocket::Delegate* delegate)
+HttpListenSocket::HttpListenSocket(SOCKET s,
+                                   HttpListenSocket::Delegate* delegate)
     : ALLOW_THIS_IN_INITIALIZER_LIST(ListenSocket(s, this)),
       delegate_(delegate) {
 }
@@ -22,8 +23,8 @@ HttpListenSocket::~HttpListenSocket() {
 
 void HttpListenSocket::Accept() {
   SOCKET conn = ListenSocket::Accept(socket_);
-  DCHECK(conn != INVALID_SOCKET);
-  if (conn == INVALID_SOCKET) {
+  DCHECK_NE(conn, ListenSocket::kInvalidSocket);
+  if (conn == ListenSocket::kInvalidSocket) {
     // TODO
   } else {
     scoped_refptr<HttpListenSocket> sock =
@@ -36,7 +37,7 @@ void HttpListenSocket::Accept() {
 HttpListenSocket* HttpListenSocket::Listen(const std::string& ip, int port,
                                            HttpListenSocket::Delegate* delegate) {
   SOCKET s = ListenSocket::Listen(ip, port);
-  if (s == INVALID_SOCKET) {
+  if (s == ListenSocket::kInvalidSocket) {
     // TODO (ibrar): error handling
   } else {
     HttpListenSocket *serv = new HttpListenSocket(s, delegate);

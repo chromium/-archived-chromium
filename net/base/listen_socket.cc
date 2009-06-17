@@ -21,13 +21,22 @@
 #include "net/base/listen_socket.h"
 
 #if defined(OS_WIN)
-#define socklen_t int
-#elif defined(OS_POSIX)
-const int INVALID_SOCKET = -1;  // Used same name as in Windows to avoid #ifdef
-const int SOCKET_ERROR = -1;
-#endif
+typedef int socklen_t;
+#endif  // defined(OS_WIN)
+
+namespace {
 
 const int kReadBufSize = 200;
+
+}  // namespace
+
+#if defined(OS_WIN)
+const SOCKET ListenSocket::kInvalidSocket = INVALID_SOCKET;
+const int ListenSocket::kSocketError = SOCKET_ERROR;
+#elif defined(OS_POSIX)
+const SOCKET ListenSocket::kInvalidSocket = -1;
+const int ListenSocket::kSocketError = -1;
+#endif
 
 ListenSocket::ListenSocket(SOCKET s, ListenSocketDelegate *del)
     : socket_(s),
@@ -53,7 +62,7 @@ ListenSocket::~ListenSocket() {
 
 SOCKET ListenSocket::Listen(std::string ip, int port) {
   SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (s != INVALID_SOCKET) {
+  if (s != kInvalidSocket) {
     sockaddr_in addr;
     memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
@@ -65,7 +74,7 @@ SOCKET ListenSocket::Listen(std::string ip, int port) {
 #elif defined(OS_POSIX)
       close(s);
 #endif
-      s = INVALID_SOCKET;
+      s = kInvalidSocket;
     }
   }
   return s;
@@ -74,7 +83,7 @@ SOCKET ListenSocket::Listen(std::string ip, int port) {
 ListenSocket* ListenSocket::Listen(std::string ip, int port,
                                    ListenSocketDelegate* del) {
   SOCKET s = Listen(ip, port);
-  if (s == INVALID_SOCKET) {
+  if (s == kInvalidSocket) {
     // TODO(erikkay): error handling
   } else {
     ListenSocket* sock = new ListenSocket(s, del);
@@ -98,7 +107,7 @@ SOCKET ListenSocket::Accept(SOCKET s) {
   socklen_t from_len = sizeof(from);
   SOCKET conn =
       HANDLE_EINTR(accept(s, reinterpret_cast<sockaddr*>(&from), &from_len));
-  if (conn != INVALID_SOCKET) {
+  if (conn != kInvalidSocket) {
     net::SetNonBlocking(conn);
   }
   return conn;
@@ -106,7 +115,7 @@ SOCKET ListenSocket::Accept(SOCKET s) {
 
 void ListenSocket::Accept() {
   SOCKET conn = Accept(socket_);
-  if (conn != INVALID_SOCKET) {
+  if (conn != kInvalidSocket) {
     scoped_refptr<ListenSocket> sock =
         new ListenSocket(conn, socket_delegate_);
     // it's up to the delegate to AddRef if it wants to keep it around
@@ -124,7 +133,7 @@ void ListenSocket::Read() {
   int len;
   do {
     len = HANDLE_EINTR(recv(socket_, buf, kReadBufSize, 0));
-    if (len == SOCKET_ERROR) {
+    if (len == kSocketError) {
 #if defined(OS_WIN)
       int err = WSAGetLastError();
       if (err == WSAEWOULDBLOCK) {
@@ -152,7 +161,7 @@ void ListenSocket::Read() {
 }
 
 void ListenSocket::CloseSocket(SOCKET s) {
-  if (s && s != INVALID_SOCKET) {
+  if (s && s != kInvalidSocket) {
     UnwatchSocket();
 #if defined(OS_WIN)
     closesocket(s);
@@ -193,7 +202,7 @@ void ListenSocket::WatchSocket(WaitState state) {
 
 void ListenSocket::SendInternal(const char* bytes, int len) {
   int sent = HANDLE_EINTR(send(socket_, bytes, len, 0));
-  if (sent == SOCKET_ERROR) {
+  if (sent == kSocketError) {
 #if defined(OS_WIN)
   int err = WSAGetLastError();
   if (err == WSAEWOULDBLOCK) {
@@ -238,7 +247,7 @@ void ListenSocket::ResumeReads() {
 // MessageLoop watcher callback
 void ListenSocket::OnObjectSignaled(HANDLE object) {
   WSANETWORKEVENTS ev;
-  if (SOCKET_ERROR == WSAEnumNetworkEvents(socket_, socket_event_, &ev)) {
+  if (kSocketError == WSAEnumNetworkEvents(socket_, socket_event_, &ev)) {
     // TODO
     return;
   }

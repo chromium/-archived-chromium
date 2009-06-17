@@ -634,6 +634,26 @@
         'tools/fetch/fetch_client.cc',
       ],
     },
+    {
+      'target_name': 'fetch_server',
+      'type': 'executable',
+      'dependencies': [
+        'net',
+        '../base/base.gyp:base',
+        '../base/base.gyp:test_support_base',
+        '../testing/gtest.gyp:gtest',
+      ],
+      'msvs_guid': 'DABB8796-B9A2-4CD9-BF89-09B03E92B124',
+      'sources': [
+        'tools/fetch/fetch_server.cc',
+        'tools/fetch/http_listen_socket.cc',
+        'tools/fetch/http_listen_socket.h',
+        'tools/fetch/http_server.cc',
+        'tools/fetch/http_server.h',
+        'tools/fetch/http_session.cc',
+        'tools/fetch/http_session.h',
+      ],
+    },
   ],
   'conditions': [
     ['OS=="win"', {
@@ -650,27 +670,6 @@
             'tools/dump_cache/dump_cache.cc',
             'tools/dump_cache/dump_files.cc',
             'tools/dump_cache/upgrade.cc',
-          ],
-        },
-        {
-          # TODO(port): fetch_server uses Windows-specific SOCKET.
-          'target_name': 'fetch_server',
-          'type': 'executable',
-          'dependencies': [
-            'net',
-            '../base/base.gyp:base',
-            '../base/base.gyp:test_support_base',
-            '../testing/gtest.gyp:gtest',
-          ],
-          'msvs_guid': 'DABB8796-B9A2-4CD9-BF89-09B03E92B124',
-          'sources': [
-            'tools/fetch/fetch_server.cc',
-            'tools/fetch/http_listen_socket.cc',
-            'tools/fetch/http_listen_socket.h',
-            'tools/fetch/http_server.cc',
-            'tools/fetch/http_server.h',
-            'tools/fetch/http_session.cc',
-            'tools/fetch/http_session.h',
           ],
         },
       ],

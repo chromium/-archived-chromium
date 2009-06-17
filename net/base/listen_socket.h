@@ -28,7 +28,7 @@
 
 #if defined(OS_POSIX)
 struct event;  // From libevent
-#define SOCKET int
+typedef int SOCKET;
 #endif
 
 // Implements a raw socket interface
@@ -72,6 +72,9 @@ class ListenSocket : public base::RefCountedThreadSafe<ListenSocket>,
   void ResumeReads();
 
  protected:
+  static const SOCKET kInvalidSocket;
+  static const int kSocketError;
+
   ListenSocket(SOCKET s, ListenSocketDelegate* del);
   static SOCKET Listen(std::string ip, int port);
   // if valid, returned SOCKET is non-blocking
