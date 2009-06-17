@@ -113,6 +113,7 @@
           'dependencies': [
             'test_shell_resources',
             '../../../build/linux/system.gyp:gtk',
+            '../../../tools/xdisplaycheck/xdisplaycheck.gyp:xdisplaycheck',
           ],
           # for:  test_shell_gtk.cc
           'cflags': ['-Wno-multichar'],
