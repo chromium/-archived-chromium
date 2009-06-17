@@ -243,7 +243,7 @@ void AutocompleteEditViewMac::Update(
     // code compares the toolbar_model_ security level with the local
     // security level.  Dig in and figure out why this isn't a no-op
     // that should go away.
-    UpdateAndStyleText(GetText());
+    EmphasizeURLComponents();
   }
 }
 
@@ -278,7 +278,7 @@ void AutocompleteEditViewMac::SetUserText(const std::wstring& text,
   model_->SetUserText(text);
   // TODO(shess): TODO below from gtk.
   // TODO(deanm): something about selection / focus change here.
-  UpdateAndStyleText(display_text);
+  SetText(display_text);
   if (update_popup) {
     UpdatePopup();
   }
@@ -306,8 +306,7 @@ void AutocompleteEditViewMac::SetSelectedRange(const NSRange range) {
 void AutocompleteEditViewMac::SetWindowTextAndCaretPos(const std::wstring& text,
                                                        size_t caret_pos) {
   DCHECK_LE(caret_pos, text.size());
-  UpdateAndStyleText(text);
-  SetSelectedRange(NSMakeRange(caret_pos, caret_pos));
+  SetTextAndSelectedRange(text, NSMakeRange(caret_pos, caret_pos));
 }
 
 void AutocompleteEditViewMac::SelectAll(bool reversed) {
@@ -328,7 +327,7 @@ void AutocompleteEditViewMac::RevertAll() {
   // could only get there via UpdateAndStyleText() in the first place.
   // Dig into where this code can be called from and see if this line
   // can be removed.
-  UpdateAndStyleText(GetText());
+  EmphasizeURLComponents();
   controller_->OnChanged();
 }
 
@@ -350,8 +349,7 @@ void AutocompleteEditViewMac::ClosePopup() {
   popup_view_->GetModel()->StopAutocomplete();
 }
 
-void AutocompleteEditViewMac::UpdateAndStyleText(
-    const std::wstring& display_text) {
+void AutocompleteEditViewMac::SetText(const std::wstring& display_text) {
   NSString* ss = base::SysWideToNSString(display_text);
   NSMutableAttributedString* as =
       [[[NSMutableAttributedString alloc] initWithString:ss] autorelease];
@@ -403,6 +401,20 @@ void AutocompleteEditViewMac::UpdateAndStyleText(
   [field_ setObjectValue:as];
 }
 
+void AutocompleteEditViewMac::SetTextAndSelectedRange(
+    const std::wstring& display_text, const NSRange range) {
+  SetText(display_text);
+  SetSelectedRange(range);
+}
+
+void AutocompleteEditViewMac::EmphasizeURLComponents() {
+  if ([field_ currentEditor]) {
+    SetTextAndSelectedRange(GetText(), GetSelectedRange());
+  } else {
+    SetText(GetText());
+  }
+}
+
 void AutocompleteEditViewMac::OnTemporaryTextMaybeChanged(
     const std::wstring& display_text, bool save_original_selection) {
   // TODO(shess): I believe this is for when the user arrows around
@@ -425,16 +437,16 @@ bool AutocompleteEditViewMac::OnInlineAutocompleteTextMaybeChanged(
     return false;
   }
 
-  UpdateAndStyleText(display_text);
   DCHECK_LE(user_text_length, display_text.size());
-  SetSelectedRange(NSMakeRange(user_text_length, display_text.size()));
+  const NSRange range = NSMakeRange(user_text_length, display_text.size());
+  SetTextAndSelectedRange(display_text, range);
+
   return true;
 }
 
 void AutocompleteEditViewMac::OnRevertTemporaryText() {
-  UpdateAndStyleText(saved_temporary_text_);
+  SetTextAndSelectedRange(saved_temporary_text_, saved_temporary_selection_);
   saved_temporary_text_.clear();
-  SetSelectedRange(saved_temporary_selection_);
 }
 
 bool AutocompleteEditViewMac::IsFirstResponder() const {
@@ -490,8 +502,11 @@ bool AutocompleteEditViewMac::OnAfterPossibleChange() {
   // flashing from when the user's typing replaces the selection which
   // is then re-created with the new autocomplete results.
   if (something_changed) {
-    UpdateAndStyleText(new_text);
-    SetSelectedRange(new_selection);
+    // TODO(shess) I believe that this call is needless duplication of
+    // effort.  As best I can tell, something_changed can only be true
+    // if |model_| called UpdatePopup(), which then updated us.  But
+    // the state involved seems substantial.
+    EmphasizeURLComponents();
   }
 
   return something_changed;

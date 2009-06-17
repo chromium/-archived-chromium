@@ -119,7 +119,16 @@ class AutocompleteEditViewMac : public AutocompleteEditView {
 
   // Update the field with |display_text| and highlight the host and
   // scheme (if it's an URL or URL-fragment).
-  void UpdateAndStyleText(const std::wstring& display_text);
+  void SetText(const std::wstring& display_text);
+
+  // Update the field with |display_text| and set the selection.
+  void SetTextAndSelectedRange(const std::wstring& display_text,
+                               const NSRange range);
+
+  // Pass the current content of |field_| to SetText(), maintaining
+  // any selection.  Named to be consistent with GTK and Windows,
+  // though here we cannot really do the in-place operation they do.
+  void EmphasizeURLComponents();
 
   scoped_ptr<AutocompleteEditModel> model_;
   scoped_ptr<AutocompletePopupViewMac> popup_view_;
