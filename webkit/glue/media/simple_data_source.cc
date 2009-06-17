@@ -152,6 +152,11 @@ void SimpleDataSource::SetURL(const GURL& url) {
 void SimpleDataSource::StartTask() {
   AutoLock auto_lock(lock_);
   DCHECK(MessageLoop::current() == render_loop_);
+
+  // We may have stopped.
+  if (state_ == STOPPED)
+    return;
+
   DCHECK_EQ(state_, INITIALIZING);
 
   // Create our bridge and start loading the resource.
