@@ -17,11 +17,13 @@
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/wmi_util.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/installer/util/l10n_string_util.h"
 #include "chrome/installer/util/google_update_constants.h"
 #include "chrome/installer/util/google_update_settings.h"
+#include "chrome/installer/util/helper.h"
 #include "chrome/installer/util/util_constants.h"
 
 #include "installer_util_strings.h"
@@ -40,7 +42,46 @@ std::wstring GetUninstallSurveyUrl() {
 
   return ReplaceStringPlaceholders(kSurveyUrl.c_str(), language.c_str(), NULL);
 }
+
+// Converts FILETIME to hours. FILETIME times are absolute times in
+// 100 nanosecond units. For example 5:30 pm of June 15, 2009 is 3580464.
+int FileTimeToHours(const FILETIME& time) {
+  const ULONGLONG k100sNanoSecsToHours = 10000000LL * 60 * 60;
+  ULARGE_INTEGER uli = {time.dwLowDateTime, time.dwHighDateTime};
+  return static_cast<int>(uli.QuadPart / k100sNanoSecsToHours);
 }
+
+// Returns the directory last write time in hours since January 1, 1601.
+// Returns -1 if there was an error retrieving the directory time.
+int GetDirectoryWriteTimeInHours(const wchar_t* path) {
+  // To open a directory you need to pass FILE_FLAG_BACKUP_SEMANTICS.
+  DWORD share = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
+  HANDLE file = ::CreateFileW(path, 0, share, NULL, OPEN_EXISTING,
+                              FILE_FLAG_BACKUP_SEMANTICS, NULL);
+  if (INVALID_HANDLE_VALUE == file)
+    return -1;
+  FILETIME time;
+  if (!::GetFileTime(file, NULL, NULL, &time))
+    return -1;
+  return FileTimeToHours(time);
+}
+
+// Returns the directory last-write time age in hours, relative to current
+// time, so if it returns 14 it means that the directory was last written 14
+// hours ago. Returns -1 if there was an error retrieving the directory.
+int GetDirectoryWriteAgeInHours(const wchar_t* path) {
+  int dir_time = GetDirectoryWriteTimeInHours(path);
+  if (dir_time < 0)
+    return dir_time;
+  FILETIME time;
+  GetSystemTimeAsFileTime(&time);
+  int now_time = FileTimeToHours(time);
+  if (dir_time >= now_time)
+    return 0;
+  return (now_time - dir_time);
+}
+
+}  // namespace
 
 bool GoogleChromeDistribution::BuildUninstallMetricsString(
     DictionaryValue* uninstall_metrics_dict, std::wstring* metrics) {
@@ -329,3 +370,38 @@ void GoogleChromeDistribution::UpdateDiffInstallStatus(bool system_install,
   }
   key.Close();
 }
+
+void GoogleChromeDistribution::LaunchUserExperiment(
+    installer_util::InstallStatus status, const installer::Version& version,
+    bool system_install, int options) {
+  // Currently we only have one experiment: the inactive user toast. Which
+  // only applies for users doing upgrades.
+  if (installer_util::NEW_VERSION_UPDATED != status)
+    return;
+
+  // If user has not opted-in for usage stats or it is a system-wide install
+  // we don't do the experiments
+  if (!GoogleUpdateSettings::GetCollectStatsConsent() || system_install)
+    return;
+
+  // User must be in the Great Britain as defined by googe_update language.
+  std::wstring lang;
+  if (!GoogleUpdateSettings::GetLanguage(&lang) || (lang != L"en-GB"))
+    return;
+
+  // Check browser usage inactivity by the age of the last-write time of the
+  // chrome user data directory. Ninety days is our trigger.
+  std::wstring user_data_dir = installer::GetChromeUserDataPath();
+  const int kNinetyDays = 90 * 24;
+  int dir_age_hours = GetDirectoryWriteAgeInHours(user_data_dir.c_str());
+  if (dir_age_hours < kNinetyDays)
+    return;
+
+  // User qualifies for the experiment. Launch chrome with --try-chrome
+  int32 exit_code = 0;
+  std::wstring option(L"--");
+  option.append(switches::kTryChromeAgain);
+  if (!installer::LaunchChromeAndWaitForResult(false, option, &exit_code))
+    return;
+}
+

@@ -340,6 +340,7 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
   }
   LOG(INFO) << "created path " << temp_path;
 
+  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
   std::wstring unpack_path(temp_path);
   file_util::AppendToPath(&unpack_path,
                           std::wstring(installer::kInstallSourceDir));
@@ -408,6 +409,12 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
         }
       }
     }
+    // There might be an experiment (for upgrade usually) that needs to happen.
+    // An experiment's outcome can include chrome's uninstallation. If that is
+    // the case we would not do that directly at this point but in another
+    //  instance of setup.exe
+    dist->LaunchUserExperiment(install_status, *installer_version,
+                               system_install, options);
   }
 
   // Delete temporary files. These include install temporary directory
@@ -422,7 +429,6 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
   }
   cleanup_list->Do();
 
-  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
   dist->UpdateDiffInstallStatus(system_install, incremental_install,
                                 install_status);
   return install_status;

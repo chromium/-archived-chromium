@@ -78,6 +78,10 @@ class GoogleChromeDistribution : public BrowserDistribution {
   virtual void UpdateDiffInstallStatus(bool system_install,
       bool incremental_install, installer_util::InstallStatus install_status);
 
+  virtual void LaunchUserExperiment(installer_util::InstallStatus status,
+                                    const installer::Version& version,
+                                    bool system_install, int options);
+
  private:
   friend class BrowserDistribution;
   FRIEND_TEST(GoogleChromeDistributionTest, TestExtractUninstallMetrics);

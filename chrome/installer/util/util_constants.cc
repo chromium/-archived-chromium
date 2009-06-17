@@ -91,6 +91,7 @@ const wchar_t kAltDesktopShortcut[] = L"alt-desktop-shortcut";
 }  // namespace switches
 
 const wchar_t kInstallBinaryDir[] = L"Application";
+const wchar_t kInstallUserDataDir[] = L"User Data";
 const wchar_t kChromeExe[] = L"chrome.exe";
 const wchar_t kChromeOldExe[] = L"old_chrome.exe";
 const wchar_t kChromeNewExe[] = L"new_chrome.exe";

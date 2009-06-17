@@ -18,6 +18,12 @@ namespace installer {
 //                 location (Document And Settings\<user>\Local Settings...)
 std::wstring GetChromeInstallPath(bool system_install);
 
+// This function returns the path to the directory that holds the user data,
+// this is always inside "Document And Settings\<user>\Local Settings.". Note
+// that this is the default user data directory and does not take into account
+// that it can be overriden with a command line parameter.
+std::wstring GetChromeUserDataPath();
+
 // Launches Chrome without waiting for its exit.
 bool LaunchChrome(bool system_install);
 

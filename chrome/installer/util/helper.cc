@@ -16,21 +16,33 @@
 #include "chrome/installer/util/version.h"
 #include "chrome/installer/util/work_item_list.h"
 
-std::wstring installer::GetChromeInstallPath(bool system_install) {
+namespace {
+
+std::wstring GetChromeInstallBasePath(bool system_install,
+                                      const wchar_t* subpath) {
   FilePath install_path;
   if (system_install) {
     PathService::Get(base::DIR_PROGRAM_FILES, &install_path);
   } else {
     PathService::Get(base::DIR_LOCAL_APP_DATA, &install_path);
   }
-
   if (!install_path.empty()) {
     BrowserDistribution* dist = BrowserDistribution::GetDistribution();
     install_path = install_path.Append(dist->GetInstallSubDir());
-    install_path = install_path.Append(installer_util::kInstallBinaryDir);
+    install_path = install_path.Append(subpath);
   }
-
   return install_path.ToWStringHack();
+}
+
+}  // namespace
+
+std::wstring installer::GetChromeInstallPath(bool system_install) {
+  return GetChromeInstallBasePath(system_install,
+                                  installer_util::kInstallBinaryDir);
+}
+
+std::wstring installer::GetChromeUserDataPath() {
+  return GetChromeInstallBasePath(false, installer_util::kInstallUserDataDir);
 }
 
 bool installer::LaunchChrome(bool system_install) {
