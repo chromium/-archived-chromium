@@ -19,11 +19,9 @@ var chrome = chrome || {};
       throw new Error("Port '" + portId + "' already exists.");
     }
     this.portId_ = portId;  // TODO(mpcomplete): readonly
+    this.onDisconnect = new chrome.Event();
     this.onMessage = new chrome.Event();
     chrome.Port.ports_[portId] = this;
-    // Note: this object will never get GCed.  If we ever care, we could
-    // add an "ondetach" method to the onMessage Event that gets called
-    // when there are no more listeners.
   };
 
   // Map of port IDs to port object.
@@ -37,6 +35,15 @@ var chrome = chrome || {};
     }
     port.tab = tab;
     chrome.Event.dispatch_("channel-connect", [port]);
+  };
+
+  // Called by native code when a channel has been closed.
+  chrome.Port.dispatchOnDisconnect_ = function(portId) {
+    var port = chrome.Port.ports_[portId];
+    if (port) {
+      port.onDisconnect.dispatch(port);
+      delete chrome.Port.ports_[portId];
+    }
   };
 
   // Called by native code when a message has been sent to the given port.

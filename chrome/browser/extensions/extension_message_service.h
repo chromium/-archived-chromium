@@ -29,6 +29,12 @@ class URLRequestContext;
 //   messages on the IO thread.
 class ExtensionMessageService : public NotificationObserver {
  public:
+  // Javascript function name constants.
+  static const char kDispatchOnConnect[];
+  static const char kDispatchOnDisconnect[];
+  static const char kDispatchOnMessage[];
+  static const char kDispatchEvent[];
+
   // Returns the message service for the given context.  Messages can only
   // be sent within a single context.
   static ExtensionMessageService* GetInstance(URLRequestContext* context);

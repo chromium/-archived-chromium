@@ -7,6 +7,7 @@
 #include "base/logging.h"
 #include "base/json_reader.h"
 #include "base/json_writer.h"
+#include "base/values.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/browser/automation/automation_provider.h"
 #include "chrome/browser/automation/extension_automation_constants.h"
@@ -91,13 +92,29 @@ bool ExtensionPortContainer::Send(IPC::Message *message) {
   DCHECK_EQ(MessageLoop::current()->type(), MessageLoop::TYPE_UI);
 
   IPC_BEGIN_MESSAGE_MAP(ExtensionPortContainer, *message)
-    IPC_MESSAGE_HANDLER(ViewMsg_ExtensionHandleMessage,
-                        OnExtensionHandleMessage)
+    IPC_MESSAGE_HANDLER(ViewMsg_ExtensionMessageInvoke,
+                        OnExtensionMessageInvoke)
     IPC_MESSAGE_UNHANDLED_ERROR()
   IPC_END_MESSAGE_MAP()
 
   delete message;
   return true;
+}
+
+void ExtensionPortContainer::OnExtensionMessageInvoke(
+    const std::string& function_name, const ListValue& args) {
+  if (function_name == ExtensionMessageService::kDispatchOnMessage) {
+    DCHECK_EQ(args.GetSize(), 2);
+
+    std::string message;
+    int source_port_id;
+    if (args.GetString(0, &message) && args.GetInteger(1, &source_port_id))
+      OnExtensionHandleMessage(message, source_port_id);
+  } else if (function_name == ExtensionMessageService::kDispatchOnDisconnect) {
+    // do nothing
+  } else {
+    NOTREACHED() << function_name << " shouldn't be called.";
+  }
 }
 
 void ExtensionPortContainer::OnExtensionHandleMessage(

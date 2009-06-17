@@ -24,6 +24,8 @@
 // Since we have 2 ports for every channel, we just index channels by half the
 // port ID.
 #define GET_CHANNEL_ID(port_id) ((port_id) / 2)
+#define GET_CHANNEL_PORT1(channel_id) ((channel_id) * 2)
+#define GET_CHANNEL_PORT2(channel_id) ((channel_id) * 2 + 1)
 
 // Port1 is always even, port2 is always odd.
 #define IS_PORT1_ID(port_id) (((port_id) & 1) == 0)
@@ -40,6 +42,43 @@ struct SingletonData {
   Lock lock;
   InstanceMap map;
 };
+
+static void DispatchOnConnect(IPC::Message::Sender* channel, int source_port_id,
+                              const std::string& tab_json) {
+  ListValue args;
+  args.Set(0, Value::CreateIntegerValue(source_port_id));
+  args.Set(1, Value::CreateStringValue(tab_json));
+  channel->Send(new ViewMsg_ExtensionMessageInvoke(
+      ExtensionMessageService::kDispatchOnConnect, args));
+}
+
+static void DispatchOnDisconnect(IPC::Message::Sender* channel,
+                                 int source_port_id) {
+  ListValue args;
+  args.Set(0, Value::CreateIntegerValue(source_port_id));
+  channel->Send(new ViewMsg_ExtensionMessageInvoke(
+      ExtensionMessageService::kDispatchOnDisconnect, args));
+}
+
+static void DispatchOnMessage(IPC::Message::Sender* channel,
+                              const std::string& message, int source_port_id) {
+  ListValue args;
+  args.Set(0, Value::CreateStringValue(message));
+  args.Set(1, Value::CreateIntegerValue(source_port_id));
+  channel->Send(new ViewMsg_ExtensionMessageInvoke(
+      ExtensionMessageService::kDispatchOnMessage, args));
+}
+
+static void DispatchEvent(IPC::Message::Sender* channel,
+                          const std::string& event_name,
+                          const std::string& event_args) {
+  ListValue args;
+  args.Set(0, Value::CreateStringValue(event_name));
+  args.Set(1, Value::CreateStringValue(event_args));
+  channel->Send(new ViewMsg_ExtensionMessageInvoke(
+      ExtensionMessageService::kDispatchEvent, args));
+}
+
 }  // namespace
 
 // Since ExtensionMessageService is a collection of Singletons, we don't need to
@@ -48,6 +87,16 @@ template <> struct RunnableMethodTraits<ExtensionMessageService> {
   static void RetainCallee(ExtensionMessageService*) {}
   static void ReleaseCallee(ExtensionMessageService*) {}
 };
+
+
+const char ExtensionMessageService::kDispatchOnConnect[] =
+    "chrome.Port.dispatchOnConnect_";
+const char ExtensionMessageService::kDispatchOnDisconnect[] =
+    "chrome.Port.dispatchOnDisconnect_";
+const char ExtensionMessageService::kDispatchOnMessage[] =
+    "chrome.Port.dispatchOnMessage_";
+const char ExtensionMessageService::kDispatchEvent[] =
+    "chrome.Event.dispatchJSON_";
 
 // static
 ExtensionMessageService* ExtensionMessageService::GetInstance(
@@ -120,6 +169,10 @@ void ExtensionMessageService::AllocatePortIdPair(int* port1, int* port2) {
   DCHECK(GET_OPPOSITE_PORT_ID(port1_id) == port2_id);
   DCHECK(GET_OPPOSITE_PORT_ID(port2_id) == port1_id);
   DCHECK(GET_CHANNEL_ID(port1_id) == GET_CHANNEL_ID(port2_id));
+
+  int channel_id = GET_CHANNEL_ID(port1_id);
+  DCHECK(GET_CHANNEL_PORT1(channel_id) == port1_id);
+  DCHECK(GET_CHANNEL_PORT2(channel_id) == port2_id);
 
   *port1 = port1_id;
   *port2 = port2_id;
@@ -206,9 +259,8 @@ void ExtensionMessageService::OpenChannelOnUIThreadImpl(
     JSONWriter::Write(tab_value, false, &tab_json);
   }
 
-  // Send each process the id for the opposite port.
-  channel.port2->Send(new ViewMsg_ExtensionHandleConnect(source_port_id,
-                                                         tab_json));
+  // Send the process the id for the opposite port.
+  DispatchOnConnect(channel.port2, source_port_id, tab_json);
 }
 
 int ExtensionMessageService::OpenAutomationChannelToExtension(
@@ -263,7 +315,7 @@ void ExtensionMessageService::PostMessageFromRenderer(
       IS_PORT1_ID(port_id) ? channel.port1 : channel.port2;
 
   int source_port_id = GET_OPPOSITE_PORT_ID(port_id);
-  dest->Send(new ViewMsg_ExtensionHandleMessage(message, source_port_id));
+  DispatchOnMessage(dest, message, source_port_id);
 }
 
 void ExtensionMessageService::DispatchEventToRenderers(
@@ -283,7 +335,7 @@ void ExtensionMessageService::DispatchEventToRenderers(
       continue;
     }
 
-    renderer->Send(new ViewMsg_ExtensionHandleEvent(event_name, event_args));
+    DispatchEvent(renderer, event_name, event_args);
   }
 }
 
@@ -308,12 +360,19 @@ void ExtensionMessageService::Observe(NotificationType type,
     }
   }
 
-  // Close any channels that share this renderer.
-  // TODO(mpcomplete): should we notify the other side of the port?
+  // Close any channels that share this renderer.  We notify the opposite
+  // port that his pair has closed.
   for (MessageChannelMap::iterator it = channels_.begin();
        it != channels_.end(); ) {
     MessageChannelMap::iterator current = it++;
-    if (current->second.port1 == renderer || current->second.port2 == renderer)
+    if (current->second.port1 == renderer) {
+      DispatchOnDisconnect(current->second.port2,
+                           GET_CHANNEL_PORT1(current->first));
       channels_.erase(current);
+    } else if (current->second.port2 == renderer) {
+      DispatchOnDisconnect(current->second.port1,
+                           GET_CHANNEL_PORT2(current->first));
+      channels_.erase(current);
+    }
   }
 }

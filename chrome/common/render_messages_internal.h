@@ -545,23 +545,11 @@ IPC_BEGIN_MESSAGES(View)
                       std::string /* response */,
                       std::string /* error */)
 
-  // Tell the extension process about a new channel that has been opened from a
-  // renderer.  source_port_id identifies the port that the extension can
-  // respond to.  tab_json is a JSON value for the tab that opened the
-  // connection, if any.
-  IPC_MESSAGE_CONTROL2(ViewMsg_ExtensionHandleConnect,
-                       int /* source_port_id */,
-                       std::string /* tab_json */)
-
-  // Send a javascript message to a renderer from the given port.
-  IPC_MESSAGE_CONTROL2(ViewMsg_ExtensionHandleMessage,
-                       std::string /* message */,
-                       int /* source_port_id */)
-
-  // Route a browser event to all extension renderers within this process.
-  IPC_MESSAGE_CONTROL2(ViewMsg_ExtensionHandleEvent,
-                       std::string /* event_name */,
-                       std::string /* event_data */)
+  // Call a javascript function in every registered context in this process.
+  // |args| is a list of primitive Value types that are passed to the function.
+  IPC_MESSAGE_CONTROL2(ViewMsg_ExtensionMessageInvoke,
+                       std::string /* function_name */,
+                       ListValue /* args */)
 
   // Tell the renderer process all known extension function names.
   IPC_MESSAGE_CONTROL1(ViewMsg_Extension_SetFunctionNames,

@@ -9,6 +9,7 @@
 
 #include <string>
 
+class ListValue;
 class RenderThreadBase;
 
 // This class adds extension-related javascript bindings to a renderer.  It is
@@ -21,19 +22,8 @@ class RendererExtensionBindings {
   // Creates an instance of the extension.
   static v8::Extension* Get();
 
-  // Notify any listeners that a message channel has been opened to this
-  // process.  |tab_json| is the info for the tab that initiated this
-  // connection, or "null" if the initiator was not a tab.
-  static void HandleConnect(int port_id, const std::string& tab_json);
-
-  // Dispatch the given message sent on this channel.
-  static void HandleMessage(const std::string& message, int port_id);
-
-  // Send this event to all extensions in this process. |args| is a JSON-
-  // serialized array that will be deserialized and provided to the callback
-  // function in event_bindings.js
-  static void HandleEvent(const std::string& event_name,
-                          const std::string& args);
+  // Call the given javascript function with the specified arguments.
+  static void Invoke(const std::string& function_name, const ListValue& args);
 };
 
 #endif  // CHROME_RENDERER_EXTENSIONS_RENDERER_EXTENSION_BINDINGS_H_

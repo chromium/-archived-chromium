@@ -226,12 +226,8 @@ void RenderThread::OnControlMessageReceived(const IPC::Message& msg) {
                         OnUpdateUserScripts)
     // TODO(rafaelw): create an ExtensionDispatcher that handles extension
     // messages seperates their handling from the RenderThread.
-    IPC_MESSAGE_HANDLER(ViewMsg_ExtensionHandleConnect,
-                        OnExtensionHandleConnect)
-    IPC_MESSAGE_HANDLER(ViewMsg_ExtensionHandleMessage,
-                        OnExtensionHandleMessage)
-    IPC_MESSAGE_HANDLER(ViewMsg_ExtensionHandleEvent,
-                        OnExtensionHandleEvent)
+    IPC_MESSAGE_HANDLER(ViewMsg_ExtensionMessageInvoke,
+                        OnExtensionMessageInvoke)
     IPC_MESSAGE_HANDLER(ViewMsg_Extension_SetFunctionNames,
                         OnSetExtensionFunctionNames)
     IPC_MESSAGE_HANDLER(ViewMsg_PurgePluginListCache,
@@ -382,19 +378,9 @@ void RenderThread::EnsureWebKitInitialized() {
     WebKit::enableMediaPlayer();
 }
 
-void RenderThread::OnExtensionHandleConnect(int port_id,
-                                            const std::string& tab_json) {
-  RendererExtensionBindings::HandleConnect(port_id, tab_json);
-}
-
-void RenderThread::OnExtensionHandleMessage(const std::string& message,
-                                            int port_id) {
-  RendererExtensionBindings::HandleMessage(message, port_id);
-}
-
-void RenderThread::OnExtensionHandleEvent(const std::string event_name,
-                                          const std::string event_data) {
-  RendererExtensionBindings::HandleEvent(event_name, event_data);
+void RenderThread::OnExtensionMessageInvoke(const std::string& function_name,
+                                            const ListValue& args) {
+  RendererExtensionBindings::Invoke(function_name, args);
 }
 
 void RenderThread::OnPurgePluginListCache() {

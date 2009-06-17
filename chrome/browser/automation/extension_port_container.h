@@ -12,6 +12,7 @@
 
 class AutomationProvider;
 class ExtensionMessageService;
+class ListValue;
 class MessageLoop;
 class RenderViewHost;
 
@@ -56,6 +57,9 @@ class ExtensionPortContainer : public IPC::Message::Sender {
                int connection_id);
   // Sends a response to the
   void SendConnectionResponse(int connection_id, int port_id);
+
+  void OnExtensionMessageInvoke(const std::string& function_name,
+                                const ListValue& args);
   void OnExtensionHandleMessage(const std::string& message, int source_port_id);
 
   // Our automation provider.

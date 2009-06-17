@@ -18,6 +18,7 @@
 class AppCacheDispatcher;
 class DevToolsAgentFilter;
 class FilePath;
+class ListValue;
 class NotificationService;
 class RenderDnsMaster;
 class RendererHistogram;
@@ -135,10 +136,8 @@ class RenderThread : public RenderThreadBase,
   // Send all histograms to browser.
   void OnGetRendererHistograms(int sequence_number);
 
-  void OnExtensionHandleConnect(int channel_id, const std::string& tab_json);
-  void OnExtensionHandleMessage(const std::string& message, int channel_id);
-  void OnExtensionHandleEvent(const std::string event_name,
-      const std::string event_data);
+  void OnExtensionMessageInvoke(const std::string& function_name,
+                                const ListValue& args);
   void OnPurgePluginListCache();
 
   // Gather usage statistics from the in-memory cache and inform our host.

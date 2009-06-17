@@ -6,6 +6,7 @@
 
 #include "app/resource_bundle.h"
 #include "base/basictypes.h"
+#include "base/values.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/renderer/extensions/bindings_utils.h"
 #include "chrome/renderer/extensions/event_bindings.h"
@@ -81,6 +82,51 @@ class ExtensionImpl : public v8::Extension {
   }
 };
 
+// Convert a ListValue to a vector of V8 values.
+static std::vector< v8::Handle<v8::Value> > ListValueToV8(
+    const ListValue& value) {
+  std::vector< v8::Handle<v8::Value> > v8_values;
+
+  for (size_t i = 0; i < value.GetSize(); ++i) {
+    Value* elem = NULL;
+    value.Get(i, &elem);
+    switch (elem->GetType()) {
+      case Value::TYPE_NULL:
+        v8_values.push_back(v8::Null());
+        break;
+      case Value::TYPE_BOOLEAN: {
+        bool val;
+        elem->GetAsBoolean(&val);
+        v8_values.push_back(v8::Boolean::New(val));
+        break;
+      }
+      case Value::TYPE_INTEGER: {
+        int val;
+        elem->GetAsInteger(&val);
+        v8_values.push_back(v8::Integer::New(val));
+        break;
+      }
+      case Value::TYPE_REAL: {
+        double val;
+        elem->GetAsReal(&val);
+        v8_values.push_back(v8::Number::New(val));
+        break;
+      }
+      case Value::TYPE_STRING: {
+        std::string val;
+        elem->GetAsString(&val);
+        v8_values.push_back(v8::String::New(val.c_str()));
+        break;
+      }
+      default:
+        NOTREACHED() << "Unsupported Value type.";
+        break;
+    }
+  }
+
+  return v8_values;
+}
+
 }  // namespace
 
 const char* RendererExtensionBindings::kName =
@@ -90,33 +136,9 @@ v8::Extension* RendererExtensionBindings::Get() {
   return new ExtensionImpl();
 }
 
-void RendererExtensionBindings::HandleConnect(int port_id,
-                                              const std::string& tab_json) {
+void RendererExtensionBindings::Invoke(const std::string& function_name,
+                                       const ListValue& args) {
   v8::HandleScope handle_scope;
-  v8::Handle<v8::Value> argv[2];
-  argv[0] = v8::Integer::New(port_id);
-  argv[1] = v8::String::New(tab_json.c_str());
-  EventBindings::CallFunction("chrome.Port.dispatchOnConnect_",
-                              arraysize(argv), argv);
-}
-
-void RendererExtensionBindings::HandleMessage(const std::string& message,
-                                              int port_id) {
-  v8::HandleScope handle_scope;
-  v8::Handle<v8::Value> argv[2];
-  argv[0] = v8::String::New(message.c_str());
-  argv[1] = v8::Integer::New(port_id);
-  EventBindings::CallFunction("chrome.Port.dispatchOnMessage_",
-                              arraysize(argv), argv);
-}
-
-void RendererExtensionBindings::HandleEvent(const std::string& event_name,
-                                            const std::string& args) {
-  v8::HandleScope handle_scope;
-  v8::Handle<v8::Value> argv[2];
-  argv[0] = v8::String::New(event_name.c_str());
-  argv[1] = v8::String::New(args.c_str());
-
-  EventBindings::CallFunction("chrome.Event.dispatchJSON_",
-                              arraysize(argv), argv);
+  std::vector< v8::Handle<v8::Value> > argv = ListValueToV8(args);
+  EventBindings::CallFunction(function_name, argv.size(), &argv[0]);
 }
