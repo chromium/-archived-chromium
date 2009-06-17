@@ -53,6 +53,9 @@ static int GetFlagsForEventButton(const GdkEventButton& event) {
   return flags;
 }
 
+// static
+GtkWidget* WidgetGtk::null_parent_ = NULL;
+
 ////////////////////////////////////////////////////////////////////////////////
 // WidgetGtk, public:
 
@@ -60,7 +63,7 @@ WidgetGtk::WidgetGtk(Type type)
     : is_window_(false),
       type_(type),
       widget_(NULL),
-      child_widget_parent_(NULL),
+      window_contents_(NULL),
       is_mouse_down_(false),
       has_capture_(false),
       last_mouse_event_was_move_(false),
@@ -84,7 +87,7 @@ void WidgetGtk::Init(GtkWidget* parent,
 #endif
 
   // Make container here.
-  CreateGtkWidget();
+  CreateGtkWidget(parent);
 
   // Make sure we receive our motion events.
 
@@ -92,7 +95,7 @@ void WidgetGtk::Init(GtkWidget* parent,
   // minimum we need painting to happen on the parent (otherwise painting
   // doesn't work at all), and similarly we need mouse release events on the
   // parent as windows don't get mouse releases.
-  gtk_widget_add_events(child_widget_parent_,
+  gtk_widget_add_events(window_contents_,
                         GDK_ENTER_NOTIFY_MASK |
                         GDK_LEAVE_NOTIFY_MASK |
                         GDK_BUTTON_PRESS_MASK |
@@ -109,33 +112,34 @@ void WidgetGtk::Init(GtkWidget* parent,
 
   MessageLoopForUI::current()->AddObserver(this);
 
-  g_signal_connect_after(G_OBJECT(child_widget_parent_), "size_allocate",
+  // TODO(beng): make these take this rather than NULL.
+  g_signal_connect_after(G_OBJECT(window_contents_), "size_allocate",
                          G_CALLBACK(CallSizeAllocate), NULL);
-  g_signal_connect(G_OBJECT(child_widget_parent_), "expose_event",
+  g_signal_connect(G_OBJECT(window_contents_), "expose_event",
                    G_CALLBACK(CallPaint), NULL);
-  g_signal_connect(G_OBJECT(child_widget_parent_), "enter_notify_event",
+  g_signal_connect(G_OBJECT(window_contents_), "enter_notify_event",
                    G_CALLBACK(CallEnterNotify), NULL);
-  g_signal_connect(G_OBJECT(child_widget_parent_), "leave_notify_event",
+  g_signal_connect(G_OBJECT(window_contents_), "leave_notify_event",
                    G_CALLBACK(CallLeaveNotify), NULL);
-  g_signal_connect(G_OBJECT(child_widget_parent_), "motion_notify_event",
+  g_signal_connect(G_OBJECT(window_contents_), "motion_notify_event",
                    G_CALLBACK(CallMotionNotify), NULL);
-  g_signal_connect(G_OBJECT(child_widget_parent_), "button_press_event",
+  g_signal_connect(G_OBJECT(window_contents_), "button_press_event",
                    G_CALLBACK(CallButtonPress), NULL);
-  g_signal_connect(G_OBJECT(child_widget_parent_), "button_release_event",
+  g_signal_connect(G_OBJECT(window_contents_), "button_release_event",
                    G_CALLBACK(CallButtonRelease), NULL);
-  g_signal_connect(G_OBJECT(child_widget_parent_), "grab_broken_event",
-                   G_CALLBACK(CallGrabBrokeEvent), NULL);
-  g_signal_connect(G_OBJECT(child_widget_parent_), "grab_notify",
-                   G_CALLBACK(CallGrabNotify), NULL);
-  g_signal_connect(G_OBJECT(child_widget_parent_), "focus_out_event",
+  g_signal_connect(G_OBJECT(window_contents_), "focus_out_event",
                    G_CALLBACK(CallFocusOut), NULL);
-  g_signal_connect(G_OBJECT(child_widget_parent_), "key_press_event",
+  g_signal_connect(G_OBJECT(window_contents_), "grab_broken_event",
+                   G_CALLBACK(CallGrabBrokeEvent), NULL);
+  g_signal_connect(G_OBJECT(window_contents_), "grab_notify",
+                   G_CALLBACK(CallGrabNotify), NULL);
+  g_signal_connect(G_OBJECT(window_contents_), "key_press_event",
                    G_CALLBACK(CallKeyPress), NULL);
-  g_signal_connect(G_OBJECT(child_widget_parent_), "key_release_event",
+  g_signal_connect(G_OBJECT(window_contents_), "key_release_event",
                    G_CALLBACK(CallKeyRelease), NULL);
-  g_signal_connect(G_OBJECT(child_widget_parent_), "scroll_event",
+  g_signal_connect(G_OBJECT(window_contents_), "scroll_event",
                    G_CALLBACK(CallScroll), NULL);
-  g_signal_connect(G_OBJECT(child_widget_parent_), "visibility_notify_event",
+  g_signal_connect(G_OBJECT(window_contents_), "visibility_notify_event",
                    G_CALLBACK(CallVisibilityNotify), NULL);
 
   // In order to receive notification when the window is no longer the front
@@ -167,10 +171,12 @@ void WidgetGtk::Init(GtkWidget* parent,
   tooltip_manager_.reset(new TooltipManagerGtk(this));
 
   if (type_ == TYPE_CHILD) {
-    WidgetGtk* parent_widget = GetViewForNative(parent);
-    parent_widget->AddChild(widget_);
-    parent_widget->PositionChild(widget_, bounds.x(), bounds.y(),
-                                 bounds.width(), bounds.height());
+    if (parent) {
+      WidgetGtk* parent_widget = GetViewForNative(parent);
+      parent_widget->AddChild(widget_);
+      parent_widget->PositionChild(widget_, bounds.x(), bounds.y(),
+                                   bounds.width(), bounds.height());
+    }
   } else {
     if (bounds.width() > 0 && bounds.height() > 0)
       gtk_window_resize(GTK_WINDOW(widget_), bounds.width(), bounds.height());
@@ -199,11 +205,15 @@ bool WidgetGtk::MakeTransparent() {
 }
 
 void WidgetGtk::AddChild(GtkWidget* child) {
-  gtk_container_add(GTK_CONTAINER(child_widget_parent_), child);
+  gtk_container_add(GTK_CONTAINER(window_contents_), child);
 }
 
 void WidgetGtk::RemoveChild(GtkWidget* child) {
-  gtk_container_remove(GTK_CONTAINER(child_widget_parent_), child);
+  gtk_container_remove(GTK_CONTAINER(window_contents_), child);
+}
+
+void WidgetGtk::ReparentChild(GtkWidget* child) {
+  gtk_widget_reparent(child, window_contents_);
 }
 
 void WidgetGtk::PositionChild(GtkWidget* child, int x, int y, int w, int h) {
@@ -211,7 +221,7 @@ void WidgetGtk::PositionChild(GtkWidget* child, int x, int y, int w, int h) {
   // For some reason we need to do both of these to size a widget.
   gtk_widget_size_allocate(child, &alloc);
   gtk_widget_set_size_request(child, w, h);
-  gtk_fixed_move(GTK_FIXED(child_widget_parent_), child, x, y);
+  gtk_fixed_move(GTK_FIXED(window_contents_), child, x, y);
 }
 
 void WidgetGtk::SetContentsView(View* view) {
@@ -389,10 +399,17 @@ void WidgetGtk::DidProcessEvent(GdkEvent* event) {
 ////////////////////////////////////////////////////////////////////////////////
 // TODO(beng): organize into sections:
 
-void WidgetGtk::CreateGtkWidget() {
+void WidgetGtk::CreateGtkWidget(GtkWidget* parent) {
   if (type_ == TYPE_CHILD) {
-    child_widget_parent_ = widget_ = gtk_fixed_new();
+    window_contents_ = widget_ = gtk_fixed_new();
     gtk_fixed_set_has_window(GTK_FIXED(widget_), true);
+    if (!parent && !null_parent_) {
+      GtkWidget* popup = gtk_window_new(GTK_WINDOW_POPUP);
+      null_parent_ = gtk_fixed_new();
+      gtk_container_add(GTK_CONTAINER(popup), null_parent_);
+      gtk_widget_realize(null_parent_);
+    }
+    gtk_container_add(GTK_CONTAINER(parent ? parent : null_parent_), widget_);
     SetViewForNative(widget_, this);
   } else {
     widget_ = gtk_window_new(
@@ -403,16 +420,15 @@ void WidgetGtk::CreateGtkWidget() {
     SetWindowForNative(widget_, static_cast<WindowGtk*>(this));
     SetViewForNative(widget_, this);
 
-    child_widget_parent_ = gtk_fixed_new();
-    gtk_fixed_set_has_window(GTK_FIXED(child_widget_parent_), true);
-    gtk_container_add(GTK_CONTAINER(widget_), child_widget_parent_);
-    gtk_widget_show(child_widget_parent_);
-    SetViewForNative(child_widget_parent_, this);
+    window_contents_ = gtk_fixed_new();
+    gtk_fixed_set_has_window(GTK_FIXED(window_contents_), true);
+    gtk_container_add(GTK_CONTAINER(widget_), window_contents_);
+    gtk_widget_show(window_contents_);
+    SetViewForNative(window_contents_, this);
 
     if (transparent_)
       ConfigureWidgetForTransparentBackground();
   }
-
   // The widget needs to be realized before handlers like size-allocate can
   // function properly.
   gtk_widget_realize(widget_);
@@ -500,12 +516,12 @@ gboolean WidgetGtk::OnGrabBrokeEvent(GtkWidget* widget, GdkEvent* event) {
 }
 
 void WidgetGtk::OnGrabNotify(GtkWidget* widget, gboolean was_grabbed) {
-  gtk_grab_remove(child_widget_parent_);
+  gtk_grab_remove(window_contents_);
   HandleGrabBroke();
 }
 
 void WidgetGtk::OnDestroy(GtkWidget* widget) {
-  widget_ = child_widget_parent_ = NULL;
+  widget_ = window_contents_ = NULL;
   root_view_->OnWidgetDestroyed();
   if (delete_on_destroy_)
     delete this;
@@ -564,7 +580,7 @@ bool WidgetGtk::ProcessMousePressed(GdkEventButton* event) {
     is_mouse_down_ = true;
     if (!has_capture_) {
       has_capture_ = true;
-      gtk_grab_add(child_widget_parent_);
+      gtk_grab_add(window_contents_);
     }
     return true;
   }
@@ -581,7 +597,7 @@ void WidgetGtk::ProcessMouseReleased(GdkEventButton* event) {
 
   if (has_capture_ && ReleaseCaptureOnMouseReleased()) {
     has_capture_ = false;
-    gtk_grab_remove(child_widget_parent_);
+    gtk_grab_remove(window_contents_);
   }
   is_mouse_down_ = false;
   root_view_->OnMouseReleased(mouse_up, false);
@@ -763,8 +779,7 @@ Window* WidgetGtk::GetWindowImpl(GtkWidget* widget) {
 }
 
 void WidgetGtk::ConfigureWidgetForTransparentBackground() {
-  DCHECK(widget_ && child_widget_parent_ &&
-         widget_ != child_widget_parent_);
+  DCHECK(widget_ && window_contents_ && widget_ != window_contents_);
 
   GdkColormap* rgba_colormap =
       gdk_screen_get_rgba_colormap(gdk_screen_get_default());
@@ -785,12 +800,12 @@ void WidgetGtk::ConfigureWidgetForTransparentBackground() {
   // Widget must be realized before setting pixmap.
   gdk_window_set_back_pixmap(widget_->window, NULL, FALSE);
 
-  gtk_widget_set_colormap(child_widget_parent_, rgba_colormap);
-  gtk_widget_set_app_paintable(child_widget_parent_, true);
-  GTK_WIDGET_UNSET_FLAGS(child_widget_parent_, GTK_DOUBLE_BUFFERED);
-  gtk_widget_realize(child_widget_parent_);
+  gtk_widget_set_colormap(window_contents_, rgba_colormap);
+  gtk_widget_set_app_paintable(window_contents_, true);
+  GTK_WIDGET_UNSET_FLAGS(window_contents_, GTK_DOUBLE_BUFFERED);
+  gtk_widget_realize(window_contents_);
   // Widget must be realized before setting pixmap.
-  gdk_window_set_back_pixmap(child_widget_parent_->window, NULL, FALSE);
+  gdk_window_set_back_pixmap(window_contents_->window, NULL, FALSE);
 }
 
 void WidgetGtk::HandleGrabBroke() {

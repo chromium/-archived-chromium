@@ -14,16 +14,12 @@
 namespace views {
 
 class View;
+class WidgetGtk;
 
 class NativeViewHostGtk : public NativeViewHostWrapper {
  public:
   explicit NativeViewHostGtk(NativeViewHost* host);
   virtual ~NativeViewHostGtk();
-
-  // Sets and retrieves the View associated with a particular widget.
-  // TODO(beng): move to NativeViewHost, and have take gfx::NativeViews.
-  static View* GetViewForNative(GtkWidget* widget);
-  static void SetViewForNative(GtkWidget* widget, View* view);
 
   // Overridden from NativeViewHostWrapper:
   virtual void NativeViewAttached();
@@ -38,6 +34,11 @@ class NativeViewHostGtk : public NativeViewHostWrapper {
   virtual void SetFocus();
 
  private:
+  WidgetGtk* GetHostWidget() const;
+
+  // Invoked from the 'destroy' signal.
+  static void CallDestroy(GtkObject* object, NativeViewHostGtk* host);
+
   // Our associated NativeViewHost.
   NativeViewHost* host_;
 
@@ -47,9 +48,6 @@ class NativeViewHostGtk : public NativeViewHostWrapper {
 
   // Signal handle id for 'destroy' signal.
   gulong destroy_signal_id_;
-
-  // Invoked from the 'destroy' signal.
-  static void CallDestroy(GtkObject* object);
 
   DISALLOW_COPY_AND_ASSIGN(NativeViewHostGtk);
 };

@@ -56,15 +56,25 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
     delete_on_destroy_ = delete_on_destroy;
   }
 
+  // Adds and removes the specified widget as a child of this widget's contents.
+  // These methods make sure to add the widget to the window's contents
+  // container if this widget is a window.
   void AddChild(GtkWidget* child);
   void RemoveChild(GtkWidget* child);
+
+  // A safe way to reparent a child widget to this widget. Calls
+  // gtk_widget_reparent which handles refcounting to avoid destroying the
+  // widget when removing it from its old parent.
+  void ReparentChild(GtkWidget* child);
 
   // Positions a child GtkWidget at the specified location and bounds.
   void PositionChild(GtkWidget* child, int x, int y, int w, int h);
 
-  // Parent GtkWidget all children are added to. This is not necessarily
-  // the same as returned by GetNativeView.
-  GtkWidget* child_widget_parent() const { return child_widget_parent_; }
+  // Parent GtkWidget all children are added to. When this WidgetGtk corresponds
+  // to a top level window, this is the GtkFixed within the GtkWindow, not the
+  // GtkWindow itself. For child widgets, this is the same GtkFixed as
+  // |widget_|.
+  GtkWidget* window_contents() const { return window_contents_; }
 
   virtual void SetContentsView(View* view);
 
@@ -174,7 +184,10 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
   static Window* GetWindowImpl(GtkWidget* widget);
 
   // Creates the GtkWidget.
-  void CreateGtkWidget();
+  void CreateGtkWidget(GtkWidget* parent);
+
+  // Attaches the widget contents to the window's widget.
+  void AttachGtkWidgetToWindow();
 
   // Invoked from create widget to enable the various bits needed for a
   // transparent background. This is only invoked if MakeTransparent has been
@@ -186,10 +199,15 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
   const Type type_;
 
   // Our native views. If we're a window/popup, then widget_ is the window and
-  // child_widget_parent_ is a GtkFixed. If we're not a window/popup, then
-  // widget_ and child_widget_parent_ are a GtkFixed.
+  // window_contents_ is a GtkFixed. If we're not a window/popup, then widget_
+  // and window_contents_ point to the same GtkFixed.
   GtkWidget* widget_;
-  GtkWidget* child_widget_parent_;
+  GtkWidget* window_contents_;
+
+  // Child GtkWidgets created with no parent need to be parented to a valid top
+  // level window otherwise Gtk throws a fit. |null_parent_| is an invisible
+  // popup that such GtkWidgets are parented to.
+  static GtkWidget* null_parent_;
 
   // The root of the View hierarchy attached to this window.
   scoped_ptr<RootView> root_view_;

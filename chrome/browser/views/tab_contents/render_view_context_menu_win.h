@@ -28,7 +28,7 @@ class RenderViewContextMenuWin : public RenderViewContextMenu,
                                           views::Accelerator* accelerator);
   virtual void ExecuteCommand(int command_id);
 
-  HMENU GetMenuHandle() const {
+  gfx::NativeMenu GetMenuHandle() const {
     return (menu_.get() ? menu_->GetNativeMenu() : NULL);
   }
 

@@ -1597,6 +1597,8 @@
         'browser/views/tab_contents/render_view_context_menu_win.h',
         'browser/views/tab_contents/render_view_context_menu_external_win.cc',
         'browser/views/tab_contents/render_view_context_menu_external_win.h',
+        'browser/views/tab_contents/tab_contents_view_gtk.cc',
+        'browser/views/tab_contents/tab_contents_view_gtk.h',
         'browser/views/tab_contents/tab_contents_view_win.cc',
         'browser/views/tab_contents/tab_contents_view_win.h',                
         'browser/views/tabs/dragged_tab_controller.cc',
@@ -1890,8 +1892,12 @@
                 ['include', '^browser/views/status_bubble_views.h'],
                 ['include', '^browser/views/tab_contents/native_tab_contents_container_gtk.cc'],
                 ['include', '^browser/views/tab_contents/native_tab_contents_container_gtk.h'],
+                ['include', '^browser/views/tab_contents/render_view_context_menu_win.cc'],
+                ['include', '^browser/views/tab_contents/render_view_context_menu_win.h'],
                 ['include', '^browser/views/tab_contents/tab_contents_container.cc'],
                 ['include', '^browser/views/tab_contents/tab_contents_container.h'],
+                ['include', '^browser/views/tab_contents/tab_contents_view_gtk.cc'],
+                ['include', '^browser/views/tab_contents/tab_contents_view_gtk.h'],
                 ['include', '^browser/views/tab_icon_view.cc'],
                 ['include', '^browser/views/tab_icon_view.h'],
                 ['include', '^browser/views/tabs/dragged_tab_controller.cc'],
@@ -1932,6 +1938,13 @@
 
                 # More GTK stuff to exclude outside of the browser/gtk directory
                 ['exclude', '^browser/bookmarks/bookmark_context_menu_gtk.cc'],
+
+                # Other excluded stuff.
+                ['exclude', '^browser/extensions/external_registry_extension_provider_win.cc'],
+                ['exclude', '^browser/tab_contents/tab_contents_view_gtk.cc'],
+                ['exclude', '^browser/tab_contents/tab_contents_view_gtk.h'],
+                ['exclude', '^browser/tab_contents/render_view_context_menu_gtk.cc'],
+                ['exclude', '^browser/tab_contents/render_view_context_menu_gtk.h'],
               ],
             }],
             ['linux2==1',{

@@ -36,7 +36,7 @@ class NativeButtonGtk : public NativeControlGtk, public NativeButtonWrapper {
   virtual bool IsCheckbox() const { return false; }
 
  private:
-  static void CallClicked(GtkButton* widget);
+  static void CallClicked(GtkButton* widget, NativeButtonGtk* button);
 
   // Invoked when the user clicks on the button.
   void OnClicked();

@@ -24,47 +24,21 @@ NativeViewHostGtk::NativeViewHostGtk(NativeViewHost* host)
 NativeViewHostGtk::~NativeViewHostGtk() {
 }
 
-// static
-View* NativeViewHostGtk::GetViewForNative(GtkWidget* widget) {
-  gpointer user_data = g_object_get_data(G_OBJECT(widget), "chrome-view");
-  return static_cast<View*>(user_data);
-}
-
-// static
-void NativeViewHostGtk::SetViewForNative(GtkWidget* widget, View* view) {
-  g_object_set_data(G_OBJECT(widget), "chrome-view", view);
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // NativeViewHostGtk, NativeViewHostWrapper implementation:
 
 void NativeViewHostGtk::NativeViewAttached() {
   DCHECK(host_->native_view());
 
-  GtkWidget* current_parent = gtk_widget_get_parent(host_->native_view());
-  GtkWidget* new_parent = host_->GetWidget()->GetNativeView();
-  // Only adjust the parent if the parent actually changed.
-  if (current_parent != new_parent) {
-    // First hide the new window. We don't want anything to draw (like sub-hwnd
-    // borders), when we change the parent below.
-    gtk_widget_hide(host_->native_view());
+  if (gtk_widget_get_parent(host_->native_view()))
+    GetHostWidget()->ReparentChild(host_->native_view());
+  else
+    GetHostWidget()->AddChild(host_->native_view());
 
-    if (current_parent) {
-      gtk_container_remove(GTK_CONTAINER(current_parent),
-                           host_->native_view());
-    }
-
-    // Adds a mapping between the GtkWidget and us.
-    SetViewForNative(host_->native_view(), host_);
-
-    if (!destroy_signal_id_) {
-      destroy_signal_id_ = g_signal_connect(G_OBJECT(host_->native_view()),
-                                            "destroy", G_CALLBACK(CallDestroy),
-                                            NULL);
-    }
-
-    // Set the parent.
-    static_cast<WidgetGtk*>(host_->GetWidget())->AddChild(host_->native_view());
+  if (!destroy_signal_id_) {
+    destroy_signal_id_ = g_signal_connect(G_OBJECT(host_->native_view()),
+                                          "destroy", G_CALLBACK(CallDestroy),
+                                          this);
   }
 
   // Always layout though.
@@ -88,9 +62,9 @@ void NativeViewHostGtk::NativeViewDetaching() {
 void NativeViewHostGtk::AddedToWidget() {
   if (!host_->native_view())
     return;
-  WidgetGtk* parent_widget = static_cast<WidgetGtk*>(host_->GetWidget());
+  WidgetGtk* parent_widget = GetHostWidget();
   GtkWidget* widget_parent = gtk_widget_get_parent(host_->native_view());
-  GtkWidget* parent_widget_widget = parent_widget->child_widget_parent();
+  GtkWidget* parent_widget_widget = parent_widget->window_contents();
   if (widget_parent != parent_widget_widget) {
     g_object_ref(host_->native_view());
     if (widget_parent)
@@ -110,10 +84,10 @@ void NativeViewHostGtk::RemovedFromWidget() {
   if (!host_->native_view())
     return;
 
-  WidgetGtk* parent_widget = static_cast<WidgetGtk*>(host_->GetWidget());
+  WidgetGtk* parent_widget = GetHostWidget();
   gtk_widget_hide(host_->native_view());
   if (parent_widget) {
-    gtk_container_remove(GTK_CONTAINER(parent_widget->child_widget_parent()),
+    gtk_container_remove(GTK_CONTAINER(parent_widget->window_contents()),
                          host_->native_view());
   }
 }
@@ -157,8 +131,7 @@ void NativeViewHostGtk::UninstallClip() {
 }
 
 void NativeViewHostGtk::ShowWidget(int x, int y, int w, int h) {
-  WidgetGtk* parent = static_cast<WidgetGtk*>(host_->GetWidget());
-  parent->PositionChild(host_->native_view(), x, y, w, h);
+  GetHostWidget()->PositionChild(host_->native_view(), x, y, w, h);
   gtk_widget_show(host_->native_view());
 }
 
@@ -173,13 +146,14 @@ void NativeViewHostGtk::SetFocus() {
 ////////////////////////////////////////////////////////////////////////////////
 // NativeViewHostGtk, private:
 
-// static
-void NativeViewHostGtk::CallDestroy(GtkObject* object) {
-  View* view = GetViewForNative(GTK_WIDGET(object));
-  if (!view)
-    return;
+WidgetGtk* NativeViewHostGtk::GetHostWidget() const {
+  return static_cast<WidgetGtk*>(host_->GetWidget());
+}
 
-  return static_cast<NativeViewHost*>(view)->NativeViewDestroyed();
+// static
+void NativeViewHostGtk::CallDestroy(GtkObject* object,
+                                    NativeViewHostGtk* host) {
+  return host->host_->NativeViewDestroyed();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -83,7 +83,7 @@ gfx::Size NativeButtonGtk::GetPreferredSize() {
 void NativeButtonGtk::CreateNativeControl() {
   GtkWidget* widget = gtk_button_new();
   g_signal_connect(G_OBJECT(widget), "clicked",
-                   G_CALLBACK(CallClicked), NULL);
+                   G_CALLBACK(CallClicked), this);
   NativeControlCreated(widget);
 }
 
@@ -96,10 +96,8 @@ void NativeButtonGtk::NativeControlCreated(GtkWidget* widget) {
 }
 
 // static
-void NativeButtonGtk::CallClicked(GtkButton* widget) {
-  View* view = NativeViewHostGtk::GetViewForNative(GTK_WIDGET(widget));
-  if (view)
-    static_cast<NativeButtonGtk*>(view)->OnClicked();
+void NativeButtonGtk::CallClicked(GtkButton* widget, NativeButtonGtk* button) {
+  button->OnClicked();
 }
 
 void NativeButtonGtk::OnClicked() {
