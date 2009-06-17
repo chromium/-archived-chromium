@@ -242,7 +242,6 @@
           'target_name': 'installer_util_unittests',
           'type': 'executable',
           'msvs_guid': '903F8C1E-537A-4C9E-97BE-075147CBE769',
-          'msvs_existing_vcproj': 'util/installer_util_unittests.vcproj',
           'dependencies': [
             'installer_util',
             'installer_util_strings',
