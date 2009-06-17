@@ -3082,6 +3082,7 @@
       'dependencies': [
         'app',
         'browser',
+        'debugger',
         'common',
         'chrome_resources',
         'chrome_strings',
