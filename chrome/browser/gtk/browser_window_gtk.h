@@ -206,9 +206,11 @@ class BrowserWindowGtk : public BrowserWindow,
   // Hides UI elements for unsupported window features.
   void HideUnsupportedWindowFeatures();
 
+  // Helper functions that query |browser_| concerning support for UI features
+  // in this window. (For example, a popup window might not support a tabstrip).
   bool IsTabStripSupported();
-
   bool IsToolbarSupported();
+  bool IsBookmarkBarSupported();
 
   NotificationRegistrar registrar_;
 

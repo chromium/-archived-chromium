@@ -538,15 +538,20 @@ bool BrowserWindowGtk::IsMaximized() const {
 }
 
 void BrowserWindowGtk::SetFullscreen(bool fullscreen) {
+  full_screen_ = fullscreen;
+  UpdateCustomFrame();
+
   if (fullscreen) {
-    full_screen_ = true;
-    tabstrip_->Hide();
+    // These three balanced by ShowSupportedWindowFeatures().
     toolbar_->Hide();
+    tabstrip_->Hide();
+    bookmark_bar_->Hide(false);
+
     gtk_window_fullscreen(window_);
   } else {
-    full_screen_ = false;
-    gtk_window_unfullscreen(window_);
     ShowSupportedWindowFeatures();
+
+    gtk_window_unfullscreen(window_);
   }
 }
 
@@ -731,6 +736,11 @@ void BrowserWindowGtk::TabStripEmpty() {
 
 void BrowserWindowGtk::MaybeShowBookmarkBar(TabContents* contents,
                                             bool animate) {
+  // Don't change the visibility state when the browser is full screen or if
+  // the bookmark bar isn't supported.
+  if (full_screen_ || !IsBookmarkBarSupported())
+    return;
+
   bool show_bar = false;
 
   if (browser_->SupportsWindowFeature(Browser::FEATURE_BOOKMARKBAR)
@@ -875,10 +885,10 @@ void BrowserWindowGtk::ConnectAccelerators() {
 
 
 void BrowserWindowGtk::UpdateCustomFrame() {
-  gtk_window_set_decorated(window_,
-                           !use_custom_frame_.GetValue());
-  titlebar_->UpdateCustomFrame(use_custom_frame_.GetValue());
-  if (use_custom_frame_.GetValue()) {
+  bool enable = use_custom_frame_.GetValue() && !full_screen_;
+  gtk_window_set_decorated(window_, !enable);
+  titlebar_->UpdateCustomFrame(enable);
+  if (enable) {
     gtk_alignment_set_padding(GTK_ALIGNMENT(window_container_), 0,
         kCustomFrameWidth, kCustomFrameWidth, kCustomFrameWidth);
   } else {
@@ -951,6 +961,9 @@ void BrowserWindowGtk::ShowSupportedWindowFeatures() {
 
   if (IsToolbarSupported())
     toolbar_->Show();
+
+  if (IsBookmarkBarSupported())
+    MaybeShowBookmarkBar(browser_->GetSelectedTabContents(), false);
 }
 
 void BrowserWindowGtk::HideUnsupportedWindowFeatures() {
@@ -959,6 +972,9 @@ void BrowserWindowGtk::HideUnsupportedWindowFeatures() {
 
   if (!IsToolbarSupported())
     toolbar_->Hide();
+
+  if (!IsBookmarkBarSupported())
+    bookmark_bar_->Hide(false);
 }
 
 bool BrowserWindowGtk::IsTabStripSupported() {
@@ -968,4 +984,8 @@ bool BrowserWindowGtk::IsTabStripSupported() {
 bool BrowserWindowGtk::IsToolbarSupported() {
   return browser_->SupportsWindowFeature(Browser::FEATURE_TOOLBAR) ||
          browser_->SupportsWindowFeature(Browser::FEATURE_LOCATIONBAR);
+}
+
+bool BrowserWindowGtk::IsBookmarkBarSupported() {
+  return browser_->SupportsWindowFeature(Browser::FEATURE_BOOKMARKBAR);
 }
