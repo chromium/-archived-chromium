@@ -563,6 +563,11 @@ class NotificationType {
 
     // Extensions --------------------------------------------------------------
 
+    // Sent when the known installed extensions have all been loaded.  In
+    // testing scenarios this can happen multiple times if extensions are
+    // unloaded and reloaded.
+    EXTENSIONS_READY,
+
     // Sent when new extensions are loaded. The details are an ExtensionList*.
     EXTENSIONS_LOADED,
 

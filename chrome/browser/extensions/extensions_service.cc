@@ -60,24 +60,6 @@ const char* ExtensionsServiceBackend::kTempExtensionName = "TEMP_INSTALL";
 
 namespace {
 
-////////////////////
-// Preferences keys
-
-// A preference that keeps track of per-extension settings. This is a dictionary
-// object read from the Preferences file, keyed off of extension id's.
-const wchar_t kExtensionsPref[] = L"extensions.settings";
-
-// Where an extension was installed from (Extension::Location)
-const wchar_t kPrefLocation[] = L"location";
-
-// Enabled, disabled, killed, etc. (Extension::State)
-const wchar_t kPrefState[] = L"state";
-
-// The path to the current version's manifest file.
-const wchar_t kPrefPath[] = L"path";
-
-////////////////////
-
 // A temporary subdirectory where we unpack extensions.
 const char* kUnpackExtensionDir = "TEMP_UNPACK";
 
@@ -231,22 +213,18 @@ class ExtensionsServiceBackend::UnpackerClient
 ExtensionsService::ExtensionsService(Profile* profile,
                                      MessageLoop* frontend_loop,
                                      MessageLoop* backend_loop)
-    : prefs_(profile->GetPrefs()),
+    : extension_prefs_(new ExtensionPrefs(profile->GetPrefs())),
       backend_loop_(backend_loop),
       install_directory_(profile->GetPath().AppendASCII(kInstallDirectoryName)),
       extensions_enabled_(
           CommandLine::ForCurrentProcess()->
           HasSwitch(switches::kEnableExtensions)),
       show_extensions_prompts_(true) {
-  if (!prefs_->FindPreference(kExtensionsPref))
-    prefs_->RegisterDictionaryPref(kExtensionsPref);
-
   // We pass ownership of this object to the Backend.
-  DictionaryValue* external_extensions = new DictionaryValue;
-  GetExternalExtensions(external_extensions, NULL);
+  DictionaryValue* extensions = extension_prefs_->CopyCurrentExtensions();
   backend_ = new ExtensionsServiceBackend(
           install_directory_, g_browser_process->resource_dispatcher_host(),
-          frontend_loop, external_extensions);
+          frontend_loop, extensions);
 }
 
 ExtensionsService::~ExtensionsService() {
@@ -280,22 +258,12 @@ void ExtensionsService::UninstallExtension(const std::string& extension_id) {
   Extension* extension = GetExtensionById(extension_id);
 
   // Callers should not send us nonexistant extensions.
-  CHECK(extension);
+  DCHECK(extension);
 
-  Extension::Location location = extension->location();
-
-  // For external extensions, we save a preference reminding ourself not to try
-  // and install the extension anymore.
-  if (Extension::IsExternalLocation(location)) {
-    UpdateExtensionPref(ASCIIToWide(extension_id), kPrefState,
-                        Value::CreateIntegerValue(Extension::KILLBIT), true);
-  } else {
-    DeleteExtensionPrefs(ASCIIToWide(extension_id));
-  }
+  extension_prefs_->OnExtensionUninstalled(extension);
 
   // Tell the backend to start deleting installed extensions on the file thread.
-  if (location == Extension::INTERNAL ||
-      Extension::IsExternalLocation(location)) {
+  if (Extension::LOAD != extension->location()) {
     backend_loop_->PostTask(FROM_HERE, NewRunnableMethod(backend_.get(),
         &ExtensionsServiceBackend::UninstallExtension, extension_id));
   }
@@ -310,22 +278,17 @@ void ExtensionsService::LoadExtension(const FilePath& extension_path) {
 }
 
 void ExtensionsService::LoadAllExtensions() {
-  // Load the extensions we know about from previous runs.
-  const DictionaryValue* extensions = prefs_->GetDictionary(kExtensionsPref);
-  if (extensions) {
-    DictionaryValue* copy =
-        static_cast<DictionaryValue*>(extensions->DeepCopy());
-    backend_loop_->PostTask(FROM_HERE, NewRunnableMethod(backend_.get(),
-        &ExtensionsServiceBackend::LoadExtensionsFromPrefs,
-        scoped_refptr<ExtensionsService>(this),
-        copy));
-  }
+  // Load the previously installed extensions.
+  backend_loop_->PostTask(FROM_HERE, NewRunnableMethod(backend_.get(),
+      &ExtensionsServiceBackend::LoadInstalledExtensions,
+      scoped_refptr<ExtensionsService>(this),
+      new InstalledExtensions(extension_prefs_.get())));
 }
 
 void ExtensionsService::CheckForUpdates() {
   // This installs or updates externally provided extensions.
   std::set<std::string> killed_extensions;
-  GetExternalExtensions(NULL, &killed_extensions);
+  extension_prefs_->GetKilledExtensionIds(&killed_extensions);
   backend_loop_->PostTask(FROM_HERE, NewRunnableMethod(backend_.get(),
       &ExtensionsServiceBackend::CheckForExternalUpdates,
       killed_extensions,
@@ -379,6 +342,13 @@ void ExtensionsService::GarbageCollectExtensions() {
       scoped_refptr<ExtensionsService>(this)));
 }
 
+void ExtensionsService::OnLoadedInstalledExtensions() {
+  NotificationService::current()->Notify(
+      NotificationType::EXTENSIONS_READY,
+      Source<ExtensionsService>(this),
+      NotificationService::NoDetails());
+}
+
 void ExtensionsService::OnExtensionsLoaded(ExtensionList* new_extensions) {
   scoped_ptr<ExtensionList> cleanup(new_extensions);
 
@@ -412,28 +382,17 @@ void ExtensionsService::OnExtensionsLoaded(ExtensionList* new_extensions) {
     }
   }
 
-  // TODO(erikkay) it would be nice if we could just return and send no
-  // notification if the list is empty.  However, UserScriptMaster depends on
-  // getting an initial notification after the first extensions have finished
-  // loading, so even if it's an empty message, we send it anyway.  We should
-  // come up with a way to do a "started" notification that has the semantics
-  // that UserScriptMaster is looking for.
-
-  NotificationService::current()->Notify(
-      NotificationType::EXTENSIONS_LOADED,
-      NotificationService::AllSources(),
-      Details<ExtensionList>(&enabled_extensions));
+  if (enabled_extensions.size()) {
+    NotificationService::current()->Notify(
+        NotificationType::EXTENSIONS_LOADED,
+        NotificationService::AllSources(),
+        Details<ExtensionList>(&enabled_extensions));
+  }
 }
 
 void ExtensionsService::OnExtensionInstalled(Extension* extension,
     Extension::InstallType install_type) {
-  std::wstring id = ASCIIToWide(extension->id());
-  UpdateExtensionPref(id, kPrefState,
-                      Value::CreateIntegerValue(Extension::ENABLED), false);
-  UpdateExtensionPref(id, kPrefLocation,
-                      Value::CreateIntegerValue(extension->location()), false);
-  UpdateExtensionPref(id, kPrefPath,
-      Value::CreateStringValue(extension->path().value()), true);
+  extension_prefs_->OnExtensionInstalled(extension);
 
   // If the extension is a theme, tell the profile (and therefore ThemeProvider)
   // to apply it.
@@ -474,60 +433,6 @@ Extension* ExtensionsService::GetExtensionByURL(const GURL& url) {
   return GetExtensionById(host);
 }
 
-void ExtensionsService::GetExternalExtensions(
-    DictionaryValue* external_extensions,
-    std::set<std::string>* killed_extensions) {
-  const DictionaryValue* dict = prefs_->GetDictionary(kExtensionsPref);
-  if (!dict || dict->GetSize() == 0)
-    return;
-
-  for (DictionaryValue::key_iterator i = dict->begin_keys();
-       i != dict->end_keys(); ++i) {
-    std::wstring key_name = *i;
-    if (!Extension::IdIsValid(WideToASCII(key_name))) {
-      LOG(WARNING) << "Invalid external extension ID encountered: "
-                   << WideToASCII(key_name);
-      continue;
-    }
-
-    DictionaryValue* extension = NULL;
-    if (!dict->GetDictionary(key_name, &extension)) {
-      NOTREACHED();
-      continue;
-    }
-
-    // Check to see if the extension has been killed.
-    int state;
-    if (extension->GetInteger(kPrefState, &state) &&
-        state == static_cast<int>(Extension::KILLBIT)) {
-      if (killed_extensions) {
-        StringToLowerASCII(&key_name);
-        killed_extensions->insert(WideToASCII(key_name));
-      }
-    }
-    // Return all extensions found.
-    if (external_extensions) {
-      DictionaryValue* result =
-          static_cast<DictionaryValue*>(extension->DeepCopy());
-      StringToLowerASCII(&key_name);
-      external_extensions->Set(key_name, result);
-    }
-  }
-}
-
-DictionaryValue* ExtensionsService::GetOrCreateExtensionPref(
-    const std::wstring& extension_id) {
-  DictionaryValue* dict = prefs_->GetMutableDictionary(kExtensionsPref);
-  DictionaryValue* extension = NULL;
-  if (!dict->GetDictionary(extension_id, &extension)) {
-    // Extension pref does not exist, create it.
-    extension = new DictionaryValue();
-    dict->Set(extension_id, extension);
-  }
-
-  return extension;
-}
-
 void ExtensionsService::ClearProvidersForTesting() {
   backend_loop_->PostTask(FROM_HERE, NewRunnableMethod(backend_.get(),
       &ExtensionsServiceBackend::ClearProvidersForTesting));
@@ -539,32 +444,6 @@ void ExtensionsService::SetProviderForTesting(
       &ExtensionsServiceBackend::SetProviderForTesting,
       location, test_provider));
 }
-
-bool ExtensionsService::UpdateExtensionPref(const std::wstring& extension_id,
-                                            const std::wstring& key,
-                                            Value* data_value,
-                                            bool schedule_save) {
-  DictionaryValue* extension = GetOrCreateExtensionPref(extension_id);
-  if (!extension->Set(key, data_value)) {
-    NOTREACHED() << L"Cannot modify key: '" << key.c_str()
-                 << "' for extension: '" << extension_id.c_str() << "'";
-    return false;
-  }
-
-  if (schedule_save)
-    prefs_->ScheduleSavePersistentPrefs();
-  return true;
-}
-
-void ExtensionsService::DeleteExtensionPrefs(
-    const std::wstring& extension_id) {
-  DictionaryValue* dict = prefs_->GetMutableDictionary(kExtensionsPref);
-  if (dict->HasKey(extension_id)) {
-    dict->Remove(extension_id, NULL);
-    prefs_->ScheduleSavePersistentPrefs();
-  }
-}
-
 
 // ExtensionsServicesBackend
 
@@ -589,53 +468,20 @@ ExtensionsServiceBackend::ExtensionsServiceBackend(
 ExtensionsServiceBackend::~ExtensionsServiceBackend() {
 }
 
-void ExtensionsServiceBackend::LoadExtensionsFromPrefs(
+void ExtensionsServiceBackend::LoadInstalledExtensions(
     scoped_refptr<ExtensionsService> frontend,
-    DictionaryValue* extension_prefs) {
-  scoped_ptr<DictionaryValue> prefs(extension_prefs);  // for cleanup
+    InstalledExtensions* installed) {
+  scoped_ptr<InstalledExtensions> cleanup(installed);
   frontend_ = frontend;
   alert_on_error_ = false;
-  scoped_ptr<ExtensionList> extensions(new ExtensionList);
-  DictionaryValue::key_iterator extension_id = extension_prefs->begin_keys();
-  for (; extension_id != extension_prefs->end_keys(); ++extension_id) {
-    DictionaryValue* ext;
-    if (!extension_prefs->GetDictionary(*extension_id, &ext)) {
-      NOTREACHED();
-      continue;
-    }
-    FilePath::StringType path;
-    if (ext->GetString(kPrefPath, &path)) {
-      Extension::Location location = Extension::INVALID;
-      int location_value;
-      DictionaryValue* pref = NULL;
-      extension_prefs->GetDictionary(*extension_id, &pref);
-      if (!pref || !pref->GetInteger(kPrefLocation, &location_value)) {
-        // TODO(erikkay) try to recover?
-        continue;
-      } else {
-        location = static_cast<Extension::Location>(location_value);
-      }
-      std::string id = WideToASCII(*extension_id);
-      if (Extension::IsExternalLocation(location) &&
-          CheckExternalUninstall(extension_prefs, FilePath(path), id)) {
-        // TODO(erikkay): Possibly defer this operation to avoid slowing initial
-        // load of extensions.
-        UninstallExtension(id);
 
-        // No error needs to be reported.  The extension effectively doesn't
-        // exist.
-        continue;
-      }
-      Extension* extension =
-          LoadExtension(FilePath(path), location, true);  // require id
-      if (extension)
-        extensions->push_back(extension);
-    } else {
-      // TODO(erikkay) bootstrap?
-    }
-  }
-  LOG(INFO) << "Done.";
-  ReportExtensionsLoaded(extensions.release());
+  // Call LoadInstalledExtension for each extension |installed| knows about.
+  scoped_ptr<InstalledExtensions::Callback> callback(
+      NewCallback(this, &ExtensionsServiceBackend::LoadInstalledExtension));
+  installed->VisitInstalledExtensions(callback.get());
+
+  frontend_loop_->PostTask(FROM_HERE, NewRunnableMethod(
+      frontend_, &ExtensionsService::OnLoadedInstalledExtensions));
 }
 
 void ExtensionsServiceBackend::GarbageCollectExtensions(
@@ -708,12 +554,34 @@ void ExtensionsServiceBackend::LoadSingleExtension(
 
   Extension* extension = LoadExtension(extension_path,
                                        Extension::LOAD,
-                                       false);  // don't require ID
+                                       false);  // Don't require id.
   if (extension) {
     ExtensionList* extensions = new ExtensionList;
     extensions->push_back(extension);
     ReportExtensionsLoaded(extensions);
   }
+}
+
+void ExtensionsServiceBackend::LoadInstalledExtension(
+    const std::string& id, const FilePath& path, Extension::Location location) {
+  if (CheckExternalUninstall(id, location)) {
+    // TODO(erikkay): Possibly defer this operation to avoid slowing initial
+    // load of extensions.
+    UninstallExtension(id);
+
+    // No error needs to be reported. The extension effectively doesn't exist.
+    return;
+  }
+
+  Extension* extension =
+      LoadExtension(FilePath(path), location, true);  // Require id.
+
+  // TODO(erikkay) now we only report a single extension loaded at a time.
+  // Perhaps we should change the notifications to remove ExtensionList.
+  ExtensionList* extensions = new ExtensionList;
+  if (extension)
+    extensions->push_back(extension);
+  ReportExtensionsLoaded(extensions);
 }
 
 DictionaryValue* ExtensionsServiceBackend::ReadManifest(FilePath manifest_path,
@@ -1331,23 +1199,7 @@ void ExtensionsServiceBackend::CheckForExternalUpdates(
 }
 
 bool ExtensionsServiceBackend::CheckExternalUninstall(
-    const DictionaryValue* extension_prefs, const FilePath& version_path,
-    const std::string& id) {
-  // First check the preferences for the kill-bit.
-  int location_value = Extension::INVALID;
-  DictionaryValue* extension = NULL;
-  if (!extension_prefs->GetDictionary(ASCIIToWide(id), &extension))
-    return false;
-  int state;
-  if (extension->GetInteger(kPrefLocation, &location_value) &&
-      location_value == Extension::EXTERNAL_PREF) {
-    return extension->GetInteger(kPrefState, &state) &&
-           state == Extension::KILLBIT;
-  }
-
-  Extension::Location location =
-      static_cast<Extension::Location>(location_value);
-
+    const std::string& id, Extension::Location location) {
   // Check if the providers know about this extension.
   ProviderMap::const_iterator i = external_extension_providers_.find(location);
   if (i != external_extension_providers_.end()) {
@@ -1355,6 +1207,9 @@ bool ExtensionsServiceBackend::CheckExternalUninstall(
     version.reset(i->second->RegisteredVersion(id, NULL));
     if (version.get())
       return false;  // Yup, known extension, don't uninstall.
+  } else {
+    // Not from an external provider, so it's fine.
+    return false;
   }
 
   return true;  // This is not a known extension, uninstall.
