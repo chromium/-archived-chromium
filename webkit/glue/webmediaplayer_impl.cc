@@ -97,7 +97,15 @@ WebMediaPlayerImpl::~WebMediaPlayerImpl() {
 void WebMediaPlayerImpl::load(const WebKit::WebURL& url) {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
-  // Initialize the pipeline
+  // Initialize the pipeline.
+  if (network_state_ != WebKit::WebMediaPlayer::Loading) {
+    network_state_ = WebKit::WebMediaPlayer::Loading;
+    client_->networkStateChanged();
+  }
+  if (ready_state_ != WebKit::WebMediaPlayer::HaveNothing) {
+    ready_state_ = WebKit::WebMediaPlayer::HaveNothing;
+    client_->readyStateChanged();
+  }
   pipeline_.Start(filter_factory_.get(), url.spec(),
       NewCallback(this, &WebMediaPlayerImpl::OnPipelineInitialize));
 }
@@ -279,6 +287,8 @@ void WebMediaPlayerImpl::WillDestroyCurrentMessageLoop() {
 }
 
 void WebMediaPlayerImpl::OnPipelineInitialize(bool successful) {
+  WebKit::WebMediaPlayer::ReadyState old_ready_state = ready_state_;
+  WebKit::WebMediaPlayer::NetworkState old_network_state = network_state_;
   if (successful) {
     // Since we have initialized the pipeline, say we have everything.
     // TODO(hclam): change this to report the correct status.
@@ -287,14 +297,20 @@ void WebMediaPlayerImpl::OnPipelineInitialize(bool successful) {
   } else {
     // TODO(hclam): should use pipeline_.GetError() to determine the state
     // properly and reports error using MediaError.
-    ready_state_ = WebKit::WebMediaPlayer::HaveNothing;
-    network_state_ = WebKit::WebMediaPlayer::NetworkError;
+    // WebKit uses FormatError to indicate an error for bogus URL or bad file.
+    // Since we are at the initialization stage we can safely treat every error
+    // as format error.
+    network_state_ = WebKit::WebMediaPlayer::FormatError;
   }
 
-  PostTask(kNetworkStateTaskIndex,
-           &WebKit::WebMediaPlayerClient::networkStateChanged);
-  PostTask(kReadyStateTaskIndex,
-           &WebKit::WebMediaPlayerClient::readyStateChanged);
+  if (network_state_ != old_network_state) {
+    PostTask(kNetworkStateTaskIndex,
+             &WebKit::WebMediaPlayerClient::networkStateChanged);
+  }
+  if (ready_state_ != old_ready_state) {
+    PostTask(kReadyStateTaskIndex,
+             &WebKit::WebMediaPlayerClient::readyStateChanged);
+  }
 }
 
 void WebMediaPlayerImpl::OnPipelineSeek(bool successful) {
