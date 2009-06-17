@@ -392,10 +392,13 @@ int BrowserMain(const MainFunctionParams& parameters) {
     // method at present.
     Profile* profile = NULL;
     OpenFirstRunDialog(profile, &process_singleton);
+
+#if defined(GOOGLE_CHROME_BUILD)
     // If user cancelled the first run dialog box, the first run sentinel file
     // didn't get created and we should exit Chrome.
     if (FirstRun::IsChromeFirstRun())
       return ResultCodes::NORMAL_EXIT;
+#endif
   }
 #endif  // OS_POSIX
 
