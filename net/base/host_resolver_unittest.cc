@@ -20,7 +20,6 @@
 #include "net/base/completion_callback.h"
 #include "net/base/host_resolver_unittest.h"
 #include "net/base/net_errors.h"
-#include "net/base/test_completion_callback.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using net::RuleBasedHostMapper;
@@ -702,7 +701,7 @@ class CapturingObserver : public net::HostResolver::Observer {
   // DnsResolutionObserver methods:
   virtual void OnStartResolution(int id,
                                  const net::HostResolver::RequestInfo& info) {
-    start_log.push_back(StartOrCancelEntry(id, info));
+    start_log.push_back(StartEntry(id, info));
   }
 
   virtual void OnFinishResolutionWithStatus(
@@ -712,17 +711,12 @@ class CapturingObserver : public net::HostResolver::Observer {
     finish_log.push_back(FinishEntry(id, was_resolved, info));
   }
 
-  virtual void OnCancelResolution(int id,
-                                  const net::HostResolver::RequestInfo& info) {
-    cancel_log.push_back(StartOrCancelEntry(id, info));
-  }
-
   // Tuple (id, info).
-  struct StartOrCancelEntry {
-    StartOrCancelEntry(int id, const net::HostResolver::RequestInfo& info)
+  struct StartEntry {
+    StartEntry(int id, const net::HostResolver::RequestInfo& info)
         : id(id), info(info) {}
 
-    bool operator==(const StartOrCancelEntry& other) const {
+    bool operator==(const StartEntry& other) const {
       return id == other.id && info == other.info;
     }
 
@@ -747,14 +741,11 @@ class CapturingObserver : public net::HostResolver::Observer {
     net::HostResolver::RequestInfo info;
   };
 
-  std::vector<StartOrCancelEntry> start_log;
+  std::vector<StartEntry> start_log;
   std::vector<FinishEntry> finish_log;
-  std::vector<StartOrCancelEntry> cancel_log;
 };
 
 // Test that registering, unregistering, and notifying of observers works.
-// Does not test the cancellation notification since all resolves are
-// synchronous.
 TEST_F(HostResolverTest, Observers) {
   net::HostResolver host_resolver;
 
@@ -766,44 +757,25 @@ TEST_F(HostResolverTest, Observers) {
 
   // Resolve "host1".
   net::HostResolver::RequestInfo info1("host1", 70);
-  int rv = host_resolver.Resolve(info1, &addrlist, NULL, NULL);
-  EXPECT_EQ(net::OK, rv);
+  host_resolver.Resolve(info1, &addrlist, NULL, NULL);
 
   EXPECT_EQ(1U, observer.start_log.size());
   EXPECT_EQ(1U, observer.finish_log.size());
-  EXPECT_EQ(0U, observer.cancel_log.size());
-  EXPECT_TRUE(observer.start_log[0] ==
-              CapturingObserver::StartOrCancelEntry(0, info1));
-  EXPECT_TRUE(observer.finish_log[0] ==
-              CapturingObserver::FinishEntry(0, true, info1));
-
-  // Resolve "host1" again -- this time it  will be served from cache, but it
-  // should still notify of completion.
-  TestCompletionCallback callback;
-  rv = host_resolver.Resolve(info1, &addrlist, &callback, NULL);
-  ASSERT_EQ(net::OK, rv);  // Should complete synchronously.
-
-  EXPECT_EQ(2U, observer.start_log.size());
-  EXPECT_EQ(2U, observer.finish_log.size());
-  EXPECT_EQ(0U, observer.cancel_log.size());
-  EXPECT_TRUE(observer.start_log[1] ==
-              CapturingObserver::StartOrCancelEntry(1, info1));
-  EXPECT_TRUE(observer.finish_log[1] ==
-              CapturingObserver::FinishEntry(1, true, info1));
+  EXPECT_TRUE(
+      observer.start_log[0] == CapturingObserver::StartEntry(0, info1));
+  EXPECT_TRUE(
+      observer.finish_log[0] == CapturingObserver::FinishEntry(0, true, info1));
 
   // Resolve "host2", setting referrer to "http://foobar.com"
   net::HostResolver::RequestInfo info2("host2", 70);
   info2.set_referrer(GURL("http://foobar.com"));
-  rv = host_resolver.Resolve(info2, &addrlist, NULL, NULL);
-  EXPECT_EQ(net::OK, rv);
+  host_resolver.Resolve(info2, &addrlist, NULL, NULL);
 
-  EXPECT_EQ(3U, observer.start_log.size());
-  EXPECT_EQ(3U, observer.finish_log.size());
-  EXPECT_EQ(0U, observer.cancel_log.size());
-  EXPECT_TRUE(observer.start_log[2] ==
-              CapturingObserver::StartOrCancelEntry(2, info2));
-  EXPECT_TRUE(observer.finish_log[2] ==
-              CapturingObserver::FinishEntry(2, true, info2));
+  EXPECT_EQ(2U, observer.start_log.size());
+  EXPECT_EQ(2U, observer.finish_log.size());
+  EXPECT_TRUE(observer.start_log[1] == CapturingObserver::StartEntry(1, info2));
+  EXPECT_TRUE(observer.finish_log[1] == CapturingObserver::FinishEntry(
+      1, true, info2));
 
   // Unregister the observer.
   host_resolver.RemoveObserver(&observer);
@@ -813,87 +785,8 @@ TEST_F(HostResolverTest, Observers) {
   host_resolver.Resolve(info3, &addrlist, NULL, NULL);
 
   // No effect this time, since observer was removed.
-  EXPECT_EQ(3U, observer.start_log.size());
-  EXPECT_EQ(3U, observer.finish_log.size());
-  EXPECT_EQ(0U, observer.cancel_log.size());
-}
-
-// Tests that observers are sent OnCancelResolution() whenever a request is
-// cancelled. There are two ways to cancel a request:
-//  (1) Delete the HostResolver while job is outstanding.
-//  (2) Call HostResolver::CancelRequest() while a request is outstanding.
-TEST_F(HostResolverTest, CancellationObserver) {
-  // Set a blocking mapper so we control when the resolver thread finishes.
-  scoped_refptr<WaitingHostMapper> mapper = new WaitingHostMapper();
-  ScopedHostMapper scoped_mapper(mapper.get());
-
-  CapturingObserver observer;
-  {
-    // Create a host resolver and attach an observer.
-    net::HostResolver host_resolver;
-    host_resolver.AddObserver(&observer);
-
-    TestCompletionCallback callback;
-
-    EXPECT_EQ(0U, observer.start_log.size());
-    EXPECT_EQ(0U, observer.finish_log.size());
-    EXPECT_EQ(0U, observer.cancel_log.size());
-
-    // Start an async resolve for (host1:70).
-    net::HostResolver::RequestInfo info1("host1", 70);
-    net::HostResolver::Request* req = NULL;
-    net::AddressList addrlist;
-    int rv = host_resolver.Resolve(info1, &addrlist, &callback, &req);
-    EXPECT_EQ(net::ERR_IO_PENDING, rv);
-    EXPECT_TRUE(NULL != req);
-
-    EXPECT_EQ(1U, observer.start_log.size());
-    EXPECT_EQ(0U, observer.finish_log.size());
-    EXPECT_EQ(0U, observer.cancel_log.size());
-
-    EXPECT_TRUE(observer.start_log[0] ==
-                CapturingObserver::StartOrCancelEntry(0, info1));
-
-    // Cancel the request (host mapper is blocked so it cant be finished yet).
-    host_resolver.CancelRequest(req);
-
-    EXPECT_EQ(1U, observer.start_log.size());
-    EXPECT_EQ(0U, observer.finish_log.size());
-    EXPECT_EQ(1U, observer.cancel_log.size());
-
-    EXPECT_TRUE(observer.cancel_log[0] ==
-                CapturingObserver::StartOrCancelEntry(0, info1));
-
-    // Start an async request for (host2:60)
-    net::HostResolver::RequestInfo info2("host2", 60);
-    rv = host_resolver.Resolve(info2, &addrlist, &callback, NULL);
-    EXPECT_EQ(net::ERR_IO_PENDING, rv);
-    EXPECT_TRUE(NULL != req);
-
-    EXPECT_EQ(2U, observer.start_log.size());
-    EXPECT_EQ(0U, observer.finish_log.size());
-    EXPECT_EQ(1U, observer.cancel_log.size());
-
-    EXPECT_TRUE(observer.start_log[1] ==
-                CapturingObserver::StartOrCancelEntry(1, info2));
-
-    // Upon exiting this scope, HostResolver is destroyed, so all requests are
-    // implicitly cancelled.
-  }
-
-  // Check that destroying the HostResolver sent a notification for
-  // cancellation of host2:60 request.
-
   EXPECT_EQ(2U, observer.start_log.size());
-  EXPECT_EQ(0U, observer.finish_log.size());
-  EXPECT_EQ(2U, observer.cancel_log.size());
-
-  net::HostResolver::RequestInfo info("host2", 60);
-  EXPECT_TRUE(observer.cancel_log[1] ==
-              CapturingObserver::StartOrCancelEntry(1, info));
-
-  // Unblock the host mapper to let the worker threads finish.
-  mapper->Signal();
+  EXPECT_EQ(2U, observer.finish_log.size());
 }
 
 }  // namespace

@@ -106,18 +106,13 @@ class HostResolver {
 
     // Called at the start of HostResolver::Resolve(). |id| is a unique number
     // given to the request, so it can be matched up with a corresponding call
-    // to OnFinishResolutionWithStatus() or OnCancelResolution().
+    // to OnFinishResolutionWithStatus().
     virtual void OnStartResolution(int id, const RequestInfo& info) = 0;
 
     // Called on completion of request |id|. Note that if the request was
-    // cancelled, OnCancelResolution() will be called instead.
+    // cancelled, OnFinishResolutionWithStatus() will not be called.
     virtual void OnFinishResolutionWithStatus(int id, bool was_resolved,
                                               const RequestInfo& info) = 0;
-
-    // Called when request |id| has been cancelled. A request is "cancelled"
-    // if either the HostResolver is destroyed while a resolution is in
-    // progress, or HostResolver::CancelRequest() is called.
-    virtual void OnCancelResolution(int id, const RequestInfo& info) = 0;
   };
 
   // Creates a HostResolver that caches up to |max_cache_entries| for
@@ -180,18 +175,14 @@ class HostResolver {
   // Callback for when |job| has completed with |error| and |addrlist|.
   void OnJobComplete(Job* job, int error, const AddressList& addrlist);
 
-  // Notify all observers of the start of a resolve request.
+  // Notify all obsevers of the start of a resolve request.
   void NotifyObserversStartRequest(int request_id,
                                    const RequestInfo& info);
 
-  // Notify all observers of the completion of a resolve request.
+  // Notify all obsevers of the completion of a resolve request.
   void NotifyObserversFinishRequest(int request_id,
                                     const RequestInfo& info,
                                     int error);
-
-  // Notify all observers of the cancellation of a resolve request.
-  void NotifyObserversCancelRequest(int request_id,
-                                    const RequestInfo& info);
 
   // Cache of host resolution results.
   HostCache cache_;
