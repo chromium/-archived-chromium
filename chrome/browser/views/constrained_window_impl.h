@@ -53,11 +53,6 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   // ConstrainedWindow.
   ConstrainedWindowImpl(TabContents* owner,
                         views::WindowDelegate* window_delegate);
-  void Init();
-
-  // Initialize the Constrained Window as a Constrained Dialog containing a
-  // views::View client area.
-  void InitAsDialog(const gfx::Rect& initial_bounds);
 
   // Moves this window to the front of the Z-order and registers us with the
   // focus manager.

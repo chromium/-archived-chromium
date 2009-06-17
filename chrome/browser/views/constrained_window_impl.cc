@@ -626,18 +626,13 @@ ConstrainedWindowImpl::ConstrainedWindowImpl(
     : WindowWin(window_delegate),
       owner_(owner) {
   GetNonClientView()->SetFrameView(CreateFrameViewForWindow());
-  Init();
-}
 
-void ConstrainedWindowImpl::Init() {
   focus_restoration_disabled_ = false;
   set_window_style(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CAPTION |
                    WS_THICKFRAME | WS_SYSMENU);
   set_focus_on_creation(false);
-}
 
-void ConstrainedWindowImpl::InitAsDialog(const gfx::Rect& initial_bounds) {
-  WindowWin::Init(owner_->GetNativeView(), initial_bounds);
+  WindowWin::Init(owner_->GetNativeView(), gfx::Rect());
   ActivateConstrainedWindow();
 }
 
@@ -720,17 +715,12 @@ void ConstrainedWindowImpl::OnWindowPosChanged(WINDOWPOS* window_pos) {
   SetMsgHandled(FALSE);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// ConstrainedWindow, public:
 
 // static
 ConstrainedWindow* ConstrainedWindow::CreateConstrainedDialog(
     TabContents* parent,
-    const gfx::Rect& initial_bounds,
-    views::View* contents_view,
     views::WindowDelegate* window_delegate) {
   ConstrainedWindowImpl* window = new ConstrainedWindowImpl(parent,
                                                             window_delegate);
-  window->InitAsDialog(initial_bounds);
   return window;
 }

@@ -741,11 +741,10 @@ void TabContents::CreateShortcut() {
 
 #if defined(OS_WIN)
 ConstrainedWindow* TabContents::CreateConstrainedDialog(
-    views::WindowDelegate* window_delegate,
-    views::View* contents_view) {
+    views::WindowDelegate* window_delegate) {
   ConstrainedWindow* window =
       ConstrainedWindow::CreateConstrainedDialog(
-          this, gfx::Rect(), contents_view, window_delegate);
+          this, window_delegate);
   child_windows_.push_back(window);
   return window;
 }

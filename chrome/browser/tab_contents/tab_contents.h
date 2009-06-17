@@ -330,8 +330,7 @@ class TabContents : public PageNavigator,
   // is sized according to the preferred size of the content_view, and centered
   // within the contents.
   ConstrainedWindow* CreateConstrainedDialog(
-      views::WindowDelegate* window_delegate,
-      views::View* contents_view);
+      views::WindowDelegate* window_delegate);
 #endif
 
   // Adds a new tab or window with the given already-created contents

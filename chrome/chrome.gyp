@@ -1119,6 +1119,7 @@
         'browser/location_bar.h',
         'browser/login_prompt.cc',
         'browser/login_prompt.h',
+        'browser/login_prompt_win.cc',
         'browser/memory_details.cc',
         'browser/memory_details.h',
         'browser/meta_table_helper.cc',

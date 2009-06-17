@@ -36,8 +36,6 @@ class ConstrainedWindow {
   // within the constraining TabContents.
   static ConstrainedWindow* CreateConstrainedDialog(
       TabContents* owner,
-      const gfx::Rect& initial_bounds,
-      views::View* contents_view,
       views::WindowDelegate* window_delegate);
 
   // Closes the Constrained Window.

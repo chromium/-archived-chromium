@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_LOGIN_PROMPT_H__
-#define CHROME_BROWSER_LOGIN_PROMPT_H__
+#ifndef CHROME_BROWSER_LOGIN_PROMPT_H_
+#define CHROME_BROWSER_LOGIN_PROMPT_H_
 
 #include <string>
 
@@ -13,8 +13,14 @@ namespace net {
 class AuthChallengeInfo;
 }
 
+namespace webkit_glue {
+struct PasswordForm;
+}
+
+class ConstrainedWindow;
 class GURL;
 class MessageLoop;
+class PasswordManager;
 class TabContents;
 class URLRequest;
 
@@ -24,6 +30,22 @@ class URLRequest;
 // a thread safe manner.
 class LoginHandler {
  public:
+  // Builds the platform specific LoginHandler. Used from within
+  // CreateLoginPrompt() which creates tasks.
+  static LoginHandler* Create(URLRequest* request, MessageLoop* ui_loop);
+
+  // Initializes the underlying platform specific view.
+  virtual void BuildViewForPasswordManager(PasswordManager* manager,
+                                           std::wstring explanation) = 0;
+
+  // Sets information about the authentication type (|form|) and the
+  // |password_manager| for this profile.
+  virtual void SetPasswordForm(const webkit_glue::PasswordForm& form) = 0;
+  virtual void SetPasswordManager(PasswordManager* password_manager) = 0;
+
+  // Returns the TabContents that needs authentication.
+  virtual TabContents* GetTabContentsForLogin() = 0;
+
   // Resend the request with authentication credentials.
   // This function can be called from either thread.
   virtual void SetAuth(const std::wstring& username,
@@ -66,9 +88,12 @@ LoginHandler* CreateLoginPrompt(net::AuthChallengeInfo* auth_info,
                                 URLRequest* request,
                                 MessageLoop* ui_loop);
 
+// Helper to remove the ref from an URLRequest to the LoginHandler.
+// Should only be called from the IO thread, since it accesses an URLRequest.
+void ResetLoginHandlerForRequest(URLRequest* request);
 
 // Get the signon_realm under which the identity should be saved.
 std::string GetSignonRealm(const GURL& url,
                            const net::AuthChallengeInfo& auth_info);
 
-#endif  // CHROME_BROWSER_LOGIN_PROMPT_H__
+#endif  // CHROME_BROWSER_LOGIN_PROMPT_H_

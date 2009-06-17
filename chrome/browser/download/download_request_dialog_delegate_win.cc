@@ -26,7 +26,7 @@ DownloadRequestDialogDelegateWin::DownloadRequestDialogDelegateWin(
       MessageBoxFlags::kIsConfirmMessageBox,
       l10n_util::GetString(IDS_MULTI_DOWNLOAD_WARNING),
       std::wstring());
-  window_ = tab->CreateConstrainedDialog(this, message_view_);
+  window_ = tab->CreateConstrainedDialog(this);
 }
 
 void DownloadRequestDialogDelegateWin::CloseWindow() {
