@@ -93,8 +93,9 @@ void DomAgentImpl::SetDocument(Document* doc) {
 }
 
 void DomAgentImpl::StartListening(Document* doc) {
-  if (documents_.contains(doc))
+  if (documents_.contains(doc)) {
     return;
+  }
   doc->addEventListener(eventNames().DOMContentLoadedEvent, event_listener_,
       false);
   doc->addEventListener(eventNames().DOMNodeInsertedEvent, event_listener_,
@@ -109,6 +110,9 @@ void DomAgentImpl::StartListening(Document* doc) {
 }
 
 void DomAgentImpl::StopListening(Document* doc) {
+  if (!documents_.contains(doc)) {
+    return;
+  }
   doc->removeEventListener(eventNames().DOMContentLoadedEvent,
       event_listener_.get(), false);
   doc->removeEventListener(eventNames().DOMNodeInsertedEvent,
