@@ -460,8 +460,13 @@
           'include_dirs': [
             '../..',
             '<(INTERMEDIATE_DIR)',
-            '<(SHARED_INTERMEDIATE_DIR)',
+            '<(SHARED_INTERMEDIATE_DIR)/setup',
           ],
+          'direct_dependent_settings': {
+            'include_dirs': [
+              '<(SHARED_INTERMEDIATE_DIR)/setup',
+            ],
+          },
           'sources': [
             'mini_installer/chrome.release',
             'setup/install.cc',
@@ -474,6 +479,8 @@
             'setup/setup_constants.h',
             'setup/setup_exe_version.rc.version',
             'setup/setup_resource.h',
+            'setup/setup_util.cc',
+            'setup/setup_util.h',
             'setup/uninstall.cc',
             'setup/uninstall.h',
           ],
@@ -497,7 +504,7 @@
                 '<(branding_dir)/BRANDING',
               ],
               'outputs': [
-                '<(SHARED_INTERMEDIATE_DIR)/setup_exe_version.rc',
+                '<(SHARED_INTERMEDIATE_DIR)/setup/setup_exe_version.rc',
               ],
               'action': [
                 'python', '<(version_py)',
