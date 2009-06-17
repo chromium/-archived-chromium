@@ -488,6 +488,7 @@ void HostResolver::CancelRequest(Request* req) {
   DCHECK(req->job());
   // NULL out the fields of req, to mark it as cancelled.
   req->MarkAsCancelled();
+  NotifyObserversCancelRequest(req->id(), req->info());
 }
 
 void HostResolver::AddObserver(Observer* observer) {
@@ -575,6 +576,14 @@ void HostResolver::NotifyObserversFinishRequest(int request_id,
   for (ObserversList::iterator it = observers_.begin();
        it != observers_.end(); ++it) {
     (*it)->OnFinishResolutionWithStatus(request_id, was_resolved, info);
+  }
+}
+
+void HostResolver::NotifyObserversCancelRequest(int request_id,
+                                                const RequestInfo& info) {
+  for (ObserversList::iterator it = observers_.begin();
+       it != observers_.end(); ++it) {
+    (*it)->OnCancelResolution(request_id, info);
   }
 }
 

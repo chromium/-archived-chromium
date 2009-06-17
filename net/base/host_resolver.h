@@ -189,6 +189,10 @@ class HostResolver {
                                     const RequestInfo& info,
                                     int error);
 
+  // Notify all observers of the cancellation of a resolve request.
+  void NotifyObserversCancelRequest(int request_id,
+                                    const RequestInfo& info);
+
   // Cache of host resolution results.
   HostCache cache_;
 

@@ -822,7 +822,7 @@ TEST_F(HostResolverTest, Observers) {
 // cancelled. There are two ways to cancel a request:
 //  (1) Delete the HostResolver while job is outstanding.
 //  (2) Call HostResolver::CancelRequest() while a request is outstanding.
-TEST_F(HostResolverTest, DISABLED_CancellationObserver) {
+TEST_F(HostResolverTest, CancellationObserver) {
   // Set a blocking mapper so we control when the resolver thread finishes.
   scoped_refptr<WaitingHostMapper> mapper = new WaitingHostMapper();
   ScopedHostMapper scoped_mapper(mapper.get());
@@ -863,7 +863,8 @@ TEST_F(HostResolverTest, DISABLED_CancellationObserver) {
 
     EXPECT_TRUE(observer.cancel_log[0] ==
                 CapturingObserver::StartOrCancelEntry(0, info1));
-
+  }
+#if 0
     // Start an async request for (host2:60)
     net::HostResolver::RequestInfo info2("host2", 60);
     rv = host_resolver.Resolve(info2, &addrlist, &callback, NULL);
@@ -891,7 +892,7 @@ TEST_F(HostResolverTest, DISABLED_CancellationObserver) {
   net::HostResolver::RequestInfo info("host2", 60);
   EXPECT_TRUE(observer.cancel_log[1] ==
               CapturingObserver::StartOrCancelEntry(1, info));
-
+#endif
   // Unblock the host mapper to let the worker threads finish.
   mapper->Signal();
 }
