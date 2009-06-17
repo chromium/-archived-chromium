@@ -3054,6 +3054,11 @@ class ResolutionReferrerObserver : public HostResolver::Observer {
       called_finish_with_referrer_ = true;
   }
 
+  virtual void OnCancelResolution(int id,
+                                  const HostResolver::RequestInfo& info ) {
+    FAIL() << "Should not be cancelling any requests!";
+  }
+
   bool did_complete_with_expected_referrer() const {
     return called_start_with_referrer_ && called_finish_with_referrer_;
   }

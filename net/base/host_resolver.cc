@@ -184,7 +184,7 @@ class HostResolver::Request {
         addresses_(addresses) {}
 
   // Mark the request as cancelled.
-  void Cancel() {
+  void MarkAsCancelled() {
     job_ = NULL;
     callback_ = NULL;
     addresses_ = NULL;
@@ -291,8 +291,12 @@ class HostResolver::Job : public base::RefCountedThreadSafe<HostResolver::Job> {
   void Cancel() {
     resolver_ = NULL;
 
-    AutoLock locked(origin_loop_lock_);
-    origin_loop_ = NULL;
+    // Mark the job as cancelled, so when worker thread completes it will
+    // not try to post completion to origin loop.
+    {
+      AutoLock locked(origin_loop_lock_);
+      origin_loop_ = NULL;
+    }
   }
 
   // Called from origin thread.
@@ -483,7 +487,7 @@ void HostResolver::CancelRequest(Request* req) {
   DCHECK(req);
   DCHECK(req->job());
   // NULL out the fields of req, to mark it as cancelled.
-  req->Cancel();
+  req->MarkAsCancelled();
 }
 
 void HostResolver::AddObserver(Observer* observer) {
