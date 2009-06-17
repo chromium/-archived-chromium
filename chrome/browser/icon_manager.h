@@ -70,15 +70,15 @@ class IconManager : public IconLoader::Delegate,
   SkBitmap* LookupIcon(const FilePath& file_name,
                        IconLoader::IconSize size);
 
-  // Asynchronous call to lookup and return the icon associated with file. The
-  // work is done on the file thread, with the callbacks running on the UI
-  // thread. The return value is the 'request_id' that will be passed to the
-  // client in the callback.
-  //
-  // WATCH OUT: The returned bitmap pointer may be NULL if decoding failed.
   typedef CancelableRequestProvider::Handle Handle;
   typedef Callback2<Handle, SkBitmap*>::Type IconRequestCallback;
 
+  // Asynchronous call to lookup and return the icon associated with file. The
+  // work is done on the file thread, with the callbacks running on the UI
+  // thread. The return value is the 'request_id' that will be passed to the
+  // client in the callback. Note: this does *not* check the cache.
+  //
+  // WATCH OUT: The returned bitmap pointer may be NULL if decoding failed.
   Handle LoadIcon(const FilePath& file_name,
                   IconLoader::IconSize size,
                   CancelableRequestConsumerBase* consumer,

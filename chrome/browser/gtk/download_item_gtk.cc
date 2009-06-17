@@ -603,9 +603,24 @@ gboolean DownloadItemGtk::OnProgressAreaExpose(GtkWidget* widget,
 
   // TODO(estade): draw a default icon if |icon_| is null.
   if (download_item->icon_) {
-    canvas.DrawBitmapInt(*download_item->icon_,
-        widget->allocation.x + download_util::kSmallProgressIconOffset,
-        widget->allocation.y + download_util::kSmallProgressIconOffset);
+    int width = download_item->icon_->width();
+    int height = download_item->icon_->height();
+    // Sometimes we get back icons that are the wrong size. Draw the correct
+    // size. This code should hopefully be made obsolete after we support SVG
+    // icons (although it could still be hit if a theme doesn't provide SVG or
+    // 16x16).
+    const int sixteen = download_util::kSmallIconSize;
+    const int offset = download_util::kSmallProgressIconOffset;
+    if (sixteen != width || sixteen != height) {
+      // Draw the bitmap at a reduced scale.
+      download_item->icon_->buildMipMap(false);
+      canvas.DrawBitmapInt(*download_item->icon_, 0, 0, width, height,
+          widget->allocation.x + offset, widget->allocation.y + offset,
+          sixteen, sixteen, true);
+    } else {
+       canvas.DrawBitmapInt(*download_item->icon_,
+          widget->allocation.x + offset, widget->allocation.y + offset);
+    }
   }
 
   return TRUE;
@@ -621,8 +636,6 @@ gboolean DownloadItemGtk::OnMenuButtonPressEvent(GtkWidget* button,
     item->complete_animation_->End();
   }
 
-  // TODO(port): this never puts the button into the "active" state,
-  // so this may need to be changed. See note in BrowserToolbarGtk.
   if (event->type == GDK_BUTTON_PRESS) {
     GdkEventButton* event_button = reinterpret_cast<GdkEventButton*>(event);
     if (event_button->button == 1) {
