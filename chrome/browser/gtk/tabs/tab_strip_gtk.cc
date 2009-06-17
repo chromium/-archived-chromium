@@ -681,6 +681,10 @@ void TabStripGtk::TabInsertedAt(TabContents* contents,
   // Don't animate the first tab; it looks weird.
   if (GetTabCount() > 1) {
     StartInsertTabAnimation(index);
+    // We added the tab at 0x0, we need to force an animation step otherwise
+    // if GTK paints before the animation event the tab is painted at 0x0
+    // which is most likely not where it should be positioned.
+    active_animation_->AnimationProgressed(NULL);
   } else {
     Layout();
   }
