@@ -912,7 +912,7 @@ void MetricsService::StartLogTransmissionTimer() {
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
       log_sender_factory_.
           NewRunnableMethod(&MetricsService::LogTransmissionTimerDone),
-      static_cast<int>(interlog_duration_.InMilliseconds()));
+      interlog_duration_.InMilliseconds());
 }
 
 void MetricsService::LogTransmissionTimerDone() {

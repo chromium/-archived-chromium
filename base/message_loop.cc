@@ -232,7 +232,7 @@ void MessageLoop::PostTask(
 }
 
 void MessageLoop::PostDelayedTask(
-    const tracked_objects::Location& from_here, Task* task, int delay_ms) {
+    const tracked_objects::Location& from_here, Task* task, int64 delay_ms) {
   PostTask_Helper(from_here, task, delay_ms, true);
 }
 
@@ -242,13 +242,13 @@ void MessageLoop::PostNonNestableTask(
 }
 
 void MessageLoop::PostNonNestableDelayedTask(
-    const tracked_objects::Location& from_here, Task* task, int delay_ms) {
+    const tracked_objects::Location& from_here, Task* task, int64 delay_ms) {
   PostTask_Helper(from_here, task, delay_ms, false);
 }
 
 // Possibly called on a background thread!
 void MessageLoop::PostTask_Helper(
-    const tracked_objects::Location& from_here, Task* task, int delay_ms,
+    const tracked_objects::Location& from_here, Task* task, int64 delay_ms,
     bool nestable) {
   task->SetBirthPlace(from_here);
 

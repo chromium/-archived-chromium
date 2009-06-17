@@ -207,17 +207,17 @@ bool WaitForExitCode(ProcessHandle handle, int* exit_code);
 // Returns after all processes have exited or wait_milliseconds have expired.
 // Returns true if all the processes exited, false otherwise.
 bool WaitForProcessesToExit(const std::wstring& executable_name,
-                            int wait_milliseconds,
+                            int64 wait_milliseconds,
                             const ProcessFilter* filter);
 
 // Wait for a single process to exit. Return true if it exited cleanly within
 // the given time limit.
 bool WaitForSingleProcess(ProcessHandle handle,
-                          int wait_milliseconds);
+                          int64 wait_milliseconds);
 
 // Returns true when |wait_milliseconds| have elapsed and the process
 // is still running.
-bool CrashAwareSleep(ProcessHandle handle, int wait_milliseconds);
+bool CrashAwareSleep(ProcessHandle handle, int64 wait_milliseconds);
 
 // Waits a certain amount of time (can be 0) for all the processes with a given
 // executable name to exit, then kills off any of them that are still around.
@@ -226,7 +226,7 @@ bool CrashAwareSleep(ProcessHandle handle, int wait_milliseconds);
 // any processes needed to be killed, true if they all exited cleanly within
 // the wait_milliseconds delay.
 bool CleanupProcesses(const std::wstring& executable_name,
-                      int wait_milliseconds,
+                      int64 wait_milliseconds,
                       int exit_code,
                       const ProcessFilter* filter);
 

@@ -254,7 +254,7 @@ void URLFetcher::Core::OnCompletedURLRequest(const URLRequestStatus& status) {
   if (response_code_ >= 500) {
     // When encountering a server error, we will send the request again
     // after backoff time.
-    const int wait =
+    const int64 wait =
         protect_entry_->UpdateBackoff(URLFetcherProtectEntry::FAILURE);
     ++num_retries_;
     // Restarts the request if we still need to notify the delegate.

@@ -284,7 +284,7 @@ bool WaitForExitCode(ProcessHandle handle, int* exit_code) {
 
 namespace {
 
-int WaitpidWithTimeout(ProcessHandle handle, int wait_milliseconds,
+int WaitpidWithTimeout(ProcessHandle handle, int64 wait_milliseconds,
                        bool* success) {
   // This POSIX version of this function only guarantees that we wait no less
   // than |wait_milliseconds| for the proces to exit.  The child process may
@@ -339,7 +339,7 @@ int WaitpidWithTimeout(ProcessHandle handle, int wait_milliseconds,
 
 }  // namespace
 
-bool WaitForSingleProcess(ProcessHandle handle, int wait_milliseconds) {
+bool WaitForSingleProcess(ProcessHandle handle, int64 wait_milliseconds) {
   bool waitpid_success;
   int status;
   if (wait_milliseconds == base::kNoTimeout)
@@ -354,7 +354,7 @@ bool WaitForSingleProcess(ProcessHandle handle, int wait_milliseconds) {
   }
 }
 
-bool CrashAwareSleep(ProcessHandle handle, int wait_milliseconds) {
+bool CrashAwareSleep(ProcessHandle handle, int64 wait_milliseconds) {
   bool waitpid_success;
   int status = WaitpidWithTimeout(handle, wait_milliseconds, &waitpid_success);
   if (status != -1) {
@@ -503,7 +503,7 @@ bool KillProcesses(const std::wstring& executable_name, int exit_code,
 }
 
 bool WaitForProcessesToExit(const std::wstring& executable_name,
-                            int wait_milliseconds,
+                            int64 wait_milliseconds,
                             const ProcessFilter* filter) {
   bool result = false;
 
@@ -525,12 +525,12 @@ bool WaitForProcessesToExit(const std::wstring& executable_name,
 }
 
 bool CleanupProcesses(const std::wstring& executable_name,
-                      int wait_milliseconds,
+                      int64 wait_milliseconds,
                       int exit_code,
                       const ProcessFilter* filter) {
   bool exited_cleanly =
       WaitForProcessesToExit(executable_name, wait_milliseconds,
-                           filter);
+                             filter);
   if (!exited_cleanly)
     KillProcesses(executable_name, exit_code, filter);
   return exited_cleanly;

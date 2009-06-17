@@ -429,7 +429,7 @@ bool KillProcesses(const std::wstring& executable_name, int exit_code,
 }
 
 bool WaitForProcessesToExit(const std::wstring& executable_name,
-                            int wait_milliseconds,
+                            int64 wait_milliseconds,
                             const ProcessFilter* filter) {
   const ProcessEntry* entry;
   bool result = true;
@@ -438,8 +438,7 @@ bool WaitForProcessesToExit(const std::wstring& executable_name,
   NamedProcessIterator iter(executable_name, filter);
   while (entry = iter.NextProcessEntry()) {
     DWORD remaining_wait =
-      std::max(0, wait_milliseconds -
-          static_cast<int>(GetTickCount() - start_time));
+        std::max<int64>(0, wait_milliseconds - (GetTickCount() - start_time));
     HANDLE process = OpenProcess(SYNCHRONIZE,
                                  FALSE,
                                  entry->th32ProcessID);
@@ -451,18 +450,18 @@ bool WaitForProcessesToExit(const std::wstring& executable_name,
   return result;
 }
 
-bool WaitForSingleProcess(ProcessHandle handle, int wait_milliseconds) {
+bool WaitForSingleProcess(ProcessHandle handle, int64 wait_milliseconds) {
   bool retval = WaitForSingleObject(handle, wait_milliseconds) == WAIT_OBJECT_0;
   return retval;
 }
 
-bool CrashAwareSleep(ProcessHandle handle, int wait_milliseconds) {
+bool CrashAwareSleep(ProcessHandle handle, int64 wait_milliseconds) {
   bool retval = WaitForSingleObject(handle, wait_milliseconds) == WAIT_TIMEOUT;
   return retval;
 }
 
 bool CleanupProcesses(const std::wstring& executable_name,
-                      int wait_milliseconds,
+                      int64 wait_milliseconds,
                       int exit_code,
                       const ProcessFilter* filter) {
   bool exited_cleanly = WaitForProcessesToExit(executable_name,

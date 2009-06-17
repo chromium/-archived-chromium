@@ -416,8 +416,7 @@ void ExpireHistoryBackend::ArchiveURLsAndVisits(
 void ExpireHistoryBackend::ScheduleArchive(TimeDelta delay) {
   factory_.RevokeAll();
   MessageLoop::current()->PostDelayedTask(FROM_HERE, factory_.NewRunnableMethod(
-          &ExpireHistoryBackend::DoArchiveIteration),
-      static_cast<int>(delay.InMilliseconds()));
+          &ExpireHistoryBackend::DoArchiveIteration), delay.InMilliseconds());
 }
 
 void ExpireHistoryBackend::DoArchiveIteration() {

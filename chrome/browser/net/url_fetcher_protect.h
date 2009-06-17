@@ -53,7 +53,7 @@ class URLFetcherProtectEntry {
   // the timeout period. It returns the backoff time, in milliseconds, that
   // indicates to the sender how long should it wait before sending the request.
   // If the request is allowed to be sent immediately, the backoff time is 0.
-  int UpdateBackoff(EventType event_type);
+  int64 UpdateBackoff(EventType event_type);
 
   // Returns the max retries allowed.
   int max_retries() const {

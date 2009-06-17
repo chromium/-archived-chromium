@@ -42,8 +42,7 @@ void TerminateAllChromeProcesses(const FilePath& data_dir) {
   for (it = handles.begin();
        it != handles.end() && Time::Now() - start < kExitTimeout;
        ++it) {
-    // TODO(phajdan.jr): Fix int/int64 problems with TimeDelta::InMilliseconds.
-    int wait_time_ms = static_cast<int>((Time::Now() - start).InMilliseconds());
+    int64 wait_time_ms = (Time::Now() - start).InMilliseconds();
     base::WaitForSingleProcess(*it, wait_time_ms);
   }
 
