@@ -18,7 +18,7 @@
 namespace net {
 
 class ClientSocketFactory;
-class TCPClientSocketPool;
+class ClientSocketPoolBase;
 
 // ConnectingSocket handles the host resolution necessary for socket creation
 // and the socket Connect().
@@ -28,7 +28,7 @@ class ConnectingSocket {
                    const HostResolver::RequestInfo& resolve_info,
                    const ClientSocketHandle* handle,
                    ClientSocketFactory* client_socket_factory,
-                   TCPClientSocketPool* pool);
+                   ClientSocketPoolBase* pool);
   ~ConnectingSocket();
 
   // Begins the host resolution and the TCP connect.  Returns OK on success
@@ -58,7 +58,7 @@ class ConnectingSocket {
   ClientSocketFactory* const client_socket_factory_;
   CompletionCallbackImpl<ConnectingSocket> callback_;
   scoped_ptr<ClientSocket> socket_;
-  scoped_refptr<TCPClientSocketPool> pool_;
+  ClientSocketPoolBase* const pool_;
   SingleRequestHostResolver resolver_;
   AddressList addresses_;
 
@@ -68,10 +68,10 @@ class ConnectingSocket {
   DISALLOW_COPY_AND_ASSIGN(ConnectingSocket);
 };
 
-// A TCPClientSocketPool is used to restrict the number of TCP sockets open at
+// A ClientSocketPoolBase is used to restrict the number of sockets open at
 // a time.  It also maintains a list of idle persistent sockets.
 //
-class TCPClientSocketPool : public ClientSocketPool {
+class ClientSocketPoolBase : public base::RefCounted<ClientSocketPoolBase> {
  public:
   // A Request is allocated per call to RequestSocket that results in
   // ERR_IO_PENDING.
@@ -95,38 +95,38 @@ class TCPClientSocketPool : public ClientSocketPool {
     LoadState load_state;
   };
 
-  TCPClientSocketPool(int max_sockets_per_group,
-                      HostResolver* host_resolver,
-                      ClientSocketFactory* client_socket_factory);
+  ClientSocketPoolBase(int max_sockets_per_group,
+                       HostResolver* host_resolver,
+                       ClientSocketFactory* client_socket_factory);
 
-  // ClientSocketPool methods:
+  ~ClientSocketPoolBase();
 
-  virtual int RequestSocket(const std::string& group_name,
-                            const HostResolver::RequestInfo& resolve_info,
-                            int priority,
-                            ClientSocketHandle* handle,
-                            CompletionCallback* callback);
+  int RequestSocket(const std::string& group_name,
+                    const HostResolver::RequestInfo& resolve_info,
+                    int priority,
+                    ClientSocketHandle* handle,
+                    CompletionCallback* callback);
 
-  virtual void CancelRequest(const std::string& group_name,
-                             const ClientSocketHandle* handle);
+  void CancelRequest(const std::string& group_name,
+                     const ClientSocketHandle* handle);
 
-  virtual void ReleaseSocket(const std::string& group_name,
-                             ClientSocket* socket);
+  void ReleaseSocket(const std::string& group_name,
+                     ClientSocket* socket);
 
-  virtual void CloseIdleSockets();
+  void CloseIdleSockets();
 
-  virtual HostResolver* GetHostResolver() const {
+  HostResolver* GetHostResolver() const {
     return host_resolver_;
   }
 
-  virtual int idle_socket_count() const {
+  int idle_socket_count() const {
     return idle_socket_count_;
   }
 
-  virtual int IdleSocketCountInGroup(const std::string& group_name) const;
+  int IdleSocketCountInGroup(const std::string& group_name) const;
 
-  virtual LoadState GetLoadState(const std::string& group_name,
-                                 const ClientSocketHandle* handle) const;
+  LoadState GetLoadState(const std::string& group_name,
+                         const ClientSocketHandle* handle) const;
 
   // Used by ConnectingSocket until we remove the coupling between a specific
   // ConnectingSocket and a ClientSocketHandle:
@@ -184,8 +184,6 @@ class TCPClientSocketPool : public ClientSocketPool {
   typedef std::map<const ClientSocketHandle*, ConnectingSocket*>
       ConnectingSocketMap;
 
-  virtual ~TCPClientSocketPool();
-
   static void InsertRequestIntoQueue(const Request& r,
                                      RequestQueue* pending_requests);
 
@@ -218,7 +216,7 @@ class TCPClientSocketPool : public ClientSocketPool {
 
   // Timer used to periodically prune idle sockets that timed out or can't be
   // reused.
-  base::RepeatingTimer<TCPClientSocketPool> timer_;
+  base::RepeatingTimer<ClientSocketPoolBase> timer_;
 
   // The total number of idle sockets in the system.
   int idle_socket_count_;
@@ -228,7 +226,55 @@ class TCPClientSocketPool : public ClientSocketPool {
 
   // The host resolver that will be used to do DNS lookups for connecting
   // sockets.
-  HostResolver* host_resolver_;
+  HostResolver* const host_resolver_;
+
+  DISALLOW_COPY_AND_ASSIGN(ClientSocketPoolBase);
+};
+
+class TCPClientSocketPool : public ClientSocketPool {
+ public:
+  TCPClientSocketPool(int max_sockets_per_group,
+                      HostResolver* host_resolver,
+                      ClientSocketFactory* client_socket_factory);
+
+  // ClientSocketPool methods:
+
+  virtual int RequestSocket(const std::string& group_name,
+                            const HostResolver::RequestInfo& resolve_info,
+                            int priority,
+                            ClientSocketHandle* handle,
+                            CompletionCallback* callback);
+
+  virtual void CancelRequest(const std::string& group_name,
+                             const ClientSocketHandle* handle);
+
+  virtual void ReleaseSocket(const std::string& group_name,
+                             ClientSocket* socket);
+
+  virtual void CloseIdleSockets();
+
+  virtual HostResolver* GetHostResolver() const {
+    return base_->GetHostResolver();
+  }
+
+  virtual int IdleSocketCount() const {
+    return base_->idle_socket_count();
+  }
+
+  virtual int IdleSocketCountInGroup(const std::string& group_name) const;
+
+  virtual LoadState GetLoadState(const std::string& group_name,
+                                 const ClientSocketHandle* handle) const;
+
+ private:
+  virtual ~TCPClientSocketPool();
+
+  // One might ask why ClientSocketPoolBase is also refcounted if its
+  // containing ClientSocketPool is already refcounted.  The reason is because
+  // DoReleaseSocket() posts a task.  If ClientSocketPool gets deleted between
+  // the posting of the task and the execution, then we'll hit the DCHECK that
+  // |ClientSocketPoolBase::group_map_| is empty.
+  scoped_refptr<ClientSocketPoolBase> base_;
 
   DISALLOW_COPY_AND_ASSIGN(TCPClientSocketPool);
 };

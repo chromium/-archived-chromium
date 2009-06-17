@@ -38,7 +38,7 @@ ConnectingSocket::ConnectingSocket(
     const HostResolver::RequestInfo& resolve_info,
     const ClientSocketHandle* handle,
     ClientSocketFactory* client_socket_factory,
-    TCPClientSocketPool* pool)
+    ClientSocketPoolBase* pool)
     : group_name_(group_name),
       resolve_info_(resolve_info),
       handle_(handle),
@@ -69,7 +69,7 @@ int ConnectingSocket::OnIOCompleteInternal(
     int result, bool synchronous) {
   CHECK(result != ERR_IO_PENDING);
 
-  TCPClientSocketPool::Request* request = pool_->GetConnectingRequest(
+  ClientSocketPoolBase::Request* request = pool_->GetConnectingRequest(
       group_name_, handle_);
   CHECK(request);
 
@@ -123,7 +123,7 @@ int ConnectingSocket::OnIOCompleteInternal(
   return result;
 }
 
-TCPClientSocketPool::TCPClientSocketPool(
+ClientSocketPoolBase::ClientSocketPoolBase(
     int max_sockets_per_group,
     HostResolver* host_resolver,
     ClientSocketFactory* client_socket_factory)
@@ -133,7 +133,7 @@ TCPClientSocketPool::TCPClientSocketPool(
       host_resolver_(host_resolver) {
 }
 
-TCPClientSocketPool::~TCPClientSocketPool() {
+ClientSocketPoolBase::~ClientSocketPoolBase() {
   // Clean up any idle sockets.  Assert that we have no remaining active
   // sockets or pending requests.  They should have all been cleaned up prior
   // to the manager being destroyed.
@@ -147,7 +147,7 @@ TCPClientSocketPool::~TCPClientSocketPool() {
 // prioritized over requests of equal priority.
 //
 // static
-void TCPClientSocketPool::InsertRequestIntoQueue(
+void ClientSocketPoolBase::InsertRequestIntoQueue(
     const Request& r, RequestQueue* pending_requests) {
   RequestQueue::iterator it = pending_requests->begin();
   while (it != pending_requests->end() && r.priority <= it->priority)
@@ -155,7 +155,7 @@ void TCPClientSocketPool::InsertRequestIntoQueue(
   pending_requests->insert(it, r);
 }
 
-int TCPClientSocketPool::RequestSocket(
+int ClientSocketPoolBase::RequestSocket(
     const std::string& group_name,
     const HostResolver::RequestInfo& resolve_info,
     int priority,
@@ -206,8 +206,8 @@ int TCPClientSocketPool::RequestSocket(
   return rv;
 }
 
-void TCPClientSocketPool::CancelRequest(const std::string& group_name,
-                                        const ClientSocketHandle* handle) {
+void ClientSocketPoolBase::CancelRequest(const std::string& group_name,
+                                         const ClientSocketHandle* handle) {
   CHECK(ContainsKey(group_map_, group_name));
 
   Group& group = group_map_[group_name];
@@ -240,20 +240,20 @@ void TCPClientSocketPool::CancelRequest(const std::string& group_name,
   }
 }
 
-void TCPClientSocketPool::ReleaseSocket(const std::string& group_name,
-                                        ClientSocket* socket) {
+void ClientSocketPoolBase::ReleaseSocket(const std::string& group_name,
+                                         ClientSocket* socket) {
   // Run this asynchronously to allow the caller to finish before we let
   // another to begin doing work.  This also avoids nasty recursion issues.
   // NOTE: We cannot refer to the handle argument after this method returns.
   MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &TCPClientSocketPool::DoReleaseSocket, group_name, socket));
+      this, &ClientSocketPoolBase::DoReleaseSocket, group_name, socket));
 }
 
-void TCPClientSocketPool::CloseIdleSockets() {
+void ClientSocketPoolBase::CloseIdleSockets() {
   CleanupIdleSockets(true);
 }
 
-int TCPClientSocketPool::IdleSocketCountInGroup(
+int ClientSocketPoolBase::IdleSocketCountInGroup(
     const std::string& group_name) const {
   GroupMap::const_iterator i = group_map_.find(group_name);
   CHECK(i != group_map_.end());
@@ -261,7 +261,7 @@ int TCPClientSocketPool::IdleSocketCountInGroup(
   return i->second.idle_sockets.size();
 }
 
-LoadState TCPClientSocketPool::GetLoadState(
+LoadState ClientSocketPoolBase::GetLoadState(
     const std::string& group_name,
     const ClientSocketHandle* handle) const {
   if (!ContainsKey(group_map_, group_name)) {
@@ -297,13 +297,13 @@ LoadState TCPClientSocketPool::GetLoadState(
   return LOAD_STATE_IDLE;
 }
 
-bool TCPClientSocketPool::IdleSocket::ShouldCleanup(base::TimeTicks now) const {
+bool ClientSocketPoolBase::IdleSocket::ShouldCleanup(base::TimeTicks now) const {
   bool timed_out = (now - start_time) >=
       base::TimeDelta::FromSeconds(kIdleTimeout);
   return timed_out || !socket->IsConnectedAndIdle();
 }
 
-void TCPClientSocketPool::CleanupIdleSockets(bool force) {
+void ClientSocketPoolBase::CleanupIdleSockets(bool force) {
   if (idle_socket_count_ == 0)
     return;
 
@@ -337,19 +337,19 @@ void TCPClientSocketPool::CleanupIdleSockets(bool force) {
   }
 }
 
-void TCPClientSocketPool::IncrementIdleCount() {
+void ClientSocketPoolBase::IncrementIdleCount() {
   if (++idle_socket_count_ == 1)
     timer_.Start(TimeDelta::FromSeconds(kCleanupInterval), this,
-                 &TCPClientSocketPool::OnCleanupTimerFired);
+                 &ClientSocketPoolBase::OnCleanupTimerFired);
 }
 
-void TCPClientSocketPool::DecrementIdleCount() {
+void ClientSocketPoolBase::DecrementIdleCount() {
   if (--idle_socket_count_ == 0)
     timer_.Stop();
 }
 
-void TCPClientSocketPool::DoReleaseSocket(const std::string& group_name,
-                                          ClientSocket* socket) {
+void ClientSocketPoolBase::DoReleaseSocket(const std::string& group_name,
+                                           ClientSocket* socket) {
   GroupMap::iterator i = group_map_.find(group_name);
   CHECK(i != group_map_.end());
 
@@ -390,7 +390,7 @@ void TCPClientSocketPool::DoReleaseSocket(const std::string& group_name,
   }
 }
 
-TCPClientSocketPool::Request* TCPClientSocketPool::GetConnectingRequest(
+ClientSocketPoolBase::Request* ClientSocketPoolBase::GetConnectingRequest(
     const std::string& group_name, const ClientSocketHandle* handle) {
   GroupMap::iterator group_it = group_map_.find(group_name);
   if (group_it == group_map_.end())
@@ -406,7 +406,7 @@ TCPClientSocketPool::Request* TCPClientSocketPool::GetConnectingRequest(
   return &it->second;
 }
 
-CompletionCallback* TCPClientSocketPool::OnConnectingRequestComplete(
+CompletionCallback* ClientSocketPoolBase::OnConnectingRequestComplete(
     const std::string& group_name,
     const ClientSocketHandle* handle,
     bool deactivate,
@@ -443,12 +443,57 @@ CompletionCallback* TCPClientSocketPool::OnConnectingRequestComplete(
   return request.callback;
 }
 
-void TCPClientSocketPool::RemoveConnectingSocket(
+void ClientSocketPoolBase::RemoveConnectingSocket(
     const ClientSocketHandle* handle) {
   ConnectingSocketMap::iterator it = connecting_socket_map_.find(handle);
   CHECK(it != connecting_socket_map_.end());
   delete it->second;
   connecting_socket_map_.erase(it);
+}
+
+TCPClientSocketPool::TCPClientSocketPool(
+    int max_sockets_per_group,
+    HostResolver* host_resolver,
+    ClientSocketFactory* client_socket_factory)
+    : base_(new ClientSocketPoolBase(
+        max_sockets_per_group, host_resolver, client_socket_factory)) {}
+
+TCPClientSocketPool::~TCPClientSocketPool() {}
+
+int TCPClientSocketPool::RequestSocket(
+    const std::string& group_name,
+    const HostResolver::RequestInfo& resolve_info,
+    int priority,
+    ClientSocketHandle* handle,
+    CompletionCallback* callback) {
+  return base_->RequestSocket(
+      group_name, resolve_info, priority, handle, callback);
+}
+
+void TCPClientSocketPool::CancelRequest(
+    const std::string& group_name,
+    const ClientSocketHandle* handle) {
+  base_->CancelRequest(group_name, handle);
+}
+
+void TCPClientSocketPool::ReleaseSocket(
+    const std::string& group_name,
+    ClientSocket* socket) {
+  base_->ReleaseSocket(group_name, socket);
+}
+
+void TCPClientSocketPool::CloseIdleSockets() {
+  base_->CloseIdleSockets();
+}
+
+int TCPClientSocketPool::IdleSocketCountInGroup(
+    const std::string& group_name) const {
+  return base_->IdleSocketCountInGroup(group_name);
+}
+
+LoadState TCPClientSocketPool::GetLoadState(
+    const std::string& group_name, const ClientSocketHandle* handle) const {
+  return base_->GetLoadState(group_name, handle);
 }
 
 }  // namespace net

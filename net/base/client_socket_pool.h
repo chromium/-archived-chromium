@@ -73,7 +73,7 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
   virtual HostResolver* GetHostResolver() const = 0;
 
   // The total number of idle sockets in the pool.
-  virtual int idle_socket_count() const = 0;
+  virtual int IdleSocketCount() const = 0;
 
   // The total number of idle sockets in a connection group.
   virtual int IdleSocketCountInGroup(const std::string& group_name) const = 0;

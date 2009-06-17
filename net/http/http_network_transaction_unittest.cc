@@ -1832,11 +1832,11 @@ TEST_F(HttpNetworkTransactionTest, DontRecycleTCPSocketForSSLTunnel) {
 
   // We now check to make sure the TCPClientSocket was not added back to
   // the pool.
-  EXPECT_EQ(0, session->connection_pool()->idle_socket_count());
+  EXPECT_EQ(0, session->connection_pool()->IdleSocketCount());
   trans.reset();
   MessageLoop::current()->RunAllPending();
   // Make sure that the socket didn't get recycled after calling the destructor.
-  EXPECT_EQ(0, session->connection_pool()->idle_socket_count());
+  EXPECT_EQ(0, session->connection_pool()->IdleSocketCount());
 }
 
 // Make sure that we recycle a socket after reading all of the response body.
@@ -1880,7 +1880,7 @@ TEST_F(HttpNetworkTransactionTest, RecycleSocket) {
   std::string status_line = response->headers->GetStatusLine();
   EXPECT_EQ("HTTP/1.1 200 OK", status_line);
 
-  EXPECT_EQ(0, session->connection_pool()->idle_socket_count());
+  EXPECT_EQ(0, session->connection_pool()->IdleSocketCount());
 
   std::string response_data;
   rv = ReadTransaction(trans.get(), &response_data);
@@ -1892,7 +1892,7 @@ TEST_F(HttpNetworkTransactionTest, RecycleSocket) {
   MessageLoop::current()->RunAllPending();
 
   // We now check to make sure the socket was added back to the pool.
-  EXPECT_EQ(1, session->connection_pool()->idle_socket_count());
+  EXPECT_EQ(1, session->connection_pool()->IdleSocketCount());
 }
 
 // Make sure that we recycle a socket after a zero-length response.
@@ -1938,7 +1938,7 @@ TEST_F(HttpNetworkTransactionTest, RecycleSocketAfterZeroContentLength) {
   std::string status_line = response->headers->GetStatusLine();
   EXPECT_EQ("HTTP/1.1 204 No Content", status_line);
 
-  EXPECT_EQ(0, session->connection_pool()->idle_socket_count());
+  EXPECT_EQ(0, session->connection_pool()->IdleSocketCount());
 
   std::string response_data;
   rv = ReadTransaction(trans.get(), &response_data);
@@ -1950,7 +1950,7 @@ TEST_F(HttpNetworkTransactionTest, RecycleSocketAfterZeroContentLength) {
   MessageLoop::current()->RunAllPending();
 
   // We now check to make sure the socket was added back to the pool.
-  EXPECT_EQ(1, session->connection_pool()->idle_socket_count());
+  EXPECT_EQ(1, session->connection_pool()->IdleSocketCount());
 }
 
 TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
