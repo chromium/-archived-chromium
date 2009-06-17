@@ -47,8 +47,6 @@ devtools.ToolsAgent = function() {
       goog.bind(this.addMessageToConsole_, this);
   RemoteToolsAgent.DispatchOnClient =
       goog.bind(this.dispatchOnClient_, this);
-  RemoteToolsAgent.DidGetResourceContent =
-      devtools.Callback.processCallback;
   RemoteToolsAgent.SetResourcesPanelEnabled =
       goog.bind(this.setResourcesPanelEnabled_, this);
   this.debuggerAgent_ = new devtools.DebuggerAgent();
@@ -160,23 +158,6 @@ devtools.ToolsAgent.prototype.dispatchOnClient_ = function(message) {
  */
 devtools.ToolsAgent.prototype.evaluate = function(expr) {
   RemoteToolsAgent.evaluate(expr);
-};
-
-
-/**
- * Asynchronously queries for the resource content.
- * @param {number} identifier Resource identifier.
- * @param {function(string):undefined} opt_callback Callback to call when
- *     result is available.
- */
-devtools.ToolsAgent.prototype.getResourceContentAsync = function(identifier,
-    opt_callback) {
-  var resource = WebInspector.resources[identifier];
-  if (!resource) {
-    return;
-  }
-  RemoteToolsAgent.GetResourceContent(
-      devtools.Callback.wrap(opt_callback), identifier);
 };
 
 
@@ -779,10 +760,6 @@ WebInspector.ScriptsPanel.prototype.__defineGetter__(
     WebInspector.searchableViews_);
 
 
-// Console API provisional fix.
-if (WebInspector.Console.prototype.doEvalInWindow) {
-
-
 WebInspector.Console.prototype.doEvalInWindow =
     function(expression, callback) {
   devtools.tools.evaluateJavaScript(expression, callback);
@@ -794,30 +771,6 @@ WebInspector.ScriptsPanel.prototype.doEvalInCallFrame =
   devtools.CallFrame.doEvalInCallFrame(callFrame, expression, callback);
 };
 
-
-} else {
-
-// TODO(pfeldman): remove onces https://bugs.webkit.org/attachment.cgi?id=31255
-// is landed and pushed into Chromium.
-
-WebInspector.Console.prototype._evalInInspectedWindow = function(expression) {
-  if (WebInspector.panels.scripts.paused)
-    return WebInspector.panels.scripts.evaluateInSelectedCallFrame(expression);
-
-  var console = this;
-  devtools.tools.evaluateJavaScript(expression, function(response, exception) {
-    console.addMessage(new WebInspector.ConsoleCommandResult(
-        response, exception, null /* commandMessage */));
-  });
-  return 'evaluating...';
-};
-
-WebInspector.Console.prototype.completions = function(
-    wordRange, bestMatchOnly) {
-  return null;
-};
-
-}  // end of Console API provisional fix.
 
 (function() {
   var oldShow = WebInspector.ScriptsPanel.prototype.show;
