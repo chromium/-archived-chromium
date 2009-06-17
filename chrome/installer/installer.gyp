@@ -427,7 +427,6 @@
           'target_name': 'mini_installer_test',
           'type': 'executable',
           'msvs_guid': '4B6E199A-034A-49BD-AB93-458DD37E45B1',
-          'msvs_existing_vcproj': '../test/mini_installer_test/mini_installer_test.vcproj',
           'dependencies': [
             'installer_util',
             '../../base/base.gyp:base',
