@@ -12,7 +12,7 @@ class ThrobAnimation;
 
 namespace views {
 
-// A button with custom rendering. The common base class of IconButton and
+// A button with custom rendering. The common base class of ImageButton and
 // TextButton.
 class CustomButton : public Button,
                      public AnimationDelegate {
