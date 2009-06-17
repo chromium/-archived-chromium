@@ -15,7 +15,7 @@
       'type': '<(library)',
       'dependencies': [
         '../base/base.gyp:base',
-        #'../third_party/lzma_sdk/7z_C.vcproj',
+        '../third_party/lzma_sdk/lzma_sdk.gyp:lzma_sdk',
       ],
       'msvs_guid': '9A72A362-E617-4205-B9F2-43C6FB280FA1',
       'sources': [

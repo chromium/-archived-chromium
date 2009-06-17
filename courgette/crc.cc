@@ -13,9 +13,9 @@ extern "C" {
 namespace courgette {
 
 uint32 CalculateCrc(const uint8* buffer, size_t size) {
-  // CrcGenerateTable();
+  CrcGenerateTable();
   uint32 crc = 0xffffffffL;
-  // crc = ~CrcCalc(buffer, size);
+  crc = ~CrcCalc(buffer, size);
   return crc;
 }
 
