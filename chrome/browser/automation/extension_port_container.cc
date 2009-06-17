@@ -104,7 +104,7 @@ bool ExtensionPortContainer::Send(IPC::Message *message) {
 void ExtensionPortContainer::OnExtensionMessageInvoke(
     const std::string& function_name, const ListValue& args) {
   if (function_name == ExtensionMessageService::kDispatchOnMessage) {
-    DCHECK_EQ(args.GetSize(), 2);
+    DCHECK_EQ(args.GetSize(), 2u);
 
     std::string message;
     int source_port_id;
