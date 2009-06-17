@@ -449,7 +449,6 @@
           'target_name': 'setup',
           'type': 'executable',
           'msvs_guid': '21C76E6E-8B38-44D6-8148-B589C13B9554',
-          'msvs_existing_vcproj': 'setup/setup.vcproj',
           'dependencies': [
             'installer_util',
             'installer_util_strings',
