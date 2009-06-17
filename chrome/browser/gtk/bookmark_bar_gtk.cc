@@ -99,6 +99,7 @@ BookmarkBarGtk::BookmarkBarGtk(Profile* profile, Browser* browser,
       window_(window),
       model_(NULL),
       instructions_(NULL),
+      ignore_button_release_(false),
       dragged_node_(NULL),
       toolbar_drop_item_(NULL),
       show_instructions_(true) {
