@@ -494,6 +494,10 @@ void TabStripGtk::Init(Profile* profile) {
 
   newtab_button_.reset(MakeNewTabButton());
 
+#if defined(LINUX2)
+  tab_overview_button_.reset(MakeTabOverviewButton());
+#endif
+
   gtk_widget_show_all(tabstrip_.get());
 
   bounds_ = GetInitialWidgetBounds(tabstrip_.get());
@@ -532,6 +536,10 @@ void TabStripGtk::Layout() {
   }
 
   LayoutNewTabButton(static_cast<double>(tab_right), current_unselected_width_);
+#if defined(LINUX2)
+  gtk_fixed_move(GTK_FIXED(tabstrip_.get()), tab_overview_button_->widget(),
+                 bounds_.width() - tab_overview_button_->width(), 0);
+#endif
   gtk_widget_queue_draw(tabstrip_.get());
 }
 
@@ -994,6 +1002,9 @@ void TabStripGtk::GetDesiredTabWidths(int tab_count,
     available_width = bounds_.width();
     available_width -=
         (kNewTabButtonHOffset + newtab_button_->width());
+#if defined(LINUX2)
+    available_width -= tab_overview_button_->width();
+#endif
   } else {
     // Interesting corner case: if |available_width_for_tabs_| > the result
     // of the calculation in the conditional arm above, the strip is in
@@ -1426,6 +1437,12 @@ gboolean TabStripGtk::OnExpose(GtkWidget* widget, GdkEventExpose* event,
   gtk_container_propagate_expose(GTK_CONTAINER(tabstrip->tabstrip_.get()),
       tabstrip->newtab_button_->widget(), event);
 
+#if defined(LINUX2)
+  // Paint the tab overview button.
+  gtk_container_propagate_expose(GTK_CONTAINER(tabstrip->tabstrip_.get()),
+      tabstrip->tab_overview_button_->widget(), event);
+#endif
+
   // Paint the tabs in reverse order, so they stack to the left.
   TabGtk* selected_tab = NULL;
   int tab_count = tabstrip->GetTabCount();
@@ -1556,3 +1573,23 @@ CustomDrawButton* TabStripGtk::MakeNewTabButton() {
 
   return button;
 }
+
+#if defined(LINUX2)
+CustomDrawButton* TabStripGtk::MakeTabOverviewButton() {
+  CustomDrawButton* button =
+      new CustomDrawButton(IDR_TAB_OVERVIEW_BUTTON_ICON, 0, 0, 0);
+
+  g_signal_connect(G_OBJECT(button->widget()), "clicked",
+                   G_CALLBACK(OnTabOverviewButtonClicked), this);
+  GTK_WIDGET_UNSET_FLAGS(button->widget(), GTK_CAN_FOCUS);
+  gtk_fixed_put(GTK_FIXED(tabstrip_.get()), button->widget(), 0, 0);
+
+  return button;
+}
+
+// static
+void TabStripGtk::OnTabOverviewButtonClicked(GtkWidget* widget,
+                                             TabStripGtk* tabstrip) {
+  // TODO(sky): implement me.
+}
+#endif

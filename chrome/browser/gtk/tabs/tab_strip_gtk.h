@@ -319,6 +319,15 @@ class TabStripGtk : public TabStripModelObserver,
   // Optionally a full Layout will be performed, specified by |layout|.
   void FinishAnimation(TabAnimation* animation, bool layout);
 
+#if defined(LINUX2)
+  // Creates and returns the tab overview button.
+  CustomDrawButton* MakeTabOverviewButton();
+
+  // Invoked when the user clicks the tab overview button.
+  static void OnTabOverviewButtonClicked(GtkWidget* widget,
+                                         TabStripGtk* tabstrip);
+#endif
+
   // The Tabs we contain, and their last generated "good" bounds.
   std::vector<TabData> tab_data_;
 
@@ -360,6 +369,11 @@ class TabStripGtk : public TabStripModelObserver,
 
   // The New Tab button.
   scoped_ptr<CustomDrawButton> newtab_button_;
+
+#if defined(LINUX2)
+  // The tab overview button.
+  scoped_ptr<CustomDrawButton> tab_overview_button_;
+#endif
 
   // Valid for the lifetime of a drag over us.
   scoped_ptr<DropInfo> drop_info_;
