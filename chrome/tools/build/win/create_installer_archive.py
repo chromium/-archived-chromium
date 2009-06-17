@@ -217,8 +217,8 @@ def PrepareSetupExec(options, staging_dir, current_version, prev_version):
     setup_file_path = os.path.join(options.output_dir, setup_file)
     CompressUsingLZMA(options.output_dir, setup_file_path, patch_file)
   else:
-    cmd = 'makecab.exe /V1 /L "%s" "%s"' % (options.output_dir,
-        os.path.join(options.output_dir, SETUP_EXEC))
+    cmd = 'makecab.exe /D CompressionType=LZX /V1 /L "%s" "%s"' % (
+        options.output_dir, os.path.join(options.output_dir, SETUP_EXEC))
     RunSystemCommand(cmd)
     setup_file = SETUP_EXEC[:len(SETUP_EXEC) - 1] + "_"
   return setup_file
