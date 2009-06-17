@@ -165,6 +165,8 @@ int ClientSocketPoolBase::RequestSocket(
   DCHECK_GE(priority, 0);
   Group& group = group_map_[group_name];
 
+  CheckSocketCounts(group);
+
   // Can we make another active socket now?
   if (group.active_socket_count == max_sockets_per_group_) {
     CHECK(callback);
@@ -184,6 +186,8 @@ int ClientSocketPoolBase::RequestSocket(
       // We found one we can reuse!
       handle->set_socket(idle_socket.socket);
       handle->set_is_reused(true);
+      group.sockets_handed_out_count++;
+      CheckSocketCounts(group);
       return OK;
     }
     delete idle_socket.socket;
@@ -194,7 +198,7 @@ int ClientSocketPoolBase::RequestSocket(
   CHECK(callback);
   Request r(handle, callback, priority, resolve_info,
             LOAD_STATE_RESOLVING_HOST);
-  group_map_[group_name].connecting_requests[handle] = r;
+  group.connecting_requests[handle] = r;
 
   CHECK(!ContainsKey(connecting_socket_map_, handle));
 
@@ -203,6 +207,8 @@ int ClientSocketPoolBase::RequestSocket(
                            client_socket_factory_, this);
   connecting_socket_map_[handle] = connecting_socket;
   int rv = connecting_socket->Connect();
+
+  CheckSocketCounts(group);
   return rv;
 }
 
@@ -211,6 +217,8 @@ void ClientSocketPoolBase::CancelRequest(const std::string& group_name,
   CHECK(ContainsKey(group_map_, group_name));
 
   Group& group = group_map_[group_name];
+
+  CheckSocketCounts(group);
 
   // Search pending_requests for matching handle.
   RequestQueue::iterator it = group.pending_requests.begin();
@@ -236,8 +244,11 @@ void ClientSocketPoolBase::CancelRequest(const std::string& group_name,
       CHECK(group.pending_requests.empty());
       CHECK(group.connecting_requests.empty());
       group_map_.erase(group_name);
+      return;
     }
   }
+
+  CheckSocketCounts(group);
 }
 
 void ClientSocketPoolBase::ReleaseSocket(const std::string& group_name,
@@ -356,7 +367,10 @@ void ClientSocketPoolBase::DoReleaseSocket(const std::string& group_name,
   Group& group = i->second;
 
   CHECK(group.active_socket_count > 0);
+  CheckSocketCounts(group);
+
   group.active_socket_count--;
+  group.sockets_handed_out_count--;
 
   const bool can_reuse = socket->IsConnectedAndIdle();
   if (can_reuse) {
@@ -377,6 +391,9 @@ void ClientSocketPoolBase::DoReleaseSocket(const std::string& group_name,
 
     int rv = RequestSocket(
         group_name, r.resolve_info, r.priority, r.handle, r.callback);
+
+    CheckSocketCounts(group);
+
     if (rv != ERR_IO_PENDING)
       r.callback->Run(rv);
     return;
@@ -387,6 +404,8 @@ void ClientSocketPoolBase::DoReleaseSocket(const std::string& group_name,
     CHECK(group.pending_requests.empty());
     CHECK(group.connecting_requests.empty());
     group_map_.erase(i);
+  } else {
+    CheckSocketCounts(group);
   }
 }
 
@@ -416,6 +435,8 @@ CompletionCallback* ClientSocketPoolBase::OnConnectingRequestComplete(
   CHECK(group_it != group_map_.end());
   Group& group = group_it->second;
 
+  CheckSocketCounts(group);
+
   RequestMap* request_map = &group.connecting_requests;
 
   RequestMap::iterator it = request_map->find(handle);
@@ -432,15 +453,30 @@ CompletionCallback* ClientSocketPoolBase::OnConnectingRequestComplete(
       DCHECK(group.pending_requests.empty());
       DCHECK(group.connecting_requests.empty());
       group_map_.erase(group_name);
+    } else {
+      CheckSocketCounts(group);
     }
   } else {
     request.handle->set_socket(socket);
     request.handle->set_is_reused(false);
+    group.sockets_handed_out_count++;
+
+    CheckSocketCounts(group);
   }
 
   RemoveConnectingSocket(request.handle);
 
   return request.callback;
+}
+
+// static
+void ClientSocketPoolBase::CheckSocketCounts(const Group& group) {
+  CHECK(group.active_socket_count ==
+        group.sockets_handed_out_count +
+        static_cast<int>(group.connecting_requests.size()))
+      << "[active_socket_count: " << group.active_socket_count
+      << " ] [sockets_handed_out_count: " << group.sockets_handed_out_count
+      << " ] [connecting_requests size: " << group.connecting_requests.size();
 }
 
 void ClientSocketPoolBase::RemoveConnectingSocket(

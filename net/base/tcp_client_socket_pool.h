@@ -172,11 +172,12 @@ class ClientSocketPoolBase : public base::RefCounted<ClientSocketPoolBase> {
   // A Group is allocated per group_name when there are idle sockets or pending
   // requests.  Otherwise, the Group object is removed from the map.
   struct Group {
-    Group() : active_socket_count(0) {}
+    Group() : active_socket_count(0), sockets_handed_out_count(0) {}
     std::deque<IdleSocket> idle_sockets;
     RequestQueue pending_requests;
     RequestMap connecting_requests;
-    int active_socket_count;
+    int active_socket_count;  // number of active sockets
+    int sockets_handed_out_count;  // number of sockets given to clients
   };
 
   typedef std::map<std::string, Group> GroupMap;
@@ -207,6 +208,8 @@ class ClientSocketPoolBase : public base::RefCounted<ClientSocketPoolBase> {
   // Removes the ConnectingSocket corresponding to |handle| from the
   // |connecting_socket_map_|.
   void RemoveConnectingSocket(const ClientSocketHandle* handle);
+
+  static void CheckSocketCounts(const Group& group);
 
   ClientSocketFactory* const client_socket_factory_;
 
