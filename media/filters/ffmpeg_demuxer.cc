@@ -12,26 +12,6 @@
 
 namespace media {
 
-// FFmpegLock is used to serialize calls to av_find_stream_info() for an entire
-// process because for whatever reason it does Very Bad Things to other demuxers
-// also calling av_find_stream_info().
-//
-// TODO(scherkus): track down and upstream a fix to FFmpeg.
-class FFmpegLock : public Singleton<FFmpegLock> {
- public:
-  Lock& lock() { return lock_; }
-
- private:
-  // Only allow Singleton to create and delete FFmpegLock.
-  friend struct DefaultSingletonTraits<FFmpegLock>;
-  FFmpegLock() {}
-  virtual ~FFmpegLock() {}
-
-  Lock lock_;
-  DISALLOW_COPY_AND_ASSIGN(FFmpegLock);
-};
-
-
 //
 // AVPacketBuffer
 //

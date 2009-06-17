@@ -61,11 +61,16 @@ bool FFmpegVideoDecoder::OnInitialize(DemuxerStream* demuxer_stream) {
   // for damaged macroblocks, and set our error detection sensitivity.
   codec_context_->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
   codec_context_->error_recognition = FF_ER_CAREFUL;
+
+  // Serialize calls to avcodec_open().
   AVCodec* codec = avcodec_find_decoder(codec_context_->codec_id);
-  if (!codec ||
-      avcodec_thread_init(codec_context_, kDecodeThreads) < 0 ||
-      avcodec_open(codec_context_, codec) < 0) {
-    return false;
+  {
+    AutoLock auto_lock(FFmpegLock::get()->lock());
+    if (!codec ||
+        avcodec_thread_init(codec_context_, kDecodeThreads) < 0 ||
+        avcodec_open(codec_context_, codec) < 0) {
+      return false;
+    }
   }
   return true;
 }

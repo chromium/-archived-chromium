@@ -6,6 +6,16 @@
 
 namespace media {
 
+FFmpegLock::FFmpegLock() {
+}
+
+FFmpegLock::~FFmpegLock() {
+}
+
+Lock& FFmpegLock::lock() {
+  return lock_;
+}
+
 namespace mime_type {
 
 const char kFFmpegAudio[] = "audio/x-ffmpeg";

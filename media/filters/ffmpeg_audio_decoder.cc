@@ -42,11 +42,13 @@ bool FFmpegAudioDecoder::OnInitialize(DemuxerStream* demuxer_stream) {
   DCHECK_GT(av_get_bits_per_sample_format(codec_context_->sample_fmt), 0);
   DCHECK_GT(codec_context_->sample_rate, 0);
 
-  // Grab the codec context from FFmpeg demuxer.
+  // Serialize calls to avcodec_open().
   AVCodec* codec = avcodec_find_decoder(codec_context_->codec_id);
-  if (!codec || avcodec_open(codec_context_, codec) < 0) {
-    host_->Error(PIPELINE_ERROR_DECODE);
-    return false;
+  {
+    AutoLock auto_lock(FFmpegLock::get()->lock());
+    if (!codec || avcodec_open(codec_context_, codec) < 0) {
+      return false;
+    }
   }
 
   // When calling avcodec_find_decoder(), |codec_context_| might be altered by
