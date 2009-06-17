@@ -135,20 +135,30 @@ SkBitmap GetThumbnailForBackingStore(BackingStore* backing_store) {
 
 ThumbnailGenerator::ThumbnailGenerator()
     : no_timeout_(false) {
-  // Even though we deal in RenderWidgetHosts, we only care about its subclass,
-  // RenderViewHost when it is in a tab. We don't make thumbnails for
-  // RenderViewHosts that aren't in tabs, or RenderWidgetHosts that aren't
-  // views like select popups.
-  registrar_.Add(this, NotificationType::RENDER_VIEW_HOST_CREATED_FOR_TAB,
-                 NotificationService::AllSources());
-
-  registrar_.Add(this, NotificationType::RENDER_WIDGET_VISIBILITY_CHANGED,
-                 NotificationService::AllSources());
-  registrar_.Add(this, NotificationType::RENDER_WIDGET_HOST_DESTROYED,
-                 NotificationService::AllSources());
+  // The BrowserProcessImpl creates this non-lazily. If you add nontrivial
+  // stuff here, be sure to convert it to being lazily created.
+  //
+  // We don't register for notifications here since BrowserProcessImpl creates
+  // us before the NotificationService is.
 }
 
 ThumbnailGenerator::~ThumbnailGenerator() {
+}
+
+void ThumbnailGenerator::StartThumbnailing() {
+  if (registrar_.IsEmpty()) {
+    // Even though we deal in RenderWidgetHosts, we only care about its
+    // subclass, RenderViewHost when it is in a tab. We don't make thumbnails
+    // for RenderViewHosts that aren't in tabs, or RenderWidgetHosts that
+    // aren't views like select popups.
+    registrar_.Add(this, NotificationType::RENDER_VIEW_HOST_CREATED_FOR_TAB,
+                   NotificationService::AllSources());
+
+    registrar_.Add(this, NotificationType::RENDER_WIDGET_VISIBILITY_CHANGED,
+                   NotificationService::AllSources());
+    registrar_.Add(this, NotificationType::RENDER_WIDGET_HOST_DESTROYED,
+                   NotificationService::AllSources());
+  }
 }
 
 SkBitmap ThumbnailGenerator::GetThumbnailForRenderer(

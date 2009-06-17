@@ -74,6 +74,10 @@ class TestingBrowserProcess : public BrowserProcess {
     return NULL;
   }
 
+  virtual ThumbnailGenerator* GetThumbnailGenerator() {
+    return NULL;
+  }
+
   virtual sandbox::BrokerServices* broker_services() {
     return NULL;
   }

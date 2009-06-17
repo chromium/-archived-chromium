@@ -26,8 +26,9 @@ class PrefService;
 class ProfileManager;
 class DebuggerWrapper;
 class ResourceDispatcherHost;
-class WebAppInstallerService;
 class SuspendController;
+class ThumbnailGenerator;
+class WebAppInstallerService;
 
 namespace base {
 class Thread;
@@ -108,6 +109,8 @@ class BrowserProcess {
   virtual sandbox::BrokerServices* broker_services() = 0;
 
   virtual IconManager* icon_manager() = 0;
+
+  virtual ThumbnailGenerator* GetThumbnailGenerator() = 0;
 
   virtual void InitBrokerServices(sandbox::BrokerServices*) = 0;
   virtual AutomationProviderList* InitAutomationProviderList() = 0;

@@ -7,8 +7,8 @@
 // if we tried to create a service, and not try creating it over and over if
 // the creation failed.
 
-#ifndef CHROME_BROWSER_BROWSER_PROCESS_IMPL_H__
-#define CHROME_BROWSER_BROWSER_PROCESS_IMPL_H__
+#ifndef CHROME_BROWSER_BROWSER_PROCESS_IMPL_H_
+#define CHROME_BROWSER_BROWSER_PROCESS_IMPL_H_
 
 #include <string>
 
@@ -128,6 +128,10 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
     if (!created_icon_manager_)
       CreateIconManager();
     return icon_manager_.get();
+  }
+
+  virtual ThumbnailGenerator* GetThumbnailGenerator() {
+    return &thumbnail_generator_;
   }
 
   virtual AutomationProviderList* InitAutomationProviderList() {
@@ -271,20 +275,14 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
   bool checked_for_new_frames_;
   bool using_new_frames_;
 
-#if defined(LINUX2)
-  // TODO(brettw) enable this for all builds when we have a need for it. This
-  // component has some overhead, so we don't want to have it running without
-  // any consumers. Since it integrates by listening to notifications, it's
-  // sufficient to just not instatiate it to make it disabled.
-
-  // This service just sits around and makes thumanails for tabs.
+  // This service just sits around and makes thumanails for tabs. It does
+  // nothing in the cosntructor so we don't have to worry about lazy init.
   ThumbnailGenerator thumbnail_generator_;
-#endif
 
   // An event that notifies when we are shutting-down.
   scoped_ptr<base::WaitableEvent> shutdown_event_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(BrowserProcessImpl);
+  DISALLOW_COPY_AND_ASSIGN(BrowserProcessImpl);
 };
 
-#endif  // CHROME_BROWSER_BROWSER_PROCESS_IMPL_H__
+#endif  // CHROME_BROWSER_BROWSER_PROCESS_IMPL_H_

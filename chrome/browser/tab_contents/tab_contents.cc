@@ -38,6 +38,7 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
+#include "chrome/browser/tab_contents/thumbnail_generator.h"
 #include "chrome/browser/thumbnail_store.h"
 #include "chrome/browser/search_engines/template_url_fetcher.h"
 #include "chrome/browser/search_engines/template_url_model.h"
@@ -243,6 +244,15 @@ TabContents::TabContents(Profile* profile,
       suppress_javascript_messages_(false) {
   pending_install_.page_id = 0;
   pending_install_.callback_functor = NULL;
+
+#if defined(LINUX2)
+  // Make sure the thumbnailer is started before starting the render manager.
+  // The thumbnailer will want to listen for RVH creations, one of which will
+  // happen in RVHManager::Init.
+  ThumbnailGenerator* generator = g_browser_process->GetThumbnailGenerator();
+  if (generator)
+    generator->StartThumbnailing();
+#endif
 
   render_manager_.Init(profile, site_instance, routing_id, modal_dialog_event);
 

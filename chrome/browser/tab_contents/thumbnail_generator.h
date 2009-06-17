@@ -19,8 +19,13 @@ class SkBitmap;
 class ThumbnailGenerator : public RenderWidgetHostPaintingObserver,
                            public NotificationObserver {
  public:
+  // This class will do nothing until you call StartThumbnailing.
   ThumbnailGenerator();
   ~ThumbnailGenerator();
+
+  // Ensures that we're properly hooked in to generated thumbnails. This can
+  // be called repeatedly and with wild abandon to no ill effect.
+  void StartThumbnailing();
 
   SkBitmap GetThumbnailForRenderer(RenderWidgetHost* renderer) const;
 

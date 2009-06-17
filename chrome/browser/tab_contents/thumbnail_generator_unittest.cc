@@ -47,6 +47,7 @@ class ThumbnailGeneratorTest : public testing::Test {
                                               1));
 
     // We don't want to be sensitive to timing.
+    generator_.StartThumbnailing();
     generator_.set_no_timeout(true);
   }
 
