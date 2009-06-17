@@ -15,8 +15,7 @@
   "page_actions": [
     {
       "id": "RssPageAction",
-      "name": "The PageAction for RSS subscriptions",
-      "tooltip": "Click to subscribe to this feed",
+      "name": "Subscribe to this feed",
       "icon": "feed-icon-16x16.png"
     }
   ]

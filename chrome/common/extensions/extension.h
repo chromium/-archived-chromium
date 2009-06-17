@@ -78,7 +78,6 @@ class Extension {
   static const wchar_t* kThemeTintsKey;
   static const wchar_t* kThemeDisplayPropertiesKey;
   static const wchar_t* kToolstripsKey;
-  static const wchar_t* kTooltipKey;
   static const wchar_t* kTypeKey;
   static const wchar_t* kVersionKey;
 
@@ -116,7 +115,6 @@ class Extension {
   static const char* kInvalidPageActionsListError;
   static const char* kInvalidPageActionIconPathError;
   static const char* kInvalidPageActionIdError;
-  static const char* kInvalidPageActionTooltipError;
   static const char* kInvalidPageActionTypeValueError;
   static const char* kInvalidPermissionsError;
   static const char* kInvalidPermissionCountWarning;
@@ -242,7 +240,7 @@ class Extension {
   std::set<FilePath> GetBrowserImages();
 
  private:
-  // Counter used to assign ids to extensions that are loaded using 
+  // Counter used to assign ids to extensions that are loaded using
   // --load-extension.
   static int id_counter_;
 

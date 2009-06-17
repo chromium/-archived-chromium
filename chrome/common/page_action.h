@@ -39,11 +39,6 @@ class PageAction {
     icon_path_ = icon_path;
   }
 
-  std::string tooltip() const { return tooltip_; }
-  void set_tooltip(const std::string& tooltip) {
-    tooltip_ = tooltip;
-  }
-
  private:
   // The id for the PageAction, for example: "RssPageAction".
   std::string id_;
@@ -60,9 +55,6 @@ class PageAction {
 
   // The icon that represents the PageIcon.
   FilePath icon_path_;
-
-  // The tooltip to show when the mouse hovers over the icon of the page action.
-  std::string tooltip_;
 };
 
 typedef std::map<std::string, PageAction*> PageActionMap;

@@ -1262,7 +1262,7 @@ bool LocationBarView::PageActionImageView::OnMousePressed(
 
 void LocationBarView::PageActionImageView::ShowInfoBubble() {
   SkColor text_color = SK_ColorBLACK;
-  ShowInfoBubbleImpl(ASCIIToWide(page_action_->tooltip()), text_color);
+  ShowInfoBubbleImpl(ASCIIToWide(page_action_->name()), text_color);
 }
 
 void LocationBarView::PageActionImageView::UpdateVisibility(

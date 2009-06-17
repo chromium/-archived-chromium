@@ -73,7 +73,6 @@ const wchar_t* Extension::kThemeColorsKey = L"colors";
 const wchar_t* Extension::kThemeTintsKey = L"tints";
 const wchar_t* Extension::kThemeDisplayPropertiesKey = L"properties";
 const wchar_t* Extension::kToolstripsKey = L"toolstrips";
-const wchar_t* Extension::kTooltipKey = L"tooltip";
 const wchar_t* Extension::kTypeKey = L"type";
 const wchar_t* Extension::kVersionKey = L"version";
 
@@ -132,8 +131,6 @@ const char* Extension::kInvalidPageActionIconPathError =
     "Invalid value for 'page_actions[*].icon'.";
 const char* Extension::kInvalidPageActionIdError =
     "Required value 'id' is missing or invalid.";
-const char* Extension::kInvalidPageActionTooltipError =
-    "Invalid value for 'page_actions[*].tooltip'.";
 const char* Extension::kInvalidPageActionTypeValueError =
     "Invalid value for 'page_actions[*].type', expected 'tab' or 'permanent'.";
 const char* Extension::kInvalidPermissionsError =
@@ -417,15 +414,6 @@ PageAction* Extension::LoadPageActionHelper(
     return NULL;
   }
   result->set_name(name);
-
-  // Read the page action |tooltip|.
-  std::string tooltip;
-  if (!page_action->GetString(kTooltipKey, &tooltip)) {
-    *error = ExtensionErrorUtils::FormatErrorMessage(
-        kInvalidPageActionTooltipError, IntToString(definition_index));
-    return NULL;
-  }
-  result->set_tooltip(tooltip);
 
   // Read the page action |type|. It is optional and set to permanent if
   // missing.
