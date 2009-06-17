@@ -739,6 +739,10 @@ StringPiece GetDataResource(int resource_id) {
   case IDR_SEARCH_CANCEL_PRESSED:
   case IDR_SEARCH_MAGNIFIER:
   case IDR_SEARCH_MAGNIFIER_RESULTS:
+  case IDR_MEDIA_PAUSE_BUTTON:
+  case IDR_MEDIA_PLAY_BUTTON:
+  case IDR_MEDIA_SOUND_FULL_BUTTON:
+  case IDR_MEDIA_SOUND_NONE_BUTTON:
     return NetResourceProvider(resource_id);
 
   default:
