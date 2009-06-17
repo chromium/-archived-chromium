@@ -61,7 +61,7 @@ URLRequestJob* URLRequestHttpJob::Factory(URLRequest* request,
 
 URLRequestHttpJob::URLRequestHttpJob(URLRequest* request)
     : URLRequestJob(request),
-      transaction_(NULL),
+      context_(request->context()),
       response_info_(NULL),
       proxy_auth_state_(net::AUTH_STATE_DONT_NEED_AUTH),
       server_auth_state_(net::AUTH_STATE_DONT_NEED_AUTH),
@@ -70,7 +70,7 @@ URLRequestHttpJob::URLRequestHttpJob(URLRequest* request)
       ALLOW_THIS_IN_INITIALIZER_LIST(
           read_callback_(this, &URLRequestHttpJob::OnReadCompleted)),
       read_in_progress_(false),
-      context_(request->context()),
+      transaction_(NULL),
       sdch_dictionary_advertised_(false),
       sdch_test_activated_(false),
       sdch_test_control_(false),

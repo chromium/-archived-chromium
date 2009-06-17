@@ -79,8 +79,11 @@ class URLRequestHttpJob : public URLRequestJob {
   void RestartTransactionWithAuth(const std::wstring& username,
                                   const std::wstring& password);
 
+  // Keep a reference to the url request context to be sure it's not deleted
+  // before us.
+  scoped_refptr<URLRequestContext> context_;
+
   net::HttpRequestInfo request_info_;
-  scoped_ptr<net::HttpTransaction> transaction_;
   const net::HttpResponseInfo* response_info_;
   std::vector<std::string> response_cookies_;
 
@@ -96,9 +99,7 @@ class URLRequestHttpJob : public URLRequestJob {
   // An URL for an SDCH dictionary as suggested in a Get-Dictionary HTTP header.
   GURL sdch_dictionary_url_;
 
-  // Keep a reference to the url request context to be sure it's not deleted
-  // before us.
-  scoped_refptr<URLRequestContext> context_;
+  scoped_ptr<net::HttpTransaction> transaction_;
 
   // Indicated if an SDCH dictionary was advertised, and hence an SDCH
   // compressed response is expected.  We use this to help detect (accidental?)
