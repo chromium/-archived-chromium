@@ -144,7 +144,7 @@ class RenderWidgetHostViewGtkWidget {
   }
 
   static gboolean OnFocusOut(GtkWidget* widget, GdkEventFocus* focus,
-                           RenderWidgetHostViewGtk* host_view) {
+                             RenderWidgetHostViewGtk* host_view) {
     // Whenever we lose focus, set the cursor back to that of our parent window,
     // which should be the default arrow.
     gdk_window_set_cursor(widget->window, NULL);
@@ -456,10 +456,6 @@ void RenderWidgetHostViewGtk::PasteFromSelectionClipboard() {
 
 void RenderWidgetHostViewGtk::ShowingContextMenu(bool showing) {
   is_showing_context_menu_ = showing;
-  // Note that GTK_WIDGET_HAS_FOCUS differs from gtk_widget_is_focus() in that
-  // the latter doesn't care whether the toplevel has focus.
-  if (!showing && !GTK_WIDGET_HAS_FOCUS(view_.get()))
-    GetRenderWidgetHost()->Blur();
 }
 
 BackingStore* RenderWidgetHostViewGtk::AllocBackingStore(
