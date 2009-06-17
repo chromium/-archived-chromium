@@ -33,7 +33,7 @@
 #ifndef O3D_COMMAND_BUFFER_COMMON_CROSS_RPC_IMC_H_
 #define O3D_COMMAND_BUFFER_COMMON_CROSS_RPC_IMC_H_
 
-#include "native_client/intermodule_comm/nacl_imc.h"
+#include "third_party/native_client/googleclient/native_client/src/shared/imc/nacl_imc.h"
 #include "base/scoped_ptr.h"
 #include "command_buffer/common/cross/rpc.h"
 

@@ -35,7 +35,7 @@
 
 #include "base/basictypes.h"
 
-#include "native_client/intermodule_comm/nacl_htp.h"
+#include "third_party/native_client/googleclient/native_client/src/shared/imc/nacl_htp.h"
 
 namespace o3d {
 namespace command_buffer {

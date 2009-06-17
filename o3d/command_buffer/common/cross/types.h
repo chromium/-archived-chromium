@@ -35,6 +35,7 @@
 #ifndef O3D_COMMAND_BUFFER_COMMON_CROSS_TYPES_H_
 #define O3D_COMMAND_BUFFER_COMMON_CROSS_TYPES_H_
 
+#include <build/build_config.h>
 #if !defined(COMPILER_MSVC)
 #include <stdint.h>
 #endif

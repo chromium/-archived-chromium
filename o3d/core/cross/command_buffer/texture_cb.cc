@@ -57,6 +57,10 @@ namespace create_texture_2d_cmd = command_buffer::create_texture_2d_cmd;
 namespace create_texture_cube_cmd = command_buffer::create_texture_cube_cmd;
 
 namespace {
+
+const Texture::RGBASwizzleIndices g_cb_abgr32f_swizzle_indices =
+    {0, 1, 2, 3};
+
 // Converts an O3D texture format to a command buffer texture format.
 texture::Format CBFormatFromO3DFormat(Texture::Format format) {
   switch (format) {
@@ -383,6 +387,9 @@ RenderSurface::Ref Texture2DCB::GetRenderSurface(int mip_level, Pack *pack) {
   return RenderSurface::Ref(NULL);
 }
 
+const Texture::RGBASwizzleIndices& Texture2DCB::GetABGR32FSwizzleIndices() {
+  return g_cb_abgr32f_swizzle_indices;
+}
 // TextureCUBECB ---------------------------------------------------------------
 
 // Creates a texture from a pre-existing texture resource.
@@ -571,6 +578,10 @@ RenderSurface::Ref TextureCUBECB::GetRenderSurface(TextureCUBE::CubeFace face,
   DCHECK_LT(mip_level, levels());
   // TODO: Provide an implementation for render surface extraction.
   return RenderSurface::Ref(NULL);
+}
+
+const Texture::RGBASwizzleIndices& TextureCUBECB::GetABGR32FSwizzleIndices() {
+  return g_cb_abgr32f_swizzle_indices;
 }
 
 }  // namespace o3d

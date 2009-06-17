@@ -53,24 +53,23 @@ VertexBufferCB::VertexBufferCB(ServiceLocator* service_locator,
 
 
 VertexBufferCB::~VertexBufferCB() {
-  Destroy();
+  ConcreteFree();
 }
 
 // Sends the DESTROY_VERTEX_BUFFER command, and frees the ID from the allocator.
-void VertexBufferCB::Destroy() {
-  if (size() != 0) {
+void VertexBufferCB::ConcreteFree() {
+  if (GetSizeInBytes() != 0) {
     CommandBufferHelper *helper = renderer_->helper();
     CommandBufferEntry args[1];
     args[0].value_uint32 = resource_id_;
     helper->AddCommand(command_buffer::DESTROY_VERTEX_BUFFER, 1, args);
-    set_size(0);
     renderer_->vertex_buffer_ids().FreeID(resource_id_);
   }
 }
 
 // Allocates a resource ID, and sends the CREATE_VERTEX_BUFFER command.
 bool VertexBufferCB::ConcreteAllocate(size_t size_in_bytes) {
-  Destroy();
+  ConcreteFree();
   if (size_in_bytes > 0) {
     resource_id_ = renderer_->vertex_buffer_ids().AllocateID();
     CommandBufferHelper *helper = renderer_->helper();
@@ -89,16 +88,16 @@ bool VertexBufferCB::ConcreteAllocate(size_t size_in_bytes) {
 // GET_VERTEX_BUFFER_DATA command).
 bool VertexBufferCB::ConcreteLock(AccessMode access_mode, void **buffer_data) {
   *buffer_data = NULL;
-  if (size() == 0 || lock_pointer_)
+  if (GetSizeInBytes() == 0 || lock_pointer_)
     return false;
-  lock_pointer_ = renderer_->allocator()->Alloc(size());
+  lock_pointer_ = renderer_->allocator()->Alloc(GetSizeInBytes());
   if (!lock_pointer_) return false;
   if (has_data_) {
     CommandBufferHelper *helper = renderer_->helper();
     CommandBufferEntry args[5];
     args[0].value_uint32 = resource_id_;
     args[1].value_uint32 = 0;
-    args[2].value_uint32 = size();
+    args[2].value_uint32 = GetSizeInBytes();
     args[3].value_uint32 = renderer_->transfer_shm_id();
     args[4].value_uint32 = renderer_->allocator()->GetOffset(lock_pointer_);
     helper->AddCommand(command_buffer::GET_VERTEX_BUFFER_DATA, 5, args);
@@ -111,13 +110,13 @@ bool VertexBufferCB::ConcreteLock(AccessMode access_mode, void **buffer_data) {
 // Copies the data into the resource by sending the SET_VERTEX_BUFFER_DATA
 // command, then frees the shared memory, pending the transfer completion.
 bool VertexBufferCB::ConcreteUnlock() {
-  if (size() == 0 || !lock_pointer_)
+  if (GetSizeInBytes() == 0 || !lock_pointer_)
     return false;
   CommandBufferHelper *helper = renderer_->helper();
   CommandBufferEntry args[5];
   args[0].value_uint32 = resource_id_;
   args[1].value_uint32 = 0;
-  args[2].value_uint32 = size();
+  args[2].value_uint32 = GetSizeInBytes();
   args[3].value_uint32 = renderer_->transfer_shm_id();
   args[4].value_uint32 = renderer_->allocator()->GetOffset(lock_pointer_);
   helper->AddCommand(command_buffer::SET_VERTEX_BUFFER_DATA, 5, args);
@@ -139,24 +138,23 @@ IndexBufferCB::IndexBufferCB(ServiceLocator* service_locator,
 
 
 IndexBufferCB::~IndexBufferCB() {
-  Destroy();
+  ConcreteFree();
 }
 
 // Sends the DESTROY_INDEX_BUFFER command, and frees the ID from the allocator.
-void IndexBufferCB::Destroy() {
-  if (size() != 0) {
+void IndexBufferCB::ConcreteFree() {
+  if (GetSizeInBytes() != 0) {
     CommandBufferHelper *helper = renderer_->helper();
     CommandBufferEntry args[1];
     args[0].value_uint32 = resource_id_;
     helper->AddCommand(command_buffer::DESTROY_INDEX_BUFFER, 1, args);
-    set_size(0);
     renderer_->index_buffer_ids().FreeID(resource_id_);
   }
 }
 
 // Allocates a resource ID, and sends the CREATE_INDEX_BUFFER command.
 bool IndexBufferCB::ConcreteAllocate(size_t size_in_bytes) {
-  Destroy();
+  ConcreteFree();
   if (size_in_bytes > 0) {
     resource_id_ = renderer_->index_buffer_ids().AllocateID();
     CommandBufferHelper *helper = renderer_->helper();
@@ -175,16 +173,16 @@ bool IndexBufferCB::ConcreteAllocate(size_t size_in_bytes) {
 // GET_INDEX_BUFFER_DATA command).
 bool IndexBufferCB::ConcreteLock(AccessMode access_mode, void **buffer_data) {
   *buffer_data = NULL;
-  if (size() == 0 || lock_pointer_)
+  if (GetSizeInBytes() == 0 || lock_pointer_)
     return false;
-  lock_pointer_ = renderer_->allocator()->Alloc(size());
+  lock_pointer_ = renderer_->allocator()->Alloc(GetSizeInBytes());
   if (!lock_pointer_) return false;
   if (has_data_) {
     CommandBufferHelper *helper = renderer_->helper();
     CommandBufferEntry args[5];
     args[0].value_uint32 = resource_id_;
     args[1].value_uint32 = 0;
-    args[2].value_uint32 = size();
+    args[2].value_uint32 = GetSizeInBytes();
     args[3].value_uint32 = renderer_->transfer_shm_id();
     args[4].value_uint32 = renderer_->allocator()->GetOffset(lock_pointer_);
     helper->AddCommand(command_buffer::GET_INDEX_BUFFER_DATA, 5, args);
@@ -197,13 +195,13 @@ bool IndexBufferCB::ConcreteLock(AccessMode access_mode, void **buffer_data) {
 // Copies the data into the resource by sending the SET_INDEX_BUFFER_DATA
 // command, then frees the shared memory, pending the transfer completion.
 bool IndexBufferCB::ConcreteUnlock() {
-  if (size() == 0 || !lock_pointer_)
+  if (GetSizeInBytes() == 0 || !lock_pointer_)
     return false;
   CommandBufferHelper *helper = renderer_->helper();
   CommandBufferEntry args[5];
   args[0].value_uint32 = resource_id_;
   args[1].value_uint32 = 0;
-  args[2].value_uint32 = size();
+  args[2].value_uint32 = GetSizeInBytes();
   args[3].value_uint32 = renderer_->transfer_shm_id();
   args[4].value_uint32 = renderer_->allocator()->GetOffset(lock_pointer_);
   helper->AddCommand(command_buffer::SET_INDEX_BUFFER_DATA, 5, args);

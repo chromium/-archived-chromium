@@ -65,6 +65,11 @@ class EffectCB : public Effect {
   // Overriden from Effect.
   virtual void GetParameterInfo(EffectParameterInfoArray* info_array);
 
+  // Gets info about the varying parameters this effects vertex shader needs.
+  // Parameters:
+  //   info_array: EffectStreamInfoArray to receive info.
+  virtual void GetStreamInfo(EffectStreamInfoArray* info_array);
+
  private:
   void Destroy();
   // The command buffer resource ID for the effect.

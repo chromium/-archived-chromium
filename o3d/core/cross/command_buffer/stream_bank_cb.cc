@@ -110,19 +110,26 @@ static bool GetCBSemantic(
 }
 
 // Converts a data type from O3D enum values to command-buffer enum values.
-static vertex_struct::Type GetCBType(Stream::DataType type) {
-  switch (type) {
-    case Stream::FLOAT1:
-      return vertex_struct::FLOAT1;
-    case Stream::FLOAT2:
-      return vertex_struct::FLOAT2;
-    case Stream::FLOAT3:
-      return vertex_struct::FLOAT3;
-    case Stream::FLOAT4:
-      return vertex_struct::FLOAT4;
-    default:
-      return vertex_struct::NUM_TYPES;
+static vertex_struct::Type GetCBType(const Field& field) {
+  if (field.IsA(FloatField::GetApparentClass())) {
+    switch (field.num_components()) {
+      case 1:
+        return vertex_struct::FLOAT1;
+      case 2:
+        return vertex_struct::FLOAT2;
+      case 3:
+        return vertex_struct::FLOAT3;
+      case 4:
+        return vertex_struct::FLOAT4;
+    }
+  } else if (field.IsA(UByteNField::GetApparentClass())) {
+    switch (field.num_components()) {
+      case 4:
+        return vertex_struct::UCHAR4N;
+    }
   }
+  DLOG(ERROR) << "Unknown Stream DataType";
+  return vertex_struct::NUM_TYPES;
 }
 
 // This function is overridden so that we can invalidate the vertex struct any
@@ -154,25 +161,25 @@ void StreamBankCB::CreateVertexStruct() {
                  << stream.semantic_index() << ") - ignoring stream.";
       continue;
     }
-    vertex_struct::Type cb_type = GetCBType(stream.data_type());
+    vertex_struct::Type cb_type = GetCBType(stream.field());
     if (cb_type == vertex_struct::NUM_TYPES) {
-      DLOG(INFO) << "Invalid type (" << stream.data_type()
+      DLOG(INFO) << "Invalid type (" << stream.field().num_components()
                  << ") - ignoring stream.";
       continue;
     }
 
     namespace cmd = command_buffer::set_vertex_input_cmd;
     VertexBufferCB *vertex_buffer =
-        static_cast<VertexBufferCB *>(stream.buffer());
+        static_cast<VertexBufferCB *>(stream.field().buffer());
     args[0].value_uint32 = vertex_struct_id_;
     args[1].value_uint32 = i;
     args[2].value_uint32 = vertex_buffer->resource_id();
-    args[3].value_uint32 = stream.offset();
+    args[3].value_uint32 = stream.field().offset();
     args[4].value_uint32 =
         cmd::SemanticIndex::MakeValue(cb_semantic_index) |
         cmd::Semantic::MakeValue(cb_semantic) |
         cmd::Type::MakeValue(cb_type) |
-        cmd::Stride::MakeValue(stream.stride());
+        cmd::Stride::MakeValue(vertex_buffer->stride());
     helper->AddCommand(command_buffer::SET_VERTEX_INPUT, 5, args);
   }
 }

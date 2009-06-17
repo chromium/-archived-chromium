@@ -118,15 +118,16 @@ void PrimitiveCB::Render(Renderer* renderer,
   if (!param_cache_cb->ValidateAndCacheParams(effect_cb,
                                               draw_element,
                                               this,
+                                              stream_bank_cb,
                                               material,
                                               override)) {
     // TODO: should we do this here, or on the service side ?
     // InsertMissingVertexStreams();
   }
 
-  IndexBufferCB *index_buffer =
-      static_cast<IndexBufferCB *>(index_stream_.buffer());
-  if (!index_buffer) {
+  IndexBufferCB *index_buffer_cb =
+      down_cast<IndexBufferCB *>(index_buffer());
+  if (!index_buffer_cb) {
     // TODO: draw non-index in this case ? we don't do it currently on
     // other platforms, so keep compatibility.
     DLOG(INFO) << "Trying to draw with an empty index buffer.";
@@ -156,7 +157,7 @@ void PrimitiveCB::Render(Renderer* renderer,
 
   // Draws.
   args[0].value_uint32 = cb_primitive_type;
-  args[1].value_uint32 = index_buffer->resource_id();
+  args[1].value_uint32 = index_buffer_cb->resource_id();
   args[2].value_uint32 = 0;                     // first index.
   args[3].value_uint32 = number_primitives_;    // primitive count.
   args[4].value_uint32 = 0;                     // min index.

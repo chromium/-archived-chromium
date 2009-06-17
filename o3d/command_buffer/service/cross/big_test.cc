@@ -42,7 +42,7 @@
 #include "command_buffer/service/cross/buffer_rpc.h"
 #include "command_buffer/service/cross/cmd_buffer_engine.h"
 #include "command_buffer/service/cross/gapi_decoder.h"
-#include "native_client/service_runtime/nrd_xfer_lib/nrd_all_modules.h"
+#include "third_party/native_client/googleclient/native_client/src/trusted/desc/nrd_all_modules.h"
 
 namespace o3d {
 namespace command_buffer {

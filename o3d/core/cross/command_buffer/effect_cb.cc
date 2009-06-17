@@ -198,4 +198,8 @@ void EffectCB::GetParameterInfo(EffectParameterInfoArray *array) {
   }
 }
 
+void EffectCB::GetStreamInfo(EffectStreamInfoArray *array) {
+  // To be filled in
+}
+
 }  // namespace o3d

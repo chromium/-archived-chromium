@@ -154,10 +154,6 @@ GAPIInterface::BlendFunc BlendFuncToCB(int func) {
       return GAPIInterface::BLEND_FUNC_INV_DST_COLOR;
     case State::BLENDFUNC_SOURCE_ALPHA_SATUTRATE:
       return GAPIInterface::BLEND_FUNC_SRC_ALPHA_SATUTRATE;
-    case State::BLENDFUNC_BLEND_FACTOR:
-      return GAPIInterface::BLEND_FUNC_BLEND_COLOR;
-    case State::BLENDFUNC_INVERSE_BLEND_FACTOR:
-      return GAPIInterface::BLEND_FUNC_INV_BLEND_COLOR;
   }
 }
 
@@ -610,14 +606,6 @@ void RendererCB::StateManager::AddStateHandlers(RendererCB *renderer) {
         new BlendFuncStateHandler<AlphaDstFunc>(arg, dirty));
     renderer->AddStateHandler(State::kBlendAlphaEquationParamName,
                               new BlendEqStateHandler<AlphaEq>(arg, dirty));
-  }
-
-  // Blending Color
-  {
-    bool *dirty = blending_color_helper_.dirty_ptr();
-    CommandBufferEntry *args = blending_color_helper_.args();
-    renderer->AddStateHandler(State::kBlendFactorParamName,
-                              new BlendColorStateHandler(args, dirty));
   }
 
   // Color Write

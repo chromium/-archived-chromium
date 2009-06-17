@@ -64,6 +64,9 @@ class VertexBufferCB : public VertexBuffer {
   //   true if successful.
   virtual bool ConcreteAllocate(size_t size_in_bytes);
 
+  // The concrete version of Free
+  virtual void ConcreteFree();
+
   // Locks the vertex buffer for reading and writing. This allocates a buffer
   // into the transfer shared memory. If any data was set into the vertex
   // buffer, this function will copy it back for reading. Otherwise the data in
@@ -83,9 +86,6 @@ class VertexBufferCB : public VertexBuffer {
   virtual bool ConcreteUnlock();
 
  private:
-  // Destroys the resource, and frees the resource ID.
-  void Destroy();
-
   // The pointer to the region in the transfer shared memory buffer when the
   // vertex buffer is locked, or NULL if it is not locked.
   void *lock_pointer_;
@@ -122,6 +122,9 @@ class IndexBufferCB : public IndexBuffer {
   // Returns:
   //   true if successful.
   virtual bool ConcreteAllocate(size_t size_in_bytes);
+
+  // The concrete version of Free
+  virtual void ConcreteFree();
 
   // Locks the index buffer for reading and writing. This allocates a buffer
   // into the transfer shared memory.  If any data was set into the index

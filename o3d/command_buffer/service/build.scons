@@ -58,7 +58,7 @@ env.Append(
 )
 
 if env['TARGET_PLATFORM'] == 'WINDOWS':
-  env.Append(CCFLAGS = ['/Wp64'],
+  env.Append(CCFLAGS = [],
              LIBS = [# System libs.
                      'd3d9',
                      # TODO: remove link-time dependency on d3dx9, using

@@ -48,8 +48,8 @@
 #ifdef OS_WIN
 #include "command_buffer/service/win/d3d9/gapi_d3d9.h"
 #endif
-#include "native_client/service_runtime/nrd_xfer_lib/nrd_all_modules.h"
-#include "tools/idlglue/ng/static_glue/npapi/npn_api.h"
+#include "third_party/native_client/googleclient/native_client/src/trusted/desc/nrd_all_modules.h"
+#include "third_party/nixysa/files/static_glue/npapi/npn_api.h"
 
 namespace o3d {
 namespace command_buffer {

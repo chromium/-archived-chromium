@@ -95,11 +95,12 @@ RendererCB *RendererCB::CreateDefault(ServiceLocator* service_locator) {
                         kDefaultTransferMemorySize);
 }
 
-bool RendererCB::InitPlatformSpecific(const DisplayWindow& display,
-                                      bool off_screen) {
+Renderer::InitStatus RendererCB::InitPlatformSpecific(
+    const DisplayWindow& display,
+    bool off_screen) {
   if (off_screen) {
     // TODO: Off-screen support ?
-    return false;
+    return UNINITIALIZED;  // equivalent to 0/false
   }
 
 #ifdef OS_WIN
@@ -116,11 +117,11 @@ bool RendererCB::InitPlatformSpecific(const DisplayWindow& display,
   int width = windowRect.right - windowRect.left;
   int height = windowRect.bottom - windowRect.top;
   InitCommon(width, height);
-  return true;
+  return SUCCESS;
 #else
   // TODO: Implement Mac/Linux support before shipping
   // command buffers.
-  return false;
+  return UNINITIALIZED;
 #endif
 }
 
@@ -212,6 +213,23 @@ void RendererCB::EndDraw() {
   helper_->AddCommand(command_buffer::END_FRAME, 0 , NULL);
   helper_->WaitForToken(frame_token_);
   frame_token_ = helper_->InsertToken();
+}
+
+bool RendererCB::StartRendering() {
+  ++render_frame_count_;
+  transforms_culled_ = 0;
+  transforms_processed_ = 0;
+  draw_elements_culled_ = 0;
+  draw_elements_processed_ = 0;
+  draw_elements_rendered_ = 0;
+  primitives_rendered_ = 0;
+
+  // Any device issues are handled in the command buffer backend
+  return true;
+}
+
+void RendererCB::FinishRendering() {
+  // Any device issues are handled in the command buffer backend
 }
 
 void RendererCB::RenderElement(Element* element,

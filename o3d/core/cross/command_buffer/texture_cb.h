@@ -87,6 +87,11 @@ class Texture2DCB : public Texture2D {
   // Gets the texture resource ID.
   command_buffer::ResourceID resource_id() const { return resource_id_; }
 
+  // Gets a RGBASwizzleIndices that contains a mapping from
+  // RGBA to the internal format used by the rendering API.
+  virtual const RGBASwizzleIndices& GetABGR32FSwizzleIndices();
+
+
  private:
   // Initializes the Texture2DCB from a preexisting OpenCB texture handle
   // and raw Bitmap data.
@@ -154,6 +159,10 @@ class TextureCUBECB : public TextureCUBE {
 
   // Gets the texture resource ID.
   command_buffer::ResourceID resource_id() const { return resource_id_; }
+
+  // Gets a RGBASwizzleIndices that contains a mapping from
+  // RGBA to the internal format used by the rendering API.
+  virtual const RGBASwizzleIndices& GetABGR32FSwizzleIndices();
 
  private:
   // Creates a texture from a pre-existing texture resource.

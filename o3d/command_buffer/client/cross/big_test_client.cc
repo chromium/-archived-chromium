@@ -34,7 +34,7 @@
 #ifdef __native_client__
 #include <sys/nacl_syscalls.h>
 #else
-#include "native_client/service_runtime/nrd_xfer_lib/nrd_all_modules.h"
+#include "third_party/native_client/googleclient/native_client/src/trusted/desc/nrd_all_modules.h"
 #endif
 #include "command_buffer/common/cross/gapi_interface.h"
 #include "command_buffer/common/cross/rpc_imc.h"

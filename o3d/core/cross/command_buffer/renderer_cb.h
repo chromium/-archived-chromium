@@ -67,8 +67,8 @@ class RendererCB : public Renderer {
   ~RendererCB();
 
   // Initialises the renderer for use, claiming hardware resources.
-  virtual bool InitPlatformSpecific(const DisplayWindow& display_window,
-                                    bool off_screen);
+  virtual InitStatus InitPlatformSpecific(const DisplayWindow& display_window,
+                                          bool off_screen);
 
   // Handles the plugin resize event.
   virtual void Resize(int width, int height);
@@ -92,6 +92,12 @@ class RendererCB : public Renderer {
 
   // Notifies the renderer that the draw calls for this frame are completed.
   virtual void EndDraw();
+
+  // Does any pre-rendering preparation
+  virtual bool StartRendering();
+
+  // Presents the results of the draw calls for this frame.
+  virtual void FinishRendering();
 
   // Renders this Element using the parameters from override first, followed by
   // the draw_element, followed by params on this Primitive and material.
