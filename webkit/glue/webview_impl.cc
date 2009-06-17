@@ -156,7 +156,7 @@ class AutocompletePopupMenuClient : public WebCore::PopupMenuClient {
     SetSuggestions(suggestions);
 
     FontDescription font_description;
-    theme()->systemFont(CSSValueWebkitControl, font_description);
+    webview_->theme()->systemFont(CSSValueWebkitControl, font_description);
     // Use a smaller font size to match IE/Firefox.
     // TODO(jcampan): http://crbug.com/7376 use the system size instead of a
     //                fixed font size value.
@@ -200,12 +200,12 @@ class AutocompletePopupMenuClient : public WebCore::PopupMenuClient {
   virtual int clientPaddingLeft() const {
     // Bug http://crbug.com/7708 seems to indicate the style can be NULL.
     WebCore::RenderStyle* style = GetTextFieldStyle();
-    return style ? theme()->popupInternalPaddingLeft(style) : 0;
+    return style ? webview_->theme()->popupInternalPaddingLeft(style) : 0;
   }
   virtual int clientPaddingRight() const {
     // Bug http://crbug.com/7708 seems to indicate the style can be NULL.
     WebCore::RenderStyle* style = GetTextFieldStyle();
-    return style ? theme()->popupInternalPaddingRight(style) : 0;
+    return style ? webview_->theme()->popupInternalPaddingRight(style) : 0;
   }
   virtual int listSize() const {
     return suggestions_.size();
@@ -385,6 +385,10 @@ WebViewImpl::~WebViewImpl() {
        i != image_fetchers_.end(); ++i) {
     delete *i;
   }
+}
+
+RenderTheme* WebViewImpl::theme() const {
+  return page_.get() ? page_->theme() : RenderTheme::defaultTheme().get();
 }
 
 void WebViewImpl::SetUseEditorDelegate(bool value) {

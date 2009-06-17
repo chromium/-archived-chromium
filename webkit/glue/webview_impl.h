@@ -19,6 +19,7 @@
 
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "Page.h"
+#include "RenderTheme.h"
 MSVC_POP_WARNING();
 
 namespace WebCore {
@@ -31,6 +32,7 @@ class Page;
 class PlatformKeyboardEvent;
 class PopupContainer;
 class Range;
+class RenderTheme;
 class Widget;
 }
 
@@ -152,6 +154,8 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   WebCore::Page* page() const {
     return page_.get();
   }
+
+  WebCore::RenderTheme* theme() const;
 
   // Returns the main frame associated with this view.  This may be NULL when
   // the page is shutting down, but will be valid at all other times.
