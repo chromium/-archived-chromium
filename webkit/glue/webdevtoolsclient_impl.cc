@@ -67,8 +67,9 @@ class ToolsAgentNativeDelegateImpl : public ToolsAgentNativeDelegate {
         resource_content_requests_.take(request_id);
 
     InspectorController* ic = frame_->frame()->page()->inspectorController();
-
-    ic->addSourceToFrame(request.mime_type, content, request.frame.get());
+    if (request.frame && request.frame->attached()) {
+      ic->addSourceToFrame(request.mime_type, content, request.frame.get());
+    }
   }
 
   bool WaitingForResponse(int resource_id, Node* frame) {
