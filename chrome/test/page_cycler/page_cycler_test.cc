@@ -214,6 +214,7 @@ class PageCyclerTest : public UITest {
     int browser_process_pid = ChromeBrowserProcessId(data_dir);
     ChromeProcessList chrome_processes(GetRunningChromeProcesses(data_dir));
 
+#if !defined(OS_MACOSX)
     ChromeProcessList::const_iterator it;
     for (it = chrome_processes.begin(); it != chrome_processes.end(); ++it) {
       base::ProcessHandle process_handle;
@@ -259,6 +260,36 @@ class PageCyclerTest : public UITest {
 #endif
       base::CloseProcessHandle(process_handle);
     }
+
+#else  // !defined(OS_MACOSX)
+
+    // There is no way to get memory info from one process on another process
+    // without privileges, this means the base methods for doing this can't be
+    // made to work.  Instead we use a helper that invokes ps to collect the
+    // data so we have it for the unittest.
+
+    MacChromeProcessInfoList process_infos(
+                                  GetRunningMacProcessInfo(chrome_processes));
+    MacChromeProcessInfoList::const_iterator it;
+    for (it = process_infos.begin(); it != process_infos.end(); ++it) {
+      const MacChromeProcessInfo &process_info = *it;
+
+      std::string chrome_name =
+          (process_info.pid == browser_process_pid) ? "_b" : "_r";
+      std::string trace_name(test_name);
+
+      PrintResult("vm_size_final", chrome_name,
+                  "vm_size_f" + chrome_name + trace_name,
+                  static_cast<size_t>(process_info.vsz_in_kb) * 1024, "bytes",
+                  true /* important */);
+      PrintResult("vm_rss_final", chrome_name,
+                  "vm_rss_f" + chrome_name + trace_name,
+                  static_cast<size_t>(process_info.rsz_in_kb) * 1024, "bytes",
+                  true /* important */);
+    }
+
+#endif  // !defined(OS_MACOSX)
+
   }
 
   // When use_http is true, the test name passed here will be used directly in

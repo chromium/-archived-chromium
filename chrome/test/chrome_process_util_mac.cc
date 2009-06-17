@@ -55,3 +55,48 @@ base::ProcessId ChromeBrowserProcessId(const FilePath& data_dir) {
 
   return -1;
 }
+
+MacChromeProcessInfoList GetRunningMacProcessInfo(
+    const ChromeProcessList &process_list) {
+  MacChromeProcessInfoList result;
+
+  // Build up the ps command line
+  std::vector<std::string> cmdline;
+  cmdline.push_back("ps");
+  cmdline.push_back("-o");
+  cmdline.push_back("pid=,rsz=,vsz=");  // fields we need, no headings
+  ChromeProcessList::const_iterator process_iter;
+  for (process_iter = process_list.begin();
+       process_iter != process_list.end();
+       ++process_iter) {
+    cmdline.push_back("-p");
+    cmdline.push_back(StringPrintf("%d", *process_iter));
+  }
+
+  // Invoke it
+  std::string ps_output;
+  if (!base::GetAppOutput(CommandLine(cmdline), &ps_output))
+    return result;  // All the pids might have exited
+
+  // Process the results
+  std::vector<std::string> ps_output_lines;
+  SplitString(ps_output, '\n', &ps_output_lines);
+  std::vector<std::string>::const_iterator line_iter;
+  for (line_iter = ps_output_lines.begin();
+       line_iter != ps_output_lines.end();
+       ++line_iter) {
+    std::string line(CollapseWhitespaceASCII(*line_iter, false));
+    std::vector<std::string> values;
+    SplitString(line, ' ', &values);
+    if (values.size() == 3) {
+      MacChromeProcessInfo proc_info;
+      proc_info.pid = StringToInt(values[0]);
+      proc_info.rsz_in_kb = StringToInt(values[1]);
+      proc_info.vsz_in_kb = StringToInt(values[2]);
+      if (proc_info.pid && proc_info.rsz_in_kb && proc_info.vsz_in_kb)
+        result.push_back(proc_info);
+    }
+  }
+
+  return result;
+}
