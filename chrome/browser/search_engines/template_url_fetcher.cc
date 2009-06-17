@@ -23,7 +23,7 @@ class TemplateURLFetcher::RequestDelegate : public URLFetcher::Delegate {
                   const std::wstring& keyword,
                   const GURL& osdd_url,
                   const GURL& favicon_url,
-                  gfx::NativeView parent_window,
+                  gfx::NativeWindow parent_window,
                   bool autodetected)
       : ALLOW_THIS_IN_INITIALIZER_LIST(url_fetcher_(osdd_url,
                                                     URLFetcher::GET, this)),
@@ -62,7 +62,7 @@ class TemplateURLFetcher::RequestDelegate : public URLFetcher::Delegate {
 
   // Used to determine where to place a confirmation dialog. May be NULL,
   // in which case the confirmation will be centered in the screen if needed.
-  gfx::NativeView parent_window_;
+  gfx::NativeWindow parent_window_;
 
   DISALLOW_COPY_AND_ASSIGN(RequestDelegate);
 };
@@ -156,7 +156,7 @@ TemplateURLFetcher::~TemplateURLFetcher() {
 void TemplateURLFetcher::ScheduleDownload(const std::wstring& keyword,
                                           const GURL& osdd_url,
                                           const GURL& favicon_url,
-                                          const gfx::NativeView parent_window,
+                                          const gfx::NativeWindow parent_window,
                                           bool autodetected) {
   DCHECK(!keyword.empty() && osdd_url.is_valid());
   // Make sure we aren't already downloading this request.

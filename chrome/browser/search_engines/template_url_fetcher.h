@@ -29,7 +29,7 @@ class TemplateURLFetcher {
   void ScheduleDownload(const std::wstring& keyword,
                         const GURL& osdd_url,
                         const GURL& favicon_url,
-                        const gfx::NativeView parent_window,
+                        const gfx::NativeWindow parent_window,
                         bool autodetected);
 
  private:
