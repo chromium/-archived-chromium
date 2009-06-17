@@ -92,11 +92,12 @@ function initStep2(clientElements) {
 
   var clientWidth = g_client.width;
   var clientHeight = g_client.height;
+  // The + 0.5 makes this pixel aligned.
   g_viewInfo.drawContext.projection = g_math.matrix4.orthographic(
-      -clientWidth * 0.5,
-      clientWidth * 0.5,
-      -clientHeight * 0.5,
-      clientHeight * 0.5,
+      -clientWidth * 0.5 + 0.5,
+      clientWidth * 0.5 + 0.5,
+      -clientHeight * 0.5 + 0.5,
+      clientHeight * 0.5 + 0.5,
       0.001,
       1000);
   g_viewInfo.drawContext.view = g_math.matrix4.lookAt(

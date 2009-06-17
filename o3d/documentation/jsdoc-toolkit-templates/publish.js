@@ -543,37 +543,34 @@ function linkifySingleType(type) {
       }
     }
   } else if (type.indexOf(':') >= 0) { // check for records.
-    var elements = type.split(/\s*,\s*/);
-    var output = '{';
-    for (var ii = 0; ii < elements.length; ++ii) {
-      if (ii > 0) {
-        output += ', ';
+    if (type.indexOf('::') >= 0) { // check for CPP scope
+      print ('WARNING: CPP "::" scope operator found for type "' + type +
+             '" must be Javascript "." scope operator.');
+    } else {
+      var elements = type.split(/\s*,\s*/);
+      var output = '{';
+      for (var ii = 0; ii < elements.length; ++ii) {
+        if (ii > 0) {
+          output += ', ';
+        }
+        var element = elements[ii];
+        var colon = element.indexOf(': ');
+        if (colon < 0) {
+          print ("WARNING: Malformed record specification. Format must be " +
+                 "{id1: type1, id2: type2, ...}.");
+          output += element;
+        } else {
+          var name = element.substring(0, colon);
+          var subType = element.substring(colon + 2);
+          output += name + ':&nbsp;' + linkifyTypeSpec(subType)
+        }
       }
-      var element = elements[ii];
-      var colon = element.indexOf(': ');
-      if (colon < 0) {
-        print ("WARNING: Malformed record specification. Format must be " +
-               "{id1: type1, id2: type2, ...}.");
-        output += element;
-      } else {
-        var name = element.substring(0, colon);
-        var subType = element.substring(colon + 2);
-        output += name + ':&nbsp;' + linkifyTypeSpec(subType)
-      }
+      link = output + '}';
     }
-    link = output + '}';
   } else {
     var symbol = getSymbol(type);
     if (symbol) {
       link = '<a class="el" href="' + getLinkToSymbol(symbol) + '">' +
-          type + '</a>';
-    } else if (startsWith(type, 'o3d.')) {
-      // TODO: remove this hack, make nixysa generate JSDOC js
-      //     files instead of C++ headers and pass those into
-      //     jsdoctoolkit.
-      reportUnknownType(type);
-      link = '<a class="el" href="../classo3d_1_1_' +
-          camelCaseToUnderscore(type.substring(4)) + '.html">' +
           type + '</a>';
     } else {
       // See if the symbol is a property or field.
@@ -586,11 +583,21 @@ function linkifySingleType(type) {
           link = '<a class="el" href="' + getLinkToSymbol(symbol) + '#' +
               field + '">' +  type + '</a>';
         } else {
-          if (subType[0] == '?') {
-            subType = subType.substring(1);
-          }
-          if (!g_validJSDOCTypes[subType]) {
+          if (startsWith(type, 'o3d.')) {
+            // TODO(gman): remove this hack, make nixysa generate JSDOC js
+            //     files instead of C++ headers and pass those into
+            //     jsdoctoolkit.
             reportUnknownType(type);
+            link = '<a class="el" href="../classo3d_1_1_' +
+                camelCaseToUnderscore(type.substring(4)) + '.html">' +
+                type + '</a>';
+          } else {
+            if (subType[0] == '?') {
+              subType = subType.substring(1);
+            }
+            if (!g_validJSDOCTypes[subType]) {
+              reportUnknownType(type);
+            }
           }
         }
       }
