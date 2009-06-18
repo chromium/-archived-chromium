@@ -10,6 +10,7 @@
 var chrome = chrome || {};
 (function () {
   native function OpenChannelToExtension(id);
+  native function CloseChannel(portId);
   native function PostMessage(portId, msg);
 
   // Port object.  Represents a connection to another script context through
@@ -66,6 +67,12 @@ var chrome = chrome || {};
     PostMessage(this.portId_, JSON.stringify(msg));
   };
 
+  // Disconnects the port from the other end.
+  chrome.Port.prototype.disconnect = function() {
+    delete chrome.Port.ports_[this.portId_];
+    CloseChannel(this.portId_);
+  }
+
   // Extension object.
   chrome.Extension = function(id) {
     this.id_ = id;
@@ -85,4 +92,10 @@ var chrome = chrome || {};
   chrome.Extension.prototype.getURL = function(path) {
     return "chrome-extension://" + this.id_ + "/" + path;
   };
+
+  chrome.onUnload_.addListener(function() {
+    for (var i in chrome.Port.ports_) {
+      chrome.Port.ports_[i].disconnect();
+    }
+  });
 })();

@@ -34,7 +34,7 @@ ExtensionPortContainer::~ExtensionPortContainer() {
   DCHECK_EQ(MessageLoop::current()->type(), MessageLoop::TYPE_UI);
 
   if (port_id_ != -1)
-    service_->CloseAutomationChannel(port_id_);
+    service_->CloseChannel(port_id_);
 }
 
 bool ExtensionPortContainer::PostResponseToExternalPort(

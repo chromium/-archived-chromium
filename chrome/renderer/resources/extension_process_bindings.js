@@ -51,7 +51,7 @@ var chrome;
         validator.validate(args[i], schemas[i]);
         if (validator.errors.length == 0)
           continue;
-        
+
         var message = "Invalid value for argument " + i + ". ";
         for (var i = 0, err; err = validator.errors[i]; i++) {
           if (err.path) {
@@ -83,7 +83,7 @@ var chrome;
         console.error("Error during " + name + ": " + error);
         return;
       }
-      
+
       if (callbacks[requestId]) {
         if (response) {
           callbacks[requestId](JSON.parse(response));
@@ -125,7 +125,7 @@ var chrome;
     chrome.types.pInt,
     chrome.types.fun
   ];
-  
+
   chrome.windows.getCurrent = function(callback) {
     validate(arguments, arguments.callee.params);
     sendRequest(GetCurrentWindow, null, callback);
@@ -134,7 +134,7 @@ var chrome;
   chrome.windows.getCurrent.params = [
     chrome.types.fun
   ];
-  
+
   chrome.windows.getLastFocused = function(callback) {
     validate(arguments, arguments.callee.params);
     sendRequest(GetLastFocusedWindow, null, callback);
@@ -153,7 +153,7 @@ var chrome;
     chrome.types.optBool,
     chrome.types.fun
   ];
-  
+
   chrome.windows.create = function(createData, callback) {
     validate(arguments, arguments.callee.params);
     sendRequest(CreateWindow, createData, callback);
@@ -200,7 +200,7 @@ var chrome;
     chrome.types.pInt,
     chrome.types.optFun
   ];
-  
+
   // sends (windowId).
   // *WILL* be followed by tab-attached AND then tab-selection-changed.
   chrome.windows.onCreated = new chrome.Event("window-created");
@@ -210,7 +210,7 @@ var chrome;
   // tab-selection-changed -- one for each tab that was contained in the window
   // that closed
   chrome.windows.onRemoved = new chrome.Event("window-removed");
-  
+
   // sends (windowId).
   chrome.windows.onFocusChanged =
         new chrome.Event("window-focus-changed");
@@ -229,7 +229,7 @@ var chrome;
     chrome.types.pInt,
     chrome.types.fun
   ];
-  
+
   chrome.tabs.getSelected = function(windowId, callback) {
     validate(arguments, arguments.callee.params);
     sendRequest(GetSelectedTab, windowId, callback);
@@ -250,7 +250,7 @@ var chrome;
     chrome.types.fun
   ];
 
-  chrome.tabs.create = function(tab, callback) {  
+  chrome.tabs.create = function(tab, callback) {
     validate(arguments, arguments.callee.params);
     sendRequest(CreateTab, tab, callback);
   };
@@ -301,7 +301,7 @@ var chrome;
     },
     chrome.types.optFun
   ];
-  
+
   chrome.tabs.remove = function(tabId, callback) {
     validate(arguments, arguments.callee.params);
     sendRequest(RemoveTab, tabId, callback);
@@ -316,26 +316,26 @@ var chrome;
   // Will *NOT* be followed by tab-attached - it is implied.
   // *MAY* be followed by tab-selection-changed.
   chrome.tabs.onCreated = new chrome.Event("tab-created");
-  
+
   // Sends (tabId, {ChangedProps}).
   chrome.tabs.onUpdated = new chrome.Event("tab-updated");
 
   // Sends (tabId, {windowId, fromIndex, toIndex}).
   // Tabs can only "move" within a window.
   chrome.tabs.onMoved = new chrome.Event("tab-moved");
- 
+
   // Sends (tabId, {windowId}).
-  chrome.tabs.onSelectionChanged = 
+  chrome.tabs.onSelectionChanged =
        new chrome.Event("tab-selection-changed");
-   
+
   // Sends (tabId, {newWindowId, newPosition}).
   // *MAY* be followed by tab-selection-changed.
   chrome.tabs.onAttached = new chrome.Event("tab-attached");
-  
+
   // Sends (tabId, {oldWindowId, oldPosition}).
   // *WILL* be followed by tab-selection-changed.
   chrome.tabs.onDetached = new chrome.Event("tab-detached");
-  
+
   // Sends (tabId).
   // *WILL* be followed by tab-selection-changed.
   // Will *NOT* be followed or preceded by tab-detached.
@@ -351,7 +351,7 @@ var chrome;
     sendRequest(EnablePageAction, [pageActionId, action]);
   }
 
-  chrome.pageActions.enableForTab.params = [  
+  chrome.pageActions.enableForTab.params = [
     chrome.types.str,
     {
       type: "object",
@@ -380,7 +380,7 @@ var chrome;
     chrome.types.singleOrListOf(chrome.types.pInt),
     chrome.types.fun
   ];
-  
+
   chrome.bookmarks.getChildren = function(id, callback) {
     validate(arguments, arguments.callee.params);
     sendRequest(GetBookmarkChildren, id, callback);
@@ -390,12 +390,12 @@ var chrome;
     chrome.types.pInt,
     chrome.types.fun
   ];
-  
+
   chrome.bookmarks.getTree = function(callback) {
     validate(arguments, arguments.callee.params);
     sendRequest(GetBookmarkTree, null, callback);
   };
-  
+
   // TODO(erikkay): allow it to take an optional id as a starting point
   // BUG=13727
   chrome.bookmarks.getTree.params = [
@@ -497,7 +497,7 @@ var chrome;
 
   // Sends (id, {parentId, index, oldParentId, oldIndex})
   chrome.bookmarks.onMoved = new chrome.Event("bookmark-moved");
-  
+
   // Sends (id, [childrenIds])
   chrome.bookmarks.onChildrenReordered =
       new chrome.Event("bookmark-children-reordered");
@@ -508,14 +508,14 @@ var chrome;
   // Self.
   chrome.self = chrome.self || {};
   chrome.self.onConnect = new chrome.Event("channel-connect");
-  
+
   // Register
-  chrome.self.register_ = function() {
+  chrome.onLoad_.addListener(function() {
     var extensionId = RegisterExtension();
-    window.addEventListener('unload', function() {
-        UnregisterExtension(extensionId); }, false);
-    delete chrome.self.register_;
-  }
+    chrome.onUnload_.addListener(function() {
+      UnregisterExtension(extensionId);
+    });
+  });
 
   chrome.self.getViews = function() {
     return GetViews();

@@ -54,21 +54,16 @@ class ExtensionMessageService : public NotificationObserver {
   void AddEventListener(std::string event_name, int render_process_id);
   void RemoveEventListener(std::string event_name, int render_process_id);
 
-  // Closes an extension channel for test automation.
-  void CloseAutomationChannel(int port_id);
+  // Closes the message channel associated with the given port, and notifies
+  // the other side.
+  void CloseChannel(int port_id);
 
   // Sends a message from a renderer to the given port.
-  // TODO(mpcomplete): include the source tab.
   void PostMessageFromRenderer(int port_id, const std::string& message);
 
   // Send an event to every registered extension renderer.
   void DispatchEventToRenderers(
       const std::string& event_name, const std::string& event_args);
-
-  // NotificationObserver interface.
-  void Observe(NotificationType type,
-               const NotificationSource& source,
-               const NotificationDetails& details);
 
   // Given an extension's ID, opens a channel between the given automation
   // "port" and that extension.  Returns a channel ID to be used for posting
@@ -77,6 +72,11 @@ class ExtensionMessageService : public NotificationObserver {
                                        int routing_id,
                                        const std::string& extension_id,
                                        IPC::Message::Sender* source);
+
+  // NotificationObserver interface.
+  void Observe(NotificationType type,
+               const NotificationSource& source,
+               const NotificationDetails& details);
 
   // --- IO thread only:
 
@@ -89,6 +89,16 @@ class ExtensionMessageService : public NotificationObserver {
                              ResourceMessageFilter* source);
 
  private:
+  // The connection between two ports.  It is possible that both ports
+  // refer to the same renderer.
+  struct MessageChannel {
+    IPC::Message::Sender* port1;
+    IPC::Message::Sender* port2;
+  };
+
+  // A map of channel ID to its channel object.
+  typedef std::map<int, MessageChannel> MessageChannelMap;
+
   // Allocates a pair of port ids.
   // NOTE: this can be called from any thread.
   void AllocatePortIdPair(int* port1, int* port2);
@@ -96,6 +106,8 @@ class ExtensionMessageService : public NotificationObserver {
   // Gets the process ID for the specified extension.
   // NOTE: this can be called from any thread.
   int GetProcessIdForExtension(const std::string& extension_id);
+
+  void CloseChannelImpl(MessageChannelMap::iterator channel_iter, int port_id);
 
   int OpenChannelToExtensionImpl(const std::string& extension_id,
                                  IPC::Message::Sender* source);
@@ -136,15 +148,6 @@ class ExtensionMessageService : public NotificationObserver {
     int source_routing_id, int source_port_id, IPC::Message::Sender* source,
     int dest_port_id, int dest_process_id, int source_process_id);
 
-  // The connection between two ports.  It is possible that both ports
-  // refer to the same renderer.
-  struct MessageChannel {
-    IPC::Message::Sender* port1;
-    IPC::Message::Sender* port2;
-  };
-
-  // A map of channel ID to its channel object.
-  typedef std::map<int, MessageChannel> MessageChannelMap;
   MessageChannelMap channels_;
 
   // True if Init has been called.

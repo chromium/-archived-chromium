@@ -683,6 +683,20 @@ WebFrame* WebFrameImpl::GetTop() const {
   return NULL;
 }
 
+WebFrame* WebFrameImpl::GetFirstChild() const {
+  if (frame_ && frame_->tree()->firstChild())
+    return FromFrame(frame_->tree()->firstChild());
+
+  return NULL;
+}
+
+WebFrame* WebFrameImpl::GetNextSibling() const {
+  if (frame_ && frame_->tree()->nextSibling())
+    return FromFrame(frame_->tree()->nextSibling());
+
+  return NULL;
+}
+
 WebFrame* WebFrameImpl::GetChildFrame(const std::wstring& xpath) const {
   // xpath string can represent a frame deep down the tree (across multiple
   // frame DOMs).

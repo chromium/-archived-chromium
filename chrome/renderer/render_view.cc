@@ -35,6 +35,7 @@
 #include "chrome/renderer/debug_message_handler.h"
 #include "chrome/renderer/devtools_agent.h"
 #include "chrome/renderer/devtools_client.h"
+#include "chrome/renderer/extensions/event_bindings.h"
 #include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/localized_error.h"
 #include "chrome/renderer/media/audio_renderer_impl.h"
@@ -323,6 +324,22 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
 
   audio_message_filter_ = new AudioMessageFilter(routing_id_);
   render_thread_->AddFilter(audio_message_filter_);
+}
+
+// Recursively calls WillCloseFrame on every frame in the hierarchy.
+static void WillCloseFrameTree(RenderView* renderview, WebFrame* frame) {
+  renderview->WillCloseFrame(renderview->webview(), frame);
+
+  for (WebFrame* child = frame->GetFirstChild(); child;
+       child = child->GetNextSibling()) {
+    WillCloseFrameTree(renderview, child);
+  }
+}
+
+void RenderView::Close() {
+  if (webview() && webview()->GetMainFrame())
+    WillCloseFrameTree(this, webview()->GetMainFrame());
+  RenderWidget::Close();
 }
 
 void RenderView::OnMessageReceived(const IPC::Message& message) {
@@ -1395,15 +1412,16 @@ void RenderView::DocumentElementAvailable(WebFrame* frame) {
   if (frame->GetURL().SchemeIs(chrome::kExtensionScheme))
     frame->GrantUniversalAccess();
 
-  // Tell extensions to self-register their js contexts.
-  // TODO(rafaelw): This is kind of gross. We need a way to call through
-  // the glue layer to retrieve the current v8::Context.
-  if (frame->GetURL().SchemeIs(chrome::kExtensionScheme))
-    ExtensionProcessBindings::RegisterExtensionContext(frame);
+  // Tell bindings that the DOM is ready.
+  EventBindings::HandleDocumentReady(frame);
 
   if (RenderThread::current())  // Will be NULL during unit tests.
     RenderThread::current()->user_script_slave()->InjectScripts(
         frame, UserScript::DOCUMENT_START);
+}
+
+void RenderView::WillCloseFrame(WebView* webview, WebFrame* frame) {
+  EventBindings::HandleDocumentClose(frame);
 }
 
 WindowOpenDisposition RenderView::DispositionForNavigationAction(
