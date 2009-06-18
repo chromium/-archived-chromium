@@ -110,7 +110,7 @@
 
 #if defined(LINUX2)
 #include "chrome/browser/extensions/extension_protocols.h"
-#endif // defined(LINUX2)
+#endif  // defined(LINUX2)
 
 #if defined(TOOLKIT_GTK)
 #include "chrome/common/gtk_util.h"
@@ -790,6 +790,10 @@ int BrowserMain(const MainFunctionParams& parameters) {
   RecordBreakpadStatusUMA(metrics);
   // Start up the extensions service. This should happen before Start().
   profile->InitExtensions();
+  // Start up the web resource service.  This starts loading data after a
+  // short delay so as not to interfere with startup time.
+  if (parsed_command_line.HasSwitch(switches::kWebResources))
+    profile->InitWebResources();
 
   int result_code = ResultCodes::NORMAL_EXIT;
   if (parameters.ui_task) {

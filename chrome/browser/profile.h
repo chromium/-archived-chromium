@@ -15,6 +15,7 @@
 #include "base/file_path.h"
 #include "base/scoped_ptr.h"
 #include "base/timer.h"
+#include "chrome/browser/web_resource/web_resource_service.h"
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
@@ -277,6 +278,9 @@ class Profile {
 
   virtual void InitExtensions() = 0;
 
+  // Start up service that gathers data from web resource feeds.
+  virtual void InitWebResources() = 0;
+
 #ifdef UNIT_TEST
   // Use with caution.  GetDefaultRequestContext may be called on any thread!
   static void set_default_request_context(URLRequestContext* c) {
@@ -352,6 +356,7 @@ class ProfileImpl : public Profile,
   virtual SpellChecker* GetSpellChecker();
   virtual void MarkAsCleanShutdown();
   virtual void InitExtensions();
+  virtual void InitWebResources();
 #ifdef CHROME_PERSONALIZATION
   virtual ProfilePersonalization* GetProfilePersonalization();
 #endif
@@ -399,6 +404,7 @@ class ProfileImpl : public Profile,
   scoped_ptr<TemplateURLFetcher> template_url_fetcher_;
   scoped_ptr<TemplateURLModel> template_url_model_;
   scoped_ptr<BookmarkModel> bookmark_bar_model_;
+  scoped_refptr<WebResourceService> web_resource_service_;
 
 #ifdef CHROME_PERSONALIZATION
   scoped_ptr<ProfilePersonalization> personalization_;

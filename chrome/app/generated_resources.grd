@@ -3409,6 +3409,10 @@ each locale. -->
                desc="Leading sentence above a custom logo that the theme artist has provided">
         Theme created by
       </message>
+      <message name="IDS_NEW_TAB_WEB_RESOURCE_CACHE"
+               desc="Title of block that holds tips, suggestions, and other new information gathered from web resources in the new tab page.">
+        Recommendations
+      </message>
 
       <!-- SafeBrowsing -->
       <message name="IDS_SAFE_BROWSING_MALWARE_TITLE" desc="SafeBrowsing Malware HTML title">

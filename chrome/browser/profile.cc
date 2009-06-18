@@ -353,6 +353,10 @@ class OffTheRecordProfileImpl : public Profile,
     NOTREACHED();
   }
 
+  virtual void InitWebResources() {
+    NOTREACHED();
+  }
+
   virtual void ExitedOffTheRecordMode() {
     // Drop our download manager so we forget about all the downloads made
     // in off-the-record mode.
@@ -478,6 +482,14 @@ void ProfileImpl::InitExtensions() {
       g_browser_process->file_thread()->message_loop());
 
   extensions_service_->Init();
+}
+
+void ProfileImpl::InitWebResources() {
+  web_resource_service_ = new WebResourceService(
+      this,
+      g_browser_process->file_thread()->message_loop());
+
+  web_resource_service_->StartAfterDelay();
 }
 
 ProfileImpl::~ProfileImpl() {

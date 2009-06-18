@@ -486,6 +486,10 @@ const wchar_t kForceFieldTestNameAndValue[]    = L"force-fieldtest";
 // can be a file path, in which case the file will be used as the new tab page.
 const wchar_t kNewNewTabPage[]                 = L"new-new-tab-page";
 
+// Enables the prototype of the backend service for web resources, used in the
+// new new tab page for loading tips and recommendations from a JSON feed.
+const wchar_t kWebResources[]                 = L"enable-web-resources";
+
 // Disables the default browser check. Useful for UI/browser tests where we want
 // to avoid having the default browser info-bar displayed.
 const wchar_t kNoDefaultBrowserCheck[]         = L"no-default-browser-check";

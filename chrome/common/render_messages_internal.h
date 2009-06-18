@@ -598,6 +598,12 @@ IPC_BEGIN_MESSAGES(View)
   // Response message to ViewHostMsg_CreateDedicatedWorker.  Sent when the
   // worker has started.
   IPC_MESSAGE_ROUTED0(ViewMsg_DedicatedWorkerCreated)
+
+  // Tell the utility process to parse the given JSON data and verify its
+  // validity.
+  IPC_MESSAGE_CONTROL1(UtilityMsg_UnpackWebResource,
+                       std::string /* JSON data */)
+
 IPC_END_MESSAGES(View)
 
 
@@ -1441,6 +1447,17 @@ IPC_BEGIN_MESSAGES(ViewHost)
   // Reply when the utility process has failed while unpacking an extension.
   // |error_message| is a user-displayable explanation of what went wrong.
   IPC_MESSAGE_CONTROL1(UtilityHostMsg_UnpackExtension_Failed,
+                       std::string /* error_message, if any */)
+
+  // Reply when the utility process is done unpacking and parsing JSON data
+  // from a web resource.
+  IPC_MESSAGE_CONTROL1(UtilityHostMsg_UnpackWebResource_Succeeded,
+                       ListValue /* json data */)
+
+  // Reply when the utility process has failed while unpacking and parsing a
+  // web resource.  |error_message| is a user-readable explanation of what
+  // went wrong.
+  IPC_MESSAGE_CONTROL1(UtilityHostMsg_UnpackWebResource_Failed,
                        std::string /* error_message, if any */)
 
 IPC_END_MESSAGES(ViewHost)

@@ -5,6 +5,8 @@
 #ifndef CHROME_UTILITY_UTILITY_THREAD_H_
 #define CHROME_UTILITY_UTILITY_THREAD_H_
 
+#include <string>
+
 #include "base/thread.h"
 #include "chrome/common/child_thread.h"
 
@@ -25,6 +27,9 @@ class UtilityThread : public ChildThread {
   // IPC messages
   virtual void OnControlMessageReceived(const IPC::Message& msg);
   void OnUnpackExtension(const FilePath& extension_path);
+
+  // IPC messages for web resource service.
+  void OnUnpackWebResource(const std::string& resource_data);
 
   // Called by the thread base class
   virtual void Init();

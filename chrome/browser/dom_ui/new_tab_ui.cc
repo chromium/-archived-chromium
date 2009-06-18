@@ -22,6 +22,7 @@
 #include "chrome/browser/dom_ui/dom_ui_theme_source.h"
 #include "chrome/browser/dom_ui/downloads_dom_handler.h"
 #include "chrome/browser/dom_ui/history_ui.h"
+#include "chrome/browser/dom_ui/web_resource_handler.h"
 #include "chrome/browser/history/page_usage_data.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
@@ -291,6 +292,8 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
       l10n_util::GetString(IDS_NEW_TAB_RECENTLY_CLOSED_WINDOW_MULTIPLE));
   localized_strings.SetString(L"attributionintro",
       l10n_util::GetString(IDS_NEW_TAB_ATTRIBUTION_INTRO));
+  localized_strings.SetString(L"resourcecache",
+      l10n_util::GetString(IDS_NEW_TAB_WEB_RESOURCE_CACHE));
 
   SetFontAndTextDirection(&localized_strings);
 
@@ -1380,6 +1383,9 @@ NewTabUI::NewTabUI(TabContents* contents)
       downloads_handler->Init();
     }
 
+    if (EnableWebResources())
+      AddMessageHandler(new WebResourceHandler(this));
+
     AddMessageHandler(new TemplateURLHandler(this));
     AddMessageHandler(new MostVisitedHandler(this));
     AddMessageHandler(new RecentlyBookmarkedHandler(this));
@@ -1435,6 +1441,8 @@ void NewTabUI::Observe(NotificationType type,
 // static
 void NewTabUI::RegisterUserPrefs(PrefService* prefs) {
   MostVisitedHandler::RegisterUserPrefs(prefs);
+  if (NewTabUI::EnableWebResources())
+    WebResourceHandler::RegisterUserPrefs(prefs);
 }
 
 // static
@@ -1442,3 +1450,9 @@ bool NewTabUI::EnableNewNewTabPage() {
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
   return command_line->HasSwitch(switches::kNewNewTabPage);
 }
+
+bool NewTabUI::EnableWebResources() {
+  const CommandLine* command_line = CommandLine::ForCurrentProcess();
+  return command_line->HasSwitch(switches::kWebResources);
+}
+

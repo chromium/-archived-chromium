@@ -37,6 +37,14 @@ bool UtilityProcessHost::StartExtensionUnpacker(const FilePath& extension) {
   return true;
 }
 
+bool UtilityProcessHost::StartWebResourceUnpacker(const std::string& data) {
+  if (!StartProcess(FilePath()))
+    return false;
+
+  Send(new UtilityMsg_UnpackWebResource(data));
+  return true;
+}
+
 bool UtilityProcessHost::StartProcess(const FilePath& exposed_dir) {
   if (!CreateChannel())
     return false;
@@ -56,7 +64,10 @@ bool UtilityProcessHost::StartProcess(const FilePath& exposed_dir) {
 
   base::ProcessHandle process;
 #if defined(OS_WIN)
-  process = sandbox::StartProcessWithAccess(&cmd_line, exposed_dir);
+  if (exposed_dir.empty())
+    process = sandbox::StartProcess(&cmd_line);
+  else
+    process = sandbox::StartProcessWithAccess(&cmd_line, exposed_dir);
 #else
   // TODO(port): sandbox
   base::LaunchApp(cmd_line, false, false, &process);
@@ -89,5 +100,9 @@ void UtilityProcessHost::Client::OnMessageReceived(
                         Client::OnUnpackExtensionSucceeded)
     IPC_MESSAGE_HANDLER(UtilityHostMsg_UnpackExtension_Failed,
                         Client::OnUnpackExtensionFailed)
+    IPC_MESSAGE_HANDLER(UtilityHostMsg_UnpackWebResource_Succeeded,
+                        Client::OnUnpackWebResourceSucceeded)
+    IPC_MESSAGE_HANDLER(UtilityHostMsg_UnpackWebResource_Failed,
+                        Client::OnUnpackWebResourceFailed)
   IPC_END_MESSAGE_MAP_EX()
 }

@@ -837,7 +837,8 @@ void BrowserView::SetDownloadShelfVisible(bool visible) {
       GetDownloadShelf();
     }
 
-    browser_->UpdateDownloadShelfVisibility(visible);
+    if (browser_ != NULL)
+      browser_->UpdateDownloadShelfVisibility(visible);
   }
 
   // SetDownloadShelfVisible can force-close the shelf, so make sure we lay out
@@ -1289,7 +1290,7 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
 }
 
 gfx::Size BrowserView::GetMinimumSize() {
-  // TODO: In theory the tabstrip width should probably be
+  // TODO(noname): In theory the tabstrip width should probably be
   // (OTR + tabstrip + caption buttons) width.
   gfx::Size tabstrip_size(
       browser_->SupportsWindowFeature(Browser::FEATURE_TABSTRIP) ?
@@ -1367,7 +1368,8 @@ void BrowserView::Init() {
 #if defined(OS_WIN)
   SetProp(GetWidget()->GetNativeView(), kBrowserViewKey, this);
 #else
-  g_object_set_data(G_OBJECT(GetWidget()->GetNativeView()), kBrowserViewKey, this);
+  g_object_set_data(G_OBJECT(GetWidget()->GetNativeView()),
+                    kBrowserViewKey, this);
 #endif
 
   // Start a hung plugin window detector for this browser object (as long as

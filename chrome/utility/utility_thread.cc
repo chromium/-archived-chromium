@@ -6,6 +6,7 @@
 
 #include "base/file_util.h"
 #include "base/values.h"
+#include "chrome/common/web_resource/web_resource_unpacker.h"
 #include "chrome/common/child_process.h"
 #include "chrome/common/extensions/extension_unpacker.h"
 #include "chrome/common/render_messages.h"
@@ -29,6 +30,7 @@ void UtilityThread::CleanUp() {
 void UtilityThread::OnControlMessageReceived(const IPC::Message& msg) {
   IPC_BEGIN_MESSAGE_MAP(UtilityThread, msg)
     IPC_MESSAGE_HANDLER(UtilityMsg_UnpackExtension, OnUnpackExtension)
+    IPC_MESSAGE_HANDLER(UtilityMsg_UnpackWebResource, OnUnpackWebResource)
   IPC_END_MESSAGE_MAP()
 }
 
@@ -43,3 +45,20 @@ void UtilityThread::OnUnpackExtension(const FilePath& extension_path) {
 
   ChildProcess::current()->ReleaseProcess();
 }
+
+void UtilityThread::OnUnpackWebResource(const std::string& resource_data) {
+  // Parse json data.
+  // TODO(mrc): Add the possibility of a template that controls parsing, and
+  // the ability to download and verify images.
+  WebResourceUnpacker unpacker(resource_data);
+  if (unpacker.Run()) {
+    Send(new UtilityHostMsg_UnpackWebResource_Succeeded(
+        *unpacker.parsed_json()));
+  } else {
+    Send(new UtilityHostMsg_UnpackWebResource_Failed(
+        unpacker.error_message()));
+  }
+
+  ChildProcess::current()->ReleaseProcess();
+}
+

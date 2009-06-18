@@ -15,6 +15,7 @@
 
 class CommandLine;
 class DictionaryValue;
+class ListValue;
 class MessageLoop;
 
 // This class acts as the browser-side host to a utility child process.  A
@@ -42,6 +43,17 @@ class UtilityProcessHost : public ChildProcessHost {
     // |error_message| contains a description of the problem.
     virtual void OnUnpackExtensionFailed(const std::string& error_message) {}
 
+    // Called when the web resource has been successfully parsed.  |json_data|
+    // contains the parsed list of web resource items downloaded from the
+    // web resource server.
+    virtual void OnUnpackWebResourceSucceeded(
+        const ListValue& json_data) {}
+
+    // Called when an error occurred while parsing the resource data.
+    // |error_message| contains a description of the problem.
+    virtual void OnUnpackWebResourceFailed(
+        const std::string& error_message) {}
+
    private:
     friend class UtilityProcessHost;
     void OnMessageReceived(const IPC::Message& message);
@@ -59,8 +71,16 @@ class UtilityProcessHost : public ChildProcessHost {
   // location first.
   bool StartExtensionUnpacker(const FilePath& extension);
 
+  // Start a process to unpack and parse a web resource from the given JSON
+  // data.  Any links that need to be downloaded from the parsed data
+  // (thumbnails, etc.) will be unpacked in resource_dir.
+  // TODO(mrc): Right now, the unpacker just parses the JSON data, and
+  // doesn't do any unpacking.  This should change once we finalize the
+  // web resource server format(s).
+  bool StartWebResourceUnpacker(const std::string& data);
+
  private:
-  // Starts the process.  Returns true iff it succeeded.
+  // Starts a process.  Returns true iff it succeeded.
   bool StartProcess(const FilePath& exposed_dir);
 
   // IPC messages:

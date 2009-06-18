@@ -205,6 +205,8 @@ class TestingProfile : public Profile {
   }
   virtual void InitExtensions() {
   }
+  virtual void InitWebResources() {
+  }
 
   // Schedules a task on the history backend and runs a nested loop until the
   // task is processed.  This has the effect of blocking the caller until the

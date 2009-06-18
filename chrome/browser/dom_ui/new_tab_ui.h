@@ -28,6 +28,9 @@ class NewTabUI : public DOMUI,
   // Whether we should use the prototype new tab page.
   static bool EnableNewNewTabPage();
 
+  // Whether we should enable the web resources backend service
+  static bool EnableWebResources();
+
  private:
   void Observe(NotificationType type,
                const NotificationSource& source,
