@@ -611,7 +611,6 @@ BUG4363 LINUX MAC SKIP : LayoutTests/http/tests/security/local-video-src-from-re
 BUG4363 : LayoutTests/fast/dom/Window/custom-constructors.html = FAIL
 
 // These tests are for <audio> and <video> and they do not run well on Windows.
-BUG13907 WIN : LayoutTests/fast/media/viewport-media-query.html = FAIL
 BUG13907 WIN SLOW : LayoutTests/http/tests/security/local-video-source-from-remote.html = FAIL
 BUG13907 WIN SLOW : LayoutTests/http/tests/security/local-video-src-from-remote.html = FAIL
 BUG13907 WIN : LayoutTests/http/tests/media/remove-while-loading.html = FAIL
@@ -630,8 +629,6 @@ BUG13907 WIN : LayoutTests/media/video-currentTime.html = PASS CRASH
 BUG13907 WIN DEBUG : LayoutTests/media/progress-event-total.html = PASS FAIL
 // This test also times out, it is really flaky.
 BUG13907 WIN : LayoutTests/media/remove-from-document.html = PASS FAIL TIMEOUT
-// This test crashes in debug build.
-BUG13907 WIN : LayoutTests/media/unsupported-rtsp.html = FAIL CRASH
 BUG13907 WIN : LayoutTests/media/video-aspect-ratio.html = FAIL
 // This test crashes in debug build not in release build.
 BUG13907 WIN : LayoutTests/media/video-buffered.html = FAIL CRASH
@@ -657,10 +654,8 @@ BUG13907 WIN : LayoutTests/media/video-dom-src.html = PASS CRASH
 BUG13907 WIN DEBUG : LayoutTests/media/video-dom-autobuffer.html = PASS FAIL
 // This test crashes in debug build.
 BUG13907 WIN : LayoutTests/media/video-document-types.html = PASS FAIL CRASH
-BUG13907 WIN : LayoutTests/media/video-empty-source.html = FAIL
 // This test times out in release build, it is really flaky.
 BUG13907 WIN : LayoutTests/media/video-error-abort.html = PASS FAIL TIMEOUT
-BUG13907 WIN : LayoutTests/media/video-error-does-not-exist.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-layer-crash.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-loop.html = FAIL CRASH
 // This test crashes in debug build.
@@ -685,7 +680,6 @@ BUG13907 WIN : LayoutTests/media/video-source-add-src.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-source-error.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-source-type-params.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-source-type.html = FAIL
-BUG13907 WIN : LayoutTests/media/video-src-change.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-src-remove.html = FAIL
 // This test is flaky.
 BUG13907 WIN DEBUG : LayoutTests/media/video-src.html = PASS FAIL
