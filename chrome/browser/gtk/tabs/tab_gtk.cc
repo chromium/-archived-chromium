@@ -20,6 +20,12 @@ GtkTargetEntry target_table[] = {
     dnd::X_CHROME_TAB }
 };
 
+void SetEmptyDragIcon(GtkWidget* widget) {
+  GdkPixbuf* pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, 1, 1);
+  gtk_drag_source_set_icon_pixbuf(widget, pixbuf);
+  g_object_unref(pixbuf);
+}
+
 }  // namespace
 
 class TabGtk::ContextMenuController : public MenuGtk::Delegate {
@@ -128,6 +134,8 @@ TabGtk::TabGtk(TabDelegate* delegate)
         GDK_LEAVE_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK);
   gtk_container_add(GTK_CONTAINER(event_box_), TabRendererGtk::widget());
   gtk_widget_show_all(event_box_);
+
+  SetEmptyDragIcon(event_box_);
 }
 
 TabGtk::~TabGtk() {
