@@ -32,7 +32,7 @@ deps = {
     "http://v8.googlecode.com/svn/trunk@2211",
 
   "src/third_party/skia":
-    "http://skia.googlecode.com/svn/trunk@220",
+    "http://skia.googlecode.com/svn/trunk@198",
 
   "src/webkit/data/layout_tests/LayoutTests":
     Var("webkit_trunk") + "/LayoutTests@" + Var("webkit_revision"),
