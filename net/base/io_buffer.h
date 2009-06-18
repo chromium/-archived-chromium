@@ -28,50 +28,15 @@ class IOBuffer : public base::RefCountedThreadSafe<IOBuffer> {
   char* data_;
 };
 
-// This version stores the size of the buffer so that the creator of the object
-// doesn't have to keep track of that value.
-// NOTE: This doesn't mean that we want to stop sending the size as an explictit
-// argument to IO functions. Please keep using IOBuffer* for API declarations.
-class IOBufferWithSize : public IOBuffer {
- public:
-  explicit IOBufferWithSize(int size) : IOBuffer(size), size_(size) {}
-  ~IOBufferWithSize() {}
-
-  int size() const { return size_; }
-
- private:
-  int size_;
-};
-
-// This version allows the caller to do multiple IO operations reusing a given
-// IOBuffer. We don't own data_, we simply make it point to the buffer of the
-// passed in IOBuffer, plus the desired offset.
-class ReusedIOBuffer : public IOBuffer {
- public:
-  ReusedIOBuffer(IOBuffer* base, int size)
-      : IOBuffer(base->data()), base_(base), size_(size) {}
-  ~ReusedIOBuffer() {
-    // We don't really own a buffer.
-    data_ = NULL;
-  }
-
-  int size() const { return size_; }
-  void SetOffset(int offset);
-
- private:
-  scoped_refptr<IOBuffer> base_;
-  int size_;
-};
-
 // This class allows the creation of a temporary IOBuffer that doesn't really
 // own the underlying buffer. Please use this class only as a last resort.
 // A good example is the buffer for a synchronous operation, where we can be
 // sure that nobody is keeping an extra reference to this object so the lifetime
 // of the buffer can be completely managed by its intended owner.
-class WrappedIOBuffer : public IOBuffer {
+class WrappedIOBuffer : public net::IOBuffer {
  public:
   explicit WrappedIOBuffer(const char* data)
-      : IOBuffer(const_cast<char*>(data)) {}
+      : net::IOBuffer(const_cast<char*>(data)) {}
   ~WrappedIOBuffer() {
     data_ = NULL;
   }

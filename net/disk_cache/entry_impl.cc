@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -10,10 +10,8 @@
 #include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/disk_cache/backend_impl.h"
-#include "net/disk_cache/bitmap.h"
 #include "net/disk_cache/cache_util.h"
 #include "net/disk_cache/histogram_macros.h"
-#include "net/disk_cache/sparse_control.h"
 
 using base::Time;
 using base::TimeDelta;
@@ -93,9 +91,6 @@ EntryImpl::EntryImpl(BackendImpl* backend, Addr address)
 // data related to a previous cache entry because the range was not fully
 // written before).
 EntryImpl::~EntryImpl() {
-  // Save the sparse info to disk before deleting this entry.
-  sparse_.reset();
-
   if (doomed_) {
     DeleteEntryData(true);
   } else {
@@ -358,32 +353,16 @@ int EntryImpl::WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
 
 int EntryImpl::ReadSparseData(int64 offset, net::IOBuffer* buf, int buf_len,
                               net::CompletionCallback* completion_callback) {
-  DCHECK(node_.Data()->dirty);
-  int result = InitSparseData();
-  if (net::OK != result)
-    return result;
-
-  return sparse_->StartIO(SparseControl::kReadOperation, offset, buf, buf_len,
-                          completion_callback);
+  return net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
 }
 
 int EntryImpl::WriteSparseData(int64 offset, net::IOBuffer* buf, int buf_len,
                                net::CompletionCallback* completion_callback) {
-  DCHECK(node_.Data()->dirty);
-  int result = InitSparseData();
-  if (net::OK != result)
-    return result;
-
-  return sparse_->StartIO(SparseControl::kWriteOperation, offset, buf, buf_len,
-                          completion_callback);
+  return net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
 }
 
 int EntryImpl::GetAvailableRange(int64 offset, int len, int64* start) {
-  int result = InitSparseData();
-  if (net::OK != result)
-    return result;
-
-  return sparse_->GetAvailableRange(offset, len, start);
+  return net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
 }
 
 uint32 EntryImpl::GetHash() {
@@ -832,17 +811,6 @@ bool EntryImpl::Flush(int index, int size, bool async) {
   user_buffers_[index].release();
 
   return true;
-}
-
-int EntryImpl::InitSparseData() {
-  if (sparse_.get())
-    return net::OK;
-
-  sparse_.reset(new SparseControl(this));
-  int result = sparse_->Init();
-  if (net::OK != result)
-    sparse_.reset();
-  return result;
 }
 
 void EntryImpl::Log(const char* msg) {

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -13,13 +13,11 @@
 namespace disk_cache {
 
 class BackendImpl;
-class SparseControl;
 
 // This class implements the Entry interface. An object of this
 // class represents a single entry on the cache.
 class EntryImpl : public Entry, public base::RefCounted<EntryImpl> {
   friend class base::RefCounted<EntryImpl>;
-  friend class SparseControl;
  public:
   EntryImpl(BackendImpl* backend, Addr address);
 
@@ -100,9 +98,9 @@ class EntryImpl : public Entry, public base::RefCounted<EntryImpl> {
   void SetTimes(base::Time last_used, base::Time last_modified);
 
  private:
-  enum {
-    NUM_STREAMS = 3
-  };
+   enum {
+     NUM_STREAMS = 3
+   };
 
   ~EntryImpl();
 
@@ -140,9 +138,6 @@ class EntryImpl : public Entry, public base::RefCounted<EntryImpl> {
   // Flush the in-memory data to the backing storage.
   bool Flush(int index, int size, bool async);
 
-  // Initializes the sparse control object. Returns a net error code.
-  int InitSparseData();
-
   // Logs this entry to the internal trace buffer.
   void Log(const char* msg);
 
@@ -154,8 +149,6 @@ class EntryImpl : public Entry, public base::RefCounted<EntryImpl> {
                                                 // data and key.
   int unreported_size_[NUM_STREAMS];  // Bytes not reported yet to the backend.
   bool doomed_;               // True if this entry was removed from the cache.
-  scoped_ptr<SparseControl> sparse_;  // Support for sparse entries.
-
   DISALLOW_EVIL_CONSTRUCTORS(EntryImpl);
 };
 
