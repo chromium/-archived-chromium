@@ -14,6 +14,7 @@
 #include "base/singleton.h"
 
 typedef unsigned long Atom;
+typedef unsigned long XID;
 
 // TODO(sky): move and rename.
 class TabOverviewTypes {
@@ -176,6 +177,9 @@ class TabOverviewTypes {
                      WindowType type,
                      const std::vector<int>* params);
 
+  // Sends a message to the WM.
+  void SendMessage(const Message& msg);
+
   // If |event| is a valid Message it is decoded into |msg| and true is
   // returned. If false is returned, |event| is not a valid Message.
   bool DecodeMessage(const GdkEventClient& event, Message* msg);
@@ -194,6 +198,9 @@ class TabOverviewTypes {
 
   // Cached value of type_to_atom_[ATOM_CHROME_WM_MESSAGE].
   Atom wm_message_atom_;
+
+  // Handle to the wm. Used for sending messages.
+  XID wm_;
 
   DISALLOW_COPY_AND_ASSIGN(TabOverviewTypes);
 };

@@ -89,6 +89,27 @@ bool TabOverviewTypes::SetWindowType(
                         type_to_atom_[ATOM_CHROME_WINDOW_TYPE], values);
 }
 
+void TabOverviewTypes::SendMessage(const Message& msg) {
+  XEvent e;
+  e.xclient.type = ClientMessage;
+  e.xclient.window = wm_;
+  e.xclient.message_type = type_to_atom_[ATOM_CHROME_WM_MESSAGE];
+  e.xclient.format = 32;  // 32-bit values
+  e.xclient.data.l[0] = msg.type();
+
+  // XClientMessageEvent only gives us five 32-bit items, and we're using
+  // the first one for our message type.
+  DCHECK_LE(msg.max_params(), 4);
+  for (int i = 0; i < msg.max_params(); ++i)
+    e.xclient.data.l[i+1] = msg.param(i);
+
+  XSendEvent(x11_util::GetXDisplay(),
+             wm_,
+             False,  // propagate
+             0,  // empty event mask
+             &e);
+}
+
 bool TabOverviewTypes::DecodeMessage(const GdkEventClient& event,
                                      Message* msg) {
   if (wm_message_atom_ != gdk_x11_atom_to_xatom(event.message_type))
@@ -136,4 +157,6 @@ TabOverviewTypes::TabOverviewTypes() {
   }
 
   wm_message_atom_ = type_to_atom_[ATOM_CHROME_WM_MESSAGE];
+
+  wm_ = XGetSelectionOwner(x11_util::GetXDisplay(), type_to_atom_[ATOM_WM_S0]);
 }
