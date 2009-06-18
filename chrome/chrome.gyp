@@ -2666,7 +2666,7 @@
               'outputs': [
                   '<(PRODUCT_DIR)/First Run',
               ],
-              'action': ['copy', '<@(_inputs)', '<@(_outputs)'],
+              'action': ['cp', '-f', '<@(_inputs)', '<@(_outputs)'],
               'message': 'Copy first run complete sentinel file',
             },
           ],
