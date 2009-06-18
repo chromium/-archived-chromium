@@ -2316,7 +2316,7 @@
       ],
     },
     {
-      'target_name': 'app',
+      'target_name': 'chrome',
       'type': 'executable',
       'mac_bundle': 1,
       'msvs_guid': '7B219FAA-E360-43C8-B341-804A94EEFFAC',
@@ -3112,7 +3112,7 @@
       'type': 'executable',
       'msvs_guid': '76235B67-1C27-4627-8A33-4B2E1EF93EDE',
       'dependencies': [
-        'app',
+        'chrome',
         'browser',
         'debugger',
         'common',
@@ -3280,7 +3280,7 @@
       'msvs_guid': 'ECFC2BEC-9FC0-4AD9-9649-5F26793F65FC',
       'msvs_existing_vcproj': 'test/unit/unittests.vcproj',
       'dependencies': [
-        'app',
+        'chrome',
         'browser',
         'chrome_resources',
         'chrome_strings',
@@ -3558,7 +3558,7 @@
            # The test fetches resources which means Mac need the app bundle to
            # exist on disk so it can pull from it.
           'dependencies': [
-            'app',
+            'chrome',
           ],
           'include_dirs': [
             '../third_party/GTM',
@@ -3682,7 +3682,7 @@
       'type': 'executable',
       'msvs_guid': 'D3E6C0FD-54C7-4FF2-9AE1-72F2DAFD820C',
       'dependencies': [
-        'app',
+        'chrome',
         'browser',
         'common',
         'chrome_resources',
@@ -3716,7 +3716,7 @@
       'type': 'executable',
       'msvs_guid': 'C9E0BD1D-B175-4A91-8380-3FDC81FAB9D7',
       'dependencies': [
-        'app',
+        'chrome',
         'chrome_resources',
         'chrome_strings',
         'test_support_common',
@@ -3748,7 +3748,7 @@
       'type': 'executable',
       'msvs_guid': 'A34770EA-A574-43E8-9327-F79C04770E98',
       'dependencies': [
-        'app',
+        'chrome',
         'test_support_common',
         'test_support_ui',
         'theme_resources',
@@ -3774,7 +3774,7 @@
       'type': 'executable',
       'msvs_guid': 'A5F831FD-9B9C-4FEF-9FBA-554817B734CE',
       'dependencies': [
-        'app',
+        'chrome',
         'test_support_common',
         'test_support_ui',
         'theme_resources',
@@ -3800,7 +3800,7 @@
       'type': 'executable',
       'msvs_guid': '7EFD0C91-198E-4043-9E71-4A4C7879B929',
       'dependencies': [
-        'app',
+        'chrome',
         'test_support_common',
         'test_support_ui',
         'theme_resources',
@@ -3881,7 +3881,7 @@
           'suppress_wildcard': 1,
           'type': 'none',
           'dependencies': [
-            'app',
+            'chrome',
           ],
           'variables': {
             'build_app_dmg_script_path': '<(DEPTH)/build/mac/build_app_dmg',
@@ -4005,8 +4005,8 @@
           'target_name': 'browser_tests',
           'type': 'executable',
           'dependencies': [
-            'app',
             'browser',
+            'chrome',
             'chrome_resources',
             'debugger',
             'test_support_common',
@@ -4040,7 +4040,7 @@
               # The test fetches resources which means Mac need the app bundle to
               # exist on disk so it can pull from it.
               'dependencies': [
-                'app',
+                'chrome',
               ],
               'sources': [
                 'app/breakpad_mac_stubs.mm',
@@ -4360,7 +4360,7 @@
           'product_name': 'browser_tests',
           'msvs_guid': 'D7589D0D-304E-4589-85A4-153B7D84B07F',
           'dependencies': [
-            'app',
+            'chrome',
             'browser',
             'chrome_dll_version',
             'chrome_resources',
