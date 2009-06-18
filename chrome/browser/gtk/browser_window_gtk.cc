@@ -381,6 +381,7 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
 
   // We have to realize the window before we try to apply a window shape mask.
   gtk_widget_realize(GTK_WIDGET(window_));
+  state_ = gdk_window_get_state(GTK_WIDGET(window_)->window);
   // Note that calling this the first time is necessary to get the
   // proper control layout.
   UpdateCustomFrame();
