@@ -226,10 +226,11 @@ void WidgetWin::SetContentsView(View* view) {
     root_view_->RemoveAllChildViews(true);
   root_view_->AddChildView(view);
 
-  // Manually size the window here to ensure the root view is laid out.
-  RECT wr;
-  GetWindowRect(&wr);
-  ChangeSize(0, CSize(wr.right - wr.left, wr.bottom - wr.top));
+  // Force a layout now, since the attached hierarchy won't be ready for the
+  // containing window's bounds. Note that we call Layout directly rather than
+  // calling ChangeSize, since the RootView's bounds may not have changed, which
+  // will cause the Layout not to be done otherwise.
+  root_view_->Layout();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

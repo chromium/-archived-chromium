@@ -236,7 +236,11 @@ void WidgetGtk::SetContentsView(View* view) {
 
   DCHECK(widget_);  // Widget must have been created by now.
 
-  OnSizeAllocate(widget_, &(widget_->allocation));
+  // Force a layout now, since the attached hierarchy won't be ready for the
+  // containing window's bounds. Note that we call Layout directly rather than
+  // calling OnSizeAllocate, since the RootView's bounds may not have changed,
+  // which will cause the Layout not to be done otherwise.
+  root_view_->Layout();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
