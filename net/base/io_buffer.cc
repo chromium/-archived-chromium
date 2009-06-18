@@ -12,5 +12,9 @@ IOBuffer::IOBuffer(int buffer_size) {
   DCHECK(buffer_size > 0);
   data_ = new char[buffer_size];
 }
+void ReusedIOBuffer::SetOffset(int offset) {
+  DCHECK(offset > 0 && offset < size_);
+  data_ = base_->data() + offset;
+}
 
 }  // namespace net
