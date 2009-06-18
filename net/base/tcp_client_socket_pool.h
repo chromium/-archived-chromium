@@ -20,25 +20,40 @@ namespace net {
 class ClientSocketFactory;
 class ClientSocketPoolBase;
 
-// ConnectingSocket handles the host resolution necessary for socket creation
-// and the socket Connect().
+// ConnectingSocket provides an abstract interface for "connecting" a socket.
+// The connection may involve host resolution, tcp connection, ssl connection,
+// etc.
 class ConnectingSocket {
  public:
-  ConnectingSocket(const std::string& group_name,
-                   const HostResolver::RequestInfo& resolve_info,
-                   const ClientSocketHandle* handle,
-                   ClientSocketFactory* client_socket_factory,
-                   ClientSocketPoolBase* pool);
-  ~ConnectingSocket();
+  ConnectingSocket() {}
+  virtual ~ConnectingSocket() {}
+
+  // Begins connecting the socket.  Returns OK on success, ERR_IO_PENDING if it
+  // cannot complete synchronously without blocking, or another net error code
+  // on error.
+  virtual int Connect() = 0;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(ConnectingSocket);
+};
+
+// TCPConnectingSocket handles the host resolution necessary for socket creation
+// and the tcp connect.
+class TCPConnectingSocket : public ConnectingSocket {
+ public:
+  TCPConnectingSocket(const std::string& group_name,
+                      const HostResolver::RequestInfo& resolve_info,
+                      const ClientSocketHandle* handle,
+                      ClientSocketFactory* client_socket_factory,
+                      ClientSocketPoolBase* pool);
+  ~TCPConnectingSocket();
+
+  // ConnectingSocket methods.
 
   // Begins the host resolution and the TCP connect.  Returns OK on success
   // and ERR_IO_PENDING if it cannot immediately service the request.
   // Otherwise, it returns a net error code.
-  int Connect();
-
-  // Called by the TCPClientSocketPool to cancel this ConnectingSocket.  Only
-  // necessary if a ClientSocketHandle is reused.
-  void Cancel();
+  virtual int Connect();
 
  private:
   // Handles asynchronous completion of IO.  |result| represents the result of
@@ -56,7 +71,7 @@ class ConnectingSocket {
   const HostResolver::RequestInfo resolve_info_;
   const ClientSocketHandle* const handle_;
   ClientSocketFactory* const client_socket_factory_;
-  CompletionCallbackImpl<ConnectingSocket> callback_;
+  CompletionCallbackImpl<TCPConnectingSocket> callback_;
   scoped_ptr<ClientSocket> socket_;
   ClientSocketPoolBase* const pool_;
   SingleRequestHostResolver resolver_;
@@ -65,7 +80,7 @@ class ConnectingSocket {
   // The time the Connect() method was called (if it got called).
   base::TimeTicks connect_start_time_;
 
-  DISALLOW_COPY_AND_ASSIGN(ConnectingSocket);
+  DISALLOW_COPY_AND_ASSIGN(TCPConnectingSocket);
 };
 
 // A ClientSocketPoolBase is used to restrict the number of sockets open at
@@ -95,9 +110,23 @@ class ClientSocketPoolBase : public base::RefCounted<ClientSocketPoolBase> {
     LoadState load_state;
   };
 
+  class ConnectingSocketFactory {
+   public:
+    ConnectingSocketFactory() {}
+    virtual ~ConnectingSocketFactory() {}
+
+    virtual ConnectingSocket* NewConnectingSocket(
+        const std::string& group_name,
+        const Request& request,
+        ClientSocketPoolBase* pool) const = 0;
+
+   private:
+    DISALLOW_COPY_AND_ASSIGN(ConnectingSocketFactory);
+  };
+
   ClientSocketPoolBase(int max_sockets_per_group,
                        HostResolver* host_resolver,
-                       ClientSocketFactory* client_socket_factory);
+                       ConnectingSocketFactory* connecting_socket_factory);
 
   ~ClientSocketPoolBase();
 
@@ -211,8 +240,6 @@ class ClientSocketPoolBase : public base::RefCounted<ClientSocketPoolBase> {
 
   static void CheckSocketCounts(const Group& group);
 
-  ClientSocketFactory* const client_socket_factory_;
-
   GroupMap group_map_;
 
   ConnectingSocketMap connecting_socket_map_;
@@ -230,6 +257,8 @@ class ClientSocketPoolBase : public base::RefCounted<ClientSocketPoolBase> {
   // The host resolver that will be used to do DNS lookups for connecting
   // sockets.
   HostResolver* const host_resolver_;
+
+  scoped_ptr<ConnectingSocketFactory> connecting_socket_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(ClientSocketPoolBase);
 };
@@ -271,6 +300,27 @@ class TCPClientSocketPool : public ClientSocketPool {
 
  private:
   virtual ~TCPClientSocketPool();
+
+  class TCPConnectingSocketFactory
+      : public ClientSocketPoolBase::ConnectingSocketFactory {
+   public:
+    TCPConnectingSocketFactory(ClientSocketFactory* client_socket_factory)
+        : client_socket_factory_(client_socket_factory) {}
+
+    virtual ~TCPConnectingSocketFactory() {}
+
+    // ClientSocketPoolBase::ConnectingSocketFactory methods.
+
+    virtual ConnectingSocket* NewConnectingSocket(
+        const std::string& group_name,
+        const ClientSocketPoolBase::Request& request,
+        ClientSocketPoolBase* pool) const;
+
+   private:
+    ClientSocketFactory* const client_socket_factory_;
+
+    DISALLOW_COPY_AND_ASSIGN(TCPConnectingSocketFactory);
+  };
 
   // One might ask why ClientSocketPoolBase is also refcounted if its
   // containing ClientSocketPool is already refcounted.  The reason is because

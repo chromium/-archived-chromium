@@ -33,7 +33,7 @@ const int kIdleTimeout = 300;  // 5 minutes.
 
 namespace net {
 
-ConnectingSocket::ConnectingSocket(
+TCPConnectingSocket::TCPConnectingSocket(
     const std::string& group_name,
     const HostResolver::RequestInfo& resolve_info,
     const ClientSocketHandle* handle,
@@ -45,27 +45,27 @@ ConnectingSocket::ConnectingSocket(
       client_socket_factory_(client_socket_factory),
       ALLOW_THIS_IN_INITIALIZER_LIST(
           callback_(this,
-                    &ConnectingSocket::OnIOComplete)),
+                    &TCPConnectingSocket::OnIOComplete)),
       pool_(pool),
       resolver_(pool->GetHostResolver()) {}
 
-ConnectingSocket::~ConnectingSocket() {
+TCPConnectingSocket::~TCPConnectingSocket() {
   // We don't worry about cancelling the host resolution and TCP connect, since
   // ~SingleRequestHostResolver and ~ClientSocket will take care of it.
 }
 
-int ConnectingSocket::Connect() {
+int TCPConnectingSocket::Connect() {
   int rv = resolver_.Resolve(resolve_info_, &addresses_, &callback_);
   if (rv != ERR_IO_PENDING)
     rv = OnIOCompleteInternal(rv, true /* synchronous */);
   return rv;
 }
 
-void ConnectingSocket::OnIOComplete(int result) {
+void TCPConnectingSocket::OnIOComplete(int result) {
   OnIOCompleteInternal(result, false /* asynchronous */);
 }
 
-int ConnectingSocket::OnIOCompleteInternal(
+int TCPConnectingSocket::OnIOCompleteInternal(
     int result, bool synchronous) {
   CHECK(result != ERR_IO_PENDING);
 
@@ -126,12 +126,11 @@ int ConnectingSocket::OnIOCompleteInternal(
 ClientSocketPoolBase::ClientSocketPoolBase(
     int max_sockets_per_group,
     HostResolver* host_resolver,
-    ClientSocketFactory* client_socket_factory)
-    : client_socket_factory_(client_socket_factory),
-      idle_socket_count_(0),
+    ConnectingSocketFactory* connecting_socket_factory)
+    : idle_socket_count_(0),
       max_sockets_per_group_(max_sockets_per_group),
-      host_resolver_(host_resolver) {
-}
+      host_resolver_(host_resolver),
+      connecting_socket_factory_(connecting_socket_factory) {}
 
 ClientSocketPoolBase::~ClientSocketPoolBase() {
   // Clean up any idle sockets.  Assert that we have no remaining active
@@ -203,8 +202,7 @@ int ClientSocketPoolBase::RequestSocket(
   CHECK(!ContainsKey(connecting_socket_map_, handle));
 
   ConnectingSocket* connecting_socket =
-      new ConnectingSocket(group_name, resolve_info, handle,
-                           client_socket_factory_, this);
+      connecting_socket_factory_->NewConnectingSocket(group_name, r, this);
   connecting_socket_map_[handle] = connecting_socket;
   int rv = connecting_socket->Connect();
 
@@ -308,7 +306,8 @@ LoadState ClientSocketPoolBase::GetLoadState(
   return LOAD_STATE_IDLE;
 }
 
-bool ClientSocketPoolBase::IdleSocket::ShouldCleanup(base::TimeTicks now) const {
+bool ClientSocketPoolBase::IdleSocket::ShouldCleanup(
+    base::TimeTicks now) const {
   bool timed_out = (now - start_time) >=
       base::TimeDelta::FromSeconds(kIdleTimeout);
   return timed_out || !socket->IsConnectedAndIdle();
@@ -487,12 +486,23 @@ void ClientSocketPoolBase::RemoveConnectingSocket(
   connecting_socket_map_.erase(it);
 }
 
+ConnectingSocket*
+TCPClientSocketPool::TCPConnectingSocketFactory::NewConnectingSocket(
+    const std::string& group_name,
+    const ClientSocketPoolBase::Request& request,
+    ClientSocketPoolBase* pool) const {
+  return new TCPConnectingSocket(
+      group_name, request.resolve_info, request.handle,
+      client_socket_factory_, pool);
+}
+
 TCPClientSocketPool::TCPClientSocketPool(
     int max_sockets_per_group,
     HostResolver* host_resolver,
     ClientSocketFactory* client_socket_factory)
     : base_(new ClientSocketPoolBase(
-        max_sockets_per_group, host_resolver, client_socket_factory)) {}
+        max_sockets_per_group, host_resolver,
+        new TCPConnectingSocketFactory(client_socket_factory))) {}
 
 TCPClientSocketPool::~TCPClientSocketPool() {}
 
