@@ -1842,6 +1842,14 @@ void V8Proxy::UpdateDocumentWrapperCache()
     }
 
     v8::Handle<v8::Value> document_wrapper = NodeToV8Object(m_frame->document());
+
+    // If instantiation of the document wrapper fails, clear the cache
+    // and let the DOMWindow accessor handle access to the document.
+    if (document_wrapper.IsEmpty()) {
+        ClearDocumentWrapperCache();
+        return;
+    }
+
     m_context->Global()->ForceSet(v8::String::New("document"),
                                   document_wrapper,
                                   static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontDelete));
