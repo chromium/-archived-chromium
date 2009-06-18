@@ -60,12 +60,11 @@ class WebFileChooserCallbackImpl : public WebFileChooserCallback {
   }
 
   virtual void OnFileChoose(const std::vector<FilePath>& file_names) {
-    if (file_names.empty()) {
-      file_chooser_->chooseFile(WebCore::String(""));
-    } else if (file_names.size() == 1) {
+    if (file_names.size() == 1) {
       file_chooser_->chooseFile(
           webkit_glue::FilePathStringToString(file_names.front().value()));
     } else {
+      // This clause handles a case of file_names.size()==0 too.
       Vector<WebCore::String> paths;
       for (std::vector<FilePath>::const_iterator filename =
              file_names.begin(); filename != file_names.end(); ++filename) {
