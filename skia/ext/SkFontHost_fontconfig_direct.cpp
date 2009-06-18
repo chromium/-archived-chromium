@@ -154,7 +154,7 @@ bool FontConfigDirect::Match(std::string* result_family,
         }
     }
 
-    if (*result_fileid)
+    if (result_fileid)
         *result_fileid = out_fileid;
 
     FcChar8* c_family;
