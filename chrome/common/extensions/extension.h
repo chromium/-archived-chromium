@@ -80,6 +80,7 @@ class Extension {
   static const wchar_t* kToolstripsKey;
   static const wchar_t* kTypeKey;
   static const wchar_t* kVersionKey;
+  static const wchar_t* kUpdateURLKey;
 
   // Some values expected in manifests.
   static const char* kRunAtDocumentStartValue;
@@ -128,6 +129,7 @@ class Extension {
   static const char* kInvalidThemeTintsError;
   static const char* kThemesCannotContainExtensionsError;
   static const char* kMissingFileError;
+  static const char* kInvalidUpdateURLError;
 
 #if defined(OS_WIN)
   static const char* kExtensionRegistryPath;
@@ -218,6 +220,7 @@ class Extension {
   const GURL& background_url() const { return background_url_; }
   const std::vector<std::string>& toolstrips() const { return toolstrips_; }
   const std::vector<URLPattern>& permissions() const { return permissions_; }
+  const GURL& update_url() const { return update_url_; }
 
   // Retrieves a page action by |id|.
   const PageAction* GetPageAction(std::string id) const;
@@ -328,6 +331,9 @@ class Extension {
 
   // The sites this extension has permission to talk to (using XHR, etc).
   std::vector<URLPattern> permissions_;
+
+  // URL for fetching an update manifest
+  GURL update_url_;
 
   DISALLOW_COPY_AND_ASSIGN(Extension);
 };

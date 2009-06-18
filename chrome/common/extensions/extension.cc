@@ -12,13 +12,12 @@
 #include "base/string_util.h"
 #include "base/third_party/nss/blapi.h"
 #include "base/third_party/nss/sha256.h"
-#include "net/base/base64.h"
-#include "net/base/net_util.h"
 #include "chrome/common/extensions/extension_error_reporter.h"
 #include "chrome/common/extensions/extension_error_utils.h"
 #include "chrome/common/extensions/user_script.h"
 #include "chrome/common/url_constants.h"
 #include "net/base/base64.h"
+#include "net/base/net_util.h"
 
 #if defined(OS_WIN)
 #include "base/registry.h"
@@ -75,6 +74,7 @@ const wchar_t* Extension::kThemeDisplayPropertiesKey = L"properties";
 const wchar_t* Extension::kToolstripsKey = L"toolstrips";
 const wchar_t* Extension::kTypeKey = L"type";
 const wchar_t* Extension::kVersionKey = L"version";
+const wchar_t* Extension::kUpdateURLKey = L"update_url";
 
 const char* Extension::kRunAtDocumentStartValue = "document_start";
 const char* Extension::kRunAtDocumentEndValue = "document_end";
@@ -159,7 +159,8 @@ const char* Extension::kInvalidToolstripError =
 const char* Extension::kInvalidToolstripsError =
     "Invalid value for 'toolstrips'.";
 const char* Extension::kInvalidVersionError =
-    "Required value 'version' is missing or invalid.";
+    "Required value 'version' is missing or invalid. It must be between 1-4 "
+    "dot-separated integers.";
 const char* Extension::kInvalidZipHashError =
     "Required key 'zip_hash' is missing or invalid.";
 const char* Extension::kMissingFileError =
@@ -174,6 +175,8 @@ const char* Extension::kInvalidThemeColorsError =
     "Invalid value for theme colors - colors must be integers";
 const char* Extension::kInvalidThemeTintsError =
     "Invalid value for theme images - tints must be decimal numbers.";
+const char* Extension::kInvalidUpdateURLError =
+    "Invalid value for update url: '[*]'.";
 const char* Extension::kThemesCannotContainExtensionsError =
     "A theme cannot contain extensions code.";
 
@@ -621,7 +624,7 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
     return false;
   }
   version_.reset(Version::GetVersionFromString(version_str));
-  if (!version_.get()) {
+  if (!version_.get() || version_->components().size() > 4) {
     *error = kInvalidVersionError;
     return false;
   }
@@ -636,6 +639,22 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
   if (source.HasKey(kDescriptionKey)) {
     if (!source.GetString(kDescriptionKey, &description_)) {
       *error = kInvalidDescriptionError;
+      return false;
+    }
+  }
+
+  // Initialize update url (if present).
+  if (source.HasKey(kUpdateURLKey)) {
+    std::string tmp;
+    if (!source.GetString(kUpdateURLKey, &tmp)) {
+      *error =
+          ExtensionErrorUtils::FormatErrorMessage(kInvalidUpdateURLError, "");
+      return false;
+    }
+    update_url_ = GURL(tmp);
+    if (!update_url_.is_valid() || update_url_.has_ref()) {
+      *error = ExtensionErrorUtils::FormatErrorMessage(kInvalidUpdateURLError,
+          tmp);
       return false;
     }
   }
