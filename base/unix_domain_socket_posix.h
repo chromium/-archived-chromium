@@ -5,6 +5,7 @@
 #ifndef BASE_UNIX_DOMAIN_SOCKET_POSIX_H_
 #define BASE_UNIX_DOMAIN_SOCKET_POSIX_H_
 
+#include <stdint.h>
 #include <sys/types.h>
 #include <vector>
 
