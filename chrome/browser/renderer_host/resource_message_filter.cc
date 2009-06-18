@@ -258,6 +258,8 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
                                       OnOpenChannelToPlugin)
       IPC_MESSAGE_HANDLER(ViewHostMsg_CreateDedicatedWorker,
                           OnCreateDedicatedWorker)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_CancelCreateDedicatedWorker,
+                          OnCancelCreateDedicatedWorker)
       IPC_MESSAGE_HANDLER(ViewHostMsg_ForwardToWorker,
                           OnForwardToWorker)
       IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_SpellCheck, OnSpellCheck)
@@ -535,6 +537,11 @@ void ResourceMessageFilter::OnCreateDedicatedWorker(const GURL& url,
   WorkerService::GetInstance()->CreateDedicatedWorker(
       url, render_process_id_, render_view_route_id, this, render_process_id_,
       *route_id);
+}
+
+void ResourceMessageFilter::OnCancelCreateDedicatedWorker(int route_id) {
+  WorkerService::GetInstance()->CancelCreateDedicatedWorker(
+      render_process_id_, route_id);
 }
 
 void ResourceMessageFilter::OnForwardToWorker(const IPC::Message& message) {

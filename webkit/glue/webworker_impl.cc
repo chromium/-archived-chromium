@@ -184,7 +184,8 @@ void WebWorkerImpl::startWorkerContext(const WebURL& script_url,
 }
 
 void WebWorkerImpl::terminateWorkerContext() {
-  worker_thread_->stop();
+  if (worker_thread_)
+    worker_thread_->stop();
 }
 
 void WebWorkerImpl::postMessageToWorkerContext(const WebString& message) {

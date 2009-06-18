@@ -14,30 +14,6 @@
 
 class WorkerProcessHost : public ChildProcessHost {
  public:
-  WorkerProcessHost(ResourceDispatcherHost* resource_dispatcher_host_);
-  ~WorkerProcessHost();
-
-  // Starts the process.  Returns true iff it succeeded.
-  bool Init();
-
-  // Creates a worker object in the process.
-  void CreateWorker(const GURL& url,
-                    int renderer_process_id,
-                    int render_view_route_id,
-                    int worker_route_id,
-                    IPC::Message::Sender* sender,
-                    int sender_pid,
-                    int sender_route_id);
-
-  // Returns true iff the given message from a renderer process was forwarded to
-  // the worker.
-  bool FilterMessage(const IPC::Message& message, int sender_pid);
-
-  void SenderShutdown(IPC::Message::Sender* sender);
-
- protected:
-  friend class WorkerService;
-
   // Contains information about each worker instance, needed to forward messages
   // between the renderer and worker processes.
   struct WorkerInstance {
@@ -49,6 +25,24 @@ class WorkerProcessHost : public ChildProcessHost {
     int sender_pid;
     int sender_route_id;
   };
+
+  WorkerProcessHost(ResourceDispatcherHost* resource_dispatcher_host_);
+  ~WorkerProcessHost();
+
+  // Starts the process.  Returns true iff it succeeded.
+  bool Init();
+
+  // Creates a worker object in the process.
+  void CreateWorker(const WorkerInstance& instance);
+
+  // Returns true iff the given message from a renderer process was forwarded to
+  // the worker.
+  bool FilterMessage(const IPC::Message& message, int sender_pid);
+
+  void SenderShutdown(IPC::Message::Sender* sender);
+
+ protected:
+  friend class WorkerService;
 
   typedef std::list<WorkerInstance> Instances;
   const Instances& instances() const { return instances_; }
@@ -70,6 +64,7 @@ class WorkerProcessHost : public ChildProcessHost {
   void OnCreateDedicatedWorker(const GURL& url,
                                int render_view_route_id,
                                int* route_id);
+  void OnCancelCreateDedicatedWorker(int route_id);
   void OnForwardToWorker(const IPC::Message& message);
 
   Instances instances_;

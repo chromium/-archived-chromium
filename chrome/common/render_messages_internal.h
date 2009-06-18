@@ -594,6 +594,10 @@ IPC_BEGIN_MESSAGES(View)
   // directory and verify that it is valid.
   IPC_MESSAGE_CONTROL1(UtilityMsg_UnpackExtension,
                        FilePath /* extension_filename */)
+
+  // Response message to ViewHostMsg_CreateDedicatedWorker.  Sent when the
+  // worker has started.
+  IPC_MESSAGE_ROUTED0(ViewMsg_DedicatedWorkerCreated)
 IPC_END_MESSAGES(View)
 
 
@@ -1370,6 +1374,13 @@ IPC_BEGIN_MESSAGES(ViewHost)
                               GURL /* url */,
                               int /* render_view_route_id */,
                               int /* route_id */)
+
+  // Sent if the worker object has sent a ViewHostMsg_CreateDedicatedWorker
+  // message and not received a ViewMsg_DedicatedWorkerCreated reply, but in the
+  // mean time it's destroyed.  This tells the browser to not create the queued
+  // worker.
+  IPC_MESSAGE_CONTROL1(ViewHostMsg_CancelCreateDedicatedWorker,
+                       int /* route_id */)
 
   // Wraps an IPC message that's destined to the worker on the renderer->browser
   // hop.

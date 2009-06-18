@@ -9,6 +9,7 @@
 
 #include "base/basictypes.h"
 #include "base/singleton.h"
+#include "chrome/browser/worker_host/worker_process_host.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/notification_registrar.h"
 #include "googleurl/src/gurl.h"
@@ -34,6 +35,9 @@ class WorkerService : public NotificationObserver {
                              int sender_pid,
                              int sender_route_id);
 
+  // Cancel creation of a dedicated worker that hasn't started yet.
+  void CancelCreateDedicatedWorker(int sender_pid, int sender_route_id);
+
   // Called by the worker creator when a message arrives that should be
   // forwarded to the worker process.
   void ForwardMessage(const IPC::Message& message, int sender_pid);
@@ -43,11 +47,22 @@ class WorkerService : public NotificationObserver {
                const NotificationSource& source,
                const NotificationDetails& details);
 
-  void NotifySenderShutdown(IPC::Message::Sender* sender);
+  // Notifies us that a process that's talking to a worker has shut down.
+  void OnSenderShutdown(IPC::Message::Sender* sender);
+
+  // Notifies us that a worker process has closed.
+  void OnWorkerProcessDestroyed(WorkerProcessHost* process);
 
   MessageLoop* ui_loop() { return ui_loop_; }
 
   int next_worker_route_id() { return ++next_worker_route_id_; }
+
+  // Used when multiple workers can run in the same process.
+  static const int kMaxWorkerProcessesWhenSharing;
+
+  // Used when we run each worker in a separate process.
+  static const int kMaxWorkersWhenSeparate;
+  static const int kMaxWorkersPerTabWhenSeparate;
 
  private:
   friend struct DefaultSingletonTraits<WorkerService>;
@@ -67,10 +82,16 @@ class WorkerService : public NotificationObserver {
   // number of worker instance running.
   WorkerProcessHost* GetLeastLoadedWorker();
 
+  // Checks if we can create a worker process based on the process limit when
+  // we're using a strategy of one process per core.
+  bool CanCreateWorkerProcess(const WorkerProcessHost::WorkerInstance& instance);
+
   NotificationRegistrar registrar_;
   int next_worker_route_id_;
   ResourceDispatcherHost* resource_dispatcher_host_;
   MessageLoop* ui_loop_;
+
+  WorkerProcessHost::Instances queued_workers_;
 
   DISALLOW_COPY_AND_ASSIGN(WorkerService);
 };

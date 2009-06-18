@@ -25,6 +25,15 @@ WebWorkerProxy::WebWorkerProxy(
 }
 
 WebWorkerProxy::~WebWorkerProxy() {
+  if (queued_messages_.empty())
+    return;
+
+  for (size_t i = 0; i < queued_messages_.size(); ++i)
+    delete queued_messages_[i];
+
+  // Tell the browser to not start our queued worker.
+  if (route_id_ != MSG_ROUTING_NONE)
+    child_thread_->Send(new ViewHostMsg_CancelCreateDedicatedWorker(route_id_));
 }
 
 void WebWorkerProxy::startWorkerContext(
@@ -37,14 +46,12 @@ void WebWorkerProxy::startWorkerContext(
     return;
 
   child_thread_->AddRoute(route_id_, this);
-  Send(new WorkerMsg_StartWorkerContext(
-      route_id_, script_url, user_agent, source_code));
 
-  for (size_t i = 0; i < queued_messages_.size(); ++i) {
-    queued_messages_[i]->set_routing_id(route_id_);
-    Send(queued_messages_[i]);
-  }
-  queued_messages_.clear();
+  // We make sure that the start message is the first, since postMessage might
+  // have already been called.
+  queued_messages_.insert(queued_messages_.begin(),
+      new WorkerMsg_StartWorkerContext(
+          route_id_, script_url, user_agent, source_code));
 }
 
 void WebWorkerProxy::terminateWorkerContext() {
@@ -66,7 +73,11 @@ void WebWorkerProxy::workerObjectDestroyed() {
 }
 
 bool WebWorkerProxy::Send(IPC::Message* message) {
-  if (route_id_ == MSG_ROUTING_NONE) {
+  // It's possible that postMessage is called before the worker is created, in
+  // which case route_id_ will be none.  Or the worker object can be interacted
+  // with before the browser process told us that it started, in which case we
+  // also want to queue the message.
+  if (route_id_ == MSG_ROUTING_NONE || !queued_messages_.empty()) {
     queued_messages_.push_back(message);
     return true;
   }
@@ -84,6 +95,8 @@ void WebWorkerProxy::OnMessageReceived(const IPC::Message& message) {
     return;
 
   IPC_BEGIN_MESSAGE_MAP(WebWorkerProxy, message)
+    IPC_MESSAGE_HANDLER(ViewMsg_DedicatedWorkerCreated,
+                        OnDedicatedWorkerCreated)
     IPC_MESSAGE_FORWARD(WorkerHostMsg_PostMessageToWorkerObject,
                         client_,
                         WebWorkerClient::postMessageToWorkerObject)
@@ -103,4 +116,14 @@ void WebWorkerProxy::OnMessageReceived(const IPC::Message& message) {
                         client_,
                         WebWorkerClient::workerContextDestroyed)
   IPC_END_MESSAGE_MAP()
+}
+
+void WebWorkerProxy::OnDedicatedWorkerCreated() {
+  DCHECK(queued_messages_.size());
+  std::vector<IPC::Message*> queued_messages = queued_messages_;
+  queued_messages_.clear();
+  for (size_t i = 0; i < queued_messages.size(); ++i) {
+    queued_messages[i]->set_routing_id(route_id_);
+    Send(queued_messages[i]);
+  }
 }

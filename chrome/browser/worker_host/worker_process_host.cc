@@ -52,7 +52,8 @@ WorkerProcessHost::WorkerProcessHost(
 }
 
 WorkerProcessHost::~WorkerProcessHost() {
-  WorkerService::GetInstance()->NotifySenderShutdown(this);
+  WorkerService::GetInstance()->OnSenderShutdown(this);
+  WorkerService::GetInstance()->OnWorkerProcessDestroyed(this);
 
   // If we crashed, tell the RenderViewHost.
   MessageLoop* ui_loop = WorkerService::GetInstance()->ui_loop();
@@ -98,28 +99,17 @@ bool WorkerProcessHost::Init() {
   return true;
 }
 
-void WorkerProcessHost::CreateWorker(const GURL& url,
-                                     int renderer_process_id,
-                                     int render_view_route_id,
-                                     int worker_route_id,
-                                     IPC::Message::Sender* sender,
-                                     int sender_pid,
-                                     int sender_route_id) {
+void WorkerProcessHost::CreateWorker(const WorkerInstance& instance) {
   ChildProcessSecurityPolicy::GetInstance()->GrantRequestURL(
-      GetProcessId(), url);
+      GetProcessId(), instance.url);
 
-  WorkerInstance instance;
-  instance.url = url;
-  instance.renderer_process_id = renderer_process_id;
-  instance.render_view_route_id = render_view_route_id;
-  instance.worker_route_id = worker_route_id;
-  instance.sender = sender;
-  instance.sender_pid = sender_pid;
-  instance.sender_route_id = sender_route_id;
   instances_.push_back(instance);
-  Send(new WorkerProcessMsg_CreateWorker(url, worker_route_id));
+  Send(new WorkerProcessMsg_CreateWorker(
+      instance.url, instance.worker_route_id));
 
   UpdateTitle();
+  instances_.back().sender->Send(
+      new ViewMsg_DedicatedWorkerCreated(instance.sender_route_id));
 }
 
 bool WorkerProcessHost::FilterMessage(const IPC::Message& message,
@@ -148,6 +138,8 @@ void WorkerProcessHost::OnMessageReceived(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(WorkerProcessHost, message)
     IPC_MESSAGE_HANDLER(ViewHostMsg_CreateDedicatedWorker,
                         OnCreateDedicatedWorker)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_CancelCreateDedicatedWorker,
+                        OnCancelCreateDedicatedWorker)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ForwardToWorker,
                         OnForwardToWorker)
     IPC_MESSAGE_UNHANDLED(handled = false)
@@ -214,6 +206,11 @@ void WorkerProcessHost::OnCreateDedicatedWorker(const GURL& url,
   WorkerService::GetInstance()->CreateDedicatedWorker(
       url, instances_.front().renderer_process_id,
       instances_.front().render_view_route_id, this, GetProcessId(), *route_id);
+}
+
+void WorkerProcessHost::OnCancelCreateDedicatedWorker(int route_id) {
+  WorkerService::GetInstance()->CancelCreateDedicatedWorker(
+      GetProcessId(), route_id);
 }
 
 void WorkerProcessHost::OnForwardToWorker(const IPC::Message& message) {

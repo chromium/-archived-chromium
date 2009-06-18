@@ -42,6 +42,8 @@ class WebWorkerProxy : public WebKit::WebWorker,
  private:
   bool Send(IPC::Message* message);
 
+  void OnDedicatedWorkerCreated();
+
   // The routing id used to reach WebWorkerClientProxy in the worker process.
   int route_id_;
 

@@ -15,11 +15,12 @@
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/worker_messages.h"
 #include "net/base/registry_controlled_domain.h"
 
-namespace {
-static const int kMaxWorkerProcesses = 10;
-}
+const int WorkerService::kMaxWorkerProcessesWhenSharing = 10;
+const int WorkerService::kMaxWorkersWhenSeparate = 64;
+const int WorkerService::kMaxWorkersPerTabWhenSeparate = 16;
 
 WorkerService* WorkerService::GetInstance() {
   return Singleton<WorkerService>::get();
@@ -49,14 +50,31 @@ bool WorkerService::CreateDedicatedWorker(const GURL &url,
                                           IPC::Message::Sender* sender,
                                           int sender_pid,
                                           int sender_route_id) {
-  WorkerProcessHost* worker = NULL;
+  // Generate a unique route id for the browser-worker communication that's
+  // unique among all worker processes.  That way when the worker process sends
+  // a wrapped IPC message through us, we know which WorkerProcessHost to give
+  // it to.
+  WorkerProcessHost::WorkerInstance instance;
+  instance.url = url;
+  instance.renderer_process_id = renderer_process_id;
+  instance.render_view_route_id = render_view_route_id;
+  instance.worker_route_id = next_worker_route_id();
+  instance.sender = sender;
+  instance.sender_pid = sender_pid;
+  instance.sender_route_id = sender_route_id;
 
+  WorkerProcessHost* worker = NULL;
   if (CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kWebWorkerProcessPerCore)) {
     worker = GetProcessToFillUpCores();
   } else if (CommandLine::ForCurrentProcess()->HasSwitch(
                  switches::kWebWorkerShareProcesses)) {
     worker = GetProcessForDomain(url);
+  } else {  // One process per worker.
+    if (!CanCreateWorkerProcess(instance)) {
+      queued_workers_.push_back(instance);
+      return true;
+    }
   }
 
   if (!worker) {
@@ -67,15 +85,41 @@ bool WorkerService::CreateDedicatedWorker(const GURL &url,
     }
   }
 
-  // Generate a unique route id for the browser-worker communication that's
-  // unique among all worker processes.  That way when the worker process sends
-  // a wrapped IPC message through us, we know which WorkerProcessHost to give
-  // it to.
-  worker->CreateWorker(url, renderer_process_id, render_view_route_id,
-                       next_worker_route_id(), sender, sender_pid,
-                       sender_route_id);
-
+  worker->CreateWorker(instance);
   return true;
+}
+
+void WorkerService::CancelCreateDedicatedWorker(int sender_pid,
+                                                int sender_route_id) {
+  for (WorkerProcessHost::Instances::iterator i = queued_workers_.begin();
+       i != queued_workers_.end(); ++i) {
+     if (i->sender_pid == sender_pid && i->sender_route_id == sender_route_id) {
+       queued_workers_.erase(i);
+       return;
+     }
+  }
+
+  // There could be a race condition where the WebWorkerProxy told us to cancel
+  // the worker right as we sent it a message say it's been created.  Look at
+  // the running workers.
+  for (ChildProcessHost::Iterator iter(ChildProcessInfo::WORKER_PROCESS);
+       !iter.Done(); ++iter) {
+    WorkerProcessHost* worker = static_cast<WorkerProcessHost*>(*iter);
+    for (WorkerProcessHost::Instances::const_iterator instance =
+             worker->instances().begin();
+         instance != worker->instances().end(); ++instance) {
+      if (instance->sender_pid == sender_pid &&
+          instance->sender_route_id == sender_route_id) {
+        // Fake a worker destroyed message so that WorkerProcessHost cleans up
+        // properly.
+        WorkerHostMsg_WorkerContextDestroyed msg(sender_route_id);
+        ForwardMessage(msg, sender_pid);
+        return;
+      }
+    }
+  }
+
+  DCHECK(false) << "Couldn't find worker to cancel";
 }
 
 void WorkerService::ForwardMessage(const IPC::Message& message,
@@ -108,7 +152,7 @@ WorkerProcessHost* WorkerService::GetProcessForDomain(const GURL& url) {
     }
   }
 
-  if (num_processes >= kMaxWorkerProcesses)
+  if (num_processes >= kMaxWorkerProcessesWhenSharing)
     return GetLeastLoadedWorker();
 
   return NULL;
@@ -138,18 +182,75 @@ WorkerProcessHost* WorkerService::GetLeastLoadedWorker() {
   return smallest;
 }
 
+bool WorkerService::CanCreateWorkerProcess(
+    const WorkerProcessHost::WorkerInstance& instance) {
+  int total_workers = 0;
+  int workers_per_tab = 0;
+  for (ChildProcessHost::Iterator iter(ChildProcessInfo::WORKER_PROCESS);
+       !iter.Done(); ++iter) {
+    WorkerProcessHost* worker = static_cast<WorkerProcessHost*>(*iter);
+    for (WorkerProcessHost::Instances::const_iterator cur_instance =
+             worker->instances().begin();
+         cur_instance != worker->instances().end(); ++cur_instance) {
+      total_workers++;
+      if (total_workers >= kMaxWorkersWhenSeparate)
+        return false;
+      if (cur_instance->renderer_process_id == instance.renderer_process_id &&
+          cur_instance->render_view_route_id == instance.render_view_route_id) {
+        workers_per_tab++;
+        if (workers_per_tab >= kMaxWorkersPerTabWhenSeparate)
+          return false;
+      }
+    }
+  }
+
+  return true;
+}
+
 void WorkerService::Observe(NotificationType type,
                             const NotificationSource& source,
                             const NotificationDetails& details) {
   DCHECK(type.value == NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN);
   ResourceMessageFilter* filter = Source<ResourceMessageFilter>(source).ptr();
-  NotifySenderShutdown(filter);
+  OnSenderShutdown(filter);
 }
 
-void WorkerService::NotifySenderShutdown(IPC::Message::Sender* sender) {
+void WorkerService::OnSenderShutdown(IPC::Message::Sender* sender) {
   for (ChildProcessHost::Iterator iter(ChildProcessInfo::WORKER_PROCESS);
        !iter.Done(); ++iter) {
     WorkerProcessHost* worker = static_cast<WorkerProcessHost*>(*iter);
     worker->SenderShutdown(sender);
+  }
+
+  // See if that render process had any queued workers.
+  for (WorkerProcessHost::Instances::iterator i = queued_workers_.begin();
+       i != queued_workers_.end();) {
+    if (i->sender == sender) {
+      i = queued_workers_.erase(i);
+    } else {
+      ++i;
+    }
+  }
+}
+
+void WorkerService::OnWorkerProcessDestroyed(WorkerProcessHost* process) {
+  if (queued_workers_.empty())
+    return;
+
+  for (WorkerProcessHost::Instances::iterator i = queued_workers_.begin();
+       i != queued_workers_.end();) {
+    if (CanCreateWorkerProcess(*i)) {
+      WorkerProcessHost* worker =
+          new WorkerProcessHost(resource_dispatcher_host_);
+      if (!worker->Init()) {
+        delete worker;
+        return;
+      }
+
+      worker->CreateWorker(*i);
+      i = queued_workers_.erase(i);
+    } else {
+      ++i;
+    }
   }
 }
