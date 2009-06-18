@@ -332,11 +332,11 @@ if env.Bit('mac'):
               Touch('$ARTIFACTS_DIR/plugin_done')
               ])
 
-
-  env['MAC_INSTALLER_PROJECT'] = 'open_source_o3d_mac_npapi_metapackage.packproj'
+  env['MAC_INSTALLER_DIR'] = env['SCONSTRUCT_DIR'] + '/../o3d-internal/mac_installer'
+  env['MAC_INSTALLER_PROJECT'] = 'o3d.packproj'
+  print "Installer is " + env['MAC_INSTALLER_PROJECT']
   # Default is make the installer.
-  make_installer = int(ARGUMENTS.get('MAKE_INSTALLER', 1))
-
+  make_installer = int(ARGUMENTS.get('MAKE_INSTALLER', 1)) and os.path.exists(env['MAC_INSTALLER_DIR'] + '/' + env['MAC_INSTALLER_PROJECT'])
 
 
   if make_installer:
@@ -355,7 +355,10 @@ if env.Bit('mac'):
                 # Copy installer project file into artifacts so it can operate on files local to own directory
                 # and so work on debug or release builds without change.
                 Copy("$ARTIFACTS_DIR/$MAC_INSTALLER_PROJECT",
-                     '$SCONSTRUCT_DIR/plugin/mac/o3d_mac_npapi_metapackage/$MAC_INSTALLER_PROJECT'),
+                     '$MAC_INSTALLER_DIR/$MAC_INSTALLER_PROJECT'),
+                Copy("$ARTIFACTS_DIR/postflight.sh",
+                     '$MAC_INSTALLER_DIR/postflight.sh'),
+                'ditto  "$MAC_INSTALLER_DIR/GoogleSoftwareUpdate.pkg" "$ARTIFACTS_DIR/GoogleSoftwareUpdate.pkg"',
                 # Make the installer.
                 kill_command,
                 'freeze "$ARTIFACTS_DIR/$MAC_INSTALLER_PROJECT"',
@@ -370,6 +373,7 @@ if env.Bit('mac'):
               [
               Delete("$ARTIFACTS_DIR/DMG_SRC"),
               'mkdir "$ARTIFACTS_DIR/DMG_SRC"',
+              'cp "$MAC_INSTALLER_DIR/.keystone_install" "$ARTIFACTS_DIR/DMG_SRC"',
               'ditto "$ARTIFACTS_DIR/O3D.mpkg" "$ARTIFACTS_DIR/DMG_SRC/O3D.mpkg"',
               'hdiutil create -srcfolder "$ARTIFACTS_DIR/DMG_SRC" -size 30mb -ov -fs HFS+ -imagekey zlib-level=9 -volname "O3D $O3D_PLUGIN_VERSION" "$ARTIFACTS_DIR/o3d.dmg"',
               Delete("$ARTIFACTS_DIR/DMG_SRC"),
