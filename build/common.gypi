@@ -350,7 +350,6 @@
             'cflags': [
               '-m32',
               '-fno-exceptions',
-              '-fno-threadsafe-statics',
               '-Wall',
             ],
             'ldflags': [
