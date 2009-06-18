@@ -4098,6 +4098,10 @@
             '../third_party/WebKit/WebCore/platform/graphics/skia/PatternSkia.cpp',
             '../third_party/WebKit/WebCore/platform/graphics/skia/TransformationMatrixSkia.cpp',
 
+            # RenderThemeChromiumSkia is not used on mac since RenderThemeChromiumMac
+            # does not reference the Skia code that is used by Windows and Linux.
+            '../third_party/WebKit/WebCore/rendering/RenderThemeChromiumSkia.cpp',
+
             # Skia image-decoders are also not used on mac.  CoreGraphics
             # is used directly instead.
             '../third_party/WebKit/WebCore/platform/image-decoders/ImageDecoder.h',
