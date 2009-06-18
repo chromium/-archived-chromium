@@ -7,6 +7,7 @@
 #include <gdk/gdkkeysyms.h>
 
 #include "app/resource_bundle.h"
+#include "app/theme_provider.h"
 #include "base/base_paths_linux.h"
 #include "base/gfx/gtk_util.h"
 #include "base/logging.h"
@@ -19,6 +20,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/gtk/about_chrome_dialog.h"
@@ -27,10 +29,11 @@
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
 #include "chrome/browser/gtk/clear_browsing_data_dialog_gtk.h"
 #include "chrome/browser/gtk/download_shelf_gtk.h"
+#include "chrome/browser/gtk/find_bar_gtk.h"
 #include "chrome/browser/gtk/go_button_gtk.h"
 #include "chrome/browser/gtk/import_dialog_gtk.h"
 #include "chrome/browser/gtk/infobar_container_gtk.h"
-#include "chrome/browser/gtk/find_bar_gtk.h"
+#include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/status_bubble_gtk.h"
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
 #include "chrome/browser/gtk/tabs/tab_strip_gtk.h"
@@ -42,6 +45,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "grit/app_resources.h"
 #include "grit/theme_resources.h"
 
 #if defined(LINUX2)
@@ -52,8 +56,6 @@ namespace {
 
 // The number of milliseconds between loading animation frames.
 const int kLoadingAnimationFrameTimeMs = 30;
-
-const GdkColor kBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
 
 const char* kBrowserWindowKey = "__BROWSER_WINDOW_GTK__";
 
@@ -298,6 +300,7 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
       browser_->profile()->GetPrefs(), this);
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
   SetWindowIcon();
+  SetBackgroundColor();
   SetGeometryHints();
   g_signal_connect(window_, "delete-event",
                    G_CALLBACK(MainWindowDeleteEvent), this);
@@ -330,7 +333,13 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   GtkWidget* window_vbox = gtk_vbox_new(FALSE, 0);
   gtk_widget_show(window_vbox);
 
+  // The window container draws the custom browser frame.
   window_container_ = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
+  gtk_widget_set_app_paintable(window_container_, TRUE);
+  gtk_widget_set_double_buffered(window_container_, FALSE);
+  gtk_widget_set_redraw_on_allocate(window_container_, TRUE);
+  g_signal_connect(G_OBJECT(window_container_), "expose-event",
+                   G_CALLBACK(&OnCustomFrameExpose), this);
   gtk_container_add(GTK_CONTAINER(window_container_), window_vbox);
 
   tabstrip_.reset(new TabStripGtk(browser_->tabstrip_model()));
@@ -343,10 +352,6 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
 
   // The content_vbox_ surrounds the "content": toolbar+bookmarks bar+page.
   content_vbox_ = gtk_vbox_new(FALSE, 0);
-  gtk_widget_set_app_paintable(content_vbox_, TRUE);
-  gtk_widget_set_double_buffered(content_vbox_, FALSE);
-  g_signal_connect(G_OBJECT(content_vbox_), "expose-event",
-                   G_CALLBACK(&OnContentAreaExpose), this);
   gtk_widget_show(content_vbox_);
 
   toolbar_.reset(new BrowserToolbarGtk(browser_.get(), this));
@@ -374,6 +379,8 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   contents_container_->AddContainerToBox(render_area_vbox_);
   gtk_widget_show_all(render_area_vbox_);
 
+  // We have to realize the window before we try to apply a window shape mask.
+  gtk_widget_realize(GTK_WIDGET(window_));
   // Note that calling this the first time is necessary to get the
   // proper control layout.
   UpdateCustomFrame();
@@ -405,12 +412,40 @@ void BrowserWindowGtk::HandleAccelerator(guint keyval,
   }
 }
 
-gboolean BrowserWindowGtk::OnContentAreaExpose(GtkWidget* widget,
-                                               GdkEventExpose* e,
+gboolean BrowserWindowGtk::OnCustomFrameExpose(GtkWidget* widget,
+                                               GdkEventExpose* event,
                                                BrowserWindowGtk* window) {
+  // TODO(tc): This will have to be dynamic once themes are supported.  Maybe
+  // detect the theme install and delete the pointer?
+  static NineBox* custom_frame_border = NULL;
+
   if (window->use_custom_frame_.GetValue()) {
-    // http://code.google.com/p/chromium/issues/detail?id=13430
-    return FALSE;
+    ThemeProvider* theme_provider =
+        window->browser()->profile()->GetThemeProvider();
+    if (!custom_frame_border) {
+      custom_frame_border = new NineBox(
+          theme_provider,
+          IDR_WINDOW_TOP_LEFT_CORNER,
+          IDR_WINDOW_TOP_CENTER,
+          IDR_WINDOW_TOP_RIGHT_CORNER,
+          IDR_WINDOW_LEFT_SIDE,
+          NULL,
+          IDR_WINDOW_RIGHT_SIDE,
+          IDR_WINDOW_BOTTOM_LEFT_CORNER,
+          IDR_WINDOW_BOTTOM_CENTER,
+          IDR_WINDOW_BOTTOM_RIGHT_CORNER);
+    }
+
+    // TODO(tc): Handle maximized windows.
+
+    // TODO(tc): Draw the theme overlay.  The windows code is below.
+    // if (theme_provider->HasCustomImage(IDR_THEME_FRAME_OVERLAY)) {
+    //   SkBitmap* theme_overlay = theme_provider->GetBitmapNamed(
+    //       IDR_THEME_FRAME_OVERLAY);
+    //   canvas->DrawBitmapInt(*theme_overlay, 0, 0);
+    // }
+
+    custom_frame_border->RenderToWidget(widget);
   }
 
   return FALSE;  // Allow subwidgets to paint.
@@ -771,6 +806,9 @@ void BrowserWindowGtk::DestroyBrowser() {
 }
 
 void BrowserWindowGtk::OnBoundsChanged(const gfx::Rect& bounds) {
+  if (bounds_.size() != bounds.size())
+    OnSizeChanged(bounds.width(), bounds.height());
+
   bounds_ = bounds;
   SaveWindowPosition();
 }
@@ -867,6 +905,48 @@ void BrowserWindowGtk::SetWindowIcon() {
   g_list_free(icon_list);
 }
 
+void BrowserWindowGtk::SetBackgroundColor() {
+  // TODO(tc): Handle active/inactive colors.
+
+  ThemeProvider* theme_provider = browser()->profile()->GetThemeProvider();
+
+  SkColor frame_color;
+  if (browser()->profile()->IsOffTheRecord()) {
+    frame_color = theme_provider->GetColor(
+        BrowserThemeProvider::COLOR_FRAME_INCOGNITO);
+  } else {
+    frame_color = theme_provider->GetColor(BrowserThemeProvider::COLOR_FRAME);
+  }
+
+  // Paint the frame color on the left, right and bottom.
+  GdkColor frame_color_gdk = GDK_COLOR_RGB(SkColorGetR(frame_color),
+      SkColorGetG(frame_color), SkColorGetB(frame_color));
+  gtk_widget_modify_bg(GTK_WIDGET(window_), GTK_STATE_NORMAL,
+                       &frame_color_gdk);
+}
+
+void BrowserWindowGtk::OnSizeChanged(int width, int height) {
+  UpdateWindowShape(width, height);
+}
+
+void BrowserWindowGtk::UpdateWindowShape(int width, int height) {
+  if (use_custom_frame_.GetValue() && !full_screen_ && !IsMaximized()) {
+    // Make the top corners rounded.  We set a mask that includes most of the
+    // window except for a few pixels in the top two corners.
+    GdkRectangle top_rect = { 3, 0, width - 6, 1 };
+    GdkRectangle mid_rect = { 1, 1, width - 2, 2 };
+    GdkRectangle bot_rect = { 0, 3, width, height - 3 };
+    GdkRegion* mask = gdk_region_rectangle(&top_rect);
+    gdk_region_union_with_rect(mask, &mid_rect);
+    gdk_region_union_with_rect(mask, &bot_rect);
+    gdk_window_shape_combine_region(GTK_WIDGET(window_)->window, mask, 0, 0);
+    gdk_region_destroy(mask);
+  } else {
+    // Disable rounded corners.
+    gdk_window_shape_combine_region(GTK_WIDGET(window_)->window, NULL, 0, 0);
+  }
+}
+
 void BrowserWindowGtk::ConnectAccelerators() {
   GtkAccelGroup* accel_group = gtk_accel_group_new();
   gtk_window_add_accel_group(window_, accel_group);
@@ -888,8 +968,9 @@ void BrowserWindowGtk::UpdateCustomFrame() {
   bool enable = use_custom_frame_.GetValue() && !full_screen_;
   gtk_window_set_decorated(window_, !enable);
   titlebar_->UpdateCustomFrame(enable);
+  UpdateWindowShape(bounds_.width(), bounds_.height());
   if (enable) {
-    gtk_alignment_set_padding(GTK_ALIGNMENT(window_container_), 0,
+    gtk_alignment_set_padding(GTK_ALIGNMENT(window_container_), 1,
         kCustomFrameWidth, kCustomFrameWidth, kCustomFrameWidth);
   } else {
     gtk_alignment_set_padding(GTK_ALIGNMENT(window_container_), 0, 0, 0, 0);

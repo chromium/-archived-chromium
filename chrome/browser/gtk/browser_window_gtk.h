@@ -27,7 +27,6 @@ class DownloadShelfGtk;
 class FindBarGtk;
 class InfoBarContainerGtk;
 class LocationBar;
-class NineBox;
 class StatusBubbleGtk;
 class TabContentsContainerGtk;
 class TabStripGtk;
@@ -167,6 +166,16 @@ class BrowserWindowGtk : public BrowserWindow,
   // Set up the window icon (potentially used in window border or alt-tab list).
   void SetWindowIcon();
 
+  // Set up background color of the window (depends on if we're incognito or
+  // not).
+  void SetBackgroundColor();
+
+  // Called when the window size changed.
+  void OnSizeChanged(int width, int height);
+
+  // Applies the window shape to if we're in custom drawing mode.
+  void UpdateWindowShape(int width, int height);
+
   // Connect accelerators that aren't connected to menu items (like ctrl-o,
   // ctrl-l, etc.).
   void ConnectAccelerators();
@@ -181,7 +190,7 @@ class BrowserWindowGtk : public BrowserWindow,
 
   // Callback for when the "content area" vbox needs to be redrawn.
   // The content area includes the toolbar and web page but not the tab strip.
-  static gboolean OnContentAreaExpose(GtkWidget* widget, GdkEventExpose* e,
+  static gboolean OnCustomFrameExpose(GtkWidget* widget, GdkEventExpose* event,
                                       BrowserWindowGtk* window);
 
   static gboolean OnGtkAccelerator(GtkAccelGroup* accel_group,
