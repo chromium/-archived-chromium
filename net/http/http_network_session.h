@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -6,6 +6,7 @@
 #define NET_HTTP_HTTP_NETWORK_SESSION_H_
 
 #include "base/ref_counted.h"
+#include "net/base/ssl_client_auth_cache.h"
 #include "net/base/ssl_config_service.h"
 #include "net/base/tcp_client_socket_pool.h"
 #include "net/http/http_auth_cache.h"
@@ -29,6 +30,9 @@ class HttpNetworkSession : public base::RefCounted<HttpNetworkSession> {
   }
 
   HttpAuthCache* auth_cache() { return &auth_cache_; }
+  SSLClientAuthCache* ssl_client_auth_cache() {
+    return &ssl_client_auth_cache_;
+  }
   ClientSocketPool* connection_pool() { return connection_pool_; }
   HostResolver* host_resolver() { return host_resolver_; }
   ProxyService* proxy_service() { return proxy_service_; }
@@ -45,6 +49,7 @@ class HttpNetworkSession : public base::RefCounted<HttpNetworkSession> {
   static int max_sockets_per_group_;
 
   HttpAuthCache auth_cache_;
+  SSLClientAuthCache ssl_client_auth_cache_;
   scoped_refptr<ClientSocketPool> connection_pool_;
   HostResolver* host_resolver_;
   ProxyService* proxy_service_;

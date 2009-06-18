@@ -42,7 +42,7 @@ class FtpAuthCache {
  private:
   typedef std::string AuthCacheKey;
   typedef scoped_refptr<AuthData> AuthCacheValue;
-  typedef std::map<AuthCacheKey,AuthCacheValue> AuthCacheMap;
+  typedef std::map<AuthCacheKey, AuthCacheValue> AuthCacheMap;
 
   // Get the key in hash table |cache_| where entries for ftp server |origin|
   // should be saved.
