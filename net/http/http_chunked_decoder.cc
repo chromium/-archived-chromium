@@ -125,8 +125,7 @@ int HttpChunkedDecoder::ScanForChunkRemaining(const char* buf, int buf_len) {
       if (index_of_semicolon != StringPiece::npos)
         buf_len = static_cast<int>(index_of_semicolon);
 
-      if (!ParseChunkSize(buf, buf_len, &chunk_remaining_) ||
-          chunk_remaining_ < 0) {
+      if (!ParseChunkSize(buf, buf_len, &chunk_remaining_)) {
         DLOG(ERROR) << "Failed parsing HEX from: " <<
             std::string(buf, buf_len);
         return ERR_INVALID_CHUNKED_ENCODING;
@@ -185,7 +184,14 @@ bool HttpChunkedDecoder::ParseChunkSize(const char* start, int len, int* out) {
   if (StringPiece(start, len).find_first_not_of("0123456789abcdefABCDEF")!=
       StringPiece::npos)
     return false;
-  return HexStringToInt(std::string(start, len), out);
+
+  int parsed_number;
+  bool ok = HexStringToInt(std::string(start, len), &parsed_number);
+  if (ok && parsed_number >= 0) {
+    *out = parsed_number;
+    return true;
+  }
+  return false;
 }
 
 }  // namespace net

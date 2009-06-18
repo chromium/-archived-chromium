@@ -84,14 +84,14 @@ class HttpChunkedDecoder {
   int FilterBuf(char* buf, int buf_len);
 
  private:
-  // Scan |buf| for the next chunk delimiter.  This method returns the number
+  // Scans |buf| for the next chunk delimiter.  This method returns the number
   // of bytes consumed from |buf|.  If found, |chunk_remaining_| holds the
   // value for the next chunk size.
   int ScanForChunkRemaining(const char* buf, int buf_len);
 
-  // Convert string |start| of length |len| to a numeric value.
+  // Converts string |start| of length |len| to a numeric value.
   // |start| is a string of type "chunk-size" (hex string).
-  // If the conversion succeeds, return true and place the result in |out|.
+  // If the conversion succeeds, returns true and places the result in |out|.
   static bool ParseChunkSize(const char* start, int len, int* out);
 
   // Indicates the number of bytes remaining for the current chunk.
