@@ -252,6 +252,10 @@ void Textfield::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
     native_wrapper_->UpdateFont();
     native_wrapper_->UpdateEnabled();
     native_wrapper_->UpdateBorder();
+
+    // We need to call Layout here because any previous calls to Layout
+    // will have short-circuited and we don't call AddChildView.
+    Layout();
   }
 }
 
