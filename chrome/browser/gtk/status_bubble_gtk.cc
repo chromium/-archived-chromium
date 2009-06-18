@@ -6,6 +6,7 @@
 
 #include <gtk/gtk.h>
 
+#include "app/gfx/text_elider.h"
 #include "base/gfx/gtk_util.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
@@ -41,14 +42,15 @@ StatusBubbleGtk::~StatusBubbleGtk() {
 }
 
 void StatusBubbleGtk::SetStatus(const std::string& status) {
-  if (status.empty()) {
-    HideInASecond();
+  if (status_text_ == status)
     return;
+
+  status_text_ = status;
+  if (!status_text_.empty()) {
+    UpdateWidgetText(status_text_);
+  } else {
+    UpdateWidgetText(url_text_);
   }
-
-  gtk_label_set_text(GTK_LABEL(label_), status.c_str());
-
-  Show();
 }
 
 void StatusBubbleGtk::SetStatus(const std::wstring& status) {
@@ -56,7 +58,34 @@ void StatusBubbleGtk::SetStatus(const std::wstring& status) {
 }
 
 void StatusBubbleGtk::SetURL(const GURL& url, const std::wstring& languages) {
-  SetStatus(url.possibly_invalid_spec());
+  // If we want to clear a displayed URL but there is a status still to
+  // display, display that status instead.
+  if (url.is_empty() && !status_text_.empty()) {
+    url_text_.clear();
+    UpdateWidgetText(status_text_);
+    return;
+  }
+
+  // Set Elided Text corresponding to the GURL object.  We limit the width of
+  // the URL to a third of the width of the browser window (matching the width
+  // on windows).
+  GdkWindow* window = gtk_widget_get_parent_window(container_.get());
+  int window_width;
+  gdk_drawable_get_size(GDK_DRAWABLE(window), &window_width, NULL);
+  // TODO(tc): We don't actually use gfx::Font as the font in the status
+  // bubble.  We should extend gfx::ElideUrl to take some sort of pango font.
+  url_text_ = WideToUTF8(gfx::ElideUrl(url, gfx::Font(), window_width / 3,
+                                       languages));
+  UpdateWidgetText(url_text_);
+}
+
+void StatusBubbleGtk::UpdateWidgetText(const std::string& text) {
+  if (text.empty()) {
+    HideInASecond();
+  } else {
+    gtk_label_set_text(GTK_LABEL(label_), text.c_str());
+    Show();
+  }
 }
 
 void StatusBubbleGtk::Show() {
