@@ -186,7 +186,6 @@ int ClientSocketPoolBase::RequestSocket(
       handle->set_socket(idle_socket.socket);
       handle->set_is_reused(true);
       group.sockets_handed_out_count++;
-      CHECK(group.sockets_handed_out_count <= group.active_socket_count);
       CheckSocketCounts(group);
       return OK;
     }
@@ -213,7 +212,6 @@ int ClientSocketPoolBase::RequestSocket(
 
 void ClientSocketPoolBase::CancelRequest(const std::string& group_name,
                                          const ClientSocketHandle* handle) {
-  CHECK(handle);
   CHECK(ContainsKey(group_map_, group_name));
 
   Group& group = group_map_[group_name];
@@ -233,21 +231,19 @@ void ClientSocketPoolBase::CancelRequest(const std::string& group_name,
   CHECK(ContainsKey(group.connecting_requests, handle));
 
   RequestMap::iterator map_it = group.connecting_requests.find(handle);
-  RemoveConnectingSocket(handle);
+  if (map_it != group.connecting_requests.end()) {
+    RemoveConnectingSocket(handle);
 
-  CheckSocketCounts(group);
-  group.connecting_requests.erase(map_it);
-  group.active_socket_count--;
-  CheckSocketCounts(group);
+    group.connecting_requests.erase(map_it);
+    group.active_socket_count--;
 
-  // Delete group if no longer needed.
-  if (group.active_socket_count == 0 && group.idle_sockets.empty()) {
-    CHECK(group.pending_requests.empty());
-    CHECK(group.sockets_handed_out_count == 0);
-    CHECK(group.connecting_requests.size() == 0);
-    CHECK(group.connecting_requests.empty());
-    group_map_.erase(group_name);
-    return;
+    // Delete group if no longer needed.
+    if (group.active_socket_count == 0 && group.idle_sockets.empty()) {
+      CHECK(group.pending_requests.empty());
+      CHECK(group.connecting_requests.empty());
+      group_map_.erase(group_name);
+      return;
+    }
   }
 
   CheckSocketCounts(group);
@@ -374,7 +370,6 @@ void ClientSocketPoolBase::DoReleaseSocket(const std::string& group_name,
 
   group.active_socket_count--;
   group.sockets_handed_out_count--;
-  CHECK(group.sockets_handed_out_count >= 0);
 
   const bool can_reuse = socket->IsConnectedAndIdle();
   if (can_reuse) {
@@ -464,7 +459,6 @@ CompletionCallback* ClientSocketPoolBase::OnConnectingRequestComplete(
     request.handle->set_socket(socket);
     request.handle->set_is_reused(false);
     group.sockets_handed_out_count++;
-    CHECK(group.sockets_handed_out_count <= group.active_socket_count);
 
     CheckSocketCounts(group);
   }
