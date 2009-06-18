@@ -690,6 +690,8 @@ BUG13907 WIN DEBUG : LayoutTests/media/video-timeupdate-during-playback.html = P
 BUG13907 WIN : LayoutTests/media/video-transformed.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-zoom-controls.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-zoom.html = FAIL
+// This test is very flaky.
+BUG13907 WIN : LayoutTests/media/unsupported-rtsp.html = PASS CRASH
 
 // Function arguments object is copied for each access.
 BUG941049 : LayoutTests/fast/js/kde/function_arguments.html = FAIL
