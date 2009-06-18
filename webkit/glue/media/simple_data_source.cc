@@ -12,6 +12,22 @@
 #include "webkit/glue/resource_loader_bridge.h"
 #include "webkit/glue/webappcachecontext.h"
 
+namespace {
+
+const char kHttpScheme[] = "http";
+const char kHttpsScheme[] = "https";
+const char kFtpScheme[] = "ftp";
+
+// A helper method that accepts only HTTP, HTTPS and FILE protocol.
+bool IsSchemeSupported(const GURL& url) {
+  return url.SchemeIs(kHttpScheme) ||
+         url.SchemeIs(kHttpsScheme) ||
+         url.SchemeIs(kFtpScheme) ||
+         url.SchemeIsFile();
+}
+
+}  // namespace
+
 namespace webkit_glue {
 
 SimpleDataSource::SimpleDataSource(MessageLoop* render_loop, int32 routing_id)
@@ -44,7 +60,8 @@ bool SimpleDataSource::Initialize(const std::string& url) {
 
   // Validate the URL.
   SetURL(GURL(url));
-  if (!url_.is_valid()) {
+  if (!url_.is_valid() || !IsSchemeSupported(url_)) {
+    host_->Error(media::PIPELINE_ERROR_NETWORK);
     return false;
   }
 
