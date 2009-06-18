@@ -89,6 +89,7 @@
 #include "V8HTMLButtonElement.h"
 #include "V8HTMLCanvasElement.h"
 #include "V8HTMLModElement.h"
+#include "V8HTMLDataGridElement.h"
 #include "V8HTMLDirectoryElement.h"
 #include "V8HTMLDivElement.h"
 #include "V8HTMLDListElement.h"
