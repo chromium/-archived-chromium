@@ -82,6 +82,7 @@ class WebDevToolsAgentImpl
  private:
   static v8::Handle<v8::Value> JsDispatchOnClient(const v8::Arguments& args);
   static v8::Handle<v8::Value> JsGetNodeForId(const v8::Arguments& args);
+  void DisposeUtilityContext();
 
   void InitDevToolsAgentHost();
 

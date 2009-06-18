@@ -61,6 +61,10 @@ WebDevToolsAgentImpl::WebDevToolsAgentImpl(
 
 WebDevToolsAgentImpl::~WebDevToolsAgentImpl() {
   DebuggerAgentManager::OnWebViewClosed(web_view_impl_);
+  DisposeUtilityContext();
+}
+
+void WebDevToolsAgentImpl::DisposeUtilityContext() {
   if (!utility_context_.IsEmpty()) {
     utility_context_.Dispose();
     utility_context_.Clear();
@@ -140,6 +144,7 @@ void WebDevToolsAgentImpl::DidCommitLoadForFrame(
     WebFrame* frame,
     bool is_new_navigation) {
   if (!attached_) {
+    DisposeUtilityContext();
     return;
   }
   WebDataSource* ds = frame->GetDataSource();
