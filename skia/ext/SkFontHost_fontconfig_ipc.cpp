@@ -36,47 +36,6 @@ FontConfigIPC::~FontConfigIPC() {
     close(fd_);
 }
 
-static ssize_t SyncIPC(int fd, uint8_t* reply, unsigned reply_len, int* result_fd,
-                       const Pickle& request) {
-    int fds[2];
-    if (socketpair(AF_UNIX, SOCK_DGRAM, 0, fds) == -1)
-        return false;
-
-    std::vector<int> fd_vector;
-    fd_vector.push_back(fds[1]);
-    if (!base::SendMsg(fd, request.data(), request.size(), fd_vector)) {
-      close(fds[0]);
-      close(fds[1]);
-      return -1;
-    }
-    close(fds[1]);
-
-    fd_vector.clear();
-    const ssize_t r = base::RecvMsg(fds[0], reply, reply_len, &fd_vector);
-    close(fds[0]);
-    if (r == -1)
-      return -1;
-
-    if ((fd_vector.size() > 0 && result_fd == NULL) || fd_vector.size() > 1) {
-      for (std::vector<int>::const_iterator
-           i = fd_vector.begin(); i != fd_vector.end(); ++i) {
-        close(*i);
-      }
-
-      return -1;
-    }
-
-    if (result_fd) {
-      if (fd_vector.size() == 0) {
-        *result_fd = -1;
-      } else {
-        *result_fd = fd_vector[0];
-      }
-    }
-
-    return r;
-}
-
 bool FontConfigIPC::Match(std::string* result_family,
                           unsigned* result_fileid,
                           bool fileid_valid, unsigned fileid,
@@ -92,7 +51,8 @@ bool FontConfigIPC::Match(std::string* result_family,
     request.WriteString(family);
 
     uint8_t reply_buf[512];
-    const ssize_t r = SyncIPC(fd_, reply_buf, sizeof(reply_buf), NULL, request);
+    const ssize_t r = base::SendRecvMsg(fd_, reply_buf, sizeof(reply_buf), NULL,
+                                        request);
     if (r == -1)
       return false;
 
@@ -125,7 +85,8 @@ int FontConfigIPC::Open(unsigned fileid) {
 
     int result_fd = -1;
     uint8_t reply_buf[256];
-    const ssize_t r = SyncIPC(fd_, reply_buf, sizeof(reply_buf), &result_fd, request);
+    const ssize_t r = base::SendRecvMsg(fd_, reply_buf, sizeof(reply_buf),
+                                        &result_fd, request);
 
     if (r == -1)
       return -1;

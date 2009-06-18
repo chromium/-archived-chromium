@@ -10,6 +10,7 @@
 
 #include "base/eintr_wrapper.h"
 #include "base/logging.h"
+#include "base/pickle.h"
 
 namespace base {
 
@@ -92,6 +93,52 @@ ssize_t RecvMsg(int fd, void* buf, size_t length, std::vector<int>* fds) {
   memcpy(&(*fds)[0], wire_fds, sizeof(int) * wire_fds_len);
 
   return r;
+}
+
+ssize_t SendRecvMsg(int fd, uint8_t* reply, unsigned max_reply_len, int* result_fd,
+                    const Pickle& request) {
+  int fds[2];
+
+  // This socketpair is only used for the IPC and is cleaned up before
+  // returning.
+  if (socketpair(AF_UNIX, SOCK_DGRAM, 0, fds) == -1)
+      return false;
+
+  std::vector<int> fd_vector;
+  fd_vector.push_back(fds[1]);
+  if (!SendMsg(fd, request.data(), request.size(), fd_vector)) {
+    close(fds[0]);
+    close(fds[1]);
+    return -1;
+  }
+  close(fds[1]);
+
+  fd_vector.clear();
+  const ssize_t reply_len = RecvMsg(fds[0], reply, max_reply_len, &fd_vector);
+  close(fds[0]);
+  if (reply_len == -1)
+    return -1;
+
+  if ((fd_vector.size() > 0 && result_fd == NULL) || fd_vector.size() > 1) {
+    for (std::vector<int>::const_iterator
+         i = fd_vector.begin(); i != fd_vector.end(); ++i) {
+      close(*i);
+    }
+
+    NOTREACHED();
+
+    return -1;
+  }
+
+  if (result_fd) {
+    if (fd_vector.size() == 0) {
+      *result_fd = -1;
+    } else {
+      *result_fd = fd_vector[0];
+    }
+  }
+
+  return reply_len;
 }
 
 }  // namespace base
