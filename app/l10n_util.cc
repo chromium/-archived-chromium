@@ -476,25 +476,18 @@ std::wstring TruncateString(const std::wstring& string, size_t length) {
 
 #if defined(WCHAR_T_IS_UTF32)
 std::wstring ToLower(const std::wstring& string) {
-  string16 string_utf16 = WideToUTF16(string);
-  UnicodeString lower_u_str(
-      UnicodeString(string_utf16.c_str()).toLower(Locale::getDefault()));
-  string16 result_utf16;
-  lower_u_str.extract(0, lower_u_str.length(),
-                      WriteInto(&result_utf16, lower_u_str.length() + 1));
-  std::wstring result = UTF16ToWide(result_utf16);
-  return result;
+  return UTF16ToWide(ToLower(WideToUTF16(string)));
 }
-#else
-std::wstring ToLower(const std::wstring& string) {
+#endif  // defined(WCHAR_T_IS_UTF32)
+
+string16 ToLower(const string16& string) {
   UnicodeString lower_u_str(
       UnicodeString(string.c_str()).toLower(Locale::getDefault()));
-  std::wstring result;
+  string16 result;
   lower_u_str.extract(0, lower_u_str.length(),
                       WriteInto(&result, lower_u_str.length() + 1));
   return result;
 }
-#endif  // defined(WCHAR_T_IS_UTF32)
 
 // Returns the text direction for the default ICU locale. It is assumed
 // that SetICUDefaultLocale has been called to set the default locale to

@@ -124,7 +124,11 @@ std::wstring GetStringF(int message_id, int64 a);
 std::wstring TruncateString(const std::wstring& string, size_t length);
 
 // Returns the lower case equivalent of string.
+#if defined(WCHAR_T_IS_UTF32)
+// Deprecated.  The string16 version should be used instead.
 std::wstring ToLower(const std::wstring& string);
+#endif  // defined(WCHAR_T_IS_UTF32)
+string16 ToLower(const string16& string);
 
 // Represents the text direction returned by the GetTextDirection() function.
 enum TextDirection {

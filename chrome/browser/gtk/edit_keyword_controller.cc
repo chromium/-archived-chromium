@@ -32,6 +32,26 @@ GtkWidget* CreateEntryImageHBox(GtkWidget* entry, GtkWidget* image) {
   return hbox;
 }
 
+// Forces text to lowercase when connected to an editable's "insert-text"
+// signal.  (Like views Textfield::STYLE_LOWERCASE.)
+void LowercaseInsertTextHandler(GtkEditable *editable, const gchar *text,
+                                gint length, gint *position, gpointer data) {
+  string16 original_text = UTF8ToUTF16(text);
+  string16 lower_text = l10n_util::ToLower(original_text);
+  if (lower_text != original_text) {
+    std::string result = UTF16ToUTF8(lower_text);
+    // Prevent ourselves getting called recursively about our own edit.
+    g_signal_handlers_block_by_func(G_OBJECT(editable),
+        reinterpret_cast<gpointer>(LowercaseInsertTextHandler), data);
+    gtk_editable_insert_text(editable, result.c_str(), result.size(), position);
+    g_signal_handlers_unblock_by_func(G_OBJECT(editable),
+        reinterpret_cast<gpointer>(LowercaseInsertTextHandler), data);
+    // We've inserted our modified version, stop the defalut handler from
+    // inserting the original.
+    g_signal_stop_emission_by_name(G_OBJECT(editable), "insert_text");
+  }
+}
+
 } // namespace
 
 // static
@@ -99,9 +119,8 @@ void EditKeywordController::Init(GtkWindow* parent_window) {
   gtk_entry_set_activates_default(GTK_ENTRY(keyword_entry_), TRUE);
   g_signal_connect(G_OBJECT(keyword_entry_), "changed",
                    G_CALLBACK(OnEntryChanged), this);
-  // TODO(mattm): will add in subsequent CL.
-  //g_signal_connect(G_OBJECT(keyword_entry_), "insert-text",
-  //                 G_CALLBACK(LowercaseInsertTextHandler), NULL);
+  g_signal_connect(G_OBJECT(keyword_entry_), "insert-text",
+                   G_CALLBACK(LowercaseInsertTextHandler), NULL);
 
   url_entry_ = gtk_entry_new();
   gtk_entry_set_activates_default(GTK_ENTRY(url_entry_), TRUE);
