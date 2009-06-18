@@ -10,11 +10,17 @@
 
 #include "base/file_util.h"
 #include "base/string_util.h"
-#include "webkit/glue/webdatasource.h"
+#include "webkit/api/public/WebDataSource.h"
+#include "webkit/api/public/WebURL.h"
+#include "webkit/api/public/WebVector.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webview.h"
 #include "webkit/tools/test_shell/test_shell_test.h"
+
+using WebKit::WebDataSource;
+using WebKit::WebURL;
+using WebKit::WebVector;
 
 typedef TestShellTest IFrameRedirectTest;
 
@@ -35,7 +41,8 @@ TEST_F(IFrameRedirectTest, Test) {
   ASSERT_TRUE(iframe != NULL);
   WebDataSource* iframe_ds = iframe->GetDataSource();
   ASSERT_TRUE(iframe_ds != NULL);
-  const std::vector<GURL>& redirects = iframe_ds->GetRedirectChain();
-  ASSERT_FALSE(redirects.empty());
-  ASSERT_TRUE(redirects[0] == GURL("about:blank"));
+  WebVector<WebURL> redirects;
+  iframe_ds->redirectChain(redirects);
+  ASSERT_FALSE(redirects.isEmpty());
+  ASSERT_TRUE(GURL(redirects[0]) == GURL("about:blank"));
 }

@@ -45,6 +45,11 @@ MSVC_POP_WARNING();
 #include "webkit/activex_shim/activex_shared.h"
 #endif
 #include "webkit/api/public/WebForm.h"
+#include "webkit/api/public/WebURL.h"
+#include "webkit/api/public/WebURLError.h"
+#include "webkit/api/public/WebVector.h"
+#include "webkit/api/src/WrappedResourceRequest.h"
+#include "webkit/api/src/WrappedResourceResponse.h"
 #include "webkit/glue/autofill_form.h"
 #include "webkit/glue/alt_404_page_resource_fetcher.h"
 #include "webkit/glue/glue_util.h"
@@ -54,20 +59,21 @@ MSVC_POP_WARNING();
 #include "webkit/glue/webappcachecontext.h"
 #include "webkit/glue/webdatasource_impl.h"
 #include "webkit/glue/webdevtoolsagent_impl.h"
-#include "webkit/glue/weberror_impl.h"
 #include "webkit/glue/webframeloaderclient_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin_delegate.h"
 #include "webkit/glue/webplugin_impl.h"
-#include "webkit/glue/webresponse_impl.h"
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/webview_impl.h"
-#include "webkit/glue/weburlrequest.h"
-#include "webkit/glue/weburlrequest_impl.h"
 
 using namespace WebCore;
 using base::Time;
 using base::TimeDelta;
+using WebKit::WebNavigationType;
+using WebKit::WebURL;
+using WebKit::WebVector;
+using WebKit::WrappedResourceRequest;
+using WebKit::WrappedResourceResponse;
 
 // Domain for internal error codes.
 static const char kInternalErrorDomain[] = "webkit_glue";
@@ -179,7 +185,7 @@ void WebFrameLoaderClient::assignIdentifierToInitialRequest(
   WebViewImpl* webview = webframe_->GetWebViewImpl();
   WebViewDelegate* d = webview->delegate();
   if (d) {
-    WebRequestImpl webreq(request);
+    WrappedResourceRequest webreq(request);
     d->AssignIdentifierToRequest(webview, identifier, webreq);
   }
 }
@@ -226,9 +232,8 @@ void WebFrameLoaderClient::dispatchWillSendRequest(
   WebViewImpl* webview = webframe_->GetWebViewImpl();
   WebViewDelegate* d = webview->delegate();
   if (d) {
-    WebRequestImpl webreq(request);
+    WrappedResourceRequest webreq(request);
     d->WillSendRequest(webview, identifier, &webreq);
-    request = webreq.resource_request();
   }
 
   request.setAppCacheContextID(
@@ -360,8 +365,8 @@ void WebFrameLoaderClient::dispatchDidFailLoading(DocumentLoader* loader,
                                                   const ResourceError& error) {
   WebViewImpl* webview = webframe_->GetWebViewImpl();
   if (webview && webview->delegate()) {
-    webview->delegate()->DidFailLoadingWithError(webview, identifier,
-                                                 WebErrorImpl(error));
+    webview->delegate()->DidFailLoadingWithError(
+        webview, identifier, webkit_glue::ResourceErrorToWebURLError(error));
   }
 }
 
@@ -391,8 +396,8 @@ bool WebFrameLoaderClient::dispatchDidLoadResourceFromMemoryCache(
 
   bool result = false;
   if (d) {
-    WebRequestImpl webreq(request);
-    WebResponseImpl webresp(response);
+    WrappedResourceRequest webreq(request);
+    WrappedResourceResponse webresp(response);
     result = d->DidLoadResourceFromMemoryCache(webview, webreq, webresp,
                                                webframe_);
   }
@@ -505,13 +510,13 @@ void WebFrameLoaderClient::dispatchDidReceiveServerRedirectForProvisionalLoad() 
 
   // A provisional load should have started already, which should have put an
   // entry in our redirect chain.
-  DCHECK(!ds->GetRedirectChain().empty());
+  DCHECK(ds->HasRedirectChain());
 
   // The URL of the destination is on the provisional data source. We also need
   // to update the redirect chain to account for this addition (we do this
   // before the callback so the callback can look at the redirect chain to see
   // what happened).
-  ds->AppendRedirect(ds->GetRequest().GetURL());
+  ds->AppendRedirect(ds->request().url());
 
   // Dispatch callback
   WebViewImpl* webview = webframe_->GetWebViewImpl();
@@ -579,8 +584,8 @@ void WebFrameLoaderClient::dispatchDidChangeLocationWithinPage() {
   WebDataSourceImpl* ds = webframe_->GetDataSourceImpl();
   DCHECK(ds) << "DataSource NULL when navigating to reference fragment";
   if (ds) {
-    GURL url = ds->GetRequest().GetURL();
-    GURL chain_end = ds->GetRedirectChain().back();
+    GURL url = ds->request().url();
+    GURL chain_end = ds->GetEndOfRedirectChain();
     ds->ClearRedirectChain();
 
     // Figure out if this location change is because of a JS-initiated client
@@ -651,11 +656,11 @@ void WebFrameLoaderClient::dispatchDidStartProvisionalLoad() {
     NOTREACHED() << "Attempting to provisional load but there isn't one";
     return;
   }
-  const GURL& url = ds->GetRequest().GetURL();
+  GURL url = ds->request().url();
 
   // Since the provisional load just started, we should have not gotten
   // any redirects yet.
-  DCHECK(ds->GetRedirectChain().empty());
+  DCHECK(!ds->HasRedirectChain());
 
   WebViewImpl* webview = webframe_->GetWebViewImpl();
   WebViewDelegate* d = webview->delegate();
@@ -910,18 +915,18 @@ void WebFrameLoaderClient::dispatchDecidePolicyForNavigationAction(
     // such navigations.
     const WebDataSourceImpl* ds = webframe_->GetProvisionalDataSourceImpl();
     if (ds) {
-      const GURL& url = ds->GetRequest().GetURL();
+      GURL url = ds->request().url();
       if (url.SchemeIs(webkit_glue::kBackForwardNavigationScheme)) {
         HandleBackForwardNavigation(url);
         disposition = IGNORE_ACTION;
       } else {
-        bool is_redirect = !ds->GetRedirectChain().empty();
+        bool is_redirect = ds->HasRedirectChain();
 
         WebNavigationType webnav_type =
             WebDataSourceImpl::NavigationTypeToWebNavigationType(action.type());
 
         disposition = d->DispositionForNavigationAction(
-            wv, webframe_, &ds->GetRequest(), webnav_type, disposition, is_redirect);
+            wv, webframe_, ds->request(), webnav_type, disposition, is_redirect);
       }
 
       if (disposition != IGNORE_ACTION) {

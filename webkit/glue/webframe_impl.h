@@ -42,9 +42,7 @@ MSVC_POP_WARNING();
 class AltErrorPageResourceFetcher;
 class ChromePrintContext;
 class WebDataSourceImpl;
-class WebErrorImpl;
 class WebPluginDelegate;
-class WebRequest;
 class WebView;
 class WebViewImpl;
 class WebTextInput;
@@ -78,16 +76,16 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   void InitMainFrame(WebViewImpl* webview_impl);
 
   // WebFrame
-  virtual void LoadRequest(WebRequest* request);
+  virtual void LoadRequest(const WebKit::WebURLRequest& request);
   virtual void LoadHistoryState(const std::string& history_state);
   virtual void LoadHTMLString(const std::string& html_text,
                               const GURL& base_url);
-  virtual void LoadAlternateHTMLString(const WebRequest* request,
+  virtual void LoadAlternateHTMLString(const WebKit::WebURLRequest& request,
                                        const std::string& html_text,
                                        const GURL& display_url,
                                        bool replace);
-  virtual void LoadAlternateHTMLErrorPage(const WebRequest* request,
-                                          const WebError& error,
+  virtual void LoadAlternateHTMLErrorPage(const WebKit::WebURLRequest& request,
+                                          const WebKit::WebURLError& error,
                                           const GURL& error_page_url,
                                           bool replace,
                                           const GURL& fake_url);
@@ -102,8 +100,8 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   virtual GURL GetFavIconURL() const;
   virtual GURL GetOSDDURL() const;
   virtual int GetContentsPreferredWidth() const;
-  virtual WebDataSource* GetDataSource() const;
-  virtual WebDataSource* GetProvisionalDataSource() const;
+  virtual WebKit::WebDataSource* GetDataSource() const;
+  virtual WebKit::WebDataSource* GetProvisionalDataSource() const;
   virtual void StopLoading();
   virtual WebFrame* GetOpener() const;
   virtual WebFrame* GetParent() const;
@@ -393,9 +391,8 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   // Determines whether to invalidate the content area and scrollbar.
   void InvalidateIfNecessary();
 
-  void InternalLoadRequest(const WebRequest* request,
+  void InternalLoadRequest(const WebKit::WebURLRequest& request,
                            const WebCore::SubstituteData& data,
-                           PassRefPtr<WebCore::HistoryItem> history_item,
                            bool replace);
 
   // Clears the map of password listeners.

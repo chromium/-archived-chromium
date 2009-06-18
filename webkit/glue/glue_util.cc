@@ -20,8 +20,9 @@
 #include "HTMLFormElement.h"
 #include "IntPoint.h"
 #include "IntRect.h"
-#include "PlatformString.h"
 #include "KURL.h"
+#include "PlatformString.h"
+#include "ResourceError.h"
 
 #undef LOG
 #include "base/compiler_specific.h"
@@ -37,6 +38,7 @@
 #include "webkit/api/public/WebSize.h"
 #include "webkit/api/public/WebString.h"
 #include "webkit/api/public/WebURL.h"
+#include "webkit/api/public/WebURLError.h"
 #include "webkit/api/public/WebURLRequest.h"
 #include "webkit/api/public/WebURLResponse.h"
 
@@ -238,6 +240,18 @@ WebKit::WebForm HTMLFormElementToWebForm(
 WTF::PassRefPtr<WebCore::HTMLFormElement> WebFormToHTMLFormElement(
     const WebKit::WebForm& form) {
   return form;
+}
+
+// WebURLError conversions -----------------------------------------------------
+
+WebKit::WebURLError ResourceErrorToWebURLError(
+    const WebCore::ResourceError& error) {
+  return error;
+}
+
+WebCore::ResourceError WebURLErrorToResourceError(
+    const WebKit::WebURLError& error) {
+  return error;
 }
 
 // WebURLRequest conversions ---------------------------------------------------

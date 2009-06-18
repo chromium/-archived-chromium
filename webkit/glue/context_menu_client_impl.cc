@@ -23,14 +23,16 @@ MSVC_POP_WARNING();
 #include "webkit/glue/context_menu_client_impl.h"
 
 #include "base/string_util.h"
+#include "webkit/api/public/WebURL.h"
+#include "webkit/api/public/WebURLResponse.h"
 #include "webkit/glue/context_menu.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webdatasource_impl.h"
-#include "webkit/glue/webresponse.h"
-#include "webkit/glue/weburlrequest_impl.h"
 #include "webkit/glue/webview_impl.h"
 
 #include "base/word_iterator.h"
+
+using WebKit::WebDataSource;
 
 namespace {
 
@@ -132,8 +134,8 @@ static ContextNode GetTypeAndURLFromFrame(WebCore::Frame* frame,
       WebDataSource* ds = WebDataSourceImpl::FromLoader(dl);
       if (ds) {
         node = page_node;
-        *url = ds->HasUnreachableURL() ? ds->GetUnreachableURL()
-                                       : ds->GetRequest().GetURL();
+        *url = ds->hasUnreachableURL() ? ds->unreachableURL()
+                                       : ds->request().url();
       }
     }
   }
@@ -218,10 +220,8 @@ WebCore::PlatformMenuDescription
   // Now retrieve the security info.
   WebCore::DocumentLoader* dl = selected_frame->loader()->documentLoader();
   WebDataSource* ds = WebDataSourceImpl::FromLoader(dl);
-  if (ds) {
-    const WebResponse& response = ds->GetResponse();
-    security_info = response.GetSecurityInfo();
-  }
+  if (ds)
+    security_info = ds->response().securityInfo();
 
   int edit_flags = ContextNode::CAN_DO_NONE;
   if (webview_->GetFocusedWebCoreFrame()->editor()->canUndo())

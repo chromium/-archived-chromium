@@ -32,17 +32,20 @@
 #include "skia/ext/bitmap_platform_device.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/skia/include/core/SkBitmap.h"
-#include "webkit/glue/webdatasource.h"
+#include "webkit/api/public/WebString.h"
+#include "webkit/api/public/WebURL.h"
+#include "webkit/api/public/WebURLRequest.h"
+#include "webkit/api/public/WebURLResponse.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webpreferences.h"
-#include "webkit/glue/webresponse.h"
-#include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/webwidget.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_shell_switches.h"
+
+using WebKit::WebURLRequest;
 
 namespace {
 
@@ -191,9 +194,9 @@ void TestShell::Dump(TestShell* shell) {
       // which we handle here.
       if (!should_dump_as_text) {
         // Plain text pages should be dumped as text
-        std::string mime_type =
-            webFrame->GetDataSource()->GetResponse().GetMimeType();
-        should_dump_as_text = (mime_type == "text/plain");
+        const string16& mime_type =
+            webFrame->GetDataSource()->response().mimeType();
+        should_dump_as_text = EqualsASCII(mime_type, "text/plain");
       }
       if (should_dump_as_text) {
         bool recursive = shell->layout_test_controller_->
@@ -515,18 +518,18 @@ bool TestShell::Navigate(const TestNavigationEntry& entry, bool reload) {
     DCHECK(entry.GetPageID() != -1);
     frame->LoadHistoryState(entry.GetContentState());
   } else {
-    WebRequestCachePolicy cache_policy;
+    WebURLRequest::CachePolicy cache_policy;
     if (reload) {
-      cache_policy = WebRequestReloadIgnoringCacheData;
+      cache_policy = WebURLRequest::ReloadIgnoringCacheData;
     } else {
       DCHECK(entry.GetPageID() == -1);
-      cache_policy = WebRequestUseProtocolCachePolicy;
+      cache_policy = WebURLRequest::UseProtocolCachePolicy;
     }
 
-    scoped_ptr<WebRequest> request(WebRequest::Create(entry.GetURL()));
-    request->SetCachePolicy(cache_policy);
+    WebURLRequest request(entry.GetURL());
+    request.setCachePolicy(cache_policy);
 
-    frame->LoadRequest(request.get());
+    frame->LoadRequest(request);
   }
 
   // In case LoadRequest failed before DidCreateDataSource was called.

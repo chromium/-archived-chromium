@@ -154,9 +154,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webappcachecontext.h"
 #include "webkit/glue/webdatasource_impl.h"
-#include "webkit/glue/weberror_impl.h"
 #include "webkit/glue/webframe_impl.h"
-#include "webkit/glue/weburlrequest_impl.h"
 #include "webkit/glue/webtextinput_impl.h"
 #include "webkit/glue/webview_impl.h"
 
@@ -205,11 +203,16 @@ using WebCore::VisiblePosition;
 using WebCore::XPathResult;
 
 using WebKit::WebConsoleMessage;
+using WebKit::WebDataSource;
 using WebKit::WebFindOptions;
 using WebKit::WebForm;
 using WebKit::WebRect;
 using WebKit::WebScriptSource;
 using WebKit::WebSize;
+using WebKit::WebURL;
+using WebKit::WebURLError;
+using WebKit::WebURLRequest;
+using WebKit::WebURLResponse;
 
 // Key for a StatsCounter tracking how many WebFrames are active.
 static const char* const kWebFrameActiveCount = "WebFrameActiveCount";
@@ -410,8 +413,8 @@ void WebFrameImpl::InitMainFrame(WebViewImpl* webview_impl) {
   app_cache_context_->Initialize(WebAppCacheContext::MAIN_FRAME, NULL);
 }
 
-void WebFrameImpl::LoadRequest(WebRequest* request) {
-  InternalLoadRequest(request, SubstituteData(), NULL, false);
+void WebFrameImpl::LoadRequest(const WebURLRequest& request) {
+  InternalLoadRequest(request, SubstituteData(), false);
 }
 
 void WebFrameImpl::LoadHistoryState(const std::string& history_state) {
@@ -419,35 +422,46 @@ void WebFrameImpl::LoadHistoryState(const std::string& history_state) {
       webkit_glue::HistoryItemFromString(history_state);
   DCHECK(history_item.get());
 
-  WebRequestImpl dummy_request;
-  InternalLoadRequest(&dummy_request, SubstituteData(), history_item, false);
+  StopLoading();  // make sure existing activity stops
+
+  // If there is no current_item, which happens when we are navigating in
+  // session history after a crash, we need to manufacture one otherwise WebKit
+  // hoarks. This is probably the wrong thing to do, but it seems to work.
+  RefPtr<HistoryItem> current_item = frame_->loader()->currentHistoryItem();
+  if (!current_item) {
+    current_item = HistoryItem::create();
+    current_item->setLastVisitWasFailure(true);
+    frame_->loader()->setCurrentHistoryItem(current_item);
+    GetWebViewImpl()->SetCurrentHistoryItem(current_item.get());
+  }
+
+  frame_->loader()->goToItem(history_item.get(),
+                             WebCore::FrameLoadTypeIndexedBackForward);
 }
 
-void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
+void WebFrameImpl::InternalLoadRequest(const WebURLRequest& request,
                                        const SubstituteData& data,
-                                       PassRefPtr<HistoryItem> history_item,
                                        bool replace) {
-  const WebRequestImpl* request_impl =
-      static_cast<const WebRequestImpl*>(request);
-
-  const ResourceRequest& resource_request = request_impl->resource_request();
+  const ResourceRequest* resource_request =
+      webkit_glue::WebURLRequestToResourceRequest(&request);
+  DCHECK(resource_request);
 
   // Special-case javascript URLs.  Do not interrupt the existing load when
-  // asked to load a javascript URL unless the script generates a result.
-  // We can't just use FrameLoader::executeIfJavaScriptURL because it doesn't
+  // asked to load a javascript URL unless the script generates a result.  We
+  // can't just use FrameLoader::executeIfJavaScriptURL because it doesn't
   // handle redirects properly.
-  const KURL& kurl = resource_request.url();
+  const KURL& kurl = resource_request->url();
   if (!data.isValid() && kurl.protocol() == "javascript") {
     // Don't attempt to reload javascript URLs.
-    if (resource_request.cachePolicy() == ReloadIgnoringCacheData)
+    if (resource_request->cachePolicy() == ReloadIgnoringCacheData)
       return;
 
     // We can't load a javascript: URL if there is no Document!
     if (!frame_->document())
       return;
 
-    // TODO(darin): Is this the best API to use here?  It works and seems good,
-    // but will it change out from under us?
+    // TODO(darin): Is this the best API to use here?  It works and seems
+    // good, but will it change out from under us?
     String script = decodeURLEscapeSequences(
         kurl.string().substring(sizeof("javascript:")-1));
     WebCore::ScriptValue result = frame_->loader()->executeScript(script, true);
@@ -455,8 +469,8 @@ void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
     if (result.getString(scriptResult) &&
         !frame_->loader()->isScheduledLocationChangePending()) {
       // TODO(darin): We need to figure out how to represent this in session
-      // history.  Hint: don't re-eval script when the user or script navigates
-      // back-n-forth (instead store the script result somewhere).
+      // history.  Hint: don't re-eval script when the user or script
+      // navigates back-n-forth (instead store the script result somewhere).
       LoadDocumentData(kurl, scriptResult, String("text/html"), String());
     }
     return;
@@ -465,44 +479,26 @@ void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
   StopLoading();  // make sure existing activity stops
 
   if (data.isValid()) {
-    frame_->loader()->load(resource_request, data, false);
+    DCHECK(resource_request);
+    frame_->loader()->load(*resource_request, data, false);
     if (replace) {
       // Do this to force WebKit to treat the load as replacing the currently
       // loaded page.
       frame_->loader()->setReplacing();
     }
-  } else if (history_item.get()) {
-    // Use the history item if we have one, otherwise fall back to standard
-    // load.
-    RefPtr<HistoryItem> current_item = frame_->loader()->currentHistoryItem();
-
-    // If there is no current_item, which happens when we are navigating in
-    // session history after a crash, we need to manufacture one otherwise
-    // WebKit hoarks. This is probably the wrong thing to do, but it seems to
-    // work.
-    if (!current_item) {
-      current_item = HistoryItem::create();
-      current_item->setLastVisitWasFailure(true);
-      frame_->loader()->setCurrentHistoryItem(current_item);
-      GetWebViewImpl()->SetCurrentHistoryItem(current_item.get());
-    }
-
-    frame_->loader()->goToItem(history_item.get(),
-                               WebCore::FrameLoadTypeIndexedBackForward);
-  } else if (resource_request.cachePolicy() == ReloadIgnoringCacheData) {
+  } else if (resource_request->cachePolicy() == ReloadIgnoringCacheData) {
     frame_->loader()->reload();
   } else {
-    frame_->loader()->load(resource_request, false);
+    frame_->loader()->load(*resource_request, false);
   }
 }
 
 void WebFrameImpl::LoadHTMLString(const std::string& html_text,
                                   const GURL& base_url) {
-  WebRequestImpl request(base_url);
-  LoadAlternateHTMLString(&request, html_text, GURL(), false);
+  LoadAlternateHTMLString(WebURLRequest(base_url), html_text, GURL(), false);
 }
 
-void WebFrameImpl::LoadAlternateHTMLString(const WebRequest* request,
+void WebFrameImpl::LoadAlternateHTMLString(const WebURLRequest& request,
                                            const std::string& html_text,
                                            const GURL& display_url,
                                            bool replace) {
@@ -514,14 +510,14 @@ void WebFrameImpl::LoadAlternateHTMLString(const WebRequest* request,
       webkit_glue::GURLToKURL(display_url));
   DCHECK(subst_data.isValid());
 
-  InternalLoadRequest(request, subst_data, NULL, replace);
+  InternalLoadRequest(request, subst_data, replace);
 }
 
 GURL WebFrameImpl::GetURL() const {
   const WebDataSource* ds = GetDataSource();
   if (!ds)
     return GURL();
-  return ds->GetRequest().GetURL();
+  return ds->request().url();
 }
 
 GURL WebFrameImpl::GetFavIconURL() const {
@@ -1632,7 +1628,8 @@ void WebFrameImpl::DidFail(const ResourceError& error, bool was_provisional) {
   WebViewImpl* web_view = GetWebViewImpl();
   WebViewDelegate* delegate = web_view->delegate();
   if (delegate) {
-    WebErrorImpl web_error(error);
+    const WebURLError& web_error =
+        webkit_glue::ResourceErrorToWebURLError(error);
     if (was_provisional) {
       delegate->DidFailProvisionalLoadWithError(web_view, web_error, this);
     } else {
@@ -1641,8 +1638,8 @@ void WebFrameImpl::DidFail(const ResourceError& error, bool was_provisional) {
   }
 }
 
-void WebFrameImpl::LoadAlternateHTMLErrorPage(const WebRequest* request,
-                                              const WebError& error,
+void WebFrameImpl::LoadAlternateHTMLErrorPage(const WebURLRequest& request,
+                                              const WebURLError& error,
                                               const GURL& error_page_url,
                                               bool replace,
                                               const GURL& fake_url) {
@@ -1650,16 +1647,14 @@ void WebFrameImpl::LoadAlternateHTMLErrorPage(const WebRequest* request,
   // the original request so we can replace its URL with a dummy URL.  That
   // prevents other web content from the same origin as the failed URL to
   // script the error page.
-  scoped_ptr<WebRequest> failed_request(request->Clone());
-  failed_request->SetURL(fake_url);
+  WebURLRequest failed_request(request);
+  failed_request.setURL(fake_url);
 
-  LoadAlternateHTMLString(failed_request.get(), std::string(),
-                          error.GetFailedURL(), replace);
+  LoadAlternateHTMLString(failed_request, std::string(),
+                          error.unreachableURL, replace);
 
-  WebErrorImpl weberror_impl(error);
-  alt_error_page_fetcher_.reset(
-      new AltErrorPageResourceFetcher(GetWebViewImpl(), weberror_impl, this,
-                                      error_page_url));
+  alt_error_page_fetcher_.reset(new AltErrorPageResourceFetcher(
+      GetWebViewImpl(), error, this, error_page_url));
 }
 
 void WebFrameImpl::ExecuteScript(const WebScriptSource& source) {
@@ -1877,26 +1872,26 @@ float WebFrameImpl::PrintPage(int page, skia::PlatformCanvas* canvas) {
 void WebFrameImpl::SelectAppCacheWithoutManifest() {
   WebDataSource* ds = GetDataSource();
   DCHECK(ds);
-  if (ds->HasUnreachableURL()) {
+  if (ds->hasUnreachableURL()) {
     app_cache_context_->SelectAppCacheWithoutManifest(
-                             ds->GetUnreachableURL(),
+                             ds->unreachableURL(),
                              WebAppCacheContext::kNoAppCacheId);
   } else {
-    const WebResponse& response = ds->GetResponse();
+    const WebURLResponse& response = ds->response();
     app_cache_context_->SelectAppCacheWithoutManifest(
                              GetURL(),
-                             response.GetAppCacheID());
+                             response.appCacheID());
   }
 }
 
 void WebFrameImpl::SelectAppCacheWithManifest(const GURL &manifest_url) {
   WebDataSource* ds = GetDataSource();
   DCHECK(ds);
-  DCHECK(!ds->HasUnreachableURL());
-  const WebResponse& response = ds->GetResponse();
+  DCHECK(!ds->hasUnreachableURL());
+  const WebURLResponse& response = ds->response();
   app_cache_context_->SelectAppCacheWithManifest(
                            GetURL(),
-                           response.GetAppCacheID(),
+                           response.appCacheID(),
                            manifest_url);
 }
 

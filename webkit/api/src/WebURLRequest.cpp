@@ -238,6 +238,8 @@ const ResourceRequest& WebURLRequest::toResourceRequest() const
 
 void WebURLRequest::assign(WebURLRequestPrivate* p)
 {
+    if (m_private == p)
+        return;
     if (m_private)
         m_private->dispose();
     m_private = p;

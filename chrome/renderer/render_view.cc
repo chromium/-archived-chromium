@@ -54,12 +54,18 @@
 #include "net/base/net_errors.h"
 #include "skia/ext/bitmap_platform_device.h"
 #include "skia/ext/image_operations.h"
+#include "webkit/api/public/WebDataSource.h"
 #include "webkit/api/public/WebDragData.h"
 #include "webkit/api/public/WebForm.h"
 #include "webkit/api/public/WebPoint.h"
 #include "webkit/api/public/WebRect.h"
 #include "webkit/api/public/WebScriptSource.h"
 #include "webkit/api/public/WebSize.h"
+#include "webkit/api/public/WebURL.h"
+#include "webkit/api/public/WebURLError.h"
+#include "webkit/api/public/WebURLRequest.h"
+#include "webkit/api/public/WebURLResponse.h"
+#include "webkit/api/public/WebVector.h"
 #include "webkit/default_plugin/default_plugin_shared.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/dom_serializer.h"
@@ -68,18 +74,14 @@
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/searchable_form_data.h"
 #include "webkit/glue/webaccessibilitymanager_impl.h"
-#include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdevtoolsagent_delegate.h"
 #include "webkit/glue/webdropdata.h"
-#include "webkit/glue/weberror.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webmediaplayer_impl.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webplugin_delegate.h"
-#include "webkit/glue/webresponse.h"
 #include "webkit/glue/webtextinput.h"
-#include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview.h"
 
 #if defined(OS_WIN)
@@ -95,12 +97,20 @@ using webkit_glue::PasswordForm;
 using webkit_glue::PasswordFormDomManager;
 using webkit_glue::SearchableFormData;
 using WebKit::WebConsoleMessage;
+using WebKit::WebDataSource;
 using WebKit::WebDragData;
 using WebKit::WebForm;
+using WebKit::WebNavigationType;
 using WebKit::WebRect;
 using WebKit::WebScriptSource;
+using WebKit::WebString;
+using WebKit::WebURL;
+using WebKit::WebURLError;
+using WebKit::WebURLRequest;
+using WebKit::WebURLResponse;
 using WebKit::WebWorker;
 using WebKit::WebWorkerClient;
+using WebKit::WebVector;
 
 //-----------------------------------------------------------------------------
 
@@ -142,6 +152,14 @@ static const char* const kUnreachableWebDataURL =
     "chrome://chromewebdata/";
 
 static const char* const kBackForwardNavigationScheme = "history";
+
+static void GetRedirectChain(WebDataSource* ds, std::vector<GURL>* result) {
+  WebVector<WebURL> urls;
+  ds->redirectChain(urls);
+  result->reserve(urls.size());
+  for (size_t i = 0; i < urls.size(); ++i)
+    result->push_back(urls[i]);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -456,7 +474,7 @@ void RenderView::CapturePageInfo(int load_id, bool preliminary_capture) {
   // Don't index/capture pages that failed to load.  This only checks the top
   // level frame so the thumbnail may contain a frame that failed to load.
   WebDataSource* ds = main_frame->GetDataSource();
-  if (ds && ds->HasUnreachableURL())
+  if (ds && ds->hasUnreachableURL())
     return;
 
   if (!preliminary_capture)
@@ -631,28 +649,30 @@ void RenderView::OnNavigate(const ViewMsg_Navigate_Params& params) {
     main_frame->LoadHistoryState(params.state);
   } else {
     // Navigate to the given URL.
-    scoped_ptr<WebRequest> request(WebRequest::Create(params.url));
+    WebURLRequest request(params.url);
 
     // TODO(darin): WebFrame should just have a Reload method.
 
-    WebRequestCachePolicy cache_policy;
+    WebURLRequest::CachePolicy cache_policy;
     if (is_reload) {
-      cache_policy = WebRequestReloadIgnoringCacheData;
+      cache_policy = WebURLRequest::ReloadIgnoringCacheData;
     } else {
       // A session history navigation should have been accompanied by state.
       DCHECK_EQ(params.page_id, -1);
       if (main_frame->GetInViewSourceMode()) {
-        cache_policy = WebRequestReturnCacheDataElseLoad;
+        cache_policy = WebURLRequest::ReturnCacheDataElseLoad;
       } else {
-        cache_policy = WebRequestUseProtocolCachePolicy;
+        cache_policy = WebURLRequest::UseProtocolCachePolicy;
       }
     }
-    request->SetCachePolicy(cache_policy);
+    request.setCachePolicy(cache_policy);
 
-    if (params.referrer.is_valid())
-      request->SetHttpHeaderValue("Referer", params.referrer.spec());
+    if (params.referrer.is_valid()) {
+      request.setHTTPHeaderField(WebString::fromUTF8("Referer"),
+                                 WebString::fromUTF8(params.referrer.spec()));
+    }
 
-    main_frame->LoadRequest(request.get());
+    main_frame->LoadRequest(request);
   }
 
   // In case LoadRequest failed before DidCreateDataSource was called.
@@ -672,11 +692,12 @@ void RenderView::OnLoadAlternateHTMLText(const std::string& html_contents,
   if (!webview())
     return;
 
-  scoped_ptr<WebRequest> request(WebRequest::Create(
-      GURL(kUnreachableWebDataURL)));
-  request->SetSecurityInfo(security_info);
+  WebURLRequest request;
+  request.initialize();
+  request.setURL(GURL(kUnreachableWebDataURL));
+  request.setSecurityInfo(security_info);
 
-  webview()->GetMainFrame()->LoadAlternateHTMLString(request.get(),
+  webview()->GetMainFrame()->LoadAlternateHTMLString(request,
                                                      html_contents,
                                                      display_url,
                                                      !new_navigation);
@@ -809,38 +830,38 @@ void RenderView::UpdateURL(WebFrame* frame) {
   WebDataSource* ds = frame->GetDataSource();
   DCHECK(ds);
 
-  const WebRequest& request = ds->GetRequest();
-  const WebRequest& initial_request = ds->GetInitialRequest();
-  const WebResponse& response = ds->GetResponse();
+  const WebURLRequest& request = ds->request();
+  const WebURLRequest& original_request = ds->originalRequest();
+  const WebURLResponse& response = ds->response();
 
   NavigationState* navigation_state = NavigationState::FromDataSource(ds);
   DCHECK(navigation_state);
 
   ViewHostMsg_FrameNavigate_Params params;
-  params.http_status_code = response.GetHttpStatusCode();
+  params.http_status_code = response.httpStatusCode();
   params.is_post = false;
   params.page_id = page_id_;
-  params.is_content_filtered = response.IsContentFiltered();
-  if (!request.GetSecurityInfo().empty()) {
+  params.is_content_filtered = response.isContentFiltered();
+  if (!request.securityInfo().isEmpty()) {
     // SSL state specified in the request takes precedence over the one in the
     // response.
     // So far this is only intended for error pages that are not expected to be
     // over ssl, so we should not get any clash.
-    DCHECK(response.GetSecurityInfo().empty());
-    params.security_info = request.GetSecurityInfo();
+    DCHECK(response.securityInfo().isEmpty());
+    params.security_info = request.securityInfo();
   } else {
-    params.security_info = response.GetSecurityInfo();
+    params.security_info = response.securityInfo();
   }
 
   // Set the URL to be displayed in the browser UI to the user.
-  if (ds->HasUnreachableURL()) {
-    params.url = ds->GetUnreachableURL();
+  if (ds->hasUnreachableURL()) {
+    params.url = ds->unreachableURL();
   } else {
-    params.url = request.GetURL();
+    params.url = request.url();
   }
 
-  params.redirects = ds->GetRedirectChain();
-  params.should_update_history = !ds->HasUnreachableURL();
+  GetRedirectChain(ds, &params.redirects);
+  params.should_update_history = !ds->hasUnreachableURL();
 
   const SearchableFormData* searchable_form_data =
       navigation_state->searchable_form_data();
@@ -862,7 +883,7 @@ void RenderView::UpdateURL(WebFrame* frame) {
     // Top-level navigation.
 
     // Update contents MIME type for main frame.
-    params.contents_mime_type = ds->GetResponse().GetMimeType();
+    params.contents_mime_type = UTF16ToUTF8(ds->response().mimeType());
 
     params.transition = navigation_state->transition_type();
     if (!PageTransition::IsMainFrame(params.transition)) {
@@ -891,11 +912,12 @@ void RenderView::UpdateURL(WebFrame* frame) {
     } else {
       // Bug 654101: the referrer will be empty on https->http transitions. It
       // would be nice if we could get the real referrer from somewhere.
-      params.referrer = GURL(initial_request.GetHttpReferrer());
+      params.referrer = GURL(
+          original_request.httpHeaderField(WebString::fromUTF8("Referer")));
     }
 
-    std::string method = request.GetHttpMethod();
-    if (method == "POST")
+    string16 method = request.httpMethod();
+    if (EqualsASCII(method, "POST"))
       params.is_post = true;
 
     Send(new ViewHostMsg_FrameNavigate(routing_id_, params));
@@ -1030,9 +1052,9 @@ void RenderView::DidCreateDataSource(WebFrame* frame, WebDataSource* ds) {
   // The rest of RenderView assumes that a WebDataSource will always have a
   // non-null NavigationState.
   if (pending_navigation_state_.get()) {
-    ds->SetExtraData(pending_navigation_state_.release());
+    ds->setExtraData(pending_navigation_state_.release());
   } else {
-    ds->SetExtraData(NavigationState::CreateContentInitiated());
+    ds->setExtraData(NavigationState::CreateContentInitiated());
   }
 }
 
@@ -1047,7 +1069,7 @@ void RenderView::DidStartProvisionalLoadForFrame(
 
   // Update the request time if WebKit has better knowledge of it.
   if (navigation_state->request_time().is_null()) {
-    double event_time = ds->GetTriggeringEventTime();
+    double event_time = ds->triggeringEventTime();
     if (event_time != 0.0)
       navigation_state->set_request_time(Time::FromDoubleT(event_time));
   }
@@ -1061,19 +1083,19 @@ void RenderView::DidStartProvisionalLoadForFrame(
   }
 
   Send(new ViewHostMsg_DidStartProvisionalLoadForFrame(
-       routing_id_, is_top_most, ds->GetRequest().GetURL()));
+       routing_id_, is_top_most, ds->request().url()));
 }
 
 bool RenderView::DidLoadResourceFromMemoryCache(WebView* webview,
-                                                const WebRequest& request,
-                                                const WebResponse& response,
+                                                const WebURLRequest& request,
+                                                const WebURLResponse& response,
                                                 WebFrame* frame) {
   // Let the browser know we loaded a resource from the memory cache.  This
   // message is needed to display the correct SSL indicators.
   Send(new ViewHostMsg_DidLoadResourceFromMemoryCache(routing_id_,
-      request.GetURL(), frame->GetSecurityOrigin(),
+      request.url(), frame->GetSecurityOrigin(),
       frame->GetTop()->GetSecurityOrigin(),
-      response.GetSecurityInfo()));
+      response.securityInfo()));
 
   return false;
 }
@@ -1089,7 +1111,8 @@ void RenderView::DidReceiveProvisionalLoadServerRedirect(WebView* webview,
       NOTREACHED();
       return;
     }
-    const std::vector<GURL>& redirects = data_source->GetRedirectChain();
+    std::vector<GURL> redirects;
+    GetRedirectChain(data_source, &redirects);
     if (redirects.size() >= 2) {
       Send(new ViewHostMsg_DidRedirectProvisionalLoad(
            routing_id_, page_id_, redirects[redirects.size() - 2],
@@ -1099,7 +1122,7 @@ void RenderView::DidReceiveProvisionalLoadServerRedirect(WebView* webview,
 }
 
 void RenderView::DidFailProvisionalLoadWithError(WebView* webview,
-                                                 const WebError& error,
+                                                 const WebURLError& error,
                                                  WebFrame* frame) {
   // Notify the browser that we failed a provisional load with an error.
   //
@@ -1110,19 +1133,19 @@ void RenderView::DidFailProvisionalLoadWithError(WebView* webview,
   WebDataSource* ds = frame->GetProvisionalDataSource();
   DCHECK(ds);
 
-  const WebRequest& failed_request = ds->GetRequest();
+  const WebURLRequest& failed_request = ds->request();
 
   bool show_repost_interstitial =
-      (error.GetErrorCode() == net::ERR_CACHE_MISS &&
-       LowerCaseEqualsASCII(failed_request.GetHttpMethod(), "post"));
+      (error.reason == net::ERR_CACHE_MISS &&
+       EqualsASCII(failed_request.httpMethod(), "POST"));
   Send(new ViewHostMsg_DidFailProvisionalLoadWithError(
-      routing_id_, frame == webview->GetMainFrame(),
-      error.GetErrorCode(), error.GetFailedURL(),
+      routing_id_, !frame->GetParent(),
+      error.reason, error.unreachableURL,
       show_repost_interstitial));
 
   // Don't display an error page if this is simply a cancelled load.  Aside
   // from being dumb, WebCore doesn't expect it and it will cause a crash.
-  if (error.GetErrorCode() == net::ERR_ABORTED)
+  if (error.reason == net::ERR_ABORTED)
     return;
 
   // If this is a failed back/forward/reload navigation, then we need to do a
@@ -1134,43 +1157,43 @@ void RenderView::DidFailProvisionalLoadWithError(WebView* webview,
   // Use the alternate error page service if this is a DNS failure or
   // connection failure.  ERR_CONNECTION_FAILED can be dropped once we no longer
   // use winhttp.
-  int ec = error.GetErrorCode();
+  int ec = error.reason;
   if (ec == net::ERR_NAME_NOT_RESOLVED ||
       ec == net::ERR_CONNECTION_FAILED ||
       ec == net::ERR_CONNECTION_REFUSED ||
       ec == net::ERR_ADDRESS_UNREACHABLE ||
       ec == net::ERR_TIMED_OUT) {
-    const GURL& failed_url = error.GetFailedURL();
+    const GURL& failed_url = error.unreachableURL;
     const GURL& error_page_url = GetAlternateErrorPageURL(failed_url,
         ec == net::ERR_NAME_NOT_RESOLVED ? WebViewDelegate::DNS_ERROR
                                          : WebViewDelegate::CONNECTION_ERROR);
     if (error_page_url.is_valid()) {
       // Ask the WebFrame to fetch the alternate error page for us.
-      frame->LoadAlternateHTMLErrorPage(&failed_request, error, error_page_url,
+      frame->LoadAlternateHTMLErrorPage(failed_request, error, error_page_url,
           replace, GURL(kUnreachableWebDataURL));
       return;
     }
   }
 
   // Fallback to a local error page.
-  LoadNavigationErrorPage(frame, &failed_request, error, std::string(),
+  LoadNavigationErrorPage(frame, failed_request, error, std::string(),
                           replace);
 }
 
 void RenderView::LoadNavigationErrorPage(WebFrame* frame,
-                                         const WebRequest* failed_request,
-                                         const WebError& error,
+                                         const WebURLRequest& failed_request,
+                                         const WebURLError& error,
                                          const std::string& html,
                                          bool replace) {
-  const GURL& failed_url = error.GetFailedURL();
+  GURL failed_url = error.unreachableURL;
 
   std::string alt_html;
   if (html.empty()) {
     // Use a local error page.
     int resource_id;
     DictionaryValue error_strings;
-    if (error.GetErrorCode() == net::ERR_CACHE_MISS &&
-        LowerCaseEqualsASCII(failed_request->GetHttpMethod(), "post")) {
+    if (error.reason == net::ERR_CACHE_MISS &&
+        EqualsASCII(failed_request.httpMethod(), "POST")) {
       GetFormRepostErrorValues(failed_url, &error_strings);
       resource_id = IDR_ERROR_NO_DETAILS_HTML;
     } else {
@@ -1187,11 +1210,10 @@ void RenderView::LoadNavigationErrorPage(WebFrame* frame,
   }
 
   // Use a data: URL as the site URL to prevent against XSS attacks.
-  scoped_ptr<WebRequest> request(failed_request->Clone());
-  request->SetURL(GURL(kUnreachableWebDataURL));
+  WebURLRequest request(failed_request);
+  request.setURL(GURL(kUnreachableWebDataURL));
 
-  frame->LoadAlternateHTMLString(request.get(), alt_html, failed_url,
-      replace);
+  frame->LoadAlternateHTMLString(request, alt_html, failed_url, replace);
 }
 
 void RenderView::DidCommitLoadForFrame(WebView *webview, WebFrame* frame,
@@ -1266,7 +1288,7 @@ void RenderView::DidFinishLoadForFrame(WebView* webview, WebFrame* frame) {
 }
 
 void RenderView::DidFailLoadWithError(WebView* webview,
-                                      const WebError& error,
+                                      const WebURLError& error,
                                       WebFrame* frame) {
 }
 
@@ -1305,7 +1327,7 @@ void RenderView::DidChangeLocationWithinPageForFrame(WebView* webview,
   DidCommitLoadForFrame(webview, frame, is_new_navigation);
 
   const string16& title =
-      webview->GetMainFrame()->GetDataSource()->GetPageTitle();
+      webview->GetMainFrame()->GetDataSource()->pageTitle();
   UpdateTitle(frame, UTF16ToWideHack(title));
 }
 
@@ -1339,8 +1361,8 @@ void RenderView::WillSubmitForm(WebView* webview, WebFrame* frame,
 
 void RenderView::WillSendRequest(WebView* webview,
                                  uint32 identifier,
-                                 WebRequest* request) {
-  request->SetRequestorID(routing_id_);
+                                 WebURLRequest* request) {
+  request->setRequestorID(routing_id_);
 }
 
 void RenderView::BindDOMAutomationController(WebFrame* webframe) {
@@ -1387,7 +1409,7 @@ void RenderView::DocumentElementAvailable(WebFrame* frame) {
 WindowOpenDisposition RenderView::DispositionForNavigationAction(
     WebView* webview,
     WebFrame* frame,
-    const WebRequest* request,
+    const WebURLRequest& request,
     WebNavigationType type,
     WindowOpenDisposition disposition,
     bool is_redirect) {
@@ -1400,7 +1422,7 @@ WindowOpenDisposition RenderView::DispositionForNavigationAction(
   // Webkit is asking whether to navigate to a new URL.
   // This is fine normally, except if we're showing UI from one security
   // context and they're trying to navigate to a different context.
-  const GURL& url = request->GetURL();
+  const GURL& url = request.url();
 
   // We only care about navigations that are within the current tab (as opposed
   // to, for example, opening a new window).
@@ -1446,7 +1468,7 @@ WindowOpenDisposition RenderView::DispositionForNavigationAction(
       // Must be targeted at the current tab.
       disposition == CURRENT_TAB &&
       // Must be a JavaScript navigation, which appears as "other".
-      type == WebNavigationTypeOther;
+      type == WebKit::WebNavigationTypeOther;
   if (is_fork) {
     // Open the URL via the browser, not via WebKit.
     OpenURL(webview, url, GURL(), disposition);

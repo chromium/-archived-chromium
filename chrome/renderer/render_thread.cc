@@ -26,7 +26,6 @@
 #else
 #include "base/scoped_handle.h"
 #include "chrome/plugin/plugin_channel_base.h"
-#include "webkit/glue/weburlrequest.h"
 #endif
 #include "chrome/renderer/devtools_agent_filter.h"
 #include "chrome/renderer/extensions/event_bindings.h"

@@ -31,12 +31,11 @@
 #ifndef WebDataSource_h
 #define WebDataSource_h
 
-#error "This header file is still a work in progress; do not include!"
-
 #include "WebCommon.h"
 #include "WebNavigationType.h"
 
 namespace WebKit {
+    class WebString;
     class WebURL;
     class WebURLRequest;
     class WebURLResponse;
@@ -78,23 +77,18 @@ namespace WebKit {
         virtual WebString pageTitle() const = 0;
 
         // The type of navigation that triggered the creation of this datasource.
-        virtual WebNavigationType triggeringActionNavigationType() const = 0;
+        virtual WebNavigationType navigationType() const = 0;
 
-        // The time in seconds of the event that triggered the creation of this
-        // datasource.  This may be 0 if there was no triggering event.
-        virtual double triggeringActionEventTime() const = 0;
+        // The time in seconds (since the epoch) of the event that triggered
+        // the creation of this datasource.  Returns 0 if unknown.
+        virtual double triggeringEventTime() const = 0;
 
         // Extra data associated with this datasource.  If non-null, the extra
         // data pointer will be deleted when the datasource is destroyed.
         // Setting the extra data pointer will cause any existing non-null
         // extra data pointer to be deleted.
         virtual ExtraData* extraData() const = 0;
-        virtual void SetExtraData(ExtraData*) = 0;
-
-        // FIXME provide alternatives to:
-        // GetSearchableFormData()
-        // GetPasswordFormData()
-        // IsFormSubmit()
+        virtual void setExtraData(ExtraData*) = 0;
     };
 
 } // namespace WebKit

@@ -241,6 +241,8 @@ const ResourceResponse& WebURLResponse::toResourceResponse() const
 
 void WebURLResponse::assign(WebURLResponsePrivate* p)
 {
+    if (m_private == p)
+        return;
     if (m_private)
         m_private->dispose();
     m_private = p;

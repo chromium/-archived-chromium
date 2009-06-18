@@ -8,13 +8,13 @@
 #include "base/scoped_ptr.h"
 #include "base/time.h"
 #include "chrome/common/page_transition_types.h"
+#include "webkit/api/public/WebDataSource.h"
 #include "webkit/glue/password_form.h"
 #include "webkit/glue/searchable_form_data.h"
-#include "webkit/glue/webdatasource.h"
 
 // The RenderView stores an instance of this class in the "extra data" of each
 // WebDataSource (see RenderView::DidCreateDataSource).
-class NavigationState : public WebDataSource::ExtraData {
+class NavigationState : public WebKit::WebDataSource::ExtraData {
  public:
   static NavigationState* CreateBrowserInitiated(
       int32 pending_page_id,
@@ -29,8 +29,8 @@ class NavigationState : public WebDataSource::ExtraData {
     return new NavigationState(PageTransition::LINK, base::Time(), true, -1);
   }
 
-  static NavigationState* FromDataSource(WebDataSource* ds) {
-    return static_cast<NavigationState*>(ds->GetExtraData());
+  static NavigationState* FromDataSource(WebKit::WebDataSource* ds) {
+    return static_cast<NavigationState*>(ds->extraData());
   }
 
   // Contains the page_id for this navigation or -1 if there is none yet.

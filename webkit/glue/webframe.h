@@ -14,20 +14,20 @@
 
 class GURL;
 class WebAppCacheContext;
-class WebDataSource;
-class WebError;
-class WebRequest;
 class WebView;
 class WebTextInput;
 struct NPObject;
 
 namespace WebKit {
+class WebDataSource;
 class WebForm;
+class WebURLRequest;
 struct WebConsoleMessage;
 struct WebFindOptions;
 struct WebRect;
 struct WebScriptSource;
 struct WebSize;
+struct WebURLError;
 }
 
 // Every frame in a web page is represented by one WebFrame, including the
@@ -69,8 +69,8 @@ class WebFrame {
 
   virtual NPObject* GetWindowNPObject() = 0;
 
-  // Loads the given WebRequest.
-  virtual void LoadRequest(WebRequest* request) = 0;
+  // Loads the given WebURLRequest.
+  virtual void LoadRequest(const WebKit::WebURLRequest& request) = 0;
 
   // Loads the given history state.  This corresponds to a back/forward
   // navigation.
@@ -96,7 +96,7 @@ class WebFrame {
   // it is the given request /w the |display_url| substituted for the request's
   // URL, which is repeated.  The |html_text| is not stored in session history.
   //
-  virtual void LoadAlternateHTMLString(const WebRequest* request,
+  virtual void LoadAlternateHTMLString(const WebKit::WebURLRequest& request,
                                        const std::string& html_text,
                                        const GURL& display_url,
                                        bool replace) = 0;
@@ -105,8 +105,8 @@ class WebFrame {
   // the WebViewDelegate of the results so it can decide whether or not to show
   // something to the user (e.g., a local error page or the alternate error
   // page).
-  virtual void LoadAlternateHTMLErrorPage(const WebRequest* request,
-                                          const WebError& error,
+  virtual void LoadAlternateHTMLErrorPage(const WebKit::WebURLRequest& request,
+                                          const WebKit::WebURLError& error,
                                           const GURL& error_page_url,
                                           bool replace,
                                           const GURL& fake_url) = 0;
@@ -164,14 +164,14 @@ class WebFrame {
   // Returns the committed data source, which is the last data source that has
   // successfully started loading. Will return NULL if no provisional data
   // has been committed.
-  virtual WebDataSource* GetDataSource() const = 0;
+  virtual WebKit::WebDataSource* GetDataSource() const = 0;
 
   // Returns the provisional data source, which is a data source where a
   // request has been made, but we are not sure if we will use data from it
   // (for example, it may be an invalid URL). When the provisional load is
   // "committed," it will become the "real" data source (see GetDataSource
   // above) and the provisional data source will be NULL.
-  virtual WebDataSource* GetProvisionalDataSource() const = 0;
+  virtual WebKit::WebDataSource* GetProvisionalDataSource() const = 0;
 
   //
   //  @method stopLoading

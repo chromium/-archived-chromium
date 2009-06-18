@@ -18,6 +18,7 @@ class IntPoint;
 class IntRect;
 class IntSize;
 class KURL;
+class ResourceError;
 class ResourceResponse;
 class String;
 struct ResourceRequest;
@@ -34,6 +35,7 @@ class WebURLResponse;
 struct WebPoint;
 struct WebRect;
 struct WebSize;
+struct WebURLError;
 }
 
 namespace WTF {
@@ -114,6 +116,12 @@ WebKit::WebForm HTMLFormElementToWebForm(
     const WTF::PassRefPtr<WebCore::HTMLFormElement>&);
 WTF::PassRefPtr<WebCore::HTMLFormElement> WebFormToHTMLFormElement(
     const WebKit::WebForm&);
+
+// WebURLError <-> ResourceError
+WebKit::WebURLError ResourceErrorToWebURLError(
+    const WebCore::ResourceError& error);
+WebCore::ResourceError WebURLErrorToResourceError(
+    const WebKit::WebURLError& error);
 
 // Exposes the ResourceRequest contained by a WebURLRequest
 WebCore::ResourceRequest* WebURLRequestToMutableResourceRequest(

@@ -8,7 +8,9 @@
 #include "v8/include/v8.h"
 #include "chrome/renderer/navigation_state.h"
 #include "webkit/glue/webframe.h"
-#include "webkit/glue/webdatasource.h"
+
+using WebKit::WebDataSource;
+using WebKit::WebNavigationType;
 
 namespace extensions_v8 {
 
@@ -45,12 +47,18 @@ class LoadTimesExtensionWrapper : public v8::Extension {
 
   static const char *GetNavigationType(WebNavigationType nav_type) {
     switch (nav_type) {
-      case WebNavigationTypeLinkClicked: return "LinkClicked";
-      case WebNavigationTypeFormSubmitted: return "FormSubmitted";
-      case WebNavigationTypeBackForward: return "BackForward";
-      case WebNavigationTypeReload: return "Reload";
-      case WebNavigationTypeFormResubmitted: return "Resubmitted";
-      case WebNavigationTypeOther: return "Other";
+      case WebKit::WebNavigationTypeLinkClicked:
+        return "LinkClicked";
+      case WebKit::WebNavigationTypeFormSubmitted:
+        return "FormSubmitted";
+      case WebKit::WebNavigationTypeBackForward:
+        return "BackForward";
+      case WebKit::WebNavigationTypeReload:
+        return "Reload";
+      case WebKit::WebNavigationTypeFormResubmitted:
+        return "Resubmitted";
+      case WebKit::WebNavigationTypeOther:
+        return "Other";
     }
     return "";
   }
@@ -81,8 +89,7 @@ class LoadTimesExtensionWrapper : public v8::Extension {
             v8::Number::New(navigation_state->first_layout_time().ToDoubleT()));
         load_times->Set(
             v8::String::New("navigationType"),
-            v8::String::New(
-                GetNavigationType(data_source->GetNavigationType())));
+            v8::String::New(GetNavigationType(data_source->navigationType())));
         return load_times;
       }
     }

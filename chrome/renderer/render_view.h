@@ -52,7 +52,6 @@ class NavigationState;
 class PrintWebViewHelper;
 class RenderThread;
 class ResourceDispatcher;
-class WebError;
 class WebFrame;
 class WebPluginDelegate;
 class WebPluginDelegateProxy;
@@ -174,21 +173,23 @@ class RenderView : public RenderWidget,
 
   virtual void DidStartLoading(WebView* webview);
   virtual void DidStopLoading(WebView* webview);
-  virtual void DidCreateDataSource(WebFrame* frame, WebDataSource* ds);
+  virtual void DidCreateDataSource(WebFrame* frame, WebKit::WebDataSource* ds);
   virtual void DidStartProvisionalLoadForFrame(
       WebView* webview,
       WebFrame* frame,
       NavigationGesture gesture);
   virtual void DidReceiveProvisionalLoadServerRedirect(WebView* webview,
                                                        WebFrame* frame);
-  virtual void DidFailProvisionalLoadWithError(WebView* webview,
-                                               const WebError& error,
-                                               WebFrame* frame);
-  virtual void LoadNavigationErrorPage(WebFrame* frame,
-                                       const WebRequest* failed_request,
-                                       const WebError& error,
-                                       const std::string& html,
-                                       bool replace);
+  virtual void DidFailProvisionalLoadWithError(
+      WebView* webview,
+      const WebKit::WebURLError& error,
+      WebFrame* frame);
+  virtual void LoadNavigationErrorPage(
+      WebFrame* frame,
+      const WebKit::WebURLRequest& failed_request,
+      const WebKit::WebURLError& error,
+      const std::string& html,
+      bool replace);
   virtual void DidCommitLoadForFrame(WebView* webview, WebFrame* frame,
                                      bool is_new_navigation);
   virtual void DidReceiveTitle(WebView* webview,
@@ -197,13 +198,14 @@ class RenderView : public RenderWidget,
   virtual void DidFinishLoadForFrame(WebView* webview,
                                      WebFrame* frame);
   virtual void DidFailLoadWithError(WebView* webview,
-                                    const WebError& error,
+                                    const WebKit::WebURLError& error,
                                     WebFrame* forFrame);
   virtual void DidFinishDocumentLoadForFrame(WebView* webview, WebFrame* frame);
-  virtual bool DidLoadResourceFromMemoryCache(WebView* webview,
-                                              const WebRequest& request,
-                                              const WebResponse& response,
-                                              WebFrame* frame);
+  virtual bool DidLoadResourceFromMemoryCache(
+      WebView* webview,
+      const WebKit::WebURLRequest& request,
+      const WebKit::WebURLResponse& response,
+      WebFrame* frame);
   virtual void DidHandleOnloadEventsForFrame(WebView* webview, WebFrame* frame);
   virtual void DidChangeLocationWithinPageForFrame(WebView* webview,
                                                    WebFrame* frame,
@@ -219,7 +221,7 @@ class RenderView : public RenderWidget,
                               const WebKit::WebForm& form);
   virtual void WillSendRequest(WebView* webview,
                                uint32 identifier,
-                               WebRequest* request);
+                               WebKit::WebURLRequest* request);
 
   virtual void WindowObjectCleared(WebFrame* webframe);
   virtual void DocumentElementAvailable(WebFrame* webframe);
@@ -227,8 +229,8 @@ class RenderView : public RenderWidget,
   virtual WindowOpenDisposition DispositionForNavigationAction(
       WebView* webview,
       WebFrame* frame,
-      const WebRequest* request,
-      WebNavigationType type,
+      const WebKit::WebURLRequest& request,
+      WebKit::WebNavigationType type,
       WindowOpenDisposition disposition,
       bool is_redirect);
 

@@ -39,10 +39,11 @@ MSVC_POP_WARNING();
 #include "webkit/api/public/WebInputEvent.h"
 #include "webkit/api/public/WebKit.h"
 #include "webkit/api/public/WebRect.h"
+#include "webkit/api/public/WebURLRequest.h"
+#include "webkit/api/src/WrappedResourceRequest.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/weburlrequest_impl.h"
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/webview_impl.h"
 #include "webkit/glue/webwidget_impl.h"
@@ -50,6 +51,8 @@ MSVC_POP_WARNING();
 using WebKit::WebInputEvent;
 using WebKit::WebMouseEvent;
 using WebKit::WebRect;
+using WebKit::WebURLRequest;
+using WebKit::WrappedResourceRequest;
 
 // Callback class that's given to the WebViewDelegate during a file choose
 // operation.
@@ -210,8 +213,8 @@ WebCore::Page* ChromeClientImpl::createWindow(
   // The request is empty when we are just being asked to open a blank window.
   // This corresponds to window.open(""), for example.
   if (!r.resourceRequest().isEmpty()) {
-    WebRequestImpl request(r.resourceRequest());
-    new_view->main_frame()->LoadRequest(&request);
+    WrappedResourceRequest request(r.resourceRequest());
+    new_view->main_frame()->LoadRequest(request);
   }
 
   WebViewImpl* new_view_impl = static_cast<WebViewImpl*>(new_view);

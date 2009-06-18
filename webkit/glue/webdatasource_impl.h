@@ -6,15 +6,19 @@
 #define WEBKIT_GLUE_WEBDATASOURCE_IMPL_H_
 
 #include "DocumentLoader.h"
+#include <wtf/Vector.h>
+#include <wtf/OwnPtr.h>
 
-#include "webkit/glue/webdatasource.h"
-#include "webkit/glue/webresponse_impl.h"
-#include "webkit/glue/weburlrequest_impl.h"
+#include "webkit/api/public/WebDataSource.h"
+#include "webkit/api/src/WrappedResourceRequest.h"
+#include "webkit/api/src/WrappedResourceResponse.h"
 
+class GURL;
 class WebFrameImpl;
 class WebDocumentLoaderImpl;
 
-class WebDataSourceImpl : public WebCore::DocumentLoader, public WebDataSource {
+class WebDataSourceImpl : public WebCore::DocumentLoader,
+                          public WebKit::WebDataSource {
  public:
   static PassRefPtr<WebDataSourceImpl> Create(const WebCore::ResourceRequest&,
                                               const WebCore::SubstituteData&);
@@ -24,21 +28,23 @@ class WebDataSourceImpl : public WebCore::DocumentLoader, public WebDataSource {
   }
 
   // WebDataSource methods:
-  virtual const WebRequest& GetInitialRequest() const;
-  virtual const WebRequest& GetRequest() const;
-  virtual const WebResponse& GetResponse() const;
-  virtual GURL GetUnreachableURL() const;
-  virtual bool HasUnreachableURL() const;
-  virtual const std::vector<GURL>& GetRedirectChain() const;
-  virtual string16 GetPageTitle() const;
-  virtual double GetTriggeringEventTime() const;
-  virtual WebNavigationType GetNavigationType() const;
-  virtual ExtraData* GetExtraData() const;
-  virtual void SetExtraData(ExtraData*);
+  virtual const WebKit::WebURLRequest& originalRequest() const;
+  virtual const WebKit::WebURLRequest& request() const;
+  virtual const WebKit::WebURLResponse& response() const;
+  virtual bool hasUnreachableURL() const;
+  virtual WebKit::WebURL unreachableURL() const;
+  virtual void redirectChain(WebKit::WebVector<WebKit::WebURL>&) const;
+  virtual WebKit::WebString pageTitle() const;
+  virtual WebKit::WebNavigationType navigationType() const;
+  virtual double triggeringEventTime() const;
+  virtual ExtraData* extraData() const;
+  virtual void setExtraData(ExtraData*);
 
-  static WebNavigationType NavigationTypeToWebNavigationType(
+  static WebKit::WebNavigationType NavigationTypeToWebNavigationType(
       WebCore::NavigationType type);
 
+  bool HasRedirectChain() const { return !redirect_chain_.isEmpty(); }
+  GURL GetEndOfRedirectChain() const;
   void ClearRedirectChain();
   void AppendRedirect(const GURL& url);
 
@@ -49,15 +55,15 @@ class WebDataSourceImpl : public WebCore::DocumentLoader, public WebDataSource {
 
   // Mutable because the const getters will magically sync these to the
   // latest version from WebKit.
-  mutable WebRequestImpl initial_request_;
-  mutable WebRequestImpl request_;
-  mutable WebResponseImpl response_;
+  mutable WebKit::WrappedResourceRequest original_request_;
+  mutable WebKit::WrappedResourceRequest request_;
+  mutable WebKit::WrappedResourceResponse response_;
 
   // Lists all intermediate URLs that have redirected for the current
   // provisional load. See WebFrameLoaderClient::
   // dispatchDidReceiveServerRedirectForProvisionalLoad for a description of
   // who modifies this when to keep it up to date.
-  std::vector<GURL> redirect_chain_;
+  Vector<WebKit::WebURL> redirect_chain_;
 
   OwnPtr<ExtraData> extra_data_;
 

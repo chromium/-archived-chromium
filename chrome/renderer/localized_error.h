@@ -6,10 +6,13 @@
 #define CHROME_RENDERER_LOCALIZED_ERROR_VALUES_H__
 
 class DictionaryValue;
-class WebError;
 class GURL;
 
-void GetLocalizedErrorValues(const WebError& error,
+namespace WebKit {
+struct WebURLError;
+}
+
+void GetLocalizedErrorValues(const WebKit::WebURLError& error,
                              DictionaryValue* error_strings);
 
 // Fills |error_strings| with values to be used to build an error page which

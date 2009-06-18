@@ -17,16 +17,17 @@
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
+#include "webkit/api/public/WebDataSource.h"
 #include "webkit/api/public/WebDragData.h"
 #include "webkit/api/public/WebKit.h"
 #include "webkit/api/public/WebScreenInfo.h"
 #include "webkit/api/public/WebString.h"
-#include "webkit/glue/webdatasource.h"
+#include "webkit/api/public/WebURL.h"
+#include "webkit/api/public/WebURLError.h"
+#include "webkit/api/public/WebURLRequest.h"
 #include "webkit/glue/webdropdata.h"
-#include "webkit/glue/weberror.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webpreferences.h"
-#include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/plugins/plugin_list.h"
@@ -43,11 +44,16 @@
 #include "webkit/tools/test_shell/drop_delegate.h"
 #endif
 
+using WebKit::WebDataSource;
 using WebKit::WebDragData;
+using WebKit::WebNavigationType;
 using WebKit::WebRect;
 using WebKit::WebScreenInfo;
 using WebKit::WebSize;
 using WebKit::WebString;
+using WebKit::WebURL;
+using WebKit::WebURLError;
+using WebKit::WebURLRequest;
 using WebKit::WebWorker;
 using WebKit::WebWorkerClient;
 
@@ -85,17 +91,17 @@ void AddDRTFakeFileToDataObject(WebDragData* drag_data) {
 // Get a debugging string from a WebNavigationType.
 const char* WebNavigationTypeToString(WebNavigationType type) {
   switch (type) {
-    case WebNavigationTypeLinkClicked:
+    case WebKit::WebNavigationTypeLinkClicked:
       return kLinkClickedString;
-    case WebNavigationTypeFormSubmitted:
+    case WebKit::WebNavigationTypeFormSubmitted:
       return kFormSubmittedString;
-    case WebNavigationTypeBackForward:
+    case WebKit::WebNavigationTypeBackForward:
       return kBackForwardString;
-    case WebNavigationTypeReload:
+    case WebKit::WebNavigationTypeReload:
       return kReloadString;
-    case WebNavigationTypeFormResubmitted:
+    case WebKit::WebNavigationTypeFormResubmitted:
       return kFormResubmittedString;
-    case WebNavigationTypeOther:
+    case WebKit::WebNavigationTypeOther:
       return kOtherString;
   }
   return kIllegalString;
@@ -156,7 +162,7 @@ void TestWebViewDelegate::WindowObjectCleared(WebFrame* webframe) {
 WindowOpenDisposition TestWebViewDelegate::DispositionForNavigationAction(
     WebView* webview,
     WebFrame* frame,
-    const WebRequest* request,
+    const WebURLRequest& request,
     WebNavigationType type,
     WindowOpenDisposition disposition,
     bool is_redirect) {
@@ -164,10 +170,11 @@ WindowOpenDisposition TestWebViewDelegate::DispositionForNavigationAction(
   if (policy_delegate_enabled_) {
     std::wstring frame_name = frame->GetName();
     std::string url_description;
-    if (request->GetURL().SchemeIs("file")) {
-      url_description = request->GetURL().ExtractFileName();
+    GURL request_url = request.url();
+    if (request_url.SchemeIs("file")) {
+      url_description = request_url.ExtractFileName();
     } else {
-      url_description = request->GetURL().spec();
+      url_description = request_url.spec();
     }
     printf("Policy delegate: attempt to load %s with navigation type '%s'\n",
            url_description.c_str(), WebNavigationTypeToString(type));
@@ -181,12 +188,12 @@ WindowOpenDisposition TestWebViewDelegate::DispositionForNavigationAction(
   return result;
 }
 
-void TestWebViewDelegate::AssignIdentifierToRequest(WebView* webview,
-                                                    uint32 identifier,
-                                                    const WebRequest& request) {
-  if (shell_->ShouldDumpResourceLoadCallbacks()) {
-    resource_identifier_map_[identifier] = request.GetURL().possibly_invalid_spec();
-  }
+void TestWebViewDelegate::AssignIdentifierToRequest(
+    WebView* webview,
+    uint32 identifier,
+    const WebURLRequest& request) {
+  if (shell_->ShouldDumpResourceLoadCallbacks())
+    resource_identifier_map_[identifier] = request.url().spec();
 }
 
 std::string TestWebViewDelegate::GetResourceDescription(uint32 identifier) {
@@ -196,10 +203,10 @@ std::string TestWebViewDelegate::GetResourceDescription(uint32 identifier) {
 
 void TestWebViewDelegate::WillSendRequest(WebView* webview,
                                           uint32 identifier,
-                                          WebRequest* request) {
-  GURL url = request->GetURL();
+                                          WebURLRequest* request) {
+  GURL url = request->url();
   std::string request_url = url.possibly_invalid_spec();
-  std::string host = request->GetURL().host();
+  std::string host = url.host();
 
   if (shell_->ShouldDumpResourceLoadCallbacks()) {
     printf("%s - willSendRequest <WebRequest URL \"%s\">\n",
@@ -216,13 +223,13 @@ void TestWebViewDelegate::WillSendRequest(WebView* webview,
     printf("Blocked access to external URL %s\n", request_url.c_str());
 
     // To block the request, we set its URL to an empty one.
-    request->SetURL(GURL());
+    request->setURL(WebURL());
     return;
   }
 
   TRACE_EVENT_BEGIN("url.load", identifier, request_url);
   // Set the new substituted URL.
-  request->SetURL(GURL(TestShell::RewriteLocalUrl(request_url)));
+  request->setURL(GURL(TestShell::RewriteLocalUrl(request_url)));
 }
 
 void TestWebViewDelegate::DidFinishLoading(WebView* webview,
@@ -238,13 +245,13 @@ void TestWebViewDelegate::DidFinishLoading(WebView* webview,
 
 void TestWebViewDelegate::DidFailLoadingWithError(WebView* webview,
                                                   uint32 identifier,
-                                                  const WebError& error) {
+                                                  const WebURLError& error) {
   if (shell_->ShouldDumpResourceLoadCallbacks()) {
     printf("%s - didFailLoadingWithError <WebError code %d,"
            " failing URL \"%s\">\n",
            GetResourceDescription(identifier).c_str(),
-           error.GetErrorCode(),
-           error.GetFailedURL().spec().c_str());
+           error.reason,
+           error.unreachableURL.spec().data());
   }
 
   resource_identifier_map_.erase(identifier);
@@ -252,7 +259,7 @@ void TestWebViewDelegate::DidFailLoadingWithError(WebView* webview,
 
 void TestWebViewDelegate::DidCreateDataSource(WebFrame* frame,
                                               WebDataSource* ds) {
-  ds->SetExtraData(pending_extra_data_.release());
+  ds->setExtraData(pending_extra_data_.release());
 }
 
 void TestWebViewDelegate::DidStartProvisionalLoadForFrame(
@@ -289,7 +296,7 @@ void TestWebViewDelegate::DidReceiveServerRedirectForProvisionalLoadForFrame(
 
 void TestWebViewDelegate::DidFailProvisionalLoadWithError(
     WebView* webview,
-    const WebError& error,
+    const WebURLError& error,
     WebFrame* frame) {
   if (shell_->ShouldDumpFrameLoadCallbacks()) {
     printf("%S - didFailProvisionalLoadWithError\n",
@@ -305,24 +312,24 @@ void TestWebViewDelegate::DidFailProvisionalLoadWithError(
 
   // Don't display an error page if this is simply a cancelled load.  Aside
   // from being dumb, WebCore doesn't expect it and it will cause a crash.
-  if (error.GetErrorCode() == net::ERR_ABORTED)
+  if (error.reason == net::ERR_ABORTED)
     return;
 
   const WebDataSource* failed_ds = frame->GetProvisionalDataSource();
 
   TestShellExtraData* extra_data =
-      static_cast<TestShellExtraData*>(failed_ds->GetExtraData());
+      static_cast<TestShellExtraData*>(failed_ds->extraData());
   bool replace = extra_data && extra_data->pending_page_id != -1;
 
-  scoped_ptr<WebRequest> request(failed_ds->GetRequest().Clone());
+  WebURLRequest request = failed_ds->request();
 
   std::string error_text =
-      StringPrintf("Error %d when loading url %s", error.GetErrorCode(),
-      request->GetURL().spec().c_str());
-  request->SetURL(GURL("testshell-error:"));
+      StringPrintf("Error %d when loading url %s", error.reason,
+      request.url().spec().data());
+  request.setURL(GURL("testshell-error:"));
 
-  frame->LoadAlternateHTMLString(request.get(), error_text,
-                                 error.GetFailedURL(), replace);
+  frame->LoadAlternateHTMLString(
+      request, error_text, error.unreachableURL, replace);
 }
 
 void TestWebViewDelegate::DidCommitLoadForFrame(WebView* webview,
@@ -364,7 +371,7 @@ void TestWebViewDelegate::DidFinishLoadForFrame(WebView* webview,
 }
 
 void TestWebViewDelegate::DidFailLoadWithError(WebView* webview,
-                                               const WebError& error,
+                                               const WebURLError& error,
                                                WebFrame* frame) {
   if (shell_->ShouldDumpFrameLoadCallbacks()) {
     printf("%S - didFailLoadWithError\n",
@@ -398,7 +405,7 @@ void TestWebViewDelegate::DidHandleOnloadEventsForFrame(WebView* webview,
 
 void TestWebViewDelegate::DidChangeLocationWithinPageForFrame(
     WebView* webview, WebFrame* frame, bool is_new_navigation) {
-  frame->GetDataSource()->SetExtraData(pending_extra_data_.release());
+  frame->GetDataSource()->setExtraData(pending_extra_data_.release());
 
   if (shell_->ShouldDumpFrameLoadCallbacks()) {
     printf("%S - didChangeLocationWithinPageForFrame\n",
@@ -802,7 +809,7 @@ void TestWebViewDelegate::UpdateAddressBar(WebView* webView) {
     return;
 
   // TODO(abarth): This is wrong!
-  SetAddressBarURL(dataSource->GetRequest().GetFirstPartyForCookies());
+  SetAddressBarURL(dataSource->request().firstPartyForCookies());
 }
 
 void TestWebViewDelegate::LocationChangeDone(WebFrame* frame) {
@@ -826,7 +833,7 @@ void TestWebViewDelegate::UpdateForCommittedLoad(WebFrame* frame,
                                                  bool is_new_navigation) {
   // Code duplicated from RenderView::DidCommitLoadForFrame.
   TestShellExtraData* extra_data = static_cast<TestShellExtraData*>(
-      frame->GetDataSource()->GetExtraData());
+      frame->GetDataSource()->extraData());
 
   if (is_new_navigation) {
     // New navigation.
@@ -850,7 +857,7 @@ void TestWebViewDelegate::UpdateURL(WebFrame* frame) {
   WebDataSource* ds = frame->GetDataSource();
   DCHECK(ds);
 
-  const WebRequest& request = ds->GetRequest();
+  const WebURLRequest& request = ds->request();
 
   // Type is unused.
   scoped_ptr<TestNavigationEntry> entry(new TestNavigationEntry);
@@ -858,10 +865,10 @@ void TestWebViewDelegate::UpdateURL(WebFrame* frame) {
   // Bug 654101: the referrer will be empty on https->http transitions. It
   // would be nice if we could get the real referrer from somewhere.
   entry->SetPageID(page_id_);
-  if (ds->HasUnreachableURL()) {
-    entry->SetURL(GURL(ds->GetUnreachableURL()));
+  if (ds->hasUnreachableURL()) {
+    entry->SetURL(ds->unreachableURL());
   } else {
-    entry->SetURL(GURL(request.GetURL()));
+    entry->SetURL(request.url());
   }
 
   std::string state;

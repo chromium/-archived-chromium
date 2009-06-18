@@ -23,15 +23,16 @@
 
 #include "V8Binding.h"
 #include "base/values.h"
+#include "webkit/api/public/WebDataSource.h"
+#include "webkit/api/public/WebURL.h"
+#include "webkit/api/public/WebURLRequest.h"
 #include "webkit/glue/devtools/bound_object.h"
 #include "webkit/glue/devtools/debugger_agent_impl.h"
 #include "webkit/glue/devtools/debugger_agent_manager.h"
 #include "webkit/glue/devtools/dom_agent_impl.h"
 #include "webkit/glue/glue_util.h"
-#include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdevtoolsagent_delegate.h"
 #include "webkit/glue/webdevtoolsagent_impl.h"
-#include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview_impl.h"
 
 using WebCore::Document;
@@ -44,6 +45,8 @@ using WebCore::ScriptValue;
 using WebCore::String;
 using WebCore::V8ClassIndex;
 using WebCore::V8Proxy;
+using WebKit::WebDataSource;
+using WebKit::WebURLRequest;
 
 WebDevToolsAgentImpl::WebDevToolsAgentImpl(
     WebViewImpl* web_view_impl,
@@ -148,10 +151,10 @@ void WebDevToolsAgentImpl::DidCommitLoadForFrame(
     return;
   }
   WebDataSource* ds = frame->GetDataSource();
-  const WebRequest& request = ds->GetRequest();
-  GURL url = ds->HasUnreachableURL() ?
-      ds->GetUnreachableURL() :
-      request.GetURL();
+  const WebURLRequest& request = ds->request();
+  GURL url = ds->hasUnreachableURL() ?
+      ds->unreachableURL() :
+      request.url();
   tools_agent_delegate_stub_->FrameNavigate(
       url.possibly_invalid_spec(),
       webview->GetMainFrame() == frame);

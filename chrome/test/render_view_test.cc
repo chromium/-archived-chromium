@@ -16,11 +16,12 @@
 #include "webkit/api/public/WebInputEvent.h"
 #include "webkit/api/public/WebKit.h"
 #include "webkit/api/public/WebScriptSource.h"
-#include "webkit/glue/weburlrequest.h"
+#include "webkit/api/public/WebURLRequest.h"
 #include "webkit/glue/webview.h"
 
 using WebKit::WebScriptSource;
 using WebKit::WebString;
+using WebKit::WebURLRequest;
 
 namespace {
 
@@ -47,8 +48,7 @@ void RenderViewTest::LoadHTML(const char* html) {
   url_str.append(html);
   GURL url(url_str);
 
-  scoped_ptr<WebRequest> request(WebRequest::Create(url));
-  GetMainFrame()->LoadRequest(request.get());
+  GetMainFrame()->LoadRequest(WebURLRequest(url));
 
   // The load actually happens asynchronously, so we pump messages to process
   // the pending continuation.

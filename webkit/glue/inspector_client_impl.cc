@@ -20,11 +20,12 @@ MSVC_POP_WARNING();
 #include "base/gfx/rect.h"
 #include "base/string_util.h"
 #include "webkit/api/public/WebRect.h"
+#include "webkit/api/public/WebURL.h"
+#include "webkit/api/public/WebURLRequest.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/inspector_client_impl.h"
 #include "webkit/glue/webdevtoolsagent_impl.h"
 #include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview_impl.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
@@ -33,6 +34,7 @@ using namespace WebCore;
 
 using WebKit::WebRect;
 using WebKit::WebSize;
+using WebKit::WebURLRequest;
 
 static const float kDefaultInspectorXPos = 10;
 static const float kDefaultInspectorYPos = 50;
@@ -73,9 +75,8 @@ Page* WebInspectorClient::createPage() {
   if (!inspector_web_view_)
     return NULL;
 
-  GURL inspector_url(webkit_glue::GetInspectorURL());
-  scoped_ptr<WebRequest> request(WebRequest::Create(inspector_url));
-  inspector_web_view_->main_frame()->LoadRequest(request.get());
+  inspector_web_view_->main_frame()->LoadRequest(
+      WebURLRequest(webkit_glue::GetInspectorURL()));
 
   page = inspector_web_view_->page();
 

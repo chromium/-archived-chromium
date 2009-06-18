@@ -35,7 +35,6 @@
 struct WebPreferences;
 class GURL;
 class TestShell;
-class WebDataSource;
 class WebWidgetHost;
 
 class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
@@ -128,16 +127,17 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
                                const std::string& security_info,
                                const std::string& frame_charset);
   virtual void DidCreateDataSource(WebFrame* frame,
-                                   WebDataSource* ds);
+                                   WebKit::WebDataSource* ds);
   virtual void DidStartProvisionalLoadForFrame(
     WebView* webview,
     WebFrame* frame,
     NavigationGesture gesture);
   virtual void DidReceiveServerRedirectForProvisionalLoadForFrame(
     WebView* webview, WebFrame* frame);
-  virtual void DidFailProvisionalLoadWithError(WebView* webview,
-                                               const WebError& error,
-                                               WebFrame* frame);
+  virtual void DidFailProvisionalLoadWithError(
+      WebView* webview,
+      const WebKit::WebURLError& error,
+      WebFrame* frame);
   virtual void DidCommitLoadForFrame(WebView* webview, WebFrame* frame,
                                      bool is_new_navigation);
   virtual void DidReceiveTitle(WebView* webview,
@@ -162,19 +162,19 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
 
   virtual void DidFinishLoadForFrame(WebView* webview, WebFrame* frame);
   virtual void DidFailLoadWithError(WebView* webview,
-                                    const WebError& error,
-                                    WebFrame* forFrame);
+                                    const WebKit::WebURLError& error,
+                                    WebFrame* for_frame);
 
   virtual void AssignIdentifierToRequest(WebView* webview,
                                          uint32 identifier,
-                                         const WebRequest& request);
+                                         const WebKit::WebURLRequest& request);
   virtual void WillSendRequest(WebView* webview,
                                uint32 identifier,
-                               WebRequest* request);
+                               WebKit::WebURLRequest* request);
   virtual void DidFinishLoading(WebView* webview, uint32 identifier);
   virtual void DidFailLoadingWithError(WebView* webview,
                                        uint32 identifier,
-                                       const WebError& error);
+                                       const WebKit::WebURLError& error);
 
   virtual bool ShouldBeginEditing(WebView* webview, std::wstring range);
   virtual bool ShouldEndEditing(WebView* webview, std::wstring range);
@@ -209,8 +209,8 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   virtual WindowOpenDisposition DispositionForNavigationAction(
     WebView* webview,
     WebFrame* frame,
-    const WebRequest* request,
-    WebNavigationType type,
+    const WebKit::WebURLRequest& request,
+    WebKit::WebNavigationType type,
     WindowOpenDisposition disposition,
     bool is_redirect);
   virtual void NavigateBackForwardSoon(int offset);

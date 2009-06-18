@@ -14,7 +14,6 @@
 #include "webkit/api/public/WebScreenInfo.h"
 #include "webkit/api/public/WebSize.h"
 #include "webkit/glue/webframe.h"
-#include "webkit/glue/weburlrequest.h"
 
 #if defined(OS_WIN)
 #include "chrome/common/gfx/emf.h"

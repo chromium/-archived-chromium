@@ -28,8 +28,8 @@
 
 #include <vector>
 
+#include "webkit/api/public/WebNavigationType.h"
 #include "webkit/glue/context_menu.h"
-#include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webwidget_delegate.h"
 
 namespace webkit_glue {
@@ -41,26 +41,27 @@ class AccessibilityObject;
 }
 
 namespace WebKit {
+class WebDataSource;
 class WebDragData;
 class WebForm;
 class WebWorker;
 class WebWorkerClient;
 class WebMediaPlayer;
 class WebMediaPlayerClient;
+class WebURLRequest;
+class WebURLResponse;
 struct WebPoint;
 struct WebRect;
+struct WebURLError;
 }
 
 struct WebPreferences;
 class FilePath;
 class SkBitmap;
 class WebDevToolsAgentDelegate;
-class WebError;
 class WebFrame;
 class WebMediaPlayerDelegate;
 class WebPluginDelegate;
-class WebRequest;
-class WebResponse;
 class WebView;
 class WebWidget;
 
@@ -224,8 +225,8 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   virtual WindowOpenDisposition DispositionForNavigationAction(
       WebView* webview,
       WebFrame* frame,
-      const WebRequest* request,
-      WebNavigationType type,
+      const WebKit::WebURLRequest& request,
+      WebKit::WebNavigationType type,
       WindowOpenDisposition disposition,
       bool is_redirect) {
     return disposition;
@@ -235,7 +236,8 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
 
   // A datasource has been created for a new navigation.  The given datasource
   // will become the provisional datasource for the frame.
-  virtual void DidCreateDataSource(WebFrame* frame, WebDataSource* ds) {
+  virtual void DidCreateDataSource(WebFrame* frame,
+                                   WebKit::WebDataSource* ds) {
   }
 
   // Notifies the delegate that the provisional load of a specified frame in a
@@ -273,18 +275,19 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   //  committed data source if there is one.
   //  This notification is only received for errors like network errors.
   virtual void DidFailProvisionalLoadWithError(WebView* webview,
-                                               const WebError& error,
+                                               const WebKit::WebURLError& error,
                                                WebFrame* frame) {
   }
 
   // If the provisional load fails, we try to load a an error page describing
   // the user about the load failure.  |html| is the UTF8 text to display.  If
   // |html| is empty, we will fall back on a local error page.
-  virtual void LoadNavigationErrorPage(WebFrame* frame,
-                                       const WebRequest* failed_request,
-                                       const WebError& error,
-                                       const std::string& html,
-                                       bool replace) {
+  virtual void LoadNavigationErrorPage(
+      WebFrame* frame,
+      const WebKit::WebURLRequest& failed_request,
+      const WebKit::WebURLError& error,
+      const std::string& html,
+      bool replace) {
   }
 
   // Notifies the delegate that the load has changed from provisional to
@@ -339,7 +342,7 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   //  @discussion This method is called after a data source has committed but failed to completely load.
   //  - (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame;
   virtual void DidFailLoadWithError(WebView* webview,
-                                    const WebError& error,
+                                    const WebKit::WebURLError& error,
                                     WebFrame* forFrame) {
   }
 
@@ -358,10 +361,11 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // This method is called when we load a resource from an in-memory cache.
   // A return value of |false| indicates the load should proceed, but WebCore
   // appears to largely ignore the return value.
-  virtual bool DidLoadResourceFromMemoryCache(WebView* webview,
-                                              const WebRequest& request,
-                                              const WebResponse& response,
-                                              WebFrame* frame) {
+  virtual bool DidLoadResourceFromMemoryCache(
+      WebView* webview,
+      const WebKit::WebURLRequest& request,
+      const WebKit::WebURLResponse& response,
+      WebFrame* frame) {
     return false;
   }
 
@@ -444,9 +448,10 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // Associates the given identifier with the initial resource request.
   // Resource load callbacks will use the identifier throughout the life of the
   // request.
-  virtual void AssignIdentifierToRequest(WebView* webview,
-                                         uint32 identifier,
-                                         const WebRequest& request) {
+  virtual void AssignIdentifierToRequest(
+      WebView* webview,
+      uint32 identifier,
+      const WebKit::WebURLRequest& request) {
   }
 
   // Notifies the delegate that a request is about to be sent out, giving the
@@ -455,7 +460,7 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // to be made.
   virtual void WillSendRequest(WebView* webview,
                                uint32 identifier,
-                               WebRequest* request) {
+                               WebKit::WebURLRequest* request) {
   }
 
   // Notifies the delegate that a subresource load has succeeded.
@@ -465,7 +470,7 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // Notifies the delegate that a subresource load has failed, and why.
   virtual void DidFailLoadingWithError(WebView* webview,
                                        uint32 identifier,
-                                       const WebError& error) {
+                                       const WebKit::WebURLError& error) {
   }
 
   // ChromeClient ------------------------------------------------------------

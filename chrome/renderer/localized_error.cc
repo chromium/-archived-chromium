@@ -12,8 +12,10 @@
 #include "grit/generated_resources.h"
 #include "net/base/escape.h"
 #include "net/base/net_errors.h"
-#include "webkit/glue/weberror.h"
+#include "webkit/api/public/WebURLError.h"
 #include "webkit/glue/webkit_glue.h"
+
+using WebKit::WebURLError;
 
 namespace {
 
@@ -83,7 +85,7 @@ WebErrorNetErrorMap net_error_options[] = {
 
 }  // namespace
 
-void GetLocalizedErrorValues(const WebError& error,
+void GetLocalizedErrorValues(const WebURLError& error,
                              DictionaryValue* error_strings) {
   // Grab strings that are applicable to all error pages
   error_strings->SetString(L"detailsLink",
@@ -101,7 +103,7 @@ void GetLocalizedErrorValues(const WebError& error,
     IDS_ERRORPAGES_DETAILS_UNKNOWN,
     SUGGEST_NONE,
   };
-  int error_code = error.GetErrorCode();
+  int error_code = error.reason;
   for (size_t i = 0; i < arraysize(net_error_options); ++i) {
     if (net_error_options[i].error_code == error_code) {
       memcpy(&options, &net_error_options[i], sizeof(WebErrorNetErrorMap));
@@ -116,7 +118,8 @@ void GetLocalizedErrorValues(const WebError& error,
   }
   error_strings->SetString(L"suggestionsHeading", suggestions_heading);
 
-  std::wstring failed_url(ASCIIToWide(error.GetFailedURL().spec()));
+  std::wstring failed_url(
+      ASCIIToWide(std::string(error.unreachableURL.spec())));
   // URLs are always LTR.
   if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
     l10n_util::WrapStringWithLTRFormatting(&failed_url);
@@ -152,7 +155,7 @@ void GetLocalizedErrorValues(const WebError& error,
 
   if (options.suggestions & SUGGEST_HOSTNAME) {
     // Only show the "Go to hostname" suggestion if the failed_url has a path.
-    const GURL& failed_url = error.GetFailedURL();
+    const GURL& failed_url = error.unreachableURL;
     if (std::string() == failed_url.path()) {
       DictionaryValue* suggest_home_page = new DictionaryValue;
       suggest_home_page->SetString(L"suggestionsHomepageMsg",

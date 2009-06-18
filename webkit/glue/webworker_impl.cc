@@ -78,7 +78,7 @@ class WorkerWebViewDelegate : public WebViewDelegate {
                                     const std::vector<WebMenuItem> &items) { }
   // Tell the loader to load the data into the 'shadow page' synchronously,
   // so we can grab the resulting Document right after load.
-  virtual void DidCreateDataSource(WebFrame* frame, WebDataSource* ds) {
+  virtual void DidCreateDataSource(WebFrame* frame, WebKit::WebDataSource* ds) {
     static_cast<WebDataSourceImpl*>(ds)->setDeferMainResourceDataLoad(false);
   }
   // Lazy allocate and leak this instance.
