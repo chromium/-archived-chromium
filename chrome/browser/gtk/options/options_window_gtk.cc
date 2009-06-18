@@ -112,7 +112,7 @@ OptionsWindowGtk::OptionsWindowGtk(Profile* profile)
           l10n_util::GetStringUTF8(IDS_OPTIONS_CONTENT_TAB_LABEL).c_str()));
 
 #ifdef CHROME_PERSONALIZATION
-  if (!Personalization::IsP13NDisabled()) {
+  if (!Personalization::IsP13NDisabled(profile)) {
     gtk_notebook_append_page(
         GTK_NOTEBOOK(notebook_),
         gtk_label_new("TODO personalization"),
