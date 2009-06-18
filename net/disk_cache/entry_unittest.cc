@@ -35,6 +35,8 @@ class DiskCacheEntryTest : public DiskCacheTestWithCache {
   void InvalidData();
   void DoomEntry();
   void DoomedEntry();
+  void BasicSparseIO(bool async);
+  void HugeSparseIO(bool async);
 };
 
 void DiskCacheEntryTest::InternalSyncIO() {
@@ -862,4 +864,137 @@ TEST_F(DiskCacheEntryTest, MemoryOnlyEnumerationWithSlaveEntries) {
   // TODO(hclam): remove this when parent entry can doom child entries
   // internally. Now we have to doom this child entry manually.
   child_entry->Doom();
+}
+
+// Writes |buf_1| to offset and reads it back as |buf_2|.
+void VerifySparseIO(disk_cache::Entry* entry, int64 offset,
+                    net::IOBuffer* buf_1, int size, bool async,
+                    net::IOBuffer* buf_2) {
+  SimpleCallbackTest callback;
+  SimpleCallbackTest* cb = async ? &callback : NULL;
+
+  memset(buf_2->data(), 0, size);
+  int ret = entry->ReadSparseData(offset, buf_2, size, cb);
+  ret = callback.GetResult(ret);
+  EXPECT_EQ(0, ret);
+
+  ret = entry->WriteSparseData(offset, buf_1, size, cb);
+  ret = callback.GetResult(ret);
+  EXPECT_EQ(size, ret);
+
+  ret = entry->ReadSparseData(offset, buf_2, size, cb);
+  ret = callback.GetResult(ret);
+  EXPECT_EQ(size, ret);
+
+  EXPECT_EQ(0, memcmp(buf_1->data(), buf_2->data(), size));
+}
+
+// Reads |size| bytes from |entry| at |offset| and verifies that they are the
+// same as the content of the provided |buffer|.
+void VerifyContentSparseIO(disk_cache::Entry* entry, int64 offset, char* buffer,
+                           int size, bool async) {
+  SimpleCallbackTest callback;
+  SimpleCallbackTest* cb = async ? &callback : NULL;
+
+  scoped_refptr<net::IOBuffer> buf_1 = new net::IOBuffer(size);
+  memset(buf_1->data(), 0, size);
+  int ret = entry->ReadSparseData(offset, buf_1, size, cb);
+  ret = callback.GetResult(ret);
+  EXPECT_EQ(size, ret);
+
+  EXPECT_EQ(0, memcmp(buf_1->data(), buffer, size));
+}
+
+void DiskCacheEntryTest::BasicSparseIO(bool async) {
+  std::string key("the first key");
+  disk_cache::Entry* entry;
+  ASSERT_TRUE(cache_->CreateEntry(key, &entry));
+
+  const int kSize = 2048;
+  scoped_refptr<net::IOBuffer> buf_1 = new net::IOBuffer(kSize);
+  scoped_refptr<net::IOBuffer> buf_2 = new net::IOBuffer(kSize);
+  CacheTestFillBuffer(buf_1->data(), kSize, false);
+
+  // Write at offset 0.
+  VerifySparseIO(entry, 0, buf_1, kSize, async, buf_2);
+
+  // Write at offset 0x400000 (4 MB).
+  VerifySparseIO(entry, 0x400000, buf_1, kSize, async, buf_2);
+
+  // Write at offset 0x800000000 (32 GB).
+  VerifySparseIO(entry, 0x800000000LL, buf_1, kSize, async, buf_2);
+
+  entry->Close();
+
+  // Check everything again.
+  ASSERT_TRUE(cache_->OpenEntry(key, &entry));
+  VerifyContentSparseIO(entry, 0, buf_1->data(), kSize, async);
+  VerifyContentSparseIO(entry, 0x400000, buf_1->data(), kSize, async);
+  VerifyContentSparseIO(entry, 0x800000000LL, buf_1->data(), kSize, async);
+  entry->Close();
+}
+
+TEST_F(DiskCacheEntryTest, BasicSparseSyncIO) {
+  InitCache();
+  BasicSparseIO(false);
+}
+
+TEST_F(DiskCacheEntryTest, DISABLED_MemoryOnlyBasicSparseSyncIO) {
+  SetMemoryOnlyMode();
+  InitCache();
+  BasicSparseIO(false);
+}
+
+TEST_F(DiskCacheEntryTest, BasicSparseAsyncIO) {
+  InitCache();
+  BasicSparseIO(true);
+}
+
+TEST_F(DiskCacheEntryTest, DISABLED_MemoryOnlyBasicSparseAsyncIO) {
+  SetMemoryOnlyMode();
+  InitCache();
+  BasicSparseIO(true);
+}
+
+void DiskCacheEntryTest::HugeSparseIO(bool async) {
+  std::string key("the first key");
+  disk_cache::Entry* entry;
+  ASSERT_TRUE(cache_->CreateEntry(key, &entry));
+
+  // Write 1.2 MB so that we cover multiple entries.
+  const int kSize = 1200 * 1024;
+  scoped_refptr<net::IOBuffer> buf_1 = new net::IOBuffer(kSize);
+  scoped_refptr<net::IOBuffer> buf_2 = new net::IOBuffer(kSize);
+  CacheTestFillBuffer(buf_1->data(), kSize, false);
+
+  // Write at offset 0x20F0000 (20 MB - 64 KB).
+  VerifySparseIO(entry, 0x20F0000, buf_1, kSize, async, buf_2);
+  entry->Close();
+
+  // Check it again.
+  ASSERT_TRUE(cache_->OpenEntry(key, &entry));
+  VerifyContentSparseIO(entry, 0x20F0000, buf_1->data(), kSize, async);
+  entry->Close();
+}
+
+TEST_F(DiskCacheEntryTest, HugeSparseSyncIO) {
+  InitCache();
+  HugeSparseIO(false);
+}
+
+TEST_F(DiskCacheEntryTest, DISABLED_MemoryOnlyHugeSparseSyncIO) {
+  SetMemoryOnlyMode();
+  InitCache();
+  HugeSparseIO(false);
+}
+
+TEST_F(DiskCacheEntryTest, HugeSparseAsyncIO) {
+  InitCache();
+  HugeSparseIO(true);
+}
+
+TEST_F(DiskCacheEntryTest, DISABLED_MemoryOnlyHugeSparseAsyncIO) {
+  SetMemoryOnlyMode();
+  InitCache();
+  HugeSparseIO(true);
 }
