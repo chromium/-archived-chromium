@@ -34,31 +34,35 @@ class MimeUtilConstants {
   const int kUpdateInterval;
 
   // Store icon directories and their mtimes.
-  std::map<FilePath, int>* icon_dirs;
+  std::map<FilePath, int>* icon_dirs_;
 
   // Store icon formats.
-  std::vector<std::string>* icon_formats;
+  std::vector<std::string>* icon_formats_;
 
   // Store loaded icon_theme.
-  std::map<std::string, IconTheme*>* icon_themes;
+  std::map<std::string, IconTheme*>* icon_themes_;
 
   static const size_t kDefaultThemeNum = 4;
 
   // The default theme.
-  IconTheme* default_themes[kDefaultThemeNum];
+  IconTheme* default_themes_[kDefaultThemeNum];
 
-  time_t last_check_time;
+  time_t last_check_time_;
 
  private:
   MimeUtilConstants()
       : kUpdateInterval(5),
-        icon_dirs(NULL),
-        icon_formats(NULL),
-        icon_themes(NULL),
-        last_check_time(0) {
+        icon_dirs_(NULL),
+        icon_formats_(NULL),
+        icon_themes_(NULL),
+        last_check_time_(0) {
+    for (size_t i = 0; i < kDefaultThemeNum; ++i)
+      default_themes_[i] = NULL;
   }
   ~MimeUtilConstants();
+
   friend struct DefaultSingletonTraits<MimeUtilConstants>;
+
   DISALLOW_COPY_AND_ASSIGN(MimeUtilConstants);
 };
 
@@ -146,7 +150,7 @@ IconTheme::IconTheme(const std::string& name)
   std::map<FilePath, int>::iterator iter;
   FilePath theme_path;
   std::map<FilePath, int>* icon_dirs =
-      Singleton<MimeUtilConstants>::get()->icon_dirs;
+      Singleton<MimeUtilConstants>::get()->icon_dirs_;
   for (iter = icon_dirs->begin(); iter != icon_dirs->end(); ++iter) {
     theme_path = iter->first.Append(name);
     if (!file_util::DirectoryExists(theme_path))
@@ -206,7 +210,7 @@ FilePath IconTheme::GetIconPath(const std::string& icon_name, int size,
 IconTheme* IconTheme::LoadTheme(const std::string& theme_name) {
   scoped_ptr<IconTheme> theme;
   std::map<std::string, IconTheme*>* icon_themes =
-      Singleton<MimeUtilConstants>::get()->icon_themes;
+      Singleton<MimeUtilConstants>::get()->icon_themes_;
   if (icon_themes->find(theme_name) != icon_themes->end()) {
     theme.reset((*icon_themes)[theme_name]);
   } else {
@@ -223,7 +227,7 @@ FilePath IconTheme::GetIconPathUnderSubdir(const std::string& icon_name,
   FilePath icon_path;
   std::list<FilePath>::iterator dir_iter;
   std::vector<std::string>* icon_formats =
-      Singleton<MimeUtilConstants>::get()->icon_formats;
+      Singleton<MimeUtilConstants>::get()->icon_formats_;
   for (dir_iter = dirs_.begin(); dir_iter != dirs_.end(); ++dir_iter) {
     for (size_t i = 0; i < icon_formats->size(); ++i) {
       icon_path = dir_iter->Append(subdir);
@@ -371,7 +375,7 @@ bool IconTheme::SetDirectories(const std::string& dirs) {
 void TryAddIconDir(const FilePath& dir) {
   if (!file_util::DirectoryExists(dir))
     return;
-  (*Singleton<MimeUtilConstants>::get()->icon_dirs)[dir] = 0;
+  (*Singleton<MimeUtilConstants>::get()->icon_dirs_)[dir] = 0;
 }
 
 // For a xdg directory |dir|, add the appropriate icon sub-directories.
@@ -385,7 +389,7 @@ void AddXDGDataDir(const FilePath& dir) {
 // Enable or disable SVG support.
 void EnableSvgIcon(bool enable) {
   std::vector<std::string>* icon_formats =
-      Singleton<MimeUtilConstants>::get()->icon_formats;
+      Singleton<MimeUtilConstants>::get()->icon_formats_;
   icon_formats->clear();
   icon_formats->push_back(".png");
   if (enable) {
@@ -397,7 +401,7 @@ void EnableSvgIcon(bool enable) {
 
 // Add all the xdg icon directories.
 void InitIconDir() {
-  Singleton<MimeUtilConstants>::get()->icon_dirs->clear();
+  Singleton<MimeUtilConstants>::get()->icon_dirs_->clear();
   const char* home = getenv("HOME");
   if (home) {
       FilePath legacy_data_dir(home);
@@ -438,17 +442,17 @@ void EnsureUpdated() {
   time_t now = t.tv_sec;
   MimeUtilConstants* constants = Singleton<MimeUtilConstants>::get();
 
-  if (constants->last_check_time == 0) {
-    constants->icon_dirs = new std::map<FilePath, int>;
-    constants->icon_themes = new std::map<std::string, IconTheme*>;
-    constants->icon_formats = new std::vector<std::string>;
+  if (constants->last_check_time_ == 0) {
+    constants->icon_dirs_ = new std::map<FilePath, int>;
+    constants->icon_themes_ = new std::map<std::string, IconTheme*>;
+    constants->icon_formats_ = new std::vector<std::string>;
     EnableSvgIcon(kEnableSVG);
     InitIconDir();
-    constants->last_check_time = now;
+    constants->last_check_time_ = now;
   } else {
     // TODO(thestig): something changed. start over. Upstream fix to Google
     // Gadgets for Linux.
-    if (now > constants->last_check_time + constants->kUpdateInterval) {
+    if (now > constants->last_check_time_ + constants->kUpdateInterval) {
     }
   }
 }
@@ -458,8 +462,8 @@ FilePath LookupFallbackIcon(const std::string& icon_name) {
   FilePath icon;
   MimeUtilConstants* constants = Singleton<MimeUtilConstants>::get();
   std::map<FilePath, int>::iterator iter;
-  std::map<FilePath, int>* icon_dirs = constants->icon_dirs;
-  std::vector<std::string>* icon_formats = constants->icon_formats;
+  std::map<FilePath, int>* icon_dirs = constants->icon_dirs_;
+  std::vector<std::string>* icon_formats = constants->icon_formats_;
   for (iter = icon_dirs->begin(); iter != icon_dirs->end(); ++iter) {
     for (size_t i = 0; i < icon_formats->size(); ++i) {
       icon = iter->first.Append(icon_name + (*icon_formats)[i]);
@@ -473,9 +477,7 @@ FilePath LookupFallbackIcon(const std::string& icon_name) {
 // Initialize the list of default themes.
 void InitDefaultThemes() {
   IconTheme** default_themes =
-      Singleton<MimeUtilConstants>::get()->default_themes;
-  for (size_t i = 0; i < MimeUtilConstants::kDefaultThemeNum; ++i)
-    default_themes[i] = NULL;
+      Singleton<MimeUtilConstants>::get()->default_themes_;
 
   char* env = getenv("KDE_FULL_SESSION");
   if (env) {
@@ -527,12 +529,12 @@ void InitDefaultThemes() {
 FilePath LookupIconInDefaultTheme(const std::string& icon_name, int size) {
   EnsureUpdated();
   MimeUtilConstants* constants = Singleton<MimeUtilConstants>::get();
-  std::map<std::string, IconTheme*>* icon_themes = constants->icon_themes;
+  std::map<std::string, IconTheme*>* icon_themes = constants->icon_themes_;
   if (icon_themes->size() == 0)
     InitDefaultThemes();
 
   FilePath icon_path;
-  IconTheme** default_themes = constants->default_themes;
+  IconTheme** default_themes = constants->default_themes_;
   for (size_t i = 0; i < MimeUtilConstants::kDefaultThemeNum; i++) {
     if (default_themes[i]) {
       icon_path = default_themes[i]->GetIconPath(icon_name, size, true);
@@ -544,11 +546,11 @@ FilePath LookupIconInDefaultTheme(const std::string& icon_name, int size) {
 }
 
 MimeUtilConstants::~MimeUtilConstants() {
-  delete icon_dirs;
-  delete icon_formats;
-  delete icon_themes;
+  delete icon_dirs_;
+  delete icon_formats_;
+  delete icon_themes_;
   for (size_t i = 0; i < kDefaultThemeNum; i++)
-    delete default_themes[i];
+    delete default_themes_[i];
 }
 
 }  // namespace
