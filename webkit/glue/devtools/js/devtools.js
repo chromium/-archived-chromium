@@ -656,6 +656,36 @@ WebInspector.ScopeChainSidebarPane.prototype.update = function(callFrame) {
 
 
 /**
+ * Our implementation of ObjectPropertiesSection for resolved values.
+ * @constructor
+ */
+WebInspector.ScopeChainPropertiesSection = function(object, title) {
+  WebInspector.ObjectPropertiesSection.call(this, object, title,
+      null /* subtitle */, null /* emptyPlaceholder */,
+      true /* ignoreHasOwnProperty */, null /* extraProperties */,
+      WebInspector.ScopeChainSidebarPane.TreeElement);
+};
+goog.inherits(WebInspector.ScopeChainPropertiesSection,
+    WebInspector.ObjectPropertiesSection);
+
+
+/**
+ * @override
+ */
+WebInspector.ScopeChainPropertiesSection.prototype.onpopulate = function() {
+  var treeOutline = this.propertiesTreeOutline;
+  devtools.tools.getDebuggerAgent().resolveChildren(this.object,
+      function(object) {
+        for (var name in object.resolvedValue) {
+          treeOutline.appendChild(new
+              WebInspector.ScopeChainSidebarPane.TreeElement(
+                  object.resolvedValue, name));
+        }
+      });
+};
+
+
+/**
  * Custom implementation of TreeElement that asynchronously resolves children
  * using the debugger agent.
  * @constructor
@@ -903,9 +933,16 @@ Object.sortedProperties = function(obj) {
 
 
 WebInspector.Console.prototype._formatobject = function(object, elem) {
-  var wrapper = {};
-  wrapper.id_ = object.___devtools_id;
-  wrapper.protoDepth_ = -1;
-  var section = new WebInspector.SidebarObjectPropertiesSection(wrapper, null);
+  var section;
+  if (object.handle && object.className) {
+    object.ref = object.handle;
+    section = new WebInspector.ScopeChainPropertiesSection(object,
+        object.className);
+  } else {
+    var wrapper = {};
+    wrapper.id_ = object.___devtools_id;
+    wrapper.protoDepth_ = -1;
+    section = new WebInspector.SidebarObjectPropertiesSection(wrapper, null);
+  }
   elem.appendChild(section.element);
 };
