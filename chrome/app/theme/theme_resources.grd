@@ -165,6 +165,21 @@
       <include name="IDR_NEWTAB_CLOSE" file="ntp_close.png" type="BINDATA" />
       <include name="IDR_NEWTAB_CLOSE_H" file="ntp_close_h.png" type="BINDATA" />
       <include name="IDR_NEWTAB_CLOSE_P" file="ntp_close_p.png" type="BINDATA" />
+      <include name="IDR_NEWTAB_LIST_OFF" file="ntp_list_off.png" type="BINDATA" />
+      <include name="IDR_NEWTAB_LIST_OFF_H" file="ntp_list_off_h.png" type="BINDATA" />
+      <include name="IDR_NEWTAB_LIST_OFF_P" file="ntp_list_off_p.png" type="BINDATA" />
+      <include name="IDR_NEWTAB_LIST_ON" file="ntp_list_on.png" type="BINDATA" />
+      <include name="IDR_NEWTAB_LIST_ON_H" file="ntp_list_on_h.png" type="BINDATA" />
+      <include name="IDR_NEWTAB_LIST_ON_P" file="ntp_list_on_p.png" type="BINDATA" />
+      <include name="IDR_NEWTAB_THUMB_OFF" file="ntp_thumb_off.png" type="BINDATA" />
+      <include name="IDR_NEWTAB_THUMB_OFF_H" file="ntp_thumb_off_h.png" type="BINDATA" />
+      <include name="IDR_NEWTAB_THUMB_OFF_P" file="ntp_thumb_off_p.png" type="BINDATA" />
+      <include name="IDR_NEWTAB_THUMB_ON" file="ntp_thumb_on.png" type="BINDATA" />
+      <include name="IDR_NEWTAB_THUMB_ON_H" file="ntp_thumb_on_h.png" type="BINDATA" />
+      <include name="IDR_NEWTAB_THUMB_ON_P" file="ntp_thumb_on_p.png" type="BINDATA" />
+      <include name="IDR_NEWTAB_OPTION" file="ntp_option.png" type="BINDATA" />
+      <include name="IDR_NEWTAB_OPTION_H" file="ntp_option_h.png" type="BINDATA" />
+      <include name="IDR_NEWTAB_OPTION_P" file="ntp_option_p.png" type="BINDATA" />
       <include name="IDR_ARROW_RIGHT" file="arrow_right.png" type="BINDATA" />
       <include name="IDR_SAD_TAB" file="sadtab.png" type="BINDATA" />
       <include name="IDR_OTR_ICON" file="otr_icon.png" type="BINDATA" />
