@@ -25,6 +25,7 @@ signature = [0] * 16
 for i in range(0, 4096):
   signature[i % 16] ^= ord(data[i])
 
-out = ('%08x%04x%04x%02x%02x%02x%02x%02x%02x%02x%02x0' %
+# Append a 0 at the end for the generation number (always 0 on Linux)
+out = ('%08X%04X%04X%02X%02X%02X%02X%02X%02X%02X%02X0' %
       struct.unpack('I2H8B', struct.pack('16B', *signature)))
 sys.stdout.write(out)
