@@ -125,7 +125,8 @@ int HttpChunkedDecoder::ScanForChunkRemaining(const char* buf, int buf_len) {
       if (index_of_semicolon != StringPiece::npos)
         buf_len = static_cast<int>(index_of_semicolon);
 
-      if (!ParseChunkSize(buf, buf_len, &chunk_remaining_)) {
+      if (!ParseChunkSize(buf, buf_len, &chunk_remaining_) ||
+          chunk_remaining_ < 0) {
         DLOG(ERROR) << "Failed parsing HEX from: " <<
             std::string(buf, buf_len);
         return ERR_INVALID_CHUNKED_ENCODING;

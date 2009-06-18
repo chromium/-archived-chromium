@@ -266,3 +266,10 @@ TEST(HttpChunkedDecoderTest, InvalidConsecutiveCRLFs) {
   };
   RunTestUntilFailure(inputs, arraysize(inputs), 1);
 }
+
+TEST(HttpChunkedDecoderTest, ExcessiveChunkLen) {
+  const char* inputs[] = {
+    "c0000000\r\nhello\r\n"
+  };
+  RunTestUntilFailure(inputs, arraysize(inputs), 0);
+}
