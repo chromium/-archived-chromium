@@ -1860,6 +1860,8 @@
                 ['include', '^browser/views/browser_bubble.cc'],
                 ['include', '^browser/views/browser_bubble.h'],
                 ['include', '^browser/views/chrome_views_delegate.cc'],
+                ['include', '^browser/views/clear_browsing_data.cc'],
+                ['include', '^browser/views/clear_browsing_data.h'],
                 ['include', '^browser/views/dialog_stubs_gtk.cc'],
                 ['include', '^browser/views/download_item_view.cc'],
                 ['include', '^browser/views/download_item_view.h'],

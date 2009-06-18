@@ -232,6 +232,7 @@
         'window/native_frame_view.h',
         'window/non_client_view.cc',
         'window/non_client_view.h',
+        'window/window.cc',
         'window/window.h',
         'window/window_delegate.h',
         'window/window_delegate.cc',

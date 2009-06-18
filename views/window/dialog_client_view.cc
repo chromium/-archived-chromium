@@ -258,10 +258,14 @@ bool DialogClientView::CanClose() const {
 }
 
 void DialogClientView::WindowClosing() {
+#if !defined(TOOLKIT_VIEWS)
   FocusManager* focus_manager = GetFocusManager();
   DCHECK(focus_manager);
   if (focus_manager)
      focus_manager->RemoveFocusChangeListener(this);
+#else
+  NOTIMPLEMENTED();
+#endif
   ClientView::WindowClosing();
 }
 
@@ -304,12 +308,16 @@ void DialogClientView::ViewHierarchyChanged(bool is_add, View* parent,
     ShowDialogButtons();
     ClientView::ViewHierarchyChanged(is_add, parent, child);
 
+#if !defined(TOOLKIT_VIEWS)
     FocusManager* focus_manager = GetFocusManager();
     // Listen for focus change events so we can update the default button.
     DCHECK(focus_manager);  // bug #1291225: crash reports seem to indicate it
                             // can be NULL.
     if (focus_manager)
       focus_manager->AddFocusChangeListener(this);
+#else
+    NOTIMPLEMENTED();
+#endif
 
     // The "extra view" must be created and installed after the contents view
     // has been inserted into the view hierarchy.

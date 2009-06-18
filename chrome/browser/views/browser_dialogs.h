@@ -38,7 +38,7 @@ void ShowBugReportView(views::Widget* parent,
                        TabContents* tab);
 
 // Shows the "Clear browsing data" dialog box. See ClearBrowsingDataView.
-void ShowClearBrowsingDataView(views::Widget* parent,
+void ShowClearBrowsingDataView(gfx::NativeWindow parent,
                                Profile* profile);
 
 // Shows the "Select profile" dialog. See SelectProfileDialog.

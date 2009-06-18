@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_CLEAR_BROWSING_DATA_H__
-#define CHROME_BROWSER_VIEWS_CLEAR_BROWSING_DATA_H__
+#ifndef CHROME_BROWSER_VIEWS_CLEAR_BROWSING_DATA_H_
+#define CHROME_BROWSER_VIEWS_CLEAR_BROWSING_DATA_H_
 
 #include "chrome/browser/browsing_data_remover.h"
 #include "views/controls/button/button.h"
@@ -111,7 +111,7 @@ class ClearBrowsingDataView : public views::View,
   // of deleting itself when done.
   BrowsingDataRemover* remover_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ClearBrowsingDataView);
+  DISALLOW_COPY_AND_ASSIGN(ClearBrowsingDataView);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_CLEAR_BROWSING_DATA_H__
+#endif  // CHROME_BROWSER_VIEWS_CLEAR_BROWSING_DATA_H_

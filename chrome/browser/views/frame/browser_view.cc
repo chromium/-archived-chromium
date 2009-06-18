@@ -867,7 +867,8 @@ void BrowserView::ShowReportBugDialog() {
 }
 
 void BrowserView::ShowClearBrowsingDataDialog() {
-  browser::ShowClearBrowsingDataView(GetWidget(), browser_->profile());
+  browser::ShowClearBrowsingDataView(GetWindow()->GetNativeWindow(),
+                                     browser_->profile());
 }
 
 void BrowserView::ShowImportDialog() {

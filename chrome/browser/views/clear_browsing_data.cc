@@ -29,11 +29,10 @@ static const int kExtraMarginForTimePeriodLabel = 3;
 namespace browser {
 
 // Defined in browser_dialogs.h for creation of the view.
-void ShowClearBrowsingDataView(views::Widget* parent,
+void ShowClearBrowsingDataView(gfx::NativeWindow parent,
                                Profile* profile) {
-  views::Window::CreateChromeWindow(
-      parent->GetNativeView(), gfx::Rect(),
-      new ClearBrowsingDataView(profile))->Show();
+  views::Window::CreateChromeWindow(parent, gfx::Rect(),
+                                    new ClearBrowsingDataView(profile))->Show();
 }
 
 }  // namespace browser
