@@ -222,6 +222,12 @@ class TCPClientSocketPoolTest : public testing::Test {
     TestSocketRequest::completion_count = 0;
   }
 
+  virtual void TearDown() {
+    // The tests often call Reset() on handles at the end which may post
+    // DoReleaseSocket() tasks.
+    MessageLoop::current()->RunAllPending();
+  }
+
   ScopedHostMapper scoped_host_mapper_;
   HostResolver host_resolver_;
   MockClientSocketFactory client_socket_factory_;
@@ -243,9 +249,6 @@ TEST_F(TCPClientSocketPoolTest, Basic) {
   EXPECT_TRUE(handle.socket());
 
   handle.Reset();
-
-  // The handle's Reset method may have posted a task.
-  MessageLoop::current()->RunAllPending();
 }
 
 TEST_F(TCPClientSocketPoolTest, InitHostResolutionFailure) {
@@ -408,8 +411,6 @@ TEST_F(TCPClientSocketPoolTest, TwoRequestsCancelOne) {
 
   EXPECT_EQ(OK, req2.WaitForResult());
   req2.handle.Reset();
-  // The handle's Reset method may have posted a task.
-  MessageLoop::current()->RunAllPending();
 }
 
 TEST_F(TCPClientSocketPoolTest, ConnectCancelConnect) {
@@ -439,8 +440,6 @@ TEST_F(TCPClientSocketPoolTest, ConnectCancelConnect) {
   EXPECT_FALSE(callback.have_result());
 
   handle.Reset();
-  // The handle's Reset method may have posted a task.
-  MessageLoop::current()->RunAllPending();
 }
 
 TEST_F(TCPClientSocketPoolTest, CancelRequest) {
@@ -551,8 +550,37 @@ TEST_F(TCPClientSocketPoolTest, RequestTwice) {
   EXPECT_EQ(OK, callback.WaitForResult());
 
   handle.Reset();
-  // The handle's Reset method may have posted a task.
-  MessageLoop::current()->RunAllPending();
+}
+
+// Make sure that pending requests get serviced after active requests get
+// cancelled.
+TEST_F(TCPClientSocketPoolTest, CancelActiveRequestWithPendingRequests) {
+  client_socket_factory_.set_client_socket_type(
+      MockClientSocketFactory::MOCK_PENDING_CLIENT_SOCKET);
+
+  scoped_ptr<TestSocketRequest> reqs[kNumRequests];
+
+  // Queue up all the requests
+
+  HostResolver::RequestInfo info("www.google.com", 80);
+  for (size_t i = 0; i < arraysize(reqs); ++i) {
+    reqs[i].reset(new TestSocketRequest(pool_.get(), &request_order_));
+    int rv = reqs[i]->handle.Init("a", info, 5, reqs[i].get());
+    EXPECT_EQ(ERR_IO_PENDING, rv);
+  }
+
+  // Now, kMaxSocketsPerGroup requests should be active.  Let's cancel them.
+  for (int i = 0; i < kMaxSocketsPerGroup; ++i)
+    reqs[i]->handle.Reset();
+
+  // Let's wait for the rest to complete now.
+
+  for (size_t i = kMaxSocketsPerGroup; i < arraysize(reqs); ++i) {
+    EXPECT_EQ(OK, reqs[i]->WaitForResult());
+    reqs[i]->handle.Reset();
+  }
+
+  EXPECT_EQ(kNumPendingRequests, TestSocketRequest::completion_count);
 }
 
 }  // namespace
