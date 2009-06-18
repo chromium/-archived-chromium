@@ -252,12 +252,7 @@ bool SavePackage::Init() {
   download_ = new DownloadItem(1, saved_main_file_path_, 0, page_url_,
       FilePath(), Time::Now(), 0, -1, -1, false);
   download_->set_manager(tab_contents_->profile()->GetDownloadManager());
-#if !defined(OS_MACOSX)
   tab_contents_->OnStartDownload(download_);
-#else
-  // TODO(port): Create a download shelf for mac.
-  NOTIMPLEMENTED();
-#endif
 
   // Check save type and process the save page job.
   if (save_type_ == SAVE_AS_COMPLETE_HTML) {

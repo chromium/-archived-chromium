@@ -258,11 +258,23 @@ InfoBar* LinkInfoBarDelegate::CreateInfoBar() {
 }
 #endif
 
+// This should prompt the user if she wants to allow more than one concurrent
+// download per tab. Until this is in place, always allow multiple downloads.
+class DownloadRequestDialogDelegateStub
+    : public DownloadRequestDialogDelegate {
+ public:
+  explicit DownloadRequestDialogDelegateStub(
+    DownloadRequestManager::TabDownloadState* host)
+      : DownloadRequestDialogDelegate(host) { DoAccept(); }
+
+  virtual void CloseWindow() {}
+};
+
 DownloadRequestDialogDelegate* DownloadRequestDialogDelegate::Create(
     TabContents* tab,
     DownloadRequestManager::TabDownloadState* host) {
   NOTIMPLEMENTED();
-  return NULL;
+  return new DownloadRequestDialogDelegateStub(host);
 }
 
 #if !defined(TOOLKIT_VIEWS)

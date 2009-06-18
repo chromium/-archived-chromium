@@ -17,6 +17,7 @@
 #import "chrome/browser/cocoa/bookmark_bar_controller.h"
 #import "chrome/browser/cocoa/browser_window_cocoa.h"
 #import "chrome/browser/cocoa/browser_window_controller.h"
+#import "chrome/browser/cocoa/download_shelf_controller.h"
 #import "chrome/browser/cocoa/find_bar_cocoa_controller.h"
 #include "chrome/browser/cocoa/find_bar_bridge.h"
 #import "chrome/browser/cocoa/status_bubble_mac.h"
@@ -520,7 +521,6 @@ willPositionSheet:(NSWindow *)sheet
 
   // And make sure we use the correct frame in the new view.
   [[controller tabStripController] setFrameOfSelectedTab:tabRect];
-
   return controller;
 }
 
@@ -546,6 +546,19 @@ willPositionSheet:(NSWindow *)sheet
 
 - (void)toggleBookmarkBar {
   [bookmarkBarController_ toggleBookmarkBar];
+}
+
+- (BOOL)isDownloadShelfVisible {
+  return downloadShelfController_ != nil &&
+      [downloadShelfController_ isVisible];
+}
+
+- (DownloadShelfController*)downloadShelf {
+  if (!downloadShelfController_.get()) {
+    downloadShelfController_.reset([[DownloadShelfController alloc]
+        initWithBrowser:browser_.get() contentArea:[self tabContentArea]]);
+  }
+  return downloadShelfController_;
 }
 
 - (void)addFindBar:(FindBarCocoaController*)findBarCocoaController {
@@ -685,9 +698,9 @@ willPositionSheet:(NSWindow *)sheet
   // sure we aren't doing anything wasteful in those cases.
   [bookmarkBarController_ resizeBookmarkBar];
 
-  if (findBarCocoaController_.get()) {
-    [findBarCocoaController_ positionFindBarView:[self tabContentArea]];
-  }
+  [downloadShelfController_ resizeDownloadShelf];
+
+  [findBarCocoaController_ positionFindBarView:[self tabContentArea]];
 }
 
 - (void)saveWindowPositionIfNeeded {

@@ -20,6 +20,7 @@
 class Browser;
 class BrowserWindow;
 class BrowserWindowCocoa;
+@class DownloadShelfController;
 @class FindBarCocoaController;
 class LocationBar;
 class StatusBubble;
@@ -50,6 +51,7 @@ class TabStripModelObserverBridge;
   scoped_nsobject<TabStripController> tabStripController_;
   scoped_nsobject<FindBarCocoaController> findBarCocoaController_;
   scoped_ptr<StatusBubble> statusBubble_;
+  scoped_nsobject<DownloadShelfController> downloadShelfController_;
   BOOL ownsBrowser_;  // Only ever NO when testing
 }
 
@@ -96,6 +98,11 @@ class TabStripModelObserverBridge;
 - (BOOL)isBookmarkBarVisible;
 
 - (void)toggleBookmarkBar;
+
+- (BOOL)isDownloadShelfVisible;
+
+// Lazily creates the download shelf in visible state if it doesn't exist yet.
+- (DownloadShelfController*)downloadShelf;
 
 // Retains the given FindBarCocoaController and adds its view to this
 // browser window.  Must only be called once per

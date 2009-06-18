@@ -9,6 +9,7 @@
 #include "chrome/browser/cocoa/browser_window_cocoa.h"
 #import "chrome/browser/cocoa/browser_window_controller.h"
 #import "chrome/browser/cocoa/clear_browsing_data_controller.h"
+#import "chrome/browser/cocoa/download_shelf_controller.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/download/download_shelf.h"
 #include "chrome/common/notification_service.h"
@@ -188,15 +189,12 @@ void BrowserWindowCocoa::ShowBookmarkBubble(const GURL& url,
 }
 
 bool BrowserWindowCocoa::IsDownloadShelfVisible() const {
-  return download_shelf_ != NULL && download_shelf_->IsShowing();
+  return [controller_ isDownloadShelfVisible] != NO;
 }
 
 DownloadShelf* BrowserWindowCocoa::GetDownloadShelf() {
-  NOTIMPLEMENTED();
-  if (!download_shelf_.get()) {
-    download_shelf_.reset(new DownloadShelfMac(browser_));
-  }
-  return download_shelf_.get();
+  DownloadShelfController* shelfController = [controller_ downloadShelf];
+  return [shelfController bridge];
 }
 
 void BrowserWindowCocoa::ShowReportBugDialog() {
