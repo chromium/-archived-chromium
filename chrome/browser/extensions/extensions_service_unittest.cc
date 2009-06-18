@@ -999,9 +999,9 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   ValidatePref(good_crx, L"state", Extension::ENABLED);
   ValidatePref(good_crx, L"location", Extension::EXTERNAL_PREF);
 
-  // Now set the kill bit and watch the extension go away.
-  SetPref(good_crx, L"state", Extension::KILLBIT);
-  profile_->GetPrefs()->ScheduleSavePersistentPrefs();
+  // Now uninstall the extension and verify that it doesn't get reinstalled.
+  service_->UninstallExtension(id);
+  loop_.RunAllPending();
 
   loaded_.clear();
   service_->ReloadExtensions();
