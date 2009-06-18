@@ -436,7 +436,6 @@ void WidgetGtk::CreateGtkWidget(GtkWidget* parent) {
 
 void WidgetGtk::OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation) {
   root_view_->SetBounds(0, 0, allocation->width, allocation->height);
-  root_view_->Layout();
   root_view_->SchedulePaint();
 }
 

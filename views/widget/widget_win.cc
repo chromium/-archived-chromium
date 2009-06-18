@@ -873,7 +873,6 @@ void WidgetWin::ChangeSize(UINT size_param, const CSize& size) {
   // Resizing changes the size of the view hierarchy and thus forces a
   // complete relayout.
   root_view_->SetBounds(0, 0, rect.Width(), rect.Height());
-  root_view_->Layout();
   root_view_->SchedulePaint();
 
   if (use_layered_buffer_)
