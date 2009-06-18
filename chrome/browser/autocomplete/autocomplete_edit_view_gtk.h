@@ -168,6 +168,21 @@ class AutocompleteEditViewGtk : public AutocompleteEditView {
   }
   void HandleViewSizeRequest(GtkRequisition* req);
 
+  static void HandlePopulatePopupThunk(GtkEntry* entry,
+                                       GtkMenu* menu,
+                                       gpointer self) {
+    reinterpret_cast<AutocompleteEditViewGtk*>(self)->
+        HandlePopulatePopup(menu);
+  }
+  void HandlePopulatePopup(GtkMenu* menu);
+
+  static void HandleEditSearchEnginesThunk(GtkMenuItem* menuitem,
+                                           gpointer self) {
+    reinterpret_cast<AutocompleteEditViewGtk*>(self)->
+        HandleEditSearchEngines();
+  }
+  void HandleEditSearchEngines();
+
   // Get the character indices of the current selection.  This honors
   // direction, cp_max is the insertion point, and cp_min is the bound.
   CharRange GetSelection();

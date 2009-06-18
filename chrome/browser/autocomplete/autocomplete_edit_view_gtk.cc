@@ -7,18 +7,22 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
+#include "app/l10n_util.h"
 #include "base/gfx/gtk_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_view_gtk.h"
+#include "chrome/browser/command_updater.h"
 #include "chrome/browser/gtk/location_bar_view_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/common/gtk_util.h"
 #include "chrome/common/notification_service.h"
 #include "googleurl/src/gurl.h"
+#include "grit/generated_resources.h"
 
 namespace {
 
@@ -139,6 +143,8 @@ void AutocompleteEditViewGtk::Init() {
   // so we don't force a minimum width based on the text length.
   g_signal_connect(text_view_, "size-request",
                    G_CALLBACK(&HandleViewSizeRequestThunk), this);
+  g_signal_connect(text_view_, "populate-popup",
+                   G_CALLBACK(&HandlePopulatePopupThunk), this);
 }
 
 void AutocompleteEditViewGtk::SetFocus() {
@@ -497,6 +503,24 @@ void AutocompleteEditViewGtk::HandleViewSizeRequest(GtkRequisition* req) {
   // run-first handler, so the default handler was already called.
   req->width = 1;
 }
+
+void AutocompleteEditViewGtk::HandlePopulatePopup(GtkMenu* menu) {
+  GtkWidget* separator = gtk_separator_menu_item_new();
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu), separator);
+  gtk_widget_show(separator);
+  GtkWidget* menuitem = gtk_menu_item_new_with_mnemonic(
+      gtk_util::ConvertAcceleratorsFromWindowsStyle(
+          l10n_util::GetStringUTF8(IDS_EDIT_SEARCH_ENGINES)).c_str());
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+  g_signal_connect(menuitem, "activate",
+                   G_CALLBACK(HandleEditSearchEnginesThunk), this);
+  gtk_widget_show(menuitem);
+}
+
+void AutocompleteEditViewGtk::HandleEditSearchEngines() {
+  command_updater_->ExecuteCommand(IDC_EDIT_SEARCH_ENGINES);
+}
+
 
 AutocompleteEditViewGtk::CharRange AutocompleteEditViewGtk::GetSelection() {
   // You can not just use get_selection_bounds here, since the order will be
