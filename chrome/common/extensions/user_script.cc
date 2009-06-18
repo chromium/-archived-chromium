@@ -7,14 +7,14 @@
 #include "base/pickle.h"
 #include "base/string_util.h"
 
-bool UserScript::MatchesUrl(const GURL& url) {
+bool UserScript::MatchesUrl(const GURL& url) const {
   for (std::vector<std::string>::const_iterator glob = globs_.begin();
        glob != globs_.end(); ++glob) {
     if (MatchPattern(url.spec(), *glob))
       return true;
   }
 
-  for (std::vector<URLPattern>::iterator pattern = url_patterns_.begin();
+  for (std::vector<URLPattern>::const_iterator pattern = url_patterns_.begin();
        pattern != url_patterns_.end(); ++pattern) {
     if (pattern->MatchesUrl(url))
       return true;

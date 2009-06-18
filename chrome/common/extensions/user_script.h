@@ -114,11 +114,11 @@ class UserScript {
   const std::string& extension_id() const { return extension_id_; }
   void set_extension_id(const std::string& id) { extension_id_ = id; }
 
-  bool is_standalone() { return extension_id_.empty(); }
+  bool is_standalone() const { return extension_id_.empty(); }
 
   // Returns true if the script should be applied to the specified URL, false
   // otherwise.
-  bool MatchesUrl(const GURL& url);
+  bool MatchesUrl(const GURL& url) const;
 
   // Serialize the UserScript into a pickle. The content of the scripts and
   // paths to UserScript::Files will not be serialized!

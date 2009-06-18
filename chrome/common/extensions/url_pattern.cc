@@ -80,7 +80,7 @@ bool URLPattern::Parse(const std::string& pattern) {
   return true;
 }
 
-bool URLPattern::MatchesUrl(const GURL &test) {
+bool URLPattern::MatchesUrl(const GURL &test) const {
   if (test.scheme() != scheme_)
     return false;
 
@@ -93,7 +93,7 @@ bool URLPattern::MatchesUrl(const GURL &test) {
   return true;
 }
 
-bool URLPattern::MatchesHost(const GURL& test) {
+bool URLPattern::MatchesHost(const GURL& test) const {
   if (test.host() == host_)
     return true;
 
@@ -116,7 +116,7 @@ bool URLPattern::MatchesHost(const GURL& test) {
   return test.host()[test.host().length() - host_.length() - 1] == '.';
 }
 
-bool URLPattern::MatchesPath(const GURL& test) {
+bool URLPattern::MatchesPath(const GURL& test) const {
   if (path_escaped_.empty()) {
     path_escaped_ = path_;
     ReplaceSubstringsAfterOffset(&path_escaped_, 0, "\\", "\\\\");

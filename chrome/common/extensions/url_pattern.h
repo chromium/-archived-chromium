@@ -1,8 +1,10 @@
 // Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-#ifndef CHROME_BROWSER_EXTENSIONS_MATCH_PATTERN_H_
-#define CHROME_BROWSER_EXTENSIONS_MATCH_PATTERN_H_
+#ifndef CHROME_COMMON_EXTENSIONS_URL_PATTERN_H_
+#define CHROME_COMMON_EXTENSIONS_URL_PATTERN_H_
+
+#include <string>
 
 #include "googleurl/src/gurl.h"
 
@@ -75,7 +77,7 @@ class URLPattern {
   bool Parse(const std::string& pattern_str);
 
   // Returns true if this instance matches the specified URL.
-  bool MatchesUrl(const GURL& url);
+  bool MatchesUrl(const GURL& url) const;
 
   std::string GetAsString() const;
 
@@ -96,10 +98,10 @@ class URLPattern {
 
  private:
   // Returns true if |test| matches our host.
-  bool MatchesHost(const GURL& test);
+  bool MatchesHost(const GURL& test) const;
 
   // Returns true if |test| matches our path.
-  bool MatchesPath(const GURL& test);
+  bool MatchesPath(const GURL& test) const;
 
   // The scheme for the pattern.
   std::string scheme_;
@@ -118,7 +120,7 @@ class URLPattern {
   // The path with "?" and "\" characters escaped for use with the
   // MatchPattern() function. This is populated lazily, the first time it is
   // needed.
-  std::string path_escaped_;
+  mutable std::string path_escaped_;
 };
 
-#endif  // CHROME_BROWSER_EXTENSIONS_MATCH_PATTERN_H_
+#endif  // CHROME_COMMON_EXTENSIONS_URL_PATTERN_H_
