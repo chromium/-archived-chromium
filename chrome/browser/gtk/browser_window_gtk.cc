@@ -343,7 +343,7 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   gtk_container_add(GTK_CONTAINER(window_container_), window_vbox);
 
   tabstrip_.reset(new TabStripGtk(browser_->tabstrip_model()));
-  tabstrip_->Init(browser_->profile());
+  tabstrip_->Init();
 
   // Build the titlebar (tabstrip + header space + min/max/close buttons).
   titlebar_.reset(new BrowserTitlebar(this, window_));

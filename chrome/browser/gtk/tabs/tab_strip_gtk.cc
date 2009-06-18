@@ -463,17 +463,10 @@ TabStripGtk::~TabStripGtk() {
   tab_data_.clear();
 }
 
-void TabStripGtk::Init(Profile* profile) {
-  ThemeProvider* theme_provider = profile->GetThemeProvider();
-
+void TabStripGtk::Init() {
   model_->AddObserver(this);
 
-  int background_type = profile->IsOffTheRecord() ?
-      IDR_THEME_FRAME_INCOGNITO : IDR_THEME_FRAME;
-  background_ = theme_provider->GetBitmapNamed(background_type);
-
   tabstrip_.Own(gtk_fixed_new());
-  gtk_fixed_set_has_window(GTK_FIXED(tabstrip_.get()), TRUE);
   gtk_widget_set_size_request(tabstrip_.get(), -1,
                               TabGtk::GetMinimumUnselectedSize().height());
   gtk_widget_set_app_paintable(tabstrip_.get(), TRUE);
@@ -1431,8 +1424,6 @@ gboolean TabStripGtk::OnExpose(GtkWidget* widget, GdkEventExpose* event,
   event->area.height = tabstrip->bounds_.height();
   gdk_region_union_with_rect(event->region, &event->area);
 
-  tabstrip->PaintBackground(widget, event);
-
   // Paint the New Tab button.
   gtk_container_propagate_expose(GTK_CONTAINER(tabstrip->tabstrip_.get()),
       tabstrip->newtab_button_->widget(), event);
@@ -1547,13 +1538,6 @@ gboolean TabStripGtk::OnDragDataReceived(GtkWidget* widget,
 // static
 void TabStripGtk::OnNewTabClicked(GtkWidget* widget, TabStripGtk* tabstrip) {
   tabstrip->model_->delegate()->AddBlankTab(true);
-}
-
-void TabStripGtk::PaintBackground(GtkWidget* widget, GdkEventExpose* event) {
-  gfx::CanvasPaint canvas(event);
-  // Offset the background by the height of the titlebar.
-  canvas.TileImageInt(*background_, 0, widget->allocation.y, 0, 0,
-                      bounds_.width(), bounds_.height());
 }
 
 void TabStripGtk::SetTabBounds(TabGtk* tab, const gfx::Rect& bounds) {

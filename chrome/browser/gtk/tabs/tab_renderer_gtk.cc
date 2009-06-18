@@ -515,9 +515,10 @@ void TabRendererGtk::PaintTab(GdkEventExpose* event) {
     return;
 
   // The tab is rendered into a windowless widget whose offset is at the
-  // coordinate [x(), y()].  Translate by that offset so we can render at (0,0)
-  // to match windows rendering metrics.
-  canvas.TranslateInt(x(), y());
+  // coordinate [x(), y()].  Additionally, the parent widget is windowless, and
+  // it has an offset of event->area.  Translate by these offsets so we can
+  // render at (0,0) to match windows rendering metrics.
+  canvas.TranslateInt(x() + event->area.x, y() + event->area.y);
   Paint(&canvas);
 }
 
