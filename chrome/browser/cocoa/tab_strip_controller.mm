@@ -5,7 +5,6 @@
 #import "chrome/browser/cocoa/tab_strip_controller.h"
 
 #include "app/l10n_util.h"
-#include "base/mac_util.h"
 #include "base/sys_string_conversions.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
@@ -18,13 +17,10 @@
 #import "chrome/browser/cocoa/tab_strip_model_observer_bridge.h"
 #import "chrome/browser/cocoa/tab_view.h"
 #import "chrome/browser/cocoa/throbber_view.h"
-#include "chrome/browser/tab_contents/navigation_controller.h"
-#include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "grit/generated_resources.h"
-#include "skia/ext/skia_utils_mac.h"
 
 NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
 
@@ -420,31 +416,13 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
 
 // A helper routine for creating an NSImageView to hold the fav icon for
 // |contents|.
+// TODO(pinkerton): fill in with code to use the real favicon, not the default
+// for all cases.
 - (NSImageView*)favIconImageViewForContents:(TabContents*)contents {
   NSRect iconFrame = NSMakeRect(0, 0, 16, 16);
   NSImageView* view = [[[NSImageView alloc] initWithFrame:iconFrame]
                           autorelease];
-
-  NSImage* image = nil;
-
-  NavigationEntry* navEntry = contents->controller().GetLastCommittedEntry();
-  if (navEntry != NULL) {
-    NavigationEntry::FaviconStatus favIcon = navEntry->favicon();
-    const SkBitmap& bitmap = favIcon.bitmap();
-    if (favIcon.is_valid() && !bitmap.isNull())
-      image = gfx::SkBitmapToNSImage(bitmap);
-  }
-
-  // Either we don't have a valid favicon or there was some issue converting it
-  // from an SkBitmap. Either way, just show the default.
-  if (!image) {
-    NSBundle* bundle = mac_util::MainAppBundle();
-    image = [[NSImage alloc] initByReferencingFile:
-             [bundle pathForResource:@"nav" ofType:@"pdf"]];
-    [image autorelease];
-  }
-
-  [view setImage:image];
+  [view setImage:[NSImage imageNamed:@"nav"]];
   return view;
 }
 
