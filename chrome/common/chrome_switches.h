@@ -194,6 +194,8 @@ extern const wchar_t kTryChromeAgain[];
 
 extern const wchar_t kFileDescriptorLimit[];
 
+extern const wchar_t kEnableMonitorProfile[];
+
 }  // namespace switches
 
 #endif  // CHROME_COMMON_CHROME_SWITCHES_H_

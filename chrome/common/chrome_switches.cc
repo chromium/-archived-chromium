@@ -509,4 +509,9 @@ const wchar_t kTryChromeAgain[]      = L"try-chrome-again";
 // gracefully.
 const wchar_t kFileDescriptorLimit[]           = L"file-descriptor-limit";
 
+// On Windows, converts the page to the currently-installed monitor profile.
+// This does NOT enable color management for images. The source is still assumed
+// to be sRGB.
+const wchar_t kEnableMonitorProfile[] = L"enable-monitor-profile";
+
 }  // namespace switches

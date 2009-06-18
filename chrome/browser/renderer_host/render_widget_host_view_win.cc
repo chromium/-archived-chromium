@@ -711,6 +711,9 @@ void RenderWidgetHostViewWin::OnPaint(HDC dc) {
     gfx::Rect paint_rect = bitmap_rect.Intersect(damaged_rect);
     if (!paint_rect.IsEmpty()) {
       DrawResizeCorner(paint_rect, backing_store->hdc());
+      bool manage_colors = BackingStore::ColorManagementEnabled();
+      if (manage_colors)
+        SetICMMode(paint_dc.m_hDC, ICM_ON);
       BitBlt(paint_dc.m_hDC,
              paint_rect.x(),
              paint_rect.y(),
@@ -720,6 +723,8 @@ void RenderWidgetHostViewWin::OnPaint(HDC dc) {
              paint_rect.x(),
              paint_rect.y(),
              SRCCOPY);
+      if (manage_colors)
+        SetICMMode(paint_dc.m_hDC, ICM_OFF);
     }
 
     // Fill the remaining portion of the damaged_rect with the background

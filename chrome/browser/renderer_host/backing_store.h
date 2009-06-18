@@ -52,6 +52,9 @@ class BackingStore {
 #if defined(OS_WIN)
   HDC hdc() { return hdc_; }
 
+  // Returns true if we should convert to the monitor profile when painting.
+  static bool ColorManagementEnabled();
+
 #elif defined(OS_MACOSX)
   skia::PlatformCanvas* canvas() { return &canvas_; }
 

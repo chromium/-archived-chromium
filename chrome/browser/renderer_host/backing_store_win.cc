@@ -4,16 +4,37 @@
 
 #include "chrome/browser/renderer_host/backing_store.h"
 
+#include "base/command_line.h"
 #include "base/gfx/gdi_util.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/transport_dib.h"
 
 namespace {
 
 // Creates a dib conforming to the height/width/section parameters passed in.
 HANDLE CreateDIB(HDC dc, int width, int height, int color_depth) {
-  BITMAPINFOHEADER hdr;
-  gfx::CreateBitmapHeaderWithColorDepth(width, height, color_depth, &hdr);
+  BITMAPV5HEADER hdr = {0};
+  ZeroMemory(&hdr, sizeof(BITMAPV5HEADER));
+
+  // These values are shared with gfx::PlatformDevice
+  hdr.bV5Size = sizeof(BITMAPINFOHEADER);
+  hdr.bV5Width = width;
+  hdr.bV5Height = -height;  // minus means top-down bitmap
+  hdr.bV5Planes = 1;
+  hdr.bV5BitCount = color_depth;
+  hdr.bV5Compression = BI_RGB;  // no compression
+  hdr.bV5SizeImage = 0;
+  hdr.bV5XPelsPerMeter = 1;
+  hdr.bV5YPelsPerMeter = 1;
+  hdr.bV5ClrUsed = 0;
+  hdr.bV5ClrImportant = 0;
+
+  if (BackingStore::ColorManagementEnabled()) {
+    hdr.bV5CSType = LCS_sRGB;
+    hdr.bV5Intent = LCS_GM_IMAGES;
+  }
+
   void* data = NULL;
   HANDLE dib = CreateDIBSection(dc, reinterpret_cast<BITMAPINFO*>(&hdr),
                                 0, &data, NULL, 0);
@@ -51,6 +72,18 @@ BackingStore::~BackingStore() {
     backing_store_dib_ = NULL;
   }
   DeleteDC(hdc_);
+}
+
+// static
+bool BackingStore::ColorManagementEnabled() {
+  static bool enabled = false;
+  static bool checked = false;
+  if (!checked) {
+    checked = true;
+    const CommandLine& command = *CommandLine::ForCurrentProcess();
+    enabled = command.HasSwitch(switches::kEnableMonitorProfile);
+  }
+  return enabled;
 }
 
 void BackingStore::PaintRect(base::ProcessHandle process,
