@@ -13,6 +13,7 @@
 
 // static
 bool FirstRun::IsChromeFirstRun() {
+#if defined(GOOGLE_CHROME_BUILD)
   // Use presence of kRegUsageStatsField key as an indicator of whether or not
   // this is the first run.
   // See chrome/browser/google_update_settings_mac.mm for details on why we use
@@ -24,6 +25,9 @@ bool FirstRun::IsChromeFirstRun() {
 
   bool not_in_dict = [defaults_dict objectForKey:collect_stats_key] == nil;
   return not_in_dict;
+#else
+  return false; // no first run UI for Chromium builds
+#endif  // defined(GOOGLE_CHROME_BUILD)
 }
 
 void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
