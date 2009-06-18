@@ -72,8 +72,8 @@ class ProfileWriter : public base::RefCounted<ProfileWriter> {
     // URL with the same url, path and title.
     ADD_IF_UNIQUE = 1 << 0,
 
-    // Indicates the bookmarks are being added during first run.
-    FIRST_RUN     = 1 << 1
+    // Indicates the bookmarks should be added to the bookmark bar.
+    IMPORT_TO_BOOKMARK_BAR     = 1 << 1
   };
 
   explicit ProfileWriter(Profile* profile) : profile_(profile) { }
@@ -102,10 +102,10 @@ class ProfileWriter : public base::RefCounted<ProfileWriter> {
   virtual void AddHomepage(const GURL& homepage);
   // Adds the bookmarks to the BookmarkModel.
   // |options| is a bitmask of BookmarkOptions and dictates how and
-  // which bookmarks are added. If the bitmask contains FIRST_RUN,
+  // which bookmarks are added. If the bitmask contains IMPORT_TO_BOOKMARK_BAR,
   // then any entries with a value of true for in_toolbar are added to
-  // the bookmark bar. If the bitmask does not contain FIRST_RUN then
-  // the folder name the bookmarks are added to is uniqued based on
+  // the bookmark bar. If the bitmask does not contain IMPORT_TO_BOOKMARK_BAR
+  // then the folder name the bookmarks are added to is uniqued based on
   // |first_folder_name|. For example, if |first_folder_name| is 'foo'
   // and a folder with the name 'foo' already exists in the other
   // bookmarks folder, then the folder name 'foo 2' is used.
@@ -144,11 +144,11 @@ class ProfileWriter : public base::RefCounted<ProfileWriter> {
 
   // Returns true if a bookmark exists with the same url, title and path
   // as |entry|. |first_folder_name| is the name to use for the first
-  // path entry if |first_run| is true.
+  // path entry if |import_to_bookmark_bar| is true.
   bool DoesBookmarkExist(BookmarkModel* model,
                          const BookmarkEntry& entry,
                          const std::wstring& first_folder_name,
-                         bool first_run);
+                         bool import_to_bookmark_bar);
 
   Profile* profile_;
 
@@ -336,7 +336,9 @@ class Importer : public base::RefCounted<Importer> {
   // Cancels the import process.
   virtual void Cancel() { cancelled_ = true; }
 
-  void set_first_run(bool first_run) { first_run_ = first_run; }
+  void set_import_to_bookmark_bar(bool import_to_bookmark_bar) {
+    import_to_bookmark_bar_ = import_to_bookmark_bar;
+  }
 
   bool cancelled() const { return cancelled_; }
 
@@ -346,7 +348,7 @@ class Importer : public base::RefCounted<Importer> {
         delagate_loop_(NULL),
         importer_host_(NULL),
         cancelled_(false),
-        first_run_(false) {}
+        import_to_bookmark_bar_(false) {}
 
   // Notifies the coordinator that the collection of data for the specified
   // item has begun.
@@ -380,7 +382,7 @@ class Importer : public base::RefCounted<Importer> {
   static bool ReencodeFavicon(const unsigned char* src_data, size_t src_len,
                               std::vector<unsigned char>* png_data);
 
-  bool first_run() const { return first_run_; }
+  bool import_to_bookmark_bar() const { return import_to_bookmark_bar_; }
 
   // The importer should know the main thread so that ProfileWriter
   // will be invoked in thread instead.
@@ -397,7 +399,7 @@ class Importer : public base::RefCounted<Importer> {
   bool cancelled_;
 
   // True if the importer is created in the first run UI.
-  bool first_run_;
+  bool import_to_bookmark_bar_;
 
   DISALLOW_EVIL_CONSTRUCTORS(Importer);
 };

@@ -90,8 +90,8 @@ void ProfileWriter::AddBookmarkEntry(
   BookmarkModel* model = profile_->GetBookmarkModel();
   DCHECK(model->IsLoaded());
 
-  bool first_run = (options & FIRST_RUN) != 0;
-  std::wstring real_first_folder = first_run ? first_folder_name :
+  bool import_to_bookmark_bar = ((options & IMPORT_TO_BOOKMARK_BAR) != 0);
+  std::wstring real_first_folder = import_to_bookmark_bar ? first_folder_name :
       GenerateUniqueFolderName(model, first_folder_name);
 
   bool show_bookmark_toolbar = false;
@@ -105,10 +105,9 @@ void ProfileWriter::AddBookmarkEntry(
     // We suppose that bookmarks are unique by Title, URL, and Folder.  Since
     // checking for uniqueness may not be always the user's intention we have
     // this as an option.
-    if (options & ADD_IF_UNIQUE &&
-        DoesBookmarkExist(model, *it, real_first_folder, first_run)) {
+    if (options & ADD_IF_UNIQUE && DoesBookmarkExist(model, *it,
+        real_first_folder, import_to_bookmark_bar))
       continue;
-    }
 
     // Set up groups in BookmarkModel in such a way that path[i] is
     // the subgroup of path[i-1]. Finally they construct a path in the
@@ -119,9 +118,8 @@ void ProfileWriter::AddBookmarkEntry(
     for (std::vector<std::wstring>::const_iterator i = it->path.begin();
          i != it->path.end(); ++i) {
       BookmarkNode* child = NULL;
-      const std::wstring& folder_name =
-          (!first_run && !it->in_toolbar && (i == it->path.begin())) ?
-          real_first_folder : *i;
+      const std::wstring& folder_name = (!import_to_bookmark_bar && 
+          !it->in_toolbar && (i == it->path.begin())) ? real_first_folder : *i;
 
       for (int index = 0; index < parent->GetChildCount(); ++index) {
         BookmarkNode* node = parent->GetChild(index);
@@ -325,7 +323,7 @@ bool ProfileWriter::DoesBookmarkExist(
     BookmarkModel* model,
     const BookmarkEntry& entry,
     const std::wstring& first_folder_name,
-    bool first_run) {
+    bool import_to_bookmark_bar) {
   std::vector<BookmarkNode*> nodes_with_same_url;
   model->GetNodesByURL(entry.url, &nodes_with_same_url);
   if (nodes_with_same_url.empty())
@@ -343,7 +341,7 @@ bool ProfileWriter::DoesBookmarkExist(
              entry.path.rbegin();
          (path_it != entry.path.rend()) && found_match; ++path_it) {
       const std::wstring& folder_name =
-          (!first_run && path_it + 1 == entry.path.rend()) ?
+          (!import_to_bookmark_bar && path_it + 1 == entry.path.rend()) ?
           first_folder_name : *path_it;
       if (NULL == parent || *path_it != folder_name)
         found_match = false;
@@ -353,12 +351,12 @@ bool ProfileWriter::DoesBookmarkExist(
 
     // We need a post test to differentiate checks such as
     // /home/hello and /hello. The parent should either by the other folder
-    // node, or the bookmarks bar, depending upon first_run and
+    // node, or the bookmarks bar, depending upon import_to_bookmark_bar and
     // entry.in_toolbar.
     if (found_match &&
-        ((first_run && entry.in_toolbar && parent !=
+        ((import_to_bookmark_bar && entry.in_toolbar && parent !=
           model->GetBookmarkBarNode()) ||
-         ((!first_run || !entry.in_toolbar) &&
+         ((!import_to_bookmark_bar || !entry.in_toolbar) &&
            parent != model->other_node()))) {
       found_match = false;
     }
@@ -425,8 +423,13 @@ ImporterHost::~ImporterHost() {
 }
 
 void ImporterHost::Loaded(BookmarkModel* model) {
+  DCHECK(model->IsLoaded());
   model->RemoveObserver(this);
   waiting_for_bookmarkbar_model_ = false;
+
+  std::vector<GURL> starred_urls;
+  model->GetBookmarks(&starred_urls);
+  importer_->set_import_to_bookmark_bar(starred_urls.size() == 0);
   InvokeTaskIfDone();
 }
 
@@ -487,7 +490,14 @@ void ImporterHost::StartImportSettings(const ProfileInfo& profile_info,
   writer_ = writer;
   importer_ = CreateImporterByType(profile_info.browser_type);
   importer_->AddRef();
-  importer_->set_first_run(first_run);
+
+  bool import_to_bookmark_bar = first_run;
+  if (target_profile && target_profile->GetBookmarkModel()->IsLoaded()) {
+    std::vector<GURL> starred_urls;
+    target_profile->GetBookmarkModel()->GetBookmarks(&starred_urls);
+    import_to_bookmark_bar = (starred_urls.size() == 0);
+  }
+  importer_->set_import_to_bookmark_bar(import_to_bookmark_bar);
   task_ = NewRunnableMethod(importer_, &Importer::StartImport,
       profile_info, items, writer_.get(), file_loop_, this);
 

@@ -197,7 +197,7 @@ void Firefox3Importer::ImportBookmarks() {
         // This bookmark entry should be put in the bookmark bar.
         // But we put it in the Firefox group after first run, so
         // that do not mess up the bookmark bar.
-        if (first_run()) {
+        if (import_to_bookmark_bar()) {
           is_in_toolbar = true;
         } else {
           path.insert(path.begin(), parent->title);
@@ -209,7 +209,7 @@ void Firefox3Importer::ImportBookmarks() {
                  parent->id == unsorted_folder_id) {
         // After the first run, the item will be placed in a folder in
         // the "Other bookmarks".
-        if (!first_run())
+        if (!import_to_bookmark_bar())
           path.insert(path.begin(), firefox_folder);
         found_path = true;
         break;
@@ -250,7 +250,7 @@ void Firefox3Importer::ImportBookmarks() {
     main_loop_->PostTask(FROM_HERE, NewRunnableMethod(writer_,
         &ProfileWriter::AddBookmarkEntry, bookmarks,
         l10n_util::GetString(IDS_BOOKMARK_GROUP_FROM_FIREFOX),
-        first_run() ? ProfileWriter::FIRST_RUN : 0));
+        import_to_bookmark_bar() ? ProfileWriter::IMPORT_TO_BOOKMARK_BAR : 0));
   }
   if (!template_urls.empty() && !cancelled()) {
     main_loop_->PostTask(FROM_HERE, NewRunnableMethod(writer_,

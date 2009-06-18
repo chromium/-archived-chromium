@@ -114,7 +114,7 @@ void IEImporter::ImportFavorites() {
     main_loop_->PostTask(FROM_HERE, NewRunnableMethod(writer_,
         &ProfileWriter::AddBookmarkEntry, bookmarks,
         l10n_util::GetString(IDS_BOOKMARK_GROUP_FROM_IE),
-        first_run() ? ProfileWriter::FIRST_RUN : 0));
+        import_to_bookmark_bar() ? ProfileWriter::IMPORT_TO_BOOKMARK_BAR : 0));
   }
 }
 
@@ -520,15 +520,15 @@ void IEImporter::ParseFavoritesFolder(const FavoritesInfo& info,
 
     // Flatten the bookmarks in Link folder onto bookmark toolbar. Otherwise,
     // put it into "Other bookmarks".
-    if (first_run() &&
+    if (import_to_bookmark_bar() &&
         (entry.path.size() > 0 && entry.path[0] == info.links_folder)) {
       entry.in_toolbar = true;
       entry.path.erase(entry.path.begin());
       toolbar_bookmarks.push_back(entry);
     } else {
-      // After the first run, we put the bookmarks in a "Imported From IE"
+      // We put the bookmarks in a "Imported From IE"
       // folder, so that we don't mess up the "Other bookmarks".
-      if (!first_run())
+      if (!import_to_bookmark_bar())
         entry.path.insert(entry.path.begin(), ie_folder);
       bookmarks->push_back(entry);
     }

@@ -39,7 +39,7 @@ class Firefox2Importer : public Importer {
   static void ImportBookmarksFile(
       const std::wstring& file_path,
       const std::set<GURL>& default_urls,
-      bool first_run,
+      bool import_to_bookmark_bar,
       const std::wstring& first_folder_name,
       Importer* importer,
       std::vector<ProfileWriter::BookmarkEntry>* bookmarks,

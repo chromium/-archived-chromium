@@ -583,7 +583,7 @@ void  Toolbar5Importer::AddBookmarksToChrome(
     const std::vector<ProfileWriter::BookmarkEntry>& bookmarks) {
   if (!bookmarks.empty() && !cancelled()) {
     int options = ProfileWriter::ADD_IF_UNIQUE |
-        (first_run() ? ProfileWriter::FIRST_RUN : 0);
+        (import_to_bookmark_bar() ? ProfileWriter::IMPORT_TO_BOOKMARK_BAR : 0);
     main_loop_->PostTask(FROM_HERE, NewRunnableMethod(writer_,
         &ProfileWriter::AddBookmarkEntry, bookmarks,
         l10n_util::GetString(IDS_BOOKMARK_GROUP_FROM_GOOGLE_TOOLBAR),
