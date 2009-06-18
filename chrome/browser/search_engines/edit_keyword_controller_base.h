@@ -7,6 +7,8 @@
 
 #include <string>
 
+#include "base/gfx/native_widget_types.h"
+
 class Profile;
 class TemplateURL;
 
@@ -27,6 +29,12 @@ class EditKeywordControllerBase {
                                  const std::wstring& keyword,
                                  const std::wstring& url) = 0;
   };
+
+  // Create and show the platform's implementation of the dialog.
+  static void Create(gfx::NativeWindow parent_window,
+                     const TemplateURL* template_url,
+                     Delegate* delegate,
+                     Profile* profile);
 
   // The |template_url| and/or |edit_keyword_delegate| may be NULL.
   EditKeywordControllerBase(const TemplateURL* template_url,

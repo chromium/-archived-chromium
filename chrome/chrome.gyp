@@ -961,6 +961,8 @@
         'browser/gtk/download_shelf_gtk.cc',
         'browser/gtk/download_shelf_gtk.h',
         'browser/gtk/download_started_animation_gtk.cc',
+        'browser/gtk/edit_keyword_controller.cc',
+        'browser/gtk/edit_keyword_controller.h',
         'browser/gtk/go_button_gtk.cc',
         'browser/gtk/go_button_gtk.h',
         'browser/gtk/gtk_chrome_button.cc',

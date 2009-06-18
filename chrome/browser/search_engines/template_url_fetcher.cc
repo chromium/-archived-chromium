@@ -8,13 +8,10 @@
 
 #include "chrome/browser/net/url_fetcher.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/search_engines/edit_keyword_controller_base.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/search_engines/template_url_parser.h"
-
-#if defined(OS_WIN)
-#include "chrome/browser/views/edit_keyword_controller.h"
-#endif
 
 // RequestDelegate ------------------------------------------------------------
 class TemplateURLFetcher::RequestDelegate : public URLFetcher::Delegate {
@@ -122,22 +119,15 @@ void TemplateURLFetcher::RequestDelegate::OnURLFetchComplete(
       template_url->set_safe_for_autoreplace(true);
       model->Add(template_url.release());
     } else {
-#if defined(OS_WIN)
       // Confirm addition and allow user to edit default choices. It's ironic
       // that only *non*-autodetected additions get confirmed, but the user
       // expects feedback that his action did something.
       // The edit controller will take care of adding the URL to the model,
       // which takes ownership, or of deleting it if the add is cancelled.
-      EditKeywordController* controller =
-          new EditKeywordController(parent_window_,
-                                    template_url.release(),
-                                    NULL,  // no KeywordEditorView
-                                    fetcher_->profile());
-      controller->Show();
-#else
-      // TODO(port): port EditKeywordController.
-      NOTIMPLEMENTED() << "EditKeywordController.";
-#endif
+      EditKeywordControllerBase::Create(parent_window_,
+                                        template_url.release(),
+                                        NULL, // no KeywordEditorView
+                                        fetcher_->profile());
     }
   }
   fetcher_->RequestCompleted(this);

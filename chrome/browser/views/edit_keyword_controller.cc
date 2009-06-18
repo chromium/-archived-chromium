@@ -32,6 +32,16 @@ std::wstring GetDisplayURL(const TemplateURL& turl) {
 }
 }  // namespace
 
+// static
+void EditKeywordControllerBase::Create(gfx::NativeWindow parent_window,
+                                       const TemplateURL* template_url,
+                                       Delegate* delegate,
+                                       Profile* profile) {
+  EditKeywordController* controller =
+      new EditKeywordController(parent_window, template_url, delegate, profile);
+  controller->Show();
+}
+
 EditKeywordController::EditKeywordController(
     HWND parent,
     const TemplateURL* template_url,
