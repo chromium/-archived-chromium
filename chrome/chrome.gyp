@@ -3200,7 +3200,6 @@
             # TODO(port)
             'browser/crash_recovery_uitest.cc',
             'browser/login_prompt_uitest.cc',
-            'browser/metrics/metrics_service_uitest.cc',
             'browser/renderer_host/resource_dispatcher_host_uitest.cc',
             'test/reliability/page_load_test.cc',
             'test/ui/layout_plugin_uitest.cc',
