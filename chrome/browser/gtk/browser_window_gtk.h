@@ -188,7 +188,7 @@ class BrowserWindowGtk : public BrowserWindow,
   // Save the window position in the prefs.
   void SaveWindowPosition();
 
-  // Callback for when the "content area" vbox needs to be redrawn.
+  // Callback for when the custom frame alignment needs to be redrawn.
   // The content area includes the toolbar and web page but not the tab strip.
   static gboolean OnCustomFrameExpose(GtkWidget* widget, GdkEventExpose* event,
                                       BrowserWindowGtk* window);
