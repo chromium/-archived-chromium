@@ -426,10 +426,12 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
   NSImage* image = nil;
 
   NavigationEntry* navEntry = contents->controller().GetLastCommittedEntry();
-  NavigationEntry::FaviconStatus favIcon = navEntry->favicon();
-  const SkBitmap& bitmap = favIcon.bitmap();
-  if (favIcon.is_valid() && !bitmap.isNull())
-    image = gfx::SkBitmapToNSImage(bitmap);
+  if (navEntry != NULL) {
+    NavigationEntry::FaviconStatus favIcon = navEntry->favicon();
+    const SkBitmap& bitmap = favIcon.bitmap();
+    if (favIcon.is_valid() && !bitmap.isNull())
+      image = gfx::SkBitmapToNSImage(bitmap);
+  }
 
   // Either we don't have a valid favicon or there was some issue converting it
   // from an SkBitmap. Either way, just show the default.
