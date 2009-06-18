@@ -4,6 +4,7 @@
 
 #include "base/basictypes.h"
 #include "base/command_line.h"
+#include "base/eintr_wrapper.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
@@ -69,7 +70,84 @@ void SetFileDescriptorLimit(rlim_t max_descriptors) {
     LOG(ERROR) << "Failed to get file descriptor limit: " << strerror(errno);
   }
 }
-#endif
+
+void PopulateUBC(const FilePath &test_dir) {
+  // This will recursively walk the directory given and read all the files it
+  // finds.  This is done so the Mac UBC is likely to have as much loaded as
+  // possible.  Without this, the tests of this build gets one set of timings
+  // and then the reference build test, gets slightly faster ones (even if the
+  // reference build is the same binary).  The hope is by forcing all the
+  // possible data into the UBC we equalize the tests for comparing timing data.
+
+  // We don't want to walk into .svn dirs, so we have to do the tree walk
+  // ourselves.
+
+  std::vector<FilePath> dirs;
+  dirs.push_back(test_dir);
+  const FilePath svn_dir(FILE_PATH_LITERAL(".svn"));
+
+  for (size_t idx = 0; idx < dirs.size(); ++idx) {
+    file_util::FileEnumerator dir_enumerator(dirs[idx], false,
+                                      file_util::FileEnumerator::DIRECTORIES);
+    FilePath path;
+    for (path = dir_enumerator.Next();
+         !path.empty();
+         path = dir_enumerator.Next()) {
+      if (path.BaseName() != svn_dir)
+        dirs.push_back(path);
+    }
+  }
+
+  char buf[1024];
+  unsigned int loaded = 0;
+
+  // We seem to have some files in the data dirs that are just there for
+  // reference, make a quick attempt to skip them by matching suffixes.
+  std::vector<FilePath::StringType> ignore_suffixes;
+  ignore_suffixes.push_back(FILE_PATH_LITERAL(".orig.html"));
+  ignore_suffixes.push_back(FILE_PATH_LITERAL(".html-original"));
+
+  std::vector<FilePath>::const_iterator iter;
+  for (iter = dirs.begin(); iter != dirs.end(); ++iter) {
+    file_util::FileEnumerator file_enumerator(*iter, false,
+                                              file_util::FileEnumerator::FILES);
+    FilePath path;
+    for (path = file_enumerator.Next();
+         !path.empty();
+         path = file_enumerator.Next()) {
+      const FilePath base_name = path.BaseName();
+      const size_t base_name_size = base_name.value().size();
+
+      bool should_skip = false;
+      std::vector<FilePath::StringType>::const_iterator ignore_iter;
+      for (ignore_iter = ignore_suffixes.begin();
+           ignore_iter != ignore_suffixes.end();
+           ++ignore_iter) {
+        const FilePath::StringType &suffix = *ignore_iter;
+
+        if ((base_name_size > suffix.size()) &&
+            (base_name.value().compare(base_name_size - suffix.size(),
+                                       suffix.size(), suffix) == 0)) {
+          should_skip = true;
+          break;
+        }
+      }
+      if (should_skip)
+        continue;
+
+      // Read the file to get it into the UBC
+      int fd = open(path.value().c_str(), O_RDONLY);
+      if (fd >= 0) {
+        ++loaded;
+        while (HANDLE_EINTR(read(fd, buf, sizeof(buf))) > 0)
+          ;
+        HANDLE_EINTR(close(fd));
+      }
+    }
+  }
+  LOG(INFO) << "UBC should be loaded with " << loaded << " files.";
+}
+#endif  // defined(OS_MACOSX)
 
 class PageCyclerTest : public UITest {
 #if defined(OS_MACOSX)
@@ -99,19 +177,26 @@ class PageCyclerTest : public UITest {
   // For HTTP tests, the name must be safe for use in a URL without escaping.
   void RunPageCycler(const char* name, std::wstring* pages,
                      std::string* timings, bool use_http) {
+
+    // Make sure the test data is checked out
+    FilePath test_path;
+    PathService::Get(base::DIR_EXE, &test_path);
+    test_path = test_path.DirName();
+    test_path = test_path.DirName();
+    test_path = test_path.Append(FILE_PATH_LITERAL("data"));
+    test_path = test_path.Append(FILE_PATH_LITERAL("page_cycler"));
+    test_path = test_path.AppendASCII(name);
+    ASSERT_TRUE(file_util::PathExists(test_path)) << "Missing test data";
+
+#if defined(OS_MACOSX)
+    PopulateUBC(test_path);
+#endif
+
     GURL test_url;
     if (use_http) {
       test_url = GURL(std::string(kBaseUrl) + name + "/start.html");
     } else {
-      FilePath test_path;
-      PathService::Get(base::DIR_EXE, &test_path);
-      test_path = test_path.DirName();
-      test_path = test_path.DirName();
-      test_path = test_path.Append(FILE_PATH_LITERAL("data"));
-      test_path = test_path.Append(FILE_PATH_LITERAL("page_cycler"));
-      test_path = test_path.AppendASCII(name);
       test_path = test_path.Append(FILE_PATH_LITERAL("start.html"));
-      ASSERT_TRUE(file_util::PathExists(test_path)) << "Missing test data";
       test_url = net::FilePathToFileURL(test_path);
     }
 
