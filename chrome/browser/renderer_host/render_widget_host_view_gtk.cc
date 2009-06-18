@@ -316,11 +316,20 @@ void RenderWidgetHostViewGtk::SetSize(const gfx::Size& size) {
   // If we are a popup, we want to handle this.
   // TODO(estade): are there other situations where we want to respect the
   // request?
+#if !defined(TOOLKIT_VIEWS)
   if (parent_) {
+#else
+  // TOOLKIT_VIEWS' resize logic flow matches windows. When the container widget
+  // is resized, it calls RWH::WasSized, which sizes this widget using SetSize.
+  // TODO(estade): figure out if the logic flow here can be normalized across
+  //               platforms
+#endif
     gtk_widget_set_size_request(view_.get(),
                                 std::min(size.width(), kMaxWindowWidth),
                                 std::min(size.height(), kMaxWindowHeight));
+#if !defined(TOOLKIT_VIEWS)
   }
+#endif
 }
 
 gfx::NativeView RenderWidgetHostViewGtk::GetNativeView() {
