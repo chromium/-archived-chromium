@@ -33,6 +33,7 @@
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/metrics/metrics_service.h"
 #include "chrome/browser/net/dns_global.h"
+#include "chrome/browser/net/sdch_dictionary_fetcher.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/process_singleton.h"
 #include "chrome/browser/profile_manager.h"
@@ -88,7 +89,6 @@
 #include "chrome/browser/extensions/extension_protocols.h"
 #include "chrome/browser/jankometer.h"
 #include "chrome/browser/metrics/user_metrics.h"
-#include "chrome/browser/net/sdch_dictionary_fetcher.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/profile.h"
@@ -736,7 +736,6 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // Have Chrome plugins write their data to the profile directory.
   PluginService::GetInstance()->SetChromePluginDataDir(profile->GetPath());
 
-#if defined(OS_WIN)
   // Prepare for memory caching of SDCH dictionaries.
   SdchManager sdch_manager;  // Construct singleton database.
   sdch_manager.set_sdch_fetcher(new SdchDictionaryFetcher);
@@ -747,7 +746,6 @@ int BrowserMain(const MainFunctionParams& parameters) {
         WideToASCII(parsed_command_line.GetSwitchValue(switches::kSdchFilter));
   }
   sdch_manager.EnableSdchSupport(switch_domain);
-#endif
 
   MetricsService* metrics = NULL;
   if (!parsed_command_line.HasSwitch(switches::kDisableMetrics)) {
