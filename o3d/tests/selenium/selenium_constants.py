@@ -58,7 +58,7 @@ else:
 
 
 
-SELENIUM_BROWSER_SET = ["*iexplore", "*firefox", "*googlechrome"]
+SELENIUM_BROWSER_SET = ["*iexplore", "*firefox", "*googlechrome", "*safari"]
 
 # Dimensions to resize window to
 # on the Mac, the window has to be big enough to hold the entire o3d div
