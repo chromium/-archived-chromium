@@ -8,11 +8,19 @@
 
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "base/path_service.h"
+#include "base/string16.h"
+#include "base/thread.h"
+#include "chrome/browser/bookmarks/bookmark_html_writer.h"
 #include "chrome/browser/bookmarks/bookmark_manager.h"
 #include "chrome/browser/bookmarks/bookmark_table_model.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/browser/gtk/bookmark_tree_model.h"
 #include "chrome/browser/gtk/bookmark_utils_gtk.h"
+#include "chrome/browser/importer/importer.h"
 #include "chrome/browser/profile.h"
+#include "chrome/common/chrome_paths.h"
+#include "chrome/common/gtk_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/app_resources.h"
@@ -38,6 +46,46 @@ const int kSearchDelayMS = 200;
 
 // We only have one manager open at a time.
 BookmarkManagerGtk* manager = NULL;
+
+// Observer installed on the importer. When done importing the newly created
+// folder is selected in the bookmark manager.
+// This class is taken almost directly from BookmarkManagerView and should be
+// kept in sync with it.
+class ImportObserverImpl : public ImportObserver {
+ public:
+  explicit ImportObserverImpl(Profile* profile) : profile_(profile) {
+    BookmarkModel* model = profile->GetBookmarkModel();
+    initial_other_count_ = model->other_node()->GetChildCount();
+  }
+
+  virtual void ImportCanceled() {
+    delete this;
+  }
+
+  virtual void ImportComplete() {
+    // We aren't needed anymore.
+    MessageLoop::current()->DeleteSoon(FROM_HERE, this);
+
+    if (!manager || manager->profile() != profile_)
+      return;
+
+    BookmarkModel* model = profile_->GetBookmarkModel();
+    int other_count = model->other_node()->GetChildCount();
+    if (other_count == initial_other_count_ + 1) {
+      BookmarkNode* imported_node =
+          model->other_node()->GetChild(initial_other_count_);
+      manager->SelectInTree(imported_node, true);
+    }
+  }
+
+ private:
+  Profile* profile_;
+  // Number of children in the other bookmarks folder at the time we were
+  // created.
+  int initial_other_count_;
+
+  DISALLOW_COPY_AND_ASSIGN(ImportObserverImpl);
+};
 
 void OnWindowDestroy(GtkWidget* widget,
                      BookmarkManagerGtk* bookmark_manager) {
@@ -66,7 +114,7 @@ void SetMenuBarStyle() {
 
 void BookmarkManager::SelectInTree(Profile* profile, BookmarkNode* node) {
   if (manager && manager->profile() == profile)
-    manager->SelectInTree(node);
+    manager->SelectInTree(node, false);
 }
 
 void BookmarkManager::Show(Profile* profile) {
@@ -75,15 +123,19 @@ void BookmarkManager::Show(Profile* profile) {
 
 // BookmarkManagerGtk, public --------------------------------------------------
 
-void BookmarkManagerGtk::SelectInTree(BookmarkNode* node) {
+void BookmarkManagerGtk::SelectInTree(BookmarkNode* node, bool expand) {
   GtkTreeIter iter = { 0, };
   if (RecursiveFind(GTK_TREE_MODEL(left_store_), &iter, node->id())) {
     GtkTreePath* path = gtk_tree_model_get_path(GTK_TREE_MODEL(left_store_),
                         &iter);
     gtk_tree_view_expand_to_path(GTK_TREE_VIEW(left_tree_view_), path);
     gtk_tree_selection_select_path(left_selection(), path);
+    if (expand)
+      gtk_tree_view_expand_row(GTK_TREE_VIEW(left_tree_view_), path, true);
+
     gtk_tree_path_free(path);
   }
+  // TODO(estade): select in the right side table view?
 }
 
 // static
@@ -211,7 +263,8 @@ void BookmarkManagerGtk::OnItemsRemoved(int start, int length) {
 BookmarkManagerGtk::BookmarkManagerGtk(Profile* profile)
     : profile_(profile),
       model_(profile->GetBookmarkModel()),
-      search_factory_(this) {
+      search_factory_(this),
+      select_file_dialog_(SelectFileDialog::Create(this)) {
   InitWidgets();
   g_signal_connect(window_, "destroy",
                    G_CALLBACK(OnWindowDestroy), this);
@@ -240,13 +293,30 @@ void BookmarkManagerGtk::InitWidgets() {
   organize_menu_.reset(new BookmarkContextMenu(window_, profile_, NULL, NULL,
       NULL, nodes, BookmarkContextMenu::BOOKMARK_MANAGER_ORGANIZE_MENU));
 
+  // Build the organize and tools menus.
   GtkWidget* organize = gtk_menu_item_new_with_label(
       l10n_util::GetStringUTF8(IDS_BOOKMARK_MANAGER_ORGANIZE_MENU).c_str());
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(organize), organize_menu_->menu());
 
+  GtkWidget* import_item = gtk_menu_item_new_with_mnemonic(
+      gtk_util::ConvertAcceleratorsFromWindowsStyle(
+          l10n_util::GetStringUTF8(IDS_BOOKMARK_MANAGER_IMPORT_MENU)).c_str());
+  g_signal_connect(import_item, "activate",
+                   G_CALLBACK(OnImportItemActivated), this);
+
+  GtkWidget* export_item = gtk_menu_item_new_with_mnemonic(
+      gtk_util::ConvertAcceleratorsFromWindowsStyle(
+          l10n_util::GetStringUTF8(IDS_BOOKMARK_MANAGER_EXPORT_MENU)).c_str());
+  g_signal_connect(export_item, "activate",
+                   G_CALLBACK(OnExportItemActivated), this);
+
+  GtkWidget* tools_menu = gtk_menu_new();
+  gtk_menu_shell_append(GTK_MENU_SHELL(tools_menu), import_item);
+  gtk_menu_shell_append(GTK_MENU_SHELL(tools_menu), export_item);
+
   GtkWidget* tools = gtk_menu_item_new_with_label(
       l10n_util::GetStringUTF8(IDS_BOOKMARK_MANAGER_TOOLS_MENU).c_str());
-  // TODO(estade): create the tools menu.
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(tools), tools_menu);
 
   GtkWidget* menu_bar = gtk_menu_bar_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), organize);
@@ -844,8 +914,66 @@ void BookmarkManagerGtk::OnRightTreeViewRowActivated(GtkTreeView* tree_view,
     return;
   if (nodes.size() == 1 && nodes[0]->is_folder()) {
     // Double click on a folder descends into the folder.
-    bm->SelectInTree(nodes[0]);
+    bm->SelectInTree(nodes[0], false);
     return;
   }
   bookmark_utils::OpenAll(bm->window_, bm->profile_, NULL, nodes, CURRENT_TAB);
+}
+
+// static
+void BookmarkManagerGtk::OnImportItemActivated(GtkMenuItem* menuitem,
+                                               BookmarkManagerGtk* bm) {
+  SelectFileDialog::FileTypeInfo file_type_info;
+  file_type_info.extensions.resize(1);
+  file_type_info.extensions[0].push_back(FILE_PATH_LITERAL("html"));
+  file_type_info.extensions[0].push_back(FILE_PATH_LITERAL("htm"));
+  file_type_info.include_all_files = true;
+  bm->select_file_dialog_->SelectFile(
+      SelectFileDialog::SELECT_OPEN_FILE, string16(),
+      FilePath(""), &file_type_info, 0,
+      std::string(), GTK_WINDOW(bm->window_),
+      reinterpret_cast<void*>(IDS_BOOKMARK_MANAGER_IMPORT_MENU));
+}
+
+// static
+void BookmarkManagerGtk::OnExportItemActivated(GtkMenuItem* menuitem,
+                                               BookmarkManagerGtk* bm) {
+  SelectFileDialog::FileTypeInfo file_type_info;
+  file_type_info.extensions.resize(1);
+  file_type_info.extensions[0].push_back(FILE_PATH_LITERAL("html"));
+  file_type_info.include_all_files = true;
+  // TODO(estade): If a user exports a bookmark file then we will remember the
+  // download location. If the user subsequently downloads a file, we will
+  // suggest this cached download location. This is bad! We ought to remember
+  // save locations differently for different user tasks.
+  FilePath suggested_path;
+  PathService::Get(chrome::DIR_USER_DATA, &suggested_path);
+  bm->select_file_dialog_->SelectFile(
+      SelectFileDialog::SELECT_SAVEAS_FILE, string16(),
+      suggested_path.Append("bookmarks.html"), &file_type_info, 0,
+      "html", GTK_WINDOW(bm->window_),
+      reinterpret_cast<void*>(IDS_BOOKMARK_MANAGER_EXPORT_MENU));
+}
+
+void BookmarkManagerGtk::FileSelected(const FilePath& path,
+                                      int index, void* params) {
+  int id = reinterpret_cast<int>(params);
+  if (id == IDS_BOOKMARK_MANAGER_IMPORT_MENU) {
+    // ImporterHost is ref counted and will delete itself when done.
+    ImporterHost* host = new ImporterHost();
+    ProfileInfo profile_info;
+    profile_info.browser_type = BOOKMARKS_HTML;
+    profile_info.source_path = path.ToWStringHack();
+    StartImportingWithUI(GTK_WINDOW(window_), FAVORITES, host,
+                         profile_info, profile_,
+                         new ImportObserverImpl(profile()), false);
+  } else if (id == IDS_BOOKMARK_MANAGER_EXPORT_MENU) {
+    if (g_browser_process->io_thread()) {
+      bookmark_html_writer::WriteBookmarks(
+          g_browser_process->io_thread()->message_loop(), model_,
+          path.ToWStringHack());
+    }
+  } else {
+    NOTREACHED();
+  }
 }

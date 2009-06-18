@@ -13,20 +13,22 @@
 #include "base/task.h"
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
+#include "chrome/browser/shell_dialogs.h"
 
 class BookmarkModel;
 class BookmarkTableModel;
 class Profile;
 
 class BookmarkManagerGtk : public BookmarkModelObserver,
-                           public TableModelObserver {
+                           public TableModelObserver,
+                           public SelectFileDialog::Listener {
  public:
   virtual ~BookmarkManagerGtk();
 
   Profile* profile() { return profile_; }
 
   // Show the node in the tree.
-  void SelectInTree(BookmarkNode* node);
+  void SelectInTree(BookmarkNode* node, bool expand);
 
   // Shows the bookmark manager. Only one bookmark manager exists.
   static void Show(Profile* profile);
@@ -63,6 +65,10 @@ class BookmarkManagerGtk : public BookmarkModelObserver,
   virtual void OnItemsChanged(int start, int length);
   virtual void OnItemsAdded(int start, int length);
   virtual void OnItemsRemoved(int start, int length);
+
+  // SelectFileDialog::Listener implemenation.
+  virtual void FileSelected(const FilePath& path,
+                            int index, void* params);
 
  private:
   explicit BookmarkManagerGtk(Profile* profile);
@@ -170,6 +176,12 @@ class BookmarkManagerGtk : public BookmarkModelObserver,
       GtkTreePath* path, GtkTreeViewColumn* column,
       BookmarkManagerGtk* bookmark_manager);
 
+  // Tools menu item callbacks.
+  static void OnImportItemActivated(GtkMenuItem* menuitem,
+                                    BookmarkManagerGtk* bookmark_manager);
+  static void OnExportItemActivated(GtkMenuItem* menuitem,
+                                    BookmarkManagerGtk* bookmark_manager);
+
   GtkWidget* window_;
   GtkWidget* search_entry_;
   Profile* profile_;
@@ -194,6 +206,8 @@ class BookmarkManagerGtk : public BookmarkModelObserver,
 
   // Factory used for delaying search.
   ScopedRunnableMethodFactory<BookmarkManagerGtk> search_factory_;
+
+  scoped_refptr<SelectFileDialog> select_file_dialog_;
 };
 
 #endif  // CHROME_BROWSER_GTK_BOOKMARK_MANAGER_GTK_H_
