@@ -64,6 +64,7 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
     dragBlockingView_.reset([[TabStripControllerDragBlockingView alloc]
                               initWithFrame:NSZeroRect]);
     [view addSubview:dragBlockingView_];
+    newTabTargetFrame_ = NSMakeRect(0, 0, 0, 0);
   }
   return self;
 }
@@ -252,8 +253,9 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
       
       // Check the frame by identifier to avoid redundant calls to animator.
       NSValue *identifier = [NSValue valueWithPointer:[tab view]];
-      NSRect oldTarget = [[targetFrames_ objectForKey:identifier] rectValue];
-      if (!NSEqualRects(oldTarget, tabFrame)) {
+      NSValue *oldTargetValue = [targetFrames_ objectForKey:identifier];
+      if (!oldTargetValue ||
+          !NSEqualRects([oldTargetValue rectValue], tabFrame)) {
         [frameTarget setFrame:tabFrame];
         [targetFrames_ setObject:[NSValue valueWithRect:tabFrame]
                           forKey:identifier];        
