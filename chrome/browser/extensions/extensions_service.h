@@ -15,7 +15,6 @@
 #include "base/ref_counted.h"
 #include "base/tuple.h"
 #include "base/values.h"
-#include "chrome/browser/extensions/extension_prefs.h"
 #include "chrome/browser/extensions/external_extension_provider.h"
 #include "chrome/common/extensions/extension.h"
 
@@ -121,6 +120,29 @@ class ExtensionsService
   // Lookup an extension by |url|.  This uses the host of the URL as the id.
   Extension* GetExtensionByURL(const GURL& url);
 
+  // Gets a list of external extensions. If |external_extensions| is non-null,
+  // a dictionary with all external extensions (including extensions installed
+  // through the registry on Windows builds) and their preferences are
+  // returned. If |killed_extensions| is non-null, a set of string IDs
+  // containing all external extension IDs with the killbit set are returned.
+  void GetExternalExtensions(DictionaryValue* external_extensions,
+                             std::set<std::string>* killed_extensions);
+
+  // Gets the settings for an extension from preferences. If the key doesn't
+  // exist, this function creates it (don't need to check return for NULL).
+  DictionaryValue* GetOrCreateExtensionPref(const std::wstring& extension_id);
+
+  // Writes a preference value for a particular extension |extension_id| under
+  // the |key| specified. If |schedule_save| is true, it will also ask the
+  // preference system to schedule a save to disk.
+  bool UpdateExtensionPref(const std::wstring& extension_id,
+                           const std::wstring& key,
+                           Value* data_value,
+                           bool schedule_save);
+
+  // Removes the entire tree of prefs for |extension_id|.
+  void DeleteExtensionPrefs(const std::wstring& extension_id);
+
   // Clear all ExternalExtensionProviders.
   void ClearProvidersForTesting();
 
@@ -147,9 +169,6 @@ class ExtensionsService
   // OnExtensionVersionReinstalled.
   friend class ExtensionsServiceBackend;
 
-  // Called by the backend when the initial extension load has completed.
-  void OnLoadedInstalledExtensions();
-
   // Called by the backend when extensions have been loaded.
   void OnExtensionsLoaded(ExtensionList* extensions);
 
@@ -166,7 +185,7 @@ class ExtensionsService
   static const char* kInstallDirectoryName;
 
   // Preferences for the owning profile.
-  scoped_ptr<ExtensionPrefs> extension_prefs_;
+  PrefService* prefs_;
 
   // The message loop to use with the backend.
   MessageLoop* backend_loop_;
@@ -205,11 +224,12 @@ class ExtensionsServiceBackend
 
   virtual ~ExtensionsServiceBackend();
 
-  // Loads the installed extensions.
+  // Loads extensions from the prefs.
   // Errors are reported through ExtensionErrorReporter. On completion,
   // OnExtensionsLoaded() is called with any successfully loaded extensions.
-  void LoadInstalledExtensions(scoped_refptr<ExtensionsService> frontend,
-                               InstalledExtensions* installed);
+  void LoadExtensionsFromPrefs(
+      scoped_refptr<ExtensionsService> frontend,
+      DictionaryValue* extension_prefs);
 
   // Scans the extension installation directory to look for partially installed
   // or extensions to uninstall.
@@ -257,10 +277,6 @@ class ExtensionsServiceBackend
  private:
   class UnpackerClient;
   friend class UnpackerClient;
-
-  // Loads a single installed extension.
-  void LoadInstalledExtension(const std::string& id, const FilePath& path,
-                              Extension::Location location);
 
   // Utility function to read an extension manifest and return it as a
   // DictionaryValue. If it fails, NULL is returned and |error| contains an
@@ -363,8 +379,9 @@ class ExtensionsServiceBackend
   // For the extension in |version_path| with |id|, check to see if it's an
   // externally managed extension.  If so return true if it should be
   // uninstalled.
-  bool CheckExternalUninstall(const std::string& id,
-                              Extension::Location location);
+  bool CheckExternalUninstall(const DictionaryValue* extension_prefs,
+                              const FilePath& version_path,
+                              const std::string& id);
 
   // Should an extension of |id| and |version| be installed?
   // Returns true if no extension of type |id| is installed or if |version|

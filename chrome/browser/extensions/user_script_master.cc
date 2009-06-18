@@ -259,13 +259,10 @@ UserScriptMaster::UserScriptMaster(MessageLoop* worker_loop,
                                    const FilePath& script_dir)
     : user_script_dir_(script_dir),
       worker_loop_(worker_loop),
-      extensions_service_ready_(false),
       pending_scan_(false) {
   if (!user_script_dir_.value().empty())
     AddWatchedPath(script_dir);
 
-  registrar_.Add(this, NotificationType::EXTENSIONS_READY,
-                 NotificationService::AllSources());
   registrar_.Add(this, NotificationType::EXTENSIONS_LOADED,
                  NotificationService::AllSources());
   registrar_.Add(this, NotificationType::EXTENSION_UNLOADED,
@@ -330,10 +327,6 @@ void UserScriptMaster::Observe(NotificationType type,
                                const NotificationSource& source,
                                const NotificationDetails& details) {
   switch (type.value) {
-    case NotificationType::EXTENSIONS_READY:
-      extensions_service_ready_ = true;
-      StartScan();
-      break;
     case NotificationType::EXTENSIONS_LOADED: {
       // TODO(aa): Fix race here. A page could need a content script on startup,
       // before the extension has loaded.  We need to freeze the renderer in
@@ -351,8 +344,7 @@ void UserScriptMaster::Observe(NotificationType type,
           lone_scripts_.push_back(*iter);
         }
       }
-      if (!extensions_service_ready_)
-        StartScan();
+      StartScan();
       break;
     }
 

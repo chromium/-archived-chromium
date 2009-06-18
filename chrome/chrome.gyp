@@ -870,8 +870,6 @@
         'browser/extensions/extension_page_actions_module.h',
         'browser/extensions/extension_page_actions_module_constants.cc',
         'browser/extensions/extension_page_actions_module_constants.h',
-        'browser/extensions/extension_prefs.cc',
-        'browser/extensions/extension_prefs.h',
         'browser/extensions/extension_process_manager.cc',
         'browser/extensions/extension_process_manager.h',
         'browser/extensions/extension_protocols.cc',

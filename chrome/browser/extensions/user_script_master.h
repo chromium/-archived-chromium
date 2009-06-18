@@ -148,10 +148,6 @@ class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
   // List of scripts outside of script directories we should also load.
   UserScriptList lone_scripts_;
 
-  // If the extensions service has finished loading its initial set of
-  // extensions.
-  bool extensions_service_ready_;
-
   // If the script directory is modified while we're rescanning it, we note
   // that we're currently mid-scan and then start over again once the scan
   // finishes.  This boolean tracks whether another scan is pending.
