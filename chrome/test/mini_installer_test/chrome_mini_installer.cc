@@ -629,7 +629,9 @@ HKEY ChromeMiniInstaller::GetRootRegistryKey() {
 
 // This method checks if the build is Google Chrome or Chromium.
 bool ChromeMiniInstaller::IsChromiumBuild() {
-  #if defined(GOOGLE_CHROME_BUILD)
+  // TODO(nsylvain): Change this for GOOGLE_CHROME_BUILD when we have the
+  // previous installers accessible from our Google Chrome continuous buildbot.
+  #if defined(OFFICIAL_BUILD)
      return false;
   #else
      return true;
