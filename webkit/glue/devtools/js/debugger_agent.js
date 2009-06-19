@@ -79,6 +79,14 @@ devtools.DebuggerAgent = function() {
    * @type {devtools.profiler.Processor}
    */
   this.profilerProcessor_ = new devtools.profiler.Processor();
+
+  /**
+   * Container of all breakpoints set using resource URL. These breakpoints
+   * survive page reload. Breakpoints set by script id(for scripts that don't
+   * have URLs) are stored in ScriptInfo objects.
+   * @type {Object}
+   */
+  this.urlToBreakpoints_ = {};
 };
 
 
@@ -183,19 +191,42 @@ devtools.DebuggerAgent.prototype.addBreakpoint = function(sourceId, line) {
 
   line = devtools.DebuggerAgent.webkitToV8LineNumber_(line);
 
-  var breakpointInfo = script.getBreakpointInfo(line);
-  if (breakpointInfo) {
-    return;
+  var commandArguments;
+  if (script.getUrl()) {
+    var breakpoints = this.urlToBreakpoints_[script.getUrl()];
+    if (breakpoints && breakpoints[line]) {
+      return;
+    }
+    if (!breakpoints) {
+      breakpoints = {};
+      this.urlToBreakpoints_[script.getUrl()] = breakpoints;
+    }
+
+    var breakpointInfo = new devtools.BreakpointInfo(line);
+    breakpoints[line] = breakpointInfo;
+
+    commandArguments = {
+      'type': 'script',
+      'target': script.getUrl(),
+      'line': line
+    };
+  } else {
+    var breakpointInfo = script.getBreakpointInfo(line);
+    if (breakpointInfo) {
+      return;
+    }
+
+    breakpointInfo = new devtools.BreakpointInfo(line);
+    script.addBreakpointInfo(breakpointInfo);
+
+    commandArguments = {
+      'type': 'scriptId',
+      'target': sourceId,
+      'line': line
+    };
   }
 
-  breakpointInfo = new devtools.BreakpointInfo(sourceId, line);
-  script.addBreakpointInfo(breakpointInfo);
-
-  var cmd = new devtools.DebugCommand('setbreakpoint', {
-    'type': 'scriptId',
-    'target': sourceId,
-    'line': line
-  });
+  var cmd = new devtools.DebugCommand('setbreakpoint', commandArguments);
 
   this.requestNumberToBreakpointInfo_[cmd.getSequenceNumber()] = breakpointInfo;
 
@@ -215,8 +246,16 @@ devtools.DebuggerAgent.prototype.removeBreakpoint = function(sourceId, line) {
 
   line = devtools.DebuggerAgent.webkitToV8LineNumber_(line);
 
-  var breakpointInfo = script.getBreakpointInfo(line);
-  script.removeBreakpointInfo(breakpointInfo);
+  var breakpointInfo;
+  if (script.getUrl()) {
+    var breakpoints = this.urlToBreakpoints_[script.getUrl()];
+    breakpointInfo = breakpoints[line];
+    delete breakpoints[line];
+  } else {
+    breakpointInfo = script.getBreakpointInfo(line);
+    script.removeBreakpointInfo(breakpointInfo);
+  }
+
   breakpointInfo.markAsRemoved();
 
   var id = breakpointInfo.getV8Id();
@@ -684,7 +723,7 @@ devtools.DebuggerAgent.prototype.addScriptInfo_ = function(script, msg) {
   var context = msg.lookup(script.context.ref);
   var contextType = context.data.type;
   this.parsedScripts_[script.id] = new devtools.ScriptInfo(
-      script.id, script.lineOffset, contextType);
+      script.id, script.name, script.lineOffset, contextType);
   WebInspector.parsedScriptSource(
       script.id, script.name, script.source, script.lineOffset);
 };
@@ -896,6 +935,7 @@ devtools.DebuggerAgent.v8ToWwebkitLineNumber_ = function(line) {
 
 /**
  * @param {number} scriptId Id of the script.
+ * @param {?string} url Script resource URL if any.
  * @param {number} lineOffset First line 0-based offset in the containing
  *     document.
  * @param {string} contextType Type of the script's context:
@@ -903,10 +943,11 @@ devtools.DebuggerAgent.v8ToWwebkitLineNumber_ = function(line) {
  *     "injected" - extension content script
  * @constructor
  */
-devtools.ScriptInfo = function(scriptId, lineOffset, contextType) {
+devtools.ScriptInfo = function(scriptId, url, lineOffset, contextType) {
   this.scriptId_ = scriptId;
   this.lineOffset_ = lineOffset;
   this.contextType_ = contextType;
+  this.url_ = url;
 
   this.lineToBreakpointInfo_ = {};
 };
@@ -925,6 +966,14 @@ devtools.ScriptInfo.prototype.getLineOffset = function() {
  */
 devtools.ScriptInfo.prototype.getContextType = function() {
   return this.contextType_;
+};
+
+
+/**
+ * @return {?string}
+ */
+devtools.ScriptInfo.prototype.getUrl = function() {
+  return this.url_;
 };
 
 
@@ -959,23 +1008,13 @@ devtools.ScriptInfo.prototype.removeBreakpointInfo = function(breakpoint) {
 
 
 /**
- * @param {number} scriptId Id of the owning script.
  * @param {number} line Breakpoint 0-based line number in the containing script.
  * @constructor
  */
-devtools.BreakpointInfo = function(sourceId, line) {
-  this.sourceId_ = sourceId;
+devtools.BreakpointInfo = function(line) {
   this.line_ = line;
   this.v8id_ = -1;
   this.removed_ = false;
-};
-
-
-/**
- * @return {number}
- */
-devtools.BreakpointInfo.prototype.getSourceId = function(n) {
-  return this.sourceId_;
 };
 
 
