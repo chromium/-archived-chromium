@@ -41,6 +41,12 @@
     },
     'net': {
       'filepath': 'net/.*',
+    },
+    'installer': {
+      'filepath': 'chrome/installer/.*',
+    },
+    'importer': {
+      'filepath': '.*import.*',
     }
   },
 
@@ -56,5 +62,7 @@
     'extension': ['erikkay@chromium.org'],
     'purify': ['erikkay@chromium.org'],
     'net': ['darin@chromium.org', 'willchan@chromium.org'],
+    'installer': ['kuchhal@chromium.org'],
+    'importer': ['kuchhal@chromium.org'],
   },
 }
