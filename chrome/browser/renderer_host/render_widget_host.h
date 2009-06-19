@@ -239,8 +239,6 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   virtual void ForwardMouseEvent(const WebKit::WebMouseEvent& mouse_event);
   void ForwardWheelEvent(const WebKit::WebMouseWheelEvent& wheel_event);
   void ForwardKeyboardEvent(const NativeWebKeyboardEvent& key_event);
-  virtual void ForwardEditCommand(const std::string& name,
-                                  const std::string& value);
 
   // Update the text direction of the focused input element and notify it to a
   // renderer process.

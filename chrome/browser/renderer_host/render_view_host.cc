@@ -1445,14 +1445,6 @@ void RenderViewHost::ForwardMouseEvent(
   }
 }
 
-void RenderViewHost::ForwardEditCommand(const std::string& name,
-                                        const std::string& value) {
-  IPC::Message* message = new ViewMsg_HandleExecuteEditCommand(routing_id(),
-                                                               name,
-                                                               value);
-  Send(message);
-}
-
 void RenderViewHost::OnDebugDisconnect() {
   if (debugger_attached_) {
     debugger_attached_ = false;
