@@ -2617,7 +2617,7 @@
             'app/chrome_exe_version.rc.version',
           ],
           'include_dirs': [
-            '<(SHARED_INTERMEDIATE_DIR)/app',
+            '<(SHARED_INTERMEDIATE_DIR)/chrome',
           ],
           'msvs_settings': {
             'VCLinkerTool': {
@@ -2641,8 +2641,6 @@
             {
               'action_name': 'version',
               'variables': {
-                'lastchange_path':
-                  '<(SHARED_INTERMEDIATE_DIR)/build/LASTCHANGE',
                 'version_py': 'tools/build/version.py',
                 'version_path': 'VERSION',
                 'template_input_path': 'app/chrome_exe_version.rc.version',
@@ -2662,17 +2660,15 @@
                 '<(template_input_path)',
                 '<(version_path)',
                 '<(branding_path)',
-                '<(lastchange_path)',
               ],
               'outputs': [
-                '<(SHARED_INTERMEDIATE_DIR)/app/chrome_exe_version.rc',
+                '<(SHARED_INTERMEDIATE_DIR)/chrome/chrome_exe_version.rc',
               ],
               'action': [
                 'python',
                 '<(version_py)',
                 '-f', '<(version_path)',
                 '-f', '<(branding_path)',
-                '-f', '<(lastchange_path)',
                 '<(template_input_path)',
                 '<@(_outputs)',
               ],
