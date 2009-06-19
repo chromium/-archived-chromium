@@ -2760,3 +2760,4 @@ BUG14686 MAC : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
 // Need investigation: test shell crashers.
 BUG14752 LINUX DEBUG: LayoutTests/http/tests/cache/subresource-expiration.html = CRASH PASS
 BUG14751 LINUX DEBUG: LayoutTests/css2.1/atrule_longest_match.html = CRASH PASS
+BUG14767 LINUX : LayoutTests/dom/html/level1/core/documentgetdoctypenodtd.html = CRASH PASS
