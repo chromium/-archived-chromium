@@ -66,7 +66,8 @@ devtools.profiler.WebKitViewNode.FUNC_NAME_STRIP_RE =
 /**
  * RegEx for extracting script source URL and line number.
  */
-devtools.profiler.WebKitViewNode.FUNC_NAME_PARSE_RE = /^([^ ]+) (.*):(\d+)$/;
+devtools.profiler.WebKitViewNode.FUNC_NAME_PARSE_RE =
+    /^([^ ]+) (.*):(\d+)( \{\d+\})?$/;
 
 
 /**
@@ -86,6 +87,9 @@ devtools.profiler.WebKitViewNode.prototype.initFuncInfo_ = function() {
   var parsedName = nodeAlias.FUNC_NAME_PARSE_RE.exec(this.functionName);
   if (parsedName) {
     this.functionName = parsedName[1];
+    if (parsedName[4]) {
+      this.functionName += parsedName[4];
+    }
     this.url = parsedName[2];
     this.lineNumber = parsedName[3];
   } else {
