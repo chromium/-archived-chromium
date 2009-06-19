@@ -1,3 +1,7 @@
 #scripts-files option.injected {
     color: rgb(70, 134, 240);
 }
+
+#dock-status-bar-item {
+    display: none
+}
