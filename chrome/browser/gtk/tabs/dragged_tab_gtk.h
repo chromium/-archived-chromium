@@ -7,14 +7,15 @@
 
 #include <gtk/gtk.h>
 
+#include "app/gfx/canvas.h"
 #include "app/slide_animation.h"
 #include "base/gfx/point.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
+#include "chrome/browser/renderer_host/backing_store.h"
 
-class ChromeCanvas;
 class TabContents;
 class TabRendererGtk;
 
@@ -33,7 +34,10 @@ class DraggedTabGtk : public AnimationDelegate {
   void Attach(int selected_width);
 
   // Notifies the dragged tab that it has been detached from a tabstrip.
-  void Detach();
+  // |contents| is the widget that contains the dragged tab contents, while
+  // |backing_store| is the backing store that holds a server-side bitmap of the
+  // visual representation of |contents|.
+  void Detach(GtkWidget* contents, BackingStore* backing_store);
 
   // Notifies the dragged tab that it should update itself.
   void Update();
@@ -56,8 +60,11 @@ class DraggedTabGtk : public AnimationDelegate {
   virtual void AnimationEnded(const Animation* animation);
   virtual void AnimationCanceled(const Animation* animation);
 
+  // Arranges the contents of the dragged tab.
+  void Layout();
+
   // Gets the preferred size of the dragged tab.
-  virtual gfx::Size GetPreferredSize();
+  gfx::Size GetPreferredSize();
 
   // Resizes the container to fit the content for the current attachment mode.
   void ResizeContainer();
@@ -79,7 +86,18 @@ class DraggedTabGtk : public AnimationDelegate {
   // Sets the shape mask for the container window to emulate a transparent
   // container window.  This is used if compositing is not available for the
   // screen.
-  void SetContainerShapeMask();
+  void SetContainerShapeMask(const SkBitmap& dragged_contents);
+
+  // Paints the tab when it's attached to a tabstrip.
+  SkBitmap PaintAttachedTab();
+
+  // Paints the tab when it's not attached to any tabstrip.
+  SkBitmap PaintDetachedView();
+
+  // Paints a screenshot of the dragged contents from the backing store into
+  // |canvas|.
+  void PaintScreenshotIntoCanvas(gfx::Canvas* canvas,
+                                 const gfx::Rect& target_bounds);
 
   // expose-event handler that notifies when the tab needs to be redrawn.
   static gboolean OnExposeEvent(GtkWidget* widget, GdkEventExpose* event,
@@ -87,6 +105,13 @@ class DraggedTabGtk : public AnimationDelegate {
 
   // The window that contains the dragged tab or tab contents.
   GtkWidget* container_;
+
+  // The native view of the tab contents.
+  GtkWidget* contents_;
+
+  // The backing store used to create a screenshot of the dragged contents.
+  // Owned by the RWH.
+  BackingStore* backing_store_;
 
   // The renderer that paints the dragged tab.
   scoped_ptr<TabRendererGtk> renderer_;

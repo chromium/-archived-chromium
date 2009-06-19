@@ -6,7 +6,7 @@
 
 #include <gdk/gdk.h>
 
-#include "app/gfx/canvas.h"
+#include "app/gfx/canvas_paint.h"
 #include "base/gfx/gtk_util.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
@@ -24,6 +24,10 @@ const int kTwiceDragFrameBorderSize = 2 * kDragFrameBorderSize;
 const float kScalingFactor = 0.5;
 
 const int kAnimateToBoundsDurationMs = 150;
+
+const gdouble kTransparentAlpha = (200.0f / 255.0f);
+const gdouble kOpaqueAlpha = 1.0f;
+const SkColor kDraggedTabBorderColor = SkColorSetRGB(103, 129, 162);
 
 }  // namespace
 
@@ -69,10 +73,19 @@ void DraggedTabGtk::Attach(int selected_width) {
   attached_tab_size_.set_width(selected_width);
   ResizeContainer();
   Update();
+
+  if (gtk_util::IsScreenComposited())
+    gdk_window_set_opacity(container_->window, kOpaqueAlpha);
 }
 
-void DraggedTabGtk::Detach() {
+void DraggedTabGtk::Detach(GtkWidget* contents, BackingStore* backing_store) {
   attached_ = false;
+  contents_ = contents;
+  backing_store_ = backing_store;
+  ResizeContainer();
+
+  if (gtk_util::IsScreenComposited())
+    gdk_window_set_opacity(container_->window, kTransparentAlpha);
 }
 
 void DraggedTabGtk::Update() {
@@ -121,6 +134,21 @@ void DraggedTabGtk::AnimationCanceled(const Animation* animation) {
 ////////////////////////////////////////////////////////////////////////////////
 // DraggedTabGtk, private:
 
+void DraggedTabGtk::Layout() {
+  if (attached_) {
+    gfx::Size prefsize = GetPreferredSize();
+    renderer_->SetBounds(gfx::Rect(0, 0, prefsize.width(), prefsize.height()));
+  } else {
+    // TODO(jhawkins): RTL layout.
+
+    // The renderer_'s width should be attached_tab_size_.width() in both LTR
+    // and RTL locales. Wrong width will cause the wrong positioning of the tab
+    // view in dragging. Please refer to http://crbug.com/6223 for details.
+    renderer_->SetBounds(gfx::Rect(0, 0, attached_tab_size_.width(),
+                         attached_tab_size_.height()));
+  }
+}
+
 gfx::Size DraggedTabGtk::GetPreferredSize() {
   if (attached_)
     return attached_tab_size_;
@@ -136,10 +164,7 @@ void DraggedTabGtk::ResizeContainer() {
   gfx::Size size = GetPreferredSize();
   gtk_window_resize(GTK_WINDOW(container_),
                     ScaleValue(size.width()), ScaleValue(size.height()));
-  gfx::Rect bounds = renderer_->bounds();
-  bounds.set_width(ScaleValue(size.width()));
-  bounds.set_height(ScaleValue(size.height()));
-  renderer_->SetBounds(bounds);
+  Layout();
   Update();
 }
 
@@ -181,10 +206,8 @@ void DraggedTabGtk::SetContainerTransparency() {
   cairo_destroy(cairo_context);
 }
 
-void DraggedTabGtk::SetContainerShapeMask() {
-  // Render the tab as a bitmap.
-  SkBitmap tab = renderer_->PaintBitmap();
-  GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(&tab);
+void DraggedTabGtk::SetContainerShapeMask(const SkBitmap& dragged_contents) {
+  GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(&dragged_contents);
 
   // Create a 1bpp bitmap the size of |container_|.
   gfx::Size size = bounds().size();
@@ -192,7 +215,7 @@ void DraggedTabGtk::SetContainerShapeMask() {
   cairo_t* cairo_context = gdk_cairo_create(GDK_DRAWABLE(pixmap));
 
   // Set the transparency.
-  cairo_set_source_rgba(cairo_context, 1, 1, 1, 0);
+  cairo_set_source_rgba(cairo_context, 1.0f, 1.0f, 1.0f, 0.0f);
 
   // Blit the rendered bitmap into a pixmap.  Any pixel set in the pixmap will
   // be opaque in the container window.
@@ -207,15 +230,90 @@ void DraggedTabGtk::SetContainerShapeMask() {
   g_object_unref(pixmap);
 }
 
+SkBitmap DraggedTabGtk::PaintAttachedTab() {
+  return renderer_->PaintBitmap();
+}
+
+SkBitmap DraggedTabGtk::PaintDetachedView() {
+  gfx::Size ps = GetPreferredSize();
+  gfx::Canvas scale_canvas(ps.width(), ps.height(), false);
+  SkBitmap& bitmap_device = const_cast<SkBitmap&>(
+      scale_canvas.getTopPlatformDevice().accessBitmap(true));
+  bitmap_device.eraseARGB(0, 0, 0, 0);
+
+  scale_canvas.FillRectInt(kDraggedTabBorderColor, 0,
+      attached_tab_size_.height() - kDragFrameBorderSize,
+      ps.width(), ps.height() - attached_tab_size_.height());
+  int image_x = kDragFrameBorderSize;
+  int image_y = attached_tab_size_.height();
+  int image_w = ps.width() - kTwiceDragFrameBorderSize;
+  int image_h =
+      ps.height() - kTwiceDragFrameBorderSize - attached_tab_size_.height();
+  scale_canvas.FillRectInt(SK_ColorBLACK, image_x, image_y, image_w, image_h);
+  PaintScreenshotIntoCanvas(&scale_canvas,
+      gfx::Rect(image_x, image_y, image_w, image_h));
+  renderer_->Paint(&scale_canvas);
+
+  SkIRect subset;
+  subset.set(0, 0, ps.width(), ps.height());
+  SkBitmap mipmap = scale_canvas.ExtractBitmap();
+  mipmap.buildMipMap(true);
+
+  SkShader* bitmap_shader =
+      SkShader::CreateBitmapShader(mipmap, SkShader::kClamp_TileMode,
+                                   SkShader::kClamp_TileMode);
+
+  SkMatrix shader_scale;
+  shader_scale.setScale(kScalingFactor, kScalingFactor);
+  bitmap_shader->setLocalMatrix(shader_scale);
+
+  SkPaint paint;
+  paint.setShader(bitmap_shader);
+  paint.setAntiAlias(true);
+  bitmap_shader->unref();
+
+  SkRect rc;
+  rc.fLeft = 0;
+  rc.fTop = 0;
+  rc.fRight = SkIntToScalar(ps.width());
+  rc.fBottom = SkIntToScalar(ps.height());
+  gfx::Canvas canvas(ps.width(), ps.height(), false);
+  canvas.drawRect(rc, paint);
+
+  return canvas.ExtractBitmap();
+}
+
+void DraggedTabGtk::PaintScreenshotIntoCanvas(gfx::Canvas* canvas,
+                                              const gfx::Rect& target_bounds) {
+  gfx::Rect rect(0, 0,
+                 contents_->allocation.width, contents_->allocation.height);
+  SkBitmap* bitmap = backing_store_->PaintRectToBitmap(rect);
+  if (bitmap) {
+    canvas->DrawBitmapInt(*bitmap, 0, renderer_->bounds().height());
+    delete bitmap;
+  }
+}
+
 // static
 gboolean DraggedTabGtk::OnExposeEvent(GtkWidget* widget,
                                       GdkEventExpose* event,
                                       DraggedTabGtk* dragged_tab) {
+  SkBitmap bmp;
+  if (dragged_tab->attached_) {
+    bmp = dragged_tab->PaintAttachedTab();
+  } else {
+    bmp = dragged_tab->PaintDetachedView();
+  }
+
   if (gtk_util::IsScreenComposited()) {
     dragged_tab->SetContainerTransparency();
   } else {
-    dragged_tab->SetContainerShapeMask();
+    dragged_tab->SetContainerShapeMask(bmp);
   }
 
-  return FALSE;
+  gfx::CanvasPaint canvas(event, false);
+  canvas.DrawBitmapInt(bmp, 0, 0);
+
+  // We've already drawn the tab, so don't propagate the expose-event signal.
+  return TRUE;
 }

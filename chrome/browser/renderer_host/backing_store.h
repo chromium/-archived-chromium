@@ -64,6 +64,9 @@ class BackingStore {
   //   damage: the area to copy
   //   target: the X id of the target window
   void ShowRect(const gfx::Rect& damage, XID target);
+
+  // Paints the server-side backing store data to a SkBitmap.
+  SkBitmap* PaintRectToBitmap(const gfx::Rect& rect);
 #endif
 
   // Paints the bitmap from the renderer onto the backing store.

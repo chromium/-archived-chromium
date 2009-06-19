@@ -398,8 +398,11 @@ void DraggedTabControllerGtk::Detach() {
   // Update the dragged tab. This NULL check is necessary apparently in some
   // conditions during automation where the view_ is destroyed inside a
   // function call preceding this point but after it is created.
-  if (dragged_tab_.get())
-    dragged_tab_->Detach();
+  if (dragged_tab_.get()) {
+    RenderViewHost* host = dragged_contents_->render_view_host();
+    dragged_tab_->Detach(dragged_contents_->GetContentNativeView(),
+                         host->GetBackingStore(false));
+  }
 
   // Detaching resets the delegate, but we still want to be the delegate.
   dragged_contents_->set_delegate(this);

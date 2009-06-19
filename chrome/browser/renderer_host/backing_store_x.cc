@@ -12,6 +12,7 @@
 #include "chrome/common/transport_dib.h"
 #include "chrome/common/x11_util.h"
 #include "chrome/common/x11_util_internal.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 // X Backing Stores:
 //
@@ -310,4 +311,29 @@ void BackingStore::ShowRect(const gfx::Rect& rect, XID target) {
   XCopyArea(display_, pixmap_, target, static_cast<GC>(pixmap_gc_),
             rect.x(), rect.y(), rect.width(), rect.height(),
             rect.x(), rect.y());
+}
+
+SkBitmap* BackingStore::PaintRectToBitmap(const gfx::Rect& rect) {
+  static const int kBytesPerPixel = 4;
+
+  const int width = rect.width();
+  const int height = rect.height();
+  XImage* image = XGetImage(display_, pixmap_,
+                            rect.x(), rect.y(),
+                            width, height,
+                            AllPlanes, ZPixmap);
+  // TODO(jhawkins): Need to convert the image data if the image bits per pixel
+  // is not 32.
+  if (image->bits_per_pixel != 32)
+    return NULL;
+
+  SkBitmap* bitmap = new SkBitmap();
+  bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
+  bitmap->allocPixels();
+  unsigned char* bitmap_data =
+    reinterpret_cast<unsigned char*>(bitmap->getAddr32(0, 0));
+  memcpy(bitmap_data, image->data, width * height * kBytesPerPixel);
+
+  XFree(image);
+  return bitmap;
 }
