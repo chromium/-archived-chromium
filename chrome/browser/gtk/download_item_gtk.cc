@@ -603,24 +603,9 @@ gboolean DownloadItemGtk::OnProgressAreaExpose(GtkWidget* widget,
 
   // TODO(estade): draw a default icon if |icon_| is null.
   if (download_item->icon_) {
-    int width = download_item->icon_->width();
-    int height = download_item->icon_->height();
-    // Sometimes we get back icons that are the wrong size. Draw the correct
-    // size. This code should hopefully be made obsolete after we support SVG
-    // icons (although it could still be hit if a theme doesn't provide SVG or
-    // 16x16).
-    const int sixteen = download_util::kSmallIconSize;
     const int offset = download_util::kSmallProgressIconOffset;
-    if (sixteen != width || sixteen != height) {
-      // Draw the bitmap at a reduced scale.
-      download_item->icon_->buildMipMap(false);
-      canvas.DrawBitmapInt(*download_item->icon_, 0, 0, width, height,
-          widget->allocation.x + offset, widget->allocation.y + offset,
-          sixteen, sixteen, true);
-    } else {
-       canvas.DrawBitmapInt(*download_item->icon_,
-          widget->allocation.x + offset, widget->allocation.y + offset);
-    }
+    canvas.DrawBitmapInt(*download_item->icon_,
+        widget->allocation.x + offset, widget->allocation.y + offset);
   }
 
   return TRUE;

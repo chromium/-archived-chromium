@@ -4,9 +4,12 @@
 
 #include "chrome/browser/icon_loader.h"
 
+#include <gtk/gtk.h>
+
 #include "base/file_util.h"
 #include "base/gfx/png_decoder.h"
 #include "base/logging.h"
+#include "base/linux_util.h"
 #include "base/message_loop.h"
 #include "base/mime_util.h"
 #include "base/thread.h"
@@ -14,27 +17,39 @@
 #include "third_party/skia/include/core/SkBitmap.h"
 
 void IconLoader::ReadIcon() {
-  size_t size = 48;
+  int size = 48;
   if (icon_size_ == NORMAL)
     size = 32;
   else if (icon_size_ == SMALL)
     size = 16;
 
   FilePath filename = mime_util::GetMimeIcon(group_, size);
-  if (LowerCaseEqualsASCII(mime_util::GetFileMimeType(filename), "image/png")) {
-    std::string file_contents;
-    file_util::ReadFileToString(filename, &file_contents);
+  GdkPixbuf* pixbuf = gdk_pixbuf_new_from_file_at_size(filename.value().c_str(),
+                                                       size, size, NULL);
+  if (pixbuf) {
+    guchar* pixels = gdk_pixbuf_get_pixels(pixbuf);
+    int width = gdk_pixbuf_get_width(pixbuf);
+    int height = gdk_pixbuf_get_height(pixbuf);
+    DCHECK_EQ(width, size);
+    DCHECK_EQ(height, size);
+    int stride = gdk_pixbuf_get_rowstride(pixbuf);
 
-    std::vector<unsigned char> pixels;
-    int width, height;
-    if (PNGDecoder::Decode(
-        reinterpret_cast<const unsigned char*>(file_contents.c_str()),
-        file_contents.length(), PNGDecoder::FORMAT_BGRA,
-        &pixels, &width, &height)) {
-      bitmap_ = PNGDecoder::CreateSkBitmapFromBGRAFormat(pixels, width, height);
+    if (!gdk_pixbuf_get_has_alpha(pixbuf)) {
+      LOG(WARNING) << "Got an image with no alpha channel, aborting load.";
+    } else {
+      uint8_t* BGRA_pixels = base::BGRAToRGBA(pixels, width, height, stride);
+      std::vector<unsigned char> pixel_vector;
+      pixel_vector.resize(height * stride);
+      memcpy(const_cast<unsigned char*>(pixel_vector.data()), BGRA_pixels,
+             height * stride);
+      bitmap_ = PNGDecoder::CreateSkBitmapFromBGRAFormat(pixel_vector,
+                                                         width, height);
+      free(BGRA_pixels);
     }
+
+    g_object_unref(pixbuf);
   } else {
-    // TODO(estade): support other file types.
+    LOG(WARNING) << "Unsupported file type or load error: " << filename.value();
   }
 
   target_message_loop_->PostTask(FROM_HERE,
