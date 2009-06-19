@@ -290,8 +290,6 @@ gboolean OnFocusIn(GtkWidget* widget, GdkEventFocus* event, Browser* browser) {
 
 std::map<XID, GtkWindow*> BrowserWindowGtk::xid_map_;
 
-// TODO(estade): Break up this constructor into helper functions to improve
-// readability.
 BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
     :  browser_(browser),
        full_screen_(false),
@@ -299,102 +297,16 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   use_custom_frame_.Init(prefs::kUseCustomChromeFrame,
       browser_->profile()->GetPrefs(), this);
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
+  g_object_set_data(G_OBJECT(window_), kBrowserWindowKey, this);
+
   SetWindowIcon();
   SetBackgroundColor();
   SetGeometryHints();
-  g_signal_connect(window_, "delete-event",
-                   G_CALLBACK(MainWindowDeleteEvent), this);
-  g_signal_connect(window_, "destroy",
-                   G_CALLBACK(MainWindowDestroy), this);
-  g_signal_connect(window_, "configure-event",
-                   G_CALLBACK(MainWindowConfigured), this);
-  g_signal_connect(window_, "window-state-event",
-                   G_CALLBACK(MainWindowStateChanged), this);
-  g_signal_connect(window_, "map",
-                   G_CALLBACK(MainWindowMapped), this);
-  g_signal_connect(window_, "unmap",
-                     G_CALLBACK(MainWindowUnMapped), this);
-  g_signal_connect(window_, "key-press-event",
-                   G_CALLBACK(OnKeyPress), browser_.get());
-  g_signal_connect(window_, "button-press-event",
-                   G_CALLBACK(OnButtonPressEvent), browser_.get());
-  g_signal_connect(window_, "focus-in-event",
-                   G_CALLBACK(OnFocusIn), browser_.get());
-  g_object_set_data(G_OBJECT(window_), kBrowserWindowKey, this);
+  ConnectHandlersToSignals();
   ConnectAccelerators();
   bounds_ = GetInitialWindowBounds(window_);
 
-  // This vbox encompasses all of the widgets within the browser, including the
-  // tabstrip and the content vbox.  The vbox is put in a floating container
-  // (see gtk_floating_container.h) so we can position the
-  // minimize/maximize/close buttons.  The floating container is then put in an
-  // alignment so we can do custom frame drawing if the user turns of window
-  // manager decorations.
-  GtkWidget* window_vbox = gtk_vbox_new(FALSE, 0);
-  gtk_widget_show(window_vbox);
-
-  // The window container draws the custom browser frame.
-  window_container_ = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
-  gtk_widget_set_app_paintable(window_container_, TRUE);
-  gtk_widget_set_double_buffered(window_container_, FALSE);
-  gtk_widget_set_redraw_on_allocate(window_container_, TRUE);
-  g_signal_connect(G_OBJECT(window_container_), "expose-event",
-                   G_CALLBACK(&OnCustomFrameExpose), this);
-  gtk_container_add(GTK_CONTAINER(window_container_), window_vbox);
-
-  tabstrip_.reset(new TabStripGtk(browser_->tabstrip_model()));
-  tabstrip_->Init();
-
-  // Build the titlebar (tabstrip + header space + min/max/close buttons).
-  titlebar_.reset(new BrowserTitlebar(this, window_));
-  gtk_box_pack_start(GTK_BOX(window_vbox), titlebar_->widget(), FALSE, FALSE,
-                     0);
-
-  // The content_vbox_ surrounds the "content": toolbar+bookmarks bar+page.
-  content_vbox_ = gtk_vbox_new(FALSE, 0);
-  gtk_widget_show(content_vbox_);
-
-  toolbar_.reset(new BrowserToolbarGtk(browser_.get(), this));
-  toolbar_->Init(browser_->profile(), window_);
-  toolbar_->AddToolbarToBox(content_vbox_);
-
-  bookmark_bar_.reset(new BookmarkBarGtk(browser_->profile(), browser_.get(),
-                                         this));
-  bookmark_bar_->AddBookmarkbarToBox(content_vbox_);
-
-  // This vbox surrounds the render area: find bar, info bars and render view.
-  // The reason is that this area as a whole needs to be grouped in its own
-  // GdkWindow hierarchy so that animations originating inside it (infobar,
-  // download shelf, find bar) are all clipped to that area. This is why
-  // |render_area_vbox_| is packed in |event_box|.
-  render_area_vbox_ = gtk_vbox_new(FALSE, 0);
-  infobar_container_.reset(new InfoBarContainerGtk(this));
-  gtk_box_pack_start(GTK_BOX(render_area_vbox_),
-                     infobar_container_->widget(),
-                     FALSE, FALSE, 0);
-
-  status_bubble_.reset(new StatusBubbleGtk());
-
-  contents_container_.reset(new TabContentsContainerGtk(status_bubble_.get()));
-  contents_container_->AddContainerToBox(render_area_vbox_);
-  gtk_widget_show_all(render_area_vbox_);
-
-  // We have to realize the window before we try to apply a window shape mask.
-  gtk_widget_realize(GTK_WIDGET(window_));
-  state_ = gdk_window_get_state(GTK_WIDGET(window_)->window);
-  // Note that calling this the first time is necessary to get the
-  // proper control layout.
-  UpdateCustomFrame();
-
-  GtkWidget* event_box = gtk_event_box_new();
-  gtk_container_add(GTK_CONTAINER(event_box), render_area_vbox_);
-  gtk_widget_show(event_box);
-  gtk_container_add(GTK_CONTAINER(content_vbox_), event_box);
-  gtk_container_add(GTK_CONTAINER(window_vbox), content_vbox_);
-  gtk_container_add(GTK_CONTAINER(window_), window_container_);
-  gtk_widget_show(window_container_);
-  browser_->tabstrip_model()->AddObserver(this);
-
+  InitWidgets();
   HideUnsupportedWindowFeatures();
 
   registrar_.Add(this, NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
@@ -906,6 +818,100 @@ void BrowserWindowGtk::SetWindowIcon() {
   g_list_free(icon_list);
 }
 
+void BrowserWindowGtk::ConnectHandlersToSignals() {
+  g_signal_connect(window_, "delete-event",
+                   G_CALLBACK(MainWindowDeleteEvent), this);
+  g_signal_connect(window_, "destroy",
+                   G_CALLBACK(MainWindowDestroy), this);
+  g_signal_connect(window_, "configure-event",
+                   G_CALLBACK(MainWindowConfigured), this);
+  g_signal_connect(window_, "window-state-event",
+                   G_CALLBACK(MainWindowStateChanged), this);
+  g_signal_connect(window_, "map",
+                   G_CALLBACK(MainWindowMapped), this);
+  g_signal_connect(window_, "unmap",
+                     G_CALLBACK(MainWindowUnMapped), this);
+  g_signal_connect(window_, "key-press-event",
+                   G_CALLBACK(OnKeyPress), browser_.get());
+  g_signal_connect(window_, "button-press-event",
+                   G_CALLBACK(OnButtonPressEvent), browser_.get());
+  g_signal_connect(window_, "focus-in-event",
+                   G_CALLBACK(OnFocusIn), browser_.get());
+}
+
+void BrowserWindowGtk::InitWidgets() {
+  // This vbox encompasses all of the widgets within the browser, including the
+  // tabstrip and the content vbox.  The vbox is put in a floating container
+  // (see gtk_floating_container.h) so we can position the
+  // minimize/maximize/close buttons.  The floating container is then put in an
+  // alignment so we can do custom frame drawing if the user turns of window
+  // manager decorations.
+  GtkWidget* window_vbox = gtk_vbox_new(FALSE, 0);
+  gtk_widget_show(window_vbox);
+
+  // The window container draws the custom browser frame.
+  window_container_ = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
+  gtk_widget_set_app_paintable(window_container_, TRUE);
+  gtk_widget_set_double_buffered(window_container_, FALSE);
+  gtk_widget_set_redraw_on_allocate(window_container_, TRUE);
+  g_signal_connect(G_OBJECT(window_container_), "expose-event",
+                   G_CALLBACK(&OnCustomFrameExpose), this);
+  gtk_container_add(GTK_CONTAINER(window_container_), window_vbox);
+
+  tabstrip_.reset(new TabStripGtk(browser_->tabstrip_model()));
+  tabstrip_->Init();
+
+  // Build the titlebar (tabstrip + header space + min/max/close buttons).
+  titlebar_.reset(new BrowserTitlebar(this, window_));
+  gtk_box_pack_start(GTK_BOX(window_vbox), titlebar_->widget(), FALSE, FALSE,
+                     0);
+
+  // The content_vbox_ surrounds the "content": toolbar+bookmarks bar+page.
+  content_vbox_ = gtk_vbox_new(FALSE, 0);
+  gtk_widget_show(content_vbox_);
+
+  toolbar_.reset(new BrowserToolbarGtk(browser_.get(), this));
+  toolbar_->Init(browser_->profile(), window_);
+  toolbar_->AddToolbarToBox(content_vbox_);
+
+  bookmark_bar_.reset(new BookmarkBarGtk(browser_->profile(), browser_.get(),
+                                         this));
+  bookmark_bar_->AddBookmarkbarToBox(content_vbox_);
+
+  // This vbox surrounds the render area: find bar, info bars and render view.
+  // The reason is that this area as a whole needs to be grouped in its own
+  // GdkWindow hierarchy so that animations originating inside it (infobar,
+  // download shelf, find bar) are all clipped to that area. This is why
+  // |render_area_vbox_| is packed in |event_box|.
+  render_area_vbox_ = gtk_vbox_new(FALSE, 0);
+  infobar_container_.reset(new InfoBarContainerGtk(this));
+  gtk_box_pack_start(GTK_BOX(render_area_vbox_),
+                     infobar_container_->widget(),
+                     FALSE, FALSE, 0);
+
+  status_bubble_.reset(new StatusBubbleGtk());
+
+  contents_container_.reset(new TabContentsContainerGtk(status_bubble_.get()));
+  contents_container_->AddContainerToBox(render_area_vbox_);
+  gtk_widget_show_all(render_area_vbox_);
+
+  // We have to realize the window before we try to apply a window shape mask.
+  gtk_widget_realize(GTK_WIDGET(window_));
+  state_ = gdk_window_get_state(GTK_WIDGET(window_)->window);
+  // Note that calling this the first time is necessary to get the
+  // proper control layout.
+  UpdateCustomFrame();
+
+  GtkWidget* event_box = gtk_event_box_new();
+  gtk_container_add(GTK_CONTAINER(event_box), render_area_vbox_);
+  gtk_widget_show(event_box);
+  gtk_container_add(GTK_CONTAINER(content_vbox_), event_box);
+  gtk_container_add(GTK_CONTAINER(window_vbox), content_vbox_);
+  gtk_container_add(GTK_CONTAINER(window_), window_container_);
+  gtk_widget_show(window_container_);
+  browser_->tabstrip_model()->AddObserver(this);
+}
+
 void BrowserWindowGtk::SetBackgroundColor() {
   // TODO(tc): Handle active/inactive colors.
 
@@ -963,7 +969,6 @@ void BrowserWindowGtk::ConnectAccelerators() {
         g_cclosure_new(G_CALLBACK(OnGtkAccelerator), this, NULL));
   }
 }
-
 
 void BrowserWindowGtk::UpdateCustomFrame() {
   bool enable = use_custom_frame_.GetValue() && !full_screen_;

@@ -166,6 +166,12 @@ class BrowserWindowGtk : public BrowserWindow,
   // Set up the window icon (potentially used in window border or alt-tab list).
   void SetWindowIcon();
 
+  // Connect to signals on |window_|.
+  void ConnectHandlersToSignals();
+
+  // Create the various UI components.
+  void InitWidgets();
+
   // Set up background color of the window (depends on if we're incognito or
   // not).
   void SetBackgroundColor();
