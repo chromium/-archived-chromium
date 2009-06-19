@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -223,9 +223,6 @@ class ToolbarView : public views::View,
   views::MenuButton* bookmark_menu_;
   Profile* profile_;
   Browser* browser_;
-
-  // Current tab we're showing state for.
-  TabContents* tab_;
 
   // Contents of the profiles menu to populate with profile names.
   scoped_ptr<views::SimpleMenuModel> profiles_menu_contents_;

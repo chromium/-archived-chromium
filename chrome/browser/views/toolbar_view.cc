@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -170,7 +170,6 @@ ToolbarView::ToolbarView(Browser* browser)
       bookmark_menu_(NULL),
       profile_(NULL),
       browser_(browser),
-      tab_(NULL),
       profiles_menu_contents_(NULL),
       ALLOW_THIS_IN_INITIALIZER_LIST(
           profiles_helper_(new GetProfilesHelper(this))) {
@@ -219,7 +218,6 @@ void ToolbarView::SetProfile(Profile* profile) {
 }
 
 void ToolbarView::Update(TabContents* tab, bool should_restore_state) {
-  tab_ = tab;
   if (location_bar_)
     location_bar_->Update(should_restore_state ? tab : NULL);
 }
@@ -312,7 +310,7 @@ void ToolbarView::OnGetProfilesDone(
 // ToolbarView, LocationBarView::Delegate implementation:
 
 TabContents* ToolbarView::GetTabContents() {
-  return tab_;
+  return browser_->GetSelectedTabContents();
 }
 
 void ToolbarView::OnInputInProgress(bool in_progress) {
@@ -756,19 +754,22 @@ void ToolbarView::WriteDragData(views::View* sender,
   // If there is a bookmark for the URL, add the bookmark drag data for it. We
   // do this to ensure the bookmark is moved, rather than creating an new
   // bookmark.
-  if (profile_ && profile_->GetBookmarkModel()) {
-    BookmarkNode* node = profile_->GetBookmarkModel()->
-        GetMostRecentlyAddedNodeForURL(tab_->GetURL());
-    if (node) {
-      BookmarkDragData bookmark_data(node);
-      bookmark_data.Write(profile_, data);
+  TabContents* tab = browser_->GetSelectedTabContents();
+  if (tab) {
+    if (profile_ && profile_->GetBookmarkModel()) {
+      BookmarkNode* node = profile_->GetBookmarkModel()->
+          GetMostRecentlyAddedNodeForURL(tab->GetURL());
+      if (node) {
+        BookmarkDragData bookmark_data(node);
+        bookmark_data.Write(profile_, data);
+      }
     }
-  }
 
-  drag_utils::SetURLAndDragImage(tab_->GetURL(),
-                                 UTF16ToWideHack(tab_->GetTitle()),
-                                 tab_->GetFavIcon(),
-                                 data);
+    drag_utils::SetURLAndDragImage(tab->GetURL(),
+                                   UTF16ToWideHack(tab->GetTitle()),
+                                   tab->GetFavIcon(),
+                                   data);
+  }
 #else
   // TODO(port): do bookmark item drag & drop
   NOTIMPLEMENTED();
@@ -777,11 +778,12 @@ void ToolbarView::WriteDragData(views::View* sender,
 
 int ToolbarView::GetDragOperations(views::View* sender, int x, int y) {
   DCHECK(sender == star_);
-  if (!tab_ || !tab_->ShouldDisplayURL() || !tab_->GetURL().is_valid()) {
+  TabContents* tab = browser_->GetSelectedTabContents();
+  if (!tab || !tab->ShouldDisplayURL() || !tab->GetURL().is_valid()) {
     return DragDropTypes::DRAG_NONE;
   }
   if (profile_ && profile_->GetBookmarkModel() &&
-      profile_->GetBookmarkModel()->IsBookmarked(tab_->GetURL())) {
+      profile_->GetBookmarkModel()->IsBookmarked(tab->GetURL())) {
     return DragDropTypes::DRAG_MOVE | DragDropTypes::DRAG_COPY |
            DragDropTypes::DRAG_LINK;
   }
