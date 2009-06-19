@@ -770,11 +770,13 @@ void CleanupFullscreenWindow(PluginObject *obj) {
   obj->SetFullscreenOverlayMacWindow(NULL);
 
   if (fs_window) {
+    HideWindow(fs_window);
     ReleaseWindowGroup(GetWindowGroup(fs_window));
     DisposeWindow(fs_window);
   }
 
   if(fs_o_window) {
+    HideWindow(fs_o_window);
     ReleaseWindowGroup(GetWindowGroup(fs_o_window));
     DisposeWindow(fs_o_window);
   }
@@ -817,34 +819,11 @@ static bool ExtractDisplayModeData(NSDictionary *mode_dict,
   return true;
 }
 
-void PluginObject::GetDisplayModes(std::vector<o3d::DisplayMode> *modes) {
-  NSArray* mac_modes = (NSArray*)CGDisplayAvailableModes(CGMainDisplayID());
-  int num_modes = [mac_modes count];
-  std::vector<o3d::DisplayMode> modes_found;
-
-  for (int i = 0; i < num_modes; ++i) {
-    int width = 0;
-    int height = 0;
-    int refresh_rate = 0;
-    int bpp = 0;
-
-    if (ExtractDisplayModeData([mac_modes objectAtIndex:i],
-        &width,
-        &height,
-        &refresh_rate,
-        &bpp) && bpp == 32)
-      modes_found.push_back(o3d::DisplayMode(width, height, refresh_rate,
-                                             i + kO3D_MODE_OFFSET));
-  }
-
-  modes->swap(modes_found);
-}
-
 
 // Returns information on a display mode, which is mode n - kO3D_MODE_OFFSET
 // in the raw list returned by CGDisplayAvailableModes on the main screen,
 // with kO3D_MODE_OFFSET + 0 being the first entry in the array.
-static bool GetDisplayMode(int id, o3d::DisplayMode *mode) {
+static bool GetOtherDisplayMode(int id, o3d::DisplayMode *mode) {
   NSArray *mac_modes = (NSArray*) CGDisplayAvailableModes(CGMainDisplayID());
   int num_modes = [mac_modes count];
   int array_offset = id - kO3D_MODE_OFFSET;
@@ -863,6 +842,7 @@ static bool GetDisplayMode(int id, o3d::DisplayMode *mode) {
 
   return false;
 }
+
 
 static int GetCGDisplayModeID(NSDictionary* mode_dict) {
   return [[mode_dict valueForKey:@"Mode"] intValue];
@@ -901,6 +881,41 @@ static void GetCurrentDisplayMode(o3d::DisplayMode *mode) {
   mode->Set(width, height, refresh_rate, mode_id);
 }
 
+
+bool PluginObject::GetDisplayMode(int id, o3d::DisplayMode *mode) {
+  if (id == o3d::Renderer::DISPLAY_MODE_DEFAULT) {
+    GetCurrentDisplayMode(mode);
+    return true;
+  } else {
+    return GetOtherDisplayMode(id, mode);
+  }
+}
+
+
+void PluginObject::GetDisplayModes(std::vector<o3d::DisplayMode> *modes) {
+  NSArray* mac_modes = (NSArray*)CGDisplayAvailableModes(CGMainDisplayID());
+  int num_modes = [mac_modes count];
+  std::vector<o3d::DisplayMode> modes_found;
+
+  for (int i = 0; i < num_modes; ++i) {
+    int width = 0;
+    int height = 0;
+    int refresh_rate = 0;
+    int bpp = 0;
+
+    if (ExtractDisplayModeData([mac_modes objectAtIndex:i],
+        &width,
+        &height,
+        &refresh_rate,
+        &bpp) && bpp == 32)
+      modes_found.push_back(o3d::DisplayMode(width, height, refresh_rate,
+                                             i + kO3D_MODE_OFFSET));
+  }
+
+  modes->swap(modes_found);
+}
+
+
 #pragma mark ____FULLSCREEN_SWITCHING
 
 
@@ -912,7 +927,8 @@ bool PluginObject::RequestFullscreenDisplay() {
   int target_width = 0;
   int target_height = 0;
 
-  if (fullscreen_region_valid_) {
+  if (fullscreen_region_valid_ &&
+      fullscreen_region_mode_id_ != Renderer::DISPLAY_MODE_DEFAULT) {
     o3d::DisplayMode the_mode;
     if (GetDisplayMode(fullscreen_region_mode_id_, &the_mode)) {
       target_width = the_mode.width();
@@ -956,6 +972,8 @@ bool PluginObject::RequestFullscreenDisplay() {
   renderer()->SetClientOriginOffset(0, 0);
   renderer_->Resize(bounds.right - bounds.left, bounds.bottom - bounds.top);
 
+  fullscreen_ = true;
+  client()->SendResizeEvent(renderer_->width(), renderer_->height(), true);
 
   const double kFadeOutTime = 3.0;
   SetFullscreenOverlayMacWindow(CreateOverlayWindow());
@@ -989,6 +1007,8 @@ void PluginObject::CancelFullscreenDisplay() {
   } else {
     SetSystemUIMode(kUIModeNormal, 0);
   }
+  fullscreen_ = false;
+  client()->SendResizeEvent(prev_width_, prev_height_, false);
 
 
   // Somehow the browser window does not automatically activate again
@@ -996,7 +1016,7 @@ void PluginObject::CancelFullscreenDisplay() {
   if (mac_cocoa_window_) {
     NSWindow* browser_window = (NSWindow*) mac_cocoa_window_;
     [browser_window makeKeyAndOrderFront:browser_window];
-  } else {
+  } else if (mac_window_) {
     SelectWindow(mac_window_);
   }
 }

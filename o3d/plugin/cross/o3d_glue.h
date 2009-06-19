@@ -291,6 +291,9 @@ class PluginObject: public NPObject {
     return fullscreen_;
   }
 
+  // Fetch one mode by externally visible id, returning true on success.
+  bool GetDisplayMode(int id, o3d::DisplayMode *mode);
+
   // Get a vector of the available fullscreen display modes.
   // Clears *modes on error.
   void GetDisplayModes(std::vector<o3d::DisplayMode> *modes);

@@ -365,6 +365,10 @@ void LinuxEnterLeaveHandler(Widget w,
   }
 }
 
+bool PluginObject::GetDisplayMode(int id, o3d::DisplayMode *mode) {
+  return false;
+}
+
 // TODO: Where should this really live?  It's platform-specific, but in
 // PluginObject, which mainly lives in cross/o3d_glue.h+cc.
 bool  PluginObject::RequestFullscreenDisplay() {

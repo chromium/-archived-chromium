@@ -674,7 +674,7 @@ bool PluginObject::SetFullscreenClickRegion(int x, int y, int width, int height,
   bool success = false;
   o3d::DisplayMode mode;
   // Make sure it's a valid ID first.
-  if (renderer()->GetDisplayMode(mode_id, &mode)) {
+  if (GetDisplayMode(mode_id, &mode)) {
     fullscreen_region_valid_ = true;
     fullscreen_region_x_ = x;
     fullscreen_region_y_ = y;
