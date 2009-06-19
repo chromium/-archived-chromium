@@ -2393,7 +2393,6 @@ BUG11322 : LayoutTests/fast/js/regexp-range-bound-ffff.html = FAIL
 BUG11469 MAC : LayoutTests/fast/repaint/outline-shrinking.html = CRASH PASS
 
 // Regresssions from WebKit Merge 43114:43242 that just need to be re-baselined.
-BUG11483 LINUX : LayoutTests/editing/execCommand/5119244.html = FAIL
 BUG11483 LINUX : LayoutTests/fast/forms/input-text-double-click.html = FAIL
 BUG11483 LINUX : LayoutTests/editing/spelling/spellcheck-attribute.html = FAIL
 BUG11483 LINUX : LayoutTests/svg/text/foreignObject-repaint.xml = FAIL
@@ -2761,4 +2760,4 @@ BUG14673 : LayoutTests/http/tests/xmlhttprequest/cross-origin-no-authorization.h
 
 // WebKit 44805:44837
 BUG14679 LINUX : LayoutTests/fast/backgrounds/animated-gif-as-background.html = FAIL
-
+BUG14686 MAC : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
