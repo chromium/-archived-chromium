@@ -3146,6 +3146,7 @@
         '../build/temp_gyp/googleurl.gyp:googleurl',
         '../skia/skia.gyp:skia',
         '../testing/gtest.gyp:gtest',
+        '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
         '../third_party/icu38/icu38.gyp:icui18n',
         '../third_party/icu38/icu38.gyp:icuuc',
         '../third_party/libxml/libxml.gyp:libxml',
