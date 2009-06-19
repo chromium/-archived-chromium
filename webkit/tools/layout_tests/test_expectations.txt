@@ -2275,7 +2275,6 @@ BUG9992 WIN LINUX : LayoutTests/fast/text/shadow-no-blur.html = FAIL
 // Regressions from WebKit merge 43264:42403, unknown cause(s)
 BUG10055 LINUX DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
 BUG10055 MAC : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
-BUG10055 LINUX : LayoutTests/svg/text/text-tselect-02-f.svg = FAIL
 
 // This test was changed upstream in http://trac.webkit.org/changeset/42447
 // to include window.showModalDialog, which we give as undefined.
@@ -2745,15 +2744,10 @@ BUG13767 : LayoutTests/fast/js/JSON-stringify.html = FAIL TIMEOUT
 // Needs pixel results generated upstream, may need rebaselining afterwards
 BUG13809 SKIP : LayoutTests/fast/canvas/canvas-empty-image-pattern.html = FAIL
 
-// DCHECK failure about current message loop.
-BUG14014 DEBUG : LayoutTests/fast/events/tabindex-focus-chain.html = FAIL
-
 // WebKit 44646:44668
 BUG14061 : LayoutTests/svg/filters/subRegion-one-effect.svg = FAIL
 BUG14061 : LayoutTests/svg/filters/subRegion-two-effects.svg = FAIL
 
-// New version of V8.  Seems unrelated, see test.
-BUG14207 LINUX DEBUG : LayoutTests/tables/mozilla/bugs/bug28341.html = FAIL
 
 // Newly added test http://trac.webkit.org/changeset/44816
 BUG14673 : LayoutTests/http/tests/xmlhttprequest/cross-origin-no-authorization.html = FAIL CRASH
@@ -2761,3 +2755,7 @@ BUG14673 : LayoutTests/http/tests/xmlhttprequest/cross-origin-no-authorization.h
 // WebKit 44805:44837
 BUG14679 LINUX : LayoutTests/fast/backgrounds/animated-gif-as-background.html = FAIL
 BUG14686 MAC : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
+
+// Need investigation: test shell crashers.
+BUG14752 LINUX DEBUG: LayoutTests/http/tests/cache/subresource-expiration.html = CRASH PASS
+BUG14751 LINUX DEBUG: LayoutTests/css2.1/atrule_longest_match.html = CRASH PASS
