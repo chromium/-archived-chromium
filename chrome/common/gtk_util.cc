@@ -19,6 +19,31 @@ void RemoveWidget(GtkWidget* widget, gpointer container) {
   gtk_container_remove(GTK_CONTAINER(container), widget);
 }
 
+// These two functions are copped almost directly from gtk core. The only
+// difference is that they accept middle clicks.
+gboolean OnMouseButtonPressed(GtkWidget* widget, GdkEventButton* event,
+                              gpointer unused) {
+  if (event->type == GDK_BUTTON_PRESS) {
+    if (gtk_button_get_focus_on_click(GTK_BUTTON(widget)) &&
+        !GTK_WIDGET_HAS_FOCUS(widget)) {
+      gtk_widget_grab_focus(widget);
+    }
+
+    if (event->button == 1 || event->button == 2)
+      gtk_button_pressed(GTK_BUTTON(widget));
+  }
+
+  return TRUE;
+}
+
+gboolean OnMouseButtonReleased(GtkWidget* widget, GdkEventButton* event,
+                               gpointer unused) {
+  if (event->button == 1 || event->button == 2)
+    gtk_button_released(GTK_BUTTON(widget));
+
+  return TRUE;
+}
+
 }  // namespace
 
 namespace event_utils {
@@ -205,6 +230,15 @@ void EnumerateChildWindows(EnumerateWindowsDelegate* delegate) {
 
   g_list_foreach(stack, (GFunc)g_object_unref, NULL);
   g_list_free(stack);
+}
+
+void SetButtonTriggersNavigation(GtkWidget* button) {
+  // We handle button activation manually because we want to accept middle mouse
+  // clicks.
+  g_signal_connect(G_OBJECT(button), "button-press-event",
+                   G_CALLBACK(OnMouseButtonPressed), NULL);
+  g_signal_connect(G_OBJECT(button), "button-release-event",
+                   G_CALLBACK(OnMouseButtonReleased), NULL);
 }
 
 }  // namespace gtk_util

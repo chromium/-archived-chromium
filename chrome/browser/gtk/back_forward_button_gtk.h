@@ -36,6 +36,10 @@ class BackForwardButtonGtk {
                                 GdkEventButton* event,
                                 BackForwardButtonGtk* toolbar);
 
+  static gboolean OnButtonRelease(GtkWidget* button,
+                                  GdkEventButton* event,
+                                  BackForwardButtonGtk* toolbar);
+
   // If there is a timer to show the dropdown menu, and the mouse has moved
   // sufficiently down the screen, cancel the timer and immediately show the
   // menu.
@@ -56,6 +60,9 @@ class BackForwardButtonGtk {
 
   // Whether this button is a forward button.
   bool is_forward_;
+
+  // The event state from the last button release.
+  int last_release_event_flags_;
 
   // The dropdown menu delegate.
   scoped_ptr<BackForwardMenuModelGtk> menu_model_;

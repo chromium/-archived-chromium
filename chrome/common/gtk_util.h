@@ -100,6 +100,12 @@ class EnumerateWindowsDelegate {
 // Enumerates the top-level gdk windows of the current display.
 void EnumerateChildWindows(EnumerateWindowsDelegate* delegate);
 
+// Set that a button causes a page navigation. In particular, it will accept
+// middle clicks. Warning: only call this *after* you have connected your
+// own handlers for button-press and button-release events, or you will not get
+// those events.
+void SetButtonTriggersNavigation(GtkWidget* button);
+
 }  // namespace gtk_util
 
 #endif  // CHROME_COMMON_GTK_UTIL_H_

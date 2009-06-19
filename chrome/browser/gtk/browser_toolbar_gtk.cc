@@ -26,6 +26,7 @@
 #include "chrome/browser/gtk/toolbar_star_toggle_gtk.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
+#include "chrome/common/gtk_util.h"
 #include "chrome/common/notification_details.h"
 #include "chrome/common/notification_type.h"
 #include "chrome/common/pref_names.h"
@@ -63,7 +64,8 @@ BrowserToolbarGtk::BrowserToolbarGtk(Browser* browser, BrowserWindowGtk* window)
       model_(browser->toolbar_model()),
       browser_(browser),
       window_(window),
-      profile_(NULL) {
+      profile_(NULL),
+      last_release_event_flags_(0) {
   browser_->command_updater()->AddCommandObserver(IDC_BACK, this);
   browser_->command_updater()->AddCommandObserver(IDC_FORWARD, this);
   browser_->command_updater()->AddCommandObserver(IDC_RELOAD, this);
@@ -130,6 +132,7 @@ void BrowserToolbarGtk::Init(Profile* profile,
 
   home_.reset(BuildToolbarButton(IDR_HOME, IDR_HOME_P, IDR_HOME_H, 0,
                                  l10n_util::GetStringUTF8(IDS_TOOLTIP_HOME)));
+  gtk_util::SetButtonTriggersNavigation(home_->widget());
 
   // Group the start, omnibox, and go button into an hbox.
   GtkWidget* omnibox_hbox_ = gtk_hbox_new(FALSE, 0);
@@ -305,6 +308,8 @@ CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
                               localized_tooltip.c_str());
   g_signal_connect(button->widget(), "clicked",
                    G_CALLBACK(OnButtonClick), this);
+  g_signal_connect(button->widget(), "button-release-event",
+                   G_CALLBACK(OnButtonRelease), this);
 
   gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
   return button;
@@ -373,8 +378,18 @@ void BrowserToolbarGtk::OnButtonClick(GtkWidget* button,
   else if (button == toolbar->star_->widget())
     tag = IDC_STAR;
 
-  DCHECK_NE(tag, -1) << "Impossible button click callback";
-  toolbar->browser_->ExecuteCommand(tag);
+  DCHECK_NE(tag, -1) << "Unexpected button click callback";
+  toolbar->browser_->ExecuteCommandWithDisposition(tag,
+      event_utils::DispositionFromEventFlags(
+          toolbar->last_release_event_flags_));
+}
+
+// static
+gboolean BrowserToolbarGtk::OnButtonRelease(GtkWidget* button,
+                                            GdkEventButton* event,
+                                            BrowserToolbarGtk* toolbar) {
+  toolbar->last_release_event_flags_ = event->state;
+  return FALSE;
 }
 
 // static
