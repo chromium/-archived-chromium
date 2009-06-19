@@ -8,25 +8,33 @@
 #import <Cocoa/Cocoa.h>
 
 #include "base/scoped_nsobject.h"
+#include "base/scoped_ptr.h"
 #include "base/task.h"
 #include "base/time.h"
 #include "chrome/browser/cocoa/base_view.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
+
 #include "webkit/glue/webcursor.h"
 
 class RenderWidgetHostViewMac;
+class RWHVMEditCommandHelper;
 @class ToolTip;
+
+@protocol RenderWidgetHostViewMacOwner
+- (RenderWidgetHostViewMac*)renderWidgetHostViewMac;
+@end
 
 // This is the view that lives in the Cocoa view hierarchy. In Windows-land,
 // RenderWidgetHostViewWin is both the view and the delegate. We split the roles
 // but that means that the view needs to own the delegate and will dispose of it
 // when it's removed from the view system.
 
-@interface RenderWidgetHostViewCocoa : BaseView {
+@interface RenderWidgetHostViewCocoa : BaseView <RenderWidgetHostViewMacOwner> {
  @private
   RenderWidgetHostViewMac* renderWidgetHostView_;
   BOOL canBeKeyView_;
   BOOL closeOnDeactivate_;
+  scoped_ptr<RWHVMEditCommandHelper> editCommand_helper_;
 }
 
 - (void)setCanBeKeyView:(BOOL)can;

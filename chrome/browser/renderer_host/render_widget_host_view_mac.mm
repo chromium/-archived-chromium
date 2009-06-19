@@ -7,6 +7,7 @@
 #include "base/histogram.h"
 #include "base/sys_string_conversions.h"
 #include "chrome/browser/browser_trial.h"
+#import "chrome/browser/cocoa/rwhvm_editcommand_helper.h"
 #include "chrome/browser/renderer_host/backing_store.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
@@ -362,6 +363,9 @@ void RenderWidgetHostViewMac::ShutdownHost() {
 - (id)initWithRenderWidgetHostViewMac:(RenderWidgetHostViewMac*)r {
   self = [super initWithFrame:NSZeroRect];
   if (self != nil) {
+    editCommand_helper_.reset(new RWHVMEditCommandHelper);
+    editCommand_helper_->AddEditingSelectorsToClass([self class]);
+
     renderWidgetHostView_ = r;
     canBeKeyView_ = YES;
     closeOnDeactivate_ = NO;
@@ -509,4 +513,15 @@ void RenderWidgetHostViewMac::ShutdownHost() {
   return YES;
 }
 
+- (BOOL)validateUserInterfaceItem:(id<NSValidatedUserInterfaceItem>)item {
+  SEL action = [item action];
+
+  return editCommand_helper_->IsMenuItemEnabled(action, self);
+}
+
+- (RenderWidgetHostViewMac*)renderWidgetHostViewMac {
+  return renderWidgetHostView_;
+}
+
 @end
+
