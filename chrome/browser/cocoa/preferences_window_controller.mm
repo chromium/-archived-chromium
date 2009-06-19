@@ -204,6 +204,13 @@ class PrefObserverBridge : public NotificationObserver {
                         context:context];
 }
 
+// Called when the user hits the escape key. Closes the window. This will
+// automatically abandon/cancel any in-progress edits in text fields, we don't
+// have to do anything special.
+- (void)cancel:(id)sender {
+  [window performClose:self];
+}
+
 // Record the user performed a certain action and save the preferences.
 - (void)recordUserAction:(const wchar_t*)action {
   UserMetrics::RecordComputedAction(action, profile_);
