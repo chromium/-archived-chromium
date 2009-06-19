@@ -41,6 +41,8 @@ static const int kWaitForActionMsec = 2000;
 static const int kWaitForActionMaxMsec = 10000;
 // Delay to let the browser complete the test.
 static const int kMaxTestExecutionTime = 30000;
+// Delay to let the browser shut down.
+static const int kWaitForTerminateMsec = 5000;
 
 const wchar_t UITest::kFailedNoCrashService[] =
     L"NOTE: This test is expected to fail if crash_service.exe is not "
@@ -68,6 +70,7 @@ const wchar_t kUiTestTimeout[] = L"ui-test-timeout";
 const wchar_t kUiTestActionTimeout[] = L"ui-test-action-timeout";
 const wchar_t kUiTestActionMaxTimeout[] = L"ui-test-action-max-timeout";
 const wchar_t kUiTestSleepTimeout[] = L"ui-test-sleep-timeout";
+const wchar_t kUiTestTerminateTimeout[] = L"ui-test-terminate-timeout";
 
 const wchar_t kExtraChromeFlagsSwitch[] = L"extra-chrome-flags";
 
@@ -111,7 +114,8 @@ UITest::UITest()
       command_execution_timeout_ms_(kMaxTestExecutionTime),
       action_timeout_ms_(kWaitForActionMsec),
       action_max_timeout_ms_(kWaitForActionMaxMsec),
-      sleep_timeout_ms_(kWaitForActionMsec) {
+      sleep_timeout_ms_(kWaitForActionMsec),
+      terminate_timeout_ms_(kWaitForTerminateMsec) {
   PathService::Get(chrome::DIR_APP, &browser_directory_);
   PathService::Get(chrome::DIR_TEST_DATA, &test_data_directory_);
 }
@@ -198,6 +202,14 @@ void UITest::InitializeTimeouts() {
         CommandLine::ForCurrentProcess()->GetSwitchValue(kUiTestSleepTimeout);
     int sleep_timeout = StringToInt(WideToUTF16Hack(sleep_timeout_str));
     sleep_timeout_ms_ = std::max(kWaitForActionMsec, sleep_timeout);
+  }
+
+  if (CommandLine::ForCurrentProcess()->HasSwitch(kUiTestTerminateTimeout)) {
+    std::wstring terminate_timeout_str =
+        CommandLine::ForCurrentProcess()->GetSwitchValue(
+            kUiTestTerminateTimeout);
+    int terminate_timeout = StringToInt(WideToUTF16Hack(terminate_timeout_str));
+    terminate_timeout_ms_ = std::max(kWaitForActionMsec, terminate_timeout);
   }
 }
 
@@ -427,7 +439,7 @@ void UITest::QuitBrowser() {
 
     // Wait for the browser process to quit. It should quit once all tabs have
     // been closed.
-    int timeout = 5000;
+    int timeout = terminate_timeout_ms_;
 #ifdef WAIT_FOR_DEBUGGER_ON_OPEN
     timeout = 500000;
 #endif

@@ -503,6 +503,7 @@ class UITest : public testing::Test {
   int action_timeout_ms_;
   int action_max_timeout_ms_;
   int sleep_timeout_ms_;
+  int terminate_timeout_ms_;
 
   std::wstring ui_test_name_;
 };
