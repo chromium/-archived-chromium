@@ -9,14 +9,12 @@
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_view.h"
-#if defined(OS_WIN)
-#include "chrome/browser/autocomplete/autocomplete_popup_win.h"
-#endif
 #include "views/view.h"
 #include "webkit/glue/window_open_disposition.h"
 
 class AutocompleteEditModel;
 class AutocompleteEditViewWin;
+class AutocompletePopupWin;
 class Profile;
 
 // An interface implemented by an object that provides data to populate
