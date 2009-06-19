@@ -24,6 +24,7 @@ extern const wchar_t kRegPathClientStateMedium[];
 
 extern const wchar_t kRegApField[];
 extern const wchar_t kRegBrowserField[];
+extern const wchar_t kRegClientField[];
 extern const wchar_t kRegDidRunField[];
 extern const wchar_t kRegLangField[];
 extern const wchar_t kRegLastCheckedField[];

@@ -21,6 +21,14 @@ bool ReadGoogleUpdateStrKey(const wchar_t* const name, std::wstring* value) {
   return true;
 }
 
+bool WriteGoogleUpdateStrKey(const wchar_t* const name,
+                             const std::wstring& value) {
+  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+  std::wstring reg_path = dist->GetStateKey();
+  RegKey key(HKEY_CURRENT_USER, reg_path.c_str(), KEY_READ | KEY_WRITE);
+  return key.WriteValue(name, value.c_str());
+}
+
 bool ClearGoogleUpdateStrKey(const wchar_t* const name) {
   BrowserDistribution* dist = BrowserDistribution::GetDistribution();
   std::wstring reg_path = dist->GetStateKey();
@@ -76,6 +84,14 @@ bool GoogleUpdateSettings::GetLanguage(std::wstring* language) {
 
 bool GoogleUpdateSettings::GetBrand(std::wstring* brand) {
   return ReadGoogleUpdateStrKey(google_update::kRegRLZBrandField, brand);
+}
+
+bool GoogleUpdateSettings::GetClient(std::wstring* client) {
+  return ReadGoogleUpdateStrKey(google_update::kRegClientField, client);
+}
+
+bool GoogleUpdateSettings::SetClient(const std::wstring& client) {
+  return WriteGoogleUpdateStrKey(google_update::kRegClientField, client);
 }
 
 bool GoogleUpdateSettings::GetReferral(std::wstring* referral) {

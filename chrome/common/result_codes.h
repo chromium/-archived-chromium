@@ -41,7 +41,14 @@ class ResultCodes {
     KILLED_BAD_MESSAGE,         // A bad message caused the process termination.
     IMPORTER_CANCEL,            // The user canceled the browser import.
     IMPORTER_HUNG,              // Browser import hung and was killed.
-    RESPAWN_FAILED,             // Trying to restrart the browser we crashed.
+    RESPAWN_FAILED,             // Trying to restart the browser we crashed.
+
+    NORMAL_EXIT_EXP1,           // The EXP1, EXP2, EXP3, EXP4 are generic codes
+    NORMAL_EXIT_EXP2,           // used to communicate some simple outcome back
+    NORMAL_EXIT_EXP3,           // to the process that launched us. This is
+    NORMAL_EXIT_EXP4,           // used for experiments and the actual meaning
+                                // depends on the experiment.
+
     EXIT_LAST_CODE              // Last return code (keep it last).
   };
 };

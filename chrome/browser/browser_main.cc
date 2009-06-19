@@ -449,9 +449,9 @@ int BrowserMain(const MainFunctionParams& parameters) {
   if (parsed_command_line.HasSwitch(switches::kTryChromeAgain)) {
     Upgrade::TryResult answer = Upgrade::ShowTryChromeDialog();
     if (answer == Upgrade::TD_NOT_NOW)
-      return ResultCodes::NORMAL_EXIT;
+      return ResultCodes::NORMAL_EXIT_EXP1;
     if (answer == Upgrade::TD_UNINSTALL_CHROME)
-      return ResultCodes::UNINSTALL_CHROME_ALIVE;
+      return ResultCodes::NORMAL_EXIT_EXP2;
   }
 #endif  // OS_WIN
 

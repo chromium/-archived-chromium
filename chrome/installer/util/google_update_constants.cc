@@ -16,6 +16,7 @@ const wchar_t kRegPathClientStateMedium[]
 
 const wchar_t kRegApField[] = L"ap";
 const wchar_t kRegBrowserField[] = L"browser";
+const wchar_t kRegClientField[] = L"client";
 const wchar_t kRegDidRunField[] = L"dr";
 const wchar_t kRegLangField[] = L"lang";
 const wchar_t kRegLastCheckedField[] = L"LastChecked";
@@ -27,6 +28,5 @@ const wchar_t kRegUsageStatsField[] = L"usagestats";
 const wchar_t kRegVersionField[] = L"pv";
 const wchar_t kRegReferralField[] = L"referral";
 const wchar_t kRegEULAAceptedField[] = L"eulaaccepted";
-
 const wchar_t kEnvProductVersionKey[] = L"CHROME_VERSION";
 }  // namespace installer

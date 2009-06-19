@@ -20,6 +20,8 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/pref_names.h"
+#include "chrome/common/result_codes.h"
+#include "chrome/installer/util/install_util.h"
 #include "chrome/installer/util/l10n_string_util.h"
 #include "chrome/installer/util/google_update_constants.h"
 #include "chrome/installer/util/google_update_settings.h"
@@ -29,6 +31,15 @@
 #include "installer_util_strings.h"
 
 namespace {
+// The following strings are the possible outcomes of the toast experiment
+// as recorded in the  |client| field.
+const wchar_t kToastExpBaseGroup[] =         L"TS00";
+const wchar_t kToastExpQualifyGroup[] =      L"TS01";
+const wchar_t kToastExpCancelGroup[] =       L"TS02";
+const wchar_t kToastExpUninstallGroup[] =    L"TS04";
+const wchar_t kToastExpTriesOkGroup[] =      L"TS18";
+const wchar_t kToastExpTriesErrorGroup[] =   L"TS28";
+
 // Substitute the locale parameter in uninstall URL with whatever
 // Google Update tells us is the locale. In case we fail to find
 // the locale, we use US English.
@@ -192,6 +203,10 @@ void GoogleChromeDistribution::DoPostUninstallOperations(
   }
 
   int pid = 0;
+  // The reason we use WMI to launch the process is because the uninstall
+  // process runs inside a Job object controlled by the shell. As long as there
+  // are processes running, the shell will not close the uninstall applet. WMI
+  // allows us to escape from the Job object so the applet will close.
   WMIProcessUtil::Launch(command, &pid);
 }
 
@@ -371,37 +386,75 @@ void GoogleChromeDistribution::UpdateDiffInstallStatus(bool system_install,
   key.Close();
 }
 
+// Currently we only have one experiment: the inactive user toast. Which only
+// applies for users doing upgrades and non-systemwide install.
 void GoogleChromeDistribution::LaunchUserExperiment(
     installer_util::InstallStatus status, const installer::Version& version,
     bool system_install, int options) {
-  // Currently we only have one experiment: the inactive user toast. Which
-  // only applies for users doing upgrades.
-  if (installer_util::NEW_VERSION_UPDATED != status)
+  if ((installer_util::NEW_VERSION_UPDATED != status) || system_install)
     return;
 
-  // If user has not opted-in for usage stats or it is a system-wide install
-  // we don't do the experiments
-  if (!GoogleUpdateSettings::GetCollectStatsConsent() || system_install)
+  // If user has not opted-in for usage stats we don't do the experiments.
+  if (!GoogleUpdateSettings::GetCollectStatsConsent())
     return;
 
-  // User must be in the Great Britain as defined by googe_update language.
-  std::wstring lang;
-  if (!GoogleUpdateSettings::GetLanguage(&lang) || (lang != L"en-GB"))
+  std::wstring brand;
+  if (GoogleUpdateSettings::GetBrand(&brand) && (brand == L"CHXX")) {
+    // The user automatically qualifies for the experiment.
+  } else {
+    // Time to verify the conditions for the experiment.
+    std::wstring client_info;
+    if (GoogleUpdateSettings::GetClient(&client_info)) {
+      // The user might be participating on another experiment. The only
+      // users eligible for this experiment are that have no client info
+      // or the client info is "TS00".
+      if (client_info != kToastExpBaseGroup)
+        return;
+    }
+    // User must be in the Great Britain as defined by googe_update language.
+    std::wstring lang;
+    if (!GoogleUpdateSettings::GetLanguage(&lang) || (lang != L"en-GB"))
+      return;
+    // Check browser usage inactivity by the age of the last-write time of the
+    // chrome user data directory. Ninety days is our trigger.
+    std::wstring user_data_dir = installer::GetChromeUserDataPath();
+    const int kNinetyDays = 90 * 24;
+    int dir_age_hours = GetDirectoryWriteAgeInHours(user_data_dir.c_str());
+    if (dir_age_hours < kNinetyDays)
+      return;
+  }
+  // User qualifies for the experiment. Launch chrome with --try-chrome. Before
+  // that we need to change the client so we can track the progress.
+  if (!GoogleUpdateSettings::SetClient(kToastExpBaseGroup))
     return;
-
-  // Check browser usage inactivity by the age of the last-write time of the
-  // chrome user data directory. Ninety days is our trigger.
-  std::wstring user_data_dir = installer::GetChromeUserDataPath();
-  const int kNinetyDays = 90 * 24;
-  int dir_age_hours = GetDirectoryWriteAgeInHours(user_data_dir.c_str());
-  if (dir_age_hours < kNinetyDays)
-    return;
-
-  // User qualifies for the experiment. Launch chrome with --try-chrome
   int32 exit_code = 0;
   std::wstring option(L"--");
   option.append(switches::kTryChromeAgain);
   if (!installer::LaunchChromeAndWaitForResult(false, option, &exit_code))
     return;
+  // The chrome process has exited, figure out what happened.
+  const wchar_t* outcome = NULL;
+  switch (exit_code) {
+    case ResultCodes::NORMAL_EXIT:
+      outcome = kToastExpTriesOkGroup;
+      break;
+    case ResultCodes::NORMAL_EXIT_EXP1:
+      outcome = kToastExpCancelGroup;
+      break;
+    case ResultCodes::NORMAL_EXIT_EXP2:
+      outcome = kToastExpUninstallGroup;
+      break;
+    default:
+      outcome = kToastExpTriesErrorGroup;
+  };
+  GoogleUpdateSettings::SetClient(outcome);
+  if (outcome != kToastExpUninstallGroup)
+    return;
+  // The user wants to uninstall. This is a best effort operation. While this
+  // seems it could be a race (after all we are in the upgrade process) in
+  // practice the user will be faced with a dialog which gives us plenty of
+  // time to exit.
+  base::LaunchApp(InstallUtil::GetChromeUninstallCmd(false),
+                  false, false, NULL);
 }
 

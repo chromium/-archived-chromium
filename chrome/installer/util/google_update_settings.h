@@ -27,18 +27,26 @@ class GoogleUpdateSettings {
   // Returns false if the setting could not be recorded.
   static bool SetEULAConsent(bool consented);
 
-  // Returns in 'browser' the browser used to download chrome as recorded
+  // Returns in |browser| the browser used to download chrome as recorded
   // Google Update. Returns false if the information is not available.
   static bool GetBrowser(std::wstring* browser);
 
-  // Returns in 'language' the language selected by the user when downloading
+  // Returns in |language| the language selected by the user when downloading
   // chrome. This information is collected by the web server used to download
   // the chrome installer. Returns false if the information is not available.
   static bool GetLanguage(std::wstring* language);
 
-  // Returns in 'brand' the RLZ brand code or distribution tag that has been
+  // Returns in |brand| the RLZ brand code or distribution tag that has been
   // assigned to a partner. Returns false if the information is not available.
   static bool GetBrand(std::wstring* brand);
+
+  // Returns in |client| the google_update client field, which is currently
+  // used to track experiments. Returns false if the entry does not exist.
+  static bool GetClient(std::wstring* client);
+
+  // Sets the google_update client field. Unlike GetClient() this is set only
+  // for the current user. Returns false if the operation failed.
+  static bool SetClient(const std::wstring& client);
 
   // Returns in 'client' the RLZ referral available for some distribution
   // partners. This value does not exist for most chrome or chromium installs.
