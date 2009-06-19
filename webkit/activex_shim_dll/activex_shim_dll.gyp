@@ -14,7 +14,7 @@
       'targets': [
         {
           'target_name': 'activex_shim_dll',
-          'type': 'shared_library',
+          'type': 'loadable_module',
           'dependencies': [
             '../../base/base.gyp:base',
             '../../third_party/npapi/npapi.gyp:npapi',
@@ -25,7 +25,6 @@
           'msvs_settings': {
             'VCLinkerTool': {
               'RegisterOutput': 'false',
-              'IgnoreImportLibrary': 'true',
             },
           },
           'sources': [

@@ -12,7 +12,7 @@
     '../../../build/common.gypi',
   ],
   'target_defaults': {
-    'type': 'shared_library',
+    'type': 'loadable_module',
     'dependencies': [
       '../../chrome.gyp:chrome_strings',
       '../../../webkit/webkit.gyp:webkit_strings',
@@ -22,7 +22,6 @@
       'VCLinkerTool': {
         'BaseAddress': '0x3CF00000',
         'OutputFile': '$(OutDir)\\locales\\$(ProjectName).dll',
-        'IgnoreImportLibrary': 'true',
         'LinkIncremental': '1',  # 1 == No
         'LinkTimeCodeGeneration': '0',
         'ResourceOnlyDLL': 'true',
