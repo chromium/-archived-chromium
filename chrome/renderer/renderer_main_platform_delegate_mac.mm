@@ -83,15 +83,17 @@ namespace {
 // not process them (or at least remove them from the queue), the windowserver
 // will mark us as "not responding" and will start doing bad things like run
 // spindump on us (see <http://crbug.com/11319>). This function just keeps the
-// event queue empty. TODO(avi):Once Cocoa is gone from the renderer, remove
-// this code <http://crbug.com/13893>.
+// event queue empty. It uses a custom run loop mode so that no timers or
+// notifications fire and surprise Cocoa that's running in another thread.
+// TODO(avi):Once Cocoa is gone from the renderer, remove this code
+// <http://crbug.com/13893>.
 void PullAccumulatedWindowserverEvents() {
   base::ScopedNSAutoreleasePool scoped_pool;
 
   while ([[NSApplication sharedApplication]
       nextEventMatchingMask:NSAnyEventMask
                   untilDate:nil
-                     inMode:NSDefaultRunLoopMode
+                     inMode:@"org.chromium.CustomRunLoopModeSoThatNothingFires"
                     dequeue:YES]) {
     // just drop all pending events on the floor
   }
