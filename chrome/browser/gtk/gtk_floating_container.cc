@@ -172,12 +172,12 @@ static void gtk_floating_container_forall(GtkContainer* container,
                                           gboolean include_internals,
                                           GtkCallback callback,
                                           gpointer callback_data) {
-  GtkBin *bin = GTK_BIN(container);
-
+  g_return_if_fail(container != NULL);
   g_return_if_fail(callback != NULL);
 
-  if (bin->child)
-    (*callback)(bin->child, callback_data);
+  // Let GtkBin do its part of the forall.
+  ((GTK_CONTAINER_CLASS(gtk_floating_container_parent_class))->forall)
+      (container, include_internals, callback, callback_data);
 
   GtkFloatingContainer* floating = GTK_FLOATING_CONTAINER(container);
   GList* children = floating->floating_children;
