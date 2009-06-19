@@ -64,7 +64,7 @@ deps = {
     "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/zlib@" + Var("o3d_code_rev"),
 
   "o3d/third_party/v8":
-    "http://v8.googlecode.com/svn/trunk@2055",
+    "http://v8.googlecode.com/svn/trunk@2213",
 
   # NACL has to be in this weird directory because it looks for
   # googleclient two levels above it.
