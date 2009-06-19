@@ -598,8 +598,13 @@ bool RenderViewContextMenu::IsDevCommandEnabled(int id) const {
   if (active_entry->url().SchemeIs(chrome::kGearsScheme))
     return false;
 
+#if defined NDEBUG
+  bool debug_mode = false;
+#else
+  bool debug_mode = true;
+#endif
   // Don't inspect inspector, new tab UI, etc.
-  if (active_entry->url().SchemeIs(chrome::kChromeUIScheme))
+  if (active_entry->url().SchemeIs(chrome::kChromeUIScheme) && !debug_mode)
     return false;
 
   // Don't inspect about:network, about:memory, etc.
