@@ -304,7 +304,7 @@ void URLFetcherCancelTest::CreateFetcher(const GURL& url) {
   fetcher_->set_io_loop(&io_loop_);
   fetcher_->Start();
   // Make sure we give the IO thread a chance to run.
-  timer_.Start(TimeDelta::FromMilliseconds(100), this,
+  timer_.Start(TimeDelta::FromMilliseconds(300), this,
                &URLFetcherCancelTest::CancelRequest);
 }
 
@@ -324,7 +324,7 @@ void URLFetcherCancelTest::CancelRequest() {
   delete fetcher_;
   timer_.Stop();
   // Make sure we give the IO thread a chance to run.
-  timer_.Start(TimeDelta::FromMilliseconds(100), this,
+  timer_.Start(TimeDelta::FromMilliseconds(300), this,
                &URLFetcherCancelTest::TestContextReleased);
 }
 
