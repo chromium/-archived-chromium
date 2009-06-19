@@ -461,6 +461,10 @@ TabStripGtk::~TabStripGtk() {
   }
 
   tab_data_.clear();
+
+  // Make sure we unhook ourselves as a message loop observer so that we don't
+  // crash in the case where the user closes the last tab in a window.
+  RemoveMessageLoopObserver();
 }
 
 void TabStripGtk::Init() {
