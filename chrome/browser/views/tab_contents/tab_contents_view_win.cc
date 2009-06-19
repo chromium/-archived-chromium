@@ -326,7 +326,8 @@ void TabContentsViewWin::UpdateDragCursor(bool is_drop_target) {
 }
 
 void TabContentsViewWin::GotFocus() {
-  tab_contents()->delegate()->TabContentsFocused(tab_contents());
+  if (tab_contents()->delegate())
+    tab_contents()->delegate()->TabContentsFocused(tab_contents());
 }
 
 void TabContentsViewWin::TakeFocus(bool reverse) {
