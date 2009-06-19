@@ -290,7 +290,7 @@ class MemoryTest : public UITest {
       scoped_ptr<base::ProcessMetrics> process_metrics;
       IoCounters io_counters;
       base::ProcessHandle process_handle;
-      if (!base::OpenProcessHandle(*it, &process_handle)) {
+      if (!base::OpenPrivilegedProcessHandle(*it, &process_handle)) {
         NOTREACHED();
       }
       process_metrics.reset(

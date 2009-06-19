@@ -233,7 +233,7 @@ class PageCyclerTest : public UITest {
     ChromeProcessList::const_iterator it;
     for (it = chrome_processes.begin(); it != chrome_processes.end(); ++it) {
       base::ProcessHandle process_handle;
-      if (!base::OpenProcessHandle(*it, &process_handle)) {
+      if (!base::OpenPrivilegedProcessHandle(*it, &process_handle)) {
         NOTREACHED();
       }
 
@@ -303,7 +303,7 @@ class PageCyclerTest : public UITest {
     ChromeProcessList::const_iterator it;
     for (it = chrome_processes.begin(); it != chrome_processes.end(); ++it) {
       base::ProcessHandle process_handle;
-      if (!base::OpenProcessHandle(*it, &process_handle)) {
+      if (!base::OpenPrivilegedProcessHandle(*it, &process_handle)) {
         NOTREACHED();
       }
 

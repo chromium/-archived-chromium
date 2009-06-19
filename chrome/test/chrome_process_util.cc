@@ -29,7 +29,7 @@ void TerminateAllChromeProcesses(const FilePath& data_dir) {
       base::ProcessHandle handle;
       // Ignore processes for which we can't open the handle. We don't guarantee
       // that all processes will terminate, only try to do so.
-      if (base::OpenProcessHandle(*it, &handle))
+      if (base::OpenPrivilegedProcessHandle(*it, &handle))
         handles.push_back(handle);
     }
   }

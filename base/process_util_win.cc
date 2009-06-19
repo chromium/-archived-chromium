@@ -34,11 +34,10 @@ ProcessHandle GetCurrentProcessHandle() {
 }
 
 bool OpenProcessHandle(ProcessId pid, ProcessHandle* handle) {
-  // TODO(phajdan.jr): Take even more permissions out of this list.
-  ProcessHandle result = OpenProcess(PROCESS_DUP_HANDLE |
-                                         PROCESS_TERMINATE |
-                                         PROCESS_QUERY_INFORMATION |
-                                         SYNCHRONIZE,
+  // We try to limit privileges granted to the handle. If you need this
+  // for test code, consider using OpenPrivilegedProcessHandle instead of
+  // adding more privileges here.
+  ProcessHandle result = OpenProcess(PROCESS_DUP_HANDLE | PROCESS_TERMINATE,
                                      FALSE, pid);
 
   if (result == INVALID_HANDLE_VALUE)
