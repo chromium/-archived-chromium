@@ -2758,10 +2758,3 @@ BUG14207 LINUX DEBUG : LayoutTests/tables/mozilla/bugs/bug28341.html = FAIL
 
 // Newly added test http://trac.webkit.org/changeset/44816
 BUG14673 : LayoutTests/http/tests/xmlhttprequest/cross-origin-no-authorization.html = FAIL
-
-// Tests to be rebaselined shortly.
-BUGMERGE : LayoutTests/fast/forms/search-vertical-alignment.html = FAIL
-BUGMERGE : LayoutTests/fast/forms/search-zoomed.html = FAIL
-BUGMERGE WIN MAC : LayoutTests/fast/forms/searchfield-heights.html = FAIL
-BUGMERGE WIN MAC : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
-BUGMERGE : LayoutTests/compositing/repaint/become-overlay-composited-layer.html = FAIL
