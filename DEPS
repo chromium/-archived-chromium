@@ -48,6 +48,11 @@ deps = {
 
   "src/third_party/tcmalloc/tcmalloc":
     "http://google-perftools.googlecode.com/svn/trunk@74",
+    
+  # TODO(jianli): Remove this once we do not need to run worker's layout tests
+  # in ui test.
+  "src/chrome/test/data/workers/LayoutTests/fast/workers":
+    Var("webkit_trunk") + "/LayoutTests/fast/workers@" + Var("webkit_revision"),
 }
 
 
