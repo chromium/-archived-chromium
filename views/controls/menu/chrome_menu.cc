@@ -685,7 +685,7 @@ class MenuHost : public WidgetWin {
             const gfx::Rect& bounds,
             View* contents_view,
             bool do_capture) {
-    WidgetWin::Init(parent, bounds, true);
+    WidgetWin::Init(parent, bounds);
     SetContentsView(contents_view);
     // We don't want to take focus away from the hosting window.
     ShowWindow(SW_SHOWNA);

@@ -681,8 +681,7 @@ void NativeTextfieldWin::OnPaste() {
 void NativeTextfieldWin::OnSetFocus(HWND hwnd) {
   SetMsgHandled(FALSE);  // We still want the default processing of the message.
 
-  views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(m_hWnd);
+  views::FocusManager* focus_manager = textfield_->GetFocusManager();
   if (!focus_manager) {
     NOTREACHED();
     return;

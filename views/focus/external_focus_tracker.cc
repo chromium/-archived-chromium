@@ -4,6 +4,7 @@
 
 #include "views/focus/external_focus_tracker.h"
 
+#include "base/logging.h"
 #include "views/view.h"
 #include "views/focus/view_storage.h"
 
@@ -13,6 +14,8 @@ ExternalFocusTracker::ExternalFocusTracker(View* parent_view,
                                            FocusManager* focus_manager)
     : focus_manager_(focus_manager),
       parent_view_(parent_view) {
+  DCHECK(focus_manager);
+  DCHECK(parent_view);
   view_storage_ = ViewStorage::GetSharedInstance();
   last_focused_view_storage_id_ = view_storage_->CreateStorageID();
   // Store the view which is focused when we're created.

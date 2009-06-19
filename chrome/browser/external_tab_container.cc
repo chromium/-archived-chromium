@@ -53,11 +53,12 @@ bool ExternalTabContainer::Init(Profile* profile,
   }
 
   set_window_style(WS_POPUP);
-  views::WidgetWin::Init(NULL, bounds, true);
+  views::WidgetWin::Init(NULL, bounds);
   if (!IsWindow()) {
     NOTREACHED();
     return false;
   }
+  // TODO(jcampan): limit focus traversal to contents.
 
   // We don't ever remove the prop because the lifetime of this object
   // is the same as the lifetime of the window

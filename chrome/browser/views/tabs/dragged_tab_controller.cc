@@ -198,7 +198,7 @@ class DraggedTabController::DockDisplayer : public AnimationDelegate {
     popup->set_window_ex_style(WS_EX_LAYERED | WS_EX_TOOLWINDOW |
                                WS_EX_TOPMOST);
     popup->SetOpacity(0x00);
-    popup->Init(NULL, info.GetPopupRect(), false);
+    popup->Init(NULL, info.GetPopupRect());
     popup->SetContentsView(new DockView(info.type()));
     if (info.in_enable_area())
       animation_.Reset(1);

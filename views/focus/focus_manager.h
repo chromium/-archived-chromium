@@ -20,7 +20,7 @@
 // focused views and handle keyboard accelerators.
 //
 // There are 2 types of focus:
-// - the native focus, which is the focus that an HWND has.
+// - the native focus, which is the focus that an gfx::NativeView has.
 // - the view focus, which is the focus that a views::View has.
 //
 // Each native view must register with their Focus Manager so the focus manager
@@ -32,13 +32,9 @@
 // This is already done for you if you subclass the NativeControl class or if
 // you use the NativeViewHost class.
 //
-// When creating a top window, if it derives from WidgetWin, the
-// |has_own_focus_manager| of the Init method lets you specify whether that
-// window should have its own focus manager (so focus traversal stays confined
-// in that window). If you are not deriving from WidgetWin or one of its
-// derived classes (Window, FramelessWindow, ConstrainedWindow), you must
-// create a FocusManager when the window is created (it is automatically deleted
-// when the window is destroyed).
+// When creating a top window (derived from views::Widget) that is not a child
+// window, it creates and owns a FocusManager to manage the focus for itself and
+// all its child windows.
 //
 // The FocusTraversable interface exposes the methods a class should implement
 // in order to be able to be focus traversed when tab key is pressed.
@@ -77,8 +73,9 @@
 
 namespace views {
 
-class View;
 class RootView;
+class View;
+class Widget;
 
 // The FocusTraversable interface is used by components that want to process
 // focus traversal events (due to Tab/Shift-Tab key events).
@@ -153,22 +150,10 @@ class FocusChangeListener {
 
 class FocusManager {
  public:
-#if defined(OS_WIN)
-  // Creates a FocusManager for the specified window. Top level windows
-  // must invoked this when created.
-  // The RootView specified should be the top RootView of the window.
-  // This also invokes InstallFocusSubclass.
-  static FocusManager* CreateFocusManager(HWND window, RootView* root_view);
-#endif
-
-  static FocusManager* GetFocusManager(gfx::NativeView window);
+  explicit FocusManager(Widget* widget);
+  ~FocusManager();
 
 #if defined(OS_WIN)
-  // Message handlers (for messages received from registered windows).
-  // Should return true if the message should be forwarded to the window
-  // original proc function, false otherwise.
-  bool OnSetFocus(HWND window);
-  bool OnNCDestroy(HWND window);
   // OnKeyDown covers WM_KEYDOWN and WM_SYSKEYDOWN.
   bool OnKeyDown(HWND window,
                  UINT message,
@@ -195,26 +180,9 @@ class FocusManager {
   // the native focus (so we still get keyboard events).
   void ClearFocus();
 
-  // Clears the HWND that has the focus by focusing the HWND from the top
-  // RootView (so we still get keyboard events).
-  // Note that this does not change the currently focused view.
-  void ClearHWNDFocus();
-
-#if defined(OS_WIN)
-  // Focus the specified |hwnd| without changing the focused view.
-  void FocusHWND(HWND hwnd);
-#endif
-
   // Validates the focused view, clearing it if the window it belongs too is not
   // attached to the window hierarchy anymore.
   void ValidateFocusedView();
-
-#if defined(OS_WIN)
-  // Returns the view associated with the specified window if any.
-  // If |look_in_parents| is true, it goes up the window parents until it find
-  // a view.
-  static View* GetViewForWindow(HWND window, bool look_in_parents);
-#endif
 
   // Stores and restores the focused view. Used when the window becomes
   // active/inactive.
@@ -223,11 +191,6 @@ class FocusManager {
 
   // Clears the stored focused view.
   void ClearStoredFocusedView();
-
-  // Returns the FocusManager of the parent window of the window that is the
-  // root of this FocusManager. This is useful with ConstrainedWindows that have
-  // their own FocusManager and need to return focus to the browser when closed.
-  FocusManager* GetParentFocusManager() const;
 
   // Register a keyboard accelerator for the specified target. If multiple
   // targets are registered for an accelerator, a target registered later has
@@ -280,22 +243,17 @@ class FocusManager {
   // pressed).
   static bool IsTabTraversalKeyEvent(const KeyEvent& key_event);
 
+  // Sets the focus to the specified native view.
+  virtual void FocusNativeView(gfx::NativeView native_view);
+
+  // Clears the native view having the focus.
+  virtual void ClearNativeFocus();
+
+  // Retrieves the FocusManager associated with the passed native view.
+  static FocusManager* GetFocusManagerForNativeView(
+      gfx::NativeView native_view);
+
  private:
-#if defined(OS_WIN)
-  explicit FocusManager(HWND root, RootView* root_view);
-
-  // Subclasses the specified window. The subclassed window procedure listens
-  // for WM_SETFOCUS notification and keeps the FocusManager's focus owner
-  // property in sync.
-  // It's not necessary to explicitly invoke Uninstall, it's automatically done
-  // when the window is destroyed and Uninstall wasn't invoked.
-  static void InstallFocusSubclass(HWND window, View* view);
-
-  // Uninstalls the window subclass installed by InstallFocusSubclass.
-  static void UninstallFocusSubclass(HWND window);
-#endif
-  ~FocusManager();
-
   // Returns the next focusable view.
   View* GetNextFocusableView(View* starting_view, bool reverse, bool dont_loop);
 
@@ -307,8 +265,8 @@ class FocusManager {
                           View* starting_view,
                           bool reverse);
 
-  // The RootView of the window associated with this FocusManager.
-  RootView* top_root_view_;
+  // The top-level Widget this FocusManager is associated with.
+  Widget* widget_;
 
   // The view that currently is focused.
   View* focused_view_;
@@ -316,13 +274,6 @@ class FocusManager {
   // The storage id used in the ViewStorage to store/restore the view that last
   // had focus.
   int stored_focused_view_storage_id_;
-
-  // The window associated with this focus manager.
-  gfx::NativeView root_;
-
-  // Used to allow setting the focus on an HWND without changing the currently
-  // focused view.
-  bool ignore_set_focus_msg_;
 
   // The accelerators and associated targets.
   typedef std::list<AcceleratorTarget*> AcceleratorTargetList;

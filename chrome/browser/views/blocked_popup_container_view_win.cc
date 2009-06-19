@@ -398,7 +398,7 @@ BlockedPopupContainerViewWin::BlockedPopupContainerViewWin(
 
   set_window_style(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
   WidgetWin::Init(GetModel()->GetConstrainingContents(NULL)->GetNativeView(),
-                  gfx::Rect(), false);
+                  gfx::Rect());
   SetContentsView(container_view_);
   SetPosition();
 }

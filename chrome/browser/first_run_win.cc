@@ -684,7 +684,7 @@ class TryChromeDialog : public views::ButtonListener,
     popup->set_delete_on_destroy(true);
     popup->set_window_style(WS_POPUP | WS_CLIPCHILDREN);
     popup->set_window_ex_style(WS_EX_TOOLWINDOW);
-    popup->Init(NULL, pos, true);
+    popup->Init(NULL, pos);
 
     views::RootView* root_view = popup->GetRootView();
     // The window color is a tiny bit off-white.
