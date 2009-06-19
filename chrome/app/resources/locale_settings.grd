@@ -232,35 +232,6 @@
         84%
       </message>
 
-      <!-- The UI font used in native UI components (e.g. menu). 'default'
-           indicates that the font obtained from the system be used.
-           Otherwise, the system default UI font will be overriden with
-           the family specified. This should be default for locales
-           other than Indian locales.
-           TODO(jungshik): This and IDS_UI_FONT_SIZE_SCALER are only used
-           on Windows now and are likely to be so in the future because Mac and 
-           Linux fonts do not have the issue Windows fonts for some locales
-           (Indian) have. In that case, this need to be enclosed
-           by platform-dependent if-clause. -->
-      <message name="IDS_UI_FONT_FAMILY" use_name_for_id="true">
-        default
-      </message>
-      <!-- For Windows XP -->
-      <message name="IDS_UI_FONT_FAMILY_XP" use_name_for_id="true">
-        default
-      </message>
-
-      <!-- To get the actual UI font size for native UI components
-           (e.g. menu), the system UI font size is scaled with this value/100.
-           This should be 100 for most locales. -->
-      <message name="IDS_UI_FONT_SIZE_SCALER" use_name_for_id="true">
-        100
-      </message>
-      <!-- For Windows XP -->
-      <message name="IDS_UI_FONT_SIZE_SCALER_XP" use_name_for_id="true">
-        100
-      </message>
-
       <!-- The default value for HTTP Accept-Language header. -->
       <message name="IDS_ACCEPT_LANGUAGES" use_name_for_id="true">
         en-US,en

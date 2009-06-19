@@ -3,10 +3,6 @@
 <translationbundle lang="bn">
 <translation id="IDS_WEB_FONT_FAMILY">vrinda</translation>
 <translation id="IDS_WEB_FONT_SIZE">110%</translation>
-<translation id="IDS_UI_FONT_FAMILY_XP">vrinda</translation> 
-<translation id="IDS_UI_FONT_FAMILY">vrinda</translation>
-<translation id="IDS_UI_FONT_SIZE_SCALER_XP">160</translation>
-<translation id="IDS_UI_FONT_SIZE_SCALER">120</translation>
 <translation id="IDS_ACCEPT_LANGUAGES">bn-IN,bn,en-US,en</translation>
 <translation id="IDS_DEFAULT_ENCODING">ISO-8859-1</translation>
 <translation id="IDS_STANDARD_FONT_IS_SERIF">true</translation>
