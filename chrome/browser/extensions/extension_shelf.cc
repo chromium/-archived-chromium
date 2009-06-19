@@ -365,6 +365,12 @@ void ExtensionShelf::ExtensionShelfEmpty() {
   PreferredSizeChanged();
 }
 
+void ExtensionShelf::ShelfModelReloaded() {
+  // None of the child views are parent owned, so nothing is being leaked here.
+  RemoveAllChildViews(false);
+  LoadFromModel();
+}
+
 void ExtensionShelf::OnExtensionMouseEvent(ExtensionView* view) {
   // Ignore these events when dragging.
   if (drag_placeholder_view_)
@@ -578,7 +584,6 @@ void ExtensionShelf::LayoutShelfHandle() {
 
 void ExtensionShelf::LoadFromModel() {
   int count = model_->count();
-  for (int i = 0; i < count; ++i) {
+  for (int i = 0; i < count; ++i)
     ToolstripInsertedAt(model_->ToolstripAt(i), i);
-  }
 }

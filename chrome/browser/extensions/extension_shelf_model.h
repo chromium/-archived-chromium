@@ -11,11 +11,11 @@
 #include "base/observer_list.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/notification_registrar.h"
+#include "chrome/browser/extensions/extension_host.h"
 #include "chrome/browser/extensions/extensions_service.h"
 
 class Browser;
-class ExtensionHost;
-class ExtensionView;
+class ExtensionPrefs;
 
 // Objects implement this interface when they wish to be notified of changes to
 // the ExtensionShelfModel.
@@ -41,10 +41,16 @@ class ExtensionShelfModelObserver {
   // There are no more toolstrips in the model.
   virtual void ExtensionShelfEmpty() {}
 
+  // The entire model may have changed.
+  virtual void ShelfModelReloaded() {}
+
   // TODO(erikkay) - any more?
 };
 
-// The model representing the toolstrips on an ExtensionShelf.
+// The model representing the toolstrips on an ExtensionShelf.  The order of
+// the toolstrips is common across all of the models for a given Profile,
+// but there are multiple models.  Each model contains the hosts/views which
+// are specific to a Browser.
 class ExtensionShelfModel : public NotificationObserver {
  public:
   ExtensionShelfModel(Browser* browser);
@@ -82,26 +88,41 @@ class ExtensionShelfModel : public NotificationObserver {
                        const NotificationDetails& details);
 
  private:
+  // Add all of the toolstrips from |extension|.
+  void AddExtension(Extension* extension);
+
   // Add all of the toolstrips from each extension in |extensions|.
   void AddExtensions(const ExtensionList* extensions);
 
   // Remove all of the toolstrips in |extension| from the shelf.
-  void RemoveExtension(const Extension* extension);
+  void RemoveExtension(Extension* extension);
+
+  // Update prefs with the most recent changes.
+  void UpdatePrefs();
+
+  // Reloads order from prefs.
+  void SortToolstrips();
 
   // The browser that this model is attached to.
   Browser* browser_;
 
+  // The preferences that this model uses.
+  ExtensionPrefs* prefs_;
+
   // Manages our notification registrations.
   NotificationRegistrar registrar_;
 
-  // The Toolstrips in this model.  The model owns these objects.
-  typedef std::vector<ExtensionHost*> ExtensionToolstripList;
-  ExtensionToolstripList toolstrips_;
+  // The Toolstrips loaded in this model. The model owns these objects.
+  typedef std::vector<ExtensionHost*> ExtensionToolstrips;
+  ExtensionToolstrips toolstrips_;
 
   // Our observers.
   typedef ObserverList<ExtensionShelfModelObserver>
       ExtensionShelfModelObservers;
   ExtensionShelfModelObservers observers_;
+
+  // Whether the model has received an EXTENSIONS_READY notification.
+  bool ready_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionShelfModel);
 };

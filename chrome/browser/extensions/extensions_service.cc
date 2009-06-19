@@ -219,7 +219,8 @@ ExtensionsService::ExtensionsService(Profile* profile,
       extensions_enabled_(
           CommandLine::ForCurrentProcess()->
           HasSwitch(switches::kEnableExtensions)),
-      show_extensions_prompts_(true) {
+      show_extensions_prompts_(true),
+      ready_(false) {
   // We pass ownership of this object to the Backend.
   DictionaryValue* extensions = extension_prefs_->CopyCurrentExtensions();
   backend_ = new ExtensionsServiceBackend(
@@ -343,6 +344,7 @@ void ExtensionsService::GarbageCollectExtensions() {
 }
 
 void ExtensionsService::OnLoadedInstalledExtensions() {
+  ready_ = true;
   NotificationService::current()->Notify(
       NotificationType::EXTENSIONS_READY,
       Source<ExtensionsService>(this),

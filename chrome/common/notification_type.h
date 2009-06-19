@@ -600,6 +600,9 @@ class NotificationType {
     // and is fully functional. The details are an ExtensionHost*.
     EXTENSION_PROCESS_RESTORED,
 
+    // Sent when the contents or order of toolstrips in the shelf model change.
+    EXTENSION_SHELF_MODEL_CHANGED,
+
     // Debugging ---------------------------------------------------------------
 
     // Sent from ~RenderViewHost. The source is the RenderViewHost.

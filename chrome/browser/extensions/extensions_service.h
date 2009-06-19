@@ -142,6 +142,11 @@ class ExtensionsService
     return show_extensions_prompts_;
   }
 
+  ExtensionPrefs* extension_prefs() { return extension_prefs_.get(); }
+
+  // Whether the extension service is ready.
+  bool is_ready() { return ready_; }
+
  private:
   // For OnExtensionLoaded, OnExtensionInstalled, and
   // OnExtensionVersionReinstalled.
@@ -185,6 +190,9 @@ class ExtensionsService
 
   // The backend that will do IO on behalf of this instance.
   scoped_refptr<ExtensionsServiceBackend> backend_;
+
+  // Is the service ready to go?
+  bool ready_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionsService);
 };

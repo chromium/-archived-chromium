@@ -33,6 +33,9 @@ class ExtensionPrefs {
   typedef std::vector<GURL> URLList;
   URLList GetShelfToolstripOrder();
 
+  // Sets the order that toolstrip URLs appear in the shelf.
+  void SetShelfToolstripOrder(const URLList& urls);
+
   // Called when an extension is installed, so that prefs get created.
   void OnExtensionInstalled(Extension* extension);
 

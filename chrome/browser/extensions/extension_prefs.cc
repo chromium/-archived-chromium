@@ -128,6 +128,16 @@ ExtensionPrefs::URLList ExtensionPrefs::GetShelfToolstripOrder() {
   return urls;
 }
 
+void ExtensionPrefs::SetShelfToolstripOrder(const URLList& urls) {
+  ListValue* toolstrip_urls = prefs_->GetMutableList(kExtensionShelf);
+  toolstrip_urls->Clear();
+  for (size_t i = 0; i < urls.size(); ++i) {
+    GURL url = urls[i];
+    toolstrip_urls->Append(new StringValue(url.spec()));
+  }
+  prefs_->ScheduleSavePersistentPrefs();
+}
+
 void ExtensionPrefs::OnExtensionInstalled(Extension* extension) {
   std::string id = extension->id();
   UpdateExtensionPref(id, kPrefState,

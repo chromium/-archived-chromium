@@ -56,6 +56,7 @@ class ExtensionShelf : public views::View,
                               int to_index);
   virtual void ToolstripChangedAt(ExtensionHost* toolstrip, int index);
   virtual void ExtensionShelfEmpty();
+  virtual void ShelfModelReloaded();
 
   // Dragging toolstrips
   void DragExtension();
