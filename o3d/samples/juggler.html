@@ -216,7 +216,7 @@ function unload() {
 }
 </script>
 </head>
-<body style="width: 100%; height: 100%;">
+<body style="width: 95%; height: 95%;">
 <table style="width: 100%; height: 100%;">
   <tr>
     <td>
@@ -226,12 +226,20 @@ function unload() {
         <form name="the_form">
           <input type="radio" name="radio_group" value="3"
               onclick=updateNum()>3 Balls
-          <input type="radio" name="radio_group" value="5" checked
+          <input type="radio" name="radio_group" value="5"
               onclick=updateNum()>5 Balls
           <input type="radio" name="radio_group" value="7"
               onclick=updateNum()>7 Balls
           <input type="radio" name="radio_group" value="9"
               onclick=updateNum()>9 Balls
+          <input type="radio" name="radio_group" value="11" checked
+              onclick=updateNum()>11 Balls
+          <input type="radio" name="radio_group" value="13"
+              onclick=updateNum()>13 Balls
+          <input type="radio" name="radio_group" value="15"
+              onclick=updateNum()>15 Balls
+          <input type="radio" name="radio_group" value="17"
+              onclick=updateNum()>17 Balls
           <input type="checkbox" name="check_box" checked
               onclick=toggleRenderCallback()>Animate
         </form>
@@ -286,6 +294,8 @@ float length_2(in float2 v) {
 }
 
 // Draw the balls in a single arc.
+// Returns 1 if the pixel is within a ball, 0 if it isn't, and a value in
+// between for pixels right on the edge, for antialiasing.
 float drawBallsInArc(in float pi,
                      in float4 offset,
                      in float2 source_hand,
@@ -318,6 +328,9 @@ float drawBallsInArc(in float pi,
   float4 ZX = Z.x;
   float4 ZY = Z.y;
   float4 len_2 = (ZX - x) * (ZX - x) + (ZY - y) * (ZY - y);
+
+  // This antialiasing fuzzes the balls just a bit larger than they would
+  // otherwise be.
   float4 temp = clamp((len_2 - ball_radius_2) / threshold, 0, 1);
 
   // One minus the product of all entries in temp.
@@ -325,24 +338,24 @@ float drawBallsInArc(in float pi,
   return 1 - temp.x * temp.y;
 }
 
-float drawAirborneBalls(in float pi,
-                        in float4 offset,
-                        in float2 right_hand,
-                        in float2 left_hand,
-                        in float height_factor,
-                        in float baseline,
-                        in float ball_radius_2,
-                        in float hand_swing_radius,
-                        in float2 Z,
-                        in float threshold) {
-  // The expression below is one minus a product.  The first factor in the
-  // product is responsible for balls moving from right to left, and the second
-  // factor is responsible for balls moving from left to right.
-  return 1 -
-    (1 - drawBallsInArc(pi, offset, right_hand, left_hand, height_factor,
-        baseline, ball_radius_2, hand_swing_radius, Z, threshold)) *
-    (1 - drawBallsInArc(pi, offset + 1, left_hand, right_hand, height_factor,
-        baseline, ball_radius_2, -hand_swing_radius, Z, threshold));
+float4 drawAirborneBalls(in float pi,
+                         in float4 offset,
+                         in float2 right_hand,
+                         in float2 left_hand,
+                         in float height_factor,
+                         in float baseline,
+                         in float ball_radius_2,
+                         in float hand_swing_radius,
+                         in float2 Z,
+                         in float threshold) {
+  float value = 
+      // balls going right to left
+      (drawBallsInArc(pi, offset, right_hand, left_hand, height_factor,
+          baseline, ball_radius_2, hand_swing_radius, Z, threshold) +
+      // balls going left to right
+      drawBallsInArc(pi, offset + 1, left_hand, right_hand, height_factor,
+          baseline, ball_radius_2, -hand_swing_radius, Z, threshold));
+  return float4(value, value, value, value);
 }
 
 /**
@@ -351,21 +364,22 @@ float drawAirborneBalls(in float pi,
 
 float4 pixelShaderMain(PixelShaderInput input) : COLOR {
   const float pi = 3.14159265;
-  const float baseline = -1.2;
+  const float baseline = -1.4;
   const float2 right_hand = float2(0.8, baseline);
   const float2 left_hand = float2(-0.8, baseline);
-  const float hand_swing_radius = 0.3;
-  const float hand_radius_2 = 0.15 * 0.15;
-  const float ball_radius_2 = 0.1 * 0.1;
+  const float hand_swing_radius = 0.25;
+  const float hand_radius = 0.15;
+  const float hand_radius_2 = hand_radius * hand_radius;
+  const float ball_radius = 0.08;
+  const float ball_radius_2 = ball_radius * ball_radius;
 
-  const float4 ball_color = float4(1, 1, 1, 1);
   const float4 right_hand_color = float4(1, 0, 0, 1);
   const float4 left_hand_color = float4(0, 0, 1, 1);
   const float4 background_color = float4(0, 0, 0, 0);
 
   const float threshold = 0.002; // Used in clamp for antialiasing.
 
-  float height_factor = num;
+  float height_factor = num * 0.75;
 
   float2 Z = input.texCoord;
 
@@ -379,12 +393,15 @@ float4 pixelShaderMain(PixelShaderInput input) : COLOR {
   // It's kind of like a rudimentary z-buffer.
   float4 result = background_color;
 
-  // Draw the hands.
-  result += (1 - result.a) * (
+  // Draw the hands.  The antialiasing here fuzzes the hands just a little bit
+  // smaller than they would otherwise be.  That's the opposite of what we do
+  // for the balls, just because it happens to be cheaper here to do smaller and
+  // cheaper in drawBallsInArc to do larger.
+  result += 
       clamp((hand_radius_2 - length_2(Z - r_h)) / threshold, 0, 1) *
           (Z.y < r_h.y) * right_hand_color +
       clamp((hand_radius_2 - length_2(Z - l_h)) / threshold, 0, 1) *
-          (Z.y < l_h.y) * left_hand_color);
+          (Z.y < l_h.y) * left_hand_color;
 
   // Draw the ball in the hand.  There is always a ball in exactly one hand, and
   // which hand that is alternates.
@@ -394,15 +411,30 @@ float4 pixelShaderMain(PixelShaderInput input) : COLOR {
   } else {
     hand = l_h;
   }
-  result += (1 - result.a) * ball_color *
-      clamp((ball_radius_2 - length_2(Z - hand)) / threshold, 0, 1);
-
-  float4 offset = float4(0, 2, 4, 6);
-
-  // For each of up-to-4 pairs of balls you want to add, increment offsets by
-  // (8, 8, 8, 8) and call drawAirborneBalls again.
+  // The antialiasing here fuzzes the balls just a bit bigger than they would
+  // otherwise be.  This is more work than making them smaller [the extra
+  // subtraction in the "1 - clamp..." below], but inverting it in
+  // drawBallsInArc would be more expensive, and they have to match so that the
+  // balls are all the same size.
+  result += (1 - result.a) * 
+      (1 - clamp((length_2(Z - hand) - ball_radius_2) / threshold, 0, 1));
 
   // Draw airborne balls.
+  float4 offset = float4(0, 2, 4, 6);
+  result += (1 - result.a) * drawAirborneBalls(pi,
+                                               offset,
+                                               right_hand,
+                                               left_hand,
+                                               height_factor,
+                                               baseline,
+                                               ball_radius_2,
+                                               hand_swing_radius,
+                                               Z,
+                                               threshold);
+
+  // For each up-to-4 pairs of balls you want to add, increment offset by
+  // (8, 8, 8, 8) and call drawAirborneBalls again.
+  offset += 8;
   result += (1 - result.a) * drawAirborneBalls(pi,
                                                offset,
                                                right_hand,
