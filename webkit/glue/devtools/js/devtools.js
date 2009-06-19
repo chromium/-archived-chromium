@@ -936,8 +936,14 @@ WebInspector.Console.prototype._formatobject = function(object, elem) {
   var section;
   if (object.handle && object.className) {
     object.ref = object.handle;
+    var className = object.className;
     section = new WebInspector.ScopeChainPropertiesSection(object,
-        object.className);
+        className);
+    section.pane = {
+      callFrame: {
+        _expandedProperties : { className : '' }
+      }
+    };
   } else {
     var wrapper = {};
     wrapper.id_ = object.___devtools_id;
