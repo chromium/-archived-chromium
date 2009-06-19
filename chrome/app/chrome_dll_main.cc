@@ -488,8 +488,15 @@ int ChromeMain(int argc, const char** argv) {
 #endif
   } else if (process_type == switches::kZygoteProcess) {
 #if defined(OS_LINUX)
-    if (ZygoteMain(main_params))
+    if (ZygoteMain(main_params)) {
+      // Zygote::HandleForkRequest may have reallocated the command
+      // line so update it here with the new version.
+      const CommandLine& parsed_command_line =
+        *CommandLine::ForCurrentProcess();
+      MainFunctionParams main_params(parsed_command_line, sandbox_wrapper,
+                                     &autorelease_pool);
       RendererMain(main_params);
+    }
 #else
     NOTIMPLEMENTED();
 #endif

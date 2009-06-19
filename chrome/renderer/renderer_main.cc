@@ -59,7 +59,7 @@ static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
   }
 }
 
-// mainline routine for running as the Rendererer process
+// mainline routine for running as the Renderer process
 int RendererMain(const MainFunctionParams& parameters) {
   const CommandLine& parsed_command_line = parameters.command_line_;
   base::ScopedNSAutoreleasePool* pool = parameters.autorelease_pool_;
