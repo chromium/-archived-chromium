@@ -3356,7 +3356,6 @@
         'browser/debugger/devtools_remote_message_unittest.cc',
         'browser/debugger/devtools_remote_listen_socket_unittest.cc',
         'browser/debugger/devtools_remote_listen_socket_unittest.h',
-        'browser/debugger/devtools_sanity_unittest.cc',
         'browser/child_process_security_policy_unittest.cc',
         'browser/chrome_thread_unittest.cc',
         # It is safe to list */cocoa/* files in the "common" file list
@@ -3637,8 +3636,6 @@
             'browser/gtk/tabs/tab_renderer_gtk_unittest.cc',
             'common/file_descriptor_set_unittest.cc',
             'common/net/url_util_unittest.cc',
-            # TODO(ben):  http://crbug.com/14639
-            'browser/debugger/devtools_sanity_unittest.cc',
             # TODO(ben):  http://crbug.com/14640
             'browser/extensions/extensions_service_unittest.cc',
             # TODO(ben):  http://crbug.com/14641
@@ -3676,7 +3673,6 @@
             'browser/browser_commands_unittest.cc',
             'browser/browser_unittest.cc',
             # Need to port browser/automation/ui_controls.h
-            'browser/debugger/devtools_sanity_unittest.cc',
             'browser/extensions/extension_process_manager_unittest.cc',
             'browser/extensions/test_extension_loader.cc',
             'browser/importer/firefox_importer_unittest.cc',
