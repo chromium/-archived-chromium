@@ -75,6 +75,29 @@ bool FillPasswordFormFromKeychainItem(const MacKeychain& keychain,
                                       const SecKeychainItemRef& keychain_item,
                                       webkit_glue::PasswordForm* form);
 
+// Returns true if the two given forms match based on signon_reaml, scheme, and
+// username_value, and are thus suitable for merging (see MergePasswordForms).
+// If this returns true, and path_matches is non-NULL, *path_matches will be set
+// based on whether the full origin matches as well.
+bool FormsMatchForMerge(const webkit_glue::PasswordForm& form_a,
+                        const webkit_glue::PasswordForm& form_b,
+                        bool* path_matches);
+
+// Populates merged_forms by combining the password data from keychain_forms and
+// the metadata from database_forms, removing used entries from the two source
+// lists.
+//
+// On return, database_forms and keychain_forms will have only unused
+// entries; for database_forms that means entries for which no corresponding
+// password can be found (and which aren't blacklist entries), but for
+// keychain_forms it's only entries we explicitly choose not to use (e.g.,
+// blacklist entries from other browsers). Keychain entries that we have no
+// database matches for will still end up in merged_forms, since they have
+// enough information to be used as imported passwords.
+void MergePasswordForms(std::vector<webkit_glue::PasswordForm*>* keychain_forms,
+                        std::vector<webkit_glue::PasswordForm*>* database_forms,
+                        std::vector<webkit_glue::PasswordForm*>* merged_forms);
+
 }  // internal_keychain_helpers
 
 #endif  // CHROME_BROWSER_PASSWORD_MANAGER_PASSWORD_STORE_MAC_INTERNAL_H_

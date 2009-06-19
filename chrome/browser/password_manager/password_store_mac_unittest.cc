@@ -830,3 +830,337 @@ TEST(PasswordStoreMacTest, TestKeychainExactSearch) {
     mock_keychain.ExpectCreatesAndFreesBalanced();
   }
 }
+
+TEST(PasswordStoreMacTest, TestFormMatch) {
+  PasswordForm base_form;
+  base_form.signon_realm = std::string("http://some.domain.com/");
+  base_form.origin = GURL("http://some.domain.com/page.html");
+  base_form.username_value = std::wstring(L"joe_user");
+
+  {
+    // Check that everything unimportant can be changed.
+    PasswordForm different_form(base_form);
+    different_form.username_element = std::wstring(L"username");
+    different_form.submit_element = std::wstring(L"submit");
+    different_form.username_element = std::wstring(L"password");
+    different_form.password_value = std::wstring(L"sekrit");
+    different_form.action = GURL("http://some.domain.com/action.cgi");
+    different_form.ssl_valid = true;
+    different_form.preferred = true;
+    different_form.date_created = base::Time::Now();
+    bool paths_match = false;
+    EXPECT_TRUE(internal_keychain_helpers::FormsMatchForMerge(base_form,
+                                                              different_form,
+                                                              &paths_match));
+    EXPECT_TRUE(paths_match);
+
+    // Check that we detect path differences, but still match.
+    base_form.origin = GURL("http://some.domain.com/other_page.html");
+    EXPECT_TRUE(internal_keychain_helpers::FormsMatchForMerge(base_form,
+                                                              different_form,
+                                                              &paths_match));
+    EXPECT_FALSE(paths_match);
+  }
+
+  // Check that any one primary key changing is enough to prevent matching.
+  {
+    PasswordForm different_form(base_form);
+    different_form.scheme = PasswordForm::SCHEME_DIGEST;
+    EXPECT_FALSE(internal_keychain_helpers::FormsMatchForMerge(base_form,
+                                                               different_form,
+                                                               NULL));
+  }
+  {
+    PasswordForm different_form(base_form);
+    different_form.signon_realm = std::string("http://some.domain.com:8080/");
+    EXPECT_FALSE(internal_keychain_helpers::FormsMatchForMerge(base_form,
+                                                               different_form,
+                                                               NULL));
+  }
+  {
+    PasswordForm different_form(base_form);
+    different_form.username_value = std::wstring(L"john.doe");
+    EXPECT_FALSE(internal_keychain_helpers::FormsMatchForMerge(base_form,
+                                                               different_form,
+                                                               NULL));
+  }
+  {
+    PasswordForm different_form(base_form);
+    different_form.blacklisted_by_user = true;
+    EXPECT_FALSE(internal_keychain_helpers::FormsMatchForMerge(base_form,
+                                                               different_form,
+                                                               NULL));
+  }
+
+  // Blacklist forms should *never* match for merging, even when identical
+  // (and certainly not when only one is a blacklist entry).
+  {
+    PasswordForm form_a(base_form);
+    form_a.blacklisted_by_user = true;
+    PasswordForm form_b(form_a);
+    EXPECT_FALSE(internal_keychain_helpers::FormsMatchForMerge(form_a, form_b,
+                                                               NULL));
+  }
+}
+
+// Struct used for creation of PasswordForms from static arrays of data.
+struct PasswordFormData {
+  const PasswordForm::Scheme scheme;
+  const char* signon_realm;
+  const char* origin;
+  const char* action;
+  const wchar_t* submit_element;
+  const wchar_t* username_element;
+  const wchar_t* password_element;
+  const wchar_t* username_value;  // Set to NULL for a blacklist entry.
+  const wchar_t* password_value;
+  const bool preferred;
+  const bool ssl_valid;
+  const double creation_time;
+};
+
+// Creates and returns a new PasswordForm built from form_data. Caller is
+// responsible for deleting the object when finished with it.
+static PasswordForm* CreatePasswordFormFromData(
+    const PasswordFormData& form_data) {
+  PasswordForm* form = new PasswordForm();
+  form->scheme = form_data.scheme;
+  form->preferred = form_data.preferred;
+  form->ssl_valid = form_data.ssl_valid;
+  form->date_created = base::Time::FromDoubleT(form_data.creation_time);
+  if (form_data.signon_realm)
+    form->signon_realm = std::string(form_data.signon_realm);
+  if (form_data.origin)
+    form->origin = GURL(form_data.origin);
+  if (form_data.action)
+    form->action = GURL(form_data.action);
+  if (form_data.submit_element)
+    form->submit_element = std::wstring(form_data.submit_element);
+  if (form_data.username_element)
+    form->username_element = std::wstring(form_data.username_element);
+  if (form_data.password_element)
+    form->password_element = std::wstring(form_data.password_element);
+  if (form_data.username_value) {
+    form->username_value = std::wstring(form_data.username_value);
+    if (form_data.password_value)
+      form->password_value = std::wstring(form_data.password_value);
+  } else {
+    form->blacklisted_by_user = true;
+  }
+  return form;
+}
+
+// Macro to simplify calling CheckFormsAgainstExpectations with a useful label.
+#define CHECK_FORMS(forms, expectations, i) \
+    CheckFormsAgainstExpectations(forms, expectations, #forms, i)
+
+// Ensures that the data in |forms| match |expectations|, causing test failures
+// for any discrepencies.
+// TODO(stuartmorgan): This is current order-dependent; ideally it shouldn't
+// matter if |forms| and |expectations| are scrambled.
+static void CheckFormsAgainstExpectations(
+    const std::vector<PasswordForm*>& forms,
+    const std::vector<PasswordFormData*>& expectations,
+    const char* forms_label, unsigned int test_number) {
+
+  const unsigned int kBufferSize = 128;
+  char test_label[kBufferSize];
+  snprintf(test_label, kBufferSize, "%s in test %u", forms_label, test_number);
+
+  EXPECT_EQ(expectations.size(), forms.size()) << test_label;
+  if (expectations.size() != forms.size())
+    return;
+
+  for (unsigned int i = 0; i < expectations.size(); ++i) {
+    snprintf(test_label, kBufferSize, "%s in test %u, item %u",
+             forms_label, test_number, i);
+    PasswordForm* form = forms[i];
+    PasswordFormData* expectation = expectations[i];
+    EXPECT_EQ(expectation->scheme, form->scheme) << test_label;
+    EXPECT_EQ(std::string(expectation->signon_realm), form->signon_realm)
+        << test_label;
+    EXPECT_EQ(GURL(expectation->origin), form->origin) << test_label;
+    EXPECT_EQ(GURL(expectation->action), form->action) << test_label;
+    EXPECT_EQ(std::wstring(expectation->submit_element), form->submit_element)
+        << test_label;
+    EXPECT_EQ(std::wstring(expectation->username_element),
+              form->username_element) << test_label;
+    EXPECT_EQ(std::wstring(expectation->password_element),
+              form->password_element) << test_label;
+    if (expectation->username_value) {
+      EXPECT_EQ(std::wstring(expectation->username_value),
+                form->username_value) << test_label;
+      EXPECT_EQ(std::wstring(expectation->password_value),
+                form->password_value) << test_label;
+    } else {
+      EXPECT_TRUE(form->blacklisted_by_user) << test_label;
+    }
+    EXPECT_EQ(expectation->preferred, form->preferred)  << test_label;
+    EXPECT_EQ(expectation->ssl_valid, form->ssl_valid) << test_label;
+    EXPECT_DOUBLE_EQ(expectation->creation_time,
+                     form->date_created.ToDoubleT()) << test_label;
+  }
+}
+
+// Deletes all the PasswordForms in |forms|, and clears the vector.
+static void DeletePasswordForms(std::vector<PasswordForm*>* forms) {
+  for (std::vector<PasswordForm*>::iterator i = forms->begin();
+       i != forms->end(); ++i) {
+    delete *i;
+  }
+  forms->clear();
+}
+TEST(PasswordStoreMacTest, TestFormMerge) {
+  // Set up a bunch of test data to use in varying combinations.
+  PasswordFormData keychain_user_1 =
+      { PasswordForm::SCHEME_HTML, "http://some.domain.com/",
+        "http://some.domain.com/", "", L"", L"", L"", L"joe_user", L"sekrit",
+        false, false, 1010101010 };
+  PasswordFormData keychain_user_1_with_path =
+      { PasswordForm::SCHEME_HTML, "http://some.domain.com/",
+        "http://some.domain.com/page.html",
+        "", L"", L"", L"", L"joe_user", L"otherpassword",
+        false, false, 1010101010 };
+  PasswordFormData keychain_user_2 =
+      { PasswordForm::SCHEME_HTML, "http://some.domain.com/",
+        "http://some.domain.com/", "", L"", L"", L"", L"john.doe", L"sesame",
+        false, false, 958739876 };
+  PasswordFormData keychain_blacklist =
+      { PasswordForm::SCHEME_HTML, "http://some.domain.com/",
+        "http://some.domain.com/", "", L"", L"", L"", NULL, NULL,
+        false, false, 1010101010 };
+
+  PasswordFormData db_user_1 =
+      { PasswordForm::SCHEME_HTML, "http://some.domain.com/",
+        "http://some.domain.com/", "http://some.domain.com/action.cgi",
+        L"submit", L"username", L"password", L"joe_user", L"",
+        true, false, 1212121212 };
+  PasswordFormData db_user_1_with_path =
+      { PasswordForm::SCHEME_HTML, "http://some.domain.com/",
+        "http://some.domain.com/page.html",
+        "http://some.domain.com/handlepage.cgi",
+        L"submit", L"username", L"password", L"joe_user", L"",
+        true, false, 1234567890 };
+  PasswordFormData db_user_3_with_path =
+      { PasswordForm::SCHEME_HTML, "http://some.domain.com/",
+        "http://some.domain.com/page.html",
+        "http://some.domain.com/handlepage.cgi",
+        L"submit", L"username", L"password", L"second-account", L"",
+        true, false, 1240000000 };
+  PasswordFormData database_blacklist_with_path =
+      { PasswordForm::SCHEME_HTML, "http://some.domain.com/",
+        "http://some.domain.com/path.html", "http://some.domain.com/action.cgi",
+        L"submit", L"username", L"password", NULL, NULL,
+        true, false, 1212121212 };
+
+  PasswordFormData merged_user_1 =
+      { PasswordForm::SCHEME_HTML, "http://some.domain.com/",
+        "http://some.domain.com/", "http://some.domain.com/action.cgi",
+        L"submit", L"username", L"password", L"joe_user", L"sekrit",
+        true, false, 1212121212 };
+  PasswordFormData merged_user_1_with_db_path =
+      { PasswordForm::SCHEME_HTML, "http://some.domain.com/",
+        "http://some.domain.com/page.html",
+        "http://some.domain.com/handlepage.cgi",
+        L"submit", L"username", L"password", L"joe_user", L"sekrit",
+        true, false, 1234567890 };
+  PasswordFormData merged_user_1_with_both_paths =
+      { PasswordForm::SCHEME_HTML, "http://some.domain.com/",
+        "http://some.domain.com/page.html",
+        "http://some.domain.com/handlepage.cgi",
+        L"submit", L"username", L"password", L"joe_user", L"otherpassword",
+        true, false, 1234567890 };
+
+  // Build up the big multi-dimensional array of data sets that will actually
+  // drive the test. Use vectors rather than arrays so that initialization is
+  // simple.
+  enum {
+    KEYCHAIN_INPUT = 0,
+    DATABASE_INPUT,
+    MERGE_OUTPUT,
+    KEYCHAIN_OUTPUT,
+    DATABASE_OUTPUT,
+    MERGE_IO_ARRAY_COUNT  // termination marker
+  };
+  const unsigned int kTestCount = 4;
+  std::vector< std::vector< std::vector<PasswordFormData*> > > test_data(
+      MERGE_IO_ARRAY_COUNT, std::vector< std::vector<PasswordFormData*> >(
+          kTestCount, std::vector<PasswordFormData*>()));
+  unsigned int current_test = 0;
+
+  // Test a merge with a few accounts in both systems, with partial overlap.
+  CHECK(current_test < kTestCount);
+  test_data[KEYCHAIN_INPUT][current_test].push_back(&keychain_user_1);
+  test_data[KEYCHAIN_INPUT][current_test].push_back(&keychain_user_2);
+  test_data[DATABASE_INPUT][current_test].push_back(&db_user_1);
+  test_data[DATABASE_INPUT][current_test].push_back(&db_user_1_with_path);
+  test_data[DATABASE_INPUT][current_test].push_back(&db_user_3_with_path);
+  test_data[MERGE_OUTPUT][current_test].push_back(&merged_user_1);
+  test_data[MERGE_OUTPUT][current_test].push_back(&merged_user_1_with_db_path);
+  test_data[MERGE_OUTPUT][current_test].push_back(&keychain_user_2);
+  test_data[DATABASE_OUTPUT][current_test].push_back(&db_user_3_with_path);
+
+  // Test a merge where Chrome has a blacklist entry, and the keychain has
+  // a stored account.
+  ++current_test;
+  CHECK(current_test < kTestCount);
+  test_data[KEYCHAIN_INPUT][current_test].push_back(&keychain_user_1);
+  test_data[DATABASE_INPUT][current_test].push_back(
+      &database_blacklist_with_path);
+  // We expect both to be present because a blacklist could be specific to a
+  // subpath, and we want access to the password on other paths.
+  test_data[MERGE_OUTPUT][current_test].push_back(
+      &database_blacklist_with_path);
+  test_data[MERGE_OUTPUT][current_test].push_back(&keychain_user_1);
+
+  // Test a merge where Chrome has an account, and Keychain has a blacklist
+  // (from another browser) and the Chrome password data.
+  ++current_test;
+  CHECK(current_test < kTestCount);
+  test_data[KEYCHAIN_INPUT][current_test].push_back(&keychain_blacklist);
+  test_data[KEYCHAIN_INPUT][current_test].push_back(&keychain_user_1);
+  test_data[DATABASE_INPUT][current_test].push_back(&db_user_1);
+  test_data[MERGE_OUTPUT][current_test].push_back(&merged_user_1);
+  test_data[KEYCHAIN_OUTPUT][current_test].push_back(&keychain_blacklist);
+
+  // Test that matches are done using exact path when possible.
+  ++current_test;
+  CHECK(current_test < kTestCount);
+  test_data[KEYCHAIN_INPUT][current_test].push_back(&keychain_user_1);
+  test_data[KEYCHAIN_INPUT][current_test].push_back(&keychain_user_1_with_path);
+  test_data[DATABASE_INPUT][current_test].push_back(&db_user_1);
+  test_data[DATABASE_INPUT][current_test].push_back(&db_user_1_with_path);
+  test_data[MERGE_OUTPUT][current_test].push_back(&merged_user_1);
+  test_data[MERGE_OUTPUT][current_test].push_back(
+      &merged_user_1_with_both_paths);
+
+  for (unsigned int test_case = 0; test_case <= current_test; ++test_case) {
+    std::vector<PasswordForm*> keychain_forms;
+    for (std::vector<PasswordFormData*>::iterator i =
+             test_data[KEYCHAIN_INPUT][test_case].begin();
+         i != test_data[KEYCHAIN_INPUT][test_case].end(); ++i) {
+      keychain_forms.push_back(CreatePasswordFormFromData(*(*i)));
+    }
+    std::vector<PasswordForm*> database_forms;
+    for (std::vector<PasswordFormData*>::iterator i =
+             test_data[DATABASE_INPUT][test_case].begin();
+         i != test_data[DATABASE_INPUT][test_case].end(); ++i) {
+      database_forms.push_back(CreatePasswordFormFromData(*(*i)));
+    }
+
+    std::vector<PasswordForm*> merged_forms;
+    internal_keychain_helpers::MergePasswordForms(&keychain_forms,
+                                                  &database_forms,
+                                                  &merged_forms);
+
+    CHECK_FORMS(keychain_forms, test_data[KEYCHAIN_OUTPUT][test_case],
+                test_case);
+    CHECK_FORMS(database_forms, test_data[DATABASE_OUTPUT][test_case],
+                test_case);
+    CHECK_FORMS(merged_forms, test_data[MERGE_OUTPUT][test_case], test_case);
+
+    DeletePasswordForms(&keychain_forms);
+    DeletePasswordForms(&database_forms);
+    DeletePasswordForms(&merged_forms);
+  }
+}

@@ -438,6 +438,89 @@ bool FillPasswordFormFromKeychainItem(const MacKeychain& keychain,
   return true;
 }
 
+bool FormsMatchForMerge(const PasswordForm& form_a, const PasswordForm& form_b,
+                        bool* path_matches) {
+  // We never merge blacklist entries between our store and the keychain.
+  if (form_a.blacklisted_by_user || form_b.blacklisted_by_user) {
+    return false;
+  }
+  bool matches = form_a.scheme == form_b.scheme &&
+                 form_a.signon_realm == form_b.signon_realm &&
+                 form_a.username_value == form_b.username_value;
+  if (matches && path_matches) {
+    *path_matches = (form_a.origin == form_b.origin);
+  }
+  return matches;
+}
+
+// Returns an the best match for |form| from |keychain_forms|, or NULL if there
+// is no suitable match.
+PasswordForm* BestKeychainFormForForm(
+    const PasswordForm& base_form,
+    const std::vector<PasswordForm*>* keychain_forms) {
+  PasswordForm* partial_match = NULL;
+  for (std::vector<PasswordForm*>::const_iterator i = keychain_forms->begin();
+       i != keychain_forms->end(); ++i) {
+    // TODO(stuartmorgan): We should really be scoring path matches and picking
+    // the best, rather than just checking exact-or-not (although in practice
+    // keychain items with paths probably came from us).
+    bool path_matches = false;
+    if (FormsMatchForMerge(base_form, *(*i), &path_matches)) {
+      if (path_matches) {
+        return *i;
+      } else if (!partial_match) {
+        partial_match = *i;
+      }
+    }
+  }
+  return partial_match;
+}
+
+void MergePasswordForms(std::vector<PasswordForm*>* keychain_forms,
+                        std::vector<PasswordForm*>* database_forms,
+                        std::vector<PasswordForm*>* merged_forms) {
+  std::set<PasswordForm*> used_keychain_forms;
+  for (std::vector<PasswordForm*>::iterator i = database_forms->begin();
+       i != database_forms->end();) {
+    PasswordForm* db_form = *i;
+    bool use_form = false;
+    if (db_form->blacklisted_by_user) {
+      // Blacklist entries aren't merged, so just take it directly.
+      use_form = true;
+    } else {
+      // Check for a match in the keychain list.
+      PasswordForm* best_match = BestKeychainFormForForm(*db_form,
+                                                         keychain_forms);
+      if (best_match) {
+        used_keychain_forms.insert(best_match);
+        db_form->password_value = best_match->password_value;
+        use_form = true;
+      }
+    }
+    if (use_form) {
+      merged_forms->push_back(db_form);
+      i = database_forms->erase(i);
+    } else {
+      ++i;
+    }
+  }
+  // Find any remaining keychain entries that we want, and clear out everything
+  // we used.
+  for (std::vector<PasswordForm*>::iterator i = keychain_forms->begin();
+       i != keychain_forms->end();) {
+    PasswordForm* keychain_form = *i;
+    if (keychain_form->blacklisted_by_user) {
+      ++i;
+    } else {
+      if (used_keychain_forms.find(keychain_form) == used_keychain_forms.end())
+        merged_forms->push_back(keychain_form);
+      else
+        delete keychain_form;
+      i = keychain_forms->erase(i);
+    }
+  }
+}
+
 }  // internal_keychain_helpers
 
 #pragma mark -
