@@ -121,6 +121,9 @@ class FFmpegDemuxer : public Demuxer {
   virtual scoped_refptr<DemuxerStream> GetStream(int stream_id);
 
  private:
+  // Accesses |thread_| to create a helper method used by every test.
+  friend class FFmpegDemuxerTest;
+
   // Only allow a factory to create this class.
   friend class FilterFactoryImpl0<FFmpegDemuxer>;
   FFmpegDemuxer();

@@ -171,7 +171,8 @@ FFmpegDemuxer::FFmpegDemuxer()
 }
 
 FFmpegDemuxer::~FFmpegDemuxer() {
-  Stop();
+  DCHECK(!thread_.IsRunning());
+  DCHECK(!format_context_.get());
   // TODO(scherkus): I believe we need to use av_close_input_file() here
   // instead of scoped_ptr_malloc calling av_free().
   //
@@ -186,6 +187,7 @@ void FFmpegDemuxer::PostDemuxTask() {
 
 void FFmpegDemuxer::Stop() {
   thread_.Stop();
+  format_context_.reset();
 }
 
 void FFmpegDemuxer::Seek(base::TimeDelta time) {
