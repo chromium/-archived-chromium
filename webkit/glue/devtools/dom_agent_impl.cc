@@ -277,6 +277,10 @@ void DomAgentImpl::GetChildNodes(int call_id, int element_id) {
 int DomAgentImpl::PushNodePathToClient(Node* node_to_select) {
   ASSERT(node_to_select);  // Invalid input
 
+  // If we are sending information to the client that is currently being
+  // created. Send root node first.
+  PushDocumentElementToClient();
+
   // Return id in case the node is known.
   int result = GetIdForNode(node_to_select);
   if (result)
@@ -284,10 +288,6 @@ int DomAgentImpl::PushNodePathToClient(Node* node_to_select) {
 
   Element* element = InnerParentElement(node_to_select);
   ASSERT(element);  // Node is detached or is a document itself
-
-  // If we are sending information to the client that is currently being
-  // created. Send root node first.
-  PushDocumentElementToClient();
 
   Vector<Element*> path;
   while (element && !GetIdForNode(element)) {
