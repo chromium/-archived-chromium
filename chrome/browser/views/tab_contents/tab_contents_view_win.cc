@@ -73,7 +73,7 @@ void TabContentsViewWin::CreateView() {
   // Since we create these windows parented to the desktop window initially, we
   // don't want to create them initially visible.
   set_window_style(WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
-  WidgetWin::Init(GetDesktopWindow(), gfx::Rect());
+  WidgetWin::Init(GetDesktopWindow(), gfx::Rect(), false);
 
   // Remove the root view drop target so we can register our own.
   RevokeDragDrop(GetNativeView());
@@ -233,7 +233,7 @@ void TabContentsViewWin::SizeContents(const gfx::Size& size) {
 
 void TabContentsViewWin::Focus() {
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManagerForNativeView(GetNativeView());
+      views::FocusManager::GetFocusManager(GetNativeView());
 
   if (tab_contents()->interstitial_page()) {
     tab_contents()->interstitial_page()->Focus();
@@ -269,7 +269,7 @@ void TabContentsViewWin::StoreFocus() {
     view_storage->RemoveView(last_focused_view_storage_id_);
 
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManagerForNativeView(GetNativeView());
+      views::FocusManager::GetFocusManager(GetNativeView());
   if (focus_manager) {
     // |focus_manager| can be NULL if the tab has been detached but still
     // exists.
@@ -301,7 +301,7 @@ void TabContentsViewWin::RestoreFocus() {
     SetInitialFocus();
   } else {
     views::FocusManager* focus_manager =
-        views::FocusManager::GetFocusManagerForNativeView(GetNativeView());
+        views::FocusManager::GetFocusManager(GetNativeView());
 
     // If you hit this DCHECK, please report it to Jay (jcampan).
     DCHECK(focus_manager != NULL) << "No focus manager when restoring focus.";
@@ -333,7 +333,7 @@ void TabContentsViewWin::GotFocus() {
 void TabContentsViewWin::TakeFocus(bool reverse) {
   if (!tab_contents()->delegate()->TakeFocus(reverse)) {
     views::FocusManager* focus_manager =
-        views::FocusManager::GetFocusManagerForNativeView(GetNativeView());
+        views::FocusManager::GetFocusManager(GetNativeView());
 
     // We may not have a focus manager if the tab has been switched before this
     // message arrived.
@@ -357,7 +357,7 @@ void TabContentsViewWin::HandleKeyboardEvent(
   // a keyboard shortcut that we have to process.
   if (event.type == WebInputEvent::RawKeyDown) {
     views::FocusManager* focus_manager =
-        views::FocusManager::GetFocusManagerForNativeView(GetNativeView());
+        views::FocusManager::GetFocusManager(GetNativeView());
     // We may not have a focus_manager at this point (if the tab has been
     // switched by the time this message returned).
     if (focus_manager) {

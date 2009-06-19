@@ -367,7 +367,8 @@ LRESULT CALLBACK NativeControl::NativeControlWndProc(HWND window, UINT message,
       return 0;
   } else if (message == WM_SETFOCUS) {
     // Let the focus manager know that the focus changed.
-    FocusManager* focus_manager = native_control->GetFocusManager();
+    FocusManager* focus_manager =
+        FocusManager::GetFocusManager(native_control->GetNativeControlHWND());
     if (focus_manager) {
       focus_manager->SetFocusedView(native_control);
     } else {

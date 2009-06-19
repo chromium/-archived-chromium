@@ -343,7 +343,9 @@ void FirstRunBubble::InfoBubbleClosing(InfoBubble* info_bubble,
   if (!IsWindowEnabled(GetParent()))
     ::EnableWindow(GetParent(), true);
   enable_window_method_factory_.RevokeAll();
-  GetFocusManager()->RemoveFocusChangeListener(view_);
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(GetNativeView());
+  focus_manager->RemoveFocusChangeListener(view_);
 }
 
 // static
@@ -360,7 +362,9 @@ FirstRunBubble* FirstRunBubble::Show(Profile* profile, views::Window* parent,
   window->set_view(view);
   window->Init(parent, position_relative_to, view);
   window->ShowWindow(SW_SHOW);
-  window->GetFocusManager()->AddFocusChangeListener(view);
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(window->GetNativeView());
+  focus_manager->AddFocusChangeListener(view);
   view->BubbleShown();
   return window;
 }
