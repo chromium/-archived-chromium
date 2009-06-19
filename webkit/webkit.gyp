@@ -4670,6 +4670,7 @@
           'files': [
             'glue/devtools/js/base.js',
             'glue/devtools/js/debugger_agent.js',
+            'glue/devtools/js/devtools.css',
             'glue/devtools/js/devtools.html',
             'glue/devtools/js/devtools.js',
             'glue/devtools/js/devtools_callback.js',

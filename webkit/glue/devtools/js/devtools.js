@@ -923,8 +923,8 @@ Object.sortedProperties = function(obj) {
     var result = original.apply(this, arguments);
     var debuggerAgent = devtools.tools.getDebuggerAgent();
     var type = debuggerAgent.getScriptContextType(script.sourceID);
-    if (type == 'injected') {
-      var option = script.filesSelectOption;
+    var option = script.filesSelectOption;
+    if (type == 'injected' && option) {
       option.addStyleClass('injected');
     }
     return result;
