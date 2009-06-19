@@ -2217,6 +2217,9 @@ each locale. -->
       <message name="IDS_IMPORTER_GOOGLE_LOGIN_TEXT" desc="The message to be displayed on dialog">
         In order to import Toolbar bookmarks into Chrome, you must be logged into your Google account.  Please log in and try to import again.
       </message>
+      <message name="IDS_IMPORT_NO_PROFILE_FOUND" desc="Message displayed when we do not find any supported browser to import from.">
+        No supported browser found
+      </message>
 
       <!-- Import progress popup -->
       <message name="IDS_IMPORT_PROGRESS_TITLE" desc="Title for the importing progress dialog">

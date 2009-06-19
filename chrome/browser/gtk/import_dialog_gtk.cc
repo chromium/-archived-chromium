@@ -34,9 +34,13 @@ ImportDialogGtk::ImportDialogGtk(GtkWindow* parent, Profile* profile) :
       (GtkDialogFlags) (GTK_DIALOG_MODAL | GTK_DIALOG_NO_SEPARATOR),
       GTK_STOCK_CANCEL,
       GTK_RESPONSE_REJECT,
-      l10n_util::GetStringUTF8(IDS_IMPORT_COMMIT).c_str(),
-      GTK_RESPONSE_ACCEPT,
       NULL);
+
+  // Add import button separately as we might need to disable it, if
+  // no supported browsers found.
+  GtkWidget* import_button = gtk_dialog_add_button(GTK_DIALOG(dialog_),
+      l10n_util::GetStringUTF8(IDS_IMPORT_COMMIT).c_str(),
+      GTK_RESPONSE_ACCEPT);
 
   // TODO(rahulk): find how to set size properly so that the dialog
   // box width is at least enough to display full title.
@@ -51,13 +55,6 @@ ImportDialogGtk::ImportDialogGtk(GtkWindow* parent, Profile* profile) :
   gtk_box_pack_start(GTK_BOX(combo_hbox), from, FALSE, FALSE, 0);
 
   combo_ = gtk_combo_box_new_text();
-  int profiles_count = importer_host_->GetAvailableProfileCount();
-  for (int i = 0; i < profiles_count; i++) {
-    std::wstring profile = importer_host_->GetSourceProfileNameAt(i);
-    gtk_combo_box_append_text(GTK_COMBO_BOX(combo_),
-                              WideToUTF8(profile).c_str());
-  }
-  gtk_combo_box_set_active(GTK_COMBO_BOX(combo_), 0);
   gtk_box_pack_start(GTK_BOX(combo_hbox), combo_, TRUE, TRUE, 0);
 
   gtk_box_pack_start(GTK_BOX(content_area), combo_hbox, FALSE, FALSE, 0);
@@ -90,6 +87,26 @@ ImportDialogGtk::ImportDialogGtk(GtkWindow* parent, Profile* profile) :
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(history_), TRUE);
 
   gtk_box_pack_start(GTK_BOX(content_area), vbox, FALSE, FALSE, 0);
+
+  // Detect any supported browsers that we can import from and fill
+  // up the combo box. If none found, disable all controls except cancel.
+  int profiles_count = importer_host_->GetAvailableProfileCount();
+  if (profiles_count > 0) {
+    for (int i = 0; i < profiles_count; i++) {
+      std::wstring profile = importer_host_->GetSourceProfileNameAt(i);
+      gtk_combo_box_append_text(GTK_COMBO_BOX(combo_),
+                                WideToUTF8(profile).c_str());
+    }
+  } else {
+    gtk_combo_box_append_text(GTK_COMBO_BOX(combo_),
+        l10n_util::GetStringUTF8(IDS_IMPORT_NO_PROFILE_FOUND).c_str());
+    gtk_widget_set_sensitive(bookmarks_, FALSE);
+    gtk_widget_set_sensitive(search_engines_, FALSE);
+    gtk_widget_set_sensitive(passwords_, FALSE);
+    gtk_widget_set_sensitive(history_, FALSE);
+    gtk_widget_set_sensitive(import_button, FALSE);
+  }
+  gtk_combo_box_set_active(GTK_COMBO_BOX(combo_), 0);
 
   g_signal_connect(dialog_, "response",
                    G_CALLBACK(HandleOnResponseDialog), this);
