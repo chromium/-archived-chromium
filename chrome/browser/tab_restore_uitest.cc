@@ -282,9 +282,46 @@ TEST_F(TabRestoreUITest, BasicRestoreFromClosedWindow) {
   EXPECT_EQ(url1_, GetActiveTabURL(1));
 }
 
+// Restore a tab then make sure it doesn't restore again.
+// Disabled because the command updater doesn't know the proper state of
+// the tab restore command. http://crbug.com/14428.
+TEST_F(TabRestoreUITest, DISABLED_DontLoadRestoredTab) {
+  scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
+  CheckActiveWindow(browser_proxy.get());
+
+  // Add two tabs
+  int starting_tab_count = 0;
+  ASSERT_TRUE(browser_proxy->GetTabCount(&starting_tab_count));
+  AddSomeTabs(browser_proxy.get(), 2);
+  int current_tab_count = 0;
+  ASSERT_TRUE(browser_proxy->GetTabCount(&current_tab_count));
+  ASSERT_EQ(current_tab_count, starting_tab_count + 2);
+
+  // Close one of them.
+  scoped_refptr<TabProxy> tab_to_close(browser_proxy->GetTab(0));
+  tab_to_close->Close(true);
+  ASSERT_TRUE(browser_proxy->GetTabCount(&current_tab_count));
+  ASSERT_EQ(current_tab_count, starting_tab_count + 1);
+
+  // Restore it.
+  RestoreTab(0, 0);
+  ASSERT_TRUE(browser_proxy->GetTabCount(&current_tab_count));
+  ASSERT_EQ(current_tab_count, starting_tab_count + 2);
+
+  // Make sure that there's nothing else to restore.
+  // TODO(pinkerton): This currently fails because the command_updater in the
+  // always says yes. See bug above.
+  bool is_timeout = false;
+  bool enabled =
+    browser_proxy->IsPageMenuCommandEnabledWithTimeout(IDC_RESTORE_TAB,
+        action_max_timeout_ms(), &is_timeout);
+  if (!is_timeout)
+    ASSERT_FALSE(enabled);
+}
+
 // Open a window with multiple tabs, close a tab, then close the window.
 // Restore both and make sure the tab goes back into the window.
-// Disabled because flacky. See http://crbug.com/14132
+// Disabled because flakey. See http://crbug.com/14132
 TEST_F(TabRestoreUITest, DISABLED_RestoreWindowAndTab) {
   scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   CheckActiveWindow(browser_proxy.get());

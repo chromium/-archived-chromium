@@ -218,58 +218,61 @@ void TabRestoreService::RestoreEntryById(Browser* browser,
   Entry* entry = *i;
   entries_.erase(i);
   i = entries_.end();
-  if (browser) {  // Browser is null during testing.
-    if (entry->type == TAB) {
-      Tab* tab = static_cast<Tab*>(entry);
-      if (replace_existing_tab) {
-        browser->ReplaceRestoredTab(tab->navigations,
-                                    tab->current_navigation_index);
-      } else {
-        // Use the tab's former browser and index, if available.
-        Browser* tab_browser = NULL;
-        int tab_index = -1;
-        if (tab->has_browser())
-          tab_browser = BrowserList::FindBrowserWithID(tab->browser_id);
 
-        if (tab_browser) {
-          tab_index = tab->tabstrip_index;
-        } else {
-          tab_browser = Browser::Create(profile());
-          if (tab->has_browser()) {
-            UpdateTabBrowserIDs(tab->browser_id,
-                                tab_browser->session_id().id());
-          }
-          tab_browser->window()->Show();
-        }
-
-        if (tab_index < 0 || tab_index > tab_browser->tab_count())
-          tab_index = tab_browser->tab_count();
-        tab_browser->AddRestoredTab(tab->navigations, tab_index,
-                                    tab->current_navigation_index, true);
-      }
-    } else if (entry->type == WINDOW) {
-      const Window* window = static_cast<Window*>(entry);
-      Browser* browser = Browser::Create(profile());
-      for (size_t tab_i = 0; tab_i < window->tabs.size(); ++tab_i) {
-        const Tab& tab = window->tabs[tab_i];
-        TabContents* restored_tab =
-            browser->AddRestoredTab(tab.navigations, browser->tab_count(),
-                                    tab.current_navigation_index,
-                                    (static_cast<int>(tab_i) ==
-                                     window->selected_tab_index));
-        if (restored_tab)
-          restored_tab->controller().LoadIfNecessary();
-      }
-      // All the window's tabs had the same former browser_id.
-      if (window->tabs[0].has_browser()) {
-        UpdateTabBrowserIDs(window->tabs[0].browser_id,
-                            browser->session_id().id());
-      }
-      browser->window()->Show();
+  // |browser| will be NULL in cases where one isn't already available (eg,
+  // when invoked on Mac OS X with no windows open). In this case, create a
+  // new browser into which we restore the tabs.
+  if (entry->type == TAB) {
+    Tab* tab = static_cast<Tab*>(entry);
+    if (replace_existing_tab && browser) {
+      browser->ReplaceRestoredTab(tab->navigations,
+                                  tab->current_navigation_index);
     } else {
-      NOTREACHED();
+      // Use the tab's former browser and index, if available.
+      Browser* tab_browser = NULL;
+      int tab_index = -1;
+      if (tab->has_browser())
+        tab_browser = BrowserList::FindBrowserWithID(tab->browser_id);
+
+      if (tab_browser) {
+        tab_index = tab->tabstrip_index;
+      } else {
+        tab_browser = Browser::Create(profile());
+        if (tab->has_browser()) {
+          UpdateTabBrowserIDs(tab->browser_id,
+                              tab_browser->session_id().id());
+        }
+        tab_browser->window()->Show();
+      }
+
+      if (tab_index < 0 || tab_index > tab_browser->tab_count())
+        tab_index = tab_browser->tab_count();
+      tab_browser->AddRestoredTab(tab->navigations, tab_index,
+                                  tab->current_navigation_index, true);
     }
+  } else if (entry->type == WINDOW) {
+    const Window* window = static_cast<Window*>(entry);
+    browser = Browser::Create(profile());
+    for (size_t tab_i = 0; tab_i < window->tabs.size(); ++tab_i) {
+      const Tab& tab = window->tabs[tab_i];
+      TabContents* restored_tab =
+          browser->AddRestoredTab(tab.navigations, browser->tab_count(),
+                                  tab.current_navigation_index,
+                                  (static_cast<int>(tab_i) ==
+                                   window->selected_tab_index));
+      if (restored_tab)
+        restored_tab->controller().LoadIfNecessary();
+    }
+    // All the window's tabs had the same former browser_id.
+    if (window->tabs[0].has_browser()) {
+      UpdateTabBrowserIDs(window->tabs[0].browser_id,
+                          browser->session_id().id());
+    }
+    browser->window()->Show();
+  } else {
+    NOTREACHED();
   }
+
   delete entry;
   restoring_ = false;
   NotifyTabsChanged();

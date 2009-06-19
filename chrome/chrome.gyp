@@ -3238,8 +3238,6 @@
             'browser/metrics/metrics_service_uitest.cc',
             # leaves an extra window on screen after test completes.
             'browser/sessions/session_restore_uitest.cc',
-            # hangs indefinitely but doesn't crash.
-            'browser/tab_restore_uitest.cc',
             # puts up modal dialogs.
             'browser/unload_uitest.cc',
             'test/reliability/page_load_test.cc',

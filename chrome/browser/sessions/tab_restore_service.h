@@ -134,7 +134,8 @@ class TabRestoreService : public BaseSessionService {
 
   // Restores an entry by id. If there is no entry with an id matching |id|,
   // this does nothing. If |replace_existing_tab| is true and id identifies a
-  // tab, the newly created tab replaces the selected tab in |browser|.
+  // tab, the newly created tab replaces the selected tab in |browser|. If
+  // |browser| is NULL, this creates a new window for the entry.
   void RestoreEntryById(Browser* browser,
                         SessionID::id_type id,
                         bool replace_existing_tab);

@@ -23,6 +23,7 @@
 #import "chrome/browser/cocoa/tab_strip_controller.h"
 #import "chrome/browser/cocoa/tab_window_controller.h"
 #include "chrome/browser/command_updater.h"
+#include "chrome/browser/sessions/tab_restore_service.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/browser/profile_manager.h"
@@ -102,6 +103,16 @@
 
 // Called when the app is shutting down. Clean-up as appropriate.
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
+  DCHECK(!BrowserList::HasBrowserWithProfile([self defaultProfile]));
+  if (!BrowserList::HasBrowserWithProfile([self defaultProfile])) {
+    // As we're shutting down, we need to nuke the TabRestoreService, which will
+    // start the shutdown of the NavigationControllers and allow for proper
+    // shutdown. If we don't do this chrome won't shutdown cleanly, and may end
+    // up crashing when some thread tries to use the IO thread (or another
+    // thread) that is no longer valid.
+    [self defaultProfile]->ResetTabRestoreService();
+  }
+
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -264,6 +275,14 @@
   g_browser_process->ReleaseModule();
 }
 
+// Called to determine if we should enable the "restore tab" menu item.
+// Checks with the TabRestoreService to see if there's anything there to
+// restore and returns YES if so.
+- (BOOL)canRestoreTab {
+  TabRestoreService* service = [self defaultProfile]->GetTabRestoreService();
+  return service && !service->entries().empty();
+}
+
 // Called to validate menu items when there are no key windows. All the
 // items we care about have been set with the |commandDispatch:| action and
 // a target of FirstResponder in IB. If it's not one of those, let it
@@ -275,8 +294,15 @@
   BOOL enable = NO;
   if (action == @selector(commandDispatch:)) {
     NSInteger tag = [item tag];
-    if (menuState_->SupportsCommand(tag))
-      enable = menuState_->IsCommandEnabled(tag) ? YES : NO;
+    if (menuState_->SupportsCommand(tag)) {
+      switch (tag) {
+        case IDC_RESTORE_TAB:
+          enable = [self canRestoreTab];
+          break;
+        default:
+          enable = menuState_->IsCommandEnabled(tag) ? YES : NO;
+      }
+    }
   } else if (action == @selector(quit:)) {
     enable = YES;
   } else if (action == @selector(showPreferences:)) {
@@ -296,11 +322,15 @@
 
   NSInteger tag = [sender tag];
   switch (tag) {
+    case IDC_NEW_TAB:
     case IDC_NEW_WINDOW:
       Browser::OpenEmptyWindow(defaultProfile);
       break;
     case IDC_NEW_INCOGNITO_WINDOW:
       Browser::OpenURLOffTheRecord(defaultProfile, GURL());
+      break;
+    case IDC_RESTORE_TAB:
+      Browser::OpenWindowWithRestoredTabs(defaultProfile);
       break;
     case IDC_OPEN_FILE:
       Browser::OpenEmptyWindow(defaultProfile);
@@ -337,10 +367,12 @@
 
 - (void)initMenuState {
   menuState_.reset(new CommandUpdater(NULL));
+  menuState_->UpdateCommandEnabled(IDC_NEW_TAB, true);
   menuState_->UpdateCommandEnabled(IDC_NEW_WINDOW, true);
   menuState_->UpdateCommandEnabled(IDC_NEW_INCOGNITO_WINDOW, true);
   menuState_->UpdateCommandEnabled(IDC_OPEN_FILE, true);
   menuState_->UpdateCommandEnabled(IDC_CLEAR_BROWSING_DATA, true);
+  menuState_->UpdateCommandEnabled(IDC_RESTORE_TAB, false);
   // TODO(pinkerton): ...more to come...
 }
 

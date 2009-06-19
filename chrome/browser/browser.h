@@ -141,6 +141,9 @@ class Browser : public TabStripModelDelegate,
   // Opens a new window with the default blank tab.
   static void OpenEmptyWindow(Profile* profile);
 
+  // Opens a new window with the tabs from |profile|'s TabRestoreService.
+  static void OpenWindowWithRestoredTabs(Profile* profile);
+
   // Opens the specified URL in a new browser window in an incognito session.
   // If there is already an existing active incognito session for the specified
   // |profile|, that session is re-used.

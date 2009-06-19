@@ -331,11 +331,18 @@ willPositionSheet:(NSWindow *)sheet
     if (browser_->command_updater()->SupportsCommand(tag)) {
       // Generate return value (enabled state)
       enable = browser_->command_updater()->IsCommandEnabled(tag) ? YES : NO;
-
-      // Disable "close tab" if we're not the key window or if there's only
-      // one tab.
-      if (tag == IDC_CLOSE_TAB)
-        enable &= [self numberOfTabs] > 1 && [[self window] isKeyWindow];
+      switch (tag) {
+        case IDC_CLOSE_TAB:
+          // Disable "close tab" if we're not the key window or if there's only
+          // one tab.
+          enable &= [self numberOfTabs] > 1 && [[self window] isKeyWindow];
+          break;
+        case IDC_RESTORE_TAB:
+          // We have to ask the Browser manually if we can restore. The
+          // command updater doesn't know.
+          enable &= browser_->CanRestoreTab();
+          break;
+      }
 
       // If the item is toggleable, find it's toggle state and
       // try to update it.  This is a little awkward, but the alternative is

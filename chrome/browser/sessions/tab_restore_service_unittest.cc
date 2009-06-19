@@ -157,25 +157,6 @@ TEST_F(TabRestoreServiceTest, Restore) {
   EXPECT_EQ(2, tab->current_navigation_index);
 }
 
-// Make sure a tab that is restored doesn't come back.
-TEST_F(TabRestoreServiceTest, DontLoadRestoredTab) {
-  AddThreeNavigations();
-
-  // Have the service record the tab.
-  service_->CreateHistoricalTab(&controller());
-  ASSERT_EQ(1U, service_->entries().size());
-
-  // Restore the tab.
-  service_->RestoreEntryById(NULL, service_->entries().front()->id, true);
-  ASSERT_TRUE(service_->entries().empty());
-
-  // Recreate the service and have it load the tabs.
-  RecreateService();
-
-  // There should be no entries.
-  ASSERT_EQ(0U, service_->entries().size());
-}
-
 // Make sure we persist entries to disk that have post data.
 TEST_F(TabRestoreServiceTest, DontPersistPostData) {
   AddThreeNavigations();

@@ -213,6 +213,7 @@ Browser::~Browser() {
 
   BrowserList::RemoveBrowser(this);
 
+#if defined(OS_WIN) || defined(OS_LINUX)
   if (!BrowserList::HasBrowserWithProfile(profile_)) {
     // We're the last browser window with this profile. We need to nuke the
     // TabRestoreService, which will start the shutdown of the
@@ -220,8 +221,12 @@ Browser::~Browser() {
     // chrome won't shutdown cleanly, and may end up crashing when some
     // thread tries to use the IO thread (or another thread) that is no longer
     // valid.
+    // This isn't a valid assumption for Mac OS, as it stays running after
+    // the last browser has closed. The Mac equivalent is in its app
+    // controller.
     profile_->ResetTabRestoreService();
   }
+#endif
 
   SessionService* session_service = profile_->GetSessionService();
   if (session_service)
@@ -312,6 +317,13 @@ void Browser::OpenEmptyWindow(Profile* profile) {
   Browser* browser = Browser::Create(profile);
   browser->AddBlankTab(true);
   browser->window()->Show();
+}
+
+// static
+void Browser::OpenWindowWithRestoredTabs(Profile* profile) {
+  TabRestoreService* service = profile->GetTabRestoreService();
+  if (service)
+    service->RestoreMostRecentEntry(NULL);
 }
 
 // static
