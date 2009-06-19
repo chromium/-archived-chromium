@@ -324,8 +324,10 @@ SkBitmap* BackingStore::PaintRectToBitmap(const gfx::Rect& rect) {
                             AllPlanes, ZPixmap);
   // TODO(jhawkins): Need to convert the image data if the image bits per pixel
   // is not 32.
-  if (image->bits_per_pixel != 32)
+  if (image->bits_per_pixel != 32) {
+    XFree(image);
     return NULL;
+  }
 
   SkBitmap* bitmap = new SkBitmap();
   bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
