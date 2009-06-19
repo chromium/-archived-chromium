@@ -27,6 +27,14 @@
 #include "net/base/net_util.h"
 #include "net/url_request/url_request_unittest.h"
 
+#if defined(OS_LINUX)
+#define MAYBE_UnknownSize DISABLED_UnknownSize
+#define MAYBE_IncognitoDownload DISABLED_IncognitoDownload
+#else
+#define MAYBE_UnknownSize UnknownSize
+#define MAYBE_IncognitoDownload IncognitoDownload
+#endif
+
 namespace {
 
 const wchar_t kDocRoot[] = L"chrome/test/data";
@@ -270,7 +278,8 @@ TEST_F(DownloadTest, PerWindowShelf) {
 // The test will first attempt to download a file; but the server will "pause"
 // in the middle until the server receives a second request for
 // "download-finish.  At that time, the download will finish.
-TEST_F(DownloadTest, UnknownSize) {
+// Flaky on Linux: http://code.google.com/p/chromium/issues/detail?id=14746
+TEST_F(DownloadTest, MAYBE_UnknownSize) {
   GURL url(URLRequestSlowDownloadJob::kUnknownSizeUrl);
   FilePath filename;
   net::FileURLToFilePath(url, &filename);
@@ -291,7 +300,7 @@ TEST_F(DownloadTest, DISABLED_KnownSize) {
 
 // Test that when downloading an item in Incognito mode, we don't crash when
 // closing the last Incognito window (http://crbug.com/13983).
-TEST_F(DownloadTest, IncognitoDownload) {
+TEST_F(DownloadTest, MAYBE_IncognitoDownload) {
   // Open a regular window and sanity check default values for window / tab
   // count and shelf visibility.
   scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));

@@ -15,6 +15,14 @@
 #include "chrome/test/ui/ui_test.h"
 #include "net/url_request/url_request_unittest.h"
 
+#if defined(OS_LINUX)
+#define MAYBE_SaveCompleteHTML DISABLED_SaveCompleteHTML
+#define MAYBE_SaveHTMLOnly DISABLED_SaveHTMLOnly
+#else
+#define MAYBE_SaveCompleteHTML SaveCompleteHTML
+#define MAYBE_SaveHTMLOnly SaveHTMLOnly
+#endif
+
 const char* const kTestDir = "save_page";
 
 const char* const kAppendedExtension = ".htm";
@@ -78,7 +86,8 @@ class SavePageTest : public UITest {
   FilePath download_dir_;
 };
 
-TEST_F(SavePageTest, SaveHTMLOnly) {
+// Flaky on Linux: http://code.google.com/p/chromium/issues/detail?id=14746
+TEST_F(SavePageTest, MAYBE_SaveHTMLOnly) {
   std::string file_name("a.htm");
   FilePath full_file_name = save_dir_.AppendASCII(file_name);
   FilePath dir = save_dir_.AppendASCII("a_files");
@@ -99,7 +108,8 @@ TEST_F(SavePageTest, SaveHTMLOnly) {
   EXPECT_FALSE(file_util::PathExists(dir));
 }
 
-TEST_F(SavePageTest, SaveCompleteHTML) {
+// Flaky on Linux: http://code.google.com/p/chromium/issues/detail?id=14746
+TEST_F(SavePageTest, MAYBE_SaveCompleteHTML) {
   std::string file_name = "b.htm";
   FilePath full_file_name = save_dir_.AppendASCII(file_name);
   FilePath dir = save_dir_.AppendASCII("b_files");
