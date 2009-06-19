@@ -4146,9 +4146,7 @@
             'chrome_dll_version',
             'chrome_resources',
             'installer/installer.gyp:installer_util_strings',
-            # TODO(sgk):  causes problems because theme_dll doesn't
-            # actually generate default.lib, but now expects it.
-            #'theme_dll',
+            'theme_dll',
             'worker',
             '../net/net.gyp:net_resources',
             '../support/support.gyp:*',
