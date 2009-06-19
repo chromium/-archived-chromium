@@ -4,11 +4,14 @@
 
 #import "download_shelf_controller.h"
 
+#include "app/l10n_util.h"
 #include "base/mac_util.h"
+#include "base/sys_string_conversions.h"
 #import "chrome/browser/cocoa/browser_window_controller.h"
 #include "chrome/browser/cocoa/browser_window_cocoa.h"
 #include "chrome/browser/cocoa/download_shelf_mac.h"
 #import "chrome/browser/cocoa/download_shelf_view.h"
+#include "grit/generated_resources.h"
 
 
 @interface DownloadShelfController(Private)
@@ -34,6 +37,35 @@
     bridge_.reset(new DownloadShelfMac(browser, self));
   }
   return self;
+}
+
+- (void)awakeFromNib {
+  // Initialize "Show all downloads" link.
+
+  scoped_nsobject<NSMutableParagraphStyle> paragraphStyle(
+      [[NSParagraphStyle defaultParagraphStyle] mutableCopy]);
+  // TODO(thakis): left-align for RTL languages?
+  [paragraphStyle.get() setAlignment:NSRightTextAlignment];
+
+  NSDictionary* linkAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
+      self, NSLinkAttributeName,
+      [NSCursor pointingHandCursor], NSCursorAttributeName,
+      paragraphStyle.get(), NSParagraphStyleAttributeName,
+      nil];
+  NSString* text =
+      base::SysWideToNSString(l10n_util::GetString(IDS_SHOW_ALL_DOWNLOADS));
+  scoped_nsobject<NSAttributedString> linkText([[NSAttributedString alloc]
+      initWithString:text attributes:linkAttributes]);
+
+  [[showAllDownloadsLink_ textStorage] setAttributedString:linkText.get()];
+  [showAllDownloadsLink_ setDelegate:self];
+}
+
+- (BOOL)textView:(NSTextView *)aTextView
+   clickedOnLink:(id)link
+         atIndex:(NSUInteger)charIndex {
+  bridge_->ShowAllDownloads();
+  return YES;
 }
 
 // Initializes the download shelf at the bottom edge of |contentArea_|.

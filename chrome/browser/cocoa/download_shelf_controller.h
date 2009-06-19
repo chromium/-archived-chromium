@@ -15,6 +15,8 @@ class DownloadShelf;
 
 @interface DownloadShelfController : NSViewController {
  @private
+  IBOutlet NSTextView* showAllDownloadsLink_;
+
   // Currently these two are always the same, but they mean slightly
   // different things.  contentAreaHasOffset_ is an implementation
   // detail of download shelf visibility.
