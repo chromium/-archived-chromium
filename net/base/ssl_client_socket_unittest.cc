@@ -54,6 +54,18 @@ class SSLClientSocketTest : public PlatformTest {
 //-----------------------------------------------------------------------------
 
 #if defined(OS_MACOSX)
+// Status 6/19/09:
+//
+// If these tests are enabled on OSX, we choke at the point
+// SSLHandshake() (Security framework call) is called from
+// SSLClientSocketMac::DoHandshake().  Return value is -9812 (cert
+// valid but root not trusted), but if you don't have the cert in your
+// keychain as documented on
+// http://dev.chromium.org/developers/testing, the -9812 becomes a
+// -9813 (no root cert).
+//
+// See related handshake failures exhibited by disabled tests in
+// net/url_request/url_request_unittest.cc.
 #define MAYBE_Connect DISABLED_Connect
 #define MAYBE_ConnectExpired DISABLED_ConnectExpired
 #define MAYBE_ConnectMismatched DISABLED_ConnectMismatched
