@@ -691,7 +691,14 @@ int SSLClientSocketNSS::DoHandshakeRead() {
     // Done!
   } else {
     PRErrorCode prerr = PR_GetError();
-    net_error = NetErrorFromNSPRError(prerr);
+
+    // If the server closed on us, it is a protocol error.
+    // Some TLS-intolerant servers do this when we request TLS.
+    if (prerr == PR_END_OF_FILE_ERROR) {
+      net_error = ERR_SSL_PROTOCOL_ERROR;
+    } else {
+      net_error = NetErrorFromNSPRError(prerr);
+    }
 
     // If not done, stay in this state
     if (net_error == ERR_IO_PENDING) {
