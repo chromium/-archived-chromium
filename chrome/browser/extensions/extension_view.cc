@@ -19,8 +19,7 @@ ExtensionView::ExtensionView(ExtensionHost* host, Browser* browser)
 }
 
 ExtensionView::~ExtensionView() {
-  if (native_view())
-    Detach();
+  CleanUp();
 }
 
 Extension* ExtensionView::extension() const {
@@ -56,6 +55,37 @@ void ExtensionView::DidChangeBounds(const gfx::Rect& previous,
     render_view_host()->view()->SetSize(gfx::Size(width(), height()));
 }
 
+void ExtensionView::CreateWidgetHostView() {
+  DCHECK(!initialized_);
+  initialized_ = true;
+  RenderWidgetHostView* view =
+      RenderWidgetHostView::CreateViewForWidget(render_view_host());
+
+  // TODO(mpcomplete): RWHV needs a cross-platform Init function.
+#if defined(OS_WIN)
+  // Create the HWND. Note:
+  // RenderWidgetHostHWND supports windowed plugins, but if we ever also
+  // wanted to support constrained windows with this, we would need an
+  // additional HWND to parent off of because windowed plugin HWNDs cannot
+  // exist in the same z-order as constrained windows.
+  RenderWidgetHostViewWin* view_win =
+      static_cast<RenderWidgetHostViewWin*>(view);
+  HWND hwnd = view_win->Create(GetWidget()->GetNativeView());
+  view_win->ShowWindow(SW_SHOW);
+  Attach(hwnd);
+#else
+  NOTIMPLEMENTED();
+#endif
+
+  host_->CreateRenderView(view);
+  SetVisible(false);
+
+  if (!pending_background_.empty()) {
+    render_view_host()->view()->SetBackground(pending_background_);
+    pending_background_.reset();
+  }
+}
+
 void ExtensionView::ShowIfCompletelyLoaded() {
   // We wait to show the ExtensionView until it has loaded and our parent has
   // given us a background. These can happen in different orders.
@@ -64,6 +94,14 @@ void ExtensionView::ShowIfCompletelyLoaded() {
     SetVisible(true);
     DidContentsPreferredWidthChange(pending_preferred_width_);
   }
+}
+
+void ExtensionView::CleanUp() {
+  if (!initialized_)
+    return;
+  if (native_view())
+    Detach();
+  initialized_ = false;
 }
 
 void ExtensionView::SetBackground(const SkBitmap& background) {
@@ -89,35 +127,13 @@ void ExtensionView::ViewHierarchyChanged(bool is_add,
                                          views::View *parent,
                                          views::View *child) {
   NativeViewHost::ViewHierarchyChanged(is_add, parent, child);
-  if (is_add && GetWidget() && !initialized_) {
-    initialized_ = true;
-    RenderWidgetHostView* view =
-        RenderWidgetHostView::CreateViewForWidget(render_view_host());
+  if (is_add && GetWidget() && !initialized_)
+    CreateWidgetHostView();
+}
 
-    // TODO(mpcomplete): RWHV needs a cross-platform Init function.
-#if defined(OS_WIN)
-    // Create the HWND. Note:
-    // RenderWidgetHostHWND supports windowed plugins, but if we ever also
-    // wanted to support constrained windows with this, we would need an
-    // additional HWND to parent off of because windowed plugin HWNDs cannot
-    // exist in the same z-order as constrained windows.
-    RenderWidgetHostViewWin* view_win =
-        static_cast<RenderWidgetHostViewWin*>(view);
-    HWND hwnd = view_win->Create(GetWidget()->GetNativeView());
-    view_win->ShowWindow(SW_SHOW);
-    Attach(hwnd);
-#else
-    NOTIMPLEMENTED();
-#endif
-
-    host_->CreateRenderView(view);
-    SetVisible(false);
-
-    if (!pending_background_.empty()) {
-      render_view_host()->view()->SetBackground(pending_background_);
-      pending_background_.reset();
-    }
-  }
+void ExtensionView::RecoverCrashedExtension() {
+  CleanUp();
+  CreateWidgetHostView();
 }
 
 void ExtensionView::HandleMouseEvent() {

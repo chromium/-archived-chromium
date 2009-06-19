@@ -592,6 +592,14 @@ class NotificationType {
     // an ExtensionHost*.
     EXTENSION_HOST_DESTROYED,
 
+    // Sent when extension render process crashes. The details are
+    // an ExtensionHost*.
+    EXTENSION_PROCESS_CRASHED,
+
+    // Sent after an extension render process is restarted after a crash
+    // and is fully functional. The details are an ExtensionHost*.
+    EXTENSION_PROCESS_RESTORED,
+
     // Debugging ---------------------------------------------------------------
 
     // Sent from ~RenderViewHost. The source is the RenderViewHost.

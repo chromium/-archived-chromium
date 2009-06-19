@@ -540,10 +540,14 @@ void TaskManagerExtensionProcessResourceProvider::StartUpdating() {
         AddToTaskManager(*jt);
   }
 
-  // Register for notifications to get new extension processes.
+  // Register for notifications about extension process changes.
   registrar_.Add(this, NotificationType::EXTENSION_HOST_CREATED,
                  NotificationService::AllSources());
   registrar_.Add(this, NotificationType::EXTENSION_HOST_DESTROYED,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::EXTENSION_PROCESS_CRASHED,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::EXTENSION_PROCESS_RESTORED,
                  NotificationService::AllSources());
 }
 
@@ -551,10 +555,14 @@ void TaskManagerExtensionProcessResourceProvider::StopUpdating() {
   DCHECK(updating_);
   updating_ = false;
 
-  // Unregister for notifications to get new extension processes.
+  // Unregister for notifications about extension process changes.
   registrar_.Remove(this, NotificationType::EXTENSION_HOST_CREATED,
                     NotificationService::AllSources());
   registrar_.Remove(this, NotificationType::EXTENSION_HOST_DESTROYED,
+                    NotificationService::AllSources());
+  registrar_.Remove(this, NotificationType::EXTENSION_PROCESS_CRASHED,
+                    NotificationService::AllSources());
+  registrar_.Remove(this, NotificationType::EXTENSION_PROCESS_RESTORED,
                     NotificationService::AllSources());
 
   // Delete all the resources.
@@ -570,9 +578,11 @@ void TaskManagerExtensionProcessResourceProvider::Observe(
     const NotificationDetails& details) {
   switch (type.value) {
     case NotificationType::EXTENSION_HOST_CREATED:
+    case NotificationType::EXTENSION_PROCESS_RESTORED:
       AddToTaskManager(Details<ExtensionHost>(details).ptr());
       break;
     case NotificationType::EXTENSION_HOST_DESTROYED:
+    case NotificationType::EXTENSION_PROCESS_CRASHED:
       RemoveFromTaskManager(Details<ExtensionHost>(details).ptr());
       break;
     default:
@@ -583,6 +593,10 @@ void TaskManagerExtensionProcessResourceProvider::Observe(
 
 void TaskManagerExtensionProcessResourceProvider::AddToTaskManager(
     ExtensionHost* extension_host) {
+  // Don't add dead extension processes.
+  if (!extension_host->IsRenderViewLive())
+    return;
+
   TaskManagerExtensionProcessResource* resource =
       new TaskManagerExtensionProcessResource(extension_host);
   DCHECK(resources_.find(extension_host) == resources_.end());

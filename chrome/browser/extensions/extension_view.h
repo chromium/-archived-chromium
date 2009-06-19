@@ -56,11 +56,22 @@ class ExtensionView : public views::NativeViewHost {
   virtual void ViewHierarchyChanged(bool is_add,
                                     views::View *parent, views::View *child);
 
+  // Call after extension process crash to re-initialize view, so that
+  // extension content can be rendered again.
+  void RecoverCrashedExtension();
+
  private:
   friend class ExtensionHost;
 
+  // Initializes the RenderWidgetHostView for this object.
+  void CreateWidgetHostView();
+
   // We wait to show the ExtensionView until several things have loaded.
   void ShowIfCompletelyLoaded();
+
+  // Restore object to initial state. Called on shutdown or after a renderer
+  // crash.
+  void CleanUp();
 
   // The running extension instance that we're displaying.
   // Note that host_ owns view

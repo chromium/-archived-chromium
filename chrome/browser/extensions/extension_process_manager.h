@@ -57,6 +57,12 @@ class ExtensionProcessManager : public NotificationObserver {
   // from our lists.
   void OnExtensionHostDestroyed(ExtensionHost* host);
 
+  // Called after an extension render process crashes.
+  void OnExtensionProcessCrashed(ExtensionHost* host);
+
+  // Called after an extension process successfully restarts after crash.
+  void OnExtensionProcessRestored(ExtensionHost* host);
+
  private:
   // Called just after |host| is created so it can be registered in our lists.
   void OnExtensionHostCreated(ExtensionHost* host, bool is_background);

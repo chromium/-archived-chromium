@@ -120,6 +120,20 @@ void ExtensionProcessManager::OnExtensionHostDestroyed(ExtensionHost* host) {
       Details<ExtensionHost>(host));
 }
 
+void ExtensionProcessManager::OnExtensionProcessCrashed(ExtensionHost* host) {
+  NotificationService::current()->Notify(
+      NotificationType::EXTENSION_PROCESS_CRASHED,
+      Source<ExtensionProcessManager>(this),
+      Details<ExtensionHost>(host));
+}
+
+void ExtensionProcessManager::OnExtensionProcessRestored(ExtensionHost* host) {
+  NotificationService::current()->Notify(
+      NotificationType::EXTENSION_PROCESS_RESTORED,
+      Source<ExtensionProcessManager>(this),
+      Details<ExtensionHost>(host));
+}
+
 void ExtensionProcessManager::OnExtensionHostCreated(ExtensionHost* host,
                                                      bool is_background) {
   all_hosts_.insert(host);

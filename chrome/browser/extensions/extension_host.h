@@ -49,13 +49,21 @@ class ExtensionHost : public RenderViewHostDelegate,
   SiteInstance* site_instance() const;
   bool did_stop_loading() const { return did_stop_loading_; }
 
+  // Returns true if the render view is initialized and didn't crash.
+  bool IsRenderViewLive() const;
+
   // Initializes our RenderViewHost by creating its RenderView and navigating
   // to this host's url.  Uses host_view for the RenderViewHost's view (can be
   // NULL).
   void CreateRenderView(RenderWidgetHostView* host_view);
 
+  // Restarts extension's renderer process. Can be called only if the renderer
+  // process crashed.
+  void RecoverCrashedExtension();
+
   // RenderViewHostDelegate
   virtual const GURL& GetURL() const { return url_; }
+  virtual void RenderViewGone(RenderViewHost* render_view_host);
   virtual WebPreferences GetWebkitPrefs();
   virtual void RunJavaScriptMessage(
       const std::wstring& message,
