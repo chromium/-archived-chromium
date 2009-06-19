@@ -40,6 +40,7 @@
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/render_messages.h"
+#include "chrome/common/ipc_channel_handle.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/file_stream.h"
 #include "net/base/io_buffer.h"
@@ -51,6 +52,10 @@
 #include "app/win_util.h"
 #include "chrome/browser/sandbox_policy.h"
 #include "sandbox/src/sandbox.h"
+#endif
+
+#if defined(OS_POSIX)
+#include "chrome/common/ipc_channel_posix.h"
 #endif
 
 static const char kDefaultPluginFinderURL[] =
@@ -454,7 +459,7 @@ void PluginProcessHost::OnChannelConnected(int32 peer_pid) {
 void PluginProcessHost::OnChannelError() {
   for (size_t i = 0; i < pending_requests_.size(); ++i) {
     ReplyToRenderer(pending_requests_[i].renderer_message_filter_.get(),
-                    std::string(),
+                    IPC::ChannelHandle(),
                     FilePath(),
                     pending_requests_[i].reply_msg);
   }
@@ -468,8 +473,17 @@ void PluginProcessHost::OpenChannelToPlugin(
     IPC::Message* reply_msg) {
   InstanceCreated();
   if (opening_channel()) {
+    // The channel is already in the process of being opened.  Put
+    // this "open channel" request into a queue of requests that will
+    // be run once the channel is open.
+    //
+    // On POSIX, we'll only create the pipe when we get around to actually
+    // making this request.  So the socket fd is -1 for now.  (On Windows,
+    // socket_fd is unused.)
+    int socket_fd = -1;
     pending_requests_.push_back(
-        ChannelRequest(renderer_message_filter, mime_type, reply_msg));
+        ChannelRequest(renderer_message_filter, mime_type, reply_msg,
+                       socket_fd));
     return;
   }
 
@@ -506,7 +520,8 @@ void PluginProcessHost::OnResolveProxyCompleted(IPC::Message* reply_msg,
 
 void PluginProcessHost::ReplyToRenderer(
     ResourceMessageFilter* renderer_message_filter,
-    const std::string& channel, const FilePath& plugin_path,
+    const IPC::ChannelHandle& channel,
+    const FilePath& plugin_path,
     IPC::Message* reply_msg) {
   ViewHostMsg_OpenChannelToPlugin::WriteReplyParams(reply_msg, channel,
                                                     plugin_path);
@@ -522,29 +537,45 @@ URLRequestContext* PluginProcessHost::GetRequestContext(
 void PluginProcessHost::RequestPluginChannel(
     ResourceMessageFilter* renderer_message_filter,
     const std::string& mime_type, IPC::Message* reply_msg) {
+  // We're about to send the request for a plugin channel.
+  // On POSIX, we create the channel endpoints here, so we can send the
+  // endpoints to the plugin and renderer.
+  int plugin_fd = -1, renderer_fd = -1;
+#if defined(OS_POSIX)
+  // On POSIX, we create the channel endpoints here.
+  IPC::SocketPair(&plugin_fd, &renderer_fd);
+#endif
+
   // We can't send any sync messages from the browser because it might lead to
   // a hang.  However this async messages must be answered right away by the
   // plugin process (i.e. unblocks a Send() call like a sync message) otherwise
   // a deadlock can occur if the plugin creation request from the renderer is
   // a result of a sync message by the plugin process.
   PluginProcessMsg_CreateChannel* msg = new PluginProcessMsg_CreateChannel(
+#if defined(OS_POSIX)
+      // Takes ownership of plugin_fd.
+      base::FileDescriptor(plugin_fd, true),
+#endif
       renderer_message_filter->GetProcessId(),
       renderer_message_filter->off_the_record());
   msg->set_unblock(true);
   if (Send(msg)) {
     sent_requests_.push(ChannelRequest(
-        renderer_message_filter, mime_type, reply_msg));
+        renderer_message_filter, mime_type, reply_msg, renderer_fd));
   } else {
-    ReplyToRenderer(renderer_message_filter, std::string(), FilePath(),
+    ReplyToRenderer(renderer_message_filter, IPC::ChannelHandle(), FilePath(),
                     reply_msg);
   }
 }
 
 void PluginProcessHost::OnChannelCreated(const std::string& channel_name) {
-  ReplyToRenderer(sent_requests_.front().renderer_message_filter_.get(),
-                  channel_name,
+  const ChannelRequest& request = sent_requests_.front();
+  IPC::ChannelHandle channel_handle(channel_name,
+                                    base::FileDescriptor(request.socket, true));
+  ReplyToRenderer(request.renderer_message_filter_.get(),
+                  channel_handle,
                   info_.path,
-                  sent_requests_.front().reply_msg);
+                  request.reply_msg);
   sent_requests_.pop();
 }
 

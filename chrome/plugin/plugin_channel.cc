@@ -7,16 +7,28 @@
 #include "base/command_line.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
+#include "build/build_config.h"
 #include "chrome/common/child_process.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/plugin/plugin_thread.h"
 
+#if defined(OS_POSIX)
+#include "chrome/common/ipc_channel_posix.h"
+#endif
+
 PluginChannel* PluginChannel::GetPluginChannel(
-    int process_id, MessageLoop* ipc_message_loop) {
+    int process_id, MessageLoop* ipc_message_loop, int channel_fd) {
   // map renderer's process id to a (single) channel to that process
   std::string channel_name = StringPrintf(
       "%d.r%d", base::GetCurrentProcId(), process_id);
+
+#if defined(OS_POSIX)
+  // If we were provided an already-open channel, associate it with
+  // the channel name in this process's name<->socket map.
+  if (channel_fd > 0)
+    IPC::AddChannelSocket(channel_name, channel_fd);
+#endif
 
   return static_cast<PluginChannel*>(PluginChannelBase::GetChannel(
       channel_name,

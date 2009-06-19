@@ -16,6 +16,7 @@
 #if defined(OS_POSIX)
 #include "chrome/common/file_descriptor_set_posix.h"
 #endif
+#include "chrome/common/ipc_channel_handle.h"
 #include "chrome/common/ipc_sync_message.h"
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/common/transport_dib.h"
@@ -725,6 +726,34 @@ struct ParamTraits<base::FileDescriptor> {
   }
 };
 #endif // defined(OS_POSIX)
+
+// A ChannelHandle is basically a platform-inspecific wrapper around the
+// fact that IPC endpoints are handled specially on POSIX.  See above comments
+// on FileDescriptor for more background.
+template<>
+struct ParamTraits<IPC::ChannelHandle> {
+  typedef ChannelHandle param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.name);
+#if defined(OS_POSIX)
+    WriteParam(m, p.socket);
+#endif
+  }
+  static bool Read(const Message* m, void** iter, param_type* r) {
+    return ReadParam(m, iter, &r->name)
+#if defined(OS_POSIX)
+        && ReadParam(m, iter, &r->socket)
+#endif
+        ;
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(StringPrintf(L"ChannelHandle(%s", p.name.c_str()));
+#if defined(OS_POSIX)
+    ParamTraits<base::FileDescriptor>::Log(p.socket, l);
+#endif
+    l->append(L")");
+  }
+};
 
 template<>
 struct ParamTraits<ThumbnailScore> {
