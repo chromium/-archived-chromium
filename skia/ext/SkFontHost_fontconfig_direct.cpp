@@ -118,6 +118,16 @@ bool FontConfigDirect::Match(std::string* result_family,
         return false;
     }
 
+    // Skip non-scalable fonts. They don't work with FT_Set_Char_Size()
+    // in SkFontHost_FreeType.cpp.
+    FcBool scalable = FcFalse;
+    FcPatternGetBool(match, FC_SCALABLE, 0, &scalable);
+    if (scalable != FcTrue) {
+        FcPatternDestroy(match);
+        FcPatternDestroy(pattern);
+        return false;
+    }
+
     FcChar8* post_match_family;
     FcPatternGetString(match, FC_FAMILY, 0, &post_match_family);
     const bool family_names_match =
