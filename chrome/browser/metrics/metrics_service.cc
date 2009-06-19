@@ -372,6 +372,14 @@ void MetricsService::DiscardOldStabilityStats(PrefService* local_state) {
   local_state->SetString(prefs::kStabilityUptimeSec, L"0");
 
   local_state->ClearPref(prefs::kStabilityPluginStats);
+
+  ListValue* unsent_initial_logs = local_state->GetMutableList(
+      prefs::kMetricsInitialLogs);
+  unsent_initial_logs->Clear();
+
+  ListValue* unsent_ongoing_logs = local_state->GetMutableList(
+      prefs::kMetricsOngoingLogs);
+  unsent_ongoing_logs->Clear();
 }
 
 MetricsService::MetricsService()
