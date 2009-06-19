@@ -9,12 +9,12 @@
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_view.h"
+#include "chrome/browser/views/autocomplete/autocomplete_popup_win.h"
 #include "views/view.h"
 #include "webkit/glue/window_open_disposition.h"
 
 class AutocompleteEditModel;
 class AutocompleteEditViewWin;
-class AutocompletePopupWin;
 class Profile;
 
 // An interface implemented by an object that provides data to populate
@@ -92,7 +92,7 @@ class AutocompletePopupContentsView : public views::View,
   void MakeCanvasTransparent(gfx::Canvas* canvas);
 
   // The popup that contains this view.
-  AutocompletePopupWin* popup_;
+  scoped_ptr<AutocompletePopupWin> popup_;
 
   // The provider of our result set.
   scoped_ptr<AutocompletePopupModel> model_;
