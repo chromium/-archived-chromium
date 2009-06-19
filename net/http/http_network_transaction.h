@@ -163,7 +163,7 @@ class HttpNetworkTransaction : public HttpTransaction {
   int HandleCertificateError(int error);
 
   // Called to handle a client certificate request.
-  void HandleCertificateRequest();
+  int HandleCertificateRequest(int error);
 
   // Called to possibly recover from an SSL handshake error.  Sets next_state_
   // and returns OK if recovering from the error.  Otherwise, the same error

@@ -193,6 +193,10 @@ int HttpNetworkTransaction::RestartWithCertificate(
     X509Certificate* client_cert,
     CompletionCallback* callback) {
   ssl_config_.client_cert = client_cert;
+  if (client_cert) {
+    session_->ssl_client_auth_cache()->Add(GetHostAndPort(request_->url),
+                                           client_cert);
+  }
   ssl_config_.send_client_cert = true;
   next_state_ = STATE_INIT_CONNECTION;
   // Reset the other member variables.
@@ -634,7 +638,7 @@ int HttpNetworkTransaction::DoSSLConnectComplete(int result) {
   if (result == OK) {
     next_state_ = STATE_WRITE_HEADERS;
   } else if (result == ERR_SSL_CLIENT_AUTH_CERT_NEEDED) {
-    HandleCertificateRequest();
+    result = HandleCertificateRequest(result);
   } else {
     result = HandleSSLHandshakeError(result);
   }
@@ -789,7 +793,9 @@ int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
                  << " during SSL renegotiation";
       result = ERR_CERT_ERROR_IN_SSL_RENEGOTIATION;
     } else if (result == ERR_SSL_CLIENT_AUTH_CERT_NEEDED) {
-      HandleCertificateRequest();
+      result = HandleCertificateRequest(result);
+      if (result == OK)
+        return result;
     }
   }
 
@@ -1255,7 +1261,17 @@ int HttpNetworkTransaction::HandleCertificateError(int error) {
   return error;
 }
 
-void HttpNetworkTransaction::HandleCertificateRequest() {
+int HttpNetworkTransaction::HandleCertificateRequest(int error) {
+  // Assert that the socket did not send a client certificate.
+  // Note: If we got a reused socket, it was created with some other
+  // transaction's ssl_config_, so we need to disable this assertion.  We can
+  // get a certificate request on a reused socket when the server requested
+  // renegotiation (rehandshake).
+  // TODO(wtc): add a GetSSLParams method to SSLClientSocket so we can query
+  // the SSL parameters it was created with and get rid of the reused_socket_
+  // test.
+  DCHECK(reused_socket_ || !ssl_config_.send_client_cert);
+
   response_.cert_request_info = new SSLCertRequestInfo;
   SSLClientSocket* ssl_socket =
       reinterpret_cast<SSLClientSocket*>(connection_.socket());
@@ -1265,9 +1281,38 @@ void HttpNetworkTransaction::HandleCertificateRequest() {
   // to the server.
   connection_.socket()->Disconnect();
   connection_.Reset();
+
+  // If the user selected one of the certificate in client_certs for this
+  // server before, use it automatically.
+  X509Certificate* client_cert = session_->ssl_client_auth_cache()->
+      Lookup(GetHostAndPort(request_->url));
+  if (client_cert) {
+    const std::vector<scoped_refptr<X509Certificate> >& client_certs =
+        response_.cert_request_info->client_certs;
+    for (size_t i = 0; i < client_certs.size(); ++i) {
+      if (memcmp(&client_cert->fingerprint(),
+                 &client_certs[i]->fingerprint(),
+                 sizeof(X509Certificate::Fingerprint)) == 0) {
+        ssl_config_.client_cert = client_cert;
+        ssl_config_.send_client_cert = true;
+        next_state_ = STATE_INIT_CONNECTION;
+        // Reset the other member variables.
+        // Note: this is necessary only with SSL renegotiation.
+        ResetStateForRestart();
+        return OK;
+      }
+    }
+  }
+  return error;
 }
 
 int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
+  if (ssl_config_.send_client_cert &&
+     (error == ERR_SSL_PROTOCOL_ERROR ||
+      error == ERR_BAD_SSL_CLIENT_AUTH_CERT)) {
+    session_->ssl_client_auth_cache()->Remove(GetHostAndPort(request_->url));
+  }
+
   switch (error) {
     case ERR_SSL_PROTOCOL_ERROR:
     case ERR_SSL_VERSION_OR_CIPHER_MISMATCH:

@@ -12,6 +12,7 @@
 #include "net/base/connection_type_histograms.h"
 #include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
+#include "net/base/ssl_cert_request_info.h"
 #include "net/base/ssl_info.h"
 
 #pragma comment(lib, "secur32.lib")
@@ -62,8 +63,9 @@ static int MapSecurityError(SECURITY_STATUS err) {
 
 // Returns true if the two CERT_CONTEXTs contain the same certificate.
 bool SameCert(PCCERT_CONTEXT a, PCCERT_CONTEXT b) {
-  return a->cbCertEncoded == b->cbCertEncoded &&
-         memcmp(a->pbCertEncoded, b->pbCertEncoded, b->cbCertEncoded) == 0;
+  return a == b ||
+         (a->cbCertEncoded == b->cbCertEncoded &&
+         memcmp(a->pbCertEncoded, b->pbCertEncoded, b->cbCertEncoded) == 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -77,44 +79,80 @@ enum {
   SSL_VERSION_MASKS = 1 << 3  // The number of SSL version bitmasks.
 };
 
-// A table of CredHandles for all possible combinations of SSL versions.
+// CredHandleClass simply gives a default constructor and a destructor to
+// SSPI's CredHandle type (a C struct).  The default constuctor is required
+// by STL containers.
+class CredHandleClass : public CredHandle {
+ public:
+  CredHandleClass() {
+    dwLower = 0;
+    dwUpper = 0;
+  }
+
+  ~CredHandleClass() {
+    if (dwLower || dwUpper) {
+      SECURITY_STATUS status = FreeCredentialsHandle(this);
+      DCHECK(status == SEC_E_OK);
+    }
+  }
+};
+
+// A table of CredHandles.
 class CredHandleTable {
  public:
-  CredHandleTable() {
-    memset(creds_, 0, sizeof(creds_));
-  }
+  CredHandleTable() {}
 
-  // Frees the CredHandles.
-  ~CredHandleTable() {
-    for (int i = 0; i < arraysize(creds_); ++i) {
-      if (creds_[i].dwLower || creds_[i].dwUpper)
-        FreeCredentialsHandle(&creds_[i]);
-    }
-  }
+  ~CredHandleTable() {}
 
-  CredHandle* GetHandle(int ssl_version_mask) {
-    DCHECK(0 < ssl_version_mask && ssl_version_mask < arraysize(creds_));
-    CredHandle* handle = &creds_[ssl_version_mask];
-    {
-      AutoLock lock(lock_);
-      if (!handle->dwLower && !handle->dwUpper)
-        InitializeHandle(handle, ssl_version_mask);
+  CredHandle* GetHandle(PCCERT_CONTEXT client_cert, int ssl_version_mask) {
+    DCHECK(0 < ssl_version_mask &&
+           ssl_version_mask < arraysize(anonymous_creds_));
+    CredHandle* handle;
+    AutoLock lock(lock_);
+    if (client_cert) {
+      handle = &client_cert_creds_[
+          std::make_pair(client_cert, ssl_version_mask)];
+    } else {
+      handle = &anonymous_creds_[ssl_version_mask];
     }
+    if (!handle->dwLower && !handle->dwUpper)
+      InitializeHandle(handle, client_cert, ssl_version_mask);
     return handle;
   }
 
  private:
-  static void InitializeHandle(CredHandle* handle, int ssl_version_mask);
+  // CredHandleMapKey is a std::pair consisting of these two components:
+  //   PCCERT_CONTEXT client_cert
+  //   int ssl_version_mask
+  typedef std::pair<PCCERT_CONTEXT, int> CredHandleMapKey;
+
+  typedef std::map<CredHandleMapKey, CredHandleClass> CredHandleMap;
+
+  static void InitializeHandle(CredHandle* handle,
+                               PCCERT_CONTEXT client_cert,
+                               int ssl_version_mask);
 
   Lock lock_;
-  CredHandle creds_[SSL_VERSION_MASKS];
+
+  // Anonymous (no client certificate) CredHandles for all possible
+  // combinations of SSL versions.  Defined as an array for fast lookup.
+  CredHandleClass anonymous_creds_[SSL_VERSION_MASKS];
+
+  // CredHandles that use a client certificate.
+  CredHandleMap client_cert_creds_;
 };
 
 // static
 void CredHandleTable::InitializeHandle(CredHandle* handle,
+                                       PCCERT_CONTEXT client_cert,
                                        int ssl_version_mask) {
   SCHANNEL_CRED schannel_cred = {0};
   schannel_cred.dwVersion = SCHANNEL_CRED_VERSION;
+  if (client_cert) {
+    schannel_cred.cCreds = 1;
+    schannel_cred.paCred = &client_cert;
+    // Schannel will make its own copy of client_cert.
+  }
 
   // The global system registry settings take precedence over the value of
   // schannel_cred.grbitEnabledProtocols.
@@ -180,14 +218,9 @@ void CredHandleTable::InitializeHandle(CredHandle* handle,
 // versions (for example, SSL3 | TLS1 for normal use, plus SSL3 when visiting
 // TLS-intolerant servers).  These CredHandles are initialized only when
 // needed.
-//
-// NOTE: Since the client authentication certificate is also a property of the
-// CredHandle, SSL sockets won't be able to use the shared CredHandles when we
-// support SSL client authentication.  So we will need to refine the way we
-// share SSL sessions.  For now the simple solution of using shared
-// CredHandles is good enough.
 
-static CredHandle* GetCredHandle(int ssl_version_mask) {
+static CredHandle* GetCredHandle(PCCERT_CONTEXT client_cert,
+                                 int ssl_version_mask) {
   // It doesn't matter whether GetCredHandle returns NULL or a pointer to an
   // uninitialized CredHandle on failure.  Both of them cause
   // InitializeSecurityContext to fail with SEC_E_INVALID_HANDLE.
@@ -195,8 +228,40 @@ static CredHandle* GetCredHandle(int ssl_version_mask) {
     NOTREACHED();
     return NULL;
   }
-  return Singleton<CredHandleTable>::get()->GetHandle(ssl_version_mask);
+  return Singleton<CredHandleTable>::get()->GetHandle(client_cert,
+                                                      ssl_version_mask);
 }
+
+//-----------------------------------------------------------------------------
+
+// A memory certificate store for client certificates.  This allows us to
+// close the "MY" system certificate store when we finish searching for
+// client certificates.
+class ClientCertStore {
+ public:
+  ClientCertStore() {
+    store_ = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, NULL, 0, NULL);
+  }
+
+  ~ClientCertStore() {
+    if (store_) {
+      BOOL ok = CertCloseStore(store_, CERT_CLOSE_STORE_CHECK_FLAG);
+      DCHECK(ok);
+    }
+  }
+
+  PCCERT_CONTEXT CopyCertContext(PCCERT_CONTEXT client_cert) {
+    PCCERT_CONTEXT copy;
+    BOOL ok = CertAddCertificateContextToStore(store_, client_cert,
+                                               CERT_STORE_ADD_USE_EXISTING,
+                                               &copy);
+    DCHECK(ok);
+    return ok ? copy : NULL;
+  }
+
+ private:
+  HCERTSTORE store_;
+};
 
 //-----------------------------------------------------------------------------
 
@@ -262,7 +327,73 @@ void SSLClientSocketWin::GetSSLInfo(SSLInfo* ssl_info) {
 
 void SSLClientSocketWin::GetSSLCertRequestInfo(
     SSLCertRequestInfo* cert_request_info) {
-  // TODO(wtc): implement this.
+  cert_request_info->host_and_port = hostname_;  // TODO(wtc): no port!
+  cert_request_info->client_certs.clear();
+
+  // Get the certificate_authorities field of the CertificateRequest message.
+  // Schannel doesn't return the certificate_types field of the
+  // CertificateRequest message to us, so we can't filter the client
+  // certificates properly. :-(
+  SecPkgContext_IssuerListInfoEx issuer_list;
+  SECURITY_STATUS status = QueryContextAttributes(
+      &ctxt_, SECPKG_ATTR_ISSUER_LIST_EX, &issuer_list);
+  if (status != SEC_E_OK) {
+    DLOG(ERROR) << "QueryContextAttributes (issuer list) failed: " << status;
+    return;
+  }
+
+  // Client certificates of the user are in the "MY" system certificate store.
+  HCERTSTORE my_cert_store = CertOpenSystemStore(NULL, L"MY");
+  if (!my_cert_store) {
+    FreeContextBuffer(issuer_list.aIssuers);
+    return;
+  }
+
+  // Enumerate the client certificates.
+  CERT_CHAIN_FIND_BY_ISSUER_PARA find_by_issuer_para;
+  memset(&find_by_issuer_para, 0, sizeof(find_by_issuer_para));
+  find_by_issuer_para.cbSize = sizeof(find_by_issuer_para);
+  find_by_issuer_para.pszUsageIdentifier = szOID_PKIX_KP_CLIENT_AUTH;
+  find_by_issuer_para.cIssuer = issuer_list.cIssuers;
+  find_by_issuer_para.rgIssuer = issuer_list.aIssuers;
+
+  PCCERT_CHAIN_CONTEXT chain_context = NULL;
+
+  for (;;) {
+    // Find a certificate chain.
+    chain_context = CertFindChainInStore(my_cert_store,
+                                         X509_ASN_ENCODING,
+                                         0,
+                                         CERT_CHAIN_FIND_BY_ISSUER,
+                                         &find_by_issuer_para,
+                                         chain_context);
+    if (!chain_context) {
+      DWORD err = GetLastError();
+      if (err != CRYPT_E_NOT_FOUND)
+        DLOG(ERROR) << "CertFindChainInStore failed: " << err;
+      break;
+    }
+
+    // Get the leaf certificate.
+    PCCERT_CONTEXT cert_context =
+        chain_context->rgpChain[0]->rgpElement[0]->pCertContext;
+    // Copy it to our own certificate store, so that we can close the "MY"
+    // certificate store before returning from this function.
+    PCCERT_CONTEXT cert_context2 =
+        Singleton<ClientCertStore>::get()->CopyCertContext(cert_context);
+    if (!cert_context2) {
+      NOTREACHED();
+      continue;
+    }
+    scoped_refptr<X509Certificate> cert = X509Certificate::CreateFromHandle(
+        cert_context2, X509Certificate::SOURCE_LONE_CERT_IMPORT);
+    cert_request_info->client_certs.push_back(cert);
+  }
+
+  FreeContextBuffer(issuer_list.aIssuers);
+
+  BOOL ok = CertCloseStore(my_cert_store, CERT_CLOSE_STORE_CHECK_FLAG);
+  DCHECK(ok);
 }
 
 int SSLClientSocketWin::Connect(CompletionCallback* callback) {
@@ -281,7 +412,10 @@ int SSLClientSocketWin::Connect(CompletionCallback* callback) {
   // rather than enabling no protocols.  So we have to fail here.
   if (ssl_version_mask == 0)
     return ERR_NO_SSL_VERSIONS_ENABLED;
-  creds_ = GetCredHandle(ssl_version_mask);
+  PCCERT_CONTEXT cert_context = NULL;
+  if (ssl_config_.client_cert)
+    cert_context = ssl_config_.client_cert->os_cert_handle();
+  creds_ = GetCredHandle(cert_context, ssl_version_mask);
 
   memset(&ctxt_, 0, sizeof(ctxt_));
 

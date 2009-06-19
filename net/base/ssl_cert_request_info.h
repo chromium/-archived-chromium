@@ -25,6 +25,13 @@ class SSLCertRequestInfo
   // A list of client certificates that match the server's criteria in the
   // SSL CertificateRequest message.  In TLS 1.0, the CertificateRequest
   // message is defined as:
+  //   enum {
+  //     rsa_sign(1), dss_sign(2), rsa_fixed_dh(3), dss_fixed_dh(4),
+  //     (255)
+  //   } ClientCertificateType;
+  //
+  //   opaque DistinguishedName<1..2^16-1>;
+  //
   //   struct {
   //       ClientCertificateType certificate_types<1..2^8-1>;
   //       DistinguishedName certificate_authorities<3..2^16-1>;
