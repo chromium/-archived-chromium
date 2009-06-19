@@ -63,13 +63,6 @@ class PrintedDocument : public base::RefCountedThreadSafe<PrintedDocument> {
   // Note: locks while parsing the whole tree.
   bool IsComplete() const;
 
-  // Requests all the missing pages. Returns true if at least one page has been
-  // requested. Returns false if there was not enough information to request the
-  // missing pages, i.e. document_page_count_ is not initialized or no page has
-  // been requested.
-  // Note: locks while parsing the whole tree.
-  bool RequestMissingPages();
-
   // Disconnects the PrintedPage source (PrintedPagesSource). It is done when
   // the source is being destroyed.
   void DisconnectSource();
@@ -172,10 +165,6 @@ class PrintedDocument : public base::RefCountedThreadSafe<PrintedDocument> {
                          PageOverlays::HorizontalPosition x,
                          PageOverlays::VerticalPosition y,
                          const gfx::Font& font) const;
-
-  // Calls the render source to render a page. Makes sure to execute the call in
-  // the right thread context.
-  void PrintPage_ThreadJump(int page_number);
 
   // All writable data member access must be guarded by this lock. Needs to be
   // mutable since it can be acquired from const member functions.

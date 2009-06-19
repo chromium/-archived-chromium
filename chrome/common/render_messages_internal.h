@@ -100,6 +100,11 @@ IPC_BEGIN_MESSAGES(View)
   // requested pages and switch back the CSS to display media type.
   IPC_MESSAGE_ROUTED0(ViewMsg_PrintPages)
 
+  // Tells the render view that printing is done so it can clean up.
+  IPC_MESSAGE_ROUTED2(ViewMsg_PrintingDone,
+                      int /* document_cookie */,
+                      bool /* success */)
+
   // Tells the render view that a ViewHostMsg_ScrollRect message was processed.
   // This signals the render view that it can send another ScrollRect message.
   IPC_MESSAGE_ROUTED0(ViewMsg_ScrollRect_ACK)

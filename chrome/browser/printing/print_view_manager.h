@@ -77,6 +77,9 @@ class PrintViewManager : public NotificationObserver,
   // disconnect from it.
   void DisconnectFromCurrentPrintJob();
 
+  // Notify that the printing is done.
+  void PrintingDone(bool success);
+
   // Terminates the print job. Noop if no print job has been created. If
   // |cancel| is true, cancel it instead of waiting for the job to finish. Will
   // call ReleasePrintJob().
@@ -112,6 +115,9 @@ class PrintViewManager : public NotificationObserver,
   // Specifically the DEFAULT_INIT_DONE notification. Set when PrintNow() is
   // called.
   bool waiting_to_print_;
+
+  // Indication of success of the print job.
+  bool printing_succeeded_;
 
   // Running an inner message loop inside RenderAllMissingPagesNow(). This means
   // we are _blocking_ until all the necessary pages have been rendered or the

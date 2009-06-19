@@ -55,10 +55,6 @@ class PrintJobWorker : public base::Thread {
   // Cancels the Print... dialog box if shown, noop otherwise.
   void DismissDialog();
 
-  // Requests the missing pages in rendered_document_. Sends back a
-  // ALL_PAGES_REQUESTED notification once done.
-  void RequestMissingPages();
-
  protected:
   // Retrieves the context for testing only.
   PrintingContext& printing_context() { return printing_context_; }

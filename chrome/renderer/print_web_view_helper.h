@@ -20,6 +20,7 @@ class Message;
 
 class RenderView;
 class WebView;
+struct ViewMsg_Print_Params;
 struct ViewMsg_PrintPage_Params;
 struct ViewMsg_PrintPages_Params;
 
@@ -36,7 +37,17 @@ class PrintWebViewHelper : public WebViewDelegate {
 
   void SyncPrint(WebFrame* frame);
 
+  // Is there a background print in progress?
+  bool IsPrinting() {
+    return print_web_view_.get() != NULL;
+  }
+
+  // Notification when printing is done - signal teardown
+  void DidFinishPrinting(bool success);
+
  protected:
+  bool CopyAndPrint(const ViewMsg_PrintPages_Params& params,
+                    WebFrame* web_frame);
 
   // Prints the page listed in |params|.
   void PrintPage(const ViewMsg_PrintPage_Params& params,
@@ -44,6 +55,7 @@ class PrintWebViewHelper : public WebViewDelegate {
                  WebFrame* frame);
 
   // Prints all the pages listed in |params|.
+  // It will implicitly revert the document to display CSS media type.
   void PrintPages(const ViewMsg_PrintPages_Params& params, WebFrame* frame);
 
   // IPC::Message::Sender
@@ -52,7 +64,6 @@ class PrintWebViewHelper : public WebViewDelegate {
   int32 routing_id();
 
   // WebViewDeletegate
-  virtual void DidStartLoading(WebView* webview) {}
   virtual void DidStopLoading(WebView* webview);
   virtual gfx::NativeViewId GetContainingView(WebWidget* webwidget);
   virtual void DidInvalidateRect(WebWidget* webwidget,
@@ -85,6 +96,7 @@ class PrintWebViewHelper : public WebViewDelegate {
  private:
   RenderView* render_view_;
   scoped_ptr<WebView> print_web_view_;
+  scoped_ptr<ViewMsg_PrintPages_Params> print_pages_params_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(PrintWebViewHelper);

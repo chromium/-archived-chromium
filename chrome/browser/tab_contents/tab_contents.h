@@ -524,6 +524,9 @@ class TabContents : public PageNavigator,
   // this function. Returns false if printing is impossible at the moment.
   bool PrintNow();
 
+  // Notify the completion of a printing job.
+  void PrintingDone(int document_cookie, bool success);
+
   // Returns true if the active NavigationEntry's page_id equals page_id.
   bool IsActiveEntry(int32 page_id);
 

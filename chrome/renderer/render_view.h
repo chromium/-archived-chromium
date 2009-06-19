@@ -461,6 +461,7 @@ class RenderView : public RenderWidget,
   // RenderView IPC message handlers
   void SendThumbnail();
   void OnPrintPages();
+  void OnPrintingDone(int document_cookie, bool success);
   void OnNavigate(const ViewMsg_Navigate_Params& params);
   void OnStop();
   void OnLoadAlternateHTMLText(const std::string& html_contents,
@@ -793,8 +794,9 @@ class RenderView : public RenderWidget,
   // to the new navigation is created.  See DidCreateDataSource.
   scoped_ptr<NavigationState> pending_navigation_state_;
 
-  // Need for printing
-  scoped_ptr<PrintWebViewHelper> print_render_view_;
+  // PrintWebViewHelper handles printing.  Note that this object is constructed
+  // when printing for the first time but only destroyed with the RenderView.
+  scoped_ptr<PrintWebViewHelper> print_helper_;
 
   RendererPreferences renderer_preferences_;
 

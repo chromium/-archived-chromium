@@ -907,7 +907,8 @@ void WebViewImpl::Close() {
   }
 
   // Should happen after page_.reset().
-  devtools_agent_.reset(NULL);
+  if (devtools_agent_.get())
+    devtools_agent_.reset(NULL);
 
   Release();  // Balances AddRef from WebView::Create
 }

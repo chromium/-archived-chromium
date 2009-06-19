@@ -403,15 +403,17 @@ bool PrintingContext::InitializeSettings(const DEVMODE& dev_mode,
 
   DCHECK(!in_print_job_);
   DCHECK(hdc_);
-  // Convert the PRINTPAGERANGE array to a PrintSettings::PageRanges vector.
   PageRanges ranges_vector;
-  ranges_vector.reserve(number_ranges);
-  for (int i = 0; i < number_ranges; ++i) {
-    PageRange range;
-    // Transfert from 1-based to 0-based.
-    range.from = ranges[i].nFromPage - 1;
-    range.to = ranges[i].nToPage - 1;
-    ranges_vector.push_back(range);
+  if (!selection_only) {
+    // Convert the PRINTPAGERANGE array to a PrintSettings::PageRanges vector.
+    ranges_vector.reserve(number_ranges);
+    for (int i = 0; i < number_ranges; ++i) {
+      PageRange range;
+      // Transfer from 1-based to 0-based.
+      range.from = ranges[i].nFromPage - 1;
+      range.to = ranges[i].nToPage - 1;
+      ranges_vector.push_back(range);
+    }
   }
   settings_.Init(hdc_,
                  dev_mode,

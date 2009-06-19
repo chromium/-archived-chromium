@@ -339,6 +339,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(RenderView, message)
     IPC_MESSAGE_HANDLER(ViewMsg_CaptureThumbnail, SendThumbnail)
     IPC_MESSAGE_HANDLER(ViewMsg_PrintPages, OnPrintPages)
+    IPC_MESSAGE_HANDLER(ViewMsg_PrintingDone, OnPrintingDone)
     IPC_MESSAGE_HANDLER(ViewMsg_Navigate, OnNavigate)
     IPC_MESSAGE_HANDLER(ViewMsg_Stop, OnStop)
     IPC_MESSAGE_HANDLER(ViewMsg_LoadAlternateHTMLText, OnLoadAlternateHTMLText)
@@ -451,6 +452,15 @@ void RenderView::OnPrintPages() {
   if (webview()) {
     // The renderer own the control flow as if it was a window.print() call.
     ScriptedPrint(webview()->GetMainFrame());
+  }
+}
+
+void RenderView::OnPrintingDone(int document_cookie, bool success) {
+  // Ignoring document cookie here since only one print job can be outstanding
+  // per renderer and document_cookie is 0 when printing is successful.
+  DCHECK(print_helper_.get());
+  if (print_helper_.get() != NULL) {
+    print_helper_->DidFinishPrinting(success);
   }
 }
 
@@ -2217,9 +2227,10 @@ void RenderView::SetInputMethodState(bool enabled) {
 }
 
 void RenderView::ScriptedPrint(WebFrame* frame) {
-  print_render_view_.reset(new PrintWebViewHelper(this));
-  print_render_view_->SyncPrint(frame);
-  print_render_view_.reset();
+  if (print_helper_.get() == NULL) {
+    print_helper_.reset(new PrintWebViewHelper(this));
+  }
+  print_helper_->SyncPrint(frame);
 }
 
 void RenderView::WebInspectorOpened(int num_resources) {

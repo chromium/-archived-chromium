@@ -122,10 +122,6 @@ const int kJavascriptMessageExpectedDelay = 1000;
 const char kLinkDoctorBaseURL[] =
     "http://linkhelp.clients.google.com/tbproxy/lh/fixurl";
 
-// The printer icon in shell32.dll. That's a standard icon user will quickly
-// recognize.
-const int kShell32PrinterIcon = 17;
-
 // The list of prefs we want to observe.
 const wchar_t* kPrefsToObserve[] = {
   prefs::kAlternateErrorPagesEnabled,
@@ -1031,6 +1027,10 @@ bool TabContents::PrintNow() {
     return false;
 
   return render_view_host()->PrintPages();
+}
+
+void TabContents::PrintingDone(int document_cookie, bool success) {
+  render_view_host()->PrintingDone(document_cookie, success);
 }
 
 bool TabContents::IsActiveEntry(int32 page_id) {

@@ -8,6 +8,7 @@
 
 namespace printing {
 
+/* static */
 std::vector<int> PageRange::GetPages(const PageRanges& ranges) {
   std::set<int> pages;
   for (unsigned i = 0; i < ranges.size(); ++i) {
@@ -18,6 +19,13 @@ std::vector<int> PageRange::GetPages(const PageRanges& ranges) {
     }
   }
   return SetToVector(pages);
+}
+
+/* static */
+int PageRange::GetTotalPages(const PageRanges& ranges) {
+  // Since ranges can overlap we need to merge them before counting
+  std::vector<int> pages = PageRange::GetPages(ranges);
+  return pages.size();
 }
 
 }  // namespace printing

@@ -67,24 +67,13 @@ void PrintedDocument::SetPage(int page_number, gfx::Emf* emf, double shrink) {
 
 bool PrintedDocument::GetPage(int page_number,
                               scoped_refptr<PrintedPage>* page) {
-  bool request = false;
-  {
-    AutoLock lock(lock_);
-    PrintedPages::const_iterator itr = mutable_.pages_.find(page_number);
-    if (itr != mutable_.pages_.end()) {
-      if (itr->second.get()) {
-        *page = itr->second;
-        return true;
-      }
-      request = false;
-    } else {
-      request = true;
-      // Force the creation to not repeatedly request the same page.
-      mutable_.pages_[page_number];
+  AutoLock lock(lock_);
+  PrintedPages::const_iterator itr = mutable_.pages_.find(page_number);
+  if (itr != mutable_.pages_.end()) {
+    if (itr->second.get()) {
+      *page = itr->second;
+      return true;
     }
-  }
-  if (request) {
-    PrintPage_ThreadJump(page_number);
   }
   return false;
 }
@@ -176,32 +165,6 @@ bool PrintedDocument::IsComplete() const {
     if (itr == mutable_.pages_.end() || !itr->second.get() ||
         !itr->second->emf())
       return false;
-  }
-  return true;
-}
-
-bool PrintedDocument::RequestMissingPages() {
-  typedef std::set<int> PageNumbers;
-  PageNumbers missing_pages;
-  {
-    AutoLock lock(lock_);
-    PageNumber page(immutable_.settings_, mutable_.page_count_);
-    if (page == PageNumber::npos())
-      return false;
-    for (; page != PageNumber::npos(); ++page) {
-      PrintedPage* printed_page = mutable_.pages_[page.ToInt()].get();
-      if (!printed_page || !printed_page->emf())
-        missing_pages.insert(page.ToInt());
-    }
-  }
-  if (!missing_pages.size())
-    return true;
-  PageNumbers::const_iterator end = missing_pages.end();
-  for (PageNumbers::const_iterator itr = missing_pages.begin();
-       itr != end;
-       ++itr) {
-    int page_number = *itr;
-    PrintPage_ThreadJump(page_number);
   }
   return true;
 }
@@ -332,20 +295,6 @@ void PrintedDocument::PrintHeaderFooter(HDC context,
           static_cast<int>(output.size()));
   int res = RestoreDC(context, saved_state);
   DCHECK_NE(res, 0);
-}
-
-void PrintedDocument::PrintPage_ThreadJump(int page_number) {
-  if (MessageLoop::current() != immutable_.source_message_loop_) {
-    immutable_.source_message_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &PrintedDocument::PrintPage_ThreadJump, page_number));
-  } else {
-    PrintedPagesSource* source = NULL;
-    {
-      AutoLock lock(lock_);
-      source = mutable_.source_;
-    }
-    NOTREACHED();
-  }
 }
 
 PrintedDocument::Mutable::Mutable(PrintedPagesSource* source)

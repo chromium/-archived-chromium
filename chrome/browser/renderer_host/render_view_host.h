@@ -181,10 +181,12 @@ class RenderViewHost : public RenderWidgetHost {
   // Stops the current load.
   void Stop();
 
-
   // Asks the renderer to "render" printed pages and initiate printing on our
   // behalf.
   bool PrintPages();
+
+  // Notify renderer of success/failure of print job.
+  void PrintingDone(int document_cookie, bool success);
 
   // Start looking for a string within the content of the page, with the
   // specified options.

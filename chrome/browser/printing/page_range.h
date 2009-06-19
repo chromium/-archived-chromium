@@ -24,6 +24,9 @@ struct PageRange {
 
   // Retrieves the sorted list of unique pages in the page ranges.
   static std::vector<int> GetPages(const PageRanges& ranges);
+
+  // Gets the total number of pages.
+  static int GetTotalPages(const PageRanges& ranges);
 };
 
 }  // namespace printing

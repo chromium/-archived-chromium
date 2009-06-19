@@ -367,6 +367,10 @@ bool RenderViewHost::PrintPages() {
   return Send(new ViewMsg_PrintPages(routing_id()));
 }
 
+void RenderViewHost::PrintingDone(int document_cookie, bool success) {
+  Send(new ViewMsg_PrintingDone(routing_id(), document_cookie, success));
+}
+
 void RenderViewHost::StartFinding(int request_id,
                                   const string16& search_text,
                                   bool forward,

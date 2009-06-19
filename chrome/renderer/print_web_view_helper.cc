@@ -13,6 +13,8 @@
 #include "printing/units.h"
 #include "webkit/api/public/WebScreenInfo.h"
 #include "webkit/api/public/WebSize.h"
+#include "webkit/api/public/WebURL.h"
+#include "webkit/api/public/WebURLRequest.h"
 #include "webkit/glue/webframe.h"
 
 #if defined(OS_WIN)
@@ -86,6 +88,11 @@ class PrepareFrameAndViewForPrint {
 
 void PrintWebViewHelper::SyncPrint(WebFrame* frame) {
 #if defined(OS_WIN)
+
+  // If still not finished with earlier print request simply ignore.
+  if (IsPrinting())
+    return;
+
   // Retrieve the default print settings to calculate the expected number of
   // pages.
   ViewMsg_Print_Params default_settings;
@@ -126,24 +133,21 @@ void PrintWebViewHelper::SyncPrint(WebFrame* frame) {
                                           render_view_->host_window(),
                                           default_settings.document_cookie,
                                           expected_pages_count,
-                                          false,  // has_selection
+                                          frame->HasSelection(),
                                           &print_settings);
       if (Send(msg)) {
         msg = NULL;
 
-        // Printing selection only not supported yet.
-        if (print_settings.params.selection_only) {
-          NOTIMPLEMENTED();
-        }
-
         // If the settings are invalid, early quit.
         if (print_settings.params.dpi &&
             print_settings.params.document_cookie) {
-          // Render the printed pages. It will implicitly revert the document to
-          // display CSS media type.
-          PrintPages(print_settings, frame);
-          // All went well.
-          return;
+          if (print_settings.params.selection_only) {
+            CopyAndPrint(print_settings, frame);
+          } else {
+            // TODO: Always copy before printing.
+            PrintPages(print_settings, frame);
+          }
+          return;  // All went well.
         } else {
           // The user cancelled.
         }
@@ -158,15 +162,52 @@ void PrintWebViewHelper::SyncPrint(WebFrame* frame) {
     // Send() failed.
     NOTREACHED();
   }
-  // TODO(maruel):  bug 1123882 Alert the user that printing failed.
+  DidFinishPrinting(false);
 #else  // defined(OS_WIN)
   // TODO(port): print not implemented
   NOTIMPLEMENTED();
 #endif
 }
 
+void PrintWebViewHelper::DidFinishPrinting(bool success) {
+  if (print_web_view_.get()) {
+    print_web_view_->Close();
+    print_web_view_.release();  // Close deletes object.
+    print_pages_params_.reset();
+  }
+
+  if (!success) {
+    // TODO(sverrir): http://crbug.com/6833 Show some kind of notification.
+  }
+}
+
+bool PrintWebViewHelper::CopyAndPrint(const ViewMsg_PrintPages_Params& params,
+                                      WebFrame* web_frame) {
+  // Create a new WebView with the same settings as the current display one.
+  // Except that we disable javascript (don't want any active content running
+  // on the page).
+  WebPreferences prefs = web_frame->GetView()->GetPreferences();
+  prefs.javascript_enabled = false;
+  prefs.java_enabled = false;
+  print_web_view_.reset(WebView::Create(this, prefs));
+
+  print_pages_params_.reset(new ViewMsg_PrintPages_Params(params));
+  print_pages_params_->pages.clear();  // Print all pages of selection.
+
+  std::string html = web_frame->GetSelection(true);
+  std::string url_str = "data:text/html;charset=utf-8,";
+  url_str.append(html);
+  GURL url(url_str);
+
+  // When loading is done this will call DidStopLoading that will do the
+  // actual printing.
+  print_web_view_->GetMainFrame()->LoadRequest(WebKit::WebURLRequest(url));
+
+  return true;
+}
+
 void PrintWebViewHelper::PrintPages(const ViewMsg_PrintPages_Params& params,
-                                 WebFrame* frame) {
+                                    WebFrame* frame) {
   PrepareFrameAndViewForPrint prep_frame_view(params.params,
                                               frame,
                                               frame->GetView());
@@ -314,12 +355,14 @@ int32 PrintWebViewHelper::routing_id() {
   return render_view_->routing_id();
 }
 
-void PrintWebViewHelper::GetWindowRect(WebWidget* webwidget,
-                                    WebKit::WebRect* rect) {
-  NOTREACHED();
+void PrintWebViewHelper::DidStopLoading(WebView* webview) {
+  DCHECK(print_pages_params_.get() != NULL);
+  DCHECK_EQ(webview, print_web_view_.get());
+  PrintPages(*print_pages_params_.get(), print_web_view_->GetMainFrame());
 }
 
-void PrintWebViewHelper::DidStopLoading(WebView* webview) {
+void PrintWebViewHelper::GetWindowRect(WebWidget* webwidget,
+                                       WebKit::WebRect* rect) {
   NOTREACHED();
 }
 

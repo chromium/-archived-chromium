@@ -50,7 +50,7 @@ class PrintJobWorker::NotificationTask : public Task {
 PrintJobWorker::PrintJobWorker(PrintJobWorkerOwner* owner)
     : Thread("Printing_Worker"),
       owner_(owner) {
-  // The object is created in the UI thread.
+  // The object is created in the IO thread.
   DCHECK_EQ(owner_->message_loop(), MessageLoop::current());
 }
 
@@ -167,7 +167,7 @@ void PrintJobWorker::OnNewPage() {
     // Is the page available?
     scoped_refptr<PrintedPage> page;
     if (!document_->GetPage(page_number_.ToInt(), &page)) {
-      // The page is implictly requested.
+      // The page is implicitly requested.
       break;
     }
     // The page is there, print it.
@@ -190,21 +190,6 @@ void PrintJobWorker::Cancel() {
 
 void PrintJobWorker::DismissDialog() {
   printing_context_.DismissDialog();
-}
-
-void PrintJobWorker::RequestMissingPages() {
-  DCHECK_EQ(message_loop(), MessageLoop::current());
-  // It may arrive out of order. Don't mind about it.
-  if (page_number_ != PageNumber::npos()) {
-    // We are printing.
-    document_->RequestMissingPages();
-  }
-  NotificationTask* task = new NotificationTask();
-  task->Init(owner_,
-             JobEventDetails::ALL_PAGES_REQUESTED,
-             document_.get(),
-             NULL);
-  owner_->message_loop()->PostTask(FROM_HERE, task);
 }
 
 void PrintJobWorker::OnDocumentDone() {

@@ -25,6 +25,7 @@ namespace printing {
 PrintViewManager::PrintViewManager(TabContents& owner)
     : owner_(owner),
       waiting_to_print_(false),
+      printing_succeeded_(false),
       inside_inner_message_loop_(false) {
 }
 
@@ -46,7 +47,7 @@ bool PrintViewManager::OnRenderViewGone(RenderViewHost* render_view_host) {
 
   scoped_refptr<PrintedDocument> document(print_job_->document());
   if (document) {
-    // If IsComplete() returns false, the document isn't completely renderered.
+    // If IsComplete() returns false, the document isn't completely rendered.
     // Since our renderer is gone, there's nothing to do, cancel it. Otherwise,
     // the print job may finish without problem.
     TerminatePrintJob(!document->IsComplete());
@@ -148,7 +149,6 @@ void PrintViewManager::OnNotifyPrintJobEvent(
     const JobEventDetails& event_details) {
   switch (event_details.type()) {
     case JobEventDetails::FAILED: {
-      // TODO(maruel):  bug 1123882 Show some kind of notification.
       TerminatePrintJob(true);
       break;
     }
@@ -176,6 +176,7 @@ void PrintViewManager::OnNotifyPrintJobEvent(
       // Printing is done, we don't need it anymore.
       // print_job_->is_job_pending() may still be true, depending on the order
       // of object registration.
+      printing_succeeded_ = true;
       ReleasePrintJob();
       break;
     }
@@ -202,6 +203,7 @@ bool PrintViewManager::RenderAllMissingPagesNow() {
   // Is the document already complete?
   if (print_job_->document() && print_job_->document()->IsComplete()) {
     waiting_to_print_ = false;
+    printing_succeeded_ = true;
     return true;
   }
 
@@ -266,6 +268,7 @@ bool PrintViewManager::CreateNewPrintJob(PrintJobWorkerOwner* job) {
   print_job_->Initialize(job, this);
   registrar_.Add(this, NotificationType::PRINT_JOB_EVENT,
                  Source<PrintJob>(print_job_.get()));
+  printing_succeeded_ = false;
   return true;
 }
 
@@ -284,6 +287,12 @@ void PrintViewManager::DisconnectFromCurrentPrintJob() {
   } else {
     // DO NOT wait for the job to finish.
     ReleasePrintJob();
+  }
+}
+
+void PrintViewManager::PrintingDone(bool success) {
+  if (print_job_.get()) {
+    owner_.PrintingDone(print_job_->cookie(), success);
   }
 }
 
@@ -313,6 +322,8 @@ void PrintViewManager::ReleasePrintJob() {
   DCHECK_EQ(waiting_to_print_, false);
   if (!print_job_.get())
     return;
+
+  PrintingDone(printing_succeeded_);
 
   registrar_.Remove(this, NotificationType::PRINT_JOB_EVENT,
                     Source<PrintJob>(print_job_.get()));

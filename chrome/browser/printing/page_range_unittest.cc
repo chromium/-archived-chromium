@@ -27,10 +27,12 @@ TEST(PageRangeTest, RangeMerge) {
   EXPECT_EQ(10, pages[5]);
   EXPECT_EQ(11, pages[6]);
   EXPECT_EQ(12, pages[7]);
+  EXPECT_EQ(8, printing::PageRange::GetTotalPages(ranges));
 }
 
 TEST(PageRangeTest, Empty) {
   printing::PageRanges ranges;
   std::vector<int> pages(printing::PageRange::GetPages(ranges));
   EXPECT_EQ(0U, pages.size());
+  EXPECT_EQ(0, printing::PageRange::GetTotalPages(ranges));
 }
