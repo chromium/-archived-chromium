@@ -897,6 +897,13 @@ void TabContents::OnStartDownload(DownloadItem* download) {
 
   if (tab_contents && tab_contents->delegate())
     tab_contents->delegate()->OnStartDownload(download);
+
+  // Update the URL display.
+  // If the download is caused by typing in a downloadable URL, e.g.,
+  // http://example.com/somefile.zip, into the omnibox, the previous URL
+  // will reappear.
+  if (delegate())
+    delegate()->NavigationStateChanged(this, TabContents::INVALIDATE_URL);
 }
 
 void TabContents::WillClose(ConstrainedWindow* window) {
