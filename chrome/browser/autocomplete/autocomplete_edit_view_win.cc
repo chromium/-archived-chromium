@@ -331,7 +331,8 @@ const SkColor kSchemeSelectedStrikeoutColor =
 HWND edit_hwnd = NULL;
 PAINTSTRUCT paint_struct;
 
-HDC BeginPaintIntercept(HWND hWnd, LPPAINTSTRUCT lpPaint) {
+// Intercepted method for BeginPaint(). Must use __stdcall convention.
+HDC WINAPI BeginPaintIntercept(HWND hWnd, LPPAINTSTRUCT lpPaint) {
   if (!edit_hwnd || (hWnd != edit_hwnd))
     return ::BeginPaint(hWnd, lpPaint);
 
@@ -339,7 +340,8 @@ HDC BeginPaintIntercept(HWND hWnd, LPPAINTSTRUCT lpPaint) {
   return paint_struct.hdc;
 }
 
-BOOL EndPaintIntercept(HWND hWnd, const PAINTSTRUCT* lpPaint) {
+// Intercepted method for EndPaint(). Must use __stdcall convention.
+BOOL WINAPI EndPaintIntercept(HWND hWnd, const PAINTSTRUCT* lpPaint) {
   return (edit_hwnd && (hWnd == edit_hwnd)) ?
       true : ::EndPaint(hWnd, lpPaint);
 }
