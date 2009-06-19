@@ -208,7 +208,7 @@ class PrefObserverBridge : public NotificationObserver {
 // automatically abandon/cancel any in-progress edits in text fields, we don't
 // have to do anything special.
 - (void)cancel:(id)sender {
-  [window performClose:self];
+  [[self window] performClose:self];
 }
 
 // Record the user performed a certain action and save the preferences.
