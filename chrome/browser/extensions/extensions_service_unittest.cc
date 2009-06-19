@@ -752,7 +752,7 @@ TEST_F(ExtensionsServiceTest, LoadExtension) {
   ValidatePrefKeyCount(0);
 
   FilePath no_manifest = extensions_path.AppendASCII("bad")
-      .AppendASCII("no_manifest").AppendASCII("1");
+      .AppendASCII("cccccccccccccccccccccccccccccccc").AppendASCII("1");
   service_->LoadExtension(no_manifest);
   loop_.RunAllPending();
   EXPECT_EQ(1u, GetErrors().size());

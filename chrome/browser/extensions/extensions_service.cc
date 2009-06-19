@@ -493,8 +493,7 @@ void ExtensionsServiceBackend::GarbageCollectExtensions(
   if (!file_util::DirectoryExists(install_directory_))
     return;
 
-  if (!file_util::AbsolutePath(&install_directory_))
-    NOTREACHED();
+  file_util::AbsolutePath(&install_directory_);
 
   LOG(INFO) << "Loading installed extensions...";
 
@@ -546,8 +545,7 @@ void ExtensionsServiceBackend::LoadSingleExtension(
   alert_on_error_ = true;
 
   FilePath extension_path = path_in;
-  if (!file_util::AbsolutePath(&extension_path))
-    NOTREACHED();
+  file_util::AbsolutePath(&extension_path);
 
   LOG(INFO) << "Loading single extension from " <<
       WideToASCII(extension_path.BaseName().ToWStringHack());
