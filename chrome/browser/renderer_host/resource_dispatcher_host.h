@@ -302,6 +302,9 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
                                   const GURL& new_url);
   virtual void OnAuthRequired(URLRequest* request,
                               net::AuthChallengeInfo* auth_info);
+  virtual void OnCertificateRequested(
+      URLRequest* request,
+      net::SSLCertRequestInfo* cert_request_info);
   virtual void OnSSLCertificateError(URLRequest* request,
                                      int cert_error,
                                      net::X509Certificate* cert);

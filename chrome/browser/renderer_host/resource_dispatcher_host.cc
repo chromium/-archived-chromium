@@ -8,6 +8,7 @@
 
 #include <vector>
 
+#include "base/command_line.h"
 #include "base/message_loop.h"
 #include "base/scoped_ptr.h"
 #include "base/stl_util-inl.h"
@@ -33,6 +34,7 @@
 #include "chrome/browser/renderer_host/sync_resource_handler.h"
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
 #include "net/base/auth.h"
@@ -40,6 +42,7 @@
 #include "net/base/load_flags.h"
 #include "net/base/mime_util.h"
 #include "net/base/net_errors.h"
+#include "net/base/ssl_cert_request_info.h"
 #include "net/url_request/url_request.h"
 #include "webkit/glue/webappcachecontext.h"
 
@@ -108,7 +111,8 @@ bool ShouldServiceRequest(ChildProcessInfo::ProcessType process_type,
   if (process_type == ChildProcessInfo::PLUGIN_PROCESS)
     return true;
 
-  ChildProcessSecurityPolicy* policy = ChildProcessSecurityPolicy::GetInstance();
+  ChildProcessSecurityPolicy* policy =
+      ChildProcessSecurityPolicy::GetInstance();
 
   // Check if the renderer is permitted to request the requested URL.
   if (!policy->CanRequestURL(process_id, request_data.url)) {
@@ -620,9 +624,9 @@ void ResourceDispatcherHost::CancelRequest(int process_id,
     if (!i->second->is_pending() && allow_delete) {
       // No io is pending, canceling the request won't notify us of anything,
       // so we explicitly remove it.
-      // TODO: removing the request in this manner means we're not notifying
-      // anyone. We need make sure the event handlers and others are notified
-      // so that everything is cleaned up properly.
+      // TODO(sky): removing the request in this manner means we're not
+      // notifying anyone. We need make sure the event handlers and others are
+      // notified so that everything is cleaned up properly.
       RemovePendingRequest(info->process_id, info->request_id);
     } else {
       i->second->Cancel();
@@ -844,6 +848,19 @@ void ResourceDispatcherHost::OnAuthRequired(
   DCHECK(!info->login_handler) <<
       "OnAuthRequired called with login_handler pending";
   info->login_handler = CreateLoginPrompt(auth_info, request, ui_loop_);
+}
+
+void ResourceDispatcherHost::OnCertificateRequested(
+      URLRequest* request,
+      net::SSLCertRequestInfo* cert_request_info) {
+  DCHECK(request);
+
+  bool select_first_cert = CommandLine::ForCurrentProcess()->HasSwitch(
+      switches::kAutoSSLClientAuth);
+  net::X509Certificate* cert =
+      select_first_cert && !cert_request_info->client_certs.empty() ?
+      cert_request_info->client_certs[0] : NULL;
+  request->ContinueWithCertificate(cert);
 }
 
 void ResourceDispatcherHost::OnSSLCertificateError(
