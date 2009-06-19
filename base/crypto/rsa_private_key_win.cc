@@ -83,8 +83,8 @@ static void PrependTypeHeaderAndLength(uint8 type, uint32 length,
 
 // Helper to prepend an ASN.1 integer.
 static void PrependInteger(uint8* val, int num_bytes, std::list<uint8>* data) {
-  // If the MSB is set, we need an extra null byte at the front.
-  bool needs_null_byte = !(val[num_bytes - 1] & 0x80);
+  // If the MSB is set, we are supposed to add an extra null byte at the front.
+  bool needs_null_byte = (val[num_bytes - 1] & 0x80) != 0;
   int length = needs_null_byte ? num_bytes + 1 : num_bytes;
 
   PrependBytesInReverseOrder(val, num_bytes, data);
