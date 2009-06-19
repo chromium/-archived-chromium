@@ -189,7 +189,8 @@ void HttpResponseHeaders::Update(const HttpResponseHeaders& new_headers) {
 
       // preserve this header line in the merged result
       // (including trailing '\0')
-      new_raw_headers.append(name_begin, new_parsed[k].value_end + 1);
+      new_raw_headers.append(name_begin, new_parsed[k].value_end);
+      new_raw_headers.push_back('\0');
     }
 
     i = k;
@@ -208,7 +209,8 @@ void HttpResponseHeaders::Update(const HttpResponseHeaders& new_headers) {
     StringToLowerASCII(&name);
     if (updated_headers.find(name) == updated_headers.end()) {
       // ok to preserve this header in the final result
-      new_raw_headers.append(parsed_[i].name_begin, parsed_[k].value_end + 1);
+      new_raw_headers.append(parsed_[i].name_begin, parsed_[k].value_end);
+      new_raw_headers.push_back('\0');
     }
 
     i = k;

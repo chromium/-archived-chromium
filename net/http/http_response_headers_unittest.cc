@@ -831,6 +831,17 @@ TEST(HttpResponseHeadersTest, Update) {
       "Cache-CONTROL: max-age=10000\n"
       "Foo: 1\n"
     },
+    { "HTTP/1.1 200 OK\n"
+      "Content-Length: 450\n",
+
+      "HTTP/1/1 304 Not Modified\n"
+      "connection: keep-alive\n"
+      "Cache-control:      max-age=10001   \n",
+
+      "HTTP/1.1 200 OK\n"
+      "Cache-control: max-age=10001\n"
+      "Content-Length: 450\n"
+    },
   };
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
