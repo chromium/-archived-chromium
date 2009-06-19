@@ -302,12 +302,12 @@ void ExtensionShelf::Layout() {
   for (int i = 0; i < count; ++i) {
     x += kToolstripPadding;  // left padding
     ExtensionHost* toolstrip = model_->ToolstripAt(i);
-    views::View* child = toolstrip->view();
-    gfx::Size pref = child->GetPreferredSize();
+    ExtensionView* extension_view = toolstrip->view();
+    gfx::Size pref = extension_view->GetPreferredSize();
     int next_x = x + pref.width() + kToolstripPadding;  // right padding
-    child->SetVisible(next_x < max_x);
-    child->SetBounds(x, y, pref.width(), content_height);
-    child->Layout();
+    extension_view->set_is_clipped(next_x >= max_x);
+    extension_view->SetBounds(x, y, pref.width(), content_height);
+    extension_view->Layout();
     x = next_x + kToolstripDividerWidth;
   }
   if (handle_.get())

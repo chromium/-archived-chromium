@@ -565,6 +565,7 @@ class RenderViewHost : public RenderWidgetHost {
                           int request_id, bool has_callback);
   void OnExtensionPostMessage(int port_id, const std::string& message);
   void OnAccessibilityFocusChange(int acc_obj_id);
+  void OnCSSInserted();
 
   // Helper function to send a navigation message.  If a cross-site request is
   // in progress, we may be suspended while waiting for the onbeforeunload

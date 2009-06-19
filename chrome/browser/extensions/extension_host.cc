@@ -178,12 +178,13 @@ void ExtensionHost::DidStopLoading(RenderViewHost* render_view_host) {
           IDR_EXTENSIONS_TOOLSTRIP_CSS));
   render_view_host->InsertCSSInWebFrame(L"", toolstrip_css.as_string());
 
-  render_view_host->WasResized();
   did_stop_loading_ = true;
+}
 
-#if defined(OS_WIN)
+void ExtensionHost::DidInsertCSS() {
+#if defined(TOOLKIT_VIEWS)
   if (view_.get())
-    view_->ShowIfCompletelyLoaded();
+    view_->SetDidInsertCSS(true);
 #endif
 }
 

@@ -14,7 +14,8 @@
 
 ExtensionView::ExtensionView(ExtensionHost* host, Browser* browser)
     : host_(host), browser_(browser),
-      initialized_(false), pending_preferred_width_(0), container_(NULL) {
+      initialized_(false), pending_preferred_width_(0), container_(NULL),
+      did_insert_css_(false), is_clipped_(false) {
   host_->set_view(this);
 }
 
@@ -28,6 +29,11 @@ Extension* ExtensionView::extension() const {
 
 RenderViewHost* ExtensionView::render_view_host() const {
   return host_->render_view_host();
+}
+
+void ExtensionView::SetDidInsertCSS(bool did_insert) {
+  did_insert_css_ = did_insert;
+  ShowIfCompletelyLoaded();
 }
 
 void ExtensionView::SetVisible(bool is_visible) {
@@ -87,9 +93,11 @@ void ExtensionView::CreateWidgetHostView() {
 }
 
 void ExtensionView::ShowIfCompletelyLoaded() {
-  // We wait to show the ExtensionView until it has loaded and our parent has
-  // given us a background. These can happen in different orders.
+  // We wait to show the ExtensionView until it has loaded, our parent has
+  // given us a background and css has been inserted into page. These can happen
+  // in different orders.
   if (!IsVisible() && host_->did_stop_loading() && render_view_host()->view() &&
+      !is_clipped_ && did_insert_css_ &&
       !render_view_host()->view()->background().empty()) {
     SetVisible(true);
     DidContentsPreferredWidthChange(pending_preferred_width_);

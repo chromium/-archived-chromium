@@ -1460,4 +1460,8 @@ IPC_BEGIN_MESSAGES(ViewHost)
   IPC_MESSAGE_CONTROL1(UtilityHostMsg_UnpackWebResource_Failed,
                        std::string /* error_message, if any */)
 
+  // Sent by the renderer process to acknowledge receipt of a
+  // ViewMsg_CSSInsertRequest message and css has been inserted into the frame.
+  IPC_MESSAGE_ROUTED0(ViewHostMsg_OnCSSInserted)
+
 IPC_END_MESSAGES(ViewHost)

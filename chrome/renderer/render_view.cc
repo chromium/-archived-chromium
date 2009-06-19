@@ -2376,6 +2376,9 @@ void RenderView::OnScriptEvalRequest(const std::wstring& frame_xpath,
 void RenderView::OnCSSInsertRequest(const std::wstring& frame_xpath,
                                     const std::string& css) {
   InsertCSS(frame_xpath, css);
+
+  // Notify RenderViewHost that css has been inserted into the frame.
+  Send(new ViewHostMsg_OnCSSInserted(routing_id_));
 }
 
 void RenderView::OnAddMessageToConsole(

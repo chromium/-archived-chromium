@@ -837,6 +837,7 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
                         OnExtensionPostMessage)
     IPC_MESSAGE_HANDLER(ViewHostMsg_AccessibilityFocusChange,
                         OnAccessibilityFocusChange)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_OnCSSInserted, OnCSSInserted)
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidgetHost::OnMessageReceived(msg))
   IPC_END_MESSAGE_MAP_EX()
@@ -1497,4 +1498,8 @@ void RenderViewHost::OnAccessibilityFocusChange(int acc_obj_id) {
 #else
   // TODO(port): accessibility not yet implemented. See http://crbug.com/8288.
 #endif
+}
+
+void RenderViewHost::OnCSSInserted() {
+  delegate_->DidInsertCSS();
 }

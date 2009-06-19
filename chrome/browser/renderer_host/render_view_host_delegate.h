@@ -453,6 +453,9 @@ class RenderViewHostDelegate {
                            const gfx::Rect& selection_rect,
                            int active_match_ordinal,
                            bool final_update) { }
+
+  // The RenderView has inserted one css file into page.
+  virtual void DidInsertCSS() { }
 };
 
 #endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_DELEGATE_H_

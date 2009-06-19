@@ -76,6 +76,7 @@ class ExtensionHost : public RenderViewHostDelegate,
   virtual RenderViewHostDelegate::View* GetViewDelegate() const;
   virtual ExtensionFunctionDispatcher* CreateExtensionFunctionDispatcher(
       RenderViewHost *render_view_host, const std::string& extension_id);
+  virtual void DidInsertCSS();
 
   // RenderViewHostDelegate::View
   virtual void CreateNewWindow(int route_id,
