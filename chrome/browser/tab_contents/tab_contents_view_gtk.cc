@@ -15,6 +15,7 @@
 #include "chrome/browser/download/download_shelf.h"
 #include "chrome/browser/gtk/blocked_popup_container_view_gtk.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
+#include "chrome/browser/gtk/constrained_window_gtk.h"
 #include "chrome/browser/gtk/gtk_floating_container.h"
 #include "chrome/browser/gtk/sad_tab_gtk.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
@@ -137,6 +138,28 @@ void TabContentsViewGtk::RemoveBlockedPopupView(
   DCHECK(popup_view_ == popup_view);
   gtk_container_remove(GTK_CONTAINER(floating_.get()), popup_view->widget());
   popup_view_ = NULL;
+}
+
+void TabContentsViewGtk::AttachConstrainedWindow(
+    ConstrainedWindowGtk* constrained_window) {
+  DCHECK(find(constrained_windows_.begin(), constrained_windows_.end(),
+              constrained_window) == constrained_windows_.end());
+
+  constrained_windows_.push_back(constrained_window);
+  gtk_floating_container_add_floating(GTK_FLOATING_CONTAINER(floating_.get()),
+                                      constrained_window->widget());
+}
+
+void TabContentsViewGtk::RemoveConstrainedWindow(
+    ConstrainedWindowGtk* constrained_window) {
+  std::vector<ConstrainedWindowGtk*>::iterator item =
+      find(constrained_windows_.begin(), constrained_windows_.end(),
+           constrained_window);
+  DCHECK(item != constrained_windows_.end());
+
+  gtk_container_remove(GTK_CONTAINER(floating_.get()),
+                       constrained_window->widget());
+  constrained_windows_.erase(item);
 }
 
 void TabContentsViewGtk::CreateView() {
@@ -379,6 +402,35 @@ void TabContentsViewGtk::OnSetFloatingPosition(
 
     int child_y = std::max(
         allocation->y + allocation->height - requisition.height, 0);
+    g_value_set_int(&value, child_y);
+    gtk_container_child_set_property(GTK_CONTAINER(floating_container),
+                                     widget, "y", &value);
+    g_value_unset(&value);
+  }
+
+  // Place each ConstrainedWindow in the center of the view.
+  int half_view_width = std::max((allocation->x + allocation->width) / 2, 0);
+  int half_view_height = std::max((allocation->y + allocation->height) / 2, 0);
+  std::vector<ConstrainedWindowGtk*>::iterator it =
+      tab_contents_view->constrained_windows_.begin();
+  std::vector<ConstrainedWindowGtk*>::iterator end =
+      tab_contents_view->constrained_windows_.end();
+  for (; it != end; ++it) {
+    GtkWidget* widget = (*it)->widget();
+    DCHECK(widget->parent == tab_contents_view->floating_.get());
+
+    GtkRequisition requisition;
+    gtk_widget_size_request(widget, &requisition);
+
+    GValue value = { 0, };
+    g_value_init(&value, G_TYPE_INT);
+
+    int child_x = std::max(half_view_width - (requisition.width / 2), 0);
+    g_value_set_int(&value, child_x);
+    gtk_container_child_set_property(GTK_CONTAINER(floating_container),
+                                     widget, "x", &value);
+
+    int child_y = std::max(half_view_height - (requisition.height / 2), 0);
     g_value_set_int(&value, child_y);
     gtk_container_child_set_property(GTK_CONTAINER(floating_container),
                                      widget, "y", &value);

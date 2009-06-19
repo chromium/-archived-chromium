@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/views/constrained_window_impl.h"
+#include "chrome/browser/views/constrained_window_win.h"
 
 #include "app/gfx/canvas.h"
 #include "app/gfx/font.h"
@@ -15,7 +15,6 @@
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/browser/toolbar_model.h"
@@ -160,7 +159,7 @@ class ConstrainedWindowFrameView
     : public views::NonClientFrameView,
       public views::ButtonListener {
  public:
-  explicit ConstrainedWindowFrameView(ConstrainedWindowImpl* container);
+  explicit ConstrainedWindowFrameView(ConstrainedWindowWin* container);
   virtual ~ConstrainedWindowFrameView();
 
   void UpdateWindowTitle();
@@ -223,7 +222,7 @@ class ConstrainedWindowFrameView
   // Loads the appropriate set of WindowResources for the frame view.
   void InitWindowResources();
 
-  ConstrainedWindowImpl* container_;
+  ConstrainedWindowWin* container_;
 
   scoped_ptr<views::WindowResources> resources_;
 
@@ -275,7 +274,7 @@ const SkColor kContentsBorderShadow = SkColorSetARGB(51, 0, 0, 0);
 // ConstrainedWindowFrameView, public:
 
 ConstrainedWindowFrameView::ConstrainedWindowFrameView(
-    ConstrainedWindowImpl* container)
+    ConstrainedWindowWin* container)
         : NonClientFrameView(),
           container_(container),
           close_button_(new views::ImageButton(this)) {
@@ -575,24 +574,24 @@ void ConstrainedWindowFrameView::InitClass() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ConstrainedWindowImpl, public:
+// ConstrainedWindowWin, public:
 
 // The space (in pixels) between minimized pop-ups stacked horizontally and
 // vertically.
 static const int kPopupRepositionOffset = 5;
 static const int kConstrainedWindowEdgePadding = 10;
 
-ConstrainedWindowImpl::~ConstrainedWindowImpl() {
+ConstrainedWindowWin::~ConstrainedWindowWin() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ConstrainedWindowImpl, ConstrainedWindow implementation:
+// ConstrainedWindowWin, ConstrainedWindow implementation:
 
-views::NonClientFrameView* ConstrainedWindowImpl::CreateFrameViewForWindow() {
+views::NonClientFrameView* ConstrainedWindowWin::CreateFrameViewForWindow() {
   return new ConstrainedWindowFrameView(this);
 }
 
-void ConstrainedWindowImpl::CloseConstrainedWindow() {
+void ConstrainedWindowWin::CloseConstrainedWindow() {
   // Broadcast to all observers of NOTIFY_CWINDOW_CLOSED.
   // One example of such an observer is AutomationCWindowTracker in the
   // automation component.
@@ -603,7 +602,7 @@ void ConstrainedWindowImpl::CloseConstrainedWindow() {
   Close();
 }
 
-std::wstring ConstrainedWindowImpl::GetWindowTitle() const {
+std::wstring ConstrainedWindowWin::GetWindowTitle() const {
   std::wstring display_title;
   if (GetDelegate())
     display_title = GetDelegate()->GetWindowTitle();
@@ -613,14 +612,14 @@ std::wstring ConstrainedWindowImpl::GetWindowTitle() const {
   return display_title;
 }
 
-const gfx::Rect& ConstrainedWindowImpl::GetCurrentBounds() const {
+const gfx::Rect& ConstrainedWindowWin::GetCurrentBounds() const {
   return current_bounds_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ConstrainedWindowImpl, private:
+// ConstrainedWindowWin, private:
 
-ConstrainedWindowImpl::ConstrainedWindowImpl(
+ConstrainedWindowWin::ConstrainedWindowWin(
     TabContents* owner,
     views::WindowDelegate* window_delegate)
     : WindowWin(window_delegate),
@@ -636,7 +635,7 @@ ConstrainedWindowImpl::ConstrainedWindowImpl(
   ActivateConstrainedWindow();
 }
 
-void ConstrainedWindowImpl::ActivateConstrainedWindow() {
+void ConstrainedWindowWin::ActivateConstrainedWindow() {
   // Other pop-ups are simply moved to the front of the z-order.
   SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
 
@@ -659,9 +658,9 @@ void ConstrainedWindowImpl::ActivateConstrainedWindow() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ConstrainedWindowImpl, views::WidgetWin overrides:
+// ConstrainedWindowWin, views::WidgetWin overrides:
 
-void ConstrainedWindowImpl::OnDestroy() {
+void ConstrainedWindowWin::OnDestroy() {
   // We do this here, rather than |Close|, since the window may be destroyed in
   // a way other than by some other component calling Close, e.g. by the native
   // window hierarchy closing. We are guaranteed to receive a WM_DESTROY
@@ -686,7 +685,7 @@ void ConstrainedWindowImpl::OnDestroy() {
   WindowWin::OnDestroy();
 }
 
-void ConstrainedWindowImpl::OnFinalMessage(HWND window) {
+void ConstrainedWindowWin::OnFinalMessage(HWND window) {
   // Tell our constraining TabContents that we've gone so it can update its
   // list.
   owner_->WillClose(this);
@@ -694,7 +693,7 @@ void ConstrainedWindowImpl::OnFinalMessage(HWND window) {
   WindowWin::OnFinalMessage(window);
 }
 
-LRESULT ConstrainedWindowImpl::OnMouseActivate(HWND window,
+LRESULT ConstrainedWindowWin::OnMouseActivate(HWND window,
                                                UINT hittest_code,
                                                UINT message) {
   // We only detach the window if the user clicked on the title bar. That
@@ -708,7 +707,7 @@ LRESULT ConstrainedWindowImpl::OnMouseActivate(HWND window,
   return MA_ACTIVATE;
 }
 
-void ConstrainedWindowImpl::OnWindowPosChanged(WINDOWPOS* window_pos) {
+void ConstrainedWindowWin::OnWindowPosChanged(WINDOWPOS* window_pos) {
   // If the window was moved or sized, tell the owner.
   if (!(window_pos->flags & SWP_NOMOVE) || !(window_pos->flags & SWP_NOSIZE))
     owner_->DidMoveOrResize(this);
@@ -720,7 +719,7 @@ void ConstrainedWindowImpl::OnWindowPosChanged(WINDOWPOS* window_pos) {
 ConstrainedWindow* ConstrainedWindow::CreateConstrainedDialog(
     TabContents* parent,
     views::WindowDelegate* window_delegate) {
-  ConstrainedWindowImpl* window = new ConstrainedWindowImpl(parent,
-                                                            window_delegate);
+  ConstrainedWindowWin* window = new ConstrainedWindowWin(parent,
+                                                          window_delegate);
   return window;
 }

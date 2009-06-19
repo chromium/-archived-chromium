@@ -7,6 +7,8 @@
 
 #include <gtk/gtk.h>
 
+#include <vector>
+
 #include "base/scoped_ptr.h"
 #include "chrome/browser/gtk/focus_store_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
@@ -15,6 +17,7 @@
 #include "chrome/common/owned_widget_gtk.h"
 
 class BlockedPopupContainerViewGtk;
+class ConstrainedWindowGtk;
 class RenderViewContextMenuGtk;
 class SadTabGtk;
 typedef struct _GtkFloatingContainer GtkFloatingContainer;
@@ -32,6 +35,11 @@ class TabContentsViewGtk : public TabContentsView,
   // the TabContentsViewGtk to position the notification.
   void AttachBlockedPopupView(BlockedPopupContainerViewGtk* popup_view);
   void RemoveBlockedPopupView(BlockedPopupContainerViewGtk* popup_view);
+
+  // Unlike Windows, ConstrainedWindows need to collaborate with the
+  // TabContentsViewGtk to position the dialogs.
+  void AttachConstrainedWindow(ConstrainedWindowGtk* constrained_window);
+  void RemoveConstrainedWindow(ConstrainedWindowGtk* constrained_window);
 
   // TabContentsView implementation --------------------------------------------
 
@@ -109,7 +117,13 @@ class TabContentsViewGtk : public TabContentsView,
 
   FocusStoreGtk focus_store_;
 
+  // Our UI for controlling popups (or NULL if no popup windows have been
+  // opened). |popup_view_| is owned by the TabContents, not the view.
   BlockedPopupContainerViewGtk* popup_view_;
+
+  // Each individual UI for constrained dialogs currently displayed. The
+  // objects in this vector are owned by the TabContents, not the view.
+  std::vector<ConstrainedWindowGtk*> constrained_windows_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContentsViewGtk);
 };

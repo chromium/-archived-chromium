@@ -8,16 +8,22 @@
 #include "chrome/common/page_transition_types.h"
 #include "webkit/glue/window_open_disposition.h"
 
-class ConstrainedWindow;
+// The different platform specific subclasses use different delegates for their
+// dialogs.
+#if defined(OS_WIN)
 namespace views {
-class View;
 class WindowDelegate;
 }
-namespace gfx {
-class Point;
-class Rect;
-}
-class GURL;
+typedef views::WindowDelegate ConstrainedWindowDelegate;
+#elif defined(OS_LINUX)
+class ConstrainedWindowGtkDelegate;
+typedef ConstrainedWindowGtkDelegate ConstrainedWindowDelegate;
+#elif defined(OS_MACOSX)
+// TODO(port): Change this type when Mac gets ConstrainedWindows. It is here
+// only to make things compile. There is no user or consumer of this type.
+typedef void* ConstrainedWindowDelegate;
+#endif
+
 class TabContents;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,18 +34,15 @@ class TabContents;
 //
 class ConstrainedWindow {
  public:
-  // Create a Constrained Window that contains a views::View subclass
-  // that provides the client area. Typical uses include the HTTP Basic Auth
-  // prompt. The caller must provide an object implementing
-  // views::WindowDelegate so that the Constrained Window can be properly
-  // configured. If |initial_bounds| is empty, the dialog will be centered
-  // within the constraining TabContents.
+  // Create a Constrained Window that contains a platform specific client
+  // area. Typical uses include the HTTP Basic Auth prompt. The caller must
+  // provide a delegate to describe the content area and to respond to events.
   static ConstrainedWindow* CreateConstrainedDialog(
       TabContents* owner,
-      views::WindowDelegate* window_delegate);
+      ConstrainedWindowDelegate* delegate);
 
   // Closes the Constrained Window.
   virtual void CloseConstrainedWindow() = 0;
 };
 
-#endif  // #ifndef CHROME_TAB_CONTENTS_BROWSER_CONSTRAINED_WINDOW_H_
+#endif  // CHROME_BROWSER_TAB_CONTENTS_CONSTRAINED_WINDOW_H_

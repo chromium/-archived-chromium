@@ -50,9 +50,12 @@
 #if defined(OS_POSIX)
 #include "chrome/common/temp_scaffolding_stubs.h"
 #elif defined(OS_WIN)
-#include "chrome/browser/login_prompt.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
+#endif
+
+#if defined(OS_WIN) || defined(OS_LINUX)
+#include "chrome/browser/login_prompt.h"
 #endif
 
 // Uncomment to enable logging of request traffic.

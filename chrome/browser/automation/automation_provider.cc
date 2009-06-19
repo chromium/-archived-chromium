@@ -60,9 +60,13 @@
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/download/save_package.h"
 #include "chrome/browser/external_tab_container.h"
-#include "chrome/browser/login_prompt.h"
 #include "chrome/browser/printing/print_job.h"
 #endif  // defined(OS_WIN)
+
+#if defined(OS_WIN) || defined(OS_LINUX)
+// TODO(port): Port these to the mac.
+#include "chrome/browser/login_prompt.h"
+#endif
 
 #if defined(OS_WIN)
 #include "chrome/browser/views/bookmark_bar_view.h"

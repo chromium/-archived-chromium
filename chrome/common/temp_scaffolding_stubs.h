@@ -347,6 +347,7 @@ class HtmlDialogContents {
   };
 };
 
+#if defined(OS_MACOSX)
 class LoginHandler {
  public:
   void SetAuth(const std::wstring& username,
@@ -356,14 +357,17 @@ class LoginHandler {
   void CancelAuth() { NOTIMPLEMENTED(); }
   void OnRequestCancelled() { NOTIMPLEMENTED(); }
 };
+#endif
 
 namespace net {
 class AuthChallengeInfo;
 }
 
+#if defined(OS_MACOSX)
 LoginHandler* CreateLoginPrompt(net::AuthChallengeInfo* auth_info,
                                 URLRequest* request,
                                 MessageLoop* ui_loop);
+#endif
 
 class RepostFormWarningDialog {
  public:

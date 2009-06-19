@@ -323,14 +323,14 @@ class TabContents : public PageNavigator,
 
   // Window management ---------------------------------------------------------
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   // Create a new window constrained to this TabContents' clip and visibility.
   // The window is initialized by using the supplied delegate to obtain basic
   // window characteristics, and the supplied view for the content. The window
   // is sized according to the preferred size of the content_view, and centered
   // within the contents.
   ConstrainedWindow* CreateConstrainedDialog(
-      views::WindowDelegate* window_delegate);
+      ConstrainedWindowDelegate* delegate);
 #endif
 
   // Adds a new tab or window with the given already-created contents

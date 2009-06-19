@@ -735,12 +735,11 @@ void TabContents::CreateShortcut() {
   render_view_host()->GetApplicationInfo(pending_install_.page_id);
 }
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
 ConstrainedWindow* TabContents::CreateConstrainedDialog(
-    views::WindowDelegate* window_delegate) {
+      ConstrainedWindowDelegate* delegate) {
   ConstrainedWindow* window =
-      ConstrainedWindow::CreateConstrainedDialog(
-          this, window_delegate);
+      ConstrainedWindow::CreateConstrainedDialog(this, delegate);
   child_windows_.push_back(window);
   return window;
 }

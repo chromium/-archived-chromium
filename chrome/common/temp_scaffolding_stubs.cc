@@ -224,12 +224,14 @@ bool RLZTracker::RecordProductEvent(Product product, AccessPoint point,
 void RunRepostFormWarningDialog(NavigationController*) {
 }
 
+#if defined(OS_MACOSX)
 LoginHandler* CreateLoginPrompt(net::AuthChallengeInfo* auth_info,
                                 URLRequest* request,
                                 MessageLoop* ui_loop) {
   NOTIMPLEMENTED();
   return NULL;
 }
+#endif
 
 //--------------------------------------------------------------------------
 

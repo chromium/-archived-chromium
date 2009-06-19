@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_CONSTRAINED_WINDOW_IMPL_H_
-#define CHROME_BROWSER_CONSTRAINED_WINDOW_IMPL_H_
+#ifndef CHROME_BROWSER_VIEWS_CONSTRAINED_WINDOW_WIN_H_
+#define CHROME_BROWSER_VIEWS_CONSTRAINED_WINDOW_WIN_H_
 
 #include "base/gfx/rect.h"
 #include "chrome/browser/tab_contents/constrained_window.h"
@@ -18,15 +18,15 @@ class WindowDelegate;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// ConstrainedWindowImpl
+// ConstrainedWindowWin
 //
 //  A ConstrainedWindow implementation that implements a Constrained Window as
 //  a child HWND with a custom window frame.
 //
-class ConstrainedWindowImpl : public ConstrainedWindow,
+class ConstrainedWindowWin : public ConstrainedWindow,
                               public views::WindowWin {
  public:
-  virtual ~ConstrainedWindowImpl();
+  virtual ~ConstrainedWindowWin();
 
   // Returns the TabContents that constrains this Constrained Window.
   TabContents* owner() const { return owner_; }
@@ -51,8 +51,8 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
 
   // Use the static factory methods on ConstrainedWindow to construct a
   // ConstrainedWindow.
-  ConstrainedWindowImpl(TabContents* owner,
-                        views::WindowDelegate* window_delegate);
+  ConstrainedWindowWin(TabContents* owner,
+                       views::WindowDelegate* window_delegate);
 
   // Moves this window to the front of the Z-order and registers us with the
   // focus manager.
@@ -65,10 +65,6 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   // when this window is destroyed.
   bool focus_restoration_disabled_;
 
-  // true if this window is really a constrained dialog. This is set by
-  // InitAsDialog().
-  bool is_dialog_;
-
   // Current "anchor point", the lower right point at which we render
   // the constrained title bar.
   gfx::Point anchor_point_;
@@ -76,7 +72,7 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   // Current display rectangle (relative to owner_'s visible area).
   gfx::Rect current_bounds_;
 
-  DISALLOW_COPY_AND_ASSIGN(ConstrainedWindowImpl);
+  DISALLOW_COPY_AND_ASSIGN(ConstrainedWindowWin);
 };
 
-#endif  // #ifndef CHROME_BROWSER_CONSTRAINED_WINDOW_IMPL_H_
+#endif  // #ifndef CHROME_BROWSER_VIEWS_CONSTRAINED_WINDOW_WIN_H_
