@@ -140,8 +140,6 @@ class WebResourceService::UnpackerClient
 };
 
 const wchar_t* WebResourceService::kDefaultResourceServer =
-//    L"http://hokiepokie.nyc.corp.google.com:8125/"
-//    L"labs/popgadget/world?view=json";
     L"http://sites.google.com/a/chromium.org/dev/developers/"
     L"design-documents/web_resources/popgadget_test.json";
 
