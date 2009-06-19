@@ -3,13 +3,8 @@
 // found in the LICENSE file.
 
 #include "base/shared_memory.h"
-#include "build/build_config.h"
 #include "chrome/common/ipc_message_macros.h"
 #include "webkit/glue/webcursor.h"
-
-#if defined(OS_POSIX)
-#include "base/file_descriptor_posix.h"
-#endif
 
 //-----------------------------------------------------------------------------
 // PluginProcess messages
@@ -20,19 +15,9 @@ IPC_BEGIN_MESSAGES(PluginProcess)
   // PluginProcessHostMsg_ChannelCreated message.  The renderer's process_id is
   // passed so that the plugin process reuses an existing channel to that
   // process if it exists.
-  // It would be nice to use #ifdefs inside the parameter list to not need to
-  // duplicate this across POSIX/Windows but the Visual Studio compiler doesn't
-  // like that.
-#if defined(OS_WIN)
   IPC_MESSAGE_CONTROL2(PluginProcessMsg_CreateChannel,
                        int /* process_id */,
                        bool /* off_the_record */)
-#elif defined(OS_POSIX)
-  IPC_MESSAGE_CONTROL3(PluginProcessMsg_CreateChannel,
-                       base::FileDescriptor /* socket for new channel */,
-                       int /* process_id */,
-                       bool /* off_the_record */)
-#endif
 
   // Allows a chrome plugin loaded in the browser process to send arbitrary
   // data to an instance of the same plugin loaded in a plugin process.

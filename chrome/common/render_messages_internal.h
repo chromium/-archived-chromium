@@ -17,7 +17,6 @@
 #include "base/gfx/native_widget_types.h"
 #include "base/shared_memory.h"
 #include "base/values.h"
-#include "chrome/common/ipc_channel_handle.h"
 #include "chrome/common/ipc_message_macros.h"
 #include "chrome/common/transport_dib.h"
 #include "third_party/skia/include/core/SkBitmap.h"
@@ -925,16 +924,16 @@ IPC_BEGIN_MESSAGES(ViewHost)
                       std::string  /* origin */,
                       std::string  /* target */)
 
-  // A renderer sends this to the browser process when it wants to
-  // create a plugin.  The browser will create the plugin process if
-  // necessary, and will return a handle to the channel on success.
-  // On error an empty string is returned.
+  // A renderer sends this to the browser process when it wants to create a
+  // plugin.  The browser will create the plugin process if necessary, and
+  // will return the channel name on success.  On error an empty string is
+  // returned.
   IPC_SYNC_MESSAGE_CONTROL4_2(ViewHostMsg_OpenChannelToPlugin,
                               GURL /* url */,
                               std::string /* mime_type */,
                               std::string /* clsid */,
                               std::wstring /* locale */,
-                              IPC::ChannelHandle /* handle to channel */,
+                              std::string /* channel_name */,
                               FilePath /* plugin_path */)
 
   // Clipboard IPC messages

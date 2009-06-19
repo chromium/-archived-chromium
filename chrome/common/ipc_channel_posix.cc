@@ -104,9 +104,9 @@ class PipeMap {
     DCHECK(fd != -1);
 
     ChannelToFDMap::const_iterator i = map_.find(channel_id);
-    CHECK(i == map_.end()) << "Creating second IPC server (fd " << fd << ") "
-                           << "for '" << channel_id << "' while first "
-                           << "(fd " << i->second << ") still exists";
+    CHECK(i == map_.end()) << "Creating second IPC server for '"
+                           << channel_id
+                           << "' while first still exists";
     map_[channel_id] = fd;
   }
 
@@ -116,20 +116,16 @@ class PipeMap {
   ChannelToFDMap map_;
 };
 
-// Used to map a channel name to the equivalent FD # in the current process.
-// Returns -1 if the channel is unknown.
-int ChannelNameToFD(const std::string& channel_id) {
+// Used to map a channel name to the equivalent FD # in the client process.
+int ChannelNameToClientFD(const std::string& channel_id) {
   // See the large block comment above PipeMap for the reasoning here.
   const int fd = Singleton<PipeMap>()->Lookup(channel_id);
+  if (fd != -1)
+    return dup(fd);
 
-  if (fd != -1) {
-    int dup_fd = dup(fd);
-    if (dup_fd < 0)
-      LOG(FATAL) << "dup(" << fd << "): " << strerror(errno);
-    return dup_fd;
-  }
-
-  return fd;
+  // If we don't find an entry, we assume that the correct value has been
+  // inserted in the magic slot.
+  return Singleton<base::GlobalDescriptors>()->Get(kPrimaryIPCChannel);
 }
 
 //------------------------------------------------------------------------------
@@ -265,34 +261,6 @@ Channel::ChannelImpl::ChannelImpl(const std::string& channel_id, Mode mode,
   }
 }
 
-// static
-void AddChannelSocket(const std::string& name, int socket) {
-  Singleton<PipeMap>()->Insert(name, socket);
-}
-
-// static
-bool SocketPair(int* fd1, int* fd2) {
-  int pipe_fds[2];
-  if (socketpair(AF_UNIX, SOCK_STREAM, 0, pipe_fds) != 0) {
-    LOG(ERROR) << "socketpair(): " << strerror(errno);
-    return false;
-  }
-
-  // Set both ends to be non-blocking.
-  if (fcntl(pipe_fds[0], F_SETFL, O_NONBLOCK) == -1 ||
-      fcntl(pipe_fds[1], F_SETFL, O_NONBLOCK) == -1) {
-    LOG(ERROR) << "fcntl(O_NONBLOCK): " << strerror(errno);
-    HANDLE_EINTR(close(pipe_fds[0]));
-    HANDLE_EINTR(close(pipe_fds[1]));
-    return false;
-  }
-
-  *fd1 = pipe_fds[0];
-  *fd2 = pipe_fds[1];
-
-  return true;
-}
-
 bool Channel::ChannelImpl::CreatePipe(const std::string& channel_id,
                                       Mode mode) {
   DCHECK(server_listen_pipe_ == -1 && pipe_ == -1);
@@ -314,24 +282,27 @@ bool Channel::ChannelImpl::CreatePipe(const std::string& channel_id,
       waiting_connect_ = false;
     }
   } else {
-    // This is the normal (non-unit-test) case, where we're using sockets.
-    // Three possible cases:
-    // 1) It's for a channel we already have a pipe for; reuse it.
-    // 2) It's the initial IPC channel:
-    //   2a) Server side: create the pipe.
-    //   2b) Client side: Pull the pipe out of the GlobalDescriptors set.
+    // socketpair()
     pipe_name_ = channel_id;
-    pipe_ = ChannelNameToFD(pipe_name_);
-    if (pipe_ < 0) {
-      // Initial IPC channel.
-      if (mode == MODE_SERVER) {
-        if (!SocketPair(&pipe_, &client_pipe_))
-          return false;
-        AddChannelSocket(pipe_name_, client_pipe_);
-      } else {
-        pipe_ = Singleton<base::GlobalDescriptors>()->Get(kPrimaryIPCChannel);
+    if (mode == MODE_SERVER) {
+      int pipe_fds[2];
+      if (socketpair(AF_UNIX, SOCK_STREAM, 0, pipe_fds) != 0) {
+        return false;
       }
+      // Set both ends to be non-blocking.
+      if (fcntl(pipe_fds[0], F_SETFL, O_NONBLOCK) == -1 ||
+          fcntl(pipe_fds[1], F_SETFL, O_NONBLOCK) == -1) {
+        HANDLE_EINTR(close(pipe_fds[0]));
+        HANDLE_EINTR(close(pipe_fds[1]));
+        return false;
+      }
+      pipe_ = pipe_fds[0];
+      client_pipe_ = pipe_fds[1];
+
+      Singleton<PipeMap>()->Insert(pipe_name_, client_pipe_);
     } else {
+      pipe_ = ChannelNameToClientFD(pipe_name_);
+      DCHECK(pipe_ > 0);
       waiting_connect_ = false;
     }
   }
@@ -641,7 +612,7 @@ bool Channel::ChannelImpl::ProcessOutgoingMessages() {
         return false;
       }
 #endif  // OS_MACOSX
-      LOG(ERROR) << "pipe error on " << pipe_ << ": " << strerror(errno);
+      LOG(ERROR) << "pipe error: " << strerror(errno);
       return false;
     }
 

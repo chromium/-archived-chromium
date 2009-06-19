@@ -135,9 +135,9 @@ void WebPluginDelegateStub::OnInit(const PluginMsg_Init_Params& params,
   delegate_ = WebPluginDelegate::Create(
       path, mime_type_, gfx::NativeViewFromId(params.containing_window));
 #else
-  NOTIMPLEMENTED() << " need to figure out nativeview id business";
-  delegate_ = WebPluginDelegate::Create(
-      path, mime_type_, NULL);
+  // We don't have gfx::NativeViewFromId on Linux
+  NOTIMPLEMENTED();
+  delegate_ = NULL;
 #endif
 
   if (delegate_) {
