@@ -119,6 +119,7 @@ void TemplateURLFetcher::RequestDelegate::OnURLFetchComplete(
       template_url->set_safe_for_autoreplace(true);
       model->Add(template_url.release());
     } else {
+#if defined(OS_WIN) || !defined(TOOLKIT_VIEWS)
       // Confirm addition and allow user to edit default choices. It's ironic
       // that only *non*-autodetected additions get confirmed, but the user
       // expects feedback that his action did something.
@@ -128,6 +129,7 @@ void TemplateURLFetcher::RequestDelegate::OnURLFetchComplete(
                                         template_url.release(),
                                         NULL, // no KeywordEditorView
                                         fetcher_->profile());
+#endif
     }
   }
   fetcher_->RequestCompleted(this);
