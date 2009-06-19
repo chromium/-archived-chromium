@@ -225,7 +225,6 @@ class RenderView : public RenderWidget,
 
   virtual void WindowObjectCleared(WebFrame* webframe);
   virtual void DocumentElementAvailable(WebFrame* webframe);
-  virtual void WillCloseFrame(WebView* webview, WebFrame* frame);
 
   virtual WindowOpenDisposition DispositionForNavigationAction(
       WebView* webview,
@@ -407,7 +406,6 @@ class RenderView : public RenderWidget,
             const WebPreferences& webkit_prefs,
             SharedRenderViewCounter* counter,
             int32 routing_id);
-  virtual void Close();
 
   void UpdateURL(WebFrame* frame);
   void UpdateTitle(WebFrame* frame, const std::wstring& title);

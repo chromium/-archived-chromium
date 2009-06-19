@@ -96,7 +96,7 @@ class RenderWidget : public IPC::Channel::Listener,
   void GenerateFullRepaint();
 
   // Close the underlying WebWidget.
-  virtual void Close();
+  void Close();
 
  protected:
   // Friend RefCounted so that the dtor can be non-public. Using this class

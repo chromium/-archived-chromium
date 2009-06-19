@@ -29,9 +29,6 @@ var chrome = chrome || {};
   // A map of event names to the event object that is registered to that name.
   chrome.Event.attached_ = {};
 
-  // An array of all attached event objects, used for detaching on unload.
-  chrome.Event.allAttached_ = [];
-
   // Dispatches a named event with the given JSON array, which is deserialized
   // before dispatch. The JSON array is the list of arguments that will be
   // sent with the event callback.
@@ -108,7 +105,8 @@ var chrome = chrome || {};
   // name.
   chrome.Event.prototype.attach_ = function() {
     AttachEvent(this.eventName_);
-    chrome.Event.allAttached_[chrome.Event.allAttached_.length] = this;
+    this.unloadHandler_ = this.detach_.bind(this);
+    window.addEventListener('unload', this.unloadHandler_, false);
     if (!this.eventName_)
       return;
 
@@ -122,9 +120,7 @@ var chrome = chrome || {};
 
   // Detaches this event object from its name.
   chrome.Event.prototype.detach_ = function() {
-    var i = chrome.Event.allAttached_.indexOf(this);
-    if (i >= 0)
-      delete chrome.Event.allAttached_[i];
+    window.removeEventListener('unload', this.unloadHandler_, false);
     DetachEvent(this.eventName_);
     if (!this.eventName_)
       return;
@@ -136,21 +132,4 @@ var chrome = chrome || {};
 
     delete chrome.Event.attached_[this.eventName_];
   };
-
-  // Load events.  Note that onUnload_ might not always fire, since Chrome will
-  // terminate renderers on shutdown.
-  chrome.onLoad_ = new chrome.Event();
-  chrome.onUnload_ = new chrome.Event();
-
-  // This is called by native code when the DOM is ready.
-  chrome.dispatchOnLoad_ = function() {
-    chrome.onLoad_.dispatch();
-    delete chrome.dispatchOnLoad_;
-  }
-
-  chrome.dispatchOnUnload_ = function() {
-    chrome.onUnload_.dispatch();
-    for (var i in chrome.Event.allAttached_)
-      chrome.Event.allAttached_[i].detach_();
-  }
 })();

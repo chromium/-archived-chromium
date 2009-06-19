@@ -12,16 +12,15 @@
 #include "chrome/renderer/js_only_v8_extensions.h"
 #include "chrome/renderer/render_thread.h"
 #include "grit/renderer_resources.h"
-#include "webkit/api/public/WebScriptSource.h"
-#include "webkit/glue/webframe.h"
-
-using WebKit::WebScriptSource;
-using WebKit::WebString;
 
 namespace {
 
 // Keep a local cache of RenderThread so that we can mock it out for unit tests.
 static RenderThreadBase* render_thread = NULL;
+
+static RenderThreadBase* GetRenderThread() {
+  return render_thread ? render_thread : RenderThread::current();
+}
 
 // Keep a list of contexts that have registered themselves with us.  This lets
 // us know where to dispatch events when we receive them.
@@ -92,7 +91,7 @@ class ExtensionImpl : public v8::Extension {
     if (args[0]->IsString()) {
       std::string event_name(*v8::String::AsciiValue(args[0]));
       if (EventIncrementListenerCount(event_name) == 1) {
-        EventBindings::GetRenderThread()->Send(
+        GetRenderThread()->Send(
             new ViewHostMsg_ExtensionAddListener(event_name));
       }
     }
@@ -123,7 +122,7 @@ class ExtensionImpl : public v8::Extension {
     if (args[0]->IsString()) {
       std::string event_name(*v8::String::AsciiValue(args[0]));
       if (EventDecrementListenerCount(event_name) == 0) {
-        EventBindings::GetRenderThread()->Send(
+        GetRenderThread()->Send(
           new ViewHostMsg_ExtensionRemoveListener(event_name));
       }
     }
@@ -165,24 +164,6 @@ void EventBindings::SetRenderThread(RenderThreadBase* thread) {
   render_thread = thread;
 }
 
-// static
-RenderThreadBase* EventBindings::GetRenderThread() {
-  return render_thread ? render_thread : RenderThread::current();
-}
-
-// static
-void EventBindings::HandleDocumentReady(WebFrame* frame) {
-  frame->ExecuteScript(WebScriptSource(WebString::fromUTF8(
-      "chrome.dispatchOnLoad_();")));
-}
-
-// static
-void EventBindings::HandleDocumentClose(WebFrame* frame) {
-  frame->ExecuteScript(WebScriptSource(WebString::fromUTF8(
-      "chrome.dispatchOnUnload_();")));
-}
-
-// static
 void EventBindings::CallFunction(const std::string& function_name,
                                  int argc, v8::Handle<v8::Value>* argv) {
   for (ContextList::iterator it = GetRegisteredContexts().begin();

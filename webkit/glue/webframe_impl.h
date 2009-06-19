@@ -106,8 +106,6 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   virtual WebFrame* GetOpener() const;
   virtual WebFrame* GetParent() const;
   virtual WebFrame* GetTop() const;
-  virtual WebFrame* GetFirstChild() const;
-  virtual WebFrame* GetNextSibling() const;
   virtual WebFrame* GetChildFrame(const std::wstring& xpath) const;
   virtual WebView* GetView() const;
   virtual void GetForms(std::vector<WebKit::WebForm>* forms) const;

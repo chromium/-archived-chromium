@@ -10,7 +10,6 @@
 #include <string>
 
 class RenderThreadBase;
-class WebFrame;
 
 // This class deals with the javascript bindings related to Event objects.
 class EventBindings {
@@ -20,13 +19,6 @@ class EventBindings {
 
   // Allow RenderThread to be mocked out.
   static void SetRenderThread(RenderThreadBase* thread);
-  static RenderThreadBase* GetRenderThread();
-
-  // Notify script that the document object is ready.  We don't use the DOM
-  // unload event because that causes Chrome's "sudden termination" to be
-  // disabled for this renderer, meaning we'll slow down shutdown.
-  static void HandleDocumentReady(WebFrame* frame);
-  static void HandleDocumentClose(WebFrame* frame);
 
   // Calls the given function in each registered context which is listening
   // for events.  The function can be an object property, ie:

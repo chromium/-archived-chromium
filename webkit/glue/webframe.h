@@ -191,13 +191,6 @@ class WebFrame {
   // Returns the top-most frame in the frame hierarchy containing this frame.
   virtual WebFrame* GetTop() const = 0;
 
-  // Returns the first child frame of this frame, or NULL if it has no children.
-  virtual WebFrame* GetFirstChild() const = 0;
-
-  // Returns the next sibling frame of this frame, or NULL if there are no more
-  // siblings.
-  virtual WebFrame* GetNextSibling() const = 0;
-
   // Returns the child frame with the given xpath.
   // The document of this frame is used as the context node.
   // The xpath may need a recursive traversal if non-trivial

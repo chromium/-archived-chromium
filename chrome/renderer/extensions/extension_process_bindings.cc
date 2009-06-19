@@ -14,7 +14,11 @@
 #include "chrome/renderer/js_only_v8_extensions.h"
 #include "chrome/renderer/render_view.h"
 #include "grit/renderer_resources.h"
+#include "webkit/api/public/WebScriptSource.h"
 #include "webkit/glue/webframe.h"
+
+using WebKit::WebScriptSource;
+using WebKit::WebString;
 
 namespace {
 
@@ -101,9 +105,7 @@ class ExtensionImpl : public v8::Extension {
     RenderView* renderview = GetRenderViewForCurrentContext();
     DCHECK(renderview);
     GURL url = renderview->webview()->GetMainFrame()->GetURL();
-    // Don't check the URL scheme in unit tests.
-    if (RenderThread::current())
-      DCHECK(url.scheme() == chrome::kExtensionScheme);
+    DCHECK(url.scheme() == chrome::kExtensionScheme);
 
     v8::Persistent<v8::Context> current_context =
         v8::Persistent<v8::Context>::New(v8::Context::GetCurrent());
@@ -214,6 +216,11 @@ v8::Extension* ExtensionProcessBindings::Get() {
 void ExtensionProcessBindings::SetFunctionNames(
     const std::vector<std::string>& names) {
   ExtensionImpl::SetFunctionNames(names);
+}
+
+void ExtensionProcessBindings::RegisterExtensionContext(WebFrame* frame) {
+  frame->ExecuteScript(WebScriptSource(WebString::fromUTF8(
+      "chrome.self.register_();")));
 }
 
 void ExtensionProcessBindings::HandleResponse(int request_id, bool success,
