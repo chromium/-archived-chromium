@@ -2757,4 +2757,8 @@ BUG14061 : LayoutTests/svg/filters/subRegion-two-effects.svg = FAIL
 BUG14207 LINUX DEBUG : LayoutTests/tables/mozilla/bugs/bug28341.html = FAIL
 
 // Newly added test http://trac.webkit.org/changeset/44816
-BUG14673 : LayoutTests/http/tests/xmlhttprequest/cross-origin-no-authorization.html = FAIL
+BUG14673 : LayoutTests/http/tests/xmlhttprequest/cross-origin-no-authorization.html = FAIL CRASH
+
+// WebKit 44805:44837
+BUG14679 LINUX : LayoutTests/fast/backgrounds/animated-gif-as-background.html = FAIL
+
