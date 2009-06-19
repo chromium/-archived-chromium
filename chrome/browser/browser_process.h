@@ -133,9 +133,7 @@ class BrowserProcess {
 
   virtual MemoryModel memory_model() = 0;
 
-#if defined(OS_WIN) || defined(OS_LINUX)
   DownloadRequestManager* download_request_manager();
-#endif
 
   // Returns an event that is signaled when the browser shutdown.
   virtual base::WaitableEvent* shutdown_event() = 0;

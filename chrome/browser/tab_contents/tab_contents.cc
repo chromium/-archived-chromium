@@ -2188,11 +2188,9 @@ void TabContents::OnDidGetApplicationInfo(
 
 void TabContents::OnUserGesture() {
   // See comment in RenderViewHostDelegate::OnUserGesture as to why we do this.
-#if defined(OS_WIN) || defined(OS_LINUX)
   DownloadRequestManager* drm = g_browser_process->download_request_manager();
   if (drm)
     drm->OnUserGesture(this);
-#endif
   controller_.OnUserGesture();
 }
 
