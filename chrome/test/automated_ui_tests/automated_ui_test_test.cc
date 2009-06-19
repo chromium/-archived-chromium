@@ -16,7 +16,8 @@
 #define MAYBE_OpenCloseBrowserWindowWithAccelerator \
     DISABLED_OpenCloseBrowserWindowWithAccelerator
 #else
-#define MAYBE_IncognitoWindow IncognitoWindow
+// http://code.google.com/p/chromium/issues/detail?id=14731
+#define MAYBE_IncognitoWindow DISABLED_IncognitoWindow
 #define MAYBE_OpenCloseBrowserWindowWithAccelerator \
     OpenCloseBrowserWindowWithAccelerator
 #endif
