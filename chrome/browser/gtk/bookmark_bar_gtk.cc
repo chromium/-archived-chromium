@@ -89,6 +89,21 @@ void SetButtonTextColors(GtkWidget* button) {
   }
 }
 
+std::string DoubleUnderscores(const std::string& text) {
+  std::string ret;
+  ret.reserve(text.length() * 2);
+  for (size_t i = 0; i < text.length(); ++i) {
+    if ('_' == text[i]) {
+      ret.push_back('_');
+      ret.push_back('_');
+    } else {
+      ret.push_back(text[i]);
+    }
+  }
+
+  return ret;
+}
+
 }  // namespace
 
 BookmarkBarGtk::BookmarkBarGtk(Profile* profile, Browser* browser,
@@ -411,8 +426,12 @@ void BookmarkBarGtk::ConfigureButtonForNode(BookmarkNode* node,
 
   // TODO(erg): Consider a soft maximum instead of this hard 15.
   std::wstring title = node->GetTitle();
-  title = title.substr(0, std::min(title.size(), kMaxCharsOnAButton));
-  gtk_button_set_label(GTK_BUTTON(button), WideToUTF8(title).c_str());
+  // Don't treat underscores as mnemonics.
+  // O, that we could just use gtk_button_set_use_underline()!
+  // See http://bugzilla.gnome.org/show_bug.cgi?id=586330
+  std::string text = DoubleUnderscores(WideToUTF8(title));
+  text = text.substr(0, std::min(text.size(), kMaxCharsOnAButton));
+  gtk_button_set_label(GTK_BUTTON(button), text.c_str());
 
   GdkPixbuf* pixbuf = bookmark_utils::GetPixbufForNode(node, model_);
   gtk_button_set_image(GTK_BUTTON(button), gtk_image_new_from_pixbuf(pixbuf));
