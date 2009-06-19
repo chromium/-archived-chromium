@@ -3295,7 +3295,6 @@
       'target_name': 'unit_tests',
       'type': 'executable',
       'msvs_guid': 'ECFC2BEC-9FC0-4AD9-9649-5F26793F65FC',
-      'msvs_existing_vcproj': 'test/unit/unittests.vcproj',
       'dependencies': [
         'chrome',
         'browser',
@@ -3315,6 +3314,7 @@
         '../skia/skia.gyp:skia',
         '../testing/gmock.gyp:gmock',
         '../testing/gtest.gyp:gtest',
+        '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
         '../third_party/icu38/icu38.gyp:icui18n',
         '../third_party/icu38/icu38.gyp:icuuc',
         '../third_party/libxml/libxml.gyp:libxml',
@@ -3637,11 +3637,22 @@
             'browser/gtk/tabs/tab_renderer_gtk_unittest.cc',
             'common/file_descriptor_set_unittest.cc',
             'common/net/url_util_unittest.cc',
+            # TODO(ben):  http://crbug.com/14639
+            'browser/debugger/devtools_sanity_unittest.cc',
+            # TODO(ben):  http://crbug.com/14640
+            'browser/extensions/extensions_service_unittest.cc',
+            # TODO(ben):  http://crbug.com/14641
+            'browser/password_manager/login_database_unittest.cc',
+            # TODO(ben):  http://crbug.com/14642
+            'common/extensions/extension_unittest.cc',
           ],
           'link_settings': {
             'libraries': [
-              '-loleacc.lib',
               '-lcomsupp.lib',
+              '-loleacc.lib',
+              '-lrpcrt4.lib',
+              '-lurlmon.lib',
+              '-lwinmm.lib',
             ],
           },
           'configurations': {
