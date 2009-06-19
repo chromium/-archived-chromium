@@ -36,6 +36,7 @@ class DOMView : public views::NativeViewHost {
  protected:
   // Overridden from View.
   virtual bool SkipDefaultKeyEventProcessing(const views::KeyEvent& e);
+  virtual void Focus();
 
   scoped_ptr<TabContents> tab_contents_;
 

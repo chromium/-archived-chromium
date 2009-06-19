@@ -38,3 +38,7 @@ bool DOMView::SkipDefaultKeyEventProcessing(const views::KeyEvent& e) {
   // there.
   return views::FocusManager::IsTabTraversalKeyEvent(e);
 }
+
+void DOMView::Focus() {
+  tab_contents_->Focus();
+}
