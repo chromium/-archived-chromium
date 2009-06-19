@@ -122,6 +122,7 @@ ImportProgressDialogGtk::ImportProgressDialogGtk(const string16& source_profile,
       GTK_STOCK_CANCEL,
       GTK_RESPONSE_REJECT,
       NULL);
+  importer_host_->set_parent_window(GTK_WINDOW(dialog_));
 
   GtkWidget* content_area = GTK_DIALOG(dialog_)->vbox;
   gtk_box_set_spacing(GTK_BOX(content_area), gtk_util::kContentAreaSpacing);

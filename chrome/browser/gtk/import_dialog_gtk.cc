@@ -35,6 +35,7 @@ ImportDialogGtk::ImportDialogGtk(GtkWindow* parent, Profile* profile) :
       GTK_STOCK_CANCEL,
       GTK_RESPONSE_REJECT,
       NULL);
+  importer_host_->set_parent_window(GTK_WINDOW(dialog_));
 
   // Add import button separately as we might need to disable it, if
   // no supported browsers found.

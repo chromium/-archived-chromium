@@ -223,6 +223,10 @@ class ImporterHost : public base::RefCounted<ImporterHost>,
     return headless_;
   }
 
+  void set_parent_window(gfx::NativeWindow parent_window) {
+    parent_window_ = parent_window;
+  }
+
   // An interface which an object can implement to be notified of events during
   // the import process.
   class Observer {
@@ -309,6 +313,9 @@ class ImporterHost : public base::RefCounted<ImporterHost>,
 
   // True if UI is not to be shown.
   bool headless_;
+
+  // Parent Window to use when showing any modal dialog boxes.
+  gfx::NativeWindow parent_window_;
 
   // Firefox profile lock.
   scoped_ptr<FirefoxProfileLock> firefox_lock_;

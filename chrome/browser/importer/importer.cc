@@ -401,7 +401,8 @@ ImporterHost::ImporterHost()
       file_loop_(g_browser_process->file_thread()->message_loop()),
       waiting_for_bookmarkbar_model_(false),
       is_source_readable_(true),
-      headless_(false) {
+      headless_(false),
+      parent_window_(NULL) {
   DetectSourceProfiles();
 }
 
@@ -412,7 +413,8 @@ ImporterHost::ImporterHost(MessageLoop* file_loop)
       file_loop_(file_loop),
       waiting_for_bookmarkbar_model_(false),
       is_source_readable_(true),
-      headless_(false) {
+      headless_(false),
+      parent_window_(NULL) {
   DetectSourceProfiles();
 }
 
@@ -449,7 +451,7 @@ void ImporterHost::ShowWarningDialog() {
     views::Window::CreateChromeWindow(GetActiveWindow(), gfx::Rect(),
                                       new ImporterLockView(this))->Show();
 #elif defined(OS_LINUX)
-    ImportLockDialogGtk::Show(NULL, this);
+    ImportLockDialogGtk::Show(parent_window_, this);
 #else
     // TODO(port): Need CreateChromeWindow.
     NOTIMPLEMENTED();
