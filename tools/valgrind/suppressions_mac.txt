@@ -227,4 +227,11 @@
    fun:_ZN24ExtensionsServiceBackend19OnExtensionUnpackedERK8FilePathS2_SsbRK15DictionaryValueRKSt6vectorI6Tuple2I8SkBitmapS0_ESaIS9_EE
    fun:_ZN24ExtensionsServiceBackend14UnpackerClient30OnUnpackExtensionSucceededImplERK15DictionaryValueRKSt6vectorI6Tuple2I8SkBitmap8FilePathESaIS8_EE
 }
+{
+   # OpenGL.framework init; filed with Apple as rdar://6986771
+   opengl_init_rdar_6986771
+   Memcheck:Cond
+   ...
+   fun:gl_context_init_client_state
+}
 
