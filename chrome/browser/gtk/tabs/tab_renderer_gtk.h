@@ -227,6 +227,11 @@ class TabRendererGtk : public AnimationDelegate {
   // Handles the clicked signal for the close button.
   static void OnCloseButtonClicked(GtkWidget* widget, TabRendererGtk* tab);
 
+  // Handles middle clicking the close button.
+  static gboolean OnCloseButtonMouseRelease(GtkWidget* widget,
+                                            GdkEventButton* event,
+                                            TabRendererGtk* tab);
+
   // expose-event handler that redraws the tab.
   static gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e,
                            TabRendererGtk* tab);

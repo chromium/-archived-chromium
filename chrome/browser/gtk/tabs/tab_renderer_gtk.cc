@@ -681,6 +681,8 @@ CustomDrawButton* TabRendererGtk::MakeCloseButton() {
 
   g_signal_connect(G_OBJECT(button->widget()), "clicked",
                    G_CALLBACK(OnCloseButtonClicked), this);
+  g_signal_connect(G_OBJECT(button->widget()), "button-release-event",
+                   G_CALLBACK(OnCloseButtonMouseRelease), this);
   GTK_WIDGET_UNSET_FLAGS(button->widget(), GTK_CAN_FOCUS);
   gtk_fixed_put(GTK_FIXED(tab_.get()), button->widget(), 0, 0);
 
@@ -695,6 +697,18 @@ void TabRendererGtk::CloseButtonClicked() {
 void TabRendererGtk::OnCloseButtonClicked(GtkWidget* widget,
                                           TabRendererGtk* tab) {
   tab->CloseButtonClicked();
+}
+
+// static
+gboolean TabRendererGtk::OnCloseButtonMouseRelease(GtkWidget* widget,
+                                                   GdkEventButton* event,
+                                                   TabRendererGtk* tab) {
+  if (event->button == 2) {
+    tab->CloseButtonClicked();
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 // static
