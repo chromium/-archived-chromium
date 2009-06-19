@@ -173,4 +173,4 @@ class WindowSizer {
   DISALLOW_EVIL_CONSTRUCTORS(WindowSizer);
 };
 
-#endif  // #ifndef CHROME_BROWSER_WINDOW_SIZER_H_
+#endif  // CHROME_BROWSER_WINDOW_SIZER_H_

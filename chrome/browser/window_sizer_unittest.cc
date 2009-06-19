@@ -42,7 +42,7 @@ class TestMonitorInfoProvider : public WindowSizer::MonitorInfoProvider {
 
   void AddMonitor(const gfx::Rect& bounds, const gfx::Rect& work_area) {
     DCHECK(bounds.Contains(work_area));
-    monitor_bounds_.push_back(work_area);
+    monitor_bounds_.push_back(bounds);
     work_areas_.push_back(work_area);
   }
 
@@ -166,7 +166,6 @@ static void GetWindowBounds(const gfx::Rect& monitor1_bounds,
 // Test that the window is sized appropriately for the first run experience
 // where the default window bounds calculation is invoked.
 TEST(WindowSizerTest, DefaultSizeCase) {
-
   { // 4:3 monitor case, 1024x768, no taskbar
     gfx::Rect window_bounds;
     bool maximized;
@@ -262,6 +261,26 @@ TEST(WindowSizerTest, LastWindowBoundsCase) {
     EXPECT_EQ(gfx::Rect(20, 20, 500, 400), window_bounds);
   }
 
+  { // taskbar on left.
+    gfx::Rect window_bounds;
+    bool maximized = false;
+    GetWindowBounds(tentwentyfour, taskbar_left_work_area, gfx::Rect(),
+                    gfx::Rect(10, 10, 500, 400), false, LAST_ACTIVE,
+                    &window_bounds, &maximized);
+    EXPECT_FALSE(maximized);
+    EXPECT_EQ(gfx::Rect(127, 20, 500, 400), window_bounds);
+  }
+
+  { // taskbar on top.
+    gfx::Rect window_bounds;
+    bool maximized = false;
+    GetWindowBounds(tentwentyfour, taskbar_top_work_area, gfx::Rect(),
+                    gfx::Rect(10, 10, 500, 400), false, LAST_ACTIVE,
+                    &window_bounds, &maximized);
+    EXPECT_FALSE(maximized);
+    EXPECT_EQ(gfx::Rect(20, 54, 500, 400), window_bounds);
+  }
+
   { // too small to satisify the minimum visibility condition.
     gfx::Rect window_bounds;
     bool maximized = false;
@@ -343,7 +362,6 @@ TEST(WindowSizerTest, LastWindowBoundsCase) {
 
 // Test that the window opened is sized appropriately given persisted sizes.
 TEST(WindowSizerTest, PersistedBoundsCase) {
-
   { // normal, in the middle of the screen somewhere.
     gfx::Rect initial_bounds(10, 10, 500, 400);
 
@@ -393,7 +411,7 @@ TEST(WindowSizerTest, PersistedBoundsCase) {
   { // off the left but the minimum visibility condition is barely satisfied
     // without relocaiton.
     gfx::Rect initial_bounds(-470, 50, 500, 400);
-    
+
     gfx::Rect window_bounds;
     bool maximized;
     GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
