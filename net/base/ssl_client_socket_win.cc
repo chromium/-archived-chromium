@@ -8,6 +8,7 @@
 
 #include "base/lock.h"
 #include "base/singleton.h"
+#include "base/stl_util-inl.h"
 #include "base/string_util.h"
 #include "net/base/connection_type_histograms.h"
 #include "net/base/io_buffer.h"
@@ -80,8 +81,7 @@ enum {
 };
 
 // CredHandleClass simply gives a default constructor and a destructor to
-// SSPI's CredHandle type (a C struct).  The default constuctor is required
-// by STL containers.
+// SSPI's CredHandle type (a C struct).
 class CredHandleClass : public CredHandle {
  public:
   CredHandleClass() {
@@ -102,16 +102,25 @@ class CredHandleTable {
  public:
   CredHandleTable() {}
 
-  ~CredHandleTable() {}
+  ~CredHandleTable() {
+    STLDeleteContainerPairSecondPointers(client_cert_creds_.begin(),
+                                         client_cert_creds_.end());
+  }
 
   CredHandle* GetHandle(PCCERT_CONTEXT client_cert, int ssl_version_mask) {
     DCHECK(0 < ssl_version_mask &&
            ssl_version_mask < arraysize(anonymous_creds_));
-    CredHandle* handle;
+    CredHandleClass* handle;
     AutoLock lock(lock_);
     if (client_cert) {
-      handle = &client_cert_creds_[
-          std::make_pair(client_cert, ssl_version_mask)];
+      CredHandleMapKey key = std::make_pair(client_cert, ssl_version_mask);
+      CredHandleMap::const_iterator it = client_cert_creds_.find(key);
+      if (it == client_cert_creds_.end()) {
+        handle = new CredHandleClass;
+        client_cert_creds_[key] = handle;
+      } else {
+        handle = it->second;
+      }
     } else {
       handle = &anonymous_creds_[ssl_version_mask];
     }
@@ -126,7 +135,7 @@ class CredHandleTable {
   //   int ssl_version_mask
   typedef std::pair<PCCERT_CONTEXT, int> CredHandleMapKey;
 
-  typedef std::map<CredHandleMapKey, CredHandleClass> CredHandleMap;
+  typedef std::map<CredHandleMapKey, CredHandleClass*> CredHandleMap;
 
   static void InitializeHandle(CredHandle* handle,
                                PCCERT_CONTEXT client_cert,
