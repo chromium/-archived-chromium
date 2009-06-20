@@ -28,8 +28,7 @@ UrlPickerDialogGtk::UrlPickerDialogGtk(UrlPickerCallback* callback,
   dialog_ = gtk_dialog_new_with_buttons(
       l10n_util::GetStringUTF8(IDS_ASI_ADD_TITLE).c_str(),
       parent,
-      // Non-modal.
-      GTK_DIALOG_NO_SEPARATOR,
+      static_cast<GtkDialogFlags>(GTK_DIALOG_MODAL | GTK_DIALOG_NO_SEPARATOR),
       GTK_STOCK_CANCEL,
       GTK_RESPONSE_CANCEL,
       NULL);

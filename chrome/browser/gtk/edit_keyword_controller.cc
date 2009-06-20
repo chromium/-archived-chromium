@@ -77,10 +77,8 @@ void EditKeywordController::Init(GtkWindow* parent_window) {
           template_url() ?
           IDS_SEARCH_ENGINES_EDITOR_EDIT_WINDOW_TITLE :
           IDS_SEARCH_ENGINES_EDITOR_NEW_WINDOW_TITLE).c_str(),
-      // In views, this is window-modal.  GTK only does app-modal which is
-      // overkill, so we'll just settle for being a non-modal transient.
       parent_window,
-      GTK_DIALOG_NO_SEPARATOR,
+      static_cast<GtkDialogFlags>(GTK_DIALOG_MODAL | GTK_DIALOG_NO_SEPARATOR),
       GTK_STOCK_CANCEL,
       GTK_RESPONSE_CANCEL,
       NULL);
