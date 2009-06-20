@@ -678,7 +678,7 @@ BUG13907 WIN : LayoutTests/media/video-seek-past-end-playing.html = PASS FAIL CR
 BUG13907 WIN : LayoutTests/media/video-size-intrinsic-scale.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-source-add-src.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-source-error.html = FAIL
-BUG13907 WIN : LayoutTests/media/video-source-type-params.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-source-type-params.html = FAIL TIMEOUT
 BUG13907 WIN : LayoutTests/media/video-source-type.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-src-remove.html = FAIL
 // This test is flaky.
