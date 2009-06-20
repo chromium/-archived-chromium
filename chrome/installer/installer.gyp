@@ -319,6 +319,7 @@
           'dependencies': [
             '../chrome.gyp:chrome',
             '../chrome.gyp:chrome_dll',
+            '../../testing/gtest.gyp:gtest',
             'setup',
           ],
           'include_dirs': [
@@ -339,18 +340,41 @@
           ],
           'msvs_settings': {
             'VCCLCompilerTool': {
-              'EnableIntrinicFunctions': 'true',
-              'BasicRuntimeChekcs': '0',
+              'EnableIntrinsicFunctions': 'true',
               'BufferSecurityCheck': 'false',
             },
             'VCLinkerTool': {
+              'AdditionalDependencies': [
+                '"$(VCInstallDir)crt\\src\\intel\\mt_lib\\memset.obj"',
+                '"$(VCInstallDir)crt\\src\\intel\\mt_lib\\P4_memset.obj"',
+                'shlwapi.lib',
+              ],
+              'AdditionalLibraryDirectories':
+                '<(DEPTH)/third_party/platformsdk_win2008_6_1/files/Lib;<(PRODUCT_DIR)/lib',
+              'AdditionalOptions':
+                '/safeseh:NO /dynamicbase:no /nxcompat /fixed',
+              'DelayLoadDLLs=': [],
               'EntryPointSymbol': 'MainEntryPoint',
+              'GenerateMapFile': 'true',
               'IgnoreAllDefaultLibraries': 'true',
               'OptimizeForWindows98': '1',
               'SubSystem': '2',     # Set /SUBSYSTEM:WINDOWS
             },
-            'VCManifestTool': {
-              'AdditionalManifestFiles': '$(SolutionDir)installer\\mini_installer\\mini_installer.exe.manifest',
+          },
+          'configurations': {
+            'Debug': {
+              'msvs_settings': {
+                'VCCLCompilerTool': {
+                  'BasicRuntimeChecks': '0',
+                },
+              },
+            },
+            'Release': {
+              'msvs_settings': {
+                'VCCLCompilerTool': {
+                  'BasicRuntimeChecks': '0',
+                },
+              },
             },
           },
           'rules': [
@@ -410,6 +434,7 @@
                 #'--distribution=$(CHROMIUM_BUILD)',
                 '--distribution=_google_chrome',
               ],
+              'message': 'Create installer archive'
             },
           ],
           # TODO(mark):  <(branding_dir) should be defined by the
