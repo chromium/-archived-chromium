@@ -90,14 +90,26 @@ AlsaPCMOutputStream::AlsaPCMOutputStream(const std::string& device_name,
       packet_size_(0),
       device_write_suspended_(true),  // Start suspended.
       resources_released_(false) {
-  CHECK(channels_ == 2) << "Only 2-channel audio is supported right now.";
-  CHECK(AudioManager::AUDIO_PCM_LINEAR == format)
-      << "Only linear PCM supported.";
-  CHECK(bits_per_sample % 8 == 0) << "Only allow byte-aligned samples";
-
   // Reference self to avoid accidental deletion before the message loop is
   // done.
   AddRef();
+
+  // Sanity check input values.
+  if (channels_ != 2) {
+    LOG(WARNING) << "Only 2-channel audio is supported right now.";
+    state_ = STATE_ERROR;
+  }
+
+  if (AudioManager::AUDIO_PCM_LINEAR != format) {
+    LOG(WARNING) << "Only linear PCM supported.";
+    state_ = STATE_ERROR;
+  }
+
+  if (bits_per_sample % 8 != 0) {
+    // We do this explicitly just incase someone messes up the switch below.
+    LOG(WARNING) << "Only allow byte-aligned samples";
+    state_ = STATE_ERROR;
+  }
 
   switch (bits_per_sample) {
     case 8:
