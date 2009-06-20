@@ -2812,15 +2812,15 @@ void RenderView::DumpLoadHistograms() const {
   TimeDelta finish_doc_to_finish =
       finish_load_time - finish_document_load_time;
   TimeDelta start_to_finish = finish_load_time - start_load_time;
-  TimeDelta request_to_finish = finish_load_time - start_load_time;
+  TimeDelta request_to_finish = finish_load_time - request_time;
   TimeDelta request_to_first_layout = first_layout_time - request_time;
   TimeDelta start_to_first_layout = first_layout_time - start_load_time;
 
   // Client side redirects will have no request time
   if (request_time.ToInternalValue() != 0) {
     UMA_HISTOGRAM_MEDIUM_TIMES("Renderer2.RequestToStart", request_to_start);
-    UMA_HISTOGRAM_CLIPPED_TIMES(
-        FieldTrial::MakeName("Renderer2.RequestToFinish_L", "DnsImpact").data(),
+    UMA_HISTOGRAM_CUSTOM_TIMES(
+        FieldTrial::MakeName("Renderer2.RequestToFinish_2", "DnsImpact").data(),
         request_to_finish, TimeDelta::FromMilliseconds(10),
         TimeDelta::FromMinutes(10), 100);
     if (request_to_first_layout.ToInternalValue() >= 0) {

@@ -68,8 +68,14 @@
     counter.Add(under_one_hundred); \
   } while (0)
 
-// For folks that need real specific times, use this, but you'll only get
-// samples that are in the range (overly large samples are discarded).
+// For folks that need real specific times, use this to select a precise range
+// of times you want plotted, and the number of buckets you want used.
+#define HISTOGRAM_CUSTOM_TIMES(name, sample, min, max, bucket_count) do { \
+    static Histogram counter((name), min, max, bucket_count); \
+    counter.AddTime(sample); \
+  } while (0)
+
+// DO NOT USE THIS.  It is being phased out, in favor of HISTOGRAM_CUSTOM_TIMES.
 #define HISTOGRAM_CLIPPED_TIMES(name, sample, min, max, bucket_count) do { \
     static Histogram counter((name), min, max, bucket_count); \
     if ((sample) < (max)) counter.AddTime(sample); \
@@ -108,6 +114,8 @@
                                                                      sample)
 #define DHISTOGRAM_PERCENTAGE(name, under_one_hundred) HISTOGRAM_PERCENTAGE(\
     name, under_one_hundred)
+#define DHISTOGRAM_CUSTOM_TIMES(name, sample, min, max, bucket_count) \
+    HISTOGRAM_CUSTOM_TIMES(name, sample, min, max, bucket_count)
 #define DHISTOGRAM_CLIPPED_TIMES(name, sample, min, max, bucket_count) \
     HISTOGRAM_CLIPPED_TIMES(name, sample, min, max, bucket_count)
 
@@ -117,6 +125,8 @@
 #define DHISTOGRAM_COUNTS(name, sample) do {} while (0)
 #define DASSET_HISTOGRAM_COUNTS(name, sample) do {} while (0)
 #define DHISTOGRAM_PERCENTAGE(name, under_one_hundred) do {} while (0)
+#define DHISTOGRAM_CUSTOM_TIMES(name, sample, min, max, bucket_count) \
+    do {} while (0)
 #define DHISTOGRAM_CLIPPED_TIMES(name, sample, min, max, bucket_count) \
     do {} while (0)
 
@@ -153,6 +163,12 @@ static const int kRendererHistogramFlag = 1 << 4;
 #define UMA_HISTOGRAM_LONG_TIMES(name, sample) do { \
     static Histogram counter((name), base::TimeDelta::FromMilliseconds(1), \
                              base::TimeDelta::FromHours(1), 50); \
+    counter.SetFlags(kUmaTargetedHistogramFlag); \
+    counter.AddTime(sample); \
+  } while (0)
+
+#define UMA_HISTOGRAM_CUSTOM_TIMES(name, sample, min, max, bucket_count) do { \
+    static Histogram counter((name), min, max, bucket_count); \
     counter.SetFlags(kUmaTargetedHistogramFlag); \
     counter.AddTime(sample); \
   } while (0)
