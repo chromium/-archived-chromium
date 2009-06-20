@@ -16,6 +16,7 @@
 #include "app/resource_bundle.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
+#include "chrome/browser/browser_theme_provider.h"
 #include "googleurl/src/gurl.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
@@ -29,9 +30,6 @@
 #if defined(OS_WIN)
 #include "views/widget/widget_win.h"
 #endif
-
-// The color of the background bubble.
-static const SkColor kBubbleColor = SkColorSetRGB(222, 234, 248);
 
 // The alpha and color of the bubble's shadow.
 static const SkColor kShadowColor = SkColorSetARGB(30, 0, 0, 0);
@@ -75,7 +73,8 @@ class StatusBubbleViews::StatusView : public views::Label,
                                       public Animation,
                                       public AnimationDelegate {
  public:
-  StatusView(StatusBubble* status_bubble, views::Widget* popup)
+  StatusView(StatusBubble* status_bubble, views::Widget* popup,
+             ThemeProvider* theme_provider)
       : Animation(kFramerate, this),
         stage_(BUBBLE_HIDDEN),
         style_(STYLE_STANDARD),
@@ -83,7 +82,8 @@ class StatusBubbleViews::StatusView : public views::Label,
         status_bubble_(status_bubble),
         popup_(popup),
         opacity_start_(0),
-        opacity_end_(0) {
+        opacity_end_(0),
+        theme_provider_(theme_provider) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
     gfx::Font font(rb.GetFont(ResourceBundle::BaseFont));
     SetFont(font);
@@ -172,6 +172,9 @@ class StatusBubbleViews::StatusView : public views::Label,
   // a value between 0 and 1.
   double opacity_start_;
   double opacity_end_;
+
+  // Holds the theme provider of the frame that created us.
+  ThemeProvider* theme_provider_;
 };
 
 void StatusBubbleViews::StatusView::SetText(const std::wstring& text) {
@@ -334,7 +337,8 @@ void StatusBubbleViews::StatusView::Paint(gfx::Canvas* canvas) {
   SkPaint paint;
   paint.setStyle(SkPaint::kFill_Style);
   paint.setFlags(SkPaint::kAntiAlias_Flag);
-  paint.setColor(kBubbleColor);
+  paint.setColor(
+      theme_provider_->GetColor(BrowserThemeProvider::COLOR_TOOLBAR));
 
   gfx::Rect popup_bounds;
   popup_->GetBounds(&popup_bounds, true);
@@ -474,7 +478,7 @@ void StatusBubbleViews::Init() {
     popup->set_delete_on_destroy(false);
 
     if (!view_)
-      view_ = new StatusView(this, popup);
+      view_ = new StatusView(this, popup, frame_->GetThemeProvider());
 
     popup->set_window_style(WS_POPUP);
     popup->set_window_ex_style(WS_EX_LAYERED | WS_EX_TOOLWINDOW |
