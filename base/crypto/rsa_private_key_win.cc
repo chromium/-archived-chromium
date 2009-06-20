@@ -4,10 +4,12 @@
 
 #include "base/crypto/rsa_private_key.h"
 
+#include <iostream>
 #include <list>
 
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
+#include "base/string_util.h"
 
 
 // This file manually encodes and decodes RSA private keys using PrivateKeyInfo
@@ -208,6 +210,12 @@ RSAPrivateKey* RSAPrivateKey::Create(uint16 num_bits) {
   flags |= (num_bits << 16);
   if (!CryptGenKey(result->provider_, CALG_RSA_SIGN, flags, &result->key_))
     return NULL;
+
+  std::vector<uint8> out;
+  result->ExportPrivateKey(&out);
+  std::cout << "Generated random key: "
+            << HexEncode(&out.front(), out.size())
+            << "\n";
 
   return result.release();
 }
