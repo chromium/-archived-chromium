@@ -20,6 +20,13 @@
 #include "net/base/net_util.h"
 #include "net/url_request/url_request_unittest.h"
 
+// http://code.google.com/p/chromium/issues/detail?id=14774
+#if defined(OS_WIN) && !defined(NDEBUG)
+#define MAYBE_BasicRestoreFromClosedWindow DISABLED_BasicRestoreFromClosedWindow
+#else
+#define MAYBE_BasicRestoreFromClosedWindow BasicRestoreFromClosedWindow
+#endif
+
 class TabRestoreUITest : public UITest {
  public:
   TabRestoreUITest() : UITest() {
@@ -235,7 +242,7 @@ TEST_F(TabRestoreUITest, DISABLED_RestoreToDifferentWindow) {
 
 // Close a tab, open a new window, close the first window, then restore the
 // tab. It should be in a new window.
-TEST_F(TabRestoreUITest, BasicRestoreFromClosedWindow) {
+TEST_F(TabRestoreUITest, MAYBE_BasicRestoreFromClosedWindow) {
   scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   CheckActiveWindow(browser_proxy.get());
 

@@ -22,6 +22,15 @@
     OpenCloseBrowserWindowWithAccelerator
 #endif
 
+// http://code.google.com/p/chromium/issues/detail?id=14774
+#if defined(OS_WIN) && !defined(NDEBUG)
+#define MAYBE_CloseTab DISABLED_CloseTab
+#define MAYBE_CloseBrowserWindow DISABLED_CloseBrowserWindow
+#else
+#define MAYBE_CloseTab CloseTab
+#define MAYBE_CloseBrowserWindow CloseBrowserWindow
+#endif
+
 TEST_F(AutomatedUITestBase, NewTab) {
   int tab_count;
   active_browser()->GetTabCount(&tab_count);
@@ -64,7 +73,7 @@ TEST_F(AutomatedUITestBase, DISABLED_RestoreTab) {
   ASSERT_EQ(2, tab_count);
 }
 
-TEST_F(AutomatedUITestBase, CloseTab) {
+TEST_F(AutomatedUITestBase, MAYBE_CloseTab) {
   int num_browser_windows;
   int tab_count;
   NewTab();
@@ -154,7 +163,7 @@ TEST_F(AutomatedUITestBase, OpenBrowserWindow) {
   ASSERT_EQ(1, num_browser_windows);
 }
 
-TEST_F(AutomatedUITestBase, CloseBrowserWindow) {
+TEST_F(AutomatedUITestBase, MAYBE_CloseBrowserWindow) {
   int tab_count;
   NewTab();
   active_browser()->GetTabCount(&tab_count);
