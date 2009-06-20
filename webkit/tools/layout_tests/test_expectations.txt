@@ -2099,7 +2099,8 @@ BUG9768 LINUX WIN : LayoutTests/fast/forms/select-initial-position.html = FAIL
 BUG9768 LINUX WIN : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
 // Was only WIN, also fail on LINUX since merge 43346:43361
 BUG9768 LINUX WIN : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
-BUG9768 LINUX WIN : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
+// Linux looks ok, rebaselined.
+BUG9768 WIN : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
 BUG9768 LINUX WIN : LayoutTests/fast/text/international/001.html = FAIL
 BUG9768 LINUX WIN : LayoutTests/fast/text/international/002.html = FAIL
 BUG9768 LINUX WIN : LayoutTests/fast/text/international/003.html = FAIL
