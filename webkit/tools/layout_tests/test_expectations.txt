@@ -619,7 +619,7 @@ BUG13907 WIN : LayoutTests/http/tests/media/video-play-stall.html = FAIL
 BUG13907 WIN : LayoutTests/http/tests/media/video-seekable-stall.html = FAIL
 BUG13907 WIN : LayoutTests/media/audio-constructor-src.html = FAIL
 BUG13907 WIN : LayoutTests/media/audio-constructor.html = FAIL
-BUG13907 WIN : LayoutTests/media/audio-controls-rendering.html = FAIL
+BUG13907 WIN : LayoutTests/media/audio-controls-rendering.html = PASS FAIL
 // We don't support MP2 audio so skip this test.
 BUG13907 SKIP : LayoutTests/media/audio-mpeg-supported.html = FAIL
 BUG13907 WIN : LayoutTests/media/constructors.html = FAIL
@@ -656,7 +656,7 @@ BUG13907 WIN DEBUG : LayoutTests/media/video-dom-autobuffer.html = PASS FAIL
 BUG13907 WIN : LayoutTests/media/video-document-types.html = PASS FAIL CRASH
 // This test times out in release build, it is really flaky.
 BUG13907 WIN : LayoutTests/media/video-error-abort.html = PASS FAIL TIMEOUT
-BUG13907 WIN : LayoutTests/media/video-layer-crash.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-layer-crash.html = PASS FAIL
 BUG13907 WIN : LayoutTests/media/video-loop.html = FAIL CRASH
 // This test crashes in debug build.
 BUG13907 WIN : LayoutTests/media/video-muted.html = PASS FAIL CRASH TIMEOUT
@@ -684,10 +684,10 @@ BUG13907 WIN : LayoutTests/media/video-src-remove.html = FAIL
 // This test is flaky.
 BUG13907 WIN DEBUG : LayoutTests/media/video-src.html = PASS FAIL
 // This test is flaky and may not only happen in debug build.
-BUG13907 WIN DEBUG : LayoutTests/media/video-src-source.html = FAIL
+BUG13907 WIN DEBUG : LayoutTests/media/video-src-source.html = PASS FAIL
 // Flaky test.
 BUG13907 WIN DEBUG : LayoutTests/media/video-timeupdate-during-playback.html = PASS FAIL
-BUG13907 WIN : LayoutTests/media/video-transformed.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-transformed.html = PASS FAIL
 BUG13907 WIN : LayoutTests/media/video-zoom-controls.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-zoom.html = FAIL
 // This test is very flaky.
@@ -2724,12 +2724,12 @@ BUG12882 WIN : LayoutTests/fast/box-shadow/basic-shadows.html = FAIL
 BUG12882 : LayoutTests/fast/dom/Window/open-existing-pop-up-blocking.html = TIMEOUT
 
 // WebKit 44252:44286
-BUG13105 MAC WIN : LayoutTests/fast/backgrounds/body-generated-image-propagated-to-root.html = FAIL
+BUG13105 MAC WIN : LayoutTests/fast/backgrounds/body-generated-image-propagated-to-root.html = PASS FAIL
 
 // WebKit 44286:44342
 // This test crashes the next layout tests, so skip until resolved.
 BUG13176 SKIP : LayoutTests/fast/workers/worker-close.html = FAIL
-BUG13174 WIN : LayoutTests/transitions/shorthand-border-transitions.html = FAIL
+BUG13174 WIN : LayoutTests/transitions/shorthand-border-transitions.html = PASS FAIL
 
 // WebKit 44372:44405	
 // New Linux crashes and failures. Why are we running platform/mac test on Linux?
@@ -2746,8 +2746,8 @@ BUG13767 : LayoutTests/fast/js/JSON-stringify.html = FAIL TIMEOUT
 BUG13809 SKIP : LayoutTests/fast/canvas/canvas-empty-image-pattern.html = FAIL
 
 // WebKit 44646:44668
-BUG14061 : LayoutTests/svg/filters/subRegion-one-effect.svg = FAIL
-BUG14061 : LayoutTests/svg/filters/subRegion-two-effects.svg = FAIL
+BUG14061 WIN LINUX : LayoutTests/svg/filters/subRegion-one-effect.svg = FAIL
+BUG14061 WIN LINUX : LayoutTests/svg/filters/subRegion-two-effects.svg = FAIL
 
 
 // Newly added test http://trac.webkit.org/changeset/44816
@@ -2755,13 +2755,12 @@ BUG14673 : LayoutTests/http/tests/xmlhttprequest/cross-origin-no-authorization.h
 
 // WebKit 44805:44837
 BUG14679 LINUX : LayoutTests/fast/backgrounds/animated-gif-as-background.html = FAIL
-BUG14686 MAC : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
 
 // WebKit 44837:44872
-BUG14772 : LayoutTests/fast/canvas/image-object-in-canvas.html = FAIL
+BUG14772 WIN LINUX : LayoutTests/fast/canvas/image-object-in-canvas.html = FAIL
 BUG14773 : LayoutTests/http/tests/security/xssAuditor/script-tag.html = FAIL
-BUG14771 : LayoutTests/svg/batik/filters/feTile.svg = FAIL
-BUG14771 : LayoutTests/svg/filters/feTile.svg = FAIL
+BUG14771 WIN LINUX : LayoutTests/svg/batik/filters/feTile.svg = FAIL
+BUG14771 WIN LINUX : LayoutTests/svg/filters/feTile.svg = FAIL
 
 // Need investigation: test shell crashers.
 BUG14752 LINUX DEBUG: LayoutTests/http/tests/cache/subresource-expiration.html = CRASH PASS
