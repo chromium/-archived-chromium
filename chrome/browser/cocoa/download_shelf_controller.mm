@@ -92,6 +92,9 @@
 // Show or hide the bar based on the value of |enable|. Handles animating the
 // resize of the content view.
 - (void)showDownloadShelf:(BOOL)enable {
+  if ([self isVisible] == enable)
+    return;
+
   contentAreaHasOffset_ = enable;
   [[self view] setHidden:enable ? NO : YES];
   [self applyContentAreaOffset:enable];
