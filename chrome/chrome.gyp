@@ -1009,6 +1009,8 @@
         'browser/gtk/menu_gtk.h',
         'browser/gtk/nine_box.cc',
         'browser/gtk/nine_box.h',
+        'browser/gtk/options/content_page_gtk.cc', 
+        'browser/gtk/options/content_page_gtk.h',
         'browser/gtk/options/general_page_gtk.cc',
         'browser/gtk/options/general_page_gtk.h',
         'browser/gtk/options/options_layout_gtk.cc',
