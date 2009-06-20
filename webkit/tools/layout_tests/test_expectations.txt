@@ -2757,6 +2757,12 @@ BUG14673 : LayoutTests/http/tests/xmlhttprequest/cross-origin-no-authorization.h
 BUG14679 LINUX : LayoutTests/fast/backgrounds/animated-gif-as-background.html = FAIL
 BUG14686 MAC : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
 
+// WebKit 44837:44872
+BUG14772 : LayoutTests/fast/canvas/image-object-in-canvas.html = FAIL
+BUG14773 : LayoutTests/http/tests/security/xssAuditor/script-tag.html = FAIL
+BUG14771 : LayoutTests/svg/batik/filters/feTile.svg = FAIL
+BUG14771 : LayoutTests/svg/filters/feTile.svg = FAIL
+
 // Need investigation: test shell crashers.
 BUG14752 LINUX DEBUG: LayoutTests/http/tests/cache/subresource-expiration.html = CRASH PASS
 BUG14751 LINUX DEBUG: LayoutTests/css2.1/atrule_longest_match.html = CRASH PASS
