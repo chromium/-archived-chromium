@@ -15,8 +15,12 @@
 // process.  On the renderer side there's a corresponding PluginChannelHost.
 class PluginChannel : public PluginChannelBase {
  public:
-  static PluginChannel* GetPluginChannel(
-      int process_id, MessageLoop* ipc_message_loop);
+  // Get a new PluginChannel object for the current process.
+  // POSIX only: If |channel_fd| > 0, use that file descriptor for the
+  // channel socket.
+  static PluginChannel* GetPluginChannel(int process_id,
+                                         MessageLoop* ipc_message_loop,
+                                         int channel_fd);
 
   ~PluginChannel();
 
