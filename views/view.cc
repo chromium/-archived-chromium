@@ -264,6 +264,11 @@ void View::SetFocusable(bool focusable) {
   focusable_ = focusable;
 }
 
+FocusManager* View::GetFocusManager() {
+  Widget* widget = GetWidget();
+  return widget ? widget->GetFocusManager() : NULL;
+}
+
 bool View::HasFocus() {
   FocusManager* focus_manager = GetFocusManager();
   if (focus_manager)

@@ -182,9 +182,7 @@ void BookmarkBubbleView::DidChangeBounds(const gfx::Rect& previous,
 
 void BookmarkBubbleView::BubbleShown() {
   DCHECK(GetWidget());
-  views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetWidget()->GetNativeView());
-  focus_manager->RegisterAccelerator(
+  GetFocusManager()->RegisterAccelerator(
       views::Accelerator(VK_RETURN, false, false, false), this);
 
   title_tf_->RequestFocus();

@@ -15,7 +15,8 @@ bool AcceleratorHandler::Dispatch(const MSG& msg) {
   bool process_message = true;
 
   if (msg.message >= WM_KEYFIRST && msg.message <= WM_KEYLAST) {
-    FocusManager* focus_manager = FocusManager::GetFocusManager(msg.hwnd);
+    FocusManager* focus_manager =
+        FocusManager::GetFocusManagerForNativeView(msg.hwnd);
     if (focus_manager) {
       // FocusManager::OnKeyDown and OnKeyUp return false if this message has
       // been consumed and should not be propagated further.

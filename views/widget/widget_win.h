@@ -78,11 +78,7 @@ class WidgetWin : public Widget,
   // this view, you are responsible for its destruction. If this value is NULL,
   // the caller is responsible for populating the RootView, and sizing its
   // contents as the window is sized.
-  // If |has_own_focus_manager| is true, the focus traversal stay confined to
-  // the window.
-  void Init(HWND parent,
-            const gfx::Rect& bounds,
-            bool has_own_focus_manager);
+  void Init(HWND parent, const gfx::Rect& bounds);
 
   // Sets the specified view as the contents of this Widget. There can only
   // be one contnets view child of this Widget's RootView. This view is sized to
@@ -121,6 +117,9 @@ class WidgetWin : public Widget,
 
   // Returns the RootView associated with the specified HWND (if any).
   static RootView* FindRootView(HWND hwnd);
+
+  // Returns the Widget associated with the specified HWND (if any).
+  static WidgetWin* GetWidget(HWND hwnd);
 
   // All classes registered by WidgetWin start with this name.
   static const wchar_t* const kBaseClassName;
@@ -230,6 +229,7 @@ class WidgetWin : public Widget,
   virtual ThemeProvider* GetThemeProvider() const;
   virtual Window* GetWindow();
   virtual const Window* GetWindow() const;
+  virtual FocusManager* GetFocusManager();
 
   // Overridden from MessageLoop::Observer:
   void WillProcessMessage(const MSG& msg);
@@ -327,7 +327,6 @@ class WidgetWin : public Widget,
   }
 
  protected:
-
   // Call close instead of this to Destroy the window.
   BOOL DestroyWindow() {
     DCHECK(::IsWindow(GetNativeView()));
@@ -522,6 +521,12 @@ class WidgetWin : public Widget,
   // the widget in the RootView so that RootView's destructor doesn't call into
   // the TooltipManager.
   scoped_ptr<TooltipManagerWin> tooltip_manager_;
+
+  // The focus manager keeping track of focus for this Widget and any of its
+  // children.  NULL for non top-level widgets.
+  // WARNING: RootView's destructor calls into the FocusManager. As such, this
+  // must be destroyed AFTER root_view_.
+  scoped_ptr<FocusManager> focus_manager_;
 
   // The root of the View hierarchy attached to this window.
   // WARNING: see warning in tooltip_manager_ for ordering dependencies with

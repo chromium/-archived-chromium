@@ -24,9 +24,7 @@ void BrowserBubble::InitPopup() {
 #endif
   // A focus manager is necessary if you want to be able to handle various
   // mouse events properly.
-  pop->Init(frame_native_view_,
-            bounds_,
-            true);  // Give the widget a focus manager.
+  pop->Init(frame_native_view_, bounds_);
   pop->SetContentsView(view_);
   popup_.reset(pop);
   Reposition();

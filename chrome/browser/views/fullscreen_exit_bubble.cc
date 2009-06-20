@@ -144,7 +144,7 @@ FullscreenExitBubble::FullscreenExitBubble(
   popup_->set_window_ex_style(WS_EX_LAYERED | WS_EX_TOOLWINDOW |
                               l10n_util::GetExtendedTooltipStyles());
   popup_->SetOpacity(static_cast<unsigned char>(0xff * kOpacity));
-  popup_->Init(frame->GetNativeView(), GetPopupRect(false), false);
+  popup_->Init(frame->GetNativeView(), GetPopupRect(false));
   popup_->SetContentsView(view_);
   popup_->Show();  // This does not activate the popup.
 
