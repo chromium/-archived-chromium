@@ -90,7 +90,7 @@ class TestPrintNotifObserv : public NotificationObserver {
 
 }  // namespace
 
-TEST(PrintJobTest, DISABLED_SimplePrint) {
+TEST(PrintJobTest, SimplePrint) {
   // Test the multithreaded nature of PrintJob to make sure we can use it with
   // known livetime.
 

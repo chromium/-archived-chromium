@@ -12,7 +12,7 @@
 class PrintingContextTest : public PrintingTest<testing::Test> {
 };
 
-TEST_F(PrintingContextTest, DISABLED_Base) {
+TEST_F(PrintingContextTest, Base) {
   printing::PrintSettings settings;
 
   settings.set_device_name(GetDefaultPrinter());
