@@ -183,9 +183,17 @@ class LinkInfoBar : public InfoBar {
 
  private:
   static void OnLinkClick(GtkWidget* button, LinkInfoBar* link_info_bar) {
-    // TODO(estade): we need an equivalent for DispositionFromEventFlags().
+    const GdkEventButton* button_click_event =
+        gtk_chrome_link_button_get_event_for_click(
+            GTK_CHROME_LINK_BUTTON(button));
+    WindowOpenDisposition disposition = CURRENT_TAB;
+    if (button_click_event) {
+      disposition = event_utils::DispositionFromEventFlags(
+          button_click_event->state);
+    }
+
     if (link_info_bar->delegate_->AsLinkInfoBarDelegate()->
-        LinkClicked(CURRENT_TAB)) {
+        LinkClicked(disposition)) {
       link_info_bar->RemoveInfoBar();
     }
   }
