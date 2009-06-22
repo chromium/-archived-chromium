@@ -53,6 +53,12 @@ std::wstring FontsLanguagesWindowView::GetWindowTitle() const {
                                l10n_util::GetString(IDS_PRODUCT_NAME));
 }
 
+void FontsLanguagesWindowView::WindowClosing() {
+  // Clear the static instance so that the next time ShowOptionsWindow() is
+  // called a new window is opened.
+  instance_ = NULL;
+}
+
 views::View* FontsLanguagesWindowView::GetContentsView() {
   return this;
 }
@@ -72,8 +78,20 @@ gfx::Size FontsLanguagesWindowView::GetPreferredSize() {
       IDS_FONTSLANG_DIALOG_HEIGHT_LINES));
 }
 
-void FontsLanguagesWindowView::SelectLanguagesTab() {
-  tabs_->SelectTabForContents(languages_page_);
+void FontsLanguagesWindowView::ShowTabPage(FontsLanguagesPage page) {
+  // If the window is not yet visible, we need to show it (it will become
+  // active), otherwise just bring it to the front.
+  if (!window()->IsVisible()) {
+    window()->Show();
+  } else {
+    window()->Activate();
+  }
+
+  // If the page is out of bounds, reset to the first tab.
+  if (page < 0 || page >= tabs_->GetTabCount())
+    page = FONTS_ENCODING_PAGE;
+
+  tabs_->SelectTabAt(page);
 }
 
 void FontsLanguagesWindowView::ViewHierarchyChanged(
@@ -98,4 +116,21 @@ void FontsLanguagesWindowView::Init() {
   languages_page_ = new LanguagesPageView(profile_);
   tabs_->AddTab(l10n_util::GetString(
       IDS_FONT_LANGUAGE_SETTING_LANGUAGES_TAB_TITLE), languages_page_);
+}
+
+void ShowFontsLanguagesWindow(gfx::NativeWindow window,
+                              FontsLanguagesPage page,
+                              Profile* profile) {
+  DCHECK(profile);
+
+  // If there's already an existing fonts and language window, activate it and
+  // switch to the specified page.
+  // TODO(beng): note this is not multi-simultaneous-profile-safe. When we care
+  //             about this case this will have to be fixed.
+  if (!instance_) {
+    instance_ = new FontsLanguagesWindowView(profile);
+    views::Window::CreateChromeWindow(window, gfx::Rect(), instance_);
+    // The window is alive by itself now...
+  }
+  instance_->ShowTabPage(page);
 }

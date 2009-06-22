@@ -12,6 +12,7 @@
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/fonts_languages_window.h"
 #include "chrome/browser/page_info_window.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url_model.h"
@@ -25,10 +26,6 @@
 #include "grit/generated_resources.h"
 #include "net/base/escape.h"
 #include "net/base/net_util.h"
-
-#if defined(OS_WIN)
-#include "chrome/browser/views/options/fonts_languages_window_view.h"
-#endif
 
 RenderViewContextMenu::RenderViewContextMenu(
     TabContents* tab_contents,
@@ -556,23 +553,12 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
           params_.misspelled_word);
       break;
 
-    case IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS: {
-#if defined(OS_WIN)
-      // TODO(yusukes): This should be moved to some shared place of commands
-      // for the options stuff so that we don't have to do all this work here.
-      FontsLanguagesWindowView* window_ = new FontsLanguagesWindowView(
-          profile_);
-      views::Window::CreateChromeWindow(
+    case IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS:
+      ShowFontsLanguagesWindow(
           platform_util::GetTopLevel(
               source_tab_contents_->GetContentNativeView()),
-          gfx::Rect(), window_)->Show();
-      window_->SelectLanguagesTab();
-#else
-      // TODO(port): need views::Window
-      NOTIMPLEMENTED() << "IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS";
-#endif
+          LANGUAGES_PAGE, profile_);
       break;
-    }
 
     case IDS_CONTENT_CONTEXT_ADDSEARCHENGINE:  // Not implemented.
     default:

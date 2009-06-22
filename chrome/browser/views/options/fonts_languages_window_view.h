@@ -1,10 +1,11 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_FONTS_LANGUAGE_WINDOW_H__
-#define CHROME_BROWSER_FONTS_LANGUAGE_WINDOW_H__
+#ifndef CHROME_BROWSER_VIEWS_OPTIONS_FONTS_LANGUAGES_WINDOW_VIEW_H_
+#define CHROME_BROWSER_VIEWS_OPTIONS_FONTS_LANGUAGES_WINDOW_VIEW_H_
 
+#include "chrome/browser/fonts_languages_window.h"
 #include "views/controls/tabbed_pane.h"
 #include "views/view.h"
 #include "views/window/dialog_delegate.h"
@@ -32,13 +33,14 @@ class FontsLanguagesWindowView : public views::View,
   virtual bool IsModal() const { return true; }
   virtual std::wstring GetWindowTitle() const;
   virtual views::View* GetContentsView();
+  virtual void WindowClosing();
 
   // views::View overrides:
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
 
-  // Selects the Languages tab.
-  void SelectLanguagesTab();
+  // Shows the tab corresponding to the specified |page|.
+  void ShowTabPage(FontsLanguagesPage page);
 
  protected:
   // views::View overrides:
@@ -66,4 +68,4 @@ class FontsLanguagesWindowView : public views::View,
   DISALLOW_EVIL_CONSTRUCTORS(FontsLanguagesWindowView);
 };
 
-#endif  // #ifndef CHROME_BROWSER_FONTS_LANGUAGE_WINDOW_H__
+#endif  // CHROME_BROWSER_VIEWS_OPTIONS_FONTS_LANGUAGES_WINDOW_VIEW_H_

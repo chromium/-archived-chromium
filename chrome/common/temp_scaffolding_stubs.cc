@@ -14,6 +14,7 @@
 #include "chrome/browser/download/download_request_dialog_delegate.h"
 #include "chrome/browser/download/download_request_manager.h"
 #include "chrome/browser/first_run.h"
+#include "chrome/browser/fonts_languages_window.h"
 #include "chrome/browser/hung_renderer_dialog.h"
 #include "chrome/browser/memory_details.h"
 #include "chrome/browser/options_window.h"
@@ -331,6 +332,16 @@ bool DockInfo::GetNewWindowBounds(gfx::Rect* new_window_bounds,
 }
 
 void DockInfo::AdjustOtherWindowBounds() const {
+  NOTIMPLEMENTED();
+}
+#endif
+
+//------------------------------------------------------------------------------
+
+#if defined(OS_MACOSX)
+void ShowFontsLanguagesWindow(gfx::NativeWindow window,
+                              FontsLanguagesPage page,
+                              Profile* profile) {
   NOTIMPLEMENTED();
 }
 #endif
