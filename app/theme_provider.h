@@ -10,7 +10,13 @@
 
 #if defined(OS_LINUX)
 #include <gdk/gdk.h>
-#endif
+#elif defined(OS_MACOSX)
+#ifdef __OBJC__
+@class NSImage;
+#else
+class NSImage;
+#endif  // __OBJC__
+#endif  // OS_*
 
 class SkBitmap;
 
@@ -25,7 +31,7 @@ class SkBitmap;
 
 class ThemeProvider {
  public:
-  virtual ~ThemeProvider() { }
+  virtual ~ThemeProvider();
 
   // Get the bitmap specified by |id|. An implementation of ThemeProvider should
   // have its own source of ids (e.g. an enum, or external resource bundle).
@@ -56,6 +62,14 @@ class ThemeProvider {
   // pointer to a shared empty placeholder bitmap so it will be visible what
   // is missing.
   virtual GdkPixbuf* GetPixbufNamed(int id) = 0;
+#elif defined(OS_MACOSX)
+  // Gets the NSImage with the specified |id|.  Returns a pointer to a shared
+  // instance of the NSImage.  This shared NSImage is owned by the theme
+  // provider and should not be freed.
+  //
+  // The bitmap is not assumed to exist. If a theme does not provide an image,
+  // this function will return nil.
+  virtual NSImage* GetNSImageNamed(int id) = 0;
 #endif
 };
 

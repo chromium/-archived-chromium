@@ -101,6 +101,7 @@
         'resource_bundle_mac.mm',
         'slide_animation.cc',
         'slide_animation.h',
+        'theme_provider.cc',
         'theme_provider.h',
         'throb_animation.cc',
         'throb_animation.h',

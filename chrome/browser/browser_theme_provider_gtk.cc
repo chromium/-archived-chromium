@@ -40,3 +40,14 @@ GdkPixbuf* BrowserThemeProvider::GetPixbufNamed(int id) {
   }
   return empty_bitmap;
 }
+
+void BrowserThemeProvider::FreePlatformImages() {
+  DCHECK(CalledOnValidThread());
+
+  // Free GdkPixbufs.
+  for (GdkPixbufMap::iterator i = gdk_pixbufs_.begin();
+       i != gdk_pixbufs_.end(); i++) {
+    g_object_unref(i->second);
+  }
+  gdk_pixbufs_.clear();
+}

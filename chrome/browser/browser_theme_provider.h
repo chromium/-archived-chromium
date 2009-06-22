@@ -16,10 +16,6 @@
 #include "base/ref_counted.h"
 #include "skia/ext/skia_utils.h"
 
-#if defined(OS_LINUX)
-#include <gdk/gdk.h>
-#endif
-
 class Extension;
 class Profile;
 class DictionaryValue;
@@ -74,8 +70,10 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
   virtual bool GetDisplayProperty(int id, int* result);
   virtual bool ShouldUseNativeFrame();
   virtual bool HasCustomImage(int id);
-#if defined(OS_LINUX)
+#if defined(OS_LINUX) && !defined(TOOLKIT_VIEWS)
   virtual GdkPixbuf* GetPixbufNamed(int id);
+#elif defined(OS_MACOSX)
+  virtual NSImage* GetNSImageNamed(int id);
 #endif
 
   // Set the current theme to the theme defined in |extension|.
@@ -97,6 +95,10 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
   typedef std::map<const std::string, SkColor> ColorMap;
   typedef std::map<const std::string, skia::HSL> TintMap;
   typedef std::map<const std::string, int> DisplayPropertyMap;
+
+  // Reads the image data from the theme file into the specified vector. Returns
+  // true on success.
+  bool ReadThemeFileData(int id, std::vector<unsigned char>* raw_data);
 
   // Loads a bitmap from the theme, which may be tinted or
   // otherwise modified, or an application default.
@@ -158,13 +160,20 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
   // Frees generated images and clears the image cache.
   void FreeImages();
 
+  // Clears the platform-specific image cache. Do not call directly; it's called
+  // from FreeImages().
+  void FreePlatformImages();
+
   // Cached images. We cache all retrieved and generated bitmaps and keep
   // track of the pointers.
   typedef std::map<int, SkBitmap*> ImageCache;
   ImageCache image_cache_;
-#if defined(OS_LINUX)
+#if defined(OS_LINUX) && !defined(TOOLKIT_VIEWS)
   typedef std::map<int, GdkPixbuf*> GdkPixbufMap;
   GdkPixbufMap gdk_pixbufs_;
+#elif defined(OS_MACOSX)
+  typedef std::map<int, NSImage*> NSImageMap;
+  NSImageMap nsimage_cache_;
 #endif
 
   // List of generate images that aren't stored in ResourceBundles image cache
