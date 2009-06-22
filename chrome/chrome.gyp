@@ -4778,7 +4778,9 @@
           ],
           'actions': [
             {
-              # 'message' for Linux/scons in particular
+              # 'message' for Linux/scons in particular.  Scons
+              # requires the 'coverage' target be run from within
+              # src/chrome.
               'message': 'Running coverage_posix.py to generate coverage numbers',
               'inputs': [],
               'outputs': [],

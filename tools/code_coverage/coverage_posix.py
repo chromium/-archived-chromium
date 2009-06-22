@@ -138,7 +138,7 @@ class Coverage(object):
 
       # If asked, make this REAL fast for testing.
       if self.options.fast_test:
-        cmdlist.append('--gtest_filter=TupleTest*')
+        cmdlist.append('--gtest_filter=RenderWidgetHost*')
 
       retcode = subprocess.call(cmdlist)
       if retcode:
@@ -149,16 +149,9 @@ class Coverage(object):
 
   def GenerateLcov(self):
     """Convert profile data to lcov."""
-    if self.IsLinux():
-      command = [self.lcov,
-                 '--directory', self.directory,
-                 '--capture',
-                 '--output-file',
-                 self.coverage_info_file]
-    else:
-      command = [self.mcov,
-                 '--directory', self.directory_parent,
-                 '--output', self.coverage_info_file]
+    command = [self.mcov,
+               '--directory', self.directory_parent,
+               '--output', self.coverage_info_file]
     print >>sys.stderr, 'Assembly command: ' + ' '.join(command)
     retcode = subprocess.call(command)
     if retcode:
