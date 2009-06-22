@@ -1007,6 +1007,8 @@
         'browser/gtk/focus_store_gtk.h',
         'browser/gtk/location_bar_view_gtk.cc',
         'browser/gtk/location_bar_view_gtk.h',
+        'browser/gtk/list_store_favicon_loader.cc',
+        'browser/gtk/list_store_favicon_loader.h',
         'browser/gtk/menu_gtk.cc',
         'browser/gtk/menu_gtk.h',
         'browser/gtk/nine_box.cc',
