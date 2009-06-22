@@ -100,6 +100,11 @@ devtools.DebuggerAgent.prototype.reset = function() {
   this.requestNumberToBreakpointInfo_ = {};
   this.currentCallFrame_ = null;
   this.requestSeqToCallback_ = {};
+  if (WebInspector.panels &&
+      WebInspector.panels.scripts.element.parentElement) {
+    // Scripts panel has been enabled already.
+    devtools.tools.getDebuggerAgent().initializeScriptsCache();
+  }
 
   // Profiler isn't reset because it contains no data that is
   // specific for a particular V8 instance. All such data is
@@ -669,6 +674,10 @@ devtools.DebuggerAgent.prototype.handleSetBreakpointResponse_ = function(msg) {
  * @param {devtools.DebuggerMessage} msg
  */
 devtools.DebuggerAgent.prototype.handleAfterCompileEvent_ = function(msg) {
+  if (!this.scriptsCacheInitialized_) {
+    // Ignore scripts delta if main request has not been issued yet.
+    return;
+  }
   var script = msg.getBody().script;
   // Ignore scripts from other tabs.
   if (!this.isScriptFromInspectedContext_(script, msg)) {
