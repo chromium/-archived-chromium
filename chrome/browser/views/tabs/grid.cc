@@ -24,6 +24,7 @@ Grid::Grid()
       columns_(0),
       rows_(0),
       floating_index_(-1) {
+  animation_.SetTweenType(SlideAnimation::EASE_OUT);
 }
 
 void Grid::MoveCell(int old_index, int new_index) {

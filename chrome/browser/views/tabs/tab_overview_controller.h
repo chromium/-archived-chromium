@@ -21,6 +21,13 @@ class Widget;
 
 // TabOverviewController is responsible for showing a TabOverviewGrid and
 // keeping it in sync with the TabStripModel of a browser.
+//
+// As tabs are added/removed from the TabStripModel the size and position
+// of the container animates. Ideally this would be done by changing the
+// bounds of the host window, but that proved janktastic. Instead the
+// size of the host window is created at the largest possible size the
+// window can be and the bounds of the container are changed during the
+// animation.
 class TabOverviewController : public TabStripModelObserver {
  public:
   // Creates a TabOverviewController that will be shown on the monitor
@@ -85,10 +92,14 @@ class TabOverviewController : public TabStripModelObserver {
   // Updates the target and start bounds.
   void UpdateStartAndTargetBounds();
 
-  // Sets the bounds of the hosting window to |bounds|.
-  void SetHostBounds(const gfx::Rect& bounds);
+  // Returns the bounds for the tab overview container based on the preferred
+  // size of the container. The returned value is the coordinates of the
+  // root view (container's parent).
+  // See comment above class description for more details.
+  gfx::Rect CalculateContainerBounds();
 
-  // Returns the bounds for the window based on the current content.
+  // Returns the bounds needed for the host.
+  // See comment above class description for more details.
   gfx::Rect CalculateHostBounds();
 
   // The widget showing the view.

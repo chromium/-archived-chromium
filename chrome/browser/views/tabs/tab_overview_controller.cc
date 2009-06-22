@@ -12,7 +12,6 @@
 #include "chrome/browser/views/tabs/tab_overview_grid.h"
 #include "chrome/browser/views/tabs/tab_overview_types.h"
 #include "chrome/browser/window_sizer.h"
-#include "views/fill_layout.h"
 #include "views/widget/root_view.h"
 #include "views/widget/widget_gtk.h"
 
@@ -40,11 +39,17 @@ TabOverviewController::TabOverviewController(
       mutating_grid_(false) {
   grid_ = new TabOverviewGrid(this);
 
+  // Determine the max size for the overview.
+  scoped_ptr<WindowSizer::MonitorInfoProvider> provider(
+      WindowSizer::CreateDefaultMonitorInfoProvider());
+  monitor_bounds_ = provider->GetMonitorWorkAreaMatching(
+      gfx::Rect(monitor_origin.x(), monitor_origin.y(), 1, 1));
+
   // Create the host.
   views::WidgetGtk* host = new views::WidgetGtk(views::WidgetGtk::TYPE_POPUP);
   host->set_delete_on_destroy(false);
   host->MakeTransparent();
-  host->Init(NULL, gfx::Rect(), true);
+  host->Init(NULL, CalculateHostBounds(), true);
   TabOverviewTypes::instance()->SetWindowType(
       host->GetNativeView(),
       TabOverviewTypes::WINDOW_TYPE_CHROME_TAB_SUMMARY,
@@ -53,19 +58,9 @@ TabOverviewController::TabOverviewController(
 
   container_ = new TabOverviewContainer();
   container_->AddChildView(grid_);
-  host->GetRootView()->SetLayoutManager(new views::FillLayout());
   host->GetRootView()->AddChildView(container_);
 
-  // Determine the max size for the overview.
-  scoped_ptr<WindowSizer::MonitorInfoProvider> provider(
-      WindowSizer::CreateDefaultMonitorInfoProvider());
-  monitor_bounds_ = provider->GetMonitorWorkAreaMatching(
-      gfx::Rect(monitor_origin.x(), monitor_origin.y(), 1, 1));
-  monitor_bounds_.Inset(kMonitorPadding, 0);
-  int max_width = monitor_bounds_.width();
-  int max_height = static_cast<int>(monitor_bounds_.height() *
-                                    kOverviewHeight);
-  container_->SetMaxSize(gfx::Size(max_width, max_height));
+  container_->SetMaxSize(CalculateHostBounds().size());
 
   // TODO: remove this when we get mid point.
   horizontal_center_ = monitor_bounds_.x() + monitor_bounds_.width() / 2;
@@ -89,7 +84,11 @@ void TabOverviewController::SetBrowser(Browser* browser,
   browser_ = browser;
   if (browser_)
     model()->AddObserver(this);
-  moved_offscreen_ = false;
+  if (moved_offscreen_ && model() && model()->count()) {
+    // Need to reset the bounds if we were offscreen.
+    host_->SetBounds(CalculateHostBounds());
+    moved_offscreen_ = false;
+  }
   RecreateCells();
 }
 
@@ -148,7 +147,7 @@ void TabOverviewController::GridAnimationEnded() {
   if (moved_offscreen_ || !change_window_bounds_on_animate_ || mutating_grid_)
     return;
 
-  SetHostBounds(target_bounds_);
+  container_->SetBounds(target_bounds_);
   grid_->UpdateDragController();
   change_window_bounds_on_animate_ = false;
 }
@@ -159,7 +158,14 @@ void TabOverviewController::GridAnimationProgressed() {
 
   DCHECK(!mutating_grid_);
 
-  SetHostBounds(grid_->AnimationPosition(start_bounds_, target_bounds_));
+  // Schedule a paint before and after changing sizes to deal with the case
+  // of the view shrinking in size.
+  container_->SchedulePaint();
+  container_->SetBounds(
+      grid_->AnimationPosition(start_bounds_, target_bounds_));
+  container_->SchedulePaint();
+
+  // Update the position of the dragged cell.
   grid_->UpdateDragController();
 }
 
@@ -242,13 +248,13 @@ void TabOverviewController::RecreateCells() {
   if (moved_offscreen_)
     return;
 
-  SetHostBounds(CalculateHostBounds());
   if (grid()->GetChildViewCount() > 0) {
     if (shown_)
       host_->Show();
   } else {
     host_->Hide();
   }
+  container_->SetBounds(CalculateContainerBounds());
 }
 
 void TabOverviewController::UpdateStartAndTargetBounds() {
@@ -258,24 +264,30 @@ void TabOverviewController::UpdateStartAndTargetBounds() {
   if (grid()->GetChildViewCount() == 0) {
     host_->Hide();
   } else {
-    host_->GetBounds(&start_bounds_, true);
-    target_bounds_ = CalculateHostBounds();
+    start_bounds_ = container_->bounds();
+    target_bounds_ = CalculateContainerBounds();
     change_window_bounds_on_animate_ = (start_bounds_ != target_bounds_);
   }
 }
 
-void TabOverviewController::SetHostBounds(const gfx::Rect& bounds) {
-  host_->SetBounds(bounds);
-  container_->UpdateWidgetShape(horizontal_center_, bounds.width(),
-                                bounds.height());
+gfx::Rect TabOverviewController::CalculateContainerBounds() {
+  gfx::Rect host_bounds = CalculateHostBounds();
+  const gfx::Size& host_size = CalculateHostBounds().size();
+  gfx::Size pref = container_->GetPreferredSize();
+  int relative_horizontal_center = horizontal_center_ - host_bounds.x();
+  int x = relative_horizontal_center - pref.width() / 2;
+  int y = host_size.height() - pref.height();
+  return gfx::Rect(x, y, pref.width(), pref.height()).
+      AdjustToFit(gfx::Rect(0, 0, host_size.width(), host_size.height()));
 }
 
 gfx::Rect TabOverviewController::CalculateHostBounds() {
-  gfx::Size pref = container_->GetPreferredSize();
-  int x = horizontal_center_ - pref.width() / 2;
-  int y = monitor_bounds_.bottom() -
-      static_cast<int>(monitor_bounds_.height() * kWindowHeight) -
-      kWindowToOverviewPadding - pref.height();
-  return gfx::Rect(x, y, pref.width(), pref.height()).
-      AdjustToFit(monitor_bounds_);
+  int max_width = monitor_bounds_.width() - kMonitorPadding * 2;
+  int window_height = monitor_bounds_.height() * kWindowHeight;
+  int max_height = static_cast<int>(monitor_bounds_.height() *
+                                    kOverviewHeight);
+  return gfx::Rect(monitor_bounds_.x() + kMonitorPadding,
+                   monitor_bounds_.bottom() - window_height -
+                   kWindowToOverviewPadding - max_height, max_width,
+                   max_height);
 }

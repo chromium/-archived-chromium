@@ -4,13 +4,9 @@
 
 #include "chrome/browser/views/tabs/tab_overview_container.h"
 
-#include <gtk/gtk.h>
-
 #include "app/gfx/canvas.h"
-#include "app/gfx/path.h"
 #include "chrome/browser/views/tabs/tab_overview_grid.h"
 #include "third_party/skia/include/effects/SkGradientShader.h"
-#include "views/widget/widget_gtk.h"
 
 // Padding between the edges of us and the grid.
 static const int kVerticalPadding = 43;
@@ -18,9 +14,6 @@ static const int kHorizontalPadding = 30;
 
 // Height of the arrow.
 static const int kArrowHeight = 28;
-
-// Inset of the slight rounding on the corners.
-static const int kEdgeInset = 5;
 
 TabOverviewContainer::TabOverviewContainer() {
 }
@@ -32,33 +25,6 @@ void TabOverviewContainer::SetMaxSize(const gfx::Size& max_size) {
   GetTabOverviewGrid()->set_max_size(
       gfx::Size(max_size.width() - kHorizontalPadding * 2,
                 max_size.height() - kVerticalPadding * 2 - kArrowHeight));
-}
-
-void TabOverviewContainer::UpdateWidgetShape(int horizontal_center,
-                                             int width, int height) {
-  int bottom_y = height - kArrowHeight;
-  int right_edge = width - 1;
-  int center = width / 2;
-  // The points, in alternating x,y pairs.
-  int points[] = {
-      kEdgeInset, 0,
-      right_edge - kEdgeInset, 0,
-      right_edge, kEdgeInset,
-      right_edge, bottom_y - kEdgeInset - 1,
-      right_edge - kEdgeInset, bottom_y - 1,
-      center + kArrowHeight / 2, bottom_y - 1,
-      center, bottom_y - 1 +  kArrowHeight,
-      center - kArrowHeight / 2, bottom_y - 1,
-      kEdgeInset, bottom_y - 1,
-      0, bottom_y - 1 - kEdgeInset,
-      0, kEdgeInset,
-  };
-  gfx::Path path;
-  path.moveTo(SkIntToScalar(points[0]), SkIntToScalar(points[1]));
-  for (size_t i = 2; i < arraysize(points); i += 2)
-    path.lineTo(SkIntToScalar(points[i]), SkIntToScalar(points[i + 1]));
-
-  GetWidget()->SetShape(path);
 }
 
 gfx::Size TabOverviewContainer::GetPreferredSize() {
@@ -88,11 +54,6 @@ void TabOverviewContainer::Paint(gfx::Canvas* canvas) {
   paint.setStyle(SkPaint::kFill_Style);
   paint.setPorterDuffXfermode(SkPorterDuff::kSrcOver_Mode);
   canvas->drawPaint(paint);
-}
-
-void TabOverviewContainer::DidChangeBounds(const gfx::Rect& previous,
-                                           const gfx::Rect& current) {
-  Layout();
 }
 
 TabOverviewGrid* TabOverviewContainer::GetTabOverviewGrid() {
