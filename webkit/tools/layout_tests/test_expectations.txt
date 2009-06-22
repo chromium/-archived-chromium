@@ -1134,6 +1134,9 @@ BUG13692 WIN : LayoutTests/tables/mozilla/marvin/tables_bgcolor_green.html = CRA
 BUG13692 MAC : LayoutTests/fast/dom/Document/open-with-pending-load.html = CRASH PASS
 BUG13692 MAC : LayoutTests/fast/invalid/019.html = CRASH PASS
 
+// <body><canvas height=100></canvas></body> is 1 px taller than upstream.
+BUG13809 : LayoutTests/fast/canvas/canvas-empty-image-pattern.html = FAIL
+
 // ----------------------------------------------------------------------------
 // NEW FOR THE MERGE
 //
@@ -2741,10 +2744,6 @@ BUG13721 LINUX : LayoutTests/fast/dynamic/positioned-movement-with-positioned-ch
 
 // New test added in WebKit 44550:
 BUG13767 : LayoutTests/fast/js/JSON-stringify.html = FAIL TIMEOUT
-
-// WebKit 44571:44597
-// Needs pixel results generated upstream, may need rebaselining afterwards
-BUG13809 SKIP : LayoutTests/fast/canvas/canvas-empty-image-pattern.html = FAIL
 
 // WebKit 44646:44668
 BUG14061 WIN LINUX : LayoutTests/svg/filters/subRegion-one-effect.svg = FAIL
