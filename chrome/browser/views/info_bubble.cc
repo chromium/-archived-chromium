@@ -218,6 +218,7 @@ void InfoBubble::OnSize(UINT param, const CSize& size) {
   gfx::Path path;
   content_view_->GetMask(gfx::Size(size.cx, size.cy), &path);
   SetWindowRgn(path.CreateHRGN(), TRUE);
+  WidgetWin::OnSize(param, size);
 }
 #endif
 
