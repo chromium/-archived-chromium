@@ -508,19 +508,42 @@ void AutocompleteEditViewGtk::HandlePopulatePopup(GtkMenu* menu) {
   GtkWidget* separator = gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(menu), separator);
   gtk_widget_show(separator);
-  GtkWidget* menuitem = gtk_menu_item_new_with_mnemonic(
+
+  // Search Engine menu item.
+  GtkWidget* search_engine_menuitem = gtk_menu_item_new_with_mnemonic(
       gtk_util::ConvertAcceleratorsFromWindowsStyle(
           l10n_util::GetStringUTF8(IDS_EDIT_SEARCH_ENGINES)).c_str());
-  gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-  g_signal_connect(menuitem, "activate",
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu), search_engine_menuitem);
+  g_signal_connect(search_engine_menuitem, "activate",
                    G_CALLBACK(HandleEditSearchEnginesThunk), this);
-  gtk_widget_show(menuitem);
+  gtk_widget_show(search_engine_menuitem);
+
+  // Paste and Go menu item.
+  GtkWidget* paste_go_menuitem = gtk_menu_item_new_with_mnemonic(
+      gtk_util::ConvertAcceleratorsFromWindowsStyle(
+          l10n_util::GetStringUTF8(model_->is_paste_and_search() ?
+              IDS_PASTE_AND_SEARCH : IDS_PASTE_AND_GO)).c_str());
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu), paste_go_menuitem);
+  g_signal_connect(paste_go_menuitem, "activate",
+                   G_CALLBACK(HandlePasteAndGoThunk), this);
+  gtk_widget_show(paste_go_menuitem);
 }
 
 void AutocompleteEditViewGtk::HandleEditSearchEngines() {
   command_updater_->ExecuteCommand(IDC_EDIT_SEARCH_ENGINES);
 }
 
+void AutocompleteEditViewGtk::HandlePasteAndGo() {
+  GtkClipboard* x_clipboard = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
+  gtk_clipboard_request_text(x_clipboard, HandlePasteAndGoReceivedTextThunk,
+                             this);
+}
+
+void AutocompleteEditViewGtk::HandlePasteAndGoReceivedText(
+    const std::wstring& text) {
+  if (model_->CanPasteAndGo(text))
+    model_->PasteAndGo();
+}
 
 AutocompleteEditViewGtk::CharRange AutocompleteEditViewGtk::GetSelection() {
   // You can not just use get_selection_bounds here, since the order will be

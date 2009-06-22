@@ -9,6 +9,7 @@
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
+#include "base/string_util.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view.h"
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/common/owned_widget_gtk.h"
@@ -182,6 +183,23 @@ class AutocompleteEditViewGtk : public AutocompleteEditView {
         HandleEditSearchEngines();
   }
   void HandleEditSearchEngines();
+
+  static void HandlePasteAndGoThunk(GtkMenuItem* menuitem,
+                                    AutocompleteEditViewGtk* self) {
+    self->HandlePasteAndGo();
+  }
+  void HandlePasteAndGo();
+
+  static void HandlePasteAndGoReceivedTextThunk(GtkClipboard* clipboard,
+                                                const gchar* text,
+                                                gpointer self) {
+    // If there is nothing to paste (|text| is NULL), do nothing.
+    if (!text)
+      return;
+    reinterpret_cast<AutocompleteEditViewGtk*>(self)->
+        HandlePasteAndGoReceivedText(UTF8ToWide(text));
+  }
+  void HandlePasteAndGoReceivedText(const std::wstring& text);
 
   // Get the character indices of the current selection.  This honors
   // direction, cp_max is the insertion point, and cp_min is the bound.
