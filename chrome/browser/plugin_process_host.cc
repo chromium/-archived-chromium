@@ -291,10 +291,6 @@ PluginProcessHost::PluginProcessHost()
 }
 
 PluginProcessHost::~PluginProcessHost() {
-  // Cancel all requests for plugin process.
-  PluginService::GetInstance()->resource_dispatcher_host()->
-      CancelRequestsForProcess(GetProcessId());
-
 #if defined(OS_WIN)
   // We erase HWNDs from the plugin_parent_windows_set_ when we receive a
   // notification that the window is being destroyed. If we don't receive this

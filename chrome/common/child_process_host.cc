@@ -60,6 +60,8 @@ ChildProcessHost::ChildProcessHost(
 ChildProcessHost::~ChildProcessHost() {
   Singleton<ChildProcessList>::get()->remove(this);
 
+  resource_dispatcher_host_->CancelRequestsForProcess(GetProcessId());
+
   if (handle()) {
     watcher_.StopWatching();
     ProcessWatcher::EnsureProcessTerminated(handle());
