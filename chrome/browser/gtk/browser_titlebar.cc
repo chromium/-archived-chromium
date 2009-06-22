@@ -44,13 +44,6 @@ BrowserTitlebar::BrowserTitlebar(BrowserWindowGtk* browser_window,
 }
 
 void BrowserTitlebar::Init() {
-  titlebar_background_.reset(new NineBox(
-      browser_window_->browser()->profile()->GetThemeProvider(),
-      0, IDR_THEME_FRAME, 0, 0, 0, 0, 0, 0, 0));
-  titlebar_background_otr_.reset(new NineBox(
-      browser_window_->browser()->profile()->GetThemeProvider(),
-      0, IDR_THEME_FRAME_INCOGNITO, 0, 0, 0, 0, 0, 0, 0));
-
   // The widget hierarchy is shown below.
   //
   // +- HBox (container_) --------------------------------------------------+
@@ -64,8 +57,6 @@ void BrowserTitlebar::Init() {
   // +----------------------------------------------------------------------+
   container_ = gtk_hbox_new(FALSE, 0);
 
-  g_signal_connect(G_OBJECT(container_), "expose-event",
-                   G_CALLBACK(OnExpose), this);
   g_signal_connect(window_, "window-state-event",
                    G_CALLBACK(OnWindowStateChanged), this);
 
@@ -128,21 +119,6 @@ void BrowserTitlebar::UpdateCustomFrame(bool use_custom_frame) {
     gtk_alignment_set_padding(GTK_ALIGNMENT(titlebar_alignment_), 0, 0, 0, 0);
     gtk_widget_hide(titlebar_buttons_box_);
   }
-}
-
-gboolean BrowserTitlebar::OnExpose(GtkWidget* widget, GdkEventExpose* e,
-                                   BrowserTitlebar* titlebar) {
-  cairo_t* cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-  cairo_rectangle(cr, e->area.x, e->area.y, e->area.width, e->area.height);
-  cairo_clip(cr);
-  Profile* profile = titlebar->browser_window_->browser()->profile();
-  NineBox* image = profile->IsOffTheRecord()
-      ? titlebar->titlebar_background_otr_.get()
-      : titlebar->titlebar_background_.get();
-  image->RenderTopCenterStrip(cr, e->area.x, 0, e->area.width);
-  cairo_destroy(cr);
-
-  return FALSE;  // Allow subwidgets to paint.
 }
 
 gboolean BrowserTitlebar::OnWindowStateChanged(GtkWindow* window,

@@ -14,7 +14,6 @@
 
 #include "base/scoped_ptr.h"
 #include "chrome/browser/gtk/menu_gtk.h"
-#include "chrome/browser/gtk/nine_box.h"
 
 class BrowserWindowGtk;
 class CustomDrawButton;
@@ -51,11 +50,6 @@ class BrowserTitlebar : public MenuGtk::Delegate {
                                         int image_hot, GtkWidget* box,
                                         int tooltip);
 
-  // Callback for when the titlebar (include the background of the tab strip)
-  // needs to be redrawn.
-  static gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e,
-                           BrowserTitlebar* window);
-
   // Callback for changes to window state.  This includes
   // maximizing/restoring/minimizing the window.
   static gboolean OnWindowStateChanged(GtkWindow* window,
@@ -90,10 +84,6 @@ class BrowserTitlebar : public MenuGtk::Delegate {
   scoped_ptr<CustomDrawButton> maximize_button_;
   scoped_ptr<CustomDrawButton> restore_button_;
   scoped_ptr<CustomDrawButton> close_button_;
-
-  // The background of the title bar and tab strip.
-  scoped_ptr<NineBox> titlebar_background_;
-  scoped_ptr<NineBox> titlebar_background_otr_;
 
   // The context menu.
   scoped_ptr<MenuGtk> context_menu_;
