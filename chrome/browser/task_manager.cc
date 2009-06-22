@@ -698,86 +698,34 @@ void TaskManager::RegisterPrefs(PrefService* prefs) {
 }
 
 TaskManager::TaskManager()
-    : ALLOW_THIS_IN_INITIALIZER_LIST(model_(new TaskManagerModel(this))),
-      view_(NULL) {
+    : ALLOW_THIS_IN_INITIALIZER_LIST(model_(new TaskManagerModel(this))) {
 }
 
 TaskManager::~TaskManager() {
 }
 
-// static
-void TaskManager::Open() {
-  TaskManager* task_manager = GetInstance();
-  if (task_manager->view_) {
-    task_manager->view_->ActivateWindow();
-  } else {
-    task_manager->CreateView();
-    task_manager->view_->OpenWindow();
-  }
+bool TaskManager::IsBrowserProcess(int index) const {
+  // If some of the selection is out of bounds, ignore. This may happen when
+  // killing a process that manages several pages.
+  return index < model_->ResourceCount() &&
+      model_->GetResourceProcessHandle(index) ==
+      base::GetCurrentProcessHandle();
 }
 
-// static
-void TaskManager::Close() {
-  TaskManager* task_manager = GetInstance();
-  task_manager->view_->CloseWindow();
-}
-
-bool TaskManager::BrowserProcessIsSelected() {
-  if (!view_)
-    return false;
-  std::vector<int> selection;
-  view_->GetSelection(&selection);
-  for (std::vector<int>::const_iterator iter = selection.begin();
-       iter != selection.end(); ++iter) {
-    // If some of the selection is out of bounds, ignore. This may happen when
-    // killing a process that manages several pages.
-    if (*iter >= model_->ResourceCount())
-      continue;
-    if (model_->GetResourceProcessHandle(*iter) ==
-        base::GetCurrentProcessHandle())
-      return true;
-  }
-  return false;
-}
-
-void TaskManager::KillSelectedProcesses() {
-  std::vector<int> selection;
-  view_->GetSelection(&selection);
-  for (std::vector<int>::const_iterator iter = selection.begin();
-       iter != selection.end(); ++iter) {
-    base::ProcessHandle process = model_->GetResourceProcessHandle(*iter);
-    DCHECK(process);
-    if (process == base::GetCurrentProcessHandle())
-      continue;
+void TaskManager::KillProcess(int index) {
+  base::ProcessHandle process = model_->GetResourceProcessHandle(index);
+  DCHECK(process);
+  if (process != base::GetCurrentProcessHandle())
     base::KillProcess(process, base::PROCESS_END_KILLED_BY_USER, false);
-  }
 }
 
-void TaskManager::ActivateFocusedTab() {
-  std::vector<int> focused;
-  view_->GetFocused(&focused);
-  int focused_size = static_cast<int>(focused.size());
-
-  DCHECK(focused_size == 1);
-
-  // Gracefully return if there is not exactly one item in focus.
-  if (focused_size != 1)
-    return;
-
-  // Otherwise, the one focused thing should be one the user intends to bring
-  // forth, so get see if GetTabContents returns non-null.  If it does, activate
-  // those contents.
-  int index = focused[0];
-
+void TaskManager::ActivateProcess(int index) {
   // GetResourceTabContents returns a pointer to the relevant tab contents for
   // the resource.  If the index doesn't correspond to a Tab (i.e. refers to
   // the Browser process or a plugin), GetTabContents will return NULL.
   TabContents* chosen_tab_contents = model_->GetResourceTabContents(index);
-
-  if (!chosen_tab_contents)
-    return;
-
-  chosen_tab_contents->Activate();
+  if (chosen_tab_contents)
+    chosen_tab_contents->Activate();
 }
 
 void TaskManager::AddResourceProvider(ResourceProvider* provider) {
@@ -799,7 +747,6 @@ void TaskManager::RemoveResource(Resource* resource) {
 void TaskManager::OnWindowClosed() {
   model_->StopUpdating();
   model_->Clear();
-  view_ = NULL;
 }
 
 // static

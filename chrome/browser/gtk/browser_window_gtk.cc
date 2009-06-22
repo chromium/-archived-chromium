@@ -604,6 +604,10 @@ void BrowserWindowGtk::ShowAboutChromeDialog() {
   ShowAboutDialogForProfile(window_, browser_->profile());
 }
 
+void BrowserWindowGtk::ShowTaskManager() {
+  NOTIMPLEMENTED();
+}
+
 void BrowserWindowGtk::ShowBookmarkManager() {
   NOTIMPLEMENTED();
 }

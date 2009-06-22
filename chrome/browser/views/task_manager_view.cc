@@ -11,6 +11,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_window.h"
+#include "chrome/browser/views/browser_dialogs.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/chromium_strings.h"
@@ -158,38 +159,26 @@ void TaskManagerTableModel::OnItemsRemoved(int start, int length) {
     observer_->OnItemsRemoved(start, length);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// TaskManagerViewImpl class
-//
-// The view containing the different widgets.
-//
-////////////////////////////////////////////////////////////////////////////////
-
-class TaskManagerViewImpl : public TaskManagerView,
-                            public views::View,
-                            public views::ButtonListener,
-                            public views::DialogDelegate,
-                            public views::TableViewObserver,
-                            public views::LinkController,
-                            public views::ContextMenuController,
-                            public views::Menu::Delegate {
+// The Task manager UI container.
+class TaskManagerView : public views::View,
+                        public views::ButtonListener,
+                        public views::DialogDelegate,
+                        public views::TableViewObserver,
+                        public views::LinkController,
+                        public views::ContextMenuController,
+                        public views::Menu::Delegate {
  public:
-  TaskManagerViewImpl(TaskManager* task_manager,
-                      TaskManagerModel* model);
-  virtual ~TaskManagerViewImpl();
+  TaskManagerView();
+  virtual ~TaskManagerView();
 
-  void Init();
+  // Shows the Task manager window, or re-activates an existing one.
+  static void Show();
+
+  // views::View
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
   virtual void ViewHierarchyChanged(bool is_add, views::View* parent,
                                     views::View* child);
-
-  // TaskManagerView
-  virtual void GetSelection(std::vector<int>* selection);
-  virtual void GetFocused(std::vector<int>* focused);
-  virtual void OpenWindow();
-  virtual void ActivateWindow();
-  virtual void CloseWindow();
 
   // ButtonListener implementation.
   virtual void ButtonPressed(views::Button* sender);
@@ -226,8 +215,14 @@ class TaskManagerViewImpl : public TaskManagerView,
   virtual void ExecuteCommand(int id);
 
  private:
+  // Creates the child controls.
+  void Init();
+
   // Initializes the state of the always-on-top setting as the window is shown.
   void InitAlwaysOnTopState();
+
+  // Activates the tab associated with the focused row.
+  void ActivateFocusedTab();
 
   // Adds an always on top item to the window's system menu.
   void AddAlwaysOnTopSystemMenuItem();
@@ -254,18 +249,25 @@ class TaskManagerViewImpl : public TaskManagerView,
   // We need to own the text of the menu, the Windows API does not copy it.
   std::wstring always_on_top_menu_text_;
 
-  DISALLOW_COPY_AND_ASSIGN(TaskManagerViewImpl);
+  // An open Task manager window. There can only be one open at a time. This
+  // is reset to NULL when the window is closed.
+  static TaskManagerView* instance_;
+
+  DISALLOW_COPY_AND_ASSIGN(TaskManagerView);
 };
 
-TaskManagerViewImpl::TaskManagerViewImpl(TaskManager* task_manager,
-                                         TaskManagerModel* model)
-    : task_manager_(task_manager),
-      model_(model),
+// static
+TaskManagerView* TaskManagerView::instance_ = NULL;
+
+
+TaskManagerView::TaskManagerView()
+    : task_manager_(TaskManager::GetInstance()),
+      model_(TaskManager::GetInstance()->model()),
       is_always_on_top_(false) {
   Init();
 }
 
-TaskManagerViewImpl::~TaskManagerViewImpl() {
+TaskManagerView::~TaskManagerView() {
   // Delete child views now, while our table model still exists.
   RemoveAllChildViews(true);
 
@@ -274,7 +276,7 @@ TaskManagerViewImpl::~TaskManagerViewImpl() {
   tab_table_->SetModel(NULL);
 }
 
-void TaskManagerViewImpl::Init() {
+void TaskManagerView::Init() {
   table_model_.reset(new TaskManagerTableModel(model_));
 
   columns_.push_back(TableColumn(IDS_TASK_MANAGER_PAGE_COLUMN,
@@ -302,7 +304,6 @@ void TaskManagerViewImpl::Init() {
   tab_table_ = new views::GroupTableView(table_model_.get(), columns_,
                                          views::ICON_AND_TEXT, false, true,
                                          true);
-  tab_table_->SetParentOwned(false);
 
   // Hide some columns by default
   tab_table_->SetColumnVisibility(IDS_TASK_MANAGER_PROCESS_ID_COLUMN, false);
@@ -329,7 +330,7 @@ void TaskManagerViewImpl::Init() {
   OnSelectionChanged();
 }
 
-void TaskManagerViewImpl::UpdateStatsCounters() {
+void TaskManagerView::UpdateStatsCounters() {
   StatsTable* stats = StatsTable::current();
   if (stats != NULL) {
     int max = stats->GetMaxCounters();
@@ -351,9 +352,9 @@ void TaskManagerViewImpl::UpdateStatsCounters() {
   }
 }
 
-void TaskManagerViewImpl::ViewHierarchyChanged(bool is_add,
-                                               views::View* parent,
-                                               views::View* child) {
+void TaskManagerView::ViewHierarchyChanged(bool is_add,
+                                           views::View* parent,
+                                           views::View* child) {
   // Since we want the Kill button and the Memory Details link to show up in
   // the same visual row as the close button, which is provided by the
   // framework, we must add the buttons to the non-client view, which is the
@@ -371,7 +372,7 @@ void TaskManagerViewImpl::ViewHierarchyChanged(bool is_add,
   }
 }
 
-void TaskManagerViewImpl::Layout() {
+void TaskManagerView::Layout() {
   // kPanelHorizMargin is too big.
   const int kTableButtonSpacing = 12;
 
@@ -406,65 +407,43 @@ void TaskManagerViewImpl::Layout() {
       link_prefered_height);
 }
 
-gfx::Size TaskManagerViewImpl::GetPreferredSize() {
+gfx::Size TaskManagerView::GetPreferredSize() {
   return gfx::Size(kDefaultWidth, kDefaultHeight);
 }
 
-void TaskManagerViewImpl::GetSelection(std::vector<int>* selection) {
-  DCHECK(selection);
-  for (views::TableSelectionIterator iter  = tab_table_->SelectionBegin();
-       iter != tab_table_->SelectionEnd(); ++iter) {
-    // The TableView returns the selection starting from the end.
-    selection->insert(selection->begin(), *iter);
+// static
+void TaskManagerView::Show() {
+  if (instance_) {
+    // If there's a Task manager window open already, just activate it.
+    instance_->window()->Activate();
+  } else {
+    instance_ = new TaskManagerView;
+    views::Window::CreateChromeWindow(NULL, gfx::Rect(), instance_);
+    instance_->InitAlwaysOnTopState();
+    instance_->model_->StartUpdating();
+    instance_->window()->Show();
   }
-}
-
-void TaskManagerViewImpl::GetFocused(std::vector<int>* focused) {
-  DCHECK(focused);
-  int row_count = tab_table_->RowCount();
-  for (int i = 0; i < row_count; ++i) {
-    // The TableView returns the selection starting from the end.
-    if (tab_table_->ItemHasTheFocus(i))
-      focused->insert(focused->begin(), i);
-  }
-}
-
-void TaskManagerViewImpl::OpenWindow() {
-  DCHECK(!window());
-  views::Window::CreateChromeWindow(NULL, gfx::Rect(), this);
-  InitAlwaysOnTopState();
-  model_->StartUpdating();
-  window()->Show();
-}
-
-void TaskManagerViewImpl::ActivateWindow() {
-  DCHECK(window());
-  window()->Activate();
-}
-
-void TaskManagerViewImpl::CloseWindow() {
-  if (!window())
-    return;
-  // TODO(phajdan.jr): Destroy the window, not just hide it.
-  window()->HideWindow();
 }
 
 // ButtonListener implementation.
-void TaskManagerViewImpl::ButtonPressed(views::Button* sender) {
-  if (sender == kill_button_)
-    task_manager_->KillSelectedProcesses();
+void TaskManagerView::ButtonPressed(views::Button* sender) {
+  DCHECK(sender == kill_button_);
+  for (views::TableSelectionIterator iter  = tab_table_->SelectionBegin();
+       iter != tab_table_->SelectionEnd(); ++iter) {
+    task_manager_->KillProcess(*iter);
+  }
 }
 
 // DialogDelegate implementation.
-bool TaskManagerViewImpl::CanResize() const {
+bool TaskManagerView::CanResize() const {
   return true;
 }
 
-bool TaskManagerViewImpl::CanMaximize() const {
+bool TaskManagerView::CanMaximize() const {
   return true;
 }
 
-bool TaskManagerViewImpl::ExecuteWindowsCommand(int command_id) {
+bool TaskManagerView::ExecuteWindowsCommand(int command_id) {
   if (command_id == IDC_ALWAYS_ON_TOP) {
     is_always_on_top_ = !is_always_on_top_;
 
@@ -496,48 +475,57 @@ bool TaskManagerViewImpl::ExecuteWindowsCommand(int command_id) {
   return false;
 }
 
-std::wstring TaskManagerViewImpl::GetWindowTitle() const {
+std::wstring TaskManagerView::GetWindowTitle() const {
   return l10n_util::GetString(IDS_TASK_MANAGER_TITLE);
 }
 
-std::wstring TaskManagerViewImpl::GetWindowName() const {
+std::wstring TaskManagerView::GetWindowName() const {
   return prefs::kTaskManagerWindowPlacement;
 }
 
-int TaskManagerViewImpl::GetDialogButtons() const {
+int TaskManagerView::GetDialogButtons() const {
   return MessageBoxFlags::DIALOGBUTTON_NONE;
 }
 
-void TaskManagerViewImpl::WindowClosing() {
+void TaskManagerView::WindowClosing() {
+  // Now that the window is closed, we can allow a new one to be opened.
+  instance_ = NULL;
   task_manager_->OnWindowClosed();
 }
 
-void TaskManagerViewImpl::DeleteDelegate() {
+void TaskManagerView::DeleteDelegate() {
   ReleaseWindow();
 }
 
-views::View* TaskManagerViewImpl::GetContentsView() {
+views::View* TaskManagerView::GetContentsView() {
   return this;
 }
 
 // views::TableViewObserver implementation.
-void TaskManagerViewImpl::OnSelectionChanged() {
-  kill_button_->SetEnabled(!task_manager_->BrowserProcessIsSelected() &&
+void TaskManagerView::OnSelectionChanged() {
+  bool selection_contains_browser_process = false;
+  for (views::TableSelectionIterator iter  = tab_table_->SelectionBegin();
+       iter != tab_table_->SelectionEnd(); ++iter) {
+    if (task_manager_->IsBrowserProcess(*iter)) {
+      selection_contains_browser_process = true;
+      break;
+    }
+  }
+  kill_button_->SetEnabled(!selection_contains_browser_process &&
                            tab_table_->SelectedRowCount() > 0);
 }
 
-void TaskManagerViewImpl::OnDoubleClick() {
-  task_manager_->ActivateFocusedTab();
+void TaskManagerView::OnDoubleClick() {
+  ActivateFocusedTab();
 }
 
-void TaskManagerViewImpl::OnKeyDown(unsigned short virtual_keycode) {
+void TaskManagerView::OnKeyDown(unsigned short virtual_keycode) {
   if (virtual_keycode == VK_RETURN)
-    task_manager_->ActivateFocusedTab();
+    ActivateFocusedTab();
 }
 
 // views::LinkController implementation
-void TaskManagerViewImpl::LinkActivated(views::Link* source,
-                                        int event_flags) {
+void TaskManagerView::LinkActivated(views::Link* source, int event_flags) {
   DCHECK(source == about_memory_link_);
   Browser* browser = BrowserList::GetLastActive();
   DCHECK(browser);
@@ -555,10 +543,8 @@ void TaskManagerViewImpl::LinkActivated(views::Link* source,
   browser->window()->Show();
 }
 
-void TaskManagerViewImpl::ShowContextMenu(views::View* source,
-                                          int x,
-                                          int y,
-                                          bool is_mouse_gesture) {
+void TaskManagerView::ShowContextMenu(views::View* source, int x, int y,
+                                      bool is_mouse_gesture) {
   UpdateStatsCounters();
   scoped_ptr<views::Menu> menu(views::Menu::Create(
       this, views::Menu::TOPLEFT, source->GetWidget()->GetNativeView()));
@@ -569,22 +555,32 @@ void TaskManagerViewImpl::ShowContextMenu(views::View* source,
   menu->RunMenuAt(x, y);
 }
 
-bool TaskManagerViewImpl::IsItemChecked(int id) const {
+bool TaskManagerView::IsItemChecked(int id) const {
   return tab_table_->IsColumnVisible(id);
 }
 
-void TaskManagerViewImpl::ExecuteCommand(int id) {
+void TaskManagerView::ExecuteCommand(int id) {
   tab_table_->SetColumnVisibility(id, !tab_table_->IsColumnVisible(id));
 }
 
-void TaskManagerViewImpl::InitAlwaysOnTopState() {
+void TaskManagerView::InitAlwaysOnTopState() {
   is_always_on_top_ = false;
   if (GetSavedAlwaysOnTopState(&is_always_on_top_))
     window()->SetIsAlwaysOnTop(is_always_on_top_);
   AddAlwaysOnTopSystemMenuItem();
 }
 
-void TaskManagerViewImpl::AddAlwaysOnTopSystemMenuItem() {
+void TaskManagerView::ActivateFocusedTab() {
+  int row_count = tab_table_->RowCount();
+  for (int i = 0; i < row_count; ++i) {
+    if (tab_table_->ItemHasTheFocus(i)) {
+      task_manager_->ActivateProcess(i);
+      break;
+    }
+  }
+}
+
+void TaskManagerView::AddAlwaysOnTopSystemMenuItem() {
   // The Win32 API requires that we own the text.
   always_on_top_menu_text_ = l10n_util::GetString(IDS_ALWAYS_ON_TOP);
 
@@ -615,7 +611,7 @@ void TaskManagerViewImpl::AddAlwaysOnTopSystemMenuItem() {
   ::InsertMenuItem(system_menu, index, TRUE, &menu_info);
 }
 
-bool TaskManagerViewImpl::GetSavedAlwaysOnTopState(bool* always_on_top) const {
+bool TaskManagerView::GetSavedAlwaysOnTopState(bool* always_on_top) const {
   if (!g_browser_process->local_state())
     return false;
 
@@ -627,7 +623,12 @@ bool TaskManagerViewImpl::GetSavedAlwaysOnTopState(bool* always_on_top) const {
 
 }  // namespace
 
-void TaskManager::CreateView() {
-  DCHECK(!view_);
-  view_ = new TaskManagerViewImpl(this, model_.get());
+namespace browser {
+
+// Declared in browser_dialogs.h so others don't need to depend on our header.
+void ShowTaskManager() {
+  TaskManagerView::Show();
 }
+
+}  // namespace browser
+

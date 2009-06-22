@@ -135,6 +135,9 @@ class BrowserWindow {
   // Shows the About Chrome dialog box.
   virtual void ShowAboutChromeDialog() = 0;
 
+  // Shows the Task manager.
+  virtual void ShowTaskManager() = 0;
+
   // Shows the Bookmark Manager window.
   virtual void ShowBookmarkManager() = 0;
 

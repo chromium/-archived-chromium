@@ -1103,12 +1103,7 @@ void Browser::OpenJavaScriptConsole() {
 
 void Browser::OpenTaskManager() {
   UserMetrics::RecordAction(L"TaskManager", profile_);
-// TODO(port)
-#if defined(OS_WIN)
-  TaskManager::Open();
-#else
-  NOTIMPLEMENTED();
-#endif
+  window_->ShowTaskManager();
 }
 
 void Browser::OpenSelectProfileDialog() {

@@ -4,18 +4,14 @@
 
 #include "chrome/browser/task_manager.h"
 
+#include "chrome/browser/browser.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/test/in_process_browser_test.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 class TaskManagerBrowserTest : public InProcessBrowserTest {
 };
 
-// Regression test for http://crbug.com/11180
-IN_PROC_BROWSER_TEST_F(TaskManagerBrowserTest, OpenClose) {
-  TaskManager::Open();
-  TaskManager::Close();
-}
-
 IN_PROC_BROWSER_TEST_F(TaskManagerBrowserTest, ShutdownWhileOpen) {
-  TaskManager::Open();
+  browser()->window()->ShowTaskManager();
 }

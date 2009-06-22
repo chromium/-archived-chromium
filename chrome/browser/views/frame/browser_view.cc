@@ -817,6 +817,10 @@ void BrowserView::ShowAboutChromeDialog() {
   browser::ShowAboutChromeView(GetWidget(), browser_->profile());
 }
 
+void BrowserView::ShowTaskManager() {
+  browser::ShowTaskManager();
+}
+
 void BrowserView::ShowBookmarkManager() {
   browser::ShowBookmarkManagerView(browser_->profile());
 }

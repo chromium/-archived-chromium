@@ -24,7 +24,6 @@
 class MessageLoop;
 class SkBitmap;
 class TaskManager;
-class TaskManagerView;
 class TaskManagerModel;
 
 struct BytesReadParam;
@@ -89,24 +88,15 @@ class TaskManager {
 
   static void RegisterPrefs(PrefService* prefs);
 
-  // Call this method to show the Task Manager.
-  // Only one instance of Task Manager is created, so if the Task Manager has
-  // already be opened, it is reopened. If it is currently opened, then it is
-  // moved to the front.
-  static void Open();
+  // Returns true if the process at the specified index is the browser process.
+  bool IsBrowserProcess(int index) const;
 
-  // Close the task manager if it's currently opened.
-  static void Close();
+  // Terminates the process at the specified index.
+  void KillProcess(int index);
 
-  // Returns true if the current selection includes the browser process.
-  bool BrowserProcessIsSelected();
-
-  // Terminates the selected tab(s) in the list.
-  void KillSelectedProcesses();
-
-  // Activates the browser tab associated with the focused row in the task
-  // manager table.  This happens when the user double clicks or hits return.
-  void ActivateFocusedTab();
+  // Activates the browser tab associated with the process in the specified
+  // index.
+  void ActivateProcess(int index);
 
   void AddResourceProvider(ResourceProvider* provider);
   void RemoveResourceProvider(ResourceProvider* provider);
@@ -120,6 +110,11 @@ class TaskManager {
 
   void OnWindowClosed();
 
+  // Returns the singleton instance (and initializes it if necessary).
+  static TaskManager* GetInstance();
+
+  TaskManagerModel* model() const { return model_.get(); }
+
  private:
   FRIEND_TEST(TaskManagerTest, Basic);
   FRIEND_TEST(TaskManagerTest, Resources);
@@ -130,17 +125,9 @@ class TaskManager {
 
   ~TaskManager();
 
-  void CreateView();
-
-  // Returns the singleton instance (and initializes it if necessary).
-  static TaskManager* GetInstance();
-
   // The model used for gathering and processing task data. It is ref counted
   // because it is passed as a parameter to MessageLoop::InvokeLater().
   scoped_refptr<TaskManagerModel> model_;
-
-  // A container containing the buttons and table.
-  TaskManagerView* view_;
 
   DISALLOW_COPY_AND_ASSIGN(TaskManager);
 };
@@ -346,18 +333,6 @@ class TaskManagerModel : public URLRequestJobTracker::JobObserver,
   static int goats_teleported_;
 
   DISALLOW_COPY_AND_ASSIGN(TaskManagerModel);
-};
-
-class TaskManagerView {
- public:
-  virtual ~TaskManagerView() {}
-
-  virtual void GetSelection(std::vector<int>* selection) = 0;
-  virtual void GetFocused(std::vector<int>* focused) = 0;
-
-  virtual void OpenWindow() = 0;
-  virtual void ActivateWindow() = 0;
-  virtual void CloseWindow() = 0;
 };
 
 #endif  // CHROME_BROWSER_TASK_MANAGER_H_

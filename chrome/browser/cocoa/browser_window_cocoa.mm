@@ -179,6 +179,10 @@ void BrowserWindowCocoa::ShowAboutChromeDialog() {
   NOTIMPLEMENTED();
 }
 
+void BrowserWindowCocoa::ShowTaskManager() {
+  NOTIMPLEMENTED();
+}
+
 void BrowserWindowCocoa::ShowBookmarkManager() {
   NOTIMPLEMENTED();
 }

@@ -82,6 +82,9 @@ void ShowKeywordEditorView(Profile* profile);
 // Shows the "new profile" dialog box. See NewProfileDialog.
 void ShowNewProfileDialog();
 
+// Shows the Task Manager.
+void ShowTaskManager();
+
 }  // namespace browser
 
 #endif  // CHROME_BROWSER_VIEWS_BROWSER_DIALOGS_H_
