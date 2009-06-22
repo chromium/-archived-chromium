@@ -609,7 +609,6 @@ willPositionSheet:(NSWindow *)sheet
   infobar_container_->ChangeTabContents(new_contents);
   contents_container_->SetTabContents(new_contents);
 #endif
-  newContents->DidBecomeSelected();
 
   // Update all the UI bits.
   windowShim_->UpdateTitleBar();

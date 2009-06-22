@@ -223,11 +223,11 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
       //tabFrame.size.height += 10.0 * placeholderStretchiness_;
       [[[tab view] animator] setFrame:tabFrame];
       [NSAnimationContext endGrouping];
-      
+
       // Store the frame by identifier to aviod redundant calls to animator.
       NSValue *identifier = [NSValue valueWithPointer:[tab view]];
       [targetFrames_ setObject:[NSValue valueWithRect:tabFrame]
-                        forKey:identifier];  
+                        forKey:identifier];
       continue;
     } else {
       // If our left edge is to the left of the placeholder's left, but our mid
@@ -246,7 +246,7 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
 
       id frameTarget = visible ? [[tab view] animator] : [tab view];
       tabFrame.size.width = [tab selected] ? kMaxTabWidth : baseTabWidth;
-      
+
       // Check the frame by identifier to avoid redundant calls to animator.
       NSValue *identifier = [NSValue valueWithPointer:[tab view]];
       NSValue *oldTargetValue = [targetFrames_ objectForKey:identifier];
@@ -254,7 +254,7 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
           !NSEqualRects([oldTargetValue rectValue], tabFrame)) {
         [frameTarget setFrame:tabFrame];
         [targetFrames_ setObject:[NSValue valueWithRect:tabFrame]
-                          forKey:identifier];        
+                          forKey:identifier];
       }
       enclosingRect = NSUnionRect(tabFrame, enclosingRect);
     }
@@ -265,16 +265,16 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
     }
     i++;
   }
-  
+
   NSRect newTabNewFrame = [newTabButton_ frame];
   newTabNewFrame.origin =
       NSMakePoint(MIN(availableWidth, offset + kNewTabButtonOffset), 0);
   newTabNewFrame.origin.x = MAX(newTabNewFrame.origin.x,
                                 NSMaxX(placeholderFrame_));
-  if (i > 0 && [newTabButton_ isHidden]) {  
+  if (i > 0 && [newTabButton_ isHidden]) {
     [[newTabButton_ animator] setHidden:NO];
   }
-  
+
   if (!NSEqualRects(newTabTargetFrame_, newTabNewFrame)) {
     [newTabButton_ setFrame:newTabNewFrame];
     newTabTargetFrame_ = newTabNewFrame;
@@ -341,7 +341,7 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
   if (!inForeground) {
     [self layoutTabs];
   }
-  
+
   // Send a broadcast that the number of tabs have changed.
   [[NSNotificationCenter defaultCenter]
       postNotificationName:kTabStripNumberOfTabsChanged
@@ -375,14 +375,18 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
   // size than surrounding tabs if the user has many.
   [self layoutTabs];
 
-  if (oldContents)
+  if (oldContents) {
     oldContents->view()->StoreFocus();
+    oldContents->WasHidden();
+  }
 
   // Swap in the contents for the new tab
   [self swapInTabAtIndex:index];
 
-  if (newContents)
+  if (newContents) {
+    newContents->DidBecomeSelected();
     newContents->view()->RestoreFocus();
+  }
 }
 
 // Called when a notification is received from the model that the given tab
@@ -493,7 +497,7 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
   NSView *view = [self selectedTabView];
   NSValue *identifier = [NSValue valueWithPointer:view];
   [targetFrames_ setObject:[NSValue valueWithRect:frame]
-                    forKey:identifier];  
+                    forKey:identifier];
   [view setFrame:frame];
 }
 
