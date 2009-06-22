@@ -5,6 +5,7 @@
 #include "chrome/browser/gtk/browser_window_gtk.h"
 
 #include <gdk/gdkkeysyms.h>
+#include <X11/XF86keysym.h>
 
 #include "app/resource_bundle.h"
 #include "app/theme_provider.h"
@@ -127,9 +128,12 @@ const struct AcceleratorMapping {
 } kAcceleratorMap[] = {
   // Focus.
   { GDK_k, IDC_FOCUS_SEARCH, GDK_CONTROL_MASK },
+  { XF86XK_Search, IDC_FOCUS_SEARCH, GdkModifierType(0) },
   { GDK_l, IDC_FOCUS_LOCATION, GDK_CONTROL_MASK },
   { GDK_d, IDC_FOCUS_LOCATION, GDK_MOD1_MASK },
   { GDK_F6, IDC_FOCUS_LOCATION, GdkModifierType(0) },
+  { XF86XK_OpenURL, IDC_FOCUS_LOCATION, GdkModifierType(0) },
+  { XF86XK_Go, IDC_FOCUS_LOCATION, GdkModifierType(0) },
 
   // Tab/window controls.
   { GDK_Page_Down, IDC_SELECT_NEXT_TAB, GDK_CONTROL_MASK },
@@ -153,10 +157,12 @@ const struct AcceleratorMapping {
   { GDK_plus, IDC_ZOOM_PLUS,
     GdkModifierType(GDK_CONTROL_MASK | GDK_SHIFT_MASK) },
   { GDK_equal, IDC_ZOOM_PLUS, GDK_CONTROL_MASK },
+  { XF86XK_ZoomIn, IDC_ZOOM_PLUS, GdkModifierType(0) },
   { GDK_0, IDC_ZOOM_NORMAL, GDK_CONTROL_MASK },
   { GDK_minus, IDC_ZOOM_MINUS, GDK_CONTROL_MASK },
   { GDK_underscore, IDC_ZOOM_MINUS,
     GdkModifierType(GDK_CONTROL_MASK | GDK_SHIFT_MASK) },
+  { XF86XK_ZoomOut, IDC_ZOOM_MINUS, GdkModifierType(0) },
 
   // Find in page.
   { GDK_g, IDC_FIND_NEXT, GDK_CONTROL_MASK },
@@ -167,10 +173,15 @@ const struct AcceleratorMapping {
 
   // Navigation.
   { GDK_Home, IDC_HOME, GDK_MOD1_MASK },
+  { XF86XK_HomePage, IDC_HOME, GdkModifierType(0) },
   { GDK_Escape, IDC_STOP, GdkModifierType(0) },
+  { XF86XK_Stop, IDC_STOP, GdkModifierType(0) },
 
   // Miscellany.
   { GDK_d, IDC_STAR, GDK_CONTROL_MASK },
+  { XF86XK_AddFavorite, IDC_STAR, GdkModifierType(0) },
+  { XF86XK_Favorites, IDC_SHOW_BOOKMARK_BAR, GdkModifierType(0) },
+  { XF86XK_History, IDC_SHOW_HISTORY, GdkModifierType(0) },
   { GDK_o, IDC_OPEN_FILE, GDK_CONTROL_MASK },
   { GDK_F11, IDC_FULLSCREEN, GdkModifierType(0) },
   { GDK_u, IDC_VIEW_SOURCE, GDK_CONTROL_MASK },
