@@ -804,7 +804,7 @@ extern "C" {
     return NPERR_NO_ERROR;
   }
 
-  bool PluginObject::GetDisplayMode(int id, o3d::DisplayMode *mode) {
+  bool PluginObject::GetDisplayMode(int mode_id, o3d::DisplayMode *mode) {
     return renderer()->GetDisplayMode(mode_id, mode);
   }
 
