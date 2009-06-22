@@ -88,7 +88,7 @@ TEST_F(ExtensionAPIClientTest, CallbackDispatching) {
   ViewHostMsg_ExtensionRequest::Param params;
   ViewHostMsg_ExtensionRequest::Read(request_msg, &params);
   int callback_id = params.c;
-  ASSERT_TRUE(callback_id >= 0);
+  ASSERT_GE(callback_id, 0);
 
   // Now send the callback a response
   ExtensionProcessBindings::HandleResponse(
@@ -484,5 +484,10 @@ TEST_F(ExtensionAPIClientTest, EnablePageAction) {
   ExpectJsPass("chrome.pageActions.enableForTab("
                "\"dummy\", {tabId: 0, url: \"http://foo/\"});",
                "EnablePageAction",
+               "[\"dummy\",{\"tabId\":0,\"url\":\"http://foo/\"}]");
+
+  ExpectJsPass("chrome.pageActions.disableForTab("
+               "\"dummy\", {tabId: 0, url: \"http://foo/\"});",
+               "DisablePageAction",
                "[\"dummy\",{\"tabId\":0,\"url\":\"http://foo/\"}]");
 }

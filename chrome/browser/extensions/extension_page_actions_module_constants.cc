@@ -15,5 +15,6 @@ const char kNoPageActionError[] = "No PageAction with id: *.";
 const char kUrlNotActiveError[] = "This url is no longer active: *.";
 
 const char kEnablePageActionFunction[] = "EnablePageAction";
+const char kDisablePageActionFunction[] = "DisablePageAction";
 
 }  // namespace extension_page_actions_module_constants

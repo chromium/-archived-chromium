@@ -17,7 +17,7 @@
 
 namespace keys = extension_page_actions_module_constants;
 
-bool EnablePageActionFunction::RunImpl() {
+bool PageActionFunction::SetPageActionEnabled(bool enable) {
   EXTENSION_FUNCTION_VALIDATE(args_->IsType(Value::TYPE_LIST));
   const ListValue* args = static_cast<const ListValue*>(args_);
 
@@ -64,9 +64,17 @@ bool EnablePageActionFunction::RunImpl() {
     return false;
   }
 
-  // Set visible and broadcast notifications that the UI should be updated.
-  contents->EnablePageAction(page_action);
+  // Set visibility and broadcast notifications that the UI should be updated.
+  contents->SetPageActionEnabled(page_action, enable);
   contents->NotifyNavigationStateChanged(TabContents::INVALIDATE_PAGE_ACTIONS);
 
   return true;
+}
+
+bool EnablePageActionFunction::RunImpl() {
+  return SetPageActionEnabled(true);
+}
+
+bool DisablePageActionFunction::RunImpl() {
+  return SetPageActionEnabled(false);
 }

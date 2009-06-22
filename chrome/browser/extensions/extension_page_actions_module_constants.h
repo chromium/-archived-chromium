@@ -21,6 +21,7 @@ extern const char kUrlNotActiveError[];
 
 // Function names.
 extern const char kEnablePageActionFunction[];
+extern const char kDisablePageActionFunction[];
 
 };  // namespace extension_page_actions_module_constants
 

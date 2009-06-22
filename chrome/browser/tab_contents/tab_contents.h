@@ -247,8 +247,9 @@ class TabContents : public PageNavigator,
   bool is_crashed() const { return is_crashed_; }
   void SetIsCrashed(bool state);
 
-  // Adds a page action to the list of page actions that are active in this tab.
-  void EnablePageAction(const PageAction* page_action);
+  // Adds/removes a page action to the list of page actions that are active in
+  // this tab.
+  void SetPageActionEnabled(const PageAction* page_action, bool enable);
   // Checks to see if the PageAction should be visible in this tab.
   bool IsPageActionEnabled(const PageAction* page_action);
 

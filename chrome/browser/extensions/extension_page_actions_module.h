@@ -7,7 +7,16 @@
 
 #include "chrome/browser/extensions/extension_function.h"
 
-class EnablePageActionFunction : public SyncExtensionFunction {
+class PageActionFunction : public SyncExtensionFunction {
+ protected:
+  bool SetPageActionEnabled(bool enable);
+};
+
+class EnablePageActionFunction : public PageActionFunction {
+  virtual bool RunImpl();
+};
+
+class DisablePageActionFunction : public PageActionFunction {
   virtual bool RunImpl();
 };
 

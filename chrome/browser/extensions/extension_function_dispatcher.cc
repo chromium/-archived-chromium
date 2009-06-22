@@ -102,6 +102,8 @@ void FactoryRegistry::ResetFunctions() {
   // Page Actions.
   factories_[page_actions::kEnablePageActionFunction] =
       &NewExtensionFunction<EnablePageActionFunction>;
+  factories_[page_actions::kDisablePageActionFunction] =
+      &NewExtensionFunction<DisablePageActionFunction>;
 
   // Bookmarks.
   factories_[bookmarks::kGetBookmarksFunction] =

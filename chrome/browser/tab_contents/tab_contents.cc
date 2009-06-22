@@ -556,13 +556,17 @@ void TabContents::SetIsCrashed(bool state) {
   NotifyNavigationStateChanged(INVALIDATE_TAB);
 }
 
-void TabContents::EnablePageAction(const PageAction* page_action) {
+void TabContents::SetPageActionEnabled(const PageAction* page_action,
+                                       bool enable) {
   DCHECK(page_action);
 
-  if (IsPageActionEnabled(page_action))
-    return;  // Already enabled.
+  if (enable == IsPageActionEnabled(page_action))
+    return;  // Don't need to do anything more.
 
-  enabled_page_actions_.insert(page_action);
+  if (enable)
+    enabled_page_actions_.insert(page_action);
+  else
+    enabled_page_actions_.erase(page_action);
 }
 
 bool TabContents::IsPageActionEnabled(const PageAction* page_action) {
