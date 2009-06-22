@@ -76,6 +76,9 @@ class BookmarkManagerGtk : public BookmarkModelObserver,
   void InitWidgets();
   GtkWidget* MakeLeftPane();
   GtkWidget* MakeRightPane();
+  // If |left|, then make the organize menu refer to that which is selected in
+  // the left pane, otherwise use the right pane selection.
+  void ResetOrganizeMenu(bool left);
 
   // Pack the data from the bookmark model into the stores. This does not
   // create the stores, which is done in Make{Left,Right}Pane().
@@ -176,6 +179,12 @@ class BookmarkManagerGtk : public BookmarkModelObserver,
       GtkTreePath* path, GtkTreeViewColumn* column,
       BookmarkManagerGtk* bookmark_manager);
 
+  static void OnRightTreeViewFocusIn(GtkTreeView* tree_view,
+      GdkEventFocus* event, BookmarkManagerGtk* bookmark_manager);
+
+  static void OnLeftTreeViewFocusIn(GtkTreeView* tree_view,
+      GdkEventFocus* event, BookmarkManagerGtk* bookmark_manager);
+
   // Tools menu item callbacks.
   static void OnImportItemActivated(GtkMenuItem* menuitem,
                                     BookmarkManagerGtk* bookmark_manager);
@@ -202,7 +211,12 @@ class BookmarkManagerGtk : public BookmarkModelObserver,
   GtkTreeViewColumn* path_column_;
   scoped_ptr<BookmarkTableModel> right_tree_model_;
 
+  // The Organize menu item.
+  GtkWidget* organize_;
+  // The submenu the item pops up.
   scoped_ptr<BookmarkContextMenu> organize_menu_;
+  // Whether the menu refers to the left selection.
+  bool organize_is_for_left_;
 
   // Factory used for delaying search.
   ScopedRunnableMethodFactory<BookmarkManagerGtk> search_factory_;

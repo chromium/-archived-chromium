@@ -78,12 +78,6 @@ class BookmarkContextMenu : public BookmarkModelObserver,
   GtkWidget* menu() const { return menu_->widget(); }
 #endif
 
-  void set_parent(BookmarkNode* parent) { parent_ = parent; }
-
-  void set_selection(const std::vector<BookmarkNode*>& selection) {
-      selection_ = selection;
-  }
-
   // Menu::Delegate / MenuGtk::Delegate methods.
   virtual void ExecuteCommand(int id);
   virtual bool IsItemChecked(int id) const;

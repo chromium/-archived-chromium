@@ -263,6 +263,7 @@ void BookmarkManagerGtk::OnItemsRemoved(int start, int length) {
 BookmarkManagerGtk::BookmarkManagerGtk(Profile* profile)
     : profile_(profile),
       model_(profile->GetBookmarkModel()),
+      organize_is_for_left_(true),
       search_factory_(this),
       select_file_dialog_(SelectFileDialog::Create(this)) {
   InitWidgets();
@@ -289,14 +290,9 @@ void BookmarkManagerGtk::InitWidgets() {
   // IDS_BOOKMARK_MANAGER_DIALOG_HEIGHT_LINES.
   gtk_window_set_default_size(GTK_WINDOW(window_), 640, 480);
 
-  std::vector<BookmarkNode*> nodes;
-  organize_menu_.reset(new BookmarkContextMenu(window_, profile_, NULL, NULL,
-      NULL, nodes, BookmarkContextMenu::BOOKMARK_MANAGER_ORGANIZE_MENU));
-
   // Build the organize and tools menus.
-  GtkWidget* organize = gtk_menu_item_new_with_label(
+  organize_ = gtk_menu_item_new_with_label(
       l10n_util::GetStringUTF8(IDS_BOOKMARK_MANAGER_ORGANIZE_MENU).c_str());
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(organize), organize_menu_->menu());
 
   GtkWidget* import_item = gtk_menu_item_new_with_mnemonic(
       gtk_util::ConvertAcceleratorsFromWindowsStyle(
@@ -319,7 +315,7 @@ void BookmarkManagerGtk::InitWidgets() {
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(tools), tools_menu);
 
   GtkWidget* menu_bar = gtk_menu_bar_new();
-  gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), organize);
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), organize_);
   gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), tools);
   SetMenuBarStyle();
   gtk_widget_set_name(menu_bar, "chrome-bm-menubar");
@@ -351,6 +347,8 @@ void BookmarkManagerGtk::InitWidgets() {
   gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(vbox), paned, TRUE, TRUE, 0);
   gtk_container_add(GTK_CONTAINER(window_), vbox);
+
+  ResetOrganizeMenu(true);
 }
 
 GtkWidget* BookmarkManagerGtk::MakeLeftPane() {
@@ -373,6 +371,8 @@ GtkWidget* BookmarkManagerGtk::MakeLeftPane() {
   // it.
   g_signal_connect(left_tree_view_, "row-collapsed",
                    G_CALLBACK(OnLeftTreeViewRowCollapsed), this);
+  g_signal_connect(left_tree_view_, "focus-in-event",
+                   G_CALLBACK(OnLeftTreeViewFocusIn), this);
 
   // The left side is only a drag destination (not a source).
   gtk_drag_dest_set(left_tree_view_, GTK_DEST_DEFAULT_DROP,
@@ -427,6 +427,8 @@ GtkWidget* BookmarkManagerGtk::MakeRightPane() {
                    G_CALLBACK(OnRightTreeViewRowActivated), this);
   g_signal_connect(right_selection(), "changed",
                    G_CALLBACK(OnRightSelectionChanged), this);
+  g_signal_connect(right_tree_view_, "focus-in-event",
+                   G_CALLBACK(OnRightTreeViewFocusIn), this);
 
   // We don't advertise GDK_ACTION_COPY, but since we don't explicitly do
   // any deleting following a succesful move, this should work.
@@ -456,6 +458,20 @@ GtkWidget* BookmarkManagerGtk::MakeRightPane() {
   gtk_container_add(GTK_CONTAINER(scrolled), right_tree_view_);
 
   return scrolled;
+}
+
+void BookmarkManagerGtk::ResetOrganizeMenu(bool left) {
+  organize_is_for_left_ = left;
+  BookmarkNode* parent = GetFolder();
+  std::vector<BookmarkNode*> nodes;
+  if (!left)
+    nodes = GetRightSelection();
+  else if (parent)
+    nodes.push_back(parent);
+
+  organize_menu_.reset(new BookmarkContextMenu(window_, profile_, NULL, NULL,
+      parent, nodes, BookmarkContextMenu::BOOKMARK_MANAGER_ORGANIZE_MENU));
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(organize_), organize_menu_->menu());
 }
 
 void BookmarkManagerGtk::BuildLeftStore() {
@@ -685,27 +701,20 @@ void BookmarkManagerGtk::OnLeftSelectionChanged(GtkTreeSelection* selection,
   // (specifically, when the user collapses an ancestor of the selected row).
   // The context menu and right store will momentarily be stale, but we should
   // presently receive another selection changed event that will refresh them.
-  if (gtk_tree_selection_count_selected_rows(bm->left_selection()) == 0)
+  if (gtk_tree_selection_count_selected_rows(selection) == 0)
     return;
 
-  BookmarkNode* parent = bm->GetFolder();
-
-  // Update the context menu.
-  bm->organize_menu_->set_parent(parent);
-  std::vector<BookmarkNode*> nodes;
-  if (parent)
-    nodes.push_back(parent);
-  bm->organize_menu_->set_selection(nodes);
-
+  bm->ResetOrganizeMenu(true);
   bm->BuildRightStore();
 }
 
 // static
 void BookmarkManagerGtk::OnRightSelectionChanged(GtkTreeSelection* selection,
     BookmarkManagerGtk* bookmark_manager) {
-  // Update the context menu.
-  bookmark_manager->organize_menu_->set_selection(
-      bookmark_manager->GetRightSelection());
+  if (gtk_tree_selection_count_selected_rows(selection) == 0)
+    return;
+
+  bookmark_manager->ResetOrganizeMenu(false);
 }
 
 // statuc
@@ -918,6 +927,20 @@ void BookmarkManagerGtk::OnRightTreeViewRowActivated(GtkTreeView* tree_view,
     return;
   }
   bookmark_utils::OpenAll(bm->window_, bm->profile_, NULL, nodes, CURRENT_TAB);
+}
+
+// static
+void BookmarkManagerGtk::OnLeftTreeViewFocusIn(GtkTreeView* tree_view,
+    GdkEventFocus* event, BookmarkManagerGtk* bm) {
+  if (!bm->organize_is_for_left_)
+    bm->ResetOrganizeMenu(true);
+}
+
+// static
+void BookmarkManagerGtk::OnRightTreeViewFocusIn(GtkTreeView* tree_view,
+    GdkEventFocus* event, BookmarkManagerGtk* bm) {
+  if (bm->organize_is_for_left_)
+    bm->ResetOrganizeMenu(false);
 }
 
 // static
