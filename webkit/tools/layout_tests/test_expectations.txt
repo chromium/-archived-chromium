@@ -2767,3 +2767,6 @@ BUG14771 WIN LINUX : LayoutTests/svg/filters/feTile.svg = FAIL
 BUG14752 LINUX DEBUG: LayoutTests/http/tests/cache/subresource-expiration.html = CRASH PASS
 BUG14751 LINUX DEBUG: LayoutTests/css2.1/atrule_longest_match.html = CRASH PASS
 BUG14767 LINUX : LayoutTests/dom/html/level1/core/documentgetdoctypenodtd.html = CRASH PASS
+
+BUG14832 : LayoutTests/editing/selection/user-drag-element-and-user-select-none.html = FAIL
+BUG14831 : LayoutTests/fast/events/event-trace.html = FAIL

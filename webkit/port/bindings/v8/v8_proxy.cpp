@@ -361,11 +361,18 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
     // ports are actually entangled in MessagePort::entangle, but to avoid
     // forking MessagePort.* this is postponed to GC time. Having this postponed
     // has the drawback that the wrappers are "entangled/unentangled" for each
-    // GC even though their entnaglement most likely is still the same.
+    // GC even though their entanglement most likely is still the same.
     if (type == V8ClassIndex::MESSAGEPORT) {
       // Get the port and its entangled port.
       MessagePort* port1 = static_cast<MessagePort*>(obj);
-      MessagePortProxy* port2 = port1->entangledPort();
+      MessagePort* port2 = port1->locallyEntangledPort();
+
+      // If we are remotely entangled, then mark this object as reachable
+      // (we can't determine reachability directly as the remote object is
+      // out-of-proc).
+      if (port1->isEntangled() && !port2)
+          wrapper.ClearWeak();
+
       if (port2 != NULL) {
         // As ports are always entangled in pairs only perform the entanglement
         // once for each pair (see ASSERT in MessagePort::unentangle()).
