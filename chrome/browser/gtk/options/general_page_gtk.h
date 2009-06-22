@@ -123,6 +123,10 @@ class GeneralPageGtk : public OptionsPageBase,
   static void OnDefaultSearchEngineChanged(GtkComboBox* combo_box,
                                            GeneralPageGtk* general_page);
 
+  // Callback for manage search engines button
+  static void OnDefaultSearchManageEnginesClicked(GtkButton* button,
+                                                  GeneralPageGtk* general_page);
+
   // Callback for use as default browser button
   static void OnBrowserUseAsDefaultClicked(GtkButton* button,
                                            GeneralPageGtk* general_page);

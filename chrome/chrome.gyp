@@ -999,6 +999,8 @@
         'browser/gtk/infobar_container_gtk.h',
         'browser/gtk/infobar_gtk.cc',
         'browser/gtk/infobar_gtk.h',
+        'browser/gtk/keyword_editor_view.cc',
+        'browser/gtk/keyword_editor_view.h',
         'browser/gtk/find_bar_gtk.cc',
         'browser/gtk/find_bar_gtk.h',
         'browser/gtk/focus_store_gtk.cc',

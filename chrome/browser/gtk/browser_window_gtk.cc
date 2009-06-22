@@ -33,6 +33,7 @@
 #include "chrome/browser/gtk/go_button_gtk.h"
 #include "chrome/browser/gtk/import_dialog_gtk.h"
 #include "chrome/browser/gtk/infobar_container_gtk.h"
+#include "chrome/browser/gtk/keyword_editor_view.h"
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/status_bubble_gtk.h"
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
@@ -579,7 +580,7 @@ void BrowserWindowGtk::ShowImportDialog() {
 }
 
 void BrowserWindowGtk::ShowSearchEnginesDialog() {
-  NOTIMPLEMENTED();
+  KeywordEditorView::Show(browser_->profile());
 }
 
 void BrowserWindowGtk::ShowPasswordManager() {

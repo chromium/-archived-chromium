@@ -10,6 +10,7 @@
 #include "base/gfx/png_decoder.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/gtk/keyword_editor_view.h"
 #include "chrome/browser/gtk/options/options_layout_gtk.h"
 #include "chrome/browser/gtk/options/url_picker_dialog_gtk.h"
 #include "chrome/browser/net/url_fixer_upper.h"
@@ -325,10 +326,11 @@ GtkWidget* GeneralPageGtk::InitDefaultSearchGroup() {
   }
   OnTemplateURLModelChanged();
 
-  // TODO(mattm): hook this up
   default_search_manage_engines_button_ = gtk_button_new_with_label(
       l10n_util::GetStringUTF8(
           IDS_OPTIONS_DEFAULTSEARCH_MANAGE_ENGINES_LINK).c_str());
+  g_signal_connect(G_OBJECT(default_search_manage_engines_button_), "clicked",
+                   G_CALLBACK(OnDefaultSearchManageEnginesClicked), this);
   gtk_box_pack_end(GTK_BOX(hbox), default_search_manage_engines_button_,
                    FALSE, FALSE, 0);
 
@@ -465,6 +467,12 @@ void GeneralPageGtk::OnDefaultSearchEngineChanged(
   if (general_page->default_search_initializing_)
     return;
   general_page->SetDefaultSearchEngineFromComboBox();
+}
+
+// static
+void GeneralPageGtk::OnDefaultSearchManageEnginesClicked(
+    GtkButton* button, GeneralPageGtk* general_page) {
+  KeywordEditorView::Show(general_page->profile());
 }
 
 // static
