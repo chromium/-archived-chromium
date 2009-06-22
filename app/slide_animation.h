@@ -74,7 +74,7 @@ class SlideAnimation : public Animation {
 
   double GetCurrentValue() const { return value_current_; }
   bool IsShowing() const { return showing_; }
-  bool IsClosing() const { return value_end_ < value_current_; }
+  bool IsClosing() const { return !showing_ && value_end_ < value_current_; }
 
  private:
   // Overridden from Animation.
