@@ -85,17 +85,21 @@ static void PrependTypeHeaderAndLength(uint8 type, uint32 length,
 
 // Helper to prepend an ASN.1 integer.
 static void PrependInteger(uint8* val, int num_bytes, std::list<uint8>* data) {
-  // If the MSB is set, we are supposed to add an extra null byte at the front.
-  bool needs_null_byte = (val[num_bytes - 1] & 0x80) != 0;
-  int length = needs_null_byte ? num_bytes + 1 : num_bytes;
+  // Skip trailing null bytes off the MSB end, which is the tail since the input
+  // is little endian.
+  while (num_bytes > 1 && val[num_bytes - 1] == 0x00)
+    num_bytes--;
 
   PrependBytesInReverseOrder(val, num_bytes, data);
 
-  // Add a null byte to force the integer to be positive if necessary.
-  if (needs_null_byte)
+  // If the MSB is set, we need to add an extra null byte, otherwise the integer
+  // could be interpreted as negative.
+  if ((val[num_bytes - 1] & 0x80) != 0) {
     data->push_front(0x00);
+    num_bytes++;
+  }
 
-  PrependTypeHeaderAndLength(kIntegerTag, length, data);
+  PrependTypeHeaderAndLength(kIntegerTag, num_bytes, data);
 }
 
 // Helper for error handling during key import.
@@ -193,6 +197,26 @@ static bool ReadInteger(uint8** pos, uint8* end, std::vector<uint8>* out) {
   return true;
 }
 
+static bool ReadIntegerWithExpectedSize(uint8** pos, uint8* end,
+                                        int expected_size,
+                                        std::vector<uint8>* out) {
+  if (!ReadInteger(pos, end, out))
+    return false;
+
+  if (out->size() == expected_size + 1) {
+    READ_ASSERT(out->back() == 0x00);
+    out->pop_back();
+  } else {
+    READ_ASSERT(out->size() <= expected_size);
+  }
+
+  // Pad out any missing bytes with null.
+  for (size_t i = out->size(); i < expected_size; ++i)
+    out->push_back(0x00);
+
+  return true;
+}
+
 }  // namespace
 
 
@@ -210,12 +234,6 @@ RSAPrivateKey* RSAPrivateKey::Create(uint16 num_bits) {
   flags |= (num_bits << 16);
   if (!CryptGenKey(result->provider_, CALG_RSA_SIGN, flags, &result->key_))
     return NULL;
-
-  std::vector<uint8> out;
-  result->ExportPrivateKey(&out);
-  std::cout << "Generated random key: "
-            << HexEncode(&out.front(), out.size())
-            << "\n";
 
   return result.release();
 }
@@ -245,14 +263,20 @@ RSAPrivateKey* RSAPrivateKey::CreateFromPrivateKeyInfo(
       !ReadTypeHeaderAndLength(&src, end, kOctetStringTag, NULL) ||
       !ReadSequence(&src, end) ||
       !ReadVersion(&src, end) ||
-      !ReadInteger(&src, end, &modulus) ||
-      !ReadInteger(&src, end, &public_exponent) ||
-      !ReadInteger(&src, end, &private_exponent) ||
-      !ReadInteger(&src, end, &prime1) ||
-      !ReadInteger(&src, end, &prime2) ||
-      !ReadInteger(&src, end, &exponent1) ||
-      !ReadInteger(&src, end, &exponent2) ||
-      !ReadInteger(&src, end, &coefficient))
+      !ReadInteger(&src, end, &modulus))
+    return false;
+
+  int mod_size = modulus.size();
+  READ_ASSERT(mod_size % 2 == 0);
+  int primes_size = mod_size / 2;
+
+  if (!ReadIntegerWithExpectedSize(&src, end, 4, &public_exponent) ||
+      !ReadIntegerWithExpectedSize(&src, end, mod_size, &private_exponent) ||
+      !ReadIntegerWithExpectedSize(&src, end, primes_size, &prime1) ||
+      !ReadIntegerWithExpectedSize(&src, end, primes_size, &prime2) ||
+      !ReadIntegerWithExpectedSize(&src, end, primes_size, &exponent1) ||
+      !ReadIntegerWithExpectedSize(&src, end, primes_size, &exponent2) ||
+      !ReadIntegerWithExpectedSize(&src, end, primes_size, &coefficient))
     return false;
 
   READ_ASSERT(src == end);
@@ -350,9 +374,6 @@ bool RSAPrivateKey::ExportPrivateKey(std::vector<uint8>* output) {
 
   int mod_size = rsa_pub_key->bitlen / 8;
   int primes_size = rsa_pub_key->bitlen / 16;
-  int exponents_size = primes_size;
-  int coefficient_size = primes_size;
-  int private_exponent_size = mod_size;
 
   uint8* modulus = pos;
   pos += mod_size;
@@ -363,15 +384,15 @@ bool RSAPrivateKey::ExportPrivateKey(std::vector<uint8>* output) {
   pos += primes_size;
 
   uint8* exponent1 = pos;
-  pos += exponents_size;
+  pos += primes_size;
   uint8* exponent2 = pos;
-  pos += exponents_size;
+  pos += primes_size;
 
   uint8* coefficient = pos;
-  pos += coefficient_size;
+  pos += primes_size;
 
   uint8* private_exponent = pos;
-  pos += private_exponent_size;
+  pos += mod_size;
 
   CHECK((pos - blob_length) == reinterpret_cast<BYTE*>(publickey_struct));
 
@@ -382,12 +403,12 @@ bool RSAPrivateKey::ExportPrivateKey(std::vector<uint8>* output) {
 
   // We build up the output in reverse order to prevent having to do copies to
   // figure out the length.
-  PrependInteger(coefficient, coefficient_size, &content);
-  PrependInteger(exponent2, exponents_size, &content);
-  PrependInteger(exponent1, exponents_size, &content);
+  PrependInteger(coefficient, primes_size, &content);
+  PrependInteger(exponent2, primes_size, &content);
+  PrependInteger(exponent1, primes_size, &content);
   PrependInteger(prime2, primes_size, &content);
   PrependInteger(prime1, primes_size, &content);
-  PrependInteger(private_exponent, private_exponent_size, &content);
+  PrependInteger(private_exponent, mod_size, &content);
   PrependInteger(reinterpret_cast<uint8*>(&rsa_pub_key->pubexp), 4, &content);
   PrependInteger(modulus, mod_size, &content);
   PrependInteger(&version, 1, &content);
