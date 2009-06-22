@@ -39,14 +39,14 @@
 
 #define PNG_NO_GLOBAL_ARRAYS
 
-#define PNG_NO_INFO_IMAGE
+#undef PNG_NO_INFO_IMAGE
 #define PNG_NO_READ_BACKGROUND
 #define PNG_NO_READ_DITHER
 #define PNG_NO_READ_INVERT
 #define PNG_NO_READ_SHIFT
 #define PNG_NO_READ_PACK
 #define PNG_NO_READ_PACKSWAP
-#define PNG_NO_READ_FILLER
+#undef PNG_NO_READ_FILLER
 #define PNG_NO_READ_SWAP_ALPHA
 #define PNG_NO_READ_INVERT_ALPHA
 #define PNG_NO_READ_RGB_TO_GRAY
@@ -77,7 +77,7 @@
 #define PNG_NO_WRITE_SHIFT
 #define PNG_NO_WRITE_PACK
 #define PNG_NO_WRITE_PACKSWAP
-#define PNG_NO_WRITE_FILLER
+#undef PNG_NO_WRITE_FILLER
 #define PNG_NO_WRITE_SWAP_ALPHA
 #define PNG_NO_WRITE_INVERT_ALPHA
 #define PNG_NO_WRITE_RGB_TO_GRAY
@@ -110,7 +110,7 @@
 #define PNG_NO_ERROR_NUMBERS
 #define PNG_NO_EASY_ACCESS
 
-#define PNG_NO_SEQUENTIAL_READ_SUPPORTED
+#undef PNG_NO_SEQUENTIAL_READ_SUPPORTED
 
 /* Mangle names of exported libpng functions so different libpng versions
    can coexist. It is recommended that if you do this, you give your
