@@ -154,7 +154,8 @@ WidgetWin::~WidgetWin() {
   MessageLoopForUI::current()->RemoveObserver(this);
 }
 
-void WidgetWin::Init(HWND parent, const gfx::Rect& bounds) {
+void WidgetWin::Init(HWND parent, const gfx::Rect& bounds,
+                     bool has_own_focus_manager) {
   if (window_style_ == 0)
     window_style_ = parent ? kWindowDefaultChildStyle : kWindowDefaultStyle;
 
@@ -186,9 +187,8 @@ void WidgetWin::Init(HWND parent, const gfx::Rect& bounds) {
 
   root_view_->OnWidgetCreated();
 
-  if ((window_style_ & WS_CHILD) == 0) {
-    // Top-level widgets get a FocusManager.
-    focus_manager_.reset(new FocusManager(this));
+  if (has_own_focus_manager) {
+    FocusManager::CreateFocusManager(hwnd_, GetRootView());
   }
 
   // Sets the RootView as a property, so the automation can introspect windows.
@@ -419,18 +419,6 @@ const Window* WidgetWin::GetWindow() const {
   return GetWindowImpl(hwnd_);
 }
 
-FocusManager* WidgetWin::GetFocusManager() {
-  if (focus_manager_.get())
-    return focus_manager_.get();
-
-  HWND root = ::GetAncestor(hwnd_, GA_ROOT);
-  if (!root)
-    return NULL;
-
-  WidgetWin* widget = GetWidget(root);
-  return widget ?  widget->focus_manager_.get() : NULL;
-}
-
 void WidgetWin::SetUseLayeredBuffer(bool use_layered_buffer) {
   if (use_layered_buffer_ == use_layered_buffer)
     return;
@@ -472,12 +460,7 @@ RootView* WidgetWin::FindRootView(HWND hwnd) {
   return root_view;
 }
 
-// static
-WidgetWin* WidgetWin::GetWidget(HWND hwnd) {
-  return reinterpret_cast<WidgetWin*>(win_util::GetWindowUserData(hwnd));
-}
-
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // MessageLoop::Observer
 
 void WidgetWin::WillProcessMessage(const MSG& msg) {
@@ -489,7 +472,7 @@ void WidgetWin::DidProcessMessage(const MSG& msg) {
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // FocusTraversable
 
 View* WidgetWin::FindNextFocusableView(
@@ -1056,8 +1039,10 @@ LRESULT CALLBACK WidgetWin::WndProc(HWND window, UINT message,
   // Otherwise we handle everything else.
   if (!widget->ProcessWindowMessage(window, message, w_param, l_param, result))
     result = DefWindowProc(window, message, w_param, l_param);
-  if (message == WM_NCDESTROY)
+  if (message == WM_NCDESTROY) {
+    widget->hwnd_ = NULL;
     widget->OnFinalMessage(window);
+  }
   if (message == WM_ACTIVATE)
     PostProcessActivateMessage(widget, LOWORD(w_param));
   return result;
@@ -1066,16 +1051,18 @@ LRESULT CALLBACK WidgetWin::WndProc(HWND window, UINT message,
 // static
 void WidgetWin::PostProcessActivateMessage(WidgetWin* widget,
                                            int activation_state) {
-  if (!widget->focus_manager_.get()) {
+  FocusManager* focus_manager =
+      FocusManager::GetFocusManager(widget->GetNativeView());
+  if (!focus_manager) {
     NOTREACHED();
     return;
   }
   if (WA_INACTIVE == activation_state) {
-    widget->focus_manager_->StoreFocusedView();
+    focus_manager->StoreFocusedView();
   } else {
     // We must restore the focus after the message has been DefProc'ed as it
     // does set the focus to the last focused HWND.
-    widget->focus_manager_->RestoreFocusedView();
+    focus_manager->RestoreFocusedView();
   }
 }
 }  // namespace views

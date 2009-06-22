@@ -119,7 +119,7 @@ class BorderView : public NativeControl {
                                         parent_container, NULL, NULL, NULL);
     // Create the view container which is a child of the TabControl.
     widget_ = new WidgetWin();
-    widget_->Init(tab_control, gfx::Rect());
+    widget_->Init(tab_control, gfx::Rect(), false);
     widget_->SetContentsView(child_);
     widget_->SetFocusTraversableParentView(this);
     ResizeContents(tab_control);
@@ -210,8 +210,7 @@ class FocusManagerTest : public testing::Test, public WindowDelegate {
   }
 
   FocusManager* GetFocusManager() {
-    return FocusManager::GetFocusManagerForNativeView(
-        window_->GetNativeWindow());
+    return FocusManager::GetFocusManager(window_->GetNativeWindow());
   }
 
   // WindowDelegate Implementation.

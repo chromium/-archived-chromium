@@ -17,7 +17,6 @@ class Rect;
 namespace views {
 
 class Accelerator;
-class FocusManager;
 class RootView;
 class TooltipManager;
 class Window;
@@ -106,17 +105,13 @@ class Widget {
   virtual Window* GetWindow() { return NULL; }
   virtual const Window* GetWindow() const { return NULL; }
 
-  // Gets the theme provider.
+  // Get the theme provider.
   virtual ThemeProvider* GetThemeProvider() const { return NULL; }
 
-  // Gets the default theme provider; this is necessary for when a widget has
+  // Get the default theme provider; this is necessary for when a widget has
   // no profile (and ThemeProvider) associated with it. The default theme
   // provider provides a default set of bitmaps that such widgets can use.
   virtual ThemeProvider* GetDefaultThemeProvider() { return NULL; }
-
-  // Returns the FocusManager for this widget.
-  // Note that all widgets in a widget hierarchy share the same focus manager.
-  virtual FocusManager* GetFocusManager() { return NULL; }
 };
 
 }  // namespace views
