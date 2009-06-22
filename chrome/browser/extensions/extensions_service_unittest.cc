@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <vector>
 
+#include "base/command_line.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/json_reader.h"
@@ -24,6 +25,7 @@
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"
+#include "chrome/common/pref_names.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
@@ -130,7 +132,8 @@ class ExtensionsServiceTest
                    NotificationService::AllSources());
 
     profile_.reset(new TestingProfile());
-    service_ = new ExtensionsService(profile_.get(), &loop_, &loop_);
+    service_ = new ExtensionsService(
+        profile_.get(), CommandLine::ForCurrentProcess(), &loop_, &loop_);
     service_->SetExtensionsEnabled(true);
     service_->set_show_extensions_prompts(false);
 
@@ -1022,4 +1025,31 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
 
   ASSERT_EQ(0u, loaded_.size());
   ASSERT_EQ(1u, GetErrors().size());
+}
+
+// Test that we get enabled/disabled correctly for all the pref/command-line
+// combinations.
+TEST(ExtensionsServiceTest2, Enabledness) {
+  TestingProfile profile;
+  MessageLoop loop;
+  scoped_ptr<CommandLine> command_line;
+  scoped_refptr<ExtensionsService> service;
+
+  // By default, we are disabled.
+  command_line.reset(new CommandLine(L""));
+  service = new ExtensionsService(&profile, command_line.get(), &loop, &loop);
+  EXPECT_FALSE(service->extensions_enabled());
+
+  // If either the command line or pref is set, we are enabled.
+  command_line->AppendSwitch(switches::kEnableExtensions);
+  service = new ExtensionsService(&profile, command_line.get(), &loop, &loop);
+  EXPECT_TRUE(service->extensions_enabled());
+
+  profile.GetPrefs()->SetBoolean(prefs::kEnableExtensions, true);
+  service = new ExtensionsService(&profile, command_line.get(), &loop, &loop);
+  EXPECT_TRUE(service->extensions_enabled());
+
+  command_line.reset(new CommandLine(L""));
+  service = new ExtensionsService(&profile, command_line.get(), &loop, &loop);
+  EXPECT_TRUE(service->extensions_enabled());
 }
