@@ -267,7 +267,7 @@ void RenderWidgetHostViewMac::Destroy() {
 // right now it allows multiple views in multiple tabs to each be displaying
 // a tooltip simultaneously (http://crbug.com/14178).
 void RenderWidgetHostViewMac::SetTooltipText(const std::wstring& tooltip_text) {
-  if (tooltip_text != tooltip_text_ && [[cocoa_view_ window] isMainWindow]) {
+  if (tooltip_text != tooltip_text_ && [[cocoa_view_ window] isKeyWindow]) {
     tooltip_text_ = tooltip_text;
 
     // Clamp the tooltip length to kMaxTooltipLength. It's a DOS issue on
