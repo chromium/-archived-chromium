@@ -21,6 +21,7 @@ using ::testing::DoAll;
 using ::testing::InSequence;
 using ::testing::Return;
 using ::testing::SetArgumentPointee;
+using ::testing::StrictMock;
 
 namespace media {
 
@@ -611,6 +612,59 @@ TEST_F(FFmpegDemuxerTest, MP3Hack) {
   reader->Reset();
   WaitForDemuxerThread();
   MockFFmpeg::get()->CheckPoint(2);
+}
+
+// A mocked callback specialization for calling Read().  Since RunWithParams()
+// is mocked we don't need to pass in object or method pointers.
+typedef CallbackImpl<FFmpegDemuxerTest, void (FFmpegDemuxerTest::*)(Buffer*),
+                     Tuple1<Buffer*> > ReadCallback;
+class MockReadCallback : public ReadCallback {
+ public:
+  MockReadCallback()
+      : ReadCallback(NULL, NULL) {
+  }
+
+  virtual ~MockReadCallback() {
+    OnDelete();
+  }
+
+  MOCK_METHOD0(OnDelete, void());
+  MOCK_METHOD1(RunWithParams, void(const Tuple1<Buffer*>& params));
+};
+
+TEST_F(FFmpegDemuxerTest, Stop) {
+  // Tests that calling Read() on a stopped demuxer immediately deletes the
+  // callback.
+  {
+    SCOPED_TRACE("");
+    InitializeDemuxer();
+  }
+
+  // Create our mocked callback.  The demuxer will take ownership of this
+  // pointer.
+  scoped_ptr<StrictMock<MockReadCallback> > callback(
+      new StrictMock<MockReadCallback>());
+
+  // Get our stream.
+  scoped_refptr<DemuxerStream> audio = demuxer_->GetStream(DS_STREAM_AUDIO);
+  ASSERT_TRUE(audio);
+
+  // Stop the demuxer.
+  demuxer_->Stop();
+
+  // Expect all calls in sequence.
+  InSequence s;
+
+  // The callback should be immediately deleted.  We'll use a checkpoint to
+  // verify that it has indeed been deleted.
+  EXPECT_CALL(*callback, OnDelete());
+  EXPECT_CALL(*MockFFmpeg::get(), CheckPoint(1));
+
+  // Attempt the read...
+  audio->Read(callback.release());
+
+  // ...and verify that |callback| was deleted.
+  MockFFmpeg::get()->CheckPoint(1);
 }
 
 }  // namespace media

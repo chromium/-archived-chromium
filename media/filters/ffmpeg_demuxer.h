@@ -14,6 +14,10 @@
 // NOTE: since FFmpegDemuxer reads packets sequentially without seeking, media
 // files with very large drift between audio/video streams may result in
 // excessive memory consumption.
+//
+// When stopped, FFmpegDemuxer and FFmpegDemuxerStream release all callbacks
+// and buffered packets and shuts down its internal thread.  Reads from a
+// stopped FFmpegDemuxerStream will not be replied to.
 
 #ifndef MEDIA_FILTERS_FFMPEG_DEMUXER_H_
 #define MEDIA_FILTERS_FFMPEG_DEMUXER_H_
@@ -61,8 +65,11 @@ class FFmpegDemuxerStream : public DemuxerStream, public AVStreamProvider {
   // of the enqueued packet.
   base::TimeDelta EnqueuePacket(AVPacket* packet);
 
-  // Signals to empty queue and mark next packet as discontinuous.
+  // Signals to empty the buffer queue and mark next packet as discontinuous.
   void FlushBuffers();
+
+  // Empties the queues and ignores any additional calls to Read().
+  void Stop();
 
   // Returns the duration of this stream.
   base::TimeDelta duration() { return duration_; }
@@ -89,6 +96,7 @@ class FFmpegDemuxerStream : public DemuxerStream, public AVStreamProvider {
   MediaFormat media_format_;
   base::TimeDelta duration_;
   bool discontinuous_;
+  bool stopped_;
 
   Lock lock_;
 
@@ -138,19 +146,20 @@ class FFmpegDemuxer : public Demuxer {
   // Carries out demuxing and satisfying stream reads on the demuxer thread.
   void DemuxTask();
 
+  // Carries out stopping the demuxer streams on the demuxer thread.
+  void StopTask();
+
   // Returns true if any of the streams have pending reads.  Since we lazily
   // post a DemuxTask() for every read, we use this method to quickly terminate
   // the tasks if there is no work to do.
   //
-  // Safe to call on any thread.
+  // Must be called on the demuxer thread.
   bool StreamsHavePendingReads();
 
   // Signal all FFmpegDemuxerStream that the stream has ended.
+  //
+  // Must be called on the demuxer thread.
   void StreamHasEnded();
-
-  // Helper function to deep copy an AVPacket's data, size and timestamps.
-  // Returns NULL if a packet could not be cloned (i.e., out of memory).
-  AVPacket* ClonePacket(AVPacket* packet);
 
   // FFmpeg context handle.
   scoped_ptr_malloc<AVFormatContext, ScopedPtrAVFree> format_context_;
@@ -166,6 +175,9 @@ class FFmpegDemuxer : public Demuxer {
   //     representing unsupported streams where we throw away the data.
   //
   // Ownership is handled via reference counting.
+  //
+  // Once initialized, operations on FFmpegDemuxerStreams should be carried out
+  // on the demuxer thread.
   typedef std::vector< scoped_refptr<FFmpegDemuxerStream> > StreamVector;
   StreamVector streams_;
   StreamVector packet_streams_;
