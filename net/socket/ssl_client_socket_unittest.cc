@@ -2,16 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "net/socket/ssl_client_socket.h"
+
 #include "net/base/address_list.h"
-#include "net/base/client_socket_factory.h"
 #include "net/base/host_resolver.h"
 #include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
-#include "net/base/ssl_client_socket.h"
 #include "net/base/ssl_config_service.h"
-#include "net/base/ssl_test_util.h"
-#include "net/base/tcp_client_socket.h"
 #include "net/base/test_completion_callback.h"
+#include "net/socket/client_socket_factory.h"
+#include "net/socket/ssl_test_util.h"
+#include "net/socket/tcp_client_socket.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 

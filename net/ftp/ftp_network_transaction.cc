@@ -6,12 +6,12 @@
 
 #include "base/compiler_specific.h"
 #include "base/string_util.h"
-#include "net/base/client_socket.h"
-#include "net/base/client_socket_factory.h"
 #include "net/base/connection_type_histograms.h"
 #include "net/base/net_errors.h"
 #include "net/ftp/ftp_network_session.h"
 #include "net/ftp/ftp_request_info.h"
+#include "net/socket/client_socket.h"
+#include "net/socket/client_socket_factory.h"
 
 // TODO(ibrar): Try to avoid sscanf.
 #if !defined(COMPILER_MSVC)

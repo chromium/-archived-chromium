@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_BASE_TCP_CLIENT_SOCKET_LIBEVENT_H_
-#define NET_BASE_TCP_CLIENT_SOCKET_LIBEVENT_H_
+#ifndef NET_SOCKET_TCP_CLIENT_SOCKET_LIBEVENT_H_
+#define NET_SOCKET_TCP_CLIENT_SOCKET_LIBEVENT_H_
 
 #include <sys/socket.h>  // for struct sockaddr
 
@@ -11,8 +11,8 @@
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "net/base/address_list.h"
-#include "net/base/client_socket.h"
 #include "net/base/completion_callback.h"
+#include "net/socket/client_socket.h"
 
 struct event;  // From libevent
 
@@ -132,4 +132,4 @@ class TCPClientSocketLibevent : public ClientSocket {
 
 }  // namespace net
 
-#endif  // NET_BASE_TCP_CLIENT_SOCKET_LIBEVENT_H_
+#endif  // NET_SOCKET_TCP_CLIENT_SOCKET_LIBEVENT_H_

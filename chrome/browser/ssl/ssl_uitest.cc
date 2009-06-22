@@ -12,7 +12,7 @@
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/ui/ui_test.h"
-#include "net/base/ssl_test_util.h"
+#include "net/socket/ssl_test_util.h"
 #include "net/url_request/url_request_unittest.h"
 
 namespace {

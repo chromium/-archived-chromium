@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_BASE_CLIENT_SOCKET_FACTORY_H_
-#define NET_BASE_CLIENT_SOCKET_FACTORY_H_
+#ifndef NET_SOCKET_CLIENT_SOCKET_FACTORY_H_
+#define NET_SOCKET_CLIENT_SOCKET_FACTORY_H_
 
 #include <string>
 
@@ -34,4 +34,4 @@ class ClientSocketFactory {
 
 }  // namespace net
 
-#endif  // NET_BASE_CLIENT_SOCKET_FACTORY_H_
+#endif  // NET_SOCKET_CLIENT_SOCKET_FACTORY_H_

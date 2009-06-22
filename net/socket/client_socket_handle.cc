@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "net/base/client_socket_handle.h"
+#include "net/socket/client_socket_handle.h"
 
 #include "base/compiler_specific.h"
 #include "base/logging.h"
-#include "net/base/client_socket.h"
-#include "net/base/client_socket_pool.h"
 #include "net/base/net_errors.h"
+#include "net/socket/client_socket.h"
+#include "net/socket/client_socket_pool.h"
 
 namespace net {
 

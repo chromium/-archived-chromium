@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_BASE_SSL_CLIENT_SOCKET_H_
-#define NET_BASE_SSL_CLIENT_SOCKET_H_
+#ifndef NET_SOCKET_SSL_CLIENT_SOCKET_H_
+#define NET_SOCKET_SSL_CLIENT_SOCKET_H_
 
-#include "net/base/client_socket.h"
+#include "net/socket/client_socket.h"
 
 namespace net {
 
@@ -31,4 +31,4 @@ class SSLClientSocket : public ClientSocket {
 
 }  // namespace net
 
-#endif  // NET_BASE_SSL_CLIENT_SOCKET_H_
+#endif  // NET_SOCKET_SSL_CLIENT_SOCKET_H_

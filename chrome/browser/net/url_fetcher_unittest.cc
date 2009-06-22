@@ -8,8 +8,8 @@
 #include "chrome/browser/net/url_fetcher.h"
 #include "chrome/browser/net/url_fetcher_protect.h"
 #include "chrome/common/chrome_plugin_lib.h"
-#include "net/base/ssl_test_util.h"
 #include "net/http/http_response_headers.h"
+#include "net/socket/ssl_test_util.h"
 #include "net/url_request/url_request_unittest.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

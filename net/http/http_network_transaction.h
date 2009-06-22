@@ -11,8 +11,6 @@
 #include "base/scoped_ptr.h"
 #include "base/time.h"
 #include "net/base/address_list.h"
-#include "net/base/client_socket_handle.h"
-#include "net/base/client_socket_pool.h"
 #include "net/base/host_resolver.h"
 #include "net/base/io_buffer.h"
 #include "net/base/load_flags.h"
@@ -23,6 +21,8 @@
 #include "net/http/http_response_info.h"
 #include "net/http/http_transaction.h"
 #include "net/proxy/proxy_service.h"
+#include "net/socket/client_socket_handle.h"
+#include "net/socket/client_socket_pool.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
 namespace net {

@@ -4,9 +4,9 @@
 
 #include "net/ftp/ftp_network_layer.h"
 
-#include "net/base/client_socket_factory.h"
 #include "net/ftp/ftp_network_session.h"
 #include "net/ftp/ftp_network_transaction.h"
+#include "net/socket/client_socket_factory.h"
 
 namespace net {
 

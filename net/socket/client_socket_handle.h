@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_BASE_CLIENT_SOCKET_HANDLE_H_
-#define NET_BASE_CLIENT_SOCKET_HANDLE_H_
+#ifndef NET_SOCKET_CLIENT_SOCKET_HANDLE_H_
+#define NET_SOCKET_CLIENT_SOCKET_HANDLE_H_
 
 #include <string>
 
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
-#include "net/base/client_socket.h"
 #include "net/base/completion_callback.h"
 #include "net/base/host_resolver.h"
 #include "net/base/load_states.h"
+#include "net/socket/client_socket.h"
 
 namespace net {
 
@@ -97,4 +97,4 @@ class ClientSocketHandle {
 
 }  // namespace net
 
-#endif  // NET_BASE_CLIENT_SOCKET_HANDLE_H_
+#endif  // NET_SOCKET_CLIENT_SOCKET_HANDLE_H_

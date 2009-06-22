@@ -8,9 +8,9 @@
 #include "net/base/host_resolver.h"
 #include "net/base/listen_socket.h"
 #include "net/base/net_errors.h"
-#include "net/base/tcp_client_socket.h"
-#include "net/base/tcp_pinger.h"
 #include "net/base/winsock_init.h"
+#include "net/socket/tcp_client_socket.h"
+#include "net/socket/tcp_pinger.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 

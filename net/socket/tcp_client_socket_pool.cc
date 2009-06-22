@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "net/base/tcp_client_socket_pool.h"
+#include "net/socket/tcp_client_socket_pool.h"
 
 #include "base/compiler_specific.h"
 #include "base/field_trial.h"
 #include "base/message_loop.h"
 #include "base/time.h"
 #include "base/stl_util-inl.h"
-#include "net/base/client_socket_factory.h"
-#include "net/base/client_socket_handle.h"
 #include "net/base/net_errors.h"
-#include "net/base/tcp_client_socket.h"
+#include "net/socket/client_socket_factory.h"
+#include "net/socket/client_socket_handle.h"
+#include "net/socket/tcp_client_socket.h"
 
 using base::TimeDelta;
 
@@ -489,7 +489,7 @@ void ClientSocketPoolBase::ProcessPendingRequest(const std::string& group_name,
 
   int rv = RequestSocket(
       group_name, r.resolve_info, r.priority, r.handle, r.callback);
-  
+
   // |group| may be invalid after RequestSocket.
 
   if (rv != ERR_IO_PENDING)

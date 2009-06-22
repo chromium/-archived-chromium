@@ -8,10 +8,10 @@
 #include "net/base/host_resolver.h"
 #include "net/base/host_resolver_unittest.h"
 #include "net/base/io_buffer.h"
-#include "net/base/socket_test_util.h"
 #include "net/base/test_completion_callback.h"
 #include "net/ftp/ftp_network_session.h"
 #include "net/ftp/ftp_request_info.h"
+#include "net/socket/socket_test_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 

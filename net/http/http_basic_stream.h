@@ -10,8 +10,8 @@
 #define NET_HTTP_HTTP_BASIC_STREAM_H_
 
 #include "base/basictypes.h"
-#include "net/base/client_socket_handle.h"
 #include "net/http/http_stream.h"
+#include "net/socket/client_socket_handle.h"
 
 namespace net {
 

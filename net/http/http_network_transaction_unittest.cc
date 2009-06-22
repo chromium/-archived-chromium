@@ -5,11 +5,8 @@
 #include <math.h>  // ceil
 
 #include "base/compiler_specific.h"
-#include "net/base/client_socket_factory.h"
 #include "net/base/completion_callback.h"
 #include "net/base/host_resolver_unittest.h"
-#include "net/base/socket_test_util.h"
-#include "net/base/ssl_client_socket.h"
 #include "net/base/ssl_info.h"
 #include "net/base/test_completion_callback.h"
 #include "net/base/upload_data.h"
@@ -18,6 +15,9 @@
 #include "net/http/http_network_transaction.h"
 #include "net/http/http_transaction_unittest.h"
 #include "net/proxy/proxy_config_service_fixed.h"
+#include "net/socket/client_socket_factory.h"
+#include "net/socket/socket_test_util.h"
+#include "net/socket/ssl_client_socket.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 

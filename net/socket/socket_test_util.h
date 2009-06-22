@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_BASE_SOCKET_TEST_UTIL_H_
-#define NET_BASE_SOCKET_TEST_UTIL_H_
+#ifndef NET_SOCKET_SOCKET_TEST_UTIL_H_
+#define NET_SOCKET_SOCKET_TEST_UTIL_H_
 
 #include <string>
 #include <vector>
@@ -11,9 +11,9 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "net/base/address_list.h"
-#include "net/base/client_socket_factory.h"
 #include "net/base/net_errors.h"
 #include "net/base/ssl_config_service.h"
+#include "net/socket/client_socket_factory.h"
 
 namespace net {
 
@@ -201,4 +201,4 @@ class MockClientSocketFactory : public ClientSocketFactory {
 
 }  // namespace net
 
-#endif  // NET_BASE_SOCKET_TEST_UTIL_H_
+#endif  // NET_SOCKET_SOCKET_TEST_UTIL_H_

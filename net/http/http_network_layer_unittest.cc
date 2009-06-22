@@ -3,10 +3,10 @@
 // found in the LICENSE file.
 
 #include "net/base/host_resolver.h"
-#include "net/base/socket_test_util.h"
 #include "net/http/http_network_layer.h"
 #include "net/http/http_transaction_unittest.h"
 #include "net/proxy/proxy_service.h"
+#include "net/socket/socket_test_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 

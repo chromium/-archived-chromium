@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_BASE_SSL_CLIENT_SOCKET_MAC_H_
-#define NET_BASE_SSL_CLIENT_SOCKET_MAC_H_
+#ifndef NET_SOCKET_SSL_CLIENT_SOCKET_MAC_H_
+#define NET_SOCKET_SSL_CLIENT_SOCKET_MAC_H_
 
 #include <Security/Security.h>
 
@@ -12,8 +12,8 @@
 
 #include "base/scoped_ptr.h"
 #include "net/base/completion_callback.h"
-#include "net/base/ssl_client_socket.h"
 #include "net/base/ssl_config_service.h"
+#include "net/socket/ssl_client_socket.h"
 
 namespace net {
 
@@ -105,4 +105,4 @@ class SSLClientSocketMac : public SSLClientSocket {
 
 }  // namespace net
 
-#endif  // NET_BASE_SSL_CLIENT_SOCKET_MAC_H_
+#endif  // NET_SOCKET_SSL_CLIENT_SOCKET_MAC_H_

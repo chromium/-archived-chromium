@@ -5,7 +5,7 @@
 #include <string>
 #include <algorithm>
 
-#include "net/base/ssl_test_util.h"
+#include "net/socket/ssl_test_util.h"
 
 #include "build/build_config.h"
 
@@ -30,10 +30,10 @@
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
-#include "net/base/tcp_pinger.h"
 #include "net/base/host_resolver.h"
-#include "net/base/tcp_client_socket.h"
 #include "net/base/test_completion_callback.h"
+#include "net/socket/tcp_client_socket.h"
+#include "net/socket/tcp_pinger.h"
 #include "testing/platform_test.h"
 
 #if defined(OS_WIN)

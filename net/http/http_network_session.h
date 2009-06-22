@@ -5,11 +5,12 @@
 #ifndef NET_HTTP_HTTP_NETWORK_SESSION_H_
 #define NET_HTTP_HTTP_NETWORK_SESSION_H_
 
+#include "base/logging.h"
 #include "base/ref_counted.h"
 #include "net/base/ssl_client_auth_cache.h"
 #include "net/base/ssl_config_service.h"
-#include "net/base/tcp_client_socket_pool.h"
 #include "net/http/http_auth_cache.h"
+#include "net/socket/tcp_client_socket_pool.h"
 
 namespace net {
 

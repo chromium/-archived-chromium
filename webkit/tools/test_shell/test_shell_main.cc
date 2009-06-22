@@ -23,7 +23,7 @@
 #include "net/base/cookie_monster.h"
 #include "net/base/net_module.h"
 #include "net/http/http_cache.h"
-#include "net/base/ssl_test_util.h"
+#include "net/socket/ssl_test_util.h"
 #include "net/url_request/url_request_context.h"
 #include "webkit/api/public/WebKit.h"
 #include "webkit/glue/webkit_glue.h"

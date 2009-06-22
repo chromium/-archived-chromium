@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_BASE_TCP_PINGER_H_
-#define NET_BASE_TCP_PINGER_H_
+#ifndef NET_SOCKET_TCP_PINGER_H_
+#define NET_SOCKET_TCP_PINGER_H_
 
 #include "base/compiler_specific.h"
 #include "base/ref_counted.h"
@@ -14,10 +14,10 @@
 #include "net/base/address_list.h"
 #include "net/base/completion_callback.h"
 #include "net/base/net_errors.h"
-#include "net/base/tcp_client_socket.h"
+#include "net/socket/tcp_client_socket.h"
 
 namespace base {
-  class TimeDelta;
+class TimeDelta;
 }
 
 namespace net {
@@ -129,4 +129,4 @@ class TCPPinger {
 
 }  // namespace net
 
-#endif  // NET_BASE_TCP_PINGER_H_
+#endif  // NET_SOCKET_TCP_PINGER_H_

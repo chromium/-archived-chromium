@@ -48,7 +48,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#include "net/base/ssl_client_socket_nss.h"
+#include "net/socket/ssl_client_socket_nss.h"
 
 #include <certdb.h>
 #include <nspr.h>

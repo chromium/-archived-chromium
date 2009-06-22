@@ -2,16 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "net/base/tcp_client_socket_pool.h"
+#include "net/socket/tcp_client_socket_pool.h"
 
 #include "base/compiler_specific.h"
 #include "base/message_loop.h"
-#include "net/base/client_socket.h"
-#include "net/base/client_socket_factory.h"
-#include "net/base/client_socket_handle.h"
 #include "net/base/host_resolver_unittest.h"
 #include "net/base/net_errors.h"
 #include "net/base/test_completion_callback.h"
+#include "net/socket/client_socket.h"
+#include "net/socket/client_socket_factory.h"
+#include "net/socket/client_socket_handle.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace net {

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "net/base/tcp_client_socket_win.h"
+#include "net/socket/tcp_client_socket_win.h"
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"

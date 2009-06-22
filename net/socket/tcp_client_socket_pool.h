@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_BASE_TCP_CLIENT_SOCKET_POOL_H_
-#define NET_BASE_TCP_CLIENT_SOCKET_POOL_H_
+#ifndef NET_SOCKET_TCP_CLIENT_SOCKET_POOL_H_
+#define NET_SOCKET_TCP_CLIENT_SOCKET_POOL_H_
 
 #include <deque>
 #include <map>
@@ -12,8 +12,8 @@
 #include "base/scoped_ptr.h"
 #include "base/timer.h"
 #include "net/base/address_list.h"
-#include "net/base/client_socket_pool.h"
 #include "net/base/host_resolver.h"
+#include "net/socket/client_socket_pool.h"
 
 namespace net {
 
@@ -159,7 +159,7 @@ class ClientSocketPoolBase : public base::RefCounted<ClientSocketPoolBase> {
 
   // Used by ConnectingSocket until we remove the coupling between a specific
   // ConnectingSocket and a ClientSocketHandle:
- 
+
   // Returns NULL if not found.  Otherwise it returns the Request*
   // corresponding to the ConnectingSocket (keyed by |group_name| and |handle|.
   // Note that this pointer may be invalidated after any call that might mutate
@@ -167,7 +167,7 @@ class ClientSocketPoolBase : public base::RefCounted<ClientSocketPoolBase> {
   // for long.
   Request* GetConnectingRequest(const std::string& group_name,
                                 const ClientSocketHandle* handle);
- 
+
   // Handles the completed Request corresponding to the ConnectingSocket (keyed
   // by |group_name| and |handle|.  |deactivate| indicates whether or not to
   // deactivate the socket, making the socket slot available for a new socket
@@ -337,4 +337,4 @@ class TCPClientSocketPool : public ClientSocketPool {
 
 }  // namespace net
 
-#endif  // NET_BASE_TCP_CLIENT_SOCKET_POOL_H_
+#endif  // NET_SOCKET_TCP_CLIENT_SOCKET_POOL_H_

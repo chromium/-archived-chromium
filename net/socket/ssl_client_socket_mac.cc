@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "net/base/ssl_client_socket_mac.h"
+#include "net/socket/ssl_client_socket_mac.h"
 
 #include "base/singleton.h"
 #include "base/string_util.h"

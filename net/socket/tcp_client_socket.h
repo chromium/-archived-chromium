@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_BASE_TCP_CLIENT_SOCKET_H_
-#define NET_BASE_TCP_CLIENT_SOCKET_H_
+#ifndef NET_SOCKET_TCP_CLIENT_SOCKET_H_
+#define NET_SOCKET_TCP_CLIENT_SOCKET_H_
 
 #include "build/build_config.h"
 
 #if defined(OS_WIN)
-#include "net/base/tcp_client_socket_win.h"
+#include "net/socket/tcp_client_socket_win.h"
 #elif defined(OS_POSIX)
-#include "net/base/tcp_client_socket_libevent.h"
+#include "net/socket/tcp_client_socket_libevent.h"
 #endif
 
 namespace net {
@@ -24,4 +24,4 @@ typedef TCPClientSocketLibevent TCPClientSocket;
 
 }  // namespace net
 
-#endif  // NET_BASE_TCP_CLIENT_SOCKET_H_
+#endif  // NET_SOCKET_TCP_CLIENT_SOCKET_H_

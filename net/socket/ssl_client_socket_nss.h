@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_BASE_SSL_CLIENT_SOCKET_NSS_H_
-#define NET_BASE_SSL_CLIENT_SOCKET_NSS_H_
+#ifndef NET_SOCKET_SSL_CLIENT_SOCKET_NSS_H_
+#define NET_SOCKET_SSL_CLIENT_SOCKET_NSS_H_
 
 // Work around https://bugzilla.mozilla.org/show_bug.cgi?id=455424
 // until NSS 3.12.2 comes out and we update to it.
@@ -19,8 +19,8 @@
 #include "net/base/cert_verify_result.h"
 #include "net/base/completion_callback.h"
 #include "net/base/nss_memio.h"
-#include "net/base/ssl_client_socket.h"
 #include "net/base/ssl_config_service.h"
+#include "net/socket/ssl_client_socket.h"
 
 namespace net {
 
@@ -124,4 +124,4 @@ class SSLClientSocketNSS : public SSLClientSocket {
 
 }  // namespace net
 
-#endif  // NET_BASE_SSL_CLIENT_SOCKET_NSS_H_
+#endif  // NET_SOCKET_SSL_CLIENT_SOCKET_NSS_H_

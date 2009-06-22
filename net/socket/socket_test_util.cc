@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "net/base/socket_test_util.h"
+#include "net/socket/socket_test_util.h"
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "base/message_loop.h"
 #include "net/base/io_buffer.h"
-#include "net/base/socket.h"
-#include "net/base/ssl_client_socket.h"
 #include "net/base/ssl_info.h"
+#include "net/socket/socket.h"
+#include "net/socket/ssl_client_socket.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {

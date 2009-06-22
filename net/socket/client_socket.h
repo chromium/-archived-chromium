@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_BASE_CLIENT_SOCKET_H_
-#define NET_BASE_CLIENT_SOCKET_H_
+#ifndef NET_SOCKET_CLIENT_SOCKET_H_
+#define NET_SOCKET_CLIENT_SOCKET_H_
 
 #include "build/build_config.h"
 
@@ -11,7 +11,7 @@
 #include <sys/socket.h>
 #endif
 
-#include "net/base/socket.h"
+#include "net/socket/socket.h"
 
 namespace net {
 
@@ -56,4 +56,4 @@ class ClientSocket : public Socket {
 
 }  // namespace net
 
-#endif  // NET_BASE_CLIENT_SOCKET_H_
+#endif  // NET_SOCKET_CLIENT_SOCKET_H_

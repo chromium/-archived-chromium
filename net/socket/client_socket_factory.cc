@@ -2,18 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "net/base/client_socket_factory.h"
+#include "net/socket/client_socket_factory.h"
 
 #include "base/singleton.h"
 #include "build/build_config.h"
 #if defined(OS_WIN)
-#include "net/base/ssl_client_socket_win.h"
+#include "net/socket/ssl_client_socket_win.h"
 #elif defined(OS_LINUX)
-#include "net/base/ssl_client_socket_nss.h"
+#include "net/socket/ssl_client_socket_nss.h"
 #elif defined(OS_MACOSX)
-#include "net/base/ssl_client_socket_mac.h"
+#include "net/socket/ssl_client_socket_mac.h"
 #endif
-#include "net/base/tcp_client_socket.h"
+#include "net/socket/tcp_client_socket.h"
 
 namespace net {
 

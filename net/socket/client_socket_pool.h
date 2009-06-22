@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_BASE_CLIENT_SOCKET_POOL_H_
-#define NET_BASE_CLIENT_SOCKET_POOL_H_
+#ifndef NET_SOCKET_CLIENT_SOCKET_POOL_H_
+#define NET_SOCKET_CLIENT_SOCKET_POOL_H_
 
 #include <deque>
 #include <map>
@@ -94,4 +94,4 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
 
 }  // namespace net
 
-#endif  // NET_BASE_CLIENT_SOCKET_POOL_H_
+#endif  // NET_SOCKET_CLIENT_SOCKET_POOL_H_
