@@ -34,6 +34,10 @@ PREFIX : `anonymous namespace'::onnomemory
 SUBSTRING : purecall___messageloop::runtask
 REGEX : purecall___[^_]*___messageloop::runtask
 
+# Ditto for InvalidParameter.  Unfortunately, we see a crash where that call
+# is the only one on the stack, so ignore that instance
+REGEX : `anonymous namespace'::invalidparameter$
+
 # 5359. Random memory corruption?
 PREFIX : v8::internal::sweepspace___v8::internal::markcompactcollector::sweepspaces___v8::internal::markcompactcollector::collectgarbage
 
