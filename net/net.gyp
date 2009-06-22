@@ -279,8 +279,6 @@
         'proxy/proxy_server.h',
         'proxy/proxy_service.cc',
         'proxy/proxy_service.h',
-        'url_request/mime_sniffer_proxy.cc',
-        'url_request/mime_sniffer_proxy.h',
         'url_request/url_request.cc',
         'url_request/url_request.h',
         'url_request/url_request_about_job.cc',
