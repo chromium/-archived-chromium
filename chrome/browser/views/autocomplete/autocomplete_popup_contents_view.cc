@@ -279,6 +279,7 @@ AutocompleteResultView::AutocompleteResultView(
       hot_(false),
       font_(font),
       mirroring_context_(new MirroringContext()) {
+  CHECK(model_index >= 0);
   InitClass();
 }
 

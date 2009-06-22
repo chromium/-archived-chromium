@@ -95,7 +95,7 @@ void AutocompletePopupModel::SetHoveredLine(size_t line) {
 void AutocompletePopupModel::SetSelectedLine(size_t line,
                                              bool reset_to_default) {
   const AutocompleteResult& result = controller_->result();
-  DCHECK(line < result.size());
+  CHECK(line < result.size());
   if (result.empty())
     return;
 
@@ -142,7 +142,7 @@ void AutocompletePopupModel::SetSelectedLine(size_t line,
 
 void AutocompletePopupModel::ResetToDefaultMatch() {
   const AutocompleteResult& result = controller_->result();
-  DCHECK(!result.empty());
+  CHECK(!result.empty());
   SetSelectedLine(result.default_match() - result.begin(), true);
 }
 
