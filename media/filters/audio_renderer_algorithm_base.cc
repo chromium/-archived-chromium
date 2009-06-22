@@ -19,8 +19,7 @@ AudioRendererAlgorithmBase::AudioRendererAlgorithmBase()
     : channels_(0),
       sample_rate_(0),
       sample_bits_(0),
-      playback_rate_(0.0f),
-      expected_queue_size_(0) {
+      playback_rate_(0.0f) {
 }
 
 AudioRendererAlgorithmBase::~AudioRendererAlgorithmBase() {}
@@ -33,15 +32,17 @@ void AudioRendererAlgorithmBase::Initialize(int channels,
   DCHECK_GT(channels, 0);
   DCHECK_GT(sample_rate, 0);
   DCHECK_GT(sample_bits, 0);
-  DCHECK_GE(initial_playback_rate, 0.0);
   DCHECK(callback);
 
   channels_ = channels;
   sample_rate_ = sample_rate;
   sample_bits_ = sample_bits;
-  playback_rate_ = initial_playback_rate;
   request_read_callback_.reset(callback);
-  FillQueue();
+
+  set_playback_rate(initial_playback_rate);
+
+  for (size_t i = 0; i < kDefaultMaxQueueSize; ++i)
+    request_read_callback_->Run();
 }
 
 void AudioRendererAlgorithmBase::FlushBuffers() {
@@ -57,13 +58,38 @@ void AudioRendererAlgorithmBase::EnqueueBuffer(Buffer* buffer_in) {
   }
 }
 
-void AudioRendererAlgorithmBase::SetPlaybackRate(float new_rate) {
+float AudioRendererAlgorithmBase::playback_rate() {
+  return playback_rate_;
+}
+
+void AudioRendererAlgorithmBase::set_playback_rate(float new_rate) {
+  DCHECK_GE(new_rate, 0.0);
   playback_rate_ = new_rate;
 }
 
-void AudioRendererAlgorithmBase::FillQueue() {
-  for ( ; expected_queue_size_ < kDefaultMaxQueueSize; ++expected_queue_size_)
-    request_read_callback_->Run();
+bool AudioRendererAlgorithmBase::IsQueueEmpty() {
+  return queue_.empty();
+}
+
+scoped_refptr<Buffer> AudioRendererAlgorithmBase::FrontQueue() {
+  return queue_.front();
+}
+
+void AudioRendererAlgorithmBase::PopFrontQueue() {
+  queue_.pop_front();
+  request_read_callback_->Run();
+}
+
+int AudioRendererAlgorithmBase::channels() {
+  return channels_;
+}
+
+int AudioRendererAlgorithmBase::sample_rate() {
+  return sample_rate_;
+}
+
+int AudioRendererAlgorithmBase::sample_bits() {
+  return sample_bits_;
 }
 
 }  // namespace media

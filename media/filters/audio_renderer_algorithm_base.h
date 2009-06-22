@@ -7,9 +7,8 @@
 // subclasses may need more than one to produce output. Subclasses
 // must implement the following method:
 //
-//   Process() - fills the buffer passed to it & returns how many bytes copied.
-//
-// Subclasses must also decrement |expected_queue_size_| after a dequeue.
+//   FillBuffer() - fills the buffer passed to it & returns how many bytes
+//                  copied.
 //
 // The general assumption is that the owner of this class will provide us with
 // Buffers and a playback speed, and we will fill an output buffer when our
@@ -22,12 +21,9 @@
 // enqueues and processes do not cause an unpredictable |queue_| size.
 //
 // Most of ARAB is nonvirtual as the only subclasses we expect are those to
-// define Process(). |queue_| management and common property management
+// define FillBuffer(). |queue_| management and common property management
 // should not have to change for subclasses, so both are implemented here
 // non-virtually.
-
-// TODO(kylep): Clean this whole class up. Refactor out the |queue_| into a
-// QueueManager or something like that.
 
 #ifndef MEDIA_FILTERS_AUDIO_RENDERER_ALGORITHM_BASE_H_
 #define MEDIA_FILTERS_AUDIO_RENDERER_ALGORITHM_BASE_H_
@@ -61,8 +57,7 @@ class AudioRendererAlgorithmBase {
   // Fills |buffer_out| with possibly scaled data from our |queue_|.
   // |buffer_out| must be initialized and have a datasize.
   // Returns the number of bytes copied into |buffer_out|.
-  // TODO(kylep): Think of a better name.
-  virtual size_t Process(DataBuffer* buffer_out) = 0;
+  virtual size_t FillBuffer(DataBuffer* buffer_out) = 0;
 
   // Clears |queue_|.
   void FlushBuffers();
@@ -71,15 +66,26 @@ class AudioRendererAlgorithmBase {
   // of the algorithm after a read completes.
   void EnqueueBuffer(Buffer* buffer_in);
 
-  // Sets the playback rate.
-  void SetPlaybackRate(float new_rate);
+  // Getter/setter for |playback_rate_|.
+  float playback_rate();
+  void set_playback_rate(float new_rate);
 
  protected:
-  // Fills the |queue_|. This is a helper function called from
-  // Initialize() to initially fill |queue_| and from subclasses'
-  // Process() method to refill |queue_| after buffers have been used.
-  void FillQueue();
+  // Returns whether |queue_| is empty.
+  bool IsQueueEmpty();
 
+  // Returns a reference to the first element of the |queue_|.
+  scoped_refptr<Buffer> FrontQueue();
+
+  // Pops the front of the |queue_| and schedules a read.
+  void PopFrontQueue();
+
+  // Audio property getters.
+  int channels();
+  int sample_rate();
+  int sample_bits();
+
+ private:
   // Audio properties.
   int channels_;
   int sample_rate_;
@@ -91,16 +97,10 @@ class AudioRendererAlgorithmBase {
   // Used to request more data.
   scoped_ptr<RequestReadCallback> request_read_callback_;
 
-  // Keeps track of the number of buffers we will have in |queue_|
-  // after all reads complete. Subclasses MUST decrement this after
-  // dequeuing.
-  size_t expected_queue_size_;
-
   // Queued audio data.
   typedef std::deque< scoped_refptr<Buffer> > BufferQueue;
   BufferQueue queue_;
 
- private:
   DISALLOW_COPY_AND_ASSIGN(AudioRendererAlgorithmBase);
 };
 

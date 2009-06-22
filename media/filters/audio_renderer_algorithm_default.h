@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 // AudioRendererAlgorithmDefault is the default implementation of
-// AudioRendererAlgorithmBase. For speeds other than 1.0f, Process() fills
-// |buffer_out| with 0s and returns the expected size. As ARAB is
+// AudioRendererAlgorithmBase. For speeds other than 1.0f, FillBuffer()
+// fills |buffer_out| with 0s and returns the expected size. As ARAB is
 // thread-unsafe, so is ARAD.
 
 #ifndef MEDIA_FILTERS_AUDIO_RENDERER_ALGORITHM_DEFAULT_H_
@@ -22,7 +22,7 @@ class AudioRendererAlgorithmDefault : public AudioRendererAlgorithmBase {
   virtual ~AudioRendererAlgorithmDefault();
 
   // AudioRendererAlgorithmBase implementation
-  virtual size_t Process(DataBuffer* buffer_out);
+  virtual size_t FillBuffer(DataBuffer* buffer_out);
 
  private:
   // Remembers the amount of remaining audio data for the front buffer.
