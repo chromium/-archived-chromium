@@ -986,8 +986,8 @@ Renderer::InitStatus RendererD3D9::InitPlatformSpecific(
                      1 /* MIP levels */,
                      FALSE,
                      DEFAULT_CHARSET,
-                     OUT_DEFAULT_PRECIS,
-                     DEFAULT_QUALITY,
+                     OUT_TT_PRECIS,
+                     PROOF_QUALITY,
                      DEFAULT_PITCH | FF_DONTCARE /* pitch and font family */,
                      L"Arial",
                      &fullscreen_message_font_)) {
@@ -1427,10 +1427,7 @@ void RendererD3D9::ShowFullscreenMessage() {
   const float midline_width = width() / 2.0f;
   const D3DXCOLOR background_color(0.0f, 0.0f, 0.0f, 0.5f);
   SetRect(&rect, 0, 0, width(), height());
-  // Drawing the message before the background puts it on top.
-  HR(fullscreen_message_font_->DrawText(NULL,
-      L"Press ESC to exit full screen mode.", -1, &rect,
-      DT_CENTER | DT_VCENTER, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f)));
+
   D3DXVECTOR2 line_vertices[2];
   HR(fullscreen_message_line_->SetWidth(line_base_height));
   line_vertices[0].x = midline_width - 400.0f - curve_radius;
@@ -1453,6 +1450,16 @@ void RendererD3D9::ShowFullscreenMessage() {
     HR(fullscreen_message_line_->Draw(line_vertices, 2, background_color));
   }
   HR(fullscreen_message_line_->End());
+
+  DWORD z_enable;  // Back up this setting and restore it afterward.
+  d3d_device_->GetRenderState(D3DRS_ZENABLE, &z_enable);
+  d3d_device_->SetRenderState(D3DRS_ZENABLE, FALSE);
+
+  HR(fullscreen_message_font_->DrawText(NULL,
+      L"Press ESC to exit full screen mode.", -1, &rect,
+      DT_CENTER | DT_VCENTER, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f)));
+
+  d3d_device_->SetRenderState(D3DRS_ZENABLE, z_enable);
 }
 
 // Notifies DX9 that rendering of the frame is complete and swaps the buffers.
