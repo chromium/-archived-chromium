@@ -30,7 +30,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/child_process_security_policy.h"
 #include "chrome/browser/extensions/extension_message_service.h"
-#include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/plugin_service.h"
@@ -274,6 +273,7 @@ bool BrowserRenderProcessHost::Init() {
     switches::kUseLowFragHeapCrt,
     switches::kEnableWebWorkers,
     switches::kEnableStatsTable,
+    switches::kEnableExtensions,
     switches::kDisableOutOfProcessDevTools,
     switches::kAutoSpellCorrect,
     switches::kDisableAudio,
@@ -287,23 +287,6 @@ bool BrowserRenderProcessHost::Init() {
           browser_command_line.GetSwitchValue(switch_names[i]));
     }
   }
-
-  // Tell the renderer to enable extensions if there are any extensions loaded.
-  //
-  // NOTE: This is subtly different than just passing along whether
-  // --enable-extenisons is present in the browser process. For example, there
-  // is also an extensions.enabled preference, and there may be various special
-  // cases about whether to allow extensions to load. 
-  //
-  // This introduces a race condition where the first renderer never gets
-  // extensions enabled, so we also set the flag if extensions_enabled(). This
-  // isn't perfect though, because of the special cases above.
-  //
-  // TODO(aa): We need to get rid of the need to pass this flag at all. It is
-  // only used in one place in the renderer.
-  if (profile()->GetExtensionsService()->extensions()->size() > 0 ||
-      profile()->GetExtensionsService()->extensions_enabled())
-    cmd_line.AppendSwitch(switches::kEnableExtensions);
 
   // Pass on the browser locale.
   const std::wstring locale = g_browser_process->GetApplicationLocale();

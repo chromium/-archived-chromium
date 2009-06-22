@@ -211,36 +211,25 @@ class ExtensionsServiceBackend::UnpackerClient
 };
 
 ExtensionsService::ExtensionsService(Profile* profile,
-                                     const CommandLine* command_line,
                                      MessageLoop* frontend_loop,
                                      MessageLoop* backend_loop)
     : extension_prefs_(new ExtensionPrefs(profile->GetPrefs())),
       backend_loop_(backend_loop),
       install_directory_(profile->GetPath().AppendASCII(kInstallDirectoryName)),
-      extensions_enabled_(false),
+      extensions_enabled_(
+          CommandLine::ForCurrentProcess()->
+          HasSwitch(switches::kEnableExtensions)),
       show_extensions_prompts_(true),
       ready_(false) {
-  // Figure out if extension installation should be enabled.
-  if (command_line->HasSwitch(switches::kEnableExtensions))
-    extensions_enabled_ = true;
-  else if (profile->GetPrefs()->GetBoolean(prefs::kEnableExtensions))
-    extensions_enabled_ = true;
-
   // We pass ownership of this object to the Backend.
   DictionaryValue* extensions = extension_prefs_->CopyCurrentExtensions();
   backend_ = new ExtensionsServiceBackend(
           install_directory_, g_browser_process->resource_dispatcher_host(),
-          frontend_loop, extensions, extensions_enabled());
+          frontend_loop, extensions);
 }
 
 ExtensionsService::~ExtensionsService() {
   UnloadAllExtensions();
-}
-
-void ExtensionsService::SetExtensionsEnabled(bool enabled) {
-  extensions_enabled_ = true;
-  backend_loop_->PostTask(FROM_HERE, NewRunnableMethod(backend_.get(),
-    &ExtensionsServiceBackend::set_extensions_enabled, enabled));
 }
 
 void ExtensionsService::Init() {
@@ -365,14 +354,13 @@ void ExtensionsService::OnLoadedInstalledExtensions() {
 void ExtensionsService::OnExtensionsLoaded(ExtensionList* new_extensions) {
   scoped_ptr<ExtensionList> cleanup(new_extensions);
 
-  // Filter out any extensions that shouldn't be loaded. Themes are always
-  // loaded, but other extensions are only loaded if the extensions system is
-  // enabled.
+  // Filter out any extensions we don't want to enable. Themes are always
+  // enabled, but other extensions are only loaded if --enable-extensions is
+  // present.
   ExtensionList enabled_extensions;
   for (ExtensionList::iterator iter = new_extensions->begin();
        iter != new_extensions->end(); ++iter) {
-    if (extensions_enabled() || (*iter)->IsTheme() ||
-        (*iter)->location() == Extension::EXTERNAL_REGISTRY) {
+    if (extensions_enabled() || (*iter)->IsTheme()) {
       Extension* old = GetExtensionById((*iter)->id());
       if (old) {
         if ((*iter)->version()->CompareTo(*(old->version())) > 0) {
@@ -463,14 +451,12 @@ void ExtensionsService::SetProviderForTesting(
 
 ExtensionsServiceBackend::ExtensionsServiceBackend(
     const FilePath& install_directory, ResourceDispatcherHost* rdh,
-    MessageLoop* frontend_loop, DictionaryValue* extension_prefs,
-    bool extensions_enabled)
+    MessageLoop* frontend_loop, DictionaryValue* extension_prefs)
         : frontend_(NULL),
           install_directory_(install_directory),
           resource_dispatcher_host_(rdh),
           alert_on_error_(false),
-          frontend_loop_(frontend_loop),
-          extensions_enabled_(extensions_enabled) {
+          frontend_loop_(frontend_loop) {
   external_extension_providers_[Extension::EXTERNAL_PREF] =
       linked_ptr<ExternalExtensionProvider>(
           new ExternalPrefExtensionProvider(extension_prefs));
@@ -970,26 +956,28 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
     return;
   }
 
-  Extension::Location location = Extension::INTERNAL;
-  LookupExternalExtension(extension.id(), NULL, &location);
-
-  // We currently only allow themes and registry-installed extensions to be
-  // installed.
-  if (!extensions_enabled_ &&
-      !extension.IsTheme() &&
-      location != Extension::EXTERNAL_REGISTRY) {
+  if (!frontend_->extensions_enabled() && !extension.IsTheme()) {
+#if defined(OS_WIN)
+    if (frontend_->show_extensions_prompts()) {
+      win_util::MessageBox(GetForegroundWindow(),
+          L"Extensions are not enabled. Add --enable-extensions to the "
+          L"command-line to enable extensions.\n\n"
+          L"This is a temporary message and it will be removed when extensions "
+          L"UI is finalized.",
+          l10n_util::GetString(IDS_PRODUCT_NAME).c_str(), MB_OK);
+    }
+#endif
     ReportExtensionInstallError(extension_path,
-        "Extensions are not enabled. Add --enable-extensions to the "
-        "command-line to enable extensions.\n\n"
-        "This is a temporary message and it will be removed when extensions "
-        "UI is finalized.");
+        "Extensions are not enabled.");
     return;
   }
 
+  Extension::Location location = Extension::INTERNAL;
+  LookupExternalExtension(extension.id(), NULL, &location);
 #if defined(OS_WIN)
-  // We don't show the install dialog for themes or external extensions.
-  if (!extension.IsTheme() &&
-      !Extension::IsExternalLocation(location) &&
+  bool from_external = Extension::IsExternalLocation(location);
+
+  if (!extension.IsTheme() && !from_external &&
       frontend_->show_extensions_prompts() &&
       win_util::MessageBox(GetForegroundWindow(),
           L"Are you sure you want to install this extension?\n\n"

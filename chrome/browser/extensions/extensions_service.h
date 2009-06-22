@@ -10,7 +10,6 @@
 #include <string>
 #include <vector>
 
-#include "base/command_line.h"
 #include "base/file_path.h"
 #include "base/linked_ptr.h"
 #include "base/ref_counted.h"
@@ -73,7 +72,6 @@ class ExtensionsService
   };
 
   ExtensionsService(Profile* profile,
-                    const CommandLine* command_line,
                     MessageLoop* frontend_loop,
                     MessageLoop* backend_loop);
   ~ExtensionsService();
@@ -134,13 +132,12 @@ class ExtensionsService
   // The name of the file that the current active version number is stored in.
   static const char* kCurrentVersionFileName;
 
-  void SetExtensionsEnabled(bool enabled);
-  bool extensions_enabled() { return extensions_enabled_; }
-
+  void set_extensions_enabled(bool enabled) { extensions_enabled_ = enabled; }
   void set_show_extensions_prompts(bool enabled) {
     show_extensions_prompts_ = enabled;
   }
 
+  bool extensions_enabled() { return extensions_enabled_; }
   bool show_extensions_prompts() {
     return show_extensions_prompts_;
   }
@@ -212,12 +209,9 @@ class ExtensionsServiceBackend
   ExtensionsServiceBackend(const FilePath& install_directory,
                            ResourceDispatcherHost* rdh,
                            MessageLoop* frontend_loop,
-                           DictionaryValue* extension_prefs,
-                           bool extensions_enabled);
+                           DictionaryValue* extension_prefs);
 
   virtual ~ExtensionsServiceBackend();
-
-  void set_extensions_enabled(bool enabled) { extensions_enabled_ = enabled; }
 
   // Loads the installed extensions.
   // Errors are reported through ExtensionErrorReporter. On completion,
@@ -404,10 +398,6 @@ class ExtensionsServiceBackend
 
   // The message loop to use to call the frontend.
   MessageLoop* frontend_loop_;
-
-  // Whether non-theme extensions are enabled (themes and externally registered
-  // extensions are always enabled).
-  bool extensions_enabled_;
 
   // A map of all external extension providers.
   typedef std::map<Extension::Location,

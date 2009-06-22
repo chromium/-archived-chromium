@@ -1402,8 +1402,11 @@ void BrowserView::Init() {
 
   status_bubble_.reset(new StatusBubbleViews(GetWidget()));
 
-  extension_shelf_ = new ExtensionShelf(browser_.get());
-  AddChildView(extension_shelf_);
+  if (CommandLine::ForCurrentProcess()->HasSwitch(
+      switches::kEnableExtensions)) {
+    extension_shelf_ = new ExtensionShelf(browser_.get());
+    AddChildView(extension_shelf_);
+  }
 
 #if defined(OS_WIN)
   InitSystemMenu();

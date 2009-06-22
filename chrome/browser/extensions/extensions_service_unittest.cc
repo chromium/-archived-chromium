@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <vector>
 
-#include "base/command_line.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/json_reader.h"
@@ -25,7 +24,6 @@
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"
-#include "chrome/common/pref_names.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
@@ -132,9 +130,8 @@ class ExtensionsServiceTest
                    NotificationService::AllSources());
 
     profile_.reset(new TestingProfile());
-    service_ = new ExtensionsService(
-        profile_.get(), CommandLine::ForCurrentProcess(), &loop_, &loop_);
-    service_->SetExtensionsEnabled(true);
+    service_ = new ExtensionsService(profile_.get(), &loop_, &loop_);
+    service_->set_extensions_enabled(true);
     service_->set_show_extensions_prompts(false);
 
     // When we start up, we want to make sure there is no external provider,
@@ -194,7 +191,7 @@ class ExtensionsServiceTest
   }
 
   void SetExtensionsEnabled(bool enabled) {
-    service_->SetExtensionsEnabled(enabled);
+    service_->set_extensions_enabled(enabled);
   }
 
   void SetMockExternalProvider(Extension::Location location,
@@ -501,6 +498,8 @@ TEST_F(ExtensionsServiceTest, InstallExtension) {
 // Test Packaging and installing an extension.
 // TODO(rafaelw): add more tests for failure cases.
 TEST_F(ExtensionsServiceTest, PackExtension) {
+  SetExtensionsEnabled(true);
+
   FilePath extensions_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
@@ -531,6 +530,8 @@ TEST_F(ExtensionsServiceTest, PackExtension) {
 // The privkey.pem is a PrivateKey, and the pcks8 -topk8 creates a
 // PrivateKeyInfo ASN.1 structure, we our RSAPrivateKey expects.
 TEST_F(ExtensionsServiceTest, PackExtensionOpenSSLKey) {
+  SetExtensionsEnabled(true);
+
   FilePath extensions_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
@@ -803,9 +804,6 @@ TEST_F(ExtensionsServiceTest, GenerateID) {
 #if defined(OS_WIN)
 
 TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
-  // This should all work, even when normal extension installation is disabled.
-  SetExtensionsEnabled(false);
-
   // Verify that starting with no providers loads no extensions.
   service_->Init();
   loop_.RunAllPending();
@@ -1015,41 +1013,4 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   extension_path = extension_path.AppendASCII(good_crx);
   EXPECT_FALSE(file_util::PathExists(extension_path)) <<
       extension_path.ToWStringHack();
-
-  // This shouldn't work if extensions are disabled.
-  SetExtensionsEnabled(false);
-
-  pref_provider->UpdateOrAddExtension(good_crx, "1.0", source_path);
-  service_->CheckForUpdates();
-  loop_.RunAllPending();
-
-  ASSERT_EQ(0u, loaded_.size());
-  ASSERT_EQ(1u, GetErrors().size());
-}
-
-// Test that we get enabled/disabled correctly for all the pref/command-line
-// combinations.
-TEST(ExtensionsServiceTest2, Enabledness) {
-  TestingProfile profile;
-  MessageLoop loop;
-  scoped_ptr<CommandLine> command_line;
-  scoped_refptr<ExtensionsService> service;
-
-  // By default, we are disabled.
-  command_line.reset(new CommandLine(L""));
-  service = new ExtensionsService(&profile, command_line.get(), &loop, &loop);
-  EXPECT_FALSE(service->extensions_enabled());
-
-  // If either the command line or pref is set, we are enabled.
-  command_line->AppendSwitch(switches::kEnableExtensions);
-  service = new ExtensionsService(&profile, command_line.get(), &loop, &loop);
-  EXPECT_TRUE(service->extensions_enabled());
-
-  profile.GetPrefs()->SetBoolean(prefs::kEnableExtensions, true);
-  service = new ExtensionsService(&profile, command_line.get(), &loop, &loop);
-  EXPECT_TRUE(service->extensions_enabled());
-
-  command_line.reset(new CommandLine(L""));
-  service = new ExtensionsService(&profile, command_line.get(), &loop, &loop);
-  EXPECT_TRUE(service->extensions_enabled());
 }
