@@ -2750,7 +2750,6 @@ BUG13809 SKIP : LayoutTests/fast/canvas/canvas-empty-image-pattern.html = FAIL
 BUG14061 WIN LINUX : LayoutTests/svg/filters/subRegion-one-effect.svg = FAIL
 BUG14061 WIN LINUX : LayoutTests/svg/filters/subRegion-two-effects.svg = FAIL
 
-
 // Newly added test http://trac.webkit.org/changeset/44816
 BUG14673 : LayoutTests/http/tests/xmlhttprequest/cross-origin-no-authorization.html = FAIL CRASH
 
