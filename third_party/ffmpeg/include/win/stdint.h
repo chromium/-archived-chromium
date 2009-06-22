@@ -23,4 +23,9 @@ typedef unsigned short        uint16_t;
 typedef unsigned int          uint32_t;
 typedef unsigned long long    uint64_t;
 
+// Define the C99 INT64_C macro that is used for declaring 64-bit literals.
+// Technically, these should only be definied when __STDC_CONSTANT_MACROS
+// is defined.
+#define INT64_C(value) value##LL
+
 #endif  // THIRD_PARTY_FFMPEG_INCLUDE_WIN_STDINT_H_

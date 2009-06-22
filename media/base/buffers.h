@@ -132,6 +132,7 @@ struct VideoSurface {
   // http://www.fourcc.org/rgb.php
   // http://www.fourcc.org/yuv.php
   enum Format {
+    INVALID,     // Invalid format value.  Used for error reporting.
     RGB555,      // 16bpp RGB packed 5:5:5
     RGB565,      // 16bpp RGB packed 5:6:5
     RGB24,       // 24bpp RGB packed 8:8:8

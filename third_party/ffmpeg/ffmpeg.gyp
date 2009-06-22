@@ -92,7 +92,7 @@
                     'avcodec-52.dll',
                     'avformat-52.dll',
                     'avutil-50.dll',
-		  ],
+                  ],
                 },
               },
             },
@@ -131,6 +131,9 @@
               '../..',  # The chromium 'src' directory.
             ],
             'direct_dependent_settings': {
+              'defines': [
+                '__STDC_CONSTANT_MACROS',  # FFmpeg uses INT64_C.
+              ],
               'include_dirs': [
                 '<(output_root)',
                 '../..',  # The chromium 'src' directory.

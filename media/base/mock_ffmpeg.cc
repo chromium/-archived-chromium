@@ -62,22 +62,17 @@ int avcodec_thread_init(AVCodecContext* avctx, int threads) {
 }
 
 void avcodec_flush_buffers(AVCodecContext* avctx) {
-  NOTREACHED();
+  return media::MockFFmpeg::get()->AVCodecFlushBuffers(avctx);
 }
 
 AVFrame* avcodec_alloc_frame() {
-  NOTREACHED();
-  return NULL;
+  return media::MockFFmpeg::get()->AVCodecAllocFrame();
 }
 
 int avcodec_decode_video2(AVCodecContext* avctx, AVFrame* picture,
                           int* got_picture_ptr, AVPacket* avpkt) {
-  NOTREACHED();
-  return 0;
-}
-
-void av_init_packet(AVPacket* pkt) {
-  NOTREACHED();
+  return media::MockFFmpeg::get()->
+      AVCodecDecodeVideo2(avctx, picture, got_picture_ptr, avpkt);
 }
 
 int av_open_input_file(AVFormatContext** format, const char* filename,
@@ -100,22 +95,6 @@ int64 av_rescale_q(int64 a, AVRational bq, AVRational cq) {
   return a * num / den;
 }
 
-void av_free_packet(AVPacket* packet) {
-  media::MockFFmpeg::get()->AVFreePacket(packet);
-}
-
-int av_new_packet(AVPacket* packet, int size) {
-  return media::MockFFmpeg::get()->AVNewPacket(packet, size);
-}
-
-void av_free(void* ptr) {
-  // Freeing NULL pointers are valid, but they aren't interesting from a mock
-  // perspective.
-  if (ptr) {
-    media::MockFFmpeg::get()->AVFree(ptr);
-  }
-}
-
 int av_read_frame(AVFormatContext* format, AVPacket* packet) {
   return media::MockFFmpeg::get()->AVReadFrame(format, packet);
 }
@@ -124,6 +103,26 @@ int av_seek_frame(AVFormatContext *format, int stream_index, int64_t timestamp,
                   int flags) {
   return media::MockFFmpeg::get()->AVSeekFrame(format, stream_index, timestamp,
                                                flags);
+}
+
+void av_init_packet(AVPacket* pkt) {
+  return media::MockFFmpeg::get()->AVInitPacket(pkt);
+}
+
+int av_new_packet(AVPacket* packet, int size) {
+  return media::MockFFmpeg::get()->AVNewPacket(packet, size);
+}
+
+void av_free_packet(AVPacket* packet) {
+  media::MockFFmpeg::get()->AVFreePacket(packet);
+}
+
+void av_free(void* ptr) {
+  // Freeing NULL pointers are valid, but they aren't interesting from a mock
+  // perspective.
+  if (ptr) {
+    media::MockFFmpeg::get()->AVFree(ptr);
+  }
 }
 
 }  // extern "C"

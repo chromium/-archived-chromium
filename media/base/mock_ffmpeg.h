@@ -14,11 +14,16 @@ namespace media {
 class MockFFmpeg {
  public:
   MockFFmpeg();
-  ~MockFFmpeg();
+  virtual ~MockFFmpeg();
 
   MOCK_METHOD1(AVCodecFindDecoder, AVCodec*(enum CodecID id));
   MOCK_METHOD2(AVCodecOpen, int(AVCodecContext* avctx, AVCodec* codec));
   MOCK_METHOD2(AVCodecThreadInit, int(AVCodecContext* avctx, int threads));
+  MOCK_METHOD1(AVCodecFlushBuffers, void(AVCodecContext* avctx));
+  MOCK_METHOD0(AVCodecAllocFrame, AVFrame*());
+  MOCK_METHOD4(AVCodecDecodeVideo2,
+               int(AVCodecContext* avctx, AVFrame* picture,
+                   int* got_picture_ptr, AVPacket* avpkt));
 
   MOCK_METHOD5(AVOpenInputFile, int(AVFormatContext** format,
                                     const char* filename,
@@ -32,9 +37,10 @@ class MockFFmpeg {
                                 int64_t timestamp,
                                 int flags));
 
+  MOCK_METHOD1(AVInitPacket, void(AVPacket* pkt));
   MOCK_METHOD2(AVNewPacket, int(AVPacket* packet, int size));
-  MOCK_METHOD1(AVFree, void(void* ptr));
   MOCK_METHOD1(AVFreePacket, void(AVPacket* packet));
+  MOCK_METHOD1(AVFree, void(void* ptr));
 
   // Used for verifying check points during tests.
   MOCK_METHOD1(CheckPoint, void(int id));
