@@ -19,7 +19,7 @@
 //
 // Base class used to locate a window. A subclass need only override
 // ShouldStopIterating to determine when iteration should stop.
-class BaseWindowFinder : public gtk_util::EnumerateWindowsDelegate {
+class BaseWindowFinder : public x11_util::EnumerateWindowsDelegate {
  public:
   explicit BaseWindowFinder(const std::set<GtkWidget*>& ignore) {
     std::set<GtkWidget*>::iterator iter;
@@ -100,7 +100,7 @@ class TopMostFinder : public BaseWindowFinder {
       target_(window),
       screen_loc_(screen_loc),
       is_top_most_(false) {
-    gtk_util::EnumerateChildWindows(this);
+    gtk_util::EnumerateTopLevelWindows(this);
   }
 
   // The window we're looking for.
@@ -163,7 +163,7 @@ class LocalProcessWindowFinder : public BaseWindowFinder {
     : BaseWindowFinder(ignore),
       screen_loc_(screen_loc),
       result_(0) {
-    gtk_util::EnumerateChildWindows(this);
+    gtk_util::EnumerateTopLevelWindows(this);
   }
 
   // Position of the mouse.

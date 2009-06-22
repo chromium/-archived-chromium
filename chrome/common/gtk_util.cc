@@ -216,10 +216,15 @@ bool IsScreenComposited() {
   return gdk_screen_is_composited(screen) == TRUE;
 }
 
-void EnumerateChildWindows(EnumerateWindowsDelegate* delegate) {
+void EnumerateTopLevelWindows(x11_util::EnumerateWindowsDelegate* delegate) {
   GdkScreen* screen = gdk_screen_get_default();
   GList* stack = gdk_screen_get_window_stack(screen);
-  DCHECK(stack);
+  if (!stack) {
+    // Window Manager doesn't support _NET_CLIENT_LIST_STACKING, so fall back
+    // to old school enumeration of all X windows.
+    x11_util::EnumerateAllWindows(delegate);
+    return;
+  }
 
   for (GList* iter = g_list_last(stack); iter; iter = iter->prev) {
     GdkWindow* window = static_cast<GdkWindow*>(iter->data);

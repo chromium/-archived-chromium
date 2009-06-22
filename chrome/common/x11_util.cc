@@ -161,6 +161,25 @@ bool GetWindowRect(XID window, gfx::Rect* rect) {
   return true;
 }
 
+bool EnumerateAllWindows(EnumerateWindowsDelegate* delegate) {
+  XID root = GetX11RootWindow();
+  XID parent;
+  XID* children;
+  unsigned int num_children;
+  int status = XQueryTree(GetXDisplay(), root, &root, &parent,
+                          &children, &num_children);
+  if (status == 0)
+    return false;
+
+  for (unsigned int i = 0; i < num_children; i++) {
+    if (delegate->ShouldStopIterating(children[i]))
+      break;
+  }
+
+  XFree(children);
+  return true;
+}
+
 XRenderPictFormat* GetRenderVisualFormat(Display* dpy, Visual* visual) {
   static XRenderPictFormat* pictformat = NULL;
   if (pictformat)

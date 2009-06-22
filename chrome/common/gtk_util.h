@@ -88,17 +88,8 @@ std::string ConvertAcceleratorsFromWindowsStyle(const std::string& label);
 // Returns true if the screen is composited, false otherwise.
 bool IsScreenComposited();
 
-// Implementers of this interface receive a notification for every top-level
-// gdk window of the current display.
-class EnumerateWindowsDelegate {
- public:
-  // |xid| is the X Window ID of the enumerated window.  Return true to stop
-  // further iteration.
-  virtual bool ShouldStopIterating(XID xid) = 0;
-};
-
 // Enumerates the top-level gdk windows of the current display.
-void EnumerateChildWindows(EnumerateWindowsDelegate* delegate);
+void EnumerateTopLevelWindows(x11_util::EnumerateWindowsDelegate* delegate);
 
 // Set that a button causes a page navigation. In particular, it will accept
 // middle clicks. Warning: only call this *after* you have connected your
