@@ -630,4 +630,10 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, TabInitialFocus) {
   browser()->ShowDownloadsTab();
   EXPECT_EQ(browser_view->GetTabContentsContainerView(),
             focus_manager->GetFocusedView());
+
+  // Open about:blank, focus should be on the location bar.
+  browser()->AddTabWithURL(GURL("about:blank"), GURL(), PageTransition::LINK,
+                           true, -1, false, NULL);
+  EXPECT_EQ(browser_view->GetLocationBarView(),
+            focus_manager->GetFocusedView());
 }
