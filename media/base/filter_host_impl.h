@@ -20,7 +20,6 @@ class FilterHostImpl : public FilterHost {
   virtual void SetTimeUpdateCallback(Callback1<base::TimeDelta>::Type* cb);
   virtual void ScheduleTimeUpdateCallback(base::TimeDelta time);
   virtual void InitializationComplete();
-  virtual void PostTask(Task* task);
   virtual void Error(PipelineError error);
   virtual void SetTime(base::TimeDelta time);
   virtual void SetDuration(base::TimeDelta duration);
@@ -130,8 +129,7 @@ class FilterHostImpl : public FilterHost {
   // Pointer to the current time update callback task.
   TimeUpdateTask* scheduled_time_update_task_;
 
-  // Used to avoid calling Filter's Stop method multiplie times.  It is also
-  // used to prevent a filter that has been stopped from calling PostTask.
+  // Used to avoid calling Filter's Stop() method multiple times.
   bool stopped_;
 
   DISALLOW_COPY_AND_ASSIGN(FilterHostImpl);

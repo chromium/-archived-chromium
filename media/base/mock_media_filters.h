@@ -31,11 +31,8 @@ namespace old_mocks {
 enum MockDataSourceBehavior {
   MOCK_DATA_SOURCE_NORMAL_INIT,
   MOCK_DATA_SOURCE_NEVER_INIT,
-  MOCK_DATA_SOURCE_TASK_INIT,
   MOCK_DATA_SOURCE_URL_ERROR_IN_INIT,
   MOCK_DATA_SOURCE_INIT_RETURN_FALSE,
-  MOCK_DATA_SOURCE_TASK_ERROR_PRE_INIT,
-  MOCK_DATA_SOURCE_TASK_ERROR_POST_INIT
 };
 
 
@@ -115,13 +112,6 @@ class MockDataSource : public DataSource {
         return true;
       case MOCK_DATA_SOURCE_NEVER_INIT:
         return true;
-      case MOCK_DATA_SOURCE_TASK_ERROR_POST_INIT:
-        host_->InitializationComplete();
-        // Yes, we want to fall through to schedule the task...
-      case MOCK_DATA_SOURCE_TASK_ERROR_PRE_INIT:
-      case MOCK_DATA_SOURCE_TASK_INIT:
-        host_->PostTask(NewRunnableMethod(this, &MockDataSource::TaskBehavior));
-        return true;
       case MOCK_DATA_SOURCE_URL_ERROR_IN_INIT:
         host_->Error(PIPELINE_ERROR_URL_NOT_FOUND);
         return false;
@@ -179,20 +169,6 @@ class MockDataSource : public DataSource {
   virtual ~MockDataSource() {
     if (deleted_) {
       *deleted_ = true;
-    }
-  }
-
-  void TaskBehavior() {
-    switch (config_->data_source_behavior) {
-      case MOCK_DATA_SOURCE_TASK_ERROR_POST_INIT:
-      case MOCK_DATA_SOURCE_TASK_ERROR_PRE_INIT:
-        host_->Error(PIPELINE_ERROR_NETWORK);
-        break;
-      case MOCK_DATA_SOURCE_TASK_INIT:
-        host_->InitializationComplete();
-        break;
-      default:
-        NOTREACHED();
     }
   }
 
@@ -437,8 +413,7 @@ class MockVideoDecoder : public VideoDecoder {
   }
 
   virtual void Read(Callback1<VideoFrame*>::Type* callback) {
-    host_->PostTask(NewRunnableMethod(
-        this, &MockVideoDecoder::DoRead, callback));
+    DoRead(callback);
   }
 
   // Mock accessors.

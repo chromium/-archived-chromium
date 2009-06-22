@@ -58,10 +58,6 @@ class MockFilterHost : public FilterHost {
     wait_for_initialized_.Signal();
   }
 
-  virtual void PostTask(Task* task) {
-    mock_pipeline_->PostTask(task);
-  }
-
   virtual void Error(PipelineError error) {
     error_ = error;
     mock_pipeline_->Error(error);

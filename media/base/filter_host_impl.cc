@@ -60,14 +60,6 @@ void FilterHostImpl::InitializationComplete() {
   pipeline_thread_->InitializationComplete(this);
 }
 
-void FilterHostImpl::PostTask(Task* task) {
-  if (stopped_) {
-    delete task;
-  } else {
-    pipeline_thread_->PostTask(task);
-  }
-}
-
 void FilterHostImpl::Error(PipelineError error) {
   pipeline_thread_->Error(error);
 }

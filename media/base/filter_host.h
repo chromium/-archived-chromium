@@ -13,11 +13,6 @@
 // data to the audio hardware.  A video renderer filter typically calls GetTime
 // to synchronize video with audio.  An audio and video decoder would typically
 // have no need to call either SetTime or GetTime.
-//
-// The reasoning behind providing PostTask is to discourage filters from
-// implementing their own threading.  The overall design is that many filters
-// can share few threads and that notifications return quickly by scheduling
-// processing with PostTask.
 
 #ifndef MEDIA_BASE_FILTER_HOST_H_
 #define MEDIA_BASE_FILTER_HOST_H_
@@ -58,9 +53,6 @@ class FilterHost {
   // complete.  They may call this from within their Initialize() method or may
   // choose call it after processing some data.
   virtual void InitializationComplete() = 0;
-
-  // Posts a task to be executed asynchronously on the pipeline's thread.
-  virtual void PostTask(Task* task) = 0;
 
   // Stops execution of the pipeline due to a fatal error.  Do not call this
   // method with PIPELINE_OK or PIPELINE_STOPPING (used internally by pipeline).
