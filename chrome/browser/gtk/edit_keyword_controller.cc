@@ -181,6 +181,8 @@ void EditKeywordController::Init(GtkWindow* parent_window) {
   gtk_box_set_spacing(GTK_BOX(GTK_DIALOG(dialog_)->vbox),
                       gtk_util::kContentAreaSpacing);
 
+  EnableControls();
+
   gtk_widget_show_all(dialog_);
 
   g_signal_connect(dialog_, "response", G_CALLBACK(OnResponse), this);
