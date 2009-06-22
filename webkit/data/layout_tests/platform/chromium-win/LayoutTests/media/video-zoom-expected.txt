@@ -9,7 +9,6 @@ layer at (0,0) size 785x850
       RenderBlock (anonymous) at (0,36) size 769x373
         RenderText {#text} at (0,353) size 4x19
           text run at (0,353) width 4: " "
-        RenderVideo {VIDEO} at (4,0) size 488x368 [border: (4px solid #FF0000)]
         RenderBR {BR} at (492,368) size 0x0
       RenderBlock {P} at (0,425) size 769x20
         RenderText {#text} at (0,0) size 287x19
@@ -17,5 +16,8 @@ layer at (0,0) size 785x850
       RenderBlock (anonymous) at (0,461) size 769x373
         RenderText {#text} at (0,353) size 4x19
           text run at (0,353) width 4: " "
-        RenderVideo {VIDEO} at (4,0) size 488x368 [border: (4px solid #FF0000)]
         RenderBR {BR} at (492,368) size 0x0
+layer at (12,44) size 488x368
+  RenderVideo {VIDEO} at (4,0) size 488x368 [border: (4px solid #FF0000)]
+layer at (12,469) size 488x368
+  RenderVideo {VIDEO} at (4,0) size 488x368 [border: (4px solid #FF0000)]
