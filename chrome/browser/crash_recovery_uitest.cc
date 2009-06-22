@@ -30,7 +30,10 @@ TEST_F(CrashRecoveryUITest, Reload) {
   scoped_refptr<TabProxy> tab(GetActiveTab());
 
   // Cause the renderer to crash.
+  // TODO: Need to port crash_service.exe.
+#if defined(OS_WIN)
   expected_crashes_ = 1;
+#endif
   tab->NavigateToURLAsync(GURL("about:crash"));
 
   // Wait for the browser to notice the renderer crash.
@@ -64,7 +67,11 @@ TEST_F(CrashRecoveryUITest, LoadInNewTab) {
   scoped_refptr<TabProxy> tab(GetActiveTab());
 
   // Cause the renderer to crash.
+  // TODO: Need to port crash_service.exe.
+#if defined(OS_WIN)
   expected_crashes_ = 1;
+#endif
+
   tab->NavigateToURLAsync(GURL("about:crash"));
 
   // Wait for the browser to notice the renderer crash.
