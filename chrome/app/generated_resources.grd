@@ -3424,6 +3424,66 @@ each locale. -->
                desc="Title of block that holds tips, suggestions, and other new information gathered from web resources in the new tab page.">
         Recommendations
       </message>
+      <message name="IDS_NEW_TAB_EDIT_THUMBNAIL"
+               desc="Link text for editing a thumbnail. Clicking this link allows the user to change the name and the URL of a thumbnail on the NTP.">
+        edit
+      </message>
+      <message name="IDS_NEW_TAB_RECENT_ACTIVITIES"
+               desc="Heading text for the section containing recent activities. Recent activies includes closed windows and tabs as well as downloads.">
+        Recent activities
+      </message>
+      <message name="IDS_NEW_TAB_DOWNLOADS"
+               desc="The header text of the recent downloads section.">
+        Downloads
+      </message>
+      <message name="IDS_NEW_TAB_VIEW_FULL_HISTORY"
+               desc="The text of the link that takes the user to the history page. This is shown under recent activities.">
+        View full history
+      </message>
+      <message name="IDS_NEW_TAB_VIEW_ALL_DOWNLOADS"
+               desc="The text of the link that takes the user to the downloads page. This is shown under recent activities.">
+        View all downloads
+      </message>
+      <message name="IDS_NEW_TAB_SHOW_THUMBNAILS"
+               desc="Menu item text used to show the thumbnail grid for the most visited pages.">
+        Show thumbnails
+      </message>
+      <message name="IDS_NEW_TAB_HIDE_THUMBNAILS"
+               desc="Menu item text used to hide the thumbnail grid for the most visited pages.">
+        Hide thumbnails
+      </message>
+      <message name="IDS_NEW_TAB_SHOW_LIST"
+               desc="Menu item text used to show the list of the most visited pages.">
+        Show list
+      </message>
+      <message name="IDS_NEW_TAB_HIDE_LIST"
+               desc="Menu item text used to hide the list of the most visited pages.">
+        Hide list
+      </message>
+      <message name="IDS_NEW_TAB_SHOW_RECENT"
+               desc="Menu item text used to show recent activities.">
+        Show recent activities
+      </message>
+      <message name="IDS_NEW_TAB_HIDE_RECENT"
+               desc="Menu item text used to hide recent activities.">
+        Hide recent activities
+      </message>
+      <message name="IDS_NEW_TAB_SHOW_RECOMMENDATIONS"
+               desc="Menu item text used to show recommendations.">
+        Show recommendations
+      </message>
+      <message name="IDS_NEW_TAB_HIDE_RECOMMENDATIONS"
+               desc="Menu item text used to hide recommendations.">
+        Hide recommendations
+      </message>
+      <message name="IDS_NEW_TAB_THUMBNAIL_REMOVED_NOTIFICATION"
+               desc="Notification text shown when a thumbnail has been removed from the most visited section.">
+        The thumbnail for &#x201C;<ph name="THUMBNAIL_TITLE">%s</ph>&#x201D; will no longer appear.
+      </message>
+      <message name="IDS_NEW_TAB_UNDO_THUMBNAIL_REMOVE"
+         desc="Action link text to undo removing a thumbnail from the most visited section.">
+        Undo
+      </message>
 
       <!-- SafeBrowsing -->
       <message name="IDS_SAFE_BROWSING_MALWARE_TITLE" desc="SafeBrowsing Malware HTML title">

@@ -22,6 +22,7 @@
 #include "chrome/browser/dom_ui/dom_ui_theme_source.h"
 #include "chrome/browser/dom_ui/downloads_dom_handler.h"
 #include "chrome/browser/dom_ui/history_ui.h"
+#include "chrome/browser/dom_ui/shown_sections_handler.h"
 #include "chrome/browser/dom_ui/web_resource_handler.h"
 #include "chrome/browser/history/page_usage_data.h"
 #include "chrome/browser/metrics/user_metrics.h"
@@ -294,6 +295,38 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
       l10n_util::GetString(IDS_NEW_TAB_ATTRIBUTION_INTRO));
   localized_strings.SetString(L"resourcecache",
       l10n_util::GetString(IDS_NEW_TAB_WEB_RESOURCE_CACHE));
+  localized_strings.SetString(L"editthumbnail",
+    l10n_util::GetString(IDS_NEW_TAB_EDIT_THUMBNAIL));
+  localized_strings.SetString(L"recentactivities",
+    l10n_util::GetString(IDS_NEW_TAB_RECENT_ACTIVITIES));
+  localized_strings.SetString(L"downloads",
+    l10n_util::GetString(IDS_NEW_TAB_DOWNLOADS));
+  localized_strings.SetString(L"viewfullhistory",
+    l10n_util::GetString(IDS_NEW_TAB_VIEW_FULL_HISTORY));
+  localized_strings.SetString(L"viewalldownloads",
+    l10n_util::GetString(IDS_NEW_TAB_VIEW_ALL_DOWNLOADS));
+  localized_strings.SetString(L"showthumbnails",
+    l10n_util::GetString(IDS_NEW_TAB_SHOW_THUMBNAILS));
+  localized_strings.SetString(L"hidethumbnails",
+    l10n_util::GetString(IDS_NEW_TAB_HIDE_THUMBNAILS));
+  localized_strings.SetString(L"showlist",
+    l10n_util::GetString(IDS_NEW_TAB_SHOW_LIST));
+  localized_strings.SetString(L"hidelist",
+    l10n_util::GetString(IDS_NEW_TAB_HIDE_LIST));
+  localized_strings.SetString(L"showrecent",
+    l10n_util::GetString(IDS_NEW_TAB_SHOW_RECENT));
+  localized_strings.SetString(L"hiderecent",
+    l10n_util::GetString(IDS_NEW_TAB_HIDE_RECENT));
+  localized_strings.SetString(L"showrecommendations",
+    l10n_util::GetString(IDS_NEW_TAB_SHOW_RECOMMENDATIONS));
+  localized_strings.SetString(L"hiderecommendations",
+    l10n_util::GetString(IDS_NEW_TAB_HIDE_RECOMMENDATIONS));
+  localized_strings.SetString(L"thumbnailremovednotification",
+    l10n_util::GetString(IDS_NEW_TAB_THUMBNAIL_REMOVED_NOTIFICATION));
+  localized_strings.SetString(L"undothumbnailremove",
+    l10n_util::GetString(IDS_NEW_TAB_UNDO_THUMBNAIL_REMOVE));
+  localized_strings.SetString(L"otrmessage",
+    l10n_util::GetString(IDS_NEW_TAB_OTR_MESSAGE));
 
   SetFontAndTextDirection(&localized_strings);
 
@@ -1376,11 +1409,10 @@ NewTabUI::NewTabUI(TabContents* contents)
       DownloadManager* dlm = GetProfile()->GetDownloadManager();
       DownloadsDOMHandler* downloads_handler =
           new DownloadsDOMHandler(this, dlm);
-
       AddMessageHandler(downloads_handler);
-      AddMessageHandler(new BrowsingHistoryHandler(this));
-
       downloads_handler->Init();
+
+      AddMessageHandler(new ShownSectionsHandler(this));
     }
 
     if (EnableWebResources())
@@ -1443,6 +1475,8 @@ void NewTabUI::RegisterUserPrefs(PrefService* prefs) {
   MostVisitedHandler::RegisterUserPrefs(prefs);
   if (NewTabUI::EnableWebResources())
     WebResourceHandler::RegisterUserPrefs(prefs);
+  if (NewTabUI::EnableNewNewTabPage())
+    ShownSectionsHandler::RegisterUserPrefs(prefs);
 }
 
 // static

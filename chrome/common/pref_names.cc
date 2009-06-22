@@ -536,4 +536,11 @@ const wchar_t kNTPWebResourceCacheUpdate[] = L"ntp.web_resource_update";
 // Last server used to fill web_resource_cache.
 const wchar_t kNTPWebResourceServer[] = L"ntp.web_resource_server";
 
+// Which sections should be visible on the new tab page
+// 1 - Show the most visited sites in a grid
+// 2 - Show the most visited sites as a list
+// 4 - Show the recent section
+// 8 - Show recommendations
+const wchar_t kNTPShownSections[] = L"ntp.shown_sections";
+
 }  // namespace prefs

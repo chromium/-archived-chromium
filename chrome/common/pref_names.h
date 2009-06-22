@@ -196,6 +196,7 @@ extern const wchar_t kNTPMostVisitedPinnedURLs[];
 extern const wchar_t kNTPWebResourceCache[];
 extern const wchar_t kNTPWebResourceCacheUpdate[];
 extern const wchar_t kNTPWebResourceServer[];
+extern const wchar_t kNTPShownSections[];
 }
 
 #endif  // CHROME_COMMON_PREF_NAMES_H_
