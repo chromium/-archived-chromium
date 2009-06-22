@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <limits>
 
+#include "base/file_path.h"
 #include "base/time.h"
 #include "chrome/common/sqlite_utils.h"
 
@@ -42,9 +43,8 @@ LoginDatabase::~LoginDatabase() {
   }
 }
 
-bool LoginDatabase::Init(const std::string& db_name) {
-  // Open the database, using the narrow version of open so the DB is in UTF-8.
-  if (sqlite3_open(db_name.c_str(), &db_) != SQLITE_OK) {
+bool LoginDatabase::Init(const FilePath& db_path) {
+  if (OpenSqliteDb(db_path, &db_) != SQLITE_OK) {
     LOG(WARNING) << "Unable to open the password store database.";
     return false;
   }

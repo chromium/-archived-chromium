@@ -51,7 +51,7 @@ TEST_F(LoginDatabaseTest, Logins) {
   if (!db.get())
     return;
 
-  ASSERT_TRUE(db->Init(file_.value()));
+  ASSERT_TRUE(db->Init(file_));
 
   std::vector<PasswordForm*> result;
 
@@ -213,7 +213,7 @@ TEST_F(LoginDatabaseTest, ClearPrivateData_SavedPasswords) {
   if (!db.get())
     return;
 
-  EXPECT_TRUE(db->Init(file_.value()));
+  EXPECT_TRUE(db->Init(file_));
 
   std::vector<PasswordForm*> result;
 
@@ -257,7 +257,7 @@ TEST_F(LoginDatabaseTest, BlacklistedLogins) {
   if (!db.get())
     return;
 
-  EXPECT_TRUE(db->Init(file_.value()));
+  EXPECT_TRUE(db->Init(file_));
   std::vector<PasswordForm*> result;
 
   // Verify the database is empty.

@@ -11,6 +11,7 @@
 #include "chrome/browser/meta_table_helper.h"
 #include "webkit/glue/password_form.h"
 
+class FilePath;
 struct sqlite3;
 
 // Base class for database storage of login information, intended as a helper
@@ -23,9 +24,9 @@ class LoginDatabase {
   LoginDatabase();
   virtual ~LoginDatabase();
 
-  // Initialize the database given a name. The name defines where the sqlite
-  // file is. If false is returned, no other method should be called.
-  bool Init(const std::string& db_name);
+  // Initialize the database with an sqlite file at the given path.
+  // If false is returned, no other method should be called.
+  bool Init(const FilePath& db_path);
 
   // Adds |form| to the list of remembered password forms.
   bool AddLogin(const webkit_glue::PasswordForm& form);
