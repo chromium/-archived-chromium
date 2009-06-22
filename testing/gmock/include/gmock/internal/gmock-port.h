@@ -47,23 +47,8 @@
 
 // To avoid conditional compilation everywhere, we make it
 // gmock-port.h's responsibility to #include the header implementing
-// tr1/tuple.
-#if defined(__GNUC__) && GTEST_GCC_VER_ >= 40000
-// GTEST_GCC_VER_ is defined in gtest-port.h and 40000 corresponds to
-// version 4.0.0.
-// GCC 4.0+ implements tr1/tuple in the <tr1/tuple> header.  This does
-// not conform to the TR1 spec, which requires the header to be <tuple>.
-#include <tr1/tuple>
-#elif defined(_MSC_VER) && _MSC_VER < 1500
-// For Visual Studio older than 2008, we redirect directly to boost tuple
-// searching from boost's root.  This is to avoid extra dirtying of the
-// compiler include paths.
-#include "boost/tr1/tr1/tuple"
-#else
-// If the compiler is neither GCC 4.0+, nor Visual Studio 2008, we assume the
-// user is using a spec-conforming TR1 implementation.
-#include <tuple>
-#endif  // __GNUC__
+// tr1/tuple.  gmock-port.h does this via gtest-port.h, which is
+// guaranteed to pull in the tuple header.
 
 #if GTEST_OS_LINUX
 

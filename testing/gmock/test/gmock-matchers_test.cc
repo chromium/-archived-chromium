@@ -60,7 +60,9 @@ bool SkipPrefix(const char* prefix, const char** pstr);
 namespace gmock_matchers_test {
 
 using std::stringstream;
+using std::tr1::make_tuple;
 using testing::A;
+using testing::AllArgs;
 using testing::AllOf;
 using testing::An;
 using testing::AnyOf;
@@ -98,6 +100,7 @@ using testing::StrEq;
 using testing::StrNe;
 using testing::Truly;
 using testing::TypedEq;
+using testing::Value;
 using testing::_;
 using testing::internal::FloatingEqMatcher;
 using testing::internal::FormatMatcherDescriptionSyntaxError;
@@ -1333,7 +1336,7 @@ TEST(Eq2Test, MatchesEqualArguments) {
 // Tests that Eq() describes itself properly.
 TEST(Eq2Test, CanDescribeSelf) {
   Matcher<const Tuple2&> m = Eq();
-  EXPECT_EQ("argument #0 is equal to argument #1", Describe(m));
+  EXPECT_EQ("are a pair (x, y) where x == y", Describe(m));
 }
 
 // Tests that Ge() matches a 2-tuple where the first field >= the
@@ -1348,8 +1351,7 @@ TEST(Ge2Test, MatchesGreaterThanOrEqualArguments) {
 // Tests that Ge() describes itself properly.
 TEST(Ge2Test, CanDescribeSelf) {
   Matcher<const Tuple2&> m = Ge();
-  EXPECT_EQ("argument #0 is greater than or equal to argument #1",
-            Describe(m));
+  EXPECT_EQ("are a pair (x, y) where x >= y", Describe(m));
 }
 
 // Tests that Gt() matches a 2-tuple where the first field > the
@@ -1364,7 +1366,7 @@ TEST(Gt2Test, MatchesGreaterThanArguments) {
 // Tests that Gt() describes itself properly.
 TEST(Gt2Test, CanDescribeSelf) {
   Matcher<const Tuple2&> m = Gt();
-  EXPECT_EQ("argument #0 is greater than argument #1", Describe(m));
+  EXPECT_EQ("are a pair (x, y) where x > y", Describe(m));
 }
 
 // Tests that Le() matches a 2-tuple where the first field <= the
@@ -1379,8 +1381,7 @@ TEST(Le2Test, MatchesLessThanOrEqualArguments) {
 // Tests that Le() describes itself properly.
 TEST(Le2Test, CanDescribeSelf) {
   Matcher<const Tuple2&> m = Le();
-  EXPECT_EQ("argument #0 is less than or equal to argument #1",
-            Describe(m));
+  EXPECT_EQ("are a pair (x, y) where x <= y", Describe(m));
 }
 
 // Tests that Lt() matches a 2-tuple where the first field < the
@@ -1395,7 +1396,7 @@ TEST(Lt2Test, MatchesLessThanArguments) {
 // Tests that Lt() describes itself properly.
 TEST(Lt2Test, CanDescribeSelf) {
   Matcher<const Tuple2&> m = Lt();
-  EXPECT_EQ("argument #0 is less than argument #1", Describe(m));
+  EXPECT_EQ("are a pair (x, y) where x < y", Describe(m));
 }
 
 // Tests that Ne() matches a 2-tuple where the first field != the
@@ -1410,7 +1411,7 @@ TEST(Ne2Test, MatchesUnequalArguments) {
 // Tests that Ne() describes itself properly.
 TEST(Ne2Test, CanDescribeSelf) {
   Matcher<const Tuple2&> m = Ne();
-  EXPECT_EQ("argument #0 is not equal to argument #1", Describe(m));
+  EXPECT_EQ("are a pair (x, y) where x != y", Describe(m));
 }
 
 // Tests that Not(m) matches any value that doesn't match m.
@@ -1668,6 +1669,54 @@ TEST(MatchesTest, WorksWithMatcherOnNonRefType) {
   Matcher<int> eq5 = Eq(5);
   EXPECT_TRUE(Matches(eq5)(5));
   EXPECT_FALSE(Matches(eq5)(2));
+}
+
+// Tests Value(value, matcher).  Since Value() is a simple wrapper for
+// Matches(), which has been tested already, we don't spend a lot of
+// effort on testing Value().
+TEST(ValueTest, WorksWithPolymorphicMatcher) {
+  EXPECT_TRUE(Value("hi", StartsWith("h")));
+  EXPECT_FALSE(Value(5, Gt(10)));
+}
+
+TEST(ValueTest, WorksWithMonomorphicMatcher) {
+  const Matcher<int> is_zero = Eq(0);
+  EXPECT_TRUE(Value(0, is_zero));
+  EXPECT_FALSE(Value('a', is_zero));
+
+  int n = 0;
+  const Matcher<const int&> ref_n = Ref(n);
+  EXPECT_TRUE(Value(n, ref_n));
+  EXPECT_FALSE(Value(1, ref_n));
+}
+
+TEST(AllArgsTest, WorksForTuple) {
+  EXPECT_THAT(make_tuple(1, 2L), AllArgs(Lt()));
+  EXPECT_THAT(make_tuple(2L, 1), Not(AllArgs(Lt())));
+}
+
+TEST(AllArgsTest, WorksForNonTuple) {
+  EXPECT_THAT(42, AllArgs(Gt(0)));
+  EXPECT_THAT('a', Not(AllArgs(Eq('b'))));
+}
+
+class AllArgsHelper {
+ public:
+  MOCK_METHOD2(Helper, int(char x, int y));
+};
+
+TEST(AllArgsTest, WorksInWithClause) {
+  AllArgsHelper helper;
+  ON_CALL(helper, Helper(_, _))
+      .With(AllArgs(Lt()))
+      .WillByDefault(Return(1));
+  EXPECT_CALL(helper, Helper(_, _));
+  EXPECT_CALL(helper, Helper(_, _))
+      .With(AllArgs(Gt()))
+      .WillOnce(Return(2));
+
+  EXPECT_EQ(1, helper.Helper('\1', 2));
+  EXPECT_EQ(2, helper.Helper('a', 1));
 }
 
 // Tests that ASSERT_THAT() and EXPECT_THAT() work when the value
@@ -2765,9 +2814,7 @@ TEST(ByRefTest, AllowsNotCopyableValueInMatchers) {
 // different element types.
 
 template <typename T>
-class ContainerEqTest : public testing::Test {
- public:
-};
+class ContainerEqTest : public testing::Test {};
 
 typedef testing::Types<
     std::set<int>,
@@ -2899,6 +2946,60 @@ TEST(ContainerEqExtraTest, WorksForMaps) {
 
   EXPECT_EQ("Only in actual: (0, \"aa\"); not in actual: (0, \"a\")",
             Explain(m, test_map));
+}
+
+TEST(ContainerEqExtraTest, WorksForNativeArray) {
+  int a1[] = { 1, 2, 3 };
+  int a2[] = { 1, 2, 3 };
+  int b[] = { 1, 2, 4 };
+
+  EXPECT_THAT(a1, ContainerEq(a2));
+  EXPECT_THAT(a1, Not(ContainerEq(b)));
+}
+
+TEST(ContainerEqExtraTest, WorksForTwoDimensionalNativeArray) {
+  const char a1[][3] = { "hi", "lo" };
+  const char a2[][3] = { "hi", "lo" };
+  const char b[][3] = { "lo", "hi" };
+
+  // Tests using ContainerEq() in the first dimension.
+  EXPECT_THAT(a1, ContainerEq(a2));
+  EXPECT_THAT(a1, Not(ContainerEq(b)));
+
+  // Tests using ContainerEq() in the second dimension.
+  EXPECT_THAT(a1, ElementsAre(ContainerEq(a2[0]), ContainerEq(a2[1])));
+  EXPECT_THAT(a1, ElementsAre(Not(ContainerEq(b[0])), ContainerEq(a2[1])));
+}
+
+TEST(ContainerEqExtraTest, WorksForNativeArrayAsTuple) {
+  const int a1[] = { 1, 2, 3 };
+  const int a2[] = { 1, 2, 3 };
+  const int b[] = { 1, 2, 3, 4 };
+
+  const int* const p1 = a1;
+  EXPECT_THAT(make_tuple(p1, 3), ContainerEq(a2));
+  EXPECT_THAT(make_tuple(p1, 3), Not(ContainerEq(b)));
+
+  const int c[] = { 1, 3, 2 };
+  EXPECT_THAT(make_tuple(p1, 3), Not(ContainerEq(c)));
+}
+
+TEST(ContainerEqExtraTest, CopiesNativeArrayParameter) {
+  std::string a1[][3] = {
+    { "hi", "hello", "ciao" },
+    { "bye", "see you", "ciao" }
+  };
+
+  std::string a2[][3] = {
+    { "hi", "hello", "ciao" },
+    { "bye", "see you", "ciao" }
+  };
+
+  const Matcher<const std::string(&)[2][3]> m = ContainerEq(a2);
+  EXPECT_THAT(a1, m);
+
+  a2[0][0] = "ha";
+  EXPECT_THAT(a1, m);
 }
 
 // Tests GetParamIndex().

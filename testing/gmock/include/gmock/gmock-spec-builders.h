@@ -37,16 +37,16 @@
 // a mock method.  The syntax is:
 //
 //   ON_CALL(mock_object, Method(argument-matchers))
-//       .WithArguments(multi-argument-matcher)
+//       .With(multi-argument-matcher)
 //       .WillByDefault(action);
 //
-//  where the .WithArguments() clause is optional.
+//  where the .With() clause is optional.
 //
 // A user can use the EXPECT_CALL() macro to specify an expectation on
 // a mock method.  The syntax is:
 //
 //   EXPECT_CALL(mock_object, Method(argument-matchers))
-//       .WithArguments(multi-argument-matchers)
+//       .With(multi-argument-matchers)
 //       .Times(cardinality)
 //       .InSequence(sequences)
 //       .WillOnce(action)
@@ -92,10 +92,6 @@ class ExpectationTester;
 // Base class for function mockers.
 template <typename F>
 class FunctionMockerBase;
-
-// Helper class for implementing FunctionMockerBase<F>::InvokeWith().
-template <typename Result, typename F>
-class InvokeWithHelper;
 
 // Protects the mock object registry (in class Mock), all function
 // mockers, and all expectations.
@@ -148,20 +144,20 @@ class DefaultActionSpec {
         // bug in Symbian's C++ compiler (cannot decide between two
         // overloaded constructors of Matcher<const ArgumentTuple&>).
         extra_matcher_(A<const ArgumentTuple&>()),
-        last_clause_(NONE) {
+        last_clause_(kNone) {
   }
 
   // Where in the source file was the default action spec defined?
   const char* file() const { return file_; }
   int line() const { return line_; }
 
-  // Implements the .WithArguments() clause.
-  DefaultActionSpec& WithArguments(const Matcher<const ArgumentTuple&>& m) {
+  // Implements the .With() clause.
+  DefaultActionSpec& With(const Matcher<const ArgumentTuple&>& m) {
     // Makes sure this is called at most once.
-    ExpectSpecProperty(last_clause_ < WITH_ARGUMENTS,
-                       ".WithArguments() cannot appear "
+    ExpectSpecProperty(last_clause_ < kWith,
+                       ".With() cannot appear "
                        "more than once in an ON_CALL().");
-    last_clause_ = WITH_ARGUMENTS;
+    last_clause_ = kWith;
 
     extra_matcher_ = m;
     return *this;
@@ -169,10 +165,10 @@ class DefaultActionSpec {
 
   // Implements the .WillByDefault() clause.
   DefaultActionSpec& WillByDefault(const Action<F>& action) {
-    ExpectSpecProperty(last_clause_ < WILL_BY_DEFAULT,
+    ExpectSpecProperty(last_clause_ < kWillByDefault,
                        ".WillByDefault() must appear "
                        "exactly once in an ON_CALL().");
-    last_clause_ = WILL_BY_DEFAULT;
+    last_clause_ = kWillByDefault;
 
     ExpectSpecProperty(!action.IsDoDefault(),
                        "DoDefault() cannot be used in ON_CALL().");
@@ -187,7 +183,7 @@ class DefaultActionSpec {
 
   // Returns the action specified by the user.
   const Action<F>& GetAction() const {
-    AssertSpecProperty(last_clause_ == WILL_BY_DEFAULT,
+    AssertSpecProperty(last_clause_ == kWillByDefault,
                        ".WillByDefault() must appear exactly "
                        "once in an ON_CALL().");
     return action_;
@@ -197,9 +193,9 @@ class DefaultActionSpec {
   enum Clause {
     // Do not change the order of the enum members!  The run-time
     // syntax checking relies on it.
-    NONE,
-    WITH_ARGUMENTS,
-    WILL_BY_DEFAULT,
+    kNone,
+    kWith,
+    kWillByDefault,
   };
 
   // Asserts that the ON_CALL() statement has a certain property.
@@ -215,7 +211,7 @@ class DefaultActionSpec {
   // The information in statement
   //
   //   ON_CALL(mock_object, Method(matchers))
-  //       .WithArguments(multi-argument-matcher)
+  //       .With(multi-argument-matcher)
   //       .WillByDefault(action);
   //
   // is recorded in the data members like this:
@@ -232,7 +228,7 @@ class DefaultActionSpec {
   Action<F> action_;
 
   // The last clause in the ON_CALL() statement as seen so far.
-  // Initially NONE and changes as the statement is parsed.
+  // Initially kNone and changes as the statement is parsed.
   Clause last_clause_;
 };  // class DefaultActionSpec
 
@@ -268,9 +264,6 @@ class Mock {
   // how to clear a mock object).
   template <typename F>
   friend class internal::FunctionMockerBase;
-
-  template <typename R, typename Args>
-  friend class internal::InvokeWithHelper;
 
   template <typename M>
   friend class NiceMock;
@@ -444,13 +437,13 @@ class ExpectationBase {
 
   enum Clause {
     // Don't change the order of the enum members!
-    NONE,
-    WITH_ARGUMENTS,
-    TIMES,
-    IN_SEQUENCE,
-    WILL_ONCE,
-    WILL_REPEATEDLY,
-    RETIRES_ON_SATURATION,
+    kNone,
+    kWith,
+    kTimes,
+    kInSequence,
+    kWillOnce,
+    kWillRepeatedly,
+    kRetiresOnSaturation,
   };
 
   // Asserts that the EXPECT_CALL() statement has the given property.
@@ -588,7 +581,7 @@ class Expectation : public ExpectationBase {
         repeated_action_specified_(false),
         repeated_action_(DoDefault()),
         retires_on_saturation_(false),
-        last_clause_(NONE),
+        last_clause_(kNone),
         action_count_checked_(false) {}
 
   virtual ~Expectation() {
@@ -597,18 +590,18 @@ class Expectation : public ExpectationBase {
     CheckActionCountIfNotDone();
   }
 
-  // Implements the .WithArguments() clause.
-  Expectation& WithArguments(const Matcher<const ArgumentTuple&>& m) {
-    if (last_clause_ == WITH_ARGUMENTS) {
+  // Implements the .With() clause.
+  Expectation& With(const Matcher<const ArgumentTuple&>& m) {
+    if (last_clause_ == kWith) {
       ExpectSpecProperty(false,
-                         ".WithArguments() cannot appear "
+                         ".With() cannot appear "
                          "more than once in an EXPECT_CALL().");
     } else {
-      ExpectSpecProperty(last_clause_ < WITH_ARGUMENTS,
-                         ".WithArguments() must be the first "
+      ExpectSpecProperty(last_clause_ < kWith,
+                         ".With() must be the first "
                          "clause in an EXPECT_CALL().");
     }
-    last_clause_ = WITH_ARGUMENTS;
+    last_clause_ = kWith;
 
     extra_matcher_ = m;
     return *this;
@@ -616,17 +609,17 @@ class Expectation : public ExpectationBase {
 
   // Implements the .Times() clause.
   Expectation& Times(const Cardinality& cardinality) {
-    if (last_clause_ ==TIMES) {
+    if (last_clause_ ==kTimes) {
       ExpectSpecProperty(false,
                          ".Times() cannot appear "
                          "more than once in an EXPECT_CALL().");
     } else {
-      ExpectSpecProperty(last_clause_ < TIMES,
+      ExpectSpecProperty(last_clause_ < kTimes,
                          ".Times() cannot appear after "
                          ".InSequence(), .WillOnce(), .WillRepeatedly(), "
                          "or .RetiresOnSaturation().");
     }
-    last_clause_ = TIMES;
+    last_clause_ = kTimes;
 
     ExpectationBase::SpecifyCardinality(cardinality);
     return *this;
@@ -639,11 +632,11 @@ class Expectation : public ExpectationBase {
 
   // Implements the .InSequence() clause.
   Expectation& InSequence(const Sequence& s) {
-    ExpectSpecProperty(last_clause_ <= IN_SEQUENCE,
+    ExpectSpecProperty(last_clause_ <= kInSequence,
                        ".InSequence() cannot appear after .WillOnce(),"
                        " .WillRepeatedly(), or "
                        ".RetiresOnSaturation().");
-    last_clause_ = IN_SEQUENCE;
+    last_clause_ = kInSequence;
 
     s.AddExpectation(owner_->GetLinkedExpectationBase(this));
     return *this;
@@ -667,10 +660,10 @@ class Expectation : public ExpectationBase {
 
   // Implements the .WillOnce() clause.
   Expectation& WillOnce(const Action<F>& action) {
-    ExpectSpecProperty(last_clause_ <= WILL_ONCE,
+    ExpectSpecProperty(last_clause_ <= kWillOnce,
                        ".WillOnce() cannot appear after "
                        ".WillRepeatedly() or .RetiresOnSaturation().");
-    last_clause_ = WILL_ONCE;
+    last_clause_ = kWillOnce;
 
     actions_.push_back(action);
     if (!cardinality_specified()) {
@@ -681,16 +674,16 @@ class Expectation : public ExpectationBase {
 
   // Implements the .WillRepeatedly() clause.
   Expectation& WillRepeatedly(const Action<F>& action) {
-    if (last_clause_ == WILL_REPEATEDLY) {
+    if (last_clause_ == kWillRepeatedly) {
       ExpectSpecProperty(false,
                          ".WillRepeatedly() cannot appear "
                          "more than once in an EXPECT_CALL().");
     } else {
-      ExpectSpecProperty(last_clause_ < WILL_REPEATEDLY,
+      ExpectSpecProperty(last_clause_ < kWillRepeatedly,
                          ".WillRepeatedly() cannot appear "
                          "after .RetiresOnSaturation().");
     }
-    last_clause_ = WILL_REPEATEDLY;
+    last_clause_ = kWillRepeatedly;
     repeated_action_specified_ = true;
 
     repeated_action_ = action;
@@ -706,10 +699,10 @@ class Expectation : public ExpectationBase {
 
   // Implements the .RetiresOnSaturation() clause.
   Expectation& RetiresOnSaturation() {
-    ExpectSpecProperty(last_clause_ < RETIRES_ON_SATURATION,
+    ExpectSpecProperty(last_clause_ < kRetiresOnSaturation,
                        ".RetiresOnSaturation() cannot appear "
                        "more than once.");
-    last_clause_ = RETIRES_ON_SATURATION;
+    last_clause_ = kRetiresOnSaturation;
     retires_on_saturation_ = true;
 
     // Now that no more action clauses can be specified, we check
@@ -724,7 +717,7 @@ class Expectation : public ExpectationBase {
     return matchers_;
   }
 
-  // Returns the matcher specified by the .WithArguments() clause.
+  // Returns the matcher specified by the .With() clause.
   const Matcher<const ArgumentTuple&>& extra_matcher() const {
     return extra_matcher_;
   }
@@ -762,9 +755,6 @@ class Expectation : public ExpectationBase {
  private:
   template <typename Function>
   friend class FunctionMockerBase;
-
-  template <typename R, typename Function>
-  friend class InvokeWithHelper;
 
   // The following methods will be called only after the EXPECT_CALL()
   // statement finishes and when the current thread holds
@@ -805,9 +795,9 @@ class Expectation : public ExpectationBase {
         DescribeMatchFailureTupleTo(matchers_, args, os);
       }
       if (!extra_matcher_.Matches(args)) {
-        *os << "         Expected: ";
+        *os << "    Expected args: ";
         extra_matcher_.DescribeTo(os);
-        *os << "\n           Actual: false";
+        *os << "\n           Actual: don't match";
 
         internal::ExplainMatchResultAsNeededTo<const ArgumentTuple&>(
             extra_matcher_, args, os);
@@ -1042,6 +1032,78 @@ class MockSpec {
 #pragma warning(disable:4355)  // Temporarily disables warning 4355.
 #endif  // _MSV_VER
 
+// C++ treats the void type specially.  For example, you cannot define
+// a void-typed variable or pass a void value to a function.
+// ActionResultHolder<T> holds a value of type T, where T must be a
+// copyable type or void (T doesn't need to be default-constructable).
+// It hides the syntactic difference between void and other types, and
+// is used to unify the code for invoking both void-returning and
+// non-void-returning mock functions.  This generic definition is used
+// when T is not void.
+template <typename T>
+class ActionResultHolder {
+ public:
+  explicit ActionResultHolder(T value) : value_(value) {}
+
+  // The compiler-generated copy constructor and assignment operator
+  // are exactly what we need, so we don't need to define them.
+
+  T value() const { return value_; }
+
+  // Prints the held value as an action's result to os.
+  void PrintAsActionResult(::std::ostream* os) const {
+    *os << "\n          Returns: ";
+    UniversalPrinter<T>::Print(value_, os);
+  }
+
+  // Performs the given mock function's default action and returns the
+  // result in a ActionResultHolder.
+  template <typename Function, typename Arguments>
+  static ActionResultHolder PerformDefaultAction(
+      const FunctionMockerBase<Function>* func_mocker,
+      const Arguments& args,
+      const string& call_description) {
+    return ActionResultHolder(
+        func_mocker->PerformDefaultAction(args, call_description));
+  }
+
+  // Performs the given action and returns the result in a
+  // ActionResultHolder.
+  template <typename Function, typename Arguments>
+  static ActionResultHolder PerformAction(const Action<Function>& action,
+                                          const Arguments& args) {
+    return ActionResultHolder(action.Perform(args));
+  }
+
+ private:
+  T value_;
+};
+
+// Specialization for T = void.
+template <>
+class ActionResultHolder<void> {
+ public:
+  ActionResultHolder() {}
+  void value() const {}
+  void PrintAsActionResult(::std::ostream* /* os */) const {}
+
+  template <typename Function, typename Arguments>
+  static ActionResultHolder PerformDefaultAction(
+      const FunctionMockerBase<Function>* func_mocker,
+      const Arguments& args,
+      const string& call_description) {
+    func_mocker->PerformDefaultAction(args, call_description);
+    return ActionResultHolder();
+  }
+
+  template <typename Function, typename Arguments>
+  static ActionResultHolder PerformAction(const Action<Function>& action,
+                                          const Arguments& args) {
+    action.Perform(args);
+    return ActionResultHolder();
+  }
+};
+
 // The base of the function mocker class for the given function type.
 // We put the methods in this class instead of its child to avoid code
 // bloat.
@@ -1167,16 +1229,11 @@ class FunctionMockerBase : public UntypedFunctionMockerBase {
   template <typename Function>
   friend class MockSpec;
 
-  template <typename R, typename Function>
-  friend class InvokeWithHelper;
-
   // Returns the result of invoking this mock function with the given
   // arguments.  This function can be safely called from multiple
   // threads concurrently.
   // L < g_gmock_mutex
-  Result InvokeWith(const ArgumentTuple& args) {
-    return InvokeWithHelper<Result, F>::InvokeAndPrintResult(this, args);
-  }
+  Result InvokeWith(const ArgumentTuple& args);
 
   // Adds and returns a default action spec for this mock function.
   // L < g_gmock_mutex
@@ -1417,170 +1474,109 @@ bool FunctionMockerBase<F>::VerifyAndClearExpectationsLocked() {
 // manner specified by 'reaction'.
 void ReportUninterestingCall(CallReaction reaction, const string& msg);
 
-// When an uninteresting or unexpected mock function is called, we
-// want to print its return value to assist the user debugging.  Since
-// there's nothing to print when the function returns void, we need to
-// specialize the logic of FunctionMockerBase<F>::InvokeWith() for
-// void return values.
-//
-// C++ doesn't allow us to specialize a member function template
-// unless we also specialize its enclosing class, so we had to let
-// InvokeWith() delegate its work to a helper class InvokeWithHelper,
-// which can then be specialized.
-//
-// Note that InvokeWithHelper must be a class template (as opposed to
-// a function template), as only class templates can be partially
-// specialized.
-template <typename Result, typename F>
-class InvokeWithHelper {
- public:
-  typedef typename Function<F>::ArgumentTuple ArgumentTuple;
-
-  // Calculates the result of invoking the function mocked by mocker
-  // with the given arguments, prints it, and returns it.
-  // L < g_gmock_mutex
-  static Result InvokeAndPrintResult(
-      FunctionMockerBase<F>* mocker,
-      const ArgumentTuple& args) {
-    if (mocker->expectations_.size() == 0) {
-      // No expectation is set on this mock method - we have an
-      // uninteresting call.
-
-      // Warns about the uninteresting call.
-      ::std::stringstream ss;
-      mocker->DescribeUninterestingCall(args, &ss);
-
-      // We must get Google Mock's reaction on uninteresting calls
-      // made on this mock object BEFORE performing the action,
-      // because the action may DELETE the mock object and make the
-      // following expression meaningless.
-      const CallReaction reaction =
-          Mock::GetReactionOnUninterestingCalls(mocker->MockObject());
-
-      // Calculates the function result.
-      Result result = mocker->PerformDefaultAction(args, ss.str());
-
-      // Prints the function result.
-      ss << "\n          Returns: ";
-      UniversalPrinter<Result>::Print(result, &ss);
-      ReportUninterestingCall(reaction, ss.str());
-
-      return result;
-    }
-
-    bool is_excessive = false;
-    ::std::stringstream ss;
-    ::std::stringstream why;
-    ::std::stringstream loc;
-    Action<F> action;
-    Expectation<F>* exp;
-
-    // The FindMatchingExpectationAndAction() function acquires and
-    // releases g_gmock_mutex.
-    const bool found = mocker->FindMatchingExpectationAndAction(
-        args, &exp, &action, &is_excessive, &ss, &why);
-    ss << "    Function call: " << mocker->Name();
-    UniversalPrinter<ArgumentTuple>::Print(args, &ss);
-    // In case the action deletes a piece of the expectation, we
-    // generate the message beforehand.
-    if (found && !is_excessive) {
-      exp->DescribeLocationTo(&loc);
-    }
-    Result result = action.IsDoDefault() ?
-        mocker->PerformDefaultAction(args, ss.str())
-        : action.Perform(args);
-    ss << "\n          Returns: ";
-    UniversalPrinter<Result>::Print(result, &ss);
-    ss << "\n" << why.str();
-
-    if (found) {
-      if (is_excessive) {
-        // We had an upper-bound violation and the failure message is in ss.
-        Expect(false, exp->file(), exp->line(), ss.str());
-      } else {
-        // We had an expected call and the matching expectation is
-        // described in ss.
-        Log(INFO, loc.str() + ss.str(), 3);
-      }
-    } else {
-      // No expectation matches this call - reports a failure.
-      Expect(false, NULL, -1, ss.str());
-    }
-    return result;
-  }
-};  // class InvokeWithHelper
-
-// This specialization helps to implement
-// FunctionMockerBase<F>::InvokeWith() for void-returning functions.
+// Calculates the result of invoking this mock function with the given
+// arguments, prints it, and returns it.
+// L < g_gmock_mutex
 template <typename F>
-class InvokeWithHelper<void, F> {
- public:
-  typedef typename Function<F>::ArgumentTuple ArgumentTuple;
+typename Function<F>::Result FunctionMockerBase<F>::InvokeWith(
+    const typename Function<F>::ArgumentTuple& args) {
+  typedef ActionResultHolder<Result> ResultHolder;
 
-  // Invokes the function mocked by mocker with the given arguments.
-  // L < g_gmock_mutex
-  static void InvokeAndPrintResult(FunctionMockerBase<F>* mocker,
-                                   const ArgumentTuple& args) {
-    const int count = static_cast<int>(mocker->expectations_.size());
-    if (count == 0) {
-      // No expectation is set on this mock method - we have an
-      // uninteresting call.
-      ::std::stringstream ss;
-      mocker->DescribeUninterestingCall(args, &ss);
+  if (expectations_.size() == 0) {
+    // No expectation is set on this mock method - we have an
+    // uninteresting call.
 
-      // We must get Google Mock's reaction on uninteresting calls
-      // made on this mock object BEFORE performing the action,
-      // because the action may DELETE the mock object and make the
-      // following expression meaningless.
-      const CallReaction reaction =
-          Mock::GetReactionOnUninterestingCalls(mocker->MockObject());
+    // We must get Google Mock's reaction on uninteresting calls
+    // made on this mock object BEFORE performing the action,
+    // because the action may DELETE the mock object and make the
+    // following expression meaningless.
+    const CallReaction reaction =
+        Mock::GetReactionOnUninterestingCalls(MockObject());
 
-      mocker->PerformDefaultAction(args, ss.str());
-      ReportUninterestingCall(reaction, ss.str());
-      return;
+    // True iff we need to print this call's arguments and return
+    // value.  This definition must be kept in sync with
+    // the behavior of ReportUninterestingCall().
+    const bool need_to_report_uninteresting_call =
+        // If the user allows this uninteresting call, we print it
+        // only when he wants informational messages.
+        reaction == ALLOW ? LogIsVisible(INFO) :
+        // If the user wants this to be a warning, we print it only
+        // when he wants to see warnings.
+        reaction == WARN ? LogIsVisible(WARNING) :
+        // Otherwise, the user wants this to be an error, and we
+        // should always print detailed information in the error.
+        true;
+
+    if (!need_to_report_uninteresting_call) {
+      // Perform the action without printing the call information.
+      return PerformDefaultAction(args, "");
     }
 
-    bool is_excessive = false;
+    // Warns about the uninteresting call.
     ::std::stringstream ss;
-    ::std::stringstream why;
-    ::std::stringstream loc;
-    Action<F> action;
-    Expectation<F>* exp;
+    DescribeUninterestingCall(args, &ss);
 
-    // The FindMatchingExpectationAndAction() function acquires and
-    // releases g_gmock_mutex.
-    const bool found = mocker->FindMatchingExpectationAndAction(
-        args, &exp, &action, &is_excessive, &ss, &why);
-    ss << "    Function call: " << mocker->Name();
-    UniversalPrinter<ArgumentTuple>::Print(args, &ss);
-    ss << "\n" << why.str();
-    // In case the action deletes a piece of the expectation, we
-    // generate the message beforehand.
-    if (found && !is_excessive) {
-      exp->DescribeLocationTo(&loc);
-    }
-    if (action.IsDoDefault()) {
-      mocker->PerformDefaultAction(args, ss.str());
-    } else {
-      action.Perform(args);
-    }
+    // Calculates the function result.
+    const ResultHolder result =
+        ResultHolder::PerformDefaultAction(this, args, ss.str());
 
-    if (found) {
-      // A matching expectation and corresponding action were found.
-      if (is_excessive) {
-        // We had an upper-bound violation and the failure message is in ss.
-        Expect(false, exp->file(), exp->line(), ss.str());
-      } else {
-        // We had an expected call and the matching expectation is
-        // described in ss.
-        Log(INFO, loc.str() + ss.str(), 3);
-      }
-    } else {
-      // No matching expectation was found - reports an error.
-      Expect(false, NULL, -1, ss.str());
-    }
+    // Prints the function result.
+    result.PrintAsActionResult(&ss);
+
+    ReportUninterestingCall(reaction, ss.str());
+    return result.value();
   }
-};  // class InvokeWithHelper<void, F>
+
+  bool is_excessive = false;
+  ::std::stringstream ss;
+  ::std::stringstream why;
+  ::std::stringstream loc;
+  Action<F> action;
+  Expectation<F>* exp;
+
+  // The FindMatchingExpectationAndAction() function acquires and
+  // releases g_gmock_mutex.
+  const bool found = FindMatchingExpectationAndAction(
+      args, &exp, &action, &is_excessive, &ss, &why);
+
+  // True iff we need to print the call's arguments and return value.
+  // This definition must be kept in sync with the uses of Expect()
+  // and Log() in this function.
+  const bool need_to_report_call = !found || is_excessive || LogIsVisible(INFO);
+  if (!need_to_report_call) {
+    // Perform the action without printing the call information.
+    return action.IsDoDefault() ? PerformDefaultAction(args, "") :
+        action.Perform(args);
+  }
+
+  ss << "    Function call: " << Name();
+  UniversalPrinter<ArgumentTuple>::Print(args, &ss);
+
+  // In case the action deletes a piece of the expectation, we
+  // generate the message beforehand.
+  if (found && !is_excessive) {
+    exp->DescribeLocationTo(&loc);
+  }
+
+  const ResultHolder result = action.IsDoDefault() ?
+      ResultHolder::PerformDefaultAction(this, args, ss.str()) :
+      ResultHolder::PerformAction(action, args);
+  result.PrintAsActionResult(&ss);
+  ss << "\n" << why.str();
+
+  if (!found) {
+    // No expectation matches this call - reports a failure.
+    Expect(false, NULL, -1, ss.str());
+  } else if (is_excessive) {
+    // We had an upper-bound violation and the failure message is in ss.
+    Expect(false, exp->file(), exp->line(), ss.str());
+  } else {
+    // We had an expected call and the matching expectation is
+    // described in ss.
+    Log(INFO, loc.str() + ss.str(), 2);
+  }
+  return result.value();
+}
 
 }  // namespace internal
 

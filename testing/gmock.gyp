@@ -15,6 +15,7 @@
         'gtest.gyp:gtest',
       ],
       'sources': [
+        # Sources based on files in r173 of gmock.
         'gmock/include/gmock/gmock-actions.h',
         'gmock/include/gmock/gmock-cardinalities.h',
         'gmock/include/gmock/gmock-generated-actions.h',

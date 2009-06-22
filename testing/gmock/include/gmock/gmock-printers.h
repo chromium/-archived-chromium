@@ -66,10 +66,28 @@
 //   // printed.
 //   void ::testing::internal::UniversalTersePrint(const T& value, ostream*);
 //
+//   // Prints value using the type inferred by the compiler.  The difference
+//   // from UniversalTersePrint() is that this function prints both the
+//   // pointer and the NUL-terminated string for a (const) char pointer.
+//   void ::testing::internal::UniversalPrint(const T& value, ostream*);
+//
 //   // Prints the fields of a tuple tersely to a string vector, one
 //   // element for each field.
 //   std::vector<string> UniversalTersePrintTupleFieldsToStrings(
 //       const Tuple& value);
+//
+// Known limitation:
+//
+// The print primitives print the elements of an STL-style container
+// using the compiler-inferred type of *iter where iter is a
+// const_iterator of the container.  When const_iterator is an input
+// iterator but not a forward iterator, this inferred type may not
+// match value_type, and the print output may be incorrect.  In
+// practice, this is rarely a problem as for most containers
+// const_iterator is a forward iterator.  We'll fix this if there's an
+// actual need for it.  Note that this fix cannot rely on value_type
+// being defined as many user-defined container types don't have
+// value_type.
 
 #ifndef GMOCK_INCLUDE_GMOCK_GMOCK_PRINTERS_H_
 #define GMOCK_INCLUDE_GMOCK_GMOCK_PRINTERS_H_
@@ -208,6 +226,9 @@ namespace internal {
 template <typename T>
 class UniversalPrinter;
 
+template <typename T>
+void UniversalPrint(const T& value, ::std::ostream* os);
+
 // Used to print an STL-style container when the user doesn't define
 // a PrintTo() for it.
 template <typename C>
@@ -227,7 +248,9 @@ void DefaultPrintTo(IsContainer /* dummy */,
       }
     }
     *os << ' ';
-    PrintTo(*it, os);
+    // We cannot call PrintTo(*it, os) here as PrintTo() doesn't
+    // handle *it being a native array.
+    internal::UniversalPrint(*it, os);
   }
 
   if (count > 0) {
@@ -580,6 +603,41 @@ class UniversalPrinter {
 #endif  // _MSC_VER
 };
 
+// UniversalPrintArray(begin, len, os) prints an array of 'len'
+// elements, starting at address 'begin'.
+template <typename T>
+void UniversalPrintArray(const T* begin, size_t len, ::std::ostream* os) {
+  if (len == 0) {
+    *os << "{}";
+  } else {
+    *os << "{ ";
+    const size_t kThreshold = 18;
+    const size_t kChunkSize = 8;
+    // If the array has more than kThreshold elements, we'll have to
+    // omit some details by printing only the first and the last
+    // kChunkSize elements.
+    // TODO(wan@google.com): let the user control the threshold using a flag.
+    if (len <= kThreshold) {
+      PrintRawArrayTo(begin, len, os);
+    } else {
+      PrintRawArrayTo(begin, kChunkSize, os);
+      *os << ", ..., ";
+      PrintRawArrayTo(begin + len - kChunkSize, kChunkSize, os);
+    }
+    *os << " }";
+  }
+}
+// This overload prints a (const) char array compactly.
+void UniversalPrintArray(const char* begin, size_t len, ::std::ostream* os);
+
+// Prints an array of 'len' elements, starting at address 'begin', to a string.
+template <typename T>
+string UniversalPrintArrayToString(const T* begin, size_t len) {
+  ::std::stringstream ss;
+  UniversalPrintArray(begin, len, &ss);
+  return ss.str();
+}
+
 // Implements printing an array type T[N].
 template <typename T, size_t N>
 class UniversalPrinter<T[N]> {
@@ -587,41 +645,13 @@ class UniversalPrinter<T[N]> {
   // Prints the given array, omitting some elements when there are too
   // many.
   static void Print(const T (&a)[N], ::std::ostream* os) {
-    // Prints a char array as a C string.  Note that we compare 'const
-    // T' with 'const char' instead of comparing T with char, in case
-    // that T is already a const type.
-    if (internal::type_equals<const T, const char>::value) {
-      UniversalPrinter<const T*>::Print(a, os);
-      return;
-    }
-
-    if (N == 0) {
-      *os << "{}";
-    } else {
-      *os << "{ ";
-      const size_t kThreshold = 18;
-      const size_t kChunkSize = 8;
-      // If the array has more than kThreshold elements, we'll have to
-      // omit some details by printing only the first and the last
-      // kChunkSize elements.
-      // TODO(wan): let the user control the threshold using a flag.
-      if (N <= kThreshold) {
-        PrintRawArrayTo(a, N, os);
-      } else {
-        PrintRawArrayTo(a, kChunkSize, os);
-        *os << ", ..., ";
-        PrintRawArrayTo(a + N - kChunkSize, kChunkSize, os);
-      }
-      *os << " }";
-    }
+    UniversalPrintArray(a, N, os);
   }
 
   // A convenient wrapper for Print() that returns the print-out as a
   // string.
   static string PrintToString(const T (&a)[N]) {
-    ::std::stringstream ss;
-    Print(a, &ss);
-    return ss.str();
+    return UniversalPrintArrayToString(a, N);
   }
 };
 
@@ -674,6 +704,15 @@ inline void UniversalTersePrint(const char* str, ::std::ostream* os) {
 }
 inline void UniversalTersePrint(char* str, ::std::ostream* os) {
   UniversalTersePrint(static_cast<const char*>(str), os);
+}
+
+// Prints a value using the type inferred by the compiler.  The
+// difference between this and UniversalTersePrint() is that for a
+// (const) char pointer, this prints both the pointer and the
+// NUL-terminated string.
+template <typename T>
+void UniversalPrint(const T& value, ::std::ostream* os) {
+  UniversalPrinter<T>::Print(value, os);
 }
 
 // Prints the fields of a tuple tersely to a string vector, one

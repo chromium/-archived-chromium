@@ -101,6 +101,22 @@ FailureReporterInterface* GetFailureReporter() {
 // Protects global resources (stdout in particular) used by Log().
 static Mutex g_log_mutex(Mutex::NO_CONSTRUCTOR_NEEDED_FOR_STATIC_MUTEX);
 
+// Returns true iff a log with the given severity is visible according
+// to the --gmock_verbose flag.
+bool LogIsVisible(LogSeverity severity) {
+  if (GMOCK_FLAG(verbose) == kInfoVerbosity) {
+    // Always show the log if --gmock_verbose=info.
+    return true;
+  } else if (GMOCK_FLAG(verbose) == kErrorVerbosity) {
+    // Always hide it if --gmock_verbose=error.
+    return false;
+  } else {
+    // If --gmock_verbose is neither "info" nor "error", we treat it
+    // as "warning" (its default value).
+    return severity == WARNING;
+  }
+}
+
 // Prints the given message to stdout iff 'severity' >= the level
 // specified by the --gmock_verbose flag.  If stack_frames_to_skip >=
 // 0, also prints the stack trace excluding the top
@@ -110,30 +126,24 @@ static Mutex g_log_mutex(Mutex::NO_CONSTRUCTOR_NEEDED_FOR_STATIC_MUTEX);
 // conservative.
 void Log(LogSeverity severity, const string& message,
          int stack_frames_to_skip) {
-  if (GMOCK_FLAG(verbose) == kErrorVerbosity) {
-    // The user is not interested in logs.
+  if (!LogIsVisible(severity))
     return;
-  } else if (GMOCK_FLAG(verbose) != kInfoVerbosity) {
-    // The user is interested in warnings but not informational logs.
-    // Note that invalid values of GMOCK_FLAG(verbose) are treated as
-    // "warning", which is the default value of the flag.
-    if (severity == INFO) {
-      return;
-    }
-  }
 
   // Ensures that logs from different threads don't interleave.
   MutexLock l(&g_log_mutex);
-  using ::std::cout;
+
+  // "using ::std::cout;" doesn't work with Symbian's STLport, where cout is a
+  // macro.
+
   if (severity == WARNING) {
     // Prints a GMOCK WARNING marker to make the warnings easily searchable.
-    cout << "\nGMOCK WARNING:";
+    std::cout << "\nGMOCK WARNING:";
   }
   // Pre-pends a new-line to message if it doesn't start with one.
   if (message.empty() || message[0] != '\n') {
-    cout << "\n";
+    std::cout << "\n";
   }
-  cout << message;
+  std::cout << message;
   if (stack_frames_to_skip >= 0) {
 #ifdef NDEBUG
     // In opt mode, we have to be conservative and skip no stack frame.
@@ -146,13 +156,13 @@ void Log(LogSeverity severity, const string& message,
 
     // Appends a new-line to message if it doesn't end with one.
     if (!message.empty() && *message.rbegin() != '\n') {
-      cout << "\n";
+      std::cout << "\n";
     }
-    cout << "Stack trace:\n"
+    std::cout << "Stack trace:\n"
          << ::testing::internal::GetCurrentOsStackTraceExceptTop(
              ::testing::UnitTest::GetInstance(), actual_to_skip);
   }
-  cout << ::std::flush;
+  std::cout << ::std::flush;
 }
 
 }  // namespace internal

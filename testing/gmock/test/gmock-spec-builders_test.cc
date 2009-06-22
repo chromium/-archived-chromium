@@ -72,6 +72,7 @@ using testing::Const;
 using testing::DoAll;
 using testing::DoDefault;
 using testing::GMOCK_FLAG(verbose);
+using testing::Gt;
 using testing::InSequence;
 using testing::Invoke;
 using testing::InvokeWithoutArgs;
@@ -96,6 +97,7 @@ class MockA {
   MOCK_METHOD1(DoA, void(int n));  // NOLINT
   MOCK_METHOD1(ReturnResult, Result(int n));  // NOLINT
   MOCK_METHOD2(Binary, bool(int x, int y));  // NOLINT
+  MOCK_METHOD2(ReturnInt, int(int x, int y));  // NOLINT
 };
 
 class MockB {
@@ -171,25 +173,25 @@ TEST(OnCallSyntaxTest, EvaluatesSecondArgumentOnce) {
 
 // Tests that the syntax of ON_CALL() is enforced at run time.
 
-TEST(OnCallSyntaxTest, WithArgumentsIsOptional) {
+TEST(OnCallSyntaxTest, WithIsOptional) {
   MockA a;
 
   ON_CALL(a, DoA(5))
       .WillByDefault(Return());
   ON_CALL(a, DoA(_))
-      .WithArguments(_)
+      .With(_)
       .WillByDefault(Return());
 }
 
-TEST(OnCallSyntaxTest, WithArgumentsCanAppearAtMostOnce) {
+TEST(OnCallSyntaxTest, WithCanAppearAtMostOnce) {
   MockA a;
 
   EXPECT_NONFATAL_FAILURE({  // NOLINT
     ON_CALL(a, ReturnResult(_))
-        .WithArguments(_)
-        .WithArguments(_)
+        .With(_)
+        .With(_)
         .WillByDefault(Return(Result()));
-  }, ".WithArguments() cannot appear more than once in an ON_CALL()");
+  }, ".With() cannot appear more than once in an ON_CALL()");
 }
 
 #if GTEST_HAS_DEATH_TEST
@@ -237,47 +239,44 @@ TEST(ExpectCallSyntaxTest, EvaluatesSecondArgumentOnce) {
 
 // Tests that the syntax of EXPECT_CALL() is enforced at run time.
 
-TEST(ExpectCallSyntaxTest, WithArgumentsIsOptional) {
+TEST(ExpectCallSyntaxTest, WithIsOptional) {
   MockA a;
 
   EXPECT_CALL(a, DoA(5))
       .Times(0);
   EXPECT_CALL(a, DoA(6))
-      .WithArguments(_)
+      .With(_)
       .Times(0);
 }
 
-TEST(ExpectCallSyntaxTest, WithArgumentsCanAppearAtMostOnce) {
+TEST(ExpectCallSyntaxTest, WithCanAppearAtMostOnce) {
   MockA a;
 
   EXPECT_NONFATAL_FAILURE({  // NOLINT
     EXPECT_CALL(a, DoA(6))
-        .WithArguments(_)
-        .WithArguments(_);
-  }, ".WithArguments() cannot appear more than once in "
-     "an EXPECT_CALL()");
+        .With(_)
+        .With(_);
+  }, ".With() cannot appear more than once in an EXPECT_CALL()");
 
   a.DoA(6);
 }
 
-TEST(ExpectCallSyntaxTest, WithArgumentsMustBeFirstClause) {
+TEST(ExpectCallSyntaxTest, WithMustBeFirstClause) {
   MockA a;
 
   EXPECT_NONFATAL_FAILURE({  // NOLINT
     EXPECT_CALL(a, DoA(1))
         .Times(1)
-        .WithArguments(_);
-  }, ".WithArguments() must be the first clause in an "
-     "EXPECT_CALL()");
+        .With(_);
+  }, ".With() must be the first clause in an EXPECT_CALL()");
 
   a.DoA(1);
 
   EXPECT_NONFATAL_FAILURE({  // NOLINT
     EXPECT_CALL(a, DoA(2))
         .WillOnce(Return())
-        .WithArguments(_);
-  }, ".WithArguments() must be the first clause in an "
-     "EXPECT_CALL()");
+        .With(_);
+  }, ".With() must be the first clause in an EXPECT_CALL()");
 
   a.DoA(2);
 }
@@ -1611,6 +1610,53 @@ TEST_F(GMockVerboseFlagTest, InvalidFlagIsTreatedAsWarning) {
 }
 
 #endif  // 0
+
+// A helper class that generates a failure when printed.  We use it to
+// ensure that Google Mock doesn't print a value (even to an internal
+// buffer) when it is not supposed to do so.
+class PrintMeNot {};
+
+void PrintTo(PrintMeNot /* dummy */, ::std::ostream* /* os */) {
+  ADD_FAILURE() << "Google Mock is printing a value that shouldn't be "
+                << "printed even to an internal buffer.";
+}
+
+class LogTestHelper {
+ public:
+  MOCK_METHOD1(Foo, PrintMeNot(PrintMeNot));
+};
+
+class GMockLogTest : public ::testing::Test {
+ protected:
+  virtual void SetUp() { original_verbose_ = GMOCK_FLAG(verbose); }
+  virtual void TearDown() { GMOCK_FLAG(verbose) = original_verbose_; }
+
+  LogTestHelper helper_;
+  string original_verbose_;
+};
+
+TEST_F(GMockLogTest, DoesNotPrintGoodCallInternallyIfVerbosityIsWarning) {
+  GMOCK_FLAG(verbose) = kWarningVerbosity;
+  EXPECT_CALL(helper_, Foo(_))
+      .WillOnce(Return(PrintMeNot()));
+  helper_.Foo(PrintMeNot());  // This is an expected call.
+}
+
+TEST_F(GMockLogTest, DoesNotPrintGoodCallInternallyIfVerbosityIsError) {
+  GMOCK_FLAG(verbose) = kErrorVerbosity;
+  EXPECT_CALL(helper_, Foo(_))
+      .WillOnce(Return(PrintMeNot()));
+  helper_.Foo(PrintMeNot());  // This is an expected call.
+}
+
+TEST_F(GMockLogTest, DoesNotPrintWarningInternallyIfVerbosityIsError) {
+  GMOCK_FLAG(verbose) = kErrorVerbosity;
+  ON_CALL(helper_, Foo(_))
+      .WillByDefault(Return(PrintMeNot()));
+  helper_.Foo(PrintMeNot());  // This should generate a warning.
+}
+
+// Tests Mock::AllowLeak().
 
 TEST(AllowLeakTest, AllowsLeakingUnusedMockObject) {
   MockA* a = new MockA;
