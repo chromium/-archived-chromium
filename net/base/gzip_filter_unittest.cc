@@ -269,35 +269,6 @@ TEST_F(GZipUnitTest, DecodeGZip) {
   EXPECT_EQ(memcmp(source_buffer(), gzip_decode_buffer, source_len()), 0);
 }
 
-// SDCH scenario: decoding gzip data when content type says sdch,gzip.
-// This tests that sdch will degrade to pass through, and is what allows robust
-// handling when the response *might* be sdch,gzip by simply adding in the
-// tentative sdch decode.
-// All test code is otherwise modeled after the "basic" scenario above.
-TEST_F(GZipUnitTest, DecodeGZipWithMistakenSdch) {
-  // Decode the compressed data with filter
-  std::vector<Filter::FilterType> filter_types;
-  filter_types.push_back(Filter::FILTER_TYPE_SDCH);
-  filter_types.push_back(Filter::FILTER_TYPE_GZIP);
-  MockFilterContext filter_context(kDefaultBufferSize);
-  // We need a good response code to be sure that a proxy isn't injecting an
-  // error page (As is done by BlueCoat proxies and described in bug 8916).
-  filter_context.SetResponseCode(200);
-  scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
-  ASSERT_TRUE(filter.get());
-  memcpy(filter->stream_buffer()->data(), gzip_encode_buffer_,
-         gzip_encode_len_);
-  filter->FlushStreamBuffer(gzip_encode_len_);
-
-  char gzip_decode_buffer[kDefaultBufferSize];
-  int gzip_decode_size = kDefaultBufferSize;
-  filter->ReadData(gzip_decode_buffer, &gzip_decode_size);
-
-  // Compare the decoding result with source data
-  EXPECT_TRUE(gzip_decode_size == source_len());
-  EXPECT_EQ(memcmp(source_buffer(), gzip_decode_buffer, source_len()), 0);
-}
-
 // Tests we can call filter repeatedly to get all the data decoded.
 // To do that, we create a filter with a small buffer that can not hold all
 // the input data.

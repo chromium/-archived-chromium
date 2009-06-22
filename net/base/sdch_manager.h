@@ -122,7 +122,7 @@ class SdchManager {
     CACHED_META_REFRESH_UNSUPPORTED = 75,  // As above, but pulled from cache.
     PASSING_THROUGH_NON_SDCH = 76,  // Non-html tagged as sdch but malformed.
     INCOMPLETE_SDCH_CONTENT = 77,   // Last window was not completely decoded.
-
+    PASS_THROUGH_404_CODE = 78,     // URL not found message passing through.
 
     // Common decoded recovery methods.
     META_REFRESH_CACHED_RECOVERY = 80,  // Probably startup tab loading.

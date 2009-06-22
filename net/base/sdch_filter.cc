@@ -152,45 +152,50 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
       DCHECK_EQ(0u, dest_buffer_excess_index_);
       DCHECK(dest_buffer_excess_.empty());
       // This is where we try very hard to do error recovery, and make this
-      // protocol robust in teh face of proxies that do many different things.
+      // protocol robust in the face of proxies that do many different things.
       // If we decide that things are looking very bad (too hard to recover),
       // we may even issue a "meta-refresh" to reload the page without an SDCH
-      // advertisement (so that we are sure we're not hurting anything).  First
-      // we try for some light weight recovery, and teh final else clause below
-      // supports the last ditch meta-refresh approach.
+      // advertisement (so that we are sure we're not hurting anything).
       //
       // Watch out for an error page inserted by the proxy as part of a 40x
       // error response.  When we see such content molestation, we certainly
       // need to fall into the meta-refresh case.
       bool successful_response = filter_context().GetResponseCode() == 200;
-      if (possible_pass_through_ && successful_response) {
-        // This is the most graceful response. There really was no error. We
-        // were just overly cautious.
+      if (filter_context().GetResponseCode() == 404) {
+        // We could be more generous, but for now, only a "NOT FOUND" code will
+        // cause a pass through.  All other codes will fall into a meta-refresh
+        // attempt.
+        SdchManager::SdchErrorRecovery(SdchManager::PASS_THROUGH_404_CODE);
+        decoding_status_ = PASS_THROUGH;
+      } else if (possible_pass_through_ && successful_response) {
+        // This is the potentially most graceful response. There really was no
+        // error. We were just overly cautious when we added a TENTATIVE_SDCH.
         // We added the sdch coding tag, and it should not have been added.
         // This can happen in server experiments, where the server decides
         // not to use sdch, even though there is a dictionary.  To be
         // conservative, we locally added the tentative sdch (fearing that a
         // proxy stripped it!) and we must now recant (pass through).
         SdchManager::SdchErrorRecovery(SdchManager::DISCARD_TENTATIVE_SDCH);
-        decoding_status_ = PASS_THROUGH;
-        dest_buffer_excess_ = dictionary_hash_;  // Send what we scanned.
+        // However.... just to be sure we don't get burned by proxies that
+        // re-compress with gzip or other system, we can sniff to see if this
+        // is compressed data etc.  For now, we do nothing, which gets us into
+        // the meta-refresh result.
+        // TODO(jar): Improve robustness by sniffing for valid text that we can
+        // actual use re: decoding_status_ = PASS_THROUGH;
       } else if (successful_response && !dictionary_hash_is_plausible_) {
         // One of the first 9 bytes precluded consideration as a hash.
         // This can't be an SDCH payload, even though the server said it was.
         // This is a major error, as the server or proxy tagged this SDCH even
         // though it is not!
-        // The good news is that error recovery is clear...
         SdchManager::SdchErrorRecovery(SdchManager::PASSING_THROUGH_NON_SDCH);
+        // Meta-refresh won't help... we didn't advertise an SDCH dictionary!!
         decoding_status_ = PASS_THROUGH;
+      }
+
+      if (decoding_status_ == PASS_THROUGH) {
         dest_buffer_excess_ = dictionary_hash_;  // Send what we scanned.
       } else {
         // This is where we try to do the expensive meta-refresh.
-        // Either this was an error response (probably an error page inserted
-        // by a proxy, as in bug 8916) or else we don't have the dictionary that
-        // was demanded.
-        // With very low probability, random garbage data looked like a
-        // dictionary specifier (8 ASCII characters followed by a null), but
-        // that is sufficiently unlikely that we ignore it.
         if (std::string::npos == mime_type_.find("text/html")) {
           // Since we can't do a meta-refresh (along with an exponential
           // backoff), we'll just make sure this NEVER happens again.

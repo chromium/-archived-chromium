@@ -37,7 +37,7 @@ static const char kTestData[] = "0000000000000000000000000000000000000000000000"
     "000000000000000000000000000000000000000\n";
 
 // Note SDCH compressed data will include a reference to the SDCH dictionary.
-static const char kCompressedTestData[] =
+static const char kSdchCompressedTestData[] =
     "\326\303\304\0\0\001M\0\201S\202\004\0\201E\006\001"
     "00000000000000000000000000000000000000000000000000000000000000000000000000"
     "TestData 00000000000000000000000000000000000000000000000000000000000000000"
@@ -50,8 +50,8 @@ class SdchFilterTest : public testing::Test {
   SdchFilterTest()
     : test_vcdiff_dictionary_(kTestVcdiffDictionary,
                               sizeof(kTestVcdiffDictionary) - 1),
-      vcdiff_compressed_data_(kCompressedTestData,
-                              sizeof(kCompressedTestData) - 1),
+      vcdiff_compressed_data_(kSdchCompressedTestData,
+                              sizeof(kSdchCompressedTestData) - 1),
       expanded_(kTestData, sizeof(kTestData) - 1),
       sdch_manager_(new SdchManager) {
     sdch_manager_->EnableSdchSupport("");
@@ -171,7 +171,7 @@ TEST_F(SdchFilterTest, EmptyInputOk) {
 TEST_F(SdchFilterTest, PassThroughWhenTentative) {
   std::vector<Filter::FilterType> filter_types;
   // Selective a tentative filter (which can fall back to pass through).
-  filter_types.push_back(Filter::FILTER_TYPE_SDCH_POSSIBLE);
+  filter_types.push_back(Filter::FILTER_TYPE_GZIP_HELPING_SDCH);
   const int kInputBufferSize(30);
   char output_buffer[20];
   MockFilterContext filter_context(kInputBufferSize);
@@ -181,31 +181,30 @@ TEST_F(SdchFilterTest, PassThroughWhenTentative) {
   filter_context.SetURL(GURL(url_string));
   scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
 
-  // Supply enough data to force a pass-through mode, which means we have
-  // provided more than 9 characters that can't be a dictionary hash.
-  std::string non_sdch_content("This is not SDCH");
+  // Supply enough data to force a pass-through mode..
+  std::string non_gzip_content("not GZIPed data");
 
   char* input_buffer = filter->stream_buffer()->data();
   int input_buffer_size = filter->stream_buffer_size();
   EXPECT_EQ(kInputBufferSize, input_buffer_size);
 
-  EXPECT_LT(static_cast<int>(non_sdch_content.size()),
+  EXPECT_LT(static_cast<int>(non_gzip_content.size()),
             input_buffer_size);
-  memcpy(input_buffer, non_sdch_content.data(),
-         non_sdch_content.size());
-  filter->FlushStreamBuffer(non_sdch_content.size());
+  memcpy(input_buffer, non_gzip_content.data(),
+         non_gzip_content.size());
+  filter->FlushStreamBuffer(non_gzip_content.size());
 
   // Try to read output.
   int output_bytes_or_buffer_size = sizeof(output_buffer);
   Filter::FilterStatus status = filter->ReadData(output_buffer,
                                                  &output_bytes_or_buffer_size);
 
-  EXPECT_TRUE(non_sdch_content.size() ==
+  EXPECT_EQ(non_gzip_content.size(),
               static_cast<size_t>(output_bytes_or_buffer_size));
-  ASSERT_TRUE(sizeof(output_buffer) >
+  ASSERT_GT(sizeof(output_buffer),
               static_cast<size_t>(output_bytes_or_buffer_size));
   output_buffer[output_bytes_or_buffer_size] = '\0';
-  EXPECT_TRUE(non_sdch_content == output_buffer);
+  EXPECT_TRUE(non_gzip_content == output_buffer);
   EXPECT_EQ(Filter::FILTER_NEED_MORE_DATA, status);
 }
 
@@ -933,6 +932,9 @@ TEST_F(SdchFilterTest, DefaultGzipIfSdch) {
   filter_context.SetMimeType("anything/mime");
   filter_context.SetSdchResponse(true);
   Filter::FixupEncodingTypes(filter_context, &filter_types);
+  ASSERT_EQ(filter_types.size(), 2u);
+  EXPECT_EQ(filter_types[0], Filter::FILTER_TYPE_SDCH);
+  EXPECT_EQ(filter_types[1], Filter::FILTER_TYPE_GZIP_HELPING_SDCH);
 
   // First try with a large buffer (larger than test input, or compressed data).
   filter_context.SetURL(url);
@@ -959,6 +961,189 @@ TEST_F(SdchFilterTest, DefaultGzipIfSdch) {
   output_block_size = 1;
   output.clear();
   EXPECT_TRUE(FilterTestData(gzip_compressed_sdch, feed_block_size,
+                             output_block_size, filter.get(), &output));
+  EXPECT_EQ(output, expanded_);
+}
+
+TEST_F(SdchFilterTest, AcceptGzipSdchIfGzip) {
+  // Construct a valid SDCH dictionary from a VCDIFF dictionary.
+  const std::string kSampleDomain = "sdchtest.com";
+  std::string dictionary(NewSdchDictionary(kSampleDomain));
+
+  std::string url_string = "http://" + kSampleDomain;
+
+  GURL url(url_string);
+  EXPECT_TRUE(sdch_manager_->AddSdchDictionary(dictionary, url));
+
+  std::string sdch_compressed(NewSdchCompressedData(dictionary));
+
+  // Use Gzip to compress the sdch sdch_compressed data.
+  std::string gzip_compressed_sdch = gzip_compress(sdch_compressed);
+
+  // Some proxies strip the content encoding statement down to a mere gzip, but
+  // pass through the original content (with full sdch,gzip encoding).
+  // Only claim to have gzip content, but really use the gzipped sdch content.
+  // System should automatically add the missing (optional) sdch.
+  std::vector<Filter::FilterType> filter_types;
+  filter_types.push_back(Filter::FILTER_TYPE_GZIP);
+
+  const int kInputBufferSize(100);
+  MockFilterContext filter_context(kInputBufferSize);
+  filter_context.SetMimeType("anything/mime");
+  filter_context.SetSdchResponse(true);
+  Filter::FixupEncodingTypes(filter_context, &filter_types);
+  ASSERT_EQ(filter_types.size(), 3u);
+  EXPECT_EQ(filter_types[0], Filter::FILTER_TYPE_SDCH_POSSIBLE);
+  EXPECT_EQ(filter_types[1], Filter::FILTER_TYPE_GZIP_HELPING_SDCH);
+  EXPECT_EQ(filter_types[2], Filter::FILTER_TYPE_GZIP);
+
+  // First try with a large buffer (larger than test input, or compressed data).
+  filter_context.SetURL(url);
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
+
+
+  // Verify that chained filter is waiting for data.
+  char tiny_output_buffer[10];
+  int tiny_output_size = sizeof(tiny_output_buffer);
+  EXPECT_EQ(Filter::FILTER_NEED_MORE_DATA,
+            filter->ReadData(tiny_output_buffer, &tiny_output_size));
+
+  size_t feed_block_size = 100;
+  size_t output_block_size = 100;
+  std::string output;
+  EXPECT_TRUE(FilterTestData(gzip_compressed_sdch, feed_block_size,
+                             output_block_size, filter.get(), &output));
+  EXPECT_EQ(output, expanded_);
+
+  // Next try with a tiny buffer to cover edge effects.
+  filter.reset(Filter::Factory(filter_types, filter_context));
+
+  feed_block_size = 1;
+  output_block_size = 1;
+  output.clear();
+  EXPECT_TRUE(FilterTestData(gzip_compressed_sdch, feed_block_size,
+                             output_block_size, filter.get(), &output));
+  EXPECT_EQ(output, expanded_);
+}
+
+TEST_F(SdchFilterTest, DefaultSdchGzipIfEmpty) {
+  // Construct a valid SDCH dictionary from a VCDIFF dictionary.
+  const std::string kSampleDomain = "sdchtest.com";
+  std::string dictionary(NewSdchDictionary(kSampleDomain));
+
+  std::string url_string = "http://" + kSampleDomain;
+
+  GURL url(url_string);
+  EXPECT_TRUE(sdch_manager_->AddSdchDictionary(dictionary, url));
+
+  std::string sdch_compressed(NewSdchCompressedData(dictionary));
+
+  // Use Gzip to compress the sdch sdch_compressed data.
+  std::string gzip_compressed_sdch = gzip_compress(sdch_compressed);
+
+  // Only claim to have non-encoded content, but really use the gzipped sdch
+  // content.
+  // System should automatically add the missing (optional) sdch,gzip.
+  std::vector<Filter::FilterType> filter_types;
+
+  const int kInputBufferSize(100);
+  MockFilterContext filter_context(kInputBufferSize);
+  filter_context.SetMimeType("anything/mime");
+  filter_context.SetSdchResponse(true);
+  Filter::FixupEncodingTypes(filter_context, &filter_types);
+  ASSERT_EQ(filter_types.size(), 2u);
+  EXPECT_EQ(filter_types[0], Filter::FILTER_TYPE_SDCH_POSSIBLE);
+  EXPECT_EQ(filter_types[1], Filter::FILTER_TYPE_GZIP_HELPING_SDCH);
+
+  // First try with a large buffer (larger than test input, or compressed data).
+  filter_context.SetURL(url);
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
+
+
+  // Verify that chained filter is waiting for data.
+  char tiny_output_buffer[10];
+  int tiny_output_size = sizeof(tiny_output_buffer);
+  EXPECT_EQ(Filter::FILTER_NEED_MORE_DATA,
+            filter->ReadData(tiny_output_buffer, &tiny_output_size));
+
+  size_t feed_block_size = 100;
+  size_t output_block_size = 100;
+  std::string output;
+  EXPECT_TRUE(FilterTestData(gzip_compressed_sdch, feed_block_size,
+                             output_block_size, filter.get(), &output));
+  EXPECT_EQ(output, expanded_);
+
+  // Next try with a tiny buffer to cover edge effects.
+  filter.reset(Filter::Factory(filter_types, filter_context));
+
+  feed_block_size = 1;
+  output_block_size = 1;
+  output.clear();
+  EXPECT_TRUE(FilterTestData(gzip_compressed_sdch, feed_block_size,
+                             output_block_size, filter.get(), &output));
+  EXPECT_EQ(output, expanded_);
+}
+
+TEST_F(SdchFilterTest, AcceptGzipGzipSdchIfGzip) {
+  // Construct a valid SDCH dictionary from a VCDIFF dictionary.
+  const std::string kSampleDomain = "sdchtest.com";
+  std::string dictionary(NewSdchDictionary(kSampleDomain));
+
+  std::string url_string = "http://" + kSampleDomain;
+
+  GURL url(url_string);
+  EXPECT_TRUE(sdch_manager_->AddSdchDictionary(dictionary, url));
+
+  std::string sdch_compressed(NewSdchCompressedData(dictionary));
+
+  // Vodaphone (UK) Mobile Broadband provides double gzipped sdch with a content
+  // encoding of merely gzip (apparently, only listing the extra level of
+  // wrapper compression they added, but discarding the actual content encoding.
+  // Use Gzip to double compress the sdch sdch_compressed data.
+  std::string double_gzip_compressed_sdch = gzip_compress(gzip_compress(
+      sdch_compressed));
+
+  // Only claim to have gzip content, but really use the double gzipped sdch
+  // content.
+  // System should automatically add the missing (optional) sdch, gzip decoders.
+  std::vector<Filter::FilterType> filter_types;
+  filter_types.push_back(Filter::FILTER_TYPE_GZIP);
+
+  const int kInputBufferSize(100);
+  MockFilterContext filter_context(kInputBufferSize);
+  filter_context.SetMimeType("anything/mime");
+  filter_context.SetSdchResponse(true);
+  Filter::FixupEncodingTypes(filter_context, &filter_types);
+  ASSERT_EQ(filter_types.size(), 3u);
+  EXPECT_EQ(filter_types[0], Filter::FILTER_TYPE_SDCH_POSSIBLE);
+  EXPECT_EQ(filter_types[1], Filter::FILTER_TYPE_GZIP_HELPING_SDCH);
+  EXPECT_EQ(filter_types[2], Filter::FILTER_TYPE_GZIP);
+
+  // First try with a large buffer (larger than test input, or compressed data).
+  filter_context.SetURL(url);
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
+
+
+  // Verify that chained filter is waiting for data.
+  char tiny_output_buffer[10];
+  int tiny_output_size = sizeof(tiny_output_buffer);
+  EXPECT_EQ(Filter::FILTER_NEED_MORE_DATA,
+            filter->ReadData(tiny_output_buffer, &tiny_output_size));
+
+  size_t feed_block_size = 100;
+  size_t output_block_size = 100;
+  std::string output;
+  EXPECT_TRUE(FilterTestData(double_gzip_compressed_sdch, feed_block_size,
+                             output_block_size, filter.get(), &output));
+  EXPECT_EQ(output, expanded_);
+
+  // Next try with a tiny buffer to cover edge effects.
+  filter.reset(Filter::Factory(filter_types, filter_context));
+
+  feed_block_size = 1;
+  output_block_size = 1;
+  output.clear();
+  EXPECT_TRUE(FilterTestData(double_gzip_compressed_sdch, feed_block_size,
                              output_block_size, filter.get(), &output));
   EXPECT_EQ(output, expanded_);
 }

@@ -117,7 +117,9 @@ void Filter::FixupEncodingTypes(
     }
   }
 
+  // If the request was for SDCH content, then we might need additional fixups.
   if (!filter_context.IsSdchResponse()) {
+    // It was not an SDCH request, so we'll just record stats.
     if (1 < encoding_types->size()) {
       // Multiple filters were intended to only be used for SDCH (thus far!)
       SdchManager::SdchErrorRecovery(
@@ -131,7 +133,12 @@ void Filter::FixupEncodingTypes(
     return;
   }
 
-  // If content encoding included SDCH, then everything is fine.
+  // The request was tagged as an SDCH request, which means the server supplied
+  // a dictionary, and we advertised it in the request.  Some proxies will do
+  // very strange things to the request, or the response, so we have to handle
+  // them gracefully.
+
+  // If content encoding included SDCH, then everything is "relatively" fine.
   if (!encoding_types->empty() &&
       (FILTER_TYPE_SDCH == encoding_types->front())) {
     // Some proxies (found currently in Argentina) strip the Content-Encoding
@@ -147,21 +154,31 @@ void Filter::FixupEncodingTypes(
     return;
   }
 
-  // SDCH "search results" protective hack: To make sure we don't break the only
-  // currently deployed SDCH enabled server! Be VERY cautious about proxies that
-  // strip all content-encoding to not include sdch.  IF we don't see content
-  // encodings that seem to match what we'd expect from a server that asked us
-  // to use a dictionary (and we advertised said dictionary in the GET), then
-  // we set the encoding to (try to) use SDCH to decode.  Note that SDCH will
-  // degrade into a pass-through filter if it doesn't have a viable dictionary
-  // hash in its header.  Also note that a solo "sdch" will implicitly create
-  // a "sdch,gzip" decoding filter, where the gzip portion will degrade to a
-  // pass through if a gzip header is not encountered.  Hence we can replace
-  // "gzip" with "sdch" and "everything will work."
-  // The one failure mode comes when we advertise a dictionary, and the server
-  // tries to *send* a gzipped file (not gzip encode content), and then we could
-  // do a gzip decode :-(.  Since current server support does not ever see such
-  // a transfer, we are safe (for now).
+  // There are now several cases to handle for an SDCH request.  Foremost, if
+  // the outbound request was stripped so as not to advertise support for
+  // encodings, we might get back content with no encoding, or (for example)
+  // just gzip.  We have to be sure that any changes we make allow for such
+  // minimal coding to work.  That issue is why we use TENTATIVE filters if we
+  // add any, as those filters sniff the content, and act as pass-through
+  // filters if headers are not found.
+
+  // If the outbound GET is not modified, then the server will generally try to
+  // send us SDCH encoded content.  As that content returns, there are several
+  // corruptions of the header "content-encoding" that proxies may perform (and
+  // have been detected in the wild).  We already dealt with the a honest
+  // content encoding of "sdch,gzip" being corrupted into "sdch" with on change
+  // of the actual content.  Another common corruption is to either disscard
+  // the accurate content encoding, or to replace it with gzip only (again, with
+  // no change in actual content). The last observed corruption it to actually
+  // change the content, such as by re-gzipping it, and that may happen along
+  // with corruption of the stated content encoding (wow!).
+
+  // The one unresolved failure mode comes when we advertise a dictionary, and
+  // the server tries to *send* a gzipped file (not gzip encode content), and
+  // then we could do a gzip decode :-(. Since SDCH is only (currently)
+  // supported server side on paths that only send HTML content, this mode has
+  // never surfaced in the wild (and is unlikely to).
+  // We will gather a lot of stats as we perform the fixups
   if (StartsWithASCII(mime_type, kTextHtml, false)) {
     // Suspicious case: Advertised dictionary, but server didn't use sdch, and
     // we're HTML tagged.
@@ -193,9 +210,18 @@ void Filter::FixupEncodingTypes(
     }
   }
 
-  encoding_types->clear();
-  encoding_types->push_back(FILTER_TYPE_SDCH_POSSIBLE);
-  encoding_types->push_back(FILTER_TYPE_GZIP_HELPING_SDCH);
+  // Leave the existing encoding type to be processed first, and add our
+  // tentative decodings to be done afterwards.  Vodaphone UK reportedyl will
+  // perform a second layer of gzip encoding atop the server's sdch,gzip
+  // encoding, and then claim that the content encoding is a mere gzip.  As a
+  // result we'll need (in that case) to do the gunzip, plus our tentative
+  // gunzip and tentative SDCH decoding.
+  // This approach nicely handles the empty() list as well, and should work with
+  // other (as yet undiscovered) proxies the choose to re-compressed with some
+  // other encoding (such as bzip2, etc.).
+  encoding_types->insert(encoding_types->begin(),
+                         FILTER_TYPE_GZIP_HELPING_SDCH);
+  encoding_types->insert(encoding_types->begin(), FILTER_TYPE_SDCH_POSSIBLE);
   return;
 }
 
