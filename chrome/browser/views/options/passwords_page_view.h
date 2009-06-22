@@ -175,6 +175,7 @@ class PasswordsPageView : public OptionsPageView,
   views::NativeButton remove_button_;
   views::NativeButton remove_all_button_;
   views::Label password_label_;
+  webkit_glue::PasswordForm* current_selected_password_;
 
   DISALLOW_COPY_AND_ASSIGN(PasswordsPageView);
 };

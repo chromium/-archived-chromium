@@ -193,17 +193,28 @@ PasswordsPageView::PasswordsPageView(Profile* profile)
           this,
           l10n_util::GetString(IDS_PASSWORDS_PAGE_VIEW_REMOVE_ALL_BUTTON))),
       table_model_(profile),
-      table_view_(NULL) {
+      table_view_(NULL),
+      current_selected_password_(NULL) {
 }
 
 void PasswordsPageView::OnSelectionChanged() {
   bool has_selection = table_view_->SelectedRowCount() > 0;
   remove_button_.SetEnabled(has_selection);
-  // Reset the password related views.
-  show_button_.SetLabel(
-      l10n_util::GetString(IDS_PASSWORDS_PAGE_VIEW_SHOW_BUTTON));
-  show_button_.SetEnabled(has_selection);
-  password_label_.SetText(std::wstring());
+
+  views::TableSelectionIterator iter = table_view_->SelectionBegin();
+  int row = *iter;
+  PasswordForm* selected = table_model_.GetPasswordFormAt(row);
+  DCHECK(++iter == table_view_->SelectionEnd());
+
+  if (selected != current_selected_password_) {
+    // Reset the password related views.
+    show_button_.SetLabel(
+        l10n_util::GetString(IDS_PASSWORDS_PAGE_VIEW_SHOW_BUTTON));
+    show_button_.SetEnabled(has_selection);
+    password_label_.SetText(std::wstring());
+
+    current_selected_password_ = selected;
+  }
 }
 
 void PasswordsPageView::ButtonPressed(views::Button* sender) {
