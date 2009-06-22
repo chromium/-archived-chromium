@@ -351,7 +351,7 @@ void UserScriptMaster::Observe(NotificationType type,
           lone_scripts_.push_back(*iter);
         }
       }
-      if (!extensions_service_ready_)
+      if (extensions_service_ready_)
         StartScan();
       break;
     }
