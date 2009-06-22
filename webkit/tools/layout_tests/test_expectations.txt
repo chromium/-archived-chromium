@@ -2769,3 +2769,6 @@ BUG14767 LINUX : LayoutTests/dom/html/level1/core/documentgetdoctypenodtd.html =
 
 BUG14832 : LayoutTests/editing/selection/user-drag-element-and-user-select-none.html = FAIL
 BUG14831 : LayoutTests/fast/events/event-trace.html = FAIL
+
+// WebKit 44922:44927
+BUG14885 : LayoutTests/fast/js/JSON-parse.html = FAIL
