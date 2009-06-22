@@ -34,6 +34,7 @@ BackingStore::BackingStore(RenderWidgetHost* widget,
       display_(x11_util::GetXDisplay()),
       use_shared_memory_(x11_util::QuerySharedMemorySupport(display_)),
       use_render_(x11_util::QueryRenderSupport(display_)),
+      visual_(visual),
       visual_depth_(depth),
       root_window_(x11_util::GetX11RootWindow()) {
   COMPILE_ASSERT(__BYTE_ORDER == __LITTLE_ENDIAN, assumes_little_endian);
@@ -61,6 +62,7 @@ BackingStore::BackingStore(RenderWidgetHost* widget, const gfx::Size& size)
       display_(NULL),
       use_shared_memory_(false),
       use_render_(false),
+      visual_(NULL),
       visual_depth_(-1),
       root_window_(0) {
 }
@@ -91,52 +93,54 @@ void BackingStore::PaintRectWithoutXrender(TransportDIB* bitmap,
   image.byte_order = LSBFirst;
   image.bitmap_unit = 8;
   image.bitmap_bit_order = LSBFirst;
-  image.red_mask = 0xff;
-  image.green_mask = 0xff00;
-  image.blue_mask = 0xff0000;
+  image.depth = visual_depth_;
+  image.bits_per_pixel = pixmap_bpp_;
+  image.bytes_per_line = width * pixmap_bpp_ / 8;
 
   if (pixmap_bpp_ == 32) {
-    // If the X server depth is already 32-bits, then our job is easy.
-    image.depth = visual_depth_;
-    image.bits_per_pixel = 32;
-    image.bytes_per_line = width * 4;
-    image.data = static_cast<char*>(bitmap->memory());
+    image.red_mask = 0xff0000;
+    image.green_mask = 0xff00;
+    image.blue_mask = 0xff;
 
-    XPutImage(display_, pixmap, static_cast<GC>(pixmap_gc_), &image,
-              0, 0 /* source x, y */, 0, 0 /* dest x, y */,
-              width, height);
-  } else if (pixmap_bpp_ == 24) {
-    // In this case we just need to strip the alpha channel out of each
-    // pixel. This is the case which covers VNC servers since they don't
-    // support Xrender but typically have 24-bit visuals.
-    //
-    // It's possible to use some fancy SSE tricks here, but since this is the
-    // slow path anyway, we do it slowly.
+    // If the X server depth is already 32-bits and the color masks match,
+    // then our job is easy.
+    Visual* vis = static_cast<Visual*>(visual_);
+    if (image.red_mask == vis->red_mask &&
+        image.green_mask == vis->green_mask &&
+        image.blue_mask == vis->blue_mask) {
+      image.data = static_cast<char*>(bitmap->memory());
+      XPutImage(display_, pixmap, static_cast<GC>(pixmap_gc_), &image,
+                0, 0 /* source x, y */, 0, 0 /* dest x, y */,
+                width, height);
+    } else {
+      // Otherwise, we need to shuffle the colors around. Assume red and blue
+      // need to be swapped.
+      //
+      // It's possible to use some fancy SSE tricks here, but since this is the
+      // slow path anyway, we do it slowly.
 
-    uint8_t* bitmap24 = static_cast<uint8_t*>(malloc(3 * width * height));
-    if (!bitmap24)
-      return;
-    const uint32_t* bitmap_in = static_cast<const uint32_t*>(bitmap->memory());
-    for (int y = 0; y < height; ++y) {
-      for (int x = 0; x < width; ++x) {
-        const uint32_t pixel = *(bitmap_in++);
-        bitmap24[0] = (pixel >> 16) & 0xff;
-        bitmap24[1] = (pixel >> 8) & 0xff;
-        bitmap24[2] = pixel & 0xff;
-        bitmap24 += 3;
+      uint8_t* bitmap32 = static_cast<uint8_t*>(malloc(4 * width * height));
+      if (!bitmap32)
+        return;
+      uint8_t* const orig_bitmap32 = bitmap32;
+      const uint32_t* bitmap_in =
+          static_cast<const uint32_t*>(bitmap->memory());
+      for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+          const uint32_t pixel = *(bitmap_in++);
+          bitmap32[0] = (pixel >> 16) & 0xff;  // Red
+          bitmap32[1] = (pixel >> 8) & 0xff;   // Green
+          bitmap32[2] = pixel & 0xff;          // Blue
+          bitmap32[3] = (pixel >> 24) & 0xff;  // Alpha
+          bitmap32 += 4;
+        }
       }
+      image.data = reinterpret_cast<char*>(orig_bitmap32);
+      XPutImage(display_, pixmap, static_cast<GC>(pixmap_gc_), &image,
+                0, 0 /* source x, y */, 0, 0 /* dest x, y */,
+                width, height);
+      free(orig_bitmap32);
     }
-
-    image.depth = visual_depth_;
-    image.bits_per_pixel = 24;
-    image.bytes_per_line = width * 3;
-    image.data = reinterpret_cast<char*>(bitmap24);
-
-    XPutImage(display_, pixmap, static_cast<GC>(pixmap_gc_), &image,
-              0, 0 /* source x, y */, 0, 0 /* dest x, y */,
-              width, height);
-
-    free(bitmap24);
   } else if (pixmap_bpp_ == 16) {
     // Some folks have VNC setups which still use 16-bit visuals and VNC
     // doesn't include Xrender.
@@ -156,11 +160,7 @@ void BackingStore::PaintRectWithoutXrender(TransportDIB* bitmap,
       }
     }
 
-    image.depth = visual_depth_;
-    image.bits_per_pixel = 16;
-    image.bytes_per_line = width * 2;
     image.data = reinterpret_cast<char*>(orig_bitmap16);
-
     image.red_mask = 0xf800;
     image.green_mask = 0x07e0;
     image.blue_mask = 0x001f;

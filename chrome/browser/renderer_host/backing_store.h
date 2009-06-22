@@ -54,10 +54,8 @@ class BackingStore {
 
   // Returns true if we should convert to the monitor profile when painting.
   static bool ColorManagementEnabled();
-
 #elif defined(OS_MACOSX)
   skia::PlatformCanvas* canvas() { return &canvas_; }
-
 #elif defined(OS_LINUX)
   // Copy from the server-side backing store to the target window
   //   display: the display of the backing store and target window
@@ -91,7 +89,6 @@ class BackingStore {
   gfx::Size size_;
 
 #if defined(OS_WIN)
-
   // The backing store dc.
   HDC hdc_;
   // Handle to the backing store dib.
@@ -110,13 +107,15 @@ class BackingStore {
 
   // This is the connection to the X server where this backing store will be
   // displayed.
-  Display *const display_;
+  Display* const display_;
   // If this is true, then |connection_| is good for MIT-SHM (X shared memory).
   const bool use_shared_memory_;
   // If this is true, then we can use Xrender to composite our pixmaps.
   const bool use_render_;
   // If |use_render_| is false, this is the number of bits-per-pixel for |depth|
   int pixmap_bpp_;
+  // if |use_render_| is false, we need the Visual to get the RGB masks.
+  void* const visual_;
   // This is the depth of the target window.
   const int visual_depth_;
   // The parent window (probably a GtkDrawingArea) for this backing store.
