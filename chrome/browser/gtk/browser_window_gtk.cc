@@ -1241,7 +1241,7 @@ bool BrowserWindowGtk::GetWindowEdge(int x, int y, GdkWindowEdge* edge) {
       // Top edge.
       if (x < kResizeAreaCornerSize) {
         *edge = GDK_WINDOW_EDGE_NORTH_WEST;
-      } else if (x < x < bounds_.width() - kResizeAreaCornerSize) {
+      } else if (x < bounds_.width() - kResizeAreaCornerSize) {
         *edge = GDK_WINDOW_EDGE_NORTH;
       } else {
         *edge = GDK_WINDOW_EDGE_NORTH_EAST;
