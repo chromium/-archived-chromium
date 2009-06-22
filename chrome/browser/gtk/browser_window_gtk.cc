@@ -374,9 +374,34 @@ gboolean BrowserWindowGtk::OnCustomFrameExpose(GtkWidget* widget,
   static NineBox* default_background = NULL;
   static NineBox* default_background_otr = NULL;
 
+  ThemeProvider* theme_provider =
+      window->browser()->profile()->GetThemeProvider();
+  if (!default_background) {
+    default_background = new NineBox(theme_provider,
+        0, IDR_THEME_FRAME, 0, 0, 0, 0, 0, 0, 0);
+    default_background_otr = new NineBox(theme_provider,
+        0, IDR_THEME_FRAME_INCOGNITO, 0, 0, 0, 0, 0, 0, 0);
+  }
+
+  // Draw the default background.
+  // TODO(tc): Handle maximized windows.
+  cairo_t* cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+  cairo_rectangle(cr, event->area.x, event->area.y, event->area.width,
+                  event->area.height);
+  cairo_clip(cr);
+  NineBox* image = window->browser()->profile()->IsOffTheRecord()
+      ? default_background_otr : default_background;
+  image->RenderTopCenterStrip(cr, event->area.x, 0, event->area.width);
+  cairo_destroy(cr);
+
+  // TODO(tc): Draw the theme overlay.  The windows code is below.
+  // if (theme_provider->HasCustomImage(IDR_THEME_FRAME_OVERLAY)) {
+  //   SkBitmap* theme_overlay = theme_provider->GetBitmapNamed(
+  //       IDR_THEME_FRAME_OVERLAY);
+  //   canvas->DrawBitmapInt(*theme_overlay, 0, 0);
+  // }
+
   if (window->use_custom_frame_.GetValue()) {
-    ThemeProvider* theme_provider =
-        window->browser()->profile()->GetThemeProvider();
     if (!custom_frame_border) {
       custom_frame_border = new NineBox(
           theme_provider,
@@ -389,29 +414,7 @@ gboolean BrowserWindowGtk::OnCustomFrameExpose(GtkWidget* widget,
           IDR_WINDOW_BOTTOM_LEFT_CORNER,
           IDR_WINDOW_BOTTOM_CENTER,
           IDR_WINDOW_BOTTOM_RIGHT_CORNER);
-      default_background = new NineBox(theme_provider,
-          0, IDR_THEME_FRAME, 0, 0, 0, 0, 0, 0, 0);
-      default_background_otr = new NineBox(theme_provider,
-          0, IDR_THEME_FRAME_INCOGNITO, 0, 0, 0, 0, 0, 0, 0);
     }
-
-    // Draw the default background.
-    // TODO(tc): Handle maximized windows.
-    cairo_t* cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-    cairo_rectangle(cr, event->area.x, event->area.y, event->area.width,
-                    event->area.height);
-    cairo_clip(cr);
-    NineBox* image = window->browser()->profile()->IsOffTheRecord()
-        ? default_background_otr : default_background;
-    image->RenderTopCenterStrip(cr, event->area.x, 0, event->area.width);
-    cairo_destroy(cr);
-
-    // TODO(tc): Draw the theme overlay.  The windows code is below.
-    // if (theme_provider->HasCustomImage(IDR_THEME_FRAME_OVERLAY)) {
-    //   SkBitmap* theme_overlay = theme_provider->GetBitmapNamed(
-    //       IDR_THEME_FRAME_OVERLAY);
-    //   canvas->DrawBitmapInt(*theme_overlay, 0, 0);
-    // }
 
     custom_frame_border->RenderToWidget(widget);
   }
