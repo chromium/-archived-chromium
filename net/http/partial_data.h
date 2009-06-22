@@ -17,6 +17,7 @@ class Entry;
 
 namespace net {
 
+class HttpResponseHeaders;
 class IOBuffer;
 
 // This class provides support for dealing with range requests and the
@@ -59,6 +60,18 @@ class PartialData {
   // user's request.
   bool IsLastRange() const;
 
+  // Extracts info from headers already stored in the cache.
+  void UpdateFromStoredHeaders(const HttpResponseHeaders* headers);
+
+  // Returns true if the response headers match what we expect, false otherwise.
+  bool ResponseHeadersOK(const HttpResponseHeaders* headers);
+
+  // Fixes the response headers to include the right content length and range.
+  void FixResponseHeaders(HttpResponseHeaders* headers);
+
+  // Fixes the content length that we want to store in the cache.
+  void FixContentLength(HttpResponseHeaders* headers);
+
   // Reads up to |data_len| bytes from the cache and stores them in the provided
   // buffer (|data|). Basically, this is just a wrapper around the API of the
   // cache that provides the right arguments for the current range. When the IO
@@ -85,6 +98,7 @@ class PartialData {
 
   int64 current_range_start_;
   int64 cached_start_;
+  int64 resource_size_;
   int cached_min_len_;
   HttpByteRange byte_range_;  // The range requested by the user.
   std::string extra_headers_;  // The clean set of extra headers (no ranges).

@@ -786,6 +786,8 @@ int HttpCache::Transaction::BeginPartialCacheValidation() {
     NOTREACHED();
   }
 
+  partial_->UpdateFromStoredHeaders(response_.headers);
+
   return ContinuePartialCacheValidation();
 }
 
@@ -1074,6 +1076,10 @@ void HttpCache::Transaction::OnNetworkInfoAvailable(int result) {
       // TODO(rvargas): Validate partial_content vs partial_ and mode_
       if (partial_content) {
         DCHECK(partial_.get());
+        if (!partial_->ResponseHeadersOK(new_response->headers)) {
+          // TODO(rvargas): Handle this error.
+          NOTREACHED();
+        }
       }
       // Are we expecting a response to a conditional query?
       if (mode_ == READ_WRITE) {
@@ -1103,6 +1109,10 @@ void HttpCache::Transaction::OnNetworkInfoAvailable(int result) {
       }
 
       if (!(mode_ & READ)) {
+        // We change the value of Content-Length for partial content.
+        if (partial_content && partial_.get())
+          partial_->FixContentLength(new_response->headers);
+
         response_ = *new_response;
         WriteResponseInfoToEntry();
 
@@ -1123,6 +1133,10 @@ void HttpCache::Transaction::OnNetworkInfoAvailable(int result) {
         }
         if (result >= 0 || result == net::ERR_IO_PENDING)
           return;
+      } else if (partial_.get()) {
+        // We are about to return the headers for a byte-range request to the
+        // user, so let's fix them.
+        partial_->FixResponseHeaders(response_.headers);
       }
     }
   } else if (IsCertificateError(result)) {

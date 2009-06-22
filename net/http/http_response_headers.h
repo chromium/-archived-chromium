@@ -61,6 +61,16 @@ class HttpResponseHeaders :
   // Performs header merging as described in 13.5.3 of RFC 2616.
   void Update(const HttpResponseHeaders& new_headers);
 
+  // Removes all instances of a particular header.
+  void RemoveHeader(const std::string& name);
+
+  // Adds a particular header.  |header| has to be a single header without any
+  // EOL termination, just [<header-name>: <header-values>]
+  // If a header with the same name is already stored, the two headers are not
+  // merged together by this method; the one provided is simply put at the
+  // end of the list.
+  void AddHeader(const std::string& header);
+
   // Creates a normalized header string.  The output will be formatted exactly
   // like so:
   //     HTTP/<version> <status_code> <status_text>\n
@@ -219,6 +229,8 @@ class HttpResponseHeaders :
  private:
   friend class base::RefCountedThreadSafe<HttpResponseHeaders>;
 
+  typedef base::hash_set<std::string> HeaderSet;
+
   HttpResponseHeaders() {}
   ~HttpResponseHeaders() {}
 
@@ -260,7 +272,12 @@ class HttpResponseHeaders :
                    std::string::const_iterator value_begin,
                    std::string::const_iterator value_end);
 
-  typedef base::hash_set<std::string> HeaderSet;
+  // Replaces the current headers with the merged version of |raw_headers| and
+  // the current headers without the headers in |headers_to_remove|. Note that
+  // |headers_to_remove| are removed from the current headers (before the
+  // merge), not after the merge.
+  void MergeWithHeaders(const std::string& raw_headers,
+                        const HeaderSet& headers_to_remove);
 
   // Adds the values from any 'cache-control: no-cache="foo,bar"' headers.
   void AddNonCacheableHeaders(HeaderSet* header_names) const;

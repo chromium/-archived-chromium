@@ -160,22 +160,22 @@ void HttpResponseHeaders::Update(const HttpResponseHeaders& new_headers) {
   DCHECK(new_headers.response_code() == 304 ||
          new_headers.response_code() == 206);
 
-  // copy up to the null byte.  this just copies the status line.
+  // Copy up to the null byte.  This just copies the status line.
   std::string new_raw_headers(raw_headers_.c_str());
   new_raw_headers.push_back('\0');
 
   HeaderSet updated_headers;
 
-  // NOTE: we write the new headers then the old headers for convenience.  the
+  // NOTE: we write the new headers then the old headers for convenience.  The
   // order should not matter.
 
-  // figure out which headers we want to take from new_headers:
+  // Figure out which headers we want to take from new_headers:
   for (size_t i = 0; i < new_headers.parsed_.size(); ++i) {
     const HeaderList& new_parsed = new_headers.parsed_;
 
     DCHECK(!new_parsed[i].is_continuation());
 
-    // locate the start of the next header
+    // Locate the start of the next header.
     size_t k = i;
     while (++k < new_parsed.size() && new_parsed[k].is_continuation());
     --k;
@@ -187,8 +187,8 @@ void HttpResponseHeaders::Update(const HttpResponseHeaders& new_headers) {
       StringToLowerASCII(&name);
       updated_headers.insert(name);
 
-      // preserve this header line in the merged result
-      // (including trailing '\0')
+      // Preserve this header line in the merged result, making sure there is
+      // a null after the value.
       new_raw_headers.append(name_begin, new_parsed[k].value_end);
       new_raw_headers.push_back('\0');
     }
@@ -196,19 +196,25 @@ void HttpResponseHeaders::Update(const HttpResponseHeaders& new_headers) {
     i = k;
   }
 
-  // now, build the new raw headers
+  // Now, build the new raw headers.
+  MergeWithHeaders(new_raw_headers, updated_headers);
+}
+
+void HttpResponseHeaders::MergeWithHeaders(const std::string& raw_headers,
+                                           const HeaderSet& headers_to_remove) {
+  std::string new_raw_headers(raw_headers);
   for (size_t i = 0; i < parsed_.size(); ++i) {
     DCHECK(!parsed_[i].is_continuation());
 
-    // locate the start of the next header
+    // Locate the start of the next header.
     size_t k = i;
     while (++k < parsed_.size() && parsed_[k].is_continuation());
     --k;
 
     std::string name(parsed_[i].name_begin, parsed_[i].name_end);
     StringToLowerASCII(&name);
-    if (updated_headers.find(name) == updated_headers.end()) {
-      // ok to preserve this header in the final result
+    if (headers_to_remove.find(name) == headers_to_remove.end()) {
+      // It's ok to preserve this header in the final result.
       new_raw_headers.append(parsed_[i].name_begin, parsed_[k].value_end);
       new_raw_headers.push_back('\0');
     }
@@ -217,7 +223,34 @@ void HttpResponseHeaders::Update(const HttpResponseHeaders& new_headers) {
   }
   new_raw_headers.push_back('\0');
 
-  // ok, make this object hold the new data
+  // Make this object hold the new data.
+  raw_headers_.clear();
+  parsed_.clear();
+  Parse(new_raw_headers);
+}
+
+void HttpResponseHeaders::RemoveHeader(const std::string& name) {
+  // Copy up to the null byte.  This just copies the status line.
+  std::string new_raw_headers(raw_headers_.c_str());
+  new_raw_headers.push_back('\0');
+
+  std::string lowercase_name(name);
+  StringToLowerASCII(&lowercase_name);
+  HeaderSet to_remove;
+  to_remove.insert(lowercase_name);
+  MergeWithHeaders(new_raw_headers, to_remove);
+}
+
+void HttpResponseHeaders::AddHeader(const std::string& header) {
+  DCHECK_EQ('\0', raw_headers_[raw_headers_.size() - 2]);
+  DCHECK_EQ('\0', raw_headers_[raw_headers_.size() - 1]);
+  // Don't copy the last null.
+  std::string new_raw_headers(raw_headers_, 0, raw_headers_.size() - 1);
+  new_raw_headers.append(header);
+  new_raw_headers.push_back('\0');
+  new_raw_headers.push_back('\0');
+
+  // Make this object hold the new data.
   raw_headers_.clear();
   parsed_.clear();
   Parse(new_raw_headers);

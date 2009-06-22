@@ -1414,3 +1414,93 @@ TEST(HttpResponseHeadersTest, GetStatusBadStatusLine) {
   // HTTP/1.0 200 OK.
   EXPECT_EQ(std::string("OK"), parsed->GetStatusText());
 }
+
+TEST(HttpResponseHeadersTest, AddHeader) {
+  const struct {
+    const char* orig_headers;
+    const char* new_header;
+    const char* expected_headers;
+  } tests[] = {
+    { "HTTP/1.1 200 OK\n"
+      "connection: keep-alive\n"
+      "Cache-control: max-age=10000\n",
+
+      "Content-Length: 450",
+
+      "HTTP/1.1 200 OK\n"
+      "connection: keep-alive\n"
+      "Cache-control: max-age=10000\n"
+      "Content-Length: 450\n"
+    },
+    { "HTTP/1.1 200 OK\n"
+      "connection: keep-alive\n"
+      "Cache-control: max-age=10000    \n",
+
+      "Content-Length: 450  ",
+
+      "HTTP/1.1 200 OK\n"
+      "connection: keep-alive\n"
+      "Cache-control: max-age=10000\n"
+      "Content-Length: 450\n"
+    },
+  };
+
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+    string orig_headers(tests[i].orig_headers);
+    HeadersToRaw(&orig_headers);
+    scoped_refptr<HttpResponseHeaders> parsed =
+        new HttpResponseHeaders(orig_headers);
+
+    string new_header(tests[i].new_header);
+    parsed->AddHeader(new_header);
+
+    string resulting_headers;
+    parsed->GetNormalizedHeaders(&resulting_headers);
+    EXPECT_EQ(string(tests[i].expected_headers), resulting_headers);
+  }
+}
+
+TEST(HttpResponseHeadersTest, RemoveHeader) {
+  const struct {
+    const char* orig_headers;
+    const char* to_remove;
+    const char* expected_headers;
+  } tests[] = {
+    { "HTTP/1.1 200 OK\n"
+      "connection: keep-alive\n"
+      "Cache-control: max-age=10000\n"
+      "Content-Length: 450\n",
+
+      "Content-Length",
+
+      "HTTP/1.1 200 OK\n"
+      "connection: keep-alive\n"
+      "Cache-control: max-age=10000\n"
+    },
+    { "HTTP/1.1 200 OK\n"
+      "connection: keep-alive  \n"
+      "Content-Length  : 450  \n"
+      "Cache-control: max-age=10000\n",
+
+      "Content-Length",
+
+      "HTTP/1.1 200 OK\n"
+      "connection: keep-alive\n"
+      "Cache-control: max-age=10000\n"
+    },
+  };
+
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+    string orig_headers(tests[i].orig_headers);
+    HeadersToRaw(&orig_headers);
+    scoped_refptr<HttpResponseHeaders> parsed =
+        new HttpResponseHeaders(orig_headers);
+
+    string name(tests[i].to_remove);
+    parsed->RemoveHeader(name);
+
+    string resulting_headers;
+    parsed->GetNormalizedHeaders(&resulting_headers);
+    EXPECT_EQ(string(tests[i].expected_headers), resulting_headers);
+  }
+}

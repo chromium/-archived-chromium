@@ -12,6 +12,7 @@
 #include "net/disk_cache/disk_cache.h"
 #include "net/http/http_byte_range.h"
 #include "net/http/http_request_info.h"
+#include "net/http/http_response_headers.h"
 #include "net/http/http_response_info.h"
 #include "net/http/http_transaction.h"
 #include "net/http/http_transaction_unittest.h"
@@ -351,7 +352,8 @@ void ReadAndVerifyTransaction(net::HttpTransaction* trans,
 
 void RunTransactionTestWithRequest(net::HttpCache* cache,
                                    const MockTransaction& trans_info,
-                                   const MockHttpRequest& request) {
+                                   const MockHttpRequest& request,
+                                   std::string* response_headers) {
   TestCompletionCallback callback;
 
   // write to the cache
@@ -367,13 +369,23 @@ void RunTransactionTestWithRequest(net::HttpCache* cache,
   const net::HttpResponseInfo* response = trans->GetResponseInfo();
   ASSERT_TRUE(response);
 
+  if (response_headers)
+    response->headers->GetNormalizedHeaders(response_headers);
+
   ReadAndVerifyTransaction(trans.get(), trans_info);
 }
 
 void RunTransactionTest(net::HttpCache* cache,
                         const MockTransaction& trans_info) {
   return RunTransactionTestWithRequest(
-      cache, trans_info, MockHttpRequest(trans_info));
+      cache, trans_info, MockHttpRequest(trans_info), NULL);
+}
+
+void RunTransactionTestWithResponse(net::HttpCache* cache,
+                                    const MockTransaction& trans_info,
+                                    std::string* response_headers) {
+  return RunTransactionTestWithRequest(
+      cache, trans_info, MockHttpRequest(trans_info), response_headers);
 }
 
 // This class provides a handler for kFastNoStoreGET_Transaction so that the
@@ -484,6 +496,35 @@ const MockTransaction kRangeGET_TransactionOK = {
   &RangeTransactionServer::RangeHandler,
   0
 };
+
+// Returns true if the response headers (|response|) match a partial content
+// response for the range starting at |start| and ending at |end|.
+bool Verify206Response(std::string response, int start, int end) {
+  std::string raw_headers(net::HttpUtil::AssembleRawHeaders(response.data(),
+                                                            response.size()));
+  scoped_refptr<net::HttpResponseHeaders> headers =
+      new net::HttpResponseHeaders(raw_headers);
+
+  if (206 != headers->response_code())
+    return false;
+
+  int64 range_start, range_end, object_size;
+  if (!headers->GetContentRange(&range_start, &range_end, &object_size))
+    return false;
+  int64 content_length = headers->GetContentLength();
+
+  int length = end - start + 1;
+  if (content_length != length)
+    return false;
+
+  if (range_start != start)
+    return false;
+
+  if (range_end != end)
+    return false;
+
+  return true;
+}
 
 }  // namespace
 
@@ -1103,7 +1144,7 @@ TEST(HttpCache, SimplePOST_LoadOnlyFromCache_Hit) {
   request.upload_data->AppendBytes("hello", 5);
 
   // Populate the cache.
-  RunTransactionTestWithRequest(cache.http_cache(), transaction, request);
+  RunTransactionTestWithRequest(cache.http_cache(), transaction, request, NULL);
 
   EXPECT_EQ(1, cache.network_layer()->transaction_count());
   EXPECT_EQ(0, cache.disk_cache()->open_count());
@@ -1111,7 +1152,7 @@ TEST(HttpCache, SimplePOST_LoadOnlyFromCache_Hit) {
 
   // Load from cache.
   request.load_flags |= net::LOAD_ONLY_FROM_CACHE;
-  RunTransactionTestWithRequest(cache.http_cache(), transaction, request);
+  RunTransactionTestWithRequest(cache.http_cache(), transaction, request, NULL);
 
   EXPECT_EQ(1, cache.network_layer()->transaction_count());
   EXPECT_EQ(1, cache.disk_cache()->open_count());
@@ -1155,16 +1196,22 @@ TEST(HttpCache, DISABLED_RangeGET_OK) {
   // Test that we can cache range requests and fetch random blocks from the
   // cache and the network.
 
-  // Write to the cache (40-49).
-  RunTransactionTest(cache.http_cache(), kRangeGET_TransactionOK);
+  std::string headers;
 
+  // Write to the cache (40-49).
+  RunTransactionTestWithResponse(cache.http_cache(), kRangeGET_TransactionOK,
+                                 &headers);
+
+  EXPECT_TRUE(Verify206Response(headers, 40, 49));
   EXPECT_EQ(1, cache.network_layer()->transaction_count());
   EXPECT_EQ(0, cache.disk_cache()->open_count());
   EXPECT_EQ(1, cache.disk_cache()->create_count());
 
   // Read from the cache (40-49).
-  RunTransactionTest(cache.http_cache(), kRangeGET_TransactionOK);
+  RunTransactionTestWithResponse(cache.http_cache(), kRangeGET_TransactionOK,
+                                 &headers);
 
+  EXPECT_TRUE(Verify206Response(headers, 40, 49));
   EXPECT_EQ(2, cache.network_layer()->transaction_count());
   EXPECT_EQ(1, cache.disk_cache()->open_count());
   EXPECT_EQ(1, cache.disk_cache()->create_count());
@@ -1176,8 +1223,9 @@ TEST(HttpCache, DISABLED_RangeGET_OK) {
   MockTransaction transaction(kRangeGET_TransactionOK);
   transaction.request_headers = "Range: bytes = 30-39\r\n";
   transaction.data = "rg: 30-39 ";
-  RunTransactionTest(cache.http_cache(), transaction);
+  RunTransactionTestWithResponse(cache.http_cache(), transaction, &headers);
 
+  EXPECT_TRUE(Verify206Response(headers, 30, 39));
   EXPECT_EQ(3, cache.network_layer()->transaction_count());
   EXPECT_EQ(2, cache.disk_cache()->open_count());
   EXPECT_EQ(1, cache.disk_cache()->create_count());
@@ -1188,8 +1236,9 @@ TEST(HttpCache, DISABLED_RangeGET_OK) {
   // Write and read from the cache (20-59).
   transaction.request_headers = "Range: bytes = 20-59\r\n";
   transaction.data = "rg: 20-29 rg: 30-39 rg: 40-49 rg: 50-59 ";
-  RunTransactionTest(cache.http_cache(), transaction);
+  RunTransactionTestWithResponse(cache.http_cache(), transaction, &headers);
 
+  EXPECT_TRUE(Verify206Response(headers, 20, 59));
   EXPECT_EQ(6, cache.network_layer()->transaction_count());
   EXPECT_EQ(3, cache.disk_cache()->open_count());
   EXPECT_EQ(1, cache.disk_cache()->create_count());
