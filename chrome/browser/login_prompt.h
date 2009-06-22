@@ -28,6 +28,12 @@ class URLRequest;
 // the URLRequest that needs it.  Used by the automation proxy for testing.
 // These functions should be (and are, in LoginHandlerImpl) implemented in
 // a thread safe manner.
+//
+// TODO(erg): Refactor the common code from all LoginHandler subclasses into a
+// common controller class. All the methods below have the same copy/pasted
+// implementation. This is more difficult then it should be because all these
+// subclasses are also base::RefCountedThreadSafe<> and I'm not sure how to get
+// ownership correct.  http://crbug.com/14909
 class LoginHandler {
  public:
   // Builds the platform specific LoginHandler. Used from within
