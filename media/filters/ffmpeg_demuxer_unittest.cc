@@ -347,7 +347,6 @@ TEST_F(FFmpegDemuxerTest, Read) {
   // Attempt a read from the audio stream and run the message loop until done.
   scoped_refptr<DemuxerStreamReader> reader(new DemuxerStreamReader());
   reader->Read(audio);
-  pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
   ASSERT_TRUE(reader->buffer());
@@ -365,7 +364,6 @@ TEST_F(FFmpegDemuxerTest, Read) {
 
   // Attempt a read from the video stream and run the message loop until done.
   reader->Read(video);
-  pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
   ASSERT_TRUE(reader->buffer());
@@ -386,7 +384,6 @@ TEST_F(FFmpegDemuxerTest, Read) {
 
   // Attempt a read from the audio stream and run the message loop until done.
   reader->Read(audio);
-  pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
   ASSERT_TRUE(reader->buffer());
@@ -401,7 +398,6 @@ TEST_F(FFmpegDemuxerTest, Read) {
 
   // Attempt a read from the audio stream and run the message loop until done.
   reader->Read(video);
-  pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
   ASSERT_TRUE(reader->buffer());
@@ -486,7 +482,6 @@ TEST_F(FFmpegDemuxerTest, Seek) {
   // Read a video packet and release it.
   scoped_refptr<DemuxerStreamReader> reader(new DemuxerStreamReader());
   reader->Read(video);
-  pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
   ASSERT_TRUE(reader->buffer());
@@ -509,7 +504,6 @@ TEST_F(FFmpegDemuxerTest, Seek) {
 
   // Audio read #1, should be discontinuous.
   reader->Read(audio);
-  pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
   ASSERT_TRUE(reader->buffer());
@@ -520,7 +514,6 @@ TEST_F(FFmpegDemuxerTest, Seek) {
   // Audio read #2, should not be discontinuous.
   reader->Reset();
   reader->Read(audio);
-  pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
   ASSERT_TRUE(reader->buffer());
@@ -531,7 +524,6 @@ TEST_F(FFmpegDemuxerTest, Seek) {
   // Video read #1, should be discontinuous.
   reader->Reset();
   reader->Read(video);
-  pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
   ASSERT_TRUE(reader->buffer());
@@ -542,7 +534,6 @@ TEST_F(FFmpegDemuxerTest, Seek) {
   // Video read #2, should not be discontinuous.
   reader->Reset();
   reader->Read(video);
-  pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
   ASSERT_TRUE(reader->buffer());
@@ -596,7 +587,6 @@ TEST_F(FFmpegDemuxerTest, MP3Hack) {
   // contents should match.
   scoped_refptr<DemuxerStreamReader> reader = new DemuxerStreamReader();
   reader->Read(audio);
-  pipeline_->RunAllTasks();
   EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
   ASSERT_TRUE(reader->buffer());

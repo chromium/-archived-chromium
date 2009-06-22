@@ -130,20 +130,6 @@ class MockPipeline : public media::Pipeline {
     total_bytes_ = 0;
   }
 
-  // Runs all queued tasks until there are no more.
-  //
-  // Although it is possible for tasks to run indefinitely (executing tasks post
-  // additional tasks), such situations should be treated as a bug.  Since the
-  // pipeline is request/pull-based, only enough tasks to satisfy the request
-  // should ever be executed.
-  void RunAllTasks() {
-    message_loop_.RunAllPending();
-  }
-
-  void PostTask(Task* task) {
-    message_loop_.PostTask(FROM_HERE, task);
-  }
-
   void Error(media::PipelineError error) {
     initialized_ = false;
     error_ = error;
@@ -186,8 +172,6 @@ class MockPipeline : public media::Pipeline {
   size_t height_;
   int64 buffered_bytes_;
   int64 total_bytes_;
-
-  MessageLoop message_loop_;
 
   DISALLOW_COPY_AND_ASSIGN(MockPipeline);
 };
