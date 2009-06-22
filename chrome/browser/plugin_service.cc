@@ -167,7 +167,7 @@ void PluginService::OpenChannelToPlugin(
     plugin_host->OpenChannelToPlugin(renderer_msg_filter, mime_type, reply_msg);
   } else {
     PluginProcessHost::ReplyToRenderer(renderer_msg_filter,
-                                       IPC::ChannelHandle(),
+                                       std::string(),
                                        FilePath(),
                                        reply_msg);
   }

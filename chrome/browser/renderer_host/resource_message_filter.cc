@@ -176,7 +176,7 @@ void ResourceMessageFilter::OnFilterAdded(IPC::Channel* channel) {
 
 // Called on the IPC thread:
 void ResourceMessageFilter::OnChannelConnected(int32 peer_pid) {
-  DCHECK(!handle()) << " " << handle();
+  DCHECK(!handle());
   base::ProcessHandle peer_handle;
   if (!base::OpenProcessHandle(peer_pid, &peer_handle)) {
     NOTREACHED();
