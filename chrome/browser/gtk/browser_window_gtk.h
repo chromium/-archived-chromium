@@ -127,6 +127,10 @@ class BrowserWindowGtk : public BrowserWindow,
   // close.
   void set_drag_active(bool drag_active) { drag_active_ = drag_active; }
 
+  // Reset the mouse cursor to the default cursor if it was set to something
+  // else for the custom frame.
+  void ResetCustomFrameCursor();
+
   // Returns the BrowserWindowGtk registered with |window|.
   static BrowserWindowGtk* GetBrowserWindowForNativeWindow(
       gfx::NativeWindow window);
@@ -205,6 +209,14 @@ class BrowserWindowGtk : public BrowserWindow,
                                    GdkModifierType modifier,
                                    BrowserWindowGtk* browser_window);
 
+  // Mouse move and mouse button press callbacks.
+  static gboolean OnMouseMoveEvent(GtkWidget* widget,
+                                   GdkEventMotion* event,
+                                   BrowserWindowGtk* browser);
+  static gboolean OnButtonPressEvent(GtkWidget* widget,
+                                     GdkEventButton* event,
+                                     BrowserWindowGtk* browser);
+
   // Maps and Unmaps the xid of |widget| to |window|.
   static void MainWindowMapped(GtkWidget* widget, BrowserWindowGtk* window);
   static void MainWindowUnMapped(GtkWidget* widget, BrowserWindowGtk* window);
@@ -226,6 +238,11 @@ class BrowserWindowGtk : public BrowserWindow,
   bool IsTabStripSupported();
   bool IsToolbarSupported();
   bool IsBookmarkBarSupported();
+
+  // Checks to see if the mouse pointer at |x|, |y| is over the border of the
+  // custom frame (a spot that should trigger a window resize). Returns true if
+  // it should and sets |edge|.
+  bool GetWindowEdge(int x, int y, GdkWindowEdge* edge);
 
   NotificationRegistrar registrar_;
 
@@ -271,6 +288,10 @@ class BrowserWindowGtk : public BrowserWindow,
 
   // A map which translates an X Window ID into its respective GtkWindow.
   static std::map<XID, GtkWindow*> xid_map_;
+
+  // The current window cursor.  We set it to a resize cursor when over the
+  // custom frame border.  We set it to NULL if we want the default cursor.
+  GdkCursor* frame_cursor_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserWindowGtk);
 };

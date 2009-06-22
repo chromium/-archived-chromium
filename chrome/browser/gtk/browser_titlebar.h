@@ -34,6 +34,11 @@ class BrowserTitlebar : public MenuGtk::Delegate {
   // tall titlebar and the min/max/close buttons.
   void UpdateCustomFrame(bool use_custom_frame);
 
+  // On Windows, right clicking in the titlebar background brings up the system
+  // menu.  There's no such thing on linux, so we just show the menu items we
+  // add to the menu.
+  void ShowContextMenu();
+
  private:
   // Build the titlebar, the space above the tab
   // strip, and (maybe) the min, max, close buttons.  |container| is the gtk
@@ -51,11 +56,6 @@ class BrowserTitlebar : public MenuGtk::Delegate {
   static gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e,
                            BrowserTitlebar* window);
 
-  // Callback for when the titlebar (include the background of the tab strip)
-  // needs to be redrawn.
-  static gboolean OnMouseButtonPress(GtkWidget* widget, GdkEventButton* e,
-                                     BrowserTitlebar* window);
-
   // Callback for changes to window state.  This includes
   // maximizing/restoring/minimizing the window.
   static gboolean OnWindowStateChanged(GtkWindow* window,
@@ -67,10 +67,6 @@ class BrowserTitlebar : public MenuGtk::Delegate {
 
   // -- Context Menu -----------------------------------------------------------
 
-  // On Windows, right clicking in the titlebar background brings up the system
-  // menu.  There's no such thing on linux, so we just show the menu items we
-  // add to the menu.
-  void ShowContextMenu();
   // MenuGtk::Delegate implementation:
   virtual bool IsCommandEnabled(int command_id) const;
   virtual bool IsItemChecked(int command_id) const;

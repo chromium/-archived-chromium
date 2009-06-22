@@ -47,6 +47,11 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   void Show();
   void Hide();
 
+  // Getter for the containing widget.
+  GtkWidget* widget() {
+    return toolbar_;
+  }
+
   virtual LocationBar* GetLocationBar() const;
 
   GoButtonGtk* GetGoButton() { return go_.get(); }

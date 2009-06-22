@@ -60,8 +60,18 @@ const int kLoadingAnimationFrameTimeMs = 30;
 
 const char* kBrowserWindowKey = "__BROWSER_WINDOW_GTK__";
 
-// The width of the custom frame.
-const int kCustomFrameWidth = 3;
+// The frame border is only visible in restored mode and is hardcoded to 4 px
+// on each side regardless of the system window border size.
+const int kFrameBorderThickness = 4;
+// While resize areas on Windows are normally the same size as the window
+// borders, our top area is shrunk by 1 px to make it easier to move the window
+// around with our thinner top grabbable strip.  (Incidentally, our side and
+// bottom resize areas don't match the frame border thickness either -- they
+// span the whole nonclient area, so there's no "dead zone" for the mouse.)
+const int kTopResizeAdjust = 1;
+// In the window corners, the resize areas don't actually expand bigger, but
+// the 16 px at the end of each edge triggers diagonal resizing.
+const int kResizeAreaCornerSize = 16;
 
 gboolean MainWindowConfigured(GtkWindow* window, GdkEventConfigure* event,
                               BrowserWindowGtk* browser_win) {
@@ -268,23 +278,33 @@ gboolean OnKeyPress(GtkWindow* window, GdkEventKey* event, Browser* browser) {
   }
 }
 
-gboolean OnButtonPressEvent(GtkWidget* widget, GdkEventButton* event,
-                            Browser* browser) {
-  // TODO(jhawkins): Investigate the possibility of the button numbers being
-  // different for other mice.
-  if (event->button == 8) {
-    browser->GoBack(CURRENT_TAB);
-    return TRUE;
-  } else if (event->button == 9) {
-    browser->GoForward(CURRENT_TAB);
-    return TRUE;
-  }
-  return FALSE;
-}
-
 gboolean OnFocusIn(GtkWidget* widget, GdkEventFocus* event, Browser* browser) {
   BrowserList::SetLastActive(browser);
   return FALSE;
+}
+
+GdkCursorType GdkWindowEdgeToGdkCursorType(GdkWindowEdge edge) {
+  switch (edge) {
+    case GDK_WINDOW_EDGE_NORTH_WEST:
+      return GDK_TOP_LEFT_CORNER;
+    case GDK_WINDOW_EDGE_NORTH:
+      return GDK_TOP_SIDE;
+    case GDK_WINDOW_EDGE_NORTH_EAST:
+      return GDK_TOP_RIGHT_CORNER;
+    case GDK_WINDOW_EDGE_WEST:
+      return GDK_LEFT_SIDE;
+    case GDK_WINDOW_EDGE_EAST:
+      return GDK_RIGHT_SIDE;
+    case GDK_WINDOW_EDGE_SOUTH_WEST:
+      return GDK_BOTTOM_LEFT_CORNER;
+    case GDK_WINDOW_EDGE_SOUTH:
+      return GDK_BOTTOM_SIDE;
+    case GDK_WINDOW_EDGE_SOUTH_EAST:
+      return GDK_BOTTOM_RIGHT_CORNER;
+    default:
+      NOTREACHED();
+  }
+  return GDK_LAST_CURSOR;
 }
 
 }  // namespace
@@ -294,11 +314,14 @@ std::map<XID, GtkWindow*> BrowserWindowGtk::xid_map_;
 BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
     :  browser_(browser),
        full_screen_(false),
-       drag_active_(false) {
+       drag_active_(false),
+       frame_cursor_(NULL) {
   use_custom_frame_.Init(prefs::kUseCustomChromeFrame,
       browser_->profile()->GetPrefs(), this);
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
   g_object_set_data(G_OBJECT(window_), kBrowserWindowKey, this);
+  gtk_widget_add_events(GTK_WIDGET(window_), GDK_BUTTON_PRESS_MASK |
+                                             GDK_POINTER_MOTION_MASK);
 
   SetWindowIcon();
   SetBackgroundColor();
@@ -316,6 +339,11 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
 
 BrowserWindowGtk::~BrowserWindowGtk() {
   browser_->tabstrip_model()->RemoveObserver(this);
+
+  if (frame_cursor_) {
+    gdk_cursor_unref(frame_cursor_);
+    frame_cursor_ = NULL;
+  }
 }
 
 void BrowserWindowGtk::HandleAccelerator(guint keyval,
@@ -775,6 +803,15 @@ void BrowserWindowGtk::AddFindBar(FindBarGtk* findbar) {
   gtk_box_reorder_child(GTK_BOX(render_area_vbox_), findbar->widget(), 0);
 }
 
+void BrowserWindowGtk::ResetCustomFrameCursor() {
+  if (!frame_cursor_)
+    return;
+
+  gdk_cursor_unref(frame_cursor_);
+  frame_cursor_ = NULL;
+  gdk_window_set_cursor(GTK_WIDGET(window_)->window, NULL);
+}
+
 // static
 BrowserWindowGtk* BrowserWindowGtk::GetBrowserWindowForNativeWindow(
     gfx::NativeWindow window) {
@@ -834,8 +871,10 @@ void BrowserWindowGtk::ConnectHandlersToSignals() {
                      G_CALLBACK(MainWindowUnMapped), this);
   g_signal_connect(window_, "key-press-event",
                    G_CALLBACK(OnKeyPress), browser_.get());
+  g_signal_connect(window_, "motion-notify-event",
+                   G_CALLBACK(OnMouseMoveEvent), this);
   g_signal_connect(window_, "button-press-event",
-                   G_CALLBACK(OnButtonPressEvent), browser_.get());
+                   G_CALLBACK(OnButtonPressEvent), this);
   g_signal_connect(window_, "focus-in-event",
                    G_CALLBACK(OnFocusIn), browser_.get());
 }
@@ -978,7 +1017,7 @@ void BrowserWindowGtk::UpdateCustomFrame() {
   UpdateWindowShape(bounds_.width(), bounds_.height());
   if (enable) {
     gtk_alignment_set_padding(GTK_ALIGNMENT(window_container_), 1,
-        kCustomFrameWidth, kCustomFrameWidth, kCustomFrameWidth);
+        kFrameBorderThickness, kFrameBorderThickness, kFrameBorderThickness);
   } else {
     gtk_alignment_set_padding(GTK_ALIGNMENT(window_container_), 0, 0, 0, 0);
   }
@@ -1019,6 +1058,93 @@ gboolean BrowserWindowGtk::OnGtkAccelerator(GtkAccelGroup* accel_group,
   browser_window->ExecuteBrowserCommand(command_id);
 
   return TRUE;
+}
+
+// static
+gboolean BrowserWindowGtk::OnMouseMoveEvent(GtkWidget* widget,
+    GdkEventMotion* event, BrowserWindowGtk* browser) {
+  // Update the cursor if we're on the custom frame border.
+  GdkWindowEdge edge;
+  bool has_hit_edge = browser->GetWindowEdge(static_cast<int>(event->x),
+      static_cast<int>(event->y), &edge);
+  GdkCursorType new_cursor = GDK_LAST_CURSOR;
+  if (has_hit_edge)
+    new_cursor = GdkWindowEdgeToGdkCursorType(edge);
+
+  GdkCursorType last_cursor = GDK_LAST_CURSOR;
+  if (browser->frame_cursor_)
+    last_cursor = browser->frame_cursor_->type;
+
+  if (last_cursor != new_cursor) {
+    if (browser->frame_cursor_) {
+      gdk_cursor_unref(browser->frame_cursor_);
+      browser->frame_cursor_ = NULL;
+    }
+    if (has_hit_edge) {
+      browser->frame_cursor_ = gdk_cursor_new(new_cursor);
+      gdk_window_set_cursor(GTK_WIDGET(browser->window_)->window,
+                            browser->frame_cursor_);
+    } else {
+      gdk_window_set_cursor(GTK_WIDGET(browser->window_)->window, NULL);
+    }
+  }
+  return FALSE;
+}
+
+// static
+gboolean BrowserWindowGtk::OnButtonPressEvent(GtkWidget* widget,
+    GdkEventButton* event, BrowserWindowGtk* browser) {
+  // Handle back/forward.
+  // TODO(jhawkins): Investigate the possibility of the button numbers being
+  // different for other mice.
+  if (event->button == 8) {
+    browser->browser_->GoBack(CURRENT_TAB);
+    return TRUE;
+  } else if (event->button == 9) {
+    browser->browser_->GoForward(CURRENT_TAB);
+    return TRUE;
+  }
+
+  // Handle left and right clicks.  In particular, we care about clicks in the
+  // custom frame border and clicks in the titlebar.
+  GdkWindowEdge edge;
+  bool has_hit_edge = browser->GetWindowEdge(static_cast<int>(event->x),
+      static_cast<int>(event->y), &edge);
+  // Ignore clicks that are in/below the tab strip.
+  gint tabstrip_y;
+  gtk_widget_get_pointer(browser->toolbar_->widget(), NULL, &tabstrip_y);
+  bool has_hit_titlebar = !browser->IsFullscreen() && (tabstrip_y < 0)
+      && !has_hit_edge;
+  if (event->button == 1) {
+    if (GDK_BUTTON_PRESS == event->type) {
+      if (has_hit_titlebar) {
+        gtk_window_begin_move_drag(browser->window_, event->button,
+                                   event->x_root, event->y_root, event->time);
+        return TRUE;
+      } else if (has_hit_edge) {
+        gtk_window_begin_resize_drag(browser->window_, edge, event->button,
+                                     event->x_root, event->y_root, event->time);
+        return TRUE;
+      }
+    } else if (GDK_2BUTTON_PRESS == event->type) {
+      if (has_hit_titlebar) {
+        // Maximize/restore on double click.
+        if (browser->IsMaximized()) {
+          gtk_window_unmaximize(browser->window_);
+        } else {
+          gtk_window_maximize(browser->window_);
+        }
+        return TRUE;
+      }
+    }
+  } else if (event->button == 3) {
+    if (has_hit_titlebar) {
+      browser->titlebar_->ShowContextMenu();
+      return TRUE;
+    }
+  }
+
+  return FALSE;  // Continue to propagate the event.
 }
 
 // static
@@ -1076,4 +1202,59 @@ bool BrowserWindowGtk::IsToolbarSupported() {
 
 bool BrowserWindowGtk::IsBookmarkBarSupported() {
   return browser_->SupportsWindowFeature(Browser::FEATURE_BOOKMARKBAR);
+}
+
+bool BrowserWindowGtk::GetWindowEdge(int x, int y, GdkWindowEdge* edge) {
+  if (!use_custom_frame_.GetValue())
+    return false;
+
+  if (IsMaximized() || IsFullscreen())
+    return false;
+
+  if (x < kFrameBorderThickness) {
+    // Left edge.
+    if (y < kResizeAreaCornerSize - kTopResizeAdjust) {
+      *edge = GDK_WINDOW_EDGE_NORTH_WEST;
+    } else if (y < bounds_.height() - kResizeAreaCornerSize) {
+      *edge = GDK_WINDOW_EDGE_WEST;
+    } else {
+      *edge = GDK_WINDOW_EDGE_SOUTH_WEST;
+    }
+    return true;
+  } else if (x < bounds_.width() - kFrameBorderThickness) {
+    if (y < kFrameBorderThickness - kTopResizeAdjust) {
+      // Top edge.
+      if (x < kResizeAreaCornerSize) {
+        *edge = GDK_WINDOW_EDGE_NORTH_WEST;
+      } else if (x < x < bounds_.width() - kResizeAreaCornerSize) {
+        *edge = GDK_WINDOW_EDGE_NORTH;
+      } else {
+        *edge = GDK_WINDOW_EDGE_NORTH_EAST;
+      }
+    } else if (y < bounds_.height() - kFrameBorderThickness) {
+      // Ignore the middle content area.
+      return false;
+    } else {
+      // Bottom edge.
+      if (x < kResizeAreaCornerSize) {
+        *edge = GDK_WINDOW_EDGE_SOUTH_WEST;
+      } else if (x < bounds_.width() - kResizeAreaCornerSize) {
+        *edge = GDK_WINDOW_EDGE_SOUTH;
+      } else {
+        *edge = GDK_WINDOW_EDGE_SOUTH_EAST;
+      }
+    }
+    return true;
+  } else {
+    // Right edge.
+    if (y < kResizeAreaCornerSize - kTopResizeAdjust) {
+      *edge = GDK_WINDOW_EDGE_NORTH_EAST;
+    } else if (y < bounds_.height() - kResizeAreaCornerSize) {
+      *edge = GDK_WINDOW_EDGE_EAST;
+    } else {
+      *edge = GDK_WINDOW_EDGE_SOUTH_EAST;
+    }
+    return true;
+  }
+  NOTREACHED();
 }

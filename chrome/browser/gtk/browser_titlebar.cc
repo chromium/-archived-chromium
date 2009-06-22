@@ -28,7 +28,14 @@ const int kTitlebarHeight = 14;
 // A linux specific menu item for toggling window decorations.
 const int kShowWindowDecorationsCommand = 200;
 
+gboolean OnMouseMoveEvent(GtkWidget* widget, GdkEventMotion* event,
+                          BrowserWindowGtk* browser_window) {
+  // Reset to the default mouse cursor.
+  browser_window->ResetCustomFrameCursor();
+  return TRUE;
 }
+
+}  // namespace
 
 BrowserTitlebar::BrowserTitlebar(BrowserWindowGtk* browser_window,
                                  GtkWindow* window)
@@ -44,11 +51,9 @@ void BrowserTitlebar::Init() {
       browser_window_->browser()->profile()->GetThemeProvider(),
       0, IDR_THEME_FRAME_INCOGNITO, 0, 0, 0, 0, 0, 0, 0));
 
-  // The widget hierarchy is shown below.  In addition to the diagram, there is
-  // a gtk event box surrounding the titlebar_hbox which catches mouse events
-  // in the titlebar.
+  // The widget hierarchy is shown below.
   //
-  // +- HBox (titlebar_hbox) -----------------------------------------------+
+  // +- HBox (container_) --------------------------------------------------+
   // |+- Alignment (titlebar_alignment_)-++- VBox (titlebar_buttons_box_) -+|
   // ||                                  ||+- HBox -----------------------+||
   // ||                                  |||+- button -++- button -+      |||
@@ -57,20 +62,16 @@ void BrowserTitlebar::Init() {
   // ||+--------------------------------+||+------------------------------+||
   // |+----------------------------------++--------------------------------+|
   // +----------------------------------------------------------------------+
-  container_ = gtk_event_box_new();
-  GtkWidget* titlebar_hbox = gtk_hbox_new(FALSE, 0);
-  gtk_container_add(GTK_CONTAINER(container_), titlebar_hbox);
+  container_ = gtk_hbox_new(FALSE, 0);
 
-  g_signal_connect(G_OBJECT(container_), "button-press-event",
-                   G_CALLBACK(OnMouseButtonPress), this);
-  g_signal_connect(G_OBJECT(titlebar_hbox), "expose-event",
+  g_signal_connect(G_OBJECT(container_), "expose-event",
                    G_CALLBACK(OnExpose), this);
   g_signal_connect(window_, "window-state-event",
                    G_CALLBACK(OnWindowStateChanged), this);
 
   // We use an alignment to control the titlebar height.
   titlebar_alignment_ = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
-  gtk_box_pack_start(GTK_BOX(titlebar_hbox), titlebar_alignment_, TRUE,
+  gtk_box_pack_start(GTK_BOX(container_), titlebar_alignment_, TRUE,
                      TRUE, 0);
 
   // Put the tab strip in the titlebar.
@@ -96,7 +97,7 @@ void BrowserTitlebar::Init() {
                          IDR_MINIMIZE_H, buttons_hbox,
                          IDS_XPFRAME_MINIMIZE_TOOLTIP));
 
-  gtk_box_pack_end(GTK_BOX(titlebar_hbox), titlebar_buttons_box_, FALSE,
+  gtk_box_pack_end(GTK_BOX(container_), titlebar_buttons_box_, FALSE,
                    FALSE, 0);
 
   gtk_widget_show_all(container_);
@@ -106,8 +107,11 @@ CustomDrawButton* BrowserTitlebar::BuildTitlebarButton(int image,
     int image_pressed, int image_hot, GtkWidget* box, int tooltip) {
   CustomDrawButton* button = new CustomDrawButton(image, image_pressed,
       image_hot, 0);
+  gtk_widget_add_events(GTK_WIDGET(button->widget()), GDK_POINTER_MOTION_MASK);
   g_signal_connect(button->widget(), "clicked", G_CALLBACK(OnButtonClicked),
                    this);
+  g_signal_connect(button->widget(), "motion-notify-event",
+                   G_CALLBACK(OnMouseMoveEvent), browser_window_);
   std::string localized_tooltip = l10n_util::GetStringUTF8(tooltip);
   gtk_widget_set_tooltip_text(button->widget(),
                               localized_tooltip.c_str());
@@ -139,30 +143,6 @@ gboolean BrowserTitlebar::OnExpose(GtkWidget* widget, GdkEventExpose* e,
   cairo_destroy(cr);
 
   return FALSE;  // Allow subwidgets to paint.
-}
-
-gboolean BrowserTitlebar::OnMouseButtonPress(GtkWidget* widget,
-    GdkEventButton* event, BrowserTitlebar* titlebar) {
-  if (1 == event->button) {
-    if (GDK_BUTTON_PRESS == event->type) {
-      gtk_window_begin_move_drag(GTK_WINDOW(titlebar->window_),
-          event->button, event->x_root, event->y_root, event->time);
-      return TRUE;
-    } else if (GDK_2BUTTON_PRESS == event->type) {
-      // Maximize/restore on double click.
-      if (titlebar->browser_window_->IsMaximized()) {
-        gtk_window_unmaximize(titlebar->window_);
-      } else {
-        gtk_window_maximize(titlebar->window_);
-      }
-      return TRUE;
-    }
-  } else if (3 == event->button) {
-    titlebar->ShowContextMenu();
-    return TRUE;
-  }
-
-  return FALSE;  // Continue to propagate the event.
 }
 
 gboolean BrowserTitlebar::OnWindowStateChanged(GtkWindow* window,
