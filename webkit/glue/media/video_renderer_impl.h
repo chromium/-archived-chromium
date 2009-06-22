@@ -20,14 +20,14 @@
 #include "media/base/buffers.h"
 #include "media/base/factory.h"
 #include "media/base/filters.h"
-#include "media/filters/video_thread.h"
+#include "media/filters/video_renderer_base.h"
 #include "webkit/api/public/WebMediaPlayer.h"
 
 namespace webkit_glue {
 
 class WebMediaPlayerImpl;
 
-class VideoRendererImpl : public media::VideoThread {
+class VideoRendererImpl : public media::VideoRendererBase {
  public:
   // Methods for painting called by the WebMediaPlayerDelegateImpl
 
@@ -50,14 +50,14 @@ class VideoRendererImpl : public media::VideoThread {
   // FilterFactoryImpl1 implementation.
   static bool IsMediaFormatSupported(const media::MediaFormat& media_format);
 
-  // Override VideoThread implementation of Stop().
+  // Override VideoRendererBase implementation of Stop().
   virtual void Stop();
 
  protected:
-  // Method called by VideoThread during initialization.
+  // Method called by VideoRendererBase during initialization.
   virtual bool OnInitialize(media::VideoDecoder* decoder);
 
-  // Method called by the VideoThread when a frame is available.
+  // Method called by the VideoRendererBase when a frame is available.
   virtual void OnFrameAvailable();
 
  private:

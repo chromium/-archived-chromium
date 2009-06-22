@@ -4,228 +4,271 @@
 
 #include "media/base/buffers.h"
 #include "media/base/filter_host.h"
-#include "media/base/pipeline.h"
 #include "media/filters/video_renderer_base.h"
 
 namespace media {
 
-const size_t VideoRendererBase::kDefaultNumberOfFrames = 4;
+// Limit our read ahead to three frames.  One frame is typically in flux at all
+// times, as in frame n is discarded at the top of ThreadMain() while frame
+// (n + kMaxFrames) is being asynchronously fetched.  The remaining two frames
+// allow us to advance the current frame as well as read the timestamp of the
+// following frame for more accurate timing.
+//
+// Increasing this number beyond 3 simply creates a larger buffer to work with
+// at the expense of memory (~0.5MB and ~1.3MB per frame for 480p and 720p
+// resolutions, respectively).  This can help on lower-end systems if there are
+// difficult sections in the movie and decoding slows down.
+static const size_t kMaxFrames = 3;
 
-const base::TimeDelta VideoRendererBase::kDefaultSkipFrameDelta =
-    base::TimeDelta::FromMilliseconds(2);
+// Sleeping for negative amounts actually hangs your thread on Windows!
+static const int64 kMinSleepMilliseconds = 0;
 
-const base::TimeDelta VideoRendererBase::kDefaultEmptyQueueSleep =
-    base::TimeDelta::FromMilliseconds(15);
-
-//------------------------------------------------------------------------------
+// This equates to ~13.33 fps, which is just under the typical 15 fps that
+// lower quality cameras or shooting modes usually use for video encoding.
+static const int64 kMaxSleepMilliseconds = 75;
 
 VideoRendererBase::VideoRendererBase()
-    : number_of_frames_(kDefaultNumberOfFrames),
-      skip_frame_delta_(kDefaultSkipFrameDelta),
-      empty_queue_sleep_(kDefaultEmptyQueueSleep),
-      number_of_reads_needed_(kDefaultNumberOfFrames),
-      submit_reads_task_(NULL),
-      preroll_complete_(false) {
-}
-
-VideoRendererBase::VideoRendererBase(size_t number_of_frames,
-                                     base::TimeDelta skip_frame_delta,
-                                     base::TimeDelta empty_queue_sleep)
-    : number_of_frames_(number_of_frames),
-      skip_frame_delta_(skip_frame_delta),
-      empty_queue_sleep_(empty_queue_sleep),
-      number_of_reads_needed_(number_of_frames),
-      submit_reads_task_(NULL),
-      preroll_complete_(false) {
+    : frame_available_(&lock_),
+      state_(UNINITIALIZED),
+      thread_(NULL),
+      playback_rate_(0) {
 }
 
 VideoRendererBase::~VideoRendererBase() {
-  Stop();
-}
-
-// static
-bool VideoRendererBase::IsMediaFormatSupported(
-    const MediaFormat& media_format) {
-  int width;
-  int height;
-  return ParseMediaFormat(media_format, &width, &height);
+  AutoLock auto_lock(lock_);
+  DCHECK(state_ == UNINITIALIZED || state_ == STOPPED);
 }
 
 // static
 bool VideoRendererBase::ParseMediaFormat(const MediaFormat& media_format,
-                                         int* width_out,
-                                         int* height_out) {
-  DCHECK(width_out && height_out);
+                                         int* width_out, int* height_out) {
   std::string mime_type;
-  return (media_format.GetAsString(MediaFormat::kMimeType, &mime_type) &&
-          mime_type.compare(mime_type::kUncompressedVideo) == 0 &&
-          media_format.GetAsInteger(MediaFormat::kWidth, width_out) &&
-          media_format.GetAsInteger(MediaFormat::kHeight, height_out));
+  if (!media_format.GetAsString(MediaFormat::kMimeType, &mime_type))
+    return false;
+  if (mime_type.compare(mime_type::kUncompressedVideo) != 0)
+    return false;
+  if (!media_format.GetAsInteger(MediaFormat::kWidth, width_out))
+    return false;
+  if (!media_format.GetAsInteger(MediaFormat::kHeight, height_out))
+    return false;
+  return true;
 }
 
 void VideoRendererBase::Stop() {
-  OnStop();
   AutoLock auto_lock(lock_);
-  DiscardAllFrames();
-  if (submit_reads_task_) {
-    // The task is owned by the message loop, so we don't delete it here.  We
-    // know the task won't call us because we canceled it, and we know we are
-    // on the pipeline thread, since we're in the filter's Stop method, so there
-    // is no threading problem.  Just let the task be run by the message loop
-    // and then be killed.
-    submit_reads_task_->Cancel();
-    submit_reads_task_ = NULL;
+  state_ = STOPPED;
+  if (thread_) {
+    // Signal the thread since it's possible to get stopped with the video
+    // thread waiting for a read to complete.
+    frame_available_.Signal();
+    {
+      AutoUnlock auto_unlock(lock_);
+      PlatformThread::Join(thread_);
+    }
+    thread_ = NULL;
   }
-  decoder_ = NULL;
+}
+
+void VideoRendererBase::SetPlaybackRate(float playback_rate) {
+  AutoLock auto_lock(lock_);
+  playback_rate_ = playback_rate;
+}
+
+void VideoRendererBase::Seek(base::TimeDelta time) {
+  AutoLock auto_lock(lock_);
+  // We need the first frame in |frames_| to run the VideoRendererBase main
+  // loop, but we don't need decoded frames after the first frame since we are
+  // at a new time. We should get some new frames so issue reads to compensate
+  // for those discarded.
+  while (frames_.size() > 1) {
+    frames_.pop_back();
+    ScheduleRead();
+  }
 }
 
 bool VideoRendererBase::Initialize(VideoDecoder* decoder) {
-  int width, height;
+  AutoLock auto_lock(lock_);
+  DCHECK_EQ(state_, UNINITIALIZED);
+  state_ = INITIALIZING;
   decoder_ = decoder;
-  if (ParseMediaFormat(decoder_->media_format(), &width, &height) &&
-      OnInitialize(width, height)) {
-    host_->SetVideoSize(width, height);
-    host_->SetTimeUpdateCallback(
-        NewCallback(this, &VideoRendererBase::TimeUpdateCallback));
-    SubmitReads();
-    return true;
+
+  // Notify the pipeline of the video dimensions.
+  int width = 0;
+  int height = 0;
+  if (!ParseMediaFormat(decoder->media_format(), &width, &height))
+    return false;
+  host_->SetVideoSize(width, height);
+
+  // Initialize the subclass.
+  // TODO(scherkus): do we trust subclasses not to do something silly while
+  // we're holding the lock?
+  if (!OnInitialize(decoder))
+    return false;
+
+  // Create our video thread.
+  if (!PlatformThread::Create(0, this, &thread_)) {
+    NOTREACHED() << "Video thread creation failed";
+    return false;
   }
-  decoder_ = NULL;
-  return false;
+
+#if defined(OS_WIN)
+  // Bump up our priority so our sleeping is more accurate.
+  // TODO(scherkus): find out if this is necessary, but it seems to help.
+  ::SetThreadPriority(thread_, THREAD_PRIORITY_ABOVE_NORMAL);
+#endif  // defined(OS_WIN)
+
+  // Queue initial reads.
+  for (size_t i = 0; i < kMaxFrames; ++i) {
+    ScheduleRead();
+  }
+
+  return true;
 }
 
-void VideoRendererBase::SubmitReads() {
-  int number_to_read;
-  {
-    AutoLock auto_lock(lock_);
-    submit_reads_task_ = NULL;
-    number_to_read = number_of_reads_needed_;
-    number_of_reads_needed_ = 0;
-  }
-  while (number_to_read > 0) {
-    decoder_->Read(NewCallback(this, &VideoRendererBase::ReadComplete));
-    --number_to_read;
-  }
-}
+// PlatformThread::Delegate implementation.
+void VideoRendererBase::ThreadMain() {
+  PlatformThread::SetName("VideoThread");
 
-bool VideoRendererBase::UpdateQueue(base::TimeDelta time,
-                                    VideoFrame* new_frame) {
-  lock_.AssertAcquired();
-  bool updated_front = false;
+  // Wait to be initialized so we can notify the first frame is available.
+  if (!WaitForInitialized())
+    return;
+  OnFrameAvailable();
 
-  // If a new frame is passed in then put it at the back of the queue.  If the
-  // queue was empty, then we've updated the front too.
-  if (new_frame) {
-    updated_front = queue_.empty();
-    new_frame->AddRef();
-    queue_.push_back(new_frame);
-  }
-
-  // Now make sure that the front of the queue is the correct frame to display
-  // right now.  Discard any frames that are past the current time.  If any
-  // frames are discarded then increment the |number_of_reads_needed_| member.
-  if (preroll_complete_) {
-    while (queue_.size() > 1 &&
-           queue_[1]->GetTimestamp() - skip_frame_delta_ <= time) {
-      queue_.front()->Release();
-      queue_.pop_front();
-      updated_front = true;
-      ++number_of_reads_needed_;
+  for (;;) {
+    // State and playback rate to assume for this iteration of the loop.
+    State state;
+    float playback_rate;
+    {
+      AutoLock auto_lock(lock_);
+      state = state_;
+      playback_rate = playback_rate_;
     }
-  }
+    if (state == STOPPED) {
+      return;
+    }
+    DCHECK_EQ(state, INITIALIZED);
 
-  // If any frames have been removed we need to call the decoder again.  Note
-  // that the PostSubmitReadsTask method will only post the task if there are
-  // pending reads.
-  PostSubmitReadsTask();
+    // Sleep for 10 milliseconds while paused.
+    if (playback_rate == 0) {
+      PlatformThread::Sleep(10);
+      continue;
+    }
 
-  // True if the front of the queue is a new frame.
-  return updated_front;
-}
+    // Advance |current_frame_| and try to determine |next_frame|.
+    scoped_refptr<VideoFrame> next_frame;
+    {
+      AutoLock auto_lock(lock_);
+      DCHECK(!frames_.empty());
+      DCHECK_EQ(current_frame_, frames_.front());
+      frames_.pop_front();
+      ScheduleRead();
+      while (frames_.empty()) {
+        frame_available_.Wait();
 
-void VideoRendererBase::DiscardAllFrames() {
-  lock_.AssertAcquired();
-  while (!queue_.empty()) {
-    queue_.front()->Release();
-    queue_.pop_front();
-    ++number_of_reads_needed_;
-  }
-}
-
-// Assumes |lock_| has been acquired!
-void VideoRendererBase::PostSubmitReadsTask() {
-  if (number_of_reads_needed_ > 0 && !submit_reads_task_) {
-    submit_reads_task_ = NewRunnableMethod(this,
-                                           &VideoRendererBase::SubmitReads);
-    host_->PostTask(submit_reads_task_);
-  }
-}
-
-void VideoRendererBase::TimeUpdateCallback(base::TimeDelta time) {
-  bool request_repaint;
-  {
-    AutoLock auto_lock(lock_);
-    request_repaint = (IsRunning() && UpdateQueue(time, NULL));
-  }
-  if (request_repaint) {
-    OnPaintNeeded();
-  }
-}
-
-void VideoRendererBase::ReadComplete(VideoFrame* video_frame) {
-  bool call_initialized = false;
-  bool request_repaint = false;
-  {
-    AutoLock auto_lock(lock_);
-    if (IsRunning()) {
-      if (video_frame->IsDiscontinuous()) {
-        DiscardAllFrames();
+        // We have the lock again, check the actual state to see if we're trying
+        // to stop.
+        if (state_ == STOPPED) {
+          return;
+        }
       }
-      // If this is not an end of stream frame, update the queue with it.
-      // An end of stream of frame has no data.
-      if (!video_frame->IsEndOfStream() &&
-          UpdateQueue(host_->GetPipelineStatus()->GetInterpolatedTime(),
-                      video_frame)) {
-        request_repaint = preroll_complete_;
-      }
-      if (!preroll_complete_ && (queue_.size() == number_of_frames_ ||
-                                 video_frame->IsEndOfStream())) {
-        preroll_complete_ = true;
-        call_initialized = true;
-        request_repaint = true;
+      current_frame_ = frames_.front();
+      if (frames_.size() >= 2) {
+        next_frame = frames_[1];
       }
     }
-  }
-  // |lock_| no longer held.  Call the pipeline if we've just entered a
-  // completed preroll state.
-  if (call_initialized) {
-    host_->InitializationComplete();
-  }
-  if (request_repaint) {
-    OnPaintNeeded();
+
+    // Notify subclass that |current_frame_| has been updated.
+    OnFrameAvailable();
+
+    // Determine the current and next presentation timestamps.
+    base::TimeDelta now = host_->GetPipelineStatus()->GetTime();
+    base::TimeDelta this_pts = current_frame_->GetTimestamp();
+    base::TimeDelta next_pts;
+    if (next_frame) {
+      next_pts = next_frame->GetTimestamp();
+    } else {
+      next_pts = this_pts + current_frame_->GetDuration();
+    }
+
+    // Determine our sleep duration based on whether time advanced.
+    base::TimeDelta sleep;
+    if (now == previous_time_) {
+      // Time has not changed, assume we sleep for the frame's duration.
+      sleep = next_pts - this_pts;
+    } else {
+      // Time has changed, figure out real sleep duration.
+      sleep = next_pts - now;
+      previous_time_ = now;
+    }
+
+    // Scale our sleep based on the playback rate.
+    // TODO(scherkus): floating point badness and degrade gracefully.
+    int sleep_ms = static_cast<int>(sleep.InMicroseconds() / playback_rate /
+        base::Time::kMicrosecondsPerMillisecond);
+
+    // To be safe, limit our sleep duration.
+    // TODO(scherkus): handle seeking gracefully.. right now a seek backwards
+    // will hit kMinSleepMilliseconds whereas a seek forward will hit
+    // kMaxSleepMilliseconds.
+    if (sleep_ms < kMinSleepMilliseconds)
+      sleep_ms = kMinSleepMilliseconds;
+    else if (sleep_ms > kMaxSleepMilliseconds)
+      sleep_ms = kMaxSleepMilliseconds;
+
+    PlatformThread::Sleep(sleep_ms);
   }
 }
 
 void VideoRendererBase::GetCurrentFrame(scoped_refptr<VideoFrame>* frame_out) {
   AutoLock auto_lock(lock_);
-  *frame_out = NULL;
-  if (IsRunning()) {
-    base::TimeDelta time = host_->GetPipelineStatus()->GetInterpolatedTime();
-    base::TimeDelta time_next_frame;
-    UpdateQueue(time, NULL);
-    if (queue_.empty()) {
-      time_next_frame = time + empty_queue_sleep_;
+  // Either we have initialized or we have the current frame.
+  DCHECK(state_ != INITIALIZED || current_frame_);
+  *frame_out = current_frame_;
+}
+
+void VideoRendererBase::OnReadComplete(VideoFrame* frame) {
+  AutoLock auto_lock(lock_);
+  // If this is an end of stream frame, don't enqueue it since it has no data.
+  if (!frame->IsEndOfStream()) {
+    frames_.push_back(frame);
+    DCHECK_LE(frames_.size(), kMaxFrames);
+    frame_available_.Signal();
+  }
+
+  // Check for our initialization condition.
+  if (state_ == INITIALIZING &&
+      (frames_.size() == kMaxFrames || frame->IsEndOfStream())) {
+    if (frames_.empty()) {
+      // We should have initialized but there's no decoded frames in the queue.
+      // Raise an error.
+      host_->Error(PIPELINE_ERROR_NO_DATA);
     } else {
-      *frame_out = queue_.front();
-      if (queue_.size() == 1) {
-        time_next_frame = (*frame_out)->GetTimestamp() +
-                          (*frame_out)->GetDuration();
-      } else {
-        time_next_frame = queue_[1]->GetTimestamp();
-      }
+      state_ = INITIALIZED;
+      current_frame_ = frames_.front();
+      host_->InitializationComplete();
     }
-    host_->ScheduleTimeUpdateCallback(time_next_frame);
   }
 }
 
-}  // namespace
+void VideoRendererBase::ScheduleRead() {
+  decoder_->Read(NewCallback(this, &VideoRendererBase::OnReadComplete));
+}
+
+bool VideoRendererBase::WaitForInitialized() {
+  // This loop essentially handles preroll.  We wait until we've been fully
+  // initialized so we can call OnFrameAvailable() to provide subclasses with
+  // the first frame.
+  AutoLock auto_lock(lock_);
+  DCHECK_EQ(state_, INITIALIZING);
+  while (state_ == INITIALIZING) {
+    frame_available_.Wait();
+    if (state_ == STOPPED) {
+      return false;
+    }
+  }
+  DCHECK_EQ(state_, INITIALIZED);
+  DCHECK(current_frame_);
+  return true;
+}
+
+}  // namespace media

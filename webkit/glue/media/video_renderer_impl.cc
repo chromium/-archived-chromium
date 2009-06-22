@@ -26,7 +26,7 @@ bool VideoRendererImpl::IsMediaFormatSupported(
 }
 
 void VideoRendererImpl::Stop() {
-  VideoThread::Stop();
+  VideoRendererBase::Stop();
   delegate_->SetVideoRenderer(NULL);
 }
 

@@ -101,8 +101,6 @@
         'filters/test_video_renderer.h',
         'filters/video_renderer_base.cc',
         'filters/video_renderer_base.h',
-        'filters/video_thread.cc',
-        'filters/video_thread.h',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
@@ -167,7 +165,6 @@
         'filters/ffmpeg_video_decoder_unittest.cc',
         'filters/file_data_source_unittest.cc',
         'filters/video_decoder_unittest.cc',
-        'filters/video_renderer_unittest.cc',
       ],
       'conditions': [
         ['OS=="linux"', {
