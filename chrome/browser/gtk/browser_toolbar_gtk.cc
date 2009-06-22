@@ -115,25 +115,14 @@ void BrowserToolbarGtk::Init(Profile* profile,
   back_.reset(new BackForwardButtonGtk(browser_, false));
   gtk_box_pack_start(GTK_BOX(back_forward_hbox_), back_->widget(), FALSE,
                      FALSE, 0);
-  AddAcceleratorToButton(back_->widget(), GDK_Left, GDK_MOD1_MASK);
-  AddAcceleratorToButton(back_->widget(), GDK_BackSpace, 0);
-  AddAcceleratorToButton(back_->widget(), XF86XK_Back, 0);
 
   forward_.reset(new BackForwardButtonGtk(browser_, true));
   gtk_box_pack_start(GTK_BOX(back_forward_hbox_), forward_->widget(), FALSE,
                      FALSE, 0);
-  AddAcceleratorToButton(forward_->widget(), GDK_Right, GDK_MOD1_MASK);
-  AddAcceleratorToButton(forward_->widget(), GDK_BackSpace, GDK_SHIFT_MASK);
-  AddAcceleratorToButton(forward_->widget(), XF86XK_Forward, 0);
   gtk_box_pack_start(GTK_BOX(toolbar_), back_forward_hbox_, FALSE, FALSE, 0);
 
   reload_.reset(BuildToolbarButton(IDR_RELOAD, IDR_RELOAD_P, IDR_RELOAD_H, 0,
       l10n_util::GetStringUTF8(IDS_TOOLTIP_RELOAD)));
-  AddAcceleratorToButton(reload_->widget(), GDK_r, GDK_CONTROL_MASK);
-  AddAcceleratorToButton(reload_->widget(), GDK_F5, GdkModifierType(0));
-  AddAcceleratorToButton(reload_->widget(), GDK_F5, GDK_CONTROL_MASK);
-  AddAcceleratorToButton(reload_->widget(), XF86XK_Reload, GdkModifierType(0));
-  AddAcceleratorToButton(reload_->widget(), XF86XK_Refresh, GdkModifierType(0));
 
   home_.reset(BuildToolbarButton(IDR_HOME, IDR_HOME_P, IDR_HOME_H, 0,
                                  l10n_util::GetStringUTF8(IDS_TOOLTIP_HOME)));
@@ -411,15 +400,6 @@ gboolean BrowserToolbarGtk::OnMenuButtonPressEvent(GtkWidget* button,
   menu->Popup(button, reinterpret_cast<GdkEvent*>(event));
 
   return TRUE;
-}
-
-void BrowserToolbarGtk::AddAcceleratorToButton(
-    GtkWidget* widget,
-    unsigned int accelerator,
-    unsigned int accelerator_mod) {
-  gtk_widget_add_accelerator(
-      widget, "clicked", accel_group_, accelerator,
-      GdkModifierType(accelerator_mod), GtkAccelFlags(0));
 }
 
 void BrowserToolbarGtk::InitNineBox() {

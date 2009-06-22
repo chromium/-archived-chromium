@@ -102,11 +102,6 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
       const std::string& localized_tooltip,
       OwnedWidgetGtk* owner);
 
-  // Adds a keyboard accelerator which triggers a button (e.g., ctrl+r is now
-  // equivalent to a reload click).
-  void AddAcceleratorToButton(
-      GtkWidget*, unsigned int accelerator, unsigned int accelerator_mod);
-
   // Gtk callback for the "expose-event" signal.
   static gboolean OnToolbarExpose(GtkWidget* widget, GdkEventExpose* e,
                                   BrowserToolbarGtk* toolbar);

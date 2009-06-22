@@ -171,11 +171,22 @@ const struct AcceleratorMapping {
     GdkModifierType(GDK_CONTROL_MASK | GDK_SHIFT_MASK) },
   { GDK_F3, IDC_FIND_PREVIOUS, GDK_SHIFT_MASK },
 
-  // Navigation.
+  // Navigation / toolbar buttons.
   { GDK_Home, IDC_HOME, GDK_MOD1_MASK },
   { XF86XK_HomePage, IDC_HOME, GdkModifierType(0) },
   { GDK_Escape, IDC_STOP, GdkModifierType(0) },
   { XF86XK_Stop, IDC_STOP, GdkModifierType(0) },
+  { GDK_Left, IDC_BACK, GDK_MOD1_MASK },
+  { GDK_BackSpace, IDC_BACK, GdkModifierType(0) },
+  { XF86XK_Back, IDC_BACK, GdkModifierType(0) },
+  { GDK_Right, IDC_FORWARD, GDK_MOD1_MASK },
+  { GDK_BackSpace, IDC_FORWARD, GDK_SHIFT_MASK },
+  { XF86XK_Forward, IDC_FORWARD, GdkModifierType(0) },
+  { GDK_r, IDC_RELOAD, GDK_CONTROL_MASK },
+  { GDK_F5, IDC_RELOAD, GdkModifierType(0) },
+  { GDK_F5, IDC_RELOAD, GDK_CONTROL_MASK },
+  { XF86XK_Reload, IDC_RELOAD, GdkModifierType(0) },
+  { XF86XK_Refresh, IDC_RELOAD, GdkModifierType(0) },
 
   // Miscellany.
   { GDK_d, IDC_STAR, GDK_CONTROL_MASK },
