@@ -68,6 +68,7 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(HTMLCANVASELEMENT, HTMLCanvasElement)                               \
   V(HTMLDATAGRIDCOLELEMENT, HTMLDataGridColElement)                     \
   V(HTMLDATAGRIDELEMENT, HTMLDataGridElement)                           \
+  V(HTMLDATAGRIDROWELEMENT, HTMLDataGridRowElement)                     \
   V(HTMLDIRECTORYELEMENT, HTMLDirectoryElement)                         \
   V(HTMLDIVELEMENT, HTMLDivElement)                                     \
   V(HTMLDLISTELEMENT, HTMLDListElement)                                 \
@@ -274,7 +275,6 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(DOMIMPLEMENTATION, DOMImplementation)                               \
   V(DOMPARSER, DOMParser)                                               \
   V(DOMSELECTION, DOMSelection)                                         \
-  V(DOMSTRINGLIST, DOMStringList)                                       \
   V(DOMWINDOW, DOMWindow)                                               \
   V(EVENT, Event)                                                       \
   V(EVENTEXCEPTION, EventException)                                     \

@@ -37,7 +37,6 @@
 #include "DOMImplementation.h"
 #include "DOMParser.h"
 #include "DOMSelection.h"
-#include "DOMStringList.h"
 #include "DOMWindow.h"
 #include "Entity.h"
 #include "EventListener.h"
