@@ -4440,6 +4440,8 @@
         'glue/plugins/mozilla_extensions.cc',
         'glue/plugins/mozilla_extensions.h',
         'glue/plugins/nphostapi.h',
+        'glue/plugins/gtk_plugin_container.h',
+        'glue/plugins/gtk_plugin_container.cc',
         'glue/plugins/plugin_constants_win.h',
         'glue/plugins/plugin_host.cc',
         'glue/plugins/plugin_host.h',
@@ -4631,7 +4633,8 @@
             'glue/plugins/plugin_stubs.cc',
           ],
         }, { # else: OS!="linux"
-          'sources/': [['exclude', '_(linux|gtk)(_data)?\\.cc$']],
+          'sources/': [['exclude', '_(linux|gtk)(_data)?\\.cc$'],
+                       ['exclude', r'gtk_plugin_container\.(cc|h)']],
         }],
         ['OS!="mac"', {
           'sources/': [['exclude', '_mac\\.(cc|mm)$']]

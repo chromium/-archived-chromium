@@ -20,6 +20,7 @@
 // #include "webkit/default_plugin/plugin_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webplugin.h"
+#include "webkit/glue/plugins/gtk_plugin_container.h"
 #include "webkit/glue/plugins/plugin_constants_win.h"
 #include "webkit/glue/plugins/plugin_instance.h"
 #include "webkit/glue/plugins/plugin_lib.h"
@@ -251,63 +252,6 @@ void WebPluginDelegateImpl::WindowedUpdateGeometry(
   }
 }
 
-namespace {
-
-// This is just a GtkSocket, with size_request overridden, so that we always
-// control the size of the widget.
-class GtkFixedSocket {
- public:
-  // Create a new instance of our GTK widget object.
-  static GtkWidget* CreateNewWidget() {
-    return GTK_WIDGET(g_object_new(GetType(), NULL));
-  }
-
- private:
-  // Create and register our custom container type with GTK.
-  static GType GetType() {
-    static GType type = 0;  // We only want to register our type once.
-    if (!type) {
-      static const GTypeInfo info = {
-        sizeof(GtkSocketClass),
-        NULL, NULL,
-        static_cast<GClassInitFunc>(&ClassInit),
-        NULL, NULL,
-        sizeof(GtkSocket),  // We are identical to a GtkSocket.
-        0, NULL,
-      };
-      type = g_type_register_static(GTK_TYPE_SOCKET,
-                                    "GtkFixedSocket",
-                                    &info,
-                                    static_cast<GTypeFlags>(0));
-    }
-    return type;
-  }
-
-  // Implementation of the class initializer.
-  static void ClassInit(gpointer klass, gpointer class_data_unusued) {
-    GtkWidgetClass* widget_class = reinterpret_cast<GtkWidgetClass*>(klass);
-    widget_class->size_request = &HandleSizeRequest;
-  }
-
-  // Report our allocation size during size requisition.  This means we control
-  // the size, from calling gtk_widget_size_allocate in WindowedReposition().
-  static void HandleSizeRequest(GtkWidget* widget,
-                                GtkRequisition* requisition) {
-    requisition->width = widget->allocation.width;
-    requisition->height = widget->allocation.height;
-  }
-
-  DISALLOW_IMPLICIT_CONSTRUCTORS(GtkFixedSocket);
-};
-
-gboolean PlugRemovedCallback(GtkSocket* socket) {
-  // This is called when the other side of the socket goes away.
-  // We return TRUE to indicate that we don't want to destroy our side.
-  return TRUE;
-}
-
-}  // namespace
-
 bool WebPluginDelegateImpl::WindowedCreatePlugin() {
   DCHECK(!windowed_handle_);
 
@@ -319,13 +263,8 @@ bool WebPluginDelegateImpl::WindowedCreatePlugin() {
     return false;
   }
 
-  windowed_handle_ = GtkFixedSocket::CreateNewWidget();
-  g_signal_connect(GTK_SOCKET(windowed_handle_), "plug-removed",
-                   G_CALLBACK(PlugRemovedCallback), NULL);
+  windowed_handle_ = gtk_plugin_container_new();
   gtk_container_add(GTK_CONTAINER(parent_), windowed_handle_);
-  // TODO(evanm): connect to signals on the socket, like when the other side
-  // goes away.
-
   gtk_widget_show(windowed_handle_);
   gtk_widget_realize(windowed_handle_);
 
