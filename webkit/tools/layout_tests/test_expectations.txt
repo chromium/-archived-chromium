@@ -2756,3 +2756,4 @@ BUG14889 REBASELINE : LayoutTests/http/tests/security/xssAuditor/link-opens-new-
 
 // WebKit 44928:44943
 BUG14946 : LayoutTests/fast/js/date-toisostring.html = FAIL
+BUG14951 WIN LINUX : LayoutTests/fast/repaint/background-generated.html = FAIL
