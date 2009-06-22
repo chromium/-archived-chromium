@@ -46,7 +46,7 @@ void ResourceMessageFilter::OnGetRootWindowRect(gfx::NativeViewId window_id,
   if (view) {
     NSWindow* window = [view window];
     NSRect bounds = [window frame];
-    gfx::Rect rect = NSRectToRect(bounds, [window screen]);
+    rect = NSRectToRect(bounds, [window screen]);
   }
 
   ViewHostMsg_GetRootWindowRect::WriteReplyParams(reply_msg, rect);
