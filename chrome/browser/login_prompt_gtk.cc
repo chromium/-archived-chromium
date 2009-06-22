@@ -57,9 +57,9 @@ class LoginHandlerGtk : public LoginHandler,
     DCHECK(MessageLoop::current() == ui_loop_);
 
     root_.Own(gtk_vbox_new(NULL, gtk_util::kContentAreaBorder));
-    gtk_box_pack_start(GTK_BOX(root_.get()),
-                       gtk_label_new(WideToUTF8(explanation).c_str()),
-                       FALSE, FALSE, 0);
+    GtkWidget* label = gtk_label_new(WideToUTF8(explanation).c_str());
+    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+    gtk_box_pack_start(GTK_BOX(root_.get()), label, FALSE, FALSE, 0);
 
     username_entry_ = gtk_entry_new();
     gtk_entry_set_activates_default(GTK_ENTRY(username_entry_), TRUE);

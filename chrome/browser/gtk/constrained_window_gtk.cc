@@ -8,9 +8,6 @@
 #include "chrome/browser/tab_contents/tab_contents_view_gtk.h"
 #include "chrome/common/gtk_util.h"
 
-// The minimal border around the edge of the notification.
-const int kSmallPadding = 2;
-
 ConstrainedWindowGtk::ConstrainedWindowGtk(
     TabContents* owner, ConstrainedWindowGtkDelegate* delegate)
     : owner_(owner),
@@ -23,10 +20,11 @@ ConstrainedWindowGtk::ConstrainedWindowGtk(
   // our "window".
   GtkWidget* ebox = gtk_event_box_new();
   GtkWidget* frame = gtk_frame_new(NULL);
-  gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_ETCHED_OUT);
+  gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_OUT);
   GtkWidget* alignment = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
   gtk_alignment_set_padding(GTK_ALIGNMENT(alignment),
-      kSmallPadding, kSmallPadding, kSmallPadding, kSmallPadding);
+      gtk_util::kContentAreaBorder, gtk_util::kContentAreaBorder,
+      gtk_util::kContentAreaBorder, gtk_util::kContentAreaBorder);
   gtk_container_add(GTK_CONTAINER(alignment), dialog);
   gtk_container_add(GTK_CONTAINER(frame), alignment);
   gtk_container_add(GTK_CONTAINER(ebox), frame);
