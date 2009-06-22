@@ -182,7 +182,7 @@ class EditFolderController : public InputWindowDialog::Delegate,
   DISALLOW_COPY_AND_ASSIGN(EditFolderController);
 };
 
-#if defined(OS_WIN)
+#if defined(OS_WIN)  || (defined(OS_LINUX) && !defined(TOOLKIT_VIEWS))
 // SelectOnCreationHandler ----------------------------------------------------
 
 // Used when adding a new bookmark. If a new bookmark is created it is selected
@@ -201,7 +201,7 @@ class SelectOnCreationHandler : public BookmarkEditor::Handler {
 
   DISALLOW_COPY_AND_ASSIGN(SelectOnCreationHandler);
 };
-#endif  // #if defined(OS_WIN)
+#endif  // #if defined(OS_WIN) || (defined(OS_LINUX) && !defined(TOOLKIT_VIEWS))
 
 }  // namespace
 
@@ -362,7 +362,7 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
     case IDS_BOOMARK_BAR_ADD_NEW_BOOKMARK: {
       UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_Add", profile_);
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || (defined(OS_LINUX) && !defined(TOOLKIT_VIEWS))
       BookmarkEditor::Configuration editor_config;
       BookmarkEditor::Handler* handler = NULL;
       if (configuration_ == BOOKMARK_BAR) {
