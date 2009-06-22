@@ -676,6 +676,23 @@ void SelectFontDialogImpl::ExecuteSelectFontWithNameSize(
                           font_name.c_str());
   LOGFONT logfont;
   GetObject(hf, sizeof(LOGFONT), &logfont);
+  // Retrieve the localized face name of the above font and update the LOGFONT
+  // structure. When a font has a localized name matching to the system locale,
+  // GetTextFace() returns the localized name. We should pass this localized
+  // name to ChooseFont() so it can set the focus.
+  HDC memory_dc = CreateCompatibleDC(NULL);
+  if (memory_dc) {
+    wchar_t localized_font_name[LF_FACESIZE];
+    HFONT original_font = reinterpret_cast<HFONT>(SelectObject(memory_dc, hf));
+    int length = GetTextFace(memory_dc, arraysize(localized_font_name),
+                             &localized_font_name[0]);
+    if (length > 0) {
+      memcpy(&logfont.lfFaceName[0], &localized_font_name[0],
+             sizeof(localized_font_name));
+    }
+    SelectObject(memory_dc, original_font);
+    DeleteDC(memory_dc);
+  }
   CHOOSEFONT cf;
   cf.lStructSize = sizeof(cf);
   cf.hwndOwner = run_state.owner;
