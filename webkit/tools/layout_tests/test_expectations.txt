@@ -2753,3 +2753,6 @@ BUG14831 : LayoutTests/fast/events/event-trace.html = FAIL
 // WebKit 44922:44927
 BUG14885 : LayoutTests/fast/js/JSON-parse.html = FAIL
 BUG14889 REBASELINE : LayoutTests/http/tests/security/xssAuditor/link-opens-new-window.html = FAIL
+
+// WebKit 44928:44943
+BUG14946 : LayoutTests/fast/js/date-toisostring.html = FAIL
