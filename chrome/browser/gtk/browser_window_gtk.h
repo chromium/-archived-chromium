@@ -124,10 +124,6 @@ class BrowserWindowGtk : public BrowserWindow,
   // Add the find bar widget to the window hierarchy.
   void AddFindBar(FindBarGtk* findbar);
 
-  // Sets whether a drag is active. If a drag is active the window will not
-  // close.
-  void set_drag_active(bool drag_active) { drag_active_ = drag_active; }
-
   // Reset the mouse cursor to the default cursor if it was set to something
   // else for the custom frame.
   void ResetCustomFrameCursor();

@@ -380,8 +380,6 @@ void DraggedTabControllerGtk::Attach(TabStripGtk* attached_tabstrip,
 }
 
 void DraggedTabControllerGtk::Detach() {
-  if (attached_tabstrip_->GetTabCount() <= 1) return;
-
   // Update the Model.
   TabStripModel* attached_model = attached_tabstrip_->model();
   int index = attached_model->GetIndexOfTabContents(dragged_contents_);
@@ -393,7 +391,9 @@ void DraggedTabControllerGtk::Detach() {
     attached_tabstrip->SchedulePaint();
   }
 
-  // TODO(jhawkins): Hide the window if we're removing the last tab.
+  // If we've removed the last tab from the tabstrip, hide the frame now.
+  if (attached_model->empty())
+    HideFrame();
 
   // Update the dragged tab. This NULL check is necessary apparently in some
   // conditions during automation where the view_ is destroyed inside a
@@ -559,6 +559,7 @@ bool DraggedTabControllerGtk::EndDragImpl(EndDragType type) {
 }
 
 void DraggedTabControllerGtk::RevertDrag() {
+  // TODO(jhawkins): Restore the window frame.
   // We save this here because code below will modify |attached_tabstrip_|.
   if (attached_tabstrip_) {
     int index = attached_tabstrip_->model()->GetIndexOfTabContents(
@@ -617,6 +618,7 @@ bool DraggedTabControllerGtk::CompleteDrag() {
         source_tabstrip_->model()->delegate()->CreateNewStripWithContents(
             dragged_contents_, window_bounds, dock_info_);
     new_browser->window()->Show();
+    CleanUpHiddenFrame();
   }
 
   return destroy_immediately;
@@ -661,6 +663,19 @@ gfx::Rect DraggedTabControllerGtk::GetTabScreenBounds(TabGtk* tab) {
   return gfx::Rect(x, y, widget->allocation.width, widget->allocation.height);
 }
 
+void DraggedTabControllerGtk::HideFrame() {
+  GtkWidget* tabstrip = source_tabstrip_->widget();
+  GtkWindow* window = platform_util::GetTopLevel(tabstrip);
+  gtk_widget_hide(GTK_WIDGET(window));
+}
+
+void DraggedTabControllerGtk::CleanUpHiddenFrame() {
+  // If the model we started dragging from is now empty, we must ask the
+  // delegate to close the frame.
+  if (source_tabstrip_->model()->empty())
+    source_tabstrip_->model()->delegate()->CloseFrameAfterDragSession();
+}
+
 void DraggedTabControllerGtk::CleanUpSourceTab() {
   // If we were attached to the source tabstrip, source tab will be in use
   // as the tab. If we were detached or attached to another tabstrip, we can
@@ -683,6 +698,8 @@ void DraggedTabControllerGtk::OnAnimateToBoundsComplete() {
       tab->SchedulePaint();
     }
   }
+
+  CleanUpHiddenFrame();
 
   if (!in_destructor_)
     source_tabstrip_->DestroyDragController();

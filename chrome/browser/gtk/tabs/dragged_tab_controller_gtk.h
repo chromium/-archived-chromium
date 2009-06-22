@@ -167,6 +167,13 @@ class DraggedTabControllerGtk : public NotificationObserver,
   // for the attached TabStrip.
   int NormalizeIndexToAttachedTabStrip(int index) const;
 
+  // Hides the frame for the window that contains the TabStrip the current
+  // drag session was initiated from.
+  void HideFrame();
+
+  // Closes a hidden frame at the end of a drag session.
+  void CleanUpHiddenFrame();
+
   // Cleans up a source tab that is no longer used.
   void CleanUpSourceTab();
 
