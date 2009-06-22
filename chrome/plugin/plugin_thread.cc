@@ -102,10 +102,19 @@ void PluginThread::CleanUp() {
   lazy_tls.Pointer()->Set(NULL);
 }
 
-void PluginThread::OnCreateChannel(int process_id, bool off_the_record) {
+void PluginThread::OnCreateChannel(
+#if defined(OS_POSIX)
+    base::FileDescriptor socket,
+#endif
+    int process_id,
+    bool off_the_record) {
+  int fd = -1;
+#if defined(OS_POSIX)
+  fd = socket.fd;
+#endif
   std::string channel_name;
   scoped_refptr<PluginChannel> channel =
-      PluginChannel::GetPluginChannel(process_id, owner_loop());
+      PluginChannel::GetPluginChannel(process_id, owner_loop(), fd);
   if (channel.get()) {
     channel_name = channel->channel_name();
     channel->set_off_the_record(off_the_record);

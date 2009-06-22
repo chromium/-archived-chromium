@@ -41,6 +41,10 @@
 #include "chrome/common/gfx/emf.h"
 #endif
 
+#if defined(OS_POSIX)
+#include "chrome/common/ipc_channel_posix.h"
+#endif
+
 using WebKit::WebInputEvent;
 using WebKit::WebDragData;
 using WebKit::WebVector;
@@ -207,16 +211,24 @@ bool WebPluginDelegateProxy::Initialize(const GURL& url, char** argn,
                                         char** argv, int argc,
                                         WebPlugin* plugin,
                                         bool load_manually) {
-  std::string channel_name;
+  IPC::ChannelHandle channel_handle;
   FilePath plugin_path;
   if (!RenderThread::current()->Send(new ViewHostMsg_OpenChannelToPlugin(
           url, mime_type_, clsid_, webkit_glue::GetWebKitLocale(),
-          &channel_name, &plugin_path)))
+          &channel_handle, &plugin_path))) {
     return false;
+  }
+
+#if defined(OS_POSIX)
+  // If we received a ChannelHandle, register it now.
+  if (channel_handle.socket.fd >= 0)
+    IPC::AddChannelSocket(channel_handle.name, channel_handle.socket.fd);
+#endif
 
   MessageLoop* ipc_message_loop = RenderThread::current()->owner_loop();
   scoped_refptr<PluginChannelHost> channel_host =
-      PluginChannelHost::GetPluginChannelHost(channel_name, ipc_message_loop);
+      PluginChannelHost::GetPluginChannelHost(channel_handle.name,
+                                              ipc_message_loop);
   if (!channel_host.get())
     return false;
 

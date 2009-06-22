@@ -7,9 +7,14 @@
 
 #include "base/file_path.h"
 #include "base/native_library.h"
+#include "build/build_config.h"
 #include "chrome/common/child_thread.h"
 #include "chrome/plugin/plugin_channel.h"
 #include "webkit/glue/plugins/plugin_lib.h"
+
+#if defined(OS_POSIX)
+#include "base/file_descriptor_posix.h"
+#endif
 
 class NotificationService;
 
@@ -31,7 +36,14 @@ class PluginThread : public ChildThread {
   virtual void Init();
   virtual void CleanUp();
 
-  void OnCreateChannel(int process_id, bool off_the_record);
+  // Callback for when a channel has been created.
+  // On POSIX, |socket| is the channel endpoint socket.
+  void OnCreateChannel(
+#if defined(OS_POSIX)
+      base::FileDescriptor socket,
+#endif
+      int process_id,
+      bool off_the_record);
   void OnPluginMessage(const std::vector<uint8> &data);
 
   scoped_ptr<NotificationService> notification_service_;

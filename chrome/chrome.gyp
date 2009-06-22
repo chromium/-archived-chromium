@@ -347,6 +347,7 @@
         'common/important_file_writer.cc',
         'common/important_file_writer.h',
         'common/ipc_channel.h',
+        'common/ipc_channel_handle.h',
         'common/ipc_channel_posix.cc',
         'common/ipc_channel_posix.h',
         'common/ipc_channel_proxy.cc',

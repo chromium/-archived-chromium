@@ -18,6 +18,15 @@
 
 namespace IPC {
 
+// Store that channel name |name| is available via socket |socket|.
+// Used when the channel has been precreated by another process on
+// our behalf and they've just shipped us the socket.
+void AddChannelSocket(const std::string& name, int socket);
+
+// Construct a socket pair appropriate for IPC: UNIX domain, nonblocking.
+// Returns false on error.
+bool SocketPair(int* fd1, int* fd2);
+
 // An implementation of ChannelImpl for POSIX systems that works via
 // socketpairs.  See the .cc file for an overview of the implementation.
 class Channel::ChannelImpl : public MessageLoopForIO::Watcher {
@@ -60,9 +69,16 @@ class Channel::ChannelImpl : public MessageLoopForIO::Watcher {
   // a socketpair().
   bool uses_fifo_;
 
+  // File descriptor we're listening on for new connections in the FIFO case;
+  // unused otherwise.
   int server_listen_pipe_;
+
+  // The pipe used for communication.
   int pipe_;
-  int client_pipe_;  // The client end of our socketpair().
+
+  // For a server, the client end of our socketpair() -- the other end of our
+  // pipe_ that is passed to the client.
+  int client_pipe_;
 
   // The "name" of our pipe.  On Windows this is the global identifier for
   // the pipe.  On POSIX it's used as a key in a local map of file descriptors.
