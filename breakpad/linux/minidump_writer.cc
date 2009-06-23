@@ -51,6 +51,7 @@
 #include <errno.h>
 #include <sys/ucontext.h>
 #include <sys/user.h>
+#include <sys/utsname.h>
 
 #include "client/minidump_file_writer.h"
 #include "google_breakpad/common/minidump_format.h"
@@ -599,6 +600,7 @@ class MinidumpWriter {
     dirent->location = si.location();
 
     WriteCPUInformation(si.get());
+    WriteOSInformation(si.get());
 
     return true;
   }
@@ -767,6 +769,52 @@ class MinidumpWriter {
       return false;
     memory.Copy(data, done);
     *result = memory.location();
+    return true;
+  }
+
+  bool WriteOSInformation(MDRawSystemInfo* sys_info) {
+    sys_info->platform_id = MD_OS_LINUX;
+
+    struct utsname uts;
+    if (uname(&uts))
+      return false;
+
+    static const size_t buf_len = 512;
+    char buf[buf_len] = {0};
+    size_t space_left = buf_len - 1;
+    const char* info_table[] = {
+      uts.sysname,
+      uts.release,
+      uts.version,
+      uts.machine,
+      NULL
+    };
+    bool first_item = true;
+    for (const char** cur_info = info_table; *cur_info; cur_info++) {
+      static const char* separator = " ";
+      size_t separator_len = strlen(separator);
+      size_t info_len = strlen(*cur_info);
+      if (info_len == 0)
+        continue;
+
+      if (space_left < info_len + (first_item ? 0 : separator_len))
+        break;
+
+      if (!first_item) {
+        strcat(buf, separator);
+        space_left -= separator_len;
+      }
+
+      first_item = false;
+      strcat(buf, *cur_info);
+      space_left -= info_len;
+    }
+
+    MDLocationDescriptor location;
+    if (!minidump_writer_.WriteString(buf, 0, &location))
+      return false;
+    sys_info->csd_version_rva = location.rva;
+
     return true;
   }
 
