@@ -66,6 +66,7 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(HTMLBRELEMENT, HTMLBRElement)                                       \
   V(HTMLBUTTONELEMENT, HTMLButtonElement)                               \
   V(HTMLCANVASELEMENT, HTMLCanvasElement)                               \
+  V(HTMLDATAGRIDCELLELEMENT, HTMLDataGridCellElement)                   \
   V(HTMLDATAGRIDCOLELEMENT, HTMLDataGridColElement)                     \
   V(HTMLDATAGRIDELEMENT, HTMLDataGridElement)                           \
   V(HTMLDATAGRIDROWELEMENT, HTMLDataGridRowElement)                     \
