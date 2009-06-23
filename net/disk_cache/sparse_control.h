@@ -34,7 +34,8 @@ class SparseControl {
   enum SparseOperation {
     kNoOperation,
     kReadOperation,
-    kWriteOperation
+    kWriteOperation,
+    kGetRangeOperation
   };
 
   explicit SparseControl(EntryImpl* entry)
@@ -109,6 +110,9 @@ class SparseControl {
   // work.
   bool DoChildIO();
 
+  // Performs the required work for GetAvailableRange for one child.
+  int DoGetAvailableRange();
+
   // Performs the required work after a single IO operations finishes.
   void DoChildIOCompleted(int result);
 
@@ -124,6 +128,7 @@ class SparseControl {
   bool pending_;  // True if any child IO operation returned pending.
   bool finished_;
   bool init_;
+  bool range_found_;  // True if GetAvailableRange found something.
 
   SparseHeader sparse_header_;  // Data about the children of entry_.
   Bitmap children_map_;  // The actual bitmap of children.

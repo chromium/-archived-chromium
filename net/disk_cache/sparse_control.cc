@@ -71,16 +71,19 @@ int SparseControl::StartIO(SparseOperation op, int64 offset, net::IOBuffer* buf,
   DCHECK(!user_buf_);
   DCHECK(!user_callback_);
 
+  if (!buf && (op == kReadOperation || op == kWriteOperation))
+    return 0;
+
   // Copy the operation parameters.
   operation_ = op;
   offset_ = offset;
-  user_buf_ = new net::ReusedIOBuffer(buf, buf_len);
+  user_buf_ = buf ? new net::ReusedIOBuffer(buf, buf_len) : NULL;
   buf_len_ = buf_len;
+  user_callback_ = callback;
 
   result_ = 0;
   pending_ = false;
   finished_ = false;
-  user_callback_ = callback;
 
   DoChildrenIO();
 
@@ -97,8 +100,22 @@ int SparseControl::StartIO(SparseOperation op, int64 offset, net::IOBuffer* buf,
 
 int SparseControl::GetAvailableRange(int64 offset, int len, int64* start) {
   DCHECK(init_);
-  NOTIMPLEMENTED();
-  return net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
+  // We don't support simultaneous IO for sparse data.
+  if (operation_ != kNoOperation)
+    return net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
+
+  DCHECK(start);
+
+  range_found_ = false;
+  int result = StartIO(kGetRangeOperation, offset, NULL, len, NULL);
+  if (range_found_) {
+    *start = offset_;
+    return result;
+  }
+
+  // This is a failure. We want to return a valid start value in any case.
+  *start = offset;
+  return result < 0 ? result : 0;  // Don't mask error codes to the caller.
 }
 
 // We are going to start using this entry to store sparse data, so we have to
@@ -181,8 +198,12 @@ bool SparseControl::OpenChild() {
 
   // Se if we are tracking this child.
   bool child_present = ChildPresent();
-  if (kReadOperation == operation_ && !child_present)
-    return false;
+  if (!child_present) {
+    if (kReadOperation == operation_)
+      return false;
+    if (kGetRangeOperation == operation_)
+      return true;
+  }
 
   if (!child_present || !entry_->backend_->OpenEntry(key, &child_)) {
     if (!entry_->backend_->CreateEntry(key, &child_)) {
@@ -273,7 +294,7 @@ bool SparseControl::VerifyRange() {
   child_offset_ = static_cast<int>(offset_) & 0xfffff;
   child_len_ = std::min(buf_len_, 0x100000 - child_offset_);
 
-  // We can write to anywhere in this child.
+  // We can write to (or get info from) anywhere in this child.
   if (operation_ != kReadOperation)
     return true;
 
@@ -341,13 +362,20 @@ bool SparseControl::DoChildIO() {
   net::CompletionCallback* callback = user_callback_ ? &child_callback_ : NULL;
 
   int rv;
-  if (kReadOperation == operation_) {
-    rv = child_->ReadData(kSparseData, child_offset_, user_buf_, child_len_,
-                          callback);
-  } else {
-    DCHECK(kWriteOperation == operation_);
-    rv = child_->WriteData(kSparseData, child_offset_, user_buf_, child_len_,
-                           callback, false);
+  switch (operation_) {
+    case kReadOperation:
+      rv = child_->ReadData(kSparseData, child_offset_, user_buf_, child_len_,
+                            callback);
+      break;
+    case kWriteOperation:
+      rv = child_->WriteData(kSparseData, child_offset_, user_buf_, child_len_,
+                             callback, false);
+      break;
+    case kGetRangeOperation:
+      rv = DoGetAvailableRange();
+      break;
+    default:
+      NOTREACHED();
   }
 
   if (rv == net::ERR_IO_PENDING) {
@@ -366,6 +394,38 @@ bool SparseControl::DoChildIO() {
   return true;
 }
 
+int SparseControl::DoGetAvailableRange() {
+  if (!child_)
+    return child_len_;  // Move on to the next child.
+
+  // Check that there are no holes in this range.
+  int last_bit = (child_offset_ + child_len_ + 1023) >> 10;
+  int start = child_offset_ >> 10;
+  int bits_found = child_map_.FindBits(&start, last_bit, true);
+
+  if (!bits_found)
+    return child_len_;
+
+  // We are done. Just break the loop and reset result_ to our real result.
+  range_found_ = true;
+
+  // start now points to the first 1. Lets see if we have zeros before it.
+  int empty_start = (start << 10) - child_offset_;
+
+  // If the user is searching past the end of this child, bits_found is the
+  // right result; otherwise, we have some empty space at the start of this
+  // query that we have to substarct from the range that we searched.
+  result_ = std::min(bits_found << 10, child_len_ - empty_start);
+
+  // Only update offset_ when this query found zeros at the start.
+  if (empty_start)
+    offset_ += empty_start;
+
+  // This will actually break the loop.
+  buf_len_ = 0;
+  return 0;
+}
+
 void SparseControl::DoChildIOCompleted(int result) {
   if (result < 0) {
     // We fail the whole operation if we encounter an error.
@@ -380,7 +440,7 @@ void SparseControl::DoChildIOCompleted(int result) {
   buf_len_ -= result;
 
   // We'll be reusing the user provided buffer for the next chunk.
-  if (buf_len_)
+  if (buf_len_ && user_buf_)
     user_buf_->SetOffset(result_);
 }
 

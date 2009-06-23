@@ -37,6 +37,7 @@ class DiskCacheEntryTest : public DiskCacheTestWithCache {
   void DoomedEntry();
   void BasicSparseIO(bool async);
   void HugeSparseIO(bool async);
+  void GetAvailableRange();
 };
 
 void DiskCacheEntryTest::InternalSyncIO() {
@@ -967,7 +968,7 @@ void DiskCacheEntryTest::HugeSparseIO(bool async) {
   scoped_refptr<net::IOBuffer> buf_2 = new net::IOBuffer(kSize);
   CacheTestFillBuffer(buf_1->data(), kSize, false);
 
-  // Write at offset 0x20F0000 (20 MB - 64 KB).
+  // Write at offset 0x20F0000 (33 MB - 64 KB).
   VerifySparseIO(entry, 0x20F0000, buf_1, kSize, async, buf_2);
   entry->Close();
 
@@ -997,4 +998,57 @@ TEST_F(DiskCacheEntryTest, DISABLED_MemoryOnlyHugeSparseAsyncIO) {
   SetMemoryOnlyMode();
   InitCache();
   HugeSparseIO(true);
+}
+
+void DiskCacheEntryTest::GetAvailableRange() {
+  std::string key("the first key");
+  disk_cache::Entry* entry;
+  ASSERT_TRUE(cache_->CreateEntry(key, &entry));
+
+  const int kSize = 16 * 1024;
+  scoped_refptr<net::IOBuffer> buf = new net::IOBuffer(kSize);
+  CacheTestFillBuffer(buf->data(), kSize, false);
+
+  // Write at offset 0x20F0000 (33 MB - 64 KB), and 0x20F4400 (33 MB - 47 KB).
+  EXPECT_EQ(kSize, entry->WriteSparseData(0x20F0000, buf, kSize, NULL));
+  EXPECT_EQ(kSize, entry->WriteSparseData(0x20F4400, buf, kSize, NULL));
+
+  // We stop at the first empty block.
+  int64 start;
+  EXPECT_EQ(kSize, entry->GetAvailableRange(0x20F0000, kSize * 2, &start));
+  EXPECT_EQ(0x20F0000, start);
+
+  start = 0;
+  EXPECT_EQ(0, entry->GetAvailableRange(0, kSize, &start));
+  EXPECT_EQ(0, entry->GetAvailableRange(0x20F0000 - kSize, kSize, &start));
+  EXPECT_EQ(kSize, entry->GetAvailableRange(0, 0x2100000, &start));
+  EXPECT_EQ(0x20F0000, start);
+
+  // We should be able to Read based on the results of GetAvailableRange.
+  start = -1;
+  EXPECT_EQ(0, entry->GetAvailableRange(0x2100000, kSize, &start));
+  EXPECT_EQ(0, entry->ReadSparseData(start, buf, kSize, NULL));
+
+  start = 0;
+  EXPECT_EQ(0x2000, entry->GetAvailableRange(0x20F2000, kSize, &start));
+  EXPECT_EQ(0x20F2000, start);
+  EXPECT_EQ(0x2000, entry->ReadSparseData(start, buf, kSize, NULL));
+
+  // Make sure that we respect the |len| argument.
+  start = 0;
+  EXPECT_EQ(1, entry->GetAvailableRange(0x20F0001 - kSize, kSize, &start));
+  EXPECT_EQ(0x20F0000, start);
+
+  entry->Close();
+}
+
+TEST_F(DiskCacheEntryTest, GetAvailableRange) {
+  InitCache();
+  GetAvailableRange();
+}
+
+TEST_F(DiskCacheEntryTest, DISABLED_MemoryOnlyGetAvailableRange) {
+  SetMemoryOnlyMode();
+  InitCache();
+  GetAvailableRange();
 }
