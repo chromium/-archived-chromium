@@ -152,6 +152,14 @@ if env.Bit('windows'):
 # Adding extra line for cleaner formatting.
 env.Help('\n')
 
+swiftshader_install = []
+if env.Bit('windows'):
+  # Copy SwiftShader to plugin dir.
+  swiftshader_path = env.subst('$SWIFTSHADER_DIR/swiftshader_d3d9.dll')
+  if os.path.exists(swiftshader_path):
+    swiftshader_install = env.Replicate('$ARTIFACTS_DIR/O3DExtras',
+                                        swiftshader_path)
+
 # -------------------------------------------------------------------------
 # Unit tests
 
@@ -318,6 +326,7 @@ unit_tests_req += env.Replicate(
 
 # Also require gl related libraries based on variant.
 unit_tests_req += gl_requirements
+unit_tests_req += swiftshader_install
 
 # Add requirements for unit tests.
 env.Requires(unit_tests_install, unit_tests_req)
@@ -449,7 +458,10 @@ if ARGUMENTS.get('SYSTEM_TESTS_ENABLED', False):
 
   # Also require gl related libraries based on variant.
   system_tests_req += gl_requirements
-
+  
+  # Require SwiftShader (only if it is available).
+  system_tests_req += swiftshader_install
+  
   # Add requirements for system_tests.
   env.Requires(system_tests_install, system_tests_req)
 
@@ -592,6 +604,9 @@ def DeferSelenium(env):
             '--screenshotsdir=$ARTIFACTS_DIR/selenium/screenshots_firefox'])] +
         cleanup_steps,
     )
+  
+  # Require SwiftShader (only if it is available).
+  run_env.Requires(run_selenium_firefox, swiftshader_install)
 
   if run_env.Bit('windows'):
     run_selenium_ie = run_env.Alias(

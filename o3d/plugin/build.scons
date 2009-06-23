@@ -270,7 +270,7 @@ if env.Bit('mac'):
   env['SHLIBPREFIX'] = ['']
   env['SHLIBSUFFIX'] = ['']
   plugin_dll = env.SharedLibrary('o3d', inputs)
-  plugin_install = env.Replicate('$ARTIFACTS_DIR/O3D.plugin/Contents/MacOS/', plugin_dll)
+  plugin_artifacts = env.Replicate('$ARTIFACTS_DIR/O3D.plugin/Contents/MacOS/', plugin_dll)
 
   # insert version number into Info.plist
   env.ReplaceStrings(
@@ -385,10 +385,10 @@ if env.Bit('mac'):
 else:
   plugin_dll = env.SharedLibrary('npo3dautoplugin', inputs)
 # copy to artifacts
-  plugin_install = env.Replicate('$ARTIFACTS_DIR', plugin_dll)
+  plugin_artifacts = env.Replicate('$ARTIFACTS_DIR', plugin_dll)
 
 if env.Bit('linux'):
-  env.Requires(plugin_install, env.Replicate(
+  env.Requires(plugin_artifacts, env.Replicate(
       '$ARTIFACTS_DIR', [
            '$CG_DIR/lib/libCg.so',
            '$CG_DIR/lib/libCgGL.so',
@@ -398,15 +398,22 @@ if env.Bit('linux'):
 
 
 # alias 'plugin' to build the plug-in in artifacts
-env.Alias('plugin', plugin_install)
+env.Alias('plugin', plugin_artifacts)
 
 # TODO: have a common way to do colliding installs like this.
 # Do the install step only if this variant is the first target.
 if (env['BUILD_TYPE'] == ARGUMENTS.get('MODE') or
     (ARGUMENTS.get('MODE', 'default') == 'default' and
      env['BUILD_TYPE'] == 'dbg-d3d')):
-  i = env.Replicate('$FIREFOX_PLUGIN_DIR', plugin_dll[0])
-  env.Alias('install', i)
+  plugin_install = env.Replicate('$FIREFOX_PLUGIN_DIR', plugin_dll[0])
+  env.Alias('install', plugin_install)
+
+  if env.Bit('windows'):
+    # Copy SwiftShader to plugin dir.
+    swiftshader_path = env.subst('$SWIFTSHADER_DIR/swiftshader_d3d9.dll')
+    if os.path.exists(swiftshader_path):
+      env.Requires(plugin_install,
+          env.Replicate('$FIREFOX_PLUGIN_DIR/O3DExtras', swiftshader_path))
 
 if env.Bit('windows'):
   # Make the logging program

@@ -51,17 +51,18 @@ env.Replace(
     GTEST_DIR = '$THIRD_PARTY/gtest/files',
     # TODO: pull from Chrome's SVN with gclient ?
     ICU38_DIR = '$THIRD_PARTY/icu38/files',
+    INTERNAL_DIR = '$SCONSTRUCT_DIR/../o3d-internal',
     JPEG_DIR = '$THIRD_PARTY/jpeg/src',
     JSDOCTOOLKIT_DIR = '$THIRD_PARTY/jsdoctoolkit/files',
     # To run selenium tests you will need a tgz'ed copy of firefox.
     # Specify the path to it below.
     # See tests/build.scons
     MAC_HERMETIC_FIREFOX_DIR = (
-        '$SCONSTRUCT_DIR/../o3d-internal/third_party/firefox'),
+        '$INTERNAL_DIR/third_party/firefox'),
     # If we have directx redistributables present,
     # then build o3dextras.
     DIRECTX_REDIST_DIR=(
-        '$SCONSTRUCT_DIR/../o3d-internal/third_party/dx_nov_2007_redist'),
+        '$INTERNAL_DIR/third_party/dx_nov_2007_redist'),
     # NACL has to be in this weird directory because it looks for
     # googleclient two levels above it.
     NACL_DIR = '$THIRD_PARTY/native_client/googleclient/native_client',
@@ -75,6 +76,7 @@ env.Replace(
     SELENIUM_PYTHON_DIR = '$THIRD_PARTY/py/selenium',
     # TODO: pull from SVN with gclient ?
     SKIA_DIR = '$THIRD_PARTY/skia',
+    SWIFTSHADER_DIR = '$INTERNAL_DIR/third_party/swiftshader/files',
     # TODO: pull from SVN with gclient ?
     V8_SRC_DIR = '$THIRD_PARTY/v8',
     WIX_DIR = '$THIRD_PARTY/wix_2_0_4221/files',

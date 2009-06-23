@@ -215,8 +215,8 @@ bool D3D9SoftwareInstallCheck(std::string* error) {
     return false;
   }
 
-  if (!PathAppend(dll_path.get(), _T("O3DExtras\\swrend\\d3d9.dll"))) {
-    *error = "Failed to compute new plugin location.";
+  if (!PathAppend(dll_path.get(), _T("O3DExtras\\swiftshader_d3d9.dll"))) {
+    *error = "Failed to compute new software renderer location.";
     return false;
   }
 

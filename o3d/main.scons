@@ -87,6 +87,9 @@ base_env.Append(
     DOCS_DIR = '$DESTINATION_ROOT/docs',
 
     CPPPATH = [
+        # The internal dir is first so that headers in internal can replace
+        # those in external.
+        '$INTERNAL_DIR',
         '$SCONSTRUCT_DIR/..',
         '$SCONSTRUCT_DIR',
         '$CHROME_SRC_DIR',
@@ -308,6 +311,7 @@ windows_env = binaries_env.Clone(
 windows_env.Append(
     CPPPATH = [
         '$PLATFORM_SDK_VISTA_6_0_DIR/Include',
+        '$SWIFTSHADER_DIR',
     ],
     LIBPATH = [
         '$PLATFORM_SDK_VISTA_6_0_DIR/Lib',
