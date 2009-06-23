@@ -1575,6 +1575,8 @@
         'browser/views/login_view.h',
         'browser/views/new_profile_dialog.cc',
         'browser/views/new_profile_dialog.h',
+        'browser/views/new_browser_window_widget.cc',
+        'browser/views/new_browser_window_widget.h',
         'browser/views/options/advanced_contents_view.cc',
         'browser/views/options/advanced_contents_view.h',
         'browser/views/options/advanced_page_view.cc',
@@ -1841,6 +1843,8 @@
             'browser/password_manager/password_store_gnome.cc',
             'browser/password_manager/password_store_kwallet.h',
             'browser/password_manager/password_store_kwallet.cc',
+            'browser/views/new_browser_window_widget.cc',
+            'browser/views/new_browser_window_widget.h',
             'browser/views/tabs/grid.cc',
             'browser/views/tabs/grid.h',
             'browser/views/tabs/tab_overview_cell.cc',
@@ -1993,6 +1997,8 @@
             }],
             ['linux2==1',{
               'sources/': [
+                ['include', 'browser/views/new_browser_window_widget.cc'],
+                ['include', 'browser/views/new_browser_window_widget.h'],
                 ['include', 'browser/views/tabs/grid.cc'],
                 ['include', 'browser/views/tabs/grid.h'],
                 ['include', 'browser/views/tabs/tab_overview_cell.cc'],

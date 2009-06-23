@@ -36,7 +36,8 @@ TabOverviewDragController::TabOverviewDragController(
 }
 
 TabOverviewDragController::~TabOverviewDragController() {
-  controller_->DragEnded();
+  if (dragging_)
+    controller_->DragEnded();
   if (original_index_ != -1)
     RevertDrag();
 }
@@ -66,6 +67,9 @@ bool TabOverviewDragController::Configure(const gfx::Point& location) {
   origin_ = location;
   x_offset_ = location.x() - cell->bounds().x();
   y_offset_ = location.y() - cell->bounds().y();
+
+  // Ask the controller to select the cell.
+  controller_->SelectTab(index);
   return true;
 }
 
@@ -93,8 +97,8 @@ void TabOverviewDragController::CommitDrag(const gfx::Point& location) {
   if (detached_tab_) {
     DropTab(location);
   } else if (!dragging_ ) {
-    // We haven't started dragging. Tell the controller to select the tab.
-    controller_->SelectTabContents(model()->GetTabContentsAt(original_index_));
+    // We haven't started dragging. Tell the controller to focus the browser.
+    controller_->FocusBrowser();
   } else {
     // The tab is already in position, nothing to do but animate the change.
     grid()->set_floating_index(-1);
@@ -236,7 +240,7 @@ void TabOverviewDragController::DragCell(const gfx::Point& location) {
   if (!local_bounds.Contains(location)) {
     // Local bounds doesn't contain the point, allow dragging to the left/right
     // of us.
-    views::RootView* root = grid()->GetRootView();
+    views::View* root = grid()->GetParent();
     gfx::Rect allowed_bounds = local_bounds;
     gfx::Point root_offset;
     views::View::ConvertPointToView(grid(), root, &root_offset);

@@ -86,12 +86,15 @@ void TabOverviewController::SetBrowser(Browser* browser,
   browser_ = browser;
   if (browser_)
     model()->AddObserver(this);
+  gfx::Rect host_bounds = CalculateHostBounds();
   if (moved_offscreen_ && model() && model()->count()) {
     // Need to reset the bounds if we were offscreen.
-    host_->SetBounds(CalculateHostBounds());
+    host_->SetBounds(host_bounds);
     moved_offscreen_ = false;
   }
   RecreateCells();
+
+  container_->set_arrow_center(horizontal_center_ - host_bounds.x());
 }
 
 TabStripModel* TabOverviewController::model() const {
@@ -145,8 +148,17 @@ void TabOverviewController::MoveOffscreen() {
   host_->SetBounds(gfx::Rect(-10000, -10000, bounds.width(), bounds.height()));
 }
 
-void TabOverviewController::SelectTabContents(TabContents* contents) {
-  NOTIMPLEMENTED();
+void TabOverviewController::SelectTab(int index) {
+  browser_->SelectTabContentsAt(index, true);
+}
+
+void TabOverviewController::FocusBrowser() {
+  TabOverviewTypes::Message message;
+  message.set_type(TabOverviewTypes::Message::WM_FOCUS_WINDOW);
+  GtkWidget* browser_widget = GTK_WIDGET(
+      static_cast<BrowserWindowGtk*>(browser_->window())->GetNativeHandle());
+  message.set_param(0, x11_util::GetX11WindowFromGtkWidget(browser_widget));
+  TabOverviewTypes::instance()->SendMessage(message);
 }
 
 void TabOverviewController::GridAnimationEnded() {

@@ -56,7 +56,15 @@ class TabOverviewController : public TabStripModelObserver {
   void DragStarted();
   void DragEnded();
   void MoveOffscreen();
-  void SelectTabContents(TabContents* contents);
+
+  // Selects the TabContents at |index|. This is invoked from the
+  // TabOverviewDragController when the user mouses down on a cell.
+  void SelectTab(int index);
+
+  // Focuses the current browser. This is invoked from the
+  // TabOverviewDragController if the user releases the mouse over a cell
+  // without dragging.
+  void FocusBrowser();
 
   // Forwarded from TabOverviewGrid as the animation of the grid changes.
   void GridAnimationEnded();

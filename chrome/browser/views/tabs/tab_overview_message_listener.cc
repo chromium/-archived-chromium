@@ -5,9 +5,11 @@
 #include "chrome/browser/views/tabs/tab_overview_message_listener.h"
 
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_list.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
-#include "chrome/common/x11_util.h"
+#include "chrome/browser/views/new_browser_window_widget.h"
 #include "chrome/browser/views/tabs/tab_overview_controller.h"
+#include "chrome/common/x11_util.h"
 
 // static
 TabOverviewMessageListener* TabOverviewMessageListener::instance() {
@@ -56,6 +58,18 @@ void TabOverviewMessageListener::ProcessMessage(
       }
       break;
     }
+
+    case TabOverviewTypes::Message::CHROME_NOTIFY_LAYOUT_MODE: {
+      if (message.param(0) == 0) {
+        new_browser_window_.reset(NULL);
+      } else if (BrowserList::size() > 0) {
+        Browser* browser = *BrowserList::begin();
+        new_browser_window_.reset(
+            new NewBrowserWindowWidget(browser->profile()));
+      }
+      break;
+    }
+
     default:
       break;
   }

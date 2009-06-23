@@ -6,6 +6,7 @@
 
 #include "app/gfx/canvas.h"
 #include "chrome/browser/views/tabs/tab_overview_grid.h"
+#include "third_party/skia/include/core/SkPath.h"
 #include "third_party/skia/include/effects/SkGradientShader.h"
 
 // Padding between the edges of us and the grid.
@@ -15,7 +16,10 @@ static const int kHorizontalPadding = 30;
 // Height of the arrow.
 static const int kArrowHeight = 28;
 
-TabOverviewContainer::TabOverviewContainer() {
+// Radius of the corners of the rectangle.
+static const int kEdgeSize = 8;
+
+TabOverviewContainer::TabOverviewContainer() : arrow_center_(0) {
 }
 
 TabOverviewContainer::~TabOverviewContainer() {
@@ -42,6 +46,40 @@ void TabOverviewContainer::Layout() {
 }
 
 void TabOverviewContainer::Paint(gfx::Canvas* canvas) {
+  // Create a path with a rounded rect and arrow pointing down.
+  SkPath outline;
+  int right = width() - 1;
+  int bottom = height() - 1 - kArrowHeight;
+  outline.moveTo(SkIntToScalar(kEdgeSize), SkIntToScalar(0));
+  outline.arcTo(SkIntToScalar(right), SkIntToScalar(0),
+                SkIntToScalar(right), SkIntToScalar(bottom),
+                SkIntToScalar(kEdgeSize));
+  outline.arcTo(SkIntToScalar(right), SkIntToScalar(bottom),
+                SkIntToScalar(0), SkIntToScalar(bottom),
+                SkIntToScalar(kEdgeSize));
+  // Convert arrow_center to our coordinates.
+  int arrow_center = arrow_center_ - bounds().x();
+  if (arrow_center >= kArrowHeight && arrow_center < width() - kArrowHeight) {
+    // Only draw the arrow if we have enough space.
+    outline.lineTo(SkIntToScalar(width() / 2 + kArrowHeight / 2),
+                   SkIntToScalar(bottom));
+    outline.lineTo(SkIntToScalar(arrow_center),
+                   SkIntToScalar(bottom + kArrowHeight));
+    outline.lineTo(SkIntToScalar(width() / 2 - kArrowHeight / 2),
+                   SkIntToScalar(bottom));
+  }
+  outline.arcTo(SkIntToScalar(0), SkIntToScalar(bottom),
+                SkIntToScalar(0), SkIntToScalar(0),
+                SkIntToScalar(kEdgeSize));
+  outline.arcTo(SkIntToScalar(0), SkIntToScalar(0),
+                SkIntToScalar(right), SkIntToScalar(0),
+                SkIntToScalar(kEdgeSize));
+
+  canvas->save();
+  // Clip out the outline.
+  canvas->clipPath(outline);
+
+  // Fill the interior with a gradient.
   SkPoint points[] = { { SkIntToScalar(0), SkIntToScalar(0) },
                        { SkIntToScalar(0), SkIntToScalar(height()) } };
   SkColor colors[] = { SkColorSetARGB(242, 255, 255, 255),
@@ -54,6 +92,18 @@ void TabOverviewContainer::Paint(gfx::Canvas* canvas) {
   paint.setStyle(SkPaint::kFill_Style);
   paint.setPorterDuffXfermode(SkPorterDuff::kSrcOver_Mode);
   canvas->drawPaint(paint);
+
+  // Restore the canvas (resetting the clip).
+  canvas->restore();
+
+  SkPaint paint2;
+  paint2.setStyle(SkPaint::kStroke_Style);
+  paint2.setAntiAlias(true);
+  paint2.setColor(SK_ColorWHITE);
+  paint2.setStrokeWidth(SkIntToScalar(0));
+
+  // And stroke the rounded rect with arrow pointing down.
+  canvas->drawPath(outline, paint2);
 }
 
 TabOverviewGrid* TabOverviewContainer::GetTabOverviewGrid() {

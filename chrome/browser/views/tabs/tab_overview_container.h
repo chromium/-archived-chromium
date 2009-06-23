@@ -25,8 +25,16 @@ class TabOverviewContainer : public views::View {
   virtual void Layout();
   virtual void Paint(gfx::Canvas* canvas);
 
+  // Sets the location of the arrow, along the x-axis.
+  //
+  // WARNING: this is the coordinate system of the parent, NOT this view.
+  void set_arrow_center(int x) { arrow_center_ = x; }
+
  private:
   TabOverviewGrid* GetTabOverviewGrid();
+
+  // See set_arrow_center for details.
+  int arrow_center_;
 
   DISALLOW_COPY_AND_ASSIGN(TabOverviewContainer);
 };

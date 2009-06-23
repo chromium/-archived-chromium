@@ -13,6 +13,7 @@
 #include "chrome/browser/views/tabs/tab_overview_types.h"
 
 class Browser;
+class NewBrowserWindowWidget;
 class TabOverviewController;
 
 // TabOverviewMessageListener listens for messages, showing/hiding the tab
@@ -45,6 +46,9 @@ class TabOverviewMessageListener : public MessageLoopForUI::Observer {
 
   // If non-null tab overview is showing.
   scoped_ptr<TabOverviewController> controller_;
+
+  // Non-null while in tab-overview mode.
+  scoped_ptr<NewBrowserWindowWidget> new_browser_window_;
 
   DISALLOW_COPY_AND_ASSIGN(TabOverviewMessageListener);
 };
