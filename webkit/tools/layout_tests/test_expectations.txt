@@ -1116,7 +1116,7 @@ BUG13692 MAC : LayoutTests/fast/dom/Document/open-with-pending-load.html = CRASH
 BUG13692 MAC : LayoutTests/fast/invalid/019.html = CRASH PASS
 
 // <body><canvas height=100></canvas></body> is 1 px taller than upstream.
-BUG13809 : LayoutTests/fast/canvas/canvas-empty-image-pattern.html = FAIL
+BUG13809 WIN LINUX : LayoutTests/fast/canvas/canvas-empty-image-pattern.html = FAIL
 
 // ----------------------------------------------------------------------------
 // NEW FOR THE MERGE
