@@ -113,8 +113,8 @@ IPC_BEGIN_MESSAGES(View)
   // Message payload is a blob that should be cast to WebInputEvent
   IPC_MESSAGE_ROUTED0(ViewMsg_HandleInputEvent)
 
-  // Message payload is the name/value of a core command to execute.
-  IPC_MESSAGE_ROUTED2(ViewMsg_HandleExecuteEditCommand,
+  // Message payload is the name/value of a WebCore edit command to execute.
+  IPC_MESSAGE_ROUTED2(ViewMsg_ExecuteEditCommand,
                       std::string, /* name */
                       std::string /* value */)
 

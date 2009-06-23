@@ -354,7 +354,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_Delete, OnDelete)
     IPC_MESSAGE_HANDLER(ViewMsg_SelectAll, OnSelectAll)
     IPC_MESSAGE_HANDLER(ViewMsg_CopyImageAt, OnCopyImageAt)
-    IPC_MESSAGE_HANDLER(ViewMsg_HandleExecuteEditCommand, OnExecuteEditCommand)
+    IPC_MESSAGE_HANDLER(ViewMsg_ExecuteEditCommand, OnExecuteEditCommand)
     IPC_MESSAGE_HANDLER(ViewMsg_Find, OnFind)
     IPC_MESSAGE_HANDLER(ViewMsg_Zoom, OnZoom)
     IPC_MESSAGE_HANDLER(ViewMsg_InsertText, OnInsertText)
@@ -723,7 +723,7 @@ void RenderView::OnExecuteEditCommand(const std::string& name,
   if (!webview() || !webview()->GetFocusedFrame())
     return;
 
-  webview()->GetFocusedFrame()->ExecuteCoreCommandByName(name, value);
+  webview()->GetFocusedFrame()->ExecuteEditCommandByName(name, value);
 }
 
 void RenderView::OnInspectElement(int x, int y) {

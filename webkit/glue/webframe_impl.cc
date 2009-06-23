@@ -1764,14 +1764,14 @@ PassRefPtr<Frame> WebFrameImpl::CreateChildFrame(
   return child_frame.release();
 }
 
-bool WebFrameImpl::ExecuteCoreCommandByName(const std::string& name,
+bool WebFrameImpl::ExecuteEditCommandByName(const std::string& name,
                                             const std::string& value) {
   ASSERT(frame());
   return frame()->editor()->command(webkit_glue::StdStringToString(name))
       .execute(webkit_glue::StdStringToString(value));
 }
 
-bool WebFrameImpl::IsCoreCommandEnabled(const std::string& name) {
+bool WebFrameImpl::IsEditCommandEnabled(const std::string& name) {
   ASSERT(frame());
   return frame()->editor()->command(webkit_glue::StdStringToString(name))
       .isEnabled();

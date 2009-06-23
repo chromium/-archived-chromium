@@ -166,9 +166,9 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
 
   virtual WebTextInput* GetTextInput();
 
-  virtual bool ExecuteCoreCommandByName(const std::string& name,
+  virtual bool ExecuteEditCommandByName(const std::string& name,
                                         const std::string& value);
-  virtual bool IsCoreCommandEnabled(const std::string& name);
+  virtual bool IsEditCommandEnabled(const std::string& name);
 
   virtual void AddMessageToConsole(const WebKit::WebConsoleMessage&);
 

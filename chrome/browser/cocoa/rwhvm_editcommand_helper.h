@@ -38,7 +38,7 @@ class RWHVMEditCommandHelper {
 
   // Adds editing selectors to the objc class using the objc runtime APIs.
   // Each selector is connected to a single c method which forwards the message
-  // to WebCore's ExecuteCoreCommand() function.
+  // to WebCore's ExecuteEditCommand() function.
   // This method is idempotent.
   // The class passed in must conform to the RenderWidgetHostViewMacOwner
   // protocol.

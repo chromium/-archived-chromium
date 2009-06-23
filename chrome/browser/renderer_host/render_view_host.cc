@@ -1447,9 +1447,9 @@ void RenderViewHost::ForwardMouseEvent(
 
 void RenderViewHost::ForwardEditCommand(const std::string& name,
                                         const std::string& value) {
-  IPC::Message* message = new ViewMsg_HandleExecuteEditCommand(routing_id(),
-                                                               name,
-                                                               value);
+  IPC::Message* message = new ViewMsg_ExecuteEditCommand(routing_id(),
+                                                         name,
+                                                         value);
   Send(message);
 }
 

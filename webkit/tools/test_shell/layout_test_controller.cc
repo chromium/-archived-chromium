@@ -526,7 +526,7 @@ void LayoutTestController::execCommand(
       value = args[2].ToString();
 
     // Note: webkit's version does not return the boolean, so neither do we.
-    shell_->webView()->GetFocusedFrame()->ExecuteCoreCommandByName(command,
+    shell_->webView()->GetFocusedFrame()->ExecuteEditCommandByName(command,
                                                                    value);
   }
   result->SetNull();
@@ -540,7 +540,7 @@ void LayoutTestController::isCommandEnabled(
   }
 
   std::string command = args[0].ToString();
-  bool rv = shell_->webView()->GetFocusedFrame()->IsCoreCommandEnabled(command);
+  bool rv = shell_->webView()->GetFocusedFrame()->IsEditCommandEnabled(command);
   result->Set(rv);
 }
 
