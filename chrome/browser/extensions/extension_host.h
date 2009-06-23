@@ -11,7 +11,7 @@
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/render_view_host_delegate_helper.h"
 #if defined(TOOLKIT_VIEWS)
-#include "chrome/browser/extensions/extension_view.h"
+#include "chrome/browser/views/extensions/extension_view.h"
 #endif
 
 class Browser;

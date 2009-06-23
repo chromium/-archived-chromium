@@ -2,13 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_EXTENSIONS_EXTENSION_SHELF_H_
-#define CHROME_BROWSER_EXTENSIONS_EXTENSION_SHELF_H_
+#ifndef CHROME_BROWSER_VIEWS_EXTENSIONS_EXTENSION_SHELF_H_
+#define CHROME_BROWSER_VIEWS_EXTENSIONS_EXTENSION_SHELF_H_
 
 #include "app/gfx/canvas.h"
 #include "base/task.h"
 #include "chrome/browser/extensions/extension_shelf_model.h"
-#include "chrome/browser/extensions/extension_view.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/views/browser_bubble.h"
 #include "views/view.h"
@@ -115,4 +114,4 @@ class ExtensionShelf : public views::View,
   DISALLOW_COPY_AND_ASSIGN(ExtensionShelf);
 };
 
-#endif  // CHROME_BROWSER_EXTENSIONS_EXTENSION_SHELF_H_
+#endif  // CHROME_BROWSER_VIEWS_EXTENSIONS_EXTENSION_SHELF_H_

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/extensions/extension_view.h"
+#include "chrome/browser/views/extensions/extension_view.h"
 
 #include "chrome/browser/extensions/extension_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
