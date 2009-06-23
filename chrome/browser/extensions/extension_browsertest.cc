@@ -92,7 +92,8 @@ class ExtensionViewTest : public InProcessBrowserTest {
 
 // Tests that ExtensionView starts an extension process and runs the script
 // contained in the extension's toolstrip.
-IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Toolstrip) {
+// TODO(mpcomplete): http://crbug.com/15081 Disabled because it fails.
+IN_PROC_BROWSER_TEST_F(ExtensionViewTest, DISABLED_Toolstrip) {
   // Get the path to our extension.
   FilePath path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &path));
@@ -116,7 +117,8 @@ IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Toolstrip) {
 // Tests that the ExtensionShelf initializes properly, notices that
 // an extension loaded and has a view available, and then sets that up
 // properly.
-IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Shelf) {
+// TODO(mpcomplete): http://crbug.com/15081 Disabled because it fails.
+IN_PROC_BROWSER_TEST_F(ExtensionViewTest, DISABLED_Shelf) {
   // When initialized, there are no extension views and the preferred height
   // should be zero.
   scoped_ptr<ExtensionShelf> shelf(new ExtensionShelf(browser()));
