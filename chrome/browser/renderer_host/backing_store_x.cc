@@ -313,7 +313,7 @@ void BackingStore::ShowRect(const gfx::Rect& rect, XID target) {
             rect.x(), rect.y());
 }
 
-SkBitmap* BackingStore::PaintRectToBitmap(const gfx::Rect& rect) {
+SkBitmap BackingStore::PaintRectToBitmap(const gfx::Rect& rect) {
   static const int kBytesPerPixel = 4;
 
   const int width = rect.width();
@@ -322,18 +322,20 @@ SkBitmap* BackingStore::PaintRectToBitmap(const gfx::Rect& rect) {
                             rect.x(), rect.y(),
                             width, height,
                             AllPlanes, ZPixmap);
+
+  SkBitmap bitmap;
+
   // TODO(jhawkins): Need to convert the image data if the image bits per pixel
   // is not 32.
   if (image->bits_per_pixel != 32) {
     XFree(image);
-    return NULL;
+    return bitmap;  // Return the empty bitmap to indicate failure.
   }
 
-  SkBitmap* bitmap = new SkBitmap();
-  bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
-  bitmap->allocPixels();
+  bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
+  bitmap.allocPixels();
   unsigned char* bitmap_data =
-    reinterpret_cast<unsigned char*>(bitmap->getAddr32(0, 0));
+    reinterpret_cast<unsigned char*>(bitmap.getAddr32(0, 0));
   memcpy(bitmap_data, image->data, width * height * kBytesPerPixel);
 
   XFree(image);

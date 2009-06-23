@@ -287,11 +287,9 @@ void DraggedTabGtk::PaintScreenshotIntoCanvas(gfx::Canvas* canvas,
                                               const gfx::Rect& target_bounds) {
   gfx::Rect rect(0, 0,
                  contents_->allocation.width, contents_->allocation.height);
-  SkBitmap* bitmap = backing_store_->PaintRectToBitmap(rect);
-  if (bitmap) {
-    canvas->DrawBitmapInt(*bitmap, 0, renderer_->bounds().height());
-    delete bitmap;
-  }
+  SkBitmap bitmap = backing_store_->PaintRectToBitmap(rect);
+  if (!bitmap.isNull())
+    canvas->DrawBitmapInt(bitmap, 0, renderer_->bounds().height());
 }
 
 // static

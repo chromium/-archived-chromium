@@ -5,8 +5,10 @@
 #include "chrome/browser/views/tabs/tab_overview_controller.h"
 
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/browser/tab_contents/thumbnail_generator.h"
 #include "chrome/browser/views/tabs/tab_overview_cell.h"
 #include "chrome/browser/views/tabs/tab_overview_container.h"
 #include "chrome/browser/views/tabs/tab_overview_grid.h"
@@ -107,10 +109,14 @@ void TabOverviewController::Show() {
 
 void TabOverviewController::ConfigureCell(TabOverviewCell* cell,
                                           TabContents* contents) {
-  // TODO: need to set thumbnail here.
   if (contents) {
     cell->SetTitle(contents->GetTitle());
     cell->SetFavIcon(contents->GetFavIcon());
+
+    ThumbnailGenerator* generator = g_browser_process->GetThumbnailGenerator();
+    cell->SetThumbnail(
+        generator->GetThumbnailForRenderer(contents->render_view_host()));
+
     cell->SchedulePaint();
   } else {
     // Need to figure out under what circumstances this is null and deal.

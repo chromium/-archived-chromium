@@ -6,6 +6,7 @@
 
 #include "app/gfx/favicon_size.h"
 #include "base/string_util.h"
+#include "skia/ext/image_operations.h"
 #include "views/border.h"
 #include "views/controls/image_view.h"
 #include "views/controls/label.h"
@@ -64,7 +65,10 @@ TabOverviewCell::TabOverviewCell() {
 }
 
 void TabOverviewCell::SetThumbnail(const SkBitmap& thumbnail) {
-  thumbnail_view_->SetImage(thumbnail);
+  // Do mipmapped-based resampling to get closer to the correct size. The
+  // input bitmap isn't guaranteed to have any specific resolution.
+  thumbnail_view_->SetImage(skia::ImageOperations::DownsampleByTwoUntilSize(
+      thumbnail, kThumbnailWidth, kThumbnailHeight));
 }
 
 void TabOverviewCell::SetTitle(const string16& title) {

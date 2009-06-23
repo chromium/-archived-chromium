@@ -57,14 +57,18 @@ class BackingStore {
 #elif defined(OS_MACOSX)
   skia::PlatformCanvas* canvas() { return &canvas_; }
 #elif defined(OS_LINUX)
+  Display* display() const { return display_; }
+  XID root_window() const { return root_window_; };
+
   // Copy from the server-side backing store to the target window
   //   display: the display of the backing store and target window
   //   damage: the area to copy
   //   target: the X id of the target window
   void ShowRect(const gfx::Rect& damage, XID target);
 
-  // Paints the server-side backing store data to a SkBitmap.
-  SkBitmap* PaintRectToBitmap(const gfx::Rect& rect);
+  // Paints the server-side backing store data to a SkBitmap. On failure, the
+  // return bitmap will be isNull().
+  SkBitmap PaintRectToBitmap(const gfx::Rect& rect);
 #endif
 
   // Paints the bitmap from the renderer onto the backing store.

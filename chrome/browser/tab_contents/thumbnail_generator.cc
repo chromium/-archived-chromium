@@ -59,6 +59,8 @@ static const int kThumbnailHeight = 204;
 // painted in this time.
 static const int kVisibilitySlopMS = 3000;
 
+static const char kThumbnailHistogramName[] = "Thumbnail.ComputeMS";
+
 struct WidgetThumbnail {
   SkBitmap thumbnail;
 
@@ -85,9 +87,27 @@ WidgetThumbnail* GetDataForHost(RenderWidgetHost* host) {
   return GetThumbnailAccessor()->GetProperty(host->property_bag());
 }
 
+#if defined(OS_WIN)
+
+// PlatformDevices/Canvases can't be copied like a regular SkBitmap (at least
+// on Windows). So the second parameter is the canvas to draw into. It should
+// be sized to the size of the backing store.
+void GetBitmapForBackingStore(BackingStore* backing_store,
+                              skia::PlatformCanvas* canvas) {
+  HDC dc = canvas->beginPlatformPaint();
+  BitBlt(dc, 0, 0,
+         backing_store->size().width(), backing_store->size().height(),
+         backing_store->hdc(), 0, 0, SRCCOPY);
+  canvas->endPlatformPaint();
+}
+
+#endif
+
 // Creates a downsampled thumbnail for the given backing store. The returned
 // bitmap will be isNull if there was an error creating it.
 SkBitmap GetThumbnailForBackingStore(BackingStore* backing_store) {
+  base::TimeTicks begin_compute_thumbnail = base::TimeTicks::Now();
+
   SkBitmap result;
 
   // TODO(brettw) write this for other platforms. If you enable this, be sure
@@ -97,37 +117,45 @@ SkBitmap GetThumbnailForBackingStore(BackingStore* backing_store) {
   // Get the bitmap as a Skia object so we can resample it. This is a large
   // allocation and we can tolerate failure here, so give up if the allocation
   // fails.
-  base::TimeTicks begin_compute_thumbnail = base::TimeTicks::Now();
-
   skia::PlatformCanvas temp_canvas;
   if (!temp_canvas.initialize(backing_store->size().width(),
                               backing_store->size().height(), true))
-    return SkBitmap();
-  HDC temp_dc = temp_canvas.beginPlatformPaint();
-  BitBlt(temp_dc,
-         0, 0, backing_store->size().width(), backing_store->size().height(),
-         backing_store->hdc(), 0, 0, SRCCOPY);
-  temp_canvas.endPlatformPaint();
+    return result;
+  GetBitmapForBackingStore(backing_store, &temp_canvas);
 
-  // Get the bitmap out of the canvas and resample it.
+  // Get the bitmap out of the canvas and resample it. It would be nice if this
+  // whole Windows-specific block could be put into a function, but the memory
+  // management wouldn't work out because the bitmap is a PlatformDevice which
+  // can't actually be copied.
   const SkBitmap& bmp = temp_canvas.getTopPlatformDevice().accessBitmap(false);
+
+#elif defined(OS_LINUX)
+  SkBitmap bmp = backing_store->PaintRectToBitmap(
+      gfx::Rect(0, 0,
+                backing_store->size().width(), backing_store->size().height()));
+
+#elif defined(OS_MAC)
+  SkBitmap bmp;
+  NOTEIMPLEMENTED();
+#endif
+
   result = skia::ImageOperations::DownsampleByTwoUntilSize(
       bmp,
       kThumbnailWidth, kThumbnailHeight);
-  if (bmp.width() == result.width() && bmp.height() == result.height()) {
-    // This is a bit subtle. SkBitmaps are refcounted, but the magic ones in
-    // PlatformCanvas can't be ssigned to SkBitmap with proper refcounting.
-    // If the bitmap doesn't change, then the downsampler will return the input
-    // bitmap, which will be the reference to the weird PlatformCanvas one
-    // insetad of a regular one. To get a regular refcounted bitmap, we need to
-    // copy it.
-    bmp.copyTo(&result, SkBitmap::kARGB_8888_Config);
-  }
 
-  HISTOGRAM_TIMES("Thumbnail.ComputeOnDestroyMS",
-                  base::TimeTicks::Now() - begin_compute_thumbnail);
+#if defined(OS_WIN)
+  // This is a bit subtle. SkBitmaps are refcounted, but the magic ones in
+  // PlatformCanvas on Windows can't be ssigned to SkBitmap with proper
+  // refcounting.  If the bitmap doesn't change, then the downsampler will
+  // return the input bitmap, which will be the reference to the weird
+  // PlatformCanvas one insetad of a regular one. To get a regular refcounted
+  // bitmap, we need to copy it.
+  if (bmp.width() == result.width() && bmp.height() == result.height())
+    bmp.copyTo(&result, SkBitmap::kARGB_8888_Config);
 #endif
 
+  HISTOGRAM_TIMES(kThumbnailHistogramName,
+                  base::TimeTicks::Now() - begin_compute_thumbnail);
   return result;
 }
 
@@ -165,9 +193,8 @@ SkBitmap ThumbnailGenerator::GetThumbnailForRenderer(
     RenderWidgetHost* renderer) const {
   // Return a cached one if we have it and it's still valid. This will only be
   // valid when there used to be a backing store, but there isn't now.
-  WidgetThumbnail* wt = GetThumbnailAccessor()->GetProperty(
-      renderer->property_bag());
-  if (wt && !wt->thumbnail.isNull() &&
+  WidgetThumbnail* wt = GetDataForHost(renderer);
+  if (!wt->thumbnail.isNull() &&
       (no_timeout_ ||
        base::TimeTicks::Now() -
        base::TimeDelta::FromMilliseconds(kVisibilitySlopMS) < wt->last_shown))

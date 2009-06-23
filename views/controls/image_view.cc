@@ -125,9 +125,11 @@ void ImageView::Paint(gfx::Canvas* canvas) {
     // Resize case
     image_.buildMipMap(false);
     ComputeImageOrigin(image_size_.width(), image_size_.height(), &x, &y);
+    SkPaint paint;
+    paint.setFilterBitmap(true);
     canvas->DrawBitmapInt(image_, 0, 0, image_width, image_height,
                           x, y, image_size_.width(), image_size_.height(),
-                          true);
+                          true, paint);
   } else {
     ComputeImageOrigin(image_width, image_height, &x, &y);
     canvas->DrawBitmapInt(image_, x, y);
