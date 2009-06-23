@@ -1222,6 +1222,8 @@
         'browser/plugin_process_host.h',
         'browser/plugin_service.cc',
         'browser/plugin_service.h',
+        'browser/possible_url_model.cc',
+        'browser/possible_url_model.h',
         'browser/printing/page_number.cc',
         'browser/printing/page_number.h',
         'browser/printing/page_overlays.cc',

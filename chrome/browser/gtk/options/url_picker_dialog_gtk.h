@@ -5,13 +5,16 @@
 #ifndef CHROME_BROWSER_GTK_OPTIONS_URL_PICKER_DIALOG_GTK_H_
 #define CHROME_BROWSER_GTK_OPTIONS_URL_PICKER_DIALOG_GTK_H_
 
+#include "app/table_model_observer.h"
 #include "base/basictypes.h"
 #include "base/task.h"
+#include "chrome/browser/history/history.h"
 
 class GURL;
 class Profile;
+class PossibleURLModel;
 
-class UrlPickerDialogGtk {
+class UrlPickerDialogGtk : public TableModelObserver {
  public:
   typedef Callback1<const GURL&>::Type UrlPickerCallback;
 
@@ -28,9 +31,41 @@ class UrlPickerDialogGtk {
   // Set sensitivity of buttons based on url entry state.
   void EnableControls();
 
+  // Return the entry-formatted url for path in the sorted model.
+  std::string GetURLForPath(GtkTreePath* path) const;
+
+  // Set the column values for |row| of |url_table_model_| in the
+  // |history_list_store_| at |iter|.
+  void SetColumnValues(int row, GtkTreeIter* iter);
+
+  // Add the values from |row| of |url_table_model_|.
+  void AddNodeToList(int row);
+
+  // TableModelObserver implementation.
+  virtual void OnModelChanged();
+  virtual void OnItemsChanged(int start, int length);
+  virtual void OnItemsAdded(int start, int length);
+  virtual void OnItemsRemoved(int start, int length);
+
+  // GTK sorting callbacks.
+  static gint CompareTitle(GtkTreeModel* model, GtkTreeIter* a, GtkTreeIter* b,
+                           gpointer window);
+  static gint CompareURL(GtkTreeModel* model, GtkTreeIter* a, GtkTreeIter* b,
+                         gpointer window);
+
   // Callback for URL entry changes.
   static void OnUrlEntryChanged(GtkEditable* editable,
                                 UrlPickerDialogGtk* window);
+
+  // Callback for user selecting rows in recent history list.
+  static void OnHistorySelectionChanged(GtkTreeSelection* selection,
+                                        UrlPickerDialogGtk* window);
+
+  // Callback for user activating a row in recent history list.
+  static void OnHistoryRowActivated(GtkTreeView* tree_view,
+                                    GtkTreePath* path,
+                                    GtkTreeViewColumn* column,
+                                    UrlPickerDialogGtk* window);
 
   // Callback for dialog buttons.
   static void OnResponse(GtkDialog* dialog, int response_id,
@@ -49,10 +84,17 @@ class UrlPickerDialogGtk {
   // |url_entry_| is empty.)
   GtkWidget* add_button_;
 
-  // TODO(mattm): recent history list
+  // The recent history list.
+  GtkWidget* history_tree_;
+  GtkListStore* history_list_store_;
+  GtkTreeModel* history_list_sort_;
+  GtkTreeSelection* history_selection_;
 
   // Profile.
   Profile* profile_;
+
+  // The table model.
+  scoped_ptr<PossibleURLModel> url_table_model_;
 
   // Called if the user selects an url.
   UrlPickerCallback* callback_;
