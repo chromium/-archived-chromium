@@ -7,6 +7,7 @@
 #include "base/command_line.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/privacy_blacklist/blacklist.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/extensions/user_script_master.h"
@@ -23,6 +24,7 @@
 #include "net/http/http_network_layer.h"
 #include "net/http/http_util.h"
 #include "net/proxy/proxy_service.h"
+#include "net/url_request/url_request.h"
 #include "webkit/glue/webkit_glue.h"
 
 net::ProxyConfig* CreateProxyConfig(const CommandLine& command_line) {
@@ -287,6 +289,8 @@ ChromeURLRequestContext::ChromeURLRequestContext(Profile* profile)
   cookie_policy_.SetType(net::CookiePolicy::FromInt(
       prefs_->GetInteger(prefs::kCookieBehavior)));
 
+  blacklist_ = profile->GetBlacklist();
+
   force_tls_state_ = profile->GetForceTLSState();
 
   if (profile->GetExtensionsService()) {
@@ -378,6 +382,37 @@ FilePath ChromeURLRequestContext::GetPathForExtension(const std::string& id) {
 const std::string& ChromeURLRequestContext::GetUserAgent(
     const GURL& url) const {
   return webkit_glue::GetUserAgent(url);
+}
+
+bool ChromeURLRequestContext::interceptCookie(const URLRequest* request,
+                                              std::string* cookie) {
+  const URLRequest::UserData* d =
+      request->GetUserData((void*)&Blacklist::kRequestDataKey);
+  if (d) {
+    const Blacklist::Entry* entry =
+        static_cast<const Blacklist::RequestData*>(d)->entry();
+    if (entry->attributes() & Blacklist::kDontStoreCookies) {
+      cookie->clear();
+      return false;
+    }
+    if (entry->attributes() & Blacklist::kDontPersistCookies) {
+      *cookie = Blacklist::StripCookieExpiry(*cookie);
+    }
+  }
+  return true;
+}
+
+bool ChromeURLRequestContext::allowSendingCookies(const URLRequest* request)
+    const {
+  const URLRequest::UserData* d =
+      request->GetUserData((void*)&Blacklist::kRequestDataKey);
+  if (d) {
+    const Blacklist::Entry* entry =
+      static_cast<const Blacklist::RequestData*>(d)->entry();
+    if (entry->attributes() & Blacklist::kDontSendCookies)
+      return false;
+  }
+  return true;
 }
 
 void ChromeURLRequestContext::OnAcceptLanguageChange(

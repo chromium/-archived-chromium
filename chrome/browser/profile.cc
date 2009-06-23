@@ -21,6 +21,7 @@
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/net/chrome_url_request_context.h"
 #include "chrome/browser/password_manager/password_store_default.h"
+#include "chrome/browser/privacy_blacklist/blacklist.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/search_engines/template_url_fetcher.h"
@@ -273,6 +274,10 @@ class OffTheRecordProfileImpl : public Profile,
     return extensions_request_context_;
   }
 
+  virtual Blacklist* GetBlacklist() {
+    return GetOriginalProfile()->GetBlacklist();
+  }
+
   virtual SessionService* GetSessionService() {
     // Don't save any sessions when off the record.
     return NULL;
@@ -414,6 +419,7 @@ ProfileImpl::ProfileImpl(const FilePath& path)
       request_context_(NULL),
       media_request_context_(NULL),
       extensions_request_context_(NULL),
+      blacklist_(NULL),
       history_service_created_(false),
       created_web_data_service_(false),
       created_password_store_(false),
@@ -439,6 +445,18 @@ ProfileImpl::ProfileImpl(const FilePath& path)
   if (!CommandLine::ForCurrentProcess()->HasSwitch(switches::kDisableP13n))
     personalization_.reset(Personalization::CreateProfilePersonalization(this));
 #endif
+
+  if (CommandLine::ForCurrentProcess()->
+      HasSwitch(switches::kPrivacyBlacklist)) {
+    std::wstring option = CommandLine::ForCurrentProcess()->GetSwitchValue(
+        switches::kPrivacyBlacklist);
+#if defined(OS_POSIX)
+    FilePath path(WideToUTF8(option));
+#else
+    FilePath path(option);
+#endif
+    blacklist_ = new Blacklist(path);
+  }
 
 #if defined(OS_LINUX)
   // TODO(port): Remove ifdef when the Linux splash page is not needed.
@@ -548,6 +566,10 @@ ProfileImpl::~ProfileImpl() {
   CleanupRequestContext(request_context_);
   CleanupRequestContext(media_request_context_);
   CleanupRequestContext(extensions_request_context_);
+
+  // When the request contexts are gone, the blacklist wont be needed anymore.
+  delete blacklist_;
+  blacklist_ = 0;
 
   // HistoryService may call into the BookmarkModel, as such we need to
   // delete HistoryService before the BookmarkModel. The destructor for
@@ -747,6 +769,10 @@ URLRequestContext* ProfileImpl::GetRequestContextForExtensions() {
   }
 
   return extensions_request_context_;
+}
+
+Blacklist* ProfileImpl::GetBlacklist() {
+  return blacklist_;
 }
 
 HistoryService* ProfileImpl::GetHistoryService(ServiceAccessType sat) {

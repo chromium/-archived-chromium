@@ -663,7 +663,8 @@ void URLRequestHttpJob::AddExtraHeaders() {
 
   URLRequestContext* context = request_->context();
   if (context) {
-    request_info_.extra_headers += AssembleRequestCookies();
+    if (context->allowSendingCookies(request_))
+      request_info_.extra_headers += AssembleRequestCookies();
     if (!context->accept_language().empty())
       request_info_.extra_headers += "Accept-Language: " +
           context->accept_language() + "\r\n";
@@ -700,7 +701,8 @@ void URLRequestHttpJob::FetchResponseCookies() {
 
   void* iter = NULL;
   while (response_info_->headers->EnumerateHeader(&iter, name, &value))
-    response_cookies_.push_back(value);
+    if (request_->context()->interceptCookie(request_, &value))
+      response_cookies_.push_back(value);
 }
 
 

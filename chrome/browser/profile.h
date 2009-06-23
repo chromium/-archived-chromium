@@ -24,6 +24,7 @@
 namespace net {
 class ForceTLSState;
 }
+class Blacklist;
 class BookmarkModel;
 class BrowserThemeProvider;
 class ChromeURLRequestContext;
@@ -210,6 +211,9 @@ class Profile {
   // is only used for a separate cookie store currently.
   virtual URLRequestContext* GetRequestContextForExtensions() = 0;
 
+  // Returns the Privacy Blaclist for this profile.
+  virtual Blacklist* GetBlacklist() = 0;
+
   // Returns the session service for this profile. This may return NULL. If
   // this profile supports a session service (it isn't off the record), and
   // the session service hasn't yet been created, this forces creation of
@@ -339,6 +343,7 @@ class ProfileImpl : public Profile,
   virtual URLRequestContext* GetRequestContext();
   virtual URLRequestContext* GetRequestContextForMedia();
   virtual URLRequestContext* GetRequestContextForExtensions();
+  virtual Blacklist* GetBlacklist();
   virtual SessionService* GetSessionService();
   virtual void ShutdownSessionService();
   virtual bool HasSessionService() const;
@@ -415,6 +420,8 @@ class ProfileImpl : public Profile,
   ChromeURLRequestContext* media_request_context_;
 
   ChromeURLRequestContext* extensions_request_context_;
+
+  Blacklist* blacklist_;
 
   scoped_refptr<DownloadManager> download_manager_;
   scoped_refptr<HistoryService> history_service_;

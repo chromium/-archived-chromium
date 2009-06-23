@@ -22,6 +22,7 @@
 #include "chrome/browser/download/save_file_manager.h"
 #include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/plugin_service.h"
+#include "chrome/browser/privacy_blacklist/blacklist.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/async_resource_handler.h"
 #include "chrome/browser/renderer_host/buffered_resource_handler.h"
@@ -44,6 +45,7 @@
 #include "net/base/net_errors.h"
 #include "net/base/ssl_cert_request_info.h"
 #include "net/url_request/url_request.h"
+#include "net/url_request/url_request_context.h"
 #include "webkit/glue/webappcachecontext.h"
 
 // TODO(port): Move these includes to the above section when porting is done.
@@ -301,6 +303,14 @@ void ResourceDispatcherHost::BeginRequest(
     return;
   }
 
+  // Note that context can still be NULL here when running unit tests.
+  const Blacklist::Entry* entry = context && context->blacklist() ?
+      context->blacklist()->findMatch(request_data.url) : NULL;
+  if (entry && entry->IsBlocked(request_data.url)) {
+    // TODO(idanan): Send a ResourceResponse to replace the blocked resource.
+    return;
+  }
+
   // Ensure the Chrome plugins are loaded, as they may intercept network
   // requests.  Does nothing if they are already loaded.
   // TODO(mpcomplete): This takes 200 ms!  Investigate parallelizing this by
@@ -328,10 +338,18 @@ void ResourceDispatcherHost::BeginRequest(
 
   // Construct the request.
   URLRequest* request = new URLRequest(request_data.url, this);
+  if (entry && entry->attributes()) {
+    request->SetUserData((void*)&Blacklist::kRequestDataKey,
+                         new Blacklist::RequestData(entry));
+  }
   request->set_method(request_data.method);
   request->set_first_party_for_cookies(request_data.first_party_for_cookies);
-  request->set_referrer(request_data.referrer.spec());
+
+  if (!entry || !(entry->attributes() & Blacklist::kDontSendReferrer))
+    request->set_referrer(request_data.referrer.spec());
+
   request->SetExtraRequestHeaders(request_data.headers);
+
   int load_flags = request_data.load_flags;
   // EV certificate verification could be expensive.  We don't want to spend
   // time performing EV certificate verification on all resources because

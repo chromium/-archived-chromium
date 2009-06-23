@@ -190,6 +190,8 @@ extern const wchar_t kEnableBenchmarking[];
 
 extern const wchar_t kNoDefaultBrowserCheck[];
 
+extern const wchar_t kPrivacyBlacklist[];
+
 extern const wchar_t kZygoteCmdPrefix[];
 
 extern const wchar_t kThumbnailStore[];

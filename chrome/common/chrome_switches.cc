@@ -502,6 +502,10 @@ const wchar_t kWebResources[]                 = L"enable-web-resources";
 // to avoid having the default browser info-bar displayed.
 const wchar_t kNoDefaultBrowserCheck[]         = L"no-default-browser-check";
 
+// Enables the Privacy Blacklist with the specified data file.
+// The file contains data from all imported blacklists.
+const wchar_t kPrivacyBlacklist[] = L"privacy-blacklist";
+
 // Enables the benchmarking extensions.
 const wchar_t kEnableBenchmarking[]      = L"enable-benchmarking";
 

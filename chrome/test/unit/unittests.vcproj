@@ -406,6 +406,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\privacy_blacklist\blacklist_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\safe_browsing\bloom_filter_unittest.cc"
 				>
 			</File>

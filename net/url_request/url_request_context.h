@@ -23,6 +23,8 @@ class HostResolver;
 class HttpTransactionFactory;
 class ProxyService;
 }
+class Blacklist;
+class URLRequest;
 
 // Subclass to provide application-specific context for URLRequest instances.
 class URLRequestContext :
@@ -34,7 +36,8 @@ class URLRequestContext :
         http_transaction_factory_(NULL),
         ftp_transaction_factory_(NULL),
         cookie_store_(NULL),
-        force_tls_state_(NULL) {
+        force_tls_state_(NULL),
+        blacklist_(NULL) {
   }
 
   net::HostResolver* host_resolver() const {
@@ -67,6 +70,9 @@ class URLRequestContext :
   // Gets the FTP authentication cache for this context.
   net::FtpAuthCache* ftp_auth_cache() { return &ftp_auth_cache_; }
 
+  // Gets the Privacy Blacklist, if any for this context.
+  const Blacklist* blacklist() { return blacklist_; }
+
   // Gets the value of 'Accept-Charset' header field.
   const std::string& accept_charset() const { return accept_charset_; }
 
@@ -87,6 +93,19 @@ class URLRequestContext :
     referrer_charset_ = charset;
   }
 
+  // Called for each cookie returning for the given request. A pointer to
+  // the cookie is passed so that it can be modified. Returns true if the
+  // cookie was not dropped (it could still be modified though).
+  virtual bool interceptCookie(const URLRequest* request, std::string* cookie) {
+    return true;
+  }
+
+  // Called before adding cookies to sent requests. Allows overriding
+  // requests to block sending of cookies.
+  virtual bool allowSendingCookies(const URLRequest* request) const {
+    return true;
+  }
+
  protected:
   friend class base::RefCountedThreadSafe<URLRequestContext>;
 
@@ -102,6 +121,7 @@ class URLRequestContext :
   net::CookiePolicy cookie_policy_;
   net::ForceTLSState* force_tls_state_;;
   net::FtpAuthCache ftp_auth_cache_;
+  const Blacklist* blacklist_;
   std::string accept_language_;
   std::string accept_charset_;
   // The charset of the referrer where this request comes from. It's not
