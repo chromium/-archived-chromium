@@ -82,7 +82,8 @@ env.Append(
         '$NIXYSA_STATIC_GLUE',
         '$SCONSTRUCT_DIR/plugin/win',  # for RES resource.h
         '$WTL_71_DIR/include',
-    ],
+        '$THIRD_PARTY',
+        ],
     LIBPATH = [
         '$NACL_LIB_DIR',
     ],
@@ -180,7 +181,7 @@ AUTOGEN_CC_FILES = [f for f in AUTOGEN_OUTPUT if f.suffix == '.cc']
 
 inputs = AUTOGEN_CC_FILES + [
   'cross/async_loading.cc',
-  'cross/archive_request_glue.cc',
+  'cross/archive_request_static_glue.cc',
   'cross/blacklist.cc',
   'cross/o3d_glue.cc',
   'cross/np_v8_bridge.cc',

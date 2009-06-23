@@ -30,7 +30,7 @@
  */
 
 
-#include "plugin/cross/archive_request_glue.h"
+#include "plugin/cross/archive_request_static_glue.h"
 
 #include "base/basictypes.h"
 #include "plugin/cross/stream_manager.h"

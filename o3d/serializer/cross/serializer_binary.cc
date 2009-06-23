@@ -80,7 +80,7 @@ void SerializeBuffer(const Buffer &buffer, MemoryBuffer<uint8> *output) {
   stream.WriteLittleEndianInt32(static_cast<int32>(num_fields));
 
   // Write out the specification for the fields
-  for (int i = 0; i < num_fields; ++i) {
+  for (size_t i = 0; i < num_fields; ++i) {
     const Field &field = *buffer.fields()[i];
 
     // Determine the FIELDID code we need to write out
@@ -110,7 +110,7 @@ void SerializeBuffer(const Buffer &buffer, MemoryBuffer<uint8> *output) {
 
   // Write out the data for each field
   // Write out the specification for the fields
-  for (int i = 0; i < num_fields; ++i) {
+  for (size_t i = 0; i < num_fields; ++i) {
     const Field &field = *buffer.fields()[i];
 
     MemoryBuffer<uint8> field_data(field.size() * num_elements);
@@ -127,7 +127,7 @@ void SerializeBuffer(const Buffer &buffer, MemoryBuffer<uint8> *output) {
                         field.num_components(),
                         num_elements);
       // Write out as little endian float32
-      for (int i = 0; i < nitems; ++i) {
+      for (size_t i = 0; i < nitems; ++i) {
         stream.WriteLittleEndianFloat32(float_destination[i]);
       }
     } else if (field.IsA(UInt32Field::GetApparentClass())) {
@@ -138,7 +138,7 @@ void SerializeBuffer(const Buffer &buffer, MemoryBuffer<uint8> *output) {
                              field.num_components(),
                              num_elements);
       // Write out as little endian int32
-      for (int i = 0; i < nitems; ++i) {
+      for (size_t i = 0; i < nitems; ++i) {
         stream.WriteLittleEndianInt32(int_destination[i]);
       }
     } else if (field.IsA(UByteNField::GetApparentClass())) {
@@ -186,7 +186,7 @@ void SerializeCurve(const Curve &curve, MemoryBuffer<uint8> *output) {
   stream.WriteLittleEndianInt32(1);
 
 
-  for (int i = 0; i < num_keys; ++i) {
+  for (size_t i = 0; i < num_keys; ++i) {
     const CurveKey &key = *curve.GetKey(i);
 
     // determine the KeyType based on the key's class
@@ -227,7 +227,7 @@ void SerializeSkin(const Skin &skin, MemoryBuffer<uint8> *output) {
 
   // Count up total number of individual influences
   size_t total_influence_count = 0;
-  for (int i = 0; i < influences_array_size; ++i) {
+  for (size_t i = 0; i < influences_array_size; ++i) {
     total_influence_count += influences_array[i].size();
   }
 
@@ -248,14 +248,14 @@ void SerializeSkin(const Skin &skin, MemoryBuffer<uint8> *output) {
   // write out version
   stream.WriteLittleEndianInt32(1);
 
-  for (int i = 0; i < influences_array_size; ++i) {
+  for (size_t i = 0; i < influences_array_size; ++i) {
     const Skin::Influences &influences = influences_array[i];
 
     // Write the influence count for this Influences object
     size_t influence_count = influences.size();
     stream.WriteLittleEndianInt32(static_cast<int32>(influence_count));
 
-    for (int j = 0; j < influence_count; ++j) {
+    for (size_t j = 0; j < influence_count; ++j) {
       const Skin::Influence &influence = influences[j];
       stream.WriteLittleEndianInt32(influence.matrix_index);
       stream.WriteLittleEndianFloat32(influence.weight);

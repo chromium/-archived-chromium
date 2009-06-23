@@ -143,7 +143,7 @@ class BoundingBox {
         O3D_ERROR(service_locator)
             << "BoundingBox: expected 2 values, got " << values.size();
       } else {
-        for (int i = 0; i < values.size(); ++i) {
+        for (std::vector<float>::size_type i = 0; i < values.size(); ++i) {
           if (values[i].size() != 3) {
             o3d::ServiceLocator* service_locator =
                 static_cast<glue::_o3d::PluginObject*>(

@@ -34,7 +34,7 @@
 #define O3D_CORE_CROSS_CANVAS_UTILS_H_
 
 #include "core/cross/float_n.h"
-#include "third_party/skia/files/include/core/SkColor.h"
+#include "third_party/skia/include/core/SkColor.h"
 
 // Helper function to convert from Float4 to an SkColor
 static SkColor Float4ToSkColor(const o3d::Float4& color) {

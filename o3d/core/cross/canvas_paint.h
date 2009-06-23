@@ -39,7 +39,7 @@
 #include "core/cross/param.h"
 #include "core/cross/canvas_shader.h"
 
-#include "third_party/skia/files/include/core/SkPaint.h"
+#include "third_party/skia/include/core/SkPaint.h"
 
 namespace o3d {
 

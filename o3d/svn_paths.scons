@@ -74,7 +74,7 @@ env.Replace(
     SELENIUM_JAVA_DIR = '$THIRD_PARTY/java/selenium/rev2478_mod',
     SELENIUM_PYTHON_DIR = '$THIRD_PARTY/py/selenium',
     # TODO: pull from SVN with gclient ?
-    SKIA_DIR = '$THIRD_PARTY/skia/files',
+    SKIA_DIR = '$THIRD_PARTY/skia',
     # TODO: pull from SVN with gclient ?
     V8_SRC_DIR = '$THIRD_PARTY/v8',
     WIX_DIR = '$THIRD_PARTY/wix_2_0_4221/files',

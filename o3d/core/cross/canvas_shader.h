@@ -40,8 +40,8 @@
 #include "core/cross/param_object.h"
 #include "core/cross/param.h"
 
-#include "third_party/skia/files/include/core/SkColor.h"
-#include "third_party/skia/files/include/core/SkPoint.h"
+#include "third_party/skia/include/core/SkColor.h"
+#include "third_party/skia/include/core/SkPoint.h"
 
 class SkShader;
 

@@ -38,8 +38,8 @@
 #include "core/cross/canvas_utils.h"
 #include "core/cross/error.h"
 
-#include "third_party/skia/files/include/core/SkShader.h"
-#include "third_party/skia/files/include/effects/SkGradientShader.h"
+#include "third_party/skia/include/core/SkShader.h"
+#include "third_party/skia/include/effects/SkGradientShader.h"
 
 namespace o3d {
 

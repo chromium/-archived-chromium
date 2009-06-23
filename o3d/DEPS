@@ -49,7 +49,7 @@ deps = {
     "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/scons@" + Var("o3d_code_rev"),
 
   "o3d/third_party/skia":
-    "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/skia@" + Var("o3d_code_rev"),
+    "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/skia/files@" + Var("o3d_code_rev"),
 
   "o3d/third_party/vectormath":
     "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/vectormath@" + Var("o3d_code_rev"),

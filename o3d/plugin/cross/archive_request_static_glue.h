@@ -32,8 +32,8 @@
 
 // This file declares the glue for FileRequest actions.
 
-#ifndef O3D_PLUGIN_ARCHIVE_REQUEST_GLUE_H_
-#define O3D_PLUGIN_ARCHIVE_REQUEST_GLUE_H_
+#ifndef O3D_PLUGIN_ARCHIVE_REQUEST_STATIC_GLUE_H_
+#define O3D_PLUGIN_ARCHIVE_REQUEST_STATIC_GLUE_H_
 
 #include "core/cross/callback.h"
 #include "core/cross/types.h"
@@ -63,4 +63,4 @@ void userglue_method_send(void *plugin_data,
 }  // namespace namespace_o3d
 }  // namespace glue
 
-#endif  // O3D_PLUGIN_ARCHIVE_REQUEST_GLUE_H_
+#endif  // O3D_PLUGIN_ARCHIVE_REQUEST_STATIC_GLUE_H_

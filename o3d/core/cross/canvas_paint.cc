@@ -37,13 +37,124 @@
 #include "core/cross/canvas_utils.h"
 #include "core/cross/client.h"
 
-#include "third_party/skia/files/include/core/SkDrawLooper.h"
-#include "third_party/skia/files/include/core/SkPaint.h"
-#include "third_party/skia/files/include/core/SkTypeface.h"
-#include "third_party/skia/files/include/effects/SkBlurDrawLooper.h"
-#include "third_party/skia/files/include/effects/SkStrokeDrawLooper.h"
+#include "third_party/skia/include/core/SkCanvas.h"
+#include "third_party/skia/include/core/SkColor.h"
+#include "third_party/skia/include/core/SkDrawLooper.h"
+#include "third_party/skia/include/core/SkPaint.h"
+#include "third_party/skia/include/core/SkTypeface.h"
+#include "third_party/skia/include/effects/SkBlurDrawLooper.h"
 
 namespace o3d {
+
+namespace {
+
+/** StrokeDrawLooper This class draws an outline of the
+*   object, and then draws the original object in its original
+*   position.
+*/
+class StrokeDrawLooper : public SkDrawLooper {
+ public:
+  StrokeDrawLooper(SkScalar radius, SkColor color);
+  virtual ~StrokeDrawLooper() {}
+  virtual void init(SkCanvas* canvas, SkPaint* paint);
+  virtual bool next();
+  virtual void restore();
+
+ protected:
+  virtual Factory getFactory() { return CreateProc; }
+  void flatten(SkFlattenableWriteBuffer& buffer);
+  StrokeDrawLooper(SkFlattenableReadBuffer& buffer);
+
+ private:
+  SkCanvas* fCanvas;
+  SkPaint* fPaint;
+
+  // These are to save the state attributes that we want to change so
+  // we can restore them after we draw the stroke.
+  SkPaint::Style fSavedStyle;
+  SkScalar fSavedStrokeWidth;
+  SkColor fSavedColor;
+
+  // These are the attribues of the stroke.
+  SkScalar fRadius;
+  SkColor fColor;
+
+  // Possible machine states for this object.
+  enum State {
+    kBeforeEdge,
+    kAfterEdge,
+    kDone,
+  };
+  State   fState;
+
+  // Factory method for ressurecting a StrokeDrawLooper.
+  static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
+        return SkNEW_ARGS(StrokeDrawLooper, (buffer)); }
+
+  typedef SkDrawLooper INHERITED;
+};
+
+StrokeDrawLooper::StrokeDrawLooper(SkScalar radius, SkColor color)
+    : fColor(color), fRadius(radius) {
+}
+
+void StrokeDrawLooper::init(SkCanvas* canvas, SkPaint* paint) {
+  fState = kBeforeEdge;
+  fCanvas = canvas;
+  fPaint = paint;
+}
+
+bool StrokeDrawLooper::next() {
+  switch (fState) {
+    case kBeforeEdge:
+      // Save the original values.
+      fSavedStyle = fPaint->getStyle();
+      fSavedStrokeWidth = fPaint->getStrokeWidth();
+      fSavedColor = fPaint->getColor();
+
+      // Override with stroke values.
+      fPaint->setColor(fColor);
+      fPaint->setStrokeWidth(fRadius);
+      fPaint->setStyle(SkPaint::kStroke_Style);
+
+      // Change states.
+      fState = kAfterEdge;
+      return true;
+    case kAfterEdge:
+      // Restore original values.
+      fPaint->setColor(fSavedColor);
+      fPaint->setStrokeWidth(fSavedStrokeWidth);
+      fPaint->setStyle(fSavedStyle);
+
+      // Now we're done.
+      fState = kDone;
+      return true;
+    default:
+      SkASSERT(kDone == fState);
+      return false;
+  }
+}
+
+void StrokeDrawLooper::restore() {
+  if (kAfterEdge == fState) {
+    fPaint->setColor(fSavedColor);
+    fPaint->setStrokeWidth(fSavedStrokeWidth);
+    fPaint->setStyle(fSavedStyle);
+    fState = kDone;
+  }
+}
+
+void StrokeDrawLooper::flatten(SkFlattenableWriteBuffer& buffer) {
+  buffer.writeScalar(fRadius);
+  buffer.write32(fColor);
+}
+
+StrokeDrawLooper::StrokeDrawLooper(SkFlattenableReadBuffer& buffer) {
+  fRadius = buffer.readScalar();
+  fColor = buffer.readU32();
+}
+
+}  // end anonymous namespace
 
 O3D_DEFN_CLASS(CanvasPaint, ParamObject);
 
@@ -88,8 +199,8 @@ void CanvasPaint::UpdateNativePaint() {
 
     // Note that shadow and ouline cannot both be active at the same time.
     if (outline_radius_ != 0.0) {
-      SkDrawLooper* l = new SkStrokeDrawLooper(SkFloatToScalar(outline_radius_),
-                                               Float4ToSkColor(outline_color_));
+      SkDrawLooper* l = new StrokeDrawLooper(SkFloatToScalar(outline_radius_),
+                                             Float4ToSkColor(outline_color_));
       sk_paint_.setLooper(l);
       l->unref();
     } else if (shadow_radius_ != 0.0) {

@@ -268,7 +268,7 @@ namespace o3d {
         source_x -= destination_x;
         destination_x = 0;
       }
-      if (destination_x + copy_width > texture_width) {
+      if (destination_x + copy_width > static_cast<int>(texture_width)) {
         copy_width -= destination_x + copy_width - texture_width;
       }
 
@@ -277,7 +277,7 @@ namespace o3d {
         source_y -= destination_y;
         destination_y = 0;
       }
-      if (destination_y + copy_height > texture_height) {
+      if (destination_y + copy_height > static_cast<int>(texture_height)) {
         copy_height -= destination_y + copy_height - texture_height;
       }
 
@@ -303,7 +303,7 @@ namespace o3d {
               (destination_y * texture_width + destination_x) * num_components;
           while (copy_height > 0) {
             for (int xx = 0; xx < copy_width; ++xx) {
-              for (int element = 0; element < num_components; ++element) {
+              for (unsigned element = 0; element < num_components; ++element) {
                 destination[element] = Vectormath::Aos::FloatToHalf(
                     source[swizzle[element]]);
               }
@@ -323,7 +323,7 @@ namespace o3d {
             (destination_y * texture_width + destination_x) * num_components;
           while (copy_height > 0) {
             for (int xx = 0; xx < copy_width; ++xx) {
-              for (int element = 0; element < num_components; ++element) {
+              for (unsigned element = 0; element < num_components; ++element) {
                 destination[element] = source[swizzle[element]];
               }
               destination += num_components;

@@ -62,7 +62,7 @@
 #undef Value
 #endif
 
-#include "third_party/v8/include/v8.h"
+#include "v8/include/v8.h"
 
 namespace o3d {
 

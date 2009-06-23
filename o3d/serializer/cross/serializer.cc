@@ -756,7 +756,7 @@ void Serializer::SerializePack(Pack* pack) {
 
 void Serializer::SerializePackBinary(Pack* pack) {
   std::vector<ObjectBase*> objects = pack->GetByClass<ObjectBase>();
-  for (int i = 0; i < objects.size(); ++i) {
+  for (std::vector<ObjectBase*>::size_type i = 0; i < objects.size(); ++i) {
     binary_visitor_->Accept(objects[i]);
   }
 }

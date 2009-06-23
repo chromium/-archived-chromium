@@ -442,7 +442,7 @@ static LRESULT HandleDragAndDrop(PluginObject *obj, WPARAM wParam) {
   path_to_use = path.get();
 #endif
 
-  for (int i = 0; i < num_chars; ++i) {
+  for (UINT i = 0; i < num_chars; ++i) {
     if (path_to_use[i] == '\\') {
       path_to_use[i] = '/';
     }

@@ -104,7 +104,8 @@ int MarkerFileManagerInterface::DetectStrayMarkerFiles() {
   // the machine was last booted
   int stray_file_count = 0;
 
-  for (int i = 0; i < marker_files.size(); ++i) {
+  for (vector<MarkerFileInfo>::size_type i = 0;
+       i < marker_files.size(); ++i) {
     const MarkerFileInfo &file_info = marker_files[i];
 
     if (time_manager_->IsMarkerFileOld(file_info)) {
