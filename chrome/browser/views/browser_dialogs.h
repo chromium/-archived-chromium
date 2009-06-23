@@ -14,6 +14,7 @@
 
 class Browser;
 class BrowserView;
+class EditSearchEngineControllerDelegate;
 class FindBar;
 class GURL;
 class HtmlDialogUIDelegate;
@@ -84,6 +85,16 @@ void ShowNewProfileDialog();
 
 // Shows the Task Manager.
 void ShowTaskManager();
+
+// Shows a dialog box that allows a search engine to be edited. |template_url|
+// is the search engine being edited. If it is NULL, then the dialog will add a
+// new search engine with the data the user supplies. |delegate| is an object
+// to be notified when the user is done editing, or NULL. If NULL, the dialog
+// will update the model with the user's edits directly.
+void EditSearchEngine(gfx::NativeWindow parent,
+                      const TemplateURL* template_url,
+                      EditSearchEngineControllerDelegate* delegate,
+                      Profile* profile);
 
 }  // namespace browser
 

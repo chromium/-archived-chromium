@@ -5,7 +5,7 @@
 #include "chrome/browser/gtk/keyword_editor_view.h"
 
 #include "app/l10n_util.h"
-#include "chrome/browser/gtk/edit_keyword_controller.h"
+#include "chrome/browser/gtk/edit_search_engine_dialog.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/search_engines/template_url.h"
@@ -203,7 +203,7 @@ void KeywordEditorView::OnSelectionChanged(
 // static
 void KeywordEditorView::OnAddButtonClicked(GtkButton* button,
                                            KeywordEditorView* editor) {
-  EditKeywordControllerBase::Create(
+  new EditSearchEngineDialog(
       GTK_WINDOW(gtk_widget_get_toplevel(editor->dialog_)),
       NULL,
       editor,

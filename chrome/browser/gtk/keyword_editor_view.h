@@ -8,20 +8,20 @@
 #include <gtk/gtk.h>
 
 #include "base/basictypes.h"
-#include "chrome/browser/search_engines/edit_keyword_controller_base.h"
+#include "chrome/browser/search_engines/edit_search_engine_controller.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 
 class Profile;
 
 class KeywordEditorView : public TemplateURLModelObserver,
-                          public EditKeywordControllerBase::Delegate {
+                          public EditSearchEngineControllerDelegate {
  public:
   virtual ~KeywordEditorView();
 
   // Create (if necessary) and show the keyword editor window.
   static void Show(Profile* profile);
 
-  // Overriden from EditKeywordControllerBase::Delegate.
+  // Overriden from EditSearchEngineControllerDelegate.
   virtual void OnEditedKeyword(const TemplateURL* template_url,
                                const std::wstring& title,
                                const std::wstring& keyword,

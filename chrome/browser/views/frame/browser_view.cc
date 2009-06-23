@@ -809,6 +809,12 @@ void BrowserView::DisableInactiveFrame() {
   frame_->GetWindow()->DisableInactiveRendering();
 }
 
+void BrowserView::ConfirmAddSearchProvider(const TemplateURL* template_url,
+                                           Profile* profile) {
+  browser::EditSearchEngine(GetWindow()->GetNativeWindow(), template_url, NULL,
+                            profile);
+}
+
 void BrowserView::ToggleBookmarkBar() {
   bookmark_utils::ToggleWhenVisible(browser_->profile());
 }

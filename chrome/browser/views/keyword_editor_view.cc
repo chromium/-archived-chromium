@@ -16,7 +16,7 @@
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
-#include "chrome/browser/views/edit_keyword_controller.h"
+#include "chrome/browser/views/browser_dialogs.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "googleurl/src/gurl.h"
@@ -584,10 +584,8 @@ void KeywordEditorView::OnDoubleClick() {
 
 void KeywordEditorView::ButtonPressed(views::Button* sender) {
   if (sender == add_button_) {
-    EditKeywordController* controller =
-        new EditKeywordController(GetWidget()->GetNativeView(), NULL, this,
-                                  profile_);
-    controller->Show();
+    browser::EditSearchEngine(GetWindow()->GetNativeWindow(), NULL, this,
+                              profile_);
   } else if (sender == remove_button_) {
     DCHECK(table_view_->SelectedRowCount() > 0);
     // Remove the observer while we modify the model, that way we don't need to
@@ -613,10 +611,8 @@ void KeywordEditorView::ButtonPressed(views::Button* sender) {
     const int selected_row = table_view_->FirstSelectedRow();
     const TemplateURL* template_url =
         &table_model_->GetTemplateURL(selected_row);
-    EditKeywordController* controller =
-        new EditKeywordController(GetWidget()->GetNativeView(), template_url,
-                                  this, profile_);
-    controller->Show();
+    browser::EditSearchEngine(GetWindow()->GetNativeWindow(), template_url,
+                              this, profile_);
   } else if (sender == make_default_button_) {
     MakeDefaultSearchProvider();
   } else {

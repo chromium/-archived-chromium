@@ -15,10 +15,12 @@
 
 class DownloadItem;
 class ExtensionFunctionDispatcher;
+class GURL;
+class HtmlDialogUIDelegate;
+class Profile;
 class RenderViewHost;
 class TabContents;
-class HtmlDialogUIDelegate;
-class GURL;
+class TemplateURL;
 
 // Objects implement this interface to get notified about changes in the
 // TabContents and to provide necessary functionality.
@@ -158,7 +160,7 @@ class TabContentsDelegate {
 
   // This is used when the contents is an extension that needs to route
   // api calls through to the Browser process.
-  virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(
+  virtual ExtensionFunctionDispatcher* CreateExtensionFunctionDispatcher(
       RenderViewHost* render_view_host,
       const std::string& extension_id) {
     return NULL;
@@ -196,6 +198,12 @@ class TabContentsDelegate {
 
   // Returns the renderer's current preferences settings.
   RendererPreferences GetRendererPrefs() const { return renderer_preferences_; }
+
+  // Shows a confirmation UI that the specified |template_url| is to be added as
+  // a search engine.
+  virtual void ConfirmAddSearchProvider(const TemplateURL* template_url,
+                                        Profile* profile) {
+  }
 
  protected:
   ~TabContentsDelegate() {}

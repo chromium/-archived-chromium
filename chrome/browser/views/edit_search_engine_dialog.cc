@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/views/edit_keyword_controller.h"
+#include "chrome/browser/views/edit_search_engine_dialog.h"
 
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/string_util.h"
+#include "chrome/browser/search_engines/edit_search_engine_controller.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "googleurl/src/gurl.h"
 #include "grit/app_resources.h"
@@ -32,103 +33,101 @@ std::wstring GetDisplayURL(const TemplateURL& turl) {
 }
 }  // namespace
 
-// static
-void EditKeywordControllerBase::Create(gfx::NativeWindow parent_window,
-                                       const TemplateURL* template_url,
-                                       Delegate* delegate,
-                                       Profile* profile) {
-  EditKeywordController* controller =
-      new EditKeywordController(parent_window, template_url, delegate, profile);
-  controller->Show();
+namespace browser {
+
+void EditSearchEngine(gfx::NativeWindow parent,
+                      const TemplateURL* template_url,
+                      EditSearchEngineControllerDelegate* delegate,
+                      Profile* profile) {
+  EditSearchEngineDialog::Show(parent, template_url, delegate, profile);
 }
 
-EditKeywordController::EditKeywordController(
-    HWND parent,
+}  // namespace browser
+
+EditSearchEngineDialog::EditSearchEngineDialog(
     const TemplateURL* template_url,
-    Delegate* delegate,
+    EditSearchEngineControllerDelegate* delegate,
     Profile* profile)
-    : EditKeywordControllerBase(template_url, delegate, profile),
-      parent_(parent) {
+    : controller_(new EditSearchEngineController(template_url,
+                                                 delegate,
+                                                 profile)) {
   Init();
 }
 
-void EditKeywordController::Show() {
+// static
+void EditSearchEngineDialog::Show(gfx::NativeWindow parent,
+                                  const TemplateURL* template_url,
+                                  EditSearchEngineControllerDelegate* delegate,
+                                  Profile* profile) {
+  EditSearchEngineDialog* contents =
+      new EditSearchEngineDialog(template_url, delegate, profile);
   // Window interprets an empty rectangle as needing to query the content for
   // the size as well as centering relative to the parent.
-  views::Window::CreateChromeWindow(::IsWindow(parent_) ? parent_ : NULL,
-                                    gfx::Rect(), this);
-  window()->Show();
-  GetDialogClientView()->UpdateDialogButtons();
-  title_tf_->SelectAll();
-  title_tf_->RequestFocus();
+  views::Window::CreateChromeWindow(parent, gfx::Rect(), contents);
+  contents->window()->Show();
+  contents->GetDialogClientView()->UpdateDialogButtons();
+  contents->title_tf_->SelectAll();
+  contents->title_tf_->RequestFocus();
 }
 
-bool EditKeywordController::IsModal() const {
-  // If we were called without a KeywordEditorView, and our associated
-  // window happens to have gone away while the TemplateURLFetcher was
-  // loading, we might not have a valid parent anymore.
-  // ::IsWindow() returns a BOOL, which is a typedef for an int and causes a
-  // warning if we try to return it or cast it as a bool.
-  if (::IsWindow(parent_))
-    return true;
-  return false;
+bool EditSearchEngineDialog::IsModal() const {
+  return true;
 }
 
-std::wstring EditKeywordController::GetWindowTitle() const {
-  return l10n_util::GetString(template_url() ?
+std::wstring EditSearchEngineDialog::GetWindowTitle() const {
+  return l10n_util::GetString(controller_->template_url() ?
       IDS_SEARCH_ENGINES_EDITOR_EDIT_WINDOW_TITLE :
       IDS_SEARCH_ENGINES_EDITOR_NEW_WINDOW_TITLE);
 }
 
-bool EditKeywordController::IsDialogButtonEnabled(
+bool EditSearchEngineDialog::IsDialogButtonEnabled(
     MessageBoxFlags::DialogButton button) const {
   if (button == MessageBoxFlags::DIALOGBUTTON_OK) {
-    return (IsKeywordValid() && IsTitleValid() && IsURLValid());
+    return (controller_->IsKeywordValid(keyword_tf_->text()) &&
+            controller_->IsTitleValid(title_tf_->text()) &&
+            controller_->IsURLValid(url_tf_->text()));
   }
   return true;
 }
 
-void EditKeywordController::DeleteDelegate() {
-  // User canceled the save, delete us.
-  delete this;
-}
-
-bool EditKeywordController::Cancel() {
-  CleanUpCancelledAdd();
+bool EditSearchEngineDialog::Cancel() {
+  controller_->CleanUpCancelledAdd();
   return true;
 }
 
-bool EditKeywordController::Accept() {
-  AcceptAddOrEdit();
+bool EditSearchEngineDialog::Accept() {
+  controller_->AcceptAddOrEdit(keyword_tf_->text(), title_tf_->text(),
+                               url_tf_->text());
   return true;
 }
 
-views::View* EditKeywordController::GetContentsView() {
-  return view_;
+views::View* EditSearchEngineDialog::GetContentsView() {
+  return this;
 }
 
-void EditKeywordController::ContentsChanged(Textfield* sender,
-                                            const std::wstring& new_contents) {
+void EditSearchEngineDialog::ContentsChanged(Textfield* sender,
+                                             const std::wstring& new_contents) {
   GetDialogClientView()->UpdateDialogButtons();
   UpdateImageViews();
 }
 
-bool EditKeywordController::HandleKeystroke(
+bool EditSearchEngineDialog::HandleKeystroke(
     Textfield* sender,
     const views::Textfield::Keystroke& key) {
   return false;
 }
 
-void EditKeywordController::Init() {
+void EditSearchEngineDialog::Init() {
   // Create the views we'll need.
-  view_ = new views::View();
-  if (template_url()) {
-    title_tf_ = CreateTextfield(template_url()->short_name(), false);
-    keyword_tf_ = CreateTextfield(template_url()->keyword(), true);
-    url_tf_ = CreateTextfield(GetDisplayURL(*template_url()), false);
+  if (controller_->template_url()) {
+    title_tf_ =
+        CreateTextfield(controller_->template_url()->short_name(), false);
+    keyword_tf_ = CreateTextfield(controller_->template_url()->keyword(), true);
+    url_tf_ =
+        CreateTextfield(GetDisplayURL(*controller_->template_url()), false);
     // We don't allow users to edit prepopulate URLs. This is done as
     // occasionally we need to update the URL of prepopulated TemplateURLs.
-    url_tf_->SetReadOnly(template_url()->prepopulate_id() != 0);
+    url_tf_->SetReadOnly(controller_->template_url()->prepopulate_id() != 0);
   } else {
     title_tf_ = CreateTextfield(std::wstring(), false);
     keyword_tf_ = CreateTextfield(std::wstring(), true);
@@ -145,8 +144,8 @@ void EditKeywordController::Init() {
   const int unrelated_y = kUnrelatedControlVerticalSpacing;
 
   // View and GridLayout take care of deleting GridLayout for us.
-  GridLayout* layout = CreatePanelGridLayout(view_);
-  view_->SetLayoutManager(layout);
+  GridLayout* layout = CreatePanelGridLayout(this);
+  SetLayoutManager(layout);
 
   // Define the structure of the layout.
 
@@ -221,14 +220,14 @@ void EditKeywordController::Init() {
   layout->AddPaddingRow(0, related_y);
 }
 
-views::Label* EditKeywordController::CreateLabel(int message_id) {
+views::Label* EditSearchEngineDialog::CreateLabel(int message_id) {
   views::Label* label = new views::Label(l10n_util::GetString(message_id));
   label->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   return label;
 }
 
-Textfield* EditKeywordController::CreateTextfield(const std::wstring& text,
-                                                  bool lowercase) {
+Textfield* EditSearchEngineDialog::CreateTextfield(const std::wstring& text,
+                                                   bool lowercase) {
   Textfield* text_field = new Textfield(
       lowercase ? Textfield::STYLE_LOWERCASE : Textfield::STYLE_DEFAULT);
   text_field->SetText(text);
@@ -236,29 +235,18 @@ Textfield* EditKeywordController::CreateTextfield(const std::wstring& text,
   return text_field;
 }
 
-std::wstring EditKeywordController::GetURLInput() const {
-  return url_tf_->text();
-}
-
-std::wstring EditKeywordController::GetKeywordInput() const {
-  return keyword_tf_->text();
-}
-
-std::wstring EditKeywordController::GetTitleInput() const {
-  return title_tf_->text();
-}
-
-void EditKeywordController::UpdateImageViews() {
-  UpdateImageView(keyword_iv_, IsKeywordValid(),
+void EditSearchEngineDialog::UpdateImageViews() {
+  UpdateImageView(keyword_iv_, controller_->IsKeywordValid(keyword_tf_->text()),
                   IDS_SEARCH_ENGINES_INVALID_KEYWORD_TT);
-  UpdateImageView(url_iv_, IsURLValid(), IDS_SEARCH_ENGINES_INVALID_URL_TT);
-  UpdateImageView(title_iv_, IsTitleValid(),
+  UpdateImageView(url_iv_, controller_->IsURLValid(url_tf_->text()),
+                  IDS_SEARCH_ENGINES_INVALID_URL_TT);
+  UpdateImageView(title_iv_, controller_->IsTitleValid(title_tf_->text()),
                   IDS_SEARCH_ENGINES_INVALID_TITLE_TT);
 }
 
-void EditKeywordController::UpdateImageView(ImageView* image_view,
-                                            bool is_valid,
-                                            int invalid_message_id) {
+void EditSearchEngineDialog::UpdateImageView(ImageView* image_view,
+                                             bool is_valid,
+                                             int invalid_message_id) {
   if (is_valid) {
     image_view->SetTooltipText(std::wstring());
     image_view->SetImage(

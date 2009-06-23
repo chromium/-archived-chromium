@@ -9,7 +9,7 @@
 #include <map>
 
 #include "app/table_model.h"
-#include "chrome/browser/search_engines/edit_keyword_controller_base.h"
+#include "chrome/browser/search_engines/edit_search_engine_controller.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "views/controls/button/button.h"
 #include "views/controls/table/table_view_observer.h"
@@ -121,7 +121,7 @@ class KeywordEditorView : public views::View,
                           public views::ButtonListener,
                           public TemplateURLModelObserver,
                           public views::DialogDelegate,
-                          public EditKeywordControllerBase::Delegate {
+                          public EditSearchEngineControllerDelegate {
   friend class KeywordEditorViewTest;
   FRIEND_TEST(KeywordEditorViewTest, MakeDefault);
  public:
@@ -132,7 +132,7 @@ class KeywordEditorView : public views::View,
   explicit KeywordEditorView(Profile* profile);
   virtual ~KeywordEditorView();
 
-  // Overridden from EditKeywordControllerBase::Delegate.
+  // Overridden from EditSearchEngineControllerDelegate.
   // Calls AddTemplateURL or ModifyTemplateURL as appropriate.
   virtual void OnEditedKeyword(const TemplateURL* template_url,
                                const std::wstring& title,

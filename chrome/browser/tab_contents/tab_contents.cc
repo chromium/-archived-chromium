@@ -2032,12 +2032,11 @@ void TabContents::PageHasOSDD(RenderViewHost* render_view_host,
 
   // Download the OpenSearch description document. If this is successful a
   // new keyword will be created when done.
-  gfx::NativeWindow ancestor = view_->GetTopLevelNativeWindow();
   profile()->GetTemplateURLFetcher()->ScheduleDownload(
       keyword,
       url,
       base_entry->favicon().url(),
-      ancestor,
+      this,
       autodetected);
 }
 

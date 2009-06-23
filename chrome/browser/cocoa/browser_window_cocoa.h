@@ -53,6 +53,8 @@ class BrowserWindowCocoa : public BrowserWindow,
   virtual void FocusToolbar();
   virtual bool IsBookmarkBarVisible() const;
   virtual gfx::Rect GetRootWindowResizerRect() const;
+  virtual void ConfirmAddSearchProvider(const TemplateURL* template_url,
+                                        Profile* profile);
   virtual void ToggleBookmarkBar();
   virtual void ShowAboutChromeDialog();
   virtual void ShowTaskManager();

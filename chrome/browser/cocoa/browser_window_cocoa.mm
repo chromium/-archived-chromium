@@ -136,6 +136,12 @@ gfx::Rect BrowserWindowCocoa::GetRootWindowResizerRect() const {
   return gfx::Rect(NSRectToCGRect(tabRect));
 }
 
+void BrowserWindowCocoa::ConfirmAddSearchProvider(
+    const TemplateURL* template_url,
+    Profile* profile) {
+  NOTIMPLEMENTED();
+}
+
 LocationBar* BrowserWindowCocoa::GetLocationBar() const {
   return [controller_ locationBar];
 }

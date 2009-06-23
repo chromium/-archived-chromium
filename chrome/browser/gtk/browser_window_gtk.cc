@@ -30,6 +30,7 @@
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
 #include "chrome/browser/gtk/clear_browsing_data_dialog_gtk.h"
 #include "chrome/browser/gtk/download_shelf_gtk.h"
+#include "chrome/browser/gtk/edit_search_engine_dialog.h"
 #include "chrome/browser/gtk/find_bar_gtk.h"
 #include "chrome/browser/gtk/go_button_gtk.h"
 #include "chrome/browser/gtk/import_dialog_gtk.h"
@@ -604,6 +605,11 @@ bool BrowserWindowGtk::IsBookmarkBarVisible() const {
 
 gfx::Rect BrowserWindowGtk::GetRootWindowResizerRect() const {
   return gfx::Rect();
+}
+
+void BrowserWindowGtk::ConfirmAddSearchProvider(const TemplateURL* template_url,
+                                                Profile* profile) {
+  new EditSearchEngineDialog(window_, template_url, NULL, profile);
 }
 
 void BrowserWindowGtk::ToggleBookmarkBar() {

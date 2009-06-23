@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/gtk/edit_keyword_controller.h"
+#include "chrome/browser/gtk/edit_search_engine_dialog.h"
 
 #include <gtk/gtk.h>
 
@@ -11,6 +11,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/search_engines/edit_search_engine_controller.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/gtk_util.h"
@@ -54,27 +55,20 @@ void LowercaseInsertTextHandler(GtkEditable *editable, const gchar *text,
 
 } // namespace
 
-// static
-void EditKeywordControllerBase::Create(gfx::NativeWindow parent_window,
-                                       const TemplateURL* template_url,
-                                       Delegate* delegate,
-                                       Profile* profile) {
-  new EditKeywordController(parent_window, template_url, delegate, profile);
-}
-
-EditKeywordController::EditKeywordController(
+EditSearchEngineDialog::EditSearchEngineDialog(
     GtkWindow* parent_window,
     const TemplateURL* template_url,
-    Delegate* delegate,
+    EditSearchEngineControllerDelegate* delegate,
     Profile* profile)
-    : EditKeywordControllerBase(template_url, delegate, profile) {
+    : controller_(new EditSearchEngineController(template_url, delegate,
+                                                 profile)) {
   Init(parent_window);
 }
 
-void EditKeywordController::Init(GtkWindow* parent_window) {
+void EditSearchEngineDialog::Init(GtkWindow* parent_window) {
   dialog_ = gtk_dialog_new_with_buttons(
       l10n_util::GetStringUTF8(
-          template_url() ?
+          controller_->template_url() ?
           IDS_SEARCH_ENGINES_EDITOR_EDIT_WINDOW_TITLE :
           IDS_SEARCH_ENGINES_EDITOR_NEW_WINDOW_TITLE).c_str(),
       parent_window,
@@ -129,16 +123,20 @@ void EditKeywordController::Init(GtkWindow* parent_window) {
   keyword_image_ = gtk_image_new_from_pixbuf(NULL);
   url_image_ = gtk_image_new_from_pixbuf(NULL);
 
-  if (template_url()) {
-    gtk_entry_set_text(GTK_ENTRY(title_entry_),
-                       WideToUTF8(template_url()->short_name()).c_str());
-    gtk_entry_set_text(GTK_ENTRY(keyword_entry_),
-                       WideToUTF8(template_url()->keyword()).c_str());
-    gtk_entry_set_text(GTK_ENTRY(url_entry_),
-                       GetDisplayURL(*template_url()).c_str());
+  if (controller_->template_url()) {
+    gtk_entry_set_text(
+        GTK_ENTRY(title_entry_),
+        WideToUTF8(controller_->template_url()->short_name()).c_str());
+    gtk_entry_set_text(
+        GTK_ENTRY(keyword_entry_),
+        WideToUTF8(controller_->template_url()->keyword()).c_str());
+    gtk_entry_set_text(
+        GTK_ENTRY(url_entry_),
+        GetDisplayURL(*controller_->template_url()).c_str());
     // We don't allow users to edit prepopulated URLs.
-    gtk_editable_set_editable(GTK_EDITABLE(url_entry_),
-                              template_url()->prepopulate_id() == 0);
+    gtk_editable_set_editable(
+        GTK_EDITABLE(url_entry_),
+        controller_->template_url()->prepopulate_id() == 0);
   }
 
   GtkWidget* controls = gtk_util::CreateLabeledControlsGroup(
@@ -189,31 +187,34 @@ void EditKeywordController::Init(GtkWindow* parent_window) {
   g_signal_connect(dialog_, "destroy", G_CALLBACK(OnWindowDestroy), this);
 }
 
-std::wstring EditKeywordController::GetURLInput() const {
-  return UTF8ToWide(gtk_entry_get_text(GTK_ENTRY(url_entry_)));
-}
-
-std::wstring EditKeywordController::GetKeywordInput() const {
-  return UTF8ToWide(gtk_entry_get_text(GTK_ENTRY(keyword_entry_)));
-}
-
-std::wstring EditKeywordController::GetTitleInput() const {
+std::wstring EditSearchEngineDialog::GetTitleInput() const {
   return UTF8ToWide(gtk_entry_get_text(GTK_ENTRY(title_entry_)));
 }
 
-void EditKeywordController::EnableControls() {
+std::wstring EditSearchEngineDialog::GetKeywordInput() const {
+  return UTF8ToWide(gtk_entry_get_text(GTK_ENTRY(keyword_entry_)));
+}
+
+std::wstring EditSearchEngineDialog::GetURLInput() const {
+  return UTF8ToWide(gtk_entry_get_text(GTK_ENTRY(url_entry_)));
+}
+
+void EditSearchEngineDialog::EnableControls() {
   gtk_widget_set_sensitive(ok_button_,
-                           IsKeywordValid() && IsTitleValid() && IsURLValid());
-  UpdateImage(keyword_image_, IsKeywordValid(),
+                           controller_->IsKeywordValid(GetKeywordInput()) &&
+                           controller_->IsTitleValid(GetTitleInput()) &&
+                           controller_->IsURLValid(GetURLInput()));
+  UpdateImage(keyword_image_, controller_->IsKeywordValid(GetKeywordInput()),
               IDS_SEARCH_ENGINES_INVALID_KEYWORD_TT);
-  UpdateImage(url_image_, IsURLValid(), IDS_SEARCH_ENGINES_INVALID_URL_TT);
-  UpdateImage(title_image_, IsTitleValid(),
+  UpdateImage(url_image_, controller_->IsURLValid(GetURLInput()),
+              IDS_SEARCH_ENGINES_INVALID_URL_TT);
+  UpdateImage(title_image_, controller_->IsTitleValid(GetTitleInput()),
               IDS_SEARCH_ENGINES_INVALID_TITLE_TT);
 }
 
-void EditKeywordController::UpdateImage(GtkWidget* image,
-                                        bool is_valid,
-                                        int invalid_message_id) {
+void EditSearchEngineDialog::UpdateImage(GtkWidget* image,
+                                         bool is_valid,
+                                         int invalid_message_id) {
   if (is_valid) {
     gtk_widget_set_has_tooltip(image, FALSE);
     gtk_image_set_from_pixbuf(GTK_IMAGE(image),
@@ -229,24 +230,26 @@ void EditKeywordController::UpdateImage(GtkWidget* image,
 }
 
 // static
-void EditKeywordController::OnEntryChanged(
-    GtkEditable* editable, EditKeywordController* window) {
+void EditSearchEngineDialog::OnEntryChanged(
+    GtkEditable* editable, EditSearchEngineDialog* window) {
   window->EnableControls();
 }
 
 // static
-void EditKeywordController::OnResponse(GtkDialog* dialog, int response_id,
-                                       EditKeywordController* window) {
+void EditSearchEngineDialog::OnResponse(GtkDialog* dialog, int response_id,
+                                        EditSearchEngineDialog* window) {
   if (response_id == GTK_RESPONSE_OK) {
-    window->AcceptAddOrEdit();
+    window->controller_->AcceptAddOrEdit(window->GetTitleInput(),
+                                         window->GetKeywordInput(),
+                                         window->GetURLInput());
   } else {
-    window->CleanUpCancelledAdd();
+    window->controller_->CleanUpCancelledAdd();
   }
   gtk_widget_destroy(window->dialog_);
 }
 
 // static
-void EditKeywordController::OnWindowDestroy(
-    GtkWidget* widget, EditKeywordController* window) {
+void EditSearchEngineDialog::OnWindowDestroy(
+    GtkWidget* widget, EditSearchEngineDialog* window) {
   MessageLoop::current()->DeleteSoon(FROM_HERE, window);
 }

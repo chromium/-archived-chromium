@@ -1182,26 +1182,6 @@ void Browser::OpenHelpTab() {
                 false, NULL);
 }
 
-void Browser::OnStartDownload(DownloadItem* download) {
-  if (!window())
-    return;
-
-  // GetDownloadShelf creates the download shelf if it was not yet created.
-  window()->GetDownloadShelf()->AddDownload(new DownloadItemModel(download));
-
-// TODO(port): port for mac.
-#if defined(OS_WIN) || defined(OS_LINUX)
-  // Don't show the animation for "Save file" downloads.
-  if (download->total_bytes() > 0) {
-    TabContents* current_tab = GetSelectedTabContents();
-    // We make this check for the case of minimized windows, unit tests, etc.
-    if (platform_util::IsVisible(current_tab->GetNativeView()) &&
-        Animation::ShouldRenderRichAnimation())
-      DownloadStartedAnimation::Show(current_tab);
-  }
-#endif
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 // static
@@ -1955,6 +1935,31 @@ ExtensionFunctionDispatcher* Browser::CreateExtensionFunctionDispatcher(
 
 int Browser::GetExtraRenderViewHeight() const {
   return window_->GetExtraRenderViewHeight();
+}
+
+void Browser::OnStartDownload(DownloadItem* download) {
+  if (!window())
+    return;
+
+  // GetDownloadShelf creates the download shelf if it was not yet created.
+  window()->GetDownloadShelf()->AddDownload(new DownloadItemModel(download));
+
+// TODO(port): port for mac.
+#if defined(OS_WIN) || defined(OS_LINUX)
+  // Don't show the animation for "Save file" downloads.
+  if (download->total_bytes() > 0) {
+    TabContents* current_tab = GetSelectedTabContents();
+    // We make this check for the case of minimized windows, unit tests, etc.
+    if (platform_util::IsVisible(current_tab->GetNativeView()) &&
+        Animation::ShouldRenderRichAnimation())
+      DownloadStartedAnimation::Show(current_tab);
+  }
+#endif
+}
+
+void Browser::ConfirmAddSearchProvider(const TemplateURL* template_url,
+                                       Profile* profile) {
+  window()->ConfirmAddSearchProvider(template_url, profile);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

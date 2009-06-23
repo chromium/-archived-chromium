@@ -2,33 +2,35 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_GTK_EDIT_KEYWORD_CONTROLLER_H_
-#define CHROME_BROWSER_GTK_EDIT_KEYWORD_CONTROLLER_H_
+#ifndef CHROME_BROWSER_GTK_EDIT_SEARCH_ENGINE_DIALOG_H_
+#define CHROME_BROWSER_GTK_EDIT_SEARCH_ENGINE_DIALOG_H_
 
 #include <gtk/gtk.h>
+#include <string>
 
 #include "base/basictypes.h"
-#include "chrome/browser/search_engines/edit_keyword_controller_base.h"
+#include "base/scoped_ptr.h"
 
+class EditSearchEngineController;
+class EditSearchEngineControllerDelegate;
 class Profile;
 class TemplateURL;
 
-class EditKeywordController : public EditKeywordControllerBase {
+class EditSearchEngineDialog {
  public:
-  EditKeywordController(GtkWindow* parent_window,
-                        const TemplateURL* template_url,
-                        Delegate* delegate,
-                        Profile* profile);
-
- protected:
-  // EditKeywordControllerBase overrides
-  virtual std::wstring GetURLInput() const;
-  virtual std::wstring GetKeywordInput() const;
-  virtual std::wstring GetTitleInput() const;
+  EditSearchEngineDialog(GtkWindow* parent_window,
+                         const TemplateURL* template_url,
+                         EditSearchEngineControllerDelegate* delegate,
+                         Profile* profile);
 
  private:
   // Create and show the window.
   void Init(GtkWindow* parent_window);
+
+  // Retrieve the user input in the various fields.
+  std::wstring GetTitleInput() const;
+  std::wstring GetKeywordInput() const;
+  std::wstring GetURLInput() const;
 
   // Set sensitivity of buttons based on entry state.
   void EnableControls();
@@ -40,15 +42,15 @@ class EditKeywordController : public EditKeywordControllerBase {
 
   // Callback for entry changes.
   static void OnEntryChanged(GtkEditable* editable,
-                             EditKeywordController* window);
+                             EditSearchEngineDialog* window);
 
   // Callback for dialog buttons.
   static void OnResponse(GtkDialog* dialog, int response_id,
-                         EditKeywordController* window);
+                         EditSearchEngineDialog* window);
 
   // Callback for window destruction.
   static void OnWindowDestroy(GtkWidget* widget,
-                              EditKeywordController* window);
+                              EditSearchEngineDialog* window);
 
   // The dialog window.
   GtkWidget* dialog_;
@@ -67,7 +69,9 @@ class EditKeywordController : public EditKeywordControllerBase {
   // entries are not all filled in.)
   GtkWidget* ok_button_;
 
-  DISALLOW_COPY_AND_ASSIGN(EditKeywordController);
+  scoped_ptr<EditSearchEngineController> controller_;
+
+  DISALLOW_COPY_AND_ASSIGN(EditSearchEngineDialog);
 };
 
-#endif  // CHROME_BROWSER_GTK_EDIT_KEYWORD_CONTROLLER_GTK_H_
+#endif  // CHROME_BROWSER_GTK_EDIT_SEARCH_ENGINE_DIALOG_H_

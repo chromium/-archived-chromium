@@ -2,17 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// EditKeywordController provides text fields for editing a keyword: the title,
+// EditSearchEngineDialog provides text fields for editing a keyword: the title,
 // url and actual keyword. It is used by the KeywordEditorView of the Options
 // dialog, and also on its own to confirm the addition of a keyword added by
 // the ExternalJSObject via the RenderView.
 
-#ifndef CHROME_BROWSER_VIEWS_EDIT_KEYWORD_CONTROLLER_H_
-#define CHROME_BROWSER_VIEWS_EDIT_KEYWORD_CONTROLLER_H_
+#ifndef CHROME_BROWSER_VIEWS_EDIT_SEARCH_ENGINE_DIALOG_H_
+#define CHROME_BROWSER_VIEWS_EDIT_SEARCH_ENGINE_DIALOG_H_
 
 #include <windows.h>
 
-#include "chrome/browser/search_engines/edit_keyword_controller_base.h"
 #include "views/controls/textfield/textfield.h"
 #include "views/window/dialog_delegate.h"
 
@@ -22,32 +21,33 @@ class ImageView;
 class Window;
 }
 
+class EditSearchEngineController;
+class EditSearchEngineControllerDelegate;
 class Profile;
 class TemplateURL;
 class TemplateURLModel;
 
-class EditKeywordController : public views::Textfield::Controller,
-                              public views::DialogDelegate,
-                              public EditKeywordControllerBase {
+class EditSearchEngineDialog : public views::View,
+                               public views::Textfield::Controller,
+                               public views::DialogDelegate {
  public:
   // The |template_url| and/or |delegate| may be NULL.
-  EditKeywordController(HWND parent,
-                        const TemplateURL* template_url,
-                        Delegate* delegate,
-                        Profile* profile);
+  EditSearchEngineDialog(const TemplateURL* template_url,
+                         EditSearchEngineControllerDelegate* delegate,
+                         Profile* profile);
+  virtual ~EditSearchEngineDialog() {}
 
-  virtual ~EditKeywordController() {}
+  // Shows the dialog to the user.
+  static void Show(gfx::NativeWindow parent,
+                   const TemplateURL* template_url,
+                   EditSearchEngineControllerDelegate* delegate,
+                   Profile* profile);
 
-  // Shows the dialog to the user. EditKeywordController takes care of
-  // deleting itself after show has been invoked.
-  void Show();
-
-  // DialogDelegate overrides.
+  // views::DialogDelegate overrides.
   virtual bool IsModal() const;
   virtual std::wstring GetWindowTitle() const;
   virtual bool IsDialogButtonEnabled(
       MessageBoxFlags::DialogButton button) const;
-  virtual void DeleteDelegate();
   virtual bool Cancel();
   virtual bool Accept();
   virtual views::View* GetContentsView();
@@ -69,11 +69,6 @@ class EditKeywordController : public views::Textfield::Controller,
   // Creates a text field with the specified text. If |lowercase| is true, the
   // Textfield is configured to map all input to lower case.
   views::Textfield* CreateTextfield(const std::wstring& text, bool lowercase);
-
-  // EditKeywordControllerBase overrides
-  virtual std::wstring GetURLInput() const;
-  virtual std::wstring GetKeywordInput() const;
-  virtual std::wstring GetTitleInput() const;
 
   // Invokes UpdateImageView for each of the images views.
   void UpdateImageViews();
@@ -101,7 +96,9 @@ class EditKeywordController : public views::Textfield::Controller,
   views::ImageView* keyword_iv_;
   views::ImageView* url_iv_;
 
-  DISALLOW_COPY_AND_ASSIGN(EditKeywordController);
+  scoped_ptr<EditSearchEngineController> controller_;
+
+  DISALLOW_COPY_AND_ASSIGN(EditSearchEngineDialog);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_EDIT_KEYWORD_CONTROLLER_H_
+#endif  // CHROME_BROWSER_VIEWS_EDIT_SEARCH_ENGINE_DIALOG_H_

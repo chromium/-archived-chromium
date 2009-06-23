@@ -373,7 +373,6 @@ class Browser : public TabStripModelDelegate,
   void OpenAboutChromeDialog();
   void OpenHelpTab();
 
-  virtual void OnStartDownload(DownloadItem* download);
   virtual void UpdateDownloadShelfVisibility(bool visible);
 
   /////////////////////////////////////////////////////////////////////////////
@@ -471,29 +470,28 @@ class Browser : public TabStripModelDelegate,
   virtual bool IsPopup(TabContents* source);
   virtual void ToolbarSizeChanged(TabContents* source, bool is_animating);
   virtual void URLStarredChanged(TabContents* source, bool starred);
-
-  // A mouse event occurred; motion==true is mouse movement, motion==false
-  // is the mouse leaving the view.
-  virtual void ContentsMouseEvent(TabContents* source, bool motion);
   virtual void UpdateTargetURL(TabContents* source, const GURL& url);
-
+  virtual void ContentsMouseEvent(TabContents* source, bool motion);
   virtual void ContentsZoomChange(bool zoom_in);
   virtual void TabContentsFocused(TabContents* tab_content);
   virtual bool IsApplication() const;
   virtual void ConvertContentsToApplication(TabContents* source);
   virtual bool ShouldDisplayURLField();
-  virtual void BeforeUnloadFired(TabContents* source,
-                                 bool proceed,
-                                 bool* proceed_to_fire_unload);
   virtual gfx::Rect GetRootWindowResizerRect() const;
   virtual void ShowHtmlDialog(HtmlDialogUIDelegate* delegate,
                               gfx::NativeWindow parent_window);
+  virtual void BeforeUnloadFired(TabContents* source,
+                                 bool proceed,
+                                 bool* proceed_to_fire_unload);
   virtual void SetFocusToLocationBar();
   virtual void RenderWidgetShowing();
-  virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(
+  virtual ExtensionFunctionDispatcher* CreateExtensionFunctionDispatcher(
       RenderViewHost* render_view_host,
       const std::string& extension_id);
   virtual int GetExtraRenderViewHeight() const;
+  virtual void OnStartDownload(DownloadItem* download);
+  virtual void ConfirmAddSearchProvider(const TemplateURL* template_url,
+                                        Profile* profile);
 
   // Overridden from SelectFileDialog::Listener:
   virtual void FileSelected(const FilePath& path, int index, void* params);

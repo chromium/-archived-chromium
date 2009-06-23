@@ -8,19 +8,24 @@
 
 #include "chrome/browser/net/url_fetcher.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/search_engines/edit_keyword_controller_base.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/search_engines/template_url_parser.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/browser/tab_contents/tab_contents_delegate.h"
+#include "chrome/common/notification_registrar.h"
+#include "chrome/common/notification_source.h"
+#include "chrome/common/notification_type.h"
 
 // RequestDelegate ------------------------------------------------------------
-class TemplateURLFetcher::RequestDelegate : public URLFetcher::Delegate {
+class TemplateURLFetcher::RequestDelegate : public URLFetcher::Delegate,
+                                            public NotificationObserver {
  public:
   RequestDelegate(TemplateURLFetcher* fetcher,
                   const std::wstring& keyword,
                   const GURL& osdd_url,
                   const GURL& favicon_url,
-                  gfx::NativeWindow parent_window,
+                  TabContents* source,
                   bool autodetected)
       : ALLOW_THIS_IN_INITIALIZER_LIST(url_fetcher_(osdd_url,
                                                     URLFetcher::GET, this)),
@@ -29,11 +34,15 @@ class TemplateURLFetcher::RequestDelegate : public URLFetcher::Delegate {
         osdd_url_(osdd_url),
         favicon_url_(favicon_url),
         autodetected_(autodetected),
-        parent_window_(parent_window) {
+        source_(source) {
     url_fetcher_.set_request_context(fetcher->profile()->GetRequestContext());
     url_fetcher_.Start();
+    registrar_.Add(this,
+                   NotificationType::TAB_CONTENTS_DESTROYED,
+                   Source<TabContents>(source_));
   }
 
+  // URLFetcher::Delegate:
   // If data contains a valid OSDD, a TemplateURL is created and added to
   // the TemplateURLModel.
   virtual void OnURLFetchComplete(const URLFetcher* source,
@@ -42,6 +51,15 @@ class TemplateURLFetcher::RequestDelegate : public URLFetcher::Delegate {
                                   int response_code,
                                   const ResponseCookies& cookies,
                                   const std::string& data);
+
+  // NotificationObserver:
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details) {
+    DCHECK(type == NotificationType::TAB_CONTENTS_DESTROYED);
+    DCHECK(source == Source<TabContents>(source_));
+    source_ = NULL;
+  }
 
   // URL of the OSDD.
   const GURL& url() const { return osdd_url_; }
@@ -57,9 +75,12 @@ class TemplateURLFetcher::RequestDelegate : public URLFetcher::Delegate {
   const GURL favicon_url_;
   bool autodetected_;
 
-  // Used to determine where to place a confirmation dialog. May be NULL,
-  // in which case the confirmation will be centered in the screen if needed.
-  gfx::NativeWindow parent_window_;
+  // The TabContents where this request originated. Can be NULL if the
+  // originating tab is closed. If NULL, the engine is not added.
+  TabContents* source_;
+
+  // Handles registering for our notifications.
+  NotificationRegistrar registrar_;
 
   DISALLOW_COPY_AND_ASSIGN(RequestDelegate);
 };
@@ -118,18 +139,15 @@ void TemplateURLFetcher::RequestDelegate::OnURLFetchComplete(
       // Mark the keyword as replaceable so it can be removed if necessary.
       template_url->set_safe_for_autoreplace(true);
       model->Add(template_url.release());
-    } else {
-#if defined(OS_WIN) || !defined(TOOLKIT_VIEWS)
+    } else if (source_ && source_->delegate()) {
       // Confirm addition and allow user to edit default choices. It's ironic
       // that only *non*-autodetected additions get confirmed, but the user
       // expects feedback that his action did something.
-      // The edit controller will take care of adding the URL to the model,
-      // which takes ownership, or of deleting it if the add is cancelled.
-      EditKeywordControllerBase::Create(parent_window_,
-                                        template_url.release(),
-                                        NULL, // no KeywordEditorView
-                                        fetcher_->profile());
-#endif
+      // The source TabContents' delegate takes care of adding the URL to the
+      // model, which takes ownership, or of deleting it if the add is
+      // cancelled.
+      source_->delegate()->ConfirmAddSearchProvider(template_url.release(),
+                                                    fetcher_->profile());
     }
   }
   fetcher_->RequestCompleted(this);
@@ -148,7 +166,7 @@ TemplateURLFetcher::~TemplateURLFetcher() {
 void TemplateURLFetcher::ScheduleDownload(const std::wstring& keyword,
                                           const GURL& osdd_url,
                                           const GURL& favicon_url,
-                                          const gfx::NativeWindow parent_window,
+                                          TabContents* source,
                                           bool autodetected) {
   DCHECK(!keyword.empty() && osdd_url.is_valid());
   // Make sure we aren't already downloading this request.
@@ -159,7 +177,7 @@ void TemplateURLFetcher::ScheduleDownload(const std::wstring& keyword,
   }
 
   requests_->push_back(
-      new RequestDelegate(this, keyword, osdd_url, favicon_url, parent_window,
+      new RequestDelegate(this, keyword, osdd_url, favicon_url, source,
                           autodetected));
 }
 

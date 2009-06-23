@@ -19,7 +19,6 @@
 #include "chrome/browser/memory_details.h"
 #include "chrome/browser/options_window.h"
 #include "chrome/browser/rlz/rlz.h"
-#include "chrome/browser/search_engines/edit_keyword_controller_base.h"
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/common/process_watcher.h"
@@ -313,13 +312,6 @@ void BrowserList::AllBrowsersClosed() {
 void ShowOptionsWindow(OptionsPage page,
                        OptionsGroup highlight_group,
                        Profile* profile) {
-  NOTIMPLEMENTED();
-}
-
-void EditKeywordControllerBase::Create(gfx::NativeWindow parent_window,
-                                       const TemplateURL* template_url,
-                                       Delegate* delegate,
-                                       Profile* profile) {
   NOTIMPLEMENTED();
 }
 #endif
