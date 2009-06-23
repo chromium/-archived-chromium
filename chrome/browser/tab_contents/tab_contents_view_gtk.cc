@@ -300,9 +300,6 @@ void TabContentsViewGtk::TakeFocus(bool reverse) {
 
 void TabContentsViewGtk::HandleKeyboardEvent(
     const NativeWebKeyboardEvent& event) {
-#if defined(TOOLKIT_VIEWS)
-    NOTIMPLEMENTED();
-#else
   // This may be an accelerator. Try to pass it on to our browser window
   // to handle.
   GtkWindow* window = GetTopLevelNativeWindow();
@@ -316,7 +313,6 @@ void TabContentsViewGtk::HandleKeyboardEvent(
   DCHECK(browser_window);
   browser_window->HandleAccelerator(event.os_event->keyval,
       static_cast<GdkModifierType>(event.os_event->state));
-#endif
 }
 
 void TabContentsViewGtk::Observe(NotificationType type,
