@@ -191,9 +191,8 @@ void InProcessBrowserTest::RunTestOnMainThreadLoop() {
 
   RunTestOnMainThread();
 
-  BrowserList::const_reverse_iterator browser =
-      BrowserList::begin_last_active();
-  for (; browser != BrowserList::end_last_active(); ++browser)
+  BrowserList::const_iterator browser = BrowserList::begin();
+  for (; browser != BrowserList::end(); ++browser)
     (*browser)->CloseAllTabs();
 
   // Stop the HTTP server.
