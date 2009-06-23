@@ -258,7 +258,7 @@ bool DialogClientView::CanClose() const {
 }
 
 void DialogClientView::WindowClosing() {
-#if !defined(TOOLKIT_VIEWS)
+#if defined(OS_WIN)
   FocusManager* focus_manager = GetFocusManager();
   DCHECK(focus_manager);
   if (focus_manager)
@@ -308,7 +308,7 @@ void DialogClientView::ViewHierarchyChanged(bool is_add, View* parent,
     ShowDialogButtons();
     ClientView::ViewHierarchyChanged(is_add, parent, child);
 
-#if !defined(TOOLKIT_VIEWS)
+#if defined(OS_WIN)
     FocusManager* focus_manager = GetFocusManager();
     // Listen for focus change events so we can update the default button.
     DCHECK(focus_manager);  // bug #1291225: crash reports seem to indicate it
