@@ -14,6 +14,7 @@
 #include "base/file_path.h"
 #include "base/linked_ptr.h"
 #include "base/ref_counted.h"
+#include "base/task.h"
 #include "base/tuple.h"
 #include "base/values.h"
 #include "chrome/browser/extensions/extension_prefs.h"
@@ -92,6 +93,19 @@ class ExtensionsService
   // immediately loaded.
   void InstallExtension(const FilePath& extension_path);
 
+  // A callback for when installs finish. If the Extension* parameter is
+  // null then the install failed.
+  typedef Callback2<const FilePath&, Extension*>::Type Callback;
+
+  // Updates a currently-installed extension with the contents from
+  // |extension_path|. The |alert_on_error| parameter controls whether the
+  // user will be notified in the event of failure. If |callback| is non-null,
+  // it will be called back when the update is finished (in success or failure).
+  // This is useful to know when the service is done using |extension_path|.
+  // Also, this takes ownership of |callback| if it's non-null.
+  void UpdateExtension(const std::string& id, const FilePath& extension_path,
+                       bool alert_on_error, Callback* callback);
+
   // Uninstalls the specified extension. Callers should only call this method
   // with extensions that exist and are "internal".
   void UninstallExtension(const std::string& extension_id);
@@ -161,13 +175,20 @@ class ExtensionsService
   // Called by the backend when extensions have been loaded.
   void OnExtensionsLoaded(ExtensionList* extensions);
 
-  // Called by the backend when an extensoin hsa been installed.
-  void OnExtensionInstalled(Extension* extension,
+  // Called by the backend when an extension has been installed.
+  void OnExtensionInstalled(const FilePath& path, Extension* extension,
       Extension::InstallType install_type);
+
+  // Calls and then removes any registered install callback for |path|.
+  void FireInstallCallback(const FilePath& path, Extension* extension);
+
+  // Called by the backend when there was an error installing an extension.
+  void OnExtenionInstallError(const FilePath& path);
 
   // Called by the backend when an attempt was made to reinstall the same
   // version of an existing extension.
-  void OnExtensionOverinstallAttempted(const std::string& id);
+  void OnExtensionOverinstallAttempted(const std::string& id,
+                                       const FilePath& path);
 
   // The name of the directory inside the profile where extensions are
   // installed to.
@@ -193,6 +214,10 @@ class ExtensionsService
 
   // The backend that will do IO on behalf of this instance.
   scoped_refptr<ExtensionsServiceBackend> backend_;
+
+  // Stores data we'll need to do callbacks as installs complete.
+  typedef std::map<FilePath, linked_ptr<Callback> > CallbackMap;
+  CallbackMap install_callbacks_;
 
   // Is the service ready to go?
   bool ready_;
@@ -244,6 +269,13 @@ class ExtensionsServiceBackend
   // success.
   void InstallExtension(const FilePath& extension_path,
                         scoped_refptr<ExtensionsService> frontend);
+
+  // Similar to InstallExtension, but |extension_path| must be an updated
+  // version of an installed extension with id of |id|.
+  void UpdateExtension(const std::string& id,
+                       const FilePath& extension_path,
+                       bool alert_on_error,
+                       scoped_refptr<ExtensionsService> frontend);
 
   // Check externally updated extensions for updates and install if necessary.
   // Errors are reported through ExtensionErrorReporter. Succcess is not
@@ -327,7 +359,8 @@ class ExtensionsServiceBackend
 
   // Notify the frontend that an attempt was made (but not carried out) to
   // install the same version of an existing extension.
-  void ReportExtensionOverinstallAttempted(const std::string& id);
+  void ReportExtensionOverinstallAttempted(const std::string& id,
+                                           const FilePath& path);
 
   // Checks a set of strings (containing id's to ignore) in order to determine
   // if the extension should be installed.

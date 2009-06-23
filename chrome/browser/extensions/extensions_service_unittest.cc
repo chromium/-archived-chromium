@@ -203,6 +203,28 @@ class ExtensionsServiceTest
   }
 
  protected:
+  // A class to record whether a ExtensionsService::Callback has fired, and
+  // to remember the args it was called with.
+  class CallbackRecorder {
+   public:
+    CallbackRecorder() : was_called_(false), path_(NULL), extension_(NULL) {}
+
+    void CallbackFunc(const FilePath& path, Extension* extension) {
+      was_called_ = true;
+      path_.reset(new FilePath(path));
+      extension_ = extension;
+    }
+
+    bool was_called() { return was_called_; }
+    const FilePath* path() { return path_.get(); }
+    Extension* extension() { return extension_; }
+
+   private:
+    bool was_called_;
+    scoped_ptr<FilePath> path_;
+    Extension* extension_;
+  };
+
   void InstallExtension(const FilePath& path,
                         bool should_succeed) {
     ASSERT_TRUE(file_util::PathExists(path));
@@ -233,6 +255,43 @@ class ExtensionsServiceTest
     installed_ = NULL;
     loaded_.clear();
     ExtensionErrorReporter::GetInstance()->ClearErrors();
+  }
+
+  void UpdateExtension(const std::string& id, const FilePath& path,
+                       bool should_succeed, bool use_callback,
+                       bool expect_report_on_failure) {
+    ASSERT_TRUE(file_util::PathExists(path));
+
+    CallbackRecorder callback_recorder;
+    ExtensionsService::Callback* callback = NULL;
+    if (use_callback) {
+      callback = NewCallback(&callback_recorder,
+                             &CallbackRecorder::CallbackFunc);
+    }
+
+    service_->UpdateExtension(id, path, false, callback);
+    loop_.RunAllPending();
+    std::vector<std::string> errors = GetErrors();
+
+    if (use_callback) {
+      EXPECT_TRUE(callback_recorder.was_called());
+      EXPECT_TRUE(path == *callback_recorder.path());
+    }
+
+    if (should_succeed) {
+      EXPECT_EQ(0u, errors.size()) << path.value();
+      EXPECT_EQ(1u, service_->extensions()->size());
+      if (use_callback) {
+        EXPECT_EQ(service_->extensions()->at(0), callback_recorder.extension());
+      }
+    } else {
+      if (expect_report_on_failure) {
+        EXPECT_EQ(1u, errors.size()) << path.value();
+      }
+      if (use_callback) {
+        EXPECT_EQ(NULL, callback_recorder.extension());
+      }
+    }
   }
 
   void ValidatePrefKeyCount(size_t count) {
@@ -674,6 +733,90 @@ TEST_F(ExtensionsServiceTest, UpgradeSignedBad) {
   ASSERT_FALSE(installed_);
   ASSERT_EQ(1u, loaded_.size());
   ASSERT_EQ(1u, GetErrors().size());
+}
+
+// Test a normal update via the UpdateExtension API
+TEST_F(ExtensionsServiceTest, UpdateExtension) {
+  FilePath extensions_path;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
+  extensions_path = extensions_path.AppendASCII("extensions");
+
+  FilePath path = extensions_path.AppendASCII("good.crx");
+
+  InstallExtension(path, true);
+  Extension* good = service_->extensions()->at(0);
+  ASSERT_EQ("1.0.0.0", good->VersionString());
+  ASSERT_EQ(good_crx, good->id());
+
+  path = extensions_path.AppendASCII("good2.crx");
+  UpdateExtension(good_crx, path, true, true, true);
+  ASSERT_EQ("1.0.0.1", loaded_[0]->version()->GetString());
+}
+
+// Test doing an update without passing a completion callback
+TEST_F(ExtensionsServiceTest, UpdateWithoutCallback) {
+  FilePath extensions_path;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
+  extensions_path = extensions_path.AppendASCII("extensions");
+
+  FilePath path = extensions_path.AppendASCII("good.crx");
+
+  InstallExtension(path, true);
+  Extension* good = service_->extensions()->at(0);
+  ASSERT_EQ("1.0.0.0", good->VersionString());
+  ASSERT_EQ(good_crx, good->id());
+
+  path = extensions_path.AppendASCII("good2.crx");
+  UpdateExtension(good_crx, path, true, false, true);
+  ASSERT_EQ("1.0.0.1", loaded_[0]->version()->GetString());
+}
+
+// Test updating a not-already-installed extension - this should fail
+TEST_F(ExtensionsServiceTest, UpdateNotInstalledExtension) {
+  FilePath extensions_path;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
+  extensions_path = extensions_path.AppendASCII("extensions");
+
+  FilePath path = extensions_path.AppendASCII("good.crx");
+  service_->UpdateExtension(good_crx, path, false, NULL);
+  loop_.RunAllPending();
+
+  ASSERT_EQ(0u, service_->extensions()->size());
+  ASSERT_FALSE(installed_);
+  ASSERT_EQ(0u, loaded_.size());
+}
+
+// Makes sure you can't downgrade an extension via UpdateExtension
+TEST_F(ExtensionsServiceTest, UpdateWillNotDowngrade) {
+  FilePath extensions_path;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
+  extensions_path = extensions_path.AppendASCII("extensions");
+
+  FilePath path = extensions_path.AppendASCII("good2.crx");
+
+  InstallExtension(path, true);
+  Extension* good = service_->extensions()->at(0);
+  ASSERT_EQ("1.0.0.1", good->VersionString());
+  ASSERT_EQ(good_crx, good->id());
+
+  // Change path from good2.crx -> good.crx
+  path = extensions_path.AppendASCII("good.crx");
+  UpdateExtension(good_crx, path, false, true, true);
+  ASSERT_EQ("1.0.0.1", service_->extensions()->at(0)->VersionString());
+}
+
+// Make sure calling update with an identical version does nothing
+TEST_F(ExtensionsServiceTest, UpdateToSameVersionIsNoop) {
+  FilePath extensions_path;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
+  extensions_path = extensions_path.AppendASCII("extensions");
+
+  FilePath path = extensions_path.AppendASCII("good.crx");
+
+  InstallExtension(path, true);
+  Extension* good = service_->extensions()->at(0);
+  ASSERT_EQ(good_crx, good->id());
+  UpdateExtension(good_crx, path, false, true, false);
 }
 
 // Tests uninstalling normal extensions

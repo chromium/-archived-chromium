@@ -266,6 +266,35 @@ void ExtensionsService::InstallExtension(const FilePath& extension_path) {
       scoped_refptr<ExtensionsService>(this)));
 }
 
+void ExtensionsService::UpdateExtension(const std::string& id,
+                                        const FilePath& extension_path,
+                                        bool alert_on_error,
+                                        Callback* callback) {
+  if (callback) {
+    if (install_callbacks_.find(extension_path) != install_callbacks_.end()) {
+      // We can't have multiple outstanding install requests for the same
+      // path, so immediately indicate error via the callback here.
+      LOG(WARNING) << "Dropping update request for '" <<
+          extension_path.value() << "' (already in progress)'";
+      callback->Run(extension_path, static_cast<Extension*>(NULL));
+      delete callback;
+      return;
+    }
+    install_callbacks_[extension_path] = linked_ptr<Callback>(callback);
+  }
+
+  if (!GetExtensionById(id)) {
+    LOG(WARNING) << "Will not update extension " << id << " because it is not "
+        << "installed";
+    FireInstallCallback(extension_path, NULL);
+    return;
+  }
+
+  backend_loop_->PostTask(FROM_HERE, NewRunnableMethod(backend_.get(),
+      &ExtensionsServiceBackend::UpdateExtension, id, extension_path,
+      alert_on_error, scoped_refptr<ExtensionsService>(this)));
+}
+
 void ExtensionsService::UninstallExtension(const std::string& extension_id) {
   Extension* extension = GetExtensionById(extension_id);
 
@@ -404,8 +433,9 @@ void ExtensionsService::OnExtensionsLoaded(ExtensionList* new_extensions) {
   }
 }
 
-void ExtensionsService::OnExtensionInstalled(Extension* extension,
-    Extension::InstallType install_type) {
+void ExtensionsService::OnExtensionInstalled(const FilePath& path,
+    Extension* extension, Extension::InstallType install_type) {
+  FireInstallCallback(path, extension);
   extension_prefs_->OnExtensionInstalled(extension);
 
   // If the extension is a theme, tell the profile (and therefore ThemeProvider)
@@ -423,7 +453,23 @@ void ExtensionsService::OnExtensionInstalled(Extension* extension,
   }
 }
 
-void ExtensionsService::OnExtensionOverinstallAttempted(const std::string& id) {
+
+void ExtensionsService::OnExtenionInstallError(const FilePath& path) {
+  FireInstallCallback(path, NULL);
+}
+
+void ExtensionsService::FireInstallCallback(const FilePath& path,
+                                            Extension* extension) {
+  CallbackMap::iterator iter = install_callbacks_.find(path);
+  if (iter != install_callbacks_.end()) {
+    iter->second->Run(path, extension);
+    install_callbacks_.erase(iter);
+  }
+}
+
+void ExtensionsService::OnExtensionOverinstallAttempted(const std::string& id,
+    const FilePath& path) {
+  FireInstallCallback(path, NULL);
   Extension* extension = GetExtensionById(id);
   if (extension && extension->IsTheme()) {
     NotificationService::current()->Notify(
@@ -434,9 +480,10 @@ void ExtensionsService::OnExtensionOverinstallAttempted(const std::string& id) {
 }
 
 Extension* ExtensionsService::GetExtensionById(const std::string& id) {
+  std::string lowercase_id = StringToLowerASCII(id);
   for (ExtensionList::const_iterator iter = extensions_.begin();
       iter != extensions_.end(); ++iter) {
-    if ((*iter)->id() == id)
+    if ((*iter)->id() == lowercase_id)
       return *iter;
   }
   return NULL;
@@ -855,6 +902,17 @@ void ExtensionsServiceBackend::InstallExtension(
   InstallOrUpdateExtension(extension_path, std::string());
 }
 
+void ExtensionsServiceBackend::UpdateExtension(const std::string& id,
+    const FilePath& extension_path, bool alert_on_error,
+    scoped_refptr<ExtensionsService> frontend) {
+  LOG(INFO) << "Updating extension " << id << " " << extension_path.value();
+
+  frontend_ = frontend;
+  alert_on_error_ = alert_on_error;
+
+  InstallOrUpdateExtension(extension_path, id);
+}
+
 void ExtensionsServiceBackend::InstallOrUpdateExtension(
     const FilePath& extension_path, const std::string& expected_id) {
   std::string actual_public_key;
@@ -1034,7 +1092,7 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
       install_type = Extension::NEW_INSTALL;
     } else {
       // The client may use this as a signal (to switch themes, for instance).
-      ReportExtensionOverinstallAttempted(extension.id());
+      ReportExtensionOverinstallAttempted(extension.id(), extension_path);
       return;
     }
   }
@@ -1120,8 +1178,8 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
   CHECK(loaded);
 
   frontend_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-      frontend_, &ExtensionsService::OnExtensionInstalled, loaded,
-      install_type));
+      frontend_, &ExtensionsService::OnExtensionInstalled, extension_path,
+      loaded, install_type));
 
   // Only one extension, but ReportExtensionsLoaded can handle multiple,
   // so we need to construct a list.
@@ -1143,12 +1201,18 @@ void ExtensionsServiceBackend::ReportExtensionInstallError(
       StringPrintf("Could not install extension from '%s'. %s",
                    path_str.c_str(), error.c_str());
   ExtensionErrorReporter::GetInstance()->ReportError(message, alert_on_error_);
+
+  frontend_loop_->PostTask(FROM_HERE, NewRunnableMethod(
+      frontend_,
+      &ExtensionsService::OnExtenionInstallError,
+      extension_path));
 }
 
 void ExtensionsServiceBackend::ReportExtensionOverinstallAttempted(
-    const std::string& id) {
+    const std::string& id, const FilePath& path) {
   frontend_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-      frontend_, &ExtensionsService::OnExtensionOverinstallAttempted, id));
+      frontend_, &ExtensionsService::OnExtensionOverinstallAttempted, id,
+      path));
 }
 
 bool ExtensionsServiceBackend::ShouldSkipInstallingExtension(
