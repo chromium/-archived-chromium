@@ -429,7 +429,7 @@ html[dir=rtl] .thumbnail-container .title div {
 .item {
   background: no-repeat 0% 50%;
   padding: 2px;
-  -webkit-padding-start: 18px;
+  padding-left: 18px;
   -webkit-background-size: 16px;
   background-color: hsla(213, 63%, 93%, 0);
   display: block;
@@ -444,6 +444,9 @@ html[dir=rtl] .thumbnail-container .title div {
 
 html[dir='rtl'] .item {
   background-position-x: 100%;
+  padding-right: 18px;
+  padding-left: 2px;
+  text-align: right;
 }
 
 .window {

@@ -115,7 +115,7 @@ logEvent('log start');
                         title:title;
                         .style.backgroundImage:'url(chrome://favicon/' + url +
                             ')';
-                        .style.direction:direction;
+                        dir:direction;
                         .sessionId:sessionId"
                     jscontent="title"></a>
                 <div jsdisplay="type == 'window'"
@@ -130,7 +130,7 @@ logEvent('log start');
                           jsvalues="title:title;
                               .style.backgroundImage:'url(chrome://favicon/' +
                                   url + ')';
-                              .style.direction:direction;"
+                              dir:direction;"
                           jscontent="title"></span>
                     </span>
                   </div>

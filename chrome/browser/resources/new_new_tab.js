@@ -247,7 +247,7 @@ function renderMostVisited(data) {
     var titleDiv = t.querySelector('.title > div');
     titleDiv.textContent = d.title;
     titleDiv.style.backgroundImage = 'url(chrome://favicon/' + d.url + ')';
-    titleDiv.style.direction = d.direction;
+    titleDiv.dir = d.direction;
     if (!reuse) {
       parent.appendChild(t);
     }
