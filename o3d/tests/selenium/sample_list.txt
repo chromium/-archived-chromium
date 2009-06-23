@@ -80,7 +80,7 @@ medium  debugging                         screenshot pdiff_threshold(2000) pdiff
 medium  displayfps
 small   generate-texture                  screenshot pdiff_threshold(30000) except(*iexplore)
 medium  hellocube                         screenshot pdiff_threshold(1000)
-medium  hellocube-colors                  screenshot pdiff_threshold(50) downsample(2)
+medium  hellocube-colors                  screenshot pdiff_threshold(1000)
 medium  helloworld                        screenshot pdiff_threshold(900)
 medium  hud-2d-overlay                    screenshot pdiff_threshold(11300) pdiff_threshold_win(39800)
 medium  instance-override                 screenshot pdiff_threshold(10500)
