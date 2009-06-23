@@ -272,16 +272,12 @@ void FindMatchingKeychainItems(const MacKeychain& keychain,
   keychain_search.FindMatchingItems(items);
 }
 
-void FindMatchingKeychainItem(const MacKeychain& keychain,
-                              const PasswordForm& form,
-                              SecKeychainItemRef* match) {
-  DCHECK(match);
-  *match = NULL;
-
+SecKeychainItemRef FindMatchingKeychainItem(const MacKeychain& keychain,
+                                            const PasswordForm& form) {
   // We don't store blacklist entries in the keychain, so the answer to "what
   // Keychain item goes with this form" is always "nothing" for blacklists.
   if (form.blacklisted_by_user) {
-    return;
+    return NULL;
   }
 
   // Construct a keychain search based on all the unique attributes.
@@ -294,7 +290,7 @@ void FindMatchingKeychainItem(const MacKeychain& keychain,
     // TODO(stuartmorgan): Proxies will currently fail here, since their
     // signon_realm is not a URL. We need to detect the proxy case and handle
     // it specially.
-    return;
+    return NULL;
   }
 
   SecProtocolType protocol = is_secure ? kSecProtocolTypeHTTPS
@@ -313,14 +309,15 @@ void FindMatchingKeychainItem(const MacKeychain& keychain,
   std::vector<SecKeychainItemRef> matches;
   keychain_search.FindMatchingItems(&matches);
 
-  if (matches.size() > 0) {
-    *match = matches[0];
-    // Free everything we aren't returning.
-    for (std::vector<SecKeychainItemRef>::iterator i = matches.begin() + 1;
-         i != matches.end(); ++i) {
-      keychain.Free(*i);
-    }
+  if (matches.size() == 0) {
+    return NULL;
   }
+  // Free all items after the first, since we won't be returning them.
+  for (std::vector<SecKeychainItemRef>::iterator i = matches.begin() + 1;
+       i != matches.end(); ++i) {
+    keychain.Free(*i);
+  }
+  return matches[0];
 }
 
 bool FillPasswordFormFromKeychainItem(const MacKeychain& keychain,
@@ -436,6 +433,52 @@ bool FillPasswordFormFromKeychainItem(const MacKeychain& keychain,
     form->signon_realm.append(security_domain);
   }
   return true;
+}
+
+bool AddKeychainEntryForForm(const MacKeychain& keychain,
+                             const PasswordForm& form) {
+  std::string server;
+  std::string security_domain;
+  int port;
+  bool is_secure;
+  if (!internal_keychain_helpers::ExtractSignonRealmComponents(
+          form.signon_realm, &server, &port, &is_secure, &security_domain)) {
+    return false;
+  }
+  std::string username = WideToUTF8(form.username_value);
+  std::string password = WideToUTF8(form.password_value);
+  std::string path = form.origin.path();
+  SecProtocolType protocol = is_secure ? kSecProtocolTypeHTTPS
+                                       : kSecProtocolTypeHTTP;
+  OSStatus result = keychain.AddInternetPassword(
+      NULL, server.size(), server.c_str(),
+      security_domain.size(), security_domain.c_str(),
+      username.size(), username.c_str(),
+      path.size(), path.c_str(),
+      port, protocol, AuthTypeForScheme(form.scheme),
+      password.size(), password.c_str(), NULL);
+
+  // If we collide with an existing item, find and update it instead.
+  if (result == errSecDuplicateItem) {
+    SecKeychainItemRef existing_item = FindMatchingKeychainItem(keychain, form);
+    if (!existing_item) {
+      return false;
+    }
+    bool changed = SetKeychainItemPassword(keychain, existing_item, password);
+    keychain.Free(existing_item);
+    return changed;
+  }
+
+  return (result == noErr);
+}
+
+bool SetKeychainItemPassword(const MacKeychain& keychain,
+                             const SecKeychainItemRef& keychain_item,
+                             const std::string& password) {
+  OSStatus result = keychain.ItemModifyAttributesAndData(keychain_item, NULL,
+                                                         password.size(),
+                                                         password.c_str());
+  return (result == noErr);
 }
 
 bool FormsMatchForMerge(const PasswordForm& form_a, const PasswordForm& form_b,

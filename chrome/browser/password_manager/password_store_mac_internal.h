@@ -53,12 +53,11 @@ void FindMatchingKeychainItems(const MacKeychain& keychain,
                                webkit_glue::PasswordForm::Scheme scheme,
                                std::vector<SecKeychainItemRef>* items);
 
-// Searches |keychain| for the specific keychain entry matching the given form.
-// If no match is found, |match| will be NULL on return.
-// The caller is responsible for calling keychain->Free on |match|.
-void FindMatchingKeychainItem(const MacKeychain& keychain,
-                              const webkit_glue::PasswordForm& form,
-                              SecKeychainItemRef* match);
+// Searches |keychain| for the specific keychain entry matching the given form,
+// and returns it (or NULL if no match is found).
+// The caller is responsible for calling keychain->Free on the returned item.
+SecKeychainItemRef FindMatchingKeychainItem(
+    const MacKeychain& keychain, const webkit_glue::PasswordForm& form);
 
 // Sets the fields of |form| based on the keychain data from |keychain_item|.
 // Fields that can't be determined from |keychain_item| will be unchanged.
@@ -74,6 +73,18 @@ void FindMatchingKeychainItem(const MacKeychain& keychain,
 bool FillPasswordFormFromKeychainItem(const MacKeychain& keychain,
                                       const SecKeychainItemRef& keychain_item,
                                       webkit_glue::PasswordForm* form);
+
+// Creates a new keychain entry from |form|, or updates the password of an
+// existing keychain entry if there is a collision. Returns true if a keychain
+// entry was successfully added/updated.
+bool AddKeychainEntryForForm(const MacKeychain& keychain,
+                             const webkit_glue::PasswordForm& form);
+
+// Changes the password for keychain_item to |password|; returns true if the
+// password was successfully changed.
+bool SetKeychainItemPassword(const MacKeychain& keychain,
+                             const SecKeychainItemRef& keychain_item,
+                             const std::string& password);
 
 // Returns true if the two given forms match based on signon_reaml, scheme, and
 // username_value, and are thus suitable for merging (see MergePasswordForms).

@@ -25,6 +25,10 @@ class MockKeychain : public MacKeychain {
       SecKeychainItemRef itemRef, SecKeychainAttributeInfo *info,
       SecItemClass *itemClass, SecKeychainAttributeList **attrList,
       UInt32 *length, void **outData) const;
+  // Pass "fail_me" as the data to get errSecAuthFailed.
+  virtual OSStatus ItemModifyAttributesAndData(
+      SecKeychainItemRef itemRef, const SecKeychainAttributeList *attrList,
+      UInt32 length, const void *data) const;
   virtual OSStatus ItemFreeAttributesAndData(SecKeychainAttributeList *attrList,
                                              void *data) const;
   virtual OSStatus SearchCreateFromAttributes(
@@ -33,6 +37,20 @@ class MockKeychain : public MacKeychain {
       SecKeychainSearchRef *searchRef) const;
   virtual OSStatus SearchCopyNext(SecKeychainSearchRef searchRef,
                                   SecKeychainItemRef *itemRef) const;
+  // Pass "some.domain.com" as the serverName to get errSecDuplicateItem.
+  virtual OSStatus AddInternetPassword(SecKeychainRef keychain,
+                                       UInt32 serverNameLength,
+                                       const char *serverName,
+                                       UInt32 securityDomainLength,
+                                       const char *securityDomain,
+                                       UInt32 accountNameLength,
+                                       const char *accountName,
+                                       UInt32 pathLength, const char *path,
+                                       UInt16 port, SecProtocolType protocol,
+                                       SecAuthenticationType authenticationType,
+                                       UInt32 passwordLength,
+                                       const void *passwordData,
+                                       SecKeychainItemRef *itemRef) const;
   virtual void Free(CFTypeRef ref) const;
 
   // Causes a test failure unless everything returned from
@@ -41,21 +59,32 @@ class MockKeychain : public MacKeychain {
   void ExpectCreatesAndFreesBalanced();
 
  private:
+  // Note that "const" is pretty much meaningless for this class; the const-ness
+  // of MacKeychain doesn't apply to the actual keychain data, so all of our
+  // data is mutable. These helpers are all const because they are needed by
+  // some of the const API functions we are mocking.
+
+  // Sets the data and length of |tag| in the item-th test item.
+  void SetTestDataBytes(int item, UInt32 tag, const void* data,
+                        size_t length) const;
   // Sets the data and length of |tag| in the item-th test item based on
   // |value|. The null-terminator will not be included; the Keychain Services
   // docs don't indicate whether it is or not, so clients should not assume
   // that it will be.
-  void SetTestDataString(int item, UInt32 tag, const char* value);
+  void SetTestDataString(int item, UInt32 tag, const char* value) const;
   // Sets the data of the corresponding attribute of the item-th test item to
   // |value|. Assumes that the space has alread been allocated, and the length
   // set.
-  void SetTestDataPort(int item, UInt32 value);
-  void SetTestDataProtocol(int item, SecProtocolType value);
-  void SetTestDataAuthType(int item, SecAuthenticationType value);
-  void SetTestDataNegativeItem(int item, Boolean value);
+  void SetTestDataPort(int item, UInt32 value) const;
+  void SetTestDataProtocol(int item, SecProtocolType value) const;
+  void SetTestDataAuthType(int item, SecAuthenticationType value) const;
+  void SetTestDataNegativeItem(int item, Boolean value) const;
+  // Sets the password data and length for the item-th test item.
+  void SetTestDataPasswordBytes(int item, const void* data,
+                                size_t length) const;
   // Sets the password for the item-th test item. As with SetTestDataString,
   // the data will not be null-terminated.
-  void SetTestDataPassword(int item, const char* value);
+  void SetTestDataPasswordString(int item, const char* value) const;
 
   // Returns the index of |tag| in |attribute_list|, or -1 if it's not found.
   static int IndexForTag(const SecKeychainAttributeList& attribute_list,
@@ -70,7 +99,8 @@ class MockKeychain : public MacKeychain {
 
   SecKeychainAttributeList* keychain_attr_list_;
   KeychainPasswordData* keychain_data_;
-  unsigned int item_count_;
+  unsigned int item_capacity_;
+  mutable unsigned int item_count_;
 
   // Tracks the items that should be returned in subsequent calls to
   // SearchCopyNext, based on the last call to SearchCreateFromAttributes.
@@ -103,12 +133,12 @@ MockKeychain::MockKeychain()
 
   // Create the test keychain data to return from ItemCopyAttributesAndData,
   // and set up everything that's consistent across all the items.
-  item_count_ = 8;
+  item_capacity_ = 9;
   keychain_attr_list_ = static_cast<SecKeychainAttributeList*>(
-      calloc(item_count_, sizeof(SecKeychainAttributeList)));
+      calloc(item_capacity_, sizeof(SecKeychainAttributeList)));
   keychain_data_ = static_cast<KeychainPasswordData*>(
-      calloc(item_count_, sizeof(KeychainPasswordData)));
-  for (unsigned int i = 0; i < item_count_; ++i) {
+      calloc(item_capacity_, sizeof(KeychainPasswordData)));
+  for (unsigned int i = 0; i < item_capacity_; ++i) {
     keychain_attr_list_[i].count = arraysize(tags);
     keychain_attr_list_[i].attr = static_cast<SecKeychainAttribute*>(
         calloc(keychain_attr_list_[i].count, sizeof(SecKeychainAttribute)));
@@ -136,93 +166,97 @@ MockKeychain::MockKeychain()
     }
   }
 
+  // Save one slot for use by AddInternetPassword.
+  unsigned int available_slots = item_capacity_ - 1;
+  item_count_ = 0;
+
   // Basic HTML form.
-  unsigned int item = 0;
-  CHECK(item < item_count_);
-  SetTestDataString(item, kSecAccountItemAttr, "joe_user");
-  SetTestDataString(item, kSecServerItemAttr, "some.domain.com");
-  SetTestDataProtocol(item, kSecProtocolTypeHTTP);
-  SetTestDataAuthType(item, kSecAuthenticationTypeHTMLForm);
-  SetTestDataString(item, kSecCreationDateItemAttr, "20020601171500Z");
-  SetTestDataPassword(item, "sekrit");
+  CHECK(item_count_ < available_slots);
+  SetTestDataString(item_count_, kSecAccountItemAttr, "joe_user");
+  SetTestDataString(item_count_, kSecServerItemAttr, "some.domain.com");
+  SetTestDataProtocol(item_count_, kSecProtocolTypeHTTP);
+  SetTestDataAuthType(item_count_, kSecAuthenticationTypeHTMLForm);
+  SetTestDataString(item_count_, kSecCreationDateItemAttr, "20020601171500Z");
+  SetTestDataPasswordString(item_count_, "sekrit");
+  ++item_count_;
 
   // HTML form with path.
-  ++item;
-  CHECK(item < item_count_);
-  SetTestDataString(item, kSecAccountItemAttr, "joe_user");
-  SetTestDataString(item, kSecServerItemAttr, "some.domain.com");
-  SetTestDataString(item, kSecPathItemAttr, "/insecure.html");
-  SetTestDataProtocol(item, kSecProtocolTypeHTTP);
-  SetTestDataAuthType(item, kSecAuthenticationTypeHTMLForm);
-  SetTestDataString(item, kSecCreationDateItemAttr, "19991231235959Z");
-  SetTestDataPassword(item, "sekrit");
+  CHECK(item_count_ < available_slots);
+  SetTestDataString(item_count_, kSecAccountItemAttr, "joe_user");
+  SetTestDataString(item_count_, kSecServerItemAttr, "some.domain.com");
+  SetTestDataString(item_count_, kSecPathItemAttr, "/insecure.html");
+  SetTestDataProtocol(item_count_, kSecProtocolTypeHTTP);
+  SetTestDataAuthType(item_count_, kSecAuthenticationTypeHTMLForm);
+  SetTestDataString(item_count_, kSecCreationDateItemAttr, "19991231235959Z");
+  SetTestDataPasswordString(item_count_, "sekrit");
+  ++item_count_;
 
   // Secure HTML form with path.
-  ++item;
-  CHECK(item < item_count_);
-  SetTestDataString(item, kSecAccountItemAttr, "secure_user");
-  SetTestDataString(item, kSecServerItemAttr, "some.domain.com");
-  SetTestDataString(item, kSecPathItemAttr, "/secure.html");
-  SetTestDataProtocol(item, kSecProtocolTypeHTTPS);
-  SetTestDataAuthType(item, kSecAuthenticationTypeHTMLForm);
-  SetTestDataString(item, kSecCreationDateItemAttr, "20100908070605Z");
-  SetTestDataPassword(item, "password");
+  CHECK(item_count_ < available_slots);
+  SetTestDataString(item_count_, kSecAccountItemAttr, "secure_user");
+  SetTestDataString(item_count_, kSecServerItemAttr, "some.domain.com");
+  SetTestDataString(item_count_, kSecPathItemAttr, "/secure.html");
+  SetTestDataProtocol(item_count_, kSecProtocolTypeHTTPS);
+  SetTestDataAuthType(item_count_, kSecAuthenticationTypeHTMLForm);
+  SetTestDataString(item_count_, kSecCreationDateItemAttr, "20100908070605Z");
+  SetTestDataPasswordString(item_count_, "password");
+  ++item_count_;
 
   // True negative item.
-  ++item;
-  CHECK(item < item_count_);
-  SetTestDataString(item, kSecServerItemAttr, "dont.remember.com");
-  SetTestDataProtocol(item, kSecProtocolTypeHTTP);
-  SetTestDataAuthType(item, kSecAuthenticationTypeHTMLForm);
-  SetTestDataString(item, kSecCreationDateItemAttr, "20000101000000Z");
-  SetTestDataNegativeItem(item, true);
+  CHECK(item_count_ < available_slots);
+  SetTestDataString(item_count_, kSecServerItemAttr, "dont.remember.com");
+  SetTestDataProtocol(item_count_, kSecProtocolTypeHTTP);
+  SetTestDataAuthType(item_count_, kSecAuthenticationTypeHTMLForm);
+  SetTestDataString(item_count_, kSecCreationDateItemAttr, "20000101000000Z");
+  SetTestDataNegativeItem(item_count_, true);
+  ++item_count_;
 
   // De-facto negative item, type one.
-  ++item;
-  CHECK(item < item_count_);
-  SetTestDataString(item, kSecAccountItemAttr, "Password Not Stored");
-  SetTestDataString(item, kSecServerItemAttr, "dont.remember.com");
-  SetTestDataProtocol(item, kSecProtocolTypeHTTP);
-  SetTestDataAuthType(item, kSecAuthenticationTypeHTMLForm);
-  SetTestDataString(item, kSecCreationDateItemAttr, "20000101000000Z");
-  SetTestDataPassword(item, "");
+  CHECK(item_count_ < available_slots);
+  SetTestDataString(item_count_, kSecAccountItemAttr, "Password Not Stored");
+  SetTestDataString(item_count_, kSecServerItemAttr, "dont.remember.com");
+  SetTestDataProtocol(item_count_, kSecProtocolTypeHTTP);
+  SetTestDataAuthType(item_count_, kSecAuthenticationTypeHTMLForm);
+  SetTestDataString(item_count_, kSecCreationDateItemAttr, "20000101000000Z");
+  SetTestDataPasswordString(item_count_, "");
+  ++item_count_;
 
   // De-facto negative item, type two.
-  ++item;
-  CHECK(item < item_count_);
-  SetTestDataString(item, kSecServerItemAttr, "dont.remember.com");
-  SetTestDataProtocol(item, kSecProtocolTypeHTTPS);
-  SetTestDataAuthType(item, kSecAuthenticationTypeHTMLForm);
-  SetTestDataString(item, kSecCreationDateItemAttr, "20000101000000Z");
-  SetTestDataPassword(item, " ");
+  CHECK(item_count_ < available_slots);
+  SetTestDataString(item_count_, kSecServerItemAttr, "dont.remember.com");
+  SetTestDataProtocol(item_count_, kSecProtocolTypeHTTPS);
+  SetTestDataAuthType(item_count_, kSecAuthenticationTypeHTMLForm);
+  SetTestDataString(item_count_, kSecCreationDateItemAttr, "20000101000000Z");
+  SetTestDataPasswordString(item_count_, " ");
+  ++item_count_;
 
   // HTTP auth basic, with port and path.
-  ++item;
-  CHECK(item < item_count_);
-  SetTestDataString(item, kSecAccountItemAttr, "basic_auth_user");
-  SetTestDataString(item, kSecServerItemAttr, "some.domain.com");
-  SetTestDataString(item, kSecSecurityDomainItemAttr, "low_security");
-  SetTestDataString(item, kSecPathItemAttr, "/insecure.html");
-  SetTestDataProtocol(item, kSecProtocolTypeHTTP);
-  SetTestDataPort(item, 4567);
-  SetTestDataAuthType(item, kSecAuthenticationTypeHTTPBasic);
-  SetTestDataString(item, kSecCreationDateItemAttr, "19980330100000Z");
-  SetTestDataPassword(item, "basic");
+  CHECK(item_count_ < available_slots);
+  SetTestDataString(item_count_, kSecAccountItemAttr, "basic_auth_user");
+  SetTestDataString(item_count_, kSecServerItemAttr, "some.domain.com");
+  SetTestDataString(item_count_, kSecSecurityDomainItemAttr, "low_security");
+  SetTestDataString(item_count_, kSecPathItemAttr, "/insecure.html");
+  SetTestDataProtocol(item_count_, kSecProtocolTypeHTTP);
+  SetTestDataPort(item_count_, 4567);
+  SetTestDataAuthType(item_count_, kSecAuthenticationTypeHTTPBasic);
+  SetTestDataString(item_count_, kSecCreationDateItemAttr, "19980330100000Z");
+  SetTestDataPasswordString(item_count_, "basic");
+  ++item_count_;
 
   // HTTP auth digest, secure.
-  ++item;
-  CHECK(item < item_count_);
-  SetTestDataString(item, kSecAccountItemAttr, "digest_auth_user");
-  SetTestDataString(item, kSecServerItemAttr, "some.domain.com");
-  SetTestDataString(item, kSecSecurityDomainItemAttr, "high_security");
-  SetTestDataProtocol(item, kSecProtocolTypeHTTPS);
-  SetTestDataAuthType(item, kSecAuthenticationTypeHTTPDigest);
-  SetTestDataString(item, kSecCreationDateItemAttr, "19980330100000Z");
-  SetTestDataPassword(item, "digest");
+  CHECK(item_count_ < available_slots);
+  SetTestDataString(item_count_, kSecAccountItemAttr, "digest_auth_user");
+  SetTestDataString(item_count_, kSecServerItemAttr, "some.domain.com");
+  SetTestDataString(item_count_, kSecSecurityDomainItemAttr, "high_security");
+  SetTestDataProtocol(item_count_, kSecProtocolTypeHTTPS);
+  SetTestDataAuthType(item_count_, kSecAuthenticationTypeHTTPDigest);
+  SetTestDataString(item_count_, kSecCreationDateItemAttr, "19980330100000Z");
+  SetTestDataPasswordString(item_count_, "digest");
+  ++item_count_;
 }
 
 MockKeychain::~MockKeychain() {
-  for (unsigned int i = 0; i < item_count_; ++i) {
+  for (unsigned int i = 0; i < item_capacity_; ++i) {
     for (unsigned int j = 0; j < keychain_attr_list_[i].count; ++j) {
       if (keychain_attr_list_[i].attr[j].data) {
         free(keychain_attr_list_[i].attr[j].data);
@@ -254,61 +288,73 @@ int MockKeychain::IndexForTag(const SecKeychainAttributeList& attribute_list,
   return -1;
 }
 
-void MockKeychain::SetTestDataString(int item, UInt32 tag, const char* value) {
+void MockKeychain::SetTestDataBytes(int item, UInt32 tag, const void* data,
+                                    size_t length) const {
   int attribute_index = IndexForTag(keychain_attr_list_[item], tag);
-  size_t data_size = strlen(value);
-  keychain_attr_list_[item].attr[attribute_index].length = data_size;
-  if (data_size > 0) {
-    keychain_attr_list_[item].attr[attribute_index].data = malloc(data_size);
-    // Use memcpy rather than str*cpy because we are deliberately omitting the
-    // null-terminator (see method declaration comment).
+  keychain_attr_list_[item].attr[attribute_index].length = length;
+  if (length > 0) {
+    if (keychain_attr_list_[item].attr[attribute_index].data) {
+      free(keychain_attr_list_[item].attr[attribute_index].data);
+    }
+    keychain_attr_list_[item].attr[attribute_index].data = malloc(length);
     CHECK(keychain_attr_list_[item].attr[attribute_index].data);
-    memcpy(keychain_attr_list_[item].attr[attribute_index].data, value,
-           data_size);
+    memcpy(keychain_attr_list_[item].attr[attribute_index].data, data, length);
   } else {
     keychain_attr_list_[item].attr[attribute_index].data = NULL;
   }
 }
 
-void MockKeychain::SetTestDataPort(int item, UInt32 value) {
+void MockKeychain::SetTestDataString(int item, UInt32 tag,
+                                     const char* value) const {
+  SetTestDataBytes(item, tag, value, value ? strlen(value) : 0);
+}
+
+void MockKeychain::SetTestDataPort(int item, UInt32 value) const {
   int attribute_index = IndexForTag(keychain_attr_list_[item],
                                     kSecPortItemAttr);
   void* data = keychain_attr_list_[item].attr[attribute_index].data;
   *(static_cast<UInt32*>(data)) = value;
 }
 
-void MockKeychain::SetTestDataProtocol(int item, SecProtocolType value) {
+void MockKeychain::SetTestDataProtocol(int item, SecProtocolType value) const {
   int attribute_index = IndexForTag(keychain_attr_list_[item],
                                     kSecProtocolItemAttr);
   void* data = keychain_attr_list_[item].attr[attribute_index].data;
   *(static_cast<SecProtocolType*>(data)) = value;
 }
 
-void MockKeychain::SetTestDataAuthType(int item, SecAuthenticationType value) {
+void MockKeychain::SetTestDataAuthType(int item,
+                                       SecAuthenticationType value) const {
   int attribute_index = IndexForTag(keychain_attr_list_[item],
                                     kSecAuthenticationTypeItemAttr);
   void* data = keychain_attr_list_[item].attr[attribute_index].data;
   *(static_cast<SecAuthenticationType*>(data)) = value;
 }
 
-void MockKeychain::SetTestDataNegativeItem(int item, Boolean value) {
+void MockKeychain::SetTestDataNegativeItem(int item, Boolean value) const {
   int attribute_index = IndexForTag(keychain_attr_list_[item],
                                     kSecNegativeItemAttr);
   void* data = keychain_attr_list_[item].attr[attribute_index].data;
   *(static_cast<Boolean*>(data)) = value;
 }
 
-void MockKeychain::SetTestDataPassword(int item, const char* value) {
-  size_t data_size = strlen(value);
-  keychain_data_[item].length = data_size;
-  if (data_size > 0) {
-    keychain_data_[item].data = malloc(data_size);
-    // Use memcpy rather than str*cpy because we are deliberately omitting the
-    // null-terminator (see method declaration comment).
-    memcpy(keychain_data_[item].data, value, data_size);
+void MockKeychain::SetTestDataPasswordBytes(int item, const void* data,
+                                            size_t length) const {
+  keychain_data_[item].length = length;
+  if (length > 0) {
+    if (keychain_data_[item].data) {
+      free(keychain_data_[item].data);
+    }
+    keychain_data_[item].data = malloc(length);
+    memcpy(keychain_data_[item].data, data, length);
   } else {
     keychain_data_[item].data = NULL;
   }
+}
+
+void MockKeychain::SetTestDataPasswordString(int item,
+                                             const char* value) const {
+  SetTestDataPasswordBytes(item, value, value ? strlen(value) : 0);
 }
 
 OSStatus MockKeychain::ItemCopyAttributesAndData(
@@ -332,6 +378,30 @@ OSStatus MockKeychain::ItemCopyAttributesAndData(
   }
 
   ++attribute_data_copy_count_;
+  return noErr;
+}
+
+OSStatus MockKeychain::ItemModifyAttributesAndData(
+    SecKeychainItemRef itemRef, const SecKeychainAttributeList *attrList,
+    UInt32 length, const void *data) const {
+  DCHECK(itemRef);
+  const char* fail_trigger = "fail_me";
+  if (length == strlen(fail_trigger) &&
+      memcmp(data, fail_trigger, length) == 0) {
+    return errSecAuthFailed;
+  }
+
+  unsigned int item_index = reinterpret_cast<unsigned int>(itemRef) - 1;
+  if (item_index >= item_count_) {
+    return errSecInvalidItemRef;
+  }
+
+  if (attrList) {
+    NOTIMPLEMENTED();
+  }
+  if (data) {
+    SetTestDataPasswordBytes(item_index, data, length);
+  }
   return noErr;
 }
 
@@ -374,6 +444,51 @@ OSStatus MockKeychain::SearchCreateFromAttributes(
   return noErr;
 }
 
+OSStatus MockKeychain::AddInternetPassword(
+    SecKeychainRef keychain,
+    UInt32 serverNameLength, const char *serverName,
+    UInt32 securityDomainLength, const char *securityDomain,
+    UInt32 accountNameLength, const char *accountName,
+    UInt32 pathLength, const char *path,
+    UInt16 port, SecProtocolType protocol,
+    SecAuthenticationType authenticationType,
+    UInt32 passwordLength, const void *passwordData,
+    SecKeychainItemRef *itemRef) const {
+
+  // Check for the magic duplicate item trigger.
+  if (strcmp(serverName, "some.domain.com") == 0) {
+    return errSecDuplicateItem;
+  }
+
+  // Use empty slots until they run out, then just keep replacing the last item.
+  int target_item = (item_count_ == item_capacity_) ? item_capacity_ - 1
+                                                    : item_count_++;
+
+  SetTestDataBytes(target_item, kSecServerItemAttr, serverName,
+                   serverNameLength);
+  SetTestDataBytes(target_item, kSecSecurityDomainItemAttr, securityDomain,
+                   securityDomainLength);
+  SetTestDataBytes(target_item, kSecAccountItemAttr, accountName,
+                   accountNameLength);
+  SetTestDataBytes(target_item, kSecPathItemAttr, path, pathLength);
+  SetTestDataPort(target_item, port);
+  SetTestDataProtocol(target_item, protocol);
+  SetTestDataAuthType(target_item, authenticationType);
+  SetTestDataPasswordBytes(target_item, passwordData, passwordLength);
+  base::Time::Exploded exploded_time;
+  base::Time::Now().UTCExplode(&exploded_time);
+  char time_string[128];
+  snprintf(time_string, sizeof(time_string), "%04d%02d%02d%02d%02d%02dZ",
+           exploded_time.year, exploded_time.month, exploded_time.day_of_month,
+           exploded_time.hour, exploded_time.minute, exploded_time.second);
+  SetTestDataString(target_item, kSecCreationDateItemAttr, time_string);
+
+  if (itemRef) {
+    *itemRef = reinterpret_cast<SecKeychainItemRef>(target_item + 1);
+  }
+  return noErr;
+}
+
 OSStatus MockKeychain::SearchCopyNext(SecKeychainSearchRef searchRef,
                                       SecKeychainItemRef *itemRef) const {
   if (remaining_search_results_.empty()) {
@@ -401,6 +516,53 @@ void MockKeychain::Free(CFTypeRef ref) const {
 #pragma mark -
 #pragma mark Unit Tests
 ////////////////////////////////////////////////////////////////////////////////
+
+// Struct used for creation of PasswordForms from static arrays of data.
+struct PasswordFormData {
+  const PasswordForm::Scheme scheme;
+  const char* signon_realm;
+  const char* origin;
+  const char* action;
+  const wchar_t* submit_element;
+  const wchar_t* username_element;
+  const wchar_t* password_element;
+  const wchar_t* username_value;  // Set to NULL for a blacklist entry.
+  const wchar_t* password_value;
+  const bool preferred;
+  const bool ssl_valid;
+  const double creation_time;
+};
+
+// Creates and returns a new PasswordForm built from form_data. Caller is
+// responsible for deleting the object when finished with it.
+static PasswordForm* CreatePasswordFormFromData(
+    const PasswordFormData& form_data) {
+  PasswordForm* form = new PasswordForm();
+  form->scheme = form_data.scheme;
+  form->preferred = form_data.preferred;
+  form->ssl_valid = form_data.ssl_valid;
+  form->date_created = base::Time::FromDoubleT(form_data.creation_time);
+  if (form_data.signon_realm)
+    form->signon_realm = std::string(form_data.signon_realm);
+  if (form_data.origin)
+    form->origin = GURL(form_data.origin);
+  if (form_data.action)
+    form->action = GURL(form_data.action);
+  if (form_data.submit_element)
+    form->submit_element = std::wstring(form_data.submit_element);
+  if (form_data.username_element)
+    form->username_element = std::wstring(form_data.username_element);
+  if (form_data.password_element)
+    form->password_element = std::wstring(form_data.password_element);
+  if (form_data.username_value) {
+    form->username_value = std::wstring(form_data.username_value);
+    if (form_data.password_value)
+      form->password_value = std::wstring(form_data.password_value);
+  } else {
+    form->blacklisted_by_user = true;
+  }
+  return form;
+}
 
 TEST(PasswordStoreMacTest, TestSignonRealmParsing) {
   typedef struct {
@@ -728,35 +890,35 @@ TEST(PasswordStoreMacTest, TestKeychainExactSearch) {
     search_form.password_element = std::wstring(L"password");
     search_form.preferred = true;
     SecKeychainItemRef match;
-    internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
-                                                        search_form, &match);
+    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+                                                                search_form);
     EXPECT_EQ(reinterpret_cast<SecKeychainItemRef>(2), match);
     mock_keychain.Free(match);
 
     // Make sure that the matching isn't looser than it should be.
     PasswordForm wrong_username(search_form);
     wrong_username.username_value = std::wstring(L"wrong_user");
-    internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
-                                                        wrong_username, &match);
+    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+                                                                wrong_username);
     EXPECT_EQ(NULL, match);
 
     PasswordForm wrong_path(search_form);
     wrong_path.origin = GURL("http://some.domain.com/elsewhere.html");
-    internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
-                                                        wrong_path, &match);
+    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+                                                                wrong_path);
     EXPECT_EQ(NULL, match);
 
     PasswordForm wrong_scheme(search_form);
     wrong_scheme.scheme = PasswordForm::SCHEME_BASIC;
-    internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
-                                                        wrong_scheme, &match);
+    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+                                                                wrong_scheme);
     EXPECT_EQ(NULL, match);
 
     // With no path, we should match the pathless Keychain entry.
     PasswordForm no_path(search_form);
     no_path.origin = GURL("http://some.domain.com/");
-    internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
-                                                        no_path, &match);
+    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+                                                                no_path);
     EXPECT_EQ(reinterpret_cast<SecKeychainItemRef>(1), match);
     mock_keychain.Free(match);
 
@@ -764,8 +926,8 @@ TEST(PasswordStoreMacTest, TestKeychainExactSearch) {
     // those stored by other browsers.
     PasswordForm blacklist(search_form);
     blacklist.blacklisted_by_user = true;
-    internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
-                                                        blacklist, &match);
+    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+                                                                blacklist);
     EXPECT_EQ(NULL, match);
 
     mock_keychain.ExpectCreatesAndFreesBalanced();
@@ -781,54 +943,155 @@ TEST(PasswordStoreMacTest, TestKeychainExactSearch) {
     search_form.username_value = std::wstring(L"basic_auth_user");
     search_form.scheme = PasswordForm::SCHEME_BASIC;
     SecKeychainItemRef match;
-    internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
-                                                        search_form, &match);
+    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+                                                                search_form);
     EXPECT_EQ(reinterpret_cast<SecKeychainItemRef>(7), match);
     mock_keychain.Free(match);
 
     // Make sure that the matching isn't looser than it should be.
     PasswordForm wrong_username(search_form);
     wrong_username.username_value = std::wstring(L"wrong_user");
-    internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
-                                                        wrong_username, &match);
+    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+                                                                wrong_username);
     EXPECT_EQ(NULL, match);
 
     PasswordForm wrong_path(search_form);
     wrong_path.origin = GURL("http://some.domain.com:4567/elsewhere.html");
-    internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
-                                                        wrong_path, &match);
+    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+                                                                wrong_path);
     EXPECT_EQ(NULL, match);
 
     PasswordForm wrong_scheme(search_form);
     wrong_scheme.scheme = PasswordForm::SCHEME_DIGEST;
-    internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
-                                                        wrong_scheme, &match);
+    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+                                                                wrong_scheme);
     EXPECT_EQ(NULL, match);
 
     PasswordForm wrong_port(search_form);
     wrong_port.signon_realm =
         std::string("http://some.domain.com:1234/low_security");
-    internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
-                                                        wrong_port, &match);
+    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+                                                                wrong_port);
     EXPECT_EQ(NULL, match);
 
     PasswordForm wrong_realm(search_form);
     wrong_realm.signon_realm =
         std::string("http://some.domain.com:4567/incorrect");
-    internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
-                                                        wrong_realm, &match);
+    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+                                                                wrong_realm);
     EXPECT_EQ(NULL, match);
 
     // We don't store blacklist entries in the keychain, and we want to ignore
     // those stored by other browsers.
     PasswordForm blacklist(search_form);
     blacklist.blacklisted_by_user = true;
-    internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
-                                                        blacklist, &match);
+    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+                                                                blacklist);
     EXPECT_EQ(NULL, match);
 
     mock_keychain.ExpectCreatesAndFreesBalanced();
   }
+}
+
+TEST(PasswordStoreMacTest, TestKeychainModify) {
+  MockKeychain mock_keychain;
+  SecKeychainItemRef keychain_item = reinterpret_cast<SecKeychainItemRef>(1);
+  EXPECT_TRUE(internal_keychain_helpers::SetKeychainItemPassword(
+      mock_keychain, keychain_item, std::string("allnewpassword")));
+  PasswordForm form;
+  internal_keychain_helpers::FillPasswordFormFromKeychainItem(mock_keychain,
+                                                              keychain_item,
+                                                              &form);
+  EXPECT_EQ(L"allnewpassword", form.password_value);
+
+  // Check that invalid items fail to update
+  SecKeychainItemRef invalid_item = reinterpret_cast<SecKeychainItemRef>(1000);
+  EXPECT_FALSE(internal_keychain_helpers::SetKeychainItemPassword(
+      mock_keychain, invalid_item, std::string("allnewpassword")));
+
+  // Check that other errors are reported (using the magic failure value).
+  EXPECT_FALSE(internal_keychain_helpers::SetKeychainItemPassword(
+      mock_keychain, keychain_item, std::string("fail_me")));
+
+  mock_keychain.ExpectCreatesAndFreesBalanced();
+}
+
+TEST(PasswordStoreMacTest, TestKeychainAdd) {
+  MockKeychain mock_keychain;
+  struct TestDataAndExpectation {
+    PasswordFormData data;
+    bool should_succeed;
+  };
+  TestDataAndExpectation test_data[] = {
+    // Test a variety of scheme/port/protocol/path variations.
+    { { PasswordForm::SCHEME_HTML, "http://web.site.com/",
+        "http://web.site.com/path/to/page.html", NULL, NULL, NULL, NULL,
+        L"anonymous", L"knock-knock", false, false, 0 }, true },
+    { { PasswordForm::SCHEME_HTML, "https://web.site.com/",
+        "https://web.site.com/", NULL, NULL, NULL, NULL,
+        L"admin", L"p4ssw0rd", false, false, 0 }, true },
+    { { PasswordForm::SCHEME_BASIC, "http://a.site.com:2222/therealm",
+        "http://a.site.com:2222/", NULL, NULL, NULL, NULL,
+        L"username", L"password", false, false, 0 }, true },
+    { { PasswordForm::SCHEME_DIGEST, "https://digest.site.com/differentrealm",
+        "https://digest.site.com/secure.html", NULL, NULL, NULL, NULL,
+        L"testname", L"testpass", false, false, 0 }, true },
+    // Make sure that garbage forms are rejected.
+    { { PasswordForm::SCHEME_HTML, "gobbledygook",
+        "gobbledygook", NULL, NULL, NULL, NULL,
+        L"anonymous", L"knock-knock", false, false, 0 }, false },
+    // Test that failing to update a duplicate (forced using the magic failure
+    // password; see MockKeychain::ItemModifyAttributesAndData) is reported.
+    { { PasswordForm::SCHEME_HTML, "http://some.domain.com",
+        "http://some.domain.com/insecure.html", NULL, NULL, NULL, NULL,
+        L"joe_user", L"fail_me", false, false, 0 }, false },
+  };
+
+  for (unsigned int i = 0; i < ARRAYSIZE_UNSAFE(test_data); ++i) {
+    PasswordForm* in_form = CreatePasswordFormFromData(test_data[i].data);
+    bool add_succeeded =
+        internal_keychain_helpers::AddKeychainEntryForForm(mock_keychain,
+                                                           *in_form);
+    EXPECT_EQ(test_data[i].should_succeed, add_succeeded);
+    if (add_succeeded) {
+      SecKeychainItemRef matching_item;
+      matching_item = internal_keychain_helpers::FindMatchingKeychainItem(
+          mock_keychain, *in_form);
+      EXPECT_TRUE(matching_item != NULL);
+      PasswordForm out_form;
+      internal_keychain_helpers::FillPasswordFormFromKeychainItem(
+          mock_keychain, matching_item, &out_form);
+      EXPECT_EQ(out_form.scheme, in_form->scheme);
+      EXPECT_EQ(out_form.signon_realm, in_form->signon_realm);
+      EXPECT_EQ(out_form.origin, in_form->origin);
+      EXPECT_EQ(out_form.username_value, in_form->username_value);
+      EXPECT_EQ(out_form.password_value, in_form->password_value);
+      mock_keychain.Free(matching_item);
+    }
+    mock_keychain.ExpectCreatesAndFreesBalanced();
+    delete in_form;
+  }
+
+  // Test that adding duplicate item updates the existing item.
+  {
+    PasswordFormData data = {
+      PasswordForm::SCHEME_HTML, "http://some.domain.com",
+      "http://some.domain.com/insecure.html", NULL,
+      NULL, NULL, NULL, L"joe_user", L"updated_password", false, false, 0
+    };
+    PasswordForm* update_form = CreatePasswordFormFromData(data);
+    EXPECT_TRUE(internal_keychain_helpers::AddKeychainEntryForForm(
+        mock_keychain, *update_form));
+    SecKeychainItemRef keychain_item = reinterpret_cast<SecKeychainItemRef>(2);
+    PasswordForm stored_form;
+    internal_keychain_helpers::FillPasswordFormFromKeychainItem(mock_keychain,
+                                                                keychain_item,
+                                                                &stored_form);
+    EXPECT_EQ(update_form->password_value, stored_form.password_value);
+    delete update_form;
+  }
+
+  mock_keychain.ExpectCreatesAndFreesBalanced();
 }
 
 TEST(PasswordStoreMacTest, TestFormMatch) {
@@ -901,53 +1164,6 @@ TEST(PasswordStoreMacTest, TestFormMatch) {
     EXPECT_FALSE(internal_keychain_helpers::FormsMatchForMerge(form_a, form_b,
                                                                NULL));
   }
-}
-
-// Struct used for creation of PasswordForms from static arrays of data.
-struct PasswordFormData {
-  const PasswordForm::Scheme scheme;
-  const char* signon_realm;
-  const char* origin;
-  const char* action;
-  const wchar_t* submit_element;
-  const wchar_t* username_element;
-  const wchar_t* password_element;
-  const wchar_t* username_value;  // Set to NULL for a blacklist entry.
-  const wchar_t* password_value;
-  const bool preferred;
-  const bool ssl_valid;
-  const double creation_time;
-};
-
-// Creates and returns a new PasswordForm built from form_data. Caller is
-// responsible for deleting the object when finished with it.
-static PasswordForm* CreatePasswordFormFromData(
-    const PasswordFormData& form_data) {
-  PasswordForm* form = new PasswordForm();
-  form->scheme = form_data.scheme;
-  form->preferred = form_data.preferred;
-  form->ssl_valid = form_data.ssl_valid;
-  form->date_created = base::Time::FromDoubleT(form_data.creation_time);
-  if (form_data.signon_realm)
-    form->signon_realm = std::string(form_data.signon_realm);
-  if (form_data.origin)
-    form->origin = GURL(form_data.origin);
-  if (form_data.action)
-    form->action = GURL(form_data.action);
-  if (form_data.submit_element)
-    form->submit_element = std::wstring(form_data.submit_element);
-  if (form_data.username_element)
-    form->username_element = std::wstring(form_data.username_element);
-  if (form_data.password_element)
-    form->password_element = std::wstring(form_data.password_element);
-  if (form_data.username_value) {
-    form->username_value = std::wstring(form_data.username_value);
-    if (form_data.password_value)
-      form->password_value = std::wstring(form_data.password_value);
-  } else {
-    form->blacklisted_by_user = true;
-  }
-  return form;
 }
 
 // Macro to simplify calling CheckFormsAgainstExpectations with a useful label.
