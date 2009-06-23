@@ -408,6 +408,10 @@ class UITest : public testing::Test {
   // TODO(phajdan.jr): Move to test_file_util if we need it in more places.
   bool EvictFileFromSystemCacheWrapper(const FilePath& path);
 
+  // Synchronously launches local http server normally used to run LayoutTests.
+  void StartHttpServer(const FilePath& root_directory);
+  void StopHttpServer();
+
  private:
   // Check that no processes related to Chrome exist, displaying
   // the given message if any do.

@@ -70,7 +70,8 @@ class Lighttpd:
     )
 
 
-  def __init__(self, output_dir, background=False, port=None, root=None):
+  def __init__(self, output_dir, background=False, port=None, root=None,
+               register_cygwin=None):
     """Args:
       output_dir: the absolute path to the layout test result directory
     """
@@ -78,6 +79,7 @@ class Lighttpd:
     self._process = None
     self._port = port
     self._root = root
+    self._register_cygwin = register_cygwin
     if self._port:
       self._port = int(self._port)
 
@@ -90,8 +92,11 @@ class Lighttpd:
 
     base_conf_file = os.path.join(THISDIR, 'lighttpd.conf')
     out_conf_file = os.path.join(self._output_dir, 'lighttpd.conf')
-    access_log = os.path.join(self._output_dir, 'access.log.txt')
-    error_log = os.path.join(self._output_dir, 'error.log.txt')
+    time_str = time.strftime("%d%b%Y-%H%M%S")
+    access_file_name = "access.log-" + time_str + ".txt"
+    access_log = os.path.join(self._output_dir, access_file_name)
+    log_file_name = "error.log-" + time_str + ".txt"
+    error_log = os.path.join(self._output_dir, log_file_name)
 
     # Write out the config
     f = file(base_conf_file, 'rb')
@@ -121,8 +126,19 @@ class Lighttpd:
     f.write(('server.upload-dirs = ( "%s" )\n\n') % (self._output_dir))
 
     # dump out of virtual host config at the bottom.
-    if self._port and self._root:
-      mappings = [{'port': self._port, 'docroot': self._root}]
+    if self._root:
+      if self._port:
+        # Have both port and root dir.
+        mappings = [{'port': self._port, 'docroot': self._root}]
+      else:
+        # Have only a root dir - set the ports as for LayoutTests.
+        # This is used in ui_tests to run http tests against a browser.
+        mappings = [
+          # default set of ports as for LayoutTests but with a specified root.
+          {'port': 8000, 'docroot': self._root},
+          {'port': 8080, 'docroot': self._root},
+          {'port': 8443, 'docroot': self._root, 'sslcert': Lighttpd._pem_file}
+        ]
     else:
       mappings = self.VIRTUALCONFIG
     for mapping in mappings:
@@ -153,8 +169,15 @@ class Lighttpd:
       env['PATH'] = '%s;%s' % (
           PathFromBase('third_party', 'cygwin', 'bin'), env['PATH'])
 
+    if sys.platform == 'win32' and self._register_cygwin:
+      setup_mount = PathFromBase('third_party', 'cygwin', 'setup_mount.bat')
+      subprocess.Popen(setup_mount).wait()
+
     logging.info('Starting http server')
     self._process = subprocess.Popen(start_cmd, env=env)
+
+    # Wait for server to start.
+    time.sleep(3)
 
     # Ensure that the server is running on all the desired ports.
     for mapping in mappings:
@@ -162,7 +185,7 @@ class Lighttpd:
                                         mapping['port'])
       if not self._UrlIsAlive(url):
         raise HttpdNotStarted('Failed to start httpd on port %s' %
-                               str(mapping['port']))
+                              str(mapping['port']))
 
     # Our process terminated already
     if self._process.returncode != None:
@@ -170,7 +193,7 @@ class Lighttpd:
 
   def _UrlIsAlive(self, url):
     """Checks to see if we get an http response from |url|.
-    We poll the url 5 times with a 1 second delay.  If we don't
+    We poll the url 5 times with a 3 second delay.  If we don't
     get a reply in that time, we give up and assume the httpd
     didn't start properly.
 
@@ -179,17 +202,17 @@ class Lighttpd:
     Return:
       True if the url is alive.
     """
-    wait_time = 5
-    while wait_time > 0:
+    attempts = 5
+    while attempts > 0:
       try:
         response = urllib.urlopen(url)
         # Server is up and responding.
         return True
       except IOError:
         pass
-      wait_time -= 1
-      # Wait a second and try again.
-      time.sleep(1)
+      attempts -= 1
+      # Wait 3 seconds and try again.
+      time.sleep(3)
 
     return False
 
@@ -213,23 +236,30 @@ class Lighttpd:
 
 if '__main__' == __name__:
   # Provide some command line params for starting/stopping the http server
-  # manually.
+  # manually. Also used in ui_tests to run http layout tests in a browser.
   option_parser = optparse.OptionParser()
   option_parser.add_option('-k', '--server', help='Server action (start|stop)')
   option_parser.add_option('-p', '--port',
       help='Port to listen on (overrides layout test ports)')
   option_parser.add_option('-r', '--root',
       help='Absolute path to DocumentRoot (overrides layout test roots)')
+  option_parser.add_option('--register_cygwin', action="store_true",
+      dest="register_cygwin", help='Register Cygwin paths (on Win try bots)')
   options, args = option_parser.parse_args()
 
   if not options.server:
-    print "Usage: %s --server {start|stop} [--apache2]" % sys.argv[0]
+    print 'Usage: %s --server {start|stop} [--root=root_dir]'
+    print ' [--port=port_number]' % sys.argv[0]
   else:
-    if (options.root is None) != (options.port is None):
-      raise 'Either port or root is missing (need both, or neither)'
+    if (options.root is None) and (options.port is not None):
+      # specifying root but not port means we want httpd on default set of
+      # ports that LayoutTest use, but pointing to a different source of tests.
+      # Specifying port but no root does not seem meaningful.
+      raise 'Specifying port requires also a root.'
     httpd = Lighttpd(tempfile.gettempdir(),
                      port=options.port,
-                     root=options.root)
+                     root=options.root,
+                     register_cygwin=options.register_cygwin)
     if 'start' == options.server:
       httpd.Start()
     else:

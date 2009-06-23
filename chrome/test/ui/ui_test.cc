@@ -239,6 +239,81 @@ void UITest::CloseBrowserAndServer() {
   server_.reset();
 }
 
+static CommandLine* CreatePythonCommandLine() {
+#if defined(OS_WIN)
+  // Get path to python interpreter
+  FilePath python_runtime;
+  if (!PathService::Get(base::DIR_SOURCE_ROOT, &python_runtime))
+    return NULL;
+  python_runtime = python_runtime
+      .Append(FILE_PATH_LITERAL("third_party"))
+      .Append(FILE_PATH_LITERAL("python_24"))
+      .Append(FILE_PATH_LITERAL("python.exe"));
+  return new CommandLine(python_runtime.ToWStringHack());
+#elif defined(OS_POSIX)
+  return new CommandLine(L"python");
+#endif
+}
+
+static CommandLine* CreateHttpServerCommandLine() {
+  FilePath src_path;
+  // Get to 'src' dir.
+  PathService::Get(base::DIR_SOURCE_ROOT, &src_path);
+
+  FilePath script_path(src_path);
+  script_path = script_path.AppendASCII("webkit");
+  script_path = script_path.AppendASCII("tools");
+  script_path = script_path.AppendASCII("layout_tests");
+  script_path = script_path.AppendASCII("layout_package");
+  script_path = script_path.AppendASCII("http_server.py");
+
+  CommandLine* cmd_line = CreatePythonCommandLine();
+  cmd_line->AppendLooseValue(script_path.ToWStringHack());
+  return cmd_line;
+}
+
+static void RunCommand(const CommandLine& cmd_line) {
+#if defined(OS_WIN)
+  // For Win32, use this 'version' of base::LaunchApp() with bInheritHandles
+  // parameter to CreateProcess set to TRUE. This is needed in test harness
+  // because it launches all the processes with 'chained' standard i/o pipes.
+  STARTUPINFO startup_info = {0};
+  startup_info.cb = sizeof(startup_info);
+  PROCESS_INFORMATION process_info;
+  if (!CreateProcess(
+           NULL,
+           const_cast<wchar_t*>(cmd_line.command_line_string().c_str()),
+           NULL, NULL,
+           TRUE,  // Inherit the standard pipes, needed when
+                  // running in test harnesses.
+           0, NULL, NULL, &startup_info, &process_info))
+    return;
+
+  // Handles must be closed or they will leak
+  CloseHandle(process_info.hThread);
+  WaitForSingleObject(process_info.hProcess, INFINITE);
+  CloseHandle(process_info.hProcess);
+#else
+  base::LaunchApp(*cmd_line.get(), true, false, NULL);
+#endif
+}
+
+void UITest::StartHttpServer(const FilePath& root_directory) {
+  scoped_ptr<CommandLine> cmd_line(CreateHttpServerCommandLine());
+  ASSERT_TRUE(cmd_line.get());
+  cmd_line->AppendSwitchWithValue(L"server", L"start");
+  cmd_line->AppendSwitch(L"register_cygwin");
+  cmd_line->AppendSwitchWithValue(L"root", root_directory.ToWStringHack());
+  RunCommand(*cmd_line.get());
+}
+
+void UITest::StopHttpServer() {
+  scoped_ptr<CommandLine> cmd_line(CreateHttpServerCommandLine());
+  ASSERT_TRUE(cmd_line.get());
+  cmd_line->AppendSwitchWithValue(L"server", L"stop");
+  RunCommand(*cmd_line.get());
+}
+
 void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
   FilePath command = browser_directory_;
   command = command.Append(FilePath::FromWStringHack(

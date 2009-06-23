@@ -39,6 +39,7 @@ class WorkerTest : public UITest {
 
   void InitializeForLayoutTest(const FilePath& test_case_dir);
   void RunLayoutTest(const std::string& test_case_file_name);
+  void RunHttpTest(const std::string& test_case_name);
 
  private:
   bool ReadExpectedResult(const FilePath& result_dir_path,
@@ -68,6 +69,19 @@ void WorkerTest::RunTest(const std::wstring& test_case) {
   scoped_refptr<TabProxy> tab(GetActiveTab());
 
   GURL url = GetTestUrl(L"workers", test_case);
+  ASSERT_TRUE(tab->NavigateToURL(url));
+
+  std::string value = WaitUntilCookieNonEmpty(tab.get(), url,
+      kTestCompleteCookie, kTestIntervalMs, kTestWaitTimeoutMs);
+  ASSERT_STREQ(kTestCompleteSuccess, value.c_str());
+}
+
+void WorkerTest::RunHttpTest(const std::string& test_case_name) {
+  scoped_refptr<TabProxy> tab(GetActiveTab());
+
+  std::string test_url_string(std::string("http://localhost:8080/") +
+                              test_case_name);
+  GURL url(test_url_string);
   ASSERT_TRUE(tab->NavigateToURL(url));
 
   std::string value = WaitUntilCookieNonEmpty(tab.get(), url,
@@ -277,3 +291,11 @@ TEST_F(WorkerTest, LimitTotal) {
             UITest::GetBrowserProcessCount());
 }
 
+TEST_F(WorkerTest, TestHttpServer) {
+  FilePath path;
+  PathService::Get(chrome::DIR_TEST_DATA, &path);
+  path = path.AppendASCII("workers");
+  StartHttpServer(path);
+  RunHttpTest("test_http_server_up.html");
+  StopHttpServer();
+}
