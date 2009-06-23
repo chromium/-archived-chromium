@@ -321,6 +321,7 @@
         '../third_party/skia/src/effects/SkLayerRasterizer.cpp',
         '../third_party/skia/src/effects/SkNWayCanvas.cpp',
         '../third_party/skia/src/effects/SkPaintFlagsDrawFilter.cpp',
+        '../third_party/skia/src/effects/SkPorterDuff.cpp',
         '../third_party/skia/src/effects/SkPixelXorXfermode.cpp',
         '../third_party/skia/src/effects/SkRadialGradient_Table.h',
         '../third_party/skia/src/effects/SkTransparentShader.cpp',
