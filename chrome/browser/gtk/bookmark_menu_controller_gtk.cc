@@ -168,8 +168,8 @@ gboolean BookmarkMenuController::OnButtonReleased(
   // the same guard code that prevents them from interfering with DnD as
   // BookmarkBarGtk's versions.
 
-  // Releasing button 1 should trigger the bookmark menu.
-  if (event->button == 1) {
+  // Releasing either button 1 or 2 should trigger the bookmark menu.
+  if (event->button == 1 || event->button == 2) {
     WindowOpenDisposition disposition =
         event_utils::DispositionFromEventFlags(event->state);
     controller->NavigateToMenuItem(sender, disposition);
