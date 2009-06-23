@@ -168,6 +168,8 @@ WebPreferences RenderViewHostDelegateHelper::GetWebkitPrefs(
         command_line.HasSwitch(switches::kEnableFastback);
     web_prefs.remote_fonts_enabled =
         command_line.HasSwitch(switches::kEnableRemoteFonts);
+    web_prefs.xss_auditor_enabled =
+        command_line.HasSwitch(switches::kEnableXSSAuditor);
   }
 
   web_prefs.uses_universal_detector =

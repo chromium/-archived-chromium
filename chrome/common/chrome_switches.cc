@@ -526,4 +526,8 @@ const wchar_t kFileDescriptorLimit[]           = L"file-descriptor-limit";
 // to be sRGB.
 const wchar_t kEnableMonitorProfile[] = L"enable-monitor-profile";
 
+// Enable WebKit's XSSAuditor to mitigate reflective XSS.  The XSSAuditor is
+// still experimental.
+const wchar_t kEnableXSSAuditor[] = L"enable-xss-auditor";
+
 }  // namespace switches

@@ -41,6 +41,7 @@ struct WebPreferences {
   bool allow_scripts_to_close_windows;
   bool uses_page_cache;
   bool remote_fonts_enabled;
+  bool xss_auditor_enabled;
 
   // TODO(tc): User style sheets will not work in chrome because it tries to
   // load the style sheet using a request without a frame.
@@ -77,6 +78,7 @@ struct WebPreferences {
         allow_scripts_to_close_windows(false),
         uses_page_cache(false),
         remote_fonts_enabled(false),
+        xss_auditor_enabled(false),
         user_style_sheet_enabled(false) {
   }
 };

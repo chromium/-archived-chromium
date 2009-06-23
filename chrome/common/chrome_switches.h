@@ -200,6 +200,8 @@ extern const wchar_t kFileDescriptorLimit[];
 
 extern const wchar_t kEnableMonitorProfile[];
 
+extern const wchar_t kEnableXSSAuditor[];
+
 }  // namespace switches
 
 #endif  // CHROME_COMMON_CHROME_SWITCHES_H_
