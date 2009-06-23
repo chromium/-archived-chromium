@@ -183,6 +183,7 @@ void RenderCrashHandlerHostLinux::OnFileCanReadWithoutBlocking(int fd) {
   HANDLE_EINTR(close(signal_fd));
 
   UploadCrashDump(minidump_filename.c_str(),
+                  "renderer", 8,
                   crash_url, crash_url_len,
                   guid, kGuidSize);
 }

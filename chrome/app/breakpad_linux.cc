@@ -39,6 +39,8 @@ static void write_uint64_hex(char* output, uint64_t v) {
 }
 
 pid_t UploadCrashDump(const char* filename,
+                      const char* process_type,
+                      unsigned process_type_length,
                       const char* crash_url,
                       unsigned crash_url_length,
                       const char* guid,
@@ -159,6 +161,7 @@ pid_t UploadCrashDump(const char* filename,
   static const char content_type_msg[] =
       "Content-Type: application/octet-stream";
   static const char url_chunk_msg[] = "url-chunk-";
+  static const char process_type_msg[] = "ptype";
 
   struct kernel_iovec iov[29];
   iov[0].iov_base = mime_boundary;
@@ -230,6 +233,30 @@ pid_t UploadCrashDump(const char* filename,
   iov[28].iov_len = sizeof(rn);
 
   sys_writev(fd, iov, 29);
+
+  if (process_type_length) {
+    iov[0].iov_base = const_cast<char*>(form_data_msg);
+    iov[0].iov_len = sizeof(form_data_msg) - 1;
+    iov[1].iov_base = const_cast<char*>(process_type_msg);
+    iov[1].iov_len = sizeof(process_type_msg) - 1;
+    iov[2].iov_base = const_cast<char*>(quote_msg);
+    iov[2].iov_len = sizeof(quote_msg);
+    iov[3].iov_base = const_cast<char*>(rn);
+    iov[3].iov_len = sizeof(rn);
+    iov[4].iov_base = const_cast<char*>(rn);
+    iov[4].iov_len = sizeof(rn);
+
+    iov[5].iov_base = const_cast<char*>(process_type);
+    iov[5].iov_len = process_type_length;
+    iov[6].iov_base = const_cast<char*>(rn);
+    iov[6].iov_len = sizeof(rn);
+    iov[7].iov_base = mime_boundary;
+    iov[7].iov_len = sizeof(mime_boundary) - 1;
+    iov[8].iov_base = const_cast<char*>(rn);
+    iov[8].iov_len = sizeof(rn);
+
+    sys_writev(fd, iov, 9);
+  }
 
   if (crash_url_length) {
     unsigned i = 0, done = 0;
@@ -427,7 +454,7 @@ static bool CrashDone(const char* dump_path,
   memcpy(path + dump_path_len + 1 + minidump_id_len, ".dmp", 4);
   path[dump_path_len + 1 + minidump_id_len + 4] = 0;
 
-  UploadCrashDump(path, NULL, 0, google_update::linux_guid.data(),
+  UploadCrashDump(path, "browser", 7, NULL, 0, google_update::linux_guid.data(),
                   google_update::linux_guid.length());
 
   return true;

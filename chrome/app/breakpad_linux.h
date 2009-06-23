@@ -7,6 +7,8 @@
 
 extern void InitCrashReporter();
 extern int UploadCrashDump(const char* filename,
+                           const char* process_type,
+                           unsigned process_type_length,
                            const char* crash_url,
                            unsigned crash_url_length,
                            const char* guid,
