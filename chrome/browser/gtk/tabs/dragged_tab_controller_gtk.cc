@@ -16,6 +16,9 @@
 
 namespace {
 
+// Delay, in ms, during dragging before we bring a window to front.
+const int kBringToFrontDelay = 750;
+
 // Used to determine how far a tab must obscure another tab in order to swap
 // their indexes.
 const int kHorizontalMoveThreshold = 16;  // pixels
@@ -58,6 +61,8 @@ void DraggedTabControllerGtk::CaptureDragInfo(const gfx::Point& mouse_offset) {
 void DraggedTabControllerGtk::Drag() {
   if (!source_tab_)
     return;
+
+  bring_to_front_timer_.Stop();
 
   // Before we get to dragging anywhere, ensure that we consider ourselves
   // attached to the source tabstrip.
@@ -233,7 +238,11 @@ void DraggedTabControllerGtk::ContinueDragging() {
       Attach(target_tabstrip, screen_point);
   }
 
-  // TODO(jhawkins): Start the bring_to_front timer.
+  if (!target_tabstrip) {
+    bring_to_front_timer_.Start(
+        base::TimeDelta::FromMilliseconds(kBringToFrontDelay), this,
+        &DraggedTabControllerGtk::BringWindowUnderMouseToFront);
+  }
 
   MoveTab(screen_point);
 }
@@ -520,6 +529,8 @@ bool DraggedTabControllerGtk::EndDragImpl(EndDragType type) {
   if (!dragged_tab_.get())
     return true;
 
+  bring_to_front_timer_.Stop();
+
   // WARNING: this may be invoked multiple times. In particular, if deletion
   // occurs after a delay (as it does when the tab is released in the original
   // tab strip) and the navigation controller/tab contents is deleted before
@@ -703,4 +714,19 @@ void DraggedTabControllerGtk::OnAnimateToBoundsComplete() {
 
   if (!in_destructor_)
     source_tabstrip_->DestroyDragController();
+}
+
+void DraggedTabControllerGtk::BringWindowUnderMouseToFront() {
+  // If we're going to dock to another window, bring it to the front.
+  gfx::NativeWindow window = dock_info_.window();
+  if (!window) {
+    gfx::NativeView dragged_tab = dragged_tab_->widget();
+    dock_windows_.insert(dragged_tab);
+    window = DockInfo::GetLocalProcessWindowAtPoint(GetCursorScreenPoint(),
+                                                    dock_windows_);
+    dock_windows_.erase(dragged_tab);
+  }
+
+  if (window)
+    gtk_window_present(GTK_WINDOW(window));
 }
