@@ -239,6 +239,8 @@ TEST(AutocompleteTest, InputType) {
     { L"\u6d4b\u8bd5", AutocompleteInput::UNKNOWN },
     { L"[2001:]", AutocompleteInput::QUERY },  // Not a valid IP
     { L"[2001:dB8::1]", AutocompleteInput::URL },
+    { L"192.168.0.256", AutocompleteInput::QUERY },  // Invalid IPv4 literal.
+    { L"[foo.com]", AutocompleteInput::QUERY },  // Invalid IPv6 literal.
   };
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(input_cases); ++i) {

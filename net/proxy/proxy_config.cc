@@ -97,11 +97,11 @@ namespace {
 bool IsIPAddress(const std::string& domain) {
   // From GURL::HostIsIPAddress()
   url_canon::RawCanonOutputT<char, 128> ignored_output;
-  url_parse::Component ignored_component;
+  url_canon::CanonHostInfo host_info;
   url_parse::Component domain_comp(0, domain.size());
-  return url_canon::CanonicalizeIPAddress(domain.c_str(), domain_comp,
-                                          &ignored_output,
-                                          &ignored_component);
+  url_canon::CanonicalizeIPAddress(domain.c_str(), domain_comp,
+                                   &ignored_output, &host_info);
+  return host_info.IsIPAddress();
 }
 
 }  // namespace

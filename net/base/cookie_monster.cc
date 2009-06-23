@@ -285,7 +285,8 @@ static bool GetCookieDomainKey(const GURL& url,
   // domain=.my.domain.com -- for compatibility we do the same here.  Firefox
   // also treats domain=.....my.domain.com like domain=.my.domain.com, but
   // neither IE nor Safari do this, and we don't either.
-  std::string cookie_domain(net::CanonicalizeHost(pc.Domain(), NULL));
+  url_canon::CanonHostInfo ignored;
+  std::string cookie_domain(net::CanonicalizeHost(pc.Domain(), &ignored));
   if (cookie_domain.empty())
     return false;
   if (cookie_domain[0] != '.')

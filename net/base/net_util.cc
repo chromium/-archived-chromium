@@ -829,43 +829,34 @@ void IDNToUnicode(const char* host,
 #endif
 }
 
-std::string CanonicalizeHost(const std::string& host, bool* is_ip_address) {
+std::string CanonicalizeHost(const std::string& host,
+                             url_canon::CanonHostInfo* host_info) {
   // Try to canonicalize the host.
-  const url_parse::Component raw_host_component(0,
-      static_cast<int>(host.length()));
+  const url_parse::Component raw_host_component(
+      0, static_cast<int>(host.length()));
   std::string canon_host;
   url_canon::StdStringCanonOutput canon_host_output(&canon_host);
-  url_parse::Component canon_host_component;
-  if (!url_canon::CanonicalizeHost(host.c_str(), raw_host_component,
-                                   &canon_host_output, &canon_host_component)) {
-    if (is_ip_address)
-      *is_ip_address = false;
-    return std::string();
-  }
-  canon_host_output.Complete();
+  url_canon::CanonicalizeHostVerbose(host.c_str(), raw_host_component,
+                                     &canon_host_output, host_info);
 
-  if (is_ip_address) {
-    // See if the host is an IP address.
-    url_canon::RawCanonOutputT<char, 128> ignored_output;
-    url_parse::Component ignored_component;
-    *is_ip_address = url_canon::CanonicalizeIPAddress(canon_host.c_str(),
-                                                      canon_host_component,
-                                                      &ignored_output,
-                                                      &ignored_component);
+  if (host_info->out_host.is_nonempty() &&
+      host_info->family != url_canon::CanonHostInfo::BROKEN) {
+    // Success!  Assert that there's no extra garbage.
+    canon_host_output.Complete();
+    DCHECK_EQ(host_info->out_host.len, static_cast<int>(canon_host.length()));
+  } else {
+    // Empty host, or canonicalization failed.  We'll return empty.
+    canon_host.clear();
   }
 
-  // Return the host as a string, stripping any unnecessary bits off the ends.
-  if ((canon_host_component.begin == 0) &&
-      (static_cast<size_t>(canon_host_component.len) == canon_host.length()))
-    return canon_host;
-  return canon_host.substr(canon_host_component.begin,
-                           canon_host_component.len);
+  return canon_host;
 }
 
-std::string CanonicalizeHost(const std::wstring& host, bool* is_ip_address) {
+std::string CanonicalizeHost(const std::wstring& host,
+                             url_canon::CanonHostInfo* host_info) {
   std::string converted_host;
   WideToUTF8(host.c_str(), host.length(), &converted_host);
-  return CanonicalizeHost(converted_host, is_ip_address);
+  return CanonicalizeHost(converted_host, host_info);
 }
 
 std::string GetDirectoryListingHeader(const std::string& title) {

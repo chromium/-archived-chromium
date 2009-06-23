@@ -164,7 +164,7 @@ AutocompleteInput::Type AutocompleteInput::Parse(
   const size_t registry_length =
       net::RegistryControlledDomainService::GetRegistryLength(host, false);
   if (registry_length == std::wstring::npos)
-    return QUERY;  // It's not clear to me that we can reach this...
+    return QUERY;  // Could be a broken IP address, etc.
 
   // A space in the "host" means this is a query.  (Technically, IE and GURL
   // allow hostnames with spaces for wierd intranet machines, but it's supposed
@@ -180,27 +180,21 @@ AutocompleteInput::Type AutocompleteInput::Parse(
     return URL;
 
   // See if the host is an IP address.
-  bool is_ip_address;
-  const std::string canon_host(net::CanonicalizeHost(host, &is_ip_address));
-  if (is_ip_address) {
-    // If the user typed a valid IPv6 address, treat it as a URL.
-    if (canon_host[0] == '[')
-      return URL;
-
+  url_canon::CanonHostInfo host_info;
+  net::CanonicalizeHost(host, &host_info);
+  if (host_info.family == url_canon::CanonHostInfo::IPV4) {
     // If the user originally typed a host that looks like an IP address (a
     // dotted quad), they probably want to open it.  If the original input was
     // something else (like a single number), they probably wanted to search for
     // it.  This is true even if the URL appears to have a path: "1.2/45" is
     // more likely a search (for the answer to a math problem) than a URL.
-    url_parse::Component components[4];
-    const bool found_ipv4 =
-        url_canon::FindIPv4Components(WideToUTF8(text).c_str(),
-                                      parts->host, components);
-    DCHECK(found_ipv4);
-    for (size_t i = 0; i < arraysize(components); ++i) {
-      if (!components[i].is_nonempty())
-        return desired_tld.empty() ? UNKNOWN : REQUESTED_URL;
-    }
+    if (host_info.num_ipv4_components == 4)
+      return URL;
+    return desired_tld.empty() ? UNKNOWN : REQUESTED_URL;
+  }
+
+  if (host_info.family == url_canon::CanonHostInfo::IPV6) {
+    // If the user typed a valid bracketed IPv6 address, treat it as a URL.
     return URL;
   }
 

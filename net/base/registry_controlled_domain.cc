@@ -63,9 +63,9 @@ std::string RegistryControlledDomainService::GetDomainAndRegistry(
 // static
 std::string RegistryControlledDomainService::GetDomainAndRegistry(
     const std::string& host) {
-  bool is_ip_address;
-  const std::string canon_host(net::CanonicalizeHost(host, &is_ip_address));
-  if (canon_host.empty() || is_ip_address)
+  url_canon::CanonHostInfo host_info;
+  const std::string canon_host(net::CanonicalizeHost(host, &host_info));
+  if (canon_host.empty() || host_info.IsIPAddress())
     return std::string();
   return GetDomainAndRegistryImpl(canon_host);
 }
@@ -73,9 +73,9 @@ std::string RegistryControlledDomainService::GetDomainAndRegistry(
 // static
 std::string RegistryControlledDomainService::GetDomainAndRegistry(
     const std::wstring& host) {
-  bool is_ip_address;
-  const std::string canon_host(net::CanonicalizeHost(host, &is_ip_address));
-  if (canon_host.empty() || is_ip_address)
+  url_canon::CanonHostInfo host_info;
+  const std::string canon_host(net::CanonicalizeHost(host, &host_info));
+  if (canon_host.empty() || host_info.IsIPAddress())
     return std::string();
   return GetDomainAndRegistryImpl(canon_host);
 }
@@ -121,11 +121,11 @@ size_t RegistryControlledDomainService::GetRegistryLength(
 size_t RegistryControlledDomainService::GetRegistryLength(
     const std::string& host,
     bool allow_unknown_registries) {
-  bool is_ip_address;
-  const std::string canon_host(net::CanonicalizeHost(host, &is_ip_address));
+  url_canon::CanonHostInfo host_info;
+  const std::string canon_host(net::CanonicalizeHost(host, &host_info));
   if (canon_host.empty())
     return std::string::npos;
-  if (is_ip_address)
+  if (host_info.IsIPAddress())
     return 0;
   return GetInstance()->GetRegistryLengthImpl(canon_host,
                                               allow_unknown_registries);
@@ -135,11 +135,11 @@ size_t RegistryControlledDomainService::GetRegistryLength(
 size_t RegistryControlledDomainService::GetRegistryLength(
     const std::wstring& host,
     bool allow_unknown_registries) {
-  bool is_ip_address;
-  const std::string canon_host(net::CanonicalizeHost(host, &is_ip_address));
+  url_canon::CanonHostInfo host_info;
+  const std::string canon_host(net::CanonicalizeHost(host, &host_info));
   if (canon_host.empty())
     return std::string::npos;
-  if (is_ip_address)
+  if (host_info.IsIPAddress())
     return 0;
   return GetInstance()->GetRegistryLengthImpl(canon_host,
                                               allow_unknown_registries);

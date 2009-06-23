@@ -24,6 +24,10 @@ namespace base {
 class Time;
 }
 
+namespace url_canon {
+struct CanonHostInfo;
+}
+
 namespace url_parse {
 struct Parsed;
 }
@@ -136,10 +140,12 @@ void IDNToUnicode(const char* host,
                   const std::wstring& languages,
                   std::wstring* out);
 
-// Canonicalizes |host| and returns it.  If |is_ip_address| is non-NULL, sets it
-// to true if |host| is an IP address.
-std::string CanonicalizeHost(const std::string& host, bool* is_ip_address);
-std::string CanonicalizeHost(const std::wstring& host, bool* is_ip_address);
+// Canonicalizes |host| and returns it.  Also fills |host_info| with
+// IP address information.  |host_info| must not be NULL.
+std::string CanonicalizeHost(const std::string& host,
+                             url_canon::CanonHostInfo* host_info);
+std::string CanonicalizeHost(const std::wstring& host,
+                             url_canon::CanonHostInfo* host_info);
 
 // Call these functions to get the html for a directory listing.
 // They will pass non-7bit-ascii characters unescaped, allowing
