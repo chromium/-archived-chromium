@@ -10,9 +10,8 @@
 // directly, so we need a subclass of GtkSocket that sidesteps the
 // size_request handler.
 //
-// The custom size_request handler just reports the allocation, so it's
-// the owner's responsibility to call gtk_widget_size_allocate() with the
-// proper size.
+// The custom size_request handler just reports the size set by
+// gtk_plugin_container_set_size.
 
 typedef struct _GtkWidget GtkWidget;
 
@@ -20,5 +19,8 @@ typedef struct _GtkWidget GtkWidget;
 // Intentionally GTK-style here since we're creating a custom GTK widget.
 // This is a GtkSocket subclass; see its documentation for available methods.
 GtkWidget* gtk_plugin_container_new();
+
+// Sets the size of the GtkPluginContainer.
+void gtk_plugin_container_set_size(GtkWidget *widget, int width, int height);
 
 #endif  // WEBKIT_GLUE_PLUGINS_GTK_PLUGIN_CONTAINER_H_

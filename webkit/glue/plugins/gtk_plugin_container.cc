@@ -6,16 +6,31 @@
 
 #include <gtk/gtk.h>
 
+#include "base/basictypes.h"
+
 namespace {
 
-// This class has no members/methods, and is only used for namespacing purposes.
-class GtkPluginContainer {
+// NOTE: This class doesn't have constructors/destructors, it is created
+// through GLib's object management.
+class GtkPluginContainer : public GtkSocket {
  public:
   static GtkWidget* CreateNewWidget() {
     GtkWidget* container = GTK_WIDGET(g_object_new(GetType(), NULL));
     g_signal_connect(GTK_SOCKET(container), "plug-removed",
                      G_CALLBACK(OnPlugRemoved), NULL);
     return container;
+  }
+
+  // Sets the requested size of the widget.
+  void set_size(int width, int height) {
+    width_ = width;
+    height_ = height;
+  }
+
+  // Casts a widget into a GtkPluginContainer, after checking the type.
+  template <class T>
+  static GtkPluginContainer *CastChecked(T *instance) {
+    return G_TYPE_CHECK_INSTANCE_CAST(instance, GetType(), GtkPluginContainer);
   }
 
  private:
@@ -29,7 +44,7 @@ class GtkPluginContainer {
         static_cast<GClassInitFunc>(&ClassInit),
         NULL, NULL,
         sizeof(GtkSocket),  // We are identical to a GtkSocket.
-        0, NULL,
+        0, &InstanceInit,
       };
       type = g_type_register_static(GTK_TYPE_SOCKET,
                                     "GtkPluginContainer",
@@ -45,11 +60,18 @@ class GtkPluginContainer {
     widget_class->size_request = &HandleSizeRequest;
   }
 
+  // Implementation of the instance initializer (constructor).
+  static void InstanceInit(GTypeInstance *instance, gpointer klass) {
+    GtkPluginContainer *container = CastChecked(instance);
+    container->set_size(0, 0);
+  }
+
   // Report our allocation size during size requisition.
   static void HandleSizeRequest(GtkWidget* widget,
                                 GtkRequisition* requisition) {
-    requisition->width = widget->allocation.width;
-    requisition->height = widget->allocation.height;
+    GtkPluginContainer *container = CastChecked(widget);
+    requisition->width = container->width_;
+    requisition->height = container->height_;
   }
 
   static gboolean OnPlugRemoved(GtkSocket* socket) {
@@ -57,6 +79,10 @@ class GtkPluginContainer {
     // We return TRUE to indicate that we don't want to destroy our side.
     return TRUE;
   }
+
+  int width_;
+  int height_;
+  DISALLOW_IMPLICIT_CONSTRUCTORS(GtkPluginContainer);
 };
 
 }  // anonymous namespace
@@ -64,4 +90,10 @@ class GtkPluginContainer {
 // Create a new instance of our GTK widget object.
 GtkWidget* gtk_plugin_container_new() {
   return GtkPluginContainer::CreateNewWidget();
+}
+
+void gtk_plugin_container_set_size(GtkWidget *widget, int width, int height) {
+  GtkPluginContainer::CastChecked(widget)->set_size(width, height);
+  // Signal the parent that the size request has changed.
+  gtk_widget_queue_resize_no_redraw(widget);
 }

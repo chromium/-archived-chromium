@@ -306,6 +306,8 @@ bool WebPluginDelegateImpl::WindowedReposition(
   // allows the window moves/scrolling/clipping to be synchronized with the page
   // and other windows.
   if (window_rect.size() != window_rect_.size()) {
+    gtk_plugin_container_set_size(windowed_handle_, window_rect.width(),
+                                  window_rect.height());
     GtkAllocation allocation = { 0, 0,
                                  window_rect.width(), window_rect.height() };
     gtk_widget_size_allocate(windowed_handle_, &allocation);
