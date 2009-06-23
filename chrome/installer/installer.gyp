@@ -117,15 +117,10 @@
             '../chrome.gyp:common',
             '../chrome.gyp:chrome_resources',
             '../chrome.gyp:chrome_strings',
-            '../../net/net.gyp:net_resources',
-            '../../media/media.gyp:media',
-            '../../skia/skia.gyp:skia',
             '../../third_party/icu38/icu38.gyp:icui18n',
             '../../third_party/icu38/icu38.gyp:icuuc',
             '../../third_party/libxml/libxml.gyp:libxml',
             '../../third_party/lzma_sdk/lzma_sdk.gyp:lzma_sdk',
-            '../../third_party/npapi/npapi.gyp:npapi',
-            '../third_party/hunspell/hunspell.gyp:hunspell',
           ],
           'include_dirs': [
             '../..',
@@ -490,6 +485,7 @@
           'dependencies': [
             'installer_util',
             'installer_util_strings',
+	    '../../build/util/build_util.gyp:lastchange',
             '../../build/win/system.gyp:cygwin',
             '../../courgette/courgette.gyp:courgette_lib',
             '../../third_party/bspatch/bspatch.gyp:bspatch',
