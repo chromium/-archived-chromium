@@ -12,6 +12,7 @@
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/common/gtk_util.h"
 #include "grit/app_resources.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
@@ -473,8 +474,6 @@ void TabRendererGtk::Layout() {
     close_button_bounds_.SetRect(0, 0, 0, 0);
   }
 
-  MoveCloseButtonWidget();
-
   // Size the Title text to fill the remaining space.
   int title_left = favicon_bounds_.right() + kFavIconTitleSpacing;
   int title_top = kTopPadding + (content_height - title_font_height_) / 2;
@@ -496,7 +495,14 @@ void TabRendererGtk::Layout() {
   }
   title_bounds_.SetRect(title_left, title_top, title_width, title_font_height_);
 
-  // TODO(jhawkins): Handle RTL layout.
+  favicon_bounds_.set_x(
+      gtk_util::MirroredLeftPointForRect(tab_.get(), favicon_bounds_));
+  close_button_bounds_.set_x(
+      gtk_util::MirroredLeftPointForRect(tab_.get(), close_button_bounds_));
+  title_bounds_.set_x(
+      gtk_util::MirroredLeftPointForRect(tab_.get(), title_bounds_));
+
+  MoveCloseButtonWidget();
 }
 
 void TabRendererGtk::MoveCloseButtonWidget() {
@@ -534,10 +540,6 @@ void TabRendererGtk::PaintTabBackground(gfx::Canvas* canvas) {
     PaintInactiveTabBackground(canvas);
     if (animation->GetCurrentValue() > 0) {
       SkRect bounds;
-      // TODO(jhawkins): This will only work for the first tab, because
-      // saveLayerAlpha only uses bounds as the size and not the location.  In
-      // our situation, canvas spans the entire tabstrip, so saving the layer
-      // at (0,0)x(w,h) will always save the first tab.
       bounds.set(0, 0,
           SkIntToScalar(width()), SkIntToScalar(height()));
       canvas->saveLayerAlpha(&bounds,
@@ -643,9 +645,12 @@ void TabRendererGtk::PaintLoadingAnimation(gfx::Canvas* canvas) {
 
   // Just like with the Tab's title and favicon, the position for the page
   // loading animation also needs to be mirrored if the UI layout is RTL.
-  // TODO(willchan): Handle RTL.
-  // dst_x = width() - kLeftPadding - image_size;
-  int dst_x = kLeftPadding;
+  int dst_x;
+  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
+    dst_x = width() - kLeftPadding - image_size;
+  } else {
+    dst_x = kLeftPadding;
+  }
 
   canvas->DrawBitmapInt(*frames, image_offset, 0, image_size,
                         image_size, dst_x, dst_y, image_size, image_size,

@@ -959,23 +959,24 @@ void TabStripGtk::GenerateIdealBounds() {
 
 void TabStripGtk::LayoutNewTabButton(double last_tab_right,
                                      double unselected_width) {
-#if defined(LINUX2)
-  gtk_fixed_move(GTK_FIXED(tabstrip_.get()), newtab_button_->widget(), 0,
-                 kNewTabButtonVOffset);
-#else
+  gfx::Rect bounds(0, kNewTabButtonVOffset,
+                   newtab_button_->width(), newtab_button_->height());
+#if !defined(LINUX2)
   int delta = abs(Round(unselected_width) - TabGtk::GetStandardSize().width());
   if (delta > 1 && !resize_layout_scheduled_) {
     // We're shrinking tabs, so we need to anchor the New Tab button to the
     // right edge of the TabStrip's bounds, rather than the right edge of the
     // right-most Tab, otherwise it'll bounce when animating.
-    gtk_fixed_move(GTK_FIXED(tabstrip_.get()), newtab_button_->widget(),
-        bounds_.width() - newtab_button_->width(), kNewTabButtonVOffset);
+    bounds.set_x(bounds_.width() - newtab_button_->width());
   } else {
-    gtk_fixed_move(GTK_FIXED(tabstrip_.get()), newtab_button_->widget(),
-        Round(last_tab_right - kTabHOffset) + kNewTabButtonHOffset,
-        kNewTabButtonVOffset);
+    bounds.set_x(Round(last_tab_right - kTabHOffset) + kNewTabButtonHOffset);
   }
+
+  bounds.set_x(gtk_util::MirroredLeftPointForRect(tabstrip_.get(), bounds));
 #endif
+
+  gtk_fixed_move(GTK_FIXED(tabstrip_.get()), newtab_button_->widget(),
+                 bounds.x(), bounds.y());
 }
 
 void TabStripGtk::GetDesiredTabWidths(int tab_count,
@@ -1545,9 +1546,11 @@ void TabStripGtk::OnNewTabClicked(GtkWidget* widget, TabStripGtk* tabstrip) {
 }
 
 void TabStripGtk::SetTabBounds(TabGtk* tab, const gfx::Rect& bounds) {
-  tab->SetBounds(bounds);
+  gfx::Rect bds = bounds;
+  bds.set_x(gtk_util::MirroredLeftPointForRect(tabstrip_.get(), bounds));
+  tab->SetBounds(bds);
   gtk_fixed_move(GTK_FIXED(tabstrip_.get()), tab->widget(),
-      bounds.x(), bounds.y());
+                 bds.x(), bds.y());
 }
 
 CustomDrawButton* TabStripGtk::MakeNewTabButton() {

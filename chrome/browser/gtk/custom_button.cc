@@ -4,6 +4,7 @@
 
 #include "chrome/browser/gtk/custom_button.h"
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/basictypes.h"
 
@@ -40,12 +41,17 @@ gboolean CustomDrawButtonBase::OnExpose(GtkWidget* widget, GdkEventExpose* e) {
   if (!pixbuf)
     return FALSE;
 
-  gdk_draw_pixbuf(widget->window,
-                  widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
-                  pixbuf,
-                  0, 0,
-                  widget->allocation.x, widget->allocation.y, -1, -1,
-                  GDK_RGB_DITHER_NONE, 0, 0);
+  cairo_t* cairo_context = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+  cairo_translate(cairo_context, widget->allocation.x, widget->allocation.y);
+
+  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
+    cairo_translate(cairo_context, widget->allocation.width, 0.0f);
+    cairo_scale(cairo_context, -1.0f, 1.0f);
+  }
+
+  gdk_cairo_set_source_pixbuf(cairo_context, pixbuf, 0, 0);
+  cairo_paint(cairo_context);
+  cairo_destroy(cairo_context);
 
   return TRUE;
 }

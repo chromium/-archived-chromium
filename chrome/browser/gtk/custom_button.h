@@ -69,6 +69,7 @@ class CustomDrawButton {
   }
 
   int width() const { return widget_->allocation.width; }
+  int height() const { return widget_->allocation.height; }
 
   // Set the state to draw. We will paint the widget as if it were in this
   // state.

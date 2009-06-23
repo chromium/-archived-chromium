@@ -8,6 +8,7 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
 
+#include "app/l10n_util.h"
 #include "base/linux_util.h"
 #include "base/logging.h"
 #include "third_party/skia/include/core/SkBitmap.h"
@@ -244,6 +245,13 @@ void SetButtonTriggersNavigation(GtkWidget* button) {
                    G_CALLBACK(OnMouseButtonPressed), NULL);
   g_signal_connect(G_OBJECT(button), "button-release-event",
                    G_CALLBACK(OnMouseButtonReleased), NULL);
+}
+
+int MirroredLeftPointForRect(GtkWidget* widget, const gfx::Rect& bounds) {
+  if (l10n_util::GetTextDirection() != l10n_util::RIGHT_TO_LEFT) {
+    return bounds.x();
+  }
+  return widget->allocation.width - bounds.x() - bounds.width();
 }
 
 }  // namespace gtk_util

@@ -97,6 +97,10 @@ void EnumerateTopLevelWindows(x11_util::EnumerateWindowsDelegate* delegate);
 // those events.
 void SetButtonTriggersNavigation(GtkWidget* button);
 
+// Returns the mirrored x value for |bounds| if the layout is RTL; otherwise,
+// the original value is returned unchanged.
+int MirroredLeftPointForRect(GtkWidget* widget, const gfx::Rect& bounds);
+
 }  // namespace gtk_util
 
 #endif  // CHROME_COMMON_GTK_UTIL_H_
