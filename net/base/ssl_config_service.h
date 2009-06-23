@@ -17,8 +17,8 @@ struct SSLConfig {
   // Default to no revocation checking.
   // Default to SSL 2.0 off, SSL 3.0 on, and TLS 1.0 on.
   SSLConfig()
-      : rev_checking_enabled(false), ssl2_enabled(false),
-        ssl3_enabled(true), tls1_enabled(true), send_client_cert(false) {
+      : rev_checking_enabled(false),  ssl2_enabled(false), ssl3_enabled(true),
+        tls1_enabled(true), send_client_cert(false), verify_ev_cert(false) {
   }
 
   bool rev_checking_enabled;  // True if server certificate revocation
@@ -38,6 +38,8 @@ struct SSLConfig {
 
   // True if we should send client_cert to the server.
   bool send_client_cert;
+
+  bool verify_ev_cert;  // True if we should verify the certificate for EV.
 
   scoped_refptr<X509Certificate> client_cert;
 };

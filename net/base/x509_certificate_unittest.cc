@@ -4,6 +4,8 @@
 
 #include "base/pickle.h"
 #include "net/base/cert_status_flags.h"
+#include "net/base/cert_verify_result.h"
+#include "net/base/net_errors.h"
 #include "net/base/x509_certificate.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -15,7 +17,7 @@
 #define ALLOW_EXTERNAL_ACCESS 0
 
 #if ALLOW_EXTERNAL_ACCESS && defined(OS_WIN)
-#define TEST_EV 1  // Test IsEV()
+#define TEST_EV 1  // Test CERT_STATUS_IS_EV
 #endif
 
 using base::Time;
@@ -392,7 +394,11 @@ TEST(X509CertificateTest, GoogleCertParsing) {
 
 #if TEST_EV
   // TODO(avi): turn this on for the Mac once EV checking is implemented.
-  EXPECT_EQ(false, google_cert->IsEV(net::CERT_STATUS_REV_CHECKING_ENABLED));
+  CertVerifyResult verify_result;
+  int flags = X509Certificate::VERIFY_REV_CHECKING_ENABLED |
+                X509Certificate::VERIFY_EV_CERT;
+  EXPECT_EQ(OK, google_cert->Verify("www.google.com", flags, &verify_result));
+  EXPECT_EQ(0, verify_result.cert_status & CERT_STATUS_IS_EV);
 #endif
 }
 
@@ -444,7 +450,11 @@ TEST(X509CertificateTest, WebkitCertParsing) {
   EXPECT_EQ("webkit.org", dns_names[1]);
 
 #if TEST_EV
-  EXPECT_EQ(false, webkit_cert->IsEV(net::CERT_STATUS_REV_CHECKING_ENABLED));
+  int flags = X509Certificate::VERIFY_REV_CHECKING_ENABLED |
+                X509Certificate::VERIFY_EV_CERT;
+  CertVerifyResult verify_result;
+  EXPECT_EQ(OK, webkit_cert->Verify("webkit.org", flags, &verify_result));
+  EXPECT_EQ(0, verify_result.cert_status & CERT_STATUS_IS_EV);
 #endif
 }
 
@@ -495,11 +505,17 @@ TEST(X509CertificateTest, ThawteCertParsing) {
   EXPECT_EQ("www.thawte.com", dns_names[0]);
 
 #if TEST_EV
+  int flags = X509Certificate::VERIFY_REV_CHECKING_ENABLED |
+                X509Certificate::VERIFY_EV_CERT;
+  CertVerifyResult verify_result;
   // EV cert verification requires revocation checking.
-  EXPECT_EQ(true, thawte_cert->IsEV(net::CERT_STATUS_REV_CHECKING_ENABLED));
+  EXPECT_EQ(OK, thawte_cert->Verify("www.thawte.com", flags, &verify_result));
+  EXPECT_NE(0, verify_result.cert_status & CERT_STATUS_IS_EV);
   // Consequently, if we don't have revocation checking enabled, we can't claim
   // any cert is EV.
-  EXPECT_EQ(false, thawte_cert->IsEV(0));
+  flags = X509Certificate::VERIFY_EV_CERT;
+  EXPECT_EQ(OK, thawte_cert->Verify("www.thawte.com", flags, &verify_result));
+  EXPECT_EQ(0, verify_result.cert_status & CERT_STATUS_IS_EV);
 #endif
 }
 

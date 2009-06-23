@@ -22,12 +22,12 @@ class CertVerifier::Request :
   Request(CertVerifier* verifier,
           X509Certificate* cert,
           const std::string& hostname,
-          bool rev_checking_enabled,
+          int flags,
           CertVerifyResult* verify_result,
           CompletionCallback* callback)
       : cert_(cert),
         hostname_(hostname),
-        rev_checking_enabled_(rev_checking_enabled),
+        flags_(flags),
         verifier_(verifier),
         verify_result_(verify_result),
         callback_(callback),
@@ -39,7 +39,7 @@ class CertVerifier::Request :
 
   void DoVerify() {
     // Running on the worker thread
-    error_ = cert_->Verify(hostname_, rev_checking_enabled_, &result_);
+    error_ = cert_->Verify(hostname_, flags_, &result_);
 #if defined(OS_LINUX)
     // Detach the thread from NSPR.
     // Calling NSS functions attaches the thread to NSPR, which stores
@@ -95,7 +95,8 @@ class CertVerifier::Request :
   // Set on the origin thread, read on the worker thread.
   scoped_refptr<X509Certificate> cert_;
   std::string hostname_;
-  bool rev_checking_enabled_;
+  // bitwise OR'd of X509Certificate::VerifyFlags.
+  int flags_;
 
   // Only used on the origin thread (where Verify was called).
   CertVerifier* verifier_;
@@ -123,7 +124,7 @@ CertVerifier::~CertVerifier() {
 
 int CertVerifier::Verify(X509Certificate* cert,
                          const std::string& hostname,
-                         bool rev_checking_enabled,
+                         int flags,
                          CertVerifyResult* verify_result,
                          CompletionCallback* callback) {
   DCHECK(!request_) << "verifier already in use";
@@ -131,13 +132,12 @@ int CertVerifier::Verify(X509Certificate* cert,
   // Do a synchronous verification.
   if (!callback) {
     CertVerifyResult result;
-    int rv = cert->Verify(hostname, rev_checking_enabled, &result);
+    int rv = cert->Verify(hostname, flags, &result);
     *verify_result = result;
     return rv;
   }
 
-  request_ = new Request(this, cert, hostname, rev_checking_enabled,
-                         verify_result, callback);
+  request_ = new Request(this, cert, hostname, flags, verify_result, callback);
 
   // Dispatch to worker thread...
   if (!WorkerPool::PostTask(FROM_HERE,

@@ -133,6 +133,11 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
     SOURCE_FROM_NETWORK = 2,      // From the network.
   };
 
+  enum VerifyFlags {
+    VERIFY_REV_CHECKING_ENABLED = 1 << 0,
+    VERIFY_EV_CERT = 1 << 1,
+  };
+
   // Create an X509Certificate from a handle to the certificate object
   // in the underlying crypto library. This is a transfer of ownership;
   // X509Certificate will properly dispose of |cert_handle| for you.
@@ -207,15 +212,13 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
   // |verify_result->cert_status|, and the error code for the most serious
   // error is returned.
   //
-  // If |rev_checking_enabled| is true, certificate revocation checking is
-  // performed.
+  // |flags| is bitwise OR'd of VerifyFlags.
+  // If VERIFY_REV_CHECKING_ENABLED is set in |flags|, certificate revocation
+  // checking is performed.  If VERIFY_EV_CERT is set in |flags| too,
+  // EV certificate verification is performed.
   int Verify(const std::string& hostname,
-             bool rev_checking_enabled,
+             int flags,
              CertVerifyResult* verify_result) const;
-
-  // Returns true if the certificate is an extended-validation (EV)
-  // certificate.
-  bool IsEV(int cert_status) const;
 
   OSCertHandle os_cert_handle() const { return cert_handle_; }
 
@@ -257,6 +260,8 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
 
   // Common object initialization code.  Called by the constructors only.
   void Initialize();
+
+  bool VerifyEV() const;
 
   // Creates an OS certificate handle from the BER-encoded representation.
   // Returns NULL on failure.

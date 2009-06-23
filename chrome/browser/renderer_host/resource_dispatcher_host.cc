@@ -333,6 +333,9 @@ void ResourceDispatcherHost::BeginRequest(
   request->set_referrer(request_data.referrer.spec());
   request->SetExtraRequestHeaders(request_data.headers);
   int load_flags = request_data.load_flags;
+  // EV certificate verification could be expensive.  We don't want to spend
+  // time performing EV certificate verification on all resources because
+  // EV status is irrelevant to sub-frames and sub-resources.
   if (request_data.resource_type == ResourceType::MAIN_FRAME)
     load_flags |= net::LOAD_VERIFY_EV_CERT;
   request->set_load_flags(load_flags);
@@ -927,19 +930,9 @@ bool ResourceDispatcherHost::CompleteResponseStarted(URLRequest* request) {
         CertStore::GetSharedInstance()->StoreCert(
             request->ssl_info().cert,
             info->process_id);
-    int cert_status = request->ssl_info().cert_status;
-    // EV certificate verification could be expensive.  We don't want to spend
-    // time performing EV certificate verification on all resources because
-    // EV status is irrelevant to sub-frames and sub-resources.  So we call
-    // IsEV here rather than in the network layer because the network layer
-    // doesn't know the resource type.
-    if (info->resource_type == ResourceType::MAIN_FRAME &&
-        request->ssl_info().cert->IsEV(cert_status))
-      cert_status |= net::CERT_STATUS_IS_EV;
-
     response->response_head.security_info =
         SSLManager::SerializeSecurityInfo(cert_id,
-                                          cert_status,
+                                          request->ssl_info().cert_status,
                                           request->ssl_info().security_bits);
   } else {
     // We should not have any SSL state.

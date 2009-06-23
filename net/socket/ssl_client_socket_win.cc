@@ -848,8 +848,12 @@ int SSLClientSocketWin::DoVerifyCert() {
 
   DCHECK(server_cert_);
 
-  return verifier_.Verify(server_cert_, hostname_,
-                          ssl_config_.rev_checking_enabled,
+  int flags = 0;
+  if (ssl_config_.rev_checking_enabled)
+    flags |= X509Certificate::VERIFY_REV_CHECKING_ENABLED;
+  if (ssl_config_.verify_ev_cert)
+    flags |= X509Certificate::VERIFY_EV_CERT;
+  return verifier_.Verify(server_cert_, hostname_, flags,
                           &server_cert_verify_result_, &io_callback_);
 }
 

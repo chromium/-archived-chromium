@@ -263,8 +263,7 @@ void X509Certificate::GetDNSNames(std::vector<std::string>* dns_names) const {
 }
 
 int X509Certificate::Verify(const std::string& hostname,
-                            bool rev_checking_enabled,
-                            CertVerifyResult* verify_result) const {
+                            int flags, CertVerifyResult* verify_result) const {
   NOTIMPLEMENTED();
   return ERR_NOT_IMPLEMENTED;
 }
@@ -277,7 +276,7 @@ int X509Certificate::Verify(const std::string& hostname,
 // in the certificate chain according to Section 7 (pp. 11-12) of the EV
 // Certificate Guidelines Version 1.0 at
 // http://cabforum.org/EV_Certificate_Guidelines.pdf.
-bool X509Certificate::IsEV(int cert_status) const {
+bool X509Certificate::VerifyEV() const {
   // TODO(avi): implement this
   NOTIMPLEMENTED();
   return false;

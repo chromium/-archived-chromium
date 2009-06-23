@@ -672,6 +672,9 @@ int HttpNetworkTransaction::DoSOCKSConnectComplete(int result) {
 int HttpNetworkTransaction::DoSSLConnect() {
   next_state_ = STATE_SSL_CONNECT_COMPLETE;
 
+  if (request_->load_flags & LOAD_VERIFY_EV_CERT)
+    ssl_config_.verify_ev_cert = true;
+
   // Add a SSL socket on top of our existing transport socket.
   ClientSocket* s = connection_.release_socket();
   s = socket_factory_->CreateSSLClientSocket(

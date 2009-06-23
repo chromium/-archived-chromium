@@ -371,7 +371,7 @@ void X509Certificate::GetDNSNames(std::vector<std::string>* dns_names) const {
 // The problem is that we get segfault when unit tests is going to terminate
 // if PR_Cleanup is called in NSSInitSingleton destructor.
 int X509Certificate::Verify(const std::string& hostname,
-                            bool rev_checking_enabled,
+                            int flags,
                             CertVerifyResult* verify_result) const {
   verify_result->Reset();
 
@@ -391,6 +391,9 @@ int X509Certificate::Verify(const std::string& hostname,
   // OCSP mode would fail with SEC_ERROR_UNKNOWN_ISSUER.
   // We need to set up OCSP and install an HTTP client for NSS.
   bool use_ocsp = false;
+  // EV requires revocation checking.
+  if (!(flags & VERIFY_REV_CHECKING_ENABLED))
+    flags &= ~VERIFY_EV_CERT;
 
   // TODO(wtc): Use CERT_REV_M_REQUIRE_INFO_ON_MISSING_SOURCE and
   // CERT_REV_MI_REQUIRE_SOME_FRESH_INFO_AVAILABLE for EV certificate
@@ -477,11 +480,13 @@ int X509Certificate::Verify(const std::string& hostname,
                    verify_result);
   if (IsCertStatusError(verify_result->cert_status))
     return MapCertStatusToNetError(verify_result->cert_status);
+  if ((flags & VERIFY_EV_CERT) && VerifyEV())
+    verify_result->cert_status |= CERT_STATUS_IS_EV;
   return OK;
 }
 
 // TODO(port): Implement properly on Linux.
-bool X509Certificate::IsEV(int status) const {
+bool X509Certificate::VerifyEV() const {
   NOTIMPLEMENTED();
   return false;
 }

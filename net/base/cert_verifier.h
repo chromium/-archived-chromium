@@ -42,8 +42,14 @@ class CertVerifier {
   // |verify_result->cert_status|, and the error code for the most serious
   // error is returned.
   //
-  // If |rev_checking_enabled| is true, certificate revocation checking is
-  // performed.
+  // |flags| is bitwise OR'd of X509Certificate::VerifyFlags.
+  // If VERIFY_REV_CHECKING_ENABLED is set in |flags|, certificate revocation
+  // checking is performed.
+  //
+  // If VERIFY_EV_CERT is set in |flags| too, EV certificate verification is
+  // performed.  If |flags| is VERIFY_EV_CERT (that is,
+  // VERIFY_REV_CHECKING_ENABLED is not set), EV certificate verification will
+  // not be performed.
   //
   // When callback is null, the operation completes synchronously.
   //
@@ -52,7 +58,7 @@ class CertVerifier {
   // be passed to the callback when available.
   //
   int Verify(X509Certificate* cert, const std::string& hostname,
-             bool rev_checking_enabled, CertVerifyResult* verify_result,
+             int flags, CertVerifyResult* verify_result,
              CompletionCallback* callback);
 
  private:
