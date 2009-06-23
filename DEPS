@@ -9,6 +9,9 @@ deps = {
   "src/breakpad/src":
     "http://google-breakpad.googlecode.com/svn/trunk/src@346",
 
+  "src/build/util/support":
+    "/trunk/deps/support@18977",
+
   "src/googleurl":
     "http://google-url.googlecode.com/svn/trunk@106",
 
