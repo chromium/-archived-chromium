@@ -382,6 +382,13 @@ void RenderWidgetHost::ForwardInputEvent(const WebInputEvent& input_event,
   StartHangMonitorTimeout(TimeDelta::FromMilliseconds(kHungRendererDelayMs));
 }
 
+void RenderWidgetHost::ForwardEditCommand(const std::string& name,
+      const std::string& value) {
+  // We don't need an implementation of this function here since the
+  // only place we use this is for the case of dropdown menus and other
+  // edge cases for which edit commands don't make sense.
+}
+
 void RenderWidgetHost::RendererExited() {
   // Clearing this flag causes us to re-create the renderer when recovering
   // from a crashed renderer.

@@ -113,6 +113,11 @@ IPC_BEGIN_MESSAGES(View)
   // Message payload is a blob that should be cast to WebInputEvent
   IPC_MESSAGE_ROUTED0(ViewMsg_HandleInputEvent)
 
+  // Message payload is the name/value of a core command to execute.
+  IPC_MESSAGE_ROUTED2(ViewMsg_HandleExecuteEditCommand,
+                      std::string, /* name */
+                      std::string /* value */)
+
   IPC_MESSAGE_ROUTED0(ViewMsg_MouseCaptureLost)
 
   // TODO(darin): figure out how this meshes with RestoreFocus

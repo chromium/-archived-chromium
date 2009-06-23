@@ -481,6 +481,7 @@ class RenderView : public RenderWidget,
   void OnDelete();
   void OnSelectAll();
   void OnCopyImageAt(int x, int y);
+  void OnExecuteEditCommand(const std::string& name, const std::string& value);
   void OnInspectElement(int x, int y);
   void OnShowJavaScriptConsole();
   void OnSetupDevToolsClient();
