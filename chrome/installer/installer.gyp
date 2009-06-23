@@ -503,9 +503,8 @@
           'sources': [
             'mini_installer/chrome.release',
             'setup/install.cc',
-            'setup/main.cc',
-            'setup/setup.cc',
-            'setup/setup.h',
+            'setup/install.h',
+            'setup/setup_main.cc',
             'setup/setup.ico',
             'setup/setup.rc',
             'setup/setup_constants.cc',

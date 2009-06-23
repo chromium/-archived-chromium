@@ -1,11 +1,11 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
 // This file contains the specification of setup main functions.
 
-#ifndef CHROME_INSTALLER_SETUP_SETUP_H__
-#define CHROME_INSTALLER_SETUP_SETUP_H__
+#ifndef CHROME_INSTALLER_SETUP_INSTALL_H_
+#define CHROME_INSTALLER_SETUP_INSTALL_H_
 
 #include <string>
 #include <windows.h>
@@ -75,4 +75,4 @@ bool InstallNewVersion(const std::wstring& exe_path,
 
 }
 
-#endif  // CHROME_INSTALLER_SETUP_SETUP_H__
+#endif  // CHROME_INSTALLER_SETUP_INSTALL_H_
