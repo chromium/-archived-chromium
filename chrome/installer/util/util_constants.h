@@ -90,6 +90,7 @@ extern const wchar_t kUpdateSetupExe[];
 extern const wchar_t kVerboseLogging[];
 extern const wchar_t kShowEula[];
 extern const wchar_t kAltDesktopShortcut[];
+extern const wchar_t kInactiveUserToast[];
 }  // namespace switches
 
 extern const wchar_t kInstallBinaryDir[];

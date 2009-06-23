@@ -82,6 +82,11 @@ class GoogleChromeDistribution : public BrowserDistribution {
                                     const installer::Version& version,
                                     bool system_install, int options);
 
+  // Assuming that the user qualifies, this function performs the inactive user
+  // toast experiment. It will use chrome to show the UI and it will record the
+  // outcome in the registry.
+  virtual void InactiveUserToastExperiment();
+
  private:
   friend class BrowserDistribution;
   FRIEND_TEST(GoogleChromeDistributionTest, TestExtractUninstallMetrics);

@@ -85,8 +85,11 @@ const wchar_t kVerboseLogging[] = L"verbose-logging";
 // Show the embedded EULA dialog.
 const wchar_t kShowEula[] = L"show-eula";
 
-// Use the alternate desktop shortcut name
+// Use the alternate desktop shortcut name.
 const wchar_t kAltDesktopShortcut[] = L"alt-desktop-shortcut";
+
+// Perform the inactive user toast experiment.
+const wchar_t kInactiveUserToast[] = L"inactive-user-toast";
 
 }  // namespace switches
 

@@ -90,3 +90,7 @@ void BrowserDistribution::LaunchUserExperiment(
     installer_util::InstallStatus status, const installer::Version& version,
     bool system_install, int options) {
 }
+
+
+void BrowserDistribution::InactiveUserToastExperiment() {
+}

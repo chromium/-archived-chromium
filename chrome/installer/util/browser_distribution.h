@@ -60,6 +60,10 @@ class BrowserDistribution {
                                     const installer::Version& version,
                                     bool system_install, int options);
 
+  // The user has qualified for the inactive user toast experiment and this
+  // function just performs it.
+  virtual void InactiveUserToastExperiment();
+
  protected:
   BrowserDistribution() {}
 

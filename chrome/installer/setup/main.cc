@@ -489,11 +489,11 @@ installer_util::InstallStatus ShowEULADialog(const std::wstring& inner_frame) {
 bool HandleNonInstallCmdLineOptions(const CommandLine& cmd_line,
                                     bool system_install,
                                     int& exit_code) {
+  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
   if (cmd_line.HasSwitch(installer_util::switches::kUpdateSetupExe)) {
     // First to handle situation where the current process hangs or crashes,
     // we pre-emptively set a flag in registry to get full installer next time.
     installer_util::InstallStatus status = installer_util::SETUP_PATCH_FAILED;
-    BrowserDistribution* dist = BrowserDistribution::GetDistribution();
     dist->UpdateDiffInstallStatus(system_install, true, status);
 
     // If --update-setup-exe command line option is given, we apply the given
@@ -593,8 +593,11 @@ bool HandleNonInstallCmdLineOptions(const CommandLine& cmd_line,
     installer_setup::DeleteChromeRegistrationKeys(HKEY_LOCAL_MACHINE, tmp);
     exit_code = tmp;
     return true;
+  } else if (cmd_line.HasSwitch(installer_util::switches::kInactiveUserToast)) {
+    // Launch the inactive user toast experiment.
+    dist->InactiveUserToastExperiment();
+    return true;
   }
-
   return false;
 }
 
