@@ -121,11 +121,9 @@ gfx::Rect WindowWin::GetNormalBounds() const {
   if (IsFullscreen())
     return gfx::Rect(saved_window_info_.window_rect);
 
-  WINDOWPLACEMENT wp;
-  wp.length = sizeof(wp);
-  const bool ret = !!GetWindowPlacement(GetNativeView(), &wp);
-  DCHECK(ret);
-  return gfx::Rect(wp.rcNormalPosition);
+  gfx::Rect bounds;
+  GetWindowBoundsAndMaximizedState(&bounds, NULL);
+  return bounds;
 }
 
 void WindowWin::SetBounds(const gfx::Rect& bounds,
@@ -1289,16 +1287,10 @@ void WindowWin::SaveWindowPosition() {
   if (!window_delegate_)
     return;
 
-  WINDOWPLACEMENT win_placement = { 0 };
-  win_placement.length = sizeof(WINDOWPLACEMENT);
-
-  BOOL r = GetWindowPlacement(GetNativeView(), &win_placement);
-  DCHECK(r);
-
-  bool maximized = (win_placement.showCmd == SW_SHOWMAXIMIZED);
-  CRect window_bounds(win_placement.rcNormalPosition);
-  window_delegate_->SaveWindowPlacement(
-      gfx::Rect(win_placement.rcNormalPosition), maximized);
+  bool maximized;
+  gfx::Rect bounds;
+  GetWindowBoundsAndMaximizedState(&bounds, &maximized);
+  window_delegate_->SaveWindowPlacement(bounds, maximized);
 }
 
 void WindowWin::LockUpdates() {
@@ -1362,6 +1354,28 @@ LRESULT WindowWin::CallDefaultNCActivateHandler(BOOL active) {
   // it from doing so.
   ScopedRedrawLock lock(this);
   return DefWindowProc(GetNativeView(), WM_NCACTIVATE, active, 0);
+}
+
+void WindowWin::GetWindowBoundsAndMaximizedState(gfx::Rect* bounds,
+                                                 bool* maximized) const {
+  WINDOWPLACEMENT wp;
+  wp.length = sizeof(wp);
+  const bool succeeded = !!GetWindowPlacement(GetNativeView(), &wp);
+  DCHECK(succeeded);
+
+  if (bounds != NULL) {
+    MONITORINFO mi;
+    mi.cbSize = sizeof(mi);
+    const bool succeeded = !!GetMonitorInfo(
+        MonitorFromWindow(GetNativeView(), MONITOR_DEFAULTTONEAREST), &mi);
+    DCHECK(succeeded);
+    *bounds = gfx::Rect(wp.rcNormalPosition);
+    // Convert normal position from workarea coordinates to screen coordinates.
+    bounds->Offset(mi.rcWork.left, mi.rcWork.top);
+  }
+
+  if (maximized != NULL)
+    *maximized = (wp.showCmd == SW_SHOWMAXIMIZED);
 }
 
 void WindowWin::InitClass() {

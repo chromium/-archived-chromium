@@ -268,7 +268,7 @@ TEST(WindowSizerTest, LastWindowBoundsCase) {
                     gfx::Rect(10, 10, 500, 400), false, LAST_ACTIVE,
                     &window_bounds, &maximized);
     EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(127, 20, 500, 400), window_bounds);
+    EXPECT_EQ(gfx::Rect(20, 20, 500, 400), window_bounds);
   }
 
   { // taskbar on top.
@@ -278,7 +278,7 @@ TEST(WindowSizerTest, LastWindowBoundsCase) {
                     gfx::Rect(10, 10, 500, 400), false, LAST_ACTIVE,
                     &window_bounds, &maximized);
     EXPECT_FALSE(maximized);
-    EXPECT_EQ(gfx::Rect(20, 54, 500, 400), window_bounds);
+    EXPECT_EQ(gfx::Rect(20, 20, 500, 400), window_bounds);
   }
 
   { // too small to satisify the minimum visibility condition.

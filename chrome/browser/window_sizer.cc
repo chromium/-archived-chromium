@@ -151,7 +151,6 @@ bool WindowSizer::GetLastWindowBounds(gfx::Rect* bounds) const {
   if (!state_provider_ || !state_provider_->GetLastActiveWindowState(bounds))
     return false;
   gfx::Rect last_window_bounds = *bounds;
-  bounds->Offset(monitor_info_provider_->GetBoundsOffsetMatching(*bounds));
   bounds->Offset(kWindowTilePixels, kWindowTilePixels);
   AdjustBoundsToBeVisibleOnMonitorContaining(last_window_bounds, bounds);
   return true;
@@ -163,7 +162,6 @@ bool WindowSizer::GetSavedWindowBounds(gfx::Rect* bounds,
   if (!state_provider_ ||
       !state_provider_->GetPersistentState(bounds, maximized))
     return false;
-  bounds->Offset(monitor_info_provider_->GetBoundsOffsetMatching(*bounds));
   AdjustBoundsToBeVisibleOnMonitorContaining(*bounds, bounds);
   return true;
 }

@@ -201,6 +201,11 @@ class WindowWin : public WidgetWin,
   // flicker.
   LRESULT CallDefaultNCActivateHandler(BOOL active);
 
+  // Returns the normal bounds of the window in screen coordinates and
+  // whether the window is maximized. The arguments can be NULL.
+  void GetWindowBoundsAndMaximizedState(gfx::Rect* bounds,
+                                        bool* maximized) const;
+
   // Static resource initialization.
   static void InitClass();
   enum ResizeCursor {
