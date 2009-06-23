@@ -125,6 +125,26 @@ TEST(ProxyServerTest, FromURI) {
        "foopy:10",
        "SOCKS5 foopy:10"
     },
+
+    // SOCKS proxy URIs (should default to SOCKS4)
+    {
+       "socks://foopy",  // No port.
+       "socks4://foopy:1080",
+       net::ProxyServer::SCHEME_SOCKS4,
+       "foopy",
+       1080,
+       "foopy:1080",
+       "SOCKS foopy:1080"
+    },
+    {
+       "socks://foopy:10",
+       "socks4://foopy:10",
+       net::ProxyServer::SCHEME_SOCKS4,
+       "foopy",
+       10,
+       "foopy:10",
+       "SOCKS foopy:10"
+    },
   };
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
@@ -162,7 +182,6 @@ TEST(ProxyServerTest, Invalid) {
     "   ",
     "dddf:",   // not a valid port
     "dddd:d",  // not a valid port
-    "socks://foopy",  // not a valid scheme (needs to be socks4 or sock5).
     "http://",  // not a valid host/port.
     "direct://xyz",  // direct is not allowed a host/port.
     "http:/",  // ambiguous, but will fail because of bad port.

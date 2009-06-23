@@ -99,6 +99,8 @@ class HttpNetworkTransaction : public HttpTransaction {
     STATE_RESOLVE_PROXY_COMPLETE,
     STATE_INIT_CONNECTION,
     STATE_INIT_CONNECTION_COMPLETE,
+    STATE_SOCKS_CONNECT,
+    STATE_SOCKS_CONNECT_COMPLETE,
     STATE_SSL_CONNECT,
     STATE_SSL_CONNECT_COMPLETE,
     STATE_WRITE_HEADERS,
@@ -128,6 +130,8 @@ class HttpNetworkTransaction : public HttpTransaction {
   int DoResolveProxyComplete(int result);
   int DoInitConnection();
   int DoInitConnectionComplete(int result);
+  int DoSOCKSConnect();
+  int DoSOCKSConnectComplete(int result);
   int DoSSLConnect();
   int DoSSLConnectComplete(int result);
   int DoWriteHeaders();
@@ -305,6 +309,7 @@ class HttpNetworkTransaction : public HttpTransaction {
   bool using_ssl_;     // True if handling a HTTPS request
   bool using_proxy_;   // True if using a proxy for HTTP (not HTTPS)
   bool using_tunnel_;  // True if using a tunnel for HTTPS
+  bool using_socks_proxy_;  // True if using a SOCKS proxy
 
   // True while establishing a tunnel.  This allows the HTTP CONNECT
   // request/response to reuse the STATE_WRITE_HEADERS,

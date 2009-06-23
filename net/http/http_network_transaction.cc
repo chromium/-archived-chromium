@@ -26,6 +26,7 @@
 #include "net/http/http_response_headers.h"
 #include "net/http/http_util.h"
 #include "net/socket/client_socket_factory.h"
+#include "net/socket/socks_client_socket.h"
 #include "net/socket/ssl_client_socket.h"
 
 using base::Time;
@@ -141,6 +142,7 @@ HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
       using_ssl_(false),
       using_proxy_(false),
       using_tunnel_(false),
+      using_socks_proxy_(false),
       establishing_tunnel_(false),
       reading_body_from_socket_(false),
       request_headers_(new RequestHeaders()),
@@ -448,6 +450,15 @@ int HttpNetworkTransaction::DoLoop(int result) {
         rv = DoInitConnectionComplete(rv);
         TRACE_EVENT_END("http.init_conn", request_, request_->url.spec());
         break;
+      case STATE_SOCKS_CONNECT:
+        DCHECK_EQ(OK, rv);
+        TRACE_EVENT_BEGIN("http.socks_connect", request_, request_->url.spec());
+        rv = DoSOCKSConnect();
+        break;
+      case STATE_SOCKS_CONNECT_COMPLETE:
+        rv = DoSOCKSConnectComplete(rv);
+        TRACE_EVENT_END("http.socks_connect", request_, request_->url.spec());
+        break;
       case STATE_SSL_CONNECT:
         DCHECK_EQ(OK, rv);
         TRACE_EVENT_BEGIN("http.ssl_connect", request_, request_->url.spec());
@@ -531,11 +542,10 @@ int HttpNetworkTransaction::DoResolveProxy() {
 int HttpNetworkTransaction::DoResolveProxyComplete(int result) {
   next_state_ = STATE_INIT_CONNECTION;
 
-  // Since we only support HTTP proxies or DIRECT connections, remove
-  // any other type of proxy from the list (i.e. SOCKS).
-  // Supporting SOCKS is issue http://crbug.com/469.
+  // Remove unsupported proxies (like SOCKS5) from the list.
   proxy_info_.RemoveProxiesWithoutScheme(
-      ProxyServer::SCHEME_DIRECT | ProxyServer::SCHEME_HTTP);
+      ProxyServer::SCHEME_DIRECT | ProxyServer::SCHEME_HTTP |
+      ProxyServer::SCHEME_SOCKS4);
 
   pac_request_ = NULL;
 
@@ -552,15 +562,17 @@ int HttpNetworkTransaction::DoInitConnection() {
   next_state_ = STATE_INIT_CONNECTION_COMPLETE;
 
   using_ssl_ = request_->url.SchemeIs("https");
-  using_proxy_ = !proxy_info_.is_direct() && !using_ssl_;
-  using_tunnel_ = !proxy_info_.is_direct() && using_ssl_;
+  using_socks_proxy_ = !proxy_info_.is_direct() &&
+      proxy_info_.proxy_server().is_socks();
+  using_proxy_ = !proxy_info_.is_direct() && !using_ssl_ && !using_socks_proxy_;
+  using_tunnel_ = !proxy_info_.is_direct() && using_ssl_ && !using_socks_proxy_;
 
   // Build the string used to uniquely identify connections of this type.
   // Determine the host and port to connect to.
   std::string connection_group;
   std::string host;
   int port;
-  if (using_proxy_ || using_tunnel_) {
+  if (using_proxy_ || using_tunnel_ || using_socks_proxy_) {
     ProxyServer proxy_server = proxy_info_.proxy_server();
     connection_group = "proxy/" + proxy_server.ToURI() + "/";
     host = proxy_server.HostNoBrackets();
@@ -569,7 +581,7 @@ int HttpNetworkTransaction::DoInitConnection() {
     host = request_->url.HostNoBrackets();
     port = request_->url.EffectiveIntPort();
   }
-  if (!using_proxy_)
+  if (!using_proxy_ && !using_socks_proxy_)
     connection_group.append(request_->url.GetOrigin().spec());
 
   DCHECK(!connection_group.empty());
@@ -608,7 +620,9 @@ int HttpNetworkTransaction::DoInitConnectionComplete(int result) {
     // Now we have a TCP connected socket.  Perform other connection setup as
     // needed.
     LogTCPConnectedMetrics();
-    if (using_ssl_ && !using_tunnel_) {
+    if (using_socks_proxy_)
+      next_state_ = STATE_SOCKS_CONNECT;
+    else if (using_ssl_ && !using_tunnel_) {
       next_state_ = STATE_SSL_CONNECT;
     } else {
       next_state_ = STATE_WRITE_HEADERS;
@@ -618,6 +632,41 @@ int HttpNetworkTransaction::DoInitConnectionComplete(int result) {
   }
   http_stream_.reset(new HttpBasicStream(&connection_));
   return OK;
+}
+
+int HttpNetworkTransaction::DoSOCKSConnect() {
+  DCHECK(using_socks_proxy_);
+  DCHECK(!using_proxy_);
+  DCHECK(!using_tunnel_);
+
+  next_state_ = STATE_SOCKS_CONNECT_COMPLETE;
+
+  // Add a SOCKS connection on top of our existing transport socket.
+  ClientSocket* s = connection_.release_socket();
+  HostResolver::RequestInfo req_info(request_->url.HostNoBrackets(),
+                                     request_->url.EffectiveIntPort());
+  req_info.set_referrer(request_->referrer);
+
+  s = new SOCKSClientSocket(s, req_info, session_->host_resolver());
+  connection_.set_socket(s);
+  return connection_.socket()->Connect(&io_callback_);
+}
+
+int HttpNetworkTransaction::DoSOCKSConnectComplete(int result) {
+  DCHECK(using_socks_proxy_);
+  DCHECK(!using_proxy_);
+  DCHECK(!using_tunnel_);
+
+  if (result == OK) {
+    if (using_ssl_) {
+      next_state_ = STATE_SSL_CONNECT;
+    } else {
+      next_state_ = STATE_WRITE_HEADERS;
+    }
+  } else {
+    result = ReconsiderProxyAfterError(result);
+  }
+  return result;
 }
 
 int HttpNetworkTransaction::DoSSLConnect() {

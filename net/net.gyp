@@ -267,6 +267,8 @@
         'socket/client_socket_handle.h',
         'socket/client_socket_pool.h',
         'socket/socket.h',
+        'socket/socks_client_socket.cc',
+        'socket/socks_client_socket.h',
         'socket/ssl_client_socket.h',
         'socket/ssl_client_socket_mac.cc',
         'socket/ssl_client_socket_nss.cc',

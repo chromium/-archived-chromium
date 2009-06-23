@@ -170,6 +170,17 @@ TEST(ProxyConfigTest, ParseProxyRules) {
       "ftp3:80",
     },
 
+    // Only socks proxy present, others being blank.
+    {  // NOLINT
+      "socks=foopy",
+
+      net::ProxyConfig::ProxyRules::TYPE_SINGLE_PROXY,
+      "socks4://foopy:1080",
+      NULL,
+      NULL,
+      NULL,
+    },
+
     // Include unsupported schemes -- they are discarded.
     {
       "crazy=foopy ; foo=bar ; https=myhttpsproxy",
