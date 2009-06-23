@@ -430,14 +430,14 @@ TEST_F(FFmpegVideoDecoderTest, OnDecode_TestStateTransition) {
   EXPECT_EQ(FFmpegVideoDecoder::kNormal, mock_decoder->state_);
   ASSERT_TRUE(base::TimeDelta() == mock_decoder->last_pts_.timestamp);
   ASSERT_TRUE(base::TimeDelta() == mock_decoder->last_pts_.duration);
-  EXPECT_EQ(1, mock_decoder->pts_queue_.size());
+  EXPECT_EQ(1u, mock_decoder->pts_queue_.size());
 
   // Decode a second time, which should yield the first frame.
   mock_decoder->OnDecode(buffer_);
   EXPECT_EQ(FFmpegVideoDecoder::kNormal, mock_decoder->state_);
   EXPECT_TRUE(kTestPts1.timestamp == mock_decoder->last_pts_.timestamp);
   EXPECT_TRUE(kTestPts1.duration == mock_decoder->last_pts_.duration);
-  EXPECT_EQ(1, mock_decoder->pts_queue_.size());
+  EXPECT_EQ(1u, mock_decoder->pts_queue_.size());
 
   // Decode a third time, with a regular buffer.  The decode will error
   // out, but the state should be the same.
@@ -445,7 +445,7 @@ TEST_F(FFmpegVideoDecoderTest, OnDecode_TestStateTransition) {
   EXPECT_EQ(FFmpegVideoDecoder::kNormal, mock_decoder->state_);
   EXPECT_TRUE(kTestPts1.timestamp == mock_decoder->last_pts_.timestamp);
   EXPECT_TRUE(kTestPts1.duration == mock_decoder->last_pts_.duration);
-  EXPECT_EQ(2, mock_decoder->pts_queue_.size());
+  EXPECT_EQ(2u, mock_decoder->pts_queue_.size());
 
   // Decode a fourth time, with an end of stream buffer.  This should
   // yield the second frame, and stay in flushing mode.
@@ -453,7 +453,7 @@ TEST_F(FFmpegVideoDecoderTest, OnDecode_TestStateTransition) {
   EXPECT_EQ(FFmpegVideoDecoder::kFlushCodec, mock_decoder->state_);
   EXPECT_TRUE(kTestPts2.timestamp == mock_decoder->last_pts_.timestamp);
   EXPECT_TRUE(kTestPts2.duration == mock_decoder->last_pts_.duration);
-  EXPECT_EQ(1, mock_decoder->pts_queue_.size());
+  EXPECT_EQ(1u, mock_decoder->pts_queue_.size());
 
   // Decode a fifth time with an end of stream buffer.  this should
   // yield the third frame.
@@ -461,7 +461,7 @@ TEST_F(FFmpegVideoDecoderTest, OnDecode_TestStateTransition) {
   EXPECT_EQ(FFmpegVideoDecoder::kFlushCodec, mock_decoder->state_);
   EXPECT_TRUE(kTestPts1.timestamp == mock_decoder->last_pts_.timestamp);
   EXPECT_TRUE(kTestPts1.duration == mock_decoder->last_pts_.duration);
-  EXPECT_EQ(0, mock_decoder->pts_queue_.size());
+  EXPECT_EQ(0u, mock_decoder->pts_queue_.size());
 
   // Decode a sixth time with an end of stream buffer.  This should
   // Move into kDecodeFinished.
@@ -469,7 +469,7 @@ TEST_F(FFmpegVideoDecoderTest, OnDecode_TestStateTransition) {
   EXPECT_EQ(FFmpegVideoDecoder::kDecodeFinished, mock_decoder->state_);
   EXPECT_TRUE(kTestPts1.timestamp == mock_decoder->last_pts_.timestamp);
   EXPECT_TRUE(kTestPts1.duration == mock_decoder->last_pts_.duration);
-  EXPECT_EQ(0, mock_decoder->pts_queue_.size());
+  EXPECT_EQ(0u, mock_decoder->pts_queue_.size());
 }
 
 TEST_F(FFmpegVideoDecoderTest, OnDecode_EnqueueVideoFrameError) {
