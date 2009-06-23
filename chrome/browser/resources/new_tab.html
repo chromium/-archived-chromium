@@ -788,7 +788,7 @@ function renderRecentlyClosedTabs(entries) {
 function recentlyClosedWindowText(numTabs) {
   if (numTabs == 1)
     return localStrings.getString('closedwindowsingle');
-  return localStrings.getString('closedwindowmultiple').replace('%', numTabs);
+  return localStrings.formatString('closedwindowmultiple', numTabs);
 }
 
 /**

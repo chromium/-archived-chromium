@@ -3414,7 +3414,7 @@ each locale. -->
       </message>
       <message name="IDS_NEW_TAB_RECENTLY_CLOSED_WINDOW_MULTIPLE"
                desc="Title of recently closed windows in the recently closed section of the new tab page when the window has more than one tab. The % is replaced by the number of tabs">
-        % Tabs
+        <ph name="TAB_COUNT">%s<ex>3</ex></ph> Tabs
       </message>
       <message name="IDS_NEW_TAB_ATTRIBUTION_INTRO"
                desc="Leading sentence above a custom logo that the theme artist has provided">

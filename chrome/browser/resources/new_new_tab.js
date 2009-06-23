@@ -560,10 +560,7 @@ function layoutLowerSections() {
 function formatTabsText(numTabs) {
   if (numTabs == 1)
     return localStrings.getString('closedwindowsingle');
-  // TODO(arv): Update grd file to use %s so we can use formatString
-  // http://crbug.com/14878
-  // return localStrings.formatString('closedwindowmultiple', numTabs);
-  return localStrings.getString('closedwindowmultiple').replace(/%/, numTabs);
+  return localStrings.formatString('closedwindowmultiple', numTabs);
 }
 
 /**
