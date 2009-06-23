@@ -134,9 +134,9 @@ SkBitmap GetThumbnailForBackingStore(BackingStore* backing_store) {
       gfx::Rect(0, 0,
                 backing_store->size().width(), backing_store->size().height()));
 
-#elif defined(OS_MAC)
+#elif defined(OS_MACOSX)
   SkBitmap bmp;
-  NOTEIMPLEMENTED();
+  NOTIMPLEMENTED();
 #endif
 
   result = skia::ImageOperations::DownsampleByTwoUntilSize(
