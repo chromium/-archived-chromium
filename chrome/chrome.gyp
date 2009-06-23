@@ -3448,6 +3448,8 @@
         'browser/importer/firefox_importer_unittest.cc',
         'browser/importer/importer_unittest.cc',
         'browser/importer/toolbar_importer_unittest.cc',
+        'browser/keychain_mock_mac.cc',
+        'browser/keychain_mock_mac.h',
         'browser/login_prompt_unittest.cc',
         'browser/metrics/metrics_log_unittest.cc',
         'browser/metrics/metrics_response_unittest.cc',
