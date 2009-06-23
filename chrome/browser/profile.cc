@@ -478,7 +478,7 @@ void ProfileImpl::InitExtensions() {
       g_browser_process->file_thread()->message_loop(),
       script_dir);
   extensions_service_ = new ExtensionsService(
-      this, MessageLoop::current(),
+      this, CommandLine::ForCurrentProcess(), MessageLoop::current(),
       g_browser_process->file_thread()->message_loop());
 
   extensions_service_->Init();

@@ -101,7 +101,7 @@ class SimpleApiCallExtensionTest : public SingleMessageExtensionUITest {
 };
 
 // TODO(port) Should become portable once ExternalTabMessageLoop is ported.
-#if 0
+#if defined(OS_WIN)
 TEST_F(SimpleApiCallExtensionTest, RunTest) {
   namespace keys = extension_automation_constants;
 
@@ -270,7 +270,7 @@ class RoundtripApiCallExtensionTest
 
 // TODO(port) Should become portable once
 // ExternalTabMessageLoop is ported.
-#if 0
+#if defined(OS_WIN)
 TEST_F(RoundtripApiCallExtensionTest, RunTest) {
   TestWithURL(GURL(
       "chrome-extension://ofoknjclcmghjfmbncljcnpjmfmldhno/test.html"));
@@ -435,7 +435,7 @@ class BrowserEventExtensionTest
 
 // TODO(port) Should become portable once
 // ExternalTabMessageLoop is ported.
-#if 0
+#if defined(OS_WIN)
 TEST_F(BrowserEventExtensionTest, RunTest) {
   // The extension for this test does not specify a "key" property in its
   // manifest file.  Therefore, the extension system will automatically assign

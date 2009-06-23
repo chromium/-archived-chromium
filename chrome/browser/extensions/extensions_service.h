@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+#include "base/command_line.h"
 #include "base/file_path.h"
 #include "base/linked_ptr.h"
 #include "base/ref_counted.h"
@@ -72,6 +73,7 @@ class ExtensionsService
   };
 
   ExtensionsService(Profile* profile,
+                    const CommandLine* command_line,
                     MessageLoop* frontend_loop,
                     MessageLoop* backend_loop);
   ~ExtensionsService();

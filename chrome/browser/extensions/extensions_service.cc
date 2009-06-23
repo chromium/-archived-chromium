@@ -211,6 +211,7 @@ class ExtensionsServiceBackend::UnpackerClient
 };
 
 ExtensionsService::ExtensionsService(Profile* profile,
+                                     const CommandLine* command_line,
                                      MessageLoop* frontend_loop,
                                      MessageLoop* backend_loop)
     : extension_prefs_(new ExtensionPrefs(profile->GetPrefs())),
@@ -219,6 +220,12 @@ ExtensionsService::ExtensionsService(Profile* profile,
       extensions_enabled_(false),
       show_extensions_prompts_(true),
       ready_(false) {
+  // Figure out if extension installation should be enabled.
+  if (command_line->HasSwitch(switches::kEnableExtensions))
+    extensions_enabled_ = true;
+  else if (profile->GetPrefs()->GetBoolean(prefs::kEnableExtensions))
+    extensions_enabled_ = true;
+
   // We pass ownership of this object to the Backend.
   DictionaryValue* extensions = extension_prefs_->CopyCurrentExtensions();
   backend_ = new ExtensionsServiceBackend(
@@ -463,7 +470,7 @@ ExtensionsServiceBackend::ExtensionsServiceBackend(
           resource_dispatcher_host_(rdh),
           alert_on_error_(false),
           frontend_loop_(frontend_loop),
-          extensions_enabled_(false) {
+          extensions_enabled_(extensions_enabled) {
   external_extension_providers_[Extension::EXTERNAL_PREF] =
       linked_ptr<ExternalExtensionProvider>(
           new ExternalPrefExtensionProvider(extension_prefs));
@@ -972,11 +979,15 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
       !extension.IsTheme() &&
       location != Extension::EXTERNAL_REGISTRY) {
     ReportExtensionInstallError(extension_path,
-                                "Extensions are not enabled (yet!)");
+        "Extensions are not enabled. Add --enable-extensions to the "
+        "command-line to enable extensions.\n\n"
+        "This is a temporary message and it will be removed when extensions "
+        "UI is finalized.");
     return;
   }
 
 #if defined(OS_WIN)
+  // We don't show the install dialog for themes or external extensions.
   if (!extension.IsTheme() &&
       !Extension::IsExternalLocation(location) &&
       frontend_->show_extensions_prompts() &&
