@@ -143,7 +143,8 @@ IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Shelf) {
 
 // Tests that installing and uninstalling extensions don't crash with an
 // incognito window open.
-IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Incognito) {
+// TODO(mpcomplete): http://crbug.com/14947 disabled because it crashes.
+IN_PROC_BROWSER_TEST_F(ExtensionViewTest, DISABLED_Incognito) {
   // Open an incognito window to the extensions management page.  We just
   // want to make sure that we don't crash while playing with extensions when
   // this guy is around.
