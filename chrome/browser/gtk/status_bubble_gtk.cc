@@ -40,23 +40,34 @@ StatusBubbleGtk::~StatusBubbleGtk() {
   container_.Destroy();
 }
 
-void StatusBubbleGtk::SetStatus(const std::string& status) {
-  if (status.empty()) {
-    HideInASecond();
+void StatusBubbleGtk::SetStatus(const std::wstring& status_text_wide) {
+  std::string status_text = WideToUTF8(status_text_wide);
+  if (status_text_ == status_text)
     return;
+
+  status_text_ = status_text;
+  if (!status_text_.empty()) {
+    SetStatusTextTo(status_text_);
+  } else if (!url_text_.empty()) {
+    SetStatusTextTo(url_text_);
+  } else {
+    SetStatusTextTo(std::string());
   }
-
-  gtk_label_set_text(GTK_LABEL(label_), status.c_str());
-
-  Show();
-}
-
-void StatusBubbleGtk::SetStatus(const std::wstring& status) {
-  SetStatus(WideToUTF8(status));
 }
 
 void StatusBubbleGtk::SetURL(const GURL& url, const std::wstring& languages) {
-  SetStatus(url.possibly_invalid_spec());
+  // If we want to clear a displayed URL but there is a status still to
+  // display, display that status instead.
+  if (url.is_empty() && !status_text_.empty()) {
+    url_text_ = std::string();
+    SetStatusTextTo(status_text_);
+    return;
+  }
+
+  // TODO(erg): We probably want to elide the text from the GURL object.
+  url_text_ = url.possibly_invalid_spec();
+
+  SetStatusTextTo(url_text_);
 }
 
 void StatusBubbleGtk::Show() {
@@ -71,6 +82,15 @@ void StatusBubbleGtk::Show() {
 
 void StatusBubbleGtk::Hide() {
   gtk_widget_hide_all(container_.get());
+}
+
+void StatusBubbleGtk::SetStatusTextTo(const std::string& status_utf8) {
+  if (status_utf8.empty()) {
+    HideInASecond();
+  } else {
+    gtk_label_set_text(GTK_LABEL(label_), status_utf8.c_str());
+    Show();
+  }
 }
 
 void StatusBubbleGtk::HideInASecond() {

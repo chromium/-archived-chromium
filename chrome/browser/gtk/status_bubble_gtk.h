@@ -36,14 +36,16 @@ class StatusBubbleGtk : public StatusBubble {
   // the download shelf, when it is visible.
   virtual void UpdateDownloadShelfVisibility(bool visible) { }
 
-  void SetStatus(const std::string& status_utf8);
-
   // Top of the widget hierarchy for a StatusBubble. This top level widget is
   // guarenteed to have its gtk_widget_name set to "status-bubble" for
   // identification.
   GtkWidget* widget() { return container_.get(); }
 
  private:
+  // Sets the text of the label widget and controls visibility. (As contrasted
+  // with setting the current status or URL text, which may be ignored for now).
+  void SetStatusTextTo(const std::string& status_utf8);
+
   // Sets the status bubble's location in the parent GtkFixed, shows the widget
   // and makes sure that the status bubble has the highest z-order.
   void Show();
@@ -59,6 +61,12 @@ class StatusBubbleGtk : public StatusBubble {
 
   // The GtkLabel holding the text.
   GtkWidget* label_;
+
+  // The status text we want to display when there are no URLs to display.
+  std::string status_text_;
+
+  // The url we want to display when there is no status text to display.
+  std::string url_text_;
 
   // A timer that hides our window after a delay.
   ScopedRunnableMethodFactory<StatusBubbleGtk> timer_factory_;

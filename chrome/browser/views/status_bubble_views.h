@@ -60,7 +60,7 @@ class StatusBubbleViews : public StatusBubble {
   // The status text we want to display when there are no URLs to display.
   std::wstring status_text_;
 
-  // The url we want to display when there is not status text to display.
+  // The url we want to display when there is no status text to display.
   std::wstring url_text_;
 
   // Position relative to the parent window.
