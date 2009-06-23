@@ -233,25 +233,9 @@ void ClientSocketPoolBase::CancelRequest(const std::string& group_name,
   RequestMap::iterator map_it = group.connecting_requests.find(handle);
   if (map_it != group.connecting_requests.end()) {
     RemoveConnectingSocket(handle);
-
     group.connecting_requests.erase(map_it);
-    group.active_socket_count--;
-
-    if (!group.pending_requests.empty()) {
-      ProcessPendingRequest(group_name, &group);
-      return;  // |group| may be invalid after this, so return to be safe.
-    }
-
-    // Delete group if no longer needed.
-    if (group.active_socket_count == 0 && group.idle_sockets.empty()) {
-      CHECK(group.pending_requests.empty());
-      CHECK(group.connecting_requests.empty());
-      group_map_.erase(group_name);
-      return;  // |group| is invalid after this, so return to be safe.
-    }
+    RemoveActiveSocket(group_name, &group);
   }
-
-  CheckSocketCounts(group);
 }
 
 void ClientSocketPoolBase::ReleaseSocket(const std::string& group_name,
@@ -373,7 +357,6 @@ void ClientSocketPoolBase::DoReleaseSocket(const std::string& group_name,
   CHECK(group.active_socket_count > 0);
   CheckSocketCounts(group);
 
-  group.active_socket_count--;
   group.sockets_handed_out_count--;
 
   const bool can_reuse = socket->IsConnectedAndIdle();
@@ -388,20 +371,7 @@ void ClientSocketPoolBase::DoReleaseSocket(const std::string& group_name,
     delete socket;
   }
 
-  // Process one pending request.
-  if (!group.pending_requests.empty()) {
-    ProcessPendingRequest(group_name, &group);
-    return;
-  }
-
-  // Delete group if no longer needed.
-  if (group.active_socket_count == 0 && group.idle_sockets.empty()) {
-    CHECK(group.pending_requests.empty());
-    CHECK(group.connecting_requests.empty());
-    group_map_.erase(i);
-  } else {
-    CheckSocketCounts(group);
-  }
+  RemoveActiveSocket(group_name, &group);
 }
 
 ClientSocketPoolBase::Request* ClientSocketPoolBase::GetConnectingRequest(
@@ -441,16 +411,7 @@ CompletionCallback* ClientSocketPoolBase::OnConnectingRequestComplete(
   DCHECK_EQ(request.handle, handle);
 
   if (deactivate) {
-    group.active_socket_count--;
-
-    // Delete group if no longer needed.
-    if (group.active_socket_count == 0 && group.idle_sockets.empty()) {
-      DCHECK(group.pending_requests.empty());
-      DCHECK(group.connecting_requests.empty());
-      group_map_.erase(group_name);
-    } else {
-      CheckSocketCounts(group);
-    }
+    RemoveActiveSocket(group_name, &group);
   } else {
     request.handle->set_socket(socket);
     request.handle->set_is_reused(false);
@@ -480,6 +441,23 @@ void ClientSocketPoolBase::RemoveConnectingSocket(
   CHECK(it != connecting_socket_map_.end());
   delete it->second;
   connecting_socket_map_.erase(it);
+}
+
+void ClientSocketPoolBase::RemoveActiveSocket(const std::string& group_name,
+                                              Group* group) {
+  group->active_socket_count--;
+
+  if (!group->pending_requests.empty()) {
+    ProcessPendingRequest(group_name, group);
+    // |group| may no longer be valid after this point.  Be careful not to
+    // access it again.
+  } else if (group->active_socket_count == 0 && group->idle_sockets.empty()) {
+    // Delete |group| if no longer needed.  |group| will no longer be valid.
+    DCHECK(group->connecting_requests.empty());
+    group_map_.erase(group_name);
+  } else {
+    CheckSocketCounts(*group);
+  }
 }
 
 void ClientSocketPoolBase::ProcessPendingRequest(const std::string& group_name,

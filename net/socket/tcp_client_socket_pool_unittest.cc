@@ -95,8 +95,10 @@ class MockFailingClientSocket : public ClientSocket {
 
 class MockPendingClientSocket : public ClientSocket {
  public:
-  MockPendingClientSocket()
-      : method_factory_(ALLOW_THIS_IN_INITIALIZER_LIST(this)) {}
+  MockPendingClientSocket(bool should_connect)
+      : method_factory_(ALLOW_THIS_IN_INITIALIZER_LIST(this)),
+        should_connect_(should_connect),
+        is_connected_(false) {}
 
   // ClientSocket methods:
   virtual int Connect(CompletionCallback* callback) {
@@ -110,10 +112,10 @@ class MockPendingClientSocket : public ClientSocket {
   virtual void Disconnect() {}
 
   virtual bool IsConnected() const {
-    return false;
+    return is_connected_;
   }
   virtual bool IsConnectedAndIdle() const {
-    return false;
+    return is_connected_;
   }
 
   // Socket methods:
@@ -129,10 +131,18 @@ class MockPendingClientSocket : public ClientSocket {
 
  private:
   void DoCallback(CompletionCallback* callback) {
-    callback->Run(OK);
+    if (should_connect_) {
+      is_connected_ = true;
+      callback->Run(OK);
+    } else {
+      is_connected_ = false;
+      callback->Run(ERR_CONNECTION_FAILED);
+    }
   }
 
   ScopedRunnableMethodFactory<MockPendingClientSocket> method_factory_;
+  bool should_connect_;
+  bool is_connected_;
 };
 
 class MockClientSocketFactory : public ClientSocketFactory {
@@ -141,6 +151,7 @@ class MockClientSocketFactory : public ClientSocketFactory {
     MOCK_CLIENT_SOCKET,
     MOCK_FAILING_CLIENT_SOCKET,
     MOCK_PENDING_CLIENT_SOCKET,
+    MOCK_PENDING_FAILING_CLIENT_SOCKET,
   };
 
   MockClientSocketFactory()
@@ -154,7 +165,9 @@ class MockClientSocketFactory : public ClientSocketFactory {
       case MOCK_FAILING_CLIENT_SOCKET:
         return new MockFailingClientSocket();
       case MOCK_PENDING_CLIENT_SOCKET:
-        return new MockPendingClientSocket();
+        return new MockPendingClientSocket(true);
+      case MOCK_PENDING_FAILING_CLIENT_SOCKET:
+        return new MockPendingClientSocket(false);
       default:
         NOTREACHED();
         return new MockClientSocket();
@@ -581,6 +594,26 @@ TEST_F(TCPClientSocketPoolTest, CancelActiveRequestWithPendingRequests) {
   }
 
   EXPECT_EQ(kNumPendingRequests, TestSocketRequest::completion_count);
+}
+
+// Make sure that pending requests get serviced after active requests fail.
+TEST_F(TCPClientSocketPoolTest, FailingActiveRequestWithPendingRequests) {
+  client_socket_factory_.set_client_socket_type(
+      MockClientSocketFactory::MOCK_PENDING_FAILING_CLIENT_SOCKET);
+
+  scoped_ptr<TestSocketRequest> reqs[kMaxSocketsPerGroup * 2 + 1];
+
+  // Queue up all the requests
+
+  HostResolver::RequestInfo info("www.google.com", 80);
+  for (size_t i = 0; i < arraysize(reqs); ++i) {
+    reqs[i].reset(new TestSocketRequest(pool_.get(), &request_order_));
+    int rv = reqs[i]->handle.Init("a", info, 5, reqs[i].get());
+    EXPECT_EQ(ERR_IO_PENDING, rv);
+  }
+
+  for (size_t i = 0; i < arraysize(reqs); ++i)
+    EXPECT_EQ(ERR_CONNECTION_FAILED, reqs[i]->WaitForResult());
 }
 
 }  // namespace

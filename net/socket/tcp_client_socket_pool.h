@@ -240,6 +240,9 @@ class ClientSocketPoolBase : public base::RefCounted<ClientSocketPoolBase> {
 
   static void CheckSocketCounts(const Group& group);
 
+  // Remove an active socket.
+  void RemoveActiveSocket(const std::string& group_name, Group* group);
+
   // Process a request from a group's pending_requests queue.
   void ProcessPendingRequest(const std::string& group_name, Group* group);
 
