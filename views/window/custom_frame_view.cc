@@ -422,11 +422,7 @@ void CustomFrameView::PaintRestoredClientEdge(gfx::Canvas* canvas) {
   SkBitmap* left = rb.GetBitmapNamed(IDR_CONTENT_LEFT_SIDE);
 
   // Top.
-  // This next calculation is necessary because the top center bitmap is shorter
-  // than the top left and right bitmaps.  We need their top edges to line up,
-  // and we need the left and right edges to start below the corners' bottoms.
   int top_edge_y = client_area_top - top->height();
-  client_area_top = top_edge_y + top_left->height();
   canvas->DrawBitmapInt(*top_left, client_area_bounds.x() - top_left->width(),
                         top_edge_y);
   canvas->TileImageInt(*top, client_area_bounds.x(), top_edge_y,
@@ -454,8 +450,8 @@ void CustomFrameView::PaintRestoredClientEdge(gfx::Canvas* canvas) {
 
   // Draw the toolbar color to fill in the edges.
   canvas->DrawRectInt(ResourceBundle::toolbar_color,
-    client_area_bounds.x() - 1, client_area_top - 2,
-    client_area_bounds.width() + 1, client_area_bottom - client_area_top + 2);
+    client_area_bounds.x() - 1, client_area_top - 1,
+    client_area_bounds.width() + 1, client_area_bottom - client_area_top + 1);
 }
 
 void CustomFrameView::LayoutWindowControls() {
