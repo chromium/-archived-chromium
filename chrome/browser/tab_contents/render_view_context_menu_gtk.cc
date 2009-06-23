@@ -14,12 +14,10 @@
 RenderViewContextMenuGtk::RenderViewContextMenuGtk(
     TabContents* web_contents,
     const ContextMenuParams& params,
-    guint32 triggering_event_time,
-    RenderWidgetHostView* rwhv)
+    guint32 triggering_event_time)
     : RenderViewContextMenu(web_contents, params),
       making_submenu_(false),
-      triggering_event_time_(triggering_event_time),
-      host_view_(rwhv) {
+      triggering_event_time_(triggering_event_time) {
 }
 
 RenderViewContextMenuGtk::~RenderViewContextMenuGtk() {
@@ -31,7 +29,8 @@ void RenderViewContextMenuGtk::DoInit() {
 }
 
 void RenderViewContextMenuGtk::Popup() {
-  host_view_->ShowingContextMenu(true);
+  if (source_tab_contents_->render_widget_host_view())
+    source_tab_contents_->render_widget_host_view()->ShowingContextMenu(true);
   gtk_menu_->PopupAsContext(triggering_event_time_);
 }
 
@@ -57,7 +56,8 @@ std::string RenderViewContextMenuGtk::GetLabel(int id) const {
 }
 
 void RenderViewContextMenuGtk::StoppedShowing() {
-  host_view_->ShowingContextMenu(false);
+  if (source_tab_contents_->render_widget_host_view())
+    source_tab_contents_->render_widget_host_view()->ShowingContextMenu(false);
 }
 
 void RenderViewContextMenuGtk::AppendMenuItem(int id) {

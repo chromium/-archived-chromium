@@ -67,6 +67,11 @@ class RenderViewContextMenu {
   bool ItemIsChecked(int id) const;
   void ExecuteItemCommand(int id);
 
+ protected:
+  ContextMenuParams params_;
+  TabContents* source_tab_contents_;
+  Profile* profile_;
+
  private:
   void AppendDeveloperItems();
   void AppendLinkItems();
@@ -94,10 +99,6 @@ class RenderViewContextMenu {
   void WriteURLToClipboard(const GURL& url);
 
   bool IsDevCommandEnabled(int id) const;
-
-  ContextMenuParams params_;
-  TabContents* source_tab_contents_;
-  Profile* profile_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderViewContextMenu);
 };

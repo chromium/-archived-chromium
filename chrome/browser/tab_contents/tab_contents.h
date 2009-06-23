@@ -166,6 +166,11 @@ class TabContents : public PageNavigator,
   RenderViewHost* render_view_host() const {
     return render_manager_.current_host();
   }
+  // Returns the currently active RenderWidgetHostView. This may change over
+  // time and can be NULL (during setup and teardown).
+  RenderWidgetHostView* render_widget_host_view() const {
+    return render_manager_.current_view();
+  }
 
   // The TabContentsView will never change and is guaranteed non-NULL.
   TabContentsView* view() const {
@@ -600,10 +605,6 @@ class TabContents : public PageNavigator,
 
   // TODO(brettw) TestTabContents shouldn't exist!
   friend class TestTabContents;
-
-  RenderWidgetHostView* render_widget_host_view() const {
-    return render_manager_.current_view();
-  }
 
   // Changes the IsLoading state and notifies delegate as needed
   // |details| is used to provide details on the load that just finished

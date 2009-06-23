@@ -334,7 +334,7 @@ void TabContentsViewGtk::Observe(NotificationType type,
 
 void TabContentsViewGtk::ShowContextMenu(const ContextMenuParams& params) {
   context_menu_.reset(new RenderViewContextMenuGtk(tab_contents(), params,
-      last_mouse_down_time_, tab_contents()->render_widget_host_view()));
+                                                   last_mouse_down_time_));
   context_menu_->Init();
   context_menu_->Popup();
 }
