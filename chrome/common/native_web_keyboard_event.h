@@ -31,7 +31,6 @@ struct NativeWebKeyboardEvent : public WebKit::WebKeyboardEvent {
   explicit NativeWebKeyboardEvent(NSEvent *event);
 #elif defined(OS_LINUX)
   explicit NativeWebKeyboardEvent(const GdkEventKey* event);
-  NativeWebKeyboardEvent(wchar_t character, double time_stamp_seconds);
 #endif
 
   NativeWebKeyboardEvent(const NativeWebKeyboardEvent& event);

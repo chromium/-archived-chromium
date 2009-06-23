@@ -71,101 +71,6 @@ static int gdkStateToWebEventModifiers(guint state)
     return modifiers;
 }
 
-static int gdkEventToWindowsKeyCode(const GdkEventKey* event)
-{
-    static const unsigned int hardwareCodeToGDKKeyval[] = {
-        0,                 // 0x00:
-        0,                 // 0x01:
-        0,                 // 0x02:
-        0,                 // 0x03:
-        0,                 // 0x04:
-        0,                 // 0x05:
-        0,                 // 0x06:
-        0,                 // 0x07:
-        0,                 // 0x08:
-        0,                 // 0x09: GDK_Escape
-        GDK_1,             // 0x0A: GDK_1
-        GDK_2,             // 0x0B: GDK_2
-        GDK_3,             // 0x0C: GDK_3
-        GDK_4,             // 0x0D: GDK_4
-        GDK_5,             // 0x0E: GDK_5
-        GDK_6,             // 0x0F: GDK_6
-        GDK_7,             // 0x10: GDK_7
-        GDK_8,             // 0x11: GDK_8
-        GDK_9,             // 0x12: GDK_9
-        GDK_0,             // 0x13: GDK_0
-        GDK_minus,         // 0x14: GDK_minus
-        GDK_equal,         // 0x15: GDK_equal
-        0,                 // 0x16: GDK_BackSpace
-        0,                 // 0x17: GDK_Tab
-        GDK_q,             // 0x18: GDK_q
-        GDK_w,             // 0x19: GDK_w
-        GDK_e,             // 0x1A: GDK_e
-        GDK_r,             // 0x1B: GDK_r
-        GDK_t,             // 0x1C: GDK_t
-        GDK_y,             // 0x1D: GDK_y
-        GDK_u,             // 0x1E: GDK_u
-        GDK_i,             // 0x1F: GDK_i
-        GDK_o,             // 0x20: GDK_o
-        GDK_p,             // 0x21: GDK_p
-        GDK_bracketleft,   // 0x22: GDK_bracketleft
-        GDK_bracketright,  // 0x23: GDK_bracketright
-        0,                 // 0x24: GDK_Return
-        0,                 // 0x25: GDK_Control_L
-        GDK_a,             // 0x26: GDK_a
-        GDK_s,             // 0x27: GDK_s
-        GDK_d,             // 0x28: GDK_d
-        GDK_f,             // 0x29: GDK_f
-        GDK_g,             // 0x2A: GDK_g
-        GDK_h,             // 0x2B: GDK_h
-        GDK_j,             // 0x2C: GDK_j
-        GDK_k,             // 0x2D: GDK_k
-        GDK_l,             // 0x2E: GDK_l
-        GDK_semicolon,     // 0x2F: GDK_semicolon
-        GDK_apostrophe,    // 0x30: GDK_apostrophe
-        GDK_grave,         // 0x31: GDK_grave
-        0,                 // 0x32: GDK_Shift_L
-        GDK_backslash,     // 0x33: GDK_backslash
-        GDK_z,             // 0x34: GDK_z
-        GDK_x,             // 0x35: GDK_x
-        GDK_c,             // 0x36: GDK_c
-        GDK_v,             // 0x37: GDK_v
-        GDK_b,             // 0x38: GDK_b
-        GDK_n,             // 0x39: GDK_n
-        GDK_m,             // 0x3A: GDK_m
-        GDK_comma,         // 0x3B: GDK_comma
-        GDK_period,        // 0x3C: GDK_period
-        GDK_slash,         // 0x3D: GDK_slash
-        0,                 // 0x3E: GDK_Shift_R
-    };
-
-    // |windowKeyCode| shouldn't change even when we change the keyboard
-    // layout, e.g. when we type an 'A' key of a US keyboard on the French
-    // layout, |windowsKeyCode| should be VK_A. On the other hand,
-    // |event->keyval| may change when we change the keyboard layout (the
-    // GdkKeymap object attached to the GdkDisplay object), e.g. when we type
-    // an 'A' key of a US keyboard on the French (or Hebrew) layout,
-    // |event->keyval| becomes GDK_q (or GDK_hebrew_shin).
-    // To improve compatibilty with Windows, we use |event->hardware_keycode|
-    // for retrieving its Windows key-code for the keys that can be changed by
-    // GdkKeymap objects (keyboard-layout drivers).
-    // We shouldn't use |event->hardware_keycode| for keys that GdkKeymap
-    // objects cannot change because |event->hardware_keycode| doesn't change
-    // even when we change the layout options, e.g. when we swap a control
-    // key and a caps-lock key, GTK doesn't swap their
-    // |event->hardware_keycode| values but swap their |event->keyval| values.
-    const int tableSize = sizeof(hardwareCodeToGDKKeyval) / sizeof(hardwareCodeToGDKKeyval[0]);
-    if (event->hardware_keycode < tableSize) {
-        int keyval = hardwareCodeToGDKKeyval[event->hardware_keycode];
-        if (keyval)
-            return WebCore::windowsKeyCodeForKeyEvent(keyval);
-    }
-
-    // This key is one that keyboard-layout drivers cannot change.
-    // Use |event->keyval| to retrieve its |windowsKeyCode| value.
-    return WebCore::windowsKeyCodeForKeyEvent(event->keyval);
-}
-
 // WebKeyboardEvent -----------------------------------------------------------
 
 WebKeyboardEvent WebInputEventFactory::keyboardEvent(const GdkEventKey* event)
@@ -180,7 +85,7 @@ WebKeyboardEvent WebInputEventFactory::keyboardEvent(const GdkEventKey* event)
         result.type = WebInputEvent::KeyUp;
         break;
     case GDK_KEY_PRESS:
-        result.type = WebInputEvent::RawKeyDown;
+        result.type = WebInputEvent::KeyDown;
         break;
     default:
         ASSERT_NOT_REACHED();
@@ -189,7 +94,7 @@ WebKeyboardEvent WebInputEventFactory::keyboardEvent(const GdkEventKey* event)
     // The key code tells us which physical key was pressed (for example, the
     // A key went down or up).  It does not determine whether A should be lower
     // or upper case.  This is what text does, which should be the keyval.
-    result.windowsKeyCode = gdkEventToWindowsKeyCode(event);
+    result.windowsKeyCode = WebCore::windowsKeyCodeForKeyEvent(event->keyval);
     result.nativeKeyCode = event->hardware_keycode;
 
     switch (event->keyval) {
@@ -211,23 +116,6 @@ WebKeyboardEvent WebInputEventFactory::keyboardEvent(const GdkEventKey* event)
 
     // FIXME: Do we need to set IsAutoRepeat or IsKeyPad?
 
-    return result;
-}
-
-WebKeyboardEvent WebInputEventFactory::keyboardEvent(wchar_t character, double timeStampSeconds)
-{
-    // keyboardEvent(const GdkEventKey*) depends on the GdkEventKey object and
-    // it is hard to use/ it from signal handlers which don't use GdkEventKey
-    // objects (e.g. GtkIMContext signal handlers.) For such handlers, this
-    // function creates a WebInputEvent::Char event without using a
-    // GdkEventKey object.
-    WebKeyboardEvent result;
-    result.type = WebKit::WebInputEvent::Char;
-    result.timeStampSeconds = timeStampSeconds;
-    result.windowsKeyCode = character;
-    result.nativeKeyCode = character;
-    result.text[0] = character;
-    result.unmodifiedText[0] = character;
     return result;
 }
 

@@ -279,45 +279,6 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   void CancelUpdateTextDirection();
   void NotifyTextDirection();
 
-  // Notifies the renderer whether or not the IME attached to this process is
-  // activated.
-  // When the IME is activated, a renderer process sends IPC messages to notify
-  // the status of its composition node. (This message is mainly used for
-  // notifying the position of the input cursor so that the browser can
-  // display IME windows under the cursor.)
-  void ImeSetInputMode(bool activate);
-
-  // Update the composition node of the renderer (or WebKit).
-  // WebKit has a special node (a composition node) for IMEs to change its text
-  // without affecting any other DOM nodes. When the IME (attached to the
-  // browser) updates its text, the browser sends IPC messages to update the
-  // composition node of the renderer.
-  // (Read the comments of each function for its detail.)
-
-  // Sets the text of the composition node.
-  // This function can also update the cursor position and mark the specified
-  // range in the composition node.
-  // A browser should call this function:
-  // * when it receives a WM_IME_COMPOSITION message with a GCS_COMPSTR flag
-  //   (on Windows);
-  // * when it receives a "preedit_changed" signal of GtkIMContext (on Linux);
-  // * when markedText of NSTextInput is called (on Mac).
-  void ImeSetComposition(const std::wstring& ime_string,
-                         int cursor_position,
-                         int target_start,
-                         int target_end);
-
-  // Finishes an ongoing composition with the specified text.
-  // A browser should call this function:
-  // * when it receives a WM_IME_COMPOSITION message with a GCS_RESULTSTR flag
-  //   (on Windows);
-  // * when it receives a "commit" signal of GtkIMContext (on Linux);
-  // * when insertText of NSTextInput is called (on Mac).
-  void ImeConfirmComposition(const std::wstring& ime_string);
-
-  // Cancels an ongoing composition.
-  void ImeCancelComposition();
-
   // This is for derived classes to give us access to the resizer rect.
   // And to also expose it to the RenderWidgetHostView.
   virtual gfx::Rect GetRootWindowResizerRect() const;
