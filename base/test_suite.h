@@ -24,7 +24,13 @@
 
 #if defined(OS_WIN)
 #include <windows.h>
-#elif defined(OS_LINUX)
+#endif
+
+#if defined(OS_POSIX)
+#include <signal.h>
+#endif
+
+#if defined(OS_LINUX)
 #include <gtk/gtk.h>
 #endif
 
@@ -107,6 +113,17 @@ class TestSuite {
     // We want process and thread IDs because we may have multiple processes.
     // Note: temporarily enabled timestamps in an effort to catch bug 6361.
     logging::SetLogItems(true, true, true, true);
+
+#if defined(OS_POSIX)
+    // When running in an application, our code typically expects SIGPIPE
+    // to be ignored.  Therefore, when testing that same code, it should run
+    // with SIGPIPE ignored as well.
+    struct sigaction action;
+    action.sa_handler = SIG_IGN;
+    action.sa_flags = 0;
+    sigemptyset(&action.sa_mask);
+    CHECK(sigaction(SIGPIPE, &action, NULL) == 0);
+#endif  // OS_POSIX
 
 #if defined(OS_WIN)
     // For unit tests we turn on the high resolution timer and disable
