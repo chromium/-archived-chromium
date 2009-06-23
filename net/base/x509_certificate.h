@@ -38,7 +38,7 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
  public:
   // SHA-1 fingerprint (160 bits) of a certificate.
   struct Fingerprint {
-    bool operator==(const Fingerprint& other) const {
+    bool Equals(const Fingerprint& other) const {
       return memcmp(data, other.data, sizeof(data)) == 0;
     }
 
