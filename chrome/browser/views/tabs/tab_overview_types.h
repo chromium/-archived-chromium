@@ -120,6 +120,20 @@ class TabOverviewTypes {
       //   param[0]: X ID of the panel window
       WM_NOTIFY_PANEL_DRAG_COMPLETE,
 
+      // Instruct the WM to focus a window.  This is used when a tab is
+      // clicked in a tab overview window.
+      //   param[0]: X ID of the window to focus
+      WM_FOCUS_WINDOW,
+
+      // Notify Chrome that the layout mode (for example, overview or
+      // focused) has changed.
+      //   param[0]: new mode (0 means focused, 1 means overview)
+      CHROME_NOTIFY_LAYOUT_MODE,
+
+      // Instruct the WM to enter overview mode.
+      //   param[0]: X ID of the window show the tab overview for.
+      WM_SWITCH_TO_OVERVIEW_MODE,
+
       kNumTypes,
     };
 

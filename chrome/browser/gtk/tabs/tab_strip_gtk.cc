@@ -10,7 +10,6 @@
 #include "app/slide_animation.h"
 #include "base/gfx/gtk_util.h"
 #include "base/gfx/point.h"
-#include "chrome/browser/browser.h"
 #include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/dnd_registry.h"
@@ -20,6 +19,14 @@
 #include "chrome/common/gtk_util.h"
 #include "grit/app_resources.h"
 #include "grit/theme_resources.h"
+
+#if defined(LINUX2)
+#include "chrome/browser/browser.h"
+#include "chrome/browser/browser_list.h"
+#include "chrome/browser/gtk/browser_window_gtk.h"
+#include "chrome/browser/views/tabs/tab_overview_types.h"
+#include "chrome/common/x11_util.h"
+#endif
 
 namespace {
 
@@ -1581,6 +1588,14 @@ CustomDrawButton* TabStripGtk::MakeTabOverviewButton() {
 // static
 void TabStripGtk::OnTabOverviewButtonClicked(GtkWidget* widget,
                                              TabStripGtk* tabstrip) {
-  // TODO(sky): implement me.
+  Browser* browser = BrowserList::GetLastActive();
+  DCHECK(browser);  // In order for the user to click on the tab there should
+                    // be an active browser.
+  TabOverviewTypes::Message message;
+  message.set_type(TabOverviewTypes::Message::WM_SWITCH_TO_OVERVIEW_MODE);
+  GtkWidget* browser_widget = GTK_WIDGET(
+      static_cast<BrowserWindowGtk*>(browser->window())->GetNativeHandle());
+  message.set_param(0, x11_util::GetX11WindowFromGtkWidget(browser_widget));
+  TabOverviewTypes::instance()->SendMessage(message);
 }
 #endif
