@@ -337,6 +337,9 @@ std::map<XID, GtkWindow*> BrowserWindowGtk::xid_map_;
 BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
     :  browser_(browser),
        full_screen_(false),
+#if defined(LINUX2)
+       drag_active_(false),
+#endif
        frame_cursor_(NULL) {
   use_custom_frame_.Init(prefs::kUseCustomChromeFrame,
       browser_->profile()->GetPrefs(), this);
@@ -811,6 +814,11 @@ void BrowserWindowGtk::OnStateChanged(GdkWindowState state) {
 }
 
 bool BrowserWindowGtk::CanClose() const {
+#if defined(LINUX2)
+  if (drag_active_)
+    return false;
+#endif
+
   // You cannot close a frame for which there is an active originating drag
   // session.
   if (tabstrip_->IsDragSessionActive())

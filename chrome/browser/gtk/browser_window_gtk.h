@@ -126,6 +126,12 @@ class BrowserWindowGtk : public BrowserWindow,
   // Add the find bar widget to the window hierarchy.
   void AddFindBar(FindBarGtk* findbar);
 
+#if defined(LINUX2)
+  // Sets whether a drag is active. If a drag is active the window will not
+  // close.
+  void set_drag_active(bool drag_active) { drag_active_ = drag_active; }
+#endif
+
   // Reset the mouse cursor to the default cursor if it was set to something
   // else for the custom frame.
   void ResetCustomFrameCursor();
@@ -282,8 +288,10 @@ class BrowserWindowGtk : public BrowserWindow,
   // decorations.
   BooleanPrefMember use_custom_frame_;
 
+#if defined(LINUX2)
   // True if a drag is active. See description above setter for details.
   bool drag_active_;
+#endif
 
   // A map which translates an X Window ID into its respective GtkWindow.
   static std::map<XID, GtkWindow*> xid_map_;
