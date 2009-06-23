@@ -644,7 +644,7 @@ WebInspector.ScopeChainSidebarPane.prototype.update = function(callFrame) {
 
   var section = new WebInspector.ObjectPropertiesSection(scopeObject, title,
       subtitle, emptyPlaceholder, true, extraProperties,
-      WebInspector.ScopeChainSidebarPane.TreeElement);
+      WebInspector.DebuggedObjectTreeElement);
   section.editInSelectedCallFrameWhenPaused = true;
   section.pane = this;
 
@@ -656,14 +656,53 @@ WebInspector.ScopeChainSidebarPane.prototype.update = function(callFrame) {
 
 
 /**
- * Our implementation of ObjectPropertiesSection for resolved values.
+ * Our basic implementation of ObjectPropertiesSection for debugger object
+ * represented in console.
  * @constructor
  */
-WebInspector.ScopeChainPropertiesSection = function(object, title) {
+WebInspector.ConsoleObjectPropertiesSection = function(object, title,
+    extraProperties) {
   WebInspector.ObjectPropertiesSection.call(this, object, title,
       null /* subtitle */, null /* emptyPlaceholder */,
       true /* ignoreHasOwnProperty */, null /* extraProperties */,
-      WebInspector.ScopeChainSidebarPane.TreeElement);
+      WebInspector.DebuggedObjectTreeElement);
+};
+goog.inherits(WebInspector.ConsoleObjectPropertiesSection,
+    WebInspector.ObjectPropertiesSection);
+
+
+/**
+ * @override
+ */
+WebInspector.ConsoleObjectPropertiesSection.prototype.onpopulate = function() {
+  devtools.tools.getDebuggerAgent().resolveChildren(
+      this.object,
+      goog.bind(this.didResolveChildren_, this));
+};
+
+
+/**
+ * @param {Object} object
+ */
+WebInspector.ConsoleObjectPropertiesSection.prototype.didResolveChildren_ =
+    function(object) {
+  WebInspector.DebuggedObjectTreeElement.addResolvedChildren(
+      object,
+      this.propertiesTreeOutline,
+      this.treeElementConstructor);
+};
+
+
+/**
+ * Our implementation of ObjectPropertiesSection for scope variables.
+ * @constructor
+ */
+WebInspector.ScopeChainPropertiesSection = function(object, title, thisObject) {
+  WebInspector.ObjectPropertiesSection.call(this, object, title,
+      null /* subtitle */, null /* emptyPlaceholder */,
+      true /* ignoreHasOwnProperty */, null /* extraProperties */,
+      WebInspector.DebuggedObjectTreeElement);
+  this.thisObject_ = thisObject;
 };
 goog.inherits(WebInspector.ScopeChainPropertiesSection,
     WebInspector.ObjectPropertiesSection);
@@ -673,15 +712,24 @@ goog.inherits(WebInspector.ScopeChainPropertiesSection,
  * @override
  */
 WebInspector.ScopeChainPropertiesSection.prototype.onpopulate = function() {
-  var treeOutline = this.propertiesTreeOutline;
-  devtools.tools.getDebuggerAgent().resolveChildren(this.object,
-      function(object) {
-        for (var name in object.resolvedValue) {
-          treeOutline.appendChild(new
-              WebInspector.ScopeChainSidebarPane.TreeElement(
-                  object.resolvedValue, name));
-        }
-      });
+  devtools.tools.getDebuggerAgent().resolveScope(
+      this.object,
+      goog.bind(this.didResolveChildren_, this));
+};
+
+/**
+ * @param {Object} object
+ */
+WebInspector.ScopeChainPropertiesSection.prototype.didResolveChildren_ =
+    function(object) {
+  // Add this to the properties list if it's specified.
+  if (this.thisObject_) {
+    object.resolvedValue['this'] = this.thisObject_;
+  }
+  WebInspector.DebuggedObjectTreeElement.addResolvedChildren(
+      object,
+      this.propertiesTreeOutline,
+      this.treeElementConstructor);
 };
 
 
@@ -690,35 +738,57 @@ WebInspector.ScopeChainPropertiesSection.prototype.onpopulate = function() {
  * using the debugger agent.
  * @constructor
  */
-WebInspector.ScopeChainSidebarPane.TreeElement = function(parentObject,
+WebInspector.DebuggedObjectTreeElement = function(parentObject,
     propertyName) {
   WebInspector.ScopeVariableTreeElement.call(this, parentObject, propertyName);
 }
-WebInspector.ScopeChainSidebarPane.TreeElement.inherits(
+WebInspector.DebuggedObjectTreeElement.inherits(
     WebInspector.ScopeVariableTreeElement);
 
 
 /**
  * @override
  */
-WebInspector.ScopeChainSidebarPane.TreeElement.prototype.onpopulate =
+WebInspector.DebuggedObjectTreeElement.prototype.onpopulate =
     function() {
   var obj = this.parentObject[this.propertyName];
   devtools.tools.getDebuggerAgent().resolveChildren(obj,
-      goog.bind(this.didResolveChildren_, this));
+      goog.bind(this.didResolveChildren_, this), false /* no intrinsic */ );
 };
 
 
 /**
  * Callback function used with the resolveChildren.
  */
-WebInspector.ScopeChainSidebarPane.TreeElement.prototype.didResolveChildren_ =
+WebInspector.DebuggedObjectTreeElement.prototype.didResolveChildren_ =
     function(object) {
   this.removeChildren();
-  var constructor = this.treeOutline.section.treeElementConstructor;
-  object = object.resolvedValue;
+  WebInspector.DebuggedObjectTreeElement.addResolvedChildren(
+      object,
+      this,
+      this.treeOutline.section.treeElementConstructor);
+};
+
+
+/**
+ * Utility function used to populate children list of tree element representing
+ * debugged object with values resolved through the debugger agent.
+ * @param {Object} resolvedObject Object whose properties have been resolved.
+ * @param {Element} treeElementContainer Container fot the HTML elements
+ *     representing the resolved properties.
+ * @param {function(object, string):Element} treeElementConstructor
+ */
+WebInspector.DebuggedObjectTreeElement.addResolvedChildren = function(
+    resolvedObject, treeElementContainer, treeElementConstructor) {
+  var object = resolvedObject.resolvedValue;
+  var names = [];
   for (var name in object) {
-    this.appendChild(new constructor(object, name));
+    names.push(name);
+  }
+  names.sort();
+  for (var i = 0; i < names.length; i++) {
+    treeElementContainer.appendChild(
+        new treeElementConstructor(object, names[i]));
   }
 };
 
@@ -937,7 +1007,7 @@ WebInspector.Console.prototype._formatobject = function(object, elem) {
   if (object.handle && object.className) {
     object.ref = object.handle;
     var className = object.className;
-    section = new WebInspector.ScopeChainPropertiesSection(object,
+    section = new WebInspector.ConsoleObjectPropertiesSection(object,
         className);
     section.pane = {
       callFrame: {
