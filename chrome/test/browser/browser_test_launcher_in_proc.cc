@@ -10,6 +10,7 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/native_library.h"
+#include "base/path_service.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
 
@@ -40,22 +41,15 @@ class InProcBrowserTestRunner : public browser_tests::BrowserTestRunner {
 
   bool Init() {
     FilePath lib_path;
-    if (!file_util::GetCurrentDirectory(&lib_path)) {
-      LOG(ERROR) << "Failed to retrieve curret directory.";
-      return false;
-    }
+    CHECK(PathService::Get(base::FILE_EXE, &lib_path));
+    lib_path = lib_path.DirName().Append(
+        base::GetNativeLibraryName(kBrowserTesLibBaseName));
 
-    string16 lib_name = base::GetNativeLibraryName(kBrowserTesLibBaseName);
-#if defined(OS_WIN)
-    lib_path = lib_path.Append(lib_name);
-#else
-    lib_path = lib_path.Append(WideToUTF8(lib_name));
-#endif
     LOG(INFO) << "Loading '" <<  lib_path.value() << "'";
 
     dynamic_lib_ = base::LoadNativeLibrary(lib_path);
     if (!dynamic_lib_) {
-      LOG(ERROR) << "Failed to find " << lib_name;
+      LOG(ERROR) << "Failed to load " << lib_path.value();
       return false;
     }
 
@@ -63,7 +57,7 @@ class InProcBrowserTestRunner : public browser_tests::BrowserTestRunner {
         base::GetFunctionPointerFromNativeLibrary(dynamic_lib_, "RunTests"));
     if (!run_test_proc_) {
       LOG(ERROR) <<
-          "Failed to find RunTest function in " << lib_name;
+          "Failed to find RunTest function in " << lib_path.value();
       return false;
     }
 
