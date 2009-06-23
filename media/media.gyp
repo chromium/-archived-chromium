@@ -152,6 +152,7 @@
         'base/mock_ffmpeg.cc',
         'base/mock_ffmpeg.h',
         'base/mock_filter_host.h',
+        'base/mock_filters.h',
         'base/mock_media_filters.h',
         'base/mock_pipeline.h',
         'base/mock_reader.h',

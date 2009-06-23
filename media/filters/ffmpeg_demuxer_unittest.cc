@@ -10,7 +10,7 @@
 #include "media/base/filters.h"
 #include "media/base/mock_ffmpeg.h"
 #include "media/base/mock_filter_host.h"
-#include "media/base/mock_media_filters.h"
+#include "media/base/mock_filters.h"
 #include "media/base/mock_reader.h"
 #include "media/filters/ffmpeg_common.h"
 #include "media/filters/ffmpeg_demuxer.h"
@@ -73,8 +73,7 @@ class FFmpegDemuxerTest : public testing::Test {
     // Prepare a filter host and data source for the demuxer.
     pipeline_.reset(new MockPipeline());
     filter_host_.reset(new MockFilterHost<Demuxer>(pipeline_.get(), demuxer_));
-    old_mocks::MockFilterConfig config;
-    data_source_ = new old_mocks::MockDataSource(&config);
+    data_source_ = new StrictMock<MockDataSource>();
 
     // Initialize FFmpeg fixtures.
     memset(&format_context_, 0, sizeof(format_context_));
@@ -149,7 +148,7 @@ class FFmpegDemuxerTest : public testing::Test {
   scoped_refptr<FFmpegDemuxer> demuxer_;
   scoped_ptr<MockPipeline> pipeline_;
   scoped_ptr<MockFilterHost<Demuxer> > filter_host_;
-  scoped_refptr<old_mocks::MockDataSource> data_source_;
+  scoped_refptr<StrictMock<MockDataSource> > data_source_;
 
   // FFmpeg fixtures.
   AVFormatContext format_context_;
