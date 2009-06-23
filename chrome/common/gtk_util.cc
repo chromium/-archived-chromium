@@ -229,6 +229,9 @@ void EnumerateTopLevelWindows(x11_util::EnumerateWindowsDelegate* delegate) {
 
   for (GList* iter = g_list_last(stack); iter; iter = iter->prev) {
     GdkWindow* window = static_cast<GdkWindow*>(iter->data);
+    if (!gdk_window_is_visible(window))
+      continue;
+
     XID xid = GDK_WINDOW_XID(window);
     if (delegate->ShouldStopIterating(xid))
       break;
