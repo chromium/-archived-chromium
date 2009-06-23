@@ -25,6 +25,10 @@
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 
+#if defined(OS_LINUX)
+#include "chrome/app/breakpad_linux.h"
+#endif
+
 // This function provides some ways to test crash and assertion handling
 // behavior of the renderer.
 static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
@@ -63,6 +67,11 @@ static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
 int RendererMain(const MainFunctionParams& parameters) {
   const CommandLine& parsed_command_line = parameters.command_line_;
   base::ScopedNSAutoreleasePool* pool = parameters.autorelease_pool_;
+
+#if defined(OS_LINUX)
+  // Needs to be called after we have chrome::DIR_USER_DATA.
+  InitCrashReporter();
+#endif
 
   // This function allows pausing execution using the --renderer-startup-dialog
   // flag allowing us to attach a debugger.

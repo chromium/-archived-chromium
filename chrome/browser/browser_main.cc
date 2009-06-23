@@ -248,6 +248,11 @@ int BrowserMain(const MainFunctionParams& parameters) {
   const CommandLine& parsed_command_line = parameters.command_line_;
   base::ScopedNSAutoreleasePool* pool = parameters.autorelease_pool_;
 
+#if defined(OS_LINUX)
+  // Needs to be called after we have chrome::DIR_USER_DATA.
+  InitCrashReporter();
+#endif
+
   // WARNING: If we get a WM_ENDSESSION objects created on the stack here
   // are NOT deleted. If you need something to run during WM_ENDSESSION add it
   // to browser_shutdown::Shutdown or BrowserProcess::EndSession.

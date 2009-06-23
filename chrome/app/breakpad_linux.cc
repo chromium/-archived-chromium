@@ -518,8 +518,10 @@ void InitCrashReporter() {
   const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
   const std::wstring process_type =
       parsed_command_line.GetSwitchValue(switches::kProcessType);
-  if (process_type.empty())
+  if (process_type.empty()) {
     EnableCrashDumping();
-  else if (process_type == switches::kRendererProcess)
+  } else if (process_type == switches::kRendererProcess ||
+             process_type == switches::kZygoteProcess) {
     EnableRendererCrashDumping();
+  }
 }
