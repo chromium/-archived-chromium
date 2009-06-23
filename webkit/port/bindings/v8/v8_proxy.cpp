@@ -48,6 +48,7 @@
 #include "ScriptController.h"
 #include "V8CustomBinding.h"
 #include "V8DOMMap.h"
+#include "WorkerContextExecutionProxy.h"
 
 namespace WebCore {
 
@@ -2272,6 +2273,16 @@ void V8Proxy::InitContextIfNeeded()
   m_frame->loader()->dispatchWindowObjectAvailable();
 }
 
+template <class T>
+void setDOMExceptionHelper(V8ClassIndex::V8WrapperType type, PassRefPtr<T> exception) {
+  v8::Handle<v8::Value> v8Exception;
+  if (WorkerContextExecutionProxy::retrieve())
+      v8Exception = WorkerContextExecutionProxy::ToV8Object(type, exception.get());
+  else
+      v8Exception = V8Proxy::ToV8Object(type, exception.get());
+
+  v8::ThrowException(v8Exception);
+}
 
 void V8Proxy::SetDOMException(int exception_code)
 {
@@ -2284,37 +2295,37 @@ void V8Proxy::SetDOMException(int exception_code)
   v8::Handle<v8::Value> exception;
   switch (description.type) {
     case DOMExceptionType:
-      exception = ToV8Object(V8ClassIndex::DOMCOREEXCEPTION,
-                             DOMCoreException::create(description));
+      setDOMExceptionHelper(V8ClassIndex::DOMCOREEXCEPTION,
+                            DOMCoreException::create(description));
       break;
     case RangeExceptionType:
-      exception = ToV8Object(V8ClassIndex::RANGEEXCEPTION,
-                             RangeException::create(description));
+      setDOMExceptionHelper(V8ClassIndex::RANGEEXCEPTION,
+                            RangeException::create(description));
       break;
     case EventExceptionType:
-      exception = ToV8Object(V8ClassIndex::EVENTEXCEPTION,
-                             EventException::create(description));
+      setDOMExceptionHelper(V8ClassIndex::EVENTEXCEPTION,
+                            EventException::create(description));
       break;
     case XMLHttpRequestExceptionType:
-      exception = ToV8Object(V8ClassIndex::XMLHTTPREQUESTEXCEPTION,
-                             XMLHttpRequestException::create(description));
+      setDOMExceptionHelper(V8ClassIndex::XMLHTTPREQUESTEXCEPTION,
+                            XMLHttpRequestException::create(description));
       break;
 #if ENABLE(SVG)
     case SVGExceptionType:
-      exception = ToV8Object(V8ClassIndex::SVGEXCEPTION,
-                             SVGException::create(description));
+      setDOMExceptionHelper(V8ClassIndex::SVGEXCEPTION,
+                            SVGException::create(description));
       break;
 #endif
 #if ENABLE(XPATH)
     case XPathExceptionType:
-      exception = ToV8Object(V8ClassIndex::XPATHEXCEPTION,
-                             XPathException::create(description));
+      setDOMExceptionHelper(V8ClassIndex::XPATHEXCEPTION,
+                            XPathException::create(description));
       break;
 #endif
+    default:
+      ASSERT(false);
+      break;
   }
-
-  ASSERT(!exception.IsEmpty());
-  v8::ThrowException(exception);
 }
 
 v8::Handle<v8::Value> V8Proxy::ThrowError(ErrorType type, const char* message)
