@@ -2413,6 +2413,9 @@ each locale. -->
       <message name="IDS_DEFAULT_PRINTER_NOT_FOUND_WARNING_TITLE" desc="Title of the warning dialog when no when no printer is available">
         No printer found, Please install a printer.
       </message>
+      <message name="IDS_PRINT_SPOOL_FAILED_ERROR_TEXT" desc="Text in a messagebox when printing fails because of printer issues.">
+        Something went wrong when trying to print.  Please check your printer and try again.
+      </message>
 
       <!-- Tabs -->
       <message name="IDS_TAB_LOADING_TITLE" desc="The text to be displayed in the title of a tab before a title is discovered.">

@@ -105,7 +105,8 @@ void PrintWebViewHelper::SyncPrint(WebFrame* frame) {
     // can safely assume there are no printer drivers configured. So we safely
     // terminate.
     if (default_settings.IsEmpty()) {
-      RunJavaScriptAlert(frame,
+      // TODO: Create an async alert (http://crbug.com/14918).
+      render_view_->RunJavaScriptAlert(frame,
           l10n_util::GetString(IDS_DEFAULT_PRINTER_NOT_FOUND_WARNING_TITLE));
       return;
     }
@@ -170,15 +171,22 @@ void PrintWebViewHelper::SyncPrint(WebFrame* frame) {
 }
 
 void PrintWebViewHelper::DidFinishPrinting(bool success) {
+  if (!success) {
+    WebView* web_view = print_web_view_.get();
+    if (!web_view)
+      web_view = render_view_->webview();
+
+    // TODO: Create an async alert (http://crbug.com/14918).
+    render_view_->RunJavaScriptAlert(web_view->GetMainFrame(),
+        l10n_util::GetString(IDS_PRINT_SPOOL_FAILED_ERROR_TEXT));
+  }
+
   if (print_web_view_.get()) {
     print_web_view_->Close();
     print_web_view_.release();  // Close deletes object.
     print_pages_params_.reset();
   }
 
-  if (!success) {
-    // TODO(sverrir): http://crbug.com/6833 Show some kind of notification.
-  }
 }
 
 bool PrintWebViewHelper::CopyAndPrint(const ViewMsg_PrintPages_Params& params,
