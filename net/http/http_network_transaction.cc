@@ -1342,9 +1342,7 @@ int HttpNetworkTransaction::HandleCertificateRequest(int error) {
     const std::vector<scoped_refptr<X509Certificate> >& client_certs =
         response_.cert_request_info->client_certs;
     for (size_t i = 0; i < client_certs.size(); ++i) {
-      if (memcmp(&client_cert->fingerprint(),
-                 &client_certs[i]->fingerprint(),
-                 sizeof(X509Certificate::Fingerprint)) == 0) {
+      if (client_cert->fingerprint() == client_certs[i]->fingerprint()) {
         ssl_config_.client_cert = client_cert;
         ssl_config_.send_client_cert = true;
         next_state_ = STATE_INIT_CONNECTION;

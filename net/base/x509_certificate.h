@@ -5,6 +5,8 @@
 #ifndef NET_BASE_X509_CERTIFICATE_H_
 #define NET_BASE_X509_CERTIFICATE_H_
 
+#include <string.h>
+
 #include <map>
 #include <set>
 #include <string>
@@ -36,6 +38,10 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
  public:
   // SHA-1 fingerprint (160 bits) of a certificate.
   struct Fingerprint {
+    bool operator==(const Fingerprint& other) const {
+      return memcmp(data, other.data, sizeof(data)) == 0;
+    }
+
     unsigned char data[20];
   };
 
