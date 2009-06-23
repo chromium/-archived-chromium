@@ -2652,7 +2652,7 @@
               'SubSystem': '2',
             },
             'VCManifestTool': {
-              'AdditionalManifestFiles': '$(SolutionDir)\\app\\chrome.exe.manifest',
+              'AdditionalManifestFiles': '$(ProjectDir)\\app\\chrome.exe.manifest',
             },
           },
           'actions': [

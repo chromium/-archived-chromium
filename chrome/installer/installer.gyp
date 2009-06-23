@@ -265,7 +265,7 @@
           ],
           'msvs_settings': {
             'VCManifestTool': {
-              'AdditionalManifestFiles': '$(SolutionDir)installer\\mini_installer\\mini_installer.exe.manifest',
+              'AdditionalManifestFiles': '$(ProjectDir)\\mini_installer\\mini_installer.exe.manifest',
             },
           },
         },
@@ -474,7 +474,7 @@
           ],
           'msvs_settings': {
             'VCManifestTool': {
-              'AdditionalManifestFiles': '$(SolutionDir)installer\\mini_installer\\mini_installer.exe.manifest',
+              'AdditionalManifestFiles': '$(ProjectDir)\\mini_installer\\mini_installer.exe.manifest',
             },
           },
         },
@@ -522,7 +522,7 @@
               'SubSystem': '2',     # Set /SUBSYSTEM:WINDOWS
             },
             'VCManifestTool': {
-              'AdditionalManifestFiles': '$(SolutionDir)installer\\setup\\setup.exe.manifest',
+              'AdditionalManifestFiles': '$(ProjectDir)\\setup\\setup.exe.manifest',
             },
           },
           'rules': [
