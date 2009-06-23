@@ -38,6 +38,13 @@ NativeWebKeyboardEvent::NativeWebKeyboardEvent(const GdkEventKey* native_event)
   CopyEventTo(native_event, &os_event);
 }
 
+NativeWebKeyboardEvent::NativeWebKeyboardEvent(wchar_t character,
+                                               double time_stamp_seconds)
+    : WebKeyboardEvent(WebInputEventFactory::keyboardEvent(character,
+                                                           time_stamp_seconds)),
+      os_event(NULL) {
+}
+
 NativeWebKeyboardEvent::NativeWebKeyboardEvent(
     const NativeWebKeyboardEvent& other) : WebKeyboardEvent(other) {
   CopyEventTo(other.os_event, &os_event);
