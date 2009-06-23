@@ -4,6 +4,8 @@
 
 #include "chrome/browser/gtk/gtk_chrome_link_button.h"
 
+#include <stdlib.h>
+
 #include "base/logging.h"
 
 static const char* kLinkMarkup = "<u><span color=\"%s\">%s</span></u>";
