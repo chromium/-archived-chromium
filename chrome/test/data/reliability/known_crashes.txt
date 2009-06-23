@@ -33,6 +33,7 @@ PREFIX : `anonymous namespace'::onnomemory
 # any purecall crash immediately after runtask.
 SUBSTRING : purecall___messageloop::runtask
 REGEX : purecall___[^_]*___messageloop::runtask
+REGEX : `anonymous namespace'::purecall$
 
 # Ditto for InvalidParameter.  Unfortunately, we see a crash where that call
 # is the only one on the stack, so ignore that instance
