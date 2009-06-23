@@ -132,12 +132,13 @@ class ExtensionsService
   // The name of the file that the current active version number is stored in.
   static const char* kCurrentVersionFileName;
 
-  void set_extensions_enabled(bool enabled) { extensions_enabled_ = enabled; }
+  void SetExtensionsEnabled(bool enabled);
+  bool extensions_enabled() { return extensions_enabled_; }
+
   void set_show_extensions_prompts(bool enabled) {
     show_extensions_prompts_ = enabled;
   }
 
-  bool extensions_enabled() { return extensions_enabled_; }
   bool show_extensions_prompts() {
     return show_extensions_prompts_;
   }
@@ -209,9 +210,12 @@ class ExtensionsServiceBackend
   ExtensionsServiceBackend(const FilePath& install_directory,
                            ResourceDispatcherHost* rdh,
                            MessageLoop* frontend_loop,
-                           DictionaryValue* extension_prefs);
+                           DictionaryValue* extension_prefs,
+                           bool extensions_enabled);
 
   virtual ~ExtensionsServiceBackend();
+
+  void set_extensions_enabled(bool enabled) { extensions_enabled_ = enabled; }
 
   // Loads the installed extensions.
   // Errors are reported through ExtensionErrorReporter. On completion,
@@ -398,6 +402,10 @@ class ExtensionsServiceBackend
 
   // The message loop to use to call the frontend.
   MessageLoop* frontend_loop_;
+
+  // Whether non-theme extensions are enabled (themes and externally registered
+  // extensions are always enabled).
+  bool extensions_enabled_;
 
   // A map of all external extension providers.
   typedef std::map<Extension::Location,

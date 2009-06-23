@@ -124,8 +124,10 @@ void ExtensionShelfModel::Observe(NotificationType type,
       RemoveExtension(Details<Extension>(details).ptr());
       break;
     case NotificationType::EXTENSIONS_READY:
-      AddExtensions(browser_->profile()->GetExtensionsService()->extensions());
-      SortToolstrips();
+      if (browser_->profile()->GetExtensionsService()) {
+        AddExtensions(browser_->profile()->GetExtensionsService()->extensions());
+        SortToolstrips();
+      }
       ready_ = true;
       break;
     case NotificationType::EXTENSION_SHELF_MODEL_CHANGED:
