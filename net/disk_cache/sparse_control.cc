@@ -361,7 +361,7 @@ bool SparseControl::DoChildIO() {
   finished_ = false;
   net::CompletionCallback* callback = user_callback_ ? &child_callback_ : NULL;
 
-  int rv;
+  int rv = 0;
   switch (operation_) {
     case kReadOperation:
       rv = child_->ReadData(kSparseData, child_offset_, user_buf_, child_len_,
