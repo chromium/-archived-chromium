@@ -61,6 +61,16 @@ bool IsPathAbsolute(const FilePath::StringType& path) {
 #endif  // FILE_PATH_USES_DRIVE_LETTERS
 }
 
+bool AreAllSeparators(FilePath::StringType input) {
+  for (FilePath::StringType::const_iterator it = input.begin();
+      it != input.end(); ++it) {
+    if (!FilePath::IsSeparator(*it))
+      return false;
+  }
+
+  return true;
+}
+
 }  // namespace
 
 bool FilePath::IsSeparator(CharType character) {
@@ -71,6 +81,68 @@ bool FilePath::IsSeparator(CharType character) {
   }
 
   return false;
+}
+
+void FilePath::GetComponents(std::vector<FilePath::StringType>* components)
+    const {
+  DCHECK(components);
+  if (!components)
+    return;
+  components->clear();
+  if (value().empty())
+    return;
+
+  std::vector<FilePath::StringType> ret_val;
+  FilePath current = *this;
+  FilePath base;
+
+  // Capture path components.
+  while (current != current.DirName()) {
+    base = current.BaseName();
+    if (!AreAllSeparators(base.value()))
+      ret_val.push_back(base.value());
+    current = current.DirName();
+  }
+
+  // Capture root, if any.
+  base = current.BaseName();
+  if (!base.value().empty() && base.value() != kCurrentDirectory)
+    ret_val.push_back(current.BaseName().value());
+
+  // Capture drive letter, if any.
+  FilePath dir = current.DirName();
+  StringType::size_type letter = FindDriveLetter(dir.value());
+  if (letter != FilePath::StringType::npos) {
+    ret_val.push_back(FilePath::StringType(dir.value(), 0, letter + 1));
+  }
+
+  *components = std::vector<FilePath::StringType>(ret_val.rbegin(),
+                                                  ret_val.rend());
+}
+
+bool FilePath::IsParent(const FilePath& child) const {
+  std::vector<FilePath::StringType> parent_components;
+  std::vector<FilePath::StringType> child_components;
+  GetComponents(&parent_components);
+  child.GetComponents(&child_components);
+
+  if (parent_components.size() >= child_components.size())
+    return false;
+  if (parent_components.size() == 0)
+    return false;
+
+  std::vector<FilePath::StringType>::const_iterator parent_comp =
+      parent_components.begin();
+  std::vector<FilePath::StringType>::const_iterator child_comp =
+      child_components.begin();
+  while (parent_comp != parent_components.end()) {
+    if (*parent_comp != *child_comp)
+      return false;
+    ++parent_comp;
+    ++child_comp;
+  }
+
+  return true;
 }
 
 // libgen's dirname and basename aren't guaranteed to be thread-safe and aren't

@@ -26,34 +26,6 @@ const FilePath::CharType kExtensionSeparator = FILE_PATH_LITERAL('.');
 
 namespace file_util {
 
-void PathComponents(const FilePath& path,
-                    std::vector<FilePath::StringType>* components) {
-  DCHECK(components);
-  if (!components)
-    return;
-
-  FilePath::StringType path_str = path.value();
-  FilePath::StringType::size_type start = 0;
-  FilePath::StringType::size_type end =
-      path_str.find_first_of(FilePath::kSeparators);
-
-  // If the path starts with a separator, add it to components.
-  if (end == start) {
-    components->push_back(FilePath::StringType(path_str, 0, 1));
-    start = end + 1;
-    end = path_str.find_first_of(FilePath::kSeparators, start);
-  }
-  while (end != FilePath::StringType::npos) {
-    FilePath::StringType component =
-        FilePath::StringType(path_str, start, end - start);
-    components->push_back(component);
-    start = end + 1;
-    end = path_str.find_first_of(FilePath::kSeparators, start);
-  }
-
-  components->push_back(FilePath::StringType(path_str, start));
-}
-
 bool EndsWithSeparator(const FilePath& path) {
   FilePath::StringType value = path.value();
   if (value.empty())

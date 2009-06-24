@@ -142,6 +142,18 @@ class FilePath {
   // Returns true if |character| is in kSeparators.
   static bool IsSeparator(CharType character);
 
+  // Returns a vector of all of the components of the provided path. It is
+  // equivalent to calling DirName().value() on the path's root component,
+  // and BaseName().value() on each child component.
+  void GetComponents(std::vector<FilePath::StringType>* components) const;
+
+  // Returns true if this FilePath is a strict parent of the |child|. Absolute
+  // and relative paths are accepted i.e. is /foo parent to /foo/bar and
+  // is foo parent to foo/bar. Does not convert paths to absolute, follow
+  // symlinks or directory navigation (e.g. ".."). A path is *NOT* its own
+  // parent.
+  bool IsParent(const FilePath& child) const;
+
   // Returns a FilePath corresponding to the directory containing the path
   // named by this object, stripping away the file component.  If this object
   // only contains one component, returns a FilePath identifying

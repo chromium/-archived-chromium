@@ -14,6 +14,7 @@
 
 #include "app/l10n_util.h"
 #include "app/win_util.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/registry.h"
 #include "base/string_util.h"
@@ -516,7 +517,7 @@ void IEImporter::ParseFavoritesFolder(const FavoritesInfo& info,
     entry.url = url;
     entry.creation_time = GetFileCreationTime(*it);
     if (!relative_path.empty())
-      file_util::PathComponents(relative_path, &entry.path);
+      relative_path.GetComponents(&entry.path);
 
     // Flatten the bookmarks in Link folder onto bookmark toolbar. Otherwise,
     // put it into "Other bookmarks".

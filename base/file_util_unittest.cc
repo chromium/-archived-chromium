@@ -1072,57 +1072,6 @@ TEST_F(FileUtilTest, FileEnumeratorOrderTest) {
   EXPECT_EQ(FILE_PATH_LITERAL(""), cur_file.value());
 }
 
-void PathComponents(const std::wstring& path,
-                    std::vector<std::wstring>* components) {
-  DCHECK(components != NULL);
-  if (components == NULL)
-    return;
-  std::wstring::size_type start = 0;
-  std::wstring::size_type end = path.find('/', start);
-
-  // Special case the "/" or "\" directory.  On Windows with a drive letter,
-  // this code path won't hit, but the right thing should still happen.
-  // "E:\foo" will turn into "E:","foo".
-  if (end == start) {
-    components->push_back(std::wstring(path, 0, 1));
-    start = end + 1;
-    end = path.find('/', start);
-  }
-  while (end != std::wstring::npos) {
-    std::wstring component = std::wstring(path, start, end - start);
-    components->push_back(component);
-    start = end + 1;
-    end = path.find('/', start);
-  }
-  std::wstring component = std::wstring(path, start);
-  components->push_back(component);
-}
-
-static const struct PathComponentsCase {
-  const FilePath::CharType* path;
-  const FilePath::CharType* result;
-} kPathComponents[] = {
-  {FILE_PATH_LITERAL("/foo/bar/baz/"), FILE_PATH_LITERAL("/|foo|bar|baz|")},
-  {FILE_PATH_LITERAL("/foo/bar/baz"), FILE_PATH_LITERAL("/|foo|bar|baz")},
-  {FILE_PATH_LITERAL("e:/foo"), FILE_PATH_LITERAL("e:|foo")},
-};
-
-TEST_F(FileUtilTest, PathComponentsTest) {
-  for (size_t i = 0; i < arraysize(kPathComponents); ++i) {
-    FilePath path(kPathComponents[i].path);
-    std::vector<FilePath::StringType> comps;
-    file_util::PathComponents(path, &comps);
-
-    FilePath::StringType result;
-    for (size_t j = 0; j < comps.size(); ++j) {
-      result.append(comps[j]);
-      if (j < comps.size() - 1)
-        result.append(FILE_PATH_LITERAL("|"), 1);
-    }
-    EXPECT_EQ(kPathComponents[i].result, result);
-  }
-}
-
 TEST_F(FileUtilTest, Contains) {
   FilePath data_dir = test_dir_.Append(FILE_PATH_LITERAL("FilePathTest"));
 

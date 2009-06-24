@@ -38,10 +38,6 @@ namespace file_util {
 //-----------------------------------------------------------------------------
 // Functions that operate purely on a path string w/o touching the filesystem:
 
-// Returns a vector of all of the components of the provided path.
-void PathComponents(const FilePath& path,
-                    std::vector<FilePath::StringType>* components);
-
 // Returns true if the given path ends with a path separator character.
 bool EndsWithSeparator(const FilePath& path);
 // These two versions are both deprecated. TODO(estade): remove them.

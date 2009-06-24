@@ -27,6 +27,11 @@ struct BinaryTestData {
   const FilePath::CharType* expected;
 };
 
+struct BinaryBooleanTestData {
+  const FilePath::CharType* inputs[2];
+  bool expected;
+};
+
 // file_util winds up using autoreleased objects on the Mac, so this needs
 // to be a PlatformTest
 class FilePathTest : public PlatformTest {
@@ -372,6 +377,103 @@ TEST_F(FilePathTest, IsAbsolute) {
     bool observed = input.IsAbsolute();
     EXPECT_EQ(cases[i].expected, observed) <<
               "i: " << i << ", input: " << input.value();
+  }
+}
+
+TEST_F(FilePathTest, PathComponentsTest) {
+  const struct UnaryTestData cases[] = {
+    { FPL("//foo/bar/baz/"),          FPL("|//|foo|bar|baz")},
+    { FPL("///"),                     FPL("|/")},
+    { FPL("/foo//bar//baz/"),         FPL("|/|foo|bar|baz")},
+    { FPL("/foo/bar/baz/"),           FPL("|/|foo|bar|baz")},
+    { FPL("/foo/bar/baz//"),          FPL("|/|foo|bar|baz")},
+    { FPL("/foo/bar/baz///"),         FPL("|/|foo|bar|baz")},
+    { FPL("/foo/bar/baz"),            FPL("|/|foo|bar|baz")},
+    { FPL("/foo/bar.bot/baz.txt"),    FPL("|/|foo|bar.bot|baz.txt")},
+    { FPL("//foo//bar/baz"),          FPL("|//|foo|bar|baz")},
+    { FPL("/"),                       FPL("|/")},
+    { FPL("foo"),                     FPL("|foo")},
+    { FPL(""),                        FPL("")},
+#if defined(FILE_PATH_USES_DRIVE_LETTERS)
+    { FPL("e:/foo"),                  FPL("|e:|/|foo")},
+    { FPL("e:/"),                     FPL("|e:|/")},
+    { FPL("e:"),                      FPL("|e:")},
+#endif  // FILE_PATH_USES_DRIVE_LETTERS
+#if defined(FILE_PATH_USES_WIN_SEPARATORS)
+    { FPL("../foo"),                  FPL("|..|foo")},
+    { FPL("./foo"),                   FPL("|foo")},
+    { FPL("../foo/bar/"),             FPL("|..|foo|bar") },
+    { FPL("\\\\foo\\bar\\baz\\"),     FPL("|\\\\|foo|bar|baz")},
+    { FPL("\\\\\\"),                  FPL("|\\")},
+    { FPL("\\foo\\\\bar\\\\baz\\"),   FPL("|\\|foo|bar|baz")},
+    { FPL("\\foo\\bar\\baz\\"),       FPL("|\\|foo|bar|baz")},
+    { FPL("\\foo\\bar\\baz\\\\"),     FPL("|\\|foo|bar|baz")},
+    { FPL("\\foo\\bar\\baz\\\\\\"),   FPL("|\\|foo|bar|baz")},
+    { FPL("\\foo\\bar\\baz"),         FPL("|\\|foo|bar|baz")},
+    { FPL("\\foo\\bar/baz\\\\\\"),    FPL("|\\|foo|bar|baz")},
+    { FPL("/foo\\bar\\baz"),          FPL("|/|foo|bar|baz")},
+    { FPL("\\foo\\bar.bot\\baz.txt"), FPL("|\\|foo|bar.bot|baz.txt")},
+    { FPL("\\\\foo\\\\bar\\baz"),     FPL("|\\\\|foo|bar|baz")},
+    { FPL("\\"),                      FPL("|\\")},
+#endif  // FILE_PATH_USES_WIN_SEPARATORS
+  };
+
+  for (size_t i = 0; i < arraysize(cases); ++i) {
+    FilePath input(cases[i].input);
+    std::vector<FilePath::StringType> comps;
+    input.GetComponents(&comps);
+
+    FilePath::StringType observed;
+    for (size_t j = 0; j < comps.size(); ++j) {
+      observed.append(FILE_PATH_LITERAL("|"), 1);
+      observed.append(comps[j]);
+    }
+    EXPECT_EQ(FilePath::StringType(cases[i].expected), observed) <<
+              "i: " << i << ", input: " << input.value();
+  }
+}
+
+TEST_F(FilePathTest, IsParentTest) {
+  const struct BinaryBooleanTestData cases[] = {
+    { { FPL("/"),             FPL("/foo/bar/baz") },        true},
+    { { FPL("/foo/bar"),      FPL("/foo/bar/baz") },        true},
+    { { FPL("/foo/bar/"),     FPL("/foo/bar/baz") },        true},
+    { { FPL("//foo/bar/"),    FPL("//foo/bar/baz") },       true},
+    { { FPL("/foo/bar"),      FPL("/foo2/bar/baz") },       false},
+    { { FPL("/foo/bar.txt"),  FPL("/foo/bar/baz") },        false},
+    { { FPL("/foo/bar"),      FPL("/foo/bar2/baz") },       false},
+    { { FPL("/foo/bar"),      FPL("/foo/bar") },            false},
+    { { FPL("/foo/bar/baz"),  FPL("/foo/bar") },            false},
+    { { FPL("foo/bar"),       FPL("foo/bar/baz") },         true},
+    { { FPL("foo/bar"),       FPL("foo2/bar/baz") },        false},
+    { { FPL("foo/bar"),       FPL("foo/bar2/baz") },        false},
+    { { FPL(""),              FPL("foo") },                 false},
+#if defined(FILE_PATH_USES_DRIVE_LETTERS)
+    { { FPL("c:/foo/bar"),    FPL("c:/foo/bar/baz") },      true},
+    { { FPL("c:/"),           FPL("c:/foo/bar/baz") },      true},
+    { { FPL("c:"),            FPL("c:/foo/bar/baz") },      true},
+    { { FPL("c:/foo/bar"),    FPL("d:/foo/bar/baz") },      false},
+    { { FPL("c:/foo/bar"),    FPL("c:/foo2/bar/baz") },     false},
+    { { FPL("c:/foo/bar"),    FPL("c:/foo/bar2/baz") },     false},
+#endif  // FILE_PATH_USES_DRIVE_LETTERS
+#if defined(FILE_PATH_USES_WIN_SEPARATORS)
+    { { FPL("\\foo\\bar"),    FPL("\\foo\\bar\\baz") },     true},
+    { { FPL("\\foo/bar"),     FPL("\\foo\\bar\\baz") },     true},
+    { { FPL("\\foo/bar"),     FPL("\\foo/bar/baz") },       true},
+    { { FPL("\\"),            FPL("\\foo\\bar\\baz") },     true},
+    { { FPL(""),              FPL("\\foo\\bar\\baz") },     false},
+    { { FPL("\\foo\\bar"),    FPL("\\foo2\\bar\\baz") },    false},
+    { { FPL("\\foo\\bar"),    FPL("\\foo\\bar2\\baz") },    false},
+#endif  // FILE_PATH_USES_DRIVE_LETTERS
+  };
+
+  for (size_t i = 0; i < arraysize(cases); ++i) {
+    FilePath parent(cases[i].inputs[0]);
+    FilePath child(cases[i].inputs[1]);
+
+    EXPECT_EQ(parent.IsParent(child), cases[i].expected) <<
+      "i: " << i << ", parent: " << parent.value() << ", child: " <<
+      child.value();
   }
 }
 
