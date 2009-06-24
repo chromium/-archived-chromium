@@ -2778,3 +2778,10 @@ BUG15132 WIN : LayoutTests/media/event-attributes.html = FAIL
 // The Mac layout test buildbots haven't generated a package for 20 days so
 // the rebaselining tool isn't working for this  --agl
 BUG15125 MAC SKIP : chrome/fast/text/fake-italic.html = FAIL
+
+// WebKit 45017:45086
+BUG15217 : LayoutTests/fast/events/drag-to-navigate.html = FAIL
+BUG15217 : LayoutTests/fast/js/dictionary-no-cache.html = FAIL
+BUG15217 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridDataSource-basic.html = TIMEOUT
+BUG15217 : LayoutTests/fast/events/prevent-drag-to-navigate.html = TIMEOUT
+
