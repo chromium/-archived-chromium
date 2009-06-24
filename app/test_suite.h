@@ -40,9 +40,9 @@ class AppTestSuite : public TestSuite {
     mac_util::SetOverrideAppBundlePath(path);
 #endif
 
-    // Force unittests to run using en-us so if we test against string
+    // Force unittests to run using en-US so if we test against string
     // output, it'll pass regardless of the system language.
-    ResourceBundle::InitSharedInstance(L"en-us");
+    ResourceBundle::InitSharedInstance(L"en-US");
     ResourceBundle::GetSharedInstance().LoadThemeResources();
   }
 

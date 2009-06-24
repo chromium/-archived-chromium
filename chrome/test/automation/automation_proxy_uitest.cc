@@ -29,7 +29,7 @@ class AutomationProxyTest : public UITest {
   AutomationProxyTest() {
     dom_automation_enabled_ = true;
     launch_arguments_.AppendSwitchWithValue(switches::kLang,
-                                            L"en-us");
+                                            L"en-US");
   }
 };
 
