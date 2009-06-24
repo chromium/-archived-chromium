@@ -65,6 +65,7 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
 
 // Overridden to draw the appropriate frame in the image strip.
 - (void)drawRect:(NSRect)rect {
+#if 0
   float imageDimension = [image_ extent].size.height;
   float xOffset = animationFrame_ * imageDimension;
   NSRect sourceImageRect =
@@ -73,6 +74,7 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
              fromRect:sourceImageRect
             operation:NSCompositeSourceOver
              fraction:1.0];
+#endif
 }
 
 // Stores the internal representation of the image from |image|. We use
@@ -99,6 +101,7 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
   // back to creating one.
   NSBitmapImageRep* rep = [[image representations] objectAtIndex:0];
   if (![rep isKindOfClass:[NSBitmapImageRep class]]) {
+NSLog(@"**** creating bitmap rep");
     [image lockFocus];
     NSRect imageRect = NSMakeRect(0, 0, imageSize.width, imageSize.height);
     rep = [[[NSBitmapImageRep alloc] initWithFocusedViewRect:imageRect]

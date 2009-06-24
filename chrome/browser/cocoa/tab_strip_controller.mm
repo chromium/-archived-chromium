@@ -450,12 +450,16 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
 
     TabController* tabController = [tabArray_ objectAtIndex:index];
     NSImage* image = nil;
-    if (contents->waiting_for_response() && ![tabController waiting]) {
-      image = throbberWaitingImage;
-      [tabController setWaiting:YES];
-    } else if (contents->is_loading() && ![tabController loading]) {
-      image = throbberImage;
-      [tabController setLoading:YES];
+    if (contents->waiting_for_response()) {
+      if (![tabController waiting]) {
+        image = throbberWaitingImage;
+        [tabController setWaiting:YES];
+      }
+    } else if (contents->is_loading()) {
+      if (![tabController loading]) {
+        image = throbberImage;
+        [tabController setLoading:YES];
+      }
     }
     if (image) {
       NSRect frame = NSMakeRect(0, 0, 16, 16);
