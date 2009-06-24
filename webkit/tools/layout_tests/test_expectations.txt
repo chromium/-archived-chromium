@@ -2749,7 +2749,7 @@ BUG14831 : LayoutTests/fast/events/event-trace.html = FAIL
 
 // WebKit 44922:44927
 BUG14885 : LayoutTests/fast/js/JSON-parse.html = FAIL
-BUG14889 REBASELINE : LayoutTests/http/tests/security/xssAuditor/link-opens-new-window.html = FAIL
+BUG14889 : LayoutTests/http/tests/security/xssAuditor/link-opens-new-window.html = FAIL
 
 // WebKit 44928:44943
 BUG14946 : LayoutTests/fast/js/date-toisostring.html = FAIL
@@ -2758,4 +2758,6 @@ BUG14951 WIN LINUX : LayoutTests/fast/repaint/background-generated.html = FAIL
 // WebKit 44946:44969, needs baselines
 BUG15113 SKIP : LayoutTests/compositing/sibling-positioning.html = FAIL
 
-BUG15125 : chrome/fast/text/fake-italic.html = FAIL
+// The Mac layout test buildbots haven't generated a package for 20 days so
+// the rebaselining tool isn't working for this  --agl
+BUG15125 MAC : chrome/fast/text/fake-italic.html = SKIP
