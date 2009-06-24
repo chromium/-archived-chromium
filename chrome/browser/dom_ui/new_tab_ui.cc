@@ -295,38 +295,43 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
       l10n_util::GetString(IDS_NEW_TAB_ATTRIBUTION_INTRO));
   localized_strings.SetString(L"resourcecache",
       l10n_util::GetString(IDS_NEW_TAB_WEB_RESOURCE_CACHE));
-  localized_strings.SetString(L"editthumbnail",
-    l10n_util::GetString(IDS_NEW_TAB_EDIT_THUMBNAIL));
   localized_strings.SetString(L"recentactivities",
-    l10n_util::GetString(IDS_NEW_TAB_RECENT_ACTIVITIES));
+      l10n_util::GetString(IDS_NEW_TAB_RECENT_ACTIVITIES));
   localized_strings.SetString(L"downloads",
-    l10n_util::GetString(IDS_NEW_TAB_DOWNLOADS));
+      l10n_util::GetString(IDS_NEW_TAB_DOWNLOADS));
   localized_strings.SetString(L"viewfullhistory",
-    l10n_util::GetString(IDS_NEW_TAB_VIEW_FULL_HISTORY));
+      l10n_util::GetString(IDS_NEW_TAB_VIEW_FULL_HISTORY));
   localized_strings.SetString(L"viewalldownloads",
-    l10n_util::GetString(IDS_NEW_TAB_VIEW_ALL_DOWNLOADS));
+      l10n_util::GetString(IDS_NEW_TAB_VIEW_ALL_DOWNLOADS));
   localized_strings.SetString(L"showthumbnails",
-    l10n_util::GetString(IDS_NEW_TAB_SHOW_THUMBNAILS));
+      l10n_util::GetString(IDS_NEW_TAB_SHOW_THUMBNAILS));
   localized_strings.SetString(L"hidethumbnails",
-    l10n_util::GetString(IDS_NEW_TAB_HIDE_THUMBNAILS));
+      l10n_util::GetString(IDS_NEW_TAB_HIDE_THUMBNAILS));
   localized_strings.SetString(L"showlist",
-    l10n_util::GetString(IDS_NEW_TAB_SHOW_LIST));
+      l10n_util::GetString(IDS_NEW_TAB_SHOW_LIST));
   localized_strings.SetString(L"hidelist",
-    l10n_util::GetString(IDS_NEW_TAB_HIDE_LIST));
+      l10n_util::GetString(IDS_NEW_TAB_HIDE_LIST));
   localized_strings.SetString(L"showrecent",
-    l10n_util::GetString(IDS_NEW_TAB_SHOW_RECENT));
+      l10n_util::GetString(IDS_NEW_TAB_SHOW_RECENT));
   localized_strings.SetString(L"hiderecent",
-    l10n_util::GetString(IDS_NEW_TAB_HIDE_RECENT));
+      l10n_util::GetString(IDS_NEW_TAB_HIDE_RECENT));
   localized_strings.SetString(L"showrecommendations",
-    l10n_util::GetString(IDS_NEW_TAB_SHOW_RECOMMENDATIONS));
+      l10n_util::GetString(IDS_NEW_TAB_SHOW_RECOMMENDATIONS));
   localized_strings.SetString(L"hiderecommendations",
-    l10n_util::GetString(IDS_NEW_TAB_HIDE_RECOMMENDATIONS));
+      l10n_util::GetString(IDS_NEW_TAB_HIDE_RECOMMENDATIONS));
   localized_strings.SetString(L"thumbnailremovednotification",
-    l10n_util::GetString(IDS_NEW_TAB_THUMBNAIL_REMOVED_NOTIFICATION));
+      l10n_util::GetString(IDS_NEW_TAB_THUMBNAIL_REMOVED_NOTIFICATION));
   localized_strings.SetString(L"undothumbnailremove",
-    l10n_util::GetString(IDS_NEW_TAB_UNDO_THUMBNAIL_REMOVE));
+      l10n_util::GetString(IDS_NEW_TAB_UNDO_THUMBNAIL_REMOVE));
   localized_strings.SetString(L"otrmessage",
-    l10n_util::GetString(IDS_NEW_TAB_OTR_MESSAGE));
+      l10n_util::GetString(IDS_NEW_TAB_OTR_MESSAGE));
+  localized_strings.SetString(L"removethumbnailtooltip",
+      l10n_util::GetString(IDS_NEW_TAB_REMOVE_THUMBNAIL_TOOLTIP));
+  localized_strings.SetString(L"pinthumbnailtooltip",
+      l10n_util::GetString(IDS_NEW_TAB_PIN_THUMBNAIL_TOOLTIP));
+  localized_strings.SetString(L"unpinthumbnailtooltip",
+      l10n_util::GetString(IDS_NEW_TAB_UNPIN_THUMBNAIL_TOOLTIP));
+
 
   SetFontAndTextDirection(&localized_strings);
 

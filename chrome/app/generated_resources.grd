@@ -3427,10 +3427,6 @@ each locale. -->
                desc="Title of block that holds tips, suggestions, and other new information gathered from web resources in the new tab page.">
         Recommendations
       </message>
-      <message name="IDS_NEW_TAB_EDIT_THUMBNAIL"
-               desc="Link text for editing a thumbnail. Clicking this link allows the user to change the name and the URL of a thumbnail on the NTP.">
-        edit
-      </message>
       <message name="IDS_NEW_TAB_RECENT_ACTIVITIES"
                desc="Heading text for the section containing recent activities. Recent activies includes closed windows and tabs as well as downloads.">
         Recent activities
@@ -3486,6 +3482,18 @@ each locale. -->
       <message name="IDS_NEW_TAB_UNDO_THUMBNAIL_REMOVE"
          desc="Action link text to undo removing a thumbnail from the most visited section.">
         Undo
+      </message>
+      <message name="IDS_NEW_TAB_REMOVE_THUMBNAIL_TOOLTIP"
+         desc="Tooltip text for the button that removes/blacklists the thumbnail. Once removed the thumbnail will not show up on the new tab page again.">
+        Remove
+      </message>
+      <message name="IDS_NEW_TAB_PIN_THUMBNAIL_TOOLTIP"
+         desc="Tooltip text for the button that pins the thumbnail. Once pinned the thumbnail will always be shown on the new tab page and it will alwyas be shown in the same position.">
+        Pin
+      </message>
+      <message name="IDS_NEW_TAB_UNPIN_THUMBNAIL_TOOLTIP"
+         desc="Tooltip text for the button that unpins the thumbnail. Once unpinned the thumbnail might not be displayed on the new tab page any more.">
+        Unpin
       </message>
 
       <!-- SafeBrowsing -->

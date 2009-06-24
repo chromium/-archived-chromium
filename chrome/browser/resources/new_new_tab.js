@@ -244,8 +244,10 @@ function renderMostVisited(data) {
     t.className = getThumbnailClassName(d);
     t.title = d.title;
     t.href = d.url;
-    t.querySelector('.edit-link').textContent =
-        localStrings.getString('editthumbnail');
+    t.querySelector('.pin').title = localStrings.getString(d.pinned ?
+        'unpinthumbnailtooltip' : 'pinthumbnailtooltip');
+    t.querySelector('.remove').title =
+        localStrings.getString('removethumbnailtooltip');
 
     // There was some concern that a malformed malicious URL could cause an XSS
     // attack but setting style.backgroundImage = 'url(javascript:...)' does
@@ -395,6 +397,9 @@ var mostVisited = {
       chrome.send('addPinnedURL', [data.url, data.title, String(index)]);
     }
     data.pinned = !data.pinned;
+    // Update tooltip
+    el.querySelector('.pin').title = localStrings.getString(data.pinned ?
+        'unpinthumbnailtooltip' : 'pinthumbnailtooltip');
   },
 
   getThumbnailIndex: function(el) {
@@ -506,6 +511,11 @@ var mostVisited = {
       thumbCheckbox.checked = false;
       listCheckbox.checked = false;
     }
+
+    thumbCheckbox.title = localStrings.getString(
+        shownSections & Section.THUMB ? 'hidethumbnails' : 'showthumbnails');
+    listCheckbox.title = localStrings.getString(
+        shownSections & Section.LIST ? 'hidelist' : 'showlist');
   }
 };
 
@@ -852,9 +862,6 @@ $('most-visited').addEventListener('click', function(e) {
     e.preventDefault();
   } else if (hasClass(target, 'remove')) {
     mostVisited.blacklist(mostVisited.getItem(target));
-    e.preventDefault();
-  } else if (hasClass(target, 'edit-link')) {
-    alert('Not implemented yet')
     e.preventDefault();
   }
 });

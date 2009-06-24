@@ -167,16 +167,6 @@ html[anim='false'] *,
   pointer-events: inherit;
 }
 
-.edit-bar {
-
-}
-
-.edit-bar > .edit-link {
-  padding: 0 5px;
-  color: hsl(213, 88%, 94%);
-  font-weight: bold;
-}
-
 .edit-bar > .spacer {
   -webkit-box-flex: 1;
 }
