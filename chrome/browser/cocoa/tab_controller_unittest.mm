@@ -126,9 +126,9 @@ TEST_F(TabControllerTest, Loading) {
   scoped_nsobject<TabController> controller([[TabController alloc] init]);
   [[window contentView] addSubview:[controller view]];
 
-  EXPECT_EQ(DONE, [controller loadingState]);
-  [controller setLoadingState:LOADING];
-  EXPECT_EQ(LOADING, [controller loadingState]);
+  EXPECT_FALSE([controller loading]);
+  [controller setLoading:YES];
+  EXPECT_TRUE([controller loading]);
 
   [[controller view] removeFromSuperview];
 }

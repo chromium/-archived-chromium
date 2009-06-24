@@ -65,7 +65,6 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
 
 // Overridden to draw the appropriate frame in the image strip.
 - (void)drawRect:(NSRect)rect {
-#if 0
   float imageDimension = [image_ extent].size.height;
   float xOffset = animationFrame_ * imageDimension;
   NSRect sourceImageRect =
@@ -74,7 +73,6 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
              fromRect:sourceImageRect
             operation:NSCompositeSourceOver
              fraction:1.0];
-#endif
 }
 
 // Stores the internal representation of the image from |image|. We use
@@ -87,7 +85,6 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
   [timer_ invalidate];
   timer_ = nil;
 
-#if 0
   // Ensure that the height divides evenly into the width. Cache the
   // number of frames in the animation for later.
   NSSize imageSize = [image size];
@@ -109,7 +106,6 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
     [image unlockFocus];
   }
   image_.reset([[CIImage alloc] initWithBitmapImageRep:rep]);
-#endif
 
 #if 0
 // TODO(pinkerton): The invalidation of the view to trigger re-draw causes

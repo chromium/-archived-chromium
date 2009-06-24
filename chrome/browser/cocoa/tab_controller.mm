@@ -8,7 +8,8 @@
 
 @implementation TabController
 
-@synthesize loadingState = loadingState_;
+@synthesize loading = loading_;
+@synthesize waiting = waiting_;
 @synthesize target = target_;
 @synthesize action = action_;
 
