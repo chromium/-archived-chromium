@@ -257,4 +257,22 @@ int MirroredLeftPointForRect(GtkWidget* widget, const gfx::Rect& bounds) {
   return widget->allocation.width - bounds.x() - bounds.width();
 }
 
+bool WidgetContainsCursor(GtkWidget* widget) {
+  gint x = 0;
+  gint y = 0;
+  gtk_widget_get_pointer(widget, &x, &y);
+
+  // To quote the gtk docs:
+  //
+  //   Widget coordinates are a bit odd; for historical reasons, they are
+  //   defined as widget->window coordinates for widgets that are not
+  //   GTK_NO_WINDOW widgets, and are relative to widget->allocation.x,
+  //   widget->allocation.y for widgets that are GTK_NO_WINDOW widgets.
+  //
+  // So the base is always (0,0).
+  gfx::Rect widget_allocation(0, 0, widget->allocation.width,
+                              widget->allocation.height);
+  return widget_allocation.Contains(x, y);
+}
+
 }  // namespace gtk_util

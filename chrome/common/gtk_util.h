@@ -101,6 +101,9 @@ void SetButtonTriggersNavigation(GtkWidget* button);
 // the original value is returned unchanged.
 int MirroredLeftPointForRect(GtkWidget* widget, const gfx::Rect& bounds);
 
+// Returns true if the pointer is currently inside the widget.
+bool WidgetContainsCursor(GtkWidget* widget);
+
 }  // namespace gtk_util
 
 #endif  // CHROME_COMMON_GTK_UTIL_H_

@@ -101,6 +101,9 @@ gboolean BackForwardButtonGtk::OnButtonPress(GtkWidget* widget,
     GdkEventButton* event, BackForwardButtonGtk* button) {
   button->last_release_event_flags_ = 0;
 
+  if (event->button == 3)
+    button->ShowBackForwardMenu();
+
   if (event->button != 1)
     return FALSE;
 
