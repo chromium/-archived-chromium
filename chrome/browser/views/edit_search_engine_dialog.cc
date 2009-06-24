@@ -96,7 +96,7 @@ bool EditSearchEngineDialog::Cancel() {
 }
 
 bool EditSearchEngineDialog::Accept() {
-  controller_->AcceptAddOrEdit(keyword_tf_->text(), title_tf_->text(),
+  controller_->AcceptAddOrEdit(title_tf_->text(), keyword_tf_->text(),
                                url_tf_->text());
   return true;
 }
