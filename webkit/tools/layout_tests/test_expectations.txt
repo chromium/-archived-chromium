@@ -2744,7 +2744,7 @@ BUG14831 : LayoutTests/fast/events/event-trace.html = FAIL
 
 // WebKit 44922:44927
 BUG14885 : LayoutTests/fast/js/JSON-parse.html = FAIL
-BUG14889 REBASELINE : LayoutTests/http/tests/security/xssAuditor/link-opens-new-window.html = FAIL
+BUG14889 : LayoutTests/http/tests/security/xssAuditor/link-opens-new-window.html = FAIL
 
 // WebKit 44928:44943
 BUG14946 : LayoutTests/fast/js/date-toisostring.html = FAIL
@@ -2768,7 +2768,6 @@ BUG15132 : LayoutTests/http/tests/security/xssAuditor/script-tag-with-source.htm
 BUG15132 SKIP : LayoutTests/compositing/reflections/reflection-on-composited.html = FAIL
 // more unexpected failures
 BUG15132 WIN LINUX : LayoutTests/editing/execCommand/5482023.html = FAIL
-BUG15132 WIN LINUX : LayoutTests/editing/execCommand/remove-formatting-2.html = FAIL
 BUG15132 WIN LINUX : LayoutTests/editing/inserting/editable-html-element.html = FAIL
 BUG15132 WIN LINUX : LayoutTests/editing/pasteboard/4989774.html = FAIL
 BUG15132 WIN LINUX : LayoutTests/editing/selection/4983858.html = FAIL
