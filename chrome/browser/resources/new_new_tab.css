@@ -23,7 +23,7 @@ html[dir='rtl'] #main {
   width: 692px;
 }
 
-html[anim='false'],
+html[anim='false'] *,
 .no-anim, .no-anim *,
 .loading * {
   -webkit-transition: none !important;
