@@ -190,8 +190,14 @@ class PrefObserverBridge : public NotificationObserver {
   useSuggest_.Init(prefs::kSearchSuggestEnabled, prefs_, observer_.get());
   dnsPrefetch_.Init(prefs::kDnsPrefetchingEnabled, prefs_, observer_.get());
   safeBrowsing_.Init(prefs::kSafeBrowsingEnabled, prefs_, observer_.get());
+  // During unit tests, there is no local state object, so we fall back to
+  // the prefs object (where we've explicitly registered this pref so we
+  // know it's there).
+  PrefService* local = g_browser_process->local_state();
+  if (!local)
+    local = prefs_;
   metricsRecording_.Init(prefs::kMetricsReportingEnabled,
-                         g_browser_process->local_state(), observer_.get());
+                         local, observer_.get());
   cookieBehavior_.Init(prefs::kCookieBehavior, prefs_, observer_.get());
 }
 
