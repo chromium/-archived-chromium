@@ -289,16 +289,6 @@ void DragDownload(const DownloadItem* download, SkBitmap* icon) {
 }  // namespace download_util
 #endif
 
-#if defined(OS_MACOSX)
-void HungRendererDialog::HideForTabContents(TabContents*) {
-  NOTIMPLEMENTED();
-}
-
-void HungRendererDialog::ShowForTabContents(TabContents*) {
-  NOTIMPLEMENTED();
-}
-#endif
-
 #if !defined(TOOLKIT_VIEWS)
 void BrowserList::AllBrowsersClosed() {
   // TODO(port): Close any dependent windows if necessary when the last browser
