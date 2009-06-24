@@ -150,7 +150,7 @@ void WebURLRequest::visitHTTPHeaderFields(WebHTTPHeaderVisitor* visitor) const
 
 WebHTTPBody WebURLRequest::httpBody() const
 {
-    return m_private->m_resourceRequest->httpBody();
+    return WebHTTPBody(m_private->m_resourceRequest->httpBody());
 }
 
 void WebURLRequest::setHTTPBody(const WebHTTPBody& httpBody)
