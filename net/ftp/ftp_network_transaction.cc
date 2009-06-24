@@ -64,11 +64,11 @@ int FtpNetworkTransaction::Start(const FtpRequestInfo* request_info,
 
 int FtpNetworkTransaction::Stop(int error) {
   if (command_sent_ == COMMAND_QUIT)
-    return ERR_FAILED;
+    return error;
 
   next_state_ = STATE_CTRL_WRITE_QUIT;
   last_error_ = error;
-  return error;
+  return OK;
 }
 
 int FtpNetworkTransaction::RestartWithAuth(const std::wstring& username,
