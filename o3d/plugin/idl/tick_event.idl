@@ -41,7 +41,7 @@ namespace o3d {
     nocpp,glue_iface] class TickEvent {
   %[
     Use this property to get the elapsed time since the last tick event
-    seconds.
+    in seconds.
   %]
   [getter] float elapsed_time_;
 };

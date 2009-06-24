@@ -299,8 +299,8 @@ o3djs.event.createEventHandler = function(listenerSet) {
  * Convenience function to manage event listeners on the o3d plugin object,
  * intended as a drop-in replacement for the DOM addEventListener [with slightly
  * different arguments, but the same effect].
- * @param {!Element} pluginObject the <object> where the o3d plugin lives,
- * which the caller probably obtained by calling getElementById.
+ * @param {!Element} pluginObject the html object where the o3d plugin lives,
+ * which the caller probably obtained by calling getElementById or makeClients.
  * @param {string} type the event type on which to trigger, e.g. 'mousedown',
  * 'mousemove', etc.
  * @param {!Object} handler either a function or an EventListener object.

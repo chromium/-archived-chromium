@@ -841,7 +841,6 @@ extern "C" {
   // PluginObject, which mainly lives in cross/o3d_glue.h+cc.
   bool PluginObject::RequestFullscreenDisplay() {
     bool success = false;
-#ifndef NDEBUG  // TODO: Remove after user-prompt feature goes in.
     DCHECK(GetPluginHWnd());
     if (!fullscreen_ && renderer_ && fullscreen_region_valid_) {
       DCHECK(renderer_->fullscreen() == fullscreen_);
@@ -871,12 +870,10 @@ extern "C" {
         LOG(ERROR) << "Failed to create fullscreen window.";
       }
     }
-#endif
     return success;
   }
 
   void PluginObject::CancelFullscreenDisplay() {
-#ifndef NDEBUG  // TODO: Remove after user-prompt feature goes in.
     DCHECK(GetPluginHWnd());
     if (fullscreen_) {
       DCHECK(renderer());
@@ -894,7 +891,6 @@ extern "C" {
       ::SetTimer(GetHWnd(), 0, 10, NULL);
       fullscreen_ = false;
     }
-#endif
   }
 
   NPError NPP_SetWindow(NPP instance, NPWindow *window) {
