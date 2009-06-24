@@ -899,13 +899,6 @@ void TabContents::OnStartDownload(DownloadItem* download) {
 
   if (tab_contents && tab_contents->delegate())
     tab_contents->delegate()->OnStartDownload(download);
-
-  // Update the URL display.
-  // If the download is caused by typing in a downloadable URL, e.g.,
-  // http://example.com/somefile.zip, into the omnibox, the previous URL
-  // will reappear.
-  if (delegate())
-    delegate()->NavigationStateChanged(this, TabContents::INVALIDATE_URL);
 }
 
 void TabContents::WillClose(ConstrainedWindow* window) {
@@ -1785,8 +1778,11 @@ void TabContents::DidFailProvisionalLoadWithError(
     // pending entry if the URLs match, otherwise the user initiated a navigate
     // before the page loaded so that the discard would discard the wrong entry.
     NavigationEntry* pending_entry = controller_.pending_entry();
-    if (pending_entry && pending_entry->url() == url)
+    if (pending_entry && pending_entry->url() == url) {
       controller_.DiscardNonCommittedEntries();
+      // Update the URL display.
+      NotifyNavigationStateChanged(TabContents::INVALIDATE_URL);
+    }
 
     render_manager_.RendererAbortedProvisionalLoad(render_view_host);
   }
