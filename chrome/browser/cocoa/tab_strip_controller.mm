@@ -444,41 +444,38 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
   // load, so we need to make sure we're not creating the throbber view over and
   // over.
   if (contents) {
-    static NSImage* throbberImage = [[NSImage imageNamed:@"throbber"] retain];
     static NSImage* throbberWaitingImage =
         [[NSImage imageNamed:@"throbber_waiting"] retain];
+    static NSImage* throbberLoadingImage =
+        [[NSImage imageNamed:@"throbber"] retain];
 
     TabController* tabController = [tabArray_ objectAtIndex:index];
-    NSImage* image = nil;
+
+    TabLoadingState oldState = [tabController loadingState];
+
+    TabLoadingState newState = DONE;
+    NSImage* throbberImage = nil;
     if (contents->waiting_for_response()) {
-      throbberWaitingImage = throbberWaitingImage;
-#if 0
-      if (![tabController waiting]) {
-        image = throbberWaitingImage;
-        [tabController setWaiting:YES];
-      }
-#endif
+      newState = WAITING;
+      throbberImage = throbberWaitingImage;
     } else if (contents->is_loading()) {
-      if (![tabController loading]) {
-        image = throbberImage;
-        [tabController setLoading:YES];
+      newState = LOADING;
+      throbberImage = throbberLoadingImage;
+    }
+
+    if (oldState != newState) {
+      NSView* iconView = nil;
+      if (newState == DONE) {
+        iconView = [self favIconImageViewForContents:contents];
+      } else {
+        NSRect frame = NSMakeRect(0, 0, 16, 16);
+        iconView = [[[ThrobberView alloc] initWithFrame:frame
+                                                  image:throbberImage]
+                                                                   autorelease];
       }
-    }
-    if (image) {
-      NSRect frame = NSMakeRect(0, 0, 16, 16);
-#if 0
-      ThrobberView* throbber =
-          [[[ThrobberView alloc] initWithFrame:frame image:image] autorelease];
-      [tabController setIconView:throbber];
-#endif
-    }
-    else if (!contents->is_loading()) {
-      // Set everything back to normal, we're done loading.
-#if 0
-      [tabController setIconView:[self favIconImageViewForContents:contents]];
-#endif
-      [tabController setWaiting:NO];
-      [tabController setLoading:NO];
+
+      [tabController setLoadingState:newState];
+      [tabController setIconView:iconView];
     }
   }
 
