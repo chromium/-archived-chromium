@@ -201,10 +201,12 @@ void PasswordsPageView::OnSelectionChanged() {
   bool has_selection = table_view_->SelectedRowCount() > 0;
   remove_button_.SetEnabled(has_selection);
 
-  views::TableSelectionIterator iter = table_view_->SelectionBegin();
-  int row = *iter;
-  PasswordForm* selected = table_model_.GetPasswordFormAt(row);
-  DCHECK(++iter == table_view_->SelectionEnd());
+  PasswordForm* selected = NULL;
+  if (has_selection) {
+    views::TableSelectionIterator iter = table_view_->SelectionBegin();
+    selected = table_model_.GetPasswordFormAt(*iter);
+    DCHECK(++iter == table_view_->SelectionEnd());
+  }
 
   if (selected != current_selected_password_) {
     // Reset the password related views.
