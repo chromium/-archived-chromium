@@ -10,12 +10,16 @@
 #include "base/sys_string_conversions.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/browser_process.h"
 #import "chrome/browser/cocoa/clear_browsing_data_controller.h"
 #import "chrome/browser/cocoa/custom_home_pages_model.h"
 #import "chrome/browser/cocoa/search_engine_list_model.h"
+#include "chrome/browser/metrics/metrics_service.h"
 #include "chrome/browser/metrics/user_metrics.h"
+#include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/session_startup_pref.h"
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -25,8 +29,10 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/url_constants.h"
+#include "chrome/installer/util/google_update_settings.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
+#include "net/base/cookie_policy.h"
 
 NSString* const kUserDoneEditingPrefsNotification =
     @"kUserDoneEditingPrefsNotification";
@@ -42,7 +48,7 @@ std::wstring GetNewTabUIURLString() {
 
 @interface PreferencesWindowController(Private)
 // Callback when preferences are changed. |prefName| is the name of the
-// pref that has changed, or |NULL| if all prefs should be updated.
+// pref that has changed.
 - (void)prefChanged:(std::wstring*)prefName;
 // Record the user performed a certain action and save the preferences.
 - (void)recordUserAction:(const wchar_t*)action;
@@ -60,6 +66,12 @@ std::wstring GetNewTabUIURLString() {
 - (void)setDefaultBrowser:(BOOL)value;
 - (void)setPasswordManagerEnabledIndex:(NSInteger)value;
 - (void)setFormAutofillEnabledIndex:(NSInteger)value;
+- (void)setShowAlternateErrorPages:(BOOL)value;
+- (void)setUseSuggest:(BOOL)value;
+- (void)setDnsPrefetch:(BOOL)value;
+- (void)setSafeBrowsing:(BOOL)value;
+- (void)setMetricsRecording:(BOOL)value;
+- (void)setCookieBehavior:(NSInteger)value;
 @end
 
 // A C++ class registered for changes in preferences. Bridges the
@@ -172,7 +184,15 @@ class PrefObserverBridge : public NotificationObserver {
                          prefs_, observer_.get());
   formAutofill_.Init(prefs::kFormAutofillEnabled, prefs_, observer_.get());
 
-  // TODO(pinkerton): do other panels...
+  // Under the hood panel
+  alternateErrorPages_.Init(prefs::kAlternateErrorPagesEnabled,
+                            prefs_, observer_.get());
+  useSuggest_.Init(prefs::kSearchSuggestEnabled, prefs_, observer_.get());
+  dnsPrefetch_.Init(prefs::kDnsPrefetchingEnabled, prefs_, observer_.get());
+  safeBrowsing_.Init(prefs::kSafeBrowsingEnabled, prefs_, observer_.get());
+  metricsRecording_.Init(prefs::kMetricsReportingEnabled,
+                         g_browser_process->local_state(), observer_.get());
+  cookieBehavior_.Init(prefs::kCookieBehavior, prefs_, observer_.get());
 }
 
 // Clean up what was registered in -registerPrefObservers. We only have to
@@ -565,8 +585,9 @@ enum { kHomepageNewTabPage, kHomepageURL };
 const int kEnabledIndex = 0;
 const int kDisabledIndex = 1;
 
-// Callback when preferences are changed. |prefName| is the name of the
-// pref that has changed, or |NULL| if all prefs should be updated.
+// Callback when preferences are changed. |prefName| is the name of the pref
+// that has changed. Unlike on Windows, we don't need to use this method for
+// initializing, that's handled by Cocoa Bindings.
 // Handles prefs for the "Minor Tweaks" panel.
 - (void)userDataPrefChanged:(std::wstring*)prefName {
   if (*prefName == prefs::kPasswordManagerEnabled) {
@@ -638,10 +659,161 @@ const int kDisabledIndex = 1;
 //-------------------------------------------------------------------------
 // Under the hood panel
 
-// Callback when preferences are changed. |prefName| is the name of the
-// pref that has changed, or |NULL| if all prefs should be updated.
+// Callback when preferences are changed. |prefName| is the name of the pref
+// that has changed. Unlike on Windows, we don't need to use this method for
+// initializing, that's handled by Cocoa Bindings.
 // Handles prefs for the "Under the hood" panel.
 - (void)underHoodPrefChanged:(std::wstring*)prefName {
+  if (*prefName == prefs::kAlternateErrorPagesEnabled) {
+    [self setShowAlternateErrorPages:
+        alternateErrorPages_.GetValue() ? YES : NO];
+  }
+  else if (*prefName == prefs::kSearchSuggestEnabled) {
+    [self setUseSuggest:useSuggest_.GetValue() ? YES : NO];
+  }
+  else if (*prefName == prefs::kDnsPrefetchingEnabled) {
+    [self setDnsPrefetch:dnsPrefetch_.GetValue() ? YES : NO];
+  }
+  else if (*prefName == prefs::kSafeBrowsingEnabled) {
+    [self setSafeBrowsing:safeBrowsing_.GetValue() ? YES : NO];
+  }
+  else if (*prefName == prefs::kMetricsReportingEnabled) {
+    [self setMetricsRecording:metricsRecording_.GetValue() ? YES : NO];
+  }
+  else if (*prefName == prefs::kCookieBehavior) {
+    [self setCookieBehavior:cookieBehavior_.GetValue()];
+  }
+}
+
+// Returns whether the alternate error page checkbox should be checked based
+// on the preference.
+- (BOOL)showAlternateErrorPages {
+  return alternateErrorPages_.GetValue() ? YES : NO;
+}
+
+// Sets the backend pref for whether or not the alternate error page checkbox
+// should be displayed based on |value|.
+- (void)setShowAlternateErrorPages:(BOOL)value {
+  if (value)
+    [self recordUserAction:L"Options_LinkDoctorCheckbox_Enable"];
+  else
+    [self recordUserAction:L"Options_LinkDoctorCheckbox_Disable"];
+  alternateErrorPages_.SetValue(value ? true : false);
+}
+
+// Returns whether the suggest checkbox should be checked based on the
+// preference.
+- (BOOL)useSuggest {
+  return useSuggest_.GetValue() ? YES : NO;
+}
+
+// Sets the backend pref for whether or not the suggest checkbox should be
+// displayed based on |value|.
+- (void)setUseSuggest:(BOOL)value {
+  if (value)
+    [self recordUserAction:L"Options_UseSuggestCheckbox_Enable"];
+  else
+    [self recordUserAction:L"Options_UseSuggestCheckbox_Disable"];
+  useSuggest_.SetValue(value ? true : false);
+}
+
+// Returns whether the DNS prefetch checkbox should be checked based on the
+// preference.
+- (BOOL)dnsPrefetch {
+  return dnsPrefetch_.GetValue() ? YES : NO;
+}
+
+// Sets the backend pref for whether or not the DNS prefetch checkbox should be
+// displayed based on |value|.
+- (void)setDnsPrefetch:(BOOL)value {
+  if (value)
+    [self recordUserAction:L"Options_DnsPrefetchCheckbox_Enable"];
+  else
+    [self recordUserAction:L"Options_DnsPrefetchCheckbox_Disable"];
+  dnsPrefetch_.SetValue(value ? true : false);
+  chrome_browser_net::EnableDnsPrefetch(value ? true : false);
+}
+
+// Returns whether the safe browsing checkbox should be checked based on the
+// preference.
+- (BOOL)safeBrowsing {
+  return safeBrowsing_.GetValue() ? YES : NO;
+}
+
+// Sets the backend pref for whether or not the safe browsing checkbox should be
+// displayed based on |value|.
+- (void)setSafeBrowsing:(BOOL)value {
+  if (value)
+    [self recordUserAction:L"Options_SafeBrowsingCheckbox_Enable"];
+  else
+    [self recordUserAction:L"Options_SafeBrowsingCheckbox_Disable"];
+  bool enabled = value ? true : false;
+  safeBrowsing_.SetValue(enabled);
+  SafeBrowsingService* safeBrowsingService =
+      g_browser_process->resource_dispatcher_host()->safe_browsing_service();
+  MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
+      safeBrowsingService, &SafeBrowsingService::OnEnable, enabled));
+}
+
+// Returns whether the suggest checkbox should be checked based on the
+// preference.
+- (BOOL)metricsRecording {
+  return metricsRecording_.GetValue() ? YES : NO;
+}
+
+// Sets the backend pref for whether or not the suggest checkbox should be
+// displayed based on |value|.
+- (void)setMetricsRecording:(BOOL)value {
+  if (value)
+    [self recordUserAction:L"Options_MetricsReportingCheckbox_Enable"];
+  else
+    [self recordUserAction:L"Options_MetricsReportingCheckbox_Disable"];
+  bool enabled = value ? true : false;
+
+  GoogleUpdateSettings::SetCollectStatsConsent(enabled);
+  bool update_pref = GoogleUpdateSettings::GetCollectStatsConsent();
+  if (enabled != update_pref) {
+    DLOG(INFO) <<
+        "GENERAL SECTION: Unable to set crash report status to " <<
+        enabled;
+  }
+  // Only change the pref if GoogleUpdateSettings::GetCollectStatsConsent
+  // succeeds.
+  enabled = update_pref;
+
+  MetricsService* metrics = g_browser_process->metrics_service();
+  DCHECK(metrics);
+  if (metrics) {
+    metrics->SetUserPermitsUpload(enabled);
+    if (enabled)
+      metrics->Start();
+    else
+      metrics->Stop();
+  }
+
+  // TODO(pinkerton): windows shows a dialog here telling the user they need to
+  // restart for this to take effect. Is that really necessary?
+  metricsRecording_.SetValue(enabled);
+}
+
+// Returns the index of the cookie popup based on the preference.
+- (NSInteger)cookieBehavior {
+  return cookieBehavior_.GetValue();
+}
+
+// Sets the backend pref for whether or not to accept cookies based on |index|.
+- (void)setCookieBehavior:(NSInteger)index {
+  net::CookiePolicy::Type policy = net::CookiePolicy::ALLOW_ALL_COOKIES;
+  if (net::CookiePolicy::ValidType(index))
+    policy = net::CookiePolicy::FromInt(index);
+  const wchar_t* kUserMetrics[] = {
+      L"Options_AllowAllCookies",
+      L"Options_BlockThirdPartyCookies",
+      L"Options_BlockAllCookies"
+  };
+  DCHECK(policy >= 0 && (unsigned int)policy < arraysize(kUserMetrics));
+  [self recordUserAction:kUserMetrics[policy]];
+  cookieBehavior_.SetValue(policy);
 }
 
 //-------------------------------------------------------------------------

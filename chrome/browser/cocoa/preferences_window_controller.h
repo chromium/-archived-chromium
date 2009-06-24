@@ -52,6 +52,12 @@ class Profile;
   // Under the hood panel
   IBOutlet NSView* advancedView_;
   IBOutlet NSScrollView* advancedScroller_;
+  BooleanPrefMember alternateErrorPages_;
+  BooleanPrefMember useSuggest_;
+  BooleanPrefMember dnsPrefetch_;
+  BooleanPrefMember safeBrowsing_;
+  BooleanPrefMember metricsRecording_;
+  IntegerPrefMember cookieBehavior_;
 }
 
 // Designated initializer. |profile| should not be NULL.
