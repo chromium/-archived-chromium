@@ -117,6 +117,7 @@ static const int kRestrictedPorts[] = {
   993,  // ldap+ssl
   995,  // pop3+ssl
   2049, // nfs
+  3659, // apple-sasl / PasswordServer
   4045, // lockd
   6000, // X11
 };
@@ -483,9 +484,9 @@ bool IsCompatibleWithASCIILetters(const std::string& lang) {
   // For now, just list Chinese, Japanese and Korean (positive list).
   // An alternative is negative-listing (languages using Greek and
   // Cyrillic letters), but it can be more dangerous.
-  return !lang.substr(0,2).compare("zh") ||
-         !lang.substr(0,2).compare("ja") ||
-         !lang.substr(0,2).compare("ko");
+  return !lang.substr(0, 2).compare("zh") ||
+         !lang.substr(0, 2).compare("ja") ||
+         !lang.substr(0, 2).compare("ko");
 }
 
 // Returns true if the given Unicode host component is safe to display to the
@@ -939,15 +940,16 @@ std::wstring GetSuggestedFilename(const GURL& url,
   // If there's no filename or it gets trimed to be empty, use
   // the URL hostname or default_name
   if (filename.empty()) {
-    if (!default_name.empty())
+    if (!default_name.empty()) {
       filename = default_name;
-    else if (url.is_valid()) {
+    } else if (url.is_valid()) {
       // Some schemes (e.g. file) do not have a hostname. Even though it's
       // not likely to reach here, let's hardcode the last fallback name.
       // TODO(jungshik) : Decode a 'punycoded' IDN hostname. (bug 1264451)
       filename = url.host().empty() ? L"download" : UTF8ToWide(url.host());
-    } else
+    } else {
       NOTREACHED();
+    }
   }
 
   file_util::ReplaceIllegalCharacters(&filename, '-');

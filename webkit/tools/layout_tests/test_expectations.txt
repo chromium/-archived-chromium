@@ -2285,7 +2285,6 @@ BUG10859 LINUX MAC : LayoutTests/fast/dom/HTMLSelectElement/named-options.html =
 BUG10861 WIN : LayoutTests/fast/dom/HTMLSelectElement/named-options.html = FAIL
 
 // New failures from WebKit Merge 42671:42725
-BUG10861 WIN : LayoutTests/security/block-test.html = FAIL
 BUG10861 WIN : LayoutTests/http/tests/plugins/post-url-file.html = PASS
 BUG10861 MAC : LayoutTests/http/tests/plugins/post-url-file.html = TIMEOUT
 BUG10861 LINUX MAC : LayoutTests/security/set-form-autocomplete-attribute.html = TIMEOUT PASS

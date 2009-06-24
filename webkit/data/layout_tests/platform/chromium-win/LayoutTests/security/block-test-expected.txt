@@ -111,6 +111,8 @@ http://255.255.255.255:995/test.jpg - willSendRequest <WebRequest URL "http://25
 http://255.255.255.255:995/test.jpg - didFailLoadingWithError <WebError code -312, failing URL "http://255.255.255.255:995/test.jpg">
 http://255.255.255.255:2049/test.jpg - willSendRequest <WebRequest URL "http://255.255.255.255:2049/test.jpg">
 http://255.255.255.255:2049/test.jpg - didFailLoadingWithError <WebError code -312, failing URL "http://255.255.255.255:2049/test.jpg">
+http://255.255.255.255:3659/test.jpg - willSendRequest <WebRequest URL "http://255.255.255.255:3659/test.jpg">
+http://255.255.255.255:3659/test.jpg - didFailLoadingWithError <WebError code -312, failing URL "http://255.255.255.255:3659/test.jpg">
 http://255.255.255.255:4045/test.jpg - willSendRequest <WebRequest URL "http://255.255.255.255:4045/test.jpg">
 http://255.255.255.255:4045/test.jpg - didFailLoadingWithError <WebError code -312, failing URL "http://255.255.255.255:4045/test.jpg">
 http://255.255.255.255:6000/test.jpg - willSendRequest <WebRequest URL "http://255.255.255.255:6000/test.jpg">
