@@ -234,4 +234,14 @@
    ...
    fun:gl_context_init_client_state
 }
-
+{
+   # Reproducible just launching and quitting TextEdit; filed with Apple as rdar://7004347
+   tsm_leak_rdar_7004347
+   Memcheck:Leak
+   fun:malloc_zone_malloc
+   fun:_CFRuntimeCreateInstance
+   fun:__CFDictionaryInit
+   fun:utOpenActivateAllSelectedIMInDoc
+   fun:MyActivateTSMDocument
+   fun:ActivateTSMDocument
+}
