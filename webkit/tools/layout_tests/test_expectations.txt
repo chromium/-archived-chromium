@@ -2784,4 +2784,4 @@ BUG15217 : LayoutTests/fast/events/drag-to-navigate.html = TIMEOUT FAIL
 BUG15217 : LayoutTests/fast/js/dictionary-no-cache.html = FAIL
 BUG15217 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridDataSource-basic.html = TIMEOUT
 BUG15217 : LayoutTests/fast/events/prevent-drag-to-navigate.html = TIMEOUT
-
+BUG15217 : LayoutTests/fast/js/switch-behaviour.html = FAIL
