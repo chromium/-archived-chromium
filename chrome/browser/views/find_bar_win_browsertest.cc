@@ -25,6 +25,7 @@ const std::wstring kTooFewMatchesPage = L"files/find_in_page/bug_1155639.html";
 const std::wstring kEndState = L"files/find_in_page/end_state.html";
 const std::wstring kPrematureEnd = L"files/find_in_page/premature_end.html";
 const std::wstring kMoveIfOver = L"files/find_in_page/move_if_obscuring.html";
+const std::wstring kBitstackCrash = L"files/find_in_page/crash_14491.html";
 
 class FindInPageNotificationObserver : public NotificationObserver {
  public:
@@ -356,6 +357,21 @@ IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, FindCrash_Issue1341577) {
   EXPECT_EQ(1, FindInPage(L"\u0D24\u0D46", FWD, IGNORE_CASE, &ordinal));
   EXPECT_EQ(1, ordinal);
   EXPECT_EQ(0, FindInPage(L"nostring", FWD, IGNORE_CASE, &ordinal));
+  EXPECT_EQ(0, ordinal);
+}
+
+// Try to reproduce the crash seen in http://crbug.com/14491, where an assert
+// hits in the BitStack size comparison in WebKit.
+IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, FindCrash_Issue14491) {
+  HTTPTestServer* server = StartHTTPServer();
+
+  // First we navigate to our page.
+  GURL url = server->TestServerPageW(kBitstackCrash);
+  ui_test_utils::NavigateToURL(browser(), url);
+
+  // This used to crash the tab.
+  int ordinal = 0;
+  EXPECT_EQ(0, FindInPage(L"s", FWD, IGNORE_CASE, &ordinal));
   EXPECT_EQ(0, ordinal);
 }
 
