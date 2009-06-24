@@ -26,6 +26,7 @@
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/gtk/about_chrome_dialog.h"
 #include "chrome/browser/gtk/bookmark_bar_gtk.h"
+#include "chrome/browser/gtk/bookmark_manager_gtk.h"
 #include "chrome/browser/gtk/browser_titlebar.h"
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
 #include "chrome/browser/gtk/clear_browsing_data_dialog_gtk.h"
@@ -628,7 +629,7 @@ void BrowserWindowGtk::ShowTaskManager() {
 }
 
 void BrowserWindowGtk::ShowBookmarkManager() {
-  NOTIMPLEMENTED();
+  BookmarkManagerGtk::Show(browser_->profile());
 }
 
 void BrowserWindowGtk::ShowBookmarkBubble(const GURL& url,
