@@ -13,7 +13,12 @@ namespace views {
 // the two views that the user can drag around to resize the views.
 class SingleSplitView : public views::View {
  public:
-  SingleSplitView(View* leading, View* trailing);
+  enum Orientation {
+    HORIZONTAL_SPLIT,
+    VERTICAL_SPLIT
+  };
+
+  SingleSplitView(View* leading, View* trailing, Orientation orientation);
 
   virtual void Layout();
 
@@ -22,10 +27,14 @@ class SingleSplitView : public views::View {
   virtual gfx::Size GetPreferredSize();
 
   // Overriden to return a resize cursor when over the divider.
-  virtual gfx::NativeCursor GetCursorForPoint(Event::EventType event_type, int x, int y);
+  virtual gfx::NativeCursor GetCursorForPoint(Event::EventType event_type,
+                                              int x,
+                                              int y);
 
-  void set_divider_x(int divider_x) { divider_x_ = divider_x; }
-  int divider_x() { return divider_x_; }
+  void set_divider_offset(int divider_offset) {
+    divider_offset_ = divider_offset;
+  }
+  int divider_offset() { return divider_offset_; }
 
  protected:
   virtual bool OnMousePressed(const MouseEvent& event);
@@ -33,21 +42,33 @@ class SingleSplitView : public views::View {
   virtual void OnMouseReleased(const MouseEvent& event, bool canceled);
 
  private:
-  // Returns true if |x| is over the divider.
-  bool IsPointInDivider(int x);
+  // Returns true if |x| or |y| is over the divider.
+  bool IsPointInDivider(int x, int y);
+
+  // Returns width in case of horizontal split and height otherwise.
+  int GetPrimaryAxisSize() {
+    return GetPrimaryAxisSize(width(), height());
+  }
+
+  int GetPrimaryAxisSize(int h, int v) {
+    return is_horizontal_ ? h : v;
+  }
 
   // Used to track drag info.
   struct DragInfo {
     // The initial coordinate of the mouse when the user started the drag.
-    int initial_mouse_x;
+    int initial_mouse_offset;
     // The initial position of the divider when the user started the drag.
-    int initial_divider_x;
+    int initial_divider_offset;
   };
 
   DragInfo drag_info_;
 
+  // Orientation of the split view.
+  bool is_horizontal_;
+
   // Position of the divider.
-  int divider_x_;
+  int divider_offset_;
 
   DISALLOW_COPY_AND_ASSIGN(SingleSplitView);
 };

@@ -17,8 +17,11 @@ namespace views {
 // Size of the divider in pixels.
 static const int kDividerSize = 4;
 
-SingleSplitView::SingleSplitView(View* leading, View* trailing)
-    : divider_x_(-1) {
+SingleSplitView::SingleSplitView(View* leading,
+                                 View* trailing,
+                                 Orientation orientation)
+    : is_horizontal_(orientation == HORIZONTAL_SPLIT),
+      divider_offset_(-1) {
   AddChildView(leading);
   AddChildView(trailing);
   set_background(
@@ -32,13 +35,21 @@ void SingleSplitView::Layout() {
 
   View* leading = GetChildViewAt(0);
   View* trailing = GetChildViewAt(1);
-  if (divider_x_ < 0)
-    divider_x_ = (width() - kDividerSize) / 2;
+  if (divider_offset_ < 0)
+    divider_offset_ = (GetPrimaryAxisSize() - kDividerSize) / 2;
   else
-    divider_x_ = std::min(divider_x_, width() - kDividerSize);
-  leading->SetBounds(0, 0, divider_x_, height());
-  trailing->SetBounds(divider_x_ + kDividerSize, 0,
-                      width() - divider_x_ - kDividerSize, height());
+    divider_offset_ = std::min(divider_offset_,
+                               GetPrimaryAxisSize() - kDividerSize);
+
+  if (is_horizontal_) {
+    leading->SetBounds(0, 0, divider_offset_, height());
+    trailing->SetBounds(divider_offset_ + kDividerSize, 0,
+                        width() - divider_offset_ - kDividerSize, height());
+  } else {
+    leading->SetBounds(0, 0, width(), divider_offset_);
+    trailing->SetBounds(0, divider_offset_ + kDividerSize,
+                        width(), height() - divider_offset_ - kDividerSize);
+  }
 
   SchedulePaint();
 
@@ -52,31 +63,42 @@ gfx::Size SingleSplitView::GetPreferredSize() {
   for (int i = 0; i < 2 && i < GetChildViewCount(); ++i) {
     View* view = GetChildViewAt(i);
     gfx::Size pref = view->GetPreferredSize();
-    width += pref.width();
-    height = std::max(height, pref.height());
+    if (is_horizontal_) {
+      width += pref.width();
+      height = std::max(height, pref.height());
+    } else {
+      width = std::max(width, pref.width());
+      height += pref.height();
+    }
   }
-  width += kDividerSize;
+  if (is_horizontal_)
+    width += kDividerSize;
+  else
+    height += kDividerSize;
   return gfx::Size(width, height);
 }
 
 gfx::NativeCursor SingleSplitView::GetCursorForPoint(Event::EventType event_type,
                                                      int x, int y) {
-  if (IsPointInDivider(x)) {
+  if (IsPointInDivider(x, y)) {
 #if defined(OS_WIN)
-    static HCURSOR resize_cursor = LoadCursor(NULL, IDC_SIZEWE);
+    static HCURSOR resize_cursor = LoadCursor(NULL,
+        is_horizontal_ ? IDC_SIZEWE : IDC_SIZENS);
     return resize_cursor;
 #elif defined(OS_LINUX)
-    return gdk_cursor_new(GDK_SB_H_DOUBLE_ARROW);
+    return gdk_cursor_new(is_horizontal_ ?
+                              GDK_SB_H_DOUBLE_ARROW :
+                              GDK_SB_V_DOUBLE_ARROW);
 #endif
   }
   return NULL;
 }
 
 bool SingleSplitView::OnMousePressed(const MouseEvent& event) {
-  if (!IsPointInDivider(event.x()))
+  if (!IsPointInDivider(event.x(), event.y()))
     return false;
-  drag_info_.initial_mouse_x = event.x();
-  drag_info_.initial_divider_x = divider_x_;
+  drag_info_.initial_mouse_offset = GetPrimaryAxisSize(event.x(), event.y());
+  drag_info_.initial_divider_offset = divider_offset_;
   return true;
 }
 
@@ -84,18 +106,20 @@ bool SingleSplitView::OnMouseDragged(const MouseEvent& event) {
   if (GetChildViewCount() < 2)
     return false;
 
-  int delta_x = event.x() - drag_info_.initial_mouse_x;
-  if (UILayoutIsRightToLeft())
-    delta_x *= -1;
+  int delta_offset = GetPrimaryAxisSize(event.x(), event.y()) -
+      drag_info_.initial_mouse_offset;
+  if (is_horizontal_ && UILayoutIsRightToLeft())
+    delta_offset *= -1;
   // Honor the minimum size when resizing.
-  int new_width = std::max(GetChildViewAt(0)->GetMinimumSize().width(),
-                           drag_info_.initial_divider_x + delta_x);
+  gfx::Size min = GetChildViewAt(0)->GetMinimumSize();
+  int new_size = std::max(GetPrimaryAxisSize(min.width(), min.height()),
+                          drag_info_.initial_divider_offset + delta_offset);
 
   // And don't let the view get bigger than our width.
-  new_width = std::min(width() - kDividerSize, new_width);
+  new_size = std::min(GetPrimaryAxisSize() - kDividerSize, new_size);
 
-  if (new_width != divider_x_) {
-    set_divider_x(new_width);
+  if (new_size != divider_offset_) {
+    set_divider_offset(new_size);
     Layout();
   }
   return true;
@@ -105,19 +129,25 @@ void SingleSplitView::OnMouseReleased(const MouseEvent& event, bool canceled) {
   if (GetChildViewCount() < 2)
     return;
 
-  if (canceled && drag_info_.initial_divider_x != divider_x_) {
-    set_divider_x(drag_info_.initial_divider_x);
+  if (canceled && drag_info_.initial_divider_offset != divider_offset_) {
+    set_divider_offset(drag_info_.initial_divider_offset);
     Layout();
   }
 }
 
-bool SingleSplitView::IsPointInDivider(int x) {
+bool SingleSplitView::IsPointInDivider(int x, int y) {
   if (GetChildViewCount() < 2)
     return false;
 
-  int divider_relative_x =
-      x - GetChildViewAt(UILayoutIsRightToLeft() ? 1 : 0)->width();
-  return (divider_relative_x >= 0 && divider_relative_x < kDividerSize);
+  int divider_relative_offset;
+  if (is_horizontal_) {
+    divider_relative_offset =
+        x - GetChildViewAt(UILayoutIsRightToLeft() ? 1 : 0)->width();
+  } else {
+    divider_relative_offset = y - GetChildViewAt(0)->height();
+  }
+  return (divider_relative_offset >= 0 &&
+      divider_relative_offset < kDividerSize);
 }
 
 }  // namespace views

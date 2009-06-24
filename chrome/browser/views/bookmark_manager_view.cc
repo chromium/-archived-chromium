@@ -182,7 +182,8 @@ BookmarkManagerView::BookmarkManagerView(Profile* profile)
       this, true);
   tools_menu_button->SetID(kToolsMenuButtonID);
 
-  split_view_ = new views::SingleSplitView(tree_view_, table_view_);
+  split_view_ = new views::SingleSplitView(tree_view_, table_view_,
+      views::SingleSplitView::HORIZONTAL_SPLIT);
   split_view_->set_background(
       views::Background::CreateSolidBackground(kBackgroundColorBottom));
 
@@ -349,7 +350,7 @@ std::wstring BookmarkManagerView::GetWindowName() const {
 
 void BookmarkManagerView::WindowClosing() {
   g_browser_process->local_state()->SetInteger(
-      prefs::kBookmarkManagerSplitLocation, split_view_->divider_x());
+      prefs::kBookmarkManagerSplitLocation, split_view_->divider_offset());
 }
 
 bool BookmarkManagerView::AcceleratorPressed(
@@ -644,7 +645,7 @@ void BookmarkManagerView::PrepareForShow() {
   // Make sure the user can see both the tree/table.
   split_x = std::min(split_view_->width() - min_split_size,
                      std::max(min_split_size, split_x));
-  split_view_->set_divider_x(split_x);
+  split_view_->set_divider_offset(split_x);
   if (!GetBookmarkModel()->IsLoaded()) {
     search_tf_->SetReadOnly(true);
     return;
