@@ -466,11 +466,6 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
 #if 0
       ThrobberView* throbber =
           [[[ThrobberView alloc] initWithFrame:frame image:image] autorelease];
-#else
-      NSView* throbber = [[[NSView alloc] initWithFrame:frame] autorelease];
-#endif
-      throbber = nil;
-#if 0
       [tabController setIconView:throbber];
 #endif
     }
