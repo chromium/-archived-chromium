@@ -120,20 +120,10 @@ logEvent('log start');
                     jscontent="title"></a>
                 <div jsdisplay="type == 'window'"
                     class="item link window"
-                    jsvalues=".sessionId:sessionId"
+                    jsvalues=".sessionId:sessionId;
+                              .tabItems:tabs"
                     tabindex="0">
                   <span jscontent="formatTabsText($this.tabs.length)"></span>
-                  <div class="window-menu">
-                    <span jsselect="tabs">
-                      <span class="item"
-                          jsdisplay="type == 'tab'"
-                          jsvalues="title:title;
-                              .style.backgroundImage:'url(chrome://favicon/' +
-                                  url + ')';
-                              dir:direction;"
-                          jscontent="title"></span>
-                    </span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -178,6 +168,15 @@ logEvent('log start');
   </div>
 
 </div> <!-- main -->
+
+<div jsskip="true">
+  <div class="window-menu" id="window-menu">
+    <span class="item" jsselect="$this"
+        jsvalues=".style.backgroundImage:'url(chrome://favicon/' + url + ')';
+            dir:direction;"
+        jscontent="title"></span>
+  </div>
+</div>
 
 <script src="local_strings.js"></script>
 <script src="new_new_tab.js"></script>

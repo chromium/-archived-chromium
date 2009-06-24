@@ -470,19 +470,7 @@ html[dir='rtl'] .item {
   opacity: .9;
   z-index: 1;
   pointer-events: none;
-}
-
-.item:hover > .window-menu,
-.item:focus > .window-menu {
-  display: block;
-}
-
-.item:hover .window-menu .item,
-.item:focus .window-menu .item {
-  background-color: transparent;
-  text-decoration: none;
-  margin: 0;
-  font-size: 100%;
+  padding: 1px;
 }
 
 .hbox {
@@ -655,7 +643,6 @@ html[dir='rtl'] #option-menu {
 
 #option-menu > div {
   padding: 3px 8px;
-  margin: 1px;
   overflow: hidden;
   text-overflow: ellipsis;
 }

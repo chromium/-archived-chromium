@@ -28,11 +28,19 @@ function findAncestorByClass(el, className) {
   });
 }
 
-function findAncestor(el, predicate) {
-  while (el != null && !predicate(el)) {
-    el = el.parentNode;
+/**
+ * Return the first ancestor for which the {@code predicate} returns true.
+ * @param {Node} node The node to check.
+ * @param {function(Node) : boolean} predicate The function that tests the
+ *     nodes.
+ * @return {Node} The found ancestor or null if not found.
+ */
+function findAncestor(node, predicate) {
+  var last = false;
+  while (node != null && !(last = predicate(node))) {
+    node = node.parentNode;
   }
-  return el;
+  return last ? node : null;
 }
 
 // WebKit does not have Node.prototype.swapNode
@@ -714,25 +722,78 @@ $('most-visited').addEventListener('click', function(e) {
   }
 });
 
-$('downloads').addEventListener('click', function(e) {
-    var el = findAncestor(e.target, function(el) {
+function handleIfEnterKey(f) {
+  return function(e) {
+    if (e.keyIdentifier == 'Enter') {
+      f(e);
+    }
+  };
+}
+
+$('downloads').addEventListener('click', maybeOpenFile);
+$('downloads').addEventListener('keydown', handleIfEnterKey(maybeOpenFile));
+
+function maybeOpenFile(e) {
+  var el = findAncestor(e.target, function(el) {
     return el.fileId !== undefined;
   });
-  if (el && el.fileId) {
+  if (el) {
     chrome.send('openFile', [String(el.fileId)]);
     e.preventDefault();
   }
-});
+}
 
-$('recent-tabs').addEventListener('click', function(e) {
+var recentTabs = $('recent-tabs');
+recentTabs.addEventListener('click', maybeReopenTab);
+recentTabs.addEventListener('keydown', handleIfEnterKey(maybeReopenTab));
+
+function maybeReopenTab(e) {
   var el = findAncestor(e.target, function(el) {
     return el.sessionId !== undefined;
   });
-  if (el && el.sessionId !== undefined) {
+  if (el) {
     chrome.send('reopenTab', [String(el.sessionId)]);
     e.preventDefault();
   }
-});
+}
+
+recentTabs.addEventListener('mouseover', maybeShowWindowMenu);
+recentTabs.addEventListener('focus', maybeShowWindowMenu, true);
+recentTabs.addEventListener('mouseout', maybeHideWindowMenu);
+recentTabs.addEventListener('blur', maybeHideWindowMenu, true);
+
+function maybeShowWindowMenu(e) {
+  var el = findAncestor(e.target, function(el) {
+    return el.tabItems !== undefined;
+  });
+  if (el) {
+    showWindowMenu(el, el.tabItems);
+  }
+}
+
+function maybeHideWindowMenu(e) {
+  var el = findAncestor(e.target, function(el) {
+    return el.tabItems !== undefined;
+  });
+  if (el) {
+    $('window-menu').style.display  = 'none';
+  }
+}
+
+function showWindowMenu(el, tabs) {
+  var menuEl = $('window-menu');
+  processData('#window-menu', tabs);
+  var rect = el.getBoundingClientRect();
+  var bodyRect = document.body.getBoundingClientRect()
+  var rtl = document.documentElement.dir == 'rtl';
+
+  menuEl.style.display = 'block';
+  menuEl.style.left = (rtl ?
+      rect.left + bodyRect.left + rect.width - menuEl.offsetWidth :
+      rect.left + bodyRect.left) + 'px';
+  menuEl.style.top = rect.top + bodyRect.top + rect.height + 'px';
+
+}
 
 $('thumb-checkbox').addEventListener('change', function(e) {
   if (e.target.checked) {
