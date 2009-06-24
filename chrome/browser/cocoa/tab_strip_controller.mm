@@ -471,7 +471,9 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
     }
     else if (!contents->is_loading()) {
       // Set everything back to normal, we're done loading.
+#if 0
       [tabController setIconView:[self favIconImageViewForContents:contents]];
+#endif
       [tabController setWaiting:NO];
       [tabController setLoading:NO];
     }
