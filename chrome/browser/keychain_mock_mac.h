@@ -14,12 +14,13 @@
 // SecKeychainItemRef values are just indexes into that array (offset by 1 to
 // prevent problems with clients that null-check refs), cast to pointers.
 //
-// TODO(stuartmorgan): The test data is currently hard-coded; instead it should
-// be settable by tests so that there isn't a strong coupling between the mock
-// implementation and the tests.
+// Note that "const" is pretty much meaningless for this class; the const-ness
+// of MacKeychain doesn't apply to the actual keychain data, so all of the Mock
+// data is mutable; don't assume that it won't change over the life of tests.
 class MockKeychain : public MacKeychain {
  public:
-  MockKeychain();
+  // Create a Mock Keychain capable of holding item_capacity keychain items.
+  explicit MockKeychain(unsigned int item_capacity);
   virtual ~MockKeychain();
   virtual OSStatus ItemCopyAttributesAndData(
       SecKeychainItemRef itemRef, SecKeychainAttributeInfo *info,
@@ -37,6 +38,8 @@ class MockKeychain : public MacKeychain {
       SecKeychainSearchRef *searchRef) const;
   virtual OSStatus SearchCopyNext(SecKeychainSearchRef searchRef,
                                   SecKeychainItemRef *itemRef) const;
+  // If there are unused slots in the Mock Keychain's capacity, the new item
+  // will use the first free one, otherwise it will stomp the last item.
   // Pass "some.domain.com" as the serverName to get errSecDuplicateItem.
   virtual OSStatus AddInternetPassword(SecKeychainRef keychain,
                                        UInt32 serverNameLength,
@@ -59,33 +62,41 @@ class MockKeychain : public MacKeychain {
   int UnfreedKeychainItemCount() const;
   int UnfreedAttributeDataCount() const;
 
- private:
-  // Note that "const" is pretty much meaningless for this class; the const-ness
-  // of MacKeychain doesn't apply to the actual keychain data, so all of our
-  // data is mutable. These helpers are all const because they are needed by
-  // some of the const API functions we are mocking.
+  struct KeychainTestData {
+    const SecAuthenticationType auth_type;
+    const char* server;
+    const SecProtocolType protocol;
+    const char* path;
+    const UInt32 port;
+    const char* security_domain;
+    const char* creation_date;
+    const char* username;
+    const char* password;
+    const bool negative_item;
+  };
+  // Adds a keychain item with the given info to the test set.
+  void AddTestItem(const KeychainTestData& item_data);
 
+ private:
   // Sets the data and length of |tag| in the item-th test item.
-  void SetTestDataBytes(int item, UInt32 tag, const void* data,
-                        size_t length) const;
+  void SetTestDataBytes(int item, UInt32 tag, const void* data, size_t length);
   // Sets the data and length of |tag| in the item-th test item based on
   // |value|. The null-terminator will not be included; the Keychain Services
   // docs don't indicate whether it is or not, so clients should not assume
   // that it will be.
-  void SetTestDataString(int item, UInt32 tag, const char* value) const;
+  void SetTestDataString(int item, UInt32 tag, const char* value);
   // Sets the data of the corresponding attribute of the item-th test item to
   // |value|. Assumes that the space has alread been allocated, and the length
   // set.
-  void SetTestDataPort(int item, UInt32 value) const;
-  void SetTestDataProtocol(int item, SecProtocolType value) const;
-  void SetTestDataAuthType(int item, SecAuthenticationType value) const;
-  void SetTestDataNegativeItem(int item, Boolean value) const;
+  void SetTestDataPort(int item, UInt32 value);
+  void SetTestDataProtocol(int item, SecProtocolType value);
+  void SetTestDataAuthType(int item, SecAuthenticationType value);
+  void SetTestDataNegativeItem(int item, Boolean value);
   // Sets the password data and length for the item-th test item.
-  void SetTestDataPasswordBytes(int item, const void* data,
-                                size_t length) const;
+  void SetTestDataPasswordBytes(int item, const void* data, size_t length);
   // Sets the password for the item-th test item. As with SetTestDataString,
   // the data will not be null-terminated.
-  void SetTestDataPasswordString(int item, const char* value) const;
+  void SetTestDataPasswordString(int item, const char* value);
 
   // Returns the index of |tag| in |attribute_list|, or -1 if it's not found.
   static int IndexForTag(const SecKeychainAttributeList& attribute_list,

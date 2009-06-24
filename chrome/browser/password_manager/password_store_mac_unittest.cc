@@ -11,14 +11,73 @@
 
 using webkit_glue::PasswordForm;
 
-// Causes a test failure unless everything returned from
-// ItemCopyAttributesAndData, SearchCreateFromAttributes, and SearchCopyNext
-// was correctly freed.
-static void ExpectCreatesAndFreesBalanced(const MockKeychain& keychain) {
-  EXPECT_EQ(0, keychain.UnfreedSearchCount());
-  EXPECT_EQ(0, keychain.UnfreedKeychainItemCount());
-  EXPECT_EQ(0, keychain.UnfreedAttributeDataCount());
-}
+class PasswordStoreMacTest : public testing::Test {
+ public:
+  virtual void SetUp() {
+    MockKeychain::KeychainTestData test_data[] = {
+      // Basic HTML form.
+      { kSecAuthenticationTypeHTMLForm, "some.domain.com",
+        kSecProtocolTypeHTTP, NULL, 0, NULL, "20020601171500Z",
+        "joe_user", "sekrit", false },
+      // HTML form with path.
+      { kSecAuthenticationTypeHTMLForm, "some.domain.com",
+        kSecProtocolTypeHTTP, "/insecure.html", 0, NULL, "19991231235959Z",
+        "joe_user", "sekrit", false },
+      // Secure HTML form with path.
+      { kSecAuthenticationTypeHTMLForm, "some.domain.com",
+        kSecProtocolTypeHTTPS, "/secure.html", 0, NULL, "20100908070605Z",
+        "secure_user", "password", false },
+      // True negative item.
+      { kSecAuthenticationTypeHTMLForm, "dont.remember.com",
+        kSecProtocolTypeHTTP, NULL, 0, NULL, "20000101000000Z",
+        "", "", true },
+      // De-facto negative item, type one.
+      {kSecAuthenticationTypeHTMLForm, "dont.remember.com",
+        kSecProtocolTypeHTTP, NULL, 0, NULL, "20000101000000Z",
+        "Password Not Stored", "", false },
+      // De-facto negative item, type two.
+      { kSecAuthenticationTypeHTMLForm, "dont.remember.com",
+        kSecProtocolTypeHTTPS, NULL, 0, NULL, "20000101000000Z",
+        "Password Not Stored", " ", false },
+      // HTTP auth basic, with port and path.
+      { kSecAuthenticationTypeHTTPBasic, "some.domain.com",
+        kSecProtocolTypeHTTP, "/insecure.html", 4567, "low_security",
+        "19980330100000Z",
+        "basic_auth_user", "basic", false },
+      // HTTP auth digest, secure.
+      { kSecAuthenticationTypeHTTPDigest, "some.domain.com",
+        kSecProtocolTypeHTTPS, NULL, 0, "high_security", "19980330100000Z",
+        "digest_auth_user", "digest", false },
+    };
+
+    // Save one slot for use by AddInternetPassword.
+    unsigned int capacity = arraysize(test_data) + 1;
+    keychain_ = new MockKeychain(capacity);
+
+    for (unsigned int i = 0; i < arraysize(test_data); ++i) {
+      keychain_->AddTestItem(test_data[i]);
+    }
+  }
+
+  virtual void TearDown() {
+    ExpectCreatesAndFreesBalanced();
+    delete keychain_;
+  }
+
+ protected:
+  // Causes a test failure unless everything returned from keychain_'s
+  // ItemCopyAttributesAndData, SearchCreateFromAttributes, and SearchCopyNext
+  // was correctly freed.
+  void ExpectCreatesAndFreesBalanced() {
+    EXPECT_EQ(0, keychain_->UnfreedSearchCount());
+    EXPECT_EQ(0, keychain_->UnfreedKeychainItemCount());
+    EXPECT_EQ(0, keychain_->UnfreedAttributeDataCount());
+  }
+
+  MockKeychain* keychain_;
+};
+
+#pragma mark -
 
 // Struct used for creation of PasswordForms from static arrays of data.
 struct PasswordFormData {
@@ -141,7 +200,7 @@ static void DeletePasswordForms(std::vector<PasswordForm*>* forms) {
 
 #pragma mark -
 
-TEST(PasswordStoreMacTest, TestSignonRealmParsing) {
+TEST_F(PasswordStoreMacTest, TestSignonRealmParsing) {
   typedef struct {
     const char* signon_realm;
     const bool expected_parsed;
@@ -198,7 +257,7 @@ TEST(PasswordStoreMacTest, TestSignonRealmParsing) {
   EXPECT_TRUE(parsed);
 }
 
-TEST(PasswordStoreMacTest, TestURLConstruction) {
+TEST_F(PasswordStoreMacTest, TestURLConstruction) {
   std::string host("exampledomain.com");
   std::string path("/path/to/page.html");
 
@@ -213,7 +272,7 @@ TEST(PasswordStoreMacTest, TestURLConstruction) {
   EXPECT_EQ(GURL("https://exampledomain.com/"), simple_secure_url);
 }
 
-TEST(PasswordStoreMacTest, TestKeychainTime) {
+TEST_F(PasswordStoreMacTest, TestKeychainTime) {
   typedef struct {
     const char* time_string;
     const bool expected_parsed;
@@ -262,7 +321,7 @@ TEST(PasswordStoreMacTest, TestKeychainTime) {
   }
 }
 
-TEST(PasswordStoreMacTest, TestAuthTypeSchemeTranslation) {
+TEST_F(PasswordStoreMacTest, TestAuthTypeSchemeTranslation) {
   // Our defined types should round-trip correctly.
   SecAuthenticationType auth_types[] = { kSecAuthenticationTypeHTMLForm,
                                          kSecAuthenticationTypeHTTPBasic,
@@ -283,7 +342,7 @@ TEST(PasswordStoreMacTest, TestAuthTypeSchemeTranslation) {
   EXPECT_EQ(kSecAuthenticationTypeDefault, round_tripped_other_auth_type);
 }
 
-TEST(PasswordStoreMacTest, TestKeychainToFormTranslation) {
+TEST_F(PasswordStoreMacTest, TestKeychainToFormTranslation) {
   typedef struct {
     const PasswordForm::Scheme scheme;
     const char* signon_realm;
@@ -326,18 +385,15 @@ TEST(PasswordStoreMacTest, TestKeychainToFormTranslation) {
       1998,  3, 30, 10,  0,  0 },
   };
 
-  MockKeychain mock_keychain;
-
   for (unsigned int i = 0; i < ARRAYSIZE_UNSAFE(expected); ++i) {
     // Create our fake KeychainItemRef; see MockKeychain docs.
     SecKeychainItemRef keychain_item =
         reinterpret_cast<SecKeychainItemRef>(i + 1);
     PasswordForm form;
     bool parsed = internal_keychain_helpers::FillPasswordFormFromKeychainItem(
-        mock_keychain, keychain_item, &form);
+        *keychain_, keychain_item, &form);
 
     EXPECT_TRUE(parsed) << "In iteration " << i;
-    ExpectCreatesAndFreesBalanced(mock_keychain);
 
     EXPECT_EQ(expected[i].scheme, form.scheme) << "In iteration " << i;
     EXPECT_EQ(GURL(expected[i].origin), form.origin) << "In iteration " << i;
@@ -374,79 +430,68 @@ TEST(PasswordStoreMacTest, TestKeychainToFormTranslation) {
     SecKeychainItemRef keychain_item = reinterpret_cast<SecKeychainItemRef>(99);
     PasswordForm form;
     bool parsed = internal_keychain_helpers::FillPasswordFormFromKeychainItem(
-        mock_keychain, keychain_item, &form);
-    ExpectCreatesAndFreesBalanced(mock_keychain);
+        *keychain_, keychain_item, &form);
     EXPECT_FALSE(parsed);
   }
 }
 
-TEST(PasswordStoreMacTest, TestKeychainSearch) {
-  MockKeychain mock_keychain;
-
+TEST_F(PasswordStoreMacTest, TestKeychainSearch) {
   {  // An HTML form we've seen.
     std::vector<SecKeychainItemRef> matching_items;
     internal_keychain_helpers::FindMatchingKeychainItems(
-        mock_keychain, std::string("http://some.domain.com/"),
+        *keychain_, std::string("http://some.domain.com/"),
         PasswordForm::SCHEME_HTML, &matching_items);
     EXPECT_EQ(static_cast<size_t>(2), matching_items.size());
-    FreeKeychainItems(mock_keychain, &matching_items);
-    ExpectCreatesAndFreesBalanced(mock_keychain);
+    FreeKeychainItems(*keychain_, &matching_items);
   }
 
   {  // An HTML form we haven't seen
     std::vector<SecKeychainItemRef> matching_items;
     internal_keychain_helpers::FindMatchingKeychainItems(
-        mock_keychain, std::string("http://www.unseendomain.com/"),
+        *keychain_, std::string("http://www.unseendomain.com/"),
         PasswordForm::SCHEME_HTML, &matching_items);
     EXPECT_EQ(static_cast<size_t>(0), matching_items.size());
-    FreeKeychainItems(mock_keychain, &matching_items);
-    ExpectCreatesAndFreesBalanced(mock_keychain);
+    FreeKeychainItems(*keychain_, &matching_items);
   }
 
   {  // Basic auth that should match.
     std::vector<SecKeychainItemRef> matching_items;
     internal_keychain_helpers::FindMatchingKeychainItems(
-        mock_keychain, std::string("http://some.domain.com:4567/low_security"),
+        *keychain_, std::string("http://some.domain.com:4567/low_security"),
         PasswordForm::SCHEME_BASIC, &matching_items);
     EXPECT_EQ(static_cast<size_t>(1), matching_items.size());
-    FreeKeychainItems(mock_keychain, &matching_items);
-    ExpectCreatesAndFreesBalanced(mock_keychain);
+    FreeKeychainItems(*keychain_, &matching_items);
   }
 
   {  // Basic auth with the wrong port.
     std::vector<SecKeychainItemRef> matching_items;
     internal_keychain_helpers::FindMatchingKeychainItems(
-        mock_keychain, std::string("http://some.domain.com:1111/low_security"),
+        *keychain_, std::string("http://some.domain.com:1111/low_security"),
         PasswordForm::SCHEME_BASIC, &matching_items);
     EXPECT_EQ(static_cast<size_t>(0), matching_items.size());
-    FreeKeychainItems(mock_keychain, &matching_items);
-    ExpectCreatesAndFreesBalanced(mock_keychain);
+    FreeKeychainItems(*keychain_, &matching_items);
   }
 
   {  // Digest auth we've saved under https, visited with http.
     std::vector<SecKeychainItemRef> matching_items;
     internal_keychain_helpers::FindMatchingKeychainItems(
-        mock_keychain, std::string("http://some.domain.com/high_security"),
+        *keychain_, std::string("http://some.domain.com/high_security"),
         PasswordForm::SCHEME_DIGEST, &matching_items);
     EXPECT_EQ(static_cast<size_t>(0), matching_items.size());
-    FreeKeychainItems(mock_keychain, &matching_items);
-    ExpectCreatesAndFreesBalanced(mock_keychain);
+    FreeKeychainItems(*keychain_, &matching_items);
   }
 
   {  // Digest auth that should match.
     std::vector<SecKeychainItemRef> matching_items;
     internal_keychain_helpers::FindMatchingKeychainItems(
-        mock_keychain, std::string("https://some.domain.com/high_security"),
+        *keychain_, std::string("https://some.domain.com/high_security"),
         PasswordForm::SCHEME_DIGEST, &matching_items);
     EXPECT_EQ(static_cast<size_t>(1), matching_items.size());
-    FreeKeychainItems(mock_keychain, &matching_items);
-    ExpectCreatesAndFreesBalanced(mock_keychain);
+    FreeKeychainItems(*keychain_, &matching_items);
   }
 }
 
-TEST(PasswordStoreMacTest, TestKeychainExactSearch) {
-  MockKeychain mock_keychain;
-
+TEST_F(PasswordStoreMacTest, TestKeychainExactSearch) {
   // Test a web form entry (SCHEME_HTML).
   {
     PasswordForm search_form;
@@ -458,47 +503,45 @@ TEST(PasswordStoreMacTest, TestKeychainExactSearch) {
     search_form.password_element = std::wstring(L"password");
     search_form.preferred = true;
     SecKeychainItemRef match;
-    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+    match = internal_keychain_helpers::FindMatchingKeychainItem(*keychain_,
                                                                 search_form);
     EXPECT_EQ(reinterpret_cast<SecKeychainItemRef>(2), match);
-    mock_keychain.Free(match);
+    keychain_->Free(match);
 
     // Make sure that the matching isn't looser than it should be.
     PasswordForm wrong_username(search_form);
     wrong_username.username_value = std::wstring(L"wrong_user");
-    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+    match = internal_keychain_helpers::FindMatchingKeychainItem(*keychain_,
                                                                 wrong_username);
     EXPECT_EQ(NULL, match);
 
     PasswordForm wrong_path(search_form);
     wrong_path.origin = GURL("http://some.domain.com/elsewhere.html");
-    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+    match = internal_keychain_helpers::FindMatchingKeychainItem(*keychain_,
                                                                 wrong_path);
     EXPECT_EQ(NULL, match);
 
     PasswordForm wrong_scheme(search_form);
     wrong_scheme.scheme = PasswordForm::SCHEME_BASIC;
-    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+    match = internal_keychain_helpers::FindMatchingKeychainItem(*keychain_,
                                                                 wrong_scheme);
     EXPECT_EQ(NULL, match);
 
     // With no path, we should match the pathless Keychain entry.
     PasswordForm no_path(search_form);
     no_path.origin = GURL("http://some.domain.com/");
-    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+    match = internal_keychain_helpers::FindMatchingKeychainItem(*keychain_,
                                                                 no_path);
     EXPECT_EQ(reinterpret_cast<SecKeychainItemRef>(1), match);
-    mock_keychain.Free(match);
+    keychain_->Free(match);
 
     // We don't store blacklist entries in the keychain, and we want to ignore
     // those stored by other browsers.
     PasswordForm blacklist(search_form);
     blacklist.blacklisted_by_user = true;
-    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+    match = internal_keychain_helpers::FindMatchingKeychainItem(*keychain_,
                                                                 blacklist);
     EXPECT_EQ(NULL, match);
-
-    ExpectCreatesAndFreesBalanced(mock_keychain);
   }
 
   // Test an http auth entry (SCHEME_BASIC, but SCHEME_DIGEST works is searched
@@ -511,41 +554,41 @@ TEST(PasswordStoreMacTest, TestKeychainExactSearch) {
     search_form.username_value = std::wstring(L"basic_auth_user");
     search_form.scheme = PasswordForm::SCHEME_BASIC;
     SecKeychainItemRef match;
-    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+    match = internal_keychain_helpers::FindMatchingKeychainItem(*keychain_,
                                                                 search_form);
     EXPECT_EQ(reinterpret_cast<SecKeychainItemRef>(7), match);
-    mock_keychain.Free(match);
+    keychain_->Free(match);
 
     // Make sure that the matching isn't looser than it should be.
     PasswordForm wrong_username(search_form);
     wrong_username.username_value = std::wstring(L"wrong_user");
-    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+    match = internal_keychain_helpers::FindMatchingKeychainItem(*keychain_,
                                                                 wrong_username);
     EXPECT_EQ(NULL, match);
 
     PasswordForm wrong_path(search_form);
     wrong_path.origin = GURL("http://some.domain.com:4567/elsewhere.html");
-    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+    match = internal_keychain_helpers::FindMatchingKeychainItem(*keychain_,
                                                                 wrong_path);
     EXPECT_EQ(NULL, match);
 
     PasswordForm wrong_scheme(search_form);
     wrong_scheme.scheme = PasswordForm::SCHEME_DIGEST;
-    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+    match = internal_keychain_helpers::FindMatchingKeychainItem(*keychain_,
                                                                 wrong_scheme);
     EXPECT_EQ(NULL, match);
 
     PasswordForm wrong_port(search_form);
     wrong_port.signon_realm =
         std::string("http://some.domain.com:1234/low_security");
-    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+    match = internal_keychain_helpers::FindMatchingKeychainItem(*keychain_,
                                                                 wrong_port);
     EXPECT_EQ(NULL, match);
 
     PasswordForm wrong_realm(search_form);
     wrong_realm.signon_realm =
         std::string("http://some.domain.com:4567/incorrect");
-    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+    match = internal_keychain_helpers::FindMatchingKeychainItem(*keychain_,
                                                                 wrong_realm);
     EXPECT_EQ(NULL, match);
 
@@ -553,21 +596,18 @@ TEST(PasswordStoreMacTest, TestKeychainExactSearch) {
     // those stored by other browsers.
     PasswordForm blacklist(search_form);
     blacklist.blacklisted_by_user = true;
-    match = internal_keychain_helpers::FindMatchingKeychainItem(mock_keychain,
+    match = internal_keychain_helpers::FindMatchingKeychainItem(*keychain_,
                                                                 blacklist);
     EXPECT_EQ(NULL, match);
-
-    ExpectCreatesAndFreesBalanced(mock_keychain);
   }
 }
 
-TEST(PasswordStoreMacTest, TestKeychainModify) {
-  MockKeychain mock_keychain;
+TEST_F(PasswordStoreMacTest, TestKeychainModify) {
   SecKeychainItemRef keychain_item = reinterpret_cast<SecKeychainItemRef>(1);
   EXPECT_TRUE(internal_keychain_helpers::SetKeychainItemPassword(
-      mock_keychain, keychain_item, std::string("allnewpassword")));
+      *keychain_, keychain_item, std::string("allnewpassword")));
   PasswordForm form;
-  internal_keychain_helpers::FillPasswordFormFromKeychainItem(mock_keychain,
+  internal_keychain_helpers::FillPasswordFormFromKeychainItem(*keychain_,
                                                               keychain_item,
                                                               &form);
   EXPECT_EQ(L"allnewpassword", form.password_value);
@@ -575,17 +615,14 @@ TEST(PasswordStoreMacTest, TestKeychainModify) {
   // Check that invalid items fail to update
   SecKeychainItemRef invalid_item = reinterpret_cast<SecKeychainItemRef>(1000);
   EXPECT_FALSE(internal_keychain_helpers::SetKeychainItemPassword(
-      mock_keychain, invalid_item, std::string("allnewpassword")));
+      *keychain_, invalid_item, std::string("allnewpassword")));
 
   // Check that other errors are reported (using the magic failure value).
   EXPECT_FALSE(internal_keychain_helpers::SetKeychainItemPassword(
-      mock_keychain, keychain_item, std::string("fail_me")));
-
-  ExpectCreatesAndFreesBalanced(mock_keychain);
+      *keychain_, keychain_item, std::string("fail_me")));
 }
 
-TEST(PasswordStoreMacTest, TestKeychainAdd) {
-  MockKeychain mock_keychain;
+TEST_F(PasswordStoreMacTest, TestKeychainAdd) {
   struct TestDataAndExpectation {
     PasswordFormData data;
     bool should_succeed;
@@ -618,25 +655,24 @@ TEST(PasswordStoreMacTest, TestKeychainAdd) {
   for (unsigned int i = 0; i < ARRAYSIZE_UNSAFE(test_data); ++i) {
     PasswordForm* in_form = CreatePasswordFormFromData(test_data[i].data);
     bool add_succeeded =
-        internal_keychain_helpers::AddKeychainEntryForForm(mock_keychain,
+        internal_keychain_helpers::AddKeychainEntryForForm(*keychain_,
                                                            *in_form);
     EXPECT_EQ(test_data[i].should_succeed, add_succeeded);
     if (add_succeeded) {
       SecKeychainItemRef matching_item;
       matching_item = internal_keychain_helpers::FindMatchingKeychainItem(
-          mock_keychain, *in_form);
+          *keychain_, *in_form);
       EXPECT_TRUE(matching_item != NULL);
       PasswordForm out_form;
       internal_keychain_helpers::FillPasswordFormFromKeychainItem(
-          mock_keychain, matching_item, &out_form);
+          *keychain_, matching_item, &out_form);
       EXPECT_EQ(out_form.scheme, in_form->scheme);
       EXPECT_EQ(out_form.signon_realm, in_form->signon_realm);
       EXPECT_EQ(out_form.origin, in_form->origin);
       EXPECT_EQ(out_form.username_value, in_form->username_value);
       EXPECT_EQ(out_form.password_value, in_form->password_value);
-      mock_keychain.Free(matching_item);
+      keychain_->Free(matching_item);
     }
-    ExpectCreatesAndFreesBalanced(mock_keychain);
     delete in_form;
   }
 
@@ -649,20 +685,18 @@ TEST(PasswordStoreMacTest, TestKeychainAdd) {
     };
     PasswordForm* update_form = CreatePasswordFormFromData(data);
     EXPECT_TRUE(internal_keychain_helpers::AddKeychainEntryForForm(
-        mock_keychain, *update_form));
+        *keychain_, *update_form));
     SecKeychainItemRef keychain_item = reinterpret_cast<SecKeychainItemRef>(2);
     PasswordForm stored_form;
-    internal_keychain_helpers::FillPasswordFormFromKeychainItem(mock_keychain,
+    internal_keychain_helpers::FillPasswordFormFromKeychainItem(*keychain_,
                                                                 keychain_item,
                                                                 &stored_form);
     EXPECT_EQ(update_form->password_value, stored_form.password_value);
     delete update_form;
   }
-
-  ExpectCreatesAndFreesBalanced(mock_keychain);
 }
 
-TEST(PasswordStoreMacTest, TestFormMatch) {
+TEST_F(PasswordStoreMacTest, TestFormMatch) {
   PasswordForm base_form;
   base_form.signon_realm = std::string("http://some.domain.com/");
   base_form.origin = GURL("http://some.domain.com/page.html");
@@ -734,7 +768,7 @@ TEST(PasswordStoreMacTest, TestFormMatch) {
   }
 }
 
-TEST(PasswordStoreMacTest, TestFormMerge) {
+TEST_F(PasswordStoreMacTest, TestFormMerge) {
   // Set up a bunch of test data to use in varying combinations.
   PasswordFormData keychain_user_1 =
       { PasswordForm::SCHEME_HTML, "http://some.domain.com/",

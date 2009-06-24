@@ -6,9 +6,9 @@
 #include "base/time.h"
 #include "chrome/browser/keychain_mock_mac.h"
 
-MockKeychain::MockKeychain()
-    : search_copy_count_(0), keychain_item_copy_count_(0),
-      attribute_data_copy_count_(0) {
+MockKeychain::MockKeychain(unsigned int item_capacity)
+    : item_capacity_(item_capacity), item_count_(0), search_copy_count_(0),
+      keychain_item_copy_count_(0), attribute_data_copy_count_(0) {
   UInt32 tags[] = { kSecAccountItemAttr,
                     kSecServerItemAttr,
                     kSecPortItemAttr,
@@ -19,9 +19,7 @@ MockKeychain::MockKeychain()
                     kSecCreationDateItemAttr,
                     kSecNegativeItemAttr };
 
-  // Create the test keychain data to return from ItemCopyAttributesAndData,
-  // and set up everything that's consistent across all the items.
-  item_capacity_ = 9;
+  // Create the test keychain data storage.
   keychain_attr_list_ = static_cast<SecKeychainAttributeList*>(
       calloc(item_capacity_, sizeof(SecKeychainAttributeList)));
   keychain_data_ = static_cast<KeychainPasswordData*>(
@@ -53,94 +51,6 @@ MockKeychain::MockKeychain()
       }
     }
   }
-
-  // Save one slot for use by AddInternetPassword.
-  unsigned int available_slots = item_capacity_ - 1;
-  item_count_ = 0;
-
-  // Basic HTML form.
-  CHECK(item_count_ < available_slots);
-  SetTestDataString(item_count_, kSecAccountItemAttr, "joe_user");
-  SetTestDataString(item_count_, kSecServerItemAttr, "some.domain.com");
-  SetTestDataProtocol(item_count_, kSecProtocolTypeHTTP);
-  SetTestDataAuthType(item_count_, kSecAuthenticationTypeHTMLForm);
-  SetTestDataString(item_count_, kSecCreationDateItemAttr, "20020601171500Z");
-  SetTestDataPasswordString(item_count_, "sekrit");
-  ++item_count_;
-
-  // HTML form with path.
-  CHECK(item_count_ < available_slots);
-  SetTestDataString(item_count_, kSecAccountItemAttr, "joe_user");
-  SetTestDataString(item_count_, kSecServerItemAttr, "some.domain.com");
-  SetTestDataString(item_count_, kSecPathItemAttr, "/insecure.html");
-  SetTestDataProtocol(item_count_, kSecProtocolTypeHTTP);
-  SetTestDataAuthType(item_count_, kSecAuthenticationTypeHTMLForm);
-  SetTestDataString(item_count_, kSecCreationDateItemAttr, "19991231235959Z");
-  SetTestDataPasswordString(item_count_, "sekrit");
-  ++item_count_;
-
-  // Secure HTML form with path.
-  CHECK(item_count_ < available_slots);
-  SetTestDataString(item_count_, kSecAccountItemAttr, "secure_user");
-  SetTestDataString(item_count_, kSecServerItemAttr, "some.domain.com");
-  SetTestDataString(item_count_, kSecPathItemAttr, "/secure.html");
-  SetTestDataProtocol(item_count_, kSecProtocolTypeHTTPS);
-  SetTestDataAuthType(item_count_, kSecAuthenticationTypeHTMLForm);
-  SetTestDataString(item_count_, kSecCreationDateItemAttr, "20100908070605Z");
-  SetTestDataPasswordString(item_count_, "password");
-  ++item_count_;
-
-  // True negative item.
-  CHECK(item_count_ < available_slots);
-  SetTestDataString(item_count_, kSecServerItemAttr, "dont.remember.com");
-  SetTestDataProtocol(item_count_, kSecProtocolTypeHTTP);
-  SetTestDataAuthType(item_count_, kSecAuthenticationTypeHTMLForm);
-  SetTestDataString(item_count_, kSecCreationDateItemAttr, "20000101000000Z");
-  SetTestDataNegativeItem(item_count_, true);
-  ++item_count_;
-
-  // De-facto negative item, type one.
-  CHECK(item_count_ < available_slots);
-  SetTestDataString(item_count_, kSecAccountItemAttr, "Password Not Stored");
-  SetTestDataString(item_count_, kSecServerItemAttr, "dont.remember.com");
-  SetTestDataProtocol(item_count_, kSecProtocolTypeHTTP);
-  SetTestDataAuthType(item_count_, kSecAuthenticationTypeHTMLForm);
-  SetTestDataString(item_count_, kSecCreationDateItemAttr, "20000101000000Z");
-  SetTestDataPasswordString(item_count_, "");
-  ++item_count_;
-
-  // De-facto negative item, type two.
-  CHECK(item_count_ < available_slots);
-  SetTestDataString(item_count_, kSecServerItemAttr, "dont.remember.com");
-  SetTestDataProtocol(item_count_, kSecProtocolTypeHTTPS);
-  SetTestDataAuthType(item_count_, kSecAuthenticationTypeHTMLForm);
-  SetTestDataString(item_count_, kSecCreationDateItemAttr, "20000101000000Z");
-  SetTestDataPasswordString(item_count_, " ");
-  ++item_count_;
-
-  // HTTP auth basic, with port and path.
-  CHECK(item_count_ < available_slots);
-  SetTestDataString(item_count_, kSecAccountItemAttr, "basic_auth_user");
-  SetTestDataString(item_count_, kSecServerItemAttr, "some.domain.com");
-  SetTestDataString(item_count_, kSecSecurityDomainItemAttr, "low_security");
-  SetTestDataString(item_count_, kSecPathItemAttr, "/insecure.html");
-  SetTestDataProtocol(item_count_, kSecProtocolTypeHTTP);
-  SetTestDataPort(item_count_, 4567);
-  SetTestDataAuthType(item_count_, kSecAuthenticationTypeHTTPBasic);
-  SetTestDataString(item_count_, kSecCreationDateItemAttr, "19980330100000Z");
-  SetTestDataPasswordString(item_count_, "basic");
-  ++item_count_;
-
-  // HTTP auth digest, secure.
-  CHECK(item_count_ < available_slots);
-  SetTestDataString(item_count_, kSecAccountItemAttr, "digest_auth_user");
-  SetTestDataString(item_count_, kSecServerItemAttr, "some.domain.com");
-  SetTestDataString(item_count_, kSecSecurityDomainItemAttr, "high_security");
-  SetTestDataProtocol(item_count_, kSecProtocolTypeHTTPS);
-  SetTestDataAuthType(item_count_, kSecAuthenticationTypeHTTPDigest);
-  SetTestDataString(item_count_, kSecCreationDateItemAttr, "19980330100000Z");
-  SetTestDataPasswordString(item_count_, "digest");
-  ++item_count_;
 }
 
 MockKeychain::~MockKeychain() {
@@ -171,7 +81,7 @@ int MockKeychain::IndexForTag(const SecKeychainAttributeList& attribute_list,
 }
 
 void MockKeychain::SetTestDataBytes(int item, UInt32 tag, const void* data,
-                                    size_t length) const {
+                                    size_t length) {
   int attribute_index = IndexForTag(keychain_attr_list_[item], tag);
   keychain_attr_list_[item].attr[attribute_index].length = length;
   if (length > 0) {
@@ -186,34 +96,32 @@ void MockKeychain::SetTestDataBytes(int item, UInt32 tag, const void* data,
   }
 }
 
-void MockKeychain::SetTestDataString(int item, UInt32 tag,
-                                     const char* value) const {
+void MockKeychain::SetTestDataString(int item, UInt32 tag, const char* value) {
   SetTestDataBytes(item, tag, value, value ? strlen(value) : 0);
 }
 
-void MockKeychain::SetTestDataPort(int item, UInt32 value) const {
+void MockKeychain::SetTestDataPort(int item, UInt32 value) {
   int attribute_index = IndexForTag(keychain_attr_list_[item],
                                     kSecPortItemAttr);
   void* data = keychain_attr_list_[item].attr[attribute_index].data;
   *(static_cast<UInt32*>(data)) = value;
 }
 
-void MockKeychain::SetTestDataProtocol(int item, SecProtocolType value) const {
+void MockKeychain::SetTestDataProtocol(int item, SecProtocolType value) {
   int attribute_index = IndexForTag(keychain_attr_list_[item],
                                     kSecProtocolItemAttr);
   void* data = keychain_attr_list_[item].attr[attribute_index].data;
   *(static_cast<SecProtocolType*>(data)) = value;
 }
 
-void MockKeychain::SetTestDataAuthType(int item,
-                                       SecAuthenticationType value) const {
+void MockKeychain::SetTestDataAuthType(int item, SecAuthenticationType value) {
   int attribute_index = IndexForTag(keychain_attr_list_[item],
                                     kSecAuthenticationTypeItemAttr);
   void* data = keychain_attr_list_[item].attr[attribute_index].data;
   *(static_cast<SecAuthenticationType*>(data)) = value;
 }
 
-void MockKeychain::SetTestDataNegativeItem(int item, Boolean value) const {
+void MockKeychain::SetTestDataNegativeItem(int item, Boolean value) {
   int attribute_index = IndexForTag(keychain_attr_list_[item],
                                     kSecNegativeItemAttr);
   void* data = keychain_attr_list_[item].attr[attribute_index].data;
@@ -221,7 +129,7 @@ void MockKeychain::SetTestDataNegativeItem(int item, Boolean value) const {
 }
 
 void MockKeychain::SetTestDataPasswordBytes(int item, const void* data,
-                                            size_t length) const {
+                                            size_t length) {
   keychain_data_[item].length = length;
   if (length > 0) {
     if (keychain_data_[item].data) {
@@ -234,8 +142,7 @@ void MockKeychain::SetTestDataPasswordBytes(int item, const void* data,
   }
 }
 
-void MockKeychain::SetTestDataPasswordString(int item,
-                                             const char* value) const {
+void MockKeychain::SetTestDataPasswordString(int item, const char* value) {
   SetTestDataPasswordBytes(item, value, value ? strlen(value) : 0);
 }
 
@@ -282,7 +189,8 @@ OSStatus MockKeychain::ItemModifyAttributesAndData(
     NOTIMPLEMENTED();
   }
   if (data) {
-    SetTestDataPasswordBytes(item_index, data, length);
+    MockKeychain* mutable_this = const_cast<MockKeychain*>(this);
+    mutable_this->SetTestDataPasswordBytes(item_index, data, length);
   }
   return noErr;
 }
@@ -346,24 +254,28 @@ OSStatus MockKeychain::AddInternetPassword(
   int target_item = (item_count_ == item_capacity_) ? item_capacity_ - 1
                                                     : item_count_++;
 
-  SetTestDataBytes(target_item, kSecServerItemAttr, serverName,
-                   serverNameLength);
-  SetTestDataBytes(target_item, kSecSecurityDomainItemAttr, securityDomain,
-                   securityDomainLength);
-  SetTestDataBytes(target_item, kSecAccountItemAttr, accountName,
-                   accountNameLength);
-  SetTestDataBytes(target_item, kSecPathItemAttr, path, pathLength);
-  SetTestDataPort(target_item, port);
-  SetTestDataProtocol(target_item, protocol);
-  SetTestDataAuthType(target_item, authenticationType);
-  SetTestDataPasswordBytes(target_item, passwordData, passwordLength);
+  MockKeychain* mutable_this = const_cast<MockKeychain*>(this);
+  mutable_this->SetTestDataBytes(target_item, kSecServerItemAttr, serverName,
+                                 serverNameLength);
+  mutable_this->SetTestDataBytes(target_item, kSecSecurityDomainItemAttr,
+                                 securityDomain, securityDomainLength);
+  mutable_this->SetTestDataBytes(target_item, kSecAccountItemAttr, accountName,
+                                 accountNameLength);
+  mutable_this->SetTestDataBytes(target_item, kSecPathItemAttr, path,
+                                 pathLength);
+  mutable_this->SetTestDataPort(target_item, port);
+  mutable_this->SetTestDataProtocol(target_item, protocol);
+  mutable_this->SetTestDataAuthType(target_item, authenticationType);
+  mutable_this->SetTestDataPasswordBytes(target_item, passwordData,
+                                         passwordLength);
   base::Time::Exploded exploded_time;
   base::Time::Now().UTCExplode(&exploded_time);
   char time_string[128];
   snprintf(time_string, sizeof(time_string), "%04d%02d%02d%02d%02d%02dZ",
            exploded_time.year, exploded_time.month, exploded_time.day_of_month,
            exploded_time.hour, exploded_time.minute, exploded_time.second);
-  SetTestDataString(target_item, kSecCreationDateItemAttr, time_string);
+  mutable_this->SetTestDataString(target_item, kSecCreationDateItemAttr,
+                                  time_string);
 
   if (itemRef) {
     *itemRef = reinterpret_cast<SecKeychainItemRef>(target_item + 1);
@@ -405,4 +317,21 @@ int MockKeychain::UnfreedKeychainItemCount() const {
 
 int MockKeychain::UnfreedAttributeDataCount() const {
   return attribute_data_copy_count_;
+}
+
+void MockKeychain::AddTestItem(const KeychainTestData& item_data) {
+  unsigned int index = item_count_++;
+  CHECK(index < item_capacity_);
+
+  SetTestDataAuthType(index, item_data.auth_type);
+  SetTestDataString(index, kSecServerItemAttr, item_data.server);
+  SetTestDataProtocol(index, item_data.protocol);
+  SetTestDataString(index, kSecPathItemAttr, item_data.path);
+  SetTestDataPort(index, item_data.port);
+  SetTestDataString(index, kSecSecurityDomainItemAttr,
+                    item_data.security_domain);
+  SetTestDataString(index, kSecCreationDateItemAttr, item_data.creation_date);
+  SetTestDataString(index, kSecAccountItemAttr, item_data.username);
+  SetTestDataPasswordString(index, item_data.password);
+  SetTestDataNegativeItem(index, item_data.negative_item);
 }
