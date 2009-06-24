@@ -524,7 +524,13 @@ installer_util::InstallStatus installer::InstallOrUpdateChrome(
       LOG(INFO) << "Version updated to " << new_version.GetString();
       result = installer_util::NEW_VERSION_UPDATED;
     } else {
-      NOTREACHED();
+      LOG(ERROR) << "Not sure how we got here."
+                 << " New version: " << new_version.GetString()
+                 << ", installed version: " << installed_version->GetString();
+      // This should never happen but we are seeing some inconsistent exit
+      // code reports in Omaha logs. We will treat this case as update to
+      // see if the inconsistency goes away.
+      result = installer_util::NEW_VERSION_UPDATED;
     }
 
     if (!CreateOrUpdateChromeShortcuts(exe_path, options, result,
