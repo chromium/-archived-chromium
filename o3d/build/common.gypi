@@ -19,6 +19,9 @@
     'skiadir': 'third_party/skia/include',
     'zlibdir': 'third_party/zlib',
   },
+  'defines': [
+    'GYP_BUILD',  # Needed to make a change in base/types.h conditional.
+  ],
   'conditions' : [
     ['OS == "win"',
       {

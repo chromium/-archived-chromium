@@ -105,6 +105,40 @@
 // We can add more sophisticated per-platform #defines as necessary here
 #define IS_LITTLE_ENDIAN 1
 
+#if defined(GYP_BUILD)
+// We only need this in the gyp build because we're using the current
+// chrome/base, which doesn't have down_cast in it anymore.
+// TODO(gspencer): Remove this #ifdef when we are moved fully over to
+// gyp.
+
+// When you upcast (that is, cast a pointer from type Foo to type
+// SuperclassOfFoo), it's fine to use implicit_cast<>, since upcasts
+// always succeed.  When you downcast (that is, cast a pointer from
+// type Foo to type SubclassOfFoo), static_cast<> isn't safe, because
+// how do you know the pointer is really of type SubclassOfFoo?  It
+// could be a bare Foo, or of type DifferentSubclassOfFoo.  Thus, when
+// you downcast, you should use this template.
+//
+// NOTE: We used to do a dynamic_cast in debug mode to make sure it
+// was the right type, but now that RTTI is completely turned off, we
+// just do the implicit_cast compile-time check.
+//
+// Use it like this: down_cast<T*>(foo);
+
+template<typename To, typename From>
+inline To down_cast(From* f) {  // Defined as From* so we only accept pointers.
+  // Ensures that To is a sub-type of From *.  This test is here only
+  // for compile-time type checking, and has no overhead in an
+  // optimized build at run-time, as it will be optimized away
+  // completely.
+  if (false) {
+    implicit_cast<From*, To>(0);
+  }
+
+  return static_cast<To>(f);
+}
+#endif  // GYP_BUILD
+
 namespace o3d {
 
 // String
