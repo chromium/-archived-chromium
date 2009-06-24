@@ -964,7 +964,7 @@ TabRestoreService* ProfileImpl::GetTabRestoreService() {
 ThumbnailStore* ProfileImpl::GetThumbnailStore() {
   if (!thumbnail_store_.get()) {
     thumbnail_store_ = new ThumbnailStore;
-    thumbnail_store_->Init(GetPath().AppendASCII("thumbnailstore\\"));
+    thumbnail_store_->Init(GetPath().AppendASCII("thumbnailstore"), this);
   }
   return thumbnail_store_.get();
 }
