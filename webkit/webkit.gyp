@@ -1035,6 +1035,7 @@
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8EventCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLCanvasElementCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLCollectionCustom.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLDataGridElementCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLDocumentCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLFormElementCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLFrameElementCustom.cpp',
