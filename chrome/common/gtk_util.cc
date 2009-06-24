@@ -121,7 +121,15 @@ void ForceFontSizePixels(GtkWidget* widget, double size_pixels) {
 gfx::Point GetWidgetScreenPosition(GtkWidget* widget) {
   int x = 0, y = 0;
 
-  GtkWidget* parent = widget;
+  if (GTK_IS_WINDOW(widget)) {
+    gdk_window_get_origin(widget->window, &x, &y);
+    return gfx::Point(x, y);
+  } else {
+    x = widget->allocation.x;
+    y = widget->allocation.y;
+  }
+
+  GtkWidget* parent = gtk_widget_get_parent(widget);
   while (parent) {
     if (GTK_IS_WINDOW(parent)) {
       int window_x, window_y;
@@ -132,8 +140,11 @@ gfx::Point GetWidgetScreenPosition(GtkWidget* widget) {
       return gfx::Point(x, y);
     }
 
-    x += parent->allocation.x;
-    y += parent->allocation.y;
+    if (!GTK_WIDGET_NO_WINDOW(parent)) {
+      x += parent->allocation.x;
+      y += parent->allocation.y;
+    }
+
     parent = gtk_widget_get_parent(parent);
   }
 
