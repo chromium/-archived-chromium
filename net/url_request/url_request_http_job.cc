@@ -644,11 +644,11 @@ void URLRequestHttpJob::AddExtraHeaders() {
   // these headers.  Some proxies deliberately corrupt Accept-Encoding headers.
   if (!advertise_sdch) {
     // Tell the server what compression formats we support (other than SDCH).
-    request_info_.extra_headers += "Accept-Encoding: gzip,deflate,bzip2\r\n";
+    request_info_.extra_headers += "Accept-Encoding: gzip,deflate\r\n";
   } else {
     // Include SDCH in acceptable list.
     request_info_.extra_headers += "Accept-Encoding: "
-        "gzip,deflate,bzip2,sdch\r\n";
+        "gzip,deflate,sdch\r\n";
     if (!avail_dictionaries.empty()) {
       request_info_.extra_headers += "Avail-Dictionary: "
           + avail_dictionaries + "\r\n";
