@@ -683,6 +683,9 @@ function OptionMenu(button, menu) {
   this.button.onkeydown = bind(this.handleKeyDown, this);
   this.boundHideMenu_ = bind(this.hideMenu, this);
   this.boundMaybeHide_ = bind(this.maybeHide_, this);
+  this.menu.onmouseover = bind(this.handleMouseOver, this);
+  this.menu.onmouseout = bind(this.handleMouseOut, this);
+  this.menu.onmouseup = bind(this.handleMouseUp, this);
 }
 
 OptionMenu.prototype = {
@@ -805,7 +808,7 @@ OptionMenu.prototype = {
   setSelectedIndex: function(i) {
     if (i != this.selectedIndex_) {
       var items = this.menu.children;
-      var oldItem = this.items[this.selectedIndex_];
+      var oldItem = items[this.selectedIndex_];
       if (oldItem) {
         oldItem.removeAttribute('selected');
       }
