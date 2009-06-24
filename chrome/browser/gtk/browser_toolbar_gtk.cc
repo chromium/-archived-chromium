@@ -53,18 +53,6 @@ const int kPopupTopMargin = 0;
 // to leave 1 pixel on both side here so that the borders line up.
 const int kPopupLeftRightMargin = 1;
 
-// Packs |widget| into |parent|.  If the current UI text direction is
-// RIGHT_TO_LEFT, the widget is packed at the end; otherwise, it is packed at
-// the beginning.
-void BoxPackWidgetWithDirection(GtkBox* parent, GtkWidget* widget,
-                                guint expand, guint fill, guint padding) {
-  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
-    gtk_box_pack_end(parent, widget, expand, fill, padding);
-  } else {
-    gtk_box_pack_start(parent, widget, expand, fill, padding);
-  }
-}
-
 }  // namespace
 
 // BrowserToolbarGtk, public ---------------------------------------------------
@@ -125,14 +113,14 @@ void BrowserToolbarGtk::Init(Profile* profile,
   GtkWidget* back_forward_hbox_ = gtk_hbox_new(FALSE, 0);
 
   back_.reset(new BackForwardButtonGtk(browser_, false));
-  BoxPackWidgetWithDirection(GTK_BOX(back_forward_hbox_), back_->widget(),
-                             FALSE, FALSE, 0);
+  gtk_util::BoxPackWidgetWithDirection(GTK_BOX(back_forward_hbox_),
+                                       back_->widget(), FALSE, FALSE, 0);
 
   forward_.reset(new BackForwardButtonGtk(browser_, true));
-  BoxPackWidgetWithDirection(GTK_BOX(back_forward_hbox_), forward_->widget(),
-                             FALSE, FALSE, 0);
-  BoxPackWidgetWithDirection(GTK_BOX(toolbar_), back_forward_hbox_,
-                             FALSE, FALSE, 0);
+  gtk_util::BoxPackWidgetWithDirection(GTK_BOX(back_forward_hbox_),
+                                       forward_->widget(), FALSE, FALSE, 0);
+  gtk_util::BoxPackWidgetWithDirection(GTK_BOX(toolbar_), back_forward_hbox_,
+                                       FALSE, FALSE, 0);
 
   reload_.reset(BuildToolbarButton(IDR_RELOAD, IDR_RELOAD_P, IDR_RELOAD_H, 0,
       l10n_util::GetStringUTF8(IDS_TOOLTIP_RELOAD)));
@@ -144,19 +132,19 @@ void BrowserToolbarGtk::Init(Profile* profile,
   // Group the start, omnibox, and go button into an hbox.
   GtkWidget* omnibox_hbox_ = gtk_hbox_new(FALSE, 0);
   star_.reset(BuildStarButton(l10n_util::GetStringUTF8(IDS_TOOLTIP_STAR)));
-  BoxPackWidgetWithDirection(GTK_BOX(omnibox_hbox_), star_->widget(),
-                             FALSE, FALSE, 0);
+  gtk_util::BoxPackWidgetWithDirection(GTK_BOX(omnibox_hbox_), star_->widget(),
+                                       FALSE, FALSE, 0);
 
   location_bar_->Init();
-  BoxPackWidgetWithDirection(GTK_BOX(omnibox_hbox_), location_bar_->widget(),
-                             TRUE, TRUE, 0);
+  gtk_util::BoxPackWidgetWithDirection(GTK_BOX(omnibox_hbox_),
+                                       location_bar_->widget(), TRUE, TRUE, 0);
 
   go_.reset(new GoButtonGtk(location_bar_.get(), browser_));
-  BoxPackWidgetWithDirection(GTK_BOX(omnibox_hbox_), go_->widget(),
-                             FALSE, FALSE, 0);
+  gtk_util::BoxPackWidgetWithDirection(GTK_BOX(omnibox_hbox_), go_->widget(),
+                                       FALSE, FALSE, 0);
 
-  BoxPackWidgetWithDirection(GTK_BOX(toolbar_), omnibox_hbox_,
-                             TRUE, TRUE, 0);
+  gtk_util::BoxPackWidgetWithDirection(GTK_BOX(toolbar_), omnibox_hbox_,
+                                       TRUE, TRUE, 0);
 
   // Group the menu buttons together in an hbox.
   GtkWidget* menus_hbox_ = gtk_hbox_new(FALSE, 0);
@@ -164,19 +152,19 @@ void BrowserToolbarGtk::Init(Profile* profile,
       l10n_util::GetStringUTF8(IDS_PAGEMENU_TOOLTIP),
       &page_menu_button_);
   page_menu_.reset(new MenuGtk(this, GetStandardPageMenu(), accel_group_));
-  BoxPackWidgetWithDirection(GTK_BOX(menus_hbox_), page_menu,
-                             FALSE, FALSE, 0);
+  gtk_util::BoxPackWidgetWithDirection(GTK_BOX(menus_hbox_), page_menu,
+                                       FALSE, FALSE, 0);
 
   GtkWidget* chrome_menu = BuildToolbarMenuButton(IDR_MENU_CHROME,
       l10n_util::GetStringFUTF8(IDS_APPMENU_TOOLTIP,
           WideToUTF16(l10n_util::GetString(IDS_PRODUCT_NAME))),
       &app_menu_button_);
   app_menu_.reset(new MenuGtk(this, GetStandardAppMenu(), accel_group_));
-  BoxPackWidgetWithDirection(GTK_BOX(menus_hbox_), chrome_menu,
-                             FALSE, FALSE, 0);
+  gtk_util::BoxPackWidgetWithDirection(GTK_BOX(menus_hbox_), chrome_menu,
+                                       FALSE, FALSE, 0);
 
-  BoxPackWidgetWithDirection(GTK_BOX(toolbar_), menus_hbox_,
-                             FALSE, FALSE, 0);
+  gtk_util::BoxPackWidgetWithDirection(GTK_BOX(toolbar_), menus_hbox_,
+                                       FALSE, FALSE, 0);
 
   gtk_widget_show_all(toolbar_);
 
@@ -324,8 +312,8 @@ CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
   g_signal_connect(button->widget(), "button-release-event",
                    G_CALLBACK(OnButtonRelease), this);
 
-  BoxPackWidgetWithDirection(GTK_BOX(toolbar_), button->widget(),
-                             FALSE, FALSE, 0);
+  gtk_util::BoxPackWidgetWithDirection(GTK_BOX(toolbar_), button->widget(),
+                                       FALSE, FALSE, 0);
   return button;
 }
 
