@@ -33,8 +33,7 @@ LanguageComboboxModel::LanguageComboboxModel(
 
 void LanguageComboboxModel::InitNativeNames(
     const std::vector<std::string>& locale_codes) {
-  const std::string app_locale = WideToASCII(
-      g_browser_process->GetApplicationLocale());
+  const std::string app_locale = g_browser_process->GetApplicationLocale();
   for (size_t i = 0; i < locale_codes.size(); ++i) {
     std::string locale_code_str = locale_codes[i];
     const char* locale_code = locale_codes[i].c_str();

@@ -307,8 +307,8 @@ bool BrowserRenderProcessHost::Init() {
   }
 
   // Pass on the browser locale.
-  const std::wstring locale = g_browser_process->GetApplicationLocale();
-  cmd_line.AppendSwitchWithValue(switches::kLang, locale);
+  const std::string locale = g_browser_process->GetApplicationLocale();
+  cmd_line.AppendSwitchWithValue(switches::kLang, ASCIIToWide(locale));
 
   // If we run a FieldTrial that we want to pass to the renderer, this is where
   // the SINGULAR trial name and value should be specified.  Note that only one

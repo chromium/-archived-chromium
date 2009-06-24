@@ -291,17 +291,18 @@ void AddLanguageWindowView::ViewHierarchyChanged(bool is_add,
 void AddLanguageWindowView::Init() {
   // Determine Locale Codes.
   std::vector<std::string> locale_codes;
-  const std::wstring app_locale = g_browser_process->GetApplicationLocale();
+  const std::string app_locale = g_browser_process->GetApplicationLocale();
   for (size_t i = 0; i < arraysize(accept_language_list); ++i) {
-    std::wstring local_name =
-        l10n_util::GetLocalName(accept_language_list[i], app_locale, false);
+    string16 display_name =
+        l10n_util::GetDisplayNameForLocale(accept_language_list[i],
+                                           app_locale, false);
     // This is a hack. If ICU doesn't have a translated name for
-    // this language, GetLocalName will just return the language code.
-    // In that case, we skip it.
+    // this language, GetDisplayNameForLocale will just return the
+    // language code. In that case, we skip it.
     // TODO(jungshik) : Put them at the of the list with language codes
     // enclosed by brackets.
-    if (IsStringASCII(local_name) &&
-        WideToASCII(local_name) == accept_language_list[i])
+    if (IsStringASCII(display_name) &&
+        UTF16ToASCII(display_name) == accept_language_list[i])
       continue;
     locale_codes.push_back(accept_language_list[i]);
   }
@@ -381,8 +382,10 @@ void LanguageOrderTableModel::SetObserver(TableModelObserver* observer) {
 
 std::wstring LanguageOrderTableModel::GetText(int row, int column_id) {
   DCHECK(row >= 0 && row < RowCount());
-  const std::wstring app_locale = g_browser_process->GetApplicationLocale();
-  return l10n_util::GetLocalName(languages_.at(row), app_locale, true);
+  const std::string app_locale = g_browser_process->GetApplicationLocale();
+  return l10n_util::GetDisplayNameForLocale(languages_.at(row),
+                                            app_locale,
+                                            true);
 }
 
 void LanguageOrderTableModel::Add(const std::string& language) {
@@ -702,7 +705,7 @@ void LanguagesPageView::NotifyPrefChanged(const std::wstring* pref_name) {
       // The pref value for locale isn't valid.  Use the current app locale
       // (which is what we're currently using).
       index = ui_language_model_->GetIndexFromLocale(
-          WideToASCII(g_browser_process->GetApplicationLocale()));
+          g_browser_process->GetApplicationLocale());
     }
     DCHECK(-1 != index);
     change_ui_language_combobox_->SetSelectedItem(index);

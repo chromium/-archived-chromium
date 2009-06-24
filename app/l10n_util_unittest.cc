@@ -84,8 +84,8 @@ TEST_F(L10nUtilTest, TruncateString) {
   EXPECT_EQ(L"\x2026", l10n_util::TruncateString(L"   ", 2));
 }
 
-void SetICUDefaultLocale(const std::wstring& locale_string) {
-  Locale locale(WideToASCII(locale_string).c_str());
+void SetICUDefaultLocale(const std::string& locale_string) {
+  Locale locale(locale_string.c_str());
   UErrorCode error_code = U_ZERO_ERROR;
   Locale::setDefault(locale, error_code);
   EXPECT_TRUE(U_SUCCESS(error_code));
@@ -136,71 +136,71 @@ TEST_F(L10nUtilTest, GetAppLocale) {
   // Keep a copy of ICU's default locale before we overwrite it.
   Locale locale = Locale::getDefault();
 
-  SetICUDefaultLocale(L"en-US");
-  EXPECT_EQ(L"en-US", l10n_util::GetApplicationLocale(L""));
+  SetICUDefaultLocale("en-US");
+  EXPECT_EQ("en-US", l10n_util::GetApplicationLocale(L""));
 
-  SetICUDefaultLocale(L"en-GB");
-  EXPECT_EQ(L"en-GB", l10n_util::GetApplicationLocale(L""));
+  SetICUDefaultLocale("en-GB");
+  EXPECT_EQ("en-GB", l10n_util::GetApplicationLocale(L""));
 
-  SetICUDefaultLocale(L"fr-CA");
-  EXPECT_EQ(L"fr", l10n_util::GetApplicationLocale(L""));
+  SetICUDefaultLocale("fr-CA");
+  EXPECT_EQ("fr", l10n_util::GetApplicationLocale(L""));
 
-  SetICUDefaultLocale(L"xx");
-  EXPECT_EQ(L"en-US", l10n_util::GetApplicationLocale(L""));
+  SetICUDefaultLocale("xx");
+  EXPECT_EQ("en-US", l10n_util::GetApplicationLocale(L""));
 
-  SetICUDefaultLocale(L"en-US");
-  EXPECT_EQ(L"fr", l10n_util::GetApplicationLocale(L"fr"));
-  EXPECT_EQ(L"fr", l10n_util::GetApplicationLocale(L"fr-CA"));
+  SetICUDefaultLocale("en-US");
+  EXPECT_EQ("fr", l10n_util::GetApplicationLocale(L"fr"));
+  EXPECT_EQ("fr", l10n_util::GetApplicationLocale(L"fr-CA"));
 
-  SetICUDefaultLocale(L"en-US");
+  SetICUDefaultLocale("en-US");
   // Aliases iw, no, tl to he, nb, fil.
-  EXPECT_EQ(L"he", l10n_util::GetApplicationLocale(L"iw"));
-  EXPECT_EQ(L"nb", l10n_util::GetApplicationLocale(L"no"));
-  EXPECT_EQ(L"fil", l10n_util::GetApplicationLocale(L"tl"));
+  EXPECT_EQ("he", l10n_util::GetApplicationLocale(L"iw"));
+  EXPECT_EQ("nb", l10n_util::GetApplicationLocale(L"no"));
+  EXPECT_EQ("fil", l10n_util::GetApplicationLocale(L"tl"));
   // es-419 and es-XX (where XX is not Spain) should be
   // mapped to es-419 (Latin American Spanish).
-  EXPECT_EQ(L"es-419", l10n_util::GetApplicationLocale(L"es-419"));
-  EXPECT_EQ(L"es", l10n_util::GetApplicationLocale(L"es-ES"));
-  EXPECT_EQ(L"es-419", l10n_util::GetApplicationLocale(L"es-AR"));
+  EXPECT_EQ("es-419", l10n_util::GetApplicationLocale(L"es-419"));
+  EXPECT_EQ("es", l10n_util::GetApplicationLocale(L"es-ES"));
+  EXPECT_EQ("es-419", l10n_util::GetApplicationLocale(L"es-AR"));
 
-  SetICUDefaultLocale(L"es-MX");
-  EXPECT_EQ(L"es-419", l10n_util::GetApplicationLocale(L""));
+  SetICUDefaultLocale("es-MX");
+  EXPECT_EQ("es-419", l10n_util::GetApplicationLocale(L""));
 
-  SetICUDefaultLocale(L"es-AR");
-  EXPECT_EQ(L"es-419", l10n_util::GetApplicationLocale(L""));
-  EXPECT_EQ(L"es", l10n_util::GetApplicationLocale(L"es"));
+  SetICUDefaultLocale("es-AR");
+  EXPECT_EQ("es-419", l10n_util::GetApplicationLocale(L""));
+  EXPECT_EQ("es", l10n_util::GetApplicationLocale(L"es"));
 
-  SetICUDefaultLocale(L"es-ES");
-  EXPECT_EQ(L"es", l10n_util::GetApplicationLocale(L""));
+  SetICUDefaultLocale("es-ES");
+  EXPECT_EQ("es", l10n_util::GetApplicationLocale(L""));
 
-  SetICUDefaultLocale(L"es");
-  EXPECT_EQ(L"es", l10n_util::GetApplicationLocale(L""));
+  SetICUDefaultLocale("es");
+  EXPECT_EQ("es", l10n_util::GetApplicationLocale(L""));
 
-  SetICUDefaultLocale(L"zh-HK");
-  EXPECT_EQ(L"zh-TW", l10n_util::GetApplicationLocale(L""));
-  EXPECT_EQ(L"zh-CN", l10n_util::GetApplicationLocale(L"zh-CN"));
+  SetICUDefaultLocale("zh-HK");
+  EXPECT_EQ("zh-TW", l10n_util::GetApplicationLocale(L""));
+  EXPECT_EQ("zh-CN", l10n_util::GetApplicationLocale(L"zh-CN"));
 
-  SetICUDefaultLocale(L"zh-MK");
-  EXPECT_EQ(L"zh-TW", l10n_util::GetApplicationLocale(L""));
+  SetICUDefaultLocale("zh-MK");
+  EXPECT_EQ("zh-TW", l10n_util::GetApplicationLocale(L""));
 
-  SetICUDefaultLocale(L"zh-SG");
-  EXPECT_EQ(L"zh-CN", l10n_util::GetApplicationLocale(L""));
+  SetICUDefaultLocale("zh-SG");
+  EXPECT_EQ("zh-CN", l10n_util::GetApplicationLocale(L""));
 
-  SetICUDefaultLocale(L"he");
-  EXPECT_EQ(L"en-US", l10n_util::GetApplicationLocale(L"en"));
+  SetICUDefaultLocale("he");
+  EXPECT_EQ("en-US", l10n_util::GetApplicationLocale(L"en"));
 
 #if defined(OS_WIN)
   // Oriya should be blocked unless OS is Vista or newer.
   if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
-    SetICUDefaultLocale(L"or");
-    EXPECT_EQ(L"en-US", l10n_util::GetApplicationLocale(L""));
-    SetICUDefaultLocale(L"en-GB");
-    EXPECT_EQ(L"en-GB", l10n_util::GetApplicationLocale(L"or"));
+    SetICUDefaultLocale("or");
+    EXPECT_EQ("en-US", l10n_util::GetApplicationLocale(L""));
+    SetICUDefaultLocale("en-GB");
+    EXPECT_EQ("en-GB", l10n_util::GetApplicationLocale(L"or"));
   } else {
-    SetICUDefaultLocale(L"or");
-    EXPECT_EQ(L"or", l10n_util::GetApplicationLocale(L""));
-    SetICUDefaultLocale(L"en-GB");
-    EXPECT_EQ(L"or", l10n_util::GetApplicationLocale(L"or"));
+    SetICUDefaultLocale("or");
+    EXPECT_EQ("or", l10n_util::GetApplicationLocale(L""));
+    SetICUDefaultLocale("en-GB");
+    EXPECT_EQ("or", l10n_util::GetApplicationLocale(L"or"));
   }
 #endif
 

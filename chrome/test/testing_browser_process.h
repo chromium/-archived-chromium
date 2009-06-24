@@ -131,10 +131,10 @@ class TestingBrowserProcess : public BrowserProcess {
     return NULL;
   }
 
-  virtual const std::wstring& GetApplicationLocale() {
-    static std::wstring* value = NULL;
+  virtual const std::string& GetApplicationLocale() {
+    static std::string* value = NULL;
     if (!value)
-      value = new std::wstring(L"en");
+      value = new std::string("en");
     return *value;
   }
 

@@ -1315,7 +1315,7 @@ void AutomationProvider::GetActiveTabIndex(int handle, int* active_tab_index) {
 
 void AutomationProvider::GetBrowserLocale(string16* locale) {
   DCHECK(g_browser_process);
-  *locale = WideToUTF16(g_browser_process->GetApplicationLocale());
+  *locale = ASCIIToUTF16(g_browser_process->GetApplicationLocale());
 }
 
 void AutomationProvider::GetBrowserWindowCount(int* window_count) {

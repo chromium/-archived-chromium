@@ -238,7 +238,7 @@ TEST_F(TemplateURLTest, ReplaceSearchTerms) {
     EXPECT_TRUE(ref.SupportsReplacement());
     std::string expected_result = data[i].expected_result;
     ReplaceSubstringsAfterOffset(&expected_result, 0, "{language}",
-        WideToASCII(g_browser_process->GetApplicationLocale()));
+        g_browser_process->GetApplicationLocale());
     GURL result = GURL(WideToUTF8(ref.ReplaceSearchTerms(turl, L"X",
         TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring())));
     EXPECT_TRUE(result.is_valid());

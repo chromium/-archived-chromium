@@ -62,7 +62,7 @@ void HWNDSetRTLLayout(HWND hwnd) {
   }
 }
 
-bool IsLocaleSupportedByOS(const std::wstring& locale) {
+bool IsLocaleSupportedByOS(const std::string& locale) {
   // Block Oriya on Windows XP.
   return !(LowerCaseEqualsASCII(locale, "or") &&
       win_util::GetWinVersion() < win_util::WINVERSION_VISTA);

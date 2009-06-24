@@ -51,10 +51,10 @@ void GetLanguageAndRegionFromOS(std::string* lang, std::string* region) {
 }
 
 // Convert Chrome locale name to ICU locale name
-std::string ICULocaleName(const std::wstring& locale_string) {
+std::string ICULocaleName(const std::string& locale_string) {
   // If not Spanish, just return it.
-  if (locale_string.substr(0, 2) != L"es")
-    return WideToASCII(locale_string);
+  if (locale_string.substr(0, 2) != "es")
+    return locale_string;
   // Expand es to es-ES.
   if (LowerCaseEqualsASCII(locale_string, "es"))
     return "es-ES";
@@ -74,7 +74,7 @@ std::string ICULocaleName(const std::wstring& locale_string) {
   }
   // Currently, Chrome has only "es" and "es-419", but later we may have
   // more specific "es-RR".
-  return WideToASCII(locale_string);
+  return locale_string;
 }
 
 // Sets the default locale of ICU.
@@ -85,7 +85,7 @@ std::string ICULocaleName(const std::wstring& locale_string) {
 // This is handy in that we don't have to call GetApplicationLocale()
 // everytime we call locale-dependent ICU APIs as long as we make sure
 // that this is called before any locale-dependent API is called.
-UBool SetICUDefaultLocale(const std::wstring& locale_string) {
+UBool SetICUDefaultLocale(const std::string& locale_string) {
   Locale locale(ICULocaleName(locale_string).c_str());
   UErrorCode error_code = U_ZERO_ERROR;
   Locale::setDefault(locale, error_code);
@@ -118,27 +118,24 @@ bool IsDuplicateName(const std::string& locale_name) {
   return false;
 }
 
-bool IsLocaleAvailable(const std::wstring& locale,
-                       const std::wstring& locale_path) {
-  std::wstring test_locale = locale;
+bool IsLocaleAvailable(const std::string& locale,
+                       const FilePath& locale_path) {
   // If locale has any illegal characters in it, we don't want to try to
   // load it because it may be pointing outside the locale data file directory.
-  file_util::ReplaceIllegalCharacters(&test_locale, ' ');
-  if (test_locale != locale)
+  if (!file_util::IsFilenameLegal(ASCIIToUTF16(locale)))
     return false;
 
   if (!l10n_util::IsLocaleSupportedByOS(locale))
     return false;
 
-  FilePath test_path = FilePath::FromWStringHack(locale_path)
-      .Append(FilePath::FromWStringHack(locale))
-      .ReplaceExtension(kLocaleFileExtension);
+  FilePath test_path = locale_path;
+  test_path.AppendASCII(locale).ReplaceExtension(kLocaleFileExtension);
   return file_util::PathExists(test_path) && SetICUDefaultLocale(locale);
 }
 
-bool CheckAndResolveLocale(const std::wstring& locale,
-                           const std::wstring& locale_path,
-                           std::wstring* resolved_locale) {
+bool CheckAndResolveLocale(const std::string& locale,
+                           const FilePath& locale_path,
+                           std::string* resolved_locale) {
   if (IsLocaleAvailable(locale, locale_path)) {
     *resolved_locale = locale;
     return true;
@@ -148,22 +145,22 @@ bool CheckAndResolveLocale(const std::wstring& locale,
   // does not support but available on Windows. We fall
   // back to en-US in GetApplicationLocale so that it's a not critical,
   // but we can do better.
-  std::wstring::size_type hyphen_pos = locale.find(L'-');
-  if (hyphen_pos != std::wstring::npos && hyphen_pos > 0) {
-    std::wstring lang(locale, 0, hyphen_pos);
-    std::wstring region(locale, hyphen_pos + 1);
-    std::wstring tmp_locale(lang);
+  std::string::size_type hyphen_pos = locale.find(L'-');
+  if (hyphen_pos != std::string::npos && hyphen_pos > 0) {
+    std::string lang(locale, 0, hyphen_pos);
+    std::string region(locale, hyphen_pos + 1);
+    std::string tmp_locale(lang);
     // Map es-RR other than es-ES to es-419 (Chrome's Latin American
     // Spanish locale).
     if (LowerCaseEqualsASCII(lang, "es") && !LowerCaseEqualsASCII(region, "es"))
-      tmp_locale.append(L"-419");
+      tmp_locale.append("-419");
     else if (LowerCaseEqualsASCII(lang, "zh")) {
       // Map zh-HK and zh-MK to zh-TW. Otherwise, zh-FOO is mapped to zh-CN.
      if (LowerCaseEqualsASCII(region, "hk") ||
          LowerCaseEqualsASCII(region, "mk")) {
-       tmp_locale.append(L"-TW");
+       tmp_locale.append("-TW");
      } else {
-       tmp_locale.append(L"-CN");
+       tmp_locale.append("-CN");
      }
     }
     if (IsLocaleAvailable(tmp_locale, locale_path)) {
@@ -176,16 +173,16 @@ bool CheckAndResolveLocale(const std::wstring& locale,
   // We need to map them to our codes.
   struct {
     const char* source;
-    const wchar_t* dest;} alias_map[] = {
-      {"no", L"nb"},
-      {"tl", L"fil"},
-      {"iw", L"he"},
-      {"en", L"en-US"},
+    const char* dest;} alias_map[] = {
+      {"no", "nb"},
+      {"tl", "fil"},
+      {"iw", "he"},
+      {"en", "en-US"},
   };
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(alias_map); ++i) {
     if (LowerCaseEqualsASCII(locale, alias_map[i].source)) {
-      std::wstring tmp_locale(alias_map[i].dest);
+      std::string tmp_locale(alias_map[i].dest);
       if (IsLocaleAvailable(tmp_locale, locale_path)) {
         resolved_locale->swap(tmp_locale);
         return true;
@@ -199,7 +196,7 @@ bool CheckAndResolveLocale(const std::wstring& locale,
 // Get the locale of the operating system.  The return value is of the form
 // language[-country] (e.g., en-US) where the language is the 2 letter code from
 // ISO-639.
-std::wstring GetSystemLocale() {
+std::string GetSystemLocale() {
   std::string language, region;
   GetLanguageAndRegionFromOS(&language, &region);
   std::string ret;
@@ -209,7 +206,7 @@ std::wstring GetSystemLocale() {
     ret.append("-");
     ret.append(region);
   }
-  return ASCIIToWide(ret);
+  return ret;
 }
 
 }  // namespace
@@ -219,79 +216,69 @@ namespace l10n_util {
 // Represents the locale-specific text direction.
 static TextDirection g_text_direction = UNKNOWN_DIRECTION;
 
-std::wstring GetApplicationLocale(const std::wstring& pref_locale) {
+std::string GetApplicationLocale(const std::wstring& pref_locale) {
 #if defined(OS_MACOSX)
   // On the mac, we don't want to test preferences or ICU for the language,
   // we want to use whatever Cocoa is using when it loaded the main nib file.
   // It handles all the mapping and fallbacks for us, we just need to ask
   // Cocoa.
   // TODO(pinkerton): break this out into a .mm and ask Cocoa.
-  return L"en";
+  return "en";
 #else
   FilePath locale_path;
   PathService::Get(app::DIR_LOCALES, &locale_path);
-  std::wstring resolved_locale;
+  std::string resolved_locale;
 
   // First, check to see if there's a --lang flag.
   const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
-  const std::wstring& lang_arg =
-      parsed_command_line.GetSwitchValue(switches::kLang);
+  const std::string& lang_arg = WideToASCII(
+      parsed_command_line.GetSwitchValue(switches::kLang));
   if (!lang_arg.empty()) {
-    if (CheckAndResolveLocale(lang_arg, locale_path.ToWStringHack(),
-                              &resolved_locale))
+    if (CheckAndResolveLocale(lang_arg, locale_path, &resolved_locale))
       return resolved_locale;
   }
 
   // Second, try user prefs.
   if (!pref_locale.empty()) {
-    if (CheckAndResolveLocale(pref_locale, locale_path.ToWStringHack(),
-                              &resolved_locale))
+    if (CheckAndResolveLocale(WideToASCII(pref_locale),
+                              locale_path, &resolved_locale))
       return resolved_locale;
   }
 
   // Next, try the system locale.
-  const std::wstring system_locale = GetSystemLocale();
-  if (CheckAndResolveLocale(system_locale, locale_path.ToWStringHack(),
-                            &resolved_locale))
+  const std::string system_locale = GetSystemLocale();
+  if (CheckAndResolveLocale(system_locale, locale_path, &resolved_locale))
     return resolved_locale;
 
   // Fallback on en-US.
-  const std::wstring fallback_locale(L"en-US");
-  if (IsLocaleAvailable(fallback_locale, locale_path.ToWStringHack()))
+  const std::string fallback_locale("en-US");
+  if (IsLocaleAvailable(fallback_locale, locale_path))
     return fallback_locale;
 
   // No locale data file was found; we shouldn't get here.
   NOTREACHED();
 
-  return std::wstring();
+  return std::string();
 #endif
 }
 
-std::wstring GetLocalName(const std::string& locale_code_str,
-                          const std::wstring& app_locale_wstr,
-                          bool is_for_ui) {
-  const std::string app_locale = WideToASCII(app_locale_wstr);
-  const char* locale_code = locale_code_str.c_str();
+string16 GetDisplayNameForLocale(const std::string& locale_code,
+                                 const std::string& display_locale,
+                                 bool is_for_ui) {
   UErrorCode error = U_ZERO_ERROR;
   const int buffer_size = 1024;
 
-#if defined(WCHAR_T_IS_UTF32)
-  string16 name_local_utf16;
-  int actual_size = uloc_getDisplayName(locale_code, app_locale.c_str(),
-      WriteInto(&name_local_utf16, buffer_size + 1), buffer_size, &error);
-  std::wstring name_local = UTF16ToWide(name_local_utf16);
-#else
-  std::wstring name_local;
-  int actual_size = uloc_getDisplayName(locale_code, app_locale.c_str(),
-      WriteInto(&name_local, buffer_size + 1), buffer_size, &error);
-#endif
+  string16 display_name;
+  int actual_size = uloc_getDisplayName(locale_code.c_str(),
+      display_locale.c_str(),
+      WriteInto(&display_name, buffer_size + 1), buffer_size, &error);
   DCHECK(U_SUCCESS(error));
-  name_local.resize(actual_size);
+  display_name.resize(actual_size);
   // Add an RTL mark so parentheses are properly placed.
   if (is_for_ui && GetTextDirection() == RIGHT_TO_LEFT) {
-    name_local.push_back(static_cast<wchar_t>(kRightToLeftMark));
+    display_name.push_back(static_cast<char16>(kRightToLeftMark));
   }
-  return name_local;
+  return display_name;
 }
 
 std::wstring GetString(int message_id) {
@@ -327,6 +314,7 @@ static string16 GetStringF(int message_id,
   return formatted;
 }
 
+#if !defined(WCHAR_T_IS_UTF16)
 std::wstring GetStringF(int message_id, const std::wstring& a) {
   return UTF16ToWide(GetStringF(message_id, WideToUTF16(a), string16(),
                                 string16(), string16(), NULL));
@@ -355,6 +343,7 @@ std::wstring GetStringF(int message_id,
   return UTF16ToWide(GetStringF(message_id, WideToUTF16(a), WideToUTF16(b),
                                 WideToUTF16(c), WideToUTF16(d), NULL));
 }
+#endif
 
 std::string GetStringFUTF8(int message_id,
                            const string16& a) {
@@ -382,6 +371,32 @@ std::string GetStringFUTF8(int message_id,
                            const string16& c,
                            const string16& d) {
   return UTF16ToUTF8(GetStringF(message_id, a, b, c, d, NULL));
+}
+
+string16 GetStringFUTF16(int message_id,
+                         const string16& a) {
+  return GetStringF(message_id, a, string16(), string16(), string16(), NULL);
+}
+
+string16 GetStringFUTF16(int message_id,
+                         const string16& a,
+                         const string16& b) {
+  return GetStringF(message_id, a, b, string16(), string16(), NULL);
+}
+
+string16 GetStringFUTF16(int message_id,
+                         const string16& a,
+                         const string16& b,
+                         const string16& c) {
+  return GetStringF(message_id, a, b, c, string16(), NULL);
+}
+
+string16 GetStringFUTF16(int message_id,
+                         const string16& a,
+                         const string16& b,
+                         const string16& c,
+                         const string16& d) {
+  return GetStringF(message_id, a, b, c, d, NULL);
 }
 
 std::wstring GetStringF(int message_id, const std::wstring& a, size_t* offset) {
@@ -678,7 +693,7 @@ bool StringComparator<std::wstring>::operator()(const std::wstring& lhs,
   return CompareStringWithCollator(collator_, lhs, rhs) == UCOL_LESS;
 };
 
-void SortStrings(const std::wstring& locale,
+void SortStrings(const std::string& locale,
                  std::vector<std::wstring>* strings) {
   SortVectorWithStringKey(locale, strings, false);
 }
@@ -692,7 +707,7 @@ const std::vector<std::string>& GetAvailableLocales() {
       // Filter out the names that have aliases.
       if (IsDuplicateName(locale_name))
         continue;
-      if (!IsLocaleSupportedByOS(ASCIIToWide(locale_name)))
+      if (!IsLocaleSupportedByOS(locale_name))
         continue;
       // Normalize underscores to hyphens because that's what our locale files
       // use.

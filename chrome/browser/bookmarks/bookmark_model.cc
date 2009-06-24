@@ -330,7 +330,7 @@ void BookmarkModel::SortChildren(BookmarkNode* parent) {
   UErrorCode error = U_ZERO_ERROR;
   scoped_ptr<Collator> collator(
       Collator::createInstance(
-          Locale(WideToUTF8(g_browser_process->GetApplicationLocale()).c_str()),
+          Locale(g_browser_process->GetApplicationLocale().c_str()),
           error));
   if (U_FAILURE(error))
     collator.reset(NULL);

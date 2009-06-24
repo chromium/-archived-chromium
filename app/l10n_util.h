@@ -46,23 +46,25 @@ const char16 kPopDirectionalFormatting = 0x202C;
 // as |pref_locale|), finally, we fall back on the system locale. We only return
 // a value if there's a corresponding resource DLL for the locale.  Otherwise,
 // we fall back to en-us.
-std::wstring GetApplicationLocale(const std::wstring& pref_locale);
+std::string GetApplicationLocale(const std::wstring& pref_locale);
 
 // Given a locale code, return true if the OS is capable of supporting it.
 // For instance, Oriya is not well supported on Windows XP and we return
 // false for "or".
-bool IsLocaleSupportedByOS(const std::wstring& locale);
+bool IsLocaleSupportedByOS(const std::string& locale);
 
-// This method returns the Local Name of the Locale Code. For example, for
-// |local_code_wstr| = "en-US", it returns "English (United States)".
-// |app_locale_wstr| can be obtained in the UI thread - for example:
-// const std::wstring app_locale_wstr = g_browser_process->
-//    GetApplicationLocale();
+// This method returns the display name of the locale code in |display_locale|.
+
+// For example, for |locale_code| = "en-US" and |display_locale| = "en",
+// it returns "English (United States)". To get the display name of
+// |locale_code| in the UI language of Chrome, |display_locale| can be
+// set to the return value of g_browser_process->GetApplicationLocale()
+// in the UI thread.
 // If |is_for_ui| is true, U+200F is appended so that it can be
 // rendered properly in a RTL Chrome.
-std::wstring GetLocalName(const std::string& locale_code_str,
-                          const std::wstring& app_locale_wstr,
-                          bool is_for_ui);
+string16 GetDisplayNameForLocale(const std::string& locale_code,
+                                 const std::string& display_locale,
+                                 bool is_for_ui);
 
 // Pulls resource string from the string bundle and returns it.
 std::wstring GetString(int message_id);
@@ -71,6 +73,44 @@ string16 GetStringUTF16(int message_id);
 
 // Get a resource string and replace $1-$2-$3 with |a| and |b|
 // respectively.  Additionally, $$ is replaced by $.
+string16 GetStringFUTF16(int message_id,
+                         const string16& a);
+string16 GetStringFUTF16(int message_id,
+                         const string16& a,
+                         const string16& b);
+string16 GetStringFUTF16(int message_id,
+                         const string16& a,
+                         const string16& b,
+                         const string16& c);
+string16 GetStringFUTF16(int message_id,
+                         const string16& a,
+                         const string16& b,
+                         const string16& c,
+                         const string16& d);
+#if defined(WCHAR_T_IS_UTF16)
+inline std::wstring GetStringF(int message_id,
+                               const std::wstring& a) {
+  return GetStringFUTF16(message_id, a);
+}
+inline std::wstring GetStringF(int message_id,
+                               const std::wstring& a,
+                               const std::wstring& b) {
+  return GetStringFUTF16(message_id, a, b);
+}
+inline std::wstring GetStringF(int message_id,
+                               const std::wstring& a,
+                               const std::wstring& b,
+                               const std::wstring& c) {
+  return GetStringFUTF16(message_id, a, b, c);
+}
+inline std::wstring GetStringF(int message_id,
+                               const std::wstring& a,
+                               const std::wstring& b,
+                               const std::wstring& c,
+                               const std::wstring& d) {
+  return GetStringFUTF16(message_id, a, b, c, d);
+}
+#else
 std::wstring GetStringF(int message_id,
                         const std::wstring& a);
 std::wstring GetStringF(int message_id,
@@ -85,6 +125,7 @@ std::wstring GetStringF(int message_id,
                         const std::wstring& b,
                         const std::wstring& c,
                         const std::wstring& d);
+#endif
 std::string GetStringFUTF8(int message_id,
                            const string16& a);
 std::string GetStringFUTF8(int message_id,
@@ -314,7 +355,7 @@ bool StringComparator<std::wstring>::operator()(const std::wstring& lhs,
 // want to be sorted. |end_index| points to the end position of elements in the
 // vector which want to be sorted
 template <class Element>
-void SortVectorWithStringKey(const std::wstring& locale,
+void SortVectorWithStringKey(const std::string& locale,
                              std::vector<Element>* elements,
                              unsigned int begin_index,
                              unsigned int end_index,
@@ -322,7 +363,7 @@ void SortVectorWithStringKey(const std::wstring& locale,
   DCHECK(begin_index >= 0 && begin_index < end_index &&
          end_index <= static_cast<unsigned int>(elements->size()));
   UErrorCode error = U_ZERO_ERROR;
-  Locale loc(WideToASCII(locale).c_str());
+  Locale loc(locale.c_str());
   scoped_ptr<Collator> collator(Collator::createInstance(loc, error));
   if (U_FAILURE(error))
     collator.reset();
@@ -337,7 +378,7 @@ void SortVectorWithStringKey(const std::wstring& locale,
 }
 
 template <class Element>
-void SortVectorWithStringKey(const std::wstring& locale,
+void SortVectorWithStringKey(const std::string& locale,
                              std::vector<Element>* elements,
                              bool needs_stable_sort) {
   SortVectorWithStringKey<Element>(locale, elements, 0, elements->size(),
@@ -346,7 +387,7 @@ void SortVectorWithStringKey(const std::wstring& locale,
 
 // In place sorting of strings using collation rules for |locale|.
 // TODO(port): this should take string16.
-void SortStrings(const std::wstring& locale,
+void SortStrings(const std::string& locale,
                  std::vector<std::wstring>* strings);
 
 // Returns a vector of available locale codes. E.g., a vector containing

@@ -7,6 +7,7 @@
 #include "chrome/browser/plugin_service.h"
 
 #include "base/command_line.h"
+#include "base/string_util.h"
 #include "base/thread.h"
 #include "base/waitable_event.h"
 #include "chrome/browser/browser_process.h"
@@ -33,7 +34,7 @@ PluginService* PluginService::GetInstance() {
 PluginService::PluginService()
     : main_message_loop_(MessageLoop::current()),
       resource_dispatcher_host_(NULL),
-      ui_locale_(g_browser_process->GetApplicationLocale()) {
+      ui_locale_(ASCIIToWide(g_browser_process->GetApplicationLocale())) {
   // Have the NPAPI plugin list search for Chrome plugins as well.
   ChromePluginLib::RegisterPluginsWithNPAPI();
   // Load the one specified on the command line as well.

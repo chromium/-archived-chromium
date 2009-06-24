@@ -33,7 +33,7 @@ namespace google_util {
 
 GURL AppendGoogleLocaleParam(const GURL& url) {
   return AppendParam(url, "hl",
-                     WideToUTF8(g_browser_process->GetApplicationLocale()));
+                     g_browser_process->GetApplicationLocale());
 }
 
 GURL AppendGoogleTLDParam(const GURL& url) {

@@ -12,14 +12,35 @@
 
 #include "base/file_util.h"
 
+#include "base/singleton.h"
 #include "base/string_util.h"
 #include "unicode/uniset.h"
 
-namespace file_util {
+namespace {
+class IllegalCharacters {
+ public:
+  bool contains(UChar32 ucs4) {
+    return !!set->contains(ucs4);
+  }
 
-void ReplaceIllegalCharacters(std::wstring* file_name, int replace_char) {
-  DCHECK(file_name);
+  bool containsNone(const string16 &s) {
+    return !!set->containsNone(UnicodeString(s.c_str(), s.size()));
+  }
 
+ private:
+  friend class Singleton<IllegalCharacters>;
+  friend struct DefaultSingletonTraits<IllegalCharacters>;
+
+  IllegalCharacters();
+  ~IllegalCharacters() { }
+
+  scoped_ptr<UnicodeSet> set;
+
+  DISALLOW_COPY_AND_ASSIGN(IllegalCharacters);
+};
+
+IllegalCharacters::IllegalCharacters() {
+  UErrorCode status = U_ZERO_ERROR;
   // Control characters, formatting characters, non-characters, and
   // some printable ASCII characters regarded as dangerous ('"*/:<>?\\').
   // See  http://blogs.msdn.com/michkap/archive/2006/11/03/941420.aspx
@@ -30,28 +51,46 @@ void ReplaceIllegalCharacters(std::wstring* file_name, int replace_char) {
   // Also, consider wrapping the set with our Singleton class to create and
   // freeze it only once. Note that there's a trade-off between memory and
   // speed.
-
-  UErrorCode status = U_ZERO_ERROR;
 #if defined(WCHAR_T_IS_UTF16)
-  UnicodeSet illegal_characters(UnicodeString(
-      L"[[\"*/:<>?\\\\|][:Cc:][:Cf:] - [\u200c\u200d]]"), status);
+  set.reset(new UnicodeSet(UnicodeString(
+      L"[[\"*/:<>?\\\\|][:Cc:][:Cf:] - [\u200c\u200d]]"), status));
 #else
-  UnicodeSet illegal_characters(UNICODE_STRING_SIMPLE(
-      "[[\"*/:<>?\\\\|][:Cc:][:Cf:] - [\\u200c\\u200d]]").unescape(), status);
+  set.reset(new UnicodeSet(UNICODE_STRING_SIMPLE(
+      "[[\"*/:<>?\\\\|][:Cc:][:Cf:] - [\\u200c\\u200d]]").unescape(),
+      status));
 #endif
   DCHECK(U_SUCCESS(status));
   // Add non-characters. If this becomes a performance bottleneck by
-  // any chance, check |ucs4 & 0xFFFEu == 0xFFFEu|, instead.
-  illegal_characters.add(0xFDD0, 0xFDEF);
+  // any chance, do not add these to |set| and change IsFilenameLegal()
+  // to check |ucs4 & 0xFFFEu == 0xFFFEu|, in addiition to calling
+  // containsNone().
+  set->add(0xFDD0, 0xFDEF);
   for (int i = 0; i <= 0x10; ++i) {
     int plane_base = 0x10000 * i;
-    illegal_characters.add(plane_base + 0xFFFE, plane_base + 0xFFFF);
+    set->add(plane_base + 0xFFFE, plane_base + 0xFFFF);
   }
-  illegal_characters.freeze();
-  DCHECK(!illegal_characters.contains(replace_char) && replace_char < 0x10000);
+  set->freeze();
+}
+
+}  // namespace
+
+namespace file_util {
+
+bool IsFilenameLegal(const string16& file_name) {
+  return Singleton<IllegalCharacters>()->containsNone(file_name);
+}
+
+void ReplaceIllegalCharacters(std::wstring* file_name, int replace_char) {
+  DCHECK(file_name);
+
+  DCHECK(!(Singleton<IllegalCharacters>()->contains(replace_char)) &&
+         replace_char < 0x10000);
 
   // Remove leading and trailing whitespace.
   TrimWhitespace(*file_name, TRIM_ALL, file_name);
+
+  if (IsFilenameLegal(WideToUTF16(*file_name)))
+    return;
 
   std::wstring::size_type i = 0;
   std::wstring::size_type length = file_name->size();
@@ -65,7 +104,7 @@ void ReplaceIllegalCharacters(std::wstring* file_name, int replace_char) {
     UChar32 ucs4;
     std::wstring::size_type prev = i;
     U16_NEXT(wstr, i, length, ucs4);
-    if (illegal_characters.contains(ucs4)) {
+    if (Singleton<IllegalCharacters>()->contains(ucs4)) {
       temp.push_back(replace_char);
     } else if (ucs4 < 0x10000) {
       temp.push_back(ucs4);
@@ -77,7 +116,7 @@ void ReplaceIllegalCharacters(std::wstring* file_name, int replace_char) {
   file_name->swap(temp);
 #elif defined(WCHAR_T_IS_UTF32)
   while (i < length) {
-    if (illegal_characters.contains(wstr[i])) {
+    if (Singleton<IllegalCharacters>()->contains(wstr[i])) {
       (*file_name)[i] = replace_char;
     }
     ++i;

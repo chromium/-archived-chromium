@@ -46,7 +46,7 @@ class DefaultEncodingComboboxModel : public views::Combobox::Model {
     // Initialize the vector of all sorted encodings according to current
     // UI locale.
     if (!sorted_encoding_list.size()) {
-      std::wstring locale = g_browser_process->GetApplicationLocale();
+      std::string locale = g_browser_process->GetApplicationLocale();
       for (int i = 0; i < canonical_encoding_names_length_; i++) {
         sorted_encoding_list.push_back(CharacterEncoding::EncodingInfo(
             CharacterEncoding::GetEncodingCommandIdByIndex(i)));

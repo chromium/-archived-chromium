@@ -79,7 +79,7 @@ class CharacterEncoding {
   // is from user recently selected. THIS FUNCTION IS NOT THREADSAFE. You must
   // run this function only in UI thread.
   static const std::vector<EncodingInfo>* GetCurrentDisplayEncodings(
-      const std::wstring& locale,
+      const std::string& locale,
       const std::wstring& locale_encodings,
       const std::wstring& recently_select_encodings);
 

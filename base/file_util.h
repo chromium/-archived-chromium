@@ -26,8 +26,9 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "base/scoped_ptr.h"
 #include "base/file_path.h"
+#include "base/scoped_ptr.h"
+#include "base/string16.h"
 
 namespace base {
 class Time;
@@ -112,6 +113,10 @@ void ReplaceExtension(FilePath* file_name,
 //   file_name == "bad:file*name?.txt", changed to: "bad-file-name-.txt" when
 //   'replace_char' is '-'.
 void ReplaceIllegalCharacters(std::wstring* file_name, int replace_char);
+
+// Returns true if file_name does not have any illegal character. The input
+// param has the same restriction as that for ReplaceIllegalCharacters.
+bool IsFilenameLegal(const string16& file_name);
 
 //-----------------------------------------------------------------------------
 // Functions that involve filesystem access or modification:

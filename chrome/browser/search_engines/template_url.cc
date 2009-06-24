@@ -317,7 +317,8 @@ std::wstring TemplateURLRef::ReplaceSearchTerms(
       }
 
       case LANGUAGE:
-        url.insert(i->index, g_browser_process->GetApplicationLocale());
+        url.insert(i->index,
+                   ASCIIToWide(g_browser_process->GetApplicationLocale()));
         break;
 
       case SEARCH_TERMS:

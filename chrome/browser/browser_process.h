@@ -129,7 +129,7 @@ class BrowserProcess {
   virtual GoogleURLTracker* google_url_tracker() = 0;
 
   // Returns the locale used by the application.
-  virtual const std::wstring& GetApplicationLocale() = 0;
+  virtual const std::string& GetApplicationLocale() = 0;
 
   virtual MemoryModel memory_model() = 0;
 

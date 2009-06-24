@@ -344,7 +344,7 @@ std::wstring CharacterEncoding::GetCanonicalEncodingNameByAliasName(
 // At last, we put all rest encoding items.
 const std::vector<CharacterEncoding::EncodingInfo>*
     CharacterEncoding::GetCurrentDisplayEncodings(
-    const std::wstring& locale,
+    const std::string& locale,
     const std::wstring& locale_encodings,
     const std::wstring& recently_select_encodings) {
   std::vector<int>* const locale_dependent_encoding_list =

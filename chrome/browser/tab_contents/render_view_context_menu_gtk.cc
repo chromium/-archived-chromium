@@ -61,29 +61,29 @@ void RenderViewContextMenuGtk::StoppedShowing() {
 }
 
 void RenderViewContextMenuGtk::AppendMenuItem(int id) {
-  AppendItem(id, std::wstring(), MENU_NORMAL);
+  AppendItem(id, string16(), MENU_NORMAL);
 }
 
 void RenderViewContextMenuGtk::AppendMenuItem(int id,
-    const std::wstring& label) {
+    const string16& label) {
   AppendItem(id, label, MENU_NORMAL);
 }
 
 void RenderViewContextMenuGtk::AppendRadioMenuItem(int id,
-    const std::wstring& label) {
+    const string16& label) {
   AppendItem(id, label, MENU_RADIO);
 }
 
 void RenderViewContextMenuGtk::AppendCheckboxMenuItem(int id,
-    const std::wstring& label) {
+    const string16& label) {
   AppendItem(id, label, MENU_CHECKBOX);
 }
 
 void RenderViewContextMenuGtk::AppendSeparator() {
-  AppendItem(0, std::wstring(), MENU_SEPARATOR);
+  AppendItem(0, string16(), MENU_SEPARATOR);
 }
 
-void RenderViewContextMenuGtk::StartSubMenu(int id, const std::wstring& label) {
+void RenderViewContextMenuGtk::StartSubMenu(int id, const string16& label) {
   AppendItem(id, label, MENU_NORMAL);
   making_submenu_ = true;
 }
@@ -104,7 +104,7 @@ void RenderViewContextMenuGtk::DidWriteURLToClipboard(
 }
 
 void RenderViewContextMenuGtk::AppendItem(
-    int id, const std::wstring& label, MenuItemType type) {
+    int id, const string16& label, MenuItemType type) {
   MenuCreateMaterial menu_create_material = {
     type, id, 0, 0, NULL
   };
@@ -112,7 +112,7 @@ void RenderViewContextMenuGtk::AppendItem(
   if (label.empty())
     menu_create_material.label_id = id;
   else
-    label_map_[id] = WideToUTF8(label);
+    label_map_[id] = UTF16ToUTF8(label);
 
   std::vector<MenuCreateMaterial>* menu =
       making_submenu_ ? &submenu_ : &menu_;

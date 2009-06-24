@@ -523,7 +523,7 @@ bool FirstRun::ImportSettings(Profile* profile, int browser_type,
   // current command line as fallback.
   import_cmd.AppendSwitchWithValue(
       switches::kLang,
-      g_browser_process->GetApplicationLocale());
+      ASCIIToWide(g_browser_process->GetApplicationLocale()));
 
   import_cmd.CommandLine::AppendSwitchWithValue(switches::kImport,
       EncodeImportParams(browser_type, items_to_import, parent_window));

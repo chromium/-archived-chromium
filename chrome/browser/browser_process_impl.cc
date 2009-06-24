@@ -262,11 +262,11 @@ printing::PrintJobManager* BrowserProcessImpl::print_job_manager() {
   return print_job_manager_.get();
 }
 
-const std::wstring& BrowserProcessImpl::GetApplicationLocale() {
+const std::string& BrowserProcessImpl::GetApplicationLocale() {
   DCHECK(CalledOnValidThread());
   if (locale_.empty()) {
-    locale_ = l10n_util::GetApplicationLocale(local_state()->GetString(
-        prefs::kApplicationLocale));
+    locale_ = l10n_util::GetApplicationLocale(
+        local_state()->GetString(prefs::kApplicationLocale));
   }
   return locale_;
 }

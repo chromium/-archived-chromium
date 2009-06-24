@@ -397,7 +397,7 @@ bool AutomatedUITest::DoAction(const std::string & action) {
 
 bool AutomatedUITest::ChangeEncoding() {
   // Get the encoding list that is used to populate the UI (encoding menu)
-  std::wstring cur_locale = g_browser_process->GetApplicationLocale();
+  std::string cur_locale = g_browser_process->GetApplicationLocale();
   const std::vector<CharacterEncoding::EncodingInfo>* encodings =
       CharacterEncoding::GetCurrentDisplayEncodings(
           cur_locale, L"ISO-8859-1,windows-1252", L"");

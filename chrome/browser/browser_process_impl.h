@@ -185,7 +185,7 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
     return google_url_tracker_.get();
   }
 
-  virtual const std::wstring& GetApplicationLocale();
+  virtual const std::string& GetApplicationLocale();
 
   virtual MemoryModel memory_model() {
     DCHECK(CalledOnValidThread());
@@ -268,7 +268,7 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
   // Ensures that all the print jobs are finished before closing the browser.
   scoped_ptr<printing::PrintJobManager> print_job_manager_;
 
-  std::wstring locale_;
+  std::string locale_;
 
   MemoryModel memory_model_;
 

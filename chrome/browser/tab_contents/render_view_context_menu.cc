@@ -84,7 +84,8 @@ void RenderViewContextMenu::AppendLinkItems() {
 
   if (params_.link_url.SchemeIs(chrome::kMailToScheme)) {
     AppendMenuItem(IDS_CONTENT_CONTEXT_COPYLINKLOCATION,
-                   l10n_util::GetString(IDS_CONTENT_CONTEXT_COPYEMAILADDRESS));
+                   l10n_util::GetStringUTF16(
+                       IDS_CONTENT_CONTEXT_COPYEMAILADDRESS));
   } else {
     AppendMenuItem(IDS_CONTENT_CONTEXT_COPYLINKLOCATION);
   }
@@ -136,9 +137,10 @@ void RenderViewContextMenu::AppendSearchProvider() {
     std::wstring selection_text =
         l10n_util::TruncateString(params_.selection_text, 50);
     if (!selection_text.empty()) {
-      std::wstring label(l10n_util::GetStringF(IDS_CONTENT_CONTEXT_SEARCHWEBFOR,
-                         default_provider->short_name(),
-                         selection_text));
+      string16 label(WideToUTF16(
+          l10n_util::GetStringF(IDS_CONTENT_CONTEXT_SEARCHWEBFOR,
+                                default_provider->short_name(),
+                                selection_text)));
       AppendMenuItem(IDS_CONTENT_CONTEXT_SEARCHWEBFOR, label);
     }
   }
@@ -150,7 +152,7 @@ void RenderViewContextMenu::AppendEditableItems() {
        IDC_SPELLCHECK_SUGGESTION_0 + i <= IDC_SPELLCHECK_SUGGESTION_LAST;
        ++i) {
     AppendMenuItem(IDC_SPELLCHECK_SUGGESTION_0 + static_cast<int>(i),
-                   params_.dictionary_suggestions[i]);
+                   WideToUTF16(params_.dictionary_suggestions[i]));
   }
   if (params_.dictionary_suggestions.size() > 0)
     AppendSeparator();
@@ -159,7 +161,8 @@ void RenderViewContextMenu::AppendEditableItems() {
   if (!params_.misspelled_word.empty()) {
     if (params_.dictionary_suggestions.size() == 0) {
       AppendMenuItem(0,
-          l10n_util::GetString(IDS_CONTENT_CONTEXT_NO_SPELLING_SUGGESTIONS));
+          l10n_util::GetStringUTF16(
+              IDS_CONTENT_CONTEXT_NO_SPELLING_SUGGESTIONS));
     }
     AppendMenuItem(IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY);
     AppendSeparator();
@@ -176,19 +179,19 @@ void RenderViewContextMenu::AppendEditableItems() {
 
   // Add Spell Check options sub menu.
   StartSubMenu(IDC_SPELLCHECK_MENU,
-      l10n_util::GetString(IDS_CONTENT_CONTEXT_SPELLCHECK_MENU));
+      l10n_util::GetStringUTF16(IDS_CONTENT_CONTEXT_SPELLCHECK_MENU));
 
   // Add Spell Check languages to sub menu.
-  SpellChecker::Languages display_languages;
+  SpellChecker::Languages spellcheck_languages;
   SpellChecker::GetSpellCheckLanguages(profile_,
-      &display_languages);
-  DCHECK(display_languages.size() <
+      &spellcheck_languages);
+  DCHECK(spellcheck_languages.size() <
          IDC_SPELLCHECK_LANGUAGES_LAST - IDC_SPELLCHECK_LANGUAGES_FIRST);
-  const std::wstring app_locale = g_browser_process->GetApplicationLocale();
-  for (size_t i = 0; i < display_languages.size(); ++i) {
-    std::wstring local_language(l10n_util::GetLocalName(
-        display_languages[i], app_locale, true));
-    AppendRadioMenuItem(IDC_SPELLCHECK_LANGUAGES_FIRST + i, local_language);
+  const std::string app_locale = g_browser_process->GetApplicationLocale();
+  for (size_t i = 0; i < spellcheck_languages.size(); ++i) {
+    string16 display_name(l10n_util::GetDisplayNameForLocale(
+        spellcheck_languages[i], app_locale, true));
+    AppendRadioMenuItem(IDC_SPELLCHECK_LANGUAGES_FIRST + i, display_name);
   }
 
   // Add item in the sub menu to pop up the fonts and languages options menu.
@@ -198,7 +201,8 @@ void RenderViewContextMenu::AppendEditableItems() {
   // Add 'Check the spelling of this field' item in the sub menu.
   AppendCheckboxMenuItem(
       IDC_CHECK_SPELLING_OF_THIS_FIELD,
-      l10n_util::GetString(IDS_CONTENT_CONTEXT_CHECK_SPELLING_OF_THIS_FIELD));
+      l10n_util::GetStringUTF16(
+          IDS_CONTENT_CONTEXT_CHECK_SPELLING_OF_THIS_FIELD));
 
   FinishSubMenu();
 

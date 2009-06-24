@@ -7,7 +7,7 @@
 namespace l10n_util {
 
 // Return true blindly for now.
-bool IsLocaleSupportedByOS(const std::wstring& locale) {
+bool IsLocaleSupportedByOS(const std::string& locale) {
   return true;
 }
 

@@ -65,11 +65,11 @@ FilePath ResourceBundle::GetLocaleFilePath(const std::wstring& pref_locale) {
   FilePath locale_path;
   PathService::Get(app::DIR_LOCALES, &locale_path);
 
-  const std::wstring app_locale = l10n_util::GetApplicationLocale(pref_locale);
+  const std::string app_locale = l10n_util::GetApplicationLocale(pref_locale);
   if (app_locale.empty())
     return FilePath();
 
-  return locale_path.Append(app_locale + L".dll");
+  return locale_path.AppendASCII(app_locale + ".dll");
 }
 
 void ResourceBundle::LoadThemeResources() {

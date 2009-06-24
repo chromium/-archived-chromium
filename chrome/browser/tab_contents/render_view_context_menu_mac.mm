@@ -68,10 +68,10 @@ void RenderViewContextMenuMac::DoInit() {
 // TODO(pinkerton): Do we want to do anything like make a maximum string width
 // and middle-truncate?
 NSString* RenderViewContextMenuMac::PrepareLabelForDisplay(
-    const std::wstring& label) {
+    const string16& label) {
   // Strip out any "&"'s that are windows accelerators and we don't use.
   NSMutableString* title =
-    [NSMutableString stringWithString:base::SysWideToNSString(label)];
+    [NSMutableString stringWithString:base::SysUTF16ToNSString(label)];
   DCHECK(title);
   NSRange range = NSMakeRange(0, [title length]);
   [title replaceOccurrencesOfString:@"&" withString:@"" options:0 range:range];
@@ -79,11 +79,11 @@ NSString* RenderViewContextMenuMac::PrepareLabelForDisplay(
 }
 
 void RenderViewContextMenuMac::AppendMenuItem(int command_id) {
-  AppendMenuItem(command_id, l10n_util::GetString(command_id));
+  AppendMenuItem(command_id, l10n_util::GetStringUTF16(command_id));
 }
 
 void RenderViewContextMenuMac::AppendMenuItem(int command_id,
-                                              const std::wstring& label) {
+                                              const string16& label) {
   // Create the item and set its target/action to |target_| with the command
   // as |command_id|. Then add it to the menu at the end.
   NSMenuItem* item =
@@ -97,12 +97,12 @@ void RenderViewContextMenuMac::AppendMenuItem(int command_id,
 }
 
 void RenderViewContextMenuMac::AppendRadioMenuItem(int id,
-                                                   const std::wstring& label) {
+                                                   const string16& label) {
   NOTIMPLEMENTED();
 }
 
 void RenderViewContextMenuMac::AppendCheckboxMenuItem(int id,
-    const std::wstring& label) {
+    const string16& label) {
   NOTIMPLEMENTED();
 }
 
@@ -112,7 +112,7 @@ void RenderViewContextMenuMac::AppendSeparator() {
 }
 
 void RenderViewContextMenuMac::StartSubMenu(int command_id,
-                                            const std::wstring& label) {
+                                            const string16& label) {
   // I'm not a fan of this kind of API, but the other platforms have similar
   // guards so at least we know everyone will break together if someone
   // tries to mis-use the API.
