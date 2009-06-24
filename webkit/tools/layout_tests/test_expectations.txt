@@ -2777,6 +2777,9 @@ BUG15132 WIN LINUX : LayoutTests/editing/execCommand/remove-formatting-2.html = 
 BUG15132 WIN LINUX : LayoutTests/editing/inserting/editable-html-element.html = FAIL
 BUG15132 WIN LINUX : LayoutTests/editing/pasteboard/4989774.html = FAIL
 BUG15132 WIN LINUX : LayoutTests/editing/selection/4983858.html = FAIL
+BUG15132 WIN LINUX : LayoutTests/fast/dom/HTMLTableColElement/resize-table-using-col-width.html = FAIL
+BUG15132 WIN : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
+BUG15132 WIN : LayoutTests/media/event-attributes.html = FAIL
 
 // The Mac layout test buildbots haven't generated a package for 20 days so
 // the rebaselining tool isn't working for this  --agl
