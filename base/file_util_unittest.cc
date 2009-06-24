@@ -1035,10 +1035,12 @@ TEST_F(FileUtilTest, FileEnumeratorOrderTest) {
   EXPECT_TRUE(file_util::CreateDirectory(dirC));
   EXPECT_TRUE(file_util::CreateDirectory(dirD));
 
-  // Files and directories are enumerated in the lexicographical order,
-  // ignoring case and whether they are files or directories.
+  // On Windows, files and directories are enumerated in the lexicographical
+  // order, ignoring case and whether they are files or directories. On posix,
+  // we order directories before files.
   file_util::FileEnumerator enumerator(test_dir_, false, FILES_AND_DIRECTORIES);
   FilePath cur_file = enumerator.Next();
+#if defined(OS_WIN)
   EXPECT_EQ(fileA.value(), cur_file.value());
   cur_file = enumerator.Next();
   EXPECT_EQ(fileB.value(), cur_file.value());
@@ -1051,6 +1053,21 @@ TEST_F(FileUtilTest, FileEnumeratorOrderTest) {
   cur_file = enumerator.Next();
   EXPECT_EQ(fileF.value(), cur_file.value());
   cur_file = enumerator.Next();
+#elif defined(OS_POSIX)
+  EXPECT_EQ(dirC.value(), cur_file.value());
+  cur_file = enumerator.Next();
+  EXPECT_EQ(dirD.value(), cur_file.value());
+  cur_file = enumerator.Next();
+  EXPECT_EQ(dirE.value(), cur_file.value());
+  cur_file = enumerator.Next();
+  EXPECT_EQ(fileA.value(), cur_file.value());
+  cur_file = enumerator.Next();
+  EXPECT_EQ(fileB.value(), cur_file.value());
+  cur_file = enumerator.Next();
+  EXPECT_EQ(fileF.value(), cur_file.value());
+  cur_file = enumerator.Next();
+#endif
+
   EXPECT_EQ(FILE_PATH_LITERAL(""), cur_file.value());
 }
 

@@ -28,6 +28,23 @@
 #include "base/string_util.h"
 #include "base/time.h"
 
+namespace {
+
+bool IsDirectory(const FTSENT* file) {
+  switch (file->fts_info) {
+    case FTS_D:
+    case FTS_DC:
+    case FTS_DNR:
+    case FTS_DOT:
+    case FTS_DP:
+      return true;
+    default:
+      return false;
+  }
+}
+
+}  // namespace
+
 namespace file_util {
 
 #if defined(GOOGLE_CHROME_BUILD)
@@ -560,10 +577,14 @@ void FileEnumerator::GetFindInfo(FindInfo* info) {
 }
 
 int CompareFiles(const FTSENT** a, const FTSENT** b) {
-  // Order lexicographically, ignoring case and whether they are files or
-  // directories.
-  // TODO(yuzo): make this case-sensitive, directories-then-files, and
-  // internationalized.
+  // Order lexicographically with directories before other files.
+  const bool a_is_dir = IsDirectory(*a);
+  const bool b_is_dir = IsDirectory(*b);
+  if (a_is_dir != b_is_dir)
+    return a_is_dir ? -1 : 1;
+
+  // TODO(yuzo): make this internationalized when encoding detection function
+  // becomes available.
   return base::strcasecmp((*a)->fts_name, (*b)->fts_name);
 }
 
