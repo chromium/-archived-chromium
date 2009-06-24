@@ -618,12 +618,12 @@ void BookmarkManagerGtk::SetRightSideColumnValues(int row, GtkTreeIter* iter) {
 void BookmarkManagerGtk::AddNodeToRightStore(int row) {
   GtkTreeIter iter;
   if (row == 0) {
-    gtk_tree_model_get_iter_first(GTK_TREE_MODEL(right_store_), &iter);
     gtk_list_store_prepend(right_store_, &iter);
   } else {
-    gtk_tree_model_iter_nth_child(GTK_TREE_MODEL(right_store_), &iter, NULL,
-                                  row - 1);
-    gtk_list_store_append(right_store_, &iter);
+    GtkTreeIter sibling;
+    gtk_tree_model_iter_nth_child(GTK_TREE_MODEL(right_store_), &sibling,
+                                  NULL, row - 1);
+    gtk_list_store_insert_after(right_store_, &iter, &sibling);
   }
 
   SetRightSideColumnValues(row, &iter);
