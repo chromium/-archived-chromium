@@ -2756,4 +2756,4 @@ BUG14946 : LayoutTests/fast/js/date-toisostring.html = FAIL
 BUG14951 WIN LINUX : LayoutTests/fast/repaint/background-generated.html = FAIL
 
 // WebKit 44946:44969
-BUG 15113 WIN LINUX : LayoutTests/compositing/sibling-positioning.html = FAIL
+BUG15113 WIN LINUX : LayoutTests/compositing/sibling-positioning.html = FAIL
