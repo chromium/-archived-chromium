@@ -112,7 +112,7 @@ bool RunTests(const BrowserTestRunnerFactory& browser_test_runner_factory) {
   printf("%d test%s failed\n", static_cast<int>(failed_tests.size()),
                                failed_tests.size() > 1 ? "s" : "");
   if (failed_tests.empty())
-    return false;
+    return true;
 
   printf("Failing tests:\n");
   for (std::vector<std::string>::const_iterator iter = failed_tests.begin();
@@ -120,7 +120,7 @@ bool RunTests(const BrowserTestRunnerFactory& browser_test_runner_factory) {
     printf("%s\n", iter->c_str());
   }
 
-  return true;
+  return false;
 }
 
 }  // namespace
