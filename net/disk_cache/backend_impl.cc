@@ -8,6 +8,7 @@
 #include "base/file_util.h"
 #include "base/histogram.h"
 #include "base/message_loop.h"
+#include "base/rand_util.h"
 #include "base/string_util.h"
 #include "base/sys_info.h"
 #include "base/timer.h"
@@ -139,13 +140,28 @@ bool DelayedCacheCleanup(const std::wstring& full_path) {
 // Sets |current_group| for the current experiment. Returns false if the files
 // should be discarded.
 bool InitExperiment(int* current_group) {
-  if (*current_group <= 2) {
-    // Not taking part of this experiment.
-    *current_group = 5;
-  } else if (*current_group < 5) {
+  if (*current_group == 3 || *current_group == 4) {
     // Discard current cache for groups 3 and 4.
     return false;
   }
+
+  if (*current_group <= 5) {
+    // Re-load the two groups.
+    int option = base::RandInt(0, 9);
+
+    if (option > 1) {
+      // 80% will be out of the experiment.
+      *current_group = 9;
+    } else {
+      *current_group = option + 6;
+    }
+  }
+
+  // The current groups should be:
+  // 6 control. (~10%)
+  // 7 new eviction, upgraded data. (~10%)
+  // 8 new eviction, from new files.
+  // 9 out. (~80%)
 
   UMA_HISTOGRAM_CACHE_ERROR("DiskCache.Experiment", *current_group);
 
@@ -253,7 +269,7 @@ bool BackendImpl::Init() {
   if (!InitExperiment(&data_->header.experiment))
     return false;
 
-  if (data_->header.experiment > 6)
+  if (data_->header.experiment > 6 && data_->header.experiment < 9)
     new_eviction_ = true;
 
   if (!CheckIndex()) {
