@@ -839,11 +839,9 @@ static const struct goodbad_pair {
 #if defined(OS_WIN)
   {L"bad*file\\name.jpg", L"bad-file-name.jpg"},
   {L"\t  bad*file\\name/.jpg ", L"bad-file-name-.jpg"},
-  {L"bad\uFFFFfile\U0010FFFEname.jpg ", L"bad-file-name.jpg"},
 #elif defined(OS_POSIX)
   {L"bad*file?name.jpg", L"bad-file-name.jpg"},
   {L"\t  bad*file?name/.jpg ", L"bad-file-name-.jpg"},
-  {L"bad\uFFFFfile-name.jpg ", L"bad-file-name.jpg"},
 #endif
   {L"this_file_name is okay!.mp3", L"this_file_name is okay!.mp3"},
   {L"\u4E00\uAC00.mp3", L"\u4E00\uAC00.mp3"},
@@ -851,6 +849,9 @@ static const struct goodbad_pair {
   {L"\U00010330\U00010331.mp3", L"\U00010330\U00010331.mp3"},
   // Unassigned codepoints are ok.
   {L"\u0378\U00040001.mp3", L"\u0378\U00040001.mp3"},
+  // Non-characters are not allowed.
+  {L"bad\uFFFFfile\U0010FFFEname.jpg ", L"bad-file-name.jpg"},
+  {L"bad\uFDD0file\uFDEFname.jpg ", L"bad-file-name.jpg"},
 };
 
 TEST_F(FileUtilTest, ReplaceIllegalCharactersTest) {

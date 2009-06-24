@@ -186,6 +186,13 @@ string16 ASCIIToUTF16(const StringPiece& ascii);
 // do the best it can and put the result in the output buffer. The versions that
 // return strings ignore this error and just return the best conversion
 // possible.
+//
+// Note that only the structural validity is checked and non-character
+// codepoints and unassigned are regarded as valid.
+// TODO(jungshik): Consider replacing an invalid input sequence with
+// the Unicode replacement character or adding |replacement_char| parameter.
+// Currently, it's skipped in the ouput, which could be problematic in
+// some situations.
 bool WideToUTF8(const wchar_t* src, size_t src_len, std::string* output);
 std::string WideToUTF8(const std::wstring& wide);
 bool UTF8ToWide(const char* src, size_t src_len, std::wstring* output);
@@ -250,6 +257,13 @@ bool WideToLatin1(const std::wstring& wide, std::string* latin1);
 // string be 8-bit or UTF8? It contains only characters that are < 256 (in the
 // first case) or characters that use only 8-bits and whose 8-bit
 // representation looks like a UTF-8 string (the second case).
+//
+// Note that IsStringUTF8 checks not only if the input is structrually
+// valid but also if it doesn't contain any non-character codepoint
+// (e.g. U+FFFE). It's done on purpose because all the existing callers want
+// to have the maximum 'discriminating' power from other encodings. If
+// there's a use case for just checking the structural validity, we have to
+// add a new function for that.
 bool IsString8Bit(const std::wstring& str);
 bool IsStringUTF8(const std::string& str);
 bool IsStringWideUTF8(const std::wstring& str);

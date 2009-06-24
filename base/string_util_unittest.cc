@@ -309,8 +309,8 @@ TEST(StringUtilTest, ConvertUTF8ToWide) {
   } convert_cases[] = {
     // Regular UTF-8 input.
     {"\xe4\xbd\xa0\xe5\xa5\xbd", L"\x4f60\x597d", true},
-    // Invalid Unicode code point.
-    {"\xef\xbf\xbfHello", L"Hello", false},
+    // Non-character is passed through.
+    {"\xef\xbf\xbfHello", L"\xffffHello", true},
     // Truncated UTF-8 sequence.
     {"\xe4\xa0\xe5\xa5\xbd", L"\x597d", false},
     // Truncated off the end.
@@ -319,11 +319,14 @@ TEST(StringUtilTest, ConvertUTF8ToWide) {
     {"\xf0\x84\xbd\xa0\xe5\xa5\xbd", L"\x597d", false},
     // This UTF-8 character decodes to a UTF-16 surrogate, which is illegal.
     {"\xed\xb0\x80", L"", false},
-    // Non-BMP character. The result will either be in UTF-16 or UTF-32.
+    // Non-BMP characters. The second is a non-character regarded as valid.
+    // The result will either be in UTF-16 or UTF-32.
 #if defined(WCHAR_T_IS_UTF16)
     {"A\xF0\x90\x8C\x80z", L"A\xd800\xdf00z", true},
+    {"A\xF4\x8F\xBF\xBEz", L"A\xdbff\xdffez", true},
 #elif defined(WCHAR_T_IS_UTF32)
     {"A\xF0\x90\x8C\x80z", L"A\x10300z", true},
+    {"A\xF4\x8F\xBF\xBEz", L"A\x10fffez", true},
 #endif
   };
 
@@ -367,8 +370,9 @@ TEST(StringUtilTest, ConvertUTF16ToUTF8) {
     {L"\x4f60\x597d", "\xe4\xbd\xa0\xe5\xa5\xbd", true},
     // Test a non-BMP character.
     {L"\xd800\xdf00", "\xF0\x90\x8C\x80", true},
-    // Invalid Unicode code point.
-    {L"\xffffHello", "Hello", false},
+    // Non-characters are passed through.
+    {L"\xffffHello", "\xEF\xBF\xBFHello", true},
+    {L"\xdbff\xdffeHello", "\xF4\x8F\xBF\xBEHello", true},
     // The first character is a truncated UTF-16 character.
     {L"\xd800\x597d", "\xe5\xa5\xbd", false},
     // Truncated at the end.
@@ -389,7 +393,7 @@ TEST(StringUtilTest, ConvertUTF16ToUTF8) {
 #elif defined(WCHAR_T_IS_UTF32)
 // This test is only valid when wchar_t == UTF-32.
 TEST(StringUtilTest, ConvertUTF32ToUTF8) {
-  struct UTF8ToWideCase {
+  struct WideToUTF8Case {
     const wchar_t* utf32;
     const char* utf8;
     bool success;
@@ -398,11 +402,14 @@ TEST(StringUtilTest, ConvertUTF32ToUTF8) {
     {L"\x4f60\x597d", "\xe4\xbd\xa0\xe5\xa5\xbd", true},
     // Test a non-BMP character.
     {L"A\x10300z", "A\xF0\x90\x8C\x80z", true},
+    // Non-characters are passed through.
+    {L"\xffffHello", "\xEF\xBF\xBFHello", true},
+    {L"\x10fffeHello", "\xF4\x8F\xBF\xBEHello", true},
     // Invalid Unicode code points.
-    {L"\xffffHello", "Hello", false},
     {L"\xfffffffHello", "Hello", false},
     // The first character is a truncated UTF-16 character.
     {L"\xd800\x597d", "\xe5\xa5\xbd", false},
+    {L"\xdc01Hello", "Hello", false},
   };
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(convert_cases); i++) {

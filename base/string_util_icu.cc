@@ -16,6 +16,14 @@
 
 namespace {
 
+inline bool IsValidCodepoint(uint32 code_point) {
+  // Excludes the surrogate code points ([0xD800, 0xDFFF]) and
+  // codepoints larger than 0x10FFFF (the highest codepoint allowed).
+  // Non-characters and unassigned codepoints are allowed.
+  return code_point < 0xD800u ||
+         (code_point >= 0xE000u && code_point <= 0x10FFFFu);
+}
+
 // ReadUnicodeCharacter --------------------------------------------------------
 
 // Reads a UTF-8 stream, placing the next code point into the given output
@@ -39,7 +47,7 @@ bool ReadUnicodeCharacter(const char* src, int32 src_len,
   (*char_index)--;
 
   // Validate the decoded value.
-  return U_IS_UNICODE_CHAR(code_point);
+  return IsValidCodepoint(code_point);
 }
 
 // Reads a UTF-16 character. The usage is the same as the 8-bit version above.
@@ -62,7 +70,7 @@ bool ReadUnicodeCharacter(const char16* src, int32 src_len,
     *code_point = src[*char_index];
   }
 
-  return U_IS_UNICODE_CHAR(*code_point);
+  return IsValidCodepoint(*code_point);
 }
 
 #if defined(WCHAR_T_IS_UTF32)
@@ -73,7 +81,7 @@ bool ReadUnicodeCharacter(const wchar_t* src, int32 src_len,
   *code_point = src[*char_index];
 
   // Validate the value.
-  return U_IS_UNICODE_CHAR(*code_point);
+  return IsValidCodepoint(*code_point);
 }
 #endif  // defined(WCHAR_T_IS_UTF32)
 
@@ -134,10 +142,13 @@ bool ConvertUnicode(const SRC_CHAR* src, size_t src_len, DEST_STRING* output) {
   int32 src_len32 = static_cast<int32>(src_len);
   for (int32 i = 0; i < src_len32; i++) {
     uint32 code_point;
-    if (ReadUnicodeCharacter(src, src_len32, &i, &code_point))
+    if (ReadUnicodeCharacter(src, src_len32, &i, &code_point)) {
       WriteUnicodeCharacter(code_point, output);
-    else
+    } else {
+      // TODO(jungshik): consider adding 'Replacement character' (U+FFFD)
+      // in place of an invalid codepoint.
       success = false;
+    }
   }
   return success;
 }
@@ -428,8 +439,15 @@ bool CodepageToWide(const std::string& encoded,
   if (!U_SUCCESS(status))
     return false;
 
-  // The worst case is all the input characters are non-BMP (32-bit) ones.
-  size_t uchar_max_length = encoded.length() * 2 + 1;
+  // Even in the worst case, the maximum length in 2-byte units of UTF-16
+  // output would be at most the same as the number of bytes in input. There
+  // is no single-byte encoding in which a character is mapped to a
+  // non-BMP character requiring two 2-byte units.
+  //
+  // Moreover, non-BMP characters in legacy multibyte encodings
+  // (e.g. EUC-JP, GB18030) take at least 2 bytes. The only exceptions are
+  // BOCU and SCSU, but we don't care about them.
+  size_t uchar_max_length = encoded.length() + 1;
 
   UChar* uchar_dst;
 #if defined(WCHAR_T_IS_UTF16)
