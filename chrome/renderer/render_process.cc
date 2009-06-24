@@ -112,9 +112,10 @@ void RenderProcess::Init() {
   }
 
   // Out of process dev tools rely upon auto break behavior.
-  webkit_glue::SetJavaScriptFlags(L"--debugger-auto-break"
-                                  // Enable lazy in-memory profiling.
-                                  L" --prof --prof-lazy --logfile=*");
+  webkit_glue::SetJavaScriptFlags(
+      L"--debugger-auto-break"
+      // Enable lazy in-memory profiling.
+      L" --prof --prof-lazy --logfile=* --compress-log");
 
   if (command_line.HasSwitch(switches::kEnableWatchdog)) {
     // TODO(JAR): Need to implement renderer IO msgloop watchdog.

@@ -4752,6 +4752,7 @@
             '../v8/tools/codemap.js',
             '../v8/tools/consarray.js',
             '../v8/tools/csvparser.js',
+            '../v8/tools/logreader.js',
             '../v8/tools/profile.js',
             '../v8/tools/profile_view.js',
             '../v8/tools/splaytree.js',            
