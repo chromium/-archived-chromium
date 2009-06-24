@@ -397,24 +397,32 @@ bool DirectoryWatcherImpl::OnEnumeratedSubtree(const FilePathSet& subtree) {
   }
 
   bool success = true;
-  AutoLock auto_lock(lock_);
-  for (FilePathSet::iterator subdirectory = subtree.begin();
-       subdirectory != subtree.end();
-       ++subdirectory) {
-    ino_t inode;
-    if (!file_util::GetInode(*subdirectory, &inode)) {
-      success = false;
-      continue;
-    }
-    if (IsInodeWatched(inode))
-      continue;
-    InotifyReader::Watch watch =
-      Singleton<InotifyReader>::get()->AddWatch(*subdirectory, this);
-    if (watch != InotifyReader::kInvalidWatch) {
-      watches_.insert(watch);
-      inodes_watched_.insert(inode);
+
+  {
+    // Limit the scope of auto_lock so it releases lock_ before we signal
+    // recursive_setup_finished_. Our dtor waits on recursive_setup_finished_
+    // and could otherwise destroy the lock before we release it.
+    AutoLock auto_lock(lock_);
+
+    for (FilePathSet::iterator subdirectory = subtree.begin();
+         subdirectory != subtree.end();
+         ++subdirectory) {
+      ino_t inode;
+      if (!file_util::GetInode(*subdirectory, &inode)) {
+        success = false;
+        continue;
+      }
+      if (IsInodeWatched(inode))
+        continue;
+      InotifyReader::Watch watch =
+        Singleton<InotifyReader>::get()->AddWatch(*subdirectory, this);
+      if (watch != InotifyReader::kInvalidWatch) {
+        watches_.insert(watch);
+        inodes_watched_.insert(inode);
+      }
     }
   }
+
   recursive_setup_finished_.Signal();
   return success;
 }
