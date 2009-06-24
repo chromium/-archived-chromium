@@ -633,7 +633,6 @@ html[dir='rtl'] #view-toolbar {
   cursor: default;
   pointer-events: all;
   min-width: 175px;
-  outline: 0;
 }
 
 html[dir='rtl'] #option-menu {
@@ -647,9 +646,7 @@ html[dir='rtl'] #option-menu {
   text-overflow: ellipsis;
 }
 
-#option-menu > div:hover,
-#option-menu > div:focus {
+#option-menu > [selected] {
   background-color: hsla(213, 66%, 57%, 1);
   color: white;
-  outline: none;
 }

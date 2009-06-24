@@ -670,43 +670,177 @@ function showNotification(text, actionText, f) {
   }, 10000);
 }
 
-// Options menu
-// TODO(arv): Keyboard navigation of the menu items.
-
-function showMenu(button, menu) {
-  function hide() {
-    menu.style.display = '';
-    menu.removeEventListener('blur', hide);
-    window.removeEventListener('blur', hide);
-  };
-  menu.addEventListener('blur', hide);
-  window.addEventListener('blur', hide);
-  menu.style.display = 'block';
-  menu.focus();
+/**
+ * This handles the option menu.
+ * @param {Element} button The button element.
+ * @param {Element} menu The menu element.
+ * @constructor
+ */
+function OptionMenu(button, menu) {
+  this.button = button;
+  this.menu = menu;
+  this.button.onmousedown = bind(this.handleMouseDown, this);
+  this.button.onkeydown = bind(this.handleKeyDown, this);
+  this.boundHideMenu_ = bind(this.hideMenu, this);
+  this.boundMaybeHide_ = bind(this.maybeHide_, this);
 }
 
-$('option-button').addEventListener('click', function(e) {
-  showMenu(this, $('option-menu'));
-});
+OptionMenu.prototype = {
+  showMenu: function() {
+    this.menu.style.display = 'block';
+    this.button.focus();
 
-$('option-menu').addEventListener('click', function(e) {
-  var section = Section[e.target.getAttribute('section')];
-  var show = e.target.getAttribute('show') == 'true';
-  if (show) {
-    showSection(section);
-  } else {
-    hideSection(section);
+    // Listen to document and window events so that we hide the menu when the
+    // user clicks outside the menu or tabs away or the whole window is blurred.
+    document.addEventListener('focus', this.boundMaybeHide_, true);
+    document.addEventListener('mousedown', this.boundMaybeHide_, true);
+    window.addEventListener('blur', this.boundHideMenu_);
+  },
+
+  hideMenu: function() {
+    this.menu.style.display = 'none';
+    this.setSelectedIndex(-1);
+
+    document.removeEventListener('focus', this.boundMaybeHide_, true);
+    document.removeEventListener('mousedown', this.boundMaybeHide_, true);
+    window.removeEventListener('blur', this.boundHide_);
+  },
+
+  isMenuShown: function() {
+    return this.menu.style.display == 'block';
+  },
+
+  /**
+   * Callback for document mousedown and focus. It checks if the user tried to
+   * navigate to a different element on the page and if so hides the menu.
+   * @param {Event} e The mouse or focus event.
+   * @private
+   */
+  maybeHide_: function(e) {
+    if (!this.menu.contains(e.target) && !this.button.contains(e.target)) {
+      this.hideMenu();
+    }
+  },
+
+  handleMouseDown: function(e) {
+    if (this.isMenuShown()) {
+      this.hideMenu();
+    } else {
+      this.showMenu();
+    }
+  },
+
+  handleMouseOver: function(e) {
+    var el = e.target;
+    var index = Array.prototype.indexOf.call(this.menu.children, el);
+    console.log(el, index);
+    this.setSelectedIndex(index);
+  },
+
+  handleMouseOut: function(e) {
+    this.setSelectedIndex(-1);
+  },
+
+  handleMouseUp: function(e) {
+    var item = this.getSelectedItem();
+    if (item) {
+      this.executeItem(item);
+    }
+  },
+
+  handleKeyDown: function(e) {
+    var item = this.getSelectedItem();
+
+    var self = this;
+    function selectNextVisible(m) {
+      var children = self.menu.children;
+      var len = children.length;
+      var i = self.selectedIndex_;
+      if (i == -1 && m == -1) {
+        // Edge case when we need to go the last item fisrt.
+        i = 0;
+      }
+      while (true) {
+        i = (i + m + len) % len;
+        item = children[i];
+        if (item && item.style.display != 'none') {
+          break;
+        }
+      }
+      if (item) {
+        self.setSelectedIndex(i);
+      }
+    }
+
+    switch (e.keyIdentifier) {
+      case 'Down':
+        if (!this.isMenuShown()) {
+          this.showMenu();
+        }
+        selectNextVisible(1);
+        break;
+      case 'Up':
+        if (!this.isMenuShown()) {
+          this.showMenu();
+        }
+        selectNextVisible(-1);
+        break;
+      case 'Esc':
+      case 'U+001B': // Maybe this is remote desktop playing a prank?
+        this.hideMenu();
+        break;
+      case 'Enter':
+        if (this.isMenuShown()) {
+          if (item) {
+            this.executeItem(item);
+          }
+        } else {
+          this.showMenu();
+        }
+        break;
+    }
+  },
+
+  selectedIndex_: -1,
+  setSelectedIndex: function(i) {
+    if (i != this.selectedIndex_) {
+      var items = this.menu.children;
+      var oldItem = this.items[this.selectedIndex_];
+      if (oldItem) {
+        oldItem.removeAttribute('selected');
+      }
+      var newItem = items[i];
+      if (newItem) {
+        newItem.setAttribute('selected', 'selected');
+      }
+      this.selectedIndex_ = i;
+    }
+  },
+
+  getSelectedItem: function() {
+    return this.menu.children[this.selectedIndex_] || null;
+  },
+
+  executeItem: function(item) {
+    var section = Section[item.getAttribute('section')];
+    var show = item.getAttribute('show') == 'true';
+    if (show) {
+      showSection(section);
+    } else {
+      hideSection(section);
+    }
+
+    this.hideMenu();
+
+    layoutLowerSections();
+    mostVisited.updateDisplayMode();
+    layoutMostVisited();
+
+    saveShownSections();
   }
+};
 
-  // Hide menu now.
-  this.style.display = 'none';
-
-  layoutLowerSections();
-  mostVisited.updateDisplayMode();
-  layoutMostVisited();
-
-  saveShownSections();
-});
+new OptionMenu($('option-button'), $('option-menu'));
 
 $('most-visited').addEventListener('click', function(e) {
   var target = e.target;
