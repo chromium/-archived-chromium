@@ -30,9 +30,12 @@
 #if defined(OS_LINUX)
 #define MAYBE_UnknownSize DISABLED_UnknownSize
 #define MAYBE_IncognitoDownload DISABLED_IncognitoDownload
+// It's flaky on Linux (http://crbug.com/15211)
+#define MAYBE_PerWindowShelf DISABLED_PerWindowShelf
 #else
 #define MAYBE_UnknownSize UnknownSize
 #define MAYBE_IncognitoDownload IncognitoDownload
+#define MAYBE_PerWindowShelf PerWindowShelf
 #endif
 
 namespace {
@@ -234,7 +237,7 @@ TEST_F(DownloadTest, ContentDisposition) {
 // Test that the download shelf is per-window by starting a download in one
 // tab, opening a second tab, closing the shelf, going back to the first tab,
 // and checking that the shelf is closed.
-TEST_F(DownloadTest, PerWindowShelf) {
+TEST_F(DownloadTest, MAYBE_PerWindowShelf) {
   FilePath file(FILE_PATH_LITERAL("download-test3.gif"));
   FilePath download_file(FILE_PATH_LITERAL("download-test3-attachment.gif"));
 
