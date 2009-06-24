@@ -191,18 +191,25 @@ void ThumbnailGenerator::StartThumbnailing() {
 
 SkBitmap ThumbnailGenerator::GetThumbnailForRenderer(
     RenderWidgetHost* renderer) const {
-  // Return a cached one if we have it and it's still valid. This will only be
-  // valid when there used to be a backing store, but there isn't now.
   WidgetThumbnail* wt = GetDataForHost(renderer);
+
+  BackingStore* backing_store = renderer->GetBackingStore(false);
+  if (!backing_store) {
+    // When we have no backing store, there's no choice in what to use. We
+    // have to return either the existing thumbnail or the empty one if there
+    // isn't a saved one.
+    return wt->thumbnail;
+  }
+
+  // Now that we have a backing store, we have a choice to use it to make
+  // a new thumbnail, or use a previously stashed one if we have it.
+  //
+  // Return the previously-computed one if we have it and it hasn't expired.
   if (!wt->thumbnail.isNull() &&
       (no_timeout_ ||
        base::TimeTicks::Now() -
        base::TimeDelta::FromMilliseconds(kVisibilitySlopMS) < wt->last_shown))
     return wt->thumbnail;
-
-  BackingStore* backing_store = renderer->GetBackingStore(false);
-  if (!backing_store)
-    return SkBitmap();
 
   // Save this thumbnail in case we need to use it again soon. It will be
   // invalidated on the next paint.
