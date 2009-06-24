@@ -21,7 +21,7 @@ class LocaleTestsHe : public UITest {
 class LocaleTestsZhTw : public UITest {
  public:
   LocaleTestsZhTw() : UITest() {
-    launch_arguments_.AppendSwitchWithValue(L"lang", L"zh-tw");
+    launch_arguments_.AppendSwitchWithValue(L"lang", L"zh-TW");
   }
 };
 
