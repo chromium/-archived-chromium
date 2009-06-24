@@ -2769,6 +2769,14 @@ BUG15132 : LayoutTests/http/tests/security/xssAuditor/script-tag-post.html = FAI
 BUG15132 : LayoutTests/http/tests/security/xssAuditor/script-tag-redirect.html = FAIL
 BUG15132 : LayoutTests/http/tests/security/xssAuditor/script-tag-utf-7.html = FAIL
 BUG15132 : LayoutTests/http/tests/security/xssAuditor/script-tag-with-source.html = FAIL
+// needs baselines
+BUG15132 SKIP : LayoutTests/compositing/reflections/reflection-on-composited.html = FAIL
+// more unexpected failures
+BUG15132 WIN LINUX : LayoutTests/editing/execCommand/5482023.html = FAIL
+BUG15132 WIN LINUX : LayoutTests/editing/execCommand/remove-formatting-2.html = FAIL
+BUG15132 WIN LINUX : LayoutTests/editing/inserting/editable-html-element.html = FAIL
+BUG15132 WIN LINUX : LayoutTests/editing/pasteboard/4989774.html = FAIL
+BUG15132 WIN LINUX : LayoutTests/editing/selection/4983858.html = FAIL
 
 // The Mac layout test buildbots haven't generated a package for 20 days so
 // the rebaselining tool isn't working for this  --agl
