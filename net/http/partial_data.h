@@ -60,8 +60,9 @@ class PartialData {
   // user's request.
   bool IsLastRange() const;
 
-  // Extracts info from headers already stored in the cache.
-  void UpdateFromStoredHeaders(const HttpResponseHeaders* headers);
+  // Extracts info from headers already stored in the cache. Returns false if
+  // there is any problem with the headers or the requested range.
+  bool UpdateFromStoredHeaders(const HttpResponseHeaders* headers);
 
   // Returns true if the response headers match what we expect, false otherwise.
   bool ResponseHeadersOK(const HttpResponseHeaders* headers);

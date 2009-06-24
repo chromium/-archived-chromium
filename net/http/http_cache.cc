@@ -786,13 +786,17 @@ int HttpCache::Transaction::BeginPartialCacheValidation() {
     NOTREACHED();
   }
 
-  partial_->UpdateFromStoredHeaders(response_.headers);
+  if (!partial_->UpdateFromStoredHeaders(response_.headers)) {
+    // TODO(rvargas): Handle this error.
+    NOTREACHED();
+  }
 
   return ContinuePartialCacheValidation();
 }
 
 int HttpCache::Transaction::ContinuePartialCacheValidation() {
   DCHECK(mode_ == READ_WRITE);
+  // TODO(rvargas): Avoid re-validation of each cached piece.
 
   int rv = partial_->PrepareCacheValidation(entry_->disk_entry,
                                             &custom_request_->extra_headers);

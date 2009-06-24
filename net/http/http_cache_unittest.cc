@@ -473,7 +473,7 @@ void RangeTransactionServer::RangeHandler(const net::HttpRequestInfo* request,
 
   if (request->extra_headers.find("If-None-Match") == std::string::npos) {
     EXPECT_EQ(9, end - start);
-    std::string data = StringPrintf("rg: %d-%d ", start, end);
+    std::string data = StringPrintf("rg: %02d-%02d ", start, end);
     *response_data = data;
   } else {
     response_status->assign("HTTP/1.1 304 Not Modified");
@@ -1241,6 +1241,78 @@ TEST(HttpCache, DISABLED_RangeGET_OK) {
   EXPECT_TRUE(Verify206Response(headers, 20, 59));
   EXPECT_EQ(6, cache.network_layer()->transaction_count());
   EXPECT_EQ(3, cache.disk_cache()->open_count());
+  EXPECT_EQ(1, cache.disk_cache()->create_count());
+
+  RemoveMockTransaction(&kRangeGET_TransactionOK);
+}
+
+TEST(HttpCache, DISABLED_UnknownRangeGET_1) {
+  MockHttpCache cache;
+  AddMockTransaction(&kRangeGET_TransactionOK);
+
+  // Test that we can cache range requests when the start or end is unknown.
+  // We start with one suffix request, followed by a request from a given point.
+
+  std::string headers;
+
+  // Write to the cache (70-79).
+  MockTransaction transaction(kRangeGET_TransactionOK);
+  transaction.request_headers = "Range: bytes = -10\r\n";
+  transaction.data = "rg: 70-79 ";
+  RunTransactionTestWithResponse(cache.http_cache(), transaction, &headers);
+
+  EXPECT_TRUE(Verify206Response(headers, 70, 79));
+  EXPECT_EQ(1, cache.network_layer()->transaction_count());
+  EXPECT_EQ(0, cache.disk_cache()->open_count());
+  EXPECT_EQ(1, cache.disk_cache()->create_count());
+
+  // Make sure we are done with the previous transaction.
+  MessageLoop::current()->RunAllPending();
+
+  // Write and read from the cache (60-79).
+  transaction.request_headers = "Range: bytes = 60-\r\n";
+  transaction.data = "rg: 60-69 rg: 70-79 ";
+  RunTransactionTestWithResponse(cache.http_cache(), transaction, &headers);
+
+  EXPECT_TRUE(Verify206Response(headers, 60, 79));
+  EXPECT_EQ(3, cache.network_layer()->transaction_count());
+  EXPECT_EQ(1, cache.disk_cache()->open_count());
+  EXPECT_EQ(1, cache.disk_cache()->create_count());
+
+  RemoveMockTransaction(&kRangeGET_TransactionOK);
+}
+
+TEST(HttpCache, DISABLED_UnknownRangeGET_2) {
+  MockHttpCache cache;
+  AddMockTransaction(&kRangeGET_TransactionOK);
+
+  // Test that we can cache range requests when the start or end is unknown.
+  // We start with one request from a given point, followed by a suffix request.
+
+  std::string headers;
+
+  // Write to the cache (70-79).
+  MockTransaction transaction(kRangeGET_TransactionOK);
+  transaction.request_headers = "Range: bytes = 70-\r\n";
+  transaction.data = "rg: 70-79 ";
+  RunTransactionTestWithResponse(cache.http_cache(), transaction, &headers);
+
+  EXPECT_TRUE(Verify206Response(headers, 70, 79));
+  EXPECT_EQ(1, cache.network_layer()->transaction_count());
+  EXPECT_EQ(0, cache.disk_cache()->open_count());
+  EXPECT_EQ(1, cache.disk_cache()->create_count());
+
+  // Make sure we are done with the previous transaction.
+  MessageLoop::current()->RunAllPending();
+
+  // Write and read from the cache (60-79).
+  transaction.request_headers = "Range: bytes = -20\r\n";
+  transaction.data = "rg: 60-69 rg: 70-79 ";
+  RunTransactionTestWithResponse(cache.http_cache(), transaction, &headers);
+
+  EXPECT_TRUE(Verify206Response(headers, 60, 79));
+  EXPECT_EQ(3, cache.network_layer()->transaction_count());
+  EXPECT_EQ(1, cache.disk_cache()->open_count());
   EXPECT_EQ(1, cache.disk_cache()->create_count());
 
   RemoveMockTransaction(&kRangeGET_TransactionOK);
