@@ -2012,7 +2012,7 @@ BUG10465 LINUX : LayoutTests/fast/clip/overflow-border-radius-clip.html = FAIL
 BUG10468 MAC WIN LINUX : LayoutTests/fast/replaced/border-radius-clip.html = FAIL CRASH
   
 // New test, needs baseline. See WebKit 41978 (brettw)
-BUG10469 WIN LINUX : LayoutTests/fast/text/complex-text-opacity.html = FAIL
+BUG10469 WIN LINUX MAC : LayoutTests/fast/text/complex-text-opacity.html = FAIL
   
 // Needs rebaseline. See WebKit 41980
 BUG10470 WIN LINUX : LayoutTests/fast/transforms/transforms-with-zoom.html = FAIL
@@ -2757,6 +2757,18 @@ BUG14951 WIN LINUX : LayoutTests/fast/repaint/background-generated.html = FAIL
 
 // WebKit 44946:44969, needs baselines
 BUG15113 SKIP : LayoutTests/compositing/sibling-positioning.html = FAIL
+
+// WebKit 44969:45017
+BUG15132 : LayoutTests/editing/execCommand/5142012-3.html = FAIL
+BUG15132 : LayoutTests/http/tests/security/xssAuditor/img-onerror-tricky.html = FAIL
+BUG15132 : LayoutTests/http/tests/security/xssAuditor/link-onclick.html = FAIL
+BUG15132 : LayoutTests/http/tests/security/xssAuditor/property-escape.html = FAIL
+BUG15132 : LayoutTests/http/tests/security/xssAuditor/script-tag-convoluted.html = FAIL
+BUG15132 : LayoutTests/http/tests/security/xssAuditor/script-tag-open-redirect.html = FAIL
+BUG15132 : LayoutTests/http/tests/security/xssAuditor/script-tag-post.html = FAIL
+BUG15132 : LayoutTests/http/tests/security/xssAuditor/script-tag-redirect.html = FAIL
+BUG15132 : LayoutTests/http/tests/security/xssAuditor/script-tag-utf-7.html = FAIL
+BUG15132 : LayoutTests/http/tests/security/xssAuditor/script-tag-with-source.html = FAIL
 
 // The Mac layout test buildbots haven't generated a package for 20 days so
 // the rebaselining tool isn't working for this  --agl
