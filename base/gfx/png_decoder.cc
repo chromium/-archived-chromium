@@ -261,8 +261,8 @@ class PngReadStructDestroyer {
 
 // static
 bool PNGDecoder::Decode(const unsigned char* input, size_t input_size,
-                        ColorFormat format, std::vector<unsigned char>* output,
-                        int* w, int* h) {
+                      ColorFormat format, std::vector<unsigned char>* output,
+                      int* w, int* h) {
   if (input_size < 8)
     return false;  // Input data too small to be a png
 
@@ -324,25 +324,7 @@ bool PNGDecoder::Decode(const std::vector<unsigned char>* data,
                          &decoded_data, &width, &height)) {
     bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
     bitmap->allocPixels();
-    for (int y = 0; y < height; y++) {
-      for (int x = 0; x < width; x++) {
-        int pix = (y * height + x) * 4;
-        unsigned char alpha = decoded_data[pix + 3];
-        if (alpha != 0 && alpha != 255) {
-          bitmap->getAddr32(0, y)[x] = SkColorSetARGB(
-              alpha,
-              (decoded_data[pix + 2] * alpha) >> 8,
-              (decoded_data[pix + 1] * alpha) >> 8,
-              (decoded_data[pix] * alpha) >> 8);
-        } else {
-          bitmap->getAddr32(0, y)[x] = SkColorSetARGB(
-              alpha,
-              decoded_data[pix + 2],
-              decoded_data[pix + 1],
-              decoded_data[pix]);
-        }
-      }
-    }
+    memcpy(bitmap->getPixels(), &decoded_data.front(), width * height * 4);
     return true;
   }
   return false;
