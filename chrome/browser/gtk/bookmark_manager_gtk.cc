@@ -373,6 +373,8 @@ GtkWidget* BookmarkManagerGtk::MakeLeftPane() {
                    G_CALLBACK(OnLeftTreeViewRowCollapsed), this);
   g_signal_connect(left_tree_view_, "focus-in-event",
                    G_CALLBACK(OnLeftTreeViewFocusIn), this);
+  g_signal_connect(left_tree_view_, "button-release-event",
+                   G_CALLBACK(OnTreeViewButtonRelease), this);
 
   // The left side is only a drag destination (not a source).
   gtk_drag_dest_set(left_tree_view_, GTK_DEST_DEFAULT_DROP,
@@ -429,6 +431,8 @@ GtkWidget* BookmarkManagerGtk::MakeRightPane() {
                    G_CALLBACK(OnRightSelectionChanged), this);
   g_signal_connect(right_tree_view_, "focus-in-event",
                    G_CALLBACK(OnRightTreeViewFocusIn), this);
+  g_signal_connect(right_tree_view_, "button-release-event",
+                   G_CALLBACK(OnTreeViewButtonRelease), this);
 
   // We don't advertise GDK_ACTION_COPY, but since we don't explicitly do
   // any deleting following a succesful move, this should work.
@@ -468,6 +472,12 @@ void BookmarkManagerGtk::ResetOrganizeMenu(bool left) {
     nodes = GetRightSelection();
   else if (parent)
     nodes.push_back(parent);
+
+  // We DeleteSoon on the old one to give any reference holders (e.g.
+  // the event that caused this reset) a chance to release their refs.
+  BookmarkContextMenu* old_menu = organize_menu_.release();
+  if (old_menu)
+    MessageLoop::current()->DeleteSoon(FROM_HERE, old_menu);
 
   organize_menu_.reset(new BookmarkContextMenu(window_, profile_, NULL, NULL,
       parent, nodes, BookmarkContextMenu::BOOKMARK_MANAGER_ORGANIZE_MENU));
@@ -941,6 +951,14 @@ void BookmarkManagerGtk::OnRightTreeViewFocusIn(GtkTreeView* tree_view,
     GdkEventFocus* event, BookmarkManagerGtk* bm) {
   if (bm->organize_is_for_left_)
     bm->ResetOrganizeMenu(false);
+}
+
+// static
+gboolean BookmarkManagerGtk::OnTreeViewButtonRelease(GtkTreeView* tree_view,
+    GdkEventButton* button, BookmarkManagerGtk* bookmark_manager) {
+  if (button->button == 3)
+    bookmark_manager->organize_menu_->PopupAsContext(button->time);
+  return FALSE;
 }
 
 // static
