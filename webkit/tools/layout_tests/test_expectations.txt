@@ -2760,4 +2760,4 @@ BUG15113 SKIP : LayoutTests/compositing/sibling-positioning.html = FAIL
 
 // The Mac layout test buildbots haven't generated a package for 20 days so
 // the rebaselining tool isn't working for this  --agl
-BUG15125 MAC : chrome/fast/text/fake-italic.html = SKIP
+BUG15125 MAC SKIP : chrome/fast/text/fake-italic.html = FAIL
