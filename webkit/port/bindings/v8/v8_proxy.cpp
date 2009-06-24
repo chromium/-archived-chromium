@@ -1612,6 +1612,11 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
     case V8ClassIndex::DOMPARSER:
       desc->SetCallHandler(USE_CALLBACK(DOMParserConstructor));
       break;
+#if ENABLE(VIDEO)
+    case V8ClassIndex::HTMLAUDIOELEMENT:
+      desc->SetCallHandler(USE_CALLBACK(HTMLAudioElementConstructor));
+      break;
+#endif
     case V8ClassIndex::HTMLIMAGEELEMENT:
       desc->SetCallHandler(USE_CALLBACK(HTMLImageElementConstructor));
       break;

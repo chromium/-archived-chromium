@@ -1033,6 +1033,7 @@
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8DocumentCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8ElementCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8EventCustom.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLAudioElementConstructor.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLCanvasElementCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLCollectionCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLDataGridElementCustom.cpp',
