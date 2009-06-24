@@ -215,6 +215,7 @@ ExtensionsService::ExtensionsService(Profile* profile,
                                      MessageLoop* frontend_loop,
                                      MessageLoop* backend_loop)
     : extension_prefs_(new ExtensionPrefs(profile->GetPrefs())),
+      extension_process_manager_(new ExtensionProcessManager(profile)),
       backend_loop_(backend_loop),
       install_directory_(profile->GetPath().AppendASCII(kInstallDirectoryName)),
       extensions_enabled_(false),
@@ -244,6 +245,7 @@ void ExtensionsService::SetExtensionsEnabled(bool enabled) {
 }
 
 void ExtensionsService::Init() {
+  DCHECK(!ready_);
   DCHECK(extensions_.size() == 0);
 
   // Start up the extension event routers.
@@ -354,7 +356,7 @@ void ExtensionsService::UnloadExtension(const std::string& extension_id) {
 
   // Tell other services the extension is gone.
   NotificationService::current()->Notify(NotificationType::EXTENSION_UNLOADED,
-                                         NotificationService::AllSources(),
+                                         Source<ExtensionsService>(this),
                                          Details<Extension>(extension));
 
   delete extension;
@@ -362,14 +364,13 @@ void ExtensionsService::UnloadExtension(const std::string& extension_id) {
 
 void ExtensionsService::UnloadAllExtensions() {
   ExtensionList::iterator iter;
-  for (iter = extensions_.begin(); iter != extensions_.end(); ++iter) {
-    // Tell other services the extension is gone.
-    NotificationService::current()->Notify(NotificationType::EXTENSION_UNLOADED,
-                                           NotificationService::AllSources(),
-                                           Details<Extension>(*iter));
+  for (iter = extensions_.begin(); iter != extensions_.end(); ++iter)
     delete *iter;
-  }
   extensions_.clear();
+
+  // TODO(erikkay) should there be a notification for this?  We can't use
+  // EXTENSION_UNLOADED since that implies that the extension has been disabled
+  // or uninstalled, and UnloadAll is just part of shutdown.
 }
 
 void ExtensionsService::ReloadExtensions() {
@@ -428,7 +429,7 @@ void ExtensionsService::OnExtensionsLoaded(ExtensionList* new_extensions) {
   if (enabled_extensions.size()) {
     NotificationService::current()->Notify(
         NotificationType::EXTENSIONS_LOADED,
-        NotificationService::AllSources(),
+        Source<ExtensionsService>(this),
         Details<ExtensionList>(&enabled_extensions));
   }
 }
@@ -443,12 +444,12 @@ void ExtensionsService::OnExtensionInstalled(const FilePath& path,
   if (extension->IsTheme()) {
     NotificationService::current()->Notify(
         NotificationType::THEME_INSTALLED,
-        NotificationService::AllSources(),
+        Source<ExtensionsService>(this),
         Details<Extension>(extension));
   } else {
     NotificationService::current()->Notify(
         NotificationType::EXTENSION_INSTALLED,
-        NotificationService::AllSources(),
+        Source<ExtensionsService>(this),
         Details<Extension>(extension));
   }
 }
@@ -474,7 +475,7 @@ void ExtensionsService::OnExtensionOverinstallAttempted(const std::string& id,
   if (extension && extension->IsTheme()) {
     NotificationService::current()->Notify(
         NotificationType::THEME_INSTALLED,
-        NotificationService::AllSources(),
+        Source<ExtensionsService>(this),
         Details<Extension>(extension));
   }
 }

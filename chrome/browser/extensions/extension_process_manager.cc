@@ -25,19 +25,22 @@ static void CreateBackgroundHosts(
 
 ExtensionProcessManager::ExtensionProcessManager(Profile* profile)
     : browsing_instance_(new BrowsingInstance(profile)) {
+  registrar_.Add(this, NotificationType::EXTENSIONS_READY,
+                 NotificationService::AllSources());
   registrar_.Add(this, NotificationType::EXTENSIONS_LOADED,
                  NotificationService::AllSources());
   registrar_.Add(this, NotificationType::EXTENSION_UNLOADED,
                  NotificationService::AllSources());
 
-  if (profile->GetExtensionsService())
-    CreateBackgroundHosts(this, profile->GetExtensionsService()->extensions());
+  ExtensionsService* service = profile->GetExtensionsService();
+  if (service && service->is_ready())
+    CreateBackgroundHosts(this, service->extensions());
 }
 
 ExtensionProcessManager::~ExtensionProcessManager() {
   // Copy all_hosts_ to avoid iterator invalidation issues.
-  ExtensionHostSet to_delete(all_hosts_.begin(),
-                             all_hosts_.end());
+  ExtensionHostSet to_delete(background_hosts_.begin(),
+                             background_hosts_.end());
   ExtensionHostSet::iterator iter;
   for (iter = to_delete.begin(); iter != to_delete.end(); ++iter)
     delete *iter;
@@ -85,9 +88,17 @@ void ExtensionProcessManager::Observe(NotificationType type,
                                       const NotificationSource& source,
                                       const NotificationDetails& details) {
   switch (type.value) {
+    case NotificationType::EXTENSIONS_READY:
+      CreateBackgroundHosts(this,
+          Source<ExtensionsService>(source).ptr()->extensions());
+      break;
+
     case NotificationType::EXTENSIONS_LOADED: {
-      const ExtensionList* extensions = Details<ExtensionList>(details).ptr();
-      CreateBackgroundHosts(this, extensions);
+      ExtensionsService* service = Source<ExtensionsService>(source).ptr();
+      if (service->is_ready()) {
+        const ExtensionList* extensions = Details<ExtensionList>(details).ptr();
+        CreateBackgroundHosts(this, extensions);
+      }
       break;
     }
 

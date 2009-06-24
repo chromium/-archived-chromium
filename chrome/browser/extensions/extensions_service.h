@@ -18,6 +18,7 @@
 #include "base/tuple.h"
 #include "base/values.h"
 #include "chrome/browser/extensions/extension_prefs.h"
+#include "chrome/browser/extensions/extension_process_manager.h"
 #include "chrome/browser/extensions/external_extension_provider.h"
 #include "chrome/common/extensions/extension.h"
 
@@ -161,6 +162,10 @@ class ExtensionsService
 
   ExtensionPrefs* extension_prefs() { return extension_prefs_.get(); }
 
+  ExtensionProcessManager* extension_process_manager() {
+    return extension_process_manager_.get();
+  }
+
   // Whether the extension service is ready.
   bool is_ready() { return ready_; }
 
@@ -196,6 +201,9 @@ class ExtensionsService
 
   // Preferences for the owning profile.
   scoped_ptr<ExtensionPrefs> extension_prefs_;
+
+  // Controls how the various extension processes get created and destroyed.
+  scoped_ptr<ExtensionProcessManager> extension_process_manager_;
 
   // The message loop to use with the backend.
   MessageLoop* backend_loop_;

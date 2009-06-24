@@ -16,7 +16,7 @@
 namespace {
 
 // The extension we're using as our test case.
-const char* kExtensionId = "fc6f6ba6693faf6773c13701019f2e7a12f0febe";
+const char* kExtensionId = "behllobkkfkfnphdnhnkndlbkcpglgmj";
 
 };  // namespace
 
@@ -38,16 +38,6 @@ class ExtensionShelfModelTest : public InProcessBrowserTest,
     moved_count_ = 0;
 
     InProcessBrowserTest::SetUp();
-  }
-
-  virtual void TearDown() {
-    // Tear down |model_| manually here rather than in the destructor or with
-    // a scoped_ptr.  Since it uses NotificationRegistrar, it needs to clean up
-    // before the rest of InProcessBrowserTest.
-    model_->RemoveObserver(this);
-    delete model_;
-    model_ = NULL;
-    InProcessBrowserTest::TearDown();
   }
 
   virtual void SetUpCommandLine(CommandLine* command_line) {
@@ -83,13 +73,12 @@ class ExtensionShelfModelTest : public InProcessBrowserTest,
   int moved_count_;
 };
 
-// TODO(erikkay): http://crbug.com/15080 Disabled because it fails.
-IN_PROC_BROWSER_TEST_F(ExtensionShelfModelTest, DISABLED_Basic) {
+IN_PROC_BROWSER_TEST_F(ExtensionShelfModelTest, Basic) {
   // Get the path to our extension.
   FilePath path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &path));
   path = path.AppendASCII("extensions").
-      AppendASCII("good").AppendASCII("extension1").AppendASCII("1");
+      AppendASCII("good").AppendASCII(kExtensionId).AppendASCII("1.0.0.0");
   ASSERT_TRUE(file_util::DirectoryExists(path));  // sanity check
 
   // Wait for the extension to load and grab a pointer to it.
@@ -113,4 +102,12 @@ IN_PROC_BROWSER_TEST_F(ExtensionShelfModelTest, DISABLED_Basic) {
   EXPECT_EQ(one, model_->ToolstripAt(0));
   EXPECT_EQ(1, model_->count());
   EXPECT_EQ(removed_count_, 1);
+
+  // Tear down |model_| manually here rather than in the destructor or with
+  // a scoped_ptr.  InProcessBrowserTest doesn't give us a chance to clean
+  // up before the browser and all of its services have been shut down,
+  // and |model_| depends on these existing.
+  model_->RemoveObserver(this);
+  delete model_;
+  model_ = NULL;
 }

@@ -20,6 +20,9 @@ ExtensionView::ExtensionView(ExtensionHost* host, Browser* browser)
 }
 
 ExtensionView::~ExtensionView() {
+  View* parent = GetParent();
+  if (parent)
+    parent->RemoveChildView(this);
   CleanUp();
 }
 

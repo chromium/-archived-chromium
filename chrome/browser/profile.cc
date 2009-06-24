@@ -434,8 +434,6 @@ ProfileImpl::ProfileImpl(const FilePath& path)
       TimeDelta::FromMilliseconds(kCreateSessionServiceDelayMS), this,
       &ProfileImpl::EnsureSessionServiceCreated);
 
-  extension_process_manager_.reset(new ExtensionProcessManager(this));
-
   PrefService* prefs = GetPrefs();
   prefs->AddPrefObserver(prefs::kSpellCheckDictionary, this);
   prefs->AddPrefObserver(prefs::kEnableSpellCheck, this);
@@ -651,7 +649,7 @@ UserScriptMaster* ProfileImpl::GetUserScriptMaster() {
 }
 
 ExtensionProcessManager* ProfileImpl::GetExtensionProcessManager() {
-  return extension_process_manager_.get();
+  return extensions_service_->extension_process_manager();
 }
 
 SSLHostState* ProfileImpl::GetSSLHostState() {
