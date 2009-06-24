@@ -1375,7 +1375,7 @@ BUG10361 WIN LINUX : LayoutTests/fast/repaint/outline-child-repaint.html = FAIL
 BUG10361 : LayoutTests/http/tests/misc/single-character-pi-stylesheet.xhtml = FAIL
 
 // MERGE 38729:38760: Regressions
-BUG10362 LINUX : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
+BUG10362 LINUX WIN : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 
 // Windows is missing the green box.
 BUG8729 WIN : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
@@ -2778,7 +2778,6 @@ BUG15132 WIN LINUX : LayoutTests/editing/inserting/editable-html-element.html = 
 BUG15132 WIN LINUX : LayoutTests/editing/pasteboard/4989774.html = FAIL
 BUG15132 WIN LINUX : LayoutTests/editing/selection/4983858.html = FAIL
 BUG15132 WIN LINUX : LayoutTests/fast/dom/HTMLTableColElement/resize-table-using-col-width.html = FAIL
-BUG15132 WIN : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 BUG15132 WIN : LayoutTests/media/event-attributes.html = FAIL
 
 // The Mac layout test buildbots haven't generated a package for 20 days so
