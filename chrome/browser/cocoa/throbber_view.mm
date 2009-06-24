@@ -87,6 +87,7 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
   [timer_ invalidate];
   timer_ = nil;
 
+#if 0
   // Ensure that the height divides evenly into the width. Cache the
   // number of frames in the animation for later.
   NSSize imageSize = [image size];
@@ -101,7 +102,6 @@ const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
   // back to creating one.
   NSBitmapImageRep* rep = [[image representations] objectAtIndex:0];
   if (![rep isKindOfClass:[NSBitmapImageRep class]]) {
-NSLog(@"**** creating bitmap rep");
     [image lockFocus];
     NSRect imageRect = NSMakeRect(0, 0, imageSize.width, imageSize.height);
     rep = [[[NSBitmapImageRep alloc] initWithFocusedViewRect:imageRect]
@@ -109,6 +109,7 @@ NSLog(@"**** creating bitmap rep");
     [image unlockFocus];
   }
   image_.reset([[CIImage alloc] initWithBitmapImageRep:rep]);
+#endif
 
 #if 0
 // TODO(pinkerton): The invalidation of the view to trigger re-draw causes
