@@ -469,7 +469,9 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
 #else
       NSView* throbber = [[[NSView alloc] initWithFrame:frame] autorelease];
 #endif
+#if 0
       [tabController setIconView:throbber];
+#endif
     }
     else if (!contents->is_loading()) {
       // Set everything back to normal, we're done loading.
