@@ -294,7 +294,7 @@ static void RunCommand(const CommandLine& cmd_line) {
   WaitForSingleObject(process_info.hProcess, INFINITE);
   CloseHandle(process_info.hProcess);
 #else
-  base::LaunchApp(*cmd_line.get(), true, false, NULL);
+  base::LaunchApp(cmd_line, true, false, NULL);
 #endif
 }
 
