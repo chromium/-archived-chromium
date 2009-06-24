@@ -80,6 +80,8 @@ class FindBarGtk : public FindBar,
   // |forward_search| is true.
   void FindEntryTextInContents(bool forward_search);
 
+  void UpdateMatchLabelAppearance(bool failure);
+
   // Callback when the entry text changes.
   static gboolean OnChanged(GtkWindow* window, FindBarGtk* find_bar);
 
@@ -141,6 +143,7 @@ class FindBarGtk : public FindBar,
 
   // The GtkLabel listing how many results were found.
   GtkWidget* match_count_label_;
+  GtkWidget* match_count_event_box_;
 
   // The X to close the find bar.
   scoped_ptr<CustomDrawButton> close_button_;

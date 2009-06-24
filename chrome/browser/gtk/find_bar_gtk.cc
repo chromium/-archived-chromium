@@ -25,10 +25,17 @@
 
 namespace {
 
-const GdkColor kBackgroundColor = GDK_COLOR_RGB(0xe6, 0xed, 0xf4);
 const GdkColor kFrameBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
 const GdkColor kTextBorderColor = GDK_COLOR_RGB(0xa6, 0xaf, 0xba);
 const GdkColor kTextBorderColorAA = GDK_COLOR_RGB(0xee, 0xf4, 0xfb);
+// Used as the color of the text in the entry box and the text for the results
+// label for failure searches.
+const GdkColor kEntryTextColor = gfx::kGdkBlack;
+// Used as the color of the background of the entry box and the background of
+// the find label for successful searches.
+const GdkColor kEntryBackgroundColor = gfx::kGdkWhite;
+const GdkColor kFindFailureBackgroundColor = GDK_COLOR_RGB(255, 102, 102);
+const GdkColor kFindSuccessTextColor = GDK_COLOR_RGB(178, 178, 178);
 
 // Padding around the container.
 const int kBarPaddingTopBottom = 4;
@@ -176,27 +183,45 @@ void FindBarGtk::InitWidgets() {
   // Make a box for the edit and match count widgets. This is fixed size since
   // we want the widgets inside to resize themselves rather than making the
   // dialog bigger.
-  GtkWidget* content_hbox = gtk_hbox_new(false, 0);
+  GtkWidget* content_hbox = gtk_hbox_new(FALSE, 0);
   gtk_widget_set_size_request(content_hbox, kTextEntryWidth, -1);
 
   text_entry_ = gtk_entry_new();
-  match_count_label_ = gtk_label_new(NULL);
+  gtk_widget_modify_base(text_entry_, GTK_STATE_NORMAL, &kEntryBackgroundColor);
+  gtk_widget_modify_text(text_entry_, GTK_STATE_NORMAL, &kEntryTextColor);
 
-  // Force the text widget height so it lines up with the buttons regardless of
-  // font size.
-  gtk_widget_set_size_request(text_entry_, -1, 20);
+  match_count_label_ = gtk_label_new(NULL);
+  match_count_event_box_ = gtk_event_box_new();
+  GtkWidget* match_count_centerer = gtk_vbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(match_count_centerer), match_count_event_box_,
+                     TRUE, TRUE, 0);
+  gtk_container_set_border_width(GTK_CONTAINER(match_count_centerer), 3);
+  gtk_container_add(GTK_CONTAINER(match_count_event_box_), match_count_label_);
+  UpdateMatchLabelAppearance(false);
+
   gtk_entry_set_has_frame(GTK_ENTRY(text_entry_), FALSE);
   // Until we switch to vector graphics, force the font size.
   gtk_util::ForceFontSizePixels(text_entry_, 13.4);  // 13.4px == 10pt @ 96dpi
-  gtk_util::ForceFontSizePixels(match_count_label_, 13.4);
+  gtk_util::ForceFontSizePixels(match_count_centerer, 13.4);
 
-  gtk_box_pack_end(GTK_BOX(content_hbox), match_count_label_, FALSE, FALSE, 0);
+  gtk_box_pack_end(GTK_BOX(content_hbox), match_count_centerer,
+                   FALSE, FALSE, 0);
   gtk_box_pack_end(GTK_BOX(content_hbox), text_entry_, TRUE, TRUE, 0);
 
+  // This event box is necessary to color in the area above and below the
+  // match count label.
+  GtkWidget* content_event_box = gtk_event_box_new();
+  // Force the text widget height so it lines up with the buttons regardless of
+  // font size.
+  gtk_widget_set_size_request(content_event_box, -1, 20);
+  gtk_widget_modify_bg(content_event_box, GTK_STATE_NORMAL,
+                       &kEntryBackgroundColor);
+  gtk_container_add(GTK_CONTAINER(content_event_box), content_hbox);
+
   // We fake anti-aliasing by having two borders.
-  GtkWidget* border_bin = gtk_util::CreateGtkBorderBin(content_hbox,
+  GtkWidget* border_bin = gtk_util::CreateGtkBorderBin(content_event_box,
                                                        &kTextBorderColor,
-                                                      1, 1, 1, 0);
+                                                       1, 1, 1, 0);
   GtkWidget* border_bin_aa = gtk_util::CreateGtkBorderBin(border_bin,
                                                           &kTextBorderColorAA,
                                                           1, 1, 1, 0);
@@ -280,14 +305,13 @@ void FindBarGtk::UpdateUIForFindResult(const FindNotificationDetails& result,
         l10n_util::GetStringFUTF8(IDS_FIND_IN_PAGE_COUNT,
             IntToString16(result.active_match_ordinal()),
             IntToString16(result.number_of_matches())).c_str());
+    UpdateMatchLabelAppearance(result.number_of_matches() == 0);
   } else {
     // If there was no text entered, we don't show anything in the result count
     // area.
     gtk_label_set_text(GTK_LABEL(match_count_label_), "");
+    UpdateMatchLabelAppearance(false);
   }
-
-  // TODO(brettw) We should update the background color of the text field to
-  // reflect whether any text was found. See the Windows version for how.
 
   // TODO(brettw) enable or disable the find next/previous buttons depending
   // on whether any matches were found.
@@ -353,6 +377,13 @@ void FindBarGtk::FindEntryTextInContents(bool forward_search) {
     UpdateUIForFindResult(find_bar_controller_->tab_contents()->find_result(),
                           string16());
   }
+}
+
+void FindBarGtk::UpdateMatchLabelAppearance(bool failure) {
+  gtk_widget_modify_bg(match_count_event_box_, GTK_STATE_NORMAL,
+      failure ? &kFindFailureBackgroundColor : &kEntryBackgroundColor);
+  gtk_widget_modify_fg(match_count_label_, GTK_STATE_NORMAL,
+      failure ? &kEntryTextColor : &kFindSuccessTextColor);
 }
 
 void FindBarGtk::StoreOutsideFocus() {
