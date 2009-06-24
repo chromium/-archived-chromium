@@ -3488,6 +3488,7 @@
         'browser/tabs/tab_strip_model_unittest.cc',
         'browser/task_manager_unittest.cc',
         'browser/theme_resources_util_unittest.cc',
+        'browser/utility_process_host_unittest.cc',
         'browser/views/bookmark_editor_view_unittest.cc',
         'browser/views/keyword_editor_view_unittest.cc',
         'browser/visitedlink_unittest.cc',

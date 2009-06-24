@@ -424,8 +424,13 @@ const wchar_t kEnableRendererAccessibility[] = L"enable-renderer-accessibility";
 const wchar_t kTestName[]                      = L"test-name";
 
 // On POSIX only: the contents of this flag are prepended to the renderer
-// command line. (Useful values might be "valgrind" or "gdb --args")
+// command line. Useful values might be "valgrind" or "xterm -e gdb --args".
 const wchar_t kRendererCmdPrefix[]             = L"renderer-cmd-prefix";
+
+// On POSIX only: the contents of this flag are prepended to the utility
+// process command line. Useful values might be "valgrind" or "xterm -e gdb
+// --args".
+const wchar_t kUtilityCmdPrefix[]             = L"utility-cmd-prefix";
 
 // Temparary option for new ftp implemetation.
 const wchar_t kNewFtp[]                        = L"new-ftp";

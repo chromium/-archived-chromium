@@ -14,6 +14,9 @@
 
 #if defined(OS_WIN)
 #include "chrome/browser/sandbox_policy.h"
+#elif defined(OS_POSIX)
+#include "base/global_descriptors_posix.h"
+#include "chrome/common/chrome_descriptors.h"
 #endif
 
 UtilityProcessHost::UtilityProcessHost(ResourceDispatcherHost* rdh,
@@ -45,15 +48,23 @@ bool UtilityProcessHost::StartWebResourceUnpacker(const std::string& data) {
   return true;
 }
 
+std::wstring UtilityProcessHost::GetUtilityProcessCmd() {
+  std::wstring exe_path = CommandLine::ForCurrentProcess()->GetSwitchValue(
+      switches::kBrowserSubprocessPath);
+  if (exe_path.empty()) {
+    PathService::Get(base::FILE_EXE, &exe_path);
+  }
+  return exe_path;
+}
+
 bool UtilityProcessHost::StartProcess(const FilePath& exposed_dir) {
   if (!CreateChannel())
     return false;
 
-  std::wstring exe_path = CommandLine::ForCurrentProcess()->GetSwitchValue(
-      switches::kBrowserSubprocessPath);
+  std::wstring exe_path = GetUtilityProcessCmd();
   if (exe_path.empty()) {
-    if (!PathService::Get(base::FILE_EXE, &exe_path))
-      return false;
+    NOTREACHED() << "Unable to get utility process binary name.";
+    return false;
   }
 
   CommandLine cmd_line(exe_path);
@@ -64,13 +75,37 @@ bool UtilityProcessHost::StartProcess(const FilePath& exposed_dir) {
 
   base::ProcessHandle process;
 #if defined(OS_WIN)
-  if (exposed_dir.empty())
+  if (!UseSandbox()) {
+    // Don't use the sandbox during unit tests.
+    base::LaunchApp(cmd_line, false, false, &process);
+  } else if (exposed_dir.empty()) {
     process = sandbox::StartProcess(&cmd_line);
-  else
+  } else {
     process = sandbox::StartProcessWithAccess(&cmd_line, exposed_dir);
+  }
 #else
-  // TODO(port): sandbox
-  base::LaunchApp(cmd_line, false, false, &process);
+  // TODO(port): Sandbox this on Linux/Mac.  Also, zygote this to work with
+  // Linux updating.
+  const CommandLine& browser_command_line = *CommandLine::ForCurrentProcess();
+  bool has_cmd_prefix = browser_command_line.HasSwitch(
+      switches::kUtilityCmdPrefix);
+  if (has_cmd_prefix) {
+    // launch the utility child process with some prefix (usually "xterm -e gdb
+    // --args").
+    cmd_line.PrependWrapper(browser_command_line.GetSwitchValue(
+        switches::kUtilityCmdPrefix));
+  }
+
+  // This code is duplicated with browser_render_process_host.cc and
+  // plugin_process_host.cc, but there's not a good place to de-duplicate it.
+  // Maybe we can merge this into sandbox::StartProcess which will set up
+  // everything before calling LaunchApp?
+  base::file_handle_mapping_vector fds_to_map;
+  const int ipcfd = channel().GetClientFileDescriptor();
+  if (ipcfd > -1)
+    fds_to_map.push_back(std::pair<int, int>(
+        ipcfd, kPrimaryIPCChannel + base::GlobalDescriptors::kBaseDescriptor));
+  base::LaunchApp(cmd_line.argv(), fds_to_map, false, &process);
 #endif
   if (!process)
     return false;

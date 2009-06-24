@@ -79,6 +79,13 @@ class UtilityProcessHost : public ChildProcessHost {
   // web resource server format(s).
   bool StartWebResourceUnpacker(const std::string& data);
 
+ protected:
+  // Allow these methods to be overridden for tests.
+  virtual std::wstring GetUtilityProcessCmd();
+  virtual bool UseSandbox() {
+    return true;
+  }
+
  private:
   // Starts a process.  Returns true iff it succeeded.
   bool StartProcess(const FilePath& exposed_dir);
