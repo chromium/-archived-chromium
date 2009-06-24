@@ -179,10 +179,23 @@ bool FontConfigDirect::Match(std::string* result_family,
     if (FcPatternGetInteger(match, FC_SLANT, 0, &resulting_italic))
       resulting_italic = FC_SLANT_ROMAN;
 
+    // If we ask for an italic font, fontconfig might take a roman font and set
+    // the undocumented property FC_MATRIX to a skew matrix. It'll then say
+    // that the font is italic or oblique. So, if we see a matrix, we don't
+    // believe that it's italic.
+    FcValue matrix;
+    const bool have_matrix = FcPatternGet(match, FC_MATRIX, 0, &matrix) == 0;
+
+    // If we ask for an italic font, fontconfig might take a roman font and set
+    // FC_EMBOLDEN.
+    FcValue embolden;
+    const bool have_embolden =
+        FcPatternGet(match, FC_EMBOLDEN, 0, &embolden) == 0;
+
     if (is_bold)
-      *is_bold = resulting_bold >= FC_WEIGHT_BOLD;
+      *is_bold = resulting_bold >= FC_WEIGHT_BOLD && !have_embolden;
     if (is_italic)
-      *is_italic = resulting_italic == FC_SLANT_ITALIC;
+      *is_italic = resulting_italic > FC_SLANT_ROMAN && !have_matrix;
 
     if (result_family)
         *result_family = (char *) c_family;
