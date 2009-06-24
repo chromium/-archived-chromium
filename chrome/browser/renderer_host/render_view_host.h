@@ -285,12 +285,6 @@ class RenderViewHost : public RenderWidgetHost {
   // Copies the image at the specified point.
   void CopyImageAt(int x, int y);
 
-  // Inspects the element at the specified point using the Web Inspector.
-  void InspectElementAt(int x, int y);
-
-  // Show the JavaScript console.
-  void ShowJavaScriptConsole();
-
   // Notifies the renderer that a drop occurred. This is necessary because the
   // render may be the one that started the drag.
   void DragSourceEndedAt(

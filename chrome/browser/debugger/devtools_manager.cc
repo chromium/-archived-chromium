@@ -5,6 +5,7 @@
 #include "chrome/browser/debugger/devtools_manager.h"
 
 #include "base/message_loop.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/browser/debugger/devtools_window.h"
 #include "chrome/browser/debugger/devtools_client_host.h"
 #include "chrome/browser/profile.h"
@@ -15,8 +16,14 @@
 #include "chrome/common/pref_service.h"
 #include "googleurl/src/gurl.h"
 
+// static
+DevToolsManager* DevToolsManager::GetInstance() {
+  return g_browser_process->devtools_manager();
+}
+
 DevToolsManager::DevToolsManager()
-    : inspected_rvh_for_reopen_(NULL) {
+    : inspected_rvh_for_reopen_(NULL),
+      in_initial_show_(false) {
 }
 
 DevToolsManager::~DevToolsManager() {
@@ -97,8 +104,11 @@ void DevToolsManager::OpenDevToolsWindow(RenderViewHost* inspected_rvh) {
     RegisterDevToolsClientHostFor(inspected_rvh, host);
   }
   DevToolsWindow* window = host->AsDevToolsWindow();
-  if (window)
+  if (window) {
+    in_initial_show_ = true;
     window->Show();
+    in_initial_show_ = false;
+  }
 }
 
 void DevToolsManager::InspectElement(RenderViewHost* inspected_rvh,
@@ -148,6 +158,10 @@ void DevToolsManager::UnregisterDevToolsClientHostFor(
 void DevToolsManager::OnNavigatingToPendingEntry(RenderViewHost* rvh,
                                                  RenderViewHost* dest_rvh,
                                                  const GURL& gurl) {
+  if (in_initial_show_) {
+    // Mute this even in case it is caused by the initial show routines.
+    return;
+  }
   DevToolsClientHost* client_host =
       GetDevToolsClientHostFor(rvh);
   if (client_host) {

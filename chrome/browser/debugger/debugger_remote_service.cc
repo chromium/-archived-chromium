@@ -229,7 +229,7 @@ void DebuggerRemoteService::AttachToTab(const std::string& destination,
   if (client_host == NULL) {
     client_host =
         delegate_->inspectable_tab_proxy()->NewClientHost(tab_uid, this);
-    DevToolsManager* manager = g_browser_process->devtools_manager();
+    DevToolsManager* manager = DevToolsManager::GetInstance();
     if (manager != NULL) {
       manager->RegisterDevToolsClientHostFor(target_host, client_host);
       response->SetInteger(kResultWide, RESULT_OK);
@@ -283,7 +283,7 @@ bool DebuggerRemoteService::DispatchDebuggerCommand(int tab_uid,
     response->SetInteger(kResultWide, RESULT_UNKNOWN_TAB);
     return true;
   }
-  DevToolsManager* manager = g_browser_process->devtools_manager();
+  DevToolsManager* manager = DevToolsManager::GetInstance();
   if (manager == NULL) {
     response->SetInteger(kResultWide, RESULT_DEBUGGER_ERROR);
     return true;
@@ -305,7 +305,7 @@ bool DebuggerRemoteService::DispatchDebuggerCommand(int tab_uid,
   DictionaryValue* v8_command_value;
   content->GetDictionary(kDataWide, &v8_command_value);
   JSONWriter::Write(v8_command_value, false, &v8_command);
-  g_browser_process->devtools_manager()->ForwardToDevToolsAgent(
+  manager->ForwardToDevToolsAgent(
       client_host, DevToolsAgentMsg_DebuggerCommand(v8_command));
   // Do not send the response right now, as the JSON will be received from
   // the V8 debugger asynchronously.

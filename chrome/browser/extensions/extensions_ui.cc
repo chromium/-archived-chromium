@@ -118,7 +118,7 @@ void ExtensionsDOMHandler::HandleInspectMessage(const Value* value) {
     return;
   }
 
-  g_browser_process->devtools_manager()->OpenDevToolsWindow(host);
+  DevToolsManager::GetInstance()->OpenDevToolsWindow(host);
 }
 
 void ExtensionsDOMHandler::HandleUninstallMessage(const Value* value) {

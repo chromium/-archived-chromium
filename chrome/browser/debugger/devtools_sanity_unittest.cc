@@ -4,7 +4,6 @@
 
 #include "base/command_line.h"
 #include "chrome/browser/browser.h"
-#include "chrome/browser/browser_process.h"
 #include "chrome/browser/debugger/devtools_client_host.h"
 #include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/debugger/devtools_window.h"
@@ -72,7 +71,7 @@ class DevToolsSanityTest : public InProcessBrowserTest {
 
     TabContents* tab = browser()->GetTabContentsAt(0);
     inspected_rvh_ = tab->render_view_host();
-    DevToolsManager* devtools_manager = g_browser_process->devtools_manager();
+    DevToolsManager* devtools_manager = DevToolsManager::GetInstance();
     devtools_manager->OpenDevToolsWindow(inspected_rvh_);
 
     DevToolsClientHost* client_host =
@@ -84,7 +83,7 @@ class DevToolsSanityTest : public InProcessBrowserTest {
   }
 
   void CloseDevToolsWindow() {
-    DevToolsManager* devtools_manager = g_browser_process->devtools_manager();
+    DevToolsManager* devtools_manager = DevToolsManager::GetInstance();
     devtools_manager->UnregisterDevToolsClientHostFor(inspected_rvh_);
     BrowserClosedObserver close_observer(window_->browser());
   }

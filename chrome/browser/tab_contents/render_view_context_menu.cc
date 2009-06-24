@@ -11,6 +11,7 @@
 #include "base/scoped_clipboard_writer.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/fonts_languages_window.h"
 #include "chrome/browser/page_info_window.h"
@@ -624,7 +625,8 @@ void RenderViewContextMenu::CopyImageAt(int x, int y) {
 }
 
 void RenderViewContextMenu::Inspect(int x, int y) {
-  source_tab_contents_->render_view_host()->InspectElementAt(x, y);
+  DevToolsManager::GetInstance()->InspectElement(
+      source_tab_contents_->render_view_host(), x, y);
 }
 
 void RenderViewContextMenu::WriteTextToClipboard(

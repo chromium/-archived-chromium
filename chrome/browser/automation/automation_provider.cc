@@ -28,6 +28,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/dom_operation_notification_details.h"
+#include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/download_shelf.h"
 #include "chrome/browser/extensions/extension_message_service.h"
@@ -2072,7 +2073,8 @@ void AutomationProvider::HandleInspectElementRequest(
     DCHECK(reply_message_ == NULL);
     reply_message_ = reply_message;
 
-    tab_contents->render_view_host()->InspectElementAt(x, y);
+    DevToolsManager::GetInstance()->InspectElement(
+        tab_contents->render_view_host(), x, y);
   } else {
     AutomationMsg_InspectElement::WriteReplyParams(reply_message, -1);
     Send(reply_message);

@@ -1075,8 +1075,8 @@ void Browser::OpenCreateShortcutsDialog() {
 
 void Browser::OpenJavaScriptConsole() {
   UserMetrics::RecordAction(L"ShowJSConsole", profile_);
-  GetSelectedTabContents()->render_view_host()->
-      ShowJavaScriptConsole();
+  DevToolsManager::GetInstance()->OpenDevToolsWindow(
+      GetSelectedTabContents()->render_view_host());
 }
 
 void Browser::OpenTaskManager() {

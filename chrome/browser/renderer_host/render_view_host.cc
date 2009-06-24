@@ -12,7 +12,6 @@
 #include "base/string_util.h"
 #include "base/time.h"
 #include "base/waitable_event.h"
-#include "chrome/browser/browser_process.h"
 #include "chrome/browser/child_process_security_policy.h"
 #include "chrome/browser/cross_site_request_manager.h"
 #include "chrome/browser/debugger/devtools_manager.h"
@@ -119,7 +118,7 @@ RenderViewHost::RenderViewHost(SiteInstance* instance,
 }
 
 RenderViewHost::~RenderViewHost() {
-  DevToolsManager* devtools_manager = g_browser_process->devtools_manager();
+  DevToolsManager* devtools_manager = DevToolsManager::GetInstance();
   if (devtools_manager)  // NULL in tests
     devtools_manager->UnregisterDevToolsClientHostFor(this);
 
@@ -560,16 +559,6 @@ void RenderViewHost::ModalHTMLDialogClosed(IPC::Message* reply_msg,
 
 void RenderViewHost::CopyImageAt(int x, int y) {
   Send(new ViewMsg_CopyImageAt(routing_id(), x, y));
-}
-
-void RenderViewHost::InspectElementAt(int x, int y) {
-  DevToolsManager* manager = g_browser_process->devtools_manager();
-  manager->InspectElement(this, x, y);
-}
-
-void RenderViewHost::ShowJavaScriptConsole() {
-  DevToolsManager* manager = g_browser_process->devtools_manager();
-  manager->OpenDevToolsWindow(this);
 }
 
 void RenderViewHost::DragSourceEndedAt(
@@ -1234,12 +1223,11 @@ void RenderViewHost::OnAddMessageToConsole(const std::wstring& message,
 }
 
 void RenderViewHost::OnForwardToDevToolsAgent(const IPC::Message& message) {
-  g_browser_process->devtools_manager()->ForwardToDevToolsAgent(this, message);
+  DevToolsManager::GetInstance()->ForwardToDevToolsAgent(this, message);
 }
 
 void RenderViewHost::OnForwardToDevToolsClient(const IPC::Message& message) {
-  g_browser_process->devtools_manager()->ForwardToDevToolsClient(this,
-                                                                 message);
+  DevToolsManager::GetInstance()->ForwardToDevToolsClient(this, message);
 }
 
 void RenderViewHost::OnUserMetricsRecordAction(const std::wstring& action) {

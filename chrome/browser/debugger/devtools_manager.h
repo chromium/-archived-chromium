@@ -22,6 +22,8 @@ class RenderViewHost;
 class DevToolsManager : public DevToolsClientHost::CloseListener,
                         public base::RefCounted<DevToolsManager> {
  public:
+  static DevToolsManager* GetInstance();
+
   DevToolsManager();
   virtual ~DevToolsManager();
 
@@ -87,6 +89,7 @@ private:
       ClientHostToInspectedRvhMap;
   ClientHostToInspectedRvhMap client_host_to_inspected_rvh_;
   RenderViewHost* inspected_rvh_for_reopen_;
+  bool in_initial_show_;
 
   DISALLOW_COPY_AND_ASSIGN(DevToolsManager);
 };
