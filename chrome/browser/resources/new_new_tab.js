@@ -191,7 +191,10 @@ function layoutMostVisited() {
   }
 
   afterTransition(function() {
-    mostVisitedElement.style.overflow = '';
+    // Only set overflow to visible if the element is shown.
+    if (opacity) {
+      mostVisitedElement.style.overflow = '';
+    }
   });
 
   logEvent('layoutMostVisited: ' + (Date.now() - d0));
@@ -545,7 +548,7 @@ function layoutLowerSections() {
   var recommendationsShown = shownSections & Section.RECOMMENDATIONS;
 
   if (recentShown || recommendationsShown) {
-    lowerSectionsElement.style.height = '175px'
+    lowerSectionsElement.style.height = '198px';
     lowerSectionsElement.style.opacity = '';
   } else {
     lowerSectionsElement.style.height = lowerSectionsElement.style.opacity = 0;

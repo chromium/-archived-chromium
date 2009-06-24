@@ -399,7 +399,7 @@ html[dir=rtl] .thumbnail-container .title div {
   border: 1px solid hsl(213, 65%, 92%);
   padding-bottom: 5px;
   overflow: hidden;
-  min-height: 175px;
+  min-height: 198px; /* height of 6 items plus the header */
   vertical-align: top;
   margin: 0;
 }
