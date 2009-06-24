@@ -397,8 +397,15 @@ void ProcessSingleton::Create() {
   if (unlink(socket_path_.value().c_str()) < 0)
     DCHECK_EQ(errno, ENOENT);
 
-  if (bind(sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0)
+  if (bind(sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0) {
     LOG(ERROR) << "bind() failed: " << strerror(errno);
+    LOG(ERROR) << "SingletonSocket failed to create a socket in your home "
+                  "directory. This means that running multiple instances of "
+                  "the Chrome binary will start multiple browser process "
+                  "rather than opening a new window in the existing process.";
+    close(sock);
+    return;
+  }
 
   if (listen(sock, 5) < 0)
     NOTREACHED() << "listen failed: " << strerror(errno);
