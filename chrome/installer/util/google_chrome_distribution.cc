@@ -440,8 +440,16 @@ void GoogleChromeDistribution::LaunchUserExperiment(
     int dir_age_hours = GetDirectoryWriteAgeInHours(user_data_dir.c_str());
     if (dir_age_hours < kNinetyDays)
       return;
+    // At this point the user qualifies for the experiment, however we need to
+    // tag a control group, which is at random 50% of the population.
+    if (::GetTickCount() & 0x1) {
+      // We tag the user, but it wont participate in the experiment.
+      GoogleUpdateSettings::SetClient(kToastExpQualifyGroup);
+      LOG(INFO) << "User is toast experiment control group";
+      return;
+    }
   }
-  LOG(INFO) << "User qualified for toast experiment";
+  LOG(INFO) << "User drafted for toast experiment";
   // The experiment needs to be performed in a different process because
   // google_update expects the upgrade process to be quick and nimble.
   RelaunchSetup(installer_util::switches::kInactiveUserToast);
