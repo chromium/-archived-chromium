@@ -71,7 +71,7 @@ WebURL WebDragData::url() const
 
 void WebDragData::setURL(const WebURL& url)
 {
-    ASSERT(!isNull());
+    ensureMutable();
     m_private->url = url;
 }
 
@@ -83,7 +83,7 @@ WebString WebDragData::urlTitle() const
 
 void WebDragData::setURLTitle(const WebString& urlTitle)
 {
-    ASSERT(!isNull());
+    ensureMutable();
     m_private->urlTitle = urlTitle;
 }
 
@@ -95,7 +95,7 @@ WebString WebDragData::fileExtension() const
 
 void WebDragData::setFileExtension(const WebString& fileExtension)
 {
-    ASSERT(!isNull());
+    ensureMutable();
     m_private->fileExtension = fileExtension;
 }
 
@@ -113,14 +113,14 @@ void WebDragData::fileNames(WebVector<WebString>& fileNames) const
 
 void WebDragData::setFileNames(const WebVector<WebString>& fileNames)
 {
-    ASSERT(!isNull());
+    ensureMutable();
     m_private->filenames.clear();
     m_private->filenames.append(fileNames.data(), fileNames.size());
 }
 
 void WebDragData::appendToFileNames(const WebString& fileName)
 {
-    ASSERT(!isNull());
+    ensureMutable();
     m_private->filenames.append(fileName);
 }
 
@@ -132,7 +132,7 @@ WebString WebDragData::plainText() const
 
 void WebDragData::setPlainText(const WebString& plainText)
 {
-    ASSERT(!isNull());
+    ensureMutable();
     m_private->plainText = plainText;
 }
 
@@ -144,7 +144,7 @@ WebString WebDragData::htmlText() const
 
 void WebDragData::setHTMLText(const WebString& htmlText)
 {
-    ASSERT(!isNull());
+    ensureMutable();
     m_private->textHtml = htmlText;
 }
 
@@ -156,7 +156,7 @@ WebURL WebDragData::htmlBaseURL() const
 
 void WebDragData::setHTMLBaseURL(const WebURL& htmlBaseURL)
 {
-    ASSERT(!isNull());
+    ensureMutable();
     m_private->htmlBaseUrl = htmlBaseURL;
 }
 
@@ -168,7 +168,7 @@ WebString WebDragData::fileContentFileName() const
 
 void WebDragData::setFileContentFileName(const WebString& fileName)
 {
-    ASSERT(!isNull());
+    ensureMutable();
     m_private->fileContentFilename = fileName;
 }
 
@@ -180,7 +180,7 @@ WebData WebDragData::fileContent() const
 
 void WebDragData::setFileContent(const WebData& fileContent)
 {
-    ASSERT(!isNull());
+    ensureMutable();
     m_private->fileContent = fileContent;
 }
 
@@ -206,6 +206,13 @@ void WebDragData::assign(WebDragDataPrivate* p)
     if (m_private)
         m_private->deref();
     m_private = p;
+}
+
+void WebDragData::ensureMutable()
+{
+    ASSERT(!isNull());
+    if (!m_private->hasOneRef())
+        assign(static_cast<WebDragDataPrivate*>(m_private->copy().releaseRef()));
 }
 
 } // namespace WebKit

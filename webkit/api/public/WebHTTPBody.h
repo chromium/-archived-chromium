@@ -43,7 +43,7 @@ namespace WTF { template <typename T> class PassRefPtr; }
 namespace WebKit {
     class WebHTTPBodyPrivate;
 
-    class WebHTTPBody : public WebNonCopyable {
+    class WebHTTPBody {
     public:
         struct Element {
             enum { TypeData, TypeFile } type;
@@ -54,11 +54,14 @@ namespace WebKit {
         ~WebHTTPBody() { reset(); }
 
         WebHTTPBody() : m_private(0) { }
-
-        bool isNull() const { return m_private == 0; }
+        WebHTTPBody(const WebHTTPBody& b) : m_private(0) { assign(b); }
+        WebHTTPBody& operator=(const WebHTTPBody& b) { assign(b); return *this; }
 
         WEBKIT_API void initialize();
         WEBKIT_API void reset();
+        WEBKIT_API void assign(const WebHTTPBody&);
+
+        bool isNull() const { return m_private == 0; }
 
         // Returns the number of elements comprising the http body.
         WEBKIT_API size_t elementCount() const;
@@ -77,12 +80,14 @@ namespace WebKit {
         WEBKIT_API void setIdentifier(long long);
 
 #if WEBKIT_IMPLEMENTATION
-        void rebind(WTF::PassRefPtr<WebCore::FormData>);
+        WebHTTPBody(const WTF::PassRefPtr<WebCore::FormData>&);
+        WebHTTPBody& operator=(const WTF::PassRefPtr<WebCore::FormData>&);
         operator WTF::PassRefPtr<WebCore::FormData>() const;
 #endif
 
     private:
         void assign(WebHTTPBodyPrivate*);
+        void ensureMutable();
         WebHTTPBodyPrivate* m_private;
     };
 

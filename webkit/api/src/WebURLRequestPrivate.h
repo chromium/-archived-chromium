@@ -31,10 +31,6 @@
 #ifndef WebURLRequestPrivate_h
 #define WebURLRequestPrivate_h
 
-// FIXME: This relative path is a temporary hack to support using this
-// header from webkit/glue.
-#include "../public/WebHTTPBody.h"
-
 namespace WebCore { struct ResourceRequest; }
 
 namespace WebKit {
@@ -47,7 +43,6 @@ namespace WebKit {
         virtual void dispose() = 0;
 
         WebCore::ResourceRequest* m_resourceRequest;
-        WebHTTPBody m_httpBody;
     };
 
 } // namespace WebKit

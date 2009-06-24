@@ -50,13 +50,23 @@ void WebHTTPBody::reset()
     assign(0);
 }
 
+void WebHTTPBody::assign(const WebHTTPBody& other)
+{
+    WebHTTPBodyPrivate* p = const_cast<WebHTTPBodyPrivate*>(other.m_private);
+    p->ref();
+    assign(p);
+}
+
 size_t WebHTTPBody::elementCount() const
 {
+    ASSERT(!isNull());
     return m_private->elements().size();
 }
 
 bool WebHTTPBody::elementAt(size_t index, Element& result) const
 {
+    ASSERT(!isNull());
+
     if (index >= m_private->elements().size())
         return false;
 
@@ -83,6 +93,7 @@ bool WebHTTPBody::elementAt(size_t index, Element& result) const
 
 void WebHTTPBody::appendData(const WebData& data)
 {
+    ensureMutable();
     // FIXME: FormDataElement::m_data should be a SharedBuffer<char>.  Then we
     // could avoid this buffer copy.
     m_private->appendData(data.data(), data.size());
@@ -90,22 +101,31 @@ void WebHTTPBody::appendData(const WebData& data)
 
 void WebHTTPBody::appendFile(const WebString& filePath)
 {
+    ensureMutable();
     m_private->appendFile(filePath);
 }
 
 long long WebHTTPBody::identifier() const
 {
+    ASSERT(!isNull());
     return m_private->identifier();
 }
 
 void WebHTTPBody::setIdentifier(long long identifier)
 {
+    ensureMutable();
     return m_private->setIdentifier(identifier);
 }
 
-void WebHTTPBody::rebind(PassRefPtr<FormData> formData)
+WebHTTPBody::WebHTTPBody(const PassRefPtr<FormData>& data)
+    : m_private(static_cast<WebHTTPBodyPrivate*>(data.releaseRef()))
 {
-    assign(static_cast<WebHTTPBodyPrivate*>(formData.releaseRef()));
+}
+
+WebHTTPBody& WebHTTPBody::operator=(const PassRefPtr<FormData>& data)
+{
+    assign(static_cast<WebHTTPBodyPrivate*>(data.releaseRef()));
+    return *this;
 }
 
 WebHTTPBody::operator PassRefPtr<FormData>() const
@@ -119,6 +139,13 @@ void WebHTTPBody::assign(WebHTTPBodyPrivate* p)
     if (m_private)
         m_private->deref();
     m_private = p;
+}
+
+void WebHTTPBody::ensureMutable()
+{
+    ASSERT(!isNull());
+    if (!m_private->hasOneRef())
+        assign(static_cast<WebHTTPBodyPrivate*>(m_private->copy().releaseRef()));
 }
 
 } // namespace WebKit

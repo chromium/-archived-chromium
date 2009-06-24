@@ -100,7 +100,7 @@ namespace WebKit {
         WEBKIT_API void clearHTTPHeaderField(const WebString& name);
         WEBKIT_API void visitHTTPHeaderFields(WebHTTPHeaderVisitor*) const;
 
-        WEBKIT_API const WebHTTPBody& httpBody() const;
+        WEBKIT_API WebHTTPBody httpBody() const;
         WEBKIT_API void setHTTPBody(const WebHTTPBody&);
 
         // Controls whether upload progress events are generated when a request
