@@ -439,6 +439,15 @@ gboolean BrowserWindowGtk::OnCustomFrameExpose(GtkWidget* widget,
 
 void BrowserWindowGtk::Show() {
   gtk_widget_show(GTK_WIDGET(window_));
+
+  // The Browser associated with this browser window must become the active
+  // browser at the time Show() is called. This is the natural behaviour under
+  // Windows, but gtk_widget_show won't show the widget (and therefore won't
+  // call OnFocusIn()) until we return to the runloop. Therefore any calls to
+  // BrowserList::GetLastActive() (for example, in bookmark_util), will return
+  // the previous browser instead if we don't explicitly set it here.
+  BrowserList::SetLastActive(browser());
+
 #if defined(LINUX2)
   TabOverviewTypes::instance()->SetWindowType(
       GTK_WIDGET(window_), TabOverviewTypes::WINDOW_TYPE_CHROME_TOPLEVEL,
