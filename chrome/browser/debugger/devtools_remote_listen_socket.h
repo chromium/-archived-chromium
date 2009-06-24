@@ -30,6 +30,7 @@ class DevToolsRemoteListenSocket : public ListenSocket {
   virtual void Accept();
   virtual void Read();
   virtual void Close();
+  virtual void SendInternal(const char* bytes, int len);
 
  private:
 

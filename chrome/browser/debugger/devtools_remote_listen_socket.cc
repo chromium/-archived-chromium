@@ -22,6 +22,7 @@
 #endif
 
 #include "base/eintr_wrapper.h"
+#include "base/platform_thread.h"
 #include "base/string_util.h"
 #include "chrome/browser/debugger/devtools_remote.h"
 #include "chrome/browser/debugger/devtools_remote_message.h"
@@ -240,6 +241,23 @@ void DevToolsRemoteListenSocket::Accept() {
     socket_delegate_->DidAccept(this, sock);
   } else {
     // TODO(apavlov): some error handling required here
+  }
+}
+
+void DevToolsRemoteListenSocket::SendInternal(const char* bytes, int len) {
+  int sent = HANDLE_EINTR(send(socket_, bytes, len, 0));
+  if (sent == kSocketError) {
+#if defined(OS_WIN)
+    while (WSAGetLastError() == WSAEWOULDBLOCK) {
+#elif defined(OS_POSIX)
+    while (errno == EWOULDBLOCK || errno == EAGAIN) {
+#endif
+      PlatformThread::YieldCurrentThread();
+      sent = HANDLE_EINTR(send(socket_, bytes, len, 0));
+    }
+  }
+  if (sent != len) {
+    LOG(ERROR) << "send failed: ";
   }
 }
 
