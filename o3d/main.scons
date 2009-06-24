@@ -77,7 +77,7 @@ base_env = Environment(
     COVERAGE_TARGETS = ['unit_tests', 'system_tests'],
     MSVS_USE_MFC_DIRS=1,
 )
-# @@REWRITE(insert python-copyright)
+
 base_env.ApplySConscript(['svn_paths.scons'])
 
 base_env.Append(
