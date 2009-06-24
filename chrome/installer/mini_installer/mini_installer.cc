@@ -154,14 +154,24 @@ void SetFullInstallerFlag(HKEY root_key) {
 
   wchar_t value[128];
   size_t size = _countof(value);
-  if ((::RegQueryValueEx(key, kApRegistryValueName, NULL, NULL,
-                         reinterpret_cast<LPBYTE>(value),
-                         reinterpret_cast<LPDWORD>(&size)) == ERROR_SUCCESS) &&
-      (!StrEndsWith(value, kFullInstallerSuffix)) &&
-      (SafeStrCat(value, size, kFullInstallerSuffix))) {
-    ::RegSetValueEx(key, kApRegistryValueName, 0, REG_SZ,
-                    reinterpret_cast<LPBYTE>(value),
-                    lstrlen(value) * sizeof(wchar_t));
+  size_t buf_size = size;
+  LONG ret = ::RegQueryValueEx(key, kApRegistryValueName, NULL, NULL,
+                               reinterpret_cast<LPBYTE>(value),
+                               reinterpret_cast<LPDWORD>(&size));
+
+  // The conditions below are handling two cases:
+  // 1. When ap key is present, we want to make sure it doesn't already end
+  //    in -full and then append -full to it.
+  // 2. When ap key is missing, we are going to create it with value -full.
+  if ((ret == ERROR_SUCCESS) || (ret == ERROR_FILE_NOT_FOUND)) {
+    if (ret == ERROR_FILE_NOT_FOUND)
+      value[0] = L'\0';
+
+    if (!StrEndsWith(value, kFullInstallerSuffix) &&
+        (SafeStrCat(value, buf_size, kFullInstallerSuffix)))
+      ::RegSetValueEx(key, kApRegistryValueName, 0, REG_SZ,
+                      reinterpret_cast<LPBYTE>(value),
+                      lstrlen(value) * sizeof(wchar_t));
   }
 
   ::RegCloseKey(key);
