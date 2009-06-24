@@ -74,10 +74,6 @@ class InfoBar : public views::View,
   // (Will lead to this InfoBar being closed).
   void RemoveInfoBar() const;
 
-  // Returns the spacing required between the close button and any adjacent
-  // control.
-  int CloseButtonSpacing() const;
-
   // Overridden from views::ButtonListener:
   virtual void ButtonPressed(views::Button* sender);
 

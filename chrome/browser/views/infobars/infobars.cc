@@ -143,7 +143,7 @@ gfx::Size InfoBar::GetPreferredSize() {
 
 void InfoBar::Layout() {
   gfx::Size button_ps = close_button_->GetPreferredSize();
-  close_button_->SetBounds(width() - CloseButtonSpacing() - button_ps.width(),
+  close_button_->SetBounds(width() - kButtonSpacing - button_ps.width(),
                            OffsetY(this, button_ps), button_ps.width(),
                            button_ps.height());
 }
@@ -162,15 +162,11 @@ void InfoBar::ViewHierarchyChanged(bool is_add, views::View* parent,
 // InfoBar, protected: ---------------------------------------------------------
 
 int InfoBar::GetAvailableWidth() const {
-  return close_button_->x() - CloseButtonSpacing();
+  return close_button_->x() - kButtonSpacing;
 }
 
 void InfoBar::RemoveInfoBar() const {
   container_->RemoveDelegate(delegate());
-}
-
-int InfoBar::CloseButtonSpacing() const {
-  return CenterY(close_button_->GetPreferredSize());
 }
 
 // InfoBar, views::ButtonListener implementation: ------------------
