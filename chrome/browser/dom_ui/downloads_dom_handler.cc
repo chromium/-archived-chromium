@@ -232,7 +232,11 @@ DictionaryValue* DownloadsDOMHandler::CreateDownloadItemValue(
     base::TimeFormatShortDate(download->start_time()));
   file_value->SetInteger(L"id", id);
   file_value->SetString(L"file_path", download->full_path().ToWStringHack());
-  file_value->SetString(L"file_name", download->GetFileName().ToWStringHack());
+  // Keep file names as LTR.
+  std::wstring file_name = download->GetFileName().ToWStringHack();
+  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
+    l10n_util::WrapStringWithLTRFormatting(&file_name);
+  file_value->SetString(L"file_name", file_name);
   file_value->SetString(L"url", download->url().spec());
 
   if (download->state() == DownloadItem::IN_PROGRESS) {
