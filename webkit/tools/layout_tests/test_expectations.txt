@@ -2755,5 +2755,5 @@ BUG14889 REBASELINE : LayoutTests/http/tests/security/xssAuditor/link-opens-new-
 BUG14946 : LayoutTests/fast/js/date-toisostring.html = FAIL
 BUG14951 WIN LINUX : LayoutTests/fast/repaint/background-generated.html = FAIL
 
-// WebKit 44946:44969
-BUG15113 WIN LINUX : LayoutTests/compositing/sibling-positioning.html = FAIL
+// WebKit 44946:44969, needs baselines
+BUG15113 SKIP : LayoutTests/compositing/sibling-positioning.html = FAIL
