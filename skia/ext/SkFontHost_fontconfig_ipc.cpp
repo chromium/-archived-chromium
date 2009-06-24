@@ -39,15 +39,17 @@ FontConfigIPC::~FontConfigIPC() {
 bool FontConfigIPC::Match(std::string* result_family,
                           unsigned* result_fileid,
                           bool fileid_valid, unsigned fileid,
-                          const std::string& family, int is_bold,
-                          int is_italic) {
+                          const std::string& family, bool* is_bold,
+                          bool* is_italic) {
     Pickle request;
     request.WriteInt(METHOD_MATCH);
     request.WriteBool(fileid_valid);
     if (fileid_valid)
       request.WriteUInt32(fileid);
-    request.WriteBool(is_bold);
-    request.WriteBool(is_italic);
+
+    request.WriteBool(is_bold && *is_bold);
+    request.WriteBool(is_bold && *is_italic);
+
     request.WriteString(family);
 
     uint8_t reply_buf[512];
@@ -66,14 +68,22 @@ bool FontConfigIPC::Match(std::string* result_family,
 
     uint32_t reply_fileid;
     std::string reply_family;
+    bool resulting_bold, resulting_italic;
     if (!reply.ReadUInt32(&iter, &reply_fileid) ||
-        !reply.ReadString(&iter, &reply_family)) {
+        !reply.ReadString(&iter, &reply_family) ||
+        !reply.ReadBool(&iter, &resulting_bold) ||
+        !reply.ReadBool(&iter, &resulting_italic)) {
       return false;
     }
 
     *result_fileid = reply_fileid;
     if (result_family)
       *result_family = reply_family;
+
+    if (is_bold)
+      *is_bold = resulting_bold;
+    if (is_italic)
+      *is_italic = resulting_italic;
 
     return true;
 }

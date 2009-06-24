@@ -2757,3 +2757,5 @@ BUG14951 WIN LINUX : LayoutTests/fast/repaint/background-generated.html = FAIL
 
 // WebKit 44946:44969, needs baselines
 BUG15113 SKIP : LayoutTests/compositing/sibling-positioning.html = FAIL
+
+BUG15125 : chrome/fast/text/fake-italic.html = FAIL

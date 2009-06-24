@@ -133,8 +133,8 @@ class SandboxIPCProcess {
     unsigned result_fileid;
 
     const bool r = font_config_->Match(
-        &result_family, &result_fileid, fileid_valid, fileid, family, is_bold,
-        is_italic);
+        &result_family, &result_fileid, fileid_valid, fileid, family, &is_bold,
+        &is_italic);
 
     Pickle reply;
     if (!r) {
@@ -143,6 +143,8 @@ class SandboxIPCProcess {
       reply.WriteBool(true);
       reply.WriteUInt32(result_fileid);
       reply.WriteString(result_family);
+      reply.WriteBool(is_bold);
+      reply.WriteBool(is_italic);
     }
     SendRendererReply(fds, reply, -1);
   }

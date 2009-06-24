@@ -39,8 +39,8 @@ class FontConfigInterface {
      *    trying to match.
      *  @param family (optional) the family of the font that we are trying to
      *    match.
-     *  @param is_bold (optional, set to -1 to ignore)
-     *  @param is_italic (optional, set to -1 to ignore)
+     *  @param is_bold (optional, set to NULL to ignore, in/out)
+     *  @param is_italic (optional, set to NULL to ignore, in/out)
      *  @return true iff successful.
      */
     virtual bool Match(
@@ -49,8 +49,8 @@ class FontConfigInterface {
           bool fileid_valid,
           unsigned fileid,
           const std::string& family,
-          int is_bold,
-          int is_italic) = 0;
+          bool* is_bold,
+          bool* is_italic) = 0;
 
     /** Open a font file given the fileid as returned by Match
      */

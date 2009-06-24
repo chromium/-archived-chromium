@@ -33,7 +33,7 @@ class FontConfigIPC : public FontConfigInterface {
     // FontConfigInterface implementation.
     virtual bool Match(std::string* result_family, unsigned* result_fileid,
                        bool fileid_valid, unsigned fileid,
-                       const std::string& family, int is_bold, int is_italic);
+                       const std::string& family, bool* is_bold, bool* is_italic);
     virtual int Open(unsigned fileid);
 
     enum Method {

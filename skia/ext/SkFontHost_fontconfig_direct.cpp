@@ -43,8 +43,8 @@ static bool IsFallbackFontAllowed(const std::string& family)
 bool FontConfigDirect::Match(std::string* result_family,
                              unsigned* result_fileid,
                              bool fileid_valid, unsigned fileid,
-                             const std::string& family, int is_bold,
-                             int is_italic) {
+                             const std::string& family, bool* is_bold,
+                             bool* is_italic) {
     SkAutoMutexAcquire ac(mutex_);
     FcPattern* pattern = FcPatternCreate();
 
@@ -66,16 +66,14 @@ bool FontConfigDirect::Match(std::string* result_family,
         fcvalue.u.s = (FcChar8*) family.c_str();
         FcPatternAdd(pattern, FC_FAMILY, fcvalue, 0);
     }
-    if (is_bold > 0) {
-        fcvalue.type = FcTypeInteger;
-        fcvalue.u.i = is_bold ? FC_WEIGHT_BOLD : FC_WEIGHT_NORMAL;
-        FcPatternAdd(pattern, FC_WEIGHT, fcvalue, 0);
-    }
-    if (is_italic > 0) {
-        fcvalue.type = FcTypeInteger;
-        fcvalue.u.i = is_italic ? FC_SLANT_ITALIC : FC_SLANT_ROMAN;
-        FcPatternAdd(pattern, FC_SLANT, fcvalue, 0);
-    }
+
+    fcvalue.type = FcTypeInteger;
+    fcvalue.u.i = is_bold && *is_bold ? FC_WEIGHT_BOLD : FC_WEIGHT_NORMAL;
+    FcPatternAdd(pattern, FC_WEIGHT, fcvalue, 0);
+
+    fcvalue.type = FcTypeInteger;
+    fcvalue.u.i = is_italic && *is_italic ? FC_SLANT_ITALIC : FC_SLANT_ROMAN;
+    FcPatternAdd(pattern, FC_SLANT, fcvalue, 0);
 
     FcConfigSubstitute(0, pattern, FcMatchPattern);
     FcDefaultSubstitute(pattern);
@@ -172,6 +170,19 @@ bool FontConfigDirect::Match(std::string* result_family,
         FcPatternDestroy(match);
         return NULL;
     }
+
+    int resulting_bold;
+    if (FcPatternGetInteger(match, FC_WEIGHT, 0, &resulting_bold))
+      resulting_bold = FC_WEIGHT_NORMAL;
+
+    int resulting_italic;
+    if (FcPatternGetInteger(match, FC_SLANT, 0, &resulting_italic))
+      resulting_italic = FC_SLANT_ROMAN;
+
+    if (is_bold)
+      *is_bold = resulting_bold >= FC_WEIGHT_BOLD;
+    if (is_italic)
+      *is_italic = resulting_italic == FC_SLANT_ITALIC;
 
     if (result_family)
         *result_family = (char *) c_family;

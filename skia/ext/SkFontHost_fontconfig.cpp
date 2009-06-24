@@ -101,7 +101,7 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
         const unsigned fileid = UniqueIdToFileId(familyFace->uniqueID());
         if (!GetFcImpl()->Match(
           &resolved_family_name, NULL, true /* fileid valid */, fileid, "",
-          -1, -1)) {
+          NULL, NULL)) {
             return NULL;
         }
     } else if (familyName) {
@@ -110,16 +110,19 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
         return NULL;
     }
 
-    const bool bold = style & SkTypeface::kBold;
-    const bool italic = style & SkTypeface::kItalic;
+    bool bold = style & SkTypeface::kBold;
+    bool italic = style & SkTypeface::kItalic;
     unsigned fileid;
     if (!GetFcImpl()->Match(NULL, &fileid, false, -1, /* no fileid */
-                               resolved_family_name, bold, italic)) {
+                               resolved_family_name, &bold, &italic)) {
         return NULL;
     }
+    const SkTypeface::Style resulting_style = static_cast<SkTypeface::Style>(
+        (bold ? SkTypeface::kBold : 0) |
+        (italic ? SkTypeface::kItalic : 0));
 
-    const unsigned id = FileIdAndStyleToUniqueId(fileid, style);
-    SkTypeface* typeface = SkNEW_ARGS(FontConfigTypeface, (style, id));
+    const unsigned id = FileIdAndStyleToUniqueId(fileid, resulting_style);
+    SkTypeface* typeface = SkNEW_ARGS(FontConfigTypeface, (resulting_style, id));
 
     {
         SkAutoMutexAcquire ac(global_fc_map_lock);
