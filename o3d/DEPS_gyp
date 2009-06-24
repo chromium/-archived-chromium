@@ -75,6 +75,9 @@ deps = {
   "skia":
     Var("chromium_trunk") + "/src/skia@" + Var("chromium_rev"),
 
+  "breakpad":
+    Var("chromium_trunk") + "/src/breakpad@" + Var("chromium_rev"),
+
   "base":
     Var("chromium_trunk") + "/src/base@" + Var("chromium_rev"),
 
@@ -83,8 +86,8 @@ deps = {
   "third_party/native_client/googleclient/native_client":
     "http://nativeclient.googlecode.com/svn/trunk/nacl/googleclient/native_client@188",
 
-  "third_party/breakpad/files":
-    "http://google-breakpad.googlecode.com/svn/trunk@346",
+  "breakpad/src":
+    "http://google-breakpad.googlecode.com/svn/trunk/src@346",
 
   "third_party/nixysa/files":
     "http://nixysa.googlecode.com/svn/trunk/nixysa@" + Var("nixysa_rev"),
