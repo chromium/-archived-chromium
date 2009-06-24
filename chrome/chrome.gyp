@@ -3314,6 +3314,14 @@
       'include_dirs': [
         '..',
       ],
+      'defines': [
+        'CLD_WINDOWS',
+      ],
+      'direct_dependent_settings': {
+        'defines': [
+          'CLD_WINDOWS',
+        ],
+      },
       'sources': [
         'app/breakpad_mac_stubs.mm',
         # *NO* files in chrome/app have unit tests (except keystone_glue)!!!
@@ -3539,6 +3547,7 @@
         'test/test_notification_tracker.h',
         'test/v8_unit_test.cc',
         'test/v8_unit_test.h',
+        '../third_party/cld/bar/toolbar/cld/i18n/encodings/compact_lang_det/compact_lang_det_unittest_small.cc',
 
         '../views/controls/label_unittest.cc',
         '../views/controls/table/table_view_unittest.cc',
@@ -3561,6 +3570,8 @@
             # might want to write our own tests for the download manager
             # on linux, though.
             'browser/download/download_manager_unittest.cc',
+            # Compact Language Detection (cld) is not supported in linux yet.
+            '../third_party/cld/bar/toolbar/cld/i18n/encodings/compact_lang_det/compact_lang_det_unittest_small.cc',
           ],
         }],
         ['OS=="linux" and toolkit_views==1', {
@@ -3588,6 +3599,9 @@
             'test/test_notification_tracker.cc',
             'test/test_notification_tracker.h',
             'third_party/hunspell/google/hunspell_tests.cc',
+            
+            # Compact Language Detection (cld) is not supported in mac yet.
+            '../third_party/cld/bar/toolbar/cld/i18n/encodings/compact_lang_det/compact_lang_det_unittest_small.cc',
           ],
           # TODO(mark): We really want this for all non-static library targets,
           # but when we tried to pull it up to the common.gypi level, it broke
