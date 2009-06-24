@@ -2754,3 +2754,13 @@ BUG14889 REBASELINE : LayoutTests/http/tests/security/xssAuditor/link-opens-new-
 // WebKit 44928:44943
 BUG14946 : LayoutTests/fast/js/date-toisostring.html = FAIL
 BUG14951 WIN LINUX : LayoutTests/fast/repaint/background-generated.html = FAIL
+
+// WebKit 44946:44969
+BUG15113 : LayoutTests/css2.1/t0905-c414-flt-fit-01-d-g.html = FAIL
+BUG15113 : LayoutTests/css2.1/t0905-c5525-flthw-00-c-g.html = FAIL
+BUG15113 : LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL
+BUG15113 : LayoutTests/fast/text/complex-text-opacity.html = FAIL
+BUG15113 : LayoutTests/fast/text/international/complex-character-based-fallback.html = FAIL
+BUG15113 : LayoutTests/fast/text/international/danda-space.html = FAIL
+BUG15113 : LayoutTests/fast/text/international/hindi-spacing.html = FAIL
+

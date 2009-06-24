@@ -943,7 +943,7 @@ sub GenerateBatchedAttributeData
       if ($interfaceName eq "DOMWindow") {
         $getter = "V8Custom::v8DOMWindowEventHandlerAccessorGetter";
         $setter = "V8Custom::v8DOMWindowEventHandlerAccessorSetter";
-      } elsif ($interfaceName eq "Element" || $interfaceName eq "Document" || $interfaceName eq "HTMLBodyElement" || $interfaceName eq "SVGElementInstance") {
+      } elsif ($interfaceName eq "Element" || $interfaceName eq "Document" || $interfaceName eq "HTMLBodyElement" || $interfaceName eq "SVGElementInstance" || $interfaceName eq "HTMLFrameSetElement") {
         $getter = "V8Custom::v8ElementEventHandlerAccessorGetter";
         $setter = "V8Custom::v8ElementEventHandlerAccessorSetter";
       } else {

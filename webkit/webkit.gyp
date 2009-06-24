@@ -3187,6 +3187,8 @@
         '../third_party/WebKit/WebCore/rendering/RenderButton.h',
         '../third_party/WebKit/WebCore/rendering/RenderCounter.cpp',
         '../third_party/WebKit/WebCore/rendering/RenderCounter.h',
+        '../third_party/WebKit/WebCore/rendering/RenderDataGrid.cpp',
+        '../third_party/WebKit/WebCore/rendering/RenderDataGrid.h',
         '../third_party/WebKit/WebCore/rendering/RenderFieldset.cpp',
         '../third_party/WebKit/WebCore/rendering/RenderFieldset.h',
         '../third_party/WebKit/WebCore/rendering/RenderFileUploadControl.cpp',
