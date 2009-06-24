@@ -18,7 +18,6 @@
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/character_encoding.h"
-#include "chrome/browser/debugger/debugger_host.h"
 #include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
@@ -74,7 +73,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_url_handler.h"
 #include "chrome/browser/cert_store.h"
-#include "chrome/browser/debugger/debugger_window.h"
 #include "chrome/browser/download/save_package.h"
 #include "chrome/browser/ssl/ssl_error_info.h"
 #include "chrome/browser/task_manager.h"
@@ -1075,26 +1073,6 @@ void Browser::OpenCreateShortcutsDialog() {
 #endif
 }
 
-void Browser::OpenDebuggerWindow() {
-#if defined(OS_WIN)
-#ifndef CHROME_DEBUGGER_DISABLED
-  UserMetrics::RecordAction(L"Debugger", profile_);
-  // Only one debugger instance can exist at a time right now.
-  // TODO(erikkay): need an alert, dialog, something
-  // or better yet, fix the one instance limitation
-  DebuggerHost* host = DebuggerWindow::GetAnyExistingDebugger();
-  if (host) {
-    host->ShowWindow();
-    return;
-  }
-  debugger_window_ = new DebuggerWindow();
-  debugger_window_->Show(GetSelectedTabContents());
-#endif  // CHROME_DEBUGGER_DISABLED
-#else
-  NOTIMPLEMENTED();
-#endif  // defined(OS_WIN)
-}
-
 void Browser::OpenJavaScriptConsole() {
   UserMetrics::RecordAction(L"ShowJSConsole", profile_);
   GetSelectedTabContents()->render_view_host()->
@@ -1358,7 +1336,6 @@ void Browser::ExecuteCommandWithDisposition(
     // Show various bits of UI
     case IDC_OPEN_FILE:             OpenFile();                    break;
     case IDC_CREATE_SHORTCUTS:      OpenCreateShortcutsDialog();   break;
-    case IDC_DEBUGGER:              OpenDebuggerWindow();          break;
     case IDC_JS_CONSOLE:            OpenJavaScriptConsole();       break;
     case IDC_TASK_MANAGER:          OpenTaskManager();             break;
     case IDC_SELECT_PROFILE:        OpenSelectProfileDialog();     break;
@@ -2115,14 +2092,6 @@ void Browser::InitCommandState() {
   // Show various bits of UI
   command_updater_.UpdateCommandEnabled(IDC_OPEN_FILE, true);
   command_updater_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS, false);
-#if defined(OS_WIN)
-  // Command line debugger conflicts with the new oop one.
-  bool in_proc_devtools = CommandLine::ForCurrentProcess()->HasSwitch(
-      switches::kDisableOutOfProcessDevTools);
-  command_updater_.UpdateCommandEnabled(IDC_DEBUGGER,
-      // The debugger doesn't work in single process mode.
-      in_proc_devtools && !RenderProcessHost::run_renderer_in_process());
-#endif
   command_updater_.UpdateCommandEnabled(IDC_JS_CONSOLE, true);
   command_updater_.UpdateCommandEnabled(IDC_TASK_MANAGER, true);
   command_updater_.UpdateCommandEnabled(IDC_SELECT_PROFILE, true);

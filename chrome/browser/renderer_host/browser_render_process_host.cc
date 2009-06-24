@@ -274,7 +274,6 @@ bool BrowserRenderProcessHost::Init() {
     switches::kUseLowFragHeapCrt,
     switches::kEnableWebWorkers,
     switches::kEnableStatsTable,
-    switches::kDisableOutOfProcessDevTools,
     switches::kAutoSpellCorrect,
     switches::kDisableAudio,
     switches::kSimpleDataSource,
@@ -293,7 +292,7 @@ bool BrowserRenderProcessHost::Init() {
   // NOTE: This is subtly different than just passing along whether
   // --enable-extenisons is present in the browser process. For example, there
   // is also an extensions.enabled preference, and there may be various special
-  // cases about whether to allow extensions to load. 
+  // cases about whether to allow extensions to load.
   //
   // This introduces a race condition where the first renderer never gets
   // extensions enabled, so we also set the flag if extensions_enabled(). This

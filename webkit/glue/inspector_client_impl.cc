@@ -115,7 +115,6 @@ void WebInspectorClient::showWindow() {
   // Notify the webview delegate of how many resources we're inspecting.
   WebViewDelegate* d = inspected_web_view_->delegate();
   DCHECK(d);
-  d->WebInspectorOpened(inspector->resources().size());
 }
 
 void WebInspectorClient::closeWindow() {

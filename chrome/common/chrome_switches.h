@@ -136,8 +136,6 @@ extern const wchar_t kGearsPluginPathOverride[];
 
 extern const wchar_t kEnableFastback[];
 
-extern const wchar_t kJavaScriptDebuggerPath[];
-
 extern const wchar_t kDisableP13n[];
 
 extern const wchar_t kSdchFilter[];
@@ -162,8 +160,6 @@ extern const wchar_t kRendererCmdPrefix[];
 extern const wchar_t kNewFtp[];
 
 extern const wchar_t kIPCUseFIFO[];
-
-extern const wchar_t kDisableOutOfProcessDevTools[];
 
 extern const wchar_t kEnableWebWorkers[];
 extern const wchar_t kWebWorkerProcessPerCore[];

@@ -1036,11 +1036,6 @@ void ToolbarView::CreateDevToolsMenuContents() {
   devtools_menu_contents_.reset(new views::SimpleMenuModel(this));
   devtools_menu_contents_->AddItem(IDC_VIEW_SOURCE,
                                    l10n_util::GetString(IDS_VIEW_SOURCE));
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  if (command_line.HasSwitch(switches::kDisableOutOfProcessDevTools)) {
-    devtools_menu_contents_->AddItem(IDC_DEBUGGER,
-                                     l10n_util::GetString(IDS_DEBUGGER));
-  }
   devtools_menu_contents_->AddItem(IDC_JS_CONSOLE,
                                    l10n_util::GetString(IDS_JS_CONSOLE));
   devtools_menu_contents_->AddItem(IDC_TASK_MANAGER,

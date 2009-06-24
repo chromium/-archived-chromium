@@ -41,7 +41,6 @@ extern const char kChromeUIDownloadsURL[];
 extern const char kChromeUIExtensionsURL[];
 extern const char kChromeUIHistoryURL[];
 extern const char kChromeUIIPCURL[];
-extern const char kChromeUIInspectorURL[];
 extern const char kChromeUINetworkURL[];
 extern const char kChromeUINewTabURL[];
 

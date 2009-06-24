@@ -338,10 +338,6 @@ class NotificationType {
     RENDER_WIDGET_VISIBILITY_CHANGED,
 
     // Notification from TabContents that we have received a response from the
-    // renderer after using the dom inspector.
-    DOM_INSPECT_ELEMENT_RESPONSE,
-
-    // Notification from TabContents that we have received a response from the
     // renderer in response to a dom automation controller action.
     DOM_OPERATION_RESPONSE,
 

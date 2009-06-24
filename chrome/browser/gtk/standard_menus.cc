@@ -33,8 +33,6 @@ struct MenuCreateMaterial encoding_menu_materials[] = {
 struct MenuCreateMaterial developer_menu_materials[] = {
   { MENU_NORMAL, IDC_VIEW_SOURCE, IDS_VIEW_SOURCE, 0, NULL,
     GDK_u, GDK_CONTROL_MASK },
-  { MENU_NORMAL, IDC_DEBUGGER, IDS_DEBUGGER, 0, NULL,
-    GDK_l, GDK_CONTROL_MASK | GDK_SHIFT_MASK },
   { MENU_NORMAL, IDC_JS_CONSOLE, IDS_JS_CONSOLE, 0, NULL,
     GDK_j, GDK_CONTROL_MASK | GDK_SHIFT_MASK },
   { MENU_NORMAL, IDC_TASK_MANAGER, IDS_TASK_MANAGER, 0, NULL,

@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "app/resource_bundle.h"
-#include "base/command_line.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/string_util.h"
 #include "base/time.h"
@@ -16,7 +15,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/child_process_security_policy.h"
 #include "chrome/browser/cross_site_request_manager.h"
-#include "chrome/browser/debugger/debugger_wrapper.h"
 #include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/metrics/user_metrics.h"
@@ -33,7 +31,6 @@
 #include "chrome/common/notification_type.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/result_codes.h"
-#include "chrome/common/chrome_switches.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/common/url_constants.h"
@@ -104,7 +101,6 @@ RenderViewHost::RenderViewHost(SiteInstance* instance,
       instance_(instance),
       delegate_(delegate),
       waiting_for_drag_context_response_(false),
-      debugger_attached_(false),
       enabled_bindings_(0),
       pending_request_id_(0),
       modal_dialog_count_(0),
@@ -123,7 +119,9 @@ RenderViewHost::RenderViewHost(SiteInstance* instance,
 }
 
 RenderViewHost::~RenderViewHost() {
-  OnDebugDisconnect();
+  DevToolsManager* devtools_manager = g_browser_process->devtools_manager();
+  if (devtools_manager)  // NULL in tests
+    devtools_manager->UnregisterDevToolsClientHostFor(this);
 
   // Be sure to clean up any leftover state from cross-site requests.
   Singleton<CrossSiteRequestManager>()->SetHasPendingCrossSiteRequest(
@@ -467,27 +465,6 @@ void RenderViewHost::AddMessageToConsole(
       routing_id(), frame_xpath, message, level));
 }
 
-void RenderViewHost::DebugCommand(const std::wstring& cmd) {
-  Send(new ViewMsg_DebugCommand(routing_id(), cmd));
-}
-
-void RenderViewHost::DebugAttach() {
-  if (!debugger_attached_)
-    Send(new ViewMsg_DebugAttach(routing_id()));
-}
-
-void RenderViewHost::DebugDetach() {
-  if (debugger_attached_) {
-    Send(new ViewMsg_DebugDetach(routing_id()));
-    debugger_attached_ = false;
-  }
-}
-
-void RenderViewHost::DebugBreak(bool force) {
-  if (debugger_attached_)
-    Send(new ViewMsg_DebugBreak(routing_id(), force));
-}
-
 void RenderViewHost::Undo() {
   Send(new ViewMsg_Undo(routing_id()));
 }
@@ -586,27 +563,13 @@ void RenderViewHost::CopyImageAt(int x, int y) {
 }
 
 void RenderViewHost::InspectElementAt(int x, int y) {
-  if (!CommandLine::ForCurrentProcess()->HasSwitch(
-          switches::kDisableOutOfProcessDevTools)) {
-    DevToolsManager* manager = g_browser_process->devtools_manager();
-    manager->InspectElement(this, x, y);
-  } else {
-    ChildProcessSecurityPolicy::GetInstance()->
-        GrantInspectElement(process()->pid());
-    Send(new ViewMsg_InspectElement(routing_id(), x, y));
-  }
+  DevToolsManager* manager = g_browser_process->devtools_manager();
+  manager->InspectElement(this, x, y);
 }
 
 void RenderViewHost::ShowJavaScriptConsole() {
-  if (!CommandLine::ForCurrentProcess()->HasSwitch(
-          switches::kDisableOutOfProcessDevTools)) {
-    DevToolsManager* manager = g_browser_process->devtools_manager();
-    manager->OpenDevToolsWindow(this);
-  } else {
-    ChildProcessSecurityPolicy::GetInstance()->
-        GrantInspectElement(process()->pid());
-    Send(new ViewMsg_ShowJavaScriptConsole(routing_id()));
-  }
+  DevToolsManager* manager = g_browser_process->devtools_manager();
+  manager->OpenDevToolsWindow(this);
 }
 
 void RenderViewHost::DragSourceEndedAt(
@@ -798,15 +761,11 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_UpdateDragCursor, OnUpdateDragCursor)
     IPC_MESSAGE_HANDLER(ViewHostMsg_TakeFocus, OnTakeFocus)
     IPC_MESSAGE_HANDLER(ViewHostMsg_PageHasOSDD, OnMsgPageHasOSDD)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_InspectElement_Reply,
-                        OnMsgInspectElementReply)
     IPC_MESSAGE_FORWARD(ViewHostMsg_DidGetPrintedPagesCount,
                         delegate_,
                         RenderViewHostDelegate::DidGetPrintedPagesCount)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DidPrintPage, DidPrintPage)
     IPC_MESSAGE_HANDLER(ViewHostMsg_AddMessageToConsole, OnAddMessageToConsole)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_DebuggerOutput, OnDebuggerOutput);
-    IPC_MESSAGE_HANDLER(ViewHostMsg_DidDebugAttach, DidDebugAttach);
     IPC_MESSAGE_HANDLER(ViewHostMsg_ForwardToDevToolsAgent,
                         OnForwardToDevToolsAgent);
     IPC_MESSAGE_HANDLER(ViewHostMsg_ForwardToDevToolsClient,
@@ -923,7 +882,6 @@ void RenderViewHost::OnMsgRenderViewGone() {
   RendererExited();
 
   delegate_->RenderViewGone(this);
-  OnDebugDisconnect();
 }
 
 // Called when the renderer navigates.  For every frame loaded, we'll get this
@@ -1262,10 +1220,6 @@ void RenderViewHost::OnMsgPageHasOSDD(int32 page_id, const GURL& doc_url,
   delegate_->PageHasOSDD(this, page_id, doc_url, autodetected);
 }
 
-void RenderViewHost::OnMsgInspectElementReply(int num_resources) {
-  delegate_->InspectElementReply(num_resources);
-}
-
 void RenderViewHost::DidPrintPage(
     const ViewHostMsg_DidPrintPage_Params& params) {
   delegate_->DidPrintPage(params);
@@ -1277,20 +1231,6 @@ void RenderViewHost::OnAddMessageToConsole(const std::wstring& message,
   std::wstring msg = StringPrintf(L"\"%ls,\" source: %ls (%d)", message.c_str(),
                                   source_id.c_str(), line_no);
   logging::LogMessage("CONSOLE", 0).stream() << msg;
-  if (debugger_attached_)
-    g_browser_process->debugger_wrapper()->DebugMessage(msg);
-}
-
-void RenderViewHost::OnDebuggerOutput(const std::wstring& output) {
-  if (debugger_attached_)
-    g_browser_process->debugger_wrapper()->DebugMessage(output);
-}
-
-void RenderViewHost::DidDebugAttach() {
-  if (!debugger_attached_) {
-    debugger_attached_ = true;
-    g_browser_process->debugger_wrapper()->OnDebugAttach();
-  }
 }
 
 void RenderViewHost::OnForwardToDevToolsAgent(const IPC::Message& message) {
@@ -1407,11 +1347,7 @@ void RenderViewHost::WindowMoveOrResizeStarted() {
 }
 
 void RenderViewHost::NotifyRendererUnresponsive() {
-  // If the debugger is attached, we're going to be unresponsive anytime it's
-  // stopped at a breakpoint.
-  if (!debugger_attached_) {
-    delegate_->RendererUnresponsive(this, is_waiting_for_unload_ack_);
-  }
+  delegate_->RendererUnresponsive(this, is_waiting_for_unload_ack_);
 }
 
 void RenderViewHost::NotifyRendererResponsive() {
@@ -1451,16 +1387,6 @@ void RenderViewHost::ForwardEditCommand(const std::string& name,
                                                          name,
                                                          value);
   Send(message);
-}
-
-void RenderViewHost::OnDebugDisconnect() {
-  if (debugger_attached_) {
-    debugger_attached_ = false;
-    g_browser_process->debugger_wrapper()->OnDebugDisconnect();
-  }
-  DevToolsManager* devtools_manager = g_browser_process->devtools_manager();
-  if (devtools_manager)  // NULL in tests
-    devtools_manager->UnregisterDevToolsClientHostFor(this);
 }
 
 void RenderViewHost::ForwardMessageFromExternalHost(const std::string& message,

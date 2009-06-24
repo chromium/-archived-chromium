@@ -353,7 +353,6 @@ class Browser : public TabStripModelDelegate,
   // Show various bits of UI
   void OpenFile();
   void OpenCreateShortcutsDialog();
-  void OpenDebuggerWindow();
   void OpenJavaScriptConsole();
   void OpenTaskManager();
   void OpenSelectProfileDialog();
@@ -751,9 +750,6 @@ class Browser : public TabStripModelDelegate,
   // The Find Bar. This may be NULL if there is no Find Bar, and if it is
   // non-NULL, it may or may not be visible.
   scoped_ptr<FindBarController> find_bar_controller_;
-
-  // Debugger Window, created lazily
-  scoped_refptr<DebuggerWindow> debugger_window_;
 
   // Dialog box used for opening and saving files.
   scoped_refptr<SelectFileDialog> select_file_dialog_;

@@ -700,30 +700,6 @@ class DomOperationNotificationObserver : public NotificationObserver {
   AutomationProvider* automation_;
 };
 
-class DomInspectorNotificationObserver : public NotificationObserver {
- public:
-  explicit DomInspectorNotificationObserver(AutomationProvider* automation)
-      : automation_(automation) {
-    registrar_.Add(this, NotificationType::DOM_INSPECT_ELEMENT_RESPONSE,
-                   NotificationService::AllSources());
-  }
-
-  ~DomInspectorNotificationObserver() {
-  }
-
-  virtual void Observe(NotificationType type, const NotificationSource& source,
-      const NotificationDetails& details) {
-    if (NotificationType::DOM_INSPECT_ELEMENT_RESPONSE == type) {
-      Details<int> dom_inspect_details(details);
-      automation_->ReceivedInspectElementResponse(*(dom_inspect_details.ptr()));
-    }
-  }
-
- private:
-  NotificationRegistrar registrar_;
-  AutomationProvider* automation_;
-};
-
 #if defined(OS_WIN)
 // TODO(port): Enable when printing is ported.
 class DocumentPrintedNotificationObserver : public NotificationObserver {
@@ -814,7 +790,6 @@ AutomationProvider::AutomationProvider(Profile* profile)
       new AutomationAutocompleteEditTracker(this));
   new_tab_ui_load_observer_.reset(new NewTabUILoadObserver(this));
   dom_operation_observer_.reset(new DomOperationNotificationObserver(this));
-  dom_inspector_observer_.reset(new DomInspectorNotificationObserver(this));
 }
 
 AutomationProvider::~AutomationProvider() {

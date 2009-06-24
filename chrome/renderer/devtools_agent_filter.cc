@@ -4,9 +4,7 @@
 
 #include "chrome/renderer/devtools_agent_filter.h"
 
-#include "base/command_line.h"
 #include "base/message_loop.h"
-#include "chrome/common/chrome_switches.h"
 #include "chrome/common/devtools_messages.h"
 #include "chrome/renderer/devtools_agent.h"
 #include "chrome/renderer/plugin_channel_host.h"
@@ -24,23 +22,14 @@ void DevToolsAgentFilter::DispatchMessageLoop() {
 
 DevToolsAgentFilter::DevToolsAgentFilter()
     : current_routing_id_(0) {
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  devtools_enabled_ = !command_line.HasSwitch(
-      switches::kDisableOutOfProcessDevTools);
-  if (devtools_enabled_) {
-    WebDevToolsAgent::SetMessageLoopDispatchHandler(
-        &DevToolsAgentFilter::DispatchMessageLoop);
-  }
+  WebDevToolsAgent::SetMessageLoopDispatchHandler(
+      &DevToolsAgentFilter::DispatchMessageLoop);
 }
 
 DevToolsAgentFilter::~DevToolsAgentFilter() {
 }
 
 bool DevToolsAgentFilter::OnMessageReceived(const IPC::Message& message) {
-  if (!devtools_enabled_) {
-    return false;
-  }
-
   if (message.type() == DevToolsAgentMsg_DebuggerCommand::ID) {
     // Dispatch command directly from IO.
     bool handled = true;

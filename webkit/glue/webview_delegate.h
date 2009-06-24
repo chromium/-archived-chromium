@@ -800,8 +800,6 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // a window.print() call.
   virtual void ScriptedPrint(WebFrame* frame) { }
 
-  virtual void WebInspectorOpened(int num_resources) { }
-
   // Called when an item was added to the history
   virtual void DidAddHistoryItem() { }
 

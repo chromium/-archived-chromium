@@ -32,7 +32,6 @@
 #include "chrome/common/url_constants.h"
 #include "chrome/renderer/about_handler.h"
 #include "chrome/renderer/audio_message_filter.h"
-#include "chrome/renderer/debug_message_handler.h"
 #include "chrome/renderer/devtools_agent.h"
 #include "chrome/renderer/devtools_client.h"
 #include "chrome/renderer/extensions/extension_process_bindings.h"
@@ -199,7 +198,6 @@ RenderView::~RenderView() {
     it = plugin_delegates_.erase(it);
   }
 
-  render_thread_->RemoveFilter(debug_message_handler_);
   render_thread_->RemoveFilter(audio_message_filter_);
 }
 
@@ -279,12 +277,7 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
 
   OnSetRendererPrefs(renderer_prefs);
 
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-
-  bool dev_tools_enabled = !command_line.HasSwitch(
-      switches::kDisableOutOfProcessDevTools);
-  if (dev_tools_enabled)
-    devtools_agent_.reset(new DevToolsAgent(routing_id, this));
+  devtools_agent_.reset(new DevToolsAgent(routing_id, this));
 
   webwidget_ = WebView::Create(this, webkit_prefs);
 
@@ -315,11 +308,9 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
   host_window_ = parent_hwnd;
   modal_dialog_event_.reset(modal_dialog_event);
 
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kDomAutomationController))
     enabled_bindings_ |= BindingsPolicy::DOM_AUTOMATION;
-
-  debug_message_handler_ = new DebugMessageHandler(this);
-  render_thread_->AddFilter(debug_message_handler_);
 
   audio_message_filter_ = new AudioMessageFilter(routing_id_);
   render_thread_->AddFilter(audio_message_filter_);
@@ -359,15 +350,11 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_Zoom, OnZoom)
     IPC_MESSAGE_HANDLER(ViewMsg_InsertText, OnInsertText)
     IPC_MESSAGE_HANDLER(ViewMsg_SetPageEncoding, OnSetPageEncoding)
-    IPC_MESSAGE_HANDLER(ViewMsg_InspectElement, OnInspectElement)
-    IPC_MESSAGE_HANDLER(ViewMsg_ShowJavaScriptConsole, OnShowJavaScriptConsole)
     IPC_MESSAGE_HANDLER(ViewMsg_SetupDevToolsClient, OnSetupDevToolsClient)
     IPC_MESSAGE_HANDLER(ViewMsg_DownloadImage, OnDownloadImage)
     IPC_MESSAGE_HANDLER(ViewMsg_ScriptEvalRequest, OnScriptEvalRequest)
     IPC_MESSAGE_HANDLER(ViewMsg_CSSInsertRequest, OnCSSInsertRequest)
     IPC_MESSAGE_HANDLER(ViewMsg_AddMessageToConsole, OnAddMessageToConsole)
-    IPC_MESSAGE_HANDLER(ViewMsg_DebugAttach, OnDebugAttach)
-    IPC_MESSAGE_HANDLER(ViewMsg_DebugDetach, OnDebugDetach)
     IPC_MESSAGE_HANDLER(ViewMsg_ReservePageIDRange, OnReservePageIDRange)
     IPC_MESSAGE_HANDLER(ViewMsg_UploadFile, OnUploadFileRequest)
     IPC_MESSAGE_HANDLER(ViewMsg_FormFill, OnFormFill)
@@ -724,14 +711,6 @@ void RenderView::OnExecuteEditCommand(const std::string& name,
     return;
 
   webview()->GetFocusedFrame()->ExecuteEditCommandByName(name, value);
-}
-
-void RenderView::OnInspectElement(int x, int y) {
-  webview()->InspectElement(x, y);
-}
-
-void RenderView::OnShowJavaScriptConsole() {
-  webview()->ShowJavaScriptConsole();
 }
 
 void RenderView::OnSetupDevToolsClient() {
@@ -1664,10 +1643,6 @@ void RenderView::AddSearchProvider(const std::string& url) {
                         false);  // not autodetected
 }
 
-void RenderView::DebuggerOutput(const std::wstring& out) {
-  Send(new ViewHostMsg_DebuggerOutput(routing_id_, out));
-}
-
 WebView* RenderView::CreateWebView(WebView* webview,
                                    bool user_gesture,
                                    const GURL& creator_url) {
@@ -2242,10 +2217,6 @@ void RenderView::ScriptedPrint(WebFrame* frame) {
   print_helper_->SyncPrint(frame);
 }
 
-void RenderView::WebInspectorOpened(int num_resources) {
-  Send(new ViewHostMsg_InspectElement_Reply(routing_id_, num_resources));
-}
-
 void RenderView::UserMetricsRecordAction(const std::wstring& action) {
   Send(new ViewHostMsg_UserMetricsRecordAction(routing_id_, action));
 }
@@ -2398,26 +2369,6 @@ void RenderView::OnAddMessageToConsole(
   if (web_frame)
     web_frame->AddMessageToConsole(WebConsoleMessage(level, message));
 }
-
-#if defined(OS_WIN)
-void RenderView::OnDebugAttach() {
-  Send(new ViewHostMsg_DidDebugAttach(routing_id_));
-  // Tell the plugin host to stop accepting messages in order to avoid
-  // hangs while the renderer is paused.
-  // TODO(1243929): It might be an improvement to add more plumbing to do this
-  // when the renderer is actually paused vs. just the debugger being attached.
-  PluginChannelHost::SetListening(false);
-}
-
-void RenderView::OnDebugDetach() {
-  // Tell the plugin host to start accepting plugin messages again.
-  PluginChannelHost::SetListening(true);
-}
-#else  // defined(OS_WIN)
-// TODO(port): plugins not yet supported
-void RenderView::OnDebugAttach() { NOTIMPLEMENTED(); }
-void RenderView::OnDebugDetach() { NOTIMPLEMENTED(); }
-#endif
 
 void RenderView::OnAllowBindings(int enabled_bindings_flags) {
   enabled_bindings_ |= enabled_bindings_flags;

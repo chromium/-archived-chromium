@@ -72,7 +72,6 @@ const std::string kDialogs[] = {
   "About",
   "Options",
   "TaskManager",
-  "JavaScriptDebugger",
   "JavaScriptConsole",
   "ClearBrowsingData",
   "ImportSettings",
@@ -307,8 +306,6 @@ bool AutomatedUITest::DoAction(const std::string & action) {
     did_complete_action = OpenImportSettingsDialog();
   } else if (LowerCaseEqualsASCII(action, "javascriptconsole")) {
     did_complete_action = JavaScriptConsole();
-  } else if (LowerCaseEqualsASCII(action, "javascriptdebugger")) {
-    did_complete_action = JavaScriptDebugger();
   } else if (LowerCaseEqualsASCII(action, "navigate")) {
     std::string url = "about:blank";
     if (init_reader_.NodeAttribute("url", &url)) {
@@ -428,10 +425,6 @@ bool AutomatedUITest::Home() {
 
 bool AutomatedUITest::JavaScriptConsole() {
   return RunCommandAsync(IDC_JS_CONSOLE);
-}
-
-bool AutomatedUITest::JavaScriptDebugger() {
-  return RunCommandAsync(IDC_DEBUGGER);
 }
 
 bool AutomatedUITest::OpenAboutDialog() {

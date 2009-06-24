@@ -2036,14 +2036,6 @@ void TabContents::PageHasOSDD(RenderViewHost* render_view_host,
       autodetected);
 }
 
-void TabContents::InspectElementReply(int num_resources) {
-  // We have received reply from inspect element request. Notify the
-  // automation provider in case we need to notify automation client.
-  NotificationService::current()->Notify(
-      NotificationType::DOM_INSPECT_ELEMENT_RESPONSE, Source<TabContents>(this),
-      Details<int>(&num_resources));
-}
-
 void TabContents::DidGetPrintedPagesCount(int cookie, int number_pages) {
   printing_.DidGetPrintedPagesCount(cookie, number_pages);
 }

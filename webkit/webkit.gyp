@@ -4495,8 +4495,6 @@
         'glue/cpp_bound_class.h',
         'glue/cpp_variant.cc',
         'glue/cpp_variant.h',
-        'glue/debugger_bridge.cc',
-        'glue/debugger_bridge.h',
         'glue/dom_operations.cc',
         'glue/dom_operations.h',
         'glue/dom_operations_private.h',

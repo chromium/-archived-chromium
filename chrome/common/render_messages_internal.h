@@ -253,20 +253,6 @@ IPC_BEGIN_MESSAGES(View)
                       string16 /* message */,
                       WebKit::WebConsoleMessage::Level /* message_level */)
 
-  // Initialize the V8 debugger in the renderer.
-  IPC_MESSAGE_ROUTED0(ViewMsg_DebugAttach)
-
-  // Shutdown the V8 debugger in the renderer.
-  IPC_MESSAGE_ROUTED0(ViewMsg_DebugDetach)
-
-  // Break V8 execution.
-  IPC_MESSAGE_ROUTED1(ViewMsg_DebugBreak,
-                      bool  /* force */)
-
-  // Send a command to the V8 debugger.
-  IPC_MESSAGE_ROUTED1(ViewMsg_DebugCommand,
-                      std::wstring  /* cmd */)
-
   // RenderViewHostDelegate::RenderViewCreated method sends this message to a
   // new renderer to notify it that it will host developer tools UI and should
   // set up all neccessary bindings and create DevToolsClient instance that
@@ -284,14 +270,6 @@ IPC_BEGIN_MESSAGES(View)
   // Change encoding of page in the renderer.
   IPC_MESSAGE_ROUTED1(ViewMsg_SetPageEncoding,
                       std::wstring /*new encoding name*/)
-
-  // Inspect the element at the specified coordinates
-  IPC_MESSAGE_ROUTED2(ViewMsg_InspectElement,
-                      int  /* x */,
-                      int  /* y */)
-
-  // Show the JavaScript console
-  IPC_MESSAGE_ROUTED0(ViewMsg_ShowJavaScriptConsole)
 
   // Requests the renderer to reserve a range of page ids.
   IPC_MESSAGE_ROUTED1(ViewMsg_ReservePageIDRange,
@@ -1063,11 +1041,6 @@ IPC_BEGIN_MESSAGES(ViewHost)
                       ViewHostMsg_ImeControl, /* control */
                       gfx::Rect /* caret_rect */)
 
-  // Response for InspectElement request. Returns the number of resources
-  // identified by InspectorController.
-  IPC_MESSAGE_ROUTED1(ViewHostMsg_InspectElement_Reply,
-                      int /* number of resources */)
-
   // Tells the browser that the renderer is done calculating the number of
   // rendered pages according to the specified settings.
   IPC_MESSAGE_ROUTED2(ViewHostMsg_DidGetPrintedPagesCount,
@@ -1104,14 +1077,6 @@ IPC_BEGIN_MESSAGES(ViewHost)
                       std::wstring, /* msg */
                       int32, /* line number */
                       std::wstring /* source id */)
-
-  // Response message for ViewMsg_DebugAttach.
-  IPC_MESSAGE_ROUTED0(ViewHostMsg_DidDebugAttach)
-
-  // WebKit and JavaScript error messages to log to the console
-  // or debugger UI.
-  IPC_MESSAGE_ROUTED1(ViewHostMsg_DebuggerOutput,
-                      std::wstring /* msg */)
 
   // Stores new inspector settings in the profile.
   IPC_MESSAGE_ROUTED1(ViewHostMsg_UpdateInspectorSettings,

@@ -379,9 +379,6 @@ const wchar_t kGearsPluginPathOverride[]       = L"gears-plugin-path";
 // Enable the fastback page cache.
 const wchar_t kEnableFastback[]                = L"enable-fastback";
 
-// Allow loading of the javascript debugger UI from the filesystem.
-const wchar_t kJavaScriptDebuggerPath[]        = L"javascript-debugger-path";
-
 const wchar_t kDisableP13n[]                   = L"disable-p13n";
 
 // Enable support for SDCH filtering (dictionary based expansion of content).
@@ -436,10 +433,6 @@ const wchar_t kNewFtp[]                        = L"new-ftp";
 // On POSIX only: use FIFO for IPC channels so that "unrelated" process
 // can connect to a channel, provided it knows its name. For debugging purposes.
 const wchar_t kIPCUseFIFO[]                    = L"ipc-use-fifo";
-
-// If this flag is set open old 'in process' WebInspector window instead of
-// new 'out of process' dev tool window.
-const wchar_t kDisableOutOfProcessDevTools[]    = L"disable-oop-devtools";
 
 // Enable HTML5 Worker support
 const wchar_t kEnableWebWorkers[]              = L"enable-web-workers";

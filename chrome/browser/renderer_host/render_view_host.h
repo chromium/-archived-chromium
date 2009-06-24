@@ -244,20 +244,6 @@ class RenderViewHost : public RenderWidgetHost {
                            const string16& message,
                            const WebKit::WebConsoleMessage::Level&);
 
-  // Send command to the debugger
-  void DebugCommand(const std::wstring& cmd);
-
-  // Attach to the V8 instance for debugging
-  void DebugAttach();
-
-  // Detach from the V8 instance for debugging
-  void DebugDetach();
-
-  // Cause the V8 debugger to trigger a debug break. If the force flag is set
-  // force a debug break even if no JS code is running (this actually causes a
-  // simple JS script to be executed).
-  void DebugBreak(bool force);
-
   // Edit operations.
   void Undo();
   void Redo();
@@ -529,14 +515,10 @@ class RenderViewHost : public RenderWidgetHost {
   void OnUpdateDragCursor(bool is_drop_target);
   void OnTakeFocus(bool reverse);
   void OnMsgPageHasOSDD(int32 page_id, const GURL& doc_url, bool autodetected);
-  void OnMsgInspectElementReply(int num_resources);
   void DidPrintPage(const ViewHostMsg_DidPrintPage_Params& params);
-  void OnDebugMessage(const std::string& message);
   void OnAddMessageToConsole(const std::wstring& message,
                              int32 line_no,
                              const std::wstring& source_id);
-  void OnDebuggerOutput(const std::wstring& output);
-  void DidDebugAttach();
   void OnUpdateInspectorSettings(const std::wstring& raw_settings);
   void OnForwardToDevToolsAgent(const IPC::Message& message);
   void OnForwardToDevToolsClient(const IPC::Message& message);
@@ -582,8 +564,6 @@ class RenderViewHost : public RenderWidgetHost {
 
   void UpdateBackForwardListCount();
 
-  void OnDebugDisconnect();
-
   // The SiteInstance associated with this RenderViewHost.  All pages drawn
   // in this RenderViewHost are part of this SiteInstance.  Should not change
   // over time.
@@ -595,9 +575,6 @@ class RenderViewHost : public RenderWidgetHost {
   // true if we are currently waiting for a response for drag context
   // information.
   bool waiting_for_drag_context_response_;
-
-  // is the debugger attached to us or not
-  bool debugger_attached_;
 
   // A bitwise OR of bindings types that have been enabled for this RenderView.
   // See BindingsPolicy for details.

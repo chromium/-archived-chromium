@@ -817,7 +817,6 @@ class TabContents : public PageNavigator,
                                    const std::wstring& value);
   virtual void PageHasOSDD(RenderViewHost* render_view_host,
                            int32 page_id, const GURL& url, bool autodetected);
-  virtual void InspectElementReply(int num_resources);
   virtual void DidGetPrintedPagesCount(int cookie, int number_pages);
   virtual void DidPrintPage(const ViewHostMsg_DidPrintPage_Params& params);
   virtual GURL GetAlternateErrorPageURL() const;

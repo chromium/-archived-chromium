@@ -159,7 +159,6 @@
 #define IDC_OPEN_FILE                   40000
 #define IDC_CREATE_SHORTCUTS            40001
 #define IDC_DEVELOPER_MENU              40002
-#define IDC_DEBUGGER                    40003
 #define IDC_JS_CONSOLE                  40004
 #define IDC_TASK_MANAGER                40005
 #define IDC_SELECT_PROFILE              40006

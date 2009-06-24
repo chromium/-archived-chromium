@@ -111,12 +111,10 @@ void RenderProcess::Init() {
       command_line.GetSwitchValue(switches::kJavaScriptFlags));
   }
 
-  if (!command_line.HasSwitch(switches::kDisableOutOfProcessDevTools)) {
-    // Out of process dev tools rely upon auto break behavior.
-    webkit_glue::SetJavaScriptFlags(L"--debugger-auto-break"
-                                    // Enable lazy in-memory profiling.
-                                    L" --prof --prof-lazy --logfile=*");
-  }
+  // Out of process dev tools rely upon auto break behavior.
+  webkit_glue::SetJavaScriptFlags(L"--debugger-auto-break"
+                                  // Enable lazy in-memory profiling.
+                                  L" --prof --prof-lazy --logfile=*");
 
   if (command_line.HasSwitch(switches::kEnableWatchdog)) {
     // TODO(JAR): Need to implement renderer IO msgloop watchdog.

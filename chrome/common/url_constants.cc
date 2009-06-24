@@ -35,7 +35,6 @@ const char kChromeUIDevToolsURL[] = "chrome://devtools/";
 const char kChromeUIDownloadsURL[] = "chrome://downloads/";
 const char kChromeUIExtensionsURL[] = "chrome://extensions/";
 const char kChromeUIHistoryURL[] = "chrome://history/";
-const char kChromeUIInspectorURL[] = "chrome://inspector/";
 const char kChromeUIIPCURL[] = "chrome://about/ipc";
 const char kChromeUINetworkURL[] = "chrome://about/network";
 const char kChromeUINewTabURL[] = "chrome://newtab";

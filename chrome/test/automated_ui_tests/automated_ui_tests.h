@@ -155,12 +155,6 @@ class AutomatedUITest : public AutomatedUITestBase {
   // XML element: <JavaScriptConsole/>
   bool JavaScriptConsole();
 
-  // Opens the JavaScriptDebugger window. While it isn't modal, it takes focus
-  // from the current browser window, so most of the test can't continue until
-  // it is dismissed.
-  // XML element: <JavaScriptDebugger/>
-  bool JavaScriptDebugger();
-
   // Opens the About dialog. This dialog is modal so a majority of the test
   // can't be completed until it is dismissed.
   // XML element: <About/>

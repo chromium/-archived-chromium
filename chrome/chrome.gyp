@@ -112,7 +112,6 @@
       ],
       'sources': [
         # Data resources.
-        'browser/debugger/resources/debugger_resources.grd',
         'browser/browser_resources.grd',
         'common/common_resources.grd',
         'renderer/renderer_resources.grd',
@@ -808,8 +807,6 @@
         'browser/dom_operation_notification_details.h',
         'browser/dom_ui/chrome_url_data_manager.cc',
         'browser/dom_ui/chrome_url_data_manager.h',
-        'browser/dom_ui/debugger_ui.cc',
-        'browser/dom_ui/debugger_ui.h',
         'browser/dom_ui/devtools_ui.cc',
         'browser/dom_ui/devtools_ui.h',
         'browser/dom_ui/dom_ui.cc',
@@ -2062,28 +2059,8 @@
         '..',
       ],
       'sources': [
-        'browser/debugger/resources/debugger.css',
-        'browser/debugger/resources/debugger.html',
-        'browser/debugger/resources/debugger.js',
-        'browser/debugger/resources/debugger_shell.js',
-        'browser/debugger/debugger_host.h',
-        'browser/debugger/debugger_host_impl.cpp',
-        'browser/debugger/debugger_host_impl.h',
-        'browser/debugger/debugger_io.h',
-        'browser/debugger/debugger_io_socket.cc',
-        'browser/debugger/debugger_io_socket.h',
-        'browser/debugger/debugger_node.cc',
-        'browser/debugger/debugger_node.h',
         'browser/debugger/debugger_remote_service.cc',
         'browser/debugger/debugger_remote_service.h',
-        'browser/debugger/debugger_shell.cc',
-        'browser/debugger/debugger_shell.h',
-        # Currently unused, resurrect when porting to new platforms.
-        #'browser/debugger/debugger_shell_stubs.cc',
-        'browser/debugger/debugger_view.cc',
-        'browser/debugger/debugger_view.h',
-        'browser/debugger/debugger_window.cc',
-        'browser/debugger/debugger_window.h',
         'browser/debugger/debugger_wrapper.cc',
         'browser/debugger/debugger_wrapper.h',
         'browser/debugger/devtools_client_host.h',
@@ -2107,12 +2084,6 @@
         ['OS=="linux"', {
           'dependencies': [
             '../build/linux/system.gyp:gtk',
-          ],
-        }],
-        ['OS!="win"', {
-          'sources!': [
-            'browser/debugger/debugger_view.cc',
-            'browser/debugger/debugger_window.cc',
           ],
         }],
       ],
@@ -2238,8 +2209,6 @@
         'renderer/about_handler.h',
         'renderer/audio_message_filter.cc',
         'renderer/audio_message_filter.h',
-        'renderer/debug_message_handler.cc',
-        'renderer/debug_message_handler.h',
         'renderer/devtools_agent.cc',
         'renderer/devtools_agent.h',
         'renderer/devtools_agent_filter.cc',
@@ -2733,7 +2702,6 @@
               'variables': {
                 'pak_inputs': [
                   '<(grit_out_dir)/browser_resources.pak',
-                  '<(grit_out_dir)/debugger_resources.pak',
                   '<(grit_out_dir)/common_resources.pak',
                   '<(grit_out_dir)/renderer_resources.pak',
                   '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
@@ -3650,7 +3618,6 @@
             # resulting .res files get referenced multiple times.
             '<(SHARED_INTERMEDIATE_DIR)/chrome/browser_resources.rc',
             '<(SHARED_INTERMEDIATE_DIR)/chrome/common_resources.rc',
-            '<(SHARED_INTERMEDIATE_DIR)/chrome/debugger_resources.rc',
             '<(SHARED_INTERMEDIATE_DIR)/chrome/renderer_resources.rc',
             '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.rc',
             '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.rc',
@@ -4204,7 +4171,6 @@
             # resulting .res files get referenced multiple times.
             '<(SHARED_INTERMEDIATE_DIR)/chrome/browser_resources.rc',
             '<(SHARED_INTERMEDIATE_DIR)/chrome/common_resources.rc',
-            '<(SHARED_INTERMEDIATE_DIR)/chrome/debugger_resources.rc',
             '<(SHARED_INTERMEDIATE_DIR)/chrome/renderer_resources.rc',
             '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.rc',
             '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.rc',
@@ -4573,7 +4539,6 @@
             # resulting .res files get referenced multiple times.
             '<(SHARED_INTERMEDIATE_DIR)/chrome/browser_resources.rc',
             '<(SHARED_INTERMEDIATE_DIR)/chrome/common_resources.rc',
-            '<(SHARED_INTERMEDIATE_DIR)/chrome/debugger_resources.rc',
             '<(SHARED_INTERMEDIATE_DIR)/chrome/renderer_resources.rc',
             '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.rc',
             '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.rc',

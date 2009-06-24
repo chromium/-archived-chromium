@@ -353,9 +353,6 @@ class RenderViewHostDelegate {
                            int32 page_id, const GURL& doc_url,
                            bool autodetected) { }
 
-  // Notification that the inspect element window has been opened
-  virtual void InspectElementReply(int num_resources) { }
-
   // Notification that the render view has calculated the number of printed
   // pages.
   virtual void DidGetPrintedPagesCount(int cookie, int number_pages) {

@@ -5,7 +5,6 @@
 #include "chrome/browser/dom_ui/dom_ui_factory.h"
 
 #include "chrome/browser/dom_ui/downloads_ui.h"
-#include "chrome/browser/dom_ui/debugger_ui.h"
 #include "chrome/browser/dom_ui/devtools_ui.h"
 #include "chrome/browser/dom_ui/history_ui.h"
 #include "chrome/browser/dom_ui/html_dialog_ui.h"
@@ -77,12 +76,6 @@ static bool CreateDOMUI(const GURL& url, TabContents* tab_contents,
   if (url.host() == chrome::kChromeUIExtensionsHost) {
     if (new_ui)
       *new_ui = new ExtensionsUI(tab_contents);
-    return true;
-  }
-
-  if (url.host() == chrome::kChromeUIInspectorHost) {
-    if (new_ui)
-      *new_ui = new DebuggerUI(tab_contents);
     return true;
   }
 
