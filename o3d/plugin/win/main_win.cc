@@ -47,6 +47,7 @@
 #include "plugin/cross/plugin_logging.h"
 #include "plugin/cross/out_of_memory.h"
 #include "statsreport/metrics.h"
+#include "third_party/v8/include/v8.h"
 #include "breakpad/win/bluescreen_detector.h"
 
 using glue::_o3d::PluginObject;
@@ -640,6 +641,21 @@ WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
 }
 
 extern "C" {
+  BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
+    if (reason == DLL_PROCESS_DETACH) {
+       // Teardown V8 when the plugin dll is unloaded.
+       // NOTE: NP_Shutdown would have been a good place for this code but
+       //       unfortunately it looks like it gets called even when the dll
+       //       isn't really unloaded.  This is a problem since after calling
+       //       V8::Dispose(), V8 cannot be initialized again.
+       bool v8_disposed = v8::V8::Dispose();
+       if (!v8_disposed)
+         DLOG(ERROR) << "Failed to release V8 resources.";
+       return true;
+    }
+    return true;
+  }
+  
   NPError InitializePlugin() {
     if (!o3d::SetupOutOfMemoryHandler())
       return NPERR_MODULE_LOAD_FAILED_ERROR;
