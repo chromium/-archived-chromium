@@ -57,6 +57,9 @@ SkBitmap CGImageToSkBitmap(CGImageRef image);
 #ifdef __OBJC__
 // Draws an NSImage with a given size into a SkBitmap.
 SkBitmap NSImageToSkBitmap(NSImage* image, NSSize size, bool is_opaque);
+
+// Given an SkBitmap, return an autoreleased NSImage.
+NSImage* SkBitmapToNSImage(const SkBitmap& icon);
 #endif
 
 }  // namespace gfx
