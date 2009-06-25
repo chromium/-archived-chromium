@@ -13,8 +13,6 @@
 #include "base/scoped_ptr.h"
 #include "chrome/common/owned_widget_gtk.h"
 
-class NineBox;
-
 // These classes implement two kinds of custom-drawn buttons.  They're
 // used on the toolbar and the bookmarks bar.
 

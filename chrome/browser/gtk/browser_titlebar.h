@@ -66,9 +66,6 @@ class BrowserTitlebar : public MenuGtk::Delegate {
   virtual bool IsItemChecked(int command_id) const;
   virtual void ExecuteCommand(int command_id);
 
-  static gboolean OnAvatarExpose(
-      GtkWidget* widget, GdkEventExpose* event, BrowserTitlebar* titlebar);
-
   // Pointers to the browser window that owns us and it's GtkWindow.
   BrowserWindowGtk* browser_window_;
   GtkWindow* window_;

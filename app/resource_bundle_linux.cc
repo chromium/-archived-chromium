@@ -25,7 +25,7 @@ namespace {
 // Convert the raw image data into a GdkPixbuf.  The GdkPixbuf that is returned
 // has a ref count of 1 so the caller must call g_object_unref to free the
 // memory.
-GdkPixbuf* LoadPixbuf(std::vector<unsigned char>& data) {
+GdkPixbuf* LoadPixbuf(std::vector<unsigned char>& data, bool rtl_enabled) {
   ScopedGObject<GdkPixbufLoader>::Type loader(gdk_pixbuf_loader_new());
   bool ok = gdk_pixbuf_loader_write(loader.get(),
       static_cast<guint8*>(data.data()), data.size(), NULL);
@@ -40,12 +40,18 @@ GdkPixbuf* LoadPixbuf(std::vector<unsigned char>& data) {
   if (!pixbuf)
     return NULL;
 
-  // The pixbuf is owned by the loader, so add a ref so when we delete the
-  // loader (when the ScopedGObject goes out of scope), the pixbuf still
-  // exists.
-  g_object_ref(pixbuf);
-
-  return pixbuf;
+  if ((l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) &&
+      rtl_enabled) {
+    // |pixbuf| will get unreffed and destroyed (see below). The returned value
+    // has ref count 1.
+    return gdk_pixbuf_flip(pixbuf, TRUE);
+  } else {
+    // The pixbuf is owned by the loader, so add a ref so when we delete the
+    // loader (when the ScopedGObject goes out of scope), the pixbuf still
+    // exists.
+    g_object_ref(pixbuf);
+    return pixbuf;
+  }
 }
 
 }  // namespace
@@ -158,11 +164,14 @@ string16 ResourceBundle::GetLocalizedString(int message_id) {
   return msg;
 }
 
-GdkPixbuf* ResourceBundle::GetPixbufNamed(int resource_id) {
+GdkPixbuf* ResourceBundle::GetPixbufImpl(int resource_id, bool rtl_enabled) {
+  // Use the negative |resource_id| for the key for BIDI-aware images.
+  int key = rtl_enabled ? -resource_id : resource_id;
+
   // Check to see if we already have the pixbuf in the cache.
   {
     AutoLock lock_scope(lock_);
-    GdkPixbufMap::const_iterator found = gdk_pixbufs_.find(resource_id);
+    GdkPixbufMap::const_iterator found = gdk_pixbufs_.find(key);
     if (found != gdk_pixbufs_.end())
       return found->second;
   }
@@ -170,19 +179,19 @@ GdkPixbuf* ResourceBundle::GetPixbufNamed(int resource_id) {
 
   std::vector<unsigned char> data;
   LoadImageResourceBytes(resource_id, &data);
-  GdkPixbuf* pixbuf = LoadPixbuf(data);
+  GdkPixbuf* pixbuf = LoadPixbuf(data, rtl_enabled);
 
   // We loaded successfully.  Cache the pixbuf.
   if (pixbuf) {
     AutoLock lock_scope(lock_);
 
     // Another thread raced us, and has already cached the pixbuf.
-    if (gdk_pixbufs_.count(resource_id)) {
+    if (gdk_pixbufs_.count(key)) {
       g_object_unref(pixbuf);
-      return gdk_pixbufs_[resource_id];
+      return gdk_pixbufs_[key];
     }
 
-    gdk_pixbufs_[resource_id] = pixbuf;
+    gdk_pixbufs_[key] = pixbuf;
     return pixbuf;
   }
 
@@ -205,4 +214,12 @@ GdkPixbuf* ResourceBundle::GetPixbufNamed(int resource_id) {
     }
     return empty_bitmap;
   }
+}
+
+GdkPixbuf* ResourceBundle::GetPixbufNamed(int resource_id) {
+  return GetPixbufImpl(resource_id, false);
+}
+
+GdkPixbuf* ResourceBundle::GetRTLEnabledPixbufNamed(int resource_id) {
+  return GetPixbufImpl(resource_id, true);
 }

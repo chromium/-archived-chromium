@@ -123,6 +123,16 @@ class ResourceBundle {
   // pointer to a shared empty placeholder bitmap so it will be visible what
   // is missing.
   GdkPixbuf* GetPixbufNamed(int resource_id);
+
+  // As above, but flips it in RTL locales. Note that this will add the flipped
+  // pixbuf to the same cache used by GetPixbufNamed().
+  GdkPixbuf* GetRTLEnabledPixbufNamed(int resource_id);
+
+ private:
+  // Shared implementation for the above two functions.
+  GdkPixbuf* GetPixbufImpl(int resource_id, bool rtl_enabled);
+
+ public:
 #endif
 
   // TODO(glen): Move these into theme provider (dialogs still depend on

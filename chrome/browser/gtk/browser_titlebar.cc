@@ -52,7 +52,7 @@ GdkPixbuf* GetOTRAvatar() {
   static GdkPixbuf* otr_avatar = NULL;
   if (!otr_avatar) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-    otr_avatar = rb.GetPixbufNamed(IDR_OTR_ICON);
+    otr_avatar = rb.GetRTLEnabledPixbufNamed(IDR_OTR_ICON);
   }
   return otr_avatar;
 }
@@ -69,12 +69,12 @@ void BrowserTitlebar::Init() {
   // The widget hierarchy is shown below.
   //
   // +- HBox (container_) -----------------------------------------------------+
-  // |+- Fixed -++- Alignment --------------++- VBox (titlebar_buttons_box_) -+|
-  // ||(spy_guy)||   (titlebar_alignment_)  ||+- HBox -----------------------+||
-  // ||         ||                          |||+- button -++- button -+      |||
-  // ||         ||+- TabStripGtk  ---------+|||| minimize || restore  | ...  |||
-  // ||   )8\   ||| tab   tab   tabclose   ||||+----------++----------+      |||
-  // ||         ||+------------------------+||+------------------------------+||
+  // |+- Algn. -++- Alignment --------------++- VBox (titlebar_buttons_box_) -+|
+  // ||+ Image +||   (titlebar_alignment_)  ||+- HBox -----------------------+||
+  // |||spy_guy|||                          |||+- button -++- button -+      |||
+  // |||       |||+- TabStripGtk  ---------+|||| minimize || restore  | ...  |||
+  // |||  )8\  |||| tab   tab   tabclose   ||||+----------++----------+      |||
+  // ||+-------+||+------------------------+||+------------------------------+||
   // |+---------++--------------------------++--------------------------------+|
   // +-------------------------------------------------------------------------+
   container_ = gtk_hbox_new(FALSE, 0);
@@ -83,11 +83,16 @@ void BrowserTitlebar::Init() {
                    G_CALLBACK(OnWindowStateChanged), this);
 
   if (browser_window_->browser()->profile()->IsOffTheRecord()) {
-    GtkWidget* spy_guy = gtk_fixed_new();
-    gtk_widget_set_size_request(spy_guy, gdk_pixbuf_get_width(GetOTRAvatar()) +
-                                2 * kOTRSideSpacing, -1);
-    gtk_box_pack_start(GTK_BOX(container_), spy_guy, FALSE, FALSE, 0);
-    g_signal_connect(spy_guy, "expose-event", G_CALLBACK(OnAvatarExpose), this);
+    GtkWidget* spy_guy = gtk_image_new_from_pixbuf(GetOTRAvatar());
+    gtk_misc_set_alignment(GTK_MISC(spy_guy), 0.0, 1.0);
+    GtkWidget* spy_frame = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
+    // We use this alignment rather than setting padding on the GtkImage because
+    // the image's intrinsic padding doesn't clip the pixbuf during painting.
+    gtk_alignment_set_padding(GTK_ALIGNMENT(spy_frame), kOTRMaximizedTopSpacing,
+        kOTRBottomSpacing, kOTRSideSpacing, kOTRSideSpacing);
+    gtk_widget_set_size_request(spy_guy, -1, 0);
+    gtk_container_add(GTK_CONTAINER(spy_frame), spy_guy);
+    gtk_box_pack_start(GTK_BOX(container_), spy_frame, FALSE, FALSE, 0);
   }
 
   // We use an alignment to control the titlebar height.
@@ -247,36 +252,4 @@ void BrowserTitlebar::ExecuteCommand(int command_id) {
     default:
       NOTREACHED();
   }
-}
-
-// static
-gboolean BrowserTitlebar::OnAvatarExpose(
-    GtkWidget* widget, GdkEventExpose* event, BrowserTitlebar* titlebar) {
-  cairo_t* cairo_context = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-  cairo_translate(cairo_context, widget->allocation.x, widget->allocation.y);
-
-  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
-    cairo_translate(cairo_context, widget->allocation.width, 0.0f);
-    cairo_scale(cairo_context, -1.0f, 1.0f);
-  }
-
-  // Set up a clip rect.
-  const int clip_x = kOTRSideSpacing;
-  const int clip_width = gdk_pixbuf_get_width(GetOTRAvatar());
-  const int clip_y = kOTRMaximizedTopSpacing;
-  const int clip_height = widget->allocation.height - kOTRMaximizedTopSpacing -
-                          kOTRBottomSpacing;
-  cairo_rectangle(cairo_context, clip_x, clip_y, clip_width, clip_height);
-  cairo_clip(cairo_context);
-
-  // Drawing origin, which is calculated relative to the bottom.
-  const int x = clip_x;
-  const int y = widget->allocation.height - kOTRBottomSpacing -
-                gdk_pixbuf_get_height(GetOTRAvatar());
-
-  gdk_cairo_set_source_pixbuf(cairo_context, GetOTRAvatar(), x, y);
-  cairo_paint(cairo_context);
-  cairo_destroy(cairo_context);
-
-  return TRUE;
 }
