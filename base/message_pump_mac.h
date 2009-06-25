@@ -57,6 +57,11 @@ class MessagePumpCFRunLoopBase : public MessagePump {
   // The thread's run loop.
   CFRunLoopRef run_loop_;
 
+  // The recursion depth of the currently-executing CFRunLoopRun loop on the
+  // run loop's thread.  0 if no run loops are running inside of whatever scope
+  // the object was created in.
+  int nesting_level_;
+
  private:
   // Timer callback scheduled by ScheduleDelayedWork.  This does not do any
   // work, but it signals delayed_work_source_ so that delayed work can be
@@ -64,25 +69,61 @@ class MessagePumpCFRunLoopBase : public MessagePump {
   static void RunDelayedWorkTimer(CFRunLoopTimerRef timer, void* info);
 
   // Perform highest-priority work.  This is associated with work_source_
-  // signalled by ScheduleWork.
-  static void RunWork(void* info);
+  // signalled by ScheduleWork.  The static method calls the instance method;
+  // the instance method returns true if work was done.
+  static void RunWorkSource(void* info);
+  bool RunWork();
 
   // Perform delayed-priority work.  This is associated with
   // delayed_work_source_ signalled by RunDelayedWorkTimer, and is responsible
-  // for calling ScheduleDelayedWork again if appropriate.
-  static void RunDelayedWork(void* info);
+  // for calling ScheduleDelayedWork again if appropriate.  The static method
+  // calls the instance method; the instance method returns true if more
+  // delayed work is available.
+  static void RunDelayedWorkSource(void* info);
+  bool RunDelayedWork();
+
+  // Perform idle-priority work.  This is normally called by PreWaitObserver,
+  // but is also associated with idle_work_source_.  When this function
+  // actually does perform idle work, it will resignal that source.  The
+  // static method calls the instance method; the instance method returns
+  // true if idle work was done.
+  static void RunIdleWorkSource(void* info);
+  bool RunIdleWork();
+
+  // Perform work that may have been deferred because it was not runnable
+  // within a nested run loop.  This is associated with
+  // nesting_deferred_work_source_ and is signalled by EnterExitObserver when
+  // a run loop exits, so that an outer loop will be able to perform the
+  // necessary tasks.  The static method calls the instance method; the
+  // instance method returns true if anything was done.
+  static void RunNestingDeferredWorkSource(void* info);
+  bool RunNestingDeferredWork();
 
   // Observer callback responsible for performing idle-priority work, before
   // the run loop goes to sleep.  Associated with idle_work_observer_.
-  static void RunIdleWork(CFRunLoopObserverRef observer,
-                          CFRunLoopActivity activity, void* info);
+  static void PreWaitObserver(CFRunLoopObserverRef observer,
+                              CFRunLoopActivity activity, void* info);
 
-  // The timer, sources, and observer are described above alongside their
+  // Observer callback called when the run loop starts and stops, at the
+  // beginning and end of calls to CFRunLoopRun.  This is used to maintain
+  // nesting_level_.  Associated with enter_exit_observer_.
+  static void EnterExitObserver(CFRunLoopObserverRef observer,
+                                CFRunLoopActivity activity, void* info);
+
+  // Called by EnterExitObserver after performing maintenance on nesting_level_.
+  // This allows subclasses an opportunity to perform additional processing on
+  // the basis of run loops starting and stopping.
+  virtual void EnterExitRunLoop(CFRunLoopActivity activity);
+
+  // The timer, sources, and observers are described above alongside their
   // callbacks.
   CFRunLoopTimerRef delayed_work_timer_;
   CFRunLoopSourceRef work_source_;
   CFRunLoopSourceRef delayed_work_source_;
-  CFRunLoopObserverRef idle_work_observer_;
+  CFRunLoopSourceRef idle_work_source_;
+  CFRunLoopSourceRef nesting_deferred_work_source_;
+  CFRunLoopObserverRef pre_wait_observer_;
+  CFRunLoopObserverRef enter_exit_observer_;
 
   // (weak) Delegate passed as an argument to the innermost Run call.
   Delegate* delegate_;
@@ -93,26 +134,12 @@ class MessagePumpCFRunLoopBase : public MessagePump {
 class MessagePumpCFRunLoop : public MessagePumpCFRunLoopBase {
  public:
   MessagePumpCFRunLoop();
-  virtual ~MessagePumpCFRunLoop();
 
   virtual void DoRun(Delegate* delegate);
   virtual void Quit();
 
  private:
-  // Observer callback called when the run loop starts and stops, at the
-  // beginning and end of calls to CFRunLoopRun.  This is used to maintain
-  // nesting_level_ and to handle deferred loop quits.  Associated with
-  // enter_exit_observer_.
-  static void EnterExitRunLoop(CFRunLoopObserverRef observer,
-                               CFRunLoopActivity activity, void* info);
-
-  // Observer for EnterExitRunLoop.
-  CFRunLoopObserverRef enter_exit_observer_;
-
-  // The recursion depth of the currently-executing CFRunLoopRun loop on the
-  // run loop's thread.  0 if no run loops are running inside of whatever scope
-  // the object was created in.
-  int nesting_level_;
+  virtual void EnterExitRunLoop(CFRunLoopActivity activity);
 
   // The recursion depth (calculated in the same way as nesting_level_) of the
   // innermost executing CFRunLoopRun loop started by a call to Run.

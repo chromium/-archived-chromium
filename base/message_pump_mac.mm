@@ -22,7 +22,9 @@ namespace base {
 
 // Must be called on the run loop thread.
 MessagePumpCFRunLoopBase::MessagePumpCFRunLoopBase()
-    : delegate_(NULL) {
+    : nesting_level_(0),
+      delegate_(NULL)
+ {
   run_loop_ = CFRunLoopGetCurrent();
   CFRetain(run_loop_);
 
@@ -42,34 +44,69 @@ MessagePumpCFRunLoopBase::MessagePumpCFRunLoopBase()
 
   CFRunLoopSourceContext source_context = CFRunLoopSourceContext();
   source_context.info = this;
-  source_context.perform = RunWork;
+  source_context.perform = RunWorkSource;
   work_source_ = CFRunLoopSourceCreate(NULL,  // allocator
-                                       0,     // priority
+                                       1,     // priority
                                        &source_context);
   CFRunLoopAddSource(run_loop_, work_source_, kCFRunLoopCommonModes);
 
-  source_context.perform = RunDelayedWork;
+  source_context.perform = RunDelayedWorkSource;
   delayed_work_source_ = CFRunLoopSourceCreate(NULL,  // allocator
-                                               1,     // priority
+                                               2,     // priority
                                                &source_context);
   CFRunLoopAddSource(run_loop_, delayed_work_source_, kCFRunLoopCommonModes);
 
+  source_context.perform = RunIdleWorkSource;
+  idle_work_source_ = CFRunLoopSourceCreate(NULL,  // allocator
+                                            3,     // priority
+                                            &source_context);
+  CFRunLoopAddSource(run_loop_, idle_work_source_, kCFRunLoopCommonModes);
+
+  source_context.perform = RunNestingDeferredWorkSource;
+  nesting_deferred_work_source_ = CFRunLoopSourceCreate(NULL,  // allocator
+                                                        0,     // priority
+                                                        &source_context);
+  CFRunLoopAddSource(run_loop_, nesting_deferred_work_source_,
+                     kCFRunLoopCommonModes);
+
   CFRunLoopObserverContext observer_context = CFRunLoopObserverContext();
   observer_context.info = this;
-  idle_work_observer_ = CFRunLoopObserverCreate(NULL,  // allocator
-                                                kCFRunLoopBeforeWaiting,
-                                                true,  // repeat
-                                                0,     // priority
-                                                RunIdleWork,
-                                                &observer_context);
-  CFRunLoopAddObserver(run_loop_, idle_work_observer_, kCFRunLoopCommonModes);
+  pre_wait_observer_ = CFRunLoopObserverCreate(NULL,  // allocator
+                                               kCFRunLoopBeforeWaiting,
+                                               true,  // repeat
+                                               0,     // priority
+                                               PreWaitObserver,
+                                               &observer_context);
+  CFRunLoopAddObserver(run_loop_, pre_wait_observer_, kCFRunLoopCommonModes);
+
+  enter_exit_observer_ = CFRunLoopObserverCreate(NULL,  // allocator
+                                                 kCFRunLoopEntry |
+                                                     kCFRunLoopExit,
+                                                 true,  // repeat
+                                                 0,     // priority
+                                                 EnterExitObserver,
+                                                 &observer_context);
+  CFRunLoopAddObserver(run_loop_, enter_exit_observer_, kCFRunLoopCommonModes);
 }
 
-// Ideally called on the run loop thread.
+// Ideally called on the run loop thread.  If other run loops were running
+// lower on the run loop thread's stack when this object was created, the
+// same number of run loops must be running when this object is destroyed.
 MessagePumpCFRunLoopBase::~MessagePumpCFRunLoopBase() {
-  CFRunLoopRemoveObserver(run_loop_, idle_work_observer_,
+  CFRunLoopRemoveObserver(run_loop_, enter_exit_observer_,
                           kCFRunLoopCommonModes);
-  CFRelease(idle_work_observer_);
+  CFRelease(enter_exit_observer_);
+
+  CFRunLoopRemoveObserver(run_loop_, pre_wait_observer_,
+                          kCFRunLoopCommonModes);
+  CFRelease(pre_wait_observer_);
+
+  CFRunLoopRemoveSource(run_loop_, nesting_deferred_work_source_,
+                        kCFRunLoopCommonModes);
+  CFRelease(nesting_deferred_work_source_);
+
+  CFRunLoopRemoveSource(run_loop_, idle_work_source_, kCFRunLoopCommonModes);
+  CFRelease(idle_work_source_);
 
   CFRunLoopRemoveSource(run_loop_, delayed_work_source_, kCFRunLoopCommonModes);
   CFRelease(delayed_work_source_);
@@ -125,7 +162,7 @@ void MessagePumpCFRunLoopBase::ScheduleDelayedWork(
 // static
 void MessagePumpCFRunLoopBase::RunDelayedWorkTimer(CFRunLoopTimerRef timer,
                                                    void* info) {
-  MessagePumpCFRunLoop* self = static_cast<MessagePumpCFRunLoop*>(info);
+  MessagePumpCFRunLoopBase* self = static_cast<MessagePumpCFRunLoopBase*>(info);
 
   // CFRunLoopTimers fire outside of the priority scheme for CFRunLoopSources.
   // In order to establish the proper priority where delegate_->DoDelayedWork
@@ -137,102 +174,159 @@ void MessagePumpCFRunLoopBase::RunDelayedWorkTimer(CFRunLoopTimerRef timer,
 
 // Called from the run loop.
 // static
-void MessagePumpCFRunLoopBase::RunWork(void* info) {
-  MessagePumpCFRunLoop* self = static_cast<MessagePumpCFRunLoop*>(info);
+void MessagePumpCFRunLoopBase::RunWorkSource(void* info) {
+  MessagePumpCFRunLoopBase* self = static_cast<MessagePumpCFRunLoopBase*>(info);
+  self->RunWork();
+}
 
+// Called by MessagePumpCFRunLoopBase::RunWorkSource.
+bool MessagePumpCFRunLoopBase::RunWork() {
   // If we're on the main event loop, the NSApp runloop won't clean up the
-  // autoreleasepool until there is UI event, so use a local one for any
+  // autorelease pool until there is a UI event, so use a local one for any
   // autoreleased objects to ensure they go away sooner.
   ScopedNSAutoreleasePool autorelease_pool;
 
   // Call DoWork once, and if something was done, arrange to come back here
   // again as long as the loop is still running.
-  if (self->delegate_->DoWork()) {
-    CFRunLoopSourceSignal(self->work_source_);
+  bool did_work = delegate_->DoWork();
+  if (did_work) {
+    CFRunLoopSourceSignal(work_source_);
   }
+
+  return did_work;
 }
 
 // Called from the run loop.
 // static
-void MessagePumpCFRunLoopBase::RunDelayedWork(void* info) {
-  MessagePumpCFRunLoop* self = static_cast<MessagePumpCFRunLoop*>(info);
+void MessagePumpCFRunLoopBase::RunDelayedWorkSource(void* info) {
+  MessagePumpCFRunLoopBase* self = static_cast<MessagePumpCFRunLoopBase*>(info);
+  self->RunDelayedWork();
+}
 
+// Called by MessagePumpCFRunLoopBase::RunDelayedWorkSource.
+bool MessagePumpCFRunLoopBase::RunDelayedWork() {
   // If we're on the main event loop, the NSApp runloop won't clean up the
-  // autoreleasepool until there is UI event, so use a local one for any
+  // autorelease pool until there is a UI event, so use a local one for any
   // autoreleased objects to ensure they go away sooner.
   ScopedNSAutoreleasePool autorelease_pool;
 
   Time next_time;
-  self->delegate_->DoDelayedWork(&next_time);
-  if (!next_time.is_null()) {
+  delegate_->DoDelayedWork(&next_time);
+
+  bool more_work = !next_time.is_null();
+  if (more_work) {
     TimeDelta delay = next_time - Time::Now();
     if (delay > TimeDelta()) {
       // There's more delayed work to be done in the future.
-      self->ScheduleDelayedWork(next_time);
+      ScheduleDelayedWork(next_time);
     } else {
       // There's more delayed work to be done, and its time is in the past.
       // Arrange to come back here directly as long as the loop is still
       // running.
-      CFRunLoopSourceSignal(self->delayed_work_source_);
+      CFRunLoopSourceSignal(delayed_work_source_);
     }
   }
+
+  return more_work;
 }
 
 // Called from the run loop.
 // static
-void MessagePumpCFRunLoopBase::RunIdleWork(CFRunLoopObserverRef observer,
-                                           CFRunLoopActivity activity,
-                                           void* info) {
-  MessagePumpCFRunLoop* self = static_cast<MessagePumpCFRunLoop*>(info);
+void MessagePumpCFRunLoopBase::RunIdleWorkSource(void* info) {
+  MessagePumpCFRunLoopBase* self = static_cast<MessagePumpCFRunLoopBase*>(info);
+  self->RunIdleWork();
+}
 
+// Called by MessagePumpCFRunLoopBase::RunIdleWorkSource.
+bool MessagePumpCFRunLoopBase::RunIdleWork() {
   // If we're on the main event loop, the NSApp runloop won't clean up the
-  // autoreleasepool until there is UI event, so use a local one for any
+  // autorelease pool until there is a UI event, so use a local one for any
   // autoreleased objects to ensure they go away sooner.
   ScopedNSAutoreleasePool autorelease_pool;
 
-  // The "self->delegate_ &&" part of the clause is needed for the case of
-  // the temporary modal first run dialog.  The dialog is displayed really
-  // early in the Chrome launch process at which time self->delegate_ is null.
-  // TODO: remove the "self->delegate_ &&" clause from the bellow condition once
-  // we remove the modal first run dialog.
-  if (self->delegate_ && self->delegate_->DoIdleWork()) {
-    // If idle work was done, don't let the loop go to sleep.  More idle work
-    // might be waiting.
-    CFRunLoopWakeUp(self->run_loop_);
+  // Call DoIdleWork once, and if something was done, arrange to come back here
+  // again as long as the loop is still running.
+  bool did_work = delegate_->DoIdleWork();
+  if (did_work) {
+    CFRunLoopSourceSignal(idle_work_source_);
   }
+
+  return did_work;
 }
 
-// Must be called on the run loop thread.
+// Called from the run loop.
+// static
+void MessagePumpCFRunLoopBase::RunNestingDeferredWorkSource(void* info) {
+  MessagePumpCFRunLoopBase* self = static_cast<MessagePumpCFRunLoopBase*>(info);
+  self->RunNestingDeferredWork();
+}
+
+// Called by MessagePumpCFRunLoopBase::RunNestingDeferredWorkSource.
+bool MessagePumpCFRunLoopBase::RunNestingDeferredWork() {
+  if (!RunWork()) {
+    if (!RunDelayedWork()) {
+      if (!RunIdleWork()) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+// Called from the run loop.
+// static
+void MessagePumpCFRunLoopBase::PreWaitObserver(CFRunLoopObserverRef observer,
+                                               CFRunLoopActivity activity,
+                                               void* info) {
+  MessagePumpCFRunLoopBase* self = static_cast<MessagePumpCFRunLoopBase*>(info);
+
+  // Attempt to do some idle work before going to sleep.
+  self->RunIdleWork();
+}
+
+// Called from the run loop.
+// static
+void MessagePumpCFRunLoopBase::EnterExitObserver(CFRunLoopObserverRef observer,
+                                                 CFRunLoopActivity activity,
+                                                 void* info) {
+  MessagePumpCFRunLoopBase* self = static_cast<MessagePumpCFRunLoopBase*>(info);
+
+  switch (activity) {
+    case kCFRunLoopEntry:
+      ++self->nesting_level_;
+      break;
+    case kCFRunLoopExit:
+      --self->nesting_level_;
+      if (self->nesting_level_) {
+        // It's possible that some work was not performed because it was
+        // inappropriate to do within a nested loop.  When leaving any inner
+        // loop, signal the nesting-deferred work source to ensure that such
+        // work be afforded an opportunity to be processed if appropriate.
+        CFRunLoopSourceSignal(self->nesting_deferred_work_source_);
+      }
+      break;
+    default:
+      break;
+  }
+
+  self->EnterExitRunLoop(activity);
+}
+
+// Called by MessagePumpCFRunLoopBase::EnterExitRunLoop.  The default
+// implementation is a no-op.
+void MessagePumpCFRunLoopBase::EnterExitRunLoop(CFRunLoopActivity activity) {
+}
+
 MessagePumpCFRunLoop::MessagePumpCFRunLoop()
-    : nesting_level_(0),
-      innermost_quittable_(0),
+    : innermost_quittable_(0),
       quit_pending_(false) {
-  CFRunLoopObserverContext observer_context = CFRunLoopObserverContext();
-  observer_context.info = this;
-  enter_exit_observer_ = CFRunLoopObserverCreate(NULL,  // allocator
-                                                 kCFRunLoopEntry |
-                                                     kCFRunLoopExit,
-                                                 true,  // repeat
-                                                 0,     // priority
-                                                 EnterExitRunLoop,
-                                                 &observer_context);
-  CFRunLoopAddObserver(run_loop_, enter_exit_observer_, kCFRunLoopCommonModes);
 }
 
-// Ideally called on the run loop thread.  If other CFRunLoopRun loops were
+// Called by MessagePumpCFRunLoopBase::DoRun.  If other CFRunLoopRun loops were
 // running lower on the run loop thread's stack when this object was created,
-// the same number of CFRunLoopRun loops must be running when this object is
-// destroyed.
-MessagePumpCFRunLoop::~MessagePumpCFRunLoop() {
-  CFRunLoopRemoveObserver(run_loop_, enter_exit_observer_,
-                          kCFRunLoopCommonModes);
-  CFRelease(enter_exit_observer_);
-}
-
-// Called by CFRunLoopBase::DoRun.  If other CFRunLoopRun loops were running
-// lower on the run loop thread's stack when this object was created, the same
-// number of CFRunLoopRun loops must be running for the outermost call to Run.
-// Run/DoRun are reentrant after that point.
+// the same number of CFRunLoopRun loops must be running for the outermost call
+// to Run.  Run/DoRun are reentrant after that point.
 void MessagePumpCFRunLoop::DoRun(Delegate* delegate) {
   // nesting_level_ will be incremented in EnterExitRunLoop, so set
   // innermost_quittable_ accordingly.
@@ -267,32 +361,17 @@ void MessagePumpCFRunLoop::Quit() {
   }
 }
 
-// Called from the run loop.
-// static
-void MessagePumpCFRunLoop::EnterExitRunLoop(CFRunLoopObserverRef observer,
-                                            CFRunLoopActivity activity,
-                                            void* info) {
-  MessagePumpCFRunLoop* self = static_cast<MessagePumpCFRunLoop*>(info);
-
-  switch (activity) {
-    case kCFRunLoopEntry:
-      // If the run loop was entered by a call to Run, this will properly
-      // balance the decrement done in Run before entering the loop.
-      ++self->nesting_level_;
-      break;
-    case kCFRunLoopExit:
-      if (--self->nesting_level_ == self->innermost_quittable_ &&
-          self->quit_pending_) {
-        // Quit was called while loops other than those managed by this object
-        // were running further inside a run loop managed by this object.  Now
-        // that all unmanaged inner run loops are gone, stop the loop running
-        // just inside Run.
-        CFRunLoopStop(self->run_loop_);
-        self->quit_pending_ = false;
-      }
-      break;
-    default:
-      break;
+// Called by MessagePumpCFRunLoopBase::EnterExitObserver.
+void MessagePumpCFRunLoop::EnterExitRunLoop(CFRunLoopActivity activity) {
+  if (activity == kCFRunLoopExit &&
+      nesting_level_ == innermost_quittable_ &&
+      quit_pending_) {
+    // Quit was called while loops other than those managed by this object
+    // were running further inside a run loop managed by this object.  Now
+    // that all unmanaged inner run loops are gone, stop the loop running
+    // just inside Run.
+    CFRunLoopStop(run_loop_);
+    quit_pending_ = false;
   }
 }
 

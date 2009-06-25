@@ -593,6 +593,7 @@ enum TaskType {
   QUITMESSAGELOOP,
   ORDERERD,
   PUMPS,
+  SLEEP,
 };
 
 // Saves the order in which the tasks executed.
@@ -623,6 +624,7 @@ std::ostream& operator <<(std::ostream& os, TaskType type) {
   case QUITMESSAGELOOP:   os << "QUITMESSAGELOOP"; break;
   case ORDERERD:          os << "ORDERERD"; break;
   case PUMPS:             os << "PUMPS"; break;
+  case SLEEP:             os << "SLEEP"; break;
   default:
     NOTREACHED();
     os << "Unknown TaskType";
@@ -763,6 +765,22 @@ class QuitTask : public OrderedTasks {
     MessageLoop::current()->Quit();
     RunEnd();
   }
+};
+
+class SleepTask : public OrderedTasks {
+ public:
+  SleepTask(TaskList* order, int cookie, int ms)
+      : OrderedTasks(order, SLEEP, cookie), ms_(ms) {
+  }
+
+  virtual void Run() {
+    RunStart();
+    PlatformThread::Sleep(ms_);
+    RunEnd();
+  }
+
+ private:
+  int ms_;
 };
 
 #if defined(OS_WIN)
@@ -1027,7 +1045,8 @@ void RunTest_NonNestableWithNoNesting(MessageLoop::Type message_loop_type) {
 }
 
 // Tests that non nestable tasks don't run when there's code in the call stack.
-void RunTest_NonNestableInNestedLoop(MessageLoop::Type message_loop_type) {
+void RunTest_NonNestableInNestedLoop(MessageLoop::Type message_loop_type,
+                                     bool use_delayed) {
   MessageLoop loop(message_loop_type);
 
   TaskList order;
@@ -1035,26 +1054,39 @@ void RunTest_NonNestableInNestedLoop(MessageLoop::Type message_loop_type) {
   MessageLoop::current()->PostTask(FROM_HERE,
                                    new TaskThatPumps(&order, 1));
   Task* task = new OrderedTasks(&order, 2);
-  MessageLoop::current()->PostNonNestableTask(FROM_HERE, task);
+  if (use_delayed) {
+    MessageLoop::current()->PostNonNestableDelayedTask(FROM_HERE, task, 1);
+  } else {
+    MessageLoop::current()->PostNonNestableTask(FROM_HERE, task);
+  }
   MessageLoop::current()->PostTask(FROM_HERE, new OrderedTasks(&order, 3));
-  MessageLoop::current()->PostTask(FROM_HERE, new OrderedTasks(&order, 4));
-  Task* non_nestable_quit = new QuitTask(&order, 5);
-  MessageLoop::current()->PostNonNestableTask(FROM_HERE, non_nestable_quit);
+  MessageLoop::current()->PostTask(FROM_HERE, new SleepTask(&order, 4, 50));
+  MessageLoop::current()->PostTask(FROM_HERE, new OrderedTasks(&order, 5));
+  Task* non_nestable_quit = new QuitTask(&order, 6);
+  if (use_delayed) {
+    MessageLoop::current()->PostNonNestableDelayedTask(FROM_HERE,
+                                                       non_nestable_quit,
+                                                       2);
+  } else {
+    MessageLoop::current()->PostNonNestableTask(FROM_HERE, non_nestable_quit);
+  }
 
   MessageLoop::current()->Run();
 
   // FIFO order.
-  ASSERT_EQ(10U, order.size());
+  ASSERT_EQ(12U, order.size());
   EXPECT_EQ(order[ 0], TaskItem(PUMPS, 1, true));
   EXPECT_EQ(order[ 1], TaskItem(ORDERERD, 3, true));
   EXPECT_EQ(order[ 2], TaskItem(ORDERERD, 3, false));
-  EXPECT_EQ(order[ 3], TaskItem(ORDERERD, 4, true));
-  EXPECT_EQ(order[ 4], TaskItem(ORDERERD, 4, false));
-  EXPECT_EQ(order[ 5], TaskItem(PUMPS, 1, false));
-  EXPECT_EQ(order[ 6], TaskItem(ORDERERD, 2, true));
-  EXPECT_EQ(order[ 7], TaskItem(ORDERERD, 2, false));
-  EXPECT_EQ(order[ 8], TaskItem(QUITMESSAGELOOP, 5, true));
-  EXPECT_EQ(order[ 9], TaskItem(QUITMESSAGELOOP, 5, false));
+  EXPECT_EQ(order[ 3], TaskItem(SLEEP, 4, true));
+  EXPECT_EQ(order[ 4], TaskItem(SLEEP, 4, false));
+  EXPECT_EQ(order[ 5], TaskItem(ORDERERD, 5, true));
+  EXPECT_EQ(order[ 6], TaskItem(ORDERERD, 5, false));
+  EXPECT_EQ(order[ 7], TaskItem(PUMPS, 1, false));
+  EXPECT_EQ(order[ 8], TaskItem(ORDERERD, 2, true));
+  EXPECT_EQ(order[ 9], TaskItem(ORDERERD, 2, false));
+  EXPECT_EQ(order[10], TaskItem(QUITMESSAGELOOP, 6, true));
+  EXPECT_EQ(order[11], TaskItem(QUITMESSAGELOOP, 6, false));
 }
 
 #if defined(OS_WIN)
@@ -1365,9 +1397,15 @@ TEST(MessageLoopTest, NonNestableWithNoNesting) {
 }
 
 TEST(MessageLoopTest, NonNestableInNestedLoop) {
-  RunTest_NonNestableInNestedLoop(MessageLoop::TYPE_DEFAULT);
-  RunTest_NonNestableInNestedLoop(MessageLoop::TYPE_UI);
-  RunTest_NonNestableInNestedLoop(MessageLoop::TYPE_IO);
+  RunTest_NonNestableInNestedLoop(MessageLoop::TYPE_DEFAULT, false);
+  RunTest_NonNestableInNestedLoop(MessageLoop::TYPE_UI, false);
+  RunTest_NonNestableInNestedLoop(MessageLoop::TYPE_IO, false);
+}
+
+TEST(MessageLoopTest, NonNestableDelayedInNestedLoop) {
+  RunTest_NonNestableInNestedLoop(MessageLoop::TYPE_DEFAULT, true);
+  RunTest_NonNestableInNestedLoop(MessageLoop::TYPE_UI, true);
+  RunTest_NonNestableInNestedLoop(MessageLoop::TYPE_IO, true);
 }
 
 #if defined(OS_WIN)
