@@ -243,6 +243,7 @@
         }],
         ['OS=="mac"', {
           'product_name': 'TestShell',
+          'dependencies': ['layout_test_helper'],
           'variables': {
             'repack_path': '../../../tools/data_pack/repack.py',
           },
@@ -612,6 +613,24 @@
           ],
         },
       ],
+    }],
+    ['OS=="mac"', {
+      'targets': [
+        {
+          # Helper application that manages the color sync profile on mac
+          # for the test shells run by the layout tests.
+          'target_name': 'layout_test_helper',
+          'type': 'executable',
+          'sources': [
+            'mac/layout_test_helper.mm',
+          ],
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/AppKit.framework',
+            ],
+          },
+        },
+      ]
     }],
   ],
 }

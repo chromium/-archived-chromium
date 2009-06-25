@@ -158,6 +158,9 @@ class PlatformUtility(object):
   def ImageCompareExecutablePath(self, target):
     return PathFromBase('xcodebuild', target, 'image_diff')
 
+  def LayoutTestHelperBinaryPath(self, target):
+    return PathFromBase('xcodebuild', target, 'layout_test_helper')
+
   def TestShellBinary(self):
     """The name of the binary for TestShell."""
     return 'TestShell'

@@ -187,6 +187,16 @@ def TestShellBinaryPath(target):
     raise PathNotFound('unable to find test_shell at %s' % full_path)
   return full_path
 
+def LayoutTestHelperBinaryPath(target):
+  """Gets the full path to the layout test helper binary for the target build
+  configuration. Raises PathNotFound if the file doesn't exist"""
+  platform_util = platform_utils.PlatformUtility('')
+  # try output directory from either Xcode or chrome.sln
+  full_path = platform_util.LayoutTestHelperBinaryPath(target)
+  if not os.path.exists(full_path):
+    raise PathNotFound('unable to find layout_test_helper at %s' % full_path)
+  return full_path
+
 def RelativeTestFilename(filename):
   """Provide the filename of the test relative to the layout data
   directory as a unix style path (a/b/c)."""

@@ -473,6 +473,14 @@ class TestRunner:
 
     return threads
 
+  def _StopLayoutTestHelper(self, proc):
+    """Stop the layout test helper and closes it down."""
+    if proc:
+      logging.info("Stopping layout test helper")
+      proc.stdin.write("x\n")
+      proc.stdin.close()
+      proc.wait()
+
   def Run(self):
     """Run all our tests on all our test files.
 
@@ -501,6 +509,22 @@ class TestRunner:
     # Create the output directory if it doesn't already exist.
     google.path_utils.MaybeMakeDirectory(self._options.results_directory)
 
+    # Start up any helper needed
+    layout_test_helper_proc = None
+    if sys.platform in ('darwin'):
+      # Mac uses a helper for manging the color sync profile for pixel tests.
+      if not options.no_pixel_tests:
+        helper_path = \
+            path_utils.LayoutTestHelperBinaryPath(self._options.target)
+        logging.info("Starting layout helper %s" % helper_path)
+        layout_test_helper_proc = subprocess.Popen([helper_path],
+                                                   stdin=subprocess.PIPE,
+                                                   stdout=subprocess.PIPE,
+                                                   stderr=None)
+        is_ready = layout_test_helper_proc.stdout.readline()
+        if is_ready != 'ready\n':
+          logging.error("layout_test_helper failed to be ready")
+
     threads = self._InstantiateTestShellThreads(test_shell_binary)
 
     # Wait for the threads to finish and collect test failures.
@@ -521,7 +545,9 @@ class TestRunner:
     except KeyboardInterrupt:
       for thread in threads:
         thread.Cancel()
+      self._StopLayoutTestHelper(layout_test_helper_proc)
       raise
+    self._StopLayoutTestHelper(layout_test_helper_proc)
     for thread in threads:
       # Check whether a TestShellThread died before normal completion.
       exception_info = thread.GetExceptionInfo()
@@ -961,12 +987,12 @@ def main(options, args):
 
     # TODO(ojan): Use cpus+1 once we flesh out the flakiness.
     options.num_test_shells = cpus
-  
+
   logging.info("Running %s test_shells in parallel" % options.num_test_shells)
 
   if not options.time_out_ms:
     if options.num_test_shells > 1:
-      options.time_out_ms = str(2 * TestRunner.DEFAULT_TEST_TIMEOUT_MS)      
+      options.time_out_ms = str(2 * TestRunner.DEFAULT_TEST_TIMEOUT_MS)
     else:
       options.time_out_ms = str(TestRunner.DEFAULT_TEST_TIMEOUT_MS)
 
