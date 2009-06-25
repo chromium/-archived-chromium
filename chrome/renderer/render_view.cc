@@ -2332,6 +2332,8 @@ void RenderView::DidChangeSelection(bool is_empty_selection) {
     Send(new ViewHostMsg_SelectionChanged(routing_id_,
          this_selection));
     last_selection_ = this_selection;
+  } else {
+    last_selection_.clear();
   }
 #endif
 }
