@@ -57,7 +57,7 @@ class GlueSerializeTest : public testing::Test {
     item.setIsTargetItem(true);
     item.setVisitCount(42*42);
 
-    WebVector<WebString> document_state(3U);
+    WebVector<WebString> document_state(size_t(3));
     document_state[0] = WebString::fromUTF8("state1");
     document_state[1] = WebString::fromUTF8("state2");
     document_state[2] = WebString::fromUTF8("state AWESOME");
