@@ -66,7 +66,7 @@ class MockTCPClientSocket : public MockClientSocket {
  private:
   net::MockSocket* data_;
   int read_offset_;
-  net::MockRead* read_data_;
+  net::MockRead read_data_;
   bool need_read_data_;
 };
 
@@ -151,7 +151,7 @@ MockTCPClientSocket::MockTCPClientSocket(const net::AddressList& addresses,
                                          net::MockSocket* socket)
     : data_(socket),
       read_offset_(0),
-      read_data_(NULL),
+      read_data_(true, net::ERR_UNEXPECTED),
       need_read_data_(true) {
   DCHECK(data_);
   data_->Reset();
@@ -172,17 +172,21 @@ int MockTCPClientSocket::Connect(net::CompletionCallback* callback) {
 int MockTCPClientSocket::Read(net::IOBuffer* buf, int buf_len,
                               net::CompletionCallback* callback) {
   DCHECK(!callback_);
+
+  if (!IsConnected())
+    return net::ERR_UNEXPECTED;
+
   if (need_read_data_) {
     read_data_ = data_->GetNextRead();
     need_read_data_ = false;
   }
-  int result = read_data_->result;
-  if (read_data_->data) {
-    if (read_data_->data_len - read_offset_ > 0) {
-      result = std::min(buf_len, read_data_->data_len - read_offset_);
-      memcpy(buf->data(), read_data_->data + read_offset_, result);
+  int result = read_data_.result;
+  if (read_data_.data) {
+    if (read_data_.data_len - read_offset_ > 0) {
+      result = std::min(buf_len, read_data_.data_len - read_offset_);
+      memcpy(buf->data(), read_data_.data + read_offset_, result);
       read_offset_ += result;
-      if (read_offset_ == read_data_->data_len) {
+      if (read_offset_ == read_data_.data_len) {
         need_read_data_ = true;
         read_offset_ = 0;
       }
@@ -190,7 +194,7 @@ int MockTCPClientSocket::Read(net::IOBuffer* buf, int buf_len,
       result = 0;  // EOF
     }
   }
-  if (read_data_->async) {
+  if (read_data_.async) {
     RunCallbackAsync(callback, result);
     return net::ERR_IO_PENDING;
   }
@@ -202,6 +206,9 @@ int MockTCPClientSocket::Write(net::IOBuffer* buf, int buf_len,
   DCHECK(buf);
   DCHECK(buf_len > 0);
   DCHECK(!callback_);
+
+  if (!IsConnected())
+    return net::ERR_UNEXPECTED;
 
   std::string data(buf->data(), buf_len);
   net::MockWriteResult write_result = data_->OnWrite(data);
@@ -298,8 +305,8 @@ int MockSSLClientSocket::Write(net::IOBuffer* buf, int buf_len,
 
 namespace net {
 
-MockRead* StaticMockSocket::GetNextRead() {
-  return &reads_[read_index_++];
+MockRead StaticMockSocket::GetNextRead() {
+  return reads_[read_index_++];
 }
 
 MockWriteResult StaticMockSocket::OnWrite(const std::string& data) {
@@ -330,14 +337,22 @@ void StaticMockSocket::Reset() {
 
 DynamicMockSocket::DynamicMockSocket()
     : read_(false, ERR_UNEXPECTED),
-      has_read_(false) {
+      has_read_(false),
+      short_read_limit_(0) {
 }
 
-MockRead* DynamicMockSocket::GetNextRead() {
+MockRead DynamicMockSocket::GetNextRead() {
   if (!has_read_)
-    return unexpected_read();
-  has_read_ = false;
-  return &read_;
+    return MockRead(true, ERR_UNEXPECTED);
+  MockRead result = read_;
+  if (short_read_limit_ == 0 || result.data_len <= short_read_limit_) {
+    has_read_ = false;
+  } else {
+    result.data_len = short_read_limit_;
+    read_.data += result.data_len;
+    read_.data_len -= result.data_len;
+  }
+  return result;
 }
 
 void DynamicMockSocket::Reset() {

@@ -67,21 +67,16 @@ struct MockWriteResult {
 
 class MockSocket {
  public:
-  MockSocket() : unexpected_read_(true, ERR_UNEXPECTED) {
-  }
+  MockSocket() {}
 
   virtual ~MockSocket() {}
-  virtual MockRead* GetNextRead() = 0;
+  virtual MockRead GetNextRead() = 0;
   virtual MockWriteResult OnWrite(const std::string& data) = 0;
   virtual void Reset() = 0;
 
   MockConnect connect_data() const { return connect_; }
 
- protected:
-  MockRead* unexpected_read() { return &unexpected_read_; }
-
  private:
-  MockRead unexpected_read_;
   MockConnect connect_;
 
   DISALLOW_COPY_AND_ASSIGN(MockSocket);
@@ -96,7 +91,7 @@ class StaticMockSocket : public MockSocket {
       writes_(w), write_index_(0) {}
 
   // MockSocket methods:
-  virtual MockRead* GetNextRead();
+  virtual MockRead GetNextRead();
   virtual MockWriteResult OnWrite(const std::string& data);
   virtual void Reset();
 
@@ -119,9 +114,12 @@ class DynamicMockSocket : public MockSocket {
   DynamicMockSocket();
 
   // MockSocket methods:
-  virtual MockRead* GetNextRead();
+  virtual MockRead GetNextRead();
   virtual MockWriteResult OnWrite(const std::string& data) = 0;
   virtual void Reset();
+
+  int short_read_limit() const { return short_read_limit_; }
+  void set_short_read_limit(int limit) { short_read_limit_ = limit; }
 
  protected:
   // The next time there is a read from this socket, it will return |data|.
@@ -132,6 +130,9 @@ class DynamicMockSocket : public MockSocket {
   MockRead read_;
   bool has_read_;
   bool consumed_read_;
+
+  // Max number of bytes we will read at a time. 0 means no limit.
+  int short_read_limit_;
 
   DISALLOW_COPY_AND_ASSIGN(DynamicMockSocket);
 };
