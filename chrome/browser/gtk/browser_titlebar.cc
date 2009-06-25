@@ -6,6 +6,7 @@
 
 #include <gtk/gtk.h>
 
+#include "app/resource_bundle.h"
 #include "app/l10n_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
@@ -28,11 +29,32 @@ const int kTitlebarHeight = 14;
 // A linux specific menu item for toggling window decorations.
 const int kShowWindowDecorationsCommand = 200;
 
+// The following OTR constants copied from opaque_browser_frame_view.cc:
+// In maximized mode, the OTR avatar starts 2 px below the top of the screen, so
+// that it doesn't extend into the "3D edge" portion of the titlebar.
+const int kOTRMaximizedTopSpacing = 2;
+// The OTR avatar ends 2 px above the bottom of the tabstrip (which, given the
+// way the tabstrip draws its bottom edge, will appear like a 1 px gap to the
+// user).
+const int kOTRBottomSpacing = 2;
+// There are 2 px on each side of the OTR avatar (between the frame border and
+// it on the left, and between it and the tabstrip on the right).
+const int kOTRSideSpacing = 2;
+
 gboolean OnMouseMoveEvent(GtkWidget* widget, GdkEventMotion* event,
                           BrowserWindowGtk* browser_window) {
   // Reset to the default mouse cursor.
   browser_window->ResetCustomFrameCursor();
   return TRUE;
+}
+
+GdkPixbuf* GetOTRAvatar() {
+  static GdkPixbuf* otr_avatar = NULL;
+  if (!otr_avatar) {
+    ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+    otr_avatar = rb.GetPixbufNamed(IDR_OTR_ICON);
+  }
+  return otr_avatar;
 }
 
 }  // namespace
@@ -46,19 +68,27 @@ BrowserTitlebar::BrowserTitlebar(BrowserWindowGtk* browser_window,
 void BrowserTitlebar::Init() {
   // The widget hierarchy is shown below.
   //
-  // +- HBox (container_) --------------------------------------------------+
-  // |+- Alignment (titlebar_alignment_)-++- VBox (titlebar_buttons_box_) -+|
-  // ||                                  ||+- HBox -----------------------+||
-  // ||                                  |||+- button -++- button -+      |||
-  // ||+- TabStripGtk ------------------+|||| minimize || restore  | ...  |||
-  // ||| tab   tab   tab    tabclose    +|||+----------++----------+      |||
-  // ||+--------------------------------+||+------------------------------+||
-  // |+----------------------------------++--------------------------------+|
-  // +----------------------------------------------------------------------+
+  // +- HBox (container_) -----------------------------------------------------+
+  // |+- Fixed -++- Alignment --------------++- VBox (titlebar_buttons_box_) -+|
+  // ||(spy_guy)||   (titlebar_alignment_)  ||+- HBox -----------------------+||
+  // ||         ||                          |||+- button -++- button -+      |||
+  // ||         ||+- TabStripGtk  ---------+|||| minimize || restore  | ...  |||
+  // ||   )8\   ||| tab   tab   tabclose   ||||+----------++----------+      |||
+  // ||         ||+------------------------+||+------------------------------+||
+  // |+---------++--------------------------++--------------------------------+|
+  // +-------------------------------------------------------------------------+
   container_ = gtk_hbox_new(FALSE, 0);
 
   g_signal_connect(window_, "window-state-event",
                    G_CALLBACK(OnWindowStateChanged), this);
+
+  if (browser_window_->browser()->profile()->IsOffTheRecord()) {
+    GtkWidget* spy_guy = gtk_fixed_new();
+    gtk_widget_set_size_request(spy_guy, gdk_pixbuf_get_width(GetOTRAvatar()) +
+                                2 * kOTRSideSpacing, -1);
+    gtk_box_pack_start(GTK_BOX(container_), spy_guy, FALSE, FALSE, 0);
+    g_signal_connect(spy_guy, "expose-event", G_CALLBACK(OnAvatarExpose), this);
+  }
 
   // We use an alignment to control the titlebar height.
   titlebar_alignment_ = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
@@ -217,4 +247,36 @@ void BrowserTitlebar::ExecuteCommand(int command_id) {
     default:
       NOTREACHED();
   }
+}
+
+// static
+gboolean BrowserTitlebar::OnAvatarExpose(
+    GtkWidget* widget, GdkEventExpose* event, BrowserTitlebar* titlebar) {
+  cairo_t* cairo_context = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+  cairo_translate(cairo_context, widget->allocation.x, widget->allocation.y);
+
+  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
+    cairo_translate(cairo_context, widget->allocation.width, 0.0f);
+    cairo_scale(cairo_context, -1.0f, 1.0f);
+  }
+
+  // Set up a clip rect.
+  const int clip_x = kOTRSideSpacing;
+  const int clip_width = gdk_pixbuf_get_width(GetOTRAvatar());
+  const int clip_y = kOTRMaximizedTopSpacing;
+  const int clip_height = widget->allocation.height - kOTRMaximizedTopSpacing -
+                          kOTRBottomSpacing;
+  cairo_rectangle(cairo_context, clip_x, clip_y, clip_width, clip_height);
+  cairo_clip(cairo_context);
+
+  // Drawing origin, which is calculated relative to the bottom.
+  const int x = clip_x;
+  const int y = widget->allocation.height - kOTRBottomSpacing -
+                gdk_pixbuf_get_height(GetOTRAvatar());
+
+  gdk_cairo_set_source_pixbuf(cairo_context, GetOTRAvatar(), x, y);
+  cairo_paint(cairo_context);
+  cairo_destroy(cairo_context);
+
+  return TRUE;
 }

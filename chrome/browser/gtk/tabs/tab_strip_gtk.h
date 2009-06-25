@@ -74,9 +74,13 @@ class TabStripGtk : public TabStripModelObserver,
   // Retrieve the ideal bounds for the Tab at the specified index.
   gfx::Rect GetIdealBounds(int index);
 
-  // Return the origin of the tab strip in coordinates relative to the GdkWindow
-  // of |widget|. Used to help other widgets draw their background relative to
-  // the tabstrip.
+  // Return the origin of the tab strip in coordinates relative to where we
+  // start drawing the background theme image. This is the x coordinate of
+  // the origin of the GdkWindow of widget(), but the y coordinate of the origin
+  // of widget() itself.
+  // Used to help other widgets draw their background relative to the tabstrip.
+  // Should only be called after both the tabstrip and |widget| have been
+  // allocated.
   gfx::Point GetTabStripOriginForWidget(GtkWidget* widget);
 
  protected:

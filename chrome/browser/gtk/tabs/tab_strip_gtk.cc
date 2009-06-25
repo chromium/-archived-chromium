@@ -622,7 +622,8 @@ gfx::Rect TabStripGtk::GetIdealBounds(int index) {
 
 gfx::Point TabStripGtk::GetTabStripOriginForWidget(GtkWidget* target) {
   int x, y;
-  if (!gtk_widget_translate_coordinates(widget(), target, 0, 0, &x, &y)) {
+  if (!gtk_widget_translate_coordinates(widget(), target,
+      -widget()->allocation.x, 0, &x, &y)) {
     // If the tab strip isn't showing, give the coordinates relative to the
     // toplevel instead.
     gtk_widget_translate_coordinates(
