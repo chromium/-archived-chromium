@@ -3245,9 +3245,12 @@
             'third_party/wtl/include',
           ],
           'dependencies': [
+            'crash_service',  # run time dependency
             'test_support_common',
             '../google_update/google_update.gyp:google_update',
             '../views/views.gyp:views',
+            # run time dependency
+            '../webkit/tools/test_shell/test_shell.gyp:npapi_test_plugin',
           ],
           'link_settings': {
             'libraries': [
@@ -3623,6 +3626,7 @@
             'chrome_dll_version',
             'installer/installer.gyp:installer_util_strings',
             '../views/views.gyp:views',
+            'test_chrome_plugin',  # run time dependency
           ],
           'include_dirs': [
             'third_party/wtl/include',
@@ -4506,6 +4510,7 @@
             'chrome_dll_version',
             'chrome_resources',
             'chrome_strings',
+            'crash_service',  # run time dependency
             'debugger',
             'installer/installer.gyp:installer_util_strings',
             'test_support_common',
@@ -4521,6 +4526,8 @@
             '../testing/gtest.gyp:gtest',
             '../third_party/npapi/npapi.gyp:npapi',
             '../views/views.gyp:views',
+            # run time dependency
+            '../webkit/tools/test_shell/test_shell.gyp:npapi_test_plugin',
             '../webkit/webkit.gyp:webkit_resources',
           ],
           'include_dirs': [
