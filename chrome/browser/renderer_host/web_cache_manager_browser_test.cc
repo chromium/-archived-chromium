@@ -18,8 +18,7 @@ class WebCacheManagerBrowserTest : public InProcessBrowserTest {
 
 // Regression test for http://crbug.com/12362.  If a renderer crashes and the
 // user navigates to another tab and back, the browser doesn't crash.
-// TODO(jam): http://crbug.com/15288 disabled because it fails on the build bot.
-IN_PROC_BROWSER_TEST_F(WebCacheManagerBrowserTest, DISABLED_CrashOnceOnly) {
+IN_PROC_BROWSER_TEST_F(WebCacheManagerBrowserTest, CrashOnceOnly) {
   GURL url(ui_test_utils::GetTestUrl(L"google", L"google.html"));
 
   ui_test_utils::NavigateToURL(browser(), url);

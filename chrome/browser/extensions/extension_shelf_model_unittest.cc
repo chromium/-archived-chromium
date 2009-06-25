@@ -73,8 +73,7 @@ class ExtensionShelfModelTest : public InProcessBrowserTest,
   int moved_count_;
 };
 
-// TODO(erikkay): http://crbug.com/15291 disabled because fails on build-bot.
-IN_PROC_BROWSER_TEST_F(ExtensionShelfModelTest, DISABLED_Basic) {
+IN_PROC_BROWSER_TEST_F(ExtensionShelfModelTest, Basic) {
   // Get the path to our extension.
   FilePath path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &path));
