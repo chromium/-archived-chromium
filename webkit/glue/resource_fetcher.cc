@@ -46,25 +46,12 @@ void ResourceFetcher::Cancel() {
 }
 
 void ResourceFetcher::Start(WebCore::Frame* frame) {
-  WebCore::FrameLoader* frame_loader = frame->loader();
-  if (!frame_loader) {
-    // We put this on a 0 timer so the callback happens async (consistent with
-    // regular fetches).
-    start_failed_timer_.reset(new StartFailedTimer(this,
-          &ResourceFetcher::StartFailed));
-    start_failed_timer_->startOneShot(0);
-    return;
-  }
-
   WebCore::ResourceRequest request(webkit_glue::GURLToKURL(url_));
   WebCore::ResourceResponse response;
-  frame_loader->client()->dispatchWillSendRequest(NULL, 0, request, response);
+  frame->loader()->client()->dispatchWillSendRequest(NULL, 0, request,
+                                                     response);
 
   loader_ = ResourceHandle::create(request, this, NULL, false, false);
-}
-
-void ResourceFetcher::StartFailed(StartFailedTimer* timer) {
-  didFail(NULL, ResourceError());
 }
 
 /////////////////////////////////////////////////////////////////////////////

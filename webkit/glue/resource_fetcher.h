@@ -85,12 +85,6 @@ class ResourceFetcher : public WebCore::ResourceHandleClient {
   // Start the actual download.
   void Start(WebCore::Frame* frame);
 
-  // Callback function if Start fails.
-  void StartFailed(StartFailedTimer* timer);
-
-  // Timer for calling StartFailed async.
-  scoped_ptr<StartFailedTimer> start_failed_timer_;
-
   // Buffer to hold the content from the server.
   std::string data_;
 };
