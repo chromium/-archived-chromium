@@ -69,8 +69,9 @@ class EnumerateWindowsDelegate {
   virtual bool ShouldStopIterating(XID xid) = 0;
 };
 
-// Enumerates all windows in the current display
-bool EnumerateAllWindows(EnumerateWindowsDelegate* delegate);
+// Enumerates all windows in the current display.  Will recurse into child
+// windows up to a depth of |max_depth|.
+bool EnumerateAllWindows(EnumerateWindowsDelegate* delegate, int max_depth);
 
 // Return a handle to a server side pixmap. |shared_memory_key| is a SysV
 // IPC key. The shared memory region must contain 32-bit pixels.

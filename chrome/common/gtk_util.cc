@@ -4,9 +4,10 @@
 
 #include "chrome/common/gtk_util.h"
 
-#include <cstdarg>
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
+
+#include <cstdarg>
 
 #include "app/l10n_util.h"
 #include "base/linux_util.h"
@@ -233,8 +234,11 @@ void EnumerateTopLevelWindows(x11_util::EnumerateWindowsDelegate* delegate) {
   GList* stack = gdk_screen_get_window_stack(screen);
   if (!stack) {
     // Window Manager doesn't support _NET_CLIENT_LIST_STACKING, so fall back
-    // to old school enumeration of all X windows.
-    x11_util::EnumerateAllWindows(delegate);
+    // to old school enumeration of all X windows.  Some WMs parent 'top-level'
+    // windows in unnamed actual top-level windows (ion WM), so extend the
+    // search depth to all children of top-level windows.
+    const int kMaxSearchDepth = 1;
+    x11_util::EnumerateAllWindows(delegate, kMaxSearchDepth);
     return;
   }
 

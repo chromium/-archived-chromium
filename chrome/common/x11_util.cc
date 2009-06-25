@@ -17,6 +17,8 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
+#include <set>
+
 #include "base/logging.h"
 #include "base/gfx/size.h"
 #include "base/thread.h"
@@ -161,23 +163,58 @@ bool GetWindowRect(XID window, gfx::Rect* rect) {
   return true;
 }
 
-bool EnumerateAllWindows(EnumerateWindowsDelegate* delegate) {
-  XID root = GetX11RootWindow();
-  XID parent;
-  XID* children;
+// Returns true if |window| is a named window.
+bool IsWindowNamed(XID window) {
+  XTextProperty prop;
+  if (!XGetWMName(GetXDisplay(), window, &prop) || !prop.value)
+    return false;
+
+  XFree(prop.value);
+  return true;
+}
+
+bool EnumerateChildren(EnumerateWindowsDelegate* delegate, XID window,
+                       const int max_depth, int depth) {
+  if (depth > max_depth)
+    return false;
+
+  XID root, parent, *children;
   unsigned int num_children;
-  int status = XQueryTree(GetXDisplay(), root, &root, &parent,
-                          &children, &num_children);
+  int status = XQueryTree(GetXDisplay(), window, &root, &parent, &children,
+                          &num_children);
   if (status == 0)
     return false;
 
-  for (unsigned int i = 0; i < num_children; i++) {
-    if (delegate->ShouldStopIterating(children[i]))
-      break;
-  }
+  std::set<XID> windows;
+  for (unsigned int i = 0; i < num_children; i++)
+    windows.insert(children[i]);
 
   XFree(children);
-  return true;
+
+  // XQueryTree returns the children of |window| in bottom-to-top order, so
+  // reverse-iterate the list to check the windows from top-to-bottom.
+  std::set<XID>::reverse_iterator iter;
+  for (iter = windows.rbegin(); iter != windows.rend(); iter++) {
+    if (IsWindowNamed(*iter) && delegate->ShouldStopIterating(*iter))
+      return true;
+  }
+
+  // If we're at this point, we didn't find the window we're looking for at the
+  // current level, so we need to recurse to the next level.  We use a second
+  // loop because the recursion and call to XQueryTree are expensive and is only
+  // needed for a small number of cases.
+  depth++;
+  for (iter = windows.rbegin(); iter != windows.rend(); iter++) {
+    if (EnumerateChildren(delegate, *iter, max_depth, depth))
+      return true;
+  }
+
+  return false;
+}
+
+bool EnumerateAllWindows(EnumerateWindowsDelegate* delegate, int max_depth) {
+  XID root = GetX11RootWindow();
+  return EnumerateChildren(delegate, root, max_depth, 0);
 }
 
 XRenderPictFormat* GetRenderVisualFormat(Display* dpy, Visual* visual) {
