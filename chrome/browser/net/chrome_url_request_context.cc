@@ -460,8 +460,9 @@ ChromeURLRequestContext::~ChromeURLRequestContext() {
 
   // Do not delete the proxy service in the case of OTR or media contexts, as
   // it is owned by the original URLRequestContext.
-  if (!is_off_the_record_ && !is_media_) {
+  if (!is_off_the_record_ && !is_media_)
     delete proxy_service_;
-    chrome_browser_net::FreeGlobalHostResolver();
-  }
+
+  // Do not delete host_resolver_; it will be freed by FreeGlobalHostResolver()
+  // during the teardown of DNS prefetching.
 }
