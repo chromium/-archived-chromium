@@ -30,6 +30,7 @@
 #ifndef CLIENT_LINUX_HANDLER_LINUX_DUMPER_H_
 #define CLIENT_LINUX_HANDLER_LINUX_DUMPER_H_
 
+#include <elf.h>
 #include <stdint.h>
 #include <sys/user.h>
 #include <linux/limits.h>
@@ -38,7 +39,18 @@
 
 namespace google_breakpad {
 
-typedef typeof(((struct user *) 0)->u_debugreg[0]) debugreg_t;
+typedef typeof(((struct user*) 0)->u_debugreg[0]) debugreg_t;
+
+// Typedef for our parsing of the auxv variables in /proc/pid/auxv.
+#if defined(__i386)
+typedef Elf32_auxv_t elf_aux_entry;
+#elif defined(__x86_64__)
+typedef Elf64_auxv_t elf_aux_entry;
+#endif
+// When we find the VDSO mapping in the process's address space, this
+// is the name we use for it when writing it to the minidump.
+// This should always be less than NAME_MAX!
+const char kLinuxGateLibraryName[] = "linux-gate.so";
 
 // We produce one of these structures for each thread in the crashed process.
 struct ThreadInfo {
@@ -47,7 +59,7 @@ struct ThreadInfo {
 
   // Even on platforms where the stack grows down, the following will point to
   // the smallest address in the stack.
-  const void *stack;  // pointer to the stack area
+  const void* stack;  // pointer to the stack area
   size_t stack_len;  // length of the stack to copy
 
   user_regs_struct regs;
@@ -82,12 +94,12 @@ class LinuxDumper {
 
   // Read information about the given thread. Returns true on success. One must
   // have called |ThreadsSuspend| first.
-  bool ThreadInfoGet(pid_t tid, ThreadInfo *info);
+  bool ThreadInfoGet(pid_t tid, ThreadInfo* info);
 
   // These are only valid after a call to |Init|.
   const wasteful_vector<pid_t> &threads() { return threads_; }
   const wasteful_vector<MappingInfo*> &mappings() { return mappings_; }
-  const MappingInfo *FindMapping(const void *address) const;
+  const MappingInfo* FindMapping(const void* address) const;
 
   // Find a block of memory to take as the stack given the top of stack pointer.
   //   stack: (output) the lowest address in the memory area
@@ -95,15 +107,26 @@ class LinuxDumper {
   //   stack_top: the current top of the stack
   bool GetStackInfo(const void** stack, size_t* stack_len, uintptr_t stack_top);
 
-  PageAllocator *allocator() { return &allocator_; }
+  PageAllocator* allocator() { return &allocator_; }
 
   // memcpy from a remote process.
   static void CopyFromProcess(void* dest, pid_t child, const void* src,
                               size_t length);
 
+  // Builds a proc path for a certain pid for a node.  path is a
+  // character array that is overwritten, and node is the final node
+  // without any slashes.
+  void BuildProcPath(char* path, pid_t pid, const char* node) const;
+
+  // Utility method to find the location of where the kernel has
+  // mapped linux-gate.so in memory(shows up in /proc/pid/maps as
+  // [vdso], but we can't guarantee that it's the only virtual dynamic
+  // shared object.  Parsing the auxilary vector for AT_SYSINFO_EHDR
+  // is the safest way to go.)
+  void* FindBeginningOfLinuxGateSharedLibrary(const pid_t pid) const;
  private:
-  bool EnumerateMappings(wasteful_vector<MappingInfo*> *result) const;
-  bool EnumerateThreads(wasteful_vector<pid_t> *result) const;
+  bool EnumerateMappings(wasteful_vector<MappingInfo*>* result) const;
+  bool EnumerateThreads(wasteful_vector<pid_t>* result) const;
 
   const pid_t pid_;
 

@@ -110,73 +110,158 @@ bool LinuxDumper::ThreadsResume() {
   return good;
 }
 
+void
+LinuxDumper::BuildProcPath(char* path, pid_t pid, const char* node) const {
+  assert(path);
+  if (!path) {
+    return;
+  }
+
+  path[0] = '\0';
+
+  const unsigned pid_len = my_int_len(pid);
+
+  assert(node);
+  if (!node) {
+    return;
+  }
+
+  size_t node_len = my_strlen(node);
+  assert(node_len < NAME_MAX);
+  if (node_len >= NAME_MAX) {
+    return;
+  }
+
+  assert(node_len > 0);
+  if (node_len == 0) {
+    return;
+  }
+
+  assert(pid > 0);
+  if (pid <= 0) {
+    return;
+  }
+
+  const size_t total_length = 6 + pid_len + 1 + node_len;
+
+  assert(total_length < NAME_MAX);
+  if (total_length >= NAME_MAX) {
+    return;
+  }
+
+  memcpy(path, "/proc/", 6);
+  my_itos(path + 6, pid, pid_len);
+  memcpy(path + 6 + pid_len, "/", 1);
+  memcpy(path + 6 + pid_len + 1, node, node_len);
+  memcpy(path + total_length, "\0", 1);
+}
+
+void*
+LinuxDumper::FindBeginningOfLinuxGateSharedLibrary(const pid_t pid) const {
+  char auxv_path[80];
+  BuildProcPath(auxv_path, pid, "auxv");
+
+  // If BuildProcPath errors out due to invalid input, we'll handle it when
+  // we try to sys_open the file.
+
+  // Find the AT_SYSINFO_EHDR entry for linux-gate.so
+  // See http://www.trilithium.com/johan/2005/08/linux-gate/ for more
+  // information.
+  int fd = sys_open(auxv_path, O_RDONLY, 0);
+  if (fd < 0) {
+    return NULL;
+  }
+
+  elf_aux_entry one_aux_entry;
+  while (sys_read(fd,
+                  &one_aux_entry,
+                  sizeof(elf_aux_entry)) == sizeof(elf_aux_entry) &&
+         one_aux_entry.a_type != AT_NULL) {
+    if (one_aux_entry.a_type == AT_SYSINFO_EHDR) {
+      close(fd);
+      return reinterpret_cast<void*>(one_aux_entry.a_un.a_val);
+    }
+  }
+  close(fd);
+  return NULL;
+}
+
 bool
-LinuxDumper::EnumerateMappings(wasteful_vector<MappingInfo*> *result) const {
+LinuxDumper::EnumerateMappings(wasteful_vector<MappingInfo*>* result) const {
   char maps_path[80];
-  memcpy(maps_path, "/proc/", 6);
-  const unsigned pid_len = my_int_len(pid_);
-  my_itos(maps_path + 6, pid_, pid_len);
-  memcpy(maps_path + 6 + pid_len, "/maps", 6);
+  BuildProcPath(maps_path, pid_, "maps");
+
+  // linux_gate_loc is the beginning of the kernel's mapping of
+  // linux-gate.so in the process.  It doesn't actually show up in the
+  // maps list as a filename, so we use the aux vector to find it's
+  // load location and special case it's entry when creating the list
+  // of mappings.
+  const void* linux_gate_loc;
+  linux_gate_loc = FindBeginningOfLinuxGateSharedLibrary(pid_);
 
   const int fd = sys_open(maps_path, O_RDONLY, 0);
   if (fd < 0)
     return false;
-  LineReader *const line_reader = new(allocator_) LineReader(fd);
+  LineReader* const line_reader = new(allocator_) LineReader(fd);
 
-  const char *line;
+  const char* line;
   unsigned line_len;
   while (line_reader->GetNextLine(&line, &line_len)) {
     uintptr_t start_addr, end_addr, offset;
 
     const char* i1 = my_read_hex_ptr(&start_addr, line);
     if (*i1 == '-') {
-      const char *i2 = my_read_hex_ptr(&end_addr, i1 + 1);
+      const char* i2 = my_read_hex_ptr(&end_addr, i1 + 1);
       if (*i2 == ' ') {
-        const char *i3 = my_read_hex_ptr(&offset, i2 + 6 /* skip ' rwxp ' */);
+        const char* i3 = my_read_hex_ptr(&offset, i2 + 6 /* skip ' rwxp ' */);
         if (*i3 == ' ') {
-          MappingInfo *const module = new(allocator_) MappingInfo;
+          MappingInfo* const module = new(allocator_) MappingInfo;
           memset(module, 0, sizeof(MappingInfo));
           module->start_addr = start_addr;
           module->size = end_addr - start_addr;
           module->offset = offset;
-          const char *name = NULL;
-          // Only copy name if the name is a valid path name.
+          const char* name = NULL;
+          // Only copy name if the name is a valid path name, or if
+          // we've found the VDSO image
           if ((name = my_strchr(line, '/')) != NULL) {
             const unsigned l = my_strlen(name);
             if (l < sizeof(module->name))
               memcpy(module->name, name, l);
+          } else if (linux_gate_loc &&
+                     reinterpret_cast<void*>(module->start_addr) ==
+                     linux_gate_loc) {
+            memcpy(module->name,
+                   kLinuxGateLibraryName,
+                   my_strlen(kLinuxGateLibraryName));
+            module->offset = 0;
           }
-
           result->push_back(module);
         }
       }
     }
-
     line_reader->PopLine(line_len);
   }
 
   sys_close(fd);
+
   return result->size() > 0;
 }
 
 // Parse /proc/$pid/task to list all the threads of the process identified by
 // pid.
-bool LinuxDumper::EnumerateThreads(wasteful_vector<pid_t> *result) const {
+bool LinuxDumper::EnumerateThreads(wasteful_vector<pid_t>* result) const {
   char task_path[80];
-  memcpy(task_path, "/proc/", 6);
-  const unsigned pid_len = my_int_len(pid_);
-  my_itos(task_path + 6, pid_, pid_len);
-  memcpy(task_path + 6 + pid_len, "/task", 6);
+  BuildProcPath(task_path, pid_, "task");
 
   const int fd = sys_open(task_path, O_RDONLY | O_DIRECTORY, 0);
   if (fd < 0)
     return false;
-  DirectoryReader *dir_reader = new(allocator_) DirectoryReader(fd);
+  DirectoryReader* dir_reader = new(allocator_) DirectoryReader(fd);
 
   // The directory may contain duplicate entries which we filter by assuming
-  // that they are consecutive 
+  // that they are consecutive.
   int last_tid = -1;
-  const char *dent_name;
+  const char* dent_name;
   while (dir_reader->GetNextEntry(&dent_name)) {
     if (my_strcmp(dent_name, ".") &&
         my_strcmp(dent_name, "..")) {
@@ -198,19 +283,17 @@ bool LinuxDumper::EnumerateThreads(wasteful_vector<pid_t> *result) const {
 // Fill out the |tgid|, |ppid| and |pid| members of |info|. If unavailible,
 // these members are set to -1. Returns true iff all three members are
 // availible.
-bool LinuxDumper::ThreadInfoGet(pid_t tid, ThreadInfo *info) {
+bool LinuxDumper::ThreadInfoGet(pid_t tid, ThreadInfo* info) {
   assert(info != NULL);
   char status_path[80];
-  memcpy(status_path, "/proc/", 6);
-  const unsigned tid_len = my_int_len(tid);
-  my_itos(status_path + 6, tid, tid_len);
-  memcpy(status_path + 6 + tid_len, "/status", 8);
+  BuildProcPath(status_path, tid, "status");
+
   const int fd = open(status_path, O_RDONLY);
   if (fd < 0)
     return false;
 
-  LineReader *const line_reader = new(allocator_) LineReader(fd);
-  const char *line;
+  LineReader* const line_reader = new(allocator_) LineReader(fd);
+  const char* line;
   unsigned line_len;
 
   info->ppid = info->tgid = -1;
@@ -240,15 +323,16 @@ bool LinuxDumper::ThreadInfoGet(pid_t tid, ThreadInfo *info) {
   for (unsigned i = 0; i < ThreadInfo::kNumDebugRegisters; ++i) {
     if (sys_ptrace(
         PTRACE_PEEKUSER, tid,
-        (void *) (offsetof(struct user,
-                           u_debugreg[0]) + i * sizeof(debugreg_t)),
+        reinterpret_cast<void*> (offsetof(struct user,
+                                          u_debugreg[0]) + i *
+                                 sizeof(debugreg_t)),
         &info->dregs[i]) == -1) {
       return false;
     }
   }
 #endif
 
-  const uint8_t *stack_pointer;
+  const uint8_t* stack_pointer;
 #if defined(__i386)
   memcpy(&stack_pointer, &info->regs.esp, sizeof(info->regs.esp));
 #elif defined(__x86_64)
@@ -277,12 +361,12 @@ bool LinuxDumper::GetStackInfo(const void** stack, size_t* stack_len,
 #endif
   // Move the stack pointer to the bottom of the page that it's in.
   uint8_t* const stack_pointer =
-      (uint8_t *) (int_stack_pointer & ~(page_size - 1));
+      reinterpret_cast<uint8_t*>(int_stack_pointer & ~(page_size - 1));
 
   // The number of bytes of stack which we try to capture.
   static unsigned kStackToCapture = 32 * 1024;
 
-  const MappingInfo *mapping = FindMapping(stack_pointer);
+  const MappingInfo* mapping = FindMapping(stack_pointer);
   if (!mapping)
     return false;
   if (stack_grows_down) {
@@ -320,7 +404,7 @@ void LinuxDumper::CopyFromProcess(void* dest, pid_t child, const void* src,
 }
 
 // Find the mapping which the given memory address falls in.
-const MappingInfo *LinuxDumper::FindMapping(const void *address) const {
+const MappingInfo* LinuxDumper::FindMapping(const void* address) const {
   const uintptr_t addr = (uintptr_t) address;
 
   for (size_t i = 0; i < mappings_.size(); ++i) {
