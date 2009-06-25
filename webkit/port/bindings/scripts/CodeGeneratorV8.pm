@@ -1610,6 +1610,7 @@ sub IsRefPtrType
     return 1 if $type eq "Element";
     return 1 if $type eq "EntityReference";
     return 1 if $type eq "Event";
+    return 1 if $type eq "FileList";
     return 1 if $type eq "HTMLCollection";
     return 1 if $type eq "HTMLDocument";
     return 1 if $type eq "HTMLElement";
