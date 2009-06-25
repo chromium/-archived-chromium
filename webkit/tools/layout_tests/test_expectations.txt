@@ -621,7 +621,7 @@ BUG13907 WIN : LayoutTests/media/audio-constructor-src.html = FAIL
 BUG13907 WIN : LayoutTests/media/audio-constructor.html = FAIL
 // We don't support MP2 audio so skip this test.
 BUG13907 SKIP : LayoutTests/media/audio-mpeg-supported.html = FAIL
-BUG13907 WIN : LayoutTests/media/constructors.html = FAIL
+BUG13907 WIN : LayoutTests/media/constructors.html = FAIL PASS
 // This test is flaky.
 BUG13907 WIN DEBUG : LayoutTests/media/progress-event-total.html = PASS FAIL
 // This test crashes in debug build not in release build.
@@ -650,7 +650,7 @@ BUG13907 WIN DEBUG : LayoutTests/media/video-no-autoplay.html = PASS FAIL
 BUG13907 WIN : LayoutTests/media/video-play-pause-events.html = PASS FAIL CRASH
 // This test is flaky too.
 BUG13907 WIN : LayoutTests/media/video-play-pause-exception.html = PASS FAIL
-BUG13907 WIN : LayoutTests/media/video-played-collapse.html = FAIL
+BUG13907 WIN : LayoutTests/media/video-played-collapse.html = FAIL PASS
 // This test crashes in debug build.
 BUG13907 WIN : LayoutTests/media/video-played.html = PASS FAIL CRASH
 // This test is flaky in debug build.
@@ -2784,3 +2784,8 @@ BUG15217 : LayoutTests/fast/js/dictionary-no-cache.html = FAIL
 BUG15217 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridDataSource-basic.html = TIMEOUT
 BUG15217 : LayoutTests/fast/events/prevent-drag-to-navigate.html = TIMEOUT
 BUG15217 : LayoutTests/fast/js/switch-behaviour.html = FAIL
+
+// Has been flaky on Win(dbg)
+
+BUG15267 : WIN DEBUG : LayoutTests/transitions/cancel-transition.html = PASS FAIL
+BUG15266 : WIN DEBUG : LayoutTests/media/video-display-toggle.html = TIMEOUT PASS
