@@ -126,6 +126,8 @@ o3d_npp_google_update_reg_component_guid = plugin_guid_generator(
 o3d_reporter_guid = plugin_guid_generator('o3d_reporter')
 o3d_driver_blacklist_guid = plugin_guid_generator(
     'o3d_driver_blacklist')
+o3d_software_renderer_guid = plugin_guid_generator(
+    'o3d_software_renderer')
 o3d_npp_google_update_guid = '{70308795-045C-42da-8F4E-D452381A7459}'
 o3d_npp_reg_key = '%s%s' % (google_update_reg_path, o3d_npp_google_update_guid)
 o3d_npp_state_reg_key = '%s%s' % (
@@ -164,8 +166,12 @@ rep_path = env.File('$ARTIFACTS_DIR/reporter.exe')
 dbl_path = env.File('$SCONSTRUCT_DIR/installer/win/driver_blacklist.txt')
 get_extras_path = env.File('$ARTIFACTS_DIR/getextras.exe')
 
+# Tell wix to include the software renderer IFF it's there.
+software_renderer_path = \
+    env.File('$SWIFTSHADER_DIR/swiftshader_d3d9.dll').abspath
+include_software_renderer = os.path.exists(software_renderer_path)
 
-# Path to custiom actions dll.
+# Path to custom actions dll.
 cactions_dll_path = env.File('$ARTIFACTS_DIR/cactions.dll')
 
 # Pass flags to the wix compiler.
@@ -176,6 +182,9 @@ env.Append(WIXCANDLEFLAGS = [
   '-dNppUpgradeCode=' + o3d_npp_upgrade_code,
   '-dNppPackageGuid=' + o3d_npp_package_guid,
   '-dNppComponentGuid=' + o3d_npp_component_guid,
+  '-dSoftwareRendererGuid=' + o3d_software_renderer_guid,
+  '-dSoftwareRendererPath=' + software_renderer_path,
+  '-dIncludeSoftwareRenderer=%s' % include_software_renderer,
   '-dNPPluginPath=' + npplugin_path.abspath,
   '-dIEPluginPath=' + ieplugin_path.abspath,
   '-dIepComponentGuid=' + o3d_iep_component_guid,

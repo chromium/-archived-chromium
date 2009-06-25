@@ -78,6 +78,18 @@ Wix script for building o3d installer.
                     Source='$(var.NPPluginPath)' Vital='yes' />
               <Condition>NOT (ALLUSERS)</Condition>
             </Component>
+            <?if $(var.IncludeSoftwareRenderer) = True ?>
+              <Directory Id='O3DPrivateDllDir' Name='O3D'
+                  LongName='O3DExtras'>
+                <Component Id='SoftwareRenderer'
+                    Guid='$(var.SoftwareRendererGuid)'>
+                    <File Id='renderer' LongName="swiftshader_d3d9.dll"
+                        Vital='yes' DiskId='1' Name="ss_d3d9.dll"
+                        src='$(var.SoftwareRendererPath)' />
+                  <Condition>NOT (ALLUSERS)</Condition>
+                </Component>
+              </Directory>
+            <?endif ?>
           </Directory>
         </Directory>
         <Directory Id='Google' Name='Google'>
@@ -257,6 +269,9 @@ Wix script for building o3d installer.
       <ComponentRef Id='pu.UpdaterReg' />
       <ComponentRef Id='InstallReporter'/>
       <ComponentRef Id='InstallDriverBlacklist'/>
+      <?if $(var.IncludeSoftwareRenderer) = True ?>
+        <ComponentRef Id='SoftwareRenderer'/>
+      <?endif ?>
     </Feature>
 
     <!-- Identify previous versions to remove before installing.  The deprecated
