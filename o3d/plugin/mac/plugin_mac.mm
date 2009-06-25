@@ -44,6 +44,8 @@ BreakpadRef gBreakpadRef =  NULL;
 using glue::_o3d::PluginObject;
 using o3d::DisplayWindowMac;
 
+static void DrawToOverlayWindow(WindowRef overlayWindow);
+
 // Returns the version number of the running Mac browser, as parsed from
 // the short version string in the plist of the app's bundle.
 bool GetBrowserVersionInfo(int *returned_major,
@@ -215,12 +217,18 @@ void RenderTimer::TimerCallback(CFRunLoopTimerRef timer, void* info) {
     ManageSafariTabSwitching(obj);
     obj->client()->Tick();
 
+    bool in_fullscreen = obj->GetFullscreenMacWindow();
+
+    if (in_fullscreen) {
+      obj->FullscreenIdle();
+    }
+
     // We're visible if (a) we are in fullscreen mode or (b) our cliprect
     // height and width are both a sensible size, ie > 1 pixel.
     // We don't check for 0 as we have to size to 1 x 1 on occasion rather than
     // 0 x 0 to avoid crashing the Apple software renderer, but do not want to
     // actually draw to a 1 x 1 pixel area.
-    bool plugin_visible = obj->GetFullscreenMacWindow() ||
+    bool plugin_visible = in_fullscreen ||
         (obj->last_buffer_rect_[2] > 1 && obj->last_buffer_rect_[3] > 1);
 
     if (plugin_visible && obj->WantsRedraw()) {
@@ -385,11 +393,6 @@ static void MySetLayoutControl(ATSUTextLayout layout,
   ATSUSetLayoutControls(layout, 1, tags, sizes, values);
 }
 
-static OSStatus HandleOverlayWindow(EventHandlerCallRef inHandlerCallRef,
-                                    EventRef inEvent,
-                                    void *inUserData) {
-  return noErr;
-}
 
 static void PaintRoundedCGRect(CGContextRef context,
                                CGRect rect,
@@ -426,57 +429,106 @@ static SInt32 GetIntEventParam(EventRef inEvent, EventParamName    inName) {
 
 #pragma mark ____OVERLAY_WINDOW
 
+static OSStatus HandleOverlayWindow(EventHandlerCallRef inHandlerCallRef,
+                                    EventRef inEvent,
+                                    void *inUserData) {
+  OSType event_class = GetEventClass(inEvent);
+  OSType event_kind = GetEventKind(inEvent);
+
+  if (event_class == kEventClassWindow &&
+      event_kind == kEventWindowPaint) {
+      WindowRef theWindow = NULL;
+    GetEventParameter(inEvent, kEventParamDirectObject,
+                      typeWindowRef, NULL,
+                      sizeof(theWindow), NULL,
+                      &theWindow);
+    if (theWindow) {
+      CallNextEventHandler(inHandlerCallRef, inEvent);
+      DrawToOverlayWindow(theWindow);
+    }
+  }
+
+  return noErr;
+}
+
+
+// Returns the unicode 16 chars that we need to display as the fullscreen
+// message. Should be disposed with free() after use.
+static UniChar * GetFullscreenDisplayText(int *returned_length) {
+  // TODO this will need to be a localized string.
+  NSString* ns_display_text = @"Press ESC to exit fullscreen.";
+  int count = [ns_display_text length];
+  UniChar* display_text_16 = (UniChar*) calloc(count, sizeof(UniChar));
+
+  [ns_display_text getCharacters:display_text_16];
+  *returned_length = count;
+  return display_text_16;
+}
+
 
 static void DrawToOverlayWindow(WindowRef overlayWindow) {
-#define kTextWindowHeight 40
-
   CGContextRef overlayContext = NULL;
   OSStatus     result = noErr;
-  // TODO this will need to be a localized string
-  char *       display_text = "Press Esc to exit full screen mode.";
-
-  UniChar*     display_text_16 = NULL;
-  CFStringRef  display_text_cfstr = NULL;
-  int          textLength = 0;
-
-  QDBeginCGContext(GetWindowPort(overlayWindow), &overlayContext);
-
-  display_text_cfstr = CFStringCreateWithCString(kCFAllocatorDefault,
-                                                 display_text,
-                                                 kCFStringEncodingUTF8);
-  textLength = CFStringGetLength(display_text_cfstr);
-  display_text_16 = (UniChar*)calloc(textLength + 1, sizeof(*display_text_16));
-  CFStringGetCharacters(display_text_cfstr,
-                        CFRangeMake(0, textLength),
-                        display_text_16);
-
-#define kOverlayWindowFontName "Helvetica"
-
   CGFloat kWhiteOpaque[]  = {1.0, 1.0, 1.0, 1.0};
   CGFloat kBlackOpaque[]  = {0.0, 0.0, 0.0, 1.0};
   CGFloat kGreyNotOpaque[]  = {0.5, 0.5, 0.5, 0.5};
+  CGFloat kBlackNotOpaque[]  = {0.0, 0.0, 0.0, 0.5};
+  Rect bounds = {0, 0, 0, 0};
+  const char* kOverlayWindowFontName = "Arial";
+  const int kPointSize  = 22;
+  const float kShadowRadius = 5.0;
+  const float kRoundRectRadius = 9.0;
+  const float kTextLeftMargin = 15.0;
+  const float kTextBottomMargin = 22.0;
 
-  Rect bounds = {0,0,100,100};
+  QDBeginCGContext(GetWindowPort(overlayWindow), &overlayContext);
   GetWindowBounds(overlayWindow, kWindowContentRgn, &bounds);
 
-  CGRect cgTotalRect = Rect2CGRect(bounds);
+  // Make the global rect local.
+  bounds.right -= bounds.left;
+  bounds.left = 0;
+  bounds.bottom -= bounds.top;
+  bounds.top = 0;
 
+  CGRect cgTotalRect = Rect2CGRect(bounds);
   CGContextSetShouldSmoothFonts(overlayContext, true);
   CGContextClearRect(overlayContext, cgTotalRect);
 
   CGColorSpaceRef myColorSpace = CGColorSpaceCreateDeviceRGB();
-  CGColorRef textShadow = CGColorCreate(myColorSpace, kBlackOpaque);
-  CGColorRef roundRectBackColor = CGColorCreate(myColorSpace, kGreyNotOpaque);
+  CGColorRef shadow = CGColorCreate(myColorSpace, kBlackNotOpaque);
+  CGColorRef roundRectBackColor = CGColorCreate(myColorSpace, kBlackNotOpaque);
   CGSize shadowOffset = {0.0,0.0};
 
   CGContextSetFillColor(overlayContext, kWhiteOpaque);
   CGContextSetStrokeColor(overlayContext, kWhiteOpaque);
 
-  if (strlen(display_text)) {
+    // Draw the round rect background.
+  CGContextSaveGState(overlayContext);
+  CGContextSetFillColorWithColor(overlayContext, roundRectBackColor);
+  CGRect cg_rounded_area =
+      CGRectMake(// Offset from left and bottom to give shadow its space.
+                 kShadowRadius, kShadowRadius,
+                 // Increase width and height so rounded corners
+                 // will be clipped out, except at bottom left.
+                 (bounds.right - bounds.left) + 30,
+                 (bounds.bottom - bounds.top) + 30);
+  // Save state before applying shadow.
+  CGContextSetShadowWithColor(overlayContext, shadowOffset,
+                              kShadowRadius, shadow);
+  PaintRoundedCGRect(overlayContext, cg_rounded_area, kRoundRectRadius, true);
+  // Restore graphics state to remove shadow.
+  CGContextRestoreGState(overlayContext);
+
+  // Draw the text.
+  int text_length = 0;
+  UniChar* display_text = GetFullscreenDisplayText(&text_length);
+
+  if ((text_length > 0) && (display_text != NULL)) {
     ATSUStyle         style;
     ATSUTextLayout    layout;
     ATSUFontID        font;
-    Fixed             pointSize = Long2Fix(36);
+    Fixed             pointSize = Long2Fix(kPointSize);
+    Boolean           is_bold = true;
 
     ATSUCreateStyle(&style);
     ATSUFindFontFromName(kOverlayWindowFontName, strlen(kOverlayWindowFontName),
@@ -485,11 +537,13 @@ static void DrawToOverlayWindow(WindowRef overlayWindow) {
 
     MySetAttribute(style, kATSUFontTag, sizeof(font), &font);
     MySetAttribute(style, kATSUSizeTag, sizeof(pointSize), &pointSize);
+    MySetAttribute(style, kATSUQDBoldfaceTag, sizeof(Boolean), &is_bold);
+
 
     ATSUCreateTextLayout(&layout);
-    ATSUSetTextPointerLocation(layout, display_text_16,
+    ATSUSetTextPointerLocation(layout, display_text,
                                kATSUFromTextBeginning, kATSUToTextEnd,
-                               textLength);
+                               text_length);
     ATSUSetRunStyle(layout, style, kATSUFromTextBeginning, kATSUToTextEnd);
 
     MySetLayoutControl(layout, kATSUCGContextTag,
@@ -499,28 +553,19 @@ static void DrawToOverlayWindow(WindowRef overlayWindow) {
     // other than a series of squares.
     ATSUSetTransientFontMatching(layout, true);
 
-    CGContextSetFillColorWithColor(overlayContext, roundRectBackColor);
-    CGRect mine = CGRectMake((bounds.right/2.0) - 400.0,
-                             (bounds.bottom/2.0)-30.0, 800.0, 80.0);
-    PaintRoundedCGRect(overlayContext, mine, 16.0, true);
 
     CGContextSetFillColor(overlayContext, kWhiteOpaque);
-
-    CGContextSaveGState(overlayContext);
-    CGContextSetShadowWithColor(overlayContext, shadowOffset, 4.0, textShadow);
     ATSUDrawText(layout, kATSUFromTextBeginning, kATSUToTextEnd,
-                 X2Fix((bounds.right/2.0) - 300.0), X2Fix(bounds.bottom/2.0));
-    CGContextRestoreGState(overlayContext);
-
+                 X2Fix(kShadowRadius + kTextLeftMargin),
+                 X2Fix(kShadowRadius + kTextBottomMargin));
     ATSUDisposeStyle(style);
     ATSUDisposeTextLayout(layout);
+    free(display_text);
   }
 
-
   CGColorRelease(roundRectBackColor);
-  CGColorRelease (textShadow);
+  CGColorRelease(shadow);
   CGColorSpaceRelease (myColorSpace);
-  CFReleaseIfNotNull(display_text_cfstr);
 
   QDEndCGContext(GetWindowPort(overlayWindow), &overlayContext);
 }
@@ -534,8 +579,26 @@ static void SetWindowLevel(WindowRef window, int level) {
   SetWindowGroup(window, wGroup);
 }
 
+
+static Rect GetOverlayWindowRect(bool visible) {
+#define kOverlayHeight 60
+#define kOverlayWidth 340
+  Rect screen_bounds = CGRect2Rect(CGDisplayBounds(CGMainDisplayID()));
+  Rect hidden_window_bounds = {screen_bounds.top - kOverlayHeight,
+                               screen_bounds.right - kOverlayWidth,
+                               screen_bounds.top,
+                               screen_bounds.right};
+  Rect visible_window_bounds = {screen_bounds.top,
+                                screen_bounds.right - kOverlayWidth,
+                                screen_bounds.top + kOverlayHeight,
+                                screen_bounds.right};
+
+  return (visible) ? visible_window_bounds : hidden_window_bounds;
+}
+
+
 static WindowRef CreateOverlayWindow(void) {
-  Rect        bounds = CGRect2Rect(CGDisplayBounds(CGMainDisplayID()));
+  Rect        window_bounds = GetOverlayWindowRect(false);
   WindowClass wClass = kOverlayWindowClass;
   WindowRef   window = NULL;
   OSStatus    err = noErr;
@@ -544,13 +607,13 @@ static WindowRef CreateOverlayWindow(void) {
                                         kWindowNoActivatesAttribute |
                                         kWindowStandardHandlerAttribute;
   EventTypeSpec  eventTypes[] = {
-    kEventClassWindow,  kEventWindowDrawContent,
+    kEventClassWindow, kEventWindowPaint,
     kEventClassWindow, kEventWindowShown
   };
 
   err = CreateNewWindow(wClass,
                         overlayAttributes,
-                        &bounds,
+                        &window_bounds,
                         &window);
   if (err)
     return NULL;
@@ -919,6 +982,8 @@ void PluginObject::GetDisplayModes(std::vector<o3d::DisplayMode> *modes) {
 #pragma mark ____FULLSCREEN_SWITCHING
 
 
+#define kTransitionTime 1.0
+
 bool PluginObject::RequestFullscreenDisplay() {
   // If already in fullscreen mode, do nothing.
   if (GetFullscreenMacWindow())
@@ -975,15 +1040,19 @@ bool PluginObject::RequestFullscreenDisplay() {
   fullscreen_ = true;
   client()->SendResizeEvent(renderer_->width(), renderer_->height(), true);
 
-  const double kFadeOutTime = 3.0;
   SetFullscreenOverlayMacWindow(CreateOverlayWindow());
-
+  ShowWindow(GetFullscreenOverlayMacWindow());
   DrawToOverlayWindow(GetFullscreenOverlayMacWindow());
-  TransitionWindowOptions options = {0, kFadeOutTime, NULL, NULL};
+  TransitionWindowOptions options = {0, kTransitionTime, NULL, NULL};
+  CGRect shown_rect = Rect2CGRect(GetOverlayWindowRect(true));
+
+  // Hide the overlay text 4 seconds from now.
+  time_to_hide_overlay_ = [NSDate timeIntervalSinceReferenceDate] + 4.0;
+
   TransitionWindowWithOptions(GetFullscreenOverlayMacWindow(),
-                              kWindowFadeTransitionEffect,
-                              kWindowHideTransitionAction,
-                              NULL, true, &options);
+                              kWindowSlideTransitionEffect,
+                              kWindowMoveTransitionAction,
+                              &shown_rect, true, &options);
 
   return true;
 }
@@ -1018,6 +1087,20 @@ void PluginObject::CancelFullscreenDisplay() {
     [browser_window makeKeyAndOrderFront:browser_window];
   } else if (mac_window_) {
     SelectWindow(mac_window_);
+  }
+}
+
+void PluginObject::FullscreenIdle() {
+  if ((mac_fullscreen_overlay_window_ != NULL) &&
+      (time_to_hide_overlay_ != 0.0) &&
+      (time_to_hide_overlay_ < [NSDate timeIntervalSinceReferenceDate])) {
+    time_to_hide_overlay_ = 0.0;
+    TransitionWindowOptions options = {0, kTransitionTime, NULL, NULL};
+    CGRect hidden_rect = Rect2CGRect(GetOverlayWindowRect(false));
+    TransitionWindowWithOptions(mac_fullscreen_overlay_window_,
+                                kWindowSlideTransitionEffect,
+                                kWindowMoveTransitionAction,
+                                &hidden_rect, true, &options);
   }
 }
 

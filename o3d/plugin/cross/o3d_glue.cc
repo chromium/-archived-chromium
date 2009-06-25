@@ -130,6 +130,7 @@ PluginObject::PluginObject(NPP npp)
       mac_cgl_context_(0),
       last_mac_event_time_(0),
       wants_redraw_(false),
+      time_to_hide_overlay_(0.0),
 #endif
 #ifdef OS_LINUX
       display_(NULL),

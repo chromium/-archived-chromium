@@ -187,7 +187,6 @@ class PluginObject: public NPObject {
   void set_got_dblclick(bool got_dblclick) { got_dblclick_ = got_dblclick; }
 #endif
 #ifdef OS_MACOSX
-
   void SetFullscreenOverlayMacWindow(WindowRef window) {
     mac_fullscreen_overlay_window_ = window;
   }
@@ -218,12 +217,9 @@ class PluginObject: public NPObject {
   bool SetRendererIsSoftware(bool state) {renderer_is_software_ = state;}
   bool renderer_is_software_;
 
-  Ptr mac_fullscreen_state_;
   NPDrawingModel drawing_model_;
   NPEventModel event_model_;
   WindowRef mac_window_;  // may be NULL in the Chrome case
-  WindowRef mac_fullscreen_window_;  // NULL if not in fullscreen modee
-  WindowRef mac_fullscreen_overlay_window_;  // NULL if not in fullscreen mode
   // these vars needed for the Safari tab switch detection hack
   CFDateRef last_mac_event_time_;
   bool wants_redraw_;
@@ -238,7 +234,19 @@ class PluginObject: public NPObject {
   // either can be NULL depending on drawing_model
   AGLContext mac_agl_context_;
   CGLContextObj mac_cgl_context_;
-#endif
+
+  // Fullscreen related stuff.
+
+  // FullscreenIdle gets repeatedly called while we are in fullscreen mode.
+  // Currently its only task is to hide the fullscreen message at the right
+  // time.
+  void FullscreenIdle();
+  double  time_to_hide_overlay_;
+  WindowRef mac_fullscreen_window_;  // NULL if not in fullscreen modee
+  WindowRef mac_fullscreen_overlay_window_;  // NULL if not in fullscreen mode
+  Ptr mac_fullscreen_state_;
+
+#endif  //  OS_MACOSX
 #ifdef OS_LINUX
   Display *display_;
   Window window_;

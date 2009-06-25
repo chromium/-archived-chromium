@@ -335,8 +335,7 @@ if env.Bit('mac'):
 
   env['MAC_INSTALLER_DIR'] = env['SCONSTRUCT_DIR'] + '/../o3d-internal/mac_installer'
   env['MAC_INSTALLER_PROJECT'] = 'o3d.packproj'
-  print "Installer is " + env['MAC_INSTALLER_PROJECT']
-  # Default is make the installer.
+  # Default is to make the installer.
   make_installer = int(ARGUMENTS.get('MAKE_INSTALLER', 1)) and os.path.exists(env['MAC_INSTALLER_DIR'] + '/' + env['MAC_INSTALLER_PROJECT'])
 
 
