@@ -20,8 +20,6 @@
     ],
     'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/chrome',
     'browser_tests_sources': [
-      'browser/child_process_security_policy_browser_test.cc',
-      'browser/renderer_host/web_cache_manager_browser_test.cc',
       'browser/ssl/ssl_browser_tests.cc',
     ],
     'browser_tests_sources_win_specific': [
@@ -30,6 +28,9 @@
       'browser/extensions/test_extension_loader.cc',
       'browser/extensions/test_extension_loader.h',
       'browser/views/find_bar_win_browsertest.cc',
+      # TODO(jam): http://crbug.com/15101 These tests fail on Linux and Mac.
+      'browser/child_process_security_policy_browser_test.cc',
+      'browser/renderer_host/web_cache_manager_browser_test.cc',
       # TODO(jcampan): once the task manager works on Mac, move this test to the
       #                non win specific section.
       'browser/task_manager_browsertest.cc',
