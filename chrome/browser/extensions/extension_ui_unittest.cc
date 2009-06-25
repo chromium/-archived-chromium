@@ -67,6 +67,7 @@ TEST(ExtensionUITest, GenerateExtensionsJSONData) {
   // Test Extension1
   extension_path = data_test_dir_path.AppendASCII("extensions")
       .AppendASCII("good")
+      .AppendASCII("Extensions")
       .AppendASCII("behllobkkfkfnphdnhnkndlbkcpglgmj")
       .AppendASCII("1.0.0.0");
 
@@ -89,6 +90,7 @@ TEST(ExtensionUITest, GenerateExtensionsJSONData) {
   // Test Extension2
   extension_path = data_test_dir_path.AppendASCII("extensions")
       .AppendASCII("good")
+      .AppendASCII("Extensions")
       .AppendASCII("hpiknbiabeeppbpihjehijgoemciehgk")
       .AppendASCII("2");
 
@@ -106,6 +108,7 @@ TEST(ExtensionUITest, GenerateExtensionsJSONData) {
   // Test Extension3
   extension_path = data_test_dir_path.AppendASCII("extensions")
       .AppendASCII("good")
+      .AppendASCII("Extensions")
       .AppendASCII("bjafgdebaacbbbecmhlhpofkepfkgcpa")
       .AppendASCII("1.0");
 
