@@ -455,6 +455,9 @@ void WebURLLoaderImpl::Context::OnCompletedRequest(
     multipart_delegate_.reset(NULL);
   }
 
+  // Prevent any further IPC to the browser now that we're complete.
+  bridge_.reset();
+
   if (client_) {
     if (status.status() != URLRequestStatus::SUCCESS) {
       int error_code;
@@ -478,7 +481,6 @@ void WebURLLoaderImpl::Context::OnCompletedRequest(
   // We are done with the bridge now, and so we need to release the reference
   // to ourselves that we took on behalf of the bridge.  This may cause our
   // destruction.
-  bridge_.reset();
   Release();
 }
 
