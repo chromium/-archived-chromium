@@ -361,7 +361,7 @@ bool BackendImpl::OpenEntry(const std::string& key, Entry** entry) {
   DCHECK(entry);
   *entry = cache_entry;
 
-  CACHE_UMA(AGE_MS, "OpenTime", 0, start);
+  CACHE_UMA(AGE_MS, "OpenTime", GetSizeGroup(), start);
   stats_.OnEvent(Stats::OPEN_HIT);
   return true;
 }
@@ -439,7 +439,7 @@ bool BackendImpl::CreateEntry(const std::string& key, Entry** entry) {
 
   cache_entry.swap(reinterpret_cast<EntryImpl**>(entry));
 
-  CACHE_UMA(AGE_MS, "CreateTime", 0, start);
+  CACHE_UMA(AGE_MS, "CreateTime", GetSizeGroup(), start);
   stats_.OnEvent(Stats::CREATE_HIT);
   Trace("create entry hit ");
   return true;
@@ -748,6 +748,17 @@ std::string BackendImpl::HistogramName(const char* name, int experiment) {
   if (!experiment)
     return StringPrintf("DiskCache.%d.%s", cache_type_, name);
   return StringPrintf("DiskCache.%d.%s_%d", cache_type_, name, experiment);
+}
+
+int BackendImpl::GetSizeGroup() {
+  if (disabled_)
+    return 0;
+
+  // We want to report times grouped by the current cache size (50 MB groups).
+  int group = data_->header.num_bytes / (50 * 1024 * 1024);
+  if (group > 6)
+    group = 6;  // Limit the number of groups, just in case.
+  return group;
 }
 
 // We want to remove biases from some histograms so we only send data once per

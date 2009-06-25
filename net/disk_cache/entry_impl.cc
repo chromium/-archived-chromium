@@ -81,7 +81,7 @@ EntryImpl::EntryImpl(BackendImpl* backend, Addr address)
   entry_.LazyInit(backend->File(address), address);
   doomed_ = false;
   backend_ = backend;
-  for (int i = 0; i < NUM_STREAMS; i++) {
+  for (int i = 0; i < kNumStreams; i++) {
     unreported_size_[i] = 0;
   }
 }
@@ -100,7 +100,7 @@ EntryImpl::~EntryImpl() {
     DeleteEntryData(true);
   } else {
     bool ret = true;
-    for (int index = 0; index < NUM_STREAMS; index++) {
+    for (int index = 0; index < kNumStreams; index++) {
       if (user_buffers_[index].get()) {
         if (!(ret = Flush(index, entry_.Data()->data_size[index], false)))
           LOG(ERROR) << "Failed to save user data";
@@ -148,7 +148,7 @@ std::string EntryImpl::GetKey() const {
   if (entry->Data()->key_len > kMaxInternalKeyLength) {
     Addr address(entry->Data()->long_key);
     DCHECK(address.is_initialized());
-    COMPILE_ASSERT(NUM_STREAMS == kKeyFileIndex, invalid_key_index);
+    COMPILE_ASSERT(kNumStreams == kKeyFileIndex, invalid_key_index);
     File* file = const_cast<EntryImpl*>(this)->GetBackingFile(address,
                                                               kKeyFileIndex);
 
@@ -177,7 +177,7 @@ Time EntryImpl::GetLastModified() const {
 }
 
 int32 EntryImpl::GetDataSize(int index) const {
-  if (index < 0 || index >= NUM_STREAMS)
+  if (index < 0 || index >= kNumStreams)
     return 0;
 
   CacheEntryBlock* entry = const_cast<CacheEntryBlock*>(&entry_);
@@ -187,7 +187,7 @@ int32 EntryImpl::GetDataSize(int index) const {
 int EntryImpl::ReadData(int index, int offset, net::IOBuffer* buf, int buf_len,
                         net::CompletionCallback* completion_callback) {
   DCHECK(node_.Data()->dirty);
-  if (index < 0 || index >= NUM_STREAMS)
+  if (index < 0 || index >= kNumStreams)
     return net::ERR_INVALID_ARGUMENT;
 
   int entry_size = entry_.Data()->data_size[index];
@@ -198,9 +198,6 @@ int EntryImpl::ReadData(int index, int offset, net::IOBuffer* buf, int buf_len,
     return net::ERR_INVALID_ARGUMENT;
 
   Time start = Time::Now();
-  static Histogram stats("DiskCache.ReadTime", TimeDelta::FromMilliseconds(1),
-                         TimeDelta::FromSeconds(10), 50);
-  stats.SetFlags(kUmaTargetedHistogramFlag);
 
   if (offset + buf_len > entry_size)
     buf_len = entry_size - offset;
@@ -213,8 +210,7 @@ int EntryImpl::ReadData(int index, int offset, net::IOBuffer* buf, int buf_len,
     // Complete the operation locally.
     DCHECK(kMaxBlockSize >= offset + buf_len);
     memcpy(buf->data() , user_buffers_[index].get() + offset, buf_len);
-    if (backend_->cache_type() == net::DISK_CACHE)
-      stats.AddTime(Time::Now() - start);
+    ReportIOTime(kRead, start);
     return buf_len;
   }
 
@@ -246,8 +242,7 @@ int EntryImpl::ReadData(int index, int offset, net::IOBuffer* buf, int buf_len,
   if (io_callback && completed)
     io_callback->Discard();
 
-  if (backend_->cache_type() == net::DISK_CACHE)
-    stats.AddTime(Time::Now() - start);
+  ReportIOTime(kRead, start);
   return (completed || !completion_callback) ? buf_len : net::ERR_IO_PENDING;
 }
 
@@ -255,7 +250,7 @@ int EntryImpl::WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
                          net::CompletionCallback* completion_callback,
                          bool truncate) {
   DCHECK(node_.Data()->dirty);
-  if (index < 0 || index >= NUM_STREAMS)
+  if (index < 0 || index >= kNumStreams)
     return net::ERR_INVALID_ARGUMENT;
 
   if (offset < 0 || buf_len < 0)
@@ -274,9 +269,6 @@ int EntryImpl::WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
   }
 
   Time start = Time::Now();
-  static Histogram stats("DiskCache.WriteTime", TimeDelta::FromMilliseconds(1),
-                         TimeDelta::FromSeconds(10), 50);
-  stats.SetFlags(kUmaTargetedHistogramFlag);
 
   // Read the size at this point (it may change inside prepare).
   int entry_size = entry_.Data()->data_size[index];
@@ -314,8 +306,7 @@ int EntryImpl::WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
 
     DCHECK(kMaxBlockSize >= offset + buf_len);
     memcpy(user_buffers_[index].get() + offset, buf->data(), buf_len);
-    if (backend_->cache_type() == net::DISK_CACHE)
-      stats.AddTime(Time::Now() - start);
+    ReportIOTime(kWrite, start);
     return buf_len;
   }
 
@@ -351,8 +342,7 @@ int EntryImpl::WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
   if (io_callback && completed)
     io_callback->Discard();
 
-  if (backend_->cache_type() == net::DISK_CACHE)
-    stats.AddTime(Time::Now() - start);
+  ReportIOTime(kWrite, start);
   return (completed || !completion_callback) ? buf_len : net::ERR_IO_PENDING;
 }
 
@@ -363,8 +353,11 @@ int EntryImpl::ReadSparseData(int64 offset, net::IOBuffer* buf, int buf_len,
   if (net::OK != result)
     return result;
 
-  return sparse_->StartIO(SparseControl::kReadOperation, offset, buf, buf_len,
-                          completion_callback);
+  Time start = Time::Now();
+  result = sparse_->StartIO(SparseControl::kReadOperation, offset, buf, buf_len,
+                            completion_callback);
+  ReportIOTime(kSparseRead, start);
+  return result;
 }
 
 int EntryImpl::WriteSparseData(int64 offset, net::IOBuffer* buf, int buf_len,
@@ -374,8 +367,11 @@ int EntryImpl::WriteSparseData(int64 offset, net::IOBuffer* buf, int buf_len,
   if (net::OK != result)
     return result;
 
-  return sparse_->StartIO(SparseControl::kWriteOperation, offset, buf, buf_len,
-                          completion_callback);
+  Time start = Time::Now();
+  result = sparse_->StartIO(SparseControl::kWriteOperation, offset, buf,
+                            buf_len, completion_callback);
+  ReportIOTime(kSparseWrite, start);
+  return result;
 }
 
 int EntryImpl::GetAvailableRange(int64 offset, int len, int64* start) {
@@ -461,7 +457,7 @@ void EntryImpl::DeleteEntryData(bool everything) {
     CACHE_UMA(COUNTS, "DeleteHeader", 0, GetDataSize(0));
   if (GetDataSize(1))
     CACHE_UMA(COUNTS, "DeleteData", 0, GetDataSize(1));
-  for (int index = 0; index < NUM_STREAMS; index++) {
+  for (int index = 0; index < kNumStreams; index++) {
     Addr address(entry_.Data()->data_addr[index]);
     if (address.is_initialized()) {
       DeleteData(address, index);
@@ -585,7 +581,7 @@ void EntryImpl::SetTimes(base::Time last_used, base::Time last_modified) {
 }
 
 bool EntryImpl::CreateDataBlock(int index, int size) {
-  DCHECK(index >= 0 && index < NUM_STREAMS);
+  DCHECK(index >= 0 && index < kNumStreams);
 
   Addr address(entry_.Data()->data_addr[index]);
   if (!CreateBlock(size, &address))
@@ -843,6 +839,26 @@ int EntryImpl::InitSparseData() {
   if (net::OK != result)
     sparse_.reset();
   return result;
+}
+
+void EntryImpl::ReportIOTime(Operation op, const base::Time& start) {
+  int group = backend_->GetSizeGroup();
+  switch (op) {
+    case kRead:
+      CACHE_UMA(AGE_MS, "ReadTime", group, start);
+      break;
+    case kWrite:
+      CACHE_UMA(AGE_MS, "WriteTime", group, start);
+      break;
+    case kSparseRead:
+      CACHE_UMA(AGE_MS, "SparseReadTime", 0, start);
+      break;
+    case kSparseWrite:
+      CACHE_UMA(AGE_MS, "SparseWriteTime", 0, start);
+      break;
+    default:
+      NOTREACHED();
+  }
 }
 
 void EntryImpl::Log(const char* msg) {

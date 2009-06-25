@@ -104,7 +104,7 @@ void Eviction::TrimCache(bool empty) {
     }
   }
 
-  CACHE_UMA(AGE_MS, "TotalTrimTime", 0, start);
+  CACHE_UMA(AGE_MS, "TotalTrimTime", backend_->GetSizeGroup(), start);
   trimming_ = false;
   Trace("*** Trim Cache end ***");
   return;
@@ -276,7 +276,7 @@ void Eviction::TrimCacheV2(bool empty) {
         factory_.NewRunnableMethod(&Eviction::TrimDeleted, empty));
   }
 
-  CACHE_UMA(AGE_MS, "TotalTrimTime", 0, start);
+  CACHE_UMA(AGE_MS, "TotalTrimTime", backend_->GetSizeGroup(), start);
   Trace("*** Trim Cache end ***");
   trimming_ = false;
   return;

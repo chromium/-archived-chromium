@@ -122,6 +122,9 @@ class BackendImpl : public Backend {
     return cache_type_;
   }
 
+  // Returns the group for this client, based on the current cache size.
+  int GetSizeGroup();
+
   // Returns true if we should send histograms for this user again. The caller
   // must call this function only once per run (because it returns always the
   // same thing on a given run).

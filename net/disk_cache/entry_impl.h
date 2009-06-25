@@ -101,7 +101,14 @@ class EntryImpl : public Entry, public base::RefCounted<EntryImpl> {
 
  private:
   enum {
-    NUM_STREAMS = 3
+     kNumStreams = 3
+  };
+
+  enum Operation {
+    kRead,
+    kWrite,
+    kSparseRead,
+    kSparseWrite
   };
 
   ~EntryImpl();
@@ -143,16 +150,19 @@ class EntryImpl : public Entry, public base::RefCounted<EntryImpl> {
   // Initializes the sparse control object. Returns a net error code.
   int InitSparseData();
 
+  // Generates a histogram for the time spent working on this operation.
+  void ReportIOTime(Operation op, const base::Time& start);
+
   // Logs this entry to the internal trace buffer.
   void Log(const char* msg);
 
   CacheEntryBlock entry_;     // Key related information for this entry.
   CacheRankingsBlock node_;   // Rankings related information for this entry.
   BackendImpl* backend_;      // Back pointer to the cache.
-  scoped_array<char> user_buffers_[NUM_STREAMS];  // Store user data.
-  scoped_refptr<File> files_[NUM_STREAMS + 1];  // Files to store external user
-                                                // data and key.
-  int unreported_size_[NUM_STREAMS];  // Bytes not reported yet to the backend.
+  scoped_array<char> user_buffers_[kNumStreams];  // Store user data.
+  scoped_refptr<File> files_[kNumStreams + 1];    // Files to store external
+                                                  // user data and key.
+  int unreported_size_[kNumStreams];  // Bytes not reported yet to the backend.
   bool doomed_;               // True if this entry was removed from the cache.
   scoped_ptr<SparseControl> sparse_;  // Support for sparse entries.
 
