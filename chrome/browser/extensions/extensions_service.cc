@@ -46,8 +46,11 @@
 
 #if defined(OS_WIN)
 #include "app/win_util.h"
-#include "base/win_util.h"
 #include "chrome/browser/extensions/external_registry_extension_provider_win.h"
+#elif defined(OS_MACOSX)
+#include "base/scoped_cftyperef.h"
+#include "base/sys_string_conversions.h"
+#include <CoreFoundation/CFUserNotification.h>
 #endif
 
 // ExtensionsService.
@@ -1045,22 +1048,43 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
     return;
   }
 
-#if defined(OS_WIN)
+  // TODO(extensions): Make better extensions UI. http://crbug.com/12116
+
   // We don't show the install dialog for themes or external extensions.
-  if (!extension.IsTheme() &&
-      !Extension::IsExternalLocation(location) &&
-      frontend_->show_extensions_prompts() &&
-      win_util::MessageBox(GetForegroundWindow(),
-          L"Are you sure you want to install this extension?\n\n"
-          L"This is a temporary message and it will be removed when extensions "
-          L"UI is finalized.",
-          l10n_util::GetString(IDS_PRODUCT_NAME).c_str(),
-          MB_OKCANCEL) != IDOK) {
-    ReportExtensionInstallError(extension_path,
-        "User did not allow extension to be installed.");
-    return;
+  if (!extension.IsTheme() && frontend_->show_extensions_prompts()) {
+#if defined(OS_WIN)
+    if (!Extension::IsExternalLocation(location) &&
+        win_util::MessageBox(GetForegroundWindow(),
+            L"Are you sure you want to install this extension?\n\n"
+            L"This is a temporary message and it will be removed when "
+            L"extensions UI is finalized.",
+            l10n_util::GetString(IDS_PRODUCT_NAME).c_str(),
+            MB_OKCANCEL) != IDOK) {
+      ReportExtensionInstallError(extension_path,
+          "User did not allow extension to be installed.");
+      return;
+    }
+#elif defined(OS_MACOSX)
+    // Using CoreFoundation to do this dialog is unimaginably lame but will do
+    // until the UI is redone.
+    scoped_cftyperef<CFStringRef> product_name(
+        base::SysWideToCFStringRef(l10n_util::GetString(IDS_PRODUCT_NAME)));
+    CFOptionFlags response;
+    CFUserNotificationDisplayAlert(
+        0, kCFUserNotificationCautionAlertLevel, NULL, NULL, NULL,
+        product_name,
+        CFSTR("Are you sure you want to install this extension?\n\n"
+             "This is a temporary message and it will be removed when "
+             "extensions UI is finalized."),
+        NULL, CFSTR("Cancel"), NULL, &response);
+
+    if (response == kCFUserNotificationAlternateResponse) {
+      ReportExtensionInstallError(extension_path,
+          "User did not allow extension to be installed.");
+      return;
+    }
+#endif  // OS_*
   }
-#endif
 
   // If an expected id was provided, make sure it matches.
   if (!expected_id.empty() && expected_id != extension.id()) {

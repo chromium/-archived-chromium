@@ -8,6 +8,10 @@
 
 #if defined(OS_WIN)
 #include "app/win_util.h"
+#elif defined(OS_MACOSX)
+#include "base/scoped_cftyperef.h"
+#include "base/sys_string_conversions.h"
+#include <CoreFoundation/CFUserNotification.h>
 #endif
 #include "base/logging.h"
 #include "base/message_loop.h"
@@ -61,6 +65,15 @@ void ExtensionErrorReporter::ReportError(const std::string& message,
 #if defined(OS_WIN)
     win_util::MessageBox(NULL, UTF8ToWide(message), L"Extension error",
         MB_OK | MB_SETFOREGROUND);
+#elif defined(OS_MACOSX)
+    // There must be a better way to do this, for all platforms.
+    scoped_cftyperef<CFStringRef> message_cf(
+        base::SysUTF8ToCFStringRef(message));
+    CFOptionFlags response;
+    CFUserNotificationDisplayAlert(
+        0, kCFUserNotificationCautionAlertLevel, NULL, NULL, NULL,
+        CFSTR("Extension error"), message_cf,
+        NULL, NULL, NULL, &response);
 #else
     // TODO(port)
 #endif
