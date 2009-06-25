@@ -83,9 +83,6 @@ static int HandleKeyboardEvent(PluginObject *obj,
     case WM_KEYDOWN:
     case WM_SYSKEYDOWN:
       type = Event::TYPE_KEYDOWN;
-      if (wParam == VK_ESCAPE) {
-        obj->CancelFullscreenDisplay();
-      }
       break;
     case WM_KEYUP:
     case WM_SYSKEYUP:
@@ -129,16 +126,23 @@ static int HandleKeyboardEvent(PluginObject *obj,
   }
 
   int modifier_state = 0;
-  if (keyboard_state[VK_CONTROL] < 0) {
+  if (keyboard_state[VK_CONTROL] & 0x80) {
     modifier_state |= Event::MODIFIER_CTRL;
   }
-  if (keyboard_state[VK_SHIFT] < 0) {
+  if (keyboard_state[VK_SHIFT] & 0x80) {
     modifier_state |= Event::MODIFIER_SHIFT;
   }
-  if (keyboard_state[VK_MENU] < 0) {
+  if (keyboard_state[VK_MENU] & 0x80) {
     modifier_state |= Event::MODIFIER_ALT;
   }
   event.set_modifier_state(modifier_state);
+
+  if (event.type() == Event::TYPE_KEYDOWN &&
+      (wParam == VK_ESCAPE ||
+      (wParam == VK_F4 && (modifier_state & Event::MODIFIER_ALT)))) {
+    obj->CancelFullscreenDisplay();
+  }
+
   obj->client()->AddEventToQueue(event);
   return 0;
 }

@@ -248,7 +248,7 @@ class RendererD3D9 : public Renderer {
   // We want to show the message for about 3 seconds.
   ElapsedTimeTimer fullscreen_message_timer_;
   // Draws the actual message.
-  void ShowFullscreenMessage();
+  void ShowFullscreenMessage(float elapsedTime, float display_duration);
 
   // Invalidates all resources which are in D3DPOOL_DEFAULT.
   // Used before we try to reset the device, when the device is lost.

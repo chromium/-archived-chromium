@@ -1025,7 +1025,7 @@ Renderer::InitStatus RendererD3D9::InitPlatformSpecific(
       D3DXCreateFont(d3d_device_,
                      27 /* font_height */,
                      0 /* font width--0 appears to be "don't care" */,
-                     FW_DONTCARE,
+                     FW_BOLD,
                      1 /* MIP levels */,
                      FALSE,
                      DEFAULT_CHARSET,
@@ -1459,37 +1459,48 @@ bool RendererD3D9::BeginDraw() {
   }
 }
 
-void RendererD3D9::ShowFullscreenMessage() {
+void RendererD3D9::ShowFullscreenMessage(float elapsed_time,
+    float display_duration) {
   RECT rect;
-  const float curve_radius = 16.0f;
-  const float curve_radius_squared = curve_radius * curve_radius;
-  const float line_height = 80.0f;
-  const float line_base_height = line_height - 2.0f * curve_radius;
-  const float line_base_height_offset = line_base_height / 2.0f;
-  const float midline_height = height() / 2.0f;
-  const float midline_width = width() / 2.0f;
+  const float line_thickness = 60.0f;
+  const float line_height = line_thickness - 1;  // Prevent a gap at the top.
+  const float line_width = 340.0f;
   const D3DXCOLOR background_color(0.0f, 0.0f, 0.0f, 0.5f);
-  SetRect(&rect, 0, 0, width(), height());
+  const float curve_radius = 9.0f;
+  const float curve_radius_squared = curve_radius * curve_radius;
+  const float line_base_thickness = line_thickness - curve_radius;
+  const float line_base_height = line_height - curve_radius;
+  const float line_x = width() - line_width;
+
+  float y_offset = 0;
+  const float animation_length = 0.25f;
+  if (elapsed_time < animation_length) {
+    y_offset = (elapsed_time / animation_length - 1) * line_height;
+  } else if (display_duration - elapsed_time < animation_length) {
+    y_offset = ((display_duration - elapsed_time) / animation_length - 1) *
+        line_height;
+  }
+
+  SetRect(&rect, static_cast<int>(line_x), static_cast<int>(y_offset),
+      width(), static_cast<int>(y_offset + line_height));
 
   D3DXVECTOR2 line_vertices[2];
-  HR(fullscreen_message_line_->SetWidth(line_base_height));
-  line_vertices[0].x = midline_width - 400.0f - curve_radius;
-  line_vertices[0].y = midline_height;
-  line_vertices[1].x = midline_width + 400.0f + curve_radius;
-  line_vertices[1].y = midline_height;
+  HR(fullscreen_message_line_->SetWidth(line_base_thickness));
+  line_vertices[0].x = line_x;
+  line_vertices[0].y = y_offset + line_base_height / 2;
+  line_vertices[1].x = static_cast<float>(width());
+  line_vertices[1].y = y_offset + line_base_height / 2;
   HR(fullscreen_message_line_->Draw(line_vertices, 2, background_color));
+
   HR(fullscreen_message_line_->SetWidth(1));
   HR(fullscreen_message_line_->Begin());
-  for (int i = 0; i <= curve_radius; ++i) {
-    const float dx = sqrt(curve_radius_squared - i * i);
-    const float dy = i + line_base_height_offset;
-    line_vertices[0].x = midline_width - 400.0f - dx;
-    line_vertices[0].y = midline_height + dy;
-    line_vertices[1].x = midline_width + 400.0f + dx;
-    line_vertices[1].y = midline_height + dy;
-    HR(fullscreen_message_line_->Draw(line_vertices, 2, background_color));
-    line_vertices[0].y = midline_height - dy;
-    line_vertices[1].y = midline_height - dy;
+  for (int i = 0; i < curve_radius; ++i) {
+    const float x = line_x + curve_radius - sqrt(curve_radius_squared - i * i);
+    const float y = y_offset + i + line_base_height;
+    line_vertices[0].x = x;
+    line_vertices[0].y = y;
+    line_vertices[1].x = static_cast<float>(width());
+    line_vertices[1].y = y;
     HR(fullscreen_message_line_->Draw(line_vertices, 2, background_color));
   }
   HR(fullscreen_message_line_->End());
@@ -1499,7 +1510,7 @@ void RendererD3D9::ShowFullscreenMessage() {
   d3d_device_->SetRenderState(D3DRS_ZENABLE, FALSE);
 
   HR(fullscreen_message_font_->DrawText(NULL,
-      L"Press ESC to exit full screen mode.", -1, &rect,
+      L"Press ESC to exit fullscreen", -1, &rect,
       DT_CENTER | DT_VCENTER, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f)));
 
   d3d_device_->SetRenderState(D3DRS_ZENABLE, z_enable);
@@ -1510,10 +1521,13 @@ void RendererD3D9::EndDraw() {
   if (have_device_) {
     if (showing_fullscreen_message_) {
       // Message should display for 3 seconds after transition to fullscreen.
-      if (fullscreen_message_timer_.GetElapsedTimeWithoutClearing() > 3.0f) {
+      float elapsed_time =
+          fullscreen_message_timer_.GetElapsedTimeWithoutClearing();
+      const float display_duration = 3.5f;
+      if (elapsed_time > display_duration) {
         showing_fullscreen_message_ = false;
       } else {
-        ShowFullscreenMessage();
+        ShowFullscreenMessage(elapsed_time, display_duration);
       }
     }
     HR(d3d_device_->EndScene());
