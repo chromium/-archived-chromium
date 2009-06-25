@@ -606,6 +606,14 @@ bool WillHandleBrowserAboutURL(GURL* url) {
     return true;
   }
 
+  // Handle URL to crash the browser process.
+  if (LowerCaseEqualsASCII(url->spec(), chrome::kAboutBrowserCrash)) {
+    // Induce an intentional crash in the browser process.
+    int* bad_pointer = NULL;
+    *bad_pointer = 42;
+    return true;
+  }
+
   // There are a few about: URLs that we hand over to the renderer. If the
   // renderer wants them, don't do any rewriting.
   if (AboutHandler::WillHandle(*url))

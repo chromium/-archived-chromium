@@ -31,6 +31,10 @@ const char kAboutBlankURL[] = "about:blank";
 const char kAboutCacheURL[] = "about:cache";
 const char kAboutMemoryURL[] = "about:memory";
 
+// Use an obfuscated URL to make this nondiscoverable, we only want this
+// to be used for testing.
+const char kAboutBrowserCrash[] = "about:inducebrowsercrashforrealz";
+
 const char kChromeUIDevToolsURL[] = "chrome://devtools/";
 const char kChromeUIDownloadsURL[] = "chrome://downloads/";
 const char kChromeUIExtensionsURL[] = "chrome://extensions/";

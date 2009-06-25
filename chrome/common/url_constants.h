@@ -33,6 +33,7 @@ extern const char kStandardSchemeSeparator[];
 extern const char kAboutBlankURL[];
 extern const char kAboutCacheURL[];
 extern const char kAboutMemoryURL[];
+extern const char kAboutBrowserCrash[];
 
 // chrome: URLs (including schemes). Should be kept in sync with the
 // components below.
