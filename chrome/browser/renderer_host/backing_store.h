@@ -49,6 +49,10 @@ class BackingStore {
   RenderWidgetHost* render_widget_host() const { return render_widget_host_; }
   const gfx::Size& size() { return size_; }
 
+  // The number of bytes that this backing store consumes.  This should roughly
+  // be size_.GetArea() * bytes per pixel.
+  size_t MemorySize();
+
 #if defined(OS_WIN)
   HDC hdc() { return hdc_; }
 

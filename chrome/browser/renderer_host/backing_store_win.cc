@@ -74,6 +74,10 @@ BackingStore::~BackingStore() {
   DeleteDC(hdc_);
 }
 
+size_t BackingStore::MemorySize() {
+  return size_.GetArea() * (color_depth_ / 8);
+}
+
 // static
 bool BackingStore::ColorManagementEnabled() {
   static bool enabled = false;

@@ -77,6 +77,13 @@ BackingStore::~BackingStore() {
   XFreeGC(display_, static_cast<GC>(pixmap_gc_));
 }
 
+size_t BackingStore::MemorySize() {
+  if (!use_render_)
+    return size_.GetArea() * (pixmap_bpp_ / 8);
+  else
+    return size_.GetArea() * 4;
+}
+
 void BackingStore::PaintRectWithoutXrender(TransportDIB* bitmap,
                                            const gfx::Rect &bitmap_rect) {
   const int width = bitmap_rect.width();

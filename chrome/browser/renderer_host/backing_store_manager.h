@@ -63,6 +63,9 @@ class BackingStoreManager {
   // removed, false if it wasn't found.
   static bool ExpireBackingStoreForTest(RenderWidgetHost* host);
 
+  // Current size in bytes of the backing store cache.
+  static size_t MemorySize();
+
  private:
   // Not intended for instantiation.
   BackingStoreManager() {}

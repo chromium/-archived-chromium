@@ -20,6 +20,11 @@ BackingStore::BackingStore(RenderWidgetHost* widget, const gfx::Size& size)
 BackingStore::~BackingStore() {
 }
 
+size_t BackingStore::MemorySize() {
+  // Always 4 bytes per pixel.
+  return size_.GetArea() * 4;
+}
+
 void BackingStore::PaintRect(base::ProcessHandle process,
                              TransportDIB* bitmap,
                              const gfx::Rect& bitmap_rect) {

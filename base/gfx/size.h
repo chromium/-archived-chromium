@@ -30,6 +30,8 @@ class Size {
   int width() const { return width_; }
   int height() const { return height_; }
 
+  int GetArea() const { return width_ * height_; }
+
   void SetSize(int width, int height) {
     set_width(width);
     set_height(height);
