@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -33,9 +33,13 @@ class ClientSocket : public Socket {
   //
   virtual int Connect(CompletionCallback* callback) = 0;
 
-  // Called to disconnect a connected socket.  Does nothing if the socket is
-  // already disconnected.  After calling Disconnect it is possible to call
-  // Connect again to establish a new connection.
+  // Called to disconnect a socket.  Does nothing if the socket is already
+  // disconnected.  After calling Disconnect it is possible to call Connect
+  // again to establish a new connection.
+  //
+  // If IO (Connect, Read, or Write) is pending when the socket is
+  // disconnected, the pending IO is cancelled, and the completion callback
+  // will not be called.
   virtual void Disconnect() = 0;
 
   // Called to test if the connection is still alive.  Returns false if a

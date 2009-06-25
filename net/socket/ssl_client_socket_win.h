@@ -14,13 +14,14 @@
 #include <string>
 
 #include "base/scoped_ptr.h"
-#include "net/base/cert_verifier.h"
 #include "net/base/cert_verify_result.h"
 #include "net/base/completion_callback.h"
 #include "net/base/ssl_config_service.h"
 #include "net/socket/ssl_client_socket.h"
 
 namespace net {
+
+class CertVerifier;
 
 // An SSL client socket implemented with the Windows Schannel.
 class SSLClientSocketWin : public SSLClientSocket {
@@ -104,7 +105,7 @@ class SSLClientSocketWin : public SSLClientSocket {
 
   SecPkgContext_StreamSizes stream_sizes_;
   scoped_refptr<X509Certificate> server_cert_;
-  CertVerifier verifier_;
+  scoped_ptr<CertVerifier> verifier_;
   CertVerifyResult server_cert_verify_result_;
 
   CredHandle* creds_;

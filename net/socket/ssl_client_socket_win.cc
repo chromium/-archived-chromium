@@ -10,6 +10,7 @@
 #include "base/singleton.h"
 #include "base/stl_util-inl.h"
 #include "base/string_util.h"
+#include "net/base/cert_verifier.h"
 #include "net/base/connection_type_histograms.h"
 #include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
@@ -477,6 +478,8 @@ int SSLClientSocketWin::Connect(CompletionCallback* callback) {
 void SSLClientSocketWin::Disconnect() {
   // TODO(wtc): Send SSL close_notify alert.
   completed_handshake_ = false;
+  // Shut down anything that may call us back through io_callback_.
+  verifier_.reset();
   transport_->Disconnect();
 
   if (send_buffer_.pvBuffer)
@@ -853,11 +856,15 @@ int SSLClientSocketWin::DoVerifyCert() {
     flags |= X509Certificate::VERIFY_REV_CHECKING_ENABLED;
   if (ssl_config_.verify_ev_cert)
     flags |= X509Certificate::VERIFY_EV_CERT;
-  return verifier_.Verify(server_cert_, hostname_, flags,
-                          &server_cert_verify_result_, &io_callback_);
+  verifier_.reset(new CertVerifier);
+  return verifier_->Verify(server_cert_, hostname_, flags,
+                           &server_cert_verify_result_, &io_callback_);
 }
 
 int SSLClientSocketWin::DoVerifyCertComplete(int result) {
+  DCHECK(verifier_.get());
+  verifier_.reset();
+
   // If we have been explicitly told to accept this certificate, override the
   // result of verifier_.Verify.
   // Eventually, we should cache the cert verification results so that we don't

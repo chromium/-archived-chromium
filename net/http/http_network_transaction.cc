@@ -399,8 +399,8 @@ uint64 HttpNetworkTransaction::GetUploadProgress() const {
 }
 
 HttpNetworkTransaction::~HttpNetworkTransaction() {
-  // If we still have an open socket, then make sure to disconnect it so we
-  // don't try to reuse it later on.
+  // If we still have an open socket, then make sure to disconnect it so it
+  // won't call us back and we don't try to reuse it later on.
   if (connection_.is_initialized())
     connection_.socket()->Disconnect();
 

@@ -66,6 +66,7 @@
 #include "base/logging.h"
 #include "base/nss_init.h"
 #include "base/string_util.h"
+#include "net/base/cert_verifier.h"
 #include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/base/ssl_info.h"
@@ -366,6 +367,9 @@ void SSLClientSocketNSS::Disconnect() {
     nss_fd_ = NULL;
   }
 
+  // Shut down anything that may call us back (through buffer_send_callback_,
+  // buffer_recv_callback, or _io_callback_).
+  verifier_.reset();
   transport_->Disconnect();
 
   // Reset object state
@@ -721,13 +725,17 @@ int SSLClientSocketNSS::DoVerifyCert(int result) {
     flags |= X509Certificate::VERIFY_REV_CHECKING_ENABLED;
   if (ssl_config_.verify_ev_cert)
     flags |= X509Certificate::VERIFY_EV_CERT;
-  return verifier_.Verify(server_cert_, hostname_, flags,
-                          &server_cert_verify_result_, &io_callback_);
+  verifier_.reset(new CertVerifier);
+  return verifier_->Verify(server_cert_, hostname_, flags,
+                           &server_cert_verify_result_, &io_callback_);
 }
 
 // Derived from AuthCertificateCallback() in
 // mozilla/source/security/manager/ssl/src/nsNSSCallbacks.cpp.
 int SSLClientSocketNSS::DoVerifyCertComplete(int result) {
+  DCHECK(verifier_.get());
+  verifier_.reset();
+
   if (result == OK) {
     // Remember the intermediate CA certs if the server sends them to us.
     CERTCertList* cert_list = CERT_GetCertChainFromCert(

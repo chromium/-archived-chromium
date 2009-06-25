@@ -15,7 +15,6 @@
 #include <string>
 
 #include "base/scoped_ptr.h"
-#include "net/base/cert_verifier.h"
 #include "net/base/cert_verify_result.h"
 #include "net/base/completion_callback.h"
 #include "net/base/nss_memio.h"
@@ -24,6 +23,7 @@
 
 namespace net {
 
+class CertVerifier;
 class X509Certificate;
 
 // An SSL client socket implemented with Mozilla NSS.
@@ -99,7 +99,7 @@ class SSLClientSocketNSS : public SSLClientSocket {
   scoped_refptr<X509Certificate> server_cert_;
   CertVerifyResult server_cert_verify_result_;
 
-  CertVerifier verifier_;
+  scoped_ptr<CertVerifier> verifier_;
 
   bool completed_handshake_;
 
