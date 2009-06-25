@@ -7,6 +7,7 @@
 #include "base/basictypes.h"
 #include "base/pickle.h"
 #include "base/scoped_ptr.h"
+#include "base/string16.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -218,3 +219,30 @@ TEST(PickleTest, EqualsOperator) {
   copy = copy_refs_source_buffer;
   ASSERT_EQ(source.size(), copy.size());
 }
+
+TEST(PickleTest, EvilLengths) {
+  Pickle source;
+  std::string str(10000, 'A');
+  source.WriteData(str.c_str(), 100000);
+  // ReadString16 used to have its read buffer length calculation wrong leading
+  // to out-of-bounds reading.
+  void* iter = NULL;
+  string16 str16;
+  EXPECT_FALSE(source.ReadString16(&iter, &str16));
+
+  // And check we didn't break ReadString16.
+  str16 = (wchar_t) 'A';
+  Pickle str16_pickle;
+  str16_pickle.WriteString16(str16);
+  iter = NULL;
+  EXPECT_TRUE(str16_pickle.ReadString16(&iter, &str16));
+  EXPECT_EQ(1U, str16.length());
+
+  // Check we don't fail in a length check with large WStrings.
+  Pickle big_len;
+  big_len.WriteInt(1 << 30);
+  iter = NULL;
+  std::wstring wstr;
+  EXPECT_FALSE(big_len.ReadWString(&iter, &wstr));
+}
+

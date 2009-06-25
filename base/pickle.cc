@@ -208,6 +208,9 @@ bool Pickle::ReadWString(void** iter, std::wstring* result) const {
   int len;
   if (!ReadLength(iter, &len))
     return false;
+  // Avoid integer overflow.
+  if (len > INT_MAX / static_cast<int>(sizeof(wchar_t)))
+    return false;
   if (!IteratorHasRoomFor(*iter, len * sizeof(wchar_t)))
     return false;
 
@@ -224,7 +227,7 @@ bool Pickle::ReadString16(void** iter, string16* result) const {
   int len;
   if (!ReadLength(iter, &len))
     return false;
-  if (!IteratorHasRoomFor(*iter, len))
+  if (!IteratorHasRoomFor(*iter, len * sizeof(char16)))
     return false;
 
   char16* chars = reinterpret_cast<char16*>(*iter);
