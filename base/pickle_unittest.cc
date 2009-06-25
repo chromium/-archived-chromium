@@ -222,7 +222,7 @@ TEST(PickleTest, EqualsOperator) {
 
 TEST(PickleTest, EvilLengths) {
   Pickle source;
-  std::string str(10000, 'A');
+  std::string str(100000, 'A');
   source.WriteData(str.c_str(), 100000);
   // ReadString16 used to have its read buffer length calculation wrong leading
   // to out-of-bounds reading.
