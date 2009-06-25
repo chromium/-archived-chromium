@@ -166,11 +166,15 @@ typedef unsigned uint32_t;
 
 #define SK_CPU_LENDIAN
 #undef  SK_CPU_BENDIAN
-// we want (memory order) RGBA
+// we want (memory order) BGRA, because that's what core image uses with
+// kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host, which is what
+// Apple recommends for best performance (ARGB becomes BGRA in memory on
+// little-endian) -- and we want skia and coregraphic to have matching memory
+// layouts, so that we don't have to spend time converting between them.
 #define SK_A32_SHIFT    24
-#define SK_R32_SHIFT    0
+#define SK_R32_SHIFT    16
 #define SK_G32_SHIFT    8
-#define SK_B32_SHIFT    16
+#define SK_B32_SHIFT    0
 
 #elif defined(SK_BUILD_FOR_UNIX)
 

@@ -45,6 +45,8 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(CDATASECTION, CDATASection)                                         \
   V(COMMENT, Comment)                                                   \
   V(DOCUMENT, Document)                                                 \
+  V(DATAGRIDCOLUMN, DataGridColumn)                                     \
+  V(DATAGRIDCOLUMNLIST, DataGridColumnList)                             \
   V(DOCUMENTFRAGMENT, DocumentFragment)                                 \
   V(DOCUMENTTYPE, DocumentType)                                         \
   V(ELEMENT, Element)                                                   \

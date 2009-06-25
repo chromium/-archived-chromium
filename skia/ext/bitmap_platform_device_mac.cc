@@ -47,6 +47,10 @@ bool Constrain(int available_size, int* position, int *size) {
 static CGContextRef CGContextForData(void* data, int width, int height) {
   CGColorSpaceRef color_space =
       CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+#define HAS_ARGB_SHIFTS(a, r, g, b) \
+            (SK_A32_SHIFT == (a) && SK_R32_SHIFT == (r) \
+             && SK_G32_SHIFT == (g) && SK_B32_SHIFT == (b))
+#if defined(SK_CPU_LENDIAN) && HAS_ARGB_SHIFTS(24, 16, 8, 0)
   // Allocate a bitmap context with 4 components per pixel (BGRA).  Apple
   // recommends these flags for improved CG performance.
   CGContextRef context =
@@ -54,6 +58,11 @@ static CGContextRef CGContextForData(void* data, int width, int height) {
                             color_space,
                             kCGImageAlphaPremultipliedFirst |
                                 kCGBitmapByteOrder32Host);
+#else
+#error We require that Skia's and CoreGraphics's recommended \
+       image memory layout match.
+#endif
+#undef HAS_ARGB_SHIFTS
   CGColorSpaceRelease(color_space);
 
   if (!context)

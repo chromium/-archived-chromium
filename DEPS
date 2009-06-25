@@ -1,7 +1,7 @@
 vars = {
   "webkit_trunk":
     "http://svn.webkit.org/repository/webkit/trunk",
-  "webkit_revision": "45086",
+  "webkit_revision": "45111",
 }
 
 
@@ -35,7 +35,7 @@ deps = {
     "http://v8.googlecode.com/svn/trunk@2249",
 
   "src/third_party/skia":
-    "http://skia.googlecode.com/svn/trunk@224",
+    "http://skia.googlecode.com/svn/trunk@239",
 
   "src/webkit/data/layout_tests/LayoutTests":
     Var("webkit_trunk") + "/LayoutTests@" + Var("webkit_revision"),

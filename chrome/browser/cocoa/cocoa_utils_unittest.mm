@@ -14,12 +14,11 @@ class CocoaUtilsTest : public testing::Test {
 
   // If not red, is blue.
   // If not tfbit (twenty-four-bit), is 444.
-  // If swap, swap R and B before testing (see TODOs in cocoa_utils.mm)
-  void ShapeHelper(int width, int height, bool isred, bool tfbit, bool swap);
+  void ShapeHelper(int width, int height, bool isred, bool tfbit);
 };
 
 void CocoaUtilsTest::ShapeHelper(int width, int height,
-                                 bool isred, bool tfbit, bool swap) {
+                                 bool isred, bool tfbit) {
   SkBitmap thing;
 
   if (tfbit)
@@ -48,12 +47,6 @@ void CocoaUtilsTest::ShapeHelper(int width, int height,
   [image unlockFocus];
   [color getRed:&red green:&green blue:&blue alpha:&alpha];
 
-  if (swap) {
-    CGFloat tmp = red;
-    red = blue;
-    blue = tmp;
-  }
-
   // Be tolerant of floating point rounding, gamma, etc.
   if (isred) {
     EXPECT_GT(red, 0.8);
@@ -68,15 +61,15 @@ void CocoaUtilsTest::ShapeHelper(int width, int height,
 
 
 TEST_F(CocoaUtilsTest, BitmapToNSImage_RedSquare64x64) {
-  ShapeHelper(64, 64, true, true, true);
+  ShapeHelper(64, 64, true, true);
 }
 
 TEST_F(CocoaUtilsTest, BitmapToNSImage_BlueRectangle199x19) {
-  ShapeHelper(199, 19, false, true, true);
+  ShapeHelper(199, 19, false, true);
 }
 
 TEST_F(CocoaUtilsTest, BitmapToNSImage_BlueRectangle444) {
-  ShapeHelper(200, 200, false, false, false);
+  ShapeHelper(200, 200, false, false);
 }
 
 

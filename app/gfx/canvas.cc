@@ -53,7 +53,7 @@ void Canvas::FillRectInt(const SkColor& color, int x, int y, int w, int h) {
   SkPaint paint;
   paint.setColor(color);
   paint.setStyle(SkPaint::kFill_Style);
-  paint.setPorterDuffXfermode(SkPorterDuff::kSrcOver_Mode);
+  paint.setXfermodeMode(SkXfermode::kSrcOver_Mode);
   FillRectInt(x, y, w, h, paint);
 }
 
@@ -63,11 +63,11 @@ void Canvas::FillRectInt(int x, int y, int w, int h, const SkPaint& paint) {
 }
 
 void Canvas::DrawRectInt(const SkColor& color, int x, int y, int w, int h) {
-  DrawRectInt(color, x, y, w, h, SkPorterDuff::kSrcOver_Mode);
+  DrawRectInt(color, x, y, w, h, SkXfermode::kSrcOver_Mode);
 }
 
 void Canvas::DrawRectInt(const SkColor& color, int x, int y, int w, int h,
-                         SkPorterDuff::Mode mode) {
+                         SkXfermode::Mode mode) {
   SkPaint paint;
   paint.setColor(color);
   paint.setStyle(SkPaint::kStroke_Style);
@@ -75,7 +75,7 @@ void Canvas::DrawRectInt(const SkColor& color, int x, int y, int w, int h,
   // we set a stroke width of 1, for example, this will internally create a
   // path and fill it, which causes problems near the edge of the canvas.
   paint.setStrokeWidth(SkIntToScalar(0));
-  paint.setPorterDuffXfermode(mode);
+  paint.setXfermodeMode(mode);
 
   SkIRect rc = {x, y, x + w, y + h};
   drawIRect(rc, paint);
@@ -236,7 +236,7 @@ void Canvas::TileImageInt(const SkBitmap& bitmap, int src_x, int src_y,
                                                   SkShader::kRepeat_TileMode,
                                                   SkShader::kRepeat_TileMode);
   paint.setShader(shader);
-  paint.setPorterDuffXfermode(SkPorterDuff::kSrcOver_Mode);
+  paint.setXfermodeMode(SkXfermode::kSrcOver_Mode);
 
   // CreateBitmapShader returns a Shader with a reference count of one, we
   // need to unref after paint takes ownership of the shader.

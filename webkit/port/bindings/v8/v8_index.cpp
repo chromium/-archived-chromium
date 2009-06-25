@@ -62,6 +62,8 @@
 #include "V8CSSStyleSheet.h"
 #include "V8CSSVariablesDeclaration.h"
 #include "V8CSSVariablesRule.h"
+#include "V8DataGridColumn.h"
+#include "V8DataGridColumnList.h"
 #include "V8Database.h"
 #include "V8Document.h"
 #include "V8DocumentFragment.h"

@@ -545,7 +545,7 @@ void TabRendererGtk::PaintTabBackground(gfx::Canvas* canvas) {
       canvas->saveLayerAlpha(&bounds,
           static_cast<int>(animation->GetCurrentValue() * kHoverOpacity * 0xff),
               SkCanvas::kARGB_ClipLayer_SaveFlag);
-      canvas->drawARGB(0, 255, 255, 255, SkPorterDuff::kClear_Mode);
+      canvas->drawARGB(0, 255, 255, 255, SkXfermode::kClear_Mode);
       PaintActiveTabBackground(canvas);
       canvas->restore();
     }

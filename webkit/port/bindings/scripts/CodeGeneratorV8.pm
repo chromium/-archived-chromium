@@ -1713,6 +1713,7 @@ my %typeCanFailConversion = (
     "AtomicString" => 0,
     "Attr" => 1,
     "CompareHow" => 0,
+    "DataGridColumn" => 0,
     "DOMString" => 0,
     "DOMWindow" => 0,
     "DocumentType" => 0,

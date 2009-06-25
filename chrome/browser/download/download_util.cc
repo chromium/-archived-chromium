@@ -207,7 +207,7 @@ void PaintDownloadComplete(gfx::Canvas* canvas,
   canvas->saveLayerAlpha(&bounds,
                          static_cast<int>(255.0 * opacity),
                          SkCanvas::kARGB_ClipLayer_SaveFlag);
-  canvas->drawARGB(0, 255, 255, 255, SkPorterDuff::kClear_Mode);
+  canvas->drawARGB(0, 255, 255, 255, SkXfermode::kClear_Mode);
   canvas->DrawBitmapInt(*complete, complete_bounds.x(), complete_bounds.y());
   canvas->restore();
 }

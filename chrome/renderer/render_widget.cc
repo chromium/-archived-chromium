@@ -328,7 +328,7 @@ void RenderWidget::PaintRect(const gfx::Rect& rect,
                                                     SkShader::kRepeat_TileMode,
                                                     SkShader::kRepeat_TileMode);
     paint.setShader(shader)->unref();
-    paint.setPorterDuffXfermode(SkPorterDuff::kSrcOver_Mode);
+    paint.setXfermodeMode(SkXfermode::kSrcOver_Mode);
     canvas->drawPaint(paint);
   }
 

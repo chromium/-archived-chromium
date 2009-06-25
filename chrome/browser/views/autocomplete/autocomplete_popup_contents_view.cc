@@ -873,7 +873,7 @@ void AutocompletePopupContentsView::MakeCanvasTransparent(
   SkColor transparency = GetThemeProvider()->ShouldUseNativeFrame() ?
       kGlassPopupTransparency : kOpaquePopupTransparency;
   paint.setColor(SkColorSetARGB(transparency, 255, 255, 255));
-  paint.setPorterDuffXfermode(SkPorterDuff::kDstIn_Mode);
+  paint.setXfermodeMode(SkXfermode::kDstIn_Mode);
   paint.setStyle(SkPaint::kFill_Style);
   canvas->FillRectInt(0, 0, canvas->getDevice()->width(),
                       canvas->getDevice()->height(), paint);

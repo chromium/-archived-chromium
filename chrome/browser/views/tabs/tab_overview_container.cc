@@ -90,7 +90,7 @@ void TabOverviewContainer::Paint(gfx::Canvas* canvas) {
   paint.setShader(shader);
   shader = NULL;
   paint.setStyle(SkPaint::kFill_Style);
-  paint.setPorterDuffXfermode(SkPorterDuff::kSrcOver_Mode);
+  paint.setXfermodeMode(SkXfermode::kSrcOver_Mode);
   canvas->drawPaint(paint);
 
   // Restore the canvas (resetting the clip).

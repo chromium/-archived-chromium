@@ -33,9 +33,9 @@ class Rect;
 // SkScalarRound.
 //
 // A handful of methods in this class are overloaded providing an additional
-// argument of type SkPorterDuff::Mode. SkPorterDuff::Mode specifies how the
+// argument of type SkXfermode::Mode. SkXfermode::Mode specifies how the
 // source and destination colors are combined. Unless otherwise specified,
-// the variant that does not take a SkPorterDuff::Mode uses a transfer mode
+// the variant that does not take a SkXfermode::Mode uses a transfer mode
 // of kSrcOver_Mode.
 class Canvas : public skia::PlatformCanvas {
  public:
@@ -99,11 +99,11 @@ class Canvas : public skia::PlatformCanvas {
   void FillRectInt(int x, int y, int w, int h, const SkPaint& paint);
 
   // Fills the specified region with the specified color using a transfer
-  // mode of SkPorterDuff::kSrcOver_Mode.
+  // mode of SkXfermode::kSrcOver_Mode.
   void FillRectInt(const SkColor& color, int x, int y, int w, int h);
 
   // Draws a single pixel rect in the specified region with the specified
-  // color, using a transfer mode of SkPorterDuff::kSrcOver_Mode.
+  // color, using a transfer mode of SkXfermode::kSrcOver_Mode.
   //
   // NOTE: if you need a single pixel line, use DraLineInt.
   void DrawRectInt(const SkColor& color, int x, int y, int w, int h);
@@ -113,7 +113,7 @@ class Canvas : public skia::PlatformCanvas {
   //
   // NOTE: if you need a single pixel line, use DraLineInt.
   void DrawRectInt(const SkColor& color, int x, int y, int w, int h,
-                   SkPorterDuff::Mode mode);
+                   SkXfermode::Mode mode);
 
   // Draws a single pixel line with the specified color.
   void DrawLineInt(const SkColor& color, int x1, int y1, int x2, int y2);
