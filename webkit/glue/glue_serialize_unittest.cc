@@ -43,13 +43,6 @@ static std::ostream& operator<<(std::ostream& out, const WebVector<T>& v) {
   return out;
 }
 
-static std::ostream& operator<<(std::ostream& out, const WebHTTPBody& data) {
-  WebHTTPBody::Element element;
-  for (size_t i = 0; data.elementAt(i, element); ++i)
-    out << "[" << element << "] ";
-  return out;
-}
-
 static std::ostream& operator<<(std::ostream& out, const WebPoint& pt) {
   return out << "(" << pt.x << "," << pt.y << ")";
 }
