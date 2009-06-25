@@ -29,6 +29,7 @@ TEST(ExtensionTest, InitFromValueInvalid) {
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions")
       .AppendASCII("good")
+      .AppendASCII("Extensions")
       .AppendASCII("behllobkkfkfnphdnhnkndlbkcpglgmj")
       .AppendASCII("1.0.0.0")
       .AppendASCII(Extension::kManifestFilename);

@@ -78,8 +78,10 @@ IN_PROC_BROWSER_TEST_F(ExtensionShelfModelTest, DISABLED_Basic) {
   // Get the path to our extension.
   FilePath path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &path));
-  path = path.AppendASCII("extensions").
-      AppendASCII("good").AppendASCII(kExtensionId).AppendASCII("1.0.0.0");
+  path = path.AppendASCII("extensions")
+      .AppendASCII("good")
+      .AppendASCII("Extensions")
+      .AppendASCII(kExtensionId).AppendASCII("1.0.0.0");
   ASSERT_TRUE(file_util::DirectoryExists(path));  // sanity check
 
   // Wait for the extension to load and grab a pointer to it.
