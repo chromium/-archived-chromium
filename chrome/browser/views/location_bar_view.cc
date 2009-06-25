@@ -4,11 +4,11 @@
 
 #include "chrome/browser/views/location_bar_view.h"
 
-#include "build/build_config.h"
-
 #if defined(OS_LINUX)
 #include <gtk/gtk.h>
 #endif
+
+#include "build/build_config.h"
 
 #include "app/gfx/canvas.h"
 #include "app/gfx/favicon_size.h"
@@ -228,9 +228,9 @@ void LocationBarView::Update(const TabContents* tab_for_state_restoring) {
   SetSecurityIcon(model_->GetIcon());
   RefreshPageActionViews();
   std::wstring info_text, info_tooltip;
-  SkColor text_color;
-  model_->GetInfoText(&info_text, &text_color, &info_tooltip);
-  SetInfoText(info_text, text_color, info_tooltip);
+  ToolbarModel::InfoTextType info_text_type =
+      model_->GetInfoText(&info_text, &info_tooltip);
+  SetInfoText(info_text, info_text_type, info_tooltip);
   location_entry_->Update(tab_for_state_restoring);
   Layout();
   SchedulePaint();
@@ -649,11 +649,12 @@ void LocationBarView::RefreshPageActionViews() {
 }
 
 void LocationBarView::SetInfoText(const std::wstring& text,
-                                  SkColor text_color,
+                                  ToolbarModel::InfoTextType text_type,
                                   const std::wstring& tooltip_text) {
   info_label_.SetVisible(!text.empty());
   info_label_.SetText(text);
-  info_label_.SetColor(text_color);
+  if (text_type == ToolbarModel::INFO_EV_TEXT)
+    info_label_.SetColor(SkColorSetRGB(0, 150, 20));  // Green.
   info_label_.SetTooltipText(tooltip_text);
 }
 

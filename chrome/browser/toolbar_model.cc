@@ -157,36 +157,32 @@ void ToolbarModel::GetIconHoverText(std::wstring* text, SkColor* text_color) {
   }
 }
 
-void ToolbarModel::GetInfoText(std::wstring* text,
-                               SkColor* text_color,
-                               std::wstring* tooltip) {
-  static const SkColor kEVTextColor =
-      SkColorSetRGB(0, 150, 20);  // Green.
-
+ToolbarModel::InfoTextType ToolbarModel::GetInfoText(std::wstring* text,
+                                                     std::wstring* tooltip) {
   DCHECK(text && tooltip);
   text->clear();
   tooltip->clear();
 
   NavigationController* navigation_controller = GetNavigationController();
   if (!navigation_controller)  // We might not have a controller on init.
-    return;
+    return INFO_NO_INFO;
 
   NavigationEntry* entry = navigation_controller->GetActiveEntry();
   const NavigationEntry::SSLStatus& ssl = entry->ssl();
   if (!entry || ssl.has_mixed_content() ||
       net::IsCertStatusError(ssl.cert_status()) ||
       ((ssl.cert_status() & net::CERT_STATUS_IS_EV) == 0))
-    return;
+    return INFO_NO_INFO;
 
   scoped_refptr<net::X509Certificate> cert;
   CertStore::GetSharedInstance()->RetrieveCert(ssl.cert_id(), &cert);
   if (!cert.get()) {
     NOTREACHED();
-    return;
+    return INFO_NO_INFO;
   }
 
-  *text_color = kEVTextColor;
   SSLManager::GetEVCertNames(*cert, text, tooltip);
+  return INFO_EV_TEXT;
 }
 
 void ToolbarModel::CreateErrorText(NavigationEntry* entry, std::wstring* text) {
@@ -201,8 +197,8 @@ void ToolbarModel::CreateErrorText(NavigationEntry* entry, std::wstring* text) {
                                                NULL, GURL::EmptyGURL()));
   }
   if (ssl.has_unsafe_content()) {
-   errors.push_back(SSLErrorInfo::CreateError(SSLErrorInfo::UNSAFE_CONTENTS,
-                                              NULL, GURL::EmptyGURL()));
+    errors.push_back(SSLErrorInfo::CreateError(SSLErrorInfo::UNSAFE_CONTENTS,
+                                               NULL, GURL::EmptyGURL()));
   }
 
   int error_count = static_cast<int>(errors.size());

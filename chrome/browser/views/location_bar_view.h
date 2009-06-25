@@ -415,7 +415,7 @@ class LocationBarView : public LocationBar,
   // tooltip text.  Call with an empty string if the info label should be
   // hidden.
   void SetInfoText(const std::wstring& text,
-                   SkColor text_color,
+                   ToolbarModel::InfoTextType text_type,
                    const std::wstring& tooltip_text);
 
   // Sets the visibility of view to new_vis. Returns whether the visibility

@@ -39,6 +39,8 @@ const int kSecurityIconPaddingRight = 2;
 // image, but for now we get pretty close by just drawing a solid border.
 const GdkColor kBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
 
+const GdkColor kEvTextColor = GDK_COLOR_RGB(0x00, 0x96, 0x14);  // Green.
+
 }  // namespace
 
 // static
@@ -50,7 +52,9 @@ const GdkColor LocationBarViewGtk::kBackgroundColorByLevel[3] = {
 
 LocationBarViewGtk::LocationBarViewGtk(CommandUpdater* command_updater,
     ToolbarModel* toolbar_model, AutocompletePopupPositioner* popup_positioner)
-    : security_icon_(NULL),
+    : security_lock_icon_view_(NULL),
+      security_warning_icon_view_(NULL),
+      info_label_(NULL),
       profile_(NULL),
       command_updater_(command_updater),
       toolbar_model_(toolbar_model),
@@ -61,7 +65,7 @@ LocationBarViewGtk::LocationBarViewGtk(CommandUpdater* command_updater,
 
 LocationBarViewGtk::~LocationBarViewGtk() {
   // All of our widgets should have be children of / owned by the alignment.
-  alignment_.Destroy();
+  hbox_.Destroy();
 }
 
 void LocationBarViewGtk::Init() {
@@ -72,20 +76,58 @@ void LocationBarViewGtk::Init() {
                                                     popup_positioner_));
   location_entry_->Init();
 
-  alignment_.Own(gtk_alignment_new(0.0, 0.0, 1.0, 1.0));
-  UpdateAlignmentPadding();
+  hbox_.Own(gtk_hbox_new(FALSE, 0));
   // We will paint for the alignment, to paint the background and border.
-  gtk_widget_set_app_paintable(alignment_.get(), TRUE);
+  gtk_widget_set_app_paintable(hbox_.get(), TRUE);
   // Have GTK double buffer around the expose signal.
-  gtk_widget_set_double_buffered(alignment_.get(), TRUE);
+  gtk_widget_set_double_buffered(hbox_.get(), TRUE);
   // Redraw the whole location bar when it changes size (e.g., when toggling
   // the home button on/off.
-  gtk_widget_set_redraw_on_allocate(alignment_.get(), TRUE);
-  g_signal_connect(alignment_.get(), "expose-event",
+  gtk_widget_set_redraw_on_allocate(hbox_.get(), TRUE);
+
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  security_lock_icon_view_ = gtk_image_new_from_pixbuf(
+      rb.GetPixbufNamed(IDR_LOCK));
+  gtk_widget_hide(GTK_WIDGET(security_lock_icon_view_));
+  security_warning_icon_view_ = gtk_image_new_from_pixbuf(
+      rb.GetPixbufNamed(IDR_WARNING));
+  gtk_widget_hide(GTK_WIDGET(security_warning_icon_view_));
+
+  info_label_ = gtk_label_new(NULL);
+  gtk_widget_modify_base(info_label_, GTK_STATE_NORMAL,
+      &LocationBarViewGtk::kBackgroundColorByLevel[0]);
+
+  g_signal_connect(hbox_.get(), "expose-event",
                    G_CALLBACK(&HandleExposeThunk), this);
 
-  gtk_container_add(GTK_CONTAINER(alignment_.get()),
-                    location_entry_->widget());
+  GtkWidget* align = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
+  gtk_alignment_set_padding(GTK_ALIGNMENT(align),
+                            kTopMargin + kBorderThickness,
+                            kBottomMargin + kBorderThickness,
+                            kEditLeftRightPadding, kEditLeftRightPadding);
+  gtk_container_add(GTK_CONTAINER(align), location_entry_->widget());
+  gtk_box_pack_start(GTK_BOX(hbox_.get()), align, TRUE, TRUE, 0);
+
+  // Pack info_label_ and security icons in hbox.  We hide/show them
+  // by SetSecurityIcon() and SetInfoText().
+  align = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
+  gtk_alignment_set_padding(GTK_ALIGNMENT(align),
+                            kTopMargin + kBorderThickness,
+                            kBottomMargin + kBorderThickness,
+                            0, 0);
+  gtk_container_add(GTK_CONTAINER(align), info_label_);
+  gtk_box_pack_end(GTK_BOX(hbox_.get()), align, FALSE, FALSE, 0);
+
+  gtk_misc_set_alignment(GTK_MISC(security_lock_icon_view_), 0.0, 0.5);
+  gtk_misc_set_padding(GTK_MISC(security_lock_icon_view_),
+                       kSecurityIconPaddingRight, 0);
+  gtk_box_pack_end(GTK_BOX(hbox_.get()),
+                   security_lock_icon_view_, FALSE, FALSE, 0);
+  gtk_misc_set_alignment(GTK_MISC(security_warning_icon_view_), 0.0, 0.5);
+  gtk_misc_set_padding(GTK_MISC(security_warning_icon_view_),
+                       kSecurityIconPaddingRight, 0);
+  gtk_box_pack_end(GTK_BOX(hbox_.get()),
+                   security_warning_icon_view_, FALSE, FALSE, 0);
 }
 
 void LocationBarViewGtk::SetProfile(Profile* profile) {
@@ -94,9 +136,10 @@ void LocationBarViewGtk::SetProfile(Profile* profile) {
 
 void LocationBarViewGtk::Update(const TabContents* contents) {
   SetSecurityIcon(toolbar_model_->GetIcon());
+  SetInfoText();
   location_entry_->Update(contents);
   // The security level (background color) could have changed, etc.
-  gtk_widget_queue_draw(alignment_.get());
+  gtk_widget_queue_draw(hbox_.get());
 }
 
 void LocationBarViewGtk::OnAutocompleteAccept(const GURL& url,
@@ -211,7 +254,7 @@ gboolean LocationBarViewGtk::HandleExpose(GtkWidget* widget,
   GdkDrawable* drawable = GDK_DRAWABLE(event->window);
   GdkGC* gc = gdk_gc_new(drawable);
 
-  GdkRectangle* alloc_rect = &alignment_->allocation;
+  GdkRectangle* alloc_rect = &hbox_->allocation;
 
   // The area outside of our margin, which includes the border.
   GdkRectangle inner_rect = {
@@ -247,57 +290,42 @@ gboolean LocationBarViewGtk::HandleExpose(GtkWidget* widget,
                      inner_rect.width,
                      inner_rect.height - (kBorderThickness * 2));
 
-  // If we have an SSL icon, draw it vertically centered on the right side.
-  if (security_icon_) {
-    int icon_width = gdk_pixbuf_get_width(security_icon_);
-    int icon_height = gdk_pixbuf_get_height(security_icon_);
-    int icon_x = inner_rect.x + inner_rect.width -
-        kBorderThickness - icon_width - kSecurityIconPaddingRight;
-    int icon_y = inner_rect.y +
-        ((inner_rect.height - icon_height) / 2);
-    gdk_draw_pixbuf(drawable, gc, security_icon_,
-                    0, 0, icon_x, icon_y, -1, -1,
-                    GDK_RGB_DITHER_NONE, 0, 0);
-  }
-
   g_object_unref(gc);
 
   return FALSE;  // Continue propagating the expose.
 }
 
-void LocationBarViewGtk::UpdateAlignmentPadding() {
-  // When we have an icon, increase our right padding to make space for it.
-  int right_padding = security_icon_ ? gdk_pixbuf_get_width(security_icon_) +
-      kSecurityIconPaddingLeft + kSecurityIconPaddingRight :
-      kEditLeftRightPadding;
-
-  gtk_alignment_set_padding(GTK_ALIGNMENT(alignment_.get()),
-                            kTopMargin + kBorderThickness,
-                            kBottomMargin + kBorderThickness,
-                            kEditLeftRightPadding, right_padding);
-}
-
 void LocationBarViewGtk::SetSecurityIcon(ToolbarModel::Icon icon) {
-  static ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  static GdkPixbuf* kLockIcon = rb.GetPixbufNamed(IDR_LOCK);
-  static GdkPixbuf* kWarningIcon = rb.GetPixbufNamed(IDR_WARNING);
-
+  gtk_widget_hide(GTK_WIDGET(security_lock_icon_view_));
+  gtk_widget_hide(GTK_WIDGET(security_warning_icon_view_));
   switch (icon) {
     case ToolbarModel::LOCK_ICON:
-      security_icon_ = kLockIcon;
+      gtk_widget_show(GTK_WIDGET(security_lock_icon_view_));
       break;
     case ToolbarModel::WARNING_ICON:
-      security_icon_ = kWarningIcon;
+      gtk_widget_show(GTK_WIDGET(security_warning_icon_view_));
       break;
     case ToolbarModel::NO_ICON:
-      security_icon_ = NULL;
       break;
     default:
       NOTREACHED();
-      security_icon_ = NULL;
       break;
   }
+}
 
-  // Make sure there is room for the icon.
-  UpdateAlignmentPadding();
+void LocationBarViewGtk::SetInfoText() {
+  std::wstring info_text, info_tooltip;
+  ToolbarModel::InfoTextType info_text_type =
+      toolbar_model_->GetInfoText(&info_text, &info_tooltip);
+  if (info_text_type == ToolbarModel::INFO_EV_TEXT) {
+    gtk_widget_modify_fg(GTK_WIDGET(info_label_), GTK_STATE_NORMAL,
+                         &kEvTextColor);
+  } else {
+    DCHECK_EQ(info_text_type, ToolbarModel::INFO_NO_INFO);
+    DCHECK(info_text.empty());
+    // Clear info_text.  Should we reset the fg here?
+  }
+  gtk_label_set_text(GTK_LABEL(info_label_), WideToUTF8(info_text).c_str());
+  gtk_widget_set_tooltip_text(GTK_WIDGET(info_label_),
+                              WideToUTF8(info_tooltip).c_str());
 }

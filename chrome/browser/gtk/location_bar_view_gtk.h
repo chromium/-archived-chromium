@@ -32,14 +32,14 @@ class LocationBarViewGtk : public AutocompleteEditController,
   LocationBarViewGtk(CommandUpdater* command_updater,
                      ToolbarModel* toolbar_model,
                      AutocompletePopupPositioner* popup_positioner);
-  ~LocationBarViewGtk();
+  virtual ~LocationBarViewGtk();
 
   void Init();
 
   void SetProfile(Profile* profile);
 
   // Returns the widget the caller should host.  You must call Init() first.
-  GtkWidget* widget() { return alignment_.get(); }
+  GtkWidget* widget() { return hbox_.get(); }
 
   // Updates the location bar.  We also reset the bar's permanent text and
   // security style, and, if |tab_for_state_restoring| is non-NULL, also
@@ -84,18 +84,22 @@ class LocationBarViewGtk : public AutocompleteEditController,
   }
   gboolean HandleExpose(GtkWidget* widget, GdkEventExpose* event);
 
-  // Calculate and set what the padding should be around the location entry.
-  // For example, we will increase the right padding to make room for an icon.
-  void UpdateAlignmentPadding();
-
   // Set the SSL icon we should be showing.
   void SetSecurityIcon(ToolbarModel::Icon icon);
 
-  // The outermost widget we want to be hosted.
-  OwnedWidgetGtk alignment_;
+  // Sets the text that should be displayed in the info label and its associated
+  // tooltip text.  Call with an empty string if the info label should be
+  // hidden.
+  void SetInfoText();
 
-  // The current SSL icon we are showing, or NULL.
-  GdkPixbuf* security_icon_;
+  // The outermost widget we want to be hosted.
+  OwnedWidgetGtk hbox_;
+
+  // SSL icons.
+  GtkWidget* security_lock_icon_view_;
+  GtkWidget* security_warning_icon_view_;
+  // Toolbar info text (EV cert info).
+  GtkWidget* info_label_;
 
   scoped_ptr<AutocompleteEditViewGtk> location_entry_;
 

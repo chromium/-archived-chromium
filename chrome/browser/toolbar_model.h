@@ -31,8 +31,13 @@ class ToolbarModel {
     WARNING_ICON
   };
 
+  enum InfoTextType {
+    INFO_NO_INFO = 0,
+    INFO_EV_TEXT,
+  };
+
   ToolbarModel();
-  ~ToolbarModel();
+  virtual ~ToolbarModel();
 
   // Returns the text that should be displayed in the location bar.
   // Default value: empty string.
@@ -60,10 +65,9 @@ class ToolbarModel {
   // Sets |text| to contain the text that should be displayed on the right of
   // the location bar, and |tooltip| to the tooltip text that should be shown
   // when the mouse hover over that info label.
-  // Default value: empty string.
-  virtual void GetInfoText(std::wstring* text,
-                           SkColor* text_color,
-                           std::wstring* tooltip);
+  // Default value: NO_INFO and empty string for |text| and |tooltip|.
+  virtual InfoTextType GetInfoText(std::wstring* text,
+                                   std::wstring* tooltip);
 
   // Getter/setter of whether the text in location bar is currently being
   // edited.
