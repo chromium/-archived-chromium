@@ -54,7 +54,7 @@ namespace WebKit {
         // Must return non-null.
         virtual WebMimeRegistry* mimeRegistry() = 0;
 
-        // May return null on some platforms.
+        // May return null if sandbox support is not necessary
         virtual WebSandboxSupport* sandboxSupport() = 0;
 
         // May return null on some platforms.
