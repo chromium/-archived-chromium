@@ -49,6 +49,6 @@ void ShownSectionsHandler::HandleSetShownSections(const Value* value) {
 // static
 void ShownSectionsHandler::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterIntegerPref(prefs::kNTPShownSections,
-      THUMB | RECENT | RECOMMENDATIONS);
+      THUMB | RECENT | TIPS);
 }
 

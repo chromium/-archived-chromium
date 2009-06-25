@@ -112,6 +112,12 @@ function saveShownSections() {
   chrome.send('setShownSections', [String(shownSections)]);
 }
 
+function tips(data) {
+  logEvent('received tips data');
+  data.length = Math.min(data.length, 5);
+  processData('#tip-items', data);
+}
+
 function layoutMostVisited() {
   var d0 = Date.now();
   var mostVisitedElement = $('most-visited');
@@ -318,10 +324,10 @@ var Section = {
   THUMB: 1,
   LIST: 2,
   RECENT: 4,
-  RECOMMENDATIONS: 8
+  TIPS: 8
 };
 
-var shownSections = Section.RECENT | Section.RECOMMENDATIONS;
+var shownSections = Section.RECENT | Section.TIPS;
 
 function showSection(section) {
   if (!(section & shownSections)) {
@@ -355,14 +361,14 @@ function hideSection(section) {
 }
 
 function notifyLowerSectionForChange(section, large) {
-  // Notify recent and recommendations if they need to display more data.
-  if (section == Section.RECENT || section == Section.RECOMMENDATIONS) {
+  // Notify recent and tips if they need to display more data.
+  if (section == Section.RECENT || section == Section.TIPS) {
     // we are hiding one of them so if the other one is visible it is now
     // {@code large}.
     if (shownSections & Section.RECENT) {
       recentChangedSize(large);
-    } else if (shownSections & Section.RECOMMENDATIONS) {
-      recommendationsChangedSize(large);
+    } else if (shownSections & Section.TIPS) {
+      tipsChangedSize(large);
     }
   }
 }
@@ -526,7 +532,7 @@ function recentChangedSize(large) {
   // TODO(arv): Implement
 }
 
-function recommendationsChangedSize(large) {
+function tipsChangedSize(large) {
   // TODO(arv): Implement
 }
 
@@ -537,7 +543,7 @@ function layoutLowerSections() {
   // width and opacity.
   var lowerSectionsElement = $('lower-sections');
   var recentElement = $('recent-activities');
-  var recommendationsElement = $('recommendations');
+  var tipsElement = $('tips');
   var spacer = recentElement.nextElementSibling;
 
   var totalWidth = useSmallGrid() ? 692 : 940;
@@ -545,29 +551,29 @@ function layoutLowerSections() {
   var rtl = document.documentElement.dir == 'rtl';
 
   var recentShown = shownSections & Section.RECENT;
-  var recommendationsShown = shownSections & Section.RECOMMENDATIONS;
+  var tipsShown = shownSections & Section.TIPS;
 
-  if (recentShown || recommendationsShown) {
+  if (recentShown || tipsShown) {
     lowerSectionsElement.style.height = '198px';
     lowerSectionsElement.style.opacity = '';
   } else {
     lowerSectionsElement.style.height = lowerSectionsElement.style.opacity = 0;
   }
 
-  if (recentShown && recommendationsShown) {
+  if (recentShown && tipsShown) {
     var w = (totalWidth - spacing) / 2;
-    recentElement.style.width = recommendationsElement.style.width = w + 'px'
-    recentElement.style.opacity = recommendationsElement.style.opacity = '';
+    recentElement.style.width = tipsElement.style.width = w + 'px'
+    recentElement.style.opacity = tipsElement.style.opacity = '';
     spacer.style.width = spacing + 'px';
   } else if (recentShown) {
     recentElement.style.width = totalWidth + 'px';
     recentElement.style.opacity = '';
-    recommendationsElement.style.width =
-        recommendationsElement.style.opacity = 0;
+    tipsElement.style.width =
+        tipsElement.style.opacity = 0;
     spacer.style.width = 0;
-  } else if (recommendationsShown) {
-    recommendationsElement.style.width = totalWidth + 'px';
-    recommendationsElement.style.opacity = '';
+  } else if (tipsShown) {
+    tipsElement.style.width = totalWidth + 'px';
+    tipsElement.style.opacity = '';
     recentElement.style.width = recentElement.style.opacity = 0;
     spacer.style.width = 0;
   }

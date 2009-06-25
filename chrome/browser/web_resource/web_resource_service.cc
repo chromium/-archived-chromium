@@ -16,9 +16,6 @@
 #include "net/url_request/url_request_status.h"
 
 const wchar_t* WebResourceService::kWebResourceTitle = L"title";
-const wchar_t* WebResourceService::kWebResourceThumb = L"thumbnail";
-const wchar_t* WebResourceService::kWebResourceSource = L"source";
-const wchar_t* WebResourceService::kWebResourceSnippet = L"snippet";
 const wchar_t* WebResourceService::kWebResourceURL = L"url";
 
 class WebResourceService::WebResourceFetcher
@@ -139,9 +136,9 @@ class WebResourceService::UnpackerClient
   const std::string& json_data_;
 };
 
+// TODO(mrc): make into a changeable preference.
 const wchar_t* WebResourceService::kDefaultResourceServer =
-    L"http://sites.google.com/a/chromium.org/dev/developers/"
-    L"design-documents/web_resources/popgadget_test.json";
+    L"http://www.google.com/labs/popgadget/world?view=json";
 
 const char* WebResourceService::kResourceDirectoryName =
     "Resources";
@@ -160,10 +157,10 @@ WebResourceService::~WebResourceService() { }
 void WebResourceService::Init() {
   resource_dispatcher_host_ = g_browser_process->resource_dispatcher_host();
   web_resource_fetcher_ = new WebResourceFetcher(this);
-  prefs_->RegisterStringPref(prefs::kNTPWebResourceCacheUpdate, L"0");
+  prefs_->RegisterStringPref(prefs::kNTPTipsCacheUpdate, L"0");
   // TODO(mrc): make sure server name is valid.
-  web_resource_server_ = prefs_->HasPrefPath(prefs::kNTPWebResourceServer) ?
-      prefs_->GetString(prefs::kNTPWebResourceServer) :
+  web_resource_server_ = prefs_->HasPrefPath(prefs::kNTPTipsServer) ?
+      prefs_->GetString(prefs::kNTPTipsServer) :
       kDefaultResourceServer;
 }
 
@@ -174,7 +171,7 @@ void WebResourceService::EndFetch() {
 void WebResourceService::OnWebResourceUnpacked(const ListValue& parsed_json) {
   // Get dictionary of cached preferences.
   web_resource_cache_ =
-      prefs_->GetMutableDictionary(prefs::kNTPWebResourceCache);
+      prefs_->GetMutableDictionary(prefs::kNTPTipsCache);
   ListValue::const_iterator wr_iter = parsed_json.begin();
   int wr_counter = 0;
 
@@ -193,8 +190,8 @@ void WebResourceService::OnWebResourceUnpacked(const ListValue& parsed_json) {
   while (wr_iter != parsed_json.end() &&
          wr_counter < kMaxResourceCacheSize) {
     // Each item is stored in the form of a dictionary.
-    // See web_resource_handler.h for format (this will change until
-    // web resource services are solidified!).
+    // See tips_handler.h for format (this will change until
+    // tip services are solidified!).
     if (!(*wr_iter)->IsType(Value::TYPE_DICTIONARY))
       continue;
     DictionaryValue* wr_dict =
@@ -213,18 +210,10 @@ void WebResourceService::OnWebResourceUnpacked(const ListValue& parsed_json) {
       static_cast<DictionaryValue*>(current_wr);
 
     // Update the resource cache.
-    wr_cache_dict->SetString(L"index", wr_counter_str);
-
-    if (wr_dict->GetString(kWebResourceSnippet, &result_snippet))
-      wr_cache_dict->SetString(kWebResourceSnippet, result_snippet);
-    if (wr_dict->GetString(kWebResourceSource, &result_source))
-      wr_cache_dict->SetString(kWebResourceSource, result_source);
     if (wr_dict->GetString(kWebResourceURL, &result_url))
       wr_cache_dict->SetString(kWebResourceURL, result_url);
     if (wr_dict->GetString(kWebResourceTitle, &result_title))
       wr_cache_dict->SetString(kWebResourceTitle, result_title);
-    if (wr_dict->GetString(kWebResourceThumb, &result_thumbnail))
-      wr_cache_dict->SetString(kWebResourceThumb, result_thumbnail);
 
     wr_counter++;
     wr_iter++;
@@ -236,9 +225,9 @@ void WebResourceService::StartAfterDelay() {
   int64 delay = kStartResourceFetchDelay;
   // Check whether we have ever put a value in the web resource cache;
   // if so, pull it out and see if it's time to update again.
-  if (prefs_->HasPrefPath(prefs::kNTPWebResourceCacheUpdate)) {
+  if (prefs_->HasPrefPath(prefs::kNTPTipsCacheUpdate)) {
     std::wstring last_update_pref =
-      prefs_->GetString(prefs::kNTPWebResourceCacheUpdate);
+      prefs_->GetString(prefs::kNTPTipsCacheUpdate);
     int64 ms_since_update =
         (base::Time::Now() - base::Time::FromDoubleT(
         StringToDouble(WideToASCII(last_update_pref)))).InMilliseconds();
@@ -259,8 +248,8 @@ void WebResourceService::UpdateResourceCache(const std::string& json_data) {
   client->Start();
 
   // Update resource server and cache update time in preferences.
-  prefs_->SetString(prefs::kNTPWebResourceCacheUpdate,
+  prefs_->SetString(prefs::kNTPTipsCacheUpdate,
       DoubleToWString(base::Time::Now().ToDoubleT()));
-  prefs_->SetString(prefs::kNTPWebResourceServer, web_resource_server_);
+  prefs_->SetString(prefs::kNTPTipsServer, web_resource_server_);
 }
 

@@ -193,9 +193,9 @@ extern const wchar_t kEnableUserScripts[];
 
 extern const wchar_t kNTPMostVisitedURLsBlacklist[];
 extern const wchar_t kNTPMostVisitedPinnedURLs[];
-extern const wchar_t kNTPWebResourceCache[];
-extern const wchar_t kNTPWebResourceCacheUpdate[];
-extern const wchar_t kNTPWebResourceServer[];
+extern const wchar_t kNTPTipsCache[];
+extern const wchar_t kNTPTipsCacheUpdate[];
+extern const wchar_t kNTPTipsServer[];
 extern const wchar_t kNTPShownSections[];
 }
 

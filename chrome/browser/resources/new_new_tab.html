@@ -36,11 +36,13 @@ chrome.send('getShownSections');
 chrome.send('getMostVisited');
 chrome.send('getDownloads');
 chrome.send('getRecentlyClosedTabs');
+chrome.send('getTips');
 
 registerCallback('onShownSections');
 registerCallback('mostVisitedPages');
 registerCallback('downloadsList');
 registerCallback('recentlyClosedTabs');
+registerCallback('tips');
 
 logEvent('log start');
 
@@ -65,10 +67,10 @@ logEvent('log start');
   <div section="LIST" show="false" jscontent="hidelist"></div>
   <div section="RECENT" show="true" jscontent="showrecent"></div>
   <div section="RECENT" show="false" jscontent="hiderecent"></div>
-  <div section="RECOMMENDATIONS" show="true"
-       jscontent="showrecommendations"></div>
-  <div section="RECOMMENDATIONS" show="false"
-       jscontent="hiderecommendations"></div>
+  <div section="TIPS" show="true"
+       jscontent="showtips"></div>
+  <div section="TIPS" show="false"
+       jscontent="hidetips"></div>
 </div>
 
   <div id="notification">
@@ -161,9 +163,15 @@ logEvent('log start');
 
     </div><div class="spacer">
 
-    </div><div id="recommendations" class="section">
-      <h2>Even more</h2>
-      <p style="margin:10px">What will we put here?
+    </div><div id="tips" class="section">
+      <h2>Tips and Suggestions</h2>
+      <div class="item-container">
+        <div id="tip-items" jsskip="!processing">
+          <a class="item" jsselect="$this"
+              jsvalues="href:url;title:title"
+              jscontent="title"></a>
+        </div>
+      </div>
     </div>
   </div>
 

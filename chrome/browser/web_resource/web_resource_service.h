@@ -32,9 +32,6 @@ class WebResourceService
   // JSON feed.  Once we have decided on the final format for the
   // web resources servers, these will probably change.
   static const wchar_t* kWebResourceTitle;
-  static const wchar_t* kWebResourceThumb;
-  static const wchar_t* kWebResourceSource;
-  static const wchar_t* kWebResourceSnippet;
   static const wchar_t* kWebResourceURL;
 
   // Default server from which to gather resources.
@@ -83,7 +80,7 @@ class WebResourceService
   bool in_fetch_;
 
   // Maximum number of cached resources available.
-  static const int kMaxResourceCacheSize = 3;
+  static const int kMaxResourceCacheSize = 6;
 
   // Delay on first fetch so we don't interfere with startup.
   static const int kStartResourceFetchDelay = 5000;

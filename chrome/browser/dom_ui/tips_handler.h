@@ -6,10 +6,10 @@
 // has been stored in the user's preferences file.  Used mainly
 // by the suggestions and tips area of the new tab page.
 
-// Current sketch of tip cache format, hardcoded for poptart data in
+// Current sketch of tip cache format, hardcoded for popgadget data in
 // basic text form:
 
-// "web_resource_cache": {
+// "tip_cache": {
 //    "0": {
 //        "index": should become time field (or not)
 //        "snippet": the text of the item
@@ -20,8 +20,8 @@
 //    },
 //    [up to number of items in kMaxWebResourceCacheSize]
 
-#ifndef CHROME_BROWSER_DOM_UI_WEB_RESOURCE_HANDLER_H_
-#define CHROME_BROWSER_DOM_UI_WEB_RESOURCE_HANDLER_H_
+#ifndef CHROME_BROWSER_DOM_UI_TIPS_HANDLER_H_
+#define CHROME_BROWSER_DOM_UI_TIPS_HANDLER_H_
 
 #include "chrome/browser/dom_ui/dom_ui.h"
 
@@ -30,16 +30,16 @@ class DOMUI;
 class PrefService;
 class Value;
 
-class WebResourceHandler : public DOMMessageHandler {
+class TipsHandler : public DOMMessageHandler {
  public:
-  explicit WebResourceHandler(DOMUI* dom_ui);
+  explicit TipsHandler(DOMUI* dom_ui);
 
-  WebResourceHandler();
+  TipsHandler();
 
-  // Callback which pulls web resource data from the preferences.
-  void HandleGetCachedWebResource(const Value* content);
+  // Callback which pulls tips data from the preferences.
+  void HandleGetTips(const Value* content);
 
-  // Register web resource cache with pref service.
+  // Register tips cache with pref service.
   static void RegisterUserPrefs(PrefService* prefs);
 
  private:
@@ -47,10 +47,10 @@ class WebResourceHandler : public DOMMessageHandler {
   DOMUI* dom_ui_;
 
   // Filled with data from cache in preferences.
-  const DictionaryValue* web_resource_cache_;
+  const DictionaryValue* tips_cache_;
 
-  DISALLOW_COPY_AND_ASSIGN(WebResourceHandler);
+  DISALLOW_COPY_AND_ASSIGN(TipsHandler);
 };
 
-#endif  // CHROME_BROWSER_DOM_UI_WEB_RESOURCE_HANDLER_H_
+#endif  // CHROME_BROWSER_DOM_UI_TIPS_HANDLER_H_
 

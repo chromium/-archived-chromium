@@ -23,7 +23,7 @@
 #include "chrome/browser/dom_ui/downloads_dom_handler.h"
 #include "chrome/browser/dom_ui/history_ui.h"
 #include "chrome/browser/dom_ui/shown_sections_handler.h"
-#include "chrome/browser/dom_ui/web_resource_handler.h"
+#include "chrome/browser/dom_ui/tips_handler.h"
 #include "chrome/browser/history/page_usage_data.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
@@ -1421,7 +1421,7 @@ NewTabUI::NewTabUI(TabContents* contents)
     }
 
     if (EnableWebResources())
-      AddMessageHandler(new WebResourceHandler(this));
+      AddMessageHandler(new TipsHandler(this));
 
     AddMessageHandler(new TemplateURLHandler(this));
     AddMessageHandler(new MostVisitedHandler(this));
@@ -1479,7 +1479,7 @@ void NewTabUI::Observe(NotificationType type,
 void NewTabUI::RegisterUserPrefs(PrefService* prefs) {
   MostVisitedHandler::RegisterUserPrefs(prefs);
   if (NewTabUI::EnableWebResources())
-    WebResourceHandler::RegisterUserPrefs(prefs);
+    TipsHandler::RegisterUserPrefs(prefs);
   if (NewTabUI::EnableNewNewTabPage())
     ShownSectionsHandler::RegisterUserPrefs(prefs);
 }

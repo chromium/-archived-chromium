@@ -528,13 +528,13 @@ const wchar_t kNTPMostVisitedPinnedURLs[] = L"ntp.pinned_urls";
 
 // Data downloaded from resource pages (JSON, RSS) to be displayed in the
 // recommendations portion of the NTP.
-const wchar_t kNTPWebResourceCache[] = L"ntp.web_resource_cache";
+const wchar_t kNTPTipsCache[] = L"ntp.tips_cache";
 
-// Last time of update of web_resource_cache.
-const wchar_t kNTPWebResourceCacheUpdate[] = L"ntp.web_resource_update";
+// Last time of update of tips_cache.
+const wchar_t kNTPTipsCacheUpdate[] = L"ntp.tips_cache_update";
 
-// Last server used to fill web_resource_cache.
-const wchar_t kNTPWebResourceServer[] = L"ntp.web_resource_server";
+// Last server used to fill tips_cache.
+const wchar_t kNTPTipsServer[] = L"ntp.web_resource_server";
 
 // Which sections should be visible on the new tab page
 // 1 - Show the most visited sites in a grid
