@@ -477,21 +477,6 @@ void WebViewImpl::MouseDown(const WebMouseEvent& event) {
   if (event.button == WebMouseEvent::ButtonRight)
     MouseContextMenu(event);
 #endif
-
-#if defined(OS_LINUX)
-  // If the event was a middle click, attempt to copy text into the focused
-  // frame.
-  if (event.button == WebMouseEvent::ButtonMiddle) {
-    Frame* focused = GetFocusedWebCoreFrame();
-    if (!focused)
-      return;
-    Editor* editor = focused->editor();
-    if (!editor || !editor->canEdit())
-      return;
-
-    delegate_->PasteFromSelectionClipboard();
-  }
-#endif
 }
 
 void WebViewImpl::MouseContextMenu(const WebMouseEvent& event) {
@@ -534,6 +519,34 @@ void WebViewImpl::MouseUp(const WebMouseEvent& event) {
   // On Mac/Linux, we handle it on mouse down, not up.
   if (event.button == WebMouseEvent::ButtonRight)
     MouseContextMenu(event);
+#endif
+
+#if defined(OS_LINUX)
+  // If the event was a middle click, attempt to copy text into the focused
+  // frame.
+  //
+  // This code is in the mouse up handler. There is some debate about putting
+  // this here, as opposed to the mouse down handler.
+  //   xterm: pastes on up.
+  //   GTK: pastes on down.
+  //   Firefox: pastes on up.
+  //   Midori: couldn't paste at all with 0.1.2
+  //
+  // There is something of a webcompat angle to this well, as highlighted by
+  // crbug.com/14608. Pages can clear text boxes 'onclick' and, if we paste on
+  // down then the text is pasted just before the onclick handler runs and
+  // clears the text box. So it's important this happens after the
+  // handleMouseReleaseEvent() earlier in this function
+  if (event.button == WebMouseEvent::ButtonMiddle) {
+    Frame* focused = GetFocusedWebCoreFrame();
+    if (!focused)
+      return;
+    Editor* editor = focused->editor();
+    if (!editor || !editor->canEdit())
+      return;
+
+    delegate_->PasteFromSelectionClipboard();
+  }
 #endif
 }
 
