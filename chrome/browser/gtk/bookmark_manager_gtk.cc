@@ -425,6 +425,8 @@ GtkWidget* BookmarkManagerGtk::MakeRightPane() {
   gtk_tree_view_append_column(GTK_TREE_VIEW(right_tree_view_), title_column);
   gtk_tree_view_append_column(GTK_TREE_VIEW(right_tree_view_), url_column);
   gtk_tree_view_append_column(GTK_TREE_VIEW(right_tree_view_), path_column_);
+  gtk_tree_selection_set_mode(right_selection(), GTK_SELECTION_MULTIPLE);
+
   g_signal_connect(right_tree_view_, "row-activated",
                    G_CALLBACK(OnRightTreeViewRowActivated), this);
   g_signal_connect(right_selection(), "changed",
@@ -810,10 +812,9 @@ void BookmarkManagerGtk::OnRightTreeViewDragGet(
     GtkWidget* tree_view,
     GdkDragContext* context, GtkSelectionData* selection_data,
     guint target_type, guint time, BookmarkManagerGtk* bookmark_manager) {
-  // TODO(estade): support multiple target drag.
-  BookmarkNode* node = bookmark_manager->GetRightSelection().at(0);
-  bookmark_utils::WriteBookmarkToSelection(node, selection_data, target_type,
-                                           bookmark_manager->profile_);
+  bookmark_utils::WriteBookmarksToSelection(
+      bookmark_manager->GetRightSelection(), selection_data, target_type,
+      bookmark_manager->profile_);
 }
 
 // static
@@ -864,23 +865,20 @@ void BookmarkManagerGtk::OnRightTreeViewDragReceived(
   }
 
   if (drop_before || drop_after || !path) {
-    if (path) {
-      if (drop_before)
-        gtk_tree_path_prev(path);
-      else
-        gtk_tree_path_next(path);
-    }
+    if (path && drop_after)
+      gtk_tree_path_next(path);
     // We will get a null path when the drop is below the lowest row.
     parent = bm->GetFolder();
-    idx = !path ? parent->GetChildCount() :
-        gtk_tree_path_get_indices(path)[gtk_tree_path_get_depth(path) - 1];
+    idx = !path ? parent->GetChildCount() : gtk_tree_path_get_indices(path)[0];
   }
 
   for (std::vector<BookmarkNode*>::iterator it = nodes.begin();
        it != nodes.end(); ++it) {
     // Don't try to drop a node into one of its descendants.
-    if (!parent->HasAncestor(*it))
-      bm->model_->Move(*it, parent, idx++);
+    if (!parent->HasAncestor(*it)) {
+      bm->model_->Move(*it, parent, idx);
+      idx = parent->IndexOfChild(*it) + 1;
+    }
   }
 
   gtk_tree_path_free(path);

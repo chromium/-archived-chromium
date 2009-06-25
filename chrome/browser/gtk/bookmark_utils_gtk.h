@@ -35,6 +35,12 @@ void WriteBookmarkToSelection(BookmarkNode* node,
                               guint target_type,
                               Profile* profile);
 
+// Pickle a vector of nodes into a GtkSelection.
+void WriteBookmarksToSelection(const std::vector<BookmarkNode*>& nodes,
+                               GtkSelectionData* selection_data,
+                               guint target_type,
+                               Profile* profile);
+
 // Un-pickle node(s) from a GtkSelection.
 // The last two arguments are out parameters.
 std::vector<BookmarkNode*> GetNodesFromSelection(

@@ -817,11 +817,12 @@ void BookmarkBarGtk::OnToolbarDragReceived(GtkWidget* widget,
                                             &delete_selection_data,
                                             &dnd_success);
   DCHECK(!nodes.empty());
+  gint index = gtk_toolbar_get_drop_index(
+      GTK_TOOLBAR(bar->bookmark_toolbar_.get()), x, y);
   for (std::vector<BookmarkNode*>::iterator it = nodes.begin();
        it != nodes.end(); ++it) {
-    gint index = gtk_toolbar_get_drop_index(
-        GTK_TOOLBAR(bar->bookmark_toolbar_.get()), x, y);
-    bar->model_->Move(*it, bar->model_->GetBookmarkBarNode(), index++);
+    bar->model_->Move(*it, bar->model_->GetBookmarkBarNode(), index);
+    index = bar->model_->GetBookmarkBarNode()->IndexOfChild(*it) + 1;
   }
 
   gtk_drag_finish(context, dnd_success, delete_selection_data, time);

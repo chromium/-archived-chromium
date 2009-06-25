@@ -73,9 +73,18 @@ void WriteBookmarkToSelection(BookmarkNode* node,
                               guint target_type,
                               Profile* profile) {
   DCHECK(node);
+  std::vector<BookmarkNode*> nodes;
+  nodes.push_back(node);
+  WriteBookmarksToSelection(nodes, selection_data, target_type, profile);
+}
+
+void WriteBookmarksToSelection(const std::vector<BookmarkNode*>& nodes,
+                               GtkSelectionData* selection_data,
+                               guint target_type,
+                               Profile* profile) {
   switch (target_type) {
     case dnd::X_CHROME_BOOKMARK_ITEM: {
-      BookmarkDragData data(node);
+      BookmarkDragData data(nodes);
       Pickle pickle;
       data.WriteToPickle(profile, &pickle);
 
