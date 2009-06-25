@@ -21,8 +21,7 @@ class MockReader :
  public:
   MockReader()
       : called_(false),
-        expecting_call_(false),
-        wait_for_read_(false, false) {
+        expecting_call_(false) {
   }
 
   virtual ~MockReader() {
@@ -34,7 +33,6 @@ class MockReader :
     expecting_call_ = false;
     called_ = false;
     buffer_ = NULL;
-    wait_for_read_.Reset();
   }
 
   // Executes an asynchronous read on the given filter.
@@ -43,12 +41,6 @@ class MockReader :
     called_ = false;
     expecting_call_ = true;
     filter->Read(NewCallback(this, &MockReader::OnReadComplete));
-  }
-
-  // Waits 500ms for the read callback to be completed.  Returns true if the
-  // read was completed, false otherwise.
-  bool WaitForRead() {
-    return wait_for_read_.TimedWait(base::TimeDelta::FromMilliseconds(500));
   }
 
   // Mock accessors.
@@ -63,7 +55,6 @@ class MockReader :
     expecting_call_ = false;
     called_ = true;
     buffer_ = buffer;
-    wait_for_read_.Signal();
   }
 
   // Reference to the buffer provided in the callback.
@@ -74,9 +65,6 @@ class MockReader :
 
   // Whether or not this reader was expecting a callback.
   bool expecting_call_;
-
-  // Used by tests to wait for the callback to be executed.
-  base::WaitableEvent wait_for_read_;
 
   DISALLOW_COPY_AND_ASSIGN(MockReader);
 };

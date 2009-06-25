@@ -333,6 +333,9 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
   typedef std::vector<FilterHostImpl*> FilterHostVector;
   FilterHostVector filter_hosts_;
 
+  typedef std::vector<base::Thread*> FilterThreadVector;
+  FilterThreadVector filter_threads_;
+
   DISALLOW_COPY_AND_ASSIGN(PipelineThread);
 };
 

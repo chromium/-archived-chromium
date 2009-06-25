@@ -16,8 +16,8 @@
 // excessive memory consumption.
 //
 // When stopped, FFmpegDemuxer and FFmpegDemuxerStream release all callbacks
-// and buffered packets and shuts down its internal thread.  Reads from a
-// stopped FFmpegDemuxerStream will not be replied to.
+// and buffered packets.  Reads from a stopped FFmpegDemuxerStream will not be
+// replied to.
 
 #ifndef MEDIA_FILTERS_FFMPEG_DEMUXER_H_
 #define MEDIA_FILTERS_FFMPEG_DEMUXER_H_
@@ -25,9 +25,6 @@
 #include <deque>
 #include <vector>
 
-#include "base/lock.h"
-#include "base/thread.h"
-#include "base/waitable_event.h"
 #include "media/base/buffers.h"
 #include "media/base/factory.h"
 #include "media/base/filters.h"
@@ -59,20 +56,20 @@ class FFmpegDemuxerStream : public DemuxerStream, public AVStreamProvider {
   // Returns true is this stream has pending reads, false otherwise.
   //
   // Safe to call on any thread.
-  bool HasPendingReads();
+  virtual bool HasPendingReads();
 
   // Enqueues and takes ownership over the given AVPacket, returns the timestamp
   // of the enqueued packet.
-  base::TimeDelta EnqueuePacket(AVPacket* packet);
+  virtual base::TimeDelta EnqueuePacket(AVPacket* packet);
 
   // Signals to empty the buffer queue and mark next packet as discontinuous.
-  void FlushBuffers();
+  virtual void FlushBuffers();
 
   // Empties the queues and ignores any additional calls to Read().
-  void Stop();
+  virtual void Stop();
 
   // Returns the duration of this stream.
-  base::TimeDelta duration() { return duration_; }
+  virtual base::TimeDelta duration() { return duration_; }
 
   // DemuxerStream implementation.
   virtual const MediaFormat& media_format();
@@ -85,8 +82,12 @@ class FFmpegDemuxerStream : public DemuxerStream, public AVStreamProvider {
   virtual void* QueryInterface(const char* interface_id);
 
  private:
-  // Returns true if there are still pending reads.
-  bool FulfillPendingReads();
+  // Carries out enqueuing a pending read on the demuxer thread.
+  void ReadTask(Callback1<Buffer*>::Type* read_callback);
+
+  // Attempts to fulfill a single pending read by dequeueing a buffer and read
+  // callback pair and executing the callback.
+  void FulfillPendingRead();
 
   // Converts an FFmpeg stream timestamp into a base::TimeDelta.
   base::TimeDelta ConvertTimestamp(int64 timestamp);
@@ -98,9 +99,7 @@ class FFmpegDemuxerStream : public DemuxerStream, public AVStreamProvider {
   bool discontinuous_;
   bool stopped_;
 
-  Lock lock_;
-
-  typedef std::deque< scoped_refptr<Buffer> > BufferQueue;
+  typedef std::deque<scoped_refptr<Buffer> > BufferQueue;
   BufferQueue buffer_queue_;
 
   typedef std::deque<Callback1<Buffer*>::Type*> ReadQueue;
@@ -116,8 +115,8 @@ class FFmpegDemuxer : public Demuxer {
     return new FilterFactoryImpl0<FFmpegDemuxer>();
   }
 
-  // Called by FFmpegDemuxerStreams to post a demuxing task.
-  void PostDemuxTask();
+  // Posts a task to perform additional demuxing.
+  virtual void PostDemuxTask();
 
   // MediaFilter implementation.
   virtual void Stop();
@@ -129,8 +128,8 @@ class FFmpegDemuxer : public Demuxer {
   virtual scoped_refptr<DemuxerStream> GetStream(int stream_id);
 
  private:
-  // Accesses |thread_| to create a helper method used by every test.
-  friend class FFmpegDemuxerTest;
+  // Allow FFmpegDemuxerStream to post tasks to our message loop.
+  friend class FFmpegDemuxerStream;
 
   // Only allow a factory to create this class.
   friend class FilterFactoryImpl0<FFmpegDemuxer>;
@@ -182,8 +181,8 @@ class FFmpegDemuxer : public Demuxer {
   StreamVector streams_;
   StreamVector packet_streams_;
 
-  // Thread handle.
-  base::Thread thread_;
+  // Used for debugging.
+  PlatformThreadId thread_id_;
 
   DISALLOW_COPY_AND_ASSIGN(FFmpegDemuxer);
 };
