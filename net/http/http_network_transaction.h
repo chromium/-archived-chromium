@@ -341,10 +341,11 @@ class HttpNetworkTransaction : public HttpTransaction {
   size_t request_headers_bytes_sent_;
   scoped_ptr<UploadDataStream> request_body_stream_;
 
-  // The read buffer may be larger than it is full.  The 'capacity' indicates
-  // the allocation size of the buffer, and the 'len' indicates how much data
-  // is in the buffer already.  The 'body offset' indicates the offset of the
-  // start of the response body within the read buffer.
+  // The read buffer |header_buf_| may be larger than it is full.  The
+  // 'capacity' indicates the allocation size of the buffer, and the 'len'
+  // indicates how much data is in the buffer already.  The 'body offset'
+  // indicates the offset of the start of the response body within the read
+  // buffer.
   scoped_refptr<ResponseHeaders> header_buf_;
   int header_buf_capacity_;
   int header_buf_len_;

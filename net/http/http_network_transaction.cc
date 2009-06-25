@@ -916,8 +916,9 @@ int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
 
 int HttpNetworkTransaction::DoReadBody() {
   DCHECK(read_buf_);
-  DCHECK(read_buf_len_ > 0);
+  DCHECK_GT(read_buf_len_, 0);
   DCHECK(connection_.is_initialized());
+  DCHECK(!header_buf_->headers() || header_buf_body_offset_ >= 0);
 
   next_state_ = STATE_READ_BODY_COMPLETE;
 
@@ -1141,6 +1142,8 @@ void HttpNetworkTransaction::LogBlockedTunnelResponse(
 }
 
 int HttpNetworkTransaction::DidReadResponseHeaders() {
+  DCHECK_GE(header_buf_body_offset_, 0);
+
   scoped_refptr<HttpResponseHeaders> headers;
   if (has_found_status_line_start()) {
     headers = new HttpResponseHeaders(
@@ -1176,7 +1179,7 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
         request_headers_->headers_.clear();
         request_headers_bytes_sent_ = 0;
         header_buf_len_ = 0;
-        header_buf_body_offset_ = 0;
+        header_buf_body_offset_ = -1;
         establishing_tunnel_ = false;
         return OK;
 
