@@ -27,8 +27,8 @@ namespace {
 const int kAlertTimeoutMs = 20000;
 
 // The extensions we're using as our test case.
-const char* kGoodExtension1Id = "00123456789abcdef0123456789abcdef0123456";
-const char* kGoodCrxId        = "00123456789abcdef0123456789abcdef0123456";
+const char* kGoodExtension1Id = "behllobkkfkfnphdnhnkndlbkcpglgmj";
+const char* kGoodCrxId        = "ldnnhddmnhbkjipkidpdiheffobcpfmf";
 
 };  // namespace
 
@@ -80,9 +80,6 @@ class ExtensionViewTest : public InProcessBrowserTest {
     // with the wrong MessageLoop.
     ExtensionErrorReporter::Init(false);
 
-    // Use single-process in an attempt to speed it up and make it less flaky.
-    //EnableSingleProcess();
-
     InProcessBrowserTest::SetUp();
   }
   virtual void SetUpCommandLine(CommandLine* command_line) {
@@ -97,8 +94,11 @@ IN_PROC_BROWSER_TEST_F(ExtensionViewTest, DISABLED_Toolstrip) {
   // Get the path to our extension.
   FilePath path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &path));
-  path = path.AppendASCII("extensions").
-      AppendASCII("good").AppendASCII("extension1").AppendASCII("1");
+  path = path.AppendASCII("extensions")
+      .AppendASCII("good")
+      .AppendASCII("Extensions")
+      .AppendASCII("behllobkkfkfnphdnhnkndlbkcpglgmj")
+      .AppendASCII("1.0.0.0");
   ASSERT_TRUE(file_util::DirectoryExists(path));  // sanity check
 
   // Wait for the extension to load and grab a pointer to it.
@@ -128,8 +128,11 @@ IN_PROC_BROWSER_TEST_F(ExtensionViewTest, DISABLED_Shelf) {
   // Get the path to our extension.
   FilePath path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &path));
-  path = path.AppendASCII("extensions").
-      AppendASCII("good").AppendASCII("extension1").AppendASCII("1");
+  path = path.AppendASCII("extensions")
+      .AppendASCII("good")
+      .AppendASCII("Extensions")
+      .AppendASCII("behllobkkfkfnphdnhnkndlbkcpglgmj")
+      .AppendASCII("1.0.0.0");
   ASSERT_TRUE(file_util::DirectoryExists(path));  // sanity check
 
   // Wait for the extension to load and grab a pointer to it.

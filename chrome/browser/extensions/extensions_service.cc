@@ -215,12 +215,14 @@ class ExtensionsServiceBackend::UnpackerClient
 
 ExtensionsService::ExtensionsService(Profile* profile,
                                      const CommandLine* command_line,
+                                     PrefService* prefs,
+                                     const FilePath& install_directory,
                                      MessageLoop* frontend_loop,
                                      MessageLoop* backend_loop)
-    : extension_prefs_(new ExtensionPrefs(profile->GetPrefs())),
+    : extension_prefs_(new ExtensionPrefs(prefs, install_directory)),
       extension_process_manager_(new ExtensionProcessManager(profile)),
       backend_loop_(backend_loop),
-      install_directory_(profile->GetPath().AppendASCII(kInstallDirectoryName)),
+      install_directory_(install_directory),
       extensions_enabled_(false),
       show_extensions_prompts_(true),
       ready_(false) {

@@ -68,11 +68,76 @@ void InstalledExtensions::VisitInstalledExtensions(
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ExtensionPrefs::ExtensionPrefs(PrefService* prefs) : prefs_(prefs) {
+ExtensionPrefs::ExtensionPrefs(PrefService* prefs, const FilePath& root_dir)
+    : prefs_(prefs),
+      install_directory_(root_dir) {
   if (!prefs_->FindPreference(kExtensionsPref))
     prefs_->RegisterDictionaryPref(kExtensionsPref);
   if (!prefs->FindPreference(kExtensionShelf))
     prefs->RegisterListPref(kExtensionShelf);
+  MakePathsRelative();
+}
+
+static FilePath::StringType MakePathRelative(const FilePath& parent,
+                                             const FilePath& child,
+                                             bool *dirty) {
+  if (!parent.IsParent(child))
+    return child.value();
+
+  if (dirty)
+    *dirty = true;
+  FilePath::StringType retval = child.value().substr(
+      parent.value().length());
+  if (FilePath::IsSeparator(retval[0]))
+    return retval.substr(1);
+  else
+    return retval;
+}
+
+void ExtensionPrefs::MakePathsRelative() {
+  bool dirty = false;
+  const DictionaryValue* dict = prefs_->GetMutableDictionary(kExtensionsPref);
+  if (!dict || dict->GetSize() == 0)
+    return;
+
+  for (DictionaryValue::key_iterator i = dict->begin_keys();
+       i != dict->end_keys(); ++i) {
+    DictionaryValue* extension_dict;
+    if (!dict->GetDictionary(*i, &extension_dict))
+      continue;
+    FilePath::StringType path_string;
+    if (!extension_dict->GetString(kPrefPath, &path_string))
+      continue;
+    FilePath path(path_string);
+    if (path.IsAbsolute()) {
+      extension_dict->SetString(kPrefPath,
+          MakePathRelative(install_directory_, path, &dirty));
+    }
+  }
+  if (dirty)
+    prefs_->ScheduleSavePersistentPrefs();
+}
+
+void ExtensionPrefs::MakePathsAbsolute(DictionaryValue* dict) {
+  if (!dict || dict->GetSize() == 0)
+    return;
+
+  for (DictionaryValue::key_iterator i = dict->begin_keys();
+       i != dict->end_keys(); ++i) {
+    DictionaryValue* extension_dict;
+    if (!dict->GetDictionary(*i, &extension_dict)) {
+      NOTREACHED();
+      continue;
+    }
+    FilePath::StringType path_string;
+    if (!extension_dict->GetString(kPrefPath, &path_string)) {
+      NOTREACHED();
+      continue;
+    }
+    DCHECK(!FilePath(path_string).IsAbsolute());
+    extension_dict->SetString(
+        kPrefPath, install_directory_.Append(path_string).value());
+  }
 }
 
 DictionaryValue* ExtensionPrefs::CopyCurrentExtensions() {
@@ -80,6 +145,7 @@ DictionaryValue* ExtensionPrefs::CopyCurrentExtensions() {
   if (extensions) {
     DictionaryValue* copy =
         static_cast<DictionaryValue*>(extensions->DeepCopy());
+    MakePathsAbsolute(copy);
     return copy;
   }
   return new DictionaryValue;
@@ -144,8 +210,9 @@ void ExtensionPrefs::OnExtensionInstalled(Extension* extension) {
                       Value::CreateIntegerValue(Extension::ENABLED));
   UpdateExtensionPref(id, kPrefLocation,
                       Value::CreateIntegerValue(extension->location()));
-  UpdateExtensionPref(id, kPrefPath,
-                      Value::CreateStringValue(extension->path().value()));
+  FilePath::StringType path = MakePathRelative(install_directory_,
+      extension->path(), NULL);
+  UpdateExtensionPref(id, kPrefPath, Value::CreateStringValue(path));
   prefs_->ScheduleSavePersistentPrefs();
 }
 

@@ -1,0 +1,26 @@
+{
+   "extensions": {
+      "settings": {
+         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": {
+            "location": 1,
+            "path": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/1",
+            "state": 1
+         },
+         "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": {
+            "location": 1,
+            "path": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/1",
+            "state": 1
+         },
+         "bjafgdebaacbbbecmhlhpofkepfkgcpa": {
+            "location": 1,
+            "path": "bjafgdebaacbbbecmhlhpofkepfkgcpa/1.0",
+            "state": 1
+         },
+            "cccccccccccccccccccccccccccccccc": {
+            "location": 1,
+            "path": "cccccccccccccccccccccccccccccccc/1.0",
+            "state": 1
+         }
+      }
+   }
+}

@@ -489,11 +489,8 @@ FilePath Extension::GetResourcePath(const FilePath& extension_path,
     return FilePath();
 
   // Double-check that the path we ended up with is actually inside the
-  // extension root. We can do this with a simple prefix match because:
-  // a) We control the prefix on both sides, and they should match.
-  // b) GURL normalizes things like "../" and "//" before it gets to us.
-  if (ret_val.value().find(extension_path.value() +
-                           FilePath::kSeparators[0]) != 0)
+  // extension root.
+  if (!extension_path.IsParent(ret_val))
     return FilePath();
 
   return ret_val;

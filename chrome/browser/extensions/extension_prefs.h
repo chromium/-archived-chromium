@@ -19,7 +19,7 @@
 // from there.
 class ExtensionPrefs {
  public:
-  explicit ExtensionPrefs(PrefService* prefs);
+  explicit ExtensionPrefs(PrefService* prefs, const FilePath& root_dir_);
 
   // Returns a copy of the Extensions prefs.
   // TODO(erikkay) Remove this so that external consumers don't need to be
@@ -43,7 +43,19 @@ class ExtensionPrefs {
   void OnExtensionUninstalled(const Extension* extension,
                               bool external_uninstall);
 
+  // Returns base extensions install directory.
+  const FilePath& install_directory() const { return install_directory_; }
+
  private:
+
+  // Converts absolute paths in the pref to paths relative to the
+  // install_directory_.
+  void MakePathsRelative();
+
+  // Converts internal relative paths to be absolute. Used for export to
+  // consumers who expect full paths.
+  void MakePathsAbsolute(DictionaryValue* dict);
+
   // Sets the pref |key| for extension |id| to |value|.
   bool UpdateExtensionPref(const std::string& id,
                            const std::wstring& key,
@@ -57,6 +69,9 @@ class ExtensionPrefs {
 
   // The pref service specific to this set of extension prefs.
   PrefService* prefs_;
+
+  // Base extensions install directory.
+  FilePath install_directory_;
 
   // The URLs of all of the toolstrips.
   URLList shelf_order_;

@@ -5,6 +5,6 @@
   "plugins": [
     { "path": "content_plugin.dll", "public": true },
     { "path": "extension_plugin.dll" }
-  ],
-  "background_page": "background.html"
+  ]
+  /* "background_page": "background.html" */
 }

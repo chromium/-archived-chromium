@@ -202,10 +202,18 @@ class ExtensionsServiceTest
                    NotificationService::AllSources());
     registrar_.Add(this, NotificationType::THEME_INSTALLED,
                    NotificationService::AllSources());
+  }
 
+  virtual void InitializeExtensionsService(const FilePath& pref_file,
+      const FilePath& extensions_install_dir) {
+    prefs_.reset(new PrefService(pref_file, NULL));
     profile_.reset(new TestingProfile());
-    service_ = new ExtensionsService(
-        profile_.get(), CommandLine::ForCurrentProcess(), &loop_, &loop_);
+    service_ = new ExtensionsService(profile_.get(),
+                                     CommandLine::ForCurrentProcess(),
+                                     prefs_.get(),
+                                     extensions_install_dir,
+                                     &loop_,
+                                     &loop_);
     service_->SetExtensionsEnabled(true);
     service_->set_show_extensions_prompts(false);
 
@@ -217,6 +225,38 @@ class ExtensionsServiceTest
     service_->ClearProvidersForTesting();
 
     total_successes_ = 0;
+  }
+
+  virtual void InitializeInstalledExtensionsService(const FilePath& prefs_file,
+      const FilePath& source_install_dir) {
+    FilePath path_;
+    ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &path_));
+    path_ = path_.Append(FILE_PATH_LITERAL("TestingExtensionsPath"));
+    file_util::Delete(path_, true);
+    file_util::CreateDirectory(path_);
+    FilePath temp_prefs = path_.Append(FILE_PATH_LITERAL("Preferences"));
+    file_util::CopyFile(prefs_file, temp_prefs);
+
+    extensions_install_dir_ = path_.Append(FILE_PATH_LITERAL("Extensions"));
+    file_util::Delete(extensions_install_dir_, true);
+    file_util::CopyDirectory(source_install_dir, extensions_install_dir_, true);
+
+    InitializeExtensionsService(temp_prefs, extensions_install_dir_);
+  }
+
+  virtual void InitializeEmptyExtensionsService() {
+    FilePath path_;
+    ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &path_));
+    path_ = path_.Append(FILE_PATH_LITERAL("TestingExtensionsPath"));
+    file_util::Delete(path_, true);
+    file_util::CreateDirectory(path_);
+    FilePath prefs_filename = path_
+        .Append(FILE_PATH_LITERAL("TestPreferences"));
+    extensions_install_dir_ = path_.Append(FILE_PATH_LITERAL("Extensions"));
+    file_util::Delete(extensions_install_dir_, true);
+    file_util::CreateDirectory(extensions_install_dir_);
+
+    InitializeExtensionsService(prefs_filename, extensions_install_dir_);
   }
 
   static void SetUpTestCase() {
@@ -368,7 +408,7 @@ class ExtensionsServiceTest
 
   void ValidatePrefKeyCount(size_t count) {
     DictionaryValue* dict =
-        profile_->GetPrefs()->GetMutableDictionary(L"extensions.settings");
+        prefs_->GetMutableDictionary(L"extensions.settings");
     ASSERT_TRUE(dict != NULL);
     EXPECT_EQ(count, dict->GetSize());
   }
@@ -384,7 +424,7 @@ class ExtensionsServiceTest
     msg += IntToWString(must_equal);
 
     const DictionaryValue* dict =
-        profile_->GetPrefs()->GetDictionary(L"extensions.settings");
+        prefs_->GetDictionary(L"extensions.settings");
     ASSERT_TRUE(dict != NULL) << msg;
     DictionaryValue* pref = NULL;
     ASSERT_TRUE(dict->GetDictionary(ASCIIToWide(extension_id), &pref)) << msg;
@@ -403,7 +443,7 @@ class ExtensionsServiceTest
     msg += IntToWString(value);
 
     const DictionaryValue* dict =
-        profile_->GetPrefs()->GetMutableDictionary(L"extensions.settings");
+        prefs_->GetMutableDictionary(L"extensions.settings");
     ASSERT_TRUE(dict != NULL) << msg;
     DictionaryValue* pref = NULL;
     ASSERT_TRUE(dict->GetDictionary(ASCIIToWide(extension_id), &pref)) << msg;
@@ -412,7 +452,9 @@ class ExtensionsServiceTest
   }
 
  protected:
-  scoped_ptr<TestingProfile> profile_;
+  scoped_ptr<PrefService> prefs_;
+  scoped_ptr<Profile> profile_;
+  FilePath extensions_install_dir_;
   scoped_refptr<ExtensionsService> service_;
   size_t total_successes_;
   MessageLoop loop_;
@@ -424,18 +466,29 @@ class ExtensionsServiceTest
   NotificationRegistrar registrar_;
 };
 
-// TODO(erikkay) this test and the next need to be replaced with equivalent
-// versions that load from prefs.
+FilePath::StringType NormalizeSeperators(FilePath::StringType path) {
+#if defined(FILE_PATH_USES_WIN_SEPARATORS)
+  FilePath::StringType ret_val;
+  for (size_t i = 0; i < path.length(); i++) {
+    if (FilePath::IsSeparator(path[i]))
+      path[i] = FilePath::kSeparators[0];
+  }
+#endif  // FILE_PATH_USES_WIN_SEPARATORS
+  return path;
+}
 // Test loading good extensions from the profile directory.
-TEST_F(ExtensionsServiceTest, DISABLED_LoadAllExtensionsFromDirectorySuccess) {
-  // Copy the test extensions into the test profile.
-  FilePath source_path;
-  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &source_path));
-  source_path = source_path.AppendASCII("extensions");
-  source_path = source_path.AppendASCII("good");
-
-  FilePath dest_path = profile_->GetPath().AppendASCII("Extensions");
-  file_util::CopyDirectory(source_path, dest_path, true);  // Recursive.
+TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
+  // Initialize the test dir with a good Preferences/extensions.
+  FilePath source_install_dir;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &source_install_dir));
+  source_install_dir = source_install_dir
+      .AppendASCII("extensions")
+      .AppendASCII("good")
+      .AppendASCII("Extensions");
+  FilePath pref_path = source_install_dir
+      .DirName()
+      .AppendASCII("Preferences");
+  InitializeInstalledExtensionsService(pref_path, source_install_dir);
 
   service_->Init();
   loop_.RunAllPending();
@@ -474,15 +527,21 @@ TEST_F(ExtensionsServiceTest, DISABLED_LoadAllExtensionsFromDirectorySuccess) {
   EXPECT_EQ("https://*.google.com/*",
             scripts[0].url_patterns()[1].GetAsString());
   EXPECT_EQ(2u, scripts[0].js_scripts().size());
-  EXPECT_EQ(extension->path().AppendASCII("script1.js").value(),
-            scripts[0].js_scripts()[0].path().value());
-  EXPECT_EQ(extension->path().AppendASCII("script2.js").value(),
-            scripts[0].js_scripts()[1].path().value());
+  EXPECT_EQ(
+      NormalizeSeperators(extension->path().AppendASCII("script1.js").value()),
+      NormalizeSeperators(scripts[0].js_scripts()[0].path().value()));
+  EXPECT_EQ(
+      NormalizeSeperators(extension->path().AppendASCII("script2.js").value()),
+      NormalizeSeperators(scripts[0].js_scripts()[1].path().value()));
   EXPECT_TRUE(extension->plugins().empty());
   EXPECT_EQ(1u, scripts[1].url_patterns().size());
   EXPECT_EQ("http://*.news.com/*", scripts[1].url_patterns()[0].GetAsString());
-  EXPECT_EQ(extension->path().AppendASCII("js_files").AppendASCII("script3.js")
-      .value(), scripts[1].js_scripts()[0].path().value());
+  EXPECT_EQ(
+      NormalizeSeperators(extension->path()
+                          .AppendASCII("js_files")
+                          .AppendASCII("script3.js")
+                          .value()),
+      NormalizeSeperators(scripts[1].js_scripts()[0].path().value()));
   const std::vector<URLPattern> permissions = extension->permissions();
   ASSERT_EQ(2u, permissions.size());
   EXPECT_EQ("http://*.google.com/*", permissions[0].GetAsString());
@@ -494,8 +553,10 @@ TEST_F(ExtensionsServiceTest, DISABLED_LoadAllExtensionsFromDirectorySuccess) {
   EXPECT_EQ(std::string(good1), loaded_[1]->id());
   EXPECT_EQ(std::string("My extension 2"), loaded_[1]->name());
   EXPECT_EQ(std::string(""), loaded_[1]->description());
-  EXPECT_EQ(loaded_[1]->GetResourceURL("background.html"),
-            loaded_[1]->background_url());
+  // TODO(erikkay): re-enable:
+  // http://code.google.com/p/chromium/issues/detail?id=15363.
+  // EXPECT_EQ(loaded_[1]->GetResourceURL("background.html"),
+  //          loaded_[1]->background_url());
   EXPECT_EQ(0u, loaded_[1]->content_scripts().size());
   EXPECT_EQ(2u, loaded_[1]->plugins().size());
   EXPECT_EQ(loaded_[1]->path().AppendASCII("content_plugin.dll").value(),
@@ -514,23 +575,25 @@ TEST_F(ExtensionsServiceTest, DISABLED_LoadAllExtensionsFromDirectorySuccess) {
 };
 
 // Test loading bad extensions from the profile directory.
-TEST_F(ExtensionsServiceTest, DISABLED_LoadAllExtensionsFromDirectoryFail) {
-  FilePath source_path;
-  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &source_path));
-  source_path = source_path.AppendASCII("extensions");
-  source_path = source_path.AppendASCII("bad");
+TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectoryFail) {
+  // Initialize the test dir with a good Preferences/extensions.
+  FilePath source_install_dir;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &source_install_dir));
+  source_install_dir = source_install_dir
+      .AppendASCII("extensions")
+      .AppendASCII("bad")
+      .AppendASCII("Extensions");
+  FilePath pref_path = source_install_dir
+      .DirName()
+      .AppendASCII("Preferences");
 
-  FilePath dest_path = profile_->GetPath().AppendASCII("Extensions");
-  file_util::CopyDirectory(source_path, dest_path, true);  // Recursive.
+  InitializeInstalledExtensionsService(pref_path, source_install_dir);
 
   service_->Init();
   loop_.RunAllPending();
 
-  EXPECT_EQ(3u, GetErrors().size());
-  EXPECT_EQ(0u, loaded_.size());
-
-  // Make sure the dictionary is empty.
-  ValidatePrefKeyCount(0);
+  ASSERT_EQ(4u, GetErrors().size());
+  ASSERT_EQ(0u, loaded_.size());
 
   EXPECT_TRUE(MatchPattern(GetErrors()[0],
       std::string("Could not load extension from '*'. * ") +
@@ -543,29 +606,39 @@ TEST_F(ExtensionsServiceTest, DISABLED_LoadAllExtensionsFromDirectoryFail) {
   EXPECT_TRUE(MatchPattern(GetErrors()[2],
       std::string("Could not load extension from '*'. ") +
       Extension::kMissingFileError)) << GetErrors()[2];
+
+  EXPECT_TRUE(MatchPattern(GetErrors()[3],
+      std::string("Could not load extension from '*'. ") +
+      Extension::kInvalidManifestError)) << GetErrors()[3];
 };
 
 // Test that partially deleted extensions are cleaned up during startup
 // Test loading bad extensions from the profile directory.
 TEST_F(ExtensionsServiceTest, CleanupOnStartup) {
+  InitializeEmptyExtensionsService();
+
   FilePath source_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &source_path));
-  source_path = source_path.AppendASCII("extensions");
-  source_path = source_path.AppendASCII("good");
+  source_path = source_path.AppendASCII("extensions")
+                           .AppendASCII("good")
+                           .AppendASCII("Extensions");
 
-  FilePath dest_path = profile_->GetPath().AppendASCII("Extensions");
-  file_util::CopyDirectory(source_path, dest_path, true);  // Recursive.
+  file_util::Delete(extensions_install_dir_, true);
+
+  // Recursive.
+  file_util::CopyDirectory(source_path, extensions_install_dir_, true);
 
   // Simulate that one of them got partially deleted by deling the
   // Current Version file.
-  FilePath vers = dest_path.AppendASCII("behllobkkfkfnphdnhnkndlbkcpglgmj")
+  FilePath vers = extensions_install_dir_
+      .AppendASCII("behllobkkfkfnphdnhnkndlbkcpglgmj")
       .AppendASCII(ExtensionsService::kCurrentVersionFileName);
   ASSERT_TRUE(file_util::Delete(vers, false));  // not recursive
 
   service_->Init();
   loop_.RunAllPending();
 
-  file_util::FileEnumerator dirs(dest_path, false,
+  file_util::FileEnumerator dirs(extensions_install_dir_, false,
                                  file_util::FileEnumerator::DIRECTORIES);
   size_t count = 0;
   while (!dirs.Next().empty())
@@ -581,6 +654,8 @@ TEST_F(ExtensionsServiceTest, CleanupOnStartup) {
 
 // Test installing extensions.
 TEST_F(ExtensionsServiceTest, InstallExtension) {
+  InitializeEmptyExtensionsService();
+
   FilePath extensions_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
@@ -632,11 +707,15 @@ TEST_F(ExtensionsServiceTest, InstallExtension) {
 // Test Packaging and installing an extension.
 // TODO(rafaelw): add more tests for failure cases.
 TEST_F(ExtensionsServiceTest, PackExtension) {
+  InitializeEmptyExtensionsService();
   FilePath extensions_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
-  FilePath input_directory = extensions_path.AppendASCII("good")
-      .AppendASCII("behllobkkfkfnphdnhnkndlbkcpglgmj").AppendASCII("1.0.0.0");
+  FilePath input_directory = extensions_path
+      .AppendASCII("good")
+      .AppendASCII("Extensions")
+      .AppendASCII("behllobkkfkfnphdnhnkndlbkcpglgmj")
+      .AppendASCII("1.0.0.0");
 
   FilePath output_directory;
   file_util::CreateNewTempDirectory(FILE_PATH_LITERAL("chrome_"),
@@ -662,11 +741,15 @@ TEST_F(ExtensionsServiceTest, PackExtension) {
 // The privkey.pem is a PrivateKey, and the pcks8 -topk8 creates a
 // PrivateKeyInfo ASN.1 structure, we our RSAPrivateKey expects.
 TEST_F(ExtensionsServiceTest, PackExtensionOpenSSLKey) {
+  InitializeEmptyExtensionsService();
   FilePath extensions_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
-  FilePath input_directory = extensions_path.AppendASCII("good")
-      .AppendASCII("behllobkkfkfnphdnhnkndlbkcpglgmj").AppendASCII("1.0.0.0");
+  FilePath input_directory = extensions_path
+      .AppendASCII("good")
+      .AppendASCII("Extensions")
+      .AppendASCII("behllobkkfkfnphdnhnkndlbkcpglgmj")
+      .AppendASCII("1.0.0.0");
   FilePath privkey_path(extensions_path.AppendASCII(
       "openssl_privkey_asn1.pem"));
   ASSERT_TRUE(file_util::PathExists(privkey_path));
@@ -687,6 +770,7 @@ TEST_F(ExtensionsServiceTest, PackExtensionOpenSSLKey) {
 #endif  // defined(OS_WIN)
 
 TEST_F(ExtensionsServiceTest, InstallTheme) {
+  InitializeEmptyExtensionsService();
   FilePath extensions_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
@@ -723,6 +807,7 @@ TEST_F(ExtensionsServiceTest, InstallTheme) {
 
 // Test that when an extension version is reinstalled, nothing happens.
 TEST_F(ExtensionsServiceTest, Reinstall) {
+  InitializeEmptyExtensionsService();
   FilePath extensions_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
@@ -757,6 +842,7 @@ TEST_F(ExtensionsServiceTest, Reinstall) {
 
 // Test upgrading a signed extension.
 TEST_F(ExtensionsServiceTest, UpgradeSignedGood) {
+  InitializeEmptyExtensionsService();
   FilePath extensions_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
@@ -783,6 +869,7 @@ TEST_F(ExtensionsServiceTest, UpgradeSignedGood) {
 
 // Test upgrading a signed extension with a bad signature.
 TEST_F(ExtensionsServiceTest, UpgradeSignedBad) {
+  InitializeEmptyExtensionsService();
   FilePath extensions_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
@@ -809,6 +896,7 @@ TEST_F(ExtensionsServiceTest, UpgradeSignedBad) {
 
 // Test a normal update via the UpdateExtension API
 TEST_F(ExtensionsServiceTest, UpdateExtension) {
+  InitializeEmptyExtensionsService();
   FilePath extensions_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
@@ -827,6 +915,7 @@ TEST_F(ExtensionsServiceTest, UpdateExtension) {
 
 // Test doing an update without passing a completion callback
 TEST_F(ExtensionsServiceTest, UpdateWithoutCallback) {
+  InitializeEmptyExtensionsService();
   FilePath extensions_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
@@ -845,6 +934,7 @@ TEST_F(ExtensionsServiceTest, UpdateWithoutCallback) {
 
 // Test updating a not-already-installed extension - this should fail
 TEST_F(ExtensionsServiceTest, UpdateNotInstalledExtension) {
+  InitializeEmptyExtensionsService();
   FilePath extensions_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
@@ -860,6 +950,7 @@ TEST_F(ExtensionsServiceTest, UpdateNotInstalledExtension) {
 
 // Makes sure you can't downgrade an extension via UpdateExtension
 TEST_F(ExtensionsServiceTest, UpdateWillNotDowngrade) {
+  InitializeEmptyExtensionsService();
   FilePath extensions_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
@@ -879,6 +970,7 @@ TEST_F(ExtensionsServiceTest, UpdateWillNotDowngrade) {
 
 // Make sure calling update with an identical version does nothing
 TEST_F(ExtensionsServiceTest, UpdateToSameVersionIsNoop) {
+  InitializeEmptyExtensionsService();
   FilePath extensions_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
@@ -893,6 +985,7 @@ TEST_F(ExtensionsServiceTest, UpdateToSameVersionIsNoop) {
 
 // Tests uninstalling normal extensions
 TEST_F(ExtensionsServiceTest, UninstallExtension) {
+  InitializeEmptyExtensionsService();
   FilePath extensions_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
@@ -902,9 +995,8 @@ TEST_F(ExtensionsServiceTest, UninstallExtension) {
   InstallExtension(path, true);
 
   // The directory should be there now.
-  FilePath install_path = profile_->GetPath().AppendASCII("Extensions");
   const char* extension_id = good_crx;
-  FilePath extension_path = install_path.AppendASCII(extension_id);
+  FilePath extension_path = extensions_install_dir_.AppendASCII(extension_id);
   EXPECT_TRUE(file_util::PathExists(extension_path));
 
   ValidatePrefKeyCount(1);
@@ -944,11 +1036,14 @@ TEST_F(ExtensionsServiceTest, UninstallExtension) {
 
 // Tests loading single extensions (like --load-extension)
 TEST_F(ExtensionsServiceTest, LoadExtension) {
+  InitializeEmptyExtensionsService();
   FilePath extensions_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
   extensions_path = extensions_path.AppendASCII("extensions");
 
-  FilePath ext1 = extensions_path.AppendASCII("good")
+  FilePath ext1 = extensions_path
+      .AppendASCII("good")
+      .AppendASCII("Extensions")
       .AppendASCII("behllobkkfkfnphdnhnkndlbkcpglgmj")
       .AppendASCII("1.0.0.0");
   service_->LoadExtension(ext1);
@@ -961,8 +1056,11 @@ TEST_F(ExtensionsServiceTest, LoadExtension) {
   // --load-extension doesn't add entries to prefs
   ValidatePrefKeyCount(0);
 
-  FilePath no_manifest = extensions_path.AppendASCII("bad")
-      .AppendASCII("cccccccccccccccccccccccccccccccc").AppendASCII("1");
+  FilePath no_manifest = extensions_path
+      .AppendASCII("bad")
+      //.AppendASCII("Extensions")
+      .AppendASCII("cccccccccccccccccccccccccccccccc")
+      .AppendASCII("1");
   service_->LoadExtension(no_manifest);
   loop_.RunAllPending();
   EXPECT_EQ(1u, GetErrors().size());
@@ -982,6 +1080,7 @@ TEST_F(ExtensionsServiceTest, LoadExtension) {
 // Tests that we generate IDs when they are not specified in the manifest for
 // --load-extension.
 TEST_F(ExtensionsServiceTest, GenerateID) {
+  InitializeEmptyExtensionsService();
   Extension::ResetGeneratedIdCounter();
 
   FilePath extensions_path;
@@ -1019,8 +1118,8 @@ TEST_F(ExtensionsServiceTest, GenerateID) {
 
 TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
   // This should all work, even when normal extension installation is disabled.
+  InitializeEmptyExtensionsService();
   SetExtensionsEnabled(false);
-
   // Verify that starting with no providers loads no extensions.
   service_->Init();
   loop_.RunAllPending();
@@ -1084,8 +1183,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
   loop_.RunAllPending();
 
   // The extension should also be gone from the install directory.
-  FilePath install_path = profile_->GetPath().AppendASCII("Extensions")
-                                             .AppendASCII(id);
+  FilePath install_path = extensions_install_dir_.AppendASCII(id);
   ASSERT_FALSE(file_util::PathExists(install_path));
 
   loaded_.clear();
@@ -1099,7 +1197,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
   // Now clear the preference, reinstall, then remove the reg key. The extension
   // should be uninstalled.
   SetPref(good_crx, L"state", Extension::ENABLED);
-  profile_->GetPrefs()->ScheduleSavePersistentPrefs();
+  prefs_->ScheduleSavePersistentPrefs();
 
   loaded_.clear();
   service_->CheckForUpdates();
@@ -1125,6 +1223,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
 #endif
 
 TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
+  InitializeEmptyExtensionsService();
   // Verify that starting with no providers loads no extensions.
   service_->Init();
   loop_.RunAllPending();
@@ -1188,8 +1287,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   loop_.RunAllPending();
 
   // The extension should also be gone from the install directory.
-  FilePath install_path =
-      profile_->GetPath().AppendASCII("Extensions").AppendASCII(id);
+  FilePath install_path = extensions_install_dir_.AppendASCII(id);
   ASSERT_FALSE(file_util::PathExists(install_path));
 
   loaded_.clear();
@@ -1202,7 +1300,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
 
   // Now clear the preference and reinstall.
   SetPref(good_crx, L"state", Extension::ENABLED);
-  profile_->GetPrefs()->ScheduleSavePersistentPrefs();
+  prefs_->ScheduleSavePersistentPrefs();
 
   loaded_.clear();
   service_->CheckForUpdates();
@@ -1238,6 +1336,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
 }
 
 TEST_F(ExtensionsServiceTest, ExternalPrefProvider) {
+  InitializeEmptyExtensionsService();
   std::string json_data =
       "{"
         "\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\": {"
@@ -1292,22 +1391,28 @@ TEST(ExtensionsServiceTestSimple, Enabledness) {
   MessageLoop loop;
   scoped_ptr<CommandLine> command_line;
   scoped_refptr<ExtensionsService> service;
+  FilePath install_dir = profile.GetPath()
+      .AppendASCII(ExtensionsService::kInstallDirectoryName);
 
   // By default, we are disabled.
   command_line.reset(new CommandLine(L""));
-  service = new ExtensionsService(&profile, command_line.get(), &loop, &loop);
+  service = new ExtensionsService(&profile, command_line.get(),
+      profile.GetPrefs(), install_dir, &loop, &loop);
   EXPECT_FALSE(service->extensions_enabled());
 
   // If either the command line or pref is set, we are enabled.
   command_line->AppendSwitch(switches::kEnableExtensions);
-  service = new ExtensionsService(&profile, command_line.get(), &loop, &loop);
+  service = new ExtensionsService(&profile, command_line.get(),
+      profile.GetPrefs(), install_dir, &loop, &loop);
   EXPECT_TRUE(service->extensions_enabled());
 
   profile.GetPrefs()->SetBoolean(prefs::kEnableExtensions, true);
-  service = new ExtensionsService(&profile, command_line.get(), &loop, &loop);
+  service = new ExtensionsService(&profile, command_line.get(),
+      profile.GetPrefs(), install_dir, &loop, &loop);
   EXPECT_TRUE(service->extensions_enabled());
 
   command_line.reset(new CommandLine(L""));
-  service = new ExtensionsService(&profile, command_line.get(), &loop, &loop);
+  service = new ExtensionsService(&profile, command_line.get(),
+      profile.GetPrefs(), install_dir, &loop, &loop);
   EXPECT_TRUE(service->extensions_enabled());
 }

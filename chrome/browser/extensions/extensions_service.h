@@ -74,8 +74,14 @@ class ExtensionsService
     // The signature follows.
   };
 
+  // The name of the directory inside the profile where extensions are
+  // installed to.
+  static const char* kInstallDirectoryName;
+
   ExtensionsService(Profile* profile,
                     const CommandLine* command_line,
+                    PrefService* prefs,
+                    const FilePath& install_directory,
                     MessageLoop* frontend_loop,
                     MessageLoop* backend_loop);
   ~ExtensionsService();
@@ -195,10 +201,6 @@ class ExtensionsService
   // version of an existing extension.
   void OnExtensionOverinstallAttempted(const std::string& id,
                                        const FilePath& path);
-
-  // The name of the directory inside the profile where extensions are
-  // installed to.
-  static const char* kInstallDirectoryName;
 
   // Preferences for the owning profile.
   scoped_ptr<ExtensionPrefs> extension_prefs_;
