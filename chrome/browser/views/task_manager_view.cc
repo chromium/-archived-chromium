@@ -358,8 +358,8 @@ void TaskManagerView::ViewHierarchyChanged(bool is_add,
   // hierarchy, we must take care to clean up those items as well.
   if (child == this) {
     if (is_add) {
-      parent->AddChildView(kill_button_);
       parent->AddChildView(about_memory_link_);
+      parent->AddChildView(kill_button_);
       AddChildView(tab_table_);
     } else {
       parent->RemoveChildView(kill_button_);
