@@ -2141,7 +2141,7 @@ BUG9798 LINUX : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = FAIL
 BUG9798 LINUX : LayoutTests/svg/custom/invisible-text-after-scrolling.xhtml = FAIL PASS
 BUG9798 LINUX : LayoutTests/svg/custom/use-detach.svg = FAIL PASS
 BUG9798 LINUX : LayoutTests/svg/text/text-text-07-t.svg = FAIL PASS
-BUG9798 LINUX : LayoutTests/tables/mozilla/bugs/45621.html = FAIL PASS
+BUG9798 LINUX : LayoutTests/tables/mozilla/bugs/45621.html = FAIL PASS CRASH
 BUG9798 LINUX : LayoutTests/tables/mozilla/bugs/bug137388-1.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/transitions/interrupted-all-transition.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/transitions/shorthand-border-transitions.html = FAIL PASS
@@ -2218,7 +2218,7 @@ BUG9798 WIN RELEASE : LayoutTests/http/tests/xmlhttprequest/state-after-network-
 BUG9797 LINUX DEBUG : LayoutTests/svg/W3C-SVG-1.1/filters-gauss-01-b.svg = CRASH PASS
 BUG9797 LINUX DEBUG : LayoutTests/svg/carto.net/colourpicker.svg = CRASH FAIL
 BUG9797 LINUX DEBUG : LayoutTests/svg/carto.net/tabgroup.svg = CRASH PASS
-BUG9797 MAC WIN : LayoutTests/fast/body-propagation/overflow/004.html = FAIL PASS
+BUG9797 : LayoutTests/fast/body-propagation/overflow/004.html = FAIL PASS
 BUG9797 MAC DEBUG : LayoutTests/tables/mozilla/bugs/bug137388-2.html = FAIL PASS
 BUG9797 WIN DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
 BUG9797 : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL PASS
@@ -2735,7 +2735,7 @@ BUG14771 WIN LINUX : LayoutTests/svg/batik/filters/feTile.svg = FAIL
 BUG14771 WIN LINUX : LayoutTests/svg/filters/feTile.svg = FAIL
 
 // Need investigation: test shell crashers.
-BUG14752 LINUX DEBUG: LayoutTests/http/tests/cache/subresource-expiration.html = CRASH PASS
+BUG14752 LINUX : LayoutTests/http/tests/cache/subresource-expiration.html = CRASH PASS
 BUG14751 LINUX DEBUG: LayoutTests/css2.1/atrule_longest_match.html = CRASH PASS
 BUG14767 LINUX : LayoutTests/dom/html/level1/core/documentgetdoctypenodtd.html = CRASH PASS
 
