@@ -1146,6 +1146,9 @@ void RenderView::DidFailProvisionalLoadWithError(WebView* webview,
   if (error.reason == net::ERR_ABORTED)
     return;
 
+  // Make sure we never show errors in view source mode.
+  frame->SetInViewSourceMode(false);
+
   // If this is a failed back/forward/reload navigation, then we need to do a
   // 'replace' load.  This is necessary to avoid messing up session history.
   // Otherwise, we do a normal load, which simulates a 'go' navigation as far
@@ -1288,6 +1291,9 @@ void RenderView::DidFinishLoadForFrame(WebView* webview, WebFrame* frame) {
 void RenderView::DidFailLoadWithError(WebView* webview,
                                       const WebURLError& error,
                                       WebFrame* frame) {
+  // Currently this function is empty. When you implement something here and it
+  // will display any error messages in HTML, please make sure to call
+  // frame->SetInViewSourceMode(false) not to show them in view source mode.
 }
 
 void RenderView::DidFinishDocumentLoadForFrame(WebView* webview,

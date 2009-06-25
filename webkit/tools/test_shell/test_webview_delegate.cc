@@ -328,6 +328,9 @@ void TestWebViewDelegate::DidFailProvisionalLoadWithError(
       request.url().spec().data());
   request.setURL(GURL("testshell-error:"));
 
+  // Make sure we never show errors in view source mode.
+  frame->SetInViewSourceMode(false);
+
   frame->LoadAlternateHTMLString(
       request, error_text, error.unreachableURL, replace);
 }

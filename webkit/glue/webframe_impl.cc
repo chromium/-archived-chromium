@@ -1622,9 +1622,6 @@ void WebFrameImpl::DidReceiveData(DocumentLoader* loader,
 }
 
 void WebFrameImpl::DidFail(const ResourceError& error, bool was_provisional) {
-  // Make sure we never show errors in view source mode.
-  SetInViewSourceMode(false);
-
   WebViewImpl* web_view = GetWebViewImpl();
   WebViewDelegate* delegate = web_view->delegate();
   if (delegate) {

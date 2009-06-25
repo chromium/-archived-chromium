@@ -6,7 +6,11 @@
 #include "chrome/common/native_web_keyboard_event.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/test/render_view_test.h"
+#include "net/base/net_errors.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "webkit/api/public/WebURLError.h"
+
+using WebKit::WebURLError;
 
 TEST_F(RenderViewTest, OnLoadAlternateHTMLText) {
   // Test a new navigation.
@@ -778,4 +782,35 @@ TEST_F(RenderViewTest, InsertCharacters) {
 #else
   NOTIMPLEMENTED();
 #endif
+}
+
+#if 0
+// TODO(tyoshino): After fixing flakiness, enable this test.
+TEST_F(RenderViewTest, DidFailProvisionalLoadWithErrorForError) {
+  GetMainFrame()->SetInViewSourceMode(true);
+  WebURLError error;
+  error.domain.fromUTF8("test_domain");
+  error.reason = net::ERR_FILE_NOT_FOUND;
+  error.unreachableURL = GURL("http://foo");
+  WebFrame* web_frame = GetMainFrame();
+  WebView* web_view = web_frame->GetView();
+  // An error occurred.
+  view_->DidFailProvisionalLoadWithError(web_view, error, web_frame);
+  // Frame should exit view-source mode.
+  EXPECT_FALSE(web_frame->GetInViewSourceMode());
+}
+#endif
+
+TEST_F(RenderViewTest, DidFailProvisionalLoadWithErrorForCancellation) {
+  GetMainFrame()->SetInViewSourceMode(true);
+  WebURLError error;
+  error.domain.fromUTF8("test_domain");
+  error.reason = net::ERR_ABORTED;
+  error.unreachableURL = GURL("http://foo");
+  WebFrame* web_frame = GetMainFrame();
+  WebView* web_view = web_frame->GetView();
+  // A cancellation occurred.
+  view_->DidFailProvisionalLoadWithError(web_view, error, web_frame);
+  // Frame should stay in view-source mode.
+  EXPECT_TRUE(web_frame->GetInViewSourceMode());
 }
