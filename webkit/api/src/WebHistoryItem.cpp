@@ -232,7 +232,7 @@ void WebHistoryItem::setHTTPContentType(const WebString& httpContentType)
 WebHTTPBody WebHistoryItem::httpBody() const
 {
     ASSERT(!isNull());
-    return m_private->formData();
+    return WebHTTPBody(m_private->formData());
 }
 
 void WebHistoryItem::setHTTPBody(const WebHTTPBody& httpBody)
