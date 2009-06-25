@@ -2787,5 +2787,5 @@ BUG15217 : LayoutTests/fast/js/switch-behaviour.html = FAIL
 
 // Has been flaky on Win(dbg)
 
-BUG15267 : WIN DEBUG : LayoutTests/transitions/cancel-transition.html = PASS FAIL
-BUG15266 : WIN DEBUG : LayoutTests/media/video-display-toggle.html = TIMEOUT PASS
+BUG15267 WIN DEBUG : LayoutTests/transitions/cancel-transition.html = PASS FAIL
+BUG15266 WIN DEBUG : LayoutTests/media/video-display-toggle.html = TIMEOUT PASS
