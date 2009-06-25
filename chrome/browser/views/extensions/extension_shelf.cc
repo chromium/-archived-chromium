@@ -230,6 +230,7 @@ ExtensionShelf::ExtensionShelf(Browser* browser)
       model_(new ExtensionShelfModel(browser)) {
   model_->AddObserver(this);
   LoadFromModel();
+  EnableCanvasFlippingForRTLUI(true);
 }
 
 ExtensionShelf::~ExtensionShelf() {
