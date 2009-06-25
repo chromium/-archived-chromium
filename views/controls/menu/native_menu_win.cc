@@ -222,7 +222,7 @@ class NativeMenuWin::MenuHostWindow {
       SkBitmap icon;
       if (data->native_menu_win->model_->GetIconAt(data->model_index, &icon)) {
         gfx::Canvas canvas(icon.width(), icon.height(), false);
-        canvas.drawColor(SK_ColorBLACK, SkPorterDuff::kClear_Mode);
+        canvas.drawColor(SK_ColorBLACK, SkXfermode::kClear_Mode);
         canvas.DrawBitmapInt(icon, 0, 0);
         canvas.getTopPlatformDevice().drawToHDC(dc,
             draw_item_struct->rcItem.left + kItemLeftMargin,

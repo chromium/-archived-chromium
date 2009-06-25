@@ -159,7 +159,7 @@ void RootView::ProcessPaint(gfx::Canvas* canvas) {
     return;
 
   // Clear the background.
-  canvas->drawColor(SK_ColorBLACK, SkPorterDuff::kClear_Mode);
+  canvas->drawColor(SK_ColorBLACK, SkXfermode::kClear_Mode);
 
   // Save the current transforms.
   canvas->save();

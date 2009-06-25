@@ -209,7 +209,7 @@ void TextButton::Paint(gfx::Canvas* canvas, bool for_drag) {
       canvas->saveLayerAlpha(NULL,
           static_cast<int>(hover_animation_->GetCurrentValue() * 255),
           SkCanvas::kARGB_NoClipLayer_SaveFlag);
-      canvas->drawARGB(0, 255, 255, 255, SkPorterDuff::kClear_Mode);
+      canvas->drawARGB(0, 255, 255, 255, SkXfermode::kClear_Mode);
       PaintBorder(canvas);
       canvas->restore();
     } else if (state_ == BS_HOT || state_ == BS_PUSHED) {

@@ -189,7 +189,7 @@ class MenuHostWindow : public CWindowImpl<MenuHostWindow, CWindow,
       // by the label.
       if (data->icon.width() != 0 && data->icon.height() != 0) {
         gfx::Canvas canvas(data->icon.width(), data->icon.height(), false);
-        canvas.drawColor(SK_ColorBLACK, SkPorterDuff::kClear_Mode);
+        canvas.drawColor(SK_ColorBLACK, SkXfermode::kClear_Mode);
         canvas.DrawBitmapInt(data->icon, 0, 0);
         canvas.getTopPlatformDevice().drawToHDC(hDC, lpdis->rcItem.left +
             kItemLeftMargin, lpdis->rcItem.top + (lpdis->rcItem.bottom -

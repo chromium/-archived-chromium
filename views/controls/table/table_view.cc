@@ -840,7 +840,7 @@ HWND TableView::CreateNativeControl(HWND parent_container) {
     // rect does not include the icon).
     gfx::Canvas canvas(kImageSize, kImageSize, false);
     // Make the background completely transparent.
-    canvas.drawColor(SK_ColorBLACK, SkPorterDuff::kClear_Mode);
+    canvas.drawColor(SK_ColorBLACK, SkXfermode::kClear_Mode);
     HICON empty_icon =
         IconUtil::CreateHICONFromSkBitmap(canvas.ExtractBitmap());
     ImageList_AddIcon(image_list, empty_icon);
@@ -1234,7 +1234,7 @@ LRESULT TableView::OnCustomDraw(NMLVCUSTOMDRAW* draw_info) {
               // this twice). As such, we always fill in the background.
               canvas.drawColor(
                   skia::COLORREFToSkColor(GetSysColor(bg_color_index)),
-                  SkPorterDuff::kSrc_Mode);
+                  SkXfermode::kSrc_Mode);
               // + 1 for padding (we declared the image as 18x18 in the list-
               // view when they are 16x16 so we get an extra pixel of padding).
               canvas.DrawBitmapInt(image, 0, 0,
