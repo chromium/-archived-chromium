@@ -263,12 +263,22 @@ void MessagePumpCFRunLoopBase::RunNestingDeferredWorkSource(void* info) {
 
 // Called by MessagePumpCFRunLoopBase::RunNestingDeferredWorkSource.
 bool MessagePumpCFRunLoopBase::RunNestingDeferredWork() {
+  // Immediately try work in priority order.
   if (!RunWork()) {
     if (!RunDelayedWork()) {
       if (!RunIdleWork()) {
         return false;
       }
+    } else {
+      // There was no work, and delayed work was done.  Arrange for the loop
+      // to try non-nestable idle work on a subsequent pass.
+      CFRunLoopSourceSignal(idle_work_source_);
     }
+  } else {
+    // Work was done.  Arrange for the loop to try non-nestable delayed and
+    // idle work on a subsequent pass.
+    CFRunLoopSourceSignal(delayed_work_source_);
+    CFRunLoopSourceSignal(idle_work_source_);
   }
 
   return true;
