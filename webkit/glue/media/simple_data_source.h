@@ -14,7 +14,7 @@
 #include "base/scoped_ptr.h"
 #include "media/base/factory.h"
 #include "media/base/filters.h"
-#include "webkit/glue/resource_loader_bridge.h"
+#include "webkit/glue/media/media_resource_loader_bridge_factory.h"
 
 class MessageLoop;
 class WebMediaPlayerDelegateImpl;
@@ -24,11 +24,14 @@ namespace webkit_glue {
 class SimpleDataSource : public media::DataSource,
                          public webkit_glue::ResourceLoaderBridge::Peer {
  public:
-  static media::FilterFactory* CreateFactory(MessageLoop* message_loop,
-                                             int32 routing_id) {
-    return new media::FilterFactoryImpl2<SimpleDataSource,
-                                         MessageLoop*,
-                                         int32>(message_loop, routing_id);
+  static media::FilterFactory* CreateFactory(
+      MessageLoop* message_loop,
+      webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory) {
+    return new media::FilterFactoryImpl2<
+        SimpleDataSource,
+        MessageLoop*,
+        webkit_glue::MediaResourceLoaderBridgeFactory*>(message_loop,
+                                                        bridge_factory);
   }
 
   // MediaFilter implementation.
@@ -56,8 +59,13 @@ class SimpleDataSource : public media::DataSource,
   virtual std::string GetURLForDebugging();
 
  private:
-  friend class media::FilterFactoryImpl2<SimpleDataSource, MessageLoop*, int32>;
-  SimpleDataSource(MessageLoop* render_loop, int32 routing_id);
+  friend class media::FilterFactoryImpl2<
+      SimpleDataSource,
+      MessageLoop*,
+      webkit_glue::MediaResourceLoaderBridgeFactory*>;
+  SimpleDataSource(
+      MessageLoop* render_loop,
+      webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory);
   virtual ~SimpleDataSource();
 
   // Updates |url_| and |media_format_| with the given URL.
@@ -69,11 +77,11 @@ class SimpleDataSource : public media::DataSource,
   // Cancels and deletes the resource loading on the render thread.
   void CancelTask();
 
-  // Passed in during construction, used when creating the bridge.
-  int32 routing_id_;
-
   // Primarily used for asserting the bridge is loading on the render thread.
   MessageLoop* render_loop_;
+
+  // Factory to create a bridge.
+  scoped_ptr<webkit_glue::MediaResourceLoaderBridgeFactory> bridge_factory_;
 
   // Bridge used to load the media resource.
   scoped_ptr<webkit_glue::ResourceLoaderBridge> bridge_;

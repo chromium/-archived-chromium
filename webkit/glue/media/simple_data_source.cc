@@ -30,9 +30,11 @@ bool IsSchemeSupported(const GURL& url) {
 
 namespace webkit_glue {
 
-SimpleDataSource::SimpleDataSource(MessageLoop* render_loop, int32 routing_id)
-    : routing_id_(routing_id),
-      render_loop_(render_loop),
+SimpleDataSource::SimpleDataSource(
+    MessageLoop* render_loop,
+    webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory)
+    : render_loop_(render_loop),
+      bridge_factory_(bridge_factory),
       size_(-1),
       position_(0),
       state_(UNINITIALIZED) {
@@ -177,22 +179,8 @@ void SimpleDataSource::StartTask() {
   DCHECK_EQ(state_, INITIALIZING);
 
   // Create our bridge and start loading the resource.
-  bridge_.reset(webkit_glue::ResourceLoaderBridge::Create(
-      "GET",
-      url_,
-      url_,
-      GURL::EmptyGURL(),  // TODO(scherkus): provide referer here.
-      "null",             // TODO(abarth): provide frame_origin
-      "null",             // TODO(abarth): provide main_frame_origin
-      "",
-      net::LOAD_BYPASS_CACHE,
-      base::GetCurrentProcId(),
-      ResourceType::MEDIA,
-      // TODO(michaeln): delegate->mediaplayer->frame->
-      //                    app_cache_context()->context_id()
-      // For now don't service media resource requests from the appcache.
-      WebAppCacheContext::kNoAppCacheContextId,
-      routing_id_));
+  bridge_.reset(bridge_factory_->CreateBridge(
+      url_, net::LOAD_BYPASS_CACHE, -1, -1));
   bridge_->Start(this);
 }
 

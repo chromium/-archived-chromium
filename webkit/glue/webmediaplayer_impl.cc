@@ -11,7 +11,6 @@
 #include "webkit/api/public/WebRect.h"
 #include "webkit/api/public/WebSize.h"
 #include "webkit/api/public/WebURL.h"
-#include "webkit/glue/media/simple_data_source.h"
 #include "webkit/glue/media/video_renderer_impl.h"
 #include "webkit/glue/webmediaplayer_impl.h"
 
@@ -22,12 +21,12 @@ using WebKit::WebSize;
 namespace webkit_glue {
 
 /////////////////////////////////////////////////////////////////////////////
-// Task to be posted on main thread that fire WebMediaPlayer methods.
+// Task to be posted on main thread that fire WebMediaPlayerClient methods.
 
-class NotifyWebMediaPlayerTask : public CancelableTask {
+class NotifyWebMediaPlayerClientTask : public CancelableTask {
  public:
-  NotifyWebMediaPlayerTask(WebMediaPlayerImpl* media_player,
-                           WebMediaPlayerClientMethod method)
+  NotifyWebMediaPlayerClientTask(WebMediaPlayerImpl* media_player,
+                                 WebMediaPlayerClientMethod method)
       : media_player_(media_player),
         method_(method) {}
 
@@ -46,7 +45,7 @@ class NotifyWebMediaPlayerTask : public CancelableTask {
   WebMediaPlayerImpl* media_player_;
   WebMediaPlayerClientMethod method_;
 
-  DISALLOW_COPY_AND_ASSIGN(NotifyWebMediaPlayerTask);
+  DISALLOW_COPY_AND_ASSIGN(NotifyWebMediaPlayerClientTask);
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -67,9 +66,6 @@ WebMediaPlayerImpl::WebMediaPlayerImpl(WebKit::WebMediaPlayerClient* client,
   filter_factory_->AddFactory(media::FFmpegVideoDecoder::CreateFactory());
   filter_factory_->AddFactory(media::NullAudioRenderer::CreateFilterFactory());
   filter_factory_->AddFactory(VideoRendererImpl::CreateFactory(this));
-  // TODO(hclam): Provide a valid routing id to simple data source.
-  filter_factory_->AddFactory(
-      SimpleDataSource::CreateFactory(MessageLoop::current(), 0));
 
   DCHECK(client_);
 
@@ -349,7 +345,7 @@ void WebMediaPlayerImpl::PostTask(int index,
 
   AutoLock auto_lock(task_lock_);
   if (!tasks_[index]) {
-    CancelableTask* task = new NotifyWebMediaPlayerTask(this, method);
+    CancelableTask* task = new NotifyWebMediaPlayerClientTask(this, method);
     tasks_[index] = task;
     main_loop_->PostTask(FROM_HERE, task);
   }

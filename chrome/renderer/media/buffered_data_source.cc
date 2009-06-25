@@ -62,11 +62,12 @@ bool IsSchemeSupported(const GURL& url) {
 
 /////////////////////////////////////////////////////////////////////////////
 // BufferedResourceLoader
-BufferedResourceLoader::BufferedResourceLoader(MessageLoop* message_loop,
-                                               int32 routing_id,
-                                               const GURL& url,
-                                               int64 first_byte_position,
-                                               int64 last_byte_position)
+BufferedResourceLoader::BufferedResourceLoader(
+    MessageLoop* message_loop,
+    webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory,
+    const GURL& url,
+    int64 first_byte_position,
+    int64 last_byte_position)
     : start_callback_(NULL),
       bridge_(NULL),
       offset_(0),
@@ -78,7 +79,7 @@ BufferedResourceLoader::BufferedResourceLoader(MessageLoop* message_loop,
       completed_(false),
       range_requested_(false),
       async_start_(false),
-      routing_id_(routing_id),
+      bridge_factory_(bridge_factory),
       url_(url),
       first_byte_position_(first_byte_position),
       last_byte_position_(last_byte_position),
@@ -450,41 +451,19 @@ void BufferedResourceLoader::OnStart() {
   if (stopped_)
     return;
 
-  // Construct the range header.
-  std::string header;
-  if (first_byte_position_ != kPositionNotSpecified &&
-      last_byte_position_ != kPositionNotSpecified) {
-    header = StringPrintf("Range: bytes=%lld-%lld",
-                          first_byte_position_,
-                          last_byte_position_);
+  if (first_byte_position_ != kPositionNotSpecified) {
     range_requested_ = true;
+    // TODO(hclam): server may not support range request so |offset_| may not
+    // equal to |first_byte_position_|.
     offset_ = first_byte_position_;
-  } else if (first_byte_position_ != kPositionNotSpecified) {
-    header = StringPrintf("Range: bytes=%lld-", first_byte_position_);
-    range_requested_ = true;
-    offset_ = first_byte_position_;
-  } else if (last_byte_position_ != kPositionNotSpecified) {
-    NOTIMPLEMENTED() << "Suffix length range request not implemented.";
   }
 
   // Creates the bridge on render thread since we can only access
   // ResourceDispatcher on this thread.
-  bridge_.reset(webkit_glue::ResourceLoaderBridge::Create(
-      "GET",
-      GURL(url_),
-      GURL(url_),
-      GURL(),         // TODO(hclam): provide referer here.
-      "null",         // TODO(abarth): provide frame_origin
-      "null",         // TODO(abarth): provide main_frame_origin
-      header,
-      net::LOAD_BYPASS_CACHE,
-      base::GetCurrentProcId(),
-      ResourceType::MEDIA,
-      // TODO(michaeln): delegate->mediaplayer->frame->
-      //                    app_cache_context()->context_id()
-      // For now don't service media resource requests from the appcache.
-      WebAppCacheContext::kNoAppCacheContextId,
-      routing_id_));
+  bridge_.reset(bridge_factory_->CreateBridge(url_,
+                                              net::LOAD_BYPASS_CACHE,
+                                              first_byte_position_,
+                                              last_byte_position_));
 
   // And start the resource loading.
   bridge_->Start(this);
@@ -523,11 +502,13 @@ void BufferedResourceLoader::InvokeAndResetStartCallback(int error) {
 
 //////////////////////////////////////////////////////////////////////////////
 // BufferedDataSource
-BufferedDataSource::BufferedDataSource(MessageLoop* render_loop, int routing_id)
-    : routing_id_(routing_id),
-      stopped_(false),
+BufferedDataSource::BufferedDataSource(
+    MessageLoop* render_loop,
+    webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory)
+    : stopped_(false),
       position_(0),
       total_bytes_(kPositionNotSpecified),
+      bridge_factory_(bridge_factory),
       buffered_resource_loader_(NULL),
       render_loop_(render_loop),
       pipeline_loop_(MessageLoop::current()) {
@@ -572,7 +553,7 @@ bool BufferedDataSource::Initialize(const std::string& url) {
     if (!stopped_) {
       buffered_resource_loader_ = new BufferedResourceLoader(
           render_loop_,
-          routing_id_,
+          bridge_factory_.get(),
           url_,
           kPositionNotSpecified,
           kPositionNotSpecified);
@@ -636,7 +617,7 @@ size_t BufferedDataSource::Read(uint8* data, size_t size) {
         // Create a new resource loader.
         buffered_resource_loader_ =
             new BufferedResourceLoader(render_loop_,
-                                       routing_id_,
+                                       bridge_factory_.get(),
                                        url_,
                                        position_,
                                        kPositionNotSpecified);

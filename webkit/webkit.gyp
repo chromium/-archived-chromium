@@ -4447,6 +4447,8 @@
         'glue/devtools/dom_agent_impl.cc',
         'glue/devtools/dom_agent_impl.h',
         'glue/devtools/tools_agent.h',
+        'glue/media/media_resource_loader_bridge_factory.cc',
+        'glue/media/media_resource_loader_bridge_factory.h',
         'glue/media/simple_data_source.cc',
         'glue/media/simple_data_source.h',
         'glue/media/video_renderer_impl.cc',

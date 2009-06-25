@@ -85,8 +85,7 @@ class WebMediaPlayerImpl : public WebKit::WebMediaPlayer,
   // 2. FFmpeg audio decoder
   // 3. FFmpeg video decoder
   // 4. Video renderer
-  // 5. Simple data source
-  // 6. Null audio renderer
+  // 5. Null audio renderer
   // The video renderer provided by this class is using the graphics context
   // provided by WebKit to perform renderering. The simple data source does
   // resource loading by loading the whole resource object into memory. Null

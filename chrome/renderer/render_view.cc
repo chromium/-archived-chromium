@@ -18,6 +18,7 @@
 #include "base/field_trial.h"
 #include "base/gfx/png_encoder.h"
 #include "base/gfx/native_widget_types.h"
+#include "base/process_util.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "build/build_config.h"
@@ -69,6 +70,7 @@
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/dom_serializer.h"
 #include "webkit/glue/image_decoder.h"
+#include "webkit/glue/media/simple_data_source.h"
 #include "webkit/glue/password_form.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/searchable_form_data.h"
@@ -1763,11 +1765,26 @@ WebKit::WebMediaPlayer* RenderView::CreateWebMediaPlayer(
     factory->AddFactory(
         AudioRendererImpl::CreateFactory(audio_message_filter()));
   }
+
+  // TODO(hclam): obtain the following parameters from |client|.
+  webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory =
+      new webkit_glue::MediaResourceLoaderBridgeFactory(
+          GURL::EmptyGURL(),  // referrer
+          "null",             // frame origin
+          "null",             // main_frame_origin
+          base::GetCurrentProcId(),
+          WebAppCacheContext::kNoAppCacheContextId,
+          routing_id());
+
   if (!cmd_line->HasSwitch(switches::kSimpleDataSource)) {
     // Add the chrome specific media data source.
     factory->AddFactory(
         BufferedDataSource::CreateFactory(MessageLoop::current(),
-                                          routing_id()));
+                                          bridge_factory));
+  } else {
+    factory->AddFactory(
+        webkit_glue::SimpleDataSource::CreateFactory(MessageLoop::current(),
+                                                     bridge_factory));
   }
   return new webkit_glue::WebMediaPlayerImpl(client, factory);
 }

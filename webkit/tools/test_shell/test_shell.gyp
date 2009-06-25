@@ -460,6 +460,7 @@
         '../../glue/dom_serializer_unittest.cc',
         '../../glue/glue_serialize_unittest.cc',
         '../../glue/iframe_redirect_unittest.cc',
+        '../../glue/media/media_resource_loader_bridge_factory_unittest.cc',
         '../../glue/mimetype_unittest.cc',
         '../../glue/multipart_response_delegate_unittest.cc',
         '../../glue/password_autocomplete_listener_unittest.cc',

@@ -10,6 +10,7 @@
 #include "base/lock.h"
 #include "base/scoped_ptr.h"
 #include "base/condition_variable.h"
+#include "googleurl/src/gurl.h"
 #include "media/base/factory.h"
 #include "media/base/filters.h"
 #include "media/base/media_format.h"
@@ -17,8 +18,7 @@
 #include "media/base/seekable_buffer.h"
 #include "net/base/completion_callback.h"
 #include "net/base/file_stream.h"
-#include "webkit/glue/resource_loader_bridge.h"
-#include "googleurl/src/gurl.h"
+#include "webkit/glue/media/media_resource_loader_bridge_factory.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // BufferedResourceLoader
@@ -31,16 +31,17 @@ class BufferedResourceLoader :
     public webkit_glue::ResourceLoaderBridge::Peer {
  public:
   // |message_loop| - The message loop this resource loader should run on.
-  // |routing_id| - Routing id to this view.
+  // |bridge_factory| - Factory to create a ResourceLoaderBridge.
   // |url| - URL for the resource to be loaded.
   // |first_byte_position| - First byte to start loading from, -1 for not
   // specified.
   // |last_byte_position| - Last byte to be loaded, -1 for not specified.
-  BufferedResourceLoader(MessageLoop* message_loop,
-                         int32 routing_id,
-                         const GURL& url,
-                         int64 first_byte_position,
-                         int64 last_byte_position);
+  BufferedResourceLoader(
+      MessageLoop* message_loop,
+      webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory,
+      const GURL& url,
+      int64 first_byte_position,
+      int64 last_byte_position);
   virtual ~BufferedResourceLoader();
 
   // Start the resource loading with the specified URL and range.
@@ -173,7 +174,7 @@ class BufferedResourceLoader :
   bool range_requested_;
   bool async_start_;
 
-  int32 routing_id_;
+  webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory_;
   GURL url_;
   int64 first_byte_position_;
   int64 last_byte_position_;
@@ -194,11 +195,14 @@ class BufferedDataSource : public media::DataSource {
  public:
   // Methods called from pipeline thread
   // Static methods for creating this class.
-  static media::FilterFactory* CreateFactory(MessageLoop* message_loop,
-                                             int32 routing_id) {
-    return new media::FilterFactoryImpl2<BufferedDataSource,
-                                         MessageLoop*,
-                                         int32>(message_loop, routing_id);
+  static media::FilterFactory* CreateFactory(
+      MessageLoop* message_loop,
+      webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory) {
+    return new media::FilterFactoryImpl2<
+        BufferedDataSource,
+        MessageLoop*,
+        webkit_glue::MediaResourceLoaderBridgeFactory*>(
+        message_loop, bridge_factory);
   }
   virtual bool Initialize(const std::string& url);
 
@@ -216,9 +220,10 @@ class BufferedDataSource : public media::DataSource {
   const media::MediaFormat& media_format();
 
  private:
-  friend class media::FilterFactoryImpl2<BufferedDataSource,
-                                         MessageLoop*,
-                                         int32>;
+  friend class media::FilterFactoryImpl2<
+      BufferedDataSource,
+      MessageLoop*,
+      webkit_glue::MediaResourceLoaderBridgeFactory*>;
   // Call to filter host to trigger an error, be sure not to call this method
   // while the lock is acquired.
   void HandleError(media::PipelineError error);
@@ -229,13 +234,13 @@ class BufferedDataSource : public media::DataSource {
   void InitialRequestStarted(int error);
   void OnInitialRequestStarted(int error);
 
-  explicit BufferedDataSource(MessageLoop* render_loop, int32 routing_id);
+  explicit BufferedDataSource(
+      MessageLoop* render_loop,
+      webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory);
   virtual ~BufferedDataSource();
 
   media::MediaFormat media_format_;
   GURL url_;
-
-  int32 routing_id_;
 
   // A common lock for protecting members accessed by multiple threads.
   Lock lock_;
@@ -247,6 +252,7 @@ class BufferedDataSource : public media::DataSource {
   int64 total_bytes_;
 
   // Members related to resource loading with RenderView.
+  scoped_ptr<webkit_glue::MediaResourceLoaderBridgeFactory> bridge_factory_;
   scoped_refptr<BufferedResourceLoader> buffered_resource_loader_;
 
   // The message loop of the render thread.

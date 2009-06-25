@@ -14,6 +14,7 @@
 #include "base/gfx/point.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/message_loop.h"
+#include "base/process_util.h"
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
@@ -25,6 +26,9 @@
 #include "webkit/api/public/WebURL.h"
 #include "webkit/api/public/WebURLError.h"
 #include "webkit/api/public/WebURLRequest.h"
+#include "webkit/glue/media/media_resource_loader_bridge_factory.h"
+#include "webkit/glue/media/simple_data_source.h"
+#include "webkit/glue/webappcachecontext.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webpreferences.h"
@@ -124,8 +128,22 @@ WebWidget* TestWebViewDelegate::CreatePopupWidget(WebView* webview,
 
 WebKit::WebMediaPlayer* TestWebViewDelegate::CreateWebMediaPlayer(
     WebKit::WebMediaPlayerClient* client) {
-  return new webkit_glue::WebMediaPlayerImpl(
-      client, new media::FilterFactoryCollection());
+  scoped_refptr<media::FilterFactoryCollection> factory =
+      new media::FilterFactoryCollection();
+
+  // TODO(hclam): this is the same piece of code as in RenderView, maybe they
+  // should be grouped together.
+  webkit_glue::MediaResourceLoaderBridgeFactory* bridge_factory =
+      new webkit_glue::MediaResourceLoaderBridgeFactory(
+          GURL::EmptyGURL(),  // referrer
+          "null",             // frame origin
+          "null",             // main_frame_origin
+          base::GetCurrentProcId(),
+          WebAppCacheContext::kNoAppCacheContextId,
+          0);
+  factory->AddFactory(webkit_glue::SimpleDataSource::CreateFactory(
+      MessageLoop::current(), bridge_factory));
+  return new webkit_glue::WebMediaPlayerImpl(client, factory);
 }
 
 WebWorker* TestWebViewDelegate::CreateWebWorker(WebWorkerClient* client) {
