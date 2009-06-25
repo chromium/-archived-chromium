@@ -131,7 +131,9 @@ MSVC_POP_WARNING();
 
 #undef LOG
 
+#include "base/base_switches.h"
 #include "base/basictypes.h"
+#include "base/command_line.h"
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
@@ -1692,7 +1694,10 @@ void WebFrameImpl::ExecuteScriptInNewContext(
         sources_in[i].startLine));
   }
 
-  frame_->script()->evaluateInNewContext(sources);
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kIsolatedWorld))
+    frame_->script()->evaluateInNewWorld(sources);
+  else
+    frame_->script()->evaluateInNewContext(sources);
 }
 
 std::wstring WebFrameImpl::GetName() {

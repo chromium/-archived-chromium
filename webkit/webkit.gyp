@@ -1120,6 +1120,8 @@
         '../third_party/WebKit/WebCore/bindings/v8/V8EventListenerList.h',
         '../third_party/WebKit/WebCore/bindings/v8/V8Helpers.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/V8Helpers.h',
+        '../third_party/WebKit/WebCore/bindings/v8/V8IsolatedWorld.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/V8IsolatedWorld.h',
         '../third_party/WebKit/WebCore/bindings/v8/V8LazyEventListener.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/V8LazyEventListener.h',
         '../third_party/WebKit/WebCore/bindings/v8/V8NodeFilterCondition.cpp',

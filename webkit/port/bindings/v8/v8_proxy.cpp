@@ -40,6 +40,7 @@
 #include "v8_binding.h"
 #include "V8Collection.h"
 #include "V8DOMWindow.h"
+#include "V8IsolatedWorld.h"
 
 #include "ChromiumBridge.h"
 #include "CSSMutableStyleDeclaration.h"
@@ -167,6 +168,7 @@ typedef HashMap<Node*, v8::Object*> DOMNodeMap;
 typedef HashMap<void*, v8::Object*> DOMObjectMap;
 
 #ifndef NDEBUG
+
 static void EnumerateDOMObjectMap(DOMObjectMap& wrapper_map)
 {
   for (DOMObjectMap::iterator it = wrapper_map.begin(), end = wrapper_map.end();
@@ -179,16 +181,23 @@ static void EnumerateDOMObjectMap(DOMObjectMap& wrapper_map)
   }
 }
 
-
-static void EnumerateDOMNodeMap(DOMNodeMap& node_map)
-{
-  for (DOMNodeMap::iterator it = node_map.begin(), end = node_map.end();
-    it != end; ++it) {
-    Node* node = it->first;
-    USE_VAR(node);
-    ASSERT(v8::Persistent<v8::Object>(it->second).IsWeak());
+class DOMObjectVisitor : public DOMWrapperMap<void>::Visitor {
+ public:
+  void visitDOMWrapper(void* object, v8::Persistent<v8::Object> wrapper) {
+    V8ClassIndex::V8WrapperType type = V8Proxy::GetDOMWrapperType(wrapper);
+    USE_VAR(type);
+    USE_VAR(object);
   }
-}
+};
+
+class EnsureWeakDOMNodeVisitor : public DOMWrapperMap<Node>::Visitor {
+ public:
+  void visitDOMWrapper(Node* object, v8::Persistent<v8::Object> wrapper) {
+    USE_VAR(object);
+    ASSERT(wrapper.IsWeak());
+  }
+};
+
 #endif  // NDEBUG
 
 #if ENABLE(SVG)
@@ -324,32 +333,18 @@ void V8Proxy::GCUnprotect(void* dom_object)
   wrapper.Dispose();
 }
 
-
-// Create object groups for DOM tree nodes.
-static void GCPrologue()
-{
-  v8::HandleScope scope;
-
-#ifndef NDEBUG
-  EnumerateDOMObjectMap(getDOMObjectMap().impl());
-#endif
-
-  // Run through all objects with possible pending activity making their
-  // wrappers non weak if there is pending activity.
-  DOMObjectMap active_map = getActiveDOMObjectMap().impl();
-  for (DOMObjectMap::iterator it = active_map.begin(), end = active_map.end();
-    it != end; ++it) {
-    void* obj = it->first;
-    v8::Persistent<v8::Object> wrapper = v8::Persistent<v8::Object>(it->second);
+class GCPrologueVisitor : public DOMWrapperMap<void>::Visitor {
+ public:
+  void visitDOMWrapper(void* object, v8::Persistent<v8::Object> wrapper) {
     ASSERT(wrapper.IsWeak());
     V8ClassIndex::V8WrapperType type = V8Proxy::GetDOMWrapperType(wrapper);
     switch (type) {
-#define MAKE_CASE(TYPE, NAME)                   \
-      case V8ClassIndex::TYPE: {                \
-        NAME* impl = static_cast<NAME*>(obj);   \
-        if (impl->hasPendingActivity())         \
-          wrapper.ClearWeak();                  \
-        break;                                  \
+#define MAKE_CASE(TYPE, NAME)                    \
+      case V8ClassIndex::TYPE: {                 \
+        NAME* impl = static_cast<NAME*>(object); \
+        if (impl->hasPendingActivity())          \
+          wrapper.ClearWeak();                   \
+        break;                                   \
       }
 ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
       default:
@@ -365,7 +360,7 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
     // GC even though their entanglement most likely is still the same.
     if (type == V8ClassIndex::MESSAGEPORT) {
       // Get the port and its entangled port.
-      MessagePort* port1 = static_cast<MessagePort*>(obj);
+      MessagePort* port1 = static_cast<MessagePort*>(object);
       MessagePort* port2 = port1->locallyEntangledPort();
 
       // If we are remotely entangled, then mark this object as reachable
@@ -401,19 +396,36 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
       }
     }
   }
+};
 
-  // Create object groups.
-  typedef std::pair<uintptr_t, Node*> GrouperPair;
-  typedef Vector<GrouperPair> GrouperList;
+class GrouperItem {
+ public:
+  GrouperItem(uintptr_t group_id, Node* node, v8::Persistent<v8::Object> wrapper)
+    : group_id_(group_id), node_(node), wrapper_(wrapper) { }
+ 
+  uintptr_t group_id() const { return group_id_; }
+  Node* node() const { return node_; }
+  v8::Persistent<v8::Object> wrapper() const { return wrapper_; }
 
-  DOMNodeMap node_map = getDOMNodeMap().impl();
-  GrouperList grouper;
-  grouper.reserveCapacity(node_map.size());
+ private:
+  uintptr_t group_id_;
+  Node* node_;
+  v8::Persistent<v8::Object> wrapper_;
+};
 
-  for (DOMNodeMap::iterator it = node_map.begin(), end = node_map.end();
-    it != end; ++it) {
-    Node* node = it->first;
+bool operator<(const GrouperItem& a, const GrouperItem& b) {
+  return a.group_id() < b.group_id();
+}
 
+typedef Vector<GrouperItem> GrouperList;
+
+class ObjectGrouperVisitor : public DOMWrapperMap<Node>::Visitor {
+ public:
+  ObjectGrouperVisitor() {
+    // TODO(abarth): grouper_.reserveCapacity(node_map.size());  ?
+  }
+
+  void visitDOMWrapper(Node* node, v8::Persistent<v8::Object> wrapper) {
     // If the node is in document, put it in the ownerDocument's object group.
     //
     // If an image element was created by JavaScript "new Image",
@@ -435,85 +447,106 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
       // If the node is alone in its DOM tree (doesn't have a parent or any
       // children) then the group will be filtered out later anyway.
       if (root == node && !node->hasChildNodes())
-        continue;
+        return;
 
       group_id = reinterpret_cast<uintptr_t>(root);
     }
-    grouper.append(GrouperPair(group_id, node));
+    grouper_.append(GrouperItem(group_id, node, wrapper));
   }
 
-  // Group by sorting by the group id.  This will use the std::pair operator<,
-  // which will really sort by both the group id and the Node*.  However the
-  // Node* is only involved to sort within a group id, so it will be fine.
-  std::sort(grouper.begin(), grouper.end());
+  void ApplyGrouping() {
+    // Group by sorting by the group id.
+    std::sort(grouper_.begin(), grouper_.end());
 
-  // TODO(deanm): Should probably work in iterators here, but indexes were
-  // easier for my simple mind.
-  for (size_t i = 0; i < grouper.size(); ) {
-    // Seek to the next key (or the end of the list).
-    size_t next_key_index = grouper.size();
-    for (size_t j = i; j < grouper.size(); ++j) {
-      if (grouper[i].first != grouper[j].first) {
-        next_key_index = j;
-        break;
-      }
-    }
-
-    ASSERT(next_key_index > i);
-
-    // We only care about a group if it has more than one object.  If it only
-    // has one object, it has nothing else that needs to be kept alive.
-    if (next_key_index - i <= 1) {
-      i = next_key_index;
-      continue;
-    }
-
-    Vector<v8::Persistent<v8::Value> > group;
-    group.reserveCapacity(next_key_index - i);
-    for (; i < next_key_index; ++i) {
-      Node* node = grouper[i].second;
-      v8::Persistent<v8::Value> wrapper =
-          getDOMNodeMap().get(node);
-      if (!wrapper.IsEmpty())
-        group.append(wrapper);
-      // If the node is styled and there is a wrapper for the inline
-      // style declaration, we need to keep that style declaration
-      // wrapper alive as well, so we add it to the object group.
-      if (node->isStyledElement()) {
-        StyledElement* element = reinterpret_cast<StyledElement*>(node);
-        CSSStyleDeclaration* style = element->inlineStyleDecl();
-        if (style != NULL) {
-          wrapper = getDOMObjectMap().get(style);
-          if (!wrapper.IsEmpty())
-            group.append(wrapper);
+    // TODO(deanm): Should probably work in iterators here, but indexes were
+    // easier for my simple mind.
+    for (size_t i = 0; i < grouper_.size(); ) {
+      // Seek to the next key (or the end of the list).
+      size_t next_key_index = grouper_.size();
+      for (size_t j = i; j < grouper_.size(); ++j) {
+        if (grouper_[i].group_id() != grouper_[j].group_id()) {
+          next_key_index = j;
+          break;
         }
       }
+
+      ASSERT(next_key_index > i);
+
+      // We only care about a group if it has more than one object.  If it only
+      // has one object, it has nothing else that needs to be kept alive.
+      if (next_key_index - i <= 1) {
+        i = next_key_index;
+        continue;
+      }
+
+      Vector<v8::Persistent<v8::Value> > group;
+      group.reserveCapacity(next_key_index - i);
+      for (; i < next_key_index; ++i) {
+        Node* node = grouper_[i].node();
+        v8::Persistent<v8::Value> wrapper = grouper_[i].wrapper();
+        if (!wrapper.IsEmpty())
+          group.append(wrapper);
+        /* TODO(abarth): Re-enabled this code to avoid GCing these wrappers!
+                         Currently this depends on looking up the wrapper
+                         during a GC, but we don't know which isolated world
+                         we're in, so it's unclear which map to look in...
+
+        // If the node is styled and there is a wrapper for the inline
+        // style declaration, we need to keep that style declaration
+        // wrapper alive as well, so we add it to the object group.
+        if (node->isStyledElement()) {
+          StyledElement* element = reinterpret_cast<StyledElement*>(node);
+          CSSStyleDeclaration* style = element->inlineStyleDecl();
+          if (style != NULL) {
+            wrapper = getDOMObjectMap().get(style);
+            if (!wrapper.IsEmpty())
+              group.append(wrapper);
+          }
+        }
+        */
+      }
+
+      if (group.size() > 1)
+        v8::V8::AddObjectGroup(&group[0], group.size());
+
+      ASSERT(i == next_key_index);
     }
-
-    if (group.size() > 1)
-      v8::V8::AddObjectGroup(&group[0], group.size());
-
-    ASSERT(i == next_key_index);
   }
-}
+ 
+ private:
+  GrouperList grouper_;
+};
 
-
-static void GCEpilogue()
+// Create object groups for DOM tree nodes.
+static void GCPrologue()
 {
   v8::HandleScope scope;
 
-  // Run through all objects with pending activity making their wrappers weak
-  // again.
-  DOMObjectMap active_map = getActiveDOMObjectMap().impl();
-  for (DOMObjectMap::iterator it = active_map.begin(), end = active_map.end();
-    it != end; ++it) {
-    void* obj = it->first;
-    v8::Persistent<v8::Object> wrapper = v8::Persistent<v8::Object>(it->second);
+#ifndef NDEBUG
+  DOMObjectVisitor domObjectVisitor;
+  visitDOMObjectsInCurrentThread(&domObjectVisitor);
+#endif
+
+  // Run through all objects with possible pending activity making their
+  // wrappers non weak if there is pending activity.
+  GCPrologueVisitor prologueVisitor;
+  visitActiveDOMObjectsInCurrentThread(&prologueVisitor);
+
+  // Create object groups.
+  ObjectGrouperVisitor objectGrouperVisitor;
+  visitDOMNodesInCurrentThread(&objectGrouperVisitor);
+  objectGrouperVisitor.ApplyGrouping();
+}
+
+class GCEpilogueVisitor : public DOMWrapperMap<void>::Visitor {
+ public:
+  void visitDOMWrapper(void* object, v8::Persistent<v8::Object> wrapper)
+  {
     V8ClassIndex::V8WrapperType type = V8Proxy::GetDOMWrapperType(wrapper);
     switch (type) {
 #define MAKE_CASE(TYPE, NAME)                                     \
       case V8ClassIndex::TYPE: {                                  \
-        NAME* impl = static_cast<NAME*>(obj);                     \
+        NAME* impl = static_cast<NAME*>(object);                  \
         if (impl->hasPendingActivity()) {                         \
           ASSERT(!wrapper.IsWeak());                              \
           wrapper.MakeWeak(impl, &weakActiveDOMObjectCallback);   \
@@ -526,11 +559,25 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
 #undef MAKE_CASE
     }
   }
+};
+
+static void GCEpilogue()
+{
+  v8::HandleScope scope;
+
+  // Run through all objects with pending activity making their wrappers weak
+  // again.
+  GCEpilogueVisitor epilogueVisitor;
+  visitActiveDOMObjectsInCurrentThread(&epilogueVisitor);
 
 #ifndef NDEBUG
   // Check all survivals are weak.
-  EnumerateDOMObjectMap(getDOMObjectMap().impl());
-  EnumerateDOMNodeMap(getDOMNodeMap().impl());
+  DOMObjectVisitor domObjectVisitor;
+  visitDOMObjectsInCurrentThread(&domObjectVisitor);
+
+  EnsureWeakDOMNodeVisitor weakDOMNodeVisitor;
+  visitDOMNodesInCurrentThread(&weakDOMNodeVisitor);
+
   EnumerateDOMObjectMap(gc_protected_map());
   EnumerateGlobalHandles();
 #undef USE_VAR
@@ -1003,6 +1050,12 @@ bool V8Proxy::HandleOutOfMemory()
     settings->setJavaScriptEnabled(false);
 
     return true;
+}
+
+void V8Proxy::evaluateInNewWorld(const Vector<ScriptSourceCode>& sources)
+{
+    InitContextIfNeeded();
+    V8IsolatedWorld::evaluate(sources, this);
 }
 
 void V8Proxy::evaluateInNewContext(const Vector<ScriptSourceCode>& sources)
@@ -2131,6 +2184,38 @@ v8::Persistent<v8::Context> V8Proxy::createNewContext(
     return result;
 }
 
+bool V8Proxy::installDOMWindow(v8::Handle<v8::Context> context,
+                               DOMWindow* window)
+{
+  v8::Handle<v8::String> implicit_proto_string = v8::String::New("__proto__");
+  if (implicit_proto_string.IsEmpty())
+    return false;
+
+  // Create a new JS window object and use it as the prototype for the
+  // shadow global object.
+  v8::Handle<v8::Function> window_constructor =
+      GetConstructor(V8ClassIndex::DOMWINDOW);
+  v8::Local<v8::Object> js_window =
+      SafeAllocation::NewInstance(window_constructor);
+  // Bail out if allocation failed.
+  if (js_window.IsEmpty())
+    return false;
+
+  // Wrap the window.
+  SetDOMWrapper(js_window,
+                V8ClassIndex::ToInt(V8ClassIndex::DOMWINDOW),
+                window);
+
+  window->ref();
+  V8Proxy::SetJSWrapperForDOMObject(window,
+      v8::Persistent<v8::Object>::New(js_window));
+
+  // Insert the window instance as the prototype of the shadow object.
+  v8::Handle<v8::Object> v8_global = context->Global();
+  v8_global->Set(implicit_proto_string, js_window);
+  return true;
+}
+
 // Create a new environment and setup the global object.
 //
 // The global object corresponds to a DOMWindow instance.  However, to
@@ -2218,11 +2303,9 @@ void V8Proxy::InitContextIfNeeded()
   // Allocate strings used during initialization.
   v8::Handle<v8::String> object_string = v8::String::New("Object");
   v8::Handle<v8::String> prototype_string = v8::String::New("prototype");
-  v8::Handle<v8::String> implicit_proto_string = v8::String::New("__proto__");
   // Bail out if allocation failed.
   if (object_string.IsEmpty() ||
-      prototype_string.IsEmpty() ||
-      implicit_proto_string.IsEmpty()) {
+      prototype_string.IsEmpty()) {
     DisposeContextHandles();
     return;
   }
@@ -2244,32 +2327,8 @@ void V8Proxy::InitContextIfNeeded()
   RegisterGlobalHandle(PROXY, this, m_wrapper_boilerplates);
 #endif
 
-  // Create a new JS window object and use it as the prototype for the
-  // shadow global object.
-  v8::Handle<v8::Function> window_constructor =
-      GetConstructor(V8ClassIndex::DOMWINDOW);
-  v8::Local<v8::Object> js_window =
-      SafeAllocation::NewInstance(window_constructor);
-  // Bail out if allocation failed.
-  if (js_window.IsEmpty()) {
+  if (!installDOMWindow(context, m_frame->domWindow()))
     DisposeContextHandles();
-    return;
-  }
-
-  DOMWindow* window = m_frame->domWindow();
-
-  // Wrap the window.
-  SetDOMWrapper(js_window,
-                V8ClassIndex::ToInt(V8ClassIndex::DOMWINDOW),
-                window);
-
-  window->ref();
-  V8Proxy::SetJSWrapperForDOMObject(window,
-      v8::Persistent<v8::Object>::New(js_window));
-
-  // Insert the window instance as the prototype of the shadow object.
-  v8::Handle<v8::Object> v8_global = context->Global();
-  v8_global->Set(implicit_proto_string, js_window);
 
   updateDocument();
 

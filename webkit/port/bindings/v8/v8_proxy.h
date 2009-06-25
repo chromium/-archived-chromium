@@ -242,6 +242,12 @@ class V8Proxy {
   void setEventHandlerLineno(int lineno) { m_handlerLineno = lineno; }
   void finishedWithEvent(Event* event) { }
 
+  // Evaluate JavaScript in a new isolated world. The script gets its own
+  // global scope, its own prototypes for intrinsic JavaScript objects (String,
+  // Array, and so-on), and its own wrappers for all DOM nodes and DOM
+  // constructors.
+  void evaluateInNewWorld(const Vector<ScriptSourceCode>& sources);
+
   // Evaluate JavaScript in a new context. The script gets its own global scope
   // and its own prototypes for intrinsic JavaScript objects (String, Array,
   // and so-on). It shares the wrappers for all DOM nodes and DOM constructors.
@@ -503,11 +509,14 @@ class V8Proxy {
   static void* ToSVGPODTypeImpl(V8ClassIndex::V8WrapperType type,
                                 v8::Handle<v8::Value> object);
 
+  // TODO(abarth): Separate these concerns from V8Proxy?
+  v8::Persistent<v8::Context> createNewContext(v8::Handle<v8::Object> global);
+  bool installDOMWindow(v8::Handle<v8::Context> context, DOMWindow* window);
+
  private:
   static const char* kContextDebugDataType;
   static const char* kContextDebugDataValue;
 
-  v8::Persistent<v8::Context> createNewContext(v8::Handle<v8::Object> global);
   void InitContextIfNeeded();
   void DisconnectEventListeners();
   void SetSecurityToken();

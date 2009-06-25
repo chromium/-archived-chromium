@@ -40,4 +40,8 @@ const wchar_t kEnableDCHECK[]                  = L"enable-dcheck";
 // Available at http://www.adambarth.com/papers/2008/jackson-barth.pdf
 const wchar_t kForceHTTPS[]                    = L"force-https";
 
+// Run content scripts in their own isolated world instead of just in a new
+// context.
+const wchar_t kIsolatedWorld[]                 = L"isolated-world";
+
 }  // namespace switches
