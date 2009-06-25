@@ -13,7 +13,7 @@ const char kGroupTitleMarkup[] =
 
 }
 
-OptionsLayoutBuilderGtk::OptionsLayoutBuilderGtk(int num_rows) {
+OptionsLayoutBuilderGtk::OptionsLayoutBuilderGtk() {
   page_ = gtk_vbox_new(FALSE, gtk_util::kContentAreaSpacing);
   gtk_container_set_border_width(GTK_CONTAINER(page_),
                                  gtk_util::kContentAreaBorder);

@@ -12,7 +12,7 @@
 
 class OptionsLayoutBuilderGtk {
  public:
-  explicit OptionsLayoutBuilderGtk(int num_rows);
+  explicit OptionsLayoutBuilderGtk();
 
   GtkWidget* get_page_widget() {
     return page_;

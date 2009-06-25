@@ -59,7 +59,7 @@ GeneralPageGtk::GeneralPageGtk(Profile* profile)
       template_url_model_(NULL),
       default_search_initializing_(true),
       initializing_(true)  {
-  OptionsLayoutBuilderGtk options_builder(4);
+  OptionsLayoutBuilderGtk options_builder;
   options_builder.AddOptionGroup(
       l10n_util::GetStringUTF8(IDS_OPTIONS_STARTUP_GROUP_NAME),
       InitStartupGroup(), true);

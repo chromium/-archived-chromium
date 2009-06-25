@@ -26,7 +26,7 @@ ContentPageGtk::ContentPageGtk(Profile* profile)
       initializing_(true) {
 
   // Prepare the group options layout.
-  OptionsLayoutBuilderGtk options_builder(4);
+  OptionsLayoutBuilderGtk options_builder;
   options_builder.AddOptionGroup(
       l10n_util::GetStringUTF8(IDS_OPTIONS_PASSWORDS_GROUP_NAME),
       InitPasswordSavingGroup(), false);
