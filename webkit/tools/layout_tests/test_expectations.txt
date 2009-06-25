@@ -667,8 +667,6 @@ BUG13907 WIN : LayoutTests/media/video-source-type.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-src-remove.html = FAIL
 // This test is flaky.
 BUG13907 WIN DEBUG : LayoutTests/media/video-src.html = PASS FAIL
-// This test is flaky and may not only happen in debug build.
-BUG13907 WIN DEBUG : LayoutTests/media/video-src-source.html = PASS FAIL
 // Flaky test.
 BUG13907 WIN DEBUG : LayoutTests/media/video-timeupdate-during-playback.html = PASS FAIL
 // This test is very flaky.
