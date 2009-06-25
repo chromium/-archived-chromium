@@ -10,7 +10,7 @@
 #include "app/resource_bundle.h"
 #include "base/gfx/gtk_util.h"
 #include "base/string_util.h"
-#include "chrome/browser/bookmarks/bookmark_context_menu.h"
+#include "chrome/browser/gtk/bookmark_context_menu.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/page_navigator.h"

@@ -11,8 +11,8 @@
 #include "app/table_model_observer.h"
 #include "base/ref_counted.h"
 #include "base/task.h"
-#include "chrome/browser/bookmarks/bookmark_context_menu.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
+#include "chrome/browser/gtk/bookmark_context_menu.h"
 #include "chrome/browser/shell_dialogs.h"
 
 class BookmarkModel;

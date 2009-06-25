@@ -7,9 +7,9 @@
 
 #include "base/ref_counted.h"
 #include "base/task.h"
-#include "chrome/browser/bookmarks/bookmark_context_menu.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/shell_dialogs.h"
+#include "chrome/browser/views/bookmark_context_menu.h"
 #include "views/controls/menu/view_menu_delegate.h"
 #include "views/controls/table/table_view_observer.h"
 #include "views/controls/textfield/textfield.h"
