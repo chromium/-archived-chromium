@@ -13,6 +13,7 @@ class GURL;
 namespace WebCore {
 class ChromiumDataObject;
 class CString;
+class HistoryItem;
 class HTMLFormElement;
 class IntPoint;
 class IntRect;
@@ -28,6 +29,7 @@ namespace WebKit {
 class WebCString;
 class WebDragData;
 class WebForm;
+class WebHistoryItem;
 class WebString;
 class WebURL;
 class WebURLRequest;
@@ -116,6 +118,12 @@ WebKit::WebForm HTMLFormElementToWebForm(
     const WTF::PassRefPtr<WebCore::HTMLFormElement>&);
 WTF::PassRefPtr<WebCore::HTMLFormElement> WebFormToHTMLFormElement(
     const WebKit::WebForm&);
+
+// WebHistoryItem <-> HistoryItem
+WebKit::WebHistoryItem HistoryItemToWebHistoryItem(
+    const WTF::PassRefPtr<WebCore::HistoryItem>&);
+WTF::PassRefPtr<WebCore::HistoryItem> WebHistoryItemToHistoryItem(
+    const WebKit::WebHistoryItem&);
 
 // WebURLError <-> ResourceError
 WebKit::WebURLError ResourceErrorToWebURLError(

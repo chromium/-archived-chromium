@@ -145,6 +145,7 @@ MSVC_POP_WARNING();
 #include "webkit/api/public/WebConsoleMessage.h"
 #include "webkit/api/public/WebFindOptions.h"
 #include "webkit/api/public/WebForm.h"
+#include "webkit/api/public/WebHistoryItem.h"
 #include "webkit/api/public/WebRect.h"
 #include "webkit/api/public/WebScriptSource.h"
 #include "webkit/api/public/WebSize.h"
@@ -152,7 +153,6 @@ MSVC_POP_WARNING();
 #include "webkit/glue/chrome_client_impl.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/dom_operations_private.h"
-#include "webkit/glue/glue_serialize.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webappcachecontext.h"
 #include "webkit/glue/webdatasource_impl.h"
@@ -207,6 +207,7 @@ using WebCore::XPathResult;
 using WebKit::WebConsoleMessage;
 using WebKit::WebDataSource;
 using WebKit::WebFindOptions;
+using WebKit::WebHistoryItem;
 using WebKit::WebForm;
 using WebKit::WebRect;
 using WebKit::WebScriptSource;
@@ -419,9 +420,9 @@ void WebFrameImpl::LoadRequest(const WebURLRequest& request) {
   InternalLoadRequest(request, SubstituteData(), false);
 }
 
-void WebFrameImpl::LoadHistoryState(const std::string& history_state) {
+void WebFrameImpl::LoadHistoryItem(const WebHistoryItem& item) {
   RefPtr<HistoryItem> history_item =
-      webkit_glue::HistoryItemFromString(history_state);
+      webkit_glue::WebHistoryItemToHistoryItem(item);
   DCHECK(history_item.get());
 
   StopLoading();  // make sure existing activity stops
@@ -566,35 +567,20 @@ int WebFrameImpl::GetContentsPreferredWidth() const {
   }
 }
 
-bool WebFrameImpl::GetPreviousHistoryState(std::string* history_state) const {
+WebHistoryItem WebFrameImpl::GetPreviousHistoryItem() const {
   // We use the previous item here because documentState (filled-out forms)
   // only get saved to history when it becomes the previous item.  The caller
-  // is expected to query the history state after a navigation occurs, after
+  // is expected to query the history item after a navigation occurs, after
   // the desired history item has become the previous entry.
-  RefPtr<HistoryItem> item = GetWebViewImpl()->GetPreviousHistoryItem();
-  if (!item)
-    return false;
-
-  static StatsCounterTimer history_timer("GetHistoryTimer");
-  StatsScope<StatsCounterTimer> history_scope(history_timer);
-
-  webkit_glue::HistoryItemToString(item, history_state);
-  return true;
+  return webkit_glue::HistoryItemToWebHistoryItem(
+      GetWebViewImpl()->GetPreviousHistoryItem());
 }
 
-bool WebFrameImpl::GetCurrentHistoryState(std::string* state) const {
+WebHistoryItem WebFrameImpl::GetCurrentHistoryItem() const {
   frame_->loader()->saveDocumentAndScrollState();
 
-  RefPtr<HistoryItem> item = frame_->page()->backForwardList()->currentItem();
-  if (!item)
-    return false;
-
-  webkit_glue::HistoryItemToString(item, state);
-  return true;
-}
-
-bool WebFrameImpl::HasCurrentHistoryState() const {
-  return frame_->page()->backForwardList()->currentItem() != NULL;
+  return webkit_glue::HistoryItemToWebHistoryItem(
+      frame_->page()->backForwardList()->currentItem());
 }
 
 void WebFrameImpl::LoadDocumentData(const KURL& base_url,

@@ -21,6 +21,7 @@ struct NPObject;
 namespace WebKit {
 class WebDataSource;
 class WebForm;
+class WebHistoryItem;
 class WebURLRequest;
 struct WebConsoleMessage;
 struct WebFindOptions;
@@ -72,9 +73,9 @@ class WebFrame {
   // Loads the given WebURLRequest.
   virtual void LoadRequest(const WebKit::WebURLRequest& request) = 0;
 
-  // Loads the given history state.  This corresponds to a back/forward
+  // Loads the given WebHistoryItem.  This corresponds to a back/forward
   // navigation.
-  virtual void LoadHistoryState(const std::string& history_state) = 0;
+  virtual void LoadHistoryItem(const WebKit::WebHistoryItem& item) = 0;
 
   // This method is short-hand for calling LoadAlternateHTMLString with a dummy
   // request for the given base_url.
@@ -124,26 +125,22 @@ class WebFrame {
   // Inserts the given CSS styles at the beginning of the document.
   virtual bool InsertCSSStyles(const std::string& css) = 0;
 
-  // Returns a string representing the state of the previous page load for
-  // later use when loading. The previous page is the page that was loaded
-  // before DidCommitLoadForFrame was received.
+  // Returns the WebHistoryItem representing the state of the previous page
+  // load for later use when loading. The previous page is the page that was
+  // loaded before DidCommitLoadForFrame was received.
   //
-  // Returns false if there is no valid state to return (for example, there is
-  // no previous item). Returns true if the previous item's state was retrieved,
-  // even if that state may be empty.
-  virtual bool GetPreviousHistoryState(std::string* history_state) const = 0;
+  // Returns a null item if there is no valid state to return (for example,
+  // there is no previous item). Returns true if the previous item's state was
+  // retrieved, even if that state may be empty.
+  virtual WebKit::WebHistoryItem GetPreviousHistoryItem() const = 0;
 
-  // Returns a string representing the state of the current page load for later
-  // use when loading as well as the url and title of the page.
+  // Returns the WebHistoryItem representing the state of the current page load
+  // for later use when loading.
   //
-  // Returns false if there is no valid state to return (for example, there is
-  // no previous item). Returns true if the current item's state was retrieved,
-  // even if that state may be empty.
-  virtual bool GetCurrentHistoryState(std::string* history_state) const = 0;
-
-  // Returns true if there is a current history item.  A newly created WebFrame
-  // lacks a history item.  Otherwise, this will always be true.
-  virtual bool HasCurrentHistoryState() const = 0;
+  // Returns a null item if there is no valid state to return (for example,
+  // there is no previous item). Returns true if the current item's state was
+  // retrieved, even if that state may be empty.
+  virtual WebKit::WebHistoryItem GetCurrentHistoryItem() const = 0;
 
   // Returns the current URL of the frame, or an empty GURL if there is no
   // URL to retrieve (for example, the frame may never have had any content).

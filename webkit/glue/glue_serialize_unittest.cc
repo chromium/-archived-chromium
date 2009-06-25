@@ -2,179 +2,194 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "config.h"
 #include <string>
 
-#include "base/compiler_specific.h"
-
-MSVC_PUSH_WARNING_LEVEL(0);
-#include "CString.h"
-#include "FormData.h"
-#include "HistoryItem.h"
-#include "PlatformString.h"
-#include "ResourceRequest.h"
-MSVC_POP_WARNING();
-
-#undef LOG
-
+#include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "webkit/api/public/WebHTTPBody.h"
+#include "webkit/api/public/WebPoint.h"
+#include "webkit/api/public/WebVector.h"
 #include "webkit/glue/glue_serialize.h"
 
 using namespace std;
-using namespace WebCore;
 using namespace webkit_glue;
+
+using WebKit::WebData;
+using WebKit::WebHistoryItem;
+using WebKit::WebHTTPBody;
+using WebKit::WebPoint;
+using WebKit::WebString;
+using WebKit::WebUChar;
+using WebKit::WebVector;
 
 // These exist only to support the gTest assertion macros, and
 // shouldn't be used in normal program code.
-static std::ostream& operator<<(std::ostream& out, const String& str)
-{
-  return out << str.latin1().data();
+static std::ostream& operator<<(std::ostream& out, const WebString& str) {
+  return out << UTF16ToUTF8(str);
 }
 
-static std::ostream& operator<<(std::ostream& out, const FormDataElement& e)
-{
-  return out << e.m_type << ": " <<
-    e.m_data.size() <<
-    " <" << string(e.m_data.data() ? e.m_data.data() : "", e.m_data.size()) << "> " <<
-    e.m_filename;
+static std::ostream& operator<<(std::ostream& out,
+                                const WebHTTPBody::Element& e) {
+  return out << e.type << ": " <<
+    e.data.size() <<
+    " <" << string(e.data.data() ? e.data.data() : "", e.data.size()) << "> " <<
+    e.filePath;
 }
 
 template<typename T>
-static std::ostream& operator<<(std::ostream& out, const Vector<T>& v)
-{
+static std::ostream& operator<<(std::ostream& out, const WebVector<T>& v) {
   for (size_t i = 0; i < v.size(); ++i)
     out << "[" << v[i] << "] ";
-
   return out;
 }
 
-static std::ostream& operator<<(std::ostream& out, const FormData& data)
-{
-  return out << data.elements();
+static std::ostream& operator<<(std::ostream& out, const WebHTTPBody& data) {
+  WebHTTPBody::Element element;
+  for (size_t i = 0; data.elementAt(i, element); ++i)
+    out << "[" << element << "] ";
+  return out;
 }
 
-static std::ostream& operator<<(std::ostream& out, const IntPoint& pt)
-{
-  return out << "(" << pt.x() << "," << pt.y() << ")";
+static std::ostream& operator<<(std::ostream& out, const WebPoint& pt) {
+  return out << "(" << pt.x << "," << pt.y << ")";
 }
 
 namespace {
 class GlueSerializeTest : public testing::Test {
  public:
   // Makes a FormData with some random data.
-  PassRefPtr<FormData> MakeFormData() {
-    RefPtr<FormData> form_data = FormData::create();
+  WebHTTPBody MakeFormData() {
+    WebHTTPBody http_body;
+    http_body.initialize();
 
-    char d1[] = "first data block";
-    form_data->appendData(d1, sizeof(d1)-1);
+    const char d1[] = "first data block";
+    http_body.appendData(WebData(d1, sizeof(d1)-1));
 
-    form_data->appendFile("file.txt");
+    http_body.appendFile(WebString::fromUTF8("file.txt"));
 
-    char d2[] = "data the second";
-    form_data->appendData(d2, sizeof(d2)-1);
+    const char d2[] = "data the second";
+    http_body.appendData(WebData(d2, sizeof(d2)-1));
 
-    return form_data.release();
+    return http_body;
   }
 
   // Constructs a HistoryItem with some random data and an optional child.
-  PassRefPtr<HistoryItem> MakeHistoryItem(bool with_form_data, bool pregnant) {
-    RefPtr<HistoryItem> item = HistoryItem::create();
+  WebHistoryItem MakeHistoryItem(bool with_form_data, bool pregnant) {
+    WebHistoryItem item;
+    item.initialize();
 
-    item->setURLString("urlString");
-    item->setOriginalURLString("originalURLString");
-    item->setTarget("target");
-    item->setParent("parent");
-    item->setTitle("title");
-    item->setAlternateTitle("alternateTitle");
-    item->setLastVisitedTime(13.37);
-    item->setScrollPoint(IntPoint(42, -42));
-    item->setIsTargetItem(true);
-    item->setVisitCount(42*42);
+    item.setURLString(WebString::fromUTF8("urlString"));
+    item.setOriginalURLString(WebString::fromUTF8("originalURLString"));
+    item.setTarget(WebString::fromUTF8("target"));
+    item.setParent(WebString::fromUTF8("parent"));
+    item.setTitle(WebString::fromUTF8("title"));
+    item.setAlternateTitle(WebString::fromUTF8("alternateTitle"));
+    item.setLastVisitedTime(13.37);
+    item.setScrollOffset(WebPoint(42, -42));
+    item.setIsTargetItem(true);
+    item.setVisitCount(42*42);
 
-    Vector<String> document_state;
-    document_state.append("state1");
-    document_state.append("state2");
-    document_state.append("state AWESOME");
-    item->setDocumentState(document_state);
+    WebVector<WebString> document_state(3U);
+    document_state[0] = WebString::fromUTF8("state1");
+    document_state[1] = WebString::fromUTF8("state2");
+    document_state[2] = WebString::fromUTF8("state AWESOME");
+    item.setDocumentState(document_state);
 
     // Form Data
-    ResourceRequest dummy_request;  // only way to initialize HistoryItem
     if (with_form_data) {
-      dummy_request.setHTTPBody(MakeFormData());
-      dummy_request.setHTTPContentType("formContentType");
-      dummy_request.setHTTPReferrer("referrer");
-      dummy_request.setHTTPMethod("POST");
+      item.setHTTPBody(MakeFormData());
+      item.setHTTPContentType(WebString::fromUTF8("formContentType"));
     }
-    item->setFormInfoFromRequest(dummy_request);
 
     // Setting the FormInfo causes the referrer to be set, so we set the
     // referrer after setting the form info.
-    item->setReferrer("referrer");
+    item.setReferrer(WebString::fromUTF8("referrer"));
 
     // Children
     if (pregnant)
-      item->addChildItem(MakeHistoryItem(false, false));
+      item.appendToChildren(MakeHistoryItem(false, false));
 
-    return item.release();
+    return item;
   }
 
   // Checks that a == b.
-  void HistoryItemExpectEqual(HistoryItem* a, HistoryItem* b) {
-    EXPECT_EQ(a->urlString(), b->urlString());
-    EXPECT_EQ(a->originalURLString(), b->originalURLString());
-    EXPECT_EQ(a->target(), b->target());
-    EXPECT_EQ(a->parent(), b->parent());
-    EXPECT_EQ(a->title(), b->title());
-    EXPECT_EQ(a->alternateTitle(), b->alternateTitle());
-    EXPECT_EQ(a->lastVisitedTime(), b->lastVisitedTime());
-    EXPECT_EQ(a->scrollPoint(), b->scrollPoint());
-    EXPECT_EQ(a->isTargetItem(), b->isTargetItem());
-    EXPECT_EQ(a->visitCount(), b->visitCount());
-    EXPECT_EQ(a->referrer(), b->referrer());
-    EXPECT_EQ(a->documentState(), b->documentState());
+  void HistoryItemExpectEqual(const WebHistoryItem& a,
+                              const WebHistoryItem& b) {
+    EXPECT_EQ(string16(a.urlString()), string16(b.urlString()));
+    EXPECT_EQ(string16(a.originalURLString()), string16(b.originalURLString()));
+    EXPECT_EQ(string16(a.target()), string16(b.target()));
+    EXPECT_EQ(string16(a.parent()), string16(b.parent()));
+    EXPECT_EQ(string16(a.title()), string16(b.title()));
+    EXPECT_EQ(string16(a.alternateTitle()), string16(b.alternateTitle()));
+    EXPECT_EQ(a.lastVisitedTime(), b.lastVisitedTime());
+    EXPECT_EQ(a.scrollOffset(), b.scrollOffset());
+    EXPECT_EQ(a.isTargetItem(), b.isTargetItem());
+    EXPECT_EQ(a.visitCount(), b.visitCount());
+    EXPECT_EQ(string16(a.referrer()), string16(b.referrer()));
+
+    const WebVector<WebString>& a_docstate = a.documentState();
+    const WebVector<WebString>& b_docstate = b.documentState();
+    EXPECT_EQ(a_docstate.size(), b_docstate.size());
+    for (size_t i = 0, c = a_docstate.size(); i < c; ++i)
+      EXPECT_EQ(string16(a_docstate[i]), string16(b_docstate[i]));
 
     // Form Data
-    EXPECT_EQ(a->formData() != NULL, b->formData() != NULL);
-    if (a->formData() && b->formData())
-      EXPECT_EQ(*a->formData(), *b->formData());
-    EXPECT_EQ(a->formContentType(), b->formContentType());
+    const WebHTTPBody& a_body = a.httpBody();
+    const WebHTTPBody& b_body = b.httpBody();
+    EXPECT_EQ(!a_body.isNull(), !b_body.isNull());
+    if (!a_body.isNull() && !b_body.isNull()) {
+      EXPECT_EQ(a_body.elementCount(), b_body.elementCount());
+      WebHTTPBody::Element a_elem, b_elem;
+      for (size_t i = 0; a_body.elementAt(i, a_elem) &&
+                         b_body.elementAt(i, b_elem); ++i) {
+        EXPECT_EQ(a_elem.type, b_elem.type);
+        if (a_elem.type == WebHTTPBody::Element::TypeData) {
+          EXPECT_EQ(string(a_elem.data.data(), a_elem.data.size()),
+                    string(b_elem.data.data(), b_elem.data.size()));
+        } else {
+          EXPECT_EQ(string16(a_elem.filePath), string16(b_elem.filePath));
+        }
+      }
+    }
+    EXPECT_EQ(string16(a.httpContentType()), string16(b.httpContentType()));
 
     // Children
-    EXPECT_EQ(a->children().size(), b->children().size());
-    for (size_t i = 0, c = a->children().size(); i < c; ++i) {
-      HistoryItemExpectEqual(a->children().at(i).get(),
-                             b->children().at(i).get());
-    }
+    const WebVector<WebHistoryItem>& a_children = a.children();
+    const WebVector<WebHistoryItem>& b_children = b.children();
+    EXPECT_EQ(a_children.size(), b_children.size());
+    for (size_t i = 0, c = a_children.size(); i < c; ++i)
+      HistoryItemExpectEqual(a_children[i], b_children[i]);
   }
 };
 
 // Test old versions of serialized data to ensure that newer versions of code
 // can still read history items written by previous versions.
 TEST_F(GlueSerializeTest, BackwardsCompatibleTest) {
-  RefPtr<HistoryItem> item = MakeHistoryItem(false, false);
+  const WebHistoryItem& item = MakeHistoryItem(false, false);
 
   // Make sure version 3 (current version) can read versions 1 and 2.
   for (int i = 1; i <= 2; i++) {
     string serialized_item;
-    HistoryItemToVersionedString(item.get(), i, &serialized_item);
-    RefPtr<HistoryItem> deserialized_item = HistoryItemFromString(serialized_item);
-    ASSERT_FALSE(item == NULL);
-    ASSERT_FALSE(deserialized_item == NULL);
-    HistoryItemExpectEqual(item.get(), deserialized_item.get());
+    HistoryItemToVersionedString(item, i, &serialized_item);
+    const WebHistoryItem& deserialized_item =
+        HistoryItemFromString(serialized_item);
+    ASSERT_FALSE(item.isNull());
+    ASSERT_FALSE(deserialized_item.isNull());
+    HistoryItemExpectEqual(item, deserialized_item);
   }
 }
 
 // Makes sure that a HistoryItem remains intact after being serialized and
 // deserialized.
 TEST_F(GlueSerializeTest, HistoryItemSerializeTest) {
-  RefPtr<HistoryItem> item = MakeHistoryItem(true, true);
-  string serialized_item;
-  HistoryItemToString(item, &serialized_item);
-  RefPtr<HistoryItem> deserialized_item = HistoryItemFromString(serialized_item);
+  const WebHistoryItem& item = MakeHistoryItem(true, true);
+  const string& serialized_item = HistoryItemToString(item);
+  const WebHistoryItem& deserialized_item =
+      HistoryItemFromString(serialized_item);
 
-  ASSERT_FALSE(item == NULL);
-  ASSERT_FALSE(deserialized_item == NULL);
-  HistoryItemExpectEqual(item.get(), deserialized_item.get());
+  ASSERT_FALSE(item.isNull());
+  ASSERT_FALSE(deserialized_item.isNull());
+  HistoryItemExpectEqual(item, deserialized_item);
 }
 
 

@@ -36,6 +36,7 @@
 #include "webkit/api/public/WebURL.h"
 #include "webkit/api/public/WebURLRequest.h"
 #include "webkit/api/public/WebURLResponse.h"
+#include "webkit/glue/glue_serialize.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webpreferences.h"
@@ -516,7 +517,8 @@ bool TestShell::Navigate(const TestNavigationEntry& entry, bool reload) {
   // Otherwise, we give it the state to navigate to.
   if (!reload && !entry.GetContentState().empty()) {
     DCHECK(entry.GetPageID() != -1);
-    frame->LoadHistoryState(entry.GetContentState());
+    frame->LoadHistoryItem(
+        webkit_glue::HistoryItemFromString(entry.GetContentState()));
   } else {
     WebURLRequest::CachePolicy cache_policy;
     if (reload) {

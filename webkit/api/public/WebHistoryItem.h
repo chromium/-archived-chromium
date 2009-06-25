@@ -1,10 +1,10 @@
 /*
  * Copyright (C) 2009 Google Inc. All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
  *     * Neither the name of Google Inc. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -33,10 +33,15 @@
 
 #include "WebCommon.h"
 
+#if WEBKIT_IMPLEMENTATION
+namespace WebCore { class HistoryItem; }
+namespace WTF { template <typename T> class PassRefPtr; }
+#endif
+
 namespace WebKit {
     class WebHistoryItemPrivate;
+    class WebHTTPBody;
     class WebString;
-    class WebURL;
     struct WebPoint;
     template <typename T> class WebVector;
 
@@ -59,17 +64,17 @@ namespace WebKit {
 
         bool isNull() const { return m_private == 0; }
 
-        WEBKIT_API WebURL url() const;
-        WEBKIT_API void setURL(const WebURL&);
+        WEBKIT_API WebString urlString() const;
+        WEBKIT_API void setURLString(const WebString&);
 
-        WEBKIT_API WebURL originalURL() const;
-        WEBKIT_API void setOriginalURL(const WebURL&);
+        WEBKIT_API WebString originalURLString() const;
+        WEBKIT_API void setOriginalURLString(const WebString&);
 
-        WEBKIT_API WebURL referrerURL() const;
-        WEBKIT_API void setReferrerURL(const WebURL&);
+        WEBKIT_API WebString referrer() const;
+        WEBKIT_API void setReferrer(const WebString&);
 
         WEBKIT_API WebString target() const;
-        WEBKIT_API void setTarget(const WebString&) const;
+        WEBKIT_API void setTarget(const WebString&);
 
         WEBKIT_API WebString parent() const;
         WEBKIT_API void setParent(const WebString&);
@@ -84,31 +89,36 @@ namespace WebKit {
         WEBKIT_API void setLastVisitedTime(double);
 
         WEBKIT_API WebPoint scrollOffset() const;
-        WEBKIT_API void setScrollOffset(const WebPoint&) const;
+        WEBKIT_API void setScrollOffset(const WebPoint&);
 
         WEBKIT_API bool isTargetItem() const;
-        WEBKIT_API void setIsTargetItem(bool) const;
+        WEBKIT_API void setIsTargetItem(bool);
 
         WEBKIT_API int visitCount() const;
-        WEBKIT_API void setVisitCount(int) const;
+        WEBKIT_API void setVisitCount(int);
 
-        WEBKIT_API void documentState(WebVector<WebString>&) const;
-        WEBKIT_API void setDocumentState(const WebVector<WebString>&) const;
+        WEBKIT_API WebVector<WebString> documentState() const;
+        WEBKIT_API void setDocumentState(const WebVector<WebString>&);
 
         WEBKIT_API WebString httpContentType() const;
-        WEBKIT_API void setHTTPContentType(const WebString&) const;
+        WEBKIT_API void setHTTPContentType(const WebString&);
 
-        WEBKIT_API bool hasHTTPBody() const;
-        WEBKIT_API void httpBody(WebHTTPBody&) const;
+        WEBKIT_API WebHTTPBody httpBody() const;
         WEBKIT_API void setHTTPBody(const WebHTTPBody&);
-        WEBKIT_API void appendToHTTPBody(const WebHTTPBody::Element&);
 
-        WEBKIT_API bool hasChildren() const; 
-        WEBKIT_API void children(WebVector<WebHistoryItem>&) const;
+        WEBKIT_API WebVector<WebHistoryItem> children() const;
         WEBKIT_API void setChildren(const WebVector<WebHistoryItem>&);
         WEBKIT_API void appendToChildren(const WebHistoryItem&);
 
+#if WEBKIT_IMPLEMENTATION
+        WebHistoryItem(const WTF::PassRefPtr<WebCore::HistoryItem>&);
+        WebHistoryItem& operator=(const WTF::PassRefPtr<WebCore::HistoryItem>&);
+        operator WTF::PassRefPtr<WebCore::HistoryItem>() const;
+#endif
+
     private:
+        void assign(WebHistoryItemPrivate*);
+        void ensureMutable();
         WebHistoryItemPrivate* m_private;
     };
 

@@ -7,30 +7,25 @@
 // In serialization, we write an object's state to a string in some opaque
 // format.  Deserialization reconstructs the object's state from such a string.
 
-#ifndef WEBKIT_GLUE_GLUE_SERIALIZE_H__
-#define WEBKIT_GLUE_GLUE_SERIALIZE_H__
+#ifndef WEBKIT_GLUE_GLUE_SERIALIZE_H_
+#define WEBKIT_GLUE_GLUE_SERIALIZE_H_
 
-namespace WebCore {
-class String;
-class HistoryItem;
-}
-namespace WTF {
-template<typename T> class PassRefPtr;
-}
+#include <string>
+#include "webkit/api/public/WebHistoryItem.h"
 
 namespace webkit_glue {
-// HistoryItem serialization.  The returned HistoryItem will have a ref count
-// of 0, so the first RefPtr it is assigned to will take ownership.  The empty
-// string corresponds with a NULL HistoryItem.
-void HistoryItemToString(
-    WTF::PassRefPtr<WebCore::HistoryItem> item, std::string* serialized_item);
-WTF::PassRefPtr<WebCore::HistoryItem> HistoryItemFromString(
+
+// HistoryItem serialization.
+std::string HistoryItemToString(
+    const WebKit::WebHistoryItem& item);
+WebKit::WebHistoryItem HistoryItemFromString(
     const std::string& serialized_item);
 
 // For testing purposes only.
 void HistoryItemToVersionedString(
-    WTF::PassRefPtr<WebCore::HistoryItem> item, int version,
+    const WebKit::WebHistoryItem& item, int version,
     std::string* serialized_item);
-}
 
-#endif  // #ifndef WEBKIT_GLUE_GLUE_SERIALIZE_H__
+}  // namespace webkit_glue
+
+#endif  // #ifndef WEBKIT_GLUE_GLUE_SERIALIZE_H_

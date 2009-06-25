@@ -77,7 +77,7 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
 
   // WebFrame
   virtual void LoadRequest(const WebKit::WebURLRequest& request);
-  virtual void LoadHistoryState(const std::string& history_state);
+  virtual void LoadHistoryItem(const WebKit::WebHistoryItem& item);
   virtual void LoadHTMLString(const std::string& html_text,
                               const GURL& base_url);
   virtual void LoadAlternateHTMLString(const WebKit::WebURLRequest& request,
@@ -93,9 +93,8 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   virtual void ExecuteScriptInNewContext(
       const WebKit::WebScriptSource* sources, int num_sources);
   virtual bool InsertCSSStyles(const std::string& css);
-  virtual bool GetPreviousHistoryState(std::string* history_state) const;
-  virtual bool GetCurrentHistoryState(std::string* history_state) const;
-  virtual bool HasCurrentHistoryState() const;
+  virtual WebKit::WebHistoryItem GetPreviousHistoryItem() const;
+  virtual WebKit::WebHistoryItem GetCurrentHistoryItem() const;
   virtual GURL GetURL() const;
   virtual GURL GetFavIconURL() const;
   virtual GURL GetOSDDURL() const;

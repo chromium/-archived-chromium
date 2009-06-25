@@ -35,7 +35,9 @@
 #include "base/sys_info.h"
 #include "base/sys_string_conversions.h"
 #include "third_party/skia/include/core/SkBitmap.h"
+#include "webkit/api/public/WebHistoryItem.h"
 #include "webkit/api/public/WebString.h"
+#include "webkit/api/public/WebVector.h"
 #if defined(OS_WIN)
 #include "webkit/api/public/win/WebInputEventFactory.h"
 #endif
@@ -46,6 +48,10 @@
 #include "webkit/glue/webview_impl.h"
 
 #include "webkit_version.h"  // Generated
+
+using WebKit::WebHistoryItem;
+using WebKit::WebString;
+using WebKit::WebVector;
 
 //------------------------------------------------------------------------------
 // webkit_glue impl:
@@ -140,17 +146,17 @@ std::wstring DumpFrameScrollPosition(WebFrame* web_frame, bool recursive) {
 }
 
 // Returns True if item1 < item2.
-static bool HistoryItemCompareLess(PassRefPtr<WebCore::HistoryItem> item1,
-                                   PassRefPtr<WebCore::HistoryItem> item2) {
-  std::wstring target1 = StringToStdWString(item1->target());
-  std::wstring target2 = StringToStdWString(item2->target());
+static bool HistoryItemCompareLess(const WebHistoryItem& item1,
+                                   const WebHistoryItem& item2) {
+  string16 target1 = item1.target();
+  string16 target2 = item2.target();
   std::transform(target1.begin(), target1.end(), target1.begin(), tolower);
   std::transform(target2.begin(), target2.end(), target2.begin(), tolower);
   return target1 < target2;
 }
 
 // Writes out a HistoryItem into a string in a readable format.
-static std::wstring DumpHistoryItem(PassRefPtr<WebCore::HistoryItem> item,
+static std::wstring DumpHistoryItem(const WebHistoryItem& item,
                                     int indent, bool is_current) {
   std::wstring result;
 
@@ -161,22 +167,25 @@ static std::wstring DumpHistoryItem(PassRefPtr<WebCore::HistoryItem> item,
     result.append(indent, L' ');
   }
 
-  result.append(StringToStdWString(item->urlString()));
-  if (!item->target().isEmpty()) {
-    result.append(L" (in frame \"" + StringToStdWString(item->target()) +
-                  L"\")");
-  }
-  if (item->isTargetItem())
+  result.append(UTF16ToWideHack(item.urlString()));
+  if (!item.target().isEmpty())
+    result.append(L" (in frame \"" + UTF16ToWide(item.target()) + L"\")");
+  if (item.isTargetItem())
     result.append(L"  **nav target**");
   result.append(L"\n");
 
-  if (item->hasChildren()) {
-    WebCore::HistoryItemVector children = item->children();
+  const WebVector<WebHistoryItem>& children = item.children();
+  if (!children.isEmpty()) {
     // Must sort to eliminate arbitrary result ordering which defeats
     // reproducible testing.
-    std::sort(children.begin(), children.end(), HistoryItemCompareLess);
-    for (unsigned i = 0; i < children.size(); i++)
-      result += DumpHistoryItem(children[i].get(), indent+4, false);
+    // TODO(darin): WebVector should probably just be a std::vector!!
+    std::vector<WebHistoryItem> sorted_children;
+    for (size_t i = 0; i < children.size(); ++i)
+      sorted_children.push_back(children[i]);
+    std::sort(sorted_children.begin(), sorted_children.end(),
+              HistoryItemCompareLess);
+    for (size_t i = 0; i < sorted_children.size(); i++)
+      result += DumpHistoryItem(sorted_children[i], indent+4, false);
   }
 
   return result;
@@ -246,7 +255,7 @@ bool DecodeImage(const std::string& image_data, SkBitmap* image) {
 // remain as the concept of a file-path specific character encoding string type
 // will most likely not make its way into WebKit.
 
-FilePath::StringType WebStringToFilePathString(const WebKit::WebString& str) {
+FilePath::StringType WebStringToFilePathString(const WebString& str) {
 #if defined(OS_POSIX)
   return base::SysWideToNativeMB(UTF16ToWideHack(str));
 #elif defined(OS_WIN)
@@ -254,7 +263,7 @@ FilePath::StringType WebStringToFilePathString(const WebKit::WebString& str) {
 #endif
 }
 
-WebKit::WebString FilePathStringToWebString(const FilePath::StringType& str) {
+WebString FilePathStringToWebString(const FilePath::StringType& str) {
 #if defined(OS_POSIX)
   return WideToUTF16Hack(base::SysNativeMBToWide(str));
 #elif defined(OS_WIN)

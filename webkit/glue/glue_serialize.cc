@@ -1,27 +1,30 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "config.h"
-#include <string>
-
-#include "base/compiler_specific.h"
-
-MSVC_PUSH_WARNING_LEVEL(0);
-#include "HistoryItem.h"
-#include "PlatformString.h"
-#include "ResourceRequest.h"
-MSVC_POP_WARNING();
-#undef LOG
-
 #include "webkit/glue/glue_serialize.h"
+
+#include <string>
 
 #include "base/pickle.h"
 #include "base/string_util.h"
+#include "googleurl/src/gurl.h"
+#include "webkit/api/public/WebData.h"
+#include "webkit/api/public/WebHistoryItem.h"
+#include "webkit/api/public/WebHTTPBody.h"
+#include "webkit/api/public/WebPoint.h"
+#include "webkit/api/public/WebString.h"
+#include "webkit/api/public/WebVector.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
 
-using namespace WebCore;
+using WebKit::WebData;
+using WebKit::WebHistoryItem;
+using WebKit::WebHTTPBody;
+using WebKit::WebPoint;
+using WebKit::WebString;
+using WebKit::WebUChar;
+using WebKit::WebVector;
 
 namespace webkit_glue {
 
@@ -43,7 +46,7 @@ struct SerializeObject {
 // 1: Initial revision.
 // 2: Added case for NULL string versus "". Version 2 code can read Version 1
 //    data, but not vice versa.
-// 3: Version 2 was broken, it stored number of UChars, not number of bytes.
+// 3: Version 2 was broken, it stored number of WebUChars, not number of bytes.
 //    This version checks and reads v1 and v2 correctly.
 // 4: Adds support for storing FormData::identifier().
 // 5: Adds support for empty FormData
@@ -114,67 +117,68 @@ inline bool ReadBoolean(const SerializeObject* obj) {
   return tmp;
 }
 
-// Read/WriteString pickle the String as <int length><UChar* data>.
-// If length == -1, then the String itself is NULL (String()).
-// Otherwise the length is the number of UChars (not bytes) in the String.
-inline void WriteString(const String& data, SerializeObject* obj) {
+// Read/WriteString pickle the WebString as <int length><WebUChar* data>.
+// If length == -1, then the WebString itself is NULL (WebString()).
+// Otherwise the length is the number of WebUChars (not bytes) in the WebString.
+inline void WriteString(const WebString& str, SerializeObject* obj) {
   switch (kVersion) {
     case 1:
       // Version 1 writes <length in bytes><string data>.
-      // It saves String() and "" as "".
-      obj->pickle.WriteInt(data.length() * sizeof(UChar));
-      obj->pickle.WriteBytes(data.characters(), data.length() * sizeof(UChar));
+      // It saves WebString() and "" as "".
+      obj->pickle.WriteInt(str.length() * sizeof(WebUChar));
+      obj->pickle.WriteBytes(str.data(), str.length() * sizeof(WebUChar));
       break;
     case 2:
-      // Version 2 writes <length in UChars><string data>.
-      // It uses -1 in the length field to mean String().
-      if (data.isNull()) {
+      // Version 2 writes <length in WebUChar><string data>.
+      // It uses -1 in the length field to mean WebString().
+      if (str.isNull()) {
         obj->pickle.WriteInt(-1);
       } else {
-        obj->pickle.WriteInt(data.length());
-        obj->pickle.WriteBytes(data.characters(),
-                               data.length() * sizeof(UChar));
+        obj->pickle.WriteInt(str.length());
+        obj->pickle.WriteBytes(str.data(),
+                               str.length() * sizeof(WebUChar));
       }
       break;
     default:
       // Version 3+ writes <length in bytes><string data>.
-      // It uses -1 in the length field to mean String().
-      if (data.isNull()) {
+      // It uses -1 in the length field to mean WebString().
+      if (str.isNull()) {
         obj->pickle.WriteInt(-1);
       } else {
-        obj->pickle.WriteInt(data.length() * sizeof(UChar));
-        obj->pickle.WriteBytes(data.characters(),
-                               data.length() * sizeof(UChar));
+        obj->pickle.WriteInt(str.length() * sizeof(WebUChar));
+        obj->pickle.WriteBytes(str.data(),
+                               str.length() * sizeof(WebUChar));
       }
       break;
   }
 }
 
-// This reads a serialized String from obj. If a string can't be read,
-// String() is returned.
-inline String ReadString(const SerializeObject* obj) {
+// This reads a serialized WebString from obj. If a string can't be read,
+// WebString() is returned.
+inline WebString ReadString(const SerializeObject* obj) {
   int length;
 
   // Versions 1, 2, and 3 all start with an integer.
   if (!obj->pickle.ReadInt(&obj->iter, &length))
-    return String();
+    return WebString();
 
-  // Starting with version 2, -1 means String().
+  // Starting with version 2, -1 means WebString().
   if (length == -1)
-    return String();
+    return WebString();
 
-  // In version 2, the length field was the length in UChars.
+  // In version 2, the length field was the length in WebUChars.
   // In version 1 and 3 it is the length in bytes.
-  int bytes = ((obj->version == 2) ? length * sizeof(UChar) : length);
+  int bytes = ((obj->version == 2) ? length * sizeof(WebUChar) : length);
 
   const void* data;
   if (!ReadBytes(obj, &data, bytes))
-    return String();
-  return String(static_cast<const UChar*>(data), bytes / sizeof(UChar));
+    return WebString();
+  return WebString(static_cast<const WebUChar*>(data), bytes / sizeof(WebUChar));
 }
 
 // Writes a Vector of Strings into a SerializeObject for serialization.
-static void WriteStringVector(const Vector<String>& data, SerializeObject* obj) {
+static void WriteStringVector(
+    const WebVector<WebString>& data, SerializeObject* obj) {
   WriteInteger(static_cast<int>(data.size()), obj);
   for (size_t i = 0, c = data.size(); i < c; ++i) {
     unsigned ui = static_cast<unsigned>(i);  // sigh
@@ -182,185 +186,183 @@ static void WriteStringVector(const Vector<String>& data, SerializeObject* obj) 
   }
 }
 
-static void ReadStringVector(const SerializeObject* obj, Vector<String>* data) {
+static WebVector<WebString> ReadStringVector(const SerializeObject* obj) {
   int num_elements = ReadInteger(obj);
-  data->reserveCapacity(num_elements);
-  for (int i = 0; i < num_elements; ++i) {
-    data->append(ReadString(obj));
-  }
+  WebVector<WebString> result(static_cast<size_t>(num_elements));
+  for (int i = 0; i < num_elements; ++i)
+    result[i] = ReadString(obj);
+  return result;
 }
 
 // Writes a FormData object into a SerializeObject for serialization.
-static void WriteFormData(const FormData* form_data, SerializeObject* obj) {
-  WriteBoolean(form_data != NULL, obj);
+static void WriteFormData(const WebHTTPBody& http_body, SerializeObject* obj) {
+  WriteBoolean(!http_body.isNull(), obj);
 
-  if (!form_data)
+  if (http_body.isNull())
     return;
 
-  WriteInteger(static_cast<int>(form_data->elements().size()), obj);
-  for (size_t i = 0, c = form_data->elements().size(); i < c; ++i) {
-    const FormDataElement& e = form_data->elements().at(i);
-    WriteInteger(e.m_type, obj);
-
-    if (e.m_type == FormDataElement::data) {
-      WriteData(e.m_data.data(), static_cast<int>(e.m_data.size()), obj);
+  WriteInteger(static_cast<int>(http_body.elementCount()), obj);
+  WebHTTPBody::Element element;
+  for (size_t i = 0; http_body.elementAt(i, element); ++i) {
+    WriteInteger(element.type, obj);
+    if (element.type == WebHTTPBody::Element::TypeData) {
+      WriteData(element.data.data(), static_cast<int>(element.data.size()),
+                obj);
     } else {
-      WriteString(e.m_filename, obj);
+      WriteString(element.filePath, obj);
     }
   }
-  WriteInteger64(form_data->identifier(), obj);
+  WriteInteger64(http_body.identifier(), obj);
 }
 
-static PassRefPtr<FormData> ReadFormData(const SerializeObject* obj) {
+static WebHTTPBody ReadFormData(const SerializeObject* obj) {
   // In newer versions, an initial boolean indicates if we have form data.
   if (obj->version >= 5 && !ReadBoolean(obj))
-    return NULL;
+    return WebHTTPBody();
 
   // In older versions, 0 elements implied no form data.
   int num_elements = ReadInteger(obj);
   if (num_elements == 0 && obj->version < 5)
-    return NULL;
+    return WebHTTPBody();
 
-  RefPtr<FormData> form_data = FormData::create();
+  WebHTTPBody http_body;
+  http_body.initialize();
 
   for (int i = 0; i < num_elements; ++i) {
     int type = ReadInteger(obj);
-    if (type == FormDataElement::data) {
+    if (type == WebHTTPBody::Element::TypeData) {
       const void* data;
       int length;
       ReadData(obj, &data, &length);
-      form_data->appendData(static_cast<const char*>(data), length);
+      http_body.appendData(WebData(static_cast<const char*>(data), length));
     } else {
-      form_data->appendFile(ReadString(obj));
+      http_body.appendFile(ReadString(obj));
     }
   }
   if (obj->version >= 4)
-    form_data->setIdentifier(ReadInteger64(obj));
+    http_body.setIdentifier(ReadInteger64(obj));
 
-  return form_data.release();
+  return http_body;
 }
 
 // Writes the HistoryItem data into the SerializeObject object for
 // serialization.
-static void WriteHistoryItem(const HistoryItem* item, SerializeObject* obj) {
+static void WriteHistoryItem(
+    const WebHistoryItem& item, SerializeObject* obj) {
   // WARNING: This data may be persisted for later use. As such, care must be
   // taken when changing the serialized format. If a new field needs to be
   // written, only adding at the end will make it easier to deal with loading
   // older versions. Similarly, this should NOT save fields with sensitive
   // data, such as password fields.
   WriteInteger(kVersion, obj);
-  WriteString(item->urlString(), obj);
-  WriteString(item->originalURLString(), obj);
-  WriteString(item->target(), obj);
-  WriteString(item->parent(), obj);
-  WriteString(item->title(), obj);
-  WriteString(item->alternateTitle(), obj);
-  WriteReal(item->lastVisitedTime(), obj);
-  WriteInteger(item->scrollPoint().x(), obj);
-  WriteInteger(item->scrollPoint().y(), obj);
-  WriteBoolean(item->isTargetItem(), obj);
-  WriteInteger(item->visitCount(), obj);
-  WriteString(item->referrer(), obj);
+  WriteString(item.urlString(), obj);
+  WriteString(item.originalURLString(), obj);
+  WriteString(item.target(), obj);
+  WriteString(item.parent(), obj);
+  WriteString(item.title(), obj);
+  WriteString(item.alternateTitle(), obj);
+  WriteReal(item.lastVisitedTime(), obj);
+  WriteInteger(item.scrollOffset().x, obj);
+  WriteInteger(item.scrollOffset().y, obj);
+  WriteBoolean(item.isTargetItem(), obj);
+  WriteInteger(item.visitCount(), obj);
+  WriteString(item.referrer(), obj);
 
-  WriteStringVector(item->documentState(), obj);
+  WriteStringVector(item.documentState(), obj);
 
-  // No access to formData through a const HistoryItem = lame.
-  WriteFormData(const_cast<HistoryItem*>(item)->formData(), obj);
-  WriteString(item->formContentType(), obj);
-  WriteString(item->referrer(), obj);
+  // Yes, the referrer is written twice.  This is for backwards
+  // compatibility with the format.
+  WriteFormData(item.httpBody(), obj);
+  WriteString(item.httpContentType(), obj);
+  WriteString(item.referrer(), obj);
 
   // Subitems
-  WriteInteger(static_cast<int>(item->children().size()), obj);
-  for (size_t i = 0, c = item->children().size(); i < c; ++i)
-    WriteHistoryItem(item->children().at(i).get(), obj);
+  const WebVector<WebHistoryItem>& children = item.children();
+  WriteInteger(static_cast<int>(children.size()), obj);
+  for (size_t i = 0, c = children.size(); i < c; ++i)
+    WriteHistoryItem(children[i], obj);
 }
 
 // Creates a new HistoryItem tree based on the serialized string.
 // Assumes the data is in the format returned by WriteHistoryItem.
-static PassRefPtr<HistoryItem> ReadHistoryItem(const SerializeObject* obj,
-                                               bool include_form_data) {
+static WebHistoryItem ReadHistoryItem(
+    const SerializeObject* obj, bool include_form_data) {
   // See note in WriteHistoryItem. on this.
   obj->version = ReadInteger(obj);
 
   if (obj->version > kVersion || obj->version < 1)
-    return NULL;
+    return WebHistoryItem();
 
-  RefPtr<HistoryItem> item = HistoryItem::create();
+  WebHistoryItem item;
+  item.initialize();
 
-  item->setURLString(ReadString(obj));
-  item->setOriginalURLString(ReadString(obj));
-  item->setTarget(ReadString(obj));
-  item->setParent(ReadString(obj));
-  item->setTitle(ReadString(obj));
-  item->setAlternateTitle(ReadString(obj));
-  item->setLastVisitedTime(ReadReal(obj));
+  item.setURLString(ReadString(obj));
+  item.setOriginalURLString(ReadString(obj));
+  item.setTarget(ReadString(obj));
+  item.setParent(ReadString(obj));
+  item.setTitle(ReadString(obj));
+  item.setAlternateTitle(ReadString(obj));
+  item.setLastVisitedTime(ReadReal(obj));
   int x = ReadInteger(obj);
   int y = ReadInteger(obj);
-  item->setScrollPoint(IntPoint(x, y));
-  item->setIsTargetItem(ReadBoolean(obj));
-  item->setVisitCount(ReadInteger(obj));
-  item->setReferrer(ReadString(obj));
+  item.setScrollOffset(WebPoint(x, y));
+  item.setIsTargetItem(ReadBoolean(obj));
+  item.setVisitCount(ReadInteger(obj));
+  item.setReferrer(ReadString(obj));
 
-  Vector<String> document_state;
-  ReadStringVector(obj, &document_state);
-  item->setDocumentState(document_state);
+  item.setDocumentState(ReadStringVector(obj));
 
-  // Form data.  If there is any form data, we assume POST, otherwise GET.
-  // FormData is ref counted.
-  ResourceRequest dummy_request;  // only way to initialize HistoryItem
-  dummy_request.setHTTPBody(ReadFormData(obj));
-  dummy_request.setHTTPContentType(ReadString(obj));
-  dummy_request.setHTTPReferrer(ReadString(obj));
-  if (dummy_request.httpBody())
-    dummy_request.setHTTPMethod("POST");
-  if (include_form_data)
-    item->setFormInfoFromRequest(dummy_request);
+  // The extra referrer string is read for backwards compat.
+  const WebHTTPBody& http_body = ReadFormData(obj);
+  const WebString& http_content_type = ReadString(obj);
+  const WebString& unused_referrer = ReadString(obj);
+  if (include_form_data) {
+    item.setHTTPBody(http_body);
+    item.setHTTPContentType(http_content_type);
+  }
 
   // Subitems
   int num_children = ReadInteger(obj);
   for (int i = 0; i < num_children; ++i)
-    item->addChildItem(ReadHistoryItem(obj, include_form_data));
+    item.appendToChildren(ReadHistoryItem(obj, include_form_data));
 
-  return item.release();
+  return item;
 }
 
 // Serialize a HistoryItem to a string, using our JSON Value serializer.
-void HistoryItemToString(PassRefPtr<HistoryItem> item,
-                         std::string* serialized_item) {
-  if (!item) {
-    serialized_item->clear();
-    return;
-  }
+std::string HistoryItemToString(const WebHistoryItem& item) {
+  if (item.isNull())
+    return std::string();
 
   SerializeObject obj;
-  WriteHistoryItem(item.get(), &obj);
-  *serialized_item = obj.GetAsString();
+  WriteHistoryItem(item, &obj);
+  return obj.GetAsString();
 }
 
 // Reconstruct a HistoryItem from a string, using our JSON Value deserializer.
 // This assumes that the given serialized string has all the required key,value
 // pairs, and does minimal error checking. If |include_form_data| is true,
 // the form data from a post is restored, otherwise the form data is empty.
-static PassRefPtr<HistoryItem> HistoryItemFromString(
+static WebHistoryItem HistoryItemFromString(
     const std::string& serialized_item,
     bool include_form_data) {
   if (serialized_item.empty())
-    return NULL;
+    return WebHistoryItem();
 
   SerializeObject obj(serialized_item.data(),
                       static_cast<int>(serialized_item.length()));
   return ReadHistoryItem(&obj, include_form_data);
 }
 
-PassRefPtr<HistoryItem> HistoryItemFromString(
+WebHistoryItem HistoryItemFromString(
     const std::string& serialized_item) {
   return HistoryItemFromString(serialized_item, true);
 }
 
 // For testing purposes only.
-void HistoryItemToVersionedString(PassRefPtr<HistoryItem> item, int version,
+void HistoryItemToVersionedString(const WebHistoryItem& item, int version,
                                   std::string* serialized_item) {
-  if (!item) {
+  if (item.isNull()) {
     serialized_item->clear();
     return;
   }
@@ -370,29 +372,28 @@ void HistoryItemToVersionedString(PassRefPtr<HistoryItem> item, int version,
   kVersion = version;
 
   SerializeObject obj;
-  WriteHistoryItem(item.get(), &obj);
+  WriteHistoryItem(item, &obj);
   *serialized_item = obj.GetAsString();
 
   kVersion = real_version;
 }
 
 std::string CreateHistoryStateForURL(const GURL& url) {
-  // TODO(eseide): We probably should be passing a list visit time other than 0
-  RefPtr<HistoryItem> item(HistoryItem::create(GURLToKURL(url), String(), 0));
-  std::string data;
-  HistoryItemToString(item, &data);
-  return data;
+  WebHistoryItem item;
+  item.initialize();
+  item.setURLString(UTF8ToUTF16(url.spec()));
+
+  return HistoryItemToString(item);
 }
 
 std::string RemoveFormDataFromHistoryState(const std::string& content_state) {
-  RefPtr<HistoryItem> history_item(HistoryItemFromString(content_state, false));
-  if (!history_item.get()) {
+  const WebHistoryItem& item = HistoryItemFromString(content_state, false);
+  if (item.isNull()) {
     // Couldn't parse the string, return an empty string.
     return std::string();
   }
-  std::string new_state;
-  HistoryItemToString(history_item, &new_state);
-  return new_state;
+
+  return HistoryItemToString(item);
 }
 
 }  // namespace webkit_glue

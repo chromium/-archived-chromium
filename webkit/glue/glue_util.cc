@@ -17,6 +17,7 @@
 
 #include "ChromiumDataObject.h"
 #include "CString.h"
+#include "HistoryItem.h"
 #include "HTMLFormElement.h"
 #include "IntPoint.h"
 #include "IntRect.h"
@@ -33,6 +34,7 @@
 #include "googleurl/src/gurl.h"
 #include "webkit/api/public/WebDragData.h"
 #include "webkit/api/public/WebForm.h"
+#include "webkit/api/public/WebHistoryItem.h"
 #include "webkit/api/public/WebPoint.h"
 #include "webkit/api/public/WebRect.h"
 #include "webkit/api/public/WebSize.h"
@@ -230,7 +232,7 @@ PassRefPtr<WebCore::ChromiumDataObject> WebDragDataToChromiumDataObject(
   return data;
 }
 
-// FormElement conversions -----------------------------------------------------
+// WebForm conversions ---------------------------------------------------------
 
 WebKit::WebForm HTMLFormElementToWebForm(
     const WTF::PassRefPtr<WebCore::HTMLFormElement>& form) {
@@ -240,6 +242,18 @@ WebKit::WebForm HTMLFormElementToWebForm(
 WTF::PassRefPtr<WebCore::HTMLFormElement> WebFormToHTMLFormElement(
     const WebKit::WebForm& form) {
   return form;
+}
+
+// WebHistoryItem conversions --------------------------------------------------
+
+WebKit::WebHistoryItem HistoryItemToWebHistoryItem(
+    const WTF::PassRefPtr<WebCore::HistoryItem>& item) {
+  return item;
+}
+
+WTF::PassRefPtr<WebCore::HistoryItem> WebHistoryItemToHistoryItem(
+    const WebKit::WebHistoryItem& item) {
+  return item;
 }
 
 // WebURLError conversions -----------------------------------------------------

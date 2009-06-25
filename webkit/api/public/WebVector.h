@@ -73,6 +73,11 @@ namespace WebKit {
             initialize(size);
         }
 
+        WebVector(const WebVector<T>& other)
+        {
+            initializeFrom(other.m_ptr, other.m_size);
+        }
+
         template <typename C>
         WebVector(const C& other)
         {

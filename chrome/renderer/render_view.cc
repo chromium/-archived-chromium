@@ -57,6 +57,7 @@
 #include "webkit/api/public/WebDataSource.h"
 #include "webkit/api/public/WebDragData.h"
 #include "webkit/api/public/WebForm.h"
+#include "webkit/api/public/WebHistoryItem.h"
 #include "webkit/api/public/WebPoint.h"
 #include "webkit/api/public/WebRect.h"
 #include "webkit/api/public/WebScriptSource.h"
@@ -67,6 +68,7 @@
 #include "webkit/api/public/WebURLResponse.h"
 #include "webkit/api/public/WebVector.h"
 #include "webkit/default_plugin/default_plugin_shared.h"
+#include "webkit/glue/glue_serialize.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/dom_serializer.h"
 #include "webkit/glue/image_decoder.h"
@@ -101,6 +103,7 @@ using WebKit::WebConsoleMessage;
 using WebKit::WebDataSource;
 using WebKit::WebDragData;
 using WebKit::WebForm;
+using WebKit::WebHistoryItem;
 using WebKit::WebNavigationType;
 using WebKit::WebRect;
 using WebKit::WebScriptSource;
@@ -623,7 +626,7 @@ void RenderView::OnNavigate(const ViewMsg_Navigate_Params& params) {
   bool is_reload = params.reload;
 
   WebFrame* main_frame = webview()->GetMainFrame();
-  if (is_reload && !main_frame->HasCurrentHistoryState()) {
+  if (is_reload && main_frame->GetCurrentHistoryItem().isNull()) {
     // We cannot reload if we do not have any history state.  This happens, for
     // example, when recovering from a crash.  Our workaround here is a bit of
     // a hack since it means that reload after a crashed tab does not cause an
@@ -646,7 +649,8 @@ void RenderView::OnNavigate(const ViewMsg_Navigate_Params& params) {
   if (!is_reload && !params.state.empty()) {
     // We must know the page ID of the page we are navigating back to.
     DCHECK_NE(params.page_id, -1);
-    main_frame->LoadHistoryState(params.state);
+    main_frame->LoadHistoryItem(
+        webkit_glue::HistoryItemFromString(params.state));
   } else {
     // Navigate to the given URL.
     WebURLRequest request(params.url);
@@ -986,10 +990,13 @@ void RenderView::UpdateSessionHistory(WebFrame* frame) {
   if (page_id_ == -1)
     return;
 
-  std::string state;
-  if (!webview()->GetMainFrame()->GetPreviousHistoryState(&state))
+  const WebHistoryItem& item =
+      webview()->GetMainFrame()->GetPreviousHistoryItem();
+  if (item.isNull())
     return;
-  Send(new ViewHostMsg_UpdateState(routing_id_, page_id_, state));
+
+  Send(new ViewHostMsg_UpdateState(
+      routing_id_, page_id_, webkit_glue::HistoryItemToString(item)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1891,10 +1898,13 @@ void RenderView::SyncNavigationState() {
   if (!webview())
     return;
 
-  std::string state;
-  if (!webview()->GetMainFrame()->GetCurrentHistoryState(&state))
+  const WebHistoryItem& item =
+      webview()->GetMainFrame()->GetCurrentHistoryItem();
+  if (item.isNull())
     return;
-  Send(new ViewHostMsg_UpdateState(routing_id_, page_id_, state));
+
+  Send(new ViewHostMsg_UpdateState(
+      routing_id_, page_id_, webkit_glue::HistoryItemToString(item)));
 }
 
 void RenderView::ShowContextMenu(WebView* webview,
