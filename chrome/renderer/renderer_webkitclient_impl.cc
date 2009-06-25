@@ -16,6 +16,10 @@
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
 
+#if defined(OS_LINUX)
+#include "chrome/renderer/renderer_sandbox_support_linux.h"
+#endif
+
 using WebKit::WebString;
 using WebKit::WebURL;
 
@@ -30,7 +34,7 @@ WebKit::WebMimeRegistry* RendererWebKitClientImpl::mimeRegistry() {
 }
 
 WebKit::WebSandboxSupport* RendererWebKitClientImpl::sandboxSupport() {
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   return &sandbox_support_;
 #else
   return NULL;
@@ -137,6 +141,25 @@ bool RendererWebKitClientImpl::SandboxSupport::ensureFontLoaded(HFONT font) {
   LOGFONT logfont;
   GetObject(font, sizeof(LOGFONT), &logfont);
   return RenderThread::current()->Send(new ViewHostMsg_LoadFont(logfont));
+}
+
+#elif defined(OS_LINUX)
+
+WebString RendererWebKitClientImpl::SandboxSupport::getFontFamilyForCharacters(
+    const WebKit::WebUChar* characters, size_t num_characters) {
+  AutoLock lock(unicode_font_families_mutex_);
+  const std::string key(reinterpret_cast<const char*>(characters),
+                        num_characters * sizeof(characters[0]));
+  const std::map<std::string, std::string>::const_iterator iter =
+      unicode_font_families_.find(key);
+  if (iter != unicode_font_families_.end())
+    return WebString::fromUTF8(iter->second.data(), iter->second.size());
+
+  const std::string family_name =
+      renderer_sandbox_support::getFontFamilyForCharacters(characters,
+                                                           num_characters);
+  unicode_font_families_.insert(make_pair(key, family_name));
+  return WebString::fromUTF8(family_name);
 }
 
 #endif

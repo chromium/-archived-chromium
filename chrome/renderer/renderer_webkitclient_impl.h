@@ -11,6 +11,11 @@
 
 #if defined(OS_WIN)
 #include "webkit/api/public/win/WebSandboxSupport.h"
+#elif defined(OS_LINUX)
+#include <string>
+#include <map>
+#include "base/lock.h"
+#include "webkit/api/public/linux/WebSandboxSupport.h"
 #endif
 
 class RendererWebKitClientImpl : public webkit_glue::WebKitClientImpl {
@@ -45,12 +50,26 @@ class RendererWebKitClientImpl : public webkit_glue::WebKitClientImpl {
    public:
     virtual bool ensureFontLoaded(HFONT);
   };
+#elif defined(OS_LINUX)
+  class SandboxSupport : public WebKit::WebSandboxSupport {
+   public:
+    virtual WebKit::WebString getFontFamilyForCharacters(
+        const WebKit::WebUChar* characters, size_t numCharacters);
+
+   private:
+    // WebKit likes to ask us for the correct font family to use for a set of
+    // unicode code points. It needs this information frequently so we cache it
+    // here. The key in this map is an array of 16-bit UTF16 values from WebKit.
+    // The value is a string containing the correct font family.
+    Lock unicode_font_families_mutex_;
+    std::map<std::string, std::string> unicode_font_families_;
+  };
 #endif
 
   webkit_glue::WebClipboardImpl clipboard_;
 
   MimeRegistry mime_registry_;
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   SandboxSupport sandbox_support_;
 #endif
 };

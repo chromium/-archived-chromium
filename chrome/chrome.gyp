@@ -2253,6 +2253,8 @@
         'renderer/renderer_main_platform_delegate_linux.cc',
         'renderer/renderer_main_platform_delegate_mac.mm',
         'renderer/renderer_main_platform_delegate_win.cc',
+        'renderer/renderer_sandbox_support_linux.cc',
+        'renderer/renderer_sandbox_support_linux.h',
         'renderer/renderer_webkitclient_impl.cc',
         'renderer/renderer_webkitclient_impl.h',
         'renderer/user_script_slave.cc',

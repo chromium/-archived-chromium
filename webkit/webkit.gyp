@@ -4254,6 +4254,8 @@
         'api/src/ChromiumBridge.cpp',
         'api/src/ChromiumCurrentTime.cpp',
         'api/src/ChromiumThreading.cpp',
+        'api/src/gtk/WebFontInfo.cpp',
+        'api/src/gtk/WebFontInfo.h',
         'api/src/gtk/WebInputEventFactory.cpp',
         'api/src/x11/WebScreenInfoFactory.cpp',
         'api/src/mac/WebInputEventFactory.mm',
@@ -4296,6 +4298,7 @@
           'include_dirs': [
             'api/public/x11',
             'api/public/gtk',
+            'api/public/linux',
           ],
         }, { # else: OS!="linux"
           'sources/': [

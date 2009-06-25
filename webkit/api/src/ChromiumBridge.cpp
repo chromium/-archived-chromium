@@ -49,6 +49,11 @@
 #include "WebThemeEngine.h"
 #endif
 
+#if PLATFORM(LINUX)
+#include "WebSandboxSupport.h"
+#include "WebFontInfo.h"
+#endif
+
 #include "BitmapImage.h"
 #include "GraphicsContext.h"
 #include "KURL.h"
@@ -145,7 +150,7 @@ void ChromiumBridge::prefetchDNS(const String& hostname)
 
 // Font -----------------------------------------------------------------------
 
-#if defined(OS_WIN)
+#if PLATFORM(WIN_OS)
 bool ChromiumBridge::ensureFontLoaded(HFONT font)
 {
     WebSandboxSupport* ss = webKitClient()->sandboxSupport();
@@ -153,6 +158,16 @@ bool ChromiumBridge::ensureFontLoaded(HFONT font)
     // if there is no sandbox, then we can assume the font
     // was able to be loaded successfully already
     return ss ? ss->ensureFontLoaded(font) : true;
+}
+#endif
+
+#if PLATFORM(LINUX)
+String ChromiumBridge::getFontFamilyForCharacters(const UChar* characters, size_t numCharacters)
+{
+    if (webKitClient()->sandboxSupport())
+        return webKitClient()->sandboxSupport()->getFontFamilyForCharacters(characters, numCharacters);
+    else
+        return WebFontInfo::familyForChars(characters, numCharacters);
 }
 #endif
 
