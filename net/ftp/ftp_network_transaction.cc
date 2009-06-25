@@ -362,7 +362,8 @@ int FtpNetworkTransaction::DoCtrlConnect() {
 }
 
 int FtpNetworkTransaction::DoCtrlConnectComplete(int result) {
-  next_state_ = STATE_CTRL_READ;
+  if (result == OK)
+    next_state_ = STATE_CTRL_READ;
   return result;
 }
 
