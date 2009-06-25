@@ -9,6 +9,7 @@
 
 #include "base/basictypes.h"
 #include "chrome/common/notification_registrar.h"
+#include "chrome/common/owned_widget_gtk.h"
 
 class RenderViewHost;
 class StatusBubbleGtk;
@@ -80,7 +81,7 @@ class TabContentsContainerGtk : public NotificationObserver {
   // GtkBin and a GtkFixed, |floating_| has |fixed_| as its one "real" child,
   // and the various things that hang off the bottom (status bubble, etc) have
   // their positions manually set in OnSetFloatingPosition.
-  GtkWidget* floating_;
+  OwnedWidgetGtk floating_;
 
   // We insert and remove TabContents GtkWidgets into this fixed_. This should
   // not be a GtkVBox since there were errors with timing where the vbox was
