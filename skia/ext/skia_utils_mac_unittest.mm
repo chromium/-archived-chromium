@@ -2,23 +2,20 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#import "chrome/browser/cocoa/cocoa_utils.h"
-#import "chrome/browser/cocoa/cocoa_test_helper.h"
+#include "skia/ext/skia_utils_mac.mm"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
 
-class CocoaUtilsTest : public testing::Test {
+class SkiaUtilsMacTest : public testing::Test {
  public:
-  CocoaTestHelper cocoa_helper_;  // Inits Cocoa, creates window, etc...
-
   // If not red, is blue.
   // If not tfbit (twenty-four-bit), is 444.
   void ShapeHelper(int width, int height, bool isred, bool tfbit);
 };
 
-void CocoaUtilsTest::ShapeHelper(int width, int height,
-                                 bool isred, bool tfbit) {
+void SkiaUtilsMacTest::ShapeHelper(int width, int height,
+                                   bool isred, bool tfbit) {
   SkBitmap thing;
 
   if (tfbit)
@@ -33,7 +30,7 @@ void CocoaUtilsTest::ShapeHelper(int width, int height,
     thing.eraseRGB(0, 0, 0xff);
 
   // Confirm size
-  NSImage* image = CocoaUtils::SkBitmapToNSImage(thing);
+  NSImage* image = gfx::SkBitmapToNSImage(thing);
   EXPECT_DOUBLE_EQ([image size].width, (double)width);
   EXPECT_DOUBLE_EQ([image size].height, (double)height);
 
@@ -59,18 +56,16 @@ void CocoaUtilsTest::ShapeHelper(int width, int height,
   EXPECT_GT(alpha, 0.9);
 }
 
-
-TEST_F(CocoaUtilsTest, BitmapToNSImage_RedSquare64x64) {
+TEST_F(SkiaUtilsMacTest, BitmapToNSImage_RedSquare64x64) {
   ShapeHelper(64, 64, true, true);
 }
 
-TEST_F(CocoaUtilsTest, BitmapToNSImage_BlueRectangle199x19) {
+TEST_F(SkiaUtilsMacTest, BitmapToNSImage_BlueRectangle199x19) {
   ShapeHelper(199, 19, false, true);
 }
 
-TEST_F(CocoaUtilsTest, BitmapToNSImage_BlueRectangle444) {
+TEST_F(SkiaUtilsMacTest, BitmapToNSImage_BlueRectangle444) {
   ShapeHelper(200, 200, false, false);
 }
-
 
 }  // namespace

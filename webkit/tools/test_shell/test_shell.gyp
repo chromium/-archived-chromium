@@ -521,7 +521,10 @@
             '../webcore_unit_tests/XBMImageDecoder_unittest.cpp',
             'image_decoder_unittest.cc',
             'image_decoder_unittest.h',
-          ]
+          ],
+          'sources': [
+            '../../../skia/ext/skia_utils_mac_unittest.mm',
+          ],
         }],
         ['OS=="win"', {
           'msvs_disabled_warnings': [ 4800 ],
