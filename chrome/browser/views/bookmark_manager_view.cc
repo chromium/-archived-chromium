@@ -325,7 +325,7 @@ std::vector<BookmarkNode*> BookmarkManagerView::GetSelectedTableNodes() {
 }
 
 void BookmarkManagerView::PaintBackground(gfx::Canvas* canvas) {
-  canvas->drawColor(kBackgroundColorBottom, SkPorterDuff::kSrc_Mode);
+  canvas->drawColor(kBackgroundColorBottom, SkXfermode::kSrc_Mode);
 
   SkPaint paint;
   paint.setShader(skia::CreateGradientShader(0, kBackgroundGradientHeight,

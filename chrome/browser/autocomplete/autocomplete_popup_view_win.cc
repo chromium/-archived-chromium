@@ -672,7 +672,7 @@ void AutocompletePopupViewWin::DrawEntry(HDC dc,
 void AutocompletePopupViewWin::DrawStar(HDC dc, int x, int y) const {
   gfx::Canvas canvas(star_->width(), star_->height(), false);
   // Make the background completely transparent.
-  canvas.drawColor(SK_ColorBLACK, SkPorterDuff::kClear_Mode);
+  canvas.drawColor(SK_ColorBLACK, SkXfermode::kClear_Mode);
   canvas.DrawBitmapInt(*star_, 0, 0);
   canvas.getTopPlatformDevice().drawToHDC(
       dc, mirroring_context_->GetLeft(x, x + star_->width()), y, NULL);

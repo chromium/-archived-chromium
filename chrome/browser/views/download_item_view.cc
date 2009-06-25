@@ -505,7 +505,7 @@ void DownloadItemView::Paint(gfx::Canvas* canvas) {
     canvas->saveLayerAlpha(NULL,
         static_cast<int>(body_hover_animation_->GetCurrentValue() * 255),
         SkCanvas::kARGB_NoClipLayer_SaveFlag);
-    canvas->drawARGB(0, 255, 255, 255, SkPorterDuff::kClear_Mode);
+    canvas->drawARGB(0, 255, 255, 255, SkXfermode::kClear_Mode);
 
     int x = kLeftPadding;
     PaintBitmaps(canvas,
@@ -547,7 +547,7 @@ void DownloadItemView::Paint(gfx::Canvas* canvas) {
       canvas->saveLayerAlpha(NULL,
           static_cast<int>(drop_hover_animation_->GetCurrentValue() * 255),
           SkCanvas::kARGB_NoClipLayer_SaveFlag);
-      canvas->drawARGB(0, 255, 255, 255, SkPorterDuff::kClear_Mode);
+      canvas->drawARGB(0, 255, 255, 255, SkXfermode::kClear_Mode);
 
       PaintBitmaps(canvas,
                    drop_down_image_set->top, drop_down_image_set->center,

@@ -617,7 +617,7 @@ void TabStrip::PaintChildren(gfx::Canvas* canvas) {
     // Make sure unselected tabs are somewhat transparent.
     SkPaint paint;
     paint.setColor(SkColorSetARGB(200, 255, 255, 255));
-    paint.setXfermode(SkXfermode::kDstIn_Mode);
+    paint.setXfermodeMode(SkXfermode::kDstIn_Mode);
     paint.setStyle(SkPaint::kFill_Style);
     canvas->FillRectInt(
         0, 0, width(),
