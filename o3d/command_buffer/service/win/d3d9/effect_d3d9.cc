@@ -227,6 +227,16 @@ static effect_param::DataType GetDataTypeFromD3D(
       } else {
         return effect_param::UNKNOWN;
       }
+    case D3DXPT_TEXTURE:
+    case D3DXPT_TEXTURE1D:
+    case D3DXPT_TEXTURE2D:
+    case D3DXPT_TEXTURE3D:
+    case D3DXPT_TEXTURECUBE:
+      if (desc.Class == D3DXPC_OBJECT) {
+        return effect_param::TEXTURE;
+      } else {
+        return effect_param::UNKNOWN;
+      }
     default:
       return effect_param::UNKNOWN;
   }
@@ -423,6 +433,10 @@ bool EffectParamD3D9::SetData(GAPID3D9 *gapi,
       for (unsigned int i = 0; i < sampler_unit_count_; ++i) {
         effect_->samplers_[sampler_units_[i]] = id;
       }
+      break;
+    }
+    case effect_param::TEXTURE: {
+      // TODO(rlp): finish
       break;
     }
     default:

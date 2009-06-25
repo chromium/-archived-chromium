@@ -101,6 +101,7 @@ enum DataType {
   INT,
   BOOL,
   SAMPLER,
+  TEXTURE,
   NUM_TYPES,
   MAKE_32_BIT = 0x7fffffff,
 };

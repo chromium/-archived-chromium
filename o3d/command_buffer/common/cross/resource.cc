@@ -101,6 +101,8 @@ unsigned int GetDataSize(DataType type) {
       return sizeof(bool);  // NOLINT
     case SAMPLER:
       return sizeof(ResourceID);  // NOLINT
+    case TEXTURE:
+      return sizeof(ResourceID);  // NOLINT
     default:
       LOG(FATAL) << "Invalid type.";
       return 0;

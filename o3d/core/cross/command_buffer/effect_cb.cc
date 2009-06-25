@@ -166,6 +166,8 @@ static const ObjectBase::Class* CBTypeToParamType(
       return ParamMatrix4::GetApparentClass();
     case effect_param::SAMPLER:
       return ParamSampler::GetApparentClass();
+    case effect_param::TEXTURE:
+      return ParamTexture::GetApparentClass();
     default : {
       DLOG(ERROR) << "Cannot convert command buffer type "
                   << type
@@ -199,7 +201,7 @@ void EffectCB::GetParameterInfo(EffectParameterInfoArray *array) {
 }
 
 void EffectCB::GetStreamInfo(EffectStreamInfoArray *array) {
-  // To be filled in
+  // TODO(rlp)
 }
 
 }  // namespace o3d

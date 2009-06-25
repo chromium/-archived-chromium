@@ -199,7 +199,6 @@ bool Buffer::ReshuffleBuffer(unsigned int new_stride, Field* field_to_remove) {
         }
       }
     }
-
     // Copy the reorganized data into a new buffer.
     {
       ConcreteFree();
@@ -210,7 +209,11 @@ bool Buffer::ReshuffleBuffer(unsigned int new_stride, Field* field_to_remove) {
             << " for Buffer '" << name() << "'";
         return false;
       }
-
+      // stride_ must be set before GetData is called so that the proper size
+      // buffer is allocated. We also need to set it after this function is
+      // is completed (see CreateField, RemoveField) for when we create a new
+      // buffer with no fields yet.
+      stride_ = new_stride;
       BufferLockHelper helper(this);
       void* destination = helper.GetData(Buffer::WRITE_ONLY);
       if (!destination) {
