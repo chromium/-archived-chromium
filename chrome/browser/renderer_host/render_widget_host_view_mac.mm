@@ -108,6 +108,11 @@ void RenderWidgetHostViewMac::WasHidden() {
   // everything again when we become selected again.
   is_hidden_ = true;
 
+  // We can't have tooltips floating around after the tools they're tipping
+  // about are hidden, can we?
+  tooltip_.reset(NULL);
+  tooltip_text_.clear();
+
   // If we have a renderer, then inform it that we are being hidden so it can
   // reduce its resource utilization.
   render_widget_host_->WasHidden();
