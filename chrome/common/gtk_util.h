@@ -104,12 +104,6 @@ int MirroredLeftPointForRect(GtkWidget* widget, const gfx::Rect& bounds);
 // Returns true if the pointer is currently inside the widget.
 bool WidgetContainsCursor(GtkWidget* widget);
 
-// Packs |widget| into |parent|.  If the current UI text direction is
-// RIGHT_TO_LEFT, the widget is packed at the end; otherwise, it is packed at
-// the beginning.
-void BoxPackWidgetWithDirection(GtkBox* parent, GtkWidget* widget,
-                                guint expand, guint fill, guint padding);
-
 }  // namespace gtk_util
 
 #endif  // CHROME_COMMON_GTK_UTIL_H_

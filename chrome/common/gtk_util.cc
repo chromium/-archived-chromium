@@ -286,13 +286,4 @@ bool WidgetContainsCursor(GtkWidget* widget) {
   return widget_allocation.Contains(x, y);
 }
 
-void BoxPackWidgetWithDirection(GtkBox* parent, GtkWidget* widget,
-                                guint expand, guint fill, guint padding) {
-  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
-    gtk_box_pack_end(parent, widget, expand, fill, padding);
-  } else {
-    gtk_box_pack_start(parent, widget, expand, fill, padding);
-  }
-}
-
 }  // namespace gtk_util

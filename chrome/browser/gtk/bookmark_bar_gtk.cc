@@ -177,21 +177,19 @@ void BookmarkBarGtk::Init(Profile* profile) {
   gtk_widget_modify_fg(instructions_label, GTK_STATE_NORMAL,
                        &kInstructionsColor);
   gtk_container_add(GTK_CONTAINER(instructions_), instructions_label);
-  gtk_util::BoxPackWidgetWithDirection(GTK_BOX(bookmark_hbox_.get()),
-                                       instructions_, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(bookmark_hbox_.get()), instructions_,
+                     FALSE, FALSE, 0);
 
   gtk_widget_set_app_paintable(bookmark_hbox_.get(), TRUE);
   g_signal_connect(G_OBJECT(bookmark_hbox_.get()), "expose-event",
                    G_CALLBACK(&OnHBoxExpose), this);
 
   bookmark_toolbar_.Own(gtk_toolbar_new());
-  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
-    gtk_widget_set_direction(bookmark_toolbar_.get(), GTK_TEXT_DIR_RTL);
   gtk_widget_set_app_paintable(bookmark_toolbar_.get(), TRUE);
   g_signal_connect(G_OBJECT(bookmark_toolbar_.get()), "expose-event",
                    G_CALLBACK(&OnToolbarExpose), this);
-  gtk_util::BoxPackWidgetWithDirection(GTK_BOX(bookmark_hbox_.get()),
-                                       bookmark_toolbar_.get(), TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(bookmark_hbox_.get()), bookmark_toolbar_.get(),
+                     TRUE, TRUE, 0);
 
   gtk_drag_dest_set(bookmark_toolbar_.get(), GTK_DEST_DEFAULT_DROP,
                     bookmark_utils::kTargetTable,
@@ -208,8 +206,8 @@ void BookmarkBarGtk::Init(Profile* profile) {
   g_signal_connect(bookmark_toolbar_.get(), "button-press-event",
                    G_CALLBACK(&OnButtonPressed), this);
 
-  gtk_util::BoxPackWidgetWithDirection(GTK_BOX(bookmark_hbox_.get()),
-                                       gtk_vseparator_new(), FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(bookmark_hbox_.get()), gtk_vseparator_new(),
+                     FALSE, FALSE, 0);
 
   other_bookmarks_button_ = gtk_chrome_button_new();
   ConnectFolderButtonEvents(other_bookmarks_button_);
@@ -221,9 +219,8 @@ void BookmarkBarGtk::Init(Profile* profile) {
   // Set the proper text colors.
   SetButtonTextColors(other_bookmarks_button_);
 
-  gtk_util::BoxPackWidgetWithDirection(GTK_BOX(bookmark_hbox_.get()),
-                                       other_bookmarks_button_,
-                                       FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(bookmark_hbox_.get()), other_bookmarks_button_,
+                     FALSE, FALSE, 0);
   gtk_widget_set_size_request(bookmark_hbox_.get(), -1, 0);
 
   slide_animation_.reset(new SlideAnimation(this));
