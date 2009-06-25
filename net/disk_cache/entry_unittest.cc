@@ -828,43 +828,37 @@ TEST_F(DiskCacheEntryTest, MemoryOnlyDoomedEntry) {
 // enumerations.
 TEST_F(DiskCacheEntryTest, MemoryOnlyEnumerationWithSlaveEntries) {
   SetMemoryOnlyMode();
-  SetDirectMode();
-  SetMaxSize(1024);
   InitCache();
 
-  disk_cache::Entry* entry;
-  disk_cache::MemEntryImpl* parent_entry;
+  const int kSize = 4096;
+  scoped_refptr<net::IOBuffer> buf = new net::IOBuffer(kSize);
+  CacheTestFillBuffer(buf->data(), kSize, false);
 
-  ASSERT_TRUE(cache_->CreateEntry("parent", &entry));
-  parent_entry = reinterpret_cast<disk_cache::MemEntryImpl*>(entry);
-  EXPECT_EQ(disk_cache::MemEntryImpl::kParentEntry, parent_entry->type());
+  std::string key("the first key");
+  disk_cache::Entry* parent_entry;
+  ASSERT_TRUE(cache_->CreateEntry(key, &parent_entry));
+
+  // Writes to the parent entry.
+  EXPECT_EQ(kSize, parent_entry->WriteSparseData(0, buf, kSize, NULL));
+
+  // This write creates a child entry and writes to it.
+  EXPECT_EQ(kSize, parent_entry->WriteSparseData(8192, buf, kSize, NULL));
+
   parent_entry->Close();
-
-  disk_cache::MemEntryImpl* child_entry =
-      new disk_cache::MemEntryImpl(mem_cache_);
-  // TODO(hclam): we shouldn't create a child entry explicit. Once a parent
-  // entry can be triggered to create a child entry, we should change this
-  // to use another public method to do the creation.
-  EXPECT_TRUE(child_entry->CreateChildEntry(parent_entry));
-  EXPECT_EQ(disk_cache::MemEntryImpl::kChildEntry, child_entry->type());
 
   // Perform the enumerations.
   void* iter = NULL;
+  disk_cache::Entry* entry = NULL;
   int count = 0;
   while (cache_->OpenNextEntry(&iter, &entry)) {
     ASSERT_TRUE(entry != NULL);
+    ++count;
     disk_cache::MemEntryImpl* mem_entry =
         reinterpret_cast<disk_cache::MemEntryImpl*>(entry);
     EXPECT_EQ(disk_cache::MemEntryImpl::kParentEntry, mem_entry->type());
-    EXPECT_TRUE(mem_entry == parent_entry);
     mem_entry->Close();
-    ++count;
   }
   EXPECT_EQ(1, count);
-
-  // TODO(hclam): remove this when parent entry can doom child entries
-  // internally. Now we have to doom this child entry manually.
-  child_entry->Doom();
 }
 
 // Writes |buf_1| to offset and reads it back as |buf_2|.
@@ -940,7 +934,7 @@ TEST_F(DiskCacheEntryTest, BasicSparseSyncIO) {
   BasicSparseIO(false);
 }
 
-TEST_F(DiskCacheEntryTest, DISABLED_MemoryOnlyBasicSparseSyncIO) {
+TEST_F(DiskCacheEntryTest, MemoryOnlyBasicSparseSyncIO) {
   SetMemoryOnlyMode();
   InitCache();
   BasicSparseIO(false);
@@ -951,7 +945,7 @@ TEST_F(DiskCacheEntryTest, BasicSparseAsyncIO) {
   BasicSparseIO(true);
 }
 
-TEST_F(DiskCacheEntryTest, DISABLED_MemoryOnlyBasicSparseAsyncIO) {
+TEST_F(DiskCacheEntryTest, MemoryOnlyBasicSparseAsyncIO) {
   SetMemoryOnlyMode();
   InitCache();
   BasicSparseIO(true);
@@ -983,7 +977,7 @@ TEST_F(DiskCacheEntryTest, HugeSparseSyncIO) {
   HugeSparseIO(false);
 }
 
-TEST_F(DiskCacheEntryTest, DISABLED_MemoryOnlyHugeSparseSyncIO) {
+TEST_F(DiskCacheEntryTest, MemoryOnlyHugeSparseSyncIO) {
   SetMemoryOnlyMode();
   InitCache();
   HugeSparseIO(false);
@@ -994,7 +988,7 @@ TEST_F(DiskCacheEntryTest, HugeSparseAsyncIO) {
   HugeSparseIO(true);
 }
 
-TEST_F(DiskCacheEntryTest, DISABLED_MemoryOnlyHugeSparseAsyncIO) {
+TEST_F(DiskCacheEntryTest, MemoryOnlyHugeSparseAsyncIO) {
   SetMemoryOnlyMode();
   InitCache();
   HugeSparseIO(true);
@@ -1047,8 +1041,90 @@ TEST_F(DiskCacheEntryTest, GetAvailableRange) {
   GetAvailableRange();
 }
 
-TEST_F(DiskCacheEntryTest, DISABLED_MemoryOnlyGetAvailableRange) {
+TEST_F(DiskCacheEntryTest, MemoryOnlyGetAvailableRange) {
   SetMemoryOnlyMode();
   InitCache();
   GetAvailableRange();
+}
+
+TEST_F(DiskCacheEntryTest, MemoryOnlyMisalignedSparseIO) {
+  SetMemoryOnlyMode();
+  InitCache();
+
+  const int kSize = 8192;
+  scoped_refptr<net::IOBuffer> buf_1 = new net::IOBuffer(kSize);
+  scoped_refptr<net::IOBuffer> buf_2 = new net::IOBuffer(kSize);
+  CacheTestFillBuffer(buf_1->data(), kSize, false);
+
+  std::string key("the first key");
+  disk_cache::Entry* entry;
+  ASSERT_TRUE(cache_->CreateEntry(key, &entry));
+
+  // This loop writes back to back starting from offset 0 and 9000.
+  for (int i = 0; i < kSize; i += 1024) {
+    scoped_refptr<net::WrappedIOBuffer> buf_3 =
+      new net::WrappedIOBuffer(buf_1->data() + i);
+    VerifySparseIO(entry, i, buf_3, 1024, false, buf_2);
+    VerifySparseIO(entry, 9000 + i, buf_3, 1024, false, buf_2);
+  }
+
+  // Make sure we have data written.
+  VerifyContentSparseIO(entry, 0, buf_1->data(), kSize, false);
+  VerifyContentSparseIO(entry, 9000, buf_1->data(), kSize, false);
+
+  // This tests a large write that spans 3 entries from a misaligned offset.
+  VerifySparseIO(entry, 20481, buf_1, 8192, false, buf_2);
+
+  entry->Close();
+}
+
+TEST_F(DiskCacheEntryTest, MemoryOnlyMisalignedGetAvailableRange) {
+  SetMemoryOnlyMode();
+  InitCache();
+
+  const int kSize = 8192;
+  scoped_refptr<net::IOBuffer> buf = new net::IOBuffer(kSize);
+  CacheTestFillBuffer(buf->data(), kSize, false);
+
+  disk_cache::Entry* entry;
+  std::string key("the first key");
+  ASSERT_TRUE(cache_->CreateEntry(key, &entry));
+
+  // Writes in the middle of an entry.
+  EXPECT_EQ(1024, entry->WriteSparseData(0, buf, 1024, NULL));
+  EXPECT_EQ(1024, entry->WriteSparseData(5120, buf, 1024, NULL));
+  EXPECT_EQ(1024, entry->WriteSparseData(10000, buf, 1024, NULL));
+
+  // Writes in the middle of an entry and spans 2 child entries.
+  EXPECT_EQ(8192, entry->WriteSparseData(50000, buf, 8192, NULL));
+
+  int64 start;
+  // Test that we stop at a discontinuous child at the second block.
+  EXPECT_EQ(1024, entry->GetAvailableRange(0, 10000, &start));
+  EXPECT_EQ(0, start);
+
+  // Test that number of bytes is reported correctly when we start from the
+  // middle of a filled region.
+  EXPECT_EQ(512, entry->GetAvailableRange(512, 10000, &start));
+  EXPECT_EQ(512, start);
+
+  // Test that we found bytes in the child of next block.
+  EXPECT_EQ(1024, entry->GetAvailableRange(1024, 10000, &start));
+  EXPECT_EQ(5120, start);
+
+  // Test that the desired length is respected. It starts within a filled
+  // region.
+  EXPECT_EQ(512, entry->GetAvailableRange(5500, 512, &start));
+  EXPECT_EQ(5500, start);
+
+  // Test that the desired length is respected. It starts before a filled
+  // region.
+  EXPECT_EQ(500, entry->GetAvailableRange(5000, 620, &start));
+  EXPECT_EQ(5120, start);
+
+  // Test that multiple blocks are scanned.
+  EXPECT_EQ(8192, entry->GetAvailableRange(40000, 20000, &start));
+  EXPECT_EQ(50000, start);
+
+  entry->Close();
 }

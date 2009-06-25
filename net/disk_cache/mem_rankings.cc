@@ -4,9 +4,14 @@
 
 #include "net/disk_cache/mem_rankings.h"
 
+#include "base/logging.h"
 #include "net/disk_cache/mem_entry_impl.h"
 
 namespace disk_cache {
+
+MemRankings::~MemRankings() {
+  DCHECK(!head_ && !tail_);
+}
 
 void MemRankings::Insert(MemEntryImpl* node) {
   if (head_)

@@ -17,7 +17,7 @@ class MemEntryImpl;
 class MemRankings {
  public:
   MemRankings() : head_(NULL), tail_(NULL) {}
-  ~MemRankings() {}
+  ~MemRankings();
 
   // Inserts a given entry at the head of the queue.
   void Insert(MemEntryImpl* node);
