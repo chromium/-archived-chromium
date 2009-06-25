@@ -45,6 +45,9 @@ const wchar_t kDumpStatsTable[] = L"stats";
 // Use a specified cache directory.
 const wchar_t kCacheDir[] = L"cache-dir";
 
+// Temparary option for new ftp implemetation.
+const wchar_t kNewFtp[] = L"new-ftp";
+
 // When being run through a memory profiler, trigger memory in use dumps at
 // startup and just prior to shutdown.
 const wchar_t kDebugMemoryInUse[] = L"debug-memory-in-use";
@@ -64,9 +67,9 @@ const wchar_t kAllowScriptsToCloseWindows[] = L"allow-scripts-to-close-windows";
 extern const wchar_t kCheckLayoutTestSystemDeps[] =
     L"check-layout-test-sys-deps";
 
-// If set, we are running under GDB so allow a certain class of errors	 
-// to happen even if in layout test mode.	 
-extern const wchar_t kGDB[] = L"gdb";	 
+// If set, we are running under GDB so allow a certain class of errors
+// to happen even if in layout test mode.
+extern const wchar_t kGDB[] = L"gdb";
 
 // Make functions of the Profiler class available in javascript
 extern const wchar_t kProfiler[] = L"profiler";
