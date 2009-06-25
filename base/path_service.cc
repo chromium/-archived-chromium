@@ -206,12 +206,12 @@ bool PathService::IsOverridden(int key) {
   return path_data->overrides.find(key) != path_data->overrides.end();
 }
 
-bool PathService::Override(int key, const std::wstring& path) {
+bool PathService::Override(int key, const FilePath& path) {
   PathData* path_data = GetPathData();
   DCHECK(path_data);
   DCHECK(key > base::DIR_CURRENT) << "invalid path key";
 
-  std::wstring file_path = path;
+  FilePath file_path = path;
 #if defined(OS_WIN)
   // On Windows we switch the current working directory to load plugins (at
   // least). That's not the case on POSIX.
@@ -221,15 +221,18 @@ bool PathService::Override(int key, const std::wstring& path) {
 #endif
 
   // make sure the directory exists:
-  if (!file_util::CreateDirectory(file_path))
+  if (!file_util::PathExists(file_path) &&
+      !file_util::CreateDirectory(file_path))
     return false;
 
-  file_util::TrimTrailingSeparator(&file_path);
-
   AutoLock scoped_lock(path_data->lock);
-  path_data->cache[key] = FilePath::FromWStringHack(file_path);
+  path_data->cache[key] = file_path;
   path_data->overrides.insert(key);
   return true;
+}
+
+bool PathService::Override(int key, const std::wstring& path) {
+  return Override(key, FilePath::FromWStringHack(path));
 }
 
 bool PathService::SetCurrentDirectory(const std::wstring& current_directory) {

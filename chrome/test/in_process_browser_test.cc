@@ -187,6 +187,22 @@ void InProcessBrowserTest::RunTestOnMainThreadLoop() {
     return;
   }
 
+
+  // Before we run the browser, we have to hack the path to the exe to match
+  // what it would be if Chrome was running, because it is used to fork renderer
+  // processes, on Linux at least (failure to do so will cause a browser_test to
+  // be run instead of a renderer).
+  FilePath chrome_path;
+  CHECK(PathService::Get(base::FILE_EXE, &chrome_path));
+  chrome_path = chrome_path.DirName();
+#if defined(OS_WIN)
+  chrome_path = chrome_path.Append(chrome::kBrowserProcessExecutablePath);
+#elif defined(OS_POSIX)
+  chrome_path = chrome_path.Append(
+      WideToASCII(chrome::kBrowserProcessExecutablePath));
+#endif
+  CHECK(PathService::Override(base::FILE_EXE, chrome_path));
+
   browser_ = CreateBrowser(profile);
 
   RunTestOnMainThread();

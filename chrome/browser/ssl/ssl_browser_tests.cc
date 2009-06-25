@@ -73,7 +73,6 @@ class SSLUITest : public InProcessBrowserTest {
   DISALLOW_COPY_AND_ASSIGN(SSLUITest);
 };
 
-#if defined(OS_WIN)
 // Visits a regular page over http.
 IN_PROC_BROWSER_TEST_F(SSLUITest, TestHTTP) {
   scoped_refptr<HTTPTestServer> server = PlainServer();
@@ -712,20 +711,6 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestUnauthenticatedFrameNavigation) {
       content_frame_xpath, is_frame_evil_js, &is_content_evil));
   EXPECT_FALSE(is_content_evil);
 }
-#else
-// TODO(port): enable the real tests.
-IN_PROC_BROWSER_TEST_F(SSLUITest, PhonyTest1) {
-  EXPECT_TRUE(true);
-}
-
-IN_PROC_BROWSER_TEST_F(SSLUITest, PhonyTest2) {
-  EXPECT_TRUE(false);
-}
-
-IN_PROC_BROWSER_TEST_F(SSLUITest, PhonyTest3) {
-  EXPECT_TRUE(true);
-}
-#endif
 
 // TODO(jcampan): more tests to do below.
 

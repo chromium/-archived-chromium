@@ -48,6 +48,9 @@ class PathService {
   //
   // WARNING: Consumers of PathService::Get may expect paths to be constant
   // over the lifetime of the app, so this method should be used with caution.
+  static bool Override(int key, const FilePath& path);
+  // This version, using a wstring, is deprecated and only kept around
+  // until we can fix all callers.
   static bool Override(int key, const std::wstring& path);
 
   // Return whether a path was overridden.
