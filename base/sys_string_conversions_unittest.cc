@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/basictypes.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
@@ -69,6 +70,7 @@ TEST(SysStrings, SysUTF8ToWide) {
 }
 
 // We assume the test is running in a UTF8 locale.
+#if defined(OS_LINUX)
 TEST(SysStrings, SysWideToNativeMB) {
   using base::SysWideToNativeMB;
   EXPECT_EQ("Hello, world", SysWideToNativeMB(L"Hello, world"));
@@ -176,3 +178,4 @@ TEST(SysStrings, SysNativeMBAndWide) {
     EXPECT_EQ(wide, trip);
   }
 }
+#endif  // OS_LINUX
