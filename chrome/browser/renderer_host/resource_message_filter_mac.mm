@@ -28,7 +28,7 @@ void ResourceMessageFilter::OnGetWindowRect(gfx::NativeViewId window_id,
   NSView* view = gfx::NativeViewFromId(window_id);
   gfx::Rect rect;
 
-  if (view) {
+  if (view && [view window]) {
     NSRect bounds = [view bounds];
     bounds = [view convertRect:bounds toView:nil];
     bounds.origin = [[view window] convertBaseToScreen:bounds.origin];
@@ -43,10 +43,10 @@ void ResourceMessageFilter::OnGetRootWindowRect(gfx::NativeViewId window_id,
                                                 IPC::Message* reply_msg) {
   NSView* view = gfx::NativeViewFromId(window_id);
   gfx::Rect rect;
-  if (view) {
-    NSWindow* window = [view window];
-    NSRect bounds = [window frame];
-    rect = NSRectToRect(bounds, [window screen]);
+
+  if (view && [view window]) {
+    NSRect bounds = [[view window] frame];
+    rect = NSRectToRect(bounds, [[view window] screen]);
   }
 
   ViewHostMsg_GetRootWindowRect::WriteReplyParams(reply_msg, rect);
