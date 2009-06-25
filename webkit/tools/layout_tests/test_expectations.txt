@@ -673,6 +673,13 @@ BUG13907 WIN DEBUG : LayoutTests/media/video-src-source.html = PASS FAIL
 BUG13907 WIN DEBUG : LayoutTests/media/video-timeupdate-during-playback.html = PASS FAIL
 // This test is very flaky.
 BUG13907 WIN : LayoutTests/media/unsupported-rtsp.html = PASS CRASH
+// These tests are flaky.
+BUG13907 WIN : LayoutTests/media/video-src-invalid-remove.html = PASS FAIL
+BUG13097 WIN : LayoutTests/media/video-display-toggle.html = PASS FAIL TIMEOUT
+BUG13907 WIN : LayoutTests/media/video-src-change.html = PASS FAIL
+BUG13907 WIN : LayoutTests/media/video-src-source.html = PASS FAIL
+BUG13907 WIN : LayoutTests/media/video-size.html = PASS FAIL
+BUG13907 WIN : LayoutTests/media/video-src-plus-source.html = PASS FAIL
 
 // Function arguments object is copied for each access.
 BUG941049 : LayoutTests/fast/js/kde/function_arguments.html = FAIL
@@ -2797,7 +2804,5 @@ BUG15296 : LayoutTests/dom/html/level2/html/HTMLTableElement10.html = CRASH
 // WebKit 45134:45176
 BUG15403 : LayoutTests/http/tests/security/clipboard/clipboard-file-access.html = FAIL
 
-
 // Flaky for a while on DEBUG
 BUG15267 WIN LINUX DEBUG : LayoutTests/transitions/cancel-transition.html = PASS FAIL
-BUG15266 WIN DEBUG : LayoutTests/media/video-display-toggle.html = TIMEOUT PASS
