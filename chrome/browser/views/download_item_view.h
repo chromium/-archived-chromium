@@ -142,6 +142,10 @@ class DownloadItemView : public views::ButtonListener,
   // open the downloaded file.
   void Reenable();
 
+  // Given |x|, returns whether |x| is within the x coordinate range of
+  // the drop-down button or not.
+  bool InDropDownButtonXCoordinateRange(int x);
+
   // The different images used for the background.
   BodyImageSet normal_body_image_set_;
   BodyImageSet hot_body_image_set_;
@@ -174,8 +178,9 @@ class DownloadItemView : public views::ButtonListener,
   // In degrees, for downloads with no known total size.
   int progress_angle_;
 
-  // The x coordinate at which the drop-down button starts.
-  int drop_down_x_;
+  // The left and right x coordinates of the drop-down button.
+  int drop_down_x_left_;
+  int drop_down_x_right_;
 
   // Used when we are showing the menu to show the drop-down as pressed.
   bool drop_down_pressed_;

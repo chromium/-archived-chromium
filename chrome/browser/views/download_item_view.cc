@@ -245,7 +245,16 @@ DownloadItemView::DownloadItemView(DownloadItem* download,
     box_y_ = kVerticalPadding;
 
   gfx::Size size = GetPreferredSize();
-  drop_down_x_ = size.width() - normal_drop_down_image_set_.top->width();
+  if (UILayoutIsRightToLeft()) {
+    // Drop down button is glued to the left of the download shelf.
+    drop_down_x_left_ = 0;
+    drop_down_x_right_ = normal_drop_down_image_set_.top->width();
+  } else {
+    // Drop down button is glued to the right of the download shelf.
+    drop_down_x_left_ =
+        size.width() - normal_drop_down_image_set_.top->width();
+    drop_down_x_right_ = size.width();
+  }
 
   body_hover_animation_.reset(new SlideAnimation(this));
   drop_hover_animation_.reset(new SlideAnimation(this));
@@ -762,7 +771,7 @@ bool DownloadItemView::OnMousePressed(const views::MouseEvent& event) {
 
   if (event.IsOnlyLeftMouseButton()) {
     gfx::Point point(event.location());
-    if (event.x() < drop_down_x_) {
+    if (!InDropDownButtonXCoordinateRange(event.x())) {
       SetState(PUSHED, NORMAL);
       return true;
     }
@@ -784,11 +793,10 @@ bool DownloadItemView::OnMousePressed(const views::MouseEvent& event) {
     // DownloadShelfContextMenu will take care of setting the right anchor for
     // the menu depending on the locale.
     point.set_y(height());
-    if (UILayoutIsRightToLeft()) {
-      point.set_x(width());
-    } else {
-      point.set_x(drop_down_x_);
-    }
+    if (UILayoutIsRightToLeft())
+      point.set_x(drop_down_x_right_);
+    else
+      point.set_x(drop_down_x_left_);
 
     views::View::ConvertPointToScreen(this, &point);
     DownloadShelfContextMenuWin menu(model_.get(),
@@ -806,7 +814,7 @@ void DownloadItemView::OnMouseMoved(const views::MouseEvent& event) {
   if (IsDangerousMode())
     return;
 
-  bool on_body = event.x() < drop_down_x_;
+  bool on_body = !InDropDownButtonXCoordinateRange(event.x());
   SetState(on_body ? HOT : NORMAL, on_body ? NORMAL : HOT);
   if (on_body) {
     body_hover_animation_->Show();
@@ -829,7 +837,8 @@ void DownloadItemView::OnMouseReleased(const views::MouseEvent& event,
     starting_drag_ = false;
     return;
   }
-  if (event.IsOnlyLeftMouseButton() && event.x() < drop_down_x_)
+  if (event.IsOnlyLeftMouseButton() &&
+      !InDropDownButtonXCoordinateRange(event.x()))
     OpenDownload();
 
   SetState(NORMAL, NORMAL);
@@ -963,4 +972,10 @@ void DownloadItemView::SizeLabelToMinWidth() {
 void DownloadItemView::Reenable() {
   disabled_while_opening_ = false;
   SetEnabled(true);  // Triggers a repaint.
+}
+
+bool DownloadItemView::InDropDownButtonXCoordinateRange(int x) {
+  if (x > drop_down_x_left_ && x < drop_down_x_right_)
+    return true;
+  return false;
 }
