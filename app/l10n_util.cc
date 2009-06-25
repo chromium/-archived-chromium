@@ -129,7 +129,8 @@ bool IsLocaleAvailable(const std::string& locale,
     return false;
 
   FilePath test_path = locale_path;
-  test_path.AppendASCII(locale).ReplaceExtension(kLocaleFileExtension);
+  test_path =
+    test_path.AppendASCII(locale).ReplaceExtension(kLocaleFileExtension);
   return file_util::PathExists(test_path) && SetICUDefaultLocale(locale);
 }
 
