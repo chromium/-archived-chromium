@@ -10,8 +10,6 @@
 #include "base/scoped_cftyperef.h"
 #include "base/scoped_ptr.h"
 #include "skia/ext/bitmap_platform_device_mac.h"
-#include "third_party/skia/include/utils/mac/SkCGUtils.h"
-#include "third_party/skia/include/core/SkColorPriv.h"
 
 namespace gfx {
 
@@ -165,19 +163,6 @@ SkBitmap NSImageToSkBitmap(NSImage* image, NSSize size, bool is_opaque) {
   [NSGraphicsContext setCurrentContext:current_context];
 
   return bitmap;
-}
-
-NSImage* SkBitmapToNSImage(const SkBitmap& skiaBitmap) {
-  // First convert SkBitmap to CGImageRef.
-  CGImageRef cgimage = SkCreateCGImageRef(skiaBitmap);
-
-  // Now convert to NSImage.
-  NSBitmapImageRep* bitmap = [[[NSBitmapImageRep alloc]
-                                   initWithCGImage:cgimage] autorelease];
-  CFRelease(cgimage);
-  NSImage* image = [[[NSImage alloc] init] autorelease];
-  [image addRepresentation:bitmap];
-  return image;
 }
 
 }  // namespace gfx

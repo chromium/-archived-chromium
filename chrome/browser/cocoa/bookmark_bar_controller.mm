@@ -10,10 +10,12 @@
 #import "chrome/browser/cocoa/bookmark_bar_controller.h"
 #import "chrome/browser/cocoa/bookmark_bar_view.h"
 #import "chrome/browser/cocoa/bookmark_button_cell.h"
+#import "chrome/browser/cocoa/cocoa_utils.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "skia/ext/skia_utils_mac.h"
+
+using namespace CocoaUtils;
 
 @interface BookmarkBarController(Private)
 - (void)applyContentAreaOffset:(BOOL)apply;
@@ -165,7 +167,7 @@ const CGFloat kBookmarkHorizontalPadding = 8.0;
   // (and their icons) are loaded on the IO thread to speed launch.
   const SkBitmap& favicon = bookmarkModel_->GetFavIcon(node);
   if (!favicon.isNull()) {
-    NSImage* image = gfx::SkBitmapToNSImage(favicon);
+    NSImage* image = SkBitmapToNSImage(favicon);
     if (image) {
       [cell setImage:image];
       [cell setImagePosition:NSImageLeft];
@@ -293,7 +295,7 @@ const CGFloat kBookmarkHorizontalPadding = 8.0;
     void* pointer = [[cell representedObject] pointerValue];
     BookmarkNode* cellnode = static_cast<BookmarkNode*>(pointer);
     if (cellnode == node) {
-      NSImage* image = gfx::SkBitmapToNSImage(bookmarkModel_->GetFavIcon(node));
+      NSImage* image = SkBitmapToNSImage(bookmarkModel_->GetFavIcon(node));
       if (image) {
         [cell setImage:image];
         [cell setImagePosition:NSImageLeft];
