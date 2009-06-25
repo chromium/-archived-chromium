@@ -382,8 +382,8 @@ class VectorCanvasTest : public ImageTest {
     pcanvas_ = new PlatformCanvas(size_, size_, false);
 
     // Clear white.
-    vcanvas_->drawARGB(255, 255, 255, 255, SkPorterDuff::kSrc_Mode);
-    pcanvas_->drawARGB(255, 255, 255, 255, SkPorterDuff::kSrc_Mode);
+    vcanvas_->drawARGB(255, 255, 255, 255, SkXfermode::kSrc_Mode);
+    pcanvas_->drawARGB(255, 255, 255, 255, SkXfermode::kSrc_Mode);
   }
 
   // Compares both canvas and returns the pixel difference in percentage between
@@ -461,8 +461,8 @@ TEST_F(VectorCanvasTest, BasicDrawing) {
 
   // Clear white.
   {
-    vcanvas_->drawARGB(255, 255, 255, 255, SkPorterDuff::kSrc_Mode);
-    pcanvas_->drawARGB(255, 255, 255, 255, SkPorterDuff::kSrc_Mode);
+    vcanvas_->drawARGB(255, 255, 255, 255, SkXfermode::kSrc_Mode);
+    pcanvas_->drawARGB(255, 255, 255, 255, SkXfermode::kSrc_Mode);
   }
   EXPECT_EQ(0., ProcessImage(L"drawARGB"));
 
