@@ -6,7 +6,6 @@
 #define V8_PROXY_H__
 
 #include <v8.h>
-#include "v8_index.h"
 #include "v8_utility.h"
 #include "ChromiumBridge.h"
 #include "Node.h"
@@ -17,6 +16,7 @@
 #include "V8CustomBinding.h"
 #include "V8DOMMap.h"
 #include "V8EventListenerList.h"
+#include "V8Index.h"
 #include <wtf/Assertions.h>
 #include <wtf/PassRefPtr.h> // so generated bindings don't have to
 #include <wtf/Vector.h>

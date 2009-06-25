@@ -36,7 +36,6 @@
 #include <v8-debug.h>
 
 #include "v8_proxy.h"
-#include "v8_index.h"
 #include "v8_binding.h"
 #include "V8Collection.h"
 #include "V8DOMWindow.h"
@@ -49,6 +48,7 @@
 #include "ScriptController.h"
 #include "V8CustomBinding.h"
 #include "V8DOMMap.h"
+#include "V8Index.h"
 #include "WorkerContextExecutionProxy.h"
 
 namespace WebCore {
