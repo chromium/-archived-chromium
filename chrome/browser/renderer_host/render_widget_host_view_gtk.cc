@@ -71,6 +71,17 @@ class RenderWidgetHostViewGtkWidget {
     g_signal_connect(widget, "scroll-event",
                      G_CALLBACK(MouseScrollEvent), host_view);
 
+    // Create a GtkIMContext instance and attach its signal handlers.
+    host_view->im_context_ = gtk_im_multicontext_new();
+    g_signal_connect(host_view->im_context_, "preedit_start",
+                     G_CALLBACK(InputMethodPreeditStart), host_view);
+    g_signal_connect(host_view->im_context_, "preedit_end",
+                     G_CALLBACK(InputMethodPreeditEnd), host_view);
+    g_signal_connect(host_view->im_context_, "preedit_changed",
+                     G_CALLBACK(InputMethodPreeditChanged), host_view);
+    g_signal_connect(host_view->im_context_, "commit",
+                     G_CALLBACK(InputMethodCommit), host_view);
+
     GtkTargetList* target_list = gtk_target_list_new(NULL, 0);
     gtk_target_list_add_text_targets(target_list, 0);
     gint num_targets = 0;
@@ -109,6 +120,37 @@ class RenderWidgetHostViewGtkWidget {
       NativeWebKeyboardEvent wke(event);
       host_view->GetRenderWidgetHost()->ForwardKeyboardEvent(wke);
     }
+
+    // Dispatch this event to the GtkIMContext object.
+    // It sends a "commit" signal when it has a character to be inserted
+    // even when we use a US keyboard so that we can send a Char event
+    // (or an IME event) to the renderer in our "commit"-signal handler.
+    // We should send a KeyDown (or a KeyUp) event before dispatching this
+    // event to the GtkIMContext object (and send a Char event) so that WebKit
+    // can dispatch the JavaScript events in the following order: onkeydown(),
+    // onkeypress(), and onkeyup(). (Many JavaScript pages assume this.)
+    // TODO(hbono): we should not dispatch a key event when the input focus
+    // is in a password input?
+    if (!gtk_im_context_filter_keypress(host_view->im_context_, event)) {
+      // The GtkIMContext object cannot handle this key event.
+      // This case is caused by two reasons:
+      // 1. The given key event is a control-key event, (e.g. return, page up,
+      //    page down, tab, arrows, etc.) or;
+      // 2. The given key event is not a control-key event but printable
+      //    characters aren't assigned to the event, (e.g. alt+d, etc.)
+      // Create a Char event manually from this key event and send it to the
+      // renderer only when this event is a control-key event because
+      // control-key events should be processed by WebKit.
+      // TODO(hbono): Windows Chrome sends a Char event with its isSystemKey
+      // value true for the above case 2. We should emulate this behavior?
+      if (event->type == GDK_KEY_PRESS &&
+          !gdk_keyval_to_unicode(event->keyval)) {
+        NativeWebKeyboardEvent wke(event);
+        wke.type = WebKit::WebInputEvent::Char;
+        host_view->GetRenderWidgetHost()->ForwardKeyboardEvent(wke);
+      }
+    }
+
     // We return TRUE because we did handle the event. If it turns out webkit
     // can't handle the event, we'll deal with it in
     // RenderView::UnhandledKeyboardEvent().
@@ -215,6 +257,68 @@ class RenderWidgetHostViewGtkWidget {
     return FALSE;
   }
 
+  static void InputMethodCommit(GtkIMContext* im_context,
+                                gchar* text,
+                                RenderWidgetHostViewGtk* host_view) {
+    std::wstring im_text = UTF8ToWide(text);
+    if (!host_view->im_is_composing_cjk_text_ && im_text.length() == 1) {
+      // Send a Char event when we input a composed character without IMEs so
+      // that this event is to be dispatched to onkeypress() handlers,
+      // autofill, etc.
+      ForwardCharEvent(host_view, im_text[0]);
+    } else {
+      // Send an IME event.
+      // Unlike a Char event, an IME event is NOT dispatched to onkeypress()
+      // handlers or autofill.
+      host_view->GetRenderWidgetHost()->ImeConfirmComposition(im_text);
+    }
+  }
+
+  static void InputMethodPreeditStart(GtkIMContext* im_context,
+                                      RenderWidgetHostViewGtk* host_view) {
+    // Start monitoring IME events of the renderer.
+    // TODO(hbono): a renderer sends these IME events not only for sending the
+    // caret position, but also for enabling/disabling IMEs. If we need to
+    // enable/disable IMEs, we should move this code to a better place.
+    // (This signal handler is called only when an IME is enabled. So, once
+    // we disable an IME, we cannot receive any IME events from the renderer,
+    // i.e. we cannot re-enable the IME any longer.)
+    host_view->GetRenderWidgetHost()->ImeSetInputMode(true);
+    host_view->im_is_composing_cjk_text_ = true;
+  }
+
+  static void InputMethodPreeditEnd(GtkIMContext* im_context,
+                                    RenderWidgetHostViewGtk* host_view) {
+    // End monitoring IME events.
+    host_view->GetRenderWidgetHost()->ImeSetInputMode(false);
+    host_view->im_is_composing_cjk_text_ = false;
+  }
+
+  static void InputMethodPreeditChanged(GtkIMContext* im_context,
+                                        RenderWidgetHostViewGtk* host_view) {
+    // Send an IME event to update the composition node of the renderer.
+    // TODO(hbono): an IME intercepts all key events while composing a text,
+    // i.e. we cannot receive any GDK_KEY_PRESS (or GDK_KEY_UP) events.
+    // Should we send pseudo KeyDown (and KeyUp) events to emulate Windows?
+    gchar* preedit_text = NULL;
+    gint cursor_position = 0;
+    gtk_im_context_get_preedit_string(im_context, &preedit_text, NULL,
+                                      &cursor_position);
+    host_view->GetRenderWidgetHost()->ImeSetComposition(
+        UTF8ToWide(preedit_text), cursor_position, -1, -1);
+    g_free(preedit_text);
+  }
+
+  static void ForwardCharEvent(RenderWidgetHostViewGtk* host_view,
+                               wchar_t im_character) {
+    if (!im_character)
+      return;
+
+    NativeWebKeyboardEvent char_event(im_character,
+                                      base::Time::Now().ToDoubleT());
+    host_view->GetRenderWidgetHost()->ForwardKeyboardEvent(char_event);
+  }
+
   DISALLOW_IMPLICIT_CONSTRUCTORS(RenderWidgetHostViewGtkWidget);
 };
 
@@ -232,11 +336,15 @@ RenderWidgetHostViewGtk::RenderWidgetHostViewGtk(RenderWidgetHost* widget_host)
       is_showing_context_menu_(false),
       parent_host_view_(NULL),
       parent_(NULL),
-      is_popup_first_mouse_release_(true) {
+      is_popup_first_mouse_release_(true),
+      im_context_(NULL),
+      im_is_composing_cjk_text_(false) {
   host_->set_view(this);
 }
 
 RenderWidgetHostViewGtk::~RenderWidgetHostViewGtk() {
+  if (im_context_)
+    g_object_unref(im_context_);
   view_.Destroy();
 }
 
@@ -396,7 +504,32 @@ void RenderWidgetHostViewGtk::SetIsLoading(bool is_loading) {
 
 void RenderWidgetHostViewGtk::IMEUpdateStatus(int control,
                                               const gfx::Rect& caret_rect) {
-  NOTIMPLEMENTED();
+  // The renderer has updated its IME status.
+  // Control the GtkIMContext object according to this status.
+  if (!im_context_)
+    return;
+
+  if (control == IME_DISABLE) {
+    // TODO(hbono): this code just resets the GtkIMContext object and
+    // detaches it from this window. Should we prevent sending key events to
+    // the GtkIMContext object (or unref it) when we disable IMEs?
+    gtk_im_context_reset(im_context_);
+    gtk_im_context_set_client_window(im_context_, NULL);
+    gtk_im_context_set_cursor_location(im_context_, NULL);
+  } else {
+    // TODO(hbono): we should finish (not reset) an ongoing composition
+    // when |control| is IME_COMPLETE_COMPOSITION.
+
+    // Attach the GtkIMContext object to this window.
+    gtk_im_context_set_client_window(im_context_, view_.get()->window);
+
+    // Updates the position of the IME candidate window.
+    // The position sent from the renderer is a relative one, so we need to
+    // attach the GtkIMContext object to this window before changing the
+    // position.
+    GdkRectangle cursor_rect(caret_rect.ToGdkRectangle());
+    gtk_im_context_set_cursor_location(im_context_, &cursor_rect);
+  }
 }
 
 void RenderWidgetHostViewGtk::DidPaintRect(const gfx::Rect& rect) {

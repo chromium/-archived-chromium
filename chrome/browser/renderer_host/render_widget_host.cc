@@ -431,6 +431,28 @@ void RenderWidgetHost::NotifyTextDirection() {
   }
 }
 
+void RenderWidgetHost::ImeSetInputMode(bool activate) {
+  Send(new ViewMsg_ImeSetInputMode(routing_id(), activate));
+}
+
+void RenderWidgetHost::ImeSetComposition(const std::wstring& ime_string,
+                                         int cursor_position,
+                                         int target_start,
+                                         int target_end) {
+  Send(new ViewMsg_ImeSetComposition(routing_id(), 0, cursor_position,
+                                     target_start, target_end, ime_string));
+}
+
+void RenderWidgetHost::ImeConfirmComposition(const std::wstring& ime_string) {
+  Send(new ViewMsg_ImeSetComposition(routing_id(), 1, -1, -1, -1, ime_string));
+}
+
+void RenderWidgetHost::ImeCancelComposition() {
+  std::wstring empty_string;
+  Send(new ViewMsg_ImeSetComposition(routing_id(), -1, -1, -1, -1,
+                                     empty_string));
+}
+
 gfx::Rect RenderWidgetHost::GetRootWindowResizerRect() const {
   return gfx::Rect();
 }

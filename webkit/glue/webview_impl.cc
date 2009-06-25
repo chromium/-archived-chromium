@@ -777,7 +777,7 @@ bool WebViewImpl::KeyEventDefault(const WebKeyboardEvent& event) {
       break;
     }
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
     case WebInputEvent::RawKeyDown: {
 #else
     case WebInputEvent::KeyDown: {

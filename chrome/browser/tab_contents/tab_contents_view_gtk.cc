@@ -308,6 +308,14 @@ void TabContentsViewGtk::HandleKeyboardEvent(
     return;
   }
 
+  // Filter out pseudo key events created by GtkIMContext signal handlers.
+  // Since GtkIMContext signal handlers don't use GdkEventKey objects, its
+  // |event.os_event| values are dummy values (or NULL.)
+  // We should filter out these pseudo key events to prevent unexpected
+  // behaviors caused by them.
+  if (event.type == WebKit::WebInputEvent::Char)
+    return;
+
   BrowserWindowGtk* browser_window =
       BrowserWindowGtk::GetBrowserWindowForNativeWindow(window);
   DCHECK(browser_window);
