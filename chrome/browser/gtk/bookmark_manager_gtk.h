@@ -185,6 +185,9 @@ class BookmarkManagerGtk : public BookmarkModelObserver,
   static void OnLeftTreeViewFocusIn(GtkTreeView* tree_view,
       GdkEventFocus* event, BookmarkManagerGtk* bookmark_manager);
 
+  static gboolean OnRightTreeViewButtonPress(GtkWidget* tree_view,
+      GdkEventButton* event, BookmarkManagerGtk* bookmark_manager);
+
   static gboolean OnTreeViewButtonRelease(GtkTreeView* tree_view,
       GdkEventButton* button, BookmarkManagerGtk* bookmark_manager);
 

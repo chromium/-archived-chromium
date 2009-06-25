@@ -433,6 +433,8 @@ GtkWidget* BookmarkManagerGtk::MakeRightPane() {
                    G_CALLBACK(OnRightSelectionChanged), this);
   g_signal_connect(right_tree_view_, "focus-in-event",
                    G_CALLBACK(OnRightTreeViewFocusIn), this);
+  g_signal_connect(right_tree_view_, "button-press-event",
+                   G_CALLBACK(OnRightTreeViewButtonPress), this);
   g_signal_connect(right_tree_view_, "button-release-event",
                    G_CALLBACK(OnTreeViewButtonRelease), this);
 
@@ -811,10 +813,16 @@ void BookmarkManagerGtk::OnLeftTreeViewRowCollapsed(GtkTreeView *tree_view,
 void BookmarkManagerGtk::OnRightTreeViewDragGet(
     GtkWidget* tree_view,
     GdkDragContext* context, GtkSelectionData* selection_data,
-    guint target_type, guint time, BookmarkManagerGtk* bookmark_manager) {
-  bookmark_utils::WriteBookmarksToSelection(
-      bookmark_manager->GetRightSelection(), selection_data, target_type,
-      bookmark_manager->profile_);
+    guint target_type, guint time, BookmarkManagerGtk* bm) {
+  // No selection, do nothing. This shouldn't get hit, but if it does an early
+  // return avoids a crash.
+  if (gtk_tree_selection_count_selected_rows(bm->right_selection()) == 0) {
+    NOTREACHED();
+    return;
+  }
+
+  bookmark_utils::WriteBookmarksToSelection(bm->GetRightSelection(),
+      selection_data, target_type, bm->profile_);
 }
 
 // static
@@ -949,6 +957,26 @@ void BookmarkManagerGtk::OnRightTreeViewFocusIn(GtkTreeView* tree_view,
     GdkEventFocus* event, BookmarkManagerGtk* bm) {
   if (bm->organize_is_for_left_)
     bm->ResetOrganizeMenu(false);
+}
+
+// static
+gboolean BookmarkManagerGtk::OnRightTreeViewButtonPress(GtkWidget* tree_view,
+    GdkEventButton* event, BookmarkManagerGtk* bm) {
+  int x, y;
+  gtk_widget_get_pointer(tree_view, &x, &y);
+
+  GtkTreePath* path;
+  GtkTreeViewDropPosition pos;
+  gtk_tree_view_get_dest_row_at_pos(GTK_TREE_VIEW(tree_view),
+                                    x, y, &path, &pos);
+  // Ignore left clicks that occur below the lowest row so we don't try to
+  // start an empty drag, or allow the user to start a drag on the selected
+  // row by dragging on whitespace.
+  if (path == NULL && event->button == 1)
+    return TRUE;
+
+  gtk_tree_path_free(path);
+  return FALSE;
 }
 
 // static
