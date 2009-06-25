@@ -38,6 +38,9 @@ static void DnsPrefetchMotivatedList(
 // static
 const size_t DnsPrefetcherInit::kMaxConcurrentLookups = 8;
 
+// Host resolver shared by DNS prefetcher, and the main URLRequestContext.
+static net::HostResolver* global_host_resolver = NULL;
+
 //------------------------------------------------------------------------------
 // This section contains all the globally accessable API entry points for the
 // DNS Prefetching feature.
@@ -435,9 +438,13 @@ void InitDnsPrefetch(size_t max_concurrent, PrefService* user_prefs) {
 }
 
 void EnsureDnsPrefetchShutdown() {
-  if (NULL != dns_master)
+  if (NULL != dns_master) {
     dns_master->Shutdown();
-  FreeGlobalHostResolver();
+
+    // Unregister the resolution observer added by InitDnsPrefetch()
+    if (global_host_resolver)
+      global_host_resolver->RemoveObserver(&dns_resolution_observer);
+  }
 }
 
 void FreeDnsPrefetchResources() {
@@ -453,9 +460,6 @@ static void DiscardAllPrefetchState() {
 }
 
 //------------------------------------------------------------------------------
-
-// Host resolver shared by DNS prefetcher, and the main URLRequestContext.
-static net::HostResolver* global_host_resolver = NULL;
 
 net::HostResolver* GetGlobalHostResolver() {
   // Called from UI thread.
