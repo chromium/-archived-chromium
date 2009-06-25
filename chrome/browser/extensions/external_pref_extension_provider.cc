@@ -101,7 +101,7 @@ void ExternalPrefExtensionProvider::SetPreferences(
   Value* extensions = serializer->Deserialize(&error_msg);
   scoped_ptr<DictionaryValue> dictionary(new DictionaryValue());
   if (!error_msg.empty()) {
-    NOTREACHED() << L"Unable to deserialize json data: "
+    LOG(WARNING) << L"Unable to deserialize json data: "
                  << error_msg.c_str();
   } else {
     // This can be null if the json file specified does not exist.
