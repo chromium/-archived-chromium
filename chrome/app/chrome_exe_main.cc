@@ -44,48 +44,41 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   CommandLine::Init(0, NULL);
 
   const wchar_t* dll_name = L"chrome.dll";
+  std::wstring dll_full_path;
+  std::wstring versionned_path;
+
 #if defined(GOOGLE_CHROME_BUILD)
   google_update::GoogleUpdateClient client;
 
   // TODO(erikkay): Get guid from build macros rather than hardcoding.
   // TODO(erikkay): verify client.Init() return value for official builds
   client.Init(L"{8A69D345-D564-463c-AFF1-A69D9E530F96}", dll_name);
-
-  // Initialize the crash reporter.
-  InitCrashReporterWithDllPath(client.GetDLLPath());
-
-  bool exit_now = true;
-  if (ShowRestartDialogIfCrashed(&exit_now)) {
-    // We have restarted because of a previous crash. The user might
-    // decide that he does not want to continue.
-    if (exit_now)
-      return ResultCodes::NORMAL_EXIT;
-  }
-
-  int ret = 0;
-  if (client.Launch(instance, &sandbox_info, command_line, "ChromeMain",
-                    &ret)) {
-    return ret;
-  }
+  dll_full_path = client.GetDLLFullPath();
+  versionned_path = client.GetDLLPath();
 #else
   wchar_t exe_path[MAX_PATH] = {0};
   client_util::GetExecutablePath(exe_path);
   wchar_t *version;
-  std::wstring dll_path;
   if (client_util::GetChromiumVersion(exe_path, L"Software\\Chromium",
                                       &version)) {
-    dll_path = exe_path;
-    dll_path.append(version);
-    if (client_util::FileExists(dll_path.c_str()))
-      ::SetCurrentDirectory(dll_path.c_str());
+    versionned_path = exe_path;
+    versionned_path.append(version);
     delete[] version;
+  }
+
+  dll_full_path = client_util::GetDLLPath(dll_name, versionned_path);
+#endif
+
+  // If the versionned path exists, we set the current directory to this path.
+  if (client_util::FileExists(versionned_path.c_str())) {
+    ::SetCurrentDirectory(versionned_path.c_str());
   }
 
   HINSTANCE dll_handle = ::LoadLibraryEx(dll_name, NULL,
                                          LOAD_WITH_ALTERED_SEARCH_PATH);
 
   // Initialize the crash reporter.
-  InitCrashReporterWithDllPath(client_util::GetDLLPath(dll_name, dll_path));
+  InitCrashReporterWithDllPath(dll_full_path);
 
   bool exit_now = true;
   if (ShowRestartDialogIfCrashed(&exit_now)) {
@@ -95,6 +88,13 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
       return ResultCodes::NORMAL_EXIT;
   }
 
+#if defined(GOOGLE_CHROME_BUILD)
+  int ret = 0;
+  if (client.Launch(instance, &sandbox_info, command_line, "ChromeMain",
+                    &ret)) {
+    return ret;
+  }
+#else
   if (NULL != dll_handle) {
     client_util::DLL_MAIN entry = reinterpret_cast<client_util::DLL_MAIN>(
         ::GetProcAddress(dll_handle, "ChromeMain"));

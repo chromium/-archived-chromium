@@ -37,8 +37,12 @@ GoogleUpdateClient::~GoogleUpdateClient() {
   delete[] version_;
 }
 
-std::wstring GoogleUpdateClient::GetDLLPath() {
+std::wstring GoogleUpdateClient::GetDLLFullPath() {
   return client_util::GetDLLPath(dll_, dll_path_);
+}
+
+std::wstring GoogleUpdateClient::GetDLLPath() {
+  return dll_path_;
 }
 
 const wchar_t* GoogleUpdateClient::GetVersion() const {
@@ -51,7 +55,6 @@ bool GoogleUpdateClient::Launch(HINSTANCE instance,
                                 const char* entry_name,
                                 int* ret) {
   if (client_util::FileExists(dll_path_)) {
-    ::SetCurrentDirectory(dll_path_);
     // Setting the version on the environment block is a 'best effort' deal.
     // It enables Google Update running on a child to load the same DLL version.
     ::SetEnvironmentVariableW(google_update::kEnvProductVersionKey, version_);

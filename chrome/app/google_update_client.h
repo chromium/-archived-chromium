@@ -26,7 +26,11 @@ class GoogleUpdateClient {
   GoogleUpdateClient();
   virtual ~GoogleUpdateClient();
 
-  // Returns the path of the DLL that is going to be loaded.
+  // Returns the full path of the DLL that is going to be loaded.
+  // This function can be called only after Init().
+  std::wstring GetDLLFullPath();
+
+  // Returns the path containing the DLL that is going to be loaded.
   // This function can be called only after Init().
   std::wstring GetDLLPath();
 
