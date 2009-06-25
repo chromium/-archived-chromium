@@ -2792,6 +2792,8 @@ BUG15270 : LayoutTests/svg/custom/js-update-image-and-display3.svg = FAIL
 BUG15270 : LayoutTests/fast/js/excessive-comma-usage.html = FAIL
 BUG15270 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridColumns-basic.html = TIMEOUT
 
+BUG15296 : LayoutTests/dom/html/level2/html/HTMLTableElement10.html = CRASH
+
 // Flaky for a while on DEBUG
 BUG15267 WIN LINUX DEBUG : LayoutTests/transitions/cancel-transition.html = PASS FAIL
 BUG15266 WIN DEBUG : LayoutTests/media/video-display-toggle.html = TIMEOUT PASS
