@@ -13,12 +13,16 @@
 class DictionaryValue;
 class Version;
 
-// A specialization of the ExternalExtensionProvider that uses preferences to
+// A specialization of the ExternalExtensionProvider that uses a json file to
 // look up which external extensions are registered.
 class ExternalPrefExtensionProvider : public ExternalExtensionProvider {
  public:
-  explicit ExternalPrefExtensionProvider(DictionaryValue* prefs);
+  explicit ExternalPrefExtensionProvider();
   virtual ~ExternalPrefExtensionProvider();
+
+  // Used only during testing to not use the json file for external extensions,
+  // but instead parse a json file specified by the test.
+  void SetPreferencesForTesting(std::string json_data_for_testing);
 
   // ExternalExtensionProvider implementation:
   virtual void VisitRegisteredExtension(
@@ -28,6 +32,9 @@ class ExternalPrefExtensionProvider : public ExternalExtensionProvider {
                                      Extension::Location* location) const;
  protected:
   scoped_ptr<DictionaryValue> prefs_;
+
+ private:
+  void SetPreferences(ValueSerializer* serializer);
 };
 
 #endif  // CHROME_BROWSER_EXTENSIONS_EXTERNAL_PREF_EXTENSION_PROVIDER_H_

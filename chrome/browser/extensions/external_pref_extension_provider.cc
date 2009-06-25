@@ -10,6 +10,7 @@
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "base/version.h"
+#include "chrome/common/json_value_serializer.h"
 
 // Constants for keeping track of extension preferences.
 const wchar_t kLocation[] = L"location";
@@ -17,13 +18,22 @@ const wchar_t kState[] = L"state";
 const wchar_t kExternalCrx[] = L"external_crx";
 const wchar_t kExternalVersion[] = L"external_version";
 
-ExternalPrefExtensionProvider::ExternalPrefExtensionProvider(
-    DictionaryValue* prefs) {
-  DCHECK(prefs);
-  prefs_.reset(prefs);
+ExternalPrefExtensionProvider::ExternalPrefExtensionProvider() {
+  FilePath json_file;
+  PathService::Get(app::DIR_EXTERNAL_EXTENSIONS, &json_file);
+  json_file = json_file.Append(FILE_PATH_LITERAL("external_extensions.json"));
+
+  JSONFileValueSerializer serializer(json_file);
+  SetPreferences(&serializer);
 }
 
 ExternalPrefExtensionProvider::~ExternalPrefExtensionProvider() {
+}
+
+void ExternalPrefExtensionProvider::SetPreferencesForTesting(
+    std::string json_data_for_testing) {
+  JSONStringValueSerializer serializer(json_data_for_testing);
+  SetPreferences(&serializer);
 }
 
 void ExternalPrefExtensionProvider::VisitRegisteredExtension(
@@ -36,17 +46,6 @@ void ExternalPrefExtensionProvider::VisitRegisteredExtension(
 
     DictionaryValue* extension = NULL;
     if (!prefs_->GetDictionary(extension_id, &extension)) {
-      continue;
-    }
-
-    int location;
-    if (extension->GetInteger(kLocation, &location) &&
-        location != Extension::EXTERNAL_PREF) {
-      continue;
-    }
-    int state;
-    if (extension->GetInteger(kState, &state) &&
-        state == Extension::KILLBIT) {
       continue;
     }
 
@@ -74,12 +73,6 @@ void ExternalPrefExtensionProvider::VisitRegisteredExtension(
       path = base_path.Append(external_crx);
     }
 
-    if (!file_util::PathExists(path)) {
-      LOG(WARNING) << "Cannot find extension: " << external_crx.c_str();
-      continue;  // Path is neither absolute nor relative. Might be
-                 // meta-physical, but we don't support those (yet).
-    }
-
     scoped_ptr<Version> version;
     version.reset(Version::GetVersionFromString(external_version));
     visitor->OnExternalExtensionFound(
@@ -100,4 +93,25 @@ Version* ExternalPrefExtensionProvider::RegisteredVersion(
   if (location)
     *location = Extension::EXTERNAL_PREF;
   return Version::GetVersionFromString(external_version);
+}
+
+void ExternalPrefExtensionProvider::SetPreferences(
+    ValueSerializer* serializer) {
+  std::string error_msg;
+  Value* extensions = serializer->Deserialize(&error_msg);
+  scoped_ptr<DictionaryValue> dictionary(new DictionaryValue());
+  if (!error_msg.empty()) {
+    NOTREACHED() << L"Unable to deserialize json data: "
+                 << error_msg.c_str();
+  } else {
+    // This can be null if the json file specified does not exist.
+    if (extensions) {
+      if (!extensions->IsType(Value::TYPE_DICTIONARY)) {
+        NOTREACHED() << L"Invalid json data";
+      } else {
+        dictionary.reset(static_cast<DictionaryValue*>(extensions));
+      }
+    }
+  }
+  prefs_.reset(dictionary.release());
 }

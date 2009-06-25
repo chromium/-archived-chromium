@@ -230,11 +230,9 @@ ExtensionsService::ExtensionsService(Profile* profile,
   else if (profile->GetPrefs()->GetBoolean(prefs::kEnableExtensions))
     extensions_enabled_ = true;
 
-  // We pass ownership of this object to the Backend.
-  DictionaryValue* extensions = extension_prefs_->CopyCurrentExtensions();
   backend_ = new ExtensionsServiceBackend(
           install_directory_, g_browser_process->resource_dispatcher_host(),
-          frontend_loop, extensions, extensions_enabled());
+          frontend_loop, extensions_enabled());
 }
 
 ExtensionsService::~ExtensionsService() {
@@ -300,13 +298,14 @@ void ExtensionsService::UpdateExtension(const std::string& id,
       alert_on_error, scoped_refptr<ExtensionsService>(this)));
 }
 
-void ExtensionsService::UninstallExtension(const std::string& extension_id) {
+void ExtensionsService::UninstallExtension(const std::string& extension_id,
+                                           bool external_uninstall) {
   Extension* extension = GetExtensionById(extension_id);
 
   // Callers should not send us nonexistant extensions.
   DCHECK(extension);
 
-  extension_prefs_->OnExtensionUninstalled(extension);
+  extension_prefs_->OnExtensionUninstalled(extension, external_uninstall);
 
   // Tell the backend to start deleting installed extensions on the file thread.
   if (Extension::LOAD != extension->location()) {
@@ -514,8 +513,7 @@ void ExtensionsService::SetProviderForTesting(
 
 ExtensionsServiceBackend::ExtensionsServiceBackend(
     const FilePath& install_directory, ResourceDispatcherHost* rdh,
-    MessageLoop* frontend_loop, DictionaryValue* extension_prefs,
-    bool extensions_enabled)
+    MessageLoop* frontend_loop, bool extensions_enabled)
         : frontend_(NULL),
           install_directory_(install_directory),
           resource_dispatcher_host_(rdh),
@@ -524,7 +522,7 @@ ExtensionsServiceBackend::ExtensionsServiceBackend(
           extensions_enabled_(extensions_enabled) {
   external_extension_providers_[Extension::EXTERNAL_PREF] =
       linked_ptr<ExternalExtensionProvider>(
-          new ExternalPrefExtensionProvider(extension_prefs));
+          new ExternalPrefExtensionProvider());
 #if defined(OS_WIN)
   external_extension_providers_[Extension::EXTERNAL_REGISTRY] =
       linked_ptr<ExternalExtensionProvider>(
@@ -630,9 +628,10 @@ void ExtensionsServiceBackend::LoadSingleExtension(
 void ExtensionsServiceBackend::LoadInstalledExtension(
     const std::string& id, const FilePath& path, Extension::Location location) {
   if (CheckExternalUninstall(id, location)) {
-    // TODO(erikkay): Possibly defer this operation to avoid slowing initial
-    // load of extensions.
-    UninstallExtension(id);
+    frontend_loop_->PostTask(FROM_HERE, NewRunnableMethod(
+        frontend_,
+        &ExtensionsService::UninstallExtension,
+        id, true));
 
     // No error needs to be reported. The extension effectively doesn't exist.
     return;

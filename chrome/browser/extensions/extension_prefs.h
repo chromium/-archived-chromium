@@ -40,7 +40,8 @@ class ExtensionPrefs {
   void OnExtensionInstalled(Extension* extension);
 
   // Called when an extension is uninstalled, so that prefs get cleaned up.
-  void OnExtensionUninstalled(const Extension* extension);
+  void OnExtensionUninstalled(const Extension* extension,
+                              bool external_uninstall);
 
  private:
   // Sets the pref |key| for extension |id| to |value|.

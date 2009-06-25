@@ -127,7 +127,7 @@ void ExtensionsDOMHandler::HandleUninstallMessage(const Value* value) {
   CHECK(list->GetSize() == 1);
   std::string extension_id;
   CHECK(list->GetString(0, &extension_id));
-  extensions_service_->UninstallExtension(extension_id);
+  extensions_service_->UninstallExtension(extension_id, false);
 }
 
 static void CreateScriptFileDetailValue(

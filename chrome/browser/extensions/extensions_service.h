@@ -108,8 +108,9 @@ class ExtensionsService
                        bool alert_on_error, Callback* callback);
 
   // Uninstalls the specified extension. Callers should only call this method
-  // with extensions that exist and are "internal".
-  void UninstallExtension(const std::string& extension_id);
+  // with extensions that exist.
+  void UninstallExtension(const std::string& extension_id,
+                          bool external_uninstall);
 
   // Load the extension from the directory |extension_path|.
   void LoadExtension(const FilePath& extension_path);
@@ -245,7 +246,6 @@ class ExtensionsServiceBackend
   ExtensionsServiceBackend(const FilePath& install_directory,
                            ResourceDispatcherHost* rdh,
                            MessageLoop* frontend_loop,
-                           DictionaryValue* extension_prefs,
                            bool extensions_enabled);
 
   virtual ~ExtensionsServiceBackend();

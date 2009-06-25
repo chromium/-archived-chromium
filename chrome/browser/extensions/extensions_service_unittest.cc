@@ -16,6 +16,7 @@
 #include "chrome/browser/extensions/extension_creator.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/extensions/external_extension_provider.h"
+#include "chrome/browser/extensions/external_pref_extension_provider.h"
 #include "chrome/common/extensions/extension.h"
 #include "chrome/common/extensions/url_pattern.h"
 #include "chrome/common/chrome_paths.h"
@@ -116,6 +117,77 @@ class MockExtensionProvider : public ExternalExtensionProvider {
   typedef std::map< std::string, std::pair<std::string, FilePath> > DataMap;
   DataMap extension_map_;
   Extension::Location location_;
+
+  DISALLOW_COPY_AND_ASSIGN(MockExtensionProvider);
+};
+
+class MockProviderVisitor : public ExternalExtensionProvider::Visitor {
+ public:
+  MockProviderVisitor() {
+  }
+
+  int Visit(std::string json_data, const std::set<std::string>& ignore_list) {
+    // Give the test json file to the provider for parsing.
+    provider_.reset(new ExternalPrefExtensionProvider());
+    provider_->SetPreferencesForTesting(json_data);
+
+    // We also parse the file into a dictionary to compare what we get back
+    // from the provider.
+    JSONStringValueSerializer serializer(json_data);
+    std::string error_msg;
+    Value* json_value = serializer.Deserialize(&error_msg);
+
+    if (!error_msg.empty() || !json_value ||
+        !json_value->IsType(Value::TYPE_DICTIONARY)) {
+      NOTREACHED() << L"Unable to deserialize json data";
+      return -1;
+    } else {
+      DictionaryValue* external_extensions =
+          static_cast<DictionaryValue*>(json_value);
+      prefs_.reset(external_extensions);
+    }
+
+    // Reset our counter.
+    ids_found_ = 0;
+    // Ask the provider to look up all extensions (and return the ones
+    // found (that are not on the ignore list).
+    provider_->VisitRegisteredExtension(this, ignore_list);
+
+    return ids_found_;
+  }
+
+  virtual void OnExternalExtensionFound(const std::string& id,
+                                        const Version* version,
+                                        const FilePath& path) {
+    ++ids_found_;
+    DictionaryValue* pref;
+    // This tests is to make sure that the provider only notifies us of the
+    // values we gave it. So if the id we doesn't exist in our internal
+    // dictionary then something is wrong.
+    EXPECT_TRUE(prefs_->GetDictionary(ASCIIToWide(id), &pref))
+       << L"Got back ID (" << id.c_str() << ") we weren't expecting";
+
+    if (pref) {
+      // Ask provider if the extension we got back is registered.
+      Extension::Location location = Extension::INVALID;
+      scoped_ptr<Version> v1(provider_->RegisteredVersion(id, NULL));
+      scoped_ptr<Version> v2(provider_->RegisteredVersion(id, &location));
+      EXPECT_STREQ(version->GetString().c_str(), v1->GetString().c_str());
+      EXPECT_STREQ(version->GetString().c_str(), v2->GetString().c_str());
+      EXPECT_EQ(Extension::EXTERNAL_PREF, location);
+
+      // Remove it so we won't count it ever again.
+      prefs_->Remove(ASCIIToWide(id), NULL);
+    }
+  }
+
+ private:
+  int ids_found_;
+
+  scoped_ptr<ExternalPrefExtensionProvider> provider_;
+  scoped_ptr<DictionaryValue> prefs_;
+
+  DISALLOW_COPY_AND_ASSIGN(MockProviderVisitor);
 };
 
 class ExtensionsServiceTest
@@ -840,7 +912,7 @@ TEST_F(ExtensionsServiceTest, UninstallExtension) {
   ValidatePref(good_crx, L"location", Extension::INTERNAL);
 
   // Uninstall it.
-  service_->UninstallExtension(extension_id);
+  service_->UninstallExtension(extension_id, false);
   total_successes_ = 0;
 
   // We should get an unload notification.
@@ -863,7 +935,7 @@ TEST_F(ExtensionsServiceTest, UninstallExtension) {
   FilePath current_version_file =
       extension_path.AppendASCII(ExtensionsService::kCurrentVersionFileName);
   EXPECT_TRUE(file_util::Delete(current_version_file, true));
-  service_->UninstallExtension(extension_id);
+  service_->UninstallExtension(extension_id, false);
   loop_.RunAllPending();
   EXPECT_FALSE(file_util::PathExists(extension_path));
 
@@ -900,7 +972,7 @@ TEST_F(ExtensionsServiceTest, LoadExtension) {
   // Test uninstall.
   std::string id = loaded_[0]->id();
   EXPECT_FALSE(unloaded_id_.length());
-  service_->UninstallExtension(id);
+  service_->UninstallExtension(id, false);
   loop_.RunAllPending();
   EXPECT_EQ(id, unloaded_id_);
   ASSERT_EQ(0u, loaded_.size());
@@ -1005,10 +1077,10 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
   ValidatePref(good_crx, L"state", Extension::ENABLED);
   ValidatePref(good_crx, L"location", Extension::EXTERNAL_REGISTRY);
 
-  // Uninstall the extension and reinit. Nothing should happen because the
+  // Uninstall the extension and reload. Nothing should happen because the
   // preference should prevent us from reinstalling.
   std::string id = loaded_[0]->id();
-  service_->UninstallExtension(id);
+  service_->UninstallExtension(id, false);
   loop_.RunAllPending();
 
   // The extension should also be gone from the install directory.
@@ -1037,12 +1109,17 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
   ValidatePref(good_crx, L"state", Extension::ENABLED);
   ValidatePref(good_crx, L"location", Extension::EXTERNAL_REGISTRY);
 
+  // Now test an externally triggered uninstall (deleting the registry key).
   reg_provider->RemoveExtension(good_crx);
 
   loaded_.clear();
-  service_->CheckForUpdates();
+  service_->LoadAllExtensions();
   loop_.RunAllPending();
   ASSERT_EQ(0u, loaded_.size());
+  ValidatePrefKeyCount(0);
+
+  // The extension should also be gone from the install directory.
+  ASSERT_FALSE(file_util::PathExists(install_path));
 }
 
 #endif
@@ -1075,7 +1152,6 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   ASSERT_EQ(1u, loaded_.size());
   ASSERT_EQ(Extension::EXTERNAL_PREF, loaded_[0]->location());
   ASSERT_EQ("1.0.0.0", loaded_[0]->version()->GetString());
-
   ValidatePrefKeyCount(1);
   ValidatePref(good_crx, L"state", Extension::ENABLED);
   ValidatePref(good_crx, L"location", Extension::EXTERNAL_PREF);
@@ -1087,7 +1163,6 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   loop_.RunAllPending();
   ASSERT_EQ(0u, GetErrors().size());
   ASSERT_EQ(1u, loaded_.size());
-
   ValidatePrefKeyCount(1);
   ValidatePref(good_crx, L"state", Extension::ENABLED);
   ValidatePref(good_crx, L"location", Extension::EXTERNAL_PREF);
@@ -1102,7 +1177,6 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   ASSERT_EQ(0u, GetErrors().size());
   ASSERT_EQ(1u, loaded_.size());
   ASSERT_EQ("1.0.0.1", loaded_[0]->version()->GetString());
-
   ValidatePrefKeyCount(1);
   ValidatePref(good_crx, L"state", Extension::ENABLED);
   ValidatePref(good_crx, L"location", Extension::EXTERNAL_PREF);
@@ -1110,7 +1184,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   // Uninstall the extension and reload. Nothing should happen because the
   // preference should prevent us from reinstalling.
   std::string id = loaded_[0]->id();
-  service_->UninstallExtension(id);
+  service_->UninstallExtension(id, false);
   loop_.RunAllPending();
 
   // The extension should also be gone from the install directory.
@@ -1122,7 +1196,6 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   service_->CheckForUpdates();
   loop_.RunAllPending();
   ASSERT_EQ(0u, loaded_.size());
-
   ValidatePrefKeyCount(1);
   ValidatePref(good_crx, L"state", Extension::KILLBIT);
   ValidatePref(good_crx, L"location", Extension::EXTERNAL_PREF);
@@ -1135,29 +1208,21 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   service_->CheckForUpdates();
   loop_.RunAllPending();
   ASSERT_EQ(1u, loaded_.size());
-
   ValidatePrefKeyCount(1);
   ValidatePref(good_crx, L"state", Extension::ENABLED);
   ValidatePref(good_crx, L"location", Extension::EXTERNAL_PREF);
 
-  // Now uninstall the extension and verify that it doesn't get reinstalled.
-  service_->UninstallExtension(id);
-  loop_.RunAllPending();
+  // Now test an externally triggered uninstall (deleting id from json file).
+  pref_provider->RemoveExtension(good_crx);
 
   loaded_.clear();
-  service_->ReloadExtensions();
+  service_->LoadAllExtensions();
   loop_.RunAllPending();
   ASSERT_EQ(0u, loaded_.size());
+  ValidatePrefKeyCount(0);
 
-  ValidatePrefKeyCount(1);
-  ValidatePref(good_crx, L"state", Extension::KILLBIT);
-  ValidatePref(good_crx, L"location", Extension::EXTERNAL_PREF);
-
-  // The extension should also be gone from disk.
-  FilePath extension_path = install_path.DirName();
-  extension_path = extension_path.AppendASCII(good_crx);
-  EXPECT_FALSE(file_util::PathExists(extension_path)) <<
-      extension_path.ToWStringHack();
+  // The extension should also be gone from the install directory.
+  ASSERT_FALSE(file_util::PathExists(install_path));
 
   // This shouldn't work if extensions are disabled.
   SetExtensionsEnabled(false);
@@ -1168,11 +1233,61 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
 
   ASSERT_EQ(0u, loaded_.size());
   ASSERT_EQ(1u, GetErrors().size());
+  ASSERT_TRUE(GetErrors()[0].find("Extensions are not enabled") !=
+              std::string::npos);
+}
+
+TEST_F(ExtensionsServiceTest, ExternalPrefProvider) {
+  std::string json_data =
+      "{"
+        "\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\": {"
+          "\"external_crx\": \"RandomExtension.crx\","
+          "\"external_version\": \"1.0\""
+        "},"
+        "\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\": {"
+          "\"external_crx\": \"RandomExtension2.crx\","
+          "\"external_version\": \"2.0\""
+        "}"
+      "}";
+
+  MockProviderVisitor visitor;
+  std::set<std::string> ignore_list;
+  EXPECT_EQ(2, visitor.Visit(json_data, ignore_list));
+  ignore_list.insert("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+  EXPECT_EQ(1, visitor.Visit(json_data, ignore_list));
+  ignore_list.insert("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+  EXPECT_EQ(0, visitor.Visit(json_data, ignore_list));
+
+  // Use a json that contains three invalid extensions:
+  // - One that is missing the 'external_crx' key.
+  // - One that is missing the 'external_version' key.
+  // - One that is specifying .. in the path.
+  // - Plus one valid extension to make sure the json file is parsed properly.
+  json_data =
+      "{"
+        "\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\": {"
+          "\"external_version\": \"1.0\""
+        "},"
+        "\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\": {"
+          "\"external_crx\": \"RandomExtension.crx\""
+        "},"
+        "\"cccccccccccccccccccccccccccccccc\": {"
+          "\"external_crx\": \"..\\\\foo\\\\RandomExtension2.crx\","
+          "\"external_version\": \"2.0\""
+        "},"
+        "\"dddddddddddddddddddddddddddddddddd\": {"
+          "\"external_crx\": \"RandomValidExtension.crx\","
+          "\"external_version\": \"1.0\""
+        "}"
+      "}";
+  ignore_list.clear();
+  EXPECT_EQ(1, visitor.Visit(json_data, ignore_list));
 }
 
 // Test that we get enabled/disabled correctly for all the pref/command-line
-// combinations.
-TEST(ExtensionsServiceTest2, Enabledness) {
+// combinations. We don't want to derive from the ExtensionsServiceTest class
+// for this test, so we use ExtensionsServiceTestSimple.
+TEST(ExtensionsServiceTestSimple, Enabledness) {
   TestingProfile profile;
   MessageLoop loop;
   scoped_ptr<CommandLine> command_line;
