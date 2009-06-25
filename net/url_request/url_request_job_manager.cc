@@ -16,7 +16,7 @@
 #if defined(OS_WIN)
 #include "net/url_request/url_request_ftp_job.h"
 #else
-// TODO(playmobil): Implement on non-windows platforms.
+#include "net/url_request/url_request_new_ftp_job.h"
 #endif
 #include "net/url_request/url_request_http_job.h"
 #include "net/url_request/url_request_view_cache_job.h"
@@ -38,7 +38,7 @@ static const SchemeToFactory kBuiltinFactories[] = {
 #if defined(OS_WIN)
   { "ftp", URLRequestFtpJob::Factory },
 #else
-// TODO(playmobil): Implement on non-windows platforms.
+  { "ftp", URLRequestNewFtpJob::Factory },
 #endif
   { "about", URLRequestAboutJob::Factory },
   { "view-cache", URLRequestViewCacheJob::Factory },
