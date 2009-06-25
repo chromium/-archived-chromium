@@ -26,6 +26,16 @@
     # Override branding to select the desired branding flavor.
     'branding%': 'Chromium',
 
+    # Override buildtype to select the desired build flavor.
+    # Dev - everyday build for development/testing
+    # Official - release build (generally implies additional processing)
+    # TODO(mmoss) Once 'buildtype' is fully supported (e.g. Windows gyp
+    # conversion is done), some of the things which are now controlled by
+    # 'branding', such as symbol generation, will need to be refactored based
+    # on 'buildtype' (i.e. we don't care about saving symbols for non-Official
+    # builds).
+    'buildtype%': 'Dev',
+
     # Set to 1 to enable code coverage.  In addition to build changes
     # (e.g. extra CFLAGS), also creates a new target in the src/chrome
     # project file called "coverage".

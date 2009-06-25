@@ -2417,7 +2417,9 @@
       'conditions': [
         ['OS=="linux"', {
           'conditions': [
-            ['branding=="Chrome"', {
+            # All Chrome builds have breakpad symbols, but only process the
+            # symbols from official builds.
+            ['branding=="Chrome" and buildtype=="Official"', {
               'actions': [
                 {
                   'action_name': 'dump_symbols',
@@ -3892,6 +3894,7 @@
     }],
     ['OS=="linux"', {
       'conditions': [
+        # Only Chrome builds get breakpad since crash processing is internal.
         ['branding=="Chrome"', {
           'variables': {
             'linux_breakpad%': 1,
