@@ -22,31 +22,6 @@ using WebKit::WebString;
 using WebKit::WebUChar;
 using WebKit::WebVector;
 
-// These exist only to support the gTest assertion macros, and
-// shouldn't be used in normal program code.
-static std::ostream& operator<<(std::ostream& out, const WebString& str) {
-  return out << UTF16ToUTF8(str);
-}
-
-static std::ostream& operator<<(std::ostream& out,
-                                const WebHTTPBody::Element& e) {
-  return out << e.type << ": " <<
-    e.data.size() <<
-    " <" << string(e.data.data() ? e.data.data() : "", e.data.size()) << "> " <<
-    e.filePath;
-}
-
-template<typename T>
-static std::ostream& operator<<(std::ostream& out, const WebVector<T>& v) {
-  for (size_t i = 0; i < v.size(); ++i)
-    out << "[" << v[i] << "] ";
-  return out;
-}
-
-static std::ostream& operator<<(std::ostream& out, const WebPoint& pt) {
-  return out << "(" << pt.x << "," << pt.y << ")";
-}
-
 namespace {
 class GlueSerializeTest : public testing::Test {
  public:
