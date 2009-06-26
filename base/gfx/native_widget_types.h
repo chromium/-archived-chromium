@@ -124,7 +124,7 @@ NativeViewId IdFromNativeView(NativeView view);
   typedef unsigned long PluginWindowHandle;
 #else
   // On OS X we don't have windowed plugins.
-  typedef void* PluginWindowHandle;
+  typedef gfx::NativeView PluginWindowHandle;
 #endif
 
 }  // namespace gfx
