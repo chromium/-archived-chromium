@@ -608,7 +608,6 @@ BUG4363 LINUX MAC SKIP : LayoutTests/http/tests/media = FAIL
 BUG4363 LINUX MAC SKIP : LayoutTests/http/tests/security/local-video-poster-from-remote.html = FAIL TIMEOUT
 BUG4363 LINUX MAC SKIP : LayoutTests/http/tests/security/local-video-source-from-remote.html = PASS FAIL
 BUG4363 LINUX MAC SKIP : LayoutTests/http/tests/security/local-video-src-from-remote.html = PASS FAIL
-BUG4363 : LayoutTests/fast/dom/Window/custom-constructors.html = FAIL
 
 // These tests are for <audio> and <video> and they do not run well on Windows.
 BUG13907 WIN SLOW : LayoutTests/http/tests/security/local-video-source-from-remote.html = FAIL
@@ -617,11 +616,11 @@ BUG13907 WIN : LayoutTests/http/tests/media/remove-while-loading.html = FAIL
 BUG13907 WIN : LayoutTests/http/tests/media/video-play-stall-seek.html = FAIL
 BUG13907 WIN : LayoutTests/http/tests/media/video-play-stall.html = FAIL
 BUG13907 WIN : LayoutTests/http/tests/media/video-seekable-stall.html = FAIL
-BUG13907 WIN : LayoutTests/media/audio-constructor-src.html = FAIL
-BUG13907 WIN : LayoutTests/media/audio-constructor.html = FAIL
+// We don't support WAV.
+BUG13907 SKIP : LayoutTests/media/audio-constructor-src.html = FAIL
+BUG13907 SKIP : LayoutTests/media/audio-constructor.html = FAIL
 // We don't support MP2 audio so skip this test.
 BUG13907 SKIP : LayoutTests/media/audio-mpeg-supported.html = FAIL
-BUG13907 WIN : LayoutTests/media/constructors.html = FAIL PASS
 // This test is flaky.
 BUG13907 WIN DEBUG : LayoutTests/media/progress-event-total.html = PASS FAIL
 // This test crashes in debug build not in release build.
