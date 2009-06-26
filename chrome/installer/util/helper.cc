@@ -61,7 +61,7 @@ bool installer::LaunchChromeAndWaitForResult(bool system_install,
     return false;
   file_util::AppendToPath(&chrome_exe, installer_util::kChromeExe);
 
-  std::wstring command_line(chrome_exe);
+  std::wstring command_line(L"\"" + chrome_exe + L"\"");
   command_line.append(options);
   STARTUPINFOW si = {sizeof(si)};
   PROCESS_INFORMATION pi = {0};
