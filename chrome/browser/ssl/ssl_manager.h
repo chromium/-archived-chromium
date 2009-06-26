@@ -6,43 +6,28 @@
 #define CHROME_BROWSER_SSL_SSL_MANAGER_H_
 
 #include <string>
-#include <map>
-#include <vector>
 
 #include "base/basictypes.h"
-#include "base/observer_list.h"
-#include "base/ref_counted.h"
-#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
+#include "chrome/browser/ssl/ssl_policy.h"
 #include "chrome/browser/ssl/ssl_policy_backend.h"
-#include "chrome/browser/tab_contents/provisional_load_details.h"
-#include "chrome/browser/tab_contents/security_style.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/notification_registrar.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_errors.h"
-#include "net/base/ssl_info.h"
-#include "net/base/x509_certificate.h"
-#include "webkit/api/public/WebConsoleMessage.h"
-#include "webkit/glue/resource_type.h"
 
-class AutomationProvider;
-class NavigationEntry;
 class LoadFromMemoryCacheDetails;
-class LoadNotificationDetails;
+class MessageLoop;
 class NavigationController;
+class NavigationEntry;
 class PrefService;
+class ProvisionalLoadDetails;
+class ResourceDispatcherHost;
 class ResourceRedirectDetails;
 class ResourceRequestDetails;
 class SSLCertErrorHandler;
-class SSLErrorHandler;
-class SSLErrorInfo;
-class SSLHostState;
-class SSLMixedContentHandler;
 class SSLPolicy;
-class SSLRequestInfo;
 class Task;
 class URLRequest;
-class TabContents;
 
 // The SSLManager SSLManager controls the SSL UI elements in a TabContents.  It
 // listens for various events that influence when these elements should or
