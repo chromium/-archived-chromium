@@ -47,28 +47,10 @@ class DownloadItemSorter : public std::binary_function<DownloadItem*,
 
 } // namespace
 
-DownloadsDOMHandler::DownloadsDOMHandler(DownloadManager* dlm)
-    : search_text_(),
+DownloadsDOMHandler::DownloadsDOMHandler(DOMUI* dom_ui, DownloadManager* dlm)
+    : DOMMessageHandler(dom_ui),
+      search_text_(),
       download_manager_(dlm) {
-  // Create our fileicon data source.
-  g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
-      NewRunnableMethod(&chrome_url_data_manager,
-                        &ChromeURLDataManager::AddDataSource,
-                        new FileIconSource()));
-}
-
-DownloadsDOMHandler::~DownloadsDOMHandler() {
-  ClearDownloadItems();
-  download_manager_->RemoveObserver(this);
-}
-
-// DownloadsDOMHandler, public: -----------------------------------------------
-
-void DownloadsDOMHandler::Init() {
-  download_manager_->AddObserver(this);
-}
-
-void DownloadsDOMHandler::RegisterMessages() {
   dom_ui_->RegisterMessageCallback("getDownloads",
       NewCallback(this, &DownloadsDOMHandler::HandleGetDownloads));
   dom_ui_->RegisterMessageCallback("openFile",
@@ -91,6 +73,24 @@ void DownloadsDOMHandler::RegisterMessages() {
       NewCallback(this, &DownloadsDOMHandler::HandleCancel));
   dom_ui_->RegisterMessageCallback("clearAll",
       NewCallback(this, &DownloadsDOMHandler::HandleClearAll));
+
+
+  // Create our fileicon data source.
+  g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(&chrome_url_data_manager,
+                        &ChromeURLDataManager::AddDataSource,
+                        new FileIconSource()));
+}
+
+DownloadsDOMHandler::~DownloadsDOMHandler() {
+  ClearDownloadItems();
+  download_manager_->RemoveObserver(this);
+}
+
+// DownloadsDOMHandler, public: -----------------------------------------------
+
+void DownloadsDOMHandler::Init() {
+  download_manager_->AddObserver(this);
 }
 
 void DownloadsDOMHandler::OnDownloadUpdated(DownloadItem* download) {

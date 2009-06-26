@@ -21,15 +21,14 @@ namespace {
       L"Tips and recommendations to help you discover interesting websites.";
 }
 
-DOMMessageHandler* TipsHandler::Attach(DOMUI* dom_ui) {
+TipsHandler::TipsHandler(DOMUI* dom_ui)
+    : DOMMessageHandler(dom_ui),
+      dom_ui_(dom_ui) {
+  dom_ui->RegisterMessageCallback("getTips",
+      NewCallback(this, &TipsHandler::HandleGetTips));
+
   tips_cache_ = dom_ui_->GetProfile()->GetPrefs()->
       GetDictionary(prefs::kNTPTipsCache);
-  return DOMMessageHandler::Attach(dom_ui);  
-}
-
-void TipsHandler::RegisterMessages() {
-  dom_ui_->RegisterMessageCallback("getTips",
-      NewCallback(this, &TipsHandler::HandleGetTips));
 }
 
 void TipsHandler::HandleGetTips(const Value* content) {

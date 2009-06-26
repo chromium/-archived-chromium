@@ -32,12 +32,9 @@ class Value;
 
 class TipsHandler : public DOMMessageHandler {
  public:
-  TipsHandler() : tips_cache_(NULL) { }
-  virtual ~TipsHandler() { }
+  explicit TipsHandler(DOMUI* dom_ui);
 
-  // DOMMessageHandler implementation and overrides. 
-  virtual DOMMessageHandler* Attach(DOMUI* dom_ui); 
-  virtual void RegisterMessages();
+  TipsHandler();
 
   // Callback which pulls tips data from the preferences.
   void HandleGetTips(const Value* content);
@@ -46,6 +43,9 @@ class TipsHandler : public DOMMessageHandler {
   static void RegisterUserPrefs(PrefService* prefs);
 
  private:
+  // So we can push data out to the page that has called this handler.
+  DOMUI* dom_ui_;
+
   // Filled with data from cache in preferences.
   const DictionaryValue* tips_cache_;
 

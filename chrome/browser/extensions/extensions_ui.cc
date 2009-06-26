@@ -62,12 +62,9 @@ void ExtensionsUIHTMLSource::StartDataRequest(const std::string& path,
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-ExtensionsDOMHandler::ExtensionsDOMHandler(
-    ExtensionsService* extension_service) 
-    : extensions_service_(extension_service) {
- }
-
-void ExtensionsDOMHandler::RegisterMessages() {
+ExtensionsDOMHandler::ExtensionsDOMHandler(DOMUI* dom_ui,
+                                           ExtensionsService* extension_service)
+    : DOMMessageHandler(dom_ui), extensions_service_(extension_service) {
   dom_ui_->RegisterMessageCallback("requestExtensionsData",
       NewCallback(this, &ExtensionsDOMHandler::HandleRequestExtensionsData));
   dom_ui_->RegisterMessageCallback("inspect",
@@ -260,13 +257,17 @@ ExtensionsDOMHandler::~ExtensionsDOMHandler() {
 
 // ExtensionsDOMHandler, public: -----------------------------------------------
 
+void ExtensionsDOMHandler::Init() {
+}
+
 ExtensionsUI::ExtensionsUI(TabContents* contents) : DOMUI(contents) {
   ExtensionsService *exstension_service =
       GetProfile()->GetOriginalProfile()->GetExtensionsService();
 
-  ExtensionsDOMHandler* handler = new ExtensionsDOMHandler(exstension_service);
+  ExtensionsDOMHandler* handler = new ExtensionsDOMHandler(this,
+      exstension_service);
   AddMessageHandler(handler);
-  handler->Attach(this);
+  handler->Init();
 
   ExtensionsUIHTMLSource* html_source = new ExtensionsUIHTMLSource();
 

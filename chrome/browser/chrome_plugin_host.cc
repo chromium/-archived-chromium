@@ -313,8 +313,6 @@ class ModelessHtmlDialogDelegate : public HtmlDialogUIDelegate {
   virtual bool IsDialogModal() const { return false; }
   virtual std::wstring GetDialogTitle() const { return L"Gears"; }
   virtual GURL GetDialogContentURL() const { return params_.url; }
-  virtual void GetDOMMessageHandlers(
-      std::vector<DOMMessageHandler*>* handlers) const {}
   virtual void GetDialogSize(gfx::Size* size) const {
     size->set_width(params_.width);
     size->set_height(params_.height);
