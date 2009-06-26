@@ -22,9 +22,7 @@
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
-#include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/site_instance.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/bindings_policy.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"
@@ -207,32 +205,12 @@ void RenderViewHost::SetRendererPrefs(
   Send(new ViewMsg_SetRendererPrefs(routing_id(), renderer_prefs));
 }
 
-void RenderViewHost::NavigateToEntry(const NavigationEntry& entry,
-                                     bool is_reload) {
-  ViewMsg_Navigate_Params params;
-  MakeNavigateParams(entry, is_reload, &params);
-
+void RenderViewHost::Navigate(const ViewMsg_Navigate_Params& params) {
   ChildProcessSecurityPolicy::GetInstance()->GrantRequestURL(
       process()->pid(), params.url);
 
-  DoNavigate(entry.url(), new ViewMsg_Navigate(routing_id(), params));
-}
+  ViewMsg_Navigate* nav_message = new ViewMsg_Navigate(routing_id(), params);
 
-void RenderViewHost::NavigateToURL(const GURL& url) {
-  ViewMsg_Navigate_Params params;
-  params.page_id = -1;
-  params.url = url;
-  params.transition = PageTransition::LINK;
-  params.reload = false;
-
-  ChildProcessSecurityPolicy::GetInstance()->GrantRequestURL(
-      process()->pid(), params.url);
-
-  DoNavigate(url, new ViewMsg_Navigate(routing_id(), params));
-}
-
-void RenderViewHost::DoNavigate(const GURL& url,
-                                ViewMsg_Navigate* nav_message) {
   // Only send the message if we aren't suspended at the start of a cross-site
   // request.
   if (navigations_suspended_) {
@@ -256,9 +234,18 @@ void RenderViewHost::DoNavigate(const GURL& url,
     //
     // WebKit doesn't send throb notifications for JavaScript URLs, so we
     // don't want to either.
-    if (!url.SchemeIs(chrome::kJavaScriptScheme))
+    if (!params.url.SchemeIs(chrome::kJavaScriptScheme))
       delegate_->DidStartLoading(this);
   }
+}
+
+void RenderViewHost::NavigateToURL(const GURL& url) {
+  ViewMsg_Navigate_Params params;
+  params.page_id = -1;
+  params.url = url;
+  params.transition = PageTransition::LINK;
+  params.reload = false;
+  Navigate(params);
 }
 
 void RenderViewHost::LoadAlternateHTMLString(const std::string& html_text,
@@ -607,19 +594,6 @@ void RenderViewHost::SetDOMUIProperty(const std::string& name,
                                       const std::string& value) {
   DCHECK(BindingsPolicy::is_dom_ui_enabled(enabled_bindings_));
   Send(new ViewMsg_SetDOMUIProperty(routing_id(), name, value));
-}
-
-// static
-void RenderViewHost::MakeNavigateParams(const NavigationEntry& entry,
-                                        bool reload,
-                                        ViewMsg_Navigate_Params* params) {
-  params->page_id = entry.page_id();
-  params->url = entry.url();
-  params->referrer = entry.referrer();
-  params->transition = entry.transition_type();
-  params->state = entry.content_state();
-  params->reload = reload;
-  params->request_time = base::Time::Now();
 }
 
 void RenderViewHost::GotFocus() {

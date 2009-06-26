@@ -19,7 +19,6 @@
 #include "webkit/glue/password_form_dom_manager.h"
 #include "webkit/glue/window_open_disposition.h"
 
-class NavigationEntry;
 class RenderViewHostDelegate;
 class SiteInstance;
 class SkBitmap;
@@ -97,17 +96,26 @@ class RenderViewHost : public RenderWidgetHost {
     return extension_function_dispatcher_.get();
   }
 
-  // Set up the RenderView child process.
+  // Set up the RenderView child process. Virtual because it is overridden by
+  // TestRenderViewHost.
   virtual bool CreateRenderView();
-  // Returns true if the RenderView is active and has not crashed.
+
+  // Returns true if the RenderView is active and has not crashed. Virtual
+  // because it is overridden by TestRenderViewHost.
   virtual bool IsRenderViewLive() const;
 
-  virtual void SetRendererPrefs(const RendererPreferences& renderer_prefs);
+  void SetRendererPrefs(const RendererPreferences& renderer_prefs);
 
-  // Load the specified entry, optionally reloading.
-  virtual void NavigateToEntry(const NavigationEntry& entry, bool is_reload);
+  // Sends the given navigation message. Use this rather than sending it
+  // yourself since this does the internal bookkeeping described below. This
+  // function takes ownership of the provided message pointer.
+  //
+  // If a cross-site request is in progress, we may be suspended while waiting
+  // for the onbeforeunload handler, so this function might buffer the message
+  // rather than sending it.
+  void Navigate(const ViewMsg_Navigate_Params& message);
 
-  // Load the specified URL.
+  // Load the specified URL, this is a shortcut for Navigate().
   void NavigateToURL(const GURL& url);
 
   // Loads the specified html (must be UTF8) in the main frame.  If
@@ -117,10 +125,10 @@ class RenderViewHost : public RenderWidgetHost {
   // string if no secure connection state should be simulated.
   // Note that if |new_navigation| is false, |display_url| and |security_info|
   // are not used.
-  virtual void LoadAlternateHTMLString(const std::string& html_text,
-                                       bool new_navigation,
-                                       const GURL& display_url,
-                                       const std::string& security_info);
+  void LoadAlternateHTMLString(const std::string& html_text,
+                               bool new_navigation,
+                               const GURL& display_url,
+                               const std::string& security_info);
 
   // Returns whether navigation messages are currently suspended for this
   // RenderViewHost.  Only true during a cross-site navigation, while waiting
@@ -140,7 +148,7 @@ class RenderViewHost : public RenderWidgetHost {
 
   // Causes the renderer to invoke the onbeforeunload event handler.  The
   // result will be returned via ViewMsg_ShouldClose.
-  virtual void FirePageBeforeUnload();
+  void FirePageBeforeUnload();
 
   // Close the page after the page has responded that it can be closed via
   // ViewMsg_ShouldClose. This is where the page itself is closed. The
@@ -159,8 +167,7 @@ class RenderViewHost : public RenderWidgetHost {
   // ResourceDispatcherHost when it is finished. |new_render_process_host_id|
   // and |new_request_id| will help the ResourceDispatcherHost identify which
   // response is associated with this event.
-  virtual void ClosePage(int new_render_process_host_id,
-                         int new_request_id);
+  void ClosePage(int new_render_process_host_id, int new_request_id);
 
   // Sets whether this RenderViewHost has an outstanding cross-site request,
   // for which another renderer will need to run an onunload event handler.
@@ -323,11 +330,6 @@ class RenderViewHost : public RenderWidgetHost {
   // Sets a property with the given name and value on the DOM UI binding object.
   // Must call AllowDOMUIBindings() on this renderer first.
   void SetDOMUIProperty(const std::string& name, const std::string& value);
-
-  // Fill in a ViewMsg_Navigate_Params struct from a NavigationEntry.
-  static void MakeNavigateParams(const NavigationEntry& entry,
-                                 bool reload,
-                                 ViewMsg_Navigate_Params* params);
 
   // Tells the renderer view to focus the first (last if reverse is true) node.
   void SetInitialFocus(bool reverse);
@@ -544,14 +546,6 @@ class RenderViewHost : public RenderWidgetHost {
   void OnExtensionPostMessage(int port_id, const std::string& message);
   void OnAccessibilityFocusChange(int acc_obj_id);
   void OnCSSInserted();
-
-  // Helper function to send a navigation message.  If a cross-site request is
-  // in progress, we may be suspended while waiting for the onbeforeunload
-  // handler, so this function might buffer the message rather than sending it.
-  //
-  // The URL parameter should match the one in the message. It's provided so
-  // that we don't have to decode the message to check it.
-  void DoNavigate(const GURL& url, ViewMsg_Navigate* nav_message);
 
  private:
   friend class TestRenderViewHost;

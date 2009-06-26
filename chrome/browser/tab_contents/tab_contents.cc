@@ -164,6 +164,17 @@ BOOL CALLBACK InvalidateWindow(HWND hwnd, LPARAM lparam) {
 }
 #endif
 
+void MakeNavigateParams(const NavigationEntry& entry, bool reload,
+                        ViewMsg_Navigate_Params* params) {
+  params->page_id = entry.page_id();
+  params->url = entry.url();
+  params->referrer = entry.referrer();
+  params->transition = entry.transition_type();
+  params->state = entry.content_state();
+  params->reload = reload;
+  params->request_time = base::Time::Now();
+}
+
 }  // namespace
 
 // -----------------------------------------------------------------------------
@@ -656,7 +667,9 @@ bool TabContents::NavigateToPendingEntry(bool reload) {
   current_load_start_ = base::TimeTicks::Now();
 
   // Navigate in the desired RenderViewHost.
-  dest_render_view_host->NavigateToEntry(entry, reload);
+  ViewMsg_Navigate_Params navigate_params;
+  MakeNavigateParams(entry, reload, &navigate_params);
+  dest_render_view_host->Navigate(navigate_params);
 
   if (entry.page_id() == -1) {
     // HACK!!  This code suppresses javascript: URLs from being added to
