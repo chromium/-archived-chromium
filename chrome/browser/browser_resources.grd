@@ -17,11 +17,10 @@ without changes to the corresponding grd file. -->
       <include name="IDR_ABOUT_STATS_HTML" file="resources\about_stats.html" type="BINDATA" />
       <include name="IDR_SSL_ROAD_BLOCK_HTML" file="security\resources\ssl_roadblock.html" flattenhtml="true" type="BINDATA" />
       <include name="IDR_SSL_ERROR_HTML" file="security\resources\ssl_error.html" flattenhtml="true" type="BINDATA" />
+      <include name="IDR_NEW_TAB_THEME_CSS" file="resources\new_tab_theme.css" type="BINDATA" />
       <include name="IDR_NEW_TAB_HTML" file="resources\new_tab.html" flattenhtml="true" type="BINDATA" />
-      <include name="IDR_NEW_TAB_THEME_CSS" file="resources\new_tab_theme.css" flattenhtml="true" type="BINDATA" />
-      <include name="IDR_NEW_NEW_TAB_HTML" file="resources\new_new_tab.html" flattenhtml="true" type="BINDATA" />
-      <include name="IDR_NEW_NEW_TAB_CSS" file="resources\new_new_tab.css" type="BINDATA" />
-      <include name="IDR_NEW_NEW_TAB_JS" file="resources\new_new_tab.js" type="BINDATA" />
+      <include name="IDR_NEW_TAB_CSS" file="resources\new_tab.css" type="BINDATA" />
+      <include name="IDR_NEW_TAB_JS" file="resources\new_tab.js" type="BINDATA" />
       <include name="IDR_SAFE_BROWSING_MALWARE_BLOCK" file="resources\safe_browsing_malware_block.html" flattenhtml="true" type="BINDATA" />
       <include name="IDR_SAFE_BROWSING_PHISHING_BLOCK" file="resources\safe_browsing_phishing_block.html" flattenhtml="true" type="BINDATA" />
       <include name="IDR_SAFE_BROWSING_MULTIPLE_THREAT_BLOCK" file="resources\safe_browsing_multiple_threat_block.html" flattenhtml="true" type="BINDATA" />

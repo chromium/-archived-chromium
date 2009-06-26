@@ -487,14 +487,13 @@ const wchar_t kSimpleDataSource[]              = L"simple-data-source";
 // the selected outcome to have the indicated text value.
 const wchar_t kForceFieldTestNameAndValue[]    = L"force-fieldtest";
 
-// Enables the prototype of the next version of the New Tab page.
-// This can be empty in which case the default prototype resource is used or it
-// can be a file path, in which case the file will be used as the new tab page.
-const wchar_t kNewNewTabPage[]                 = L"new-new-tab-page";
+// Allow a custom file to be used as the New Tab page. This needs to be a file
+// path, in which case the file will be used as the new tab page.
+const wchar_t kNewTabPage[]                    = L"new-tab-page";
 
 // Enables the prototype of the backend service for web resources, used in the
 // new new tab page for loading tips and recommendations from a JSON feed.
-const wchar_t kWebResources[]                 = L"enable-web-resources";
+const wchar_t kWebResources[]                  = L"enable-web-resources";
 
 // Disables the default browser check. Useful for UI/browser tests where we want
 // to avoid having the default browser info-bar displayed.
@@ -502,13 +501,13 @@ const wchar_t kNoDefaultBrowserCheck[]         = L"no-default-browser-check";
 
 // Enables the Privacy Blacklist with the specified data file.
 // The file contains data from all imported blacklists.
-const wchar_t kPrivacyBlacklist[] = L"privacy-blacklist";
+const wchar_t kPrivacyBlacklist[]              = L"privacy-blacklist";
 
 // Enables the benchmarking extensions.
-const wchar_t kEnableBenchmarking[]      = L"enable-benchmarking";
+const wchar_t kEnableBenchmarking[]            = L"enable-benchmarking";
 
 // The prefix used when starting the zygote process. (i.e. 'gdb --args')
-const wchar_t kZygoteCmdPrefix[] = L"zygote-cmd-prefix";
+const wchar_t kZygoteCmdPrefix[]               = L"zygote-cmd-prefix";
 
 // Enables using ThumbnailStore instead of ThumbnailDatabase for setting and
 // getting thumbnails for the new tab page.
@@ -516,7 +515,7 @@ const wchar_t kThumbnailStore[]                = L"thumbnail-store";
 
 // Experimental. Shows a dialog asking the user to try chrome. This flag
 // is to be used only by the upgrade process.
-const wchar_t kTryChromeAgain[]      = L"try-chrome-again";
+const wchar_t kTryChromeAgain[]                = L"try-chrome-again";
 
 // The file descriptor limit is set to the value of this switch, subject to the
 // OS hard limits. Useful for testing that file descriptor exhaustion is handled
@@ -526,10 +525,10 @@ const wchar_t kFileDescriptorLimit[]           = L"file-descriptor-limit";
 // On Windows, converts the page to the currently-installed monitor profile.
 // This does NOT enable color management for images. The source is still assumed
 // to be sRGB.
-const wchar_t kEnableMonitorProfile[] = L"enable-monitor-profile";
+const wchar_t kEnableMonitorProfile[]          = L"enable-monitor-profile";
 
 // Enable WebKit's XSSAuditor to mitigate reflective XSS.  The XSSAuditor is
 // still experimental.
-const wchar_t kEnableXSSAuditor[] = L"enable-xss-auditor";
+const wchar_t kEnableXSSAuditor[]              = L"enable-xss-auditor";
 
 }  // namespace switches
