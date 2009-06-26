@@ -9,6 +9,7 @@
 #include "app/l10n_util.h"
 #include "base/message_loop.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/gtk/options/advanced_page_gtk.h"
 #include "chrome/browser/gtk/options/content_page_gtk.h"
 #include "chrome/browser/gtk/options/general_page_gtk.h"
 #include "chrome/browser/profile.h"
@@ -16,7 +17,6 @@
 #include "chrome/common/pref_member.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/installer/util/google_update_settings.h"
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
@@ -37,17 +37,10 @@ class OptionsWindowGtk {
   void ShowOptionsPage(OptionsPage page, OptionsGroup highlight_group);
 
  private:
-  // This is the callback function for Stats reporting checkbox.
-  static void OnLoggingChange(GtkWidget* widget,
-                              OptionsWindowGtk* options_window);
-
   static void OnSwitchPage(GtkNotebook* notebook, GtkNotebookPage* page,
                            guint page_num, OptionsWindowGtk* options_window);
 
   static void OnWindowDestroy(GtkWidget* widget, OptionsWindowGtk* window);
-
-  // This function gets called when stats reporting option is changed.
-  void LoggingChanged(GtkWidget* widget);
 
   // The options dialog.
   GtkWidget *dialog_;
@@ -63,6 +56,9 @@ class OptionsWindowGtk {
 
   // The content page.
   ContentPageGtk content_page_;
+
+  // The advanced (user data) page.
+  AdvancedPageGtk advanced_page_;
 
   // The last page the user was on when they opened the Options window.
   IntegerPrefMember last_selected_page_;
@@ -81,7 +77,8 @@ OptionsWindowGtk::OptionsWindowGtk(Profile* profile)
       // the original profile to avoid potential problems.
     : profile_(profile->GetOriginalProfile()),
       general_page_(profile_),
-      content_page_(profile_) {
+      content_page_(profile_),
+      advanced_page_(profile_) {
   // The download manager needs to be initialized before the contents of the
   // Options Window are created.
   profile_->GetDownloadManager();
@@ -127,29 +124,9 @@ OptionsWindowGtk::OptionsWindowGtk(Profile* profile)
   }
 #endif
 
-  GtkWidget* metrics_vbox = gtk_vbox_new(FALSE, gtk_util::kControlSpacing);
-  gtk_container_set_border_width(GTK_CONTAINER(metrics_vbox),
-                                 gtk_util::kContentAreaBorder);
-
-  GtkWidget* metrics = gtk_check_button_new();
-  GtkWidget* metrics_label = gtk_label_new(
-      l10n_util::GetStringUTF8(IDS_OPTIONS_ENABLE_LOGGING).c_str());
-  gtk_label_set_line_wrap(GTK_LABEL(metrics_label), TRUE);
-  // TODO(evanm): make the label wrap at the appropriate width.
-  gtk_widget_set_size_request(metrics_label, 475, -1);
-  gtk_container_add(GTK_CONTAINER(metrics), metrics_label);
-  gtk_box_pack_start(GTK_BOX(metrics_vbox), metrics, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(metrics_vbox),
-                     gtk_label_new("TODO rest of the advanced options"),
-                     FALSE, FALSE, 0);
-  bool logging = g_browser_process->local_state()->GetBoolean(
-      prefs::kMetricsReportingEnabled);
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(metrics), logging);
-  g_signal_connect(metrics, "clicked", G_CALLBACK(OnLoggingChange), this);
-
   gtk_notebook_append_page(
       GTK_NOTEBOOK(notebook_),
-      metrics_vbox,
+      advanced_page_.get_page_widget(),
       gtk_label_new(
           l10n_util::GetStringUTF8(IDS_OPTIONS_ADVANCED_TAB_LABEL).c_str()));
 
@@ -202,12 +179,6 @@ void OptionsWindowGtk::ShowOptionsPage(OptionsPage page,
 // OptionsWindowGtk, private:
 
 // static
-void OptionsWindowGtk::OnLoggingChange(GtkWidget* widget,
-                                       OptionsWindowGtk* options_window) {
-  options_window->LoggingChanged(widget);
-}
-
-// static
 void OptionsWindowGtk::OnSwitchPage(GtkNotebook* notebook,
                                     GtkNotebookPage* page,
                                     guint page_num,
@@ -222,14 +193,6 @@ void OptionsWindowGtk::OnWindowDestroy(GtkWidget* widget,
                                        OptionsWindowGtk* options_window) {
   instance_ = NULL;
   MessageLoop::current()->DeleteSoon(FROM_HERE, options_window);
-}
-
-void OptionsWindowGtk::LoggingChanged(GtkWidget* metrics) {
-  bool logging = (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(metrics)) ==
-                  TRUE);
-  g_browser_process->local_state()->SetBoolean(prefs::kMetricsReportingEnabled,
-                                               logging);
-  GoogleUpdateSettings::SetCollectStatsConsent(logging);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
