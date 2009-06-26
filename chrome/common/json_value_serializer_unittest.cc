@@ -51,14 +51,22 @@ TEST(JSONValueSerializerTest, Roundtrip) {
 
   mutable_serializer.set_pretty_print(true);
   ASSERT_TRUE(mutable_serializer.Serialize(*root_dict));
+  // JSON output uses a different newline style on Windows than on other
+  // platforms.
+#if defined(OS_WIN)
+#define JSON_NEWLINE "\r\n"
+#else
+#define JSON_NEWLINE "\n"
+#endif
   const std::string pretty_serialization =
-    "{\r\n"
-    "   \"bool\": true,\r\n"
-    "   \"int\": 42,\r\n"
-    "   \"list\": [ 1, 2 ],\r\n"
-    "   \"null\": null,\r\n"
-    "   \"real\": 3.14\r\n"
-    "}\r\n";
+    "{" JSON_NEWLINE
+    "   \"bool\": true," JSON_NEWLINE
+    "   \"int\": 42," JSON_NEWLINE
+    "   \"list\": [ 1, 2 ]," JSON_NEWLINE
+    "   \"null\": null," JSON_NEWLINE
+    "   \"real\": 3.14" JSON_NEWLINE
+    "}" JSON_NEWLINE;
+#undef JSON_NEWLINE
   ASSERT_EQ(pretty_serialization, test_serialization);
 }
 
