@@ -181,6 +181,12 @@ void MessagePumpCFRunLoopBase::RunWorkSource(void* info) {
 
 // Called by MessagePumpCFRunLoopBase::RunWorkSource.
 bool MessagePumpCFRunLoopBase::RunWork() {
+  if (!delegate_) {
+    // This point can be reached with a NULL delegate_ if Run is not on the
+    // stack but foreign code is spinning the CFRunLoop.
+    return false;
+  }
+
   // If we're on the main event loop, the NSApp runloop won't clean up the
   // autorelease pool until there is a UI event, so use a local one for any
   // autoreleased objects to ensure they go away sooner.
@@ -205,6 +211,12 @@ void MessagePumpCFRunLoopBase::RunDelayedWorkSource(void* info) {
 
 // Called by MessagePumpCFRunLoopBase::RunDelayedWorkSource.
 bool MessagePumpCFRunLoopBase::RunDelayedWork() {
+  if (!delegate_) {
+    // This point can be reached with a NULL delegate_ if Run is not on the
+    // stack but foreign code is spinning the CFRunLoop.
+    return false;
+  }
+
   // If we're on the main event loop, the NSApp runloop won't clean up the
   // autorelease pool until there is a UI event, so use a local one for any
   // autoreleased objects to ensure they go away sooner.
@@ -239,6 +251,12 @@ void MessagePumpCFRunLoopBase::RunIdleWorkSource(void* info) {
 
 // Called by MessagePumpCFRunLoopBase::RunIdleWorkSource.
 bool MessagePumpCFRunLoopBase::RunIdleWork() {
+  if (!delegate_) {
+    // This point can be reached with a NULL delegate_ if Run is not on the
+    // stack but foreign code is spinning the CFRunLoop.
+    return false;
+  }
+
   // If we're on the main event loop, the NSApp runloop won't clean up the
   // autorelease pool until there is a UI event, so use a local one for any
   // autoreleased objects to ensure they go away sooner.
@@ -263,6 +281,14 @@ void MessagePumpCFRunLoopBase::RunNestingDeferredWorkSource(void* info) {
 
 // Called by MessagePumpCFRunLoopBase::RunNestingDeferredWorkSource.
 bool MessagePumpCFRunLoopBase::RunNestingDeferredWork() {
+  if (!delegate_) {
+    // This point can be reached with a NULL delegate_ if Run is not on the
+    // stack but foreign code is spinning the CFRunLoop.  There's no sense in
+    // attempting to do any work or signalling the work sources because
+    // without a delegate, work is not possible.
+    return false;
+  }
+
   // Immediately try work in priority order.
   if (!RunWork()) {
     if (!RunDelayedWork()) {
