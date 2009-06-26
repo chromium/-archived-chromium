@@ -2807,6 +2807,14 @@ BUG15460 : LayoutTests/media/video-controls-rendering.html = FAIL
 BUG15460 : LayoutTests/media/video-empty-source.html = FAIL
 BUG15460 : LayoutTests/media/video-zoom-controls.html = FAIL
 
+// WebKit 45247:45270
+BUGMERGE WIN LINUX : LayoutTests/editing/inserting/break-blockquote-after-delete.html = FAIL
+BUGMERGE WIN LINUX : LayoutTests/fast/text/international/hindi-whitespace.html = FAIL
+BUGMERGE WIN LINUX : LayoutTests/svg/custom/createImageElement.svg = FAIL
+
+BUG15478 SKIP : LayoutTests/fast/frames/viewsource-on-image-file.html = FAIL
+BUG15478 SKIP : LayoutTests/platform/qt/fast/events/event-sender-keydown-frame.html = FAIL
+
 // Flaky for a while on DEBUG
 BUG15267 WIN LINUX DEBUG : LayoutTests/transitions/cancel-transition.html = PASS FAIL
 
