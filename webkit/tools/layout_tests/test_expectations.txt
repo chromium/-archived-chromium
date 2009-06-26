@@ -674,7 +674,7 @@ BUG13907 WIN : LayoutTests/media/unsupported-rtsp.html = PASS CRASH
 // These tests are flaky.
 BUG13907 WIN : LayoutTests/media/video-src-invalid-remove.html = PASS FAIL
 BUG13097 WIN : LayoutTests/media/video-display-toggle.html = PASS FAIL TIMEOUT
-BUG13907 WIN : LayoutTests/media/video-src-change.html = PASS FAIL
+BUG13907 WIN : LayoutTests/media/video-src-change.html = PASS FAIL TIMEOUT
 BUG13907 WIN : LayoutTests/media/video-src-source.html = PASS FAIL
 BUG13907 WIN : LayoutTests/media/video-size.html = PASS FAIL
 BUG13907 WIN : LayoutTests/media/video-src-plus-source.html = PASS FAIL
