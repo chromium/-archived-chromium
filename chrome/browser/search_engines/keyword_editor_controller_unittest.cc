@@ -1,19 +1,20 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #include "app/table_model_observer.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/search_engines/keyword_editor_controller.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
-#include "chrome/browser/views/keyword_editor_view.h"
+#include "chrome/browser/search_engines/template_url_table_model.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 // Base class for keyword editor tests. Creates a profile containing an
 // empty TemplateURLModel.
-class KeywordEditorViewTest : public testing::Test,
-                              public TableModelObserver {
+class KeywordEditorControllerTest : public testing::Test,
+                                    public TableModelObserver {
  public:
   virtual void SetUp() {
     model_changed_count_ = items_changed_count_ = added_count_ =
@@ -24,8 +25,8 @@ class KeywordEditorViewTest : public testing::Test,
 
     model_ = profile_->GetTemplateURLModel();
 
-    editor_.reset(new KeywordEditorView(profile_.get()));
-    editor_->table_model_->SetObserver(this);
+    controller_.reset(new KeywordEditorController(profile_.get()));
+    controller_->table_model()->SetObserver(this);
   }
 
   virtual void OnModelChanged() {
@@ -59,13 +60,13 @@ class KeywordEditorViewTest : public testing::Test,
   }
 
   TemplateURLTableModel* table_model() const {
-    return editor_->table_model_.get();
+    return controller_->table_model();
   }
 
  protected:
   MessageLoopForUI message_loop_;
   scoped_ptr<TestingProfile> profile_;
-  scoped_ptr<KeywordEditorView> editor_;
+  scoped_ptr<KeywordEditorController> controller_;
   TemplateURLModel* model_;
 
   int model_changed_count_;
@@ -75,8 +76,8 @@ class KeywordEditorViewTest : public testing::Test,
 };
 
 // Tests adding a TemplateURL.
-TEST_F(KeywordEditorViewTest, Add) {
-  editor_->AddTemplateURL(L"a", L"b", L"http://c");
+TEST_F(KeywordEditorControllerTest, Add) {
+  controller_->AddTemplateURL(L"a", L"b", L"http://c");
 
   // Verify the observer was notified.
   VerifyChangeCount(0, 0, 1, 0);
@@ -87,7 +88,7 @@ TEST_F(KeywordEditorViewTest, Add) {
   ASSERT_EQ(1, table_model()->RowCount());
 
   // Verify the TemplateURLModel has the new entry.
-  ASSERT_EQ(1, model_->GetTemplateURLs().size());
+  ASSERT_EQ(1U, model_->GetTemplateURLs().size());
 
   // Verify the entry is what we added.
   const TemplateURL* turl = model_->GetTemplateURLs()[0];
@@ -98,13 +99,13 @@ TEST_F(KeywordEditorViewTest, Add) {
 }
 
 // Tests modifying a TemplateURL.
-TEST_F(KeywordEditorViewTest, Modify) {
-  editor_->AddTemplateURL(L"a", L"b", L"http://c");
+TEST_F(KeywordEditorControllerTest, Modify) {
+  controller_->AddTemplateURL(L"a", L"b", L"http://c");
   ClearChangeCount();
 
   // Modify the entry.
   const TemplateURL* turl = model_->GetTemplateURLs()[0];
-  editor_->ModifyTemplateURL(turl, L"a1", L"b1", L"http://c1");
+  controller_->ModifyTemplateURL(turl, L"a1", L"b1", L"http://c1");
 
   // Make sure it was updated appropriately.
   VerifyChangeCount(0, 1, 0, 0);
@@ -115,12 +116,12 @@ TEST_F(KeywordEditorViewTest, Modify) {
 }
 
 // Tests making a TemplateURL the default search provider.
-TEST_F(KeywordEditorViewTest, MakeDefault) {
-  editor_->AddTemplateURL(L"a", L"b", L"http://c{searchTerms}");
+TEST_F(KeywordEditorControllerTest, MakeDefault) {
+  controller_->AddTemplateURL(L"a", L"b", L"http://c{searchTerms}");
   ClearChangeCount();
 
   const TemplateURL* turl = model_->GetTemplateURLs()[0];
-  editor_->MakeDefaultSearchProvider(0);
+  controller_->MakeDefaultTemplateURL(0);
   // Making an item the default sends a handful of changes. Which are sent isn't
   // important, what is important is 'something' is sent.
   ASSERT_TRUE(items_changed_count_ > 0 || added_count_ > 0 ||
@@ -130,7 +131,7 @@ TEST_F(KeywordEditorViewTest, MakeDefault) {
 
 // Mutates the TemplateURLModel and make sure table model is updating
 // appropriately.
-TEST_F(KeywordEditorViewTest, MutateTemplateURLModel) {
+TEST_F(KeywordEditorControllerTest, MutateTemplateURLModel) {
   TemplateURL* turl = new TemplateURL();
   turl->set_keyword(L"a");
   turl->set_short_name(L"b");
