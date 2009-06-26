@@ -11,7 +11,11 @@
 #include "base/scoped_ptr.h"
 
 class Profile;
+class DownloadSection;
+class NetworkSection;
 class PrivacySection;
+class SecuritySection;
+class WebContentSection;
 
 class AdvancedContentsGtk {
  public:
@@ -29,7 +33,11 @@ class AdvancedContentsGtk {
   Profile* profile_;
 
   // The sections of the page.
+  scoped_ptr<DownloadSection> download_section_;
+  scoped_ptr<NetworkSection> network_section_;
   scoped_ptr<PrivacySection> privacy_section_;
+  scoped_ptr<SecuritySection> security_section_;
+  scoped_ptr<WebContentSection> web_content_section_;
 
   // The widget containing the advanced options sections.
   GtkWidget* page_;

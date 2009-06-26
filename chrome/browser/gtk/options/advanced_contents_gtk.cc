@@ -18,6 +18,58 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////
+// DownloadSection
+
+class DownloadSection : public OptionsPageBase {
+ public:
+  explicit DownloadSection(Profile* profile);
+  virtual ~DownloadSection() {}
+
+  GtkWidget* get_page_widget() const {
+    return page_;
+  }
+
+ private:
+  // The widget containing the options for this section.
+  GtkWidget* page_;
+
+  DISALLOW_COPY_AND_ASSIGN(DownloadSection);
+};
+
+DownloadSection::DownloadSection(Profile* profile)
+    : OptionsPageBase(profile) {
+  page_ = gtk_vbox_new(FALSE, gtk_util::kControlSpacing);
+  gtk_box_pack_start(GTK_BOX(page_), gtk_label_new("TODO download options"),
+                     FALSE, FALSE, 0);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// NetworkSection
+
+class NetworkSection : public OptionsPageBase {
+ public:
+  explicit NetworkSection(Profile* profile);
+  virtual ~NetworkSection() {}
+
+  GtkWidget* get_page_widget() const {
+    return page_;
+  }
+
+ private:
+  // The widget containing the options for this section.
+  GtkWidget* page_;
+
+  DISALLOW_COPY_AND_ASSIGN(NetworkSection);
+};
+
+NetworkSection::NetworkSection(Profile* profile)
+    : OptionsPageBase(profile) {
+  page_ = gtk_vbox_new(FALSE, gtk_util::kControlSpacing);
+  gtk_box_pack_start(GTK_BOX(page_), gtk_label_new("TODO network options"),
+                     FALSE, FALSE, 0);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // PrivacySection
 
 class PrivacySection : public OptionsPageBase {
@@ -55,7 +107,7 @@ PrivacySection::PrivacySection(Profile* profile) : OptionsPageBase(profile) {
   gtk_container_add(GTK_CONTAINER(metrics), metrics_label);
   gtk_box_pack_start(GTK_BOX(page_), metrics, FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(page_),
-                     gtk_label_new("TODO rest of the advanced options"),
+                     gtk_label_new("TODO rest of the privacy options"),
                      FALSE, FALSE, 0);
   bool logging = g_browser_process->local_state()->GetBoolean(
       prefs::kMetricsReportingEnabled);
@@ -78,6 +130,58 @@ void PrivacySection::LoggingChanged(GtkWidget* metrics) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// SecuritySection
+
+class SecuritySection : public OptionsPageBase {
+ public:
+  explicit SecuritySection(Profile* profile);
+  virtual ~SecuritySection() {}
+
+  GtkWidget* get_page_widget() const {
+    return page_;
+  }
+
+ private:
+  // The widget containing the options for this section.
+  GtkWidget* page_;
+
+  DISALLOW_COPY_AND_ASSIGN(SecuritySection);
+};
+
+SecuritySection::SecuritySection(Profile* profile)
+    : OptionsPageBase(profile) {
+  page_ = gtk_vbox_new(FALSE, gtk_util::kControlSpacing);
+  gtk_box_pack_start(GTK_BOX(page_), gtk_label_new("TODO security options"),
+                     FALSE, FALSE, 0);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// WebContentSection
+
+class WebContentSection : public OptionsPageBase {
+ public:
+  explicit WebContentSection(Profile* profile);
+  virtual ~WebContentSection() {}
+
+  GtkWidget* get_page_widget() const {
+    return page_;
+  }
+
+ private:
+  // The widget containing the options for this section.
+  GtkWidget* page_;
+
+  DISALLOW_COPY_AND_ASSIGN(WebContentSection);
+};
+
+WebContentSection::WebContentSection(Profile* profile)
+    : OptionsPageBase(profile) {
+  page_ = gtk_vbox_new(FALSE, gtk_util::kControlSpacing);
+  gtk_box_pack_start(GTK_BOX(page_), gtk_label_new("TODO web content options"),
+                     FALSE, FALSE, 0);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // AdvancedContentsGtk
 
 AdvancedContentsGtk::AdvancedContentsGtk(Profile* profile)
@@ -91,10 +195,30 @@ AdvancedContentsGtk::~AdvancedContentsGtk() {
 void AdvancedContentsGtk::Init() {
   OptionsLayoutBuilderGtk options_builder;
 
+  network_section_.reset(new NetworkSection(profile_));
+  options_builder.AddOptionGroup(
+      l10n_util::GetStringUTF8(IDS_OPTIONS_ADVANCED_SECTION_TITLE_NETWORK),
+      network_section_->get_page_widget(), false);
+
   privacy_section_.reset(new PrivacySection(profile_));
   options_builder.AddOptionGroup(
       l10n_util::GetStringUTF8(IDS_OPTIONS_ADVANCED_SECTION_TITLE_PRIVACY),
       privacy_section_->get_page_widget(), false);
+
+  download_section_.reset(new DownloadSection(profile_));
+  options_builder.AddOptionGroup(
+      l10n_util::GetStringUTF8(IDS_OPTIONS_DOWNLOADLOCATION_GROUP_NAME),
+      download_section_->get_page_widget(), false);
+
+  web_content_section_.reset(new WebContentSection(profile_));
+  options_builder.AddOptionGroup(
+      l10n_util::GetStringUTF8(IDS_OPTIONS_ADVANCED_SECTION_TITLE_CONTENT),
+      web_content_section_->get_page_widget(), false);
+
+  security_section_.reset(new SecuritySection(profile_));
+  options_builder.AddOptionGroup(
+      l10n_util::GetStringUTF8(IDS_OPTIONS_ADVANCED_SECTION_TITLE_SECURITY),
+      security_section_->get_page_widget(), false);
 
   page_ = options_builder.get_page_widget();
 }

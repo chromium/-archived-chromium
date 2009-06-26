@@ -5,6 +5,7 @@
 #include "chrome/browser/gtk/options/advanced_page_gtk.h"
 
 #include "app/l10n_util.h"
+#include "chrome/browser/options_util.h"
 #include "chrome/common/gtk_util.h"
 #include "grit/generated_resources.h"
 #include "grit/chromium_strings.h"
@@ -73,7 +74,7 @@ void AdvancedPageGtk::OnResetToDefaultsClicked(
 void AdvancedPageGtk::OnResetToDefaultsResponse(
     GtkDialog* dialog, int response_id, AdvancedPageGtk* advanced_page) {
   if (response_id == GTK_RESPONSE_OK) {
-    NOTIMPLEMENTED();
+    OptionsUtil::ResetToDefaults(advanced_page->profile());
   }
   gtk_widget_destroy(GTK_WIDGET(dialog));
 }
