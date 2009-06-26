@@ -85,7 +85,8 @@ class BookmarkEditorGtkTest : public testing::Test {
 };
 
 // Makes sure the tree model matches that of the bookmark bar model.
-TEST_F(BookmarkEditorGtkTest, ModelsMatch) {
+// Disabled: See crbug.com/15436
+TEST_F(BookmarkEditorGtkTest, DISABLED_ModelsMatch) {
   BookmarkEditorGtk editor(NULL, profile_.get(), NULL, NULL,
                            BookmarkEditor::SHOW_TREE, NULL);
 
