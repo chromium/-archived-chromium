@@ -107,9 +107,13 @@ class URLRequest {
   //
   // The callbacks will be called in the following order:
   //   Start()
+  //    - OnCertificateRequested* (zero or one call, if the SSL server
+  //      requests a client certificate for authentication)
+  //    - OnSSLCertificateError* (zero or one call, if the SSL server's
+  //      certificate has an error)
   //    - OnReceivedRedirect* (zero or more calls, for the number of redirects)
   //    - OnAuthRequired* (zero or more calls, for the number of
-  //                               authentication failures)
+  //      authentication failures)
   //    - OnResponseStarted
   //   Read() initiated by delegate
   //    - OnReadCompleted* (zero or more calls until all data is read)
@@ -298,6 +302,10 @@ class URLRequest {
   // request headers set by other methods are overwritten by this method.  This
   // method may only be called before Start() is called.  It is an error to
   // call it later.
+  //
+  // Note: \r\n is only used to separate the headers in the string if there
+  // are multiple headers.  The last header in the string must not be followed
+  // by \r\n.
   void SetExtraRequestHeaders(const std::string& headers);
 
   const std::string& extra_request_headers() { return extra_request_headers_; }
