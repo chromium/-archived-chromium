@@ -137,32 +137,29 @@ class ImageDiff(test_type_base.TestTypeBase):
         raise
       expected_hash = ''
 
-    if test_args.hash != expected_hash:
-      if expected_hash == '':
-        failures.append(test_failures.FailureMissingImageHash(self))
-      else:
-        # Hashes don't match, so see if the images match.  If they do, then
-        # the hash is wrong.
-        self._CopyOutputPNGs(filename, test_args.png_path,
-                             expected_png_file)
-        result = self._CreateImageDiff(filename, target)
-        if result == 0:
-          failures.append(test_failures.FailureImageHashIncorrect(self))
-        else:
-          failures.append(test_failures.FailureImageHashMismatch(self))
-
-    # Also report a missing expected PNG file.
     if not os.path.isfile(expected_png_file):
+      # Report a missing expected PNG file.
       failures.append(test_failures.FailureMissingImage(self))
+    elif test_args.hash == expected_hash:
+      return failure
 
-    # If anything was wrong, write the output files.
-    if len(failures):
-      self.WriteOutputFiles(filename, '', '.checksum', test_args.hash,
-                            expected_hash, diff=False, wdiff=False)
+    self._CopyOutputPNGs(filename, test_args.png_path,
+                         expected_png_file)
+    # Even though we only use result in one codepath below but we still need to
+    # call CreateImageDiff for other codepaths.
+    result = self._CreateImageDiff(filename, target)
 
-      if (test_args.hash == expected_hash or expected_hash != ''):
-        self._CopyOutputPNGs(filename, test_args.png_path,
-                             expected_png_file)
-        self._CreateImageDiff(filename, target)
+    if expected_hash == '':
+      failures.append(test_failures.FailureMissingImageHash(self))
+    elif test_args.hash != expected_hash:
+      # Hashes don't match, so see if the images match. If they do, then
+      # the hash is wrong.
+      if result == 0:
+        failures.append(test_failures.FailureImageHashIncorrect(self))
+      else:
+        failures.append(test_failures.FailureImageHashMismatch(self))
+
+    self.WriteOutputFiles(filename, '', '.checksum', test_args.hash,
+                          expected_hash, diff=False, wdiff=False)
 
     return failures
