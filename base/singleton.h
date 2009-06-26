@@ -7,6 +7,7 @@
 
 #include "base/at_exit.h"
 #include "base/atomicops.h"
+#include "base/dynamic_annotations.h"
 #include "base/platform_thread.h"
 
 // Default traits for Singleton<Type>. Calls operator new and operator delete on
@@ -116,8 +117,11 @@ class Singleton {
     static const base::subtle::AtomicWord kBeingCreatedMarker = 1;
 
     base::subtle::AtomicWord value = base::subtle::NoBarrier_Load(&instance_);
-    if (value != 0 && value != kBeingCreatedMarker)
+    if (value != 0 && value != kBeingCreatedMarker) {
+      // See the corresponding HAPPENS_BEFORE below.
+      ANNOTATE_HAPPENS_AFTER(&instance_);
       return reinterpret_cast<Type*>(value);
+    }
 
     // Object isn't created yet, maybe we will get to create it, let's try...
     if (base::subtle::Acquire_CompareAndSwap(&instance_,
@@ -127,6 +131,11 @@ class Singleton {
       // will ever get here.  Threads might be spinning on us, and they will
       // stop right after we do this store.
       Type* newval = Traits::New();
+
+      // This annotation helps race detectors recognize correct lock-less
+      // synchronization between different threads calling get().
+      // See the corresponding HAPPENS_AFTER below and above.
+      ANNOTATE_HAPPENS_BEFORE(&instance_);
       base::subtle::Release_Store(
           &instance_, reinterpret_cast<base::subtle::AtomicWord>(newval));
 
@@ -150,6 +159,8 @@ class Singleton {
       PlatformThread::YieldCurrentThread();
     }
 
+    // See the corresponding HAPPENS_BEFORE above.
+    ANNOTATE_HAPPENS_AFTER(&instance_);
     return reinterpret_cast<Type*>(value);
   }
 

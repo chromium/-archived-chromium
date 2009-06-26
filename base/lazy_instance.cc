@@ -6,6 +6,7 @@
 
 #include "base/at_exit.h"
 #include "base/atomicops.h"
+#include "base/dynamic_annotations.h"
 #include "base/basictypes.h"
 #include "base/platform_thread.h"
 
@@ -20,6 +21,10 @@ void LazyInstanceHelper::EnsureInstance(void* instance,
           &state_, STATE_EMPTY, STATE_CREATING) == STATE_EMPTY) {
     // Created the instance in the space provided by |instance|.
     ctor(instance);
+
+    // See the comment to the corresponding HAPPENS_AFTER in Pointer().
+    ANNOTATE_HAPPENS_BEFORE(&state_);
+
     // Instance is created, go from CREATING to CREATED.
     base::subtle::Release_Store(&state_, STATE_CREATED);
     // Register the destructor callback with AtExitManager.

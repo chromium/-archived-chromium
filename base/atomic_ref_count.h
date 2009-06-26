@@ -4,11 +4,15 @@
 
 // This is a low level implementation of atomic semantics for reference
 // counting.  Please use base/ref_counted.h directly instead.
+//
+// The implementation includes annotations to avoid some false positives
+// when using data race detection tools.
 
 #ifndef BASE_ATOMIC_REF_COUNT_H_
 #define BASE_ATOMIC_REF_COUNT_H_
 
 #include "base/atomicops.h"
+#include "base/dynamic_annotations.h"
 
 namespace base {
 
@@ -26,7 +30,12 @@ inline void AtomicRefCountIncN(volatile AtomicRefCount *ptr,
 // became zero will be visible to a thread that has just made the count zero.
 inline bool AtomicRefCountDecN(volatile AtomicRefCount *ptr,
                                AtomicRefCount decrement) {
-  return subtle::Barrier_AtomicIncrement(ptr, -decrement) != 0;
+  ANNOTATE_HAPPENS_BEFORE(ptr);
+  bool res = (subtle::Barrier_AtomicIncrement(ptr, -decrement) != 0);
+  if (!res) {
+    ANNOTATE_HAPPENS_AFTER(ptr);
+  }
+  return res;
 }
 
 // Increment a reference count by 1.
@@ -48,14 +57,22 @@ inline bool AtomicRefCountDec(volatile AtomicRefCount *ptr) {
 // needed for the owning thread to act on the object, knowing that it has
 // exclusive access to the object.
 inline bool AtomicRefCountIsOne(volatile AtomicRefCount *ptr) {
-  return subtle::Acquire_Load(ptr) == 1;
+  bool res = (subtle::Acquire_Load(ptr) == 1);
+  if (res) {
+    ANNOTATE_HAPPENS_AFTER(ptr);
+  }
+  return res;
 }
 
 // Return whether the reference count is zero.  With conventional object
 // referencing counting, the object will be destroyed, so the reference count
 // should never be zero.  Hence this is generally used for a debug check.
 inline bool AtomicRefCountIsZero(volatile AtomicRefCount *ptr) {
-  return subtle::Acquire_Load(ptr) == 0;
+  bool res = (subtle::Acquire_Load(ptr) == 0);
+  if (res) {
+    ANNOTATE_HAPPENS_AFTER(ptr);
+  }
+  return res;
 }
 
 }  // namespace base

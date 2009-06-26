@@ -37,6 +37,7 @@
 
 #include "base/atomicops.h"
 #include "base/basictypes.h"
+#include "base/dynamic_annotations.h"
 
 namespace base {
 
@@ -95,6 +96,14 @@ class LazyInstance : public LazyInstanceHelper {
     // We will hopefully have fast access when the instance is already created.
     if (base::subtle::NoBarrier_Load(&state_) != STATE_CREATED)
       EnsureInstance(instance, Traits::New, Traits::Delete);
+
+    // This annotation helps race detectors recognize correct lock-less
+    // synchronization between different threads calling Pointer().
+    // We suggest dynamic race detection tool that
+    // "ctor(instance)" in EnsureInstance(...) happens before
+    // "return instance" in Pointer().
+    // See the corresponding HAPPENS_BEFORE in EnsureInstance(...).
+    ANNOTATE_HAPPENS_AFTER(&state_);
 
     return instance;
   }

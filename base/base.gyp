@@ -110,6 +110,8 @@
         'directory_watcher_inotify.cc',
         'directory_watcher_mac.cc',
         'directory_watcher_win.cc',
+        'dynamic_annotations.h',
+        'dynamic_annotations.cc',
         'event_recorder.cc',
         'event_recorder.h',
         'event_recorder_stubs.cc',
