@@ -204,6 +204,40 @@ TestSuite.prototype.testEnableResourcesTab = function(controller) {
 };
 
 
+/**
+ * Test that profiler works.
+ */
+TestSuite.prototype.testProfilerTab = function(controller) {
+  var panel = WebInspector.panels.profiles;
+  WebInspector.panels.elements.hide();
+  panel.show();
+
+  var oldAddProfile = WebInspector.addProfile;
+  WebInspector.addProfile = function(profile) {
+    WebInspector.addProfile = oldAddProfile;
+    oldAddProfile.call(this, profile);
+
+    panel.showProfile(profile);
+    var node = panel.visibleView.profileDataGridTree.children[0];
+    // Iterate over displayed functions and search for a function
+    // that is called 'fib' or 'eternal_fib'. If found, it will mean
+    // that we actually have profiled page's code.
+    while (node) {
+      if (node.functionName.indexOf("fib") != -1) {
+        controller.reportOk();
+      }
+      node = node.traverseNextNode(true, null, true);
+    }
+
+    controller.reportFailure();
+  };
+
+  InspectorController.startProfiling();
+  window.setTimeout('InspectorController.stopProfiling();', 1000);
+  controller.takeControl();
+};
+
+
 var uiTests = new TestSuite();
 
 
