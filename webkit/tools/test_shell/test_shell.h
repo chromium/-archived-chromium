@@ -209,7 +209,7 @@ public:
 
     // Writes the image captured from the given web frame to the given file.
     // The returned string is the ASCII-ized MD5 sum of the image.
-    static std::string DumpImage(WebFrame* web_frame,
+    static std::string DumpImage(WebView* view,
                                  const std::wstring& file_name,
                                  const std::string& pixel_hash);
 

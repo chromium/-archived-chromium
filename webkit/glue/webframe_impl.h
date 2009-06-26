@@ -109,8 +109,6 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   virtual WebView* GetView() const;
   virtual void GetForms(std::vector<WebKit::WebForm>* forms) const;
   virtual std::string GetSecurityOrigin() const;
-  virtual bool CaptureImage(scoped_ptr<skia::BitmapPlatformDevice>* image,
-                            bool scroll_to_zero);
 
   // This method calls createRuntimeObject (in KJS::Bindings::Instance), which
   // increments the refcount of the NPObject passed in.

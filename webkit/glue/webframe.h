@@ -331,21 +331,6 @@ class WebFrame {
   // Returns the full HTML of the page.
   virtual std::string GetFullPageHtml() = 0;
 
-  // Paints the contents of this web view in a bitmapped image. This image
-  // will not have plugins drawn. Devices are cheap to copy because the data is
-  // internally refcounted so we allocate and return a new copy
-  //
-  // Set scroll_to_zero to force all frames to be scrolled to 0,0 before
-  // being painted into the image. This will not send DOM events because it
-  // just draws the contents at a different place, but it does mean the
-  // scrollbars in the resulting image will appear to be wrong (they'll be
-  // painted as if the content was scrolled).
-  //
-  // Returns false on failure. CaptureImage can fail if 'image' argument
-  // is not valid or due to failure to allocate a canvas.
-  virtual bool CaptureImage(scoped_ptr<skia::BitmapPlatformDevice>* image,
-                            bool scroll_to_zero) = 0;
-
   // This function sets a flag within WebKit to instruct it to render the page
   // as View-Source (showing the HTML source for the page).
   virtual void SetInViewSourceMode(bool enable) = 0;

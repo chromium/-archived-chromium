@@ -1538,41 +1538,6 @@ void WebFrameImpl::Paint(skia::PlatformCanvas* canvas, const WebRect& rect) {
   }
 }
 
-bool WebFrameImpl::CaptureImage(scoped_ptr<skia::BitmapPlatformDevice>* image,
-                                bool scroll_to_zero) {
-  if (!image) {
-    NOTREACHED();
-    return false;
-  }
-
-  // Must layout before painting.
-  Layout();
-
-  skia::PlatformCanvas canvas;
-  if (!canvas.initialize(frameview()->width(), frameview()->height(), true))
-    return false;
-
-#if defined(OS_WIN) || defined(OS_LINUX)
-  PlatformContextSkia context(&canvas);
-  GraphicsContext gc(reinterpret_cast<PlatformGraphicsContext*>(&context));
-#elif defined(OS_MACOSX)
-  CGContextRef context = canvas.beginPlatformPaint();
-  GraphicsContext gc(context);
-  WebCore::LocalCurrentGraphicsContext localContext(&gc);
-#endif
-  frameview()->paint(&gc, IntRect(0, 0, frameview()->width(),
-                                  frameview()->height()));
-#if defined(OS_MACOSX)
-  canvas.endPlatformPaint();
-#endif
-
-  skia::BitmapPlatformDevice& device =
-      static_cast<skia::BitmapPlatformDevice&>(canvas.getTopPlatformDevice());
-
-  image->reset(new skia::BitmapPlatformDevice(device));
-  return true;
-}
-
 bool WebFrameImpl::IsLoading() {
   // I'm assuming this does what we want.
   return frame_->loader()->isLoading();

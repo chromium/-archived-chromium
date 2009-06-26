@@ -107,6 +107,7 @@ using WebKit::WebHistoryItem;
 using WebKit::WebNavigationType;
 using WebKit::WebRect;
 using WebKit::WebScriptSource;
+using WebKit::WebSize;
 using WebKit::WebString;
 using WebKit::WebURL;
 using WebKit::WebURLError;
@@ -432,7 +433,7 @@ void RenderView::SendThumbnail() {
 
   ThumbnailScore score;
   SkBitmap thumbnail;
-  if (!CaptureThumbnail(main_frame, kThumbnailWidth, kThumbnailHeight,
+  if (!CaptureThumbnail(webview(), kThumbnailWidth, kThumbnailHeight,
                         &thumbnail, &score))
     return;
 
@@ -538,7 +539,7 @@ void RenderView::CaptureText(WebFrame* frame, std::wstring* contents) {
   }
 }
 
-bool RenderView::CaptureThumbnail(WebFrame* frame,
+bool RenderView::CaptureThumbnail(WebView* view,
                                   int w,
                                   int h,
                                   SkBitmap* thumbnail,
@@ -547,11 +548,18 @@ bool RenderView::CaptureThumbnail(WebFrame* frame,
   double begin = time_util::GetHighResolutionTimeNow();
 #endif
 
-  scoped_ptr<skia::BitmapPlatformDevice> device;
-  if (!frame->CaptureImage(&device, true))
-    return false;
+  view->Layout();
+  const WebSize& size = view->GetSize();
 
-  const SkBitmap& src_bmp = device->accessBitmap(false);
+  skia::PlatformCanvas canvas;
+  if (!canvas.initialize(size.width, size.height, true))
+    return false;
+  view->Paint(&canvas, WebRect(0, 0, size.width, size.height));
+
+  skia::BitmapPlatformDevice& device =
+      static_cast<skia::BitmapPlatformDevice&>(canvas.getTopPlatformDevice());
+
+  const SkBitmap& src_bmp = device.accessBitmap(false);
 
   SkRect dest_rect;
   dest_rect.set(0, 0, SkIntToScalar(w), SkIntToScalar(h));
@@ -584,10 +592,10 @@ bool RenderView::CaptureThumbnail(WebFrame* frame,
     }
   }
 
-  score->at_top = (frame->ScrollOffset().height == 0);
+  score->at_top = (view->GetMainFrame()->ScrollOffset().height == 0);
 
   SkBitmap subset;
-  device->accessBitmap(false).extractSubset(&subset, src_rect);
+  device.accessBitmap(false).extractSubset(&subset, src_rect);
 
   // Resample the subset that we want to get it the right size.
   *thumbnail = skia::ImageOperations::Resize(

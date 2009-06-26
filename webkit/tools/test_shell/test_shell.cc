@@ -32,6 +32,8 @@
 #include "skia/ext/bitmap_platform_device.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/skia/include/core/SkBitmap.h"
+#include "webkit/api/public/WebRect.h"
+#include "webkit/api/public/WebSize.h"
 #include "webkit/api/public/WebString.h"
 #include "webkit/api/public/WebURL.h"
 #include "webkit/api/public/WebURLRequest.h"
@@ -46,6 +48,8 @@
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_shell_switches.h"
 
+using WebKit::WebRect;
+using WebKit::WebSize;
 using WebKit::WebURLRequest;
 
 namespace {
@@ -184,8 +188,8 @@ void TestShell::Dump(TestShell* shell) {
   printf("#URL:%s\n", params->test_url.c_str());
 
   // Dump the requested representation.
-  WebFrame* webFrame = shell->webView()->GetMainFrame();
-  if (webFrame) {
+  WebFrame* frame = shell->webView()->GetMainFrame();
+  if (frame) {
     bool should_dump_as_text =
         shell->layout_test_controller_->ShouldDumpAsText();
     bool dumped_anything = false;
@@ -196,26 +200,26 @@ void TestShell::Dump(TestShell* shell) {
       if (!should_dump_as_text) {
         // Plain text pages should be dumped as text
         const string16& mime_type =
-            webFrame->GetDataSource()->response().mimeType();
+            frame->GetDataSource()->response().mimeType();
         should_dump_as_text = EqualsASCII(mime_type, "text/plain");
       }
       if (should_dump_as_text) {
         bool recursive = shell->layout_test_controller_->
             ShouldDumpChildFramesAsText();
         std::string data_utf8 = WideToUTF8(
-            webkit_glue::DumpFramesAsText(webFrame, recursive));
+            webkit_glue::DumpFramesAsText(frame, recursive));
         if (fwrite(data_utf8.c_str(), 1, data_utf8.size(), stdout) !=
             data_utf8.size()) {
           LOG(FATAL) << "Short write to stdout, disk full?";
         }
       } else {
         printf("%s", WideToUTF8(
-            webkit_glue::DumpRenderer(webFrame)).c_str());
+            webkit_glue::DumpRenderer(frame)).c_str());
 
         bool recursive = shell->layout_test_controller_->
             ShouldDumpChildFrameScrollPositions();
         printf("%s", WideToUTF8(
-            webkit_glue::DumpFrameScrollPosition(webFrame, recursive)).c_str());
+            webkit_glue::DumpFrameScrollPosition(frame, recursive)).c_str());
       }
 
       if (shell->layout_test_controller_->ShouldDumpBackForwardList()) {
@@ -230,7 +234,7 @@ void TestShell::Dump(TestShell* shell) {
       // command line (for the dump pixels argument), and the MD5 sum to
       // stdout.
       dumped_anything = true;
-      std::string md5sum = DumpImage(webFrame, params->pixel_file_name,
+      std::string md5sum = DumpImage(shell->webView(), params->pixel_file_name,
           params->pixel_hash);
       printf("#MD5:%s\n", md5sum.c_str());
     }
@@ -241,13 +245,19 @@ void TestShell::Dump(TestShell* shell) {
 }
 
 // static
-std::string TestShell::DumpImage(WebFrame* web_frame,
+std::string TestShell::DumpImage(WebView* view,
     const std::wstring& file_name, const std::string& pixel_hash) {
-  scoped_ptr<skia::BitmapPlatformDevice> device;
-  if (!web_frame->CaptureImage(&device, true))
-    return std::string();
+  view->Layout();
+  const WebSize& size = view->GetSize();
 
-  const SkBitmap& src_bmp = device->accessBitmap(false);
+  skia::PlatformCanvas canvas;
+  if (!canvas.initialize(size.width, size.height, true))
+    return std::string();
+  view->Paint(&canvas, WebRect(0, 0, size.width, size.height));
+
+  skia::BitmapPlatformDevice& device =
+      static_cast<skia::BitmapPlatformDevice&>(canvas.getTopPlatformDevice());
+  const SkBitmap& src_bmp = device.accessBitmap(false);
 
   // Encode image.
   std::vector<unsigned char> png;
@@ -261,7 +271,7 @@ std::string TestShell::DumpImage(WebFrame* web_frame,
   // doesn't have the wrong alpha like Windows, but we ignore it anyway.
 #if defined(OS_WIN)
   bool discard_transparency = true;
-  device->makeOpaque(0, 0, src_bmp.width(), src_bmp.height());
+  device.makeOpaque(0, 0, src_bmp.width(), src_bmp.height());
 #elif defined(OS_LINUX)
   bool discard_transparency = true;
 #elif defined(OS_MACOSX)
@@ -269,7 +279,7 @@ std::string TestShell::DumpImage(WebFrame* web_frame,
 #endif
 
   // Compute MD5 sum.  We should have done this before calling
-  // device->makeOpaque on Windows.  Because we do it after the call, there are
+  // device.makeOpaque on Windows.  Because we do it after the call, there are
   // some images that are the pixel identical on windows and other platforms
   // but have different MD5 sums.  At this point, rebaselining all the windows
   // tests is too much of a pain, so we just check in different baselines.
