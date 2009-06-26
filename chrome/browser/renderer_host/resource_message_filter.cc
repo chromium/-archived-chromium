@@ -13,6 +13,7 @@
 #include "chrome/browser/chrome_plugin_browsing_context.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/extensions/extension_message_service.h"
+#include "chrome/browser/in_process_webkit/dom_storage_dispatcher_host.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
@@ -136,18 +137,25 @@ ResourceMessageFilter::ResourceMessageFilter(
       render_widget_helper_(render_widget_helper),
       audio_renderer_host_(audio_renderer_host),
       app_cache_dispatcher_host_(new AppCacheDispatcherHost),
+      ALLOW_THIS_IN_INITIALIZER_LIST(dom_storage_dispatcher_host_(
+          new DOMStorageDispatcherHost(this, profile->GetWebKitContext(),
+              resource_dispatcher_host->webkit_thread()))),
       off_the_record_(profile->IsOffTheRecord()) {
   DCHECK(request_context_.get());
   DCHECK(request_context_->cookie_store());
   DCHECK(media_request_context_.get());
   DCHECK(media_request_context_->cookie_store());
   DCHECK(audio_renderer_host_.get());
+  DCHECK(app_cache_dispatcher_host_.get());
+  DCHECK(dom_storage_dispatcher_host_.get());
 }
 
 ResourceMessageFilter::~ResourceMessageFilter() {
   // This function should be called on the IO thread.
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
+
+  dom_storage_dispatcher_host_->Shutdown();
 
   // Let interested observers know we are being deleted.
   NotificationService::current()->Notify(
@@ -223,10 +231,12 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
   bool handled = resource_dispatcher_host_->OnMessageReceived(
                                                 message, this, &msg_is_ok) ||
                  app_cache_dispatcher_host_->OnMessageReceived(
-                                                message, &msg_is_ok);
-  if (!handled && msg_is_ok)
-    handled = audio_renderer_host_->OnMessageReceived(message, &msg_is_ok);
+                                                 message, &msg_is_ok) ||
+                 dom_storage_dispatcher_host_->OnMessageReceived(message) ||
+                 audio_renderer_host_->OnMessageReceived(message, &msg_is_ok);
+
   if (!handled) {
+    DCHECK(msg_is_ok);  // It should have been marked handled if it wasn't OK.
     handled = true;
     IPC_BEGIN_MESSAGE_MAP_EX(ResourceMessageFilter, message, msg_is_ok)
       // On Linux we need to dispatch these messages to the UI2 thread because

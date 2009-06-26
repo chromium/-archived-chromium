@@ -21,6 +21,7 @@
 #include "chrome/browser/download/download_request_manager.h"
 #include "chrome/browser/download/save_file_manager.h"
 #include "chrome/browser/external_protocol_handler.h"
+#include "chrome/browser/in_process_webkit/webkit_thread.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/privacy_blacklist/blacklist.h"
 #include "chrome/browser/profile.h"
@@ -155,6 +156,7 @@ ResourceDispatcherHost::ResourceDispatcherHost(MessageLoop* io_loop)
       ALLOW_THIS_IN_INITIALIZER_LIST(
           save_file_manager_(new SaveFileManager(ui_loop_, io_loop, this))),
       safe_browsing_(new SafeBrowsingService),
+      webkit_thread_(new WebKitThread),
       request_id_(-1),
       plugin_service_(PluginService::GetInstance()),
       ALLOW_THIS_IN_INITIALIZER_LIST(method_runner_(this)),

@@ -204,6 +204,12 @@ class TestingProfile : public Profile {
   virtual SpellChecker* GetSpellChecker() {
     return NULL;
   }
+  virtual WebKitContext* GetWebKitContext() {
+    return NULL;
+  }
+  virtual WebKitContext* GetOffTheRecordWebKitContext() {
+    return NULL;
+  }
   virtual void MarkAsCleanShutdown() {
   }
   virtual void InitExtensions() {

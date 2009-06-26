@@ -48,6 +48,7 @@ class URLRequestContext;
 class UserScriptMaster;
 class VisitedLinkMaster;
 class WebDataService;
+class WebKitContext;
 
 class Profile {
  public:
@@ -274,6 +275,9 @@ class Profile {
   // sent to the I/O thread where it is actually used.
   virtual SpellChecker* GetSpellChecker() = 0;
 
+  // Returns the WebKitContext assigned to this profile.
+  virtual WebKitContext* GetWebKitContext() = 0;
+
   // Marks the profile as cleanly shutdown.
   //
   // NOTE: this is invoked internally on a normal shutdown, but is public so
@@ -359,6 +363,7 @@ class ProfileImpl : public Profile,
   virtual void ResetTabRestoreService();
   virtual void ReinitializeSpellChecker();
   virtual SpellChecker* GetSpellChecker();
+  virtual WebKitContext* GetWebKitContext();
   virtual void MarkAsCleanShutdown();
   virtual void InitExtensions();
   virtual void InitWebResources();
@@ -429,6 +434,7 @@ class ProfileImpl : public Profile,
   scoped_refptr<PasswordStore> password_store_;
   scoped_refptr<SessionService> session_service_;
   scoped_refptr<BrowserThemeProvider> theme_provider_;
+  scoped_refptr<WebKitContext> webkit_context_;
   bool history_service_created_;
   bool created_web_data_service_;
   bool created_password_store_;

@@ -19,6 +19,7 @@
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/browser/history/history.h"
+#include "chrome/browser/in_process_webkit/webkit_context.h"
 #include "chrome/browser/net/chrome_url_request_context.h"
 #include "chrome/browser/password_manager/password_store_default.h"
 #include "chrome/browser/privacy_blacklist/blacklist.h"
@@ -347,6 +348,13 @@ class OffTheRecordProfileImpl : public Profile,
     return profile_->GetSpellChecker();
   }
 
+  virtual WebKitContext* GetWebKitContext() {
+  if (!webkit_context_.get())
+    webkit_context_ = new WebKitContext(GetPath(), true);
+  DCHECK(webkit_context_.get());
+  return webkit_context_.get();
+}
+
   virtual ThumbnailStore* GetThumbnailStore() {
     return NULL;
   }
@@ -397,8 +405,10 @@ class OffTheRecordProfileImpl : public Profile,
   // The download manager that only stores downloaded items in memory.
   scoped_refptr<DownloadManager> download_manager_;
 
-  // The download manager that only stores downloaded items in memory.
   scoped_refptr<BrowserThemeProvider> theme_provider_;
+
+  // Use a special WebKit context for OTR browsing.
+  scoped_refptr<WebKitContext> webkit_context_;
 
   // We don't want SSLHostState from the OTR profile to leak back to the main
   // profile because then the main profile would learn some of the host names
@@ -1067,6 +1077,13 @@ SpellChecker* ProfileImpl::GetSpellChecker() {
   }
 
   return spellchecker_;
+}
+
+WebKitContext* ProfileImpl::GetWebKitContext() {
+  if (!webkit_context_.get())
+    webkit_context_ = new WebKitContext(path_, false);
+  DCHECK(webkit_context_.get());
+  return webkit_context_.get();
 }
 
 void ProfileImpl::MarkAsCleanShutdown() {
