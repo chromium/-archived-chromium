@@ -239,6 +239,7 @@ int FtpNetworkTransaction::DoLoop(int result) {
         rv = DoCtrlConnectComplete(rv);
         break;
       case STATE_CTRL_READ:
+        DCHECK(rv == OK);
         rv = DoCtrlRead();
         break;
       case STATE_CTRL_READ_COMPLETE:
@@ -281,19 +282,24 @@ int FtpNetworkTransaction::DoLoop(int result) {
         rv = DoCtrlWriteSIZE();
         break;
       case STATE_CTRL_WRITE_CWD:
+        DCHECK(rv == OK);
         rv = DoCtrlWriteCWD();
         break;
       case STATE_CTRL_WRITE_LIST:
+        DCHECK(rv == OK);
         rv = DoCtrlWriteLIST();
         break;
       case STATE_CTRL_WRITE_MDTM:
+        DCHECK(rv == OK);
         rv = DoCtrlWriteMDTM();
         break;
       case STATE_CTRL_WRITE_QUIT:
+        DCHECK(rv == OK);
         rv = DoCtrlWriteQUIT();
         break;
 
       case STATE_DATA_RESOLVE_HOST:
+        DCHECK(rv == OK);
         rv = DoDataResolveHost();
         break;
       case STATE_DATA_RESOLVE_HOST_COMPLETE:
@@ -307,6 +313,7 @@ int FtpNetworkTransaction::DoLoop(int result) {
         rv = DoDataConnectComplete(rv);
         break;
       case STATE_DATA_READ:
+        DCHECK(rv == OK);
         rv = DoDataRead();
         break;
       case STATE_DATA_READ_COMPLETE:
