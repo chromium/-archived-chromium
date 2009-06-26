@@ -71,8 +71,6 @@ typedef ObjectBase[] ObjectArray;
     Textures, Effects, Materials, for example. That means the moment you call
     pack.destroy() those objects will be freed. If the client then tries to
     render and some objects are missing you'll immediately get an error.
-
-    \return True if the pack was successfully deleted.
   %]
   void Destroy();
 
@@ -165,7 +163,7 @@ typedef ObjectBase[] ObjectArray;
         \li o3d.TRSToMatrix4
     \return The created object.
   %]
-  ObjectBase? CreateObject(String type_name);
+  [noreturndocs] ObjectBase? CreateObject(String type_name);
 
   %[
     Creates a new Texture2D object of the specified size and format and
@@ -179,16 +177,16 @@ typedef ObjectBase[] ObjectArray;
     \param format The memory format of each texel
     \param levels The number of mipmap levels.  Use zero to create the compelete
          mipmap chain.
-    \param enable_render_surfaces: If true, the texture object will expose
+    \param enable_render_surfaces If true, the texture object will expose
          RenderSurface objects through GetRenderSurface(...).
     \return The Texture2D object.
 
   %]
   Texture2D? CreateTexture2D(int width,
-                            int height,
-                            Texture::Format format,
-                            int levels,
-                            bool enable_render_surfaces);
+                             int height,
+                             Texture::Format format,
+                             int levels,
+                             bool enable_render_surfaces);
 
   %[
     Creates a new TextureCUBE object of the specified size and format and
@@ -232,9 +230,10 @@ typedef ObjectBase[] ObjectArray;
     \param class_type_name the Class of the object. It is okay to pass base
          types for example "o3d.RenderNode" will return ClearBuffers,
          DrawPasses, etc...
-    \returns Array of Objects.
+    \return Array of Objects.
   %]
-  [const] ObjectArray GetObjects(String name, String class_type_name);
+  [const, noreturndocs]
+  ObjectArray GetObjects(String name, String class_type_name);
 
   %[
     Search the pack for all objects of a certain class
@@ -246,9 +245,10 @@ typedef ObjectBase[] ObjectArray;
     \param class_type_name the Class of the object. It is okay to pass base
          types for example "o3d.RenderNode" will return ClearBuffers,
          DrawPasses, etc...
-    \returns Array of Objects.
+    \return Array of Objects.
   %]
-  [const] ObjectArray GetObjectsByClassName(String class_type_name);
+  [const, noreturndocs]
+  ObjectArray GetObjectsByClassName(String class_type_name);
 
   %[
     All the objects managed by this pack.
@@ -271,7 +271,7 @@ typedef ObjectBase[] ObjectArray;
   %[
     Creates a FileRequest to be used to asynchronously load a Texture.
     \param type Must be "TEXTURE"
-    \returns a FileRequest
+    \return a FileRequest
   %]
   [noccp, userglue] FileRequest? CreateFileRequest(String type);
   [verbatim=cpp_glue, include="core/cross/file_request.h"] %{
@@ -287,7 +287,7 @@ typedef ObjectBase[] ObjectArray;
 
   %[
     Creates an ArchiveRequest so we can stream in assets from an archive
-    \returns an ArchiveRequest
+    \return an ArchiveRequest
   %]
   [noccp, userglue] ArchiveRequest CreateArchiveRequest();
   [verbatim=cpp_glue, include="import/cross/archive_request.h"] %{
@@ -299,7 +299,10 @@ typedef ObjectBase[] ObjectArray;
 
   %[
     Creates a Texture given a RawData object
-    \returns the Texture
+    \param raw_data The RawData to create the texture from.
+    \param generate_mips True if you want O3D to generate mip maps for the
+        texture.
+    \return the Texture
   %]
   Texture? CreateTextureFromRawData(RawData raw_data,
                                     bool generate_mips);

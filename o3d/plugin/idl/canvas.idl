@@ -48,7 +48,7 @@ class Canvas : ParamObject {
     Sets the size of the bitmap area that the Canvas uses.
     \param width The width of the bitmap.
     \param height The height of the bitmap.
-    \returns true if the Canvas surface was allocated successfully.
+    \return true if the Canvas surface was allocated successfully.
   %]
   bool SetSize(int width, int height);
 
@@ -156,6 +156,7 @@ class Canvas : ParamObject {
     Copies the contents of the Canvas to a 2D texture object. The size of the
     texture must match exactly the size of the Canvas set by the setSize() method.
     The format of the texture must be set to either ARGB8 or XRGB8.
+    \param texture Texture to copy to.
   %]
   void CopyToTexture(Texture2D texture);
 

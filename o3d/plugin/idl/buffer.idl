@@ -57,8 +57,9 @@ class Buffer : NamedObject {
     \param field_type type of data in the field. Valid types are "FloatField",
         "UInt32Field", "UByteNField".
     \param num_components number of components in the field.
+    \return The created field.
   %]
-  [userglue]
+  [userglue, noreturndocs]
   Field? CreateField(String field_type, unsigned int num_components);
 
   %[
@@ -186,7 +187,6 @@ class VertexBufferBase : Buffer {
 
     \param start_index index of first value to set.
     \param values Values to be stored in the buffer starting at index.
-    \return True if operation was successful.
   %]
   [nocpp, userglue] void SetAt(unsigned int start_index, float[] values);
 
@@ -382,7 +382,6 @@ class SourceBuffer : VertexBufferBase {
 
     \param start_index index of first value to set.
     \param values Values to be stored in the buffer starting at index.
-    \return True if operation was successful.
   %]
   [nocpp, userglue] void SetAt(unsigned int start_index, unsigned int[] values);
 

@@ -71,7 +71,8 @@ class ObjectBase {
   t.isAClassName('o3d.ParamObject');  // true
   t.isAClassName('o3d.Shape');        // false
   \endcode
-  \returns true if this object is a or is derived from the given class name.
+  \param class_name Name of class to check for.
+  \return true if this object is a or is derived from the given class name.
   %]
   bool IsAClassName(String class_name);
 

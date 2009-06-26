@@ -91,7 +91,8 @@ class ParamObject : NamedObject {
          \li 'o3d.WorldViewProjectionInverseTransposeParamMatrix4'
     \return The newly created Param or null on failure.
   %]
-  [userglue] Param? CreateParam(String param_name, String param_type_name);
+  [userglue, noreturndocs]
+  Param? CreateParam(String param_name, String param_type_name);
 
   %[
     Searches by name for a Param defined in the object.
@@ -99,7 +100,8 @@ class ParamObject : NamedObject {
     \param param_name Name to search for.
     \return The Param with the given name, or null otherwise.
   %]
-  [userglue, const] Param? GetParam(String param_name);
+  [userglue, const, noreturndocs]
+  Param? GetParam(String param_name);
 
   %[
     Removes a Param from a ParamObject.

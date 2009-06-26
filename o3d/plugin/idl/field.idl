@@ -84,6 +84,7 @@ class FloatField : Field {
 
     \param start_index index of the first value to get.
     \param num_elements number of elements to read from field.
+    \return The values of the field.
   %]
   [userglue] float[] GetAt(unsigned int start_index, unsigned int num_elements);
 
@@ -141,6 +142,7 @@ class UInt32Field : Field {
 
     \param start_index index of the first value to get.
     \param num_elements number of elements to read from field.
+    \return The values of the field.
   %]
   [userglue] unsigned int[] GetAt(unsigned int start_index,
                                   unsigned int num_elements);
@@ -201,6 +203,7 @@ class UByteNField : Field {
 
     \param start_index index of the first value to get.
     \param num_elements number of elements to read from field.
+    \return The values of the field.
   %]
   [userglue] float[] GetAt(unsigned int start_index, unsigned int num_elements);
 

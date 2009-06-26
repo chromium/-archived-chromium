@@ -104,11 +104,12 @@ typedef DrawElement[] DrawElementArray;
     Shape.createDrawElements and Transform.createDrawElements this one will
     create more than one element for the same material.
 
-    \param pack: pack used to manage created DrawElement.
-    \param material: material to use for DrawElement. If you pass null
+    \param pack pack used to manage created DrawElement.
+    \param material material to use for DrawElement. If you pass null
         it will use the material on this Element. This allows you to easily
         setup the default (just draw as is) by passing null or setup a shadow
         pass by passing in a shadow material.
+    \return The created draw element.
   %]
   DrawElement CreateDrawElement(Pack pack,
                                 Material? material);

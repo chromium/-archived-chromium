@@ -88,7 +88,6 @@ typedef Param[] ParamVector;
     Breaks a specific param-bind output connection on this param.
 
     \param destination_param param to unbind.
-    \return True if the param was a destination param and was unbound.
   %]
   void UnbindOutput(Param destination_param);
 

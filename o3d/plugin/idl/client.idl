@@ -138,7 +138,7 @@ class Client {
     \param id The id of the object to look for.
     \return The object or null if a object with the given id is not found.
   %]
-  [const] ObjectBase? GetObjectById(Id id);
+  [const, noreturndocs] ObjectBase? GetObjectById(Id id);
 
   %[
     Searches the Client for objects of a particular name and type.
@@ -146,14 +146,14 @@ class Client {
     \param class_name name of class to look for.
     \return Array of objects found.
   %]
-  [const] ObjectArray GetObjects(String name, String class_name);
+  [const, noretundocs] ObjectArray GetObjects(String name, String class_name);
 
   %[
     Searches the Client for objects of a particular type.
     \param class_name name of class to look for.
     \return Array of objects found.
   %]
-  [const] ObjectArray GetObjectsByClassName(String class_name);
+  [const, noreturndocs] ObjectArray GetObjectsByClassName(String class_name);
 
   %[
     \var RenderMode,
@@ -192,12 +192,15 @@ class Client {
 
     This function can only be called from inside a render callback. If you call
     it the client will not do its default call as mentioned above.
+
+    \param render_node root RenderNode to start rendering from.
   %]
   void RenderTree(RenderNode render_node);
 
   %[
     Returns an array of DisplayModes which are available for use in full-screen
     mode.
+    \return An array of DisplayModes.
   %]
   [userglue, plugin_data] DisplayMode[] GetDisplayModes();
 
@@ -209,11 +212,15 @@ class Client {
     how to scale it.  There can be only one full-screen click region at a time;
     calling this again will override any previous call.
 
-    Returns true on success, false if the mode_id is invalid.
+    \param x x position in pixels.
+    \param y y position in pixels.
+    \param width width in pixels.
+    \param height height in pixels.
+    \param mode_id Id of mode to use.
   %]
   [userglue, plugin_data]
-  void SetFullscreenClickRegion(int x, int y, int width, int height, int
-      mode_id);
+  void SetFullscreenClickRegion(
+      int x, int y, int width, int height, int mode_id);
   %[
     Deactivates the plugin click region that was previously created with
     SetFullscreenClickRegion().
@@ -338,12 +345,16 @@ class Client {
     There can be only one callback for a given event type at a time; setting a
     new one deletes the old one.
 
+    \param type Type of event to set callback for.
+    \param handler Function to call on event.
+
     \sa Event for a list of event
   %]
   void SetEventCallback(String type, EventCallback? handler);
 
   %[
     Removes the previously-registered callback for an event of the given type.
+    \param type Type of event to clear callback for.
   %]
   void ClearEventCallback(String type);
 
@@ -433,6 +444,8 @@ class Client {
 
   %[
     This function is only available in the test version of the plugin.
+    \param file_name Name to save screenshot to.
+    \return True on success.
   %]
   bool SaveScreen(String file_name);
 
@@ -456,6 +469,7 @@ class Client {
   %[
     Returns the socket address of the IMC message queue associated with the
     Client.
+    \return The socket address.
   %]
   [const] String GetMessageQueueAddress();
 
@@ -494,6 +508,7 @@ class Client {
 
   %[
     Returns the profiling information as a string.
+    \return The profiling info.
   %]
   String ProfileToString();
 

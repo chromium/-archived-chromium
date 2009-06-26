@@ -63,7 +63,7 @@ typedef Element[] ElementArray;
     Creates a DrawElement for each Element owned by this Shape.
     If an Element already has a DrawElement that uses \a material a new
     DrawElement will not be created.
-    \param pack: pack used to manage created DrawElements.
+    \param pack pack used to manage created DrawElements.
     \param material material to use for each DrawElement. If you pass null it
         will use the material on the corresponding Element.
         This allows you to easily setup the default (just draw as is) by passing

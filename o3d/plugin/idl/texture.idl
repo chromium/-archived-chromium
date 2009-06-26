@@ -124,8 +124,8 @@ namespace o3d {
   %[
     Returns a RenderSurface object associated with a mip_level of a texture.
 
-    \param mip_level: The mip-level of the surface to be returned.
-    \param pack: The pack in which the surface will reside.
+    \param mip_level The mip-level of the surface to be returned.
+    \param pack The pack in which the surface will reside.
     \return The RenderSurface object.
   %]
   RenderSurface? GetRenderSurface(int mip_level, Pack pack);
@@ -422,7 +422,7 @@ coordinates.
 
     \param face The cube face from which to extract the surface.
     \param mip_level The mip-level of the surface to be returned.
-    \param pack: The pack in which the surface will reside.
+    \param pack The pack in which the surface will reside.
     \return The RenderSurface object.
   %]
   RenderSurface? GetRenderSurface(CubeFace face, int mip_level, Pack pack);

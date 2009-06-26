@@ -74,13 +74,14 @@ class BoundingBox {
     Multiplies the bounding box by the given matrix returning a new bounding
     box.
     \param matrix The matrix to multiply by.
-    \returns The new bounding box.
+    \return The new bounding box.
   %]
   [const, userglue] BoundingBox Mul(Vectormath::Aos::Matrix4 matrix);
 
   %[
     Adds a bounding box to this bounding box returning a bounding box that
     encompases both.
+    \param box BoundingBox to add to this BoundingBox.
     \return The new bounding box.
   %]
   [const, userglue] BoundingBox Add(BoundingBox box);

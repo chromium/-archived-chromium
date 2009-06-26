@@ -171,6 +171,7 @@ class Curve : Function {
   %[
     Returns whether or not the curve is discontinuous. A discontinuous curve
     takes more time to evaluate.
+    \return True if the curve is discontinuous.
   %]
   [const] bool IsDiscontinuous();
 

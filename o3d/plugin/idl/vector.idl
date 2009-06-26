@@ -35,6 +35,10 @@
 namespace Vectormath {
 namespace Aos {
 
+%[
+  A data type representing a 3d direction. A Vector3 is represented in
+  JavaScript by an array containing 3 numbers: [x, y, z].
+%]
 [binding_model=by_value, marshaled, nocpp, include=
     "third_party/vectormath/files/vectormathlibrary/include/vectormath/scalar/cpp/vectormath_aos.h"]
 class Vector3 {
@@ -59,6 +63,10 @@ class Vector3 {
   %}
 };
 
+%[
+  A data type representing a 3d point. A Point3 is represented in
+  JavaScript by an array containing 3 numbers: [x, y, z].
+%]
 [binding_model=by_value, marshaled, nocpp, include=
     "third_party/vectormath/files/vectormathlibrary/include/vectormath/scalar/cpp/vectormath_aos.h"]
 class Point3 {
@@ -82,6 +90,10 @@ class Point3 {
   %}
 };
 
+%[
+  A data type representing a 4 value Vector. A Vector4 is represented in
+  JavaScript by an array containing 4 numbers: [x, y, z, w].
+%]
 [binding_model=by_value, marshaled, nocpp, include=
     "third_party/vectormath/files/vectormathlibrary/include/vectormath/scalar/cpp/vectormath_aos.h"]
 class Vector4 {
@@ -106,6 +118,15 @@ class Vector4 {
   %}
 };
 
+%[
+  A data type representing a 3x3 Matrix. A Matrix3 is represented in JavaScript
+  by an array containing 3 arrays of 3 numbers each:
+  \code
+  [[x0, y0, z0],
+   [x1, y1, z1],
+   [x2, y2, z2]]
+  \endcode
+%]
 [binding_model=by_value, marshaled, nocpp, include=
     "third_party/vectormath/files/vectormathlibrary/include/vectormath/scalar/cpp/vectormath_aos.h"]
 class Matrix3 {
@@ -130,6 +151,16 @@ class Matrix3 {
   %}
 };
 
+%[
+  A data type representing a 4x4 Matrix. A Matrix4 is represented in JavaScript
+  by an array containing 4 arrays of 4 numbers each:
+  \code
+  [[x0, y0, z0, w0],
+   [x1, y1, z1, w1],
+   [x2, y2, z2, w2],
+   [x3, y3, z3, w3]]
+  \endcode
+%]
 [binding_model=by_value, marshaled, nocpp, include=
     "third_party/vectormath/files/vectormathlibrary/include/vectormath/scalar/cpp/vectormath_aos.h"]
 class Matrix4 {
@@ -154,6 +185,10 @@ class Matrix4 {
   %}
 };
 
+%[
+  A data type representing a Quaterion. A Quat is represented in JavaScript
+  by an array containing 4 numbers: [x, y, z, w]
+%]
 [binding_model=by_value, marshaled, nocpp, include=
     "third_party/vectormath/files/vectormathlibrary/include/vectormath/scalar/cpp/vectormath_aos.h"]
 class Quat {

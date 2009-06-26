@@ -138,6 +138,7 @@ typedef EffectStreamInfo[] EffectStreamInfoArray;
     that only work on both platforms. That format is mostly CG.
 
     \param effect the code of the effect.
+    \return True if successful.
   %]
   [virtual, pure] bool LoadFromFXString(String effect);
 
