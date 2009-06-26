@@ -86,7 +86,8 @@ class BookmarkEditorGtkTest : public testing::Test {
 
 // Makes sure the tree model matches that of the bookmark bar model.
 // Disabled: See crbug.com/15436
-TEST_F(BookmarkEditorGtkTest, DISABLED_ModelsMatch) {
+#if 0
+TEST_F(BookmarkEditorGtkTest, ModelsMatch) {
   BookmarkEditorGtk editor(NULL, profile_.get(), NULL, NULL,
                            BookmarkEditor::SHOW_TREE, NULL);
 
@@ -123,6 +124,7 @@ TEST_F(BookmarkEditorGtkTest, DISABLED_ModelsMatch) {
   ASSERT_EQ(L"OF1", GetTitleFromTreeIter(store, &child));
   ASSERT_FALSE(gtk_tree_model_iter_next(store, &child));
 }
+#endif
 
 // Changes the title and makes sure parent/visual order doesn't change.
 TEST_F(BookmarkEditorGtkTest, EditTitleKeepsPosition) {
