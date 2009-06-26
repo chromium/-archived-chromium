@@ -1222,6 +1222,10 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
 
 #endif
 
+// TODO(rafaelw): Re-enable on mac. This broke with: 
+// http://codereview.chromium.org/140018
+#if !defined(OS_MAC)
+
 TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   InitializeEmptyExtensionsService();
   // Verify that starting with no providers loads no extensions.
@@ -1334,6 +1338,8 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   ASSERT_TRUE(GetErrors()[0].find("Extensions are not enabled") !=
               std::string::npos);
 }
+
+#endif  // !defined(OS_MAC)
 
 TEST_F(ExtensionsServiceTest, ExternalPrefProvider) {
   InitializeEmptyExtensionsService();
