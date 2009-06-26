@@ -518,7 +518,7 @@ function linkifySingleType(type) {
     if (closingAngle < 0) {
       print ('WARNING: Unmatched "<" in Array type : ' + type);
     } else {
-      link = 'Array.<' +
+      link = 'Array.&lt;' +
         linkifySingleType(type.substring(7, closingAngle)) + '>';
     }
   } else if (startsWith(type, 'function(')) {
