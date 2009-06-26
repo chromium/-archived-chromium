@@ -4,8 +4,10 @@
 
 #include "chrome/renderer/renderer_sandbox_support_linux.h"
 
+#include "base/global_descriptors_posix.h"
 #include "base/pickle.h"
 #include "base/unix_domain_socket_posix.h"
+#include "chrome/common/chrome_descriptors.h"
 #include "chrome/common/sandbox_methods_linux.h"
 
 namespace renderer_sandbox_support {
@@ -18,8 +20,9 @@ std::string getFontFamilyForCharacters(const uint16_t* utf16, size_t num_utf16) 
     request.WriteUInt32(utf16[i]);
 
   uint8_t buf[512];
-  static const int kMagicSandboxFD = 4;
-  const ssize_t n = base::SendRecvMsg(kMagicSandboxFD, buf, sizeof(buf), NULL,
+  const int sandbox_fd =
+    kSandboxIPCChannel + base::GlobalDescriptors::kBaseDescriptor;
+  const ssize_t n = base::SendRecvMsg(sandbox_fd, buf, sizeof(buf), NULL,
                                       request);
 
   std::string family_name;

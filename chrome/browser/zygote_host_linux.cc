@@ -42,7 +42,7 @@ ZygoteHost::ZygoteHost() {
   // Start up the sandbox host process and get the file descriptor for the
   // renderers to talk to it.
   const int sfd = Singleton<RenderSandboxHostLinux>()->GetRendererSocket();
-  fds_to_map.push_back(std::make_pair(sfd, 4));
+  fds_to_map.push_back(std::make_pair(sfd, 5));
 
   base::ProcessHandle process;
   base::LaunchApp(cmd_line.argv(), fds_to_map, false, &process);

@@ -166,7 +166,7 @@ class Zygote {
     }
 
     mapping.push_back(std::make_pair(
-        static_cast<uint32_t>(kSandboxIPCChannel), 4));
+        static_cast<uint32_t>(kSandboxIPCChannel), 5));
 
     child = fork();
 

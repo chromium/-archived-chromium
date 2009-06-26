@@ -55,6 +55,7 @@
 #if defined(OS_LINUX)
 #include "chrome/browser/zygote_host_linux.h"
 #include "chrome/browser/renderer_host/render_crash_handler_host_linux.h"
+#include "chrome/browser/renderer_host/render_sandbox_host_linux.h"
 #endif
 
 using WebKit::WebCache;
@@ -392,6 +393,9 @@ bool BrowserRenderProcessHost::Init() {
         fds_to_map.push_back(std::make_pair(crash_signal_fd,
                                             kCrashDumpSignal + 3));
       }
+      const int sandbox_fd =
+          Singleton<RenderSandboxHostLinux>()->GetRendererSocket();
+      fds_to_map.push_back(std::make_pair(sandbox_fd, kSandboxIPCChannel + 3));
 #endif
       base::LaunchApp(cmd_line.argv(), fds_to_map, false, &process);
       zygote_child_ = false;
