@@ -947,6 +947,10 @@ views::View* BrowserView::GetTabContentsContainerView() const {
   return contents_container_->GetFocusView();
 }
 
+ToolbarView* BrowserView::GetToolbarView() const {
+  return toolbar_;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, NotificationObserver implementation:
 

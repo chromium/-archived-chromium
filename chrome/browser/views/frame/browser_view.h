@@ -241,6 +241,7 @@ class BrowserView : public BrowserWindow,
   virtual BookmarkBarView* GetBookmarkBarView() const;
   virtual LocationBarView* GetLocationBarView() const;
   virtual views::View* GetTabContentsContainerView() const;
+  virtual ToolbarView* GetToolbarView() const;
 
   // Overridden from NotificationObserver:
   virtual void Observe(NotificationType type,
