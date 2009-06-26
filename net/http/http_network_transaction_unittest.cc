@@ -164,6 +164,45 @@ std::string MockGetHostName() {
   return "WTC-WIN7";
 }
 
+class CaptureGroupNameSocketPool : public ClientSocketPool {
+ public:
+  CaptureGroupNameSocketPool() {
+  }
+  virtual int RequestSocket(const std::string& group_name,
+                            const HostResolver::RequestInfo& resolve_info,
+                            int priority,
+                            ClientSocketHandle* handle,
+                            CompletionCallback* callback) {
+    last_group_name_ = group_name;
+    return ERR_IO_PENDING;
+  }
+
+  const std::string last_group_name_received() const {
+    return last_group_name_;
+  }
+
+  virtual void CancelRequest(const std::string& group_name,
+                             const ClientSocketHandle* handle) { }
+  virtual void ReleaseSocket(const std::string& group_name,
+                             ClientSocket* socket) {}
+  virtual void CloseIdleSockets() {}
+  virtual HostResolver* GetHostResolver() const {
+    return NULL;
+  }
+  virtual int IdleSocketCount() const {
+    return 0;
+  }
+  virtual int IdleSocketCountInGroup(const std::string& group_name) const {
+    return 0;
+  }
+  virtual LoadState GetLoadState(const std::string& group_name,
+                                 const ClientSocketHandle* handle) const {
+    return LOAD_STATE_IDLE;
+  }
+ protected:
+  std::string last_group_name_;
+};
+
 //-----------------------------------------------------------------------------
 
 TEST_F(HttpNetworkTransactionTest, Basic) {
@@ -3113,6 +3152,77 @@ TEST_F(HttpNetworkTransactionTest, SOCKS4_SSL_GET) {
   rv = ReadTransaction(trans.get(), &response_text);
   EXPECT_EQ(OK, rv);
   EXPECT_EQ("Payload", response_text);
+}
+
+// Tests that for connection endpoints the group names are correctly set.
+TEST_F(HttpNetworkTransactionTest, GroupNameForProxyConnections) {
+  const struct {
+    const std::string proxy_server;
+    const std::string url;
+    const std::string expected_group_name;
+  } tests[] = {
+    {
+      "",  // no proxy (direct)
+      "http://www.google.com/direct",
+      "http://www.google.com/",
+    },
+    {
+      "http_proxy",
+      "http://www.google.com/http_proxy_normal",
+      "proxy/http_proxy:80/",
+    },
+    {
+      "socks4://socks_proxy:1080",
+      "http://www.google.com/socks4_direct",
+      "proxy/socks4://socks_proxy:1080/http://www.google.com/",
+    },
+
+    // SSL Tests
+    {
+      "",
+      "https://www.google.com/direct_ssl",
+      "https://www.google.com/",
+    },
+    {
+      "http_proxy",
+      "https://www.google.com/http_connect_ssl",
+      "proxy/http_proxy:80/https://www.google.com/",
+    },
+    {
+      "socks4://socks_proxy:1080",
+      "https://www.google.com/socks4_ssl",
+      "proxy/socks4://socks_proxy:1080/https://www.google.com/",
+    },
+  };
+
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+    SessionDependencies session_deps;
+    session_deps.proxy_service.reset(CreateFixedProxyService(
+        tests[i].proxy_server));
+
+    scoped_refptr<CaptureGroupNameSocketPool> conn_pool(
+        new CaptureGroupNameSocketPool());
+
+    scoped_refptr<HttpNetworkSession> session(CreateSession(&session_deps));
+    session->connection_pool_ = conn_pool.get();
+
+    scoped_ptr<HttpTransaction> trans(
+        new HttpNetworkTransaction(
+            session.get(),
+            &session_deps.socket_factory));
+
+    HttpRequestInfo request;
+    request.method = "GET";
+    request.url = GURL(tests[i].url);
+    request.load_flags = 0;
+
+    TestCompletionCallback callback;
+
+    // We do not complete this request, the dtor will clean the transaction up.
+    EXPECT_EQ(ERR_IO_PENDING, trans->Start(&request, &callback));
+    EXPECT_EQ(tests[i].expected_group_name,
+              conn_pool->last_group_name_received());
+  }
 }
 
 TEST_F(HttpNetworkTransactionTest, ReconsiderProxyAfterFailedConnection) {

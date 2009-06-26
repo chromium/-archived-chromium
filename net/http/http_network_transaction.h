@@ -116,6 +116,13 @@ class HttpNetworkTransaction : public HttpTransaction {
     STATE_NONE
   };
 
+  enum ProxyMode {
+    kDirectConnection,  // If using a direct connection
+    kHTTPProxy,  // If using a proxy for HTTP (not HTTPS)
+    kHTTPProxyUsingTunnel,  // If using a tunnel for HTTPS
+    kSOCKSProxy,  // If using a SOCKS proxy
+  };
+
   void DoCallback(int result);
   void OnIOComplete(int result);
 
@@ -307,9 +314,7 @@ class HttpNetworkTransaction : public HttpTransaction {
   bool reused_socket_;
 
   bool using_ssl_;     // True if handling a HTTPS request
-  bool using_proxy_;   // True if using a proxy for HTTP (not HTTPS)
-  bool using_tunnel_;  // True if using a tunnel for HTTPS
-  bool using_socks_proxy_;  // True if using a SOCKS proxy
+  ProxyMode proxy_mode_;
 
   // True while establishing a tunnel.  This allows the HTTP CONNECT
   // request/response to reuse the STATE_WRITE_HEADERS,

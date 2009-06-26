@@ -44,6 +44,8 @@ class HttpNetworkSession : public base::RefCounted<HttpNetworkSession> {
   static void set_max_sockets_per_group(int socket_count);
 
  private:
+  FRIEND_TEST(HttpNetworkTransactionTest, GroupNameForProxyConnections);
+
   // Default to allow up to 6 connections per host. Experiment and tuning may
   // try other values (greater than 0).  Too large may cause many problems, such
   // as home routers blocking the connections!?!?

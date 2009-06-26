@@ -140,9 +140,7 @@ HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
       connection_(session->connection_pool()),
       reused_socket_(false),
       using_ssl_(false),
-      using_proxy_(false),
-      using_tunnel_(false),
-      using_socks_proxy_(false),
+      proxy_mode_(kDirectConnection),
       establishing_tunnel_(false),
       reading_body_from_socket_(false),
       request_headers_(new RequestHeaders()),
@@ -562,17 +560,22 @@ int HttpNetworkTransaction::DoInitConnection() {
   next_state_ = STATE_INIT_CONNECTION_COMPLETE;
 
   using_ssl_ = request_->url.SchemeIs("https");
-  using_socks_proxy_ = !proxy_info_.is_direct() &&
-      proxy_info_.proxy_server().is_socks();
-  using_proxy_ = !proxy_info_.is_direct() && !using_ssl_ && !using_socks_proxy_;
-  using_tunnel_ = !proxy_info_.is_direct() && using_ssl_ && !using_socks_proxy_;
+
+  if (proxy_info_.is_direct())
+    proxy_mode_ = kDirectConnection;
+  else if (proxy_info_.proxy_server().is_socks())
+    proxy_mode_ = kSOCKSProxy;
+  else if (using_ssl_)
+    proxy_mode_ = kHTTPProxyUsingTunnel;
+  else
+    proxy_mode_ = kHTTPProxy;
 
   // Build the string used to uniquely identify connections of this type.
   // Determine the host and port to connect to.
   std::string connection_group;
   std::string host;
   int port;
-  if (using_proxy_ || using_tunnel_ || using_socks_proxy_) {
+  if (proxy_mode_ != kDirectConnection) {
     ProxyServer proxy_server = proxy_info_.proxy_server();
     connection_group = "proxy/" + proxy_server.ToURI() + "/";
     host = proxy_server.HostNoBrackets();
@@ -581,7 +584,12 @@ int HttpNetworkTransaction::DoInitConnection() {
     host = request_->url.HostNoBrackets();
     port = request_->url.EffectiveIntPort();
   }
-  if (!using_proxy_ && !using_socks_proxy_)
+
+  // For a connection via HTTP proxy not using CONNECT, the connection
+  // is to the proxy server only. For all other cases
+  // (direct, HTTP proxy CONNECT, SOCKS), the connection is upto the
+  // url endpoint. Hence we append the url data into the connection_group.
+  if (proxy_mode_ != kHTTPProxy)
     connection_group.append(request_->url.GetOrigin().spec());
 
   DCHECK(!connection_group.empty());
@@ -620,13 +628,13 @@ int HttpNetworkTransaction::DoInitConnectionComplete(int result) {
     // Now we have a TCP connected socket.  Perform other connection setup as
     // needed.
     LogTCPConnectedMetrics();
-    if (using_socks_proxy_)
+    if (proxy_mode_ == kSOCKSProxy)
       next_state_ = STATE_SOCKS_CONNECT;
-    else if (using_ssl_ && !using_tunnel_) {
+    else if (using_ssl_ && proxy_mode_ == kDirectConnection) {
       next_state_ = STATE_SSL_CONNECT;
     } else {
       next_state_ = STATE_WRITE_HEADERS;
-      if (using_tunnel_)
+      if (proxy_mode_ == kHTTPProxyUsingTunnel)
         establishing_tunnel_ = true;
     }
   }
@@ -635,9 +643,7 @@ int HttpNetworkTransaction::DoInitConnectionComplete(int result) {
 }
 
 int HttpNetworkTransaction::DoSOCKSConnect() {
-  DCHECK(using_socks_proxy_);
-  DCHECK(!using_proxy_);
-  DCHECK(!using_tunnel_);
+  DCHECK_EQ(kSOCKSProxy, proxy_mode_);
 
   next_state_ = STATE_SOCKS_CONNECT_COMPLETE;
 
@@ -653,9 +659,7 @@ int HttpNetworkTransaction::DoSOCKSConnect() {
 }
 
 int HttpNetworkTransaction::DoSOCKSConnectComplete(int result) {
-  DCHECK(using_socks_proxy_);
-  DCHECK(!using_proxy_);
-  DCHECK(!using_tunnel_);
+  DCHECK_EQ(kSOCKSProxy, proxy_mode_);
 
   if (result == OK) {
     if (using_ssl_) {
@@ -730,7 +734,8 @@ int HttpNetworkTransaction::DoWriteHeaders() {
       if (request_->upload_data)
         request_body_stream_.reset(new UploadDataStream(request_->upload_data));
       BuildRequestHeaders(request_, authorization_headers,
-                          request_body_stream_.get(), using_proxy_,
+                          request_body_stream_.get(),
+                          proxy_mode_ == kHTTPProxy,
                           &request_headers_->headers_);
     }
   }
@@ -1496,7 +1501,7 @@ int HttpNetworkTransaction::ReconsiderProxyAfterError(int error) {
 }
 
 bool HttpNetworkTransaction::ShouldApplyProxyAuth() const {
-  return using_proxy_ || establishing_tunnel_;
+  return (proxy_mode_ == kHTTPProxy) || establishing_tunnel_;
 }
 
 bool HttpNetworkTransaction::ShouldApplyServerAuth() const {
