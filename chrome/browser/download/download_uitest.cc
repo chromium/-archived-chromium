@@ -30,12 +30,17 @@
 #if defined(OS_LINUX)
 #define MAYBE_UnknownSize DISABLED_UnknownSize
 #define MAYBE_IncognitoDownload DISABLED_IncognitoDownload
-// It's flaky on Linux (http://crbug.com/15211)
+// http://crbug.com/15211
 #define MAYBE_PerWindowShelf DISABLED_PerWindowShelf
+// http://crbug.com/15244
+#define MAYBE_DownloadMimeType DISABLED_DownloadMimeType
+#define MAYBE_ContentDisposition DISABLED_ContentDisposition
 #else
 #define MAYBE_UnknownSize UnknownSize
 #define MAYBE_IncognitoDownload IncognitoDownload
 #define MAYBE_PerWindowShelf PerWindowShelf
+#define MAYBE_DownloadMimeType DownloadMimeType
+#define MAYBE_ContentDisposition ContentDisposition
 #endif
 
 namespace {
@@ -166,7 +171,7 @@ class DownloadTest : public UITest {
 
 // Download a file with non-viewable content, verify that the
 // download tab opened and the file exists.
-TEST_F(DownloadTest, DownloadMimeType) {
+TEST_F(DownloadTest, MAYBE_DownloadMimeType) {
   FilePath file(FILE_PATH_LITERAL("download-test1.lib"));
 
   EXPECT_EQ(1, GetTabCount());
@@ -214,7 +219,7 @@ TEST_F(DownloadTest, NoDownload) {
 // Download a 0-size file with a content-disposition header, verify that the
 // download tab opened and the file exists as the filename specified in the
 // header.  This also ensures we properly handle empty file downloads.
-TEST_F(DownloadTest, ContentDisposition) {
+TEST_F(DownloadTest, MAYBE_ContentDisposition) {
   FilePath file(FILE_PATH_LITERAL("download-test3.gif"));
   FilePath download_file(FILE_PATH_LITERAL("download-test3-attachment.gif"));
 

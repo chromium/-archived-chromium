@@ -18,9 +18,12 @@
 #if defined(OS_LINUX)
 #define MAYBE_SaveCompleteHTML DISABLED_SaveCompleteHTML
 #define MAYBE_SaveHTMLOnly DISABLED_SaveHTMLOnly
+// http://crbug.com/15416
+#define MAYBE_FilenameFromPageTitle DISABLED_FilenameFromPageTitle
 #else
 #define MAYBE_SaveCompleteHTML SaveCompleteHTML
 #define MAYBE_SaveHTMLOnly SaveHTMLOnly
+#define MAYBE_FilenameFromPageTitle FilenameFromPageTitle
 #endif
 
 const char* const kTestDir = "save_page";
@@ -150,7 +153,7 @@ TEST_F(SavePageTest, NoSave) {
   EXPECT_FALSE(WaitForDownloadShelfVisible(browser.get()));
 }
 
-TEST_F(SavePageTest, FilenameFromPageTitle) {
+TEST_F(SavePageTest, MAYBE_FilenameFromPageTitle) {
   std::string file_name = "b.htm";
 
   FilePath full_file_name = download_dir_.AppendASCII(
