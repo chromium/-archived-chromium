@@ -60,6 +60,8 @@ void TabOverviewMessageListener::ProcessMessage(
     }
 
     case TabOverviewTypes::Message::CHROME_NOTIFY_LAYOUT_MODE: {
+      // TODO: enable this once we have type.
+#if 0
       if (message.param(0) == 0) {
         new_browser_window_.reset(NULL);
       } else if (BrowserList::size() > 0) {
@@ -67,6 +69,7 @@ void TabOverviewMessageListener::ProcessMessage(
         new_browser_window_.reset(
             new NewBrowserWindowWidget(browser->profile()));
       }
+#endif
       break;
     }
 

@@ -35,6 +35,10 @@ class TabOverviewCell : public views::View {
   // the thumbnail.
   bool IsPointInThumbnail(const gfx::Point& point);
 
+  // Has the thumbnail been configured? This is true after SetThumbnail
+  // is invoked.
+  bool configured_thumbnail() const { return configured_thumbnail_; }
+
   // View overrides.
   virtual gfx::Size GetPreferredSize();
 
@@ -45,6 +49,8 @@ class TabOverviewCell : public views::View {
 
   // Specific preferred size. See set_preferred_size() for details.
   gfx::Size preferred_size_;
+
+  bool configured_thumbnail_;
 
   DISALLOW_COPY_AND_ASSIGN(TabOverviewCell);
 };

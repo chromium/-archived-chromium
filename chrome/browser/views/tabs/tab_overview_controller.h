@@ -7,6 +7,7 @@
 
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
+#include "base/timer.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 
 class Animation;
@@ -28,6 +29,13 @@ class Widget;
 // size of the host window is created at the largest possible size the
 // window can be and the bounds of the container are changed during the
 // animation.
+//
+// As obtaining and setting thumbnails is expensive we delay setting the
+// thumbnail. The delay is controlled by delay_timer_. Once the timer fires
+// another timer is started (configure_timer_). This timer invokes
+// ConfigureNextUnconfiguredCell, which obtains and sets the thumbnail of
+// the next uncofigured cell. ConfigureNextUnconfiguredCell only configures
+// one cell at a time.
 class TabOverviewController : public TabStripModelObserver {
  public:
   // Creates a TabOverviewController that will be shown on the monitor
@@ -110,6 +118,14 @@ class TabOverviewController : public TabStripModelObserver {
   // See comment above class description for more details.
   gfx::Rect CalculateHostBounds();
 
+  // Invoked by delay_timer_. Sets show_thumbnails_ to true and starts
+  // configure_timer_.
+  void StartConfiguring();
+
+  // Finds the first cell with no thumbnail and invokes ConfigureCell for
+  // it. If all the thumnbails have been set configure_timer_ is stopped.
+  void ConfigureNextUnconfiguredCell();
+
   // The widget showing the view.
   views::Widget* host_;
 
@@ -151,6 +167,16 @@ class TabOverviewController : public TabStripModelObserver {
   // Are we in the process of mutating the grid? This is used to avoid changing
   // bounds when we're responsible for the mutation.
   bool mutating_grid_;
+
+  // Should we set the thumbnails? This is initially false, then set to true
+  // by StartConfiguring.
+  bool show_thumbnails_;
+
+  // See description above class for details.
+  base::OneShotTimer<TabOverviewController> delay_timer_;
+
+  // See description above class for details.
+  base::RepeatingTimer<TabOverviewController> configure_timer_;
 
   DISALLOW_COPY_AND_ASSIGN(TabOverviewController);
 };

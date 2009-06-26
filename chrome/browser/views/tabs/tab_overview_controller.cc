@@ -38,7 +38,8 @@ TabOverviewController::TabOverviewController(
       shown_(false),
       horizontal_center_(0),
       change_window_bounds_on_animate_(false),
-      mutating_grid_(false) {
+      mutating_grid_(false),
+      show_thumbnails_(false) {
   grid_ = new TabOverviewGrid(this);
 
   // Determine the max size for the overview.
@@ -108,6 +109,9 @@ void TabOverviewController::Show() {
   shown_ = true;
   DCHECK(model());  // The model needs to be set before showing.
   host_->Show();
+  delay_timer_.Start(
+      base::TimeDelta::FromMilliseconds(350), this,
+      &TabOverviewController::StartConfiguring);
 }
 
 void TabOverviewController::ConfigureCell(TabOverviewCell* cell,
@@ -116,14 +120,21 @@ void TabOverviewController::ConfigureCell(TabOverviewCell* cell,
     cell->SetTitle(contents->GetTitle());
     cell->SetFavIcon(contents->GetFavIcon());
 
-    ThumbnailGenerator* generator = g_browser_process->GetThumbnailGenerator();
-    cell->SetThumbnail(
-        generator->GetThumbnailForRenderer(contents->render_view_host()));
-
+    if (show_thumbnails_) {
+      ThumbnailGenerator* generator =
+          g_browser_process->GetThumbnailGenerator();
+      cell->SetThumbnail(
+          generator->GetThumbnailForRenderer(contents->render_view_host()));
+    }
     cell->SchedulePaint();
   } else {
     // Need to figure out under what circumstances this is null and deal.
     NOTIMPLEMENTED();
+
+    // Make sure we set the thumbnail, otherwise configured_thumbnail
+    // remains false and ConfigureNextUnconfiguredCell would get stuck.
+    if (show_thumbnails_)
+      cell->SetThumbnail(SkBitmap());
   }
 }
 
@@ -308,4 +319,22 @@ gfx::Rect TabOverviewController::CalculateHostBounds() {
                    monitor_bounds_.bottom() - window_height -
                    kWindowToOverviewPadding - max_height, max_width,
                    max_height);
+}
+
+void TabOverviewController::StartConfiguring() {
+  show_thumbnails_ = true;
+  configure_timer_.Start(
+      base::TimeDelta::FromMilliseconds(10), this,
+      &TabOverviewController::ConfigureNextUnconfiguredCell);
+}
+
+void TabOverviewController::ConfigureNextUnconfiguredCell() {
+  for (int i = 0; i < grid_->GetChildViewCount(); ++i) {
+    TabOverviewCell* cell = grid_->GetTabOverviewCellAt(i);
+    if (!cell->configured_thumbnail()) {
+      ConfigureCell(cell, i);
+      return;
+    }
+  }
+  configure_timer_.Stop();
 }
