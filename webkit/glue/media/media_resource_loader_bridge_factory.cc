@@ -63,8 +63,8 @@ const std::string MediaResourceLoaderBridgeFactory::GenerateHeaders (
     }
   } else if (first_byte_position > kPositionNotSpecified) {
     header = StringPrintf("Range: bytes=%lld-", first_byte_position);
-  } else {
-    NOTIMPLEMENTED() << "Operation not supported.";
+  } else if (last_byte_position > kPositionNotSpecified) {
+    NOTIMPLEMENTED() << "Suffix range not implemented";
   }
   return header;
 }
