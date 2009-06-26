@@ -7,11 +7,95 @@
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "base/message_loop.h"
+#include "net/base/io_buffer.h"
 #include "net/base/ssl_info.h"
 #include "net/socket/socket.h"
+#include "net/socket/ssl_client_socket.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-namespace net {
+namespace {
+
+class MockClientSocket : public net::SSLClientSocket {
+ public:
+  MockClientSocket();
+
+  // ClientSocket methods:
+  virtual int Connect(net::CompletionCallback* callback) = 0;
+
+  // SSLClientSocket methods:
+  virtual void GetSSLInfo(net::SSLInfo* ssl_info);
+  virtual void GetSSLCertRequestInfo(
+      net::SSLCertRequestInfo* cert_request_info);
+  virtual void Disconnect();
+  virtual bool IsConnected() const;
+  virtual bool IsConnectedAndIdle() const;
+
+  // Socket methods:
+  virtual int Read(net::IOBuffer* buf, int buf_len,
+                   net::CompletionCallback* callback) = 0;
+  virtual int Write(net::IOBuffer* buf, int buf_len,
+                    net::CompletionCallback* callback) = 0;
+
+#if defined(OS_LINUX)
+  virtual int GetPeerName(struct sockaddr *name, socklen_t *namelen);
+#endif
+
+ protected:
+  void RunCallbackAsync(net::CompletionCallback* callback, int result);
+  void RunCallback(int result);
+
+  ScopedRunnableMethodFactory<MockClientSocket> method_factory_;
+  net::CompletionCallback* callback_;
+  bool connected_;
+};
+
+class MockTCPClientSocket : public MockClientSocket {
+ public:
+  MockTCPClientSocket(const net::AddressList& addresses,
+                      net::MockSocket* socket);
+
+  // ClientSocket methods:
+  virtual int Connect(net::CompletionCallback* callback);
+
+  // Socket methods:
+  virtual int Read(net::IOBuffer* buf, int buf_len,
+                   net::CompletionCallback* callback);
+  virtual int Write(net::IOBuffer* buf, int buf_len,
+                    net::CompletionCallback* callback);
+
+ private:
+  net::MockSocket* data_;
+  int read_offset_;
+  net::MockRead read_data_;
+  bool need_read_data_;
+};
+
+class MockSSLClientSocket : public MockClientSocket {
+ public:
+  MockSSLClientSocket(
+      net::ClientSocket* transport_socket,
+      const std::string& hostname,
+      const net::SSLConfig& ssl_config,
+      net::MockSSLSocket* socket);
+  ~MockSSLClientSocket();
+
+  virtual void GetSSLInfo(net::SSLInfo* ssl_info);
+
+  virtual int Connect(net::CompletionCallback* callback);
+  virtual void Disconnect();
+
+  // Socket methods:
+  virtual int Read(net::IOBuffer* buf, int buf_len,
+                   net::CompletionCallback* callback);
+  virtual int Write(net::IOBuffer* buf, int buf_len,
+                    net::CompletionCallback* callback);
+
+ private:
+  class ConnectCallback;
+
+  scoped_ptr<ClientSocket> transport_;
+  net::MockSSLSocket* data_;
+};
 
 MockClientSocket::MockClientSocket()
     : ALLOW_THIS_IN_INITIALIZER_LIST(method_factory_(this)),
@@ -216,6 +300,10 @@ int MockSSLClientSocket::Write(net::IOBuffer* buf, int buf_len,
   DCHECK(!callback_);
   return transport_->Write(buf, buf_len, callback);
 }
+
+}  // namespace
+
+namespace net {
 
 MockRead StaticMockSocket::GetNextRead() {
   return reads_[read_index_++];
