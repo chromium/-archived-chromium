@@ -27,7 +27,6 @@ int GetCurrentFirefoxMajorVersionFromRegistry();
 std::wstring GetFirefoxInstallPathFromRegistry();
 #endif
 
-#if defined(OS_WIN) || defined(OS_LINUX)
 // Detects version of Firefox and installation path from given Firefox profile
 bool GetFirefoxVersionAndPathFromProfile(const std::wstring& profile_path,
                                          int* version,
@@ -51,7 +50,6 @@ FilePath GetProfilesINI();
 // We set "[value]" in path "<Section>.<Key>". For example, the path
 // "Genenral.StartWithLastProfile" has the value "1".
 void ParseProfileINI(std::wstring file, DictionaryValue* root);
-#endif
 
 // Returns true if we want to add the URL to the history. We filter
 // out the URL with a unsupported scheme.
@@ -193,6 +191,11 @@ class NSSDecryptor {
                     std::vector<webkit_glue::PasswordForm>* forms);
 
  private:
+  // Performs tasks common across all platforms to initialize NSS.
+  bool InitNSS(const std::wstring& db_path,
+               base::NativeLibrary plds4_dll,
+               base::NativeLibrary nspr4_dll);
+
   // Methods in Firefox security components.
   NSSInitFunc NSS_Init;
   NSSShutdownFunc NSS_Shutdown;

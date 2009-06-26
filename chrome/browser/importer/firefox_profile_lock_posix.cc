@@ -1,9 +1,10 @@
-// Copyright (c) 2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #include "chrome/browser/importer/firefox_profile_lock.h"
 
+#include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -62,7 +63,14 @@ void FirefoxProfileLock::Init() {
 void FirefoxProfileLock::Lock() {
   if (HasAcquired())
     return;
-  lock_fd_ = open(lock_file_.value().c_str(), O_CREAT | O_EXCL, 0644);
+
+  bool fcntl_lock = LockWithFcntl();
+  if (!fcntl_lock) {
+    return;
+  } else if (!HasAcquired()) {
+    old_lock_file_ = lock_file_.DirName().Append(kOldLockFileName);
+    lock_fd_ = open(old_lock_file_.value().c_str(), O_CREAT | O_EXCL, 0644);
+  }
 }
 
 void FirefoxProfileLock::Unlock() {
@@ -70,9 +78,46 @@ void FirefoxProfileLock::Unlock() {
     return;
   close(lock_fd_);
   lock_fd_ = -1;
-  file_util::Delete(lock_file_, false);
+  file_util::Delete(old_lock_file_, false);
 }
 
 bool FirefoxProfileLock::HasAcquired() {
   return (lock_fd_ >= 0);
+}
+
+// This function tries to lock Firefox profile using fcntl(). The return
+// value of this function together with HasAcquired() tells the current status
+// of lock.
+// if return == false: Another process has lock to the profile.
+// if return == true && HasAcquired() == true: successfully acquired the lock.
+// if return == false && HasAcquired() == false: Failed to acquire lock due
+// to some error (so that we can try alternate method of profile lock).
+bool FirefoxProfileLock::LockWithFcntl() {
+  lock_fd_ = open(lock_file_.value().c_str(), O_WRONLY | O_CREAT | O_TRUNC,
+                  0666);
+  if (lock_fd_ == -1)
+    return true;
+
+  struct flock lock;
+  lock.l_start = 0;
+  lock.l_len = 0;
+  lock.l_type = F_WRLCK;
+  lock.l_whence = SEEK_SET;
+
+  struct flock testlock = lock;
+  if (fcntl(lock_fd_, F_GETLK, &testlock) == -1) {
+    close(lock_fd_);
+    lock_fd_ = -1;
+    return true;
+  } else if (fcntl(lock_fd_, F_SETLK, &lock) == -1) {
+    close(lock_fd_);
+    lock_fd_ = -1;
+    if (errno == EAGAIN || errno == EACCES)
+      return false;
+    else
+      return true;
+  } else {
+    // We have the lock.
+    return true;
+  }
 }

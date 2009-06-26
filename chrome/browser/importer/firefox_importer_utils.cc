@@ -6,12 +6,6 @@
 
 #include <algorithm>
 
-#if defined(OS_WIN)
-#include <shlobj.h>
-
-#include "app/win_util.h"
-#include "base/registry.h"
-#endif
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
@@ -46,82 +40,8 @@ class FirefoxURLParameterFilter : public TemplateURLParser::ParameterFilter {
  private:
   DISALLOW_EVIL_CONSTRUCTORS(FirefoxURLParameterFilter);
 };
-
-#if defined(OS_WIN)
-typedef BOOL (WINAPI* SetDllDirectoryFunc)(LPCTSTR lpPathName);
-
-// A helper class whose destructor calls SetDllDirectory(NULL) to undo the
-// effects of a previous SetDllDirectory call.
-class SetDllDirectoryCaller {
- public:
-  explicit SetDllDirectoryCaller() : func_(NULL) { }
-
-  ~SetDllDirectoryCaller() {
-    if (func_)
-      func_(NULL);
-  }
-
-  // Sets the SetDllDirectory function pointer to activates this object.
-  void set_func(SetDllDirectoryFunc func) { func_ = func; }
-
- private:
-  SetDllDirectoryFunc func_;
-};
-#endif
-
 }  // namespace
 
-#if defined(OS_WIN)
-// NOTE: Keep these in order since we need test all those paths according
-// to priority. For example. One machine has multiple users. One non-admin
-// user installs Firefox 2, which causes there is a Firefox2 entry under HKCU.
-// One admin user installs Firefox 3, which causes there is a Firefox 3 entry
-// under HKLM. So when the non-admin user log in, we should deal with Firefox 2
-// related data instead of Firefox 3.
-static const HKEY kFireFoxRegistryPaths[] = {
-  HKEY_CURRENT_USER,
-  HKEY_LOCAL_MACHINE
-};
-
-int GetCurrentFirefoxMajorVersionFromRegistry() {
-  TCHAR ver_buffer[128];
-  DWORD ver_buffer_length = sizeof(ver_buffer);
-  int highest_version = 0;
-  // When installing Firefox with admin account, the product keys will be
-  // written under HKLM\Mozilla. Otherwise it the keys will be written under
-  // HKCU\Mozilla.
-  for (int i = 0; i < arraysize(kFireFoxRegistryPaths); ++i) {
-    bool result = ReadFromRegistry(kFireFoxRegistryPaths[i],
-        L"Software\\Mozilla\\Mozilla Firefox",
-        L"CurrentVersion", ver_buffer, &ver_buffer_length);
-    if (!result)
-      continue;
-    highest_version = std::max(highest_version, _wtoi(ver_buffer));
-  }
-  return highest_version;
-}
-
-std::wstring GetFirefoxInstallPathFromRegistry() {
-  // Detects the path that Firefox is installed in.
-  std::wstring registry_path = L"Software\\Mozilla\\Mozilla Firefox";
-  TCHAR buffer[MAX_PATH];
-  DWORD buffer_length = sizeof(buffer);
-  bool result;
-  result = ReadFromRegistry(HKEY_LOCAL_MACHINE, registry_path.c_str(),
-                            L"CurrentVersion", buffer, &buffer_length);
-  if (!result)
-    return std::wstring();
-  registry_path += L"\\" + std::wstring(buffer) + L"\\Main";
-  buffer_length = sizeof(buffer);
-  result = ReadFromRegistry(HKEY_LOCAL_MACHINE, registry_path.c_str(),
-                            L"Install Directory", buffer, &buffer_length);
-  if (!result)
-    return std::wstring();
-  return buffer;
-}
-#endif
-
-#if defined(OS_WIN) || defined(OS_LINUX)
 bool GetFirefoxVersionAndPathFromProfile(const std::wstring& profile_path,
                                          int* version,
                                          std::wstring* app_path) {
@@ -150,32 +70,6 @@ bool GetFirefoxVersionAndPathFromProfile(const std::wstring& profile_path,
     }
   }
   return ret;
-}
-
-
-FilePath GetProfilesINI() {
-  FilePath ini_file;
-#if defined(OS_WIN)
-  // The default location of the profile folder containing user data is
-  // under the "Application Data" folder in Windows XP.
-  wchar_t buffer[MAX_PATH] = {0};
-  if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL,
-                                SHGFP_TYPE_CURRENT, buffer))) {
-    ini_file = FilePath(buffer).Append(L"Mozilla\\Firefox\\profiles.ini");
-  }
-
-#else
-  // The default location of the profile folder containing user data is
-  // under user HOME directory in .mozilla/firefox folder on Linux.
-  const char *home = getenv("HOME");
-  if (home && home[0]) {
-    ini_file = FilePath(home).Append(".mozilla/firefox/profiles.ini");
-  }
-#endif
-  if (file_util::PathExists(ini_file))
-    return ini_file;
-
-  return FilePath();
 }
 
 void ParseProfileINI(std::wstring file, DictionaryValue* root) {
@@ -221,7 +115,6 @@ void ParseProfileINI(std::wstring file, DictionaryValue* root) {
     }
   }
 }
-#endif
 
 bool CanImportURL(const GURL& url) {
   const char* kInvalidSchemes[] = {"wyciwyg", "place", "about", "chrome"};
@@ -442,12 +335,6 @@ bool IsDefaultHomepage(const GURL& homepage,
 
 // class NSSDecryptor.
 
-// static
-const wchar_t NSSDecryptor::kNSS3Library[] = L"nss3.dll";
-const wchar_t NSSDecryptor::kSoftokn3Library[] = L"softokn3.dll";
-const wchar_t NSSDecryptor::kPLDS4Library[] = L"plds4.dll";
-const wchar_t NSSDecryptor::kNSPR4Library[] = L"nspr4.dll";
-
 NSSDecryptor::NSSDecryptor()
     : NSS_Init(NULL), NSS_Shutdown(NULL), PK11_GetInternalKeySlot(NULL),
       PK11_CheckUserPassword(NULL), PK11_FreeSlot(NULL),
@@ -461,73 +348,9 @@ NSSDecryptor::~NSSDecryptor() {
   Free();
 }
 
-bool NSSDecryptor::Init(const std::wstring& dll_path,
-                        const std::wstring& db_path) {
-#if defined(OS_WIN)
-  // We call SetDllDirectory to work around a Purify bug (GetModuleHandle
-  // fails inside Purify under certain conditions).  SetDllDirectory only
-  // exists on Windows XP SP1 or later, so we look up its address at run time.
-  HMODULE kernel32_dll = GetModuleHandle(L"kernel32.dll");
-  if (kernel32_dll == NULL)
-    return false;
-  SetDllDirectoryFunc set_dll_directory =
-      (SetDllDirectoryFunc)GetProcAddress(kernel32_dll, "SetDllDirectoryW");
-  SetDllDirectoryCaller caller;
-
-  if (set_dll_directory != NULL) {
-    if (!set_dll_directory(dll_path.c_str()))
-      return false;
-    caller.set_func(set_dll_directory);
-    nss3_dll_ = LoadLibrary(kNSS3Library);
-    if (nss3_dll_ == NULL)
-      return false;
-  } else {
-    // Fall back on LoadLibraryEx if SetDllDirectory isn't available.  We
-    // actually prefer this method because it doesn't change the DLL search
-    // path, which is a process-wide property.
-    std::wstring path = dll_path;
-    file_util::AppendToPath(&path, kNSS3Library);
-    nss3_dll_ = LoadLibraryEx(path.c_str(), NULL,
-                              LOAD_WITH_ALTERED_SEARCH_PATH);
-    if (nss3_dll_ == NULL)
-      return false;
-
-    // Firefox 2 uses NSS 3.11.  Firefox 3 uses NSS 3.12.  NSS 3.12 has two
-    // changes in its DLLs:
-    // 1. nss3.dll is not linked with softokn3.dll at build time, but rather
-    //    loads softokn3.dll using LoadLibrary in NSS_Init.
-    // 2. softokn3.dll has a new dependency sqlite3.dll.
-    // NSS_Init's LoadLibrary call has trouble finding sqlite3.dll.  To help
-    // it out, we preload softokn3.dll using LoadLibraryEx with the
-    // LOAD_WITH_ALTERED_SEARCH_PATH flag.  This helps because LoadLibrary
-    // doesn't load a DLL again if it's already loaded.  This workaround is
-    // harmless for NSS 3.11.
-    path = dll_path;
-    file_util::AppendToPath(&path, kSoftokn3Library);
-    softokn3_dll_ = LoadLibraryEx(path.c_str(), NULL,
-                                  LOAD_WITH_ALTERED_SEARCH_PATH);
-    if (softokn3_dll_ == NULL) {
-      Free();
-      return false;
-    }
-  }
-  HMODULE plds4_dll = GetModuleHandle(kPLDS4Library);
-  HMODULE nspr4_dll = GetModuleHandle(kNSPR4Library);
-#elif defined(OS_LINUX)
-  nss3_dll_ = base::LoadNativeLibrary(FilePath("libnss3.so"));
-  if (nss3_dll_ == NULL)
-    return false;
-  base::NativeLibrary plds4_dll = base::LoadNativeLibrary(
-      FilePath("libplds4.so"));
-  base::NativeLibrary nspr4_dll = base::LoadNativeLibrary(
-      FilePath("libnspr4.so"));
-#else
-  // TODO(port): Check on MAC
-  base::NativeLibrary plds4_dll, nspr4_dll;
-  NOTIMPLEMENTED();
-  return false;
-#endif
-
+bool NSSDecryptor::InitNSS(const std::wstring& db_path,
+                           base::NativeLibrary plds4_dll,
+                           base::NativeLibrary nspr4_dll) {
   // NSPR DLLs are already loaded now.
   if (plds4_dll == NULL || nspr4_dll == NULL) {
     Free();
@@ -581,12 +404,10 @@ void NSSDecryptor::Free() {
     PR_Cleanup();
     is_nss_initialized_ = false;
   }
-#if defined(OS_WIN) || defined(OS_LINUX)
   if (softokn3_dll_ != NULL)
     base::UnloadNativeLibrary(softokn3_dll_);
   if (nss3_dll_ != NULL)
     base::UnloadNativeLibrary(nss3_dll_);
-#endif
   NSS_Init = NULL;
   NSS_Shutdown = NULL;
   PK11_GetInternalKeySlot = NULL;
@@ -641,12 +462,6 @@ void NSSDecryptor::Free() {
 * ***** END LICENSE BLOCK ***** */
 
 std::wstring NSSDecryptor::Decrypt(const std::string& crypt) const {
-#if !defined(OS_WIN) && !defined(OS_LINUX)
-  // TODO(port): Load nss3.
-  NOTIMPLEMENTED();
-  return std::wstring();
-#endif
-
   // Do nothing if NSS is not loaded.
   if (!nss3_dll_)
     return std::wstring();

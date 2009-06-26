@@ -679,9 +679,6 @@ void ImporterHost::DetectIEProfiles() {
 #endif
 
 void ImporterHost::DetectFirefoxProfiles() {
-#if defined(OS_MACOSX)
-  NOTIMPLEMENTED();
-#else
   DictionaryValue root;
   std::wstring ini_file = GetProfilesINI().ToWStringHack();
   ParseProfileINI(ini_file, &root);
@@ -761,7 +758,6 @@ void ImporterHost::DetectFirefoxProfiles() {
         SEARCH_ENGINES;
     source_profiles_.push_back(firefox);
   }
-#endif
 }
 
 void ImporterHost::DetectGoogleToolbarProfiles() {

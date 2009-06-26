@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -53,11 +53,16 @@
 
 // static
 #if defined(OS_LINUX)
-// TODO(rahulk): Even though this is called OLD_LOCK_FILE_NAME in Firefox code
 // http://www.google.com/codesearch/p?hl=en#e_ObwTAVPyo/profile/dirserviceprovider/src/nsProfileLock.cpp&l=433
-// this seems to work with Firefox 3.0.
 const FilePath::CharType* FirefoxProfileLock::kLockFileName =
+    FILE_PATH_LITERAL(".parentlock");
+const FilePath::CharType* FirefoxProfileLock::kOldLockFileName =
     FILE_PATH_LITERAL("lock");
+#elif defined(OS_MACOSX)
+const FilePath::CharType* FirefoxProfileLock::kLockFileName =
+    FILE_PATH_LITERAL(".parentlock");
+const FilePath::CharType* FirefoxProfileLock::kOldLockFileName =
+    FILE_PATH_LITERAL("parent.lock");
 #else
 const FilePath::CharType* FirefoxProfileLock::kLockFileName =
     FILE_PATH_LITERAL("parent.lock");

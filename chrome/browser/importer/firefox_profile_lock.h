@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -84,6 +84,7 @@ class FirefoxProfileLock {
   FRIEND_TEST(FirefoxImporterTest, ProfileLockOrphaned);
 
   static const FilePath::CharType* kLockFileName;
+  static const FilePath::CharType* kOldLockFileName;
 
   void Init();
 
@@ -95,6 +96,16 @@ class FirefoxProfileLock {
   HANDLE lock_handle_;
 #elif defined(OS_POSIX)
   int lock_fd_;
+
+  // On Posix systems Firefox apparently first tries to put a fcntl lock
+  // on a file and if that fails, it does a regular exculsive open on another
+  // file. This variable contains the location of this other file.
+  FilePath old_lock_file_;
+
+  // Method that tries to put a fcntl lock on file specified by |lock_file_|.
+  // Returns false if lock is already help by another process. true in all
+  // other cases.
+  bool LockWithFcntl();
 #endif
 
   DISALLOW_COPY_AND_ASSIGN(FirefoxProfileLock);
