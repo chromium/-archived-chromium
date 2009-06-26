@@ -52,7 +52,7 @@ void TabOverviewMessageListener::ProcessMessage(
                 BrowserWindowGtk::GetBrowserWindowForXID(
                     x11_util::GetX11WindowFromGdkWindow(window)));
         if (browser_window)
-          ShowOverview(browser_window->browser());
+          ShowOverview(browser_window->browser(), message.param(1));
         else
           HideOverview();
       }
@@ -78,13 +78,13 @@ void TabOverviewMessageListener::ProcessMessage(
   }
 }
 
-void TabOverviewMessageListener::ShowOverview(Browser* browser) {
+void TabOverviewMessageListener::ShowOverview(Browser* browser,
+                                              int horizontal_center) {
   if (!controller_.get()) {
     controller_.reset(new TabOverviewController(
                           browser->window()->GetNormalBounds().origin()));
   }
-  // TODO: get x-coordinate when available.
-  controller_->SetBrowser(browser, -1);
+  controller_->SetBrowser(browser, horizontal_center);
   controller_->Show();
 }
 

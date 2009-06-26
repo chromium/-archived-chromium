@@ -39,7 +39,7 @@ class TabOverviewMessageListener : public MessageLoopForUI::Observer {
                       GdkWindow* window);
 
   // Shows the tab overview for |browser|.
-  void ShowOverview(Browser* browser);
+  void ShowOverview(Browser* browser, int horizontal_center);
 
   // Hids the tab overview.
   void HideOverview();

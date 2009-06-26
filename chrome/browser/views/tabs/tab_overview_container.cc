@@ -61,11 +61,11 @@ void TabOverviewContainer::Paint(gfx::Canvas* canvas) {
   int arrow_center = arrow_center_ - bounds().x();
   if (arrow_center >= kArrowHeight && arrow_center < width() - kArrowHeight) {
     // Only draw the arrow if we have enough space.
-    outline.lineTo(SkIntToScalar(width() / 2 + kArrowHeight / 2),
+    outline.lineTo(SkIntToScalar(arrow_center + kArrowHeight / 2),
                    SkIntToScalar(bottom));
     outline.lineTo(SkIntToScalar(arrow_center),
                    SkIntToScalar(bottom + kArrowHeight));
-    outline.lineTo(SkIntToScalar(width() / 2 - kArrowHeight / 2),
+    outline.lineTo(SkIntToScalar(arrow_center - kArrowHeight / 2),
                    SkIntToScalar(bottom));
   }
   outline.arcTo(SkIntToScalar(0), SkIntToScalar(bottom),

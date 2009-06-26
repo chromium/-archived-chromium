@@ -88,6 +88,9 @@ class TabOverviewTypes {
       // Instruct a top-level Chrome window to change the visibility of its
       // tab summary window.
       //   param[0]: desired visibility (0 means hide, 1 means show)
+      //   param[1]: X position (relative to the left edge of the root
+      //             window) of the center of the top-level window.  Only
+      //             relevant for "show" messages
       CHROME_SET_TAB_SUMMARY_VISIBILITY,
 
       // Tell the WM to collapse or expand a panel.

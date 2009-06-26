@@ -65,7 +65,6 @@ TabOverviewController::TabOverviewController(
 
   container_->SetMaxSize(CalculateHostBounds().size());
 
-  // TODO: remove this when we get mid point.
   horizontal_center_ = monitor_bounds_.x() + monitor_bounds_.width() / 2;
 }
 
@@ -80,8 +79,7 @@ TabOverviewController::~TabOverviewController() {
 
 void TabOverviewController::SetBrowser(Browser* browser,
                                        int horizontal_center) {
-  // TODO: update this when we horizontal_center is correct.
-  // horizontal_center_ = horizontal_center;
+  horizontal_center_ = horizontal_center;
   if (browser_)
     model()->RemoveObserver(this);
   browser_ = browser;
