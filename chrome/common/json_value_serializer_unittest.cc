@@ -293,7 +293,8 @@ TEST_F(JSONFileValueSerializerTest, Roundtrip) {
   ASSERT_TRUE(file_util::PathExists(written_file_path));
 
   // Now compare file contents.
-  EXPECT_TRUE(file_util::ContentsEqual(original_file_path, written_file_path));
+  EXPECT_TRUE(file_util::TextContentsEqual(original_file_path,
+                                           written_file_path));
   EXPECT_TRUE(file_util::Delete(written_file_path, false));
 }
 
@@ -321,7 +322,8 @@ TEST_F(JSONFileValueSerializerTest, RoundtripNested) {
   ASSERT_TRUE(file_util::PathExists(written_file_path));
 
   // Now compare file contents.
-  EXPECT_TRUE(file_util::ContentsEqual(original_file_path, written_file_path));
+  EXPECT_TRUE(file_util::TextContentsEqual(original_file_path,
+                                           written_file_path));
   EXPECT_TRUE(file_util::Delete(written_file_path, false));
 }
 

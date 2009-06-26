@@ -308,6 +308,26 @@ TEST(JSONReaderTest, Reading) {
 
   root2.reset(JSONReader::Read(
     "{\"number\":9.87654321, \"null\":null , \"\\x53\" : \"str\", }", true));
+  ASSERT_TRUE(root2.get());
+  EXPECT_TRUE(root->Equals(root2.get()));
+
+  // Test newline equivalence.
+  root2.reset(JSONReader::Read(
+    "{\n"
+    "  \"number\":9.87654321,\n"
+    "  \"null\":null,\n"
+    "  \"\\x53\":\"str\",\n"
+    "}\n", true));
+  ASSERT_TRUE(root2.get());
+  EXPECT_TRUE(root->Equals(root2.get()));
+
+  root2.reset(JSONReader::Read(
+    "{\r\n"
+    "  \"number\":9.87654321,\r\n"
+    "  \"null\":null,\r\n"
+    "  \"\\x53\":\"str\",\r\n"
+    "}\r\n", true));
+  ASSERT_TRUE(root2.get());
   EXPECT_TRUE(root->Equals(root2.get()));
 
   // Test nesting

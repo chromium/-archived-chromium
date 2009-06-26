@@ -9,7 +9,11 @@
 #include "base/values.h"
 #include "base/string_escape.h"
 
-const char kPrettyPrintLineEnding[] = "\r\n";
+#if defined(OS_WIN)
+static const char kPrettyPrintLineEnding[] = "\r\n";
+#else
+static const char kPrettyPrintLineEnding[] = "\n";
+#endif
 
 /* static */
 void JSONWriter::Write(const Value* const node,

@@ -629,6 +629,56 @@ TEST_F(ReadOnlyFileUtilTest, ContentsEqual) {
   EXPECT_FALSE(file_util::ContentsEqual(binary_file, binary_file_diff));
 }
 
+TEST_F(ReadOnlyFileUtilTest, TextContentsEqual) {
+  FilePath data_dir;
+  ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &data_dir));
+  data_dir = data_dir.Append(FILE_PATH_LITERAL("base"))
+                     .Append(FILE_PATH_LITERAL("data"))
+                     .Append(FILE_PATH_LITERAL("file_util_unittest"));
+  ASSERT_TRUE(file_util::PathExists(data_dir));
+
+  FilePath original_file =
+      data_dir.Append(FILE_PATH_LITERAL("original.txt"));
+  FilePath same_file =
+      data_dir.Append(FILE_PATH_LITERAL("same.txt"));
+  FilePath crlf_file =
+      data_dir.Append(FILE_PATH_LITERAL("crlf.txt"));
+  FilePath shortened_file =
+      data_dir.Append(FILE_PATH_LITERAL("shortened.txt"));
+  FilePath different_file =
+      data_dir.Append(FILE_PATH_LITERAL("different.txt"));
+  FilePath different_first_file =
+      data_dir.Append(FILE_PATH_LITERAL("different_first.txt"));
+  FilePath different_last_file =
+      data_dir.Append(FILE_PATH_LITERAL("different_last.txt"));
+  FilePath first1_file =
+      data_dir.Append(FILE_PATH_LITERAL("first1.txt"));
+  FilePath first2_file =
+      data_dir.Append(FILE_PATH_LITERAL("first2.txt"));
+  FilePath empty1_file =
+      data_dir.Append(FILE_PATH_LITERAL("empty1.txt"));
+  FilePath empty2_file =
+      data_dir.Append(FILE_PATH_LITERAL("empty2.txt"));
+  FilePath blank_line_file =
+      data_dir.Append(FILE_PATH_LITERAL("blank_line.txt"));
+  FilePath blank_line_crlf_file =
+      data_dir.Append(FILE_PATH_LITERAL("blank_line_crlf.txt"));
+
+  EXPECT_TRUE(file_util::TextContentsEqual(original_file, same_file));
+  EXPECT_TRUE(file_util::TextContentsEqual(original_file, crlf_file));
+  EXPECT_FALSE(file_util::TextContentsEqual(original_file, shortened_file));
+  EXPECT_FALSE(file_util::TextContentsEqual(original_file, different_file));
+  EXPECT_FALSE(file_util::TextContentsEqual(original_file,
+                                            different_first_file));
+  EXPECT_FALSE(file_util::TextContentsEqual(original_file,
+                                            different_last_file));
+  EXPECT_FALSE(file_util::TextContentsEqual(first1_file, first2_file));
+  EXPECT_TRUE(file_util::TextContentsEqual(empty1_file, empty2_file));
+  EXPECT_FALSE(file_util::TextContentsEqual(original_file, empty1_file));
+  EXPECT_TRUE(file_util::TextContentsEqual(blank_line_file,
+                                           blank_line_crlf_file));
+}
+
 // We don't need equivalent functionality outside of Windows.
 #if defined(OS_WIN)
 TEST_F(FileUtilTest, ResolveShortcutTest) {

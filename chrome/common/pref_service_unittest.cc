@@ -145,7 +145,7 @@ TEST_F(PrefServiceTest, Basic) {
   FilePath golden_output_file = data_dir_.AppendASCII("write.golden.json");
   ASSERT_TRUE(file_util::PathExists(golden_output_file));
   ASSERT_TRUE(prefs.SavePersistentPrefs());
-  EXPECT_TRUE(file_util::ContentsEqual(golden_output_file, output_file));
+  EXPECT_TRUE(file_util::TextContentsEqual(golden_output_file, output_file));
   ASSERT_TRUE(file_util::Delete(output_file, false));
 }
 

@@ -212,6 +212,10 @@ bool ContentsEqual(const FilePath& filename1,
 bool ContentsEqual(const std::wstring& filename1,
                    const std::wstring& filename2);
 
+// Returns true if the contents of the two text files given are equal, false
+// otherwise.  This routine treats "\r\n" and "\n" as equivalent.
+bool TextContentsEqual(const FilePath& filename1, const FilePath& filename2);
+
 // Read the file at |path| into |contents|, returning true on success.
 // Useful for unit tests.
 bool ReadFileToString(const FilePath& path, std::string* contents);
