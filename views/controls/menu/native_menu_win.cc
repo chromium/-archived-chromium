@@ -58,6 +58,7 @@ class NativeMenuWin::MenuHostWindow {
   }
 
   ~MenuHostWindow() {
+    RemoveProp(hwnd_, kMenuHostWindowKey);
     DestroyWindow(hwnd_);
   }
 
