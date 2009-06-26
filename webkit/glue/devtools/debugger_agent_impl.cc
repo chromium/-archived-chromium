@@ -156,6 +156,10 @@ String DebuggerAgentImpl::ExecuteUtilityFunction(
     String* exception) {
   v8::HandleScope scope;
   ASSERT(!context.IsEmpty());
+  if (context.IsEmpty()) {
+    *exception = "No window context.";
+    return "";
+  }
   v8::Context::Scope context_scope(context);
   v8::Handle<v8::Function> function = v8::Local<v8::Function>::Cast(
       context->Global()->Get(v8::String::New("devtools$$dispatch")));
