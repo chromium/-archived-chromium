@@ -36,7 +36,11 @@ const int kReorderAnimationDurationMs = 166;
 const int kAnimateToBoundsDurationMs = 150;
 
 const int kNewTabButtonHOffset = -5;
+#if defined(LINUX2)
+const int kNewTabButtonVOffset = 0;
+#else
 const int kNewTabButtonVOffset = 5;
+#endif
 
 // The delay between when the mouse leaves the tabstrip and the resize animation
 // is started.
@@ -1562,8 +1566,12 @@ void TabStripGtk::SetTabBounds(TabGtk* tab, const gfx::Rect& bounds) {
 }
 
 CustomDrawButton* TabStripGtk::MakeNewTabButton() {
+#if defined(LINUX2)
+  CustomDrawButton* button = new CustomDrawButton(IDR_NEWTAB_BUTTON2, 0, 0, 0);
+#else
   CustomDrawButton* button = new CustomDrawButton(IDR_NEWTAB_BUTTON,
       IDR_NEWTAB_BUTTON_P, IDR_NEWTAB_BUTTON_H, 0);
+#endif
 
   g_signal_connect(G_OBJECT(button->widget()), "clicked",
                    G_CALLBACK(OnNewTabClicked), this);
