@@ -11,10 +11,6 @@
 
 // "tip_cache": {
 //    "0": {
-//        "index": should become time field (or not)
-//        "snippet": the text of the item
-//        "source": text describing source (i.e., "New York Post")
-//        "thumbnail": URL of thumbnail on popgadget server
 //        "title": text giving title of item
 //        "url": link to item's page
 //    },
@@ -43,6 +39,9 @@ class TipsHandler : public DOMMessageHandler {
   static void RegisterUserPrefs(PrefService* prefs);
 
  private:
+  // Make sure the string we are pushing to the NTP is a valid URL.
+  bool IsValidURL(const std::wstring& url_string);
+
   // So we can push data out to the page that has called this handler.
   DOMUI* dom_ui_;
 

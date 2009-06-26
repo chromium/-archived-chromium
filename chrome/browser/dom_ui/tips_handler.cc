@@ -7,12 +7,12 @@
 #include "chrome/browser/dom_ui/tips_handler.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/web_resource/web_resource_service.h"
-#include "chrome/common/web_resource/web_resource_unpacker.h"
 #include "chrome/common/pref_names.h"
+#include "chrome/common/web_resource/web_resource_unpacker.h"
+#include "chrome/common/url_constants.h"
+#include "googleurl/src/gurl.h"
 
 namespace {
-
-  const int kNumTipsToShow = 2;
 
   // TODO(mrc): l10n
   // This title should only appear the very first time Chrome is run with
@@ -52,6 +52,7 @@ void TipsHandler::HandleGetTips(const Value* content) {
     title = kTipsTitleAtStartup;
     DictionaryValue* tip_dict = new DictionaryValue();
     tip_dict->SetString(WebResourceService::kWebResourceTitle, title);
+    tip_dict->SetString(WebResourceService::kWebResourceURL, L"");
     list_value.Append(tip_dict);
   } else {
     int tip_counter = 0;
@@ -60,7 +61,8 @@ void TipsHandler::HandleGetTips(const Value* content) {
       if (wr_dict &&
           wr_dict->GetSize() > 0 &&
           wr_dict->GetString(WebResourceService::kWebResourceTitle, &title) &&
-          wr_dict->GetString(WebResourceService::kWebResourceURL, &url)) {
+          wr_dict->GetString(WebResourceService::kWebResourceURL, &url) &&
+          IsValidURL(url)) {
         tip_dict->SetString(WebResourceService::kWebResourceTitle, title);
         tip_dict->SetString(WebResourceService::kWebResourceURL, url);
         list_value.Append(tip_dict);
@@ -79,4 +81,9 @@ void TipsHandler::RegisterUserPrefs(PrefService* prefs) {
                             WebResourceService::kDefaultResourceServer);
 }
 
+bool TipsHandler::IsValidURL(const std::wstring& url_string) {
+  GURL url(WideToUTF8(url_string));
+  return !url.is_empty() && (url.SchemeIs(chrome::kHttpScheme) ||
+                             url.SchemeIs(chrome::kHttpsScheme));
+}
 
