@@ -69,8 +69,9 @@ class TestUtilityProcessHostClient : public UtilityProcessHost::Client {
 class TestUtilityProcessHost : public UtilityProcessHost {
  public:
   TestUtilityProcessHost(TestUtilityProcessHostClient* client,
-                         MessageLoop* loop_io)
-      : UtilityProcessHost(new ResourceDispatcherHost(NULL), client, loop_io) {
+                         MessageLoop* loop_io,
+                         ResourceDispatcherHost* rdh)
+      : UtilityProcessHost(rdh, client, loop_io) {
   }
 
  protected:
@@ -104,9 +105,9 @@ TEST_F(UtilityProcessHostTest, ExtensionUnpacker) {
 
   scoped_refptr<TestUtilityProcessHostClient> client(
       new TestUtilityProcessHostClient(&message_loop_));
-  TestUtilityProcessHost* process_host = new TestUtilityProcessHost(
-      client.get(), &message_loop_);
-  process_host->StartExtensionUnpacker(
+  ResourceDispatcherHost rdh(NULL);
+  TestUtilityProcessHost process_host(client.get(), &message_loop_, &rdh);
+  process_host.StartExtensionUnpacker(
       temp_extension_dir.AppendASCII("theme.crx"));
   message_loop_.Run();
   EXPECT_TRUE(client->success());
