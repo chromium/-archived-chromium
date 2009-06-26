@@ -2799,8 +2799,6 @@ BUG15270 : LayoutTests/svg/custom/js-update-image-and-display3.svg = FAIL
 BUG15270 : LayoutTests/fast/js/excessive-comma-usage.html = FAIL
 BUG15270 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridColumns-basic.html = TIMEOUT
 
-BUG15296 : LayoutTests/dom/html/level2/html/HTMLTableElement10.html = CRASH
-
 // WebKit 45134:45176
 BUG15403 : LayoutTests/http/tests/security/clipboard/clipboard-file-access.html = FAIL
 
