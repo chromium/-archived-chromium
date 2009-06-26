@@ -220,7 +220,6 @@ ExtensionsService::ExtensionsService(Profile* profile,
                                      MessageLoop* frontend_loop,
                                      MessageLoop* backend_loop)
     : extension_prefs_(new ExtensionPrefs(prefs, install_directory)),
-      extension_process_manager_(new ExtensionProcessManager(profile)),
       backend_loop_(backend_loop),
       install_directory_(install_directory),
       extensions_enabled_(false),

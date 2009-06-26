@@ -32,7 +32,7 @@ class ExtensionHost : public RenderViewHostDelegate,
                       public ExtensionFunctionDispatcher::Delegate {
  public:
   ExtensionHost(Extension* extension, SiteInstance* site_instance,
-                const GURL& url, ExtensionProcessManager* manager);
+                const GURL& url);
   ~ExtensionHost();
 
 #if defined(TOOLKIT_VIEWS)
@@ -109,8 +109,8 @@ class ExtensionHost : public RenderViewHostDelegate,
   // The extension that we're hosting in this view.
   Extension* extension_;
 
-  // Manager which created us (to notify upon destruction).
-  ExtensionProcessManager* manager_;
+  // The profile that this host is tied to.
+  Profile* profile_;
 
 #if defined(TOOLKIT_VIEWS)
   // Optional view that shows the rendered content in the UI.

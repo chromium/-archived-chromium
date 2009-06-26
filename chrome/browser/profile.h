@@ -401,6 +401,7 @@ class ProfileImpl : public Profile,
   scoped_ptr<VisitedLinkMaster> visited_link_master_;
   scoped_refptr<ExtensionsService> extensions_service_;
   scoped_refptr<UserScriptMaster> user_script_master_;
+  scoped_ptr<ExtensionProcessManager> extension_process_manager_;
   scoped_ptr<SSLHostState> ssl_host_state_;
   scoped_ptr<net::ForceTLSState> force_tls_state_;
   scoped_ptr<PrefService> prefs_;

@@ -38,7 +38,7 @@ class MockExtensionHost : public ExtensionHost {
  public:
   MockExtensionHost(Extension* extension, const GURL& url,
                     SiteInstance* instance)
-      : ExtensionHost(extension, instance, url, NULL),
+      : ExtensionHost(extension, instance, url),
         got_message_(false) {
     CreateRenderView(NULL);
     MessageLoop::current()->PostDelayedTask(FROM_HERE,
