@@ -389,6 +389,12 @@ g_suite.testMulVectorVector = function() {
                                                   [-1, 0, 2, -2]));
 };
 
+g_suite.testDivVectorVector = function() {
+  g_test.assertArrayEquals([-0.5, 0, 2, -2],
+                           g_math.divVectorVector([-1, 0, 8, -10],
+                                                  [2, 3, 4, 5]));
+};
+
 g_suite.testOrthonormalize = function() {
   var W = g_math.orthonormalize([[1, 2, -1], [1, -2, 0], [2, 4, 1]]);
   g_test.assertTrue(matrixDiff(g_math.mulMatrixMatrix(W, g_math.transpose(W)),
