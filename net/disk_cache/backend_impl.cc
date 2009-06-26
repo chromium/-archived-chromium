@@ -582,6 +582,10 @@ bool BackendImpl::SetMaxSize(int max_bytes) {
   if (!max_bytes)
     return true;
 
+  // Avoid a DCHECK later on.
+  if (max_bytes >= kint32max - kint32max / 10)
+    max_bytes = kint32max - kint32max / 10 - 1;
+
   user_flags_ |= kMaxSize;
   max_size_ = max_bytes;
   return true;

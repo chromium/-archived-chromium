@@ -43,6 +43,8 @@ extern const wchar_t kTestSandbox[];
 extern const wchar_t kUserDataDir[];
 extern const wchar_t kPluginDataDir[];
 extern const wchar_t kDiskCacheDir[];
+extern const wchar_t kDiskCacheSize[];
+extern const wchar_t kMediaCacheSize[];
 extern const wchar_t kEnableUserDataDirProfiles[];
 extern const wchar_t kParentProfile[];
 extern const wchar_t kApp[];

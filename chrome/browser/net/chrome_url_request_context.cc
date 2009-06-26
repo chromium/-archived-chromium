@@ -108,7 +108,7 @@ static net::ProxyService* CreateProxyService(URLRequestContext* context,
 // static
 ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginal(
     Profile* profile, const FilePath& cookie_store_path,
-    const FilePath& disk_cache_path) {
+    const FilePath& disk_cache_path, int cache_size) {
   DCHECK(!profile->IsOffTheRecord());
   ChromeURLRequestContext* context = new ChromeURLRequestContext(profile);
 
@@ -121,7 +121,7 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginal(
   net::HttpCache* cache =
       new net::HttpCache(context->host_resolver_,
                          context->proxy_service_,
-                         disk_cache_path.ToWStringHack(), 0);
+                         disk_cache_path.ToWStringHack(), cache_size);
 
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   bool record_mode = chrome::kRecordModeEnabled &&
@@ -161,9 +161,10 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginal(
 
 // static
 ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginalForMedia(
-    Profile* profile, const FilePath& disk_cache_path) {
+    Profile* profile, const FilePath& disk_cache_path, int cache_size) {
   DCHECK(!profile->IsOffTheRecord());
-  return CreateRequestContextForMedia(profile, disk_cache_path, false);
+  return CreateRequestContextForMedia(profile, disk_cache_path, cache_size,
+                                      false);
 }
 
 // static
@@ -223,7 +224,8 @@ ChromeURLRequestContext::CreateOffTheRecordForExtensions(Profile* profile) {
 
 // static
 ChromeURLRequestContext* ChromeURLRequestContext::CreateRequestContextForMedia(
-    Profile* profile, const FilePath& disk_cache_path, bool off_the_record) {
+    Profile* profile, const FilePath& disk_cache_path, int cache_size,
+    bool off_the_record) {
   URLRequestContext* original_context =
       profile->GetOriginalProfile()->GetRequestContext();
   ChromeURLRequestContext* context = new ChromeURLRequestContext(profile);
@@ -248,13 +250,13 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateRequestContextForMedia(
     net::HttpNetworkLayer* original_network_layer =
         static_cast<net::HttpNetworkLayer*>(original_cache->network_layer());
     cache = new net::HttpCache(original_network_layer->GetSession(),
-                               disk_cache_path.ToWStringHack(), 0);
+                               disk_cache_path.ToWStringHack(), cache_size);
   } else {
     // If original HttpCache doesn't exist, simply construct one with a whole
     // new set of network stack.
     cache = new net::HttpCache(original_context->host_resolver(),
                                original_context->proxy_service(),
-                               disk_cache_path.ToWStringHack(), 0);
+                               disk_cache_path.ToWStringHack(), cache_size);
   }
 
   cache->set_type(net::MEDIA_CACHE);

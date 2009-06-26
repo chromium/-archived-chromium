@@ -48,8 +48,48 @@
 using base::Time;
 using base::TimeDelta;
 
+namespace {
+
 // Delay, in milliseconds, before we explicitly create the SessionService.
 static const int kCreateSessionServiceDelayMS = 500;
+
+enum ContextType {
+  kNormalContext,
+  kMediaContext
+};
+
+// Gets the cache parameters from the command line. |type| is the type of
+// request context that we need, |cache_path| will be set to the user provided
+// path, or will not be touched if there is not an argument. |max_size| will
+// be the user provided value or zero by default.
+void GetCacheParameters(ContextType type, FilePath* cache_path,
+                        int* max_size) {
+  DCHECK(cache_path);
+  DCHECK(max_size);
+
+  // Override the cache location if specified by the user.
+  std::wstring user_path(CommandLine::ForCurrentProcess()->GetSwitchValue(
+                             switches::kDiskCacheDir));
+
+  if (!user_path.empty()) {
+    *cache_path = FilePath::FromWStringHack(user_path);
+  }
+
+  const wchar_t* arg = kNormalContext == type ? switches::kDiskCacheSize :
+                                                switches::kMediaCacheSize;
+  std::string value =
+      WideToASCII(CommandLine::ForCurrentProcess()->GetSwitchValue(arg));
+
+  // By default we let the cache determine the right size.
+  *max_size = 0;
+  if (!StringToInt(value, max_size)) {
+    *max_size = 0;
+  } else if (max_size < 0) {
+    *max_size = 0;
+  }
+}
+
+}  // namespace
 
 // A pointer to the request context for the default profile.  See comments on
 // Profile::GetDefaultRequestContext.
@@ -717,18 +757,12 @@ URLRequestContext* ProfileImpl::GetRequestContext() {
     FilePath cookie_path = GetPath();
     cookie_path = cookie_path.Append(chrome::kCookieFilename);
     FilePath cache_path = GetPath();
-
-    // Override the cache location if specified by the user.
-    const std::wstring user_cache_dir(
-        CommandLine::ForCurrentProcess()->GetSwitchValue(
-            switches::kDiskCacheDir));
-    if (!user_cache_dir.empty()) {
-      cache_path = FilePath::FromWStringHack(user_cache_dir);
-    }
+    int max_size;
+    GetCacheParameters(kNormalContext, &cache_path, &max_size);
 
     cache_path = cache_path.Append(chrome::kCacheDirname);
     request_context_ = ChromeURLRequestContext::CreateOriginal(
-        this, cookie_path, cache_path);
+        this, cookie_path, cache_path, max_size);
     request_context_->AddRef();
 
     // The first request context is always a normal (non-OTR) request context.
@@ -750,18 +784,12 @@ URLRequestContext* ProfileImpl::GetRequestContext() {
 URLRequestContext* ProfileImpl::GetRequestContextForMedia() {
   if (!media_request_context_) {
     FilePath cache_path = GetPath();
-
-    // Override the cache location if specified by the user.
-    const std::wstring user_cache_dir(
-        CommandLine::ForCurrentProcess()->GetSwitchValue(
-            switches::kDiskCacheDir));
-    if (!user_cache_dir.empty()) {
-      cache_path = FilePath::FromWStringHack(user_cache_dir);
-    }
+    int max_size;
+    GetCacheParameters(kMediaContext, &cache_path, &max_size);
 
     cache_path = cache_path.Append(chrome::kMediaCacheDirname);
     media_request_context_ = ChromeURLRequestContext::CreateOriginalForMedia(
-        this, cache_path);
+        this, cache_path, max_size);
     media_request_context_->AddRef();
 
     DCHECK(media_request_context_->cookie_store());

@@ -124,6 +124,12 @@ const wchar_t kPluginDataDir[]                 = L"plugin-data-dir";
 // UserDatadir.
 const wchar_t kDiskCacheDir[]                  = L"disk-cache-dir";
 
+// Forces the maximum disk space to be used by the disk cache, in bytes.
+const wchar_t kDiskCacheSize[]                  = L"disk-cache-size";
+
+// Forces the maximum disk space to be used by the media cache, in bytes.
+const wchar_t kMediaCacheSize[]                  = L"media-cache-size";
+
 // Whether the multiple profiles feature based on the user-data-dir flag is
 // enabled or not.
 const wchar_t kEnableUserDataDirProfiles[]     = L"enable-udd-profiles";
