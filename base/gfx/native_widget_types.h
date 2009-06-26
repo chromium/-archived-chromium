@@ -114,6 +114,21 @@ static inline NativeViewId IdFromNativeView(NativeView view) {
 NativeViewId IdFromNativeView(NativeView view);
 #endif  // defined(OS_LINUX)
 
+
+// PluginWindowHandle is an abstraction wrapping "the types of windows
+// used by NPAPI plugins".  On Windows it's an HWND, on X it's an X
+// window id.
+#if defined(OS_WIN)
+  typedef HWND PluginWindowHandle;
+#elif defined(OS_LINUX)
+  typedef unsigned long PluginWindowHandle;
+#else
+  // On OS X we don't have windowed plugins.
+  // Use a gfx::NativeView so the previously-compiling code still works.
+  // TODO(evanm): remove this and use void* instead.
+  typedef gfx::NativeView PluginWindowHandle;
+#endif
+
 }  // namespace gfx
 
 #endif  // BASE_GFX_NATIVE_WIDGET_TYPES_H_

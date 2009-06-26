@@ -711,7 +711,7 @@ NPError NPN_GetValue(NPP id, NPNVariable variable, void *value) {
   {
 #if defined(OS_WIN) || defined(OS_LINUX)
     scoped_refptr<NPAPI::PluginInstance> plugin = FindInstance(id);
-    gfx::NativeView handle = plugin->window_handle();
+    gfx::PluginWindowHandle handle = plugin->window_handle();
     *((void**)value) = (void*)handle;
     rv = NPERR_NO_ERROR;
 #else
