@@ -418,7 +418,7 @@ gboolean BrowserWindowGtk::OnCustomFrameExpose(GtkWidget* widget,
   cairo_clip(cr);
   NineBox* image = window->browser()->profile()->IsOffTheRecord()
       ? default_background_otr : default_background;
-  image->RenderTopCenterStrip(cr, event->area.x, 0, event->area.width);
+  image->RenderTopCenterStrip(cr, 0, 0, widget->allocation.width);
   cairo_destroy(cr);
 
   // TODO(tc): Draw the theme overlay.  The windows code is below.
@@ -703,7 +703,8 @@ void BrowserWindowGtk::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
 }
 
 void BrowserWindowGtk::UserChangedTheme() {
-  NOTIMPLEMENTED();
+  gdk_window_invalidate_rect(GTK_WIDGET(window_)->window,
+      &GTK_WIDGET(window_)->allocation, TRUE);
 }
 
 int BrowserWindowGtk::GetExtraRenderViewHeight() const {
