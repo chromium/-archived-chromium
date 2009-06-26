@@ -5,3 +5,7 @@
 #dock-status-bar-item {
     display: none
 }
+
+.data-grid table {
+    line-height: 120%;
+}
