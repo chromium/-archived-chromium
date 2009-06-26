@@ -2804,3 +2804,6 @@ BUG15403 : LayoutTests/http/tests/security/clipboard/clipboard-file-access.html 
 
 // Flaky for a while on DEBUG
 BUG15267 WIN LINUX DEBUG : LayoutTests/transitions/cancel-transition.html = PASS FAIL
+
+// Started crashing without a clear reason.
+BUG15425 WIN : LayoutTests/dom/html/level2/html/HTMLElement142.html = PASS CRASH
