@@ -79,9 +79,14 @@ DownloadShelfGtk::DownloadShelfGtk(Browser* browser, GtkWidget* parent)
   gtk_container_add(GTK_CONTAINER(padding), hbox_.get());
   gtk_widget_modify_bg(padding_bg, GTK_STATE_NORMAL, &kBackgroundColor);
 
-  shelf_.Own(gtk_vbox_new(FALSE, 0));
-  gtk_box_pack_start(GTK_BOX(shelf_.get()), top_border, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(shelf_.get()), padding_bg, FALSE, FALSE, 0);
+  GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(vbox), top_border, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(vbox), padding_bg, FALSE, FALSE, 0);
+
+  // Put the shelf in an event box so it gets its own window, which makes it
+  // easier to get z-ordering right.
+  shelf_.Own(gtk_event_box_new());
+  gtk_container_add(GTK_CONTAINER(shelf_.get()), vbox);
 
   // Create and pack the close button.
   close_button_.reset(CustomDrawButton::CloseButton());
@@ -151,6 +156,9 @@ void DownloadShelfGtk::Show() {
 }
 
 void DownloadShelfGtk::Close() {
+  // When we are closing, we can vertically overlap the render view. Make sure
+  // we are on top.
+  gdk_window_raise(shelf_.get()->window);
   slide_widget_->Close();
 
   // TODO(estade): Remove. The status bubble should query its window instead.
