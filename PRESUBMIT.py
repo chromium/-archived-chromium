@@ -37,6 +37,8 @@ def CheckChangeOnUpload(input_api, output_api):
       input_api, output_api))
   results.extend(input_api.canned_checks.CheckChangeSvnEolStyle(
       input_api, output_api, sources))
+  results.extend(input_api.canned_checks.CheckSvnForCommonMimeTypes(
+      input_api, output_api))
   return results
 
 
@@ -56,6 +58,8 @@ def CheckChangeOnCommit(input_api, output_api):
       input_api, output_api))
   results.extend(input_api.canned_checks.CheckChangeSvnEolStyle(
       input_api, output_api, sources))
+  results.extend(input_api.canned_checks.CheckSvnForCommonMimeTypes(
+      input_api, output_api))
   # Make sure the tree is 'open'.
   # TODO(maruel): Run it in a separate thread to parallelize checks?
   results.extend(CheckTreeIsOpen(input_api, output_api,
