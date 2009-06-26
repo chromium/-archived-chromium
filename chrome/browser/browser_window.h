@@ -19,7 +19,6 @@ class StatusBubble;
 class TabContents;
 class TabContentsContainer;
 class TemplateURL;
-class ToolbarView;
 
 namespace gfx {
 class Rect;
@@ -240,9 +239,6 @@ class BrowserWindowTesting {
 
   // Returns the TabContentsContainer.
   virtual views::View* GetTabContentsContainerView() const = 0;
-
-  // Returns the ToolbarView.
-  virtual ToolbarView* GetToolbarView() const = 0;
 #endif
 };
 
