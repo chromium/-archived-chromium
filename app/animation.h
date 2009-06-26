@@ -83,7 +83,7 @@ class Animation {
   void End();
 
   // Return whether this animation is animating.
-  bool IsAnimating();
+  bool IsAnimating() const;
 
   // Changes the length of the animation. This resets the current
   // state of the animation to the beginning.

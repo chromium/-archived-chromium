@@ -16,6 +16,7 @@
 #include "app/resource_bundle.h"
 #include "app/theme_provider.h"
 #include "app/win_util.h"
+#include "base/compiler_specific.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view_win.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 #include "chrome/browser/views/autocomplete/autocomplete_popup_win.h"
@@ -70,6 +71,11 @@ class AutocompleteResultView : public views::View {
                          int model_index,
                          const gfx::Font& font);
   virtual ~AutocompleteResultView();
+
+  // Updates the match used to paint the contents of this result view. We copy
+  // the match so that we can continue to paint the last result even after the
+  // model has changed.
+  void set_match(const AutocompleteMatch& match) { match_ = match; }
 
   // Overridden from views::View:
   virtual void Paint(gfx::Canvas* canvas);
@@ -142,6 +148,8 @@ class AutocompleteResultView : public views::View {
   static SkBitmap* icon_star_;
   static SkBitmap* icon_star_selected_;
   static int icon_size_;
+
+  AutocompleteMatch match_;
 
   static bool initialized_;
   static void InitClass();
@@ -278,7 +286,8 @@ AutocompleteResultView::AutocompleteResultView(
       model_index_(model_index),
       hot_(false),
       font_(font),
-      mirroring_context_(new MirroringContext()) {
+      mirroring_context_(new MirroringContext()),
+      match_(NULL, 0, false, AutocompleteMatch::URL_WHAT_YOU_TYPED) {
   CHECK(model_index >= 0);
   InitClass();
 }
@@ -294,8 +303,6 @@ void AutocompleteResultView::Paint(gfx::Canvas* canvas) {
   // Paint the icon.
   canvas->DrawBitmapInt(*GetIcon(), x, icon_bounds_.y());
 
-  const AutocompleteMatch& match = model_->GetMatchAtIndex(model_index_);
-
   // Paint the text.
   // Initialize the |mirroring_context_| with the left and right positions.
   // The DrawString() function uses this |mirroring_context_| to calculate the
@@ -304,11 +311,11 @@ void AutocompleteResultView::Paint(gfx::Canvas* canvas) {
   int text_left = MirroredLeftPointForRect(text_bounds_);
   int text_right = text_mirroring ? x - kIconTextSpacing : text_bounds_.right();
   x = mirroring_context_->Initialize(text_left, text_right, text_mirroring);
-  x = DrawString(canvas, match.contents, match.contents_class, false, x,
+  x = DrawString(canvas, match_.contents, match_.contents_class, false, x,
                  text_bounds_.y());
 
   // Paint the description.
-  if (!match.description.empty()) {
+  if (!match_.description.empty()) {
     std::wstring separator =
         l10n_util::GetString(IDS_AUTOCOMPLETE_MATCH_DESCRIPTION_SEPARATOR);
     ACMatchClassifications classifications;
@@ -317,7 +324,7 @@ void AutocompleteResultView::Paint(gfx::Canvas* canvas) {
     x = DrawString(canvas, separator, classifications, true, x,
                    text_bounds_.y());
 
-    DrawString(canvas, match.description, match.description_class, true, x,
+    DrawString(canvas, match_.description, match_.description_class, true, x,
                text_bounds_.y());
   }
 }
@@ -395,17 +402,17 @@ SkColor AutocompleteResultView::GetTextColor() const {
 
 SkBitmap* AutocompleteResultView::GetIcon() const {
   bool selected = model_->IsSelectedIndex(model_index_);
-  switch (model_->GetMatchAtIndex(model_index_).type) {
+  switch (match_.type) {
     case AutocompleteMatch::URL_WHAT_YOU_TYPED:
     case AutocompleteMatch::HISTORY_URL:
     case AutocompleteMatch::NAVSUGGEST:
-      if (model_->IsBookmarkedIndex(model_index_))
+      if (match_.starred)
         return selected ? icon_star_selected_ : icon_star_;
       return selected ? icon_url_selected_ : icon_url_;
     case AutocompleteMatch::HISTORY_TITLE:
     case AutocompleteMatch::HISTORY_BODY:
     case AutocompleteMatch::HISTORY_KEYWORD:
-      if (model_->IsBookmarkedIndex(model_index_))
+      if (match_.starred)
         return selected ? icon_star_selected_ : icon_star_;
       return selected ? icon_history_selected_ : icon_history_;
     case AutocompleteMatch::SEARCH_WHAT_YOU_TYPED:
@@ -662,30 +669,24 @@ AutocompletePopupContentsView::AutocompletePopupContentsView(
       model_(new AutocompletePopupModel(this, edit_model, profile)),
       edit_view_(edit_view),
       popup_positioner_(popup_positioner),
-      result_font_(font.DeriveFont(kEditFontAdjust)) {
+      result_font_(font.DeriveFont(kEditFontAdjust)),
+      ALLOW_THIS_IN_INITIALIZER_LIST(size_initiator_factory_(this)),
+      ALLOW_THIS_IN_INITIALIZER_LIST(size_animation_(this)),
+      result_rows_(0) {
   set_border(new PopupBorder);
 }
 
-void AutocompletePopupContentsView::UpdateResultViewsFromResult(
-    const AutocompleteResult& result) {
-  RemoveAllChildViews(true);
-  for (size_t i = 0; i < result.size(); ++i)
-    AddChildView(new AutocompleteResultView(this, i, result_font_));
-  Layout();
-}
-
 gfx::Rect AutocompletePopupContentsView::GetPopupBounds() const {
-  gfx::Insets insets;
-  border()->GetInsets(&insets);
-  gfx::Rect contents_bounds = popup_positioner_->GetPopupBounds();
-  int child_count = GetChildViewCount();
-  int height = 0;
-  for (int i = 0; i < child_count; ++i)
-    height += GetChildViewAt(i)->GetPreferredSize().height();
-  contents_bounds.set_height(height);
-  contents_bounds.Inset(-insets.left(), -insets.top(), -insets.right(),
-                        -insets.bottom());
-  return contents_bounds;
+  if (size_animation_.IsAnimating()) {
+    gfx::Rect current_frame_bounds = start_bounds_;
+    int total_height_delta = target_bounds_.height() - start_bounds_.height();
+    int current_height_delta = static_cast<int>(
+        size_animation_.GetCurrentValue() * total_height_delta);
+    current_frame_bounds.set_height(
+        start_bounds_.height() + current_height_delta);
+    return current_frame_bounds;
+  }
+  return GetTargetBounds();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -700,19 +701,54 @@ void AutocompletePopupContentsView::InvalidateLine(size_t line) {
 }
 
 void AutocompletePopupContentsView::UpdatePopupAppearance() {
-  const AutocompleteResult& result = model_->result();
-  UpdateResultViewsFromResult(result);
-  if (result.empty()) {
+  result_rows_ = model_->result().size();
+  if (model_->result().empty()) {
     // No matches, close any existing popup.
-    if (popup_->IsWindow())
+    if (popup_->IsWindow()) {
+      size_initiator_factory_.RevokeAll();
+      size_animation_.Stop();
       popup_->Hide();
+    }
     return;
   }
 
-  if (popup_->IsWindow())
+  // Update the match cached by each row, in the process of doing so make sure
+  // we have enough row views.
+  int child_view_count = GetChildViewCount();
+  for (size_t i = 0; i < result_rows_; ++i) {
+    AutocompleteResultView* result_view = NULL;
+    if (i >= static_cast<size_t>(child_view_count)) {
+      result_view = new AutocompleteResultView(this, i, result_font_);
+      AddChildView(result_view);
+    } else {
+      result_view = static_cast<AutocompleteResultView*>(GetChildViewAt(i));
+    }
+    result_view->set_match(GetMatchAtIndex(i));
+  }
+
+  if (popup_->IsVisible() && !IsGrowingLarger()) {
+    // When we're going to shrink, defer any size change activity for a short
+    // time. This is because as the user types characters, synchronous results
+    // for the new string come back immediately which causes the popup to shrink
+    // down for a few hundred ms until async results hit which causes the popup
+    // to flicker vertically.
+    size_initiator_factory_.RevokeAll();
+    MessageLoop::current()->PostDelayedTask(FROM_HERE,
+        size_initiator_factory_.NewRunnableMethod(
+        &AutocompletePopupContentsView::StartSizing), 300);
+  } else if (popup_->IsWindow()) {
+    // If we're growing larger or being shown for the first time, we don't use
+    // an animation since this makes the results popping in feel less
+    // instantaneous.
+    size_initiator_factory_.RevokeAll();
+    target_bounds_ = GetTargetBounds();
+    start_bounds_ = target_bounds_;
     popup_->Show();
-  else
+  } else {
+    // If we've never been shown, we need to actually create the window, too.
     popup_->Init(edit_view_, this);
+  }
+  SchedulePaint();
 }
 
 void AutocompletePopupContentsView::OnHoverEnabledOrDisabled(bool disabled) {
@@ -731,21 +767,15 @@ AutocompletePopupModel* AutocompletePopupContentsView::GetModel() {
 // AutocompletePopupContentsView, AutocompleteResultViewModel implementation:
 
 bool AutocompletePopupContentsView::IsSelectedIndex(size_t index) const {
-  return index == model_->selected_line();
-}
-
-bool AutocompletePopupContentsView::IsBookmarkedIndex(size_t index) const {
-  return GetMatchAtIndex(index).starred;
-}
-
-const AutocompleteMatch& AutocompletePopupContentsView::GetMatchAtIndex(
-    size_t index) const {
-  return model_->result().match_at(index);
+  return HasMatchAt(index) ? index == model_->selected_line() : false;
 }
 
 void AutocompletePopupContentsView::OpenIndex(
     size_t index,
     WindowOpenDisposition disposition) {
+  if (!HasMatchAt(index))
+    return;
+
   const AutocompleteMatch& match = model_->result().match_at(index);
   // OpenURL() may close the popup, which will clear the result set and, by
   // extension, |match| and its contents.  So copy the relevant strings out to
@@ -758,12 +788,22 @@ void AutocompletePopupContentsView::OpenIndex(
 }
 
 void AutocompletePopupContentsView::SetHoveredLine(size_t index) {
-  model_->SetHoveredLine(index);
+  if (HasMatchAt(index))
+    model_->SetHoveredLine(index);
 }
 
 void AutocompletePopupContentsView::SetSelectedLine(size_t index,
                                                     bool revert_to_default) {
-  model_->SetSelectedLine(index, revert_to_default);
+  if (HasMatchAt(index))
+    model_->SetSelectedLine(index, revert_to_default);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// AutocompletePopupContentsView, AnimationDelegate implementation:
+
+void AutocompletePopupContentsView::AnimationProgressed(
+    const Animation* animation) {
+  popup_->Show();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -827,6 +867,15 @@ void AutocompletePopupContentsView::Layout() {
 ////////////////////////////////////////////////////////////////////////////////
 // AutocompletePopupContentsView, private:
 
+bool AutocompletePopupContentsView::HasMatchAt(size_t index) const {
+  return index < model_->result().size();
+}
+
+const AutocompleteMatch& AutocompletePopupContentsView::GetMatchAtIndex(
+    size_t index) const {
+  return model_->result().match_at(index);
+}
+
 void AutocompletePopupContentsView::MakeContentsPath(
     gfx::Path* path,
     const gfx::Rect& bounding_rect) {
@@ -877,4 +926,39 @@ void AutocompletePopupContentsView::MakeCanvasTransparent(
   paint.setStyle(SkPaint::kFill_Style);
   canvas->FillRectInt(0, 0, canvas->getDevice()->width(),
                       canvas->getDevice()->height(), paint);
+}
+
+void AutocompletePopupContentsView::StartSizing() {
+  CalculateAnimationFrameBounds();
+  if (start_bounds_ != target_bounds_) {
+    size_animation_.Reset(0.0);
+    size_animation_.Show();
+  } else {
+    popup_->Show();
+  }
+}
+
+void AutocompletePopupContentsView::CalculateAnimationFrameBounds() {
+  GetWidget()->GetBounds(&start_bounds_, true);
+  target_bounds_ = GetTargetBounds();
+}
+
+gfx::Rect AutocompletePopupContentsView::GetTargetBounds() const {
+  gfx::Insets insets;
+  border()->GetInsets(&insets);
+  gfx::Rect target_bounds = popup_positioner_->GetPopupBounds();
+  int height = 0;
+  for (size_t i = 0; i < result_rows_; ++i)
+    height += GetChildViewAt(i)->GetPreferredSize().height();
+  target_bounds.set_height(height);
+  target_bounds.Inset(-insets.left(), -insets.top(), -insets.right(),
+                      -insets.bottom());
+  return target_bounds;
+}
+
+bool AutocompletePopupContentsView::IsGrowingLarger() const {
+  gfx::Rect current_bounds;
+  GetWidget()->GetBounds(&current_bounds, true);
+  gfx::Rect target_bounds = GetTargetBounds();
+  return current_bounds.height() < target_bounds.height();
 }

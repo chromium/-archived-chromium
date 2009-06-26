@@ -87,7 +87,7 @@ void Animation::End() {
   }
 }
 
-bool Animation::IsAnimating() {
+bool Animation::IsAnimating() const {
   return animating_;
 }
 
