@@ -7,6 +7,17 @@
 
 #import <Cocoa/Cocoa.h>
 
+// The loading/waiting state of the tab.
+// TODO(pinkerton): this really doesn't belong here, but something needs to
+// know the state and another parallel array in TabStripController doesn't seem
+// like the right place either. In a perfect world, this class shouldn't know
+// anything about states that are specific to a browser.
+enum TabLoadingState {
+  kTabDone,
+  kTabLoading,
+  kTabWaiting,
+};
+
 @class TabView;
 @protocol TabControllerTarget;
 
@@ -26,19 +37,12 @@
   IBOutlet NSButton *backgroundButton_;
   IBOutlet NSView* iconView_;
   BOOL selected_;
-  BOOL loading_;
-  BOOL waiting_;
+  TabLoadingState loadingState_;
   id<TabControllerTarget> target_;  // weak, where actions are sent
   SEL action_;  // selector sent when tab is selected by clicking
 }
 
-// The loading/waiting state of the tab.
-// TODO(pinkerton): these really don't belong here, but something needs to
-// know the state and another parallel array in TabStripController doesn't seem
-// like the right place either. In a perfect world, this class shouldn't know
-// anything about states that are specific to a browser.
-@property(assign, nonatomic) BOOL loading;
-@property(assign, nonatomic) BOOL waiting;
+@property(assign, nonatomic) TabLoadingState loadingState;
 
 @property(assign, nonatomic) BOOL selected;
 @property(assign, nonatomic) id target;

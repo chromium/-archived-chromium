@@ -6,7 +6,7 @@
 
 #include "base/logging.h"
 
-const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
+static const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
 
 @interface ThrobberView(PrivateMethods)
 - (void)animate;

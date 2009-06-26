@@ -466,30 +466,38 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
   // load, so we need to make sure we're not creating the throbber view over and
   // over.
   if (contents) {
-    static NSImage* throbberImage = [[NSImage imageNamed:@"throbber"] retain];
     static NSImage* throbberWaitingImage =
         [[NSImage imageNamed:@"throbber_waiting"] retain];
+    static NSImage* throbberLoadingImage =
+        [[NSImage imageNamed:@"throbber"] retain];
 
     TabController* tabController = [tabArray_ objectAtIndex:index];
-    NSImage* image = nil;
-    if (contents->waiting_for_response() && ![tabController waiting]) {
-      image = throbberWaitingImage;
-      [tabController setWaiting:YES];
-    } else if (contents->is_loading() && ![tabController loading]) {
-      image = throbberImage;
-      [tabController setLoading:YES];
+
+    TabLoadingState oldState = [tabController loadingState];
+
+    TabLoadingState newState = kTabDone;
+    NSImage* throbberImage = nil;
+    if (contents->waiting_for_response()) {
+      newState = kTabWaiting;
+      throbberImage = throbberWaitingImage;
+    } else if (contents->is_loading()) {
+      newState = kTabLoading;
+      throbberImage = throbberLoadingImage;
     }
-    if (image) {
-      NSRect frame = NSMakeRect(0, 0, 16, 16);
-      ThrobberView* throbber =
-          [[[ThrobberView alloc] initWithFrame:frame image:image] autorelease];
-      [tabController setIconView:throbber];
-    }
-    else if (!contents->is_loading()) {
-      // Set everything back to normal, we're done loading.
-      [tabController setIconView:[self favIconImageViewForContents:contents]];
-      [tabController setWaiting:NO];
-      [tabController setLoading:NO];
+
+    if (oldState != newState) {
+      NSView* iconView = nil;
+      if (newState == kTabDone) {
+        iconView = [self favIconImageViewForContents:contents];
+      } else {
+        NSRect frame = NSMakeRect(0, 0, 16, 16);
+        iconView =
+            [[[ThrobberView alloc] initWithFrame:frame
+                                           image:throbberImage] autorelease];
+      }
+
+      [tabController setLoadingState:newState];
+      [tabController setIconView:iconView];
     }
   }
 
