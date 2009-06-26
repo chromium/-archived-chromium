@@ -10,6 +10,17 @@
 #include "chrome/common/notification_service.h"
 #include "net/base/registry_controlled_domain.h"
 
+// We treat javascript:, about:crash, about:hang, and about:shorthang as the
+// same site as any URL since they are actually modifiers on existing pages.
+static bool IsURLSameAsAnySiteInstance(const GURL& url) {
+  if (!url.is_valid())
+    return false;
+  return url.SchemeIs(chrome::kJavaScriptScheme) ||
+         url.spec() == chrome::kAboutCrashURL ||
+         url.spec() == chrome::kAboutHangURL ||
+         url.spec() == chrome::kAboutShorthangURL;
+}
+
 SiteInstance::SiteInstance(BrowsingInstance* browsing_instance)
     : browsing_instance_(browsing_instance),
       render_process_host_factory_(NULL),
@@ -138,31 +149,19 @@ bool SiteInstance::IsSameWebSite(const GURL& url1, const GURL& url2) {
   // one is present, because pages served from different ports can still
   // access each other if they change their document.domain variable.
 
-  // We must treat javascript: URLs as part of the same site, regardless of
-  // the site.
-  if (url1.SchemeIs(chrome::kJavaScriptScheme) ||
-      url2.SchemeIs(chrome::kJavaScriptScheme))
-    return true;
-
-  // We treat about:crash, about:hang, and about:shorthang as the same site as
-  // any URL, since they are used as demos for crashing/hanging a process.
-  GURL about_crash = GURL("about:crash");
-  GURL about_hang = GURL("about:hang");
-  GURL about_shorthang = GURL("about:shorthang");
-  if (url1 == about_crash || url2 == about_crash ||
-    url1 == about_hang || url2 == about_hang ||
-    url1 == about_shorthang || url2 == about_shorthang)
+  // Some special URLs will match the site instance of any other URL. This is
+  // done before checking both of them for validity, since we want these URLs
+  // to have the same site instance as even an invalid one.
+  if (IsURLSameAsAnySiteInstance(url1) || IsURLSameAsAnySiteInstance(url2))
     return true;
 
   // If either URL is invalid, they aren't part of the same site.
-  if (!url1.is_valid() || !url2.is_valid()) {
+  if (!url1.is_valid() || !url2.is_valid())
     return false;
-  }
 
   // If the schemes differ, they aren't part of the same site.
-  if (url1.scheme() != url2.scheme()) {
+  if (url1.scheme() != url2.scheme())
     return false;
-  }
 
   return net::RegistryControlledDomainService::SameDomainOrHost(url1, url2);
 }

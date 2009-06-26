@@ -29,7 +29,10 @@ const char kStandardSchemeSeparator[] = "://";
 
 const char kAboutBlankURL[] = "about:blank";
 const char kAboutCacheURL[] = "about:cache";
+const char kAboutCrashURL[] = "about:crash";
+const char kAboutHangURL[] = "about:hang";
 const char kAboutMemoryURL[] = "about:memory";
+const char kAboutShorthangURL[] = "about:shorthang";
 
 // Use an obfuscated URL to make this nondiscoverable, we only want this
 // to be used for testing.
