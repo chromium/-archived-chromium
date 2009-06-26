@@ -48,7 +48,7 @@ GdkPixbuf* GetDefaultFavicon() {
   return default_bookmark_icon;
 }
 
-GdkPixbuf* GetPixbufForNode(BookmarkNode* node, BookmarkModel* model) {
+GdkPixbuf* GetPixbufForNode(const BookmarkNode* node, BookmarkModel* model) {
   GdkPixbuf* pixbuf;
 
   if (node->is_url()) {
@@ -68,17 +68,17 @@ GdkPixbuf* GetPixbufForNode(BookmarkNode* node, BookmarkModel* model) {
 
 // DnD-related -----------------------------------------------------------------
 
-void WriteBookmarkToSelection(BookmarkNode* node,
+void WriteBookmarkToSelection(const BookmarkNode* node,
                               GtkSelectionData* selection_data,
                               guint target_type,
                               Profile* profile) {
   DCHECK(node);
-  std::vector<BookmarkNode*> nodes;
+  std::vector<const BookmarkNode*> nodes;
   nodes.push_back(node);
   WriteBookmarksToSelection(nodes, selection_data, target_type, profile);
 }
 
-void WriteBookmarksToSelection(const std::vector<BookmarkNode*>& nodes,
+void WriteBookmarksToSelection(const std::vector<const BookmarkNode*>& nodes,
                                GtkSelectionData* selection_data,
                                guint target_type,
                                Profile* profile) {
@@ -100,7 +100,7 @@ void WriteBookmarksToSelection(const std::vector<BookmarkNode*>& nodes,
   }
 }
 
-std::vector<BookmarkNode*> GetNodesFromSelection(
+std::vector<const BookmarkNode*> GetNodesFromSelection(
     GdkDragContext* context,
     GtkSelectionData* selection_data,
     guint target_type,
@@ -130,7 +130,7 @@ std::vector<BookmarkNode*> GetNodesFromSelection(
     }
   }
 
-  return std::vector<BookmarkNode*>();
+  return std::vector<const BookmarkNode*>();
 }
 
 }  // namespace bookmark_utils

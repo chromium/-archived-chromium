@@ -65,36 +65,36 @@ void BookmarkMenuBridge::BookmarkModelBeingDeleted(BookmarkModel* model) {
 }
 
 void BookmarkMenuBridge::BookmarkNodeMoved(BookmarkModel* model,
-                                           BookmarkNode* old_parent,
+                                           const BookmarkNode* old_parent,
                                            int old_index,
-                                           BookmarkNode* new_parent,
+                                           const BookmarkNode* new_parent,
                                            int new_index) {
   // TODO(jrg): this is brute force; perhaps we should be nicer.
   Loaded(model);
 }
 
 void BookmarkMenuBridge::BookmarkNodeAdded(BookmarkModel* model,
-                                           BookmarkNode* parent,
+                                           const BookmarkNode* parent,
                                            int index) {
   // TODO(jrg): this is brute force; perhaps we should be nicer.
   Loaded(model);
 }
 
 void BookmarkMenuBridge::BookmarkNodeChanged(BookmarkModel* model,
-                                             BookmarkNode* node) {
+                                             const BookmarkNode* node) {
   // TODO(jrg): this is brute force; perhaps we should be nicer.
   Loaded(model);
 }
 
 void BookmarkMenuBridge::BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                                   BookmarkNode* node) {
+                                                   const BookmarkNode* node) {
   // Nothing to do here -- no icons in the menubar menus yet.
   // TODO(jrg):
   // Both Safari and FireFox have icons in their menubars for bookmarks.
 }
 
-void BookmarkMenuBridge::BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                                       BookmarkNode* node) {
+void BookmarkMenuBridge::BookmarkNodeChildrenReordered(
+    BookmarkModel* model, const BookmarkNode* node) {
   // TODO(jrg): this is brute force; perhaps we should be nicer.
   Loaded(model);
 }
@@ -171,9 +171,9 @@ const NSUInteger kMenuTrimSizeInChars = 30;
 
 }
 
-void BookmarkMenuBridge::AddNodeToMenu(BookmarkNode* node, NSMenu* menu) {
+void BookmarkMenuBridge::AddNodeToMenu(const BookmarkNode* node, NSMenu* menu) {
   for (int i = 0; i < node->GetChildCount(); i++) {
-    BookmarkNode* child = node->GetChild(i);
+    const BookmarkNode* child = node->GetChild(i);
     NSString* full_title = base::SysWideToNSString(child->GetTitle());
     NSString* title = full_title;
     if ([title length] > kMaximumMenuWidthInChars) {

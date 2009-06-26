@@ -34,10 +34,10 @@ class BookmarkIndex {
   BookmarkIndex() {}
 
   // Invoked when a bookmark has been added to the model.
-  void Add(BookmarkNode* node);
+  void Add(const BookmarkNode* node);
 
   // Invoked when a bookmark has been removed from the model.
-  void Remove(BookmarkNode* node);
+  void Remove(const BookmarkNode* node);
 
   // Returns up to |max_count| of bookmarks containing the text |query|.
   void GetBookmarksWithTitlesMatching(
@@ -46,7 +46,7 @@ class BookmarkIndex {
       std::vector<bookmark_utils::TitleMatch>* results);
 
  private:
-  typedef std::set<BookmarkNode*> NodeSet;
+  typedef std::set<const BookmarkNode*> NodeSet;
   typedef std::map<std::wstring, NodeSet> Index;
 
   // Used when finding the set of bookmarks that match a query. Each match
@@ -116,10 +116,10 @@ class BookmarkIndex {
   std::vector<std::wstring> ExtractQueryWords(const std::wstring& query);
 
   // Adds |node| to |index_|.
-  void RegisterNode(const std::wstring& term, BookmarkNode* node);
+  void RegisterNode(const std::wstring& term, const BookmarkNode* node);
 
   // Removes |node| from |index_|.
-  void UnregisterNode(const std::wstring& term, BookmarkNode* node);
+  void UnregisterNode(const std::wstring& term, const BookmarkNode* node);
 
   Index index_;
 

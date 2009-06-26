@@ -76,23 +76,24 @@ class NewBrowserPageNavigator : public PageNavigator {
 
 void CloneDragDataImpl(BookmarkModel* model,
                        const BookmarkDragData::Element& element,
-                       BookmarkNode* parent,
+                       const BookmarkNode* parent,
                        int index_to_add_at) {
   if (element.is_url) {
     model->AddURL(parent, index_to_add_at, element.title, element.url);
   } else {
-    BookmarkNode* new_folder = model->AddGroup(parent, index_to_add_at,
-                                               element.title);
+    const BookmarkNode* new_folder = model->AddGroup(parent,
+                                                     index_to_add_at,
+                                                     element.title);
     for (int i = 0; i < static_cast<int>(element.children.size()); ++i)
       CloneDragDataImpl(model, element.children[i], new_folder, i);
   }
 }
 
 // Returns the number of descendants of node that are of type url.
-int DescendantURLCount(BookmarkNode* node) {
+int DescendantURLCount(const BookmarkNode* node) {
   int result = 0;
   for (int i = 0; i < node->GetChildCount(); ++i) {
-    BookmarkNode* child = node->GetChild(i);
+    const BookmarkNode* child = node->GetChild(i);
     if (child->is_url())
       result++;
     else
@@ -107,7 +108,7 @@ int DescendantURLCount(BookmarkNode* node) {
 // PageNavigator of the last active tab. This is done to handle a window
 // disposition of new window, in which case we want subsequent tabs to open in
 // that window.
-void OpenAllImpl(BookmarkNode* node,
+void OpenAllImpl(const BookmarkNode* node,
                  WindowOpenDisposition initial_disposition,
                  PageNavigator** navigator,
                  bool* opened_url) {
@@ -141,7 +142,7 @@ void OpenAllImpl(BookmarkNode* node,
 }
 
 bool ShouldOpenAll(gfx::NativeView parent,
-                   const std::vector<BookmarkNode*>& nodes) {
+                   const std::vector<const BookmarkNode*>& nodes) {
   int descendant_count = 0;
   for (size_t i = 0; i < nodes.size(); ++i)
     descendant_count += DescendantURLCount(nodes[i]);
@@ -163,7 +164,7 @@ bool ShouldOpenAll(gfx::NativeView parent,
 }
 
 // Comparison function that compares based on date modified of the two nodes.
-bool MoreRecentlyModified(BookmarkNode* n1, BookmarkNode* n2) {
+bool MoreRecentlyModified(const BookmarkNode* n1, const BookmarkNode* n2) {
   return n1->date_group_modified() > n2->date_group_modified();
 }
 
@@ -180,7 +181,7 @@ bool DoesBookmarkTextContainWords(const std::wstring& text,
 
 // Returns true if |node|s title or url contains the strings in |words|.
 // |languages| argument is user's accept-language setting to decode IDN.
-bool DoesBookmarkContainWords(BookmarkNode* node,
+bool DoesBookmarkContainWords(const BookmarkNode* node,
                               const std::vector<std::wstring>& words,
                               const std::wstring& languages) {
   return
@@ -210,7 +211,7 @@ int PreferredDropOperation(int source_operations, int operations) {
   return DragDropTypes::DRAG_NONE;
 }
 
-int BookmarkDragOperation(BookmarkNode* node) {
+int BookmarkDragOperation(const BookmarkNode* node) {
   if (node->is_url()) {
     return DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_MOVE |
            DragDropTypes::DRAG_LINK;
@@ -221,7 +222,7 @@ int BookmarkDragOperation(BookmarkNode* node) {
 int BookmarkDropOperation(Profile* profile,
                           const views::DropTargetEvent& event,
                           const BookmarkDragData& data,
-                          BookmarkNode* parent,
+                          const BookmarkNode* parent,
                           int index) {
   if (data.IsFromProfile(profile) && data.size() > 1)
     // Currently only accept one dragged node at a time.
@@ -241,9 +242,9 @@ int BookmarkDropOperation(Profile* profile,
 
 int PerformBookmarkDrop(Profile* profile,
                         const BookmarkDragData& data,
-                        BookmarkNode* parent_node,
+                        const BookmarkNode* parent_node,
                         int index) {
-  BookmarkNode* dragged_node = data.GetFirstNode(profile);
+  const BookmarkNode* dragged_node = data.GetFirstNode(profile);
   BookmarkModel* model = profile->GetBookmarkModel();
   if (dragged_node) {
     // Drag from same profile, do a move.
@@ -269,7 +270,7 @@ int PerformBookmarkDrop(Profile* profile,
 
 bool IsValidDropLocation(Profile* profile,
                          const BookmarkDragData& data,
-                         BookmarkNode* drop_parent,
+                         const BookmarkNode* drop_parent,
                          int index) {
   if (!drop_parent->is_folder()) {
     NOTREACHED();
@@ -280,11 +281,11 @@ bool IsValidDropLocation(Profile* profile,
     return false;
 
   if (data.IsFromProfile(profile)) {
-    std::vector<BookmarkNode*> nodes = data.GetNodes(profile);
+    std::vector<const BookmarkNode*> nodes = data.GetNodes(profile);
     for (size_t i = 0; i < nodes.size(); ++i) {
       // Don't allow the drop if the user is attempting to drop on one of the
       // nodes being dragged.
-      BookmarkNode* node = nodes[i];
+      const BookmarkNode* node = nodes[i];
       int node_index = (drop_parent == node->GetParent()) ?
           drop_parent->IndexOfChild(nodes[i]) : -1;
       if (node_index != -1 && (index == node_index || index == node_index + 1))
@@ -302,7 +303,7 @@ bool IsValidDropLocation(Profile* profile,
 
 void CloneDragData(BookmarkModel* model,
                    const std::vector<BookmarkDragData::Element>& elements,
-                   BookmarkNode* parent,
+                   const BookmarkNode* parent,
                    int index_to_add_at) {
   if (!parent->is_folder() || !model) {
     NOTREACHED();
@@ -315,7 +316,7 @@ void CloneDragData(BookmarkModel* model,
 void OpenAll(gfx::NativeView parent,
              Profile* profile,
              PageNavigator* navigator,
-             const std::vector<BookmarkNode*>& nodes,
+             const std::vector<const BookmarkNode*>& nodes,
              WindowOpenDisposition initial_disposition) {
   if (!ShouldOpenAll(parent, nodes))
     return;
@@ -343,15 +344,15 @@ void OpenAll(gfx::NativeView parent,
 void OpenAll(gfx::NativeView parent,
              Profile* profile,
              PageNavigator* navigator,
-             BookmarkNode* node,
+             const BookmarkNode* node,
              WindowOpenDisposition initial_disposition) {
-  std::vector<BookmarkNode*> nodes;
+  std::vector<const BookmarkNode*> nodes;
   nodes.push_back(node);
   OpenAll(parent, profile, navigator, nodes, initial_disposition);
 }
 
 void CopyToClipboard(BookmarkModel* model,
-                     const std::vector<BookmarkNode*>& nodes,
+                     const std::vector<const BookmarkNode*>& nodes,
                      bool remove_nodes) {
   if (nodes.empty())
     return;
@@ -375,7 +376,7 @@ void CopyToClipboard(BookmarkModel* model,
 }
 
 void PasteFromClipboard(BookmarkModel* model,
-                        BookmarkNode* parent,
+                        const BookmarkNode* parent,
                         int index) {
   if (!parent)
     return;
@@ -398,7 +399,7 @@ void PasteFromClipboard(BookmarkModel* model,
 #endif
 }
 
-bool CanPasteFromClipboard(BookmarkNode* node) {
+bool CanPasteFromClipboard(const BookmarkNode* node) {
   if (!node)
     return false;
 
@@ -416,18 +417,18 @@ bool CanPasteFromClipboard(BookmarkNode* node) {
 #endif
 }
 
-std::vector<BookmarkNode*> GetMostRecentlyModifiedGroups(
+std::vector<const BookmarkNode*> GetMostRecentlyModifiedGroups(
     BookmarkModel* model,
     size_t max_count) {
-  std::vector<BookmarkNode*> nodes;
-  TreeNodeIterator<BookmarkNode> iterator(model->root_node());
+  std::vector<const BookmarkNode*> nodes;
+  TreeNodeIterator<const BookmarkNode> iterator(model->root_node());
   while (iterator.has_next()) {
-    BookmarkNode* parent = iterator.Next();
+    const BookmarkNode* parent = iterator.Next();
     if (parent->is_folder() && parent->date_group_modified() > base::Time()) {
       if (max_count == 0) {
         nodes.push_back(parent);
       } else {
-        std::vector<BookmarkNode*>::iterator i =
+        std::vector<const BookmarkNode*>::iterator i =
             std::upper_bound(nodes.begin(), nodes.end(), parent,
                              &MoreRecentlyModified);
         if (nodes.size() < max_count || i != nodes.end()) {
@@ -457,12 +458,12 @@ std::vector<BookmarkNode*> GetMostRecentlyModifiedGroups(
 
 void GetMostRecentlyAddedEntries(BookmarkModel* model,
                                  size_t count,
-                                 std::vector<BookmarkNode*>* nodes) {
-  TreeNodeIterator<BookmarkNode> iterator(model->root_node());
+                                 std::vector<const BookmarkNode*>* nodes) {
+  TreeNodeIterator<const BookmarkNode> iterator(model->root_node());
   while (iterator.has_next()) {
-    BookmarkNode* node = iterator.Next();
+    const BookmarkNode* node = iterator.Next();
     if (node->is_url()) {
-      std::vector<BookmarkNode*>::iterator insert_position =
+      std::vector<const BookmarkNode*>::iterator insert_position =
           std::upper_bound(nodes->begin(), nodes->end(), node,
                            &MoreRecentlyAdded);
       if (nodes->size() < count || insert_position != nodes->end()) {
@@ -474,7 +475,7 @@ void GetMostRecentlyAddedEntries(BookmarkModel* model,
   }
 }
 
-bool MoreRecentlyAdded(BookmarkNode* n1, BookmarkNode* n2) {
+bool MoreRecentlyAdded(const BookmarkNode* n1, const BookmarkNode* n2) {
   return n1->date_added() > n2->date_added();
 }
 
@@ -482,16 +483,16 @@ void GetBookmarksContainingText(BookmarkModel* model,
                                 const std::wstring& text,
                                 size_t max_count,
                                 const std::wstring& languages,
-                                std::vector<BookmarkNode*>* nodes) {
+                                std::vector<const BookmarkNode*>* nodes) {
   std::vector<std::wstring> words;
   QueryParser parser;
   parser.ExtractQueryWords(l10n_util::ToLower(text), &words);
   if (words.empty())
     return;
 
-  TreeNodeIterator<BookmarkNode> iterator(model->root_node());
+  TreeNodeIterator<const BookmarkNode> iterator(model->root_node());
   while (iterator.has_next()) {
-    BookmarkNode* node = iterator.Next();
+    const BookmarkNode* node = iterator.Next();
     if (node->is_url() && DoesBookmarkContainWords(node, words, languages)) {
       nodes->push_back(node);
       if (nodes->size() == max_count)
@@ -500,7 +501,7 @@ void GetBookmarksContainingText(BookmarkModel* model,
   }
 }
 
-bool DoesBookmarkContainText(BookmarkNode* node,
+bool DoesBookmarkContainText(const BookmarkNode* node,
                              const std::wstring& text,
                              const std::wstring& languages) {
   std::vector<std::wstring> words;
@@ -513,12 +514,12 @@ bool DoesBookmarkContainText(BookmarkNode* node,
 }
 
 void ApplyEditsWithNoGroupChange(BookmarkModel* model,
-                                 BookmarkNode* parent,
-                                 BookmarkNode* node,
+                                 const BookmarkNode* parent,
+                                 const BookmarkNode* node,
                                  const std::wstring& new_title,
                                  const GURL& new_url,
                                  BookmarkEditor::Handler* handler) {
-  BookmarkNode* old_parent = node ? node->GetParent() : NULL;
+  const BookmarkNode* old_parent = node ? node->GetParent() : NULL;
   const int old_index = old_parent ? old_parent->IndexOfChild(node) : -1;
 
   if (!node) {
@@ -546,12 +547,12 @@ void ApplyEditsWithNoGroupChange(BookmarkModel* model,
 }
 
 void ApplyEditsWithPossibleGroupChange(BookmarkModel* model,
-                                       BookmarkNode* new_parent,
-                                       BookmarkNode* node,
+                                       const BookmarkNode* new_parent,
+                                       const BookmarkNode* node,
                                        const std::wstring& new_title,
                                        const GURL& new_url,
                                        BookmarkEditor::Handler* handler) {
-  BookmarkNode* old_parent = node ? node->GetParent() : NULL;
+  const BookmarkNode* old_parent = node ? node->GetParent() : NULL;
   const int old_index = old_parent ? old_parent->IndexOfChild(node) : -1;
 
   if (node) {
@@ -560,19 +561,16 @@ void ApplyEditsWithPossibleGroupChange(BookmarkModel* model,
       // The parent is the same.
       if (new_url != node->GetURL()) {
         model->Remove(old_parent, old_index);
-        BookmarkNode* new_node =
-            model->AddURL(old_parent, old_index, new_title, new_url);
-        new_node->set_date_added(date_added);
+        model->AddURLWithCreationTime(old_parent, old_index,
+                                      new_title, new_url, date_added);
       } else {
         model->SetTitle(node, new_title);
       }
     } else if (new_url != node->GetURL()) {
       // The parent and URL changed.
       model->Remove(old_parent, old_index);
-      BookmarkNode* new_node =
-          model->AddURL(new_parent, new_parent->GetChildCount(), new_title,
-                        new_url);
-      new_node->set_date_added(date_added);
+      model->AddURLWithCreationTime(new_parent, new_parent->GetChildCount(),
+                                    new_title, new_url, date_added);
     } else {
       // The parent and title changed. Move the node and change the title.
       model->Move(node, new_parent, new_parent->GetChildCount());

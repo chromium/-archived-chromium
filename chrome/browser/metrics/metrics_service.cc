@@ -1699,7 +1699,9 @@ void MetricsService::LogChildProcessChange(
 }
 
 // Recursively counts the number of bookmarks and folders in node.
-static void CountBookmarks(BookmarkNode* node, int* bookmarks, int* folders) {
+static void CountBookmarks(const BookmarkNode* node,
+                           int* bookmarks,
+                           int* folders) {
   if (node->GetType() == history::StarredEntry::URL)
     (*bookmarks)++;
   else
@@ -1708,7 +1710,7 @@ static void CountBookmarks(BookmarkNode* node, int* bookmarks, int* folders) {
     CountBookmarks(node->GetChild(i), bookmarks, folders);
 }
 
-void MetricsService::LogBookmarks(BookmarkNode* node,
+void MetricsService::LogBookmarks(const BookmarkNode* node,
                                   const wchar_t* num_bookmarks_key,
                                   const wchar_t* num_folders_key) {
   DCHECK(node);

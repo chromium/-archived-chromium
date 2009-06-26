@@ -38,12 +38,12 @@ class BookmarkFolderTreeModelTest : public testing::Test,
     profile_.reset(new TestingProfile());
     profile_->CreateBookmarkModel(true);
     // Populate with some default data.
-    BookmarkNode* bb = bookmark_model()->GetBookmarkBarNode();
+    const BookmarkNode* bb = bookmark_model()->GetBookmarkBarNode();
     bookmark_model()->AddURL(bb, 0, L"url1", url1_);
-    BookmarkNode* f1 = bookmark_model()->AddGroup(bb, 1, L"f1");
+    const BookmarkNode* f1 = bookmark_model()->AddGroup(bb, 1, L"f1");
     bookmark_model()->AddGroup(f1, 0, L"f11");
 
-    BookmarkNode* other = bookmark_model()->other_node();
+    const BookmarkNode* other = bookmark_model()->other_node();
     bookmark_model()->AddURL(other, 0, L"url2", url2_);
     bookmark_model()->AddGroup(other, 1, L"f2");
     bookmark_model()->AddURL(other, 2, L"url3", url3_);
@@ -176,7 +176,7 @@ TEST_F(BookmarkFolderTreeModelTest, RemoveFolder) {
 
 // Adds a folder and makes sure we get the right notification.
 TEST_F(BookmarkFolderTreeModelTest, AddFolder) {
-  BookmarkNode* new_group =
+  const BookmarkNode* new_group =
       bookmark_model()->AddGroup(
           bookmark_model()->GetBookmarkBarNode(), 0, L"fa");
   VerifyAndClearObserverCounts(0, 1, 0, 0);
@@ -198,7 +198,7 @@ TEST_F(BookmarkFolderTreeModelTest, ChangeFolder) {
 // Sorts the other folder, making sure the resulting order is correct and the
 // appropriate notification is sent.
 TEST_F(BookmarkFolderTreeModelTest, Sort) {
-  BookmarkNode* other = bookmark_model()->other_node();
+  const BookmarkNode* other = bookmark_model()->other_node();
   bookmark_model()->AddGroup(other, 3, L"a1");
   bookmark_model()->AddGroup(other, 4, L"g1");
   ResetCounts();

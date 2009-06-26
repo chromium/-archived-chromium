@@ -21,7 +21,7 @@ class BookmarkMenuBridgeTest : public testing::Test {
     bridge->ClearBookmarkMenu(menu);
   }
 
-  void AddNodeToMenu(BookmarkMenuBridge* bridge, BookmarkNode* root,
+  void AddNodeToMenu(BookmarkMenuBridge* bridge, const BookmarkNode* root,
                      NSMenu* menu) {
     bridge->AddNodeToMenu(root, menu);
   }
@@ -75,8 +75,8 @@ TEST_F(BookmarkMenuBridgeTest, TestAddNodeToMenu) {
   NSMenu* menu = [[[NSMenu alloc] initWithTitle:@"foo"] autorelease];
 
   BookmarkModel* model = profile->GetBookmarkModel();
-  BookmarkNode* bookmark_bar = model->GetBookmarkBarNode();
-  BookmarkNode* root = model->AddGroup(bookmark_bar, 0, empty);
+  const BookmarkNode* bookmark_bar = model->GetBookmarkBarNode();
+  const BookmarkNode* root = model->AddGroup(bookmark_bar, 0, empty);
   EXPECT_TRUE(model && root);
 
   const char* short_url = "http://foo/";
@@ -87,7 +87,7 @@ TEST_F(BookmarkMenuBridgeTest, TestAddNodeToMenu) {
 
   // 3 nodes; middle one has a child, last one has a HUGE URL
   // Set their titles to be the same as the URLs
-  BookmarkNode* node = NULL;
+  const BookmarkNode* node = NULL;
   model->AddURL(root, 0, ASCIIToWide(short_url), GURL(short_url));
   node = model->AddGroup(root, 1, empty);
   model->AddURL(root, 2, ASCIIToWide(long_url), GURL(long_url));

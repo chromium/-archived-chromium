@@ -757,7 +757,7 @@ void ToolbarView::WriteDragData(views::View* sender,
   TabContents* tab = browser_->GetSelectedTabContents();
   if (tab) {
     if (profile_ && profile_->GetBookmarkModel()) {
-      BookmarkNode* node = profile_->GetBookmarkModel()->
+      const BookmarkNode* node = profile_->GetBookmarkModel()->
           GetMostRecentlyAddedNodeForURL(tab->GetURL());
       if (node) {
         BookmarkDragData bookmark_data(node);

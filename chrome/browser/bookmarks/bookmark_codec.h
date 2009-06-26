@@ -78,8 +78,8 @@ class BookmarkCodec {
   // up to the caller to delete the returned object.
   // This method is public for use by StarredURLDatabase in migrating the
   // bookmarks out of the database.
-  Value* Encode(BookmarkNode* bookmark_bar_node,
-                BookmarkNode* other_folder_node);
+  Value* Encode(const BookmarkNode* bookmark_bar_node,
+                const BookmarkNode* other_folder_node);
 
   // Decodes the previously encoded value to the specified nodes as well as
   // setting |max_node_id| to the greatest node id. Returns true on success,
@@ -122,7 +122,7 @@ class BookmarkCodec {
  private:
   // Encodes node and all its children into a Value object and returns it.
   // The caller takes ownership of the returned object.
-  Value* EncodeNode(BookmarkNode* node);
+  Value* EncodeNode(const BookmarkNode* node);
 
   // Helper to perform decoding.
   bool DecodeHelper(BookmarkNode* bb_node,

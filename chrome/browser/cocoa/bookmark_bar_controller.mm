@@ -143,15 +143,14 @@ const CGFloat kBookmarkHorizontalPadding = 8.0;
 // TODO(jrg): add an openBookmarkInBackground() for ctrl-click which
 // has a different disposition.
 - (void)openBookmark:(id)sender {
-  BookmarkNode* node = static_cast<BookmarkNode*>([[[sender cell]
-                                                     representedObject]
-                                                    pointerValue]);
+  const BookmarkNode* node = static_cast<const BookmarkNode*>(
+      [[[sender cell]representedObject]pointerValue]);
   DCHECK(node);
   [delegate_ openBookmarkURL:node->GetURL() disposition:CURRENT_TAB];
 }
 
 // Return an autoreleased NSCell suitable for a bookmark button.
-- (NSCell *)cellForBookmarkNode:(BookmarkNode*)node frame:(NSRect)frame {
+- (NSCell *)cellForBookmarkNode:(const BookmarkNode*)node frame:(NSRect)frame {
   NSString* title = base::SysWideToNSString(node->GetTitle());
   NSButtonCell *cell = [[[BookmarkButtonCell alloc] initTextCell:nil]
                          autorelease];
@@ -212,9 +211,9 @@ const CGFloat kBookmarkHorizontalPadding = 8.0;
 // TODO(jrg): write a "build bar" so there is a nice spot for things
 // like the contextual menu which is invoked when not over a
 // bookmark.  On Safari that menu has a "new folder" option.
-- (void)addNodesToBar:(BookmarkNode*)node {
+- (void)addNodesToBar:(const BookmarkNode*)node {
   for (int i = 0; i < node->GetChildCount(); i++) {
-    BookmarkNode* child = node->GetChild(i);
+    const BookmarkNode* child = node->GetChild(i);
 
     NSRect frame = [self frameForBookmarkAtIndex:i];
     NSButton* button = [[[NSButton alloc] initWithFrame:frame]
@@ -255,7 +254,7 @@ const CGFloat kBookmarkHorizontalPadding = 8.0;
   if ((barIsVisible_ == NO) || !model->IsLoaded())
     return;
   // Else brute force nuke and build.
-  BookmarkNode* node = model->GetBookmarkBarNode();
+  const BookmarkNode* node = model->GetBookmarkBarNode();
   [self clearBookmarkBar];
   [self addNodesToBar:node];
 }
@@ -266,32 +265,32 @@ const CGFloat kBookmarkHorizontalPadding = 8.0;
 
 // TODO(jrg): for now this is brute force.
 - (void)nodeMoved:(BookmarkModel*)model
-        oldParent:(BookmarkNode*)oldParent oldIndex:(int)oldIndex
-        newParent:(BookmarkNode*)newParent newIndex:(int)newIndex {
+        oldParent:(const BookmarkNode*)oldParent oldIndex:(int)oldIndex
+        newParent:(const BookmarkNode*)newParent newIndex:(int)newIndex {
   [self loaded:model];
 }
 
 // TODO(jrg): for now this is brute force.
 - (void)nodeAdded:(BookmarkModel*)model
-           parent:(BookmarkNode*)oldParent index:(int)index {
+           parent:(const BookmarkNode*)oldParent index:(int)index {
   [self loaded:model];
 }
 
 // TODO(jrg): for now this is brute force.
 - (void)nodeChanged:(BookmarkModel*)model
-               node:(BookmarkNode*)node {
+               node:(const BookmarkNode*)node {
   [self loaded:model];
 }
 
 // TODO(jrg): linear searching is bad.
 // Need a BookmarkNode-->NSCell mapping.
 - (void)nodeFavIconLoaded:(BookmarkModel*)model
-                     node:(BookmarkNode*)node {
+                     node:(const BookmarkNode*)node {
   NSArray* views = [bookmarkBarView_ subviews];
   for (NSButton* button in views) {
     NSButtonCell* cell = [button cell];
     void* pointer = [[cell representedObject] pointerValue];
-    BookmarkNode* cellnode = static_cast<BookmarkNode*>(pointer);
+    const BookmarkNode* cellnode = static_cast<const BookmarkNode*>(pointer);
     if (cellnode == node) {
       NSImage* image = gfx::SkBitmapToNSImage(bookmarkModel_->GetFavIcon(node));
       if (image) {
@@ -305,7 +304,7 @@ const CGFloat kBookmarkHorizontalPadding = 8.0;
 
 // TODO(jrg): for now this is brute force.
 - (void)nodeChildrenReordered:(BookmarkModel*)model
-                         node:(BookmarkNode*)node {
+                         node:(const BookmarkNode*)node {
   [self loaded:model];
 }
 

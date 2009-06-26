@@ -11,7 +11,7 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 
 // The type of nodes created by BookmarkFolderTreeModel.
-typedef TreeNodeWithValue<BookmarkNode*> FolderNode;
+typedef TreeNodeWithValue<const BookmarkNode*> FolderNode;
 
 // TreeModel implementation that shows the folders from the BookmarkModel.
 // The root node contains the following nodes:
@@ -40,11 +40,11 @@ class BookmarkFolderTreeModel : public TreeNodeModel<FolderNode>,
   NodeType GetNodeType(TreeModelNode* node);
 
   // Returns the FolderNode for the specified BookmarkNode.
-  FolderNode* GetFolderNodeForBookmarkNode(BookmarkNode* node);
+  FolderNode* GetFolderNodeForBookmarkNode(const BookmarkNode* node);
 
   // Converts the tree node into a BookmarkNode. Returns NULL if |node| is NULL
   // or not of NodeType::BOOKMARK.
-  BookmarkNode* TreeNodeAsBookmarkNode(TreeModelNode* node);
+  const BookmarkNode* TreeNodeAsBookmarkNode(TreeModelNode* node);
 
   // Returns the search node.
   FolderNode* search_node() const { return search_node_; }
@@ -53,24 +53,24 @@ class BookmarkFolderTreeModel : public TreeNodeModel<FolderNode>,
   virtual void Loaded(BookmarkModel* model);
   virtual void BookmarkModelBeingDeleted(BookmarkModel* model);
   virtual void BookmarkNodeMoved(BookmarkModel* model,
-                                 BookmarkNode* old_parent,
+                                 const BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkNode* new_parent,
+                                 const BookmarkNode* new_parent,
                                  int new_index);
   virtual void BookmarkNodeAdded(BookmarkModel* model,
-                                 BookmarkNode* parent,
+                                 const BookmarkNode* parent,
                                  int index);
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int index,
-                                   BookmarkNode* node);
+                                   const BookmarkNode* node);
   virtual void BookmarkNodeChanged(BookmarkModel* model,
-                                   BookmarkNode* node);
+                                   const BookmarkNode* node);
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                             BookmarkNode* node);
+                                             const BookmarkNode* node);
   // Folders don't have favicons, so we ignore this.
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node) {}
+                                         const BookmarkNode* node) {}
 
   // The following are overriden to return custom icons for the recently
   // bookmarked and search nodes.
@@ -85,17 +85,17 @@ private:
   // represents |node|, |folder_node| is returned, otherwise this recurses
   // through the children.
   FolderNode* GetFolderNodeForBookmarkNode(FolderNode* folder_node,
-                                           BookmarkNode* node);
+                                           const BookmarkNode* node);
 
   // Creates a new folder node for |node| and all its children.
-  FolderNode* CreateFolderNode(BookmarkNode* node);
+  FolderNode* CreateFolderNode(const BookmarkNode* node);
 
   // Returns the number of folders that precede |node| in |node|s parent.
   // The returned value is the index of the folder node representing |node|
   // in its parent.
   // This is used when new bookmarks are created to determine where the
   // corresponding folder node should be created.
-  int CalculateIndexForChild(BookmarkNode* node);
+  int CalculateIndexForChild(const BookmarkNode* node);
 
   // The model we're getting data from. Owned by the Profile.
   BookmarkModel* model_;

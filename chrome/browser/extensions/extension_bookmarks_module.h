@@ -27,28 +27,28 @@ class ExtensionBookmarkEventRouter : public BookmarkModelObserver {
   virtual void Loaded(BookmarkModel* model);
   virtual void BookmarkModelBeingDeleted(BookmarkModel* model) { }
   virtual void BookmarkNodeMoved(BookmarkModel* model,
-                                 BookmarkNode* old_parent,
+                                 const BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkNode* new_parent,
+                                 const BookmarkNode* new_parent,
                                  int new_index);
   virtual void BookmarkNodeAdded(BookmarkModel* model,
-                                 BookmarkNode* parent,
+                                 const BookmarkNode* parent,
                                  int index);
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int index);
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int old_index,
-                                   BookmarkNode* node) {
+                                   const BookmarkNode* node) {
     BookmarkNodeRemoved(model, parent, old_index);
   }
   virtual void BookmarkNodeChanged(BookmarkModel* model,
-                                   BookmarkNode* node);
+                                   const BookmarkNode* node);
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node);
+                                         const BookmarkNode* node);
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                             BookmarkNode* node);
+                                             const BookmarkNode* node);
 
  private:
   ExtensionBookmarkEventRouter();

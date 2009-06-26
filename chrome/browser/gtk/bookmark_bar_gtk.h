@@ -74,15 +74,15 @@ class BookmarkBarGtk : public AnimationDelegate,
  private:
   // Helper function that sets visual properties of GtkButton |button| to the
   // contents of |node|.
-  void ConfigureButtonForNode(BookmarkNode* node,
+  void ConfigureButtonForNode(const BookmarkNode* node,
                               GtkWidget* button);
 
   // Helper function which generates GtkToolItems for |bookmark_toolbar_|.
-  void CreateAllBookmarkButtons(BookmarkNode* node);
+  void CreateAllBookmarkButtons(const BookmarkNode* node);
 
   // Sets the visibility of the instructional text based on whether there are
   // any bookmarks in |node|. |node| is assumed to be the bookmarks bar node.
-  void SetInstructionState(BookmarkNode* boomarks_bar_node);
+  void SetInstructionState(const BookmarkNode* boomarks_bar_node);
 
   // Helper function which destroys all the bookmark buttons in the GtkToolbar.
   void RemoveAllBookmarkButtons();
@@ -103,40 +103,40 @@ class BookmarkBarGtk : public AnimationDelegate,
 
   // Invoked when a node has moved.
   virtual void BookmarkNodeMoved(BookmarkModel* model,
-                                 BookmarkNode* old_parent,
+                                 const BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkNode* new_parent,
+                                 const BookmarkNode* new_parent,
                                  int new_index);
   virtual void BookmarkNodeAdded(BookmarkModel* model,
-                                 BookmarkNode* parent,
+                                 const BookmarkNode* parent,
                                  int index);
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int index);
   virtual void BookmarkNodeChanged(BookmarkModel* model,
-                                   BookmarkNode* node);
+                                   const BookmarkNode* node);
   // Invoked when a favicon has finished loading.
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node);
+                                         const BookmarkNode* node);
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                             BookmarkNode* node);
+                                             const BookmarkNode* node);
 
  private:
-  GtkWidget* CreateBookmarkButton(BookmarkNode* node);
-  GtkToolItem* CreateBookmarkToolItem(BookmarkNode* node);
+  GtkWidget* CreateBookmarkButton(const BookmarkNode* node);
+  GtkToolItem* CreateBookmarkToolItem(const BookmarkNode* node);
 
   void ConnectFolderButtonEvents(GtkWidget* widget);
 
-  std::string BuildTooltip(BookmarkNode* node);
+  std::string BuildTooltip(const BookmarkNode* node);
 
   // Finds the BookmarkNode from the model associated with |button|.
-  BookmarkNode* GetNodeForToolButton(GtkWidget* button);
+  const BookmarkNode* GetNodeForToolButton(GtkWidget* button);
 
   // Loads the background image into memory, or does nothing if already loaded.
   void InitBackground();
 
   // Creates and displays a popup menu for BookmarkNode |node|.
-  void PopupMenuForNode(GtkWidget* sender, BookmarkNode* node,
+  void PopupMenuForNode(GtkWidget* sender, const BookmarkNode* node,
                         GdkEventButton* event);
 
   // GtkButton callbacks
@@ -221,7 +221,7 @@ class BookmarkBarGtk : public AnimationDelegate,
 
   // The BookmarkNode from the model being dragged. NULL when we aren't
   // dragging.
-  BookmarkNode* dragged_node_;
+  const BookmarkNode* dragged_node_;
 
   // We create a GtkToolbarItem from |dragged_node_| for display.
   GtkToolItem* toolbar_drop_item_;

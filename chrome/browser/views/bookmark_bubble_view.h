@@ -62,23 +62,23 @@ class BookmarkBubbleView : public views::View,
   // also contains an extra item that shows the text 'Choose another folder...'.
   class RecentlyUsedFoldersModel : public views::Combobox::Model {
    public:
-    RecentlyUsedFoldersModel(BookmarkModel* bb_model, BookmarkNode* node);
+    RecentlyUsedFoldersModel(BookmarkModel* bb_model, const BookmarkNode* node);
 
     // Combobox::Model methods. Call through to nodes_.
     virtual int GetItemCount(views::Combobox* source);
     virtual std::wstring GetItemAt(views::Combobox* source, int index);
 
     // Returns the node at the specified index.
-    BookmarkNode* GetNodeAt(int index);
+    const BookmarkNode* GetNodeAt(int index);
 
     // Returns the index of the original parent folder.
     int node_parent_index() const { return node_parent_index_; }
 
    private:
     // Removes node from nodes_. Does nothing if node is not in nodes_.
-    void RemoveNode(BookmarkNode* node);
+    void RemoveNode(const BookmarkNode* node);
 
-    std::vector<BookmarkNode*> nodes_;
+    std::vector<const BookmarkNode*> nodes_;
     int node_parent_index_;
 
     DISALLOW_COPY_AND_ASSIGN(RecentlyUsedFoldersModel);

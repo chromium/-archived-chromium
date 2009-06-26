@@ -191,8 +191,8 @@ TEST_F(BookmarkIndexTest, HonorMax) {
 // Makes sure if the lower case string of a bookmark title is more characters
 // than the upper case string no match positions are returned.
 TEST_F(BookmarkIndexTest, EmptyMatchOnMultiwideLowercaseString) {
-  BookmarkNode* n1 = model_->AddURL(model_->other_node(), 0, L"\u0130 i",
-                                    GURL("http://www.google.com"));
+  const BookmarkNode* n1 = model_->AddURL(model_->other_node(), 0, L"\u0130 i",
+                                          GURL("http://www.google.com"));
 
   std::vector<bookmark_utils::TitleMatch> matches;
   model_->GetBookmarksWithTitlesMatching(L"i", 100, &matches);

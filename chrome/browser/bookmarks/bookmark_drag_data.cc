@@ -28,7 +28,7 @@ static void RegisterFormat() {
 }
 #endif
 
-BookmarkDragData::Element::Element(BookmarkNode* node)
+BookmarkDragData::Element::Element(const BookmarkNode* node)
     : is_url(node->is_url()),
       url(node->GetURL()),
       title(node->GetTitle()),
@@ -76,11 +76,12 @@ bool BookmarkDragData::Element::ReadFromPickle(Pickle* pickle,
   return true;
 }
 
-BookmarkDragData::BookmarkDragData(BookmarkNode* node) {
+BookmarkDragData::BookmarkDragData(const BookmarkNode* node) {
   elements.push_back(Element(node));
 }
 
-BookmarkDragData::BookmarkDragData(const std::vector<BookmarkNode*>& nodes) {
+BookmarkDragData::BookmarkDragData(
+    const std::vector<const BookmarkNode*>& nodes) {
   for (size_t i = 0; i < nodes.size(); ++i)
     elements.push_back(Element(nodes[i]));
 }
@@ -185,14 +186,15 @@ bool BookmarkDragData::ReadFromPickle(Pickle* pickle) {
   return true;
 }
 
-std::vector<BookmarkNode*> BookmarkDragData::GetNodes(Profile* profile) const {
-  std::vector<BookmarkNode*> nodes;
+std::vector<const BookmarkNode*> BookmarkDragData::GetNodes(
+    Profile* profile) const {
+  std::vector<const BookmarkNode*> nodes;
 
   if (!IsFromProfile(profile))
     return nodes;
 
   for (size_t i = 0; i < elements.size(); ++i) {
-    BookmarkNode* node =
+    const BookmarkNode* node =
         profile->GetBookmarkModel()->GetNodeByID(elements[i].id_);
     if (!node) {
       nodes.clear();
@@ -203,8 +205,8 @@ std::vector<BookmarkNode*> BookmarkDragData::GetNodes(Profile* profile) const {
   return nodes;
 }
 
-BookmarkNode* BookmarkDragData::GetFirstNode(Profile* profile) const {
-  std::vector<BookmarkNode*> nodes = GetNodes(profile);
+const BookmarkNode* BookmarkDragData::GetFirstNode(Profile* profile) const {
+  std::vector<const BookmarkNode*> nodes = GetNodes(profile);
   return nodes.size() == 1 ? nodes[0] : NULL;
 }
 

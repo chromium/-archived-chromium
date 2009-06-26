@@ -29,8 +29,8 @@ class BookmarkMenuBridge;
 
 
 @interface BookmarkMenuCocoaController (ExposedForUnitTests)
-- (BookmarkNode*)nodeForIdentifier:(int)identifier;
-- (void)openURLForNode:(BookmarkNode*)node;
+- (const BookmarkNode*)nodeForIdentifier:(int)identifier;
+- (void)openURLForNode:(const BookmarkNode*)node;
 @end  // BookmarkMenuCocoaController (ExposedForUnitTests)
 
 #endif  // CHROME_BROWSER_COCOA_BOOKMARK_MENU_COCOA_CONTROLLER_H_

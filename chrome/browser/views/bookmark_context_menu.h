@@ -59,8 +59,8 @@ class BookmarkContextMenu : public BookmarkModelObserver,
                       Profile* profile,
                       Browser* browser,
                       PageNavigator* navigator,
-                      BookmarkNode* parent,
-                      const std::vector<BookmarkNode*>& selection,
+                      const BookmarkNode* parent,
+                      const std::vector<const BookmarkNode*>& selection,
                       ConfigurationType configuration);
   virtual ~BookmarkContextMenu();
 
@@ -89,23 +89,23 @@ class BookmarkContextMenu : public BookmarkModelObserver,
   virtual void Loaded(BookmarkModel* model) {}
   virtual void BookmarkModelBeingDeleted(BookmarkModel* model);
   virtual void BookmarkNodeMoved(BookmarkModel* model,
-                                 BookmarkNode* old_parent,
+                                 const BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkNode* new_parent,
+                                 const BookmarkNode* new_parent,
                                  int new_index);
   virtual void BookmarkNodeAdded(BookmarkModel* model,
-                                 BookmarkNode* parent,
+                                 const BookmarkNode* parent,
                                  int index);
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int index,
-                                   BookmarkNode* node);
+                                   const BookmarkNode* node);
   virtual void BookmarkNodeChanged(BookmarkModel* model,
-                                   BookmarkNode* node);
+                                   const BookmarkNode* node);
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node) {}
+                                         const BookmarkNode* node) {}
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                             BookmarkNode* node);
+                                             const BookmarkNode* node);
 
   // Invoked from the various bookmark model observer methods. Closes the menu.
   void ModelChanged();
@@ -131,14 +131,14 @@ class BookmarkContextMenu : public BookmarkModelObserver,
   // Returns the parent for newly created folders/bookmarks. If selection_
   // has one element and it is a folder, selection_[0] is returned, otherwise
   // parent_ is returned.
-  BookmarkNode* GetParentForNewNodes() const;
+  const BookmarkNode* GetParentForNewNodes() const;
 
   gfx::NativeView wnd_;
   Profile* profile_;
   Browser* browser_;
   PageNavigator* navigator_;
-  BookmarkNode* parent_;
-  std::vector<BookmarkNode*> selection_;
+  const BookmarkNode* parent_;
+  std::vector<const BookmarkNode*> selection_;
   BookmarkModel* model_;
   ConfigurationType configuration_;
 

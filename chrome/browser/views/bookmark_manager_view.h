@@ -62,16 +62,16 @@ class BookmarkManagerView : public views::View,
 
   // Selects the specified node in the tree. If node is a URL it's parent is
   // selected and node is selected in the table.
-  void SelectInTree(BookmarkNode* node);
+  void SelectInTree(const BookmarkNode* node);
 
   // Expands all the children of the selected folder.
-  void ExpandAll(BookmarkNode* node);
+  void ExpandAll(const BookmarkNode* node);
 
   // Returns the selected folder in the tree, which may be null.
-  BookmarkNode* GetSelectedFolder();
+  const BookmarkNode* GetSelectedFolder();
 
   // Returns the selection of the table.
-  std::vector<BookmarkNode*> GetSelectedTableNodes();
+  std::vector<const BookmarkNode*> GetSelectedTableNodes();
 
   virtual void PaintBackground(gfx::Canvas* canvas);
 
@@ -112,26 +112,26 @@ class BookmarkManagerView : public views::View,
   virtual void Loaded(BookmarkModel* model);
   virtual void BookmarkModelBeingDeleted(BookmarkModel* model) {}
   virtual void BookmarkNodeMoved(BookmarkModel* model,
-                                 BookmarkNode* old_parent,
+                                 const BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkNode* new_parent,
+                                 const BookmarkNode* new_parent,
                                  int new_index) {}
   virtual void BookmarkNodeAdded(BookmarkModel* model,
-                                 BookmarkNode* parent,
+                                 const BookmarkNode* parent,
                                  int index) {}
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int index) {}
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int old_index,
-                                   BookmarkNode* node) {}
+                                   const BookmarkNode* node) {}
   virtual void BookmarkNodeChanged(BookmarkModel* model,
-                                   BookmarkNode* node) {}
+                                   const BookmarkNode* node) {}
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                             BookmarkNode* node) {}
+                                             const BookmarkNode* node) {}
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node) {}
+                                         const BookmarkNode* node) {}
 
   // Textfield::Controller methods.
   // Starts a timer to search for the search text.
@@ -165,7 +165,7 @@ class BookmarkManagerView : public views::View,
   // Sets the model of the table and its parent node. If |is_search| is true,
   // it means the table is showing search results.
   void SetTableModel(BookmarkTableModel* new_table_model,
-                     BookmarkNode* parent_node,
+                     const BookmarkNode* parent_node,
                      bool is_search);
 
   // Sets the table's model to the results of CreateSearchTableModel and selects

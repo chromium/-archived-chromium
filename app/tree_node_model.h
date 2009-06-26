@@ -100,7 +100,7 @@ class TreeNode : public TreeModelNode {
   }
 
   // Returns the number of children.
-  int GetChildCount() {
+  int GetChildCount() const {
     return static_cast<int>(children_->size());
   }
 
@@ -109,16 +109,23 @@ class TreeNode : public TreeModelNode {
     DCHECK(index >= 0 && index < GetChildCount());
     return children_[index];
   }
+  const NodeType* GetChild(int index) const {
+    DCHECK(index >= 0 && index < GetChildCount());
+    return children_[index];
+  }
 
   // Returns the parent.
   NodeType* GetParent() {
     return parent_;
   }
+  const NodeType* GetParent() const {
+    return parent_;
+  }
 
   // Returns the index of the specified child, or -1 if node is a not a child.
-  int IndexOfChild(const NodeType* node) {
+  int IndexOfChild(const NodeType* node) const {
     DCHECK(node);
-    typename std::vector<NodeType*>::iterator i =
+    typename std::vector<NodeType*>::const_iterator i =
         std::find(children_->begin(), children_->end(), node);
     if (i != children_->end())
       return static_cast<int>(i - children_->begin());
@@ -136,11 +143,11 @@ class TreeNode : public TreeModelNode {
   }
 
   // Returns true if this is the root.
-  bool IsRoot() { return (parent_ == NULL); }
+  bool IsRoot() const { return (parent_ == NULL); }
 
   // Returns true if this == ancestor, or one of this nodes parents is
   // ancestor.
-  bool HasAncestor(NodeType* ancestor) const {
+  bool HasAncestor(const NodeType* ancestor) const {
     if (ancestor == this)
       return true;
     if (!ancestor)

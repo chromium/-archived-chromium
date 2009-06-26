@@ -41,14 +41,14 @@ void AddToTreeStore(BookmarkModel* model, int selected_id,
 
 // As above, but inserts just the tree rooted at |node| as a child of |parent|.
 // If |parent| is NULL, add it at the top level.
-void AddToTreeStoreAt(BookmarkNode* node, int selected_id,
+void AddToTreeStoreAt(const BookmarkNode* node, int selected_id,
                       GtkTreeStore* store, GtkTreeIter* selected_iter,
                       GtkTreeIter* parent);
 
 // Commits changes to a GtkTreeStore built from BuildTreeStoreFrom() back
 // into the BookmarkModel it was generated from.  Returns the BookmarkNode that
 // represented by |selected|.
-BookmarkNode* CommitTreeStoreDifferencesBetween(
+const BookmarkNode* CommitTreeStoreDifferencesBetween(
     BookmarkModel* model, GtkTreeStore* tree_store,
     GtkTreeIter* selected);
 

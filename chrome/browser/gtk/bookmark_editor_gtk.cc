@@ -37,8 +37,8 @@ static const int kTreeHeight = 150;
 // static
 void BookmarkEditor::Show(gfx::NativeView parent_hwnd,
                           Profile* profile,
-                          BookmarkNode* parent,
-                          BookmarkNode* node,
+                          const BookmarkNode* parent,
+                          const BookmarkNode* node,
                           Configuration configuration,
                           Handler* handler) {
   DCHECK(profile);
@@ -51,8 +51,8 @@ void BookmarkEditor::Show(gfx::NativeView parent_hwnd,
 BookmarkEditorGtk::BookmarkEditorGtk(
     GtkWindow* window,
     Profile* profile,
-    BookmarkNode* parent,
-    BookmarkNode* node,
+    const BookmarkNode* parent,
+    const BookmarkNode* node,
     BookmarkEditor::Configuration configuration,
     BookmarkEditor::Handler* handler)
     : profile_(profile),
@@ -228,23 +228,23 @@ void BookmarkEditorGtk::Close() {
 }
 
 void BookmarkEditorGtk::BookmarkNodeMoved(BookmarkModel* model,
-                                          BookmarkNode* old_parent,
+                                          const BookmarkNode* old_parent,
                                           int old_index,
-                                          BookmarkNode* new_parent,
+                                          const BookmarkNode* new_parent,
                                           int new_index) {
   Reset();
 }
 
 void BookmarkEditorGtk::BookmarkNodeAdded(BookmarkModel* model,
-                                          BookmarkNode* parent,
+                                          const BookmarkNode* parent,
                                           int index) {
   Reset();
 }
 
 void BookmarkEditorGtk::BookmarkNodeRemoved(BookmarkModel* model,
-                                            BookmarkNode* parent,
+                                            const BookmarkNode* parent,
                                             int index,
-                                            BookmarkNode* node) {
+                                            const BookmarkNode* node) {
   if ((node_ && node_->HasAncestor(node)) ||
       (parent_ && parent_->HasAncestor(node))) {
     // The node, or its parent was removed. Close the dialog.
@@ -254,8 +254,8 @@ void BookmarkEditorGtk::BookmarkNodeRemoved(BookmarkModel* model,
   }
 }
 
-void BookmarkEditorGtk::BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                                      BookmarkNode* node) {
+void BookmarkEditorGtk::BookmarkNodeChildrenReordered(
+    BookmarkModel* model, const BookmarkNode* node) {
   Reset();
 }
 
@@ -306,7 +306,8 @@ void BookmarkEditorGtk::ApplyEdits(GtkTreeIter* selected_parent) {
   }
 
   // Create the new groups and update the titles.
-  BookmarkNode* new_parent = bookmark_utils::CommitTreeStoreDifferencesBetween(
+  const BookmarkNode* new_parent =
+      bookmark_utils::CommitTreeStoreDifferencesBetween(
       bb_model_, tree_store_, selected_parent);
 
   if (!new_parent) {

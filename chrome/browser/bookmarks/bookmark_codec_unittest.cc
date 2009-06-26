@@ -24,29 +24,34 @@ const wchar_t kUrl4Url[] = L"http://www.url4.com";
 const wchar_t kGroup1Title[] = L"group1";
 const wchar_t kGroup2Title[] = L"group2";
 
+// Helper to get a mutable bookmark node.
+static BookmarkNode* AsMutable(const BookmarkNode* node) {
+  return const_cast<BookmarkNode*>(node);
 }
+
+}  // anonymous namespace
 
 class BookmarkCodecTest : public testing::Test {
  protected:
   // Helpers to create bookmark models with different data.
   BookmarkModel* CreateTestModel1() {
     scoped_ptr<BookmarkModel> model(new BookmarkModel(NULL));
-    BookmarkNode* bookmark_bar = model->GetBookmarkBarNode();
+    const BookmarkNode* bookmark_bar = model->GetBookmarkBarNode();
     model->AddURL(bookmark_bar, 0, kUrl1Title, GURL(kUrl1Url));
     return model.release();
   }
   BookmarkModel* CreateTestModel2() {
     scoped_ptr<BookmarkModel> model(new BookmarkModel(NULL));
-    BookmarkNode* bookmark_bar = model->GetBookmarkBarNode();
+    const BookmarkNode* bookmark_bar = model->GetBookmarkBarNode();
     model->AddURL(bookmark_bar, 0, kUrl1Title, GURL(kUrl1Url));
     model->AddURL(bookmark_bar, 1, kUrl2Title, GURL(kUrl2Url));
     return model.release();
   }
   BookmarkModel* CreateTestModel3() {
     scoped_ptr<BookmarkModel> model(new BookmarkModel(NULL));
-    BookmarkNode* bookmark_bar = model->GetBookmarkBarNode();
+    const BookmarkNode* bookmark_bar = model->GetBookmarkBarNode();
     model->AddURL(bookmark_bar, 0, kUrl1Title, GURL(kUrl1Url));
-    BookmarkNode* group1 = model->AddGroup(bookmark_bar, 1, kGroup1Title);
+    const BookmarkNode* group1 = model->AddGroup(bookmark_bar, 1, kGroup1Title);
     model->AddURL(group1, 0, kUrl2Title, GURL(kUrl2Url));
     return model.release();
   }
@@ -90,7 +95,7 @@ class BookmarkCodecTest : public testing::Test {
     scoped_ptr<Value> value(encoder.Encode(model));
     const std::string& computed_checksum = encoder.computed_checksum();
     const std::string& stored_checksum = encoder.stored_checksum();
- 
+
     // Computed and stored checksums should not be empty and should be equal.
     EXPECT_FALSE(computed_checksum.empty());
     EXPECT_FALSE(stored_checksum.empty());
@@ -102,8 +107,9 @@ class BookmarkCodecTest : public testing::Test {
 
   bool Decode(BookmarkCodec* codec, BookmarkModel* model, const Value& value) {
     int max_id;
-    bool result = codec->Decode(model->GetBookmarkBarNode(),
-                                model->other_node(), &max_id, value);
+    bool result = codec->Decode(AsMutable(model->GetBookmarkBarNode()),
+                                AsMutable(model->other_node()),
+                                &max_id, value);
     model->set_next_node_id(max_id);
     return result;
   }
@@ -122,7 +128,7 @@ class BookmarkCodecTest : public testing::Test {
 
     *computed_checksum = decoder.computed_checksum();
     const std::string& stored_checksum = decoder.stored_checksum();
- 
+
     // Computed and stored checksums should not be empty.
     EXPECT_FALSE(computed_checksum->empty());
     EXPECT_FALSE(stored_checksum.empty());
@@ -207,10 +213,10 @@ TEST_F(BookmarkCodecTest, PersistIDsTest) {
 
   // Add a couple of more items to the decoded bookmark model and make sure
   // ID persistence is working properly.
-  BookmarkNode* bookmark_bar = decoded_model.GetBookmarkBarNode();
+  const BookmarkNode* bookmark_bar = decoded_model.GetBookmarkBarNode();
   decoded_model.AddURL(
       bookmark_bar, bookmark_bar->GetChildCount(), kUrl3Title, GURL(kUrl3Url));
-  BookmarkNode* group2_node = decoded_model.AddGroup(
+  const BookmarkNode* group2_node = decoded_model.AddGroup(
       bookmark_bar, bookmark_bar->GetChildCount(), kGroup2Title);
   decoded_model.AddURL(group2_node, 0, kUrl4Title, GURL(kUrl4Url));
 

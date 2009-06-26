@@ -29,9 +29,9 @@ void BookmarkBarBridge::BookmarkModelBeingDeleted(BookmarkModel* model) {
 }
 
 void BookmarkBarBridge::BookmarkNodeMoved(BookmarkModel* model,
-                                          BookmarkNode* old_parent,
+                                          const BookmarkNode* old_parent,
                                           int old_index,
-                                          BookmarkNode* new_parent,
+                                          const BookmarkNode* new_parent,
                                           int new_index) {
   [controller_ nodeMoved:model
                oldParent:old_parent oldIndex:old_index
@@ -39,22 +39,22 @@ void BookmarkBarBridge::BookmarkNodeMoved(BookmarkModel* model,
 }
 
 void BookmarkBarBridge::BookmarkNodeAdded(BookmarkModel* model,
-                                          BookmarkNode* parent,
+                                          const BookmarkNode* parent,
                                           int index) {
   [controller_ nodeAdded:model parent:parent index:index];
 }
 
 void BookmarkBarBridge::BookmarkNodeChanged(BookmarkModel* model,
-                                            BookmarkNode* node) {
+                                            const BookmarkNode* node) {
   [controller_ nodeChanged:model node:node];
 }
 
 void BookmarkBarBridge::BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                                  BookmarkNode* node) {
+                                                  const BookmarkNode* node) {
   [controller_ nodeFavIconLoaded:model node:node];
 }
 
-void BookmarkBarBridge::BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                                      BookmarkNode* node) {
+void BookmarkBarBridge::BookmarkNodeChildrenReordered(
+    BookmarkModel* model, const BookmarkNode* node) {
   [controller_ nodeChildrenReordered:model node:node];
 }

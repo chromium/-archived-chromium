@@ -26,8 +26,8 @@ class BookmarkEditorGtk : public BookmarkEditor,
  public:
   BookmarkEditorGtk(GtkWindow* window,
                     Profile* profile,
-                    BookmarkNode* parent,
-                    BookmarkNode* node,
+                    const BookmarkNode* parent,
+                    const BookmarkNode* node,
                     BookmarkEditor::Configuration configuration,
                     BookmarkEditor::Handler* handler);
 
@@ -43,23 +43,23 @@ class BookmarkEditorGtk : public BookmarkEditor,
   // resetting the tree model.
   virtual void Loaded(BookmarkModel* model) { }
   virtual void BookmarkNodeMoved(BookmarkModel* model,
-                                 BookmarkNode* old_parent,
+                                 const BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkNode* new_parent,
+                                 const BookmarkNode* new_parent,
                                  int new_index);
   virtual void BookmarkNodeAdded(BookmarkModel* model,
-                                 BookmarkNode* parent,
+                                 const BookmarkNode* parent,
                                  int index);
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int index,
-                                   BookmarkNode* node);
+                                   const BookmarkNode* node);
   virtual void BookmarkNodeChanged(BookmarkModel* model,
-                                   BookmarkNode* node) {}
+                                   const BookmarkNode* node) {}
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                             BookmarkNode* node);
+                                             const BookmarkNode* node);
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node) {}
+                                         const BookmarkNode* node) {}
 
   // Resets the model of the tree and updates the various buttons appropriately.
   void Reset();
@@ -117,10 +117,10 @@ class BookmarkEditorGtk : public BookmarkEditor,
   // that into a GObject that implements the interface GtkTreeModel.
 
   // Initial parent to select. Is only used if node_ is NULL.
-  BookmarkNode* parent_;
+  const BookmarkNode* parent_;
 
   // Node being edited. Is NULL if creating a new node.
-  BookmarkNode* node_;
+  const BookmarkNode* node_;
 
   // Mode used to create nodes from.
   BookmarkModel* bb_model_;

@@ -19,7 +19,7 @@ class BookmarkEditor {
   class Handler {
    public:
     virtual ~Handler() {}
-    virtual void NodeCreated(BookmarkNode* new_node) = 0;
+    virtual void NodeCreated(const BookmarkNode* new_node) = 0;
   };
 
   // An enumeration of the possible configurations offered.
@@ -35,8 +35,8 @@ class BookmarkEditor {
   // null. See description of Handler for details.
   static void Show(gfx::NativeView parent_window,
                    Profile* profile,
-                   BookmarkNode* parent,
-                   BookmarkNode* node,
+                   const BookmarkNode* parent,
+                   const BookmarkNode* node,
                    Configuration configuration,
                    Handler* handler);
 };

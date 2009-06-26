@@ -54,8 +54,8 @@ class BookmarkEditorView : public BookmarkEditor,
   FRIEND_TEST(BookmarkEditorViewTest, ChangeTitleNoTree);
  public:
   BookmarkEditorView(Profile* profile,
-                     BookmarkNode* parent,
-                     BookmarkNode* node,
+                     const BookmarkNode* parent,
+                     const BookmarkNode* node,
                      BookmarkEditor::Configuration configuration,
                      BookmarkEditor::Handler* handler);
 
@@ -140,23 +140,23 @@ class BookmarkEditorView : public BookmarkEditor,
   // resetting the tree model.
   virtual void Loaded(BookmarkModel* model) { }
   virtual void BookmarkNodeMoved(BookmarkModel* model,
-                                 BookmarkNode* old_parent,
+                                 const BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkNode* new_parent,
+                                 const BookmarkNode* new_parent,
                                  int new_index);
   virtual void BookmarkNodeAdded(BookmarkModel* model,
-                                 BookmarkNode* parent,
+                                 const BookmarkNode* parent,
                                  int index);
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int index,
-                                   BookmarkNode* node);
+                                   const BookmarkNode* node);
   virtual void BookmarkNodeChanged(BookmarkModel* model,
-                                   BookmarkNode* node) {}
+                                   const BookmarkNode* node) {}
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                             BookmarkNode* node);
+                                             const BookmarkNode* node);
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node) {}
+                                         const BookmarkNode* node) {}
 
   // Resets the model of the tree and updates the various buttons appropriately.
   void Reset();
@@ -172,7 +172,7 @@ class BookmarkEditorView : public BookmarkEditor,
 
   // Adds and creates a child node in b_node for all children of bb_node that
   // are groups.
-  void CreateNodes(BookmarkNode* bb_node, EditorNode* b_node);
+  void CreateNodes(const BookmarkNode* bb_node, EditorNode* b_node);
 
   // Returns the node with the specified id, or NULL if one can't be found.
   EditorNode* FindNodeWithID(BookmarkEditorView::EditorNode* node, int id);
@@ -194,10 +194,10 @@ class BookmarkEditorView : public BookmarkEditor,
   // used to determine the new BookmarkNode parent based on the EditorNode
   // parent.
   void ApplyNameChangesAndCreateNewGroups(
-      BookmarkNode* bb_node,
+      const BookmarkNode* bb_node,
       BookmarkEditorView::EditorNode* b_node,
       BookmarkEditorView::EditorNode* parent_b_node,
-      BookmarkNode** parent_bb_node);
+      const BookmarkNode** parent_bb_node);
 
   // Returns the current url the user has input.
   GURL GetInputURL() const;
@@ -238,10 +238,10 @@ class BookmarkEditorView : public BookmarkEditor,
   views::Textfield title_tf_;
 
   // Initial parent to select. Is only used if node_ is NULL.
-  BookmarkNode* parent_;
+  const BookmarkNode* parent_;
 
   // Node being edited. Is NULL if creating a new node.
-  BookmarkNode* node_;
+  const BookmarkNode* node_;
 
   // The context menu.
   scoped_ptr<views::SimpleMenuModel> context_menu_contents_;

@@ -25,25 +25,25 @@ GdkPixbuf* GetDefaultFavicon();
 
 // Get the image that is used to represent the node. This function adds a ref
 // to the returned pixbuf, so it requires a matching call to g_object_unref().
-GdkPixbuf* GetPixbufForNode(BookmarkNode* node, BookmarkModel* model);
+GdkPixbuf* GetPixbufForNode(const BookmarkNode* node, BookmarkModel* model);
 
 // Drag and drop. --------------------------------------------------------------
 
 // Pickle a node into a GtkSelection.
-void WriteBookmarkToSelection(BookmarkNode* node,
+void WriteBookmarkToSelection(const BookmarkNode* node,
                               GtkSelectionData* selection_data,
                               guint target_type,
                               Profile* profile);
 
 // Pickle a vector of nodes into a GtkSelection.
-void WriteBookmarksToSelection(const std::vector<BookmarkNode*>& nodes,
+void WriteBookmarksToSelection(const std::vector<const BookmarkNode*>& nodes,
                                GtkSelectionData* selection_data,
                                guint target_type,
                                Profile* profile);
 
 // Un-pickle node(s) from a GtkSelection.
 // The last two arguments are out parameters.
-std::vector<BookmarkNode*> GetNodesFromSelection(
+std::vector<const BookmarkNode*> GetNodesFromSelection(
     GdkDragContext* context,
     GtkSelectionData* selection_data,
     guint target_type,

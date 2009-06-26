@@ -37,19 +37,19 @@ class BookmarkMenuBridge : public BookmarkModelObserver,
   virtual void Loaded(BookmarkModel* model);
   virtual void BookmarkModelBeingDeleted(BookmarkModel* model);
   virtual void BookmarkNodeMoved(BookmarkModel* model,
-                                 BookmarkNode* old_parent,
+                                 const BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkNode* new_parent,
+                                 const BookmarkNode* new_parent,
                                  int new_index);
   virtual void BookmarkNodeAdded(BookmarkModel* model,
-                                 BookmarkNode* parent,
+                                 const BookmarkNode* parent,
                                  int index);
   virtual void BookmarkNodeChanged(BookmarkModel* model,
-                                   BookmarkNode* node);
+                                   const BookmarkNode* node);
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node);
+                                         const BookmarkNode* node);
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                             BookmarkNode* node);
+                                             const BookmarkNode* node);
 
   // Overridden from BrowserList::Observer
   virtual void OnBrowserAdded(const Browser* browser);
@@ -67,7 +67,7 @@ class BookmarkMenuBridge : public BookmarkModelObserver,
   // Helper for recursively adding items to our bookmark menu
   // All children of |node| will be added to |menu|.
   // TODO(jrg): add a counter to enforce maximum nodes added
-  void AddNodeToMenu(BookmarkNode* node, NSMenu* menu);
+  void AddNodeToMenu(const BookmarkNode* node, NSMenu* menu);
 
   // Return the Bookmark menu.
   NSMenu* BookmarkMenu();

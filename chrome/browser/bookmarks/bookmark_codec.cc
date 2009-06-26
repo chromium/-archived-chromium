@@ -96,8 +96,8 @@ Value* BookmarkCodec::Encode(BookmarkModel* model) {
   return Encode(model->GetBookmarkBarNode(), model->other_node());
 }
 
-Value* BookmarkCodec::Encode(BookmarkNode* bookmark_bar_node,
-                             BookmarkNode* other_folder_node) {
+Value* BookmarkCodec::Encode(const BookmarkNode* bookmark_bar_node,
+                             const BookmarkNode* other_folder_node) {
   InitializeChecksum();
   DictionaryValue* roots = new DictionaryValue();
   roots->Set(kRootFolderNameKey, EncodeNode(bookmark_bar_node));
@@ -127,7 +127,7 @@ bool BookmarkCodec::Decode(BookmarkNode* bb_node,
   return success;
 }
 
-Value* BookmarkCodec::EncodeNode(BookmarkNode* node) {
+Value* BookmarkCodec::EncodeNode(const BookmarkNode* node) {
   DictionaryValue* value = new DictionaryValue();
   std::string id;
   if (persist_ids_) {
@@ -203,8 +203,8 @@ bool BookmarkCodec::DecodeHelper(BookmarkNode* bb_node,
   // Need to reset the type as decoding resets the type to FOLDER. Similarly
   // we need to reset the title as the title is persisted and restored from
   // the file.
-  bb_node->type_ = history::StarredEntry::BOOKMARK_BAR;
-  other_folder_node->type_ = history::StarredEntry::OTHER;
+  bb_node->SetType(history::StarredEntry::BOOKMARK_BAR);
+  other_folder_node->SetType(history::StarredEntry::OTHER);
   bb_node->SetTitle(l10n_util::GetString(IDS_BOOMARK_BAR_FOLDER_NAME));
   other_folder_node->SetTitle(
       l10n_util::GetString(IDS_BOOMARK_BAR_OTHER_FOLDER_NAME));
@@ -266,7 +266,7 @@ bool BookmarkCodec::DecodeNode(const DictionaryValue& value,
 
     if (parent)
       parent->Add(parent->GetChildCount(), node);
-    node->type_ = history::StarredEntry::URL;
+    node->SetType(history::StarredEntry::URL);
     UpdateChecksumWithUrlNode(id_string, title, url_string);
   } else {
     std::wstring last_modified_date;
@@ -288,9 +288,9 @@ bool BookmarkCodec::DecodeNode(const DictionaryValue& value,
       node->set_id(id);
     }
 
-    node->type_ = history::StarredEntry::USER_GROUP;
-    node->date_group_modified_ = Time::FromInternalValue(
-        StringToInt64(WideToUTF16Hack(last_modified_date)));
+    node->SetType(history::StarredEntry::USER_GROUP);
+    node->set_date_group_modified(Time::FromInternalValue(
+        StringToInt64(WideToUTF16Hack(last_modified_date))));
 
     if (parent)
       parent->Add(parent->GetChildCount(), node);
@@ -301,8 +301,8 @@ bool BookmarkCodec::DecodeNode(const DictionaryValue& value,
   }
 
   node->SetTitle(title);
-  node->date_added_ = Time::FromInternalValue(
-      StringToInt64(WideToUTF16Hack(date_added_string)));
+  node->set_date_added(Time::FromInternalValue(
+      StringToInt64(WideToUTF16Hack(date_added_string))));
   return true;
 }
 

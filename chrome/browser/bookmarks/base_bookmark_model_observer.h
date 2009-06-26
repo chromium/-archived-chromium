@@ -22,31 +22,31 @@ class BaseBookmarkModelObserver : public BookmarkModelObserver {
     BookmarkModelChanged();
   }
   virtual void BookmarkNodeMoved(BookmarkModel* model,
-                                 BookmarkNode* old_parent,
+                                 const BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkNode* new_parent,
+                                 const BookmarkNode* new_parent,
                                  int new_index) {
     BookmarkModelChanged();
   }
   virtual void BookmarkNodeAdded(BookmarkModel* model,
-                                 BookmarkNode* parent,
+                                 const BookmarkNode* parent,
                                  int index) {
     BookmarkModelChanged();
   }
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int index) {
     BookmarkModelChanged();
   }
   virtual void BookmarkNodeChanged(BookmarkModel* model,
-                                   BookmarkNode* node) {
+                                   const BookmarkNode* node) {
     BookmarkModelChanged();
   }
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node) {
+                                         const BookmarkNode* node) {
   }
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                             BookmarkNode* node) {
+                                             const BookmarkNode* node) {
     BookmarkModelChanged();
   }
 

@@ -28,7 +28,7 @@ class BookmarkManagerGtk : public BookmarkModelObserver,
   Profile* profile() { return profile_; }
 
   // Show the node in the tree.
-  void SelectInTree(BookmarkNode* node, bool expand);
+  void SelectInTree(const BookmarkNode* node, bool expand);
 
   // Shows the bookmark manager. Only one bookmark manager exists.
   static void Show(Profile* profile);
@@ -39,26 +39,26 @@ class BookmarkManagerGtk : public BookmarkModelObserver,
   virtual void Loaded(BookmarkModel* model);
   virtual void BookmarkModelBeingDeleted(BookmarkModel* model);
   virtual void BookmarkNodeMoved(BookmarkModel* model,
-                                 BookmarkNode* old_parent,
+                                 const BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkNode* new_parent,
+                                 const BookmarkNode* new_parent,
                                  int new_index);
   virtual void BookmarkNodeAdded(BookmarkModel* model,
-                                 BookmarkNode* parent,
+                                 const BookmarkNode* parent,
                                  int index);
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int index);
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int old_index,
-                                   BookmarkNode* node);
+                                   const BookmarkNode* node);
   virtual void BookmarkNodeChanged(BookmarkModel* model,
-                                   BookmarkNode* node);
+                                   const BookmarkNode* node);
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                             BookmarkNode* node);
+                                             const BookmarkNode* node);
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node);
+                                         const BookmarkNode* node);
 
   // TableModelObserver implementation.
   virtual void OnModelChanged();
@@ -93,16 +93,16 @@ class BookmarkManagerGtk : public BookmarkModelObserver,
 
   // Get the node from |model| at |iter|. If the item is not a node, return
   // NULL.
-  BookmarkNode* GetNodeAt(GtkTreeModel* model, GtkTreeIter* iter);
+  const BookmarkNode* GetNodeAt(GtkTreeModel* model, GtkTreeIter* iter);
 
   // Get the node that is selected in the left tree view.
-  BookmarkNode* GetFolder();
+  const BookmarkNode* GetFolder();
 
   // Get the ID of the selected row.
   int GetSelectedRowID();
 
   // Get the nodes that are selected in the right tree view.
-  std::vector<BookmarkNode*> GetRightSelection();
+  std::vector<const BookmarkNode*> GetRightSelection();
 
   // Set the fields for a row.
   void SetRightSideColumnValues(int row, GtkTreeIter* iter);

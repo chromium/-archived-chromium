@@ -89,7 +89,7 @@ int BookmarkMenuButton::OnPerformDrop(const views::DropTargetEvent& event) {
   if (!model)
     return DragDropTypes::DRAG_NONE;
 
-  BookmarkNode* parent = model->GetBookmarkBarNode();
+  const BookmarkNode* parent = model->GetBookmarkBarNode();
   return bookmark_utils::PerformBookmarkDrop(
       browser_->profile(), data, parent, parent->GetChildCount());
 }

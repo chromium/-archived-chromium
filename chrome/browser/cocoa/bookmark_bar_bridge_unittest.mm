@@ -52,28 +52,28 @@ typedef std::pair<GURL,WindowOpenDisposition> OpenInfo;
 }
 
 - (void)nodeMoved:(BookmarkModel*)model
-        oldParent:(BookmarkNode*)oldParent oldIndex:(int)oldIndex
-        newParent:(BookmarkNode*)newParent newIndex:(int)newIndex {
+        oldParent:(const BookmarkNode*)oldParent oldIndex:(int)oldIndex
+        newParent:(const BookmarkNode*)newParent newIndex:(int)newIndex {
   [callbacks_ addObject:[NSNumber numberWithInt:2]];
 }
 
 - (void)nodeAdded:(BookmarkModel*)model
-           parent:(BookmarkNode*)oldParent index:(int)index {
+           parent:(const BookmarkNode*)oldParent index:(int)index {
   [callbacks_ addObject:[NSNumber numberWithInt:3]];
 }
 
 - (void)nodeChanged:(BookmarkModel*)model
-               node:(BookmarkNode*)node {
+               node:(const BookmarkNode*)node {
   [callbacks_ addObject:[NSNumber numberWithInt:4]];
 }
 
 - (void)nodeFavIconLoaded:(BookmarkModel*)model
-                     node:(BookmarkNode*)node {
+                     node:(const BookmarkNode*)node {
   [callbacks_ addObject:[NSNumber numberWithInt:5]];
 }
 
 - (void)nodeChildrenReordered:(BookmarkModel*)model
-                         node:(BookmarkNode*)node {
+                         node:(const BookmarkNode*)node {
   [callbacks_ addObject:[NSNumber numberWithInt:6]];
 }
 

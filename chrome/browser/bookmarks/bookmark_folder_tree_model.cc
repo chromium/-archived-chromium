@@ -40,14 +40,14 @@ BookmarkFolderTreeModel::NodeType BookmarkFolderTreeModel::GetNodeType(
 }
 
 FolderNode* BookmarkFolderTreeModel::GetFolderNodeForBookmarkNode(
-    BookmarkNode* node) {
+    const BookmarkNode* node) {
   if (!node->is_folder())
     return NULL;
 
   return GetFolderNodeForBookmarkNode(AsNode(GetRoot()), node);
 }
 
-BookmarkNode* BookmarkFolderTreeModel::TreeNodeAsBookmarkNode(
+const BookmarkNode* BookmarkFolderTreeModel::TreeNodeAsBookmarkNode(
     TreeModelNode* node) {
   if (GetNodeType(node) != BOOKMARK)
     return NULL;
@@ -65,11 +65,11 @@ void BookmarkFolderTreeModel::BookmarkModelBeingDeleted(BookmarkModel* model) {
 }
 
 void BookmarkFolderTreeModel::BookmarkNodeMoved(BookmarkModel* model,
-                                                BookmarkNode* old_parent,
+                                                const BookmarkNode* old_parent,
                                                 int old_index,
-                                                BookmarkNode* new_parent,
+                                                const BookmarkNode* new_parent,
                                                 int new_index) {
-  BookmarkNode* moved_node = new_parent->GetChild(new_index);
+  const BookmarkNode* moved_node = new_parent->GetChild(new_index);
   if (!moved_node->is_folder())
     return;  // We're only showing folders, so we can ignore this.
 
@@ -84,9 +84,9 @@ void BookmarkFolderTreeModel::BookmarkNodeMoved(BookmarkModel* model,
 }
 
 void BookmarkFolderTreeModel::BookmarkNodeAdded(BookmarkModel* model,
-                                                BookmarkNode* parent,
+                                                const BookmarkNode* parent,
                                                 int index) {
-  BookmarkNode* new_node = parent->GetChild(index);
+  const BookmarkNode* new_node = parent->GetChild(index);
   if (!new_node->is_folder())
     return;  // We're only showing folders, so we can ignore this.
 
@@ -96,9 +96,9 @@ void BookmarkFolderTreeModel::BookmarkNodeAdded(BookmarkModel* model,
 }
 
 void BookmarkFolderTreeModel::BookmarkNodeRemoved(BookmarkModel* model,
-                                                  BookmarkNode* parent,
+                                                  const BookmarkNode* parent,
                                                   int index,
-                                                  BookmarkNode* node) {
+                                                  const BookmarkNode* node) {
   if (!node->is_folder())
     return;  // We're only showing folders.
 
@@ -117,7 +117,7 @@ void BookmarkFolderTreeModel::BookmarkNodeRemoved(BookmarkModel* model,
 }
 
 void BookmarkFolderTreeModel::BookmarkNodeChanged(BookmarkModel* model,
-                                                  BookmarkNode* node) {
+                                                  const BookmarkNode* node) {
   if (!node->is_folder())
     return;
 
@@ -132,14 +132,14 @@ void BookmarkFolderTreeModel::BookmarkNodeChanged(BookmarkModel* model,
 
 void BookmarkFolderTreeModel::BookmarkNodeChildrenReordered(
     BookmarkModel* model,
-    BookmarkNode* node) {
+    const BookmarkNode* node) {
   FolderNode* folder_node = GetFolderNodeForBookmarkNode(node);
   DCHECK(folder_node);
   if (folder_node->GetChildCount() <= 1)
     return;  // Order won't have changed if 1 or fewer nodes.
 
   // Build a map between folder node and bookmark node.
-  std::map<BookmarkNode*, FolderNode*> bn_to_folder;
+  std::map<const BookmarkNode*, FolderNode*> bn_to_folder;
   for (int i = 0; i < folder_node->GetChildCount(); ++i)
     bn_to_folder[folder_node->GetChild(i)->value] = folder_node->GetChild(i);
 
@@ -149,7 +149,7 @@ void BookmarkFolderTreeModel::BookmarkNodeChildrenReordered(
 
   // And add them back in the new order.
   for (int i = 0; i < node->GetChildCount(); ++i) {
-    BookmarkNode* child = node->GetChild(i);
+    const BookmarkNode* child = node->GetChild(i);
     if (child->is_folder()) {
       DCHECK(bn_to_folder.find(child) != bn_to_folder.end());
       folder_node->Add(folder_node->GetChildCount(), bn_to_folder[child]);
@@ -189,7 +189,7 @@ void BookmarkFolderTreeModel::AddRootChildren() {
 
 FolderNode* BookmarkFolderTreeModel::GetFolderNodeForBookmarkNode(
     FolderNode* folder_node,
-    BookmarkNode* node) {
+    const BookmarkNode* node) {
   DCHECK(node->is_folder());
   if (folder_node->value == node)
     return folder_node;
@@ -202,25 +202,26 @@ FolderNode* BookmarkFolderTreeModel::GetFolderNodeForBookmarkNode(
   return NULL;
 }
 
-FolderNode* BookmarkFolderTreeModel::CreateFolderNode(BookmarkNode* node) {
+FolderNode* BookmarkFolderTreeModel::CreateFolderNode(
+    const BookmarkNode* node) {
   DCHECK(node->is_folder());
   FolderNode* folder_node = new FolderNode(node);
   folder_node->SetTitle(node->GetTitle());
 
   // And clone the children folders.
   for (int i = 0; i < node->GetChildCount(); ++i) {
-    BookmarkNode* child = node->GetChild(i);
+    const BookmarkNode* child = node->GetChild(i);
     if (child->is_folder())
       folder_node->Add(folder_node->GetChildCount(), CreateFolderNode(child));
   }
   return folder_node;
 }
 
-int BookmarkFolderTreeModel::CalculateIndexForChild(BookmarkNode* node) {
-  BookmarkNode* parent = node->GetParent();
+int BookmarkFolderTreeModel::CalculateIndexForChild(const BookmarkNode* node) {
+  const BookmarkNode* parent = node->GetParent();
   DCHECK(parent);
   for (int i = 0, folder_count = 0; i < parent->GetChildCount(); ++i) {
-    BookmarkNode* child = parent->GetChild(i);
+    const BookmarkNode* child = parent->GetChild(i);
     if (child == node)
       return folder_count;
     if (child->is_folder())

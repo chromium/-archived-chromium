@@ -72,7 +72,7 @@ class ImportObserverImpl : public ImportObserver {
     BookmarkModel* model = profile_->GetBookmarkModel();
     int other_count = model->other_node()->GetChildCount();
     if (other_count == initial_other_count_ + 1) {
-      BookmarkNode* imported_node =
+      const BookmarkNode* imported_node =
           model->other_node()->GetChild(initial_other_count_);
       manager->SelectInTree(imported_node, true);
     }
@@ -112,7 +112,7 @@ void SetMenuBarStyle() {
 
 // BookmarkManager -------------------------------------------------------------
 
-void BookmarkManager::SelectInTree(Profile* profile, BookmarkNode* node) {
+void BookmarkManager::SelectInTree(Profile* profile, const BookmarkNode* node) {
   if (manager && manager->profile() == profile)
     manager->SelectInTree(node, false);
 }
@@ -123,7 +123,7 @@ void BookmarkManager::Show(Profile* profile) {
 
 // BookmarkManagerGtk, public --------------------------------------------------
 
-void BookmarkManagerGtk::SelectInTree(BookmarkNode* node, bool expand) {
+void BookmarkManagerGtk::SelectInTree(const BookmarkNode* node, bool expand) {
   GtkTreeIter iter = { 0, };
   if (RecursiveFind(GTK_TREE_MODEL(left_store_), &iter, node->id())) {
     GtkTreePath* path = gtk_tree_model_get_path(GTK_TREE_MODEL(left_store_),
@@ -160,9 +160,9 @@ void BookmarkManagerGtk::BookmarkModelBeingDeleted(BookmarkModel* model) {
 }
 
 void BookmarkManagerGtk::BookmarkNodeMoved(BookmarkModel* model,
-                                           BookmarkNode* old_parent,
+                                           const BookmarkNode* old_parent,
                                            int old_index,
-                                           BookmarkNode* new_parent,
+                                           const BookmarkNode* new_parent,
                                            int new_index) {
   BookmarkNodeRemoved(model, old_parent, old_index,
                       new_parent->GetChild(new_index));
@@ -170,9 +170,9 @@ void BookmarkManagerGtk::BookmarkNodeMoved(BookmarkModel* model,
 }
 
 void BookmarkManagerGtk::BookmarkNodeAdded(BookmarkModel* model,
-                                           BookmarkNode* parent,
+                                           const BookmarkNode* parent,
                                            int index) {
-  BookmarkNode* node = parent->GetChild(index);
+  const BookmarkNode* node = parent->GetChild(index);
   if (node->is_folder()) {
     GtkTreeIter iter = { 0, };
     if (RecursiveFind(GTK_TREE_MODEL(left_store_), &iter, parent->id()))
@@ -181,15 +181,15 @@ void BookmarkManagerGtk::BookmarkNodeAdded(BookmarkModel* model,
 }
 
 void BookmarkManagerGtk::BookmarkNodeRemoved(BookmarkModel* model,
-                                             BookmarkNode* parent,
+                                             const BookmarkNode* parent,
                                              int index) {
   NOTREACHED();
 }
 
 void BookmarkManagerGtk::BookmarkNodeRemoved(BookmarkModel* model,
-                                             BookmarkNode* parent,
+                                             const BookmarkNode* parent,
                                              int old_index,
-                                             BookmarkNode* node) {
+                                             const BookmarkNode* node) {
   if (node->is_folder()) {
     GtkTreeIter iter = { 0, };
     if (RecursiveFind(GTK_TREE_MODEL(left_store_), &iter, node->id())) {
@@ -207,17 +207,17 @@ void BookmarkManagerGtk::BookmarkNodeRemoved(BookmarkModel* model,
 }
 
 void BookmarkManagerGtk::BookmarkNodeChanged(BookmarkModel* model,
-                                             BookmarkNode* node) {
+                                             const BookmarkNode* node) {
   // TODO(estade): rename in the left tree view.
 }
 
-void BookmarkManagerGtk::BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                                       BookmarkNode* node) {
+void BookmarkManagerGtk::BookmarkNodeChildrenReordered(
+    BookmarkModel* model, const BookmarkNode* node) {
   // TODO(estade): reorder in the left tree view.
 }
 
 void BookmarkManagerGtk::BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                                   BookmarkNode* node) {
+                                                   const BookmarkNode* node) {
   // I don't think we have anything to do, as we should never get this for a
   // folder node and we handle it via OnItemsChanged for any URL node.
 }
@@ -473,8 +473,8 @@ GtkWidget* BookmarkManagerGtk::MakeRightPane() {
 
 void BookmarkManagerGtk::ResetOrganizeMenu(bool left) {
   organize_is_for_left_ = left;
-  BookmarkNode* parent = GetFolder();
-  std::vector<BookmarkNode*> nodes;
+  const BookmarkNode* parent = GetFolder();
+  std::vector<const BookmarkNode*> nodes;
   if (!left)
     nodes = GetRightSelection();
   else if (parent)
@@ -520,7 +520,7 @@ void BookmarkManagerGtk::BuildLeftStore() {
 }
 
 void BookmarkManagerGtk::BuildRightStore() {
-  BookmarkNode* node = GetFolder();
+  const BookmarkNode* node = GetFolder();
 
   gtk_list_store_clear(right_store_);
 
@@ -574,8 +574,8 @@ int BookmarkManagerGtk::GetRowIDAt(GtkTreeModel* model, GtkTreeIter* iter) {
   return id;
 }
 
-BookmarkNode* BookmarkManagerGtk::GetNodeAt(GtkTreeModel* model,
-                                            GtkTreeIter* iter) {
+const BookmarkNode* BookmarkManagerGtk::GetNodeAt(GtkTreeModel* model,
+                                                  GtkTreeIter* iter) {
   int id = GetRowIDAt(model, iter);
   if (id > 0)
     return model_->GetNodeByID(id);
@@ -583,7 +583,7 @@ BookmarkNode* BookmarkManagerGtk::GetNodeAt(GtkTreeModel* model,
     return NULL;
 }
 
-BookmarkNode* BookmarkManagerGtk::GetFolder() {
+const BookmarkNode* BookmarkManagerGtk::GetFolder() {
   GtkTreeModel* model;
   GtkTreeIter iter;
   if (!gtk_tree_selection_get_selected(left_selection(), &model, &iter))
@@ -598,11 +598,11 @@ int BookmarkManagerGtk::GetSelectedRowID() {
   return GetRowIDAt(model, &iter);
 }
 
-std::vector<BookmarkNode*> BookmarkManagerGtk::GetRightSelection() {
+std::vector<const BookmarkNode*> BookmarkManagerGtk::GetRightSelection() {
   GtkTreeModel* model;
   GList* paths = gtk_tree_selection_get_selected_rows(right_selection(),
                                                       &model);
-  std::vector<BookmarkNode*> nodes;
+  std::vector<const BookmarkNode*> nodes;
   for (GList* item = paths; item; item = item->next) {
     GtkTreeIter iter;
     gtk_tree_model_get_iter(model, &iter,
@@ -617,7 +617,7 @@ std::vector<BookmarkNode*> BookmarkManagerGtk::GetRightSelection() {
 void BookmarkManagerGtk::SetRightSideColumnValues(int row, GtkTreeIter* iter) {
   // TODO(estade): building the path could be optimized out when we aren't
   // showing the path column.
-  BookmarkNode* node = right_tree_model_->GetNodeForRow(row);
+  const BookmarkNode* node = right_tree_model_->GetNodeForRow(row);
   GdkPixbuf* pixbuf = bookmark_utils::GetPixbufForNode(node, model_);
   std::wstring title =
       right_tree_model_->GetText(row, IDS_BOOKMARK_TABLE_TITLE);
@@ -742,7 +742,7 @@ void BookmarkManagerGtk::OnLeftTreeViewDragReceived(
   gboolean dnd_success = FALSE;
   gboolean delete_selection_data = FALSE;
 
-  std::vector<BookmarkNode*> nodes =
+  std::vector<const BookmarkNode*> nodes =
       bookmark_utils::GetNodesFromSelection(context, selection_data,
                                             target_type,
                                             bm->profile_,
@@ -765,8 +765,9 @@ void BookmarkManagerGtk::OnLeftTreeViewDragReceived(
 
   GtkTreeIter iter;
   gtk_tree_model_get_iter(GTK_TREE_MODEL(bm->left_store_), &iter, path);
-  BookmarkNode* folder = bm->GetNodeAt(GTK_TREE_MODEL(bm->left_store_), &iter);
-  for (std::vector<BookmarkNode*>::iterator it = nodes.begin();
+  const BookmarkNode* folder = bm->GetNodeAt(
+      GTK_TREE_MODEL(bm->left_store_), &iter);
+  for (std::vector<const BookmarkNode*>::iterator it = nodes.begin();
        it != nodes.end(); ++it) {
     // Don't try to drop a node into one of its descendants.
     if (!folder->HasAncestor(*it))
@@ -836,7 +837,7 @@ void BookmarkManagerGtk::OnRightTreeViewDragReceived(
   gboolean dnd_success = FALSE;
   gboolean delete_selection_data = FALSE;
 
-  std::vector<BookmarkNode*> nodes =
+  std::vector<const BookmarkNode*> nodes =
       bookmark_utils::GetNodesFromSelection(context, selection_data,
                                             target_type,
                                             bm->profile_,
@@ -857,7 +858,7 @@ void BookmarkManagerGtk::OnRightTreeViewDragReceived(
   bool drop_after = pos == GTK_TREE_VIEW_DROP_AFTER;
 
   // The parent folder and index therein to drop the nodes.
-  BookmarkNode* parent = NULL;
+  const BookmarkNode* parent = NULL;
   int idx = -1;
 
   // |path| will be null when we are looking at an empty folder.
@@ -865,7 +866,7 @@ void BookmarkManagerGtk::OnRightTreeViewDragReceived(
     GtkTreeIter iter;
     GtkTreeModel* model = GTK_TREE_MODEL(bm->right_store_);
     gtk_tree_model_get_iter(model, &iter, path);
-    BookmarkNode* node = bm->GetNodeAt(model, &iter);
+    const BookmarkNode* node = bm->GetNodeAt(model, &iter);
     if (node->is_folder()) {
       parent = node;
       idx = parent->GetChildCount();
@@ -883,7 +884,7 @@ void BookmarkManagerGtk::OnRightTreeViewDragReceived(
     idx = !path ? parent->GetChildCount() : gtk_tree_path_get_indices(path)[0];
   }
 
-  for (std::vector<BookmarkNode*>::iterator it = nodes.begin();
+  for (std::vector<const BookmarkNode*>::iterator it = nodes.begin();
        it != nodes.end(); ++it) {
     // Don't try to drop a node into one of its descendants.
     if (!parent->HasAncestor(*it)) {
@@ -913,7 +914,7 @@ gboolean BookmarkManagerGtk::OnRightTreeViewDragMotion(
   gtk_tree_view_get_dest_row_at_pos(GTK_TREE_VIEW(tree_view), x, y,
                                     &path, &pos);
 
-  BookmarkNode* parent = bm->GetFolder();
+  const BookmarkNode* parent = bm->GetFolder();
   if (path) {
     int idx =
         gtk_tree_path_get_indices(path)[gtk_tree_path_get_depth(path) - 1];
@@ -937,7 +938,7 @@ gboolean BookmarkManagerGtk::OnRightTreeViewDragMotion(
 // static
 void BookmarkManagerGtk::OnRightTreeViewRowActivated(GtkTreeView* tree_view,
     GtkTreePath* path, GtkTreeViewColumn* column, BookmarkManagerGtk* bm) {
-  std::vector<BookmarkNode*> nodes = bm->GetRightSelection();
+  std::vector<const BookmarkNode*> nodes = bm->GetRightSelection();
   if (nodes.empty())
     return;
   if (nodes.size() == 1 && nodes[0]->is_folder()) {

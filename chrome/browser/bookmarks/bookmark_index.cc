@@ -21,7 +21,7 @@ BookmarkIndex::NodeSet::const_iterator BookmarkIndex::Match::nodes_end() const {
   return nodes.empty() ? terms.front()->second.end() : nodes.end();
 }
 
-void BookmarkIndex::Add(BookmarkNode* node) {
+void BookmarkIndex::Add(const BookmarkNode* node) {
   if (!node->is_url())
     return;
   std::vector<std::wstring> terms = ExtractQueryWords(node->GetTitle());
@@ -29,7 +29,7 @@ void BookmarkIndex::Add(BookmarkNode* node) {
     RegisterNode(terms[i], node);
 }
 
-void BookmarkIndex::Remove(BookmarkNode* node) {
+void BookmarkIndex::Remove(const BookmarkNode* node) {
   if (!node->is_url())
     return;
 
@@ -179,7 +179,7 @@ std::vector<std::wstring> BookmarkIndex::ExtractQueryWords(
 }
 
 void BookmarkIndex::RegisterNode(const std::wstring& term,
-                                 BookmarkNode* node) {
+                                 const BookmarkNode* node) {
   if (std::find(index_[term].begin(), index_[term].end(), node) !=
       index_[term].end()) {
     // We've already added node for term.
@@ -189,7 +189,7 @@ void BookmarkIndex::RegisterNode(const std::wstring& term,
 }
 
 void BookmarkIndex::UnregisterNode(const std::wstring& term,
-                                   BookmarkNode* node) {
+                                   const BookmarkNode* node) {
   Index::iterator i = index_.find(term);
   if (i == index_.end()) {
     // We can get here if the node has the same term more than once. For

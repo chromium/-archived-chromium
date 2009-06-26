@@ -184,7 +184,7 @@ class BookmarkBarView : public views::View,
   // deletes itself once run.
   class ShowFolderDropMenuTask : public Task {
    public:
-    ShowFolderDropMenuTask(BookmarkBarView* view, BookmarkNode* node)
+    ShowFolderDropMenuTask(BookmarkBarView* view, const BookmarkNode* node)
       : view_(view),
         node_(node) {
     }
@@ -204,7 +204,7 @@ class BookmarkBarView : public views::View,
 
    private:
     BookmarkBarView* view_;
-    BookmarkNode* node_;
+    const BookmarkNode* node_;
 
     DISALLOW_COPY_AND_ASSIGN(ShowFolderDropMenuTask);
   };
@@ -233,51 +233,51 @@ class BookmarkBarView : public views::View,
 
   // Invokes added followed by removed.
   virtual void BookmarkNodeMoved(BookmarkModel* model,
-                                 BookmarkNode* old_parent,
+                                 const BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkNode* new_parent,
+                                 const BookmarkNode* new_parent,
                                  int new_index);
 
   // Notifies ModelChangeListener of change.
   // If the node was added to the root node, a button is created and added to
   // this bookmark bar view.
   virtual void BookmarkNodeAdded(BookmarkModel* model,
-                                 BookmarkNode* parent,
+                                 const BookmarkNode* parent,
                                  int index);
 
   // Implementation for BookmarkNodeAddedImpl.
   void BookmarkNodeAddedImpl(BookmarkModel* model,
-                             BookmarkNode* parent,
+                             const BookmarkNode* parent,
                              int index);
 
   // Notifies ModelChangeListener of change.
   // If the node was a child of the root node, the button corresponding to it
   // is removed.
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int index);
 
   // Implementation for BookmarkNodeRemoved.
   void BookmarkNodeRemovedImpl(BookmarkModel* model,
-                               BookmarkNode* parent,
+                               const BookmarkNode* parent,
                                int index);
 
   // Notifies ModelChangedListener and invokes BookmarkNodeChangedImpl.
   virtual void BookmarkNodeChanged(BookmarkModel* model,
-                                   BookmarkNode* node);
+                                   const BookmarkNode* node);
 
   // If the node is a child of the root node, the button is updated
   // appropriately.
-  void BookmarkNodeChangedImpl(BookmarkModel* model, BookmarkNode* node);
+  void BookmarkNodeChangedImpl(BookmarkModel* model, const BookmarkNode* node);
 
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                             BookmarkNode* node);
+                                             const BookmarkNode* node);
 
   // Invoked when the favicon is available. If the node is a child of the
   // root node, the appropriate button is updated. If a menu is showing, the
   // call is forwarded to the menu to allow for it to update the icon.
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node);
+                                         const BookmarkNode* node);
 
   // DragController method. Determines the node representing sender and invokes
   // WriteDragData to write the actual data.
@@ -287,7 +287,7 @@ class BookmarkBarView : public views::View,
                              OSExchangeData* data);
 
   // Writes a BookmarkDragData for node to data.
-  void WriteDragData(BookmarkNode* node, OSExchangeData* data);
+  void WriteDragData(const BookmarkNode* node, OSExchangeData* data);
 
   // Returns the drag operations for the specified button.
   virtual int GetDragOperations(views::View* sender, int x, int y);
@@ -313,11 +313,11 @@ class BookmarkBarView : public views::View,
                                bool is_mouse_gesture);
 
   // Creates the button for rendering the specified bookmark node.
-  views::View* CreateBookmarkButton(BookmarkNode* node);
+  views::View* CreateBookmarkButton(const BookmarkNode* node);
 
   // COnfigures the button from the specified node. This sets the text,
   // and icon.
-  void ConfigureButton(BookmarkNode* node, views::TextButton* button);
+  void ConfigureButton(const BookmarkNode* node, views::TextButton* button);
 
   // Used when showing the menu allowing the user to choose when the bar is
   // visible. Return value corresponds to the users preference for when the
@@ -337,13 +337,13 @@ class BookmarkBarView : public views::View,
   void NotifyModelChanged();
 
   // Shows the menu used during drag and drop for the specified node.
-  void ShowDropFolderForNode(BookmarkNode* node);
+  void ShowDropFolderForNode(const BookmarkNode* node);
 
   // Cancels the timer used to show a drop menu.
   void StopShowFolderDropMenuTimer();
 
   // Stars the timer used to show a drop menu for node.
-  void StartShowFolderDropMenuTimer(BookmarkNode* node);
+  void StartShowFolderDropMenuTimer(const BookmarkNode* node);
 
   // Returns the drop operation and index for the drop based on the event
   // and data. Returns DragDropTypes::DRAG_NONE if not a valid location.

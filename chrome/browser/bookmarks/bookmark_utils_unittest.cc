@@ -11,16 +11,16 @@ typedef testing::Test BookmarkUtilsTest;
 
 TEST_F(BookmarkUtilsTest, GetBookmarksContainingText) {
   BookmarkModel model(NULL);
-  BookmarkNode* n1 =
+  const BookmarkNode* n1 =
       model.AddURL(model.other_node(), 0, L"foo bar",
                    GURL("http://www.google.com"));
-  BookmarkNode* n2 =
+  const BookmarkNode* n2 =
       model.AddURL(model.other_node(), 0, L"baz buz",
                    GURL("http://www.cnn.com"));
 
   model.AddGroup(model.other_node(), 0, L"foo");
 
-  std::vector<BookmarkNode*> nodes;
+  std::vector<const BookmarkNode*> nodes;
   bookmark_utils::GetBookmarksContainingText(
       &model, L"foo", 100, std::wstring(), &nodes);
   ASSERT_EQ(1U, nodes.size());
@@ -48,8 +48,8 @@ TEST_F(BookmarkUtilsTest, GetBookmarksContainingText) {
 
 TEST_F(BookmarkUtilsTest, DoesBookmarkContainText) {
   BookmarkModel model(NULL);
-  BookmarkNode* node = model.AddURL(model.other_node(), 0, L"foo bar",
-                                    GURL("http://www.google.com"));
+  const BookmarkNode* node = model.AddURL(model.other_node(), 0, L"foo bar",
+                                          GURL("http://www.google.com"));
   // Matches to the title.
   ASSERT_TRUE(bookmark_utils::DoesBookmarkContainText(
       node, L"ar", std::wstring()));

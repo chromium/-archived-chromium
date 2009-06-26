@@ -38,7 +38,7 @@ class Profile;
 struct BookmarkDragData {
   // Element represents a single node.
   struct Element {
-    explicit Element(BookmarkNode* node);
+    explicit Element(const BookmarkNode* node);
 
     Element() : is_url(false), id_(0) {}
 
@@ -68,8 +68,8 @@ struct BookmarkDragData {
   BookmarkDragData() { }
 
   // Created a BookmarkDragData populated from the arguments.
-  explicit BookmarkDragData(BookmarkNode* node);
-  explicit BookmarkDragData(const std::vector<BookmarkNode*>& nodes);
+  explicit BookmarkDragData(const BookmarkNode* node);
+  explicit BookmarkDragData(const std::vector<const BookmarkNode*>& nodes);
 
 #if defined(TOOLKIT_VIEWS)
   // Writes elements to data. If there is only one element and it is a URL
@@ -93,11 +93,11 @@ struct BookmarkDragData {
   // created from the same profile then the nodes from the model are returned.
   // If the nodes can't be found (may have been deleted), an empty vector is
   // returned.
-  std::vector<BookmarkNode*> GetNodes(Profile* profile) const;
+  std::vector<const BookmarkNode*> GetNodes(Profile* profile) const;
 
   // Convenience for getting the first node. Returns NULL if the data doesn't
   // match any nodes or there is more than one node.
-  BookmarkNode* GetFirstNode(Profile* profile) const;
+  const BookmarkNode* GetFirstNode(Profile* profile) const;
 
   // Do we contain valid data?
   bool is_valid() const { return !elements.empty(); }

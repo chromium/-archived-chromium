@@ -137,9 +137,10 @@ class BookmarkBarViewEventTestBase : public ViewEventTestBase {
   void AddTestData(bool big_menu) {
     std::string test_base = "file:///c:/tmp/";
 
-    BookmarkNode* f1 = model_->AddGroup(model_->GetBookmarkBarNode(), 0, L"F1");
+    const BookmarkNode* f1 = model_->AddGroup(
+        model_->GetBookmarkBarNode(), 0, L"F1");
     model_->AddURL(f1, 0, L"f1a", GURL(test_base + "f1a"));
-    BookmarkNode* f11 = model_->AddGroup(f1, 1, L"F11");
+    const BookmarkNode* f11 = model_->AddGroup(f1, 1, L"F11");
     model_->AddURL(f11, 0, L"f11a", GURL(test_base + "f11a"));
     if (big_menu) {
       for (int i = 1; i <= 100; ++i) {
@@ -156,10 +157,10 @@ class BookmarkBarViewEventTestBase : public ViewEventTestBase {
     model_->AddURL(model_->GetBookmarkBarNode(), 4, L"d",
                    GURL(test_base + "d"));
     model_->AddURL(model_->other_node(), 0, L"oa", GURL(test_base + "oa"));
-    BookmarkNode* of = model_->AddGroup(model_->other_node(), 1, L"OF");
+    const BookmarkNode* of = model_->AddGroup(model_->other_node(), 1, L"OF");
     model_->AddURL(of, 0, L"ofa", GURL(test_base + "ofa"));
     model_->AddURL(of, 1, L"ofb", GURL(test_base + "ofb"));
-    BookmarkNode* of2 = model_->AddGroup(model_->other_node(), 2, L"OF2");
+    const BookmarkNode* of2 = model_->AddGroup(model_->other_node(), 2, L"OF2");
     model_->AddURL(of2, 0, L"of2a", GURL(test_base + "of2a"));
     model_->AddURL(of2, 1, L"of2b", GURL(test_base + "of2b"));
   }

@@ -13,7 +13,7 @@
 
 namespace {
 
-void AddSingleNodeToTreeStore(GtkTreeStore* store, BookmarkNode* node,
+void AddSingleNodeToTreeStore(GtkTreeStore* store, const BookmarkNode* node,
                               GtkTreeIter *iter, GtkTreeIter* parent) {
   gtk_tree_store_append(store, iter, parent);
   // TODO(estade): we should show the folder open icon when it's expanded.
@@ -29,10 +29,10 @@ void AddSingleNodeToTreeStore(GtkTreeStore* store, BookmarkNode* node,
 // Helper function for CommitTreeStoreDifferencesBetween() which recursively
 // merges changes back from a GtkTreeStore into a tree of BookmarkNodes. This
 // function only works on non-root nodes; our caller handles that special case.
-void RecursiveResolve(BookmarkModel* bb_model, BookmarkNode* bb_node,
+void RecursiveResolve(BookmarkModel* bb_model, const BookmarkNode* bb_node,
                       GtkTreeModel* tree_model, GtkTreeIter* parent_iter,
                       GtkTreePath* selected_path,
-                      BookmarkNode** selected_node) {
+                      const BookmarkNode** selected_node) {
   GtkTreePath* current_path = gtk_tree_model_get_path(tree_model, parent_iter);
   if (gtk_tree_path_compare(current_path, selected_path) == 0)
     *selected_node = bb_node;
@@ -44,7 +44,7 @@ void RecursiveResolve(BookmarkModel* bb_model, BookmarkNode* bb_node,
       int id = bookmark_utils::GetIdFromTreeIter(tree_model, &child_iter);
       std::wstring title =
           bookmark_utils::GetTitleFromTreeIter(tree_model, &child_iter);
-      BookmarkNode* child_bb_node = NULL;
+      const BookmarkNode* child_bb_node = NULL;
       if (id == 0) {
         child_bb_node = bb_model->AddGroup(bb_node, bb_node->GetChildCount(),
                                            title);
@@ -52,7 +52,7 @@ void RecursiveResolve(BookmarkModel* bb_model, BookmarkNode* bb_node,
         // Existing node, reset the title (BBModel ignores changes if the title
         // is the same).
         for (int j = 0; j < bb_node->GetChildCount(); ++j) {
-          BookmarkNode* node = bb_node->GetChild(j);
+          const BookmarkNode* node = bb_node->GetChild(j);
           if (node->is_folder() && node->id() == id) {
             child_bb_node = node;
             break;
@@ -79,14 +79,14 @@ GtkTreeStore* MakeFolderTreeStore() {
 
 void AddToTreeStore(BookmarkModel* model, int selected_id,
                     GtkTreeStore* store, GtkTreeIter* selected_iter) {
-  BookmarkNode* root_node = model->root_node();
+  const BookmarkNode* root_node = model->root_node();
   for (int i = 0; i < root_node->GetChildCount(); ++i) {
     AddToTreeStoreAt(root_node->GetChild(i), selected_id, store,
                      selected_iter, NULL);
   }
 }
 
-void AddToTreeStoreAt(BookmarkNode* node, int selected_id,
+void AddToTreeStoreAt(const BookmarkNode* node, int selected_id,
                       GtkTreeStore* store, GtkTreeIter* selected_iter,
                       GtkTreeIter* parent) {
   if (!node->is_folder())
@@ -107,9 +107,9 @@ void AddToTreeStoreAt(BookmarkNode* node, int selected_id,
   }
 }
 
-BookmarkNode* CommitTreeStoreDifferencesBetween(
+const BookmarkNode* CommitTreeStoreDifferencesBetween(
     BookmarkModel* bb_model, GtkTreeStore* tree_store, GtkTreeIter* selected) {
-  BookmarkNode* node_to_return = NULL;
+  const BookmarkNode* node_to_return = NULL;
   GtkTreeModel* tree_model = GTK_TREE_MODEL(tree_store);
 
   GtkTreePath* selected_path = gtk_tree_model_get_path(tree_model, selected);
@@ -123,15 +123,15 @@ BookmarkNode* CommitTreeStoreDifferencesBetween(
   // set of top level nodes that are the root BookmarksNode's children. These
   // items in the top level are not editable and therefore don't need the extra
   // complexity of trying to modify their title.
-  BookmarkNode* root_node = bb_model->root_node();
+  const BookmarkNode* root_node = bb_model->root_node();
   do {
     DCHECK(GetIdFromTreeIter(tree_model, &tree_root) != 0)
         << "It should be impossible to add another toplevel node";
 
     int id = GetIdFromTreeIter(tree_model, &tree_root);
-    BookmarkNode* child_node = NULL;
+    const BookmarkNode* child_node = NULL;
     for (int j = 0; j < root_node->GetChildCount(); ++j) {
-      BookmarkNode* node = root_node->GetChild(j);
+      const BookmarkNode* node = root_node->GetChild(j);
       if (node->is_folder() && node->id() == id) {
         child_node = node;
         break;

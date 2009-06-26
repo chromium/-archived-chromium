@@ -42,18 +42,12 @@ class StarredURLDatabase;
 //
 class BookmarkNode : public TreeNode<BookmarkNode> {
   friend class BookmarkModel;
-  friend class BookmarkCodec;
-  friend class history::StarredURLDatabase;
-  FRIEND_TEST(BookmarkCodecTest, PersistIDsTest);
-  FRIEND_TEST(BookmarkEditorViewTest, ChangeParentAndURL);
-  FRIEND_TEST(BookmarkEditorViewTest, EditURLKeepsPosition);
-  FRIEND_TEST(BookmarkMenuBridgeTest, TestAddNodeToMenu);
-  FRIEND_TEST(BookmarkEditorGtkTest, ChangeParentAndURL);
-  FRIEND_TEST(BookmarkEditorGtkTest, EditURLKeepsPosition);
-  FRIEND_TEST(BookmarkModelTest, MostRecentlyAddedEntries);
-  FRIEND_TEST(BookmarkModelTest, GetMostRecentlyAddedNodeForURL);
 
  public:
+  // Creates a new node with the specified url and id of 0
+  explicit BookmarkNode(const GURL& url);
+  // Creates a new node with the specified url and id.
+  BookmarkNode(int id, const GURL& url);
   virtual ~BookmarkNode() {}
 
   // Returns the URL.
@@ -64,25 +58,25 @@ class BookmarkNode : public TreeNode<BookmarkNode> {
   // NOTE: this id is only unique for the session and NOT unique across
   // sessions. Don't persist it!
   int id() const { return id_; }
+  // Sets the id to the given value.
+  void set_id(int id) { id_ = id; }
 
   // Returns the type of this node.
   history::StarredEntry::Type GetType() const { return type_; }
-
-  // Called when the favicon becomes invalid.
-  void InvalidateFavicon() {
-    loaded_favicon_ = false;
-    favicon_ = SkBitmap();
-  }
+  void SetType(history::StarredEntry::Type type) { type_ = type; }
 
   // Returns the time the bookmark/group was added.
-  base::Time date_added() const { return date_added_; }
-
+  const base::Time& date_added() const { return date_added_; }
   // Sets the time the bookmark/group was added.
   void set_date_added(const base::Time& date) { date_added_ = date; }
 
   // Returns the last time the group was modified. This is only maintained
   // for folders (including the bookmark and other folder).
-  base::Time date_group_modified() const { return date_group_modified_; }
+  const base::Time& date_group_modified() const { return date_group_modified_; }
+  // Sets the last time the group was modified.
+  void set_date_group_modified(const base::Time& date) {
+    date_group_modified_ = date;
+  }
 
   // Convenience for testing if this nodes represents a group. A group is
   // a node whose type is not URL.
@@ -91,27 +85,42 @@ class BookmarkNode : public TreeNode<BookmarkNode> {
   // Is this a URL?
   bool is_url() const { return type_ == history::StarredEntry::URL; }
 
+  // Returns the favicon. In nearly all cases you should use the method
+  // BookmarkModel::GetFavicon rather than this. BookmarkModel::GetFavicon
+  // takes care of loading the favicon if it isn't already loaded, where as
+  // this does not.
+  const SkBitmap& favicon() const { return favicon_; }
+  void set_favicon(const SkBitmap& icon) { favicon_ = icon; }
+
+  // The following methods are used by the bookmark model, and are not
+  // really useful outside of it.
+
+  bool is_favicon_loaded() const { return loaded_favicon_; }
+  void set_favicon_loaded(bool value) { loaded_favicon_ = value; }
+
+  HistoryService::Handle favicon_load_handle() const {
+    return favicon_load_handle_;
+  }
+  void set_favicon_load_handle(HistoryService::Handle handle) {
+    favicon_load_handle_ = handle;
+  }
+
+  // Called when the favicon becomes invalid.
+  void InvalidateFavicon() {
+    loaded_favicon_ = false;
+    favicon_ = SkBitmap();
+  }
+
+  // Resets the properties of the node from the supplied entry.
+  // This is used by the bookmark model and not really useful outside of it.
+  void Reset(const history::StarredEntry& entry);
+
   // TODO(sky): Consider adding last visit time here, it'll greatly simplify
   // HistoryContentsProvider.
 
  private:
-  // Creates a new node with the specified url and id of 0
-  explicit BookmarkNode(const GURL& url);
-  // Creates a new node with the specified url and id.
-  BookmarkNode(int id, const GURL& url);
-
-  // Returns the favicon for the this node. If the favicon has not yet been
-  // loaded it is loaded and the observer of the model notified when done.
-  const SkBitmap& favicon() const { return favicon_; }
-
   // helper to initialize various fields during construction.
   void Initialize(int id);
-
-  // Resets the properties of the node from the supplied entry.
-  void Reset(const history::StarredEntry& entry);
-
-  // Sets the id to the given value.
-  void set_id(int id) { id_ = id; }
 
   // Unique identifier for this node.
   int id_;
@@ -157,40 +166,40 @@ class BookmarkModelObserver {
 
   // Invoked when a node has moved.
   virtual void BookmarkNodeMoved(BookmarkModel* model,
-                                 BookmarkNode* old_parent,
+                                 const BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkNode* new_parent,
+                                 const BookmarkNode* new_parent,
                                  int new_index) = 0;
 
   // Invoked when a node has been added.
   virtual void BookmarkNodeAdded(BookmarkModel* model,
-                                 BookmarkNode* parent,
+                                 const BookmarkNode* parent,
                                  int index) = 0;
 
   // Invoked when a node has been removed, the item may still be starred though.
   // TODO(sky): merge these two into one.
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int index) {}
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int old_index,
-                                   BookmarkNode* node) {
+                                   const BookmarkNode* node) {
     BookmarkNodeRemoved(model, parent, old_index);
   }
 
   // Invoked when the title or favicon of a node has changed.
   virtual void BookmarkNodeChanged(BookmarkModel* model,
-                                   BookmarkNode* node) = 0;
+                                   const BookmarkNode* node) = 0;
 
   // Invoked when a favicon has finished loading.
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node) = 0;
+                                         const BookmarkNode* node) = 0;
 
   // Invoked when the children (just direct children, not descendants) of
   // |node| have been reordered in some way, such as sorted.
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                             BookmarkNode* node) = 0;
+                                             const BookmarkNode* node) = 0;
 };
 
 // BookmarkModel --------------------------------------------------------------
@@ -219,17 +228,17 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
 
   // Returns the root node. The bookmark bar node and other node are children of
   // the root node.
-  BookmarkNode* root_node() { return &root_; }
+  const BookmarkNode* root_node() { return &root_; }
 
   // Returns the bookmark bar node. This is NULL until loaded.
-  BookmarkNode* GetBookmarkBarNode() { return bookmark_bar_node_; }
+  const BookmarkNode* GetBookmarkBarNode() { return bookmark_bar_node_; }
 
   // Returns the 'other' node. This is NULL until loaded.
-  BookmarkNode* other_node() { return other_node_; }
+  const BookmarkNode* other_node() { return other_node_; }
 
   // Returns the parent the last node was added to. This never returns NULL
   // (as long as the model is loaded).
-  BookmarkNode* GetParentForNewNodes();
+  const BookmarkNode* GetParentForNewNodes();
 
   void AddObserver(BookmarkModelObserver* observer) {
     observers_.AddObserver(observer);
@@ -241,27 +250,29 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
 
   // Unstars or deletes the specified entry. Removing a group entry recursively
   // unstars all nodes. Observers are notified immediately.
-  void Remove(BookmarkNode* parent, int index);
+  void Remove(const BookmarkNode* parent, int index);
 
   // Moves the specified entry to a new location.
-  void Move(BookmarkNode* node, BookmarkNode* new_parent, int index);
+  void Move(const BookmarkNode* node,
+            const BookmarkNode* new_parent,
+            int index);
 
   // Returns the favicon for |node|. If the favicon has not yet been
   // loaded it is loaded and the observer of the model notified when done.
-  const SkBitmap& GetFavIcon(BookmarkNode* node);
+  const SkBitmap& GetFavIcon(const BookmarkNode* node);
 
   // Sets the title of the specified node.
-  void SetTitle(BookmarkNode* node, const std::wstring& title);
+  void SetTitle(const BookmarkNode* node, const std::wstring& title);
 
   // Returns true if the model finished loading.
   bool IsLoaded() { return loaded_; }
 
   // Returns the set of nodes with the specified URL.
-  void GetNodesByURL(const GURL& url, std::vector<BookmarkNode*>* nodes);
+  void GetNodesByURL(const GURL& url, std::vector<const BookmarkNode*>* nodes);
 
   // Returns the most recently added node for the url. Returns NULL if url is
   // not bookmarked.
-  BookmarkNode* GetMostRecentlyAddedNodeForURL(const GURL& url);
+  const BookmarkNode* GetMostRecentlyAddedNodeForURL(const GURL& url);
 
   // Returns all the bookmarked urls. This method is thread safe.
   virtual void GetBookmarks(std::vector<GURL>* urls);
@@ -276,29 +287,29 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
 
   // Returns the node with the specified id, or NULL if there is no node with
   // the specified id.
-  BookmarkNode* GetNodeByID(int id);
+  const BookmarkNode* GetNodeByID(int id);
 
   // Adds a new group node at the specified position.
-  BookmarkNode* AddGroup(BookmarkNode* parent,
-                         int index,
-                         const std::wstring& title);
+  const BookmarkNode* AddGroup(const BookmarkNode* parent,
+                               int index,
+                               const std::wstring& title);
 
   // Adds a url at the specified position.
-  BookmarkNode* AddURL(BookmarkNode* parent,
-                       int index,
-                       const std::wstring& title,
-                       const GURL& url);
+  const BookmarkNode* AddURL(const BookmarkNode* parent,
+                             int index,
+                             const std::wstring& title,
+                             const GURL& url);
 
   // Adds a url with a specific creation date.
-  BookmarkNode* AddURLWithCreationTime(BookmarkNode* parent,
-                                       int index,
-                                       const std::wstring& title,
-                                       const GURL& url,
-                                       const base::Time& creation_time);
+  const BookmarkNode* AddURLWithCreationTime(const BookmarkNode* parent,
+                                             int index,
+                                             const std::wstring& title,
+                                             const GURL& url,
+                                             const base::Time& creation_time);
 
   // Sorts the children of |parent|, notifying observers by way of the
   // BookmarkNodeChildrenReordered method.
-  void SortChildren(BookmarkNode* parent);
+  void SortChildren(const BookmarkNode* parent);
 
   // This is the convenience that makes sure the url is starred or not starred.
   // If is_starred is false, all bookmarks for URL are removed. If is_starred is
@@ -310,7 +321,7 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   // Resets the 'date modified' time of the node to 0. This is used during
   // importing to exclude the newly created groups from showing up in the
   // combobox of most recently modified groups.
-  void ResetDateGroupModified(BookmarkNode* node);
+  void ResetDateGroupModified(const BookmarkNode* node);
 
   void GetBookmarksWithTitlesMatching(
       const std::wstring& text,
@@ -318,6 +329,21 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
       std::vector<bookmark_utils::TitleMatch>* matches);
 
   Profile* profile() const { return profile_; }
+
+  bool is_root(const BookmarkNode* node) const { return node == &root_; }
+  bool is_bookmark_bar_node(const BookmarkNode* node) const {
+    return node == bookmark_bar_node_;
+  }
+  bool is_other_bookmarks_node(const BookmarkNode* node) const {
+    return node == other_node_;
+  }
+  // Returns whether the given node is one of the permanent nodes - root node,
+  // bookmark bar node or other bookmarks node.
+  bool is_permanent_node(const BookmarkNode* node) const {
+    return is_root(node) ||
+           is_bookmark_bar_node(node) ||
+           is_other_bookmarks_node(node);
+  }
 
   // Sets the store to NULL, making it so the BookmarkModel does not persist
   // any changes to disk. This is only useful during testing to speed up
@@ -335,7 +361,7 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   // Used to order BookmarkNodes by URL.
   class NodeURLComparator {
    public:
-    bool operator()(BookmarkNode* n1, BookmarkNode* n2) const {
+    bool operator()(const BookmarkNode* n1, const BookmarkNode* n2) const {
       return n1->GetURL() < n2->GetURL();
     }
   };
@@ -345,7 +371,7 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   bool IsBookmarkedNoLock(const GURL& url);
 
   // Overriden to notify the observer the favicon has been loaded.
-  void FavIconLoaded(BookmarkNode* node);
+  void FavIconLoaded(const BookmarkNode* node);
 
   // Removes the node from internal maps and recurses through all children. If
   // the node is a url, its url is added to removed_urls.
@@ -373,13 +399,13 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
                         bool was_bookmarked);
 
   // Implementation of GetNodeByID.
-  BookmarkNode* GetNodeByID(BookmarkNode* node, int id);
+  const BookmarkNode* GetNodeByID(const BookmarkNode* node, int id);
 
   // Returns true if the parent and index are valid.
-  bool IsValidIndex(BookmarkNode* parent, int index, bool allow_end);
+  bool IsValidIndex(const BookmarkNode* parent, int index, bool allow_end);
 
   // Sets the date modified time of the specified node.
-  void SetDateGroupModified(BookmarkNode* parent, const base::Time time);
+  void SetDateGroupModified(const BookmarkNode* parent, const base::Time time);
 
   // Creates the bookmark bar/other nodes. These call into
   // CreateRootNodeFromStarredEntry.

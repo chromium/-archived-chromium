@@ -22,7 +22,7 @@ BookmarkMenuController::BookmarkMenuController(Browser* browser,
                                                Profile* profile,
                                                PageNavigator* navigator,
                                                gfx::NativeView parent,
-                                               BookmarkNode* node,
+                                               const BookmarkNode* node,
                                                int start_child_index,
                                                bool show_other_folder)
     : browser_(browser),
@@ -84,7 +84,7 @@ bool BookmarkMenuController::CanDrop(views::MenuItemView* menu,
   if (drop_data_.has_single_url())
     return true;
 
-  BookmarkNode* drag_node = drop_data_.GetFirstNode(profile_);
+  const BookmarkNode* drag_node = drop_data_.GetFirstNode(profile_);
   if (!drag_node) {
     // Dragging a group from another profile, always accept.
     return true;
@@ -92,7 +92,7 @@ bool BookmarkMenuController::CanDrop(views::MenuItemView* menu,
 
   // Drag originated from same profile and is not a URL. Only accept it if
   // the dragged node is not a parent of the node menu represents.
-  BookmarkNode* drop_node = menu_id_to_node_map_[menu->GetCommand()];
+  const BookmarkNode* drop_node = menu_id_to_node_map_[menu->GetCommand()];
   DCHECK(drop_node);
   while (drop_node && drop_node != drag_node)
     drop_node = drop_node->GetParent();
@@ -106,8 +106,8 @@ int BookmarkMenuController::GetDropOperation(
   // Should only get here if we have drop data.
   DCHECK(drop_data_.is_valid());
 
-  BookmarkNode* node = menu_id_to_node_map_[item->GetCommand()];
-  BookmarkNode* drop_parent = node->GetParent();
+  const BookmarkNode* node = menu_id_to_node_map_[item->GetCommand()];
+  const BookmarkNode* drop_parent = node->GetParent();
   int index_to_drop_at = drop_parent->IndexOfChild(node);
   if (*position == DROP_AFTER) {
     if (node == profile_->GetBookmarkModel()->other_node()) {
@@ -128,11 +128,11 @@ int BookmarkMenuController::GetDropOperation(
 int BookmarkMenuController::OnPerformDrop(views::MenuItemView* menu,
                                           DropPosition position,
                                           const views::DropTargetEvent& event) {
-  BookmarkNode* drop_node = menu_id_to_node_map_[menu->GetCommand()];
+  const BookmarkNode* drop_node = menu_id_to_node_map_[menu->GetCommand()];
   DCHECK(drop_node);
   BookmarkModel* model = profile_->GetBookmarkModel();
   DCHECK(model);
-  BookmarkNode* drop_parent = drop_node->GetParent();
+  const BookmarkNode* drop_parent = drop_node->GetParent();
   DCHECK(drop_parent);
   int index_to_drop_at = drop_parent->IndexOfChild(drop_node);
   if (position == DROP_AFTER) {
@@ -156,7 +156,7 @@ bool BookmarkMenuController::ShowContextMenu(views::MenuItemView* source,
                                              int y,
                                              bool is_mouse_gesture) {
   DCHECK(menu_id_to_node_map_.find(id) != menu_id_to_node_map_.end());
-  std::vector<BookmarkNode*> nodes;
+  std::vector<const BookmarkNode*> nodes;
   nodes.push_back(menu_id_to_node_map_[id]);
   context_menu_.reset(
       new BookmarkContextMenu(parent_,
@@ -176,7 +176,7 @@ void BookmarkMenuController::DropMenuClosed(views::MenuItemView* menu) {
 }
 
 bool BookmarkMenuController::CanDrag(views::MenuItemView* menu) {
-  BookmarkNode* node = menu_id_to_node_map_[menu->GetCommand()];
+  const BookmarkNode* node = menu_id_to_node_map_[menu->GetCommand()];
   // Don't let users drag the other folder.
   return node->GetParent() != profile_->GetBookmarkModel()->root_node();
 }
@@ -200,14 +200,14 @@ void BookmarkMenuController::BookmarkModelChanged() {
   menu_->Cancel();
 }
 
-void BookmarkMenuController::BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                                       BookmarkNode* node) {
+void BookmarkMenuController::BookmarkNodeFavIconLoaded(
+    BookmarkModel* model, const BookmarkNode* node) {
   if (node_to_menu_id_map_.find(node) != node_to_menu_id_map_.end())
     menu_->SetIcon(model->GetFavIcon(node), node_to_menu_id_map_[node]);
 }
 
 void BookmarkMenuController::BuildOtherFolderMenu(int* next_menu_id) {
-  BookmarkNode* other_folder = profile_->GetBookmarkModel()->other_node();
+  const BookmarkNode* other_folder = profile_->GetBookmarkModel()->other_node();
   int id = *next_menu_id;
   (*next_menu_id)++;
   SkBitmap* folder_icon = ResourceBundle::GetSharedInstance().
@@ -218,14 +218,14 @@ void BookmarkMenuController::BuildOtherFolderMenu(int* next_menu_id) {
   menu_id_to_node_map_[id] = other_folder;
 }
 
-void BookmarkMenuController::BuildMenu(BookmarkNode* parent,
+void BookmarkMenuController::BuildMenu(const BookmarkNode* parent,
                                        int start_child_index,
                                        views::MenuItemView* menu,
                                        int* next_menu_id) {
   DCHECK(!parent->GetChildCount() ||
          start_child_index < parent->GetChildCount());
   for (int i = start_child_index; i < parent->GetChildCount(); ++i) {
-    BookmarkNode* node = parent->GetChild(i);
+    const BookmarkNode* node = parent->GetChild(i);
     int id = *next_menu_id;
 
     (*next_menu_id)++;

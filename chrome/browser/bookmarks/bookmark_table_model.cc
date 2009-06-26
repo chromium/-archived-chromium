@@ -35,7 +35,7 @@ class VectorBackedBookmarkTableModel : public BookmarkTableModel {
       : BookmarkTableModel(model) {
   }
 
-  virtual BookmarkNode* GetNodeForRow(int row) {
+  virtual const BookmarkNode* GetNodeForRow(int row) {
     return nodes_[row];
   }
 
@@ -44,25 +44,25 @@ class VectorBackedBookmarkTableModel : public BookmarkTableModel {
   }
 
   virtual void BookmarkNodeMoved(BookmarkModel* model,
-                                 BookmarkNode* old_parent,
+                                 const BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkNode* new_parent,
+                                 const BookmarkNode* new_parent,
                                  int new_index) {
     NotifyObserverOfChange(new_parent->GetChild(new_index));
   }
 
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node) {
+                                         const BookmarkNode* node) {
     NotifyObserverOfChange(node);
   }
 
   virtual void BookmarkNodeChanged(BookmarkModel* model,
-                                   BookmarkNode* node) {
+                                   const BookmarkNode* node) {
     NotifyObserverOfChange(node);
   }
 
  protected:
-  void NotifyObserverOfChange(BookmarkNode* node) {
+  void NotifyObserverOfChange(const BookmarkNode* node) {
     if (!observer())
       return;
 
@@ -71,7 +71,7 @@ class VectorBackedBookmarkTableModel : public BookmarkTableModel {
       observer()->OnItemsChanged(index, 1);
   }
 
-  typedef std::vector<BookmarkNode*> Nodes;
+  typedef std::vector<const BookmarkNode*> Nodes;
   Nodes& nodes() { return nodes_; }
 
  private:
@@ -88,16 +88,16 @@ class VectorBackedBookmarkTableModel : public BookmarkTableModel {
 // node is moved.
 class FolderBookmarkTableModel : public VectorBackedBookmarkTableModel {
  public:
-  FolderBookmarkTableModel(BookmarkModel* model, BookmarkNode* root_node)
+  FolderBookmarkTableModel(BookmarkModel* model, const BookmarkNode* root_node)
       : VectorBackedBookmarkTableModel(model),
         root_node_(root_node) {
     PopulateNodesFromRoot();
   }
 
   virtual void BookmarkNodeMoved(BookmarkModel* model,
-                                 BookmarkNode* old_parent,
+                                 const BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkNode* new_parent,
+                                 const BookmarkNode* new_parent,
                                  int new_index) {
     if (old_parent == root_node_) {
       nodes().erase(nodes().begin() + old_index);
@@ -113,7 +113,7 @@ class FolderBookmarkTableModel : public VectorBackedBookmarkTableModel {
   }
 
   virtual void BookmarkNodeAdded(BookmarkModel* model,
-                                 BookmarkNode* parent,
+                                 const BookmarkNode* parent,
                                  int index) {
     if (root_node_ == parent) {
       nodes().insert(nodes().begin() + index, parent->GetChild(index));
@@ -123,9 +123,9 @@ class FolderBookmarkTableModel : public VectorBackedBookmarkTableModel {
   }
 
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int index,
-                                   BookmarkNode* node) {
+                                   const BookmarkNode* node) {
     if (root_node_->HasAncestor(node)) {
       // We, or one of our ancestors was removed.
       root_node_ = NULL;
@@ -142,17 +142,17 @@ class FolderBookmarkTableModel : public VectorBackedBookmarkTableModel {
   }
 
   virtual void BookmarkNodeChanged(BookmarkModel* model,
-                                   BookmarkNode* node) {
+                                   const BookmarkNode* node) {
     NotifyChanged(node);
   }
 
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node) {
+                                         const BookmarkNode* node) {
     NotifyChanged(node);
   }
 
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                             BookmarkNode* node) {
+                                             const BookmarkNode* node) {
     if (node != root_node_)
       return;
 
@@ -164,7 +164,7 @@ class FolderBookmarkTableModel : public VectorBackedBookmarkTableModel {
   }
 
  private:
-  void NotifyChanged(BookmarkNode* node) {
+  void NotifyChanged(const BookmarkNode* node) {
     if (node->GetParent() == root_node_ && observer())
       observer()->OnItemsChanged(node->GetParent()->IndexOfChild(node), 1);
   }
@@ -176,7 +176,7 @@ class FolderBookmarkTableModel : public VectorBackedBookmarkTableModel {
 
   // The node we're showing the children of. This is set to NULL if the node
   // (or one of its ancestors) is removed from the model.
-  BookmarkNode* root_node_;
+  const BookmarkNode* root_node_;
 
   DISALLOW_COPY_AND_ASSIGN(FolderBookmarkTableModel);
 };
@@ -191,16 +191,16 @@ class RecentlyBookmarkedTableModel : public VectorBackedBookmarkTableModel {
   }
 
   virtual void BookmarkNodeAdded(BookmarkModel* model,
-                                 BookmarkNode* parent,
+                                 const BookmarkNode* parent,
                                  int index) {
     if (parent->GetChild(index)->is_url())
       UpdateRecentlyBookmarked();
   }
 
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int old_index,
-                                   BookmarkNode* old_node) {
+                                   const BookmarkNode* old_node) {
     if (old_node->is_url())
       UpdateRecentlyBookmarked();
   }
@@ -234,9 +234,9 @@ class BookmarkSearchTableModel : public VectorBackedBookmarkTableModel {
   }
 
   virtual void BookmarkNodeAdded(BookmarkModel* model,
-                                 BookmarkNode* parent,
+                                 const BookmarkNode* parent,
                                  int index) {
-    BookmarkNode* node = parent->GetChild(index);
+    const BookmarkNode* node = parent->GetChild(index);
     if (bookmark_utils::DoesBookmarkContainText(
         node, search_text_, languages_)) {
       nodes().push_back(node);
@@ -246,9 +246,9 @@ class BookmarkSearchTableModel : public VectorBackedBookmarkTableModel {
   }
 
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int index,
-                                   BookmarkNode* node) {
+                                   const BookmarkNode* node) {
     int internal_index = IndexOfNode(node);
     if (internal_index == -1)
       return;
@@ -277,7 +277,7 @@ BookmarkTableModel* BookmarkTableModel::CreateRecentlyBookmarkedModel(
 
 // static
 BookmarkTableModel* BookmarkTableModel::CreateBookmarkTableModelForFolder(
-    BookmarkModel* model, BookmarkNode* node) {
+    BookmarkModel* model, const BookmarkNode* node) {
   return new FolderBookmarkTableModel(model, node);
 }
 
@@ -301,7 +301,7 @@ BookmarkTableModel::~BookmarkTableModel() {
 }
 
 std::wstring BookmarkTableModel::GetText(int row, int column_id) {
-  BookmarkNode* node = GetNodeForRow(row);
+  const BookmarkNode* node = GetNodeForRow(row);
   switch (column_id) {
     case IDS_BOOKMARK_TABLE_TITLE: {
       std::wstring title = node->GetTitle();
@@ -368,7 +368,7 @@ SkBitmap BookmarkTableModel::GetIcon(int row) {
   static SkBitmap* default_icon = ResourceBundle::GetSharedInstance().
         GetBitmapNamed(IDR_DEFAULT_FAVICON);
 
-  BookmarkNode* node = GetNodeForRow(row);
+  const BookmarkNode* node = GetNodeForRow(row);
   if (node->is_folder())
     return *folder_icon;
 
@@ -383,7 +383,7 @@ void BookmarkTableModel::BookmarkModelBeingDeleted(BookmarkModel* model) {
   model_ = NULL;
 }
 
-int BookmarkTableModel::IndexOfNode(BookmarkNode* node) {
+int BookmarkTableModel::IndexOfNode(const BookmarkNode* node) {
   for (int i = RowCount() - 1; i >= 0; --i) {
     if (GetNodeForRow(i) == node)
       return i;
@@ -391,7 +391,8 @@ int BookmarkTableModel::IndexOfNode(BookmarkNode* node) {
   return -1;
 }
 
-void BookmarkTableModel::BuildPath(BookmarkNode* node, std::wstring* path) {
+void BookmarkTableModel::BuildPath(const BookmarkNode* node,
+                                   std::wstring* path) {
   if (!node) {
     NOTREACHED();
     return;

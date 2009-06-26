@@ -21,12 +21,12 @@
 
 // Return the a BookmarkNode that has the given id (called
 // "identifier" here to avoid conflict with objc's concept of "id").
-- (BookmarkNode*)nodeForIdentifier:(int)identifier {
+- (const BookmarkNode*)nodeForIdentifier:(int)identifier {
   return bridge_->GetBookmarkModel()->GetNodeByID(identifier);
 }
 
 // Open the URL of the given BookmarkNode in the current tab.
-- (void)openURLForNode:(BookmarkNode*)node {
+- (void)openURLForNode:(const BookmarkNode*)node {
   Browser* browser = BrowserList::GetLastActive();
 
   if (!browser) {  // No windows open?
@@ -45,7 +45,7 @@
 - (IBAction)openBookmarkMenuItem:(id)sender {
   NSInteger tag = [sender tag];
   int identifier = tag;
-  BookmarkNode* node = [self nodeForIdentifier:identifier];
+  const BookmarkNode* node = [self nodeForIdentifier:identifier];
   DCHECK(node);
   if (!node)
     return;  // shouldn't be reached

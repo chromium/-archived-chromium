@@ -33,7 +33,7 @@ namespace bookmark_utils {
 int PreferredDropOperation(int source_operations, int operations);
 
 // Returns the drag operations for the specified node.
-int BookmarkDragOperation(BookmarkNode* node);
+int BookmarkDragOperation(const BookmarkNode* node);
 
 // Returns the preferred drop operation on a bookmark menu/bar.
 // |parent| is the parent node the drop is to occur on and |index| the index the
@@ -41,14 +41,14 @@ int BookmarkDragOperation(BookmarkNode* node);
 int BookmarkDropOperation(Profile* profile,
                           const views::DropTargetEvent& event,
                           const BookmarkDragData& data,
-                          BookmarkNode* parent,
+                          const BookmarkNode* parent,
                           int index);
 
 // Performs a drop of bookmark data onto |parent_node| at |index|. Returns the
 // type of drop the resulted.
 int PerformBookmarkDrop(Profile* profile,
                         const BookmarkDragData& data,
-                        BookmarkNode* parent_node,
+                        const BookmarkNode* parent_node,
                         int index);
 
 // Returns true if the bookmark data can be dropped on |drop_parent| at
@@ -58,14 +58,14 @@ int PerformBookmarkDrop(Profile* profile,
 // a child of |drop_parent| at |index|.
 bool IsValidDropLocation(Profile* profile,
                          const BookmarkDragData& data,
-                         BookmarkNode* drop_parent,
+                         const BookmarkNode* drop_parent,
                          int index);
 
 // Clones drag data, adding newly created nodes to |parent| starting at
 // |index_to_add_at|.
 void CloneDragData(BookmarkModel* model,
                    const std::vector<BookmarkDragData::Element>& elements,
-                   BookmarkNode* parent,
+                   const BookmarkNode* parent,
                    int index_to_add_at);
 
 // Recursively opens all bookmarks. |initial_disposition| dictates how the
@@ -76,55 +76,55 @@ void CloneDragData(BookmarkModel* model,
 void OpenAll(gfx::NativeView parent,
              Profile* profile,
              PageNavigator* navigator,
-             const std::vector<BookmarkNode*>& nodes,
+             const std::vector<const BookmarkNode*>& nodes,
              WindowOpenDisposition initial_disposition);
 
 // Convenience for opening a single BookmarkNode.
 void OpenAll(gfx::NativeView parent,
              Profile* profile,
              PageNavigator* navigator,
-             BookmarkNode* node,
+             const BookmarkNode* node,
              WindowOpenDisposition initial_disposition);
 
 // Copies nodes onto the clipboard. If |remove_nodes| is true the nodes are
 // removed after copied to the clipboard. The nodes are copied in such a way
 // that if pasted again copies are made.
 void CopyToClipboard(BookmarkModel* model,
-                     const std::vector<BookmarkNode*>& nodes,
+                     const std::vector<const BookmarkNode*>& nodes,
                      bool remove_nodes);
 
 // Pastes from the clipboard. The new nodes are added to |parent|, unless
 // |parent| is null in which case this does nothing. The nodes are inserted
 // at |index|. If |index| is -1 the nodes are added to the end.
 void PasteFromClipboard(BookmarkModel* model,
-                        BookmarkNode* parent,
+                        const BookmarkNode* parent,
                         int index);
 
 // Returns true if the user can copy from the pasteboard.
-bool CanPasteFromClipboard(BookmarkNode* node);
+bool CanPasteFromClipboard(const BookmarkNode* node);
 
 // Returns a vector containing up to |max_count| of the most recently modified
 // groups. This never returns an empty vector.
-std::vector<BookmarkNode*> GetMostRecentlyModifiedGroups(BookmarkModel* model,
-                                                         size_t max_count);
+std::vector<const BookmarkNode*> GetMostRecentlyModifiedGroups(
+    BookmarkModel* model, size_t max_count);
 
 // Returns the most recently added bookmarks. This does not return groups,
 // only nodes of type url.
 void GetMostRecentlyAddedEntries(BookmarkModel* model,
                                  size_t count,
-                                 std::vector<BookmarkNode*>* nodes);
+                                 std::vector<const BookmarkNode*>* nodes);
 
 // Used by GetBookmarksMatchingText to return a matching node and the location
 // of the match in the title.
 struct TitleMatch {
-  BookmarkNode* node;
+  const BookmarkNode* node;
 
   // Location of the matching words in the title of the node.
   Snippet::MatchPositions match_positions;
 };
 
 // Returns true if |n1| was added more recently than |n2|.
-bool MoreRecentlyAdded(BookmarkNode* n1, BookmarkNode* n2);
+bool MoreRecentlyAdded(const BookmarkNode* n1, const BookmarkNode* n2);
 
 // Returns up to |max_count| bookmarks from |model| whose url or title contains
 // the text |text|.  |languages| is user's accept-language setting to decode
@@ -133,19 +133,19 @@ void GetBookmarksContainingText(BookmarkModel* model,
                                 const std::wstring& text,
                                 size_t max_count,
                                 const std::wstring& languages,
-                                std::vector<BookmarkNode*>* nodes);
+                                std::vector<const BookmarkNode*>* nodes);
 
 // Returns true if |node|'s url or title contains the string |text|.
 // |languages| is user's accept-language setting to decode IDN.
-bool DoesBookmarkContainText(BookmarkNode* node,
+bool DoesBookmarkContainText(const BookmarkNode* node,
                              const std::wstring& text,
                              const std::wstring& languages);
 
 // Modifies a bookmark node (assuming that there's no magic that needs to be
 // done regarding moving from one folder to another).
 void ApplyEditsWithNoGroupChange(BookmarkModel* model,
-                                 BookmarkNode* parent,
-                                 BookmarkNode* node,
+                                 const BookmarkNode* parent,
+                                 const BookmarkNode* node,
                                  const std::wstring& new_title,
                                  const GURL& new_url,
                                  BookmarkEditor::Handler* handler);
@@ -153,8 +153,8 @@ void ApplyEditsWithNoGroupChange(BookmarkModel* model,
 // Modifies a bookmark node assuming that the parent of the node may have
 // changed and the node will need to be removed and reinserted.
 void ApplyEditsWithPossibleGroupChange(BookmarkModel* model,
-                                       BookmarkNode* new_parent,
-                                       BookmarkNode* node,
+                                       const BookmarkNode* new_parent,
+                                       const BookmarkNode* node,
                                        const std::wstring& new_title,
                                        const GURL& new_url,
                                        BookmarkEditor::Handler* handler);

@@ -8,8 +8,8 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 // static
-void BookmarkModelTestUtils::AssertNodesEqual(BookmarkNode* expected,
-                                              BookmarkNode* actual,
+void BookmarkModelTestUtils::AssertNodesEqual(const BookmarkNode* expected,
+                                              const BookmarkNode* actual,
                                               bool check_ids) {
   ASSERT_TRUE(expected);
   ASSERT_TRUE(actual);

@@ -30,7 +30,7 @@ namespace {
 
 // Returns true if the specified node is of type URL, or has a descendant
 // of type URL.
-bool NodeHasURLs(BookmarkNode* node) {
+bool NodeHasURLs(const BookmarkNode* node) {
   if (node->is_url())
     return true;
 
@@ -57,7 +57,7 @@ class EditFolderController : public InputWindowDialog::Delegate,
 
   static void Show(Profile* profile,
                    gfx::NativeView wnd,
-                   BookmarkNode* node,
+                   const BookmarkNode* node,
                    bool is_new,
                    bool show_in_manager) {
     // EditFolderController deletes itself when done.
@@ -69,7 +69,7 @@ class EditFolderController : public InputWindowDialog::Delegate,
  private:
   EditFolderController(Profile* profile,
                        gfx::NativeView wnd,
-                       BookmarkNode* node,
+                       const BookmarkNode* node,
                        bool is_new,
                        bool show_in_manager)
       : profile_(profile),
@@ -103,7 +103,7 @@ class EditFolderController : public InputWindowDialog::Delegate,
 
   virtual void InputAccepted(const std::wstring& text) {
     if (is_new_) {
-      ALLOW_UNUSED BookmarkNode* node =
+      ALLOW_UNUSED const BookmarkNode* node =
           model_->AddGroup(node_, node_->GetChildCount(), text);
       if (show_in_manager_) {
 #if defined(OS_WIN) || (defined(OS_LINUX) && !defined(TOOLKIT_VIEWS))
@@ -130,35 +130,36 @@ class EditFolderController : public InputWindowDialog::Delegate,
   }
 
   virtual void BookmarkNodeMoved(BookmarkModel* model,
-                                 BookmarkNode* old_parent,
+                                 const BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkNode* new_parent,
+                                 const BookmarkNode* new_parent,
                                  int new_index) {
     ModelChanged();
   }
 
   virtual void BookmarkNodeAdded(BookmarkModel* model,
-                                 BookmarkNode* parent,
+                                 const BookmarkNode* parent,
                                  int index) {
     ModelChanged();
   }
 
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int index,
-                                   BookmarkNode* node) {
+                                   const BookmarkNode* node) {
     ModelChanged();
   }
 
-  virtual void BookmarkNodeChanged(BookmarkModel* model, BookmarkNode* node) {
+  virtual void BookmarkNodeChanged(BookmarkModel* model,
+                                   const BookmarkNode* node) {
     ModelChanged();
   }
 
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node) {}
+                                         const BookmarkNode* node) {}
 
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                             BookmarkNode* node) {
+                                             const BookmarkNode* node) {
     ModelChanged();
   }
 
@@ -170,7 +171,7 @@ class EditFolderController : public InputWindowDialog::Delegate,
   BookmarkModel* model_;
   // If is_new is true, this is the parent to create the new node under.
   // Otherwise this is the node to change the title of.
-  BookmarkNode* node_;
+  const BookmarkNode* node_;
 
   bool is_new_;
 
@@ -192,7 +193,7 @@ class SelectOnCreationHandler : public BookmarkEditor::Handler {
   explicit SelectOnCreationHandler(Profile* profile) : profile_(profile) {
   }
 
-  virtual void NodeCreated(BookmarkNode* new_node) {
+  virtual void NodeCreated(const BookmarkNode* new_node) {
     BookmarkManager::SelectInTree(profile_, new_node);
   }
 
@@ -212,8 +213,8 @@ BookmarkContextMenu::BookmarkContextMenu(
     Profile* profile,
     Browser* browser,
     PageNavigator* navigator,
-    BookmarkNode* parent,
-    const std::vector<BookmarkNode*>& selection,
+    const BookmarkNode* parent,
+    const std::vector<const BookmarkNode*>& selection,
     ConfigurationType configuration)
     : wnd_(wnd),
       profile_(profile),
@@ -502,33 +503,33 @@ void BookmarkContextMenu::BookmarkModelBeingDeleted(BookmarkModel* model) {
 }
 
 void BookmarkContextMenu::BookmarkNodeMoved(BookmarkModel* model,
-                                            BookmarkNode* old_parent,
+                                            const BookmarkNode* old_parent,
                                             int old_index,
-                                            BookmarkNode* new_parent,
+                                            const BookmarkNode* new_parent,
                                             int new_index) {
   ModelChanged();
 }
 
 void BookmarkContextMenu::BookmarkNodeAdded(BookmarkModel* model,
-                                            BookmarkNode* parent,
+                                            const BookmarkNode* parent,
                                             int index) {
   ModelChanged();
 }
 
 void BookmarkContextMenu::BookmarkNodeRemoved(BookmarkModel* model,
-                                              BookmarkNode* parent,
+                                              const BookmarkNode* parent,
                                               int index,
-                                              BookmarkNode* node) {
+                                              const BookmarkNode* node) {
   ModelChanged();
 }
 
 void BookmarkContextMenu::BookmarkNodeChanged(BookmarkModel* model,
-                                              BookmarkNode* node) {
+                                              const BookmarkNode* node) {
   ModelChanged();
 }
 
-void BookmarkContextMenu::BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                                        BookmarkNode* node) {
+void BookmarkContextMenu::BookmarkNodeChildrenReordered(
+    BookmarkModel* model, const BookmarkNode* node) {
   ModelChanged();
 }
 
@@ -551,7 +552,7 @@ bool BookmarkContextMenu::HasURLs() const {
   return false;
 }
 
-BookmarkNode* BookmarkContextMenu::GetParentForNewNodes() const {
+const BookmarkNode* BookmarkContextMenu::GetParentForNewNodes() const {
   return (selection_.size() == 1 && selection_[0]->is_folder()) ?
       selection_[0] : parent_;
 }

@@ -64,7 +64,7 @@ bool BookmarkTableView::CanDrop(const OSExchangeData& data) {
 
   // Don't allow the user to drop an ancestor of the parent node onto the
   // parent node. This would create a cycle, which is definitely a no-no.
-  std::vector<BookmarkNode*> nodes = drag_data.GetNodes(profile_);
+  std::vector<const BookmarkNode*> nodes = drag_data.GetNodes(profile_);
   for (size_t i = 0; i < nodes.size(); ++i) {
     if (parent_node_->HasAncestor(nodes[i]))
       return false;
@@ -187,7 +187,7 @@ int BookmarkTableView::UpdateDropInfo() {
 }
 
 void BookmarkTableView::BeginDrag() {
-  std::vector<BookmarkNode*> nodes_to_drag;
+  std::vector<const BookmarkNode*> nodes_to_drag;
   for (TableView::iterator i = SelectionBegin(); i != SelectionEnd(); ++i)
     nodes_to_drag.push_back(bookmark_table_model()->GetNodeForRow(*i));
   if (nodes_to_drag.empty())
@@ -213,7 +213,7 @@ int BookmarkTableView::CalculateDropOperation(const DropPosition& position) {
       return DragDropTypes::DRAG_COPY;
 
     int real_drop_index;
-    BookmarkNode* drop_parent = GetDropParentAndIndex(position,
+    const BookmarkNode* drop_parent = GetDropParentAndIndex(position,
                                                       &real_drop_index);
     if (!bookmark_utils::IsValidDropLocation(
         profile_, drop_info_->data(), drop_parent, real_drop_index)) {
@@ -230,7 +230,7 @@ int BookmarkTableView::CalculateDropOperation(const DropPosition& position) {
 
 void BookmarkTableView::OnPerformDropImpl() {
   int drop_index;
-  BookmarkNode* drop_parent = GetDropParentAndIndex(
+  const BookmarkNode* drop_parent = GetDropParentAndIndex(
       drop_info_->position(), &drop_index);
   BookmarkModel* model = profile_->GetBookmarkModel();
   int min_selection;
@@ -246,7 +246,8 @@ void BookmarkTableView::OnPerformDropImpl() {
         static_cast<int>(drop_info_->data().elements.size());
   } else {
     // else, move.
-    std::vector<BookmarkNode*> nodes = drop_info_->data().GetNodes(profile_);
+    std::vector<const BookmarkNode*> nodes =
+        drop_info_->data().GetNodes(profile_);
     if (nodes.empty())
       return;
 
@@ -330,11 +331,11 @@ BookmarkTableView::DropPosition
   return DropPosition(row_count, false);
 }
 
-BookmarkNode* BookmarkTableView::GetDropParentAndIndex(
+const BookmarkNode* BookmarkTableView::GetDropParentAndIndex(
     const DropPosition& position,
     int* index) {
   if (position.on) {
-    BookmarkNode* parent = parent_node_->GetChild(position.index);
+    const BookmarkNode* parent = parent_node_->GetChild(position.index);
     *index = parent->GetChildCount();
     return parent;
   }

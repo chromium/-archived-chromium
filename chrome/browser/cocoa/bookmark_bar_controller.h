@@ -78,16 +78,16 @@ class Profile;
 - (void)loaded:(BookmarkModel*)model;
 - (void)beingDeleted:(BookmarkModel*)model;
 - (void)nodeMoved:(BookmarkModel*)model
-        oldParent:(BookmarkNode*)oldParent oldIndex:(int)oldIndex
-        newParent:(BookmarkNode*)newParent newIndex:(int)newIndex;
+        oldParent:(const BookmarkNode*)oldParent oldIndex:(int)oldIndex
+        newParent:(const BookmarkNode*)newParent newIndex:(int)newIndex;
 - (void)nodeAdded:(BookmarkModel*)model
-           parent:(BookmarkNode*)oldParent index:(int)index;
+           parent:(const BookmarkNode*)oldParent index:(int)index;
 - (void)nodeChanged:(BookmarkModel*)model
-               node:(BookmarkNode*)node;
+               node:(const BookmarkNode*)node;
 - (void)nodeFavIconLoaded:(BookmarkModel*)model
-                     node:(BookmarkNode*)node;
+                     node:(const BookmarkNode*)node;
 - (void)nodeChildrenReordered:(BookmarkModel*)model
-                         node:(BookmarkNode*)node;
+                         node:(const BookmarkNode*)node;
 @end
 
 

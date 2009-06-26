@@ -29,7 +29,7 @@ class BookmarkMenuController : public BaseBookmarkModelObserver {
                          Profile* profile,
                          PageNavigator* page_navigator,
                          GtkWindow* window,
-                         BookmarkNode* node,
+                         const BookmarkNode* node,
                          int start_child_index,
                          bool show_other_folder);
   virtual ~BookmarkMenuController();
@@ -40,12 +40,12 @@ class BookmarkMenuController : public BaseBookmarkModelObserver {
   // Overridden from BaseBookmarkModelObserver:
   virtual void BookmarkModelChanged();
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node);
+                                         const BookmarkNode* node);
 
  private:
   // Recursively change the bookmark hierarchy rooted in |parent| into a set of
   // gtk menus rooted in |menu|.
-  void BuildMenu(BookmarkNode* parent,
+  void BuildMenu(const BookmarkNode* parent,
                  int start_child_index,
                  GtkWidget* menu);
 
@@ -80,7 +80,7 @@ class BookmarkMenuController : public BaseBookmarkModelObserver {
   BookmarkModel* model_;
 
   // The node we're showing the contents of.
-  BookmarkNode* node_;
+  const BookmarkNode* node_;
 
   // Our bookmark menus. We don't use the MenuGtk class because we have to do
   // all sorts of weird non-standard things with this menu, like:
@@ -90,7 +90,7 @@ class BookmarkMenuController : public BaseBookmarkModelObserver {
 
   // Mapping from node to GtkMenuItem menu id. This only contains entries for
   // nodes of type URL.
-  std::map<BookmarkNode*, GtkWidget*> node_to_menu_widget_map_;
+  std::map<const BookmarkNode*, GtkWidget*> node_to_menu_widget_map_;
 
   // Owns our right click context menu.
   scoped_ptr<BookmarkContextMenu> context_menu_;

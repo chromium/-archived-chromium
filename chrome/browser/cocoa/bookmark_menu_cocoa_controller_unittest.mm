@@ -11,7 +11,7 @@
 @interface FakeBookmarkMenuController : BookmarkMenuCocoaController {
  @public
   BrowserTestHelper* helper_;
-  BookmarkNode* nodes_[2];
+  const BookmarkNode* nodes_[2];
   BOOL opened_[2];
 }
 @end
@@ -23,7 +23,7 @@
     std::wstring empty;
     helper_ = new BrowserTestHelper();
     BookmarkModel* model = helper_->browser()->profile()->GetBookmarkModel();
-    BookmarkNode* bookmark_bar = model->GetBookmarkBarNode();
+    const BookmarkNode* bookmark_bar = model->GetBookmarkBarNode();
     nodes_[0] = model->AddURL(bookmark_bar, 0, empty, GURL("http://0.com"));
     nodes_[1] = model->AddURL(bookmark_bar, 1, empty, GURL("http://1.com"));
   }
@@ -35,13 +35,13 @@
   [super dealloc];
 }
 
-- (BookmarkNode*)nodeForIdentifier:(int)identifier {
+- (const BookmarkNode*)nodeForIdentifier:(int)identifier {
   if ((identifier < 0) || (identifier >= 2))
     return NULL;
   return nodes_[identifier];
 }
 
-- (void)openURLForNode:(BookmarkNode*)node {
+- (void)openURLForNode:(const BookmarkNode*)node {
   std::string url = node->GetURL().possibly_invalid_spec();
   if (url.find("http://0.com") != std::string::npos)
     opened_[0] = YES;

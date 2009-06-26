@@ -31,19 +31,19 @@ BookmarkBubbleGtk* g_bubble = NULL;
 // Max number of most recently used folders.
 const size_t kMaxMRUFolders = 5;
 
-std::vector<BookmarkNode*> PopulateFolderCombo(BookmarkModel* model,
-                                               const GURL& url,
-                                               GtkWidget* folder_combo) {
-  BookmarkNode* node = model->GetMostRecentlyAddedNodeForURL(url);
-  BookmarkNode* parent = node->GetParent();
-  BookmarkNode* bookmark_bar = model->GetBookmarkBarNode();
-  BookmarkNode* other = model->other_node();
+std::vector<const BookmarkNode*> PopulateFolderCombo(BookmarkModel* model,
+                                                     const GURL& url,
+                                                     GtkWidget* folder_combo) {
+  const BookmarkNode* node = model->GetMostRecentlyAddedNodeForURL(url);
+  const BookmarkNode* parent = node->GetParent();
+  const BookmarkNode* bookmark_bar = model->GetBookmarkBarNode();
+  const BookmarkNode* other = model->other_node();
 
   // Use + 2 to account for bookmark bar and other node.
-  std::vector<BookmarkNode*> recent_nodes =
+  std::vector<const BookmarkNode*> recent_nodes =
       bookmark_utils::GetMostRecentlyModifiedGroups(model, kMaxMRUFolders + 2);
 
-  std::vector<BookmarkNode*> nodes;
+  std::vector<const BookmarkNode*> nodes;
   // Make the parent the first item, unless it's the bookmark bar or other node.
   if (parent != bookmark_bar && parent != other)
     nodes.push_back(parent);
@@ -217,7 +217,7 @@ BookmarkBubbleGtk::~BookmarkBubbleGtk() {
     ApplyEdits();
   } else if (remove_bookmark_) {
     BookmarkModel* model = profile_->GetBookmarkModel();
-    BookmarkNode* node = model->GetMostRecentlyAddedNodeForURL(url_);
+    const BookmarkNode* node = model->GetMostRecentlyAddedNodeForURL(url_);
     if (node)
       model->Remove(node->GetParent(), node->GetParent()->IndexOfChild(node));
   }
@@ -269,7 +269,7 @@ void BookmarkBubbleGtk::ApplyEdits() {
   apply_edits_ = false;
 
   BookmarkModel* model = profile_->GetBookmarkModel();
-  BookmarkNode* node = model->GetMostRecentlyAddedNodeForURL(url_);
+  const BookmarkNode* node = model->GetMostRecentlyAddedNodeForURL(url_);
   if (node) {
     // NOTE: Would be nice to save a strlen and use gtk_entry_get_text_length,
     // but it is fairly new and not always in our GTK version.
@@ -286,7 +286,7 @@ void BookmarkBubbleGtk::ApplyEdits() {
 
     // Last index ('Choose another folder...') is not in folder_nodes_.
     if (cur_folder < folder_nodes_.size()) {
-      BookmarkNode* new_parent = folder_nodes_[cur_folder];
+      const BookmarkNode* new_parent = folder_nodes_[cur_folder];
       if (new_parent != node->GetParent()) {
         UserMetrics::RecordAction(L"BookmarkBubble_ChangeParent", profile_);
         model->Move(node, new_parent, new_parent->GetChildCount());
@@ -297,7 +297,8 @@ void BookmarkBubbleGtk::ApplyEdits() {
 
 std::string BookmarkBubbleGtk::GetTitle() {
   BookmarkModel* bookmark_model= profile_->GetBookmarkModel();
-  BookmarkNode* node = bookmark_model->GetMostRecentlyAddedNodeForURL(url_);
+  const BookmarkNode* node =
+      bookmark_model->GetMostRecentlyAddedNodeForURL(url_);
   if (!node) {
     NOTREACHED();
     return std::string();
@@ -307,7 +308,7 @@ std::string BookmarkBubbleGtk::GetTitle() {
 }
 
 void BookmarkBubbleGtk::ShowEditor() {
-  BookmarkNode* node =
+  const BookmarkNode* node =
       profile_->GetBookmarkModel()->GetMostRecentlyAddedNodeForURL(url_);
 
   // Commit any edits now.

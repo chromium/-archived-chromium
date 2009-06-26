@@ -74,7 +74,7 @@ bool IsBookmarkBubbleViewShowing() {
 // RecentlyUsedFoldersModel ---------------------------------------------------
 
 BookmarkBubbleView::RecentlyUsedFoldersModel::RecentlyUsedFoldersModel(
-    BookmarkModel* bb_model, BookmarkNode* node)
+    BookmarkModel* bb_model, const BookmarkNode* node)
       // Use + 2 to account for bookmark bar and other node.
       : nodes_(bookmark_utils::GetMostRecentlyModifiedGroups(
             bb_model, kMaxMRUFolders + 2)),
@@ -117,14 +117,14 @@ std::wstring BookmarkBubbleView::RecentlyUsedFoldersModel::GetItemAt(
   return nodes_[index]->GetTitle();
 }
 
-BookmarkNode* BookmarkBubbleView::RecentlyUsedFoldersModel::GetNodeAt(
+const BookmarkNode* BookmarkBubbleView::RecentlyUsedFoldersModel::GetNodeAt(
     int index) {
   return nodes_[index];
 }
 
 void BookmarkBubbleView::RecentlyUsedFoldersModel::RemoveNode(
-    BookmarkNode* node) {
-  std::vector<BookmarkNode*>::iterator i =
+    const BookmarkNode* node) {
+  std::vector<const BookmarkNode*>::iterator i =
       find(nodes_.begin(), nodes_.end(), node);
   if (i != nodes_.end())
     nodes_.erase(i);
@@ -169,7 +169,7 @@ BookmarkBubbleView::~BookmarkBubbleView() {
     ApplyEdits();
   } else if (remove_bookmark_) {
     BookmarkModel* model = profile_->GetBookmarkModel();
-    BookmarkNode* node = model->GetMostRecentlyAddedNodeForURL(url_);
+    const BookmarkNode* node = model->GetMostRecentlyAddedNodeForURL(url_);
     if (node)
       model->Remove(node->GetParent(), node->GetParent()->IndexOfChild(node));
   }
@@ -304,7 +304,8 @@ void BookmarkBubbleView::Init() {
 
 std::wstring BookmarkBubbleView::GetTitle() {
   BookmarkModel* bookmark_model= profile_->GetBookmarkModel();
-  BookmarkNode* node = bookmark_model->GetMostRecentlyAddedNodeForURL(url_);
+  const BookmarkNode* node =
+      bookmark_model->GetMostRecentlyAddedNodeForURL(url_);
   if (node)
     return node->GetTitle();
   else
@@ -374,7 +375,7 @@ void BookmarkBubbleView::Close() {
 }
 
 void BookmarkBubbleView::ShowEditor() {
-  BookmarkNode* node =
+  const BookmarkNode* node =
       profile_->GetBookmarkModel()->GetMostRecentlyAddedNodeForURL(url_);
 
   // Commit any edits now.
@@ -408,7 +409,7 @@ void BookmarkBubbleView::ApplyEdits() {
   apply_edits_ = false;
 
   BookmarkModel* model = profile_->GetBookmarkModel();
-  BookmarkNode* node = model->GetMostRecentlyAddedNodeForURL(url_);
+  const BookmarkNode* node = model->GetMostRecentlyAddedNodeForURL(url_);
   if (node) {
     const std::wstring new_title = title_tf_->text();
     if (new_title != node->GetTitle()) {
@@ -419,7 +420,7 @@ void BookmarkBubbleView::ApplyEdits() {
     // Last index means 'Choose another folder...'
     if (parent_combobox_->selected_item() <
         parent_model_.GetItemCount(parent_combobox_) - 1) {
-      BookmarkNode* new_parent =
+      const BookmarkNode* new_parent =
           parent_model_.GetNodeAt(parent_combobox_->selected_item());
       if (new_parent != node->GetParent()) {
         UserMetrics::RecordAction(L"BookmarkBubble_ChangeParent", profile_);

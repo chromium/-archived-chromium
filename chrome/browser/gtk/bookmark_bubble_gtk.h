@@ -121,7 +121,7 @@ class BookmarkBubbleGtk : public InfoBubbleGtkDelegate {
   GtkWidget* folder_combo_;
 
   // The bookmark nodes in |folder_combo_|.
-  std::vector<BookmarkNode*> folder_nodes_;
+  std::vector<const BookmarkNode*> folder_nodes_;
 
   InfoBubbleGtk* bubble_;
 

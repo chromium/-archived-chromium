@@ -95,7 +95,7 @@ void ProfileWriter::AddBookmarkEntry(
       GenerateUniqueFolderName(model, first_folder_name);
 
   bool show_bookmark_toolbar = false;
-  std::set<BookmarkNode*> groups_added_to;
+  std::set<const BookmarkNode*> groups_added_to;
   for (std::vector<BookmarkEntry>::const_iterator it = bookmark.begin();
        it != bookmark.end(); ++it) {
     // Don't insert this url if it isn't valid.
@@ -113,16 +113,16 @@ void ProfileWriter::AddBookmarkEntry(
     // the subgroup of path[i-1]. Finally they construct a path in the
     // model:
     //   path[0] \ path[1] \ ... \ path[size() - 1]
-    BookmarkNode* parent =
+    const BookmarkNode* parent =
         (it->in_toolbar ? model->GetBookmarkBarNode() : model->other_node());
     for (std::vector<std::wstring>::const_iterator i = it->path.begin();
          i != it->path.end(); ++i) {
-      BookmarkNode* child = NULL;
-      const std::wstring& folder_name = (!import_to_bookmark_bar && 
+      const BookmarkNode* child = NULL;
+      const std::wstring& folder_name = (!import_to_bookmark_bar &&
           !it->in_toolbar && (i == it->path.begin())) ? real_first_folder : *i;
 
       for (int index = 0; index < parent->GetChildCount(); ++index) {
-        BookmarkNode* node = parent->GetChild(index);
+        const BookmarkNode* node = parent->GetChild(index);
         if ((node->GetType() == history::StarredEntry::BOOKMARK_BAR ||
              node->GetType() == history::StarredEntry::USER_GROUP) &&
             node->GetTitle() == folder_name) {
@@ -147,7 +147,8 @@ void ProfileWriter::AddBookmarkEntry(
   // Reset the date modified time of the groups we added to. We do this to
   // make sure the 'recently added to' combobox in the bubble doesn't get random
   // groups.
-  for (std::set<BookmarkNode*>::const_iterator i = groups_added_to.begin();
+  for (std::set<const BookmarkNode*>::const_iterator i =
+          groups_added_to.begin();
        i != groups_added_to.end(); ++i) {
     model->ResetDateGroupModified(*i);
   }
@@ -299,9 +300,9 @@ std::wstring ProfileWriter::GenerateUniqueFolderName(
     const std::wstring& folder_name) {
   // Build a set containing the folder names of the other folder.
   std::set<std::wstring> other_folder_names;
-  BookmarkNode* other = model->other_node();
+  const BookmarkNode* other = model->other_node();
   for (int i = 0; i < other->GetChildCount(); ++i) {
-    BookmarkNode* node = other->GetChild(i);
+    const BookmarkNode* node = other->GetChild(i);
     if (node->is_folder())
       other_folder_names.insert(node->GetTitle());
   }
@@ -324,19 +325,19 @@ bool ProfileWriter::DoesBookmarkExist(
     const BookmarkEntry& entry,
     const std::wstring& first_folder_name,
     bool import_to_bookmark_bar) {
-  std::vector<BookmarkNode*> nodes_with_same_url;
+  std::vector<const BookmarkNode*> nodes_with_same_url;
   model->GetNodesByURL(entry.url, &nodes_with_same_url);
   if (nodes_with_same_url.empty())
     return false;
 
   for (size_t i = 0; i < nodes_with_same_url.size(); ++i) {
-    BookmarkNode* node = nodes_with_same_url[i];
+    const BookmarkNode* node = nodes_with_same_url[i];
     if (entry.title != node->GetTitle())
       continue;
 
     // Does the path match?
     bool found_match = true;
-    BookmarkNode* parent = node->GetParent();
+    const BookmarkNode* parent = node->GetParent();
     for (std::vector<std::wstring>::const_reverse_iterator path_it =
              entry.path.rbegin();
          (path_it != entry.path.rend()) && found_match; ++path_it) {

@@ -39,7 +39,7 @@ class BookmarkMenuController : public BaseBookmarkModelObserver,
                          Profile* profile,
                          PageNavigator* page_navigator,
                          gfx::NativeView parent,
-                         BookmarkNode* node,
+                         const BookmarkNode* node,
                          int start_child_index,
                          bool show_other_folder);
 
@@ -52,7 +52,7 @@ class BookmarkMenuController : public BaseBookmarkModelObserver,
   void Cancel();
 
   // Returns the node the menu is showing for.
-  BookmarkNode* node() const { return node_; }
+  const BookmarkNode* node() const { return node_; }
 
   // Returns the menu.
   views::MenuItemView* menu() const { return menu_.get(); }
@@ -86,7 +86,7 @@ class BookmarkMenuController : public BaseBookmarkModelObserver,
 
   virtual void BookmarkModelChanged();
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node);
+                                         const BookmarkNode* node);
 
  private:
   // BookmarkMenuController deletes itself as necessary.
@@ -98,7 +98,7 @@ class BookmarkMenuController : public BaseBookmarkModelObserver,
 
   // Creates an entry in menu for each child node of |parent| starting at
   // |start_child_index|.
-  void BuildMenu(BookmarkNode* parent,
+  void BuildMenu(const BookmarkNode* parent,
                  int start_child_index,
                  views::MenuItemView* menu,
                  int* next_menu_id);
@@ -113,14 +113,14 @@ class BookmarkMenuController : public BaseBookmarkModelObserver,
   gfx::NativeView parent_;
 
   // The node we're showing the contents of.
-  BookmarkNode* node_;
+  const BookmarkNode* node_;
 
   // Maps from menu id to BookmarkNode.
-  std::map<int, BookmarkNode*> menu_id_to_node_map_;
+  std::map<int, const BookmarkNode*> menu_id_to_node_map_;
 
   // Mapping from node to menu id. This only contains entries for nodes of type
   // URL.
-  std::map<BookmarkNode*, int> node_to_menu_id_map_;
+  std::map<const BookmarkNode*, int> node_to_menu_id_map_;
 
   // The menu.
   scoped_ptr<views::MenuItemView> menu_;

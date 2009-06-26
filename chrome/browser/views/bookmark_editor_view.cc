@@ -47,8 +47,8 @@ static const int kNewGroupButtonID             = 1002;
 // static
 void BookmarkEditor::Show(HWND parent_hwnd,
                           Profile* profile,
-                          BookmarkNode* parent,
-                          BookmarkNode* node,
+                          const BookmarkNode* parent,
+                          const BookmarkNode* node,
                           Configuration configuration,
                           Handler* handler) {
   DCHECK(profile);
@@ -59,8 +59,8 @@ void BookmarkEditor::Show(HWND parent_hwnd,
 
 BookmarkEditorView::BookmarkEditorView(
     Profile* profile,
-    BookmarkNode* parent,
-    BookmarkNode* node,
+    const BookmarkNode* parent,
+    const BookmarkNode* node,
     BookmarkEditor::Configuration configuration,
     BookmarkEditor::Handler* handler)
     : profile_(profile),
@@ -339,23 +339,23 @@ void BookmarkEditorView::Init() {
 }
 
 void BookmarkEditorView::BookmarkNodeMoved(BookmarkModel* model,
-                                           BookmarkNode* old_parent,
+                                           const BookmarkNode* old_parent,
                                            int old_index,
-                                           BookmarkNode* new_parent,
+                                           const BookmarkNode* new_parent,
                                            int new_index) {
   Reset();
 }
 
 void BookmarkEditorView::BookmarkNodeAdded(BookmarkModel* model,
-                                           BookmarkNode* parent,
+                                           const BookmarkNode* parent,
                                            int index) {
   Reset();
 }
 
 void BookmarkEditorView::BookmarkNodeRemoved(BookmarkModel* model,
-                                             BookmarkNode* parent,
+                                             const BookmarkNode* parent,
                                              int index,
-                                             BookmarkNode* node) {
+                                             const BookmarkNode* node) {
   if ((node_ && node_->HasAncestor(node)) ||
       (parent_ && parent_->HasAncestor(node))) {
     // The node, or its parent was removed. Close the dialog.
@@ -365,8 +365,8 @@ void BookmarkEditorView::BookmarkNodeRemoved(BookmarkModel* model,
   }
 }
 
-void BookmarkEditorView::BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                                       BookmarkNode* node) {
+void BookmarkEditorView::BookmarkNodeChildrenReordered(
+    BookmarkModel* model, const BookmarkNode* node) {
   Reset();
 }
 
@@ -440,7 +440,7 @@ BookmarkEditorView::EditorNode* BookmarkEditorView::AddNewGroup(
 void BookmarkEditorView::ExpandAndSelect() {
   tree_view_->ExpandAll();
 
-  BookmarkNode* to_select = node_ ? node_->GetParent() : parent_;
+  const BookmarkNode* to_select = node_ ? node_->GetParent() : parent_;
   int group_id_to_select = to_select->id();
   DCHECK(group_id_to_select);  // GetMostRecentParent should never return NULL.
   EditorNode* b_node =
@@ -453,7 +453,7 @@ void BookmarkEditorView::ExpandAndSelect() {
 
 BookmarkEditorView::EditorNode* BookmarkEditorView::CreateRootNode() {
   EditorNode* root_node = new EditorNode(std::wstring(), 0);
-  BookmarkNode* bb_root_node = bb_model_->root_node();
+  const BookmarkNode* bb_root_node = bb_model_->root_node();
   CreateNodes(bb_root_node, root_node);
   DCHECK(root_node->GetChildCount() == 2);
   DCHECK(bb_root_node->GetChild(0)->GetType() ==
@@ -462,10 +462,10 @@ BookmarkEditorView::EditorNode* BookmarkEditorView::CreateRootNode() {
   return root_node;
 }
 
-void BookmarkEditorView::CreateNodes(BookmarkNode* bb_node,
+void BookmarkEditorView::CreateNodes(const BookmarkNode* bb_node,
                                      BookmarkEditorView::EditorNode* b_node) {
   for (int i = 0; i < bb_node->GetChildCount(); ++i) {
-    BookmarkNode* child_bb_node = bb_node->GetChild(i);
+    const BookmarkNode* child_bb_node = bb_node->GetChild(i);
     if (child_bb_node->is_folder()) {
       EditorNode* new_b_node = new EditorNode(child_bb_node->GetTitle(),
                                                   child_bb_node->id());
@@ -518,7 +518,7 @@ void BookmarkEditorView::ApplyEdits(EditorNode* parent) {
   }
 
   // Create the new groups and update the titles.
-  BookmarkNode* new_parent = NULL;
+  const BookmarkNode* new_parent = NULL;
   ApplyNameChangesAndCreateNewGroups(
       bb_model_->root_node(), tree_model_->GetRoot(), parent, &new_parent);
 
@@ -527,15 +527,15 @@ void BookmarkEditorView::ApplyEdits(EditorNode* parent) {
 }
 
 void BookmarkEditorView::ApplyNameChangesAndCreateNewGroups(
-    BookmarkNode* bb_node,
+    const BookmarkNode* bb_node,
     BookmarkEditorView::EditorNode* b_node,
     BookmarkEditorView::EditorNode* parent_b_node,
-    BookmarkNode** parent_bb_node) {
+    const BookmarkNode** parent_bb_node) {
   if (parent_b_node == b_node)
     *parent_bb_node = bb_node;
   for (int i = 0; i < b_node->GetChildCount(); ++i) {
     EditorNode* child_b_node = b_node->GetChild(i);
-    BookmarkNode* child_bb_node = NULL;
+    const BookmarkNode* child_bb_node = NULL;
     if (child_b_node->value == 0) {
       // New group.
       child_bb_node = bb_model_->AddGroup(bb_node,
@@ -544,7 +544,7 @@ void BookmarkEditorView::ApplyNameChangesAndCreateNewGroups(
       // Existing node, reset the title (BBModel ignores changes if the title
       // is the same).
       for (int j = 0; j < bb_node->GetChildCount(); ++j) {
-        BookmarkNode* node = bb_node->GetChild(j);
+        const BookmarkNode* node = bb_node->GetChild(j);
         if (node->is_folder() && node->id() == child_b_node->value) {
           child_bb_node = node;
           break;

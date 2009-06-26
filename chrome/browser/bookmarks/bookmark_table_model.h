@@ -24,7 +24,7 @@ class BookmarkTableModel : public TableModel,
   static BookmarkTableModel* CreateRecentlyBookmarkedModel(
       BookmarkModel* model);
   static BookmarkTableModel* CreateBookmarkTableModelForFolder(
-      BookmarkModel* model, BookmarkNode* node);
+      BookmarkModel* model, const BookmarkNode* node);
   static BookmarkTableModel* CreateSearchTableModel(
       BookmarkModel* model,
       const std::wstring& text,
@@ -44,15 +44,15 @@ class BookmarkTableModel : public TableModel,
   virtual void Loaded(BookmarkModel* model) {}
   virtual void BookmarkModelBeingDeleted(BookmarkModel* model);
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                             BookmarkNode* node) {}
+                                             const BookmarkNode* node) {}
 
 
   // Returns the index of the specified node, or -1 if the node isn't in the
   // model.
-  virtual int IndexOfNode(BookmarkNode* node);
+  virtual int IndexOfNode(const BookmarkNode* node);
 
   // Returns the BookmarkNode at the specified index.
-  virtual BookmarkNode* GetNodeForRow(int row) = 0;
+  virtual const BookmarkNode* GetNodeForRow(int row) = 0;
 
   // Returns the underlying BookmarkModel.
   BookmarkModel* model() const { return model_; }
@@ -62,7 +62,7 @@ class BookmarkTableModel : public TableModel,
 
  private:
   // Builds the path shown in the path column for the specified node.
-  void BuildPath(BookmarkNode* node, std::wstring* path);
+  void BuildPath(const BookmarkNode* node, std::wstring* path);
 
   BookmarkModel* model_;
   TableModelObserver* observer_;

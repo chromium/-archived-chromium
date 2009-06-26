@@ -85,17 +85,18 @@ TEST_F(BookmarkHTMLWriterTest, Test) {
   base::Time t1(base::Time::Now());
   base::Time t2(t1 + base::TimeDelta::FromHours(1));
   base::Time t3(t1 + base::TimeDelta::FromHours(1));
-  BookmarkNode* f1 = model.AddGroup(model.GetBookmarkBarNode(), 0, f1_title);
+  const BookmarkNode* f1 = model.AddGroup(
+      model.GetBookmarkBarNode(), 0, f1_title);
   model.AddURLWithCreationTime(f1, 0, url1_title, url1, t1);
-  BookmarkNode* f2 = model.AddGroup(f1, 1, f2_title);
+  const BookmarkNode* f2 = model.AddGroup(f1, 1, f2_title);
   model.AddURLWithCreationTime(f2, 0, url2_title, url2, t2);
   model.AddURLWithCreationTime(model.GetBookmarkBarNode(), 1, url3_title, url3,
                                t3);
 
   model.AddURLWithCreationTime(model.other_node(), 0, url1_title, url1, t1);
   model.AddURLWithCreationTime(model.other_node(), 1, url2_title, url2, t2);
-  BookmarkNode* f3 = model.AddGroup(model.other_node(), 2, f3_title);
-  BookmarkNode* f4 = model.AddGroup(f3, 0, f4_title);
+  const BookmarkNode* f3 = model.AddGroup(model.other_node(), 2, f3_title);
+  const BookmarkNode* f4 = model.AddGroup(f3, 0, f4_title);
   model.AddURLWithCreationTime(f4, 0, url1_title, url1, t1);
 
   // Write to a temp file.

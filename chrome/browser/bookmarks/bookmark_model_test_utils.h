@@ -19,8 +19,8 @@ class BookmarkModelTestUtils {
  private:
   // Helper to verify the two given bookmark nodes.
   // The IDs of the bookmark nodes are compared only if check_ids is true.
-  static void AssertNodesEqual(BookmarkNode* expected,
-                               BookmarkNode* actual,
+  static void AssertNodesEqual(const BookmarkNode* expected,
+                               const BookmarkNode* actual,
                                bool check_ids);
 };
 

@@ -41,8 +41,12 @@ class BookmarkEditorViewTest : public testing::Test {
 
   std::string base_path() const { return "file:///c:/tmp/"; }
 
-  BookmarkNode* GetNode(const std::string& name) {
+  const BookmarkNode* GetNode(const std::string& name) {
     return model_->GetMostRecentlyAddedNodeForURL(GURL(base_path() + name));
+  }
+
+  BookmarkNode* GetMutableNode(const std::string& name) {
+    return const_cast<BookmarkNode*>(GetNode(name));
   }
 
  private:
@@ -63,16 +67,18 @@ class BookmarkEditorViewTest : public testing::Test {
 
     model_->AddURL(model_->GetBookmarkBarNode(), 0, L"a",
                    GURL(test_base + "a"));
-    BookmarkNode* f1 = model_->AddGroup(model_->GetBookmarkBarNode(), 1, L"F1");
+    const BookmarkNode* f1 =
+        model_->AddGroup(model_->GetBookmarkBarNode(), 1, L"F1");
     model_->AddURL(f1, 0, L"f1a", GURL(test_base + "f1a"));
-    BookmarkNode* f11 = model_->AddGroup(f1, 1, L"F11");
+    const BookmarkNode* f11 = model_->AddGroup(f1, 1, L"F11");
     model_->AddURL(f11, 0, L"f11a", GURL(test_base + "f11a"));
     model_->AddGroup(model_->GetBookmarkBarNode(), 2, L"F2");
 
     // Children of the other node.
     model_->AddURL(model_->other_node(), 0, L"oa",
                    GURL(test_base + "oa"));
-    BookmarkNode* of1 = model_->AddGroup(model_->other_node(), 1, L"OF1");
+    const BookmarkNode* of1 =
+        model_->AddGroup(model_->other_node(), 1, L"OF1");
     model_->AddURL(of1, 0, L"of1a", GURL(test_base + "of1a"));
   }
 };
@@ -110,7 +116,8 @@ TEST_F(BookmarkEditorViewTest, EditTitleKeepsPosition) {
 
   editor.ApplyEdits(editor.tree_model_->GetRoot()->GetChild(0));
 
-  BookmarkNode* bb_node = profile_->GetBookmarkModel()->GetBookmarkBarNode();
+  const BookmarkNode* bb_node =
+      profile_->GetBookmarkModel()->GetBookmarkBarNode();
   ASSERT_EQ(L"new_a", bb_node->GetChild(0)->GetTitle());
   // The URL shouldn't have changed.
   ASSERT_TRUE(GURL(base_path() + "a") == bb_node->GetChild(0)->GetURL());
@@ -119,7 +126,7 @@ TEST_F(BookmarkEditorViewTest, EditTitleKeepsPosition) {
 // Changes the url and makes sure parent/visual order doesn't change.
 TEST_F(BookmarkEditorViewTest, EditURLKeepsPosition) {
   Time node_time = Time::Now() + TimeDelta::FromDays(2);
-  GetNode("a")->date_added_ = node_time;
+  GetMutableNode("a")->set_date_added(node_time);
   BookmarkEditorView editor(profile_.get(), NULL, GetNode("a"),
                             BookmarkEditorView::SHOW_TREE, NULL);
 
@@ -127,7 +134,8 @@ TEST_F(BookmarkEditorViewTest, EditURLKeepsPosition) {
 
   editor.ApplyEdits(editor.tree_model_->GetRoot()->GetChild(0));
 
-  BookmarkNode* bb_node = profile_->GetBookmarkModel()->GetBookmarkBarNode();
+  const BookmarkNode* bb_node =
+      profile_->GetBookmarkModel()->GetBookmarkBarNode();
   ASSERT_EQ(L"a", bb_node->GetChild(0)->GetTitle());
   // The URL should have changed.
   ASSERT_TRUE(GURL(base_path() + "new_a") == bb_node->GetChild(0)->GetURL());
@@ -141,7 +149,7 @@ TEST_F(BookmarkEditorViewTest, ChangeParent) {
 
   editor.ApplyEdits(editor.tree_model_->GetRoot()->GetChild(1));
 
-  BookmarkNode* other_node = profile_->GetBookmarkModel()->other_node();
+  const BookmarkNode* other_node = profile_->GetBookmarkModel()->other_node();
   ASSERT_EQ(L"a", other_node->GetChild(2)->GetTitle());
   ASSERT_TRUE(GURL(base_path() + "a") == other_node->GetChild(2)->GetURL());
 }
@@ -149,7 +157,7 @@ TEST_F(BookmarkEditorViewTest, ChangeParent) {
 // Moves 'a' to be a child of the other node and changes its url to new_a.
 TEST_F(BookmarkEditorViewTest, ChangeParentAndURL) {
   Time node_time = Time::Now() + TimeDelta::FromDays(2);
-  GetNode("a")->date_added_ = node_time;
+  GetMutableNode("a")->set_date_added(node_time);
   BookmarkEditorView editor(profile_.get(), NULL, GetNode("a"),
                             BookmarkEditorView::SHOW_TREE, NULL);
 
@@ -157,7 +165,7 @@ TEST_F(BookmarkEditorViewTest, ChangeParentAndURL) {
 
   editor.ApplyEdits(editor.tree_model_->GetRoot()->GetChild(1));
 
-  BookmarkNode* other_node = profile_->GetBookmarkModel()->other_node();
+  const BookmarkNode* other_node = profile_->GetBookmarkModel()->other_node();
   ASSERT_EQ(L"a", other_node->GetChild(2)->GetTitle());
   ASSERT_TRUE(GURL(base_path() + "new_a") == other_node->GetChild(2)->GetURL());
   ASSERT_TRUE(node_time == other_node->GetChild(2)->date_added());
@@ -179,8 +187,9 @@ TEST_F(BookmarkEditorViewTest, MoveToNewParent) {
   // Parent the node to "F21".
   editor.ApplyEdits(f2);
 
-  BookmarkNode* bb_node = profile_->GetBookmarkModel()->GetBookmarkBarNode();
-  BookmarkNode* mf2 = bb_node->GetChild(1);
+  const BookmarkNode* bb_node =
+      profile_->GetBookmarkModel()->GetBookmarkBarNode();
+  const BookmarkNode* mf2 = bb_node->GetChild(1);
 
   // F2 in the model should have two children now: F21 and the node edited.
   ASSERT_EQ(2, mf2->GetChildCount());
@@ -190,7 +199,7 @@ TEST_F(BookmarkEditorViewTest, MoveToNewParent) {
   ASSERT_EQ(L"a", mf2->GetChild(1)->GetTitle());
 
   // F21 should have one child, F211.
-  BookmarkNode* mf21 = mf2->GetChild(0);
+  const BookmarkNode* mf21 = mf2->GetChild(0);
   ASSERT_EQ(1, mf21->GetChildCount());
   ASSERT_EQ(L"F211", mf21->GetChild(0)->GetTitle());
 }
@@ -205,10 +214,11 @@ TEST_F(BookmarkEditorViewTest, NewURL) {
 
   editor.ApplyEdits(editor.tree_model_->GetRoot()->GetChild(0));
 
-  BookmarkNode* bb_node = profile_->GetBookmarkModel()->GetBookmarkBarNode();
+  const BookmarkNode* bb_node =
+      profile_->GetBookmarkModel()->GetBookmarkBarNode();
   ASSERT_EQ(4, bb_node->GetChildCount());
 
-  BookmarkNode* new_node = bb_node->GetChild(3);
+  const BookmarkNode* new_node = bb_node->GetChild(3);
 
   EXPECT_EQ(L"new_a", new_node->GetTitle());
   EXPECT_TRUE(GURL(base_path() + "a") == new_node->GetURL());
@@ -225,10 +235,10 @@ TEST_F(BookmarkEditorViewTest, ChangeURLNoTree) {
 
   editor.ApplyEdits(NULL);
 
-  BookmarkNode* other_node = profile_->GetBookmarkModel()->other_node();
+  const BookmarkNode* other_node = profile_->GetBookmarkModel()->other_node();
   ASSERT_EQ(2, other_node->GetChildCount());
 
-  BookmarkNode* new_node = other_node->GetChild(0);
+  const BookmarkNode* new_node = other_node->GetChild(0);
 
   EXPECT_EQ(L"new_a", new_node->GetTitle());
   EXPECT_TRUE(GURL(base_path() + "a") == new_node->GetURL());
@@ -244,10 +254,10 @@ TEST_F(BookmarkEditorViewTest, ChangeTitleNoTree) {
 
   editor.ApplyEdits(NULL);
 
-  BookmarkNode* other_node = profile_->GetBookmarkModel()->other_node();
+  const BookmarkNode* other_node = profile_->GetBookmarkModel()->other_node();
   ASSERT_EQ(2, other_node->GetChildCount());
 
-  BookmarkNode* new_node = other_node->GetChild(0);
+  const BookmarkNode* new_node = other_node->GetChild(0);
 
   EXPECT_EQ(L"new_a", new_node->GetTitle());
 }

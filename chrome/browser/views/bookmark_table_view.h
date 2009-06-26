@@ -35,7 +35,7 @@ class BookmarkTableView : public views::TableView {
 
   // Sets the parent of the nodes being displayed. For search and recently
   // found results |parent| is NULL.
-  void set_parent_node(BookmarkNode* parent) { parent_node_ = parent; }
+  void set_parent_node(const BookmarkNode* parent) { parent_node_ = parent; }
 
   // Sets whether the path column should be shown. The path column is shown
   // for search results and recently bookmarked.
@@ -127,8 +127,8 @@ class BookmarkTableView : public views::TableView {
   DropPosition CalculateDropPosition(int y);
 
   // Returns the BookmarkNode the drop should occur on.
-  BookmarkNode* GetDropParentAndIndex(const DropPosition& position,
-                                      int* index);
+  const BookmarkNode* GetDropParentAndIndex(const DropPosition& position,
+                                            int* index);
 
   // Returns the bounds of drop indicator shown when the drop is to occur
   // between rows (drop_on is false).
@@ -149,7 +149,7 @@ class BookmarkTableView : public views::TableView {
 
   Profile* profile_;
 
-  BookmarkNode* parent_node_;
+  const BookmarkNode* parent_node_;
 
   scoped_ptr<DropInfo> drop_info_;
 

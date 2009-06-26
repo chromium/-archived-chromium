@@ -1005,24 +1005,24 @@ class RecentlyBookmarkedHandler : public DOMMessageHandler,
   // BookmarkModelObserver methods. These invoke SendBookmarksToPage.
   virtual void Loaded(BookmarkModel* model);
   virtual void BookmarkNodeAdded(BookmarkModel* model,
-                                 BookmarkNode* parent,
+                                 const BookmarkNode* parent,
                                  int index);
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
+                                   const BookmarkNode* parent,
                                    int index);
   virtual void BookmarkNodeChanged(BookmarkModel* model,
-                                   BookmarkNode* node);
+                                   const BookmarkNode* node);
 
   // These won't effect what is shown, so they do nothing.
   virtual void BookmarkNodeMoved(BookmarkModel* model,
-                                 BookmarkNode* old_parent,
+                                 const BookmarkNode* old_parent,
                                  int old_index,
-                                 BookmarkNode* new_parent,
+                                 const BookmarkNode* new_parent,
                                  int new_index) {}
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                             BookmarkNode* node) {}
+                                             const BookmarkNode* node) {}
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node) {}
+                                         const BookmarkNode* node) {}
 
   DOMUI* dom_ui_;
   // The model we're getting bookmarks from. The model is owned by the Profile.
@@ -1057,12 +1057,12 @@ void RecentlyBookmarkedHandler::HandleGetRecentlyBookmarked(const Value*) {
 }
 
 void RecentlyBookmarkedHandler::SendBookmarksToPage() {
-  std::vector<BookmarkNode*> recently_bookmarked;
+  std::vector<const BookmarkNode*> recently_bookmarked;
   bookmark_utils::GetMostRecentlyAddedEntries(
       model_, kRecentBookmarks, &recently_bookmarked);
   ListValue list_value;
   for (size_t i = 0; i < recently_bookmarked.size(); ++i) {
-    BookmarkNode* node = recently_bookmarked[i];
+    const BookmarkNode* node = recently_bookmarked[i];
     DictionaryValue* entry_value = new DictionaryValue;
     SetURLTitleAndDirection(entry_value,
                             WideToUTF16(node->GetTitle()), node->GetURL());
@@ -1078,19 +1078,19 @@ void RecentlyBookmarkedHandler::Loaded(BookmarkModel* model) {
 }
 
 void RecentlyBookmarkedHandler::BookmarkNodeAdded(BookmarkModel* model,
-                                                  BookmarkNode* parent,
+                                                  const BookmarkNode* parent,
                                                   int index) {
   SendBookmarksToPage();
 }
 
 void RecentlyBookmarkedHandler::BookmarkNodeRemoved(BookmarkModel* model,
-                                                    BookmarkNode* parent,
+                                                    const BookmarkNode* parent,
                                                     int index) {
   SendBookmarksToPage();
 }
 
 void RecentlyBookmarkedHandler::BookmarkNodeChanged(BookmarkModel* model,
-                                                    BookmarkNode* node) {
+                                                    const BookmarkNode* node) {
   SendBookmarksToPage();
 }
 
