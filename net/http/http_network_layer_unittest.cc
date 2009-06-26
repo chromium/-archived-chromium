@@ -14,17 +14,17 @@ class HttpNetworkLayerTest : public PlatformTest {
 };
 
 TEST_F(HttpNetworkLayerTest, CreateAndDestroy) {
+  net::HostResolver host_resolver;
   scoped_ptr<net::ProxyService> proxy_service(net::ProxyService::CreateNull());
-  net::HttpNetworkLayer factory(
-      NULL, new net::HostResolver, proxy_service.get());
+  net::HttpNetworkLayer factory(NULL, &host_resolver, proxy_service.get());
 
   scoped_ptr<net::HttpTransaction> trans(factory.CreateTransaction());
 }
 
 TEST_F(HttpNetworkLayerTest, Suspend) {
+  net::HostResolver host_resolver;
   scoped_ptr<net::ProxyService> proxy_service(net::ProxyService::CreateNull());
-  net::HttpNetworkLayer factory(
-      NULL, new net::HostResolver, proxy_service.get());
+  net::HttpNetworkLayer factory(NULL, &host_resolver, proxy_service.get());
 
   scoped_ptr<net::HttpTransaction> trans(factory.CreateTransaction());
   trans.reset();
@@ -55,8 +55,9 @@ TEST_F(HttpNetworkLayerTest, GET) {
   net::StaticMockSocket data(data_reads, data_writes);
   mock_socket_factory.AddMockSocket(&data);
 
+  net::HostResolver host_resolver;
   scoped_ptr<net::ProxyService> proxy_service(net::ProxyService::CreateNull());
-  net::HttpNetworkLayer factory(&mock_socket_factory, new net::HostResolver,
+  net::HttpNetworkLayer factory(&mock_socket_factory, &host_resolver,
                                 proxy_service.get());
 
   TestCompletionCallback callback;

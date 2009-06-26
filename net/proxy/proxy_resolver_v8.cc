@@ -103,7 +103,7 @@ class SyncHostResolverBridge
     event_.Signal();
   }
 
-  scoped_refptr<HostResolver> host_resolver_;
+  HostResolver* host_resolver_;
   MessageLoop* host_resolver_loop_;
 
   // Event to notify completion of resolve request.

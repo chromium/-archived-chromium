@@ -435,13 +435,9 @@ void InitDnsPrefetch(size_t max_concurrent, PrefService* user_prefs) {
 }
 
 void EnsureDnsPrefetchShutdown() {
-  if (NULL != dns_master) {
+  if (NULL != dns_master)
     dns_master->Shutdown();
-
-    // Stop observing DNS resolutions. Note that dns_master holds a reference
-    // to the global host resolver, so is guaranteed to be live.
-    GetGlobalHostResolver()->RemoveObserver(&dns_resolution_observer);
-  }
+  FreeGlobalHostResolver();
 }
 
 void FreeDnsPrefetchResources() {
@@ -471,6 +467,14 @@ net::HostResolver* GetGlobalHostResolver() {
         kMaxHostCacheEntries, kHostCacheExpirationSeconds * 1000);
   }
   return global_host_resolver;
+}
+
+void FreeGlobalHostResolver() {
+  if (global_host_resolver) {
+    // Called from IO thread.
+    delete global_host_resolver;
+    global_host_resolver = NULL;
+  }
 }
 
 //------------------------------------------------------------------------------

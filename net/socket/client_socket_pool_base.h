@@ -218,9 +218,9 @@ class ClientSocketPoolBase : public base::RefCounted<ClientSocketPoolBase> {
   // The maximum number of sockets kept per group.
   const int max_sockets_per_group_;
 
-  // The host resolver that will be used to do host lookups for connecting
+  // The host resolver that will be used to do DNS lookups for connecting
   // sockets.
-  scoped_refptr<HostResolver> host_resolver_;
+  HostResolver* const host_resolver_;
 
   scoped_ptr<ConnectJobFactory> connect_job_factory_;
 

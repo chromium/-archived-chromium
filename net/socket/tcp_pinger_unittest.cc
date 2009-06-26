@@ -65,10 +65,10 @@ void TCPPingerTest::SetUp() {
 
 TEST_F(TCPPingerTest, Ping) {
   net::AddressList addr;
-  scoped_refptr<net::HostResolver> resolver(new net::HostResolver);
+  net::HostResolver resolver;
 
   net::HostResolver::RequestInfo info("localhost", listen_port_);
-  int rv = resolver->Resolve(info, &addr, NULL, NULL);
+  int rv = resolver.Resolve(info, &addr, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
 
   net::TCPPinger pinger(addr);
@@ -78,13 +78,13 @@ TEST_F(TCPPingerTest, Ping) {
 
 TEST_F(TCPPingerTest, PingFail) {
   net::AddressList addr;
-  scoped_refptr<net::HostResolver> resolver(new net::HostResolver);
+  net::HostResolver resolver;
 
   // "Kill" "server"
   listen_sock_ = NULL;
 
   net::HostResolver::RequestInfo info("localhost", listen_port_);
-  int rv = resolver->Resolve(info, &addr, NULL, NULL);
+  int rv = resolver.Resolve(info, &addr, NULL, NULL);
   EXPECT_EQ(rv, net::OK);
 
   net::TCPPinger pinger(addr);

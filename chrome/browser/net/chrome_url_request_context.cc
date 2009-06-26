@@ -462,4 +462,7 @@ ChromeURLRequestContext::~ChromeURLRequestContext() {
   // it is owned by the original URLRequestContext.
   if (!is_off_the_record_ && !is_media_)
     delete proxy_service_;
+
+  // Do not delete host_resolver_; it will be freed by FreeGlobalHostResolver()
+  // during the teardown of DNS prefetching.
 }

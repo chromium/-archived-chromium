@@ -22,7 +22,7 @@ class FtpNetworkSession : public base::RefCounted<FtpNetworkSession> {
   FtpAuthCache* auth_cache() { return &auth_cache_; }
 
  private:
-  scoped_refptr<HostResolver> host_resolver_;
+  HostResolver* host_resolver_;
   FtpAuthCache auth_cache_;
 };
 

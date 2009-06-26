@@ -378,8 +378,9 @@ TEST(ProxyResolverV8Test, V8Bindings) {
 
 TEST(ProxyResolverV8DefaultBindingsTest, DnsResolve) {
   // Get a hold of a DefaultJSBindings* (it is a hidden impl class).
+  net::HostResolver host_resolver;
   scoped_ptr<net::ProxyResolverV8::JSBindings> bindings(
-      net::ProxyResolverV8::CreateDefaultBindings(new net::HostResolver, NULL));
+      net::ProxyResolverV8::CreateDefaultBindings(&host_resolver, NULL));
 
   // Considered an error.
   EXPECT_EQ("", bindings->DnsResolve(""));
@@ -429,8 +430,9 @@ TEST(ProxyResolverV8DefaultBindingsTest, DnsResolve) {
 
 TEST(ProxyResolverV8DefaultBindingsTest, MyIpAddress) {
   // Get a hold of a DefaultJSBindings* (it is a hidden impl class).
+  net::HostResolver host_resolver;
   scoped_ptr<net::ProxyResolverV8::JSBindings> bindings(
-      net::ProxyResolverV8::CreateDefaultBindings(new net::HostResolver, NULL));
+      net::ProxyResolverV8::CreateDefaultBindings(&host_resolver, NULL));
 
   // Our ip address is always going to be 127.0.0.1, since we are using a
   // mock host mapper when running in unit-test mode.

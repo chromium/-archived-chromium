@@ -57,7 +57,7 @@ class HostMapper;
 // Thread safety: This class is not threadsafe, and must only be called
 // from one thread!
 //
-class HostResolver : public base::RefCounted<HostResolver> {
+class HostResolver {
  public:
   // The parameters for doing a Resolve(). |hostname| and |port| are required,
   // the rest are optional (and have reasonable defaults).
@@ -236,7 +236,7 @@ class SingleRequestHostResolver {
   void OnResolveCompletion(int result);
 
   // The actual host resolver that will handle the request.
-  scoped_refptr<HostResolver> resolver_;
+  HostResolver* resolver_;
 
   // The current request (if any).
   HostResolver::Request* cur_request_;

@@ -224,7 +224,7 @@ class FtpMockControlSocketFileDownloadRetrFail
 class FtpNetworkTransactionTest : public PlatformTest {
  public:
   FtpNetworkTransactionTest()
-      : session_(new FtpNetworkSession(new HostResolver)),
+      : session_(new FtpNetworkSession(&resolver_)),
         transaction_(session_.get(), &mock_socket_factory_) {
   }
 
@@ -253,6 +253,7 @@ class FtpNetworkTransactionTest : public PlatformTest {
     EXPECT_EQ(FtpMockControlSocket::QUIT, ctrl_socket->state());
   }
 
+  HostResolver resolver_;
   scoped_refptr<FtpNetworkSession> session_;
   MockClientSocketFactory mock_socket_factory_;
   FtpNetworkTransaction transaction_;

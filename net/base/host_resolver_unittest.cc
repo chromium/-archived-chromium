@@ -140,8 +140,6 @@ class ResolveRequest {
   int result_;
   net::AddressList addrlist_;
 
-  // We don't use a scoped_refptr, to simplify deleting shared resolver in
-  // DeleteWithinCallback test.
   net::HostResolver* resolver_;
 
   Delegate* delegate_;
@@ -172,7 +170,7 @@ class HostResolverTest : public testing::Test {
 };
 
 TEST_F(HostResolverTest, SynchronousLookup) {
-  scoped_refptr<net::HostResolver> host_resolver(new net::HostResolver);
+  net::HostResolver host_resolver;
   net::AddressList adrlist;
   const int kPortnum = 80;
 
@@ -181,7 +179,7 @@ TEST_F(HostResolverTest, SynchronousLookup) {
   ScopedHostMapper scoped_mapper(mapper.get());
 
   net::HostResolver::RequestInfo info("just.testing", kPortnum);
-  int err = host_resolver->Resolve(info, &adrlist, NULL, NULL);
+  int err = host_resolver.Resolve(info, &adrlist, NULL, NULL);
   EXPECT_EQ(net::OK, err);
 
   const struct addrinfo* ainfo = adrlist.head();
@@ -195,7 +193,7 @@ TEST_F(HostResolverTest, SynchronousLookup) {
 }
 
 TEST_F(HostResolverTest, AsynchronousLookup) {
-  scoped_refptr<net::HostResolver> host_resolver(new net::HostResolver);
+  net::HostResolver host_resolver;
   net::AddressList adrlist;
   const int kPortnum = 80;
 
@@ -204,7 +202,7 @@ TEST_F(HostResolverTest, AsynchronousLookup) {
   ScopedHostMapper scoped_mapper(mapper.get());
 
   net::HostResolver::RequestInfo info("just.testing", kPortnum);
-  int err = host_resolver->Resolve(info, &adrlist, &callback_, NULL);
+  int err = host_resolver.Resolve(info, &adrlist, &callback_, NULL);
   EXPECT_EQ(net::ERR_IO_PENDING, err);
 
   MessageLoop::current()->Run();
@@ -227,12 +225,12 @@ TEST_F(HostResolverTest, CanceledAsynchronousLookup) {
   ScopedHostMapper scoped_mapper(mapper.get());
 
   {
-    scoped_refptr<net::HostResolver> host_resolver(new net::HostResolver);
+    net::HostResolver host_resolver;
     net::AddressList adrlist;
     const int kPortnum = 80;
 
     net::HostResolver::RequestInfo info("just.testing", kPortnum);
-    int err = host_resolver->Resolve(info, &adrlist, &callback_, NULL);
+    int err = host_resolver.Resolve(info, &adrlist, &callback_, NULL);
     EXPECT_EQ(net::ERR_IO_PENDING, err);
 
     // Make sure we will exit the queue even when callback is not called.
@@ -254,11 +252,11 @@ TEST_F(HostResolverTest, NumericIPv4Address) {
   mapper->AllowDirectLookup("*");
   ScopedHostMapper scoped_mapper(mapper.get());
 
-  scoped_refptr<net::HostResolver> host_resolver(new net::HostResolver);
+  net::HostResolver host_resolver;
   net::AddressList adrlist;
   const int kPortnum = 5555;
   net::HostResolver::RequestInfo info("127.1.2.3", kPortnum);
-  int err = host_resolver->Resolve(info, &adrlist, NULL, NULL);
+  int err = host_resolver.Resolve(info, &adrlist, NULL, NULL);
   EXPECT_EQ(net::OK, err);
 
   const struct addrinfo* ainfo = adrlist.head();
@@ -278,14 +276,14 @@ TEST_F(HostResolverTest, NumericIPv6Address) {
 
   // Resolve a plain IPv6 address.  Don't worry about [brackets], because
   // the caller should have removed them.
-  scoped_refptr<net::HostResolver> host_resolver(new net::HostResolver);
+  net::HostResolver host_resolver;
   net::AddressList adrlist;
   const int kPortnum = 5555;
   net::HostResolver::RequestInfo info("2001:db8::1", kPortnum);
-  int err = host_resolver->Resolve(info, &adrlist, NULL, NULL);
+  int err = host_resolver.Resolve(info, &adrlist, NULL, NULL);
   // On computers without IPv6 support, getaddrinfo cannot convert IPv6
   // address literals to addresses (getaddrinfo returns EAI_NONAME).  So this
-  // test has to allow host_resolver->Resolve to fail.
+  // test has to allow host_resolver.Resolve to fail.
   if (err == net::ERR_NAME_NOT_RESOLVED)
     return;
   EXPECT_EQ(net::OK, err);
@@ -312,11 +310,11 @@ TEST_F(HostResolverTest, EmptyHost) {
   mapper->AllowDirectLookup("*");
   ScopedHostMapper scoped_mapper(mapper.get());
 
-  scoped_refptr<net::HostResolver> host_resolver(new net::HostResolver);
+  net::HostResolver host_resolver;
   net::AddressList adrlist;
   const int kPortnum = 5555;
   net::HostResolver::RequestInfo info("", kPortnum);
-  int err = host_resolver->Resolve(info, &adrlist, NULL, NULL);
+  int err = host_resolver.Resolve(info, &adrlist, NULL, NULL);
   EXPECT_EQ(net::ERR_NAME_NOT_RESOLVED, err);
 }
 
@@ -372,7 +370,7 @@ TEST_F(HostResolverTest, DeDupeRequests) {
   scoped_refptr<CapturingHostMapper> mapper = new CapturingHostMapper();
   ScopedHostMapper scoped_mapper(mapper.get());
 
-  scoped_refptr<net::HostResolver> host_resolver(new net::HostResolver);
+  net::HostResolver host_resolver;
 
   // The class will receive callbacks for when each resolve completes. It
   // checks that the right things happened.
@@ -381,11 +379,11 @@ TEST_F(HostResolverTest, DeDupeRequests) {
   // Start 5 requests, duplicating hosts "a" and "b". Since the mapper is
   // blocked, these should all pile up until we signal it.
 
-  ResolveRequest req1(host_resolver, "a", 80, &verifier);
-  ResolveRequest req2(host_resolver, "b", 80, &verifier);
-  ResolveRequest req3(host_resolver, "b", 81, &verifier);
-  ResolveRequest req4(host_resolver, "a", 82, &verifier);
-  ResolveRequest req5(host_resolver, "b", 83, &verifier);
+  ResolveRequest req1(&host_resolver, "a", 80, &verifier);
+  ResolveRequest req2(&host_resolver, "b", 80, &verifier);
+  ResolveRequest req3(&host_resolver, "b", 81, &verifier);
+  ResolveRequest req4(&host_resolver, "a", 82, &verifier);
+  ResolveRequest req5(&host_resolver, "b", 83, &verifier);
 
   // Ready, Set, GO!!!
   mapper->Signal();
@@ -421,7 +419,7 @@ TEST_F(HostResolverTest, CancelMultipleRequests) {
   scoped_refptr<CapturingHostMapper> mapper = new CapturingHostMapper();
   ScopedHostMapper scoped_mapper(mapper.get());
 
-  scoped_refptr<net::HostResolver> host_resolver(new net::HostResolver);
+  net::HostResolver host_resolver;
 
   // The class will receive callbacks for when each resolve completes. It
   // checks that the right things happened.
@@ -430,11 +428,11 @@ TEST_F(HostResolverTest, CancelMultipleRequests) {
   // Start 5 requests, duplicating hosts "a" and "b". Since the mapper is
   // blocked, these should all pile up until we signal it.
 
-  ResolveRequest req1(host_resolver, "a", 80, &verifier);
-  ResolveRequest req2(host_resolver, "b", 80, &verifier);
-  ResolveRequest req3(host_resolver, "b", 81, &verifier);
-  ResolveRequest req4(host_resolver, "a", 82, &verifier);
-  ResolveRequest req5(host_resolver, "b", 83, &verifier);
+  ResolveRequest req1(&host_resolver, "a", 80, &verifier);
+  ResolveRequest req2(&host_resolver, "b", 80, &verifier);
+  ResolveRequest req3(&host_resolver, "b", 81, &verifier);
+  ResolveRequest req4(&host_resolver, "a", 82, &verifier);
+  ResolveRequest req5(&host_resolver, "b", 83, &verifier);
 
   // Cancel everything except request 4.
   req1.Cancel();
@@ -506,7 +504,7 @@ TEST_F(HostResolverTest, CancelWithinCallback) {
   scoped_refptr<CapturingHostMapper> mapper = new CapturingHostMapper();
   ScopedHostMapper scoped_mapper(mapper.get());
 
-  scoped_refptr<net::HostResolver> host_resolver(new net::HostResolver);
+  net::HostResolver host_resolver;
 
   // The class will receive callbacks for when each resolve completes. It
   // checks that the right things happened.
@@ -515,10 +513,10 @@ TEST_F(HostResolverTest, CancelWithinCallback) {
   // Start 4 requests, duplicating hosts "a". Since the mapper is
   // blocked, these should all pile up until we signal it.
 
-  ResolveRequest req1(host_resolver, "a", 80, &verifier);
-  ResolveRequest req2(host_resolver, "a", 81, &verifier);
-  ResolveRequest req3(host_resolver, "a", 82, &verifier);
-  ResolveRequest req4(host_resolver, "a", 83, &verifier);
+  ResolveRequest req1(&host_resolver, "a", 80, &verifier);
+  ResolveRequest req2(&host_resolver, "a", 81, &verifier);
+  ResolveRequest req3(&host_resolver, "a", 82, &verifier);
+  ResolveRequest req4(&host_resolver, "a", 83, &verifier);
 
   // Once "a:80" completes, it will cancel "a:81" and "a:82".
   verifier.SetRequestsToCancel(&req2, &req3);
@@ -533,18 +531,12 @@ TEST_F(HostResolverTest, CancelWithinCallback) {
 // Helper class used by HostResolverTest.DeleteWithinCallback.
 class DeleteWithinCallbackVerifier : public ResolveRequest::Delegate {
  public:
-  // |host_resolver| is the resolver that the the resolve requests were started
-  // with.
-  DeleteWithinCallbackVerifier(net::HostResolver* host_resolver)
-      : host_resolver_(host_resolver) {}
+  DeleteWithinCallbackVerifier() {}
 
   virtual void OnCompleted(ResolveRequest* resolve) {
     EXPECT_EQ("a", resolve->hostname());
     EXPECT_EQ(80, resolve->port());
-
-    // Release the last reference to the host resolver that started the
-    // requests.
-    host_resolver_ = NULL;
+    delete resolve->resolver();
 
     // Quit after returning from OnCompleted (to give it a chance at
     // incorrectly running the cancelled tasks).
@@ -552,7 +544,6 @@ class DeleteWithinCallbackVerifier : public ResolveRequest::Delegate {
   }
 
  private:
-  scoped_refptr<net::HostResolver> host_resolver_;
   DISALLOW_COPY_AND_ASSIGN(DeleteWithinCallbackVerifier);
 };
 
@@ -562,11 +553,13 @@ TEST_F(HostResolverTest, DeleteWithinCallback) {
   scoped_refptr<CapturingHostMapper> mapper = new CapturingHostMapper();
   ScopedHostMapper scoped_mapper(mapper.get());
 
-  // The class will receive callbacks for when each resolve completes. It
-  // checks that the right things happened. Note that the verifier holds the
-  // only reference to |host_resolver|, so it can delete it within callback.
+  // This should be deleted by DeleteWithinCallbackVerifier -- if it leaks
+  // then the test has failed.
   net::HostResolver* host_resolver = new net::HostResolver;
-  DeleteWithinCallbackVerifier verifier(host_resolver);
+
+  // The class will receive callbacks for when each resolve completes. It
+  // checks that the right things happened.
+  DeleteWithinCallbackVerifier verifier;
 
   // Start 4 requests, duplicating hosts "a". Since the mapper is
   // blocked, these should all pile up until we signal it.
@@ -616,7 +609,7 @@ TEST_F(HostResolverTest, StartWithinCallback) {
   ScopedHostMapper scoped_mapper(mapper.get());
 
   // Turn off caching for this host resolver.
-  scoped_refptr<net::HostResolver> host_resolver(new net::HostResolver(0, 0));
+  net::HostResolver host_resolver(0, 0);
 
   // The class will receive callbacks for when each resolve completes. It
   // checks that the right things happened.
@@ -625,10 +618,10 @@ TEST_F(HostResolverTest, StartWithinCallback) {
   // Start 4 requests, duplicating hosts "a". Since the mapper is
   // blocked, these should all pile up until we signal it.
 
-  ResolveRequest req1(host_resolver, "a", 80, &verifier);
-  ResolveRequest req2(host_resolver, "a", 81, &verifier);
-  ResolveRequest req3(host_resolver, "a", 82, &verifier);
-  ResolveRequest req4(host_resolver, "a", 83, &verifier);
+  ResolveRequest req1(&host_resolver, "a", 80, &verifier);
+  ResolveRequest req2(&host_resolver, "a", 81, &verifier);
+  ResolveRequest req3(&host_resolver, "a", 82, &verifier);
+  ResolveRequest req4(&host_resolver, "a", 83, &verifier);
 
   // Ready, Set, GO!!!
   mapper->Signal();
@@ -680,14 +673,14 @@ class BypassCacheVerifier : public ResolveRequest::Delegate {
 };
 
 TEST_F(HostResolverTest, BypassCache) {
-  scoped_refptr<net::HostResolver> host_resolver(new net::HostResolver);
+  net::HostResolver host_resolver;
 
   // The class will receive callbacks for when each resolve completes. It
   // checks that the right things happened.
   BypassCacheVerifier verifier;
 
   // Start a request.
-  ResolveRequest req1(host_resolver, "a", 80, &verifier);
+  ResolveRequest req1(&host_resolver, "a", 80, &verifier);
 
   // |verifier| will send quit message once all the requests have finished.
   MessageLoop::current()->Run();
@@ -763,17 +756,17 @@ class CapturingObserver : public net::HostResolver::Observer {
 // Does not test the cancellation notification since all resolves are
 // synchronous.
 TEST_F(HostResolverTest, Observers) {
-  scoped_refptr<net::HostResolver> host_resolver(new net::HostResolver);
+  net::HostResolver host_resolver;
 
   CapturingObserver observer;
 
-  host_resolver->AddObserver(&observer);
+  host_resolver.AddObserver(&observer);
 
   net::AddressList addrlist;
 
   // Resolve "host1".
   net::HostResolver::RequestInfo info1("host1", 70);
-  int rv = host_resolver->Resolve(info1, &addrlist, NULL, NULL);
+  int rv = host_resolver.Resolve(info1, &addrlist, NULL, NULL);
   EXPECT_EQ(net::OK, rv);
 
   EXPECT_EQ(1U, observer.start_log.size());
@@ -787,7 +780,7 @@ TEST_F(HostResolverTest, Observers) {
   // Resolve "host1" again -- this time it  will be served from cache, but it
   // should still notify of completion.
   TestCompletionCallback callback;
-  rv = host_resolver->Resolve(info1, &addrlist, &callback, NULL);
+  rv = host_resolver.Resolve(info1, &addrlist, &callback, NULL);
   ASSERT_EQ(net::OK, rv);  // Should complete synchronously.
 
   EXPECT_EQ(2U, observer.start_log.size());
@@ -801,7 +794,7 @@ TEST_F(HostResolverTest, Observers) {
   // Resolve "host2", setting referrer to "http://foobar.com"
   net::HostResolver::RequestInfo info2("host2", 70);
   info2.set_referrer(GURL("http://foobar.com"));
-  rv = host_resolver->Resolve(info2, &addrlist, NULL, NULL);
+  rv = host_resolver.Resolve(info2, &addrlist, NULL, NULL);
   EXPECT_EQ(net::OK, rv);
 
   EXPECT_EQ(3U, observer.start_log.size());
@@ -813,11 +806,11 @@ TEST_F(HostResolverTest, Observers) {
               CapturingObserver::FinishEntry(2, true, info2));
 
   // Unregister the observer.
-  host_resolver->RemoveObserver(&observer);
+  host_resolver.RemoveObserver(&observer);
 
   // Resolve "host3"
   net::HostResolver::RequestInfo info3("host3", 70);
-  host_resolver->Resolve(info3, &addrlist, NULL, NULL);
+  host_resolver.Resolve(info3, &addrlist, NULL, NULL);
 
   // No effect this time, since observer was removed.
   EXPECT_EQ(3U, observer.start_log.size());
@@ -833,8 +826,8 @@ TEST_F(HostResolverTest, CancellationObserver) {
   CapturingObserver observer;
   {
     // Create a host resolver and attach an observer.
-    scoped_refptr<net::HostResolver> host_resolver(new net::HostResolver);
-    host_resolver->AddObserver(&observer);
+    net::HostResolver host_resolver;
+    host_resolver.AddObserver(&observer);
 
     TestCompletionCallback callback;
 
@@ -846,7 +839,7 @@ TEST_F(HostResolverTest, CancellationObserver) {
     net::HostResolver::RequestInfo info1("host1", 70);
     net::HostResolver::Request* req = NULL;
     net::AddressList addrlist;
-    int rv = host_resolver->Resolve(info1, &addrlist, &callback, &req);
+    int rv = host_resolver.Resolve(info1, &addrlist, &callback, &req);
     EXPECT_EQ(net::ERR_IO_PENDING, rv);
     EXPECT_TRUE(NULL != req);
 
@@ -858,7 +851,7 @@ TEST_F(HostResolverTest, CancellationObserver) {
                 CapturingObserver::StartOrCancelEntry(0, info1));
 
     // Cancel the request (host mapper is blocked so it cant be finished yet).
-    host_resolver->CancelRequest(req);
+    host_resolver.CancelRequest(req);
 
     EXPECT_EQ(1U, observer.start_log.size());
     EXPECT_EQ(0U, observer.finish_log.size());
@@ -869,7 +862,7 @@ TEST_F(HostResolverTest, CancellationObserver) {
 
     // Start an async request for (host2:60)
     net::HostResolver::RequestInfo info2("host2", 60);
-    rv = host_resolver->Resolve(info2, &addrlist, &callback, NULL);
+    rv = host_resolver.Resolve(info2, &addrlist, &callback, NULL);
     EXPECT_EQ(net::ERR_IO_PENDING, rv);
     EXPECT_TRUE(NULL != req);
 

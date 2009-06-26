@@ -246,9 +246,9 @@ bool TestServerLauncher::WaitToStart(const std::string& host_name, int port) {
   // Verify that the webserver is actually started.
   // Otherwise tests can fail if they run faster than Python can start.
   net::AddressList addr;
-  scoped_refptr<net::HostResolver> resolver(new net::HostResolver);
+  net::HostResolver resolver;
   net::HostResolver::RequestInfo info(host_name, port);
-  int rv = resolver->Resolve(info, &addr, NULL, NULL);
+  int rv = resolver.Resolve(info, &addr, NULL, NULL);
   if (rv != net::OK)
     return false;
 

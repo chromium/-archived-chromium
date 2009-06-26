@@ -229,7 +229,7 @@ class DnsMaster : public base::RefCountedThreadSafe<DnsMaster> {
 
   // The host resovler we warm DNS entries for. The resolver (which is not
   // thread safe) should be accessed only on |host_resolver_loop_|.
-  scoped_refptr<net::HostResolver> host_resolver_;
+  net::HostResolver* host_resolver_;
   MessageLoop* host_resolver_loop_;
 
   DISALLOW_COPY_AND_ASSIGN(DnsMaster);
