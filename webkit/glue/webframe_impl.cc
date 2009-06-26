@@ -154,7 +154,6 @@ MSVC_POP_WARNING();
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/dom_operations_private.h"
 #include "webkit/glue/glue_util.h"
-#include "webkit/glue/webappcachecontext.h"
 #include "webkit/glue/webdatasource_impl.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webtextinput_impl.h"
@@ -383,8 +382,7 @@ WebFrameImpl::WebFrameImpl()
     total_matchcount_(-1),
     frames_scoping_count_(-1),
     scoping_complete_(false),
-    next_invalidate_after_(0),
-    app_cache_context_(WebAppCacheContext::Create()) {
+    next_invalidate_after_(0) {
   StatsCounter(kWebFrameActiveCount).Increment();
   live_object_count_++;
 }
@@ -411,9 +409,6 @@ void WebFrameImpl::InitMainFrame(WebViewImpl* webview_impl) {
   // We must call init() after frame_ is assigned because it is referenced
   // during init().
   frame_->init();
-
-  // Inform the  browser process of this top-level frame
-  app_cache_context_->Initialize(WebAppCacheContext::MAIN_FRAME, NULL);
 }
 
 void WebFrameImpl::LoadRequest(const WebURLRequest& request) {
@@ -1734,10 +1729,6 @@ PassRefPtr<Frame> WebFrameImpl::CreateChildFrame(
   if (!child_frame->tree()->parent())
     return NULL;
 
-  // Inform the  browser process of this child frame
-  webframe->app_cache_context_->Initialize(WebAppCacheContext::CHILD_FRAME,
-                                           app_cache_context_.get());
-
   frame_->loader()->loadURLIntoChildFrame(
       request.resourceRequest().url(),
       request.resourceRequest().httpReferrer(),
@@ -1855,32 +1846,6 @@ float WebFrameImpl::PrintPage(int page, skia::PlatformCanvas* canvas) {
 #endif
 
   return print_context_->spoolPage(spool, page);
-}
-
-void WebFrameImpl::SelectAppCacheWithoutManifest() {
-  WebDataSource* ds = GetDataSource();
-  DCHECK(ds);
-  if (ds->hasUnreachableURL()) {
-    app_cache_context_->SelectAppCacheWithoutManifest(
-                             ds->unreachableURL(),
-                             WebAppCacheContext::kNoAppCacheId);
-  } else {
-    const WebURLResponse& response = ds->response();
-    app_cache_context_->SelectAppCacheWithoutManifest(
-                             GetURL(),
-                             response.appCacheID());
-  }
-}
-
-void WebFrameImpl::SelectAppCacheWithManifest(const GURL &manifest_url) {
-  WebDataSource* ds = GetDataSource();
-  DCHECK(ds);
-  DCHECK(!ds->hasUnreachableURL());
-  const WebURLResponse& response = ds->response();
-  app_cache_context_->SelectAppCacheWithManifest(
-                           GetURL(),
-                           response.appCacheID(),
-                           manifest_url);
 }
 
 void WebFrameImpl::EndPrint() {

@@ -235,9 +235,6 @@ void WebFrameLoaderClient::dispatchWillSendRequest(
     WrappedResourceRequest webreq(request);
     d->WillSendRequest(webview, identifier, &webreq);
   }
-
-  request.setAppCacheContextID(
-              webframe_->GetAppCacheContext()->GetContextID());
 }
 
 bool WebFrameLoaderClient::shouldUseCredentialStorage(DocumentLoader*,
@@ -707,8 +704,6 @@ void WebFrameLoaderClient::dispatchDidReceiveTitle(const String& title) {
 }
 
 void WebFrameLoaderClient::dispatchDidCommitLoad() {
-  webframe_->SelectAppCacheWithoutManifest();
-
   WebViewImpl* webview = webframe_->GetWebViewImpl();
   bool is_new_navigation;
   webview->DidCommitLoad(&is_new_navigation);

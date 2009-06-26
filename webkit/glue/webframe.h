@@ -13,7 +13,6 @@
 #include "skia/ext/platform_canvas.h"
 
 class GURL;
-class WebAppCacheContext;
 class WebView;
 class WebTextInput;
 struct NPObject;
@@ -408,14 +407,6 @@ class WebFrame {
 
   // Reformats the web frame for screen display.
   virtual void EndPrint() = 0;
-
-  // Initiates app cache selection for the context with the resource currently
-  // committed in the webframe.
-  virtual void SelectAppCacheWithoutManifest() = 0;
-  virtual void SelectAppCacheWithManifest(const GURL& manifest_url) = 0;
-
-  // Returns a pointer to the WebAppCacheContext for this frame.
-  virtual WebAppCacheContext* GetAppCacheContext() const = 0;
 
   // Only for test_shell
   virtual int PendingFrameUnloadEventCount() const = 0;

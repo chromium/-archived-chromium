@@ -181,12 +181,6 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   virtual float PrintPage(int page, skia::PlatformCanvas* canvas);
   virtual void EndPrint();
 
-  virtual void SelectAppCacheWithoutManifest();
-  virtual void SelectAppCacheWithManifest(const GURL& manifest_url);
-  virtual WebAppCacheContext* GetAppCacheContext() const {
-    return app_cache_context_.get();
-  }
-
   PassRefPtr<WebCore::Frame> CreateChildFrame(
       const WebCore::FrameLoadRequest&,
       WebCore::HTMLFrameOwnerElement* owner_element);
@@ -400,9 +394,6 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   // Valid between calls to BeginPrint() and EndPrint(). Containts the print
   // information. Is used by PrintPage().
   scoped_ptr<ChromePrintContext> print_context_;
-
-  // The app cache context for this frame.
-  scoped_ptr<WebAppCacheContext> app_cache_context_;
 
   // The input fields that are interested in edit events and their associated
   // listeners.
