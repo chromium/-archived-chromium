@@ -127,14 +127,14 @@ int main(int argc, char**argv) {
   // Do work here.
   MessageLoop loop;
 
-  net::HostResolver host_resolver;
+  scoped_refptr<net::HostResolver> host_resolver(new net::HostResolver);
   scoped_ptr<net::ProxyService> proxy_service(net::ProxyService::CreateNull());
   net::HttpTransactionFactory* factory = NULL;
   if (use_cache) {
-    factory = new net::HttpCache(&host_resolver, proxy_service.get(), 0);
+    factory = new net::HttpCache(host_resolver, proxy_service.get(), 0);
   } else {
     factory = new net::HttpNetworkLayer(
-        net::ClientSocketFactory::GetDefaultFactory(), &host_resolver,
+        net::ClientSocketFactory::GetDefaultFactory(), host_resolver,
         proxy_service.get());
   }
 

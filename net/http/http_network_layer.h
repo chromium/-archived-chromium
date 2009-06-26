@@ -52,7 +52,7 @@ class HttpNetworkLayer : public HttpTransactionFactory {
   ClientSocketFactory* socket_factory_;
 
   // The host resolver being used for the session.
-  HostResolver* host_resolver_;
+  scoped_refptr<HostResolver> host_resolver_;
 
   // The proxy service being used for the session.
   ProxyService* proxy_service_;

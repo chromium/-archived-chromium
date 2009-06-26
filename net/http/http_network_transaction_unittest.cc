@@ -35,13 +35,14 @@ ProxyService* CreateNullProxyService() {
 class SessionDependencies {
  public:
   // Default set of dependencies -- "null" proxy service.
-  SessionDependencies() : proxy_service(CreateNullProxyService()) {}
+  SessionDependencies() : host_resolver(new HostResolver),
+      proxy_service(CreateNullProxyService()) {}
 
   // Custom proxy service dependency.
   explicit SessionDependencies(ProxyService* proxy_service)
-      : proxy_service(proxy_service) {}
+      : host_resolver(new HostResolver), proxy_service(proxy_service) {}
 
-  HostResolver host_resolver;
+  scoped_refptr<HostResolver> host_resolver;
   scoped_ptr<ProxyService> proxy_service;
   MockClientSocketFactory socket_factory;
 };
@@ -54,7 +55,7 @@ ProxyService* CreateFixedProxyService(const std::string& proxy) {
 
 
 HttpNetworkSession* CreateSession(SessionDependencies* session_deps) {
-  return new HttpNetworkSession(&session_deps->host_resolver,
+  return new HttpNetworkSession(session_deps->host_resolver,
                                 session_deps->proxy_service.get(),
                                 &session_deps->socket_factory);
 }
@@ -3302,7 +3303,7 @@ TEST_F(HttpNetworkTransactionTest, ResolveMadeWithReferrer) {
       CreateSession(&session_deps), &session_deps.socket_factory));
 
   // Attach an observer to watch the host resolutions being made.
-  session_deps.host_resolver.AddObserver(&resolution_observer);
+  session_deps.host_resolver->AddObserver(&resolution_observer);
 
   // Connect up a mock socket which will fail when reading.
   MockRead data_reads[] = {
@@ -3338,14 +3339,14 @@ TEST_F(HttpNetworkTransactionTest, BypassHostCacheOnRefresh) {
   // Warm up the host cache so it has an entry for "www.google.com" (by doing
   // a synchronous lookup.)
   AddressList addrlist;
-  int rv = session_deps.host_resolver.Resolve(
+  int rv = session_deps.host_resolver->Resolve(
     HostResolver::RequestInfo("www.google.com", 80), &addrlist, NULL, NULL);
   EXPECT_EQ(OK, rv);
 
   // Verify that it was added to host cache, by doing a subsequent async lookup
   // and confirming it completes synchronously.
   TestCompletionCallback resolve_callback;
-  rv = session_deps.host_resolver.Resolve(
+  rv = session_deps.host_resolver->Resolve(
       HostResolver::RequestInfo("www.google.com", 80), &addrlist,
       &resolve_callback, NULL);
   EXPECT_EQ(OK, rv);

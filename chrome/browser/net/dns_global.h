@@ -36,12 +36,8 @@ void EnsureDnsPrefetchShutdown();
 void FreeDnsPrefetchResources();
 
 // Lazily allocates a HostResolver to be used by the DNS prefetch system, on
-// the IO thread. Must be matched by a call to FreeGlobalHostResolver().
+// the IO thread.
 net::HostResolver* GetGlobalHostResolver();
-
-// Frees the HostResolver allocated by GetGlobalHostResolver(). Must be called
-// on the IO thread.
-void FreeGlobalHostResolver();
 
 //------------------------------------------------------------------------------
 // Global APIs relating to Prefetching in browser

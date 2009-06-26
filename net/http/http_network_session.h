@@ -54,7 +54,7 @@ class HttpNetworkSession : public base::RefCounted<HttpNetworkSession> {
   HttpAuthCache auth_cache_;
   SSLClientAuthCache ssl_client_auth_cache_;
   scoped_refptr<ClientSocketPool> connection_pool_;
-  HostResolver* host_resolver_;
+  scoped_refptr<HostResolver> host_resolver_;
   ProxyService* proxy_service_;
 #if defined(OS_WIN)
   // TODO(port): Port the SSLConfigService class to Linux and Mac OS X.
