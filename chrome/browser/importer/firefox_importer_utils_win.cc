@@ -4,6 +4,8 @@
 
 #include "chrome/browser/importer/firefox_importer_utils.h"
 
+#include <shlobj.h>
+
 #include "base/registry.h"
 
 namespace {
