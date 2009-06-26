@@ -5,6 +5,7 @@
 #include "chrome/app/breakpad_win.h"
 
 #include <windows.h>
+#include <shellapi.h>
 #include <tchar.h>
 #include <vector>
 
@@ -33,12 +34,21 @@ const wchar_t kSystemPrincipalSid[] =L"S-1-5-18";
 
 google_breakpad::ExceptionHandler* g_breakpad = NULL;
 
-std::vector<wchar_t*>* url_chunks = NULL;
+std::vector<wchar_t*>* g_url_chunks = NULL;
 
 // Dumps the current process memory.
 extern "C" void __declspec(dllexport) __cdecl DumpProcess() {
   if (g_breakpad)
     g_breakpad->WriteMinidump();
+}
+
+// Reduces the size of the string |str| to a max of 64 chars. Required because
+// breakpad's CustomInfoEntry raises an invalid_parameter error if the string
+// we want to set is longer.
+std::wstring TrimToBreakpadMax(const std::wstring& str) {
+  std::wstring shorter(str);
+  return shorter.substr(0,
+      google_breakpad::CustomInfoEntry::kValueMaxLength - 1);
 }
 
 // Returns the custom info structure based on the dll in parameter and the
@@ -62,6 +72,7 @@ google_breakpad::CustomClientInfo* GetCustomInfo(const std::wstring& dll_path,
      version = L"0.0.0.0-devel";
   }
 
+  // Common entries.
   google_breakpad::CustomInfoEntry ver_entry(L"ver", version.c_str());
   google_breakpad::CustomInfoEntry prod_entry(L"prod", product.c_str());
   google_breakpad::CustomInfoEntry plat_entry(L"plat", L"Win32");
@@ -81,28 +92,39 @@ google_breakpad::CustomClientInfo* GetCustomInfo(const std::wstring& dll_path,
     google_breakpad::CustomInfoEntry url8(L"url-chunk-8", L"");
 
     static google_breakpad::CustomInfoEntry entries[] =
-        { ver_entry, prod_entry, plat_entry, type_entry, url1, url2, url3,
-          url4, url5, url6, url7, url8 };
+        { ver_entry, prod_entry, plat_entry, type_entry,
+          url1, url2, url3, url4, url5, url6, url7, url8 };
 
     std::vector<wchar_t*>* tmp_url_chunks = new std::vector<wchar_t*>(8);
     for (size_t i = 0; i < 8; ++i)
       (*tmp_url_chunks)[i] = entries[4 + i].value;
-    url_chunks = tmp_url_chunks;
+    g_url_chunks = tmp_url_chunks;
 
-    static google_breakpad::CustomClientInfo custom_info = {entries,
-                                                            arraysize(entries)};
-
-    return &custom_info;
+    static google_breakpad::CustomClientInfo custom_info_renderer
+        = {entries, arraysize(entries)};
+    return &custom_info_renderer;
   }
-  static google_breakpad::CustomInfoEntry entries[] = {ver_entry,
-                                                       prod_entry,
-                                                       plat_entry,
-                                                       type_entry};
 
-  static google_breakpad::CustomClientInfo custom_info = {entries,
-                                                          arraysize(entries)};
+  // Browser-specific entries.
+  google_breakpad::CustomInfoEntry switch1(L"switch-1", L"");
+  google_breakpad::CustomInfoEntry switch2(L"switch-2", L"");
 
-  return &custom_info;
+  // Get the first two command line switches if they exist. The CommandLine
+  // class does not allow to enumerate the switches so we do it by hand.
+  int num_args = 0;
+  wchar_t** args = ::CommandLineToArgvW(::GetCommandLineW(), &num_args);
+  if (args) {
+    if (num_args > 1)
+      switch1.set_value(TrimToBreakpadMax(args[1]).c_str());
+    if (num_args > 2)
+      switch2.set_value(TrimToBreakpadMax(args[2]).c_str());
+  }
+
+  static google_breakpad::CustomInfoEntry entries[] =
+      {ver_entry, prod_entry, plat_entry, type_entry, switch1, switch2};
+  static google_breakpad::CustomClientInfo custom_info_browser =
+      {entries, arraysize(entries)};
+  return &custom_info_browser;
 }
 
 // Contains the information needed by the worker thread.
@@ -162,11 +184,11 @@ long WINAPI ChromeExceptionFilter(EXCEPTION_POINTERS* info) {
 extern "C" void __declspec(dllexport) __cdecl SetActiveRendererURL(
     const wchar_t* url_cstring) {
   DCHECK(url_cstring);
-  if (!url_chunks)
+  if (!g_url_chunks)
     return;
 
   std::wstring url(url_cstring);
-  size_t num_chunks = url_chunks->size();
+  size_t num_chunks = g_url_chunks->size();
   size_t chunk_index = 0;
   size_t url_size = url.size();
 
@@ -176,16 +198,16 @@ extern "C" void __declspec(dllexport) __cdecl SetActiveRendererURL(
     size_t current_chunk_size = std::min(url_size - url_offset,
         static_cast<size_t>(
             google_breakpad::CustomInfoEntry::kValueMaxLength - 1));
-    url._Copy_s((*url_chunks)[chunk_index],
+    url._Copy_s((*g_url_chunks)[chunk_index],
                 google_breakpad::CustomInfoEntry::kValueMaxLength,
                 current_chunk_size, url_offset);
-    (*url_chunks)[chunk_index][current_chunk_size] = L'\0';
+    (*g_url_chunks)[chunk_index][current_chunk_size] = L'\0';
     url_offset += current_chunk_size;
   }
 
   // And null terminate any unneeded chunks.
   for (; chunk_index < num_chunks; ++chunk_index)
-    (*url_chunks)[chunk_index][0] = L'\0';
+    (*g_url_chunks)[chunk_index][0] = L'\0';
 }
 
 }  // namespace
