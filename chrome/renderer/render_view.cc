@@ -35,6 +35,7 @@
 #include "chrome/renderer/audio_message_filter.h"
 #include "chrome/renderer/devtools_agent.h"
 #include "chrome/renderer/devtools_client.h"
+#include "chrome/renderer/extensions/event_bindings.h"
 #include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/localized_error.h"
 #include "chrome/renderer/media/audio_renderer_impl.h"
@@ -1423,6 +1424,14 @@ void RenderView::DocumentElementAvailable(WebFrame* frame) {
   if (RenderThread::current())  // Will be NULL during unit tests.
     RenderThread::current()->user_script_slave()->InjectScripts(
         frame, UserScript::DOCUMENT_START);
+}
+
+void RenderView::DidCreateScriptContext(WebFrame* webframe) {
+  EventBindings::HandleContextCreated(webframe);
+}
+
+void RenderView::DidDestroyScriptContext(WebFrame* webframe) {
+  EventBindings::HandleContextDestroyed(webframe);
 }
 
 WindowOpenDisposition RenderView::DispositionForNavigationAction(

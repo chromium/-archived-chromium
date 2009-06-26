@@ -210,6 +210,16 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   virtual void DocumentElementAvailable(WebFrame* webframe) {
   }
 
+  // Notifies that a new script context has been created for this frame.
+  // This is similar to WindowObjectCleared but only called once per frame
+  // context.
+  virtual void DidCreateScriptContext(WebFrame* webframe) {
+  }
+
+  // Notifies that this frame's script context has been destroyed.
+  virtual void DidDestroyScriptContext(WebFrame* webframe) {
+  }
+
   // PolicyDelegate ----------------------------------------------------------
 
   // This method is called to notify the delegate, and let it modify a

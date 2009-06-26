@@ -11,6 +11,7 @@
 #include "base/string16.h"
 #include "skia/ext/bitmap_platform_device.h"
 #include "skia/ext/platform_canvas.h"
+#include "webkit/api/public/WebCommon.h"
 
 class GURL;
 class WebView;
@@ -29,6 +30,13 @@ struct WebScriptSource;
 struct WebSize;
 struct WebURLError;
 }
+
+#if WEBKIT_USING_V8
+namespace v8 {
+  template <class T> class Local;
+  class Context;
+}
+#endif
 
 // Every frame in a web page is represented by one WebFrame, including the
 // outermost frame.
@@ -68,6 +76,12 @@ class WebFrame {
   virtual void GrantUniversalAccess() = 0;
 
   virtual NPObject* GetWindowNPObject() = 0;
+
+#if WEBKIT_USING_V8
+  // Returns the V8 context for this frame, or an empty handle if there is
+  // none.
+  virtual v8::Local<v8::Context> GetScriptContext() = 0;
+#endif
 
   // Loads the given WebURLRequest.
   virtual void LoadRequest(const WebKit::WebURLRequest& request) = 0;

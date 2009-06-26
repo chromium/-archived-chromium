@@ -125,6 +125,20 @@ void WebFrameLoaderClient::documentElementAvailable() {
     d->DocumentElementAvailable(webframe_);
 }
 
+void WebFrameLoaderClient::didCreateScriptContext() {
+  WebViewImpl* webview = webframe_->GetWebViewImpl();
+  WebViewDelegate* d = webview->delegate();
+  if (d)
+    d->DidCreateScriptContext(webframe_);
+}
+
+void WebFrameLoaderClient::didDestroyScriptContext() {
+  WebViewImpl* webview = webframe_->GetWebViewImpl();
+  WebViewDelegate* d = webview->delegate();
+  if (d)
+    d->DidDestroyScriptContext(webframe_);
+}
+
 void WebFrameLoaderClient::didPerformFirstNavigation() const {
 }
 

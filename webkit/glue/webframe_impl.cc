@@ -819,6 +819,17 @@ NPObject* WebFrameImpl::GetWindowNPObject() {
   return frame_->script()->windowScriptNPObject();
 }
 
+#if USE(V8)
+  // Returns the V8 context for this frame, or an empty handle if there is
+  // none.
+v8::Local<v8::Context> WebFrameImpl::GetScriptContext() {
+  if (!frame_)
+    return v8::Local<v8::Context>();
+
+  return frame_->script()->proxy()->GetContext();
+}
+#endif
+
 void WebFrameImpl::InvalidateArea(AreaToInvalidate area) {
   ASSERT(frame() && frame()->view());
 #if defined(OS_WIN) || defined(OS_LINUX)

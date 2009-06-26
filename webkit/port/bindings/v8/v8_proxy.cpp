@@ -45,6 +45,7 @@
 #include "CSSMutableStyleDeclaration.h"
 #include "DOMObjectsInclude.h"
 #include "DocumentLoader.h"
+#include "FrameLoaderClient.h"
 #include "ScriptController.h"
 #include "V8CustomBinding.h"
 #include "V8DOMMap.h"
@@ -1931,6 +1932,7 @@ void V8Proxy::ClearDocumentWrapperCache()
 
 void V8Proxy::DisposeContextHandles() {
     if (!m_context.IsEmpty()) {
+        m_frame->loader()->client()->didDestroyScriptContext();
         m_context.Dispose();
         m_context.Clear();
     }
@@ -2334,6 +2336,7 @@ void V8Proxy::InitContextIfNeeded()
 
   SetSecurityToken();
 
+  m_frame->loader()->client()->didCreateScriptContext();
   m_frame->loader()->dispatchWindowObjectAvailable();
 }
 

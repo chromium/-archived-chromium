@@ -119,6 +119,12 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
 
   virtual NPObject* GetWindowNPObject();
 
+#if USE(V8)
+  // Returns the V8 context for this frame, or an empty handle if there is
+  // none.
+  virtual v8::Local<v8::Context> GetScriptContext();
+#endif
+
   virtual void GetContentAsPlainText(int max_chars, std::wstring* text) const;
   virtual bool Find(
       int request_id,

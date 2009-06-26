@@ -12,6 +12,7 @@
 #include "chrome/renderer/js_only_v8_extensions.h"
 #include "chrome/renderer/render_thread.h"
 #include "grit/renderer_resources.h"
+#include "webkit/glue/webframe.h"
 
 namespace {
 
@@ -162,6 +163,22 @@ v8::Extension* EventBindings::Get() {
 // static
 void EventBindings::SetRenderThread(RenderThreadBase* thread) {
   render_thread = thread;
+}
+
+// static
+void EventBindings::HandleContextCreated(WebFrame* frame) {
+  v8::HandleScope handle_scope;
+  v8::Local<v8::Context> context = frame->GetScriptContext();
+  DCHECK(!context.IsEmpty());
+  // TODO(mpcomplete): register it
+}
+
+// static
+void EventBindings::HandleContextDestroyed(WebFrame* frame) {
+  v8::HandleScope handle_scope;
+  v8::Local<v8::Context> context = frame->GetScriptContext();
+  DCHECK(!context.IsEmpty());
+  // TODO(mpcomplete): unregister it, dispatch event
 }
 
 void EventBindings::CallFunction(const std::string& function_name,

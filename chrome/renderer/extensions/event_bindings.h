@@ -10,6 +10,7 @@
 #include <string>
 
 class RenderThreadBase;
+class WebFrame;
 
 // This class deals with the javascript bindings related to Event objects.
 class EventBindings {
@@ -19,6 +20,10 @@ class EventBindings {
 
   // Allow RenderThread to be mocked out.
   static void SetRenderThread(RenderThreadBase* thread);
+
+  // Handle a script context coming / going away.
+  static void HandleContextCreated(WebFrame* frame);
+  static void HandleContextDestroyed(WebFrame* frame);
 
   // Calls the given function in each registered context which is listening
   // for events.  The function can be an object property, ie:

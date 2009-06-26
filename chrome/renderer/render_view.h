@@ -222,6 +222,8 @@ class RenderView : public RenderWidget,
 
   virtual void WindowObjectCleared(WebFrame* webframe);
   virtual void DocumentElementAvailable(WebFrame* webframe);
+  virtual void DidCreateScriptContext(WebFrame* webframe);
+  virtual void DidDestroyScriptContext(WebFrame* webframe);
 
   virtual WindowOpenDisposition DispositionForNavigationAction(
       WebView* webview,
