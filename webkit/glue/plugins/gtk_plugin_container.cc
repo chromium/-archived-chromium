@@ -14,13 +14,6 @@ namespace {
 // through GLib's object management.
 class GtkPluginContainer : public GtkSocket {
  public:
-  static GtkWidget* CreateNewWidget() {
-    GtkWidget* container = GTK_WIDGET(g_object_new(GetType(), NULL));
-    g_signal_connect(GTK_SOCKET(container), "plug-removed",
-                     G_CALLBACK(OnPlugRemoved), NULL);
-    return container;
-  }
-
   // Sets the requested size of the widget.
   void set_size(int width, int height) {
     width_ = width;
@@ -33,7 +26,6 @@ class GtkPluginContainer : public GtkSocket {
     return G_TYPE_CHECK_INSTANCE_CAST(instance, GetType(), GtkPluginContainer);
   }
 
- private:
   // Create and register our custom container type with GTK.
   static GType GetType() {
     static GType type = 0;  // We only want to register our type once.
@@ -74,12 +66,6 @@ class GtkPluginContainer : public GtkSocket {
     requisition->height = container->height_;
   }
 
-  static gboolean OnPlugRemoved(GtkSocket* socket) {
-    // This is called when the other side of the socket goes away.
-    // We return TRUE to indicate that we don't want to destroy our side.
-    return TRUE;
-  }
-
   int width_;
   int height_;
   DISALLOW_IMPLICIT_CONSTRUCTORS(GtkPluginContainer);
@@ -89,7 +75,7 @@ class GtkPluginContainer : public GtkSocket {
 
 // Create a new instance of our GTK widget object.
 GtkWidget* gtk_plugin_container_new() {
-  return GtkPluginContainer::CreateNewWidget();
+  return GTK_WIDGET(g_object_new(GtkPluginContainer::GetType(), NULL));
 }
 
 void gtk_plugin_container_set_size(GtkWidget *widget, int width, int height) {

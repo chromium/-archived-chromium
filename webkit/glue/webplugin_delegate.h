@@ -8,10 +8,9 @@
 #include <string>
 
 #include "base/gfx/native_widget_types.h"
+#include "build/build_config.h"
 #include "third_party/npapi/bindings/npapi.h"
 
-// TODO(port): put in OS_WIN check.
-typedef struct HDC__* HDC;
 struct NPObject;
 
 class FilePath;
@@ -48,7 +47,7 @@ class WebPluginDelegate {
 
   static WebPluginDelegate* Create(const FilePath& filename,
                                    const std::string& mime_type,
-                                   gfx::NativeView containing_view);
+                                   gfx::PluginWindowHandle containing_view);
 
   // Initializes the plugin implementation with the given (UTF8) arguments.
   // Note that the lifetime of WebPlugin must be longer than this delegate.

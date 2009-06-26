@@ -70,8 +70,10 @@ class PluginInstance : public base::RefCountedThreadSafe<PluginInstance> {
   NPP npp() { return npp_; }
 
   // Get/Set for the instance's window handle.
-  gfx::NativeView window_handle() { return window_handle_; }
-  void set_window_handle(gfx::NativeView value) { window_handle_ = value; }
+  gfx::PluginWindowHandle window_handle() const { return window_handle_; }
+  void set_window_handle(gfx::PluginWindowHandle value) {
+    window_handle_ = value;
+  }
 
   // Get/Set whether this instance is in Windowless mode.
   // Default is false.
@@ -223,7 +225,7 @@ class PluginInstance : public base::RefCountedThreadSafe<PluginInstance> {
   scoped_refptr<PluginHost>                host_;
   NPPluginFuncs*                           npp_functions_;
   std::vector<scoped_refptr<PluginStream> > open_streams_;
-  gfx::NativeView                          window_handle_;
+  gfx::PluginWindowHandle                  window_handle_;
   bool                                     windowless_;
   bool                                     transparent_;
   WebPlugin*                               webplugin_;

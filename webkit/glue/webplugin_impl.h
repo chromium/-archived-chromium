@@ -148,8 +148,8 @@ class WebPluginImpl : public WebPlugin,
                 int arg_count, char** arg_names, char** arg_values);
 
   // WebPlugin implementation:
-  void SetWindow(gfx::NativeView window);
-  void WillDestroyWindow(gfx::NativeView window) { }
+  void SetWindow(gfx::PluginWindowHandle window);
+  void WillDestroyWindow(gfx::PluginWindowHandle window) { }
 #if defined(OS_WIN)
   void SetWindowlessPumpEvent(HANDLE pump_messages_event) { }
 #endif
@@ -333,7 +333,7 @@ class WebPluginImpl : public WebPlugin,
   std::vector<ClientInfo> clients_;
 
   bool windowless_;
-  gfx::NativeView window_;
+  gfx::PluginWindowHandle window_;
   WebCore::HTMLPlugInElement* element_;
   WebFrameImpl* webframe_;
 

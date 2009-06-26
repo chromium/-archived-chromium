@@ -176,6 +176,25 @@ struct ParamTraits<long> {
   }
 };
 
+// unsigned long is used for serializing X window ids.
+template <>
+struct ParamTraits<unsigned long> {
+  typedef unsigned long param_type;
+  static void Write(Message* m, const param_type& p) {
+    m->WriteLong(p);
+  }
+  static bool Read(const Message* m, void** iter, param_type* r) {
+    long read_output;
+    if (!m->ReadLong(iter, &read_output))
+      return false;
+    *r = static_cast<unsigned long>(read_output);
+    return true;
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(StringPrintf(L"%ul", p));
+  }
+};
+
 template <>
 struct ParamTraits<size_t> {
   typedef size_t param_type;

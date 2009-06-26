@@ -25,7 +25,9 @@ struct NPObject;
 
 // Describes the new location for a plugin window.
 struct WebPluginGeometry {
-  gfx::NativeView window;
+  // On Windows, this is the plugin window in the plugin process.
+  // On X11, this is the browser process's hosting window (the GtkSocket).
+  gfx::PluginWindowHandle window;
   gfx::Rect window_rect;
   // Clip rect (include) and cutouts (excludes), relative to
   // window_rect origin.
@@ -54,11 +56,11 @@ class WebPlugin {
   // windowed (i.e. handle is not NULL) or windowless (handle is NULL).  This
   // tells the WebPlugin to send mouse/keyboard events to the plugin delegate,
   // as well as the information about the HDC for paint operations.
-  virtual void SetWindow(gfx::NativeView window) = 0;
+  virtual void SetWindow(gfx::PluginWindowHandle window) = 0;
 
   // Called by the plugin delegate to let it know that the window is being
   // destroyed.
-  virtual void WillDestroyWindow(gfx::NativeView window) = 0;
+  virtual void WillDestroyWindow(gfx::PluginWindowHandle window) = 0;
 #if defined(OS_WIN)
   // The pump_messages_event is a event handle which is valid only for
   // windowless plugins and is used in NPP_HandleEvent calls to pump messages

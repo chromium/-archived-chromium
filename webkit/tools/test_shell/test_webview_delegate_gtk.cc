@@ -22,6 +22,7 @@
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webview.h"
+#include "webkit/glue/plugins/gtk_plugin_container.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/window_open_disposition.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
@@ -87,12 +88,14 @@ WebPluginDelegate* TestWebViewDelegate::CreatePluginDelegate(
                                                      actual_mime_type))
     return NULL;
 
-  if (actual_mime_type && !actual_mime_type->empty())
-    return WebPluginDelegateImpl::Create(info.path, *actual_mime_type,
-                                         shell_->webViewHost()->view_handle());
-  else
-    return WebPluginDelegateImpl::Create(info.path, mime_type,
-                                         shell_->webViewHost()->view_handle());
+  const std::string& mtype =
+      (actual_mime_type && !actual_mime_type->empty()) ? *actual_mime_type
+                                                       : mime_type;
+
+  GdkNativeWindow plugin_parent =
+      shell_->webViewHost()->CreatePluginContainer();
+
+  return WebPluginDelegateImpl::Create(info.path, mtype, plugin_parent);
 }
 
 void TestWebViewDelegate::ShowJavaScriptAlert(const std::wstring& message) {
@@ -216,10 +219,23 @@ void TestWebViewDelegate::GetRootWindowResizerRect(WebWidget* webwidget,
 
 void TestWebViewDelegate::DidMove(WebWidget* webwidget,
                                   const WebPluginGeometry& move) {
-  // The window on WebPluginGeometry is misnamed, as it's a view.  In our case
-  // it should be the GtkSocket of the plugin window.
-  GtkWidget* widget = move.window;
+  WebWidgetHost* host = GetHostForWidget(webwidget);
+
+  // The "window" on WebPluginGeometry is actually the XEmbed parent
+  // X window id.
+  GtkWidget* widget = ((WebViewHost*)host)->MapIDToWidget(move.window);
+  // If we don't know about this plugin (maybe we're shutting down the
+  // window?), ignore the message.
+  if (!widget)
+    return;
   DCHECK(!GTK_WIDGET_NO_WINDOW(widget) && GTK_WIDGET_REALIZED(widget));
+
+  if (!move.visible) {
+    gtk_widget_hide(widget);
+    return;
+  } else {
+    gtk_widget_show(widget);
+  }
 
   // Update the clipping region on the GdkWindow.
   GdkRectangle clip_rect = move.clip_rect.ToGdkRectangle();
@@ -232,7 +248,6 @@ void TestWebViewDelegate::DidMove(WebWidget* webwidget,
   // TODO(deanm): Verify that we only need to move and not resize.
   // TODO(evanm): we should cache the last shape and position and skip all
   // of this business in the common case where nothing has changed.
-  WebWidgetHost* host = GetHostForWidget(webwidget);
   int current_x, current_y;
 
   // Until the above TODO is resolved, we can grab the last position
@@ -255,6 +270,10 @@ void TestWebViewDelegate::DidMove(WebWidget* webwidget,
                    move.window_rect.x(),
                    move.window_rect.y());
   }
+
+  gtk_plugin_container_set_size(widget,
+                                move.window_rect.width(),
+                                move.window_rect.height());
 }
 
 void TestWebViewDelegate::RunModal(WebWidget* webwidget) {
