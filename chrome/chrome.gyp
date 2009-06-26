@@ -1186,6 +1186,8 @@
         'browser/net/url_fixer_upper.h',
         'browser/options_page_base.cc',
         'browser/options_page_base.h',
+        'browser/options_util.cc',
+        'browser/options_util.h',
         'browser/options_window.h',
         'browser/page_info_window.cc',
         'browser/page_info_window.h',
