@@ -278,10 +278,14 @@ TEST_F(TCPClientSocketPoolTest, InitConnectionFailure) {
   client_socket_factory_.set_client_socket_type(
       MockClientSocketFactory::MOCK_FAILING_CLIENT_SOCKET);
   TestSocketRequest req(pool_.get(), &request_order_);
-  HostResolver::RequestInfo info("unresolvable.host.name", 80);
+  HostResolver::RequestInfo info("a", 80);
   EXPECT_EQ(ERR_IO_PENDING,
             req.handle.Init("a", info, 5, &req));
   EXPECT_EQ(ERR_CONNECTION_FAILED, req.WaitForResult());
+  // HostCache caches it, so MockFailingClientSocket will cause Init() to
+  // synchronously fail.
+  EXPECT_EQ(ERR_CONNECTION_FAILED,
+            req.handle.Init("a", info, 5, &req));
 }
 
 TEST_F(TCPClientSocketPoolTest, PendingRequests) {

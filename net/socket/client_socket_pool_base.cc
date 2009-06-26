@@ -111,10 +111,7 @@ int ClientSocketPoolBase::RequestSocket(
   ConnectJob* connect_job =
       connect_job_factory_->NewConnectJob(group_name, r, this);
   connect_job_map_[handle] = connect_job;
-  int rv = connect_job->Connect();
-
-  CheckSocketCounts(group);
-  return rv;
+  return connect_job->Connect();
 }
 
 void ClientSocketPoolBase::CancelRequest(const std::string& group_name,

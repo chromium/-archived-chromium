@@ -79,7 +79,12 @@ class ClientSocketHandle {
   bool is_reused() const { return is_reused_; }
 
  private:
+  // Called on asynchronous completion of an Init() request.
   void OnIOComplete(int result);
+
+  // Called on completion (both asynchronous & synchronous) of an Init()
+  // request.
+  void HandleInitCompletion(int result);
 
   // Resets the state of the ClientSocketHandle.  |cancel| indicates whether or
   // not to try to cancel the request with the ClientSocketPool.

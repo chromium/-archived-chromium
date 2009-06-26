@@ -16,8 +16,8 @@ ClientSocketHandle::ClientSocketHandle(ClientSocketPool* pool)
     : pool_(pool),
       socket_(NULL),
       is_reused_(false),
-    ALLOW_THIS_IN_INITIALIZER_LIST(
-        callback_(this, &ClientSocketHandle::OnIOComplete)) {}
+      ALLOW_THIS_IN_INITIALIZER_LIST(
+          callback_(this, &ClientSocketHandle::OnIOComplete)) {}
 
 ClientSocketHandle::~ClientSocketHandle() {
   Reset();
@@ -29,9 +29,14 @@ int ClientSocketHandle::Init(const std::string& group_name,
                              CompletionCallback* callback) {
   ResetInternal(true);
   group_name_ = group_name;
-  user_callback_ = callback;
-  return pool_->RequestSocket(
+  int rv = pool_->RequestSocket(
       group_name, resolve_info, priority, this, &callback_);
+  if (rv == ERR_IO_PENDING) {
+    user_callback_ = callback;
+  } else {
+    HandleInitCompletion(rv);
+  }
+  return rv;
 }
 
 void ClientSocketHandle::Reset() {
@@ -62,12 +67,16 @@ LoadState ClientSocketHandle::GetLoadState() const {
 }
 
 void ClientSocketHandle::OnIOComplete(int result) {
-  CHECK(ERR_IO_PENDING != result);
   CompletionCallback* callback = user_callback_;
   user_callback_ = NULL;
+  HandleInitCompletion(result);
+  callback->Run(result);
+}
+
+void ClientSocketHandle::HandleInitCompletion(int result) {
+  CHECK(ERR_IO_PENDING != result);
   if (result != OK)
     ResetInternal(false);  // The request failed, so there's nothing to cancel.
-  callback->Run(result);
 }
 
 }  // namespace net
