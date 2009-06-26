@@ -200,6 +200,15 @@ class TabStripGtk : public TabStripModelObserver,
                              gint x, gint y, guint time,
                              TabStripGtk* tabstrip);
 
+  // drag-leave handler that is signaled when the mouse leaves the tabstrip
+  // during a drag.
+  static gboolean OnDragLeave(GtkWidget* widget, GdkDragContext* context,
+                              guint time, TabStripGtk* tabstrip);
+
+  // drag-failed handler that is signaled when the drag fails or is canceled.
+  static gboolean OnDragFailed(GtkWidget* widget, GdkDragContext* context,
+                               GtkDragResult result, TabStripGtk* tabstrip);
+
   // drag-data-received handler that receives the data assocated with the drag.
   static gboolean OnDragDataReceived(GtkWidget* widget, GdkDragContext* context,
                                      gint x, gint y, GtkSelectionData* data,

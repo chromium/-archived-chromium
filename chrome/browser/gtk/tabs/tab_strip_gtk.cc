@@ -4,6 +4,8 @@
 
 #include "chrome/browser/gtk/tabs/tab_strip_gtk.h"
 
+#include <algorithm>
+
 #include "app/gfx/canvas_paint.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
@@ -497,6 +499,10 @@ void TabStripGtk::Init() {
                    G_CALLBACK(OnDragMotion), this);
   g_signal_connect(G_OBJECT(tabstrip_.get()), "drag-drop",
                    G_CALLBACK(OnDragDrop), this);
+  g_signal_connect(G_OBJECT(tabstrip_.get()), "drag-leave",
+                   G_CALLBACK(OnDragLeave), this);
+  g_signal_connect(G_OBJECT(tabstrip_.get()), "drag-failed",
+                   G_CALLBACK(OnDragFailed), this);
   g_signal_connect(G_OBJECT(tabstrip_.get()), "drag-data-received",
                    G_CALLBACK(OnDragDataReceived), this);
 
@@ -1125,7 +1131,7 @@ void TabStripGtk::RemoveMessageLoopObserver() {
 gfx::Rect TabStripGtk::GetDropBounds(int drop_index,
                                      bool drop_before,
                                      bool* is_beneath) {
-  DCHECK(drop_index != -1);
+  DCHECK_NE(drop_index, -1);
   int center_x;
   if (drop_index < GetTabCount()) {
     TabGtk* tab = GetTabAt(drop_index);
@@ -1180,9 +1186,12 @@ void TabStripGtk::UpdateDropIndex(GdkDragContext* context, gint x, gint y) {
 void TabStripGtk::SetDropIndex(int index, bool drop_before) {
   if (index == -1) {
     if (drop_info_.get())
-      drop_info_.reset(NULL);
+      gtk_widget_hide(drop_info_->container);
     return;
   }
+
+  if (drop_info_.get() && !GTK_WIDGET_VISIBLE(drop_info_->container))
+    gtk_widget_show(drop_info_->container);
 
   if (drop_info_.get() && drop_info_->drop_index == index &&
       drop_info_->drop_before == drop_before) {
@@ -1534,6 +1543,23 @@ gboolean TabStripGtk::OnDragDrop(GtkWidget* widget, GdkDragContext* context,
 
   g_free(list);
   return TRUE;
+}
+
+// static
+gboolean TabStripGtk::OnDragLeave(GtkWidget* widget, GdkDragContext* context,
+                                  guint time, TabStripGtk* tabstrip) {
+  // Hide the drop indicator.
+  tabstrip->SetDropIndex(-1, false);
+  return FALSE;
+}
+
+// static
+gboolean TabStripGtk::OnDragFailed(GtkWidget* widget, GdkDragContext* context,
+                                   GtkDragResult result,
+                                   TabStripGtk* tabstrip) {
+  // Hide the drop indicator.
+  tabstrip->SetDropIndex(-1, false);
+  return FALSE;
 }
 
 // static
