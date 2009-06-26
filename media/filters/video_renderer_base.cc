@@ -57,6 +57,13 @@ bool VideoRendererBase::ParseMediaFormat(const MediaFormat& media_format,
 void VideoRendererBase::Stop() {
   AutoLock auto_lock(lock_);
   state_ = STOPPED;
+
+  // Signal the subclass we're stopping.
+  // TODO(scherkus): do we trust subclasses not to do something silly while
+  // we're holding the lock?
+  OnStop();
+
+  // Clean up our thread if present.
   if (thread_) {
     // Signal the thread since it's possible to get stopped with the video
     // thread waiting for a read to complete.

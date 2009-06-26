@@ -20,6 +20,9 @@ bool WtlVideoRenderer::IsMediaFormatSupported(
   return ParseMediaFormat(media_format, &width, &height);
 }
 
+void WtlVideoRenderer::OnStop() {
+}
+
 bool WtlVideoRenderer::OnInitialize(media::VideoDecoder* decoder) {
   int width = 0;
   int height = 0;

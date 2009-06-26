@@ -18,7 +18,9 @@ class WtlVideoRenderer : public media::VideoRendererBase {
   static bool IsMediaFormatSupported(const media::MediaFormat& media_format);
 
  protected:
+  // VideoRendererBase implementation.
   virtual bool OnInitialize(media::VideoDecoder* decoder);
+  virtual void OnStop();
   virtual void OnFrameAvailable();
 
  private:

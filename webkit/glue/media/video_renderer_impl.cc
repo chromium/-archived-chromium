@@ -25,10 +25,6 @@ bool VideoRendererImpl::IsMediaFormatSupported(
   return ParseMediaFormat(media_format, &width, &height);
 }
 
-void VideoRendererImpl::Stop() {
-  VideoRendererBase::Stop();
-  delegate_->SetVideoRenderer(NULL);
-}
 
 bool VideoRendererImpl::OnInitialize(media::VideoDecoder* decoder) {
   int width = 0;
@@ -47,11 +43,15 @@ bool VideoRendererImpl::OnInitialize(media::VideoDecoder* decoder) {
   return false;
 }
 
-void VideoRendererImpl::SetRect(const gfx::Rect& rect) {
+void VideoRendererImpl::OnStop() {
+  delegate_->SetVideoRenderer(NULL);
 }
 
 void VideoRendererImpl::OnFrameAvailable() {
   delegate_->PostRepaintTask();
+}
+
+void VideoRendererImpl::SetRect(const gfx::Rect& rect) {
 }
 
 // This method is always called on the renderer's thread.

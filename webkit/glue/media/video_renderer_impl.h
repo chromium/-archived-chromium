@@ -50,12 +50,12 @@ class VideoRendererImpl : public media::VideoRendererBase {
   // FilterFactoryImpl1 implementation.
   static bool IsMediaFormatSupported(const media::MediaFormat& media_format);
 
-  // Override VideoRendererBase implementation of Stop().
-  virtual void Stop();
-
  protected:
   // Method called by VideoRendererBase during initialization.
   virtual bool OnInitialize(media::VideoDecoder* decoder);
+
+  // Method called by the VideoRendererBase when stopping.
+  virtual void OnStop();
 
   // Method called by the VideoRendererBase when a frame is available.
   virtual void OnFrameAvailable();
