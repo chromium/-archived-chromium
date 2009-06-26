@@ -1222,9 +1222,9 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
 
 #endif
 
-// TODO(rafaelw): Re-enable on mac. This broke with: 
+// TODO(rafaelw): Re-enable on mac. This broke with:
 // http://codereview.chromium.org/140018
-#if !defined(OS_MAC)
+#if !defined(OS_MACOSX)
 
 TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   InitializeEmptyExtensionsService();
@@ -1339,7 +1339,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
               std::string::npos);
 }
 
-#endif  // !defined(OS_MAC)
+#endif  // !defined(OS_MACOSX)
 
 TEST_F(ExtensionsServiceTest, ExternalPrefProvider) {
   InitializeEmptyExtensionsService();
