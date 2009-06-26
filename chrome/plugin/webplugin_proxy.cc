@@ -56,21 +56,15 @@ bool WebPluginProxy::Send(IPC::Message* msg) {
   return channel_->Send(msg);
 }
 
-void WebPluginProxy::SetWindow(gfx::PluginWindowHandle window) {
-#if defined(OS_WIN)
+void WebPluginProxy::SetWindow(gfx::NativeView window) {
   Send(new PluginHostMsg_SetWindow(route_id_, gfx::IdFromNativeView(window)));
-#else
-  NOTIMPLEMENTED();
-#endif
 }
 
-void WebPluginProxy::WillDestroyWindow(gfx::PluginWindowHandle window) {
+void WebPluginProxy::WillDestroyWindow(gfx::NativeView window) {
 #if defined(OS_WIN)
   PluginThread::current()->Send(
       new PluginProcessHostMsg_PluginWindowDestroyed(
           window, ::GetParent(window)));
-#else
-  NOTIMPLEMENTED();
 #endif
 }
 

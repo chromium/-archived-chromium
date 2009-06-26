@@ -71,7 +71,7 @@ base::LazyInstance<iat_patch::IATPatchFunction> g_iat_patch_set_cursor(
 WebPluginDelegate* WebPluginDelegate::Create(
     const FilePath& filename,
     const std::string& mime_type,
-    gfx::PluginWindowHandle containing_view) {
+    gfx::NativeView containing_view) {
   scoped_refptr<NPAPI::PluginLib> plugin =
       NPAPI::PluginLib::CreatePluginLib(filename);
   if (plugin.get() == NULL)
@@ -140,7 +140,7 @@ LRESULT CALLBACK WebPluginDelegateImpl::HandleEventMessageFilterHook(
 }
 
 WebPluginDelegateImpl::WebPluginDelegateImpl(
-    gfx::PluginWindowHandle containing_view,
+    gfx::NativeView containing_view,
     NPAPI::PluginInstance *instance)
     : parent_(containing_view),
       instance_(instance),

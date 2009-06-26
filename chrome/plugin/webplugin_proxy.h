@@ -37,8 +37,8 @@ class WebPluginProxy : public WebPlugin {
   ~WebPluginProxy();
 
   // WebPlugin overrides
-  void SetWindow(gfx::PluginWindowHandle window);
-  void WillDestroyWindow(gfx::PluginWindowHandle window);
+  void SetWindow(gfx::NativeView window);
+  void WillDestroyWindow(gfx::NativeView window);
 #if defined(OS_WIN)
   void SetWindowlessPumpEvent(HANDLE pump_messages_event);
   // Returns true on success.

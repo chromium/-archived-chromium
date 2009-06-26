@@ -91,7 +91,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
  private:
   friend class DeleteTask<WebPluginDelegateImpl>;
 
-  WebPluginDelegateImpl(gfx::PluginWindowHandle containing_view,
+  WebPluginDelegateImpl(gfx::NativeView containing_view,
                         NPAPI::PluginInstance *instance);
   ~WebPluginDelegateImpl();
 
@@ -154,7 +154,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   void DestroyInstance();
 
   // used for windowed plugins
-  gfx::PluginWindowHandle windowed_handle_;
+  gfx::NativeView windowed_handle_;
   bool windowed_did_set_window_;
 #if defined(OS_WIN)
   gfx::Rect windowed_last_pos_;
@@ -190,7 +190,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   void EnsurePixmapAtLeastSize(int width, int height);
 #endif
 
-  gfx::PluginWindowHandle parent_;
+  gfx::NativeView parent_;
   NPWindow window_;
 #if defined(OS_MACOSX)
   NP_CGContext cg_context_;

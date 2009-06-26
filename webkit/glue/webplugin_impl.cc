@@ -388,7 +388,7 @@ WebPluginImpl::WebPluginImpl(WebCore::HTMLPlugInElement* element,
 WebPluginImpl::~WebPluginImpl() {
 }
 
-void WebPluginImpl::SetWindow(gfx::PluginWindowHandle window) {
+void WebPluginImpl::SetWindow(gfx::NativeView window) {
   if (window) {
     DCHECK(!windowless_);  // Make sure not called twice.
     window_ = window;
