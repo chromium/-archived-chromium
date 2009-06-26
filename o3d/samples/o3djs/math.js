@@ -692,7 +692,7 @@ o3djs.math.divVectorVector = function(a, b) {
   var r = [];
   var aLength = a.length;
   for (var i = 0; i < aLength; ++i)
-    r[i] = a[i] * b[i];
+    r[i] = a[i] / b[i];
   return r;
 };
 
