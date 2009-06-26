@@ -2804,6 +2804,12 @@ BUG15296 : LayoutTests/dom/html/level2/html/HTMLTableElement10.html = CRASH
 // WebKit 45134:45176
 BUG15403 : LayoutTests/http/tests/security/clipboard/clipboard-file-access.html = FAIL
 
+// WebKit 45203:45247
+BUG15460 : LayoutTests/media/audio-controls-rendering.html = FAIL
+BUG15460 : LayoutTests/media/video-controls-rendering.html = FAIL
+BUG15460 : LayoutTests/media/video-empty-source.html = FAIL
+BUG15460 : LayoutTests/media/video-zoom-controls.html = FAIL
+
 // Flaky for a while on DEBUG
 BUG15267 WIN LINUX DEBUG : LayoutTests/transitions/cancel-transition.html = PASS FAIL
 
