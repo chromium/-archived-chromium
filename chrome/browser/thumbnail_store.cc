@@ -165,16 +165,17 @@ bool ThumbnailStore::SetPageThumbnail(const GURL& url,
   // Write the new thumbnail data to disk in the background on file_thread.
   if (write_to_disk) {
     g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
-        NewRunnableMethod(this, &ThumbnailStore::WriteThumbnailToDisk, url));
+        NewRunnableMethod(this, &ThumbnailStore::WriteThumbnailToDisk, url,
+        jpeg_data, score));
   }
   return true;
 }
 
-bool ThumbnailStore::WriteThumbnailToDisk(const GURL& url) const {
+bool ThumbnailStore::WriteThumbnailToDisk(const GURL& url,
+                                          scoped_refptr<RefCountedBytes> data,
+                                          const ThumbnailScore& score) const {
   Pickle packed;
   FilePath file = file_path_.AppendASCII(MD5String(url.spec()));
-  scoped_refptr<RefCountedBytes> data((*cache_)[url].first);
-  ThumbnailScore score = (*cache_)[url].second;
 
   // Pack the url, ThumbnailScore, and the JPEG data.
   packed.WriteString(url.spec());

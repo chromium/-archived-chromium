@@ -117,7 +117,9 @@ class ThumbnailStore : public base::RefCountedThreadSafe<ThumbnailStore> {
   void OnDiskDataAvailable(ThumbnailStore::Cache* cache);
 
   // Write thumbnail data to disk for a given url.
-  bool WriteThumbnailToDisk(const GURL& url) const;
+  bool WriteThumbnailToDisk(const GURL& url,
+                            scoped_refptr<RefCountedBytes> data,
+                            const ThumbnailScore& score) const;
 
   // Pack the given ThumbnailScore into the given Pickle.
   void PackScore(const ThumbnailScore& score, Pickle* packed) const;

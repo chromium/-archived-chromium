@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include <string.h>
+#include <algorithm>
 #include <iostream>
 #include <vector>
 
@@ -200,7 +201,12 @@ TEST_F(ThumbnailStoreTest, RetrieveFromDisk) {
   // Store a thumbnail onto the disk and retrieve it.
 
   EXPECT_TRUE(store->SetPageThumbnail(url1_, *google_, score1_, false));
-  EXPECT_TRUE(store->WriteThumbnailToDisk(url1_));
+
+  ThumbnailStore::Cache::iterator it = store->cache_->find(url1_);
+  DCHECK(it != store->cache_->end());
+
+  EXPECT_TRUE(store->WriteThumbnailToDisk(url1_, it->second.first,
+                                          it->second.second));
   EXPECT_TRUE(store->GetPageThumbnailFromDisk(file_path_.AppendASCII(
       MD5String(url1_.spec())), &url2_, read_image, &score2));
   EXPECT_TRUE(url1_ == url2_);
