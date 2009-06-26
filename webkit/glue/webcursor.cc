@@ -12,6 +12,8 @@
 #include "base/logging.h"
 #include "base/pickle.h"
 
+static const int kMaxCursorDimension = 1024;
+
 WebCursor::WebCursor()
     : type_(WebCore::PlatformCursor::TypePointer) {
   InitPlatformData();
@@ -53,9 +55,18 @@ bool WebCursor::Deserialize(const Pickle* pickle, void** iter) {
   if (!pickle->ReadInt(iter, &type) ||
       !pickle->ReadInt(iter, &hotspot_x) ||
       !pickle->ReadInt(iter, &hotspot_y) ||
-      !pickle->ReadInt(iter, &size_x) ||
-      !pickle->ReadInt(iter, &size_y) ||
+      !pickle->ReadLength(iter, &size_x) ||
+      !pickle->ReadLength(iter, &size_y) ||
       !pickle->ReadData(iter, &data, &data_len))
+    return false;
+
+  // Ensure the size is sane, and there is enough data.
+  if (size_x > kMaxCursorDimension ||
+      size_y > kMaxCursorDimension)
+    return false;
+
+  // The * 4 is because the expected format is an array of RGBA pixel values.
+  if (size_x * size_y * 4 > data_len)
     return false;
 
   type_ = type;

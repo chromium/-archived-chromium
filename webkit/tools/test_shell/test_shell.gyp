@@ -468,6 +468,7 @@
         '../../glue/regular_expression_unittest.cc',
         '../../glue/resource_fetcher_unittest.cc',
         '../../glue/unittest_test_server.h',
+        '../../glue/webcursor_unittest.cc',
         '../../glue/webframe_unittest.cc',
         '../../glue/webplugin_impl_unittest.cc',
         '../webcore_unit_tests/BMPImageDecoder_unittest.cpp',
