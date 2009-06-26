@@ -505,11 +505,13 @@ int WMain(HMODULE module) {
   if (!GetWorkDir(module, base_path))
     return 101;
 
+#if defined(GOOGLE_CHROME_BUILD)
   // Set the magic suffix in registry to try full installer next time. We ignore
   // any errors here and we try to set the suffix for user level as well as
-  // system level.
+  // system level. This only applies to Google Chrome distribution.
   SetFullInstallerFlag(HKEY_LOCAL_MACHINE);
   SetFullInstallerFlag(HKEY_CURRENT_USER);
+#endif
 
   wchar_t archive_path[MAX_PATH] = {0};
   wchar_t setup_path[MAX_PATH] = {0};
