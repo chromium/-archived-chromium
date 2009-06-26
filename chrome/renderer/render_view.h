@@ -373,6 +373,9 @@ class RenderView : public RenderWidget,
   virtual void OnResize(const gfx::Size& new_size,
                         const gfx::Rect& resizer_rect);
 
+  // RenderWidget override
+  virtual void DidPaint();
+
  private:
   // For unit tests.
   friend class RenderViewTest;
