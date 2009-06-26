@@ -116,8 +116,8 @@ class SOCKSClientSocket : public ClientSocket {
   bool completed_handshake_;
 
   // These contain the bytes sent / received by the SOCKS handshake.
-  size_t bytes_sent_;
-  size_t bytes_received_;
+  int bytes_sent_;
+  int bytes_received_;
 
   // Used to resolve the hostname to which the SOCKS proxy will connect.
   SingleRequestHostResolver resolver_;

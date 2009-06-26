@@ -299,7 +299,7 @@ int SOCKSClientSocket::DoHandshakeWriteComplete(int result) {
   if (bytes_sent_ == buffer_.size()) {
     next_state_ = STATE_HANDSHAKE_READ;
     buffer_.clear();
-  } else if (bytes_sent_ < buffer_.size()) {
+  } else if (bytes_sent_ < static_cast<int>(buffer_.size())) {
     next_state_ = STATE_HANDSHAKE_WRITE;
   } else {
     return ERR_UNEXPECTED;
