@@ -58,7 +58,7 @@ WebPluginDelegateImpl* g_current_plugin_instance = NULL;
 WebPluginDelegate* WebPluginDelegate::Create(
     const FilePath& filename,
     const std::string& mime_type,
-    gfx::PluginWindowHandle containing_view) {
+    gfx::NativeView containing_view) {
   scoped_refptr<NPAPI::PluginLib> plugin =
       NPAPI::PluginLib::CreatePluginLib(filename);
   if (plugin.get() == NULL)
@@ -73,13 +73,12 @@ WebPluginDelegate* WebPluginDelegate::Create(
   return new WebPluginDelegateImpl(containing_view, instance.get());
 }
 
-bool WebPluginDelegateImpl::IsPluginDelegateWindow(
-    gfx::PluginNativeView window) {
+bool WebPluginDelegateImpl::IsPluginDelegateWindow(gfx::NativeWindow window) {
   return false;
 }
 
 bool WebPluginDelegateImpl::GetPluginNameFromWindow(
-    gfx::PluginNativeView window, std::wstring *plugin_name) {
+    gfx::NativeWindow window, std::wstring *plugin_name) {
   if (NULL == plugin_name) {
     return false;
   }
