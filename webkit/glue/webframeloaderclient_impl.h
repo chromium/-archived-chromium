@@ -44,6 +44,10 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
   virtual void windowObjectCleared();
   virtual void documentElementAvailable();
 
+  // TODO(mpcomplete): roll DEPS
+  virtual void didCreateScriptContext() {}
+  virtual void didDestroyScriptContext() {}
+
   virtual bool hasWebView() const; // mainly for assertions
   virtual bool hasFrameView() const; // ditto
 
