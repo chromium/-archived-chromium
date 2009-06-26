@@ -30,6 +30,7 @@
 #include "chrome/browser/browser_process_impl.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
+#include "chrome/browser/extensions/extension_protocols.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/metrics/metrics_service.h"
 #include "chrome/browser/net/dns_global.h"
@@ -86,7 +87,6 @@
 #include "base/win_util.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_trial.h"
-#include "chrome/browser/extensions/extension_protocols.h"
 #include "chrome/browser/jankometer.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/net/url_fixer_upper.h"
@@ -107,10 +107,6 @@
 #include "views/widget/accelerator_handler.h"
 
 #endif  // defined(OS_WIN)
-
-#if defined(LINUX2)
-#include "chrome/browser/extensions/extension_protocols.h"
-#endif  // defined(LINUX2)
 
 #if defined(TOOLKIT_GTK)
 #include "chrome/common/gtk_util.h"
@@ -718,10 +714,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // Register our global network handler for chrome:// and
   // chrome-extension:// URLs.
   RegisterURLRequestChromeJob();
-
-#if defined(OS_WIN) || defined(LINUX2)
   RegisterExtensionProtocols();
-#endif
 
   // In unittest mode, this will do nothing.  In normal mode, this will create
   // the global GoogleURLTracker instance, which will promptly go to sleep for
