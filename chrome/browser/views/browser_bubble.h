@@ -12,6 +12,7 @@
 // Browser.  If you don't install a delegate, the bubble will hide
 // automatically when the browser moves.  The bubble is only shown manually.
 // Users are expected to delete the bubble when finished with it.
+// Class assumes that RTL related mirroring is done by the view.
 class BrowserBubble {
  public:
   // Delegate to browser bubble events.

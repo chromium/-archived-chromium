@@ -72,13 +72,8 @@ void BrowserBubble::BrowserWindowClosed() {
 }
 
 void BrowserBubble::SetBounds(int x, int y, int w, int h) {
-  // If the UI layout is RTL, we need to mirror the position of the bubble
-  // relative to the parent.
-  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
-    gfx::Rect frame_bounds;
-    frame_->GetBounds(&frame_bounds, false);
-    x = frame_bounds.width() - x - w;
-  }
+  // If the UI layout is RTL, we don't need to mirror coordinates, since
+  // View logic will do that for us.
   bounds_.SetRect(x, y, w, h);
   Reposition();
 }
