@@ -265,7 +265,8 @@ BookmarkManagerGtk::BookmarkManagerGtk(Profile* profile)
       model_(profile->GetBookmarkModel()),
       organize_is_for_left_(true),
       search_factory_(this),
-      select_file_dialog_(SelectFileDialog::Create(this)) {
+      select_file_dialog_(SelectFileDialog::Create(this)),
+      delaying_mousedown_(false) {
   InitWidgets();
   g_signal_connect(window_, "destroy",
                    G_CALLBACK(OnWindowDestroy), this);
@@ -435,6 +436,8 @@ GtkWidget* BookmarkManagerGtk::MakeRightPane() {
                    G_CALLBACK(OnRightTreeViewFocusIn), this);
   g_signal_connect(right_tree_view_, "button-press-event",
                    G_CALLBACK(OnRightTreeViewButtonPress), this);
+  g_signal_connect(right_tree_view_, "motion-notify-event",
+                   G_CALLBACK(OnRightTreeViewMotion), this);
   g_signal_connect(right_tree_view_, "button-release-event",
                    G_CALLBACK(OnTreeViewButtonRelease), this);
 
@@ -959,31 +962,84 @@ void BookmarkManagerGtk::OnRightTreeViewFocusIn(GtkTreeView* tree_view,
     bm->ResetOrganizeMenu(false);
 }
 
+// We do a couple things in this handler.
+//
+// 1. Ignore left clicks that occur below the lowest row so we don't try to
+// start an empty drag, or allow the user to start a drag on the selected
+// row by dragging on whitespace. This is the path == NULL return.
+// 2. Cache left clicks that occur on an already active selection. If the user
+// begins a drag, then we will throw away this event and initiate a drag on the
+// tree view manually. If the user doesn't begin a drag (e.g. just releases the
+// button), send both events to the tree view. This is a workaround for
+// http://crbug.com/15240. If we don't do this, when the user tries to drag
+// a group of selected rows, the click at the start of the drag will deselect
+// all rows except the one the cursor is over.
+//
+// We return TRUE for when we want to ignore events (i.e., stop the default
+// handler from handling them), and FALSE for when we want to continue
+// propagation.
+//
 // static
 gboolean BookmarkManagerGtk::OnRightTreeViewButtonPress(GtkWidget* tree_view,
     GdkEventButton* event, BookmarkManagerGtk* bm) {
-  int x, y;
-  gtk_widget_get_pointer(tree_view, &x, &y);
+  // Always let the cached mousedown sent from OnTreeViewButtonRelease through.
+  if (bm->delaying_mousedown_)
+    return FALSE;
+
+  if (event->button != 1)
+    return FALSE;
 
   GtkTreePath* path;
-  GtkTreeViewDropPosition pos;
-  gtk_tree_view_get_dest_row_at_pos(GTK_TREE_VIEW(tree_view),
-                                    x, y, &path, &pos);
-  // Ignore left clicks that occur below the lowest row so we don't try to
-  // start an empty drag, or allow the user to start a drag on the selected
-  // row by dragging on whitespace.
-  if (path == NULL && event->button == 1)
+  gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(tree_view),
+                                event->x, event->y, &path, NULL, NULL, NULL);
+
+  if (path == NULL)
     return TRUE;
+
+  if (gtk_tree_selection_path_is_selected(bm->right_selection(), path)) {
+    bm->mousedown_event_ = *event;
+    bm->delaying_mousedown_ = true;
+    gtk_tree_path_free(path);
+    return TRUE;
+  }
 
   gtk_tree_path_free(path);
   return FALSE;
 }
 
 // static
-gboolean BookmarkManagerGtk::OnTreeViewButtonRelease(GtkTreeView* tree_view,
-    GdkEventButton* button, BookmarkManagerGtk* bookmark_manager) {
+gboolean BookmarkManagerGtk::OnRightTreeViewMotion(GtkWidget* tree_view,
+    GdkEventMotion* event, BookmarkManagerGtk* bm) {
+  // This handler is only used for the multi-drag workaround.
+  if (!bm->delaying_mousedown_)
+    return FALSE;
+
+  if (gtk_drag_check_threshold(tree_view,
+      bm->mousedown_event_.x, bm->mousedown_event_.y, event->x, event->y)) {
+    bm->delaying_mousedown_ = false;
+    GtkTargetList* targets = gtk_target_list_new(
+        bookmark_utils::kTargetTable, bookmark_utils::kTargetTableSize);
+    gtk_drag_begin(tree_view, targets, GDK_ACTION_MOVE,
+                   1, reinterpret_cast<GdkEvent*>(event));
+    // The drag adds a ref; let it own the list.
+    gtk_target_list_unref(targets);
+  }
+
+  return FALSE;
+}
+
+// static
+gboolean BookmarkManagerGtk::OnTreeViewButtonRelease(GtkWidget* tree_view,
+    GdkEventButton* button, BookmarkManagerGtk* bm) {
   if (button->button == 3)
-    bookmark_manager->organize_menu_->PopupAsContext(button->time);
+    bm->organize_menu_->PopupAsContext(button->time);
+
+  if (bm->delaying_mousedown_ && (tree_view == bm->right_tree_view_)) {
+    gtk_propagate_event(tree_view,
+                        reinterpret_cast<GdkEvent*>(&bm->mousedown_event_));
+    bm->delaying_mousedown_ = false;
+  }
+
   return FALSE;
 }
 

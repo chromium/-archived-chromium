@@ -188,7 +188,10 @@ class BookmarkManagerGtk : public BookmarkModelObserver,
   static gboolean OnRightTreeViewButtonPress(GtkWidget* tree_view,
       GdkEventButton* event, BookmarkManagerGtk* bookmark_manager);
 
-  static gboolean OnTreeViewButtonRelease(GtkTreeView* tree_view,
+  static gboolean OnRightTreeViewMotion(GtkWidget* tree_view,
+      GdkEventMotion* event, BookmarkManagerGtk* bookmark_manager);
+
+  static gboolean OnTreeViewButtonRelease(GtkWidget* tree_view,
       GdkEventButton* button, BookmarkManagerGtk* bookmark_manager);
 
   // Tools menu item callbacks.
@@ -228,6 +231,11 @@ class BookmarkManagerGtk : public BookmarkModelObserver,
   ScopedRunnableMethodFactory<BookmarkManagerGtk> search_factory_;
 
   scoped_refptr<SelectFileDialog> select_file_dialog_;
+
+  // These two variables used for the workaround for http://crbug.com/15240.
+  // The last mouse down we got. Only valid while |delaying_mousedown| is true.
+  GdkEventButton mousedown_event_;
+  bool delaying_mousedown_;
 };
 
 #endif  // CHROME_BROWSER_GTK_BOOKMARK_MANAGER_GTK_H_
