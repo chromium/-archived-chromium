@@ -46,9 +46,10 @@
 #include "breakpad/linux/minidump_writer.h"
 #include "client/minidump_file_writer-inl.h"
 
-#include <unistd.h>
-#include <fcntl.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <unistd.h>
 #include <sys/ucontext.h>
 #include <sys/user.h>
 #include <sys/utsname.h>
