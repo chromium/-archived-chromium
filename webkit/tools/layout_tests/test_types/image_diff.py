@@ -141,7 +141,7 @@ class ImageDiff(test_type_base.TestTypeBase):
       # Report a missing expected PNG file.
       failures.append(test_failures.FailureMissingImage(self))
     elif test_args.hash == expected_hash:
-      return failure
+      return failures
 
     self._CopyOutputPNGs(filename, test_args.png_path,
                          expected_png_file)
