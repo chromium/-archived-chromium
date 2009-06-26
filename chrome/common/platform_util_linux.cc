@@ -18,7 +18,7 @@ void XDGOpen(const FilePath& path) {
   argv.push_back("xdg-open");
   argv.push_back(path.value());
   base::file_handle_mapping_vector no_files;
-  base::LaunchApp(argv, no_files, false, NULL);
+  base::LaunchApp(argv, no_files, true, NULL);
 }
 
 }  // namespace
