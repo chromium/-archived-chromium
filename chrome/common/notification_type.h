@@ -210,6 +210,9 @@ class NotificationType {
     // is the InfoBubble.
     INFO_BUBBLE_CREATED,
 
+    // The user has changed the browser theme.
+    BROWSER_THEME_CHANGED,
+
     // Tabs --------------------------------------------------------------------
 
     // This notification is sent after a tab has been appended to the

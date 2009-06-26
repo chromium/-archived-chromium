@@ -190,6 +190,8 @@ Browser::Browser(Type type, Profile* profile)
                  NotificationService::AllSources());
   registrar_.Add(this, NotificationType::EXTENSION_UNLOADED,
                  NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::BROWSER_THEME_CHANGED,
+                 NotificationService::AllSources());
 
   InitCommandState();
   BrowserList::AddBrowser(this);
@@ -1992,6 +1994,10 @@ void Browser::Observe(NotificationType type,
       }
       break;
     }
+
+    case NotificationType::BROWSER_THEME_CHANGED:
+      window()->UserChangedTheme();
+      break;
 
     default:
       NOTREACHED() << "Got a notification we didn't register for.";

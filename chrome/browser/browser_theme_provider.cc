@@ -13,6 +13,8 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/theme_resources_util.h"
 #include "chrome/common/extensions/extension.h"
+#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_type.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/app_resources.h"
@@ -698,10 +700,10 @@ void BrowserThemeProvider::SaveDisplayPropertyData() {
 
 void BrowserThemeProvider::NotifyThemeChanged() {
   // Redraw!
-  for (BrowserList::const_iterator browser = BrowserList::begin();
-      browser != BrowserList::end(); ++browser) {
-    (*browser)->window()->UserChangedTheme();
-  }
+  NotificationService* service = NotificationService::current();
+  service->Notify(NotificationType::BROWSER_THEME_CHANGED,
+                  NotificationService::AllSources(),
+                  NotificationService::NoDetails());
 }
 
 void BrowserThemeProvider::LoadThemePrefs() {
