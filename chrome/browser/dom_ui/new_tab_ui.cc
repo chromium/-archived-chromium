@@ -458,8 +458,12 @@ void IncognitoTabHTMLSource::StartDataRequest(const std::string& path,
 class MostVisitedHandler : public DOMMessageHandler,
                            public NotificationObserver {
  public:
-  explicit MostVisitedHandler(DOMUI* dom_ui);
-  virtual ~MostVisitedHandler();
+  MostVisitedHandler() : url_blacklist_(NULL), pinned_urls_(NULL) { }
+  virtual ~MostVisitedHandler() { }
+
+  // DOMMessageHandler override and implementation.
+  virtual DOMMessageHandler* Attach(DOMUI* dom_ui);
+  virtual void RegisterMessages();
 
   // Callback for the "getMostVisited" message.
   void HandleGetMostVisited(const Value* value);
@@ -533,33 +537,11 @@ class MostVisitedHandler : public DOMMessageHandler,
   DISALLOW_COPY_AND_ASSIGN(MostVisitedHandler);
 };
 
-MostVisitedHandler::MostVisitedHandler(DOMUI* dom_ui)
-    : DOMMessageHandler(dom_ui) {
-  // Register ourselves as the handler for the "mostvisited" message from
-  // Javascript.
-  dom_ui_->RegisterMessageCallback("getMostVisited",
-      NewCallback(this, &MostVisitedHandler::HandleGetMostVisited));
-
-  // Register ourselves for any most-visited item blacklisting.
-  dom_ui_->RegisterMessageCallback("blacklistURLFromMostVisited",
-      NewCallback(this, &MostVisitedHandler::HandleBlacklistURL));
-  dom_ui_->RegisterMessageCallback("removeURLsFromMostVisitedBlacklist",
-      NewCallback(this, &MostVisitedHandler::HandleRemoveURLsFromBlacklist));
-  dom_ui_->RegisterMessageCallback("clearMostVisitedURLsBlacklist",
-      NewCallback(this, &MostVisitedHandler::HandleClearBlacklist));
-
-  url_blacklist_ = dom_ui_->GetProfile()->GetPrefs()->
+DOMMessageHandler* MostVisitedHandler::Attach(DOMUI* dom_ui) {
+  url_blacklist_ = dom_ui->GetProfile()->GetPrefs()->
       GetMutableDictionary(prefs::kNTPMostVisitedURLsBlacklist);
-
-  // Register ourself for pinned URL messages.
-  dom_ui->RegisterMessageCallback("addPinnedURL",
-      NewCallback(this, &MostVisitedHandler::HandleAddPinnedURL));
-  dom_ui->RegisterMessageCallback("removePinnedURL",
-      NewCallback(this, &MostVisitedHandler::HandleRemovePinnedURL));
-
-  pinned_urls_ = dom_ui_->GetProfile()->GetPrefs()->
-    GetMutableDictionary(prefs::kNTPMostVisitedPinnedURLs);
-
+  pinned_urls_ = dom_ui->GetProfile()->GetPrefs()->
+      GetMutableDictionary(prefs::kNTPMostVisitedPinnedURLs);
   // Set up our sources for thumbnail and favicon data. Since we may be in
   // testing mode with no I/O thread, only add our handler when an I/O thread
   // exists. Ownership is passed to the ChromeURLDataManager.
@@ -576,10 +558,30 @@ MostVisitedHandler::MostVisitedHandler(DOMUI* dom_ui)
 
   // Get notifications when history is cleared.
   registrar_.Add(this, NotificationType::HISTORY_URLS_DELETED,
-                 Source<Profile>(dom_ui_->GetProfile()));
+      Source<Profile>(dom_ui->GetProfile()));
+
+  return DOMMessageHandler::Attach(dom_ui);
 }
 
-MostVisitedHandler::~MostVisitedHandler() {
+void MostVisitedHandler::RegisterMessages() {
+  // Register ourselves as the handler for the "mostvisited" message from
+  // Javascript.
+  dom_ui_->RegisterMessageCallback("getMostVisited",
+      NewCallback(this, &MostVisitedHandler::HandleGetMostVisited));
+
+  // Register ourselves for any most-visited item blacklisting.
+  dom_ui_->RegisterMessageCallback("blacklistURLFromMostVisited",
+      NewCallback(this, &MostVisitedHandler::HandleBlacklistURL));
+  dom_ui_->RegisterMessageCallback("removeURLsFromMostVisitedBlacklist",
+      NewCallback(this, &MostVisitedHandler::HandleRemoveURLsFromBlacklist));
+  dom_ui_->RegisterMessageCallback("clearMostVisitedURLsBlacklist",
+      NewCallback(this, &MostVisitedHandler::HandleClearBlacklist));
+
+  // Register ourself for pinned URL messages.
+  dom_ui_->RegisterMessageCallback("addPinnedURL",
+      NewCallback(this, &MostVisitedHandler::HandleAddPinnedURL));
+  dom_ui_->RegisterMessageCallback("removePinnedURL",
+      NewCallback(this, &MostVisitedHandler::HandleRemovePinnedURL));
 }
 
 void MostVisitedHandler::HandleGetMostVisited(const Value* value) {
@@ -828,8 +830,11 @@ void MostVisitedHandler::RegisterUserPrefs(PrefService* prefs) {
 class TemplateURLHandler : public DOMMessageHandler,
                            public TemplateURLModelObserver {
  public:
-  explicit TemplateURLHandler(DOMUI* dom_ui);
+  TemplateURLHandler() : DOMMessageHandler(), template_url_model_(NULL) { }
   virtual ~TemplateURLHandler();
+
+  // DOMMessageHandler implementation.
+  virtual void RegisterMessages();
 
   // Callback for the "getMostSearched" message, sent when the page requests
   // the list of available searches.
@@ -843,25 +848,21 @@ class TemplateURLHandler : public DOMMessageHandler,
   virtual void OnTemplateURLModelChanged();
 
  private:
-  DOMUI* dom_ui_;
   TemplateURLModel* template_url_model_;  // Owned by profile.
 
   DISALLOW_COPY_AND_ASSIGN(TemplateURLHandler);
 };
 
-TemplateURLHandler::TemplateURLHandler(DOMUI* dom_ui)
-    : DOMMessageHandler(dom_ui),
-      dom_ui_(dom_ui),
-      template_url_model_(NULL) {
-  dom_ui->RegisterMessageCallback("getMostSearched",
-      NewCallback(this, &TemplateURLHandler::HandleGetMostSearched));
-  dom_ui->RegisterMessageCallback("doSearch",
-      NewCallback(this, &TemplateURLHandler::HandleDoSearch));
-}
-
 TemplateURLHandler::~TemplateURLHandler() {
   if (template_url_model_)
     template_url_model_->RemoveObserver(this);
+}
+
+void TemplateURLHandler::RegisterMessages() {
+  dom_ui_->RegisterMessageCallback("getMostSearched",
+      NewCallback(this, &TemplateURLHandler::HandleGetMostSearched));
+  dom_ui_->RegisterMessageCallback("doSearch",
+      NewCallback(this, &TemplateURLHandler::HandleDoSearch));
 }
 
 void TemplateURLHandler::HandleGetMostSearched(const Value* content) {
@@ -989,8 +990,11 @@ void TemplateURLHandler::OnTemplateURLModelChanged() {
 class RecentlyBookmarkedHandler : public DOMMessageHandler,
                                   public BookmarkModelObserver {
  public:
-  explicit RecentlyBookmarkedHandler(DOMUI* dom_ui);
-  ~RecentlyBookmarkedHandler();
+  RecentlyBookmarkedHandler() : model_(NULL) { }
+  virtual ~RecentlyBookmarkedHandler();
+
+  // DOMMessageHandler implementation.
+  virtual void RegisterMessages();  
 
   // Callback which navigates to the bookmarks page.
   void HandleShowBookmarkPage(const Value*);
@@ -1024,25 +1028,21 @@ class RecentlyBookmarkedHandler : public DOMMessageHandler,
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
                                          BookmarkNode* node) {}
 
-  DOMUI* dom_ui_;
   // The model we're getting bookmarks from. The model is owned by the Profile.
   BookmarkModel* model_;
 
   DISALLOW_COPY_AND_ASSIGN(RecentlyBookmarkedHandler);
 };
 
-RecentlyBookmarkedHandler::RecentlyBookmarkedHandler(DOMUI* dom_ui)
-    : DOMMessageHandler(dom_ui),
-      dom_ui_(dom_ui),
-      model_(NULL) {
-  dom_ui->RegisterMessageCallback("getRecentlyBookmarked",
-      NewCallback(this,
-                  &RecentlyBookmarkedHandler::HandleGetRecentlyBookmarked));
-}
-
 RecentlyBookmarkedHandler::~RecentlyBookmarkedHandler() {
   if (model_)
     model_->RemoveObserver(this);
+}
+
+void RecentlyBookmarkedHandler::RegisterMessages() {
+  dom_ui_->RegisterMessageCallback("getRecentlyBookmarked",
+      NewCallback(this,
+                  &RecentlyBookmarkedHandler::HandleGetRecentlyBookmarked));
 }
 
 void RecentlyBookmarkedHandler::HandleGetRecentlyBookmarked(const Value*) {
@@ -1100,8 +1100,11 @@ void RecentlyBookmarkedHandler::BookmarkNodeChanged(BookmarkModel* model,
 class RecentlyClosedTabsHandler : public DOMMessageHandler,
                                   public TabRestoreService::Observer {
  public:
-  explicit RecentlyClosedTabsHandler(DOMUI* dom_ui);
+  RecentlyClosedTabsHandler() : tab_restore_service_(NULL) { }
   virtual ~RecentlyClosedTabsHandler();
+
+  // DOMMessageHandler implementation.
+  virtual void RegisterMessages();
 
   // Callback for the "reopenTab" message. Rewrites the history of the
   // currently displayed tab to be the one in TabRestoreService with a
@@ -1131,22 +1134,17 @@ class RecentlyClosedTabsHandler : public DOMMessageHandler,
   bool WindowToValue(const TabRestoreService::Window& window,
                      DictionaryValue* dictionary);
 
-  DOMUI* dom_ui_;
-
   // TabRestoreService that we are observing.
   TabRestoreService* tab_restore_service_;
 
   DISALLOW_COPY_AND_ASSIGN(RecentlyClosedTabsHandler);
 };
 
-RecentlyClosedTabsHandler::RecentlyClosedTabsHandler(DOMUI* dom_ui)
-    : DOMMessageHandler(dom_ui),
-      dom_ui_(dom_ui),
-      tab_restore_service_(NULL) {
-  dom_ui->RegisterMessageCallback("getRecentlyClosedTabs",
+void RecentlyClosedTabsHandler::RegisterMessages() {
+  dom_ui_->RegisterMessageCallback("getRecentlyClosedTabs",
       NewCallback(this,
                   &RecentlyClosedTabsHandler::HandleGetRecentlyClosedTabs));
-  dom_ui->RegisterMessageCallback("reopenTab",
+  dom_ui_->RegisterMessageCallback("reopenTab",
       NewCallback(this, &RecentlyClosedTabsHandler::HandleReopenTab));
 }
 
@@ -1286,21 +1284,22 @@ bool RecentlyClosedTabsHandler::WindowToValue(
 
 class HistoryHandler : public DOMMessageHandler {
  public:
-  explicit HistoryHandler(DOMUI* dom_ui);
+  HistoryHandler() { }
+  virtual ~HistoryHandler() { }
+
+  // DOMMessageHandler implementation.
+  virtual void RegisterMessages();
 
   // Callback which navigates to the history page and performs a search.
   void HandleSearchHistoryPage(const Value* content);
 
  private:
-  DOMUI* dom_ui_;
 
   DISALLOW_COPY_AND_ASSIGN(HistoryHandler);
 };
 
-HistoryHandler::HistoryHandler(DOMUI* dom_ui)
-    : DOMMessageHandler(dom_ui),
-      dom_ui_(dom_ui) {
-  dom_ui->RegisterMessageCallback("searchHistoryPage",
+void HistoryHandler::RegisterMessages() {
+  dom_ui_->RegisterMessageCallback("searchHistoryPage",
       NewCallback(this, &HistoryHandler::HandleSearchHistoryPage));
 }
 
@@ -1336,21 +1335,22 @@ void HistoryHandler::HandleSearchHistoryPage(const Value* content) {
 // information (treat it as RecordComputedMetrics)
 class MetricsHandler : public DOMMessageHandler {
  public:
-  explicit MetricsHandler(DOMUI* dom_ui);
-
+  MetricsHandler() { }
+  virtual ~MetricsHandler() { }
+  
+  // DOMMessageHandler implementation.
+  virtual void RegisterMessages();
+  
   // Callback which records a user action.
   void HandleMetrics(const Value* content);
 
  private:
-  DOMUI* dom_ui_;
 
   DISALLOW_COPY_AND_ASSIGN(MetricsHandler);
 };
 
-MetricsHandler::MetricsHandler(DOMUI* dom_ui)
-    : DOMMessageHandler(dom_ui),
-      dom_ui_(dom_ui) {
-  dom_ui->RegisterMessageCallback("metrics",
+void MetricsHandler::RegisterMessages() {
+  dom_ui_->RegisterMessageCallback("metrics",
       NewCallback(this, &MetricsHandler::HandleMetrics));
 }
 
@@ -1409,26 +1409,26 @@ NewTabUI::NewTabUI(TabContents* contents)
             &ChromeURLDataManager::AddDataSource,
             html_source));
   } else {
-
     if (EnableNewNewTabPage()) {
       DownloadManager* dlm = GetProfile()->GetDownloadManager();
       DownloadsDOMHandler* downloads_handler =
-          new DownloadsDOMHandler(this, dlm);
+          new DownloadsDOMHandler(dlm);
+      downloads_handler->Attach(this);
       AddMessageHandler(downloads_handler);
       downloads_handler->Init();
 
-      AddMessageHandler(new ShownSectionsHandler(this));
+      AddMessageHandler((new ShownSectionsHandler())->Attach(this));
     }
 
+    AddMessageHandler((new TemplateURLHandler())->Attach(this));
+    AddMessageHandler((new MostVisitedHandler())->Attach(this));
+    AddMessageHandler((new RecentlyBookmarkedHandler())->Attach(this));
+    AddMessageHandler((new RecentlyClosedTabsHandler())->Attach(this));
+    AddMessageHandler((new HistoryHandler())->Attach(this));
+    AddMessageHandler((new MetricsHandler())->Attach(this));
     if (EnableWebResources())
-      AddMessageHandler(new TipsHandler(this));
+      AddMessageHandler((new TipsHandler())->Attach(this));
 
-    AddMessageHandler(new TemplateURLHandler(this));
-    AddMessageHandler(new MostVisitedHandler(this));
-    AddMessageHandler(new RecentlyBookmarkedHandler(this));
-    AddMessageHandler(new RecentlyClosedTabsHandler(this));
-    AddMessageHandler(new HistoryHandler(this));
-    AddMessageHandler(new MetricsHandler(this));
 #ifdef CHROME_PERSONALIZATION
     if (!Personalization::IsP13NDisabled(GetProfile())) {
       AddMessageHandler(Personalization::CreateNewTabPageHandler(this));

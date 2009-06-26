@@ -61,11 +61,20 @@ void HtmlDialogUI::RenderViewCreated(RenderViewHost* render_view_host) {
 
   // Pass the arguments to the renderer supplied by the delegate.
   std::string dialog_args;
+  std::vector<DOMMessageHandler*> handlers;
   HtmlDialogUIDelegate** delegate = GetPropertyAccessor().GetProperty(
       tab_contents()->property_bag());
-  if (delegate)
+  if (delegate) {
     dialog_args = (*delegate)->GetDialogArgs();
+    (*delegate)->GetDOMMessageHandlers(&handlers);
+  }
+
   render_view_host->SetDOMUIProperty("dialogArguments", dialog_args);
+  for (std::vector<DOMMessageHandler*>::iterator it = handlers.begin();
+       it != handlers.end(); ++it) {
+    (*it)->Attach(this);
+    AddMessageHandler(*it);
+  }
 }
 
 void HtmlDialogUI::OnDialogClosed(const Value* content) {

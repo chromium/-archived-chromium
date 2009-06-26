@@ -129,9 +129,13 @@ class DOMUI {
 // host is destroyed.
 class DOMMessageHandler {
  public:
-  explicit DOMMessageHandler(DOMUI* dom_ui);
+  DOMMessageHandler() : dom_ui_(NULL) { }
   virtual ~DOMMessageHandler() {};
 
+  // Attaches |this| to |dom_ui| in order to handle messages from it.  Declared
+  // virtual so that subclasses can do special init work as soon as the dom_ui
+  // is provided.  Returns |this| for convenience.
+  virtual DOMMessageHandler* Attach(DOMUI* dom_ui);
  protected:
   // Adds "url" and "title" keys on incoming dictionary, setting title
   // as the url as a fallback on empty title.
@@ -139,13 +143,16 @@ class DOMMessageHandler {
                              std::wstring title,
                              const GURL& gurl);
 
+  // This is where subclasses specify which messages they'd like to handle.
+  virtual void RegisterMessages() = 0;
+
   // Extract an integer value from a Value.
   bool ExtractIntegerValue(const Value* value, int* out_int);
 
   // Extract a string value from a Value.
   std::wstring ExtractStringValue(const Value* value);
 
-  DOMUI* const dom_ui_;
+  DOMUI* dom_ui_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(DOMMessageHandler);

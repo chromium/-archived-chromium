@@ -93,6 +93,11 @@ GURL HtmlDialogView::GetDialogContentURL() const {
   return delegate_->GetDialogContentURL();
 }
 
+void HtmlDialogView::GetDOMMessageHandlers(
+    std::vector<DOMMessageHandler*>* handlers) const {
+  delegate_->GetDOMMessageHandlers(handlers);
+}
+
 void HtmlDialogView::GetDialogSize(gfx::Size* size) const {
   delegate_->GetDialogSize(size);
 }

@@ -9,12 +9,10 @@
 #include "chrome/browser/profile.h"
 #include "chrome/common/pref_names.h"
 
-ShownSectionsHandler::ShownSectionsHandler(DOMUI* dom_ui)
-    : DOMMessageHandler(dom_ui),
-      dom_ui_(dom_ui) {
-  dom_ui->RegisterMessageCallback("getShownSections",
+void ShownSectionsHandler::RegisterMessages() {
+  dom_ui_->RegisterMessageCallback("getShownSections",
       NewCallback(this, &ShownSectionsHandler::HandleGetShownSections));
-  dom_ui->RegisterMessageCallback("setShownSections",
+  dom_ui_->RegisterMessageCallback("setShownSections",
       NewCallback(this, &ShownSectionsHandler::HandleSetShownSections));
 }
 
