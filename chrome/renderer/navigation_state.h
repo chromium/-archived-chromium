@@ -54,20 +54,12 @@ class NavigationState : public WebKit::WebDataSource::ExtraData {
     request_time_ = value;
   }
 
-  // The time that the document load started.
+  // The time that this navigation actually started.
   const base::Time& start_load_time() const {
     return start_load_time_;
   }
   void set_start_load_time(const base::Time& value) {
     start_load_time_ = value;
-  }
-
-  // The time that the document load was committed.
-  const base::Time& commit_load_time() const {
-    return commit_load_time_;
-  }
-  void set_commit_load_time(const base::Time& value) {
-    commit_load_time_ = value;
   }
 
   // The time that the document finished loading.
@@ -87,11 +79,11 @@ class NavigationState : public WebKit::WebDataSource::ExtraData {
   }
 
   // The time that layout first ran after a new navigation.
-  const base::Time& first_paint_time() const {
-    return first_paint_time_;
+  const base::Time& first_layout_time() const {
+    return first_layout_time_;
   }
-  void set_first_paint_time(const base::Time& value) {
-    first_paint_time_ = value;
+  void set_first_layout_time(const base::Time& value) {
+    first_layout_time_ = value;
   }
 
   // True if we have already processed the "DidCommitLoad" event for this
@@ -131,10 +123,9 @@ class NavigationState : public WebKit::WebDataSource::ExtraData {
   PageTransition::Type transition_type_;
   base::Time request_time_;
   base::Time start_load_time_;
-  base::Time commit_load_time_;
   base::Time finish_document_load_time_;
   base::Time finish_load_time_;
-  base::Time first_paint_time_;
+  base::Time first_layout_time_;
   bool request_committed_;
   bool is_content_initiated_;
   int32 pending_page_id_;

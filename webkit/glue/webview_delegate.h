@@ -353,6 +353,11 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   virtual void DidFinishDocumentLoadForFrame(WebView* webview, WebFrame* frame) {
   }
 
+  // Called after layout runs for the first time after a new document is loaded
+  // into a frame.  All resources have not necessarily finished loading.
+  virtual void DidFirstLayout(WebView* webview, WebFrame* frame) {
+  }
+
   // This method is called when we load a resource from an in-memory cache.
   // A return value of |false| indicates the load should proceed, but WebCore
   // appears to largely ignore the return value.

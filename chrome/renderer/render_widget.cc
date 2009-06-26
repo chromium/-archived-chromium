@@ -247,9 +247,6 @@ void RenderWidget::OnPaintRectAck() {
     current_paint_buf_ = NULL;
   }
 
-  // Notify subclasses
-  DidPaint();
-
   // Continue painting if necessary...
   DoDeferredPaint();
 }
