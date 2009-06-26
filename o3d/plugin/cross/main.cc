@@ -63,7 +63,7 @@ extern "C" {
   NPError OSCALL NP_GetEntryPoints(NPPluginFuncs *pluginFuncs) {
     HANDLE_CRASHES;
     pluginFuncs->version = 11;
-    pluginFuncs->size = sizeof(pluginFuncs);
+    pluginFuncs->size = sizeof(*pluginFuncs);
     pluginFuncs->newp = NPP_New;
     pluginFuncs->destroy = NPP_Destroy;
     pluginFuncs->setwindow = NPP_SetWindow;
