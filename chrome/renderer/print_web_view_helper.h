@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "base/scoped_ptr.h"
+#include "base/time.h"
 #include "webkit/glue/webview_delegate.h"
 
 namespace gfx {
@@ -31,11 +32,12 @@ struct ViewMsg_PrintPages_Params;
 class PrintWebViewHelper : public WebViewDelegate {
  public:
   explicit PrintWebViewHelper(RenderView * render_view)
-      : render_view_(render_view) {}
+      : render_view_(render_view),
+        user_cancelled_scripted_print_count_(0) {}
 
   virtual ~PrintWebViewHelper() {}
 
-  void SyncPrint(WebFrame* frame);
+  void Print(WebFrame* frame, bool script_initiated);
 
   // Is there a background print in progress?
   bool IsPrinting() {
@@ -97,6 +99,8 @@ class PrintWebViewHelper : public WebViewDelegate {
   RenderView* render_view_;
   scoped_ptr<WebView> print_web_view_;
   scoped_ptr<ViewMsg_PrintPages_Params> print_pages_params_;
+  base::Time last_cancelled_script_print_;
+  int user_cancelled_scripted_print_count_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(PrintWebViewHelper);

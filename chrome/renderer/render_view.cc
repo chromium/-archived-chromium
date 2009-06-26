@@ -442,10 +442,8 @@ void RenderView::SendThumbnail() {
 
 void RenderView::OnPrintPages() {
   DCHECK(webview());
-  if (webview()) {
-    // The renderer own the control flow as if it was a window.print() call.
-    ScriptedPrint(webview()->GetMainFrame());
-  }
+  if (webview())
+    Print(webview()->GetMainFrame(), false);
 }
 
 void RenderView::OnPrintingDone(int document_cookie, bool success) {
@@ -2266,10 +2264,7 @@ void RenderView::SetInputMethodState(bool enabled) {
 }
 
 void RenderView::ScriptedPrint(WebFrame* frame) {
-  if (print_helper_.get() == NULL) {
-    print_helper_.reset(new PrintWebViewHelper(this));
-  }
-  print_helper_->SyncPrint(frame);
+  Print(frame, true);
 }
 
 void RenderView::UserMetricsRecordAction(const std::wstring& action) {
@@ -2902,4 +2897,12 @@ void RenderView::SendPasswordForms(WebFrame* frame) {
 
   if (!password_forms.empty())
     Send(new ViewHostMsg_PasswordFormsSeen(routing_id_, password_forms));
+}
+
+void RenderView::Print(WebFrame* frame, bool script_initiated) {
+  DCHECK(frame);
+  if (print_helper_.get() == NULL) {
+    print_helper_.reset(new PrintWebViewHelper(this));
+  }
+  print_helper_->Print(frame, script_initiated);
 }

@@ -606,6 +606,8 @@ class RenderView : public RenderWidget,
   // Scan the given frame for password forms and send them up to the browser.
   void SendPasswordForms(WebFrame* frame);
 
+  void Print(WebFrame* frame, bool script_initiated);
+
   // Bitwise-ORed set of extra bindings that have been enabled.  See
   // BindingsPolicy for details.
   int enabled_bindings_;
