@@ -2,4 +2,4 @@
 IPCSyncChannelTest.ChattyServer
 # See http://crbug.com/15445
 # Only fails on the bots?
-BookmarkEditorGtkTest.EditTitleKeepsPosition
+BookmarkEditorGtkTest.*
