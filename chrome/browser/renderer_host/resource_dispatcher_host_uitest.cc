@@ -192,7 +192,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteOnunloadCookie) {
   ASSERT_STREQ("foo", value_result.c_str());
 }
 
-#if !defined(OS_MAC)
+#if !defined(OS_MACOSX)
 // Tests that the onbeforeunload and onunload logic is shortcutted if the old
 // renderer is gone.  In that case, we don't want to wait for the old renderer
 // to run the handlers.
@@ -225,7 +225,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteAfterCrash) {
   CheckTitleTest(L"content-sniffer-test0.html",
                  L"Content Sniffer Test 0");
 }
-#endif
+#endif  // !defined(OS_MACOSX)
 
 // Tests that cross-site navigations work when the new page does not go through
 // the BufferedEventHandler (e.g., non-http{s} URLs).  (Bug 1225872)
