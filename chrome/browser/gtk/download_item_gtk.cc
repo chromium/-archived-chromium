@@ -641,8 +641,13 @@ gboolean DownloadItemGtk::OnMenuButtonPressEvent(GtkWidget* button,
 void DownloadItemGtk::OnShelfResized(GtkWidget *widget,
                                      GtkAllocation *allocation,
                                      DownloadItemGtk* item) {
-  if (item->hbox_->allocation.x + item->hbox_->allocation.width >
-      item->bounding_widget_->allocation.x)
+  bool out_of_bounds =
+      item->hbox_->allocation.x + item->hbox_->allocation.width >
+      item->bounding_widget_->allocation.x;
+  if (gtk_widget_get_direction(widget) == GTK_TEXT_DIR_RTL)
+    out_of_bounds = !out_of_bounds;
+
+  if (out_of_bounds)
     gtk_widget_hide(item->hbox_.get());
   else
     gtk_widget_show(item->hbox_.get());

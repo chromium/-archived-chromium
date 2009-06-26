@@ -92,6 +92,11 @@ void NineBox::RenderToWidget(GtkWidget* dst) const {
     cairo_translate(cr, dst->allocation.x, dst->allocation.y);
   }
 
+  if (gtk_widget_get_direction(dst) == GTK_TEXT_DIR_RTL) {
+    cairo_translate(cr, dst_width, 0.0f);
+    cairo_scale(cr, -1.0f, 1.0f);
+  }
+
   // Top row, center image is horizontally tiled.
   if (images_[0])
     DrawPixbuf(cr, images_[0], 0, 0);

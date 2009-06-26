@@ -269,10 +269,12 @@ void MenuGtk::MenuPositionFunc(GtkMenu* menu,
   }
   *y += widget->allocation.height;
 
-  // g_object_get_data() returns NULL if no such object is found. |left_align|
-  // acts as a boolean, but we can't actually cast it to bool because gcc
-  // complains about losing precision.
-  if (!g_object_get_data(G_OBJECT(widget), "left-align-popup"))
+  bool start_align =
+    !!g_object_get_data(G_OBJECT(widget), "left-align-popup");
+  if (gtk_widget_get_direction(GTK_WIDGET(menu)) == GTK_TEXT_DIR_RTL)
+    start_align = !start_align;
+
+  if (!start_align)
     *x += widget->allocation.width - menu_req.width;
 
   if (*y + menu_req.height >= screen_rect.height)
