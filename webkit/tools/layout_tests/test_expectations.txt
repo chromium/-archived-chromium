@@ -1871,7 +1871,7 @@ BUG10438 MAC LINUX : LayoutTests/plugins/destroy-stream-twice.html = TIMEOUT
 BUG10439 LINUX : LayoutTests/fast/canvas/set-colors.html = CRASH PASS
 
 // Needs an FTP implementation to work completely.
-BUG10440 MAC LINUX : LayoutTests/security/block-test.html = FAIL
+BUG10440 MAC : LayoutTests/security/block-test.html = FAIL
 
 // Flakey. Not clear when it started, but it was before 3/9/09.
 // This test also started failing with the merge of March 25th 2009
