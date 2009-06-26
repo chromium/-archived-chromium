@@ -140,8 +140,6 @@ o3djs.fps.CONST_COLOR_EFFECT =
  * &lt;/body&gt;&lt;/html&gt;
  * </pre>
  *
- *
- * @constructor
  * @param {!o3d.Pack} pack Pack to create objects in.
  * @param {number} clientWidth width of client area.
  * @param {number} clientHeight Height of client area.
