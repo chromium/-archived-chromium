@@ -193,7 +193,7 @@ class SelectOnCreationHandler : public BookmarkEditor::Handler {
 }  // namespace
 
 BookmarkContextMenuController::BookmarkContextMenuController(
-    gfx::NativeWindow parent_window,
+    gfx::NativeView parent_window,
     BookmarkContextMenuControllerDelegate* delegate,
     Profile* profile,
     PageNavigator* navigator,

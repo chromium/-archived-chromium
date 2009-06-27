@@ -57,7 +57,7 @@ class BookmarkContextMenuController : public BookmarkModelObserver {
   // |selection| is the nodes the context menu operates on and may be empty.
   // |configuration| determines which items to show.
   BookmarkContextMenuController(
-      gfx::NativeWindow parent_window,
+      gfx::NativeView parent_window,
       BookmarkContextMenuControllerDelegate* delegate,
       Profile* profile,
       PageNavigator* navigator,
@@ -114,7 +114,8 @@ class BookmarkContextMenuController : public BookmarkModelObserver {
   // parent_ is returned.
   const BookmarkNode* GetParentForNewNodes() const;
 
-  gfx::NativeWindow parent_window_;
+  // TODO(beng): change to gfx::NativeWindow
+  gfx::NativeView parent_window_;
   BookmarkContextMenuControllerDelegate* delegate_;
   Profile* profile_;
   PageNavigator* navigator_;
