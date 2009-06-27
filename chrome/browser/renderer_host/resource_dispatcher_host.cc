@@ -34,6 +34,7 @@
 #include "chrome/browser/renderer_host/safe_browsing_resource_handler.h"
 #include "chrome/browser/renderer_host/save_file_resource_handler.h"
 #include "chrome/browser/renderer_host/sync_resource_handler.h"
+#include "chrome/browser/ssl/ssl_client_auth_handler.h"
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/chrome_switches.h"
@@ -647,6 +648,10 @@ void ResourceDispatcherHost::CancelRequest(int process_id,
       info->login_handler->OnRequestCancelled();
       info->login_handler = NULL;
     }
+    if (info->ssl_client_auth_handler) {
+      info->ssl_client_auth_handler->OnRequestCancelled();
+      info->ssl_client_auth_handler = NULL;
+    }
     if (!i->second->is_pending() && allow_delete) {
       // No io is pending, canceling the request won't notify us of anything,
       // so we explicitly remove it.
@@ -881,12 +886,18 @@ void ResourceDispatcherHost::OnCertificateRequested(
       net::SSLCertRequestInfo* cert_request_info) {
   DCHECK(request);
 
-  bool select_first_cert = CommandLine::ForCurrentProcess()->HasSwitch(
-      switches::kAutoSSLClientAuth);
-  net::X509Certificate* cert =
-      select_first_cert && !cert_request_info->client_certs.empty() ?
-      cert_request_info->client_certs[0] : NULL;
-  request->ContinueWithCertificate(cert);
+  if (cert_request_info->client_certs.empty()) {
+    // No need to query the user if there are no certs to choose from.
+    request->ContinueWithCertificate(NULL);
+    return;
+  }
+
+  ExtraRequestInfo* info = ExtraInfoForRequest(request);
+  DCHECK(!info->ssl_client_auth_handler) <<
+      "OnCertificateRequested called with ssl_client_auth_handler pending";
+  info->ssl_client_auth_handler =
+      new SSLClientAuthHandler(request, cert_request_info, io_loop_, ui_loop_);
+  info->ssl_client_auth_handler->SelectCertificate();
 }
 
 void ResourceDispatcherHost::OnSSLCertificateError(

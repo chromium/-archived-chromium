@@ -269,14 +269,6 @@ const wchar_t kWinHttpProxyResolver[]          = L"winhttp-proxy-resolver";
 extern const wchar_t kDnsLogDetails[]          = L"dns-log-details";
 extern const wchar_t kDnsPrefetchDisable[]     = L"dns-prefetch-disable";
 
-// A temporary switch before we implement the client certificate selection UI.
-// When an SSL server requests client authentication, select a client
-// certificate automatically.
-// WARNING: This switch has privacy issues because it reveals the user's
-// identity to any server that requests a client certificate without the
-// user's consent.
-extern const wchar_t kAutoSSLClientAuth[]      = L"auto-ssl-client-auth";
-
 // Enables support to debug printing subsystem.
 const wchar_t kDebugPrint[]                    = L"debug-print";
 

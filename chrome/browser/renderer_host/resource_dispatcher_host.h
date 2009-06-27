@@ -36,6 +36,7 @@ class MessageLoop;
 class PluginService;
 class SafeBrowsingService;
 class SaveFileManager;
+class SSLClientAuthHandler;
 class URLRequestContext;
 class WebKitThread;
 struct ViewHostMsg_Resource_Request;
@@ -85,6 +86,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
         : resource_handler(handler),
           cross_site_handler(NULL),
           login_handler(NULL),
+          ssl_client_auth_handler(NULL),
           process_type(process_type),
           process_id(process_id),
           route_id(route_id),
@@ -115,6 +117,8 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
     CrossSiteResourceHandler* cross_site_handler;
 
     LoginHandler* login_handler;
+
+    SSLClientAuthHandler* ssl_client_auth_handler;
 
     ChildProcessInfo::ProcessType process_type;
 

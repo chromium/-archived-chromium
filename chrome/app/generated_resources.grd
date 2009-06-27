@@ -2819,6 +2819,15 @@ each locale. -->
         The page at <ph name="SECURE_PAGE_URL">$1<ex>https://www.google.com/</ex></ph> contains insecure content from <ph name="INSECURE_RESOURCE_URL">$2<ex>http://www.google.com/</ex></ph>.
       </message>
 
+      <!-- SSL client authentication certificate selection dialog -->
+      <message name="IDS_CLIENT_CERT_DIALOG_TITLE" desc="The title of the dialog that prompts for a certificate when doing SSL client authentication.">
+        Select a certificate
+      </message>
+
+      <message name="IDS_CLIENT_CERT_DIALOG_TEXT" desc="The text in the dialog that prompts for a certificate when doing SSL client authentication.">
+        Select a certificate to authenticate yourself to <ph name="HOST_NAME">$1<ex>www.google.com</ex></ph>
+      </message>
+
       <!-- Advanced Font/Language settings -->
       <message name="IDS_FONT_LANGUAGE_SETTING_WINDOWS_TITLE" desc="Title that appears in the dialogue title bar for advanced font/encoding settings">
         Fonts and Languages

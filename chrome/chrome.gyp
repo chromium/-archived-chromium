@@ -1401,6 +1401,8 @@
         'browser/ssl/ssl_blocking_page.h',
         'browser/ssl/ssl_cert_error_handler.cc',
         'browser/ssl/ssl_cert_error_handler.h',
+        'browser/ssl/ssl_client_auth_handler.cc',
+        'browser/ssl/ssl_client_auth_handler.h',
         'browser/ssl/ssl_error_handler.cc',
         'browser/ssl/ssl_error_handler.h',
         'browser/ssl/ssl_error_info.cc',
