@@ -7,15 +7,16 @@
 #include <gdk/gdk.h>
 #include <gtk/gtk.h>
 
-#include "base/string_util.h"
 #include "base/gfx/point.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
+#include "base/string_util.h"
 #include "build/build_config.h"
 #include "chrome/browser/download/download_shelf.h"
 #include "chrome/browser/gtk/blocked_popup_container_view_gtk.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
 #include "chrome/browser/gtk/constrained_window_gtk.h"
+#include "chrome/browser/gtk/dnd_registry.h"
 #include "chrome/browser/gtk/gtk_floating_container.h"
 #include "chrome/browser/gtk/sad_tab_gtk.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
@@ -28,6 +29,7 @@
 #include "chrome/common/gtk_util.h"
 #include "chrome/common/notification_source.h"
 #include "chrome/common/notification_type.h"
+#include "webkit/glue/webdropdata.h"
 
 namespace {
 
@@ -196,6 +198,11 @@ RenderWidgetHostView* TabContentsViewGtk::CreateViewForWidget(
   g_signal_connect(content_view, "button-press-event",
                    G_CALLBACK(OnMouseDown), this);
 
+  // DnD signals.
+  g_signal_connect(content_view, "drag-end", G_CALLBACK(OnDragEnd), this);
+  g_signal_connect(content_view, "drag-data-get", G_CALLBACK(OnDragDataGet),
+                   this);
+
   InsertIntoContentArea(content_view);
   return view;
 }
@@ -347,16 +354,49 @@ void TabContentsViewGtk::ShowContextMenu(const ContextMenuParams& params) {
   context_menu_->Popup();
 }
 
-void TabContentsViewGtk::StartDragging(const WebDropData& drop_data) {
-  NOTIMPLEMENTED();
+// Render view DnD -------------------------------------------------------------
 
-  // Until we have d'n'd implemented, just immediately pretend we're
-  // already done with the drag and drop so we don't get stuck
-  // thinking we're in mid-drag.
-  // TODO(port): remove me when the above NOTIMPLEMENTED is fixed.
+void TabContentsViewGtk::DragEnded() {
   if (tab_contents()->render_view_host())
     tab_contents()->render_view_host()->DragSourceSystemDragEnded();
 }
+
+void TabContentsViewGtk::StartDragging(const WebDropData& drop_data) {
+  DCHECK(GetContentNativeView());
+
+  if (drop_data.plain_text.empty()) {
+    NOTIMPLEMENTED() << "Only plain text drags supported, sorry!";
+    DragEnded();
+    return;
+  }
+
+  drop_data_.reset(new WebDropData(drop_data));
+
+  GtkTargetList* list = gtk_target_list_new(NULL, 0);
+  gtk_target_list_add_text_targets(list, dnd::X_CHROME_TEXT_PLAIN);
+  gtk_drag_begin(GetContentNativeView(), list, GDK_ACTION_COPY, 1, NULL);
+  // The drag adds a ref; let it own the list.
+  gtk_target_list_unref(list);
+}
+
+// static
+void TabContentsViewGtk::OnDragDataGet(
+    GtkWidget* drag_widget,
+    GdkDragContext* context, GtkSelectionData* selection_data,
+    guint target_type, guint time, TabContentsViewGtk* view) {
+  std::string utf8_text(UTF16ToUTF8(view->drop_data_->plain_text));
+  gtk_selection_data_set_text(selection_data, utf8_text.c_str(),
+                              utf8_text.length());
+}
+
+// static
+void TabContentsViewGtk::OnDragEnd(GtkWidget* widget,
+     GdkDragContext* drag_context, TabContentsViewGtk* view) {
+  view->DragEnded();
+  view->drop_data_.reset();
+}
+
+// -----------------------------------------------------------------------------
 
 void TabContentsViewGtk::InsertIntoContentArea(GtkWidget* widget) {
   gtk_fixed_put(GTK_FIXED(fixed_), widget, 0, 0);

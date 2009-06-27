@@ -81,6 +81,9 @@ class TabContentsViewGtk : public TabContentsView,
   // should be taken that the correct one is hidden/shown.
   void InsertIntoContentArea(GtkWidget* widget);
 
+  // Tell webkit the drag is over.
+  void DragEnded();
+
   // We keep track of the timestamp of the latest mousedown event.
   static gboolean OnMouseDown(GtkWidget* widget,
                               GdkEventButton* event, TabContentsViewGtk* view);
@@ -93,6 +96,13 @@ class TabContentsViewGtk : public TabContentsView,
   static void OnSetFloatingPosition(
       GtkFloatingContainer* floating_container, GtkAllocation* allocation,
       TabContentsViewGtk* tab_contents_view);
+
+  // Webkit DnD.
+  static void OnDragEnd(GtkWidget* widget, GdkDragContext* drag_context,
+                        TabContentsViewGtk* tab_contents_view);
+  static void OnDragDataGet(GtkWidget* drag_widget,
+    GdkDragContext* context, GtkSelectionData* selection_data,
+    guint target_type, guint time, TabContentsViewGtk* view);
 
   // Contains |fixed_| as its GtkBin member and a possible floating widget from
   // |popup_view_|.
@@ -124,6 +134,10 @@ class TabContentsViewGtk : public TabContentsView,
   // Each individual UI for constrained dialogs currently displayed. The
   // objects in this vector are owned by the TabContents, not the view.
   std::vector<ConstrainedWindowGtk*> constrained_windows_;
+
+  // The drop data for the current drag (for drags that originate in the render
+  // view).
+  scoped_ptr<WebDropData> drop_data_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContentsViewGtk);
 };
