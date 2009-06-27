@@ -23,6 +23,15 @@ THISDIR = os.path.dirname(os.path.abspath(__file__))
 def PathFromBase(*pathies):
   return google.path_utils.FindUpward(THISDIR, *pathies)
 
+def PathFromBuildResults(*pathies):
+  # FIXME(dkegel): use latest or warn if more than one found?
+  for dir in ["sconsbuild", "out", "xcodebuild"]:
+    try:
+      return google.path_utils.FindUpward(THISDIR, dir, *pathies)
+    except:
+      pass
+  raise google.path_utils.PathNotFound("Unable to find %s under any ancestor of %s" % (os.path.join(*pathies), THISDIR))
+
 def IsNonWindowsPlatformTargettingWindowsResults():
   """Returns true iff this platform is targetting Windows baseline, but isn't
   Windows. By default, in path_utils.py:ExpectedFilename, we expect platforms to
@@ -162,7 +171,7 @@ class PlatformUtility(object):
 
   def ImageCompareExecutablePath(self, target):
     """Path to the image_diff binary."""
-    return PathFromBase('sconsbuild', target, 'image_diff')
+    return PathFromBuildResults(target, 'image_diff')
 
   def TestShellBinary(self):
     """The name of the binary for TestShell."""
@@ -177,8 +186,8 @@ class PlatformUtility(object):
 
     if target in ('Debug', 'Release'):
       try:
-        debug_path = PathFromBase('sconsbuild', 'Debug', self.TestShellBinary())
-        release_path = PathFromBase('sconsbuild', 'Release', \
+        debug_path = PathFromBuildResults('Debug', self.TestShellBinary())
+        release_path = PathFromBuildResults('Release', \
                                     self.TestShellBinary())
 
         debug_mtime = os.stat(debug_path).st_mtime
@@ -198,7 +207,7 @@ class PlatformUtility(object):
       except google.path_utils.PathNotFound:
         pass
 
-    return PathFromBase('sconsbuild', target, self.TestShellBinary())
+    return PathFromBuildResults(target, self.TestShellBinary())
 
   def FuzzyMatchBinaryPath(self):
     """Return the path to the fuzzy matcher binary."""

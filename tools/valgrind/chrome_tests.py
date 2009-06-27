@@ -35,6 +35,39 @@ import common
 
 class TestNotFound(Exception): pass
 
+def Dir2IsNewer(dir1, dir2):
+  if dir2 == None or not os.path.isdir(dir2):
+    return False
+  if dir1 == None or not os.path.isdir(dir1):
+    return True
+  return (os.stat(dir2)[stat.ST_MTIME] - os.stat(dir1)[stat.ST_MTIME]) > 0
+
+def FindNewestDir(dirs):
+  newest_dir = None
+  for dir in dirs:
+    if Dir2IsNewer(newest_dir, dir):
+      newest_dir = dir
+  return newest_dir
+
+def File2IsNewer(file1, file2):
+  if file2 == None or not os.path.isfile(file2):
+    return False
+  if file1 == None or not os.path.isfile(file1):
+    return True
+  return (os.stat(file2)[stat.ST_MTIME] - os.stat(file1)[stat.ST_MTIME]) > 0
+
+def FindDirContainingNewestFile(dirs, file):
+  newest_dir = None
+  newest_file = None
+  for dir in dirs:
+    the_file = os.path.join(dir, file)
+    if File2IsNewer(newest_file, the_file):
+      newest_dir = dir
+      newest_file = the_file
+  if newest_dir == None:
+    logging.error("cannot find file %s anywhere, have you built it?" % file)
+    sys.exit(-1)
+  return newest_dir
 
 class ChromeTests:
   '''This class is derived from the chrome_tests.py file in ../purify/.
@@ -94,34 +127,15 @@ class ChromeTests:
       self._data_dirs.append(os.path.join(module_dir, "data", "valgrind"))
 
     if not self._options.build_dir:
-      builddir = {
-        'darwin': 'xcodebuild',
-        'linux2': 'sconsbuild'
-      }[sys.platform]
-      dir_chrome = os.path.join(self._source_dir, builddir, "Debug")
-      dir_module = os.path.join(module_dir, "Debug")
+      dirs = [
+        os.path.join(self._source_dir, "xcodebuild", "Debug"),
+        os.path.join(self._source_dir, "sconsbuild", "Debug"),
+        os.path.join(self._source_dir, "out", "Debug"),
+      ]
       if exe:
-        exe_chrome = os.path.join(dir_chrome, exe)
-        exe_module = os.path.join(dir_module, exe)
-        if os.path.isfile(exe_chrome) and not os.path.isfile(exe_module):
-          self._options.build_dir = dir_chrome
-        elif os.path.isfile(exe_module) and not os.path.isfile(exe_chrome):
-          self._options.build_dir = dir_module
-        elif (os.stat(exe_module)[stat.ST_MTIME] >
-              os.stat(exe_chrome)[stat.ST_MTIME]):
-          self._options.build_dir = dir_module
-        else:
-          self._options.build_dir = dir_chrome
+        self._options.build_dir = FindDirContainingNewestFile(dirs, exe)
       else:
-        if os.path.isdir(dir_chrome) and not os.path.isdir(dir_module):
-          self._options.build_dir = dir_chrome
-        elif os.path.isdir(dir_module) and not os.path.isdir(dir_chrome):
-          self._options.build_dir = dir_module
-        elif (os.stat(dir_module)[stat.ST_MTIME] >
-              os.stat(dir_chrome)[stat.ST_MTIME]):
-          self._options.build_dir = dir_module
-        else:
-          self._options.build_dir = dir_chrome
+        self._options.build_dir = FindNewestDir(dirs)
 
     cmd = list(self._command_preamble)
     for directory in self._data_dirs:
