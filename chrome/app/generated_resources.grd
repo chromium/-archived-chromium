@@ -3476,12 +3476,12 @@ each locale. -->
                desc="Menu item text used to hide recent activities.">
         Hide recent activities
       </message>
-      <message name="IDS_NEW_TAB_SHOW_RECOMMENDATIONS"
-               desc="Menu item text used to show recommendations.">
+      <message name="IDS_NEW_TAB_SHOW_TIPS"
+               desc="Menu item text used to show tips.">
         Show recommendations
       </message>
-      <message name="IDS_NEW_TAB_HIDE_RECOMMENDATIONS"
-               desc="Menu item text used to hide recommendations.">
+      <message name="IDS_NEW_TAB_HIDE_TIPS"
+               desc="Menu item text used to hide tips.">
         Hide recommendations
       </message>
       <message name="IDS_NEW_TAB_THUMBNAIL_REMOVED_NOTIFICATION"

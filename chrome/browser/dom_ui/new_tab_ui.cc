@@ -315,10 +315,10 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
       l10n_util::GetString(IDS_NEW_TAB_SHOW_RECENT));
   localized_strings.SetString(L"hiderecent",
       l10n_util::GetString(IDS_NEW_TAB_HIDE_RECENT));
-  localized_strings.SetString(L"showrecommendations",
-      l10n_util::GetString(IDS_NEW_TAB_SHOW_RECOMMENDATIONS));
-  localized_strings.SetString(L"hiderecommendations",
-      l10n_util::GetString(IDS_NEW_TAB_HIDE_RECOMMENDATIONS));
+  localized_strings.SetString(L"showtips",
+      l10n_util::GetString(IDS_NEW_TAB_SHOW_TIPS));
+  localized_strings.SetString(L"hidetips",
+      l10n_util::GetString(IDS_NEW_TAB_HIDE_TIPS));
   localized_strings.SetString(L"thumbnailremovednotification",
       l10n_util::GetString(IDS_NEW_TAB_THUMBNAIL_REMOVED_NOTIFICATION));
   localized_strings.SetString(L"undothumbnailremove",
