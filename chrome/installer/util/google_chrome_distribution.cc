@@ -97,8 +97,7 @@ int GetDirectoryWriteAgeInHours(const wchar_t* path) {
 bool RelaunchSetup(const std::wstring& flag) {
   CommandLine cmd_line(CommandLine::ForCurrentProcess()->program());
   cmd_line.AppendSwitch(flag);
-  return base::LaunchApp(InstallUtil::GetChromeUninstallCmd(false),
-                         false, false, NULL);
+  return base::LaunchApp(cmd_line, false, false, NULL);
 }
 
 }  // namespace
