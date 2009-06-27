@@ -444,6 +444,9 @@ void EnsureDnsPrefetchShutdown() {
     // Stop observing DNS resolutions. Note that dns_master holds a reference
     // to the global host resolver, so is guaranteed to be live.
     GetGlobalHostResolver()->RemoveObserver(&dns_resolution_observer);
+
+    // TODO(eroman): temp hack for http://crbug.com/15513
+    GetGlobalHostResolver()->Shutdown();
   }
 
   // TODO(eroman): This is a hack so the in process browser tests work if

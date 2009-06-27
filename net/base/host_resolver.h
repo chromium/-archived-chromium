@@ -162,6 +162,9 @@ class HostResolver : public base::RefCounted<HostResolver> {
   // Unregisters an observer previously added by AddObserver().
   void RemoveObserver(Observer* observer);
 
+  // TODO(eroman): temp hack for http://crbug.com/15513
+  void Shutdown();
+
  private:
   class Job;
   typedef std::vector<Request*> RequestsList;
@@ -209,6 +212,9 @@ class HostResolver : public base::RefCounted<HostResolver> {
   // Monotonically increasing ID number to assign to the next request.
   // Observers are the only consumers of this ID number.
   int next_request_id_;
+
+  // TODO(eroman): temp hack for http://crbug.com/15513
+  bool shutdown_;
 
   DISALLOW_COPY_AND_ASSIGN(HostResolver);
 };

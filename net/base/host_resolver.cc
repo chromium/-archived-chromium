@@ -398,7 +398,8 @@ class HostResolver::Job : public base::RefCountedThreadSafe<HostResolver::Job> {
 //-----------------------------------------------------------------------------
 
 HostResolver::HostResolver(int max_cache_entries, int cache_duration_ms)
-    : cache_(max_cache_entries, cache_duration_ms), next_request_id_(0) {
+    : cache_(max_cache_entries, cache_duration_ms), next_request_id_(0),
+      shutdown_(false) {
 #if defined(OS_WIN)
   EnsureWinsockInit();
 #endif
@@ -421,6 +422,9 @@ int HostResolver::Resolve(const RequestInfo& info,
                           AddressList* addresses,
                           CompletionCallback* callback,
                           Request** out_req) {
+  if (shutdown_)
+    return ERR_UNEXPECTED;
+
   // Choose a unique ID number for observers to see.
   int request_id = next_request_id_++;
 
@@ -515,6 +519,15 @@ void HostResolver::RemoveObserver(Observer* observer) {
   DCHECK(it != observers_.end());
 
   observers_.erase(it);
+}
+
+void HostResolver::Shutdown() {
+  shutdown_ = true;
+
+  // Cancel the outstanding jobs.
+  for (JobMap::iterator it = jobs_.begin(); it != jobs_.end(); ++it)
+    it->second->Cancel();
+  jobs_.clear();
 }
 
 void HostResolver::AddOutstandingJob(Job* job) {
