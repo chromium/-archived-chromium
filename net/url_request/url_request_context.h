@@ -13,13 +13,13 @@
 #include "base/ref_counted.h"
 #include "base/string_util.h"
 #include "net/base/cookie_policy.h"
+#include "net/base/host_resolver.h"
 #include "net/ftp/ftp_auth_cache.h"
 
 namespace net {
 class CookieMonster;
 class ForceTLSState;
 class FtpTransactionFactory;
-class HostResolver;
 class HttpTransactionFactory;
 class ProxyService;
 }
@@ -113,7 +113,7 @@ class URLRequestContext :
 
   // The following members are expected to be initialized and owned by
   // subclasses.
-  net::HostResolver* host_resolver_;
+  scoped_refptr<net::HostResolver> host_resolver_;
   net::ProxyService* proxy_service_;
   net::HttpTransactionFactory* http_transaction_factory_;
   net::FtpTransactionFactory* ftp_transaction_factory_;

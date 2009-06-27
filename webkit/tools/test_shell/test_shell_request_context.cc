@@ -73,7 +73,6 @@ TestShellRequestContext::~TestShellRequestContext() {
   delete ftp_transaction_factory_;
   delete http_transaction_factory_;
   delete proxy_service_;
-  delete host_resolver_;
 }
 
 const std::string& TestShellRequestContext::GetUserAgent(

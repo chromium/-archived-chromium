@@ -225,7 +225,7 @@ class TCPClientSocketPoolTest : public testing::Test {
  protected:
   TCPClientSocketPoolTest()
       : pool_(new TCPClientSocketPool(kMaxSocketsPerGroup,
-                                      &host_resolver_,
+                                      new HostResolver,
                                       &client_socket_factory_)) {}
 
   virtual void SetUp() {
@@ -242,7 +242,6 @@ class TCPClientSocketPoolTest : public testing::Test {
   }
 
   ScopedHostMapper scoped_host_mapper_;
-  HostResolver host_resolver_;
   MockClientSocketFactory client_socket_factory_;
   scoped_refptr<ClientSocketPool> pool_;
   std::vector<TestSocketRequest*> request_order_;

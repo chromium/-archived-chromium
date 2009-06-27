@@ -38,6 +38,9 @@ static void DnsPrefetchMotivatedList(
 // static
 const size_t DnsPrefetcherInit::kMaxConcurrentLookups = 8;
 
+// Host resolver shared by DNS prefetcher, and the main URLRequestContext.
+static net::HostResolver* global_host_resolver = NULL;
+
 //------------------------------------------------------------------------------
 // This section contains all the globally accessable API entry points for the
 // DNS Prefetching feature.
@@ -435,9 +438,17 @@ void InitDnsPrefetch(size_t max_concurrent, PrefService* user_prefs) {
 }
 
 void EnsureDnsPrefetchShutdown() {
-  if (NULL != dns_master)
+  if (NULL != dns_master) {
     dns_master->Shutdown();
-  FreeGlobalHostResolver();
+
+    // Stop observing DNS resolutions. Note that dns_master holds a reference
+    // to the global host resolver, so is guaranteed to be live.
+    GetGlobalHostResolver()->RemoveObserver(&dns_resolution_observer);
+  }
+
+  // TODO(eroman): This is a hack so the in process browser tests work if
+  // BrowserMain() is to be called again.
+  global_host_resolver = NULL;
 }
 
 void FreeDnsPrefetchResources() {
@@ -454,9 +465,6 @@ static void DiscardAllPrefetchState() {
 
 //------------------------------------------------------------------------------
 
-// Host resolver shared by DNS prefetcher, and the main URLRequestContext.
-static net::HostResolver* global_host_resolver = NULL;
-
 net::HostResolver* GetGlobalHostResolver() {
   // Called from UI thread.
   if (!global_host_resolver) {
@@ -467,14 +475,6 @@ net::HostResolver* GetGlobalHostResolver() {
         kMaxHostCacheEntries, kHostCacheExpirationSeconds * 1000);
   }
   return global_host_resolver;
-}
-
-void FreeGlobalHostResolver() {
-  if (global_host_resolver) {
-    // Called from IO thread.
-    delete global_host_resolver;
-    global_host_resolver = NULL;
-  }
 }
 
 //------------------------------------------------------------------------------
