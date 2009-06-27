@@ -148,6 +148,10 @@ class RenderWidget : public IPC::Channel::Listener,
   void OnMsgRepaint(const gfx::Size& size_to_paint);
   void OnSetTextDirection(int direction);
 
+  // Override point to notify that a paint has happened. This fires after the
+  // browser side has updated the screen for a newly painted region.
+  virtual void DidPaint() {}
+
   // True if a PaintRect_ACK message is pending.
   bool paint_reply_pending() const {
     return paint_reply_pending_;

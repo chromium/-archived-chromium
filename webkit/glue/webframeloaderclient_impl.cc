@@ -777,10 +777,6 @@ void WebFrameLoaderClient::dispatchDidFinishLoad() {
 }
 
 void WebFrameLoaderClient::dispatchDidFirstLayout() {
-  WebViewImpl* webview = webframe_->GetWebViewImpl();
-  WebViewDelegate* d = webview->delegate();
-  if (d)
-    d->DidFirstLayout(webview, webframe_);
 }
 
 void WebFrameLoaderClient::dispatchDidFirstVisuallyNonEmptyLayout() {

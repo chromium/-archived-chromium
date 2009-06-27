@@ -329,6 +329,7 @@ TEST_F(DownloadTest, MAYBE_IncognitoDownload) {
 
   // Download something.
   FilePath file(FILE_PATH_LITERAL("download-test1.lib"));
+  //PlatformThread::Sleep(1000);
   ASSERT_TRUE(tab->NavigateToURL(
       URLRequestMockHTTPJob::GetMockUrl(file.ToWStringHack())));
   PlatformThread::Sleep(action_timeout_ms());

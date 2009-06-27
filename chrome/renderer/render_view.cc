@@ -1072,6 +1072,25 @@ void RenderView::DidCreateDataSource(WebFrame* frame, WebDataSource* ds) {
   }
 }
 
+void RenderView::DidPaint() {
+  WebFrame* main_frame = webview()->GetMainFrame();
+
+  if (main_frame->GetProvisionalDataSource()) {
+    // If we have a provisional frame we are between the start
+    // and commit stages of loading...ignore this paint.
+    return;
+  }
+
+  WebDataSource* ds = main_frame->GetDataSource();
+  NavigationState* navigation_state = NavigationState::FromDataSource(ds);
+  // TODO(darin): It should not be possible for navigation_state to
+  // be null here! But the UI test DownloadTest.IncognitoDownload
+  // can cause it to happen.
+  if (navigation_state && navigation_state->first_paint_time().is_null()) {
+    navigation_state->set_first_paint_time(Time::Now());
+  }
+}
+
 void RenderView::DidStartProvisionalLoadForFrame(
     WebView* webview,
     WebFrame* frame,
@@ -1238,6 +1257,7 @@ void RenderView::DidCommitLoadForFrame(WebView *webview, WebFrame* frame,
   NavigationState* navigation_state =
       NavigationState::FromDataSource(frame->GetDataSource());
 
+  navigation_state->set_commit_load_time(Time::Now());
   if (is_new_navigation) {
     // When we perform a new navigation, we need to update the previous session
     // history entry with state for the page we are leaving.
@@ -1297,6 +1317,9 @@ void RenderView::DidReceiveTitle(WebView* webview,
 }
 
 void RenderView::DidFinishLoadForFrame(WebView* webview, WebFrame* frame) {
+  WebDataSource* ds = frame->GetDataSource();
+  NavigationState* navigation_state = NavigationState::FromDataSource(ds);
+  navigation_state->set_finish_load_time(Time::Now());
   if (webview->GetMainFrame() == frame) {
     const GURL& url = frame->GetURL();
     if (url.SchemeIs("http") || url.SchemeIs("https"))
@@ -1314,6 +1337,10 @@ void RenderView::DidFailLoadWithError(WebView* webview,
 
 void RenderView::DidFinishDocumentLoadForFrame(WebView* webview,
                                                WebFrame* frame) {
+  WebDataSource* ds = frame->GetDataSource();
+  NavigationState* navigation_state = NavigationState::FromDataSource(ds);
+  navigation_state->set_finish_document_load_time(Time::Now());
+
   Send(new ViewHostMsg_DocumentLoadedInFrame(routing_id_));
 
   // The document has now been fully loaded.  Scan for password forms to be
@@ -1764,8 +1791,6 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
   if (!proxy)
     return NULL;
 
-  // We hold onto the proxy so we can poke it when we are painting.  See our
-  // DidPaint implementation below.
   plugin_delegates_.push_back(proxy);
 
   return proxy;
@@ -2782,21 +2807,23 @@ void RenderView::OnExtensionResponse(int request_id,
 
 // Dump all load time histograms.
 //
-// There are 7 histograms measuring various times.
+// There are 8 histograms measuring various times.
 // The time points we keep are
 //    request: time document was requested by user
 //    start: time load of document started
+//    commit: time load of document started
 //    finishDoc: main document loaded, before onload()
 //    finish: after onload() and all resources are loaded
 //    firstLayout: first layout performed
 // The times that we histogram are
-//    requestToStart,
-//    startToFinishDoc,
-//    finishDocToFinish,
-//    startToFinish,
-//    requestToFinish,
-//    requestToFirstLayout
-//    startToFirstLayout
+//    request->start,
+//    request->commit,
+//    request->finish,
+//    request->firstPaint
+//    start->finishDoc,
+//    commit->finish,
+//    commit->firstPaint
+//    finishDoc->finish,
 //
 // It's possible for the request time not to be set, if a client
 // redirect had been done (the user never requested the page)
@@ -2809,39 +2836,43 @@ void RenderView::DumpLoadHistograms() const {
 
   Time request_time = navigation_state->request_time();
   Time start_load_time = navigation_state->start_load_time();
+  Time commit_load_time = navigation_state->commit_load_time();
   Time finish_document_load_time =
       navigation_state->finish_document_load_time();
   Time finish_load_time = navigation_state->finish_load_time();
-  Time first_layout_time = navigation_state->first_layout_time();
+  Time first_paint_time = navigation_state->first_paint_time();
 
   TimeDelta request_to_start = start_load_time - request_time;
-  TimeDelta start_to_finish_doc = finish_document_load_time - start_load_time;
+  TimeDelta request_to_commit = commit_load_time - request_time;
+  TimeDelta commit_to_finish_doc = finish_document_load_time - commit_load_time;
   TimeDelta finish_doc_to_finish =
       finish_load_time - finish_document_load_time;
-  TimeDelta start_to_finish = finish_load_time - start_load_time;
+  TimeDelta commit_to_finish = finish_load_time - commit_load_time;
   TimeDelta request_to_finish = finish_load_time - request_time;
-  TimeDelta request_to_first_layout = first_layout_time - request_time;
-  TimeDelta start_to_first_layout = first_layout_time - start_load_time;
+  TimeDelta request_to_first_paint = first_paint_time - request_time;
+  TimeDelta commit_to_first_paint = first_paint_time - commit_load_time;
 
   // Client side redirects will have no request time
   if (request_time.ToInternalValue() != 0) {
-    UMA_HISTOGRAM_MEDIUM_TIMES("Renderer2.RequestToStart", request_to_start);
+    UMA_HISTOGRAM_MEDIUM_TIMES("Renderer3.RequestToStart", request_to_start);
+    UMA_HISTOGRAM_MEDIUM_TIMES("Renderer3.RequestToCommit", request_to_commit);
     UMA_HISTOGRAM_CUSTOM_TIMES(
-        FieldTrial::MakeName("Renderer2.RequestToFinish_2", "DnsImpact").data(),
+        FieldTrial::MakeName("Renderer3.RequestToFinish_2", "DnsImpact").data(),
         request_to_finish, TimeDelta::FromMilliseconds(10),
         TimeDelta::FromMinutes(10), 100);
-    if (request_to_first_layout.ToInternalValue() >= 0) {
-      UMA_HISTOGRAM_MEDIUM_TIMES("Renderer2.RequestToFirstLayout",
-          request_to_first_layout);
+    if (request_to_first_paint.ToInternalValue() >= 0) {
+      UMA_HISTOGRAM_MEDIUM_TIMES("Renderer3.RequestToFirstPaint",
+          request_to_first_paint);
     }
   }
-  UMA_HISTOGRAM_MEDIUM_TIMES("Renderer2.StartToFinishDoc", start_to_finish_doc);
-  UMA_HISTOGRAM_MEDIUM_TIMES("Renderer2.FinishDocToFinish",
+  UMA_HISTOGRAM_MEDIUM_TIMES("Renderer3.CommitToFinishDoc",
+                             commit_to_finish_doc);
+  UMA_HISTOGRAM_MEDIUM_TIMES("Renderer3.FinishDocToFinish",
                              finish_doc_to_finish);
-  UMA_HISTOGRAM_MEDIUM_TIMES("Renderer2.StartToFinish", start_to_finish);
-  if (start_to_first_layout.ToInternalValue() >= 0) {
-    UMA_HISTOGRAM_MEDIUM_TIMES("Renderer2.StartToFirstLayout",
-                               start_to_first_layout);
+  UMA_HISTOGRAM_MEDIUM_TIMES("Renderer3.CommitToFinish", commit_to_finish);
+  if (commit_to_first_paint.ToInternalValue() >= 0) {
+    UMA_HISTOGRAM_MEDIUM_TIMES("Renderer3.CommitToFirstPaint",
+                               commit_to_first_paint);
   }
 }
 
