@@ -2211,8 +2211,6 @@
         '../third_party/WebKit/WebCore/platform/graphics/cg/PathCG.cpp',
         '../third_party/WebKit/WebCore/platform/graphics/cg/PatternCG.cpp',
         '../third_party/WebKit/WebCore/platform/graphics/cg/TransformationMatrixCG.cpp',
-        '../third_party/WebKit/WebCore/platform/graphics/chromium/ColorChromium.cpp',
-        '../third_party/WebKit/WebCore/platform/graphics/chromium/ColorChromiumMac.mm',
         '../third_party/WebKit/WebCore/platform/graphics/chromium/FontCacheChromiumWin.cpp',
         '../third_party/WebKit/WebCore/platform/graphics/chromium/FontCacheLinux.cpp',
         '../third_party/WebKit/WebCore/platform/graphics/chromium/FontChromiumWin.cpp',

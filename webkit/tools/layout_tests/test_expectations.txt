@@ -2815,6 +2815,9 @@ BUGMERGE WIN LINUX : LayoutTests/svg/custom/createImageElement.svg = FAIL
 BUG15478 SKIP : LayoutTests/fast/frames/viewsource-on-image-file.html = FAIL
 BUG15478 SKIP : LayoutTests/platform/qt/fast/events/event-sender-keydown-frame.html = FAIL
 
+// WebKit 45270:45287
+BUG15490 WIN : LayoutTests/http/tests/xmlhttprequest/cross-origin-authorization.html = TIMEOUT
+
 // Flaky for a while on DEBUG
 BUG15267 WIN LINUX DEBUG : LayoutTests/transitions/cancel-transition.html = PASS FAIL
 
