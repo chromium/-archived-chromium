@@ -18,12 +18,13 @@ BookmarkContextMenu::BookmarkContextMenu(
     const BookmarkNode* parent,
     const std::vector<const BookmarkNode*>& selection,
     BookmarkContextMenuController::ConfigurationType configuration)
-    : controller_(new BookmarkContextMenuController(parent_window, this,
-                                                    profile, page_navigator,
-                                                    parent, selection,
-                                                    configuration)),
+    : ALLOW_THIS_IN_INITIALIZER_LIST(
+          controller_(new BookmarkContextMenuController(parent_window, this,
+                                                        profile, page_navigator,
+                                                        parent, selection,
+                                                        configuration))),
       parent_window_(parent_window),
-      menu_(new views::MenuItemView(this)) {
+      ALLOW_THIS_IN_INITIALIZER_LIST(menu_(new views::MenuItemView(this))) {
   controller_->BuildMenu();
 }
 
