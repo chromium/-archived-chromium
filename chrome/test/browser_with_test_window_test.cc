@@ -7,7 +7,6 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/test/test_browser_window.h"
 #include "chrome/test/testing_profile.h"
 
 BrowserWithTestWindowTest::BrowserWithTestWindowTest()
