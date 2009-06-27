@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_SOCKET_SOCKS_CLIENT_SOCKET_H_
-#define NET_SOCKET_SOCKS_CLIENT_SOCKET_H_
+#ifndef NET_BASE_SOCKS_CLIENT_SOCKET_H_
+#define NET_BASE_SOCKS_CLIENT_SOCKET_H_
 
 #include <string>
 
@@ -54,10 +54,6 @@ class SOCKSClientSocket : public ClientSocket {
 #endif
 
  private:
-  FRIEND_TEST(SOCKSClientSocketTest, CompleteHandshake);
-  FRIEND_TEST(SOCKSClientSocketTest, SOCKS4AFailedDNS);
-  FRIEND_TEST(SOCKSClientSocketTest, SOCKS4AIfDomainInIPv6);
-
   enum State {
     STATE_RESOLVE_HOST,
     STATE_RESOLVE_HOST_COMPLETE,
@@ -89,7 +85,7 @@ class SOCKSClientSocket : public ClientSocket {
   int DoHandshakeWrite();
   int DoHandshakeWriteComplete(int result);
 
-  const std::string BuildHandshakeWriteBuffer() const;
+  void BuildHandshakeWriteBuffer();
 
   CompletionCallbackImpl<SOCKSClientSocket> io_callback_;
 
@@ -106,18 +102,20 @@ class SOCKSClientSocket : public ClientSocket {
   // SOCKS handshake data. The length contains the expected size to
   // read or write.
   scoped_refptr<IOBuffer> handshake_buf_;
+  int handshake_buf_len_;
 
   // While writing, this buffer stores the complete write handshake data.
   // While reading, it stores the handshake information received so far.
-  std::string buffer_;
+  scoped_array<char> buffer_;
+  int buffer_len_;
 
   // This becomes true when the SOCKS handshake has completed and the
   // overlying connection is free to communicate.
   bool completed_handshake_;
 
   // These contain the bytes sent / received by the SOCKS handshake.
-  size_t bytes_sent_;
-  size_t bytes_received_;
+  int bytes_sent_;
+  int bytes_received_;
 
   // Used to resolve the hostname to which the SOCKS proxy will connect.
   SingleRequestHostResolver resolver_;
@@ -129,5 +127,5 @@ class SOCKSClientSocket : public ClientSocket {
 
 }  // namespace net
 
-#endif  // NET_SOCKET_SOCKS_CLIENT_SOCKET_H_
+#endif  // NET_BASE_SOCKS_CLIENT_SOCKET_H_
 
