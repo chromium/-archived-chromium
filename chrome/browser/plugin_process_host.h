@@ -97,7 +97,7 @@ class PluginProcessHost : public ChildProcessHost,
                             const std::string& mime_type,
                             IPC::Message* reply_msg);
   // Message handlers.
-  void OnChannelCreated(const std::string& channel_name);
+  void OnChannelCreated(const IPC::ChannelHandle& channel_handle);
   void OnGetPluginFinderUrl(std::string* plugin_finder_url);
   void OnGetCookies(uint32 request_context, const GURL& url,
                     std::string* cookies);
@@ -114,15 +114,12 @@ class PluginProcessHost : public ChildProcessHost,
 
   struct ChannelRequest {
     ChannelRequest(ResourceMessageFilter* renderer_message_filter,
-                   const std::string& m, IPC::Message* r,
-                   int s) :
+                   const std::string& m, IPC::Message* r) :
         mime_type(m), reply_msg(r),
-        renderer_message_filter_(renderer_message_filter),
-        socket(s) { }
+        renderer_message_filter_(renderer_message_filter) { }
     std::string mime_type;
     IPC::Message* reply_msg;
     scoped_refptr<ResourceMessageFilter> renderer_message_filter_;
-    int socket;
   };
 
   // These are channel requests that we are waiting to send to the

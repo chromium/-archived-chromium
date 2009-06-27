@@ -109,7 +109,7 @@ bool Message::ReadFileDescriptor(void** iter,
     return false;
 
   descriptor->fd = file_descriptor_set->GetDescriptorAt(descriptor_index);
-  descriptor->auto_close = false;
+  descriptor->auto_close = true;
 
   return descriptor->fd >= 0;
 }

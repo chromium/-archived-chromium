@@ -37,11 +37,7 @@ class PluginThread : public ChildThread {
   virtual void CleanUp();
 
   // Callback for when a channel has been created.
-  // On POSIX, |socket| is the channel endpoint socket.
   void OnCreateChannel(
-#if defined(OS_POSIX)
-      base::FileDescriptor socket,
-#endif
       int process_id,
       bool off_the_record);
   void OnPluginMessage(const std::vector<uint8> &data);
