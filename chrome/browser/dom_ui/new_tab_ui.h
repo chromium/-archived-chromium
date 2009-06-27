@@ -25,6 +25,9 @@ class NewTabUI : public DOMUI,
 
   static void RegisterUserPrefs(PrefService* prefs);
 
+  // Whether we should use the prototype new tab page.
+  static bool EnableNewNewTabPage();
+
   // Whether we should enable the web resources backend service
   static bool EnableWebResources();
 

@@ -203,10 +203,10 @@ class NewTabHTMLSource : public ChromeURLDataManager::DataSource {
   static bool first_view() { return first_view_; }
 
  private:
-  // In case a file path to the new tab page was provided this tries to load
+  // In case a file path to the new new tab page was provided this tries to load
   // the file and returns the file content if successful. This returns an empty
   // string in case of failure.
-  static std::string GetNewTabPageFromCommandLine();
+  static std::string GetNewNewTabFromCommandLine();
 
   // Whether this is the is the first viewing of the new tab page and
   // we think it is the user's startup page.
@@ -349,18 +349,22 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
   localized_strings.SetString(L"p13nsrc", Personalization::GetNewTabSource());
 #endif
 
-  // In case we have a custom new tab page enabled we first try to read the
-  // file provided on the command line. If that fails we just get the default
-  // resource from the resource bundle.
+  // In case we have the new new tab page enabled we first try to read the file
+  // provided on the command line. If that fails we just get the resource from
+  // the resource bundle.
   StringPiece new_tab_html;
-  std::string new_tab_html_str = GetNewTabPageFromCommandLine();
+  std::string new_tab_html_str;
+  if (NewTabUI::EnableNewNewTabPage()) {
+    new_tab_html_str = GetNewNewTabFromCommandLine();
 
-  if (!new_tab_html_str.empty()) {
-    new_tab_html = StringPiece(new_tab_html_str);
-  }
-
-  // No custom new tab page or the file was empty.
-  if (new_tab_html.empty()) {
+    if (!new_tab_html_str.empty()) {
+      new_tab_html = StringPiece(new_tab_html_str);
+    } else {
+      // Use the new new tab page from the resource bundle.
+      new_tab_html = ResourceBundle::GetSharedInstance().GetRawDataResource(
+              IDR_NEW_NEW_TAB_HTML);
+    }
+  } else {
     // Use the default new tab page resource.
     new_tab_html = ResourceBundle::GetSharedInstance().GetRawDataResource(
         IDR_NEW_TAB_HTML);
@@ -377,10 +381,10 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
 }
 
 // static
-std::string NewTabHTMLSource::GetNewTabPageFromCommandLine() {
+std::string NewTabHTMLSource::GetNewNewTabFromCommandLine() {
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
   const std::wstring file_path_wstring = command_line->GetSwitchValue(
-      switches::kNewTabPage);
+      switches::kNewNewTabPage);
 
 #if defined(OS_WIN)
   const FilePath::StringType file_path = file_path_wstring;
@@ -818,6 +822,279 @@ void MostVisitedHandler::RegisterUserPrefs(PrefService* prefs) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// TemplateURLHandler
+
+// The handler for Javascript messages related to the "common searches" view.
+class TemplateURLHandler : public DOMMessageHandler,
+                           public TemplateURLModelObserver {
+ public:
+  explicit TemplateURLHandler(DOMUI* dom_ui);
+  virtual ~TemplateURLHandler();
+
+  // Callback for the "getMostSearched" message, sent when the page requests
+  // the list of available searches.
+  void HandleGetMostSearched(const Value* content);
+  // Callback for the "doSearch" message, sent when the user wants to
+  // run a search.  Content of the message is an array containing
+  // [<the search keyword>, <the search term>].
+  void HandleDoSearch(const Value* content);
+
+  // TemplateURLModelObserver implementation.
+  virtual void OnTemplateURLModelChanged();
+
+ private:
+  DOMUI* dom_ui_;
+  TemplateURLModel* template_url_model_;  // Owned by profile.
+
+  DISALLOW_COPY_AND_ASSIGN(TemplateURLHandler);
+};
+
+TemplateURLHandler::TemplateURLHandler(DOMUI* dom_ui)
+    : DOMMessageHandler(dom_ui),
+      dom_ui_(dom_ui),
+      template_url_model_(NULL) {
+  dom_ui->RegisterMessageCallback("getMostSearched",
+      NewCallback(this, &TemplateURLHandler::HandleGetMostSearched));
+  dom_ui->RegisterMessageCallback("doSearch",
+      NewCallback(this, &TemplateURLHandler::HandleDoSearch));
+}
+
+TemplateURLHandler::~TemplateURLHandler() {
+  if (template_url_model_)
+    template_url_model_->RemoveObserver(this);
+}
+
+void TemplateURLHandler::HandleGetMostSearched(const Value* content) {
+  // The page Javascript has requested the list of keyword searches.
+  // Start loading them from the template URL backend.
+  if (!template_url_model_) {
+    template_url_model_ = dom_ui_->GetProfile()->GetTemplateURLModel();
+    template_url_model_->AddObserver(this);
+  }
+  if (template_url_model_->loaded()) {
+    OnTemplateURLModelChanged();
+  } else {
+    template_url_model_->Load();
+  }
+}
+
+// A helper function for sorting TemplateURLs where the most used ones show up
+// first.
+static bool TemplateURLSortByUsage(const TemplateURL* a,
+                                   const TemplateURL* b) {
+  return a->usage_count() > b->usage_count();
+}
+
+void TemplateURLHandler::HandleDoSearch(const Value* content) {
+  // Extract the parameters out of the input list.
+  if (!content || !content->IsType(Value::TYPE_LIST)) {
+    NOTREACHED();
+    return;
+  }
+  const ListValue* args = static_cast<const ListValue*>(content);
+  if (args->GetSize() != 2) {
+    NOTREACHED();
+    return;
+  }
+  std::wstring keyword, search;
+  Value* value = NULL;
+  if (!args->Get(0, &value) || !value->GetAsString(&keyword)) {
+    NOTREACHED();
+    return;
+  }
+  if (!args->Get(1, &value) || !value->GetAsString(&search)) {
+    NOTREACHED();
+    return;
+  }
+
+  // Combine the keyword and search into a URL.
+  const TemplateURL* template_url =
+      template_url_model_->GetTemplateURLForKeyword(keyword);
+  if (!template_url) {
+    // The keyword seems to have changed out from under us.
+    // Not an error, but nothing we can do...
+    return;
+  }
+  const TemplateURLRef* url_ref = template_url->url();
+  if (!url_ref || !url_ref->SupportsReplacement()) {
+    NOTREACHED();
+    return;
+  }
+  GURL url = GURL(WideToUTF8(url_ref->ReplaceSearchTerms(*template_url, search,
+      TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring())));
+
+  if (url.is_valid()) {
+    // Record the user action
+    std::vector<const TemplateURL*> urls =
+        template_url_model_->GetTemplateURLs();
+    sort(urls.begin(), urls.end(), TemplateURLSortByUsage);
+    ListValue urls_value;
+    int item_number = 0;
+    for (size_t i = 0;
+         i < std::min<size_t>(urls.size(), kSearchURLs); ++i) {
+      if (urls[i]->usage_count() == 0)
+        break;  // The remainder would be no good.
+
+      const TemplateURLRef* urlref = urls[i]->url();
+      if (!urlref)
+        continue;
+
+      if (urls[i] == template_url) {
+        UserMetrics::RecordComputedAction(
+            StringPrintf(L"NTP_SearchURL%d", item_number),
+            dom_ui_->GetProfile());
+        break;
+      }
+
+      item_number++;
+    }
+
+    // Load the URL.
+    dom_ui_->tab_contents()->OpenURL(url, GURL(), CURRENT_TAB,
+                                     PageTransition::LINK);
+    // We've been deleted.
+    return;
+  }
+}
+
+void TemplateURLHandler::OnTemplateURLModelChanged() {
+  // We've loaded some template URLs.  Send them to the page.
+  std::vector<const TemplateURL*> urls = template_url_model_->GetTemplateURLs();
+  sort(urls.begin(), urls.end(), TemplateURLSortByUsage);
+  ListValue urls_value;
+  for (size_t i = 0; i < std::min<size_t>(urls.size(), kSearchURLs); ++i) {
+    if (urls[i]->usage_count() == 0)
+      break;  // urls is sorted by usage count; the remainder would be no good.
+
+    const TemplateURLRef* urlref = urls[i]->url();
+    if (!urlref)
+      continue;
+    DictionaryValue* entry_value = new DictionaryValue;
+    entry_value->SetString(L"short_name", urls[i]->short_name());
+    entry_value->SetString(L"keyword", urls[i]->keyword());
+
+    const GURL& url = urls[i]->GetFavIconURL();
+    if (url.is_valid())
+     entry_value->SetString(L"favIconURL", UTF8ToWide(url.spec()));
+
+    urls_value.Append(entry_value);
+  }
+  UMA_HISTOGRAM_COUNTS("NewTabPage.SearchURLs.Total", urls_value.GetSize());
+  dom_ui_->CallJavascriptFunction(L"searchURLs", urls_value);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// RecentlyBookmarkedHandler
+
+class RecentlyBookmarkedHandler : public DOMMessageHandler,
+                                  public BookmarkModelObserver {
+ public:
+  explicit RecentlyBookmarkedHandler(DOMUI* dom_ui);
+  ~RecentlyBookmarkedHandler();
+
+  // Callback which navigates to the bookmarks page.
+  void HandleShowBookmarkPage(const Value*);
+
+  // Callback for the "getRecentlyBookmarked" message.
+  // It takes no arguments.
+  void HandleGetRecentlyBookmarked(const Value*);
+
+ private:
+  void SendBookmarksToPage();
+
+  // BookmarkModelObserver methods. These invoke SendBookmarksToPage.
+  virtual void Loaded(BookmarkModel* model);
+  virtual void BookmarkNodeAdded(BookmarkModel* model,
+                                 const BookmarkNode* parent,
+                                 int index);
+  virtual void BookmarkNodeRemoved(BookmarkModel* model,
+                                   const BookmarkNode* parent,
+                                   int index);
+  virtual void BookmarkNodeChanged(BookmarkModel* model,
+                                   const BookmarkNode* node);
+
+  // These won't effect what is shown, so they do nothing.
+  virtual void BookmarkNodeMoved(BookmarkModel* model,
+                                 const BookmarkNode* old_parent,
+                                 int old_index,
+                                 const BookmarkNode* new_parent,
+                                 int new_index) {}
+  virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
+                                             const BookmarkNode* node) {}
+  virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
+                                         const BookmarkNode* node) {}
+
+  DOMUI* dom_ui_;
+  // The model we're getting bookmarks from. The model is owned by the Profile.
+  BookmarkModel* model_;
+
+  DISALLOW_COPY_AND_ASSIGN(RecentlyBookmarkedHandler);
+};
+
+RecentlyBookmarkedHandler::RecentlyBookmarkedHandler(DOMUI* dom_ui)
+    : DOMMessageHandler(dom_ui),
+      dom_ui_(dom_ui),
+      model_(NULL) {
+  dom_ui->RegisterMessageCallback("getRecentlyBookmarked",
+      NewCallback(this,
+                  &RecentlyBookmarkedHandler::HandleGetRecentlyBookmarked));
+}
+
+RecentlyBookmarkedHandler::~RecentlyBookmarkedHandler() {
+  if (model_)
+    model_->RemoveObserver(this);
+}
+
+void RecentlyBookmarkedHandler::HandleGetRecentlyBookmarked(const Value*) {
+  if (!model_) {
+    model_ = dom_ui_->GetProfile()->GetBookmarkModel();
+    model_->AddObserver(this);
+  }
+  // If the model is loaded, synchronously send the bookmarks down. Otherwise
+  // when the model loads we'll send the bookmarks down.
+  if (model_->IsLoaded())
+    SendBookmarksToPage();
+}
+
+void RecentlyBookmarkedHandler::SendBookmarksToPage() {
+  std::vector<const BookmarkNode*> recently_bookmarked;
+  bookmark_utils::GetMostRecentlyAddedEntries(
+      model_, kRecentBookmarks, &recently_bookmarked);
+  ListValue list_value;
+  for (size_t i = 0; i < recently_bookmarked.size(); ++i) {
+    const BookmarkNode* node = recently_bookmarked[i];
+    DictionaryValue* entry_value = new DictionaryValue;
+    SetURLTitleAndDirection(entry_value,
+                            WideToUTF16(node->GetTitle()), node->GetURL());
+    entry_value->SetInteger(L"time",
+                            static_cast<int>(node->date_added().ToTimeT()));
+    list_value.Append(entry_value);
+  }
+  dom_ui_->CallJavascriptFunction(L"recentlyBookmarked", list_value);
+}
+
+void RecentlyBookmarkedHandler::Loaded(BookmarkModel* model) {
+  SendBookmarksToPage();
+}
+
+void RecentlyBookmarkedHandler::BookmarkNodeAdded(BookmarkModel* model,
+                                                  const BookmarkNode* parent,
+                                                  int index) {
+  SendBookmarksToPage();
+}
+
+void RecentlyBookmarkedHandler::BookmarkNodeRemoved(BookmarkModel* model,
+                                                    const BookmarkNode* parent,
+                                                    int index) {
+  SendBookmarksToPage();
+}
+
+void RecentlyBookmarkedHandler::BookmarkNodeChanged(BookmarkModel* model,
+                                                    const BookmarkNode* node) {
+  SendBookmarksToPage();
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // RecentlyClosedTabsHandler
 
 class RecentlyClosedTabsHandler : public DOMMessageHandler,
@@ -1005,6 +1282,50 @@ bool RecentlyClosedTabsHandler::WindowToValue(
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// HistoryHandler
+
+class HistoryHandler : public DOMMessageHandler {
+ public:
+  explicit HistoryHandler(DOMUI* dom_ui);
+
+  // Callback which navigates to the history page and performs a search.
+  void HandleSearchHistoryPage(const Value* content);
+
+ private:
+  DOMUI* dom_ui_;
+
+  DISALLOW_COPY_AND_ASSIGN(HistoryHandler);
+};
+
+HistoryHandler::HistoryHandler(DOMUI* dom_ui)
+    : DOMMessageHandler(dom_ui),
+      dom_ui_(dom_ui) {
+  dom_ui->RegisterMessageCallback("searchHistoryPage",
+      NewCallback(this, &HistoryHandler::HandleSearchHistoryPage));
+}
+
+void HistoryHandler::HandleSearchHistoryPage(const Value* content) {
+  if (content && content->GetType() == Value::TYPE_LIST) {
+    const ListValue* list_value = static_cast<const ListValue*>(content);
+    Value* list_member;
+    if (list_value->Get(0, &list_member) &&
+        list_member->GetType() == Value::TYPE_STRING) {
+      const StringValue* string_value =
+          static_cast<const StringValue*>(list_member);
+      std::wstring wstring_value;
+      if (string_value->GetAsString(&wstring_value)) {
+        UserMetrics::RecordAction(L"NTP_SearchHistory", dom_ui_->GetProfile());
+        dom_ui_->tab_contents()->controller().LoadURL(
+            HistoryUI::GetHistoryURLWithSearchText(wstring_value),
+            GURL(),
+            PageTransition::LINK);
+        // We are deleted by LoadURL, so do not call anything else.
+      }
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // MetricsHandler
 
 // Let the page contents record UMA actions. Only use when you can't do it from
@@ -1088,20 +1409,26 @@ NewTabUI::NewTabUI(TabContents* contents)
             &ChromeURLDataManager::AddDataSource,
             html_source));
   } else {
-    AddMessageHandler(new MostVisitedHandler(this));
-    AddMessageHandler(new ShownSectionsHandler(this));
-    AddMessageHandler(new RecentlyClosedTabsHandler(this));
-    AddMessageHandler(new MetricsHandler(this));
 
-    // TODO(arv): What if this is not enabled?
+    if (EnableNewNewTabPage()) {
+      DownloadManager* dlm = GetProfile()->GetDownloadManager();
+      DownloadsDOMHandler* downloads_handler =
+          new DownloadsDOMHandler(this, dlm);
+      AddMessageHandler(downloads_handler);
+      downloads_handler->Init();
+
+      AddMessageHandler(new ShownSectionsHandler(this));
+    }
+
     if (EnableWebResources())
       AddMessageHandler(new TipsHandler(this));
 
-    DownloadManager* dlm = GetProfile()->GetDownloadManager();
-    DownloadsDOMHandler* downloads_handler =
-        new DownloadsDOMHandler(this, dlm);
-    AddMessageHandler(downloads_handler);
-    downloads_handler->Init();
+    AddMessageHandler(new TemplateURLHandler(this));
+    AddMessageHandler(new MostVisitedHandler(this));
+    AddMessageHandler(new RecentlyBookmarkedHandler(this));
+    AddMessageHandler(new RecentlyClosedTabsHandler(this));
+    AddMessageHandler(new HistoryHandler(this));
+    AddMessageHandler(new MetricsHandler(this));
 #ifdef CHROME_PERSONALIZATION
     if (!Personalization::IsP13NDisabled(GetProfile())) {
       AddMessageHandler(Personalization::CreateNewTabPageHandler(this));
@@ -1151,9 +1478,16 @@ void NewTabUI::Observe(NotificationType type,
 // static
 void NewTabUI::RegisterUserPrefs(PrefService* prefs) {
   MostVisitedHandler::RegisterUserPrefs(prefs);
-  ShownSectionsHandler::RegisterUserPrefs(prefs);
   if (NewTabUI::EnableWebResources())
     TipsHandler::RegisterUserPrefs(prefs);
+  if (NewTabUI::EnableNewNewTabPage())
+    ShownSectionsHandler::RegisterUserPrefs(prefs);
+}
+
+// static
+bool NewTabUI::EnableNewNewTabPage() {
+  const CommandLine* command_line = CommandLine::ForCurrentProcess();
+  return command_line->HasSwitch(switches::kNewNewTabPage);
 }
 
 bool NewTabUI::EnableWebResources() {
