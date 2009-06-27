@@ -20,6 +20,8 @@
 #include "net/base/host_resolver.h"
 #include "net/base/net_errors.h"
 
+using base::TimeDelta;
+
 namespace chrome_browser_net {
 
 class DnsMaster::LookupRequest {
@@ -68,10 +70,12 @@ class DnsMaster::LookupRequest {
 
 DnsMaster::DnsMaster(net::HostResolver* host_resolver,
                      MessageLoop* host_resolver_loop,
+                     TimeDelta max_queue_delay,
                      size_t max_concurrent)
   : peak_pending_lookups_(0),
     shutdown_(false),
     max_concurrent_lookups_(max_concurrent),
+    max_queue_delay_(max_queue_delay),
     host_resolver_(host_resolver),
     host_resolver_loop_(host_resolver_loop) {
 }
@@ -350,7 +354,7 @@ void DnsMaster::GetHtmlInfo(std::string* output) {
     }
     if (!it->second.was_found())
       continue;  // Still being processed.
-    if (base::TimeDelta() != it->second.benefits_remaining()) {
+    if (TimeDelta() != it->second.benefits_remaining()) {
       network_hits.push_back(it->second);  // With no benefit yet.
       continue;
     }
@@ -385,7 +389,7 @@ DnsHostInfo* DnsMaster::PreLockedResolve(
     const std::string& hostname,
     DnsHostInfo::ResolutionMotivation motivation) {
   // DCHECK(We have the lock);
-  DCHECK(0 != hostname.length());
+  DCHECK_NE(0u, hostname.length());
 
   if (shutdown_)
     return NULL;
@@ -444,9 +448,7 @@ void DnsMaster::PreLockedScheduleLookups() {
 
 bool DnsMaster::PreLockedCongestionControlPerformed(DnsHostInfo* info) {
   // Note: queue_duration is ONLY valid after we go to assigned state.
-  // TODO(jar): Tune selection of arbitrary 1 second constant.  Add plumbing so
-  // that this can be set as part of an A/B experiment.
-  if (info->queue_duration() < base::TimeDelta::FromSeconds(1))
+  if (info->queue_duration() < max_queue_delay_)
     return false;
   // We need to discard all entries in our queue, as we're keeping them waiting
   // too long.  By doing this, we'll have a chance to quickly service urgent

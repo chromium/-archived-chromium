@@ -24,6 +24,7 @@
 #include "chrome/common/pref_service.h"
 #include "net/base/host_resolver.h"
 
+using base::Time;
 using base::TimeDelta;
 
 namespace chrome_browser_net {
@@ -37,6 +38,9 @@ static void DnsPrefetchMotivatedList(
 
 // static
 const size_t DnsPrefetcherInit::kMaxConcurrentLookups = 8;
+
+// static
+const int DnsPrefetcherInit::kMaxQueueingDelayMs = 1000;
 
 // Host resolver shared by DNS prefetcher, and the main URLRequestContext.
 static net::HostResolver* global_host_resolver = NULL;
@@ -281,7 +285,7 @@ void PrefetchObserver::SaveStartupListAsPref(PrefService* local_state) {
   if (!startup_list)
     return;
   startup_list->Clear();
-  DCHECK(startup_list->GetSize() == 0);
+  DCHECK_EQ(0u, startup_list->GetSize());
   AutoLock auto_lock(*lock);
   for (Results::iterator it = first_resolutions->begin();
        it != first_resolutions->end();
@@ -346,7 +350,7 @@ class OffTheRecordObserver : public NotificationObserver {
           break;  // Ignore ordinary windows.
         {
           AutoLock lock(lock_);
-          DCHECK(0 < count_off_the_record_windows_);
+          DCHECK_LT(0, count_off_the_record_windows_);
           if (0 >= count_off_the_record_windows_)  // Defensive coding.
             break;
           if (--count_off_the_record_windows_)
@@ -405,7 +409,8 @@ void DnsPrefetchGetHtmlInfo(std::string* output) {
 // can ensure its deletion.
 static PrefetchObserver dns_resolution_observer;
 
-void InitDnsPrefetch(size_t max_concurrent, PrefService* user_prefs) {
+void InitDnsPrefetch(TimeDelta max_queue_delay, size_t max_concurrent,
+                     PrefService* user_prefs) {
   // Use a large shutdown time so that UI tests (that instigate lookups, and
   // then try to shutdown the browser) don't instigate the CHECK about
   // "some slaves have not finished"
@@ -416,7 +421,7 @@ void InitDnsPrefetch(size_t max_concurrent, PrefService* user_prefs) {
     // that is shared by the main URLRequestContext, and lives on the IO thread.
     dns_master = new DnsMaster(GetGlobalHostResolver(),
                                g_browser_process->io_thread()->message_loop(),
-                               max_concurrent);
+                               max_queue_delay, max_concurrent);
     dns_master->AddRef();
     // We did the initialization, so we should prime the pump, and set up
     // the DNS resolution system to run.
@@ -555,4 +560,62 @@ void TrimSubresourceReferrers() {
   dns_master->TrimReferrers();
 }
 
+//------------------------------------------------------------------------------
+// Methods for the helper class that is used to startup and teardown the whole
+// DNS prefetch system.
+
+DnsPrefetcherInit::DnsPrefetcherInit(PrefService* user_prefs,
+                                     PrefService* local_state) {
+  // Set up a field trial to see what disabling DNS pre-resolution does to
+  // latency of page loads.
+  FieldTrial::Probability kDivisor = 100;
+  // For each option (i.e., non-default), we have a fixed probability.
+  FieldTrial::Probability kProbabilityPerGroup = 10;  // 10% probability.
+
+  trial_ = new FieldTrial("DnsImpact", kDivisor);
+
+  // First option is to disable prefetching completely.
+  int disabled_prefetch = trial_->AppendGroup("_disabled_prefetch",
+                                              kProbabilityPerGroup);
+  // Set parallel prefetch limit to 4 instead of default 8.
+  int parallel_4_prefetch = trial_->AppendGroup("_parallel_4_prefetch",
+                                                kProbabilityPerGroup);
+  // Set congestion detection at 500ms, rather than the 1 second default.
+  int max_500ms_prefetch = trial_->AppendGroup("_max_500ms_prefetch_queue",
+                                               kProbabilityPerGroup);
+  // Set congestion detection at 2 seconds instead of the 1 second default.
+  int max_2s_prefetch = trial_->AppendGroup("_max_2s_prefetch_queue",
+                                            kProbabilityPerGroup);
+
+  if (trial_->group() != disabled_prefetch) {
+    // Initialize the DNS prefetch system.
+
+    size_t max_concurrent = kMaxConcurrentLookups;
+
+    int max_queueing_delay_ms = kMaxQueueingDelayMs;
+
+    if (trial_->group() == parallel_4_prefetch)
+      max_concurrent = 4;
+    else if (trial_->group() == max_500ms_prefetch)
+      max_queueing_delay_ms = 500;
+    else if (trial_->group() == max_2s_prefetch)
+      max_queueing_delay_ms = 2000;
+
+    TimeDelta max_queueing_delay(
+        TimeDelta::FromMilliseconds(max_queueing_delay_ms));
+
+    DCHECK(!dns_master);
+    InitDnsPrefetch(max_queueing_delay, max_concurrent, user_prefs);
+    DCHECK(dns_master);  // Will be checked in destructor.
+    chrome_browser_net::DnsPrefetchHostNamesAtStartup(user_prefs, local_state);
+    chrome_browser_net::RestoreSubresourceReferrers(local_state);
+  }
+}
+
+DnsPrefetcherInit::~DnsPrefetcherInit() {
+    if (dns_master)
+      FreeDnsPrefetchResources();
+  }
+
 }  // namespace chrome_browser_net
+

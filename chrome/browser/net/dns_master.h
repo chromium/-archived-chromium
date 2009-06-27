@@ -26,6 +26,8 @@
 #include "chrome/common/net/dns.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
+using base::TimeDelta;
+
 namespace net {
 class HostResolver;
 }
@@ -42,9 +44,8 @@ class DnsMaster : public base::RefCountedThreadSafe<DnsMaster> {
   // |max_concurrent| specifies how many concurrent (paralell) prefetches will
   // be performed. Host lookups will be issued on the |host_resolver_loop|
   // thread, using the |host_resolver| instance.
-  DnsMaster(net::HostResolver* host_resolver,
-            MessageLoop* host_resolver_loop,
-            size_t max_concurrent);
+  DnsMaster(net::HostResolver* host_resolver, MessageLoop* host_resolver_loop,
+            TimeDelta max_queue_delay_ms, size_t max_concurrent);
   ~DnsMaster();
 
   // Cancel pending requests and prevent new ones from being made.
@@ -226,6 +227,10 @@ class DnsMaster : public base::RefCountedThreadSafe<DnsMaster> {
 
   // The number of concurrent lookups currently allowed.
   const size_t max_concurrent_lookups_;
+
+  // The maximum queueing delay that is acceptable before we enter congestion
+  // reduction mode, and discard all queued (but not yet assigned) resolutions.
+  const TimeDelta max_queue_delay_;
 
   // The host resovler we warm DNS entries for. The resolver (which is not
   // thread safe) should be accessed only on |host_resolver_loop_|.
