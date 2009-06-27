@@ -188,7 +188,7 @@ class BookmarkManagerView : public views::View,
   void ShowMenu(HWND host,
                 int x,
                 int y,
-                BookmarkContextMenu::ConfigurationType config);
+                BookmarkContextMenuController::ConfigurationType config);
 
   // Invoked to handle cut/copy/paste from the table or tree. If |from_table|
   // is true the source is the table.

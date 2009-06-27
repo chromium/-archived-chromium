@@ -516,8 +516,8 @@ void BookmarkManagerView::ShowContextMenu(views::View* source,
   DCHECK(source == table_view_ || source == tree_view_);
   bool is_table = (source == table_view_);
   ShowMenu(GetWidget()->GetNativeView(), x, y,
-           is_table ? BookmarkContextMenu::BOOKMARK_MANAGER_TABLE :
-                      BookmarkContextMenu::BOOKMARK_MANAGER_TREE);
+           is_table ? BookmarkContextMenuController::BOOKMARK_MANAGER_TABLE :
+                      BookmarkContextMenuController::BOOKMARK_MANAGER_TREE);
 }
 
 void BookmarkManagerView::RunMenu(views::View* source,
@@ -534,7 +534,7 @@ void BookmarkManagerView::RunMenu(views::View* source,
                                       (-source->width() + 5);
   if (source->GetID() == kOrganizeMenuButtonID) {
     ShowMenu(hwnd, menu_x, pt.y() + 2,
-             BookmarkContextMenu::BOOKMARK_MANAGER_ORGANIZE_MENU);
+             BookmarkContextMenuController::BOOKMARK_MANAGER_ORGANIZE_MENU);
   } else if (source->GetID() == kToolsMenuButtonID) {
     ShowToolsMenu(hwnd, menu_x, pt.y() + 2);
   } else {
@@ -686,32 +686,33 @@ void BookmarkManagerView::ShowMenu(
     HWND host,
     int x,
     int y,
-    BookmarkContextMenu::ConfigurationType config) {
+    BookmarkContextMenuController::ConfigurationType config) {
   if (!GetBookmarkModel()->IsLoaded())
     return;
 
-  if (config == BookmarkContextMenu::BOOKMARK_MANAGER_TABLE ||
-      (config == BookmarkContextMenu::BOOKMARK_MANAGER_ORGANIZE_MENU &&
+  if (config == BookmarkContextMenuController::BOOKMARK_MANAGER_TABLE ||
+      (config == BookmarkContextMenuController::BOOKMARK_MANAGER_ORGANIZE_MENU &&
        table_view_->HasFocus())) {
     std::vector<const BookmarkNode*> nodes = GetSelectedTableNodes();
     const BookmarkNode* parent = GetSelectedFolder();
     if (!parent) {
-      if (config == BookmarkContextMenu::BOOKMARK_MANAGER_TABLE)
-        config = BookmarkContextMenu::BOOKMARK_MANAGER_TABLE_OTHER;
-      else
-        config = BookmarkContextMenu::BOOKMARK_MANAGER_ORGANIZE_MENU_OTHER;
+      if (config == BookmarkContextMenuController::BOOKMARK_MANAGER_TABLE) {
+        config = BookmarkContextMenuController::BOOKMARK_MANAGER_TABLE_OTHER;
+      } else {
+        config =
+            BookmarkContextMenuController::BOOKMARK_MANAGER_ORGANIZE_MENU_OTHER;
+      }
     }
-    BookmarkContextMenu menu(host, profile_, NULL, NULL, parent, nodes,
-                             config);
-    menu.RunMenuAt(x, y);
+    BookmarkContextMenu menu(host, profile_, NULL, parent, nodes, config);
+    menu.RunMenuAt(gfx::Point(x, y));
   } else {
     const BookmarkNode* node = GetSelectedFolder();
     std::vector<const BookmarkNode*> nodes;
     if (node)
       nodes.push_back(node);
-    BookmarkContextMenu menu(GetWidget()->GetNativeView(), profile_, NULL, NULL,
+    BookmarkContextMenu menu(GetWidget()->GetNativeView(), profile_, NULL,
                              node, nodes, config);
-    menu.RunMenuAt(x, y);
+    menu.RunMenuAt(gfx::Point(x, y));
   }
 }
 

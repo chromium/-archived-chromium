@@ -1236,11 +1236,11 @@ void BookmarkBarView::ShowContextMenu(View* source,
     parent = model_->GetBookmarkBarNode();
     nodes.push_back(parent);
   }
-  BookmarkContextMenu controller(GetWidget()->GetNativeView(),
-                                 GetProfile(), browser(), GetPageNavigator(),
+  BookmarkContextMenu controller(GetWidget()->GetNativeView(), GetProfile(),
+                                 browser()->GetSelectedTabContents(),
                                  parent, nodes,
-                                 BookmarkContextMenu::BOOKMARK_BAR);
-  controller.RunMenuAt(x, y);
+                                 BookmarkContextMenuController::BOOKMARK_BAR);
+  controller.RunMenuAt(gfx::Point(x, y));
 }
 
 views::View* BookmarkBarView::CreateBookmarkButton(const BookmarkNode* node) {

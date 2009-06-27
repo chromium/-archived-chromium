@@ -161,12 +161,11 @@ bool BookmarkMenuController::ShowContextMenu(views::MenuItemView* source,
   context_menu_.reset(
       new BookmarkContextMenu(parent_,
                               profile_,
-                              browser_,
                               page_navigator_,
                               nodes[0]->GetParent(),
                               nodes,
-                              BookmarkContextMenu::BOOKMARK_BAR));
-  context_menu_->RunMenuAt(x, y);
+                              BookmarkContextMenuController::BOOKMARK_BAR));
+  context_menu_->RunMenuAt(gfx::Point(x, y));
   context_menu_.reset(NULL);
   return true;
 }
