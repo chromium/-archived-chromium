@@ -65,7 +65,7 @@ deps_os = {
       "/trunk/deps/third_party/cygwin@11984",
 
     "src/third_party/python_24":
-      "/trunk/deps/third_party/python_24@7444",
+      "/trunk/deps/third_party/python_24@19441",
   },
   "mac": {
     "src/third_party/GTM":
