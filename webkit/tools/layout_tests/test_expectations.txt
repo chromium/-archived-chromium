@@ -2816,7 +2816,14 @@ BUG15478 SKIP : LayoutTests/fast/frames/viewsource-on-image-file.html = FAIL
 BUG15478 SKIP : LayoutTests/platform/qt/fast/events/event-sender-keydown-frame.html = FAIL
 
 // WebKit 45270:45287
-BUG15490 WIN : LayoutTests/http/tests/xmlhttprequest/cross-origin-authorization.html = TIMEOUT
+BUG15490 WIN LINUX : LayoutTests/editing/selection/drag-start-event-client-x-y.html = FAIL
+BUG15490 WIN LINUX : LayoutTests/fast/css/outline-auto-empty-rects.html = FAIL
+BUG15490 WIN LINUX : LayoutTests/fast/css/outline-auto-location.html = FAIL
+BUG15490 WIN LINUX : LayoutTests/fast/inline/continuation-outlines-with-layers.html = FAIL
+BUG15490 WIN LINUX : LayoutTests/fast/inline/continuation-outlines.html = FAIL
+BUG15490 WIN LINUX : LayoutTests/fast/repaint/focus-ring.html = FAIL
+BUG15490 DEBUG LINUX : LayoutTests/fast/overflow/overflow-rtl-inline-scrollbar.html= CRASH
+BUG15490 DEBUG LINUX : LayoutTests/editing/deleting/25322-1.html = CRASH
 
 // Flaky for a while on DEBUG
 BUG15267 WIN LINUX DEBUG : LayoutTests/transitions/cancel-transition.html = PASS FAIL
