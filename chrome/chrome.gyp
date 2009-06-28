@@ -4132,6 +4132,7 @@
           'type': 'none',
           'dependencies': [
             'installer/installer.gyp:*',
+            'installer/mini_installer.gyp:*',
             '../app/app.gyp:*',
             '../base/base.gyp:*',
             '../media/media.gyp:*',
