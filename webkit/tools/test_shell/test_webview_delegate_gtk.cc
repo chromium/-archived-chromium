@@ -98,6 +98,10 @@ WebPluginDelegate* TestWebViewDelegate::CreatePluginDelegate(
   return WebPluginDelegateImpl::Create(info.path, mtype, plugin_parent);
 }
 
+void TestWebViewDelegate::WillDestroyPluginWindow(unsigned long id) {
+  shell_->webViewHost()->OnPluginWindowDestroyed(id);
+}
+
 void TestWebViewDelegate::ShowJavaScriptAlert(const std::wstring& message) {
   GtkWidget* dialog = gtk_message_dialog_new(
       shell_->mainWnd(), GTK_DIALOG_MODAL, GTK_MESSAGE_INFO,

@@ -149,7 +149,7 @@ class WebPluginImpl : public WebPlugin,
 
   // WebPlugin implementation:
   void SetWindow(gfx::PluginWindowHandle window);
-  void WillDestroyWindow(gfx::PluginWindowHandle window) { }
+  void WillDestroyWindow(gfx::PluginWindowHandle window);
 #if defined(OS_WIN)
   void SetWindowlessPumpEvent(HANDLE pump_messages_event) { }
 #endif

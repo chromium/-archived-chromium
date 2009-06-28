@@ -41,6 +41,9 @@ class WebViewHost : public WebWidgetHost {
   // the GtkWidget hosting it.  Used when we get a message back from the
   // renderer indicating a plugin needs to move.
   GtkWidget* MapIDToWidget(GdkNativeWindow id);
+
+  // Called when a plugin has been destroyed.  Lets us clean up our side.
+  void OnPluginWindowDestroyed(GdkNativeWindow id);
 #endif
 
  protected:

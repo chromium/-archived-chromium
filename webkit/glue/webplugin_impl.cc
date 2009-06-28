@@ -398,6 +398,15 @@ void WebPluginImpl::SetWindow(gfx::PluginWindowHandle window) {
   }
 }
 
+void WebPluginImpl::WillDestroyWindow(gfx::PluginWindowHandle window) {
+  WebCore::Frame* frame = element_->document()->frame();
+  WebFrameImpl* webframe = WebFrameImpl::FromFrame(frame);
+  WebViewImpl* webview = webframe->GetWebViewImpl();
+  if (!webview->delegate())
+    return;
+  webview->delegate()->WillDestroyPluginWindow(window);
+}
+
 bool WebPluginImpl::CompleteURL(const std::string& url_in,
                                 std::string* url_out) {
   if (!frame() || !frame()->document()) {

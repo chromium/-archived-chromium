@@ -28,6 +28,7 @@
 
 #include <vector>
 
+#include "base/gfx/native_widget_types.h"
 #include "webkit/api/public/WebNavigationType.h"
 #include "webkit/glue/context_menu.h"
 #include "webkit/glue/webwidget_delegate.h"
@@ -131,6 +132,10 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
       std::string* actual_mime_type) {
     return NULL;
   }
+
+  // Called when a windowed plugin is closing.
+  // Lets the view delegate shut down anything it is using to wrap the plugin.
+  virtual void WillDestroyPluginWindow(gfx::PluginWindowHandle handle) { }
 
   // This method is called when the renderer creates a worker object.
   virtual WebKit::WebWorker* CreateWebWorker(WebKit::WebWorkerClient* client) {

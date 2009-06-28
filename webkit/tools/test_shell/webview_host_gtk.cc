@@ -58,11 +58,16 @@ GtkWidget* WebViewHost::MapIDToWidget(GdkNativeWindow id) {
   return NULL;
 }
 
-gboolean WebViewHost::OnPlugRemoved(GtkSocket* socket) {
-  // Remove the socket's id from our list of widgets.
-  GdkNativeWindow id = gtk_socket_get_id(socket);
-  native_window_to_widget_map_.erase(id);
+void WebViewHost::OnPluginWindowDestroyed(GdkNativeWindow id) {
+  GtkWidget* plugin_container = MapIDToWidget(id);
+  if (!plugin_container)
+    return;
 
-  return FALSE;  // Destroy our widget.
+  native_window_to_widget_map_.erase(id);
+  gtk_widget_destroy(plugin_container);
+}
+
+gboolean WebViewHost::OnPlugRemoved(GtkSocket* socket) {
+  return TRUE;  // Don't destroy our widget; we manage it ourselves.
 }
 

@@ -88,6 +88,9 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
     const std::string& mime_type,
     const std::string& clsid,
     std::string* actual_mime_type);
+#if defined(OS_LINUX)
+  virtual void WillDestroyPluginWindow(gfx::PluginWindowHandle handle);
+#endif
   virtual WebKit::WebMediaPlayer* CreateWebMediaPlayer(
       WebKit::WebMediaPlayerClient* client);
   virtual WebKit::WebWorker* CreateWebWorker(WebKit::WebWorkerClient* client);

@@ -266,8 +266,8 @@ bool WebPluginDelegateImpl::WindowedCreatePlugin() {
   window_.window = reinterpret_cast<void*>(parent_);
   // The remainder of the code expects windowed_handle_ to exist for
   // windowed mode, despite not actually ever reaching through
-  // windowed_handle_.  So let's set it to the one window handle we
-  // actually have available.
+  // windowed_handle_.  It is still used as a token to represent "this
+  // plugin" in messages to the browser.
   windowed_handle_ = parent_;
 
   if (!window_.ws_info)
@@ -283,9 +283,11 @@ bool WebPluginDelegateImpl::WindowedCreatePlugin() {
 }
 
 void WebPluginDelegateImpl::WindowedDestroyWindow() {
-  // We have no window to destroy; see comment in WindowedCreatePlugin
-  // where windowed_handle_ is set.
-  windowed_handle_ = 0;
+  if (windowed_handle_) {
+    plugin_->WillDestroyWindow(windowed_handle_);
+
+    windowed_handle_ = 0;
+  }
 }
 
 bool WebPluginDelegateImpl::WindowedReposition(
