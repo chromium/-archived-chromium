@@ -44,6 +44,9 @@ PREFIX : v8::internal::sweepspace___v8::internal::markcompactcollector::sweepspa
 
 # End mysterious crash section.
 
+# 15547
+PREFIX : renderview::didfinishdocumentloadforframe___webframeloaderclient::dispatchdidfinishdocumentload___webcore::frameloader::finishedparsing___webcore::document::finishedparsing___webcore::htmltokenizer::end
+
 # 9615
 SUBSTRING : history::historybackend::~historybackend
 
