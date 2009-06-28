@@ -310,6 +310,7 @@
           'target_name': 'mini_installer',
           'type': 'executable',
           'msvs_guid': '24A5AC7C-280B-4899-9153-6BA570A081E7',
+          'msvs_existing_vcproj': 'mini_installer/mini_installer.vcproj',
           'dependencies': [
             '../chrome.gyp:chrome',
             '../chrome.gyp:chrome_dll',
@@ -486,7 +487,7 @@
           'dependencies': [
             'installer_util',
             'installer_util_strings',
-	    '../../build/util/build_util.gyp:lastchange',
+            '../../build/util/build_util.gyp:lastchange',
             '../../build/win/system.gyp:cygwin',
             '../../courgette/courgette.gyp:courgette_lib',
             '../../third_party/bspatch/bspatch.gyp:bspatch',
