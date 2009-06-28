@@ -310,7 +310,6 @@
           'target_name': 'mini_installer',
           'type': 'executable',
           'msvs_guid': '24A5AC7C-280B-4899-9153-6BA570A081E7',
-          'msvs_existing_vcproj': 'mini_installer/mini_installer.vcproj',
           'dependencies': [
             '../chrome.gyp:chrome',
             '../chrome.gyp:chrome_dll',
@@ -339,6 +338,8 @@
               'BufferSecurityCheck': 'false',
             },
             'VCLinkerTool': {
+              'RandomizedBaseAddress': '1',
+              'DataExecutionPrevention': '0',
               'AdditionalDependencies': [
                 '"$(VCInstallDir)crt\\src\\intel\\mt_lib\\memset.obj"',
                 '"$(VCInstallDir)crt\\src\\intel\\mt_lib\\P4_memset.obj"',
