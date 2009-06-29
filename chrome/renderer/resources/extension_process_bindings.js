@@ -503,10 +503,11 @@ var chrome;
 
   // bookmark events
 
-  // Sends (id, {title, url, parentId, index})
+  // Sends (id, {title, url, parentId, index, dateAdded, dateGroupModified})
+  // date values are milliseconds since the UTC epoch.
   chrome.bookmarks.onAdded = new chrome.Event("bookmark-added");
 
-  // Sends ({parentId, index})
+  // Sends (id, {parentId, index})
   chrome.bookmarks.onRemoved = new chrome.Event("bookmark-removed");
 
   // Sends (id, object) where object has list of properties that have changed.

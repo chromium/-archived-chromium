@@ -31,10 +31,23 @@ class ExtensionBookmarks {
     if (parent)
       dict->SetInteger(keys::kParentIdKey, parent->id());
 
-    if (!node->is_folder())
+    if (!node->is_folder()) {
       dict->SetString(keys::kUrlKey, node->GetURL().spec());
+    } else {
+      // Javascript Date wants milliseconds since the epoch, ToDoubleT is
+      // seconds.
+      base::Time t = node->date_group_modified();
+      if (!t.is_null())
+        dict->SetReal(keys::kDateGroupModifiedKey, floor(t.ToDoubleT() * 1000));
+    }
 
     dict->SetString(keys::kTitleKey, node->GetTitle());
+    if (!node->date_added().is_null()) {
+      // Javascript Date wants milliseconds since the epoch, ToDoubleT is
+      // seconds.
+      dict->SetReal(keys::kDateAddedKey,
+                    floor(node->date_added().ToDoubleT() * 1000));
+    }
 
     int childCount = node->GetChildCount();
     ListValue* children = new ListValue();
@@ -168,12 +181,11 @@ void ExtensionBookmarkEventRouter::BookmarkNodeAdded(BookmarkModel* model,
   ListValue args;
   const BookmarkNode* node = parent->GetChild(index);
   args.Append(new FundamentalValue(node->id()));
-  DictionaryValue* object_args = new DictionaryValue();
-  object_args->SetString(keys::kTitleKey, node->GetTitle());
-  object_args->SetString(keys::kUrlKey, node->GetURL().spec());
-  object_args->SetInteger(keys::kParentIdKey, parent->id());
-  object_args->SetInteger(keys::kIndexKey, index);
-  args.Append(object_args);
+  DictionaryValue* obj = ExtensionBookmarks::GetNodeDictionary(node, false);
+
+  // Remove id since it's already being passed as the first argument.
+  obj->Remove(keys::kIdKey, NULL);
+  args.Append(obj);
 
   std::string json_args;
   JSONWriter::Write(&args, false, &json_args);
@@ -184,7 +196,17 @@ void ExtensionBookmarkEventRouter::BookmarkNodeRemoved(
     BookmarkModel* model,
     const BookmarkNode* parent,
     int index) {
+  // TODO(erikkay) can this version ever be called?
+  NOTREACHED();
+}
+
+void ExtensionBookmarkEventRouter::BookmarkNodeRemoved(
+    BookmarkModel* model,
+    const BookmarkNode* parent,
+    int index,
+    const BookmarkNode* node) {
   ListValue args;
+  args.Append(new FundamentalValue(node->id()));
   DictionaryValue* object_args = new DictionaryValue();
   object_args->SetInteger(keys::kParentIdKey, parent->id());
   object_args->SetInteger(keys::kIndexKey, index);

@@ -40,9 +40,7 @@ class ExtensionBookmarkEventRouter : public BookmarkModelObserver {
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
                                    const BookmarkNode* parent,
                                    int old_index,
-                                   const BookmarkNode* node) {
-    BookmarkNodeRemoved(model, parent, old_index);
-  }
+                                   const BookmarkNode* node);
   virtual void BookmarkNodeChanged(BookmarkModel* model,
                                    const BookmarkNode* node);
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,

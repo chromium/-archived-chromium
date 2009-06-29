@@ -13,8 +13,10 @@ const wchar_t kOldIndexKey[] = L"oldIndex";
 const wchar_t kOldParentIdKey[] = L"oldParentId";
 const wchar_t kUrlKey[] = L"url";
 const wchar_t kTitleKey[] = L"title";
-const wchar_t kChildrenKey[] = L"childrenIds";
+const wchar_t kChildrenKey[] = L"children";
 const wchar_t kRecursiveKey[] = L"recursive";
+const wchar_t kDateAddedKey[] = L"dateAdded";
+const wchar_t kDateGroupModifiedKey[] = L"dateGroupModified";
 
 const char kNoNodeError[] = "Can't find bookmark for id.";
 const char kNoParentError[] = "Can't find parent bookmark for id.";

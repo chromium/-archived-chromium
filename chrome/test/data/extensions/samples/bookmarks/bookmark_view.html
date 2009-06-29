@@ -22,6 +22,10 @@
   font-family: monospace;
 }
 
+ul {
+  padding-left: 10px;
+}
+
 </style>
 <script>
 // XXX Hack: When you call window.open('chrome-extension://...'), the window is
@@ -32,30 +36,31 @@
 if (!chrome.bookmarks)
   location.reload();
 
-var logEvent = function(name, data) {
+var logEvent = function(name, id, data) {
   var log = document.getElementById("event-log");
-  log.innerHTML = name + "<br>" + log.innerHTML;
+  log.innerHTML = name + ": " + id + ", " + JSON.stringify(data) + "<br>" +
+                  log.innerHTML;
   console.log("got event: " + name);
 }
 
-chrome.bookmarks.onAdded.addListener(function(data) {
-  logEvent("onBookmarkAdded", data);
+chrome.bookmarks.onAdded.addListener(function(id, data) {
+  logEvent("onBookmarkAdded", id, data);
 });
 
-chrome.bookmarks.onRemoved.addListener(function(data) {
-  logEvent("onBookmarkRemoved", data);
+chrome.bookmarks.onRemoved.addListener(function(id, data) {
+  logEvent("onBookmarkRemoved", id, data);
 });
 
-chrome.bookmarks.onChanged.addListener(function(data) {
-  logEvent("onBookmarkChanged", data);
+chrome.bookmarks.onChanged.addListener(function(id, data) {
+  logEvent("onBookmarkChanged", id, data);
 });
 
-chrome.bookmarks.onMoved.addListener(function(data) {
-  logEvent("onBookmarkMoved", data);
+chrome.bookmarks.onMoved.addListener(function(id, data) {
+  logEvent("onBookmarkMoved", id, data);
 });
 
-chrome.bookmarks.onChildrenReordered.addListener(function(data) {
-  logEvent("onBookmarkChildrenReordered", data);
+chrome.bookmarks.onChildrenReordered.addListener(function(id, data) {
+  logEvent("onBookmarkChildrenReordered", id, data);
 });
 
 var prefix = "bookmark_";
@@ -89,20 +94,22 @@ var toggleBookmark = function(event) {
 };
 
 var addBookmark = function(bookmark, parent) {
-  //console.log("addBookmark " + bookmark.id);
   var child = document.createElement('li');
   child.className = 'bookmark';
   child.id = prefix + bookmark.id;
   child.addEventListener('click', toggleBookmark, false);
+  var text = bookmark.title;
+  if (bookmark.dateAdded)
+    text += " (" + new Date(bookmark.dateAdded) + ")";
   if (bookmark.url && bookmark.url.length) {
     var link = document.createElement('a');
     link.href = bookmark.url;
-    link.innerHTML = bookmark.title;
+    link.innerHTML = text;
     link.className = 'bookmark_title';
     child.appendChild(link);
   } else {
     var title = document.createElement('div');
-    title.innerHTML = bookmark.title;
+    title.innerHTML = text;
     title.className = 'bookmark_title';
     child.appendChild(title);
   }
@@ -116,6 +123,16 @@ var addBookmarks = function(bookmarks, parent) {
   bookmarks.forEach(function(bookmark) { addBookmark(bookmark, list); });
 };
 
+var testGetTree = function(results) {
+  console.log("testGetTree:");
+  console.dir(results);
+  function get_children(node) {
+    console.log(node.title);
+    node.children.forEach(get_children);
+  };
+  results.forEach(get_children);
+};
+
 var loadBookmarks = function() {
   var container = document.getElementById('container');
   var rootElement = document.createElement("div");
@@ -126,6 +143,7 @@ var loadBookmarks = function() {
   chrome.bookmarks.getChildren(rootId, function(children) {
     addBookmarks(children, rootElement);
   });
+  chrome.bookmarks.getTree(testGetTree);
 };
 
 </script>

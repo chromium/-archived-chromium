@@ -19,6 +19,8 @@ extern const wchar_t kUrlKey[];
 extern const wchar_t kTitleKey[];
 extern const wchar_t kChildrenKey[];
 extern const wchar_t kRecursiveKey[];
+extern const wchar_t kDateAddedKey[];
+extern const wchar_t kDateGroupModifiedKey[];
 
 // Errors.
 extern const char kNoNodeError[];
