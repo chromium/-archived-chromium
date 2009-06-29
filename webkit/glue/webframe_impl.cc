@@ -826,7 +826,7 @@ v8::Local<v8::Context> WebFrameImpl::GetScriptContext() {
   if (!frame_)
     return v8::Local<v8::Context>();
 
-  return frame_->script()->proxy()->GetContext();
+  return frame_->script()->proxy()->context();
 }
 #endif
 
