@@ -85,21 +85,24 @@ var g_shaderSelection = 0;
 var g_rotateOn = true;
 var g_o3dWidth;  // width of our client area
 var g_o3dHeight;  // height of our client area
-var g_shaders = ['diffuse',
-                 'checker',
-                 'bump',
-                 'bump',
-                 'texture-only',
-                 'texture-colormult',
-                 'tangent',
-                 'binormal',
-                 'normal',
-                 'solid-color',
-                 'vertex-color',
-                 'phong-with-colormult'];
+var g_shaders = [
+  {file: 'diffuse',               name: 'Diffuse'},
+  {file: 'checker',               name: 'Checker'},
+  {file: 'bump',                  name: 'Bump'},
+  {file: 'bump',                  name: 'Bump With Texture'},
+  {file: 'texture-only',          name: 'Texture Only'},
+  {file: 'texture-colormult',     name: 'Texture with Color Multiplier'},
+  {file: 'tangent',               name: 'Tangent'},
+  {file: 'binormal',              name: 'Binormal'},
+  {file: 'normal',                name: 'Normal'},
+  {file: 'solid-color',           name: 'Solid Color'},
+  {file: 'vertex-color',          name: 'Vertex Color'},
+  {file: 'phong-with-colormult',  name: 'Blinn-Phong with Color Multiplier'},
+  {file: 'toon',                  name: 'Toon'}];
 var g_effects = [];
 var g_bumpTextureSampler;
 var g_bumpBumpsSampler;
+var g_colorRampSampler;
 
 // Our view and projection matrices
 // The view matrix transforms objects from world space to view space.
@@ -263,6 +266,7 @@ function applyShader(pack, shaderNumber) {
     setParam(material, 'AmbientSampler', g_bumpTextureSampler);
     setParam(material, 'DiffuseSampler', g_bumpTextureSampler);
     setParam(material, 'texSampler0', g_bumpTextureSampler);
+    setParam(material, 'colorRamp', g_colorRampSampler);
 
     var timeParam = material.getParam('inputTime');
     if (timeParam) {
@@ -312,12 +316,29 @@ function initStep2(clientElements) {
   var paramObject = g_pack.createObject('ParamObject');
   g_currentTimeParam = paramObject.createParam('timeParam','ParamFloat');
 
-  // Load effects
+  // Load effects and fill out options.
+  options = ''
   for(var s = 0; s < g_shaders.length; s++) {
     g_effects[s] = g_pack.createObject('Effect');
-    var shaderString = 'shaders/' + g_shaders[s] + '.shader';
+    var shaderString = 'shaders/' + g_shaders[s].file + '.shader';
     o3djs.effect.loadEffect(g_effects[s], shaderString);
+    options += '<option value="' + s + '"' + (s == 0 ? ' selected' : '') +
+               '>' + g_shaders[s].name + '</option>';
   }
+  document.getElementById('shaderSelect').innerHTML = options;
+
+  var rampWidth = 64;
+  var texture = g_pack.createTexture2D(
+      rampWidth, 1, g_o3d.Texture.XRGB8, 1, false);
+  var pixels = [];
+  for (var ii = 0; ii < rampWidth; ++ii) {
+    var level = ii > rampWidth * 0.5 ? 1 : 0.3;
+    pixels.push(level, level, level);
+  }
+  texture.set(0, pixels);
+  g_colorRampSampler = g_pack.createObject('Sampler');
+  g_colorRampSampler.texture = texture;
+  g_colorRampSampler.addressModeU = g_o3d.Sampler.CLAMP;
 
   var loader = o3djs.loader.createLoader(initStep3);
   loader.loadTexture(g_pack, 'assets/normalmap.dds',
@@ -386,18 +407,6 @@ This example is useful for testing a shader or checking a scene. Clicking on the
 <!-- End of O3D plugin -->
 <p>
 <select id='shaderSelect' name='shaderSelect' onChange='changeShader()'>
-<option value='0' selected>Diffuse</option>
-<option value='1'>Checker</option>
-<option value='2'>Bump</option>
-<option value='3'>Bump With Texture</option>
-<option value='4'>Texture Only</option>
-<option value='5'>Texture with Color Multiplier</option>
-<option value='6'>Tangent</option>
-<option value='7'>Binormal</option>
-<option value='8'>Normal</option>
-<option value='9'>Solid Color</option>
-<option value='10'>Vertex Color</option>
-<option value='11'>Blinn-Phong with Color Multiplier</option>
 </select>
 </body>
 </html>

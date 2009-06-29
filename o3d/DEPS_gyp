@@ -3,7 +3,7 @@ vars = {
     "http://src.chromium.org/svn/trunk",
   "nixysa_rev": "25",
   "chromium_rev": "19057",
-  "o3d_code_rev": "77",
+  "o3d_code_rev": "84",
 }
 
 deps = {
