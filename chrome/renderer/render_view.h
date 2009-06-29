@@ -214,6 +214,7 @@ class RenderView : public RenderWidget,
   virtual void DidCompleteClientRedirect(WebView* webview,
                                          WebFrame* frame,
                                          const GURL& source);
+  virtual void WillCloseFrame(WebView* webview, WebFrame* frame);
   virtual void WillSubmitForm(WebView* webview, WebFrame* frame,
                               const WebKit::WebForm& form);
   virtual void WillSendRequest(WebView* webview,

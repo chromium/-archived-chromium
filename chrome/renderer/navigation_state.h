@@ -86,12 +86,28 @@ class NavigationState : public WebKit::WebDataSource::ExtraData {
     finish_load_time_ = value;
   }
 
-  // The time that layout first ran after a new navigation.
+  // The time that painting first happened after a new navigation.
   const base::Time& first_paint_time() const {
     return first_paint_time_;
   }
   void set_first_paint_time(const base::Time& value) {
     first_paint_time_ = value;
+  }
+
+  // The time that painting first happened after the document finished loading.
+  const base::Time& first_paint_after_load_time() const {
+    return first_paint_after_load_time_;
+  }
+  void set_first_paint_after_load_time(const base::Time& value) {
+    first_paint_after_load_time_ = value;
+  }
+
+  // True iff the histograms for the associated frame have been dumped.
+  bool load_histograms_recorded() const {
+    return load_histograms_recorded_;
+  }
+  void set_load_histograms_recorded(bool value) {
+    load_histograms_recorded_ = value;
   }
 
   // True if we have already processed the "DidCommitLoad" event for this
@@ -123,6 +139,7 @@ class NavigationState : public WebKit::WebDataSource::ExtraData {
                   int32 pending_page_id)
       : transition_type_(transition_type),
         request_time_(request_time),
+        load_histograms_recorded_(false),
         request_committed_(false),
         is_content_initiated_(is_content_initiated),
         pending_page_id_(pending_page_id) {
@@ -135,6 +152,8 @@ class NavigationState : public WebKit::WebDataSource::ExtraData {
   base::Time finish_document_load_time_;
   base::Time finish_load_time_;
   base::Time first_paint_time_;
+  base::Time first_paint_after_load_time_;
+  bool load_histograms_recorded_;
   bool request_committed_;
   bool is_content_initiated_;
   int32 pending_page_id_;

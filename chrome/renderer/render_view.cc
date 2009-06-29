@@ -1086,8 +1086,15 @@ void RenderView::DidPaint() {
   // TODO(darin): It should not be possible for navigation_state to
   // be null here! But the UI test DownloadTest.IncognitoDownload
   // can cause it to happen.
-  if (navigation_state && navigation_state->first_paint_time().is_null()) {
-    navigation_state->set_first_paint_time(Time::Now());
+  if (navigation_state) {
+    Time now = Time::Now();
+    if (navigation_state->first_paint_time().is_null()) {
+      navigation_state->set_first_paint_time(now);
+    }
+    if (navigation_state->first_paint_after_load_time().is_null() &&
+        !navigation_state->finish_load_time().is_null()) {
+      navigation_state->set_first_paint_after_load_time(now);
+    }
   }
 }
 
@@ -1320,11 +1327,6 @@ void RenderView::DidFinishLoadForFrame(WebView* webview, WebFrame* frame) {
   WebDataSource* ds = frame->GetDataSource();
   NavigationState* navigation_state = NavigationState::FromDataSource(ds);
   navigation_state->set_finish_load_time(Time::Now());
-  if (webview->GetMainFrame() == frame) {
-    const GURL& url = frame->GetURL();
-    if (url.SchemeIs("http") || url.SchemeIs("https"))
-      DumpLoadHistograms();
-  }
 }
 
 void RenderView::DidFailLoadWithError(WebView* webview,
@@ -1383,6 +1385,14 @@ void RenderView::DidCompleteClientRedirect(WebView* webview,
                                            const GURL& source) {
   if (webview->GetMainFrame() == frame)
     completed_client_redirect_src_ = source;
+}
+
+void RenderView::WillCloseFrame(WebView* webview, WebFrame* frame) {
+  if (!frame->GetParent()) {
+    const GURL& url = frame->GetURL();
+    if (url.SchemeIs("http") || url.SchemeIs("https"))
+      DumpLoadHistograms();
+  }
 }
 
 void RenderView::WillSubmitForm(WebView* webview, WebFrame* frame,
@@ -2689,8 +2699,15 @@ void RenderView::OnClosePage(int new_render_process_host_id,
   // to close that can run onunload is also useful for fixing
   // http://b/issue?id=753080.
   WebFrame* main_frame = webview()->GetMainFrame();
-  if (main_frame)
+  if (main_frame) {
+    const GURL& url = main_frame->GetURL();
+    // TODO(davemoore) this code should be removed once WillCloseFrame() gets
+    // called when a page is destroyed. DumpLoadHistograms() is safe to call
+    // multiple times for the same frame, but it will simplify things.
+    if (url.SchemeIs("http") || url.SchemeIs("https"))
+      DumpLoadHistograms();
     main_frame->ClosePage();
+  }
 
   Send(new ViewHostMsg_ClosePage_ACK(routing_id_,
                                      new_render_process_host_id,
@@ -2807,73 +2824,96 @@ void RenderView::OnExtensionResponse(int request_id,
 
 // Dump all load time histograms.
 //
-// There are 8 histograms measuring various times.
+// There are 13 histograms measuring various times.
 // The time points we keep are
 //    request: time document was requested by user
 //    start: time load of document started
 //    commit: time load of document started
-//    finishDoc: main document loaded, before onload()
+//    finish_document: main document loaded, before onload()
 //    finish: after onload() and all resources are loaded
-//    firstLayout: first layout performed
+//    first_paint: first paint performed
+//    first_paint_after_load: first paint performed after load is finished
+//    begin: request if it was user requested, start otherwise
+//
 // The times that we histogram are
 //    request->start,
-//    request->commit,
-//    request->finish,
-//    request->firstPaint
-//    start->finishDoc,
-//    commit->finish,
-//    commit->firstPaint
-//    finishDoc->finish,
+//    start->commit,
+//    commit->finish_document,
+//    finish_document->finish,
+//    begin->commit,
+//    begin->finishDoc,
+//    begin->finish,
+//    begin->first_paint,
+//    begin->first_paint_after_load
+//    commit->finishDoc,
+//    commit->first_paint,
+//    commit->first_paint_after_load,
+//    finish->first_paint_after_load,
 //
 // It's possible for the request time not to be set, if a client
 // redirect had been done (the user never requested the page)
 // Also, it's possible to load a page without ever laying it out
-// so firstLayout can be 0.
+// so first_paint and first_paint_after_load can be 0.
 void RenderView::DumpLoadHistograms() const {
   WebFrame* main_frame = webview()->GetMainFrame();
   NavigationState* navigation_state =
       NavigationState::FromDataSource(main_frame->GetDataSource());
+  Time finish = navigation_state->finish_load_time();
 
-  Time request_time = navigation_state->request_time();
-  Time start_load_time = navigation_state->start_load_time();
-  Time commit_load_time = navigation_state->commit_load_time();
-  Time finish_document_load_time =
-      navigation_state->finish_document_load_time();
-  Time finish_load_time = navigation_state->finish_load_time();
-  Time first_paint_time = navigation_state->first_paint_time();
+  // If we've already dumped or we haven't finished loading, do nothing.
+  if (navigation_state->load_histograms_recorded() || finish.is_null())
+    return;
 
-  TimeDelta request_to_start = start_load_time - request_time;
-  TimeDelta request_to_commit = commit_load_time - request_time;
-  TimeDelta commit_to_finish_doc = finish_document_load_time - commit_load_time;
-  TimeDelta finish_doc_to_finish =
-      finish_load_time - finish_document_load_time;
-  TimeDelta commit_to_finish = finish_load_time - commit_load_time;
-  TimeDelta request_to_finish = finish_load_time - request_time;
-  TimeDelta request_to_first_paint = first_paint_time - request_time;
-  TimeDelta commit_to_first_paint = first_paint_time - commit_load_time;
+  Time request = navigation_state->request_time();
+  Time start = navigation_state->start_load_time();
+  Time commit = navigation_state->commit_load_time();
+  Time finish_doc = navigation_state->finish_document_load_time();
+  Time first_paint = navigation_state->first_paint_time();
+  Time first_paint_after_load =
+      navigation_state->first_paint_after_load_time();
 
-  // Client side redirects will have no request time
-  if (request_time.ToInternalValue() != 0) {
-    UMA_HISTOGRAM_MEDIUM_TIMES("Renderer3.RequestToStart", request_to_start);
-    UMA_HISTOGRAM_MEDIUM_TIMES("Renderer3.RequestToCommit", request_to_commit);
-    UMA_HISTOGRAM_CUSTOM_TIMES(
-        FieldTrial::MakeName("Renderer3.RequestToFinish_2", "DnsImpact").data(),
-        request_to_finish, TimeDelta::FromMilliseconds(10),
-        TimeDelta::FromMinutes(10), 100);
-    if (request_to_first_paint.ToInternalValue() >= 0) {
-      UMA_HISTOGRAM_MEDIUM_TIMES("Renderer3.RequestToFirstPaint",
-          request_to_first_paint);
-    }
+  Time begin;
+  // Client side redirects will have no request time.
+  if (request.is_null()) {
+    begin = start;
+  } else {
+    begin = request;
+    UMA_HISTOGRAM_MEDIUM_TIMES("Renderer4.RequestToStart", start - request);
   }
-  UMA_HISTOGRAM_MEDIUM_TIMES("Renderer3.CommitToFinishDoc",
-                             commit_to_finish_doc);
-  UMA_HISTOGRAM_MEDIUM_TIMES("Renderer3.FinishDocToFinish",
-                             finish_doc_to_finish);
-  UMA_HISTOGRAM_MEDIUM_TIMES("Renderer3.CommitToFinish", commit_to_finish);
-  if (commit_to_first_paint.ToInternalValue() >= 0) {
-    UMA_HISTOGRAM_MEDIUM_TIMES("Renderer3.CommitToFirstPaint",
-                               commit_to_first_paint);
+  UMA_HISTOGRAM_MEDIUM_TIMES("Renderer4.StartToCommit", commit - start);
+  UMA_HISTOGRAM_MEDIUM_TIMES(
+      "Renderer4.CommitToFinishDoc", finish_doc - commit);
+  UMA_HISTOGRAM_MEDIUM_TIMES(
+      "Renderer4.FinishDocToFinish", finish - finish_doc);
+
+  UMA_HISTOGRAM_MEDIUM_TIMES("Renderer4.BeginToCommit", commit - begin);
+  UMA_HISTOGRAM_MEDIUM_TIMES("Renderer4.BeginToFinishDoc", finish_doc - begin);
+  UMA_HISTOGRAM_CUSTOM_TIMES(
+      FieldTrial::MakeName("Renderer4.BeginToFinish", "DnsImpact").data(),
+      finish - begin, TimeDelta::FromMilliseconds(10),
+      TimeDelta::FromMinutes(10), 100);
+
+  UMA_HISTOGRAM_MEDIUM_TIMES("Renderer4.CommitToFinish", finish - commit);
+
+  if (!first_paint.is_null()) {
+    UMA_HISTOGRAM_MEDIUM_TIMES(
+        "Renderer4.BeginToFirstPaint", first_paint - begin);
+    UMA_HISTOGRAM_MEDIUM_TIMES(
+        "Renderer4.CommitToFirstPaint", first_paint - commit);
   }
+
+  if (!first_paint_after_load.is_null()) {
+    UMA_HISTOGRAM_MEDIUM_TIMES(
+        "Renderer4.BeginToFirstPaintAfterLoad", first_paint_after_load - begin);
+    UMA_HISTOGRAM_MEDIUM_TIMES(
+        "Renderer4.CommitToFirstPaintAfterLoad",
+        first_paint_after_load - commit);
+    UMA_HISTOGRAM_MEDIUM_TIMES(
+        "Renderer4.FinishToFirstPaintAfterLoad",
+        first_paint_after_load - finish);
+  }
+
+  navigation_state->set_load_histograms_recorded(true);
 }
 
 void RenderView::FocusAccessibilityObject(
