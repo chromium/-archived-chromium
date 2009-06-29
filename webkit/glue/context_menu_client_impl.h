@@ -34,6 +34,7 @@ public:
   virtual void searchWithGoogle(const WebCore::Frame*);
   virtual void lookUpInDictionary(WebCore::Frame*);
   virtual void speak(const WebCore::String&);
+  virtual bool isSpeaking();
   virtual void stopSpeaking();
   virtual bool shouldIncludeInspectElementItem();
 

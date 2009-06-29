@@ -277,6 +277,10 @@ void ContextMenuClientImpl::lookUpInDictionary(WebCore::Frame*) {
 void ContextMenuClientImpl::speak(const WebCore::String&) {
 }
 
+bool ContextMenuClientImpl::isSpeaking() {
+  return false;
+}
+
 void ContextMenuClientImpl::stopSpeaking() {
 }
 
