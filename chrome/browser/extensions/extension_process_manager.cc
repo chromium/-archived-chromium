@@ -8,7 +8,7 @@
 #include "chrome/browser/extensions/extension_host.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/tab_contents/site_instance.h"
+#include "chrome/browser/renderer_host/site_instance.h"
 #include "chrome/common/extensions/extension.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"

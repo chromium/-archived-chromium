@@ -22,7 +22,7 @@
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
-#include "chrome/browser/tab_contents/site_instance.h"
+#include "chrome/browser/renderer_host/site_instance.h"
 #include "chrome/common/bindings_policy.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"

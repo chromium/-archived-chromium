@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/tab_contents/site_instance.h"
+#include "chrome/browser/renderer_host/site_instance.h"
 
 #include "chrome/browser/dom_ui/dom_ui_factory.h"
 #include "chrome/browser/renderer_host/browser_render_process_host.h"

@@ -1,9 +1,9 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_HOST_MANAGER_H_
-#define CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_HOST_MANAGER_H_
+#ifndef CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_MANAGER_H_
+#define CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_MANAGER_H_
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
@@ -260,4 +260,4 @@ struct RenderViewHostSwitchedDetails {
   RenderViewHost* new_host;
 };
 
-#endif  // CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_HOST_MANAGER_H_
+#endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_MANAGER_H_

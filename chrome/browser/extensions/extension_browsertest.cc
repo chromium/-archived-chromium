@@ -11,7 +11,7 @@
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/extensions/test_extension_loader.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/tab_contents/site_instance.h"
+#include "chrome/browser/renderer_host/site_instance.h"
 #include "chrome/browser/views/extensions/extension_shelf.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"

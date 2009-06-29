@@ -28,9 +28,9 @@
 #include "chrome/browser/importer/ie_importer.h"
 #endif
 #include "chrome/browser/importer/toolbar_importer.h"
+#include "chrome/browser/renderer_host/site_instance.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/shell_integration.h"
-#include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/browser/webdata/web_data_service.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
