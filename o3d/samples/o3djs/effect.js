@@ -737,3 +737,36 @@ o3djs.effect.attachStandardShader = function(pack,
   }
 };
 
+/**
+ * Creates the uniform parameters needed for an Effect on the given ParamObject.
+ * @param {!o3d.Pack} pack Pack to create extra objects in like Samplers and
+ *     ParamArrays.
+ * @param {!o3d.Effect} effect Effect.
+ * @param {!o3d.ParamObject} paramObject ParamObject on which to create Params.
+ */
+o3djs.effect.createUniformParameters = function(pack, effect, paramObject) {
+  effect.createUniformParameters(paramObject);
+  var infos = effect.getParameterInfo();
+  for (var ii = 0; ii < infos.length; ++ii) {
+    var info = infos[ii];
+    if (info.sasClassName.length == 0) {
+      if (info.numElements > 0) {
+        var paramArray = pack.createObject('ParamArray');
+        var param = paramObject.getParam(info.name);
+        param.value = paramArray;
+        paramArray.resize(info.numElements, info.className);
+        if (info.className == 'o3d.ParamSampler') {
+          for (var jj = 0; jj < info.numElements; ++jj) {
+            var sampler = pack.createObject('Sampler');
+            paramArray.getParam(jj).value = sampler;
+          }
+        }
+      } else if (info.className == 'o3d.ParamSampler') {
+        var sampler = pack.createObject('Sampler');
+        var param = paramObject.getParam(info.name);
+        param.value = sampler;
+      }
+    }
+  }
+};
+

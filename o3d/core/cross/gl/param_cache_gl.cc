@@ -179,8 +179,7 @@ class EffectParamHandlerForSamplersGL : public EffectParamHandlerGL {
     SamplerGL* sampler_gl = down_cast<SamplerGL*>(param_->value());
     if (!sampler_gl) {
       // Use the error sampler.
-      sampler_gl = down_cast<SamplerGL*>(
-          renderer->error_sampler());
+      sampler_gl = down_cast<SamplerGL*>(renderer->error_sampler());
       // If no error texture is set then generate an error.
       if (!renderer->error_texture()) {
         O3D_ERROR(param_->service_locator())
@@ -191,41 +190,220 @@ class EffectParamHandlerForSamplersGL : public EffectParamHandlerGL {
   }
   virtual void ResetEffectParam(RendererGL* renderer, CGparameter cg_param) {
     SamplerGL* sampler_gl = down_cast<SamplerGL*>(param_->value());
-    if (sampler_gl) {
-      sampler_gl->ResetTexture(cg_param);
+    if (!sampler_gl) {
+      sampler_gl = down_cast<SamplerGL*>(renderer->error_sampler());
     }
+    sampler_gl->ResetTexture(cg_param);
   }
  private:
   ParamSampler* param_;
 };
 
-class EffectParamFloatArrayHandlerGL : public EffectParamHandlerGL {
+template <typename T>
+class EffectParamArrayHandlerGL : public EffectParamHandlerGL {
  public:
-  explicit EffectParamFloatArrayHandlerGL(ParamParamArray* param)
+  explicit EffectParamArrayHandlerGL(ParamParamArray* param)
       : param_(param) {
   }
-  virtual void SetEffectParam(RendererGL* renderer, CGparameter cg_param);
+  virtual void SetEffectParam(RendererGL* renderer, CGparameter cg_param) {
+    ParamArray* param = param_->value();
+    if (param) {
+      int size = cgGetArraySize(cg_param, 0);
+      if (size != static_cast<int>(param->size())) {
+        O3D_ERROR(param->service_locator())
+            << "number of params in ParamArray does not match number of params "
+            << "needed by shader array";
+      } else {
+        for (int i = 0; i < size; ++i) {
+          Param* untyped_element = param->GetUntypedParam(i);
+          // TODO(gman): Make this check happen when building the param cache.
+          //    To do that would require that ParamParamArray mark it's owner
+          //    as changed if a Param in it's ParamArray changes.
+          if (untyped_element->IsA(T::GetApparentClass())) {
+            CGparameter cg_element = cgGetArrayParameter(cg_param, i);
+            SetElement(cg_element, down_cast<T*>(untyped_element));
+          } else {
+            O3D_ERROR(param->service_locator())
+                << "Param in ParamArray at index " << i << " is not a "
+                << T::GetApparentClassName();
+          }
+        }
+      }
+    }
+  }
+  void SetElement(CGparameter cg_element, T* param);
+
  private:
   ParamParamArray* param_;
 };
 
-void EffectParamFloatArrayHandlerGL::SetEffectParam(
-    RendererGL* renderer,
-    CGparameter cg_param) {
-  ParamArray* param = param_->value();
-  if (param) {
-    int cg_size = cgGetArraySize(cg_param, 0);
-    int size = std::min(static_cast<int>(param->size()), cg_size);
-    for (int i = 0; i < size; ++i) {
-      ParamFloat* element = param->GetParam<ParamFloat>(i);
-      CGparameter cg_element = cgGetArrayParameter(cg_param, i);
-      if (element) {
-        cgSetParameter1f(cg_element, element->value());
+template <bool column_major>
+class EffectParamArrayMatrix4HandlerGL : public EffectParamHandlerGL {
+ public:
+  explicit EffectParamArrayMatrix4HandlerGL(ParamParamArray* param)
+      : param_(param) {
+  }
+  virtual void SetEffectParam(RendererGL* renderer, CGparameter cg_param) {
+    ParamArray* param = param_->value();
+    if (param) {
+      int size = cgGetArraySize(cg_param, 0);
+      if (size != static_cast<int>(param->size())) {
+        O3D_ERROR(param->service_locator())
+            << "number of params in ParamArray does not match number of params "
+            << "needed by shader array";
       } else {
-        cgSetParameter1f(cg_element, 0.0f);
+        for (int i = 0; i < size; ++i) {
+          Param* untyped_element = param->GetUntypedParam(i);
+          // TODO(gman): Make this check happen when building the param cache.
+          //    To do that would require that ParamParamArray mark it's owner
+          //    as changed if a Param in it's ParamArray changes.
+          if (untyped_element->IsA(ParamMatrix4::GetApparentClass())) {
+            CGparameter cg_element = cgGetArrayParameter(cg_param, i);
+            SetElement(cg_element, down_cast<ParamMatrix4*>(untyped_element));
+          } else {
+            O3D_ERROR(param->service_locator())
+                << "Param in ParamArray at index " << i
+                << " is not a ParamMatrix4";
+          }
+        }
       }
     }
   }
+  void SetElement(CGparameter cg_element, ParamMatrix4* param);
+
+ private:
+  ParamParamArray* param_;
+};
+
+class EffectParamArraySamplerHandlerGL : public EffectParamHandlerGL {
+ public:
+  explicit EffectParamArraySamplerHandlerGL(ParamParamArray* param)
+      : param_(param) {
+  }
+  virtual void SetEffectParam(RendererGL* renderer, CGparameter cg_param) {
+    ParamArray* param = param_->value();
+    if (param) {
+      int size = cgGetArraySize(cg_param, 0);
+      if (size != static_cast<int>(param->size())) {
+        O3D_ERROR(param->service_locator())
+            << "number of params in ParamArray does not match number of params "
+            << "needed by shader array";
+      } else {
+        for (int i = 0; i < size; ++i) {
+          Param* untyped_element = param->GetUntypedParam(i);
+          // TODO(gman): Make this check happen when building the param cache.
+          //    To do that would require that ParamParamArray mark it's owner
+          //    as changed if a Param in it's ParamArray changes.
+          if (untyped_element->IsA(ParamSampler::GetApparentClass())) {
+            CGparameter cg_element = cgGetArrayParameter(cg_param, i);
+            ParamSampler* element = down_cast<ParamSampler*>(untyped_element);
+            SamplerGL* sampler_gl = down_cast<SamplerGL*>(element->value());
+            if (!sampler_gl) {
+              // Use the error sampler.
+              sampler_gl = down_cast<SamplerGL*>(renderer->error_sampler());
+              // If no error texture is set then generate an error.
+              if (!renderer->error_texture()) {
+                O3D_ERROR(param_->service_locator())
+                    << "Missing Sampler for ParamSampler '" << param_->name()
+                    << "' index " << i;
+              }
+            }
+            sampler_gl->SetTextureAndStates(cg_element);
+          } else {
+            O3D_ERROR(param->service_locator())
+                << "Param in ParamArray at index " << i
+                << " is not a ParamSampler";
+          }
+        }
+      }
+    }
+  }
+  virtual void ResetEffectParam(RendererGL* renderer, CGparameter cg_param) {
+    ParamArray* param = param_->value();
+    if (param) {
+      int size = cgGetArraySize(cg_param, 0);
+      if (size == static_cast<int>(param->size())) {
+        for (int i = 0; i < size; ++i) {
+          Param* untyped_element = param->GetUntypedParam(i);
+          if (untyped_element->IsA(ParamSampler::GetApparentClass())) {
+            CGparameter cg_element = cgGetArrayParameter(cg_param, i);
+            ParamSampler* element = down_cast<ParamSampler*>(untyped_element);
+            SamplerGL* sampler_gl = down_cast<SamplerGL*>(element->value());
+            if (!sampler_gl) {
+              sampler_gl = down_cast<SamplerGL*>(renderer->error_sampler());
+            }
+            sampler_gl->ResetTexture(cg_param);
+          }
+        }
+      }
+    }
+  }
+
+ private:
+  ParamParamArray* param_;
+};
+
+template<>
+void EffectParamArrayHandlerGL<ParamFloat>::SetElement(
+    CGparameter cg_element,
+    ParamFloat* param) {
+  cgSetParameter1f(cg_element, param->value());
+}
+
+template<>
+void EffectParamArrayHandlerGL<ParamFloat2>::SetElement(
+    CGparameter cg_element,
+    ParamFloat2* param) {
+  Float2 f = param->value();
+  cgSetParameter2fv(cg_element, f.GetFloatArray());
+}
+
+template<>
+void EffectParamArrayHandlerGL<ParamFloat3>::SetElement(
+    CGparameter cg_element,
+    ParamFloat3* param) {
+  Float3 f = param->value();
+  cgSetParameter3fv(cg_element, f.GetFloatArray());
+}
+
+template<>
+void EffectParamArrayHandlerGL<ParamFloat4>::SetElement(
+    CGparameter cg_element,
+    ParamFloat4* param) {
+  Float4 f = param->value();
+  cgSetParameter4fv(cg_element, f.GetFloatArray());
+}
+
+template<>
+void EffectParamArrayMatrix4HandlerGL<false>::SetElement(
+    CGparameter cg_element,
+    ParamMatrix4* param) {
+  // set the data as floats in row major order.
+  Matrix4 mat = param->value();
+  cgSetMatrixParameterfr(cg_element, &mat[0][0]);
+}
+
+template<>
+void EffectParamArrayMatrix4HandlerGL<true>::SetElement(
+    CGparameter cg_element,
+    ParamMatrix4* param) {
+  // set the data as floats in column major order.
+  Matrix4 mat = param->value();
+  cgSetMatrixParameterfc(cg_element, &mat[0][0]);
+}
+
+template<>
+void EffectParamArrayHandlerGL<ParamInteger>::SetElement(
+    CGparameter cg_element,
+    ParamInteger* param) {
+  cgSetParameter1i(cg_element, param->value());
+}
+
+template<>
+void EffectParamArrayHandlerGL<ParamBoolean>::SetElement(
+    CGparameter cg_element,
+    ParamBoolean* param) {
+  cgSetParameter1i(cg_element, param->value());
 }
 
 static EffectParamHandlerGL::Ref GetHandlerFromParamAndCgType(
@@ -234,10 +412,52 @@ static EffectParamHandlerGL::Ref GetHandlerFromParamAndCgType(
     CGtype cg_type) {
   EffectParamHandlerGL::Ref handler;
   if (param->IsA(ParamParamArray::GetApparentClass())) {
-    if (cg_type == CG_FLOAT) {
-      handler = EffectParamHandlerGL::Ref(
-          new EffectParamFloatArrayHandlerGL(
-              down_cast<ParamParamArray*>(param)));
+    ParamParamArray* param_param_array = down_cast<ParamParamArray*>(param);
+    switch (cg_type) {
+      case CG_FLOAT:
+      case CG_FLOAT1:
+        handler = EffectParamHandlerGL::Ref(
+            new EffectParamArrayHandlerGL<ParamFloat>(param_param_array));
+        break;
+      case CG_FLOAT2:
+        handler = EffectParamHandlerGL::Ref(
+            new EffectParamArrayHandlerGL<ParamFloat2>(param_param_array));
+        break;
+      case CG_FLOAT3:
+        handler = EffectParamHandlerGL::Ref(
+            new EffectParamArrayHandlerGL<ParamFloat3>(param_param_array));
+        break;
+      case CG_FLOAT4:
+        handler = EffectParamHandlerGL::Ref(
+            new EffectParamArrayHandlerGL<ParamFloat4>(param_param_array));
+        break;
+      case CG_FLOAT4x4:
+        if (effect_gl->matrix_load_order() == Effect::COLUMN_MAJOR) {
+          handler = EffectParamHandlerGL::Ref(
+              new EffectParamArrayMatrix4HandlerGL<true>(param_param_array));
+        } else {
+          handler = EffectParamHandlerGL::Ref(
+              new EffectParamArrayMatrix4HandlerGL<false>(param_param_array));
+        }
+        break;
+      case CG_INT:
+      case CG_INT1:
+        handler = EffectParamHandlerGL::Ref(
+            new EffectParamArrayHandlerGL<ParamInteger>(param_param_array));
+        break;
+      case CG_BOOL:
+      case CG_BOOL1:
+        handler = EffectParamHandlerGL::Ref(
+            new EffectParamArrayHandlerGL<ParamBoolean>(param_param_array));
+        break;
+      case CG_SAMPLER:
+      case CG_SAMPLER1D:
+      case CG_SAMPLER2D:
+      case CG_SAMPLER3D:
+      case CG_SAMPLERCUBE:
+        handler = EffectParamHandlerGL::Ref(
+            new EffectParamArraySamplerHandlerGL(param_param_array));
+        break;
     }
   } else if (param->IsA(ParamMatrix4::GetApparentClass())) {
     if (cg_type == CG_FLOAT4x4) {
@@ -279,13 +499,13 @@ static EffectParamHandlerGL::Ref GetHandlerFromParamAndCgType(
               down_cast<ParamFloat4*>(param)));
     }
   }  else if (param->IsA(ParamInteger::GetApparentClass())) {
-    if (cg_type == CG_INT) {
+    if (cg_type == CG_INT || cg_type == CG_INT1) {
       handler = EffectParamHandlerGL::Ref(
           new TypedEffectParamHandlerGL<ParamInteger>(
               down_cast<ParamInteger*>(param)));
     }
   } else if (param->IsA(ParamBoolean::GetApparentClass())) {
-    if (cg_type == CG_BOOL) {
+    if (cg_type == CG_BOOL || cg_type == CG_BOOL1) {
       handler = EffectParamHandlerGL::Ref(
           new TypedEffectParamHandlerGL<ParamBoolean>(
               down_cast<ParamBoolean*>(param)));
@@ -358,12 +578,12 @@ static void ScanUniformParameters(SemanticManager* semantic_manager,
         continue;
       }
 
-      // TODO: The following code block should be removed once we
-      // start creating sampler params for all effects coming in via the
-      // importer.  For the time being, we keep an extra ParamTexture
-      // that does the job it used to do.  If we are using a ParamSampler
-      // on the object then the ParamTexture will have no value and
-      // therefore its handler will have no side-effects.
+      // TODO(o3d): The following code block should be removed once we start
+      // creating sampler params for all effects coming in via the importer. For
+      // the time being, we keep an extra ParamTexture that does the job it used
+      // to do.  If we are using a ParamSampler on the object then the
+      // ParamTexture will have no value and therefore its handler will have no
+      // side-effects.
       if (cg_type == CG_SAMPLER ||
           cg_type == CG_SAMPLER1D ||
           cg_type == CG_SAMPLER2D ||

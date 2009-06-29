@@ -34,6 +34,7 @@
 #include "core/cross/effect.h"
 #include "core/cross/primitive.h"
 #include "core/cross/standard_param.h"
+#include "core/cross/param_array.h"
 #include "core/cross/stream.h"
 #include "tests/common/win/testing_common.h"
 
@@ -161,7 +162,7 @@ uint32 kIndexBlock[4] = {
   0, 1, 2, 3
 };
 
-bool IsExpectedParam(const EffectParameterInfo& info) {
+bool IsExpectedParamInfo(const EffectParameterInfo& info) {
   for (unsigned ii = 0; ii < arraysize(expected_params); ++ii) {
     const ParamInfo& expected_info = expected_params[ii];
     if (info.name().compare(expected_info.name) == 0) {
@@ -187,7 +188,7 @@ bool IsExpectedStream(const EffectStreamInfo& info) {
 }  // anonymous namespace.
 
 TEST_F(EffectTest, LogOpenGLCalls) {
-  // TODO: Find a way to implement a Mocklog object under
+  // TODO(o3d): Find a way to implement a Mocklog object under
   // Googleclient. The code would be of the usual form:
   //
   //    ScopedMockLog log;
@@ -215,7 +216,7 @@ TEST_F(EffectTest, LogOpenGLCalls) {
   material->set_effect(fx);
   primitive->set_material(material);
 
-  // TODO: Test the log file.
+  // TODO(o3d): Test the log file.
 
   // Clean up.
   object_manager()->DestroyPack(pack);
@@ -333,7 +334,75 @@ TEST_F(EffectTest, GetEffectParameters) {
   EXPECT_EQ(arraysize(expected_params), info.size());
 
   for (EffectParameterInfoArray::size_type ii = 0; ii < info.size(); ++ii) {
-    EXPECT_TRUE(IsExpectedParam(info[ii]));
+    EXPECT_TRUE(IsExpectedParamInfo(info[ii]));
+  }
+
+  // Clean up.
+  object_manager()->DestroyPack(pack);
+}
+
+TEST_F(EffectTest, CreateUniformParameters) {
+  Pack* pack = object_manager()->CreatePack();
+  ASSERT_TRUE(pack != NULL);
+
+  // load an effect
+  Effect *fx = pack->Create<Effect>();
+  ASSERT_TRUE(fx != NULL);
+  EXPECT_TRUE(fx->LoadFromFXString(String(kLambertEffect)));
+
+  ParamObject* param_object = pack->Create<ParamObject>();
+  ASSERT_TRUE(param_object != NULL);
+
+  // Check that we get the correct params
+  fx->CreateUniformParameters(param_object);
+
+  for (unsigned ii = 0; ii < arraysize(expected_params); ++ii) {
+    const ParamInfo& expected_info = expected_params[ii];
+    Param* param = param_object->GetUntypedParam(expected_info.name);
+    if (expected_info.sas_type) {
+      ASSERT_TRUE(param == NULL);
+    } else {
+      ASSERT_TRUE(param != NULL);
+      if (expected_info.num_elements > 0) {
+        ASSERT_TRUE(param->IsA(ParamParamArray::GetApparentClass()));
+      } else {
+        EXPECT_TRUE(param->IsA(expected_info.type));
+      }
+    }
+  }
+
+  // Clean up.
+  object_manager()->DestroyPack(pack);
+}
+
+TEST_F(EffectTest, CreateSASParameters) {
+  Pack* pack = object_manager()->CreatePack();
+  ASSERT_TRUE(pack != NULL);
+
+  // load an effect
+  Effect *fx = pack->Create<Effect>();
+  ASSERT_TRUE(fx != NULL);
+  EXPECT_TRUE(fx->LoadFromFXString(String(kLambertEffect)));
+
+  ParamObject* param_object = pack->Create<ParamObject>();
+  ASSERT_TRUE(param_object != NULL);
+
+  // Check that we get the correct params
+  fx->CreateSASParameters(param_object);
+
+  for (unsigned ii = 0; ii < arraysize(expected_params); ++ii) {
+    const ParamInfo& expected_info = expected_params[ii];
+    Param* param = param_object->GetUntypedParam(expected_info.name);
+    if (expected_info.sas_type) {
+      ASSERT_TRUE(param != NULL);
+      if (expected_info.num_elements > 0) {
+        ASSERT_TRUE(param->IsA(ParamParamArray::GetApparentClass()));
+      } else {
+        EXPECT_TRUE(param->IsA(expected_info.sas_type));
+      }
+    } else {
+      ASSERT_TRUE(param == NULL);
+    }
   }
 
   // Clean up.

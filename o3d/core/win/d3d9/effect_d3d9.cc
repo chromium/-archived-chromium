@@ -32,6 +32,8 @@
 
 // This file contains the definition of EffectD3D9.
 
+// TODO(gman): Most of the D3DXHANDLE lookup could be cached.
+
 #include "core/cross/precompile.h"
 
 #include "core/win/d3d9/effect_d3d9.h"
@@ -53,6 +55,18 @@
 
 namespace o3d {
 
+namespace {
+
+inline bool IsSamplerType(D3DXPARAMETER_TYPE type) {
+  return type == D3DXPT_SAMPLER ||
+         type == D3DXPT_SAMPLER1D ||
+         type == D3DXPT_SAMPLER2D ||
+         type == D3DXPT_SAMPLER3D ||
+         type == D3DXPT_SAMPLERCUBE;
+}
+
+}  // anonymous namespace
+
 // A 'mostly' typesafe class to set an effect parameter from an O3D
 // Param. The phandle must match the type of Param to be typesafe. That is
 // handled when these are created.
@@ -69,21 +83,328 @@ class TypedEffectParamHandlerD3D9 : public EffectParamHandlerD3D9 {
   D3DXHANDLE phandle_;
 };
 
-class EffectParamFloatArrayHandlerD3D9 : public EffectParamHandlerD3D9 {
+template <typename T>
+class EffectParamArrayHandlerD3D9 : public EffectParamHandlerD3D9 {
  public:
-  EffectParamFloatArrayHandlerD3D9(ParamParamArray* param, D3DXHANDLE phandle)
+  EffectParamArrayHandlerD3D9(ParamParamArray* param,
+                              D3DXHANDLE phandle,
+                              unsigned num_elements)
       : param_(param),
-        phandle_(phandle) {
+        phandle_(phandle),
+        num_elements_(num_elements) {
   }
-  virtual void SetEffectParam(RendererD3D9* renderer, ID3DXEffect* d3d_effect);
+  virtual void SetEffectParam(RendererD3D9* renderer, ID3DXEffect* d3d_effect) {
+    ParamArray* param = param_->value();
+    if (param) {
+      int size = param->size();
+      if (size != num_elements_) {
+        O3D_ERROR(param->service_locator())
+            << "number of params in ParamArray does not match number of params "
+            << "needed by shader array";
+      } else {
+        for (int i = 0; i < size; ++i) {
+          Param* untyped_element = param->GetUntypedParam(i);
+          // TODO(gman): Make this check happen when building the param cache.
+          //    To do that would require that ParamParamArray mark it's owner
+          //    as changed if a Param in it's ParamArray changes.
+          if (untyped_element->IsA(T::GetApparentClass())) {
+            D3DXHANDLE dx_element =
+                d3d_effect->GetParameterElement(phandle_, i);
+            SetElement(d3d_effect, dx_element, down_cast<T*>(untyped_element));
+          } else {
+            O3D_ERROR(param->service_locator())
+                << "Param in ParamArray at index " << i << " is not a "
+                << T::GetApparentClassName();
+          }
+        }
+      }
+    }
+  }
+  void SetElement(ID3DXEffect* d3dx_effect,
+                  D3DXHANDLE dx_element,
+                  T* element);
+
  private:
   ParamParamArray* param_;
   D3DXHANDLE phandle_;
+  unsigned num_elements_;
 };
 
 // Number of h/w sampler units in the same shader using a single sampler.
 // Eight should be enough!
 static const int kMaxUnitsPerSampler = 8;
+
+template <bool column_major>
+class EffectParamMatrix4ArrayHandlerD3D9 : public EffectParamHandlerD3D9 {
+ public:
+  EffectParamMatrix4ArrayHandlerD3D9(ParamParamArray* param,
+                                     D3DXHANDLE phandle,
+                                     unsigned num_elements)
+      : param_(param),
+        phandle_(phandle),
+        num_elements_(num_elements) {
+  }
+  virtual void SetEffectParam(RendererD3D9* renderer, ID3DXEffect* d3d_effect) {
+    ParamArray* param = param_->value();
+    if (param) {
+      int size = param->size();
+      if (size != num_elements_) {
+        O3D_ERROR(param->service_locator())
+            << "number of params in ParamArray does not match number of params "
+            << "needed by shader array";
+      } else {
+        for (int i = 0; i < size; ++i) {
+          Param* untyped_element = param->GetUntypedParam(i);
+          // TODO(gman): Make this check happen when building the param cache.
+          //    To do that would require that ParamParamArray mark it's owner
+          //    as changed if a Param in it's ParamArray changes.
+          if (untyped_element->IsA(ParamMatrix4::GetApparentClass())) {
+            D3DXHANDLE dx_element =
+                d3d_effect->GetParameterElement(phandle_, i);
+            SetElement(d3d_effect,
+                       dx_element,
+                       down_cast<ParamMatrix4*>(untyped_element));
+          } else {
+            O3D_ERROR(param->service_locator())
+                << "Param in ParamArray at index " << i << " is not a "
+                << ParamMatrix4::GetApparentClassName();
+          }
+        }
+      }
+    }
+  }
+  void SetElement(ID3DXEffect* d3dx_effect,
+                  D3DXHANDLE dx_element,
+                  ParamMatrix4* element);
+
+ private:
+  ParamParamArray* param_;
+  D3DXHANDLE phandle_;
+  unsigned num_elements_;
+};
+
+// A class for setting the the appropriate d3d sampler states from an array of
+// o3d Sampler object.
+class EffectParamSamplerArrayHandlerD3D9 : public EffectParamHandlerD3D9 {
+ public:
+  EffectParamSamplerArrayHandlerD3D9(ParamParamArray* param,
+                                     D3DXHANDLE phandle,
+                                     const D3DXPARAMETER_DESC& pdesc,
+                                     LPD3DXCONSTANTTABLE fs_constant_table,
+                                     LPDIRECT3DDEVICE9 d3d_device)
+      : param_(param),
+        phandle_(phandle),
+        sampler_unit_index_arrays_(pdesc.Elements) {
+    if (!fs_constant_table) {
+      DLOG(ERROR) << "Fragment shader constant table is NULL";
+      return;
+    }
+    D3DXHANDLE sampler_array_handle = fs_constant_table->GetConstantByName(
+        NULL,
+        pdesc.Name);
+    if (!sampler_array_handle) {
+      DLOG(ERROR) << "Sampler " << pdesc.Name <<
+          " not found in fragment shader";
+      return;
+    }
+    for (unsigned ii = 0; ii < pdesc.Elements; ++ii) {
+      D3DXHANDLE sampler_handle = fs_constant_table->GetConstantElement(
+          sampler_array_handle,
+          ii);
+      if (!sampler_handle) {
+        DLOG(ERROR) << "Sampler " << pdesc.Name << " index " << ii
+                    << " not found in fragment shader";
+      } else {
+        D3DXCONSTANT_DESC desc_array[kMaxUnitsPerSampler];
+        UINT num_desc = kMaxUnitsPerSampler;
+        fs_constant_table->GetConstantDesc(
+            sampler_handle, desc_array, &num_desc);
+        // We have no good way of querying how many descriptions would really be
+        // returned as we're capping the number to kMaxUnitsPerSampler (which
+        // should be more than sufficient).  If however we do end up with the
+        // max number there's a chance that there were actually more so let's
+        // log it.
+        if (num_desc == kMaxUnitsPerSampler) {
+          DLOG(WARNING) << "Number of constant descriptions might have "
+                        << "exceeded the maximum of " << kMaxUnitsPerSampler;
+        }
+        SamplerUnitIndexArray& index_array = sampler_unit_index_arrays_[ii];
+
+        for (UINT desc_index = 0; desc_index < num_desc; desc_index++) {
+          D3DXCONSTANT_DESC constant_desc = desc_array[desc_index];
+          if (constant_desc.Class == D3DXPC_OBJECT &&
+              IsSamplerType(constant_desc.Type)) {
+            index_array.push_back(constant_desc.RegisterIndex);
+          }
+        }
+        if (index_array.empty()) {
+          DLOG(ERROR) << "No matching sampler units found for " <<
+              pdesc.Name;
+        }
+      }
+    }
+  }
+
+  virtual void SetEffectParam(RendererD3D9* renderer, ID3DXEffect* d3d_effect) {
+    ParamArray* param = param_->value();
+    if (param) {
+      unsigned size = param->size();
+      if (size != sampler_unit_index_arrays_.size()) {
+        O3D_ERROR(param->service_locator())
+            << "number of params in ParamArray does not match number of params "
+            << "needed by shader array";
+      } else {
+        for (int i = 0; i < size; ++i) {
+          SamplerUnitIndexArray& index_array = sampler_unit_index_arrays_[i];
+          Param* untyped_element = param->GetUntypedParam(i);
+          // TODO(gman): Make this check happen when building the param cache.
+          //    To do that would require that ParamParamArray mark it's owner
+          //    as changed if a Param in it's ParamArray changes.
+          if (untyped_element->IsA(ParamSampler::GetApparentClass())) {
+            D3DXHANDLE dx_element =
+                d3d_effect->GetParameterElement(phandle_,  i);
+            // Find the texture associated with the sampler first.
+            Sampler* sampler =
+                down_cast<ParamSampler*>(untyped_element)->value();
+            if (!sampler) {
+              sampler = renderer->error_sampler();
+              if (!renderer->error_texture()) {
+                O3D_ERROR(param->service_locator())
+                    << "Missing Sampler for ParamSampler "
+                    << param->name();
+              }
+            }
+
+            SamplerD3D9* d3d_sampler = down_cast<SamplerD3D9*>(sampler);
+            for (unsigned stage = 0; stage < index_array.size(); stage++) {
+              d3d_sampler->SetTextureAndStates(index_array[stage]);
+            }
+          } else {
+            O3D_ERROR(param->service_locator())
+                << "Param in ParamArray at index " << i << " is not a "
+                << ParamSampler::GetApparentClassName();
+          }
+        }
+      }
+    }
+  }
+
+  // Resets the value of the parameter to default.  Currently this is used
+  // to unbind textures contained in Sampler params.
+  virtual void ResetEffectParam(RendererD3D9* renderer,
+                                ID3DXEffect* d3d_effect) {
+    ParamArray* param = param_->value();
+    if (param) {
+      unsigned size = param->size();
+      if (size == sampler_unit_index_arrays_.size()) {
+        for (int i = 0; i < size; ++i) {
+          SamplerUnitIndexArray& index_array = sampler_unit_index_arrays_[i];
+          Param* untyped_element = param->GetUntypedParam(i);
+          // TODO(gman): Make this check happen when building the param cache.
+          //    To do that would require that ParamParamArray mark it's owner
+          //    as changed if a Param in it's ParamArray changes.
+          if (untyped_element->IsA(ParamSampler::GetApparentClass())) {
+            D3DXHANDLE dx_element =
+                d3d_effect->GetParameterElement(phandle_,  i);
+            // Find the texture associated with the sampler first.
+            Sampler* sampler =
+                down_cast<ParamSampler*>(untyped_element)->value();
+            if (!sampler) {
+              sampler = renderer->error_sampler();
+            }
+
+            SamplerD3D9* d3d_sampler = down_cast<SamplerD3D9*>(sampler);
+            for (unsigned stage = 0; stage < index_array.size(); stage++) {
+              d3d_sampler->ResetTexture(index_array[stage]);
+            }
+          }
+        }
+      }
+    }
+  }
+
+ private:
+  typedef std::vector<int> SamplerUnitIndexArray;
+  typedef std::vector<SamplerUnitIndexArray> SamplerIndexArrayArray;
+
+  ParamParamArray* param_;
+  D3DXHANDLE phandle_;
+  // An array of arrays of sampler unit indices.
+  SamplerIndexArrayArray sampler_unit_index_arrays_;
+};
+
+template<>
+void EffectParamArrayHandlerD3D9<ParamFloat>::SetElement(
+    ID3DXEffect* d3dx_effect,
+    D3DXHANDLE dx_element,
+    ParamFloat* element) {
+  d3dx_effect->SetFloat(dx_element, element->value());
+}
+
+template<>
+void EffectParamArrayHandlerD3D9<ParamFloat2>::SetElement(
+    ID3DXEffect* d3dx_effect,
+    D3DXHANDLE dx_element,
+    ParamFloat2* element) {
+  Float2 float2 = element->value();
+  HR(d3dx_effect->SetFloatArray(dx_element, float2.GetFloatArray(), 2));
+}
+
+template<>
+void EffectParamArrayHandlerD3D9<ParamFloat3>::SetElement(
+    ID3DXEffect* d3dx_effect,
+    D3DXHANDLE dx_element,
+    ParamFloat3* element) {
+  Float3 float3 = element->value();
+  HR(d3dx_effect->SetFloatArray(dx_element, float3.GetFloatArray(), 3));
+}
+
+template<>
+void EffectParamArrayHandlerD3D9<ParamFloat4>::SetElement(
+    ID3DXEffect* d3dx_effect,
+    D3DXHANDLE dx_element,
+    ParamFloat4* element) {
+  Float4 float4 = element->value();
+  HR(d3dx_effect->SetFloatArray(dx_element, float4.GetFloatArray(), 4));
+}
+
+template<>
+void EffectParamArrayHandlerD3D9<ParamBoolean>::SetElement(
+    ID3DXEffect* d3dx_effect,
+    D3DXHANDLE dx_element,
+    ParamBoolean* element) {
+  HR(d3dx_effect->SetBool(dx_element, element->value()));
+}
+
+template<>
+void EffectParamArrayHandlerD3D9<ParamInteger>::SetElement(
+    ID3DXEffect* d3dx_effect,
+    D3DXHANDLE dx_element,
+    ParamInteger* element) {
+  HR(d3dx_effect->SetInt(dx_element, element->value()));
+}
+
+template<>
+void EffectParamMatrix4ArrayHandlerD3D9<false>::SetElement(
+    ID3DXEffect* d3dx_effect,
+    D3DXHANDLE dx_element,
+    ParamMatrix4* element) {
+  Matrix4 param_matrix = element->value();
+  HR(d3dx_effect->SetMatrix(
+         dx_element,
+         reinterpret_cast<D3DXMATRIX*>(&param_matrix[0][0])));
+}
+
+template<>
+void EffectParamMatrix4ArrayHandlerD3D9<true>::SetElement(
+    ID3DXEffect* d3dx_effect,
+    D3DXHANDLE dx_element,
+    ParamMatrix4* element) {
+  Matrix4 param_matrix = transpose(element->value());
+  HR(d3dx_effect->SetMatrix(
+         dx_element,
+         reinterpret_cast<D3DXMATRIX*>(&param_matrix[0][0])));
+}
 
 // A class for setting the the appropriate d3d sampler states from a
 // o3d Sampler object.
@@ -144,16 +465,13 @@ static const ObjectBase::Class* D3DXPDescToParamType(
              pdesc.Columns == 1) {
     return ParamBoolean::GetApparentClass();
   // Texture param
-  // TODO Texture params should be removed once we switch over to
+  // TODO(o3d): Texture params should be removed once we switch over to
   // using samplers only.
   } else if (pdesc.Type == D3DXPT_TEXTURE &&
              pdesc.Class == D3DXPC_OBJECT) {
     return ParamTexture::GetApparentClass();
   // Sampler param
-  } else if (pdesc.Class == D3DXPC_OBJECT &&
-             (pdesc.Type == D3DXPT_SAMPLER ||
-              pdesc.Type == D3DXPT_SAMPLER2D ||
-              pdesc.Type == D3DXPT_SAMPLERCUBE)) {
+  } else if (pdesc.Class == D3DXPC_OBJECT && IsSamplerType(pdesc.Type)) {
     return ParamSampler::GetApparentClass();
   }
   return NULL;
@@ -178,13 +496,13 @@ bool EffectD3D9::PrepareFX(const String& effect,
   String fragment_shader_entry_point;
   MatrixLoadOrder matrix_load_order;
 
-  // TODO: Temporary fix to make GL and D3D match until the shader parser
+  // TODO(o3d): Temporary fix to make GL and D3D match until the shader parser
   //     is written.
   if (!ValidateFX(effect,
                   &vertex_shader_entry_point,
                   &fragment_shader_entry_point,
                   &matrix_load_order)) {
-    // TODO: Remove this but for now just let bad ones pass so collada
+    // TODO(o3d): Remove this but for now just let bad ones pass so collada
     //     importer works.
     *prepared_effect = effect;
     return false;
@@ -219,7 +537,7 @@ bool EffectD3D9::LoadFromFXString(const String& effect) {
   LPD3DXBUFFER error_buffer;
 
   String prepared_effect;
-  // TODO: Check for failure once shader parser is in.
+  // TODO(o3d): Check for failure once shader parser is in.
   PrepareFX(effect, &prepared_effect);
 
   if (!HR(o3d::D3DXCreateEffect(d3d_device_,
@@ -356,12 +674,69 @@ bool EffectD3D9::AddParameterMapping(
     D3DXHANDLE phandle,
     EffectParamHandlerCacheD3D9* effect_param_cache) {
   // Array param
-  if (param->IsA(ParamParamArray::GetApparentClass()) &&
-      pdesc.Elements > 1) {
-    if (pdesc.Class == D3DXPC_SCALAR && pdesc.Type == D3DXPT_FLOAT) {
+  if (param->IsA(ParamParamArray::GetApparentClass()) && pdesc.Elements > 0) {
+    ParamParamArray* param_param_array = down_cast<ParamParamArray*>(param);
+    if (pdesc.Class == D3DXPC_SCALAR &&
+        pdesc.Type == D3DXPT_FLOAT) {
       effect_param_cache->AddElement(
-          new EffectParamFloatArrayHandlerD3D9(
-              down_cast<ParamParamArray*>(param), phandle));
+          new EffectParamArrayHandlerD3D9<ParamFloat>(
+              param_param_array, phandle, pdesc.Elements));
+    } else if (pdesc.Class == D3DXPC_VECTOR &&
+               pdesc.Type == D3DXPT_FLOAT &&
+               pdesc.Columns == 2) {
+      effect_param_cache->AddElement(
+          new EffectParamArrayHandlerD3D9<ParamFloat2>(
+              param_param_array, phandle, pdesc.Elements));
+    } else if (pdesc.Class == D3DXPC_VECTOR &&
+               pdesc.Type == D3DXPT_FLOAT &&
+               pdesc.Columns == 3) {
+      effect_param_cache->AddElement(
+          new EffectParamArrayHandlerD3D9<ParamFloat3>(
+              param_param_array, phandle, pdesc.Elements));
+    } else if (pdesc.Class == D3DXPC_VECTOR &&
+               pdesc.Type == D3DXPT_FLOAT &&
+               pdesc.Columns == 4) {
+      effect_param_cache->AddElement(
+          new EffectParamArrayHandlerD3D9<ParamFloat4>(
+              param_param_array, phandle, pdesc.Elements));
+    } else if (pdesc.Class == D3DXPC_SCALAR &&
+               pdesc.Type == D3DXPT_INT &&
+               pdesc.Columns == 1) {
+      effect_param_cache->AddElement(
+          new EffectParamArrayHandlerD3D9<ParamInteger>(
+              param_param_array, phandle, pdesc.Elements));
+    } else if (pdesc.Class == D3DXPC_SCALAR &&
+               pdesc.Type == D3DXPT_BOOL &&
+               pdesc.Columns == 1) {
+      effect_param_cache->AddElement(
+          new EffectParamArrayHandlerD3D9<ParamBoolean>(
+              param_param_array, phandle, pdesc.Elements));
+    } else if (pdesc.Class == D3DXPC_MATRIX_COLUMNS) {
+      effect_param_cache->AddElement(
+          new EffectParamMatrix4ArrayHandlerD3D9<true>(
+              param_param_array, phandle, pdesc.Elements));
+    } else if (pdesc.Class == D3DXPC_MATRIX_ROWS) {
+      if (matrix_load_order() == COLUMN_MAJOR) {
+        // D3D has already created a uniform of type MATRIX_ROWS, but the
+        // effect wants column major matrices, so we create a handler
+        // for MATRIX_COLUMNS.  This will cause the matrix to be transposed
+        // on load.
+        effect_param_cache->AddElement(
+            new EffectParamMatrix4ArrayHandlerD3D9<true>(
+                param_param_array, phandle, pdesc.Elements));
+      } else {
+        effect_param_cache->AddElement(
+            new EffectParamMatrix4ArrayHandlerD3D9<false>(
+                param_param_array, phandle, pdesc.Elements));
+      }
+    } else if (pdesc.Class == D3DXPC_OBJECT && IsSamplerType(pdesc.Type)) {
+      effect_param_cache->AddElement(
+          new EffectParamSamplerArrayHandlerD3D9(
+             param_param_array,
+             phandle,
+             pdesc,
+             fs_constant_table_,
+             d3d_device_));
     }
   // Matrix4 Param
   } else if (param->IsA(ParamMatrix4::GetApparentClass()) &&
@@ -375,7 +750,7 @@ bool EffectD3D9::AddParameterMapping(
     if (matrix_load_order() == COLUMN_MAJOR) {
       // D3D has already created a uniform of type MATRIX_ROWS, but the
       // effect wants column major matrices, so we create a handler
-      // for MATRIX_COLUMNS.  This will cause the matrix to be tranposed
+      // for MATRIX_COLUMNS.  This will cause the matrix to be transposed
       // on load.
       effect_param_cache->AddElement(
           new TypedEffectParamHandlerD3D9<ParamMatrix4,
@@ -441,7 +816,7 @@ bool EffectD3D9::AddParameterMapping(
                                         D3DXPC_SCALAR>(
             down_cast<ParamBoolean*>(param), phandle));
     // Texture param
-    // TODO The texture param block should be removed once we start
+    // TODO(o3d): The texture param block should be removed once we start
     // using samplers only.  In the meantime, we need to create a texture param
     // to be able to handle collada files referencing external fx .
   } else if (param->IsA(ParamTexture::GetApparentClass()) &&
@@ -453,10 +828,7 @@ bool EffectD3D9::AddParameterMapping(
             down_cast<ParamTexture*>(param), phandle));
   // Sampler param
   } else if (param->IsA(ParamSampler::GetApparentClass()) &&
-             pdesc.Class == D3DXPC_OBJECT &&
-             (pdesc.Type == D3DXPT_SAMPLER ||
-              pdesc.Type == D3DXPT_SAMPLER2D ||
-              pdesc.Type == D3DXPT_SAMPLERCUBE)) {
+             pdesc.Class == D3DXPC_OBJECT && IsSamplerType(pdesc.Type)) {
     effect_param_cache->AddElement(
         new EffectParamHandlerForSamplersD3D9(down_cast<ParamSampler*>(param),
                                               pdesc,
@@ -663,7 +1035,7 @@ void TypedEffectParamHandlerD3D9<ParamBoolean,
   HR(d3dx_effect->SetBool(phandle_, param_->value()));
 }
 
-// TODO: The following handler should be removed once we switch to
+// TODO(o3d): The following handler should be removed once we switch to
 // using Samplers exclusively.
 template<>
 void TypedEffectParamHandlerD3D9<ParamTexture,
@@ -671,7 +1043,7 @@ void TypedEffectParamHandlerD3D9<ParamTexture,
                                      RendererD3D9* renderer,
                                      ID3DXEffect* d3dx_effect) {
   Texture* texture = param_->value();
-  // TODO: If texture is NULL then we don't set the texture on the
+  // TODO(o3d): If texture is NULL then we don't set the texture on the
   // effect to avoid clobbering texture set by the corresponding sampler in
   // the cases where we use samplers.  The side-effect of this is that if
   // the texture is not set, we could end up using whatever texture was used
@@ -690,24 +1062,6 @@ void TypedEffectParamHandlerD3D9<ParamTexture,
           static_cast<IDirect3DBaseTexture9*>(texture->GetTextureHandle());
     }
     HR(d3dx_effect->SetTexture(phandle_, d3d_texture));
-  }
-}
-
-void EffectParamFloatArrayHandlerD3D9::SetEffectParam(
-    RendererD3D9* renderer,
-    ID3DXEffect* d3dx_effect) {
-  ParamArray* param = param_->value();
-  if (param) {
-    int size = param->size();
-    for (int i = 0; i < size; ++i) {
-      ParamFloat* element = param->GetParam<ParamFloat>(i);
-      D3DXHANDLE dx_element = d3dx_effect->GetParameterElement(phandle_, i);
-      if (element) {
-        d3dx_effect->SetFloat(dx_element, element->value());
-      } else {
-        d3dx_effect->SetFloat(dx_element, 0.0);
-      }
-    }
   }
 }
 
@@ -734,11 +1088,13 @@ void EffectParamHandlerForSamplersD3D9::ResetEffectParam(
     RendererD3D9* renderer,
     ID3DXEffect* d3dx_effect) {
   Sampler* sampler = sampler_param_->value();
-  if (sampler) {
-    SamplerD3D9* d3d_sampler = down_cast<SamplerD3D9*>(sampler);
-    for (int stage = 0; stage < number_sampler_units_; stage++) {
-      d3d_sampler->ResetTexture(sampler_unit_index_array_[stage]);
-    }
+  if (!sampler) {
+    sampler = renderer->error_sampler();
+  }
+
+  SamplerD3D9* d3d_sampler = down_cast<SamplerD3D9*>(sampler);
+  for (int stage = 0; stage < number_sampler_units_; stage++) {
+    d3d_sampler->ResetTexture(sampler_unit_index_array_[stage]);
   }
 }
 
@@ -781,9 +1137,7 @@ EffectParamHandlerForSamplersD3D9::EffectParamHandlerForSamplersD3D9(
   for (UINT desc_index = 0; desc_index < num_desc; desc_index++) {
     D3DXCONSTANT_DESC constant_desc = desc_array[desc_index];
     if (constant_desc.Class == D3DXPC_OBJECT &&
-        (constant_desc.Type == D3DXPT_SAMPLER ||
-         constant_desc.Type == D3DXPT_SAMPLER2D ||
-         constant_desc.Type == D3DXPT_SAMPLERCUBE)) {
+        IsSamplerType(constant_desc.Type)) {
       sampler_unit_index_array_[number_sampler_units_++] =
           constant_desc.RegisterIndex;
     }

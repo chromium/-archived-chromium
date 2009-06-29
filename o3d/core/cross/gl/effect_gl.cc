@@ -75,6 +75,7 @@ static const ObjectBase::Class* CgTypeToParamType(CGtype cg_type) {
     case CG_FLOAT2      : return ParamFloat2::GetApparentClass();
     case CG_FLOAT3      : return ParamFloat3::GetApparentClass();
     case CG_FLOAT4      : return ParamFloat4::GetApparentClass();
+    case CG_INT         : return ParamInteger::GetApparentClass();
     case CG_INT1        : return ParamInteger::GetApparentClass();
     case CG_FLOAT4x4    : return ParamMatrix4::GetApparentClass();
     case CG_BOOL        :
@@ -82,6 +83,7 @@ static const ObjectBase::Class* CgTypeToParamType(CGtype cg_type) {
     case CG_SAMPLER     :
     case CG_SAMPLER1D   :
     case CG_SAMPLER2D   :
+    case CG_SAMPLER3D   :
     case CG_SAMPLERCUBE : return ParamSampler::GetApparentClass();
     default : {
       DLOG(ERROR) << "Cannot convert CGtype "
@@ -204,7 +206,7 @@ bool EffectGL::LoadFromFXString(const String& effect) {
   String vertex_shader_entry_point;
   String fragment_shader_entry_point;
   MatrixLoadOrder matrix_load_order;
-  // TODO: Check for failure once shader parser is in.
+  // TODO(gman): Check for failure once shader parser is in.
   if (!ValidateFX(effect,
                   &vertex_shader_entry_point,
                   &fragment_shader_entry_point,
@@ -309,7 +311,7 @@ bool EffectGL::LoadFromFXString(const String& effect) {
     return false;
   }
 
-  // TODO: remove this (OLD path for textures).
+  // TODO(o3d): remove this (OLD path for textures).
   FillSamplerToTextureMap(effect);
 
   CHECK_GL_ERROR();
@@ -359,7 +361,7 @@ void EffectGL::FillSamplerToTextureMap(const String &effect) {
   cgDestroyEffect(cg_effect);
 }
 
-// TODO: remove this (OLD path for textures).
+// TODO(o3d): remove this (OLD path for textures).
 String EffectGL::GetTextureNameFromSamplerParamName(
     const String &sampler_name) {
   std::map<String, String>::iterator it =
@@ -428,12 +430,13 @@ void EffectGL::GetShaderParamInfo(
     // by keeping an internal collection of Texture-Sampler mappings
     // that is built here, so we can later to do the reverse lookup.
     //
-    // TODO: This will not solve the one-to-many problem of one
+    // TODO(o3d): This will not solve the one-to-many problem of one
     // Texture being used by many Sampler params, but it's enough to get
     // us up and running.
-    // TODO: Once we start using samplers exclusively, this special
-    // treatment of textures should go away. For the time being though, we
-    // do end up creating a texture param on the param_object.
+    //
+    // TODO(o3d): Once we start using samplers exclusively, this special
+    // treatment of textures should go away. For the time being though, we do
+    // end up creating a texture param on the param_object.
     if (cg_type == CG_SAMPLER1D ||
         cg_type == CG_SAMPLER2D ||
         cg_type == CG_SAMPLER3D ||
@@ -549,7 +552,7 @@ void EffectGL::GetStreamInfo(
 // Loop over all the CG_SAMPLER objects and attach the GLuint handle for the
 // GL texture object that we discovered earlier. Then execute the
 // CGstateassignments in the sampler_state to set up the texture unit.
-// TODO: remove this (OLD path for textures).
+// TODO(o3d): remove this (OLD path for textures).
 void EffectGL::SetTexturesFromEffect(ParamCacheGL* param_cache_gl) {
   DLOG_FIRST_N(INFO, kNumLoggedEvents) << "EffectGL EnableTexturesFromEffect";
   ParamCacheGL::SamplerParameterMap& map = param_cache_gl->sampler_map();
@@ -610,7 +613,7 @@ void EffectGL::PrepareForDraw(ParamCacheGL* param_cache_gl) {
     cgGLBindProgram(cg_fragment_);
     UpdateShaderUniformsFromEffect(param_cache_gl);
 
-    // TODO: remove this (OLD path for textures).
+    // TODO(o3d): remove this (OLD path for textures).
     SetTexturesFromEffect(param_cache_gl);
   } else {
     DLOG_FIRST_N(ERROR, kNumLoggedEvents)

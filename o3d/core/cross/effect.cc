@@ -125,12 +125,11 @@ void Effect::CreateSpecifiedParameters(ParamObject* param_object, bool sas) {
           param = param_object->CreateParamByClass(
               param_info.name(),
               param_info.sas_class_type() ? param_info.sas_class_type() :
-              param_info.class_type());
+                                            param_info.class_type());
         } else {
           // Array type
-          param = param_object->CreateParamByClass(
-              param_info.name(),
-              ParamParamArray::GetApparentClass());
+          param =
+              param_object->CreateParam<ParamParamArray>(param_info.name());
         }
         if (!param) {
           errors += String(errors.empty() ? "" : "\n") +
@@ -188,7 +187,7 @@ bool GetIdentifierAfterString(const String& original,
 
 }  // anonymous namespace
 
-// TODO: Replace this with the runtime shader parser.
+// TODO(gman): Replace this with the runtime shader parser.
 //    For now it's very stupid. It requires the word "techinque" not appear
 //    anywhere inside the file. Then it searches for
 //
