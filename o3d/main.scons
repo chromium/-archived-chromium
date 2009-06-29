@@ -662,7 +662,8 @@ linux_env = binaries_env.Clone(
     CG_DIR = '$CG_BASE_DIR/linux',
 )
 linux_env.FilterOut(CPPDEFINES = ['OS_LINUX=OS_LINUX'])
-linux_env.ParseConfig('pkg-config --cflags --libs gtk+-2.0')
+if base_env.Bit('host_linux'):
+  linux_env.ParseConfig('pkg-config --cflags --libs gtk+-2.0')
 
 linux_env.Append(
     RENDERER_INCLUDE_PATH = [
