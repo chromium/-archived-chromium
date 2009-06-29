@@ -56,6 +56,12 @@ deps = {
   # in ui test.
   "src/chrome/test/data/workers/LayoutTests/fast/workers":
     Var("webkit_trunk") + "/LayoutTests/fast/workers@" + Var("webkit_revision"),
+  "src/chrome/test/data/workers/LayoutTests/http/tests/resources":
+    Var("webkit_trunk") + "/LayoutTests/http/tests/resources@" + Var("webkit_revision"),
+  "src/chrome/test/data/workers/LayoutTests/http/tests/workers":
+    Var("webkit_trunk") + "/LayoutTests/http/tests/workers@" + Var("webkit_revision"),
+  "src/chrome/test/data/workers/LayoutTests/http/tests/xmlhttprequest":
+    Var("webkit_trunk") + "/LayoutTests/http/tests/xmlhttprequest@" + Var("webkit_revision"),
 }
 
 
