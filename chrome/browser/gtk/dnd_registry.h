@@ -15,10 +15,10 @@ namespace dnd {
 // These ids need to be unique app wide. Simply adding a GtkTargetEntry with an
 // id of 0 should be an error and it will conflict with X_CHROME_TAB below.
 enum {
-  X_CHROME_TAB = 0,
-  X_CHROME_TEXT_PLAIN = 1 << 0,
-  X_CHROME_TEXT_URI_LIST = 1 << 1,
-  X_CHROME_BOOKMARK_ITEM = 1 << 2,
+  X_CHROME_TAB = 1 << 0,
+  X_CHROME_TEXT_PLAIN = 1 << 1,
+  X_CHROME_TEXT_URI_LIST = 1 << 2,
+  X_CHROME_BOOKMARK_ITEM = 1 << 3,
 };
 
 // Creates a target list from the given mask. The mask should be an OR of
