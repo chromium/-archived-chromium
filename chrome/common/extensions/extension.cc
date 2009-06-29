@@ -12,6 +12,7 @@
 #include "base/string_util.h"
 #include "base/third_party/nss/blapi.h"
 #include "base/third_party/nss/sha256.h"
+#include "chrome/common/chrome_constants.h"
 #include "chrome/common/extensions/extension_error_reporter.h"
 #include "chrome/common/extensions/extension_error_utils.h"
 #include "chrome/common/extensions/user_script.h"
@@ -196,6 +197,13 @@ Extension::~Extension() {
 
 const std::string Extension::VersionString() const {
   return version_->GetString();
+}
+
+// static
+bool Extension::IsExtension(const FilePath& file_name) {
+  return file_name.MatchesExtension(
+      FilePath::StringType(FILE_PATH_LITERAL(".")) +
+      chrome::kExtensionFileExtension);
 }
 
 // static

@@ -142,6 +142,9 @@ class Extension {
   explicit Extension(const FilePath& path);
   virtual ~Extension();
 
+  // Returns true if the specified file is an extension.
+  static bool IsExtension(const FilePath& file_name);
+
   // Resets the id counter. This is only useful for unit tests.
   static void ResetGeneratedIdCounter() {
     id_counter_ = 0;

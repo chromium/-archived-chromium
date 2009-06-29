@@ -284,6 +284,18 @@ FilePath FilePath::ReplaceExtension(const StringType& extension) const {
   return FilePath(str);
 }
 
+bool FilePath::MatchesExtension(const StringType& extension) const {
+  FilePath::StringType current_extension = Extension();
+
+  if (current_extension.length() != extension.length())
+    return false;
+
+  return std::equal(extension.begin(),
+                    extension.end(),
+                    current_extension.begin(),
+                    CaseInsensitiveCompare<FilePath::CharType>());
+}
+
 FilePath FilePath::Append(const StringType& component) const {
   DCHECK(!IsPathAbsolute(component));
   if (path_.compare(kCurrentDirectory) == 0) {

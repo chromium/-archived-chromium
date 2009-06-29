@@ -197,6 +197,10 @@ class FilePath {
   // Returns "" if BaseName() == "." or "..".
   FilePath ReplaceExtension(const StringType& extension) const;
 
+  // Returns true if the file path matches the specified extension. The test is
+  // case insensitive. Don't forget the leading period if appropriate.
+  bool MatchesExtension(const StringType& extension) const;
+
   // Returns a FilePath by appending a separator and the supplied path
   // component to this object's path.  Append takes care to avoid adding
   // excessive separators if this object's path already ends with a separator.

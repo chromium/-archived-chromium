@@ -26,7 +26,6 @@
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/extensions/extension.h"
 #include "chrome/common/platform_util.h"
@@ -826,14 +825,8 @@ void DownloadManager::DownloadFinished(int32 download_id, int64 size) {
 
 void DownloadManager::DownloadRenamedToFinalName(int download_id,
                                                  const FilePath& full_path) {
-  FilePath::StringType extension = full_path.Extension();
-  // Drop the leading period.
-  if (extension.size() > 0)
-    extension = extension.substr(1);
-
-  if (extension == chrome::kExtensionFileExtension) {
+  if (Extension::IsExtension(full_path))
     OpenChromeExtension(full_path);
-  }
 }
 
 void DownloadManager::ContinueDownloadFinished(DownloadItem* download) {
@@ -849,12 +842,9 @@ void DownloadManager::ContinueDownloadFinished(DownloadItem* download) {
 
   // Open the download if the user or user prefs indicate it should be.
   FilePath::StringType extension = download->full_path().Extension();
-  // Drop the leading period.
-  if (extension.size() > 0)
-    extension = extension.substr(1);
 
   // Handle chrome extensions explicitly and skip the shell execute.
-  if (extension == chrome::kExtensionFileExtension) {
+  if (Extension::IsExtension(download->full_path())) {
     // Skip the shell execute. This will be handled in
     // DownloadRenamedToFinalName
     return;
@@ -1218,14 +1208,9 @@ void DownloadManager::ShowDownloadInShell(const DownloadItem* download) {
 
 void DownloadManager::OpenDownload(const DownloadItem* download,
                                    gfx::NativeView parent_window) {
-  FilePath::StringType extension = download->full_path().Extension();
-  // Drop the leading period.
-  if (extension.size() > 0)
-    extension = extension.substr(1);
-
   // Open Chrome extensions with ExtensionsService. For everything else do shell
   // execute.
-  if (extension == chrome::kExtensionFileExtension) {
+  if (Extension::IsExtension(download->full_path())) {
     OpenChromeExtension(download->full_path());
   } else {
     OpenDownloadInShell(download, parent_window);
@@ -1260,7 +1245,7 @@ bool DownloadManager::ShouldOpenFileExtension(
   // Special-case Chrome extensions as always-open.
   if (!IsExecutable(extension) &&
       (auto_open_.find(extension) != auto_open_.end() ||
-       extension == chrome::kExtensionFileExtension))
+       Extension::IsExtension(FilePath(extension))))
     return true;
   return false;
 }
@@ -1484,9 +1469,7 @@ void DownloadManager::ShowDownloadInBrowser(const DownloadCreateInfo& info,
   // Extension downloading skips the shelf.  This is a temporary fix until
   // we can modularize the download system and develop specific extensiona
   // install UI.
-  FilePath::StringType extension = info.path.Extension();
-  // Ignore the leading period.
-  if (extension.find(chrome::kExtensionFileExtension) == 1)
+  if (Extension::IsExtension(info.path))
     return;
 
   // The 'contents' may no longer exist if the user closed the tab before we get
