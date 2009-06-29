@@ -69,6 +69,19 @@ class BookmarkMenuController : public BaseBookmarkModelObserver {
   static void OnMenuItemActivated(GtkMenuItem* menuitem,
                                   BookmarkMenuController* controller);
 
+  // The individual GtkMenuItems in the BookmarkMenu are all drag sources.
+  static void OnMenuItemDragBegin(GtkWidget* menu_item,
+                                  GdkDragContext* drag_context,
+                                  BookmarkMenuController* bar);
+  static void OnMenuItemDragEnd(GtkWidget* menu_item,
+                                GdkDragContext* drag_context,
+                                BookmarkMenuController* controller);
+  static void OnMenuItemDragGet(
+      GtkWidget* widget, GdkDragContext* context,
+      GtkSelectionData* selection_data,
+      guint target_type, guint time,
+      BookmarkMenuController* controller);
+
   Browser* browser_;
   Profile* profile_;
   PageNavigator* page_navigator_;
@@ -87,6 +100,10 @@ class BookmarkMenuController : public BaseBookmarkModelObserver {
   // - The menu is a drag target
   // - The menu items have context menus.
   OwnedWidgetGtk menu_;
+
+  // Whether we should ignore the next button release event (because we were
+  // dragging).
+  bool ignore_button_release_;
 
   // Mapping from node to GtkMenuItem menu id. This only contains entries for
   // nodes of type URL.

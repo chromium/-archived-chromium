@@ -72,11 +72,6 @@ class BookmarkBarGtk : public AnimationDelegate,
   virtual void AnimationEnded(const Animation* animation);
 
  private:
-  // Helper function that sets visual properties of GtkButton |button| to the
-  // contents of |node|.
-  void ConfigureButtonForNode(const BookmarkNode* node,
-                              GtkWidget* button);
-
   // Helper function which generates GtkToolItems for |bookmark_toolbar_|.
   void CreateAllBookmarkButtons(const BookmarkNode* node);
 
@@ -126,8 +121,6 @@ class BookmarkBarGtk : public AnimationDelegate,
   GtkToolItem* CreateBookmarkToolItem(const BookmarkNode* node);
 
   void ConnectFolderButtonEvents(GtkWidget* widget);
-
-  std::string BuildTooltip(const BookmarkNode* node);
 
   // Finds the BookmarkNode from the model associated with |button|.
   const BookmarkNode* GetNodeForToolButton(GtkWidget* button);

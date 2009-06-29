@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_GTK_BOOKMARK_UTILS_GTK_
-#define CHROME_BROWSER_GTK_BOOKMARK_UTILS_GTK_
+#ifndef CHROME_BROWSER_GTK_BOOKMARK_UTILS_GTK_H_
+#define CHROME_BROWSER_GTK_BOOKMARK_UTILS_GTK_H_
 
 #include <gtk/gtk.h>
 #include <vector>
+#include <string>
 
 class BookmarkModel;
 class BookmarkNode;
@@ -14,9 +15,7 @@ class Profile;
 
 namespace bookmark_utils {
 
-extern const char kInternalURIType[];
-extern const GtkTargetEntry kTargetTable[];
-extern const int kTargetTableSize;
+extern const char kBookmarkNode[];
 
 // These functions do not add a ref to the returned pixbuf, and it should not be
 // unreffed.
@@ -26,6 +25,28 @@ GdkPixbuf* GetDefaultFavicon();
 // Get the image that is used to represent the node. This function adds a ref
 // to the returned pixbuf, so it requires a matching call to g_object_unref().
 GdkPixbuf* GetPixbufForNode(const BookmarkNode* node, BookmarkModel* model);
+
+// Returns a GtkWindow with a visual hierarchy for passing to
+// gtk_drag_set_icon_widget().
+GtkWidget* GetDragRepresentation(const BookmarkNode* node,
+                                 BookmarkModel* model);
+
+// Helper function that sets visual properties of GtkButton |button| to the
+// contents of |node|.
+void ConfigureButtonForNode(const BookmarkNode* node, BookmarkModel* model,
+                            GtkWidget* button);
+
+// Returns the tooltip.
+std::string BuildTooltipFor(const BookmarkNode* node);
+
+// Returns the "bookmark-node" property of |widget| casted to the correct type.
+const BookmarkNode* BookmarkNodeForWidget(GtkWidget* widget);
+
+// This function is a temporary hack to fix fonts on dark system themes.
+// NOTE: this makes assumptions about GtkButton internals. Also, it only works
+// if you call it after the last time you edit the button.
+// TODO(estade): remove this function.
+void SetButtonTextColors(GtkWidget* button);
 
 // Drag and drop. --------------------------------------------------------------
 
@@ -53,4 +74,4 @@ std::vector<const BookmarkNode*> GetNodesFromSelection(
 
 }  // namespace bookmark_utils
 
-#endif  // CHROME_BROWSER_GTK_BOOKMARK_UTILS_GTK_
+#endif  // CHROME_BROWSER_GTK_BOOKMARK_UTILS_GTK_H_

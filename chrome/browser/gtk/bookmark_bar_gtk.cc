@@ -39,67 +39,11 @@ namespace {
 // The height of the bar.
 const int kBookmarkBarHeight = 33;
 
-// Maximum number of characters on a bookmark button.
-const size_t kMaxCharsOnAButton = 15;
-
-// Dictionary key used to store a BookmarkNode* on a GtkWidget.
-const char kBookmarkNode[] = "bookmark-node";
-
 // Left-padding for the instructional text.
 const int kInstructionsPadding = 6;
 
-// Color of the button text, taken from TextButtonView.
-const GdkColor kEnabledColor = GDK_COLOR_RGB(6, 45, 117);
-const GdkColor kDisabledColor = GDK_COLOR_RGB(161, 161, 146);
-// TextButtonView uses 255, 255, 255 with opacity of 200. We don't support
-// transparent text though, so just use a slightly lighter version of
-// kEnabledColor.
-const GdkColor kHighlightColor = GDK_COLOR_RGB(56, 95, 167);
-
 // Color of the instructional text.
 const GdkColor kInstructionsColor = GDK_COLOR_RGB(128, 128, 142);
-
-// Only used for the background of the drag widget.
-const GdkColor kBackgroundColor = GDK_COLOR_RGB(0xe6, 0xed, 0xf4);
-
-// Recursively search for label among the children of |widget|.
-void SearchForLabel(GtkWidget* widget, gpointer data) {
-  if (GTK_IS_LABEL(widget)) {
-    *reinterpret_cast<GtkWidget**>(data) = widget;
-  } else if (GTK_IS_CONTAINER(widget)) {
-    gtk_container_foreach(GTK_CONTAINER(widget), SearchForLabel, data);
-  }
-}
-
-// This function is a temporary hack to fix fonts on dark system themes.
-// NOTE: this makes assumptions about GtkButton internals. Also, it only works
-// if you call it after the last time you edit the button.
-// TODO(estade): remove this function.
-void SetButtonTextColors(GtkWidget* button) {
-  GtkWidget* label;
-  gtk_container_foreach(GTK_CONTAINER(button), SearchForLabel, &label);
-  if (label) {
-    gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &kEnabledColor);
-    gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &kEnabledColor);
-    gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, &kHighlightColor);
-    gtk_widget_modify_fg(label, GTK_STATE_INSENSITIVE, &kDisabledColor);
-  }
-}
-
-std::string DoubleUnderscores(const std::string& text) {
-  std::string ret;
-  ret.reserve(text.length() * 2);
-  for (size_t i = 0; i < text.length(); ++i) {
-    if ('_' == text[i]) {
-      ret.push_back('_');
-      ret.push_back('_');
-    } else {
-      ret.push_back(text[i]);
-    }
-  }
-
-  return ret;
-}
 
 }  // namespace
 
@@ -214,7 +158,7 @@ void BookmarkBarGtk::Init(Profile* profile) {
   gtk_button_set_image(GTK_BUTTON(other_bookmarks_button_),
                        gtk_image_new_from_pixbuf(folder_icon));
   // Set the proper text colors.
-  SetButtonTextColors(other_bookmarks_button_);
+  bookmark_utils::SetButtonTextColors(other_bookmarks_button_);
 
   gtk_box_pack_start(GTK_BOX(bookmark_hbox_.get()), other_bookmarks_button_,
                      FALSE, FALSE, 0);
@@ -347,7 +291,7 @@ void BookmarkBarGtk::BookmarkNodeChanged(BookmarkModel* model,
   GtkToolItem* item = gtk_toolbar_get_nth_item(
       GTK_TOOLBAR(bookmark_toolbar_.get()), index);
   GtkWidget* button = gtk_bin_get_child(GTK_BIN(item));
-  ConfigureButtonForNode(node, button);
+  bookmark_utils::ConfigureButtonForNode(node, model, button);
 }
 
 void BookmarkBarGtk::BookmarkNodeFavIconLoaded(BookmarkModel* model,
@@ -416,33 +360,9 @@ void BookmarkBarGtk::AnimationEnded(const Animation* animation) {
     gtk_widget_hide(bookmark_hbox_.get());
 }
 
-void BookmarkBarGtk::ConfigureButtonForNode(const BookmarkNode* node,
-                                            GtkWidget* button) {
-  std::string tooltip = BuildTooltip(node);
-  if (!tooltip.empty())
-    gtk_widget_set_tooltip_text(button, tooltip.c_str());
-
-  // TODO(erg): Consider a soft maximum instead of this hard 15.
-  std::wstring title = node->GetTitle();
-  // Don't treat underscores as mnemonics.
-  // O, that we could just use gtk_button_set_use_underline()!
-  // See http://bugzilla.gnome.org/show_bug.cgi?id=586330
-  std::string text = DoubleUnderscores(WideToUTF8(title));
-  text = text.substr(0, std::min(text.size(), kMaxCharsOnAButton));
-  gtk_button_set_label(GTK_BUTTON(button), text.c_str());
-
-  GdkPixbuf* pixbuf = bookmark_utils::GetPixbufForNode(node, model_);
-  gtk_button_set_image(GTK_BUTTON(button), gtk_image_new_from_pixbuf(pixbuf));
-  g_object_unref(pixbuf);
-
-  SetButtonTextColors(button);
-  g_object_set_data(G_OBJECT(button), kBookmarkNode,
-                    reinterpret_cast<void*>(const_cast<BookmarkNode*>(node)));
-}
-
 GtkWidget* BookmarkBarGtk::CreateBookmarkButton(const BookmarkNode* node) {
   GtkWidget* button = gtk_chrome_button_new();
-  ConfigureButtonForNode(node, button);
+  bookmark_utils::ConfigureButtonForNode(node, model_, button);
 
   // The tool item is also a source for dragging
   gtk_drag_source_set(button, GDK_BUTTON1_MASK,
@@ -494,12 +414,6 @@ void BookmarkBarGtk::ConnectFolderButtonEvents(GtkWidget* widget) {
                    G_CALLBACK(OnButtonPressed), this);
   g_signal_connect(G_OBJECT(widget), "button-release-event",
                    G_CALLBACK(OnFolderButtonReleased), this);
-}
-
-std::string BookmarkBarGtk::BuildTooltip(const BookmarkNode* node) {
-  // TODO(erg): Actually build the tooltip. For now, we punt and just return
-  // the URL.
-  return node->GetURL().possibly_invalid_spec();
 }
 
 const BookmarkNode* BookmarkBarGtk::GetNodeForToolButton(GtkWidget* widget) {
@@ -633,21 +547,7 @@ void BookmarkBarGtk::OnButtonDragBegin(GtkWidget* button,
   bar->dragged_node_ = node;
   DCHECK(bar->dragged_node_);
 
-  // Build a windowed representation for our button.
-  GtkWidget* window = gtk_window_new(GTK_WINDOW_POPUP);
-  gtk_widget_modify_bg(window, GTK_STATE_NORMAL, &kBackgroundColor);
-  gtk_widget_realize(window);
-
-  GtkWidget* frame = gtk_frame_new(NULL);
-  gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_OUT);
-  gtk_container_add(GTK_CONTAINER(window), frame);
-  gtk_widget_show(frame);
-
-  GtkWidget* floating_button = gtk_chrome_button_new();
-  bar->ConfigureButtonForNode(node, floating_button);
-  gtk_container_add(GTK_CONTAINER(frame), floating_button);
-  gtk_widget_show(floating_button);
-
+  GtkWidget* window = bookmark_utils::GetDragRepresentation(node, bar->model_);
   gint x, y;
   gtk_widget_get_pointer(button, &x, &y);
   gtk_drag_set_icon_widget(drag_context, window, x, y);
@@ -678,9 +578,7 @@ void BookmarkBarGtk::OnButtonDragGet(GtkWidget* widget, GdkDragContext* context,
                                      GtkSelectionData* selection_data,
                                      guint target_type, guint time,
                                      BookmarkBarGtk* bar) {
-  const BookmarkNode* node =
-      reinterpret_cast<const BookmarkNode*>(
-          g_object_get_data(G_OBJECT(widget), kBookmarkNode));
+  const BookmarkNode* node = bookmark_utils::BookmarkNodeForWidget(widget);
   bookmark_utils::WriteBookmarkToSelection(node, selection_data, target_type,
                                            bar->profile_);
 }
@@ -744,11 +642,18 @@ gboolean BookmarkBarGtk::OnToolbarDragMotion(GtkToolbar* toolbar,
     return FALSE;
   }
 
-  // TODO(estade): Improve support for drags from outside this particular
-  // bookmark bar.
-  if (!bar->toolbar_drop_item_ && bar->dragged_node_) {
-    bar->toolbar_drop_item_ = bar->CreateBookmarkToolItem(bar->dragged_node_);
-    g_object_ref_sink(GTK_OBJECT(bar->toolbar_drop_item_));
+  if (!bar->toolbar_drop_item_) {
+    if (bar->dragged_node_) {
+      bar->toolbar_drop_item_ = bar->CreateBookmarkToolItem(bar->dragged_node_);
+      g_object_ref_sink(GTK_OBJECT(bar->toolbar_drop_item_));
+    } else {
+      // Create a fake item the size of other_node().
+      //
+      // TODO(erg): Maybe somehow figure out the real size for the drop target?
+      bar->toolbar_drop_item_ =
+          bar->CreateBookmarkToolItem(bar->model_->other_node());
+      g_object_ref_sink(GTK_OBJECT(bar->toolbar_drop_item_));
+    }
   }
 
   if (bar->toolbar_drop_item_) {

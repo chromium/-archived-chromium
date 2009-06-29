@@ -7,19 +7,69 @@
 #include "app/resource_bundle.h"
 #include "base/gfx/gtk_util.h"
 #include "base/pickle.h"
+#include "base/string_util.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/gtk/dnd_registry.h"
+#include "chrome/browser/gtk/gtk_chrome_button.h"
 #include "chrome/browser/profile.h"
 #include "grit/app_resources.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
+namespace {
+
 // Used in gtk_selection_data_set(). (I assume from this parameter that gtk has
 // to some really exotic hardware...)
 const int kBitsInAByte = 8;
 
+// Maximum number of characters on a bookmark button.
+const size_t kMaxCharsOnAButton = 15;
+
+// Only used for the background of the drag widget.
+const GdkColor kBackgroundColor = GDK_COLOR_RGB(0xe6, 0xed, 0xf4);
+
+// Color of the button text, taken from TextButtonView.
+const GdkColor kEnabledColor = GDK_COLOR_RGB(6, 45, 117);
+const GdkColor kDisabledColor = GDK_COLOR_RGB(161, 161, 146);
+// TextButtonView uses 255, 255, 255 with opacity of 200. We don't support
+// transparent text though, so just use a slightly lighter version of
+// kEnabledColor.
+const GdkColor kHighlightColor = GDK_COLOR_RGB(56, 95, 167);
+
+std::string DoubleUnderscores(const std::string& text) {
+  std::string ret;
+  ret.reserve(text.length() * 2);
+  for (size_t i = 0; i < text.length(); ++i) {
+    if ('_' == text[i]) {
+      ret.push_back('_');
+      ret.push_back('_');
+    } else {
+      ret.push_back(text[i]);
+    }
+  }
+
+  return ret;
+}
+
+// Recursively search for label among the children of |widget|.
+void SearchForLabel(GtkWidget* widget, gpointer data) {
+  if (GTK_IS_LABEL(widget)) {
+    *reinterpret_cast<GtkWidget**>(data) = widget;
+  } else if (GTK_IS_CONTAINER(widget)) {
+    gtk_container_foreach(GTK_CONTAINER(widget), SearchForLabel, data);
+  }
+}
+
+void* AsVoid(const BookmarkNode* node) {
+  return const_cast<BookmarkNode*>(node);
+}
+
+}  // namespace
+
 namespace bookmark_utils {
+
+const char kBookmarkNode[] = "bookmark-node";
 
 GdkPixbuf* GetFolderIcon() {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
@@ -51,6 +101,72 @@ GdkPixbuf* GetPixbufForNode(const BookmarkNode* node, BookmarkModel* model) {
   }
 
   return pixbuf;
+}
+
+GtkWidget* GetDragRepresentation(const BookmarkNode* node,
+                                 BookmarkModel* model) {
+  // Build a windowed representation for our button.
+  GtkWidget* window = gtk_window_new(GTK_WINDOW_POPUP);
+  gtk_widget_modify_bg(window, GTK_STATE_NORMAL, &kBackgroundColor);
+  gtk_widget_realize(window);
+
+  GtkWidget* frame = gtk_frame_new(NULL);
+  gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_OUT);
+  gtk_container_add(GTK_CONTAINER(window), frame);
+  gtk_widget_show(frame);
+
+  GtkWidget* floating_button = gtk_chrome_button_new();
+  bookmark_utils::ConfigureButtonForNode(node, model, floating_button);
+  gtk_container_add(GTK_CONTAINER(frame), floating_button);
+  gtk_widget_show(floating_button);
+
+  return window;
+}
+
+void ConfigureButtonForNode(const BookmarkNode* node, BookmarkModel* model,
+                            GtkWidget* button) {
+  std::string tooltip = BuildTooltipFor(node);
+  if (!tooltip.empty())
+    gtk_widget_set_tooltip_text(button, tooltip.c_str());
+
+  // TODO(erg): Consider a soft maximum instead of this hard 15.
+  std::wstring title = node->GetTitle();
+  // Don't treat underscores as mnemonics.
+  // O, that we could just use gtk_button_set_use_underline()!
+  // See http://bugzilla.gnome.org/show_bug.cgi?id=586330
+  std::string text = DoubleUnderscores(WideToUTF8(title));
+  text = text.substr(0, std::min(text.size(), kMaxCharsOnAButton));
+  gtk_button_set_label(GTK_BUTTON(button), text.c_str());
+
+  GdkPixbuf* pixbuf = bookmark_utils::GetPixbufForNode(node, model);
+  gtk_button_set_image(GTK_BUTTON(button), gtk_image_new_from_pixbuf(pixbuf));
+  g_object_unref(pixbuf);
+
+  SetButtonTextColors(button);
+  g_object_set_data(G_OBJECT(button), bookmark_utils::kBookmarkNode,
+                    AsVoid(node));
+}
+
+std::string BuildTooltipFor(const BookmarkNode* node) {
+  // TODO(erg): Actually build the tooltip. For now, we punt and just return
+  // the URL.
+  return node->GetURL().possibly_invalid_spec();
+}
+
+const BookmarkNode* BookmarkNodeForWidget(GtkWidget* widget) {
+  return reinterpret_cast<const BookmarkNode*>(
+      g_object_get_data(G_OBJECT(widget), bookmark_utils::kBookmarkNode));
+}
+
+void SetButtonTextColors(GtkWidget* button) {
+  GtkWidget* label;
+  gtk_container_foreach(GTK_CONTAINER(button), SearchForLabel, &label);
+  if (label) {
+    gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &kEnabledColor);
+    gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &kEnabledColor);
+    gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, &kHighlightColor);
+    gtk_widget_modify_fg(label, GTK_STATE_INSENSITIVE, &kDisabledColor);
+  }
 }
 
 // DnD-related -----------------------------------------------------------------
