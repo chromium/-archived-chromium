@@ -8,6 +8,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/views/tabs/tab_overview_types.h"
 #include "chrome/common/page_transition_types.h"
 #include "googleurl/src/gurl.h"
 #include "grit/theme_resources.h"
@@ -28,9 +29,12 @@ NewBrowserWindowWidget::NewBrowserWindowWidget(Profile* profile)
       new views::WidgetGtk(views::WidgetGtk::TYPE_WINDOW);
   widget->MakeTransparent();
   widget->Init(NULL, gfx::Rect(0, 0, pref.width(), pref.height()), false);
+  TabOverviewTypes::instance()->SetWindowType(
+      widget->GetNativeView(),
+      TabOverviewTypes::WINDOW_TYPE_CREATE_BROWSER_WINDOW,
+      NULL);
   widget->GetRootView()->SetLayoutManager(new views::FillLayout());
   widget->GetRootView()->AddChildView(button);
-  // TODO: set window type.
   widget_ = widget;
   widget->Show();
 }

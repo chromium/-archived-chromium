@@ -63,6 +63,9 @@ class TabOverviewTypes {
     // drawn above the panel when it's expanded.
     WINDOW_TYPE_CHROME_PANEL_TITLEBAR,
 
+    // A small window that when clicked creates a new browser window.
+    WINDOW_TYPE_CREATE_BROWSER_WINDOW,
+
     kNumWindowTypes,
   };
 
