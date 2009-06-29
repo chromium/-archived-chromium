@@ -640,6 +640,10 @@ WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
   return 0;
 }
 
+NPError PlatformNPPGetValue(NPP instance, NPPVariable variable, void *value) {
+  return NPERR_INVALID_PARAM;
+}
+
 extern "C" {
   BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     if (reason == DLL_PROCESS_DETACH) {

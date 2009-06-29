@@ -146,9 +146,12 @@ extern "C" {
         *v = obj;
         break;
       }
-      default:
-        return NP_GetValue(instance, variable, value);
-        break;
+      default: {
+        NPError ret = PlatformNPPGetValue(instance, variable, value);
+        if (ret == NPERR_INVALID_PARAM)
+          ret = NP_GetValue(instance, variable, value);
+        return ret;
+      }
     }
     return NPERR_NO_ERROR;
   }

@@ -592,6 +592,10 @@ bool HandleMacEvent(EventRecord* the_event, NPP instance) {
   return handled;
 }
 
+NPError PlatformNPPGetValue(NPP instance, NPPVariable variable, void *value) {
+  return NPERR_INVALID_PARAM;
+}
+
 extern "C" {
   NPError InitializePlugin() {
     if (!o3d::SetupOutOfMemoryHandler())

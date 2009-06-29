@@ -43,6 +43,7 @@
 #ifdef OS_LINUX
 #include <GL/glx.h>
 #include <X11/Intrinsic.h>
+#include <gtk/gtk.h>
 #endif
 
 
@@ -250,12 +251,20 @@ class PluginObject: public NPObject {
 #ifdef OS_LINUX
   Display *display_;
   Window window_;
+
+  // Xt mode
   Widget xt_widget_;
   XtAppContext xt_app_context_;
   XtIntervalId xt_interval_;
+  Time last_click_time_;
+
+  // XEmbed mode
+  GtkWidget *gtk_container_;
+  bool got_double_click_[3];
+  guint timeout_id_;
+
   bool draw_;
   bool in_plugin_;
-  Time last_click_time_;
 #endif
   explicit PluginObject(NPP npp);
   ~PluginObject();

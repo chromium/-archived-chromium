@@ -97,6 +97,8 @@ namespace o3d {
 void WriteLogString(const char* text, int length);
 }  // end namespace o3d
 
+NPError PlatformNPPGetValue(NPP instance, NPPVariable variable, void *value);
+
 // NPAPI declarations.  Some of these are only implemented in the
 // platform-specific versions of "main.cc".
 
