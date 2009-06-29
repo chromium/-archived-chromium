@@ -484,7 +484,7 @@
           },
           'VCLinkerTool': {
             'AdditionalOptions':
-              '/safeseh /dynamicbase /ignore:4199 /ignore:4221 /nxcompat',
+              '/safeseh:NO /dynamicbase:NO /ignore:4199 /ignore:4221 /nxcompat',
             'AdditionalDependencies': [
               'wininet.lib',
               'version.lib',
