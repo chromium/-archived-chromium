@@ -384,9 +384,14 @@ static int GetGtkModifierState(int gtk_state) {
   if (gtk_state & GDK_MOD1_MASK) {
     modifier_state |= Event::MODIFIER_ALT;
   }
+#if 0
+  // TODO: This code is temporarily disabled until we figure out which exact
+  // version of GTK to test for: GDK_META_MASK doesn't exist in older (e.g. 2.8)
+  // versions.
   if (gtk_state & GDK_META_MASK) {
     modifier_state |= Event::MODIFIER_META;
   }
+#endif
   return modifier_state;
 }
 
