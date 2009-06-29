@@ -80,6 +80,11 @@ bool WorkerProcessHost::Init() {
                                  ASCIIToWide(channel_id()));
 
   if (CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kEnableNativeWebWorkers)) {
+    cmd_line.AppendSwitch(switches::kEnableNativeWebWorkers);
+  }
+
+  if (CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kWebWorkerShareProcesses)) {
     cmd_line.AppendSwitch(switches::kWebWorkerShareProcesses);
   }

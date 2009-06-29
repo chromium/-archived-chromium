@@ -11,6 +11,7 @@
 #include "chrome/common/worker_messages.h"
 #include "chrome/renderer/webworker_proxy.h"
 #include "chrome/worker/worker_thread.h"
+#include "chrome/worker/nativewebworker_impl.h"
 #include "webkit/api/public/WebString.h"
 #include "webkit/api/public/WebURL.h"
 #include "webkit/api/public/WebWorker.h"
@@ -39,10 +40,34 @@ class KillProcessTask : public Task {
 
 }
 
+static bool UrlIsNativeWorker(const GURL& url) {
+  // If the renderer was not passed the switch to enable native workers,
+  // then the URL should be treated as a JavaScript worker.
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(
+           switches::kEnableNativeWebWorkers)) {
+    return false;
+  }
+  // Based on the suffix, decide whether the url should be considered
+  // a NativeWebWorker (for .nexe) or a WebWorker (for anything else).
+  const std::string kNativeSuffix(".nexe");
+  std::string worker_url = url.path();
+  // Compute the start index of the suffix.
+  std::string::size_type suffix_index =
+      worker_url.length() - kNativeSuffix.length();
+  std::string::size_type pos = worker_url.find(kNativeSuffix, suffix_index);
+  return (suffix_index == pos);
+}
+
 WebWorkerClientProxy::WebWorkerClientProxy(const GURL& url, int route_id)
     : url_(url),
-      route_id_(route_id),
-      ALLOW_THIS_IN_INITIALIZER_LIST(impl_(WebWorker::create(this))) {
+      route_id_(route_id) {
+  if (UrlIsNativeWorker(url)) {
+    // Launch a native worker.
+    impl_ = NativeWebWorkerImpl::create(this);
+  } else {
+    // Launch a JavaScript worker.
+    impl_ = WebWorker::create(this);
+  }
   WorkerThread::current()->AddRoute(route_id_, this);
   ChildProcess::current()->AddRefProcess();
 }

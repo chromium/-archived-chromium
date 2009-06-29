@@ -440,6 +440,9 @@ const wchar_t kIPCUseFIFO[]                    = L"ipc-use-fifo";
 // Enable HTML5 Worker support
 const wchar_t kEnableWebWorkers[]              = L"enable-web-workers";
 
+// Enable Native Web Worker support
+const wchar_t kEnableNativeWebWorkers[]        = L"enable-native-web-workers";
+
 // Causes the worker process allocation to use as many processes as cores.
 const wchar_t kWebWorkerProcessPerCore[]       = L"web-worker-process-per-core";
 

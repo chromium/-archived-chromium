@@ -480,7 +480,7 @@
           'VCLibrarianTool': {
             'AdditionalOptions': '/ignore:4221',
             'AdditionalLibraryDirectories':
-              '<(DEPTH)/third_party/platformsdk_win2008_6_1/files/Lib',
+              ['<(DEPTH)/third_party/platformsdk_win2008_6_1/files/Lib'],
           },
           'VCLinkerTool': {
             'AdditionalOptions':
@@ -495,7 +495,7 @@
               'dbghelp.lib',
             ],
             'AdditionalLibraryDirectories':
-              '<(DEPTH)/third_party/platformsdk_win2008_6_1/files/Lib',
+              ['<(DEPTH)/third_party/platformsdk_win2008_6_1/files/Lib'],
             'DelayLoadDLLs': [
               'dbghelp.dll',
               'dwmapi.dll',

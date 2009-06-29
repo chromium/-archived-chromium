@@ -347,7 +347,7 @@
                 'shlwapi.lib',
               ],
               'AdditionalLibraryDirectories':
-                '<(DEPTH)/third_party/platformsdk_win2008_6_1/files/Lib;<(PRODUCT_DIR)/lib',
+                ['<(DEPTH)/third_party/platformsdk_win2008_6_1/files/Lib;<(PRODUCT_DIR)/lib'],
               'AdditionalOptions':
                 '/safeseh:NO /dynamicbase:no /nxcompat /fixed',
               'DelayLoadDLLs=': [],

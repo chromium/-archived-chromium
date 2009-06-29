@@ -57,7 +57,7 @@
         'VCLibrarianTool=': {
           'AdditionalOptions': '/ignore:4006,4221',
           'AdditionalLibraryDirectories':
-            '<(DEPTH)/third_party/platformsdk_win2008_6_1/files/Lib',
+            ['<(DEPTH)/third_party/platformsdk_win2008_6_1/files/Lib'],
         },
         'VCLinkerTool': {
           'AdditionalOptions': '/ignore:4006',

@@ -4779,6 +4779,10 @@
             'tools/build/win/precompiled.cc',
             'tools/build/win/precompiled.h',
 
+            'worker/nativewebworker_impl.cc',
+            'worker/nativewebworker_impl.h',
+            'worker/nativewebworker_stub.cc',
+            'worker/nativewebworker_stub.h',
             'worker/webworkerclient_proxy.cc',
             'worker/webworkerclient_proxy.h',
             'worker/worker_main.cc',
