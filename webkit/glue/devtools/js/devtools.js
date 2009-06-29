@@ -636,22 +636,41 @@ WebInspector.ScopeChainSidebarPane.prototype.update = function(callFrame) {
     callFrame._expandedProperties = {};
   }
 
-  var scopeObject = callFrame.localScope;
-  var title = WebInspector.UIString('Local');
-  var subtitle = Object.describe(scopeObject, true);
-  var emptyPlaceholder = null;
-  var extraProperties = null;
+  var scopeChain = callFrame.scopeChain;
+  var ScopeType = devtools.DebuggerAgent.ScopeType;
+  for (var i = 0; i < scopeChain.length; ++i) {
+    var scopeObject = scopeChain[i];
+    var thisObject = null;
+    var title;
+    switch(scopeObject.type) {
+      case ScopeType.Global:
+        title = 'Global';
+        break;
+      case ScopeType.Local:
+        title = 'Local';
+        thisObject = callFrame.thisObject;
+        break;
+      case ScopeType.With:
+        title = 'With';
+        break;
+      case ScopeType.Closure:
+        title = 'Closure';
+        break;
+      default:
+        title = '<Unknown scope type>';
+    }
 
-  var section = new WebInspector.ObjectPropertiesSection(scopeObject, title,
-      subtitle, emptyPlaceholder, true, extraProperties,
-      WebInspector.DebuggedObjectTreeElement);
-  section.editInSelectedCallFrameWhenPaused = true;
-  section.pane = this;
+    var section = new WebInspector.ScopeChainPropertiesSection(
+        scopeObject, title, thisObject);
+    section.editInSelectedCallFrameWhenPaused = true;
+    section.pane = this;
 
-  section.expanded = true;
+    // Only first scope is expanded by default(if it's not a global one).
+    section.expanded = (i == 0) && (scopeObject.type != ScopeType.Global);
 
-  this.sections.push(section);
-  this.bodyElement.appendChild(section.element);
+    this.sections.push(section);
+    this.bodyElement.appendChild(section.element);
+  }
 };
 
 

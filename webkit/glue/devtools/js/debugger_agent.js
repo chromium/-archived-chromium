@@ -91,6 +91,18 @@ devtools.DebuggerAgent = function() {
 
 
 /**
+ * A copy of the scope types from v8/src/mirror-delay.js
+ * @enum {number}
+ */
+devtools.DebuggerAgent.ScopeType = {
+  Global: 0,
+  Local: 1,
+  With: 2,
+  Closure: 3
+};
+
+
+/**
  * Resets debugger agent to its initial state.
  */
 devtools.DebuggerAgent.prototype.reset = function() {
@@ -357,15 +369,18 @@ devtools.DebuggerAgent.prototype.requestEvaluate = function(
  * @param {Object} object Object whose properties should be resolved.
  * @param {function(devtools.DebuggerMessage)} Callback to be called when all
  *     children are resolved.
+ * @param {boolean} noIntrinsic Whether intrinsic properties should be included.
  */
-devtools.DebuggerAgent.prototype.resolveChildren = function(object, callback) {
+devtools.DebuggerAgent.prototype.resolveChildren = function(object, callback,
+                                                            noIntrinsic) {
   if ('ref' in object) {
     this.requestLookup_([object.ref], function(msg) {
       var result = {};
       if (msg.isSuccess()) {
         var handleToObject = msg.getBody();
         var resolved = handleToObject[object.ref];
-        devtools.DebuggerAgent.formatObjectProperties_(resolved, result);
+        devtools.DebuggerAgent.formatObjectProperties_(resolved, result,
+                                                       noIntrinsic);
       } else {
         result.error = 'Failed to resolve children: ' + msg.getMessage();
       }
@@ -382,6 +397,38 @@ devtools.DebuggerAgent.prototype.resolveChildren = function(object, callback) {
     }
     callback(object);
   }
+};
+
+
+/**
+ * Sends 'scope' request for the scope object to resolve its variables.
+ * @param {Object} scope Scope to be resolved.
+ * @param {function(Object)} callback Callback to be called
+ *     when all scope variables are resolved.
+ */
+devtools.DebuggerAgent.prototype.resolveScope = function(scope, callback) {
+  if (scope.resolvedValue) {
+    callback(scope);
+    return;
+  }
+  var cmd = new devtools.DebugCommand('scope', {
+    'frameNumber': scope.frameNumber,
+    'number': scope.index,
+    'compactFormat': true
+  });
+  devtools.DebuggerAgent.sendCommand_(cmd);
+  this.requestSeqToCallback_[cmd.getSequenceNumber()] = function(msg) {
+    var result = {};
+    if (msg.isSuccess()) {
+      var scopeObjectJson = msg.getBody().object;
+      devtools.DebuggerAgent.formatObjectProperties_(scopeObjectJson, result,
+                                                     true /* no intrinsic */);
+    } else {
+      result.error = 'Failed to resolve scope variables: ' + msg.getMessage();
+    }
+    scope.resolvedValue = result;
+    callback(scope);
+  };
 };
 
 
@@ -548,6 +595,8 @@ devtools.DebuggerAgent.prototype.handleDebuggerOutput_ = function(output) {
     } else if (msg.getCommand() == 'lookup') {
       this.invokeCallbackForResponse_(msg);
     } else if (msg.getCommand() == 'evaluate') {
+      this.invokeCallbackForResponse_(msg);
+    } else if (msg.getCommand() == 'scope') {
       this.invokeCallbackForResponse_(msg);
     }
   }
@@ -764,7 +813,6 @@ devtools.DebuggerAgent.prototype.handleBacktraceResponse_ = function(msg) {
   for (var i = frames.length - 1; i>=0; i--) {
     var nextFrame = frames[i];
     var f = devtools.DebuggerAgent.formatCallFrame_(nextFrame, script, msg);
-    f.frameNumber = i;
     f.caller = callerFrame;
     callerFrame = f;
   }
@@ -812,18 +860,25 @@ devtools.DebuggerAgent.formatCallFrame_ = function(stackFrame, script, msg) {
   var sourceId = func.scriptId;
   var funcName = func.name || func.inferredName || '(anonymous function)';
 
-  var scope = {};
+  var arguments = {};
 
   // Add arguments.
-  devtools.DebuggerAgent.argumentsArrayToMap_(stackFrame.arguments, scope);
-
-  // Add local variables.
-  devtools.DebuggerAgent.propertiesToMap_(stackFrame.locals, scope);
+  devtools.DebuggerAgent.argumentsArrayToMap_(stackFrame.arguments, arguments);
 
   var thisObject = devtools.DebuggerAgent.formatObjectReference_(
       stackFrame.receiver);
-  // Add variable with name 'this' to the scope.
-  scope['this'] = thisObject;
+
+  // Add basic scope chain info. Scope variables will be resolved lazily.
+  var scopeChain = [];
+  var scopes = stackFrame.scopes;
+  for (var i = 0; i < scopes.length; i++) {
+    var scope = scopes[i];
+    scopeChain.push({
+      'type': scope.type,
+      'frameNumber': stackFrame.index,
+      'index': scope.index
+    });
+  }
 
   var line = devtools.DebuggerAgent.v8ToWwebkitLineNumber_(stackFrame.line);
   var result = new devtools.CallFrame();
@@ -831,9 +886,10 @@ devtools.DebuggerAgent.formatCallFrame_ = function(stackFrame, script, msg) {
   result.line = line;
   result.type = 'function';
   result.functionName = funcName;
-  result.localScope = scope;
-  result.scopeChain = [scope];
+  result.scopeChain = scopeChain;
   result.thisObject = thisObject;
+  result.frameNumber = stackFrame.index;
+  result.arguments = arguments;
   return result;
 };
 
@@ -842,9 +898,15 @@ devtools.DebuggerAgent.formatCallFrame_ = function(stackFrame, script, msg) {
  * Collects properties for an object from the debugger response.
  * @param {Object} object An object from the debugger protocol response.
  * @param {Object} result A map to put the properties in.
+ * @param {boolean} noIntrinsic Whether intrinsic properties should be
+ *     included.
  */
-devtools.DebuggerAgent.formatObjectProperties_ = function(object, result) {
+devtools.DebuggerAgent.formatObjectProperties_ = function(object, result,
+                                                          noIntrinsic) {
   devtools.DebuggerAgent.propertiesToMap_(object.properties, result);
+  if (noIntrinsic) {
+    return;
+  }
   result.protoObject = devtools.DebuggerAgent.formatObjectReference_(
       object.protoObject);
   result.prototypeObject = devtools.DebuggerAgent.formatObjectReference_(
@@ -1079,7 +1141,6 @@ devtools.CallFrame = function() {
   this.type = 'function';
   this.functionName = null;
   this.caller = null;
-  this.localScope = null;
   this.scopeChain = [];
   this.thisObject = {};
   this.frameNumber = null;
