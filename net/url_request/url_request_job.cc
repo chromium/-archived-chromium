@@ -595,8 +595,8 @@ void URLRequestJob::RecordPacketStats(StatisticSelector statistic) const {
                                   base::TimeDelta::FromMinutes(10), 100);
       UMA_HISTOGRAM_COUNTS_100("Sdch3.Network_Decode_Packets_b",
                                static_cast<int>(observed_packet_count_));
-      UMA_HISTOGRAM_COUNTS("Sdch3.Network_Decode_Bytes_Processed_a",
-          static_cast<int>(bytes_observed_in_packets_));
+      UMA_HISTOGRAM_CUSTOM_COUNTS("Sdch3.Network_Decode_Bytes_Processed_b",
+          static_cast<int>(bytes_observed_in_packets_), 500, 100000, 100);
       if (packet_times_.empty())
         return;
       UMA_HISTOGRAM_CLIPPED_TIMES("Sdch3.Network_Decode_1st_To_Last_a",

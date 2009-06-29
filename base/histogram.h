@@ -63,6 +63,11 @@
     counter.Add(sample); \
   } while (0)
 
+#define HISTOGRAM_CUSTOM_COUNTS(name, sample, min, max, bucket_count) do { \
+    static Histogram counter((name), min, max, bucket_count); \
+    counter.Add(sample); \
+  } while (0)
+
 #define HISTOGRAM_PERCENTAGE(name, under_one_hundred) do { \
     static LinearHistogram counter((name), 1, 100, 101); \
     counter.Add(under_one_hundred); \
@@ -118,6 +123,8 @@
     HISTOGRAM_CUSTOM_TIMES(name, sample, min, max, bucket_count)
 #define DHISTOGRAM_CLIPPED_TIMES(name, sample, min, max, bucket_count) \
     HISTOGRAM_CLIPPED_TIMES(name, sample, min, max, bucket_count)
+#define DHISTOGRAM_CUSTOM_COUNTS(name, sample, min, max, bucket_count) \
+  HISTOGRAM_CUSTOM_COUNTS(name, sample, min, max, bucket_count)
 
 #else  // NDEBUG
 
@@ -129,6 +136,9 @@
     do {} while (0)
 #define DHISTOGRAM_CLIPPED_TIMES(name, sample, min, max, bucket_count) \
     do {} while (0)
+#define DHISTOGRAM_CUSTOM_COUNTS(name, sample, min, max, bucket_count) \
+  do {} while (0)
+
 
 #endif  // NDEBUG
 
@@ -193,6 +203,12 @@ static const int kRendererHistogramFlag = 1 << 4;
 
 #define UMA_HISTOGRAM_COUNTS_10000(name, sample) do { \
     static Histogram counter((name), 1, 10000, 50); \
+    counter.SetFlags(kUmaTargetedHistogramFlag); \
+    counter.Add(sample); \
+  } while (0)
+
+#define UMA_HISTOGRAM_CUSTOM_COUNTS(name, sample, min, max, bucket_count) do { \
+    static Histogram counter((name), min, max, bucket_count); \
     counter.SetFlags(kUmaTargetedHistogramFlag); \
     counter.Add(sample); \
   } while (0)
