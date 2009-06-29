@@ -8,6 +8,7 @@ assets/dome2.o3dtgz
 assets/dome3.o3dtgz
 assets/dome4.o3dtgz
 assets/egg.png
+assets/fullscreen.png
 assets/gauge.png
 assets/gaugeback.png
 assets/gears_init.js
@@ -125,6 +126,7 @@ box2d-3d/third_party/prototype-1.6.0.2.js
 canvas-fonts.html
 checkers.html
 debugging.html
+fullscreen.html
 home-configurators/cb_images/cb_item_thumbnails.jpg
 home-configurators/cb_images/toolselector.gif
 home-configurators/cb_images/unbranded_bg.png
