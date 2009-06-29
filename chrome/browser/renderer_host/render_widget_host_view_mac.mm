@@ -450,21 +450,44 @@ void RenderWidgetHostViewMac::ShutdownHost() {
 
     // Fill the remaining portion of the damaged_rect with white
     if (damaged_rect.right() > bitmap_rect.right()) {
-      NSRect r;
-      r.origin.x = std::max(bitmap_rect.right(), damaged_rect.x());
-      r.origin.y = std::min(bitmap_rect.bottom(), damaged_rect.bottom());
-      r.size.width = damaged_rect.right() - r.origin.x;
-      r.size.height = damaged_rect.y() - r.origin.y;
+      int x = std::max(bitmap_rect.right(), damaged_rect.x());
+      int y = std::min(bitmap_rect.bottom(), damaged_rect.bottom());
+      int width = damaged_rect.right() - x;
+      int height = damaged_rect.y() - y;
+
+      // Extra fun to get around the fact that gfx::Rects can't have
+      // negative sizes.
+      if (width < 0) {
+        x += width;
+        width = -width;
+      }
+      if (height < 0) {
+        y += height;
+        height = -height;
+      }
+
+      NSRect r = [self RectToNSRect:gfx::Rect(x, y, width, height)];
       [[NSColor whiteColor] set];
       NSRectFill(r);
     }
     if (damaged_rect.bottom() > bitmap_rect.bottom()) {
-      NSRect r;
-      r.origin.x = damaged_rect.x();
-      r.origin.y = damaged_rect.bottom();
-      r.size.width = damaged_rect.right() - r.origin.x;
-      r.size.height = std::max(bitmap_rect.bottom(), damaged_rect.y()) -
-          r.origin.y;
+      int x = damaged_rect.x();
+      int y = damaged_rect.bottom();
+      int width = damaged_rect.right() - x;
+      int height = std::max(bitmap_rect.bottom(), damaged_rect.y()) - y;
+
+      // Extra fun to get around the fact that gfx::Rects can't have
+      // negative sizes.
+      if (width < 0) {
+        x += width;
+        width = -width;
+      }
+      if (height < 0) {
+        y += height;
+        height = -height;
+      }
+
+      NSRect r = [self RectToNSRect:gfx::Rect(x, y, width, height)];
       [[NSColor whiteColor] set];
       NSRectFill(r);
     }
