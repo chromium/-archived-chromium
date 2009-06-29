@@ -346,16 +346,17 @@ void NativeMenuWin::Rebuild() {
 
 void NativeMenuWin::UpdateStates() {
   // A depth-first walk of the menu items, updating states.
-  for (int menu_index = first_item_index_;
-       menu_index < first_item_index_ + model_->GetItemCount(); ++menu_index) {
-    int model_index = menu_index - first_item_index_;
+  int model_index = 0;
+  std::vector<ItemData*>::const_iterator it;
+  for (it = items_.begin(); it != items_.end(); ++it, ++model_index) {
+    int menu_index = model_index + first_item_index_;
     SetMenuItemState(menu_index, model_->IsEnabledAt(model_index),
                      model_->IsItemCheckedAt(model_index), false);
     if (model_->IsLabelDynamicAt(model_index)) {
       SetMenuItemLabel(menu_index, model_index,
                        model_->GetLabelAt(model_index));
     }
-    Menu2* submenu = items_[model_index]->submenu.get();
+    Menu2* submenu = (*it)->submenu.get();
     if (submenu)
       submenu->UpdateStates();
   }
