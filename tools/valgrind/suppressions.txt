@@ -97,19 +97,17 @@
    fun:memcpy
    fun:init_resb_result
 }
-
 {
-   libc
+   libc_dynamiclinker_foo
    Memcheck:Cond
-   obj:/lib/ld-2.*.so
-   obj:/lib/ld-2.*.so
+   obj:/lib*/ld-2.*.so
+   obj:/lib*/ld-2.*.so
 }
-
 {
-   libc
+   libc_dynamiclinker_bar
    Memcheck:Addr4
-   obj:/lib/ld-2.*.so
-   obj:/lib/ld-2.*.so
+   obj:/lib*/ld-2.*.so
+   obj:/lib*/ld-2.*.so
 }
 {
    FIXME epoll uninitialized data 1
