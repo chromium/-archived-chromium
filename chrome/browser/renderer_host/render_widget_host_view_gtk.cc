@@ -213,7 +213,11 @@ class RenderWidgetHostViewGtkWidget {
       // releasing the x pointer grab.
       bool click_in_popup = x >= 0 && y >= 0 && x < widget->allocation.width &&
           y < widget->allocation.height;
-      if (!host_view->is_popup_first_mouse_release_ && !click_in_popup) {
+      // We can get mouse ups from outside the render view during drags even if
+      // we are not a popup, so only Shutdown if we are a popup (and
+      // host_view->parent_ is not null).
+      if (!host_view->parent_ && host_view->is_popup_first_mouse_release_ &&
+          !click_in_popup) {
         host_view->host_->Shutdown();
         return FALSE;
       }
