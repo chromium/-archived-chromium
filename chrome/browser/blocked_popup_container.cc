@@ -353,7 +353,8 @@ BlockedPopupContainer::BlockedPopupContainer(TabContents* owner,
                                              PrefService* prefs)
     : owner_(owner),
       prefs_(prefs),
-      has_been_dismissed_(false) {
+      has_been_dismissed_(false),
+      view_(NULL) {
   // Copy whitelist pref into local member that's easier to use.
   const ListValue* whitelist_pref =
       prefs_->GetList(prefs::kPopupWhitelistedHosts);
