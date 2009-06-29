@@ -59,10 +59,6 @@ bool g_xembed_support = false;
 }  // end anonymous namespace
 
 static void DrawPlugin(PluginObject *obj) {
-  // TODO: this draws no matter what instead of just
-  // invalidating the region, which means it will execute even if the plug-in
-  // window is invisible. Figure out a way to prevent that, possibly going
-  // through the XEmbed extension.
   // Limit drawing to no more than once every timer tick.
   if (!obj->draw_) return;
   obj->client()->RenderClient();
@@ -81,6 +77,8 @@ void LinuxTimer(XtPointer data, XtIntervalId* id) {
   obj->client()->Tick();
   obj->draw_ = true;
   if (obj->client()->render_mode() == o3d::Client::RENDERMODE_CONTINUOUS) {
+    // NOTE: this draws no matter what instead of just invalidating the region,
+    // which means it will execute even if the plug-in window is invisible.
     DrawPlugin(obj);
   }
   obj->xt_interval_ =
@@ -440,9 +438,11 @@ static gboolean GtkHandleMouseButton(GtkWidget *widget,
     case GDK_BUTTON_RELEASE:
       type = Event::TYPE_MOUSEUP;
       break;
-    default:
+    case GDK_2BUTTON_PRESS:
       obj->got_double_click_[button_event->button - 1] = true;
       return TRUE;
+    default:
+      return FALSE;
   }
   Event event(type);
   int modifier_state = GetGtkModifierState(button_event->state);
@@ -614,12 +614,14 @@ extern "C" {
 
     DLOG(INFO) << "NP_Initialize";
 
+    // Check for XEmbed support in the browser.
     NPBool xembed_support = 0;
     NPError err = NPN_GetValue(NULL, NPNVSupportsXEmbedBool, &xembed_support);
     if (err != NPERR_NO_ERROR)
       xembed_support = 0;
 
     if (xembed_support) {
+      // Check for Gtk2 toolkit support in the browser.
       NPNToolkitType toolkit = static_cast<NPNToolkitType>(0);
       err = NPN_GetValue(NULL, NPNVToolkit, &toolkit);
       if (err != NPERR_NO_ERROR || toolkit != NPNVGtk2)
