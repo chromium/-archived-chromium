@@ -45,6 +45,11 @@ class ChromeMiniInstaller {
 
   ~ChromeMiniInstaller() {}
 
+  enum RepairChrome {
+    REGISTRY,
+    VERSION_FOLDER
+  };
+
   // Closes specified process.
   void CloseProcesses(const std::wstring& executable_name);
 
@@ -72,6 +77,9 @@ class ChromeMiniInstaller {
   // This will test the standalone installer.
   void InstallStandaloneInstaller();
 
+  // Repairs Chrome based on the passed argument.
+  void Repair(RepairChrome repair_type);
+
   // Uninstalls Chrome.
   void UnInstall();
 
@@ -89,6 +97,9 @@ class ChromeMiniInstaller {
 
   bool standalone_installer;
 
+  // Will clean up the machine if Chrome install is messed up.
+  void CleanChromeInstall();
+
   // Closes First Run UI dialog.
   void CloseFirstRunUIDialog(bool over_install);
 
@@ -100,7 +111,11 @@ class ChromeMiniInstaller {
   bool CloseUninstallWindow();
 
   // Closes Chrome browser.
-  void CloseChromeBrowser(const wchar_t* window_name);
+  bool CloseChromeBrowser();
+
+  // Change current directory so that chrome.dll from current folder
+  // will not be used as fall back.
+  void ChangeCurrentDirectory(std::wstring *current_path);
 
   // Checks for registry key.
   bool CheckRegistryKey(const std::wstring& key_path);
@@ -108,8 +123,14 @@ class ChromeMiniInstaller {
   // Checks for registry key on uninstall.
   bool CheckRegistryKeyOnUninstall(const std::wstring& key_path);
 
-  // Deletes User Data folder after uninstall.
+  // Deletes specified folder after getting the install path.
+  void DeleteFolder(const wchar_t* folder_name);
+
+  // Will delete user data profile.
   void DeleteUserDataFolder();
+
+  // This will delete pv key from client registry.
+  void DeletePvRegistryKey();
 
   // This method verifies Chrome shortcut.
   void FindChromeShortcut();
@@ -121,8 +142,8 @@ class ChromeMiniInstaller {
   // on the pattern argument passed.
   bool GetInstaller(const wchar_t* pattern, std::wstring *name);
 
-  // Get path for mini_installer.exe.
-  std::wstring GetInstallerExePath(const wchar_t* installer_name);
+  // Gets path for the specified parameter.
+  std::wstring GetFilePath(const wchar_t* name);
 
   // This method will get the latest installer filename,
   // based on the passed pattern argument.
@@ -157,15 +178,21 @@ class ChromeMiniInstaller {
   // Get path for uninstall.
   std::wstring GetUninstallPath();
 
-  // Checks for the build type
-  bool IsChromiumBuild();
+  // Gets the path to launch Chrome.
+  bool GetChromeLaunchPath(std::wstring* launch_path);
+
+  // This method will get Chrome.exe path and launch it.
+  void VerifyChromeLaunch(bool expected_status);
 
   // Launches the chrome installer and waits for it to end.
   void LaunchInstaller(const std::wstring& install_path,
                        const wchar_t* process_name);
 
+  // This method will send enter key to window in the foreground.
+  void SendEnterKeyToWindow();
+
   // Verifies if Chrome launches after install.
-  void VerifyChromeLaunch();
+  void LaunchAndCloseChrome(bool over_install);
 
   // Compares the registry key values after overinstall.
   bool VerifyOverInstall(const std::wstring& reg_key_value_before_overinstall,
@@ -179,11 +206,11 @@ class ChromeMiniInstaller {
   // This method will verify if the installed build is correct.
   bool VerifyStandaloneInstall();
 
-  // Waits until the given process starts running
-  void WaitUntilProcessStartsRunning(const wchar_t* process_name);
+  // Verifies if the given process starts running.
+  void VerifyProcessLaunch(const wchar_t* process_name, bool expected_status);
 
-  // Waits until the given process stops running
-  void WaitUntilProcessStopsRunning(const wchar_t* process_name);
+  // Verifies if the given process stops running.
+  void VerifyProcessClose(const wchar_t* process_name);
 
   DISALLOW_COPY_AND_ASSIGN(ChromeMiniInstaller);
 };

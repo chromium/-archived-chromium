@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -28,19 +28,23 @@ const wchar_t kChromeMetaInstallerExecutable[] = L"chrome_installer.exe";
 const wchar_t kChromeSetupExecutable[] = L"setup.exe";
 const wchar_t kChromeUserDataDir[] = L"User Data";
 const wchar_t kChromeUserDataBackupDir[] = L"User Data Copy";
+const wchar_t kDiffInstall[] = L"Diff";
+const wchar_t kDiffInstallerPattern[] = L"_from_";
+const wchar_t kFullInstallerPattern[] = L"_chrome_installer";
+const wchar_t kGoogleUpdateExecutable[] = L"GoogleUpdate.exe";
 const wchar_t kIEExecutable[] = L"iexplore.exe";
 const wchar_t kInstallerWindow[] = L"Chrome Installer";
 const wchar_t kSystemInstall[] = L"system";
-const wchar_t kUserInstall[] = L"user";
 const wchar_t kStandaloneInstaller[] = L"ChromeSetupTest.exe";
-const wchar_t kGoogleUpdateExecutable[] = L"GoogleUpdate.exe";
+const wchar_t kUserInstall[] = L"user";
 const wchar_t kUntaggedInstallerPattern[] = L"ChromeStandaloneSetup_";
-const wchar_t kDiffInstallerPattern[] = L"_from_";
-const wchar_t kFullInstallerPattern[] = L"_chrome_installer";
+
+
 const wchar_t kDevChannelBuild[] = L"3.0.";
 const wchar_t kStableChannelBuild[] = L"2.0.";
 const wchar_t kFullInstall[] = L"Full";
-const wchar_t kDiffInstall[] = L"Diff";
+
+
 
 // Google Chrome meta installer location.
 const wchar_t kChromeMetaInstallerExe[] =
