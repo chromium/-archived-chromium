@@ -23,6 +23,8 @@ template <class Filter>
 bool SupportsSetMessageLoop() {
   switch (Filter::filter_type()) {
     case FILTER_DEMUXER:
+    case FILTER_AUDIO_DECODER:
+    case FILTER_VIDEO_DECODER:
       return true;
     default:
       return false;
@@ -456,7 +458,9 @@ void PipelineThread::StartTask(FilterFactory* filter_factory,
 // pipeline's error_ member to PIPELINE_STOPPING.  We stop the filters in the
 // reverse order.
 //
-// TODO(scherkus): beware!  this can get posted multiple times!  it shouldn't!
+// TODO(scherkus): beware!  this can get posted multiple times since we post
+// Stop() tasks even if we've already stopped.  Perhaps this should no-op for
+// additional calls, however most of this logic will be changing.
 void PipelineThread::StopTask() {
   if (PipelineOk()) {
     pipeline_->error_ = PIPELINE_STOPPING;
@@ -635,6 +639,8 @@ scoped_refptr<Filter> PipelineThread::CreateFilter(
     } else {
       // Create a dedicated thread for this filter.
       if (SupportsSetMessageLoop<Filter>()) {
+        // TODO(scherkus): figure out a way to name these threads so it matches
+        // the filter type.
         scoped_ptr<base::Thread> thread(new base::Thread("FilterThread"));
         if (!thread.get() || !thread->Start()) {
           NOTREACHED() << "Could not start filter thread";

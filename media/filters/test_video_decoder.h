@@ -20,8 +20,7 @@ namespace media {
 class TestVideoDecoder : public DecoderBase<VideoDecoder, VideoFrame> {
  public:
   TestVideoDecoder()
-      : DecoderBase<VideoDecoder, VideoFrame>("VideoDecoderThread"),
-        video_width_(0),
+      : video_width_(0),
         video_height_(0) {
   }
 

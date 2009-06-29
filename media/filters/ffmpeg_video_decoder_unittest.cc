@@ -70,8 +70,14 @@ class FFmpegVideoDecoderTest : public testing::Test {
 
     // Create an FFmpegVideoDecoder.
     factory_ = FFmpegVideoDecoder::CreateFactory();
-    decoder_ = factory_->Create<VideoDecoder>(media_format);
+    decoder_ = factory_->Create<FFmpegVideoDecoder>(media_format);
     DCHECK(decoder_);
+
+    // Provide a message loop.
+    decoder_->SetMessageLoop(&message_loop_);
+
+    // Manually set the thread id for tests that don't initialize the decoder.
+    decoder_->set_thread_id(PlatformThread::CurrentId());
 
     // Prepare a filter host, pipeline and demuxer for the video decoder.
     pipeline_.reset(new MockPipeline());
@@ -100,18 +106,22 @@ class FFmpegVideoDecoderTest : public testing::Test {
     // Call Stop() to shut down internal threads.
     decoder_->Stop();
 
+    // Finish up any remaining tasks.
+    message_loop_.RunAllPending();
+
     // Reset MockFFmpeg.
     MockFFmpeg::set(NULL);
   }
 
   // Fixture members.
   scoped_refptr<FilterFactory> factory_;
-  scoped_refptr<VideoDecoder> decoder_;
+  scoped_refptr<FFmpegVideoDecoder> decoder_;
   scoped_ptr<MockPipeline> pipeline_;
   scoped_ptr<MockFilterHost<VideoDecoder> > filter_host_;
   scoped_refptr<MockDemuxerStream> demuxer_;
   scoped_refptr<DataBuffer> buffer_;
   scoped_refptr<DataBuffer> end_of_stream_buffer_;
+  MessageLoop message_loop_;
 
   // FFmpeg fixtures.
   AVStream stream_;
@@ -155,7 +165,8 @@ TEST_F(FFmpegVideoDecoderTest, Initialize_QueryInterfaceFails) {
   EXPECT_CALL(*demuxer_, QueryInterface(AVStreamProvider::interface_id()))
       .WillOnce(ReturnNull());
 
-  EXPECT_FALSE(decoder_->Initialize(demuxer_));
+  EXPECT_TRUE(decoder_->Initialize(demuxer_));
+  message_loop_.RunAllPending();
   EXPECT_TRUE(filter_host_->WaitForError(PIPELINE_ERROR_DECODE));
   EXPECT_FALSE(filter_host_->IsInitialized());
 }
@@ -170,7 +181,8 @@ TEST_F(FFmpegVideoDecoderTest, Initialize_FindDecoderFails) {
   EXPECT_CALL(*MockFFmpeg::get(), AVCodecFindDecoder(CODEC_ID_NONE))
       .WillOnce(ReturnNull());
 
-  EXPECT_FALSE(decoder_->Initialize(demuxer_));
+  EXPECT_TRUE(decoder_->Initialize(demuxer_));
+  message_loop_.RunAllPending();
   EXPECT_TRUE(filter_host_->WaitForError(PIPELINE_ERROR_DECODE));
   EXPECT_FALSE(filter_host_->IsInitialized());
 }
@@ -187,7 +199,8 @@ TEST_F(FFmpegVideoDecoderTest, Initialize_InitThreadFails) {
   EXPECT_CALL(*MockFFmpeg::get(), AVCodecThreadInit(&codec_context_, 2))
       .WillOnce(Return(-1));
 
-  EXPECT_FALSE(decoder_->Initialize(demuxer_));
+  EXPECT_TRUE(decoder_->Initialize(demuxer_));
+  message_loop_.RunAllPending();
   EXPECT_TRUE(filter_host_->WaitForError(PIPELINE_ERROR_DECODE));
   EXPECT_FALSE(filter_host_->IsInitialized());
 }
@@ -206,7 +219,8 @@ TEST_F(FFmpegVideoDecoderTest, Initialize_OpenDecoderFails) {
   EXPECT_CALL(*MockFFmpeg::get(), AVCodecOpen(&codec_context_, &codec_))
       .WillOnce(Return(-1));
 
-  EXPECT_FALSE(decoder_->Initialize(demuxer_));
+  EXPECT_TRUE(decoder_->Initialize(demuxer_));
+  message_loop_.RunAllPending();
   EXPECT_TRUE(filter_host_->WaitForError(PIPELINE_ERROR_DECODE));
   EXPECT_FALSE(filter_host_->IsInitialized());
 }
@@ -226,6 +240,7 @@ TEST_F(FFmpegVideoDecoderTest, Initialize_Successful) {
       .WillOnce(Return(0));
 
   EXPECT_TRUE(decoder_->Initialize(demuxer_));
+  message_loop_.RunAllPending();
   EXPECT_TRUE(filter_host_->WaitForInitialized());
   EXPECT_TRUE(filter_host_->IsInitialized());
   EXPECT_EQ(PIPELINE_OK, pipeline_->GetError());
@@ -301,7 +316,7 @@ TEST_F(FFmpegVideoDecoderTest, GetSurfaceFormat) {
   // YV12 formats.
   context.pix_fmt = PIX_FMT_YUV420P;
   EXPECT_EQ(VideoSurface::YV12, decoder->GetSurfaceFormat(context));
-  context.pix_fmt =  PIX_FMT_YUVJ420P;
+  context.pix_fmt = PIX_FMT_YUVJ420P;
   EXPECT_EQ(VideoSurface::YV12, decoder->GetSurfaceFormat(context));
 
   // YV16 formats.
@@ -379,7 +394,7 @@ TEST_F(FFmpegVideoDecoderTest, OnDecode_TestStateTransition) {
   // Simulates a input sequence of three buffers, and six decode requests to
   // exercise the state transitions, and bookkeeping logic of OnDecode.
   //
-  // We try verify the folowing:
+  // We try to verify the following:
   //   1) Non-EoS buffer timestamps are pushed into the pts_queue.
   //   2) Timestamps are popped for each decoded frame.
   //   3) The last_pts_ is updated for each decoded frame.

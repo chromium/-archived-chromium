@@ -174,6 +174,8 @@ class DemuxerStream : public base::RefCountedThreadSafe<DemuxerStream> {
 
   // Schedules a read.  When the |read_callback| is called, the downstream
   // filter takes ownership of the buffer by AddRef()'ing the buffer.
+  //
+  // TODO(scherkus): switch Read() callback to scoped_refptr<>.
   virtual void Read(Callback1<Buffer*>::Type* read_callback) = 0;
 
   // Given a class that supports the |Interface| and a related static method
@@ -218,6 +220,8 @@ class VideoDecoder : public MediaFilter {
   virtual const MediaFormat& media_format() = 0;
 
   // Schedules a read.  Decoder takes ownership of the callback.
+  //
+  // TODO(scherkus): switch Read() callback to scoped_refptr<>.
   virtual void Read(Callback1<VideoFrame*>::Type* read_callback) = 0;
 };
 
@@ -239,6 +243,8 @@ class AudioDecoder : public MediaFilter {
   virtual const MediaFormat& media_format() = 0;
 
   // Schedules a read.  Decoder takes ownership of the callback.
+  //
+  // TODO(scherkus): switch Read() callback to scoped_refptr<>.
   virtual void Read(Callback1<Buffer*>::Type* read_callbasck) = 0;
 };
 
