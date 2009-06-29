@@ -164,9 +164,8 @@ bool Bitmap::LoadFromPNGStream(MemoryReadStream *stream,
   if (png_color_type == PNG_COLOR_TYPE_PALETTE) {
     // Expand paletted colors into RGB{A} triplets
     png_set_palette_to_rgb(png_ptr);
-  }
   // Gray vs RGB.
-  if ((png_color_type & PNG_COLOR_MASK_COLOR) == PNG_COLOR_TYPE_RGB) {
+  } else if ((png_color_type & PNG_COLOR_MASK_COLOR) == PNG_COLOR_TYPE_RGB) {
     if (png_bits_per_channel != 8) {
       png_error(png_ptr, "PNG image type not recognized");
     }
@@ -176,7 +175,7 @@ bool Bitmap::LoadFromPNGStream(MemoryReadStream *stream,
       png_error(png_ptr, "PNG image type not recognized");
     }
     // Expand grayscale images to the full 8 bits from 2, or 4 bits/pixel
-    // TODO: Do we want to expose L/A/LA texture formats ?
+    // TODO(o3d): Do we want to expose L/A/LA texture formats ?
     png_set_gray_1_2_4_to_8(png_ptr);
     png_set_gray_to_rgb(png_ptr);
   }
