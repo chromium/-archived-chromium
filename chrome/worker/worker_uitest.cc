@@ -288,7 +288,7 @@ TEST_F(WorkerTest, WorkerFastLayoutTests) {
 
 TEST_F(WorkerTest, WorkerHttpLayoutTests) {
   static const char* kLayoutTestFiles[] = {
-    "text-encoding.html",
+    //"text-encoding.html",
     "worker-importScripts.html",
     "worker-redirect.html",
   };
