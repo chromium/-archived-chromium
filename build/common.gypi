@@ -536,6 +536,14 @@
       'includes': [
         'external_code.gypi',
       ],
+    }, {
+      'target_defaults': {
+        # In Chromium code, we define __STDC_FORMAT_MACROS in order to get the
+        # C99 macros on Mac and Linux.
+        'defines': [
+          '__STDC_FORMAT_MACROS',
+        ],
+      },
     }],
   ],
   'scons_settings': {

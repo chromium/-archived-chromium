@@ -4,6 +4,7 @@
 
 #include "base/trace_event.h"
 
+#include "base/format_macros.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
@@ -132,7 +133,7 @@ void TraceLog::Trace(const std::string& name,
   std::string msg =
     StringPrintf("{'pid':'0x%lx', 'tid':'0x%lx', 'type':'%s', "
                  "'name':'%s', 'id':'0x%lx', 'extra':'%s', 'file':'%s', "
-                 "'line_number':'%d', 'usec_begin': %I64d},\n",
+                 "'line_number':'%d', 'usec_begin': %" PRId64 "},\n",
                  base::GetCurrentProcId(),
                  PlatformThread::CurrentId(),
                  kEventTypeNames[type],

@@ -4,6 +4,7 @@
 
 #include "net/disk_cache/stats.h"
 
+#include "base/format_macros.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "net/disk_cache/backend_impl.h"
@@ -263,7 +264,7 @@ void Stats::GetItems(StatsItems* items) {
 
   for (int i = MIN_COUNTER + 1; i < MAX_COUNTER; i++) {
     item.first = kCounterNames[i];
-    item.second = StringPrintf("0x%I64x", counters_[i]);
+    item.second = StringPrintf("0x%" PRIx64, counters_[i]);
     items->push_back(item);
   }
 }

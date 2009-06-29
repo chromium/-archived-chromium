@@ -10,8 +10,9 @@
 #include <map>
 
 #include "base/file_path.h"
-#include "base/string_util.h"
+#include "base/format_macros.h"
 #include "base/string16.h"
+#include "base/string_util.h"
 #include "base/tuple.h"
 #if defined(OS_POSIX)
 #include "chrome/common/file_descriptor_set_posix.h"
@@ -239,7 +240,7 @@ struct ParamTraits<int64> {
     return m->ReadInt64(iter, r);
   }
   static void Log(const param_type& p, std::wstring* l) {
-    l->append(StringPrintf(L"%I64d", p));
+    l->append(StringPrintf(L"%" WidePRId64, p));
   }
 };
 
@@ -253,7 +254,7 @@ struct ParamTraits<uint64> {
     return m->ReadInt64(iter, reinterpret_cast<int64*>(r));
   }
   static void Log(const param_type& p, std::wstring* l) {
-    l->append(StringPrintf(L"%I64u", p));
+    l->append(StringPrintf(L"%" WidePRId64, p));
   }
 };
 

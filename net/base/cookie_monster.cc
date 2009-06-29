@@ -47,6 +47,7 @@
 #include <algorithm>
 
 #include "base/basictypes.h"
+#include "base/format_macros.h"
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
 #include "base/string_tokenizer.h"
@@ -351,12 +352,12 @@ static Time CanonExpiration(const CookieMonster::ParsedCookie& pc,
   // First, try the Max-Age attribute.
   uint64 max_age = 0;
   if (pc.HasMaxAge() &&
-#if defined(COMPILER_MSVC)
-      sscanf_s(pc.MaxAge().c_str(), " %I64u", &max_age) == 1) {
-
+#ifdef COMPILER_MSVC
+      sscanf_s(
 #else
-      sscanf(pc.MaxAge().c_str(), " %llu", &max_age) == 1) {
+      sscanf(
 #endif
+             pc.MaxAge().c_str(), " %" PRIu64, &max_age) == 1) {
     return current + TimeDelta::FromSeconds(max_age);
   }
 
