@@ -21,19 +21,6 @@ const int kBitsInAByte = 8;
 
 namespace bookmark_utils {
 
-// Mime types for DnD. Used to synchronize across applications.
-const char kInternalURIType[] = "application/x-chrome-bookmark-item";
-
-// Table of the mime types that we accept with their options.
-const GtkTargetEntry kTargetTable[] = {
-  { const_cast<char*>(kInternalURIType),
-    GTK_TARGET_SAME_APP,
-    dnd::X_CHROME_BOOKMARK_ITEM }
-  // TODO(erg): Add "text/uri-list" support.
-};
-
-const int kTargetTableSize = G_N_ELEMENTS(kTargetTable);
-
 GdkPixbuf* GetFolderIcon() {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   static GdkPixbuf* default_folder_icon = rb.GetPixbufNamed(

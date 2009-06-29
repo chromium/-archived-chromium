@@ -18,6 +18,7 @@
 #include "chrome/browser/gtk/back_forward_button_gtk.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
 #include "chrome/browser/gtk/custom_button.h"
+#include "chrome/browser/gtk/dnd_registry.h"
 #include "chrome/browser/gtk/go_button_gtk.h"
 #include "chrome/browser/gtk/gtk_chrome_button.h"
 #include "chrome/browser/gtk/location_bar_view_gtk.h"
@@ -32,6 +33,7 @@
 #include "chrome/common/notification_type.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/url_constants.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
@@ -127,6 +129,7 @@ void BrowserToolbarGtk::Init(Profile* profile,
   home_.reset(BuildToolbarButton(IDR_HOME, IDR_HOME_P, IDR_HOME_H, 0,
                                  l10n_util::GetStringUTF8(IDS_TOOLTIP_HOME)));
   gtk_util::SetButtonTriggersNavigation(home_->widget());
+  SetUpDragForHomeButton();
 
   // Group the start, omnibox, and go button into an hbox.
   GtkWidget* omnibox_hbox_ = gtk_hbox_new(FALSE, 0);
@@ -341,6 +344,19 @@ GtkWidget* BrowserToolbarGtk::BuildToolbarMenuButton(
   return button;
 }
 
+void BrowserToolbarGtk::SetUpDragForHomeButton() {
+  // TODO(estade): we should use a custom drag-drop handler so that we can
+  // prefer URIs over plain text when both are available.
+  gtk_drag_dest_set(home_->widget(), GTK_DEST_DEFAULT_ALL,
+                    NULL, 0, GDK_ACTION_COPY);
+  dnd::SetDestTargetListFromCodeMask(home_->widget(),
+                                     dnd::X_CHROME_TEXT_PLAIN |
+                                     dnd::X_CHROME_TEXT_URI_LIST);
+
+  g_signal_connect(home_->widget(), "drag-data-received",
+                   G_CALLBACK(OnDragDataReceived), this);
+}
+
 // static
 gboolean BrowserToolbarGtk::OnToolbarExpose(GtkWidget* widget,
                                             GdkEventExpose* e,
@@ -400,6 +416,32 @@ gboolean BrowserToolbarGtk::OnMenuButtonPressEvent(GtkWidget* button,
   menu->Popup(button, reinterpret_cast<GdkEvent*>(event));
 
   return TRUE;
+}
+
+// static
+void BrowserToolbarGtk::OnDragDataReceived(GtkWidget* widget,
+    GdkDragContext* drag_context, gint x, gint y,
+    GtkSelectionData* data, guint info, guint time,
+    BrowserToolbarGtk* toolbar) {
+  if (info != dnd::X_CHROME_TEXT_PLAIN) {
+    NOTIMPLEMENTED() << "Only support plain text drops for now, sorry!";
+    return;
+  }
+
+  GURL url(reinterpret_cast<char*>(data->data));
+  if (!url.is_valid()) {
+     // FIXME: remove this
+    NOTIMPLEMENTED() << "invalid url: " << url.spec();
+    return;
+  }
+
+  bool url_is_newtab = url.spec() == chrome::kChromeUINewTabURL;
+  toolbar->profile_->GetPrefs()->SetBoolean(prefs::kHomePageIsNewTabPage,
+                                            url_is_newtab);
+  if (!url_is_newtab) {
+    toolbar->profile_->GetPrefs()->SetString(prefs::kHomePage,
+                                             UTF8ToWide(url.spec()));
+  }
 }
 
 void BrowserToolbarGtk::InitNineBox() {

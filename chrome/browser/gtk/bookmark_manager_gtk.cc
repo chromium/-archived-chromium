@@ -17,6 +17,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/gtk/bookmark_tree_model.h"
 #include "chrome/browser/gtk/bookmark_utils_gtk.h"
+#include "chrome/browser/gtk/dnd_registry.h"
 #include "chrome/browser/importer/importer.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/chrome_paths.h"
@@ -379,9 +380,9 @@ GtkWidget* BookmarkManagerGtk::MakeLeftPane() {
 
   // The left side is only a drag destination (not a source).
   gtk_drag_dest_set(left_tree_view_, GTK_DEST_DEFAULT_DROP,
-                    bookmark_utils::kTargetTable,
-                    bookmark_utils::kTargetTableSize,
-                    GDK_ACTION_MOVE);
+                    NULL, 0, GDK_ACTION_MOVE);
+  dnd::SetDestTargetListFromCodeMask(left_tree_view_,
+                                     dnd::X_CHROME_BOOKMARK_ITEM);
 
   g_signal_connect(left_tree_view_, "drag-data-received",
                    G_CALLBACK(&OnLeftTreeViewDragReceived), this);
@@ -445,9 +446,9 @@ GtkWidget* BookmarkManagerGtk::MakeRightPane() {
   // any deleting following a succesful move, this should work.
   gtk_drag_source_set(right_tree_view_,
                       GDK_BUTTON1_MASK,
-                      bookmark_utils::kTargetTable,
-                      bookmark_utils::kTargetTableSize,
-                      GDK_ACTION_MOVE);
+                      NULL, 0, GDK_ACTION_MOVE);
+  dnd::SetSourceTargetListFromCodeMask(right_tree_view_,
+                                       dnd::X_CHROME_BOOKMARK_ITEM);
 
   // We connect to drag dest signals, but we don't actually enable the widget
   // as a drag destination unless it corresponds to the contents of a folder.
@@ -530,10 +531,10 @@ void BookmarkManagerGtk::BuildRightStore() {
     right_tree_model_.reset(
         BookmarkTableModel::CreateBookmarkTableModelForFolder(model_, node));
 
-    gtk_drag_dest_set(right_tree_view_, GTK_DEST_DEFAULT_ALL,
-                      bookmark_utils::kTargetTable,
-                      bookmark_utils::kTargetTableSize,
+    gtk_drag_dest_set(right_tree_view_, GTK_DEST_DEFAULT_ALL, NULL, 0,
                       GDK_ACTION_MOVE);
+    dnd::SetDestTargetListFromCodeMask(right_tree_view_,
+                                       dnd::X_CHROME_BOOKMARK_ITEM);
   } else {
     gtk_tree_view_column_set_visible(path_column_, TRUE);
 
@@ -1018,8 +1019,8 @@ gboolean BookmarkManagerGtk::OnRightTreeViewMotion(GtkWidget* tree_view,
   if (gtk_drag_check_threshold(tree_view,
       bm->mousedown_event_.x, bm->mousedown_event_.y, event->x, event->y)) {
     bm->delaying_mousedown_ = false;
-    GtkTargetList* targets = gtk_target_list_new(
-        bookmark_utils::kTargetTable, bookmark_utils::kTargetTableSize);
+    GtkTargetList* targets =
+        dnd::GetTargetListFromCodeMask(dnd::X_CHROME_BOOKMARK_ITEM);
     gtk_drag_begin(tree_view, targets, GDK_ACTION_MOVE,
                    1, reinterpret_cast<GdkEvent*>(event));
     // The drag adds a ref; let it own the list.

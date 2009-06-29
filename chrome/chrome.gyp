@@ -972,6 +972,8 @@
         'browser/gtk/custom_button.cc',
         'browser/gtk/custom_button.h',
         'browser/gtk/dialogs_gtk.cc',
+        'browser/gtk/dnd_registry.cc',
+        'browser/gtk/dnd_registry.h',
         'browser/gtk/download_item_gtk.cc',
         'browser/gtk/download_item_gtk.h',
         'browser/gtk/download_shelf_gtk.cc',

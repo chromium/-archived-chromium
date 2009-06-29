@@ -45,9 +45,6 @@ const size_t kMaxCharsOnAButton = 15;
 // Dictionary key used to store a BookmarkNode* on a GtkWidget.
 const char kBookmarkNode[] = "bookmark-node";
 
-// Mime types for DnD. Used to synchronize across applications.
-const char kInternalURIType[] = "application/x-chrome-bookmark-item";
-
 // Left-padding for the instructional text.
 const int kInstructionsPadding = 6;
 
@@ -192,9 +189,9 @@ void BookmarkBarGtk::Init(Profile* profile) {
                      TRUE, TRUE, 0);
 
   gtk_drag_dest_set(bookmark_toolbar_.get(), GTK_DEST_DEFAULT_DROP,
-                    bookmark_utils::kTargetTable,
-                    bookmark_utils::kTargetTableSize,
-                    GDK_ACTION_MOVE);
+                    NULL, 0, GDK_ACTION_MOVE);
+  dnd::SetDestTargetListFromCodeMask(bookmark_toolbar_.get(),
+                                     dnd::X_CHROME_BOOKMARK_ITEM);
   g_signal_connect(bookmark_toolbar_.get(), "drag-motion",
                    G_CALLBACK(&OnToolbarDragMotion), this);
   g_signal_connect(bookmark_toolbar_.get(), "drag-leave",
@@ -449,9 +446,8 @@ GtkWidget* BookmarkBarGtk::CreateBookmarkButton(const BookmarkNode* node) {
 
   // The tool item is also a source for dragging
   gtk_drag_source_set(button, GDK_BUTTON1_MASK,
-                      bookmark_utils::kTargetTable,
-                      bookmark_utils::kTargetTableSize,
-                      GDK_ACTION_MOVE);
+                      NULL, 0, GDK_ACTION_MOVE);
+  dnd::SetSourceTargetListFromCodeMask(button, dnd::X_CHROME_BOOKMARK_ITEM);
   g_signal_connect(G_OBJECT(button), "drag-begin",
                    G_CALLBACK(&OnButtonDragBegin), this);
   g_signal_connect(G_OBJECT(button), "drag-end",

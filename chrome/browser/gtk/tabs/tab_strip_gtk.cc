@@ -77,20 +77,6 @@ gfx::Rect GetInitialWidgetBounds(GtkWidget* widget) {
   return gfx::Rect(0, 0, request.width, request.height);
 }
 
-// Mime types for DnD. Used to synchronize across applications.
-const char kTargetString[] = "STRING";
-const char kTargetTextPlain[] = "text/plain";
-const char kTargetTextUriList[] = "text/uri-list";
-
-// Table of the mime types that we accept with their options.
-const GtkTargetEntry kTargetTable[] = {
-  { const_cast<gchar*>(kTargetString), 0, dnd::X_CHROME_STRING },
-  { const_cast<gchar*>(kTargetTextPlain), 0, dnd::X_CHROME_TEXT_PLAIN },
-  { const_cast<gchar*>(kTargetTextUriList), 0, dnd::X_CHROME_TEXT_URI_LIST }
-};
-
-const int kTargetTableSize = G_N_ELEMENTS(kTargetTable);
-
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -488,9 +474,13 @@ void TabStripGtk::Init() {
                               TabGtk::GetMinimumUnselectedSize().height());
   gtk_widget_set_app_paintable(tabstrip_.get(), TRUE);
   gtk_drag_dest_set(tabstrip_.get(), GTK_DEST_DEFAULT_ALL,
-                    kTargetTable, kTargetTableSize,
+                    NULL, 0,
                     static_cast<GdkDragAction>(
                         GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
+  dnd::SetDestTargetListFromCodeMask(tabstrip_.get(),
+                                     dnd::X_CHROME_TEXT_URI_LIST |
+                                     dnd::X_CHROME_TEXT_PLAIN);
+
   g_signal_connect(G_OBJECT(tabstrip_.get()), "expose-event",
                    G_CALLBACK(OnExpose), this);
   g_signal_connect(G_OBJECT(tabstrip_.get()), "size-allocate",
@@ -1529,19 +1519,12 @@ gboolean TabStripGtk::OnDragDrop(GtkWidget* widget, GdkDragContext* context,
   if (!tabstrip->drop_info_.get())
     return FALSE;
 
-  GtkTargetList* list = gtk_target_list_new(kTargetTable, kTargetTableSize);
-  DCHECK(list);
+  GdkAtom target = gtk_drag_dest_find_target(widget, context, NULL);
+  if (target != GDK_NONE)
+    gtk_drag_finish(context, FALSE, FALSE, time);
+  else
+    gtk_drag_get_data(widget, context, target, time);
 
-  GList* target = context->targets;
-  for (; target != NULL; target = target->next) {
-    guint info;
-    GdkAtom target_atom = GDK_POINTER_TO_ATOM(target->data);
-    if (gtk_target_list_find(list, target_atom, &info)) {
-      gtk_drag_get_data(widget, context, target_atom, time);
-    }
-  }
-
-  g_free(list);
   return TRUE;
 }
 
@@ -1570,7 +1553,7 @@ gboolean TabStripGtk::OnDragDataReceived(GtkWidget* widget,
                                          guint info, guint time,
                                          TabStripGtk* tabstrip) {
   // TODO(jhawkins): Parse URI lists.
-  if (info == dnd::X_CHROME_STRING || info == dnd::X_CHROME_TEXT_PLAIN) {
+  if (info == dnd::X_CHROME_TEXT_PLAIN) {
     tabstrip->CompleteDrop(data->data);
     gtk_drag_finish(context, TRUE, TRUE, time);
   }

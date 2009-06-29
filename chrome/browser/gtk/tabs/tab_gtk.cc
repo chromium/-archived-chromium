@@ -14,12 +14,6 @@
 
 namespace {
 
-// The targets available for drag n' drop.
-GtkTargetEntry target_table[] = {
-  { const_cast<char*>("application/x-chrome-tab"), GTK_TARGET_SAME_APP,
-    dnd::X_CHROME_TAB }
-};
-
 void SetEmptyDragIcon(GtkWidget* widget) {
   GdkPixbuf* pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, 1, 1);
   gtk_drag_source_set_icon_pixbuf(widget, pixbuf);
@@ -113,8 +107,8 @@ TabGtk::TabGtk(TabDelegate* delegate)
   g_object_ref(event_box_);
   gtk_event_box_set_visible_window(GTK_EVENT_BOX(event_box_), FALSE);
   gtk_drag_source_set(event_box_, GDK_BUTTON1_MASK,
-                      target_table, G_N_ELEMENTS(target_table),
-                      GDK_ACTION_MOVE);
+                      NULL, 0, GDK_ACTION_MOVE);
+  dnd::SetSourceTargetListFromCodeMask(event_box_, dnd::X_CHROME_TAB);
   g_signal_connect(G_OBJECT(event_box_), "button-press-event",
                    G_CALLBACK(OnMousePress), this);
   g_signal_connect(G_OBJECT(event_box_), "button-release-event",
