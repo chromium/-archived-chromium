@@ -2829,3 +2829,26 @@ BUG15267 WIN LINUX DEBUG : LayoutTests/transitions/cancel-transition.html = PASS
 
 // Started crashing without a clear reason.
 BUG15425 WIN : LayoutTests/dom/html/level2/html/HTMLElement142.html = PASS CRASH
+
+// WebKit 45287:45352 New tests
+BUG15649 : LayoutTests/http/tests/security/xssAuditor/anchor-url-dom-write-location-inline-event.html = FAIL
+BUG15649 : LayoutTests/http/tests/security/xssAuditor/anchor-url-dom-write-location-javascript-URL.html = FAIL
+BUG15649 : LayoutTests/http/tests/security/xssAuditor/anchor-url-dom-write-location.html = FAIL
+BUG15649 : LayoutTests/http/tests/security/xssAuditor/dom-write-URL.html = FAIL
+BUG15649 : LayoutTests/http/tests/security/xssAuditor/dom-write-innerHTML.html = FAIL
+BUG15649 : LayoutTests/http/tests/security/xssAuditor/dom-write-location-inline-event.html = FAIL
+BUG15649 : LayoutTests/http/tests/security/xssAuditor/dom-write-location-javascript-URL.html = FAIL
+BUG15649 : LayoutTests/http/tests/security/xssAuditor/dom-write-location.html = FAIL
+BUG15649 : LayoutTests/http/tests/security/xssAuditor/faux-script1.html = FAIL
+BUG15649 : LayoutTests/http/tests/security/xssAuditor/faux-script2.html = FAIL
+BUG15649 : LayoutTests/http/tests/security/xssAuditor/faux-script3.html = FAIL
+BUG15649 : LayoutTests/http/tests/security/xssAuditor/http-equiv-utf-7-encoded.html = FAIL
+BUG15649 : LayoutTests/http/tests/security/xssAuditor/iframe-javascript-url.html = FAIL
+BUG15649 : LayoutTests/http/tests/security/xssAuditor/malformed-HTML.html = FAIL
+BUG15649 : LayoutTests/http/tests/security/xssAuditor/script-tag-utf-7-encoded.html = FAIL
+BUG15649 : LayoutTests/http/tests/security/xssAuditor/script-tag-with-source-relative-scheme.html = FAIL
+BUG15649 : LayoutTests/compositing/layers-inside-overflow-scroll.html = TIMEOUT
+BUG15649 : LayoutTests/compositing/self-painting-layers.html = TIMEOUT
+BUG15649 : LayoutTests/http/tests/security/xssAuditor/get-from-iframe.html = TIMEOUT
+BUG15649 : LayoutTests/http/tests/security/xssAuditor/post-from-iframe.html = TIMEOUT
+BUG15649 : LayoutTests/plugins/netscape-plugin-map-data-to-src.html = FAIL
