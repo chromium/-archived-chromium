@@ -1326,7 +1326,10 @@ void RenderView::DidReceiveTitle(WebView* webview,
 void RenderView::DidFinishLoadForFrame(WebView* webview, WebFrame* frame) {
   WebDataSource* ds = frame->GetDataSource();
   NavigationState* navigation_state = NavigationState::FromDataSource(ds);
-  navigation_state->set_finish_load_time(Time::Now());
+  // TODO(darin): It should not be possible for navigation_state to be null 
+  // here!
+  if (navigation_state)
+    navigation_state->set_finish_load_time(Time::Now());
 }
 
 void RenderView::DidFailLoadWithError(WebView* webview,
@@ -1341,7 +1344,10 @@ void RenderView::DidFinishDocumentLoadForFrame(WebView* webview,
                                                WebFrame* frame) {
   WebDataSource* ds = frame->GetDataSource();
   NavigationState* navigation_state = NavigationState::FromDataSource(ds);
-  navigation_state->set_finish_document_load_time(Time::Now());
+  // TODO(darin): It should not be possible for navigation_state to be null 
+  // here!
+  if (navigation_state)
+    navigation_state->set_finish_document_load_time(Time::Now());
 
   Send(new ViewHostMsg_DocumentLoadedInFrame(routing_id_));
 
