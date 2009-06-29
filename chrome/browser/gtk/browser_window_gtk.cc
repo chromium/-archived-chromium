@@ -110,7 +110,11 @@ void MainWindowDestroy(GtkWidget* widget, BrowserWindowGtk* window) {
   // Additionally, now that we know the window is gone, we need to make sure to
   // set window_ to NULL, otherwise we will try to close the window again when
   // we call Close() in the destructor.
-  MessageLoop::current()->DeleteSoon(FROM_HERE, window);
+  //
+  // We don't want to use DeleteSoon() here since it won't work on a nested pump
+  // (like in UI tests).
+  MessageLoop::current()->PostTask(FROM_HERE,
+                                   new DeleteTask<BrowserWindowGtk>(window));
 }
 
 // Using gtk_window_get_position/size creates a race condition, so only use
