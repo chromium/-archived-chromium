@@ -581,6 +581,15 @@ bool BrowserRenderProcessHost::FastShutdownIfPossible() {
   return true;
 }
 
+bool BrowserRenderProcessHost::SendWithTimeout(IPC::Message* msg,
+                                               int timeout_ms) {
+  if (!channel_.get()) {
+    delete msg;
+    return false;
+  }
+  return channel_->SendWithTimeout(msg, timeout_ms);
+}
+
 // This is a platform specific function for mapping a transport DIB given its id
 TransportDIB* BrowserRenderProcessHost::MapTransportDIB(
     TransportDIB::Id dib_id) {

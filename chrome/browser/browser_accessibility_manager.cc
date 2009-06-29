@@ -85,12 +85,12 @@ bool BrowserAccessibilityManager::RequestAccessibilityInfo(
 
   // Send accessibility information retrieval message to the renderer.
   bool success = false;
-  if (rvh && rvh->process() && rvh->process()->channel()) {
+  if (rvh && rvh->process() && rvh->process()->HasConnection()) {
     IPC::SyncMessage* msg =
         new ViewMsg_GetAccessibilityInfo(routing_id, in_params, &out_params_);
     // Necessary for the send to keep the UI responsive.
     msg->EnableMessagePumping();
-    success = rvh->process()->channel()->SendWithTimeout(msg,
+    success = rvh->process()->SendWithTimeout(msg,
         kAccessibilityMessageTimeOut);
   }
   return success;

@@ -87,7 +87,7 @@ gfx::NativeViewId RenderWidgetHost::GetNativeViewId() {
 }
 
 void RenderWidgetHost::Init() {
-  DCHECK(process_->channel());
+  DCHECK(process_->HasConnection());
 
   renderer_initialized_ = true;
 
@@ -97,7 +97,7 @@ void RenderWidgetHost::Init() {
 }
 
 void RenderWidgetHost::Shutdown() {
-  if (process_->channel()) {
+  if (process_->HasConnection()) {
     // Tell the renderer object to close.
     process_->ReportExpectingClose(routing_id_);
     bool rv = Send(new ViewMsg_Close(routing_id_));
@@ -180,7 +180,7 @@ void RenderWidgetHost::WasRestored() {
 }
 
 void RenderWidgetHost::WasResized() {
-  if (resize_ack_pending_ || !process_->channel() || !view_ ||
+  if (resize_ack_pending_ || !process_->HasConnection() || !view_ ||
       !renderer_initialized_) {
     return;
   }
@@ -351,7 +351,7 @@ void RenderWidgetHost::ForwardKeyboardEvent(
   // will mess up our key queue.
   if (WebInputEvent::isKeyboardEventType(key_event.type)) {
     // Don't add this key to the queue if we have no way to send the message...
-    if (!process_->channel())
+    if (!process_->HasConnection())
       return;
 
     // Put all WebKeyboardEvent objects in a queue since we can't trust the
@@ -367,7 +367,7 @@ void RenderWidgetHost::ForwardKeyboardEvent(
 
 void RenderWidgetHost::ForwardInputEvent(const WebInputEvent& input_event,
                                          int event_size) {
-  if (!process_->channel())
+  if (!process_->HasConnection())
     return;
 
   IPC::Message* message = new ViewMsg_HandleInputEvent(routing_id_);

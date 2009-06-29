@@ -139,7 +139,7 @@ bool RenderViewHost::CreateRenderView() {
   // ignored, so this is safe.
   if (!process()->Init())
     return false;
-  DCHECK(process()->channel());
+  DCHECK(process()->HasConnection());
   DCHECK(process()->profile());
 
   if (BindingsPolicy::is_dom_ui_enabled(enabled_bindings_)) {
@@ -197,7 +197,7 @@ bool RenderViewHost::CreateRenderView() {
 }
 
 bool RenderViewHost::IsRenderViewLive() const {
-  return process()->channel() && renderer_initialized_;
+  return process()->HasConnection() && renderer_initialized_;
 }
 
 void RenderViewHost::SetRendererPrefs(

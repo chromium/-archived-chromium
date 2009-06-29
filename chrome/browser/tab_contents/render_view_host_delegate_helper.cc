@@ -62,7 +62,7 @@ TabContents* RenderViewHostDelegateViewHelper::GetCreatedWindow(int route_id) {
   pending_contents_.erase(route_id);
 
   if (!new_tab_contents->render_view_host()->view() ||
-      !new_tab_contents->process()->channel()) {
+      !new_tab_contents->process()->HasConnection()) {
     // The view has gone away or the renderer crashed. Nothing to do.
     return NULL;
   }
@@ -85,7 +85,7 @@ RenderWidgetHostView* RenderViewHostDelegateViewHelper::GetCreatedWidget(
   pending_widget_views_.erase(route_id);
 
   RenderWidgetHost* widget_host = widget_host_view->GetRenderWidgetHost();
-  if (!widget_host->process()->channel()) {
+  if (!widget_host->process()->HasConnection()) {
     // The view has gone away or the renderer crashed. Nothing to do.
     return NULL;
   }

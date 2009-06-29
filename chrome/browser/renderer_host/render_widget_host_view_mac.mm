@@ -418,7 +418,7 @@ void RenderWidgetHostViewMac::ShutdownHost() {
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
-  DCHECK(renderWidgetHostView_->render_widget_host_->process()->channel());
+  DCHECK(renderWidgetHostView_->render_widget_host_->process()->HasConnection());
   DCHECK(!renderWidgetHostView_->about_to_validate_and_paint_);
 
   renderWidgetHostView_->invalid_rect_ = dirtyRect;

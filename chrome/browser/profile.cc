@@ -667,7 +667,7 @@ static void BroadcastNewHistoryTable(base::SharedMemory* table_memory) {
   // send to all RenderProcessHosts
   for (RenderProcessHost::iterator i = RenderProcessHost::begin();
        i != RenderProcessHost::end(); i++) {
-    if (!i->second->channel())
+    if (!i->second->HasConnection())
       continue;
 
     base::SharedMemoryHandle new_table;
@@ -679,7 +679,7 @@ static void BroadcastNewHistoryTable(base::SharedMemory* table_memory) {
 
     table_memory->ShareToProcess(process, &new_table);
     IPC::Message* msg = new ViewMsg_VisitedLink_NewTable(new_table);
-    i->second->channel()->Send(msg);
+    i->second->Send(msg);
   }
 }
 

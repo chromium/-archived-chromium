@@ -689,7 +689,7 @@ void RenderWidgetHostViewWin::OnDestroy() {
 }
 
 void RenderWidgetHostViewWin::OnPaint(HDC dc) {
-  DCHECK(render_widget_host_->process()->channel());
+  DCHECK(render_widget_host_->process()->HasConnection());
 
   about_to_validate_and_paint_ = true;
   BackingStore* backing_store = render_widget_host_->GetBackingStore(true);

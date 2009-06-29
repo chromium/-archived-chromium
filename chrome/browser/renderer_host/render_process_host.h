@@ -54,8 +54,9 @@ class RenderProcessHost : public IPC::Channel::Sender,
   // process.
   const base::Process& process() const { return process_; }
 
-  // May return NULL if there is no connection.
-  IPC::SyncChannel* channel() { return channel_.get(); }
+  // Returns true iff channel_ has been set to non-NULL. Use this for checking
+  // if there is connection or not.
+  bool HasConnection() { return channel_.get() != NULL; }
 
   bool sudden_termination_allowed() const {
     return sudden_termination_allowed_;
@@ -142,6 +143,11 @@ class RenderProcessHost : public IPC::Channel::Sender,
   // function does nothing.  The current implementation uses TerminateProcess.
   // Returns True if it was able to do fast shutdown.
   virtual bool FastShutdownIfPossible() = 0;
+
+  // Synchronously sends the message, waiting for the specified timeout. The
+  // implementor takes ownership of the given Message regardless of whether or
+  // not this method succeeds. Returns true on success.
+  virtual bool SendWithTimeout(IPC::Message* msg, int timeout_ms) = 0;
 
   // Transport DIB functions ---------------------------------------------------
 
