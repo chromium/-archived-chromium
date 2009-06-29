@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <Carbon/Carbon.h>
+
 #include "base/mac_util.h"
 #include "base/scoped_nsdisable_screen_updates.h"
 #include "base/sys_string_conversions.h"
@@ -20,6 +22,7 @@
 #import "chrome/browser/cocoa/download_shelf_controller.h"
 #import "chrome/browser/cocoa/find_bar_cocoa_controller.h"
 #include "chrome/browser/cocoa/find_bar_bridge.h"
+#import "chrome/browser/cocoa/fullscreen_window.h"
 #import "chrome/browser/cocoa/status_bubble_mac.h"
 #import "chrome/browser/cocoa/tab_strip_model_observer_bridge.h"
 #import "chrome/browser/cocoa/tab_strip_view.h"
@@ -53,6 +56,7 @@ const int kWindowGradientHeight = 24;
 @interface BrowserWindowController(Private)
 
 - (void)positionToolbar;
+- (void)removeToolbar;
 - (void)installIncognitoBadge;
 
 // Leopard's gradient heuristic gets confused by our tabs and makes the title
@@ -607,6 +611,63 @@ willPositionSheet:(NSWindow *)sheet
   [findBarCocoaController_ positionFindBarView:[self tabContentArea]];
 }
 
+// Adjust the UI for fullscreen mode.  E.g. when going fullscreen,
+// remove the toolbar.  When stopping fullscreen, add it back in.
+- (void)adjustUIForFullscreen:(BOOL)fullscreen {
+  if (fullscreen) {
+    // Disable showing of the bookmark bar.  This does not toggle the
+    // preference.
+    [bookmarkBarController_ setBookmarkBarEnabled:NO];
+    // Make room for more content area.
+    [self removeToolbar];
+    // Hide the menubar, and allow it to un-hide when moving the mouse
+    // to the top of the screen.  Does this eliminate the need for an
+    // info bubble describing how to exit fullscreen mode?
+    SetSystemUIMode(kUIModeAllHidden, kUIOptionAutoShowMenuBar);
+  } else {
+    SetSystemUIMode(kUIModeNormal, 0);
+    [self positionToolbar];
+    [bookmarkBarController_ setBookmarkBarEnabled:YES];
+  }
+}
+
+- (NSWindow*)fullscreenWindow {
+  return [[[FullscreenWindow alloc] initForScreen:[[self window] screen]]
+           autorelease];
+}
+
+- (void)setFullscreen:(BOOL)fullscreen {
+  fullscreen_ = fullscreen;
+  if (fullscreen) {
+    // Minimize our UI
+    [self adjustUIForFullscreen:fullscreen];
+    // Move content to a new fullscreen window
+    NSView* content = [[self window] contentView];
+    fullscreen_window_.reset([[self fullscreenWindow] retain]);
+    [content removeFromSuperview];
+    [fullscreen_window_ setContentView:content];
+    [self setWindow:fullscreen_window_.get()];
+    // Show one window, hide the other.
+    [fullscreen_window_ makeKeyAndOrderFront:self];
+    [content setNeedsDisplay:YES];
+    [window_ orderOut:self];
+  } else {
+    [self adjustUIForFullscreen:fullscreen];
+    NSView* content = [fullscreen_window_ contentView];
+    [content removeFromSuperview];
+    [window_ setContentView:content];
+    [self setWindow:window_.get()];
+    [window_ makeKeyAndOrderFront:self];
+    [content setNeedsDisplay:YES];
+    [fullscreen_window_ close];
+    fullscreen_window_.reset(nil);
+  }
+}
+
+- (BOOL)isFullscreen {
+  return fullscreen_;
+}
+
 // Called by the bookmark bar to open a URL.
 - (void)openBookmarkURL:(const GURL&)url
             disposition:(WindowOpenDisposition)disposition {
@@ -661,26 +722,47 @@ willPositionSheet:(NSWindow *)sheet
 
 @implementation BrowserWindowController (Private)
 
-// Position |toolbarView_| below the tab strip, but not as a sibling. The
-// toolbar is part of the window's contentView, mainly because we want the
-// opacity during drags to be the same as the web content.
-- (void)positionToolbar {
+// If |add| is YES:
+// Position |toolbarView_| below the tab strip, but not as a
+// sibling. The toolbar is part of the window's contentView, mainly
+// because we want the opacity during drags to be the same as the web
+// content.  This can be used for either the initial add or a
+// reposition.
+// If |add| is NO:
+// Remove the toolbar from it's parent view (the window's content view).
+// Called when going fullscreen and we need to minimize UI.
+- (void)positionOrRemoveToolbar:(BOOL)add {
   NSView* contentView = [self tabContentArea];
   NSRect contentFrame = [contentView frame];
   NSView* toolbarView = [toolbarController_ view];
   NSRect toolbarFrame = [toolbarView frame];
 
-  // Shrink the content area by the height of the toolbar.
-  contentFrame.size.height -= toolbarFrame.size.height;
+  // Shrink or grow the content area by the height of the toolbar.
+  if (add)
+    contentFrame.size.height -= toolbarFrame.size.height;
+  else
+    contentFrame.size.height += toolbarFrame.size.height;
   [contentView setFrame:contentFrame];
 
-  // Move the toolbar above the content area, within the window's content view
-  // (as opposed to the tab strip, which is a sibling).
-  toolbarFrame.origin.y = NSMaxY(contentFrame);
-  toolbarFrame.origin.x = 0;
-  toolbarFrame.size.width = contentFrame.size.width;
-  [toolbarView setFrame:toolbarFrame];
-  [[[self window] contentView] addSubview:toolbarView];
+  if (add) {
+    // Move the toolbar above the content area, within the window's content view
+    // (as opposed to the tab strip, which is a sibling).
+    toolbarFrame.origin.y = NSMaxY(contentFrame);
+    toolbarFrame.origin.x = 0;
+    toolbarFrame.size.width = contentFrame.size.width;
+    [toolbarView setFrame:toolbarFrame];
+    [[[self window] contentView] addSubview:toolbarView];
+  } else {
+    [toolbarView removeFromSuperview];
+  }
+}
+
+- (void)positionToolbar {
+  [self positionOrRemoveToolbar:YES];
+}
+
+- (void)removeToolbar {
+  [self positionOrRemoveToolbar:NO];
 }
 
 // If the browser is in incognito mode, install the image view to decordate

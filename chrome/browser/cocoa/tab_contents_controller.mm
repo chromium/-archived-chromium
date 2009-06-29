@@ -37,14 +37,6 @@
   return [[self view] superview] ? YES : NO;
 }
 
-- (IBAction)fullScreen:(id)sender {
-  if ([[self view] isInFullScreenMode]) {
-    [[self view] exitFullScreenModeWithOptions:nil];
-  } else {
-    [[self view] enterFullScreenMode:[NSScreen mainScreen] withOptions:nil];
-  }
-}
-
 - (void)willBecomeSelectedTab {
 }
 

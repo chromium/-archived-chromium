@@ -44,6 +44,7 @@ class TabStripModelObserverBridge;
   // their destruction sequence.
   scoped_ptr<Browser> browser_;
   scoped_nsobject<NSWindow> window_;
+  scoped_nsobject<NSWindow> fullscreen_window_;
   scoped_ptr<TabStripModelObserverBridge> tabObserver_;
   scoped_ptr<BrowserWindowCocoa> windowShim_;
   scoped_nsobject<ToolbarController> toolbarController_;
@@ -53,6 +54,7 @@ class TabStripModelObserverBridge;
   scoped_ptr<StatusBubble> statusBubble_;
   scoped_nsobject<DownloadShelfController> downloadShelfController_;
   BOOL ownsBrowser_;  // Only ever NO when testing
+  BOOL fullscreen_;
 }
 
 // Load the browser window nib and do any Cocoa-specific initialization.
@@ -109,6 +111,12 @@ class TabStripModelObserverBridge;
 // BrowserWindowController.
 - (void)addFindBar:(FindBarCocoaController*)findBarCocoaController;
 
+// Enters (or exits) fullscreen mode.
+- (void)setFullscreen:(BOOL)fullscreen;
+
+// Returns fullscreen state.
+- (BOOL)isFullscreen;
+
 @end
 
 
@@ -116,6 +124,9 @@ class TabStripModelObserverBridge;
 
 // Allows us to initWithBrowser withOUT taking ownership of the browser.
 - (id)initWithBrowser:(Browser*)browser takeOwnership:(BOOL)ownIt;
+
+// Return an autoreleased NSWindow suitable for fullscreen use.
+- (NSWindow*)fullscreenWindow;
 
 @end  // BrowserWindowController(TestingAPI)
 

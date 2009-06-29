@@ -742,6 +742,8 @@
         'browser/cocoa/find_bar_view.mm',
         'browser/cocoa/first_run_dialog.h',
         'browser/cocoa/first_run_dialog.mm',
+        'browser/cocoa/fullscreen_window.h',
+        'browser/cocoa/fullscreen_window.mm',
         'browser/cocoa/gradient_button_cell.h',
         'browser/cocoa/gradient_button_cell.mm',
         'browser/cocoa/hung_renderer_controller.h',
@@ -3407,6 +3409,7 @@
         'browser/cocoa/find_bar_bridge_unittest.mm',
         'browser/cocoa/find_bar_cocoa_controller_unittest.mm',
         'browser/cocoa/find_bar_view_unittest.mm',
+        'browser/cocoa/fullscreen_window_unittest.mm',
         'browser/cocoa/hung_renderer_controller_unittest.mm',
         'browser/cocoa/location_bar_cell_unittest.mm',
         'browser/cocoa/location_bar_view_mac_unittest.mm',
@@ -3631,7 +3634,7 @@
             'browser/tab_contents/navigation_controller_unittest.cc',
             'browser/task_manager_unittest.cc',
             'third_party/hunspell/google/hunspell_tests.cc',
-            
+
             # Compact Language Detection (cld) is not supported in mac yet.
             '../third_party/cld/bar/toolbar/cld/i18n/encodings/compact_lang_det/compact_lang_det_unittest_small.cc',
           ],

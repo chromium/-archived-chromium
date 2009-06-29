@@ -90,4 +90,34 @@ TEST_F(BrowserWindowCocoaTest, TestBookmarkBarVisible) {
   EXPECT_EQ(before, bwc->IsBookmarkBarVisible());
 }
 
+@interface FakeController : NSWindowController {
+  BOOL fullscreen_;
+}
+@end
+
+@implementation FakeController
+- (void)setFullscreen:(BOOL)fullscreen {
+  fullscreen_ = fullscreen;
+}
+- (BOOL)isFullscreen {
+  return fullscreen_;
+}
+@end
+
+TEST_F(BrowserWindowCocoaTest, TestFullscreen) {
+  scoped_nsobject<FakeController> fake_controller_([[FakeController alloc]
+                                                     init]);
+  BrowserWindowCocoaPong *bwc = new BrowserWindowCocoaPong(
+    browser_helper_.browser(),
+    (BrowserWindowController*)fake_controller_.get(),
+    cocoa_helper_.window());
+  scoped_ptr<BrowserWindowCocoaPong> scoped_bwc(bwc);
+
+  EXPECT_FALSE(bwc->IsFullscreen());
+  bwc->SetFullscreen(true);
+  EXPECT_TRUE(bwc->IsFullscreen());
+  bwc->SetFullscreen(false);
+  EXPECT_FALSE(bwc->IsFullscreen());
+}
+
 /* TODO(???): test other methods of BrowserWindowCocoa */

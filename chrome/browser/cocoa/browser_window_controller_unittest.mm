@@ -50,4 +50,31 @@ TEST_F(BrowserWindowControllerTest, TestSaveWindowPosition) {
   EXPECT_TRUE(prefs->GetDictionary(prefs::kBrowserWindowPlacement) != NULL);
 }
 
+@interface BrowserWindowControllerFakeFullscreen : BrowserWindowController {
+}
+@end
+@implementation BrowserWindowControllerFakeFullscreen
+// This isn't needed to pass the test, but does prevent an actual
+// fullscreen from happening.
+- (NSWindow*)fullscreenWindow {
+  return nil;
+}
+@end
+
+TEST_F(BrowserWindowControllerTest, TestFullscreen) {
+  // Note use of "controller", not "controller_"
+  scoped_nsobject<BrowserWindowController> controller;
+  controller.reset([[BrowserWindowControllerFakeFullscreen alloc]
+                        initWithBrowser:browser_helper_.browser()
+                          takeOwnership:NO]);
+  EXPECT_FALSE([controller isFullscreen]);
+  [controller setFullscreen:YES];
+  EXPECT_TRUE([controller isFullscreen]);
+  [controller setFullscreen:NO];
+  EXPECT_FALSE([controller isFullscreen]);
+
+  // Confirm the real fullscreen command doesn't return nil
+  EXPECT_TRUE([controller_ fullscreenWindow]);
+}
+
 /* TODO(???): test other methods of BrowserWindowController */

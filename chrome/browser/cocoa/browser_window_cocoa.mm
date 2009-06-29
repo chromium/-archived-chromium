@@ -123,12 +123,11 @@ bool BrowserWindowCocoa::IsMaximized() const {
 }
 
 void BrowserWindowCocoa::SetFullscreen(bool fullscreen) {
-  NOTIMPLEMENTED();
+  [controller_ setFullscreen:fullscreen];
 }
 
 bool BrowserWindowCocoa::IsFullscreen() const {
-  NOTIMPLEMENTED();
-  return false;
+  return !![controller_ isFullscreen];
 }
 
 gfx::Rect BrowserWindowCocoa::GetRootWindowResizerRect() const {

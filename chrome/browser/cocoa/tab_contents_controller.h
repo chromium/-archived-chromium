@@ -27,9 +27,6 @@ class TabStripModel;
 - (id)initWithNibName:(NSString*)name
              contents:(TabContents*)contents;
 
-// Take this view (toolbar and web contents) full screen
-- (IBAction)fullScreen:(id)sender;
-
 // Called when the tab contents is about to be put into the view hierarchy as
 // the selected tab. Handles things such as ensuring the toolbar is correctly
 // enabled.
