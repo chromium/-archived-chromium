@@ -16,21 +16,6 @@
 
 using base::TimeDelta;
 
-namespace {
-
-// The timeout value, in seconds, used to clean up idle sockets that can't be
-// reused.
-//
-// Note: It's important to close idle sockets that have received data as soon
-// as possible because the received data may cause BSOD on Windows XP under
-// some conditions.  See http://crbug.com/4606.
-const int kCleanupInterval = 10;  // DO NOT INCREASE THIS TIMEOUT.
-
-// The maximum duration, in seconds, to keep idle persistent sockets alive.
-const int kIdleTimeout = 300;  // 5 minutes.
-
-}  // namespace
-
 namespace net {
 
 TCPConnectJob::TCPConnectJob(
