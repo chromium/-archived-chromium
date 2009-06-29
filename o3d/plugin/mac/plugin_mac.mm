@@ -38,13 +38,13 @@
 #include "plugin/cross/o3d_glue.h"
 #include "plugin/cross/main.h"
 #include "core/mac/display_window_mac.h"
+#include "plugin/mac/graphics_utils_mac.h"
 
 BreakpadRef gBreakpadRef =  NULL;
 
 using glue::_o3d::PluginObject;
 using o3d::DisplayWindowMac;
 
-static void DrawToOverlayWindow(WindowRef overlayWindow);
 
 // Returns the version number of the running Mac browser, as parsed from
 // the short version string in the plist of the app's bundle.
@@ -279,14 +279,6 @@ void CFReleaseIfNotNull(CFTypeRef cf) {
 }
 
 
-// Given a WindowRef and an AGLContext, make the context draw in that window.
-// Return Value: true if the window is successfully set, false otherwise.
-bool SetWindowForAGLContext(AGLContext context, WindowRef window) {
-  return (IsMacOSTenFiveOrHigher()) ?
-      aglSetWindowRef(context, window) :
-      aglSetDrawable(context, GetWindowPort(window));
-}
-
 
 // Converts an old style Mac HFS path eg "HD:Users:xxx:file.zip" into
 // a standard Posix path eg "/Users/xxx/file.zip"
@@ -328,41 +320,6 @@ char* CreatePosixFilePathFromHFSFilePath(const char* hfsPath) {
   return posix_path;
 }
 
-// Returns whether OS is 10.5 (Leopard) or higher.
-bool IsMacOSTenFiveOrHigher() {
-  static bool isCached = false, result = false;
-
-  if (!isCached) {
-    SInt32 major = 0;
-    SInt32 minor = 0;
-    // These selectors don't exist pre 10.4 but as we check the error
-    // the function will correctly return NO which is the right answer.
-    result = ((::Gestalt(gestaltSystemVersionMajor,  &major) == noErr) &&
-              (::Gestalt(gestaltSystemVersionMinor,  &minor) == noErr) &&
-              ((major > 10) || (major == 10 && minor >= 5)));
-    isCached = true;
-  }
-  return result;
-}
-
-
-static Rect CGRect2Rect(const CGRect &inRect) {
-  Rect outRect;
-  outRect.left = inRect.origin.x;
-  outRect.top = inRect.origin.y;
-  outRect.right = inRect.origin.x + inRect.size.width;
-  outRect.bottom = inRect.origin.y + inRect.size.height;
-  return outRect;
-}
-
-static CGRect Rect2CGRect(const Rect &inRect) {
-  CGRect outRect;
-  outRect.origin.x = inRect.left;
-  outRect.origin.y = inRect.top;
-  outRect.size.width = inRect.right - inRect.left;
-  outRect.size.height = inRect.bottom - inRect.top;
-  return outRect;
-}
 
 
 // A little wrapper for ATSUSetAttributes to make calling it with one attribute
@@ -394,30 +351,6 @@ static void MySetLayoutControl(ATSUTextLayout layout,
 }
 
 
-static void PaintRoundedCGRect(CGContextRef context,
-                               CGRect rect,
-                               float radius,
-                               bool fill) {
-  CGFloat lx = CGRectGetMinX(rect);
-  CGFloat cx = CGRectGetMidX(rect);
-  CGFloat rx = CGRectGetMaxX(rect);
-  CGFloat by = CGRectGetMinY(rect);
-  CGFloat cy = CGRectGetMidY(rect);
-  CGFloat ty = CGRectGetMaxY(rect);
-
-  CGContextBeginPath(context);
-  CGContextMoveToPoint(context, lx, cy);
-  CGContextAddArcToPoint(context, lx, by, cx, by, radius);
-  CGContextAddArcToPoint(context, rx, by, rx, cy, radius);
-  CGContextAddArcToPoint(context, rx, ty, cx, ty, radius);
-  CGContextAddArcToPoint(context, lx, ty, lx, cy, radius);
-  CGContextClosePath(context);
-
-  if (fill)
-    CGContextFillPath(context);
-  else
-    CGContextStrokePath(context);
-}
 
 // Convenience function for fetching SInt32 parameters from Carbon EventRefs.
 static SInt32 GetIntEventParam(EventRef inEvent, EventParamName    inName) {
@@ -429,34 +362,11 @@ static SInt32 GetIntEventParam(EventRef inEvent, EventParamName    inName) {
 
 #pragma mark ____OVERLAY_WINDOW
 
-static OSStatus HandleOverlayWindow(EventHandlerCallRef inHandlerCallRef,
-                                    EventRef inEvent,
-                                    void *inUserData) {
-  OSType event_class = GetEventClass(inEvent);
-  OSType event_kind = GetEventKind(inEvent);
-
-  if (event_class == kEventClassWindow &&
-      event_kind == kEventWindowPaint) {
-      WindowRef theWindow = NULL;
-    GetEventParameter(inEvent, kEventParamDirectObject,
-                      typeWindowRef, NULL,
-                      sizeof(theWindow), NULL,
-                      &theWindow);
-    if (theWindow) {
-      CallNextEventHandler(inHandlerCallRef, inEvent);
-      DrawToOverlayWindow(theWindow);
-    }
-  }
-
-  return noErr;
-}
-
-
 // Returns the unicode 16 chars that we need to display as the fullscreen
 // message. Should be disposed with free() after use.
 static UniChar * GetFullscreenDisplayText(int *returned_length) {
   // TODO this will need to be a localized string.
-  NSString* ns_display_text = @"Press ESC to exit fullscreen.";
+  NSString* ns_display_text = @"Press ESC to exit fullscreen";
   int count = [ns_display_text length];
   UniChar* display_text_16 = (UniChar*) calloc(count, sizeof(UniChar));
 
@@ -570,14 +480,28 @@ static void DrawToOverlayWindow(WindowRef overlayWindow) {
   QDEndCGContext(GetWindowPort(overlayWindow), &overlayContext);
 }
 
+static OSStatus HandleOverlayWindow(EventHandlerCallRef inHandlerCallRef,
+                                    EventRef inEvent,
+                                    void *inUserData) {
+  OSType event_class = GetEventClass(inEvent);
+  OSType event_kind = GetEventKind(inEvent);
 
-static void SetWindowLevel(WindowRef window, int level) {
-  WindowGroupRef wGroup = NULL;
-  WindowGroupAttributes attrs = 0;
-  CreateWindowGroup(attrs, &wGroup);
-  SetWindowGroupLevel(wGroup, level);
-  SetWindowGroup(window, wGroup);
+  if (event_class == kEventClassWindow &&
+      event_kind == kEventWindowPaint) {
+      WindowRef theWindow = NULL;
+    GetEventParameter(inEvent, kEventParamDirectObject,
+                      typeWindowRef, NULL,
+                      sizeof(theWindow), NULL,
+                      &theWindow);
+    if (theWindow) {
+      CallNextEventHandler(inHandlerCallRef, inEvent);
+      DrawToOverlayWindow(theWindow);
+    }
+  }
+
+  return noErr;
 }
+
 
 
 static Rect GetOverlayWindowRect(bool visible) {
@@ -981,7 +905,6 @@ void PluginObject::GetDisplayModes(std::vector<o3d::DisplayMode> *modes) {
 
 #pragma mark ____FULLSCREEN_SWITCHING
 
-
 #define kTransitionTime 1.0
 
 bool PluginObject::RequestFullscreenDisplay() {
@@ -1041,18 +964,13 @@ bool PluginObject::RequestFullscreenDisplay() {
   client()->SendResizeEvent(renderer_->width(), renderer_->height(), true);
 
   SetFullscreenOverlayMacWindow(CreateOverlayWindow());
-  ShowWindow(GetFullscreenOverlayMacWindow());
-  DrawToOverlayWindow(GetFullscreenOverlayMacWindow());
-  TransitionWindowOptions options = {0, kTransitionTime, NULL, NULL};
-  CGRect shown_rect = Rect2CGRect(GetOverlayWindowRect(true));
+  ShowWindow(mac_fullscreen_overlay_window_);
+  SlideWindowToRect(mac_fullscreen_overlay_window_,
+                    Rect2CGRect(GetOverlayWindowRect(true)),
+                    kTransitionTime);
 
   // Hide the overlay text 4 seconds from now.
   time_to_hide_overlay_ = [NSDate timeIntervalSinceReferenceDate] + 4.0;
-
-  TransitionWindowWithOptions(GetFullscreenOverlayMacWindow(),
-                              kWindowSlideTransitionEffect,
-                              kWindowMoveTransitionAction,
-                              &shown_rect, true, &options);
 
   return true;
 }
@@ -1095,12 +1013,9 @@ void PluginObject::FullscreenIdle() {
       (time_to_hide_overlay_ != 0.0) &&
       (time_to_hide_overlay_ < [NSDate timeIntervalSinceReferenceDate])) {
     time_to_hide_overlay_ = 0.0;
-    TransitionWindowOptions options = {0, kTransitionTime, NULL, NULL};
-    CGRect hidden_rect = Rect2CGRect(GetOverlayWindowRect(false));
-    TransitionWindowWithOptions(mac_fullscreen_overlay_window_,
-                                kWindowSlideTransitionEffect,
-                                kWindowMoveTransitionAction,
-                                &hidden_rect, true, &options);
+    SlideWindowToRect(mac_fullscreen_overlay_window_,
+                      Rect2CGRect(GetOverlayWindowRect(false)),
+                      kTransitionTime);
   }
 }
 

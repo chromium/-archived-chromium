@@ -260,6 +260,7 @@ if env.Bit('mac'):
   inputs += [
     'mac/main_mac.mm',
     'mac/config_mac.mm',
+    'mac/graphics_utils_mac.mm',
     plugin_mac_object
   ]
 

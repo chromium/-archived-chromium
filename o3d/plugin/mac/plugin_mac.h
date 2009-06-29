@@ -81,11 +81,9 @@ void ReleaseSafariBrowserWindow(void* browserWindow);
 
 // Some miscellaneous helper functions...
 
-bool SetWindowForAGLContext(AGLContext context, WindowRef window);
 
 void CFReleaseIfNotNull(CFTypeRef cf);
 
-bool IsMacOSTenFiveOrHigher(void);
 
 // Converts an old style Mac HFS path eg "HD:Users:xxx:file.zip" into a standard
 // Posix path eg "/Users/xxx/file.zip" Assumes UTF8 in and out, returns a block

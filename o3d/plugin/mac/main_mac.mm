@@ -52,6 +52,8 @@
 #include "plugin/cross/plugin_metrics.h"
 #include "plugin/cross/out_of_memory.h"
 #include "plugin/mac/plugin_mac.h"
+#include "plugin/mac/graphics_utils_mac.h"
+
 
 o3d::PluginLogging* g_logger = NULL;
 bool g_logging_initialized = false;
