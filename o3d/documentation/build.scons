@@ -89,7 +89,7 @@ env["BUILDERS"]["IdlDocs"] = Builder(action=[env.Python(AUTOGEN_ARGS),
 doxy_inputs = []
 doxy_inputs += env.IdlDocs(
     'dummy', LOCAL_IDL_SOURCES,
-    IDL_GENERATE='jsheader',
+    IDL_GENERATE='cppheader',
     IDL_GENERATE_EXT='h')
 
 def EZTStep(target=None, source=None, env=None):
