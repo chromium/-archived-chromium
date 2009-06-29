@@ -20,6 +20,9 @@
     'mac': {
       'filepath': 'cocoa|\.mm$|(_mac|_posix)\.(cc|h)$',
     },
+    'base': {
+      'filepath': 'base/.*',
+    },
     'extension': {
       'filepath': 'extension',
     },
@@ -30,8 +33,14 @@
     'browser': {
       'filepath': 'chrome/browser/.*',
     },
+    'history': {
+      'filepath': 'chrome/browser/history/.*',
+    },
     'renderer': {
       'filepath': 'chrome/browser/renderer_host/.*|chrome/renderer/.*|chrome/common/render.*',
+    },
+    'tab_contents': {
+      'filepath': 'chrome/browser/tab_contents/.*',
     },
     'webkit': {
       'filepath': 'webkit/.*',
@@ -54,9 +63,12 @@
     'this_file': ['nirnimesh@chromium.org'],
     'valgrind': ['nirnimesh@chromium.org', 'dank@chromium.org'],
     'mac': ['jrg@chromium.org'],
+    'base': ['brettw@chromium.org'],
     'views': ['ben@chromium.org'],
     'browser': ['ben@chromium.org'],
-    'renderer': ['darin@chromium.org'],
+    'history': ['brettw@chromium.org'],
+    'renderer': ['darin@chromium.org', 'brettw@chromium.org'],
+    'tab_contents': ['brettw@chromium.org'],
     'webkit': ['darin@chromium.org'],
     'plugin': ['darin@chromium.org'],
     'extension': ['erikkay@chromium.org'],
