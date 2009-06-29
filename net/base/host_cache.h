@@ -16,8 +16,6 @@
 namespace net {
 
 // Cache used by HostResolver to map hostnames to their resolved result.
-// If the resolve is still in progress, the entry will reference the job
-// responsible for populating it.
 class HostCache {
  public:
   // Stores the latest address list that was looked up for a hostname.
