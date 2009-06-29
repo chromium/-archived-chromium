@@ -2637,7 +2637,6 @@ BUG11810 MAC : LayoutTests/svg/custom/polyline-points-crash.html = CRASH PASS
 BUG11810 MAC : LayoutTests/editing/selection/extend-selection.html = TIMEOUT PASS
 BUG11810 MAC DEBUG : LayoutTests/fast/repaint/subtree-root-clip.html = CRASH PASS
 BUG11810 MAC DEBUG : LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = TIMEOUT FAIL CRASH PASS
-BUG15052 MAC DEBUG : LayoutTests/transitions/repeated-firing-background-color.html = FAIL PASS
 
 // Flaky Linux tests
 BUG11832 LINUX : LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL PASS
