@@ -5,6 +5,8 @@
 #include "chrome/browser/renderer_host/backing_store.h"
 
 #include <stdlib.h>
+
+#include <algorithm>
 #include <utility>
 
 #include "base/compiler_specific.h"
@@ -323,8 +325,8 @@ void BackingStore::ShowRect(const gfx::Rect& rect, XID target) {
 SkBitmap BackingStore::PaintRectToBitmap(const gfx::Rect& rect) {
   static const int kBytesPerPixel = 4;
 
-  const int width = rect.width();
-  const int height = rect.height();
+  const int width = std::min(size_.width(), rect.width());
+  const int height = std::min(size_.height(), rect.height());
   XImage* image = XGetImage(display_, pixmap_,
                             rect.x(), rect.y(),
                             width, height,

@@ -6,6 +6,8 @@
 
 #include <gdk/gdk.h>
 
+#include <algorithm>
+
 #include "app/gfx/canvas_paint.h"
 #include "base/gfx/gtk_util.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -285,6 +287,10 @@ SkBitmap DraggedTabGtk::PaintDetachedView() {
 
 void DraggedTabGtk::PaintScreenshotIntoCanvas(gfx::Canvas* canvas,
                                               const gfx::Rect& target_bounds) {
+  // A drag could be initiated before the backing store is created.
+  if (!backing_store_)
+    return;
+
   gfx::Rect rect(0, 0,
                  contents_->allocation.width, contents_->allocation.height);
   SkBitmap bitmap = backing_store_->PaintRectToBitmap(rect);
