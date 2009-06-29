@@ -113,7 +113,7 @@ class WebPluginContainer : public WebCore::Widget {
 };
 
 // This is the WebKit side of the plugin implementation that forwards calls,
-// after changing out of WebCore types, to a delegate.  The delegate will
+// after changing out of WebCore types, to a delegate.  The delegate may
 // be in a different process.
 class WebPluginImpl : public WebPlugin,
                       public WebKit::WebURLLoaderClient {
@@ -148,6 +148,9 @@ class WebPluginImpl : public WebPlugin,
                 int arg_count, char** arg_names, char** arg_values);
 
   // WebPlugin implementation:
+#if defined(OS_LINUX)
+  gfx::PluginWindowHandle CreatePluginContainer();
+#endif
   void SetWindow(gfx::PluginWindowHandle window);
   void WillDestroyWindow(gfx::PluginWindowHandle window);
 #if defined(OS_WIN)
