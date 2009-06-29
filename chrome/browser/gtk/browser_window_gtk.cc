@@ -1190,10 +1190,16 @@ gboolean BrowserWindowGtk::OnButtonPressEvent(GtkWidget* widget,
   GdkWindowEdge edge;
   bool has_hit_edge = browser->GetWindowEdge(static_cast<int>(event->x),
       static_cast<int>(event->y), &edge);
-  // Ignore clicks that are in/below the tab strip.
-  gint tabstrip_y;
-  gtk_widget_get_pointer(browser->toolbar_->widget(), NULL, &tabstrip_y);
-  bool has_hit_titlebar = !browser->IsFullscreen() && (tabstrip_y < 0)
+  // Ignore clicks that are in/below the browser toolbar.
+  GtkWidget* toolbar = browser->toolbar_->widget();
+  if (!GTK_WIDGET_VISIBLE(toolbar)) {
+    // If the toolbar is not showing, use the location of web contents as the
+    // boundary of where to ignore clicks.
+    toolbar = browser->render_area_vbox_;
+  }
+  gint toolbar_y;
+  gtk_widget_get_pointer(toolbar, NULL, &toolbar_y);
+  bool has_hit_titlebar = !browser->IsFullscreen() && (toolbar_y < 0)
       && !has_hit_edge;
   if (event->button == 1) {
     if (GDK_BUTTON_PRESS == event->type) {
