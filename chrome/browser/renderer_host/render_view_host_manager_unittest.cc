@@ -3,9 +3,13 @@
 // found in the LICENSE file.
 
 #include "chrome/browser/renderer_host/test_render_view_host.h"
+#include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/browser/renderer_host/render_view_host_manager.h"
+#include "chrome/common/ipc_message.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/url_constants.h"
+#include "chrome/test/test_notification_tracker.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 class RenderViewHostManagerTest : public RenderViewHostTestHarness {
@@ -113,4 +117,134 @@ TEST_F(RenderViewHostManagerTest, AlwaysSendEnableViewSourceMode) {
   // New message should be sent out to make sure to enter view-source mode.
   EXPECT_TRUE(process()->sink().GetUniqueMessageMatching(
       ViewMsg_EnableViewSourceMode::ID));
+}
+
+// Tests the Init function by checking the initial RenderViewHost.
+TEST_F(RenderViewHostManagerTest, Init) {
+  // Using TestingProfile.
+  SiteInstance* instance = SiteInstance::CreateSiteInstance(profile_.get());
+  EXPECT_FALSE(instance->has_site());
+
+  TestTabContents tab_contents(profile_.get(), instance);
+  RenderViewHostManager manager(&tab_contents, &tab_contents);
+
+  manager.Init(profile_.get(), instance, MSG_ROUTING_NONE,
+               NULL /* modal_dialog_event */);
+
+  RenderViewHost* host = manager.current_host();
+  ASSERT_TRUE(host);
+  EXPECT_TRUE(instance == host->site_instance());
+  EXPECT_TRUE(&tab_contents == host->delegate());
+  EXPECT_TRUE(manager.current_view());
+  EXPECT_FALSE(manager.pending_render_view_host());
+}
+
+// Tests the Navigate function. We navigate three sites consequently and check
+// how the pending/committed RenderViewHost are modified.
+TEST_F(RenderViewHostManagerTest, Navigate) {
+  TestNotificationTracker notifications;
+
+  SiteInstance* instance = SiteInstance::CreateSiteInstance(profile_.get());
+
+  TestTabContents tab_contents(profile_.get(), instance);
+  notifications.ListenFor(NotificationType::RENDER_VIEW_HOST_CHANGED,
+                     Source<NavigationController>(&tab_contents.controller()));
+
+  // Create.
+  RenderViewHostManager manager(&tab_contents, &tab_contents);
+
+  manager.Init(profile_.get(), instance, MSG_ROUTING_NONE,
+               NULL /* modal_dialog_event */);
+
+  RenderViewHost* host;
+
+  // 1) The first navigation. --------------------------
+  GURL url1("http://www.google.com/");
+  NavigationEntry entry1(NULL /* instance */, -1 /* page_id */, url1,
+                         GURL() /* referrer */, string16() /* title */,
+                         PageTransition::TYPED);
+  host = manager.Navigate(entry1);
+
+  // The RenderViewHost created in Init will be reused.
+  EXPECT_TRUE(host == manager.current_host());
+  EXPECT_FALSE(manager.pending_render_view_host());
+
+  // Commit.
+  manager.DidNavigateMainFrame(host);
+  // Commit to SiteInstance should be delayed until RenderView commit.
+  EXPECT_TRUE(host == manager.current_host());
+  ASSERT_TRUE(host);
+  EXPECT_FALSE(host->site_instance()->has_site());
+  host->site_instance()->SetSite(url1);
+
+  // 2) Navigate to next site. -------------------------
+  GURL url2("http://www.google.com/foo");
+  NavigationEntry entry2(NULL /* instance */, -1 /* page_id */, url2,
+                         url1 /* referrer */, string16() /* title */,
+                         PageTransition::LINK);
+  host = manager.Navigate(entry2);
+
+  // The RenderViewHost created in Init will be reused.
+  EXPECT_TRUE(host == manager.current_host());
+  EXPECT_FALSE(manager.pending_render_view_host());
+
+  // Commit.
+  manager.DidNavigateMainFrame(host);
+  EXPECT_TRUE(host == manager.current_host());
+  ASSERT_TRUE(host);
+  EXPECT_TRUE(host->site_instance()->has_site());
+
+  // 3) Cross-site navigate to next site. --------------
+  GURL url3("http://webkit.org/");
+  NavigationEntry entry3(NULL /* instance */, -1 /* page_id */, url3,
+                         url2 /* referrer */, string16() /* title */,
+                         PageTransition::LINK);
+  host = manager.Navigate(entry3);
+
+  // A new RenderViewHost should be created.
+  EXPECT_TRUE(manager.pending_render_view_host());
+  EXPECT_TRUE(host == manager.pending_render_view_host());
+
+  notifications.Reset();
+
+  // Commit.
+  manager.DidNavigateMainFrame(manager.pending_render_view_host());
+  EXPECT_TRUE(host == manager.current_host());
+  ASSERT_TRUE(host);
+  EXPECT_TRUE(host->site_instance()->has_site());
+  // Check the pending RenderViewHost has been committed.
+  EXPECT_FALSE(manager.pending_render_view_host());
+
+  // We should observe a notification.
+  EXPECT_TRUE(notifications.Check1AndReset(
+      NotificationType::RENDER_VIEW_HOST_CHANGED));
+}
+
+// Tests DOMUI creation.
+TEST_F(RenderViewHostManagerTest, DOMUI) {
+  SiteInstance* instance = SiteInstance::CreateSiteInstance(profile_.get());
+
+  TestTabContents tab_contents(profile_.get(), instance);
+  RenderViewHostManager manager(&tab_contents, &tab_contents);
+
+  manager.Init(profile_.get(), instance, MSG_ROUTING_NONE,
+               NULL /* modal_dialog_event */);
+
+  GURL url("chrome://newtab");
+  NavigationEntry entry(NULL /* instance */, -1 /* page_id */, url,
+                        GURL() /* referrer */, string16() /* title */,
+                        PageTransition::TYPED);
+  RenderViewHost* host = manager.Navigate(entry);
+
+  EXPECT_TRUE(host);
+  EXPECT_TRUE(host == manager.current_host());
+  EXPECT_FALSE(manager.pending_render_view_host());
+  EXPECT_TRUE(manager.pending_dom_ui());
+  EXPECT_FALSE(manager.dom_ui());
+
+  // Commit.
+  manager.DidNavigateMainFrame(host);
+
+  EXPECT_FALSE(manager.pending_dom_ui());
+  EXPECT_TRUE(manager.dom_ui());
 }
