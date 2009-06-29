@@ -32,9 +32,6 @@ void WorkerThread::Init() {
   ChildThread::Init();
   webkit_client_.reset(new WorkerWebKitClientImpl);
   WebKit::initialize(webkit_client_.get());
-
-  // Enable the worker so that the nested worker can be created.
-  WebKit::enableWebWorkers();
 }
 
 void WorkerThread::CleanUp() {

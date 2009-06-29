@@ -60,7 +60,6 @@ class WorkerTest : public UITest {
 
 WorkerTest::WorkerTest()
     : UITest(), initialized_for_layout_test_(false), test_count_(0) {
-  launch_arguments_.AppendSwitch(switches::kEnableWebWorkers);
 }
 
 WorkerTest::~WorkerTest() {
@@ -289,7 +288,7 @@ TEST_F(WorkerTest, WorkerFastLayoutTests) {
 
 TEST_F(WorkerTest, WorkerHttpLayoutTests) {
   static const char* kLayoutTestFiles[] = {
-    //"text-encoding.html",
+    "text-encoding.html",
     "worker-importScripts.html",
     "worker-redirect.html",
   };

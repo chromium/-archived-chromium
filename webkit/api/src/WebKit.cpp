@@ -106,13 +106,6 @@ void registerExtension(v8::Extension* extension,
     WebCore::V8Proxy::RegisterExtension(extension, schemeRestriction);
 }
 
-void enableWebWorkers()
-{
-#if ENABLE(WORKERS)
-    WebCore::WorkerContextExecutionProxy::setIsWebWorkersEnabled(true);
-#endif
-}
-
 void enableMediaPlayer()
 {
 #if ENABLE(VIDEO)

@@ -77,9 +77,6 @@ namespace WebKit {
     WEBKIT_API void registerExtension(v8::Extension*,
                                       const WebString& schemeRestriction);
 
-    // Enables HTML5 worker support.
-    WEBKIT_API void enableWebWorkers();
-
     // Enables HTML5 media support.
     WEBKIT_API void enableMediaPlayer();
 

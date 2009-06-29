@@ -437,9 +437,6 @@ const wchar_t kNewFtp[]                        = L"new-ftp";
 // can connect to a channel, provided it knows its name. For debugging purposes.
 const wchar_t kIPCUseFIFO[]                    = L"ipc-use-fifo";
 
-// Enable HTML5 Worker support
-const wchar_t kEnableWebWorkers[]              = L"enable-web-workers";
-
 // Enable Native Web Worker support
 const wchar_t kEnableNativeWebWorkers[]        = L"enable-native-web-workers";
 

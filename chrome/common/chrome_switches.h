@@ -163,7 +163,6 @@ extern const wchar_t kNewFtp[];
 
 extern const wchar_t kIPCUseFIFO[];
 
-extern const wchar_t kEnableWebWorkers[];
 extern const wchar_t kEnableNativeWebWorkers[];
 extern const wchar_t kWebWorkerProcessPerCore[];
 extern const wchar_t kWebWorkerShareProcesses[];
