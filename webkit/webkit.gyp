@@ -4835,6 +4835,7 @@
             '../third_party/WebKit/WebCore/inspector/front-end/Images/resourcePlainIcon.png',
             '../third_party/WebKit/WebCore/inspector/front-end/Images/resourcePlainIconSmall.png',
             '../third_party/WebKit/WebCore/inspector/front-end/Images/resourcesIcon.png',
+            '../third_party/WebKit/WebCore/inspector/front-end/Images/resourcesSilhouette.png',
             '../third_party/WebKit/WebCore/inspector/front-end/Images/resourcesSizeGraphIcon.png',
             '../third_party/WebKit/WebCore/inspector/front-end/Images/resourcesTimeGraphIcon.png',
             '../third_party/WebKit/WebCore/inspector/front-end/Images/scriptsIcon.png',
