@@ -50,7 +50,10 @@ struct Options {
       : base_path(FilePath::kCurrentDirectory),
         condition(true),
         up_axis(0, 0, 0),
-        pretty_print(false) {}
+        pretty_print(false),
+        keep_filters(false),
+        keep_materials(false) {
+  }
 
   // The path to the "base" of the model path, from which all paths
   // are made relative.  Defaults to the current directory.
@@ -68,6 +71,13 @@ struct Options {
   // pretty-printed (formatted with spaces and newlines) or just
   // emitted as one huge one-line string.  Defaults to false.
   bool pretty_print;
+
+  // Tells the converter not to set all filters to tri-linear.
+  bool keep_filters;
+
+  // Tells the converter not to change materials to constant if they are used by
+  // a mesh that has no normals.
+  bool keep_materials;
 };
 
 // Converts the given file for use in O3D.  This is done by

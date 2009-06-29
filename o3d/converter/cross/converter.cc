@@ -132,6 +132,78 @@ bool Convert(const FilePath& in_filename,
     pack->RemoveObject(param_object);
   }
 
+  // Mark all Samplers to use tri-linear filtering
+  if (!options.keep_filters) {
+    std::vector<Sampler*> samplers = pack->GetByClass<Sampler>();
+    for (unsigned ii = 0; ii < samplers.size(); ++ii) {
+      Sampler* sampler = samplers[ii];
+      sampler->set_mag_filter(Sampler::LINEAR);
+      sampler->set_min_filter(Sampler::LINEAR);
+      sampler->set_mip_filter(Sampler::LINEAR);
+    }
+  }
+
+  // Mark all Materials that are on Primitives that have no normals as constant.
+  if (!options.keep_materials) {
+    std::vector<Primitive*> primitives = pack->GetByClass<Primitive>();
+    for (unsigned ii = 0; ii < primitives.size(); ++ii) {
+      Primitive* primitive = primitives[ii];
+      StreamBank* stream_bank = primitive->stream_bank();
+      if (stream_bank && !stream_bank->GetVertexStream(Stream::NORMAL, 0)) {
+        Material* material = primitive->material();
+        if (material) {
+          ParamString* lighting_param = material->GetParam<ParamString>(
+              Collada::kLightingTypeParamName);
+          if (lighting_param) {
+            // If the lighting type is lambert, blinn, or phong
+            // copy the diffuse color to the emissive since that's most likely
+            // what the user wants to see.
+            if (lighting_param->value().compare(
+                   Collada::kLightingTypeLambert) == 0 ||
+                lighting_param->value().compare(
+                   Collada::kLightingTypeBlinn) == 0 ||
+                lighting_param->value().compare(
+                   Collada::kLightingTypePhong) == 0) {
+              // There's 4 cases: (to bad they are not the same names)
+              // 1) Diffuse -> Emissive
+              // 2) DiffuseSampler -> Emissive
+              // 3) Diffuse -> EmissiveSampler
+              // 4) DiffuseSampler -> EmissiveSampler
+              ParamFloat4* diffuse_param = material->GetParam<ParamFloat4>(
+                  Collada::kMaterialParamNameDiffuse);
+              ParamFloat4* emissive_param = material->GetParam<ParamFloat4>(
+                  Collada::kMaterialParamNameEmissive);
+              ParamSampler* diffuse_sampler_param =
+                  material->GetParam<ParamSampler>(
+                      Collada::kMaterialParamNameDiffuseSampler);
+              ParamSampler* emissive_sampler_param =
+                  material->GetParam<ParamSampler>(
+                      Collada::kMaterialParamNameEmissive);
+              Param* source_param = diffuse_param ?
+                  static_cast<Param*>(diffuse_param) :
+                  static_cast<Param*>(diffuse_sampler_param);
+              Param* destination_param = emissive_param ?
+                  static_cast<Param*>(emissive_param) :
+                  static_cast<Param*>(emissive_sampler_param);
+              if (!source_param->IsA(destination_param->GetClass())) {
+                // The params do not match type so we need to make the emissive
+                // Param the same as the diffuse Param.
+                material->RemoveParam(destination_param);
+                destination_param = material->CreateParamByClass(
+                    diffuse_param ? Collada::kMaterialParamNameEmissive :
+                                    Collada::kMaterialParamNameEmissiveSampler,
+                    source_param->GetClass());
+                DCHECK(destination_param);
+              }
+              destination_param->CopyDataFromParam(source_param);
+            }
+            lighting_param->set_value(Collada::kLightingTypeConstant);
+          }
+        }
+      }
+    }
+  }
+
   // Attempt to open the output file.
   FILE* out_file = file_util::OpenFile(out_filename, "wb");
   if (out_file == NULL) {

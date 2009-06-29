@@ -80,9 +80,24 @@ int CrossMain(int argc, char**argv) {
     in_filename = o3d::WideToFilePath(values[0]);
     out_filename = o3d::WideToFilePath(values[1]);
   } else {
-    std::cerr << "Usage:  " << argv[0]
-              << " [--no-condition] [--base-path=<path>] [--up-axis=x,y,z]"
-              << " [--pretty-print] <infile.dae> [ <outfile> ]\n";
+    std::cerr << "Usage: " << argv[0]
+              << " [ options ] <infile.dae> [ <outfile> ]\n";
+    std::cerr
+        << "--no-condition\n"
+        << "    Stops the converter from conditioning shaders.\n"
+        << "--base-path=<path>\n"
+        << "    Sets the base path for finding textures and other external\n"
+        << "    files.\n"
+        << "--up-axis=x,y,z\n"
+        << "    Converts the file to have this up axis.\n"
+        << "--pretty-print\n"
+        << "    Makes the exported JSON easier to read.\n"
+        << "--keep-filters\n"
+        << "    Stops the converter from forcing all texture samplers to use\n"
+        << "    tri-linear filtering.\n"
+        << "--keep-materials\n"
+        << "    Stops the converter from changing materials to <constant> if\n"
+        << "    they are used by a mesh that has no normals.\n";
     return EXIT_FAILURE;
   }
 

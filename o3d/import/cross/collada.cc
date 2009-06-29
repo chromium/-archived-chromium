@@ -66,6 +66,27 @@
 
 namespace o3d {
 
+const char* Collada::kLightingTypeParamName =
+    COLLADA_STRING_CONSTANT("lightingType");
+
+const char* Collada::kLightingTypeConstant = "constant";
+const char* Collada::kLightingTypePhong = "phong";
+const char* Collada::kLightingTypeBlinn = "blinn";
+const char* Collada::kLightingTypeLambert = "lambert";
+const char* Collada::kLightingTypeUnknown = "unknown";
+
+const char* Collada::kMaterialParamNameEmissive = "emissive";
+const char* Collada::kMaterialParamNameAmbient = "ambient";
+const char* Collada::kMaterialParamNameDiffuse = "diffuse";
+const char* Collada::kMaterialParamNameSpecular = "specular";
+const char* Collada::kMaterialParamNameShininess = "shininess";
+const char* Collada::kMaterialParamNameSpecularFactor = "specularFactor";
+const char* Collada::kMaterialParamNameEmissiveSampler = "emissiveSampler";
+const char* Collada::kMaterialParamNameAmbientSampler = "ambientSampler";
+const char* Collada::kMaterialParamNameDiffuseSampler = "diffuseSampler";
+const char* Collada::kMaterialParamNameSpecularSampler = "specularSampler";
+const char* Collada::kMaterialParamNameBumpSampler = "bumpSampler";
+
 class TranslationMap : public FCDGeometryIndexTranslationMap {
 };
 
@@ -213,7 +234,7 @@ bool Collada::ImportFile(const FilePath& filename, Transform* parent,
   }
 
   if (!status) {
-    // TODO: this could probably be the original URI instead of some
+    // TODO(o3d): this could probably be the original URI instead of some
     //     filename in the temp folder.
     O3D_ERROR(service_locator_) << "Unable to import: "
                                 << FilePathToUTF8(filename).c_str();
@@ -341,7 +362,7 @@ bool Collada::ImportDAEDocument(FCDocument* doc,
       // materials or models the user put them in the file and might need them
       // at runtime.
       //
-      // TODO: Add option to skip this step if user just wants what's
+      // TODO(o3d): Add option to skip this step if user just wants what's
       // actually used by models. The rest of the code already deals with this.
       FCDImageLibrary* image_library = doc->GetImageLibrary();
       for (uint32 i = 0; i < image_library->GetEntityCount(); i++) {
@@ -355,7 +376,7 @@ bool Collada::ImportDAEDocument(FCDocument* doc,
       // Import all the materials in the file. Even if they are not used by
       // models the user put them in the file and might need them at runtime.
       //
-      // TODO: Add option to skip this step if user just wants what's
+      // TODO(o3d): Add option to skip this step if user just wants what's
       // actually used by models. The rest of the code already deals with this.
       FCDMaterialLibrary* material_library = doc->GetMaterialLibrary();
       for (uint32 i = 0; i < material_library->GetEntityCount(); i++) {
@@ -807,7 +828,7 @@ void Collada::ImportTreeInstances(FCDocument* doc,
 
     LOG_ASSERT(instance != 0);
     // Import each node based on what kind of entity it is
-    // TODO: add more entity types as they are supported
+    // TODO(o3d): add more entity types as they are supported
     switch (instance->GetEntityType()) {
       case FCDEntity::CAMERA:
         // camera entity
@@ -1021,7 +1042,6 @@ void Collada::BuildCamera(FCDocument* doc,
       break;
     }
   }
-
 }
 
 Shape* Collada::GetShape(FCDocument* doc,
@@ -1248,7 +1268,7 @@ Shape* Collada::BuildShape(FCDocument* doc,
 Shape* Collada::BuildSkinnedShape(FCDocument* doc,
                                   FCDControllerInstance* instance,
                                   NodeInstance *parent_node_instance) {
-  // TODO: Handle chained controllers. Morph->Skin->...
+  // TODO(o3d): Handle chained controllers. Morph->Skin->...
   Shape* shape = NULL;
   LOG_ASSERT(doc && instance);
   FCDController* controller =
@@ -1460,7 +1480,7 @@ Shape* Collada::BuildSkinnedShape(FCDocument* doc,
             std::vector<float> data(num_vertices * num_source_components);
             field.GetAsFloats(0, &data[0], num_source_components,
                               num_vertices);
-            // TODO: Remove this matrix multiply. I don't think it is
+            // TODO(o3d): Remove this matrix multiply. I don't think it is
             //     needed.
             for (unsigned vv = 0; vv < num_vertices; ++vv) {
               float* values = &data[vv * num_source_components];
@@ -1685,7 +1705,7 @@ bool Collada::SetParamFromFCEffectParam(ParamObject* param_object,
       SetSamplerStates(sampler, o3d_sampler);
     }
   } else if (type == FCDEffectParameter::SURFACE) {
-    // TODO: This code is here to handle the NV_import profile
+    // TODO(o3d): This code is here to handle the NV_import profile
     // exported by Max's DirectX Shader materials, which references
     // only references texture params (not samplers).  Once we move
     // completely to using samplers and add sampler blocks to our
@@ -1740,15 +1760,15 @@ static const char* GetLightingType(FCDEffectStandard* std_profile) {
   FCDEffectStandard::LightingType type = std_profile->GetLightingType();
   switch (type) {
     case FCDEffectStandard::CONSTANT:
-      return "constant";
+      return Collada::kLightingTypeConstant;
     case FCDEffectStandard::PHONG:
-      return "phong";
+      return Collada::kLightingTypePhong;
     case FCDEffectStandard::BLINN:
-      return "blinn";
+      return Collada::kLightingTypeBlinn;
     case FCDEffectStandard::LAMBERT:
-      return "lambert";
+      return Collada::kLightingTypeLambert;
     default:
-      return "unknown";
+      return Collada::kLightingTypeUnknown;
   }
 }
 
@@ -1807,7 +1827,7 @@ Material* Collada::BuildMaterial(FCDocument* doc,
           collada_effect->FindProfile(FUDaeProfileType::COMMON));
       if (std_profile) {
         ParamString* type_tag = material->CreateParam<ParamString>(
-            COLLADA_STRING_CONSTANT("lightingType"));
+            kLightingTypeParamName);
         type_tag->set_value(GetLightingType(std_profile));
       }
     }
@@ -1838,7 +1858,7 @@ Effect* Collada::GetEffect(FCDocument* doc, FCDEffect* collada_effect) {
 //   the newly-created effect, or NULL or error.
 Effect* Collada::BuildEffect(FCDocument* doc, FCDEffect* collada_effect) {
   if (!doc || !collada_effect) return NULL;
-  // TODO: Remove all of this to be replaced by parsing Collada-FX
+  // TODO(o3d): Remove all of this to be replaced by parsing Collada-FX
   //    and profile_O3D only.
   Effect* effect = NULL;
   FCDEffectProfileFX* profile_fx = FindProfileFX(collada_effect);
@@ -1877,7 +1897,9 @@ Effect* Collada::BuildEffect(FCDocument* doc, FCDEffect* collada_effect) {
             return NULL;
           }
         } else {
-          file_util::ReadFileToString(file_path, &effect_string);
+          FilePath temp_path = file_path;
+          GetRelativePathIfPossible(base_path_, temp_path, &temp_path);
+          file_util::ReadFileToString(temp_path, &effect_string);
         }
       }
       String collada_effect_name = WideToUTF8(
@@ -2540,7 +2562,7 @@ static Sampler::FilterType ConvertFilterType(
     case FUDaeTextureFilterFunction::LINEAR_MIPMAP_NEAREST:
     case FUDaeTextureFilterFunction::LINEAR_MIPMAP_LINEAR:
       return Sampler::LINEAR;
-      // TODO: Once FCollada supports COLLADA v1.5, turn this on:
+      // TODO(o3d): Once FCollada supports COLLADA v1.5, turn this on:
       // case FUDaeTextureFilterFunction::ANISOTROPIC:
       //   return Sampler::ANISOTROPIC;
     case FUDaeTextureFilterFunction::NONE:
@@ -2593,7 +2615,7 @@ void Collada::SetSamplerStates(FCDEffectParameterSampler* effect_sampler,
 
   FUDaeTextureFilterFunction::FilterFunction mip_filter =
       effect_sampler->GetMipFilter();
-  // TODO: Once FCollada supports COLLADA v1.5, turn this on:
+  // TODO(o3d): Once FCollada supports COLLADA v1.5, turn this on:
   // int max_anisotropy = effect_sampler->GetMaxAnisotropy();
 
   o3d_sampler->set_address_mode_u(ConvertSamplerAddressMode(wrap_s));
@@ -2627,7 +2649,7 @@ void Collada::SetSamplerStates(FCDEffectParameterSampler* effect_sampler,
     o3d_sampler->set_mip_filter(ConvertFilterType(mip_filter, true));
   }
 
-  // TODO: Once FCollada supports COLLADA v1.5, turn this on:
+  // TODO(o3d): Once FCollada supports COLLADA v1.5, turn this on:
   // o3d_sampler->set_max_anisotropy(max_anisotropy);
 }
 
@@ -2664,7 +2686,7 @@ void Collada::SetParamFromStandardEffectParam(
 // Sets the values of a ParamObject parameters from a given FCollada material
 // node. If a corresponding ParamObject parameter is not found, the FCollada
 // parameter is ignored.
-// TODO: Should we ignore params not found? Maybe the user wants those for
+// TODO(o3d): Should we ignore params not found? Maybe the user wants those for
 //    things other than rendering.
 // Parameters:
 //   material:  The FCollada material node from which to retrieve values.
@@ -2672,7 +2694,7 @@ void Collada::SetParamFromStandardEffectParam(
 void Collada::SetParamsFromMaterial(FCDMaterial* material,
                                     ParamObject* param_object) {
   size_t pcount = material->GetEffectParameterCount();
-  // TODO:  This test (for determining if we used the
+  // TODO(o3d):  This test (for determining if we used the
   // programmable profile or the fixed-func profile) is not very robust.
   // Remove this once the Material changes are in.
   if (pcount > 0) {
@@ -2707,39 +2729,39 @@ void Collada::SetParamsFromMaterial(FCDMaterial* material,
         effect->FindProfile(FUDaeProfileType::COMMON))) != NULL) {
       SetParamFromStandardEffectParam(effect_standard,
                                       param_object,
-                                      "emissive",
-                                      "emissiveSampler",
+                                      kMaterialParamNameEmissive,
+                                      kMaterialParamNameEmissiveSampler,
                                       effect_standard->GetEmissionColorParam(),
                                       FUDaeTextureChannel::EMISSION);
       SetParamFromStandardEffectParam(effect_standard,
                                       param_object,
-                                      "ambient",
-                                      "ambientSampler",
+                                      kMaterialParamNameAmbient,
+                                      kMaterialParamNameAmbientSampler,
                                       effect_standard->GetAmbientColorParam(),
                                       FUDaeTextureChannel::AMBIENT);
       SetParamFromStandardEffectParam(effect_standard,
                                       param_object,
-                                      "diffuse",
-                                      "diffuseSampler",
+                                      kMaterialParamNameDiffuse,
+                                      kMaterialParamNameDiffuseSampler,
                                       effect_standard->GetDiffuseColorParam(),
                                       FUDaeTextureChannel::DIFFUSE);
       SetParamFromStandardEffectParam(effect_standard,
                                       param_object,
-                                      "specular",
-                                      "specularSampler",
+                                      kMaterialParamNameSpecular,
+                                      kMaterialParamNameSpecularSampler,
                                       effect_standard->GetSpecularColorParam(),
                                       FUDaeTextureChannel::SPECULAR);
       SetParamFromStandardEffectParam(effect_standard,
                                       param_object,
                                       NULL,
-                                      "bumpSampler",
+                                      kMaterialParamNameBumpSampler,
                                       NULL,
                                       FUDaeTextureChannel::BUMP);
       SetParamFromFCEffectParam(param_object,
-                                "shininess",
+                                kMaterialParamNameShininess,
                                 effect_standard->GetShininessParam());
       SetParamFromFCEffectParam(param_object,
-                                "specularFactor",
+                                kMaterialParamNameSpecularFactor,
                                 effect_standard->GetSpecularFactorParam());
     }
   }

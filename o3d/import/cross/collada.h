@@ -154,6 +154,31 @@ class Collada {
     FilePath base_path;
   };
 
+  // Collada Param Names.
+  // TODO(gman): Remove these as we switch this stuff to JSON
+  static const char* kLightingTypeParamName;
+
+  // Lighitng Types.
+  // TODO(gman): Remove these as we switch this stuff to JSON
+  static const char* kLightingTypeConstant;
+  static const char* kLightingTypePhong;
+  static const char* kLightingTypeBlinn;
+  static const char* kLightingTypeLambert;
+  static const char* kLightingTypeUnknown;
+
+  // Material Param Names.
+  static const char* kMaterialParamNameEmissive;
+  static const char* kMaterialParamNameAmbient;
+  static const char* kMaterialParamNameDiffuse;
+  static const char* kMaterialParamNameSpecular;
+  static const char* kMaterialParamNameShininess;
+  static const char* kMaterialParamNameSpecularFactor;
+  static const char* kMaterialParamNameEmissiveSampler;
+  static const char* kMaterialParamNameAmbientSampler;
+  static const char* kMaterialParamNameDiffuseSampler;
+  static const char* kMaterialParamNameSpecularSampler;
+  static const char* kMaterialParamNameBumpSampler;
+
   // Use this if you need access to data after the import (as the
   // converter does).
   Collada(Pack* pack, const Options& options);
