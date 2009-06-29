@@ -17,11 +17,11 @@
 #include "ScriptObject.h"
 #include "ScriptState.h"
 #include "ScriptValue.h"
-#include "V8Binding.h"
-#include "V8Proxy.h"
+#include "v8_proxy.h"
 #include <wtf/OwnPtr.h>
 #undef LOG
 
+#include "V8Binding.h"
 #include "base/values.h"
 #include "webkit/api/public/WebDataSource.h"
 #include "webkit/api/public/WebURL.h"
@@ -317,7 +317,7 @@ v8::Handle<v8::Value> WebDevToolsAgentImpl::JsGetNodeForId(
   WebDevToolsAgentImpl* agent = static_cast<WebDevToolsAgentImpl*>(
       v8::External::Cast(*args.Data())->Value());
   Node* node = agent->dom_agent_impl_->GetNodeForId(node_id);
-  return V8Proxy::convertToV8Object(V8ClassIndex::NODE, node);
+  return V8Proxy::ToV8Object(V8ClassIndex::NODE, node);
 }
 
 // static

@@ -10,14 +10,15 @@
 
 #include "Document.h"
 #include "Page.h"
-#include "V8Binding.h"
-#include "V8DOMWindow.h"
-#include "V8Index.h"
-#include "V8Proxy.h"
 #undef LOG
 
 #include "base/string_piece.h"
 #include "grit/webkit_resources.h"
+#include "V8Binding.h"
+#include "V8DOMWindow.h"
+#include "V8Index.h"
+#include "v8_binding.h"
+#include "v8_proxy.h"
 #include "webkit/glue/devtools/debugger_agent_impl.h"
 #include "webkit/glue/devtools/debugger_agent_manager.h"
 #include "webkit/glue/glue_util.h"
@@ -61,8 +62,8 @@ void DebuggerAgentImpl::GetContextId() {
 void DebuggerAgentImpl::StartProfiling() {
   v8::HandleScope scope;
   WebCore::V8Proxy* proxy = V8Proxy::retrieve(GetPage()->mainFrame());
-  DCHECK(proxy && proxy->isContextInitialized());
-  v8::Context::Scope context_scope(proxy->context());
+  DCHECK(proxy && proxy->ContextInitialized());
+  v8::Context::Scope context_scope(proxy->GetContext());
   v8::V8::ResumeProfiler();
 }
 
@@ -104,12 +105,12 @@ void DebuggerAgentImpl::ResetUtilityContext(
   // TODO(pfeldman): Validate against Soeren.
   // Set up the DOM window as the prototype of the new global object.
   v8::Handle<v8::Context> window_context =
-      V8Proxy::context(document->frame());
+      V8Proxy::GetContext(document->frame());
   v8::Handle<v8::Object> window_global = window_context->Global();
   v8::Handle<v8::Value> window_wrapper =
-      V8Proxy::lookupDOMWrapper(V8ClassIndex::DOMWINDOW, window_global);
+      V8Proxy::LookupDOMWrapper(V8ClassIndex::DOMWINDOW, window_global);
 
-  ASSERT(V8Proxy::convertDOMWrapperToNative<DOMWindow>(window_wrapper) ==
+  ASSERT(V8Proxy::DOMWrapperToNative<DOMWindow>(window_wrapper) ==
       document->frame()->domWindow());
 
   // Create a new environment using an empty template for the shadow

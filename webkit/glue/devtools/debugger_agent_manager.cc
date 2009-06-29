@@ -6,7 +6,7 @@
 
 #include "Frame.h"
 #include "PageGroupLoadDeferrer.h"
-#include "V8Proxy.h"
+#include "v8_proxy.h"
 #include <wtf/HashSet.h>
 #undef LOG
 
@@ -188,7 +188,7 @@ void DebuggerAgentManager::OnV8DebugMessage(const v8::Debug::Message& message) {
 
   // If the context is from one of the inpected tabs or injected extension
   // scripts it must have host_id in the data field.
-  int host_id = WebCore::V8Proxy::contextDebugId(context);
+  int host_id = WebCore::V8Proxy::GetContextDebugId(context);
   if (host_id != -1) {
     DebuggerAgentImpl* agent = DebuggerAgentForHostId(host_id);
     if (agent) {
@@ -222,7 +222,7 @@ void DebuggerAgentManager::SetHostId(WebFrameImpl* webframe, int host_id) {
   DCHECK(host_id > 0);
   WebCore::V8Proxy* proxy = WebCore::V8Proxy::retrieve(webframe->frame());
   if (proxy) {
-    proxy->setContextDebugId(host_id);
+    proxy->SetContextDebugId(host_id);
   }
 }
 
