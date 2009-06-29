@@ -271,5 +271,5 @@ bool SpellcheckWordIterator::Normalize(int input_start,
   Normalizer::normalize(input, UNORM_NFKC, 0, output, status);
   if (U_SUCCESS(status))
     output_string->assign(output.getTerminatedBuffer());
-  return (status == U_ZERO_ERROR);
+  return status == U_ZERO_ERROR || status == U_STRING_NOT_TERMINATED_WARNING;
 }

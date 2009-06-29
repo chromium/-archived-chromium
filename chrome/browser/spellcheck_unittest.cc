@@ -259,6 +259,11 @@ TEST_F(SpellCheckTest, SpellCheckStrings_EN_US) {
     // [ROBUSTNESS] Two invalid English words concatenated with a contraction
     // character.
     {L"ifmmp:ifmmp", false, 0, 11},
+
+    // [REGRESSION] Issue 13432: "Any word of 13 or 14 characters is not
+    // spellcheck" <http://crbug.com/13432>.
+    {L"qwertyuiopasd", false, 0, 13},
+    {L"qwertyuiopasdf", false, 0, 14},
   };
 
   FilePath hunspell_directory = GetHunspellDirectory();
