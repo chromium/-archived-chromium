@@ -127,6 +127,7 @@ o3djs.particles.FX_STRINGS = [
     '  output.colorMult = input.colorMult;\n' +
     '\n' +
     '  float size = lerp(startSize, endSize, percentLife);\n' +
+    '  size = (percentLife < 0 || percentLife > 1) ? 0 : size;\n' +
     '  float s = sin(spinStart + spinSpeed * localTime);\n' +
     '  float c = cos(spinStart + spinSpeed * localTime);\n' +
     '\n' +
@@ -239,6 +240,7 @@ o3djs.particles.FX_STRINGS = [
     '  float3 basisZ = viewInverse[1].xyz;\n' +
     '\n' +
     '  float size = lerp(startSize, endSize, percentLife);\n' +
+    '  size = (percentLife < 0 || percentLife > 1) ? 0 : size;\n' +
     '  float s = sin(spinStart + spinSpeed * localTime);\n' +
     '  float c = cos(spinStart + spinSpeed * localTime);\n' +
     '\n' +
@@ -267,6 +269,18 @@ o3djs.particles.FX_STRINGS = [
     '// #o3d VertexShaderEntryPoint vertexShaderFunction\n' +
     '// #o3d PixelShaderEntryPoint pixelShaderFunction\n' +
     '// #o3d MatrixLoadOrder RowMajor\n'}];
+
+/**
+ * Corner values.
+ * @private
+ * @type {!Array.<!Array.<number>>}
+ */
+o3djs.particles.CORNERS_ = [
+      [-0.5, -0.5],
+      [+0.5, -0.5],
+      [+0.5, +0.5],
+      [-0.5, +0.5]];
+
 
 /**
  * Creates a particle system.
@@ -676,6 +690,42 @@ o3djs.particles.ParticleSystem.prototype.createParticleEmitter =
 };
 
 /**
+ * Creates a Trail particle emitter.
+ * You can use this for jet exhaust, etc...
+ * @param {!o3d.Transform} parent Transform to put emitter on.
+ * @param {number} maxParticles Maximum number of particles to appear at once.
+ * @param {!o3djs.particles.ParticleSpec} parameters The parameters used to
+ *     generate particles.
+ * @param {!o3d.Texture} opt_texture The texture to use for the particles.
+ *     If you don't supply a texture a default is provided.
+ * @param {!function(number, !o3djs.particles.ParticleSpec): void}
+ *     opt_perParticleParamSetter A function that is called for each particle to
+ *     allow it's parameters to be adjusted per particle. The number is the
+ *     index of the particle being created, in other words, if numParticles is
+ *     20 this value will be 0 to 19. The ParticleSpec is a spec for this
+ *     particular particle. You can set any per particle value before returning.
+ * @param {!o3d.ParamFloat} opt_clockParam A ParamFloat to be the clock for
+ *     the emitter.
+ * @return {!o3djs.particles.Trail} A Trail object.
+ */
+o3djs.particles.ParticleSystem.prototype.createTrail = function(
+    parent,
+    maxParticles,
+    parameters,
+    opt_texture,
+    opt_perParticleParamSetter,
+    opt_clockParam) {
+  return new o3djs.particles.Trail(
+      this,
+      parent,
+      maxParticles,
+      parameters,
+      opt_texture,
+      opt_perParticleParamSetter,
+      opt_clockParam);
+};
+
+/**
  * A ParticleEmitter
  * @constructor
  * @param {!o3djs.particles.ParticleSystem} particleSystem The particle system
@@ -688,7 +738,6 @@ o3djs.particles.ParticleSystem.prototype.createParticleEmitter =
 o3djs.particles.ParticleEmitter = function(particleSystem,
                                            opt_texture,
                                            opt_clockParam) {
-
   opt_clockParam = opt_clockParam || particleSystem.clockParam;
 
   var o3d = o3djs.base.o3d;
@@ -842,6 +891,205 @@ o3djs.particles.ParticleEmitter.prototype.setColorRamp = function(colorRamp) {
 };
 
 /**
+ * Validates and adds missing particle parameters.
+ * @param {!o3djs.particles.ParticleSpec} parameters The parameters to validate.
+ */
+o3djs.particles.ParticleEmitter.prototype.validateParameters = function(
+    parameters) {
+  var defaults = new o3djs.particles.ParticleSpec();
+  for (var key in parameters) {
+    if (typeof defaults[key] === 'undefined') {
+      throw 'unknown particle parameter "' + key + '"';
+    }
+  }
+  for (var key in defaults) {
+    if (typeof parameters[key] === 'undefined') {
+      parameters[key] = defaults[key];
+    }
+  }
+};
+
+/**
+ * Creates particles.
+ * @private
+ * @param {number} firstParticleIndex Index of first particle to create.
+ * @param {number} numParticles The number of particles to create.
+ * @param {!o3djs.particles.ParticleSpec} parameters The parameters for the
+ *     emitters.
+ * @param {!function(number, !o3djs.particles.ParticleSpec): void}
+ *     opt_perParticleParamSetter A function that is called for each particle to
+ *     allow it's parameters to be adjusted per particle. The number is the
+ *     index of the particle being created, in other words, if numParticles is
+ *     20 this value will be 0 to 19. The ParticleSpec is a spec for this
+ *     particular particle. You can set any per particle value before returning.
+ */
+o3djs.particles.ParticleEmitter.prototype.createParticles_ = function(
+    firstParticleIndex,
+    numParticles,
+    parameters,
+    opt_perParticleParamSetter) {
+  var uvLifeTimeFrameStart = this.uvLifeTimeFrameStart_;
+  var positionStartTime = this.positionStartTime_;
+  var velocityStartSize = this.velocityStartSize_;
+  var accelerationEndSize = this.accelerationEndSize_;
+  var spinStartSpinSpeed = this.spinStartSpinSpeed_;
+  var orientation = this.orientation_;
+  var colorMults = this.colorMults_;
+
+  // Set the globals.
+  this.material.effect =
+      this.particleSystem.effects[parameters.billboard ? 1 : 0];
+  this.material.getParam('timeRange').value = parameters.timeRange;
+  this.material.getParam('numFrames').value = parameters.numFrames;
+  this.material.getParam('frameDuration').value = parameters.frameDuration;
+  this.material.getParam('worldVelocity').value = parameters.worldVelocity;
+  this.material.getParam('worldAcceleration').value =
+      parameters.worldAcceleration;
+
+  var random = this.particleSystem.randomFunction_;
+
+  var plusMinus = function(range) {
+    return (random() - 0.5) * range * 2;
+  };
+
+  // TODO: change to not allocate.
+  var plusMinusVector = function(range) {
+    var v = [];
+    for (var ii = 0; ii < range.length; ++ii) {
+      v.push(plusMinus(range[ii]));
+    }
+    return v;
+  };
+
+  for (var ii = 0; ii < numParticles; ++ii) {
+    if (opt_perParticleParamSetter) {
+      opt_perParticleParamSetter(ii, parameters);
+    }
+    var pLifeTime = parameters.lifeTime;
+    var pStartTime = (parameters.startTime === null) ?
+        (ii * parameters.lifeTime / numParticles) : parameters.startTime;
+    var pFrameStart =
+        parameters.frameStart + plusMinus(parameters.frameStartRange);
+    var pPosition = o3djs.math.addVector(
+        parameters.position, plusMinusVector(parameters.positionRange));
+    var pVelocity = o3djs.math.addVector(
+        parameters.velocity, plusMinusVector(parameters.velocityRange));
+    var pAcceleration = o3djs.math.addVector(
+        parameters.acceleration,
+        plusMinusVector(parameters.accelerationRange));
+    var pColorMult = o3djs.math.addVector(
+        parameters.colorMult, plusMinusVector(parameters.colorMultRange));
+    var pSpinStart =
+        parameters.spinStart + plusMinus(parameters.spinStartRange);
+    var pSpinSpeed =
+        parameters.spinSpeed + plusMinus(parameters.spinSpeedRange);
+    var pStartSize =
+        parameters.startSize + plusMinus(parameters.startSizeRange);
+    var pEndSize = parameters.endSize + plusMinus(parameters.endSizeRange);
+    var pOrientation = parameters.orientation;
+
+    // make each corner of the particle.
+    for (var jj = 0; jj < 4; ++jj) {
+      var offset0 = (ii * 4 + jj) * 4;
+      var offset1 = offset0 + 1;
+      var offset2 = offset0 + 2;
+      var offset3 = offset0 + 3;
+
+      uvLifeTimeFrameStart[offset0] = o3djs.particles.CORNERS_[jj][0];
+      uvLifeTimeFrameStart[offset1] = o3djs.particles.CORNERS_[jj][1];
+      uvLifeTimeFrameStart[offset2] = pLifeTime;
+      uvLifeTimeFrameStart[offset3] = pFrameStart;
+
+      positionStartTime[offset0] = pPosition[0];
+      positionStartTime[offset1] = pPosition[1];
+      positionStartTime[offset2] = pPosition[2];
+      positionStartTime[offset3] = pStartTime;
+
+      velocityStartSize[offset0] = pVelocity[0];
+      velocityStartSize[offset1] = pVelocity[1];
+      velocityStartSize[offset2] = pVelocity[2];
+      velocityStartSize[offset3] = pStartSize;
+
+      accelerationEndSize[offset0] = pAcceleration[0];
+      accelerationEndSize[offset1] = pAcceleration[1];
+      accelerationEndSize[offset2] = pAcceleration[2];
+      accelerationEndSize[offset3] = pEndSize;
+
+      spinStartSpinSpeed[offset0] = pSpinStart;
+      spinStartSpinSpeed[offset1] = pSpinSpeed;
+      spinStartSpinSpeed[offset2] = 0;
+      spinStartSpinSpeed[offset3] = 0;
+
+      orientation[offset0] = pOrientation[0];
+      orientation[offset1] = pOrientation[1];
+      orientation[offset2] = pOrientation[2];
+      orientation[offset3] = pOrientation[3];
+
+      colorMults[offset0] = pColorMult[0];
+      colorMults[offset1] = pColorMult[1];
+      colorMults[offset2] = pColorMult[2];
+      colorMults[offset3] = pColorMult[3];
+    }
+  }
+
+  firstParticleIndex *= 4;
+  this.uvLifeTimeFrameStartField_.setAt(
+      firstParticleIndex,
+      uvLifeTimeFrameStart);
+  this.positionStartTimeField_.setAt(
+      firstParticleIndex,
+      positionStartTime);
+  this.velocityStartSizeField_.setAt(
+      firstParticleIndex,
+      velocityStartSize);
+  this.accelerationEndSizeField_.setAt(
+      firstParticleIndex,
+      accelerationEndSize);
+  this.spinStartSpinSpeedField_.setAt(
+      firstParticleIndex,
+      spinStartSpinSpeed);
+  this.orientationField_.setAt(
+      firstParticleIndex,
+      orientation);
+  this.colorMultField_.setAt(
+      firstParticleIndex,
+      colorMults);
+};
+
+/**
+ * Allocates particles.
+ * @private
+ * @param {number} numParticles Number of particles to allocate.
+ */
+o3djs.particles.ParticleEmitter.prototype.allocateParticles_ = function(
+    numParticles) {
+  if (this.vertexBuffer_.numElements != numParticles * 4) {
+    this.vertexBuffer_.allocateElements(numParticles * 4);
+
+    var indices = [];
+    for (var ii = 0; ii < numParticles; ++ii) {
+      // Make 2 triangles for the quad.
+      var startIndex = ii * 4
+      indices.push(startIndex + 0, startIndex + 1, startIndex + 2);
+      indices.push(startIndex + 0, startIndex + 2, startIndex + 3);
+    }
+    this.indexBuffer_.set(indices);
+
+    // We keep these around to avoid memory allocations for trails.
+    this.uvLifeTimeFrameStart_ = [];
+    this.positionStartTime_ = [];
+    this.velocityStartSize_ = [];
+    this.accelerationEndSize_ = [];
+    this.spinStartSpinSpeed_ = [];
+    this.orientation_ = [];
+    this.colorMults_ = [];
+  }
+
+  this.primitive_.numberPrimitives = numParticles * 2;
+  this.primitive_.numberVertices = numParticles * 4;
+};
+
+/**
  * Sets the parameters of the particle emitter.
  *
  * Each of these parameters are in pairs. The used to create a table
@@ -871,117 +1119,17 @@ o3djs.particles.ParticleEmitter.prototype.setColorRamp = function(colorRamp) {
 o3djs.particles.ParticleEmitter.prototype.setParameters = function(
     parameters,
     opt_perParticleParamSetter) {
-  var defaults = new o3djs.particles.ParticleSpec();
-  for (var key in parameters) {
-    if (typeof defaults[key] === 'undefined') {
-      throw 'unknown particle parameter "' + key + '"';
-    }
-    defaults[key] = parameters[key];
-  }
+  this.validateParameters(parameters);
 
-  var numParticles = defaults.numParticles;
+  var numParticles = parameters.numParticles;
 
-  var uvLifeTimeFrameStart = [];
-  var positionStartTime = [];
-  var velocityStartSize = [];
-  var accelerationEndSize = [];
-  var spinStartSpinSpeed = [];
-  var orientation = [];
-  var colorMults = [];
+  this.allocateParticles_(numParticles);
 
-  // Set the globals.
-  this.material.effect =
-      this.particleSystem.effects[defaults.billboard ? 1 : 0];
-  this.material.getParam('timeRange').value = defaults.timeRange;
-  this.material.getParam('numFrames').value = defaults.numFrames;
-  this.material.getParam('frameDuration').value = defaults.frameDuration;
-  this.material.getParam('worldVelocity').value = defaults.worldVelocity;
-  this.material.getParam('worldAcceleration').value =
-      defaults.worldAcceleration;
-
-  var corners = [
-      [-0.5, -0.5],
-      [+0.5, -0.5],
-      [+0.5, +0.5],
-      [-0.5, +0.5]];
-
-  var random = this.particleSystem.randomFunction_;
-
-  var plusMinus = function(range) {
-    return (random() - 0.5) * range * 2;
-  };
-
-  var plusMinusVector = function(range) {
-    var v = [];
-    for (var ii = 0; ii < range.length; ++ii) {
-      v.push(plusMinus(range[ii]));
-    }
-    return v;
-  };
-
-  for (var ii = 0; ii < numParticles; ++ii) {
-    if (opt_perParticleParamSetter) {
-      opt_perParticleParamSetter(ii, defaults);
-    }
-    var pLifeTime = defaults.lifeTime;
-    var pStartTime = (defaults.startTime === null) ?
-        (ii * defaults.lifeTime / numParticles) : defaults.startTime;
-    var pFrameStart = defaults.frameStart + plusMinus(defaults.frameStartRange);
-    var pPosition = o3djs.math.addVector(
-        defaults.position, plusMinusVector(defaults.positionRange));
-    var pVelocity = o3djs.math.addVector(
-        defaults.velocity, plusMinusVector(defaults.velocityRange));
-    var pAcceleration = o3djs.math.addVector(
-        defaults.acceleration, plusMinusVector(defaults.accelerationRange));
-    var pColorMult = o3djs.math.addVector(
-        defaults.colorMult, plusMinusVector(defaults.colorMultRange));
-    var pSpinStart = defaults.spinStart + plusMinus(defaults.spinStartRange);
-    var pSpinSpeed = defaults.spinSpeed + plusMinus(defaults.spinSpeedRange);
-    var pStartSize = defaults.startSize + plusMinus(defaults.startSizeRange);
-    var pEndSize = defaults.endSize + plusMinus(defaults.endSizeRange);
-    var pOrientation = defaults.orientation;
-
-    // make each corner of the particle.
-    for (var jj = 0; jj < 4; ++jj) {
-      uvLifeTimeFrameStart.push(corners[jj][0], corners[jj][1], pLifeTime,
-                                pFrameStart);
-      positionStartTime.push(
-          pPosition[0], pPosition[1], pPosition[2], pStartTime);
-      velocityStartSize.push(
-          pVelocity[0], pVelocity[1], pVelocity[2], pStartSize);
-      accelerationEndSize.push(
-          pAcceleration[0], pAcceleration[1], pAcceleration[2], pEndSize);
-      spinStartSpinSpeed.push(pSpinStart, pSpinSpeed, 0, 0);
-      orientation.push(
-          pOrientation[0], pOrientation[1], pOrientation[2], pOrientation[3]);
-      colorMults.push(
-          pColorMult[0], pColorMult[1], pColorMult[2], pColorMult[3]);
-    }
-  }
-
-  if (this.vertexBuffer_.numElements != numParticles * 4) {
-    this.vertexBuffer_.allocateElements(numParticles * 4);
-
-    var indices = [];
-    for (var ii = 0; ii < numParticles; ++ii) {
-      // Make 2 triangles for the quad.
-      var startIndex = ii * 4
-      indices.push(startIndex + 0, startIndex + 1, startIndex + 2);
-      indices.push(startIndex + 0, startIndex + 2, startIndex + 3);
-    }
-    this.indexBuffer_.set(indices);
-  }
-
-  this.uvLifeTimeFrameStartField_.setAt(0, uvLifeTimeFrameStart);
-  this.positionStartTimeField_.setAt(0, positionStartTime);
-  this.velocityStartSizeField_.setAt(0, velocityStartSize);
-  this.accelerationEndSizeField_.setAt(0, accelerationEndSize);
-  this.spinStartSpinSpeedField_.setAt(0, spinStartSpinSpeed);
-  this.orientationField_.setAt(0, orientation);
-  this.colorMultField_.setAt(0, colorMults);
-
-  this.primitive_.numberPrimitives = numParticles * 2;
-  this.primitive_.numberVertices = numParticles * 4;
+  this.createParticles_(
+      0,
+      numParticles,
+      parameters,
+      opt_perParticleParamSetter);
 };
 
 /**
@@ -1049,3 +1197,82 @@ o3djs.particles.OneShot.prototype.trigger = function(opt_position, opt_parent) {
   this.transform.visible = true;
   this.timeOffsetParam_.value = this.emitter_.clockParam.value;
 };
+
+/**
+ * A type of emitter to use for particle effects that leave trails like exhaust.
+ * @constructor
+ * @extends {o3djs.particles.ParticleEmitter}
+ * @param {!o3djs.particles.ParticleSystem} particleSystem The particle system
+ *     to manage this emitter.
+ * @param {!o3d.Transform} parent Transform to put emitter on.
+ * @param {number} maxParticles Maximum number of particles to appear at once.
+ * @param {!o3djs.particles.ParticleSpec} parameters The parameters used to
+ *     generate particles.
+ * @param {!o3d.Texture} opt_texture The texture to use for the particles.
+ *     If you don't supply a texture a default is provided.
+ * @param {!function(number, !o3djs.particles.ParticleSpec): void}
+ *     opt_perParticleParamSetter A function that is called for each particle to
+ *     allow it's parameters to be adjusted per particle. The number is the
+ *     index of the particle being created, in other words, if numParticles is
+ *     20 this value will be 0 to 19. The ParticleSpec is a spec for this
+ *     particular particle. You can set any per particle value before returning.
+ * @param {!o3d.ParamFloat} opt_clockParam A ParamFloat to be the clock for
+ *     the emitter.
+ */
+o3djs.particles.Trail = function(
+    particleSystem,
+    parent,
+    maxParticles,
+    parameters,
+    opt_texture,
+    opt_perParticleParamSetter,
+    opt_clockParam) {
+  o3djs.particles.ParticleEmitter.call(
+      this, particleSystem, opt_texture, opt_clockParam);
+
+  var pack = particleSystem.pack;
+
+  this.allocateParticles_(maxParticles);
+  this.validateParameters(parameters);
+
+  this.parameters = parameters;
+  this.perParticleParamSetter = opt_perParticleParamSetter;
+  this.birthIndex_ = 0;
+  this.maxParticles_ = maxParticles;
+
+  /**
+   * Transform for OneShot.
+   * @type {!o3d.Transform}
+   */
+  this.transform = pack.createObject('Transform');
+  this.transform.addShape(this.shape);
+
+  this.transform.parent = parent;
+};
+
+o3djs.base.inherit(o3djs.particles.Trail, o3djs.particles.ParticleEmitter);
+
+/**
+ * Births particles from this Trail.
+ * @param {!o3djs.math.Vector3} position Position to birth particles at.
+ */
+o3djs.particles.Trail.prototype.birthParticles = function(position) {
+  var numParticles = this.parameters.numParticles;
+  this.parameters.startTime = this.clockParam.value;
+  this.parameters.position = position;
+  while (this.birthIndex_ + numParticles >= this.maxParticles_) {
+    var numParticlesToEnd = this.maxParticles_ - this.birthIndex_;
+    this.createParticles_(this.birthIndex_,
+                          numParticlesToEnd,
+                          this.parameters,
+                          this.perParticleParamSetter);
+    numParticles -= numParticlesToEnd;
+    this.birthIndex_ = 0;
+  }
+  this.createParticles_(this.birthIndex_,
+                        numParticles,
+                        this.parameters,
+                        this.perParticleParamSetter);
+  this.birthIndex_ += numParticles;
+};
+

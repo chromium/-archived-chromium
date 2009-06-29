@@ -64,6 +64,13 @@ var g_particleSystem;
 var g_clockParam;
 var g_textures = [];
 var g_emitters = [];  // so we can find in the debugger to edit in real time.
+var g_poofs = [];
+var g_keyDown = [];
+var g_poofIndex = 0;
+var g_trail;
+var g_trailParameters;
+
+var MAX_POOFS = 3;
 
 /**
  * Loads a texture.
@@ -141,8 +148,6 @@ function initStep2(clientElements) {
       [0, 200, 0],   // target
       [0, 1, 0]);  // up
 
-
-
   // Load textures. This happens asynchronously.
   var loader = o3djs.loader.createLoader(initStep3);
   loadTexture(loader, 'assets/particle-anim.png', 0);
@@ -174,11 +179,41 @@ function initStep3() {
   setupAnim();
   setupBall();
   setupCube();
+  setupPoof();
+  setupTrail();
+
+  window.addEventListener('keypress', onKeyPress, true);
+  window.addEventListener('keydown', onKeyDown, true);
+  window.addEventListener('keyup', onKeyUp, true);
 
   // Setup an onrender callback for animation.
   g_client.setRenderCallback(onrender);
 
   window.g_finished = true;  // for selenium testing.
+}
+
+function onKeyPress(event) {
+  event = event || window.event;
+
+  var keyChar = String.fromCharCode(o3djs.event.getEventKeyChar(event));
+  // Just in case they have capslock on.
+  keyChar = keyChar.toLowerCase();
+
+  switch (keyChar) {
+  case 'p':
+    triggerPoof();
+    break;
+  }
+}
+
+function onKeyDown(event) {
+  event = event || window.event;
+  g_keyDown[event.keyCode] = true;
+}
+
+function onKeyUp(event) {
+  event = event || window.event;
+  g_keyDown[event.keyCode] = false;
 }
 
 function setupFlame() {
@@ -460,6 +495,67 @@ function setupCube() {
   transform.addShape(emitter.shape);
 }
 
+function setupPoof() {
+  var emitter = g_particleSystem.createParticleEmitter();
+  emitter.setState(o3djs.particles.ParticleStateIds.ADD);
+  emitter.setColorRamp(
+      [1, 1, 1, 0.3,
+       1, 1, 1, 0]);
+  emitter.setParameters({
+    numParticles: 30,
+    lifeTime: 1.5,
+    startTime: 0,
+    startSize: 50,
+    endSize: 200,
+    spinSpeedRange: 10},
+    function(index, parameters) {
+      var angle = Math.random() * 2 * Math.PI;
+      parameters.velocity = g_math.matrix4.transformPoint(
+          g_math.matrix4.rotationY(angle), [300, 0, 0]);
+      parameters.acceleration = g_math.mulVectorVector(
+          parameters.velocity, [-0.3, 0, -0.3]);
+    });
+  // make 3 poofs one shots
+  for (var ii = 0; ii < MAX_POOFS; ++ii) {
+    g_poofs[ii] = emitter.createOneShot(g_client.root);
+  }
+}
+
+function triggerPoof() {
+  // We have multiple poofs because if you only have one and it is still going
+  // when you trigger it a second time it will immediately start over.
+  g_poofs[g_poofIndex].trigger([100 + 100 * g_poofIndex, 0, 300]);
+  g_poofIndex++;
+  if (g_poofIndex == MAX_POOFS) {
+    g_poofIndex = 0;
+  }
+}
+
+function setupTrail() {
+  g_trailParameters = {
+    numParticles: 2,
+    lifeTime: 2,
+    startSize: 10,
+    endSize: 90,
+    velocityRange: [20, 20, 20],
+    spinSpeedRange: 4};
+  g_trail = g_particleSystem.createTrail(
+      g_client.root,
+      1000,
+      g_trailParameters);
+  g_trail.setState(o3djs.particles.ParticleStateIds.ADD);
+  g_trail.setColorRamp(
+      [1, 0, 0, 1,
+       1, 1, 0, 1,
+       1, 1, 1, 0]);
+}
+
+function leaveTrail() {
+  var trailClock = window.g_clock * -0.8;
+  g_trail.birthParticles(
+      [Math.sin(trailClock) * 400, 200, Math.cos(trailClock) * 400]);
+}
+
 /**
  * Called every frame.
  * @param {!o3d.RenderEvent} renderEvent Rendering Information.
@@ -467,6 +563,10 @@ function setupCube() {
 function onrender(renderEvent) {
   var elapsedTime = renderEvent.elapsedTime;
   window.g_clock += elapsedTime * window.g_timeMult;
+
+  if (g_keyDown[84]) {  // 'T' key.
+    leaveTrail();
+  }
 
   var cameraClock = window.g_clock * 0.3;
   g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
@@ -493,5 +593,7 @@ function unload() {
 <!-- Start of O3D plugin -->
 <div id="o3d" style="width: 800px; height: 600px;"></div>
 <!-- End of O3D plugin -->
+Press 'P' to make a poof.<br/>
+Press 'T' to make a trail.
 </body>
 </html>
