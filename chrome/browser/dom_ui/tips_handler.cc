@@ -57,12 +57,12 @@ void TipsHandler::HandleGetTips(const Value* content) {
   } else {
     int tip_counter = 0;
     while (tips_cache_->GetDictionary(IntToWString(tip_counter++), &wr_dict)) {
-      DictionaryValue* tip_dict = new DictionaryValue();
       if (wr_dict &&
           wr_dict->GetSize() > 0 &&
           wr_dict->GetString(WebResourceService::kWebResourceTitle, &title) &&
           wr_dict->GetString(WebResourceService::kWebResourceURL, &url) &&
           IsValidURL(url)) {
+        DictionaryValue* tip_dict = new DictionaryValue();
         tip_dict->SetString(WebResourceService::kWebResourceTitle, title);
         tip_dict->SetString(WebResourceService::kWebResourceURL, url);
         list_value.Append(tip_dict);
