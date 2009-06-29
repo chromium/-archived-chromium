@@ -61,7 +61,8 @@ GdkPixbuf* GetOTRAvatar() {
 
 BrowserTitlebar::BrowserTitlebar(BrowserWindowGtk* browser_window,
                                  GtkWindow* window)
-    : browser_window_(browser_window), window_(window) {
+    : browser_window_(browser_window), window_(window),
+      using_custom_frame_(false) {
   Init();
 }
 
@@ -146,16 +147,24 @@ CustomDrawButton* BrowserTitlebar::BuildTitlebarButton(int image,
 }
 
 void BrowserTitlebar::UpdateCustomFrame(bool use_custom_frame) {
-  if (use_custom_frame) {
+  using_custom_frame_ = use_custom_frame;
+  if (use_custom_frame)
+    gtk_widget_show(titlebar_buttons_box_);
+  else
+    gtk_widget_hide(titlebar_buttons_box_);
+  UpdateTitlebarAlignment();
+}
+
+void BrowserTitlebar::UpdateTitlebarAlignment() {
+  if (using_custom_frame_ && !browser_window_->IsMaximized()) {
     gtk_alignment_set_padding(GTK_ALIGNMENT(titlebar_alignment_),
         kTitlebarHeight, 0, 0, 0);
-    gtk_widget_show(titlebar_buttons_box_);
   } else {
     gtk_alignment_set_padding(GTK_ALIGNMENT(titlebar_alignment_), 0, 0, 0, 0);
-    gtk_widget_hide(titlebar_buttons_box_);
   }
 }
 
+// static
 gboolean BrowserTitlebar::OnWindowStateChanged(GtkWindow* window,
     GdkEventWindowState* event, BrowserTitlebar* titlebar) {
   // Update the maximize/restore button.
@@ -166,9 +175,11 @@ gboolean BrowserTitlebar::OnWindowStateChanged(GtkWindow* window,
     gtk_widget_hide(titlebar->restore_button_->widget());
     gtk_widget_show(titlebar->maximize_button_->widget());
   }
+  titlebar->UpdateTitlebarAlignment();
   return FALSE;
 }
 
+// static
 void BrowserTitlebar::OnButtonClicked(GtkWidget* button,
                                       BrowserTitlebar* titlebar) {
   if (titlebar->close_button_->widget() == button) {

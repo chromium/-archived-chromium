@@ -50,6 +50,9 @@ class BrowserTitlebar : public MenuGtk::Delegate {
                                         int image_hot, GtkWidget* box,
                                         int tooltip);
 
+  // Update the titlebar spacing based on the custom frame and maximized state.
+  void UpdateTitlebarAlignment();
+
   // Callback for changes to window state.  This includes
   // maximizing/restoring/minimizing the window.
   static gboolean OnWindowStateChanged(GtkWindow* window,
@@ -78,6 +81,9 @@ class BrowserTitlebar : public MenuGtk::Delegate {
   // Gtk alignment that contains the tab strip.  If the user turns off window
   // manager decorations, we draw this taller.
   GtkWidget* titlebar_alignment_;
+
+  // Whether we are using a custom frame.
+  bool using_custom_frame_;
 
   // Maximize and restore widgets in the titlebar.
   scoped_ptr<CustomDrawButton> minimize_button_;
