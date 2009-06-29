@@ -110,7 +110,10 @@ void DOMUI::ExecuteJavascript(const std::wstring& javascript) {
 ///////////////////////////////////////////////////////////////////////////////
 // DOMMessageHandler
 
-DOMMessageHandler::DOMMessageHandler(DOMUI *dom_ui) : dom_ui_(dom_ui) {
+DOMMessageHandler* DOMMessageHandler::Attach(DOMUI* dom_ui) {
+  dom_ui_ = dom_ui;
+  RegisterMessages();
+  return this;
 }
 
 // DOMMessageHandler, protected: ----------------------------------------------

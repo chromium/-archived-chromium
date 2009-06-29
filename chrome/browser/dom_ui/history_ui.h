@@ -35,8 +35,12 @@ class BrowsingHistoryHandler : public DOMMessageHandler,
                                public NotificationObserver,
                                public BrowsingDataRemover::Observer {
  public:
-  explicit BrowsingHistoryHandler(DOMUI* dom_ui_);
+  BrowsingHistoryHandler();
   virtual ~BrowsingHistoryHandler();
+
+  // DOMMessageHandler implementation.
+  virtual DOMMessageHandler* Attach(DOMUI* dom_ui);
+  virtual void RegisterMessages();
 
   // Callback for the "getHistory" message.
   void HandleGetHistory(const Value* value);

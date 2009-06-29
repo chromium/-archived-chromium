@@ -96,32 +96,38 @@ void HistoryUIHTMLSource::StartDataRequest(const std::string& path,
 // HistoryHandler
 //
 ////////////////////////////////////////////////////////////////////////////////
-BrowsingHistoryHandler::BrowsingHistoryHandler(DOMUI* dom_ui)
-    : DOMMessageHandler(dom_ui),
-      search_text_(),
+BrowsingHistoryHandler::BrowsingHistoryHandler()
+    : search_text_(),
       remover_(NULL) {
-  dom_ui_->RegisterMessageCallback("getHistory",
-      NewCallback(this, &BrowsingHistoryHandler::HandleGetHistory));
-  dom_ui_->RegisterMessageCallback("searchHistory",
-      NewCallback(this, &BrowsingHistoryHandler::HandleSearchHistory));
-  dom_ui_->RegisterMessageCallback("deleteDay",
-      NewCallback(this, &BrowsingHistoryHandler::HandleDeleteDay));
-
-  // Create our favicon data source.
-  g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
-      NewRunnableMethod(&chrome_url_data_manager,
-                        &ChromeURLDataManager::AddDataSource,
-                        new DOMUIFavIconSource(dom_ui_->GetProfile())));
-
-  // Get notifications when history is cleared.
-  registrar_.Add(this, NotificationType::HISTORY_URLS_DELETED,
-                 Source<Profile>(dom_ui_->GetProfile()->GetOriginalProfile()));
+  
 }
 
 BrowsingHistoryHandler::~BrowsingHistoryHandler() {
   cancelable_consumer_.CancelAllRequests();
   if (remover_.get())
     remover_->RemoveObserver(this);
+}
+
+DOMMessageHandler* BrowsingHistoryHandler::Attach(DOMUI* dom_ui) {
+  // Create our favicon data source.
+  g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(&chrome_url_data_manager,
+      &ChromeURLDataManager::AddDataSource,
+      new DOMUIFavIconSource(dom_ui->GetProfile())));
+
+  // Get notifications when history is cleared.
+  registrar_.Add(this, NotificationType::HISTORY_URLS_DELETED,
+      Source<Profile>(dom_ui->GetProfile()->GetOriginalProfile()));
+  return DOMMessageHandler::Attach(dom_ui);
+}
+
+void BrowsingHistoryHandler::RegisterMessages() {
+  dom_ui_->RegisterMessageCallback("getHistory",
+      NewCallback(this, &BrowsingHistoryHandler::HandleGetHistory));
+  dom_ui_->RegisterMessageCallback("searchHistory",
+      NewCallback(this, &BrowsingHistoryHandler::HandleSearchHistory));
+  dom_ui_->RegisterMessageCallback("deleteDay",
+      NewCallback(this, &BrowsingHistoryHandler::HandleDeleteDay));
 }
 
 void BrowsingHistoryHandler::HandleGetHistory(const Value* value) {
@@ -356,7 +362,7 @@ void BrowsingHistoryHandler::Observe(NotificationType type,
 ////////////////////////////////////////////////////////////////////////////////
 
 HistoryUI::HistoryUI(TabContents* contents) : DOMUI(contents) {
-  AddMessageHandler(new BrowsingHistoryHandler(this));
+  AddMessageHandler((new BrowsingHistoryHandler())->Attach(this));
 
   HistoryUIHTMLSource* html_source = new HistoryUIHTMLSource();
 

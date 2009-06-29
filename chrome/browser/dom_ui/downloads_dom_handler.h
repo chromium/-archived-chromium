@@ -19,10 +19,13 @@ class DownloadsDOMHandler : public DOMMessageHandler,
                             public DownloadManager::Observer,
                             public DownloadItem::Observer {
  public:
-  explicit DownloadsDOMHandler(DOMUI* dom_ui, DownloadManager* dlm);
+  explicit DownloadsDOMHandler(DownloadManager* dlm);
   virtual ~DownloadsDOMHandler();
 
   void Init();
+
+  // DOMMessageHandler implementation.
+  virtual void RegisterMessages();
 
   // DownloadItem::Observer interface
   virtual void OnDownloadUpdated(DownloadItem* download);

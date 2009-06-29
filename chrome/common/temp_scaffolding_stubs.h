@@ -332,6 +332,8 @@ class ModalHtmlDialogDelegate : public HtmlDialogUIDelegate {
    virtual bool IsDialogModal() const { return true; }
    virtual std::wstring GetDialogTitle() const { return std::wstring(); }
    virtual GURL GetDialogContentURL() const { return GURL(); }
+   virtual void GetDOMMessageHandlers(
+       std::vector<DOMMessageHandler*>* handlers) const {}
    virtual void GetDialogSize(gfx::Size* size) const {}
    virtual std::string GetDialogArgs() const { return std::string(); }
    virtual void OnDialogClosed(const std::string& json_retval) {}

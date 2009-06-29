@@ -48,11 +48,11 @@ class ExtensionsUIHTMLSource : public ChromeURLDataManager::DataSource {
 // The handler for Javascript messages related to the "extensions" view.
 class ExtensionsDOMHandler : public DOMMessageHandler {
  public:
-  ExtensionsDOMHandler(DOMUI* dom_ui,
-      ExtensionsService* extension_service);
-
+  explicit ExtensionsDOMHandler(ExtensionsService* extension_service);
   virtual ~ExtensionsDOMHandler();
-  void Init();
+  
+  // DOMMessageHandler implementation.
+  virtual void RegisterMessages();
 
   // Extension Detail JSON Struct for page. (static for ease of testing).
   static DictionaryValue* CreateExtensionDetailValue(

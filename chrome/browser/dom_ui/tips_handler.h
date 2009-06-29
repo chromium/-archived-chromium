@@ -28,9 +28,12 @@ class Value;
 
 class TipsHandler : public DOMMessageHandler {
  public:
-  explicit TipsHandler(DOMUI* dom_ui);
+  TipsHandler() : tips_cache_(NULL) {}
+  virtual ~TipsHandler() {}
 
-  TipsHandler();
+  // DOMMessageHandler implementation and overrides. 
+  virtual DOMMessageHandler* Attach(DOMUI* dom_ui); 
+  virtual void RegisterMessages();
 
   // Callback which pulls tips data from the preferences.
   void HandleGetTips(const Value* content);
@@ -41,9 +44,6 @@ class TipsHandler : public DOMMessageHandler {
  private:
   // Make sure the string we are pushing to the NTP is a valid URL.
   bool IsValidURL(const std::wstring& url_string);
-
-  // So we can push data out to the page that has called this handler.
-  DOMUI* dom_ui_;
 
   // Filled with data from cache in preferences.
   const DictionaryValue* tips_cache_;

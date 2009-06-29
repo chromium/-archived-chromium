@@ -21,7 +21,11 @@ enum Section {
 
 class ShownSectionsHandler : public DOMMessageHandler {
  public:
-  explicit ShownSectionsHandler(DOMUI* dom_ui);
+  ShownSectionsHandler() {}
+  virtual ~ShownSectionsHandler() {}  
+
+  // DOMMessageHandler implementation.
+  virtual void RegisterMessages();
 
   // Callback for "getShownSections" message.
   void HandleGetShownSections(const Value* value);
@@ -32,8 +36,6 @@ class ShownSectionsHandler : public DOMMessageHandler {
   static void RegisterUserPrefs(PrefService* prefs);
 
  private:
-  DOMUI* dom_ui_;
-
   DISALLOW_COPY_AND_ASSIGN(ShownSectionsHandler);
 };
 
