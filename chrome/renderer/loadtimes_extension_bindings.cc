@@ -67,9 +67,9 @@ class LoadTimesExtensionWrapper : public v8::Extension {
     WebFrame* frame = WebFrame::RetrieveFrameForEnteredContext();
     if (frame) {
       WebDataSource* data_source = frame->GetDataSource();
-      NavigationState* navigation_state =
-          NavigationState::FromDataSource(data_source);
       if (data_source) {
+        NavigationState* navigation_state =
+            NavigationState::FromDataSource(data_source);
         v8::Local<v8::Object> load_times = v8::Object::New();
         load_times->Set(
             v8::String::New("requestTime"),
