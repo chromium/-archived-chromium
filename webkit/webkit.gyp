@@ -1130,6 +1130,7 @@
         '../third_party/WebKit/WebCore/bindings/v8/V8NodeFilterCondition.h',
         '../third_party/WebKit/WebCore/bindings/v8/V8ObjectEventListener.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/V8ObjectEventListener.h',
+        '../third_party/WebKit/WebCore/bindings/v8/V8Proxy.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/V8Proxy.h',
         '../third_party/WebKit/WebCore/bindings/v8/V8Utilities.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/V8Utilities.h',
@@ -1169,9 +1170,6 @@
         'port/bindings/v8/V8NPUtils.h',
         'port/bindings/v8/V8NPObject.cpp',
         'port/bindings/v8/V8NPObject.h',
-        'port/bindings/v8/v8_proxy.cpp',
-        'port/bindings/v8/v8_proxy.h',
-        'port/bindings/v8/v8_utility.h',
 
         # This list contains every .cpp, .h, .m, and .mm file in the
         # subdirectories of ../third_party/WebKit/WebCore, excluding the

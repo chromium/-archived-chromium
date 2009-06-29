@@ -41,7 +41,7 @@
 #include "V8CustomBinding.h"
 #include "V8Helpers.h"
 #include "V8NPUtils.h"
-#include "v8_proxy.h"
+#include "V8Proxy.h"
 #include "DOMWindow.h"
 
 using WebCore::toV8Context;
@@ -60,7 +60,7 @@ static void FreeV8NPObject(NPObject* npobj)
 {
     V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
 #ifndef NDEBUG
-    V8Proxy::UnregisterGlobalHandle(object, object->v8Object);
+    V8Proxy::unregisterGlobalHandle(object, object->v8Object);
 #endif
     object->v8Object.Dispose();
     free(object);
@@ -105,7 +105,7 @@ NPObject* npCreateV8ScriptObject(NPP npp, v8::Handle<v8::Object> object, WebCore
         object->GetInternalField(V8Custom::kDOMWrapperTypeIndex)->IsNumber() &&
         object->GetInternalField(V8Custom::kDOMWrapperTypeIndex)->Uint32Value() == V8ClassIndex::NPOBJECT) {
 
-        NPObject* rv = V8Proxy::ToNativeObject<NPObject>(V8ClassIndex::NPOBJECT, object);
+        NPObject* rv = V8Proxy::convertToNativeObject<NPObject>(V8ClassIndex::NPOBJECT, object);
         NPN_RetainObject(rv);
         return rv;
     }
@@ -113,7 +113,7 @@ NPObject* npCreateV8ScriptObject(NPP npp, v8::Handle<v8::Object> object, WebCore
     V8NPObject* obj = reinterpret_cast<V8NPObject*>(NPN_CreateObject(npp, &V8NPObjectClass));
     obj->v8Object = v8::Persistent<v8::Object>::New(object);
 #ifndef NDEBUG
-    V8Proxy::RegisterGlobalHandle(WebCore::NPOBJECT, obj, obj->v8Object);
+    V8Proxy::registerGlobalHandle(WebCore::NPOBJECT, obj, obj->v8Object);
 #endif
     obj->rootObject = root;
     return reinterpret_cast<NPObject*>(obj);
@@ -167,7 +167,7 @@ bool NPN_Invoke(NPP npp, NPObject *npobj, NPIdentifier methodName,
         v8::Handle<v8::Function> func = v8::Handle<v8::Function>::Cast(funcObj);
         // Create list of args to pass to v8
         v8::Handle<v8::Value>* argv = listFromVariantArgs(args, argCount, npobj);
-        v8::Local<v8::Value> resultObj = proxy->CallFunction(func, object->v8Object, argCount, argv);
+        v8::Local<v8::Value> resultObj = proxy->callFunction(func, object->v8Object, argCount, argv);
         delete[] argv;
 
         // If we had an error, return false.  The spec is a little unclear here, but
@@ -221,7 +221,7 @@ bool NPN_InvokeDefault(NPP npp, NPObject *npobj, const NPVariant *args,
 
             // Create list of args to pass to v8
             v8::Handle<v8::Value>* argv = listFromVariantArgs(args, argCount, npobj);
-            resultObj = proxy->CallFunction(func, funcObj, argCount, argv);
+            resultObj = proxy->callFunction(func, funcObj, argCount, argv);
             delete[] argv;
         }
 
@@ -420,7 +420,7 @@ void NPN_SetException(NPObject *npobj, const NPUTF8 *message)
         return;
 
     v8::Context::Scope scope(context);
-    V8Proxy::ThrowError(V8Proxy::GENERAL_ERROR, message);
+    V8Proxy::throwError(V8Proxy::GeneralError, message);
 }
 
 bool NPN_Enumerate(NPP npp, NPObject *npobj, NPIdentifier **identifier, uint32_t *count)
@@ -507,7 +507,7 @@ bool NPN_Construct(NPP npp, NPObject* npobj, const NPVariant* args, uint32_t arg
 
             // Create list of args to pass to v8.
             v8::Handle<v8::Value>* argv = listFromVariantArgs(args, argCount, npobj);
-            resultObj = proxy->NewInstance(ctor, argCount, argv);
+            resultObj = proxy->newInstance(ctor, argCount, argv);
             delete[] argv;
         }
 

@@ -14,14 +14,14 @@
 #include "Page.h"
 #include "PlatformString.h"
 #include "SecurityOrigin.h"
+#include "V8Binding.h"
+#include "V8CustomBinding.h"
+#include "V8Proxy.h"
+#include "V8Utilities.h"
 #include <wtf/OwnPtr.h>
 #include <wtf/Vector.h>
 #undef LOG
 
-#include "V8Binding.h"
-#include "V8CustomBinding.h"
-#include "v8_proxy.h"
-#include "v8_utility.h"
 #include "base/string_util.h"
 #include "base/values.h"
 #include "webkit/api/public/WebScriptSource.h"
@@ -149,7 +149,7 @@ WebDevToolsClientImpl::WebDevToolsClientImpl(
       new JsToolsAgentBoundObj(this, frame, L"RemoteToolsAgent"));
 
   v8::HandleScope scope;
-  v8::Handle<v8::Context> frame_context = V8Proxy::GetContext(frame->frame());
+  v8::Handle<v8::Context> frame_context = V8Proxy::context(frame->frame());
   dev_tools_host_.set(new BoundObject(frame_context, this, "DevToolsHost"));
   dev_tools_host_->AddProtoFunction(
       "reset",
@@ -253,7 +253,7 @@ v8::Handle<v8::Value> WebDevToolsClientImpl::JsAddSourceToFrame(
   if (source_string.isEmpty() || exception_catcher.HasCaught()) {
     return v8::Undefined();
   }
-  Node* node = V8Proxy::DOMWrapperToNode<Node>(args[2]);
+  Node* node = V8Proxy::convertDOMWrapperToNode<Node>(args[2]);
   if (!node || !node->attached()) {
     return v8::Undefined();
   }
@@ -272,7 +272,7 @@ v8::Handle<v8::Value> WebDevToolsClientImpl::JsAddResourceSourceToFrame(
   if (mime_type.isEmpty()) {
     return v8::Undefined();
   }
-  Node* node = V8Proxy::DOMWrapperToNode<Node>(args[2]);
+  Node* node = V8Proxy::convertDOMWrapperToNode<Node>(args[2]);
   WebDevToolsClientImpl* client = static_cast<WebDevToolsClientImpl*>(
       v8::External::Cast(*args.Data())->Value());
   client->AddResourceSourceToFrame(resource_id, mime_type, node);

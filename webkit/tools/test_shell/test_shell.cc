@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "v8_proxy.h"
+#include "V8Proxy.h"
 #undef LOG
 
 #include "webkit/tools/test_shell/test_shell.h"
@@ -183,7 +183,7 @@ void TestShell::Dump(TestShell* shell) {
   if ((shell == NULL) || ((params = shell->test_params()) == NULL))
     return;
 
-  WebCore::V8Proxy::ProcessConsoleMessages();
+  WebCore::V8Proxy::processConsoleMessages();
   // Echo the url in the output so we know we're not getting out of sync.
   printf("#URL:%s\n", params->test_url.c_str());
 

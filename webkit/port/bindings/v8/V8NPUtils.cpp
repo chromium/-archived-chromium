@@ -39,7 +39,7 @@
 #include "npruntime_priv.h"
 #include "NPV8Object.h"
 #include "V8NPObject.h"
-#include "v8_proxy.h"
+#include "V8Proxy.h"
 
 void convertV8ObjectToNPVariant(v8::Local<v8::Value> object, NPObject *owner, NPVariant* result)
 {

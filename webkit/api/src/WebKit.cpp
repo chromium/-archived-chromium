@@ -97,13 +97,13 @@ void registerURLSchemeAsNoAccess(const WebString& scheme)
 
 void registerExtension(v8::Extension* extension)
 {
-    WebCore::V8Proxy::RegisterExtension(extension, WebString());
+    WebCore::V8Proxy::registerExtension(extension, WebString());
 }
 
 void registerExtension(v8::Extension* extension,
                        const WebString& schemeRestriction)
 {
-    WebCore::V8Proxy::RegisterExtension(extension, schemeRestriction);
+  WebCore::V8Proxy::registerExtension(extension, schemeRestriction);
 }
 
 void enableWebWorkers()
