@@ -2852,3 +2852,15 @@ BUG15649 : LayoutTests/compositing/self-painting-layers.html = TIMEOUT
 BUG15649 : LayoutTests/http/tests/security/xssAuditor/get-from-iframe.html = TIMEOUT
 BUG15649 : LayoutTests/http/tests/security/xssAuditor/post-from-iframe.html = TIMEOUT
 BUG15649 : LayoutTests/plugins/netscape-plugin-map-data-to-src.html = FAIL
+BUG15649 : LayoutTests/media/video-canvas-source.html = FAIL
+
+// WebKit Update 45287:45352 Failures.
+BUG15649 : LayoutTests/dom/svg/level3/xpath/XPathEvaluator_createExpression_INVALID_EXPRESSION_ERR.svg = FAIL
+BUG15649 : LayoutTests/dom/svg/level3/xpath/XPathEvaluator_evaluate_INVALID_EXPRESSION_ERR.svg = FAIL
+BUG15649 : LayoutTests/dom/svg/level3/xpath/XPathEvaluator_evaluate_TYPE_ERR.svg = FAIL
+BUG15649 : LayoutTests/dom/svg/level3/xpath/XPathResult_TYPE_ERR.svg = FAIL
+BUG15649 : LayoutTests/fast/dom/DOMException/XPathException.html = FAIL
+BUG15649 : LayoutTests/fast/xpath/4XPath/Core/test_parser.html = FAIL
+BUG15649 : LayoutTests/fast/xpath/invalid-functions.html = FAIL
+BUG15649 : LayoutTests/fast/xpath/py-dom-xpath/expressions.html = FAIL
+BUG15649 : chrome/fast/dom/messageport-gc.html = TIMEOUT
