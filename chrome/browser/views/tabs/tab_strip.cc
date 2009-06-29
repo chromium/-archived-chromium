@@ -1191,6 +1191,12 @@ void TabStrip::GetDesiredTabWidths(int tab_count,
 }
 
 void TabStrip::ResizeLayoutTabs() {
+  // We've been called back after the TabStrip has been emptied out (probably
+  // just prior to the window being destroyed). We need to do nothing here or
+  // else GetTabAt below will crash.
+  if (GetTabCount() == 0)
+    return;
+
   resize_layout_factory_.RevokeAll();
 
   // It is critically important that this is unhooked here, otherwise we will
