@@ -13,7 +13,7 @@
 #include "MouseEvent.h"
 #include "NPV8Object.h"  // for PrivateIdentifier
 #include "V8Helpers.h"
-#include "v8_proxy.h"
+#include "V8Proxy.h"
 #elif USE(JAVASCRIPTCORE_BINDINGS)
 #include "bridge/c/c_utility.h"
 #endif
@@ -102,20 +102,20 @@ static bool DragEventData(NPObject* npobj, int* event_id, WebDragData* data) {
 
   // Get the current WebCore event.
   v8::Handle<v8::Value> current_event(GetEvent(context));
-  WebCore::Event* event = V8Proxy::ToNativeEvent(current_event);
+  WebCore::Event* event = V8Proxy::convertToNativeEvent(current_event);
   if (event == NULL)
     return false;
 
   // Check that the given npobj is that event.
   V8NPObject* object = reinterpret_cast<V8NPObject*>(npobj);
-  WebCore::Event* given = V8Proxy::ToNativeEvent(object->v8Object);
+  WebCore::Event* given = V8Proxy::convertToNativeEvent(object->v8Object);
   if (given != event)
     return false;
 
   // Check the execution frames are same origin.
   V8Proxy* current = V8Proxy::retrieve(V8Proxy::retrieveFrame());
   WebCore::Frame* frame = V8Proxy::retrieveFrame(context);
-  if (!current || !current->CanAccessFrame(frame, false))
+  if (!current || !current->canAccessFrame(frame, false))
     return false;
 
   const WebCore::EventNames& event_names(WebCore::eventNames());

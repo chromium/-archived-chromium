@@ -36,7 +36,7 @@
 #include <wtf/Assertions.h>
 #include <wtf/RefCounted.h>
 #include <wtf/HashMap.h>
-#include "v8_proxy.h"
+#include "V8Proxy.h"
 
 namespace WebCore {
 
@@ -370,7 +370,7 @@ template <class P>
 P V8SVGPODTypeUtil::ToSVGPODType(V8ClassIndex::V8WrapperType type,
                                  v8::Handle<v8::Value> object,
                                  bool& ok) {
-  void *wrapper = V8Proxy::ToSVGPODTypeImpl(type, object);
+  void *wrapper = V8Proxy::convertToSVGPODTypeImpl(type, object);
   if (wrapper == NULL) {
     ok = false;
     return P();

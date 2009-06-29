@@ -6,7 +6,7 @@
 
 #include <string>
 
-#include "v8_proxy.h"
+#include "V8Proxy.h"
 #include "webkit/glue/devtools/bound_object.h"
 
 using namespace WebCore;
@@ -22,7 +22,7 @@ BoundObject::BoundObject(
   v8_this_ = v8::Persistent<v8::External>::New(v8::External::New(v8_this));
 
   v8::Local<v8::FunctionTemplate> local_template =
-      v8::FunctionTemplate::New(V8Proxy::CheckNewLegal);
+      v8::FunctionTemplate::New(V8Proxy::checkNewLegal);
   host_template_ = v8::Persistent<v8::FunctionTemplate>::New(local_template);
   host_template_->SetClassName(v8::String::New(object_name));
 }
@@ -54,7 +54,7 @@ void BoundObject::Build() {
 
   v8::Local<v8::Function> constructor = host_template_->GetFunction();
   bound_object_ = v8::Persistent<v8::Object>::New(
-      SafeAllocation::NewInstance(constructor));
+      SafeAllocation::newInstance(constructor));
 
   v8::Handle<v8::Object> global = context_->Global();
   global->Set(v8::String::New(object_name_), bound_object_);
