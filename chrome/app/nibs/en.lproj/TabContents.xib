@@ -2,9 +2,9 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="7.03">
 	<data>
 		<int key="IBDocument.SystemTarget">1050</int>
-		<string key="IBDocument.SystemVersion">9G55</string>
+		<string key="IBDocument.SystemVersion">9J61</string>
 		<string key="IBDocument.InterfaceBuilderVersion">677</string>
-		<string key="IBDocument.AppKitVersion">949.43</string>
+		<string key="IBDocument.AppKitVersion">949.46</string>
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -100,13 +100,6 @@
 							<bool key="NSTransparent">NO</bool>
 							<reference key="NSFillColor2" ref="524635398"/>
 						</object>
-						<object class="NSCustomView" id="995989345">
-							<reference key="NSNextResponder" ref="675542922"/>
-							<int key="NSvFlags">289</int>
-							<string key="NSFrame">{{465, 0}, {15, 15}}</string>
-							<reference key="NSSuperview" ref="675542922"/>
-							<string key="NSClassName">GrowBoxView</string>
-						</object>
 					</object>
 					<string key="NSFrameSize">{480, 360}</string>
 					<reference key="NSSuperview"/>
@@ -134,14 +127,6 @@
 						<reference key="destination" ref="753762894"/>
 					</object>
 					<int key="connectionID">169</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">growBox_</string>
-						<reference key="source" ref="326691890"/>
-						<reference key="destination" ref="995989345"/>
-					</object>
-					<int key="connectionID">176</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -183,7 +168,6 @@
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<reference ref="753762894"/>
-							<reference ref="995989345"/>
 						</object>
 						<reference key="parent" ref="886393115"/>
 					</object>
@@ -201,11 +185,6 @@
 						</object>
 						<reference key="parent" ref="675542922"/>
 					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">175</int>
-						<reference key="object" ref="995989345"/>
-						<reference key="parent" ref="675542922"/>
-					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -216,7 +195,6 @@
 					<string>-2.IBPluginDependency</string>
 					<string>-3.IBPluginDependency</string>
 					<string>164.IBPluginDependency</string>
-					<string>175.IBPluginDependency</string>
 					<string>93.IBEditorWindowLastContentRect</string>
 					<string>93.IBViewEditorWindowController.showingLayoutRectangles</string>
 					<string>93.IBWindowTemplateEditedContentRect</string>
@@ -232,10 +210,9 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{769, 584}, {480, 360}}</string>
+					<string>{{769, 496}, {480, 360}}</string>
 					<boolean value="YES" id="5"/>
-					<string>{{769, 584}, {480, 360}}</string>
+					<string>{{769, 496}, {480, 360}}</string>
 					<reference ref="5"/>
 					<reference ref="5"/>
 					<string>{480, 360}</string>

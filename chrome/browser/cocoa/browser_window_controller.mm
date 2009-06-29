@@ -36,6 +36,20 @@ const int kWindowGradientHeight = 24;
 
 }
 
+@interface NSWindow (NSPrivateApis)
+// Note: These functions are private, use -[NSObject respondsToSelector:]
+// before calling them.
+
+- (void)setAutorecalculatesContentBorderThickness:(BOOL)b
+                                          forEdge:(NSRectEdge)e;
+- (void)setContentBorderThickness:(CGFloat)b forEdge:(NSRectEdge)e;
+
+- (void)setBottomCornerRounded:(BOOL)rounded;
+
+- (NSRect)_growBoxRect;
+@end
+
+
 @interface BrowserWindowController(Private)
 
 - (void)positionToolbar;
@@ -94,6 +108,11 @@ willPositionSheet:(NSWindow *)sheet
     // be initialized (as it's called in response to |[self window]| above).
     // Retain it per the comment in the header.
     window_.reset([[self window] retain]);
+
+    // Sets the window to not have rounded corners, which prevents
+    // the resize control from being inset slightly and looking ugly.
+    if ([window_ respondsToSelector:@selector(setBottomCornerRounded:)])
+      [window_ setBottomCornerRounded:NO];
 
     // Since we don't have a standard resize control, Cocoa won't enable the
     // zoom (green) button on the titlebar for us. Grab it and enable it
@@ -384,7 +403,17 @@ willPositionSheet:(NSWindow *)sheet
 // in the coordinate system of the content area of the currently selected tab.
 // |windowGrowBox| needs to be in the window's coordinate system.
 - (NSRect)selectedTabGrowBoxRect {
-  return [tabStripController_ selectedTabGrowBoxRect];
+  if (![window_ respondsToSelector:@selector(_growBoxRect)])
+    return NSZeroRect;
+
+  // Before we return a rect, we need to convert it from window coordinates
+  // to tab content area coordinates and flip the coordinate system.
+  NSRect growBoxRect =
+      [[self tabContentArea] convertRect:[window_ _growBoxRect] fromView:nil];
+  growBoxRect.origin.y =
+      [[self tabContentArea] frame].size.height - growBoxRect.size.height -
+      growBoxRect.origin.y;
+  return growBoxRect;
 }
 
 // Accept tabs from a BrowserWindowController with the same Profile.
@@ -629,17 +658,6 @@ willPositionSheet:(NSWindow *)sheet
 }
 
 @end
-
-
-@interface NSWindow (NSPrivateApis)
-// Note: These functions are private, use -[NSObject respondsToSelector:]
-// before calling them.
-
-- (void)setAutorecalculatesContentBorderThickness:(BOOL)b
-                                          forEdge:(NSRectEdge)e;
-- (void)setContentBorderThickness:(CGFloat)b forEdge:(NSRectEdge)e;
-@end
-
 
 @implementation BrowserWindowController (Private)
 

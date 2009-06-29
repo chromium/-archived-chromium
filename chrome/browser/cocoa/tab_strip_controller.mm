@@ -579,21 +579,4 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
   tabModel_->InsertTabContentsAt(index, contents, true, false);
 }
 
-// Return the rect, in WebKit coordinates (flipped), of the window's grow box
-// in the coordinate system of the content area of the currently selected tab.
-- (NSRect)selectedTabGrowBoxRect {
-  int selectedIndex = tabModel_->selected_index();
-  if (selectedIndex == TabStripModel::kNoTab) {
-    // When the window is initially being constructed, there may be no currently
-    // selected tab, so pick the first one. If there aren't any, just bail with
-    // an empty rect.
-    selectedIndex = 0;
-  }
-  TabContentsController* selectedController =
-      [tabContentsArray_ objectAtIndex:selectedIndex];
-  if (!selectedController)
-    return NSZeroRect;
-  return [selectedController growBoxRect];
-}
-
 @end

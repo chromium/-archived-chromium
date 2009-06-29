@@ -54,7 +54,7 @@ class ToolbarModel;
   CGFloat placeholderStretchiness_; // Vertical force shown by streching tab.
   // Frame targets for all the current views.
   // target frames are used because repeated requests to [NSView animator].
-  // aren't coalesced, so we store frames to avoid redundant calls.  
+  // aren't coalesced, so we store frames to avoid redundant calls.
   scoped_nsobject<NSMutableDictionary> targetFrames_;
   NSRect newTabTargetFrame_;
 }
@@ -67,10 +67,6 @@ class ToolbarModel;
 - (id)initWithView:(TabStripView*)view
         switchView:(NSView*)switchView
              model:(TabStripModel*)model;
-
-// Return the rect, in WebKit coordinates (flipped), of the window's grow box
-// in the coordinate system of the content area of the currently selected tab.
-- (NSRect)selectedTabGrowBoxRect;
 
 // Return the view for the currently selected tab.
 - (NSView *)selectedTabView;

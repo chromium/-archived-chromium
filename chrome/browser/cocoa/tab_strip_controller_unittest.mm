@@ -96,11 +96,6 @@ class TabStripControllerTest : public testing::Test {
   scoped_nsobject<NSView> tab_strip_;
 };
 
-TEST_F(TabStripControllerTest, GrowBox) {
-  // TODO(pinkerton): Creating a TabContents crashes an unrelated test, even
-  // if you don't do anything with it. http://crbug.com/10899
-}
-
 // Test adding and removing tabs and making sure that views get added to
 // the tab strip.
 TEST_F(TabStripControllerTest, AddRemoveTabs) {
@@ -127,7 +122,7 @@ TEST_F(TabStripControllerTest, RearrangeTabs) {
   // if you don't do anything with it. http://crbug.com/10899
 }
 
-// Test that changing the number of tabs broadcasts a 
+// Test that changing the number of tabs broadcasts a
 // kTabStripNumberOfTabsChanged notifiction.
 TEST_F(TabStripControllerTest, Notifications) {
   // TODO(pinkerton): Creating a TabContents crashes an unrelated test, even
