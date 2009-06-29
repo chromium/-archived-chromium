@@ -437,7 +437,7 @@ void DnsMaster::PreLockedScheduleLookups() {
       peak_pending_lookups_ = std::max(peak_pending_lookups_,
                                        pending_lookups_.size());
     } else {
-      // Completed synchyronously (was already cached by HostResolver), or else
+      // Completed synchronously (was already cached by HostResolver), or else
       // there was (equivalently) some network error that prevents us from
       // finding the name.  Status net::OK means it was "found."
       PrelockedLookupFinished(request, hostname, status == net::OK);
