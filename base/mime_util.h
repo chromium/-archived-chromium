@@ -17,6 +17,9 @@ namespace mime_util {
 // If the mime type is unknown, this will return application/octet-stream.
 std::string GetFileMimeType(const FilePath& filepath);
 
+// Get the mime type for a byte vector.
+std::string GetDataMimeType(const std::string& data);
+
 // Gets the file name for an icon given the mime type and icon pixel size.
 // Where an icon is a square image of |size| x |size|.
 // This will try to find the closest matching icon. If that's not available,

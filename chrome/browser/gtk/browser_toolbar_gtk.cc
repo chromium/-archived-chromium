@@ -18,9 +18,9 @@
 #include "chrome/browser/gtk/back_forward_button_gtk.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
 #include "chrome/browser/gtk/custom_button.h"
-#include "chrome/browser/gtk/dnd_registry.h"
 #include "chrome/browser/gtk/go_button_gtk.h"
 #include "chrome/browser/gtk/gtk_chrome_button.h"
+#include "chrome/browser/gtk/gtk_dnd_util.h"
 #include "chrome/browser/gtk/location_bar_view_gtk.h"
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/standard_menus.h"
@@ -349,9 +349,9 @@ void BrowserToolbarGtk::SetUpDragForHomeButton() {
   // prefer URIs over plain text when both are available.
   gtk_drag_dest_set(home_->widget(), GTK_DEST_DEFAULT_ALL,
                     NULL, 0, GDK_ACTION_COPY);
-  dnd::SetDestTargetListFromCodeMask(home_->widget(),
-                                     dnd::X_CHROME_TEXT_PLAIN |
-                                     dnd::X_CHROME_TEXT_URI_LIST);
+  GtkDndUtil::SetDestTargetListFromCodeMask(home_->widget(),
+                                            GtkDndUtil::X_CHROME_TEXT_PLAIN |
+                                            GtkDndUtil::X_CHROME_TEXT_URI_LIST);
 
   g_signal_connect(home_->widget(), "drag-data-received",
                    G_CALLBACK(OnDragDataReceived), this);
@@ -423,17 +423,14 @@ void BrowserToolbarGtk::OnDragDataReceived(GtkWidget* widget,
     GdkDragContext* drag_context, gint x, gint y,
     GtkSelectionData* data, guint info, guint time,
     BrowserToolbarGtk* toolbar) {
-  if (info != dnd::X_CHROME_TEXT_PLAIN) {
+  if (info != GtkDndUtil::X_CHROME_TEXT_PLAIN) {
     NOTIMPLEMENTED() << "Only support plain text drops for now, sorry!";
     return;
   }
 
   GURL url(reinterpret_cast<char*>(data->data));
-  if (!url.is_valid()) {
-     // FIXME: remove this
-    NOTIMPLEMENTED() << "invalid url: " << url.spec();
+  if (!url.is_valid())
     return;
-  }
 
   bool url_is_newtab = url.spec() == chrome::kChromeUINewTabURL;
   toolbar->profile_->GetPrefs()->SetBoolean(prefs::kHomePageIsNewTabPage,

@@ -561,6 +561,10 @@ std::string GetFileMimeType(const FilePath& filepath) {
   return xdg_mime_get_mime_type_from_file_name(filepath.value().c_str());
 }
 
+std::string GetDataMimeType(const std::string& data) {
+  return xdg_mime_get_mime_type_for_data(data.data(), data.length(), NULL);
+}
+
 FilePath GetMimeIcon(const std::string& mime_type, size_t size) {
   std::vector<std::string> icon_names;
   std::string icon_name;

@@ -12,7 +12,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/gtk/bookmark_context_menu.h"
 #include "chrome/browser/gtk/bookmark_utils_gtk.h"
-#include "chrome/browser/gtk/dnd_registry.h"
+#include "chrome/browser/gtk/gtk_dnd_util.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
@@ -135,8 +135,8 @@ void BookmarkMenuController::BuildMenu(const BookmarkNode* parent,
 
     gtk_drag_source_set(menu_item, GDK_BUTTON1_MASK,
                         NULL, 0, GDK_ACTION_MOVE);
-    dnd::SetSourceTargetListFromCodeMask(menu_item,
-                                         dnd::X_CHROME_BOOKMARK_ITEM);
+    GtkDndUtil::SetSourceTargetListFromCodeMask(
+        menu_item, GtkDndUtil::X_CHROME_BOOKMARK_ITEM);
     g_signal_connect(G_OBJECT(menu_item), "drag-begin",
                      G_CALLBACK(&OnMenuItemDragBegin), this);
     g_signal_connect(G_OBJECT(menu_item), "drag-end",

@@ -20,8 +20,8 @@
 #include "chrome/browser/gtk/bookmark_utils_gtk.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
 #include "chrome/browser/gtk/custom_button.h"
-#include "chrome/browser/gtk/dnd_registry.h"
 #include "chrome/browser/gtk/gtk_chrome_button.h"
+#include "chrome/browser/gtk/gtk_dnd_util.h"
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/tabs/tab_strip_gtk.h"
 #include "chrome/browser/metrics/user_metrics.h"
@@ -134,8 +134,8 @@ void BookmarkBarGtk::Init(Profile* profile) {
 
   gtk_drag_dest_set(bookmark_toolbar_.get(), GTK_DEST_DEFAULT_DROP,
                     NULL, 0, GDK_ACTION_MOVE);
-  dnd::SetDestTargetListFromCodeMask(bookmark_toolbar_.get(),
-                                     dnd::X_CHROME_BOOKMARK_ITEM);
+  GtkDndUtil::SetDestTargetListFromCodeMask(bookmark_toolbar_.get(),
+                                            GtkDndUtil::X_CHROME_BOOKMARK_ITEM);
   g_signal_connect(bookmark_toolbar_.get(), "drag-motion",
                    G_CALLBACK(&OnToolbarDragMotion), this);
   g_signal_connect(bookmark_toolbar_.get(), "drag-leave",
@@ -367,7 +367,8 @@ GtkWidget* BookmarkBarGtk::CreateBookmarkButton(const BookmarkNode* node) {
   // The tool item is also a source for dragging
   gtk_drag_source_set(button, GDK_BUTTON1_MASK,
                       NULL, 0, GDK_ACTION_MOVE);
-  dnd::SetSourceTargetListFromCodeMask(button, dnd::X_CHROME_BOOKMARK_ITEM);
+  GtkDndUtil::SetSourceTargetListFromCodeMask(
+      button, GtkDndUtil::X_CHROME_BOOKMARK_ITEM);
   g_signal_connect(G_OBJECT(button), "drag-begin",
                    G_CALLBACK(&OnButtonDragBegin), this);
   g_signal_connect(G_OBJECT(button), "drag-end",
@@ -690,8 +691,8 @@ gboolean BookmarkBarGtk::OnToolbarDragDrop(
 
   if (context->targets) {
     GdkAtom target_type =
-        GDK_POINTER_TO_ATOM(g_list_nth_data(context->targets,
-                                            dnd::X_CHROME_BOOKMARK_ITEM));
+        GDK_POINTER_TO_ATOM(g_list_nth_data(
+            context->targets, GtkDndUtil::X_CHROME_BOOKMARK_ITEM));
     gtk_drag_get_data(widget, context, target_type, time);
 
     is_valid_drop_site = TRUE;

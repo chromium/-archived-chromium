@@ -14,7 +14,7 @@
 #include "base/gfx/point.h"
 #include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/gtk/custom_button.h"
-#include "chrome/browser/gtk/dnd_registry.h"
+#include "chrome/browser/gtk/gtk_dnd_util.h"
 #include "chrome/browser/gtk/tabs/dragged_tab_controller_gtk.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -477,9 +477,9 @@ void TabStripGtk::Init() {
                     NULL, 0,
                     static_cast<GdkDragAction>(
                         GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
-  dnd::SetDestTargetListFromCodeMask(tabstrip_.get(),
-                                     dnd::X_CHROME_TEXT_URI_LIST |
-                                     dnd::X_CHROME_TEXT_PLAIN);
+  GtkDndUtil::SetDestTargetListFromCodeMask(tabstrip_.get(),
+                                            GtkDndUtil::X_CHROME_TEXT_URI_LIST |
+                                            GtkDndUtil::X_CHROME_TEXT_PLAIN);
 
   g_signal_connect(G_OBJECT(tabstrip_.get()), "expose-event",
                    G_CALLBACK(OnExpose), this);
@@ -1553,7 +1553,7 @@ gboolean TabStripGtk::OnDragDataReceived(GtkWidget* widget,
                                          guint info, guint time,
                                          TabStripGtk* tabstrip) {
   // TODO(jhawkins): Parse URI lists.
-  if (info == dnd::X_CHROME_TEXT_PLAIN) {
+  if (info == GtkDndUtil::X_CHROME_TEXT_PLAIN) {
     tabstrip->CompleteDrop(data->data);
     gtk_drag_finish(context, TRUE, TRUE, time);
   }

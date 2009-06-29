@@ -138,6 +138,8 @@ class TabContentsViewGtk : public TabContentsView,
   // The drop data for the current drag (for drags that originate in the render
   // view).
   scoped_ptr<WebDropData> drop_data_;
+  // The mime type for the file contents of the current drag (if any).
+  GdkAtom drag_file_mime_type_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContentsViewGtk);
 };

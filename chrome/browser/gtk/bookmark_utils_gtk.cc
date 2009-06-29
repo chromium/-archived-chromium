@@ -10,8 +10,8 @@
 #include "base/string_util.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
-#include "chrome/browser/gtk/dnd_registry.h"
 #include "chrome/browser/gtk/gtk_chrome_button.h"
+#include "chrome/browser/gtk/gtk_dnd_util.h"
 #include "chrome/browser/profile.h"
 #include "grit/app_resources.h"
 #include "grit/generated_resources.h"
@@ -186,7 +186,7 @@ void WriteBookmarksToSelection(const std::vector<const BookmarkNode*>& nodes,
                                guint target_type,
                                Profile* profile) {
   switch (target_type) {
-    case dnd::X_CHROME_BOOKMARK_ITEM: {
+    case GtkDndUtil::X_CHROME_BOOKMARK_ITEM: {
       BookmarkDragData data(nodes);
       Pickle pickle;
       data.WriteToPickle(profile, &pickle);
@@ -219,7 +219,7 @@ std::vector<const BookmarkNode*> GetNodesFromSelection(
     }
 
     switch (target_type) {
-      case dnd::X_CHROME_BOOKMARK_ITEM: {
+      case GtkDndUtil::X_CHROME_BOOKMARK_ITEM: {
         *dnd_success = TRUE;
         Pickle pickle(reinterpret_cast<char*>(selection_data->data),
                       selection_data->length);

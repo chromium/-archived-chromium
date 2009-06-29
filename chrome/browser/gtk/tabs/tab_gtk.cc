@@ -7,7 +7,7 @@
 #include "app/gfx/path.h"
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
-#include "chrome/browser/gtk/dnd_registry.h"
+#include "chrome/browser/gtk/gtk_dnd_util.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
@@ -108,7 +108,8 @@ TabGtk::TabGtk(TabDelegate* delegate)
   gtk_event_box_set_visible_window(GTK_EVENT_BOX(event_box_), FALSE);
   gtk_drag_source_set(event_box_, GDK_BUTTON1_MASK,
                       NULL, 0, GDK_ACTION_MOVE);
-  dnd::SetSourceTargetListFromCodeMask(event_box_, dnd::X_CHROME_TAB);
+  GtkDndUtil::SetSourceTargetListFromCodeMask(event_box_,
+                                              GtkDndUtil::X_CHROME_TAB);
   g_signal_connect(G_OBJECT(event_box_), "button-press-event",
                    G_CALLBACK(OnMousePress), this);
   g_signal_connect(G_OBJECT(event_box_), "button-release-event",
