@@ -42,6 +42,9 @@ const size_t kMegabytes = 1024 * 1024;
 // renderer to avoid renderer from requesting too much memory.
 const size_t kMaxDecodedPacketSize = 2 * kMegabytes;
 const size_t kMaxBufferCapacity = 5 * kMegabytes;
+static const int kMaxChannels = 32;
+static const int kMaxBitsPerSample = 64;
+static const int kMaxSampleRate = 192000;
 
 }  // namespace
 
@@ -95,6 +98,15 @@ AudioRendererHost::IPCAudioSource*
 
   // Make sure the packet size and buffer capacity parameters are valid.
   if (buffer_capacity < decoded_packet_size)
+    return NULL;
+
+  if (channels <= 0 || channels > kMaxChannels)
+    return NULL;
+
+  if (sample_rate <= 0 || sample_rate > kMaxSampleRate)
+    return NULL;
+
+  if (bits_per_sample <= 0 || bits_per_sample > kMaxBitsPerSample)
     return NULL;
 
   // Create the stream in the first place.
