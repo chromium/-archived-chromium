@@ -58,19 +58,9 @@ bool GetFirstRunSentinelFilePath(FilePath* path) {
 // TODO(port): Mac should share this code.
 #if !defined(OS_MACOSX)
 bool FirstRun::IsChromeFirstRun() {
-  // A troolean, 0 means not yet set, 1 means set to true, 2 set to false.
-  int first_run = 0;
-  if (first_run != 0)
-    return first_run == 1;
-
   FilePath first_run_sentinel;
-  if (!GetFirstRunSentinelFilePath(&first_run_sentinel) ||
-      file_util::PathExists(first_run_sentinel)) {
-    first_run = 2;
-    return false;
-  }
-  first_run = 1;
-  return true;
+  return (GetFirstRunSentinelFilePath(&first_run_sentinel) &&
+          !file_util::PathExists(first_run_sentinel));
 }
 #endif
 
