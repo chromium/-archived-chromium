@@ -4024,6 +4024,7 @@
           ],
           'sources': [
             '../third_party/WebKit/WebCore/platform/graphics/chromium/VDMXParser.cpp',
+            '../third_party/WebKit/WebCore/platform/graphics/chromium/HarfbuzzSkia.cpp',
           ],
           'sources!': [
             # Not yet ported to Linux.
