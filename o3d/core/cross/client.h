@@ -118,9 +118,7 @@ class Client {
   // The system does not enforce pack name uniqueness.
   // Returns:
   //  A smart-pointer reference to the newly created pack object.
-  Pack* CreatePack() {
-    return object_manager_->CreatePack();
-  }
+  Pack* CreatePack();
 
   // Node methods --------------------------
 

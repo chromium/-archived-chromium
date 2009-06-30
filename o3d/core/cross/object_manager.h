@@ -196,9 +196,6 @@ class ObjectManager {
   // Map of objects to Ids
   ObjectMap object_map_;
 
-  // Allow pack creation.
-  bool allow_pack_creation_;
-
   // Array required to maintain references to the currently live pack objects.
   PackRefArray pack_array_;
 

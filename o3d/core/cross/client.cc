@@ -116,11 +116,8 @@ Client::~Client() {
 // Assigns a Renderer to the Client, and also assigns the Client
 // to the Renderer and sets up the default render graph
 void Client::Init() {
-  if (!renderer_.IsAvailable()) {
-    // Don't allow packs to be created.
-    object_manager_->DisallowPackCreation();
+  if (!renderer_.IsAvailable())
     return;
-  }
 
   // Create the root node for the scenegraph.  Note that the root lives
   // outside of a pack object.  The root's lifetime is directly bound to that
@@ -142,6 +139,16 @@ void Client::Cleanup() {
   ClearTickCallback();
   event_manager_.ClearAll();
   counter_manager_.ClearAllCallbacks();
+}
+
+Pack* Client::CreatePack() {
+  if (!renderer_.IsAvailable()) {
+    O3D_ERROR(service_locator_)
+        << "No Renderer available, Pack creation not allowed.";
+    return NULL;
+  }
+
+  return object_manager_->CreatePack();
 }
 
 // Tick Methods ----------------------------------------------------------------

@@ -163,6 +163,11 @@ Texture* Pack::CreateTextureFromFile(const String& uri,
 Texture* Pack::CreateTextureFromBitmap(Bitmap *bitmap, const String& uri) {
   DCHECK(bitmap);
 
+  if (!renderer_) {
+    O3D_ERROR(service_locator()) << "No Render Device Available";
+    return NULL;
+  }
+
   if (bitmap->width() > Texture::MAX_DIMENSION ||
       bitmap->height() > Texture::MAX_DIMENSION) {
     O3D_ERROR(service_locator())

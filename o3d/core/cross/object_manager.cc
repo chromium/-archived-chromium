@@ -43,8 +43,7 @@ const InterfaceId ObjectManager::kInterfaceId =
 
 ObjectManager::ObjectManager(ServiceLocator* service_locator)
     : service_locator_(service_locator),
-      service_(service_locator_, this),
-      allow_pack_creation_(true) {
+      service_(service_locator_, this) {
 }
 
 ObjectManager::~ObjectManager() {
@@ -52,10 +51,6 @@ ObjectManager::~ObjectManager() {
   pack_array_.clear();
 
   DLOG_ASSERT(object_map_.empty()) << "Client node leak.";
-}
-
-void ObjectManager::DisallowPackCreation() {
-  allow_pack_creation_ = false;
 }
 
 std::vector<ObjectBase*> ObjectManager::GetObjects(
@@ -134,10 +129,6 @@ bool ObjectManager::DestroyPack(Pack* pack) {
 }
 
 Pack* ObjectManager::CreatePack() {
-  if (!allow_pack_creation_) {
-    O3D_ERROR(service_locator_) << "Pack creation not allowed";
-    return NULL;
-  }
   Pack::Ref pack(new Pack(service_locator_));
   if (pack) {
     pack_array_.push_back(pack);
