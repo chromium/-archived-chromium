@@ -1,9 +1,11 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #include "app/l10n_util.h"
 #include "chrome/browser/spellchecker.h"
+#include "chrome/browser/spellchecker_common.h"
+#include "chrome/browser/spellchecker_platform_engine.h"
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "base/file_util.h"
@@ -28,9 +30,7 @@
 
 using base::TimeTicks;
 
-static const int kMaxSuggestions = 5;  // Max number of dictionary suggestions.
 
-static const int kMaxAutoCorrectWordSize = 8;
 
 namespace {
 
@@ -393,8 +393,19 @@ SpellChecker::SpellChecker(const FilePath& dict_dir,
       url_request_context_(request_context),
       dic_is_downloading_(false),
       auto_spell_correct_turned_on_(false),
+      is_using_platform_spelling_engine_(false),
       ALLOW_THIS_IN_INITIALIZER_LIST(
           dic_download_state_changer_factory_(this)) {
+  if (SpellCheckerPlatform::SpellCheckerAvailable()) {
+    SpellCheckerPlatform::Init();
+    if (SpellCheckerPlatform::PlatformSupportsLanguage(language)) {
+      // If we have reached here, then we know that the current platform
+      // supports the given language and we will use it instead of hunspell.
+      SpellCheckerPlatform::SetLanguage(language);
+      is_using_platform_spelling_engine_ = true;
+    }
+  }
+
   // Remember UI loop to later use this as a proxy to get IO loop.
   ui_loop_ = MessageLoop::current();
 
@@ -557,7 +568,7 @@ bool SpellChecker::IsValidContraction(const string16& contraction) {
   int word_start;
   int word_length;
   while (word_iterator.GetNextWord(&word, &word_start, &word_length)) {
-    if (!hunspell_->spell(UTF16ToUTF8(word).c_str()))
+    if (!CheckSpelling(UTF16ToUTF8(word)))
       return false;
   }
   return true;
@@ -580,17 +591,22 @@ bool SpellChecker::SpellCheckWord(
     worker_loop_ = MessageLoop::current();
 #endif
 
-  Initialize();
+  // Check if the platform spellchecker is being used.
+  if (!is_using_platform_spelling_engine_) {
+    // If it isn't, try and init hunspell.
+    Initialize();
+
+    // Check to see if hunspell was successful.
+    if (!hunspell_.get())
+      return true;  // Unable to spellcheck, return word is OK.
+  }
 
   StatsScope<StatsRate> timer(chrome::Counters::spellcheck_lookup());
 
   *misspelling_start = 0;
   *misspelling_len = 0;
   if (in_word_len == 0)
-    return true;  // no input means always spelled correctly
-
-  if (!hunspell_.get())
-    return true;  // unable to spellcheck, return word is OK
+    return true;  // No input means always spelled correctly.
 
   SpellcheckWordIterator word_iterator;
   string16 word;
@@ -601,16 +617,12 @@ bool SpellChecker::SpellCheckWord(
   word_iterator.Initialize(&character_attributes_, in_word_utf16.c_str(),
                            in_word_len, true);
   while (word_iterator.GetNextWord(&word, &word_start, &word_length)) {
-    // Found a word (or a contraction) that hunspell can check its spelling.
+    // Found a word (or a contraction) that the spellchecker can check the
+    // spelling of.
     std::string encoded_word = UTF16ToUTF8(word);
-
-    {
-      TimeTicks begin_time = TimeTicks::Now();
-      bool word_ok = !!hunspell_->spell(encoded_word.c_str());
-      DHISTOGRAM_TIMES("Spellcheck.CheckTime", TimeTicks::Now() - begin_time);
-      if (word_ok)
-        continue;
-    }
+    bool word_ok = CheckSpelling(encoded_word);
+    if (word_ok)
+      continue;
 
     // If the given word is a concatenated word of two or more valid words
     // (e.g. "hello:hello"), we should treat it as a valid word.
@@ -622,20 +634,7 @@ bool SpellChecker::SpellCheckWord(
 
     // Get the list of suggested words.
     if (optional_suggestions) {
-      char** suggestions;
-      TimeTicks begin_time = TimeTicks::Now();
-      int number_of_suggestions = hunspell_->suggest(&suggestions,
-                                                     encoded_word.c_str());
-      DHISTOGRAM_TIMES("Spellcheck.SuggestTime",
-                       TimeTicks::Now() - begin_time);
-
-      // Populate the vector of WideStrings.
-      for (int i = 0; i < number_of_suggestions; i++) {
-        if (i < kMaxSuggestions)
-          optional_suggestions->push_back(UTF8ToWide(suggestions[i]));
-        free(suggestions[i]);
-      }
-      free(suggestions);
+      FillSuggestionList(encoded_word, optional_suggestions);
     }
     return false;
   }
@@ -671,6 +670,11 @@ class AddWordToCustomDictionaryTask : public Task {
 };
 
 void SpellChecker::AddWord(const std::wstring& word) {
+  if (is_using_platform_spelling_engine_) {
+    SpellCheckerPlatform::AddWord(word);
+    return;
+  }
+
   // Check if the |hunspell_| has been initialized at all.
   Initialize();
 
@@ -686,4 +690,44 @@ void SpellChecker::AddWord(const std::wstring& word) {
     file_loop_->PostTask(FROM_HERE, write_word_task);
   else
     write_word_task->Run();
+}
+
+bool SpellChecker::CheckSpelling(const std::string& word_to_check) {
+  bool word_correct = false;
+
+  TimeTicks begin_time = TimeTicks::Now();
+  if (is_using_platform_spelling_engine_) {
+    word_correct = SpellCheckerPlatform::CheckSpelling(word_to_check);
+  } else {
+    // |hunspell_->spell| returns 0 if the word is spelled correctly and
+    // non-zero otherwsie.
+    word_correct = (hunspell_->spell(word_to_check.c_str()) != 0);
+  }
+  DHISTOGRAM_TIMES("Spellcheck.CheckTime", TimeTicks::Now() - begin_time);
+
+  return word_correct;
+}
+
+
+void SpellChecker::FillSuggestionList(const std::string& wrong_word,
+                            std::vector<std::wstring>* optional_suggestions) {
+  if (is_using_platform_spelling_engine_) {
+    SpellCheckerPlatform::FillSuggestionList(wrong_word, optional_suggestions);
+    return;
+  }
+  char** suggestions;
+  TimeTicks begin_time = TimeTicks::Now();
+  int number_of_suggestions = hunspell_->suggest(&suggestions,
+                                                 wrong_word.c_str());
+  DHISTOGRAM_TIMES("Spellcheck.SuggestTime",
+                   TimeTicks::Now() - begin_time);
+
+  // Populate the vector of WideStrings.
+  for (int i = 0; i < number_of_suggestions; i++) {
+    if (i < kMaxSuggestions)
+      optional_suggestions->push_back(UTF8ToWide(suggestions[i]));
+    free(suggestions[i]);
+  }
+  if (suggestions != NULL)
+    free(suggestions);
 }
