@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -160,13 +160,13 @@ bool GetArgs(CrossCallParamsEx* params, IPCParams* ipc_params,
       ipc_params->args[i] = type;
       switch (type) {
         case WCHAR_TYPE: {
-          std::wstring* data = new std::wstring;
-          if (!params->GetParameterStr(i, data)) {
+          scoped_ptr<std::wstring> data(new std::wstring);
+          if (!params->GetParameterStr(i, data.get())) {
             args[i] = 0;
             ReleaseArgs(ipc_params, args);
             return false;
           }
-          args[i] = data;
+          args[i] = data.release();
           break;
         }
         case ULONG_TYPE: {
@@ -212,7 +212,7 @@ bool SharedMemIPCServer::InvokeCallback(const ServerControl* service_context,
 
   uint32 tag = params->GetTag();
   COMPILE_ASSERT(0 == INVALID_TYPE, Incorrect_type_enum);
-  IPCParams ipc_params = {0} ;
+  IPCParams ipc_params = {0};
   ipc_params.ipc_tag = tag;
 
   void* args[kMaxIpcParams];
@@ -382,7 +382,7 @@ bool SharedMemIPCServer::MakeEvents(HANDLE* server_ping, HANDLE* server_pong,
                                     HANDLE* client_ping, HANDLE* client_pong) {
   // Note that the IPC client has no right to delete the events. That would
   // cause problems. The server *owns* the events.
-  const DWORD kDesiredAccess = SYNCHRONIZE | EVENT_MODIFY_STATE ;
+  const DWORD kDesiredAccess = SYNCHRONIZE | EVENT_MODIFY_STATE;
 
   // The events are auto reset, and start not signaled.
   *server_ping = ::CreateEventW(NULL, FALSE, FALSE, NULL);
