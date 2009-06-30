@@ -15,6 +15,9 @@ deps = {
   "src/googleurl":
     "http://google-url.googlecode.com/svn/trunk@107",
 
+  "src/native_client":
+    "http://nativeclient.googlecode.com/svn/trunk/nacl/googleclient@314",
+
   "src/sdch/open-vcdiff":
     "http://open-vcdiff.googlecode.com/svn/trunk@26",
 
@@ -107,6 +110,7 @@ include_rules = [
 skip_child_includes = [
    "breakpad",
    "gears",
+   "native_client",
    "o3d",
    "sdch",
    "skia",
