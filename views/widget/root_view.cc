@@ -46,7 +46,7 @@ class PaintTask : public Task {
   // The target root view.
   RootView* root_view_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(PaintTask);
+  DISALLOW_COPY_AND_ASSIGN(PaintTask);
 };
 
 const char RootView::kViewClassName[] = "views/RootView";
@@ -262,23 +262,11 @@ void RootView::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
       default_keyboard_handler_ = NULL;
     }
 
-    // For a given widget hierarchy, focus is tracked by a FocusManager attached
-    // to our nearest enclosing Window. <-- Important Assumption!
-    // We may not have access to our window if this function is called as a
-    // result of teardown during the deletion of the RootView and its hierarchy,
-    // so we don't bother notifying the FocusManager in that case because it
-    // will have already been destroyed (the Widget that contains us is
-    // NCDESTROY'ed which in turn destroys the focus manager _before_ the
-    // RootView is deleted.)
-#if defined(OS_WIN)
-    Window* window = GetWindow();
-    if (window) {
-      FocusManager* focus_manager =
-          FocusManager::GetFocusManager(window->GetNativeWindow());
+    FocusManager* focus_manager = widget_->GetFocusManager();
+    // An unparanted RootView does not have a FocusManager.
+    if (focus_manager)
       focus_manager->ViewRemoved(parent, child);
-    }
     ViewStorage::GetSharedInstance()->ViewRemoved(parent, child);
-#endif
   }
 }
 
@@ -521,7 +509,6 @@ void RootView::OnWidgetDestroyed() {
   // TODO(port): Port RootViewDropTarget and this goes away.
   NOTIMPLEMENTED();
 #endif
-  widget_ = NULL;
 }
 
 void RootView::ProcessMouseDragCanceled() {

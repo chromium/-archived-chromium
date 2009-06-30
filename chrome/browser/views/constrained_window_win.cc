@@ -626,7 +626,6 @@ ConstrainedWindowWin::ConstrainedWindowWin(
       owner_(owner) {
   GetNonClientView()->SetFrameView(CreateFrameViewForWindow());
 
-  focus_restoration_disabled_ = false;
   set_window_style(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CAPTION |
                    WS_THICKFRAME | WS_SYSMENU);
   set_focus_on_creation(false);
@@ -638,48 +637,13 @@ ConstrainedWindowWin::ConstrainedWindowWin(
 void ConstrainedWindowWin::ActivateConstrainedWindow() {
   // Other pop-ups are simply moved to the front of the z-order.
   SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
-
-  // Store the focus of our parent focus manager so we can restore it when we
-  // close.
-  views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetNativeView());
-  DCHECK(focus_manager);
-  focus_manager = focus_manager->GetParentFocusManager();
-  if (focus_manager) {
-    // We could not have a parent focus manager if the ConstrainedWindow is
-    // displayed in a tab that is not currently selected.
-    // TODO(jcampan): we should store the ConstrainedWindow active events in
-    // that case and replay them when the TabContents becomes selected.
-    focus_manager->StoreFocusedView();
-
-    // Give our window the focus so we get keyboard messages.
-    ::SetFocus(GetNativeView());
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // ConstrainedWindowWin, views::WidgetWin overrides:
 
 void ConstrainedWindowWin::OnDestroy() {
-  // We do this here, rather than |Close|, since the window may be destroyed in
-  // a way other than by some other component calling Close, e.g. by the native
-  // window hierarchy closing. We are guaranteed to receive a WM_DESTROY
-  // message regardless of how the window is closed.
-  // Note that when we get this message, the focus manager of the
-  // ConstrainedWindow has already been destroyed (by the processing of
-  // WM_DESTROY in FocusManager).  So the FocusManager we retrieve here is the
-  // parent one (the one from the top window).
-  views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetNativeView());
-  if (focus_manager) {
-    // We may not have a focus manager if:
-    // - we are hidden when closed (the TabContent would be detached).
-    // - the tab has been closed and we are closed as a result.
-    // TODO(jcampan): when hidden, we should modify the stored focus of the tab
-    // so when it becomes visible again we retrieve the focus appropriately.
-    if (!focus_restoration_disabled_)
-      focus_manager->RestoreFocusedView();
-  }
+  // TODO(jcampan): figure out focus restoration
 
   // Make sure we call super so that it can do its cleanup.
   WindowWin::OnDestroy();

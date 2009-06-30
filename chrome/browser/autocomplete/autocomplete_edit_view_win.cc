@@ -1610,8 +1610,7 @@ void AutocompleteEditViewWin::OnPaste() {
 }
 
 void AutocompleteEditViewWin::OnSetFocus(HWND focus_wnd) {
-  views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(m_hWnd);
+  views::FocusManager* focus_manager = parent_view_->GetFocusManager();
   if (focus_manager) {
     // Notify the FocusManager that the focused view is now the location bar
     // (our parent view).

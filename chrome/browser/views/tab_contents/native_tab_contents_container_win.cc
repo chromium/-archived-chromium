@@ -8,6 +8,8 @@
 #include "chrome/browser/tab_contents/interstitial_page.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/tab_contents/tab_contents_container.h"
+#include "chrome/browser/views/tab_contents/tab_contents_view_win.h"
+
 #include "views/focus/focus_manager.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +46,7 @@ void NativeTabContentsContainerWin::DetachContents(TabContents* contents) {
     ShowWindow(container_hwnd, SW_HIDE);
 
     // Reset the parent to NULL to ensure hidden tabs don't receive messages.
-    ::SetParent(container_hwnd, NULL);
+    static_cast<TabContentsViewWin*>(contents->view())->Unparent();
   }
 
   // Now detach the TabContents.

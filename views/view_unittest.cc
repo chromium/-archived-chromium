@@ -306,7 +306,7 @@ TEST_F(ViewTest, MouseEvent) {
   views::WidgetWin window;
   window.set_delete_on_destroy(false);
   window.set_window_style(WS_OVERLAPPEDWINDOW);
-  window.Init(NULL, gfx::Rect(50, 50, 650, 650), false);
+  window.Init(NULL, gfx::Rect(50, 50, 650, 650));
   RootView* root = window.GetRootView();
 
   root->AddChildView(v1);
@@ -647,7 +647,7 @@ TEST_F(ViewTest, TextfieldCutCopyPaste) {
   Clipboard clipboard;
 
   WidgetWin* window = new WidgetWin;
-  window->Init(NULL, gfx::Rect(0, 0, 100, 100), true);
+  window->Init(NULL, gfx::Rect(0, 0, 100, 100));
   RootView* root_view = window->GetRootView();
 
   Textfield* normal = new Textfield();
@@ -769,7 +769,7 @@ TEST_F(ViewTest, ActivateAccelerator) {
 
   // Create a window and add the view as its child.
   WidgetWin window;
-  window.Init(NULL, gfx::Rect(0, 0, 100, 100), true);
+  window.Init(NULL, gfx::Rect(0, 0, 100, 100));
   window.set_delete_on_destroy(false);
   window.set_window_style(WS_OVERLAPPEDWINDOW);
   RootView* root = window.GetRootView();
@@ -777,7 +777,7 @@ TEST_F(ViewTest, ActivateAccelerator) {
 
   // Get the focus manager.
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(window.GetNativeView());
+      views::FocusManager::GetFocusManagerForNativeView(window.GetNativeView());
   ASSERT_TRUE(focus_manager);
 
   // Hit the return key and see if it takes effect.
@@ -1032,7 +1032,7 @@ class DefaultButtonTest : public ViewTest {
                                           dialog_view_);
     window->Show();
     native_window_ = window->GetNativeWindow();
-    focus_manager_ = FocusManager::GetFocusManager(native_window_);
+    focus_manager_ = FocusManager::GetFocusManagerForNativeView(native_window_);
     client_view_ =
         static_cast<views::DialogClientView*>(window->GetClientView());
     ok_button_ = client_view_->ok_button();

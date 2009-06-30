@@ -511,7 +511,7 @@ void WindowWin::Init(HWND parent, const gfx::Rect& bounds) {
   if (window_ex_style() == 0)
     set_window_ex_style(CalculateWindowExStyle());
 
-  WidgetWin::Init(parent, bounds, true);
+  WidgetWin::Init(parent, bounds);
   win_util::SetWindowUserData(GetNativeView(), this);
 
   // Create the ClientView, add it to the NonClientView and add the

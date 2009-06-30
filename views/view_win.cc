@@ -17,18 +17,6 @@
 
 namespace views {
 
-FocusManager* View::GetFocusManager() {
-  Widget* widget = GetWidget();
-  if (!widget)
-    return NULL;
-
-  HWND hwnd = widget->GetNativeView();
-  if (!hwnd)
-    return NULL;
-
-  return FocusManager::GetFocusManager(hwnd);
-}
-
 void View::DoDrag(const MouseEvent& e, int press_x, int press_y) {
   int drag_operations = GetDragOperations(press_x, press_y);
   if (drag_operations == DragDropTypes::DRAG_NONE)
@@ -55,7 +43,7 @@ void View::Focus() {
   // messages.
   FocusManager* focus_manager = GetFocusManager();
   if (focus_manager)
-    focus_manager->FocusHWND(GetRootView()->GetWidget()->GetNativeView());
+    focus_manager->FocusNativeView(GetRootView()->GetWidget()->GetNativeView());
 }
 
 int View::GetHorizontalDragThreshold() {

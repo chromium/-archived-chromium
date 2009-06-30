@@ -203,9 +203,8 @@ void InfoBar::InfoBarAdded() {
   // focus so that we can restore focus when we're removed.
   views::Widget* widget = GetWidget();
   if (widget) {
-    focus_tracker_.reset(
-        new views::ExternalFocusTracker(this,
-            views::FocusManager::GetFocusManager(widget->GetNativeView())));
+    focus_tracker_.reset(new views::ExternalFocusTracker(this,
+                                                         GetFocusManager()));
   }
 #endif
 }

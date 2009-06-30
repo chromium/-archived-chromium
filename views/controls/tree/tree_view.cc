@@ -471,13 +471,11 @@ bool TreeView::OnKeyDown(int virtual_key_code) {
   } else if (virtual_key_code == VK_RETURN && !process_enter_) {
     Widget* widget = GetWidget();
     DCHECK(widget);
-    FocusManager* fm = FocusManager::GetFocusManager(widget->GetNativeView());
-    DCHECK(fm);
     Accelerator accelerator(Accelerator(static_cast<int>(virtual_key_code),
                                         win_util::IsShiftPressed(),
                                         win_util::IsCtrlPressed(),
                                         win_util::IsAltPressed()));
-    fm->ProcessAccelerator(accelerator);
+    GetFocusManager()->ProcessAccelerator(accelerator);
     return true;
   }
   return false;

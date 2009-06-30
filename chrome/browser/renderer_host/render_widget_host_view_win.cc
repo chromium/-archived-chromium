@@ -406,7 +406,7 @@ void RenderWidgetHostViewWin::Focus() {
 
 void RenderWidgetHostViewWin::Blur() {
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetParent());
+      views::FocusManager::GetFocusManagerForNativeView(m_hWnd);
   // We don't have a FocusManager if we are hidden.
   if (focus_manager && render_widget_host_->CanBlur())
     focus_manager->ClearFocus();

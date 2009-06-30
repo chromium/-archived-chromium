@@ -24,7 +24,7 @@ class WindowDelegate;
 //  a child HWND with a custom window frame.
 //
 class ConstrainedWindowWin : public ConstrainedWindow,
-                              public views::WindowWin {
+                             public views::WindowWin {
  public:
   virtual ~ConstrainedWindowWin();
 
@@ -60,10 +60,6 @@ class ConstrainedWindowWin : public ConstrainedWindow,
 
   // The TabContents that owns and constrains this ConstrainedWindow.
   TabContents* owner_;
-
-  // True if focus should not be restored to whatever view was focused last
-  // when this window is destroyed.
-  bool focus_restoration_disabled_;
 
   // Current "anchor point", the lower right point at which we render
   // the constrained title bar.

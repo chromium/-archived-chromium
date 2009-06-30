@@ -133,7 +133,7 @@ void InfoBubble::Init(views::Window* parent,
       content_view_->CalculateWindowBoundsAndAjust(position_relative_to);
 
 #if defined(OS_WIN)
-  WidgetWin::Init(parent->GetNativeWindow(), bounds, true);
+  WidgetWin::Init(parent->GetNativeWindow(), bounds);
 #else
   WidgetGtk::Init(GTK_WIDGET(parent->GetNativeWindow()), bounds, true);
 #endif
@@ -155,11 +155,9 @@ void InfoBubble::Init(views::Window* parent,
 
 #if defined(OS_WIN)
   // Register the Escape accelerator for closing.
-  views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetNativeView());
-  focus_manager->RegisterAccelerator(views::Accelerator(VK_ESCAPE, false,
-                                                        false, false),
-                                     this);
+  GetFocusManager()->RegisterAccelerator(views::Accelerator(VK_ESCAPE, false,
+                                                            false, false),
+                                         this);
   // Set initial alpha value of the layered window.
   SetLayeredWindowAttributes(GetNativeView(),
                              RGB(0xFF, 0xFF, 0xFF),

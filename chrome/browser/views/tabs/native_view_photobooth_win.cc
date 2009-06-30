@@ -155,7 +155,7 @@ void NativeViewPhotoboothWin::CreateCaptureWindow(HWND initial_hwnd) {
   // WS_EX_TOOLWINDOW ensures the capture window doesn't produce a Taskbar
   // button.
   capture_window_->set_window_ex_style(WS_EX_LAYERED | WS_EX_TOOLWINDOW);
-  capture_window_->Init(NULL, capture_bounds, false);
+  capture_window_->Init(NULL, capture_bounds);
   // If the capture window isn't visible, blitting from the TabContents'
   // HWND's DC to the capture bitmap produces blankness.
   capture_window_->Show();

@@ -573,8 +573,9 @@ IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, AcceleratorRestoring) {
   GURL url = server->TestServerPageW(kSimplePage);
   ui_test_utils::NavigateToURL(browser(), url);
 
-  views::FocusManager* focus_manager = views::FocusManager::GetFocusManager(
-      browser()->window()->GetNativeHandle());
+  gfx::NativeView browser_view = browser()->window()->GetNativeHandle();
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManagerForNativeView(browser_view);
 
   // See where Escape is registered.
   views::Accelerator escape(VK_ESCAPE, false, false, false);

@@ -28,7 +28,7 @@ void AutocompletePopupWin::Init(AutocompleteEditViewWin* edit_view,
                                 views::View* contents) {
   // Create the popup
   WidgetWin::Init(edit_view->parent_view()->GetWidget()->GetNativeView(),
-                  contents_->GetPopupBounds(), false);
+                  contents_->GetPopupBounds());
   // The contents is owned by the LocationBarView.
   contents_->SetParentOwned(false);
   SetContentsView(contents_);

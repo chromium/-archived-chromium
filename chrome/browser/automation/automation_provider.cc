@@ -1705,7 +1705,7 @@ void AutomationProvider::GetFocusedViewID(int handle, int* view_id) {
   if (window_tracker_->ContainsHandle(handle)) {
     HWND hwnd = window_tracker_->GetResource(handle);
     views::FocusManager* focus_manager =
-        views::FocusManager::GetFocusManager(hwnd);
+        views::FocusManager::GetFocusManagerForNativeView(hwnd);
     DCHECK(focus_manager);
     views::View* focused_view = focus_manager->GetFocusedView();
     if (focused_view)

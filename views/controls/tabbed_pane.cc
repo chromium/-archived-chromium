@@ -172,7 +172,7 @@ HWND TabbedPane::CreateNativeControl(HWND parent_container) {
 
   // Create the view container which is a child of the TabControl.
   content_window_ = new WidgetWin();
-  content_window_->Init(tab_control_, gfx::Rect(), false);
+  content_window_->Init(tab_control_, gfx::Rect());
 
   // Explicitly setting the WS_EX_LAYOUTRTL property for the HWND (see above
   // for a thorough explanation regarding why we waited until |content_window_|

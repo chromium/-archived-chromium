@@ -26,6 +26,10 @@ class TabContentsViewWin : public TabContentsView,
   explicit TabContentsViewWin(TabContents* tab_contents);
   virtual ~TabContentsViewWin();
 
+  // Reset the native parent of this view to NULL.  Unparented windows should
+  // not receive any messages.
+  virtual void Unparent();
+
   // TabContentsView implementation --------------------------------------------
 
   virtual void CreateView();
@@ -51,6 +55,9 @@ class TabContentsViewWin : public TabContentsView,
   virtual void GotFocus();
   virtual void TakeFocus(bool reverse);
   virtual void HandleKeyboardEvent(const NativeWebKeyboardEvent& event);
+
+  // WidgetWin overridde.
+  virtual views::FocusManager* GetFocusManager();
 
  private:
   // Windows events ------------------------------------------------------------
@@ -103,6 +110,10 @@ class TabContentsViewWin : public TabContentsView,
 
   // The context menu. Callbacks are asynchronous so we need to keep it around.
   scoped_ptr<RenderViewContextMenuWin> context_menu_;
+
+  // The FocusManager associated with this tab.  Stored as it is not directly
+  // accessible when unparented.
+  views::FocusManager* focus_manager_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContentsViewWin);
 };

@@ -485,7 +485,7 @@ void StatusBubbleViews::Init() {
                                WS_EX_TRANSPARENT |
                                l10n_util::GetExtendedTooltipStyles());
     popup->SetOpacity(0x00);
-    popup->Init(frame_->GetNativeView(), gfx::Rect(), false);
+    popup->Init(frame_->GetNativeView(), gfx::Rect());
     popup->SetContentsView(view_);
     Reposition();
     popup->Show();

@@ -53,7 +53,8 @@ TabContentsView* TabContentsView::Create(TabContents* tab_contents) {
 
 TabContentsViewWin::TabContentsViewWin(TabContents* tab_contents)
     : TabContentsView(tab_contents),
-      ignore_next_char_event_(false) {
+      ignore_next_char_event_(false),
+      focus_manager_(NULL) {
   last_focused_view_storage_id_ =
       views::ViewStorage::GetSharedInstance()->CreateStorageID();
 }
@@ -68,12 +69,21 @@ TabContentsViewWin::~TabContentsViewWin() {
     view_storage->RemoveView(last_focused_view_storage_id_);
 }
 
+void TabContentsViewWin::Unparent() {
+  // Remember who our FocusManager is, we won't be able to access it once
+  // unparented.
+  focus_manager_ = views::WidgetWin::GetFocusManager();
+  // Note that we do not DCHECK on focus_manager_ as it may be NULL when used
+  // with an external tab container.
+  ::SetParent(GetNativeView(), NULL);
+}
+
 void TabContentsViewWin::CreateView() {
   set_delete_on_destroy(false);
   // Since we create these windows parented to the desktop window initially, we
   // don't want to create them initially visible.
   set_window_style(WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
-  WidgetWin::Init(GetDesktopWindow(), gfx::Rect(), false);
+  WidgetWin::Init(GetDesktopWindow(), gfx::Rect());
 
   // Remove the root view drop target so we can register our own.
   RevokeDragDrop(GetNativeView());
@@ -236,7 +246,7 @@ void TabContentsViewWin::SizeContents(const gfx::Size& size) {
 
 void TabContentsViewWin::Focus() {
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetNativeView());
+      views::FocusManager::GetFocusManagerForNativeView(GetNativeView());
 
   if (tab_contents()->interstitial_page()) {
     tab_contents()->interstitial_page()->Focus();
@@ -272,7 +282,7 @@ void TabContentsViewWin::StoreFocus() {
     view_storage->RemoveView(last_focused_view_storage_id_);
 
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetNativeView());
+      views::FocusManager::GetFocusManagerForNativeView(GetNativeView());
   if (focus_manager) {
     // |focus_manager| can be NULL if the tab has been detached but still
     // exists.
@@ -304,7 +314,7 @@ void TabContentsViewWin::RestoreFocus() {
     SetInitialFocus();
   } else {
     views::FocusManager* focus_manager =
-        views::FocusManager::GetFocusManager(GetNativeView());
+        views::FocusManager::GetFocusManagerForNativeView(GetNativeView());
 
     // If you hit this DCHECK, please report it to Jay (jcampan).
     DCHECK(focus_manager != NULL) << "No focus manager when restoring focus.";
@@ -336,7 +346,7 @@ void TabContentsViewWin::GotFocus() {
 void TabContentsViewWin::TakeFocus(bool reverse) {
   if (!tab_contents()->delegate()->TakeFocus(reverse)) {
     views::FocusManager* focus_manager =
-        views::FocusManager::GetFocusManager(GetNativeView());
+        views::FocusManager::GetFocusManagerForNativeView(GetNativeView());
 
     // We may not have a focus manager if the tab has been switched before this
     // message arrived.
@@ -360,7 +370,7 @@ void TabContentsViewWin::HandleKeyboardEvent(
   // a keyboard shortcut that we have to process.
   if (event.type == WebInputEvent::RawKeyDown) {
     views::FocusManager* focus_manager =
-        views::FocusManager::GetFocusManager(GetNativeView());
+        views::FocusManager::GetFocusManagerForNativeView(GetNativeView());
     // We may not have a focus_manager at this point (if the tab has been
     // switched by the time this message returned).
     if (focus_manager) {
@@ -394,6 +404,22 @@ void TabContentsViewWin::HandleKeyboardEvent(
                 event.os_event.message,
                 event.os_event.wParam,
                 event.os_event.lParam);
+}
+
+views::FocusManager* TabContentsViewWin::GetFocusManager() {
+  views::FocusManager* focus_manager = WidgetWin::GetFocusManager();
+  if (focus_manager) {
+    // If focus_manager_ is non NULL, it means we have been reparented, in which
+    // case its value may not be valid anymore.
+    focus_manager_ = NULL;
+    return focus_manager;
+  }
+  // TODO(jcampan): we should DCHECK on focus_manager_, as it should not be
+  // NULL.  We are not doing it as it breaks some unit-tests.  We should
+  // probably have an empty TabContentView implementation for the unit-tests,
+  // that would prevent that code being executed in the unit-test case.
+  // DCHECK(focus_manager_);
+  return focus_manager_;
 }
 
 void TabContentsViewWin::ShowContextMenu(const ContextMenuParams& params) {

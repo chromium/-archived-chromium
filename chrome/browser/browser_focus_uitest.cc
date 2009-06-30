@@ -108,7 +108,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, BrowsersRememberFocus) {
   BrowserView* browser_view = BrowserView::GetBrowserViewForNativeWindow(hwnd);
   ASSERT_TRUE(browser_view);
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(hwnd);
+      views::FocusManager::GetFocusManagerForNativeView(hwnd);
   ASSERT_TRUE(focus_manager);
 
   EXPECT_EQ(browser_view->GetTabContentsContainerView(),
@@ -149,7 +149,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, BrowsersRememberFocus) {
       BrowserView::GetBrowserViewForNativeWindow(hwnd2);
   ASSERT_TRUE(browser_view2);
   views::FocusManager* focus_manager2 =
-      views::FocusManager::GetFocusManager(hwnd2);
+      views::FocusManager::GetFocusManagerForNativeView(hwnd2);
   ASSERT_TRUE(focus_manager2);
   EXPECT_EQ(browser_view2->GetTabContentsContainerView(),
             focus_manager2->GetFocusedView());
@@ -183,13 +183,13 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, TabsRememberFocus) {
   ASSERT_TRUE(browser_view);
 
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(hwnd);
+      views::FocusManager::GetFocusManagerForNativeView(hwnd);
   ASSERT_TRUE(focus_manager);
 
   // Create several tabs.
   for (int i = 0; i < 4; ++i) {
-    browser()->AddTabWithURL(url, GURL(), PageTransition::TYPED, true, -1, false,
-                             NULL);
+    browser()->AddTabWithURL(url, GURL(), PageTransition::TYPED, true, -1,
+                             false, NULL);
   }
 
   // Alternate focus for the tab.
@@ -284,7 +284,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, LocationBarLockFocus) {
   HWND hwnd = reinterpret_cast<HWND>(browser()->window()->GetNativeHandle());
   BrowserView* browser_view = BrowserView::GetBrowserViewForNativeWindow(hwnd);
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(hwnd);
+      views::FocusManager::GetFocusManagerForNativeView(hwnd);
 
   // Click on the location bar.
   LocationBarView* location_bar = browser_view->GetLocationBarView();
@@ -312,7 +312,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FocusTraversal) {
   HWND hwnd = reinterpret_cast<HWND>(browser()->window()->GetNativeHandle());
   BrowserView* browser_view = BrowserView::GetBrowserViewForNativeWindow(hwnd);
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(hwnd);
+      views::FocusManager::GetFocusManagerForNativeView(hwnd);
 
   // Click on the location bar.
   LocationBarView* location_bar = browser_view->GetLocationBarView();
@@ -402,7 +402,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FocusTraversalOnInterstitial) {
   HWND hwnd = reinterpret_cast<HWND>(browser()->window()->GetNativeHandle());
   BrowserView* browser_view = BrowserView::GetBrowserViewForNativeWindow(hwnd);
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(hwnd);
+      views::FocusManager::GetFocusManagerForNativeView(hwnd);
 
   // Focus should be on the page.
   EXPECT_EQ(browser_view->GetTabContentsContainerView(),
@@ -497,7 +497,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, InterstitialFocus) {
   HWND hwnd = reinterpret_cast<HWND>(browser()->window()->GetNativeHandle());
   BrowserView* browser_view = BrowserView::GetBrowserViewForNativeWindow(hwnd);
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(hwnd);
+      views::FocusManager::GetFocusManagerForNativeView(hwnd);
 
   // Page should have focus.
   EXPECT_EQ(browser_view->GetTabContentsContainerView(),
@@ -542,7 +542,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FindFocusTest) {
   HWND hwnd = reinterpret_cast<HWND>(browser()->window()->GetNativeHandle());
   BrowserView* browser_view = BrowserView::GetBrowserViewForNativeWindow(hwnd);
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(hwnd);
+      views::FocusManager::GetFocusManagerForNativeView(hwnd);
   LocationBarView* location_bar = browser_view->GetLocationBarView();
 
   // Press Ctrl+F, which will make the Find box open and request focus.
@@ -615,7 +615,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, DISABLED_TabInitialFocus) {
   BrowserView* browser_view = BrowserView::GetBrowserViewForNativeWindow(hwnd);
   ASSERT_TRUE(browser_view);
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(hwnd);
+      views::FocusManager::GetFocusManagerForNativeView(hwnd);
   ASSERT_TRUE(focus_manager);
 
   // Open the history tab, focus should be on the tab contents.

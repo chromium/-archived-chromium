@@ -95,12 +95,13 @@ FindBarWin::FindBarWin(BrowserView* browser_view)
 
   // Initialize the host.
   host_.reset(new Host(this));
-  host_->Init(browser_view->GetWidget()->GetNativeView(), gfx::Rect(), false);
+  host_->Init(browser_view->GetWidget()->GetNativeView(), gfx::Rect());
   host_->SetContentsView(view_);
 
   // Start listening to focus changes, so we can register and unregister our
   // own handler for Escape.
-  focus_manager_ = views::FocusManager::GetFocusManager(host_->GetNativeView());
+  focus_manager_ =
+      views::FocusManager::GetFocusManagerForNativeView(host_->GetNativeView());
   focus_manager_->AddFocusChangeListener(this);
 
   // Stores the currently focused view, and tracks focus changes so that we can
