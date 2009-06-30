@@ -8,7 +8,6 @@
 
 #include "base/process_util.h"
 #include "chrome/browser/privacy_blacklist/blacklist.h"
-#include "chrome/browser/privacy_blacklist/blacklist_io.h"
 
 int main(int argc, char* argv[]) {
   base::EnableTerminationOnHeapCorruption();
