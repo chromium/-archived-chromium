@@ -111,7 +111,7 @@ IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestMainResource) {
 }
 
 // Tests resources panel enabling.
-IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestEnableResourcesTab) {
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, DISABLED_TestEnableResourcesTab) {
   RunTest("testEnableResourcesTab", kSimplePage);
 }
 
