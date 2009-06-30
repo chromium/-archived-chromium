@@ -288,6 +288,9 @@ class BrowserWindowGtk : public BrowserWindow,
   // decorations.
   BooleanPrefMember use_custom_frame_;
 
+  // Used to avoid setting the custom window shape more often than necessary.
+  bool showing_custom_window_shape_;
+
 #if defined(LINUX2)
   // True if a drag is active. See description above setter for details.
   bool drag_active_;

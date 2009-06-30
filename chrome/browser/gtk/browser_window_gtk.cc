@@ -355,6 +355,7 @@ std::map<XID, GtkWindow*> BrowserWindowGtk::xid_map_;
 BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
     :  browser_(browser),
        full_screen_(false),
+       showing_custom_window_shape_(false),
 #if defined(LINUX2)
        drag_active_(false),
 #endif
@@ -534,8 +535,7 @@ void BrowserWindowGtk::UpdateTitleBar() {
   std::wstring title = browser_->GetCurrentPageTitle();
   gtk_window_set_title(window_, WideToUTF8(title).c_str());
   if (ShouldShowWindowIcon()) {
-    // If we're showing a title bar, we should update the app icon.
-    NOTIMPLEMENTED();
+    // TODO(tc): If we're showing a title bar, we should update the app icon.
   }
 }
 
@@ -567,7 +567,7 @@ void BrowserWindowGtk::LoadingAnimationCallback() {
   } else if (ShouldShowWindowIcon()) {
     // ... or in the window icon area for popups and app windows.
     // http://code.google.com/p/chromium/issues/detail?id=9380
-    NOTIMPLEMENTED();
+    // TODO(willchan): implement this.
   }
 }
 
@@ -838,6 +838,7 @@ void BrowserWindowGtk::OnBoundsChanged(const gfx::Rect& bounds) {
 void BrowserWindowGtk::OnStateChanged(GdkWindowState state) {
   state_ = state;
 
+  UpdateWindowShape(bounds_.width(), bounds_.height());
   SaveWindowPosition();
 }
 
@@ -1059,6 +1060,10 @@ void BrowserWindowGtk::OnSizeChanged(int width, int height) {
 
 void BrowserWindowGtk::UpdateWindowShape(int width, int height) {
   if (use_custom_frame_.GetValue() && !full_screen_ && !IsMaximized()) {
+    if (showing_custom_window_shape_)
+      return;
+    showing_custom_window_shape_ = true;
+
     // Make the top corners rounded.  We set a mask that includes most of the
     // window except for a few pixels in the top two corners.
     GdkRectangle top_rect = { 3, 0, width - 6, 1 };
@@ -1072,6 +1077,10 @@ void BrowserWindowGtk::UpdateWindowShape(int width, int height) {
     gtk_alignment_set_padding(GTK_ALIGNMENT(window_container_), 1,
         kFrameBorderThickness, kFrameBorderThickness, kFrameBorderThickness);
   } else {
+    if (!showing_custom_window_shape_)
+      return;
+    showing_custom_window_shape_ = false;
+
     // Disable rounded corners.
     gdk_window_shape_combine_region(GTK_WIDGET(window_)->window, NULL, 0, 0);
     gtk_alignment_set_padding(GTK_ALIGNMENT(window_container_), 0, 0, 0, 0);
