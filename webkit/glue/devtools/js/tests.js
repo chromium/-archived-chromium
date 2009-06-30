@@ -238,6 +238,58 @@ TestSuite.prototype.testProfilerTab = function(controller) {
 };
 
 
+/**
+ * Tests that scripts tab can be open and populated with inspected scripts.
+ */
+TestSuite.prototype.testShowScriptsTab = function(controller) {
+  var parsedDebuggerTestPageHtml = false;
+  var parsedDebuggerTestJs = false;
+
+  // Intercept parsedScriptSource calls to check that all expected scripts are
+  // added to the debugger.
+  var self = this;
+  var originalParsedScriptSource = WebInspector.parsedScriptSource;
+  WebInspector.parsedScriptSource = function(sourceID, sourceURL, source,
+      startingLine) {
+    if (sourceURL.search(/debugger_test_page.html$/) != -1) {
+      if (parsedDebuggerTestPageHtml) {
+        controller.reportFailure('Unexpected parse event: ' + sourceURL);
+        return;
+      }
+      parsedDebuggerTestPageHtml = true;
+    } else if (sourceURL.search(/debugger_test.js$/) != -1) {
+      if (parsedDebuggerTestJs) {
+        controller.reportFailure('Unexpected parse event: ' + sourceURL);
+        return;
+      }
+      parsedDebuggerTestJs = true;
+    } else {
+      controller.reportFailure('Unexpected script URL: ' + sourceURL);
+    }
+    originalParsedScriptSource.apply(this, arguments);
+
+    if (!WebInspector.panels.scripts.visibleView) {
+      controller.reportFailure('No visible script view: ' + sourceURL);
+      return;
+    }
+
+    if (parsedDebuggerTestJs && parsedDebuggerTestPageHtml) {
+       controller.reportOk();
+    }
+  };
+
+  // Open Scripts panel.
+  var toolbar = document.getElementById('toolbar');
+  var scriptsButton = toolbar.getElementsByClassName('scripts')[0];
+  scriptsButton.click();
+
+  this.assertEquals(WebInspector.panels.scripts, WebInspector.currentPanel);
+
+  // Wait until all scripts are added to the debugger.
+  controller.takeControl();
+};
+
+
 var uiTests = new TestSuite();
 
 
