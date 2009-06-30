@@ -283,6 +283,37 @@ RemoteDebuggerCommandExecutorStub = function() {
 
 
 RemoteDebuggerCommandExecutorStub.prototype.DebuggerCommand = function(cmd) {
+  if ('{"seq":2,"type":"request","command":"scripts","arguments":{"' +
+      'includeSource":false}}' == cmd) {
+    var response1 =
+        '{"seq":5,"request_seq":2,"type":"response","command":"scripts","' +
+        'success":true,"body":[{"handle":61,"type":"script","name":"' +
+        'http://www/~test/t.js","id":59,"lineOffset":0,"columnOffset":0,' +
+        '"lineCount":1,"sourceStart":"function fib(n) {","sourceLength":300,' +
+        '"scriptType":2,"compilationType":0,"context":{"ref":60}}],"refs":[{' +
+        '"handle":60,"type":"context","data":{"type":"page","value":3}}],' +
+        '"running":false}';
+    this.sendResponse_(response1);
+  } else if ('{"seq":3,"type":"request","command":"scripts","arguments":{' +
+             '"ids":[59],"includeSource":true}}' == cmd) {
+    this.sendResponse_(
+        '{"seq":8,"request_seq":3,"type":"response","command":"scripts",' +
+        '"success":true,"body":[{"handle":1,"type":"script","name":' +
+        '"http://www/~test/t.js","id":59,"lineOffset":0,"columnOffset":0,' +
+        '"lineCount":1,"source":"function fib(n) {return n+1;}",' +
+        '"sourceLength":244,"scriptType":2,"compilationType":0,"context":{' +
+        '"ref":0}}],"refs":[{"handle":0,"type":"context","data":{"type":' +
+        '"page","value":3}}],"running":false}');
+  } else {
+    debugPrint('Unexpected command: ' + cmd);
+  }
+};
+
+
+RemoteDebuggerCommandExecutorStub.prototype.sendResponse_ = function(response) {
+  setTimeout(function() {
+    RemoteDebuggerAgent.DebuggerOutput(response);
+  }, 0);
 };
 
 
