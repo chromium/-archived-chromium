@@ -42,8 +42,8 @@ const int kBorderThickness = 1;
 const int kEditLeftRightPadding = 4;
 
 // Padding around the security icon.
-const int kSecurityIconPaddingLeft = 2;
-const int kSecurityIconPaddingRight = 8;
+const int kSecurityIconPaddingLeft = 0;
+const int kSecurityIconPaddingRight = 6;
 
 const int kEvTextPaddingRight = 4;
 
