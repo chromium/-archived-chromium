@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -259,7 +259,8 @@ bool ShowRestartDialogIfCrashed(bool* exit_now) {
 }
 
 static DWORD __stdcall InitCrashReporterThread(void* param) {
-  CrashReporterInfo* info = reinterpret_cast<CrashReporterInfo*>(param);
+  scoped_ptr<CrashReporterInfo> info(
+      reinterpret_cast<CrashReporterInfo*>(param));
 
   // GetCustomInfo can take a few milliseconds to get the file information, so
   // we do it here so it can run in a separate thread.
@@ -298,10 +299,8 @@ static DWORD __stdcall InitCrashReporterThread(void* param) {
     // Per-user install: "NamedPipe\GoogleCrashServices\<user SID>"
     std::wstring user_sid;
     if (InstallUtil::IsPerUserInstall(info->dll_path.c_str())) {
-      if (!win_util::GetUserSidString(&user_sid)) {
-        delete info;
+      if (!win_util::GetUserSidString(&user_sid))
         return -1;
-      }
     } else {
       user_sid = kSystemPrincipalSid;
     }
@@ -331,7 +330,6 @@ static DWORD __stdcall InitCrashReporterThread(void* param) {
     g_breakpad->set_handle_debug_exceptions(true);
   }
 
-  delete info;
   return 0;
 }
 
@@ -347,7 +345,7 @@ void InitCrashReporterWithDllPath(const std::wstring& dll_path) {
 
     // Query the custom_info now because if we do it in the thread it's going to
     // fail in the sandbox. The thread will delete this object.
-    CrashReporterInfo* info = new CrashReporterInfo;
+    scoped_ptr<CrashReporterInfo> info(new CrashReporterInfo);
     info->process_type = command.GetSwitchValue(switches::kProcessType);
     if (info->process_type.empty())
       info->process_type = L"browser";
@@ -360,12 +358,14 @@ void InitCrashReporterWithDllPath(const std::wstring& dll_path) {
     // it may take some times to initialize the crash_service process.  We use
     // the Windows worker pool to make better reuse of the thread.
     if (info->process_type != L"browser") {
-      InitCrashReporterThread(info);
+      InitCrashReporterThread(info.release());
     } else {
       if (QueueUserWorkItem(
-              &InitCrashReporterThread, info, WT_EXECUTELONGFUNCTION) == 0) {
+              &InitCrashReporterThread,
+              info.release(),
+              WT_EXECUTELONGFUNCTION) == 0) {
         // We failed to queue to the worker pool, initialize in this thread.
-        InitCrashReporterThread(info);
+        InitCrashReporterThread(info.release());
       }
     }
   }
