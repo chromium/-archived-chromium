@@ -7,32 +7,37 @@
 #include "base/basictypes.h"
 #include "base/singleton.h"
 #include "chrome/common/render_messages.h"
+#include "chrome/common/url_constants.h"
 #include "chrome/renderer/extensions/bindings_utils.h"
 #include "chrome/renderer/extensions/event_bindings.h"
 #include "chrome/renderer/js_only_v8_extensions.h"
 #include "chrome/renderer/render_thread.h"
+#include "chrome/renderer/render_view.h"
 #include "grit/renderer_resources.h"
 #include "webkit/glue/webframe.h"
+
+using bindings_utils::CallFunctionInContext;
+using bindings_utils::ContextInfo;
+using bindings_utils::ContextList;
+using bindings_utils::GetContexts;
+using bindings_utils::GetStringResource;
+using bindings_utils::ExtensionBase;
+using bindings_utils::GetPendingRequestMap;
+using bindings_utils::PendingRequest;
+using bindings_utils::PendingRequestMap;
 
 namespace {
 
 // Keep a local cache of RenderThread so that we can mock it out for unit tests.
 static RenderThreadBase* render_thread = NULL;
 
-static RenderThreadBase* GetRenderThread() {
-  return render_thread ? render_thread : RenderThread::current();
-}
+// Set to true if these bindings are registered.  Will be false when extensions
+// are disabled.
+static bool bindings_registered = false;
 
-// Keep a list of contexts that have registered themselves with us.  This lets
-// us know where to dispatch events when we receive them.
-typedef std::list< v8::Persistent<v8::Context> > ContextList;
 struct ExtensionData {
-  ContextList contexts;
   std::map<std::string, int> listener_count;
 };
-ContextList& GetRegisteredContexts() {
-  return Singleton<ExtensionData>::get()->contexts;
-}
 int EventIncrementListenerCount(const std::string& event_name) {
   ExtensionData *data = Singleton<ExtensionData>::get();
   return ++(data->listener_count[event_name]);
@@ -42,12 +47,10 @@ int EventDecrementListenerCount(const std::string& event_name) {
   return --(data->listener_count[event_name]);
 }
 
-const char* kContextAttachCount = "chromium.attachCount";
-
-class ExtensionImpl : public v8::Extension {
+class ExtensionImpl : public ExtensionBase {
  public:
   ExtensionImpl()
-      : v8::Extension(EventBindings::kName,
+      : ExtensionBase(EventBindings::kName,
                       GetStringResource<IDR_EVENT_BINDINGS_JS>(),
                       0, NULL) {
   }
@@ -59,8 +62,10 @@ class ExtensionImpl : public v8::Extension {
       return v8::FunctionTemplate::New(AttachEvent);
     } else if (name->Equals(v8::String::New("DetachEvent"))) {
       return v8::FunctionTemplate::New(DetachEvent);
+    } else if (name->Equals(v8::String::New("GetNextRequestId"))) {
+      return v8::FunctionTemplate::New(GetNextRequestId);
     }
-    return v8::Handle<v8::FunctionTemplate>();
+    return ExtensionBase::GetNativeFunction(name);
   }
 
   // Attach an event name to an object.
@@ -69,30 +74,10 @@ class ExtensionImpl : public v8::Extension {
     // TODO(erikkay) should enforce that event name is a string in the bindings
     DCHECK(args[0]->IsString() || args[0]->IsUndefined());
 
-    v8::Persistent<v8::Context> context =
-        v8::Persistent<v8::Context>::New(v8::Context::GetCurrent());
-    v8::Local<v8::Object> global = context->Global();
-
-    // Remember how many times this context has been attached, so we can
-    // register the context on first attach and unregister on last detach.
-    v8::Local<v8::Value> attach_count = global->GetHiddenValue(
-        v8::String::New(kContextAttachCount));
-    int32_t account_count_value =
-        (!attach_count.IsEmpty() && attach_count->IsNumber()) ?
-        attach_count->Int32Value() : 0;
-    if (account_count_value == 0) {
-      // First time attaching.
-      GetRegisteredContexts().push_back(context);
-      context.MakeWeak(NULL, WeakContextCallback);
-    }
-    global->SetHiddenValue(
-        v8::String::New(kContextAttachCount),
-        v8::Integer::New(account_count_value + 1));
-
     if (args[0]->IsString()) {
       std::string event_name(*v8::String::AsciiValue(args[0]));
       if (EventIncrementListenerCount(event_name) == 1) {
-        GetRenderThread()->Send(
+        EventBindings::GetRenderThread()->Send(
             new ViewHostMsg_ExtensionAddListener(event_name));
       }
     }
@@ -105,25 +90,10 @@ class ExtensionImpl : public v8::Extension {
     // TODO(erikkay) should enforce that event name is a string in the bindings
     DCHECK(args[0]->IsString() || args[0]->IsUndefined());
 
-    v8::Local<v8::Context> context = v8::Context::GetCurrent();
-    v8::Local<v8::Object> global = context->Global();
-    v8::Local<v8::Value> attach_count = global->GetHiddenValue(
-        v8::String::New(kContextAttachCount));
-    DCHECK(!attach_count.IsEmpty() && attach_count->IsNumber());
-    int32_t account_count_value = attach_count->Int32Value();
-    DCHECK(account_count_value > 0);
-    if (account_count_value == 1) {
-      // Clean up after last detach.
-      UnregisterContext(context);
-    }
-    global->SetHiddenValue(
-        v8::String::New(kContextAttachCount),
-        v8::Integer::New(account_count_value - 1));
-
     if (args[0]->IsString()) {
       std::string event_name(*v8::String::AsciiValue(args[0]));
       if (EventDecrementListenerCount(event_name) == 0) {
-        GetRenderThread()->Send(
+        EventBindings::GetRenderThread()->Send(
           new ViewHostMsg_ExtensionRemoveListener(event_name));
       }
     }
@@ -131,24 +101,9 @@ class ExtensionImpl : public v8::Extension {
     return v8::Undefined();
   }
 
-  // Called when a registered context is garbage collected.
-  static void UnregisterContext(v8::Handle<void> context) {
-    ContextList& contexts = GetRegisteredContexts();
-    ContextList::iterator it = std::find(contexts.begin(), contexts.end(),
-                                         context);
-    if (it == contexts.end()) {
-      NOTREACHED();
-      return;
-    }
-
-    it->Dispose();
-    it->Clear();
-    contexts.erase(it);
-  }
-
-  // Called when a registered context is garbage collected.
-  static void WeakContextCallback(v8::Persistent<v8::Value> obj, void*) {
-    UnregisterContext(obj);
+  static v8::Handle<v8::Value> GetNextRequestId(const v8::Arguments& args) {
+    static int next_request_id = 0;
+    return v8::Integer::New(next_request_id++);
   }
 };
 
@@ -157,6 +112,7 @@ class ExtensionImpl : public v8::Extension {
 const char* EventBindings::kName = "chrome/EventBindings";
 
 v8::Extension* EventBindings::Get() {
+  bindings_registered = true;
   return new ExtensionImpl();
 }
 
@@ -166,25 +122,90 @@ void EventBindings::SetRenderThread(RenderThreadBase* thread) {
 }
 
 // static
+RenderThreadBase* EventBindings::GetRenderThread() {
+  return render_thread ? render_thread : RenderThread::current();
+}
+
 void EventBindings::HandleContextCreated(WebFrame* frame) {
+  if (!bindings_registered)
+    return;
+
   v8::HandleScope handle_scope;
   v8::Local<v8::Context> context = frame->GetScriptContext();
   DCHECK(!context.IsEmpty());
-  // TODO(mpcomplete): register it
+  DCHECK(bindings_utils::FindContext(context) == GetContexts().end());
+
+  GURL url = frame->GetView()->GetMainFrame()->GetURL();
+  std::string extension_id;
+  if (url.SchemeIs(chrome::kExtensionScheme))
+    extension_id = url.host();
+
+  v8::Persistent<v8::Context> persistent_context =
+      v8::Persistent<v8::Context>::New(context);
+  GetContexts().push_back(linked_ptr<ContextInfo>(
+      new ContextInfo(persistent_context, extension_id)));
 }
 
 // static
 void EventBindings::HandleContextDestroyed(WebFrame* frame) {
+  if (!bindings_registered)
+    return;
+
   v8::HandleScope handle_scope;
   v8::Local<v8::Context> context = frame->GetScriptContext();
   DCHECK(!context.IsEmpty());
-  // TODO(mpcomplete): unregister it, dispatch event
+
+  ContextList::iterator it = bindings_utils::FindContext(context);
+  DCHECK(it != GetContexts().end());
+
+  // Notify the bindings that they're going away.
+  CallFunctionInContext(context, "dispatchOnUnload", 0, NULL);
+
+  // Remove all pending requests for this context.
+  PendingRequestMap& pending_requests = GetPendingRequestMap();
+  for (PendingRequestMap::iterator it = pending_requests.begin();
+       it != pending_requests.end(); ) {
+    PendingRequestMap::iterator current = it++;
+    if (current->second->context == context) {
+      current->second->context.Dispose();
+      current->second->context.Clear();
+      pending_requests.erase(current);
+    }
+  }
+
+  // Remove it from our registered contexts.
+  (*it)->context.Dispose();
+  (*it)->context.Clear();
+  GetContexts().erase(it);
 }
 
+// static
 void EventBindings::CallFunction(const std::string& function_name,
                                  int argc, v8::Handle<v8::Value>* argv) {
-  for (ContextList::iterator it = GetRegisteredContexts().begin();
-       it != GetRegisteredContexts().end(); ++it) {
-    CallFunctionInContext(*it, function_name, argc, argv);
+  v8::HandleScope handle_scope;
+  for (ContextList::iterator it = GetContexts().begin();
+       it != GetContexts().end(); ++it) {
+    CallFunctionInContext((*it)->context, function_name, argc, argv);
   }
+}
+
+// static
+void EventBindings::HandleResponse(int request_id, bool success,
+                                   const std::string& response,
+                                   const std::string& error) {
+  PendingRequest* request = GetPendingRequestMap()[request_id].get();
+  if (!request)
+    return;  // The frame went away.
+
+  v8::HandleScope handle_scope;
+  v8::Handle<v8::Value> argv[5];
+  argv[0] = v8::Integer::New(request_id);
+  argv[1] = v8::String::New(request->name.c_str());
+  argv[2] = v8::Boolean::New(success);
+  argv[3] = v8::String::New(response.c_str());
+  argv[4] = v8::String::New(error.c_str());
+  CallFunctionInContext(
+      request->context, "handleResponse", arraysize(argv), argv);
+
+  GetPendingRequestMap().erase(request_id);
 }

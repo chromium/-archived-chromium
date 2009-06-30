@@ -9,9 +9,6 @@
 
 var chrome;
 (function() {
-  native function GetNextRequestId();
-  native function RegisterExtension();
-  native function UnregisterExtension();
   native function GetViews();
   native function GetWindow();
   native function GetCurrentWindow();
@@ -37,9 +34,12 @@ var chrome;
   native function CreateBookmark();
   native function MoveBookmark();
   native function SetBookmarkTitle();
+  native function GetChromeHidden();
 
   if (!chrome)
     chrome = {};
+
+  var chromeHidden = GetChromeHidden();
 
   // Validate arguments.
   function validate(args, schemas) {
@@ -72,45 +72,7 @@ var chrome;
     }
   }
 
-  // Callback handling.
-  // TODO(aa): This function should not be publicly exposed. Pass it into V8
-  // instead and hold one per-context. See the way event_bindings.js works.
-  var callbacks = [];
-  chrome.handleResponse_ = function(requestId, name, success, response, error) {
-    try {
-      if (!success) {
-        if (!error)
-          error = "Unknown error."
-        console.error("Error during " + name + ": " + error);
-        return;
-      }
-
-      if (callbacks[requestId]) {
-        if (response) {
-          callbacks[requestId](JSON.parse(response));
-        } else {
-          callbacks[requestId]();
-        }
-      }
-    } finally {
-      delete callbacks[requestId];
-    }
-  };
-
-  // Send an API request and optionally register a callback.
-  function sendRequest(request, args, callback) {
-    // JSON.stringify doesn't support a root object which is undefined.
-    if (args === undefined)
-      args = null;
-    var sargs = JSON.stringify(args);
-    var requestId = GetNextRequestId();
-    var hasCallback = false;
-    if (callback) {
-      hasCallback = true;
-      callbacks[requestId] = callback;
-    }
-    request(sargs, requestId, hasCallback);
-  }
+  var sendRequest = chromeHidden.sendRequest;
 
   //----------------------------------------------------------------------------
 
@@ -528,16 +490,7 @@ var chrome;
   chrome.self = chrome.self || {};
   chrome.self.onConnect = new chrome.Event("channel-connect");
 
-  // Register
-  chrome.self.register_ = function() {
-    var extensionId = RegisterExtension();
-    window.addEventListener('unload', function() {
-        UnregisterExtension(extensionId); }, false);
-    delete chrome.self.register_;
-  }
-
   chrome.self.getViews = function() {
     return GetViews();
   }
 })();
-

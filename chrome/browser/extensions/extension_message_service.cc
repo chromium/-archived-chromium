@@ -89,13 +89,13 @@ template <> struct RunnableMethodTraits<ExtensionMessageService> {
 
 
 const char ExtensionMessageService::kDispatchOnConnect[] =
-    "chrome.Port.dispatchOnConnect_";
+    "Port.dispatchOnConnect";
 const char ExtensionMessageService::kDispatchOnDisconnect[] =
-    "chrome.Port.dispatchOnDisconnect_";
+    "Port.dispatchOnDisconnect";
 const char ExtensionMessageService::kDispatchOnMessage[] =
-    "chrome.Port.dispatchOnMessage_";
+    "Port.dispatchOnMessage";
 const char ExtensionMessageService::kDispatchEvent[] =
-    "chrome.Event.dispatchJSON_";
+    "Event.dispatchJSON";
 
 // static
 ExtensionMessageService* ExtensionMessageService::GetInstance(

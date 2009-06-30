@@ -20,6 +20,7 @@ class EventBindings {
 
   // Allow RenderThread to be mocked out.
   static void SetRenderThread(RenderThreadBase* thread);
+  static RenderThreadBase* GetRenderThread();
 
   // Handle a script context coming / going away.
   static void HandleContextCreated(WebFrame* frame);
@@ -30,6 +31,11 @@ class EventBindings {
   // "chromium.Event.dispatch_".
   static void CallFunction(const std::string& function_name, int argc,
                            v8::Handle<v8::Value>* argv);
+
+  // Handles a response to an API request.
+  static void HandleResponse(int request_id, bool success,
+                             const std::string& response,
+                             const std::string& error);
 };
 
 #endif  // CHROME_RENDERER_EXTENSIONS_EVENT_BINDINGS_H_

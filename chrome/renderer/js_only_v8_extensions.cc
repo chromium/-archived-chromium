@@ -8,6 +8,8 @@
 #include "grit/renderer_resources.h"
 #include "grit/webkit_resources.h"
 
+using bindings_utils::GetStringResource;
+
 // BaseJsV8Extension
 const char* BaseJsV8Extension::kName = "chrome/base";
 v8::Extension* BaseJsV8Extension::Get() {

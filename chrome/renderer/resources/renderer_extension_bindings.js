@@ -11,44 +11,53 @@ var chrome = chrome || {};
 (function () {
   native function OpenChannelToExtension(id);
   native function PostMessage(portId, msg);
+  native function GetChromeHidden();
+
+  var chromeHidden = GetChromeHidden();
+
+  // Map of port IDs to port object.
+  var ports = {};
 
   // Port object.  Represents a connection to another script context through
   // which messages can be passed.
   chrome.Port = function(portId) {
-    if (chrome.Port.ports_[portId]) {
+    if (ports[portId]) {
       throw new Error("Port '" + portId + "' already exists.");
     }
     this.portId_ = portId;  // TODO(mpcomplete): readonly
     this.onDisconnect = new chrome.Event();
     this.onMessage = new chrome.Event();
-    chrome.Port.ports_[portId] = this;
+    ports[portId] = this;
+    
+    chromeHidden.onUnload.addListener(function() {
+      this.disconnect();
+    });
   };
 
-  // Map of port IDs to port object.
-  chrome.Port.ports_ = {};
+  chromeHidden.Port = {};
 
   // Called by native code when a channel has been opened to this context.
-  chrome.Port.dispatchOnConnect_ = function(portId, tab) {
+  chromeHidden.Port.dispatchOnConnect = function(portId, tab) {
     var port = new chrome.Port(portId);
     if (tab) {
       tab = JSON.parse(tab);
     }
     port.tab = tab;
-    chrome.Event.dispatch_("channel-connect", [port]);
+    chromeHidden.Event.dispatch("channel-connect", [port]);
   };
 
   // Called by native code when a channel has been closed.
-  chrome.Port.dispatchOnDisconnect_ = function(portId) {
-    var port = chrome.Port.ports_[portId];
+  chromeHidden.Port.dispatchOnDisconnect = function(portId) {
+    var port = ports[portId];
     if (port) {
       port.onDisconnect.dispatch(port);
-      delete chrome.Port.ports_[portId];
+      delete ports[portId];
     }
   };
 
   // Called by native code when a message has been sent to the given port.
-  chrome.Port.dispatchOnMessage_ = function(msg, portId) {
-    var port = chrome.Port.ports_[portId];
+  chromeHidden.Port.dispatchOnMessage = function(msg, portId) {
+    var port = ports[portId];
     if (port) {
       if (msg) {
         msg = JSON.parse(msg);
@@ -65,6 +74,12 @@ var chrome = chrome || {};
       msg = null;
     PostMessage(this.portId_, JSON.stringify(msg));
   };
+
+  // Disconnects the port from the other end.
+  chrome.Port.prototype.disconnect = function() {
+    delete ports[this.portId_];
+    //CloseChannel(this.portId_);  // TODO(mpcomplete)
+  }
 
   // Extension object.
   chrome.Extension = function(id) {

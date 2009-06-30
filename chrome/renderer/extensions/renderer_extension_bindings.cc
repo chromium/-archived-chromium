@@ -14,6 +14,9 @@
 #include "chrome/renderer/render_view.h"
 #include "grit/renderer_resources.h"
 
+using bindings_utils::GetStringResource;
+using bindings_utils::ExtensionBase;
+
 // Message passing API example (in a content script):
 // var extension =
 //    new chrome.Extension('00123456789abcdef0123456789abcdef0123456');
@@ -28,10 +31,10 @@ namespace {
 
 const char* kExtensionDeps[] = { EventBindings::kName };
 
-class ExtensionImpl : public v8::Extension {
+class ExtensionImpl : public ExtensionBase {
  public:
   ExtensionImpl()
-      : v8::Extension(RendererExtensionBindings::kName,
+      : ExtensionBase(RendererExtensionBindings::kName,
                       GetStringResource<IDR_RENDERER_EXTENSION_BINDINGS_JS>(),
                       arraysize(kExtensionDeps), kExtensionDeps) {
   }
@@ -44,7 +47,7 @@ class ExtensionImpl : public v8::Extension {
     } else if (name->Equals(v8::String::New("PostMessage"))) {
       return v8::FunctionTemplate::New(PostMessage);
     }
-    return v8::Handle<v8::FunctionTemplate>();
+    return ExtensionBase::GetNativeFunction(name);
   }
 
   // Creates a new messaging channel to the given extension.
@@ -52,7 +55,7 @@ class ExtensionImpl : public v8::Extension {
       const v8::Arguments& args) {
     // Get the current RenderView so that we can send a routed IPC message from
     // the correct source.
-    RenderView* renderview = GetRenderViewForCurrentContext();
+    RenderView* renderview = bindings_utils::GetRenderViewForCurrentContext();
     if (!renderview)
       return v8::Undefined();
 
@@ -68,7 +71,7 @@ class ExtensionImpl : public v8::Extension {
 
   // Sends a message along the given channel.
   static v8::Handle<v8::Value> PostMessage(const v8::Arguments& args) {
-    RenderView* renderview = GetRenderViewForCurrentContext();
+    RenderView* renderview = bindings_utils::GetRenderViewForCurrentContext();
     if (!renderview)
       return v8::Undefined();
 

@@ -36,7 +36,6 @@
 #include "chrome/renderer/devtools_agent.h"
 #include "chrome/renderer/devtools_client.h"
 #include "chrome/renderer/extensions/event_bindings.h"
-#include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/localized_error.h"
 #include "chrome/renderer/media/audio_renderer_impl.h"
 #include "chrome/renderer/media/buffered_data_source.h"
@@ -1458,12 +1457,6 @@ void RenderView::DocumentElementAvailable(WebFrame* frame) {
   if (frame->GetURL().SchemeIs(chrome::kExtensionScheme))
     frame->GrantUniversalAccess();
 
-  // Tell extensions to self-register their js contexts.
-  // TODO(rafaelw): This is kind of gross. We need a way to call through
-  // the glue layer to retrieve the current v8::Context.
-  if (frame->GetURL().SchemeIs(chrome::kExtensionScheme))
-    ExtensionProcessBindings::RegisterExtensionContext(frame);
-
   if (RenderThread::current())  // Will be NULL during unit tests.
     RenderThread::current()->user_script_slave()->InjectScripts(
         frame, UserScript::DOCUMENT_START);
@@ -2824,8 +2817,7 @@ void RenderView::OnExtensionResponse(int request_id,
                                      bool success,
                                      const std::string& response,
                                      const std::string& error) {
-  ExtensionProcessBindings::HandleResponse(request_id, success, response,
-                                           error);
+  EventBindings::HandleResponse(request_id, success, response, error);
 }
 
 // Dump all load time histograms.

@@ -18,10 +18,6 @@ class ExtensionProcessBindings {
  public:
   static void SetFunctionNames(const std::vector<std::string>& names);
   static v8::Extension* Get();
-  static void RegisterExtensionContext(WebFrame* frame);
-  static void HandleResponse(int request_id, bool success,
-                             const std::string& response,
-                             const std::string& error);
 };
 
 #endif  // CHROME_RENDERER_EXTENSIONS_EXTENSION_PROCESS_BINDINGS_H_
