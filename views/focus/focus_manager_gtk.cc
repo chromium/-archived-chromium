@@ -20,6 +20,7 @@ void FocusManager::FocusNativeView(gfx::NativeView native_view) {
 FocusManager* FocusManager::GetFocusManagerForNativeView(
     gfx::NativeView native_view) {
   NOTIMPLEMENTED();
+  return NULL;
 }
 
 }  // namespace views
