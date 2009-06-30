@@ -76,8 +76,8 @@ class FindInPageNotificationObserver : public NotificationObserver {
   int current_find_request_id_;
 };
 
-typedef enum FindInPageDirection { BACK = 0, FWD = 1 };
-typedef enum FindInPageCase { IGNORE_CASE = 0, CASE_SENSITIVE = 1 };
+typedef enum { BACK = 0, FWD = 1 } FindInPageDirection;
+typedef enum { IGNORE_CASE = 0, CASE_SENSITIVE = 1 } FindInPageCase;
 
 class FindInPageControllerTest : public InProcessBrowserTest {
  public:
