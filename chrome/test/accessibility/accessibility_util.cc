@@ -435,7 +435,7 @@ HRESULT ActivateWnd(IAccessible* acc_obj, HWND hwnd) {
 
 BSTR GetTabName(INT64 tab_index) {
   HRESULT hr = S_OK;
-  BSTR name;
+  BSTR name = NULL;
 
   // Validate tab index specified.
   if (tab_index < 1)
