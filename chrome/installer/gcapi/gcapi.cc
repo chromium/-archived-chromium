@@ -367,8 +367,8 @@ DLLEXPORT BOOL __stdcall LaunchGoogleChrome() {
         HANDLE process_handle = ::OpenProcess(
             PROCESS_DUP_HANDLE | PROCESS_QUERY_INFORMATION, TRUE, pid);
         if (process_handle != NULL) {
-          HANDLE process_token;
-          HANDLE user_token;
+          HANDLE process_token = NULL;
+          HANDLE user_token = NULL;
           if (::OpenProcessToken(process_handle, TOKEN_DUPLICATE | TOKEN_QUERY,
                                  &process_token) &&
               ::DuplicateTokenEx(process_token,
@@ -379,8 +379,10 @@ DLLEXPORT BOOL __stdcall LaunchGoogleChrome() {
               (::ImpersonateLoggedOnUser(user_token) != 0)) {
             impersonation_success = true;
           }
-          ::CloseHandle(user_token);
-          ::CloseHandle(process_token);
+          if (user_token)
+            ::CloseHandle(user_token);
+          if (process_token)
+            ::CloseHandle(process_token);
           ::CloseHandle(process_handle);
         }
       }
