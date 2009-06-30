@@ -5,12 +5,16 @@
 #include "chrome/browser/renderer_host/backing_store.h"
 
 #include <stdlib.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
 #include <algorithm>
 #include <utility>
 
 #include "base/compiler_specific.h"
+#include "base/histogram.h"
 #include "base/logging.h"
+#include "base/time.h"
 #include "chrome/common/transport_dib.h"
 #include "chrome/common/x11_util.h"
 #include "chrome/common/x11_util_internal.h"
@@ -26,6 +30,16 @@
 // is using. Bitmaps from the renderer are uploaded to the X server, either via
 // shared memory or over the wire, and XRENDER is used to convert them to the
 // correct format for the backing store.
+
+// Destroys the image and the associated shared memory structures. This is a
+// helper function for code using shared memory.
+static void DestroySharedImage(Display* display,
+                               XImage* image,
+                               XShmSegmentInfo* shminfo) {
+  XShmDetach(display, shminfo);
+  XDestroyImage(image);
+  shmdt(shminfo->shmaddr);
+}
 
 BackingStore::BackingStore(RenderWidgetHost* widget,
                            const gfx::Size& size,
@@ -323,30 +337,74 @@ void BackingStore::ShowRect(const gfx::Rect& rect, XID target) {
 }
 
 SkBitmap BackingStore::PaintRectToBitmap(const gfx::Rect& rect) {
-  static const int kBytesPerPixel = 4;
-
+  base::TimeTicks begin_time = base::TimeTicks::Now();
   const int width = std::min(size_.width(), rect.width());
   const int height = std::min(size_.height(), rect.height());
-  XImage* image = XGetImage(display_, pixmap_,
-                            rect.x(), rect.y(),
-                            width, height,
-                            AllPlanes, ZPixmap);
 
-  SkBitmap bitmap;
+  XImage* image;
+  XShmSegmentInfo shminfo;  // Used only when shared memory is enabled.
+  if (use_shared_memory_) {
+    // Use shared memory for faster copies when it's available.
+    Visual* visual = static_cast<Visual*>(visual_);
+    memset(&shminfo, 0, sizeof(shminfo));
+    image = XShmCreateImage(display_, visual, 32,
+                            ZPixmap, NULL, &shminfo, width, height);
+
+    // Create the shared memory segment for the image and map it.
+    shminfo.shmid = shmget(IPC_PRIVATE, image->bytes_per_line * image->height,
+                           IPC_CREAT|0666);
+    if (shminfo.shmid == -1) {
+      XDestroyImage(image);
+      return SkBitmap();
+    }
+
+    void* mapped_memory = shmat(shminfo.shmid, NULL, SHM_RDONLY);
+    shmctl(shminfo.shmid, IPC_RMID, 0);
+    if (mapped_memory == (void*)-1) {
+      XDestroyImage(image);
+      return SkBitmap();
+    }
+    shminfo.shmaddr = image->data = static_cast<char*>(mapped_memory);
+
+    if (!XShmAttach(display_, &shminfo) ||
+        !XShmGetImage(display_, pixmap_, image, rect.x(), rect.y(),
+                      AllPlanes)) {
+      DestroySharedImage(display_, image, &shminfo);
+      return SkBitmap();
+    }
+  } else {
+    // Non-shared memory case just copy the image from the server.
+    image = XGetImage(display_, pixmap_,
+                      rect.x(), rect.y(), width, height,
+                      AllPlanes, ZPixmap);
+  }
 
   // TODO(jhawkins): Need to convert the image data if the image bits per pixel
   // is not 32.
   if (image->bits_per_pixel != 32) {
-    XFree(image);
-    return bitmap;  // Return the empty bitmap to indicate failure.
+    if (use_shared_memory_)
+      DestroySharedImage(display_, image, &shminfo);
+    else
+      XFree(image);
+    return SkBitmap();
   }
 
-  bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
+  // Create a bitmap to put the results into, being careful to use the stride
+  // from the image rather than the width for the size.
+  SkBitmap bitmap;
+  bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height,
+                   image->bytes_per_line);
   bitmap.allocPixels();
   unsigned char* bitmap_data =
-    reinterpret_cast<unsigned char*>(bitmap.getAddr32(0, 0));
-  memcpy(bitmap_data, image->data, width * height * kBytesPerPixel);
+      reinterpret_cast<unsigned char*>(bitmap.getAddr32(0, 0));
+  memcpy(bitmap_data, image->data, image->bytes_per_line * height);
 
-  XFree(image);
+  if (use_shared_memory_)
+    DestroySharedImage(display_, image, &shminfo);
+  else
+    XFree(image);
+
+  HISTOGRAM_TIMES("BackingStore.RetrievalFromX",
+                  base::TimeTicks::Now() - begin_time);
   return bitmap;
 }
