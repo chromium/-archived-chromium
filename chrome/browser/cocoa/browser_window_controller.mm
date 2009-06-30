@@ -118,16 +118,6 @@ willPositionSheet:(NSWindow *)sheet
     if ([window_ respondsToSelector:@selector(setBottomCornerRounded:)])
       [window_ setBottomCornerRounded:NO];
 
-    // Since we don't have a standard resize control, Cocoa won't enable the
-    // zoom (green) button on the titlebar for us. Grab it and enable it
-    // manually. Note that when launched from XCode, the doesn't work for the
-    // first window (and only the first window). There's some activation
-    // wonkiness there, since XCode stays active and the menus don't switch
-    // either. It always works when launched from the Finder.
-    NSButton* zoomButton =
-        [[self window] standardWindowButton:NSWindowZoomButton];
-    [zoomButton setEnabled:YES];
-
     // Register ourselves for frame changed notifications from the
     // tabContentArea.
     [[NSNotificationCenter defaultCenter]
