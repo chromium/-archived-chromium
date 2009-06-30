@@ -229,6 +229,22 @@ namespace WebKit {
         virtual WebString selectionAsHTML() = 0;
 
 
+        // Printing ------------------------------------------------------------
+
+        // Reformats the WebFrame for printing.  pageSize is the page size in
+        // pixels.  Returns the number of pages that can be printed at the
+        // given page size.
+        virtual int printBegin(const WebSize& pageSize);
+
+        // Prints one page, and returns the calculated page shrinking factor
+        // (usually between 1/1.25 and 1/2).  Returns 0 if the page number is
+        // invalid or not in printing mode.
+        virtual float printPage(int pageToPrint, const WebCanvas&);
+
+        // Reformats the WebFrame for screen display.
+        virtual void printEnd();
+
+
         // Find-in-page --------------------------------------------------------
 
         // FIXME

@@ -66,7 +66,7 @@ class PrepareFrameAndViewForPrint {
 
     web_view->Resize(print_layout_size);
 
-    frame->BeginPrint(print_canvas_size_, &expected_pages_count_);
+    expected_pages_count_ = frame->PrintBegin(print_canvas_size_);
   }
 
   int GetExpectedPageCount() const {
@@ -78,7 +78,7 @@ class PrepareFrameAndViewForPrint {
   }
 
   ~PrepareFrameAndViewForPrint() {
-    frame_->EndPrint();
+    frame_->PrintEnd();
     web_view_->Resize(prev_view_size_);
   }
 

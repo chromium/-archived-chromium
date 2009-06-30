@@ -203,6 +203,7 @@ using WebCore::TextIterator;
 using WebCore::VisiblePosition;
 using WebCore::XPathResult;
 
+using WebKit::WebCanvas;
 using WebKit::WebConsoleMessage;
 using WebKit::WebDataSource;
 using WebKit::WebFindOptions;
@@ -1777,35 +1778,22 @@ void WebFrameImpl::SetAllowsScrolling(bool flag) {
   frame_->view()->setCanHaveScrollbars(flag);
 }
 
-bool WebFrameImpl::BeginPrint(const WebSize& page_size_px,
-                              int* page_count) {
+int WebFrameImpl::PrintBegin(const WebSize& page_size) {
   DCHECK_EQ(frame()->document()->isFrameSet(), false);
 
   print_context_.reset(new ChromePrintContext(frame()));
   WebCore::FloatRect rect(0, 0,
-                          static_cast<float>(page_size_px.width),
-                          static_cast<float>(page_size_px.height));
+                          static_cast<float>(page_size.width),
+                          static_cast<float>(page_size.height));
   print_context_->begin(rect.width());
   float page_height;
   // We ignore the overlays calculation for now since they are generated in the
   // browser. page_height is actually an output parameter.
   print_context_->computePageRects(rect, 0, 0, 1.0, page_height);
-  if (page_count)
-    *page_count = print_context_->pageCount();
-  return true;
+  return print_context_->pageCount();
 }
 
-float WebFrameImpl::GetPrintPageShrink(int page) {
-  // Ensure correct state.
-  if (!print_context_.get() || page < 0) {
-    NOTREACHED();
-    return 0;
-  }
-
-  return print_context_->getPageShrink(page);
-}
-
-float WebFrameImpl::PrintPage(int page, skia::PlatformCanvas* canvas) {
+float WebFrameImpl::PrintPage(int page, WebCanvas* canvas) {
   // Ensure correct state.
   if (!print_context_.get() || page < 0 || !frame() || !frame()->document()) {
     NOTREACHED();
@@ -1824,7 +1812,7 @@ float WebFrameImpl::PrintPage(int page, skia::PlatformCanvas* canvas) {
   return print_context_->spoolPage(spool, page);
 }
 
-void WebFrameImpl::EndPrint() {
+void WebFrameImpl::PrintEnd() {
   DCHECK(print_context_.get());
   if (print_context_.get())
     print_context_->end();

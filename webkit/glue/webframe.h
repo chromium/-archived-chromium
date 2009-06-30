@@ -11,7 +11,7 @@
 #include "base/string16.h"
 #include "skia/ext/bitmap_platform_device.h"
 #include "skia/ext/platform_canvas.h"
-#include "webkit/api/public/WebCommon.h"
+#include "webkit/api/public/WebCanvas.h"
 
 class GURL;
 class WebView;
@@ -384,28 +384,18 @@ class WebFrame {
   // The current scroll offset from the top of frame in pixels.
   virtual WebKit::WebSize ScrollOffset() const = 0;
 
-  // Reformats the web frame for printing. |page_size_px| is the page size in
-  // pixels.
-  // |width| is the resulting document width in pixel.
-  // |page_count| is the number of printed pages.
-  // Returns false if it fails. It'll fail if the main frame failed to load but
-  // will succeed even if a child frame failed to load.
-  virtual bool BeginPrint(const WebKit::WebSize& page_size_px,
-                          int* page_count) = 0;
+  // Reformats the WebFrame for printing.  page_size is the page size in
+  // pixels.  Returns the number of pages that can be printed at the given page
+  // size.
+  virtual int PrintBegin(const WebKit::WebSize& page_size) = 0;
 
-  // Returns the page shrinking factor calculated by webkit (usually between
-  // 1/1.25 and 1/2). Returns 0 if the page number is invalid or not in printing
-  // mode.
-  virtual float GetPrintPageShrink(int page) = 0;
+  // Prints one page, and returns the calculated page shrinking factor (usually
+  // between 1/1.25 and 1/2).  Returns 0 if the page number is invalid or not
+  // in printing mode.
+  virtual float PrintPage(int page_to_print, WebKit::WebCanvas* canvas) = 0;
 
-  // Prints one page. |page| is 0-based.
-  // Returns the page shrinking factor calculated by webkit (usually between
-  // 1/1.25 and 1/2). Returns 0 if the page number is invalid or not in printing
-  // mode.
-  virtual float PrintPage(int page, skia::PlatformCanvas* canvas) = 0;
-
-  // Reformats the web frame for screen display.
-  virtual void EndPrint() = 0;
+  // Reformats the WebFrame for screen display.
+  virtual void PrintEnd() = 0;
 
   // Only for test_shell
   virtual int PendingFrameUnloadEventCount() const = 0;

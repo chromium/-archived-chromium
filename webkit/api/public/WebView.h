@@ -1,10 +1,10 @@
 /*
  * Copyright (C) 2009 Google Inc. All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
  *     * Neither the name of Google Inc. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -75,7 +75,7 @@ namespace WebKit {
         // matches the given name.
         virtual WebFrame* findFrameByName(const WebString& name) = 0;
 
-        
+
         // Focus ---------------------------------------------------------------
 
         virtual WebFrame* focusedFrame() = 0;
@@ -107,34 +107,6 @@ namespace WebKit {
         // If there is room, subframe text will be recursively appended.  Each
         // frame will be separated by an empty line.
         virtual WebString captureAsText(unsigned maxCharacters) = 0;
-
-        // Paints the contents of this WebView into a bitmapped image.  This
-        // image will not have plugins drawn.  Devices are cheap to copy because
-        // the data is internally ref-counted, so we allocate and return a new
-        // copy.
-        //
-        // Set scrollToZero to force all frames to be scrolled to 0,0 before
-        // being painted into the image.  This will not send DOM events because
-        // it just draws the contents at a different place, but it does mean
-        // the scrollbars in the resulting image will appear to be wrong
-        // (they'll be painted as if the content was scrolled).
-        virtual WebImage captureAsImage(bool scrollToZero) = 0;
-
-
-        // Printing ------------------------------------------------------------
-
-        // Reformats the WebView for printing.  pageSize is the page size in
-        // pixels.  Returns the number of pages that can be printed at the
-        // given page size.
-        virtual int printBegin(const WebSize& pageSize);
-
-        // Prints one page, and returns the calculated page shrinking factor
-        // (usually between 1/1.25 and 1/2).  Returns 0 if the page number is
-        // invalid or not in printing mode.
-        virtual float printPage(int pageToPrint, const WebCanvas&);
-
-        // Reformats the WebView for screen display.
-        virtual void printEnd();
 
 
         // Zoom ----------------------------------------------------------------
