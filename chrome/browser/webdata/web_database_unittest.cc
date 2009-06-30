@@ -641,8 +641,16 @@ TEST_F(WebDatabaseTest, WebAppImages) {
   image.setConfig(SkBitmap::kARGB_8888_Config, 16, 16);
   image.allocPixels();
   image.eraseColor(SK_ColorBLACK);
-  // Some random pixels so that we can identify the image.
-  *(reinterpret_cast<unsigned char*>(image.getPixels())) = 0xAB;
+
+  // Set some random pixels so that we can identify the image. We don't use
+  // transparent images because of pre-multiplication rounding errors.
+  SkColor test_pixel_1 = 0xffccbbaa;
+  SkColor test_pixel_2 = 0x00aabbaa;
+  SkColor test_pixel_3 = 0xff339966;
+  image.getAddr32(0, 1)[0] = test_pixel_1;
+  image.getAddr32(0, 1)[1] = test_pixel_2;
+  image.getAddr32(0, 1)[2] = test_pixel_3;
+
   ASSERT_TRUE(db.SetWebAppImage(url, image));
   images.clear();
   ASSERT_TRUE(db.GetWebAppImages(url, &images));
@@ -650,10 +658,10 @@ TEST_F(WebDatabaseTest, WebAppImages) {
   ASSERT_EQ(16, images[0].width());
   ASSERT_EQ(16, images[0].height());
   images[0].lockPixels();
-  unsigned char* pixels =
-      reinterpret_cast<unsigned char*>(images[0].getPixels());
-  ASSERT_TRUE(pixels != NULL);
-  ASSERT_EQ(0xAB, *pixels);
+  ASSERT_TRUE(images[0].getPixels() != NULL);
+  ASSERT_EQ(test_pixel_1, images[0].getAddr32(0, 1)[0]);
+  ASSERT_EQ(test_pixel_2, images[0].getAddr32(0, 1)[1]);
+  ASSERT_EQ(test_pixel_3, images[0].getAddr32(0, 1)[2]);
   images[0].unlockPixels();
 
   // Add another image at a bigger size.

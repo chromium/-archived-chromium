@@ -7,6 +7,7 @@
 #include "base/gfx/png_encoder.h"
 #include "base/gfx/png_decoder.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 
 static void MakeRGBImage(int w, int h, std::vector<unsigned char>* dat) {
   dat->resize(w * h * 3);
@@ -38,6 +39,25 @@ static void MakeRGBAImage(int w, int h, bool use_transparency,
       else
         org_px[3] = 0xFF;     // a (opaque)
     }
+  }
+}
+
+// Returns true if each channel of the given two colors are "close." This is
+// used for comparing colors where rounding errors may cause off-by-one.
+bool ColorsClose(uint32_t a, uint32_t b) {
+  return abs(static_cast<int>(SkColorGetB(a) - SkColorGetB(b))) < 2 &&
+         abs(static_cast<int>(SkColorGetG(a) - SkColorGetG(b))) < 2 &&
+         abs(static_cast<int>(SkColorGetR(a) - SkColorGetR(b))) < 2 &&
+         abs(static_cast<int>(SkColorGetA(a) - SkColorGetA(b))) < 2;
+}
+
+void MakeTestSkBitmap(int w, int h, SkBitmap* bmp) {
+  bmp->setConfig(SkBitmap::kARGB_8888_Config, w, h);
+  bmp->allocPixels();
+
+  uint32_t* src_data = bmp->getAddr32(0, 0);
+  for (int i = 0; i < w * h; i++) {
+    src_data[i] = SkPreMultiplyARGB(i % 255, i % 250, i % 245, i % 240);
   }
 }
 
@@ -200,3 +220,30 @@ TEST(PNGCodec, StripAddAlpha) {
   ASSERT_EQ(original_rgb.size(), decoded.size());
   ASSERT_TRUE(original_rgb == decoded);
 }
+
+TEST(PNGCodec, EncodeBGRASkBitmap) {
+  const int w = 20, h = 20;
+
+  SkBitmap original_bitmap;
+  MakeTestSkBitmap(w, h, &original_bitmap);
+
+  // Encode the bitmap.
+  std::vector<unsigned char> encoded;
+  PNGEncoder::EncodeBGRASkBitmap(original_bitmap, false, &encoded);
+
+  // Decode the encoded string.
+  SkBitmap decoded_bitmap;
+  EXPECT_TRUE(PNGDecoder::Decode(&encoded, &decoded_bitmap));
+
+  // Compare the original bitmap and the output bitmap. We use ColorsClose
+  // as SkBitmaps are considered to be pre-multiplied, the unpremultiplication
+  // (in Encode) and repremultiplication (in Decode) can be lossy.
+  for (int x = 0; x < w; x++) {
+    for (int y = 0; y < h; y++) {
+      uint32_t original_pixel = original_bitmap.getAddr32(0, y)[x];
+      uint32_t decoded_pixel = decoded_bitmap.getAddr32(0, y)[x];
+      EXPECT_TRUE(ColorsClose(original_pixel, decoded_pixel));
+    }
+  }
+}
+
