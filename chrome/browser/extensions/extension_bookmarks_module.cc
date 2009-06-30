@@ -21,7 +21,7 @@ namespace keys = extension_bookmarks_module_constants;
 // Helper functions.
 class ExtensionBookmarks {
  public:
-  // Convert |node| into a JSON value
+  // Convert |node| into a JSON value.
   static DictionaryValue* GetNodeDictionary(const BookmarkNode* node,
                                             bool recurse) {
     DictionaryValue* dict = new DictionaryValue();
@@ -49,17 +49,16 @@ class ExtensionBookmarks {
                     floor(node->date_added().ToDoubleT() * 1000));
     }
 
-    int childCount = node->GetChildCount();
-    ListValue* children = new ListValue();
-    for (int i = 0; i < childCount; ++i) {
-      const BookmarkNode* child = node->GetChild(i);
-      if (recurse) {
+    if (recurse) {
+      int childCount = node->GetChildCount();
+      ListValue* children = new ListValue();
+      for (int i = 0; i < childCount; ++i) {
+        const BookmarkNode* child = node->GetChild(i);
         DictionaryValue* dict = GetNodeDictionary(child, true);
         children->Append(dict);
       }
-    }
-    if (recurse)
       dict->Set(keys::kChildrenKey, children);
+    }
     return dict;
   }
 
@@ -105,7 +104,7 @@ void BookmarksFunction::Run() {
     // Bookmarks are not ready yet.  We'll wait.
     registrar_.Add(this, NotificationType::BOOKMARK_MODEL_LOADED,
                    NotificationService::AllSources());
-    AddRef();  // balanced in Observe()
+    AddRef();  // Balanced in Observe().
     return;
   }
 
@@ -121,7 +120,7 @@ void BookmarksFunction::Observe(NotificationType type,
   DCHECK(type == NotificationType::BOOKMARK_MODEL_LOADED);
   DCHECK(profile()->GetBookmarkModel()->IsLoaded());
   Run();
-  Release();  // balanced in Run()
+  Release();  // Balanced in Run().
 }
 
 // static
@@ -375,7 +374,7 @@ bool CreateBookmarkFunction::RunImpl() {
   BookmarkModel* model = profile()->GetBookmarkModel();
   int parentId;
   if (!json->HasKey(keys::kParentIdKey)) {
-    // optional, default to "other bookmarks"
+    // Optional, default to "other bookmarks".
     parentId = model->other_node()->id();
   } else {
     EXTENSION_FUNCTION_VALIDATE(json->GetInteger(keys::kParentIdKey,
@@ -386,13 +385,13 @@ bool CreateBookmarkFunction::RunImpl() {
     error_ = keys::kNoParentError;
     return false;
   }
-  if (parent->GetParent() == NULL) {  // can't create children of the root
+  if (parent->GetParent() == NULL) {  // Can't create children of the root.
     error_ = keys::kNoParentError;
     return false;
   }
 
   int index;
-  if (!json->HasKey(keys::kIndexKey)) {  // optional (defaults to end)
+  if (!json->HasKey(keys::kIndexKey)) {  // Optional (defaults to end).
     index = parent->GetChildCount();
   } else {
     EXTENSION_FUNCTION_VALIDATE(json->GetInteger(keys::kIndexKey, &index));
@@ -403,9 +402,9 @@ bool CreateBookmarkFunction::RunImpl() {
   }
 
   std::wstring title;
-  json->GetString(keys::kTitleKey, &title);  // optional
+  json->GetString(keys::kTitleKey, &title);  // Optional.
   std::string url_string;
-  json->GetString(keys::kUrlKey, &url_string);  // optional
+  json->GetString(keys::kUrlKey, &url_string);  // Optional.
   GURL url(url_string);
   if (!url.is_empty() && !url.is_valid()) {
     error_ = keys::kInvalidUrlError;
@@ -452,7 +451,7 @@ bool MoveBookmarkFunction::RunImpl() {
 
   const BookmarkNode* parent;
   if (!destination->HasKey(keys::kParentIdKey)) {
-    // optional, defaults to current parent
+    // Optional, defaults to current parent.
     parent = node->GetParent();
   } else {
     int parentId;
@@ -462,7 +461,7 @@ bool MoveBookmarkFunction::RunImpl() {
   }
   if (!parent) {
     error_ = keys::kNoParentError;
-    // TODO(erikkay) return an error message
+    // TODO(erikkay) return an error message.
     return false;
   }
   if (parent == model->root_node()) {
@@ -471,7 +470,7 @@ bool MoveBookmarkFunction::RunImpl() {
   }
 
   int index;
-  if (destination->HasKey(keys::kIndexKey)) {  // optional (defaults to end)
+  if (destination->HasKey(keys::kIndexKey)) {  // Optional (defaults to end).
     EXTENSION_FUNCTION_VALIDATE(destination->GetInteger(keys::kIndexKey,
                                                         &index));
     if (index > parent->GetChildCount() || index < 0) {
@@ -491,7 +490,7 @@ bool SetBookmarkTitleFunction::RunImpl() {
   DictionaryValue* json = static_cast<DictionaryValue*>(args_);
 
   std::wstring title;
-  json->GetString(keys::kTitleKey, &title);  // optional (empty is clear)
+  json->GetString(keys::kTitleKey, &title);  // Optional (empty is clear).
 
   BookmarkModel* model = profile()->GetBookmarkModel();
   int id = 0;
