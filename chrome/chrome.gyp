@@ -4015,6 +4015,18 @@
           ],
         },
         {
+          'target_name': 'pbl_tool',
+          'type': 'executable',
+          'msvs_guid': '265C427B-D1FF-4922-A47C-0754DDFF52E1',
+          'dependencies': [
+            '../base/base.gyp:base',
+            'browser'
+          ],
+          'sources': [
+            'tools/pbl_tool/pbl_tool.cc',
+          ],
+        },
+        {
           'target_name': 'perf_tests',
           'type': 'executable',
           'msvs_guid': '9055E088-25C6-47FD-87D5-D9DD9FD75C9F',
