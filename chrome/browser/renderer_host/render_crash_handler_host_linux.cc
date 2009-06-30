@@ -4,15 +4,14 @@
 
 #include "chrome/browser/renderer_host/render_crash_handler_host_linux.h"
 
-#define __STDC_FORMAT_MACROS
 #include <stdint.h>
-#include <inttypes.h>
 
 #include <unistd.h>
 #include <sys/uio.h>
 #include <sys/socket.h>
 
 #include "base/eintr_wrapper.h"
+#include "base/format_macros.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/rand_util.h"
