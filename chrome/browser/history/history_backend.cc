@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -161,7 +161,7 @@ class HistoryBackend::URLQuerier {
   // When track_unique_ is set, this is updated with every URL seen so far.
   std::set<GURL> unique_urls_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(URLQuerier);
+  DISALLOW_COPY_AND_ASSIGN(URLQuerier);
 };
 
 // HistoryBackend --------------------------------------------------------------
@@ -659,7 +659,7 @@ void HistoryBackend::AddPagesWithDetails(const std::vector<URLRow>& urls) {
   if (!db_.get())
     return;
 
-  URLsModifiedDetails* modified = new URLsModifiedDetails;
+  scoped_ptr<URLsModifiedDetails> modified(new URLsModifiedDetails);
   for (std::vector<URLRow>::const_iterator i = urls.begin();
        i != urls.end(); ++i) {
     DCHECK(!i->last_visit().is_null());
@@ -732,7 +732,7 @@ void HistoryBackend::AddPagesWithDetails(const std::vector<URLRow>& urls) {
   // TODO(brettw) bug 1140015: Add an "add page" notification so the history
   // views can keep in sync.
   BroadcastNotifications(NotificationType::HISTORY_TYPED_URLS_MODIFIED,
-                         modified);
+                         modified.release());
 
   ScheduleCommit();
 }
