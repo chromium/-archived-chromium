@@ -85,7 +85,9 @@ small   effect-import-test
 #    function to custom run the test. As such, only the 'except' and
 #    pdiff_threshold options have any meaning
 
-medium  TestStressDrawShapes
-medium  TestStressMultiWindow
-large   TestStressCullingZSort pdiff_threshold(14100)
+# These two tests rely on Selenium getting or setting a page's title and that
+# does not currently work with Chrome.
+medium  TestStressDrawShapes   except(*googlechrome)
+medium  TestStressMultiWindow  except(*googlechrome)
 
+large   TestStressCullingZSort pdiff_threshold(14100)

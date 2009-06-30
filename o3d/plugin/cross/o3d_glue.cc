@@ -215,10 +215,13 @@ void PluginObject::TearDown() {
   stream_manager_.reset(NULL);
 
   delete client_;
+  client_ = NULL;
+
   // Release the graphics context before deletion.
   DeleteRenderer();
 
   delete features_;
+  features_ = NULL;
 
   // There is a reference cycle between the V8 bridge and the plugin.
   // Explicitly remove all V8 references during tear-down, so that the cycle is
