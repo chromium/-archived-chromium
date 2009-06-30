@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -14,11 +14,11 @@ CopyTreeWorkItem::~CopyTreeWorkItem() {
   }
 }
 
-CopyTreeWorkItem::CopyTreeWorkItem(std::wstring source_path,
-                                   std::wstring dest_path,
-                                   std::wstring temp_dir,
+CopyTreeWorkItem::CopyTreeWorkItem(const std::wstring& source_path,
+                                   const std::wstring& dest_path,
+                                   const std::wstring& temp_dir,
                                    CopyOverWriteOption overwrite_option,
-                                   std::wstring alternative_path)
+                                   const std::wstring& alternative_path)
     : source_path_(source_path),
       dest_path_(dest_path),
       temp_dir_(temp_dir),
@@ -116,7 +116,7 @@ void CopyTreeWorkItem::Rollback() {
   }
 }
 
-bool CopyTreeWorkItem::IsFileInUse(std::wstring path) {
+bool CopyTreeWorkItem::IsFileInUse(const std::wstring& path) {
   if (!file_util::PathExists(path))
     return false;
 

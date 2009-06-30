@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -21,51 +21,62 @@ WorkItem::~WorkItem() {
 }
 
 CopyTreeWorkItem* WorkItem::CreateCopyTreeWorkItem(
-    std::wstring source_path, std::wstring dest_path, std::wstring temp_dir,
-    CopyOverWriteOption overwrite_option, std::wstring alternative_path) {
+    const std::wstring& source_path,
+    const std::wstring& dest_path,
+    const std::wstring& temp_dir,
+    CopyOverWriteOption overwrite_option,
+    const std::wstring& alternative_path) {
   return new CopyTreeWorkItem(source_path, dest_path, temp_dir,
                               overwrite_option, alternative_path);
 }
 
-CreateDirWorkItem* WorkItem::CreateCreateDirWorkItem(std::wstring path) {
+CreateDirWorkItem* WorkItem::CreateCreateDirWorkItem(const std::wstring& path) {
   return new CreateDirWorkItem(path);
 }
 
 CreateRegKeyWorkItem* WorkItem::CreateCreateRegKeyWorkItem(
-    HKEY predefined_root, std::wstring path) {
+    HKEY predefined_root, const std::wstring& path) {
   return new CreateRegKeyWorkItem(predefined_root, path);
 }
 
 DeleteRegValueWorkItem* WorkItem::CreateDeleteRegValueWorkItem(
-    HKEY predefined_root, std::wstring key_path,
-    std::wstring value_name, bool is_str_type) {
+    HKEY predefined_root,
+    const std::wstring& key_path,
+    const std::wstring& value_name,
+    bool is_str_type) {
   return new DeleteRegValueWorkItem(predefined_root, key_path,
                                     value_name, is_str_type);
 }
 
-DeleteTreeWorkItem* WorkItem::CreateDeleteTreeWorkItem(std::wstring root_path,
-                                                       std::wstring key_path) {
+DeleteTreeWorkItem* WorkItem::CreateDeleteTreeWorkItem(
+    const std::wstring& root_path, const std::wstring& key_path) {
   return new DeleteTreeWorkItem(root_path, key_path);
 }
 
-MoveTreeWorkItem* WorkItem::CreateMoveTreeWorkItem(std::wstring source_path,
-                                                   std::wstring dest_path,
-                                                   std::wstring temp_dir) {
+MoveTreeWorkItem* WorkItem::CreateMoveTreeWorkItem(
+    const std::wstring& source_path,
+    const std::wstring& dest_path,
+    const std::wstring& temp_dir) {
   return new MoveTreeWorkItem(source_path, dest_path, temp_dir);
 }
 
 SetRegValueWorkItem* WorkItem::CreateSetRegValueWorkItem(
-    HKEY predefined_root, std::wstring key_path,
-    std::wstring value_name, std::wstring value_data, bool overwrite) {
+    HKEY predefined_root,
+    const std::wstring& key_path,
+    const std::wstring& value_name,
+    const std::wstring& value_data,
+    bool overwrite) {
   return new SetRegValueWorkItem(predefined_root, key_path,
-                               value_name, value_data, overwrite);
+                                 value_name, value_data, overwrite);
 }
 
 SetRegValueWorkItem* WorkItem::CreateSetRegValueWorkItem(
-    HKEY predefined_root, std::wstring key_path,
-    std::wstring value_name, DWORD value_data, bool overwrite) {
+    HKEY predefined_root,
+    const std::wstring& key_path,
+    const std::wstring& value_name,
+    DWORD value_data, bool overwrite) {
   return new SetRegValueWorkItem(predefined_root, key_path,
-                               value_name, value_data, overwrite);
+                                 value_name, value_data, overwrite);
 }
 
 SelfRegWorkItem* WorkItem::CreateSelfRegWorkItem(const std::wstring& dll_path,

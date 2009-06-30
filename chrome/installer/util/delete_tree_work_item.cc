@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -17,8 +17,8 @@ DeleteTreeWorkItem::~DeleteTreeWorkItem() {
   }
 }
 
-DeleteTreeWorkItem::DeleteTreeWorkItem(std::wstring root_path,
-                                       std::wstring key_path)
+DeleteTreeWorkItem::DeleteTreeWorkItem(const std::wstring& root_path,
+                                       const std::wstring& key_path)
     : root_path_(root_path),
       key_path_(key_path) {
 }
@@ -58,7 +58,7 @@ void DeleteTreeWorkItem::Rollback() {
   }
 }
 
-bool DeleteTreeWorkItem::GetBackupPath(std::wstring for_path,
+bool DeleteTreeWorkItem::GetBackupPath(const std::wstring& for_path,
                                        std::wstring* backup_path) {
   if (!file_util::CreateNewTempDirectory(L"", backup_path)) {
     // We assume that CreateNewTempDirectory() is doing its job well.

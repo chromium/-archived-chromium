@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -149,9 +149,9 @@ DWORD LzmaUtil::UnPack(const std::wstring& location) {
       break;
     }
 
-    WriteFile(hFile, outBuffer + offset, (DWORD) outSizeProcessed,
-              &written, NULL);
-    if (written != outSizeProcessed) {
+    if ((!WriteFile(hFile, outBuffer + offset, (DWORD) outSizeProcessed,
+                    &written, NULL)) ||
+        (written != outSizeProcessed)) {
       ret = GetLastError();
       CloseHandle(hFile);
       break;

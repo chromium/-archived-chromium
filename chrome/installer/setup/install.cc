@@ -33,8 +33,8 @@
 
 namespace {
 
-std::wstring AppendPath(const std::wstring parent_path,
-                        const std::wstring path) {
+std::wstring AppendPath(const std::wstring& parent_path,
+                        const std::wstring& path) {
   std::wstring new_path(parent_path);
   file_util::AppendToPath(&new_path, path);
   return new_path;
@@ -279,7 +279,7 @@ bool Is64bit() {
   return false;
 }
 
-void RegisterChromeOnMachine(std::wstring install_path, int options) {
+void RegisterChromeOnMachine(const std::wstring& install_path, int options) {
   bool system_level = (options & installer_util::SYSTEM_LEVEL) != 0;
   // Try to add Chrome to Media Player shim inclusion list. We don't do any
   // error checking here because this operation will fail if user doesn't

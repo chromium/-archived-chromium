@@ -1,3 +1,10 @@
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+//
+// This file defines specific implementation of BrowserDistribution class for
+// Google Chrome.
+
 #include <atlbase.h>
 #include <shlwapi.h>
 
@@ -166,8 +173,8 @@ std::wstring GetLocalizedString(int base_message_id) {
 // explained here : http://support.microsoft.com/kb/220830
 std::wstring GetLocalizedEulaResource() {
   wchar_t full_exe_path[MAX_PATH];
-  int len = ::GetModuleFileNameW(NULL, full_exe_path, MAX_PATH);
-  if (len <= 0 && len >= MAX_PATH)
+  int len = ::GetModuleFileName(NULL, full_exe_path, MAX_PATH);
+  if (len == 0 || len == MAX_PATH)
     return L"";
   std::wstring language = GetSystemLanguage();
   const wchar_t* resource = L"IDR_OEMPG_EN.HTML";

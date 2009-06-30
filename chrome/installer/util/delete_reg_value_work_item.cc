@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -8,14 +8,15 @@
 #include "chrome/installer/util/logging_installer.h"
 
 DeleteRegValueWorkItem::DeleteRegValueWorkItem(HKEY predefined_root,
-                                               std::wstring key_path,
-                                               std::wstring value_name,
+                                               const std::wstring& key_path,
+                                               const std::wstring& value_name,
                                                bool is_str_type)
     : predefined_root_(predefined_root),
       key_path_(key_path),
       value_name_(value_name),
       is_str_type_(is_str_type),
-      status_(DELETE_VALUE) {
+      status_(DELETE_VALUE),
+      old_dw_(0) {
 }
 
 DeleteRegValueWorkItem::~DeleteRegValueWorkItem() {

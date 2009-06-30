@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -25,7 +25,7 @@ class CreateRegKeyWorkItem : public WorkItem {
  private:
   friend class WorkItem;
 
-  CreateRegKeyWorkItem(HKEY predefined_root, std::wstring path);
+  CreateRegKeyWorkItem(HKEY predefined_root, const std::wstring& path);
 
   // Initialize key_list_ by adding all paths of keys from predefined_root_
   // to path_. Returns true if key_list_ is non empty.

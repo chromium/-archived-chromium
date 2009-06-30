@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -10,31 +10,34 @@ SetRegValueWorkItem::~SetRegValueWorkItem() {
 }
 
 SetRegValueWorkItem::SetRegValueWorkItem(HKEY predefined_root,
-                                     std::wstring key_path,
-                                     std::wstring value_name,
-                                     std::wstring value_data,
-                                     bool overwrite)
+                                         const std::wstring& key_path,
+                                         const std::wstring& value_name,
+                                         const std::wstring& value_data,
+                                         bool overwrite)
     : predefined_root_(predefined_root),
       key_path_(key_path),
       value_name_(value_name),
       value_data_str_(value_data),
+      value_data_dword_(0),
       overwrite_(overwrite),
       status_(SET_VALUE),
-      is_str_type_(true) {
+      is_str_type_(true),
+      previous_value_dword_(0) {
 }
 
 SetRegValueWorkItem::SetRegValueWorkItem(HKEY predefined_root,
-                                     std::wstring key_path,
-                                     std::wstring value_name,
-                                     DWORD value_data,
-                                     bool overwrite)
+                                         const std::wstring& key_path,
+                                         const std::wstring& value_name,
+                                         DWORD value_data,
+                                         bool overwrite)
     : predefined_root_(predefined_root),
       key_path_(key_path),
       value_name_(value_name),
       value_data_dword_(value_data),
       overwrite_(overwrite),
       status_(SET_VALUE),
-      is_str_type_(false) {
+      is_str_type_(false),
+      previous_value_dword_(0) {
 }
 
 bool SetRegValueWorkItem::Do() {

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -14,7 +14,7 @@ CreateRegKeyWorkItem::~CreateRegKeyWorkItem() {
 }
 
 CreateRegKeyWorkItem::CreateRegKeyWorkItem(HKEY predefined_root,
-                                           std::wstring path)
+                                           const std::wstring& path)
     : predefined_root_(predefined_root),
       path_(path),
       key_created_(false) {

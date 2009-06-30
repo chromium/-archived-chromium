@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -38,12 +38,14 @@ class SetRegValueWorkItem : public WorkItem {
     VALUE_ROLL_BACK
   };
 
-  SetRegValueWorkItem(HKEY predefined_root, std::wstring key_path,
-                      std::wstring value_name, std::wstring value_data,
+  SetRegValueWorkItem(HKEY predefined_root,
+                      const std::wstring& key_path,
+                      const std::wstring& value_name,
+                      const std::wstring& value_data,
                       bool overwrite);
 
-  SetRegValueWorkItem(HKEY predefined_root, std::wstring key_path,
-                      std::wstring value_name, DWORD value_data,
+  SetRegValueWorkItem(HKEY predefined_root, const std::wstring& key_path,
+                      const std::wstring& value_name, DWORD value_data,
                       bool overwrite);
 
   // Root key of the target key under which the value is set. The root key can

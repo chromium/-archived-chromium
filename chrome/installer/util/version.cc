@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -33,7 +33,7 @@ bool installer::Version::IsHigherThan(const installer::Version* other) const {
 }
 
 installer::Version* installer::Version::GetVersionFromString(
-    std::wstring version_str) {
+    const std::wstring& version_str) {
   std::vector<std::wstring> numbers;
   SplitString(version_str, '.', &numbers);
 

@@ -1,9 +1,9 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_INSTALLER_UTIL_VERSION_H__
-#define CHROME_INSTALLER_UTIL_VERSION_H__
+#ifndef CHROME_INSTALLER_UTIL_VERSION_H_
+#define CHROME_INSTALLER_UTIL_VERSION_H_
 
 #include <string>
 
@@ -27,7 +27,7 @@ public:
   // Assume that the version string is specified by four integers separated
   // by character '.'. Return NULL if string is not of this format.
   // Caller is responsible for freeing the Version object once done.
-  static Version* GetVersionFromString(std::wstring version_str);
+  static Version* GetVersionFromString(const std::wstring& version_str);
 
 private:
   int64 major_;

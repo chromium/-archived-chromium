@@ -1,9 +1,9 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_INSTALLER_UTIL_COPY_TREE_WORK_ITEM_H__
-#define CHROME_INSTALLER_UTIL_COPY_TREE_WORK_ITEM_H__
+#ifndef CHROME_INSTALLER_UTIL_COPY_TREE_WORK_ITEM_H_
+#define CHROME_INSTALLER_UTIL_COPY_TREE_WORK_ITEM_H_
 
 #include <string>
 #include <windows.h>
@@ -33,12 +33,14 @@ class CopyTreeWorkItem : public WorkItem {
   // Notes on temp_path: to facilitate rollback, the caller needs to supply
   // a temporary directory to save the original files if they exist under
   // dest_path.
-  CopyTreeWorkItem(std::wstring source_path, std::wstring dest_path,
-                   std::wstring temp_dir, CopyOverWriteOption overwrite_option,
-                   std::wstring alternative_path);
+  CopyTreeWorkItem(const std::wstring& source_path,
+                   const std::wstring& dest_path,
+                   const std::wstring& temp_dir,
+                   CopyOverWriteOption overwrite_option,
+                   const std::wstring& alternative_path);
 
   // Checks if the path specified is in use (and hence can not be deleted)
-  bool IsFileInUse(std::wstring path);
+  bool IsFileInUse(const std::wstring& path);
 
   // Get a backup path that can keep the original files under dest_path_,
   // and set backup_path_ with the result.
@@ -77,4 +79,4 @@ class CopyTreeWorkItem : public WorkItem {
   std::wstring backup_path_;
 };
 
-#endif  // CHROME_INSTALLER_UTIL_COPY_TREE_WORK_ITEM_H__
+#endif  // CHROME_INSTALLER_UTIL_COPY_TREE_WORK_ITEM_H_

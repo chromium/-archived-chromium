@@ -1,9 +1,9 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_INSTALLER_UTIL_WORK_ITEM_LIST_H__
-#define CHROME_INSTALLER_UTIL_WORK_ITEM_LIST_H__
+#ifndef CHROME_INSTALLER_UTIL_WORK_ITEM_LIST_H_
+#define CHROME_INSTALLER_UTIL_WORK_ITEM_LIST_H_
 
 #include <windows.h>
 
@@ -34,42 +34,51 @@ class WorkItemList : public WorkItem {
   bool AddWorkItem(WorkItem* work_item);
 
   // Add a CopyTreeWorkItem to the list of work items.
-  bool AddCopyTreeWorkItem(std::wstring source_path, std::wstring dest_path,
-                           std::wstring temp_dir,
+  bool AddCopyTreeWorkItem(const std::wstring& source_path,
+                           const std::wstring& dest_path,
+                           const std::wstring& temp_dir,
                            CopyOverWriteOption overwrite_option,
-                           std::wstring alternative_path = L"");
+                           const std::wstring& alternative_path = L"");
 
   // Add a CreateDirWorkItem that creates a directory at the given path.
-  bool AddCreateDirWorkItem(std::wstring path);
+  bool AddCreateDirWorkItem(const std::wstring& path);
 
   // Add a CreateRegKeyWorkItem that creates a registry key at the given
   // path.
-  bool AddCreateRegKeyWorkItem(HKEY predefined_root, std::wstring path);
+  bool AddCreateRegKeyWorkItem(HKEY predefined_root, const std::wstring& path);
 
   // Add a DeleteRegValueWorkItem that deletes registry value of type REG_SZ
   // or REG_DWORD.
-  bool AddDeleteRegValueWorkItem(HKEY predefined_root, std::wstring key_path,
-                                 std::wstring value_name, bool is_str_type);
+  bool AddDeleteRegValueWorkItem(HKEY predefined_root,
+                                 const std::wstring& key_path,
+                                 const std::wstring& value_name,
+                                 bool is_str_type);
 
   // Add a DeleteTreeWorkItem that recursively deletes a file system
   // hierarchy at the given root path. A key file can be optionally specified
   // by key_path.
-  bool AddDeleteTreeWorkItem(std::wstring root_path, std::wstring key_path);
+  bool AddDeleteTreeWorkItem(const std::wstring& root_path,
+                             const std::wstring& key_path);
 
   // Add a MoveTreeWorkItem to the list of work items.
-  bool AddMoveTreeWorkItem(std::wstring source_path, std::wstring dest_path,
-                           std::wstring temp_dir);
+  bool AddMoveTreeWorkItem(const std::wstring& source_path,
+                           const std::wstring& dest_path,
+                           const std::wstring& temp_dir);
 
   // Add a SetRegValueWorkItem that sets a registry value with REG_SZ type
   // at the key with specified path.
-  bool AddSetRegValueWorkItem(HKEY predefined_root, std::wstring key_path,
-                              std::wstring value_name, std::wstring value_data,
+  bool AddSetRegValueWorkItem(HKEY predefined_root,
+                              const std::wstring& key_path,
+                              const std::wstring& value_name,
+                              const std::wstring& value_data,
                               bool overwrite);
 
   // Add a SetRegValueWorkItem that sets a registry value with REG_DWORD type
   // at the key with specified path.
-  bool AddSetRegValueWorkItem(HKEY predefined_root, std::wstring key_path,
-                              std::wstring value_name, DWORD value_data,
+  bool AddSetRegValueWorkItem(HKEY predefined_root,
+                              const std::wstring& key_path,
+                              const std::wstring& value_name,
+                              DWORD value_data,
                               bool overwrite);
 
   // Add a SelfRegWorkItem that registers or unregisters a DLL at the
@@ -103,4 +112,4 @@ class WorkItemList : public WorkItem {
   WorkItems executed_list_;
 };
 
-#endif  // CHROME_INSTALLER_UTIL_WORK_ITEM_LIST_H__
+#endif  // CHROME_INSTALLER_UTIL_WORK_ITEM_LIST_H_

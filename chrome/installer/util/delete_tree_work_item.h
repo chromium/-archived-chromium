@@ -1,9 +1,9 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_INSTALLER_UTIL_DELETE_TREE_WORK_ITEM_H__
-#define CHROME_INSTALLER_UTIL_DELETE_TREE_WORK_ITEM_H__
+#ifndef CHROME_INSTALLER_UTIL_DELETE_TREE_WORK_ITEM_H_
+#define CHROME_INSTALLER_UTIL_DELETE_TREE_WORK_ITEM_H_
 
 #include <string>
 #include <windows.h>
@@ -26,9 +26,10 @@ class DeleteTreeWorkItem : public WorkItem {
   friend class WorkItem;
 
   // Get a backup path that can keep root_path_ or key_path_
-  bool GetBackupPath(std::wstring for_path, std::wstring* backup_path);
+  bool GetBackupPath(const std::wstring& for_path, std::wstring* backup_path);
 
-  DeleteTreeWorkItem(std::wstring root_path, std::wstring key_path);
+  DeleteTreeWorkItem(const std::wstring& root_path,
+                     const std::wstring& key_path);
 
   // Root path to delete.
   std::wstring root_path_;
@@ -46,4 +47,4 @@ class DeleteTreeWorkItem : public WorkItem {
   std::wstring key_backup_path_;
 };
 
-#endif  // CHROME_INSTALLER_UTIL_DELETE_TREE_WORK_ITEM_H__
+#endif  // CHROME_INSTALLER_UTIL_DELETE_TREE_WORK_ITEM_H_

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -35,8 +35,8 @@ class DeleteRegValueWorkItem : public WorkItem {
     VALUE_UNCHANGED
   };
 
-  DeleteRegValueWorkItem(HKEY predefined_root, std::wstring key_path,
-                         std::wstring value_name, bool is_str_type);
+  DeleteRegValueWorkItem(HKEY predefined_root, const std::wstring& key_path,
+                         const std::wstring& value_name, bool is_str_type);
 
   // Root key of the target key under which the value is set. The root key can
   // only be one of the predefined keys on Windows.

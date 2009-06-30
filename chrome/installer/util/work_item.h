@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -43,46 +43,57 @@ class WorkItem {
   //   overwrites files.
   // * If overwrite_option is NEW_NAME_IF_IN_USE, file is copied with an
   //   alternate name specified by alternative_path.
-  static CopyTreeWorkItem* CreateCopyTreeWorkItem(std::wstring source_path,
-      std::wstring dest_path, std::wstring temp_dir,
+  static CopyTreeWorkItem* CreateCopyTreeWorkItem(
+      const std::wstring& source_path,
+      const std::wstring& dest_path,
+      const std::wstring& temp_dir,
       CopyOverWriteOption overwrite_option,
-      std::wstring alternative_path = L"");
+      const std::wstring& alternative_path = L"");
 
   // Create a CreateDirWorkItem that creates a directory at the given path.
-  static CreateDirWorkItem* CreateCreateDirWorkItem(std::wstring path);
+  static CreateDirWorkItem* CreateCreateDirWorkItem(const std::wstring& path);
 
   // Create a CreateRegKeyWorkItem that creates a registry key at the given
   // path.
   static CreateRegKeyWorkItem* CreateCreateRegKeyWorkItem(
-      HKEY predefined_root, std::wstring path);
+      HKEY predefined_root, const std::wstring& path);
 
   // Create a DeleteRegValueWorkItem that deletes a registry value
   static DeleteRegValueWorkItem* CreateDeleteRegValueWorkItem(
-      HKEY predefined_root, std::wstring key_path,
-      std::wstring value_name, bool is_str_type);
+      HKEY predefined_root,
+      const std::wstring& key_path,
+      const std::wstring& value_name,
+      bool is_str_type);
 
   // Create a DeleteTreeWorkItem that recursively deletes a file system
   // hierarchy at the given root path. A key file can be optionally specified
   // by key_path.
-  static DeleteTreeWorkItem* CreateDeleteTreeWorkItem(std::wstring root_path,
-                                                      std::wstring key_path);
+  static DeleteTreeWorkItem* CreateDeleteTreeWorkItem(
+      const std::wstring& root_path, const std::wstring& key_path);
 
   // Create a MoveTreeWorkItem that recursively moves a file system hierarchy
   // from source path to destination path.
-  static MoveTreeWorkItem* CreateMoveTreeWorkItem(std::wstring source_path,
-      std::wstring dest_path, std::wstring temp_dir);
+  static MoveTreeWorkItem* CreateMoveTreeWorkItem(
+      const std::wstring& source_path,
+      const std::wstring& dest_path,
+      const std::wstring& temp_dir);
 
   // Create a SetRegValueWorkItem that sets a registry value with REG_SZ type
   // at the key with specified path.
   static SetRegValueWorkItem* CreateSetRegValueWorkItem(
-      HKEY predefined_root, std::wstring key_path,
-      std::wstring value_name, std::wstring value_data, bool overwrite);
+      HKEY predefined_root,
+      const std::wstring& key_path,
+      const std::wstring& value_name,
+      const std::wstring& value_data,
+      bool overwrite);
 
   // Create a SetRegValueWorkItem that sets a registry value with REG_DWORD type
   // at the key with specified path.
   static SetRegValueWorkItem* CreateSetRegValueWorkItem(
-      HKEY predefined_root, std::wstring key_path,
-      std::wstring value_name, DWORD value_data, bool overwrite);
+      HKEY predefined_root,
+      const std::wstring& key_path,
+      const std::wstring& value_name,
+      DWORD value_data, bool overwrite);
 
   // Add a SelfRegWorkItem that registers or unregisters a DLL at the
   // specified path.

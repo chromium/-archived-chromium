@@ -136,8 +136,10 @@ bool DeleteFilesAndFolders(const std::wstring& exe_path, bool system_uninstall,
   file_util::AppendToPath(&setup_exe, file_util::GetFilenameFromPath(exe_path));
 
   std::wstring temp_file;
-  file_util::CreateTemporaryFileName(&temp_file);
-  file_util::Move(setup_exe, temp_file);
+  if (!file_util::CreateTemporaryFileName(&temp_file))
+    LOG(ERROR) << "Failed to create temporary file for setup.exe.";
+  else
+    file_util::Move(setup_exe, temp_file);
 
   // Move the browser's persisted local state
   FilePath user_local_state;
@@ -145,8 +147,10 @@ bool DeleteFilesAndFolders(const std::wstring& exe_path, bool system_uninstall,
     std::wstring user_local_file(
         user_local_state.Append(chrome::kLocalStateFilename).value());
 
-    file_util::CreateTemporaryFileName(local_state_path);
-    file_util::CopyFile(user_local_file, *local_state_path);
+    if (!file_util::CreateTemporaryFileName(local_state_path))
+      LOG(ERROR) << "Failed to create temporary file for Local State.";
+    else 
+      file_util::CopyFile(user_local_file, *local_state_path);
   }
 
   LOG(INFO) << "Deleting install path " << install_path;
