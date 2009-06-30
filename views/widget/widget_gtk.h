@@ -184,7 +184,7 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
   static Window* GetWindowImpl(GtkWidget* widget);
 
   // Creates the GtkWidget.
-  void CreateGtkWidget(GtkWidget* parent);
+  void CreateGtkWidget(GtkWidget* parent, const gfx::Rect& bounds);
 
   // Attaches the widget contents to the window's widget.
   void AttachGtkWidgetToWindow();

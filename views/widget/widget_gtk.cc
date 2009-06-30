@@ -87,7 +87,7 @@ void WidgetGtk::Init(GtkWidget* parent,
 #endif
 
   // Make container here.
-  CreateGtkWidget(parent);
+  CreateGtkWidget(parent, bounds);
 
   // Make sure we receive our motion events.
 
@@ -403,7 +403,7 @@ void WidgetGtk::DidProcessEvent(GdkEvent* event) {
 ////////////////////////////////////////////////////////////////////////////////
 // TODO(beng): organize into sections:
 
-void WidgetGtk::CreateGtkWidget(GtkWidget* parent) {
+void WidgetGtk::CreateGtkWidget(GtkWidget* parent, const gfx::Rect& bounds) {
   if (type_ == TYPE_CHILD) {
     window_contents_ = widget_ = gtk_fixed_new();
     gtk_fixed_set_has_window(GTK_FIXED(widget_), true);
@@ -418,6 +418,14 @@ void WidgetGtk::CreateGtkWidget(GtkWidget* parent) {
   } else {
     widget_ = gtk_window_new(
         type_ == TYPE_WINDOW ? GTK_WINDOW_TOPLEVEL : GTK_WINDOW_POPUP);
+
+    if (!bounds.size().IsEmpty()) {
+      // When we realize the window, the window manager is given a size. If we
+      // don't specify a size before then GTK defaults to 200x200. Specify
+      // a size now so that the window manager sees the requested size.
+      GtkAllocation alloc = { 0, 0, bounds.width(), bounds.height() };
+      gtk_widget_size_allocate(widget_, &alloc);
+    }
     gtk_window_set_decorated(GTK_WINDOW(widget_), false);
     // We'll take care of positioning our window.
     gtk_window_set_position(GTK_WINDOW(widget_), GTK_WIN_POS_NONE);
