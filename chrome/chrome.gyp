@@ -4130,6 +4130,7 @@
           'target_name': 'pull_in_all',
           'type': 'none',
           'dependencies': [
+            'installer/mini_installer.gyp:*',
             'installer/installer.gyp:*',
             '../app/app.gyp:*',
             '../base/base.gyp:*',
