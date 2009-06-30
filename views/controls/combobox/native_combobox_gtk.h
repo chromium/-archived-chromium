@@ -25,12 +25,13 @@ class NativeComboboxGtk : public NativeControlGtk,
   virtual gfx::Size GetPreferredSize() const;
   virtual View* GetView();
   virtual void SetFocus();
+  virtual gfx::NativeView GetTestingHandle() const;
 
  protected:
   // Overridden from NativeControlGtk:
   virtual void CreateNativeControl();
   virtual void NativeControlCreated(GtkWidget* widget);
-  
+
  private:
   // The combobox we are bound to.
   Combobox* combobox_;

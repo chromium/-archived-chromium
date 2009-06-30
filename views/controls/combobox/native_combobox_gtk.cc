@@ -57,6 +57,10 @@ void NativeComboboxGtk::SetFocus() {
   Focus();
 }
 
+gfx::NativeView NativeComboboxGtk::GetTestingHandle() const {
+  return native_view();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // NativeComboboxGtk, NativeControlGtk overrides:
 
