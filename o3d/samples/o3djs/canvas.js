@@ -285,13 +285,16 @@ o3djs.canvas.CanvasQuad = function(canvasInfo,
   this.scaleTransform = canvasInfo.pack.createObject('Transform');
   this.scaleTransform.parent = this.transform;
 
-  // create the texture the canvas will draw on.
-  this.texture = canvasInfo.pack.createTexture2D(
+  /**
+   * The texture the canvas will draw on.
+   * @type {!o3d.Texture2D}
+   */
+  this.texture = /** @type {!o3d.Texture2D} */ (canvasInfo.pack.createTexture2D(
       width,
       height,
       o3djs.base.o3d.Texture.ARGB8,
       1, // mipmap levels
-      false);
+      false));
 
   // Create a Canvas object to go with the quad.
 
@@ -302,13 +305,22 @@ o3djs.canvas.CanvasQuad = function(canvasInfo,
   this.canvas = canvasInfo.pack.createObject('Canvas');
   this.canvas.setSize(width, height);
 
-  // setup the sampler for the texture
+  /**
+   * The sampler for the texture.
+   * @type {!o3d.Sampler}
+   */
   this.sampler = canvasInfo.pack.createObject('Sampler');
   this.sampler.addressModeU = o3djs.base.o3d.Sampler.CLAMP;
   this.sampler.addressModeV = o3djs.base.o3d.Sampler.CLAMP;
-  this.paramSampler = this.scaleTransform.createParam('texSampler0',
-                                                      'ParamSampler');
-  this.paramSampler.value = this.sampler;
+
+  /**
+   * The param sampler for this transform.
+   * @private
+   * @type {!o3d.ParamSampler}
+   */
+  this.paramSampler_ = this.scaleTransform.createParam('texSampler0',
+                                                       'ParamSampler');
+  this.paramSampler_.value = this.sampler;
 
   this.sampler.texture = this.texture;
   if (transparent) {
