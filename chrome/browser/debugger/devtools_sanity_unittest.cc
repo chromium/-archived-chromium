@@ -121,7 +121,7 @@ IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestProfilerTab) {
 }
 
 // Tests scripta panel enabling.
-IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestEnableScriptsTab) {
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, DISABLED_TestEnableScriptsTab) {
   RunTest("testEnableScriptsTab", kDebuggerTestPage);
 }
 
