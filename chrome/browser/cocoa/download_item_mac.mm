@@ -128,11 +128,11 @@ DownloadItemMac::DownloadItemMac(BaseDownloadItemModel* download_model,
       [[NSPopUpButton alloc] initWithFrame:frame pullsDown:YES]);
   [parent_ addDownloadItem:view.get()];
 
-  // TODO(thakis): use filename eliding like gtk/windows versions
-  std::wstring tmpname =
-      download_model->download()->GetFileName().ToWStringHack();
+  FilePath download_path = download_model->download()->GetFileName();
 
-  NSString* titleString = base::SysWideToNSString(tmpname);
+  // TODO(thakis): use filename eliding like gtk/windows versions
+  NSString* titleString = base::SysWideToNSString(
+      download_path.ToWStringHack());
 
   menu_.reset([[DownloadShelfContextMenuBridge alloc]
       initWithModel:download_model_.get()]);
@@ -140,10 +140,9 @@ DownloadItemMac::DownloadItemMac(BaseDownloadItemModel* download_model,
 
   [view.get() insertItemWithTitle:titleString atIndex:0];
 
-  // TODO(thakis): Use file extension and iconForFileType. Currently, this
-  // complains "<filename> is not a full path."
+  NSString* extension = base::SysUTF8ToNSString(download_path.Extension());
   [[view.get() itemAtIndex:0] setImage:
-      [[NSWorkspace sharedWorkspace] iconForFile:titleString]];
+      [[NSWorkspace sharedWorkspace] iconForFileType:extension]];
 }
 
 DownloadItemMac::~DownloadItemMac() {
