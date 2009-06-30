@@ -51,6 +51,9 @@ deps = {
 
   "src/third_party/tcmalloc/tcmalloc":
     "http://google-perftools.googlecode.com/svn/trunk@74",
+
+  "src/tools/page_cycler/acid3":
+      "/trunk/deps/page_cycler/acid3@19546",
     
   # TODO(jianli): Remove this once we do not need to run worker's layout tests
   # in ui test.
