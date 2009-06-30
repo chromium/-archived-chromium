@@ -25,6 +25,7 @@ class NativeComboboxWin : public NativeControlWin,
   virtual gfx::Size GetPreferredSize() const;
   virtual View* GetView();
   virtual void SetFocus();
+  virtual gfx::NativeView GetTestingHandle() const;
 
  protected:
   // Overridden from NativeControlWin:
@@ -34,7 +35,7 @@ class NativeComboboxWin : public NativeControlWin,
                               LRESULT* result);
   virtual void CreateNativeControl();
   virtual void NativeControlCreated(HWND native_control);
-  
+
  private:
   void UpdateFont();
 

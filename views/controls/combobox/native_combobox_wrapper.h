@@ -5,6 +5,8 @@
 #ifndef VIEWS_CONTROLS_COMBOBOX_NATIVE_COMBOBOX_WRAPPER_H_
 #define VIEWS_CONTROLS_COMBOBOX_NATIVE_COMBOBOX_WRAPPER_H_
 
+#include "base/gfx/native_widget_types.h"
+
 namespace gfx{
 class Size;
 }
@@ -33,12 +35,15 @@ class NativeComboboxWrapper {
 
   // Returns the preferred size of the combobox.
   virtual gfx::Size GetPreferredSize() const = 0;
-  
+
   // Retrieves the views::View that hosts the native control.
   virtual View* GetView() = 0;
 
   // Sets the focus to the button.
   virtual void SetFocus() = 0;
+
+  // Returns a handle to the underlying native view for testing.
+  virtual gfx::NativeView GetTestingHandle() const = 0;
 
   static NativeComboboxWrapper* CreateWrapper(Combobox* combobox);
 };

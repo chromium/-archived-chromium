@@ -45,14 +45,6 @@ class NativeControlWin : public NativeViewHost {
   // received from the HWND created by an object derived from NativeControlWin.
   virtual void ShowContextMenu(const gfx::Point& location);
 
-  // Derived classes interested in receiving key down notification should
-  // override this method and return true.  In which case OnKeyDown is called
-  // when a key down message is sent to the control.
-  // Note that this method is called at the time of the control creation: the
-  // behavior will not change if the returned value changes after the control
-  // has been created.
-  virtual bool NotifyOnKeyDown() const { return false; }
-
   // Called when the NativeControlWin is attached to a View hierarchy with a
   // valid Widget. The NativeControlWin should use this opportunity to create
   // its associated HWND.
@@ -90,7 +82,7 @@ class NativeControlWin : public NativeViewHost {
                                                LPARAM l_param);
 
   // The window procedure before we subclassed.
-  static WNDPROC original_wndproc_;
+  WNDPROC original_wndproc_;
 
   DISALLOW_COPY_AND_ASSIGN(NativeControlWin);
 };

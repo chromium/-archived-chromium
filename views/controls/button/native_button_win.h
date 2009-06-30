@@ -37,7 +37,6 @@ class NativeButtonWin : public NativeControlWin,
   virtual bool OnKeyDown(int vkey);
 
  protected:
-  virtual bool NotifyOnKeyDown() const;
   virtual void CreateNativeControl();
   virtual void NativeControlCreated(HWND control_hwnd);
 

@@ -18,6 +18,7 @@
 #include "views/controls/button/native_button.h"
 #include "views/controls/button/radio_button.h"
 #include "views/controls/combobox/combobox.h"
+#include "views/controls/combobox/native_combobox_wrapper.h"
 #include "views/controls/label.h"
 #include "views/controls/link.h"
 #include "views/controls/scroll_view.h"
@@ -725,6 +726,20 @@ class TestTextfield : public Textfield {
   }
 };
 
+class TestCombobox : public Combobox, public Combobox::Model {
+ public:
+  TestCombobox() : Combobox(this) { }
+  virtual HWND TestGetNativeComponent() {
+    return native_wrapper_->GetTestingHandle();
+  }
+  virtual int GetItemCount(Combobox* source) {
+    return 10;
+  }
+  virtual std::wstring GetItemAt(Combobox* source, int index) {
+    return L"Hello combo";
+  }
+};
+
 class TestTabbedPane : public TabbedPane {
  public:
   TestTabbedPane() { }
@@ -740,6 +755,7 @@ TEST_F(FocusManagerTest, FocusNativeControls) {
   TestCheckbox* checkbox = new TestCheckbox(L"Checkbox");
   TestRadioButton* radio_button = new TestRadioButton(L"RadioButton");
   TestTextfield* textfield = new TestTextfield();
+  TestCombobox* combobox = new TestCombobox();
   TestTabbedPane* tabbed_pane = new TestTabbedPane();
   TestNativeButton* tab_button = new TestNativeButton(L"tab button");
 
@@ -747,6 +763,7 @@ TEST_F(FocusManagerTest, FocusNativeControls) {
   content_view_->AddChildView(checkbox);
   content_view_->AddChildView(radio_button);
   content_view_->AddChildView(textfield);
+  content_view_->AddChildView(combobox);
   content_view_->AddChildView(tabbed_pane);
   tabbed_pane->AddTab(L"Awesome tab", tab_button);
 
@@ -763,6 +780,9 @@ TEST_F(FocusManagerTest, FocusNativeControls) {
 
   ::SendMessage(textfield->TestGetNativeComponent(), WM_SETFOCUS, NULL, NULL);
   EXPECT_EQ(textfield, GetFocusManager()->GetFocusedView());
+
+  ::SendMessage(combobox->TestGetNativeComponent(), WM_SETFOCUS, NULL, NULL);
+  EXPECT_EQ(combobox, GetFocusManager()->GetFocusedView());
 
   ::SendMessage(tabbed_pane->TestGetNativeControlHWND(), WM_SETFOCUS,
                 NULL, NULL);

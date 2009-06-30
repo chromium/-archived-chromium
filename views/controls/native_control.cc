@@ -362,8 +362,8 @@ LRESULT CALLBACK NativeControl::NativeControlWndProc(HWND window, UINT message,
       static_cast<NativeControl*>(GetProp(window, kNativeControlKey));
   DCHECK(native_control);
 
-  if (message == WM_KEYDOWN && native_control->NotifyOnKeyDown()) {
-    if (native_control->OnKeyDown(static_cast<int>(w_param)))
+  if (message == WM_KEYDOWN &&
+      native_control->OnKeyDown(static_cast<int>(w_param))) {
       return 0;
   } else if (message == WM_SETFOCUS) {
     // Let the focus manager know that the focus changed.

@@ -15,12 +15,6 @@ namespace views {
 const wchar_t* NativeControlWin::kNativeControlWinKey =
     L"__NATIVE_CONTROL_WIN__";
 
-static const wchar_t* kNativeControlOriginalWndProcKey =
-    L"__NATIVE_CONTROL_ORIGINAL_WNDPROC__";
-
-// static
-WNDPROC NativeControlWin::original_wndproc_ = NULL;
-
 ////////////////////////////////////////////////////////////////////////////////
 // NativeControlWin, public:
 
@@ -118,17 +112,10 @@ void NativeControlWin::NativeControlCreated(HWND native_control) {
   // Note that we never unset this property. We don't have to.
   SetProp(native_control, kNativeControlWinKey, this);
 
-  // Subclass the window so we can monitor for key presses. It's important that
-  // we *only* do this if the derived class wants to intercept keypresses,
-  // because otherwise the subclass can mysteriously interfere with certain
-  // other controls, like the combobox, and cause weird effects.
-  if (NotifyOnKeyDown()) {
-    original_wndproc_ =
-        win_util::SetWindowProc(native_control,
-                                &NativeControlWin::NativeControlWndProc);
-    SetProp(native_control, kNativeControlOriginalWndProcKey,
-            original_wndproc_);
-  }
+  // Subclass so we get WM_KEYDOWN and WM_SETFOCUS messages.
+  original_wndproc_ =
+      win_util::SetWindowProc(native_control,
+                              &NativeControlWin::NativeControlWndProc);
 
   Attach(native_control);
   // native_view() is now valid.
@@ -191,8 +178,8 @@ LRESULT NativeControlWin::NativeControlWndProc(HWND window,
       static_cast<NativeControlWin*>(GetProp(window, kNativeControlWinKey));
   DCHECK(native_control);
 
-  if (message == WM_KEYDOWN && native_control->NotifyOnKeyDown()) {
-    if (native_control->OnKeyDown(static_cast<int>(w_param)))
+  if (message == WM_KEYDOWN &&
+      native_control->OnKeyDown(static_cast<int>(w_param))) {
       return 0;
   } else if (message == WM_SETFOCUS) {
     // Let the focus manager know that the focus changed.

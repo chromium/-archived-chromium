@@ -81,17 +81,8 @@ class NativeControl : public View {
   void SetFixedWidth(int width, Alignment alignment);
   void SetFixedHeight(int height, Alignment alignment);
 
-  // Derived classes interested in receiving key down notification should
-  // override this method and return true.  In which case OnKeyDown is called
-  // when a key down message is sent to the control.
-  // Note that this method is called at the time of the control creation: the
-  // behavior will not change if the returned value changes after the control
-  // has been created.
-  virtual bool NotifyOnKeyDown() const { return false; }
-
-  // Invoked when a key is pressed on the control (if NotifyOnKeyDown returns
-  // true).  Should return true if the key message was processed, false
-  // otherwise.
+  // Invoked when a key is pressed on the control.
+  // Should return true if the key message was processed, false otherwise.
   virtual bool OnKeyDown(int virtual_key_code) { return false; }
 
   // Returns additional extended style flags. When subclasses call

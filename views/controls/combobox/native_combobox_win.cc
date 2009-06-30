@@ -136,6 +136,10 @@ void NativeComboboxWin::SetFocus() {
   Focus();
 }
 
+gfx::NativeView NativeComboboxWin::GetTestingHandle() const {
+  return native_view();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // NativeComboboxWin, NativeControlWin overrides:
 
@@ -158,7 +162,7 @@ void NativeComboboxWin::CreateNativeControl() {
   DWORD flags = WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN |
                 CBS_DROPDOWNLIST | WS_VSCROLL;
   HWND control_hwnd = ::CreateWindowEx(GetAdditionalExStyle(), L"COMBOBOX", L"",
-                                       flags, 0, 0, 100, 20, //width(), height(),
+                                       flags, 0, 0, width(), height(),
                                        GetWidget()->GetNativeView(), NULL, NULL,
                                        NULL);
   NativeControlCreated(control_hwnd);

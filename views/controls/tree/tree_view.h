@@ -156,10 +156,9 @@ class TreeView : public NativeControl, TreeModelObserver {
   // Handles a variety of potential TreeView messages.
   virtual LRESULT OnNotify(int w_param, LPNMHDR l_param);
 
-  // Yes, we want to be notified of key down for two reasons. To circumvent
-  // VK_ENTER from toggling the expaned state when processes_enter_ is false,
-  // and to have F2 start editting.
-  virtual bool NotifyOnKeyDown() const { return true; }
+  // We pay attention to key down for two reasons: to circumvent VK_ENTER from
+  // toggling the expaned state when processes_enter_ is false, and to have F2
+  // start editting.
   virtual bool OnKeyDown(int virtual_key_code);
 
   virtual void OnContextMenu(const WTL::CPoint& location);

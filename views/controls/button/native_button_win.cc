@@ -97,10 +97,6 @@ bool NativeButtonWin::OnKeyDown(int vkey) {
   return enter_pressed;
 }
 
-bool NativeButtonWin::NotifyOnKeyDown() const {
-  return true;
-}
-
 void NativeButtonWin::CreateNativeControl() {
   DWORD flags = WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | BS_PUSHBUTTON;
   if (native_button_->is_default())

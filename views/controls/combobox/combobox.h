@@ -67,11 +67,11 @@ class Combobox : public View {
   virtual void ViewHierarchyChanged(bool is_add, View* parent,
                                     View* child);
   virtual std::string GetClassName() const;
-   
- private:
+
   // The object that actually implements the native combobox.
   NativeComboboxWrapper* native_wrapper_;
 
+ private:
   // Our model.
   Model* model_;
 
