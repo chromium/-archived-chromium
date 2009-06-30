@@ -7,6 +7,7 @@
 #include "app/l10n_util.h"
 #include "base/message_loop.h"
 #include "chrome/browser/password_manager/password_manager.h"
+#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_util.h"
@@ -40,8 +41,9 @@ class LoginHandlerWin : public LoginHandler,
     DCHECK(request_) << "LoginHandler constructed with NULL request";
 
     AddRef();  // matched by ReleaseLater.
-    if (!tab_util::GetTabContentsID(request_, &render_process_host_id_,
-                                    &tab_contents_id_)) {
+    if (!ResourceDispatcherHost::RenderViewForRequest(request_,
+                                                      &render_process_host_id_,
+                                                      &tab_contents_id_)) {
       NOTREACHED();
     }
   }

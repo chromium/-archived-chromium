@@ -10,9 +10,9 @@
 #include "base/message_loop.h"
 #include "chrome/browser/gtk/constrained_window_gtk.h"
 #include "chrome/browser/password_manager/password_manager.h"
+#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/common/gtk_util.h"
 #include "chrome/common/notification_service.h"
 #include "grit/generated_resources.h"
@@ -41,8 +41,9 @@ class LoginHandlerGtk : public LoginHandler,
     DCHECK(request_) << "LoginHandlerGtk constructed with NULL request";
 
     AddRef();  // matched by ReleaseLater.
-    if (!tab_util::GetTabContentsID(request_, &render_process_host_id_,
-                                    &tab_contents_id_)) {
+    if (!ResourceDispatcherHost::RenderViewForRequest(request_,
+                                                      &render_process_host_id_,
+                                                      &tab_contents_id_)) {
       NOTREACHED();
     }
   }

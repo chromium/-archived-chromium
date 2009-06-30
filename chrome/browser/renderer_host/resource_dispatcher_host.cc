@@ -1271,6 +1271,39 @@ void ResourceDispatcherHost::OnResponseCompleted(URLRequest* request) {
   // call until later.  We will notify the world and clean up when we resume.
 }
 
+// static
+ResourceDispatcherHost::ExtraRequestInfo*
+ResourceDispatcherHost::ExtraInfoForRequest(URLRequest* request) {
+  // Avoid writing this function twice by casting the cosnt version.
+  const URLRequest* const_request = request;
+  return const_cast<ExtraRequestInfo*>(ExtraRequestForRequest(const_request));
+}
+
+// static
+const ResourceDispatcherHost::ExtraRequestInfo*
+ResourceDispatcherHost::ExtraInfoForRequest(const URLRequest* request) {
+  const ExtraRequestInfo* info =
+      static_cast<const ExtraRequestInfo*>(request->GetUserData(NULL));
+  DLOG_IF(WARNING, !info) << "Request doesn't seem to have our data";
+  return info;
+}
+
+// static
+bool ResourceDispatcherHost::RenderViewForRequest(const URLRequest* request,
+                                                  int* render_process_host_id,
+                                                  int* render_view_host_id) {
+  const ExtraRequestInfo* info = ExtraInfoForRequest(request);
+  if (!info) {
+    *render_process_host_id = -1;
+    *render_view_host_id = -1;
+    return false;
+  }
+
+  *render_process_host_id = info->process_id;
+  *render_view_host_id = info->route_id;
+  return true;
+}
+
 void ResourceDispatcherHost::AddObserver(Observer* obs) {
   observer_list_.AddObserver(obs);
 }
@@ -1302,7 +1335,9 @@ class NotificationTask : public Task {
                    ResourceRequestDetails* details)
   : type_(type),
     details_(details) {
-    if (!tab_util::GetTabContentsID(request, &process_id_, &tab_contents_id_))
+    if (!ResourceDispatcherHost::RenderViewForRequest(request,
+                                                      &process_id_,
+                                                      &tab_contents_id_))
       NOTREACHED();
   }
 

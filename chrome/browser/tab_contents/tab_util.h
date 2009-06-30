@@ -10,11 +10,6 @@ class TabContents;
 
 namespace tab_util {
 
-// Helper to get the IDs necessary for looking up a TabContents.
-// Should only be called from the IO thread, since it accesses an URLRequest.
-bool GetTabContentsID(URLRequest* request, int* render_process_host_id,
-                      int* routing_id);
-
 // Helper to find the TabContents that originated the given request. Can be
 // NULL if the tab has been closed or some other error occurs.
 // Should only be called from the UI thread, since it accesses TabContent.

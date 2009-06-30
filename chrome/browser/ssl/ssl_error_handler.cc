@@ -5,6 +5,7 @@
 #include "chrome/browser/ssl/ssl_error_handler.h"
 
 #include "base/message_loop.h"
+#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/ssl/ssl_cert_error_handler.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_util.h"
@@ -34,9 +35,9 @@ SSLErrorHandler::SSLErrorHandler(ResourceDispatcherHost* rdh,
   request_id_.process_id = info->process_id;
   request_id_.request_id = info->request_id;
 
-  if (!tab_util::GetTabContentsID(request,
-                                  &render_process_host_id_,
-                                  &tab_contents_id_))
+  if (!ResourceDispatcherHost::RenderViewForRequest(request,
+                                                    &render_process_host_id_,
+                                                    &tab_contents_id_))
     NOTREACHED();
 
   // This makes sure we don't disappear on the IO thread until we've given an

@@ -323,20 +323,16 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
 
   // Helper functions to get our extra data out of a request. The given request
   // must have been one we created so that it has the proper extra data pointer.
-  static ExtraRequestInfo* ExtraInfoForRequest(URLRequest* request) {
-    ExtraRequestInfo* info
-        = static_cast<ExtraRequestInfo*>(request->GetUserData(NULL));
-    DLOG_IF(WARNING, !info) << "Request doesn't seem to have our data";
-    return info;
-  }
+  static ExtraRequestInfo* ExtraInfoForRequest(URLRequest* request);
+  static const ExtraRequestInfo* ExtraInfoForRequest(const URLRequest* request);
 
-  static const ExtraRequestInfo* ExtraInfoForRequest(
-      const URLRequest* request) {
-    const ExtraRequestInfo* info =
-        static_cast<const ExtraRequestInfo*>(request->GetUserData(NULL));
-    DLOG_IF(WARNING, !info) << "Request doesn't seem to have our data";
-    return info;
-  }
+  // Extracts the render view/process host's identifiers from the given request
+  // and places them in the given out params (both required). If there are no
+  // such IDs associated with the request (such as non-page-related requests),
+  // this function will return false and both out params will be -1.
+  static bool RenderViewForRequest(const URLRequest* request,
+                                   int* render_process_host_id,
+                                   int* render_view_host_id);
 
   // Adds an observer.  The observer will be called on the IO thread.  To
   // observe resource events on the UI thread, subscribe to the

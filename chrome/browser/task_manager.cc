@@ -14,8 +14,8 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
+#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/task_manager_resource_providers.h"
-#include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/app_resources.h"
@@ -654,8 +654,9 @@ void TaskManagerModel::OnJobRedirect(URLRequestJob* job,
 
 void TaskManagerModel::OnBytesRead(URLRequestJob* job, int byte_count) {
   int render_process_host_id = -1, routing_id = -1;
-  tab_util::GetTabContentsID(job->request(),
-                             &render_process_host_id, &routing_id);
+  ResourceDispatcherHost::RenderViewForRequest(job->request(),
+                                               &render_process_host_id,
+                                               &routing_id);
   // This happens in the IO thread, post it to the UI thread.
   ui_loop_->PostTask(FROM_HERE,
                      NewRunnableMethod(

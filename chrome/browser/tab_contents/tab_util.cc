@@ -6,26 +6,7 @@
 
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
-#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "net/url_request/url_request.h"
-
-bool tab_util::GetTabContentsID(URLRequest* request,
-                                int* render_process_id,
-                                int* render_view_id) {
-
-  if (!request || !render_process_id || !render_view_id)
-    return false;
-
-  ResourceDispatcherHost::ExtraRequestInfo* info =
-      ResourceDispatcherHost::ExtraInfoForRequest(request);
-  if (!info)
-    return false;
-
-  *render_process_id = info->process_id;
-  *render_view_id = info->route_id;
-  return true;
-}
 
 TabContents* tab_util::GetTabContentsByID(int render_process_id,
                                           int render_view_id) {
