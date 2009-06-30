@@ -133,6 +133,8 @@ LayoutTestController::LayoutTestController(TestShell* shell) {
   BindMethod("setPrivateBrowsingEnabled", &LayoutTestController::setPrivateBrowsingEnabled);
   BindMethod("setUseDashboardCompatibilityMode", &LayoutTestController::setUseDashboardCompatibilityMode);
 
+  BindMethod("setXSSAuditorEnabled", &LayoutTestController::setXSSAuditorEnabled);
+
   // The fallback method is called when an unknown method is invoked.
   BindFallbackMethod(&LayoutTestController::fallbackMethod);
 
@@ -756,6 +758,16 @@ void LayoutTestController::setCallCloseOnWebViews(
 }
 void LayoutTestController::setPrivateBrowsingEnabled(
     const CppArgumentList& args, CppVariant* result) {
+  result->SetNull();
+}
+
+void LayoutTestController::setXSSAuditorEnabled(
+    const CppArgumentList& args, CppVariant* result) {
+  if (args.size() > 0 && args[0].isBool()) {
+    WebPreferences* preferences = shell_->GetWebPreferences();
+    preferences->xss_auditor_enabled = args[0].value.boolValue;
+    shell_->webView()->SetPreferences(*preferences);
+  }
   result->SetNull();
 }
 

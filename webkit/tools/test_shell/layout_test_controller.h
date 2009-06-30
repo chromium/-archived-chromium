@@ -170,6 +170,8 @@ class LayoutTestController : public CppBoundClass {
   void setCallCloseOnWebViews(const CppArgumentList& args, CppVariant* result);
   void setPrivateBrowsingEnabled(const CppArgumentList& args, CppVariant* result);
 
+  void setXSSAuditorEnabled(const CppArgumentList& args, CppVariant* result);
+
   // The fallback method is called when a nonexistent method is called on
   // the layout test controller object.
   // It is usefull to catch typos in the JavaScript code (a few layout tests

@@ -2762,7 +2762,6 @@ BUG14679 LINUX : LayoutTests/fast/backgrounds/animated-gif-as-background.html = 
 
 // WebKit 44837:44872
 BUG14772 WIN LINUX : LayoutTests/fast/canvas/image-object-in-canvas.html = FAIL
-BUG14773 : LayoutTests/http/tests/security/xssAuditor/script-tag.html = FAIL
 BUG14771 WIN LINUX : LayoutTests/svg/batik/filters/feTile.svg = FAIL
 BUG14771 WIN LINUX : LayoutTests/svg/filters/feTile.svg = FAIL
 
@@ -2776,7 +2775,6 @@ BUG14831 : LayoutTests/fast/events/event-trace.html = FAIL
 
 // WebKit 44922:44927
 BUG14885 : LayoutTests/fast/js/JSON-parse.html = FAIL
-BUG14889 SKIP : LayoutTests/http/tests/security/xssAuditor/link-opens-new-window.html = FAIL
 
 // WebKit 44928:44943
 BUG14946 : LayoutTests/fast/js/date-toisostring.html = FAIL
@@ -2787,15 +2785,6 @@ BUG15113 SKIP : LayoutTests/compositing/sibling-positioning.html = FAIL
 
 // WebKit 44969:45017
 BUG15132 : LayoutTests/editing/execCommand/5142012-3.html = FAIL
-BUG15132 : LayoutTests/http/tests/security/xssAuditor/img-onerror-tricky.html = FAIL
-BUG15132 : LayoutTests/http/tests/security/xssAuditor/link-onclick.html = FAIL
-BUG15132 : LayoutTests/http/tests/security/xssAuditor/property-escape.html = FAIL
-BUG15132 : LayoutTests/http/tests/security/xssAuditor/script-tag-convoluted.html = FAIL
-BUG15132 : LayoutTests/http/tests/security/xssAuditor/script-tag-open-redirect.html = FAIL
-BUG15132 : LayoutTests/http/tests/security/xssAuditor/script-tag-post.html = FAIL
-BUG15132 : LayoutTests/http/tests/security/xssAuditor/script-tag-redirect.html = FAIL
-BUG15132 : LayoutTests/http/tests/security/xssAuditor/script-tag-utf-7.html = FAIL
-BUG15132 : LayoutTests/http/tests/security/xssAuditor/script-tag-with-source.html = FAIL
 // needs baselines
 BUG15132 SKIP : LayoutTests/compositing/reflections/reflection-on-composited.html = FAIL
 // more unexpected failures
@@ -2849,25 +2838,7 @@ BUG15267 WIN LINUX DEBUG : LayoutTests/transitions/cancel-transition.html = PASS
 BUG15425 WIN : LayoutTests/dom/html/level2/html/HTMLElement142.html = PASS CRASH
 
 // WebKit 45287:45352 New tests
-BUG15649 : LayoutTests/http/tests/security/xssAuditor/anchor-url-dom-write-location-inline-event.html = FAIL
-BUG15649 : LayoutTests/http/tests/security/xssAuditor/anchor-url-dom-write-location-javascript-URL.html = FAIL
-BUG15649 : LayoutTests/http/tests/security/xssAuditor/anchor-url-dom-write-location.html = FAIL
-BUG15649 : LayoutTests/http/tests/security/xssAuditor/dom-write-URL.html = FAIL
-BUG15649 : LayoutTests/http/tests/security/xssAuditor/dom-write-innerHTML.html = FAIL
-BUG15649 : LayoutTests/http/tests/security/xssAuditor/dom-write-location-inline-event.html = FAIL
-BUG15649 : LayoutTests/http/tests/security/xssAuditor/dom-write-location-javascript-URL.html = FAIL
-BUG15649 : LayoutTests/http/tests/security/xssAuditor/dom-write-location.html = FAIL
-BUG15649 : LayoutTests/http/tests/security/xssAuditor/faux-script1.html = FAIL
-BUG15649 : LayoutTests/http/tests/security/xssAuditor/faux-script2.html = FAIL
-BUG15649 : LayoutTests/http/tests/security/xssAuditor/faux-script3.html = FAIL
-BUG15649 : LayoutTests/http/tests/security/xssAuditor/http-equiv-utf-7-encoded.html = FAIL
-BUG15649 : LayoutTests/http/tests/security/xssAuditor/iframe-javascript-url.html = FAIL
-BUG15649 : LayoutTests/http/tests/security/xssAuditor/malformed-HTML.html = FAIL
-BUG15649 : LayoutTests/http/tests/security/xssAuditor/script-tag-utf-7-encoded.html = FAIL
-BUG15649 : LayoutTests/http/tests/security/xssAuditor/script-tag-with-source-relative-scheme.html = FAIL
 BUG15649 : LayoutTests/compositing/layers-inside-overflow-scroll.html = TIMEOUT
 BUG15649 : LayoutTests/compositing/self-painting-layers.html = TIMEOUT
-BUG15649 : LayoutTests/http/tests/security/xssAuditor/get-from-iframe.html = TIMEOUT
-BUG15649 : LayoutTests/http/tests/security/xssAuditor/post-from-iframe.html = TIMEOUT
 BUG15649 : LayoutTests/plugins/netscape-plugin-map-data-to-src.html = FAIL
 BUG15649 : LayoutTests/media/video-canvas-source.html = FAIL
