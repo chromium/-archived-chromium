@@ -117,6 +117,13 @@
           ],
           # for:  test_shell_gtk.cc
           'cflags': ['-Wno-multichar'],
+          # See below TODO in the Windows branch.
+          'copies': [
+            {
+              'destination': '<(PRODUCT_DIR)/plugins',
+              'files': ['<(PRODUCT_DIR)/libnpapi_layout_test_plugin.so'],
+            },
+          ],
         }, { # else: OS!=linux
           'sources/': [
             ['exclude', '_gtk\\.cc$'],
@@ -289,6 +296,7 @@
       'target_name': 'npapi_layout_test_plugin',
       'type': 'loadable_module',
       'mac_bundle': 1,
+      'product_dir': '<(PRODUCT_DIR)',
       'msvs_guid': 'BE6D5659-A8D5-4890-A42C-090DD10EF62C',
       'sources': [
         '../npapi_layout_test_plugin/PluginObject.cpp',
@@ -351,6 +359,7 @@
       'target_name': 'npapi_test_plugin',
       'type': 'loadable_module',
       'mac_bundle': 1,
+      'product_dir': '<(PRODUCT_DIR)',
       'msvs_guid': '0D04AEC1-6B68-492C-BCCF-808DFD69ABC6',
       'dependencies': [
         '../../../base/base.gyp:base',
