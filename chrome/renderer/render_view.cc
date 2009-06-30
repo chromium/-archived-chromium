@@ -2903,21 +2903,21 @@ void RenderView::DumpLoadHistograms() const {
       finish - begin, kBeginToFinishMin,
       kBeginToFinishMax, kBeginToFinishBucketCount);
 
-#if 0
-  DCHECK(FieldTrialList::Find("DnsImpact") &&
-         !FieldTrialList::Find("DnsImpact")->group_name().empty());
-  UMA_HISTOGRAM_CUSTOM_TIMES(
-      FieldTrial::MakeName("Renderer4.BeginToFinish", "DnsImpact").data(),
-      finish - begin, kBeginToFinishMin,
-      kBeginToFinishMax, kBeginToFinishBucketCount);
+  static bool use_dns_histogram(FieldTrialList::Find("DnsImpact") &&
+      !FieldTrialList::Find("DnsImpact")->group_name().empty());
+  if (use_dns_histogram)
+    UMA_HISTOGRAM_CUSTOM_TIMES(
+        FieldTrial::MakeName("Renderer4.BeginToFinish", "DnsImpact").data(),
+        finish - begin, kBeginToFinishMin,
+        kBeginToFinishMax, kBeginToFinishBucketCount);
 
-  DCHECK(FieldTrialList::Find("GlobalSdch") &&
-         !FieldTrialList::Find("GlobalSdch")->group_name().empty());
-  UMA_HISTOGRAM_CUSTOM_TIMES(
-      FieldTrial::MakeName("Renderer4.BeginToFinish", "GlobalSdch").data(),
-      finish - begin, kBeginToFinishMin,
-      kBeginToFinishMax, kBeginToFinishBucketCount);
-#endif // 0
+  static bool use_sdch_histogram(FieldTrialList::Find("GlobalSdch") &&
+      !FieldTrialList::Find("GlobalSdch")->group_name().empty());
+  if (use_sdch_histogram)
+    UMA_HISTOGRAM_CUSTOM_TIMES(
+        FieldTrial::MakeName("Renderer4.BeginToFinish", "GlobalSdch").data(),
+        finish - begin, kBeginToFinishMin,
+        kBeginToFinishMax, kBeginToFinishBucketCount);
 
   UMA_HISTOGRAM_MEDIUM_TIMES("Renderer4.CommitToFinish", finish - commit);
 
