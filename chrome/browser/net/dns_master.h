@@ -99,6 +99,9 @@ class DnsMaster : public base::RefCountedThreadSafe<DnsMaster> {
   // values into the current referrer list.
   void DeserializeReferrers(const ListValue& referral_list);
 
+  // For unit test code only.
+  size_t max_concurrent_lookups() const { return max_concurrent_lookups_; }
+
  private:
   FRIEND_TEST(DnsMasterTest, BenefitLookupTest);
   FRIEND_TEST(DnsMasterTest, ShutdownWhenResolutionIsPendingTest);

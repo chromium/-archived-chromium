@@ -110,8 +110,8 @@ int RendererMain(const MainFunctionParams& parameters) {
   if (parsed_command_line.HasSwitch(switches::kForceFieldTestNameAndValue)) {
     std::string persistent(WideToASCII(parsed_command_line.GetSwitchValue(
         switches::kForceFieldTestNameAndValue)));
-    FieldTrial *field_trial = FieldTrial::RestorePersistentString(persistent);
-    DCHECK(field_trial);
+    bool ret = field_trial.StringAugmentsState(persistent);
+    DCHECK(ret);
   }
 
   {

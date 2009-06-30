@@ -14,7 +14,10 @@ using base::Time;
 const int FieldTrial::kNotParticipating = -1;
 
 // static
-const char FieldTrial::kPersistentStringSeparator('/');
+const int FieldTrial::kAllRemainingProbability = -2;
+
+// static
+const char FieldTrialList::kPersistentStringSeparator('/');
 
 //------------------------------------------------------------------------------
 // FieldTrial methods and members.
@@ -51,40 +54,6 @@ std::string FieldTrial::MakeName(const std::string& name_prefix,
                                  const std::string& trial_name) {
   std::string big_string(name_prefix);
   return big_string.append(FieldTrialList::FindFullName(trial_name));
-}
-
-std::string FieldTrial::MakePersistentString() const {
-  DCHECK_EQ(name_.find(kPersistentStringSeparator), std::string::npos);
-  DCHECK_EQ(group_name_.find(kPersistentStringSeparator), std::string::npos);
-
-  std::string persistent(name_);
-  persistent = persistent.append(1, kPersistentStringSeparator);
-  persistent = persistent.append(group_name_);
-  return persistent;
-}
-
-// static
-FieldTrial* FieldTrial::RestorePersistentString(const std::string &persistent) {
-  size_t split_point = persistent.find(kPersistentStringSeparator);
-  if (std::string::npos == split_point)
-    return NULL;  // Bogus string.
-  std::string new_name(persistent, 0, split_point);
-  std::string new_group_name(persistent, split_point + 1);
-  if (new_name.empty() || new_group_name.empty())
-    return NULL;  // Incomplete string.
-
-  FieldTrial *field_trial;
-  field_trial = FieldTrialList::Find(new_name);
-  if (field_trial) {
-    // In single process mode, we may have already created the field trial.
-    if (field_trial->group_name_ != new_group_name)
-      return NULL;  // Conflicting group name :-(.
-  } else {
-    const int kTotalProbability = 100;
-    field_trial = new FieldTrial(new_name, kTotalProbability);
-    field_trial->AppendGroup(new_group_name, kTotalProbability);
-  }
-  return field_trial;
 }
 
 //------------------------------------------------------------------------------
@@ -151,3 +120,58 @@ FieldTrial* FieldTrialList::PreLockedFind(const std::string& name) {
     return NULL;
   return it->second;
 }
+
+// static
+void FieldTrialList::StatesToString(std::string* output) {
+  if (!global_)
+    return;
+  DCHECK(output->empty());
+  for (RegistrationList::iterator it = global_->registered_.begin();
+       it != global_->registered_.end(); ++it) {
+    const std::string name = it->first;
+    const std::string group_name = it->second->group_name();
+    if (group_name.empty())
+      continue;  // No definitive winner in this trial.
+    DCHECK_EQ(name.find(kPersistentStringSeparator), std::string::npos);
+    DCHECK_EQ(group_name.find(kPersistentStringSeparator), std::string::npos);
+    output->append(name);
+    output->append(1, kPersistentStringSeparator);
+    output->append(group_name);
+    output->append(1, kPersistentStringSeparator);
+  }
+}
+
+// static
+bool FieldTrialList::StringAugmentsState(const std::string& prior_state) {
+  DCHECK(global_);
+  if (prior_state.empty() || !global_)
+    return true;
+
+  size_t next_item = 0;
+  while (next_item < prior_state.length()) {
+    size_t name_end = prior_state.find(kPersistentStringSeparator, next_item);
+    if (name_end == prior_state.npos || next_item == name_end)
+      return false;
+    size_t group_name_end = prior_state.find(kPersistentStringSeparator,
+                                             name_end + 1);
+    if (group_name_end == prior_state.npos || name_end + 1 == group_name_end)
+      return false;
+    std::string name(prior_state, next_item, name_end - next_item);
+    std::string group_name(prior_state, name_end + 1,
+                           group_name_end - name_end - 1);
+    next_item = group_name_end + 1;
+
+    FieldTrial *field_trial(FieldTrialList::Find(name));
+    if (field_trial) {
+      // In single process mode, we may have already created the field trial.
+      if (field_trial->group_name() != group_name)
+        return false;
+      continue;
+    }
+    const int kTotalProbability = 100;
+    field_trial = new FieldTrial(name, kTotalProbability);
+    field_trial->AppendGroup(group_name, kTotalProbability);
+  }
+  return true;
+}
+

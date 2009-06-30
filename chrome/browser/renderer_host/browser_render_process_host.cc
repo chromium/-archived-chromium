@@ -311,15 +311,14 @@ bool BrowserRenderProcessHost::Init() {
   const std::string locale = g_browser_process->GetApplicationLocale();
   cmd_line.AppendSwitchWithValue(switches::kLang, ASCIIToWide(locale));
 
-  // If we run a FieldTrial that we want to pass to the renderer, this is where
-  // the SINGULAR trial name and value should be specified.  Note that only one
-  // such flag should be passed/set in the renderer command line.
-
-  // Today we're watching the impact of DNS on some page load times.
-  FieldTrial* field_trial = FieldTrialList::Find("DnsImpact");
-  if (field_trial && (field_trial->group() != FieldTrial::kNotParticipating))
+  // If we run FieldTrials, we want to pass to their state to the renderer so
+  // that it can act in accordance with each state, or record histograms
+  // relating to the FieldTrial states.
+  std::string field_trial_states;
+  FieldTrialList::StatesToString(&field_trial_states);
+  if (!field_trial_states.empty())
     cmd_line.AppendSwitchWithValue(switches::kForceFieldTestNameAndValue,
-        ASCIIToWide(field_trial->MakePersistentString()));
+        ASCIIToWide(field_trial_states));
 
 #if defined(OS_POSIX)
   const bool has_cmd_prefix =

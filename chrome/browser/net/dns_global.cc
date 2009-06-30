@@ -581,11 +581,14 @@ DnsPrefetcherInit::DnsPrefetcherInit(PrefService* user_prefs,
   int parallel_4_prefetch = trial_->AppendGroup("_parallel_4_prefetch",
                                                 kProbabilityPerGroup);
   // Set congestion detection at 500ms, rather than the 1 second default.
-  int max_500ms_prefetch = trial_->AppendGroup("_max_500ms_prefetch_queue",
+  int max_500ms_prefetch = trial_->AppendGroup("_max_500ms_queue_prefetch",
                                                kProbabilityPerGroup);
   // Set congestion detection at 2 seconds instead of the 1 second default.
-  int max_2s_prefetch = trial_->AppendGroup("_max_2s_prefetch_queue",
+  int max_2s_prefetch = trial_->AppendGroup("_max_2s_queue_prefetch",
                                             kProbabilityPerGroup);
+
+  trial_->AppendGroup("_default_enabled_prefetch",
+      FieldTrial::kAllRemainingProbability);
 
   if (trial_->group() != disabled_prefetch) {
     // Initialize the DNS prefetch system.

@@ -1326,7 +1326,7 @@ void RenderView::DidReceiveTitle(WebView* webview,
 void RenderView::DidFinishLoadForFrame(WebView* webview, WebFrame* frame) {
   WebDataSource* ds = frame->GetDataSource();
   NavigationState* navigation_state = NavigationState::FromDataSource(ds);
-  // TODO(darin): It should not be possible for navigation_state to be null 
+  // TODO(darin): It should not be possible for navigation_state to be null
   // here!
   if (navigation_state)
     navigation_state->set_finish_load_time(Time::Now());
@@ -1344,7 +1344,7 @@ void RenderView::DidFinishDocumentLoadForFrame(WebView* webview,
                                                WebFrame* frame) {
   WebDataSource* ds = frame->GetDataSource();
   NavigationState* navigation_state = NavigationState::FromDataSource(ds);
-  // TODO(darin): It should not be possible for navigation_state to be null 
+  // TODO(darin): It should not be possible for navigation_state to be null
   // here!
   if (navigation_state)
     navigation_state->set_finish_document_load_time(Time::Now());
@@ -2894,10 +2894,28 @@ void RenderView::DumpLoadHistograms() const {
 
   UMA_HISTOGRAM_MEDIUM_TIMES("Renderer4.BeginToCommit", commit - begin);
   UMA_HISTOGRAM_MEDIUM_TIMES("Renderer4.BeginToFinishDoc", finish_doc - begin);
+
+  static const TimeDelta kBeginToFinishMin(TimeDelta::FromMilliseconds(10));
+  static const TimeDelta kBeginToFinishMax(TimeDelta::FromMinutes(10));
+  static const size_t kBeginToFinishBucketCount(100);
+
+  UMA_HISTOGRAM_CUSTOM_TIMES("Renderer4.BeginToFinish",
+      finish - begin, kBeginToFinishMin,
+      kBeginToFinishMax, kBeginToFinishBucketCount);
+
+  DCHECK(FieldTrialList::Find("DnsImpact") &&
+         !FieldTrialList::Find("DnsImpact")->group_name().empty());
   UMA_HISTOGRAM_CUSTOM_TIMES(
       FieldTrial::MakeName("Renderer4.BeginToFinish", "DnsImpact").data(),
-      finish - begin, TimeDelta::FromMilliseconds(10),
-      TimeDelta::FromMinutes(10), 100);
+      finish - begin, kBeginToFinishMin,
+      kBeginToFinishMax, kBeginToFinishBucketCount);
+
+  DCHECK(FieldTrialList::Find("GlobalSdch") &&
+         !FieldTrialList::Find("GlobalSdch")->group_name().empty());
+  UMA_HISTOGRAM_CUSTOM_TIMES(
+      FieldTrial::MakeName("Renderer4.BeginToFinish", "GlobalSdch").data(),
+      finish - begin, kBeginToFinishMin,
+      kBeginToFinishMax, kBeginToFinishBucketCount);
 
   UMA_HISTOGRAM_MEDIUM_TIMES("Renderer4.CommitToFinish", finish - commit);
 

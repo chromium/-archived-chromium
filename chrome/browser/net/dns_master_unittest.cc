@@ -285,7 +285,7 @@ TEST_F(DnsMasterTest, SingleLookupTest) {
   EXPECT_GT(testing_master->peak_pending_lookups(), names.size() / 2);
   EXPECT_LE(testing_master->peak_pending_lookups(), names.size());
   EXPECT_LE(testing_master->peak_pending_lookups(),
-            DnsPrefetcherInit::kMaxConcurrentLookups);
+            testing_master->max_concurrent_lookups());
 
   testing_master->Shutdown();
 }
@@ -340,7 +340,7 @@ TEST_F(DnsMasterTest, ConcurrentLookupTest) {
   EXPECT_GT(testing_master->peak_pending_lookups(), names.size() / 2);
   EXPECT_LE(testing_master->peak_pending_lookups(), names.size());
   EXPECT_LE(testing_master->peak_pending_lookups(),
-            DnsPrefetcherInit::kMaxConcurrentLookups);
+            testing_master->max_concurrent_lookups());
 
   testing_master->Shutdown();
 }
@@ -366,7 +366,7 @@ TEST_F(DnsMasterTest, DISABLED_MassiveConcurrentLookupTest) {
 
   EXPECT_LE(testing_master->peak_pending_lookups(), names.size());
   EXPECT_LE(testing_master->peak_pending_lookups(),
-            DnsPrefetcherInit::kMaxConcurrentLookups);
+            testing_master->max_concurrent_lookups());
 
   testing_master->Shutdown();
 }

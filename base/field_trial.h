@@ -72,14 +72,16 @@
 
 class FieldTrial : public base::RefCounted<FieldTrial> {
  public:
+  typedef int Probability;  // Probability type for being selected in a trial.
+
+  // A return value to indicate that a given instance has not yet had a group
+  // assignment (and hence is not yet participating in the trial).
   static const int kNotParticipating;
 
-  // Define a separator charactor to use when creating a persistent form of an
-  // instance.  This is intended for use as a command line argument, passed to a
-  // second process to mimic our state (i.e., provide the same group name).
-  static const char kPersistentStringSeparator;  // Currently a slash.
-
-  typedef int Probability;  // Use scaled up probability.
+  // Provide an easy way to assign all remaining probability to a group.  Note
+  // that this will force an instance to participate, and make it illegal to
+  // attempt to probabalistically add any other groups to the trial.
+  static const Probability kAllRemainingProbability;
 
   // The name is used to register the instance with the FieldTrialList class,
   // and can be used to find the trial (only one trial can be present for each
@@ -110,18 +112,6 @@ class FieldTrial : public base::RefCounted<FieldTrial> {
   // name of a HISTOGRAM.  Use the original histogram name as the name_prefix.
   static std::string MakeName(const std::string& name_prefix,
                               const std::string& trial_name);
-
-  // Create a persistent representation of the instance that could be resurected
-  // in another process.  This allows randomization to be done in one process,
-  // and secondary processes can by synchronized on the result.
-  // The resulting string contains only the name, the trial name, and a "/"
-  // separator.
-  std::string MakePersistentString() const;
-
-  // Using a string created by MakePersistentString(), construct a new instance
-  // that has the same state as the original instance.  Currently only the
-  // group_name_ and name_ are restored.
-  static FieldTrial* RestorePersistentString(const std::string &persistent);
 
  private:
   // The name of the field trial, as can be found via the FieldTrialList.
@@ -159,6 +149,11 @@ class FieldTrial : public base::RefCounted<FieldTrial> {
 // Only one instance of this class exists.
 class FieldTrialList {
  public:
+  // Define a separator charactor to use when creating a persistent form of an
+  // instance.  This is intended for use as a command line argument, passed to a
+  // second process to mimic our state (i.e., provide the same group name).
+  static const char kPersistentStringSeparator;  // Currently a slash.
+
   // This singleton holds the global list of registered FieldTrials.
   FieldTrialList();
   // Destructor Release()'s references to all registered FieldTrial instances.
@@ -176,6 +171,21 @@ class FieldTrialList {
 
   static std::string FindFullName(const std::string& name);
 
+  // Create a persistent representation of all FieldTrial instances for
+  // resurrection in another process.  This allows randomization to be done in
+  // one process, and secondary processes can by synchronized on the result.
+  // The resulting string contains only the names, the trial name, and a "/"
+  // separator.
+  static void StatesToString(std::string* output);
+
+  // Use a previously generated state string (re: StatesToString()) augment the
+  // current list of field tests to include the supplied tests, and using a 100%
+  // probability for each test, force them to have the same group string.  This
+  // is commonly used in a sub-process, to carry randomly selected state in a
+  // parent process into this sub-process.
+  //  Currently only the group_name_ and name_ are restored.
+  static bool StringAugmentsState(const std::string& prior_state);
+
   // The time of construction of the global map is recorded in a static variable
   // and is commonly used by experiments to identify the time since the start
   // of the application.  In some experiments it may be useful to discount
@@ -185,6 +195,7 @@ class FieldTrialList {
     if (global_)
       return global_->application_start_time_;
     // For testing purposes only, or when we don't yet have a start time.
+    // TODO(jar): Switch to TimeTicks
     return base::Time::Now();
   }
 
@@ -192,10 +203,14 @@ class FieldTrialList {
   // Helper function should be called only while holding lock_.
   FieldTrial* PreLockedFind(const std::string& name);
 
+  // A map from FieldTrial names to the actual instances.
   typedef std::map<std::string, FieldTrial*> RegistrationList;
 
   static FieldTrialList* global_;  // The singleton of this class.
 
+  // A helper value made availabel to users, that shows when the FieldTrialList
+  // was initialized.  Note that this is a singleton instance, and hence is a
+  // good approximation to the start of the process.
   base::Time application_start_time_;
 
   // Lock for access to registered_.
@@ -206,3 +221,4 @@ class FieldTrialList {
 };
 
 #endif  // BASE_FIELD_TRIAL_H_
+
