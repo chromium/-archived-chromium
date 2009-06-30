@@ -263,10 +263,12 @@ bool WebPluginDelegateImpl::WindowedCreatePlugin() {
     return false;
   }
 
-  // Xembed plugins need a window created for them browser-side.
-  // Do that now.
-  windowed_handle_ = plugin_->CreatePluginContainer();
-  window_.window = reinterpret_cast<void*>(windowed_handle_);
+  window_.window = reinterpret_cast<void*>(parent_);
+  // The remainder of the code expects windowed_handle_ to exist for
+  // windowed mode, despite not actually ever reaching through
+  // windowed_handle_.  It is still used as a token to represent "this
+  // plugin" in messages to the browser.
+  windowed_handle_ = parent_;
 
   if (!window_.ws_info)
     window_.ws_info = new NPSetWindowCallbackStruct;

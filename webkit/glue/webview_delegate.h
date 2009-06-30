@@ -133,10 +133,6 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
     return NULL;
   }
 
-  // Called when a windowed plugin is initializing, to request a container
-  // for the plugin.  Only used on Linux.
-  virtual gfx::PluginWindowHandle CreatePluginContainer() { return 0; }
-
   // Called when a windowed plugin is closing.
   // Lets the view delegate shut down anything it is using to wrap the plugin.
   virtual void WillDestroyPluginWindow(gfx::PluginWindowHandle handle) { }

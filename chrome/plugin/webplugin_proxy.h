@@ -37,11 +37,6 @@ class WebPluginProxy : public WebPlugin {
   ~WebPluginProxy();
 
   // WebPlugin overrides
-#if defined(OS_LINUX)
-  gfx::PluginWindowHandle CreatePluginContainer() {
-    return 0;  // Temporary empty stub while we restructure test_shell.
-  }
-#endif
   void SetWindow(gfx::PluginWindowHandle window);
   void WillDestroyWindow(gfx::PluginWindowHandle window);
 #if defined(OS_WIN)

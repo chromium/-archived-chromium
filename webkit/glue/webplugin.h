@@ -52,13 +52,6 @@ class WebPlugin {
   WebPlugin() { }
   virtual ~WebPlugin() { }
 
-#if defined(OS_LINUX)
-  // Called by the plugin delegate to request a container for a new
-  // windowed plugin.  This handle will later get destroyed with
-  // WillDestroyWindow.
-  virtual gfx::PluginWindowHandle CreatePluginContainer() = 0;
-#endif
-
   // Called by the plugin delegate to let the WebPlugin know if the plugin is
   // windowed (i.e. handle is not NULL) or windowless (handle is NULL).  This
   // tells the WebPlugin to send mouse/keyboard events to the plugin delegate,
