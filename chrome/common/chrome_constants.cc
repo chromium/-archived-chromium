@@ -76,6 +76,7 @@ const FilePath::CharType kHistoryBookmarksFileName[] =
     FPL("Bookmarks From History");
 const FilePath::CharType kCustomDictionaryFileName[] =
     FPL("Custom Dictionary.txt");
+const FilePath::CharType kLoginDataFileName[] = FPL("Login Data");
 
 // This number used to be limited to 32 in the past (see b/535234).
 const unsigned int kMaxRendererProcessCount = 42;

@@ -8,13 +8,15 @@
 #include "base/scoped_ptr.h"
 #include "chrome/browser/password_manager/password_store.h"
 
+class LoginDatabaseMac;
 class MacKeychain;
 
 class PasswordStoreMac : public PasswordStore {
  public:
-  // Takes ownership of |keychain|, which must not be NULL.
-  explicit PasswordStoreMac(MacKeychain* keychain);
-  virtual ~PasswordStoreMac() {}
+  // Takes ownership of |keychain| and |login_db|, both of which must be
+  // non-NULL.
+  PasswordStoreMac(MacKeychain* keychain, LoginDatabaseMac* login_db);
+  virtual ~PasswordStoreMac();
 
  private:
   void AddLoginImpl(const webkit_glue::PasswordForm& form);
@@ -23,6 +25,7 @@ class PasswordStoreMac : public PasswordStore {
   void GetLoginsImpl(GetLoginsRequest* request);
 
   scoped_ptr<MacKeychain> keychain_;
+  scoped_ptr<LoginDatabaseMac> login_metadata_db_;
 
   DISALLOW_COPY_AND_ASSIGN(PasswordStoreMac);
 };

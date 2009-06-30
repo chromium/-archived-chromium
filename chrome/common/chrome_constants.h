@@ -43,6 +43,7 @@ extern const FilePath::CharType kWebDataFilename[];
 extern const FilePath::CharType kBookmarksFileName[];
 extern const FilePath::CharType kHistoryBookmarksFileName[];
 extern const FilePath::CharType kCustomDictionaryFileName[];
+extern const FilePath::CharType kLoginDataFileName[];
 
 extern const unsigned int kMaxRendererProcessCount;
 extern const int kStatsMaxThreads;
