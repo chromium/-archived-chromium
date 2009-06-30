@@ -1276,7 +1276,7 @@ ResourceDispatcherHost::ExtraRequestInfo*
 ResourceDispatcherHost::ExtraInfoForRequest(URLRequest* request) {
   // Avoid writing this function twice by casting the cosnt version.
   const URLRequest* const_request = request;
-  return const_cast<ExtraRequestInfo*>(ExtraRequestForRequest(const_request));
+  return const_cast<ExtraRequestInfo*>(ExtraInfoForRequest(const_request));
 }
 
 // static
