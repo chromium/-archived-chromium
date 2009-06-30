@@ -371,7 +371,6 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
       OpenURL(params_.link_url, OFF_THE_RECORD, PageTransition::LINK);
       break;
 
-    // TODO(paulg): Prompt the user for file name when saving links and images.
     case IDS_CONTENT_CONTEXT_SAVEIMAGEAS:
     case IDS_CONTENT_CONTEXT_SAVELINKAS: {
       const GURL& referrer =

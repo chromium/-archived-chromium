@@ -635,7 +635,6 @@ void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
   DCHECK(info);
 
   if (info->save_as) {
-#if defined(OS_WIN) || defined(OS_LINUX)
     // We must ask the user for the place to put the download.
     if (!select_file_dialog_.get())
       select_file_dialog_ = SelectFileDialog::Create(this);
@@ -655,10 +654,6 @@ void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
                                     info->suggested_path,
                                     &file_type_info, 0, FILE_PATH_LITERAL(""),
                                     owning_window, info);
-#elif defined(OS_MACOSX)
-    // TODO(port): port this file -- need dialogs.
-    NOTIMPLEMENTED();
-#endif
   } else {
     // No prompting for download, just continue with the suggested name.
     ContinueStartDownload(info, info->suggested_path);
