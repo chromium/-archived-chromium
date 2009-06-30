@@ -59,8 +59,10 @@
 class NPPluginProxy;
 
 // Class implementing an ActiveX control for containing NPAPI plugin-objects.
+// This needs to be CComMultiThreadModel because these objects are concurrently
+// AddRefed and Released from StreamOperation threads.
 class ATL_NO_VTABLE CHostControl
-    : public CComObjectRootEx<CComSingleThreadModel>,
+    : public CComObjectRootEx<CComMultiThreadModel>,
       public CComCoClass<CHostControl, &CLSID_HostControl>,
       public CComControl<CHostControl>,
       // IMPORTANT IMPLEMENTATION NOTE:
