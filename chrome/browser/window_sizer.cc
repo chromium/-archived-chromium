@@ -254,6 +254,15 @@ void WindowSizer::AdjustBoundsToBeVisibleOnMonitorContaining(
   bounds->set_height(std::max(kMinVisibleHeight, bounds->height()));
   bounds->set_width(std::max(kMinVisibleWidth, bounds->width()));
 
+#if defined(OS_MACOSX)
+  // Limit the maximum height.  On the Mac the sizer is on the
+  // bottom-right of the window, and a window cannot be moved "up"
+  // past the menubar.  If the window is too tall you'll never be able
+  // to shrink it again.  Windows does not have this limitation
+  // (e.g. can be resized from the top).
+  bounds->set_height(std::min(work_area.height(), bounds->height()));
+#endif  // defined(OS_MACOSX)
+
   // Ensure at least kMinVisibleWidth * kMinVisibleHeight is visible.
   const int min_y = work_area.y() + kMinVisibleHeight - bounds->height();
   const int min_x = work_area.x() + kMinVisibleWidth - bounds->width();

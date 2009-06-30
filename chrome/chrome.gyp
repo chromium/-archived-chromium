@@ -3731,7 +3731,6 @@
             'browser/views/bookmark_editor_view_unittest.cc',
             'browser/views/find_bar_win_unittest.cc',
             'browser/views/keyword_editor_view_unittest.cc',
-            'browser/window_sizer_unittest.cc',
             'common/chrome_plugin_unittest.cc',
             'common/gfx/emf_unittest.cc',
             'common/net/url_util_unittest.cc',
