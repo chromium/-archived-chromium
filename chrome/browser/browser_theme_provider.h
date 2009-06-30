@@ -165,7 +165,8 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
   void FreePlatformImages();
 
   // Cached images. We cache all retrieved and generated bitmaps and keep
-  // track of the pointers.
+  // track of the pointers. We own these and will delete them when we're done
+  // using them.
   typedef std::map<int, SkBitmap*> ImageCache;
   ImageCache image_cache_;
 #if defined(OS_LINUX) && !defined(TOOLKIT_VIEWS)
@@ -175,10 +176,6 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
   typedef std::map<int, NSImage*> NSImageMap;
   NSImageMap nsimage_cache_;
 #endif
-
-  // List of generate images that aren't stored in ResourceBundles image cache
-  // and need to be freed.
-  std::vector<SkBitmap*> generated_images_;
 
   ResourceBundle& rb_;
   Profile* profile_;

@@ -166,7 +166,7 @@ SkBitmap* BrowserThemeProvider::GetBitmapNamed(int id) {
 
   // If we still don't have an image, load it from resourcebundle.
   if (!result.get())
-    result.reset(rb_.GetBitmapNamed(id));
+    result.reset(new SkBitmap(*rb_.GetBitmapNamed(id)));
 
   if (result.get()) {
     // If the requested image is part of the toolbar button set, and we have
@@ -566,7 +566,7 @@ void BrowserThemeProvider::GenerateFrameImages() {
   std::map<const int, int>::iterator iter = frame_tints_.begin();
   while (iter != frame_tints_.end()) {
     int id = iter->first;
-    SkBitmap* frame;
+    scoped_ptr<SkBitmap> frame;
     // If there's no frame image provided for the specified id, then load
     // the default provided frame. If that's not provided, skip this whole
     // thing and just use the default images.
@@ -575,18 +575,18 @@ void BrowserThemeProvider::GenerateFrameImages() {
         IDR_THEME_FRAME_INCOGNITO : IDR_THEME_FRAME;
 
     if (images_.find(id) != images_.end()) {
-      frame = LoadThemeBitmap(id);
+      frame.reset(LoadThemeBitmap(id));
     } else if (base_id != id && images_.find(base_id) != images_.end()) {
-      frame = LoadThemeBitmap(base_id);
+      frame.reset(LoadThemeBitmap(base_id));
     } else {
       // If the theme doesn't specify an image, then apply the tint to
       // the default frame. Note that the default theme provides default
       // bitmaps for all frame types, so this isn't strictly necessary
       // in the case where no tint is provided either.
-      frame = rb_.GetBitmapNamed(IDR_THEME_FRAME);
+      frame.reset(new SkBitmap(*rb_.GetBitmapNamed(IDR_THEME_FRAME)));
     }
 
-    if (frame) {
+    if (frame.get()) {
       SkBitmap* tinted = new SkBitmap(TintBitmap(*frame, iter->second));
       image_cache_[id] = tinted;
     }
@@ -611,7 +611,6 @@ SkBitmap* BrowserThemeProvider::GenerateBitmap(int id) {
           skia::ImageOperations::CreateBlurredBitmap(*frame, 5);
       SkBitmap* bg_tab =
           new SkBitmap(TintBitmap(blurred, TINT_BACKGROUND_TAB));
-      generated_images_.push_back(bg_tab);
       return bg_tab;
     }
   }
@@ -733,11 +732,10 @@ SkColor BrowserThemeProvider::FindColor(const char* id,
 
 void BrowserThemeProvider::FreeImages() {
   FreePlatformImages();
-  for (std::vector<SkBitmap*>::iterator i = generated_images_.begin();
-       i != generated_images_.end(); i++) {
-    delete *i;
+  for (ImageCache::iterator i = image_cache_.begin();
+       i != image_cache_.end(); i++) {
+    delete i->second;
   }
-  generated_images_.clear();
   image_cache_.clear();
 }
 
