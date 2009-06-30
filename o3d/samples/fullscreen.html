@@ -58,6 +58,7 @@ o3djs.require('o3djs.primitives');
 // Events
 // init() once the page has finished loading.
 window.onload = init;
+window.onunload = uninit;
 
 // global variables
 var g_o3d;
@@ -307,12 +308,30 @@ function getFullscreenModeId() {
   }
 }
 
+var timeoutId;
 function handleResizeEvent(event) {
   // Only show the fullscreen banner if we're in plugin mode.
   g_orthoRoot.visible = !event.fullscreen &&
     document.getElementById("show_banner").checked;
 
   setupCamera(g_teapotRoot);
+
+  // Set a timer to pop us back out of full-screen mode, just to show how easy
+  // it is to cancel.  You need a user action [a mouse click] to get into
+  // full-screen mode, but you can revert back to a plugin without asking.
+  if (event.fullscreen &&
+      document.getElementById("cancel_fullscreen").checked) {
+    timeoutId = setTimeout(
+        function () {
+          g_client.cancelFullscreenDisplay()
+        },
+        5000);
+  } else {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+  }
 }
 
 function updateBanner() {
@@ -327,6 +346,13 @@ function updateBanner() {
   }
 }
 
+function uninit() {
+  if (timeoutId) {
+    clearTimeout(timeoutId);
+    timeoutId = null;
+  }
+}
+
 </script>
 </head>
 <body>
@@ -334,11 +360,17 @@ function updateBanner() {
 This tutorial shows how to toggle between plugin and full-screen display.
 <p>It's built on top of helloworld.html; diff the two to see what changes were
 necessary.
+<p>Shortly after transitioning to full-screen mode, the teapot will
+automatically revert back to plugin mode, to demonstrate how programs can cancel
+full-screen mode on demand.
 <br/>
 <!-- Start of O3D plugin -->
 <div id="o3d" style="width: 600px; height: 600px;"></div>
 <!-- End of O3D plugin -->
 <input type="checkbox" id="show_banner" checked onclick=updateBanner()>
 Show full-screen banner when not full-screen.</input>
+<br>
+<input type="checkbox" id="cancel_fullscreen" checked>
+Revert back to plugin mode automatically after a few seconds of full-screen mode.</input>
 </body>
 </html>
