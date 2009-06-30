@@ -25,7 +25,7 @@ using WebKit::WebString;
 #elif defined(OS_MACOSX)
 #define TEST_PLUGIN_NAME "npapi_test_plugin.bundle"
 #elif defined(OS_LINUX)
-#define TEST_PLUGIN_NAME "npapi_test_plugin.so"
+#define TEST_PLUGIN_NAME "libnpapi_test_plugin.so"
 #endif
 
 // Provides functionality for creating plugin tests.

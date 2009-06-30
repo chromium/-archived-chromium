@@ -504,8 +504,6 @@
           'sources!': [
              # TODO(port)
             '../../../skia/ext/platform_canvas_unittest.cc',
-            '../../glue/webplugin_impl_unittest.cc',
-            'plugin_tests.cc'
           ],
         }],
         ['OS=="mac"', {
