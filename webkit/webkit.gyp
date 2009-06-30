@@ -1665,6 +1665,8 @@
         '../third_party/WebKit/WebCore/html/CollectionType.h',
         '../third_party/WebKit/WebCore/html/DataGridColumn.cpp',
         '../third_party/WebKit/WebCore/html/DataGridColumn.h',
+        '../third_party/WebKit/WebCore/html/DOMDataGridDataSource.cpp',
+        '../third_party/WebKit/WebCore/html/DOMDataGridDataSource.h',
         '../third_party/WebKit/WebCore/html/DataGridColumnList.cpp',
         '../third_party/WebKit/WebCore/html/DataGridColumnList.h',
         '../third_party/WebKit/WebCore/html/File.cpp',
