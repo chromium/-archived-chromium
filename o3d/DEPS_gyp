@@ -3,7 +3,7 @@ vars = {
     "http://src.chromium.org/svn/trunk",
   "nixysa_rev": "25",
   "chromium_rev": "19057",
-  "o3d_code_rev": "85",
+  "o3d_code_rev": "86",
 }
 
 deps = {
@@ -27,6 +27,9 @@ deps = {
 
   "third_party/java":
     "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/java@" + Var("o3d_code_rev"),
+
+  "third_party/jsdoctoolkit":
+    "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/jsdoctoolkit@" + Var("o3d_code_rev"),
 
   "third_party/pdiff":
     "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/pdiff@" + Var("o3d_code_rev"),
@@ -107,9 +110,6 @@ deps = {
   "testing/gmock":
     Var("chromium_trunk") + "/src/testing/gmock@" + Var("chromium_rev"),
 #    "http://googlemock.googlecode.com/svn/tags/release-1.0.0",
-
-  "third_party/jsdoctoolkit/files":
-    "http://jsdoc-toolkit.googlecode.com/svn/tags/jsdoc_toolkit-2.1.0/jsdoc-toolkit",
 
   # Stuff needed for GYP to run
   "build":
