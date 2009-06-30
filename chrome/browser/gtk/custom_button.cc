@@ -45,7 +45,15 @@ gboolean CustomDrawButtonBase::OnExpose(GtkWidget* widget, GdkEventExpose* e) {
 
   cairo_t* cairo_context = gdk_cairo_create(GDK_DRAWABLE(widget->window));
   cairo_translate(cairo_context, widget->allocation.x, widget->allocation.y);
-  gdk_cairo_set_source_pixbuf(cairo_context, pixbuf, 0, 0);
+
+  // The widget might be larger than the pixbuf. Paint the pixbuf flush with the
+  // start of the widget (left for LTR, right for RTL).
+  int pixbuf_width = gdk_pixbuf_get_width(pixbuf);
+  int widget_width = widget->allocation.width;
+  int x = gtk_widget_get_direction(widget) == GTK_TEXT_DIR_RTL ?
+      widget_width - pixbuf_width : 0;
+
+  gdk_cairo_set_source_pixbuf(cairo_context, pixbuf, x, 0);
   cairo_paint(cairo_context);
   cairo_destroy(cairo_context);
 

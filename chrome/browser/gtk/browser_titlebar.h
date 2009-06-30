@@ -85,6 +85,12 @@ class BrowserTitlebar : public MenuGtk::Delegate {
   // Whether we are using a custom frame.
   bool using_custom_frame_;
 
+  // The normal width of the close button (the width it appears to the user)
+  // which is determined by the width of the bitmap we use to paint it. Its
+  // actual clickable width may differ if we are showing a custom frame and the
+  // window is maximized.
+  int close_button_default_width_;
+
   // Maximize and restore widgets in the titlebar.
   scoped_ptr<CustomDrawButton> minimize_button_;
   scoped_ptr<CustomDrawButton> maximize_button_;

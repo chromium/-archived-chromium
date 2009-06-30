@@ -41,6 +41,11 @@ const int kOTRBottomSpacing = 2;
 // it on the left, and between it and the tabstrip on the right).
 const int kOTRSideSpacing = 2;
 
+// The thickness of the custom frame border; we need it here to enlarge the
+// close button whent the custom frame border isn't showing but the custom
+// titlebar is showing.
+const int kFrameBorderThickness = 4;
+
 gboolean OnMouseMoveEvent(GtkWidget* widget, GdkEventMotion* event,
                           BrowserWindowGtk* browser_window) {
   // Reset to the default mouse cursor.
@@ -124,6 +129,10 @@ void BrowserTitlebar::Init() {
                          IDR_MINIMIZE_H, buttons_hbox,
                          IDS_XPFRAME_MINIMIZE_TOOLTIP));
 
+  GtkRequisition req;
+  gtk_widget_size_request(close_button_->widget(), &req);
+  close_button_default_width_ = req.width;
+
   gtk_box_pack_end(GTK_BOX(container_), titlebar_buttons_box_, FALSE,
                    FALSE, 0);
 
@@ -162,6 +171,11 @@ void BrowserTitlebar::UpdateTitlebarAlignment() {
   } else {
     gtk_alignment_set_padding(GTK_ALIGNMENT(titlebar_alignment_), 0, 0, 0, 0);
   }
+
+  int close_button_width = close_button_default_width_;
+  if (using_custom_frame_ && browser_window_->IsMaximized())
+    close_button_width += kFrameBorderThickness;
+  gtk_widget_set_size_request(close_button_->widget(), close_button_width, -1);
 }
 
 // static

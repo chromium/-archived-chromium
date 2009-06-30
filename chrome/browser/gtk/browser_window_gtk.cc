@@ -415,7 +415,6 @@ gboolean BrowserWindowGtk::OnCustomFrameExpose(GtkWidget* widget,
   }
 
   // Draw the default background.
-  // TODO(tc): Handle maximized windows.
   cairo_t* cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
   cairo_rectangle(cr, event->area.x, event->area.y, event->area.width,
                   event->area.height);
@@ -432,7 +431,7 @@ gboolean BrowserWindowGtk::OnCustomFrameExpose(GtkWidget* widget,
   //   canvas->DrawBitmapInt(*theme_overlay, 0, 0);
   // }
 
-  if (window->use_custom_frame_.GetValue()) {
+  if (window->use_custom_frame_.GetValue() && !window->IsMaximized()) {
     if (!custom_frame_border) {
       custom_frame_border = new NineBox(
           theme_provider,
@@ -1068,9 +1067,12 @@ void BrowserWindowGtk::UpdateWindowShape(int width, int height) {
     gdk_region_union_with_rect(mask, &bot_rect);
     gdk_window_shape_combine_region(GTK_WIDGET(window_)->window, mask, 0, 0);
     gdk_region_destroy(mask);
+    gtk_alignment_set_padding(GTK_ALIGNMENT(window_container_), 1,
+        kFrameBorderThickness, kFrameBorderThickness, kFrameBorderThickness);
   } else {
     // Disable rounded corners.
     gdk_window_shape_combine_region(GTK_WIDGET(window_)->window, NULL, 0, 0);
+    gtk_alignment_set_padding(GTK_ALIGNMENT(window_container_), 0, 0, 0, 0);
   }
 }
 
@@ -1095,12 +1097,6 @@ void BrowserWindowGtk::UpdateCustomFrame() {
   gtk_window_set_decorated(window_, !enable);
   titlebar_->UpdateCustomFrame(enable);
   UpdateWindowShape(bounds_.width(), bounds_.height());
-  if (enable) {
-    gtk_alignment_set_padding(GTK_ALIGNMENT(window_container_), 1,
-        kFrameBorderThickness, kFrameBorderThickness, kFrameBorderThickness);
-  } else {
-    gtk_alignment_set_padding(GTK_ALIGNMENT(window_container_), 0, 0, 0, 0);
-  }
 }
 
 void BrowserWindowGtk::SaveWindowPosition() {
