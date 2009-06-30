@@ -341,6 +341,10 @@ if env.Bit('mac'):
 
 
   if make_installer:
+    env.ReplaceStrings(
+      "$ARTIFACTS_DIR/postflight.sh", '$MAC_INSTALLER_DIR/postflight.sh',
+      REPLACE_STRINGS = plugin_replace_strings
+    )
     if int(ARGUMENTS.get('MAC_KILLSWITCH', 0)):
       kill_command = 'rm "$ARTIFACTS_DIR/O3D.plugin/Contents/MacOS/o3d"'
     else:
@@ -357,8 +361,6 @@ if env.Bit('mac'):
                 # and so work on debug or release builds without change.
                 Copy("$ARTIFACTS_DIR/$MAC_INSTALLER_PROJECT",
                      '$MAC_INSTALLER_DIR/$MAC_INSTALLER_PROJECT'),
-                Copy("$ARTIFACTS_DIR/postflight.sh",
-                     '$MAC_INSTALLER_DIR/postflight.sh'),
                 'ditto  "$MAC_INSTALLER_DIR/GoogleSoftwareUpdate.pkg" "$ARTIFACTS_DIR/GoogleSoftwareUpdate.pkg"',
                 # Make the installer.
                 kill_command,
