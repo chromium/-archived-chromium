@@ -1189,6 +1189,30 @@ TEST(HttpCache, RangeGET_SkipsCache) {
   EXPECT_EQ(0, cache.disk_cache()->create_count());
 }
 
+TEST(HttpCache, GET_Crazy206) {
+  MockHttpCache cache;
+  AddMockTransaction(&kRangeGET_TransactionOK);
+
+  // Test that receiving 206 for a regular request is handled correctly.
+
+  // Write to the cache.
+  MockTransaction transaction(kRangeGET_TransactionOK);
+  transaction.request_headers = "";
+  RunTransactionTest(cache.http_cache(), transaction);
+
+  EXPECT_EQ(1, cache.network_layer()->transaction_count());
+  EXPECT_EQ(0, cache.disk_cache()->open_count());
+  EXPECT_EQ(1, cache.disk_cache()->create_count());
+
+  // This should read again from the net.
+  RunTransactionTest(cache.http_cache(), transaction);
+
+  EXPECT_EQ(2, cache.network_layer()->transaction_count());
+  EXPECT_EQ(1, cache.disk_cache()->open_count());
+  EXPECT_EQ(1, cache.disk_cache()->create_count());
+  RemoveMockTransaction(&kRangeGET_TransactionOK);
+}
+
 TEST(HttpCache, DISABLED_RangeGET_OK) {
   MockHttpCache cache;
   AddMockTransaction(&kRangeGET_TransactionOK);

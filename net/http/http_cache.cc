@@ -780,6 +780,10 @@ int HttpCache::Transaction::BeginPartialCacheValidation() {
   if (response_.headers->response_code() != 206)
     return BeginCacheValidation();
 
+#if !defined(ENABLE_RANGE_SUPPORT)
+  return BeginCacheValidation();
+#endif
+
   if (!partial_.get()) {
     // The request is not for a range, but we have stored just ranges.
     // TODO(rvargas): Add support for this case.
@@ -888,6 +892,12 @@ bool HttpCache::Transaction::RequiresValidation() {
 
 bool HttpCache::Transaction::ConditionalizeRequest() {
   DCHECK(response_.headers);
+
+#if !defined(ENABLE_RANGE_SUPPORT)
+  // This only makes sense for cached 200 responses.
+  if (response_.headers->response_code() != 200)
+    return false;
+#endif
 
   // This only makes sense for cached 200 or 206 responses.
   if (response_.headers->response_code() != 200 &&
