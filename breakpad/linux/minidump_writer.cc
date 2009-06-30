@@ -60,6 +60,7 @@
 #include "google_breakpad/common/minidump_cpu_x86.h"
 
 #include "breakpad/linux/exception_handler.h"
+#include "breakpad/linux/line_reader.h"
 #include "breakpad/linux/linux_dumper.h"
 #include "breakpad/linux/linux_libc_support.h"
 #include "breakpad/linux/linux_syscall_support.h"
@@ -651,37 +652,39 @@ class MinidumpWriter {
 #error "Unknown CPU arch"
 #endif
 
-    static const char proc_cpu_path[] = "/proc/cpuinfo";
-    FILE* fp = fopen(proc_cpu_path, "r");
-    if (!fp)
+    const int fd = sys_open("/proc/cpuinfo", O_RDONLY, 0);
+    if (fd < 0)
       return false;
 
     {
-      char line[128];
-      while (fgets(line, sizeof(line), fp)) {
+      PageAllocator allocator;
+      LineReader* const line_reader = new(allocator) LineReader(fd);
+      const char* line;
+      unsigned line_len;
+      while (line_reader->GetNextLine(&line, &line_len)) {
         for (size_t i = 0;
              i < sizeof(cpu_info_table) / sizeof(cpu_info_table[0]);
              i++) {
           CpuInfoEntry* entry = &cpu_info_table[i];
           if (entry->found)
-            continue;
+            goto popline;
           if (!strncmp(line, entry->info_name, strlen(entry->info_name))) {
             char* value = strchr(line, ':');
             if (!value)
-              continue;
+              goto popline;
 
             // the above strncmp only matches the prefix, it might be the wrong
             // line. i.e. we matched "model name" instead of "model".
             // check and make sure there is only spaces between the prefix and
             // the colon.
-            char* space_ptr = line + strlen(entry->info_name);
+            const char* space_ptr = line + strlen(entry->info_name);
             for (; space_ptr < value; space_ptr++) {
               if (!isspace(*space_ptr)) {
                 break;
               }
             }
             if (space_ptr != value)
-              continue;
+              goto popline;
 
             sscanf(++value, " %d", &(entry->value));
             entry->found = true;
@@ -692,7 +695,7 @@ class MinidumpWriter {
         if (!strncmp(line, vendor_id_name, vendor_id_name_length)) {
           char* value = strchr(line, ':');
           if (!value)
-            continue;
+            goto popline;
 
           // skip ':" and all the spaces that follows
           do {
@@ -702,7 +705,7 @@ class MinidumpWriter {
           if (*value) {
             size_t length = strlen(value);
             if (length == 0)
-              continue;
+              goto popline;
             // we don't want the trailing newline
             if (value[length - 1] == '\n')
               length--;
@@ -711,8 +714,11 @@ class MinidumpWriter {
               strncpy(vendor_id, value, length);
           }
         }
+
+popline:
+        line_reader->PopLine(line_len);
       }
-      fclose(fp);
+      sys_close(fd);
     }
 
     // make sure we got everything we wanted
