@@ -35,6 +35,7 @@ class WebDragSource : public BaseDragSource {
 
  protected:
   // BaseDragSource
+  virtual void OnDragSourceCancel();
   virtual void OnDragSourceDrop();
   virtual void OnDragSourceMove();
 

@@ -39,6 +39,14 @@ WebDragSource::WebDragSource(gfx::NativeWindow source_wnd,
       render_view_host_(render_view_host) {
 }
 
+void WebDragSource::OnDragSourceCancel() {
+  gfx::Point client;
+  gfx::Point screen;
+  GetCursorPositions(source_wnd_, &client, &screen);
+  render_view_host_->DragSourceEndedAt(client.x(), client.y(),
+                                       screen.x(), screen.y());
+}
+
 void WebDragSource::OnDragSourceDrop() {
   gfx::Point client;
   gfx::Point screen;
