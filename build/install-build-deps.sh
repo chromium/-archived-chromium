@@ -8,6 +8,15 @@ install_gold() {
   # Gold is optional; it's a faster replacement for ld,
   # and makes life on 2GB machines much more pleasant.
 
+  # First make sure root can access this directory, as that's tripped up some folks.
+  if sudo touch xyz.$$
+  then
+    sudo rm xyz.$$
+  else
+    echo root cannot write to the current directory, not installing gold
+    return
+  fi
+
   BINUTILS=binutils-2.19.1
   BINUTILS_URL=http://ftp.gnu.org/gnu/binutils/$BINUTILS.tar.bz2
   BINUTILS_SHA1=88c91e36cde93433e4c4c2b2e3417777aad84526
@@ -46,16 +55,19 @@ __EOF__
   patch -p1 < ../binutils-fix.patch
   ./configure --prefix=/usr/local/gold --enable-gold
   make -j3
-  sudo make install
-
-  # Still need to figure out graceful way of pointing gyp to use 
-  # /usr/local/gold/bin/ld without requiring him to set environment
-  # variables.  That will go into bootstrap-linux.sh when it's ready.
-  echo "Installing gold as /usr/bin/ld."
-  echo "To uninstall, do 'cd /usr/bin; sudo rm ld; sudo mv ld.orig ld'"
-  test -f /usr/bin/ld && sudo mv /usr/bin/ld /usr/bin/ld.orig
-  sudo ln -fs /usr/local/gold/bin/ld /usr/bin/ld.gold
-  sudo ln -fs /usr/bin/ld.gold /usr/bin/ld
+  if sudo make install
+  then
+    # Still need to figure out graceful way of pointing gyp to use
+    # /usr/local/gold/bin/ld without requiring him to set environment
+    # variables.  That will go into bootstrap-linux.sh when it's ready.
+    echo "Installing gold as /usr/bin/ld."
+    echo "To uninstall, do 'cd /usr/bin; sudo rm ld; sudo mv ld.orig ld'"
+    test -f /usr/bin/ld && sudo mv /usr/bin/ld /usr/bin/ld.orig
+    sudo ln -fs /usr/local/gold/bin/ld /usr/bin/ld.gold
+    sudo ln -fs /usr/bin/ld.gold /usr/bin/ld
+  else
+    echo "make install failed, not installing gold"
+  fi
 }
 
 if ! egrep -q "Ubuntu 8.04|Ubuntu 8.10|Ubuntu 9.04" /etc/issue; then
@@ -216,7 +228,7 @@ if [ "$(uname -m)" = x86_64 ]; then
 	Dir::State::Lists "${tmp}/apt/lists/";
 	Dir::State::status "${tmp}/status";
 	EOF
-  
+
   # Download 32bit packages
   echo "Computing list of available 32bit packages..."
   apt-get -c="${tmp}/apt/apt.conf" update
