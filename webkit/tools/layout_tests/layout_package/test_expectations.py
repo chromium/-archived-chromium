@@ -455,7 +455,8 @@ class TestExpectationsFile:
             'test times out indefinitely, the it should be listed as timeout.',
             test_and_expectations)
 
-      full_path = os.path.join(path_utils.LayoutDataDir(), test_list_path)
+      full_path = os.path.join(path_utils.LayoutTestsDir(test_list_path),
+                               test_list_path)
       full_path = os.path.normpath(full_path)
       # WebKit's way of skipping tests is to add a -disabled suffix.
       # So we should consider the path existing if the path or the -disabled
@@ -504,7 +505,8 @@ class TestExpectationsFile:
   def _ExpandTests(self, test_list_path):
     # Convert the test specification to an absolute, normalized
     # path and make sure directories end with the OS path separator.
-    path = os.path.join(path_utils.LayoutDataDir(), test_list_path)
+    path = os.path.join(path_utils.LayoutTestsDir(test_list_path),
+                        test_list_path)
     path = os.path.normpath(path)
     if os.path.isdir(path): path = os.path.join(path, '')
     # This is kind of slow - O(n*m) - since this is called for all

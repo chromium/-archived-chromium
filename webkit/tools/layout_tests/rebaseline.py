@@ -667,7 +667,7 @@ class HtmlGenerator(object):
           rows.append(self.HTML_TR % row)
 
     if rows:
-      test_path = os.path.join(path_utils.LayoutDataDir(), test)
+      test_path = os.path.join(path_utils.LayoutTestsDir(), test)
       html = self.HTML_TR_TEST % (path_utils.FilenameToUri(test_path), test)
       html += self.HTML_TEST_DETAIL % ' '.join(rows)
 

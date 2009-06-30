@@ -48,7 +48,7 @@ class CompareFailuresUnittest(unittest.TestCase):
 
     # Test force generation of new baseline files with a new failure and one
     # less passing.
-    pass_file = os.path.join(path_utils.LayoutDataDir(), 'fast', 'pass1.html')
+    pass_file = os.path.join(path_utils.LayoutTestsDir(), 'fast', 'pass1.html')
     failures[pass_file] = [test_failures.FailureTextMismatch(None)]
 
     cf = compare_failures.CompareFailures(self.GetTestFiles(), failures,
@@ -65,7 +65,7 @@ class CompareFailuresUnittest(unittest.TestCase):
 
     # Test case where we don't update new baseline.  We have a new failure,
     # but it shouldn't be added to the expected-failures.txt file.
-    pass_file = os.path.join(path_utils.LayoutDataDir(), 'fast', 'pass1.html')
+    pass_file = os.path.join(path_utils.LayoutTestsDir(), 'fast', 'pass1.html')
     failures[pass_file] = [test_failures.FailureTextMismatch(None)]
     self.CheckNoChanges(failures)
 
@@ -80,7 +80,7 @@ class CompareFailuresUnittest(unittest.TestCase):
 
     # Test case where we don't update new baseline.  A failure moving to a
     # crash shouldn't be added to the expected-crashes.txt file.
-    failure_file = os.path.join(path_utils.LayoutDataDir(),
+    failure_file = os.path.join(path_utils.LayoutTestsDir(),
                                 'fast', 'foo', 'fail1.html')
     failures[failure_file] = [test_failures.FailureCrash()]
     self.CheckNoChanges(failures)
@@ -91,7 +91,7 @@ class CompareFailuresUnittest(unittest.TestCase):
 
     # Remove one of the failing test cases from the failures dictionary.  This
     # makes failure_file considered to be passing.
-    failure_file = os.path.join(path_utils.LayoutDataDir(),
+    failure_file = os.path.join(path_utils.LayoutTestsDir(),
                                 'fast', 'bar', 'fail2.html')
     del failures[failure_file]
 
@@ -107,7 +107,7 @@ class CompareFailuresUnittest(unittest.TestCase):
     """This is better than before, so we update the crashes file."""
     failures = self.GetTestFailures()
 
-    crash_file = os.path.join(path_utils.LayoutDataDir(),
+    crash_file = os.path.join(path_utils.LayoutTestsDir(),
                               'fast', 'bar', 'betz', 'crash3.html')
     del failures[crash_file]
     cf = compare_failures.CompareFailures(self.GetTestFiles(), failures,
@@ -122,7 +122,7 @@ class CompareFailuresUnittest(unittest.TestCase):
     """This is better than before, so we should update both lists."""
     failures = self.GetTestFailures()
 
-    crash_file = os.path.join(path_utils.LayoutDataDir(),
+    crash_file = os.path.join(path_utils.LayoutTestsDir(),
                               'fast', 'bar', 'betz', 'crash3.html')
     failures[crash_file] = [test_failures.FailureTextMismatch(None)]
     cf = compare_failures.CompareFailures(self.GetTestFiles(), failures,
@@ -136,7 +136,7 @@ class CompareFailuresUnittest(unittest.TestCase):
   def testNewTestPass(self):
     """After a merge, we need to update new passing tests properly."""
     files = self.GetTestFiles()
-    new_test_file = os.path.join(path_utils.LayoutDataDir(), "new-test.html")
+    new_test_file = os.path.join(path_utils.LayoutTestsDir(), "new-test.html")
     files.add(new_test_file)
     failures = self.GetTestFailures()
 
@@ -151,7 +151,7 @@ class CompareFailuresUnittest(unittest.TestCase):
   def testNewTestFail(self):
     """After a merge, we need to update new failing tests properly."""
     files = self.GetTestFiles()
-    new_test_file = os.path.join(path_utils.LayoutDataDir(), "new-test.html")
+    new_test_file = os.path.join(path_utils.LayoutTestsDir(), "new-test.html")
     files.add(new_test_file)
     failures = self.GetTestFailures()
 
@@ -167,7 +167,7 @@ class CompareFailuresUnittest(unittest.TestCase):
   def testNewTestCrash(self):
     """After a merge, we need to update new crashing tests properly."""
     files = self.GetTestFiles()
-    new_test_file = os.path.join(path_utils.LayoutDataDir(), "new-test.html")
+    new_test_file = os.path.join(path_utils.LayoutTestsDir(), "new-test.html")
     files.add(new_test_file)
     failures = self.GetTestFailures()
 
@@ -190,7 +190,7 @@ class CompareFailuresUnittest(unittest.TestCase):
     self.failUnless(not cf.HasNewFailures())
 
     # test goes from passing to failing
-    pass_file = os.path.join(path_utils.LayoutDataDir(), 'fast', 'pass1.html')
+    pass_file = os.path.join(path_utils.LayoutTestsDir(), 'fast', 'pass1.html')
     failures[pass_file] = [test_failures.FailureTextMismatch(None)]
     cf = compare_failures.CompareFailures(files, failures, set(), set(),
                                           self.GetTmpDir(), False)
@@ -198,7 +198,7 @@ class CompareFailuresUnittest(unittest.TestCase):
 
     # Failing to passing
     failures = self.GetTestFailures()
-    failure_file = os.path.join(path_utils.LayoutDataDir(),
+    failure_file = os.path.join(path_utils.LayoutTestsDir(),
                                 'fast', 'bar', 'fail2.html')
     del failures[failure_file]
     cf = compare_failures.CompareFailures(files, failures, set(), set(),
@@ -206,7 +206,7 @@ class CompareFailuresUnittest(unittest.TestCase):
     self.failUnless(not cf.HasNewFailures())
 
     # A new test that fails, this doesn't count as a new failure.
-    new_test_file = os.path.join(path_utils.LayoutDataDir(), "new-test.html")
+    new_test_file = os.path.join(path_utils.LayoutTestsDir(), "new-test.html")
     files.add(new_test_file)
     failures = self.GetTestFailures()
     failures[new_test_file] = [test_failures.FailureCrash()]
@@ -250,7 +250,7 @@ class CompareFailuresUnittest(unittest.TestCase):
   def GetTestFiles(self):
     """Get a set of files that includes the expected crashes and failures
     along with two passing tests."""
-    layout_dir = path_utils.LayoutDataDir()
+    layout_dir = path_utils.LayoutTestsDir()
     files = [
       'fast\\pass1.html',
       'fast\\foo\\pass2.html',

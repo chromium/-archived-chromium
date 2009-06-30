@@ -34,7 +34,13 @@ class Lighttpd:
     _webkit_tests = PathFromBase('webkit', 'data', 'layout_tests',
                                  'LayoutTests', 'http', 'tests')
   except google.path_utils.PathNotFound:
-    _webkit_tests = None
+    # If webkit/data/layout_tests/LayoutTests/http/tests does not exist, assume
+    # wekit tests are located in third_party/WebKit/LayoutTests/http/tests.
+    try:
+      _webkit_tests = PathFromBase('third_party', 'WebKit',
+                                   'LayoutTests', 'http', 'tests')
+    except google.path_utils.PathNotFound:
+      _webkit_tests = None
 
   # New tests for Chrome
   try:

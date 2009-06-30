@@ -146,9 +146,12 @@ class TestRunner:
              directory.  glob patterns are ok.
     """
     paths_to_walk = set()
+    # if paths is empty, provide a pre-defined list.
+    if not paths:
+        paths = TestRunner._shardable_directories
     for path in paths:
       # If there's an * in the name, assume it's a glob pattern.
-      path = os.path.join(path_utils.LayoutDataDir(), path)
+      path = os.path.join(path_utils.LayoutTestsDir(path), path)
       if path.find('*') > -1:
         filenames = glob.glob(path)
         paths_to_walk.update(filenames)
@@ -676,7 +679,7 @@ class TestRunner:
   def _PrintTestListTiming(self, title, test_list):
     logging.debug(title)
     for test_tuple in test_list:
-      filename = test_tuple.filename[len(path_utils.LayoutDataDir()) + 1:]
+      filename = test_tuple.filename[len(path_utils.LayoutTestsDir()) + 1:]
       filename = filename.replace('\\', '/')
       test_run_time = round(test_tuple.test_run_time, 1)
       logging.debug("%s took %s seconds" % (filename, test_run_time))
@@ -1002,8 +1005,6 @@ def main(options, args):
     paths = []
   if options.test_list:
     paths += ReadTestFiles(options.test_list)
-  if not paths:
-    paths = ['.']
 
   test_runner = TestRunner(options, paths, platform_new_results_dir)
 

@@ -19,6 +19,7 @@ class PathNotFound(Exception): pass
 # Save some paths here so we don't keep re-evaling.
 _webkit_root = None
 _layout_data_dir = None
+_layout_tests_dir = None
 # A map from platform description to directory list.
 _platform_results_dirs = {}
 
@@ -51,6 +52,27 @@ def LayoutDataDir():
                                                   'data', 'layout_tests')
   return _layout_data_dir
 
+def LayoutTestsDir(path = None):
+  """Returns the full path to the directory containing layout tests, based on
+  the supplied relative or absolute path to a layout tests. If the path contains
+  "LayoutTests" directory, locates this directory, assuming it's either in
+  in webkit/data/layout_tests or in third_party/WebKit."""
+
+  if path != None and path.find('LayoutTests') == -1:
+    return LayoutDataDir()
+
+  global _layout_tests_dir
+  if _layout_tests_dir:
+    return _layout_tests_dir
+
+  if os.path.exists(os.path.join(LayoutDataDir(), 'LayoutTests')):
+    _layout_tests_dir = LayoutDataDir()
+  else:
+    _layout_tests_dir = google.path_utils.FindUpward(
+        google.path_utils.ScriptDir(), 'third_party', 'WebKit')
+
+  return _layout_tests_dir
+
 def ChromiumPlatformResultsEnclosingDir():
   """Returns the full path to the directory containing Chromium platform
   result directories.
@@ -61,7 +83,7 @@ def ChromiumPlatformResultsEnclosingDir():
 
 def WebKitPlatformResultsEnclosingDir():
   """Gets the full path to just above the platform results directory."""
-  return os.path.join(LayoutDataDir(), 'LayoutTests', 'platform')
+  return os.path.join(LayoutTestsDir(), 'LayoutTests', 'platform')
 
 def PlatformResultsEnclosingDir(platform):
   """Gets the path to just above the results directory for this platform."""
@@ -200,7 +222,7 @@ def LayoutTestHelperBinaryPath(target):
 def RelativeTestFilename(filename):
   """Provide the filename of the test relative to the layout data
   directory as a unix style path (a/b/c)."""
-  return WinPathToUnix(filename[len(LayoutDataDir()) + 1:])
+  return WinPathToUnix(filename[len(LayoutTestsDir(filename)) + 1:])
 
 def GetPlatformUtil():
   """Returns a singleton instance of the PlatformUtility."""

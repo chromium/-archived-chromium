@@ -118,7 +118,7 @@ class PlatformUtility(google.platform_utils_win.PlatformUtility):
                command for Apache 2.x instead of Apache 1.3.x
     """
     layout_dir = google.platform_utils_win.GetCygwinPath(
-        layout_package_path_utils.LayoutDataDir())
+        layout_package_path_utils.LayoutTestsDir())
     main_document_root = os.path.join(layout_dir, "LayoutTests",
                                       "http", "tests")
     pending_document_root = os.path.join(layout_dir, "pending",
