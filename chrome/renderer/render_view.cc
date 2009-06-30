@@ -2903,6 +2903,7 @@ void RenderView::DumpLoadHistograms() const {
       finish - begin, kBeginToFinishMin,
       kBeginToFinishMax, kBeginToFinishBucketCount);
 
+#if 0
   DCHECK(FieldTrialList::Find("DnsImpact") &&
          !FieldTrialList::Find("DnsImpact")->group_name().empty());
   UMA_HISTOGRAM_CUSTOM_TIMES(
@@ -2916,6 +2917,7 @@ void RenderView::DumpLoadHistograms() const {
       FieldTrial::MakeName("Renderer4.BeginToFinish", "GlobalSdch").data(),
       finish - begin, kBeginToFinishMin,
       kBeginToFinishMax, kBeginToFinishBucketCount);
+#endif // 0
 
   UMA_HISTOGRAM_MEDIUM_TIMES("Renderer4.CommitToFinish", finish - commit);
 
