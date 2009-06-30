@@ -69,9 +69,6 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
   // Called to close any idle connections held by the connection manager.
   virtual void CloseIdleSockets() = 0;
 
-  // Returns the HostResolver that will be used for host lookups.
-  virtual HostResolver* GetHostResolver() const = 0;
-
   // The total number of idle sockets in the pool.
   virtual int IdleSocketCount() const = 0;
 

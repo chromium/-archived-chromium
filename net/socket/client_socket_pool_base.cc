@@ -32,11 +32,9 @@ namespace net {
 
 ClientSocketPoolBase::ClientSocketPoolBase(
     int max_sockets_per_group,
-    HostResolver* host_resolver,
     ConnectJobFactory* connect_job_factory)
     : idle_socket_count_(0),
       max_sockets_per_group_(max_sockets_per_group),
-      host_resolver_(host_resolver),
       connect_job_factory_(connect_job_factory) {}
 
 ClientSocketPoolBase::~ClientSocketPoolBase() {
@@ -69,6 +67,7 @@ int ClientSocketPoolBase::RequestSocket(
     CompletionCallback* callback) {
   DCHECK(!resolve_info.hostname().empty());
   DCHECK_GE(priority, 0);
+  DCHECK(callback);
   Group& group = group_map_[group_name];
 
   CheckSocketCounts(group);
@@ -76,7 +75,7 @@ int ClientSocketPoolBase::RequestSocket(
   // Can we make another active socket now?
   if (group.active_socket_count == max_sockets_per_group_) {
     CHECK(callback);
-    Request r(handle, callback, priority, resolve_info, LOAD_STATE_IDLE);
+    Request r(handle, callback, priority, resolve_info);
     InsertRequestIntoQueue(r, &group.pending_requests);
     return ERR_IO_PENDING;
   }
@@ -102,8 +101,7 @@ int ClientSocketPoolBase::RequestSocket(
   // We couldn't find a socket to reuse, so allocate and connect a new one.
 
   CHECK(callback);
-  Request r(handle, callback, priority, resolve_info,
-            LOAD_STATE_RESOLVING_HOST);
+  Request r(handle, callback, priority, resolve_info);
   group.connecting_requests[handle] = r;
 
   CHECK(!ContainsKey(connect_job_map_, handle));
@@ -178,17 +176,18 @@ LoadState ClientSocketPoolBase::GetLoadState(
   // Search connecting_requests for matching handle.
   RequestMap::const_iterator map_it = group.connecting_requests.find(handle);
   if (map_it != group.connecting_requests.end()) {
-    const LoadState load_state = map_it->second.load_state;
-    CHECK(load_state == LOAD_STATE_RESOLVING_HOST ||
-          load_state == LOAD_STATE_CONNECTING);
-    return load_state;
+    ConnectJobMap::const_iterator job_it = connect_job_map_.find(handle);
+    if (job_it == connect_job_map_.end()) {
+      NOTREACHED();
+      return LOAD_STATE_IDLE;
+    }
+    return job_it->second->load_state();
   }
 
   // Search pending_requests for matching handle.
   RequestQueue::const_iterator it = group.pending_requests.begin();
   for (; it != group.pending_requests.end(); ++it) {
     if (it->handle == handle) {
-      CHECK(LOAD_STATE_IDLE == it->load_state);
       // TODO(wtc): Add a state for being on the wait list.
       // See http://www.crbug.com/5077.
       return LOAD_STATE_IDLE;
@@ -278,28 +277,12 @@ void ClientSocketPoolBase::DoReleaseSocket(const std::string& group_name,
   RemoveActiveSocket(group_name, &group);
 }
 
-ClientSocketPoolBase::Request* ClientSocketPoolBase::GetConnectingRequest(
-    const std::string& group_name, const ClientSocketHandle* handle) {
-  GroupMap::iterator group_it = group_map_.find(group_name);
-  if (group_it == group_map_.end())
-    return NULL;
-
-  Group& group = group_it->second;
-
-  RequestMap* request_map = &group.connecting_requests;
-  RequestMap::iterator it = request_map->find(handle);
-  if (it == request_map->end())
-    return NULL;
-
-  return &it->second;
-}
-
-CompletionCallback* ClientSocketPoolBase::OnConnectingRequestComplete(
+void ClientSocketPoolBase::OnConnectJobComplete(
     const std::string& group_name,
-    const ClientSocketHandle* handle,
-    bool deactivate,
-    ClientSocket* socket) {
-  CHECK((deactivate && !socket) || (!deactivate && socket));
+    const ClientSocketHandle* key_handle,
+    ClientSocket* socket,
+    int result,
+    bool was_async) {
   GroupMap::iterator group_it = group_map_.find(group_name);
   CHECK(group_it != group_map_.end());
   Group& group = group_it->second;
@@ -308,13 +291,13 @@ CompletionCallback* ClientSocketPoolBase::OnConnectingRequestComplete(
 
   RequestMap* request_map = &group.connecting_requests;
 
-  RequestMap::iterator it = request_map->find(handle);
+  RequestMap::iterator it = request_map->find(key_handle);
   CHECK(it != request_map->end());
   Request request = it->second;
   request_map->erase(it);
-  DCHECK_EQ(request.handle, handle);
+  DCHECK_EQ(request.handle, key_handle);
 
-  if (deactivate) {
+  if (!socket) {
     RemoveActiveSocket(group_name, &group);
   } else {
     request.handle->set_socket(socket);
@@ -326,7 +309,8 @@ CompletionCallback* ClientSocketPoolBase::OnConnectingRequestComplete(
 
   RemoveConnectJob(request.handle);
 
-  return request.callback;
+  if (was_async)
+    request.callback->Run(result);
 }
 
 // static

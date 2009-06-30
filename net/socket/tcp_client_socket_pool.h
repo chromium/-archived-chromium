@@ -25,8 +25,9 @@ class TCPConnectJob : public ConnectJob {
                 const HostResolver::RequestInfo& resolve_info,
                 const ClientSocketHandle* handle,
                 ClientSocketFactory* client_socket_factory,
-                ClientSocketPoolBase* pool);
-  ~TCPConnectJob();
+                HostResolver* host_resolver,
+                Delegate* delegate);
+  virtual ~TCPConnectJob();
 
   // ConnectJob methods.
 
@@ -53,7 +54,7 @@ class TCPConnectJob : public ConnectJob {
   ClientSocketFactory* const client_socket_factory_;
   CompletionCallbackImpl<TCPConnectJob> callback_;
   scoped_ptr<ClientSocket> socket_;
-  ClientSocketPoolBase* const pool_;
+  Delegate* const delegate_;
   SingleRequestHostResolver resolver_;
   AddressList addresses_;
 
@@ -85,10 +86,6 @@ class TCPClientSocketPool : public ClientSocketPool {
 
   virtual void CloseIdleSockets();
 
-  virtual HostResolver* GetHostResolver() const {
-    return base_->GetHostResolver();
-  }
-
   virtual int IdleSocketCount() const {
     return base_->idle_socket_count();
   }
@@ -104,8 +101,10 @@ class TCPClientSocketPool : public ClientSocketPool {
   class TCPConnectJobFactory
       : public ClientSocketPoolBase::ConnectJobFactory {
    public:
-    explicit TCPConnectJobFactory(ClientSocketFactory* client_socket_factory)
-        : client_socket_factory_(client_socket_factory) {}
+    TCPConnectJobFactory(ClientSocketFactory* client_socket_factory,
+                         HostResolver* host_resolver)
+        : client_socket_factory_(client_socket_factory),
+          host_resolver_(host_resolver) {}
 
     virtual ~TCPConnectJobFactory() {}
 
@@ -114,10 +113,11 @@ class TCPClientSocketPool : public ClientSocketPool {
     virtual ConnectJob* NewConnectJob(
         const std::string& group_name,
         const ClientSocketPoolBase::Request& request,
-        ClientSocketPoolBase* pool) const;
+        ConnectJob::Delegate* delegate) const;
 
    private:
     ClientSocketFactory* const client_socket_factory_;
+    const scoped_refptr<HostResolver> host_resolver_;
 
     DISALLOW_COPY_AND_ASSIGN(TCPConnectJobFactory);
   };

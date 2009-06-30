@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "net/socket/tcp_client_socket_pool.h"
+#include "net/socket/client_socket_pool_base.h"
 
 #include "base/compiler_specific.h"
 #include "base/message_loop.h"
@@ -18,11 +18,11 @@ namespace net {
 
 namespace {
 
-const int kMaxSocketsPerGroup = 6;
+const int kMaxSocketsPerGroup = 2;
 
 // Note that the first and the last are the same, the first should be handled
 // before the last, since it was inserted first.
-const int kPriorities[10] = { 1, 7, 9, 5, 6, 2, 8, 3, 4, 1 };
+const int kPriorities[] = { 1, 3, 4, 2, 1 };
 
 // This is the number of extra requests beyond the first few that use up all
 // available sockets in the socket group.
@@ -34,144 +34,48 @@ class MockClientSocket : public ClientSocket {
  public:
   MockClientSocket() : connected_(false) {}
 
+  // Socket methods:
+  virtual int Read(
+      IOBuffer* /* buf */, int /* len */, CompletionCallback* /* callback */) {
+    return ERR_UNEXPECTED;
+  }
+
+  virtual int Write(
+      IOBuffer* /* buf */, int /* len */, CompletionCallback* /* callback */) {
+    return ERR_UNEXPECTED;
+  }
+
   // ClientSocket methods:
+
   virtual int Connect(CompletionCallback* callback) {
     connected_ = true;
     return OK;
   }
-  virtual void Disconnect() {
-    connected_ = false;
-  }
-  virtual bool IsConnected() const {
-    return connected_;
-  }
-  virtual bool IsConnectedAndIdle() const {
-    return connected_;
-  }
 
-  // Socket methods:
-  virtual int Read(IOBuffer* buf, int buf_len,
-                   CompletionCallback* callback) {
-    return ERR_FAILED;
+  virtual void Disconnect() { connected_ = false; }
+  virtual bool IsConnected() const { return connected_; }
+  virtual bool IsConnectedAndIdle() const { return connected_; }
+  
+#if defined(OS_LINUX)
+  virtual int GetPeerName(struct sockaddr* /* name */,
+                          socklen_t* /* namelen */) {
+    return 0;
   }
-  virtual int Write(IOBuffer* buf, int buf_len,
-                    CompletionCallback* callback) {
-    return ERR_FAILED;
-  }
+#endif
 
  private:
   bool connected_;
-};
 
-class MockFailingClientSocket : public ClientSocket {
- public:
-  MockFailingClientSocket() {}
-
-  // ClientSocket methods:
-  virtual int Connect(CompletionCallback* callback) {
-    return ERR_CONNECTION_FAILED;
-  }
-
-  virtual void Disconnect() {}
-
-  virtual bool IsConnected() const {
-    return false;
-  }
-  virtual bool IsConnectedAndIdle() const {
-    return false;
-  }
-
-  // Socket methods:
-  virtual int Read(IOBuffer* buf, int buf_len,
-                   CompletionCallback* callback) {
-    return ERR_FAILED;
-  }
-
-  virtual int Write(IOBuffer* buf, int buf_len,
-                    CompletionCallback* callback) {
-    return ERR_FAILED;
-  }
-};
-
-class MockPendingClientSocket : public ClientSocket {
- public:
-  MockPendingClientSocket(bool should_connect)
-      : method_factory_(ALLOW_THIS_IN_INITIALIZER_LIST(this)),
-        should_connect_(should_connect),
-        is_connected_(false) {}
-
-  // ClientSocket methods:
-  virtual int Connect(CompletionCallback* callback) {
-    MessageLoop::current()->PostTask(
-        FROM_HERE,
-        method_factory_.NewRunnableMethod(
-           &MockPendingClientSocket::DoCallback, callback));
-    return ERR_IO_PENDING;
-  }
-
-  virtual void Disconnect() {}
-
-  virtual bool IsConnected() const {
-    return is_connected_;
-  }
-  virtual bool IsConnectedAndIdle() const {
-    return is_connected_;
-  }
-
-  // Socket methods:
-  virtual int Read(IOBuffer* buf, int buf_len,
-                   CompletionCallback* callback) {
-    return ERR_FAILED;
-  }
-
-  virtual int Write(IOBuffer* buf, int buf_len,
-                    CompletionCallback* callback) {
-    return ERR_FAILED;
-  }
-
- private:
-  void DoCallback(CompletionCallback* callback) {
-    if (should_connect_) {
-      is_connected_ = true;
-      callback->Run(OK);
-    } else {
-      is_connected_ = false;
-      callback->Run(ERR_CONNECTION_FAILED);
-    }
-  }
-
-  ScopedRunnableMethodFactory<MockPendingClientSocket> method_factory_;
-  bool should_connect_;
-  bool is_connected_;
+  DISALLOW_COPY_AND_ASSIGN(MockClientSocket);
 };
 
 class MockClientSocketFactory : public ClientSocketFactory {
  public:
-  enum ClientSocketType {
-    MOCK_CLIENT_SOCKET,
-    MOCK_FAILING_CLIENT_SOCKET,
-    MOCK_PENDING_CLIENT_SOCKET,
-    MOCK_PENDING_FAILING_CLIENT_SOCKET,
-  };
-
-  MockClientSocketFactory()
-      : allocation_count_(0), client_socket_type_(MOCK_CLIENT_SOCKET) {}
+  MockClientSocketFactory() : allocation_count_(0) {}
 
   virtual ClientSocket* CreateTCPClientSocket(const AddressList& addresses) {
     allocation_count_++;
-    switch (client_socket_type_) {
-      case MOCK_CLIENT_SOCKET:
-        return new MockClientSocket();
-      case MOCK_FAILING_CLIENT_SOCKET:
-        return new MockFailingClientSocket();
-      case MOCK_PENDING_CLIENT_SOCKET:
-        return new MockPendingClientSocket(true);
-      case MOCK_PENDING_FAILING_CLIENT_SOCKET:
-        return new MockPendingClientSocket(false);
-      default:
-        NOTREACHED();
-        return new MockClientSocket();
-    }
+    return NULL;
   }
 
   virtual SSLClientSocket* CreateSSLClientSocket(
@@ -184,13 +88,8 @@ class MockClientSocketFactory : public ClientSocketFactory {
 
   int allocation_count() const { return allocation_count_; }
 
-  void set_client_socket_type(ClientSocketType type) {
-    client_socket_type_ = type;
-  }
-
  private:
   int allocation_count_;
-  ClientSocketType client_socket_type_;
 };
 
 class TestSocketRequest : public CallbackRunner< Tuple1<int> > {
@@ -221,17 +120,174 @@ class TestSocketRequest : public CallbackRunner< Tuple1<int> > {
 
 int TestSocketRequest::completion_count = 0;
 
-class TCPClientSocketPoolTest : public testing::Test {
+class TestConnectJob : public ConnectJob {
+ public:
+  enum JobType {
+    kMockJob,
+    kMockFailingJob,
+    kMockPendingJob,
+    kMockPendingFailingJob,
+  };
+
+  TestConnectJob(JobType job_type,
+                 const std::string& group_name,
+                 const ClientSocketPoolBase::Request& request,
+                 ConnectJob::Delegate* delegate,
+                 ClientSocketFactory* client_socket_factory)
+      : job_type_(job_type),
+        group_name_(group_name),
+        handle_(request.handle),
+        client_socket_factory_(client_socket_factory),
+        delegate_(delegate),
+        method_factory_(ALLOW_THIS_IN_INITIALIZER_LIST(this)) {}
+
+  // ConnectJob methods:
+
+  virtual int Connect() {
+    AddressList ignored;
+    client_socket_factory_->CreateTCPClientSocket(ignored);
+    switch (job_type_) {
+      case kMockJob:
+        return DoConnect(true /* successful */, false /* sync */);
+      case kMockFailingJob:
+        return DoConnect(false /* error */, false /* sync */);
+      case kMockPendingJob:
+        MessageLoop::current()->PostTask(
+            FROM_HERE,
+            method_factory_.NewRunnableMethod(
+               &TestConnectJob::DoConnect,
+               true /* successful */,
+               true /* async */));
+        return ERR_IO_PENDING;
+      case kMockPendingFailingJob:
+        MessageLoop::current()->PostTask(
+            FROM_HERE,
+            method_factory_.NewRunnableMethod(
+               &TestConnectJob::DoConnect,
+               false /* error */,
+               true  /* async */));
+        return ERR_IO_PENDING;
+      default:
+        NOTREACHED();
+        return ERR_FAILED;
+    }
+  }
+
+ private:
+  int DoConnect(bool succeed, bool was_async) {
+    int result = ERR_CONNECTION_FAILED;
+    ClientSocket* socket = NULL;
+    if (succeed) {
+      result = OK;
+      socket = new MockClientSocket();
+      socket->Connect(NULL);
+    }
+    delegate_->OnConnectJobComplete(
+        group_name_, handle_, socket, result, was_async);
+    return result;
+  }
+
+  const JobType job_type_;
+  const std::string group_name_;
+  const ClientSocketHandle* handle_;
+  ClientSocketFactory* const client_socket_factory_;
+  Delegate* const delegate_;
+  ScopedRunnableMethodFactory<TestConnectJob> method_factory_;
+
+  DISALLOW_COPY_AND_ASSIGN(TestConnectJob);
+};
+
+class TestConnectJobFactory : public ClientSocketPoolBase::ConnectJobFactory {
+ public:
+  explicit TestConnectJobFactory(ClientSocketFactory* client_socket_factory)
+      : job_type_(TestConnectJob::kMockJob),
+        client_socket_factory_(client_socket_factory) {}
+
+  virtual ~TestConnectJobFactory() {}
+
+  void set_job_type(TestConnectJob::JobType job_type) { job_type_ = job_type; }
+
+  // ConnectJobFactory methods:
+
+  virtual ConnectJob* NewConnectJob(
+      const std::string& group_name,
+      const ClientSocketPoolBase::Request& request,
+      ConnectJob::Delegate* delegate) const {
+    return new TestConnectJob(job_type_,
+                              group_name,
+                              request,
+                              delegate,
+                              client_socket_factory_);
+  }
+
+ private:
+  TestConnectJob::JobType job_type_;
+  ClientSocketFactory* const client_socket_factory_;
+
+  DISALLOW_COPY_AND_ASSIGN(TestConnectJobFactory);
+};
+
+class TestClientSocketPool : public ClientSocketPool {
+ public:
+  TestClientSocketPool(
+      int max_sockets_per_group,
+      ClientSocketPoolBase::ConnectJobFactory* connect_job_factory)
+      : base_(new ClientSocketPoolBase(
+          kMaxSocketsPerGroup, connect_job_factory)) {}
+
+  virtual int RequestSocket(
+      const std::string& group_name,
+      const HostResolver::RequestInfo& resolve_info,
+      int priority,
+      ClientSocketHandle* handle,
+      CompletionCallback* callback) {
+    return base_->RequestSocket(
+        group_name, resolve_info, priority, handle, callback);
+  }
+
+  virtual void CancelRequest(
+      const std::string& group_name,
+      const ClientSocketHandle* handle) {
+    base_->CancelRequest(group_name, handle);
+  }
+
+  virtual void ReleaseSocket(
+      const std::string& group_name,
+      ClientSocket* socket) {
+    base_->ReleaseSocket(group_name, socket);
+  }
+
+  virtual void CloseIdleSockets() {
+    base_->CloseIdleSockets();
+  }
+
+  virtual int IdleSocketCount() const { return base_->idle_socket_count(); }
+
+  virtual int IdleSocketCountInGroup(const std::string& group_name) const {
+    return base_->IdleSocketCountInGroup(group_name);
+  }
+
+  virtual LoadState GetLoadState(const std::string& group_name,
+                                 const ClientSocketHandle* handle) const {
+    return base_->GetLoadState(group_name, handle);
+  }
+
+ private:
+  const scoped_refptr<ClientSocketPoolBase> base_;
+
+  DISALLOW_COPY_AND_ASSIGN(TestClientSocketPool);
+};
+
+class ClientSocketPoolBaseTest : public testing::Test {
  protected:
-  TCPClientSocketPoolTest()
-      : pool_(new TCPClientSocketPool(kMaxSocketsPerGroup,
-                                      &host_resolver_,
-                                      &client_socket_factory_)) {}
+  ClientSocketPoolBaseTest()
+      : ignored_request_info_("ignored", 80),
+        connect_job_factory_(
+          new TestConnectJobFactory(&client_socket_factory_)),
+        pool_(new TestClientSocketPool(kMaxSocketsPerGroup,
+                                       connect_job_factory_)) {}
 
   virtual void SetUp() {
-    RuleBasedHostMapper *host_mapper = new RuleBasedHostMapper();
-    host_mapper->AddRule("*", "127.0.0.1");
-    scoped_host_mapper_.Init(host_mapper);
     TestSocketRequest::completion_count = 0;
   }
 
@@ -241,54 +297,31 @@ class TCPClientSocketPoolTest : public testing::Test {
     MessageLoop::current()->RunAllPending();
   }
 
-  ScopedHostMapper scoped_host_mapper_;
-  HostResolver host_resolver_;
+  HostResolver::RequestInfo ignored_request_info_;
   MockClientSocketFactory client_socket_factory_;
+  TestConnectJobFactory* const connect_job_factory_;
   scoped_refptr<ClientSocketPool> pool_;
   std::vector<TestSocketRequest*> request_order_;
 };
 
-TEST_F(TCPClientSocketPoolTest, Basic) {
+TEST_F(ClientSocketPoolBaseTest, Basic) {
   TestCompletionCallback callback;
   ClientSocketHandle handle(pool_.get());
-  HostResolver::RequestInfo info("www.google.com", 80);
-  int rv = handle.Init("a", info, 0, &callback);
-  EXPECT_EQ(ERR_IO_PENDING, rv);
-  EXPECT_FALSE(handle.is_initialized());
-  EXPECT_FALSE(handle.socket());
-
-  EXPECT_EQ(OK, callback.WaitForResult());
+  int rv = handle.Init("a", ignored_request_info_, 0, &callback);
+  EXPECT_EQ(OK, rv);
   EXPECT_TRUE(handle.is_initialized());
   EXPECT_TRUE(handle.socket());
-
   handle.Reset();
 }
 
-TEST_F(TCPClientSocketPoolTest, InitHostResolutionFailure) {
-  RuleBasedHostMapper* host_mapper = new RuleBasedHostMapper;
-  host_mapper->AddSimulatedFailure("unresolvable.host.name");
-  ScopedHostMapper scoped_host_mapper(host_mapper);
+TEST_F(ClientSocketPoolBaseTest, InitConnectionFailure) {
+  connect_job_factory_->set_job_type(TestConnectJob::kMockFailingJob);
   TestSocketRequest req(pool_.get(), &request_order_);
-  HostResolver::RequestInfo info("unresolvable.host.name", 80);
-  EXPECT_EQ(ERR_IO_PENDING, req.handle.Init("a", info, 5, &req));
-  EXPECT_EQ(ERR_NAME_NOT_RESOLVED, req.WaitForResult());
-}
-
-TEST_F(TCPClientSocketPoolTest, InitConnectionFailure) {
-  client_socket_factory_.set_client_socket_type(
-      MockClientSocketFactory::MOCK_FAILING_CLIENT_SOCKET);
-  TestSocketRequest req(pool_.get(), &request_order_);
-  HostResolver::RequestInfo info("a", 80);
-  EXPECT_EQ(ERR_IO_PENDING,
-            req.handle.Init("a", info, 5, &req));
-  EXPECT_EQ(ERR_CONNECTION_FAILED, req.WaitForResult());
-  // HostCache caches it, so MockFailingClientSocket will cause Init() to
-  // synchronously fail.
   EXPECT_EQ(ERR_CONNECTION_FAILED,
-            req.handle.Init("a", info, 5, &req));
+            req.handle.Init("a", ignored_request_info_, 5, &req));
 }
 
-TEST_F(TCPClientSocketPoolTest, PendingRequests) {
+TEST_F(ClientSocketPoolBaseTest, PendingRequests) {
   scoped_ptr<TestSocketRequest> reqs[kNumRequests];
 
   for (size_t i = 0; i < arraysize(reqs); ++i)
@@ -296,23 +329,17 @@ TEST_F(TCPClientSocketPoolTest, PendingRequests) {
 
   // Create connections or queue up requests.
 
-  // First request finishes asynchronously.
-  HostResolver::RequestInfo info("www.google.com", 80);
-  int rv = reqs[0]->handle.Init("a", info, 5, reqs[0].get());
-  EXPECT_EQ(ERR_IO_PENDING, rv);
-  EXPECT_EQ(OK, reqs[0]->WaitForResult());
-
-  // Rest of them finish synchronously, since they're in the HostCache.
-  for (int i = 1; i < kMaxSocketsPerGroup; ++i) {
-    rv = reqs[i]->handle.Init("a", info, 5, reqs[i].get());
+  for (int i = 0; i < kMaxSocketsPerGroup; ++i) {
+    int rv = reqs[i]->handle.Init("a", ignored_request_info_, 5, reqs[i].get());
     EXPECT_EQ(OK, rv);
     request_order_.push_back(reqs[i].get());
   }
 
   // The rest are pending since we've used all active sockets.
   for (int i = 0; i < kNumPendingRequests; ++i) {
-    rv = reqs[kMaxSocketsPerGroup + i]->handle.Init(
-        "a", info, kPriorities[i], reqs[kMaxSocketsPerGroup + i].get());
+    int rv = reqs[kMaxSocketsPerGroup + i]->handle.Init(
+        "a", ignored_request_info_, kPriorities[i],
+        reqs[kMaxSocketsPerGroup + i].get());
     EXPECT_EQ(ERR_IO_PENDING, rv);
   }
 
@@ -330,7 +357,7 @@ TEST_F(TCPClientSocketPoolTest, PendingRequests) {
   } while (released_one);
 
   EXPECT_EQ(kMaxSocketsPerGroup, client_socket_factory_.allocation_count());
-  EXPECT_EQ(kNumPendingRequests + 1, TestSocketRequest::completion_count);
+  EXPECT_EQ(kNumPendingRequests, TestSocketRequest::completion_count);
 
   for (int i = 0; i < kMaxSocketsPerGroup; ++i) {
     EXPECT_EQ(request_order_[i], reqs[i].get()) <<
@@ -350,30 +377,24 @@ TEST_F(TCPClientSocketPoolTest, PendingRequests) {
       "earlier into the queue.";
 }
 
-TEST_F(TCPClientSocketPoolTest, PendingRequests_NoKeepAlive) {
+TEST_F(ClientSocketPoolBaseTest, PendingRequests_NoKeepAlive) {
   scoped_ptr<TestSocketRequest> reqs[kNumRequests];
   for (size_t i = 0; i < arraysize(reqs); ++i)
     reqs[i].reset(new TestSocketRequest(pool_.get(), &request_order_));
 
   // Create connections or queue up requests.
-
-  // First request finishes asynchronously.
-  HostResolver::RequestInfo info("www.google.com", 80);
-  int rv = reqs[0]->handle.Init("a", info, 5, reqs[0].get());
-  EXPECT_EQ(ERR_IO_PENDING, rv);
-  EXPECT_EQ(OK, reqs[0]->WaitForResult());
-
-  // Rest of them finish synchronously, since they're in the HostCache.
-  for (int i = 1; i < kMaxSocketsPerGroup; ++i) {
-    rv = reqs[i]->handle.Init("a", info, 5, reqs[i].get());
+  for (int i = 0; i < kMaxSocketsPerGroup; ++i) {
+    int rv = reqs[i]->handle.Init("a", ignored_request_info_, 5, reqs[i].get());
     EXPECT_EQ(OK, rv);
     request_order_.push_back(reqs[i].get());
   }
 
   // The rest are pending since we've used all active sockets.
   for (int i = 0; i < kNumPendingRequests; ++i) {
-    EXPECT_EQ(ERR_IO_PENDING, reqs[kMaxSocketsPerGroup + i]->handle.Init(
-        "a", info, 0, reqs[kMaxSocketsPerGroup + i].get()));
+    int rv = reqs[kMaxSocketsPerGroup + i]->handle.Init(
+        "a", ignored_request_info_, kPriorities[i],
+        reqs[kMaxSocketsPerGroup + i].get());
+    EXPECT_EQ(ERR_IO_PENDING, rv);
   }
 
   // Release any connections until we have no connections.
@@ -394,35 +415,29 @@ TEST_F(TCPClientSocketPoolTest, PendingRequests_NoKeepAlive) {
     EXPECT_EQ(OK, reqs[i]->WaitForResult());
 
   EXPECT_EQ(kNumRequests, client_socket_factory_.allocation_count());
-  EXPECT_EQ(kNumPendingRequests + 1, TestSocketRequest::completion_count);
+  EXPECT_EQ(kNumPendingRequests, TestSocketRequest::completion_count);
 }
 
 // This test will start up a RequestSocket() and then immediately Cancel() it.
-// The pending host resolution will eventually complete, and destroy the
-// ClientSocketPool which will crash if the group was not cleared properly.
-TEST_F(TCPClientSocketPoolTest, CancelRequestClearGroup) {
+// The pending connect job will be cancelled and should not call back into
+// ClientSocketPoolBase.
+TEST_F(ClientSocketPoolBaseTest, CancelRequestClearGroup) {
+  connect_job_factory_->set_job_type(TestConnectJob::kMockPendingJob);
   TestSocketRequest req(pool_.get(), &request_order_);
-  HostResolver::RequestInfo info("www.google.com", 80);
-  EXPECT_EQ(ERR_IO_PENDING, req.handle.Init("a", info, 5, &req));
+  EXPECT_EQ(ERR_IO_PENDING,
+            req.handle.Init("a", ignored_request_info_, 5, &req));
   req.handle.Reset();
-
-  PlatformThread::Sleep(100);
-
-  // There is a race condition here.  If the worker pool doesn't post the task
-  // before we get here, then this might not run ConnectingSocket::OnIOComplete
-  // and therefore leak the canceled ConnectingSocket.  However, other tests
-  // after this will call MessageLoop::RunAllPending() which should prevent a
-  // leak, unless the worker thread takes longer than all of them.
-  MessageLoop::current()->RunAllPending();
 }
 
-TEST_F(TCPClientSocketPoolTest, TwoRequestsCancelOne) {
+TEST_F(ClientSocketPoolBaseTest, TwoRequestsCancelOne) {
+  connect_job_factory_->set_job_type(TestConnectJob::kMockPendingJob);
   TestSocketRequest req(pool_.get(), &request_order_);
   TestSocketRequest req2(pool_.get(), &request_order_);
 
-  HostResolver::RequestInfo info("www.google.com", 80);
-  EXPECT_EQ(ERR_IO_PENDING, req.handle.Init("a", info, 5, &req));
-  EXPECT_EQ(ERR_IO_PENDING, req2.handle.Init("a", info, 5, &req2));
+  EXPECT_EQ(ERR_IO_PENDING,
+            req.handle.Init("a", ignored_request_info_, 5, &req));
+  EXPECT_EQ(ERR_IO_PENDING,
+            req2.handle.Init("a", ignored_request_info_, 5, &req2));
 
   req.handle.Reset();
 
@@ -430,28 +445,20 @@ TEST_F(TCPClientSocketPoolTest, TwoRequestsCancelOne) {
   req2.handle.Reset();
 }
 
-TEST_F(TCPClientSocketPoolTest, ConnectCancelConnect) {
-  client_socket_factory_.set_client_socket_type(
-      MockClientSocketFactory::MOCK_PENDING_CLIENT_SOCKET);
+TEST_F(ClientSocketPoolBaseTest, ConnectCancelConnect) {
+  connect_job_factory_->set_job_type(TestConnectJob::kMockPendingJob);
   ClientSocketHandle handle(pool_.get());
   TestCompletionCallback callback;
   TestSocketRequest req(pool_.get(), &request_order_);
 
-  HostResolver::RequestInfo info("www.google.com", 80);
-  EXPECT_EQ(ERR_IO_PENDING, handle.Init("a", info, 5, &callback));
+  EXPECT_EQ(ERR_IO_PENDING,
+            handle.Init("a", ignored_request_info_, 5, &callback));
 
   handle.Reset();
 
   TestCompletionCallback callback2;
-  EXPECT_EQ(ERR_IO_PENDING, handle.Init("a", info, 5, &callback2));
-
-  // At this point, handle has two ConnectingSockets out for it.  Due to the
-  // host cache, the host resolution for both will return in the same loop of
-  // the MessageLoop.  The client socket is a pending socket, so the Connect()
-  // will asynchronously complete on the next loop of the MessageLoop.  That
-  // means that the first ConnectingSocket will enter OnIOComplete, and then the
-  // second one will.  If the first one is not cancelled, it will advance the
-  // load state, and then the second one will crash.
+  EXPECT_EQ(ERR_IO_PENDING,
+            handle.Init("a", ignored_request_info_, 5, &callback2));
 
   EXPECT_EQ(OK, callback2.WaitForResult());
   EXPECT_FALSE(callback.have_result());
@@ -459,23 +466,15 @@ TEST_F(TCPClientSocketPoolTest, ConnectCancelConnect) {
   handle.Reset();
 }
 
-TEST_F(TCPClientSocketPoolTest, CancelRequest) {
+TEST_F(ClientSocketPoolBaseTest, CancelRequest) {
   scoped_ptr<TestSocketRequest> reqs[kNumRequests];
 
   for (size_t i = 0; i < arraysize(reqs); ++i)
     reqs[i].reset(new TestSocketRequest(pool_.get(), &request_order_));
 
   // Create connections or queue up requests.
-  HostResolver::RequestInfo info("www.google.com", 80);
-
-  // First request finishes asynchronously.
-  int rv = reqs[0]->handle.Init("a", info, 5, reqs[0].get());
-  EXPECT_EQ(ERR_IO_PENDING, rv);
-  EXPECT_EQ(OK, reqs[0]->WaitForResult());
-
-  // Rest of them finish synchronously, since they're in the HostCache.
-  for (int i = 1; i < kMaxSocketsPerGroup; ++i) {
-    rv = reqs[i]->handle.Init("a", info, 5, reqs[i].get());
+  for (int i = 0; i < kMaxSocketsPerGroup; ++i) {
+    int rv = reqs[i]->handle.Init("a", ignored_request_info_, 5, reqs[i].get());
     EXPECT_EQ(OK, rv);
     request_order_.push_back(reqs[i].get());
   }
@@ -483,7 +482,8 @@ TEST_F(TCPClientSocketPoolTest, CancelRequest) {
   // The rest are pending since we've used all active sockets.
   for (int i = 0; i < kNumPendingRequests; ++i) {
     EXPECT_EQ(ERR_IO_PENDING, reqs[kMaxSocketsPerGroup + i]->handle.Init(
-        "a", info, kPriorities[i], reqs[kMaxSocketsPerGroup + i].get()));
+        "a", ignored_request_info_, kPriorities[i],
+        reqs[kMaxSocketsPerGroup + i].get()));
   }
 
   // Cancel a request.
@@ -505,7 +505,7 @@ TEST_F(TCPClientSocketPoolTest, CancelRequest) {
   } while (released_one);
 
   EXPECT_EQ(kMaxSocketsPerGroup, client_socket_factory_.allocation_count());
-  EXPECT_EQ(kNumPendingRequests, TestSocketRequest::completion_count);
+  EXPECT_EQ(kNumPendingRequests - 1, TestSocketRequest::completion_count);
 
   for (int i = 0; i < kMaxSocketsPerGroup; ++i) {
     EXPECT_EQ(request_order_[i], reqs[i].get()) <<
@@ -543,7 +543,7 @@ class RequestSocketCallback : public CallbackRunner< Tuple1<int> > {
       within_callback_ = true;
       int rv = handle_->Init(
           "a", HostResolver::RequestInfo("www.google.com", 80), 0, this);
-      EXPECT_EQ(OK, rv);
+      EXPECT_EQ(ERR_IO_PENDING, rv);
     }
   }
 
@@ -557,11 +557,12 @@ class RequestSocketCallback : public CallbackRunner< Tuple1<int> > {
   TestCompletionCallback callback_;
 };
 
-TEST_F(TCPClientSocketPoolTest, RequestTwice) {
+TEST_F(ClientSocketPoolBaseTest, RequestTwice) {
+  connect_job_factory_->set_job_type(TestConnectJob::kMockPendingJob); 
   ClientSocketHandle handle(pool_.get());
   RequestSocketCallback callback(&handle);
   int rv = handle.Init(
-      "a", HostResolver::RequestInfo("www.google.com", 80), 0, &callback);
+      "a", ignored_request_info_, 0, &callback);
   ASSERT_EQ(ERR_IO_PENDING, rv);
 
   EXPECT_EQ(OK, callback.WaitForResult());
@@ -571,18 +572,15 @@ TEST_F(TCPClientSocketPoolTest, RequestTwice) {
 
 // Make sure that pending requests get serviced after active requests get
 // cancelled.
-TEST_F(TCPClientSocketPoolTest, CancelActiveRequestWithPendingRequests) {
-  client_socket_factory_.set_client_socket_type(
-      MockClientSocketFactory::MOCK_PENDING_CLIENT_SOCKET);
+TEST_F(ClientSocketPoolBaseTest, CancelActiveRequestWithPendingRequests) {
+  connect_job_factory_->set_job_type(TestConnectJob::kMockPendingJob); 
 
   scoped_ptr<TestSocketRequest> reqs[kNumRequests];
 
   // Queue up all the requests
-
-  HostResolver::RequestInfo info("www.google.com", 80);
   for (size_t i = 0; i < arraysize(reqs); ++i) {
     reqs[i].reset(new TestSocketRequest(pool_.get(), &request_order_));
-    int rv = reqs[i]->handle.Init("a", info, 5, reqs[i].get());
+    int rv = reqs[i]->handle.Init("a", ignored_request_info_, 5, reqs[i].get());
     EXPECT_EQ(ERR_IO_PENDING, rv);
   }
 
@@ -601,18 +599,15 @@ TEST_F(TCPClientSocketPoolTest, CancelActiveRequestWithPendingRequests) {
 }
 
 // Make sure that pending requests get serviced after active requests fail.
-TEST_F(TCPClientSocketPoolTest, FailingActiveRequestWithPendingRequests) {
-  client_socket_factory_.set_client_socket_type(
-      MockClientSocketFactory::MOCK_PENDING_FAILING_CLIENT_SOCKET);
+TEST_F(ClientSocketPoolBaseTest, FailingActiveRequestWithPendingRequests) {
+  connect_job_factory_->set_job_type(TestConnectJob::kMockPendingFailingJob); 
 
   scoped_ptr<TestSocketRequest> reqs[kMaxSocketsPerGroup * 2 + 1];
 
   // Queue up all the requests
-
-  HostResolver::RequestInfo info("www.google.com", 80);
   for (size_t i = 0; i < arraysize(reqs); ++i) {
     reqs[i].reset(new TestSocketRequest(pool_.get(), &request_order_));
-    int rv = reqs[i]->handle.Init("a", info, 5, reqs[i].get());
+    int rv = reqs[i]->handle.Init("a", ignored_request_info_, 5, reqs[i].get());
     EXPECT_EQ(ERR_IO_PENDING, rv);
   }
 

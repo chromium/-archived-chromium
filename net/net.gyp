@@ -482,6 +482,7 @@
         'proxy/proxy_script_fetcher_unittest.cc',
         'proxy/proxy_server_unittest.cc',
         'proxy/proxy_service_unittest.cc',
+        'socket/client_socket_pool_base_unittest.cc',
         'socket/socks_client_socket_unittest.cc',
         'socket/ssl_client_socket_unittest.cc',
         'socket/tcp_client_socket_pool_unittest.cc',

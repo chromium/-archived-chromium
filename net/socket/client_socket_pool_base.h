@@ -30,22 +30,55 @@ class ClientSocketPoolBase;
 // etc.
 class ConnectJob {
  public:
+  class Delegate {
+   public:
+    Delegate() {}
+    virtual ~Delegate() {}
+
+    // Alerts the delegate that the connection completed (though not necessarily
+    // successfully).  |group_name| indicates the connection group this
+    // ConnectJob corresponds to.  |key_handle| uniquely identifies the
+    // ClientSocketHandle that this job is coupled to.  |socket| is non-NULL if
+    // the connection completed successfully, and ownership is transferred to
+    // the delegate.  |was_async| indicates whether or not the connect job
+    // completed asynchronously.
+    virtual void OnConnectJobComplete(
+        const std::string& group_name,
+        const ClientSocketHandle* key_handle,
+        ClientSocket* socket,
+        int result,
+        bool was_async) = 0;
+
+   private:
+    DISALLOW_COPY_AND_ASSIGN(Delegate);
+  };
+
   ConnectJob() {}
   virtual ~ConnectJob() {}
+
+  // Returns the LoadState of this ConnectJob.
+  LoadState load_state() const { return load_state_; }
 
   // Begins connecting the socket.  Returns OK on success, ERR_IO_PENDING if it
   // cannot complete synchronously without blocking, or another net error code
   // on error.
   virtual int Connect() = 0;
 
+ protected:
+  void set_load_state(LoadState load_state) { load_state_ = load_state; }
+
  private:
+  LoadState load_state_;
+
   DISALLOW_COPY_AND_ASSIGN(ConnectJob);
 };
 
 // A ClientSocketPoolBase is used to restrict the number of sockets open at
 // a time.  It also maintains a list of idle persistent sockets.
 //
-class ClientSocketPoolBase : public base::RefCounted<ClientSocketPoolBase> {
+class ClientSocketPoolBase
+    : public base::RefCounted<ClientSocketPoolBase>,
+      public ConnectJob::Delegate {
  public:
   // A Request is allocated per call to RequestSocket that results in
   // ERR_IO_PENDING.
@@ -56,17 +89,15 @@ class ClientSocketPoolBase : public base::RefCounted<ClientSocketPoolBase> {
     Request(ClientSocketHandle* handle,
             CompletionCallback* callback,
             int priority,
-            const HostResolver::RequestInfo& resolve_info,
-            LoadState load_state)
+            const HostResolver::RequestInfo& resolve_info)
         : handle(handle), callback(callback), priority(priority),
-          resolve_info(resolve_info), load_state(load_state) {
+          resolve_info(resolve_info) {
     }
 
     ClientSocketHandle* handle;
     CompletionCallback* callback;
     int priority;
     HostResolver::RequestInfo resolve_info;
-    LoadState load_state;
   };
 
   class ConnectJobFactory {
@@ -77,14 +108,13 @@ class ClientSocketPoolBase : public base::RefCounted<ClientSocketPoolBase> {
     virtual ConnectJob* NewConnectJob(
         const std::string& group_name,
         const Request& request,
-        ClientSocketPoolBase* pool) const = 0;
+        ConnectJob::Delegate* delegate) const = 0;
 
    private:
     DISALLOW_COPY_AND_ASSIGN(ConnectJobFactory);
   };
 
   ClientSocketPoolBase(int max_sockets_per_group,
-                       HostResolver* host_resolver,
                        ConnectJobFactory* connect_job_factory);
 
   ~ClientSocketPoolBase();
@@ -103,10 +133,6 @@ class ClientSocketPoolBase : public base::RefCounted<ClientSocketPoolBase> {
 
   void CloseIdleSockets();
 
-  HostResolver* GetHostResolver() const {
-    return host_resolver_;
-  }
-
   int idle_socket_count() const {
     return idle_socket_count_;
   }
@@ -116,27 +142,14 @@ class ClientSocketPoolBase : public base::RefCounted<ClientSocketPoolBase> {
   LoadState GetLoadState(const std::string& group_name,
                          const ClientSocketHandle* handle) const;
 
-  // Used by ConnectJob until we remove the coupling between a specific
-  // ConnectJob and a ClientSocketHandle:
-
-  // Returns NULL if not found.  Otherwise it returns the Request*
-  // corresponding to the ConnectJob (keyed by |group_name| and |handle|.
-  // Note that this pointer may be invalidated after any call that might mutate
-  // the RequestMap or GroupMap, so the user should not hold onto the pointer
-  // for long.
-  Request* GetConnectingRequest(const std::string& group_name,
-                                const ClientSocketHandle* handle);
-
-  // Handles the completed Request corresponding to the ConnectJob (keyed
-  // by |group_name| and |handle|.  |deactivate| indicates whether or not to
-  // deactivate the socket, making the socket slot available for a new socket
-  // connection.  If |deactivate| is false, then set |socket| into |handle|.
-  // Returns the callback to run.
-  CompletionCallback* OnConnectingRequestComplete(
+  // If |was_async| is true, then ClientSocketPoolBase will pick a callback to
+  // run from a request associated with |group_name|.
+  virtual void OnConnectJobComplete(
       const std::string& group_name,
-      const ClientSocketHandle* handle,
-      bool deactivate,
-      ClientSocket* socket);
+      const ClientSocketHandle* key_handle,
+      ClientSocket* socket,
+      int result,
+      bool was_async);
 
  private:
   // Entry for a persistent socket which became idle at time |start_time|.
@@ -218,11 +231,7 @@ class ClientSocketPoolBase : public base::RefCounted<ClientSocketPoolBase> {
   // The maximum number of sockets kept per group.
   const int max_sockets_per_group_;
 
-  // The host resolver that will be used to do host lookups for connecting
-  // sockets.
-  scoped_refptr<HostResolver> host_resolver_;
-
-  scoped_ptr<ConnectJobFactory> connect_job_factory_;
+  const scoped_ptr<ConnectJobFactory> connect_job_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(ClientSocketPoolBase);
 };
