@@ -65,11 +65,6 @@ void RenderViewHostManager::Init(Profile* profile,
 }
 
 RenderViewHost* RenderViewHostManager::Navigate(const NavigationEntry& entry) {
-  // This will possibly create (set to NULL) a DOM UI object for the pending
-  // page. We'll use this later to give the page special access. This must
-  // happen before the new renderer is created below so it will get bindings.
-  pending_dom_ui_.reset(delegate_->CreateDOMUIForRenderManager(entry.url()));
-
   // Create a pending RenderViewHost. It will give us the one we should use
   RenderViewHost* dest_render_view_host = UpdateRendererStateForNavigate(entry);
   if (!dest_render_view_host)
@@ -492,6 +487,14 @@ RenderViewHost* RenderViewHostManager::UpdateRendererStateForNavigate(
       CancelPending();
     cross_navigation_pending_ = false;
   }
+
+  // This will possibly create (set to NULL) a DOM UI object for the pending
+  // page. We'll use this later to give the page special access. This must
+  // happen before the new renderer is created below so it will get bindings.
+  // It must also happen after the above conditional call to CancelPending(),
+  // otherwise CancelPending may clear the pending_dom_ui_ and the page will
+  // not have it's bindings set appropriately.
+  pending_dom_ui_.reset(delegate_->CreateDOMUIForRenderManager(entry.url()));
 
   // render_view_host_ will not be deleted before the end of this method, so we
   // don't have to worry about this SiteInstance's ref count dropping to zero.

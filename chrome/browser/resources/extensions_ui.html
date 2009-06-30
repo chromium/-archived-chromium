@@ -97,7 +97,13 @@ function showExtensionsData(extensionsData) {
 function requestExtensionsData() {
   chrome.send("requestExtensionsData", []);
 }
+
+// Used for observing function of the backend datasource for this page by
+// tests.
+window.domui_responded_ = false;
+
 function returnExtensionsData(extensionsData) {
+  window.domui_responded_ = true;
   showExtensionsData(extensionsData);
 
   // We are currently hiding the body because the first call to jstProcess() to
