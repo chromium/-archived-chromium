@@ -836,7 +836,6 @@ BUG10291 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-pattern-01-b.svg = FAI
 // Selection wrong.
 BUG10292 MAC LINUX : LayoutTests/editing/selection/5354455-1.html = FAIL
 
-BUG10293 LINUX : LayoutTests/fast/text/international/bidi-linebreak-001.html = FAIL
 BUG10293 LINUX : LayoutTests/fast/text/international/bidi-linebreak-002.html = FAIL
 BUG10293 LINUX : LayoutTests/fast/text/international/bidi-linebreak-003.html = FAIL
 
@@ -1259,13 +1258,9 @@ BUG10343 LINUX MAC : LayoutTests/fast/text/international/complex-character-based
 BUG10343 LINUX : LayoutTests/fast/text/large-text-composed-char.html = FAIL
 
 // Missing text -- slow font path unimplemented?
-BUG10344 LINUX : LayoutTests/fast/text/international/bidi-AN-after-empty-run.html = FAIL
 BUG10344 LINUX : LayoutTests/fast/text/international/bidi-control-chars-treated-as-ZWS.html = FAIL
 BUG10344 LINUX : LayoutTests/fast/text/international/bidi-listbox-atsui.html = FAIL
 BUG10344 LINUX : LayoutTests/fast/text/should-use-atsui.html = FAIL
-
-// Missing Arabic font.
-BUG10345 LINUX : LayoutTests/fast/text/international/bidi-CS-after-AN.html = FAIL
 
 // Missing Hindi font.
 BUG10346 LINUX MAC : LayoutTests/fast/text/international/hindi-spacing.html = FAIL
@@ -2116,9 +2111,9 @@ BUG9768 LINUX WIN : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
 BUG9768 LINUX WIN : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
 // Linux looks ok, rebaselined.
 BUG9768 WIN : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
-BUG9768 LINUX WIN : LayoutTests/fast/text/international/001.html = FAIL
-BUG9768 LINUX WIN : LayoutTests/fast/text/international/002.html = FAIL
-BUG9768 LINUX WIN : LayoutTests/fast/text/international/003.html = FAIL
+BUG9768 WIN : LayoutTests/fast/text/international/001.html = FAIL
+BUG9768 WIN : LayoutTests/fast/text/international/002.html = FAIL
+BUG9768 WIN : LayoutTests/fast/text/international/003.html = FAIL
 BUG9768 LINUX WIN : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 
 // Merge WebKit 42200:42244 regressions
