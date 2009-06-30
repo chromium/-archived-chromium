@@ -61,8 +61,15 @@ namespace o3d {
 
 [nocpp, include="core/cross/file_request.h"] class FileRequest
     : ObjectBase {
+  %[
+    A callback to call whenever the ready state of the request changes.
+  %]
   [setter=set_onreadystatechange]
-      FileRequestCallback onreadystatechange;
+  FileRequestCallback onreadystatechange;
+
+  %[
+    The URI this request is for.
+  %]
   [getter=uri] String uri;
   %[
     On completion of successful texture file loads, this holds the loaded

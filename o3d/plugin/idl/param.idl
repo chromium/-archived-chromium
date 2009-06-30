@@ -246,7 +246,7 @@ typedef Param[] ParamVector;
 };
 
 %[
-  A Param which stores a Texture.
+  A Param which stores a Sampler.
 %]
 [nocpp, include="core/cross/sampler.h"] class ParamSampler : Param {
   %[
@@ -255,6 +255,9 @@ typedef Param[] ParamVector;
   [getter, setter, property=rw] Sampler? value_;
 };
 
+%[
+ A Param which stores a Texture.
+%]
 [nocpp, include="core/cross/param.h"] class ParamTexture : Param {
   %[
     The Texture stored by the Param.

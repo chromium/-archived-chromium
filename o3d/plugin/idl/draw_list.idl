@@ -51,8 +51,6 @@ namespace o3d {
     BY_Z_ORDER = 1,
     BY_PRIORITY = 2
   };
-
-  [getter] unsigned int global_index_;
 };  // DrawList
 
 }  // namespace o3d
