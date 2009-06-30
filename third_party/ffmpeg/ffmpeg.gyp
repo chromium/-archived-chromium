@@ -177,7 +177,7 @@
         ['OS=="win"', {
           'variables': {
             'source_files': [
-              'binaries/avcodeec-52.dll',
+              'binaries/avcodec-52.dll',
               'binaries/avformat-52.dll',
               'binaries/avutil-50.dll',
               'binaries/pthreadGC2.dll',
