@@ -1052,6 +1052,7 @@
         'browser/gtk/tabs/tab_strip_gtk.cc',
         'browser/gtk/tabs/tab_strip_gtk.h',
         'browser/gtk/task_manager_gtk.cc',
+        'browser/gtk/task_manager_gtk.h',
         'browser/gtk/toolbar_star_toggle_gtk.cc',
         'browser/gtk/toolbar_star_toggle_gtk.h',
         'browser/hang_monitor/hung_plugin_action.cc',

@@ -41,6 +41,7 @@
 #include "chrome/browser/gtk/status_bubble_gtk.h"
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
 #include "chrome/browser/gtk/tabs/tab_strip_gtk.h"
+#include "chrome/browser/gtk/task_manager_gtk.h"
 #include "chrome/browser/gtk/toolbar_star_toggle_gtk.h"
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
@@ -649,7 +650,7 @@ void BrowserWindowGtk::ShowAboutChromeDialog() {
 }
 
 void BrowserWindowGtk::ShowTaskManager() {
-  NOTIMPLEMENTED();
+  TaskManagerGtk::Show();
 }
 
 void BrowserWindowGtk::ShowBookmarkManager() {

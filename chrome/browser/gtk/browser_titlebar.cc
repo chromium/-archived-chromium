@@ -6,6 +6,8 @@
 
 #include <gtk/gtk.h>
 
+#include <string>
+
 #include "app/resource_bundle.h"
 #include "app/l10n_util.h"
 #include "chrome/app/chrome_dll_resource.h"
@@ -243,8 +245,7 @@ bool BrowserTitlebar::IsCommandEnabled(int command_id) const {
       return browser_window_->browser()->CanRestoreTab();
 
     case IDC_TASK_MANAGER:
-      // TODO(tc): Task manager needs to be implemented.
-      return false;
+      return true;
 
     default:
       NOTREACHED();
