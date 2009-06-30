@@ -33,11 +33,17 @@
     'browser': {
       'filepath': 'chrome/browser/.*',
     },
+    'download': {
+      'filepath': 'download|save_',
+    },
     'history': {
       'filepath': 'chrome/browser/history/.*',
     },
     'renderer': {
       'filepath': 'chrome/browser/renderer_host/.*|chrome/renderer/.*|chrome/common/render.*',
+    },
+    'safe_browsing': {
+      'filepath': 'chrome/browser/safe_browsing/.*|chrome/browser/renderer_host/safe.*',
     },
     'tab_contents': {
       'filepath': 'chrome/browser/tab_contents/.*',
@@ -66,8 +72,10 @@
     'base': ['brettw@chromium.org'],
     'views': ['ben@chromium.org'],
     'browser': ['ben@chromium.org'],
+    'download': ['paul@chromium.org'],
     'history': ['brettw@chromium.org'],
     'renderer': ['darin@chromium.org', 'brettw@chromium.org'],
+    'safe_browsing': ['paul@chromium.org'],
     'tab_contents': ['brettw@chromium.org'],
     'webkit': ['darin@chromium.org'],
     'plugin': ['darin@chromium.org'],
