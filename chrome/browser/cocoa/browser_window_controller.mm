@@ -647,8 +647,16 @@ willPositionSheet:(NSWindow *)sheet
     [content removeFromSuperview];
     [window_ setContentView:content];
     [self setWindow:window_.get()];
-    [window_ makeKeyAndOrderFront:self];
     [content setNeedsDisplay:YES];
+
+    // With this call, valgrind yells at me about "Conditional jump or
+    // move depends on uninitialised value(s)".  The error happens in
+    // -[NSThemeFrame drawOverlayRect:].  I'm pretty convinced this is
+    // an Apple bug, but there is no visual impact.  I have been
+    // unable to tickle it away with other window or view manipulation
+    // Cocoa calls.  Stack added to suppressions_mac.txt.
+    [window_ makeKeyAndOrderFront:self];
+
     [fullscreen_window_ close];
     fullscreen_window_.reset(nil);
   }

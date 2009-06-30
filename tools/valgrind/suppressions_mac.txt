@@ -245,3 +245,15 @@
    fun:MyActivateTSMDocument
    fun:ActivateTSMDocument
 }
+{
+   # Looks like an Apple bug; has no visual impact.
+   unitialized_rect_allocated_on_stack_when_reparenting_window_content_views
+   Memcheck:Cond
+   fun:NSRectClip
+   fun:-[NSThemeFrame drawOverlayRect:]
+   ...
+   fun:-[NSWindow makeKeyAndOrderFront:]
+   fun:-[BrowserWindowController setFullscreen:]
+   ...
+   fun:main
+}
