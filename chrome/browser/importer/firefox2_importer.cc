@@ -447,8 +447,14 @@ bool Firefox2Importer::ParseBookmarkFromLine(const std::string& line,
 
   // URL
   if (GetAttribute(attribute_list, kHrefAttribute, &value)) {
-    ReplaceSubstringsAfterOffset(&value, 0, "%22", "\"");
-    *url = GURL(value);
+    std::wstring w_url;
+    CodepageToWide(value, charset.c_str(), OnStringUtilConversionError::SKIP,
+      &w_url);
+    HTMLUnescape(&w_url);
+
+    string16 url16 = WideToUTF16Hack(w_url);
+
+    *url = GURL(url16);
   }
 
   // Favicon
@@ -491,8 +497,17 @@ bool Firefox2Importer::GetAttribute(const std::string& attribute_list,
     return false;  // Can't find the attribute.
 
   begin = attribute_list.find(kQuote, begin) + 1;
-  size_t end = attribute_list.find(kQuote, begin);
-  if (end == std::string::npos)
+
+  size_t end = begin + 1;
+  while (end < attribute_list.size()) {
+    if (attribute_list[end] == '"' &&
+        attribute_list[end - 1] != '\\') {
+      break;
+    }
+    end++;
+  }
+
+  if (end == attribute_list.size())
     return false;  // The value is not quoted.
 
   *value = attribute_list.substr(begin, end - begin);

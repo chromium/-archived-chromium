@@ -106,6 +106,16 @@ TEST(FirefoxImporterTest, Firefox2BookmarkParse) {
   EXPECT_EQ(L"", post_data);
   EXPECT_TRUE(Time() == add_date);
 
+  result = Firefox2Importer::ParseBookmarkFromLine(
+      "<DT><A HREF=\"http://domain.com/?g=&quot;\"\">name</A>",
+      charset, &title, &url, &favicon, &shortcut, &add_date, &post_data);
+  EXPECT_TRUE(result);
+  EXPECT_EQ(L"name", title);
+  EXPECT_EQ("http://domain.com/?g=%22", url.spec());
+  EXPECT_EQ(L"", shortcut);
+  EXPECT_EQ(L"", post_data);
+  EXPECT_TRUE(Time() == add_date);
+
   // Creation date.
   result = Firefox2Importer::ParseBookmarkFromLine(
       "<DT><A HREF=\"http://site/\" ADD_DATE=\"1121301154\">name</A>",

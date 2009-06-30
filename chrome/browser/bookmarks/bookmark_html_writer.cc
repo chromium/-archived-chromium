@@ -166,12 +166,12 @@ class Writer : public Task {
 
     switch (type) {
       case ATTRIBUTE_VALUE:
-        // Convert " to \"
+        // Convert " to &quot;
         if (text.find(L"\"") != std::wstring::npos) {
           string16 replaced_string = WideToUTF16Hack(text);
           ReplaceSubstringsAfterOffset(&replaced_string, 0,
                                        ASCIIToUTF16("\""),
-                                       ASCIIToUTF16("\\\""));
+                                       ASCIIToUTF16("&quot;"));
           utf8_string = UTF16ToUTF8(replaced_string);
         } else {
           utf8_string = WideToUTF8(text);
