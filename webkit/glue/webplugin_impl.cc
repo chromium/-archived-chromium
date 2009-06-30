@@ -388,6 +388,17 @@ WebPluginImpl::WebPluginImpl(WebCore::HTMLPlugInElement* element,
 WebPluginImpl::~WebPluginImpl() {
 }
 
+#if defined(OS_LINUX)
+gfx::PluginWindowHandle WebPluginImpl::CreatePluginContainer() {
+  WebCore::Frame* frame = element_->document()->frame();
+  WebFrameImpl* webframe = WebFrameImpl::FromFrame(frame);
+  WebViewImpl* webview = webframe->GetWebViewImpl();
+  if (!webview->delegate())
+    return 0;
+  return webview->delegate()->CreatePluginContainer();
+}
+#endif
+
 void WebPluginImpl::SetWindow(gfx::PluginWindowHandle window) {
   if (window) {
     DCHECK(!windowless_);  // Make sure not called twice.

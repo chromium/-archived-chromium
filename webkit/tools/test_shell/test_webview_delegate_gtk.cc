@@ -7,6 +7,7 @@
 #include "webkit/tools/test_shell/test_webview_delegate.h"
 
 #include <gtk/gtk.h>
+#include <gdk/gdkx.h>
 
 #include "base/gfx/gtk_util.h"
 #include "base/gfx/point.h"
@@ -91,11 +92,16 @@ WebPluginDelegate* TestWebViewDelegate::CreatePluginDelegate(
   const std::string& mtype =
       (actual_mime_type && !actual_mime_type->empty()) ? *actual_mime_type
                                                        : mime_type;
-
+  // TODO(evanm): we probably shouldn't be doing this mapping to X ids at
+  // this level.
   GdkNativeWindow plugin_parent =
-      shell_->webViewHost()->CreatePluginContainer();
+      GDK_WINDOW_XWINDOW(shell_->webViewHost()->view_handle()->window);
 
   return WebPluginDelegateImpl::Create(info.path, mtype, plugin_parent);
+}
+
+gfx::PluginWindowHandle TestWebViewDelegate::CreatePluginContainer() {
+  return shell_->webViewHost()->CreatePluginContainer();
 }
 
 void TestWebViewDelegate::WillDestroyPluginWindow(unsigned long id) {
@@ -232,7 +238,8 @@ void TestWebViewDelegate::DidMove(WebWidget* webwidget,
   // window?), ignore the message.
   if (!widget)
     return;
-  DCHECK(!GTK_WIDGET_NO_WINDOW(widget) && GTK_WIDGET_REALIZED(widget));
+  DCHECK(!GTK_WIDGET_NO_WINDOW(widget));
+  DCHECK(GTK_WIDGET_REALIZED(widget));
 
   if (!move.visible) {
     gtk_widget_hide(widget);
