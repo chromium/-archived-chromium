@@ -266,7 +266,11 @@ void RootView::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
     // An unparanted RootView does not have a FocusManager.
     if (focus_manager)
       focus_manager->ViewRemoved(parent, child);
+#if defined(OS_WIN)
     ViewStorage::GetSharedInstance()->ViewRemoved(parent, child);
+#else
+    NOTIMPLEMENTED();
+#endif
   }
 }
 

@@ -10,11 +10,6 @@
 
 namespace views {
 
-FocusManager* View::GetFocusManager() {
-  NOTIMPLEMENTED();
-  return NULL;
-}
-
 void View::DoDrag(const MouseEvent& e, int press_x, int press_y) {
   NOTIMPLEMENTED();
 }
