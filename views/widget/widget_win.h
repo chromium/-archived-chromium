@@ -516,10 +516,7 @@ class WidgetWin : public Widget,
 
   // The TooltipManager.
   // WARNING: RootView's destructor calls into the TooltipManager. As such, this
-  // must be destroyed AFTER root_view_. This really only matters during
-  // WM_SESSIONEND, as normally the hwnd is destroyed which tiggers unsetting
-  // the widget in the RootView so that RootView's destructor doesn't call into
-  // the TooltipManager.
+  // must be destroyed AFTER root_view_.
   scoped_ptr<TooltipManagerWin> tooltip_manager_;
 
   // The focus manager keeping track of focus for this Widget and any of its

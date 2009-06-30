@@ -209,10 +209,13 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
   // popup that such GtkWidgets are parented to.
   static GtkWidget* null_parent_;
 
+  // The TooltipManager.
+  // WARNING: RootView's destructor calls into the TooltipManager. As such, this
+  // must be destroyed AFTER root_view_.
+  scoped_ptr<TooltipManagerGtk> tooltip_manager_;
+
   // The root of the View hierarchy attached to this window.
   scoped_ptr<RootView> root_view_;
-
-  scoped_ptr<TooltipManagerGtk> tooltip_manager_;
 
   // If true, the mouse is currently down.
   bool is_mouse_down_;
