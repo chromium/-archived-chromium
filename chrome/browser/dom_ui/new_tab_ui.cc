@@ -203,10 +203,10 @@ class NewTabHTMLSource : public ChromeURLDataManager::DataSource {
   static bool first_view() { return first_view_; }
 
  private:
-  // In case a file path to the new tab page was provided this tries to load
+  // In case a file path to the new new tab page was provided this tries to load
   // the file and returns the file content if successful. This returns an empty
   // string in case of failure.
-  static std::string GetCustomNewTabPageFromCommandLine();
+  static std::string GetNewNewTabFromCommandLine();
 
   // Whether this is the is the first viewing of the new tab page and
   // we think it is the user's startup page.
@@ -354,17 +354,20 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
   // the resource bundle.
   StringPiece new_tab_html;
   std::string new_tab_html_str;
-  new_tab_html_str = GetCustomNewTabPageFromCommandLine();
+  if (NewTabUI::EnableNewNewTabPage()) {
+    new_tab_html_str = GetNewNewTabFromCommandLine();
 
-  if (!new_tab_html_str.empty()) {
-    new_tab_html = StringPiece(new_tab_html_str);
-  }
-
-  if (new_tab_html.empty()) {
+    if (!new_tab_html_str.empty()) {
+      new_tab_html = StringPiece(new_tab_html_str);
+    } else {
+      // Use the new new tab page from the resource bundle.
+      new_tab_html = ResourceBundle::GetSharedInstance().GetRawDataResource(
+              IDR_NEW_NEW_TAB_HTML);
+    }
+  } else {
+    // Use the default new tab page resource.
     new_tab_html = ResourceBundle::GetSharedInstance().GetRawDataResource(
-        NewTabUI::UseOldNewTabPage() ?
-            IDR_NEW_TAB_HTML :
-            IDR_NEW_NEW_TAB_HTML);
+        IDR_NEW_TAB_HTML);
   }
 
   const std::string full_html = jstemplate_builder::GetTemplateHtml(
@@ -378,10 +381,10 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
 }
 
 // static
-std::string NewTabHTMLSource::GetCustomNewTabPageFromCommandLine() {
+std::string NewTabHTMLSource::GetNewNewTabFromCommandLine() {
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
   const std::wstring file_path_wstring = command_line->GetSwitchValue(
-      switches::kNewTabPage);
+      switches::kNewNewTabPage);
 
 #if defined(OS_WIN)
   const FilePath::StringType file_path = file_path_wstring;
@@ -991,7 +994,7 @@ class RecentlyBookmarkedHandler : public DOMMessageHandler,
   virtual ~RecentlyBookmarkedHandler();
 
   // DOMMessageHandler implementation.
-  virtual void RegisterMessages();
+  virtual void RegisterMessages();  
 
   // Callback which navigates to the bookmarks page.
   void HandleShowBookmarkPage(const Value*);
@@ -1334,10 +1337,10 @@ class MetricsHandler : public DOMMessageHandler {
  public:
   MetricsHandler() {}
   virtual ~MetricsHandler() {}
-
+  
   // DOMMessageHandler implementation.
   virtual void RegisterMessages();
-
+  
   // Callback which records a user action.
   void HandleMetrics(const Value* content);
 
@@ -1406,30 +1409,25 @@ NewTabUI::NewTabUI(TabContents* contents)
             &ChromeURLDataManager::AddDataSource,
             html_source));
   } else {
-    DownloadManager* dlm = GetProfile()->GetDownloadManager();
-    // This might be null in the case of running inside a unit test.
-    // TODO(arv): Fix unit tests to provide a working mock download manager.
-    if (dlm) {
+    if (EnableNewNewTabPage()) {
       DownloadManager* dlm = GetProfile()->GetDownloadManager();
       DownloadsDOMHandler* downloads_handler =
           new DownloadsDOMHandler(dlm);
       downloads_handler->Attach(this);
       AddMessageHandler(downloads_handler);
       downloads_handler->Init();
+
+      AddMessageHandler((new ShownSectionsHandler())->Attach(this));
     }
 
-    AddMessageHandler((new ShownSectionsHandler())->Attach(this));
+    AddMessageHandler((new TemplateURLHandler())->Attach(this));
     AddMessageHandler((new MostVisitedHandler())->Attach(this));
+    AddMessageHandler((new RecentlyBookmarkedHandler())->Attach(this));
     AddMessageHandler((new RecentlyClosedTabsHandler())->Attach(this));
+    AddMessageHandler((new HistoryHandler())->Attach(this));
     AddMessageHandler((new MetricsHandler())->Attach(this));
     if (EnableWebResources())
       AddMessageHandler((new TipsHandler())->Attach(this));
-
-    if (UseOldNewTabPage()) {
-      AddMessageHandler((new TemplateURLHandler())->Attach(this));
-      AddMessageHandler((new RecentlyBookmarkedHandler())->Attach(this));
-      AddMessageHandler((new HistoryHandler())->Attach(this));
-    }
 
 #ifdef CHROME_PERSONALIZATION
     if (!Personalization::IsP13NDisabled(GetProfile())) {
@@ -1476,21 +1474,24 @@ void NewTabUI::Observe(NotificationType type,
   }
 }
 
+
 // static
 void NewTabUI::RegisterUserPrefs(PrefService* prefs) {
   MostVisitedHandler::RegisterUserPrefs(prefs);
-  ShownSectionsHandler::RegisterUserPrefs(prefs);
   if (NewTabUI::EnableWebResources())
     TipsHandler::RegisterUserPrefs(prefs);
+  if (NewTabUI::EnableNewNewTabPage())
+    ShownSectionsHandler::RegisterUserPrefs(prefs);
 }
 
 // static
-bool NewTabUI::UseOldNewTabPage() {
+bool NewTabUI::EnableNewNewTabPage() {
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
-  return command_line->HasSwitch(switches::kOldNewTabPage);
+  return command_line->HasSwitch(switches::kNewNewTabPage);
 }
 
 bool NewTabUI::EnableWebResources() {
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
   return command_line->HasSwitch(switches::kWebResources);
 }
+

@@ -485,16 +485,14 @@ const wchar_t kSimpleDataSource[]              = L"simple-data-source";
 // current details.
 const wchar_t kForceFieldTestNameAndValue[]    = L"force-fieldtest";
 
-// Allows the new tab page resource to be loaded from a local HTML file. This
-// should be a path to the HTML file that you want to use for the new tab page.
-const wchar_t kNewTabPage[]                    = L"new-tab-page";
-
-// Switches back to the old new tab page.
-const wchar_t kOldNewTabPage[]                 = L"old-new-tab-page";
+// Enables the prototype of the next version of the New Tab page.
+// This can be empty in which case the default prototype resource is used or it
+// can be a file path, in which case the file will be used as the new tab page.
+const wchar_t kNewNewTabPage[]                 = L"new-new-tab-page";
 
 // Enables the prototype of the backend service for web resources, used in the
 // new new tab page for loading tips and recommendations from a JSON feed.
-const wchar_t kWebResources[]                  = L"enable-web-resources";
+const wchar_t kWebResources[]                 = L"enable-web-resources";
 
 // Disables the default browser check. Useful for UI/browser tests where we want
 // to avoid having the default browser info-bar displayed.
