@@ -111,6 +111,12 @@ class VisitDatabase {
                             VisitID* to_visit,
                             GURL* to_url);
 
+  // Similar to the above function except finds a redirect going to a given
+  // |to_visit|.
+  bool GetRedirectToVisit(VisitID to_visit,
+                          VisitID* from_visit,
+                          GURL* from_url);
+
   // Returns the number of visits to all urls on the scheme/host/post
   // identified by url. This is only valid for http and https urls (all other
   // schemes are ignored and false is returned).

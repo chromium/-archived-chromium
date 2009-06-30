@@ -27,6 +27,12 @@ struct HistoryDetails {
 struct URLVisitedDetails : public HistoryDetails {
   PageTransition::Type transition;
   URLRow row;
+
+  // A list of redirects leading up to the URL represented by this struct. If
+  // we have the redirect chain A -> B -> C and this struct represents visiting
+  // C, then redirects[0]=B and redirects[1]=A.  If there are no redirects,
+  // this will be an empty vector.
+  std::vector<GURL> redirects;
 };
 
 // Details for NOTIFY_HISTORY_TYPED_URLS_MODIFIED.

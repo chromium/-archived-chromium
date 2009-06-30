@@ -327,6 +327,31 @@ bool VisitDatabase::GetRedirectFromVisit(VisitID from_visit,
   return true;
 }
 
+bool VisitDatabase::GetRedirectToVisit(VisitID to_visit,
+                                       VisitID* from_visit,
+                                       GURL* from_url) {
+  VisitRow row;
+  if (!GetRowForVisit(to_visit, &row))
+    return false;
+
+  if (from_visit)
+    *from_visit = row.referring_visit;
+
+  if (from_url) {
+    SQLITE_UNIQUE_STATEMENT(statement, GetStatementCache(),
+        "SELECT u.url "
+        "FROM visits v JOIN urls u ON v.url = u.id "
+        "WHERE v.id = ?");
+    statement->bind_int64(0, row.referring_visit);
+
+    if (statement->step() != SQLITE_ROW)
+      return false;
+
+    *from_url = GURL(statement->column_string(0));
+  }
+  return true;
+}
+
 bool VisitDatabase::GetVisitCountToHost(const GURL& url,
                                         int* count,
                                         Time* first_visit) {
@@ -373,7 +398,7 @@ bool VisitDatabase::GetVisitCountToHost(const GURL& url,
 bool VisitDatabase::GetStartDate(Time* first_visit) {
   SQLITE_UNIQUE_STATEMENT(statement, GetStatementCache(),
       "SELECT MIN(visit_time) FROM visits WHERE visit_time != 0");
-  if (!statement.is_valid() || statement->step() != SQLITE_ROW || 
+  if (!statement.is_valid() || statement->step() != SQLITE_ROW ||
       statement->column_int64(0) == 0) {
     *first_visit = Time::Now();
     return false;

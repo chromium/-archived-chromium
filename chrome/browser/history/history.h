@@ -280,6 +280,12 @@ class HistoryService : public CancelableRequestProvider,
                             CancelableRequestConsumerBase* consumer,
                             QueryRedirectsCallback* callback);
 
+  // Schedules a query to get the most recent redirects ending at the given
+  // URL.
+  Handle QueryRedirectsTo(const GURL& to_url,
+                          CancelableRequestConsumerBase* consumer,
+                          QueryRedirectsCallback* callback);
+
   typedef Callback4<Handle,
                     bool,        // Were we able to determine the # of visits?
                     int,         // Number of visits.

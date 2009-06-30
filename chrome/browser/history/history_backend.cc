@@ -648,6 +648,7 @@ std::pair<URLID, VisitID> HistoryBackend::AddPageVisit(
     URLVisitedDetails* details = new URLVisitedDetails;
     details->transition = transition;
     details->row = url_info;
+    GetMostRecentRedirectsTo(url, &details->redirects);
     BroadcastNotifications(NotificationType::HISTORY_URL_VISITED, details);
   }
 
@@ -1127,6 +1128,16 @@ void HistoryBackend::QueryRedirectsFrom(
       request->handle(), url, success, &request->value));
 }
 
+void HistoryBackend::QueryRedirectsTo(
+    scoped_refptr<QueryRedirectsRequest> request,
+    const GURL& url) {
+  if (request->canceled())
+    return;
+  bool success = GetMostRecentRedirectsTo(url, &request->value);
+  request->ForwardResult(QueryRedirectsRequest::TupleType(
+      request->handle(), url, success, &request->value));
+}
+
 void HistoryBackend::GetVisitCountToHost(
     scoped_refptr<GetVisitCountToHostRequest> request,
     const GURL& url) {
@@ -1158,6 +1169,28 @@ void HistoryBackend::GetRedirectsFromSpecificVisit(
   }
 }
 
+void HistoryBackend::GetRedirectsToSpecificVisit(
+    VisitID cur_visit,
+    HistoryService::RedirectList* redirects) {
+  // Follow redirects going to cur_visit. These are added to |redirects| in
+  // the order they are found. If a redirect chain looks like A -> B -> C and
+  // |cur_visit| = C, redirects will be {B, A} in that order.
+  if (!db_.get())
+    return;
+
+  GURL cur_url;
+  std::set<VisitID> visit_set;
+  visit_set.insert(cur_visit);
+  while (db_->GetRedirectToVisit(cur_visit, &cur_visit, &cur_url)) {
+    if (visit_set.find(cur_visit) != visit_set.end()) {
+      NOTREACHED() << "Loop in visit chain, giving up";
+      return;
+    }
+    visit_set.insert(cur_visit);
+    redirects->push_back(cur_url);
+  }
+}
+
 bool HistoryBackend::GetMostRecentRedirectsFrom(
     const GURL& from_url,
     HistoryService::RedirectList* redirects) {
@@ -1171,6 +1204,22 @@ bool HistoryBackend::GetMostRecentRedirectsFrom(
     return false;  // No visits for URL.
 
   GetRedirectsFromSpecificVisit(cur_visit, redirects);
+  return true;
+}
+
+bool HistoryBackend::GetMostRecentRedirectsTo(
+    const GURL& to_url,
+    HistoryService::RedirectList* redirects) {
+  redirects->clear();
+  if (!db_.get())
+    return false;
+
+  URLID to_url_id = db_->GetRowForURL(to_url, NULL);
+  VisitID cur_visit = db_->GetMostRecentVisitForURL(to_url_id, NULL);
+  if (!cur_visit)
+    return false;  // No visits for URL.
+
+  GetRedirectsToSpecificVisit(cur_visit, redirects);
   return true;
 }
 

@@ -142,6 +142,8 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
                     const QueryOptions& options);
   void QueryRedirectsFrom(scoped_refptr<QueryRedirectsRequest> request,
                           const GURL& url);
+  void QueryRedirectsTo(scoped_refptr<QueryRedirectsRequest> request,
+                        const GURL& url);
 
   void GetVisitCountToHost(scoped_refptr<GetVisitCountToHostRequest> request,
                            const GURL& url);
@@ -154,6 +156,13 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   // Backend for QueryRedirectsFrom.
   bool GetMostRecentRedirectsFrom(const GURL& url,
                                   HistoryService::RedirectList* redirects);
+
+  // Similar to above function except computes a chain of redirects to the
+  // given URL. Stores the most recent list of redirects ending at |url| in the
+  // given RedirectList. For example, if we have the redirect list A -> B -> C,
+  // then calling this function with url=C would fill redirects with {B, A}.
+  bool GetMostRecentRedirectsTo(const GURL& url,
+                                      HistoryService::RedirectList* redirects);
 
   // Thumbnails ----------------------------------------------------------------
 
@@ -296,6 +305,11 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   // |cur_visit|. |cur_visit| is assumed to be valid. Assumes that
   // this HistoryBackend object has been Init()ed successfully.
   void GetRedirectsFromSpecificVisit(
+      VisitID cur_visit, HistoryService::RedirectList* redirects);
+
+  // Similar to the above function except returns a redirect list ending
+  // at |cur_visit|.
+  void GetRedirectsToSpecificVisit(
       VisitID cur_visit, HistoryService::RedirectList* redirects);
 
   // Thumbnail Helpers ---------------------------------------------------------

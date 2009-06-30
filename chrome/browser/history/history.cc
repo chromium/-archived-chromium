@@ -516,6 +516,14 @@ HistoryService::Handle HistoryService::QueryRedirectsFrom(
       new history::QueryRedirectsRequest(callback), from_url);
 }
 
+HistoryService::Handle HistoryService::QueryRedirectsTo(
+    const GURL& to_url,
+    CancelableRequestConsumerBase* consumer,
+    QueryRedirectsCallback* callback) {
+  return Schedule(PRIORITY_NORMAL, &HistoryBackend::QueryRedirectsTo, consumer,
+      new history::QueryRedirectsRequest(callback), to_url);
+}
+
 HistoryService::Handle HistoryService::GetVisitCountToHost(
     const GURL& url,
     CancelableRequestConsumerBase* consumer,
