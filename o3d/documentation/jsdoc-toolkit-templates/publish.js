@@ -49,6 +49,7 @@ var g_validJSDOCTypes = {
   'void': true,
   'undefined': true};
 var g_unknownTypes = { };
+var g_numErrors = 0;
 
 /**
  * Called automatically by JsDoc Toolkit.
@@ -60,7 +61,7 @@ function publish(symbolSet) {
     outDir: JSDOC.opt.d || SYS.pwd + '../out/jsdoc/',
     templatesDir: JSDOC.opt.t || SYS.pwd + '../templates/jsdoc/',
     symbolsDir: '',
-    prefix: 'js_1_0_'};
+    prefix: JSDOC.opt.D.prefix || 'js_1_0_'};
   publish.conf.srcDir = publish.conf.outDir + 'src/'
   publish.conf.htmlDir = publish.conf.outDir + 'original_html/'
 
@@ -94,8 +95,8 @@ function publish(symbolSet) {
     var namespacesTemplate = new JSDOC.JsPlate(templatesDir +
                                                'namespaces.tmpl');
   } catch(e) {
-    print('Couldn\'t create the required templates: ' + e);
-    quit();
+    generateError('Couldn\'t create the required templates: ' + e);
+    System.exit(1);
   }
 
   // some ustility filters
@@ -172,6 +173,11 @@ function publish(symbolSet) {
   var namespaces = namespacesTemplate.process(classes);
   IO.saveFile(publish.conf.outDir, 'namespaces' + publish.conf.ext, namespaces);
   IO.saveFile(publish.conf.htmlDir, 'namespaces.html', namespaces);
+
+  if (g_numErrors > 0) {
+    print('Num Errors: ' + g_numErrors);
+    System.exit(1);
+  }
 }
 
 
@@ -437,12 +443,13 @@ function camelCaseToUnderscore(str) {
 
 /**
  * Prints a warning about an unknown type only once.
+ * @param {string} place Use to print error message if type not found.
  * @param {string} type Type specification.
  */
-function reportUnknownType(type) {
+function reportUnknownType(place, type) {
   if (!g_unknownTypes[type]) {
     g_unknownTypes[type] = true;
-    print ('WARNING: reference to unknown type: "' + type + '"');
+    generatePlaceError (place, 'reference to unknown type: "' + type + '"');
   }
 }
 
@@ -493,11 +500,46 @@ function getIndexOfClosingCharacter(str, startIndex) {
 }
 
 /**
+ * Make's a name by concatenating strings.
+ * @param {...[string]} strings to concatenate.
+ * @return {string} Concatenated string.
+ */
+function makeName() {
+  var str = '';
+  for (var ii = 0; ii < arguments.length; ++ii) {
+    if (str) {
+      str += '.';
+    }
+    str += arguments[ii];
+  }
+  return str;
+}
+
+/**
+ * Generates an error msg.
+ * @param {string} msg.
+ */
+function generateError(msg) {
+  ++g_numErrors;
+  print('ERROR: ' + msg);
+}
+
+/**
+ * Generates an error msg.
+ * @param {string} place Use to print error message.
+ * @param {string} msg.
+ */
+function generatePlaceError(place, msg) {
+  generateError(place + ': ' + msg);
+}
+
+/**
  * Converts a reference to a single JSDOC type specification to an html link.
+ * @param {string} place Use to print error message if type not found.
  * @param {string} str to linkify.
  * @return {string} linkified string.
  */
-function linkifySingleType(type) {
+function linkifySingleType(place, type) {
   var not = '';
   var equals = '';
   // Remove ! if it exists.
@@ -516,64 +558,68 @@ function linkifySingleType(type) {
   if (startsWith(type, 'Array.<')) {
     var closingAngle = getIndexOfClosingCharacter(type, 6);
     if (closingAngle < 0) {
-      print ('WARNING: Unmatched "<" in Array type : ' + type);
+      generatePlaceError(place, 'Unmatched "<" in Array type : ' + type);
     } else {
       link = 'Array.&lt;' +
-        linkifySingleType(type.substring(7, closingAngle)) + '>';
+        linkifySingleType(place, type.substring(7, closingAngle)) + '>';
     }
   } else if (startsWith(type, 'function(')) {
     var closingParen = getIndexOfClosingCharacter(type, 8);
     if (closingParen < 0) {
-      print ('WARNING: Unmatched "(" in function type : ' + type);
+      generatePlaceError(place, 'Unmatched "(" in function type : ' + type);
     } else {
       var end = type.substring(closingParen + 1);
       if (!startsWith(end, ': ')) {
-        print ('WARNING: Malformed return specification on function. Must be' +
-               ' "function(args): type" including the space after the colon.');
+        generatePlaceError(place,
+            'Malformed return specification on function. Must be' +
+            ' "function(args): type" including the space after the colon.');
       } else {
-        var args = type.substring(9, closingParen).split(/ *, */);
         var output = '';
-        for (var ii = 0; ii < args.length; ++ii) {
-          if (ii > 0) {
-            output += ', ';
+        var argsStr = type.substring(9, closingParen);
+        if (argsStr) {
+          var args = argsStr.split(/ *, */);
+          for (var ii = 0; ii < args.length; ++ii) {
+            if (ii > 0) {
+              output += ', ';
+            }
+            output += linkifyTypeSpec(place, args[ii]);
           }
-          output += linkifyTypeSpec(args[ii]);
         }
-        link = 'function(' + output + '): ' + linkifyTypeSpec(end.substring(2));
+        link = 'function(' + output + '): ' +
+               linkifyTypeSpec(place, end.substring(2));
       }
     }
   } else if (type.indexOf(':') >= 0) { // check for records.
-    var elements = type.split(/\s*,\s*/);
-    var output = '{';
-    for (var ii = 0; ii < elements.length; ++ii) {
-      if (ii > 0) {
-        output += ', ';
+    if (type.indexOf('::') >= 0) { // check for CPP scope
+      generatePlaceError(place,
+                         'CPP "::" scope operator found for type "' + type +
+                         '" must be Javascript "." scope operator.');
+    } else {
+      var elements = type.split(/\s*,\s*/);
+      var output = '{';
+      for (var ii = 0; ii < elements.length; ++ii) {
+        if (ii > 0) {
+          output += ', ';
+        }
+        var element = elements[ii];
+        var colon = element.indexOf(': ');
+        if (colon < 0) {
+          generatePlaceError(place,
+                             'Malformed record specification. Format must be ' +
+                             '{id1: type1, id2: type2, ...}.');
+          output += element;
+        } else {
+          var name = element.substring(0, colon);
+          var subType = element.substring(colon + 2);
+          output += name + ':&nbsp;' + linkifyTypeSpec(place, subType)
+        }
       }
-      var element = elements[ii];
-      var colon = element.indexOf(': ');
-      if (colon < 0) {
-        print ("WARNING: Malformed record specification. Format must be " +
-               "{id1: type1, id2: type2, ...}.");
-        output += element;
-      } else {
-        var name = element.substring(0, colon);
-        var subType = element.substring(colon + 2);
-        output += name + ':&nbsp;' + linkifyTypeSpec(subType)
-      }
+      link = output + '}';
     }
-    link = output + '}';
   } else {
     var symbol = getSymbol(type);
     if (symbol) {
       link = '<a class="el" href="' + getLinkToSymbol(symbol) + '">' +
-          type + '</a>';
-    } else if (startsWith(type, 'o3d.')) {
-      // TODO: remove this hack, make nixysa generate JSDOC js
-      //     files instead of C++ headers and pass those into
-      //     jsdoctoolkit.
-      reportUnknownType(type);
-      link = '<a class="el" href="../classo3d_1_1_' +
-          camelCaseToUnderscore(type.substring(4)) + '.html">' +
           type + '</a>';
     } else {
       // See if the symbol is a property or field.
@@ -586,11 +632,21 @@ function linkifySingleType(type) {
           link = '<a class="el" href="' + getLinkToSymbol(symbol) + '#' +
               field + '">' +  type + '</a>';
         } else {
-          if (subType[0] == '?') {
-            subType = subType.substring(1);
-          }
-          if (!g_validJSDOCTypes[subType]) {
-            reportUnknownType(type);
+          if (startsWith(type, 'o3d.')) {
+            // TODO(gman): remove this hack, make nixysa generate JSDOC js
+            //     files instead of C++ headers and pass those into
+            //     jsdoctoolkit.
+            reportUnknownType(place, type);
+            link = '<a class="el" href="../classo3d_1_1_' +
+                camelCaseToUnderscore(type.substring(4)) + '.html">' +
+                type + '</a>';
+          } else {
+            if (subType[0] == '?') {
+              subType = subType.substring(1);
+            }
+            if (!g_validJSDOCTypes[subType]) {
+              reportUnknownType(place, type);
+            }
           }
         }
       }
@@ -627,10 +683,11 @@ function fixSpecCommas(str) {
  * '(!o3djs.math.Vector3|!O3D.math.Vector4)' would change to
  * '(!<a href="??">o3djs.math.Vector3</a>
  * |!<a href="??">o3djs.math.Vector4</a>)'.
+ * @param {string} place Use to print error message if type not found.
  * @param {string} str to linkify.
  * @return {string} linkified string.
  */
-function linkifyTypeSpec(str) {
+function linkifyTypeSpec(place, str) {
   var output = '';
   if (str) {
     var fixed = fixSpecCommas(str);
@@ -642,14 +699,29 @@ function linkifyTypeSpec(str) {
         if (tt > 0) {
           output += '|';
         }
-        output += linkifySingleType(types[tt]);
+        output += linkifySingleType(place, types[tt]);
       }
       output += ')';
     } else {
-      output += linkifySingleType(fixed);
+      output += linkifySingleType(place, fixed);
     }
+  } else {
+    generatePlaceError(place, 'missing type specification (' + str + ')');
   }
   return output;
+}
+
+/**
+ * Same as linkifyTypeSpec but allows str to be undefined or ''.
+ * @param {string} place Use to print error message if type not found.
+ * @param {string} str to linkify.
+ * @return {string} linkified string.
+ */
+function linkifyTypeSpecForReturn(place, str) {
+  if (str) {
+    return linkifyTypeSpec(place, str);
+  }
+  return '';
 }
 
 /**

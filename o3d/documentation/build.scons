@@ -28,7 +28,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-import glob
 import os.path
 import subprocess
 Import('env')
@@ -38,11 +37,8 @@ Import('O3D_IDL_SOURCES')
 Import('O3D_JS_SOURCES')
 
 env.Replace(
-    EZT_FORMATTER = 'documentation/ezt_formatter.py',
-    CLASS_TREE_GEN = 'documentation/classtree.py',
     JSDOC_DIR = '$SCONSTRUCT_DIR/documentation',
     JSDOC_EZT_TEMPLATE_DIR = '$JSDOC_DIR/jsdoc-toolkit-templates/',
-    JSDOC_JAR = '$JSDOCTOOLKIT_DIR/jsrun.jar',
     PYTHONPATH = ['$NIXYSA_DIR',
                   '$GFLAGS_DIR/python',
                   '$PLY_DIR']
@@ -54,71 +50,14 @@ LOCAL_IDL_SOURCES = [IDL_DIR + i for i in O3D_IDL_SOURCES]
 JS_DIR = '$SCONSTRUCT_DIR/samples/o3djs/'
 LOCAL_JS_SOURCES = [JS_DIR + i for i in O3D_JS_SOURCES]
 
-def IdlDocsEmitter(target, source, env):
-  bases = [os.path.splitext(s.name)[0] for s in source]
-  targets = [target[0].dir.abspath + "/%s.$IDL_GENERATE_EXT" % b for b in bases]
-  return targets, source
+DOCSGEN_ARGS = ['$JSDOC_DIR/build_docs.py $JAVA_EXE']
 
-AUTOGEN_ARGS = ['$NIXYSA_DIR/codegen.py',
-                '--binding-module=o3d:plugin/o3d_binding.py',
-                '--generate=$IDL_GENERATE',
-                '--output-dir=${TARGET.dir}']
-if ARGUMENTS.get('force-docs', False):
-  AUTOGEN_ARGS += ['--force-docs']
-AUTOGEN_ARGS += ['$SOURCES']
-
-JSDOCS_CMD = ' '.join([
-  '$JAVA_EXE',
-  '-Djsdoc.dir=$JSDOCTOOLKIT_DIR',
-  '-jar $JSDOC_JAR',
-  '$JSDOCTOOLKIT_DIR/app/run.js',
-  '-v',
-  '-t=$JSDOC_EZT_TEMPLATE_DIR/',
-  '-d=${TARGET.dir}',
-  ' '.join(LOCAL_JS_SOURCES)])
-
-def TouchAll(target=None, source=None, env=None):
-  for i in target:
-    if not os.path.exists(i.path):
-      open(i.path, 'wb').close()
-
-env["BUILDERS"]["IdlDocs"] = Builder(action=[env.Python(AUTOGEN_ARGS),
-                                             Action(TouchAll)],
-                                     emitter=IdlDocsEmitter)
-
-doxy_inputs = []
-doxy_inputs += env.IdlDocs(
-    'dummy', LOCAL_IDL_SOURCES,
-    IDL_GENERATE='cppheader',
-    IDL_GENERATE_EXT='h')
-
-def EZTStep(target=None, source=None, env=None):
-  dir = env.Dir('$OBJ_ROOT/documentation/html')
-  html_files = glob.glob(dir.path + os.sep + '*.html')
-  for file in html_files:
-    ret = env.Execute(env.Python(['$EZT_FORMATTER', file]))
-    if ret > 0:
-      return ret
-  return 0
-
-def ClassTreeStep(target=None, source=None, env=None):
-  dir = env.Dir('$OBJ_ROOT/documentation/html')
-  return env.Execute(env.Python(['$CLASS_TREE_GEN', dir.path]))
-
-env.Command(
-    'html/doxygen.png', doxy_inputs,
-    ['$DOXYGEN documentation/Doxyfile',
-     Action(EZTStep),
-     Action(ClassTreeStep),
-     Touch('$TARGET')],
-)
-
-env["BUILDERS"]["JSDocs"] = Builder(action=JSDOCS_CMD)
+env["BUILDERS"]["JSDocs"] = Builder(action=env.Python(DOCSGEN_ARGS))
 
 # index.ezt is a file that the jsdoctoolkit happens to build.
 # Putting it in jsdocs means that will be our target dir for the rest
 # of the files.
-env.JSDocs('html/jsdocs/classtree.html', LOCAL_JS_SOURCES +
+env.JSDocs('base.js', LOCAL_JS_SOURCES + LOCAL_IDL_SOURCES +
            ['$JSDOC_EZT_TEMPLATE_DIR/annotated.tmpl',
             '$JSDOC_EZT_TEMPLATE_DIR/class.tmpl',
             '$JSDOC_EZT_TEMPLATE_DIR/classtree.tmpl',

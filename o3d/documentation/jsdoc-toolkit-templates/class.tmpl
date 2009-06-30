@@ -39,7 +39,7 @@ thisClass = data;
   <ul>
   <for each="seeAlso" in="data.see">
     <li>
-    {+linkifyTypeSpec(seeAlso)+}
+    {+linkifyTypeSpec(makeName('[Class See Also]', thisClass.alias), seeAlso)+}
     </li>
   </for>
   </ul>
@@ -65,7 +65,7 @@ thisClass = data;
     <if test="!method.isPrivate">
         <li>
         <if test="method.isStatic||!method.memberOf">&lt;static&gt; </if>
-        <if test="method.type.length">{+linkifyTypeSpec(method.type)+}&nbsp;</if>
+        <if test="method.type.length">{+linkifyTypeSpec(makeName('[Method Summary]', thisClass.alias, method.name), method.type)+}&nbsp;</if>
         <a class="el" href="#{+method.name+}">{+method.name+}</a>{+makeSignature(method.params)+}
         </li>
     </if>
@@ -84,7 +84,7 @@ thisClass = data;
     <if test="!property.isPrivate">
       <li>
       <if test="property.isStatic||!property.memberOf">&lt;static&gt;&nbsp;</if>
-      {+linkifyTypeSpec(getPropertyType(property))+}
+      {+linkifyTypeSpec(makeName('[Property Summary]', thisClass.alias, property.name), getPropertyType(property))+}
       <a class="el" href="#{+property.name+}">{+property.name+}</a>
       </li>
     </if>
@@ -114,7 +114,7 @@ thisClass = data;
     <tr>
       <td class="{+tempCSS+}">{+tempName+}</td>
       <td>{+tempParen+}</td>
-      <td class="paramtype">{+linkifyTypeSpec(param.type)+}</td>
+      <td class="paramtype">{+linkifyTypeSpec(makeName('[Constructor Param]', thisClass.alias, param.name), param.type)+}</td>
       <td class="paramname"><em>{+param.name+}</em></td>
       <td><if test="$param_last">)</if></td>
       <td></td>
@@ -172,7 +172,7 @@ thisClass = data;
         <if test="member.params && member.params.length">
         {!
          var tempCSS = "memname";
-         var tempName = linkifyTypeSpec(member.type)+" "+member.memberOf+"."+member.name;
+         var tempName = linkifyTypeSpecForReturn(makeName('[Method Detail]', thisClass.alias, member.name), member.type)+" "+member.memberOf+"."+member.name;
          var tempParen = "(";
          var tempEnd = member.params.length > 1 ? "" : ")"
         !}
@@ -180,7 +180,7 @@ thisClass = data;
         <tr>
           <td class="{+tempCSS+}">{+tempName+}</td>
           <td>{+tempParen+}</td>
-          <td class="paramtype">{+linkifyTypeSpec(param.type)+}</td>
+          <td class="paramtype">{+linkifyTypeSpec(makeName('[Param Detail]', thisClass.alias, member.name, param.name), param.type)+}</td>
           <td class="paramname"><em>{+param.name+}</em></td>
           <td><if test="$param_last">)</if></td>
           <td><if test="$param_last">{+tempInherited+}</if></td>
@@ -222,7 +222,7 @@ thisClass = data;
     <if test="member.type && member.type.length">
     <dl class="return" compact><dt><b>Returns:</b></dt>
     <dd>
-    {+linkifyTypeSpec(member.type)+}.<if test="member.returns && member.returns.length">{+sanitizeForEZT(member.returns[0].desc)+}</if>
+    {+linkifyTypeSpec(makeName('[Return detail]', thisClass.alias, member.name), member.type)+}.<if test="member.returns && member.returns.length">{+sanitizeForEZT(member.returns[0].desc)+}</if>
     </dd>
     </if>
     </div>
@@ -232,7 +232,7 @@ thisClass = data;
       <dd><ul>
       <for each="seeAlso" in="member.see">
         <li>
-        {+linkifyTypeSpec(seeAlso)+}
+        {+linkifyTypeSpec(makeName('[Method See Also]', thisClass.alias, '[See Also]'), seeAlso)+}
         </li>
       </for>
       </ul></dd>
@@ -256,7 +256,7 @@ thisClass = data;
     <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">{+linkifyTypeSpec(getPropertyType(property))+} {+property.memberOf+"."+property.name+}</td>
+          <td class="memname">{+linkifyTypeSpec(makeName('[Property Detail]', thisClass.alias, property.name), getPropertyType(property))+} {+property.memberOf+"."+property.name+}</td>
         </tr>
       </table>
     </div>
@@ -271,7 +271,7 @@ thisClass = data;
       <dd><ul>
       <for each="seeAlso" in="property.see">
         <li>
-        {+linkifyTypeSpec(seeAlso)+}
+        {+linkifyTypeSpec(makeName('[Property See Also]', thisClass.alias), seeAlso)+}
         </li>
       </for>
       </ul></dd>
