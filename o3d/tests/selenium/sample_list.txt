@@ -69,7 +69,7 @@
 medium  2d                                screenshot pdiff_threshold(41200)
 medium  animation
 large   animated-scene                    screenshot timeout(45000) pdiff_threshold(200)
-large   beachdemo/beachdemo               screenshot timeout(120000) pdiff_threshold(1900) downsample(1) except(*iexplore)
+large   beachdemo/beachdemo               screenshot timeout(120000) pdiff_threshold(1900) downsample(1) except(*iexplore, *googlechrome)
 medium  canvas                            screenshot pdiff_threshold(4700) pdiff_threshold_mac(14600)
 medium  canvas-fonts                      screenshot pdiff_threshold(1100) pdiff_threshold_mac(21900)
 medium  canvas-texturedraw
