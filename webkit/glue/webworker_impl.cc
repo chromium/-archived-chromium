@@ -8,6 +8,8 @@
 
 #include "GenericWorkerTask.h"
 #include "KURL.h"
+#include "MessagePort.h"
+#include "MessagePortChannel.h"
 #include "ScriptExecutionContext.h"
 #include "SecurityOrigin.h"
 #include "SubstituteData.h"
@@ -128,11 +130,18 @@ WebWorkerImpl::~WebWorkerImpl() {
 void WebWorkerImpl::PostMessageToWorkerContextTask(
     WebCore::ScriptExecutionContext* context,
     WebWorkerImpl* this_ptr,
-    const WebCore::String& message) {
+    const WebCore::String& message,
+    WTF::PassOwnPtr<WebCore::MessagePortChannel> channel) {
   DCHECK(context->isWorkerContext());
   WebCore::WorkerContext* worker_context =
       static_cast<WebCore::WorkerContext*>(context);
-  worker_context->dispatchMessage(message);
+
+  WTF::RefPtr<WebCore::MessagePort> port;
+  if (channel) {
+    port = WebCore::MessagePort::create(*context);
+    port->entangle(channel.release());
+  }
+  worker_context->dispatchMessage(message, port.release());
 
   this_ptr->confirmMessageFromWorkerObject(
       worker_context->hasPendingActivity());
@@ -189,10 +198,12 @@ void WebWorkerImpl::terminateWorkerContext() {
 }
 
 void WebWorkerImpl::postMessageToWorkerContext(const WebString& message) {
+  // TODO(jam): Need to update these APIs to accept MessagePorts.
   worker_thread_->runLoop().postTask(WebCore::createCallbackTask(
       &PostMessageToWorkerContextTask,
       this,
-      webkit_glue::WebStringToString(message)));
+      webkit_glue::WebStringToString(message),
+      WTF::PassOwnPtr<WebCore::MessagePortChannel>(0)));
 }
 
 void WebWorkerImpl::workerObjectDestroyed() {
@@ -212,17 +223,23 @@ void WebWorkerImpl::InvokeTaskMethod(void* param) {
 
 // WorkerObjectProxy -----------------------------------------------------------
 
-void WebWorkerImpl::postMessageToWorkerObject(const WebCore::String& message) {
+void WebWorkerImpl::postMessageToWorkerObject(
+    const WebCore::String& message,
+    WTF::PassOwnPtr<WebCore::MessagePortChannel> channel) {
   DispatchTaskToMainThread(WebCore::createCallbackTask(
       &PostMessageTask,
       this,
-      message));
+      message,
+      channel));
 }
 
 void WebWorkerImpl::PostMessageTask(
     WebCore::ScriptExecutionContext* context,
     WebWorkerImpl* this_ptr,
-    WebCore::String message) {
+    WebCore::String message,
+    WTF::PassOwnPtr<WebCore::MessagePortChannel> channel) {
+  // TODO(jam): Update to pass a MessagePortChannel or
+  // PlatformMessagePortChannel when we add MessagePort support to Chrome.
   this_ptr->client_->postMessageToWorkerObject(
       webkit_glue::StringToWebString(message));
 }

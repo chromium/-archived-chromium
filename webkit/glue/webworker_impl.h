@@ -12,10 +12,12 @@
 #include "ScriptExecutionContext.h"
 #include "WorkerLoaderProxy.h"
 #include "WorkerObjectProxy.h"
+#include <wtf/PassOwnPtr.h>
 #include <wtf/RefPtr.h>
 
 namespace WebCore {
 class Strng;
+class MessagePortChannel;
 class WorkerThread;
 };
 
@@ -33,7 +35,9 @@ class WebWorkerImpl: public WebCore::WorkerObjectProxy,
   explicit WebWorkerImpl(WebKit::WebWorkerClient* client);
 
   // WebCore::WorkerObjectProxy methods:
-  virtual void postMessageToWorkerObject(const WebCore::String& message);
+  virtual void postMessageToWorkerObject(
+      const WebCore::String& message,
+      WTF::PassOwnPtr<WebCore::MessagePortChannel> channel);
   virtual void postExceptionToWorkerObject(
       const WebCore::String& error_message,
       int line_number,
@@ -77,7 +81,8 @@ class WebWorkerImpl: public WebCore::WorkerObjectProxy,
   static void PostMessageToWorkerContextTask(
       WebCore::ScriptExecutionContext* context,
       WebWorkerImpl* this_ptr,
-      const WebCore::String& message);
+      const WebCore::String& message,
+      WTF::PassOwnPtr<WebCore::MessagePortChannel> channel);
 
   // Function used to invoke tasks on the main thread.
   static void InvokeTaskMethod(void* param);
@@ -86,7 +91,8 @@ class WebWorkerImpl: public WebCore::WorkerObjectProxy,
   static void PostMessageTask(
       WebCore::ScriptExecutionContext* context,
       WebWorkerImpl* this_ptr,
-      WebCore::String message);
+      WebCore::String message,
+      WTF::PassOwnPtr<WebCore::MessagePortChannel> channel);
   static void PostExceptionTask(
       WebCore::ScriptExecutionContext* context,
       WebWorkerImpl* this_ptr,

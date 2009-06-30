@@ -11,6 +11,8 @@
 #include "Frame.h"
 #include "FrameLoaderClient.h"
 #include "GenericWorkerTask.h"
+#include "MessagePort.h"
+#include "MessagePortChannel.h"
 #include "ScriptExecutionContext.h"
 #include "WorkerContextExecutionProxy.h"
 #include "WorkerMessagingProxy.h"
@@ -145,7 +147,8 @@ void WebWorkerClientImpl::terminateWorkerContext() {
 }
 
 void WebWorkerClientImpl::postMessageToWorkerContext(
-    const WebCore::String& message) {
+    const WebCore::String& message,
+    WTF::PassOwnPtr<WebCore::MessagePortChannel> port) {
   // Worker.terminate() could be called from JS before the context is started.
   if (asked_to_terminate_)
     return;
@@ -154,11 +157,13 @@ void WebWorkerClientImpl::postMessageToWorkerContext(
 
   if (!WTF::isMainThread()) {
     WebWorkerImpl::DispatchTaskToMainThread(
-        WebCore::createCallbackTask(&PostMessageToWorkerContextTask, this,
-            message));
+        WebCore::createCallbackTask(
+            &PostMessageToWorkerContextTask, this, message, port));
     return;
   }
 
+  // TODO(jam): Update to pass a MessagePortChannel or
+  // PlatformMessagePortChannel when we add MessagePort support to Chrome.
   webworker_->postMessageToWorkerContext(
       webkit_glue::StringToWebString(message));
 }
@@ -181,14 +186,17 @@ void WebWorkerClientImpl::workerObjectDestroyed() {
 }
 
 void WebWorkerClientImpl::postMessageToWorkerObject(const WebString& message) {
+  // TODO(jam): Add support for passing MessagePorts when they are supported
+  // in Chrome.
   if (WTF::currentThread() != worker_thread_id_) {
     script_execution_context_->postTask(
         WebCore::createCallbackTask(&PostMessageToWorkerObjectTask, this,
-            webkit_glue::WebStringToString(message)));
+            webkit_glue::WebStringToString(message),
+            WTF::PassOwnPtr<WebCore::MessagePortChannel>(0)));
     return;
   }
 
-  worker_->dispatchMessage(webkit_glue::WebStringToString(message));
+  worker_->dispatchMessage(webkit_glue::WebStringToString(message), 0);
 }
 
 void WebWorkerClientImpl::postExceptionToWorkerObject(
@@ -276,7 +284,10 @@ void WebWorkerClientImpl::TerminateWorkerContextTask(
 void WebWorkerClientImpl::PostMessageToWorkerContextTask(
     WebCore::ScriptExecutionContext* context,
     WebWorkerClientImpl* this_ptr,
-    const WebCore::String& message) {
+    const WebCore::String& message,
+    WTF::PassOwnPtr<WebCore::MessagePortChannel> channel) {
+  // TODO(jam): Update to pass a MessagePortChannel or
+  // PlatformMessagePortChannel when we add MessagePort support to Chrome.
   this_ptr->webworker_->postMessageToWorkerContext(
       webkit_glue::StringToWebString(message));
 }
@@ -292,9 +303,18 @@ void WebWorkerClientImpl::WorkerObjectDestroyedTask(
 void WebWorkerClientImpl::PostMessageToWorkerObjectTask(
     WebCore::ScriptExecutionContext* context,
     WebWorkerClientImpl* this_ptr,
-    const WebCore::String& message) {
-  if (this_ptr->worker_)
-    this_ptr->worker_->dispatchMessage(message);
+    const WebCore::String& message,
+    WTF::PassOwnPtr<WebCore::MessagePortChannel> channel) {
+
+  if (this_ptr->worker_) {
+    WTF::RefPtr<WebCore::MessagePort> port;
+    if (channel) {
+      port = WebCore::MessagePort::create(*context);
+      port->entangle(channel.release());
+    }
+
+    this_ptr->worker_->dispatchMessage(message, port.release());
+  }
 }
 
 void WebWorkerClientImpl::PostExceptionToWorkerObjectTask(
