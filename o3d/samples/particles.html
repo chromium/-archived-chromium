@@ -182,9 +182,9 @@ function initStep3() {
   setupPoof();
   setupTrail();
 
-  window.addEventListener('keypress', onKeyPress, true);
-  window.addEventListener('keydown', onKeyDown, true);
-  window.addEventListener('keyup', onKeyUp, true);
+  window.document.onkeypress = onKeyPress;
+  window.document.onkeydown = onKeyDown;
+  window.document.onkeyup = onKeyUp;
 
   // Setup an onrender callback for animation.
   g_client.setRenderCallback(onrender);
