@@ -56,6 +56,7 @@ class SSLClientSocketNSS : public SSLClientSocket {
   void InvalidateSessionIfBadCertificate();
   X509Certificate* UpdateServerCert();
   void DoCallback(int result);
+  void DoConnectCallback(int result);
   void OnIOComplete(int result);
 
   int DoLoop(int last_io_result);
@@ -89,6 +90,7 @@ class SSLClientSocketNSS : public SSLClientSocket {
   std::string hostname_;
   SSLConfig ssl_config_;
 
+  CompletionCallback* user_connect_callback_;
   CompletionCallback* user_callback_;
 
   // Used by both Read and Write functions.

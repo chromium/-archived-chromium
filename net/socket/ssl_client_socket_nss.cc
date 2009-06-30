@@ -196,6 +196,7 @@ SSLClientSocketNSS::SSLClientSocketNSS(ClientSocket* transport_socket,
       transport_(transport_socket),
       hostname_(hostname),
       ssl_config_(ssl_config),
+      user_connect_callback_(NULL),
       user_callback_(NULL),
       user_buf_len_(0),
       completed_handshake_(false),
@@ -220,39 +221,13 @@ int SSLClientSocketNSS::Init() {
   return OK;
 }
 
-// As part of Connect(), the SSLClientSocketNSS object performs an SSL
-// handshake. This requires network IO, which in turn calls
-// BufferRecvComplete() with a non-zero byte count. This byte count eventually
-// winds its way through the state machine and ends up being passed to the
-// callback. For Read() and Write(), that's what we want. But for Connect(),
-// the caller expects OK (i.e. 0) for success.
-//
-// The ConnectCallbackWrapper object changes the argument that gets passed
-// to the callback function. Any positive value gets turned into OK.
-class ConnectCallbackWrapper :
-      public CompletionCallbackImpl<ConnectCallbackWrapper> {
- public:
-  explicit ConnectCallbackWrapper(CompletionCallback* user_callback)
-      : ALLOW_THIS_IN_INITIALIZER_LIST(
-          CompletionCallbackImpl<ConnectCallbackWrapper>(this,
-                                 &ConnectCallbackWrapper::ReturnValueWrapper)),
-        user_callback_(user_callback) {
-  }
-
- private:
-  void ReturnValueWrapper(int rv) {
-    user_callback_->Run(rv > OK ? OK : rv);
-    delete this;
-  }
-
-  CompletionCallback* user_callback_;
-};
-
 int SSLClientSocketNSS::Connect(CompletionCallback* callback) {
   EnterFunction("");
   DCHECK(transport_.get());
   DCHECK(next_state_ == STATE_NONE);
   DCHECK(!user_callback_);
+  DCHECK(!user_connect_callback_);
+  DCHECK(!user_buf_);
 
   if (Init() != OK) {
     NOTREACHED() << "Couldn't initialize nss";
@@ -344,7 +319,7 @@ int SSLClientSocketNSS::Connect(CompletionCallback* callback) {
   GotoState(STATE_HANDSHAKE_READ);
   rv = DoLoop(OK);
   if (rv == ERR_IO_PENDING)
-    user_callback_ = new ConnectCallbackWrapper(callback);
+    user_connect_callback_ = callback;
 
   LeaveFunction("");
   return rv > OK ? OK : rv;
@@ -368,19 +343,21 @@ void SSLClientSocketNSS::Disconnect() {
   }
 
   // Shut down anything that may call us back (through buffer_send_callback_,
-  // buffer_recv_callback, or _io_callback_).
+  // buffer_recv_callback, or io_callback_).
   verifier_.reset();
   transport_->Disconnect();
 
   // Reset object state
-  transport_send_busy_ = false;
-  transport_recv_busy_ = false;
-  user_buf_            = NULL;
-  user_buf_len_        = 0;
-  server_cert_         = NULL;
+  transport_send_busy_   = false;
+  transport_recv_busy_   = false;
+  user_connect_callback_ = NULL;
+  user_callback_         = NULL;
+  user_buf_              = NULL;
+  user_buf_len_          = 0;
+  server_cert_           = NULL;
   server_cert_verify_result_.Reset();
-  completed_handshake_ = false;
-  nss_bufs_            = NULL;
+  completed_handshake_   = false;
+  nss_bufs_              = NULL;
 
   LeaveFunction("");
 }
@@ -418,6 +395,7 @@ int SSLClientSocketNSS::Read(IOBuffer* buf, int buf_len,
   DCHECK(completed_handshake_);
   DCHECK(next_state_ == STATE_NONE);
   DCHECK(!user_callback_);
+  DCHECK(!user_connect_callback_);
   DCHECK(!user_buf_);
 
   user_buf_ = buf;
@@ -437,6 +415,7 @@ int SSLClientSocketNSS::Write(IOBuffer* buf, int buf_len,
   DCHECK(completed_handshake_);
   DCHECK(next_state_ == STATE_NONE);
   DCHECK(!user_callback_);
+  DCHECK(!user_connect_callback_);
   DCHECK(!user_buf_);
 
   user_buf_ = buf;
@@ -504,7 +483,7 @@ void SSLClientSocketNSS::DoCallback(int rv) {
   DCHECK(rv != ERR_IO_PENDING);
   DCHECK(user_callback_);
 
-  // since Run may result in Read being called, clear user_callback_ up front.
+  // Since Run may result in Read being called, clear |user_callback_| up front.
   CompletionCallback* c = user_callback_;
   user_callback_ = NULL;
   user_buf_ = NULL;
@@ -512,11 +491,36 @@ void SSLClientSocketNSS::DoCallback(int rv) {
   LeaveFunction("");
 }
 
+// As part of Connect(), the SSLClientSocketNSS object performs an SSL
+// handshake. This requires network IO, which in turn calls
+// BufferRecvComplete() with a non-zero byte count. This byte count eventually
+// winds its way through the state machine and ends up being passed to the
+// callback. For Read() and Write(), that's what we want. But for Connect(),
+// the caller expects OK (i.e. 0) for success.
+//
+void SSLClientSocketNSS::DoConnectCallback(int rv) {
+  EnterFunction(rv);
+  DCHECK_NE(rv, ERR_IO_PENDING);
+  DCHECK(user_connect_callback_);
+
+  // Since Run may result in Read being called, clear |user_connect_callback_|
+  // up front.
+  CompletionCallback* c = user_connect_callback_;
+  user_connect_callback_ = NULL;
+  c->Run(rv > OK ? OK : rv);
+  LeaveFunction("");
+}
+
 void SSLClientSocketNSS::OnIOComplete(int result) {
   EnterFunction(result);
   int rv = DoLoop(result);
-  if (rv != ERR_IO_PENDING && user_callback_ != NULL)
-    DoCallback(rv);
+  if (rv != ERR_IO_PENDING) {
+    if (user_callback_) {
+      DoCallback(rv);
+    } else if (user_connect_callback_) {
+      DoConnectCallback(rv);
+    }
+  }
   LeaveFunction("");
 }
 
