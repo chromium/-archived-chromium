@@ -3203,7 +3203,6 @@
         'browser/unload_uitest.cc',
         'browser/views/find_bar_win_uitest.cc',
         'common/logging_chrome_uitest.cc',
-        'common/net/cache_uitest.cc',
         'common/pref_service_uitest.cc',
         'test/accessibility/accessibility_tests.cc',
         'test/accessibility/accessibility_util.cc',
@@ -3266,8 +3265,6 @@
             'test/reliability/page_load_test.cc',
             'test/ui/layout_plugin_uitest.cc',
             'test/ui/omnibox_uitest.cc',
-             # these pass locally but fail on the bots
-            'common/net/cache_uitest.cc',
           ],
         }],
         ['OS=="win"', {
