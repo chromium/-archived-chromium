@@ -13,8 +13,8 @@
 #endif
 #include "base/logging.h"
 #include "base/message_loop.h"
-#if defined(OS_WIN)
 #include "views/focus/view_storage.h"
+#if defined(OS_WIN)
 #include "views/widget/root_view_drop_target.h"
 #endif
 #include "views/widget/widget.h"
