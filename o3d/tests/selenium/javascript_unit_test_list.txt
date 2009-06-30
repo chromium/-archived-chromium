@@ -71,7 +71,7 @@ small   util-test
 small   pixel-perfection      screenshot pdiff_threshold(2500) pdiff_threshold_mac(3000) except(*iexplore)
 medium  offscreen-test
 medium  texture-set-test      screenshot
-#medium  param-array-test      screenshot
+medium  param-array-test      screenshot
 small   no-rendergraph        screenshot
 small   non-cachable-params   screenshot pdiff_threshold(1700)
 small   type-test
