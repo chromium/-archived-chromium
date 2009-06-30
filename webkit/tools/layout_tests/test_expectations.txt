@@ -2842,3 +2842,10 @@ BUG15649 : LayoutTests/compositing/layers-inside-overflow-scroll.html = TIMEOUT
 BUG15649 : LayoutTests/compositing/self-painting-layers.html = TIMEOUT
 BUG15649 : LayoutTests/plugins/netscape-plugin-map-data-to-src.html = FAIL
 BUG15649 : LayoutTests/media/video-canvas-source.html = FAIL
+
+// WebKit 45381:45403 Need to rebaseline
+BUG15710 : LayoutTests/fast/css/getComputedStyle/computed-style-font-family.html = FAIL
+
+// WebKit 45381:45403 New tests
+BUG15710 : LayoutTests/compositing/overflow/overflow-scroll.html = TIMEOUT
+BUG15710 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridColumns-dom.html = TIMEOUT
