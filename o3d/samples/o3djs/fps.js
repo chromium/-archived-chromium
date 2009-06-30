@@ -145,6 +145,7 @@ o3djs.fps.CONST_COLOR_EFFECT =
  * @param {number} clientHeight Height of client area.
  * @param {!o3d.RenderNode} opt_parent RenderNode to use as parent for
  *     ViewInfo that will be used to render the FPS with.
+ * @return {!o3djs.fps.FPSManager} The created FPSManager.
  */
 o3djs.fps.createFPSManager = function(pack,
                                       clientWidth,
