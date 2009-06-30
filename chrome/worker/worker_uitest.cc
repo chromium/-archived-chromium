@@ -311,6 +311,7 @@ TEST_F(WorkerTest, WorkerHttpLayoutTests) {
 TEST_F(WorkerTest, WorkerXhrHttpLayoutTests) {
   static const char* kLayoutTestFiles[] = {
     "abort-exception-assert.html",
+    "close.html",
     //"methods-async.html",
     //"methods.html",
     "xmlhttprequest-file-not-found.html"
