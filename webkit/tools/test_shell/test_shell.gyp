@@ -182,7 +182,6 @@
       'msvs_guid': 'FA39524D-3067-4141-888D-28A86C66F2B9',
       'dependencies': [
         'test_shell_common',
-        '../../../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
       ],
       'sources': [
         'test_shell_main.cc',

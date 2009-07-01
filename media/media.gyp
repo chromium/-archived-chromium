@@ -202,15 +202,9 @@
           'dependencies': [
             'media',
             '../base/base.gyp:base',
-            '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
           ],
           'include_dirs': [
             '../chrome/third_party/wtl/include',
-          ],
-          'dependencies': [
-            'media',
-            '../base/base.gyp:base',
-            '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
           ],
           'sources': [
             'player/list.h',
