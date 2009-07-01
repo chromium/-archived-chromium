@@ -23,6 +23,7 @@
         '../converter/converter.gyp:*',
         '../core/core.gyp:*',
         '../import/import.gyp:*',
+        '../tests/tests.gyp:*',
         '../plugin/idl/idl.gyp:*',
         '../plugin/plugin.gyp:*',
         '../serializer/serializer.gyp:*',

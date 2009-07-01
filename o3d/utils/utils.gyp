@@ -44,15 +44,20 @@
     },
     {
       'target_name': 'o3dUtilsTest',
-      'type': 'static_library',
-      'sources': [
-        "cross/file_path_utils_test.cc",
-        "cross/file_text_reader_test.cc",
-        "cross/json_writer_test.cc",
-        "cross/string_reader_test.cc",
-        "cross/string_writer_test.cc",
-        "cross/temporary_file_test.cc",
+      'type': 'none',
+      'dependencies': [
+        'o3dUtils',
       ],
+      'direct_dependent_settings': {
+        'sources': [
+          "cross/file_path_utils_test.cc",
+          "cross/file_text_reader_test.cc",
+          "cross/json_writer_test.cc",
+          "cross/string_reader_test.cc",
+          "cross/string_writer_test.cc",
+          "cross/temporary_file_test.cc",
+        ],
+      },
     },
   ],
 }

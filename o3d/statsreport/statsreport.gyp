@@ -84,33 +84,38 @@
           },
           {
             'target_name': 'o3dStatsReportTest',
-            'type': 'static_library',
-            'sources': [
-              'aggregator-win32_unittest.cc',
-              'aggregator-win32_unittest.h',
-              'aggregator_unittest.cc',
-              'aggregator_unittest.h',
-              'common/highres_timer_unittest.cc',
-              'formatter_unittest.cc',
-              'metrics_unittest.cc',
-              'persistent_iterator-win32_unittest.cc',
+            'type': 'none',
+            'dependencies': [
+              'o3dStatsReport',
             ],
-            'conditions': [
-              ['OS != "win"',
-                {
-                  'sources/': [
-                    ['exclude', '(-win32)_unittest\.(cc|h)$'],
-                  ],
-                },
+            'direct_dependent_settings': {
+              'sources': [
+                'aggregator-win32_unittest.cc',
+                'aggregator-win32_unittest.h',
+                'aggregator_unittest.cc',
+                'aggregator_unittest.h',
+                'common/highres_timer_unittest.cc',
+                'formatter_unittest.cc',
+                'metrics_unittest.cc',
+                'persistent_iterator-win32_unittest.cc',
               ],
-              ['OS != "mac"',
-                {
-                  'sources/': [
-                    ['exclude', '(-mac)_unittest\.(cc|mm|h)$'],
-                  ],
-                },
+              'conditions': [
+                ['OS != "win"',
+                  {
+                    'sources/': [
+                      ['exclude', '(-win32)_unittest\.(cc|h)$'],
+                    ],
+                  },
+                ],
+                ['OS != "mac"',
+                  {
+                    'sources/': [
+                      ['exclude', '(-mac)_unittest\.(cc|mm|h)$'],
+                    ],
+                  },
+                ],
               ],
-            ],
+            },
           },
         ],
       },

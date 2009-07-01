@@ -21,6 +21,7 @@
       'O3D_PLUGIN_MIME_TYPE="<!(python version_info.py --mimetype)"',
     ],
   },
+
   'targets': [
     {
       'target_name': 'npo3dautoplugin',
@@ -108,16 +109,21 @@
             'msvs_settings': {
               'VCLinkerTool': {
                 'AdditionalDependencies': [
-                  '"$(DXSDK_DIR)/Lib/x86/DxErr9.lib"',
-                  '"$(DXSDK_DIR)/Lib/x86/d3dx9.lib"',
-                  '../../<(cgdir)/lib/cg.lib',
-                  '../../<(cgdir)/lib/cgGL.lib',
-                  'd3d9.lib',
                   'rpcrt4.lib',
                 ],
-                # Set /SUBSYSTEM:CONSOLE for converter.exe, since
-                # it is a console app.
-                'SubSystem': '1',
+              },
+            },
+          },
+        ],
+        ['OS == "win" and renderer == "d3d9"',
+          {
+            'msvs_settings': {
+              'VCLinkerTool': {
+                'AdditionalDependencies': [
+                  '"$(DXSDK_DIR)/Lib/x86/DxErr9.lib"',
+                  '"$(DXSDK_DIR)/Lib/x86/d3dx9.lib"',
+                  'd3d9.lib',
+                ],
               },
             },
           },

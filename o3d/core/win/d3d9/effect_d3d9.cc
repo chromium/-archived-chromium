@@ -254,7 +254,7 @@ class EffectParamSamplerArrayHandlerD3D9 : public EffectParamHandlerD3D9 {
             << "number of params in ParamArray does not match number of params "
             << "needed by shader array";
       } else {
-        for (int i = 0; i < size; ++i) {
+        for (unsigned i = 0; i < size; ++i) {
           SamplerUnitIndexArray& index_array = sampler_unit_index_arrays_[i];
           Param* untyped_element = param->GetUntypedParam(i);
           // TODO(gman): Make this check happen when building the param cache.
@@ -297,7 +297,7 @@ class EffectParamSamplerArrayHandlerD3D9 : public EffectParamHandlerD3D9 {
     if (param) {
       unsigned size = param->size();
       if (size == sampler_unit_index_arrays_.size()) {
-        for (int i = 0; i < size; ++i) {
+        for (unsigned i = 0; i < size; ++i) {
           SamplerUnitIndexArray& index_array = sampler_unit_index_arrays_[i];
           Param* untyped_element = param->GetUntypedParam(i);
           // TODO(gman): Make this check happen when building the param cache.

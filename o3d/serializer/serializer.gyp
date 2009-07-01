@@ -30,10 +30,15 @@
     },
     {
       'target_name': 'o3dSerializerTest',
-      'type': 'static_library',
-      'sources': [
-        'cross/serializer_test.cc',
+      'type': 'none',
+      'dependencies': [
+        'o3dSerializer',
       ],
+      'direct_dependent_settings': {
+        'sources': [
+          'cross/serializer_test.cc',
+        ],
+      },
     },
   ],
 }

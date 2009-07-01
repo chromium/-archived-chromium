@@ -126,5 +126,40 @@
         ],
       ],
     },
+    {
+      'target_name': 'o3dImportTest',
+      'type': 'none',
+      'dependencies': [
+        'o3dArchive',
+        'o3dImport',
+        '../../<(antlrdir)/antlr.gyp:antlr3c',
+        '../../<(fcolladadir)/fcollada.gyp:fcollada',
+        '../../<(jpegdir)/libjpeg.gyp:libjpeg',
+        '../../<(pngdir)/libpng.gyp:libpng',
+        '../../<(zlibdir)/zlib.gyp:zlib',
+      ],
+      'direct_dependent_settings': {
+        'sources': [
+          'cross/gz_compressor_test.cc',
+          'cross/gz_decompressor_test.cc',
+          'cross/memory_buffer_test.cc',
+          'cross/memory_stream_test.cc',
+          'cross/raw_data_test.cc',
+          'cross/tar_generator_test.cc',
+          'cross/tar_processor_test.cc',
+          'cross/targz_generator_test.cc',
+          'cross/targz_processor_test.cc',
+        ],
+        'conditions' : [
+          ['renderer == "d3d9" and OS == "win"',
+            {
+              'include_dirs': [
+                '$(DXSDK_DIR)/Include',
+              ],
+            }
+          ],
+        ],
+      },
+    },
   ],
 }

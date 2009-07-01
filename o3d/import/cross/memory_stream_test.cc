@@ -233,7 +233,7 @@ TEST_F(MemoryStreamTest, EndianSanityFloat32) {
   uint8 *p8 = reinterpret_cast<uint8*>(p);
   MemoryWriteStream write_stream(p8, sizeof(int32) * 2);
 
-  float value = 3.14159;
+  float value = 3.14159f;
   write_stream.WriteLittleEndianFloat32(value);
   write_stream.WriteBigEndianFloat32(value);
 
@@ -261,9 +261,9 @@ TEST_F(MemoryStreamTest, EndianSanityFloat32) {
 TEST_F(MemoryStreamTest, Endian) {
   const int16 kValue1 = 13243;
   const int32 kValue2 = 2393043;
-  const float kValue3 = -0.039483;
+  const float kValue3 = -0.039483f;
   const int16 kValue4 = -3984;
-  const float kValue5 = 1234.5678;
+  const float kValue5 = 1234.5678f;
   const uint8 kValue6 = 5;  // write a single byte to make things interesting
   const int32 kValue7 = -3920393;
 

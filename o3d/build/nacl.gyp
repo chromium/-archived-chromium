@@ -34,7 +34,7 @@
             'dummy_file_that_never_gets_built_so_scons_always_runs',
           ],
           'action': [
-            'python',
+            'C:/Python24/python.exe',
             '<@(_inputs)',
             '--output="<(nacl_output_dir)"',
             '--configuration="<(CONFIGURATION)"',
@@ -43,7 +43,7 @@
           ],
         },
       ],
-      'direct_dependent_settings': {
+      'all_dependent_settings': {
         'include_dirs': [
           '<(nacldir)',
         ],
