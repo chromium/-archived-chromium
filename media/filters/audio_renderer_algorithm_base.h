@@ -33,10 +33,11 @@
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
-#include "media/base/data_buffer.h"
-#include "media/base/buffers.h"
 
 namespace media {
+
+class Buffer;
+class DataBuffer;
 
 class AudioRendererAlgorithmBase {
  public:
@@ -48,7 +49,6 @@ class AudioRendererAlgorithmBase {
 
   // Checks validity of audio parameters and takes ownership of |callback|.
   virtual void Initialize(int channels,
-                          int sample_rate,
                           int sample_bits,
                           float initial_playback_rate,
                           RequestReadCallback* callback);
@@ -60,36 +60,36 @@ class AudioRendererAlgorithmBase {
   virtual size_t FillBuffer(DataBuffer* buffer_out) = 0;
 
   // Clears |queue_|.
-  void FlushBuffers();
+  virtual void FlushBuffers();
 
   // Enqueues a buffer. It is called from the owner
   // of the algorithm after a read completes.
-  void EnqueueBuffer(Buffer* buffer_in);
+  virtual void EnqueueBuffer(Buffer* buffer_in);
 
   // Getter/setter for |playback_rate_|.
-  float playback_rate();
-  void set_playback_rate(float new_rate);
+  virtual float playback_rate();
+  virtual void set_playback_rate(float new_rate);
 
  protected:
   // Returns whether |queue_| is empty.
-  bool IsQueueEmpty();
+  virtual bool IsQueueEmpty();
 
   // Returns a reference to the first element of the |queue_|.
-  scoped_refptr<Buffer> FrontQueue();
+  virtual scoped_refptr<Buffer> FrontQueue();
 
   // Pops the front of the |queue_| and schedules a read.
-  void PopFrontQueue();
+  virtual void PopFrontQueue();
 
-  // Audio property getters.
-  int channels();
-  int sample_rate();
-  int sample_bits();
+  // Number of audio channels.
+  virtual int channels();
+
+  // Number of bytes per sample per channel.
+  virtual int sample_bytes();
 
  private:
   // Audio properties.
   int channels_;
-  int sample_rate_;
-  int sample_bits_;
+  int sample_bytes_;
 
   // Used by algorithm to scale output.
   float playback_rate_;

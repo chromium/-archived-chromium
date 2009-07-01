@@ -4,6 +4,8 @@
 
 #include "media/filters/audio_renderer_algorithm_base.h"
 
+#include "media/base/buffers.h"
+
 namespace media {
 
 // The maximum size of the queue, which also acts as the number of initial reads
@@ -17,26 +19,24 @@ const size_t kDefaultMaxQueueSize = 16;
 
 AudioRendererAlgorithmBase::AudioRendererAlgorithmBase()
     : channels_(0),
-      sample_rate_(0),
-      sample_bits_(0),
+      sample_bytes_(0),
       playback_rate_(0.0f) {
 }
 
 AudioRendererAlgorithmBase::~AudioRendererAlgorithmBase() {}
 
 void AudioRendererAlgorithmBase::Initialize(int channels,
-                                            int sample_rate,
                                             int sample_bits,
                                             float initial_playback_rate,
                                             RequestReadCallback* callback) {
   DCHECK_GT(channels, 0);
-  DCHECK_GT(sample_rate, 0);
   DCHECK_GT(sample_bits, 0);
   DCHECK(callback);
+  // We only support 8, 16, 32 bit audio.
+  DCHECK_EQ(sample_bits % 8, 0)
 
   channels_ = channels;
-  sample_rate_ = sample_rate;
-  sample_bits_ = sample_bits;
+  sample_bytes_ = sample_bits / 8;
   request_read_callback_.reset(callback);
 
   set_playback_rate(initial_playback_rate);
@@ -84,12 +84,8 @@ int AudioRendererAlgorithmBase::channels() {
   return channels_;
 }
 
-int AudioRendererAlgorithmBase::sample_rate() {
-  return sample_rate_;
-}
-
-int AudioRendererAlgorithmBase::sample_bits() {
-  return sample_bits_;
+int AudioRendererAlgorithmBase::sample_bytes() {
+  return sample_bytes_;
 }
 
 }  // namespace media
