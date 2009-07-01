@@ -1256,7 +1256,9 @@ BUG10343 LINUX : LayoutTests/fast/text/atsui-partial-selection.html = FAIL
 BUG10343 LINUX : LayoutTests/fast/text/atsui-small-caps-punctuation-size.html = FAIL
 BUG10343 LINUX : LayoutTests/fast/text/cg-vs-atsui.html = FAIL
 BUG10343 LINUX MAC : LayoutTests/fast/text/international/complex-character-based-fallback.html = FAIL
-BUG10343 LINUX : LayoutTests/fast/text/large-text-composed-char.html = FAIL
+
+// Started timing out with agl's complext text change.  Page is verrry slow.
+BUG10343 LINUX : LayoutTests/fast/text/large-text-composed-char.html = TIMEOUT FAIL
 
 // Missing text -- slow font path unimplemented?
 BUG10344 LINUX : LayoutTests/fast/text/international/bidi-control-chars-treated-as-ZWS.html = FAIL
