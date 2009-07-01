@@ -2849,7 +2849,7 @@ BUG15649 : LayoutTests/media/video-canvas-source.html = FAIL
 BUG15710 : LayoutTests/fast/css/getComputedStyle/computed-style-font-family.html = FAIL
 
 // WebKit 45381:45403 New tests
-BUG15710 : LayoutTests/compositing/overflow/overflow-scroll.html = TIMEOUT FAIL
+BUG15710 SKIP : LayoutTests/compositing/overflow/overflow-scroll.html = TIMEOUT FAIL
 BUG15710 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridColumns-dom.html = TIMEOUT
 
 // Webkit 45403:45431
