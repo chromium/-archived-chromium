@@ -23,7 +23,7 @@ const wchar_t kIndexName[] = L"index";
 const wchar_t kDataPrefix[] = L"data_";
 
 // Reads the |header_size| bytes from the beginning of file |name|.
-bool ReadHeader(const std::wstring name, char* header, int header_size) {
+bool ReadHeader(const std::wstring& name, char* header, int header_size) {
   net::FileStream file;
   file.Open(FilePath::FromWStringHack(name),
       base::PLATFORM_FILE_OPEN | base::PLATFORM_FILE_READ);
@@ -40,7 +40,7 @@ bool ReadHeader(const std::wstring name, char* header, int header_size) {
   return true;
 }
 
-int GetMajorVersionFromFile(const std::wstring name) {
+int GetMajorVersionFromFile(const std::wstring& name) {
   disk_cache::IndexHeader header;
   if (!ReadHeader(name, reinterpret_cast<char*>(&header), sizeof(header)))
     return 0;
@@ -49,7 +49,7 @@ int GetMajorVersionFromFile(const std::wstring name) {
 }
 
 // Dumps the contents of the Index-file header.
-void DumpIndexHeader(const std::wstring name) {
+void DumpIndexHeader(const std::wstring& name) {
   disk_cache::IndexHeader header;
   if (!ReadHeader(name, reinterpret_cast<char*>(&header), sizeof(header)))
     return;
@@ -75,7 +75,7 @@ void DumpIndexHeader(const std::wstring name) {
 }
 
 // Dumps the contents of a block-file header.
-void DumpBlockHeader(const std::wstring name) {
+void DumpBlockHeader(const std::wstring& name) {
   disk_cache::BlockFileHeader header;
   if (!ReadHeader(name, reinterpret_cast<char*>(&header), sizeof(header)))
     return;
@@ -105,7 +105,7 @@ void DumpBlockHeader(const std::wstring name) {
 // Simple class that interacts with the set of cache files.
 class CacheDumper {
  public:
-  explicit CacheDumper(const std::wstring path)
+  explicit CacheDumper(const std::wstring& path)
       : path_(path), block_files_(path), index_(NULL) {}
 
   bool Init();
@@ -251,7 +251,7 @@ void DumpRankings(const disk_cache::RankingsNode& rankings) {
 
 // -----------------------------------------------------------------------
 
-int GetMajorVersion(const std::wstring input_path) {
+int GetMajorVersion(const std::wstring& input_path) {
   std::wstring index_name(input_path);
   file_util::AppendToPath(&index_name, kIndexName);
 
@@ -273,7 +273,7 @@ int GetMajorVersion(const std::wstring input_path) {
 }
 
 // Dumps the headers of all files.
-int DumpHeaders(const std::wstring input_path) {
+int DumpHeaders(const std::wstring& input_path) {
   std::wstring index_name(input_path);
   file_util::AppendToPath(&index_name, kIndexName);
   DumpIndexHeader(index_name);
@@ -291,7 +291,7 @@ int DumpHeaders(const std::wstring input_path) {
 }
 
 // Dumps all entries from the cache.
-int DumpContents(const std::wstring input_path) {
+int DumpContents(const std::wstring& input_path) {
   DumpHeaders(input_path);
 
   // We need a message loop, although we really don't run any task.

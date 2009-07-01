@@ -19,7 +19,7 @@ namespace {
 
 std::wstring BuildCachePath(const std::wstring& name) {
   FilePath path;
-  PathService::Get(base::DIR_TEMP, &path);
+  PathService::Get(base::DIR_TEMP, &path);  // Ignore return value;
   path = path.Append(FilePath::FromWStringHack(name));
   if (!file_util::PathExists(path))
     file_util::CreateDirectory(path);

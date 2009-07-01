@@ -25,11 +25,11 @@ enum Errors {
   TOOL_NOT_FOUND,
 };
 
-int GetMajorVersion(const std::wstring input_path);
-int DumpContents(const std::wstring input_path);
-int DumpHeaders(const std::wstring input_path);
-int RunSlave(const std::wstring input_path, const std::wstring pipe_number);
-int Upgrade(const std::wstring output_path, HANDLE pipe);
+int GetMajorVersion(const std::wstring& input_path);
+int DumpContents(const std::wstring& input_path);
+int DumpHeaders(const std::wstring& input_path);
+int RunSlave(const std::wstring& input_path, const std::wstring& pipe_number);
+int Upgrade(const std::wstring& output_path, HANDLE pipe);
 HANDLE CreateServer(std::wstring* pipe_number);
 
 const char kUpgradeHelp[] =
@@ -67,8 +67,8 @@ int Help() {
 }
 
 // Starts a new process, to generate the files.
-int LaunchSlave(const CommandLine& command_line, const std::wstring pipe_number,
-                int version) {
+int LaunchSlave(const CommandLine& command_line,
+                const std::wstring& pipe_number, int version) {
   // TODO(port): remove this string-munging hackery.
   std::wstring hacked_command_line = command_line.command_line_string();
   const std::wstring old_exe(L"dump_cache.exe");

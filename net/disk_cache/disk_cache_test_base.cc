@@ -65,7 +65,7 @@ void DiskCacheTestWithCache::InitDiskCache() {
   InitDiskCacheImpl(path);
 }
 
-void DiskCacheTestWithCache::InitDiskCacheImpl(const std::wstring path) {
+void DiskCacheTestWithCache::InitDiskCacheImpl(const std::wstring& path) {
   if (mask_)
     cache_impl_ = new disk_cache::BackendImpl(path, mask_);
   else

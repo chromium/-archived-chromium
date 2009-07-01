@@ -477,7 +477,7 @@ class HTTPSTestServer : public HTTPTestServer {
   // Create a server with an expired certificate
   static scoped_refptr<HTTPSTestServer> CreateExpiredServer(
       const std::wstring& document_root) {
-    HTTPSTestServer* test_server = new HTTPSTestServer();
+    scoped_refptr<HTTPSTestServer> test_server = new HTTPSTestServer();
     FilePath docroot = FilePath::FromWStringHack(document_root);
     FilePath certpath = test_server->launcher_.GetExpiredCertPath();
     if (!test_server->Start(net::TestServerLauncher::ProtoHTTP,

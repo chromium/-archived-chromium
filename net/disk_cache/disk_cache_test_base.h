@@ -90,7 +90,7 @@ class DiskCacheTestWithCache : public DiskCacheTest {
  private:
   void InitMemoryCache();
   void InitDiskCache();
-  void InitDiskCacheImpl(const std::wstring path);
+  void InitDiskCacheImpl(const std::wstring& path);
 };
 
 #endif  // NET_DISK_CACHE_DISK_CACHE_TEST_BASE_H_

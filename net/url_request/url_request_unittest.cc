@@ -906,10 +906,10 @@ TEST_F(URLRequestTest, ResolveShortcutTest) {
   result = CoCreateInstance(CLSID_ShellLink, NULL,
                           CLSCTX_INPROC_SERVER, IID_IShellLink,
                           reinterpret_cast<LPVOID*>(&shell));
-  EXPECT_TRUE(SUCCEEDED(result));
+  ASSERT_TRUE(SUCCEEDED(result));
   result = shell->QueryInterface(IID_IPersistFile,
                              reinterpret_cast<LPVOID*>(&persist));
-  EXPECT_TRUE(SUCCEEDED(result));
+  ASSERT_TRUE(SUCCEEDED(result));
   result = shell->SetPath(app_path.value().c_str());
   EXPECT_TRUE(SUCCEEDED(result));
   result = shell->SetDescription(L"ResolveShortcutTest");

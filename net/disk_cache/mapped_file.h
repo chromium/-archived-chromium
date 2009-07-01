@@ -26,7 +26,7 @@ class MappedFile : public File {
   // Performs object initialization. name is the file to use, and size is the
   // ammount of data to memory map from th efile. If size is 0, the whole file
   // will be mapped in memory.
-  void* Init(const std::wstring name, size_t size);
+  void* Init(const std::wstring& name, size_t size);
 
   void* buffer() const {
     return buffer_;

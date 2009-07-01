@@ -23,7 +23,7 @@ const int kNumStreams = 4;
 #define DEBUGMSG(...) { printf(__VA_ARGS__); }
 #endif
 
-HANDLE OpenServer(const std::wstring pipe_number) {
+HANDLE OpenServer(const std::wstring& pipe_number) {
   std::wstring pipe_name(kPipePrefix);
   pipe_name.append(pipe_number);
   return CreateFile(pipe_name.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL,
@@ -760,7 +760,7 @@ HANDLE CreateServer(std::wstring* pipe_number) {
 }
 
 // This is the controller process for an upgrade operation.
-int Upgrade(const std::wstring output_path, HANDLE pipe) {
+int Upgrade(const std::wstring& output_path, HANDLE pipe) {
   MessageLoop loop(MessageLoop::TYPE_IO);
   disk_cache::BackendImpl cache(output_path);
   if (!cache.Init()) {
@@ -779,7 +779,7 @@ int Upgrade(const std::wstring output_path, HANDLE pipe) {
 }
 
 // This process will only execute commands from the controller.
-int RunSlave(const std::wstring input_path, const std::wstring pipe_number) {
+int RunSlave(const std::wstring& input_path, const std::wstring& pipe_number) {
   MessageLoop loop(MessageLoop::TYPE_IO);
 
   ScopedHandle pipe(OpenServer(pipe_number));
