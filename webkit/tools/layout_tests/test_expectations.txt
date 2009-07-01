@@ -2840,7 +2840,7 @@ BUG15267 WIN LINUX DEBUG : LayoutTests/transitions/cancel-transition.html = PASS
 BUG15425 WIN : LayoutTests/dom/html/level2/html/HTMLElement142.html = PASS CRASH
 
 // WebKit 45287:45352 New tests
-BUG15649 : LayoutTests/compositing/layers-inside-overflow-scroll.html = TIMEOUT
+BUG15649 : LayoutTests/compositing/layers-inside-overflow-scroll.html = TIMEOUT FAIL
 BUG15649 : LayoutTests/compositing/self-painting-layers.html = TIMEOUT
 BUG15649 : LayoutTests/plugins/netscape-plugin-map-data-to-src.html = FAIL
 BUG15649 : LayoutTests/media/video-canvas-source.html = FAIL
@@ -2853,6 +2853,5 @@ BUG15710 : LayoutTests/compositing/overflow/overflow-scroll.html = TIMEOUT
 BUG15710 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridColumns-dom.html = TIMEOUT
 
 // Webkit 45403:45431
-BUG15733 : LayoutTests/compositing/layers-inside-overflow-scroll.html = ERROR
-BUG15733 : LayoutTests/compositing/repaint/content-into-overflow.html = ERROR
-BUG15733 : LayoutTests/compositing/repaint/overflow-into-content.html = ERROR
+BUG15733 : LayoutTests/compositing/repaint/content-into-overflow.html = FAIL
+BUG15733 : LayoutTests/compositing/repaint/overflow-into-content.html = FAIL
