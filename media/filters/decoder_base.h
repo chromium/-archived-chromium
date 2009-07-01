@@ -80,7 +80,7 @@ class DecoderBase : public Decoder {
   // within the OnDecode method.
   void EnqueueResult(Output* output) {
     DCHECK_EQ(PlatformThread::CurrentId(), thread_id_);
-    if (!stopped_) {
+    if (!IsStopped()) {
       result_queue_.push_back(output);
     }
   }
@@ -122,6 +122,7 @@ class DecoderBase : public Decoder {
   // TODO(scherkus): another reason to add protected accessors to MediaFilter.
   FilterHost* host() const { return Decoder::host_; }
   MessageLoop* message_loop() const { return Decoder::message_loop_; }
+  bool IsStopped() { return state_ == STOPPED; }
 
   void StopTask() {
     DCHECK_EQ(PlatformThread::CurrentId(), thread_id_);
@@ -171,7 +172,7 @@ class DecoderBase : public Decoder {
   void ReadTask(ReadCallback* read_callback) {
     DCHECK_EQ(PlatformThread::CurrentId(), thread_id_);
     // TODO(scherkus): should reply with a null operation (empty buffer).
-    if (stopped_) {
+    if (IsStopped()) {
       delete read_callback;
       return;
     }
@@ -191,7 +192,7 @@ class DecoderBase : public Decoder {
     DCHECK_EQ(PlatformThread::CurrentId(), thread_id_);
     DCHECK_GT(pending_reads_, 0u);
     --pending_reads_;
-    if (stopped_) {
+    if (IsStopped()) {
       return;
     }
 
@@ -249,10 +250,6 @@ class DecoderBase : public Decoder {
   // Tracks the number of asynchronous reads issued to |demuxer_stream_|.
   // Using size_t since it is always compared against deque::size().
   size_t pending_reads_;
-
-  // If true, then Stop() has been called and no further processing of buffers
-  // should occur.
-  bool stopped_;
 
   // An internal state of the decoder that indicates that are waiting for seek
   // to complete. We expect to receive a discontinuous frame/packet from the
