@@ -20,8 +20,6 @@ const std::string host1 = "host1";
 
 class BlockedPopupContainerControllerTest : public RenderViewHostTestHarness {
  public:
-  CocoaTestHelper cocoa_helper_;  // Inits Cocoa, creates window, etc...
-
   virtual void SetUp() {
     RenderViewHostTestHarness::SetUp();
     container_ = BlockedPopupContainer::Create(contents(), profile());
@@ -34,9 +32,10 @@ class BlockedPopupContainerControllerTest : public RenderViewHostTestHarness {
 
   virtual void TearDown() {
     // This will also signal the Cocoa controller to delete itself with a
-    // Destroy() mesage to the bridge.
+    // Destroy() mesage to the bridge. It also clears out the association with
+    // |contents_|.
     container_->Destroy();
-    contents_->set_blocked_popup_container(NULL);
+    RenderViewHostTestHarness::TearDown();
   }
 
   TabContents* BuildTabContents() {
