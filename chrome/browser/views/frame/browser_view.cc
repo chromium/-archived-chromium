@@ -1799,9 +1799,6 @@ void BrowserView::InitClass() {
 
 // static
 BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser) {
-  if (!views::ViewsDelegate::views_delegate)
-    views::ViewsDelegate::views_delegate = new ChromeViewsDelegate;
-
   // Create the view and the frame. The frame will attach itself via the view
   // so we don't need to do anything with the pointer.
   BrowserView* view = new BrowserView(browser);

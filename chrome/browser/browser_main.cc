@@ -77,7 +77,6 @@
 // progress and should not be taken as an indication of a real refactoring.
 
 #if defined(OS_WIN)
-
 #include <windows.h>
 #include <commctrl.h>
 #include <shellapi.h>
@@ -93,6 +92,7 @@
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/rlz/rlz.h"
+#include "chrome/browser/views/chrome_views_delegate.h"
 #include "chrome/browser/views/user_data_dir_dialog.h"
 #include "chrome/common/env_vars.h"
 #include "chrome/installer/util/helper.h"
@@ -105,7 +105,6 @@
 #include "net/http/http_network_layer.h"
 #include "sandbox/src/sandbox.h"
 #include "views/widget/accelerator_handler.h"
-
 #endif  // defined(OS_WIN)
 
 #if defined(TOOLKIT_GTK)
@@ -377,7 +376,13 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // It is important for this to happen before the first run dialog, as it
   // styles the dialog as well.
   gtk_util::InitRCStyles();
+#elif defined(TOOLKIT_VIEWS)
+  // The delegate needs to be set before any UI is created so that windows
+  // display the correct icon.
+  if (!views::ViewsDelegate::views_delegate)
+    views::ViewsDelegate::views_delegate = new ChromeViewsDelegate;
 #endif
+
 
 #if defined(OS_POSIX)
   // On Mac OS X / Linux we display the first run dialog as early as possible,
