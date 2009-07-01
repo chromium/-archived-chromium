@@ -37,6 +37,11 @@ WebDragSource::WebDragSource(gfx::NativeWindow source_wnd,
     : BaseDragSource(),
       source_wnd_(source_wnd),
       render_view_host_(render_view_host) {
+  // In an effort to try to track down http://crbug.com/12524 we now CHECK
+  // when a NULL render_view_host is passed to us. I think this is what is
+  // happening but it is hard to tell since the minidump is not helpful in this
+  // case. At least we can then rule that out.
+  CHECK(render_view_host_);
 }
 
 void WebDragSource::OnDragSourceCancel() {
