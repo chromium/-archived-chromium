@@ -2,6 +2,10 @@
     color: rgb(70, 134, 240);
 }
 
+#dock-status-bar-item {
+    display: none
+}
+
 .data-grid table {
     line-height: 120%;
 }
