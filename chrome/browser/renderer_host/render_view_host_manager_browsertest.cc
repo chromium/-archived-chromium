@@ -6,6 +6,11 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/notification_details.h"
+#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
+#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_type.h"
 #include "chrome/common/extensions/extension_error_reporter.h"
 #include "chrome/test/in_process_browser_test.h"
 #include "chrome/test/ui_test_utils.h"
@@ -44,4 +49,54 @@ IN_PROC_BROWSER_TEST_F(RenderViewHostManagerTest, ChromeURLAfterDownload) {
       L"window.domAutomationController.send(window.domui_responded_);",
       &domui_responded));
   EXPECT_TRUE(domui_responded);
+}
+
+class BrowserClosedObserver : public NotificationObserver {
+ public:
+  BrowserClosedObserver(Browser* browser) {
+    registrar_.Add(this, NotificationType::BROWSER_CLOSED,
+        Source<Browser>(browser));
+    ui_test_utils::RunMessageLoop();
+  }
+  
+  // NotificationObserver
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details) {
+    switch (type.value) {
+      case NotificationType::BROWSER_CLOSED:
+        MessageLoopForUI::current()->Quit();
+        break;
+    }
+  }
+
+ private:
+  NotificationRegistrar registrar_;
+};
+
+// Test for crbug.com/12745. This tests that if a download is initiated from
+// a chrome:// page that has registered and onunload handler, the browser
+// will be able to close.
+IN_PROC_BROWSER_TEST_F(RenderViewHostManagerTest, BrowserCloseAfterDownload) {
+  GURL downloads_url("chrome://downloads");
+  FilePath zip_download;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &zip_download));
+  zip_download = zip_download.AppendASCII("zip").AppendASCII("test.zip");
+  ASSERT_TRUE(file_util::PathExists(zip_download));
+  GURL zip_url = net::FilePathToFileURL(zip_download);
+
+  ui_test_utils::NavigateToURL(browser(), downloads_url);
+  TabContents *contents = browser()->GetSelectedTabContents();
+  ASSERT_TRUE(contents);
+  bool result = false;
+  EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(
+      contents,
+      L"",
+      L"window.onunload = function() { var do_nothing = 0; }; "
+      L"window.domAutomationController.send(true);",
+      &result));
+  EXPECT_TRUE(result);
+  ui_test_utils::NavigateToURL(browser(), zip_url);
+  browser()->CloseWindow();
+  BrowserClosedObserver observe(browser());
 }

@@ -244,6 +244,10 @@ class RenderViewHostManager : public NotificationObserver {
   RenderViewHost* pending_render_view_host_;
   scoped_ptr<DOMUI> pending_dom_ui_;
 
+  // Records whether the navigation was cancelled, but we are leaving the
+  // pending_render_view_host_ around in consideration of the download system.
+  bool pending_renderer_aborted_;
+
   // The intersitial page currently shown if any, not own by this class
   // (the InterstitialPage is self-owned, it deletes itself when hidden).
   InterstitialPage* interstitial_page_;
