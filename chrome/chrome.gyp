@@ -1800,19 +1800,13 @@
           ],
         }],
         ['OS=="mac"', {
-          'sources/': [
-            # Exclude most of download.
-            ['exclude', '^browser/download/'],
-            ['include', '^browser/download/download_(file|manager|shelf|util)\\.cc$'],
-            ['include', '^browser/download/download_request_manager\\.cc$'],
-            ['include', '^browser/download/download_item_model\\.cc$'],
-            ['include', '^browser/download/save_(file(_manager)?|item|package)\\.cc$'],
-          ],
           'sources!': [
             'browser/automation/automation_provider_list_generic.cc',
             'browser/bookmarks/bookmark_context_menu.cc',
             'browser/bookmarks/bookmark_drop_info.cc',
             'browser/dock_info.cc',
+            'browser/download/download_exe.cc',
+            'browser/download/download_request_dialog_delegate_win.cc',
             'browser/login_prompt.cc',
             'browser/password_manager/password_store_gnome.h',
             'browser/password_manager/password_store_gnome.cc',
