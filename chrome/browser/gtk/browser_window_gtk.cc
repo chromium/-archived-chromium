@@ -355,7 +355,6 @@ std::map<XID, GtkWindow*> BrowserWindowGtk::xid_map_;
 BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
     :  browser_(browser),
        full_screen_(false),
-       showing_custom_window_shape_(false),
 #if defined(LINUX2)
        drag_active_(false),
 #endif
@@ -1060,10 +1059,6 @@ void BrowserWindowGtk::OnSizeChanged(int width, int height) {
 
 void BrowserWindowGtk::UpdateWindowShape(int width, int height) {
   if (use_custom_frame_.GetValue() && !full_screen_ && !IsMaximized()) {
-    if (showing_custom_window_shape_)
-      return;
-    showing_custom_window_shape_ = true;
-
     // Make the top corners rounded.  We set a mask that includes most of the
     // window except for a few pixels in the top two corners.
     GdkRectangle top_rect = { 3, 0, width - 6, 1 };
@@ -1077,10 +1072,6 @@ void BrowserWindowGtk::UpdateWindowShape(int width, int height) {
     gtk_alignment_set_padding(GTK_ALIGNMENT(window_container_), 1,
         kFrameBorderThickness, kFrameBorderThickness, kFrameBorderThickness);
   } else {
-    if (!showing_custom_window_shape_)
-      return;
-    showing_custom_window_shape_ = false;
-
     // Disable rounded corners.
     gdk_window_shape_combine_region(GTK_WIDGET(window_)->window, NULL, 0, 0);
     gtk_alignment_set_padding(GTK_ALIGNMENT(window_container_), 0, 0, 0, 0);
