@@ -129,18 +129,23 @@ void ConfigureButtonForNode(const BookmarkNode* node, BookmarkModel* model,
   if (!tooltip.empty())
     gtk_widget_set_tooltip_text(button, tooltip.c_str());
 
+  GdkPixbuf* pixbuf = bookmark_utils::GetPixbufForNode(node, model);
+  gtk_button_set_image(GTK_BUTTON(button), gtk_image_new_from_pixbuf(pixbuf));
+  g_object_unref(pixbuf);
+
   // TODO(erg): Consider a soft maximum instead of this hard 15.
   std::wstring title = node->GetTitle();
   // Don't treat underscores as mnemonics.
   // O, that we could just use gtk_button_set_use_underline()!
   // See http://bugzilla.gnome.org/show_bug.cgi?id=586330
   std::string text = DoubleUnderscores(WideToUTF8(title));
-  text = text.substr(0, std::min(text.size(), kMaxCharsOnAButton));
   gtk_button_set_label(GTK_BUTTON(button), text.c_str());
-
-  GdkPixbuf* pixbuf = bookmark_utils::GetPixbufForNode(node, model);
-  gtk_button_set_image(GTK_BUTTON(button), gtk_image_new_from_pixbuf(pixbuf));
-  g_object_unref(pixbuf);
+  GtkWidget* label = NULL;
+  gtk_container_foreach(GTK_CONTAINER(button), SearchForLabel, &label);
+  if (label) {
+    gtk_label_set_max_width_chars(GTK_LABEL(label), kMaxCharsOnAButton);
+    gtk_label_set_ellipsize(GTK_LABEL(label), PANGO_ELLIPSIZE_END);
+  }
 
   SetButtonTextColors(button);
   g_object_set_data(G_OBJECT(button), bookmark_utils::kBookmarkNode,
@@ -159,7 +164,7 @@ const BookmarkNode* BookmarkNodeForWidget(GtkWidget* widget) {
 }
 
 void SetButtonTextColors(GtkWidget* button) {
-  GtkWidget* label;
+  GtkWidget* label = NULL;
   gtk_container_foreach(GTK_CONTAINER(button), SearchForLabel, &label);
   if (label) {
     gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &kEnabledColor);
