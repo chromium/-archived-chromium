@@ -26,6 +26,18 @@ class TabContents;
 
 class AutocompleteEditViewGtk : public AutocompleteEditView {
  public:
+  // Modeled like the Windows CHARRANGE.  Represent a pair of cursor position
+  // offsets.  Since GtkTextIters are invalid after the buffer is changed, we
+  // work in character offsets (not bytes).
+  struct CharRange {
+    CharRange() : cp_min(0), cp_max(0) { }
+    CharRange(int n, int x) : cp_min(n), cp_max(x) { }
+
+    // Work in integers to match the gint GTK APIs.
+    int cp_min;  // For a selection: Represents the start.
+    int cp_max;  // For a selection: Represents the end (insert position).
+  };
+
   AutocompleteEditViewGtk(AutocompleteEditController* controller,
                           ToolbarModel* toolbar_model,
                           Profile* profile,
@@ -86,18 +98,6 @@ class AutocompleteEditViewGtk : public AutocompleteEditView {
   virtual bool OnAfterPossibleChange();
 
  private:
-  // Modeled like the Windows CHARRANGE.  Represent a pair of cursor position
-  // offsets.  Since GtkTextIters are invalid after the buffer is changed, we
-  // work in character offsets (not bytes).
-  struct CharRange {
-    CharRange() : cp_min(0), cp_max(0) { }
-    CharRange(int n, int x) : cp_min(n), cp_max(x) { }
-
-    // Work in integers to match the gint GTK APIs.
-    int cp_min;  // For a selection: Represents the start.
-    int cp_max;  // For a selection: Represents the end (insert position).
-  };
-
   // TODO(deanm): Would be nice to insulate the thunkers better, etc.
   static void HandleBeginUserActionThunk(GtkTextBuffer* unused, gpointer self) {
     reinterpret_cast<AutocompleteEditViewGtk*>(self)->HandleBeginUserAction();
@@ -201,6 +201,17 @@ class AutocompleteEditViewGtk : public AutocompleteEditView {
   }
   void HandlePasteAndGoReceivedText(const std::wstring& text);
 
+  static void HandleMarkSetThunk(GtkTextBuffer* buffer,
+                                 GtkTextIter* location,
+                                 GtkTextMark* mark,
+                                 gpointer self) {
+    reinterpret_cast<AutocompleteEditViewGtk*>(self)->
+        HandleMarkSet(buffer, location, mark);
+  }
+  void HandleMarkSet(GtkTextBuffer* buffer,
+                     GtkTextIter* location,
+                     GtkTextMark* mark);
+
   // Get the character indices of the current selection.  This honors
   // direction, cp_max is the insertion point, and cp_min is the bound.
   CharRange GetSelection();
@@ -219,6 +230,9 @@ class AutocompleteEditViewGtk : public AutocompleteEditView {
   // Internally invoked whenever the text changes in some way.
   void TextChanged();
 
+  // Save 'selected_text' as the PRIMARY X selection.
+  void SavePrimarySelection(const std::string& selected_text);
+
   // The widget we expose, used for vertically centering the real text edit,
   // since the height will change based on the font / font size, etc.
   OwnedWidgetGtk alignment_;
@@ -232,11 +246,6 @@ class AutocompleteEditViewGtk : public AutocompleteEditView {
   GtkTextTag* secure_scheme_tag_;
   GtkTextTag* insecure_scheme_tag_;
   GtkTextTag* black_text_tag_;
-
-  // The primary selection clipboard for our text view widget.  This is used
-  // for working around some clipboard manager (klipper / glipper) bugs by
-  // removing and adding back the clipboard around inline autocomplete.
-  GtkClipboard* primary_clipboard_;
 
   scoped_ptr<AutocompleteEditModel> model_;
   scoped_ptr<AutocompletePopupViewGtk> popup_view_;
@@ -257,6 +266,17 @@ class AutocompleteEditViewGtk : public AutocompleteEditView {
   // Tracking state before and after a possible change.
   std::wstring text_before_change_;
   CharRange sel_before_change_;
+
+  // The most-recently-selected text from the entry.  This is updated on-the-fly
+  // as the user selects text.  It is used in cases where we need to make the
+  // PRIMARY selection persist even after the user has unhighlighted the text in
+  // the view (e.g. when they highlight some text and then click to unhighlight
+  // it, we pass this string to SavePrimarySelection()).
+  std::string selected_text_;
+
+  // Has the current value of 'selected_text_' been saved as the PRIMARY
+  // selection?
+  bool selection_saved_;
 
   DISALLOW_COPY_AND_ASSIGN(AutocompleteEditViewGtk);
 };

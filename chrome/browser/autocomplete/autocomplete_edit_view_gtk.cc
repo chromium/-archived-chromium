@@ -34,6 +34,34 @@ size_t GetUTF8Offset(const std::wstring& wide_text, size_t wide_text_offset) {
   return WideToUTF8(wide_text.substr(0, wide_text_offset)).size();
 }
 
+// Stores GTK+-specific state so it can be restored after switching tabs.
+struct ViewState {
+  explicit ViewState(const AutocompleteEditViewGtk::CharRange& selection_range)
+      : selection_range(selection_range) {
+  }
+
+  // Range of selected text.
+  AutocompleteEditViewGtk::CharRange selection_range;
+};
+
+struct AutocompleteEditState {
+  AutocompleteEditState(const AutocompleteEditModel::State& model_state,
+                        const ViewState& view_state)
+      : model_state(model_state),
+        view_state(view_state) {
+  }
+
+  const AutocompleteEditModel::State model_state;
+  const ViewState view_state;
+};
+
+// Returns a lazily initialized property bag accessor for saving our state in a
+// TabContents.
+PropertyAccessor<AutocompleteEditState>* GetStateAccessor() {
+  static PropertyAccessor<AutocompleteEditState> state;
+  return &state;
+}
+
 }  // namespace
 
 AutocompleteEditViewGtk::AutocompleteEditViewGtk(
@@ -48,7 +76,6 @@ AutocompleteEditViewGtk::AutocompleteEditViewGtk(
       base_tag_(NULL),
       secure_scheme_tag_(NULL),
       insecure_scheme_tag_(NULL),
-      primary_clipboard_(NULL),
       model_(new AutocompleteEditModel(this, controller, profile)),
       popup_view_(new AutocompletePopupViewGtk(this, model_.get(), profile,
                                                popup_positioner)),
@@ -56,7 +83,8 @@ AutocompleteEditViewGtk::AutocompleteEditViewGtk(
       toolbar_model_(toolbar_model),
       command_updater_(command_updater),
       popup_window_mode_(false),  // TODO(deanm)
-      scheme_security_level_(ToolbarModel::NORMAL) {
+      scheme_security_level_(ToolbarModel::NORMAL),
+      selection_saved_(false) {
   model_->set_popup_model(popup_view_->GetModel());
 }
 
@@ -145,6 +173,8 @@ void AutocompleteEditViewGtk::Init() {
                    G_CALLBACK(&HandleViewSizeRequestThunk), this);
   g_signal_connect(text_view_, "populate-popup",
                    G_CALLBACK(&HandlePopulatePopupThunk), this);
+  g_signal_connect(text_buffer_, "mark-set",
+                   G_CALLBACK(&HandleMarkSetThunk), this);
 }
 
 void AutocompleteEditViewGtk::SetFocus() {
@@ -152,7 +182,18 @@ void AutocompleteEditViewGtk::SetFocus() {
 }
 
 void AutocompleteEditViewGtk::SaveStateToTab(TabContents* tab) {
-  NOTIMPLEMENTED();
+  DCHECK(tab);
+  GetStateAccessor()->SetProperty(
+      tab->property_bag(),
+      AutocompleteEditState(model_->GetStateForTabSwitch(),
+                            ViewState(GetSelection())));
+
+  // If any text has been selected, register it as the PRIMARY selection so it
+  // can still be pasted via middle-click after the text view is cleared.
+  if (!selected_text_.empty() && !selection_saved_) {
+    SavePrimarySelection(selected_text_);
+    selection_saved_ = true;
+  }
 }
 
 void AutocompleteEditViewGtk::Update(const TabContents* contents) {
@@ -173,9 +214,27 @@ void AutocompleteEditViewGtk::Update(const TabContents* contents) {
   }
 
   if (contents) {
+    selected_text_.clear();
+    selection_saved_ = false;
     RevertAll();
-    // TODO(deanm): Tab switching.  The Windows code puts some state in a
-    // PropertyBag on the tab contents, and restores state from there.
+    const AutocompleteEditState* state =
+        GetStateAccessor()->GetProperty(contents->property_bag());
+    if (state) {
+      model_->RestoreState(state->model_state);
+
+      // Move the marks for the cursor and the other end of the selection to
+      // the previously-saved offsets.
+      GtkTextIter selection_iter, insert_iter;
+      ItersFromCharRange(
+          state->view_state.selection_range, &selection_iter, &insert_iter);
+      // TODO(derat): Restore the selection range instead of just the cursor
+      // ("insert") position.  This in itself is trivial to do using
+      // gtk_text_buffer_select_range(), but then it also becomes necessary to
+      // invalidate hidden tabs' saved ranges when another tab or another app
+      // takes the selection, lest we incorrectly regrab a stale selection when
+      // a hidden tab is later shown.
+      gtk_text_buffer_place_cursor(text_buffer_, &insert_iter);
+    }
   } else if (visibly_changed_permanent_text) {
     RevertAll();
     // TODO(deanm): There should be code to restore select all here.
@@ -295,17 +354,18 @@ bool AutocompleteEditViewGtk::OnInlineAutocompleteTextMaybeChanged(
     size_t user_text_length) {
   if (display_text == GetText())
     return false;
-  
+
   // We need to get the clipboard while it's attached to the toplevel.  The
   // easiest thing to do is just to lazily pull the clipboard here.
-  if (primary_clipboard_ == NULL) {
-    primary_clipboard_ = gtk_widget_get_clipboard(text_view_,
-                                                  GDK_SELECTION_PRIMARY);
-  }
+  GtkClipboard* clipboard =
+      gtk_widget_get_clipboard(text_view_, GDK_SELECTION_PRIMARY);
+  DCHECK(clipboard);
+  if (!clipboard)
+    return true;
 
   // Remove the PRIMARY clipboard to avoid having "clipboard helpers" like
   // klipper and glipper race with / remove our inline autocomplete selection.
-  gtk_text_buffer_remove_selection_clipboard(text_buffer_, primary_clipboard_);
+  gtk_text_buffer_remove_selection_clipboard(text_buffer_, clipboard);
   SetWindowTextAndCaretPos(display_text, 0);
 
   // Select the part of the text that was inline autocompleted.
@@ -316,7 +376,7 @@ bool AutocompleteEditViewGtk::OnInlineAutocompleteTextMaybeChanged(
 
   TextChanged();
   // Put the PRIMARY clipboard back, so that selection still somewhat works.
-  gtk_text_buffer_add_selection_clipboard(text_buffer_, primary_clipboard_);
+  gtk_text_buffer_add_selection_clipboard(text_buffer_, clipboard);
 
   return true;
 }
@@ -449,6 +509,12 @@ gboolean AutocompleteEditViewGtk::HandleViewButtonPress(GdkEventButton* event) {
   if (GTK_WIDGET_HAS_FOCUS(text_view_))
     return FALSE;  // Continue to propagate into the GtkTextView handler.
 
+  // We only want to select everything on left-click; otherwise we'll end up
+  // stealing the PRIMARY selection when the user middle-clicks to paste it
+  // here.
+  if (event->button != 1)
+    return FALSE;
+
   // Call the GtkTextView default handler, ignoring the fact that it will
   // likely have told us to stop propagating.  We want to handle selection.
   GtkWidgetClass* klass = GTK_WIDGET_GET_CLASS(text_view_);
@@ -545,6 +611,44 @@ void AutocompleteEditViewGtk::HandlePasteAndGoReceivedText(
     model_->PasteAndGo();
 }
 
+void AutocompleteEditViewGtk::HandleMarkSet(GtkTextBuffer* buffer,
+                                            GtkTextIter* location,
+                                            GtkTextMark* mark) {
+  if (!text_buffer_ || buffer != text_buffer_)
+    return;
+
+  if (mark != gtk_text_buffer_get_insert(text_buffer_) &&
+      mark != gtk_text_buffer_get_selection_bound(text_buffer_)) {
+    return;
+  }
+
+  // Is no text selected in the GtkTextView?
+  bool no_text_selected = false;
+
+  // Get the currently-selected text, if there is any.
+  GtkTextIter start, end;
+  if (!gtk_text_buffer_get_selection_bounds(text_buffer_, &start, &end)) {
+    no_text_selected = true;
+  } else {
+    gchar* text = gtk_text_iter_get_text(&start, &end);
+    size_t text_len = strlen(text);
+    if (!text_len) {
+      no_text_selected = true;
+    } else {
+      selected_text_ = std::string(text, text_len);
+      selection_saved_ = false;
+    }
+    g_free(text);
+  }
+
+  // If we have some previously-selected text but it's no longer highlighted
+  // and we haven't saved it as the selection yet, we save it now.
+  if (!selected_text_.empty() && no_text_selected && !selection_saved_) {
+    SavePrimarySelection(selected_text_);
+    selection_saved_ = true;
+  }
+}
+
 AutocompleteEditViewGtk::CharRange AutocompleteEditViewGtk::GetSelection() {
   // You can not just use get_selection_bounds here, since the order will be
   // ascending, and you don't know where the user's start and end of the
@@ -634,4 +738,16 @@ void AutocompleteEditViewGtk::EmphasizeURLComponents() {
 void AutocompleteEditViewGtk::TextChanged() {
   EmphasizeURLComponents();
   controller_->OnChanged();
+}
+
+void AutocompleteEditViewGtk::SavePrimarySelection(
+    const std::string& selected_text) {
+  GtkClipboard* clipboard =
+      gtk_widget_get_clipboard(text_view_, GDK_SELECTION_PRIMARY);
+  DCHECK(clipboard);
+  if (!clipboard)
+    return;
+
+  gtk_clipboard_set_text(
+      clipboard, selected_text.data(), selected_text.size());
 }

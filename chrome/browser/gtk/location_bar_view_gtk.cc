@@ -261,7 +261,7 @@ void LocationBarViewGtk::UpdatePageActions() {
 }
 
 void LocationBarViewGtk::SaveStateToContents(TabContents* contents) {
-  // http://crbug.com/9225
+  location_entry_->SaveStateToTab(contents);
 }
 
 void LocationBarViewGtk::Revert() {
