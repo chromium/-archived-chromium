@@ -171,6 +171,9 @@ BUG761653 WONTFIX : LayoutTests/svg/webarchive = FAIL PASS
 BUG761653 WONTFIX : LayoutTests/svg/custom/image-with-prefix-in-webarchive.svg = FAIL PASS
 BUG761653 WONTFIX SKIP : LayoutTests/http/tests/webarchive = FAIL PASS
 
+// We don't support ACCELERATED_COMPOSITING, so skip all related tests
+WONTFIX SKIP : LayoutTests/compositing = FAIL
+
 // Run the Mac-specific platform tests, but only to check for crashes.
 WONTFIX : LayoutTests/platform/gtk = FAIL PASS
 WONTFIX : LayoutTests/platform/mac = FAIL PASS TIMEOUT
@@ -2033,7 +2036,6 @@ BUG10464 WIN : LayoutTests/http/tests/xmlhttprequest/small-chunks-response-text.
 BUG10464 WIN LINUX : LayoutTests/transitions/interrupt-zero-duration.html = FAIL PASS
 
 // New tests, need Chromium baseline.
-BUG10465 LINUX : LayoutTests/compositing/direct-image-compositing.html = FAIL
 BUG10465 LINUX : LayoutTests/fast/borders/border-image-border-radius.html = FAIL
 BUG10465 LINUX : LayoutTests/fast/clip/overflow-border-radius-clip.html = FAIL
   
@@ -2067,12 +2069,6 @@ BUG10473 LINUX : LayoutTests/fast/forms/search-placeholder-value-changed.html = 
 BUG10473 LINUX : LayoutTests/fast/forms/searchfield-heights.html = FAIL
 BUG10473 LINUX : LayoutTests/fast/repaint/search-field-cancel.html = FAIL
 BUG10473 LINUX : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
-
-// Merge WebKit: 41999:42026, new tests.
-BUG10474 WIN LINUX : LayoutTests/compositing/overflow/ancestor-overflow.html = FAIL
-BUG10474 WIN LINUX : LayoutTests/compositing/overflow/parent-overflow.html = FAIL
-
-// Merge WebKit: 42026:42115 regressions
 
 // Changed in http://trac.webkit.org/changeset/42082
 // This is deferred because it involves a scenario (submitting a form to
@@ -2782,13 +2778,8 @@ BUG14885 : LayoutTests/fast/js/JSON-parse.html = FAIL
 BUG14946 : LayoutTests/fast/js/date-toisostring.html = FAIL
 BUG14951 WIN LINUX : LayoutTests/fast/repaint/background-generated.html = FAIL
 
-// WebKit 44946:44969, needs baselines
-BUG15113 SKIP : LayoutTests/compositing/sibling-positioning.html = FAIL
-
 // WebKit 44969:45017
 BUG15132 : LayoutTests/editing/execCommand/5142012-3.html = FAIL
-// needs baselines
-BUG15132 SKIP : LayoutTests/compositing/reflections/reflection-on-composited.html = FAIL
 // more unexpected failures
 BUG15132 WIN LINUX : LayoutTests/editing/execCommand/5482023.html = FAIL
 BUG15132 WIN LINUX : LayoutTests/editing/inserting/editable-html-element.html = FAIL
@@ -2840,18 +2831,8 @@ BUG15267 WIN LINUX DEBUG : LayoutTests/transitions/cancel-transition.html = PASS
 BUG15425 WIN : LayoutTests/dom/html/level2/html/HTMLElement142.html = PASS CRASH
 
 // WebKit 45287:45352 New tests
-BUG15649 : LayoutTests/compositing/layers-inside-overflow-scroll.html = TIMEOUT FAIL
-BUG15649 : LayoutTests/compositing/self-painting-layers.html = TIMEOUT
 BUG15649 MAC : LayoutTests/plugins/netscape-plugin-map-data-to-src.html = FAIL
 BUG15649 : LayoutTests/media/video-canvas-source.html = FAIL
 
-// WebKit 45381:45403 Need to rebaseline
-BUG15710 : LayoutTests/fast/css/getComputedStyle/computed-style-font-family.html = FAIL
-
 // WebKit 45381:45403 New tests
-BUG15710 SKIP : LayoutTests/compositing/overflow/overflow-scroll.html = TIMEOUT FAIL
 BUG15710 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridColumns-dom.html = TIMEOUT
-
-// Webkit 45403:45431
-BUG15733 : LayoutTests/compositing/repaint/content-into-overflow.html = FAIL
-BUG15733 : LayoutTests/compositing/repaint/overflow-into-content.html = FAIL
