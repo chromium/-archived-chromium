@@ -52,6 +52,7 @@ namespace WebCore {
 class Frame;
 class FrameView;
 class HistoryItem;
+class KURL;
 class Node;
 class Range;
 class SubstituteData;
@@ -76,19 +77,27 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   void InitMainFrame(WebViewImpl* webview_impl);
 
   // WebFrame
+  virtual void Reload();
   virtual void LoadRequest(const WebKit::WebURLRequest& request);
   virtual void LoadHistoryItem(const WebKit::WebHistoryItem& item);
-  virtual void LoadHTMLString(const std::string& html_text,
-                              const GURL& base_url);
-  virtual void LoadAlternateHTMLString(const WebKit::WebURLRequest& request,
-                                       const std::string& html_text,
-                                       const GURL& display_url,
-                                       bool replace);
-  virtual void LoadAlternateHTMLErrorPage(const WebKit::WebURLRequest& request,
-                                          const WebKit::WebURLError& error,
-                                          const GURL& error_page_url,
-                                          bool replace,
-                                          const GURL& fake_url);
+  virtual void LoadData(
+      const WebKit::WebData& data,
+      const WebKit::WebString& mime_type,
+      const WebKit::WebString& text_encoding,
+      const WebKit::WebURL& base_url,
+      const WebKit::WebURL& unreachable_url = WebKit::WebURL(),
+      bool replace = false);
+  virtual void LoadHTMLString(
+      const WebKit::WebData& data,
+      const WebKit::WebURL& base_url,
+      const WebKit::WebURL& unreachable_url = WebKit::WebURL(),
+      bool replace = false);
+  virtual void LoadAlternateHTMLErrorPage(
+      const WebKit::WebURLRequest& request,
+      const WebKit::WebURLError& error,
+      const GURL& error_page_url,
+      bool replace,
+      const GURL& fake_url);
   virtual void ExecuteScript(const WebKit::WebScriptSource& source);
   virtual void ExecuteScriptInNewContext(
       const WebKit::WebScriptSource* sources, int num_sources);
@@ -264,14 +273,6 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   // WebFrameLoaderClient
   void Closing();
 
-  // A helper function for loading some document, given all of its data, into
-  // this frame.  The charset may be empty if unknown, but a mime type must be
-  // specified.  TODO(darin): Add option for storing this in session history.
-  void LoadDocumentData(const WebCore::KURL& base_url,
-                        const WebCore::String& data,
-                        const WebCore::String& mime_type,
-                        const WebCore::String& charset);
-
   // See WebFrame.h for details.
   virtual void IncreaseMatchCount(int count, int request_id);
   virtual void ReportFindInPageSelection(const WebKit::WebRect& selection_rect,
@@ -386,12 +387,10 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   // Determines whether to invalidate the content area and scrollbar.
   void InvalidateIfNecessary();
 
-  void InternalLoadRequest(const WebKit::WebURLRequest& request,
-                           const WebCore::SubstituteData& data,
-                           bool replace);
-
   // Clears the map of password listeners.
   void ClearPasswordListeners();
+
+  void LoadJavaScriptURL(const WebCore::KURL& url);
 
   // Valid between calls to BeginPrint() and EndPrint(). Containts the print
   // information. Is used by PrintPage().

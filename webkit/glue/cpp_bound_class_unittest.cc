@@ -9,6 +9,8 @@
 #include <vector>
 
 #include "base/message_loop.h"
+#include "webkit/api/public/WebData.h"
+#include "webkit/api/public/WebURL.h"
 #include "webkit/glue/cpp_binding_example.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webframe.h"

@@ -209,16 +209,6 @@ void WebURLRequest::setAppCacheContextID(int appCacheContextID)
     m_private->m_resourceRequest->setAppCacheContextID(appCacheContextID);
 }
 
-WebCString WebURLRequest::securityInfo() const
-{
-    return m_private->m_resourceRequest->securityInfo();
-}
-
-void WebURLRequest::setSecurityInfo(const WebCString& securityInfo)
-{
-    m_private->m_resourceRequest->setSecurityInfo(securityInfo);
-}
-
 ResourceRequest& WebURLRequest::toMutableResourceRequest()
 {
     ASSERT(m_private);

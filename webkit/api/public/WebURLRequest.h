@@ -125,12 +125,6 @@ namespace WebKit {
         WEBKIT_API int appCacheContextID() const;
         WEBKIT_API void setAppCacheContextID(int id);
 
-        // A consumer controlled value intended to be used to record opaque
-        // security info related to this request.
-        // FIXME: This really doesn't belong here!
-        WEBKIT_API WebCString securityInfo() const;
-        WEBKIT_API void setSecurityInfo(const WebCString&);
-
 #if defined(WEBKIT_IMPLEMENTATION)
         WebCore::ResourceRequest& toMutableResourceRequest();
         const WebCore::ResourceRequest& toResourceRequest() const;

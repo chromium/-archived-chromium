@@ -19,6 +19,8 @@
 #include "base/values.h"
 #include "net/base/net_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "webkit/api/public/WebData.h"
+#include "webkit/api/public/WebURL.h"
 #include "webkit/glue/devtools/devtools_mock_rpc.h"
 #include "webkit/glue/devtools/devtools_rpc.h"
 #include "webkit/glue/devtools/dom_agent_impl.h"

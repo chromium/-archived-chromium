@@ -196,6 +196,8 @@ using WebCore::ResourceError;
 using WebCore::ResourceHandle;
 using WebCore::ResourceRequest;
 using WebCore::VisibleSelection;
+using WebCore::ScriptValue;
+using WebCore::SecurityOrigin;
 using WebCore::SharedBuffer;
 using WebCore::String;
 using WebCore::SubstituteData;
@@ -205,6 +207,7 @@ using WebCore::XPathResult;
 
 using WebKit::WebCanvas;
 using WebKit::WebConsoleMessage;
+using WebKit::WebData;
 using WebKit::WebDataSource;
 using WebKit::WebFindOptions;
 using WebKit::WebHistoryItem;
@@ -212,6 +215,7 @@ using WebKit::WebForm;
 using WebKit::WebRect;
 using WebKit::WebScriptSource;
 using WebKit::WebSize;
+using WebKit::WebString;
 using WebKit::WebURL;
 using WebKit::WebURLError;
 using WebKit::WebURLRequest;
@@ -412,8 +416,25 @@ void WebFrameImpl::InitMainFrame(WebViewImpl* webview_impl) {
   frame_->init();
 }
 
+void WebFrameImpl::Reload() {
+  frame_->loader()->saveDocumentAndScrollState();
+
+  StopLoading();  // Make sure existing activity stops.
+  frame_->loader()->reload();
+}
+
 void WebFrameImpl::LoadRequest(const WebURLRequest& request) {
-  InternalLoadRequest(request, SubstituteData(), false);
+  const ResourceRequest* resource_request =
+      webkit_glue::WebURLRequestToResourceRequest(&request);
+  DCHECK(resource_request);
+
+  if (resource_request->url().protocolIs("javascript")) {
+    LoadJavaScriptURL(resource_request->url());
+    return;
+  }
+
+  StopLoading();  // Make sure existing activity stops.
+  frame_->loader()->load(*resource_request, false);
 }
 
 void WebFrameImpl::LoadHistoryItem(const WebHistoryItem& item) {
@@ -421,7 +442,7 @@ void WebFrameImpl::LoadHistoryItem(const WebHistoryItem& item) {
       webkit_glue::WebHistoryItemToHistoryItem(item);
   DCHECK(history_item.get());
 
-  StopLoading();  // make sure existing activity stops
+  StopLoading();  // Make sure existing activity stops.
 
   // If there is no current_item, which happens when we are navigating in
   // session history after a crash, we need to manufacture one otherwise WebKit
@@ -438,78 +459,39 @@ void WebFrameImpl::LoadHistoryItem(const WebHistoryItem& item) {
                              WebCore::FrameLoadTypeIndexedBackForward);
 }
 
-void WebFrameImpl::InternalLoadRequest(const WebURLRequest& request,
-                                       const SubstituteData& data,
-                                       bool replace) {
-  const ResourceRequest* resource_request =
-      webkit_glue::WebURLRequestToResourceRequest(&request);
-  DCHECK(resource_request);
-
-  // Special-case javascript URLs.  Do not interrupt the existing load when
-  // asked to load a javascript URL unless the script generates a result.  We
-  // can't just use FrameLoader::executeIfJavaScriptURL because it doesn't
-  // handle redirects properly.
-  const KURL& kurl = resource_request->url();
-  if (!data.isValid() && kurl.protocol() == "javascript") {
-    // Don't attempt to reload javascript URLs.
-    if (resource_request->cachePolicy() == ReloadIgnoringCacheData)
-      return;
-
-    // We can't load a javascript: URL if there is no Document!
-    if (!frame_->document())
-      return;
-
-    // TODO(darin): Is this the best API to use here?  It works and seems
-    // good, but will it change out from under us?
-    String script = decodeURLEscapeSequences(
-        kurl.string().substring(sizeof("javascript:")-1));
-    WebCore::ScriptValue result = frame_->loader()->executeScript(script, true);
-    String scriptResult;
-    if (result.getString(scriptResult) &&
-        !frame_->loader()->isScheduledLocationChangePending()) {
-      // TODO(darin): We need to figure out how to represent this in session
-      // history.  Hint: don't re-eval script when the user or script
-      // navigates back-n-forth (instead store the script result somewhere).
-      LoadDocumentData(kurl, scriptResult, String("text/html"), String());
-    }
-    return;
-  }
-
-  StopLoading();  // make sure existing activity stops
-
-  if (data.isValid()) {
-    DCHECK(resource_request);
-    frame_->loader()->load(*resource_request, data, false);
-    if (replace) {
-      // Do this to force WebKit to treat the load as replacing the currently
-      // loaded page.
-      frame_->loader()->setReplacing();
-    }
-  } else if (resource_request->cachePolicy() == ReloadIgnoringCacheData) {
-    frame_->loader()->reload();
-  } else {
-    frame_->loader()->load(*resource_request, false);
-  }
-}
-
-void WebFrameImpl::LoadHTMLString(const std::string& html_text,
-                                  const GURL& base_url) {
-  LoadAlternateHTMLString(WebURLRequest(base_url), html_text, GURL(), false);
-}
-
-void WebFrameImpl::LoadAlternateHTMLString(const WebURLRequest& request,
-                                           const std::string& html_text,
-                                           const GURL& display_url,
-                                           bool replace) {
-  int len = static_cast<int>(html_text.size());
-  RefPtr<SharedBuffer> buf = SharedBuffer::create(html_text.data(), len);
-
+void WebFrameImpl::LoadData(const WebData& data,
+                            const WebString& mime_type,
+                            const WebString& text_encoding,
+                            const WebURL& base_url,
+                            const WebURL& unreachable_url,
+                            bool replace) {
   SubstituteData subst_data(
-      buf, String("text/html"), String("UTF-8"),
-      webkit_glue::GURLToKURL(display_url));
+      webkit_glue::WebDataToSharedBuffer(data),
+      webkit_glue::WebStringToString(mime_type),
+      webkit_glue::WebStringToString(text_encoding),
+      webkit_glue::WebURLToKURL(unreachable_url));
   DCHECK(subst_data.isValid());
 
-  InternalLoadRequest(request, subst_data, replace);
+  StopLoading();  // Make sure existing activity stops.
+  frame_->loader()->load(ResourceRequest(webkit_glue::WebURLToKURL(base_url)),
+                         subst_data, false);
+  if (replace) {
+    // Do this to force WebKit to treat the load as replacing the currently
+    // loaded page.
+    frame_->loader()->setReplacing();
+  }
+}
+
+void WebFrameImpl::LoadHTMLString(const WebData& data,
+                                  const WebURL& base_url,
+                                  const WebURL& unreachable_url,
+                                  bool replace) {
+  LoadData(data,
+           WebString::fromUTF8("text/html"),
+           WebString::fromUTF8("UTF-8"),
+           base_url,
+           unreachable_url,
+           replace);
 }
 
 GURL WebFrameImpl::GetURL() const {
@@ -577,32 +559,6 @@ WebHistoryItem WebFrameImpl::GetCurrentHistoryItem() const {
 
   return webkit_glue::HistoryItemToWebHistoryItem(
       frame_->page()->backForwardList()->currentItem());
-}
-
-void WebFrameImpl::LoadDocumentData(const KURL& base_url,
-                                    const String& data,
-                                    const String& mime_type,
-                                    const String& charset) {
-  // TODO(darin): This is wrong.  We need to re-cast this in terms of a call to
-  // one of the FrameLoader::load(...) methods.  Else, WebCore will be angry!!
-
-  // Requiring a base_url here seems like a good idea for security reasons.
-  ASSERT(!base_url.isEmpty());
-  ASSERT(!mime_type.isEmpty());
-
-  StopLoading();
-
-  // Reset any pre-existing scroll offset
-  frameview()->setScrollPosition(WebCore::IntPoint());
-
-  // Make sure the correct document type is constructed.
-  frame_->loader()->setResponseMIMEType(mime_type);
-
-  // TODO(darin): Inform the FrameLoader of the charset somehow.
-
-  frame_->loader()->begin(base_url);
-  frame_->loader()->write(data);
-  frame_->loader()->end();
 }
 
 static WebDataSource* DataSourceForDocLoader(DocumentLoader* loader) {
@@ -1600,15 +1556,14 @@ void WebFrameImpl::LoadAlternateHTMLErrorPage(const WebURLRequest& request,
                                               const GURL& error_page_url,
                                               bool replace,
                                               const GURL& fake_url) {
-  // Load alternate HTML in place of the previous request.  We create a copy of
-  // the original request so we can replace its URL with a dummy URL.  That
-  // prevents other web content from the same origin as the failed URL to
-  // script the error page.
-  WebURLRequest failed_request(request);
-  failed_request.setURL(fake_url);
+  // Load alternate HTML in place of the previous request.  We use a fake_url
+  // for the Base URL.  That prevents other web content from the same origin
+  // as the failed URL to script the error page.
 
-  LoadAlternateHTMLString(failed_request, std::string(),
-                          error.unreachableURL, replace);
+  LoadHTMLString("",  // Empty document
+                 fake_url,
+                 error.unreachableURL,
+                 replace);
 
   alt_error_page_fetcher_.reset(new AltErrorPageResourceFetcher(
       GetWebViewImpl(), error, this, error_page_url));
@@ -1842,4 +1797,33 @@ void WebFrameImpl::ClearPasswordListeners() {
     delete iter->second;
   }
   password_listeners_.clear();
+}
+
+void WebFrameImpl::LoadJavaScriptURL(const KURL& url) {
+  // This is copied from FrameLoader::executeIfJavaScriptURL.  Unfortunately,
+  // we cannot just use that method since it is private, and it also doesn't
+  // quite behave as we require it to for bookmarklets.  The key difference is
+  // that we need to suppress loading the string result from evaluating the JS
+  // URL if executing the JS URL resulted in a location change.  We also allow
+  // a JS URL to be loaded even if scripts on the page are otherwise disabled.
+
+  if (!frame_->document() || !frame_->page())
+    return;
+
+  String script =
+      decodeURLEscapeSequences(url.string().substring(strlen("javascript:")));
+  ScriptValue result = frame_->loader()->executeScript(script, true);
+
+  String script_result;
+  if (!result.getString(script_result))
+    return;
+
+  SecurityOrigin* security_origin = frame_->document()->securityOrigin();
+
+  if (!frame_->loader()->isScheduledLocationChangePending()) {
+    frame_->loader()->stopAllLoaders();
+    frame_->loader()->begin(frame_->loader()->url(), true, security_origin);
+    frame_->loader()->write(script_result);
+    frame_->loader()->end();
+  }
 }

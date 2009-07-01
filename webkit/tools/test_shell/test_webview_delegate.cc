@@ -18,6 +18,7 @@
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
+#include "webkit/api/public/WebData.h"
 #include "webkit/api/public/WebDataSource.h"
 #include "webkit/api/public/WebDragData.h"
 #include "webkit/api/public/WebHistoryItem.h"
@@ -50,6 +51,7 @@
 #include "webkit/tools/test_shell/drop_delegate.h"
 #endif
 
+using WebKit::WebData;
 using WebKit::WebDataSource;
 using WebKit::WebDragData;
 using WebKit::WebHistoryItem;
@@ -342,18 +344,15 @@ void TestWebViewDelegate::DidFailProvisionalLoadWithError(
       static_cast<TestShellExtraData*>(failed_ds->extraData());
   bool replace = extra_data && extra_data->pending_page_id != -1;
 
-  WebURLRequest request = failed_ds->request();
-
-  std::string error_text =
+  const std::string& error_text =
       StringPrintf("Error %d when loading url %s", error.reason,
-      request.url().spec().data());
-  request.setURL(GURL("testshell-error:"));
+      failed_ds->request().url().spec().data());
 
   // Make sure we never show errors in view source mode.
   frame->SetInViewSourceMode(false);
 
-  frame->LoadAlternateHTMLString(
-      request, error_text, error.unreachableURL, replace);
+  frame->LoadHTMLString(
+      error_text, GURL("testshell-error:"), error.unreachableURL, replace);
 }
 
 void TestWebViewDelegate::DidCommitLoadForFrame(WebView* webview,

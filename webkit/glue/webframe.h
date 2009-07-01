@@ -12,6 +12,7 @@
 #include "skia/ext/bitmap_platform_device.h"
 #include "skia/ext/platform_canvas.h"
 #include "webkit/api/public/WebCanvas.h"
+#include "webkit/api/public/WebURL.h"
 
 class GURL;
 class WebView;
@@ -19,9 +20,11 @@ class WebTextInput;
 struct NPObject;
 
 namespace WebKit {
+class WebData;
 class WebDataSource;
 class WebForm;
 class WebHistoryItem;
+class WebString;
 class WebURLRequest;
 struct WebConsoleMessage;
 struct WebFindOptions;
@@ -83,6 +86,9 @@ class WebFrame {
   virtual v8::Local<v8::Context> GetScriptContext() = 0;
 #endif
 
+  // Reload the current document.
+  virtual void Reload() = 0;
+
   // Loads the given WebURLRequest.
   virtual void LoadRequest(const WebKit::WebURLRequest& request) = 0;
 
@@ -90,30 +96,27 @@ class WebFrame {
   // navigation.
   virtual void LoadHistoryItem(const WebKit::WebHistoryItem& item) = 0;
 
-  // This method is short-hand for calling LoadAlternateHTMLString with a dummy
-  // request for the given base_url.
-  virtual void LoadHTMLString(const std::string& html_text,
-                              const GURL& base_url) = 0;
+  // Loads the given data with specific mime type and optional text encoding.
+  // For HTML data, base_url indicates the security origin of the document and
+  // is used to resolve links.  If specified, unreachable_url is reported via
+  // WebDataSource::unreachableURL.  If replace is false, then this data will
+  // be loaded as a normal navigation.  Otherwise, the current history item
+  // will be replaced.
+  virtual void LoadData(
+      const WebKit::WebData& data,
+      const WebKit::WebString& mime_type,
+      const WebKit::WebString& text_encoding,
+      const WebKit::WebURL& base_url,
+      const WebKit::WebURL& unreachable_url = WebKit::WebURL(),
+      bool replace = false) = 0;
 
-  // Loads alternative HTML text in place of a particular URL. This method is
-  // designed with error pages in mind, in which case it would typically be
-  // called in response to WebViewDelegate's didFailProvisionalLoadWithError
-  // method.
-  //
-  // |html_text| is a utf8 string to load in the frame.  |display_url| is the
-  // URL that the content will appear to have been loaded from.  The |replace|
-  // parameter controls how this affects session history.  If |replace| is
-  // true, then the current session history entry is replaced with the given
-  // HTML text.  Otherwise, a new navigation is produced.
-  //
-  // In either case, when the corresponding session history entry is revisited,
-  // it is the given request /w the |display_url| substituted for the request's
-  // URL, which is repeated.  The |html_text| is not stored in session history.
-  //
-  virtual void LoadAlternateHTMLString(const WebKit::WebURLRequest& request,
-                                       const std::string& html_text,
-                                       const GURL& display_url,
-                                       bool replace) = 0;
+  // This method is short-hand for calling LoadData, where mime_type is
+  // "text/html" and text_encoding is "UTF-8".
+  virtual void LoadHTMLString(
+      const WebKit::WebData& html,
+      const WebKit::WebURL& base_url,
+      const WebKit::WebURL& unreachable_url = WebKit::WebURL(),
+      bool replace = false) = 0;
 
   // Asks the WebFrame to try and download the alternate error page.  We notify
   // the WebViewDelegate of the results so it can decide whether or not to show

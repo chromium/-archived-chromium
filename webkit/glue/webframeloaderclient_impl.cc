@@ -67,9 +67,13 @@ MSVC_POP_WARNING();
 #include "webkit/glue/webview_impl.h"
 
 using namespace WebCore;
+
 using base::Time;
 using base::TimeDelta;
+
+using WebKit::WebData;
 using WebKit::WebNavigationType;
+using WebKit::WebString;
 using WebKit::WebURL;
 using WebKit::WebVector;
 using WebKit::WrappedResourceRequest;
@@ -360,14 +364,14 @@ GURL WebFrameLoaderClient::GetAlt404PageUrl(DocumentLoader* loader) {
 
 void WebFrameLoaderClient::Alt404PageFinished(DocumentLoader* loader,
                                               const std::string& html) {
+  const WebURL& base_url = webkit_glue::KURLToWebURL(loader->url());
   if (html.length() > 0) {
     // TODO(tc): Handle backoff on so we don't hammer the alt error page
     // servers.
-    webframe_->LoadHTMLString(html, webkit_glue::KURLToGURL(loader->url()));
+    webframe_->LoadHTMLString(html, base_url);
   } else {
     // Fall back on original text
-    webframe_->LoadHTMLString(postponed_data_,
-                              webkit_glue::KURLToGURL(loader->url()));
+    webframe_->LoadHTMLString(postponed_data_, base_url);
   }
 }
 

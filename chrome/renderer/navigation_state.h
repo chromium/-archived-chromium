@@ -132,6 +132,13 @@ class NavigationState : public WebKit::WebDataSource::ExtraData {
     password_form_data_.reset(data);
   }
 
+  const std::string& security_info() const {
+    return security_info_;
+  }
+  void set_security_info(const std::string& security_info) {
+    security_info_ = security_info;
+  }
+
  private:
   NavigationState(PageTransition::Type transition_type,
                   const base::Time& request_time,
@@ -159,6 +166,7 @@ class NavigationState : public WebKit::WebDataSource::ExtraData {
   int32 pending_page_id_;
   scoped_ptr<webkit_glue::SearchableFormData> searchable_form_data_;
   scoped_ptr<webkit_glue::PasswordForm> password_form_data_;
+  std::string security_info_;
 
   DISALLOW_COPY_AND_ASSIGN(NavigationState);
 };

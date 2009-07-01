@@ -1,10 +1,10 @@
 /*
  * Copyright (C) 2009 Google Inc. All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
  *     * Neither the name of Google Inc. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -57,6 +57,12 @@ namespace WebKit {
             assign(data, size);
         }
 
+        template <int N>
+        WebData(const char (&data)[N]) : m_private(0)
+        {
+            assign(data, N - 1);
+        }
+
         WebData(const WebData& d) : m_private(0) { assign(d); }
 
         WebData& operator=(const WebData& d)
@@ -79,6 +85,19 @@ namespace WebKit {
         WebData(const WTF::PassRefPtr<WebCore::SharedBuffer>&);
         WebData& operator=(const WTF::PassRefPtr<WebCore::SharedBuffer>&);
         operator WTF::PassRefPtr<WebCore::SharedBuffer>() const;
+#else
+        template <class C>
+        WebData(const C& c) : m_private(0)
+        {
+            assign(c.data(), c.size());
+        }
+
+        template <class C>
+        WebData& operator=(const C& c)
+        {
+            assign(c.data(), c.size());
+            return *this;
+        }
 #endif
 
     private:

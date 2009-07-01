@@ -158,18 +158,23 @@ namespace WebKit {
 
         // Navigation ----------------------------------------------------------
 
-        virtual void loadURL(const WebURLRequest&) = 0;
+        virtual void reload() = 0;
+
+        virtual void loadRequest(const WebURLRequest&) = 0;
+
+        virtual void loadHistoryItem(const WebHistoryItem&) = 0;
 
         virtual void loadData(const WebData& data,
                               const WebString& mimeType,
                               const WebString& textEncoding,
                               const WebURL& baseURL,
-                              const WebURL& unreachableURL,
-                              bool replace) = 0;
+                              const WebURL& unreachableURL = WebURL(),
+                              bool replace = false) = 0;
 
-        virtual void loadHistorical(const WebHistoryItem&) = 0;
-
-        virtual void reload() = 0;
+        virtual void loadHTMLString(const WebData& html,
+                                    const WebURL& baseURL,
+                                    const WebURL& unreachableURL = WebURL(),
+                                    bool replace = false) = 0;
 
         virtual bool isLoading() = 0;
 

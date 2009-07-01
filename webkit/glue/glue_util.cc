@@ -126,6 +126,16 @@ std::string WebStringToStdString(const WebKit::WebString& str) {
   return ret;
 }
 
+WebKit::WebData SharedBufferToWebData(
+    const WTF::PassRefPtr<WebCore::SharedBuffer>& buf) {
+  return buf;
+}
+
+WTF::PassRefPtr<WebCore::SharedBuffer> WebDataToSharedBuffer(
+    const WebKit::WebData& data) {
+  return data;
+}
+
 FilePath::StringType StringToFilePathString(const WebCore::String& str) {
 #if defined(OS_WIN)
   return StringToStdWString(str);

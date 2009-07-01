@@ -21,12 +21,14 @@ class IntSize;
 class KURL;
 class ResourceError;
 class ResourceResponse;
+class SharedBuffer;
 class String;
 struct ResourceRequest;
 }
 
 namespace WebKit {
 class WebCString;
+class WebData;
 class WebDragData;
 class WebForm;
 class WebHistoryItem;
@@ -81,6 +83,12 @@ WebCore::CString WebCStringToCString(const WebKit::WebCString& str);
 // std::string <-> WebString.  Conversion to/from UTF-8.
 WebKit::WebString StdStringToWebString(const std::string& str);
 std::string WebStringToStdString(const WebKit::WebString& str);
+
+// WebCore::SharedBuffer <-> WebData.  No charset conversion.
+WebKit::WebData SharedBufferToWebData(
+    const WTF::PassRefPtr<WebCore::SharedBuffer>& buf);
+WTF::PassRefPtr<WebCore::SharedBuffer> WebDataToSharedBuffer(
+    const WebKit::WebData& data);
 
 FilePath::StringType StringToFilePathString(const WebCore::String& str);
 WebCore::String FilePathStringToString(const FilePath::StringType& str);

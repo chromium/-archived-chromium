@@ -4,6 +4,8 @@
 
 #include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "webkit/api/public/WebData.h"
+#include "webkit/api/public/WebURL.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webview.h"
 #include "webkit/tools/test_shell/test_shell_test.h"

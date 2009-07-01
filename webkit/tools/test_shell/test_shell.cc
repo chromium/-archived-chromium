@@ -526,23 +526,15 @@ bool TestShell::Navigate(const TestNavigationEntry& entry, bool reload) {
 
   // If we are reloading, then WebKit will use the state of the current page.
   // Otherwise, we give it the state to navigate to.
-  if (!reload && !entry.GetContentState().empty()) {
+  if (reload) {
+    frame->Reload();
+  } else if (!entry.GetContentState().empty()) {
     DCHECK(entry.GetPageID() != -1);
     frame->LoadHistoryItem(
         webkit_glue::HistoryItemFromString(entry.GetContentState()));
   } else {
-    WebURLRequest::CachePolicy cache_policy;
-    if (reload) {
-      cache_policy = WebURLRequest::ReloadIgnoringCacheData;
-    } else {
-      DCHECK(entry.GetPageID() == -1);
-      cache_policy = WebURLRequest::UseProtocolCachePolicy;
-    }
-
-    WebURLRequest request(entry.GetURL());
-    request.setCachePolicy(cache_policy);
-
-    frame->LoadRequest(request);
+    DCHECK(entry.GetPageID() == -1);
+    frame->LoadRequest(WebURLRequest(entry.GetURL()));
   }
 
   // In case LoadRequest failed before DidCreateDataSource was called.

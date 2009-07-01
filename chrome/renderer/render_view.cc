@@ -100,6 +100,7 @@ using webkit_glue::PasswordForm;
 using webkit_glue::PasswordFormDomManager;
 using webkit_glue::SearchableFormData;
 using WebKit::WebConsoleMessage;
+using WebKit::WebData;
 using WebKit::WebDataSource;
 using WebKit::WebDragData;
 using WebKit::WebForm;
@@ -652,7 +653,9 @@ void RenderView::OnNavigate(const ViewMsg_Navigate_Params& params) {
   // page, so we should just ignore any given history state.  Otherwise, if we
   // have history state, then we need to navigate to it, which corresponds to a
   // back/forward navigation event.
-  if (!is_reload && !params.state.empty()) {
+  if (is_reload) {
+    main_frame->Reload();
+  } else if (!params.state.empty()) {
     // We must know the page ID of the page we are navigating back to.
     DCHECK_NE(params.page_id, -1);
     main_frame->LoadHistoryItem(
@@ -661,21 +664,11 @@ void RenderView::OnNavigate(const ViewMsg_Navigate_Params& params) {
     // Navigate to the given URL.
     WebURLRequest request(params.url);
 
-    // TODO(darin): WebFrame should just have a Reload method.
+    // A session history navigation should have been accompanied by state.
+    DCHECK_EQ(params.page_id, -1);
 
-    WebURLRequest::CachePolicy cache_policy;
-    if (is_reload) {
-      cache_policy = WebURLRequest::ReloadIgnoringCacheData;
-    } else {
-      // A session history navigation should have been accompanied by state.
-      DCHECK_EQ(params.page_id, -1);
-      if (main_frame->GetInViewSourceMode()) {
-        cache_policy = WebURLRequest::ReturnCacheDataElseLoad;
-      } else {
-        cache_policy = WebURLRequest::UseProtocolCachePolicy;
-      }
-    }
-    request.setCachePolicy(cache_policy);
+    if (main_frame->GetInViewSourceMode())
+      request.setCachePolicy(WebURLRequest::ReturnCacheDataElseLoad);
 
     if (params.referrer.is_valid()) {
       request.setHTTPHeaderField(WebString::fromUTF8("Referer"),
@@ -695,22 +688,23 @@ void RenderView::OnStop() {
     webview()->StopLoading();
 }
 
-void RenderView::OnLoadAlternateHTMLText(const std::string& html_contents,
+void RenderView::OnLoadAlternateHTMLText(const std::string& html,
                                          bool new_navigation,
                                          const GURL& display_url,
                                          const std::string& security_info) {
   if (!webview())
     return;
 
-  WebURLRequest request;
-  request.initialize();
-  request.setURL(GURL(kUnreachableWebDataURL));
-  request.setSecurityInfo(security_info);
+  pending_navigation_state_.reset(NavigationState::CreateBrowserInitiated(
+      new_navigation ? -1 : page_id_, PageTransition::LINK, Time::Now()));
+  pending_navigation_state_->set_security_info(security_info);
 
-  webview()->GetMainFrame()->LoadAlternateHTMLString(request,
-                                                     html_contents,
-                                                     display_url,
-                                                     !new_navigation);
+  webview()->GetMainFrame()->LoadHTMLString(html,
+                                            GURL(kUnreachableWebDataURL),
+                                            display_url,
+                                            !new_navigation);
+
+  pending_navigation_state_.reset();
 }
 
 void RenderView::OnCopyImageAt(int x, int y) {
@@ -852,13 +846,13 @@ void RenderView::UpdateURL(WebFrame* frame) {
   params.is_post = false;
   params.page_id = page_id_;
   params.is_content_filtered = response.isContentFiltered();
-  if (!request.securityInfo().isEmpty()) {
+  if (!navigation_state->security_info().empty()) {
     // SSL state specified in the request takes precedence over the one in the
     // response.
     // So far this is only intended for error pages that are not expected to be
     // over ssl, so we should not get any clash.
     DCHECK(response.securityInfo().isEmpty());
-    params.security_info = request.securityInfo();
+    params.security_info = navigation_state->security_info();
   } else {
     params.security_info = response.securityInfo();
   }
@@ -1251,11 +1245,10 @@ void RenderView::LoadNavigationErrorPage(WebFrame* frame,
     alt_html = html;
   }
 
-  // Use a data: URL as the site URL to prevent against XSS attacks.
-  WebURLRequest request(failed_request);
-  request.setURL(GURL(kUnreachableWebDataURL));
-
-  frame->LoadAlternateHTMLString(request, alt_html, failed_url, replace);
+  frame->LoadHTMLString(alt_html,
+                        GURL(kUnreachableWebDataURL),
+                        failed_url,
+                        replace);
 }
 
 void RenderView::DidCommitLoadForFrame(WebView *webview, WebFrame* frame,

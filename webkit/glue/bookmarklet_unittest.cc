@@ -31,6 +31,17 @@ TEST_F(BookmarkletTest, Redirect) {
   EXPECT_EQ(L"SUCCESS", text);
 }
 
+TEST_F(BookmarkletTest, RedirectVoided) {
+  // This test should be redundant with the Redirect test above.  The point
+  // here is to emphasize that in either case the assignment to location during
+  // the evaluation of the script should suppress loading the script result.
+  // Here, because of the void() wrapping there is no script result.
+  test_shell_->LoadURL(L"javascript:void(location.href='data:text/plain,SUCCESS')");
+  test_shell_->WaitTestFinished();
+  std::wstring text = test_shell_->GetDocumentText();
+  EXPECT_EQ(L"SUCCESS", text);
+}
+
 TEST_F(BookmarkletTest, NonEmptyResult) {
   std::wstring text;
 
