@@ -259,8 +259,18 @@
 }
 {
    bug_15762
-   testing::AssertionResult testing::internal::CmpHelperEQ<unsigned int, unsigned int>(char const*, char const*, unsigned int const&, unsigned int const&) (src/xcodebuild/Debug/test_shell_tests)
-   testing::AssertionResult testing::internal::EqHelper<false>::Compare<unsigned int, unsigned int>(char const*, char const*, unsigned int const&, unsigned int const&) (src/xcodebuild/Debug/test_shell_tests)
-   ImageOperations_CreateMaskedBitmap_Test::TestBody() (src/xcodebuild/Debug/test_shell_tests)
-   testing::Test::Run() (src/xcodebuild/Debug/test_shell_tests)
+   Memcheck:Cond
+   fun:_ZN7testing8internal11CmpHelperEQIjjEENS_15AssertionResultEPKcS4_RKT_RKT0_
+   fun:_ZN7testing8internal8EqHelperILb0EE7CompareIjjEENS_15AssertionResultEPKcS6_RKT_RKT0_
+   fun:_ZN39ImageOperations_CreateMaskedBitmap_Test8TestBodyEv
+   fun:_ZN7testing4Test3RunEv
+   fun:_ZN7testing8internal12TestInfoImpl3RunEv
+   fun:_ZN7testing8internal12TestInfoImpl7RunTestEPNS_8TestInfoE
+   fun:_ZNK7testing8internal4ListIPNS_8TestInfoEE7ForEachIPFvS3_EEEvT_
+   fun:_ZN7testing8TestCase3RunEv
+   fun:_ZN7testing8TestCase11RunTestCaseEPS0_
+   fun:_ZNK7testing8internal4ListIPNS_8TestCaseEE7ForEachIPFvS3_EEEvT_
+   fun:_ZN7testing8internal12UnitTestImpl11RunAllTestsEv
+   fun:_ZN7testing8UnitTest3RunEv
+   fun:main
 }
