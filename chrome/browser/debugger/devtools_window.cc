@@ -17,6 +17,7 @@
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/frame/browser_view.h"
+#include "chrome/common/bindings_policy.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -203,7 +204,7 @@ DockedWindow::DockedWindow(Profile* profile, BrowserWindow* window)
       window_(window) {
   TabContents* tab_contents = new TabContents(profile,
       NULL, MSG_ROUTING_NONE, NULL);
-  tab_contents->render_view_host()->AllowDOMUIBindings();
+  tab_contents->render_view_host()->AllowBindings(BindingsPolicy::DOM_UI);
   tab_contents->controller().LoadURL(GetContentsUrl(), GURL(),
                                       PageTransition::START_PAGE);
   browser_ = NULL;
