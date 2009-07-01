@@ -185,7 +185,7 @@ void BookmarkStorage::MigrateFromHistory() {
     notification_registrar_.Add(this, NotificationType::HISTORY_LOADED,
                                 Source<Profile>(profile_));
   } else {
-    OnHistoryFinishedWriting();
+    DoLoadBookmarks(tmp_history_path_);
   }
 }
 
