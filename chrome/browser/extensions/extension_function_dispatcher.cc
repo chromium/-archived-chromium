@@ -168,23 +168,31 @@ void ExtensionFunctionDispatcher::ResetFunctions() {
   FactoryRegistry::instance()->ResetFunctions();
 }
 
+std::set<ExtensionFunctionDispatcher*>*
+    ExtensionFunctionDispatcher::all_instances() {
+  static std::set<ExtensionFunctionDispatcher*> instances;
+  return &instances;
+}
+
 ExtensionFunctionDispatcher::ExtensionFunctionDispatcher(
     RenderViewHost* render_view_host,
     Delegate* delegate,
-    const std::string& extension_id)
+    const GURL& url)
   : render_view_host_(render_view_host),
     delegate_(delegate),
-    extension_id_(extension_id),
+    url_(url),
     ALLOW_THIS_IN_INITIALIZER_LIST(peer_(new Peer(this))) {
+  all_instances()->insert(this);
   RenderProcessHost* process = render_view_host_->process();
   ExtensionMessageService* message_service =
       ExtensionMessageService::GetInstance(profile()->GetRequestContext());
   DCHECK(process);
   DCHECK(message_service);
-  message_service->RegisterExtension(extension_id, process->pid());
+  message_service->RegisterExtension(extension_id(), process->pid());
 }
 
 ExtensionFunctionDispatcher::~ExtensionFunctionDispatcher() {
+  all_instances()->erase(this);
   peer_->dispatcher_ = NULL;
 }
 

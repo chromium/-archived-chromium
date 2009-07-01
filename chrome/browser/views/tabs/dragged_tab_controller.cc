@@ -444,12 +444,6 @@ void DraggedTabController::UpdateTargetURL(TabContents* source,
   // Ignored.
 }
 
-ExtensionFunctionDispatcher* DraggedTabController::
-    CreateExtensionFunctionDispatcher(RenderViewHost* render_view_host,
-                                      const std::string& extension_id) {
-  return new ExtensionFunctionDispatcher(render_view_host, NULL, extension_id);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // DraggedTabController, NotificationObserver implementation:
 

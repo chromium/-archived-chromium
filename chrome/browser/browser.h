@@ -13,7 +13,6 @@
 #include "base/scoped_ptr.h"
 #include "base/task.h"
 #include "chrome/browser/command_updater.h"
-#include "chrome/browser/extensions/extension_function_dispatcher.h"
 #include "chrome/browser/sessions/session_id.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
@@ -42,8 +41,7 @@ class Browser : public TabStripModelDelegate,
                 public PageNavigator,
                 public CommandUpdater::CommandUpdaterDelegate,
                 public NotificationObserver,
-                public SelectFileDialog::Listener,
-                public ExtensionFunctionDispatcher::Delegate {
+                public SelectFileDialog::Listener {
  public:
   enum Type {
     TYPE_NORMAL = 0,
@@ -484,9 +482,6 @@ class Browser : public TabStripModelDelegate,
                                  bool* proceed_to_fire_unload);
   virtual void SetFocusToLocationBar();
   virtual void RenderWidgetShowing();
-  virtual ExtensionFunctionDispatcher* CreateExtensionFunctionDispatcher(
-      RenderViewHost* render_view_host,
-      const std::string& extension_id);
   virtual int GetExtraRenderViewHeight() const;
   virtual void OnStartDownload(DownloadItem* download);
   virtual void ConfirmAddSearchProvider(const TemplateURL* template_url,
@@ -499,11 +494,6 @@ class Browser : public TabStripModelDelegate,
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details);
-
-  // Overridden from ExtensionFunctionDispatcher::Delegate
-  virtual Browser* GetBrowser() {
-    return this;
-  }
 
   // Command and state updating ///////////////////////////////////////////////
 

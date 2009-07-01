@@ -42,7 +42,6 @@
 #endif
 
 using base::TimeDelta;
-using webkit_glue::AutofillForm;
 using webkit_glue::PasswordFormDomManager;
 using WebKit::WebConsoleMessage;
 using WebKit::WebFindOptions;
@@ -570,24 +569,9 @@ void RenderViewHost::DragSourceSystemDragEnded() {
   Send(new ViewMsg_DragSourceSystemDragEnded(routing_id()));
 }
 
-void RenderViewHost::AllowDomAutomationBindings() {
+void RenderViewHost::AllowBindings(int bindings_flags) {
   DCHECK(!renderer_initialized_);
-  enabled_bindings_ |= BindingsPolicy::DOM_AUTOMATION;
-}
-
-void RenderViewHost::AllowExternalHostBindings() {
-  DCHECK(!renderer_initialized_);
-  enabled_bindings_ |= BindingsPolicy::EXTERNAL_HOST;
-}
-
-void RenderViewHost::AllowDOMUIBindings() {
-  DCHECK(!renderer_initialized_);
-  enabled_bindings_ |= BindingsPolicy::DOM_UI;
-}
-
-void RenderViewHost::AllowExtensionBindings() {
-  DCHECK(!renderer_initialized_);
-  enabled_bindings_ |= BindingsPolicy::EXTENSION;
+  enabled_bindings_ |= bindings_flags;
 }
 
 void RenderViewHost::SetDOMUIProperty(const std::string& name,
@@ -889,15 +873,6 @@ void RenderViewHost::OnMsgNavigate(const IPC::Message& msg) {
   FilterURL(policy, renderer_id, &validated_params.password_form.origin);
   FilterURL(policy, renderer_id, &validated_params.password_form.action);
 
-  if (PageTransition::IsMainFrame(validated_params.transition)) {
-    ExtensionFunctionDispatcher* new_efd = NULL;
-    if (validated_params.url.SchemeIs(chrome::kExtensionScheme)) {
-      new_efd = delegate()->CreateExtensionFunctionDispatcher(this,
-          validated_params.url.host());
-    }
-    extension_function_dispatcher_.reset(new_efd);
-  }
-
   delegate_->DidNavigate(this, validated_params);
 
   UpdateBackForwardListCount();
@@ -1077,7 +1052,14 @@ void RenderViewHost::OnMsgDOMUISend(
     NOTREACHED() << "Blocked unauthorized use of DOMUIBindings.";
     return;
   }
-  delegate_->ProcessDOMUIMessage(message, content);
+
+  // DOMUI doesn't use these values yet.
+  // TODO(aa): When DOMUI is ported to ExtensionFunctionDispatcher, send real
+  // values here.
+  const int kRequestId = -1;
+  const bool kHasCallback = false;
+
+  delegate_->ProcessDOMUIMessage(message, content, kRequestId, kHasCallback);
 }
 
 void RenderViewHost::OnMsgForwardMessageToExternalHost(
@@ -1161,7 +1143,7 @@ void RenderViewHost::OnMsgPasswordFormsSeen(
 }
 
 void RenderViewHost::OnMsgAutofillFormSubmitted(
-    const AutofillForm& form) {
+    const webkit_glue::AutofillForm& form) {
   delegate_->AutofillFormSubmitted(form);
 }
 
@@ -1386,9 +1368,7 @@ void RenderViewHost::OnExtensionRequest(const std::string& name,
     return;
   }
 
-  DCHECK(extension_function_dispatcher_.get());
-  extension_function_dispatcher_->HandleRequest(name, args, request_id,
-      has_callback);
+  delegate_->ProcessDOMUIMessage(name, args, request_id, has_callback);
 }
 
 void RenderViewHost::SendExtensionResponse(int request_id, bool success,

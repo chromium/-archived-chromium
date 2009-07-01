@@ -6,9 +6,11 @@
 #define CHROME_BROWSER_EXTENSIONS_EXTENSION_FUNCTION_DISPATCHER_H_
 
 #include <string>
+#include <set>
 #include <vector>
 
 #include "base/ref_counted.h"
+#include "googleurl/src/gurl.h"
 
 class Browser;
 class ExtensionFunction;
@@ -47,9 +49,12 @@ class ExtensionFunctionDispatcher {
   // Resets all functions to their initial implementation.
   static void ResetFunctions();
 
+  // Retrieves a vector of all EFD instances.
+  static std::set<ExtensionFunctionDispatcher*>* all_instances();
+
   ExtensionFunctionDispatcher(RenderViewHost* render_view_host,
                               Delegate* delegate,
-                              const std::string& extension_id);
+                              const GURL& url);
   ~ExtensionFunctionDispatcher();
 
   // Handle a request to execute an extension function.
@@ -67,18 +72,24 @@ class ExtensionFunctionDispatcher {
   // the renderer.
   void HandleBadMessage(ExtensionFunction* api);
 
+  // Gets the URL for the view we're displaying.
+  const GURL& url() { return url_; }
+
   // Gets the ID for this extension.
-  std::string extension_id() { return extension_id_; }
+  const std::string extension_id() { return url_.host(); }
 
   // The profile that this dispatcher is associated with.
   Profile* profile();
+
+  // The RenderViewHost this dispatcher is associated with.
+  RenderViewHost* render_view_host() { return render_view_host_; }
 
  private:
   RenderViewHost* render_view_host_;
 
   Delegate* delegate_;
 
-  std::string extension_id_;
+  GURL url_;
 
   scoped_refptr<Peer> peer_;
 

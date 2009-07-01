@@ -497,10 +497,6 @@ bool TabContents::ShouldDisplayURL() {
   if (entry && entry->IsViewSourceMode())
     return true;
 
-  // Hide the URL in chrome-extension://.
-  if (GetURL().SchemeIs(chrome::kExtensionScheme))
-    return false;
-
   DOMUI* dom_ui = GetDOMUIForCurrentState();
   if (dom_ui)
     return !dom_ui->should_hide_url();
@@ -1503,13 +1499,6 @@ RendererPreferences TabContents::GetRendererPrefs() const {
     return RendererPreferences();
 }
 
-ExtensionFunctionDispatcher* TabContents::CreateExtensionFunctionDispatcher(
-    RenderViewHost* render_view_host,
-    const std::string& extension_id) {
-  return delegate()->CreateExtensionFunctionDispatcher(render_view_host,
-      extension_id);
-}
-
 TabContents* TabContents::GetAsTabContents() {
   return this;
 }
@@ -1864,7 +1853,9 @@ void TabContents::DomOperationResponse(const std::string& json_string,
 }
 
 void TabContents::ProcessDOMUIMessage(const std::string& message,
-                                      const std::string& content) {
+                                      const std::string& content,
+                                      int request_id,
+                                      bool has_callback) {
   if (!render_manager_.dom_ui()) {
     // We shouldn't get a DOM UI message when we haven't enabled the DOM UI.
     // Because the renderer might be owned and sending random messages, we need
@@ -1872,7 +1863,8 @@ void TabContents::ProcessDOMUIMessage(const std::string& message,
     NOTREACHED();
     return;
   }
-  render_manager_.dom_ui()->ProcessDOMUIMessage(message, content);
+  render_manager_.dom_ui()->ProcessDOMUIMessage(message, content, request_id,
+                                                has_callback);
 }
 
 void TabContents::DocumentLoadedInFrame() {
@@ -2280,16 +2272,11 @@ TabContents::GetLastCommittedNavigationEntryForRenderManager() {
 
 bool TabContents::CreateRenderViewForRenderManager(
     RenderViewHost* render_view_host) {
-  // When we're running a DOM UI, the RenderViewHost needs to be put in DOM UI
-  // mode before CreateRenderView is called. When we're asked to create a
-  // RenderView, that means it's for the pending entry, so we have to use the
-  // pending DOM UI.
+  // If the pending navigation is to a DOMUI, tell the RenderView about any
+  // bindings it will need enabled.
   if (render_manager_.pending_dom_ui())
-    render_view_host->AllowDOMUIBindings();
-
-  // Ditto for extension bindings.
-  if (controller().pending_entry()->url().SchemeIs(chrome::kExtensionScheme))
-    render_view_host->AllowExtensionBindings();
+    render_view_host->AllowBindings(
+        render_manager_.pending_dom_ui()->bindings());
 
   RenderWidgetHostView* rwh_view = view_->CreateViewForWidget(render_view_host);
   if (!render_view_host->CreateRenderView())

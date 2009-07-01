@@ -92,9 +92,6 @@ class RenderViewHost : public RenderWidgetHost {
 
   SiteInstance* site_instance() const { return instance_; }
   RenderViewHostDelegate* delegate() const { return delegate_; }
-  ExtensionFunctionDispatcher* extension_function_dispatcher() const  {
-    return extension_function_dispatcher_.get();
-  }
 
   // Set up the RenderView child process. Virtual because it is overridden by
   // TestRenderViewHost.
@@ -306,26 +303,9 @@ class RenderViewHost : public RenderWidgetHost {
   // This allows the renderer to reset some state.
   void DragSourceSystemDragEnded();
 
-  // Tell the render view to expose DOM automation bindings so that the js
-  // content can send JSON-encoded data back to automation in the parent
-  // process.
-  // Must be called before CreateRenderView().
-  void AllowDomAutomationBindings();
-
-  // Tell the render view to allow the javascript access to
-  // the external host via automation.
-  // Must be called before CreateRenderView().
-  void AllowExternalHostBindings();
-
-  // Tell the render view to expose DOM bindings so that the JS content
-  // can send JSON-encoded data back to the browser process.
-  // This is used for HTML-based UI.
-  // Must be called before CreateRenderView().
-  void AllowDOMUIBindings();
-
-  // Tell the render view to expose privileged bindings for use by extensions.
-  // Must be called before CreateRenderView().
-  void AllowExtensionBindings();
+  // Tell the render view to enable a set of javascript bindings. The argument
+  // should be a combination of values from BindingsPolicy.
+  void AllowBindings(int binding_flags);
 
   // Sets a property with the given name and value on the DOM UI binding object.
   // Must call AllowDOMUIBindings() on this renderer first.
@@ -608,11 +588,6 @@ class RenderViewHost : public RenderWidgetHost {
   bool is_waiting_for_unload_ack_;
 
   bool are_javascript_messages_suppressed_;
-
-  // Handles processing IPC messages request extension functions be executed.
-  // This changes during navigation and may be NULL if the current content is
-  // not an extension.
-  scoped_ptr<ExtensionFunctionDispatcher> extension_function_dispatcher_;
 
   // True if the render view can be shut down suddenly.
   bool sudden_termination_allowed_;

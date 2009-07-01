@@ -870,6 +870,8 @@
         'browser/extensions/extension_bookmarks_module_constants.h',
         'browser/extensions/extension_creator.cc',
         'browser/extensions/extension_creator.h',
+        'browser/extensions/extension_dom_ui.cc',
+        'browser/extensions/extension_dom_ui.h',
         'browser/extensions/extension_event_names.cc',
         'browser/extensions/extension_event_names.h',
         'browser/extensions/extension_function.cc',

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- This comment is only here because changes to resources are not picked up
-without changes to the corresponding grd file. mp2 -->
+without changes to the corresponding grd file.  -->
 <grit latest_public_release="0" current_release="1">
   <outputs>
     <output filename="grit/renderer_resources.h" type="rc_header">

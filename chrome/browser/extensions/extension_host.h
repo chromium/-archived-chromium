@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/scoped_ptr.h"
+#include "chrome/browser/extensions/extension_function_dispatcher.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/render_view_host_delegate_helper.h"
 #if defined(TOOLKIT_VIEWS)
@@ -63,6 +64,7 @@ class ExtensionHost : public RenderViewHostDelegate,
 
   // RenderViewHostDelegate
   virtual const GURL& GetURL() const { return url_; }
+  virtual void RenderViewCreated(RenderViewHost* render_view_host);
   virtual void RenderViewGone(RenderViewHost* render_view_host);
   virtual WebPreferences GetWebkitPrefs();
   virtual void RunJavaScriptMessage(
@@ -74,9 +76,11 @@ class ExtensionHost : public RenderViewHostDelegate,
       bool* did_suppress_message);
   virtual void DidStopLoading(RenderViewHost* render_view_host);
   virtual RenderViewHostDelegate::View* GetViewDelegate() const;
-  virtual ExtensionFunctionDispatcher* CreateExtensionFunctionDispatcher(
-      RenderViewHost *render_view_host, const std::string& extension_id);
   virtual void DidInsertCSS();
+  virtual void ProcessDOMUIMessage(const std::string& message,
+                                   const std::string& content,
+                                   int request_id,
+                                   bool has_callback);
 
   // RenderViewHostDelegate::View
   virtual void CreateNewWindow(int route_id,
@@ -128,6 +132,8 @@ class ExtensionHost : public RenderViewHostDelegate,
 
   // The URL being hosted.
   GURL url_;
+
+  scoped_ptr<ExtensionFunctionDispatcher> extension_function_dispatcher_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionHost);
 };

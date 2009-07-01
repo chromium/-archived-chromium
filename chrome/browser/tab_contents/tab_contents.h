@@ -28,6 +28,7 @@
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
+#include "chrome/common/url_constants.h"
 #include "chrome/common/gears_api.h"
 #include "chrome/common/navigation_types.h"
 #include "chrome/common/notification_registrar.h"
@@ -142,8 +143,8 @@ class TabContents : public PageNavigator,
   bool SupportsURL(GURL* url);
 
   // Returns true if contains content rendered by an extension.
-  bool HostsExtension() const {
-    return render_view_host()->extension_function_dispatcher() != NULL;
+  const bool HostsExtension() const {
+    return GetURL().SchemeIs(chrome::kExtensionScheme);
   }
 
   // Returns the AutofillManager, creating it if necessary.
@@ -732,9 +733,6 @@ class TabContents : public PageNavigator,
   virtual RendererPreferences GetRendererPrefs() const;
   virtual RenderViewHostDelegate::View* GetViewDelegate() const;
   virtual RenderViewHostDelegate::Save* GetSaveDelegate() const;
-  virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(
-      RenderViewHost* render_view_host,
-      const std::string& extension_id);
   virtual TabContents* GetAsTabContents();
   virtual void RenderViewCreated(RenderViewHost* render_view_host);
   virtual void RenderViewReady(RenderViewHost* render_view_host);
@@ -787,7 +785,9 @@ class TabContents : public PageNavigator,
   virtual void DomOperationResponse(const std::string& json_string,
                                     int automation_id);
   virtual void ProcessDOMUIMessage(const std::string& message,
-                                   const std::string& content);
+                                   const std::string& content,
+                                   int request_id,
+                                   bool has_callback);
   virtual void DocumentLoadedInFrame();
   virtual void ProcessExternalHostMessage(const std::string& message,
                                           const std::string& origin,

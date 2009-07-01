@@ -152,10 +152,20 @@ IN_PROC_BROWSER_TEST_F(ExtensionsStartupTest, Test) {
       &result);
   EXPECT_TRUE(result);
 
+  result = false;
   ui_test_utils::ExecuteJavaScriptAndExtractBool(
       browser()->GetSelectedTabContents(), L"",
       L"window.domAutomationController.send(document.title == 'Modified')",
       &result);
+  EXPECT_TRUE(result);
+
+  // Load an extension page into the tab area to make sure it works.
+  result = false;
+  ui_test_utils::NavigateToURL(
+      browser(),
+      GURL("chrome-extension://behllobkkfkfnphdnhnkndlbkcpglgmj/page.html"));
+  ui_test_utils::ExecuteJavaScriptAndExtractBool(
+      browser()->GetSelectedTabContents(), L"", L"testTabsAPI()", &result);
   EXPECT_TRUE(result);
 
   // TODO(aa): Move the stuff in ExtensionBrowserTest here?

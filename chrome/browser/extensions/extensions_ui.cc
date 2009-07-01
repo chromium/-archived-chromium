@@ -226,29 +226,16 @@ DictionaryValue* ExtensionsDOMHandler::CreateExtensionDetailValue(
 std::vector<ExtensionPage> ExtensionsDOMHandler::GetActivePagesForExtension(
     const std::string& extension_id) {
   std::vector<ExtensionPage> result;
+  std::set<ExtensionFunctionDispatcher*>* all_instances =
+      ExtensionFunctionDispatcher::all_instances();
 
-  ExtensionMessageService* ems = ExtensionMessageService::GetInstance(
-      dom_ui_->GetProfile()->GetOriginalProfile()->GetRequestContext());
-  RenderProcessHost* process_host = ems->GetProcessForExtension(extension_id);
-  if (!process_host)
-    return result;
-
-  RenderProcessHost::listeners_iterator iter;
-  for (iter = process_host->listeners_begin();
-       iter != process_host->listeners_end(); ++iter) {
-    // NOTE: This is a bit dangerous.  We know that for now, listeners are
-    // always RenderWidgetHosts.  But in theory, they don't have to be.
-    RenderWidgetHost* widget = static_cast<RenderWidgetHost*>(iter->second);
-    if (!widget->IsRenderView())
-      continue;
-
-    RenderViewHost* view = static_cast<RenderViewHost*>(widget);
-    ExtensionFunctionDispatcher* efd = view->extension_function_dispatcher();
-    if (efd && efd->extension_id() == extension_id) {
-      ExtensionPage page(view->delegate()->GetURL(),
-                         process_host->pid(),
-                         view->routing_id());
-      result.push_back(page);
+  for (std::set<ExtensionFunctionDispatcher*>::iterator iter =
+       all_instances->begin(); iter != all_instances->end(); ++iter) {
+    RenderViewHost* view = (*iter)->render_view_host();
+    if ((*iter)->extension_id() == extension_id && view) {
+      result.push_back(ExtensionPage((*iter)->url(),
+                                     view->process()->pid(),
+                                     view->routing_id()));
     }
   }
 

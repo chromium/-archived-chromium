@@ -87,9 +87,6 @@ class ExternalTabContainer : public TabContentsDelegate,
     return true;
   };
 
-  virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(
-      RenderViewHost* render_view_host,
-      const std::string& extension_id);
   virtual bool TakeFocus(bool reverse);
 
   // Overridden from NotificationObserver:

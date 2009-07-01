@@ -19,9 +19,7 @@
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/window_open_disposition.h"
 
-#include "chrome/browser/extensions/extension_function_dispatcher.h"
-
-class ExtensionFunctionDispatcher;
+class AutofillForm;
 class NavigationEntry;
 class Profile;
 class RenderProcessHost;
@@ -161,14 +159,6 @@ class RenderViewHostDelegate {
   // Gets the URL that is currently being displayed, if there is one.
   virtual const GURL& GetURL() const = 0;
 
-  // Create a new browser window to be sized, shown and contents managed
-  // by the caller.
-  virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(
-      RenderViewHost* render_view_host,
-      const std::string& extension_id) {
-    return NULL;
-  }
-
   // Return this object cast to a TabContents, if it is one.
   virtual TabContents* GetAsTabContents() { return NULL; }
 
@@ -278,7 +268,9 @@ class RenderViewHostDelegate {
   // A message was sent from HTML-based UI.
   // By default we ignore such messages.
   virtual void ProcessDOMUIMessage(const std::string& message,
-                                   const std::string& content) { }
+                                   const std::string& content,
+                                   int request_id,
+                                   bool has_callback) { }
 
   // A message for external host. By default we ignore such messages.
   // |receiver| can be a receiving script and |message| is any

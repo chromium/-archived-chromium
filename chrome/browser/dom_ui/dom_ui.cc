@@ -13,6 +13,7 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
+#include "chrome/common/bindings_policy.h"
 
 DOMUI::DOMUI(TabContents* contents)
     : hide_favicon_(false),
@@ -20,6 +21,7 @@ DOMUI::DOMUI(TabContents* contents)
       focus_location_bar_by_default_(false),
       should_hide_url_(false),
       link_transition_type_(PageTransition::LINK),
+      bindings_(BindingsPolicy::DOM_UI),
       tab_contents_(contents) {
 }
 
@@ -32,7 +34,9 @@ DOMUI::~DOMUI() {
 // DOMUI, public: -------------------------------------------------------------
 
 void DOMUI::ProcessDOMUIMessage(const std::string& message,
-                                const std::string& content) {
+                                const std::string& content,
+                                int request_id,
+                                bool has_callback) {
   // Look up the callback for this message.
   MessageCallbackMap::const_iterator callback =
       message_callbacks_.find(message);

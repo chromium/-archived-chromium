@@ -32,8 +32,10 @@ class DOMUI {
   virtual void RenderViewCreated(RenderViewHost* render_view_host) {}
 
   // Called from DOMUIContents.
-  void ProcessDOMUIMessage(const std::string& message,
-                           const std::string& content);
+  virtual void ProcessDOMUIMessage(const std::string& message,
+                                   const std::string& content,
+                                   int request_id,
+                                   bool has_callback);
 
   // Used by DOMMessageHandlers.
   typedef Callback1<const Value*>::Type MessageCallback;
@@ -77,6 +79,10 @@ class DOMUI {
     return link_transition_type_;
   }
 
+  const int bindings() const {
+    return bindings_;
+  }
+
   // Call a Javascript function by sending its name and arguments down to
   // the renderer.  This is asynchronous; there's no way to get the result
   // of the call, and should be thought of more like sending a message to
@@ -106,6 +112,8 @@ class DOMUI {
   bool should_hide_url_;
   string16 overridden_title_;  // Defaults to empty string.
   PageTransition::Type link_transition_type_;  // Defaults to LINK.
+  int bindings_;  // The bindings from BindingsPolicy that should be enabled for
+                  // this page.
 
  private:
   // Execute a string of raw Javascript on the page.

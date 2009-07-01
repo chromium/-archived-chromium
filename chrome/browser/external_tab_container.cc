@@ -10,13 +10,13 @@
 #include "base/win_util.h"
 #include "chrome/browser/automation/automation_provider.h"
 #include "chrome/browser/browser.h"
-#include "chrome/browser/extensions/extension_function_dispatcher.h"
 #include "chrome/browser/load_notification_details.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/provisional_load_details.h"
 #include "chrome/browser/views/tab_contents/render_view_context_menu_external_win.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/tab_contents/tab_contents_container.h"
+#include "chrome/common/bindings_policy.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/test/automation/automation_messages.h"
@@ -66,7 +66,8 @@ bool ExternalTabContainer::Init(Profile* profile,
 
   tab_contents_ = new TabContents(profile, NULL, MSG_ROUTING_NONE, NULL);
   tab_contents_->set_delegate(this);
-  tab_contents_->render_view_host()->AllowExternalHostBindings();
+  tab_contents_->render_view_host()->AllowBindings(
+      BindingsPolicy::EXTERNAL_HOST);
 
   // Create a TabContentsContainer to handle focus cycling using Tab and
   // Shift-Tab.
@@ -244,12 +245,6 @@ void ExternalTabContainer::ForwardMessageToExternalHost(
         new AutomationMsg_ForwardMessageToExternalHost(0, tab_handle_,
             message, origin, target));
   }
-}
-
-ExtensionFunctionDispatcher* ExternalTabContainer::
-    CreateExtensionFunctionDispatcher(RenderViewHost* render_view_host,
-                                      const std::string& extension_id) {
-  return new ExtensionFunctionDispatcher(render_view_host, NULL, extension_id);
 }
 
 bool ExternalTabContainer::TakeFocus(bool reverse) {

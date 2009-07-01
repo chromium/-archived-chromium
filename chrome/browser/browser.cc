@@ -1906,12 +1906,6 @@ void Browser::RenderWidgetShowing() {
   window_->DisableInactiveFrame();
 }
 
-ExtensionFunctionDispatcher* Browser::CreateExtensionFunctionDispatcher(
-    RenderViewHost* render_view_host,
-    const std::string& extension_id) {
-  return new ExtensionFunctionDispatcher(render_view_host, this, extension_id);
-}
-
 int Browser::GetExtraRenderViewHeight() const {
   return window_->GetExtraRenderViewHeight();
 }

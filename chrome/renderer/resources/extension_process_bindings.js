@@ -7,7 +7,7 @@
 // have your change take effect.
 // -----------------------------------------------------------------------------
 
-var chrome;
+var chrome = chrome || {};
 (function() {
   native function GetViews();
   native function GetWindow();

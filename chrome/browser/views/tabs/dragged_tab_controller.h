@@ -106,11 +106,6 @@ class DraggedTabController : public TabContentsDelegate,
   virtual void URLStarredChanged(TabContents* source, bool starred);
   virtual void UpdateTargetURL(TabContents* source, const GURL& url);
 
-  // Creates an ExtensionFunctionDispatcher that has no browser
-  virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(
-      RenderViewHost* render_view_host,
-      const std::string& extension_id);
-
   // Overridden from NotificationObserver:
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,

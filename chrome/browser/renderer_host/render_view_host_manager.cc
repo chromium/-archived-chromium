@@ -19,6 +19,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"
 #include "chrome/common/render_messages.h"
+#include "chrome/common/url_constants.h"
 
 namespace base {
 class WaitableEvent;
@@ -293,6 +294,14 @@ bool RenderViewHostManager::ShouldSwapProcessesForNavigation(
   if (DOMUIFactory::HasDOMUIScheme(cur_entry->url()) !=
       DOMUIFactory::HasDOMUIScheme(new_entry->url()))
     return true;
+
+  // Also, we must switch if one is an extension and the other is not the exact
+  // same extension.
+  if (cur_entry->url().SchemeIs(chrome::kExtensionScheme) ||
+      new_entry->url().SchemeIs(chrome::kExtensionScheme))
+    if (cur_entry->url().GetOrigin() != new_entry->url().GetOrigin())
+      return true;
+      
 
   return false;
 }

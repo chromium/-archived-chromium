@@ -20,6 +20,7 @@
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
+#include "chrome/common/bindings_policy.h"
 #include "chrome/common/extensions/extension.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
@@ -84,7 +85,7 @@ ExtensionHost::ExtensionHost(Extension* extension, SiteInstance* site_instance,
       url_(url) {
   render_view_host_ = new RenderViewHost(
       site_instance, this, MSG_ROUTING_NONE, NULL);
-  render_view_host_->AllowExtensionBindings();
+  render_view_host_->AllowBindings(BindingsPolicy::EXTENSION);
 }
 
 ExtensionHost::~ExtensionHost() {
@@ -196,12 +197,6 @@ void ExtensionHost::DidInsertCSS() {
 #endif
 }
 
-ExtensionFunctionDispatcher* ExtensionHost::
-    CreateExtensionFunctionDispatcher(RenderViewHost *render_view_host,
-                                      const std::string& extension_id) {
-  return new ExtensionFunctionDispatcher(render_view_host, this, extension_id);
-}
-
 RenderViewHostDelegate::View* ExtensionHost::GetViewDelegate() const {
   // TODO(erikkay) this is unfortunate.  The interface declares that this method
   // must be const (no good reason for it as far as I can tell) which means you
@@ -302,4 +297,17 @@ Browser* ExtensionHost::GetBrowser() {
   // TODO(rafaelw): Delay creation of background_page until the browser
   // is available. http://code.google.com/p/chromium/issues/detail?id=13284
   return browser;
+}
+
+void ExtensionHost::ProcessDOMUIMessage(const std::string& message,
+                                        const std::string& content,
+                                        int request_id,
+                                        bool has_callback) {
+  extension_function_dispatcher_->HandleRequest(message, content, request_id,
+                                                has_callback);
+}
+
+void ExtensionHost::RenderViewCreated(RenderViewHost* render_view_host) {
+  extension_function_dispatcher_.reset(
+      new ExtensionFunctionDispatcher(render_view_host_, this, url_));
 }
