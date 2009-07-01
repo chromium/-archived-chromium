@@ -1840,7 +1840,7 @@ function init() {
   o3djs.util.setMainEngine(o3djs.util.Engine.V8);
 
   o3djs.util.addScriptUri('');
-  o3djs.util.makeClients(initStep2, 'LargeGeometry');
+  o3djs.util.makeClients(initStep2);
 }
 
 /**
