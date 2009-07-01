@@ -231,6 +231,9 @@ class MessageLoop : public base::MessagePump::Delegate {
     exception_restoration_ = restore;
   }
 
+  // Returns true if we are currently running a nested message loop.
+  bool IsNested();
+
   //----------------------------------------------------------------------------
  protected:
   struct RunState {

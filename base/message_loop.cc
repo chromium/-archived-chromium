@@ -298,6 +298,10 @@ bool MessageLoop::NestableTasksAllowed() const {
   return nestable_tasks_allowed_;
 }
 
+bool MessageLoop::IsNested() {
+  return state_->run_depth > 1;
+}
+
 //------------------------------------------------------------------------------
 
 void MessageLoop::RunTask(Task* task) {

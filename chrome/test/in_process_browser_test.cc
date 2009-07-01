@@ -33,6 +33,13 @@ extern int BrowserMain(const MainFunctionParams&);
 
 const wchar_t kUnitTestShowWindows[] = L"show-windows";
 
+// Delay for the time-out at which we stop the inner-message loop the first
+// time.
+const int kInitialTimeoutInMS = 30000;
+
+// Delay for sub-sequent time-outs once the initial time-out happened.
+const int kSubsequentTimeoutInMS = 5000;
+
 namespace {
 
 bool DieFileDie(const std::wstring& file, bool recurse) {
@@ -205,6 +212,11 @@ void InProcessBrowserTest::RunTestOnMainThreadLoop() {
 
   browser_ = CreateBrowser(profile);
 
+  // Start the timeout timer to prevent hangs.
+  MessageLoopForUI::current()->PostDelayedTask(FROM_HERE,
+      NewRunnableMethod(this, &InProcessBrowserTest::TimedOut),
+      kInitialTimeoutInMS);
+
   RunTestOnMainThread();
 
   BrowserList::const_iterator browser = BrowserList::begin();
@@ -223,4 +235,17 @@ void InProcessBrowserTest::ConfigureHostMapper(
   // See http://en.wikipedia.org/wiki/Web_Proxy_Autodiscovery_Protocol
   // We don't want the test code to use it.
   host_mapper->AddSimulatedFailure("wpad");
+}
+
+void InProcessBrowserTest::TimedOut() {
+  DCHECK(MessageLoopForUI::current()->IsNested());
+
+  GTEST_NONFATAL_FAILURE_("Timed-out");
+
+  // Start the timeout timer to prevent hangs.
+  MessageLoopForUI::current()->PostDelayedTask(FROM_HERE,
+      NewRunnableMethod(this, &InProcessBrowserTest::TimedOut),
+      kSubsequentTimeoutInMS);
+
+  MessageLoopForUI::current()->Quit();
 }

@@ -67,6 +67,9 @@ class InProcessBrowserTest : public testing::Test {
   // do that during testing.
   virtual void ConfigureHostMapper(net::RuleBasedHostMapper* host_mapper);
 
+  // Invoked when a test is not finishing in a timely manner.
+  void TimedOut();
+
   // Starts an HTTP server.
   HTTPTestServer* StartHTTPServer();
 
