@@ -35,20 +35,30 @@ void SingleSplitView::Layout() {
 
   View* leading = GetChildViewAt(0);
   View* trailing = GetChildViewAt(1);
-  if (divider_offset_ < 0)
-    divider_offset_ = (GetPrimaryAxisSize() - kDividerSize) / 2;
-  else
-    divider_offset_ = std::min(divider_offset_,
-                               GetPrimaryAxisSize() - kDividerSize);
 
-  if (is_horizontal_) {
-    leading->SetBounds(0, 0, divider_offset_, height());
-    trailing->SetBounds(divider_offset_ + kDividerSize, 0,
-                        width() - divider_offset_ - kDividerSize, height());
+  if (!leading->IsVisible() && !trailing->IsVisible())
+    return;
+
+  if (!trailing->IsVisible()) {
+    leading->SetBounds(0, 0, width(), height());
+  } else if (!leading->IsVisible()) {
+    trailing->SetBounds(0, 0, width(), height());
   } else {
-    leading->SetBounds(0, 0, width(), divider_offset_);
-    trailing->SetBounds(0, divider_offset_ + kDividerSize,
-                        width(), height() - divider_offset_ - kDividerSize);
+    if (divider_offset_ < 0)
+      divider_offset_ = (GetPrimaryAxisSize() - kDividerSize) / 2;
+    else
+      divider_offset_ = std::min(divider_offset_,
+                                 GetPrimaryAxisSize() - kDividerSize);
+
+    if (is_horizontal_) {
+      leading->SetBounds(0, 0, divider_offset_, height());
+      trailing->SetBounds(divider_offset_ + kDividerSize, 0,
+                          width() - divider_offset_ - kDividerSize, height());
+    } else {
+      leading->SetBounds(0, 0, width(), divider_offset_);
+      trailing->SetBounds(0, divider_offset_ + kDividerSize,
+                          width(), height() - divider_offset_ - kDividerSize);
+    }
   }
 
   SchedulePaint();
@@ -137,6 +147,9 @@ void SingleSplitView::OnMouseReleased(const MouseEvent& event, bool canceled) {
 
 bool SingleSplitView::IsPointInDivider(int x, int y) {
   if (GetChildViewCount() < 2)
+    return false;
+
+  if (!GetChildViewAt(0)->IsVisible() || !GetChildViewAt(1)->IsVisible())
     return false;
 
   int divider_relative_offset;
