@@ -4712,6 +4712,7 @@
             'glue/devtools/js/inject.js',
             'glue/devtools/js/inspector_controller.js',
             'glue/devtools/js/inspector_controller_impl.js',
+            'glue/devtools/js/KeyboardShortcut.js',
             'glue/devtools/js/profiler_processor.js',
             'glue/devtools/js/tests.js',
             '../third_party/WebKit/WebCore/inspector/front-end/BottomUpProfileDataGridTree.js',
