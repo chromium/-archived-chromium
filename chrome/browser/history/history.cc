@@ -536,6 +536,15 @@ HistoryService::Handle HistoryService::GetVisitCountToHost(
       new history::GetVisitCountToHostRequest(callback), url);
 }
 
+HistoryService::Handle HistoryService::QueryTopURLsAndRedirects(
+    int result_count,
+    CancelableRequestConsumerBase* consumer,
+    QueryTopURLsAndRedirectsCallback* callback) {
+  return Schedule(PRIORITY_NORMAL, &HistoryBackend::QueryTopURLsAndRedirects,
+      consumer, new history::QueryTopURLsAndRedirectsRequest(callback),
+      result_count);
+}
+
 void HistoryService::Observe(NotificationType type,
                              const NotificationSource& source,
                              const NotificationDetails& details) {

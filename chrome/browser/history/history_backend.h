@@ -147,6 +147,11 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
 
   void GetVisitCountToHost(scoped_refptr<GetVisitCountToHostRequest> request,
                            const GURL& url);
+
+  void QueryTopURLsAndRedirects(
+      scoped_refptr<QueryTopURLsAndRedirectsRequest> request,
+      int result_count);
+
   // Computes the most recent URL(s) that the given canonical URL has
   // redirected to and returns true on success. There may be more than one
   // redirect in a row, so this function will fill the given array with the

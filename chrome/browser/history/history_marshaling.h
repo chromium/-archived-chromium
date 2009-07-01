@@ -70,6 +70,11 @@ typedef CancelableRequest1<HistoryService::QueryRedirectsCallback,
 typedef CancelableRequest<HistoryService::GetVisitCountToHostCallback>
     GetVisitCountToHostRequest;
 
+typedef CancelableRequest1<HistoryService::QueryTopURLsAndRedirectsCallback,
+                           Tuple2<std::vector<GURL>,
+                                  history::RedirectMap> >
+    QueryTopURLsAndRedirectsRequest;
+
 // Thumbnails -----------------------------------------------------------------
 
 typedef CancelableRequest<HistoryService::ThumbnailDataCallback>

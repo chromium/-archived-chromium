@@ -1152,6 +1152,36 @@ void HistoryBackend::GetVisitCountToHost(
       request->handle(), success, count, first_visit));
 }
 
+void HistoryBackend::QueryTopURLsAndRedirects(
+    scoped_refptr<QueryTopURLsAndRedirectsRequest> request,
+    int result_count) {
+  if (request->canceled())
+    return;
+
+  if (!db_.get()) {
+    request->ForwardResult(QueryTopURLsAndRedirectsRequest::TupleType(
+        NULL, NULL));
+    return;
+  }
+
+  std::vector<GURL>* top_urls = &request->value.a;
+  history::RedirectMap* redirects = &request->value.b;
+
+  std::vector<PageUsageData*> data;
+  db_->QuerySegmentUsage(base::Time::Now() - base::TimeDelta::FromDays(90),
+      result_count, &data);
+
+  for (size_t i = 0; i < data.size(); ++i) {
+    top_urls->push_back(data[i]->GetURL());
+    HistoryService::RedirectList list;
+    GetMostRecentRedirectsFrom(top_urls->back(), &list);
+    (*redirects)[top_urls->back()] = new RefCountedVector<GURL>(list);
+  }
+
+  request->ForwardResult(QueryTopURLsAndRedirectsRequest::TupleType(
+      top_urls, redirects));
+}
+
 void HistoryBackend::GetRedirectsFromSpecificVisit(
     VisitID cur_visit, HistoryService::RedirectList* redirects) {
   // Follow any redirects from the given visit and add them to the list.

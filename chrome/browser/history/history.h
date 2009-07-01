@@ -305,6 +305,20 @@ class HistoryService : public CancelableRequestProvider,
                              CancelableRequestConsumerBase* consumer,
                              GetVisitCountToHostCallback* callback);
 
+  // Called when QueryTopURLsAndRedirects completes. The vector contains a list
+  // of the top |result_count| URLs.  For each of these URLs, there is an entry
+  // in the map containing redirects from the URL.  For example, if we have the
+  // redirect chain A -> B -> C and A is a top visited URL, then A will be in
+  // the vector and "A => {B -> C}" will be in the map.
+  typedef Callback2<std::vector<GURL>*, history::RedirectMap*>::Type
+      QueryTopURLsAndRedirectsCallback;
+
+  // Request the top |result_count| most visited URLs and the chain of redirects
+  // leading to each of these URLs.
+  Handle QueryTopURLsAndRedirects(int result_count,
+                                  CancelableRequestConsumerBase* consumer,
+                                  QueryTopURLsAndRedirectsCallback* callback);
+
   // Thumbnails ----------------------------------------------------------------
 
   // Implemented by consumers to get thumbnail data. Called when a request for
