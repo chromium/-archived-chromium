@@ -2852,4 +2852,4 @@ BUG15780 : LayoutTests/editing/selection/select-all-iframe.html = FAIL
 BUG15780 : LayoutTests/fast/repaint/text-selection-rect-in-overflow-2.html = FAIL
 
 // WebKit 45431:45444
-BUG15780 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridColumns-dom-attributes.html = FAIL
+BUG15780 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridColumns-dom-attributes.html = FAIL TIMEOUT
