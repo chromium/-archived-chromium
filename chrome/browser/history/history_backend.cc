@@ -649,7 +649,9 @@ std::pair<URLID, VisitID> HistoryBackend::AddPageVisit(
     URLVisitedDetails* details = new URLVisitedDetails;
     details->transition = transition;
     details->row = url_info;
-    GetMostRecentRedirectsTo(url, &details->redirects);
+    // TODO(meelapshah) Disabled due to potential PageCycler regression.
+    // Re-enable this.
+    // GetMostRecentRedirectsTo(url, &details->redirects);
     BroadcastNotifications(NotificationType::HISTORY_URL_VISITED, details);
   }
 
