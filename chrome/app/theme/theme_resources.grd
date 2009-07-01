@@ -284,20 +284,13 @@
       <include name="IDR_THEME_FRAME_OVERLAY" file="notused.png" type="BINDATA" />
       <include name="IDR_THEME_BUTTON_BACKGROUND" file="notused.png" type="BINDATA" />
       <include name="IDR_THEME_NTP_ATTRIBUTION" file="notused.png" type="BINDATA" />
-      <include name="IDR_THEME_WINDOW_CONTROL_BACKGROUND" file="notused.png" type="BINDATA" />
 
       <include name="IDR_FORWARD_MASK" file="forward_mask.png" type="BINDATA" />
       <include name="IDR_BACK_MASK" file="back_mask.png" type="BINDATA" />
       <include name="IDR_BUTTON_MASK" file="button_mask.png" type="BINDATA" />
       <include name="IDR_STAR_MASK" file="star_mask.png" type="BINDATA" />
       <include name="IDR_GO_MASK" file="go_mask.png" type="BINDATA" />
-
-      <include name="IDR_NEWTAB_BUTTON_MASK" file="newtab_button_mask.png" type="BINDATA" />
-      <include name="IDR_CLOSE_BUTTON_MASK" file="close_button_mask.png" type="BINDATA" />
-      <include name="IDR_RESTORE_BUTTON_MASK" file="restore_button_mask.png" type="BINDATA" />
-      <include name="IDR_MINIMIZE_BUTTON_MASK" file="minimize_button_mask.png" type="BINDATA" />
-      <include name="IDR_MAXIMIZE_BUTTON_MASK" file="maximize_button_mask.png" type="BINDATA" />
-
+      
       <if expr="pp_ifdef('_google_chrome')">
         <include name="IDR_ABOUT_BACKGROUND" file="google_chrome/about_background.png" type="BINDATA" />
         <include name="IDR_ABOUT_BACKGROUND_RTL" file="google_chrome/about_background_rtl.png" type="BINDATA" />

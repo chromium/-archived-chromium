@@ -117,9 +117,6 @@ OpaqueBrowserFrameView::OpaqueBrowserFrameView(BrowserFrame* frame,
   InitClass();
 
   ThemeProvider* tp = frame_->GetThemeProviderForFrame();
-  SkColor color = tp->GetColor(BrowserThemeProvider::COLOR_BUTTON_BACKGROUND);
-  SkBitmap* background =
-      tp->GetBitmapNamed(IDR_THEME_WINDOW_CONTROL_BACKGROUND);
 
   minimize_button_->SetImage(
       views::CustomButton::BS_NORMAL,
@@ -130,8 +127,6 @@ OpaqueBrowserFrameView::OpaqueBrowserFrameView(BrowserFrame* frame,
   minimize_button_->SetImage(
       views::CustomButton::BS_PUSHED,
       tp->GetBitmapNamed(IDR_MINIMIZE_P));
-  minimize_button_->SetBackground(color, background,
-      tp->GetBitmapNamed(IDR_MINIMIZE_BUTTON_MASK));
   minimize_button_->SetAccessibleName(
       l10n_util::GetString(IDS_ACCNAME_MINIMIZE));
   AddChildView(minimize_button_);
@@ -145,8 +140,6 @@ OpaqueBrowserFrameView::OpaqueBrowserFrameView(BrowserFrame* frame,
   maximize_button_->SetImage(
       views::CustomButton::BS_PUSHED,
       tp->GetBitmapNamed(IDR_MAXIMIZE_P));
-  maximize_button_->SetBackground(color, background,
-      tp->GetBitmapNamed(IDR_MAXIMIZE_BUTTON_MASK));
   maximize_button_->SetAccessibleName(
       l10n_util::GetString(IDS_ACCNAME_MAXIMIZE));
   AddChildView(maximize_button_);
@@ -160,8 +153,6 @@ OpaqueBrowserFrameView::OpaqueBrowserFrameView(BrowserFrame* frame,
   restore_button_->SetImage(
       views::CustomButton::BS_PUSHED,
       tp->GetBitmapNamed(IDR_RESTORE_P));
-  restore_button_->SetBackground(color, background,
-      tp->GetBitmapNamed(IDR_RESTORE_BUTTON_MASK));
   restore_button_->SetAccessibleName(
       l10n_util::GetString(IDS_ACCNAME_RESTORE));
   AddChildView(restore_button_);
@@ -175,8 +166,6 @@ OpaqueBrowserFrameView::OpaqueBrowserFrameView(BrowserFrame* frame,
   close_button_->SetImage(
       views::CustomButton::BS_PUSHED,
       tp->GetBitmapNamed(IDR_CLOSE_P));
-  close_button_->SetBackground(color, background,
-      tp->GetBitmapNamed(IDR_CLOSE_BUTTON_MASK));
   close_button_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_CLOSE));
   AddChildView(close_button_);
 
