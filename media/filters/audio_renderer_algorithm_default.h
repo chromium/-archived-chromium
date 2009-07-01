@@ -10,11 +10,11 @@
 #ifndef MEDIA_FILTERS_AUDIO_RENDERER_ALGORITHM_DEFAULT_H_
 #define MEDIA_FILTERS_AUDIO_RENDERER_ALGORITHM_DEFAULT_H_
 
+#include "base/time.h"
+#include "media/base/data_buffer.h"
 #include "media/filters/audio_renderer_algorithm_base.h"
 
 namespace media {
-
-class DataBuffer;
 
 class AudioRendererAlgorithmDefault : public AudioRendererAlgorithmBase {
  public:
