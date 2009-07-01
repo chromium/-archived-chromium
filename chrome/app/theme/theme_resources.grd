@@ -318,7 +318,6 @@
       <if expr="pp_ifdef('linux2')">
         <include name="IDR_NEW_BROWSER_WINDOW_ICON" file="new_browser_window.png" type="BINDATA" />
         <include name="IDR_TAB_OVERVIEW_BUTTON_ICON" file="tab_overview.png" type="BINDATA" />
-        <include name="IDR_NEWTAB_BUTTON2" file="newtab2.png" type="BINDATA" />
       </if>
     </includes>
   </release>

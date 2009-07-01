@@ -38,11 +38,7 @@ const int kReorderAnimationDurationMs = 166;
 const int kAnimateToBoundsDurationMs = 150;
 
 const int kNewTabButtonHOffset = -5;
-#if defined(LINUX2)
-const int kNewTabButtonVOffset = 0;
-#else
 const int kNewTabButtonVOffset = 5;
-#endif
 
 // The delay between when the mouse leaves the tabstrip and the resize animation
 // is started.
@@ -969,19 +965,21 @@ void TabStripGtk::LayoutNewTabButton(double last_tab_right,
                                      double unselected_width) {
   gfx::Rect bounds(0, kNewTabButtonVOffset,
                    newtab_button_->width(), newtab_button_->height());
-#if !defined(LINUX2)
   int delta = abs(Round(unselected_width) - TabGtk::GetStandardSize().width());
   if (delta > 1 && !resize_layout_scheduled_) {
     // We're shrinking tabs, so we need to anchor the New Tab button to the
     // right edge of the TabStrip's bounds, rather than the right edge of the
     // right-most Tab, otherwise it'll bounce when animating.
+#if defined(LINUX2)
+    bounds.set_x(bounds_.width() - newtab_button_->width() -
+                 tab_overview_button_->width());
+#else
     bounds.set_x(bounds_.width() - newtab_button_->width());
+#endif
   } else {
     bounds.set_x(Round(last_tab_right - kTabHOffset) + kNewTabButtonHOffset);
   }
-
   bounds.set_x(gtk_util::MirroredLeftPointForRect(tabstrip_.get(), bounds));
-#endif
 
   gtk_fixed_move(GTK_FIXED(tabstrip_.get()), newtab_button_->widget(),
                  bounds.x(), bounds.y());
@@ -1062,11 +1060,7 @@ void TabStripGtk::GetDesiredTabWidths(int tab_count,
 }
 
 int TabStripGtk::tab_start_x() const {
-#if defined(LINUX2)
-  return newtab_button_->width() + kNewTabButtonHOffset;
-#else
   return 0;
-#endif
 }
 
 void TabStripGtk::ResizeLayoutTabs() {
@@ -1575,12 +1569,8 @@ void TabStripGtk::SetTabBounds(TabGtk* tab, const gfx::Rect& bounds) {
 }
 
 CustomDrawButton* TabStripGtk::MakeNewTabButton() {
-#if defined(LINUX2)
-  CustomDrawButton* button = new CustomDrawButton(IDR_NEWTAB_BUTTON2, 0, 0, 0);
-#else
   CustomDrawButton* button = new CustomDrawButton(IDR_NEWTAB_BUTTON,
       IDR_NEWTAB_BUTTON_P, IDR_NEWTAB_BUTTON_H, 0);
-#endif
 
   g_signal_connect(G_OBJECT(button->widget()), "clicked",
                    G_CALLBACK(OnNewTabClicked), this);
