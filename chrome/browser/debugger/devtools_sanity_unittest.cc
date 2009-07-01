@@ -56,13 +56,29 @@ class DevToolsSanityTest : public InProcessBrowserTest {
   void RunTest(const std::string& test_name, const std::wstring& test_page) {
     OpenDevToolsWindow(test_page);
     std::string result;
+
+    // At first check that JavaScript part of the front-end is loaded by
+    // checking that global variable uiTests exists(it's created after all js
+    // files have been loaded) and has runTest method.
     ASSERT_TRUE(
         ui_test_utils::ExecuteJavaScriptAndExtractString(
             client_contents_,
             L"",
-            UTF8ToWide(StringPrintf("uiTests.runTest('%s')", test_name.c_str())),
+            L"window.domAutomationController.send("
+            L"'' + (window.uiTests && (typeof uiTests.runTest)));",
             &result));
-    EXPECT_EQ("[OK]", result);
+
+    if (result == "function") {
+      ASSERT_TRUE(
+          ui_test_utils::ExecuteJavaScriptAndExtractString(
+              client_contents_,
+              L"",
+              UTF8ToWide(StringPrintf("uiTests.runTest('%s')", test_name.c_str())),
+              &result));
+      EXPECT_EQ("[OK]", result);
+    } else {
+      FAIL() << "DevTools front-end is broken.";
+    }
     CloseDevToolsWindow();
   }
 
@@ -86,8 +102,11 @@ class DevToolsSanityTest : public InProcessBrowserTest {
 
   void CloseDevToolsWindow() {
     DevToolsManager* devtools_manager = DevToolsManager::GetInstance();
+    // UnregisterDevToolsClientHostFor may destroy window_ so store the browser
+    // first.
+    Browser* browser = window_->browser();
     devtools_manager->UnregisterDevToolsClientHostFor(inspected_rvh_);
-    BrowserClosedObserver close_observer(window_->browser());
+    BrowserClosedObserver close_observer(browser);
   }
 
   TabContents* client_contents_;
