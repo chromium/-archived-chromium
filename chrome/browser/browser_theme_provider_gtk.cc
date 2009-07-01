@@ -41,7 +41,7 @@ GdkPixbuf* BrowserThemeProvider::GetPixbufNamed(int id) {
   return empty_bitmap;
 }
 
-void BrowserThemeProvider::FreePlatformImages() {
+void BrowserThemeProvider::FreePlatformCaches() {
   DCHECK(CalledOnValidThread());
 
   // Free GdkPixbufs.

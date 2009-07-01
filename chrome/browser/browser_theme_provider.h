@@ -74,6 +74,7 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
   virtual GdkPixbuf* GetPixbufNamed(int id);
 #elif defined(OS_MACOSX)
   virtual NSImage* GetNSImageNamed(int id);
+  virtual NSColor* GetNSColorTint(int id);
 #endif
 
   // Set the current theme to the theme defined in |extension|.
@@ -103,6 +104,12 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
   // Loads a bitmap from the theme, which may be tinted or
   // otherwise modified, or an application default.
   SkBitmap* LoadThemeBitmap(int id);
+
+  // Returns the string key for the given tint |id| TINT_* enum value.
+  const std::string GetTintKey(int id);
+
+  // Returns the default tint for the given tint |id| TINT_* enum value.
+  skia::HSL GetDefaultTint(int id);
 
   // Get the specified tint - |id| is one of the TINT_* enum values.
   skia::HSL GetTint(int id);
@@ -158,11 +165,11 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
   SkColor FindColor(const char* id, SkColor default_color);
 
   // Frees generated images and clears the image cache.
-  void FreeImages();
+  void ClearCaches();
 
-  // Clears the platform-specific image cache. Do not call directly; it's called
-  // from FreeImages().
-  void FreePlatformImages();
+  // Clears the platform-specific caches. Do not call directly; it's called
+  // from ClearCaches().
+  void FreePlatformCaches();
 
   // Cached images. We cache all retrieved and generated bitmaps and keep
   // track of the pointers. We own these and will delete them when we're done
@@ -175,6 +182,8 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
 #elif defined(OS_MACOSX)
   typedef std::map<int, NSImage*> NSImageMap;
   NSImageMap nsimage_cache_;
+  typedef std::map<int, NSColor*> NSColorMap;
+  NSColorMap nscolor_cache_;
 #endif
 
   ResourceBundle& rb_;

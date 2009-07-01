@@ -12,8 +12,10 @@
 #include <gdk/gdk.h>
 #elif defined(OS_MACOSX)
 #ifdef __OBJC__
+@class NSColor;
 @class NSImage;
 #else
+class NSColor;
 class NSImage;
 #endif  // __OBJC__
 #endif  // OS_*
@@ -63,13 +65,17 @@ class ThemeProvider {
   // is missing.
   virtual GdkPixbuf* GetPixbufNamed(int id) = 0;
 #elif defined(OS_MACOSX)
-  // Gets the NSImage with the specified |id|.  Returns a pointer to a shared
-  // instance of the NSImage.  This shared NSImage is owned by the theme
-  // provider and should not be freed.
+  // Gets the NSImage with the specified |id|.
   //
   // The bitmap is not assumed to exist. If a theme does not provide an image,
   // this function will return nil.
+
   virtual NSImage* GetNSImageNamed(int id) = 0;
+  // Gets the NSColor for tinting with the specified |id|.
+  //
+  // The tint is not assumed to exist. If a theme does not provide a tint with
+  // that id, this function will return nil.
+  virtual NSColor* GetNSColorTint(int id) = 0;
 #endif
 };
 

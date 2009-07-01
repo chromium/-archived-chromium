@@ -137,7 +137,7 @@ BrowserThemeProvider::BrowserThemeProvider()
 }
 
 BrowserThemeProvider::~BrowserThemeProvider() {
-  FreeImages();
+  ClearCaches();
 }
 
 void BrowserThemeProvider::Init(Profile* profile) {
@@ -266,7 +266,7 @@ bool BrowserThemeProvider::HasCustomImage(int id) {
 
 void BrowserThemeProvider::SetTheme(Extension* extension) {
   // Clear our image cache.
-  FreeImages();
+  ClearCaches();
 
   DCHECK(extension);
   DCHECK(extension->IsTheme());
@@ -289,7 +289,7 @@ void BrowserThemeProvider::SetTheme(Extension* extension) {
 
 void BrowserThemeProvider::UseDefaultTheme() {
   // Clear our image cache.
-  FreeImages();
+  ClearCaches();
 
   images_.clear();
   colors_.clear();
@@ -361,35 +361,54 @@ SkBitmap* BrowserThemeProvider::LoadThemeBitmap(int id) {
   }
 }
 
-skia::HSL BrowserThemeProvider::GetTint(int id) {
-  DCHECK(CalledOnValidThread());
+const std::string BrowserThemeProvider::GetTintKey(int id) {
   switch (id) {
     case TINT_FRAME:
-      return (tints_.find(kTintFrame) != tints_.end()) ?
-          tints_[kTintFrame] : kDefaultTintFrame;
+      return kTintFrame;
     case TINT_FRAME_INACTIVE:
-      return (tints_.find(kTintFrameInactive) != tints_.end()) ?
-          tints_[kTintFrameInactive] : kDefaultTintFrameInactive;
+      return kTintFrameInactive;
     case TINT_FRAME_INCOGNITO:
-      return (tints_.count(kTintFrameIncognito)) ?
-          tints_[kTintFrameIncognito] : kDefaultTintFrameIncognito;
+      return kTintFrameIncognito;
     case TINT_FRAME_INCOGNITO_INACTIVE:
-      return (tints_.count(kTintFrameIncognitoInactive)) ?
-          tints_[kTintFrameIncognitoInactive] :
-          kDefaultTintFrameIncognitoInactive;
+      return kTintFrameIncognitoInactive;
     case TINT_BUTTONS:
-      return (tints_.find(kTintButtons) != tints_.end()) ?
-          tints_[kTintButtons] :
-          kDefaultTintButtons;
+      return kTintButtons;
     case TINT_BACKGROUND_TAB:
-      return (tints_.find(kTintBackgroundTab) != tints_.end()) ?
-          tints_[kTintBackgroundTab] :
-          kDefaultTintBackgroundTab;
+      return kTintBackgroundTab;
     default:
       NOTREACHED() << "Unknown tint requested";
+      return "";
   }
-  skia::HSL result = {-1, -1, -1};
-  return result;
+}
+
+skia::HSL BrowserThemeProvider::GetDefaultTint(int id) {
+  switch (id) {
+    case TINT_FRAME:
+      return kDefaultTintFrame;
+    case TINT_FRAME_INACTIVE:
+      return kDefaultTintFrameInactive;
+    case TINT_FRAME_INCOGNITO:
+      return kDefaultTintFrameIncognito;
+    case TINT_FRAME_INCOGNITO_INACTIVE:
+      return kDefaultTintFrameIncognitoInactive;
+    case TINT_BUTTONS:
+      return kDefaultTintButtons;
+    case TINT_BACKGROUND_TAB:
+      return kDefaultTintBackgroundTab;
+    default:
+      skia::HSL result = {-1, -1, -1};
+      return result;
+  }
+}
+
+skia::HSL BrowserThemeProvider::GetTint(int id) {
+  DCHECK(CalledOnValidThread());
+
+  TintMap::iterator tint_iter = tints_.find(GetTintKey(id));
+  if (tint_iter != tints_.end())
+    return tint_iter->second;
+  else
+    return GetDefaultTint(id);
 }
 
 SkBitmap BrowserThemeProvider::TintBitmap(const SkBitmap& bitmap, int hsl_id) {
@@ -730,8 +749,8 @@ SkColor BrowserThemeProvider::FindColor(const char* id,
   return (colors_.find(id) != colors_.end()) ? colors_[id] : default_color;
 }
 
-void BrowserThemeProvider::FreeImages() {
-  FreePlatformImages();
+void BrowserThemeProvider::ClearCaches() {
+  FreePlatformCaches();
   for (ImageCache::iterator i = image_cache_.begin();
        i != image_cache_.end(); i++) {
     delete i->second;
@@ -740,7 +759,7 @@ void BrowserThemeProvider::FreeImages() {
 }
 
 #if defined(OS_WIN)
-void BrowserThemeProvider::FreePlatformImages() {
+void BrowserThemeProvider::FreePlatformCaches() {
   // Windows has no platform image cache to clear.
 }
 #endif

@@ -52,7 +52,37 @@ NSImage* BrowserThemeProvider::GetNSImageNamed(int id) {
   return empty_image;
 }
 
-void BrowserThemeProvider::FreePlatformImages() {
+NSColor* BrowserThemeProvider::GetNSColorTint(int id) {
+  DCHECK(CalledOnValidThread());
+
+  // Check to see if we already have the color in the cache.
+  NSColorMap::const_iterator found = nscolor_cache_.find(id);
+  if (found != nscolor_cache_.end())
+    return found->second;
+
+  TintMap::iterator tint_iter = tints_.find(GetTintKey(id));
+  if (tint_iter != tints_.end()) {
+    skia::HSL tint = tint_iter->second;
+
+    // The tint is HSL, not HSB, but we're cheating for now. TODO(avi,alcor):
+    // determine how much this matters and fix it if necessary.
+    // http://crbug.com/15760
+    NSColor* tint_color = [NSColor colorWithCalibratedHue:tint.h
+                                               saturation:tint.s
+                                               brightness:tint.l
+                                                    alpha:1.0];
+
+    // We loaded successfully.  Cache the color.
+    if (tint_color) {
+      nscolor_cache_[id] = [tint_color retain];
+      return tint_color;
+    }
+  }
+
+  return nil;
+}
+
+void BrowserThemeProvider::FreePlatformCaches() {
   DCHECK(CalledOnValidThread());
 
   // Free images.
@@ -61,4 +91,11 @@ void BrowserThemeProvider::FreePlatformImages() {
     [i->second release];
   }
   nsimage_cache_.clear();
+
+  // Free colors.
+  for (NSColorMap::iterator i = nscolor_cache_.begin();
+       i != nscolor_cache_.end(); i++) {
+    [i->second release];
+  }
+  nscolor_cache_.clear();
 }
