@@ -47,7 +47,7 @@ namespace WebKit {
     class WebInputEventFactory {
     public:
         WEBKIT_API static WebKeyboardEvent keyboardEvent(const GdkEventKey*);
-        WEBKIT_API static WebKeyboardEvent keyboardEvent(wchar_t character, double timeStampSeconds);
+        WEBKIT_API static WebKeyboardEvent keyboardEvent(wchar_t character, int state, double timeStampSeconds);
         WEBKIT_API static WebMouseEvent mouseEvent(const GdkEventButton*);
         WEBKIT_API static WebMouseEvent mouseEvent(const GdkEventMotion*);
         WEBKIT_API static WebMouseWheelEvent mouseWheelEvent(const GdkEventScroll*);

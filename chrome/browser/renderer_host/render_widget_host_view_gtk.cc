@@ -121,6 +121,11 @@ class RenderWidgetHostViewGtkWidget {
       host_view->GetRenderWidgetHost()->ForwardKeyboardEvent(wke);
     }
 
+    // Save the current modifier-key state before dispatching this event to the
+    // GtkIMContext object so its event handlers can use this state to create
+    // Char events.
+    host_view->im_modifier_state_ = event->state;
+
     // Dispatch this event to the GtkIMContext object.
     // It sends a "commit" signal when it has a character to be inserted
     // even when we use a US keyboard so that we can send a Char event
@@ -182,6 +187,15 @@ class RenderWidgetHostViewGtkWidget {
 
     host_view->ShowCurrentCursor();
     host_view->GetRenderWidgetHost()->Focus();
+
+    // Notify the GtkIMContext object of this focus-in event and
+    // attach this GtkIMContext object to this window.
+    // We should call gtk_im_context_set_client_window() only when this window
+    // gain (or release) the window focus because an immodule may reset its
+    // internal status when processing this function.
+    gtk_im_context_focus_in(host_view->im_context_);
+    gtk_im_context_set_client_window(host_view->im_context_,
+                                     host_view->native_view()->window);
     return FALSE;
   }
 
@@ -194,6 +208,11 @@ class RenderWidgetHostViewGtkWidget {
     // focus.
     if (!host_view->is_showing_context_menu_)
       host_view->GetRenderWidgetHost()->Blur();
+
+    // Notify the GtkIMContext object of this focus-in event and
+    // detach this GtkIMContext object from this window.
+    gtk_im_context_focus_out(host_view->im_context_);
+    gtk_im_context_set_client_window(host_view->im_context_, NULL);
     return FALSE;
   }
 
@@ -319,6 +338,7 @@ class RenderWidgetHostViewGtkWidget {
       return;
 
     NativeWebKeyboardEvent char_event(im_character,
+                                      host_view->im_modifier_state_,
                                       base::Time::Now().ToDoubleT());
     host_view->GetRenderWidgetHost()->ForwardKeyboardEvent(char_event);
   }
@@ -342,7 +362,8 @@ RenderWidgetHostViewGtk::RenderWidgetHostViewGtk(RenderWidgetHost* widget_host)
       parent_(NULL),
       is_popup_first_mouse_release_(true),
       im_context_(NULL),
-      im_is_composing_cjk_text_(false) {
+      im_is_composing_cjk_text_(false),
+      im_modifier_state_(0) {
   host_->set_view(this);
 }
 
@@ -514,18 +535,14 @@ void RenderWidgetHostViewGtk::IMEUpdateStatus(int control,
     return;
 
   if (control == IME_DISABLE) {
-    // TODO(hbono): this code just resets the GtkIMContext object and
-    // detaches it from this window. Should we prevent sending key events to
-    // the GtkIMContext object (or unref it) when we disable IMEs?
+    // TODO(hbono): this code just resets the GtkIMContext object.
+    // Should we prevent sending key events to the GtkIMContext object
+    // (or unref it) when we disable IMEs?
     gtk_im_context_reset(im_context_);
-    gtk_im_context_set_client_window(im_context_, NULL);
     gtk_im_context_set_cursor_location(im_context_, NULL);
   } else {
     // TODO(hbono): we should finish (not reset) an ongoing composition
     // when |control| is IME_COMPLETE_COMPOSITION.
-
-    // Attach the GtkIMContext object to this window.
-    gtk_im_context_set_client_window(im_context_, view_.get()->window);
 
     // Updates the position of the IME candidate window.
     // The position sent from the renderer is a relative one, so we need to

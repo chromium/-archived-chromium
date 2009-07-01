@@ -132,6 +132,11 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   // composing Latin texts. So, we monitor the above signals to check whether
   // or not the GtkIMContext object is composing a CJK text.
   bool im_is_composing_cjk_text_;
+
+  // Represents the current modifier-key state.
+  // This state is used when GtkIMContext signal handlers create Char events
+  // because they don't use the GdkEventKey objects and cannot get the state.
+  int im_modifier_state_;
 };
 
 #endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_VIEW_GTK_H_

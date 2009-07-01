@@ -39,8 +39,10 @@ NativeWebKeyboardEvent::NativeWebKeyboardEvent(const GdkEventKey* native_event)
 }
 
 NativeWebKeyboardEvent::NativeWebKeyboardEvent(wchar_t character,
+                                               int state,
                                                double time_stamp_seconds)
     : WebKeyboardEvent(WebInputEventFactory::keyboardEvent(character,
+                                                           state,
                                                            time_stamp_seconds)),
       os_event(NULL) {
 }

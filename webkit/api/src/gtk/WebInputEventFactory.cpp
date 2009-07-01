@@ -214,7 +214,7 @@ WebKeyboardEvent WebInputEventFactory::keyboardEvent(const GdkEventKey* event)
     return result;
 }
 
-WebKeyboardEvent WebInputEventFactory::keyboardEvent(wchar_t character, double timeStampSeconds)
+WebKeyboardEvent WebInputEventFactory::keyboardEvent(wchar_t character, int state, double timeStampSeconds)
 {
     // keyboardEvent(const GdkEventKey*) depends on the GdkEventKey object and
     // it is hard to use/ it from signal handlers which don't use GdkEventKey
@@ -224,6 +224,7 @@ WebKeyboardEvent WebInputEventFactory::keyboardEvent(wchar_t character, double t
     WebKeyboardEvent result;
     result.type = WebKit::WebInputEvent::Char;
     result.timeStampSeconds = timeStampSeconds;
+    result.modifiers = gdkStateToWebEventModifiers(state);
     result.windowsKeyCode = character;
     result.nativeKeyCode = character;
     result.text[0] = character;
