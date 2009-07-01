@@ -89,6 +89,9 @@ class TabStrip : public views::View,
   // Set the background offset used by inactive tabs to match the frame image.
   void SetBackgroundOffset(gfx::Point offset);
 
+  // Create the new tab button.
+  void InitTabStripButtons();
+
   // views::View overrides:
   virtual void PaintChildren(gfx::Canvas* canvas);
   virtual views::View* GetViewByID(int id) const;
@@ -104,6 +107,7 @@ class TabStrip : public views::View,
   virtual bool GetAccessibleName(std::wstring* name);
   virtual void SetAccessibleName(const std::wstring& name);
   virtual views::View* GetViewForPoint(const gfx::Point& point);
+  virtual void ThemeChanged();
 
  protected:
   // TabStripModelObserver implementation:
@@ -165,6 +169,9 @@ class TabStrip : public views::View,
 
   TabStrip();
   void Init();
+
+  // Set the images for the new tab button.
+  void LoadNewTabButtonImage();
 
   // Retrieves the Tab at the specified index. Take care in using this, you may
   // need to use GetTabAtAdjustForAnimation.
@@ -303,7 +310,6 @@ class TabStrip : public views::View,
   // The "New Tab" button.
   views::ImageButton* newtab_button_;
   gfx::Size newtab_button_size_;
-  gfx::Size actual_newtab_button_size_;
 
   // The current widths of various types of tabs.  We save these so that, as
   // users close tabs while we're holding them at the same size, we can lay out

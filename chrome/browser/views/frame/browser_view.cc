@@ -1399,6 +1399,7 @@ void BrowserView::Init() {
   tabstrip_ = new TabStrip(browser_->tabstrip_model());
   tabstrip_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TABSTRIP));
   AddChildView(tabstrip_);
+  tabstrip_->InitTabStripButtons();
   frame_->TabStripCreated(tabstrip_);
 
   toolbar_ = new ToolbarView(browser_.get());

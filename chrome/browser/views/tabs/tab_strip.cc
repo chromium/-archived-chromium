@@ -16,6 +16,7 @@
 #endif
 #include "base/gfx/size.h"
 #include "base/stl_util-inl.h"
+#include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -595,6 +596,13 @@ void TabStrip::SetBackgroundOffset(gfx::Point offset) {
     GetTabAt(i)->SetBackgroundOffset(offset);
 }
 
+void TabStrip::InitTabStripButtons() {
+  newtab_button_ = new NewTabButton(this);
+  LoadNewTabButtonImage();
+  newtab_button_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_NEWTAB));
+  AddChildView(newtab_button_);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // TabStrip, views::View overrides:
 
@@ -766,6 +774,10 @@ views::View* TabStrip::GetViewForPoint(const gfx::Point& point) {
 
   // No need to do any floating view stuff, we don't use them in the TabStrip.
   return this;
+}
+
+void TabStrip::ThemeChanged() {
+  LoadNewTabButtonImage();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1075,22 +1087,6 @@ void TabStrip::DidProcessEvent(GdkEvent* event) {
 
 void TabStrip::Init() {
   model_->AddObserver(this);
-  newtab_button_ = new NewTabButton(this);
-  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  SkBitmap* bitmap;
-
-  bitmap = rb.GetBitmapNamed(IDR_NEWTAB_BUTTON);
-  newtab_button_->SetImage(views::CustomButton::BS_NORMAL, bitmap);
-  newtab_button_->SetImage(views::CustomButton::BS_PUSHED,
-                           rb.GetBitmapNamed(IDR_NEWTAB_BUTTON_P));
-  newtab_button_->SetImage(views::CustomButton::BS_HOT,
-                           rb.GetBitmapNamed(IDR_NEWTAB_BUTTON_H));
-
-  newtab_button_size_.SetSize(bitmap->width(), bitmap->height());
-  actual_newtab_button_size_ = newtab_button_size_;
-
-  newtab_button_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_NEWTAB));
-  AddChildView(newtab_button_);
 
   if (drop_indicator_width == 0) {
     // Direction doesn't matter, both images are the same size.
@@ -1098,6 +1094,24 @@ void TabStrip::Init() {
     drop_indicator_width = drop_image->width();
     drop_indicator_height = drop_image->height();
   }
+}
+
+void TabStrip::LoadNewTabButtonImage() {
+  ThemeProvider* tp = GetThemeProvider();
+
+  SkBitmap* bitmap = tp->GetBitmapNamed(IDR_NEWTAB_BUTTON);
+  SkColor color = tp->GetColor(BrowserThemeProvider::COLOR_BUTTON_BACKGROUND);
+  SkBitmap* background = tp->GetBitmapNamed(
+      IDR_THEME_WINDOW_CONTROL_BACKGROUND);
+
+  newtab_button_->SetImage(views::CustomButton::BS_NORMAL, bitmap);
+  newtab_button_->SetImage(views::CustomButton::BS_PUSHED,
+                           tp->GetBitmapNamed(IDR_NEWTAB_BUTTON_P));
+  newtab_button_->SetImage(views::CustomButton::BS_HOT,
+                           tp->GetBitmapNamed(IDR_NEWTAB_BUTTON_H));
+  newtab_button_->SetBackground(color, background,
+                                tp->GetBitmapNamed(IDR_NEWTAB_BUTTON_MASK));
+  newtab_button_size_.SetSize(bitmap->width(), bitmap->height());
 }
 
 Tab* TabStrip::GetTabAt(int index) const {
