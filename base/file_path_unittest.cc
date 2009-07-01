@@ -450,10 +450,18 @@ TEST_F(FilePathTest, IsParentTest) {
     { { FPL(""),              FPL("foo") },               false},
 #if defined(FILE_PATH_USES_DRIVE_LETTERS)
     { { FPL("c:/foo/bar"),    FPL("c:/foo/bar/baz") },    true},
+    { { FPL("E:/foo/bar"),    FPL("e:/foo/bar/baz") },    true},
+    { { FPL("f:/foo/bar"),    FPL("F:/foo/bar/baz") },    true},
+    { { FPL("E:/Foo/bar"),    FPL("e:/foo/bar/baz") },    false},
+    { { FPL("f:/foo/bar"),    FPL("F:/foo/Bar/baz") },    false},
     { { FPL("c:/"),           FPL("c:/foo/bar/baz") },    true},
     { { FPL("c:"),            FPL("c:/foo/bar/baz") },    true},
     { { FPL("c:/foo/bar"),    FPL("d:/foo/bar/baz") },    false},
+    { { FPL("c:/foo/bar"),    FPL("D:/foo/bar/baz") },    false},
+    { { FPL("C:/foo/bar"),    FPL("d:/foo/bar/baz") },    false},
     { { FPL("c:/foo/bar"),    FPL("c:/foo2/bar/baz") },   false},
+    { { FPL("e:/foo/bar"),    FPL("E:/foo2/bar/baz") },   false},
+    { { FPL("F:/foo/bar"),    FPL("f:/foo2/bar/baz") },   false},
     { { FPL("c:/foo/bar"),    FPL("c:/foo/bar2/baz") },   false},
 #endif  // FILE_PATH_USES_DRIVE_LETTERS
 #if defined(FILE_PATH_USES_WIN_SEPARATORS)
@@ -464,7 +472,7 @@ TEST_F(FilePathTest, IsParentTest) {
     { { FPL(""),              FPL("\\foo\\bar\\baz") },   false},
     { { FPL("\\foo\\bar"),    FPL("\\foo2\\bar\\baz") },  false},
     { { FPL("\\foo\\bar"),    FPL("\\foo\\bar2\\baz") },  false},
-#endif  // FILE_PATH_USES_DRIVE_LETTERS
+#endif  // FILE_PATH_USES_WIN_SEPARATORS
   };
 
   for (size_t i = 0; i < arraysize(cases); ++i) {
@@ -474,6 +482,67 @@ TEST_F(FilePathTest, IsParentTest) {
     EXPECT_EQ(parent.IsParent(child), cases[i].expected) <<
       "i: " << i << ", parent: " << parent.value() << ", child: " <<
       child.value();
+  }
+}
+
+TEST_F(FilePathTest, EqualityTest) {
+  const struct BinaryBooleanTestData cases[] = {
+    { { FPL("/foo/bar/baz"),  FPL("/foo/bar/baz") },      true},
+    { { FPL("/foo/bar"),      FPL("/foo/bar/baz") },      false},
+    { { FPL("/foo/bar/baz"),  FPL("/foo/bar") },          false},
+    { { FPL("//foo/bar/"),    FPL("//foo/bar/") },        true},
+    { { FPL("/foo/bar"),      FPL("/foo2/bar") },         false},
+    { { FPL("/foo/bar.txt"),  FPL("/foo/bar") },          false},
+    { { FPL("foo/bar"),       FPL("foo/bar") },           true},
+    { { FPL("foo/bar"),       FPL("foo/bar/baz") },       false},
+    { { FPL(""),              FPL("foo") },               false},
+#if defined(FILE_PATH_USES_DRIVE_LETTERS)
+    { { FPL("c:/foo/bar"),    FPL("c:/foo/bar") },        true},
+    { { FPL("E:/foo/bar"),    FPL("e:/foo/bar") },        true},
+    { { FPL("f:/foo/bar"),    FPL("F:/foo/bar") },        true},
+    { { FPL("E:/Foo/bar"),    FPL("e:/foo/bar") },        false},
+    { { FPL("f:/foo/bar"),    FPL("F:/foo/Bar") },        false},
+    { { FPL("c:/"),           FPL("c:/") },               true},
+    { { FPL("c:"),            FPL("c:") },                true},
+    { { FPL("c:/foo/bar"),    FPL("d:/foo/bar") },        false},
+    { { FPL("c:/foo/bar"),    FPL("D:/foo/bar") },        false},
+    { { FPL("C:/foo/bar"),    FPL("d:/foo/bar") },        false},
+    { { FPL("c:/foo/bar"),    FPL("c:/foo2/bar") },       false},
+#endif  // FILE_PATH_USES_DRIVE_LETTERS
+#if defined(FILE_PATH_USES_WIN_SEPARATORS)
+    { { FPL("\\foo\\bar"),    FPL("\\foo\\bar") },        true},
+    { { FPL("\\foo/bar"),     FPL("\\foo/bar") },         true},
+    { { FPL("\\foo/bar"),     FPL("\\foo\bar") },         false},
+    { { FPL("\\"),            FPL("\\") },                true},
+    { { FPL("\\"),            FPL("/") },                 false},
+    { { FPL(""),              FPL("\\") },                false},
+    { { FPL("\\foo\\bar"),    FPL("\\foo2\\bar") },       false},
+    { { FPL("\\foo\\bar"),    FPL("\\foo\\bar2") },       false},
+#if defined(FILE_PATH_USES_DRIVE_LETTERS)
+    { { FPL("c:\\foo\\bar"),    FPL("c:\\foo\\bar") },    true},
+    { { FPL("E:\\foo\\bar"),    FPL("e:\\foo\\bar") },    true},
+    { { FPL("f:\\foo\\bar"),    FPL("F:\\foo/bar") },     false},
+#endif  // FILE_PATH_USES_DRIVE_LETTERS
+#endif  // FILE_PATH_USES_WIN_SEPARATORS
+  };
+
+  for (size_t i = 0; i < arraysize(cases); ++i) {
+    FilePath a(cases[i].inputs[0]);
+    FilePath b(cases[i].inputs[1]);
+
+    EXPECT_EQ(a == b, cases[i].expected) <<
+      "equality i: " << i << ", a: " << a.value() << ", b: " <<
+      b.value();
+  }
+
+  
+  for (size_t i = 0; i < arraysize(cases); ++i) {
+    FilePath a(cases[i].inputs[0]);
+    FilePath b(cases[i].inputs[1]);
+
+    EXPECT_EQ(a != b, !cases[i].expected) <<
+      "inequality i: " << i << ", a: " << a.value() << ", b: " <<
+      b.value();
   }
 }
 

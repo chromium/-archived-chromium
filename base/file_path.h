@@ -122,13 +122,9 @@ class FilePath {
     return *this;
   }
 
-  bool operator==(const FilePath& that) const {
-    return path_ == that.path_;
-  }
+  bool operator==(const FilePath& that) const;
 
-  bool operator!=(const FilePath& that) const {
-    return path_ != that.path_;
-  }
+  bool operator!=(const FilePath& that) const;
 
   // Required for some STL containers and operations
   bool operator<(const FilePath& that) const {

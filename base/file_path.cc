@@ -44,6 +44,28 @@ FilePath::StringType::size_type FindDriveLetter(
   return FilePath::StringType::npos;
 }
 
+
+#if defined(FILE_PATH_USES_DRIVE_LETTERS)
+bool EqualDriveLetterCaseInsensitive(const FilePath::StringType a,
+                                     const FilePath::StringType b) {
+  size_t a_letter_pos = FindDriveLetter(a);
+  size_t b_letter_pos = FindDriveLetter(b);
+
+  if ((a_letter_pos == FilePath::StringType::npos) ||
+      (b_letter_pos == FilePath::StringType::npos))
+    return a == b;
+
+  FilePath::StringType a_letter(a.substr(0, a_letter_pos + 1));
+  FilePath::StringType b_letter(b.substr(0, b_letter_pos + 1));
+  if (!StartsWith(a_letter, b_letter, false))
+    return false;
+
+  FilePath::StringType a_rest(a.substr(a_letter_pos + 1));
+  FilePath::StringType b_rest(b.substr(b_letter_pos + 1));
+  return a_rest == b_rest;
+}
+#endif  // defined(FILE_PATH_USES_DRIVE_LETTERS)
+
 bool IsPathAbsolute(const FilePath::StringType& path) {
 #if defined(FILE_PATH_USES_DRIVE_LETTERS)
   FilePath::StringType::size_type letter = FindDriveLetter(path);
@@ -120,6 +142,22 @@ void FilePath::GetComponents(std::vector<FilePath::StringType>* components)
                                                   ret_val.rend());
 }
 
+bool FilePath::operator==(const FilePath& that) const {
+#if defined(FILE_PATH_USES_DRIVE_LETTERS)
+  return EqualDriveLetterCaseInsensitive(this->path_, that.path_);
+#else  // defined(FILE_PATH_USES_DRIVE_LETTERS)
+  return path_ == that.path_;
+#endif  // defined(FILE_PATH_USES_DRIVE_LETTERS)
+}
+
+bool FilePath::operator!=(const FilePath& that) const {
+#if defined(FILE_PATH_USES_DRIVE_LETTERS)
+  return !EqualDriveLetterCaseInsensitive(this->path_, that.path_);
+#else  // defined(FILE_PATH_USES_DRIVE_LETTERS)
+  return path_ != that.path_;
+#endif  // defined(FILE_PATH_USES_DRIVE_LETTERS)
+}
+
 bool FilePath::IsParent(const FilePath& child) const {
   std::vector<FilePath::StringType> parent_components;
   std::vector<FilePath::StringType> child_components;
@@ -135,6 +173,20 @@ bool FilePath::IsParent(const FilePath& child) const {
       parent_components.begin();
   std::vector<FilePath::StringType>::const_iterator child_comp =
       child_components.begin();
+
+#if defined(FILE_PATH_USES_DRIVE_LETTERS)
+  // Windows can access case sensitive filesystems, so component
+  // comparisions must be case sensitive, but drive letters are
+  // never case sensitive.
+  if ((FindDriveLetter(*parent_comp) != FilePath::StringType::npos) &&
+      (FindDriveLetter(*child_comp) != FilePath::StringType::npos)) {
+    if (!StartsWith(*parent_comp, *child_comp, false))
+      return false;
+    ++parent_comp;
+    ++child_comp;
+  }
+#endif  // defined(FILE_PATH_USES_DRIVE_LETTERS)
+
   while (parent_comp != parent_components.end()) {
     if (*parent_comp != *child_comp)
       return false;
