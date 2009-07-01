@@ -2851,3 +2851,8 @@ BUG15710 : LayoutTests/fast/css/getComputedStyle/computed-style-font-family.html
 // WebKit 45381:45403 New tests
 BUG15710 : LayoutTests/compositing/overflow/overflow-scroll.html = TIMEOUT
 BUG15710 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridColumns-dom.html = TIMEOUT
+
+// Webkit 45403:45431
+BUG15733 : LayoutTests/compositing/layers-inside-overflow-scroll.html = ERROR
+BUG15733 : LayoutTests/compositing/repaint/content-into-overflow.html = ERROR
+BUG15733 : LayoutTests/compositing/repaint/overflow-into-content.html = ERROR
