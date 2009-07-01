@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -50,7 +50,7 @@
 //                                       "MemoryExperiment").data(), count);
 
 // The above code will create 3 distinct histograms, with each run of the
-// application being assigned to of of teh three groups, and for each group, the
+// application being assigned to of of the three groups, and for each group, the
 // correspondingly named histogram will be populated:
 
 // Memory.RendererTotal            // 96% of users still fill this histogram.
@@ -80,7 +80,9 @@ class FieldTrial : public base::RefCounted<FieldTrial> {
 
   // Provide an easy way to assign all remaining probability to a group.  Note
   // that this will force an instance to participate, and make it illegal to
-  // attempt to probabalistically add any other groups to the trial.
+  // attempt to probabalistically add any other groups to the trial.  When doing
+  // A/B tests with timings, it is often best to define all groups, so that
+  // histograms will get unique names via the MakeName() methods.
   static const Probability kAllRemainingProbability;
 
   // The name is used to register the instance with the FieldTrialList class,

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -36,10 +36,15 @@ FieldTrial::FieldTrial(const std::string& name,
 int FieldTrial::AppendGroup(const std::string& name,
                             Probability group_probability) {
   DCHECK(group_probability <= divisor_);
-  accumulated_group_probability_ += group_probability;
+  DCHECK(group_probability >=0 ||
+         group_probability == kAllRemainingProbability);
+  if (group_probability == kAllRemainingProbability)
+    accumulated_group_probability_ = divisor_;
+  else
+    accumulated_group_probability_ += group_probability;
   DCHECK(accumulated_group_probability_ <= divisor_);
   if (group_ == kNotParticipating && accumulated_group_probability_ > random_) {
-    // This is the group that crossed the random line, so we do teh assignment.
+    // This is the group that crossed the random line, so we do the assignment.
     group_ = next_group_number_;
     if (name.empty())
       StringAppendF(&group_name_, "_%d", group_);

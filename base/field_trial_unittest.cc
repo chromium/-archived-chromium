@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -67,6 +67,25 @@ TEST_F(FieldTrialTest, AbsoluteProbabilities) {
 
     EXPECT_NE(trial_false->group(), loser_group);
   }
+}
+
+TEST_F(FieldTrialTest, RemainingProbability) {
+  // First create a test that hasn't had a winner yet.
+  const std::string winner = "Winner";
+  const std::string loser = "Loser";
+  scoped_refptr<FieldTrial> trial;
+  int counter = 0;
+  do {
+    std::string name = StringPrintf("trial%d", ++counter);
+    trial = new FieldTrial(name, 10);
+    trial->AppendGroup(loser, 5);  // 50% chance of not being chosen.
+  } while (trial->group() != FieldTrial::kNotParticipating);
+
+  // Now add a winner with all remaining probability.
+  trial->AppendGroup(winner, FieldTrial::kAllRemainingProbability);
+
+  // And that winner should ALWAYS win.
+  EXPECT_EQ(winner, trial->group_name());
 }
 
 TEST_F(FieldTrialTest, MiddleProbabilities) {
