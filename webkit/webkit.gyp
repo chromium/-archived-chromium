@@ -523,7 +523,7 @@
           'action_name': 'UserAgentStyleSheets',
           'inputs': [
             '../third_party/WebKit/WebCore/css/make-css-file-arrays.pl',
-            '../third_party/WebKit/WebCore/css/html4.css',
+            '../third_party/WebKit/WebCore/css/html.css',
             '../third_party/WebKit/WebCore/css/quirks.css',
             '../third_party/WebKit/WebCore/css/view-source.css',
             '../third_party/WebKit/WebCore/css/themeChromiumLinux.css',
