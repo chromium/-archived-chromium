@@ -8,6 +8,7 @@
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/dock_info.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
+#include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -93,6 +94,8 @@ void TabOverviewDragController::Drag(const gfx::Point& location) {
     dragging_ = true;
     controller_->DragStarted();
     grid()->set_floating_index(current_index_);
+    UserMetrics::RecordAction(L"TabOverview_DragCell",
+                              original_model_->profile());
   }
   if (dragging_)
     DragCell(location);
@@ -107,6 +110,8 @@ void TabOverviewDragController::CommitDrag(const gfx::Point& location) {
     if (mouse_over_mini_window_) {
       // Dragged over a mini window, add as the last tab to the browser.
       Attach(model()->count());
+      UserMetrics::RecordAction(L"TabOverview_DropOnMiniWindow",
+                                original_model_->profile());
     } else {
       DropTab(location);
     }
@@ -333,6 +338,9 @@ void TabOverviewDragController::Detach(const gfx::Point& location) {
     // Already detached.
     return;
   }
+
+  UserMetrics::RecordAction(L"TabOverview_DetachCell",
+                            original_model_->profile());
 
   detached_window_ = CreateDetachedWindow(
       location, model()->GetTabContentsAt(current_index_));

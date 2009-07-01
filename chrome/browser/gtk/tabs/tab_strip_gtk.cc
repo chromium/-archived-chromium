@@ -26,6 +26,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
+#include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/views/tabs/tab_overview_types.h"
 #include "chrome/common/x11_util.h"
 #endif
@@ -1605,5 +1606,8 @@ void TabStripGtk::OnTabOverviewButtonClicked(GtkWidget* widget,
       static_cast<BrowserWindowGtk*>(browser->window())->GetNativeHandle());
   message.set_param(0, x11_util::GetX11WindowFromGtkWidget(browser_widget));
   TabOverviewTypes::instance()->SendMessage(message);
+
+  UserMetrics::RecordAction(L"TabOverview_PressedTabOverviewButton",
+                            tabstrip->model_->profile());
 }
 #endif

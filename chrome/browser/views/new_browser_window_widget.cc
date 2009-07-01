@@ -7,6 +7,7 @@
 #include "app/resource_bundle.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_window.h"
+#include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/views/tabs/tab_overview_types.h"
 #include "chrome/common/page_transition_types.h"
@@ -45,6 +46,9 @@ NewBrowserWindowWidget::~NewBrowserWindowWidget() {
 }
 
 void NewBrowserWindowWidget::ButtonPressed(views::Button* sender) {
+  UserMetrics::RecordAction(L"TabOverview_PressedCreateNewBrowserButton",
+                            profile_);
+
   Browser* browser = Browser::Create(profile_);
   browser->AddTabWithURL(GURL(), GURL(), PageTransition::START_PAGE,
                          true, -1, false, NULL);

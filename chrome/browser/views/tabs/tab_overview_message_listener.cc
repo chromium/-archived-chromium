@@ -7,6 +7,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
+#include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/views/new_browser_window_widget.h"
 #include "chrome/browser/views/tabs/tab_overview_controller.h"
 #include "chrome/common/x11_util.h"
@@ -82,8 +83,8 @@ void TabOverviewMessageListener::ProcessMessage(
       if (!over_mini_window)
         return;
 
-      // Not over a mini-window, make sure the controller is showing the
-      // contents of the browser the mouse is over.
+      // Over a mini-window, make sure the controller is showing the contents
+      // of the browser the mouse is over.
       BrowserWindowGtk* browser_window =
           BrowserWindowGtk::GetBrowserWindowForNativeWindow(
               BrowserWindowGtk::GetBrowserWindowForXID(message.param(0)));
@@ -97,6 +98,9 @@ void TabOverviewMessageListener::ProcessMessage(
       select_message.set_type(TabOverviewTypes::Message::WM_MOVE_FLOATING_TAB);
       select_message.set_param(0, message.param(1));
       TabOverviewTypes::instance()->SendMessage(select_message);
+
+      UserMetrics::RecordAction(L"TabOverview_DragOverMiniWindow",
+                                browser_window->browser()->profile());
     }
 
     default:
