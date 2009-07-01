@@ -200,6 +200,21 @@ TEST_F(PipelineImplTest, Seek) {
   EXPECT_TRUE(expected == filters_->video_renderer()->seek_time());
 }
 
+// Try to execute Start()/Stop() on the Pipeline many times and very fast. This
+// test is trying to simulate the situation where the pipeline can get dead
+// locked very easily by quickly calling Start()/Stop().
+TEST_F(PipelineImplTest, StressTestPipelineStartStop) {
+  media::old_mocks::MockFilterConfig config;
+  const int kTimes = 1000;
+  for (int i = 0; i < kTimes; ++i) {
+    scoped_refptr<media::old_mocks::MockFilterFactory> factory =
+        new media::old_mocks::MockFilterFactory(&config);
+    media::PipelineImpl pipeline;
+    pipeline.Start(factory.get(), "", NULL);
+    pipeline.Stop();
+  }
+}
+
 // TODO(ralphl): Add a unit test that makes sure that the mock audio filter
 // is actually called on a SetVolume() call to the pipeline.  I almost checked
 // in code that broke this, but all unit tests were passing.

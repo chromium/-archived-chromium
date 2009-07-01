@@ -161,8 +161,25 @@ class PipelineImpl : public Pipeline {
 
 
 // The PipelineThread contains most of the logic involved with running the
-// media pipeline.  Filters are created and called on a dedicated thread owned
-// by this object.
+// media pipeline. Filters are created and called on a dedicated thread owned
+// by this object. This object works like a state machine to perform
+// asynchronous initialization. Initialization is done in multiple passes in
+// StartTask(). In each pass a different filter is created and chained with a
+// previously created filter.
+//
+// Here's a state diagram that describes the lifetime of this object.
+//
+// [ *Created ] -> [ InitDataSource ] -> [ InitDemuxer ] ->
+// [ InitAudioDecoder ] -> [ InitAudioRenderer ] ->
+// [ InitVideoDecoder ] -> [ InitVideoRenderer ] -> [ Started ]
+//        |                    |                         |
+//        .-> [ Error ]        .->      [ Stopped ]    <-.
+//
+// Initialization is a series of state transitions from "Created" to
+// "Started". If any error happens during initialization, this object will
+// transition to the "Error" state from any state. If Stop() is called during
+// initialization, this object will transition to "Stopped" state.
+
 class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
                        public MessageLoop::DestructionObserver {
  public:
@@ -171,6 +188,9 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
   // pipeline thread.  For example, Seek posts a task to call SeekTask.
   explicit PipelineThread(PipelineImpl* pipeline);
 
+  // After Start() is called, a task of StartTask() is posted on the pipeline
+  // thread to perform initialization. See StartTask() to learn more about
+  // initialization.
   bool Start(FilterFactory* filter_factory,
              const std::string& url_media_source,
              PipelineCallback* init_complete_callback);
@@ -211,6 +231,19 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
   PlatformThreadId thread_id() const { return thread_.thread_id(); }
 
  private:
+  enum State {
+    kCreated,
+    kInitDataSource,
+    kInitDemuxer,
+    kInitAudioDecoder,
+    kInitAudioRenderer,
+    kInitVideoDecoder,
+    kInitVideoRenderer,
+    kStarted,
+    kStopped,
+    kError,
+  };
+
   // Implementation of MessageLoop::DestructionObserver.  StartTask registers
   // this class as a destruction observer on the thread's message loop.
   // It is used to destroy the list of FilterHosts
@@ -222,21 +255,32 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
   virtual ~PipelineThread();
 
   // Simple method used to make sure the pipeline is running normally.
-  bool PipelineOk() { return PIPELINE_OK == pipeline_->error_; }
+  bool IsPipelineOk() { return PIPELINE_OK == pipeline_->error_; }
+
+  // Helper method to tell whether we are in the state of initializing.
+  bool IsPipelineInitializing() {
+    return state_ == kInitDataSource ||
+           state_ == kInitDemuxer ||
+           state_ == kInitAudioDecoder ||
+           state_ == kInitAudioRenderer ||
+           state_ == kInitVideoDecoder ||
+           state_ == kInitVideoRenderer;
+  }
 
   // The following "task" methods correspond to the public methods, but these
   // methods are run as the result of posting a task to the PipelineThread's
-  // message loop.  For example, the Start method posts a task to call the
-  // StartTask message on the pipeline thread.
-  void StartTask(FilterFactory* filter_factory,
-                 const std::string& url,
-                 PipelineCallback* init_complete_callback);
+  // message loop.
+
+  // StartTask() is a special task that performs initialization in multiple
+  // passes. It is executed as a result of calling Start() or
+  // InitializationComplete() that advances initialization to the next state. It
+  // works as a hub of state transition for initialization.
+  void StartTask();
   void StopTask();
   void SetPlaybackRateTask(float rate);
   void SeekTask(base::TimeDelta time, PipelineCallback* seek_callback);
   void SetVolumeTask(float volume);
   void SetTimeTask();
-  void InitializationCompleteTask(FilterHostImpl* FilterHost);
 
   // Internal methods used in the implementation of the pipeline thread.  All
   // of these methods are only called on the pipeline thread.
@@ -244,36 +288,34 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
   // Calls the Stop method on every filter in the pipeline
   void StopFilters();
 
-  // The following template funcions make use of the fact that media filter
+  // The following template functions make use of the fact that media filter
   // derived interfaces are self-describing in the sense that they all contain
   // the static method filter_type() which returns a FilterType enum that
   // uniquely identifies the filter's interface.  In addition, filters that are
   // specific to audio or video also support a static method major_mime_type()
   // which returns a string of "audio/" or "video/".
-
+  //
   // Uses the FilterFactory to create a new filter of the Filter class, and
-  // initiaializes it using the Source object.  The source may be another filter
+  // initializes it using the Source object.  The source may be another filter
   // or it could be a string in the case of a DataSource.
   //
-  // The CreateFilter method actually does much more than simply creating the
+  // The CreateFilter() method actually does much more than simply creating the
   // filter.  It creates the FilterHostImpl object, creates the filter using
-  // the filter factory, calls the MediaFilter::SetHost method on the filter,
+  // the filter factory, calls the MediaFilter::SetHost() method on the filter,
   // and then calls the filter's type-specific Initialize(source) method to
-  // initialize the filter.  It then runs the thread's message loop and waits
-  // until one of the following occurs:
-  //  1. The filter calls FilterHost::InitializationComplete()
-  //  2. A filter calls FilterHost::Error()
-  //  3. The client calls Pipeline::Stop()
+  // initialize the filter.  If the required filter cannot be created,
+  // PIPELINE_ERROR_REQUIRED_FILTER_MISSING is raised, initialization is halted
+  // and this object will remain in the "Error" state.
   //
   // Callers can optionally use the returned Filter for further processing,
   // but since the call already placed the filter in the list of filter hosts,
   // callers can ignore the return value.  In any case, if this function can
-  // not create and initailze the speified Filter, then this method will return
-  // with |pipeline_->error_| != PIPELINE_OK.
+  // not create and initializes the specified Filter, then this method will
+  // return with |pipeline_->error_| != PIPELINE_OK.
   template <class Filter, class Source>
-  scoped_refptr<Filter> CreateFilter(FilterFactory* filter_factory,
-                                     Source source,
-                                     const MediaFormat& source_media_format);
+  void CreateFilter(FilterFactory* filter_factory,
+                    Source source,
+                    const MediaFormat& source_media_format);
 
   // Creates a Filter and initilizes it with the given |source|.  If a Filter
   // could not be created or an error occurred, this metod returns NULL and the
@@ -281,28 +323,30 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
   // the Source could be a filter or a DemuxerStream, but it must support the
   // GetMediaFormat() method.
   template <class Filter, class Source>
-  scoped_refptr<Filter> CreateFilter(FilterFactory* filter_factory,
-                                     Source* source) {
-    return CreateFilter<Filter, Source*>(filter_factory,
-                                         source,
-                                         source->media_format());
+  void CreateFilter(FilterFactory* filter_factory, Source* source) {
+    CreateFilter<Filter, Source*>(filter_factory,
+                                  source,
+                                  source->media_format());
   }
 
-  // Creates a DataSource (the first filter in a pipeline), and initializes it
-  // with the specified URL.
-  scoped_refptr<DataSource> CreateDataSource(FilterFactory* filter_factory,
-                                             const std::string& url);
+  // Creates a DataSource (the first filter in a pipeline).
+  void CreateDataSource();
 
-  // If the |demuxer| contains a stream that matches Decoder::major_media_type()
-  // this method creates and initializes the specified Decoder and Renderer.
-  // Callers should examine the |pipeline_->error_| member to see if there was
-  // an error duing the call.  The lack of the specified stream does not
-  // constitute an error, and no Decoder or Renderer will be created if the
-  // data stream does not exist in the |demuxer|.  If a stream is rendered, then
-  // this method will call |pipeline_|->InsertRenderedMimeType() to add the
-  // mime type to the set of rendered major mime types for the pipeline.
+  // Creates a Demuxer.
+  void CreateDemuxer();
+
+  // Creates a decoder of type Decoder. Returns true if the asynchronous action
+  // of creating decoder has started. Returns false if this method did nothing
+  // because the corresponding audio/video stream does not exist.
+  template <class Decoder>
+  bool CreateDecoder();
+
+  // Creates a renderer of type Renderer and connects it with Decoder. Returns
+  // true if the asynchronous action of creating renderer has started. Returns
+  // false if this method did nothing because the corresponding audio/video
+  // stream does not exist.
   template <class Decoder, class Renderer>
-  void Render(FilterFactory* filter_factory, Demuxer* demuxer);
+  bool CreateRenderer();
 
   // Examine the list of existing filters to find one that supports the
   // specified Filter interface. If one exists, the |filter_out| will contain
@@ -321,13 +365,17 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
   // loop's queue.
   bool time_update_callback_scheduled_;
 
-  // During initialization of a filter, this member points to the FilterHostImpl
-  // that is being initialized.
-  FilterHostImpl* host_initializing_;
+  // Member that tracks the current state.
+  State state_;
 
-  // This lock is held through the entire StartTask method to prevent the
-  // Stop method from quitting the nested message loop of the StartTask method.
-  Lock initialization_lock_;
+  // Filter factory as passed in by Start().
+  scoped_refptr<FilterFactory> filter_factory_;
+
+  // URL for the data source as passed in by Start().
+  std::string url_;
+
+  // Initialization callback as passed in by Start().
+  scoped_ptr<PipelineCallback> init_callback_;
 
   // Vector of FilterHostImpl objects that contian the filters for the pipeline.
   typedef std::vector<FilterHostImpl*> FilterHostVector;
