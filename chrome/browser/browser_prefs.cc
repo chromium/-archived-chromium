@@ -9,6 +9,7 @@
 #include "chrome/browser/blocked_popup_container.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_shutdown.h"
+#include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/external_protocol_handler.h"
@@ -64,6 +65,7 @@ void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state) {
   TemplateURLPrepopulateData::RegisterUserPrefs(user_prefs);
   NewTabUI::RegisterUserPrefs(user_prefs);
   BlockedPopupContainer::RegisterUserPrefs(user_prefs);
+  DevToolsManager::RegisterUserPrefs(user_prefs);
 }
 
 }  // namespace browser

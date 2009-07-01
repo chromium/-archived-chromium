@@ -14,9 +14,9 @@
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
-#include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/common/bindings_policy.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
@@ -44,7 +44,8 @@ class FloatingWindow : public DevToolsWindow,
   DISALLOW_COPY_AND_ASSIGN(FloatingWindow);
 };
 
-class DockedWindow : public DevToolsWindow {
+class DockedWindow : public DevToolsWindow,
+                            TabContentsDelegate {
  public:
   DockedWindow(Profile* profile, BrowserWindow* window);
   virtual ~DockedWindow();
@@ -52,6 +53,27 @@ class DockedWindow : public DevToolsWindow {
   virtual void InspectedTabClosing();
 
  private:
+  // Overridden from TabContentsDelegate:
+  virtual void OpenURLFromTab(TabContents* source,
+                              const GURL& url,
+                              const GURL& referrer,
+                              WindowOpenDisposition disposition,
+                              PageTransition::Type transition) {}
+  virtual void NavigationStateChanged(const TabContents* source,
+                                      unsigned changed_flags) {}
+  virtual void AddNewContents(TabContents* source,
+                              TabContents* new_contents,
+                              WindowOpenDisposition disposition,
+                              const gfx::Rect& initial_pos,
+                              bool user_gesture) {}
+  virtual void ActivateContents(TabContents* contents) {}
+  virtual void LoadingStateChanged(TabContents* source) {}
+  virtual void CloseContents(TabContents* source) {}
+  virtual void MoveContents(TabContents* source, const gfx::Rect& pos) {}
+  virtual bool IsPopup(TabContents* source) { return false; }
+  virtual void URLStarredChanged(TabContents* source, bool starred) {}
+  virtual void UpdateTargetURL(TabContents* source, const GURL& url) {}
+  virtual void ToolbarSizeChanged(TabContents* source, bool is_animating) {}
 
   BrowserWindow* window_;
   DISALLOW_COPY_AND_ASSIGN(DockedWindow);
@@ -71,6 +93,25 @@ DevToolsWindow* DevToolsWindow::CreateDevToolsWindow(
     }
   }
   return new FloatingWindow(profile);
+}
+
+// static
+TabContents* DevToolsWindow::GetDevToolsContents(TabContents* inspected_tab) {
+  if (!inspected_tab) {
+    return NULL;
+  }
+  DevToolsClientHost* client_host =
+      DevToolsManager::GetInstance()->
+          GetDevToolsClientHostFor(inspected_tab->render_view_host());
+  if (!client_host) {
+    return NULL;
+  }
+
+  DevToolsWindow* window = client_host->AsDevToolsWindow();
+  if (!window || !window->is_docked()) {
+    return NULL;
+  }
+  return window->tab_contents();
 }
 
 DevToolsWindow::DevToolsWindow(bool docked)
@@ -207,6 +248,7 @@ DockedWindow::DockedWindow(Profile* profile, BrowserWindow* window)
   tab_contents->render_view_host()->AllowBindings(BindingsPolicy::DOM_UI);
   tab_contents->controller().LoadURL(GetContentsUrl(), GURL(),
                                       PageTransition::START_PAGE);
+  tab_contents->set_delegate(this);
   browser_ = NULL;
   InitTabContents(tab_contents);
 }
@@ -215,18 +257,11 @@ DockedWindow::~DockedWindow() {
 }
 
 void DockedWindow::Show() {
-  //TODO(pfeldman): Add SetDevToolsVisible to BrowserWindow API.
-//#ifdef OS_WIN
-//  BrowserView* browser_view = static_cast<BrowserView*>(window_);
-//  browser_view->UpdateDevTools();
-//  tab_contents_->view()->SetInitialFocus();
-//#endif
+  window_->UpdateDevTools();
+  tab_contents_->view()->SetInitialFocus();
 }
 
 void DockedWindow::InspectedTabClosing() {
-//#ifdef OS_WIN
-//  BrowserView* browser_view = static_cast<BrowserView*>(window_);
-//  browser_view->UpdateDevTools();
-//#endif
-//  delete this;
+  window_->UpdateDevTools();
+  delete this;
 }

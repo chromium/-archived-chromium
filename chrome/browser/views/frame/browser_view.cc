@@ -641,6 +641,10 @@ void BrowserView::UpdateTitleBar() {
     frame_->GetWindow()->UpdateWindowIcon();
 }
 
+void BrowserView::UpdateDevTools() {
+  NOTIMPLEMENTED();
+}
+
 void BrowserView::UpdateLoadingAnimations(bool should_animate) {
   if (should_animate) {
     if (!loading_animation_timer_.IsRunning()) {

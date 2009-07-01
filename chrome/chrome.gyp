@@ -2114,8 +2114,6 @@
         'browser/debugger/devtools_remote_message.h',
         'browser/debugger/devtools_remote_service.cc',
         'browser/debugger/devtools_remote_service.h',
-        'browser/debugger/devtools_container.cc',
-        'browser/debugger/devtools_container.h',
         'browser/debugger/devtools_window.cc',
         'browser/debugger/devtools_window.h',
         'browser/debugger/inspectable_tab_proxy.cc',

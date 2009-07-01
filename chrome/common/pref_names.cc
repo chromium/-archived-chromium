@@ -543,4 +543,10 @@ const wchar_t kNTPTipsServer[] = L"ntp.web_resource_server";
 // 8 - Show recommendations
 const wchar_t kNTPShownSections[] = L"ntp.shown_sections";
 
+// A boolean specifying whether dev tools window should be opened docked.
+const wchar_t kDevToolsOpenDocked[] = L"devtools.open_docked";
+
+// Integer location of the split bar in the browser view.
+const wchar_t kDevToolsSplitLocation[] = L"devtools.split_location";
+
 }  // namespace prefs

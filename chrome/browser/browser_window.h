@@ -77,6 +77,10 @@ class BrowserWindow {
   // frames may need to refresh their title bar.
   virtual void UpdateTitleBar() = 0;
 
+  // Inform the frame that the dev tools window for the selected tab has
+  // changed.
+  virtual void UpdateDevTools() = 0;
+
   // Update any loading animations running in the window. |should_animate| is
   // true if there are tabs loading and the animations should continue, false
   // if there are no active loads and the animations should end.

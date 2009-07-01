@@ -15,6 +15,7 @@ class Message;
 }
 
 class GURL;
+class PrefService;
 class RenderViewHost;
 
 // This class is a singleton that manages DevToolsClientHost instances and
@@ -23,6 +24,8 @@ class DevToolsManager : public DevToolsClientHost::CloseListener,
                         public base::RefCounted<DevToolsManager> {
  public:
   static DevToolsManager* GetInstance();
+
+  static void RegisterUserPrefs(PrefService* prefs);
 
   DevToolsManager();
   virtual ~DevToolsManager();
@@ -48,7 +51,7 @@ class DevToolsManager : public DevToolsClientHost::CloseListener,
   void DockWindow(RenderViewHost* client_rvn);
   void UndockWindow(RenderViewHost* client_rvn);
 
-  void OpenDevToolsWindow(RenderViewHost* inspected_rvh, bool docked = false);
+  void OpenDevToolsWindow(RenderViewHost* inspected_rvh);
 
   // Starts element inspection in the devtools client.
   // Creates one by means of OpenDevToolsWindow if no client

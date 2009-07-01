@@ -22,6 +22,11 @@ DevToolsManager* DevToolsManager::GetInstance() {
   return g_browser_process->devtools_manager();
 }
 
+// static
+void DevToolsManager::RegisterUserPrefs(PrefService* prefs) {
+  prefs->RegisterBooleanPref(prefs::kDevToolsOpenDocked, false);
+}
+
 DevToolsManager::DevToolsManager()
     : inspected_rvh_for_reopen_(NULL),
       in_initial_show_(false) {
@@ -108,10 +113,11 @@ void DevToolsManager::UndockWindow(RenderViewHost* client_rvh) {
   ReopenWindow(client_rvh, false);
 }
 
-void DevToolsManager::OpenDevToolsWindow(RenderViewHost* inspected_rvh,
-                                         bool docked) {
+void DevToolsManager::OpenDevToolsWindow(RenderViewHost* inspected_rvh) {
   DevToolsClientHost* host = GetDevToolsClientHostFor(inspected_rvh);
   if (!host) {
+    bool docked = inspected_rvh->process()->profile()->GetPrefs()->
+        GetBoolean(prefs::kDevToolsOpenDocked);
     host = DevToolsWindow::CreateDevToolsWindow(
         inspected_rvh->site_instance()->browsing_instance()->profile(),
         inspected_rvh,
@@ -254,14 +260,18 @@ void DevToolsManager::ReopenWindow(RenderViewHost* client_rvh, bool docked) {
   if (!client_host) {
     return;
   }
+  RenderViewHost* inspected_rvh = GetInspectedRenderViewHost(client_host);
+  DCHECK(inspected_rvh);
+  inspected_rvh->process()->profile()->GetPrefs()->SetBoolean(
+      prefs::kDevToolsOpenDocked, docked);
+
   DevToolsWindow* window = client_host->AsDevToolsWindow();
   DCHECK(window);
   if (window->is_docked() == docked) {
     return;
   }
-  RenderViewHost* inspected_rvh = GetInspectedRenderViewHost(client_host);
-  DCHECK(inspected_rvh);
+
   SendDetachToAgent(inspected_rvh);
   UnregisterDevToolsClientHostFor(inspected_rvh);
-  OpenDevToolsWindow(inspected_rvh, docked);
+  OpenDevToolsWindow(inspected_rvh);
 }

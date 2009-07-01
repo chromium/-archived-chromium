@@ -100,6 +100,10 @@ void BrowserWindowCocoa::UpdateTitleBar() {
   [window_ setMiniwindowTitle:newTitle];
 }
 
+void BrowserWindowCocoa::UpdateDevTools() {
+  NOTIMPLEMENTED();
+}
+
 void BrowserWindowCocoa::UpdateLoadingAnimations(bool should_animate) {
   [controller_ updateLoadingAnimations:should_animate ? YES : NO];
 }

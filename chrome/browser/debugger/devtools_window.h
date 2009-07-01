@@ -27,6 +27,9 @@ class DevToolsWindow : public DevToolsClientHost, public NotificationObserver {
   static DevToolsWindow* CreateDevToolsWindow(Profile* profile,
                                               RenderViewHost* inspected_rvh,
                                               bool docked);
+
+  static TabContents* GetDevToolsContents(TabContents* inspected_tab);
+
   virtual ~DevToolsWindow();
   virtual void Show() = 0;
   bool is_docked() { return docked_; };

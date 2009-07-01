@@ -197,6 +197,9 @@ extern const wchar_t kNTPTipsCache[];
 extern const wchar_t kNTPTipsCacheUpdate[];
 extern const wchar_t kNTPTipsServer[];
 extern const wchar_t kNTPShownSections[];
+
+extern const wchar_t kDevToolsOpenDocked[];
+extern const wchar_t kDevToolsSplitLocation[];
 }
 
 #endif  // CHROME_COMMON_PREF_NAMES_H_
