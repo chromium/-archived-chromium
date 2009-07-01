@@ -99,6 +99,6 @@ deps = {
 deps_os = {
   "win": {
     "o3d/third_party/python_24":
-      Var("chromium_trunk") + "/deps/third_party/python_24@7444",
+      Var("chromium_trunk") + "/deps/third_party/python_24@19441",
   },
 }
