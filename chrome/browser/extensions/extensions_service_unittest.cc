@@ -521,11 +521,13 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
   const UserScriptList& scripts = extension->content_scripts();
   const std::vector<std::string>& toolstrips = extension->toolstrips();
   ASSERT_EQ(2u, scripts.size());
-  EXPECT_EQ(2u, scripts[0].url_patterns().size());
-  EXPECT_EQ("http://*.google.com/*",
+  EXPECT_EQ(3u, scripts[0].url_patterns().size());
+  EXPECT_EQ("file://*",
             scripts[0].url_patterns()[0].GetAsString());
-  EXPECT_EQ("https://*.google.com/*",
+  EXPECT_EQ("http://*.google.com/*",
             scripts[0].url_patterns()[1].GetAsString());
+  EXPECT_EQ("https://*.google.com/*",
+            scripts[0].url_patterns()[2].GetAsString());
   EXPECT_EQ(2u, scripts[0].js_scripts().size());
   EXPECT_EQ(
       NormalizeSeperators(extension->path().AppendASCII("script1.js").value()),
@@ -1389,10 +1391,41 @@ TEST_F(ExtensionsServiceTest, ExternalPrefProvider) {
   EXPECT_EQ(1, visitor.Visit(json_data, ignore_list));
 }
 
+class ExtensionsReadyRecorder : public NotificationObserver {
+ public:
+  ExtensionsReadyRecorder() : ready_(false) {
+    registrar_.Add(this, NotificationType::EXTENSIONS_READY,
+                   NotificationService::AllSources());
+  }
+
+  void set_ready(bool value) { ready_ = value; }
+  bool ready() { return ready_; }
+
+ private:
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details) {
+    switch (type.value) {
+      case NotificationType::EXTENSIONS_READY:
+        ready_ = true;
+        break;
+      default:
+        NOTREACHED();
+    }
+  }
+
+  NotificationRegistrar registrar_;
+  bool ready_;
+};
+
 // Test that we get enabled/disabled correctly for all the pref/command-line
 // combinations. We don't want to derive from the ExtensionsServiceTest class
 // for this test, so we use ExtensionsServiceTestSimple.
+//
+// Also tests that we always fire EXTENSIONS_READY, no matter whether we are
+// enabled or not.
 TEST(ExtensionsServiceTestSimple, Enabledness) {
+  ExtensionsReadyRecorder recorder;
   TestingProfile profile;
   MessageLoop loop;
   scoped_ptr<CommandLine> command_line;
@@ -1405,20 +1438,35 @@ TEST(ExtensionsServiceTestSimple, Enabledness) {
   service = new ExtensionsService(&profile, command_line.get(),
       profile.GetPrefs(), install_dir, &loop, &loop);
   EXPECT_FALSE(service->extensions_enabled());
+  service->Init();
+  loop.RunAllPending();
+  EXPECT_TRUE(recorder.ready());
 
   // If either the command line or pref is set, we are enabled.
+  recorder.set_ready(false);
   command_line->AppendSwitch(switches::kEnableExtensions);
   service = new ExtensionsService(&profile, command_line.get(),
       profile.GetPrefs(), install_dir, &loop, &loop);
   EXPECT_TRUE(service->extensions_enabled());
+  service->Init();
+  loop.RunAllPending();
+  EXPECT_TRUE(recorder.ready());
 
+  recorder.set_ready(false);
   profile.GetPrefs()->SetBoolean(prefs::kEnableExtensions, true);
   service = new ExtensionsService(&profile, command_line.get(),
       profile.GetPrefs(), install_dir, &loop, &loop);
   EXPECT_TRUE(service->extensions_enabled());
+  service->Init();
+  loop.RunAllPending();
+  EXPECT_TRUE(recorder.ready());
 
+  recorder.set_ready(false);
   command_line.reset(new CommandLine(L""));
   service = new ExtensionsService(&profile, command_line.get(),
       profile.GetPrefs(), install_dir, &loop, &loop);
   EXPECT_TRUE(service->extensions_enabled());
+  service->Init();
+  loop.RunAllPending();
+  EXPECT_TRUE(recorder.ready());
 }

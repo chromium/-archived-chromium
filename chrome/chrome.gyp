@@ -24,6 +24,7 @@
     ],
     'browser_tests_sources_win_specific': [
       'browser/extensions/extension_shelf_model_unittest.cc',
+      'browser/extensions/extension_startup_unittest.cc',
       'browser/extensions/extension_browsertest.cc',
       'browser/extensions/test_extension_loader.cc',
       'browser/extensions/test_extension_loader.h',
