@@ -8,47 +8,55 @@
 #include <string>
 
 #include "base/basictypes.h"
-#include "base/scoped_ptr.h"
 #include "chrome/browser/debugger/devtools_client_host.h"
-#include "chrome/browser/tabs/tab_strip_model.h"
+#include "chrome/common/notification_registrar.h"
+#include "chrome/common/notification_service.h"
 
 namespace IPC {
 class Message;
 }
 
 class Browser;
+class BrowserWindow;
 class Profile;
 class RenderViewHost;
 class TabContents;
 
-class DevToolsWindow : public DevToolsClientHost,
-                              TabStripModelObserver {
+class DevToolsWindow : public DevToolsClientHost, public NotificationObserver {
  public:
-  // Factory method for creating platform specific devtools windows.
-  DevToolsWindow(Profile* profile);
+  static DevToolsWindow* CreateDevToolsWindow(Profile* profile,
+                                              RenderViewHost* inspected_rvh,
+                                              bool docked);
   virtual ~DevToolsWindow();
-
-  // Show this window.
-  void Show();
-
-  RenderViewHost* GetRenderViewHost() const;
+  virtual void Show() = 0;
+  bool is_docked() { return docked_; };
+  RenderViewHost* GetRenderViewHost();
 
   // DevToolsClientHost override.
   virtual DevToolsWindow* AsDevToolsWindow();
-  virtual void InspectedTabClosing();
   virtual void SendMessageToClient(const IPC::Message& message);
 
-  // TabStripModelObserver implementation
-  virtual void TabClosingAt(TabContents* contents, int index);
-  virtual void TabStripEmpty();
+  // NotificationObserver override.
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
 
+  TabContents* tab_contents() { return tab_contents_; }
   Browser* browser() { return browser_; }
 
- private:
-  Browser* browser_;
+ protected:
+  DevToolsWindow(bool docked);
+  GURL GetContentsUrl();
+  void InitTabContents(TabContents* tab_contents);
+
   TabContents* tab_contents_;
-  std::string inspected_url_;
-  bool inspected_tab_closing_;
+  Browser* browser_;
+
+ private:
+  static BrowserWindow* GetBrowserWindow(RenderViewHost* rvh);
+  NotificationRegistrar registrar_;
+
+  bool docked_;
   DISALLOW_COPY_AND_ASSIGN(DevToolsWindow);
 };
 

@@ -515,9 +515,14 @@ class RenderViewHost : public RenderWidgetHost {
   void OnAddMessageToConsole(const std::wstring& message,
                              int32 line_no,
                              const std::wstring& source_id);
+
   void OnUpdateInspectorSettings(const std::wstring& raw_settings);
   void OnForwardToDevToolsAgent(const IPC::Message& message);
   void OnForwardToDevToolsClient(const IPC::Message& message);
+  void OnCloseDevToolsWindow();
+  void OnDockDevToolsWindow();
+  void OnUndockDevToolsWindow();
+
   void OnUserMetricsRecordAction(const std::wstring& action);
   void OnMissingPluginStatus(int status);
   void OnMessageReceived(IPC::Message* msg) { }

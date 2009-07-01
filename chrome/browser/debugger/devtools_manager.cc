@@ -11,6 +11,7 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/site_instance.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/devtools_messages.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -56,18 +57,9 @@ void DevToolsManager::RegisterDevToolsClientHostFor(
 void DevToolsManager::ForwardToDevToolsAgent(
     RenderViewHost* client_rvh,
     const IPC::Message& message) {
-    for (InspectedRvhToClientHostMap::iterator it =
-             inspected_rvh_to_client_host_.begin();
-         it != inspected_rvh_to_client_host_.end();
-         ++it) {
-    DevToolsWindow* win = it->second->AsDevToolsWindow();
-    if (!win) {
-      continue;
-    }
-    if (client_rvh == win->GetRenderViewHost()) {
-      ForwardToDevToolsAgent(win, message);
-      return;
-    }
+  DevToolsClientHost* client_host = FindOnwerDevToolsClientHost(client_rvh);
+  if (client_host) {
+    ForwardToDevToolsAgent(client_host, message);
   }
 }
 
@@ -96,11 +88,34 @@ void DevToolsManager::ForwardToDevToolsClient(RenderViewHost* inspected_rvh,
   client_host->SendMessageToClient(message);
 }
 
-void DevToolsManager::OpenDevToolsWindow(RenderViewHost* inspected_rvh) {
+void DevToolsManager::CloseWindow(RenderViewHost* client_rvh) {
+  DevToolsClientHost* client_host = FindOnwerDevToolsClientHost(client_rvh);
+  if (!client_host) {
+    return;
+  }
+  RenderViewHost* inspected_rvh = GetInspectedRenderViewHost(client_host);
+  DCHECK(inspected_rvh);
+  SendDetachToAgent(inspected_rvh);
+
+  UnregisterDevToolsClientHostFor(inspected_rvh);
+}
+
+void DevToolsManager::DockWindow(RenderViewHost* client_rvh) {
+  ReopenWindow(client_rvh, true);
+}
+
+void DevToolsManager::UndockWindow(RenderViewHost* client_rvh) {
+  ReopenWindow(client_rvh, false);
+}
+
+void DevToolsManager::OpenDevToolsWindow(RenderViewHost* inspected_rvh,
+                                         bool docked) {
   DevToolsClientHost* host = GetDevToolsClientHostFor(inspected_rvh);
   if (!host) {
-    host = new DevToolsWindow(
-        inspected_rvh->site_instance()->browsing_instance()->profile());
+    host = DevToolsWindow::CreateDevToolsWindow(
+        inspected_rvh->site_instance()->browsing_instance()->profile(),
+        inspected_rvh,
+        docked);
     RegisterDevToolsClientHostFor(inspected_rvh, host);
   }
   DevToolsWindow* window = host->AsDevToolsWindow();
@@ -147,12 +162,14 @@ void DevToolsManager::UnregisterDevToolsClientHostFor(
   if (!host) {
     return;
   }
-  host->InspectedTabClosing();
   inspected_rvh_to_client_host_.erase(inspected_rvh);
   client_host_to_inspected_rvh_.erase(host);
   if (inspected_rvh_for_reopen_ == inspected_rvh) {
     inspected_rvh_for_reopen_ = NULL;
   }
+
+  // Issue tab closing event post unbound.
+  host->InspectedTabClosing();
 }
 
 void DevToolsManager::OnNavigatingToPendingEntry(RenderViewHost* rvh,
@@ -213,4 +230,38 @@ void DevToolsManager::ForceReopenWindow() {
     UnregisterDevToolsClientHostFor(inspected_rvn);
     OpenDevToolsWindow(inspected_rvn);
   }
+}
+
+DevToolsClientHost* DevToolsManager::FindOnwerDevToolsClientHost(
+    RenderViewHost* client_rvh) {
+  for (InspectedRvhToClientHostMap::iterator it =
+           inspected_rvh_to_client_host_.begin();
+       it != inspected_rvh_to_client_host_.end();
+       ++it) {
+    DevToolsWindow* win = it->second->AsDevToolsWindow();
+    if (!win) {
+      continue;
+    }
+    if (client_rvh == win->GetRenderViewHost()) {
+      return it->second;
+    }
+  }
+  return NULL;
+}
+
+void DevToolsManager::ReopenWindow(RenderViewHost* client_rvh, bool docked) {
+  DevToolsClientHost* client_host = FindOnwerDevToolsClientHost(client_rvh);
+  if (!client_host) {
+    return;
+  }
+  DevToolsWindow* window = client_host->AsDevToolsWindow();
+  DCHECK(window);
+  if (window->is_docked() == docked) {
+    return;
+  }
+  RenderViewHost* inspected_rvh = GetInspectedRenderViewHost(client_host);
+  DCHECK(inspected_rvh);
+  SendDetachToAgent(inspected_rvh);
+  UnregisterDevToolsClientHostFor(inspected_rvh);
+  OpenDevToolsWindow(inspected_rvh, docked);
 }

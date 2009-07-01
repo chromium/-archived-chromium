@@ -37,7 +37,11 @@ class DevToolsClient : public WebDevToolsClientDelegate {
                                   const std::string& method_name,
                                   const std::string& raw_msg);
   virtual void SendDebuggerCommandToAgent(const std::string& command);
+
   virtual void ActivateWindow();
+  virtual void CloseWindow();
+  virtual void DockWindow();
+  virtual void UndockWindow();
 
  private:
   void OnRpcMessage(const std::string& class_name,

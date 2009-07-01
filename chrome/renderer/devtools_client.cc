@@ -51,6 +51,21 @@ void DevToolsClient::ActivateWindow() {
   render_view_->TakeFocus(render_view_->webview(), false);
 }
 
+void DevToolsClient::CloseWindow() {
+  render_view_->Send(new ViewHostMsg_CloseDevToolsWindow(
+      render_view_->routing_id()));
+}
+
+void DevToolsClient::DockWindow() {
+  render_view_->Send(new ViewHostMsg_DockDevToolsWindow(
+      render_view_->routing_id()));
+}
+
+void DevToolsClient::UndockWindow() {
+  render_view_->Send(new ViewHostMsg_UndockDevToolsWindow(
+      render_view_->routing_id()));
+}
+
 void DevToolsClient::OnRpcMessage(const std::string& class_name,
                                   const std::string& method_name,
                                   const std::string& raw_msg) {

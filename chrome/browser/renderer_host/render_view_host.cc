@@ -733,6 +733,12 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
                         OnForwardToDevToolsAgent);
     IPC_MESSAGE_HANDLER(ViewHostMsg_ForwardToDevToolsClient,
                         OnForwardToDevToolsClient);
+    IPC_MESSAGE_HANDLER(ViewHostMsg_CloseDevToolsWindow,
+                        OnCloseDevToolsWindow);
+    IPC_MESSAGE_HANDLER(ViewHostMsg_DockDevToolsWindow,
+                        OnDockDevToolsWindow);
+    IPC_MESSAGE_HANDLER(ViewHostMsg_UndockDevToolsWindow,
+                        OnUndockDevToolsWindow);
     IPC_MESSAGE_HANDLER(ViewHostMsg_UserMetricsRecordAction,
                         OnUserMetricsRecordAction)
     IPC_MESSAGE_HANDLER(ViewHostMsg_MissingPluginStatus, OnMissingPluginStatus);
@@ -1202,6 +1208,18 @@ void RenderViewHost::OnForwardToDevToolsAgent(const IPC::Message& message) {
 
 void RenderViewHost::OnForwardToDevToolsClient(const IPC::Message& message) {
   DevToolsManager::GetInstance()->ForwardToDevToolsClient(this, message);
+}
+
+void RenderViewHost::OnCloseDevToolsWindow() {
+  DevToolsManager::GetInstance()->CloseWindow(this);
+}
+
+void RenderViewHost::OnDockDevToolsWindow() {
+  DevToolsManager::GetInstance()->DockWindow(this);
+}
+
+void RenderViewHost::OnUndockDevToolsWindow() {
+  DevToolsManager::GetInstance()->UndockWindow(this);
 }
 
 void RenderViewHost::OnUserMetricsRecordAction(const std::wstring& action) {

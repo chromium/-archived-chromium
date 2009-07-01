@@ -38,12 +38,6 @@ function devtools$$dispatch(functionName, json_args) {
  */
 var dispatch = function(method, var_args) {
   // Handle all messages with non-primitieve arguments here.
-  if (method == 'inspectedWindowCleared' ||
-      // TODO(pfeldman): move this code from injected dispatch
-      // to the client dispatch.
-      method == 'reset') {
-    return;
-  }
   var args = Array.prototype.slice.call(arguments);
 
   // Serialize objects here.

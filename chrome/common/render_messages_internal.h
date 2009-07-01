@@ -1092,9 +1092,14 @@ IPC_BEGIN_MESSAGES(ViewHost)
   IPC_MESSAGE_ROUTED1(ViewHostMsg_ForwardToDevToolsAgent,
                       IPC::Message /* one of DevToolsAgentMsg_XXX types */)
 
-  IPC_MESSAGE_ROUTED2(ViewHostMsg_ToolsAgentMsg,
-                      int, /* tools msg type */
-                      std::wstring  /* body */)
+  // Closes dev tools window that is inspecting current render_view_host.
+  IPC_MESSAGE_ROUTED0(ViewHostMsg_CloseDevToolsWindow)
+
+  // Attaches dev tools window that is inspecting current render_view_host.
+  IPC_MESSAGE_ROUTED0(ViewHostMsg_DockDevToolsWindow)
+
+  // Detaches dev tools window that is inspecting current render_view_host.
+  IPC_MESSAGE_ROUTED0(ViewHostMsg_UndockDevToolsWindow)
 
   // Send back a string to be recorded by UserMetrics.
   IPC_MESSAGE_ROUTED1(ViewHostMsg_UserMetricsRecordAction,

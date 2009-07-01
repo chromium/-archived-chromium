@@ -61,8 +61,12 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
   static v8::Handle<v8::Value> JsAddResourceSourceToFrame(
       const v8::Arguments& args);
   static v8::Handle<v8::Value> JsLoaded(const v8::Arguments& args);
-  static v8::Handle<v8::Value> JsActivateWindow(const v8::Arguments& args);
   static v8::Handle<v8::Value> JsGetPlatform(const v8::Arguments& args);
+
+  static v8::Handle<v8::Value> JsActivateWindow(const v8::Arguments& args);
+  static v8::Handle<v8::Value> JsCloseWindow(const v8::Arguments& args);
+  static v8::Handle<v8::Value> JsDockWindow(const v8::Arguments& args);
+  static v8::Handle<v8::Value> JsUndockWindow(const v8::Arguments& args);
 
   WebViewImpl* web_view_impl_;
   WebDevToolsClientDelegate* delegate_;

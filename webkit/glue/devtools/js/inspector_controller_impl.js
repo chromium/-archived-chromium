@@ -28,6 +28,30 @@ devtools.InspectorController.prototype.platform = function() {
 /**
  * {@inheritDoc}.
  */
+devtools.InspectorController.prototype.closeWindow = function() {
+  DevToolsHost.closeWindow();
+};
+
+
+/**
+ * {@inheritDoc}.
+ */
+devtools.InspectorController.prototype.attach = function() {
+  DevToolsHost.dockWindow();
+};
+
+
+/**
+ * {@inheritDoc}.
+ */
+devtools.InspectorController.prototype.detach = function() {
+  DevToolsHost.undockWindow();
+};
+
+
+/**
+ * {@inheritDoc}.
+ */
 devtools.InspectorController.prototype.clearMessages = function() {
   RemoteToolsAgent.ClearConsoleMessages();
 };

@@ -17,7 +17,11 @@ class WebDevToolsClientDelegate {
                                   const std::string& method_name,
                                   const std::string& raw_msg) = 0;
   virtual void SendDebuggerCommandToAgent(const std::string& command) = 0;
+
   virtual void ActivateWindow() = 0;
+  virtual void CloseWindow() = 0;
+  virtual void DockWindow() = 0;
+  virtual void UndockWindow() = 0;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsClientDelegate);

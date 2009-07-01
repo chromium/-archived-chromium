@@ -167,11 +167,20 @@ WebDevToolsClientImpl::WebDevToolsClientImpl(
       "search",
       WebCore::V8Custom::v8InspectorControllerSearchCallback);
   dev_tools_host_->AddProtoFunction(
+      "getPlatform",
+      WebDevToolsClientImpl::JsGetPlatform);
+  dev_tools_host_->AddProtoFunction(
       "activateWindow",
       WebDevToolsClientImpl::JsActivateWindow);
   dev_tools_host_->AddProtoFunction(
-      "getPlatform",
-      WebDevToolsClientImpl::JsGetPlatform);
+      "closeWindow",
+      WebDevToolsClientImpl::JsCloseWindow);
+  dev_tools_host_->AddProtoFunction(
+      "dockWindow",
+      WebDevToolsClientImpl::JsDockWindow);
+  dev_tools_host_->AddProtoFunction(
+      "undockWindow",
+      WebDevToolsClientImpl::JsUndockWindow);
   dev_tools_host_->Build();
 }
 
@@ -302,15 +311,6 @@ v8::Handle<v8::Value> WebDevToolsClientImpl::JsLoaded(
 }
 
 // static
-v8::Handle<v8::Value> WebDevToolsClientImpl::JsActivateWindow(
-    const v8::Arguments& args) {
-  WebDevToolsClientImpl* client = static_cast<WebDevToolsClientImpl*>(
-      v8::External::Cast(*args.Data())->Value());
-  client->delegate_->ActivateWindow();
-  return v8::Undefined();
-}
-
-// static
 v8::Handle<v8::Value> WebDevToolsClientImpl::JsGetPlatform(
     const v8::Arguments& args) {
 #if defined OS_MACOSX
@@ -320,4 +320,40 @@ v8::Handle<v8::Value> WebDevToolsClientImpl::JsGetPlatform(
 #else
   return v8String("windows");
 #endif
+}
+
+// static
+v8::Handle<v8::Value> WebDevToolsClientImpl::JsActivateWindow(
+    const v8::Arguments& args) {
+  WebDevToolsClientImpl* client = static_cast<WebDevToolsClientImpl*>(
+      v8::External::Cast(*args.Data())->Value());
+  client->delegate_->ActivateWindow();
+  return v8::Undefined();
+}
+
+// static
+v8::Handle<v8::Value> WebDevToolsClientImpl::JsCloseWindow(
+    const v8::Arguments& args) {
+  WebDevToolsClientImpl* client = static_cast<WebDevToolsClientImpl*>(
+      v8::External::Cast(*args.Data())->Value());
+  client->delegate_->CloseWindow();
+  return v8::Undefined();
+}
+
+// static
+v8::Handle<v8::Value> WebDevToolsClientImpl::JsDockWindow(
+    const v8::Arguments& args) {
+  WebDevToolsClientImpl* client = static_cast<WebDevToolsClientImpl*>(
+      v8::External::Cast(*args.Data())->Value());
+  client->delegate_->DockWindow();
+  return v8::Undefined();
+}
+
+// static
+v8::Handle<v8::Value> WebDevToolsClientImpl::JsUndockWindow(
+    const v8::Arguments& args) {
+  WebDevToolsClientImpl* client = static_cast<WebDevToolsClientImpl*>(
+      v8::External::Cast(*args.Data())->Value());
+  client->delegate_->UndockWindow();
+  return v8::Undefined();
 }
