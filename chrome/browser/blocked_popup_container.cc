@@ -15,15 +15,9 @@ BlockedPopupContainer* BlockedPopupContainer::Create(
     TabContents* owner, Profile* profile) {
   BlockedPopupContainer* container =
       new BlockedPopupContainer(owner, profile->GetPrefs());
-
-  // TODO(port): This ifdef goes away once Mac peeps write a Cocoa
-  // implementation of BlockedPopupContainerView.
-#if defined(OS_WIN) || defined(OS_LINUX)
   BlockedPopupContainerView* view =
       BlockedPopupContainerView::Create(container);
   container->set_view(view);
-#endif
-
   return container;
 }
 

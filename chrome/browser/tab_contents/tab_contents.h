@@ -572,6 +572,7 @@ class TabContents : public PageNavigator,
   // automation purposes.
   friend class AutomationProvider;
   friend class BlockedPopupContainerTest;
+  friend class BlockedPopupContainerControllerTest;
 
   FRIEND_TEST(TabContentsTest, UpdateTitle);
   FRIEND_TEST(BlockedPopupContainerTest, TestReposition);

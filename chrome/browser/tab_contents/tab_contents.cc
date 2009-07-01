@@ -767,7 +767,6 @@ void TabContents::AddNewContents(TabContents* new_contents,
   if (!delegate_)
     return;
 
-#if defined(OS_WIN) || defined(OS_LINUX)
   if ((disposition == NEW_POPUP) && !user_gesture &&
       !CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kDisablePopupBlocking)) {
@@ -782,11 +781,6 @@ void TabContents::AddNewContents(TabContents* new_contents,
                               user_gesture);
   }
   PopupNotificationVisibilityChanged(ShowingBlockedPopupNotification());
-#else
-  // TODO(port): implement the popup blocker stuff
-  delegate_->AddNewContents(this, new_contents, disposition, initial_pos,
-                            user_gesture);
-#endif
 }
 
 void TabContents::CloseAllSuppressedPopups() {
@@ -1080,7 +1074,6 @@ void TabContents::SetIsLoading(bool is_loading,
       det);
 }
 
-#if defined(OS_WIN) || defined(OS_LINUX)
 void TabContents::CreateBlockedPopupContainerIfNecessary() {
   if (blocked_popups_)
     return;
@@ -1094,7 +1087,6 @@ void TabContents::AddPopup(TabContents* new_contents,
   CreateBlockedPopupContainerIfNecessary();
   blocked_popups_->AddTabContents(new_contents, initial_pos, host);
 }
-#endif
 
 // TODO(brettw) This should be on the TabContentsView.
 void TabContents::RepositionSupressedPopupsToFit() {

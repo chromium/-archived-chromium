@@ -48,12 +48,15 @@ RenderWidgetHostView* TabContentsViewMac::CreateViewForWidget(
       new RenderWidgetHostViewMac(render_widget_host);
 
   // Fancy layout comes later; for now just make it our size and resize it
-  // with us.
+  // with us. In case there are other siblings of the content area, we want
+  // to make sure the content area is on the bottom so other things draw over
+  // it.
   NSView* view_view = view->native_view();
-  [cocoa_view_.get() addSubview:view_view];
   [view_view setFrame:[cocoa_view_.get() bounds]];
   [view_view setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-
+  [cocoa_view_.get() addSubview:view_view
+                     positioned:NSWindowBelow
+                     relativeTo:nil];
   return view;
 }
 

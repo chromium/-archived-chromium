@@ -56,9 +56,6 @@ class BlockedPopupContainerView {
 // again). This class contains all the cross-platform bits that can be used in
 // all ports.
 //
-// TODO(erg): The GTK and Cocoa versions of the view class haven't been written
-// yet.
-//
 // +- BlockedPopupContainer ---+         +- BlockedPopupContainerView -----+
 // | All model logic           |    +--->| Abstract cross platform         |
 // |                           |    |    | interface                       |
