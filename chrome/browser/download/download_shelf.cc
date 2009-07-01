@@ -10,14 +10,11 @@
 #include "chrome/browser/dom_ui/downloads_ui.h"
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/download/download_util.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/common/url_constants.h"
 #include "grit/generated_resources.h"
 
-#if defined(OS_WIN) || defined(OS_LINUX)
-// TODO(port): port this for mac. See two uses below.
-#include "chrome/browser/download/download_util.h"
-#endif
 
 // DownloadShelf ---------------------------------------------------------------
 
@@ -81,11 +78,7 @@ bool DownloadShelfContextMenu::IsItemCommandEnabled(int id) const {
     case OPEN_WHEN_COMPLETE:
       return download_->state() != DownloadItem::CANCELLED;
     case ALWAYS_OPEN_TYPE:
-#if defined(OS_WIN) || defined(OS_LINUX)
       return download_util::CanOpenDownload(download_);
-#else
-      return false;
-#endif
     case CANCEL:
       return download_->state() == DownloadItem::IN_PROGRESS;
     default:
@@ -99,9 +92,7 @@ void DownloadShelfContextMenu::ExecuteItemCommand(int id) {
       download_->manager()->ShowDownloadInShell(download_);
       break;
     case OPEN_WHEN_COMPLETE:
-#if defined(OS_WIN) || defined(OS_LINUX)
       download_util::OpenDownload(download_);
-#endif
       break;
     case ALWAYS_OPEN_TYPE: {
       const FilePath::StringType extension =
