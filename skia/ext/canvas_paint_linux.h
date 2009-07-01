@@ -8,6 +8,8 @@
 
 #include "skia/ext/platform_canvas.h"
 
+#include <gdk/gdk.h>
+
 namespace skia {
 
 // A class designed to translate skia painting into a region in a
