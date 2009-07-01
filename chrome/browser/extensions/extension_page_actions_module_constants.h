@@ -12,6 +12,8 @@ namespace extension_page_actions_module_constants {
 // Keys.
 extern const wchar_t kTabIdKey[];
 extern const wchar_t kUrlKey[];
+extern const wchar_t kTitleKey[];
+extern const wchar_t kIconIdKey[];
 
 // Error messages.
 extern const char kNoExtensionError[];

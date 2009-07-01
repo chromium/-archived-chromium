@@ -55,6 +55,7 @@ const wchar_t* Extension::kContentScriptsKey = L"content_scripts";
 const wchar_t* Extension::kCssKey = L"css";
 const wchar_t* Extension::kDescriptionKey = L"description";
 const wchar_t* Extension::kIconPathKey = L"icon";
+const wchar_t* Extension::kIconPathsKey = L"icons";
 const wchar_t* Extension::kJsKey = L"js";
 const wchar_t* Extension::kMatchesKey = L"matches";
 const wchar_t* Extension::kNameKey = L"name";
@@ -126,10 +127,12 @@ const char* Extension::kInvalidNameError =
     "Required value 'name' is missing or invalid.";
 const char* Extension::kInvalidPageActionError =
     "Invalid value for 'page_actions[*]'.";
+const char* Extension::kInvalidPageActionIconPathError =
+    "Invalid value for 'page_actions[*].icons[*]'.";
 const char* Extension::kInvalidPageActionsListError =
     "Invalid value for 'page_actions'.";
-const char* Extension::kInvalidPageActionIconPathError =
-    "Invalid value for 'page_actions[*].icon'.";
+const char* Extension::kInvalidPageActionIconPathsError =
+    "Required value 'page_actions[*].icons' is missing or invalid.";
 const char* Extension::kInvalidPageActionIdError =
     "Required value 'id' is missing or invalid.";
 const char* Extension::kInvalidPageActionTypeValueError =
@@ -398,15 +401,31 @@ PageAction* Extension::LoadPageActionHelper(
   scoped_ptr<PageAction> result(new PageAction());
   result->set_extension_id(id());
 
-  // Read the page action |icon|.
-  std::string icon;
-  if (!page_action->GetString(kIconPathKey, &icon)) {
+  ListValue* icons;
+  // Read the page action |icons|.
+  if (!page_action->HasKey(kIconPathsKey) ||
+      !page_action->GetList(kIconPathsKey, &icons) ||
+      icons->GetSize() == 0) {
     *error = ExtensionErrorUtils::FormatErrorMessage(
-        kInvalidPageActionIconPathError, IntToString(definition_index));
+        kInvalidPageActionIconPathsError, IntToString(definition_index));
     return NULL;
   }
-  FilePath icon_path = path_.AppendASCII(icon);
-  result->set_icon_path(icon_path);
+
+  int icon_count = 0;
+  for (ListValue::const_iterator iter = icons->begin();
+       iter != icons->end(); ++iter) {
+    FilePath::StringType path;
+    if (!(*iter)->GetAsString(&path) || path.empty()) {
+      *error = ExtensionErrorUtils::FormatErrorMessage(
+          kInvalidPageActionIconPathError,
+          IntToString(definition_index), IntToString(icon_count));
+      return NULL;
+    }
+
+    FilePath icon_path = path_.Append(path);
+    result->AddIconPath(icon_path);
+    ++icon_count;
+  }
 
   // Read the page action |id|.
   std::string id;
@@ -504,7 +523,7 @@ FilePath Extension::GetResourcePath(const FilePath& extension_path,
   return ret_val;
 }
 
-Extension::Extension(const FilePath& path) {
+Extension::Extension(const FilePath& path) : is_theme_(false) {
   DCHECK(path.IsAbsolute());
   location_ = INVALID;
 
@@ -939,7 +958,11 @@ std::set<FilePath> Extension::GetBrowserImages() {
 
   for (PageActionMap::const_iterator it = page_actions().begin();
        it != page_actions().end(); ++it) {
-    image_paths.insert(it->second->icon_path());
+    const std::vector<FilePath>& icon_paths = it->second->icon_paths();
+    for (std::vector<FilePath>::const_iterator iter = icon_paths.begin();
+         iter != icon_paths.end(); ++iter) {
+      image_paths.insert(*iter);
+    }
   }
 
   return image_paths;

@@ -565,23 +565,31 @@ void TabContents::SetIsCrashed(bool state) {
 }
 
 void TabContents::SetPageActionEnabled(const PageAction* page_action,
-                                       bool enable) {
+                                       bool enable,
+                                       const std::string& title,
+                                       int icon_id) {
   DCHECK(page_action);
 
-  if (enable == IsPageActionEnabled(page_action))
-    return;  // Don't need to do anything more.
+  if (!enable &&
+      enabled_page_actions_.end() == enabled_page_actions_.find(page_action)) {
+    return;  // Don't need to disable twice.
+  }
 
-  if (enable)
-    enabled_page_actions_.insert(page_action);
-  else
+  if (enable) {
+    enabled_page_actions_[page_action].reset(
+        new PageActionState(title, icon_id));
+  } else {
     enabled_page_actions_.erase(page_action);
+  }
 }
 
-bool TabContents::IsPageActionEnabled(const PageAction* page_action) {
-  DCHECK(page_action);
-  return enabled_page_actions_.end() != enabled_page_actions_.find(page_action);
-}
+const PageActionState* TabContents::GetPageActionState(
+    const PageAction* page_action) {
+  if (enabled_page_actions_.end() == enabled_page_actions_.find(page_action))
+    return NULL;
 
+  return enabled_page_actions_[page_action].get();
+}
 
 void TabContents::NotifyNavigationStateChanged(unsigned changed_flags) {
   if (delegate_)

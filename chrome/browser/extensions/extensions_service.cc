@@ -753,12 +753,16 @@ Extension* ExtensionsServiceBackend::LoadExtension(
   for (PageActionMap::const_iterator i(page_actions.begin());
        i != page_actions.end(); ++i) {
     PageAction* page_action = i->second;
-    FilePath path = page_action->icon_path();
-    if (!file_util::PathExists(path)) {
-      ReportExtensionLoadError(extension_path,
-          StringPrintf("Could not load icon '%s' for page action.",
-          WideToUTF8(path.ToWStringHack()).c_str()));
-      return NULL;
+    const std::vector<FilePath>& icon_paths = page_action->icon_paths();
+    for (std::vector<FilePath>::const_iterator iter = icon_paths.begin();
+         iter != icon_paths.end(); ++iter) {
+      FilePath path = *iter;
+      if (!file_util::PathExists(path)) {
+        ReportExtensionLoadError(extension_path,
+            StringPrintf("Could not load icon '%s' for page action.",
+            WideToUTF8(path.ToWStringHack()).c_str()));
+        return NULL;
+      }
     }
   }
 

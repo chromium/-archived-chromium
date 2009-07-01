@@ -40,7 +40,7 @@ const char* const good0 = "behllobkkfkfnphdnhnkndlbkcpglgmj";
 const char* const good1 = "hpiknbiabeeppbpihjehijgoemciehgk";
 const char* const good2 = "bjafgdebaacbbbecmhlhpofkepfkgcpa";
 const char* const good_crx = "ldnnhddmnhbkjipkidpdiheffobcpfmf";
-const char* const page_action = "kemkhnabegjkabakmlcaafgikalipenj";
+const char* const page_action = "obcimlgaoabeegjmmpldobjndiealpln";
 const char* const theme_crx = "iamefpfkojoapidjnbafmgkgncegbkad";
 const char* const theme2_crx = "pjpgmfcmabopnnfonnhmdjglfpjjfkbf";
 
@@ -654,7 +654,9 @@ TEST_F(ExtensionsServiceTest, CleanupOnStartup) {
   ASSERT_FALSE(file_util::PathExists(vers));
 }
 
-// Test installing extensions.
+// Test installing extensions. This test tries to install few extensions using
+// crx files. If you need to change those crx files, feel free to repackage
+// them, throw away the key used and change the id's above.
 TEST_F(ExtensionsServiceTest, InstallExtension) {
   InitializeEmptyExtensionsService();
 
@@ -690,6 +692,7 @@ TEST_F(ExtensionsServiceTest, InstallExtension) {
   // Bad signature.
   path = extensions_path.AppendASCII("bad_signature.crx");
   InstallExtension(path, false);
+  ValidatePrefKeyCount(pref_count);
 
   // 0-length extension file.
   path = extensions_path.AppendASCII("not_an_extension.crx");

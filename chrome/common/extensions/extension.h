@@ -60,6 +60,7 @@ class Extension {
   static const wchar_t* kCssKey;
   static const wchar_t* kDescriptionKey;
   static const wchar_t* kIconPathKey;
+  static const wchar_t* kIconPathsKey;
   static const wchar_t* kJsKey;
   static const wchar_t* kMatchesKey;
   static const wchar_t* kNameKey;
@@ -115,6 +116,7 @@ class Extension {
   static const char* kInvalidPageActionError;
   static const char* kInvalidPageActionsListError;
   static const char* kInvalidPageActionIconPathError;
+  static const char* kInvalidPageActionIconPathsError;
   static const char* kInvalidPageActionIdError;
   static const char* kInvalidPageActionTypeValueError;
   static const char* kInvalidPermissionsError;

@@ -5,8 +5,9 @@
 #ifndef CHROME_COMMON_PAGE_ACTION_H_
 #define CHROME_COMMON_PAGE_ACTION_H_
 
-#include <string>
 #include <map>
+#include <string>
+#include <vector>
 
 #include "base/file_path.h"
 
@@ -34,9 +35,9 @@ class PageAction {
   std::string name() const { return name_; }
   void set_name(const std::string& name) { name_ = name; }
 
-  FilePath icon_path() const { return icon_path_; }
-  void set_icon_path(const FilePath& icon_path) {
-    icon_path_ = icon_path;
+  const std::vector<FilePath>& icon_paths() const { return icon_paths_; }
+  void AddIconPath(const FilePath& icon_path) {
+    icon_paths_.push_back(icon_path);
   }
 
  private:
@@ -53,10 +54,31 @@ class PageAction {
   // The name of the PageAction.
   std::string name_;
 
-  // The icon that represents the PageIcon.
-  FilePath icon_path_;
+  // The paths to the icons that this PageIcon can show.
+  std::vector<FilePath> icon_paths_;
 };
 
 typedef std::map<std::string, PageAction*> PageActionMap;
+
+// This class keeps track of what values each tab uses to override the default
+// values of the PageAction.
+class PageActionState {
+ public:
+  PageActionState(std::string title, int icon_index)
+    : title_(title), icon_index_(icon_index) {
+  }
+
+  std::string title() const { return title_; }
+  int icon_index() const { return icon_index_; }
+
+ private:
+  // The title to use.
+  std::string title_;
+
+  // The icon to use.
+  int icon_index_;
+
+  DISALLOW_COPY_AND_ASSIGN(PageActionState);
+};
 
 #endif  // CHROME_COMMON_PAGE_ACTION_H_

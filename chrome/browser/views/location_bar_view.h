@@ -332,7 +332,7 @@ class LocationBarView : public LocationBar,
     void UpdateVisibility(TabContents* contents, GURL url);
 
     // A callback for when the image has loaded.
-    void OnImageLoaded(SkBitmap* image);
+    void OnImageLoaded(SkBitmap* image, size_t index);
 
   private:
     // We load the images for the PageActions on the file thread. These tasks
@@ -350,6 +350,9 @@ class LocationBarView : public LocationBar,
     // us, it resides in the extension of this particular profile.
     const PageAction* page_action_;
 
+    // The icons representing different states for the page action.
+    std::vector<SkBitmap> page_action_icons_;
+
     // The object that is waiting for the image loading to complete
     // asynchronously.
     ImageLoadingTracker* tracker_;
@@ -359,6 +362,9 @@ class LocationBarView : public LocationBar,
 
     // The URL we are currently showing the icon for.
     GURL current_url_;
+
+    // The string to show for a tooltip;
+    std::string tooltip_;
 
     DISALLOW_COPY_AND_ASSIGN(PageActionImageView);
   };

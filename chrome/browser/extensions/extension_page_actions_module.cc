@@ -31,6 +31,18 @@ bool PageActionFunction::SetPageActionEnabled(bool enable) {
   std::string url;
   EXTENSION_FUNCTION_VALIDATE(action->GetString(keys::kUrlKey, &url));
 
+  std::string title;
+  int icon_id = 0;
+  if (enable) {
+    // Both of those are optional.
+    if (action->HasKey(keys::kTitleKey))
+      EXTENSION_FUNCTION_VALIDATE(action->GetString(keys::kTitleKey, &title));
+    if (action->HasKey(keys::kIconIdKey)) {
+      EXTENSION_FUNCTION_VALIDATE(action->GetInteger(keys::kIconIdKey,
+                                                     &icon_id));
+    }
+  }
+
   // Find the TabContents that contains this tab id.
   TabContents* contents = NULL;
   ExtensionTabUtil::GetTabById(tab_id, profile(), NULL, NULL, &contents, NULL);
@@ -66,7 +78,7 @@ bool PageActionFunction::SetPageActionEnabled(bool enable) {
   }
 
   // Set visibility and broadcast notifications that the UI should be updated.
-  contents->SetPageActionEnabled(page_action, enable);
+  contents->SetPageActionEnabled(page_action, enable, title, icon_id);
   contents->NotifyNavigationStateChanged(TabContents::INVALIDATE_PAGE_ACTIONS);
 
   return true;

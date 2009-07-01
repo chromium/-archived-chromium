@@ -1140,7 +1140,8 @@ void LocationBarView::SecurityImageView::ShowInfoBubble() {
 class LocationBarView::PageActionImageView::ImageLoadingTracker
   : public base::RefCountedThreadSafe<ImageLoadingTracker> {
  public:
-  explicit ImageLoadingTracker(PageActionImageView* view) : view_(view) {
+  explicit ImageLoadingTracker(PageActionImageView* view, int image_count)
+    : view_(view), image_count_(image_count) {
     AddRef();  // We hold on to a reference to ourself to make sure we don't
                // get deleted until we get a response from image loading (see
                // ImageLoadingDone).
@@ -1151,16 +1152,20 @@ class LocationBarView::PageActionImageView::ImageLoadingTracker
     view_ = NULL;
   }
 
-  void OnImageLoaded(SkBitmap* image) {
-    view_->OnImageLoaded(image);
+  void OnImageLoaded(SkBitmap* image, int index) {
+    view_->OnImageLoaded(image, index);
     delete image;
-    Release();  // We are no longer needed.
+    if (--image_count_ == 0)
+      Release();  // We are no longer needed.
   }
 
  private:
 
   // The view that is waiting for the image to load.
   PageActionImageView* view_;
+
+  // The number of images this ImageTracker should keep track of.
+  int image_count_;
 };
 
 // The LoadImageTask is for asynchronously loading the image on the file thread.
@@ -1168,16 +1173,24 @@ class LocationBarView::PageActionImageView::ImageLoadingTracker
 // |callback_loop| to let the caller know the image is done loading.
 class LocationBarView::PageActionImageView::LoadImageTask : public Task {
  public:
+  // Constructor for the LoadImageTask class. |tracker| is the object that
+  // we use to communicate back to the entity that wants the image after we
+  // decode it. |path| is the path to load the image from. |index| is an
+  // identifier for the image that we pass back to the caller.
   LoadImageTask(ImageLoadingTracker* tracker,
-                const FilePath& path)
+                const FilePath& path,
+                int index)
     : callback_loop_(MessageLoop::current()),
       tracker_(tracker),
-      path_(path) {}
+      path_(path),
+      index_(index) {}
 
   void ReportBack(SkBitmap* image) {
     DCHECK(image);
     callback_loop_->PostTask(FROM_HERE, NewRunnableMethod(tracker_,
-        &PageActionImageView::ImageLoadingTracker::OnImageLoaded, image));
+        &PageActionImageView::ImageLoadingTracker::OnImageLoaded,
+        image,
+        index_));
   }
 
   virtual void Run() {
@@ -1223,6 +1236,9 @@ class LocationBarView::PageActionImageView::LoadImageTask : public Task {
 
   // The path to the image to load asynchronously.
   FilePath path_;
+
+  // The index of the icon being loaded.
+  int index_;
 };
 
 LocationBarView::PageActionImageView::PageActionImageView(
@@ -1233,15 +1249,22 @@ LocationBarView::PageActionImageView::PageActionImageView(
       owner_(owner),
       profile_(profile),
       page_action_(page_action),
-      tracker_(new ImageLoadingTracker(this)) {
+      current_tab_id_(-1),
+      tooltip_(page_action_->name()) {
   // Load the images this view needs asynchronously on the file thread. We'll
   // get a call back into OnImageLoaded if the image loads successfully. If not,
   // the ImageView will have no image and will not appear in the Omnibox.
-  DCHECK(!page_action->icon_path().empty());
-  FilePath path = FilePath(page_action->icon_path());
+  DCHECK(!page_action->icon_paths().empty());
+  const std::vector<FilePath>& icon_paths = page_action->icon_paths();
+  page_action_icons_.resize(icon_paths.size());
+  int index = 0;
   MessageLoop* file_loop = g_browser_process->file_thread()->message_loop();
-  file_loop->PostTask(FROM_HERE,
-      new LoadImageTask(tracker_, page_action->icon_path()));
+  tracker_ = new ImageLoadingTracker(this, icon_paths.size());
+  for (std::vector<FilePath>::const_iterator iter = icon_paths.begin();
+       iter != icon_paths.end(); ++iter) {
+    FilePath path = *iter;
+    file_loop->PostTask(FROM_HERE, new LoadImageTask(tracker_, path, index++));
+  }
 }
 
 LocationBarView::PageActionImageView::~PageActionImageView() {
@@ -1259,7 +1282,7 @@ bool LocationBarView::PageActionImageView::OnMousePressed(
 
 void LocationBarView::PageActionImageView::ShowInfoBubble() {
   SkColor text_color = SK_ColorBLACK;
-  ShowInfoBubbleImpl(ASCIIToWide(page_action_->name()), text_color);
+  ShowInfoBubbleImpl(ASCIIToWide(tooltip_), text_color);
 }
 
 void LocationBarView::PageActionImageView::UpdateVisibility(
@@ -1269,12 +1292,30 @@ void LocationBarView::PageActionImageView::UpdateVisibility(
   current_tab_id_ = ExtensionTabUtil::GetTabId(contents);
   current_url_ = url;
 
-  SetVisible(contents->IsPageActionEnabled(page_action_));
+  const PageActionState* state = contents->GetPageActionState(page_action_);
+  bool visible = state != NULL;
+  if (visible) {
+    // Set the tooltip.
+    if (state->title().empty())
+      tooltip_ = page_action_->name();
+    else
+      tooltip_ = state->title();
+    // Set the image.
+    int index = state->icon_index();
+    // The image index (if not within bounds) will be set to the first image.
+    if (index < 0 || index >= static_cast<int>(page_action_icons_.size()))
+      index = 0;
+    ImageView::SetImage(page_action_icons_[index]);
+  }
+  SetVisible(visible);
 }
 
-void LocationBarView::PageActionImageView::OnImageLoaded(SkBitmap* image) {
-  tracker_ = NULL;  // The tracker object will delete itself when we return.
-  ImageView::SetImage(image);
+void LocationBarView::PageActionImageView::OnImageLoaded(SkBitmap* image,
+                                                         size_t index) {
+  DCHECK(index < page_action_icons_.size());
+  if (index == page_action_icons_.size() - 1)
+    tracker_ = NULL;  // The tracker object will delete itself when we return.
+  page_action_icons_[index] = *image;
   owner_->UpdatePageActions();
 }
 

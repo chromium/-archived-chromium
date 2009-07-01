@@ -320,7 +320,9 @@ var chrome = chrome || {};
       type: "object",
       properties: {
         tabId: chrome.types.pInt,
-        url: chrome.types.str
+        url: chrome.types.str,
+        title: chrome.types.optStr,
+        iconId: chrome.types.optPInt,
       },
       optional: false
     }
