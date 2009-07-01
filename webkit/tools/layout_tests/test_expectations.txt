@@ -2853,3 +2853,4 @@ BUG15780 : LayoutTests/fast/repaint/text-selection-rect-in-overflow-2.html = FAI
 
 // WebKit 45431:45444
 BUG15780 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridColumns-dom-attributes.html = FAIL TIMEOUT
+BUG15780 : LayoutTests/fast/repaint/4774354.html = FAIL TIMEOUT
