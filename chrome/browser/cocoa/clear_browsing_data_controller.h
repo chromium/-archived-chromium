@@ -28,7 +28,7 @@ class Profile;
   scoped_ptr<ClearBrowsingObserver> observer_;
   BOOL isClearing_;  // YES while clearing data is ongoing.
   IBOutlet ThrobberView* progress_;
-  
+
   // Values for checkboxes, kept in sync with bindings. These values get
   // persisted into prefs if the user accepts the dialog.
   BOOL clearBrowsingHistory_;
@@ -62,6 +62,12 @@ class Profile;
 @property NSInteger timePeriod;
 @property BOOL isClearing;
 
+@end
+
+
+@interface ClearBrowsingDataController (ExposedForUnitTests)
+@property (readonly) int removeMask;
+- (void)persistToPrefs;
 @end
 
 #endif  // CHROME_BROWSER_COCOA_CLEAR_BROWSING_DATA_CONTROLLER_

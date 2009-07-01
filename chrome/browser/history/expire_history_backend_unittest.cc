@@ -107,6 +107,7 @@ class ExpireHistoryTest : public testing::Test,
     FilePath temp_dir;
     PathService::Get(base::DIR_TEMP, &temp_dir);
     dir_ = temp_dir.Append(kTestDir);
+LOG(ERROR) << dir_.ToWStringHack();
     file_util::Delete(dir_, true);
     file_util::CreateDirectory(dir_);
 

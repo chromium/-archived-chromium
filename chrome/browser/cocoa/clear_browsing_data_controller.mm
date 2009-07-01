@@ -78,16 +78,7 @@ class ClearBrowsingObserver : public BrowsingDataRemover::Observer {
   [[NSApplication sharedApplication] runModalForWindow:[self window]];
 }
 
-// Called when the user clicks the "clear" button. Do the work and persist
-// the prefs for next time. We don't stop the modal session until we get
-// the callback from the BrowsingDataRemover so the window stays on the screen.
-// While we're working, dim the buttons so the user can't click them.
-- (IBAction)clearData:(id)sender {
-  // Set that we're working so that the buttons disable.
-  [self setIsClearing:YES];
-
-  [self persistToPrefs];
-  
+- (int)removeMask {
   int removeMask = 0L;
   if (clearBrowsingHistory_)
     removeMask |= BrowsingDataRemover::REMOVE_HISTORY;
@@ -100,14 +91,26 @@ class ClearBrowsingObserver : public BrowsingDataRemover::Observer {
   if (clearSavedPasswords_)
      removeMask |= BrowsingDataRemover::REMOVE_PASSWORDS;
   if (clearFormData_)
-    removeMask |= BrowsingDataRemover::REMOVE_PASSWORDS;
+    removeMask |= BrowsingDataRemover::REMOVE_FORM_DATA;
+  return removeMask;
+}
+
+// Called when the user clicks the "clear" button. Do the work and persist
+// the prefs for next time. We don't stop the modal session until we get
+// the callback from the BrowsingDataRemover so the window stays on the screen.
+// While we're working, dim the buttons so the user can't click them.
+- (IBAction)clearData:(id)sender {
+  // Set that we're working so that the buttons disable.
+  [self setIsClearing:YES];
+
+  [self persistToPrefs];
 
   // BrowsingDataRemover deletes itself when done.
   remover_ = new BrowsingDataRemover(profile_,
       static_cast<BrowsingDataRemover::TimePeriod>(timePeriod_),
       base::Time());
   remover_->AddObserver(observer_.get());
-  remover_->Remove(removeMask);
+  remover_->Remove([self removeMask]);
 }
 
 // Called when the user clicks the cancel button. All we need to do is stop
