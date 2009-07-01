@@ -257,3 +257,11 @@
    ...
    fun:main
 }
+{
+   # Started failing with r19701 (tc), which enables the ImageOperations test.
+   # TODO(ojan): File a bug once google code comes back online.
+   testing::AssertionResult testing::internal::CmpHelperEQ<unsigned int, unsigned int>(char const*, char const*, unsigned int const&, unsigned int const&) (src/xcodebuild/Debug/test_shell_tests)
+   testing::AssertionResult testing::internal::EqHelper<false>::Compare<unsigned int, unsigned int>(char const*, char const*, unsigned int const&, unsigned int const&) (src/xcodebuild/Debug/test_shell_tests)
+   ImageOperations_CreateMaskedBitmap_Test::TestBody() (src/xcodebuild/Debug/test_shell_tests)
+   testing::Test::Run() (src/xcodebuild/Debug/test_shell_tests)
+}
