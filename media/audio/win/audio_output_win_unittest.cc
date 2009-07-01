@@ -260,6 +260,23 @@ TEST(WinAudioTest, PCMWaveStreamGetAndClose) {
   oas->Close();
 }
 
+// Test that can it be cannot be created with crazy parameters
+TEST(WinAudioTest, SanityOnMakeParams) {
+  if (IsRunningHeadless())
+    return;
+  AudioManager* audio_man = AudioManager::GetAudioManager();
+  ASSERT_TRUE(NULL != audio_man);
+  if (!audio_man->HasAudioDevices())
+    return;
+  AudioManager::Format fmt = AudioManager::AUDIO_PCM_LINEAR;
+  EXPECT_TRUE(NULL == audio_man->MakeAudioStream(fmt, 8, 8000, 16));
+  EXPECT_TRUE(NULL == audio_man->MakeAudioStream(fmt, 1, 1024 * 1024, 16));
+  EXPECT_TRUE(NULL == audio_man->MakeAudioStream(fmt, 2, 8000, 80));
+  EXPECT_TRUE(NULL == audio_man->MakeAudioStream(fmt, -2, 8000, 16));
+  EXPECT_TRUE(NULL == audio_man->MakeAudioStream(fmt, 2, -8000, 16));
+  EXPECT_TRUE(NULL == audio_man->MakeAudioStream(fmt, 2, -8000, -16));
+}
+
 // Test that it can be opened and closed.
 TEST(WinAudioTest, PCMWaveStreamOpenAndClose) {
   if (IsRunningHeadless())
@@ -272,6 +289,21 @@ TEST(WinAudioTest, PCMWaveStreamOpenAndClose) {
       audio_man->MakeAudioStream(AudioManager::AUDIO_PCM_LINEAR, 2, 8000, 16);
   ASSERT_TRUE(NULL != oas);
   EXPECT_TRUE(oas->Open(1024));
+  oas->Close();
+}
+
+// Test that it has a maximum packet size.
+TEST(WinAudioTest, PCMWaveStreamOpenLimit) {
+  if (IsRunningHeadless())
+    return;
+  AudioManager* audio_man = AudioManager::GetAudioManager();
+  ASSERT_TRUE(NULL != audio_man);
+  if (!audio_man->HasAudioDevices())
+    return;
+  AudioOutputStream* oas =
+      audio_man->MakeAudioStream(AudioManager::AUDIO_PCM_LINEAR, 2, 8000, 16);
+  ASSERT_TRUE(NULL != oas);
+  EXPECT_FALSE(oas->Open(1024 * 1024 * 1024));
   oas->Close();
 }
 

@@ -38,6 +38,9 @@ const size_t kNumBuffers = 2;
 // perceived volume increase sounds linear.
 const double kMaxVolumeLevel = 65535.0;
 
+// Sixty four MB is the maximum buffer size per AudioOutputStream.
+const size_t kMaxOpenBufferSize = 1024 * 1024 * 64;
+
 // Our sound buffers are allocated once and kept in a linked list using the
 // the WAVEHDR::dwUser variable. The last buffer points to the first buffer.
 WAVEHDR* GetNextBuffer(WAVEHDR* current) {
@@ -74,6 +77,8 @@ PCMWaveOutAudioOutputStream::~PCMWaveOutAudioOutputStream() {
 
 bool PCMWaveOutAudioOutputStream::Open(size_t buffer_size) {
   if (state_ != PCMA_BRAND_NEW)
+    return false;
+  if (buffer_size > kMaxOpenBufferSize)
     return false;
   // Open the device. We'll be getting callback in WaveCallback function. They
   // occur in a magic, time-critical thread that windows creates.

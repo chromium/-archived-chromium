@@ -85,6 +85,14 @@ class AudioOutputStreamMockWin : public AudioOutputStream {
 };
 
 namespace {
+
+// The next 3 constants are some sensible limits to prevent integer overflow
+// at this layer.
+// TODO(cpu): Some day expand the support and API to more than stereo.
+const int kMaxChannels = 2;
+const int kMaxSampleRate = 192000;
+const int kMaxBitsPerSample = 64;
+
 AudioOutputStreamMockWin* g_last_mock_stream = NULL;
 AudioManagerWin* g_audio_manager = NULL;
 
@@ -109,6 +117,11 @@ bool AudioManagerWin::HasAudioDevices() {
 AudioOutputStream* AudioManagerWin::MakeAudioStream(Format format, int channels,
                                                     int sample_rate,
                                                     char bits_per_sample) {
+  if ((channels > kMaxChannels) || (channels <= 0) ||
+      (sample_rate > kMaxSampleRate) || (sample_rate <= 0) ||
+      (bits_per_sample > kMaxBitsPerSample) || (bits_per_sample <= 0))
+    return NULL;
+
   if (format == AUDIO_MOCK) {
     return new AudioOutputStreamMockWin(this);
   } else if (format == AUDIO_PCM_LINEAR) {
