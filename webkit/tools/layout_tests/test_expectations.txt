@@ -2842,6 +2842,7 @@ BUG15425 WIN : LayoutTests/dom/html/level2/html/HTMLElement142.html = PASS CRASH
 // WebKit 45287:45352 New tests
 BUG15649 : LayoutTests/compositing/layers-inside-overflow-scroll.html = TIMEOUT FAIL
 BUG15649 : LayoutTests/compositing/self-painting-layers.html = TIMEOUT
+BUG15649 MAC : LayoutTests/plugins/netscape-plugin-map-data-to-src.html = FAIL
 BUG15649 : LayoutTests/media/video-canvas-source.html = FAIL
 
 // WebKit 45381:45403 Need to rebaseline
