@@ -90,18 +90,35 @@ static void log(NPP instance, const char* format, ...)
     browser->releaseobject(windowObject);
 }
 
-// Mach-o entry points
+// Plugin entry points
 extern "C" {
-    NPError NPAPI NP_Initialize(NPNetscapeFuncs *browserFuncs);
+    NPError NPAPI NP_Initialize(NPNetscapeFuncs *browserFuncs
+#if defined(OS_LINUX)
+                                , NPPluginFuncs *pluginFuncs
+#endif
+                                );
     NPError NPAPI NP_GetEntryPoints(NPPluginFuncs *pluginFuncs);
     void NPAPI NP_Shutdown(void);
+
+#if defined(OS_LINUX)
+    NPError NP_GetValue(NPP instance, NPPVariable variable, void *value);
+    const char* NP_GetMIMEDescription(void);
+#endif
 }
 
-// Mach-o entry points
-NPError NPAPI NP_Initialize(NPNetscapeFuncs *browserFuncs)
+// Plugin entry points
+NPError NPAPI NP_Initialize(NPNetscapeFuncs *browserFuncs
+#if defined(OS_LINUX)
+                            , NPPluginFuncs *pluginFuncs
+#endif
+)
 {
     browser = browserFuncs;
+#if defined(OS_LINUX)
+    return NP_GetEntryPoints(pluginFuncs);
+#else
     return NPERR_NO_ERROR;
+#endif
 }
 
 NPError NPAPI NP_GetEntryPoints(NPPluginFuncs *pluginFuncs)
@@ -429,18 +446,49 @@ void NPP_URLNotify(NPP instance, const char *url, NPReason reason, void *notifyD
 
 NPError NPP_GetValue(NPP instance, NPPVariable variable, void *value)
 {
-    if (variable == NPPVpluginScriptableNPObject) {
-        void **v = (void **)value;
-        PluginObject* obj = static_cast<PluginObject*>(instance->pdata);
-        // Return value is expected to be retained
-        browser->retainobject((NPObject *)obj);
-        *v = obj;
-        return NPERR_NO_ERROR;
+    NPError err = NPERR_NO_ERROR;
+
+    switch (variable) {
+#if defined(OS_LINUX)
+        case NPPVpluginNameString:
+            *((const char **)value) = "WebKit Test PlugIn";
+            break;
+        case NPPVpluginDescriptionString:
+            *((const char **)value) = "Simple Netscape plug-in that handles test content for WebKit";
+            break;
+        case NPPVpluginNeedsXEmbed:
+            *((NPBool *)value) = TRUE;
+            break;
+#endif
+        case NPPVpluginScriptableNPObject: {
+            void **v = (void **)value;
+            PluginObject* obj = static_cast<PluginObject*>(instance->pdata);
+            // Return value is expected to be retained
+            browser->retainobject((NPObject *)obj);
+            *v = obj;
+            break;
+        }
+        default:
+            fprintf(stderr, "Unhandled variable to NPP_GetValue\n");
+            err = NPERR_GENERIC_ERROR;
+            break;
     }
-    return NPERR_GENERIC_ERROR;
+
+    return err;
 }
 
 NPError NPP_SetValue(NPP instance, NPNVariable variable, void *value)
 {
     return NPERR_GENERIC_ERROR;
 }
+
+#if defined(OS_LINUX)
+NPError NP_GetValue(NPP instance, NPPVariable variable, void *value)
+{
+    return NPP_GetValue(instance, variable, value);
+}
+
+const char* NP_GetMIMEDescription(void) {
+    return "application/x-webkit-test-netscape:testnetscape:test netscape content";
+}
+#endif
