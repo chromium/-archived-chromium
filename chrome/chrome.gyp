@@ -3410,6 +3410,7 @@
         'browser/cocoa/bookmark_menu_cocoa_controller_unittest.mm',
         'browser/cocoa/browser_window_cocoa_unittest.mm',
         'browser/cocoa/browser_window_controller_unittest.mm',
+        'browser/cocoa/clear_browsing_data_controller_unittest.mm',
         'browser/cocoa/command_observer_bridge_unittest.mm',
         'browser/cocoa/custom_home_pages_model_unittest.mm',
         'browser/cocoa/download_shelf_mac_unittest.mm',
