@@ -64,7 +64,7 @@ void DrawPassTest::SetUp() {
 }
 
 void DrawPassTest::TearDown() {
-  pack_->Destroy();
+  object_manager_->DestroyPack(pack_);
   delete transformation_context_;
 }
 

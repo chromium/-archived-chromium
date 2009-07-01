@@ -47,7 +47,7 @@ VertexBufferCB::VertexBufferCB(ServiceLocator* service_locator,
     : VertexBuffer(service_locator),
       lock_pointer_(NULL),
       has_data_(false),
-      resource_id_(0),
+      resource_id_(command_buffer::kInvalidResource),
       renderer_(renderer) {
 }
 
@@ -58,12 +58,13 @@ VertexBufferCB::~VertexBufferCB() {
 
 // Sends the DESTROY_VERTEX_BUFFER command, and frees the ID from the allocator.
 void VertexBufferCB::ConcreteFree() {
-  if (GetSizeInBytes() != 0) {
+  if (resource_id_ != command_buffer::kInvalidResource) {
     CommandBufferHelper *helper = renderer_->helper();
     CommandBufferEntry args[1];
     args[0].value_uint32 = resource_id_;
     helper->AddCommand(command_buffer::DESTROY_VERTEX_BUFFER, 1, args);
     renderer_->vertex_buffer_ids().FreeID(resource_id_);
+    resource_id_ = command_buffer::kInvalidResource;
   }
 }
 
@@ -132,7 +133,7 @@ IndexBufferCB::IndexBufferCB(ServiceLocator* service_locator,
     : IndexBuffer(service_locator),
       lock_pointer_(NULL),
       has_data_(false),
-      resource_id_(0),
+      resource_id_(command_buffer::kInvalidResource),
       renderer_(renderer) {
 }
 
@@ -143,12 +144,13 @@ IndexBufferCB::~IndexBufferCB() {
 
 // Sends the DESTROY_INDEX_BUFFER command, and frees the ID from the allocator.
 void IndexBufferCB::ConcreteFree() {
-  if (GetSizeInBytes() != 0) {
+  if (resource_id_ != command_buffer::kInvalidResource) {
     CommandBufferHelper *helper = renderer_->helper();
     CommandBufferEntry args[1];
     args[0].value_uint32 = resource_id_;
     helper->AddCommand(command_buffer::DESTROY_INDEX_BUFFER, 1, args);
     renderer_->index_buffer_ids().FreeID(resource_id_);
+    resource_id_ = command_buffer::kInvalidResource;
   }
 }
 
