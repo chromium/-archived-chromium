@@ -231,12 +231,12 @@ void PluginObject::TearDown() {
 }
 
 void PluginObject::CreateRenderer(const o3d::DisplayWindow& display_window) {
-  renderer_ = o3d::Renderer::CreateDefaultRenderer(&service_locator_);
-  DCHECK(renderer_);
-
   if (!CheckConfig(npp_)) {
     renderer_init_status_ = o3d::Renderer::GPU_NOT_UP_TO_SPEC;
   } else {
+    renderer_ = o3d::Renderer::CreateDefaultRenderer(&service_locator_);
+    DCHECK(renderer_);
+
     // Attempt to initialize renderer.
     renderer_init_status_ = renderer_->Init(display_window, false);
     if (renderer_init_status_ != o3d::Renderer::SUCCESS) {

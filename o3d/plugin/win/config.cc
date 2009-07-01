@@ -68,7 +68,8 @@ bool CheckOSVersion(NPP npp) {
       std::string error = std::string("Windows XP Service Pack 2 is required.");
       if (!AskUser(npp, error)) return false;
     }
-  } else if (version.dwMajorVersion == 6 && version.dwMinorVersion == 0) {
+  } else if (version.dwMajorVersion > 5 ||
+	         (version.dwMajorVersion == 5 && version.dwMinorVersion >= 2)) {
     // 6.0 is Vista or Server 2008; it's now worth a try.
   } else {
     std::string error = std::string("Unsupported Windows version.");

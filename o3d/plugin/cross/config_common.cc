@@ -75,7 +75,7 @@ bool AskUser(NPP npp, const std::string &error) {
   GLUE_PROFILE_START(npp, "NPN_GetStringIdentifier");
   NPIdentifier alert_id = NPN_GetStringIdentifier("confirm");
   GLUE_PROFILE_STOP(npp, "NPN_GetStringIdentifier");
-  std::string message = error;
+  std::string message = std::string("O3D: ") + error;
   // TODO: internationalize message.
   // TODO: Should this change to call some hardcoded javascript function
   //    like "o3djs.util.confirmContinuation" or even a global name like
