@@ -92,10 +92,6 @@
   [self keyEvent:theEvent];
 }
 
-- (BOOL)isOpaque {
-  return YES;
-}
-
 - (gfx::Rect)NSRectToRect:(NSRect)rect {
   gfx::Rect new_rect(NSRectToCGRect(rect));
   new_rect.set_y([self bounds].size.height - new_rect.y() - new_rect.height());

@@ -261,6 +261,16 @@ void TabContentsViewMac::Observe(NotificationType type,
   }
 }
 
+- (BOOL)mouseDownCanMoveWindow {
+  // This is needed to prevent mouseDowns from moving the window
+  // around.  The default implementation returns YES only for opaque
+  // views.  TabContentsViewCocoa does not draw itself in any way, but
+  // its subviews do paint their entire frames.  Returning NO here
+  // saves us the effort of overriding this method in every possible
+  // subview.
+  return NO;
+}
+
 // In the Windows version, we always have cut/copy/paste enabled. This is sub-
 // optimal, but we do it too. TODO(avi): Plumb the "can*" methods up from
 // WebCore.
