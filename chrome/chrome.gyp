@@ -2085,6 +2085,7 @@
       'msvs_guid': '57823D8C-A317-4713-9125-2C91FDFD12D6',
       'dependencies': [
         'chrome_resources',
+        'chrome_strings',
         'theme_resources',
         '../skia/skia.gyp:skia',
         '../third_party/icu38/icu38.gyp:icui18n',
