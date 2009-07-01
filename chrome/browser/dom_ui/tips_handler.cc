@@ -22,9 +22,10 @@ namespace {
 }
 
 DOMMessageHandler* TipsHandler::Attach(DOMUI* dom_ui) {
+  dom_ui_ = dom_ui;
   tips_cache_ = dom_ui_->GetProfile()->GetPrefs()->
       GetDictionary(prefs::kNTPTipsCache);
-  return DOMMessageHandler::Attach(dom_ui);  
+  return DOMMessageHandler::Attach(dom_ui);
 }
 
 void TipsHandler::RegisterMessages() {

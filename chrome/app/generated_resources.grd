@@ -3440,6 +3440,14 @@ each locale. -->
                desc="Heading text for the section containing recent activities. Recent activies includes closed windows and tabs as well as downloads.">
         Recent activities
       </message>
+      <message name="IDS_NEW_TAB_TIPS"
+               desc="Heading text for the section containing tips and suggestions.">
+        Tips and Suggestions
+      </message>
+      <message name="IDS_NEW_TAB_DEFAULT_TIPS_TITLE"
+               desc="Default content of tip box when no tips are available.  This is a short advertisement and explanation for the tips and suggestions to come.">
+        Watch this space for tips and suggestions for better browsing!
+      </message>
       <message name="IDS_NEW_TAB_DOWNLOADS"
                desc="The header text of the recent downloads section.">
         Downloads

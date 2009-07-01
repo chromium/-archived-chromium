@@ -439,6 +439,17 @@ html[dir='rtl'] .item {
   text-align: right;
 }
 
+.tips-title {
+  color: black;
+  text-decoration: none;
+  padding-top: 6px;
+  white-space: normal;
+}
+
+.tips-container {
+  padding-top: 4px;
+}
+
 .window {
   position: relative;
   overflow: visible; /* We use visible so that the menu can be a child and shown

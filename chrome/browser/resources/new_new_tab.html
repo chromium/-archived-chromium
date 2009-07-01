@@ -164,10 +164,15 @@ logEvent('log start');
     </div><div class="spacer">
 
     </div><div id="tips" class="section">
-      <h2>Tips and Suggestions</h2>
-      <div class="item-container">
-        <div id="tip-items" jsskip="!processing">
+      <h2 jscontent="tipsandsuggestions"></h2>
+      <div id="tip-items" jsskip="!processing">
+        <div class="tips-title item" jsselect="$this"
+            jsdisplay="!url"
+            jscontent="localStrings.getString('defaulttipstitle')">
+        </div>
+        <div class="tips-container item-container">
           <a class="item" jsselect="$this"
+              jsdisplay="url.length"
               jsvalues="href:url;title:title"
               jscontent="title"></a>
         </div>

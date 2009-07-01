@@ -297,6 +297,10 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
       l10n_util::GetString(IDS_NEW_TAB_WEB_RESOURCE_CACHE));
   localized_strings.SetString(L"recentactivities",
       l10n_util::GetString(IDS_NEW_TAB_RECENT_ACTIVITIES));
+  localized_strings.SetString(L"tipsandsuggestions",
+      l10n_util::GetString(IDS_NEW_TAB_TIPS));
+  localized_strings.SetString(L"defaulttipstitle",
+      l10n_util::GetString(IDS_NEW_TAB_DEFAULT_TIPS_TITLE));
   localized_strings.SetString(L"downloads",
       l10n_util::GetString(IDS_NEW_TAB_DOWNLOADS));
   localized_strings.SetString(L"viewfullhistory",
@@ -1490,6 +1494,7 @@ bool NewTabUI::UseOldNewTabPage() {
   return command_line->HasSwitch(switches::kOldNewTabPage);
 }
 
+// static
 bool NewTabUI::EnableWebResources() {
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
   return command_line->HasSwitch(switches::kWebResources);
