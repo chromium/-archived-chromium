@@ -538,8 +538,6 @@
           'msvs_disabled_warnings': [ 4800 ],
         }, {  # else: OS!=win
           'sources!': [
-            '../../../skia/ext/image_operations_unittest.cc',
-            '../../../skia/ext/skia_utils_unittest.cc',
             '../../../skia/ext/vector_canvas_unittest.cc',
             '../webcore_unit_tests/UniscribeHelper_unittest.cpp',
             '../webcore_unit_tests/TransparencyWin_unittest.cpp',

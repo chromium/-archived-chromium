@@ -178,13 +178,13 @@ TEST(ImageOperations, CreateBlendedBitmap) {
   for (int y = 0; y < src_h; y++) {
     for (int x = 0; x < src_w; x++) {
       int i = y * src_w + x;
-      EXPECT_EQ((255 + ((255 - i) % 255)) / 2,
+      EXPECT_EQ(static_cast<unsigned int>((255 + ((255 - i) % 255)) / 2),
                 SkColorGetA(*blended.getAddr32(x, y)));
-      EXPECT_EQ(i % 255 / 2,
+      EXPECT_EQ(static_cast<unsigned int>(i % 255 / 2),
                 SkColorGetR(*blended.getAddr32(x, y)));
-      EXPECT_EQ(((i * 2) % 255 + (i * 4) % 255) / 2,
+      EXPECT_EQ((static_cast<unsigned int>((i * 2) % 255 + (i * 4) % 255) / 2),
                 SkColorGetG(*blended.getAddr32(x, y)));
-      EXPECT_EQ(i % 255 / 2,
+      EXPECT_EQ(static_cast<unsigned int>(i % 255 / 2),
                 SkColorGetB(*blended.getAddr32(x, y)));
     }
   }
@@ -223,7 +223,7 @@ TEST(ImageOperations, CreateMaskedBitmap) {
       SkColor masked_pixel = *masked.getAddr32(x, y);
 
       // Test that the alpha is equal.
-      int alpha = (alpha_pixel & 0xff000000) >> SK_A32_SHIFT;
+      unsigned int alpha = (alpha_pixel & 0xff000000) >> SK_A32_SHIFT;
       EXPECT_EQ(alpha, (masked_pixel & 0xff000000) >> SK_A32_SHIFT);
 
       // Test that the colors are right - SkBitmaps have premultiplied alpha,
