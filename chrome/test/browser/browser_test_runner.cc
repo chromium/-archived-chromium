@@ -57,6 +57,10 @@ bool GetTestList(const CommandLine& command_line,
       test_case = line;
       continue;
     }
+
+    if (line.find("DISABLED") != std::string::npos)
+      continue;  // Skip disabled tests.
+
     // We are dealing with a test.
     test_list->push_back(test_case + line);
   }
