@@ -2816,7 +2816,7 @@ BUG15270 : LayoutTests/fast/js/excessive-comma-usage.html = FAIL
 BUG15270 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridColumns-basic.html = TIMEOUT
 
 // WebKit 45134:45176
-BUG15403 : LayoutTests/http/tests/security/clipboard/clipboard-file-access.html = FAIL
+BUG15403 SKIP : LayoutTests/http/tests/security/clipboard/clipboard-file-access.html = FAIL
 
 // WebKit 45203:45247
 BUG15460 : LayoutTests/media/audio-controls-rendering.html = FAIL
