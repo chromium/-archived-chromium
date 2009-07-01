@@ -119,8 +119,11 @@ void BrokerServicesBase::FreeResources(JobTracker* tracker) {
   if (NULL != tracker->policy) {
     BOOL res = ::TerminateJobObject(tracker->job, SBOX_ALL_OK);
     DCHECK(res);
+    // Closing the job causes the target process to be destroyed so this
+    // needs to happen before calling OnJobEmpty().
     res = ::CloseHandle(tracker->job);
     DCHECK(res);
+    // In OnJobEmpty() we don't actually use the job handle directly.
     tracker->policy->OnJobEmpty(tracker->job);
     tracker->policy->Release();
     tracker->policy = NULL;

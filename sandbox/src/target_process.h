@@ -22,7 +22,7 @@ class ThreadProvider;
 // class are owned by the Policy used to create them.
 class TargetProcess {
  public:
-  // The constructor takes ownership of all the three handles given to it.
+  // The constructor takes ownership of |initial_token| and |lockdown_token|.
   TargetProcess(HANDLE initial_token, HANDLE lockdown_token, HANDLE job,
                 ThreadProvider* thread_pool);
   ~TargetProcess();
