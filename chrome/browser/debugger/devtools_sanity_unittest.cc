@@ -111,7 +111,7 @@ IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestMainResource) {
 }
 
 // Tests resources panel enabling.
-IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, DISABLED_TestEnableResourcesTab) {
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestEnableResourcesTab) {
   RunTest("testEnableResourcesTab", kSimplePage);
 }
 
@@ -120,9 +120,9 @@ IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestProfilerTab) {
   RunTest("testProfilerTab", kJsPage);
 }
 
-// Tests scripta panel enabling.
-IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, DISABLED_TestEnableScriptsTab) {
-  RunTest("testEnableScriptsTab", kDebuggerTestPage);
+// Tests scripts panel showing.
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestShowScriptsTab) {
+  RunTest("testShowScriptsTab", kDebuggerTestPage);
 }
 
 }  // namespace
