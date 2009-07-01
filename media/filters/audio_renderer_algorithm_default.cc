@@ -4,6 +4,9 @@
 
 #include "media/filters/audio_renderer_algorithm_default.h"
 
+#include "media/base/buffers.h"
+#include "media/base/data_buffer.h"
+
 namespace media {
 
 AudioRendererAlgorithmDefault::AudioRendererAlgorithmDefault()
