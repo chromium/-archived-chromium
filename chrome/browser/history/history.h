@@ -155,13 +155,18 @@ class HistoryService : public CancelableRequestProvider,
   // one entry). If there are no redirects, this array may also be empty for
   // the convenience of callers.
   //
+  // 'did_replace_entry' is true when the navigation entry for this page has
+  // replaced the existing entry. A non-user initiated redirect causes such
+  // replacement.
+  //
   // All "Add Page" functions will update the visited link database.
   void AddPage(const GURL& url,
                const void* id_scope,
                int32 page_id,
                const GURL& referrer,
                PageTransition::Type transition,
-               const RedirectList& redirects);
+               const RedirectList& redirects,
+               bool did_replace_entry);
 
   // For adding pages to history with a specific time. This is for testing
   // purposes. Call the previous one to use the current time.
@@ -171,12 +176,13 @@ class HistoryService : public CancelableRequestProvider,
                int32 page_id,
                const GURL& referrer,
                PageTransition::Type transition,
-               const RedirectList& redirects);
+               const RedirectList& redirects,
+               bool did_replace_entry);
 
   // For adding pages to history where no tracking information can be done.
   void AddPage(const GURL& url) {
     AddPage(url, NULL, 0, GURL::EmptyGURL(), PageTransition::LINK,
-            RedirectList());
+            RedirectList(), false);
   }
 
   // Sets the title for the given page. The page should be in history. If it

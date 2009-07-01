@@ -70,8 +70,41 @@ class HistoryBackendTest : public testing::Test {
     scoped_refptr<history::HistoryAddPageArgs> request(
         new history::HistoryAddPageArgs(
             redirects.back(), Time::Now(), scope, page_id, GURL(),
-            redirects, PageTransition::LINK));
+            redirects, PageTransition::LINK, true));
     backend_->AddPage(request);
+  }
+
+  // Adds CLIENT_REDIRECT page transition.
+  // |url1| is the source URL and |url2| is the destination.
+  // |did_replace| is true if the transition is non-user initiated and the
+  // navigation entry for |url2| has replaced that for |url1|. The possibly
+  // updated transition code of the visit records for |url1| and |url2| is
+  // returned by filling in |*transition1| and |*transition2|, respectively.
+  void  AddClientRedirect(const GURL& url1, const GURL& url2, bool did_replace,
+                          int* transition1, int* transition2) {
+    void* const dummy_scope = reinterpret_cast<void*>(0x87654321);
+    HistoryService::RedirectList redirects;
+    if (url1.is_valid())
+      redirects.push_back(url1);
+    if (url2.is_valid())
+      redirects.push_back(url2);
+    scoped_refptr<HistoryAddPageArgs> request(
+        new HistoryAddPageArgs(url2, base::Time(), dummy_scope, 0, url1,
+            redirects, PageTransition::CLIENT_REDIRECT, did_replace));
+    backend_->AddPage(request);
+
+    *transition1 = getTransition(url1);
+    *transition2 = getTransition(url2);
+  }
+
+  int getTransition(const GURL& url) {
+    if (!url.is_valid())
+      return 0;
+    URLRow row;
+    URLID id = backend_->db()->GetRowForURL(url, &row);
+    VisitVector visits;
+    EXPECT_TRUE(backend_->db()->GetVisitsForURL(id, &visits));
+    return visits[0].transition;
   }
 
   BookmarkModel bookmark_model_;
@@ -406,7 +439,7 @@ TEST_F(HistoryBackendTest, KeywordGenerated) {
   scoped_refptr<HistoryAddPageArgs> request(
       new HistoryAddPageArgs(url, visit_time, NULL, 0, GURL(),
                              HistoryService::RedirectList(),
-                             PageTransition::KEYWORD_GENERATED));
+                             PageTransition::KEYWORD_GENERATED, false));
   backend_->AddPage(request);
 
   // A row should have been added for the url.
@@ -442,6 +475,30 @@ TEST_F(HistoryBackendTest, KeywordGenerated) {
 
   // As well as the url.
   ASSERT_EQ(0, backend_->db()->GetRowForURL(url, &row));
+}
+
+TEST_F(HistoryBackendTest, ClientRedirect) {
+  ASSERT_TRUE(backend_.get());
+
+  int transition1;
+  int transition2;
+
+  // Initial transition to page A.
+  GURL url_a("http://google.com/a");
+   AddClientRedirect(GURL(), url_a, false, &transition1, &transition2);
+  EXPECT_TRUE(transition2 & PageTransition::CHAIN_END);
+
+  // User initiated redirect to page B.
+  GURL url_b("http://google.com/b");
+   AddClientRedirect(url_a, url_b, false, &transition1, &transition2);
+  EXPECT_TRUE(transition1 & PageTransition::CHAIN_END);
+  EXPECT_TRUE(transition2 & PageTransition::CHAIN_END);
+
+  // Non-user initiated redirect to page C.
+  GURL url_c("http://google.com/c");
+   AddClientRedirect(url_b, url_c, true, &transition1, &transition2);
+  EXPECT_FALSE(transition1 & PageTransition::CHAIN_END);
+  EXPECT_TRUE(transition2 & PageTransition::CHAIN_END);
 }
 
 }  // namespace history

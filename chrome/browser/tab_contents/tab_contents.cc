@@ -1246,7 +1246,7 @@ void TabContents::DidNavigateAnyFramePostCommit(
     // URLs, we use a data: URL as the real value.  We actually want to save
     // the about: URL to the history db and keep the data: URL hidden. This is
     // what the TabContents' URL getter does.
-    UpdateHistoryForNavigation(GetURL(), params);
+    UpdateHistoryForNavigation(GetURL(), details, params);
   }
 
   // Notify the password manager of the navigation or form submit.
@@ -1318,6 +1318,7 @@ void TabContents::UpdateMaxPageIDIfNecessary(SiteInstance* site_instance,
 
 void TabContents::UpdateHistoryForNavigation(
     const GURL& display_url,
+    const NavigationController::LoadCommittedDetails& details,
     const ViewHostMsg_FrameNavigate_Params& params) {
   if (profile()->IsOffTheRecord())
     return;
@@ -1337,10 +1338,11 @@ void TabContents::UpdateHistoryForNavigation(
       if (!redirects.empty())
         redirects.back() = display_url;
       hs->AddPage(display_url, this, params.page_id, params.referrer,
-                  params.transition, redirects);
+                  params.transition, redirects, details.did_replace_entry);
     } else {
       hs->AddPage(params.url, this, params.page_id, params.referrer,
-                  params.transition, params.redirects);
+                  params.transition, params.redirects,
+                  details.did_replace_entry);
     }
   }
 }

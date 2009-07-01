@@ -253,8 +253,10 @@ void HistoryService::AddPage(const GURL& url,
                              int32 page_id,
                              const GURL& referrer,
                              PageTransition::Type transition,
-                             const RedirectList& redirects) {
-  AddPage(url, Time::Now(), id_scope, page_id, referrer, transition, redirects);
+                             const RedirectList& redirects,
+                             bool did_replace_entry) {
+  AddPage(url, Time::Now(), id_scope, page_id, referrer, transition, redirects,
+          did_replace_entry);
 }
 
 void HistoryService::AddPage(const GURL& url,
@@ -263,7 +265,8 @@ void HistoryService::AddPage(const GURL& url,
                              int32 page_id,
                              const GURL& referrer,
                              PageTransition::Type transition,
-                             const RedirectList& redirects) {
+                             const RedirectList& redirects,
+                             bool did_replace_entry) {
   DCHECK(history_backend_) << "History service being called after cleanup";
 
   // Filter out unwanted URLs. We don't add auto-subframe URLs. They are a
@@ -292,7 +295,8 @@ void HistoryService::AddPage(const GURL& url,
 
   scoped_refptr<history::HistoryAddPageArgs> request(
       new history::HistoryAddPageArgs(url, time, id_scope, page_id,
-                                      referrer, redirects, transition));
+                                      referrer, redirects, transition,
+                                      did_replace_entry));
   ScheduleAndForget(PRIORITY_NORMAL, &HistoryBackend::AddPage, request);
 }
 

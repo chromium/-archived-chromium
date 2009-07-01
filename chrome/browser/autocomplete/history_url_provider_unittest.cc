@@ -321,7 +321,7 @@ TEST_F(HistoryURLProviderTest, CullRedirects) {
   redirects_to_a.push_back(GURL(redirect[2].url));
   redirects_to_a.push_back(GURL(redirect[0].url));
   history_service_->AddPage(GURL(redirect[0].url), NULL, 0, GURL(),
-                            PageTransition::TYPED, redirects_to_a);
+                            PageTransition::TYPED, redirects_to_a, true);
 
   // Because all the results are part of a redirect chain with other results,
   // all but the first one (A) should be culled. We should get the default

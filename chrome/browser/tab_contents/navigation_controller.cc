@@ -465,7 +465,7 @@ bool NavigationController::RendererDidNavigate(
   details->type = ClassifyNavigation(params);
   switch (details->type) {
     case NavigationType::NEW_PAGE:
-      RendererDidNavigateToNewPage(params);
+      RendererDidNavigateToNewPage(params, &(details->did_replace_entry));
       break;
     case NavigationType::EXISTING_PAGE:
       RendererDidNavigateToExistingPage(params);
@@ -474,7 +474,7 @@ bool NavigationController::RendererDidNavigate(
       RendererDidNavigateToSamePage(params);
       break;
     case NavigationType::IN_PAGE:
-      RendererDidNavigateInPage(params);
+      RendererDidNavigateInPage(params, &(details->did_replace_entry));
       break;
     case NavigationType::NEW_SUBFRAME:
       RendererDidNavigateNewSubframe(params);
@@ -617,7 +617,7 @@ bool NavigationController::IsLikelyAutoNavigation(base::TimeTicks now) {
 }
 
 void NavigationController::RendererDidNavigateToNewPage(
-    const ViewHostMsg_FrameNavigate_Params& params) {
+    const ViewHostMsg_FrameNavigate_Params& params, bool* did_replace_entry) {
   NavigationEntry* new_entry;
   if (pending_entry_) {
     // TODO(brettw) this assumes that the pending entry is appropriate for the
@@ -648,8 +648,9 @@ void NavigationController::RendererDidNavigateToNewPage(
   // replaced with the new entry to avoid unwanted redirections in navigating
   // backward/forward.
   // Otherwise, just insert the new entry.
-  InsertOrReplaceEntry(new_entry,
-      IsRedirect(params) && IsLikelyAutoNavigation(base::TimeTicks::Now()));
+  *did_replace_entry = IsRedirect(params) &&
+                       IsLikelyAutoNavigation(base::TimeTicks::Now());
+  InsertOrReplaceEntry(new_entry, *did_replace_entry);
 }
 
 void NavigationController::RendererDidNavigateToExistingPage(
@@ -707,7 +708,7 @@ void NavigationController::RendererDidNavigateToSamePage(
 }
 
 void NavigationController::RendererDidNavigateInPage(
-    const ViewHostMsg_FrameNavigate_Params& params) {
+    const ViewHostMsg_FrameNavigate_Params& params, bool* did_replace_entry) {
   DCHECK(PageTransition::IsMainFrame(params.transition)) <<
       "WebKit should only tell us about in-page navs for the main frame.";
   // We're guaranteed to have an entry for this one.
@@ -721,8 +722,9 @@ void NavigationController::RendererDidNavigateInPage(
   NavigationEntry* new_entry = new NavigationEntry(*existing_entry);
   new_entry->set_page_id(params.page_id);
   new_entry->set_url(params.url);
-  InsertOrReplaceEntry(new_entry,
-      IsRedirect(params) && IsLikelyAutoNavigation(base::TimeTicks::Now()));
+  *did_replace_entry = IsRedirect(params) &&
+                       IsLikelyAutoNavigation(base::TimeTicks::Now());
+  InsertOrReplaceEntry(new_entry, *did_replace_entry);
 }
 
 void NavigationController::RendererDidNavigateNewSubframe(

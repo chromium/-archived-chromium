@@ -56,6 +56,7 @@ class NavigationController {
     LoadCommittedDetails()
         : entry(NULL),
           is_auto(false),
+          did_replace_entry(false),
           is_in_page(false),
           is_main_frame(true) {
     }
@@ -81,6 +82,11 @@ class NavigationController {
     // fact that WebKit doesn't always set the user gesture properly in these
     // cases (see bug 1051891).
     bool is_auto;
+
+    // True if the committed entry has replaced the exisiting one.
+    // A non-user initiated redierct causes such replacement.
+    // This is somewhat similiar to is_auto, but not exactly the same.
+    bool did_replace_entry;
 
     // True if the navigation was in-page. This means that the active entry's
     // URL and the |previous_url| are the same except for reference fragments.
@@ -397,14 +403,18 @@ class NavigationController {
   // RendererDidNavigateAutoSubframe is special, it may not actually change
   // anything if some random subframe is loaded. It will return true if anything
   // changed, or false if not.
+  //
+  // The functions taking |did_replace_entry| will fill into the given variable
+  // whether the last entry has been replaced or not.
+  // See LoadCommittedDetails.did_replace_entry.
   void RendererDidNavigateToNewPage(
-      const ViewHostMsg_FrameNavigate_Params& params);
+      const ViewHostMsg_FrameNavigate_Params& params, bool* did_replace_entry);
   void RendererDidNavigateToExistingPage(
       const ViewHostMsg_FrameNavigate_Params& params);
   void RendererDidNavigateToSamePage(
       const ViewHostMsg_FrameNavigate_Params& params);
   void RendererDidNavigateInPage(
-      const ViewHostMsg_FrameNavigate_Params& params);
+      const ViewHostMsg_FrameNavigate_Params& params, bool* did_replace_entry);
   void RendererDidNavigateNewSubframe(
       const ViewHostMsg_FrameNavigate_Params& params);
   bool RendererDidNavigateAutoSubframe(

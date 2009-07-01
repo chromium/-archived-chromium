@@ -402,12 +402,13 @@ void HistoryBackend::AddPage(scoped_refptr<HistoryAddPageArgs> request) {
         DCHECK(request->referrer == request->redirects[0]);
         request->redirects.erase(request->redirects.begin());
 
-        // Make sure to remove the CHAIN_END marker from the first visit. This
+        // If the navigation entry for this visit has replaced that for the
+        // first visit, remove the CHAIN_END marker from the first visit. This
         // can be called a lot, for example, the page cycler, and most of the
         // time we won't have changed anything.
-        // TODO(brettw) this should be unit tested.
         VisitRow visit_row;
-        if (db_->GetRowForVisit(last_ids.second, &visit_row) &&
+        if (request->did_replace_entry &&
+            db_->GetRowForVisit(last_ids.second, &visit_row) &&
             visit_row.transition | PageTransition::CHAIN_END) {
           visit_row.transition &= ~PageTransition::CHAIN_END;
           db_->UpdateVisitRow(visit_row);

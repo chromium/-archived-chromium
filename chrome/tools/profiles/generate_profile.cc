@@ -152,7 +152,7 @@ void InsertURLBatch(const std::wstring& profile_dir, int page_id,
     history_service->AddPage(url,
                              id_scope, page_id,
                              previous_url, transition,
-                             redirects);
+                             redirects, true);
     ThumbnailScore score(0.75, false, false);
     history_service->SetPageTitle(url, ConstructRandomTitle());
     if (!history_only) {
