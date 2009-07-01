@@ -1383,6 +1383,11 @@ IPC_BEGIN_MESSAGES(ViewHost)
                       int /* port_id */,
                       std::string /* message */)
 
+  // Send a message to an extension process.  The handle is the value returned
+  // by ViewHostMsg_OpenChannelToExtension.
+  IPC_MESSAGE_CONTROL1(ViewHostMsg_ExtensionCloseChannel,
+                       int /* port_id */)
+
   // Message to show a popup menu using native cocoa controls (Mac only).
   IPC_MESSAGE_ROUTED1(ViewHostMsg_ShowPopup,
                       ViewHostMsg_ShowPopup_Params)

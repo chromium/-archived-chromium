@@ -10,6 +10,7 @@
 var chrome = chrome || {};
 (function () {
   native function OpenChannelToExtension(id);
+  native function CloseChannel(portId);
   native function PostMessage(portId, msg);
   native function GetChromeHidden();
 
@@ -78,7 +79,7 @@ var chrome = chrome || {};
   // Disconnects the port from the other end.
   chrome.Port.prototype.disconnect = function() {
     delete ports[this.portId_];
-    //CloseChannel(this.portId_);  // TODO(mpcomplete)
+    CloseChannel(this.portId_);
   }
 
   // Extension object.

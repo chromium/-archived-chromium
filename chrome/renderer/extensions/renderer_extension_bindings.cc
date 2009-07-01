@@ -46,6 +46,8 @@ class ExtensionImpl : public ExtensionBase {
       return v8::FunctionTemplate::New(OpenChannelToExtension);
     } else if (name->Equals(v8::String::New("PostMessage"))) {
       return v8::FunctionTemplate::New(PostMessage);
+    } else if (name->Equals(v8::String::New("CloseChannel"))) {
+      return v8::FunctionTemplate::New(CloseChannel);
     }
     return ExtensionBase::GetNativeFunction(name);
   }
@@ -80,6 +82,17 @@ class ExtensionImpl : public ExtensionBase {
       std::string message = *v8::String::Utf8Value(args[1]->ToString());
       renderview->Send(new ViewHostMsg_ExtensionPostMessage(
           renderview->routing_id(), port_id, message));
+    }
+    return v8::Undefined();
+  }
+
+  // Sends a message along the given channel.
+  static v8::Handle<v8::Value> CloseChannel(const v8::Arguments& args) {
+    if (args.Length() >= 1 && args[0]->IsInt32()) {
+      int port_id = args[0]->Int32Value();
+      // Send via the RenderThread because the RenderView might be closing.
+      EventBindings::GetRenderThread()->Send(
+          new ViewHostMsg_ExtensionCloseChannel(port_id));
     }
     return v8::Undefined();
   }

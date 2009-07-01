@@ -27,8 +27,8 @@ class EventBindings {
   static void HandleContextDestroyed(WebFrame* frame);
 
   // Calls the given function in each registered context which is listening
-  // for events.  The function can be an object property, ie:
-  // "chromium.Event.dispatch_".
+  // for events.  See comments on bindings_utils::CallFunctionInContext for
+  // more details.
   static void CallFunction(const std::string& function_name, int argc,
                            v8::Handle<v8::Value>* argv);
 

@@ -290,13 +290,28 @@ int ExtensionMessageService::OpenAutomationChannelToExtension(
   return port2_id;
 }
 
-void ExtensionMessageService::CloseAutomationChannel(int port_id) {
+void ExtensionMessageService::CloseChannel(int port_id) {
   DCHECK_EQ(MessageLoop::current()->type(), MessageLoop::TYPE_UI);
 
-  // TODO(siggi): Cleanup from the tab seems to beat this to the punch.
-  // DCHECK(channels_[GET_CHANNEL_ID(port_id)].port1 != NULL);
-  // TODO(siggi): should we notify the other side of the port?
-  channels_.erase(GET_CHANNEL_ID(port_id));
+  // Note: The channel might be gone already, if the other side closed first.
+  MessageChannelMap::iterator it = channels_.find(GET_CHANNEL_ID(port_id));
+  if (it != channels_.end())
+    CloseChannelImpl(it, port_id);
+}
+
+void ExtensionMessageService::CloseChannelImpl(
+    MessageChannelMap::iterator channel_iter, int port_id) {
+  DCHECK_EQ(MessageLoop::current()->type(), MessageLoop::TYPE_UI);
+
+  // Notify the other side.
+  if (port_id == GET_CHANNEL_PORT1(channel_iter->first)) {
+    DispatchOnDisconnect(channel_iter->second.port2, port_id);
+  } else {
+    DCHECK_EQ(port_id, GET_CHANNEL_PORT2(channel_iter->first));
+    DispatchOnDisconnect(channel_iter->second.port1, port_id);
+  }
+
+  channels_.erase(channel_iter);
 }
 
 void ExtensionMessageService::PostMessageFromRenderer(
@@ -365,13 +380,9 @@ void ExtensionMessageService::Observe(NotificationType type,
        it != channels_.end(); ) {
     MessageChannelMap::iterator current = it++;
     if (current->second.port1 == renderer) {
-      DispatchOnDisconnect(current->second.port2,
-                           GET_CHANNEL_PORT1(current->first));
-      channels_.erase(current);
+      CloseChannelImpl(current, GET_CHANNEL_PORT1(current->first));
     } else if (current->second.port2 == renderer) {
-      DispatchOnDisconnect(current->second.port1,
-                           GET_CHANNEL_PORT2(current->first));
-      channels_.erase(current);
+      CloseChannelImpl(current, GET_CHANNEL_PORT2(current->first));
     }
   }
 }

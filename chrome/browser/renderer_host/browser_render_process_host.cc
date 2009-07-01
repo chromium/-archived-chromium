@@ -671,6 +671,8 @@ void BrowserRenderProcessHost::OnMessageReceived(const IPC::Message& msg) {
                           OnExtensionAddListener)
       IPC_MESSAGE_HANDLER(ViewHostMsg_ExtensionRemoveListener,
                           OnExtensionRemoveListener)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_ExtensionCloseChannel,
+                          OnExtensionCloseChannel)
       IPC_MESSAGE_UNHANDLED_ERROR()
     IPC_END_MESSAGE_MAP_EX()
 
@@ -887,14 +889,17 @@ void BrowserRenderProcessHost::Observe(NotificationType type,
 
 void BrowserRenderProcessHost::OnExtensionAddListener(
     const std::string& event_name) {
-  URLRequestContext* context = profile()->GetRequestContext();
-  ExtensionMessageService* ems = ExtensionMessageService::GetInstance(context);
-  ems->AddEventListener(event_name, pid());
+  ExtensionMessageService::GetInstance(profile()->GetRequestContext())->
+      AddEventListener(event_name, pid());
 }
 
 void BrowserRenderProcessHost::OnExtensionRemoveListener(
     const std::string& event_name) {
-  URLRequestContext* context = profile()->GetRequestContext();
-  ExtensionMessageService* ems = ExtensionMessageService::GetInstance(context);
-  ems->RemoveEventListener(event_name, pid());
+  ExtensionMessageService::GetInstance(profile()->GetRequestContext())->
+      RemoveEventListener(event_name, pid());
+}
+
+void BrowserRenderProcessHost::OnExtensionCloseChannel(int port_id) {
+  ExtensionMessageService::GetInstance(profile()->GetRequestContext())->
+      CloseChannel(port_id);
 }
