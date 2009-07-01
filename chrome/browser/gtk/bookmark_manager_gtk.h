@@ -110,6 +110,18 @@ class BookmarkManagerGtk : public BookmarkModelObserver,
   // Stick update the right store to reflect |row| from |right_tree_model_|.
   void AddNodeToRightStore(int row);
 
+  // Set the size of a column based on the user prefs, and also sets the sizing
+  // properties of the column.
+  void SizeColumn(GtkTreeViewColumn* column,
+                  const wchar_t* prefname);
+
+  // Calls SizeColumn() on each of the right tree view columns.
+  void SizeColumns();
+
+  // Save the column widths into the pref service. Column widths are stored
+  // separately depending on whether the path column is showing.
+  void SaveColumnConfiguration();
+
   GtkTreeSelection* left_selection() {
     return gtk_tree_view_get_selection(GTK_TREE_VIEW(left_tree_view_));
   }
@@ -217,6 +229,8 @@ class BookmarkManagerGtk : public BookmarkModelObserver,
   };
   GtkTreeStore* left_store_;
   GtkListStore* right_store_;
+  GtkTreeViewColumn* title_column_;
+  GtkTreeViewColumn* url_column_;
   GtkTreeViewColumn* path_column_;
   scoped_ptr<BookmarkTableModel> right_tree_model_;
 

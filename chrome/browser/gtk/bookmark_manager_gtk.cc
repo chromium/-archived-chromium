@@ -26,6 +26,7 @@
 #include "chrome/common/pref_service.h"
 #include "grit/app_resources.h"
 #include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 #include "grit/theme_resources.h"
 
 namespace {
@@ -44,6 +45,12 @@ const int kSearchPadding = 5;
 
 // Time between a user action in the search box and when we perform the search.
 const int kSearchDelayMS = 200;
+
+// The default width of a column in the right tree view. Since we set the
+// columns to ellipsize, if we don't explicitly set a width they will be
+// wide enough to display only '...'. This will be overridden if the user
+// resizes the column.
+const int kDefaultColumnWidth = 200;
 
 // We only have one manager open at a time.
 BookmarkManagerGtk* manager = NULL;
@@ -280,6 +287,7 @@ BookmarkManagerGtk::BookmarkManagerGtk(Profile* profile)
 }
 
 BookmarkManagerGtk::~BookmarkManagerGtk() {
+  SaveColumnConfiguration();
   model_->RemoveObserver(this);
 }
 
@@ -287,10 +295,30 @@ void BookmarkManagerGtk::InitWidgets() {
   window_ = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(window_),
       l10n_util::GetStringUTF8(IDS_BOOKMARK_MANAGER_TITLE).c_str());
-  // TODO(estade): use dimensions based on
-  // IDS_BOOKMARK_MANAGER_DIALOG_WIDTH_CHARS and
-  // IDS_BOOKMARK_MANAGER_DIALOG_HEIGHT_LINES.
-  gtk_window_set_default_size(GTK_WINDOW(window_), 640, 480);
+
+  // Set the default size of the bookmark manager.
+  // Windows has code to do this that uses ChromeFont; we could share it but
+  // since we don't plan to use it elsewhere it's probably not worth the effort.
+  PangoContext* context = gtk_widget_create_pango_context(window_);
+  PangoFontMetrics* metrics =
+      pango_context_get_metrics(context, window_->style->font_desc,
+                                pango_context_get_language(context));
+  double chars = 0;
+  StringToDouble(WideToUTF8(l10n_util::GetString(
+      IDS_BOOKMARK_MANAGER_DIALOG_WIDTH_CHARS)), &chars);
+  int width =
+      pango_font_metrics_get_approximate_char_width(metrics) *
+      static_cast<int>(chars) / PANGO_SCALE;
+  double lines = 0;
+  StringToDouble(WideToUTF8(l10n_util::GetString(
+      IDS_BOOKMARK_MANAGER_DIALOG_HEIGHT_LINES)), &lines);
+  int height =
+      (pango_font_metrics_get_ascent(metrics) +
+      pango_font_metrics_get_descent(metrics)) *
+      static_cast<int>(lines) / PANGO_SCALE;
+  gtk_window_set_default_size(GTK_WINDOW(window_), width, height);
+  pango_font_metrics_unref(metrics);
+  g_object_unref(context);
 
   // Build the organize and tools menus.
   organize_ = gtk_menu_item_new_with_label(
@@ -338,10 +366,7 @@ void BookmarkManagerGtk::InitWidgets() {
 
   GtkWidget* paned = gtk_hpaned_new();
   // Set the initial position of the pane divider.
-  // TODO(estade): we should set this to one third of the width of the window
-  // when it first shows (depending on the WM, this may or may not be the value
-  // we set below in gtk_window_set_size()).
-  gtk_paned_set_position(GTK_PANED(paned), 200);
+  gtk_paned_set_position(GTK_PANED(paned), width / 3);
   gtk_paned_pack1(GTK_PANED(paned), left_pane, FALSE, FALSE);
   gtk_paned_pack2(GTK_PANED(paned), right_pane, TRUE, FALSE);
 
@@ -403,29 +428,32 @@ GtkWidget* BookmarkManagerGtk::MakeRightPane() {
   right_store_ = gtk_list_store_new(RIGHT_PANE_NUM,
       GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_INT);
 
-  GtkTreeViewColumn* title_column = gtk_tree_view_column_new();
-  gtk_tree_view_column_set_title(title_column,
+  title_column_ = gtk_tree_view_column_new();
+  gtk_tree_view_column_set_title(title_column_,
       l10n_util::GetStringUTF8(IDS_BOOKMARK_TABLE_TITLE).c_str());
   GtkCellRenderer* image_renderer = gtk_cell_renderer_pixbuf_new();
-  gtk_tree_view_column_pack_start(title_column, image_renderer, FALSE);
-  gtk_tree_view_column_add_attribute(title_column, image_renderer,
+  gtk_tree_view_column_pack_start(title_column_, image_renderer, FALSE);
+  gtk_tree_view_column_add_attribute(title_column_, image_renderer,
                                      "pixbuf", RIGHT_PANE_PIXBUF);
   GtkCellRenderer* text_renderer = gtk_cell_renderer_text_new();
-  gtk_tree_view_column_pack_start(title_column, text_renderer, TRUE);
-  gtk_tree_view_column_add_attribute(title_column, text_renderer,
+  g_object_set(text_renderer, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
+  gtk_tree_view_column_pack_start(title_column_, text_renderer, TRUE);
+  gtk_tree_view_column_add_attribute(title_column_, text_renderer,
                                      "text", RIGHT_PANE_TITLE);
-  GtkTreeViewColumn* url_column = gtk_tree_view_column_new_with_attributes(
+
+  url_column_ = gtk_tree_view_column_new_with_attributes(
       l10n_util::GetStringUTF8(IDS_BOOKMARK_TABLE_URL).c_str(),
-      gtk_cell_renderer_text_new(), "text", RIGHT_PANE_URL, NULL);
+      text_renderer, "text", RIGHT_PANE_URL, NULL);
+
   path_column_ = gtk_tree_view_column_new_with_attributes(
       l10n_util::GetStringUTF8(IDS_BOOKMARK_TABLE_PATH).c_str(),
-      gtk_cell_renderer_text_new(), "text", RIGHT_PANE_PATH, NULL);
+      text_renderer, "text", RIGHT_PANE_PATH, NULL);
 
   right_tree_view_ = gtk_tree_view_new_with_model(GTK_TREE_MODEL(right_store_));
   // Let |tree_view| own the store.
   g_object_unref(right_store_);
-  gtk_tree_view_append_column(GTK_TREE_VIEW(right_tree_view_), title_column);
-  gtk_tree_view_append_column(GTK_TREE_VIEW(right_tree_view_), url_column);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(right_tree_view_), title_column_);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(right_tree_view_), url_column_);
   gtk_tree_view_append_column(GTK_TREE_VIEW(right_tree_view_), path_column_);
   gtk_tree_selection_set_mode(right_selection(), GTK_SELECTION_MULTIPLE);
 
@@ -526,7 +554,9 @@ void BookmarkManagerGtk::BuildRightStore() {
   gtk_list_store_clear(right_store_);
 
   if (node) {
+    SaveColumnConfiguration();
     gtk_tree_view_column_set_visible(path_column_, FALSE);
+    SizeColumns();
 
     right_tree_model_.reset(
         BookmarkTableModel::CreateBookmarkTableModelForFolder(model_, node));
@@ -536,7 +566,9 @@ void BookmarkManagerGtk::BuildRightStore() {
     GtkDndUtil::SetDestTargetListFromCodeMask(right_tree_view_,
                                               GtkDndUtil::X_CHROME_BOOKMARK_ITEM);
   } else {
+    SaveColumnConfiguration();
     gtk_tree_view_column_set_visible(path_column_, TRUE);
+    SizeColumns();
 
     int id = GetSelectedRowID();
     if (kRecentID == id) {
@@ -645,6 +677,52 @@ void BookmarkManagerGtk::AddNodeToRightStore(int row) {
   }
 
   SetRightSideColumnValues(row, &iter);
+}
+
+void BookmarkManagerGtk::SizeColumn(GtkTreeViewColumn* column,
+                                    const wchar_t* prefname) {
+  gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+  gtk_tree_view_column_set_resizable(column, TRUE);
+
+  PrefService* prefs = profile_->GetPrefs();
+  if (!prefs)
+    return;
+
+  int width = prefs->GetInteger(prefname);
+  if (width <= 0)
+    width = kDefaultColumnWidth;
+  gtk_tree_view_column_set_fixed_width(column, width);
+}
+
+void BookmarkManagerGtk::SizeColumns() {
+  if (gtk_tree_view_column_get_visible(path_column_)) {
+    SizeColumn(title_column_, prefs::kBookmarkTableNameWidth2);
+    SizeColumn(url_column_, prefs::kBookmarkTableURLWidth2);
+    SizeColumn(path_column_, prefs::kBookmarkTablePathWidth);
+  } else {
+    SizeColumn(title_column_, prefs::kBookmarkTableNameWidth1);
+    SizeColumn(url_column_, prefs::kBookmarkTableURLWidth1);
+  }
+}
+
+void BookmarkManagerGtk::SaveColumnConfiguration() {
+  PrefService* prefs = profile_->GetPrefs();
+  if (!prefs)
+    return;
+
+  if (gtk_tree_view_column_get_visible(path_column_)) {
+    prefs->SetInteger(prefs::kBookmarkTableNameWidth2,
+                      gtk_tree_view_column_get_width(title_column_));
+    prefs->SetInteger(prefs::kBookmarkTableURLWidth2,
+                      gtk_tree_view_column_get_width(url_column_));
+    prefs->SetInteger(prefs::kBookmarkTablePathWidth,
+                      gtk_tree_view_column_get_width(path_column_));
+  } else {
+    prefs->SetInteger(prefs::kBookmarkTableNameWidth1,
+                      gtk_tree_view_column_get_width(title_column_));
+    prefs->SetInteger(prefs::kBookmarkTableURLWidth1,
+                      gtk_tree_view_column_get_width(url_column_));
+  }
 }
 
 bool BookmarkManagerGtk::RecursiveFind(GtkTreeModel* model, GtkTreeIter* iter,
