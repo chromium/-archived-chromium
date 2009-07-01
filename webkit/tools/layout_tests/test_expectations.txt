@@ -2836,3 +2836,19 @@ BUG15649 : LayoutTests/media/video-canvas-source.html = FAIL
 
 // WebKit 45381:45403 New tests
 BUG15710 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridColumns-dom.html = TIMEOUT
+
+// Webkit 45403:45431
+BUG15733 : LayoutTests/compositing/repaint/content-into-overflow.html = FAIL
+BUG15733 : LayoutTests/compositing/repaint/overflow-into-content.html = FAIL
+
+// WebKit 45431:45444 focus related
+BUG15780 : LayoutTests/fast/dom/Window/window-onFocus.html = FAIL
+BUG15780 : LayoutTests/fast/events/frame-click-focus.html = FAIL
+BUG15780 : LayoutTests/fast/events/frame-programmatic-focus.html = FAIL
+BUG15780 : LayoutTests/fast/events/frame-tab-focus.html = FAIL
+BUG15780 : LayoutTests/fast/frames/iframe-window-focus.html = FAIL
+BUG15780 : LayoutTests/editing/selection/select-all-iframe.html = FAIL
+BUG15780 : LayoutTests/fast/repaint/text-selection-rect-in-overflow-2.html = FAIL
+
+// WebKit 45431:45444
+BUG15780 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridColumns-dom-attributes.html = FAIL
