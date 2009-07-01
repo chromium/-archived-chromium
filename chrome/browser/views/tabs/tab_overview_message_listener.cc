@@ -62,12 +62,41 @@ void TabOverviewMessageListener::ProcessMessage(
     case TabOverviewTypes::Message::CHROME_NOTIFY_LAYOUT_MODE: {
       if (message.param(0) == 0) {
         new_browser_window_.reset(NULL);
+        controller_.reset(NULL);
       } else if (BrowserList::size() > 0) {
         Browser* browser = *BrowserList::begin();
+        controller_.reset(new TabOverviewController(
+                              browser->window()->GetNormalBounds().origin()));
         new_browser_window_.reset(
             new NewBrowserWindowWidget(browser->profile()));
       }
       break;
+    }
+
+    case TabOverviewTypes::Message::CHROME_NOTIFY_FLOATING_TAB_OVER_TOPLEVEL: {
+      if (!controller_.get())
+        return;
+
+      bool over_mini_window = message.param(1) == 1;
+      controller_->SetMouseOverMiniWindow(over_mini_window);
+      if (!over_mini_window)
+        return;
+
+      // Not over a mini-window, make sure the controller is showing the
+      // contents of the browser the mouse is over.
+      BrowserWindowGtk* browser_window =
+          BrowserWindowGtk::GetBrowserWindowForNativeWindow(
+              BrowserWindowGtk::GetBrowserWindowForXID(message.param(0)));
+      if (!browser_window)
+        return;
+
+      if (controller_->browser()->window() == browser_window)
+        return;
+
+      TabOverviewTypes::Message select_message;
+      select_message.set_type(TabOverviewTypes::Message::WM_MOVE_FLOATING_TAB);
+      select_message.set_param(0, message.param(1));
+      TabOverviewTypes::instance()->SendMessage(select_message);
     }
 
     default:
@@ -86,5 +115,5 @@ void TabOverviewMessageListener::ShowOverview(Browser* browser,
 }
 
 void TabOverviewMessageListener::HideOverview() {
-  controller_.reset(NULL);
+  controller_->SetBrowser(NULL, -1);
 }

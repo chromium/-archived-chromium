@@ -68,6 +68,12 @@ class DraggedTabController : public TabContentsDelegate,
   // Returns true if the specified Tab matches the Tab being dragged.
   bool IsDragSourceTab(Tab* tab) const;
 
+
+
+  TabContents* dragged_contents() { return dragged_contents_; }
+
+
+
  private:
   class DockDisplayer;
   friend class DockDisplayer;

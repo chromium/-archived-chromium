@@ -10,6 +10,7 @@
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/notification_registrar.h"
 
+class Browser;
 class TabOverviewController;
 class TabOverviewGrid;
 class TabStripModel;
@@ -40,18 +41,24 @@ class TabOverviewDragController : public TabContentsDelegate,
   explicit TabOverviewDragController(TabOverviewController* controller);
   ~TabOverviewDragController();
 
-  // Invoked to prepare the TabOverviewDragController for a drag. Returns true
-  // if over a cell, false if the mouse isn't over a valid location.
+  // Sets whether the mouse is over a mini-window.
+  void set_mouse_over_mini_window(bool over_mini_window) {
+    mouse_over_mini_window_ = over_mini_window;
+  }
+
+  // Prepares the TabOverviewDragController for a drag. Returns true if over a
+  // cell, false if the mouse isn't over a valid location.
   bool Configure(const gfx::Point& location);
 
   // Invoked as the user drags the mouse.
   void Drag(const gfx::Point& location);
 
-  // Invoked to commit the drag, typically when the user pressed enter.
+  // Commits the drag, typically when the user releases the mouse.
   void CommitDrag(const gfx::Point& location);
 
-  // Invoked to rever the drag.
-  void RevertDrag();
+  // Reverts the drag. Use true if the revert is the result of the tab being
+  // destroyed.
+  void RevertDrag(bool tab_destroyed);
 
   bool modifying_model() const { return modifying_model_; }
   TabOverviewGrid* grid() const;
@@ -150,6 +157,19 @@ class TabOverviewDragController : public TabContentsDelegate,
   // Once a tab is detached a window is created containing a cell and moved
   // around; this is that window.
   views::Widget* detached_window_;
+
+  // When a tab is detached from a browser with a single tab we hide the
+  // browser. If this is non-null it means a single tab has been detached
+  // and this is the browser it was detached from.
+  Browser* hidden_browser_;
+
+  // Whether the mouse is over a mini window.
+  bool mouse_over_mini_window_;
+
+  // Size of the browser window. Cached in case browser() becomes NULL (as
+  // happens when the user drags over a region that shouldn't show the tab
+  // overview).
+  gfx::Size browser_window_size_;
 
   DISALLOW_COPY_AND_ASSIGN(TabOverviewDragController);
 };

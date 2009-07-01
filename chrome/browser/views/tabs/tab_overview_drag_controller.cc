@@ -7,6 +7,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/dock_info.h"
+#include "chrome/browser/gtk/browser_window_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -32,14 +33,16 @@ TabOverviewDragController::TabOverviewDragController(
       y_offset_(0),
       dragging_(false),
       modifying_model_(false),
-      detached_window_(NULL) {
+      detached_window_(NULL),
+      hidden_browser_(NULL),
+      mouse_over_mini_window_(false) {
 }
 
 TabOverviewDragController::~TabOverviewDragController() {
   if (dragging_)
     controller_->DragEnded();
   if (original_index_ != -1)
-    RevertDrag();
+    RevertDrag(false);
 }
 
 bool TabOverviewDragController::Configure(const gfx::Point& location) {
@@ -70,6 +73,12 @@ bool TabOverviewDragController::Configure(const gfx::Point& location) {
 
   // Ask the controller to select the cell.
   controller_->SelectTab(index);
+
+  if (controller_->browser()) {
+    browser_window_size_ =
+        controller_->browser()->window()->GetNormalBounds().size();
+  }
+
   return true;
 }
 
@@ -95,7 +104,12 @@ void TabOverviewDragController::CommitDrag(const gfx::Point& location) {
 
   Drag(location);
   if (detached_tab_) {
-    DropTab(location);
+    if (mouse_over_mini_window_) {
+      // Dragged over a mini window, add as the last tab to the browser.
+      Attach(model()->count());
+    } else {
+      DropTab(location);
+    }
   } else if (!dragging_ ) {
     // We haven't started dragging. Tell the controller to focus the browser.
     controller_->FocusBrowser();
@@ -109,25 +123,32 @@ void TabOverviewDragController::CommitDrag(const gfx::Point& location) {
   original_index_ = -1;
 }
 
-void TabOverviewDragController::RevertDrag() {
+void TabOverviewDragController::RevertDrag(bool tab_destroyed) {
   if (original_index_ == -1)
     return;
 
   modifying_model_ = true;
   if (detached_tab_) {
     // Tab is currently detached, add it back to the original tab strip.
-    original_model_->InsertTabContentsAt(original_index_,
-                                         detached_tab_, true, false);
+    if (!tab_destroyed) {
+      original_model_->InsertTabContentsAt(original_index_,
+                                           detached_tab_, true, false);
+    }
     SetDetachedContents(NULL);
     detached_window_->Close();
     detached_window_ = NULL;
-  } else if (original_model_ != model()) {
+
+    if (hidden_browser_) {
+      gtk_widget_show(GTK_WIDGET(static_cast<BrowserWindowGtk*>(
+          hidden_browser_->window())->GetNativeHandle()));
+    }
+  } else if (original_model_ != model() && !tab_destroyed) {
     // The tab was added to a different tab strip. Move it back to the
     // original.
     TabContents* contents = model()->DetachTabContentsAt(current_index_);
     original_model_->InsertTabContentsAt(original_index_, contents, true,
                                          false);
-  } else if (current_index_ != original_index_) {
+  } else if (current_index_ != original_index_ && !tab_destroyed) {
     original_model_->MoveTabContentsAt(current_index_, original_index_, true);
   }
   modifying_model_ = false;
@@ -149,7 +170,7 @@ void TabOverviewDragController::Observe(NotificationType type,
                                         const NotificationDetails& details) {
   DCHECK(type == NotificationType::TAB_CONTENTS_DESTROYED);
   DCHECK(Source<TabContents>(source).ptr() == detached_tab_);
-  RevertDrag();
+  RevertDrag(true);
 }
 
 void TabOverviewDragController::OpenURLFromTab(
@@ -326,6 +347,9 @@ void TabOverviewDragController::Detach(const gfx::Point& location) {
     // to empty out the tabstrip as otherwise they may trigger Chrome to
     // exit.
     controller_->MoveOffscreen();
+    hidden_browser_ = controller_->browser();
+    gtk_widget_hide(GTK_WIDGET(static_cast<BrowserWindowGtk*>(
+        hidden_browser_->window())->GetNativeHandle()));
   }
   modifying_model_ = true;
   model()->DetachTabContentsAt(current_index_);
@@ -336,13 +360,12 @@ void TabOverviewDragController::DropTab(const gfx::Point& location) {
   TabContents* contents = detached_tab_;
   SetDetachedContents(NULL);
 
-  gfx::Rect browser_rect = controller_->browser()->window()->GetNormalBounds();
   gfx::Point screen_loc(location);
   grid()->ConvertPointToScreen(grid(), &screen_loc);
-  gfx::Rect window_bounds(
-      screen_loc, gfx::Size(browser_rect.width(), browser_rect.height()));
-  Browser* new_browser = model()->delegate()->CreateNewStripWithContents(
-      contents, window_bounds, DockInfo());
+  gfx::Rect window_bounds(screen_loc, browser_window_size_);
+  Browser* new_browser =
+      original_model_->delegate()->CreateNewStripWithContents(
+          contents, window_bounds, DockInfo());
   new_browser->window()->Show();
 
   detached_window_->Close();
@@ -357,6 +380,15 @@ void TabOverviewDragController::MoveDetachedWindow(
   detached_window_->SetBounds(
       gfx::Rect(screen_loc,
                 detached_window_->GetRootView()->GetPreferredSize()));
+
+  // Notify the wm of the move.
+  TabOverviewTypes::Message message;
+  message.set_type(TabOverviewTypes::Message::WM_MOVE_FLOATING_TAB);
+  message.set_param(0, x11_util::GetX11WindowFromGtkWidget(
+                        detached_window_->GetNativeView()));
+  message.set_param(1, screen_loc.x() + x_offset_);
+  message.set_param(2, screen_loc.y() + y_offset_);
+  TabOverviewTypes::instance()->SendMessage(message);
 }
 
 views::Widget* TabOverviewDragController::CreateDetachedWindow(
@@ -364,7 +396,7 @@ views::Widget* TabOverviewDragController::CreateDetachedWindow(
     TabContents* tab_contents) {
   // TODO: wrap the cell in another view that provides a background.
   views::WidgetGtk* widget =
-      new views::WidgetGtk(views::WidgetGtk::TYPE_POPUP);
+      new views::WidgetGtk(views::WidgetGtk::TYPE_WINDOW);
   widget->MakeTransparent();
   gfx::Point screen_loc = location;
   screen_loc.Offset(-x_offset_, -y_offset_);

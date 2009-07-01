@@ -27,6 +27,10 @@ class TabOverviewGrid : public Grid {
   // Returns the TabOverviewCell at the specified index.
   TabOverviewCell* GetTabOverviewCellAt(int index);
 
+  // Returns the TabOverviewDragController. This is NULL if a drag is not
+  // underway.
+  TabOverviewDragController* drag_controller() const;
+
   // Cancels the drag. Does nothing if a drag is not underway.
   void CancelDrag();
 

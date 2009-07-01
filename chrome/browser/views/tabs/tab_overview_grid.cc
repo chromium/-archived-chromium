@@ -24,6 +24,10 @@ TabOverviewCell* TabOverviewGrid::GetTabOverviewCellAt(int index) {
   return static_cast<TabOverviewCell*>(GetChildViewAt(index));
 }
 
+TabOverviewDragController* TabOverviewGrid::drag_controller() const {
+  return drag_controller_.get();
+}
+
 void TabOverviewGrid::CancelDrag() {
   drag_controller_.reset(NULL);
 }
@@ -65,7 +69,7 @@ void TabOverviewGrid::OnMouseReleased(const views::MouseEvent& event,
     return;
 
   if (canceled)
-    drag_controller_->RevertDrag();
+    drag_controller_->RevertDrag(false);
   else
     drag_controller_->CommitDrag(event.location());
   drag_controller_.reset(NULL);

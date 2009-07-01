@@ -11,6 +11,7 @@
 #include "chrome/browser/tab_contents/thumbnail_generator.h"
 #include "chrome/browser/views/tabs/tab_overview_cell.h"
 #include "chrome/browser/views/tabs/tab_overview_container.h"
+#include "chrome/browser/views/tabs/tab_overview_drag_controller.h"
 #include "chrome/browser/views/tabs/tab_overview_grid.h"
 #include "chrome/browser/views/tabs/tab_overview_types.h"
 #include "chrome/browser/window_sizer.h"
@@ -85,19 +86,36 @@ void TabOverviewController::SetBrowser(Browser* browser,
   browser_ = browser;
   if (browser_)
     model()->AddObserver(this);
+
+  show_thumbnails_ = false;
+  StartDelayTimer();
+
   gfx::Rect host_bounds = CalculateHostBounds();
   if (moved_offscreen_ && model() && model()->count()) {
     // Need to reset the bounds if we were offscreen.
     host_->SetBounds(host_bounds);
     moved_offscreen_ = false;
+  } else if (!model() && shown_) {
+    MoveOffscreen();
   }
+  if (!moved_offscreen_)
+    container_->SchedulePaint();
+
   RecreateCells();
 
   container_->set_arrow_center(horizontal_center_ - host_bounds.x());
+
+  if (!moved_offscreen_)
+    container_->SchedulePaint();
 }
 
 TabStripModel* TabOverviewController::model() const {
   return browser_ ? browser_->tabstrip_model() : NULL;
+}
+
+void TabOverviewController::SetMouseOverMiniWindow(bool over_mini_window) {
+  if (grid_->drag_controller())
+    grid_->drag_controller()->set_mouse_over_mini_window(over_mini_window);
 }
 
 void TabOverviewController::Show() {
@@ -107,9 +125,9 @@ void TabOverviewController::Show() {
   shown_ = true;
   DCHECK(model());  // The model needs to be set before showing.
   host_->Show();
-  delay_timer_.Start(
-      base::TimeDelta::FromMilliseconds(350), this,
-      &TabOverviewController::StartConfiguring);
+
+  show_thumbnails_ = false;
+  StartDelayTimer();
 }
 
 void TabOverviewController::ConfigureCell(TabOverviewCell* cell,
@@ -321,6 +339,7 @@ gfx::Rect TabOverviewController::CalculateHostBounds() {
 
 void TabOverviewController::StartConfiguring() {
   show_thumbnails_ = true;
+  configure_timer_.Stop();
   configure_timer_.Start(
       base::TimeDelta::FromMilliseconds(10), this,
       &TabOverviewController::ConfigureNextUnconfiguredCell);
@@ -335,4 +354,12 @@ void TabOverviewController::ConfigureNextUnconfiguredCell() {
     }
   }
   configure_timer_.Stop();
+}
+
+void TabOverviewController::StartDelayTimer() {
+  configure_timer_.Stop();
+  delay_timer_.Stop();
+  delay_timer_.Start(
+      base::TimeDelta::FromMilliseconds(350), this,
+      &TabOverviewController::StartConfiguring);
 }

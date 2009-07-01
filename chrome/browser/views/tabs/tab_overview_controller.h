@@ -54,6 +54,9 @@ class TabOverviewController : public TabStripModelObserver {
   // offscren if the user detaches the last tab in the tab strip.
   bool moved_offscreen() const { return moved_offscreen_; }
 
+  // Sets whether the mouse is over a mini-window.
+  void SetMouseOverMiniWindow(bool over_mini_window);
+
   // Shows the grid.
   void Show();
 
@@ -125,6 +128,9 @@ class TabOverviewController : public TabStripModelObserver {
   // Finds the first cell with no thumbnail and invokes ConfigureCell for
   // it. If all the thumnbails have been set configure_timer_ is stopped.
   void ConfigureNextUnconfiguredCell();
+
+  // Starts the delay timer.
+  void StartDelayTimer();
 
   // The widget showing the view.
   views::Widget* host_;
