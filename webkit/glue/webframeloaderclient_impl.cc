@@ -1400,40 +1400,9 @@ Widget* WebFrameLoaderClient::createPlugin(const IntSize& size, // TODO(erikkay)
 
   DCHECK(param_names.size() == param_values.size());
 
-  char **argn = NULL;
-  char **argv = NULL;
-  int argc = 0;
-  // There is a bug in Webkit which occurs when a plugin instance is defined
-  // with an OBJECT tag containing the "DATA" attribute". Please refer to the
-  // webkit issue http://bugs.webkit.org/show_bug.cgi?id=15457 for more info.
-  // The code below is a patch which should be taken out when a fix is
-  // available in webkit. The logic is to add the "src" attribute to the list
-  // of params if the "data" attribute exists.
-  // TODO(iyengar) : remove this when a fix is available in webkit.
-  int data_attr_index = -1;
-  int src_attr_index = -1;
-  for (unsigned int i = 0; i < param_names.size(); i++) {
-    String param_name = param_names[i].lower();
-    if (param_name == "data")
-      data_attr_index = i;
-    else if (param_name == "src")
-      src_attr_index = i;
-  }
-  if ((data_attr_index != -1) && (src_attr_index == -1)) {
-    Vector<String> updated_param_names = param_names;
-    Vector<String> updated_param_values = param_values;
-    updated_param_names.append("src");
-    updated_param_values.append(param_values[data_attr_index]);
-
-    argn = ToArray(updated_param_names);
-    argv = ToArray(updated_param_values);
-    argc = static_cast<int>(updated_param_names.size());
-  } else {
-    argn = ToArray(param_names);
-    argv = ToArray(param_values);
-    argc = static_cast<int>(param_names.size());
-  }
-
+  char **argn = ToArray(param_names);
+  char **argv = ToArray(param_values);
+  int argc = static_cast<int>(param_names.size());
   Widget* result = WebPluginImpl::Create(gurl, argn, argv, argc, element,
                                          webframe_, plugin_delegate,
                                          load_manually, my_mime_type);
