@@ -134,11 +134,9 @@ class TestConnectJob : public ConnectJob {
                  const ClientSocketPoolBase::Request& request,
                  ConnectJob::Delegate* delegate,
                  ClientSocketFactory* client_socket_factory)
-      : job_type_(job_type),
-        group_name_(group_name),
-        handle_(request.handle),
+      : ConnectJob(group_name, request.handle, delegate),
+        job_type_(job_type),
         client_socket_factory_(client_socket_factory),
-        delegate_(delegate),
         method_factory_(ALLOW_THIS_IN_INITIALIZER_LIST(this)) {}
 
   // ConnectJob methods:
@@ -176,22 +174,19 @@ class TestConnectJob : public ConnectJob {
  private:
   int DoConnect(bool succeed, bool was_async) {
     int result = ERR_CONNECTION_FAILED;
-    ClientSocket* socket = NULL;
     if (succeed) {
       result = OK;
-      socket = new MockClientSocket();
-      socket->Connect(NULL);
+      set_socket(new MockClientSocket());
+      socket()->Connect(NULL);
     }
-    delegate_->OnConnectJobComplete(
-        group_name_, handle_, socket, result, was_async);
+
+    if (was_async)
+      delegate()->OnConnectJobComplete(result, this);
     return result;
   }
 
   const JobType job_type_;
-  const std::string group_name_;
-  const ClientSocketHandle* handle_;
   ClientSocketFactory* const client_socket_factory_;
-  Delegate* const delegate_;
   ScopedRunnableMethodFactory<TestConnectJob> method_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(TestConnectJob);
@@ -530,20 +525,35 @@ TEST_F(ClientSocketPoolBaseTest, CancelRequest) {
 
 class RequestSocketCallback : public CallbackRunner< Tuple1<int> > {
  public:
-  RequestSocketCallback(ClientSocketHandle* handle)
+  RequestSocketCallback(ClientSocketHandle* handle,
+                        TestConnectJobFactory* test_connect_job_factory,
+                        TestConnectJob::JobType next_job_type)
       : handle_(handle),
-        within_callback_(false) {}
+        within_callback_(false),
+        test_connect_job_factory_(test_connect_job_factory),
+        next_job_type_(next_job_type) {}
 
   virtual void RunWithParams(const Tuple1<int>& params) {
     callback_.RunWithParams(params);
     ASSERT_EQ(OK, params.a);
 
     if (!within_callback_) {
+      test_connect_job_factory_->set_job_type(next_job_type_);
       handle_->Reset();
       within_callback_ = true;
       int rv = handle_->Init(
           "a", HostResolver::RequestInfo("www.google.com", 80), 0, this);
-      EXPECT_EQ(ERR_IO_PENDING, rv);
+      switch (next_job_type_) {
+        case TestConnectJob::kMockJob:
+          EXPECT_EQ(OK, rv);
+          break;
+        case TestConnectJob::kMockPendingJob:
+          EXPECT_EQ(ERR_IO_PENDING, rv);
+          break;
+        default:
+          FAIL() << "Unexpected job type: " << next_job_type_;
+          break;
+      }
     }
   }
 
@@ -554,19 +564,34 @@ class RequestSocketCallback : public CallbackRunner< Tuple1<int> > {
  private:
   ClientSocketHandle* const handle_;
   bool within_callback_;
+  TestConnectJobFactory* const test_connect_job_factory_;
+  TestConnectJob::JobType next_job_type_;
   TestCompletionCallback callback_;
 };
 
-TEST_F(ClientSocketPoolBaseTest, RequestTwice) {
+TEST_F(ClientSocketPoolBaseTest, RequestPendingJobTwice) {
   connect_job_factory_->set_job_type(TestConnectJob::kMockPendingJob); 
   ClientSocketHandle handle(pool_.get());
-  RequestSocketCallback callback(&handle);
+  RequestSocketCallback callback(
+      &handle, connect_job_factory_, TestConnectJob::kMockPendingJob);
   int rv = handle.Init(
       "a", ignored_request_info_, 0, &callback);
   ASSERT_EQ(ERR_IO_PENDING, rv);
 
   EXPECT_EQ(OK, callback.WaitForResult());
+  handle.Reset();
+}
 
+TEST_F(ClientSocketPoolBaseTest, RequestPendingJobThenSynchronous) {
+  connect_job_factory_->set_job_type(TestConnectJob::kMockPendingJob); 
+  ClientSocketHandle handle(pool_.get());
+  RequestSocketCallback callback(
+      &handle, connect_job_factory_, TestConnectJob::kMockJob);
+  int rv = handle.Init(
+      "a", ignored_request_info_, 0, &callback);
+  ASSERT_EQ(ERR_IO_PENDING, rv);
+
+  EXPECT_EQ(OK, callback.WaitForResult());
   handle.Reset();
 }
 
@@ -613,6 +638,45 @@ TEST_F(ClientSocketPoolBaseTest, FailingActiveRequestWithPendingRequests) {
 
   for (size_t i = 0; i < arraysize(reqs); ++i)
     EXPECT_EQ(ERR_CONNECTION_FAILED, reqs[i]->WaitForResult());
+}
+
+// A pending asynchronous job completes, which will free up a socket slot.  The
+// next job finishes synchronously.  The callback for the asynchronous job
+// should be first though.
+TEST_F(ClientSocketPoolBaseTest, PendingJobCompletionOrder) {
+  // First two jobs are async.
+  connect_job_factory_->set_job_type(TestConnectJob::kMockPendingFailingJob); 
+
+  // Start job 1 (async error).
+  TestSocketRequest req1(pool_.get(), &request_order_);
+  int rv = req1.handle.Init("a", ignored_request_info_, 5, &req1);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
+
+  // Start job 2 (async error).
+  TestSocketRequest req2(pool_.get(), &request_order_);
+  rv = req2.handle.Init("a", ignored_request_info_, 5, &req2);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
+
+  // The pending job is sync.
+  connect_job_factory_->set_job_type(TestConnectJob::kMockJob); 
+
+  // Request 3 does not have a ConnectJob yet.  It's just pending.
+  TestSocketRequest req3(pool_.get(), &request_order_);
+  rv = req3.handle.Init("a", ignored_request_info_, 5, &req3);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
+
+  EXPECT_EQ(ERR_CONNECTION_FAILED, req1.WaitForResult());
+  EXPECT_EQ(ERR_CONNECTION_FAILED, req2.WaitForResult());
+  EXPECT_EQ(OK, req3.WaitForResult());
+
+  ASSERT_EQ(3U, request_order_.size());
+
+  // After job 1 finishes unsuccessfully, it will try to process the pending
+  // requests queue, so it starts up job 3 for request 3.  This job
+  // synchronously succeeds, so the request order is 1, 3, 2.
+  EXPECT_EQ(&req1, request_order_[0]);
+  EXPECT_EQ(&req2, request_order_[2]);
+  EXPECT_EQ(&req3, request_order_[1]);
 }
 
 }  // namespace

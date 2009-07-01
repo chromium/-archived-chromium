@@ -30,6 +30,20 @@ const int kIdleTimeout = 300;  // 5 minutes.
 
 namespace net {
 
+ConnectJob::ConnectJob(const std::string& group_name,
+                       const ClientSocketHandle* key_handle,
+                       Delegate* delegate)
+    : group_name_(group_name),
+      key_handle_(key_handle),
+      delegate_(delegate),
+      load_state_(LOAD_STATE_IDLE) {
+  DCHECK(!group_name.empty());
+  DCHECK(key_handle);
+  DCHECK(delegate);
+}
+
+ConnectJob::~ConnectJob() {}
+
 ClientSocketPoolBase::ClientSocketPoolBase(
     int max_sockets_per_group,
     ConnectJobFactory* connect_job_factory)
@@ -70,18 +84,13 @@ int ClientSocketPoolBase::RequestSocket(
   DCHECK(callback);
   Group& group = group_map_[group_name];
 
-  CheckSocketCounts(group);
-
   // Can we make another active socket now?
-  if (group.active_socket_count == max_sockets_per_group_) {
+  if (!group.HasAvailableSocketSlot(max_sockets_per_group_)) {
     CHECK(callback);
     Request r(handle, callback, priority, resolve_info);
     InsertRequestIntoQueue(r, &group.pending_requests);
     return ERR_IO_PENDING;
   }
-
-  // OK, we are going to activate one.
-  group.active_socket_count++;
 
   while (!group.idle_sockets.empty()) {
     IdleSocket idle_socket = group.idle_sockets.back();
@@ -89,10 +98,7 @@ int ClientSocketPoolBase::RequestSocket(
     DecrementIdleCount();
     if (idle_socket.socket->IsConnectedAndIdle()) {
       // We found one we can reuse!
-      handle->set_socket(idle_socket.socket);
-      handle->set_is_reused(true);
-      group.sockets_handed_out_count++;
-      CheckSocketCounts(group);
+      HandOutSocket(idle_socket.socket, true /* reuse */, handle, &group);
       return OK;
     }
     delete idle_socket.socket;
@@ -102,14 +108,23 @@ int ClientSocketPoolBase::RequestSocket(
 
   CHECK(callback);
   Request r(handle, callback, priority, resolve_info);
-  group.connecting_requests[handle] = r;
+  scoped_ptr<ConnectJob> connect_job(
+      connect_job_factory_->NewConnectJob(group_name, r, this));
 
-  CHECK(!ContainsKey(connect_job_map_, handle));
+  int rv = connect_job->Connect();
+  if (rv == OK) {
+    HandOutSocket(connect_job->ReleaseSocket(), false /* not reused */,
+                  handle, &group);
+  } else if (rv == ERR_IO_PENDING) {
+    group.connecting_requests[handle] = r;
+    CHECK(!ContainsKey(connect_job_map_, handle));
+    connect_job_map_[handle] = connect_job.release();
+  } else {
+    if (group.IsEmpty())
+      group_map_.erase(group_name);
+  }
 
-  ConnectJob* connect_job =
-      connect_job_factory_->NewConnectJob(group_name, r, this);
-  connect_job_map_[handle] = connect_job;
-  return connect_job->Connect();
+  return rv;
 }
 
 void ClientSocketPoolBase::CancelRequest(const std::string& group_name,
@@ -117,8 +132,6 @@ void ClientSocketPoolBase::CancelRequest(const std::string& group_name,
   CHECK(ContainsKey(group_map_, group_name));
 
   Group& group = group_map_[group_name];
-
-  CheckSocketCounts(group);
 
   // Search pending_requests for matching handle.
   RequestQueue::iterator it = group.pending_requests.begin();
@@ -136,7 +149,7 @@ void ClientSocketPoolBase::CancelRequest(const std::string& group_name,
   if (map_it != group.connecting_requests.end()) {
     RemoveConnectJob(handle);
     group.connecting_requests.erase(map_it);
-    RemoveActiveSocket(group_name, &group);
+    OnAvailableSocketSlot(group_name, &group);
   }
 }
 
@@ -229,9 +242,8 @@ void ClientSocketPoolBase::CleanupIdleSockets(bool force) {
     }
 
     // Delete group if no longer needed.
-    if (group.active_socket_count == 0 && group.idle_sockets.empty()) {
+    if (group.IsEmpty()) {
       CHECK(group.pending_requests.empty());
-      CHECK(group.connecting_requests.empty());
       group_map_.erase(i++);
     } else {
       ++i;
@@ -258,9 +270,7 @@ void ClientSocketPoolBase::DoReleaseSocket(const std::string& group_name,
   Group& group = i->second;
 
   CHECK(group.active_socket_count > 0);
-  CheckSocketCounts(group);
-
-  group.sockets_handed_out_count--;
+  group.active_socket_count--;
 
   const bool can_reuse = socket->IsConnectedAndIdle();
   if (can_reuse) {
@@ -274,53 +284,37 @@ void ClientSocketPoolBase::DoReleaseSocket(const std::string& group_name,
     delete socket;
   }
 
-  RemoveActiveSocket(group_name, &group);
+  OnAvailableSocketSlot(group_name, &group);
 }
 
-void ClientSocketPoolBase::OnConnectJobComplete(
-    const std::string& group_name,
-    const ClientSocketHandle* key_handle,
-    ClientSocket* socket,
-    int result,
-    bool was_async) {
+void ClientSocketPoolBase::OnConnectJobComplete(int result, ConnectJob* job) {
+  DCHECK_NE(ERR_IO_PENDING, result);
+  const std::string group_name = job->group_name();
   GroupMap::iterator group_it = group_map_.find(group_name);
   CHECK(group_it != group_map_.end());
   Group& group = group_it->second;
 
-  CheckSocketCounts(group);
-
   RequestMap* request_map = &group.connecting_requests;
 
-  RequestMap::iterator it = request_map->find(key_handle);
+  RequestMap::iterator it = request_map->find(job->key_handle());
   CHECK(it != request_map->end());
-  Request request = it->second;
+  ClientSocketHandle* const handle = it->second.handle;
+  CompletionCallback* const callback = it->second.callback;
   request_map->erase(it);
-  DCHECK_EQ(request.handle, key_handle);
+  DCHECK_EQ(handle, job->key_handle());
 
-  if (!socket) {
-    RemoveActiveSocket(group_name, &group);
+  ClientSocket* const socket = job->ReleaseSocket();
+  RemoveConnectJob(job->key_handle());
+
+  if (result != OK) {
+    callback->Run(result);  // |group| is not necessarily valid after this.
+    // |group| may be invalid after the callback, we need to search
+    // |group_map_| again.
+    MaybeOnAvailableSocketSlot(group_name);
   } else {
-    request.handle->set_socket(socket);
-    request.handle->set_is_reused(false);
-    group.sockets_handed_out_count++;
-
-    CheckSocketCounts(group);
+    HandOutSocket(socket, false /* not reused */, handle, &group);
+    callback->Run(result);
   }
-
-  RemoveConnectJob(request.handle);
-
-  if (was_async)
-    request.callback->Run(result);
-}
-
-// static
-void ClientSocketPoolBase::CheckSocketCounts(const Group& group) {
-  CHECK(group.active_socket_count ==
-        group.sockets_handed_out_count +
-        static_cast<int>(group.connecting_requests.size()))
-      << "[active_socket_count: " << group.active_socket_count
-      << " ] [sockets_handed_out_count: " << group.sockets_handed_out_count
-      << " ] [connecting_requests size: " << group.connecting_requests.size();
 }
 
 void ClientSocketPoolBase::RemoveConnectJob(
@@ -331,20 +325,25 @@ void ClientSocketPoolBase::RemoveConnectJob(
   connect_job_map_.erase(it);
 }
 
-void ClientSocketPoolBase::RemoveActiveSocket(const std::string& group_name,
-                                              Group* group) {
-  group->active_socket_count--;
+void ClientSocketPoolBase::MaybeOnAvailableSocketSlot(
+    const std::string& group_name) {
+  GroupMap::iterator it = group_map_.find(group_name);
+  if (it != group_map_.end()) {
+    Group& group = it->second;
+    if (group.HasAvailableSocketSlot(max_sockets_per_group_))
+      OnAvailableSocketSlot(group_name, &group);
+  }
+}
 
+void ClientSocketPoolBase::OnAvailableSocketSlot(const std::string& group_name,
+                                                 Group* group) {
   if (!group->pending_requests.empty()) {
     ProcessPendingRequest(group_name, group);
     // |group| may no longer be valid after this point.  Be careful not to
     // access it again.
-  } else if (group->active_socket_count == 0 && group->idle_sockets.empty()) {
+  } else if (group->IsEmpty()) {
     // Delete |group| if no longer needed.  |group| will no longer be valid.
-    DCHECK(group->connecting_requests.empty());
     group_map_.erase(group_name);
-  } else {
-    CheckSocketCounts(*group);
   }
 }
 
@@ -356,10 +355,25 @@ void ClientSocketPoolBase::ProcessPendingRequest(const std::string& group_name,
   int rv = RequestSocket(
       group_name, r.resolve_info, r.priority, r.handle, r.callback);
 
-  // |group| may be invalid after RequestSocket.
-
-  if (rv != ERR_IO_PENDING)
+  if (rv != ERR_IO_PENDING) {
     r.callback->Run(rv);
+    if (rv != OK) {
+      // |group| may be invalid after the callback, we need to search
+      // |group_map_| again.
+      MaybeOnAvailableSocketSlot(group_name);
+    }
+  }
+}
+
+void ClientSocketPoolBase::HandOutSocket(
+    ClientSocket* socket,
+    bool reused,
+    ClientSocketHandle* handle,
+    Group* group) {
+  DCHECK(socket);
+  handle->set_socket(socket);
+  handle->set_is_reused(reused);
+  group->active_socket_count++;
 }
 
 }  // namespace net

@@ -17,11 +17,11 @@
 #include "net/base/completion_callback.h"
 #include "net/base/host_resolver.h"
 #include "net/base/load_states.h"
+#include "net/socket/client_socket.h"
 #include "net/socket/client_socket_pool.h"
 
 namespace net {
 
-class ClientSocket;
 class ClientSocketHandle;
 class ClientSocketPoolBase;
 
@@ -35,40 +35,47 @@ class ConnectJob {
     Delegate() {}
     virtual ~Delegate() {}
 
-    // Alerts the delegate that the connection completed (though not necessarily
-    // successfully).  |group_name| indicates the connection group this
-    // ConnectJob corresponds to.  |key_handle| uniquely identifies the
-    // ClientSocketHandle that this job is coupled to.  |socket| is non-NULL if
-    // the connection completed successfully, and ownership is transferred to
-    // the delegate.  |was_async| indicates whether or not the connect job
-    // completed asynchronously.
-    virtual void OnConnectJobComplete(
-        const std::string& group_name,
-        const ClientSocketHandle* key_handle,
-        ClientSocket* socket,
-        int result,
-        bool was_async) = 0;
+    // Alerts the delegate that the connection completed.
+    virtual void OnConnectJobComplete(int result, ConnectJob* job) = 0;
 
    private:
     DISALLOW_COPY_AND_ASSIGN(Delegate);
   };
 
-  ConnectJob() {}
-  virtual ~ConnectJob() {}
+  ConnectJob(const std::string& group_name,
+             const ClientSocketHandle* key_handle,
+             Delegate* delegate);
+  virtual ~ConnectJob();
 
-  // Returns the LoadState of this ConnectJob.
+  // Accessors
+  const std::string& group_name() const { return group_name_; }
   LoadState load_state() const { return load_state_; }
+  const ClientSocketHandle* key_handle() const { return key_handle_; }
+
+  // Releases |socket_| to the client.
+  ClientSocket* ReleaseSocket() { return socket_.release(); }
 
   // Begins connecting the socket.  Returns OK on success, ERR_IO_PENDING if it
   // cannot complete synchronously without blocking, or another net error code
-  // on error.
+  // on error.  In asynchronous completion, the ConnectJob will notify
+  // |delegate_| via OnConnectJobComplete.  In both asynchronous and synchronous
+  // completion, ReleaseSocket() can be called to acquire the connected socket
+  // if it succeeded.
   virtual int Connect() = 0;
 
  protected:
   void set_load_state(LoadState load_state) { load_state_ = load_state; }
+  void set_socket(ClientSocket* socket) { socket_.reset(socket); }
+  ClientSocket* socket() { return socket_.get(); }
+  Delegate* delegate() { return delegate_; }
 
  private:
+  const std::string group_name_;
+  // Temporarily needed until we switch to late binding.
+  const ClientSocketHandle* const key_handle_;
+  Delegate* const delegate_;
   LoadState load_state_;
+  scoped_ptr<ClientSocket> socket_;
 
   DISALLOW_COPY_AND_ASSIGN(ConnectJob);
 };
@@ -142,14 +149,7 @@ class ClientSocketPoolBase
   LoadState GetLoadState(const std::string& group_name,
                          const ClientSocketHandle* handle) const;
 
-  // If |was_async| is true, then ClientSocketPoolBase will pick a callback to
-  // run from a request associated with |group_name|.
-  virtual void OnConnectJobComplete(
-      const std::string& group_name,
-      const ClientSocketHandle* key_handle,
-      ClientSocket* socket,
-      int result,
-      bool was_async);
+  virtual void OnConnectJobComplete(int result, ConnectJob* job);
 
  private:
   // Entry for a persistent socket which became idle at time |start_time|.
@@ -173,12 +173,23 @@ class ClientSocketPoolBase
   // A Group is allocated per group_name when there are idle sockets or pending
   // requests.  Otherwise, the Group object is removed from the map.
   struct Group {
-    Group() : active_socket_count(0), sockets_handed_out_count(0) {}
+    Group() : active_socket_count(0) {}
+
+    bool IsEmpty() const {
+      return active_socket_count == 0 && idle_sockets.empty() &&
+          connecting_requests.empty();
+    }
+
+    bool HasAvailableSocketSlot(int max_sockets_per_group) const {
+      return active_socket_count +
+          static_cast<int>(connecting_requests.size()) <
+          max_sockets_per_group;
+    }
+
     std::deque<IdleSocket> idle_sockets;
     RequestQueue pending_requests;
     RequestMap connecting_requests;
-    int active_socket_count;  // number of active sockets
-    int sockets_handed_out_count;  // number of sockets given to clients
+    int active_socket_count;  // number of active sockets used by clients
   };
 
   typedef std::map<std::string, Group> GroupMap;
@@ -209,13 +220,21 @@ class ClientSocketPoolBase
   // |connect_job_map_|.
   void RemoveConnectJob(const ClientSocketHandle* handle);
 
-  static void CheckSocketCounts(const Group& group);
+  // Same as OnAvailableSocketSlot except it looks up the Group first to see if
+  // it's there.
+  void MaybeOnAvailableSocketSlot(const std::string& group_name);
 
-  // Remove an active socket.
-  void RemoveActiveSocket(const std::string& group_name, Group* group);
+  // Might delete the Group from |group_map_|.
+  void OnAvailableSocketSlot(const std::string& group_name, Group* group);
 
   // Process a request from a group's pending_requests queue.
   void ProcessPendingRequest(const std::string& group_name, Group* group);
+
+  // Assigns |socket| to |handle| and updates |group|'s counters appropriately.
+  void HandOutSocket(ClientSocket* socket,
+                     bool reused,
+                     ClientSocketHandle* handle,
+                     Group* group);
 
   GroupMap group_map_;
 

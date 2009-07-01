@@ -25,14 +25,12 @@ TCPConnectJob::TCPConnectJob(
     ClientSocketFactory* client_socket_factory,
     HostResolver* host_resolver,
     Delegate* delegate)
-    : group_name_(group_name),
+    : ConnectJob(group_name, handle, delegate),
       resolve_info_(resolve_info),
-      handle_(handle),
       client_socket_factory_(client_socket_factory),
       ALLOW_THIS_IN_INITIALIZER_LIST(
           callback_(this,
                     &TCPConnectJob::OnIOComplete)),
-      delegate_(delegate),
       resolver_(host_resolver) {}
 
 TCPConnectJob::~TCPConnectJob() {
@@ -41,33 +39,73 @@ TCPConnectJob::~TCPConnectJob() {
 }
 
 int TCPConnectJob::Connect() {
-  set_load_state(LOAD_STATE_RESOLVING_HOST);
-  int rv = resolver_.Resolve(resolve_info_, &addresses_, &callback_);
-  if (rv != ERR_IO_PENDING)
-    rv = OnIOCompleteInternal(rv, true /* synchronous */);
-  return rv;
+  next_state_ = kStateResolveHost;
+  return DoLoop(OK);
 }
 
 void TCPConnectJob::OnIOComplete(int result) {
-  OnIOCompleteInternal(result, false /* asynchronous */);
+  int rv = DoLoop(result);
+  if (rv != ERR_IO_PENDING)
+    delegate()->OnConnectJobComplete(rv, this);  // Deletes |this|
 }
 
-int TCPConnectJob::OnIOCompleteInternal(
-    int result, bool synchronous) {
-  CHECK(result != ERR_IO_PENDING);
+int TCPConnectJob::DoLoop(int result) {
+  DCHECK_NE(next_state_, kStateNone);
 
-  if (result == OK && load_state() == LOAD_STATE_RESOLVING_HOST) {
-    set_load_state(LOAD_STATE_CONNECTING);
-    socket_.reset(client_socket_factory_->CreateTCPClientSocket(addresses_));
-    connect_start_time_ = base::TimeTicks::Now();
-    result = socket_->Connect(&callback_);
-    if (result == ERR_IO_PENDING)
-      return result;
-  }
+  int rv = result;
+  do {
+    State state = next_state_;
+    next_state_ = kStateNone;
+    switch (state) {
+      case kStateResolveHost:
+        DCHECK_EQ(OK, rv);
+        rv = DoResolveHost();
+        break;
+      case kStateResolveHostComplete:
+        rv = DoResolveHostComplete(rv);
+        break;
+      case kStateTCPConnect:
+        DCHECK_EQ(OK, rv);
+        rv = DoTCPConnect();
+        break;
+      case kStateTCPConnectComplete:
+        rv = DoTCPConnectComplete(rv);
+        break;
+      default:
+        NOTREACHED();
+        rv = ERR_FAILED;
+        break;
+    }
+  } while (rv != ERR_IO_PENDING && next_state_ != kStateNone);
 
+  return rv;
+}
+
+int TCPConnectJob::DoResolveHost() {
+  set_load_state(LOAD_STATE_RESOLVING_HOST);
+  next_state_ = kStateResolveHostComplete;
+  return resolver_.Resolve(resolve_info_, &addresses_, &callback_);
+}
+
+int TCPConnectJob::DoResolveHostComplete(int result) {
+  DCHECK_EQ(LOAD_STATE_RESOLVING_HOST, load_state());
+  if (result == OK)
+    next_state_ = kStateTCPConnect;
+  return result;
+}
+
+int TCPConnectJob::DoTCPConnect() {
+  next_state_ = kStateTCPConnectComplete;
+  set_load_state(LOAD_STATE_CONNECTING);
+  set_socket(client_socket_factory_->CreateTCPClientSocket(addresses_));
+  connect_start_time_ = base::TimeTicks::Now();
+  return socket()->Connect(&callback_);
+}
+
+int TCPConnectJob::DoTCPConnectComplete(int result) {
+  DCHECK_EQ(load_state(), LOAD_STATE_CONNECTING);
   if (result == OK) {
-    DCHECK_EQ(load_state(), LOAD_STATE_CONNECTING);
-    CHECK(connect_start_time_ != base::TimeTicks());
+    DCHECK(connect_start_time_ != base::TimeTicks());
     base::TimeDelta connect_duration =
         base::TimeTicks::Now() - connect_start_time_;
 
@@ -78,17 +116,6 @@ int TCPConnectJob::OnIOCompleteInternal(
         100);
   }
 
-  // Now, we either succeeded at Connect()'ing, or we failed at host resolution
-  // or Connect()'ing.  Either way, we'll run the callback to alert the client.
-
-  delegate_->OnConnectJobComplete(
-      group_name_,
-      handle_,
-      result == OK ? socket_.release() : NULL,
-      result,
-      !synchronous);
-
-  // |this| is deleted after this point.
   return result;
 }
 

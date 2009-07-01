@@ -37,26 +37,30 @@ class TCPConnectJob : public ConnectJob {
   virtual int Connect();
 
  private:
-  // Handles asynchronous completion of IO.  |result| represents the result of
-  // the IO operation.
+  enum State {
+    kStateResolveHost,
+    kStateResolveHostComplete,
+    kStateTCPConnect,
+    kStateTCPConnectComplete,
+    kStateNone,
+  };
+
   void OnIOComplete(int result);
 
-  // Handles both asynchronous and synchronous completion of IO.  |result|
-  // represents the result of the IO operation.  |synchronous| indicates
-  // whether or not the previous IO operation completed synchronously or
-  // asynchronously.  OnIOCompleteInternal returns the result of the next IO
-  // operation that executes, or just the value of |result|.
-  int OnIOCompleteInternal(int result, bool synchronous);
+  // Runs the state transition loop.
+  int DoLoop(int result);
 
-  const std::string group_name_;
+  int DoResolveHost();
+  int DoResolveHostComplete(int result);
+  int DoTCPConnect();
+  int DoTCPConnectComplete(int result);
+
   const HostResolver::RequestInfo resolve_info_;
-  const ClientSocketHandle* const handle_;
   ClientSocketFactory* const client_socket_factory_;
   CompletionCallbackImpl<TCPConnectJob> callback_;
-  scoped_ptr<ClientSocket> socket_;
-  Delegate* const delegate_;
   SingleRequestHostResolver resolver_;
   AddressList addresses_;
+  State next_state_;
 
   // The time the Connect() method was called (if it got called).
   base::TimeTicks connect_start_time_;
