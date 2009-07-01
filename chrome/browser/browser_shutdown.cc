@@ -65,6 +65,7 @@ void OnShutdownStarting(ShutdownType type) {
     // a no-op in some cases, so we still need to go through the normal
     // shutdown path for the ones that didn't exit here.
     shutdown_num_processes_slow_ = 0;
+    size_t start_rph_size = RenderProcessHost::size();
     for (RenderProcessHost::iterator hosts = RenderProcessHost::begin();
          hosts != RenderProcessHost::end();
          ++hosts) {
@@ -74,6 +75,9 @@ void OnShutdownStarting(ShutdownType type) {
         // higher up, it's not possible to get here. Confirm this and change
         // FastShutdownIfPossible to just be FastShutdown.
         shutdown_num_processes_slow_++;
+      // The number of RPHs should not have changed as the result of invoking
+      // FastShutdownIfPossible.
+      CHECK(start_rph_size == RenderProcessHost::size());
     }
   }
 }

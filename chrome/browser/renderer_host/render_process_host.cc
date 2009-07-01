@@ -85,6 +85,7 @@ RenderProcessHost::RenderProcessHost(Profile* profile)
       pid_(-1),
       profile_(profile),
       sudden_termination_allowed_(true) {
+  all_hosts.set_check_on_null_data(true);
 }
 
 RenderProcessHost::~RenderProcessHost() {

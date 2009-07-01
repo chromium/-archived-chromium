@@ -28,11 +28,16 @@ class IDMap {
   // Note, use iterator->first to get the ID, iterator->second to get the T*
   typedef typename HashTable::const_iterator const_iterator;
 
-  IDMap() : next_id_(1) {
+  IDMap() : next_id_(1), check_on_null_data_(false) {
   }
-  IDMap(const IDMap& other) : next_id_(other.next_id_),
-                                        data_(other.data_) {
+  IDMap(const IDMap& other)
+      : next_id_(other.next_id_),
+        data_(other.data_),
+        check_on_null_data_(other.check_on_null_data_) {
   }
+
+  // Sets whether Add should CHECK if passed in NULL data. Default is false.
+  void set_check_on_null_data(bool value) { check_on_null_data_ = value; }
 
   const_iterator begin() const {
     return data_.begin();
@@ -43,6 +48,7 @@ class IDMap {
 
   // Adds a view with an automatically generated unique ID. See AddWithID.
   int32 Add(T* data) {
+    CHECK(!check_on_null_data_ || data);
     int32 this_id = next_id_;
     DCHECK(data_.find(this_id) == data_.end()) << "Inserting duplicate item";
     data_[this_id] = data;
@@ -55,6 +61,7 @@ class IDMap {
   // this function, or allow this object to generate IDs and call Add. These
   // two methods may not be mixed, or duplicate IDs may be generated
   void AddWithID(T* data, int32 id) {
+    CHECK(!check_on_null_data_ || data);
     DCHECK(data_.find(id) == data_.end()) << "Inserting duplicate item";
     data_[id] = data;
   }
@@ -88,6 +95,10 @@ class IDMap {
   int32 next_id_;
 
   HashTable data_;
+
+ private:
+  // See description above setter.
+  bool check_on_null_data_;
 };
 
 #endif  // BASE_ID_MAP_H__
