@@ -25,7 +25,7 @@ class HistoryAddPageArgs : public base::RefCounted<HistoryAddPageArgs> {
                      const void* arg_id_scope,
                      int32 arg_page_id,
                      const GURL& arg_referrer,
-                     const HistoryService::RedirectList& arg_redirects,
+                     const history::RedirectList& arg_redirects,
                      PageTransition::Type arg_transition,
                      bool arg_did_replace_entry)
       : url(arg_url),
@@ -45,7 +45,7 @@ class HistoryAddPageArgs : public base::RefCounted<HistoryAddPageArgs> {
   int32 page_id;
 
   GURL referrer;
-  HistoryService::RedirectList redirects;
+  history::RedirectList redirects;
   PageTransition::Type transition;
   bool did_replace_entry;
 
@@ -64,7 +64,7 @@ typedef CancelableRequest1<HistoryService::QueryHistoryCallback,
     QueryHistoryRequest;
 
 typedef CancelableRequest1<HistoryService::QueryRedirectsCallback,
-                           HistoryService::RedirectList>
+                           history::RedirectList>
     QueryRedirectsRequest;
 
 typedef CancelableRequest<HistoryService::GetVisitCountToHostCallback>

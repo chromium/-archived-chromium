@@ -316,7 +316,7 @@ TEST_F(HistoryURLProviderTest, CullRedirects) {
   // will appear in A,B,C order in the results. The autocomplete query will
   // search for the most recent visit when looking for redirects, so this will
   // be found even though the previous visits had no redirects.
-  HistoryService::RedirectList redirects_to_a;
+  history::RedirectList redirects_to_a;
   redirects_to_a.push_back(GURL(redirect[1].url));
   redirects_to_a.push_back(GURL(redirect[2].url));
   redirects_to_a.push_back(GURL(redirect[0].url));

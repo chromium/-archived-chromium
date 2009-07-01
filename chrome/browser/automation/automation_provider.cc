@@ -1809,7 +1809,7 @@ void AutomationProvider::OnRedirectQueryComplete(
     HistoryService::Handle request_handle,
     GURL from_url,
     bool success,
-    HistoryService::RedirectList* redirects) {
+    history::RedirectList* redirects) {
   DCHECK(request_handle == redirect_query_);
   DCHECK(reply_message_ != NULL);
 

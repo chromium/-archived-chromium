@@ -30,6 +30,9 @@ class URLDatabase;
 // A -> B -> C, and entry in the map would look like "A => {B -> C}".
 typedef std::map<GURL, scoped_refptr<RefCountedVector<GURL> > > RedirectMap;
 
+// Container for a list of URLs.
+typedef std::vector<GURL> RedirectList;
+
 typedef int64 StarID;  // Unique identifier for star entries.
 typedef int64 UIStarID;  // Identifier for star entries that come from the UI.
 typedef int64 DownloadID;   // Identifier for a download.

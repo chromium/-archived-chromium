@@ -86,7 +86,6 @@ class HistoryService : public CancelableRequestProvider,
                        public base::RefCountedThreadSafe<HistoryService> {
  public:
   // Miscellaneous commonly-used types.
-  typedef std::vector<GURL> RedirectList;
   typedef std::vector<PageUsageData*> PageUsageDataList;
 
   // ID (both star_id and group_id) of the bookmark bar.
@@ -165,7 +164,7 @@ class HistoryService : public CancelableRequestProvider,
                int32 page_id,
                const GURL& referrer,
                PageTransition::Type transition,
-               const RedirectList& redirects,
+               const history::RedirectList& redirects,
                bool did_replace_entry);
 
   // For adding pages to history with a specific time. This is for testing
@@ -176,13 +175,13 @@ class HistoryService : public CancelableRequestProvider,
                int32 page_id,
                const GURL& referrer,
                PageTransition::Type transition,
-               const RedirectList& redirects,
+               const history::RedirectList& redirects,
                bool did_replace_entry);
 
   // For adding pages to history where no tracking information can be done.
   void AddPage(const GURL& url) {
     AddPage(url, NULL, 0, GURL::EmptyGURL(), PageTransition::LINK,
-            RedirectList(), false);
+            history::RedirectList(), false);
   }
 
   // Sets the title for the given page. The page should be in history. If it
@@ -276,7 +275,7 @@ class HistoryService : public CancelableRequestProvider,
   typedef Callback4<Handle,
                     GURL,  // from_url
                     bool,  // success
-                    RedirectList*>::Type
+                    history::RedirectList*>::Type
       QueryRedirectsCallback;
 
   // Schedules a query for the most recent redirect coming out of the given

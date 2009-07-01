@@ -140,7 +140,7 @@ void InsertURLBatch(const std::wstring& profile_dir, int page_id,
     }
 
     // Randomly construct a redirect chain.
-    HistoryService::RedirectList redirects;
+    history::RedirectList redirects;
     if (RandomFloat() < kRedirectProbability) {
       const int redir_count = RandomInt(1, 4);
       for (int i = 0; i < redir_count; ++i)

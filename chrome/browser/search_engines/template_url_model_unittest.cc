@@ -671,7 +671,7 @@ TEST_F(TemplateURLModelTest, GenerateVisitOnKeyword) {
   history->AddPage(
       GURL(WideToUTF8(t_url->url()->ReplaceSearchTerms(*t_url, L"blah", 0,
                                                        std::wstring()))),
-      NULL, 0, GURL(), PageTransition::KEYWORD, HistoryService::RedirectList(),
+      NULL, 0, GURL(), PageTransition::KEYWORD, history::RedirectList(),
       false);
 
   // Wait for history to finish processing the request.

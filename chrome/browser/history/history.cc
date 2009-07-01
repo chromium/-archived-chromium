@@ -253,7 +253,7 @@ void HistoryService::AddPage(const GURL& url,
                              int32 page_id,
                              const GURL& referrer,
                              PageTransition::Type transition,
-                             const RedirectList& redirects,
+                             const history::RedirectList& redirects,
                              bool did_replace_entry) {
   AddPage(url, Time::Now(), id_scope, page_id, referrer, transition, redirects,
           did_replace_entry);
@@ -265,7 +265,7 @@ void HistoryService::AddPage(const GURL& url,
                              int32 page_id,
                              const GURL& referrer,
                              PageTransition::Type transition,
-                             const RedirectList& redirects,
+                             const history::RedirectList& redirects,
                              bool did_replace_entry) {
   DCHECK(history_backend_) << "History service being called after cleanup";
 

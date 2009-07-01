@@ -160,14 +160,14 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   //
   // Backend for QueryRedirectsFrom.
   bool GetMostRecentRedirectsFrom(const GURL& url,
-                                  HistoryService::RedirectList* redirects);
+                                  history::RedirectList* redirects);
 
   // Similar to above function except computes a chain of redirects to the
   // given URL. Stores the most recent list of redirects ending at |url| in the
   // given RedirectList. For example, if we have the redirect list A -> B -> C,
   // then calling this function with url=C would fill redirects with {B, A}.
   bool GetMostRecentRedirectsTo(const GURL& url,
-                                      HistoryService::RedirectList* redirects);
+                                      history::RedirectList* redirects);
 
   // Thumbnails ----------------------------------------------------------------
 
@@ -310,12 +310,12 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   // |cur_visit|. |cur_visit| is assumed to be valid. Assumes that
   // this HistoryBackend object has been Init()ed successfully.
   void GetRedirectsFromSpecificVisit(
-      VisitID cur_visit, HistoryService::RedirectList* redirects);
+      VisitID cur_visit, history::RedirectList* redirects);
 
   // Similar to the above function except returns a redirect list ending
   // at |cur_visit|.
   void GetRedirectsToSpecificVisit(
-      VisitID cur_visit, HistoryService::RedirectList* redirects);
+      VisitID cur_visit, history::RedirectList* redirects);
 
   // Thumbnail Helpers ---------------------------------------------------------
 
@@ -471,7 +471,7 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   //
   // As with AddPage, the last item in the redirect chain will be the
   // destination of the redirect (i.e., the key into recent_redirects_);
-  typedef MRUCache<GURL, HistoryService::RedirectList> RedirectCache;
+  typedef MRUCache<GURL, history::RedirectList> RedirectCache;
   RedirectCache recent_redirects_;
 
   // Timestamp of the last page addition request. We use this to detect when

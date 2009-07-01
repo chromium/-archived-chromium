@@ -460,7 +460,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
       HistoryService::Handle request_handle,
       GURL from_url,
       bool success,
-      HistoryService::RedirectList* redirects);
+      history::RedirectList* redirects);
 
   // Determine if the message from the external host represents a browser
   // event, and if so dispatch it.

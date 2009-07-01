@@ -749,8 +749,8 @@ void HistoryBackend::SetPageTitle(const GURL& url,
   // Search for recent redirects which should get the same title. We make a
   // dummy list containing the exact URL visited if there are no redirects so
   // the processing below can be the same.
-  HistoryService::RedirectList dummy_list;
-  HistoryService::RedirectList* redirects;
+  history::RedirectList dummy_list;
+  history::RedirectList* redirects;
   RedirectCache::iterator iter = recent_redirects_.Get(url);
   if (iter != recent_redirects_.end()) {
     redirects = &iter->second;
@@ -1175,7 +1175,7 @@ void HistoryBackend::QueryTopURLsAndRedirects(
 
   for (size_t i = 0; i < data.size(); ++i) {
     top_urls->push_back(data[i]->GetURL());
-    HistoryService::RedirectList list;
+    history::RedirectList list;
     GetMostRecentRedirectsFrom(top_urls->back(), &list);
     (*redirects)[top_urls->back()] = new RefCountedVector<GURL>(list);
   }
@@ -1185,7 +1185,7 @@ void HistoryBackend::QueryTopURLsAndRedirects(
 }
 
 void HistoryBackend::GetRedirectsFromSpecificVisit(
-    VisitID cur_visit, HistoryService::RedirectList* redirects) {
+    VisitID cur_visit, history::RedirectList* redirects) {
   // Follow any redirects from the given visit and add them to the list.
   // It *should* be impossible to get a circular chain here, but we check
   // just in case to avoid infinite loops.
@@ -1204,7 +1204,7 @@ void HistoryBackend::GetRedirectsFromSpecificVisit(
 
 void HistoryBackend::GetRedirectsToSpecificVisit(
     VisitID cur_visit,
-    HistoryService::RedirectList* redirects) {
+    history::RedirectList* redirects) {
   // Follow redirects going to cur_visit. These are added to |redirects| in
   // the order they are found. If a redirect chain looks like A -> B -> C and
   // |cur_visit| = C, redirects will be {B, A} in that order.
@@ -1226,7 +1226,7 @@ void HistoryBackend::GetRedirectsToSpecificVisit(
 
 bool HistoryBackend::GetMostRecentRedirectsFrom(
     const GURL& from_url,
-    HistoryService::RedirectList* redirects) {
+    history::RedirectList* redirects) {
   redirects->clear();
   if (!db_.get())
     return false;
@@ -1242,7 +1242,7 @@ bool HistoryBackend::GetMostRecentRedirectsFrom(
 
 bool HistoryBackend::GetMostRecentRedirectsTo(
     const GURL& to_url,
-    HistoryService::RedirectList* redirects) {
+    history::RedirectList* redirects) {
   redirects->clear();
   if (!db_.get())
     return false;
@@ -1309,7 +1309,7 @@ void HistoryBackend::GetPageThumbnailDirectly(
     // Time the result.
     TimeTicks beginning_time = TimeTicks::Now();
 
-    HistoryService::RedirectList redirects;
+    history::RedirectList redirects;
     URLID url_id;
     bool success = false;
 
@@ -1357,7 +1357,7 @@ bool HistoryBackend::GetThumbnailFromOlderRedirect(
   bool success = false;
   for (VisitVector::const_iterator it = older_sessions.begin();
        !success && it != older_sessions.end(); ++it) {
-    HistoryService::RedirectList redirects;
+    history::RedirectList redirects;
     if (it->visit_id) {
       GetRedirectsFromSpecificVisit(it->visit_id, &redirects);
 
@@ -1533,8 +1533,8 @@ void HistoryBackend::SetFavIconMapping(const GURL& page_url,
                                        FavIconID id) {
   // Find all the pages whose favicons we should set, we want to set it for
   // all the pages in the redirect chain if it redirected.
-  HistoryService::RedirectList dummy_list;
-  HistoryService::RedirectList* redirects;
+  history::RedirectList dummy_list;
+  history::RedirectList* redirects;
   RedirectCache::iterator iter = recent_redirects_.Get(page_url);
   if (iter != recent_redirects_.end()) {
     redirects = &iter->second;
@@ -1552,7 +1552,7 @@ void HistoryBackend::SetFavIconMapping(const GURL& page_url,
   std::set<GURL> favicons_changed;
 
   // Save page <-> favicon association.
-  for (HistoryService::RedirectList::const_iterator i(redirects->begin());
+  for (history::RedirectList::const_iterator i(redirects->begin());
        i != redirects->end(); ++i) {
     URLRow row;
     if (!db_->GetRowForURL(*i, &row) || row.favicon_id() == id)

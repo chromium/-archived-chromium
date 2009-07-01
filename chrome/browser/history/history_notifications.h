@@ -32,7 +32,7 @@ struct URLVisitedDetails : public HistoryDetails {
   // we have the redirect chain A -> B -> C and this struct represents visiting
   // C, then redirects[0]=B and redirects[1]=A.  If there are no redirects,
   // this will be an empty vector.
-  std::vector<GURL> redirects;
+  history::RedirectList redirects;
 };
 
 // Details for NOTIFY_HISTORY_TYPED_URLS_MODIFIED.

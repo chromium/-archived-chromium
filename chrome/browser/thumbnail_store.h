@@ -144,7 +144,7 @@ class ThumbnailStore : public base::RefCountedThreadSafe<ThumbnailStore> {
   void OnRedirectQueryComplete(HistoryService::Handle request_handle,
                                GURL url,
                                bool success,
-                               HistoryService::RedirectList* redirects);
+                               history::RedirectList* redirects);
 
   // Called on a timer initiated in Init().  Calls the HistoryService to
   // update the list of most visited URLs.  The callback is

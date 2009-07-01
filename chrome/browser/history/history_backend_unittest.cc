@@ -60,7 +60,7 @@ class HistoryBackendTest : public testing::Test {
   scoped_ptr<InMemoryHistoryBackend> mem_backend_;
 
   void AddRedirectChain(const char* sequence[], int page_id) {
-    HistoryService::RedirectList redirects;
+    history::RedirectList redirects;
     for (int i = 0; sequence[i] != NULL; ++i)
       redirects.push_back(GURL(sequence[i]));
 
@@ -83,7 +83,7 @@ class HistoryBackendTest : public testing::Test {
   void  AddClientRedirect(const GURL& url1, const GURL& url2, bool did_replace,
                           int* transition1, int* transition2) {
     void* const dummy_scope = reinterpret_cast<void*>(0x87654321);
-    HistoryService::RedirectList redirects;
+    history::RedirectList redirects;
     if (url1.is_valid())
       redirects.push_back(url1);
     if (url2.is_valid())
@@ -438,7 +438,7 @@ TEST_F(HistoryBackendTest, KeywordGenerated) {
   Time visit_time = Time::Now() - base::TimeDelta::FromDays(1);
   scoped_refptr<HistoryAddPageArgs> request(
       new HistoryAddPageArgs(url, visit_time, NULL, 0, GURL(),
-                             HistoryService::RedirectList(),
+                             history::RedirectList(),
                              PageTransition::KEYWORD_GENERATED, false));
   backend_->AddPage(request);
 

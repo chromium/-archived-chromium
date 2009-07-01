@@ -209,7 +209,7 @@ ThumbnailStore::GetStatus ThumbnailStore::GetPageThumbnail(
 
   // Return the first available thumbnail starting at the end of the
   // redirect list.
-  HistoryService::RedirectList::reverse_iterator rit;
+  history::RedirectList::reverse_iterator rit;
   for (rit = it->second->data.rbegin();
        rit != it->second->data.rend(); ++rit) {
     if (cache_->find(*rit) != cache_->end()) {
@@ -245,7 +245,7 @@ void ThumbnailStore::OnRedirectQueryComplete(
     HistoryService::Handle request_handle,
     GURL url,
     bool success,
-    HistoryService::RedirectList* redirects) {
+    history::RedirectList* redirects) {
   if (!success)
     return;
 
