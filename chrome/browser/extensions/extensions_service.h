@@ -37,10 +37,27 @@ class UserScriptMaster;
 
 typedef std::vector<Extension*> ExtensionList;
 
+// A callback for when installs finish. If the Extension* parameter is
+// null then the install failed.
+typedef Callback2<const FilePath&, Extension*>::Type ExtensionInstallCallback;
+
+// This is an interface class to encapsulate the dependencies that
+// ExtensionUpdater has on ExtensionsService. This allows easy mocking.
+class ExtensionUpdateService {
+ public:
+  virtual ~ExtensionUpdateService() {}
+  virtual const ExtensionList* extensions() const = 0;
+  virtual void UpdateExtension(const std::string& id,
+                               const FilePath& path,
+                               bool alert_on_error,
+                               ExtensionInstallCallback* callback) = 0;
+  virtual Extension* GetExtensionById(const std::string& id) = 0;
+};
 
 // Manages installed and running Chromium extensions.
 class ExtensionsService
-    : public base::RefCountedThreadSafe<ExtensionsService> {
+    : public ExtensionUpdateService,
+      public base::RefCountedThreadSafe<ExtensionsService> {
  public:
 
   // TODO(port): Move Crx package definitions to ExtentionCreator. They are
@@ -84,10 +101,10 @@ class ExtensionsService
                     const FilePath& install_directory,
                     MessageLoop* frontend_loop,
                     MessageLoop* backend_loop);
-  ~ExtensionsService();
+  virtual ~ExtensionsService();
 
   // Gets the list of currently installed extensions.
-  const ExtensionList* extensions() const {
+  virtual const ExtensionList* extensions() const {
     return &extensions_;
   }
 
@@ -100,18 +117,16 @@ class ExtensionsService
   // immediately loaded.
   void InstallExtension(const FilePath& extension_path);
 
-  // A callback for when installs finish. If the Extension* parameter is
-  // null then the install failed.
-  typedef Callback2<const FilePath&, Extension*>::Type Callback;
-
   // Updates a currently-installed extension with the contents from
   // |extension_path|. The |alert_on_error| parameter controls whether the
   // user will be notified in the event of failure. If |callback| is non-null,
   // it will be called back when the update is finished (in success or failure).
   // This is useful to know when the service is done using |extension_path|.
   // Also, this takes ownership of |callback| if it's non-null.
-  void UpdateExtension(const std::string& id, const FilePath& extension_path,
-                       bool alert_on_error, Callback* callback);
+  virtual void UpdateExtension(const std::string& id,
+                               const FilePath& extension_path,
+                               bool alert_on_error,
+                               ExtensionInstallCallback* callback);
 
   // Uninstalls the specified extension. Callers should only call this method
   // with extensions that exist.
@@ -140,7 +155,7 @@ class ExtensionsService
   void GarbageCollectExtensions();
 
   // Lookup an extension by |id|.
-  Extension* GetExtensionById(const std::string& id);
+  virtual Extension* GetExtensionById(const std::string& id);
 
   // Lookup an extension by |url|.  This uses the host of the URL as the id.
   Extension* GetExtensionByURL(const GURL& url);
@@ -220,7 +235,7 @@ class ExtensionsService
   scoped_refptr<ExtensionsServiceBackend> backend_;
 
   // Stores data we'll need to do callbacks as installs complete.
-  typedef std::map<FilePath, linked_ptr<Callback> > CallbackMap;
+  typedef std::map<FilePath, linked_ptr<ExtensionInstallCallback> > CallbackMap;
   CallbackMap install_callbacks_;
 
   // Is the service ready to go?

@@ -273,7 +273,7 @@ void ExtensionsService::InstallExtension(const FilePath& extension_path) {
 void ExtensionsService::UpdateExtension(const std::string& id,
                                         const FilePath& extension_path,
                                         bool alert_on_error,
-                                        Callback* callback) {
+                                        ExtensionInstallCallback* callback) {
   if (callback) {
     if (install_callbacks_.find(extension_path) != install_callbacks_.end()) {
       // We can't have multiple outstanding install requests for the same
@@ -284,7 +284,8 @@ void ExtensionsService::UpdateExtension(const std::string& id,
       delete callback;
       return;
     }
-    install_callbacks_[extension_path] = linked_ptr<Callback>(callback);
+    install_callbacks_[extension_path] =
+        linked_ptr<ExtensionInstallCallback>(callback);
   }
 
   if (!GetExtensionById(id)) {

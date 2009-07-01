@@ -315,7 +315,7 @@ class ExtensionsServiceTest
   }
 
  protected:
-  // A class to record whether a ExtensionsService::Callback has fired, and
+  // A class to record whether a ExtensionInstallCallback has fired, and
   // to remember the args it was called with.
   class CallbackRecorder {
    public:
@@ -375,7 +375,7 @@ class ExtensionsServiceTest
     ASSERT_TRUE(file_util::PathExists(path));
 
     CallbackRecorder callback_recorder;
-    ExtensionsService::Callback* callback = NULL;
+    ExtensionInstallCallback* callback = NULL;
     if (use_callback) {
       callback = NewCallback(&callback_recorder,
                              &CallbackRecorder::CallbackFunc);
