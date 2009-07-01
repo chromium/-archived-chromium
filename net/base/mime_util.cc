@@ -188,6 +188,10 @@ static const char* const supported_media_types[] = {
   // AAC.
   "audio/aac",
   "audio/x-aac"
+
+  // Generic MPEG mime-types.
+  "audio/mpeg",
+  "video/mpeg"
 };
 
 // Note: does not include javascript types list (see supported_javascript_types)
