@@ -2797,6 +2797,8 @@
         '../third_party/WebKit/WebCore/platform/sql/SQLiteAuthorizer.cpp',
         '../third_party/WebKit/WebCore/platform/sql/SQLiteDatabase.cpp',
         '../third_party/WebKit/WebCore/platform/sql/SQLiteDatabase.h',
+        '../third_party/WebKit/WebCore/platform/sql/SQLiteFileSystem.h',
+        '../third_party/WebKit/WebCore/platform/sql/SQLiteFileSystem.cpp',
         '../third_party/WebKit/WebCore/platform/sql/SQLiteStatement.cpp',
         '../third_party/WebKit/WebCore/platform/sql/SQLiteStatement.h',
         '../third_party/WebKit/WebCore/platform/sql/SQLiteTransaction.cpp',
