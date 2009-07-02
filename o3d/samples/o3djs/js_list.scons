@@ -45,6 +45,7 @@ O3D_JS_SOURCES = [
   'math.js',
   'pack.js',
   'particles.js',
+  'performance.js',
   'picking.js',
   'primitives.js',
   'quaternions.js',

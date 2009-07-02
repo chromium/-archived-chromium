@@ -64,7 +64,7 @@ typedef ObjectBase[] ObjectArray;
     \endcode
 
     The only difference is that after all the objects are removed the pack
-    itself will be released from the client.  See documenation on
+    itself will be released from the client.  See documentation on
     pack.removeObject for why this is important.
 
     It's important to note that many objects are only referenced by the pack.

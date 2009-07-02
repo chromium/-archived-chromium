@@ -49,9 +49,8 @@ o3djs.require('o3djs.canvas');
 o3djs.require('o3djs.fps');
 o3djs.require('o3djs.debug');
 o3djs.require('o3djs.particles');
+o3djs.require('o3djs.performance');
 
-var RENDER_TARGET_WIDTH = 256;
-var RENDER_TARGET_HEIGHT = 256;
 var PROXY_HEIGHT = 5150;
 
 //        client.root
@@ -128,6 +127,9 @@ var g_skyDomeTransform;
 var g_waterTransform;
 var g_reflectionTexture;
 var g_refractionTexture;
+var g_reflectionImage;
+var g_refrectionImage;
+var g_depthSurface;
 var g_globalParams;
 var g_globalClockParam;
 var g_clipHeightParam;
@@ -180,6 +182,9 @@ var g_downloadPercent = -1;
 var g_showError = false;
 var g_sceneEffects = [];
 var g_sceneTexturesByURI;
+var g_renderTargetWidth = 256;
+var g_renderTargetHeight = 256;
+var g_perfMon;
 
 var g_camera = {
   farPlane: 80000,
@@ -1541,6 +1546,8 @@ function loadMainScene() {
         }
       }
     }
+    g_perfMon = o3djs.performance.createPerformanceMonitor(
+        25, 35, increaseRenderTargetResolution, decreaseRenderTargetResolution);
   }
 
   try {
@@ -1815,6 +1822,10 @@ function onRender(renderEvent) {
 
   // Render the FPS display.
   g_client.renderTree(g_fpsManager.viewInfo.root);
+
+  if (g_perfMon) {
+    g_perfMon.onRender(renderEvent.elapsedTime);
+  }
 }
 
 function onAllLoadingFinished() {
@@ -1843,6 +1854,82 @@ function init() {
   o3djs.util.makeClients(initStep2);
 }
 
+function setupRenderTargets() {
+  var oldReflectionTexture;
+  var oldRefractionTexture;
+  var oldDepthSurface;
+
+  if (g_reflectionTexture) {
+    g_mainPack.removeObject(g_reflectionSurfaceSet.renderSurface);
+    g_mainPack.removeObject(g_refractionSurfaceSet.renderSurface);
+    g_mainPack.removeObject(g_reflectionTexture);
+    g_mainPack.removeObject(g_refractionTexture);
+    g_mainPack.removeObject(g_depthSurface);
+  } else {
+    // First time only.
+    g_reflectionSurfaceSet = g_mainPack.createObject('RenderSurfaceSet');
+    g_refractionSurfaceSet = g_mainPack.createObject('RenderSurfaceSet');
+  }
+
+  // Create Render Targets for the reflection and refraction.
+  g_reflectionTexture = g_mainPack.createTexture2D(g_renderTargetWidth,
+                                                   g_renderTargetHeight,
+                                                   g_o3d.Texture.ARGB8, 1,
+                                                   true);
+  var reflectionSurface = g_reflectionTexture.getRenderSurface(0, g_mainPack);
+  g_refractionTexture = g_mainPack.createTexture2D(g_renderTargetWidth,
+                                                   g_renderTargetHeight,
+                                                   g_o3d.Texture.XRGB8, 1,
+                                                   true);
+  var refractionSurface = g_refractionTexture.getRenderSurface(0, g_mainPack);
+  g_depthSurface = g_mainPack.createDepthStencilSurface(g_renderTargetWidth,
+                                                        g_renderTargetHeight);
+
+  // Set up the render graph to generate them.
+  g_reflectionSurfaceSet.renderSurface = reflectionSurface;
+  g_reflectionSurfaceSet.renderDepthStencilSurface = g_depthSurface;
+
+  g_refractionSurfaceSet.renderSurface = refractionSurface;
+  g_refractionSurfaceSet.renderDepthStencilSurface = g_depthSurface;
+
+  g_updateRenderTargets = true;
+
+  if (g_waterMaterial) {  // Every time after the first.
+    var sampler = g_waterMaterial.getParam('reflectionSampler').value;
+    sampler.texture = g_reflectionTexture;
+    sampler = g_waterMaterial.getParam('refractionSampler').value;
+    sampler.texture = g_refractionTexture;
+    g_reflectionImage.sampler.texture = g_reflectionTexture;
+    g_refractionImage.sampler.texture = g_refractionTexture;
+  }
+}
+
+function increaseRenderTargetResolution() {
+  var changed;
+  if (g_renderTargetWidth < 2048) {
+    g_renderTargetWidth <<= 1;
+    changed = true;
+  }
+  if (g_renderTargetHeight < 2048) {
+    g_renderTargetHeight <<= 1;
+    changed = true;
+  }
+  setupRenderTargets();
+}
+
+function decreaseRenderTargetResolution() {
+  var changed;
+  if (g_renderTargetWidth > 256) {
+    g_renderTargetWidth >>= 1;
+    changed = true;
+  }
+  if (g_renderTargetHeight > 256) {
+    g_renderTargetHeight >>= 1;
+    changed = true;
+  }
+  setupRenderTargets();
+}
+
 /**
  * Initializes O3D and loads the scene into the transform graph.
  * @param {Array} clientElements Array of o3d object elements.
@@ -1865,20 +1952,6 @@ function initStep2(clientElements) {
   g_mainPack = g_client.createPack();
   g_scenePack = g_client.createPack();
 
-  // Create Render Targets for the reflection and refraction.
-  g_reflectionTexture = g_mainPack.createTexture2D(RENDER_TARGET_WIDTH,
-                                                   RENDER_TARGET_HEIGHT,
-                                                   g_o3d.Texture.ARGB8, 1,
-                                                   true);
-  var reflectionSurface = g_reflectionTexture.getRenderSurface(0, g_mainPack);
-  g_refractionTexture = g_mainPack.createTexture2D(RENDER_TARGET_WIDTH,
-                                                   RENDER_TARGET_HEIGHT,
-                                                   g_o3d.Texture.XRGB8, 1,
-                                                   true);
-  var refractionSurface = g_refractionTexture.getRenderSurface(0, g_mainPack);
-  var depthSurface = g_mainPack.createDepthStencilSurface(RENDER_TARGET_WIDTH,
-                                                          RENDER_TARGET_HEIGHT);
-
   g_mainRoot = g_mainPack.createObject('Transform');
   g_baseRoot = g_scenePack.createObject('Transform');
   g_baseRoot.parent = g_mainRoot;
@@ -1887,14 +1960,7 @@ function initStep2(clientElements) {
   g_mainRoot.parent = g_client.root;
   g_sceneRoot.translate(0, 0, -g_waterLevel);
 
-  // Setup the render graph to generate them.
-  g_reflectionSurfaceSet = g_mainPack.createObject('RenderSurfaceSet');
-  g_reflectionSurfaceSet.renderSurface = reflectionSurface;
-  g_reflectionSurfaceSet.renderDepthStencilSurface = depthSurface;
-
-  g_refractionSurfaceSet = g_mainPack.createObject('RenderSurfaceSet');
-  g_refractionSurfaceSet.renderSurface = refractionSurface;
-  g_refractionSurfaceSet.renderDepthStencilSurface = depthSurface;
+  setupRenderTargets();
 
   // Create states to set clipping.
   g_reflectionClipState = g_mainPack.createObject('State');
@@ -2540,22 +2606,28 @@ function setupHud() {
 
   // Make images to show the render targets.
   for (var ii = 0; ii < 2; ++ii) {
+    var textureDisplaySquareSize = 256;
     var renderTargetTexture = (ii == 0) ? g_reflectionTexture :
                                           g_refractionTexture;
-    var scale = 1;
     var x = 10;
-    var y = 10 + ii * (g_reflectionTexture.height * scale + 10);
+    var y = 10 + ii * (textureDisplaySquareSize + 10);
     var borderSize = 2;
     var image;
     // make a back image to create a border around render target.
     image = new Image(g_renderTargetDisplayRoot, backTexture, true);
     image.transform.translate(x - borderSize, y - borderSize, -3);
-    image.transform.scale(renderTargetTexture.width * scale + borderSize * 2,
-                          renderTargetTexture.height * scale + borderSize * 2,
+    image.transform.scale(textureDisplaySquareSize + borderSize * 2,
+                          textureDisplaySquareSize + borderSize * 2,
                           1);
     image = new Image(g_renderTargetDisplayRoot, renderTargetTexture, true);
     image.transform.translate(x, y, -2);
-    image.transform.scale(scale, scale, 1);
+    image.transform.scale(textureDisplaySquareSize / g_renderTargetWidth,
+        textureDisplaySquareSize / g_renderTargetHeight, 1);
+    if (ii == 0) {
+      g_reflectionImage = image;
+    } else {
+      g_refractionImage = image;
+    }
   }
 
   // Make a fader plane.
