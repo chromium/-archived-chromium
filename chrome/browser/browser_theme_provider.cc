@@ -125,7 +125,7 @@ BrowserThemeProvider::BrowserThemeProvider()
     : rb_(ResourceBundle::GetSharedInstance()) {
   static bool initialized = false;
   if (!initialized) {
-    for (size_t i = 0; i < sizeof(kToolbarButtonIDs); ++i) {
+    for (size_t i = 0; i < arraysize(kToolbarButtonIDs); ++i) {
       button_images_[kToolbarButtonIDs[i]] = true;
     }
     frame_tints_[IDR_THEME_FRAME] = TINT_FRAME;
