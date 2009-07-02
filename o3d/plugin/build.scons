@@ -275,8 +275,8 @@ if env.Bit('mac'):
 
   # insert version number into Info.plist
   env.ReplaceStrings(
-    'mac/processed/Info.plist', '$SCONSTRUCT_DIR/plugin/mac/Info.plist',
-    REPLACE_STRINGS = plugin_replace_strings
+      'mac/processed/Info.plist', '$SCONSTRUCT_DIR/plugin/mac/Info.plist',
+      REPLACE_STRINGS = plugin_replace_strings
   )
 
   # copy mac resource data
@@ -303,7 +303,7 @@ if env.Bit('mac'):
   else:
     stripCmd = 'strip -S "$ARTIFACTS_DIR/O3D.plugin/Contents/MacOS/o3d"'
 
-  # Cleanup end result and build the installer
+  # Cleanup end result
   created_installer = env.Command('$ARTIFACTS_DIR/plugin_done',
               [env.Dir('$ARTIFACTS_DIR/O3D.plugin')],
               [
@@ -353,6 +353,7 @@ if env.Bit('mac'):
     env.Command(env.Dir('$ARTIFACTS_DIR/O3D.mpkg'),
                 [
                   "$ARTIFACTS_DIR/plugin_done",
+                  "$ARTIFACTS_DIR/postflight.sh",
                 ],
                 [
                 # Delete first as Copy can fail to overwrite if the packproj is locked
