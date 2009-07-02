@@ -148,10 +148,6 @@ bool RendererMainPlatformDelegate::EnableSandbox() {
   // succeed.
   DebugUtil::BeingDebugged();
 
-  // Cache the System info information, since we can't query certain attributes
-  // with the Sandbox enabled.
-  base::SysInfo::CacheSysInfo();
-
   // For the renderer, we give it a custom sandbox to lock down as tight as
   // possible, but still be able to draw.
 

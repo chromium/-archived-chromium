@@ -14,8 +14,6 @@ namespace base {
 class SysInfo {
  public:
   // Return the number of logical processors/cores on the current machine.
-  // WARNING: On POSIX, this method uses static variables and is not threadsafe
-  // until it's been initialized by being called once without a race.
   static int NumberOfProcessors();
 
   // Return the number of bytes of physical memory on the current machine.
@@ -46,8 +44,6 @@ class SysInfo {
   static std::string OperatingSystemVersion();
 
   // Retrieves detailed numeric values for the OS version.
-  // WARNING: On OS X, this method uses static variables and is not threadsafe
-  // until it's been initialized by being called once without a race.
   // TODO(port): Implement a Linux version of this method and enable the
   // corresponding unit test.
   static void OperatingSystemVersionNumbers(int32 *major_version,
@@ -68,14 +64,6 @@ class SysInfo {
   // Return the smallest amount of memory (in bytes) which the VM system will
   // allocate.
   static size_t VMAllocationGranularity();
-
-#if defined(OS_MACOSX)
-  // Under the OS X Sandbox, our access to the system is limited, this call
-  // caches the system info on startup before we turn the Sandbox on.
-  // The above functions are all wired up to return the cached value so the rest
-  // of the code can call them in the Sandbox without worrying.
-  static void CacheSysInfo();
-#endif
 };
 
 }  // namespace base

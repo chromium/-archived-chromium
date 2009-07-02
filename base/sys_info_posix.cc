@@ -39,7 +39,7 @@ int SysInfo::NumberOfProcessors() {
 #else
   // It seems that sysconf returns the number of "logical" processors on both
   // mac and linux.  So we get the number of "online logical" processors.
-  static long res = sysconf(_SC_NPROCESSORS_ONLN);
+  long res = sysconf(_SC_NPROCESSORS_ONLN);
   if (res == -1) {
     NOTREACHED();
     return 1;
