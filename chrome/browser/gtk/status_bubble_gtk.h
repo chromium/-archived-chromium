@@ -36,10 +36,6 @@ class StatusBubbleGtk : public StatusBubble {
   // the download shelf, when it is visible.
   virtual void UpdateDownloadShelfVisibility(bool visible) { }
 
-  virtual void SetBubbleWidth(int width) { }
-
-  void SetStatus(const std::string& status_utf8);
-
   // Top of the widget hierarchy for a StatusBubble. This top level widget is
   // guarenteed to have its gtk_widget_name set to "status-bubble" for
   // identification.

@@ -44,9 +44,6 @@ class StatusBubble {
   // This is used by to ensure that the status bubble does not obscure
   // the download shelf, when it is visible.
   virtual void UpdateDownloadShelfVisibility(bool visible) = 0;
-
-  // Allow StatusView animation to set width of StatusBubble.
-  virtual void SetBubbleWidth(int width) = 0;
 };
 
 #endif  // #ifndef CHROME_BROWSER_STATUS_BUBBLE_H_

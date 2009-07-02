@@ -25,7 +25,6 @@ class StatusBubbleMac : public StatusBubble {
   virtual void Hide();
   virtual void MouseMoved();
   virtual void UpdateDownloadShelfVisibility(bool visible);
-  virtual void SetBubbleWidth(int width);
 
  private:
   friend class StatusBubbleMacTest;
