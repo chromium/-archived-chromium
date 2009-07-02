@@ -476,6 +476,14 @@ TEST_F(PageCyclerReferenceTest, DhtmlFile) {
   RunTest("dhtml", false);
 }
 
+TEST_F(PageCyclerTest, MorejsFile) {
+  RunTest("morejs", false);
+}
+
+TEST_F(PageCyclerReferenceTest, MorejsFile) {
+  RunTest("morejs", false);
+}
+
 // http (localhost) tests
 TEST_F(PageCyclerTest, MozHttp) {
   RunTest("moz", true);
