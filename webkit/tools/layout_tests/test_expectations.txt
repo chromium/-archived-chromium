@@ -1250,24 +1250,26 @@ BUG10350 LINUX : LayoutTests/fast/replaced/width100percent-radio.html = FAIL
 // Linux pixel tests: the select arrow is clipping wrong on one line.
 BUG10666 LINUX : chrome/fast/forms/basic-selects.html = FAIL
 
+// These tests are marked as failing on Linux because they depend on QuickTime.
+// See the bug for more discussion.
+BUG15797 LINUX : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
+BUG15797 LINUX : LayoutTests/plugins/embed-attributes-setting.html = FAIL
+
 // Depends on plugin support.
 BUG10351 MAC : LayoutTests/fast/dom/Window/Plug-ins.html = FAIL
 BUG10351 MAC : LayoutTests/fast/js/navigator-mimeTypes-length.html = FAIL
 BUG10351 MAC : LayoutTests/accessibility/plugin.html = FAIL CRASH
-BUG10351 MAC LINUX : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
+BUG10351 MAC : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
 BUG10351 MAC : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL PASS
 BUG10351 MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug8499.html = FAIL
 BUG10673 MAC : chrome/plugins/call-as-function.html = FAIL
 // Linux: This test verifies that a single plugin has multiple mime-types.
 // Our test plugin doesn't.  Maybe we should add an extra one?
 BUG10351 LINUX : LayoutTests/fast/js/navigator-mimeTypes-length.html = FAIL
-BUG10351 MAC LINUX : LayoutTests/http/tests/plugins/cross-frame-object-access.html = FAIL
+BUG10351 MAC : LayoutTests/http/tests/plugins/cross-frame-object-access.html = FAIL
 // Skip because we throw an exception before we get to dumpAsText.
-BUG10351 SKIP MAC LINUX : LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL
+BUG10351 SKIP MAC : LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL
 BUG10351 MAC : LayoutTests/plugins/embed-attributes-setting.html = CRASH FAIL
-// Linux: This embeds with mime-type video/quicktime, which will never work on Linux.
-// Maybe we can fix the test?
-BUG10351 LINUX : LayoutTests/plugins/embed-attributes-setting.html = FAIL
 BUG10351 MAC : LayoutTests/plugins/embed-inside-object.html = TIMEOUT
 BUG10351 MAC : LayoutTests/plugins/get-empty-url.html = CRASH FAIL
 BUG10351 MAC : LayoutTests/plugins/get-url-that-the-resource-load-delegate-will-disallow.html = FAIL
