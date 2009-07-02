@@ -22,6 +22,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/debugger/devtools_window.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/find_bar.h"
 #include "chrome/browser/find_bar_controller.h"
@@ -59,6 +60,7 @@
 #if defined(OS_WIN)
 #include "views/controls/scrollbar/native_scroll_bar.h"
 #endif
+#include "views/controls/single_split_view.h"
 #include "views/fill_layout.h"
 #include "views/view.h"
 #include "views/widget/root_view.h"
@@ -277,6 +279,8 @@ BrowserView::BrowserView(Browser* browser)
       infobar_container_(NULL),
       find_bar_y_(0),
       contents_container_(NULL),
+      devtools_container_(NULL),
+      contents_split_(NULL),
       initialized_(false),
       ignore_layout_(false),
 #if defined(OS_WIN)
@@ -534,6 +538,7 @@ void BrowserView::RegisterBrowserViewPrefs(PrefService* prefs) {
                              kDefaultPluginMessageResponseTimeout);
   prefs->RegisterIntegerPref(prefs::kHungPluginDetectFrequency,
                              kDefaultHungPluginDetectFrequency);
+  prefs->RegisterIntegerPref(prefs::kDevToolsSplitLocation, -1);
 }
 
 void BrowserView::AttachBrowserBubble(BrowserBubble* bubble) {
@@ -570,6 +575,19 @@ void BrowserView::Show() {
   if (selected_tab_contents)
     selected_tab_contents->view()->RestoreFocus();
 
+  // Restore split offset.
+  int split_offset = g_browser_process->local_state()->GetInteger(
+      prefs::kDevToolsSplitLocation);
+  if (split_offset == -1) {
+    // Initial load, set to default value.
+    split_offset = 2 * contents_split_->height() / 3;
+  }
+  // Make sure user can see both panes.
+  int min_split_size = contents_split_->height() / 10;
+  split_offset = std::min(contents_split_->height() - min_split_size,
+                          std::max(min_split_size, split_offset));
+  contents_split_->set_divider_offset(split_offset);
+
   frame_->GetWindow()->Show();
 }
 
@@ -584,6 +602,9 @@ void BrowserView::Close() {
   for (; bubble != browser_bubbles_.end(); ++bubble) {
     (*bubble)->BrowserWindowClosed();
   }
+
+  g_browser_process->local_state()->SetInteger(
+      prefs::kDevToolsSplitLocation, contents_split_->divider_offset());
 }
 
 void BrowserView::Activate() {
@@ -631,7 +652,7 @@ void BrowserView::SelectedTabToolbarSizeChanged(bool is_animating) {
     contents_container_->SetFastResize(false);
   } else {
     UpdateUIForContents(browser_->GetSelectedTabContents());
-    contents_container_->Layout();
+    contents_split_->Layout();
   }
 }
 
@@ -642,7 +663,8 @@ void BrowserView::UpdateTitleBar() {
 }
 
 void BrowserView::UpdateDevTools() {
-  NOTIMPLEMENTED();
+  UpdateDevToolsForContents(GetSelectedTabContents());
+  Layout();
 }
 
 void BrowserView::UpdateLoadingAnimations(bool should_animate) {
@@ -800,7 +822,7 @@ gfx::Rect BrowserView::GetRootWindowResizerRect() const {
     return gfx::Rect();
   }
 
-  gfx::Rect client_rect = contents_container_->bounds();
+  gfx::Rect client_rect = contents_split_->bounds();
   gfx::Size resize_corner_size = ResizeCorner::GetSize();
   int x = client_rect.width() - resize_corner_size.width();
   if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
@@ -979,6 +1001,7 @@ void BrowserView::TabDetachedAt(TabContents* contents, int index) {
     // on the selected TabContents when it is removed.
     infobar_container_->ChangeTabContents(NULL);
     contents_container_->ChangeTabContents(NULL);
+    UpdateDevToolsForContents(NULL);
   }
 }
 
@@ -1000,6 +1023,7 @@ void BrowserView::TabSelectedAt(TabContents* old_contents,
   // TabContents.
   infobar_container_->ChangeTabContents(new_contents);
   contents_container_->ChangeTabContents(new_contents);
+  UpdateDevToolsForContents(new_contents);
   // TODO(beng): This should be called automatically by ChangeTabContents, but I
   //             am striving for parity now rather than cleanliness. This is
   //             required to make features like Duplicate Tab, Undo Close Tab,
@@ -1322,7 +1346,7 @@ gfx::Size BrowserView::GetMinimumSize() {
     bookmark_bar_size.Enlarge(0,
         -kSeparationLineHeight - bookmark_bar_view_->GetToolbarOverlap(true));
   }
-  gfx::Size contents_size(contents_container_->GetMinimumSize());
+  gfx::Size contents_size(contents_split_->GetMinimumSize());
 
   int min_height = tabstrip_size.height() + toolbar_size.height() +
       bookmark_bar_size.height() + contents_size.height();
@@ -1412,7 +1436,14 @@ void BrowserView::Init() {
 
   contents_container_ = new TabContentsContainer;
   set_contents_view(contents_container_);
-  AddChildView(contents_container_);
+
+  devtools_container_ = new TabContentsContainer;
+  contents_split_ = new views::SingleSplitView(
+      contents_container_,
+      devtools_container_,
+      views::SingleSplitView::VERTICAL_SPLIT);
+
+  AddChildView(contents_split_);
 
   status_bubble_.reset(new StatusBubbleViews(GetWidget()));
 
@@ -1507,7 +1538,7 @@ int BrowserView::LayoutInfoBar(int top) {
 }
 
 void BrowserView::LayoutTabContents(int top, int bottom) {
-  contents_container_->SetBounds(0, top, width(), bottom - top);
+  contents_split_->SetBounds(0, top, width(), bottom - top);
 }
 
 int BrowserView::LayoutDownloadShelf(int bottom) {
@@ -1572,6 +1603,14 @@ bool BrowserView::MaybeShowInfoBar(TabContents* contents) {
   //             InfoBarContainer, DownloadShelfView and TabContents and this
   //             view is sorted out.
   return true;
+}
+
+void BrowserView::UpdateDevToolsForContents(TabContents* tab_contents) {
+  TabContents* devtools_contents =
+      DevToolsWindow::GetDevToolsContents(tab_contents);
+  devtools_container_->ChangeTabContents(devtools_contents);
+  devtools_container_->SetVisible(devtools_contents != NULL);
+  contents_split_->Layout();
 }
 
 void BrowserView::UpdateUIForContents(TabContents* contents) {

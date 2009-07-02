@@ -46,6 +46,7 @@ class ZoomMenuModel;
 
 namespace views {
 class Menu;
+class SingleSplitView;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -339,6 +340,9 @@ class BrowserView : public BrowserWindow,
   // |contents| can be NULL.
   bool MaybeShowInfoBar(TabContents* contents);
 
+  // Updated devtools window for given contents.
+  void UpdateDevToolsForContents(TabContents* tab_contents);
+
   // Updates various optional child Views, e.g. Bookmarks Bar, Info Bar or the
   // Download Shelf in response to a change notification from the specified
   // |contents|. |contents| can be NULL. In this case, all optional UI will be
@@ -405,6 +409,12 @@ class BrowserView : public BrowserWindow,
 
   // The view that contains the selected TabContents.
   TabContentsContainer* contents_container_;
+
+  // The view that contains devtools window for the selected TabContents.
+  TabContentsContainer* devtools_container_;
+
+  // Split view containing the contents container and devtools container.
+  views::SingleSplitView* contents_split_;
 
   // The Status information bubble that appears at the bottom of the window.
   scoped_ptr<StatusBubbleViews> status_bubble_;
