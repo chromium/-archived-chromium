@@ -822,7 +822,6 @@ BUG10295 MAC : LayoutTests/fast/dom/prototype-chain.html = FAIL
 
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
 BUG10296 MAC : LayoutTests/fast/text/international/bidi-menulist.html = FAIL
-BUG10296 LINUX : LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
 BUG10296 LINUX : LayoutTests/fast/transforms/transform-on-inline.html = FAIL
 BUG10296 LINUX : LayoutTests/fast/transforms/transform-table-row.html = FAIL
 BUG10296 LINUX : LayoutTests/svg/batik/paints/patternPreserveAspectRatioA.svg = CRASH FAIL
@@ -2075,7 +2074,7 @@ BUG9768 WIN : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
 BUG9768 WIN : LayoutTests/fast/text/international/001.html = FAIL
 BUG9768 WIN : LayoutTests/fast/text/international/002.html = FAIL
 BUG9768 WIN : LayoutTests/fast/text/international/003.html = FAIL
-BUG9768 LINUX WIN : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
+BUG9768 WIN : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 
 // Merge WebKit 42200:42244 regressions
 BUG9786 : LayoutTests/fast/dom/Window/dom-access-from-closure-iframe.html = FAIL
