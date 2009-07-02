@@ -38,7 +38,7 @@ DEFINE_RPC_CLASS(ToolsAgent, TOOLS_AGENT_STRUCT)
   METHOD1(UpdateFocusedNode, int /* node_id */) \
   \
   /* Updates focused node on the client. */ \
-  METHOD2(FrameNavigate, std::string /* url */, bool /* top_level */) \
+  METHOD1(FrameNavigate, std::string /* url */) \
   \
   /* Response to the GetNodeProperties. */ \
   METHOD3(DidExecuteUtilityFunction, int /* call_id */, String /* result */, \

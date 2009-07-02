@@ -135,9 +135,18 @@ void WebDevToolsAgentImpl::SetMainFrameDocumentReady(bool ready) {
   } else {
     doc = NULL;
   }
-  debugger_agent_impl_->ResetUtilityContext(doc, &utility_context_);
   if (doc) {
+    // Do not clear utility context when document is being cleared -
+    // there still can be pending messages from the client that require
+    // context to be processed.
+    debugger_agent_impl_->ResetUtilityContext(doc, &utility_context_);
     InitDevToolsAgentHost();
+    if (!report_frame_navigate_url_.empty()) {
+      // This is a document from the first load, issue frame navigate
+      // scheduled in DidCommitLoadForFrame.
+      tools_agent_delegate_stub_->FrameNavigate(report_frame_navigate_url_);
+      report_frame_navigate_url_ = "";
+    }
   }
   dom_agent_impl_->SetDocument(doc);
 }
@@ -155,9 +164,10 @@ void WebDevToolsAgentImpl::DidCommitLoadForFrame(
   GURL url = ds->hasUnreachableURL() ?
       ds->unreachableURL() :
       request.url();
-  tools_agent_delegate_stub_->FrameNavigate(
-      url.possibly_invalid_spec(),
-      webview->GetMainFrame() == frame);
+  if (webview->GetMainFrame() == frame) {
+    // Schedule frame navigate event.
+    report_frame_navigate_url_ = url.possibly_invalid_spec();
+  }
   InspectorController* ic = webview->page()->inspectorController();
   // Unhide resources panel if necessary.
   tools_agent_delegate_stub_->SetResourcesPanelEnabled(

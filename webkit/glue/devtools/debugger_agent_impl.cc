@@ -96,9 +96,6 @@ void DebuggerAgentImpl::ResetUtilityContext(
     context->Dispose();
     context->Clear();
   }
-  if (!document) {
-    return;
-  }
   v8::HandleScope scope;
 
   // TODO(pfeldman): Validate against Soeren.

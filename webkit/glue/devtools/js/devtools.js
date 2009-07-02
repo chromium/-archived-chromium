@@ -75,7 +75,9 @@ devtools.ToolsAgent.prototype.reset = function() {
 devtools.ToolsAgent.prototype.evaluateJavaScript = function(script, callback) {
   var callbackId = devtools.Callback.wrap(function(result) {
     var pair = JSON.parse(result);
-    callback(pair[0], pair[1]);
+    if (callback) {
+      callback(pair[0], pair[1]);
+    }
   });
   RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
       'evaluate', JSON.stringify([script]));
@@ -110,23 +112,20 @@ devtools.ToolsAgent.prototype.updateFocusedNode_ = function(nodeId) {
 
 /**
  * @param {string} url Url frame navigated to.
- * @param {bool} topLevel True iff top level navigation occurred.
  * @see tools_agent.h
  * @private
  */
-devtools.ToolsAgent.prototype.frameNavigate_ = function(url, topLevel) {
-  if (topLevel) {
-    this.reset();
-    // Do not reset Profiles panel.
-    var profiles = null;
-    if ('profiles' in WebInspector.panels) {
-      profiles = WebInspector.panels['profiles'];
-      delete WebInspector.panels['profiles'];
-    }
-    WebInspector.reset();
-    if (profiles != null) {
-      WebInspector.panels['profiles'] = profiles;
-    }
+devtools.ToolsAgent.prototype.frameNavigate_ = function(url) {
+  this.reset();
+  // Do not reset Profiles panel.
+  var profiles = null;
+  if ('profiles' in WebInspector.panels) {
+    profiles = WebInspector.panels['profiles'];
+    delete WebInspector.panels['profiles'];
+  }
+  WebInspector.reset();
+  if (profiles != null) {
+    WebInspector.panels['profiles'] = profiles;
   }
 };
 
