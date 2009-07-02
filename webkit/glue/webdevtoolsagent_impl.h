@@ -101,7 +101,6 @@ class WebDevToolsAgentImpl
   // for matching rules.
   v8::Persistent<v8::Context> utility_context_;
   OwnPtr<BoundObject> devtools_agent_host_;
-  std::string report_frame_navigate_url_;
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsAgentImpl);
 };
 
