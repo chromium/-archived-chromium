@@ -53,7 +53,7 @@ TabOverviewController::TabOverviewController(
   views::WidgetGtk* host = new views::WidgetGtk(views::WidgetGtk::TYPE_POPUP);
   host->set_delete_on_destroy(false);
   host->MakeTransparent();
-  host->Init(NULL, CalculateHostBounds(), true);
+  host->Init(NULL, CalculateHostBounds());
   TabOverviewTypes::instance()->SetWindowType(
       host->GetNativeView(),
       TabOverviewTypes::WINDOW_TYPE_CHROME_TAB_SUMMARY,

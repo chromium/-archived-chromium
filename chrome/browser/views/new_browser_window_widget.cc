@@ -29,7 +29,7 @@ NewBrowserWindowWidget::NewBrowserWindowWidget(Profile* profile)
   views::WidgetGtk* widget =
       new views::WidgetGtk(views::WidgetGtk::TYPE_WINDOW);
   widget->MakeTransparent();
-  widget->Init(NULL, gfx::Rect(0, 0, pref.width(), pref.height()), false);
+  widget->Init(NULL, gfx::Rect(0, 0, pref.width(), pref.height()));
   TabOverviewTypes::instance()->SetWindowType(
       widget->GetNativeView(),
       TabOverviewTypes::WINDOW_TYPE_CREATE_BROWSER_WINDOW,

@@ -413,7 +413,7 @@ views::Widget* TabOverviewDragController::CreateDetachedWindow(
   cell->set_preferred_size(
       gfx::Size(grid()->cell_width(), grid()->cell_height()));
   controller_->ConfigureCell(cell, tab_contents);
-  widget->Init(NULL, gfx::Rect(screen_loc, cell->GetPreferredSize()), true);
+  widget->Init(NULL, gfx::Rect(screen_loc, cell->GetPreferredSize()));
   widget->GetRootView()->SetLayoutManager(new views::FillLayout());
   widget->GetRootView()->AddChildView(cell);
 
