@@ -75,9 +75,9 @@ class EffectCB : public Effect {
   // The command buffer resource ID for the effect.
   command_buffer::ResourceID resource_id_;
   std::vector<EffectHelper::EffectParamDesc> param_descs_;
+  std::vector<EffectHelper::EffectStreamDesc> stream_descs_;
   // A generation counter to dirty ParamCacheCBs.
   unsigned int generation_;
-
   // The renderer that created this effect.
   RendererCB *renderer_;
   DISALLOW_IMPLICIT_CONSTRUCTORS(EffectCB);

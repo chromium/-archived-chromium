@@ -367,6 +367,31 @@ BufferSyncInterface::ParseError GAPIDecoder::DoCommand(
       } else {
         return BufferSyncInterface::PARSE_INVALID_ARGUMENTS;
       }
+    case GET_STREAM_COUNT:
+      if (arg_count == 4) {
+        ResourceID id = args[0].value_uint32;
+        unsigned int size = args[1].value_uint32;
+        void *data = GetAddressAndCheckSize(args[2].value_uint32,
+                                            args[3].value_uint32,
+                                            size);
+        if (!data) return BufferSyncInterface::PARSE_INVALID_ARGUMENTS;
+        return gapi_->GetStreamCount(id, size, data);
+      } else {
+        return BufferSyncInterface::PARSE_INVALID_ARGUMENTS;
+      }
+    case GET_STREAM_DESC:
+      if (arg_count == 5) {
+        ResourceID id = args[0].value_uint32;
+        unsigned int index = args[1].value_uint32;
+        unsigned int size = args[2].value_uint32;
+        void *data = GetAddressAndCheckSize(args[3].value_uint32,
+                                            args[4].value_uint32,
+                                            size);
+        if (!data) return BufferSyncInterface::PARSE_INVALID_ARGUMENTS;
+        return gapi_->GetStreamDesc(id, index, size, data);
+      } else {
+        return BufferSyncInterface::PARSE_INVALID_ARGUMENTS;
+      }
     case DESTROY_TEXTURE:
       if (arg_count == 1) {
         return gapi_->DestroyTexture(args[0].value_uint32);

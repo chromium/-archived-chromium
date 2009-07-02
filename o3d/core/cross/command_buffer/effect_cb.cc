@@ -49,6 +49,7 @@ using command_buffer::CommandBufferEntry;
 using command_buffer::CommandBufferHelper;
 using command_buffer::ResourceID;
 namespace effect_param = command_buffer::effect_param;
+namespace vertex_struct = command_buffer::vertex_struct;
 
 EffectCB::EffectCB(ServiceLocator *service_locator, RendererCB *renderer)
     : Effect(service_locator),
@@ -125,6 +126,11 @@ bool EffectCB::LoadFromFXString(const String& source) {
       return false;
     }
   }
+  if (!effect_helper.GetEffectStreams(resource_id, &stream_descs_)) {
+    O3D_ERROR(service_locator()) << "Failed to get streams.";
+    Destroy();
+    return false;
+  }
   set_source(source);
   return true;
 }
@@ -200,8 +206,59 @@ void EffectCB::GetParameterInfo(EffectParameterInfoArray *array) {
   }
 }
 
+
+static bool CBSemanticToO3DSemantic(
+    vertex_struct::Semantic semantic,
+    unsigned int semantic_index,
+    Stream::Semantic *out_semantic,
+    unsigned int *out_semantic_index) {
+  switch (semantic) {
+    case vertex_struct::POSITION:
+      if (semantic_index != 0) return false;
+      *out_semantic = Stream::POSITION;
+      *out_semantic_index = 0;
+      return true;
+    case vertex_struct::NORMAL:
+      if (semantic_index != 0) return false;
+      *out_semantic = Stream::NORMAL;
+      *out_semantic_index = 0;
+      return true;
+    case vertex_struct::COLOR:
+      if (semantic_index > 1) return false;
+      *out_semantic = Stream::COLOR;
+      *out_semantic_index = semantic_index;
+      return true;
+    case vertex_struct::TEX_COORD:
+      if (semantic_index == 6) {
+        *out_semantic = Stream::TANGENT;
+        *out_semantic_index = 0;
+        return true;
+      } else if (semantic_index == 7) {
+        *out_semantic = Stream::BINORMAL;
+        *out_semantic_index = 0;
+        return true;
+      } else {
+        *out_semantic = Stream::TEXCOORD;
+        *out_semantic_index = semantic_index;
+        return true;
+      }
+    default:
+      return false;
+  }
+}
 void EffectCB::GetStreamInfo(EffectStreamInfoArray *array) {
-  // TODO(rlp)
+  DCHECK(array);
+  array->clear();
+  for (unsigned int i = 0; i < stream_descs_.size(); ++i) {
+    Stream::Semantic semantic;
+    unsigned int semantic_index;
+    if (CBSemanticToO3DSemantic(stream_descs_[i].semantic,
+                                stream_descs_[i].semantic_index,
+                                &semantic,
+                                &semantic_index)) {
+      array->push_back(EffectStreamInfo(semantic, semantic_index));
+    }
+  }
 }
 
 }  // namespace o3d

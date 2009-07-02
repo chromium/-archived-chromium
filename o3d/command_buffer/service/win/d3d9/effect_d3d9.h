@@ -80,7 +80,8 @@ class EffectParamD3D9: public EffectParam {
 class EffectD3D9 : public Effect {
  public:
   EffectD3D9(ID3DXEffect *d3d_effect,
-             ID3DXConstantTable *fs_constant_table);
+             ID3DXConstantTable *fs_constant_table,
+             IDirect3DVertexShader9 *d3d_vertex_shader);
   virtual ~EffectD3D9();
   // Compiles and creates an effect from source code.
   static EffectD3D9 *Create(GAPID3D9 *gapi,
@@ -101,8 +102,13 @@ class EffectD3D9 : public Effect {
   EffectParamD3D9 *CreateParam(unsigned int index);
   // Creates an effect parameter of the specified name.
   EffectParamD3D9 *CreateParamByName(const char *name);
+  // Gets the number of stream inputs for the effect.
+  unsigned int GetStreamCount();
+  // Gets the stream data with the specified index.
+  bool GetStreamDesc(unsigned int index, unsigned int size, void *data);
  private:
   typedef std::vector<EffectParamD3D9 *> ParamList;
+  typedef std::vector<effect_stream::Desc> StreamList;
 
   // Links a param into this effect.
   void LinkParam(EffectParamD3D9 *param);
@@ -110,14 +116,19 @@ class EffectD3D9 : public Effect {
   void UnlinkParam(EffectParamD3D9 *param);
   // Sets sampler states.
   bool SetSamplers(GAPID3D9 *gapi);
+  // Sets streams vector.
+  bool SetStreams();
 
   ID3DXEffect *d3d_effect_;
+  IDirect3DVertexShader9 *d3d_vertex_shader_;
   ID3DXConstantTable *fs_constant_table_;
   ParamList params_;
+  StreamList streams_;
   bool sync_parameters_;
   ResourceID samplers_[kMaxSamplerUnits];
 
   friend class EffectParamD3D9;
+  friend class EffectStreamD3D9;
   DISALLOW_COPY_AND_ASSIGN(EffectD3D9);
 };
 

@@ -69,13 +69,16 @@ static void LogFXError(LPD3DXBUFFER error_buffer) {
 }
 
 EffectD3D9::EffectD3D9(ID3DXEffect *d3d_effect,
-                       ID3DXConstantTable *fs_constant_table)
+                       ID3DXConstantTable *fs_constant_table,
+                       IDirect3DVertexShader9 *d3d_vertex_shader)
     : d3d_effect_(d3d_effect),
       fs_constant_table_(fs_constant_table),
+      d3d_vertex_shader_(d3d_vertex_shader),
       sync_parameters_(false) {
   for (unsigned int i = 0; i < kMaxSamplerUnits; ++i) {
     samplers_[i] = kInvalidResource;
   }
+  SetStreams();
 }
 // Releases the D3D effect.
 EffectD3D9::~EffectD3D9() {
@@ -86,6 +89,8 @@ EffectD3D9::~EffectD3D9() {
   d3d_effect_->Release();
   DCHECK(fs_constant_table_);
   fs_constant_table_->Release();
+  DCHECK(d3d_vertex_shader_);
+  d3d_vertex_shader_->Release();
 }
 
 // Compiles the effect, and checks that the effect conforms to what we expect
@@ -152,7 +157,17 @@ EffectD3D9 *EffectD3D9::Create(GAPID3D9 *gapi,
     d3d_effect->Release();
     return NULL;
   }
-  return new EffectD3D9(d3d_effect, table);
+  IDirect3DVertexShader9 *d3d_vertex_shader = NULL;
+  HR(device->CreateVertexShader(pass_desc.pVertexShaderFunction,
+                                &d3d_vertex_shader));
+  if (!d3d_vertex_shader) {
+    d3d_effect->Release();
+    table->Release();
+    DLOG(ERROR) << "Failed to create vertex shader";
+    return NULL;
+  }
+
+  return new EffectD3D9(d3d_effect, table, d3d_vertex_shader);
 }
 
 // Begins rendering with the effect, setting all the appropriate states.
@@ -175,6 +190,11 @@ unsigned int EffectD3D9::GetParamCount() {
   D3DXEFFECT_DESC effect_desc;
   HR(d3d_effect_->GetDesc(&effect_desc));
   return effect_desc.Parameters;
+}
+
+// Gets the number of input streams from the shader.
+unsigned int EffectD3D9::GetStreamCount() {
+  return streams_.size();
 }
 
 // Retrieves the matching DataType from a D3D parameter description.
@@ -282,12 +302,61 @@ bool EffectD3D9::SetSamplers(GAPID3D9 *gapi) {
   return result;
 }
 
+bool EffectD3D9::SetStreams() {
+  if (!d3d_vertex_shader_) {
+    return false;
+  }
+  UINT size;
+  d3d_vertex_shader_->GetFunction(NULL, &size);
+  scoped_array<DWORD> function(new DWORD[size]);
+  d3d_vertex_shader_->GetFunction(function.get(), &size);
+
+  UINT num_semantics;
+  HR(D3DXGetShaderInputSemantics(function.get(),
+                                 NULL,
+                                 &num_semantics));
+  scoped_array<D3DXSEMANTIC> semantics(new D3DXSEMANTIC[num_semantics]);
+  HR(D3DXGetShaderInputSemantics(function.get(),
+                                 semantics.get(),
+                                 &num_semantics));
+
+  streams_.resize(num_semantics);
+  for (UINT i = 0; i < num_semantics; ++i) {
+    vertex_struct::Semantic semantic;
+    unsigned int semantic_index;
+    if (D3DSemanticToCBSemantic(static_cast<D3DDECLUSAGE>(semantics[i].Usage),
+                                static_cast<int>(semantics[i].UsageIndex),
+                                &semantic, &semantic_index)) {
+      streams_[i].semantic = semantic;
+      streams_[i].semantic_index = semantic_index;
+    }
+  }
+  return true;
+}
+
 void EffectD3D9::LinkParam(EffectParamD3D9 *param) {
   params_.push_back(param);
 }
 
 void EffectD3D9::UnlinkParam(EffectParamD3D9 *param) {
   std::remove(params_.begin(), params_.end(), param);
+}
+
+// Fills the Desc structure, appending name and semantic if any, and if enough
+// room is available in the buffer.
+bool EffectD3D9::GetStreamDesc(unsigned int index,
+                               unsigned int size,
+                               void *data) {
+  using effect_stream::Desc;
+  if (size < sizeof(Desc))  // NOLINT
+    return false;
+
+  Desc stream = streams_[index];
+  Desc *desc = static_cast<Desc *>(data);
+  memset(desc, 0, sizeof(*desc));
+  desc->semantic = stream.semantic;
+  desc->semantic_index = stream.semantic_index;
+  return true;
 }
 
 EffectParamD3D9::EffectParamD3D9(effect_param::DataType data_type,
@@ -558,6 +627,31 @@ BufferSyncInterface::ParseError GAPID3D9::GetParamDesc(
       BufferSyncInterface::PARSE_NO_ERROR :
       BufferSyncInterface::PARSE_INVALID_ARGUMENTS;
 }
+
+// Gets the stream count from the effect and store it in the memory buffer.
+BufferSyncInterface::ParseError GAPID3D9::GetStreamCount(
+    ResourceID id,
+    unsigned int size,
+    void *data) {
+  EffectD3D9 *effect = effects_.Get(id);
+  if (!effect || size < sizeof(Uint32))  // NOLINT
+    return BufferSyncInterface::PARSE_INVALID_ARGUMENTS;
+  *static_cast<Uint32 *>(data) = effect->GetStreamCount();
+  return BufferSyncInterface::PARSE_NO_ERROR;
+}
+
+BufferSyncInterface::ParseError GAPID3D9::GetStreamDesc(
+    ResourceID id,
+    unsigned int index,
+    unsigned int size,
+    void *data) {
+  EffectD3D9 *effect = effects_.Get(id);
+  if (!effect) return BufferSyncInterface::PARSE_INVALID_ARGUMENTS;
+  return effect->GetStreamDesc(index, size, data) ?
+      BufferSyncInterface::PARSE_NO_ERROR :
+      BufferSyncInterface::PARSE_INVALID_ARGUMENTS;
+}
+
 
 // If the current effect is valid, call End on it, and tag for revalidation.
 void GAPID3D9::DirtyEffect() {

@@ -293,6 +293,8 @@ enum CommandId {
   SET_PARAM_DATA,                    // SetParamData, 4 args
   SET_PARAM_DATA_IMMEDIATE,          // SetParamData, 2 args + data
   GET_PARAM_DESC,                    // GetParamDesc, 4 args
+  GET_STREAM_COUNT,                  // GetStreamCount, 4 args.
+  GET_STREAM_DESC,                   // GetStreamDesc, 5 args
   DESTROY_TEXTURE,                   // DestroyTexture, 1 arg
   CREATE_TEXTURE_2D,                 // CreateTexture2D, 3 args
   CREATE_TEXTURE_3D,                 // CreateTexture3D, 4 args

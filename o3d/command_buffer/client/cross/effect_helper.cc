@@ -207,5 +207,68 @@ void EffectHelper::DestroyEffectParameters(
   }
 }
 
+bool EffectHelper::GetEffectStreams(ResourceID effect_id,
+                                    std::vector<EffectStreamDesc> *descs) {
+  using effect_stream::Desc;
+  DCHECK_NE(effect_id, kInvalidResource);
+
+  // Get the param count.
+  Uint32 *retval = shm_allocator_->AllocTyped<Uint32>(1);
+  CommandBufferEntry args[5];
+  args[0].value_uint32 = effect_id;
+  args[1].value_uint32 = sizeof(*retval);
+  args[2].value_uint32 = shm_id_;
+  args[3].value_uint32 = shm_allocator_->GetOffset(retval);
+  helper_->AddCommand(GET_STREAM_COUNT, 4, args);
+  // Finish has to be called to get the result.
+  helper_->Finish();
+
+  // We could have failed if the effect_id is invalid.
+  if (helper_->interface()->GetParseError() !=
+      BufferSyncInterface::PARSE_NO_ERROR) {
+    shm_allocator_->Free(retval);
+    return false;
+  }
+  unsigned int stream_count = *retval;
+  shm_allocator_->Free(retval);
+  unsigned int max_buffer_size = shm_allocator_->GetLargestFreeOrPendingSize();
+  if (max_buffer_size < sizeof(Desc)) {  // NOLINT
+    // Not enough memory to get at least 1 stream desc.
+    return false;
+  }
+  descs->resize(stream_count);
+
+  // Read stream descriptions in batches. We use as much shared memory as
+  // possible so that we only call Finish as little as possible.
+  unsigned int max_stream_per_batch =
+      std::min(stream_count, max_buffer_size / sizeof(Desc));  // NOLINT
+  Desc *raw_descs = shm_allocator_->AllocTyped<Desc>(max_stream_per_batch);
+  DCHECK(raw_descs);
+  for (unsigned int i = 0; i < stream_count; i += max_stream_per_batch) {
+    unsigned int count = std::min(stream_count - i, max_stream_per_batch);
+    for (unsigned int j = 0 ; j < count; ++j) {
+      EffectStreamDesc *desc = &((*descs)[i + j]);
+      Desc *raw_desc = raw_descs + j;
+      args[0].value_uint32 = effect_id;
+      args[1].value_uint32 = i+j;
+      args[2].value_uint32 = sizeof(*raw_desc);
+      args[3].value_uint32 = shm_id_;
+      args[4].value_uint32 = shm_allocator_->GetOffset(raw_desc);
+      helper_->AddCommand(GET_STREAM_DESC, 5, args);
+    }
+    // Finish to get the results.
+    helper_->Finish();
+    DCHECK_EQ(helper_->interface()->GetParseError(),
+              BufferSyncInterface::PARSE_NO_ERROR);
+    for (unsigned int j = 0 ; j < count; ++j) {
+      EffectStreamDesc *desc = &((*descs)[i + j]);
+      Desc *raw_desc = raw_descs + j;
+      desc->semantic = static_cast<vertex_struct::Semantic>(raw_desc->semantic);
+      desc->semantic_index = raw_desc->semantic_index;
+    }
+  }
+  shm_allocator_->Free(raw_descs);
+  return true;
+}
 }  // namespace command_buffer
 }  // namespace o3d

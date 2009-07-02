@@ -195,6 +195,17 @@ class GAPID3D9 : public GAPIInterface {
                                   unsigned int size,
                                   void *data);
 
+  // Implements the GetStreamCount function for D3D9.
+  virtual ParseError GetStreamCount(ResourceID id,
+                                    unsigned int size,
+                                    void *data);
+
+  // Implements the GetStreamDesc function for D3D9.
+  virtual ParseError GetStreamDesc(ResourceID id,
+                                   unsigned int index,
+                                   unsigned int size,
+                                   void *data);
+
   // Implements the CreateTexture2D function for D3D9.
   virtual ParseError CreateTexture2D(ResourceID id,
                                      unsigned int width,

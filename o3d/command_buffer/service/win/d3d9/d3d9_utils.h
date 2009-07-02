@@ -96,6 +96,59 @@ inline D3DCOLOR RGBAToD3DCOLOR(const RGBA &color) {
                        FloatToClampedByte(color.alpha));
 }
 
+inline bool VerifyHResult(HRESULT hr, const char* file, int line,
+                          const char* call) {
+  if (FAILED(hr)) {
+    DLOG(ERROR) << "DX Error in file " << file
+                << " line " << line << L": "
+                << DXGetErrorStringA(hr) << L": " << call;
+    return false;
+  }
+  return true;
+}
+
+static bool D3DSemanticToCBSemantic(
+    D3DDECLUSAGE semantic,
+    unsigned int semantic_index,
+    vertex_struct::Semantic *out_semantic,
+    unsigned int *out_semantic_index) {
+  // TODO: what meaning do we really want to put to our semantics ? How
+  // do they match the semantics that are set in the effect ? What combination
+  // of (semantic, index) are supposed to work ?
+  switch (semantic) {
+    case D3DDECLUSAGE_POSITION:
+      if (semantic_index != 0) return false;
+      *out_semantic = vertex_struct::POSITION;
+      *out_semantic_index = 0;
+      return true;
+    case D3DDECLUSAGE_NORMAL:
+      if (semantic_index != 0) return false;
+      *out_semantic = vertex_struct::NORMAL;
+      *out_semantic_index = 0;
+      return true;
+    case D3DDECLUSAGE_TANGENT:
+      if (semantic_index != 0) return false;
+      *out_semantic = vertex_struct::TEX_COORD;
+      *out_semantic_index = 6;
+      return true;
+    case D3DDECLUSAGE_BINORMAL:
+      if (semantic_index != 0) return false;
+      *out_semantic = vertex_struct::TEX_COORD;
+      *out_semantic_index = 7;
+      return true;
+    case D3DDECLUSAGE_COLOR:
+      if (semantic_index > 1) return false;
+      *out_semantic = vertex_struct::COLOR;
+      *out_semantic_index = semantic_index;
+      return true;
+    case D3DDECLUSAGE_TEXCOORD:
+      *out_semantic = vertex_struct::TEX_COORD;
+      *out_semantic_index = semantic_index;
+      return true;
+    default:
+      return false;
+  }
+}
 }  // namespace command_buffer
 }  // namespace o3d
 

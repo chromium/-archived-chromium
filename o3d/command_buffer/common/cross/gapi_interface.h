@@ -481,6 +481,34 @@ class GAPIInterface {
                                   unsigned int size,
                                   void *data) = 0;
 
+  // Gets the number of input streams for an effect, returning it in a memory
+  // buffer as a Uint32.
+  // Parameters:
+  //   id: the resource ID of the effect.
+  //   size: the size of the data buffer. Must be at least 4 (the size of the
+  //   Uint32).
+  //   data: the buffer receiving the data.
+  // Returns:
+  //   BufferSyncInterface::PARSE_INVALID_ARGUMENTS if invalid arguments are
+  //   passed, BufferSyncInterface::PARSE_NO_ERROR otherwise.
+  virtual ParseError GetStreamCount(ResourceID id,
+                                    unsigned int size,
+                                    void *data) = 0;
+
+  // Gets the stream semantics, storing them in the data buffer. The stream
+  // is described by an effect_stream::Desc structure which contains a
+  // semantic type and a semantic index.
+  // Parameters:
+  //   id: the resource ID of the effect.
+  //   index: which stream semantic to get
+  //   size: the size of the data buffer. Must be at least 8 (the size of two
+  //   Uint32).
+  //   data: the buffer receiving the data.
+  virtual ParseError GetStreamDesc(ResourceID id,
+                                   unsigned int index,
+                                   unsigned int size,
+                                   void *data) = 0;
+
   // Creates a 2D texture resource.
   // Parameters:
   //   id: the resource ID of the texture.

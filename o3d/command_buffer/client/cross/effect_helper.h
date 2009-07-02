@@ -59,6 +59,10 @@ class EffectHelper {
                                        // structure (counting strings) for a
                                        // param.
   };
+  struct EffectStreamDesc {
+    vertex_struct::Semantic semantic;  // The semantic enum type.
+    unsigned int semantic_index;
+  };
 
   EffectHelper(CommandBufferHelper *helper,
                FencedAllocatorWrapper *shm_allocator,
@@ -119,6 +123,23 @@ class EffectHelper {
   //   descs: the vector of descriptions containing the ResourceIDs of the
   //   parameters to destroy.
   void DestroyEffectParameters(const std::vector<EffectParamDesc> &descs);
+
+  // Gets all the input stream semantics and semantic indices in an
+  // array. These will be retrieved as many as possible at a time. At least
+  // sizeof(effect_param::Desc) must be available for this function to succeed.
+  // This function will call Finish(), hence will block.
+  //
+  // Parameters:
+  //   effect_id: the ResourceID of the effect.
+  //   descs:  A pointer to a vector containing the returned descriptions.
+  //   The pointed vector will be cleared.
+  // Returns:
+  //   true if successful. Reasons for failure are:
+  //   - invalid effect_id,
+  //   - not enough memory in the shm_allocator_.
+  bool GetEffectStreams(ResourceID effect_id,
+                        std::vector<EffectStreamDesc> *descs);
+
  private:
   CommandBufferHelper *helper_;
   FencedAllocatorWrapper *shm_allocator_;

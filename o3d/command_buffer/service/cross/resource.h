@@ -153,6 +153,13 @@ class EffectParam: public Resource {
   DISALLOW_COPY_AND_ASSIGN(EffectParam);
 };
 
+class EffectStream: public Resource {
+ public:
+  explicit EffectStream() {}
+ private:
+  DISALLOW_COPY_AND_ASSIGN(EffectStream);
+};
+
 // Texture class, representing a texture resource.
 class Texture: public Resource {
  public:

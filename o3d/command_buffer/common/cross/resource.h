@@ -134,6 +134,13 @@ struct Desc {
 };
 }  // namespace effect_param
 
+namespace effect_stream {
+struct Desc {
+  Uint32 semantic;         // the semantic type
+  Uint32 semantic_index;
+};
+}  // namespace effect_stream
+
 namespace texture {
 // Texture flags.
 enum Flags {
