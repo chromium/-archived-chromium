@@ -17,30 +17,30 @@ SimpleMenuModel::SimpleMenuModel(Delegate* delegate) : delegate_(delegate) {
 SimpleMenuModel::~SimpleMenuModel() {
 }
 
-void SimpleMenuModel::AddItem(int command_id, const std::wstring& label) {
+void SimpleMenuModel::AddItem(int command_id, const string16& label) {
   Item item = { command_id, label, TYPE_COMMAND, -1, NULL };
   items_.push_back(item);
 }
 
 void SimpleMenuModel::AddItemWithStringId(int command_id, int string_id) {
-  AddItem(command_id, l10n_util::GetString(string_id));
+  AddItem(command_id, l10n_util::GetStringUTF16(string_id));
 }
 
 void SimpleMenuModel::AddSeparator() {
-  Item item = { -1, std::wstring(), TYPE_SEPARATOR, -1, NULL };
+  Item item = { -1, string16(), TYPE_SEPARATOR, -1, NULL };
   items_.push_back(item);
 }
 
-void SimpleMenuModel::AddCheckItem(int command_id, const std::wstring& label) {
+void SimpleMenuModel::AddCheckItem(int command_id, const string16& label) {
   Item item = { command_id, label, TYPE_CHECK, -1, NULL };
   items_.push_back(item);
 }
 
 void SimpleMenuModel::AddCheckItemWithStringId(int command_id, int string_id) {
-  AddCheckItem(command_id, l10n_util::GetString(string_id));
+  AddCheckItem(command_id, l10n_util::GetStringUTF16(string_id));
 }
 
-void SimpleMenuModel::AddRadioItem(int command_id, const std::wstring& label,
+void SimpleMenuModel::AddRadioItem(int command_id, const string16& label,
                                    int group_id) {
   Item item = { command_id, label, TYPE_RADIO, group_id, NULL };
   items_.push_back(item);
@@ -48,16 +48,16 @@ void SimpleMenuModel::AddRadioItem(int command_id, const std::wstring& label,
 
 void SimpleMenuModel::AddRadioItemWithStringId(int command_id, int string_id,
                                                int group_id) {
-  AddRadioItem(command_id, l10n_util::GetString(string_id), group_id);
+  AddRadioItem(command_id, l10n_util::GetStringUTF16(string_id), group_id);
 }
 
-void SimpleMenuModel::AddSubMenu(const std::wstring& label, Menu2Model* model) {
+void SimpleMenuModel::AddSubMenu(const string16& label, Menu2Model* model) {
   Item item = { -1, label, TYPE_SUBMENU, -1, model };
   items_.push_back(item);
 }
 
 void SimpleMenuModel::AddSubMenuWithStringId(int string_id, Menu2Model* model) {
-  AddSubMenu(l10n_util::GetString(string_id), model);
+  AddSubMenu(l10n_util::GetStringUTF16(string_id), model);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ int SimpleMenuModel::GetCommandIdAt(int index) const {
   return items_.at(FlipIndex(index)).command_id;
 }
 
-std::wstring SimpleMenuModel::GetLabelAt(int index) const {
+string16 SimpleMenuModel::GetLabelAt(int index) const {
   if (IsLabelDynamicAt(index))
     return delegate_->GetLabelForCommandId(GetCommandIdAt(index));
   return items_.at(FlipIndex(index)).label;

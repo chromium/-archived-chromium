@@ -92,7 +92,6 @@
 #include "chrome/browser/printing/print_job_manager.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/rlz/rlz.h"
-#include "chrome/browser/views/chrome_views_delegate.h"
 #include "chrome/browser/views/user_data_dir_dialog.h"
 #include "chrome/common/env_vars.h"
 #include "chrome/installer/util/helper.h"
@@ -109,6 +108,8 @@
 
 #if defined(TOOLKIT_GTK)
 #include "chrome/common/gtk_util.h"
+#elif defined(TOOLKIT_VIEWS)
+#include "chrome/browser/views/chrome_views_delegate.h"
 #endif
 
 namespace Platform {

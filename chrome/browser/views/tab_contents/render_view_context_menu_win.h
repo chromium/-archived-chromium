@@ -36,11 +36,11 @@ class RenderViewContextMenuWin : public RenderViewContextMenu,
   // RenderViewContextMenu implementation --------------------------------------
   virtual void DoInit();
   virtual void AppendMenuItem(int id);
-  virtual void AppendMenuItem(int id, const std::wstring& label);
-  virtual void AppendRadioMenuItem(int id, const std::wstring& label);
-  virtual void AppendCheckboxMenuItem(int id, const std::wstring& label);
+  virtual void AppendMenuItem(int id, const string16& label);
+  virtual void AppendRadioMenuItem(int id, const string16& label);
+  virtual void AppendCheckboxMenuItem(int id, const string16& label);
   virtual void AppendSeparator();
-  virtual void StartSubMenu(int id, const std::wstring& label);
+  virtual void StartSubMenu(int id, const string16& label);
   virtual void FinishSubMenu();
 
  private:

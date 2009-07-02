@@ -43,7 +43,7 @@ int BackForwardMenuModelViews::GetCommandIdAt(int index) const {
   return index + 1;
 }
 
-std::wstring BackForwardMenuModelViews::GetLabelAt(int index) const {
+string16 BackForwardMenuModelViews::GetLabelAt(int index) const {
   return GetItemLabel(GetCommandIdAt(index));
 }
 

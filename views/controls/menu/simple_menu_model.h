@@ -7,6 +7,7 @@
 
 #include <vector>
 
+#include "base/string16.h"
 #include "views/controls/menu/menu_2.h"
 
 namespace views {
@@ -33,8 +34,8 @@ class SimpleMenuModel : public Menu2Model {
     virtual bool IsLabelForCommandIdDynamic(int command_id) const {
       return false;
     }
-    virtual std::wstring GetLabelForCommandId(int command_id) const {
-      return std::wstring();
+    virtual string16 GetLabelForCommandId(int command_id) const {
+      return string16();
     }
 
     // Notifies the delegate that the item with the specified command id was
@@ -51,14 +52,14 @@ class SimpleMenuModel : public Menu2Model {
   virtual ~SimpleMenuModel();
 
   // Methods for adding items to the model.
-  void AddItem(int command_id, const std::wstring& label);
+  void AddItem(int command_id, const string16& label);
   void AddItemWithStringId(int command_id, int string_id);
   void AddSeparator();
-  void AddCheckItem(int command_id, const std::wstring& label);
+  void AddCheckItem(int command_id, const string16& label);
   void AddCheckItemWithStringId(int command_id, int string_id);
-  void AddRadioItem(int command_id, const std::wstring& label, int group_id);
+  void AddRadioItem(int command_id, const string16& label, int group_id);
   void AddRadioItemWithStringId(int command_id, int string_id, int group_id);
-  void AddSubMenu(const std::wstring& label, Menu2Model* model);
+  void AddSubMenu(const string16& label, Menu2Model* model);
   void AddSubMenuWithStringId(int string_id, Menu2Model* model);
 
   // Overridden from Menu2Model:
@@ -66,7 +67,7 @@ class SimpleMenuModel : public Menu2Model {
   virtual int GetItemCount() const;
   virtual ItemType GetTypeAt(int index) const;
   virtual int GetCommandIdAt(int index) const;
-  virtual std::wstring GetLabelAt(int index) const;
+  virtual string16 GetLabelAt(int index) const;
   virtual bool IsLabelDynamicAt(int index) const;
   virtual bool GetAcceleratorAt(int index,
                                 views::Accelerator* accelerator) const;
@@ -89,7 +90,7 @@ class SimpleMenuModel : public Menu2Model {
  private:
   struct Item {
     int command_id;
-    std::wstring label;
+    string16 label;
     ItemType type;
     int group_id;
     Menu2Model* submenu;

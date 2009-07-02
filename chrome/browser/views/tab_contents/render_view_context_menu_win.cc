@@ -91,21 +91,20 @@ void RenderViewContextMenuWin::AppendMenuItem(int id) {
 }
 
 void RenderViewContextMenuWin::AppendMenuItem(int id,
-                                              const std::wstring& label) {
+                                              const string16& label) {
   current_radio_group_id_ = -1;
   GetTargetModel()->AddItem(id, label);
 }
 
 void RenderViewContextMenuWin::AppendRadioMenuItem(int id,
-                                                   const std::wstring& label) {
+                                                   const string16& label) {
   if (current_radio_group_id_ < 0)
     current_radio_group_id_ = id;
   GetTargetModel()->AddRadioItem(id, label, current_radio_group_id_);
 }
 
-void RenderViewContextMenuWin::AppendCheckboxMenuItem(
-    int id,
-    const std::wstring& label) {
+void RenderViewContextMenuWin::AppendCheckboxMenuItem(int id,
+                                                      const string16& label) {
   current_radio_group_id_ = -1;
   GetTargetModel()->AddCheckItem(id, label);
 }
@@ -115,7 +114,7 @@ void RenderViewContextMenuWin::AppendSeparator() {
   GetTargetModel()->AddSeparator();
 }
 
-void RenderViewContextMenuWin::StartSubMenu(int id, const std::wstring& label) {
+void RenderViewContextMenuWin::StartSubMenu(int id, const string16& label) {
   if (sub_menu_contents_) {
     NOTREACHED() << "nested submenus not supported yet";
     return;

@@ -264,7 +264,7 @@ class BrowserView : public BrowserWindow,
   virtual bool GetAcceleratorForCommandId(int command_id,
                                           views::Accelerator* accelerator);
   virtual bool IsLabelForCommandIdDynamic(int command_id) const;
-  virtual std::wstring GetLabelForCommandId(int command_id) const;
+  virtual string16 GetLabelForCommandId(int command_id) const;
   virtual void ExecuteCommand(int command_id);
 
   // Overridden from views::WindowDelegate:

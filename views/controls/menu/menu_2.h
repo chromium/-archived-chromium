@@ -5,9 +5,8 @@
 #ifndef CONTROLS_MENU_VIEWS_MENU_2_H_
 #define CONTROLS_MENU_VIEWS_MENU_2_H_
 
-#include <string>
-
 #include "base/gfx/native_widget_types.h"
+#include "base/string16.h"
 
 namespace gfx {
 class Point;
@@ -58,7 +57,7 @@ class Menu2Model {
   virtual int GetCommandIdAt(int index) const = 0;
 
   // Returns the label of the item at the specified index.
-  virtual std::wstring GetLabelAt(int index) const = 0;
+  virtual string16 GetLabelAt(int index) const = 0;
 
   // Returns true if the label at the specified index can change over the course
   // of the menu's lifetime. If this function returns true, the label of the

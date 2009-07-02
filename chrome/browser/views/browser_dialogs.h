@@ -21,6 +21,7 @@ class HtmlDialogUIDelegate;
 class InfoBubbleDelegate;
 class Profile;
 class TabContents;
+class TemplateURL;
 
 namespace gfx {
 class Rect;

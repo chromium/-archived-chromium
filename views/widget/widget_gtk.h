@@ -40,8 +40,7 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
 
   // Initializes this widget.
   void Init(GtkWidget* parent,
-            const gfx::Rect& bounds,
-            bool has_own_focus_manager);
+            const gfx::Rect& bounds);
 
   // Makes the background of the window totally transparent. This must be
   // invoked before Init. This does a couple of checks and returns true if

@@ -1075,7 +1075,7 @@ bool BrowserView::IsLabelForCommandIdDynamic(int command_id) const {
   return command_id == IDC_RESTORE_TAB;
 }
 
-std::wstring BrowserView::GetLabelForCommandId(int command_id) const {
+string16 BrowserView::GetLabelForCommandId(int command_id) const {
   DCHECK(command_id == IDC_RESTORE_TAB);
 
   int string_id = IDS_RESTORE_TAB;
@@ -1084,7 +1084,7 @@ std::wstring BrowserView::GetLabelForCommandId(int command_id) const {
     if (trs && trs->entries().front()->type == TabRestoreService::WINDOW)
       string_id = IDS_RESTORE_WINDOW;
   }
-  return l10n_util::GetString(string_id);
+  return l10n_util::GetStringUTF16(string_id);
 }
 
 void BrowserView::ExecuteCommand(int command_id) {

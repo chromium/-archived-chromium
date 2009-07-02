@@ -29,7 +29,7 @@ class BookmarkContextMenu : public BookmarkContextMenuControllerDelegate,
   virtual void ExecuteCommand(int command_id);
   virtual bool IsItemChecked(int command_id) const;
   virtual bool IsCommandEnabled(int command_id) const;
-    
+
   // Overridden from BookmarkContextMenuControllerDelegate:
   virtual void CloseMenu();
   virtual void AddItem(int command_id);
@@ -38,15 +38,14 @@ class BookmarkContextMenu : public BookmarkContextMenuControllerDelegate,
   virtual void AddCheckboxItem(int command_id);
 
  private:
-  
   scoped_ptr<BookmarkContextMenuController> controller_;
 
-  // The window used to parent dialog boxes opened from the context menu.
-  gfx::NativeWindow parent_window_;
+  // The parent of dialog boxes opened from the context menu.
+  gfx::NativeView parent_window_;
 
   // The menu itself.
   scoped_ptr<views::MenuItemView> menu_;
-  
+
   DISALLOW_COPY_AND_ASSIGN(BookmarkContextMenu);
 };
 

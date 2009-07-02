@@ -14,7 +14,7 @@ void BrowserBubble::InitPopup() {
   views::WidgetGtk* pop = new views::WidgetGtk(views::WidgetGtk::TYPE_POPUP);
   pop->set_delete_on_destroy(false);
   pop->SetOpacity(0xFF);
-  pop->Init(native_view, bounds_, false);
+  pop->Init(native_view, bounds_);
   pop->SetContentsView(view_);
   popup_.reset(pop);
   Reposition();

@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/string16.h"
 
 class Browser;
 class SkBitmap;
@@ -92,7 +93,7 @@ class BackForwardMenuModel {
 
   // Get the display text for the item. This should not be called on a
   // separator.
-  std::wstring GetItemLabel(int menu_id) const;
+  string16 GetItemLabel(int menu_id) const;
 
   // Get the display icon for the item. This should not be called on a
   // separator or an item that does not have an icon.
@@ -112,7 +113,7 @@ class BackForwardMenuModel {
 #endif
 
   // Allow the unit test to use the "Show Full History" label.
-  std::wstring GetShowFullHistoryLabel() const;
+  string16 GetShowFullHistoryLabel() const;
 
   // Retrieves the TabContents pointer to use, which is either the one that
   // the unit test sets (using SetTabContentsForUnitTest) or the one from

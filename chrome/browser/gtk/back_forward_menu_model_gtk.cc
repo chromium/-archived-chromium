@@ -23,7 +23,7 @@ bool BackForwardMenuModelGtk::IsItemSeparator(int command_id) const {
 }
 
 std::string BackForwardMenuModelGtk::GetLabel(int command_id) const {
-  return WideToUTF8(GetItemLabel(command_id));
+  return UTF16ToUTF8(GetItemLabel(command_id));
 }
 
 bool BackForwardMenuModelGtk::HasIcon(int command_id) const {

@@ -2020,6 +2020,7 @@
                 ['exclude', '^browser/bookmarks/bookmark_context_menu_gtk.cc'],
 
                 # Other excluded stuff.
+                ['exclude', '^browser/browser_theme_provider_gtk.cc'],
                 ['exclude', '^browser/extensions/external_registry_extension_provider_win.cc'],
                 ['exclude', '^browser/tab_contents/tab_contents_view_gtk.cc'],
                 ['exclude', '^browser/tab_contents/tab_contents_view_gtk.h'],

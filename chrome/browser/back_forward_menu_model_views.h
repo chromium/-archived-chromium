@@ -30,7 +30,7 @@ class BackForwardMenuModelViews : public BackForwardMenuModel,
   virtual int GetItemCount() const;
   virtual ItemType GetTypeAt(int index) const;
   virtual int GetCommandIdAt(int index) const;
-  virtual std::wstring GetLabelAt(int index) const;
+  virtual string16 GetLabelAt(int index) const;
   virtual bool IsLabelDynamicAt(int index) const;
   virtual bool GetAcceleratorAt(int index,
                                 views::Accelerator* accelerator) const;

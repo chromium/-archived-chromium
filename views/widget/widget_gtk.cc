@@ -77,8 +77,7 @@ WidgetGtk::~WidgetGtk() {
 }
 
 void WidgetGtk::Init(GtkWidget* parent,
-                     const gfx::Rect& bounds,
-                     bool has_own_focus_manager) {
+                     const gfx::Rect& bounds) {
   // Force creation of the RootView if it hasn't been created yet.
   GetRootView();
 
@@ -105,8 +104,6 @@ void WidgetGtk::Init(GtkWidget* parent,
                         GDK_KEY_RELEASE_MASK);
 
   root_view_->OnWidgetCreated();
-
-  // TODO(port): if(has_own_focus_manager) block
 
   SetRootViewForWidget(widget_, root_view_.get());
 

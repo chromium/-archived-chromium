@@ -205,18 +205,17 @@ bool BackForwardMenuModel::IsSeparator(int menu_id) const {
   return menu_id == history_items + 1;
 }
 
-std::wstring BackForwardMenuModel::GetItemLabel(int menu_id) const {
+string16 BackForwardMenuModel::GetItemLabel(int menu_id) const {
   // Return label "Show Full History" for the last item of the menu.
   if (menu_id == GetTotalItemCount())
-    return l10n_util::GetString(IDS_SHOWFULLHISTORY_LINK);
+    return l10n_util::GetStringUTF16(IDS_SHOWFULLHISTORY_LINK);
 
   // Return an empty string for a separator.
   if (IsSeparator(menu_id))
-    return L"";
+    return string16();
 
   NavigationEntry* entry = GetNavigationEntry(menu_id);
-  return UTF16ToWideHack(entry->GetTitleForDisplay(
-                         &GetTabContents()->controller()));
+  return entry->GetTitleForDisplay(&GetTabContents()->controller());
 }
 
 const SkBitmap& BackForwardMenuModel::GetItemIcon(int menu_id) const {
@@ -239,8 +238,8 @@ bool BackForwardMenuModel::ItemHasCommand(int menu_id) const {
   return menu_id - 1 < GetTotalItemCount() && !IsSeparator(menu_id);
 }
 
-std::wstring BackForwardMenuModel::GetShowFullHistoryLabel() const {
-  return l10n_util::GetString(IDS_SHOWFULLHISTORY_LINK);
+string16 BackForwardMenuModel::GetShowFullHistoryLabel() const {
+  return l10n_util::GetStringUTF16(IDS_SHOWFULLHISTORY_LINK);
 }
 
 TabContents* BackForwardMenuModel::GetTabContents() const {

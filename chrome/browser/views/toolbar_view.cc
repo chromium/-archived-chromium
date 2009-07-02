@@ -106,12 +106,12 @@ void EncodingMenuModel::Build() {
       AddSeparator();
     } else {
       if (id == IDC_ENCODING_AUTO_DETECT) {
-        AddCheckItem(id, label);
+        AddCheckItem(id, WideToUTF16Hack(label));
       } else {
         // Use the id of the first radio command as the id of the group.
         if (group_id <= 0)
           group_id = id;
-        AddRadioItem(id, label, group_id);
+        AddRadioItem(id, WideToUTF16Hack(label), group_id);
       }
     }
   }
@@ -290,7 +290,7 @@ void ToolbarView::OnGetProfilesDone(
   for (int i = IDC_NEW_WINDOW_PROFILE_0;
        (i <= IDC_NEW_WINDOW_PROFILE_LAST) && (iter != profiles.end());
        ++i, ++iter)
-    profiles_menu_contents_->AddItem(i, *iter);
+    profiles_menu_contents_->AddItem(i, WideToUTF16Hack(*iter));
 
   // If there are more profiles then show "Other" link.
   if (iter != profiles.end()) {
@@ -1087,13 +1087,13 @@ void ToolbarView::CreateAppMenu() {
                                           IDS_IMPORT_SETTINGS);
   app_menu_contents_->AddSeparator();
   app_menu_contents_->AddItem(IDC_OPTIONS,
-                              l10n_util::GetStringF(
+                              l10n_util::GetStringFUTF16(
                                   IDS_OPTIONS,
-                                  l10n_util::GetString(IDS_PRODUCT_NAME)));
+                                  l10n_util::GetStringUTF16(IDS_PRODUCT_NAME)));
   app_menu_contents_->AddItem(IDC_ABOUT,
-                              l10n_util::GetStringF(
+                              l10n_util::GetStringFUTF16(
                                   IDS_ABOUT,
-                                  l10n_util::GetString(IDS_PRODUCT_NAME)));
+                                  l10n_util::GetStringUTF16(IDS_PRODUCT_NAME)));
   app_menu_contents_->AddItemWithStringId(IDC_HELP_PAGE, IDS_HELP_PAGE);
   app_menu_contents_->AddSeparator();
   app_menu_contents_->AddItemWithStringId(IDC_EXIT, IDS_EXIT);

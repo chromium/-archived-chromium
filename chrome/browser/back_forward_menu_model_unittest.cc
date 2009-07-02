@@ -90,8 +90,8 @@ TEST_F(BackFwdMenuModelTest, BasicCase) {
   // There're two more items here: a separator and a "Show Full History".
   EXPECT_EQ(9, back_model->GetTotalItemCount());
   EXPECT_EQ(0, forward_model->GetTotalItemCount());
-  EXPECT_EQ(L"C2", back_model->GetItemLabel(1));
-  EXPECT_EQ(L"A1", back_model->GetItemLabel(7));
+  EXPECT_EQ(ASCIIToUTF16("C2"), back_model->GetItemLabel(1));
+  EXPECT_EQ(ASCIIToUTF16("A1"), back_model->GetItemLabel(7));
   EXPECT_EQ(back_model->GetShowFullHistoryLabel(),
             back_model->GetItemLabel(9));
 
@@ -106,8 +106,8 @@ TEST_F(BackFwdMenuModelTest, BasicCase) {
 
   EXPECT_EQ(0, back_model->GetTotalItemCount());
   EXPECT_EQ(9, forward_model->GetTotalItemCount());
-  EXPECT_EQ(L"A2", forward_model->GetItemLabel(1));
-  EXPECT_EQ(L"C3", forward_model->GetItemLabel(7));
+  EXPECT_EQ(ASCIIToUTF16("A2"), forward_model->GetItemLabel(1));
+  EXPECT_EQ(ASCIIToUTF16("C3"), forward_model->GetItemLabel(7));
   EXPECT_EQ(forward_model->GetShowFullHistoryLabel(),
             forward_model->GetItemLabel(9));
 
@@ -121,12 +121,12 @@ TEST_F(BackFwdMenuModelTest, BasicCase) {
 
   EXPECT_EQ(6, back_model->GetTotalItemCount());
   EXPECT_EQ(5, forward_model->GetTotalItemCount());
-  EXPECT_EQ(L"B1", back_model->GetItemLabel(1));
-  EXPECT_EQ(L"A1", back_model->GetItemLabel(4));
+  EXPECT_EQ(ASCIIToUTF16("B1"), back_model->GetItemLabel(1));
+  EXPECT_EQ(ASCIIToUTF16("A1"), back_model->GetItemLabel(4));
   EXPECT_EQ(back_model->GetShowFullHistoryLabel(),
             back_model->GetItemLabel(6));
-  EXPECT_EQ(L"C1", forward_model->GetItemLabel(1));
-  EXPECT_EQ(L"C3", forward_model->GetItemLabel(3));
+  EXPECT_EQ(ASCIIToUTF16("C1"), forward_model->GetItemLabel(1));
+  EXPECT_EQ(ASCIIToUTF16("C3"), forward_model->GetItemLabel(3));
   EXPECT_EQ(forward_model->GetShowFullHistoryLabel(),
             forward_model->GetItemLabel(5));
 }
@@ -179,7 +179,7 @@ TEST_F(BackFwdMenuModelTest, MaxItemsTest) {
   EXPECT_EQ(BackForwardMenuModel::kMaxHistoryItems + 2 + chapter_stop_offset,
             back_model->GetTotalItemCount());
   EXPECT_EQ(0, forward_model->GetTotalItemCount());
-  EXPECT_EQ(L"K1", back_model->GetItemLabel(1));
+  EXPECT_EQ(ASCIIToUTF16("K1"), back_model->GetItemLabel(1));
   EXPECT_EQ(back_model->GetShowFullHistoryLabel(),
       back_model->GetItemLabel(BackForwardMenuModel::kMaxHistoryItems + 2 +
                                chapter_stop_offset));
@@ -198,7 +198,7 @@ TEST_F(BackFwdMenuModelTest, MaxItemsTest) {
   EXPECT_EQ(BackForwardMenuModel::kMaxHistoryItems + 2 + chapter_stop_offset,
             forward_model->GetTotalItemCount());
   EXPECT_EQ(0, back_model->GetTotalItemCount());
-  EXPECT_EQ(L"A2", forward_model->GetItemLabel(1));
+  EXPECT_EQ(ASCIIToUTF16("A2"), forward_model->GetItemLabel(1));
   EXPECT_EQ(forward_model->GetShowFullHistoryLabel(),
       forward_model->GetItemLabel(BackForwardMenuModel::kMaxHistoryItems + 2 +
                                   chapter_stop_offset));
@@ -293,30 +293,30 @@ TEST_F(BackFwdMenuModelTest, ChapterStops) {
 
   // Check to see if the chapter stops have the right labels.
   int index = BackForwardMenuModel::kMaxHistoryItems + 1;
-  EXPECT_EQ(L"", back_model->GetItemLabel(index++));  // separator.
-  EXPECT_EQ(L"F3", back_model->GetItemLabel(index++));
-  EXPECT_EQ(L"E3", back_model->GetItemLabel(index++));
-  EXPECT_EQ(L"D3", back_model->GetItemLabel(index++));
-  EXPECT_EQ(L"C3", back_model->GetItemLabel(index++));
-  EXPECT_EQ(L"B3", back_model->GetItemLabel(index));  // max 5 chapter stops.
-  EXPECT_EQ(L"", back_model->GetItemLabel(index + 1));  // separator.
+  EXPECT_EQ(ASCIIToUTF16(""), back_model->GetItemLabel(index++));  // separator.
+  EXPECT_EQ(ASCIIToUTF16("F3"), back_model->GetItemLabel(index++));
+  EXPECT_EQ(ASCIIToUTF16("E3"), back_model->GetItemLabel(index++));
+  EXPECT_EQ(ASCIIToUTF16("D3"), back_model->GetItemLabel(index++));
+  EXPECT_EQ(ASCIIToUTF16("C3"), back_model->GetItemLabel(index++));
+  EXPECT_EQ(ASCIIToUTF16("B3"), back_model->GetItemLabel(index));  // max 5 chapter stops.
+  EXPECT_EQ(ASCIIToUTF16(""), back_model->GetItemLabel(index + 1));  // separator.
   EXPECT_EQ(back_model->GetShowFullHistoryLabel(),
             back_model->GetItemLabel(index + 2));
 
   // If we go back two we should still see the same chapter stop at the end.
   GoBack();
-  EXPECT_EQ(L"B3", back_model->GetItemLabel(index));
+  EXPECT_EQ(ASCIIToUTF16("B3"), back_model->GetItemLabel(index));
   GoBack();
-  EXPECT_EQ(L"B3", back_model->GetItemLabel(index));
+  EXPECT_EQ(ASCIIToUTF16("B3"), back_model->GetItemLabel(index));
   // But if we go back again, it should change.
   GoBack();
-  EXPECT_EQ(L"A3", back_model->GetItemLabel(index));
+  EXPECT_EQ(ASCIIToUTF16("A3"), back_model->GetItemLabel(index));
   GoBack();
-  EXPECT_EQ(L"A3", back_model->GetItemLabel(index));
+  EXPECT_EQ(ASCIIToUTF16("A3"), back_model->GetItemLabel(index));
   GoBack();
-  EXPECT_EQ(L"A3", back_model->GetItemLabel(index));
+  EXPECT_EQ(ASCIIToUTF16("A3"), back_model->GetItemLabel(index));
   GoBack();
-  EXPECT_EQ(L"", back_model->GetItemLabel(index));  // It is now a separator.
+  EXPECT_EQ(ASCIIToUTF16(""), back_model->GetItemLabel(index));  // It is now a separator.
   NavigateToOffset(6);  // Undo our position change.
 
   // Go back enough to make sure no chapter stops should appear.
@@ -337,29 +337,29 @@ TEST_F(BackFwdMenuModelTest, ChapterStops) {
 
   // Check to see if the chapter stops have the right labels.
   index = BackForwardMenuModel::kMaxHistoryItems + 1;
-  EXPECT_EQ(L"", forward_model->GetItemLabel(index++));    // separator.
-  EXPECT_EQ(L"E3", forward_model->GetItemLabel(index++));
-  EXPECT_EQ(L"F3", forward_model->GetItemLabel(index++));
-  EXPECT_EQ(L"G3", forward_model->GetItemLabel(index++));
-  EXPECT_EQ(L"H3", forward_model->GetItemLabel(index++));
+  EXPECT_EQ(ASCIIToUTF16(""), forward_model->GetItemLabel(index++));    // separator.
+  EXPECT_EQ(ASCIIToUTF16("E3"), forward_model->GetItemLabel(index++));
+  EXPECT_EQ(ASCIIToUTF16("F3"), forward_model->GetItemLabel(index++));
+  EXPECT_EQ(ASCIIToUTF16("G3"), forward_model->GetItemLabel(index++));
+  EXPECT_EQ(ASCIIToUTF16("H3"), forward_model->GetItemLabel(index++));
   // max 5 chapter stops.
-  EXPECT_EQ(L"I3", forward_model->GetItemLabel(index));
-  EXPECT_EQ(L"", forward_model->GetItemLabel(index + 1));  // separator.
+  EXPECT_EQ(ASCIIToUTF16("I3"), forward_model->GetItemLabel(index));
+  EXPECT_EQ(ASCIIToUTF16(""), forward_model->GetItemLabel(index + 1));  // separator.
   EXPECT_EQ(forward_model->GetShowFullHistoryLabel(),
       forward_model->GetItemLabel(index + 2));
 
   // If we advance one we should still see the same chapter stop at the end.
   GoForward();
-  EXPECT_EQ(L"I3", forward_model->GetItemLabel(index));
+  EXPECT_EQ(ASCIIToUTF16("I3"), forward_model->GetItemLabel(index));
   // But if we advance one again, it should change.
   GoForward();
-  EXPECT_EQ(L"J3", forward_model->GetItemLabel(index));
+  EXPECT_EQ(ASCIIToUTF16("J3"), forward_model->GetItemLabel(index));
   GoForward();
-  EXPECT_EQ(L"J3", forward_model->GetItemLabel(index));
+  EXPECT_EQ(ASCIIToUTF16("J3"), forward_model->GetItemLabel(index));
   GoForward();
-  EXPECT_EQ(L"J3", forward_model->GetItemLabel(index));
+  EXPECT_EQ(ASCIIToUTF16("J3"), forward_model->GetItemLabel(index));
   GoForward();
-  EXPECT_EQ(L"K3", forward_model->GetItemLabel(index));
+  EXPECT_EQ(ASCIIToUTF16("K3"), forward_model->GetItemLabel(index));
 
   // Now test the boundary cases by using the chapter stop function directly.
   // Out of bounds, first too far right (incrementing), then too far left.

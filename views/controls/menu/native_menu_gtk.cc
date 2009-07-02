@@ -114,7 +114,7 @@ void NativeMenuGtk::AddSeparatorAt(int index) {
 void NativeMenuGtk::AddMenuItemAt(int index,
                                   GtkRadioMenuItem** last_radio_item) {
   GtkWidget* menu_item = NULL;
-  std::string label = ConvertAcceleratorsFromWindowsStyle(WideToUTF8(
+  std::string label = ConvertAcceleratorsFromWindowsStyle(UTF16ToUTF8(
       model_->GetLabelAt(index)));
 
   Menu2Model::ItemType type = model_->GetTypeAt(index);

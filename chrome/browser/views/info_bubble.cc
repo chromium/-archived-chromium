@@ -135,7 +135,7 @@ void InfoBubble::Init(views::Window* parent,
 #if defined(OS_WIN)
   WidgetWin::Init(parent->GetNativeWindow(), bounds);
 #else
-  WidgetGtk::Init(GTK_WIDGET(parent->GetNativeWindow()), bounds, true);
+  WidgetGtk::Init(GTK_WIDGET(parent->GetNativeWindow()), bounds);
 #endif
   SetContentsView(content_view_);
   // The preferred size may differ when parented. Ask for the bounds again

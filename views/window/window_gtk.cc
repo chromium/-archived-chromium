@@ -348,7 +348,7 @@ void WindowGtk::Init(const gfx::Rect& bounds) {
     // BecomeModal();
   }
 
-  WidgetGtk::Init(NULL, bounds, true);
+  WidgetGtk::Init(NULL, bounds);
 
   g_signal_connect(G_OBJECT(GetNativeWindow()), "configure-event",
                    G_CALLBACK(CallConfigureEvent), this);
