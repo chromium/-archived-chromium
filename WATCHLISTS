@@ -12,7 +12,7 @@
         'filepath': '^WATCHLISTS$',
     },
     'valgrind': {
-      'filepath': 'tools/valgrind/.*',
+      'filepath': 'valgrind',
     },
     'purify': {
       'filepath': 'purify',
