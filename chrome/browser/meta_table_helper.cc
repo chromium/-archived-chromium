@@ -12,6 +12,24 @@
 static const char kVersionKey[] = "version";
 static const char kCompatibleVersionKey[] = "last_compatible_version";
 
+// static
+void MetaTableHelper::PrimeCache(const std::string& db_name, sqlite3* db) {
+  // A statement must be open for the preload command to work. If the meta
+  // table doesn't exist, it probably means this is a new database and there
+  // is nothing to preload (so it's OK we do nothing).
+  SQLStatement dummy;
+  if (!DoesSqliteTableExist(db, db_name.c_str(), "meta"))
+    return;
+  std::string sql("SELECT * from ");
+  appendMetaTableName(db_name, &sql);
+  if (dummy.prepare(db, sql.c_str()) != SQLITE_OK)
+    return;
+  if (dummy.step() != SQLITE_ROW)
+    return;
+
+  sqlite3Preload(db);
+}
+
 MetaTableHelper::MetaTableHelper() : db_(NULL) {
 }
 
@@ -28,13 +46,9 @@ bool MetaTableHelper::Init(const std::string& db_name,
   if (!DoesSqliteTableExist(db_, db_name.c_str(), "meta")) {
     // Build the sql.
     std::string sql("CREATE TABLE ");
-    if (!db_name.empty()) {
-      // Want a table name of the form db_name.meta
-      sql.append(db_name);
-      sql.push_back('.');
-    }
-    sql.append("meta(key LONGVARCHAR NOT NULL UNIQUE PRIMARY KEY,"
-                    "value LONGVARCHAR)");
+    appendMetaTableName(db_name, &sql);
+    sql.append("(key LONGVARCHAR NOT NULL UNIQUE PRIMARY KEY,"
+               "value LONGVARCHAR)");
 
     if (sqlite3_exec(db_, sql.c_str(), NULL, NULL, NULL) != SQLITE_OK)
       return false;
@@ -130,15 +144,22 @@ int MetaTableHelper::GetCompatibleVersionNumber() {
   return version;
 }
 
+// static
+void MetaTableHelper::appendMetaTableName(const std::string& db_name,
+                                          std::string* sql) {
+  if (!db_name.empty()) {
+    sql->append(db_name);
+    sql->push_back('.');
+  }
+  sql->append("meta");
+}
+
 bool MetaTableHelper::PrepareSetStatement(SQLStatement* statement,
                                           const std::string& key) {
   DCHECK(db_ && statement);
   std::string sql("INSERT OR REPLACE INTO ");
-  if (db_name_.size() > 0) {
-    sql.append(db_name_);
-    sql.push_back('.');
-  }
-  sql.append("meta(key,value) VALUES(?,?)");
+  appendMetaTableName(db_name_, &sql);
+  sql.append("(key,value) VALUES(?,?)");
   if (statement->prepare(db_, sql.c_str()) != SQLITE_OK) {
     NOTREACHED() << sqlite3_errmsg(db_);
     return false;
@@ -151,11 +172,8 @@ bool MetaTableHelper::PrepareGetStatement(SQLStatement* statement,
                                           const std::string& key) {
   DCHECK(db_ && statement);
   std::string sql("SELECT value FROM ");
-  if (db_name_.size() > 0) {
-    sql.append(db_name_);
-    sql.push_back('.');
-  }
-  sql.append("meta WHERE key = ?");
+  appendMetaTableName(db_name_, &sql);
+  sql.append(" WHERE key = ?");
   if (statement->prepare(db_, sql.c_str()) != SQLITE_OK) {
     NOTREACHED() << sqlite3_errmsg(db_);
     return false;

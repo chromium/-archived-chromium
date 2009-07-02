@@ -3479,6 +3479,7 @@
         'browser/keychain_mock_mac.cc',
         'browser/keychain_mock_mac.h',
         'browser/login_prompt_unittest.cc',
+        'browser/meta_table_helper_unittest.cc',
         'browser/metrics/metrics_log_unittest.cc',
         'browser/metrics/metrics_response_unittest.cc',
         'browser/net/chrome_url_request_context_unittest.cc',
