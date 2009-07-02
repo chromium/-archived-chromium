@@ -625,7 +625,7 @@ BUG13907 SKIP : LayoutTests/media/audio-constructor.html = FAIL
 // We don't support MP2 audio so skip this test.
 BUG13907 SKIP : LayoutTests/media/audio-mpeg-supported.html = FAIL
 // This test is flaky.
-// BUG15664 BUG13907 WIN DEBUG : LayoutTests/media/progress-event-total.html = PASS FAIL
+BUG13907 WIN DEBUG : LayoutTests/media/progress-event-total.html = PASS FAIL
 // This test crashes in debug build not in release build.
 BUG13907 WIN : LayoutTests/media/video-buffered.html = FAIL CRASH
 BUG13907 WIN : LayoutTests/media/video-can-play-type.html = FAIL
@@ -638,7 +638,7 @@ BUG13907 WIN : LayoutTests/media/video-currentTime-set2.html = PASS FAIL CRASH T
 // This test crashes in debug build.
 BUG13907 WIN : LayoutTests/media/video-display-none-crash.html = PASS CRASH
 // This test is flaky.
-// BUG15664 BUG13907 WIN DEBUG : LayoutTests/media/video-dom-autobuffer.html = PASS FAIL
+BUG13907 WIN DEBUG : LayoutTests/media/video-dom-autobuffer.html = PASS FAIL
 // This test crashes in debug build.
 BUG13907 WIN : LayoutTests/media/video-document-types.html = PASS FAIL CRASH
 // This test times out in release build, it is really flaky.
@@ -647,7 +647,7 @@ BUG13907 WIN : LayoutTests/media/video-loop.html = FAIL CRASH
 // This test crashes in debug build.
 BUG13907 WIN : LayoutTests/media/video-muted.html = PASS FAIL CRASH TIMEOUT
 // This test is flaky and may not only happen in debug build.
-// BUG15664 BUG13907 WIN DEBUG : LayoutTests/media/video-no-autoplay.html = PASS FAIL
+BUG13907 WIN DEBUG : LayoutTests/media/video-no-autoplay.html = PASS FAIL
 // This test is flaky.
 BUG13907 WIN : LayoutTests/media/video-play-pause-events.html = PASS FAIL CRASH
 // This test is flaky too.
@@ -670,7 +670,7 @@ BUG13907 WIN : LayoutTests/media/video-src-remove.html = FAIL
 // This test is flaky.
 BUG13907 WIN DEBUG : LayoutTests/media/video-src.html = PASS FAIL
 // Flaky test.
-// BUG15664 BUG13907 WIN DEBUG : LayoutTests/media/video-timeupdate-during-playback.html = PASS FAIL
+BUG13907 WIN DEBUG : LayoutTests/media/video-timeupdate-during-playback.html = PASS FAIL
 // This test is very flaky.
 BUG13907 WIN : LayoutTests/media/unsupported-rtsp.html = PASS CRASH
 // These tests are flaky.
@@ -681,35 +681,7 @@ BUG13907 WIN : LayoutTests/media/video-src-source.html = PASS FAIL
 BUG13907 WIN : LayoutTests/media/video-size.html = PASS FAIL
 BUG13907 WIN : LayoutTests/media/video-src-plus-source.html = PASS FAIL
 // The following test may trigger a deadlock so it times-out.
-// BUG15664 BUG13907 WIN : LayoutTests/media/remove-from-document.html = PASS TIMEOUT
-
-// Failing media tests due to V8 proxy upstreaming.  When fixed make sure to
-// uncomment the expectations above that are also tagged with BUG15664.
-BUG15664 : LayoutTests/media/media-startTime.html = FAIL
-BUG15664 : LayoutTests/media/progress-event-total.html = FAIL
-BUG15664 : LayoutTests/media/progress-event.html = FAIL
-BUG15664 : LayoutTests/media/video-append-source.html = FAIL
-BUG15664 : LayoutTests/media/video-aspect-ratio.html = FAIL
-BUG15664 : LayoutTests/media/video-autoplay.html = FAIL
-BUG15664 : LayoutTests/media/video-controls-transformed.html = FAIL
-BUG15664 : LayoutTests/media/video-controls-zoomed.html = FAIL
-BUG15664 : LayoutTests/media/video-controls.html = FAIL
-BUG15664 : LayoutTests/media/video-currentTime.html = FAIL
-BUG15664 : LayoutTests/media/video-dom-autoplay.html = FAIL
-BUG15664 : LayoutTests/media/video-dom-src.html = FAIL
-BUG15664 : LayoutTests/media/video-layer-crash.html = FAIL
-BUG15664 : LayoutTests/media/video-load-networkState.html = FAIL
-BUG15664 : LayoutTests/media/video-load-readyState.html = FAIL
-BUG15664 : LayoutTests/media/video-no-autoplay.html = FAIL
-BUG15664 : LayoutTests/media/video-pause-empty-events.html = FAIL
-BUG15664 : LayoutTests/media/video-play-empty-events.html = FAIL
-BUG15664 : LayoutTests/media/video-played-reset.html = FAIL
-BUG15664 : LayoutTests/media/video-seekable.html = FAIL
-BUG15664 : LayoutTests/media/video-seeking.html = FAIL
-BUG15664 : LayoutTests/media/video-timeupdate-during-playback.html = FAIL
-BUG15664 : LayoutTests/media/video-transformed.html = FAIL
-BUG15664 : LayoutTests/media/video-volume.html = FAIL
-BUG15664 : LayoutTests/media/video-zoom.html = FAIL
+BUG13907 WIN : LayoutTests/media/remove-from-document.html = PASS TIMEOUT
 
 // Function arguments object is copied for each access.
 BUG941049 : LayoutTests/fast/js/kde/function_arguments.html = FAIL
