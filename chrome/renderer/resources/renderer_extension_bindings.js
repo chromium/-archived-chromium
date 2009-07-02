@@ -29,22 +29,30 @@ var chrome = chrome || {};
     this.onDisconnect = new chrome.Event();
     this.onMessage = new chrome.Event();
     ports[portId] = this;
-    
+
+    var port = this;
     chromeHidden.onUnload.addListener(function() {
-      this.disconnect();
+      port.disconnect();
     });
   };
 
   chromeHidden.Port = {};
 
   // Called by native code when a channel has been opened to this context.
-  chromeHidden.Port.dispatchOnConnect = function(portId, tab) {
-    var port = new chrome.Port(portId);
-    if (tab) {
-      tab = JSON.parse(tab);
+  chromeHidden.Port.dispatchOnConnect = function(portId, tab, extensionId) {
+    // Only create a new Port if someone is actually listening for a connection.
+    // In addition to being an optimization, this also fixes a bug where if 2
+    // channels were opened to and from the same process, closing one would
+    // close both.
+    var connectEvent = "channel-connect:" + (extensionId || "");
+    if (chromeHidden.Event.hasListener(connectEvent)) {
+      var port = new chrome.Port(portId);
+      if (tab) {
+        tab = JSON.parse(tab);
+      }
+      port.tab = tab;
+      chromeHidden.Event.dispatch(connectEvent, [port]);
     }
-    port.tab = tab;
-    chromeHidden.Event.dispatch("channel-connect", [port]);
   };
 
   // Called by native code when a channel has been closed.

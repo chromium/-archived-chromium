@@ -490,7 +490,10 @@ var chrome = chrome || {};
 
   // Self.
   chrome.self = chrome.self || {};
-  chrome.self.onConnect = new chrome.Event("channel-connect");
+
+  chromeHidden.onLoad.addListener(function (extensionId) {
+    chrome.self.onConnect = new chrome.Event("channel-connect:" + extensionId);
+  });
 
   chrome.self.getViews = function() {
     return GetViews();

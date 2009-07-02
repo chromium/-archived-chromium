@@ -59,6 +59,12 @@ var chrome = chrome || {};
     }
   };
 
+  // Test if a named event has any listeners.
+  chromeHidden.Event.hasListener = function(name) {
+    return (attachedNamedEvents[name] &&
+            attachedNamedEvents[name].listeners_.length > 0);
+  }
+
   // Registers a callback to be called when this event is dispatched.
   chrome.Event.prototype.addListener = function(cb) {
     this.listeners_.push(cb);
@@ -182,10 +188,15 @@ var chrome = chrome || {};
     request(sargs, requestId, hasCallback);
   }
 
-  // Special unload event: we don't use the DOM unload because that slows
-  // down tab shutdown.  On the other hand, this might not always fire, since
-  // Chrome will terminate renderers on shutdown (SuddenTermination).
+  // Special load events: we don't use the DOM unload because that slows
+  // down tab shutdown.  On the other hand, onUnload might not always fire,
+  // since Chrome will terminate renderers on shutdown (SuddenTermination).
+  chromeHidden.onLoad = new chrome.Event();
   chromeHidden.onUnload = new chrome.Event();
+
+  chromeHidden.dispatchOnLoad = function(extensionId) {
+    chromeHidden.onLoad.dispatch(extensionId);
+  }
 
   chromeHidden.dispatchOnUnload = function() {
     chromeHidden.onUnload.dispatch();

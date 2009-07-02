@@ -144,6 +144,10 @@ void EventBindings::HandleContextCreated(WebFrame* frame) {
       v8::Persistent<v8::Context>::New(context);
   GetContexts().push_back(linked_ptr<ContextInfo>(
       new ContextInfo(persistent_context, extension_id)));
+
+  v8::Handle<v8::Value> argv[1];
+  argv[0] = v8::String::New(extension_id.c_str());
+  CallFunctionInContext(context, "dispatchOnLoad", arraysize(argv), argv);
 }
 
 // static
@@ -182,7 +186,6 @@ void EventBindings::HandleContextDestroyed(WebFrame* frame) {
 // static
 void EventBindings::CallFunction(const std::string& function_name,
                                  int argc, v8::Handle<v8::Value>* argv) {
-  v8::HandleScope handle_scope;
   for (ContextList::iterator it = GetContexts().begin();
        it != GetContexts().end(); ++it) {
     CallFunctionInContext((*it)->context, function_name, argc, argv);

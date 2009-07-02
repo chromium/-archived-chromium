@@ -140,13 +140,15 @@ class ExtensionMessageService : public NotificationObserver {
   // opened.
   void OpenChannelOnUIThread(int source_routing_id,
       int source_port_id, int source_process_id,
-      int dest_port_id, int dest_process_id);
+      int dest_port_id, int dest_process_id,
+      const std::string& extension_id);
 
   // Common between OpenChannelOnUIThread and
   // OpenAutomationChannelToExtension.
   void OpenChannelOnUIThreadImpl(
-    int source_routing_id, int source_port_id, IPC::Message::Sender* source,
-    int dest_port_id, int dest_process_id, int source_process_id);
+    int source_routing_id, int source_port_id, int source_process_id,
+    IPC::Message::Sender* source, int dest_port_id, int dest_process_id,
+    const std::string& extension_id);
 
   MessageChannelMap channels_;
 

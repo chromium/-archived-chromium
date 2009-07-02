@@ -149,7 +149,6 @@ void ExtensionHost::UpdatePreferredWidth(int pref_width) {
 void ExtensionHost::RenderViewGone(RenderViewHost* render_view_host) {
   DCHECK_EQ(render_view_host_, render_view_host);
   TabContents* current_tab = GetBrowser()->GetSelectedTabContents();
-  DCHECK(current_tab);
   if (current_tab) {
     current_tab->AddInfoBar(
         new CrashedExtensionInfobarDelegate(current_tab, this));

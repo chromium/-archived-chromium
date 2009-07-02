@@ -43,10 +43,12 @@ struct SingletonData {
 };
 
 static void DispatchOnConnect(IPC::Message::Sender* channel, int source_port_id,
-                              const std::string& tab_json) {
+                              const std::string& tab_json,
+                              const std::string& extension_id) {
   ListValue args;
   args.Set(0, Value::CreateIntegerValue(source_port_id));
   args.Set(1, Value::CreateStringValue(tab_json));
+  args.Set(2, Value::CreateStringValue(extension_id));
   channel->Send(new ViewMsg_ExtensionMessageInvoke(
       ExtensionMessageService::kDispatchOnConnect, args));
 }
@@ -221,23 +223,25 @@ int ExtensionMessageService::OpenChannelToExtension(
 
   ui_loop_->PostTask(FROM_HERE,
       NewRunnableMethod(this, &ExtensionMessageService::OpenChannelOnUIThread,
-          routing_id, port1_id, source->GetProcessId(), port2_id, process_id));
+          routing_id, port1_id, source->GetProcessId(), port2_id, process_id,
+          extension_id));
 
   return port2_id;
 }
 
 void ExtensionMessageService::OpenChannelOnUIThread(
     int source_routing_id, int source_port_id, int source_process_id,
-    int dest_port_id, int dest_process_id) {
+    int dest_port_id, int dest_process_id, const std::string& extension_id) {
   RenderProcessHost* source = RenderProcessHost::FromID(source_process_id);
   OpenChannelOnUIThreadImpl(source_routing_id, source_port_id,
-                            source, dest_port_id, dest_process_id,
-                            source_process_id);
+                            source_process_id, source, dest_port_id,
+                            dest_process_id, extension_id);
 }
 
 void ExtensionMessageService::OpenChannelOnUIThreadImpl(
-    int source_routing_id, int source_port_id, IPC::Message::Sender* source,
-    int dest_port_id, int dest_process_id, int source_process_id) {
+    int source_routing_id, int source_port_id, int source_process_id,
+    IPC::Message::Sender* source, int dest_port_id, int dest_process_id,
+    const std::string& extension_id) {
   DCHECK_EQ(MessageLoop::current()->type(), MessageLoop::TYPE_UI);
 
   MessageChannel channel;
@@ -259,7 +263,7 @@ void ExtensionMessageService::OpenChannelOnUIThreadImpl(
   }
 
   // Send the process the id for the opposite port.
-  DispatchOnConnect(channel.port2, source_port_id, tab_json);
+  DispatchOnConnect(channel.port2, source_port_id, tab_json, extension_id);
 }
 
 int ExtensionMessageService::OpenAutomationChannelToExtension(
@@ -284,8 +288,8 @@ int ExtensionMessageService::OpenAutomationChannelToExtension(
   //      This isn't really appropriate here, the originating tab
   //      information should be supplied by the caller for
   //      automation-initiated ports.
-  OpenChannelOnUIThreadImpl(routing_id, port1_id, source, port2_id,
-                            process_id, source_process_id);
+  OpenChannelOnUIThreadImpl(routing_id, port1_id, source_process_id,
+                            source, port2_id, process_id, extension_id);
 
   return port2_id;
 }
@@ -305,10 +309,12 @@ void ExtensionMessageService::CloseChannelImpl(
 
   // Notify the other side.
   if (port_id == GET_CHANNEL_PORT1(channel_iter->first)) {
-    DispatchOnDisconnect(channel_iter->second.port2, port_id);
+    DispatchOnDisconnect(channel_iter->second.port2,
+                         GET_OPPOSITE_PORT_ID(port_id));
   } else {
     DCHECK_EQ(port_id, GET_CHANNEL_PORT2(channel_iter->first));
-    DispatchOnDisconnect(channel_iter->second.port1, port_id);
+    DispatchOnDisconnect(channel_iter->second.port1,
+                         GET_OPPOSITE_PORT_ID(port_id));
   }
 
   channels_.erase(channel_iter);

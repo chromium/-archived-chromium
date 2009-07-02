@@ -34,7 +34,7 @@ static void DispatchOnMessage(const std::string& message, int source_port_id) {
 
 // Tests that the bindings for opening a channel to an extension and sending
 // and receiving messages through that channel all works.
-TEST_F(RenderViewTest, DISABLED_ExtensionMessagesOpenChannel) {
+TEST_F(RenderViewTest, ExtensionMessagesOpenChannel) {
   render_thread_.sink().ClearMessages();
   LoadHTML("<body></body>");
   ExecuteJavaScript(
@@ -78,7 +78,7 @@ TEST_F(RenderViewTest, DISABLED_ExtensionMessagesOpenChannel) {
 
 // Tests that the bindings for handling a new channel connection and channel
 // closing all works.
-TEST_F(RenderViewTest, DISABLED_ExtensionMessagesOnConnect) {
+TEST_F(RenderViewTest, ExtensionMessagesOnConnect) {
   LoadHTML("<body></body>");
   ExecuteJavaScript(
     "chrome.self.onConnect.addListener(function (port) {"
