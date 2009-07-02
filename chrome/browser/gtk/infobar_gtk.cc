@@ -16,9 +16,10 @@
 
 namespace {
 
-// TODO(estade): The background should be a gradient. For now we just use this
-// solid color.
-const GdkColor kBackgroundColor = GDK_COLOR_RGB(250, 230, 145);
+const double kBackgroundColorTop[3] =
+    {255.0 / 255.0, 242.0 / 255.0, 183.0 / 255.0};
+const double kBackgroundColorBottom[3] =
+    {250.0 / 255.0, 230.0 / 255.0, 145.0 / 255.0};
 
 // Border color (the top pixel of the infobar).
 const GdkColor kBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
@@ -33,6 +34,32 @@ const int kElementPadding = 5;
 const int kLeftPadding = 5;
 const int kRightPadding = 5;
 
+static gboolean OnBackgroundExpose(GtkWidget* widget, GdkEventExpose* event,
+                                   gpointer unused) {
+  const int height = widget->allocation.height;
+
+  cairo_t* cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+  cairo_rectangle(cr, event->area.x, event->area.y,
+                  event->area.width, event->area.height);
+  cairo_clip(cr);
+
+  cairo_pattern_t* pattern = cairo_pattern_create_linear(0, 0, 0, height);
+  cairo_pattern_add_color_stop_rgb(
+      pattern, 0.0,
+      kBackgroundColorTop[0], kBackgroundColorTop[1], kBackgroundColorTop[2]);
+  cairo_pattern_add_color_stop_rgb(
+      pattern, 1.0,
+      kBackgroundColorBottom[0], kBackgroundColorBottom[1],
+      kBackgroundColorBottom[2]);
+  cairo_set_source(cr, pattern);
+  cairo_paint(cr);
+  cairo_pattern_destroy(pattern);
+
+  cairo_destroy(cr);
+
+  return FALSE;
+}
+
 }  // namespace
 
 InfoBar::InfoBar(InfoBarDelegate* delegate)
@@ -45,11 +72,12 @@ InfoBar::InfoBar(InfoBarDelegate* delegate)
       0, 0, kLeftPadding, kRightPadding);
 
   GtkWidget* bg_box = gtk_event_box_new();
+  gtk_widget_set_app_paintable(bg_box, TRUE);
+  g_signal_connect(bg_box, "expose-event",
+                   G_CALLBACK(OnBackgroundExpose), NULL);
   gtk_container_add(GTK_CONTAINER(padding), hbox_);
   gtk_container_add(GTK_CONTAINER(bg_box), padding);
 
-  // Set the top border and background color.
-  gtk_widget_modify_bg(bg_box, GTK_STATE_NORMAL, &kBackgroundColor);
   border_bin_.Own(gtk_util::CreateGtkBorderBin(bg_box, &kBorderColor,
                                                0, 1, 0, 0));
   gtk_widget_set_size_request(border_bin_.get(), -1, kInfoBarHeight);
