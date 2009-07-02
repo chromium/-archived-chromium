@@ -36,6 +36,9 @@ class TaskManagerGtk : public TaskManagerModelObserver {
   // Returns the model data for a given |row| and |col_id|.
   std::string GetModelText(int row, int col_id);
 
+  // Retrieves the resource icon from the model for |row|.
+  GdkPixbuf* GetModelIcon(int row);
+
   // Sets the treeview row data.  |row| is an index into the model and |iter|
   // is the current position in the treeview.
   void SetRowDataFromModel(int row, GtkTreeIter* iter);

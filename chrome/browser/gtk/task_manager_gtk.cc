@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "app/l10n_util.h"
+#include "base/gfx/gtk_util.h"
 #include "base/logging.h"
 #include "chrome/common/gtk_util.h"
 #include "grit/chromium_strings.h"
@@ -22,6 +23,7 @@ const int kDefaultHeight = 270;
 const gint kTaskManagerResponseKill = 1;
 
 enum TaskManagerColumn {
+  kTaskManagerIcon,
   kTaskManagerPage,
   kTaskManagerPhysicalMem,
   kTaskManagerSharedMem,
@@ -55,21 +57,52 @@ TaskManagerColumn TaskManagerResourceIDToColumnID(int id) {
   }
 }
 
+// Should be used for all gtk_tree_view functions that require a column index on
+// input.
+//
+// We need colid - 1 because the gtk_tree_view function is asking for the
+// column index, not the column id, and both kTaskManagerIcon and
+// kTaskManagerPage are in the same column index, so all column IDs are off by
+// one.
+int TreeViewColumnIndexFromID(TaskManagerColumn colid) {
+  return colid - 1;
+}
+
 // Shows or hides a treeview column.
 void TreeViewColumnSetVisible(GtkWidget* treeview, TaskManagerColumn colid,
                               bool visible) {
-  GtkTreeViewColumn* column = gtk_tree_view_get_column(GTK_TREE_VIEW(treeview),
-                                                       colid);
+  GtkTreeViewColumn* column = gtk_tree_view_get_column(
+      GTK_TREE_VIEW(treeview), TreeViewColumnIndexFromID(colid));
   gtk_tree_view_column_set_visible(column, visible);
+}
+
+void TreeViewInsertColumnWithPixbuf(GtkWidget* treeview, int resid) {
+  int colid = TaskManagerResourceIDToColumnID(resid);
+  GtkTreeViewColumn* column = gtk_tree_view_column_new();
+  gtk_tree_view_column_set_title(column,
+                                 l10n_util::GetStringUTF8(resid).c_str());
+  GtkCellRenderer* image_renderer = gtk_cell_renderer_pixbuf_new();
+  gtk_tree_view_column_pack_start(column, image_renderer, FALSE);
+  gtk_tree_view_column_add_attribute(column, image_renderer,
+                                     "pixbuf", kTaskManagerIcon);
+  GtkCellRenderer* text_renderer = gtk_cell_renderer_text_new();
+  gtk_tree_view_column_pack_start(column, text_renderer, TRUE);
+  gtk_tree_view_column_add_attribute(column, text_renderer, "text", colid);
+  gtk_tree_view_column_set_resizable(column, TRUE);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
 }
 
 // Inserts a column with a column id of |colid| and |name|.
 void TreeViewInsertColumnWithName(GtkWidget* treeview,
-                                  int colid, const char* name) {
+                                  TaskManagerColumn colid, const char* name) {
   GtkCellRenderer* renderer = gtk_cell_renderer_text_new();
   gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(treeview), -1,
-                                              name, renderer, "text",
-                                              colid, NULL);
+                                              name, renderer,
+                                              "text", colid,
+                                              NULL);
+  GtkTreeViewColumn* column = gtk_tree_view_get_column(
+      GTK_TREE_VIEW(treeview), TreeViewColumnIndexFromID(colid));
+  gtk_tree_view_column_set_resizable(column, TRUE);
 }
 
 // Loads the column name from |resid| and uses the corresponding
@@ -223,7 +256,7 @@ void TaskManagerGtk::Init() {
 void TaskManagerGtk::CreateTaskManagerTreeview() {
   treeview_ = gtk_tree_view_new();
 
-  TreeViewInsertColumn(treeview_, IDS_TASK_MANAGER_PAGE_COLUMN);
+  TreeViewInsertColumnWithPixbuf(treeview_, IDS_TASK_MANAGER_PAGE_COLUMN);
   TreeViewInsertColumn(treeview_, IDS_TASK_MANAGER_PHYSICAL_MEM_COLUMN);
   TreeViewInsertColumn(treeview_, IDS_TASK_MANAGER_SHARED_MEM_COLUMN);
   TreeViewInsertColumn(treeview_, IDS_TASK_MANAGER_PRIVATE_MEM_COLUMN);
@@ -235,8 +268,9 @@ void TaskManagerGtk::CreateTaskManagerTreeview() {
                                "Goats Teleported");
 
   process_list_ = gtk_list_store_new(kTaskManagerColumnCount,
-      G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-      G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+      GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
+      G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
+      G_TYPE_STRING);
 
   gtk_tree_view_set_model(GTK_TREE_VIEW(treeview_),
                           GTK_TREE_MODEL(process_list_));
@@ -284,7 +318,13 @@ std::string TaskManagerGtk::GetModelText(int row, int col_id) {
   }
 }
 
+GdkPixbuf* TaskManagerGtk::GetModelIcon(int row) {
+  SkBitmap icon = model_->GetResourceIcon(row);
+  return gfx::GdkPixbufFromSkBitmap(&icon);
+}
+
 void TaskManagerGtk::SetRowDataFromModel(int row, GtkTreeIter* iter) {
+  GdkPixbuf* icon = GetModelIcon(row);
   std::string page = GetModelText(row, IDS_TASK_MANAGER_PAGE_COLUMN);
   std::string phys_mem = GetModelText(
       row, IDS_TASK_MANAGER_PHYSICAL_MEM_COLUMN);
@@ -296,6 +336,7 @@ void TaskManagerGtk::SetRowDataFromModel(int row, GtkTreeIter* iter) {
   std::string procid = GetModelText(row, IDS_TASK_MANAGER_PROCESS_ID_COLUMN);
   std::string goats = GetModelText(row, kTaskManagerGoatsTeleported);
   gtk_list_store_set(process_list_, iter,
+                     kTaskManagerIcon, icon,
                      kTaskManagerPage, page.c_str(),
                      kTaskManagerPhysicalMem, phys_mem.c_str(),
                      kTaskManagerSharedMem, shared_mem.c_str(),
@@ -305,6 +346,7 @@ void TaskManagerGtk::SetRowDataFromModel(int row, GtkTreeIter* iter) {
                      kTaskManagerProcessID, procid.c_str(),
                      kTaskManagerGoatsTeleported, goats.c_str(),
                      -1);
+  g_object_unref(icon);
 }
 
 void TaskManagerGtk::KillSelectedProcesses() {
@@ -347,7 +389,7 @@ void TaskManagerGtk::OnSelectionChanged(GtkTreeSelection* selection,
   }
   g_list_free(paths);
 
+  bool sensitive = (paths != NULL) && !selection_contains_browser_process;
   gtk_dialog_set_response_sensitive(GTK_DIALOG(task_manager->dialog_),
-                                    kTaskManagerResponseKill,
-                                    !selection_contains_browser_process);
+                                    kTaskManagerResponseKill, sensitive);
 }

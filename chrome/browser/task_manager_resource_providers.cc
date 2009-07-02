@@ -643,10 +643,7 @@ TaskManagerBrowserProcessResource::TaskManagerBrowserProcessResource()
   pid_ = base::GetCurrentProcId();
   bool success = base::OpenPrivilegedProcessHandle(pid_, &process_);
   DCHECK(success);
-#if !defined(OS_WIN)
-  // TODO(port): Port icon code.
-  NOTIMPLEMENTED();
-#else
+#if defined(OS_WIN)
   if (!default_icon_) {
     HICON icon = LoadIcon(_AtlBaseModule.GetResourceInstance(),
                           MAKEINTRESOURCE(IDR_MAINFRAME));
@@ -661,6 +658,14 @@ TaskManagerBrowserProcessResource::TaskManagerBrowserProcessResource()
       default_icon_ = IconUtil::CreateSkBitmapFromHICON(icon, icon_size);
     }
   }
+#elif defined(OS_LINUX)
+  if (!default_icon_) {
+    ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+    default_icon_ = rb.GetBitmapNamed(IDR_PRODUCT_LOGO_16);
+  }
+#else
+  // TODO(port): Port icon code.
+  NOTIMPLEMENTED();
 #endif  // defined(OS_WIN)
 }
 
