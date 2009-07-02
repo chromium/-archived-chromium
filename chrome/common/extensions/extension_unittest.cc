@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -243,6 +243,94 @@ TEST(ExtensionTest, GetResourceURLAndPath) {
             Extension::GetResourcePath(extension.path(), "../baz.js").value());
 }
 
+TEST(ExtensionTest, LoadPageActionHelper) {
+  Extension extension;
+  std::string error_msg;
+  scoped_ptr<PageAction> page_action;
+  DictionaryValue input;
+
+  // First try with an empty dictionary. We should get nothing back.
+  ASSERT_EQ(NULL, extension.LoadPageActionHelper(&input, 0, &error_msg));
+  ASSERT_STRNE("", error_msg.c_str());
+  error_msg = "";
+
+  // Now setup some values to use in the page action.
+  const std::string id("MyPageActionId");
+  const std::string name("MyPageActionName");
+  FilePath::StringType img1 = FILE_PATH_LITERAL("image1.png");
+  FilePath::StringType img2 = FILE_PATH_LITERAL("image2.png");
+
+  // Add the page_actions dictionary.
+  input.SetString(Extension::kPageActionIdKey, id);
+  input.SetString(Extension::kNameKey, name);
+  ListValue* icons = new ListValue;
+  icons->Set(0, Value::CreateStringValue(img1));
+  icons->Set(1, Value::CreateStringValue(img2));
+  input.Set(Extension::kIconPathsKey, icons);
+
+  // Parse the page action and read back the values from the object.
+  page_action.reset(extension.LoadPageActionHelper(&input, 0, &error_msg));
+  ASSERT_TRUE(NULL != page_action.get());
+  ASSERT_STREQ("", error_msg.c_str());
+  ASSERT_STREQ(id.c_str(), page_action->id().c_str());
+  ASSERT_STREQ(name.c_str(), page_action->name().c_str());
+  ASSERT_EQ(2u, page_action->icon_paths().size());
+  ASSERT_STREQ(img1.c_str(), page_action->icon_paths()[0].value().c_str());
+  ASSERT_STREQ(img2.c_str(), page_action->icon_paths()[1].value().c_str());
+  // Type hasn't been set, but it defaults to PERMANENT.
+  ASSERT_EQ(PageAction::PERMANENT, page_action->type());
+
+  // Explicitly set the same type and parse again.
+  input.SetString(Extension::kTypeKey, Extension::kPageActionTypePermanent);
+  page_action.reset(extension.LoadPageActionHelper(&input, 0, &error_msg));
+  ASSERT_TRUE(NULL != page_action.get());
+  ASSERT_STREQ("", error_msg.c_str());
+  ASSERT_EQ(PageAction::PERMANENT, page_action->type());
+
+  // Explicitly set the TAB type and parse again.
+  input.SetString(Extension::kTypeKey, Extension::kPageActionTypeTab);
+  page_action.reset(extension.LoadPageActionHelper(&input, 0, &error_msg));
+  ASSERT_TRUE(NULL != page_action.get());
+  ASSERT_STREQ("", error_msg.c_str());
+  ASSERT_EQ(PageAction::TAB, page_action->type());
+
+  // Make a deep copy of the input and remove one key at a time and see if we
+  // get the right error.
+  scoped_ptr<DictionaryValue> copy;
+
+  // First remove id key.
+  copy.reset(static_cast<DictionaryValue*>(input.DeepCopy()));
+  copy->Remove(Extension::kPageActionIdKey, NULL);
+  page_action.reset(extension.LoadPageActionHelper(copy.get(), 0, &error_msg));
+  ASSERT_TRUE(NULL == page_action.get());
+  ASSERT_TRUE(MatchPattern(error_msg.c_str(),
+                           Extension::kInvalidPageActionIdError));
+
+  // Then remove the name key.
+  copy.reset(static_cast<DictionaryValue*>(input.DeepCopy()));
+  copy->Remove(Extension::kNameKey, NULL);
+  page_action.reset(extension.LoadPageActionHelper(copy.get(), 0, &error_msg));
+  ASSERT_TRUE(NULL == page_action.get());
+  ASSERT_TRUE(MatchPattern(error_msg.c_str(),
+                           Extension::kInvalidNameError));
+
+  // Then remove the icon paths key.
+  copy.reset(static_cast<DictionaryValue*>(input.DeepCopy()));
+  copy->Remove(Extension::kIconPathsKey, NULL);
+  page_action.reset(extension.LoadPageActionHelper(copy.get(), 0, &error_msg));
+  ASSERT_TRUE(NULL == page_action.get());
+  ASSERT_TRUE(MatchPattern(error_msg.c_str(),
+                           Extension::kInvalidPageActionIconPathsError));
+
+  // Then set the type to something bogus.
+  copy.reset(static_cast<DictionaryValue*>(input.DeepCopy()));
+  copy->SetString(Extension::kTypeKey, "something_bogus");
+  page_action.reset(extension.LoadPageActionHelper(copy.get(), 0, &error_msg));
+  ASSERT_TRUE(NULL == page_action.get());
+  ASSERT_TRUE(MatchPattern(error_msg.c_str(),
+                           Extension::kInvalidPageActionTypeValueError));
+}
+
 TEST(ExtensionTest, IdIsValid) {
   EXPECT_TRUE(Extension::IdIsValid("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
   EXPECT_TRUE(Extension::IdIsValid("pppppppppppppppppppppppppppppppp"));
@@ -321,4 +409,3 @@ TEST(ExtensionTest, UpdateUrls) {
     EXPECT_TRUE(MatchPattern(error, Extension::kInvalidUpdateURLError));
   }
 }
-

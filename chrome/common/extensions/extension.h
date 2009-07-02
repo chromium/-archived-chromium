@@ -340,6 +340,8 @@ class Extension {
   // URL for fetching an update manifest
   GURL update_url_;
 
+  FRIEND_TEST(ExtensionTest, LoadPageActionHelper);
+
   DISALLOW_COPY_AND_ASSIGN(Extension);
 };
 

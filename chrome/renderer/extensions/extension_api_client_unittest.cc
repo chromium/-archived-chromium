@@ -480,11 +480,20 @@ TEST_F(ExtensionAPIClientTest, SetBookmarkTitle) {
 }
 
 TEST_F(ExtensionAPIClientTest, EnablePageAction) {
+  // Basic old-school enablePageAction call.
   ExpectJsPass("chrome.pageActions.enableForTab("
                "\"dummy\", {tabId: 0, url: \"http://foo/\"});",
                "EnablePageAction",
                "[\"dummy\",{\"tabId\":0,\"url\":\"http://foo/\"}]");
+  // Try both optional parameters (title and iconId).
+  ExpectJsPass("chrome.pageActions.enableForTab("
+               "\"dummy\", {tabId: 0, url: \"http://foo/\","
+                           "title: \"a\", iconId: 0});",
+               "EnablePageAction",
+               "[\"dummy\",{\"tabId\":0,\"url\":\"http://foo/\","
+                           "\"title\":\"a\",\"iconId\":0}]");
 
+  // Now try disablePageAction.
   ExpectJsPass("chrome.pageActions.disableForTab("
                "\"dummy\", {tabId: 0, url: \"http://foo/\"});",
                "DisablePageAction",
