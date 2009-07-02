@@ -37,30 +37,6 @@ const GdkColor kDisabledColor = GDK_COLOR_RGB(161, 161, 146);
 // kEnabledColor.
 const GdkColor kHighlightColor = GDK_COLOR_RGB(56, 95, 167);
 
-std::string DoubleUnderscores(const std::string& text) {
-  std::string ret;
-  ret.reserve(text.length() * 2);
-  for (size_t i = 0; i < text.length(); ++i) {
-    if ('_' == text[i]) {
-      ret.push_back('_');
-      ret.push_back('_');
-    } else {
-      ret.push_back(text[i]);
-    }
-  }
-
-  return ret;
-}
-
-// Recursively search for label among the children of |widget|.
-void SearchForLabel(GtkWidget* widget, gpointer data) {
-  if (GTK_IS_LABEL(widget)) {
-    *reinterpret_cast<GtkWidget**>(data) = widget;
-  } else if (GTK_IS_CONTAINER(widget)) {
-    gtk_container_foreach(GTK_CONTAINER(widget), SearchForLabel, data);
-  }
-}
-
 void* AsVoid(const BookmarkNode* node) {
   return const_cast<BookmarkNode*>(node);
 }
@@ -70,6 +46,8 @@ void* AsVoid(const BookmarkNode* node) {
 namespace bookmark_utils {
 
 const char kBookmarkNode[] = "bookmark-node";
+
+const int kBarButtonPadding = 2;
 
 GdkPixbuf* GetFolderIcon() {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
@@ -129,25 +107,22 @@ void ConfigureButtonForNode(const BookmarkNode* node, BookmarkModel* model,
   if (!tooltip.empty())
     gtk_widget_set_tooltip_text(button, tooltip.c_str());
 
+  // We pack the button manually (rather than using gtk_button_set_*) so that
+  // we can have finer control over its label.
   GdkPixbuf* pixbuf = bookmark_utils::GetPixbufForNode(node, model);
-  gtk_button_set_image(GTK_BUTTON(button), gtk_image_new_from_pixbuf(pixbuf));
+  GtkWidget* image = gtk_image_new_from_pixbuf(pixbuf);
   g_object_unref(pixbuf);
 
-  // TODO(erg): Consider a soft maximum instead of this hard 15.
-  std::wstring title = node->GetTitle();
-  // Don't treat underscores as mnemonics.
-  // O, that we could just use gtk_button_set_use_underline()!
-  // See http://bugzilla.gnome.org/show_bug.cgi?id=586330
-  std::string text = DoubleUnderscores(WideToUTF8(title));
-  gtk_button_set_label(GTK_BUTTON(button), text.c_str());
-  GtkWidget* label = NULL;
-  gtk_container_foreach(GTK_CONTAINER(button), SearchForLabel, &label);
-  if (label) {
-    gtk_label_set_max_width_chars(GTK_LABEL(label), kMaxCharsOnAButton);
-    gtk_label_set_ellipsize(GTK_LABEL(label), PANGO_ELLIPSIZE_END);
-  }
+  GtkWidget* label = gtk_label_new(WideToUTF8(node->GetTitle()).c_str());
+  gtk_label_set_max_width_chars(GTK_LABEL(label), kMaxCharsOnAButton);
+  gtk_label_set_ellipsize(GTK_LABEL(label), PANGO_ELLIPSIZE_END);
 
-  SetButtonTextColors(button);
+  GtkWidget* box = gtk_hbox_new(FALSE, kBarButtonPadding);
+  gtk_box_pack_start(GTK_BOX(box), image, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 0);
+  gtk_container_add(GTK_CONTAINER(button), box);
+
+  SetButtonTextColors(label);
   g_object_set_data(G_OBJECT(button), bookmark_utils::kBookmarkNode,
                     AsVoid(node));
 }
@@ -163,15 +138,11 @@ const BookmarkNode* BookmarkNodeForWidget(GtkWidget* widget) {
       g_object_get_data(G_OBJECT(widget), bookmark_utils::kBookmarkNode));
 }
 
-void SetButtonTextColors(GtkWidget* button) {
-  GtkWidget* label = NULL;
-  gtk_container_foreach(GTK_CONTAINER(button), SearchForLabel, &label);
-  if (label) {
-    gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &kEnabledColor);
-    gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &kEnabledColor);
-    gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, &kHighlightColor);
-    gtk_widget_modify_fg(label, GTK_STATE_INSENSITIVE, &kDisabledColor);
-  }
+void SetButtonTextColors(GtkWidget* label) {
+  gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &kEnabledColor);
+  gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &kEnabledColor);
+  gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, &kHighlightColor);
+  gtk_widget_modify_fg(label, GTK_STATE_INSENSITIVE, &kDisabledColor);
 }
 
 // DnD-related -----------------------------------------------------------------

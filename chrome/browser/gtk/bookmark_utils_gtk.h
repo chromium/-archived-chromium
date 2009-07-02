@@ -17,6 +17,9 @@ namespace bookmark_utils {
 
 extern const char kBookmarkNode[];
 
+// Padding between the image and the label of a bookmark bar button.
+extern const int kBarButtonPadding;
+
 // These functions do not add a ref to the returned pixbuf, and it should not be
 // unreffed.
 GdkPixbuf* GetFolderIcon();
@@ -43,10 +46,8 @@ std::string BuildTooltipFor(const BookmarkNode* node);
 const BookmarkNode* BookmarkNodeForWidget(GtkWidget* widget);
 
 // This function is a temporary hack to fix fonts on dark system themes.
-// NOTE: this makes assumptions about GtkButton internals. Also, it only works
-// if you call it after the last time you edit the button.
 // TODO(estade): remove this function.
-void SetButtonTextColors(GtkWidget* button);
+void SetButtonTextColors(GtkWidget* label);
 
 // Drag and drop. --------------------------------------------------------------
 

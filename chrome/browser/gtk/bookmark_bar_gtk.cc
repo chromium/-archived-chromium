@@ -150,15 +150,20 @@ void BookmarkBarGtk::Init(Profile* profile) {
   gtk_box_pack_start(GTK_BOX(bookmark_hbox_.get()), gtk_vseparator_new(),
                      FALSE, FALSE, 0);
 
+  // We pack the button manually (rather than using gtk_button_set_*) so that
+  // we can have finer control over its label.
   other_bookmarks_button_ = gtk_chrome_button_new();
   ConnectFolderButtonEvents(other_bookmarks_button_);
-  gtk_button_set_label(
-      GTK_BUTTON(other_bookmarks_button_),
+
+  GtkWidget* image = gtk_image_new_from_pixbuf(folder_icon);
+  GtkWidget* label = gtk_label_new(
       l10n_util::GetStringUTF8(IDS_BOOMARK_BAR_OTHER_BOOKMARKED).c_str());
-  gtk_button_set_image(GTK_BUTTON(other_bookmarks_button_),
-                       gtk_image_new_from_pixbuf(folder_icon));
-  // Set the proper text colors.
-  bookmark_utils::SetButtonTextColors(other_bookmarks_button_);
+  bookmark_utils::SetButtonTextColors(label);
+
+  GtkWidget* box = gtk_hbox_new(FALSE, bookmark_utils::kBarButtonPadding);
+  gtk_box_pack_start(GTK_BOX(box), image, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 0);
+  gtk_container_add(GTK_CONTAINER(other_bookmarks_button_), box);
 
   gtk_box_pack_start(GTK_BOX(bookmark_hbox_.get()), other_bookmarks_button_,
                      FALSE, FALSE, 0);
