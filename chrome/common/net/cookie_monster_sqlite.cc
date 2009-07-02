@@ -303,19 +303,6 @@ bool InitTable(sqlite3* db) {
   return true;
 }
 
-void PrimeCache(sqlite3* db) {
-  // A statement must be open for the preload command to work. If the meta
-  // table can't be read, it probably means this is a new database and there
-  // is nothing to preload (so it's OK we do nothing).
-  SQLStatement dummy;
-  if (dummy.prepare(db, "SELECT * from meta") != SQLITE_OK)
-    return;
-  if (dummy.step() != SQLITE_ROW)
-    return;
-
-  sqlite3Preload(db);
-}
-
 }  // namespace
 
 bool SQLitePersistentCookieStore::Load(
@@ -333,7 +320,7 @@ bool SQLitePersistentCookieStore::Load(
     return false;
   }
 
-  PrimeCache(db);
+  MetaTableHelper::PrimeCache(std::string(), db);
 
   // Slurp all the cookies into the out-vector.
   SQLStatement smt;

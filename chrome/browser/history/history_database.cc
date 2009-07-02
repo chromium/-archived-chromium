@@ -57,8 +57,8 @@ InitStatus HistoryDatabase::Init(const FilePath& history_name,
   // Make sure the statement cache is properly initialized.
   statement_cache_->set_db(db_);
 
-  // Prime the cache. See the header file's documentation for this function.
-  PrimeCache();
+  // Prime the cache.
+  MetaTableHelper::PrimeCache(std::string(), db_);
 
   // Create the tables and indices.
   // NOTE: If you add something here, also add it to
@@ -86,19 +86,6 @@ InitStatus HistoryDatabase::Init(const FilePath& history_name,
 
 void HistoryDatabase::BeginExclusiveMode() {
   sqlite3_exec(db_, "PRAGMA locking_mode=EXCLUSIVE", NULL, NULL, NULL);
-}
-
-void HistoryDatabase::PrimeCache() {
-  // A statement must be open for the preload command to work. If the meta
-  // table can't be read, it probably means this is a new database and there
-  // is nothing to preload (so it's OK we do nothing).
-  SQLStatement dummy;
-  if (dummy.prepare(db_, "SELECT * from meta") != SQLITE_OK)
-    return;
-  if (dummy.step() != SQLITE_ROW)
-    return;
-
-  sqlite3Preload(db_);
 }
 
 // static

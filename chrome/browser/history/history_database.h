@@ -129,12 +129,6 @@ class HistoryDatabase : public DownloadDatabase,
   virtual sqlite3* GetDB();
   virtual SqliteStatementCache& GetStatementCache();
 
-  // Primes the sqlite cache on startup by filling it with the file in sequence
-  // until there is no more data or the cache is full. Since this is one
-  // contiguous read operation, it is much faster than letting the pages come
-  // in on-demand (which causes lots of seeks).
-  void PrimeCache();
-
   // Migration -----------------------------------------------------------------
 
   // Makes sure the version is up-to-date, updating if necessary. If the
