@@ -551,16 +551,18 @@ html[dir='rtl'] #view-toolbar {
 #lower-sections .section {
   -webkit-transition: width .5s, opacity .5s, left .5s;
   -webkit-box-sizing: border-box;
+  width: 460px; /* Set default size so we don't have to do a js layout at
+                   load */
+}
+
+.small #lower-sections .section {
+  width: 336px; /* Same here, see above */
 }
 
 #lower-sections .spacer {
   width: 20px;
   -webkit-transition: width .5s;
   display: inline-block;
-}
-
-.loading * {
-  -webkit-transition: none;
 }
 
 #thumb-checkbox {

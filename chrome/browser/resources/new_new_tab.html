@@ -55,20 +55,24 @@ logEvent('log start');
 
 <div id="main">
 
-  <div id="view-toolbar"><input type=checkbox id="thumb-checkbox"
-      ><input type=checkbox id="list-checkbox"
+  <div id="view-toolbar"
+      ><input type=checkbox id="thumb-checkbox" checked
+              jsvalues="title:hidethumbnails"
+      ><input type=checkbox id="list-checkbox" jsvalues="title:showlist"
       ><input type="button" id="option-button"></div>
 
-
 <div id="option-menu" class="window-menu">
-  <div section="THUMB" show="true" jscontent="showthumbnails"></div>
+  <div section="THUMB" show="true" jscontent="showthumbnails"
+       style="display:none"></div>
   <div section="THUMB" show="false" jscontent="hidethumbnails"></div>
   <div section="LIST" show="true" jscontent="showlist"></div>
-  <div section="LIST" show="false" jscontent="hidelist"></div>
-  <div section="RECENT" show="true" jscontent="showrecent"></div>
+  <div section="LIST" show="false" jscontent="hidelist"
+       style="display:none"></div>
+  <div section="RECENT" show="true" jscontent="showrecent"
+       style="display:none"></div>
   <div section="RECENT" show="false" jscontent="hiderecent"></div>
   <div section="TIPS" show="true"
-       jscontent="showtips"></div>
+       jscontent="showtips" style="display:none"></div>
   <div section="TIPS" show="false"
        jscontent="hidetips"></div>
 </div>
@@ -78,7 +82,7 @@ logEvent('log start');
     <span><span class="link" tabindex="0"></span></span>
   </div>
 
-  <div id="most-visited" jsskip="!processing">
+  <div id="most-visited" jsskip="true">
     <a class="thumbnail-container" style="display:none" id="thumbnail-template">
       <div class="edit-mode-border">
         <div class="edit-bar">

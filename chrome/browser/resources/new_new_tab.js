@@ -65,6 +65,7 @@ function bind(fn, selfObj, var_args) {
   }
 }
 
+var loading = true;
 var mostVisitedData = [];
 var gotMostVisited = false;
 var gotShownSections = false;
@@ -101,9 +102,17 @@ function recentlyClosedTabs(data) {
   processData('#tab-items', data);
 }
 
-function onShownSections(m) {
+function onShownSections(mask) {
   logEvent('received shown sections');
-  setShownSections(m);
+  if (mask != shownSections) {
+    shownSections = mask;
+    // No need to relayout these unless changed.
+    mostVisited.updateDisplayMode();
+    layoutMostVisited();
+    layoutLowerSections();
+    updateOptionMenu();
+  }
+
   gotShownSections = true;
   onDataLoaded();
 }
@@ -327,7 +336,7 @@ var Section = {
   TIPS: 8
 };
 
-var shownSections = Section.RECENT | Section.TIPS;
+var shownSections = Section.THUMB | Section.RECENT | Section.TIPS;
 
 function showSection(section) {
   if (!(section & shownSections)) {
@@ -370,19 +379,6 @@ function notifyLowerSectionForChange(section, large) {
     } else if (shownSections & Section.TIPS) {
       tipsChangedSize(large);
     }
-  }
-}
-
-/**
- * This is called when we get the shown sections pref from the backend.
- */
-function setShownSections(mask) {
-  if (mask != shownSections) {
-    shownSections = mask;
-    mostVisited.updateDisplayMode();
-    layoutMostVisited();
-    layoutLowerSections();
-    updateOptionMenu();
   }
 }
 
@@ -596,6 +592,7 @@ function formatTabsText(numTabs) {
  */
 function onDataLoaded() {
   if (gotMostVisited && gotShownSections) {
+    loading = false;
     // Remove class name in a timeout so that changes done in this JS thread are
     // not animated.
     window.setTimeout(function() {
@@ -659,12 +656,17 @@ var localStrings = new LocalStrings();
 ///////////////////////////////////////////////////////////////////////////////
 // Things we know are not needed at startup go below here
 
-// Notification
-
 function afterTransition(f) {
-  // The duration of all transitions are 500ms
-  window.setTimeout(f, 500);
+  if (loading) {
+    // Make sure we do not use a timer during load since it slows down the UI.
+    f();
+  } else {
+    // The duration of all transitions are 500ms
+    window.setTimeout(f, 500);
+  }
 }
+
+// Notification
 
 function showNotification(text, actionText, f) {
   var notificationElement = $('notification');
@@ -755,7 +757,6 @@ OptionMenu.prototype = {
   handleMouseOver: function(e) {
     var el = e.target;
     var index = Array.prototype.indexOf.call(this.menu.children, el);
-    console.log(el, index);
     this.setSelectedIndex(index);
   },
 
