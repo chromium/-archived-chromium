@@ -906,10 +906,6 @@ bool WebViewImpl::ShouldClose() {
 }
 
 void WebViewImpl::Close() {
-  // Do this first to prevent reentrant notifications from being sent to the
-  // initiator of the close.
-  delegate_ = NULL;
-
   if (page_.get()) {
     // Initiate shutdown for the entire frameset.  This will cause a lot of
     // notifications to be sent.
@@ -921,6 +917,10 @@ void WebViewImpl::Close() {
   // Should happen after page_.reset().
   if (devtools_agent_.get())
     devtools_agent_.reset(NULL);
+
+  // Reset the delegate to prevent notifications being sent as we're being
+  // deleted.
+  delegate_ = NULL;
 
   Release();  // Balances AddRef from WebView::Create
 }
