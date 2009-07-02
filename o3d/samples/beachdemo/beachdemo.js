@@ -425,7 +425,7 @@ function onWheel(e) {
       target = g_camera.maxFieldOfView;
     }
 
-    g_camera.fieldOfView = g_math.lerpVector(target, g_camera.fieldOfView, 0.9);
+    g_camera.fieldOfView = g_math.lerpScalar(target, g_camera.fieldOfView, 0.9);
 
     updateProjection();
     stopAnimatedCamera();
