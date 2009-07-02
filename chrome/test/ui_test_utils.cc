@@ -10,6 +10,7 @@
 #include "base/values.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/dom_operation_notification_details.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/chrome_paths.h"
@@ -96,6 +97,100 @@ class DOMOperationObserver : public NotificationObserver {
   std::string response_;
 
   DISALLOW_COPY_AND_ASSIGN(DOMOperationObserver);
+};
+
+// DownloadsCompleteObserver waits for a given number of downloads to complete.
+// Example usage:
+//
+//     ui_test_utils::NavigateToURL(browser(), zip_url);
+//     DownloadsCompleteObserver wait_on_download(
+//         browser()->profile()->GetDownloadManager(), 1);
+//     /* |zip_url| download will be complete by this line. */
+//
+class DownloadsCompleteObserver : public DownloadManager::Observer,
+                                  public DownloadItem::Observer {
+ public:
+  explicit DownloadsCompleteObserver(DownloadManager* download_manager,
+                                    size_t wait_count)
+      : download_manager_(download_manager),
+        wait_count_(wait_count),
+        waiting_(false) {
+    download_manager_->AddObserver(this);
+  }
+
+  // CheckAllDownloadsComplete will be called when the DownloadManager
+  // fires it's ModelChanged() call, and also when incomplete downloads
+  // fire their OnDownloadUpdated(). 
+  bool CheckAllDownloadsComplete() {
+    if (downloads_.size() < wait_count_)
+      return false;
+
+    bool still_waiting = false;
+    std::vector<DownloadItem*>::iterator it = downloads_.begin();
+    for (; it != downloads_.end(); ++it) {
+      // We always remove ourselves as an observer, then re-add if the download
+      // isn't complete. This is to avoid having to track which downloads we
+      // are currently observing. Removing has no effect if we are not currently
+      // an observer.
+      (*it)->RemoveObserver(this);
+      if ((*it)->state() != DownloadItem::COMPLETE) {
+        (*it)->AddObserver(this);
+        still_waiting = true;
+      }
+    }
+
+    if (still_waiting)
+      return false;
+
+    download_manager_->RemoveObserver(this);
+    // waiting_ will have been set if not all downloads were complete on first
+    // pass below in SetDownloads().
+    if (waiting_)
+      MessageLoopForUI::current()->Quit();
+    return true;
+  }
+
+  // DownloadItem::Observer
+  virtual void OnDownloadUpdated(DownloadItem* download) {
+    if (download->state() == DownloadItem::COMPLETE) {
+      CheckAllDownloadsComplete();
+    }
+  }
+
+  virtual void OnDownloadOpened(DownloadItem* download) {}
+
+  // DownloadManager::Observer
+  virtual void ModelChanged() {
+    download_manager_->GetDownloads(this, L"");
+  }
+
+  virtual void SetDownloads(std::vector<DownloadItem*>& downloads) {
+    downloads_ = downloads;
+    if (CheckAllDownloadsComplete())
+      return;
+
+    if (!waiting_) {
+      waiting_ = true;
+      ui_test_utils::RunMessageLoop();
+    }
+  }
+
+
+ private:
+  // The observed download manager.
+  DownloadManager* download_manager_;
+
+  // The current downloads being tracked.
+  std::vector<DownloadItem*> downloads_;
+
+  // The number of downloads to wait on completing.
+  size_t wait_count_;
+
+  // Whether an internal message loop has been started and must be quit upon
+  // all downloads completing.
+  bool waiting_;
+
+  DISALLOW_COPY_AND_ASSIGN(DownloadsCompleteObserver);
 };
 
 }  // namespace
@@ -206,6 +301,10 @@ GURL GetTestUrl(const std::wstring& dir, const std::wstring file) {
   path = path.Append(FilePath::FromWStringHack(dir));
   path = path.Append(FilePath::FromWStringHack(file));
   return net::FilePathToFileURL(path);
+}
+
+void WaitForDownloadCount(DownloadManager* download_manager, size_t count) {
+  DownloadsCompleteObserver download_observer(download_manager, count);
 }
 
 }  // namespace ui_test_utils

@@ -4,6 +4,8 @@
 
 #include "chrome/browser/browser.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/profile.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_details.h"
@@ -38,6 +40,8 @@ IN_PROC_BROWSER_TEST_F(RenderViewHostManagerTest, ChromeURLAfterDownload) {
 
   ui_test_utils::NavigateToURL(browser(), downloads_url);
   ui_test_utils::NavigateToURL(browser(), zip_url);
+  ui_test_utils::WaitForDownloadCount(
+      browser()->profile()->GetDownloadManager(), 1);
   ui_test_utils::NavigateToURL(browser(), extensions_url);
 
   TabContents *contents = browser()->GetSelectedTabContents();
@@ -53,12 +57,12 @@ IN_PROC_BROWSER_TEST_F(RenderViewHostManagerTest, ChromeURLAfterDownload) {
 
 class BrowserClosedObserver : public NotificationObserver {
  public:
-  BrowserClosedObserver(Browser* browser) {
+  explicit BrowserClosedObserver(Browser* browser) {
     registrar_.Add(this, NotificationType::BROWSER_CLOSED,
         Source<Browser>(browser));
     ui_test_utils::RunMessageLoop();
   }
-  
+
   // NotificationObserver
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
@@ -77,7 +81,7 @@ class BrowserClosedObserver : public NotificationObserver {
 // Test for crbug.com/12745. This tests that if a download is initiated from
 // a chrome:// page that has registered and onunload handler, the browser
 // will be able to close.
-IN_PROC_BROWSER_TEST_F(RenderViewHostManagerTest, DISABLED_BrowserCloseAfterDownload) {
+IN_PROC_BROWSER_TEST_F(RenderViewHostManagerTest, BrowserCloseAfterDownload) {
   GURL downloads_url("chrome://downloads");
   FilePath zip_download;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &zip_download));
@@ -97,6 +101,10 @@ IN_PROC_BROWSER_TEST_F(RenderViewHostManagerTest, DISABLED_BrowserCloseAfterDown
       &result));
   EXPECT_TRUE(result);
   ui_test_utils::NavigateToURL(browser(), zip_url);
+
+  ui_test_utils::WaitForDownloadCount(
+    browser()->profile()->GetDownloadManager(), 1);
+
   browser()->CloseWindow();
-  BrowserClosedObserver observe(browser());
+  BrowserClosedObserver wait_for_close(browser());
 }

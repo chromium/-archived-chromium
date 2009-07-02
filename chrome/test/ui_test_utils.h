@@ -11,6 +11,7 @@
 #include "chrome/common/notification_observer.h"
 
 class Browser;
+class DownloadManager;
 class GURL;
 class NavigationController;
 class Value;
@@ -72,6 +73,10 @@ bool ExecuteJavaScriptAndExtractString(TabContents* tab_contents,
                                        std::string* result);
 
 GURL GetTestUrl(const std::wstring& dir, const std::wstring file);
+
+// Creates an observer that waits for |download_manager| to report that it
+// has a total of |count| downloads that have been handles
+void WaitForDownloadCount(DownloadManager* download_manager, size_t count);
 }
 
 #endif  // CHROME_TEST_UI_TEST_UTILS_H_
