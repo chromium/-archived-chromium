@@ -188,6 +188,3 @@ String WebCore::contextMenuItemTagLeftToRight() { return String(); }
 String WebCore::contextMenuItemTagRightToLeft() { return String(); }
 String WebCore::contextMenuItemTagInspectElement() { return String(); }
 String WebCore::contextMenuItemTagShowSpellingPanel(bool show) { return String(); }
-// TODO(scherkus): These should return something.
-String WebCore::mediaElementLiveBroadcastStateText() { return String(); }
-String WebCore::mediaElementLoadingStateText() { return String(); }
