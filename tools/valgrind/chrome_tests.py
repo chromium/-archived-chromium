@@ -188,15 +188,20 @@ class ChromeTests:
     '''
     filters = []
     for directory in self._data_dirs:
-      filename = os.path.join(directory, name + ".gtest.txt")
-      if os.path.exists(filename):
-        logging.info("reading gtest filters from %s" % filename)
-        f = open(filename, 'r')
-        for line in f.readlines():
-          if line.startswith("#") or line.startswith("//") or line.isspace():
-            continue
-          line = line.rstrip()
-          filters.append(line)
+      platform_suffix = {'darwin': 'mac',
+                         'linux2': 'linux'}[sys.platform]
+      gtest_filter_files = [
+          os.path.join(directory, name + ".gtest.txt"),
+          os.path.join(directory, name + ".gtest_%s.txt" % platform_suffix)]
+      for filename in gtest_filter_files:
+        if os.path.exists(filename):
+          logging.info("reading gtest filters from %s" % filename)
+          f = open(filename, 'r')
+          for line in f.readlines():
+            if line.startswith("#") or line.startswith("//") or line.isspace():
+              continue
+            line = line.rstrip()
+            filters.append(line)
     gtest_filter = self._options.gtest_filter
     if len(filters):
       if gtest_filter:
