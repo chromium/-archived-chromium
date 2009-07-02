@@ -192,6 +192,10 @@ void StatusBubbleMac::UpdateDownloadShelfVisibility(bool visible) {
   NOTIMPLEMENTED();
 }
 
+void StatusBubbleMac::SetBubbleWidth(int width) {
+  NOTIMPLEMENTED();
+}
+
 void StatusBubbleMac::Create() {
   if (window_)
     return;
