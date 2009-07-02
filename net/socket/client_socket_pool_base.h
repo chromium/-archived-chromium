@@ -52,7 +52,8 @@ class ConnectJob {
   LoadState load_state() const { return load_state_; }
   const ClientSocketHandle* key_handle() const { return key_handle_; }
 
-  // Releases |socket_| to the client.
+  // Releases |socket_| to the client.  On connection error, this should return
+  // NULL.
   ClientSocket* ReleaseSocket() { return socket_.release(); }
 
   // Begins connecting the socket.  Returns OK on success, ERR_IO_PENDING if it

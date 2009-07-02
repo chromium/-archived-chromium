@@ -114,6 +114,9 @@ int TCPConnectJob::DoTCPConnectComplete(int result) {
         base::TimeDelta::FromMilliseconds(1),
         base::TimeDelta::FromMinutes(10),
         100);
+  } else {
+    // Delete the socket on error.
+    set_socket(NULL);
   }
 
   return result;

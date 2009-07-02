@@ -307,6 +307,7 @@ void ClientSocketPoolBase::OnConnectJobComplete(int result, ConnectJob* job) {
   RemoveConnectJob(job->key_handle());
 
   if (result != OK) {
+    DCHECK(!socket.get());
     callback->Run(result);  // |group| is not necessarily valid after this.
     // |group| may be invalid after the callback, we need to search
     // |group_map_| again.
