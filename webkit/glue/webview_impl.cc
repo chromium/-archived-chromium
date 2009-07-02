@@ -313,15 +313,14 @@ WebView* WebView::Create(WebViewDelegate* delegate,
   instance->AddRef();
   instance->SetPreferences(prefs);
 
-  // Here, we construct a new WebFrameImpl with a reference count of 0.  That
-  // is bumped up to 1 by InitMainFrame.  The reference count is decremented
-  // when the corresponding WebCore::Frame object is destroyed.
-  WebFrameImpl* main_frame = new WebFrameImpl();
-  main_frame->InitMainFrame(instance);
+  // NOTE: The WebFrameImpl takes a reference to itself within InitMainFrame
+  // and releases that reference once the corresponding Frame is destroyed.
+  scoped_refptr<WebFrameImpl> main_frame = new WebFrameImpl();
 
-  // Set the delegate after initializing the main frame, to avoid trying to
-  // respond to notifications before we're fully initialized.
+  // Set the delegate before initializing the frame, so that notifications like
+  // DidCreateDataSource make their way to the client.
   instance->delegate_ = delegate;
+  main_frame->InitMainFrame(instance);
 
   WebDevToolsAgentDelegate* tools_delegate =
       delegate->GetWebDevToolsAgentDelegate();

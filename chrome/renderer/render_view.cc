@@ -1076,18 +1076,15 @@ void RenderView::DidPaint() {
 
   WebDataSource* ds = main_frame->GetDataSource();
   NavigationState* navigation_state = NavigationState::FromDataSource(ds);
-  // TODO(darin): It should not be possible for navigation_state to
-  // be null here! But the UI test DownloadTest.IncognitoDownload
-  // can cause it to happen.
-  if (navigation_state) {
-    Time now = Time::Now();
-    if (navigation_state->first_paint_time().is_null()) {
-      navigation_state->set_first_paint_time(now);
-    }
-    if (navigation_state->first_paint_after_load_time().is_null() &&
-        !navigation_state->finish_load_time().is_null()) {
-      navigation_state->set_first_paint_after_load_time(now);
-    }
+  DCHECK(navigation_state);
+
+  Time now = Time::Now();
+  if (navigation_state->first_paint_time().is_null()) {
+    navigation_state->set_first_paint_time(now);
+  }
+  if (navigation_state->first_paint_after_load_time().is_null() &&
+      !navigation_state->finish_load_time().is_null()) {
+    navigation_state->set_first_paint_after_load_time(now);
   }
 }
 
@@ -1318,10 +1315,8 @@ void RenderView::DidReceiveTitle(WebView* webview,
 void RenderView::DidFinishLoadForFrame(WebView* webview, WebFrame* frame) {
   WebDataSource* ds = frame->GetDataSource();
   NavigationState* navigation_state = NavigationState::FromDataSource(ds);
-  // TODO(darin): It should not be possible for navigation_state to be null
-  // here!
-  if (navigation_state)
-    navigation_state->set_finish_load_time(Time::Now());
+  DCHECK(navigation_state);
+  navigation_state->set_finish_load_time(Time::Now());
 }
 
 void RenderView::DidFailLoadWithError(WebView* webview,
@@ -1336,10 +1331,8 @@ void RenderView::DidFinishDocumentLoadForFrame(WebView* webview,
                                                WebFrame* frame) {
   WebDataSource* ds = frame->GetDataSource();
   NavigationState* navigation_state = NavigationState::FromDataSource(ds);
-  // TODO(darin): It should not be possible for navigation_state to be null
-  // here!
-  if (navigation_state)
-    navigation_state->set_finish_document_load_time(Time::Now());
+  DCHECK(navigation_state);
+  navigation_state->set_finish_document_load_time(Time::Now());
 
   Send(new ViewHostMsg_DocumentLoadedInFrame(routing_id_));
 
@@ -2727,6 +2720,7 @@ void RenderView::DidAddHistoryItem() {
   DCHECK(ds != NULL);
 
   NavigationState* navigation_state = NavigationState::FromDataSource(ds);
+  DCHECK(navigation_state);
   if (navigation_state->transition_type() == PageTransition::START_PAGE)
     return;
 
