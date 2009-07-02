@@ -852,7 +852,7 @@ void ResourceDispatcherHost::OnReceivedRedirect(URLRequest* request,
     return;
   }
 
-  NofityReceivedRedirect(request, info->process_id, new_url);
+  NotifyReceivedRedirect(request, info->process_id, new_url);
 
   if (HandleExternalProtocol(info->request_id, info->process_id,
                              info->route_id, new_url,
@@ -1409,7 +1409,7 @@ void ResourceDispatcherHost::NotifyResponseCompleted(
                                GetCertID(request, process_id))));
 }
 
-void ResourceDispatcherHost::NofityReceivedRedirect(URLRequest* request,
+void ResourceDispatcherHost::NotifyReceivedRedirect(URLRequest* request,
                                                     int process_id,
                                                     const GURL& new_url) {
   // Notify the observers on the IO thread.

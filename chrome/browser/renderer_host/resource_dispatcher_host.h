@@ -465,7 +465,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   void NotifyResponseStarted(URLRequest* request, int process_id);
 
   // Notify our observers that a request has been redirected.
-  void NofityReceivedRedirect(URLRequest* request,
+  void NotifyReceivedRedirect(URLRequest* request,
                               int process_id,
                               const GURL& new_url);
 
