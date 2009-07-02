@@ -151,15 +151,7 @@ devtools.ToolsAgent.prototype.addMessageToConsole_ = function(message) {
  * @private
  */
 devtools.ToolsAgent.prototype.dispatchOnClient_ = function(message) {
-  var messageObj = JSON.parse(message);
-  // Filter out messages we don't need here.
-  var method = messageObj[0];
-  if (method == 'inspectedWindowCleared' ||
-      method == 'reset' ||
-      method == 'setAttachedWindow') {
-    return;
-  }
-  WebInspector.dispatch.apply(WebInspector, messageObj);
+  WebInspector.dispatch.apply(WebInspector, JSON.parse(message));
 };
 
 

@@ -47,6 +47,13 @@ var dispatch = function(method, var_args) {
     for (var i = 2; i < args.length; ++i) {
       args[i] = devtools$$obj.wrapConsoleObject(args[i]);
     }
+  } else if (method == 'inspectedWindowCleared' ||
+      method == 'reset' ||
+      method == 'setAttachedWindow') {
+    // Filter out messages we don't need here.
+    // We do it on the sender side since they may have non-serializable
+    // parameters.
+    return;
   }
   var call = JSON.stringify(args);
   DevToolsAgentHost.dispatch(call);
