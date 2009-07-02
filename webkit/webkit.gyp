@@ -616,9 +616,9 @@
           'msvs_external_rule': 1,
           'inputs': [
             '../third_party/WebKit/WebCore/bindings/scripts/generate-bindings.pl',
-            'port/bindings/scripts/CodeGenerator.pm',
-            'port/bindings/scripts/CodeGeneratorV8.pm',
-            'port/bindings/scripts/IDLParser.pm',
+            '../third_party/WebKit/WebCore/bindings/scripts/CodeGenerator.pm',
+            '../third_party/WebKit/WebCore/bindings/scripts/CodeGeneratorV8.pm',
+            '../third_party/WebKit/WebCore/bindings/scripts/IDLParser.pm',
             '../third_party/WebKit/WebCore/bindings/scripts/IDLStructure.pm',
           ],
           'outputs': [
