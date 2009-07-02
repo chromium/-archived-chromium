@@ -274,3 +274,21 @@
    fun:_ZN7testing8UnitTest3RunEv
    fun:main
 }
+
+{
+   bug_15819
+   Memcheck:Cond
+   fun:_ZNK10CMMMtxOnly10ConvertMinE10CMM3x3Type10CMM3x1TypeR12CMMMinBuffermm
+   ...
+   fun:CGContextDrawImage
+   fun:_ZN3gfx17CGImageToSkBitmapEP7CGImage
+}
+
+{
+   bug_15819
+   Memcheck:Value4
+   fun:_ZNK10CMMConvLut7ConvertER10CMMMinBitsP14CMMRuntimeInfomm
+   ...
+   fun:CGContextDrawImage
+   fun:_ZN3gfx17CGImageToSkBitmapEP7CGImage
+}
