@@ -66,6 +66,7 @@ class PasswordStoreMacTest : public testing::Test {
 
   virtual void TearDown() {
     ExpectCreatesAndFreesBalanced();
+    ExpectCreatorCodesSet();
     delete keychain_;
   }
 
@@ -77,6 +78,12 @@ class PasswordStoreMacTest : public testing::Test {
     EXPECT_EQ(0, keychain_->UnfreedSearchCount());
     EXPECT_EQ(0, keychain_->UnfreedKeychainItemCount());
     EXPECT_EQ(0, keychain_->UnfreedAttributeDataCount());
+  }
+
+  // Causes a test failure unless any Keychain items added during the test have
+  // their creator code set.
+  void ExpectCreatorCodesSet() {
+    EXPECT_TRUE(keychain_->CreatorCodesSetForAddedItems());
   }
 
   MockKeychain* keychain_;

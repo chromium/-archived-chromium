@@ -50,6 +50,11 @@ class MacKeychainPasswordFormAdapter {
   bool SetKeychainItemPassword(const SecKeychainItemRef& keychain_item,
                                const std::string& password);
 
+  // Sets the creator code of keychain_item to creator_code; returns true if the
+  // creator code was successfully set.
+  bool SetKeychainItemCreatorCode(const SecKeychainItemRef& keychain_item,
+                                  OSType creator_code);
+
   MacKeychain* keychain_;
 
   DISALLOW_COPY_AND_ASSIGN(MacKeychainPasswordFormAdapter);

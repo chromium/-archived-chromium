@@ -215,6 +215,7 @@ class SQLStatement : public scoped_sqlite3_stmt_ptr {
   int step();
   int reset();
   sqlite_int64 last_insert_rowid();
+  int changes();
   sqlite3* db_handle();
 
   //

@@ -221,6 +221,11 @@ sqlite_int64 SQLStatement::last_insert_rowid() {
   return sqlite3_last_insert_rowid(db_handle());
 }
 
+int SQLStatement::changes() {
+  DCHECK(stmt_);
+  return sqlite3_changes(db_handle());
+}
+
 sqlite3* SQLStatement::db_handle() {
   DCHECK(stmt_);
   return sqlite3_db_handle(stmt_);

@@ -159,7 +159,9 @@ TEST_F(LoginDatabaseTest, Logins) {
 
   // We update, and check to make sure it matches the
   // old form, and there is only one record.
-  EXPECT_TRUE(db->UpdateLogin(form6));
+  int rows_changed = 0;
+  EXPECT_TRUE(db->UpdateLogin(form6, &rows_changed));
+  EXPECT_EQ(1, rows_changed);
   // matches
   EXPECT_TRUE(db->GetLogins(form5, &result));
   EXPECT_EQ(1U, result.size());

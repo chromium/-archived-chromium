@@ -18,6 +18,8 @@
 
 using webkit_glue::PasswordForm;
 
+static const OSType kChromeKeychainCreatorCode = 'rimZ';
+
 // Utility class to handle the details of constructing and running a keychain
 // search from a set of attributes.
 class KeychainSearch {
@@ -539,16 +541,20 @@ bool MacKeychainPasswordFormAdapter::AddLogin(const PasswordForm& form) {
   std::string path = form.origin.path();
   SecProtocolType protocol = is_secure ? kSecProtocolTypeHTTPS
                                        : kSecProtocolTypeHTTP;
+  SecKeychainItemRef new_item = NULL;
   OSStatus result = keychain_->AddInternetPassword(
       NULL, server.size(), server.c_str(),
       security_domain.size(), security_domain.c_str(),
       username.size(), username.c_str(),
       path.size(), path.c_str(),
       port, protocol, internal_keychain_helpers::AuthTypeForScheme(form.scheme),
-      password.size(), password.c_str(), NULL);
+      password.size(), password.c_str(), &new_item);
 
-  // If we collide with an existing item, find and update it instead.
-  if (result == errSecDuplicateItem) {
+  if (result == noErr) {
+    SetKeychainItemCreatorCode(new_item, kChromeKeychainCreatorCode);
+    keychain_->Free(new_item);
+  } else if (result == errSecDuplicateItem) {
+    // If we collide with an existing item, find and update it instead.
     SecKeychainItemRef existing_item =
         internal_keychain_helpers::MatchingKeychainItem(*keychain_, form);
     if (!existing_item) {
@@ -559,7 +565,7 @@ bool MacKeychainPasswordFormAdapter::AddLogin(const PasswordForm& form) {
     return changed;
   }
 
-  return (result == noErr);
+  return result == noErr;
 }
 
 std::vector<PasswordForm*>
@@ -616,7 +622,17 @@ bool MacKeychainPasswordFormAdapter::SetKeychainItemPassword(
   OSStatus result = keychain_->ItemModifyAttributesAndData(keychain_item, NULL,
                                                            password.size(),
                                                            password.c_str());
-  return (result == noErr);
+  return result == noErr;
+}
+
+bool MacKeychainPasswordFormAdapter::SetKeychainItemCreatorCode(
+    const SecKeychainItemRef& keychain_item, OSType creator_code) {
+  SecKeychainAttribute attr = { kSecCreatorItemAttr, sizeof(creator_code),
+                                &creator_code };
+  SecKeychainAttributeList attrList = { 1, &attr };
+  OSStatus result = keychain_->ItemModifyAttributesAndData(keychain_item,
+                                                           &attrList, 0, NULL);
+  return result == noErr;
 }
 
 #pragma mark -
@@ -631,11 +647,25 @@ PasswordStoreMac::PasswordStoreMac(MacKeychain* keychain,
 PasswordStoreMac::~PasswordStoreMac() {}
 
 void PasswordStoreMac::AddLoginImpl(const PasswordForm& form) {
-  NOTIMPLEMENTED();
+  MacKeychainPasswordFormAdapter keychainAdapter(keychain_.get());
+  if (keychainAdapter.AddLogin(form)) {
+    login_metadata_db_->AddLogin(form);
+  }
 }
 
 void PasswordStoreMac::UpdateLoginImpl(const PasswordForm& form) {
-  NOTIMPLEMENTED();
+  MacKeychainPasswordFormAdapter keychainAdapter(keychain_.get());
+  // The keychain AddLogin will update if there is a collision and add if there
+  // isn't, which is the behavior we want, so there's no separate UpdateLogin.
+  if (keychainAdapter.AddLogin(form)) {
+    int update_count = 0;
+    login_metadata_db_->UpdateLogin(form, &update_count);
+    // Update will catch any database entries that we already had, but we could
+    // also be updating a keychain-only form, in which case we need to add.
+    if (update_count == 0) {
+      login_metadata_db_->AddLogin(form);
+    }
+  }
 }
 
 void PasswordStoreMac::RemoveLoginImpl(const PasswordForm& form) {

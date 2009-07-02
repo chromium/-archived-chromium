@@ -5,6 +5,7 @@
 #ifndef CHROME_BROWSER_KEYCHAIN_MOCK_MAC_H_
 #define CHROME_BROWSER_KEYCHAIN_MOCK_MAC_H_
 
+#include <set>
 #include <vector>
 
 #include "chrome/browser/keychain_mac.h"
@@ -62,6 +63,10 @@ class MockKeychain : public MacKeychain {
   int UnfreedKeychainItemCount() const;
   int UnfreedAttributeDataCount() const;
 
+  // Returns true if all items added with AddInternetPassword have a creator
+  // code set.
+  bool CreatorCodesSetForAddedItems() const;
+
   struct KeychainTestData {
     const SecAuthenticationType auth_type;
     const char* server;
@@ -92,15 +97,16 @@ class MockKeychain : public MacKeychain {
   void SetTestDataProtocol(int item, SecProtocolType value);
   void SetTestDataAuthType(int item, SecAuthenticationType value);
   void SetTestDataNegativeItem(int item, Boolean value);
+  void SetTestDataCreator(int item, OSType value);
   // Sets the password data and length for the item-th test item.
   void SetTestDataPasswordBytes(int item, const void* data, size_t length);
   // Sets the password for the item-th test item. As with SetTestDataString,
   // the data will not be null-terminated.
   void SetTestDataPasswordString(int item, const char* value);
 
-  // Returns the index of |tag| in |attribute_list|, or -1 if it's not found.
-  static int IndexForTag(const SecKeychainAttributeList& attribute_list,
-                         UInt32 tag);
+  // Returns the address of the attribute in attribute_list with tag |tag|.
+  static SecKeychainAttribute* AttributeWithTag(
+      const SecKeychainAttributeList& attribute_list, UInt32 tag);
 
   static const int kDummySearchRef = 1000;
 
@@ -126,6 +132,9 @@ class MockKeychain : public MacKeychain {
   mutable int search_copy_count_;
   mutable int keychain_item_copy_count_;
   mutable int attribute_data_copy_count_;
+
+  // Tracks which items (by index) were added with AddInternetPassword.
+  mutable std::set<unsigned int> added_via_api_;
 };
 
 #endif  // CHROME_BROWSER_KEYCHAIN_MOCK_MAC_H_

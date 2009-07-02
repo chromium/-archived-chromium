@@ -31,8 +31,9 @@ class LoginDatabase {
   // Adds |form| to the list of remembered password forms.
   bool AddLogin(const webkit_glue::PasswordForm& form);
 
-  // Updates remembered password form.
-  bool UpdateLogin(const webkit_glue::PasswordForm& form);
+  // Updates remembered password form. Returns true on success and sets
+  // items_changed (if non-NULL) to the number of logins updated.
+  bool UpdateLogin(const webkit_glue::PasswordForm& form, int* items_changed);
 
   // Removes |form| from the list of remembered password forms.
   bool RemoveLogin(const webkit_glue::PasswordForm& form);

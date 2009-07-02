@@ -17,7 +17,8 @@ MockKeychain::MockKeychain(unsigned int item_capacity)
                     kSecAuthenticationTypeItemAttr,
                     kSecSecurityDomainItemAttr,
                     kSecCreationDateItemAttr,
-                    kSecNegativeItemAttr };
+                    kSecNegativeItemAttr,
+                    kSecCreatorItemAttr };
 
   // Create the test keychain data storage.
   keychain_attr_list_ = static_cast<SecKeychainAttributeList*>(
@@ -44,6 +45,9 @@ MockKeychain::MockKeychain(unsigned int item_capacity)
         case kSecNegativeItemAttr:
           data_size = sizeof(Boolean);
           break;
+        case kSecCreatorItemAttr:
+          data_size = sizeof(OSType);
+          break;
       }
       if (data_size > 0) {
         keychain_attr_list_[i].attr[j].length = data_size;
@@ -69,30 +73,37 @@ MockKeychain::~MockKeychain() {
   free(keychain_data_);
 }
 
-int MockKeychain::IndexForTag(const SecKeychainAttributeList& attribute_list,
-                              UInt32 tag) {
+
+SecKeychainAttribute* MockKeychain::AttributeWithTag(
+    const SecKeychainAttributeList& attribute_list, UInt32 tag) {
+  int attribute_index = -1;
   for (unsigned int i = 0; i < attribute_list.count; ++i) {
     if (attribute_list.attr[i].tag == tag) {
-      return i;
+      attribute_index = i;
+      break;
     }
   }
-  DCHECK(false);
-  return -1;
+  if (attribute_index == -1) {
+    NOTREACHED() << "Unsupported attribute: " << tag;
+    return NULL;
+  }
+  return &(attribute_list.attr[attribute_index]);
 }
 
 void MockKeychain::SetTestDataBytes(int item, UInt32 tag, const void* data,
                                     size_t length) {
-  int attribute_index = IndexForTag(keychain_attr_list_[item], tag);
-  keychain_attr_list_[item].attr[attribute_index].length = length;
+  SecKeychainAttribute* attribute = AttributeWithTag(keychain_attr_list_[item],
+                                                     tag);
+  attribute->length = length;
   if (length > 0) {
-    if (keychain_attr_list_[item].attr[attribute_index].data) {
-      free(keychain_attr_list_[item].attr[attribute_index].data);
+    if (attribute->data) {
+      free(attribute->data);
     }
-    keychain_attr_list_[item].attr[attribute_index].data = malloc(length);
-    CHECK(keychain_attr_list_[item].attr[attribute_index].data);
-    memcpy(keychain_attr_list_[item].attr[attribute_index].data, data, length);
+    attribute->data = malloc(length);
+    CHECK(attribute->data);
+    memcpy(attribute->data, data, length);
   } else {
-    keychain_attr_list_[item].attr[attribute_index].data = NULL;
+    attribute->data = NULL;
   }
 }
 
@@ -101,31 +112,39 @@ void MockKeychain::SetTestDataString(int item, UInt32 tag, const char* value) {
 }
 
 void MockKeychain::SetTestDataPort(int item, UInt32 value) {
-  int attribute_index = IndexForTag(keychain_attr_list_[item],
-                                    kSecPortItemAttr);
-  void* data = keychain_attr_list_[item].attr[attribute_index].data;
-  *(static_cast<UInt32*>(data)) = value;
+  SecKeychainAttribute* attribute = AttributeWithTag(keychain_attr_list_[item],
+                                                     kSecPortItemAttr);
+  UInt32* data = static_cast<UInt32*>(attribute->data);
+  *data = value;
 }
 
 void MockKeychain::SetTestDataProtocol(int item, SecProtocolType value) {
-  int attribute_index = IndexForTag(keychain_attr_list_[item],
-                                    kSecProtocolItemAttr);
-  void* data = keychain_attr_list_[item].attr[attribute_index].data;
-  *(static_cast<SecProtocolType*>(data)) = value;
+  SecKeychainAttribute* attribute = AttributeWithTag(keychain_attr_list_[item],
+                                                     kSecProtocolItemAttr);
+  SecProtocolType* data = static_cast<SecProtocolType*>(attribute->data);
+  *data = value;
 }
 
 void MockKeychain::SetTestDataAuthType(int item, SecAuthenticationType value) {
-  int attribute_index = IndexForTag(keychain_attr_list_[item],
-                                    kSecAuthenticationTypeItemAttr);
-  void* data = keychain_attr_list_[item].attr[attribute_index].data;
-  *(static_cast<SecAuthenticationType*>(data)) = value;
+  SecKeychainAttribute* attribute = AttributeWithTag(
+      keychain_attr_list_[item], kSecAuthenticationTypeItemAttr);
+  SecAuthenticationType* data = static_cast<SecAuthenticationType*>(
+      attribute->data);
+  *data = value;
 }
 
 void MockKeychain::SetTestDataNegativeItem(int item, Boolean value) {
-  int attribute_index = IndexForTag(keychain_attr_list_[item],
-                                    kSecNegativeItemAttr);
-  void* data = keychain_attr_list_[item].attr[attribute_index].data;
-  *(static_cast<Boolean*>(data)) = value;
+  SecKeychainAttribute* attribute = AttributeWithTag(keychain_attr_list_[item],
+                                                     kSecNegativeItemAttr);
+  Boolean* data = static_cast<Boolean*>(attribute->data);
+  *data = value;
+}
+
+void MockKeychain::SetTestDataCreator(int item, OSType value) {
+  SecKeychainAttribute* attribute = AttributeWithTag(keychain_attr_list_[item],
+                                                     kSecCreatorItemAttr);
+  OSType* data = static_cast<OSType*>(attribute->data);
+  *data = value;
 }
 
 void MockKeychain::SetTestDataPasswordBytes(int item, const void* data,
@@ -185,11 +204,19 @@ OSStatus MockKeychain::ItemModifyAttributesAndData(
     return errSecInvalidItemRef;
   }
 
+  MockKeychain* mutable_this = const_cast<MockKeychain*>(this);
   if (attrList) {
-    NOTIMPLEMENTED();
+    for (UInt32 change_attr = 0; change_attr < attrList->count; ++change_attr) {
+      if (attrList->attr[change_attr].tag == kSecCreatorItemAttr) {
+        void* data = attrList->attr[change_attr].data;
+        mutable_this->SetTestDataCreator(item_index,
+                                         *(static_cast<OSType*>(data)));
+      } else {
+        NOTIMPLEMENTED();
+      }
+    }
   }
   if (data) {
-    MockKeychain* mutable_this = const_cast<MockKeychain*>(this);
     mutable_this->SetTestDataPasswordBytes(item_index, data, length);
   }
   return noErr;
@@ -212,10 +239,9 @@ OSStatus MockKeychain::SearchCreateFromAttributes(
   for (unsigned int mock_item = 0; mock_item < item_count_; ++mock_item) {
     bool mock_item_matches = true;
     for (UInt32 search_attr = 0; search_attr < attrList->count; ++search_attr) {
-      int mock_attr = IndexForTag(keychain_attr_list_[mock_item],
-                                  attrList->attr[search_attr].tag);
       SecKeychainAttribute* mock_attribute =
-          &(keychain_attr_list_[mock_item].attr[mock_attr]);
+          AttributeWithTag(keychain_attr_list_[mock_item],
+                           attrList->attr[search_attr].tag);
       if (mock_attribute->length != attrList->attr[search_attr].length ||
           memcmp(mock_attribute->data, attrList->attr[search_attr].data,
                  attrList->attr[search_attr].length) != 0) {
@@ -277,8 +303,11 @@ OSStatus MockKeychain::AddInternetPassword(
   mutable_this->SetTestDataString(target_item, kSecCreationDateItemAttr,
                                   time_string);
 
+  added_via_api_.insert(target_item);
+
   if (itemRef) {
     *itemRef = reinterpret_cast<SecKeychainItemRef>(target_item + 1);
+    ++keychain_item_copy_count_;
   }
   return noErr;
 }
@@ -317,6 +346,19 @@ int MockKeychain::UnfreedKeychainItemCount() const {
 
 int MockKeychain::UnfreedAttributeDataCount() const {
   return attribute_data_copy_count_;
+}
+
+bool MockKeychain::CreatorCodesSetForAddedItems() const {
+  for (std::set<unsigned int>::const_iterator i = added_via_api_.begin();
+       i != added_via_api_.end(); ++i) {
+    SecKeychainAttribute* attribute = AttributeWithTag(keychain_attr_list_[*i],
+                                                       kSecCreatorItemAttr);
+    OSType* data = static_cast<OSType*>(attribute->data);
+    if (*data == 0) {
+      return false;
+    }
+  }
+  return true;
 }
 
 void MockKeychain::AddTestItem(const KeychainTestData& item_data) {

@@ -159,7 +159,7 @@ bool LoginDatabase::AddLogin(const PasswordForm& form) {
   return true;
 }
 
-bool LoginDatabase::UpdateLogin(const PasswordForm& form) {
+bool LoginDatabase::UpdateLogin(const PasswordForm& form, int* items_changed) {
   SQLStatement s;
   if (s.prepare(db_, "UPDATE logins SET "
                 "action_url = ?, "
@@ -190,6 +190,9 @@ bool LoginDatabase::UpdateLogin(const PasswordForm& form) {
   if (s.step() != SQLITE_DONE) {
     NOTREACHED();
     return false;
+  }
+  if (items_changed) {
+    *items_changed = s.changes();
   }
   return true;
 }
