@@ -534,7 +534,7 @@ TEST_F(RenderViewTest, OnHandleKeyboardEvent) {
       };
 
       MockKeyboard::Modifiers modifiers = kModifierData[j].modifiers;
-      for (size_t k = 0; k <= ARRAYSIZE_UNSAFE(kKeyCodes); ++k) {
+      for (size_t k = 0; k < ARRAYSIZE_UNSAFE(kKeyCodes); ++k) {
         // Send a keyboard event to the RenderView object.
         // We should test a keyboard event only when the given keyboard-layout
         // driver is installed in a PC and the driver can assign a Unicode
@@ -759,7 +759,7 @@ TEST_F(RenderViewTest, InsertCharacters) {
       };
 
       MockKeyboard::Modifiers modifiers = kModifiers[j];
-      for (size_t k = 0; k <= ARRAYSIZE_UNSAFE(kKeyCodes); ++k) {
+      for (size_t k = 0; k < ARRAYSIZE_UNSAFE(kKeyCodes); ++k) {
         // Send a keyboard event to the RenderView object.
         // We should test a keyboard event only when the given keyboard-layout
         // driver is installed in a PC and the driver can assign a Unicode
