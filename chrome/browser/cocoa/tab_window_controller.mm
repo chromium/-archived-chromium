@@ -16,12 +16,18 @@
 @synthesize tabContentArea = tabContentArea_;
 
 - (void)windowDidLoad {
-  // Place the tab bar above the content box and add it to the view hierarchy
-  // as a sibling of the content view so it can overlap with the window frame.
-  NSRect tabFrame = [tabContentArea_ frame];
-  tabFrame.origin = NSMakePoint(0, NSMaxY(tabFrame));
-  tabFrame.size.height = NSHeight([tabStripView_ frame]);
-  [tabStripView_ setFrame:tabFrame];
+  // TODO(jrg): a non-normal window (e.g. for pop-ups) needs more work
+  // than just removal of the tab strip offset.  But this is enough to
+  // avoid confusion (e.g. "new tab" on popup gets created in a
+  // different window).
+  if ([self isNormalWindow]) {
+    // Place the tab bar above the content box and add it to the view hierarchy
+    // as a sibling of the content view so it can overlap with the window frame.
+    NSRect tabFrame = [tabContentArea_ frame];
+    tabFrame.origin = NSMakePoint(0, NSMaxY(tabFrame));
+    tabFrame.size.height = NSHeight([tabStripView_ frame]);
+    [tabStripView_ setFrame:tabFrame];
+  }
   [[[[self window] contentView] superview] addSubview:tabStripView_];
 }
 
@@ -154,6 +160,12 @@
   // subclass must implement
   NOTIMPLEMENTED();
   return @"";
+}
+
+- (BOOL)isNormalWindow {
+  // subclass must implement
+  NOTIMPLEMENTED();
+  return YES;
 }
 
 @end

@@ -422,6 +422,11 @@ willPositionSheet:(NSWindow *)sheet
     return NO;
   }
 
+  // Can't drag a tab from a normal browser to a pop-up
+  if (browser_->type() != realSource->browser_->type()) {
+    return NO;
+  }
+
   return YES;
 }
 
@@ -682,6 +687,13 @@ willPositionSheet:(NSWindow *)sheet
 - (NSString*)selectedTabTitle {
   TabContents* contents = browser_->tabstrip_model()->GetSelectedTabContents();
   return base::SysUTF16ToNSString(contents->GetTitle());
+}
+
+// TYPE_POPUP is not normal (e.g. no tab strip)
+- (BOOL)isNormalWindow {
+  if (browser_->type() == Browser::TYPE_NORMAL)
+    return YES;
+  return NO;
 }
 
 - (void)selectTabWithContents:(TabContents*)newContents

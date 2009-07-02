@@ -86,6 +86,12 @@
 // The title of the selected tab.
 - (NSString*)selectedTabTitle;
 
+// Called to check if we are a normal window (e.g. not a pop-up) and
+// want normal behavior (e.g. a tab strip).  Return YES if so.  The
+// default implementation returns YES.
+- (BOOL)isNormalWindow;
+
+
 @end
 
 @interface TabWindowController(ProtectedMethods)

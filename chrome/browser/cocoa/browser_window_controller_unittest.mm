@@ -77,4 +77,22 @@ TEST_F(BrowserWindowControllerTest, TestFullscreen) {
   EXPECT_TRUE([controller_ fullscreenWindow]);
 }
 
+TEST_F(BrowserWindowControllerTest, TestNormal) {
+  // Make sure a normal BrowserWindowController is, uh, normal.
+  EXPECT_TRUE([controller_ isNormalWindow]);
+
+  // And make sure a controller for a pop-up window is not normal.
+  scoped_ptr<Browser> popup_browser(Browser::CreateForPopup(
+                                      browser_helper_.profile()));
+  controller_.reset([[BrowserWindowController alloc]
+                              initWithBrowser:popup_browser.get()
+                                takeOwnership:NO]);
+  EXPECT_FALSE([controller_ isNormalWindow]);
+
+  // The created BrowserWindowController gets autoreleased, so make
+  // sure we don't also release it.
+  // (Confirmed with valgrind).
+  controller_.release();
+}
+
 /* TODO(???): test other methods of BrowserWindowController */
