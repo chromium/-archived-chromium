@@ -116,9 +116,9 @@ class TabContentsViewGtk : public TabContentsView,
   // between uses so that it won't go out of scope before we're done with it.
   scoped_ptr<RenderViewContextMenuGtk> context_menu_;
 
-  // The event time for the last mouse down we handled. We need this to properly
-  // show context menus.
-  guint32 last_mouse_down_time_;
+  // The event for the last mouse down we handled. We need this for context
+  // menus and drags.
+  GdkEventButton last_mouse_down_;
 
   // Used to get notifications about renderers coming and going.
   NotificationRegistrar registrar_;

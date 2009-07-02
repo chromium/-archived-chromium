@@ -350,7 +350,7 @@ void TabContentsViewGtk::Observe(NotificationType type,
 
 void TabContentsViewGtk::ShowContextMenu(const ContextMenuParams& params) {
   context_menu_.reset(new RenderViewContextMenuGtk(tab_contents(), params,
-                                                   last_mouse_down_time_));
+                                                   last_mouse_down_.time));
   context_menu_->Init();
   context_menu_->Popup();
 }
@@ -392,7 +392,13 @@ void TabContentsViewGtk::StartDragging(const WebDropData& drop_data) {
                         0, GtkDndUtil::X_CHROME_WEBDROP_FILE_CONTENTS);
   }
 
-  gtk_drag_begin(GetContentNativeView(), list, GDK_ACTION_COPY, 1, NULL);
+  // If we don't pass an event, GDK won't know what event time to start grabbing
+  // mouse events. Technically it's the mouse motion event and not the mouse
+  // down event that causes the drag, but there's no reliable way to know
+  // *which* motion event initiated the drag, so this will have to do.
+  gtk_drag_begin(GetContentNativeView(), list, GDK_ACTION_COPY,
+                 last_mouse_down_.button,
+                 reinterpret_cast<GdkEvent*>(&last_mouse_down_));
   // The drag adds a ref; let it own the list.
   gtk_target_list_unref(list);
 }
@@ -459,7 +465,7 @@ void TabContentsViewGtk::InsertIntoContentArea(GtkWidget* widget) {
 
 gboolean TabContentsViewGtk::OnMouseDown(GtkWidget* widget,
     GdkEventButton* event, TabContentsViewGtk* view) {
-  view->last_mouse_down_time_ = event->time;
+  view->last_mouse_down_ = *event;
   return FALSE;
 }
 
