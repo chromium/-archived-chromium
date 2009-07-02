@@ -103,6 +103,10 @@ GtkWidget* GetDragRepresentation(const BookmarkNode* node,
 
 void ConfigureButtonForNode(const BookmarkNode* node, BookmarkModel* model,
                             GtkWidget* button) {
+  GtkWidget* former_child = gtk_bin_get_child(GTK_BIN(button));
+  if (former_child)
+    gtk_container_remove(GTK_CONTAINER(button), former_child);
+
   std::string tooltip = BuildTooltipFor(node);
   if (!tooltip.empty())
     gtk_widget_set_tooltip_text(button, tooltip.c_str());
