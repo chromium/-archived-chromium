@@ -22,6 +22,7 @@ Frame: '<!--framePath //<!--frame0-->-->'
 PASS: window.history.back should be 'function () { [native code] }' and is.
 PASS: window.history.forward should be 'function () { [native code] }' and is.
 PASS: window.history.go should be 'function () { [native code] }' and is.
-PASS: window.history.toString should be 'function toString() {  var c = ClassOf(this);  if (c === 'Arguments') c  = 'Object';  return "[object " + c + "]";}' and is.
+PASS: window.history.toString should be 'function toString() {  var c = _ClassOf(this);  if (c === 'Arguments') c  = 'Object';  return "[object " + c + "]";}' and is.
 PASS: window.history.length matched the expected value.
 PASS: window.history.customAttribute should be 'customAttribute' and is.
+
