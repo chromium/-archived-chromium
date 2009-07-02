@@ -303,7 +303,7 @@ void ClientSocketPoolBase::OnConnectJobComplete(int result, ConnectJob* job) {
   request_map->erase(it);
   DCHECK_EQ(handle, job->key_handle());
 
-  ClientSocket* const socket = job->ReleaseSocket();
+  scoped_ptr<ClientSocket> socket(job->ReleaseSocket());
   RemoveConnectJob(job->key_handle());
 
   if (result != OK) {
@@ -312,7 +312,7 @@ void ClientSocketPoolBase::OnConnectJobComplete(int result, ConnectJob* job) {
     // |group_map_| again.
     MaybeOnAvailableSocketSlot(group_name);
   } else {
-    HandOutSocket(socket, false /* not reused */, handle, &group);
+    HandOutSocket(socket.release(), false /* not reused */, handle, &group);
     callback->Run(result);
   }
 }
