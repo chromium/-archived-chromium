@@ -10,38 +10,6 @@
 #define CP1_MULTIPLIER 1.0/3.0
 #define CP2_MULTIPLIER 3.0/8.0
 
-namespace {
-  NSGradient *getGradientForStyle(bool selected, bool active) {
-    // Workaround for
-    //  rdar://6857649 - NSGradient fails when using LAB Colorspace
-    // Once that's fixed we can remove this function and just call through
-    // to -[GTMTheme gradientForStyle:active:] directly with
-    // GTMThemeStyleTabBarSelected/GTMThemeStyleTabBarDeselected
-    NSUInteger startHighlight, endHighlight;
-    if (selected) {
-      startHighlight = GTMColorationLightHighlight;
-      endHighlight = GTMColorationLightMidtone;
-    } else {
-      startHighlight = GTMColorationLightShadow;
-      endHighlight = GTMColorationLightShadow;
-    }
-
-    NSColor *backgroundColor = [[GTMTheme defaultTheme] backgroundColor];
-    NSColor *startColor = [backgroundColor gtm_colorAdjustedFor:startHighlight
-                                                          faded:!active];
-    NSColor *endColor = [backgroundColor gtm_colorAdjustedFor:endHighlight
-                                                        faded:!active];
-    NSColorSpace *genericRGB = [NSColorSpace genericRGBColorSpace];
-    startColor = [startColor colorUsingColorSpace:genericRGB];
-    endColor = [endColor colorUsingColorSpace:genericRGB];
-
-    return [[[NSGradient alloc] initWithStartingColor:startColor
-                                          endingColor:endColor]
-               autorelease];
-
-  }
-}  // namespace
-
 @implementation TabCell
 
 - (id)initTextCell:(NSString *)aString {
@@ -107,10 +75,12 @@ namespace {
   [path lineToPoint:NSMakePoint(bottomRight.x + 1, bottomRight.y)];
   [path lineToPoint:NSMakePoint(bottomRight.x + 1, bottomRight.y + 1)];
 
+  GTMTheme *theme = [GTMTheme defaultTheme];
   NSGradient *gradient = nil;
 
   if (selected) {
-    gradient = getGradientForStyle(true, active);
+    gradient = [theme gradientForStyle:GTMThemeStyleTabBarSelected
+                                active:active];
     // Stroke with a translucent black
     [[NSColor colorWithCalibratedWhite:0.0 alpha:active ? 0.5 : 0.3] set];
     [[NSGraphicsContext currentContext] saveGraphicsState];
@@ -120,7 +90,8 @@ namespace {
     [path fill];
     [[NSGraphicsContext currentContext] restoreGraphicsState];
   } else {
-    gradient = getGradientForStyle(false, active);
+    gradient = [theme gradientForStyle:GTMThemeStyleTabBarDeselected
+                                active:active];
     // Stroke with a translucent black
     [[NSColor colorWithCalibratedWhite:0.0 alpha:active ? 0.3 : 0.1] set];
   }
