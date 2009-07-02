@@ -30,7 +30,8 @@ class RenderViewHostManagerTest : public InProcessBrowserTest {
 
 // Test for crbug.com/14505. This tests that chrome:// urls are still functional
 // after download of a file while viewing another chrome://.
-IN_PROC_BROWSER_TEST_F(RenderViewHostManagerTest, ChromeURLAfterDownload) {
+IN_PROC_BROWSER_TEST_F(RenderViewHostManagerTest,
+                       DISABLED_ChromeURLAfterDownload) {
   GURL downloads_url("chrome://downloads");
   GURL extensions_url("chrome://extensions");
   FilePath zip_download;
@@ -81,7 +82,8 @@ class BrowserClosedObserver : public NotificationObserver {
 // Test for crbug.com/12745. This tests that if a download is initiated from
 // a chrome:// page that has registered and onunload handler, the browser
 // will be able to close.
-IN_PROC_BROWSER_TEST_F(RenderViewHostManagerTest, BrowserCloseAfterDownload) {
+IN_PROC_BROWSER_TEST_F(RenderViewHostManagerTest,
+                       DISABLED_BrowserCloseAfterDownload) {
   GURL downloads_url("chrome://downloads");
   FilePath zip_download;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &zip_download));
