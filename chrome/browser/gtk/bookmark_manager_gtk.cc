@@ -132,8 +132,14 @@ void BookmarkManager::Show(Profile* profile) {
 // BookmarkManagerGtk, public --------------------------------------------------
 
 void BookmarkManagerGtk::SelectInTree(const BookmarkNode* node, bool expand) {
+  if (expand)
+    DCHECK(node->is_folder());
+
+  // Expand the left tree view to |node| if |node| is a folder, or to the parent
+  // folder of |node| if it is a URL.
   GtkTreeIter iter = { 0, };
-  if (RecursiveFind(GTK_TREE_MODEL(left_store_), &iter, node->id())) {
+  int id = node->is_folder() ? node->id() : node->GetParent()->id();
+  if (RecursiveFind(GTK_TREE_MODEL(left_store_), &iter, id)) {
     GtkTreePath* path = gtk_tree_model_get_path(GTK_TREE_MODEL(left_store_),
                         &iter);
     gtk_tree_view_expand_to_path(GTK_TREE_VIEW(left_tree_view_), path);
@@ -143,7 +149,22 @@ void BookmarkManagerGtk::SelectInTree(const BookmarkNode* node, bool expand) {
 
     gtk_tree_path_free(path);
   }
-  // TODO(estade): select in the right side table view?
+
+  if (node->is_url()) {
+    GtkTreeIter iter;
+    bool found = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(right_store_),
+                                               &iter);
+    while (found) {
+      if (node->id() == GetRowIDAt(GTK_TREE_MODEL(right_store_), &iter)) {
+        gtk_tree_selection_select_iter(right_selection(), &iter);
+        break;
+      }
+
+      found = gtk_tree_model_iter_next(GTK_TREE_MODEL(right_store_), &iter);
+    }
+
+    DCHECK(found);
+  }
 }
 
 // static
@@ -161,6 +182,7 @@ void BookmarkManagerGtk::BookmarkManagerGtk::Loaded(BookmarkModel* model) {
   BuildRightStore();
   g_signal_connect(left_selection(), "changed",
                    G_CALLBACK(OnLeftSelectionChanged), this);
+  ResetOrganizeMenu(false);
 }
 
 void BookmarkManagerGtk::BookmarkModelBeingDeleted(BookmarkModel* model) {
@@ -216,7 +238,16 @@ void BookmarkManagerGtk::BookmarkNodeRemoved(BookmarkModel* model,
 
 void BookmarkManagerGtk::BookmarkNodeChanged(BookmarkModel* model,
                                              const BookmarkNode* node) {
-  // TODO(estade): rename in the left tree view.
+  if (node->is_folder()) {
+    GtkTreeIter iter = { 0, };
+    if (RecursiveFind(GTK_TREE_MODEL(left_store_), &iter, node->id())) {
+      gtk_tree_store_set(left_store_, &iter,
+                         bookmark_utils::FOLDER_NAME,
+                         WideToUTF8(node->GetTitle()).c_str(),
+                         bookmark_utils::ITEM_ID, node->id(),
+                         -1);
+    }
+  }
 }
 
 void BookmarkManagerGtk::BookmarkNodeChildrenReordered(
