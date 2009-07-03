@@ -1431,7 +1431,7 @@ function loadProxy() {
   try {
     var url = o3djs.util.getAbsoluteURI('assets/beach-low-poly.o3dtgz');
     g_loadInfo = o3djs.scene.loadScene(g_client, g_proxyPack, g_proxyRoot,
-                                       url, callback, {opt_async: true});
+                                       url, callback, {opt_async: false});
   } catch (e) {
     showError(e);
   }
@@ -1570,7 +1570,7 @@ function loadMainScene() {
 
     var url = o3djs.util.getAbsoluteURI('assets/beachdemo.o3dtgz');
     g_particleLoader.loadScene(
-        g_client, g_scenePack, g_sceneRoot, url, callback, {opt_async: true});
+        g_client, g_scenePack, g_sceneRoot, url, callback, {opt_async: false});
     g_particleLoader.finish()
     g_loader.finish();
   } catch (e) {
