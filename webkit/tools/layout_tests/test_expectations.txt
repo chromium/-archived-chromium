@@ -2964,3 +2964,6 @@ BUG15892 MAC : LayoutTests/svg/dynamic-updates/SVGPatternElement-svgdom-patternU
 BUG15892 MAC : LayoutTests/svg/dynamic-updates/SVGRadialGradientElement-svgdom-gradientTransform-prop.html = TIMEOUT
 BUG15892 MAC : LayoutTests/svg/dynamic-updates/SVGRadialGradientElement-svgdom-gradientUnits-prop.html = TIMEOUT
 BUG15892 MAC : chrome/fast/dom/messageport-gc.html = TIMEOUT
+
+// WebKit 45495:45535
+BUG15921 SKIP : LayoutTests/media/controls-strict.html = FAIL
