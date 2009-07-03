@@ -12,15 +12,19 @@
 namespace WebCore {
 
 class RGBColor : public RefCounted<RGBColor> {
- public:
-  RGBColor(unsigned rgbcolor) : m_rgbcolor(rgbcolor) { }
+public:
+    // TODO(ager): Make constructor private once codegenerator changes
+    // have landed upstream.
+    RGBColor(unsigned rgbcolor) : m_rgbcolor(rgbcolor) { }
 
-  PassRefPtr<CSSPrimitiveValue> red();
-  PassRefPtr<CSSPrimitiveValue> green();
-  PassRefPtr<CSSPrimitiveValue> blue();
+    static PassRefPtr<RGBColor> create(unsigned rgbcolor);
 
- private:
-  unsigned m_rgbcolor;
+    PassRefPtr<CSSPrimitiveValue> red();
+    PassRefPtr<CSSPrimitiveValue> green();
+    PassRefPtr<CSSPrimitiveValue> blue();
+
+private:
+    unsigned m_rgbcolor;
 };
 
 }  // namespace WebCore
