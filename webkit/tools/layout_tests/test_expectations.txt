@@ -1259,9 +1259,6 @@ BUG10351 MAC : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
 BUG10351 MAC : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL PASS
 BUG10351 MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug8499.html = FAIL
 BUG10673 MAC : chrome/plugins/call-as-function.html = FAIL
-// Linux: This test verifies that a single plugin has multiple mime-types.
-// Our test plugin doesn't.  Maybe we should add an extra one?
-BUG10351 LINUX : LayoutTests/fast/js/navigator-mimeTypes-length.html = FAIL
 BUG10351 MAC : LayoutTests/http/tests/plugins/cross-frame-object-access.html = FAIL
 // Skip because we throw an exception before we get to dumpAsText.
 BUG10351 SKIP MAC : LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL

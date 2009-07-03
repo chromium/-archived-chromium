@@ -497,6 +497,12 @@ NPError NP_GetValue(NPP instance, NPPVariable variable, void *value)
 }
 
 const char* NP_GetMIMEDescription(void) {
-    return "application/x-webkit-test-netscape:testnetscape:test netscape content";
+    // The layout test LayoutTests/fast/js/navigator-mimeTypes-length.html
+    // asserts that the number of mimetypes handled by plugins should be
+    // greater than the number of plugins.  This isn't true if we're
+    // the only plugin and we only handle one mimetype, so specify
+    // multiple mimetypes here.
+    return "application/x-webkit-test-netscape:testnetscape:test netscape content;"
+           "application/x-webkit-test-netscape2:testnetscape2:test netscape content2";
 }
 #endif
