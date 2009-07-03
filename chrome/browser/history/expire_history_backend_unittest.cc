@@ -695,18 +695,49 @@ TEST_F(ExpireHistoryTest, ArchiveSomeOldHistory) {
   URLID url_ids[3];
   Time visit_times[4];
   AddExampleData(url_ids, visit_times);
+  const ExpiringVisitsReader* reader = expirer_.GetAllVisitsReader();
 
   // Deleting a time range with no URLs should return false (nothing found).
   EXPECT_FALSE(expirer_.ArchiveSomeOldHistory(
-      visit_times[0] - TimeDelta::FromDays(100), 1));
+      visit_times[0] - TimeDelta::FromDays(100), reader, 1));
 
   // Deleting a time range with not up the the max results should also return
   // false (there will only be one visit deleted in this range).
-  EXPECT_FALSE(expirer_.ArchiveSomeOldHistory(visit_times[0], 2));
+  EXPECT_FALSE(expirer_.ArchiveSomeOldHistory(visit_times[0], reader, 2));
 
   // Deleting a time range with the max number of results should return true
   // (max deleted).
-  EXPECT_TRUE(expirer_.ArchiveSomeOldHistory(visit_times[2], 1));
+  EXPECT_TRUE(expirer_.ArchiveSomeOldHistory(visit_times[2], reader, 1));
+}
+
+TEST_F(ExpireHistoryTest, ExpiringVisitsReader) {
+  URLID url_ids[3];
+  Time visit_times[4];
+  AddExampleData(url_ids, visit_times);
+
+  const ExpiringVisitsReader* all = expirer_.GetAllVisitsReader();
+  const ExpiringVisitsReader* auto_subframes =
+      expirer_.GetAutoSubframeVisitsReader();
+
+  VisitVector visits;
+  Time now = Time::Now();
+
+  // Verify that the early expiration threshold, stored in the meta table is
+  // initialized.
+  EXPECT_TRUE(main_db_->GetEarlyExpirationThreshold() ==
+      Time::FromInternalValue(1L));
+
+  // First, attempt reading AUTO_SUBFRAME visits. We should get none.
+  EXPECT_FALSE(auto_subframes->Read(now, main_db_.get(), &visits, 1));
+  EXPECT_EQ(0U, visits.size());
+
+  // Verify that the early expiration threshold was updated, since there are no
+  // AUTO_SUBFRAME visits in the given time range.
+  EXPECT_TRUE(now <= main_db_->GetEarlyExpirationThreshold());
+
+  // Now, read all visits and verify that there's at least one.
+  EXPECT_TRUE(all->Read(now, main_db_.get(), &visits, 1));
+  EXPECT_EQ(1U, visits.size());
 }
 
 // TODO(brettw) add some visits with no URL to make sure everything is updated

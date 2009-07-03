@@ -30,10 +30,20 @@ GURL TestURL(const char* prefix, int i) {
   return GURL(StringPrintf("%s%d", prefix, i));
 }
 
-// we have no slaves, so this broadcase is a NOP
-VisitedLinkMaster::PostNewTableEvent DummyBroadcastNewTableEvent;
-void DummyBroadcastNewTableEvent(base::SharedMemory *table) {
-}
+// We have no slaves, so all methods on this listener are a no-ops.
+class DummyVisitedLinkEventListener : public VisitedLinkMaster::Listener {
+ public:
+  DummyVisitedLinkEventListener() {}
+  virtual void NewTable(base::SharedMemory* table) {}
+  virtual void Add(VisitedLinkCommon::Fingerprint) {}
+  virtual void Reset() {}
+
+  static DummyVisitedLinkEventListener* GetInstance() {
+    static DummyVisitedLinkEventListener instance;
+    return &instance;
+  }
+};
+
 
 // Call at the beginning of the test to retrieve the database name.
 void InitDBName(std::wstring* db_name) {
@@ -80,8 +90,8 @@ class VisitedLink : public testing::Test {
 // useful to make another set of tests to test these things in isolation.
 TEST_F(VisitedLink, TestAddAndQuery) {
   // init
-  VisitedLinkMaster master(NULL, DummyBroadcastNewTableEvent, NULL, true,
-                           FilePath(db_name_), 0);
+  VisitedLinkMaster master(NULL, DummyVisitedLinkEventListener::GetInstance(),
+                           NULL, true, FilePath(db_name_), 0);
   ASSERT_TRUE(master.Init());
 
   PerfTimeLogger timer("Visited_link_add_and_query");
@@ -111,8 +121,8 @@ TEST_F(VisitedLink, TestLoad) {
   {
     PerfTimeLogger table_initialization_timer("Table_initialization");
 
-    VisitedLinkMaster master(NULL, DummyBroadcastNewTableEvent, NULL, true,
-                             FilePath(db_name_), 0);
+    VisitedLinkMaster master(NULL, DummyVisitedLinkEventListener::GetInstance(),
+                             NULL, true, FilePath(db_name_), 0);
 
     // time init with empty table
     PerfTimeLogger initTimer("Empty_visited_link_init");
@@ -151,8 +161,12 @@ TEST_F(VisitedLink, TestLoad) {
     {
       PerfTimer cold_timer;
 
-      VisitedLinkMaster master(NULL, DummyBroadcastNewTableEvent, NULL, true,
-                               FilePath(db_name_), 0);
+      VisitedLinkMaster master(NULL,
+                               DummyVisitedLinkEventListener::GetInstance(),
+                               NULL,
+                               true,
+                               FilePath(db_name_),
+                               0);
       bool success = master.Init();
       TimeDelta elapsed = cold_timer.Elapsed();
       ASSERT_TRUE(success);
@@ -164,8 +178,12 @@ TEST_F(VisitedLink, TestLoad) {
     {
       PerfTimer hot_timer;
 
-      VisitedLinkMaster master(NULL, DummyBroadcastNewTableEvent, NULL, true,
-                               FilePath(db_name_), 0);
+      VisitedLinkMaster master(NULL,
+                               DummyVisitedLinkEventListener::GetInstance(),
+                               NULL,
+                               true,
+                               FilePath(db_name_),
+                               0);
       bool success = master.Init();
       TimeDelta elapsed = hot_timer.Elapsed();
       ASSERT_TRUE(success);

@@ -1745,6 +1745,8 @@
         'browser/views/user_data_dir_dialog.h',
         'browser/visitedlink_master.cc',
         'browser/visitedlink_master.h',
+        'browser/visitedlink_event_listener.cc',
+        'browser/visitedlink_event_listener.h',
         'browser/webdata/web_data_service.cc',
         'browser/webdata/web_data_service.h',
         'browser/webdata/web_data_service_win.cc',

@@ -156,6 +156,11 @@ class TestRenderViewHostFactory : public RenderViewHostFactory {
     RenderViewHostFactory::UnregisterFactory();
   }
 
+  virtual void set_render_process_host_factory(
+      RenderProcessHostFactory* rph_factory) {
+    render_process_host_factory_ = rph_factory;
+  }
+
   virtual RenderViewHost* CreateRenderViewHost(
       SiteInstance* instance,
       RenderViewHostDelegate* delegate,

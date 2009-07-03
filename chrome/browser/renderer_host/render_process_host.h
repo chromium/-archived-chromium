@@ -13,6 +13,7 @@
 #include "base/scoped_ptr.h"
 #include "chrome/common/ipc_sync_channel.h"
 #include "chrome/common/transport_dib.h"
+#include "chrome/common/visitedlink_common.h"
 
 class Profile;
 
@@ -137,6 +138,14 @@ class RenderProcessHost : public IPC::Channel::Sender,
 
   // Add a word in the spellchecker.
   virtual void AddWord(const std::wstring& word) = 0;
+
+  // Notify the renderer that a link was visited.
+  virtual void AddVisitedLinks(
+      const VisitedLinkCommon::Fingerprints& links) = 0;
+
+  // Clear internal visited links buffer and ask the renderer to update link
+  // coloring state for all of its links.
+  virtual void ResetVisitedLinks() = 0;
 
   // Try to shutdown the associated renderer process as fast as possible.
   // If this renderer has any RenderViews with unload handlers, then this

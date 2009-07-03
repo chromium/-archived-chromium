@@ -51,6 +51,14 @@ class WebView : public WebWidget {
   static WebView* Create(WebViewDelegate* delegate,
                          const WebPreferences& prefs);
 
+  // Tells all Page instances of this view to update the visited link state for
+  // the specified hash.
+  static void UpdateVisitedLinkState(uint64 link_hash);
+
+  // Tells all Page instances of this view to update visited state for all their
+  // links.
+  static void ResetVisitedLinkState();
+
   // Returns the delegate for this WebView.  This is the pointer that was
   // passed to WebView::Create. The caller must check this value before using
   // it, it will be NULL during closing of the view.

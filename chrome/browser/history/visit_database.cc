@@ -213,6 +213,35 @@ void VisitDatabase::GetAllVisitsInRange(Time begin_time, Time end_time,
   FillVisitVector(*statement, visits);
 }
 
+void VisitDatabase::GetVisitsInRangeForTransition(
+    Time begin_time,
+    Time end_time,
+    int max_results,
+    PageTransition::Type transition,
+    VisitVector* visits) {
+  DCHECK(visits);
+  visits->clear();
+
+  SQLITE_UNIQUE_STATEMENT(statement, GetStatementCache(),
+      "SELECT" HISTORY_VISIT_ROW_FIELDS "FROM visits "
+      "WHERE visit_time >= ? AND visit_time < ? "
+      "AND (transition & ?) == ?"
+      "ORDER BY visit_time LIMIT ?");
+  if (!statement.is_valid())
+    return;
+
+  // See GetVisibleVisitsInRange for more info on how these times are bound.
+  int64 end = end_time.ToInternalValue();
+  statement->bind_int64(0, begin_time.ToInternalValue());
+  statement->bind_int64(1, end ? end : std::numeric_limits<int64>::max());
+  statement->bind_int(2, PageTransition::CORE_MASK);
+  statement->bind_int(3, transition);
+  statement->bind_int64(4,
+      max_results ? max_results : std::numeric_limits<int64>::max());
+
+  FillVisitVector(*statement, visits);
+}
+
 void VisitDatabase::GetVisibleVisitsInRange(Time begin_time, Time end_time,
                                             bool most_recent_visit_only,
                                             int max_count,

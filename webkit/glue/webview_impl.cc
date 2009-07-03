@@ -61,6 +61,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "MIMETypeRegistry.h"
 #include "NodeRenderStyle.h"
 #include "Page.h"
+#include "PageGroup.h"
 #include "PlatformContextSkia.h"
 #include "PlatformKeyboardEvent.h"
 #include "PlatformMouseEvent.h"
@@ -133,6 +134,12 @@ using WebKit::WebSize;
 static const double kTextSizeMultiplierRatio = 1.2;
 static const double kMinTextSizeMultiplier = 0.5;
 static const double kMaxTextSizeMultiplier = 3.0;
+
+// The group name identifies a namespace of pages.  Page group is used on OSX
+// for some programs that use HTML views to display things that don't seem like
+// web pages to the user (so shouldn't have visited link coloring).  We only use
+// one page group.
+static const char* kPageGroupName = "default";
 
 // The webcore drag operation type when something is trying to be dropped on
 // the webview.  These values are taken from Apple's windows port.
@@ -336,6 +343,19 @@ WebView* WebView::Create(WebViewDelegate* delegate,
   return instance;
 }
 
+// static
+void WebView::UpdateVisitedLinkState(uint64 link_hash) {
+  WebCore::Page::visitedStateChanged(
+      WebCore::PageGroup::pageGroup(kPageGroupName), link_hash);
+}
+
+// static
+void WebView::ResetVisitedLinkState() {
+  WebCore::Page::allVisitedStateChanged(
+      WebCore::PageGroup::pageGroup(kPageGroupName));
+}
+
+
 WebViewImpl::WebViewImpl()
     : ALLOW_THIS_IN_INITIALIZER_LIST(back_forward_list_client_impl_(this)),
       observed_new_navigation_(false),
@@ -371,10 +391,7 @@ WebViewImpl::WebViewImpl()
                        new WebInspectorClient(this)));
 
   page_->backForwardList()->setClient(&back_forward_list_client_impl_);
-
-  // The group name identifies a namespace of pages.  I'm not sure how it's
-  // intended to be used, but keeping all pages in the same group works for us.
-  page_->setGroupName("default");
+  page_->setGroupName(kPageGroupName);
 }
 
 WebViewImpl::~WebViewImpl() {

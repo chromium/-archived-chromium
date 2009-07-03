@@ -170,6 +170,15 @@ IPC_BEGIN_MESSAGES(View)
   // handle. This handle is valid in the context of the renderer
   IPC_MESSAGE_CONTROL1(ViewMsg_VisitedLink_NewTable, base::SharedMemoryHandle)
 
+  // History system notification that a link has been added and the link
+  // coloring state for the given hash must be re-calculated.
+  IPC_MESSAGE_CONTROL1(ViewMsg_VisitedLink_Add, std::vector<uint64>)
+
+  // History system notification that one or more history items have been
+  // deleted, which at this point means that all link coloring state must be
+  // re-calculated.
+  IPC_MESSAGE_CONTROL0(ViewMsg_VisitedLink_Reset)
+
   // Notification that the user scripts have been updated. It has one
   // SharedMemoryHandle argument consisting of the pickled script data. This
   // handle is valid in the context of the renderer.

@@ -33,6 +33,7 @@
 #include "chrome/browser/ssl/ssl_host_state.h"
 #include "chrome/browser/thumbnail_store.h"
 #include "chrome/browser/visitedlink_master.h"
+#include "chrome/browser/visitedlink_event_listener.h"
 #include "chrome/browser/webdata/web_data_service.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
@@ -478,6 +479,7 @@ class OffTheRecordProfileImpl : public Profile,
 
 ProfileImpl::ProfileImpl(const FilePath& path)
     : path_(path),
+      visited_link_event_listener_(new VisitedLinkEventListener()),
       request_context_(NULL),
       media_request_context_(NULL),
       extensions_request_context_(NULL),
@@ -672,34 +674,11 @@ Profile* ProfileImpl::GetOriginalProfile() {
   return this;
 }
 
-static void BroadcastNewHistoryTable(base::SharedMemory* table_memory) {
-  if (!table_memory)
-    return;
-
-  // send to all RenderProcessHosts
-  for (RenderProcessHost::iterator i = RenderProcessHost::begin();
-       i != RenderProcessHost::end(); i++) {
-    if (!i->second->HasConnection())
-      continue;
-
-    base::SharedMemoryHandle new_table;
-    base::ProcessHandle process = i->second->process().handle();
-    if (!process) {
-      // process can be null if it's started with the --single-process flag.
-      process = base::Process::Current().handle();
-    }
-
-    table_memory->ShareToProcess(process, &new_table);
-    IPC::Message* msg = new ViewMsg_VisitedLink_NewTable(new_table);
-    i->second->Send(msg);
-  }
-}
-
 VisitedLinkMaster* ProfileImpl::GetVisitedLinkMaster() {
   if (!visited_link_master_.get()) {
     scoped_ptr<VisitedLinkMaster> visited_links(
       new VisitedLinkMaster(g_browser_process->file_thread(),
-                            BroadcastNewHistoryTable, this));
+                            visited_link_event_listener_.get(), this));
     if (!visited_links->Init())
       return NULL;
     visited_link_master_.swap(visited_links);

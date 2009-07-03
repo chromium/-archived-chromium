@@ -6,6 +6,7 @@
 #define CHROME_COMMON_VISITEDLINK_COMMON_H__
 
 #include <string>
+#include <vector>
 
 #include "base/basictypes.h"
 #include "base/logging.h"
@@ -44,6 +45,7 @@ class VisitedLinkCommon {
  public:
   // A number that identifies the URL.
   typedef uint64 Fingerprint;
+  typedef std::vector<Fingerprint> Fingerprints;
 
   // A hash value of a fingerprint
   typedef int32 Hash;

@@ -64,6 +64,21 @@ class VisitDatabase {
   void GetAllVisitsInRange(base::Time begin_time, base::Time end_time,
                            int max_results, VisitVector* visits);
 
+  // Fills all visits with specified transition in the time range [begin, end)
+  // to the given vector. Either time can be is_null(), in which case the times
+  // in that direction are unbounded.
+  //
+  // If |max_results| is non-zero, up to that many results will be returned. If
+  // there are more results than that, the oldest ones will be returned. (This
+  // is used for history expiration.)
+  //
+  // The results will be in increasing order of date.
+  void GetVisitsInRangeForTransition(base::Time begin_time,
+                                     base::Time end_time,
+                                     int max_results,
+                                     PageTransition::Type transition,
+                                     VisitVector* visits);
+
   // Fills all visits in the given time range into the given vector that should
   // be user-visible, which excludes things like redirects and subframes. The
   // begin time is inclusive, the end time is exclusive. Either time can be

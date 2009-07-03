@@ -14,6 +14,7 @@
 #include "build/build_config.h"
 #include "chrome/common/child_thread.h"
 #include "chrome/renderer/renderer_histogram_snapshots.h"
+#include "chrome/renderer/visitedlink_slave.h"
 
 class AppCacheDispatcher;
 class DevToolsAgentFilter;
@@ -25,7 +26,6 @@ class RendererHistogram;
 class RendererWebKitClientImpl;
 class SkBitmap;
 class UserScriptSlave;
-class VisitedLinkSlave;
 struct ModalDialogEvent;
 struct RendererPreferences;
 struct WebPreferences;
@@ -119,6 +119,9 @@ class RenderThread : public RenderThreadBase,
   virtual void CleanUp();
 
   void OnUpdateVisitedLinks(base::SharedMemoryHandle table);
+  void OnAddVisitedLinks(const VisitedLinkSlave::Fingerprints& fingerprints);
+  void OnResetVisitedLinks();
+
   void OnUpdateUserScripts(base::SharedMemoryHandle table);
   void OnSetExtensionFunctionNames(const std::vector<std::string>& names);
   void OnSetNextPageID(int32 next_page_id);

@@ -121,6 +121,12 @@ class HistoryDatabase : public DownloadDatabase,
   // visit id wasn't found.
   SegmentID GetSegmentID(VisitID visit_id);
 
+  // Retrieves/Updates early expiration threshold, which specifies the earliest
+  // known point in history that may possibly to contain visits suitable for
+  // early expiration (AUTO_SUBFRAMES).
+  virtual base::Time GetEarlyExpirationThreshold();
+  virtual void UpdateEarlyExpirationThreshold(base::Time threshold);
+
   // Drops the starred table and star_id from urls.
   bool MigrateFromVersion15ToVersion16();
 
@@ -156,6 +162,7 @@ class HistoryDatabase : public DownloadDatabase,
   SqliteStatementCache* statement_cache_;
 
   MetaTableHelper meta_table_;
+  base::Time cached_early_expiration_threshold_;
 
   DISALLOW_COPY_AND_ASSIGN(HistoryDatabase);
 };

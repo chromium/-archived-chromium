@@ -273,8 +273,7 @@ void HistoryService::AddPage(const GURL& url,
   // large part of history (think iframes for ads) and we never display them in
   // history UI. We will still add manual subframes, which are ones the user
   // has clicked on to get.
-  if (!CanAddURL(url) || PageTransition::StripQualifier(transition) ==
-                         PageTransition::AUTO_SUBFRAME)
+  if (!CanAddURL(url))
     return;
 
   // Add link & all redirects to visited link list.

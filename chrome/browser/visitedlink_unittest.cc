@@ -13,6 +13,10 @@
 #include "base/shared_memory.h"
 #include "base/string_util.h"
 #include "chrome/browser/visitedlink_master.h"
+#include "chrome/browser/visitedlink_event_listener.h"
+#include "chrome/browser/renderer_host/browser_render_process_host.h"
+#include "chrome/browser/renderer_host/test_render_view_host.h"
+#include "chrome/common/render_messages.h"
 #include "chrome/renderer/visitedlink_slave.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -31,19 +35,39 @@ GURL TestURL(int i) {
 
 std::vector<VisitedLinkSlave*> g_slaves;
 
-VisitedLinkMaster::PostNewTableEvent SynchronousBroadcastNewTableEvent;
-void SynchronousBroadcastNewTableEvent(base::SharedMemory* table) {
-  if (table) {
-    for (std::vector<VisitedLinkSlave>::size_type i = 0;
-         i < g_slaves.size(); i++) {
-      base::SharedMemoryHandle new_handle = base::SharedMemory::NULLHandle();
-      table->ShareToProcess(base::GetCurrentProcessHandle(), &new_handle);
-      g_slaves[i]->Init(new_handle);
+}  // namespace
+
+class TrackingVisitedLinkEventListener : public VisitedLinkMaster::Listener {
+ public:
+  TrackingVisitedLinkEventListener()
+      : reset_count_(0),
+        add_count_(0) {}
+
+  virtual void NewTable(base::SharedMemory* table) {
+    if (table) {
+      for (std::vector<VisitedLinkSlave>::size_type i = 0;
+           i < g_slaves.size(); i++) {
+        base::SharedMemoryHandle new_handle = base::SharedMemory::NULLHandle();
+        table->ShareToProcess(base::GetCurrentProcessHandle(), &new_handle);
+        g_slaves[i]->Init(new_handle);
+      }
     }
   }
-}
+  virtual void Add(VisitedLinkCommon::Fingerprint) { add_count_++; }
+  virtual void Reset() { reset_count_++; }
 
-}  // namespace
+  void SetUp() {
+    reset_count_ = 0;
+    add_count_ = 0;
+  }
+
+  int reset_count() const { return reset_count_; }
+  int add_count() const { return add_count_; }
+
+ private:
+  int reset_count_;
+  int add_count_;
+};
 
 class VisitedLinkTest : public testing::Test {
  protected:
@@ -60,10 +84,9 @@ class VisitedLinkTest : public testing::Test {
   // the VisitedLinkMaster constructor.
   bool InitVisited(int initial_size, bool suppress_rebuild) {
     // Initialize the visited link system.
-    master_.reset(new VisitedLinkMaster(NULL,
-                                        SynchronousBroadcastNewTableEvent,
-                                        history_service_, suppress_rebuild,
-                                        visited_file_, initial_size));
+    master_.reset(new VisitedLinkMaster(NULL, &listener_, history_service_,
+                                        suppress_rebuild, visited_file_,
+                                        initial_size));
     return master_->Init();
   }
 
@@ -138,6 +161,7 @@ class VisitedLinkTest : public testing::Test {
     file_util::CreateDirectory(history_dir_);
 
     visited_file_ = history_dir_.Append(FILE_PATH_LITERAL("VisitedLinks"));
+    listener_.SetUp();
   }
 
   virtual void TearDown() {
@@ -153,6 +177,7 @@ class VisitedLinkTest : public testing::Test {
 
   scoped_ptr<VisitedLinkMaster> master_;
   scoped_refptr<HistoryService> history_service_;
+  TrackingVisitedLinkEventListener listener_;
 };
 
 // This test creates and reads some databases to make sure the data is
@@ -372,4 +397,317 @@ TEST_F(VisitedLinkTest, Rebuild) {
 
   // Make sure the extra one was *not* written (Reload won't test this).
   EXPECT_FALSE(master_->IsVisited(TestURL(g_test_count)));
+}
+
+TEST_F(VisitedLinkTest, Listener) {
+  ASSERT_TRUE(InitHistory());
+  ASSERT_TRUE(InitVisited(0, true));
+
+  // Add test URLs.
+  for (int i = 0; i < g_test_count; i++) {
+    master_->AddURL(TestURL(i));
+    ASSERT_EQ(i + 1, master_->GetUsedCount());
+  }
+
+  std::set<GURL> deleted_urls;
+  deleted_urls.insert(TestURL(0));
+  // Delete an URL.
+  master_->DeleteURLs(deleted_urls);
+  // ... and all of the remaining ones.
+  master_->DeleteAllURLs();
+
+  // Verify that VisitedLinkMaster::Listener::Add was called for each added URL.
+  EXPECT_EQ(g_test_count, listener_.add_count());
+  // Verify that VisitedLinkMaster::Listener::Reset was called both when one and
+  // all URLs are deleted.
+  EXPECT_EQ(2, listener_.reset_count());
+}
+
+class VisitCountingProfile : public TestingProfile {
+ public:
+  explicit VisitCountingProfile(VisitedLinkEventListener* event_listener)
+      : add_count_(0),
+        add_event_count_(0),
+        reset_event_count_(0),
+        event_listener_(event_listener) {}
+
+  virtual VisitedLinkMaster* GetVisitedLinkMaster() {
+    if (!visited_link_master_.get()) {
+      visited_link_master_.reset(
+          new VisitedLinkMaster(NULL, event_listener_, this));
+      visited_link_master_->Init();
+    }
+    return visited_link_master_.get();
+  }
+
+  void CountAddEvent(int by) {
+    add_count_ += by;
+    add_event_count_++;
+  }
+
+  void CountResetEvent() {
+    reset_event_count_++;
+  }
+
+  VisitedLinkMaster* master() const { return visited_link_master_.get(); }
+  int add_count() const { return add_count_; }
+  int add_event_count() const { return add_event_count_; }
+  int reset_event_count() const { return reset_event_count_; }
+
+ private:
+  int add_count_;
+  int add_event_count_;
+  int reset_event_count_;
+  VisitedLinkEventListener* event_listener_;
+  scoped_ptr<VisitedLinkMaster> visited_link_master_;
+};
+
+class VisitCountingRenderProcessHost : public MockRenderProcessHost {
+ public:
+  explicit VisitCountingRenderProcessHost(Profile* profile)
+      : MockRenderProcessHost(profile) {}
+
+  virtual void AddVisitedLinks(
+      const VisitedLinkCommon::Fingerprints& visited_links) {
+    VisitCountingProfile* counting_profile =
+        static_cast<VisitCountingProfile*>(profile());
+    counting_profile->CountAddEvent(visited_links.size());
+  }
+  virtual void ResetVisitedLinks() {
+    VisitCountingProfile* counting_profile =
+        static_cast<VisitCountingProfile*>(profile());
+    counting_profile->CountResetEvent();
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(VisitCountingRenderProcessHost);
+};
+
+// Stub out as little as possible, borrowing from MockRenderProcessHost.
+class VisitRelayingRenderProcessHost : public BrowserRenderProcessHost {
+ public:
+  explicit VisitRelayingRenderProcessHost(Profile* profile)
+      : BrowserRenderProcessHost(profile) {
+    static int prev_id = 0;
+    SetProcessID(++prev_id);
+  }
+  virtual ~VisitRelayingRenderProcessHost() {
+    RemoveFromList();
+  }
+
+  virtual bool Init() { return true; }
+
+  virtual void CancelResourceRequests(int render_widget_id) {
+  }
+
+  virtual void CrossSiteClosePageACK(int new_render_process_host_id,
+                                     int new_request_id) {
+  }
+
+  virtual bool WaitForPaintMsg(int render_widget_id,
+                               const base::TimeDelta& max_delay,
+                               IPC::Message* msg) {
+    return false;
+  }
+
+  virtual bool Send(IPC::Message* msg) {
+    VisitCountingProfile* counting_profile =
+        static_cast<VisitCountingProfile*>(profile());
+
+    if (msg->type() == ViewMsg_VisitedLink_Add::ID)
+      counting_profile->CountAddEvent(1);
+    else if (msg->type() == ViewMsg_VisitedLink_Reset::ID)
+      counting_profile->CountResetEvent();
+
+    delete msg;
+    return true;
+  }
+
+  virtual void SetBackgrounded(bool backgrounded) {
+    backgrounded_ = backgrounded;
+  }
+
+ private:
+  int add_relay_count_;
+  int reset_relay_count_;
+
+  DISALLOW_COPY_AND_ASSIGN(VisitRelayingRenderProcessHost);
+};
+
+class VisitedLinkRenderProcessHostFactory
+    : public MockRenderProcessHostFactory {
+ public:
+  VisitedLinkRenderProcessHostFactory()
+      : MockRenderProcessHostFactory(),
+        relay_mode_(false) {}
+  virtual RenderProcessHost* CreateRenderProcessHost(Profile* profile) const {
+    if (relay_mode_)
+      return new VisitRelayingRenderProcessHost(profile);
+    else
+      return new VisitCountingRenderProcessHost(profile);
+  }
+
+  void set_relay_mode(bool mode) { relay_mode_ = mode; }
+
+ private:
+  bool relay_mode_;
+
+  DISALLOW_COPY_AND_ASSIGN(VisitedLinkRenderProcessHostFactory);
+};
+
+class VisitedLinkEventsTest : public RenderViewHostTestHarness {
+ public:
+  VisitedLinkEventsTest() : RenderViewHostTestHarness() {}
+  virtual void SetFactoryMode() {}
+  virtual void SetUp() {
+    SetFactoryMode();
+    event_listener_.reset(new VisitedLinkEventListener());
+    rvh_factory_.set_render_process_host_factory(&vc_rph_factory_);
+    profile_.reset(new VisitCountingProfile(event_listener_.get()));
+    RenderViewHostTestHarness::SetUp();
+  }
+
+  VisitCountingProfile* profile() const {
+    return static_cast<VisitCountingProfile*>(profile_.get());
+  }
+
+  void WaitForCoalescense() {
+    // Let the timer fire.
+    MessageLoop::current()->PostDelayedTask(FROM_HERE,
+                                            new MessageLoop::QuitTask(), 110);
+    MessageLoop::current()->Run();
+  }
+
+ protected:
+  VisitedLinkRenderProcessHostFactory vc_rph_factory_;
+
+ private:
+  scoped_ptr<VisitedLinkEventListener> event_listener_;
+
+  DISALLOW_COPY_AND_ASSIGN(VisitedLinkEventsTest);
+};
+
+class VisitedLinkRelayTest : public VisitedLinkEventsTest {
+ public:
+  virtual void SetFactoryMode() { vc_rph_factory_.set_relay_mode(true); }
+};
+
+TEST_F(VisitedLinkEventsTest, Coalescense) {
+  // add some URLs to master.
+  VisitedLinkMaster* master = profile_->GetVisitedLinkMaster();
+  // Add a few URLs.
+  master->AddURL(GURL("http://acidtests.org/"));
+  master->AddURL(GURL("http://google.com/"));
+  master->AddURL(GURL("http://chromium.org/"));
+  // Just for kicks, add a duplicate URL. This shouldn't increase the resulting
+  master->AddURL(GURL("http://acidtests.org/"));
+
+  // Make sure that coalescing actually occurs. There should be no links or
+  // events received by the renderer.
+  EXPECT_EQ(0, profile()->add_count());
+  EXPECT_EQ(0, profile()->add_event_count());
+
+  WaitForCoalescense();
+
+  // We now should have 3 entries added in 1 event.
+  EXPECT_EQ(3, profile()->add_count());
+  EXPECT_EQ(1, profile()->add_event_count());
+
+  // Test whether the coalescing continues by adding a few more URLs.
+  master->AddURL(GURL("http://google.com/chrome/"));
+  master->AddURL(GURL("http://webkit.org/"));
+  master->AddURL(GURL("http://acid3.acidtests.org/"));
+
+  WaitForCoalescense();
+
+  // We should have 6 entries added in 2 events.
+  EXPECT_EQ(6, profile()->add_count());
+  EXPECT_EQ(2, profile()->add_event_count());
+
+  // Test whether duplicate entries produce add events.
+  master->AddURL(GURL("http://acidtests.org/"));
+
+  WaitForCoalescense();
+
+  // We should have no change in results.
+  EXPECT_EQ(6, profile()->add_count());
+  EXPECT_EQ(2, profile()->add_event_count());
+
+  // Ensure that the coalescing does not resume after resetting.
+  master->AddURL(GURL("http://build.chromium.org/"));
+  master->DeleteAllURLs();
+
+  WaitForCoalescense();
+
+  // We should have no change in results except for one new reset event.
+  EXPECT_EQ(6, profile()->add_count());
+  EXPECT_EQ(2, profile()->add_event_count());
+  EXPECT_EQ(1, profile()->reset_event_count());
+}
+
+TEST_F(VisitedLinkRelayTest, Basics) {
+  VisitedLinkMaster* master = profile_->GetVisitedLinkMaster();
+  // Add a few URLs.
+  master->AddURL(GURL("http://acidtests.org/"));
+  master->AddURL(GURL("http://google.com/"));
+  master->AddURL(GURL("http://chromium.org/"));
+
+  WaitForCoalescense();
+
+  // We now should have 1 add event.
+  EXPECT_EQ(1, profile()->add_event_count());
+  EXPECT_EQ(0, profile()->reset_event_count());
+
+  master->DeleteAllURLs();
+
+  WaitForCoalescense();
+
+  // We should have no change in add results, plus one new reset event.
+  EXPECT_EQ(1, profile()->add_event_count());
+  EXPECT_EQ(1, profile()->reset_event_count());
+}
+
+TEST_F(VisitedLinkRelayTest, TabVisibility) {
+  VisitedLinkMaster* master = profile_->GetVisitedLinkMaster();
+
+  // Simulate tab becoming inactive.
+  rvh()->WasHidden();
+
+  // Add a few URLs.
+  master->AddURL(GURL("http://acidtests.org/"));
+  master->AddURL(GURL("http://google.com/"));
+  master->AddURL(GURL("http://chromium.org/"));
+
+  WaitForCoalescense();
+
+  // We shouldn't have any events.
+  EXPECT_EQ(0, profile()->add_event_count());
+  EXPECT_EQ(0, profile()->reset_event_count());
+
+  // Simulate the tab becoming active.
+  rvh()->WasRestored();
+
+  // We should now have 3 add events, still no reset events.
+  EXPECT_EQ(1, profile()->add_event_count());
+  EXPECT_EQ(0, profile()->reset_event_count());
+
+  // Deactivate the tab again.
+  rvh()->WasHidden();
+
+  // Add a bunch of URLs (over 50) to exhaust the link event buffer.
+  for (int i = 0; i < 100; i++)
+    master->AddURL(TestURL(i));
+
+  WaitForCoalescense();
+
+  // Again, no change in events until tab is active.
+  EXPECT_EQ(1, profile()->add_event_count());
+  EXPECT_EQ(0, profile()->reset_event_count());
+
+  // Activate the tab.
+  rvh()->WasRestored();
+
+  // We should have only one more reset event.
+  EXPECT_EQ(1, profile()->add_event_count());
+  EXPECT_EQ(1, profile()->reset_event_count());
 }

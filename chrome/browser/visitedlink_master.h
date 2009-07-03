@@ -35,12 +35,30 @@ class Thread;
 // operations are pending on another thread.
 class VisitedLinkMaster : public VisitedLinkCommon {
  public:
-   typedef void (PostNewTableEvent)(base::SharedMemory*);
+  // Listens to the link coloring database events. The master is given this
+  // event as a constructor argument and dispatches events using it.
+  class Listener {
+   public:
+    virtual ~Listener() {}
+
+    // Called when link coloring database has been created or replaced. The
+    // argument is the new table handle.
+    virtual void NewTable(base::SharedMemory*) = 0;
+
+    // Called when new link has been added. The argument is the fingerprint
+    // (hash) of the link.
+    virtual void Add(Fingerprint fingerprint) = 0;
+
+    // Called when link coloring state has been reset. This may occur when
+    // entire or parts of history were deleted.
+    virtual void Reset() = 0;
+  };
 
   // The |file_thread| may be NULL, in which case write operations will be
   // synchronous.
+  // The |listener| may not be NULL.
   VisitedLinkMaster(base::Thread* file_thread,
-                    PostNewTableEvent* poster,
+                    Listener* listener,
                     Profile* profile);
 
   // In unit test mode, we allow the caller to optionally specify the database
@@ -59,7 +77,7 @@ class VisitedLinkMaster : public VisitedLinkCommon {
   // history if the file can't be loaded. This should generally be set for
   // testing except when you want to test the rebuild process explicitly.
   VisitedLinkMaster(base::Thread* file_thread,
-                    PostNewTableEvent* poster,
+                    Listener* listener,
                     HistoryService* history_service,
                     bool suppress_rebuild,
                     const FilePath& filename,
@@ -150,7 +168,7 @@ class VisitedLinkMaster : public VisitedLinkCommon {
 
   // Backend for the constructors initializing the members.
   void InitMembers(base::Thread* file_thread,
-                   PostNewTableEvent* poster,
+                   Listener* listener,
                    Profile* profile);
 
   // If a rebuild is in progress, we save the URL in the temporary list.
@@ -294,7 +312,7 @@ class VisitedLinkMaster : public VisitedLinkCommon {
     return hash - 1;
   }
 
-  PostNewTableEvent* post_new_table_event_;
+  Listener* listener_;
 
 #ifndef NDEBUG
   // Indicates whether any asynchronous operation has ever been completed.

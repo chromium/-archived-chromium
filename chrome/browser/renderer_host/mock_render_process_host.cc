@@ -51,6 +51,13 @@ void MockRenderProcessHost::WidgetHidden() {
 void MockRenderProcessHost::AddWord(const std::wstring& word) {
 }
 
+void MockRenderProcessHost::AddVisitedLinks(
+    const VisitedLinkCommon::Fingerprints& links) {
+}
+
+void MockRenderProcessHost::ResetVisitedLinks() {
+}
+
 bool MockRenderProcessHost::FastShutdownIfPossible() {
   return false;
 }

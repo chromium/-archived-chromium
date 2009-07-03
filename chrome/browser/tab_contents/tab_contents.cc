@@ -1236,16 +1236,6 @@ void TabContents::DidNavigateAnyFramePostCommit(
   // reload the page to stop blocking.
   suppress_javascript_messages_ = false;
 
-  // Update history. Note that this needs to happen after the entry is complete,
-  // which WillNavigate[Main,Sub]Frame will do before this function is called.
-  if (params.should_update_history) {
-    // Most of the time, the displayURL matches the loaded URL, but for about:
-    // URLs, we use a data: URL as the real value.  We actually want to save
-    // the about: URL to the history db and keep the data: URL hidden. This is
-    // what the TabContents' URL getter does.
-    UpdateHistoryForNavigation(GetURL(), details, params);
-  }
-
   // Notify the password manager of the navigation or form submit.
   // TODO(brettw) bug 1343111: Password manager stuff in here needs to be
   // cleaned up and covered by tests.
@@ -1576,8 +1566,20 @@ void TabContents::DidNavigate(RenderViewHost* rvh,
     contents_mime_type_ = params.contents_mime_type;
 
   NavigationController::LoadCommittedDetails details;
-  if (!controller_.RendererDidNavigate(params, &details))
-    return;  // No navigation happened.
+  bool did_navigate = controller_.RendererDidNavigate(params, &details);
+
+  // Update history. Note that this needs to happen after the entry is complete,
+  // which WillNavigate[Main,Sub]Frame will do before this function is called.
+  if (params.should_update_history) {
+    // Most of the time, the displayURL matches the loaded URL, but for about:
+    // URLs, we use a data: URL as the real value.  We actually want to save
+    // the about: URL to the history db and keep the data: URL hidden. This is
+    // what the TabContents' URL getter does.
+    UpdateHistoryForNavigation(GetURL(), details, params);
+  }
+
+    if (!did_navigate)
+      return;  // No navigation happened.
 
   // DO NOT ADD MORE STUFF TO THIS FUNCTION! Your component should either listen
   // for the appropriate notification (best) or you can add it to

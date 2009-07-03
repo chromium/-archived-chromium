@@ -10,6 +10,8 @@
 #include "base/string_util.h"
 #include "chrome/common/sqlite_utils.h"
 
+using base::Time;
+
 namespace history {
 
 namespace {
@@ -17,6 +19,7 @@ namespace {
 // Current version number.
 static const int kCurrentVersionNumber = 16;
 static const int kCompatibleVersionNumber = 16;
+static const char kEarlyExpirationThresholdKey[] = "early_expiration_threshold";
 
 }  // namespace
 
@@ -169,6 +172,27 @@ SegmentID HistoryDatabase::GetSegmentID(VisitID visit_id) {
       return s.column_int64(0);
   }
   return 0;
+}
+
+Time HistoryDatabase::GetEarlyExpirationThreshold() {
+  if (!cached_early_expiration_threshold_.is_null())
+    return cached_early_expiration_threshold_;
+
+  int64 threshold;
+  if (!meta_table_.GetValue(kEarlyExpirationThresholdKey, &threshold)) {
+    // Set to a very early non-zero time, so it's before all history, but not
+    // zero to avoid re-retrieval.
+    threshold = 1L;
+  }
+
+  cached_early_expiration_threshold_ = Time::FromInternalValue(threshold);
+  return cached_early_expiration_threshold_;
+}
+
+void HistoryDatabase::UpdateEarlyExpirationThreshold(Time threshold) {
+  meta_table_.SetValue(kEarlyExpirationThresholdKey,
+                       threshold.ToInternalValue());
+  cached_early_expiration_threshold_ = threshold;
 }
 
 sqlite3* HistoryDatabase::GetDB() {

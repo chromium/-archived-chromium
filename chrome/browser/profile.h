@@ -47,6 +47,7 @@ class ThumbnailStore;
 class URLRequestContext;
 class UserScriptMaster;
 class VisitedLinkMaster;
+class VisitedLinkEventListener;
 class WebDataService;
 class WebKitContext;
 
@@ -407,6 +408,7 @@ class ProfileImpl : public Profile,
   NotificationRegistrar registrar_;
 
   FilePath path_;
+  scoped_ptr<VisitedLinkEventListener> visited_link_event_listener_;
   scoped_ptr<VisitedLinkMaster> visited_link_master_;
   scoped_refptr<ExtensionsService> extensions_service_;
   scoped_refptr<UserScriptMaster> user_script_master_;

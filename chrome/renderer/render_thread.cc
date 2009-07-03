@@ -39,7 +39,6 @@
 #include "chrome/renderer/render_view.h"
 #include "chrome/renderer/renderer_webkitclient_impl.h"
 #include "chrome/renderer/user_script_slave.h"
-#include "chrome/renderer/visitedlink_slave.h"
 #include "webkit/api/public/WebCache.h"
 #include "webkit/api/public/WebKit.h"
 #include "webkit/api/public/WebString.h"
@@ -194,6 +193,16 @@ void RenderThread::OnUpdateVisitedLinks(base::SharedMemoryHandle table) {
   visited_link_slave_->Init(table);
 }
 
+void RenderThread::OnAddVisitedLinks(
+    const VisitedLinkSlave::Fingerprints& fingerprints) {
+  for (size_t i = 0; i < fingerprints.size(); ++i)
+    WebView::UpdateVisitedLinkState(fingerprints[i]);
+}
+
+void RenderThread::OnResetVisitedLinks() {
+  WebView::ResetVisitedLinkState();
+}
+
 void RenderThread::OnUpdateUserScripts(
     base::SharedMemoryHandle scripts) {
   DCHECK(base::SharedMemory::IsHandleValid(scripts)) << "Bad scripts handle";
@@ -212,6 +221,8 @@ void RenderThread::OnControlMessageReceived(const IPC::Message& msg) {
 
   IPC_BEGIN_MESSAGE_MAP(RenderThread, msg)
     IPC_MESSAGE_HANDLER(ViewMsg_VisitedLink_NewTable, OnUpdateVisitedLinks)
+    IPC_MESSAGE_HANDLER(ViewMsg_VisitedLink_Add, OnAddVisitedLinks)
+    IPC_MESSAGE_HANDLER(ViewMsg_VisitedLink_Reset, OnResetVisitedLinks)
     IPC_MESSAGE_HANDLER(ViewMsg_SetNextPageID, OnSetNextPageID)
     // TODO(port): removed from render_messages_internal.h;
     // is there a new non-windows message I should add here?

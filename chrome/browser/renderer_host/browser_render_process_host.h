@@ -26,6 +26,7 @@ class GURL;
 class RendererMainThread;
 class RenderWidgetHelper;
 class TabContents;
+class VisitedLinkUpdater;
 
 namespace gfx {
 class Size;
@@ -64,6 +65,8 @@ class BrowserRenderProcessHost : public RenderProcessHost,
   virtual void WidgetRestored();
   virtual void WidgetHidden();
   virtual void AddWord(const std::wstring& word);
+  virtual void AddVisitedLinks(const VisitedLinkCommon::Fingerprints& links);
+  virtual void ResetVisitedLinks();
   virtual bool FastShutdownIfPossible();
   virtual bool SendWithTimeout(IPC::Message* msg, int timeout_ms);
   virtual TransportDIB* GetTransportDIB(TransportDIB::Id dib_id);
@@ -88,6 +91,8 @@ class BrowserRenderProcessHost : public RenderProcessHost,
                        const NotificationDetails& details);
 
  private:
+  friend class VisitRelayingRenderProcessHost;
+
   // Control message handlers.
   void OnPageContents(const GURL& url, int32 page_id,
                       const std::wstring& contents);
@@ -153,6 +158,9 @@ class BrowserRenderProcessHost : public RenderProcessHost,
 
   // Used in single-process mode.
   scoped_ptr<RendererMainThread> in_process_renderer_;
+
+  // Buffer visited links and send them to to renderer.
+  scoped_ptr<VisitedLinkUpdater> visited_link_updater_;
 
   // True iff the renderer is a child of a zygote process.
   bool zygote_child_;

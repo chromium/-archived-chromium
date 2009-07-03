@@ -199,24 +199,24 @@ class VisitedLinkMaster::TableBuilder : public HistoryService::URLEnumerator,
   uint8 salt_[LINK_SALT_LENGTH];
 
   // Stores the fingerprints we computed on the background thread.
-  std::vector<VisitedLinkMaster::Fingerprint> fingerprints_;
+  VisitedLinkCommon::Fingerprints fingerprints_;
 };
 
 // VisitedLinkMaster ----------------------------------------------------------
 
 VisitedLinkMaster::VisitedLinkMaster(base::Thread* file_thread,
-                                     PostNewTableEvent* poster,
+                                     Listener* listener,
                                      Profile* profile) {
-  InitMembers(file_thread, poster, profile);
+  InitMembers(file_thread, listener, profile);
 }
 
 VisitedLinkMaster::VisitedLinkMaster(base::Thread* file_thread,
-                                     PostNewTableEvent* poster,
+                                     Listener* listener,
                                      HistoryService* history_service,
                                      bool suppress_rebuild,
                                      const FilePath& filename,
                                      int32 default_table_size) {
-  InitMembers(file_thread, poster, NULL);
+  InitMembers(file_thread, listener, NULL);
 
   database_name_override_ = filename;
   table_size_override_ = default_table_size;
@@ -236,14 +236,16 @@ VisitedLinkMaster::~VisitedLinkMaster() {
 }
 
 void VisitedLinkMaster::InitMembers(base::Thread* file_thread,
-                                    PostNewTableEvent* poster,
+                                    Listener* listener,
                                     Profile* profile) {
+  DCHECK(listener);
+
   if (file_thread)
     file_thread_ = file_thread->message_loop();
   else
     file_thread_ = NULL;
 
-  post_new_table_event_ = poster;
+  listener_ = listener;
   file_ = NULL;
   shared_memory_ = NULL;
   shared_memory_serial_ = 0;
@@ -348,6 +350,8 @@ void VisitedLinkMaster::DeleteAllURLs() {
   // us, otherwise, schedule writing the new table to disk ourselves.
   if (!ResizeTableIfNecessary())
     WriteFullTable();
+
+  listener_->Reset();
 }
 
 void VisitedLinkMaster::DeleteURLs(const std::set<GURL>& urls) {
@@ -355,6 +359,8 @@ void VisitedLinkMaster::DeleteURLs(const std::set<GURL>& urls) {
 
   if (urls.empty())
     return;
+
+  listener_->Reset();
 
   if (table_builder_) {
     // A rebuild is in progress, save this deletion in the temporary list so
@@ -411,6 +417,8 @@ VisitedLinkMaster::Hash VisitedLinkMaster::AddFingerprint(
       // End of probe sequence found, insert here.
       hash_table_[cur_hash] = fingerprint;
       used_items_++;
+      // Notify listener that a new visited link was added.
+      listener_->Add(fingerprint);
       return cur_hash;
     }
 
@@ -805,7 +813,7 @@ void VisitedLinkMaster::ResizeTable(int32 new_size) {
 
   // Send an update notification to all child processes so they read the new
   // table.
-  post_new_table_event_(shared_memory_);
+  listener_->NewTable(shared_memory_);
 
 #ifndef NDEBUG
   DebugValidate();
@@ -908,7 +916,7 @@ void VisitedLinkMaster::OnTableRebuildComplete(
       deleted_since_rebuild_.clear();
 
       // Send an update notification to all child processes.
-      post_new_table_event_(shared_memory_);
+      listener_->NewTable(shared_memory_);
 
       WriteFullTable();
     }

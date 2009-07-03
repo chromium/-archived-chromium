@@ -111,7 +111,7 @@ TEST_F(RedirectTest, ClientEmptyReferer) {
       break;
   }
 
-  EXPECT_EQ(1U, redirects.size());
+  ASSERT_EQ(1U, redirects.size());
   EXPECT_EQ(final_url.spec(), redirects[0].spec());
 }
 
