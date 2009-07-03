@@ -2795,21 +2795,11 @@ BUG15733 : LayoutTests/compositing/repaint/content-into-overflow.html = FAIL
 BUG15733 : LayoutTests/compositing/repaint/overflow-into-content.html = FAIL
 
 // WebKit 45431:45444
-BUG15780 : LayoutTests/fast/dom/Window/window-onFocus.html = FAIL
-BUG15780 : LayoutTests/fast/events/frame-click-focus.html = FAIL
-BUG15780 : LayoutTests/fast/events/frame-programmatic-focus.html = FAIL
-BUG15780 : LayoutTests/fast/events/frame-tab-focus.html = CRASH FAIL
-BUG15780 : LayoutTests/fast/frames/iframe-window-focus.html = FAIL
-BUG15780 : LayoutTests/editing/selection/select-all-iframe.html = FAIL
-BUG15780 : LayoutTests/fast/repaint/text-selection-rect-in-overflow-2.html = FAIL
 BUG15780 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridColumns-dom-attributes.html = FAIL TIMEOUT
-BUG15780 : LayoutTests/fast/repaint/4774354.html = FAIL TIMEOUT
-BUG15780 : LayoutTests/fast/forms/tabbing-input-iframe.html = FAIL
-BUG15780 : LayoutTests/fast/overflow/scrollRevealButton.html = FAIL
-// Re-enable once the (more broad) duplicates (in the above section) are gone.
-// BUG10384 MAC : LayoutTests/fast/events/frame-tab-focus.html = CRASH FAIL
-// BUG11613 LINUX : LayoutTests/fast/forms/tabbing-input-iframe.html = FAIL
-// BUG11613 LINUX : LayoutTests/fast/overflow/scrollRevealButton.html = FAIL
+BUG15780 : LayoutTests/fast/dom/HTMLDocument/hasFocus.html = FAIL
+BUG10384 MAC : LayoutTests/fast/events/frame-tab-focus.html = CRASH FAIL
+BUG11613 LINUX : LayoutTests/fast/forms/tabbing-input-iframe.html = FAIL
+BUG11613 LINUX : LayoutTests/fast/overflow/scrollRevealButton.html = FAIL
 
 // WebKit 45460:45473
 BUG15837 : LayoutTests/http/tests/security/xssAuditor/script-tag-null-char.html = FAIL
