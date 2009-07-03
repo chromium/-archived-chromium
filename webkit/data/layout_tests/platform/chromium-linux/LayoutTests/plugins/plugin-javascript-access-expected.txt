@@ -17,6 +17,17 @@ Plugin.item() works.
 
 Plugin.namedItem() works.
 
+Type: application/x-webkit-test-netscape2
+
+Description: test netscape content2
+
+Suffixes: testnetscape2
+
+
+Plugin.item() works.
+
+Plugin.namedItem() works.
+
 PluginArray.item() works.
 
 PluginArray.namedItem() works.
