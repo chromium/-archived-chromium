@@ -379,7 +379,6 @@ WebViewImpl::WebViewImpl()
 
 WebViewImpl::~WebViewImpl() {
   DCHECK(page_ == NULL);
-  ReleaseFocusReferences();
   for (std::set<ImageResourceFetcher*>::iterator i = image_fetchers_.begin();
        i != image_fetchers_.end(); ++i) {
     delete *i;
@@ -1097,10 +1096,10 @@ void WebViewImpl::SetBackForwardListSize(int size) {
 }
 
 void WebViewImpl::ClearFocusedNode() {
-  // Get the last focused frame or the mainframe.
-  RefPtr<Frame> frame = last_focused_frame_;
-  if (!frame.get() && page_.get())
-    frame = page_->mainFrame();
+  if (!page_.get())
+    return;
+
+  RefPtr<Frame> frame = page_->mainFrame();
   if (!frame.get())
     return;
 
@@ -1130,28 +1129,14 @@ void WebViewImpl::ClearFocusedNode() {
 }
 
 void WebViewImpl::SetFocus(bool enable) {
+  page_->focusController()->setFocused(enable);
   if (enable) {
-    // Getting the focused frame will have the side-effect of setting the main
-    // frame as the focused frame if it is not already focused.  Otherwise, if
-    // there is already a focused frame, then this does nothing.
-    GetFocusedFrame();
-    if (page_.get() && page_->mainFrame()) {
-      Frame* frame = page_->mainFrame();
-      if (!frame->selection()->isFocusedAndActive()) {
-        // No one has focus yet, try to restore focus.
-        RestoreFocus();
-        page_->focusController()->setActive(true);
-      }
-      Frame* focused_frame = page_->focusController()->focusedOrMainFrame();
-      frame->selection()->setFocused(frame == focused_frame);
-    }
+    // Note that we don't call setActive() when disabled as this cause extra
+    // focus/blur events to be dispatched.
+    page_->focusController()->setActive(true);
     ime_accept_events_ = true;
   } else {
     HideAutoCompletePopup();
-
-    // Clear out who last had focus. If someone has focus, the refs will be
-    // updated below.
-    ReleaseFocusReferences();
 
     // Clear focus on the currently focused frame if any.
     if (!page_.get())
@@ -1161,60 +1146,13 @@ void WebViewImpl::SetFocus(bool enable) {
     if (!frame)
       return;
 
-    RefPtr<Frame> focused = page_->focusController()->focusedFrame();
-    if (focused.get()) {
-      // Update the focus refs, this way we can give focus back appropriately.
-      // It's entirely possible to have a focused document, but not a focused
-      // node.
-      RefPtr<Document> document = focused->document();
-      last_focused_frame_ = focused;
-      if (document.get()) {
-        RefPtr<Node> focused_node = document->focusedNode();
-        if (focused_node.get()) {
-          // To workaround bug #792423, we do not blur the focused node.  This
-          // should be reenabled when we merge a WebKit that has the fix for
-          // http://bugs.webkit.org/show_bug.cgi?id=16928.
-          // last_focused_node_ = focused_node;
-          // document->setFocusedNode(NULL);
-        }
-      }
-      page_->focusController()->setFocusedFrame(0);
-
+    RefPtr<Frame> focused_frame = page_->focusController()->focusedFrame();
+    if (focused_frame.get()) {
       // Finish an ongoing composition to delete the composition node.
-      Editor* editor = focused->editor();
+      Editor* editor = focused_frame->editor();
       if (editor && editor->hasComposition())
         editor->confirmComposition();
       ime_accept_events_ = false;
-    }
-    // Make sure the main frame doesn't think it has focus.
-    if (frame != focused.get())
-      frame->selection()->setFocused(false);
-  }
-}
-
-// TODO(jcampan): http://b/issue?id=1157486 this is needed to work-around
-// issues caused by the fix for bug #792423 and should be removed when that
-// bug is fixed.
-void WebViewImpl::StoreFocusForFrame(WebFrame* frame) {
-  DCHECK(frame);
-
-  // We only want to store focus info if we are the focused frame and if we have
-  // not stored it already.
-  WebCore::Frame* webcore_frame = static_cast<WebFrameImpl*>(frame)->frame();
-  if (last_focused_frame_.get() != webcore_frame || last_focused_node_.get())
-    return;
-
-  // Clear out who last had focus. If someone has focus, the refs will be
-  // updated below.
-  ReleaseFocusReferences();
-
-  last_focused_frame_ = webcore_frame;
-  RefPtr<Document> document = last_focused_frame_->document();
-  if (document.get()) {
-    RefPtr<Node> focused_node = document->focusedNode();
-    if (focused_node.get()) {
-      last_focused_node_ = focused_node;
-      document->setFocusedNode(NULL);
     }
   }
 }
@@ -1369,29 +1307,8 @@ void WebViewImpl::SetTextDirection(WebTextDirection direction) {
   }
 }
 
-void WebViewImpl::RestoreFocus() {
-  if (last_focused_frame_.get()) {
-    if (last_focused_frame_->page()) {
-      // last_focused_frame_ can be detached from the frame tree, thus,
-      // its page can be null.
-      last_focused_frame_->page()->focusController()->setFocusedFrame(
-        last_focused_frame_.get());
-    }
-    if (last_focused_node_.get()) {
-      // last_focused_node_ may be null, make sure it's valid before trying to
-      // focus it.
-      static_cast<Element*>(last_focused_node_.get())->focus();
-    }
-    // And clear out the refs.
-    ReleaseFocusReferences();
-  }
-}
-
 void WebViewImpl::SetInitialFocus(bool reverse) {
   if (page_.get()) {
-    // So RestoreFocus does not focus anything when it is called.
-    ReleaseFocusReferences();
-
     // Since we don't have a keyboard event, we'll create one.
     WebKeyboardEvent keyboard_event;
     keyboard_event.type = WebInputEvent::RawKeyDown;
@@ -1406,14 +1323,6 @@ void WebViewImpl::SetInitialFocus(bool reverse) {
         reverse ? WebCore::FocusDirectionBackward :
                   WebCore::FocusDirectionForward,
         webkit_event.get());
-  }
-}
-
-// Releases references used to restore focus.
-void WebViewImpl::ReleaseFocusReferences() {
-  if (last_focused_frame_.get()) {
-    last_focused_frame_.release();
-    last_focused_node_.release();
   }
 }
 

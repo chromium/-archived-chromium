@@ -644,10 +644,6 @@ void WebFrameLoaderClient::dispatchDidChangeLocationWithinPage() {
 
 void WebFrameLoaderClient::dispatchWillClose() {
   WebViewImpl* webview = webframe_->GetWebViewImpl();
-  // Make sure WebViewImpl releases the references it uses to restore focus.
-  // If we didn't do this, WebViewImpl might try to restore focus to an invalid
-  // element.
-  webview->ReleaseFocusReferences();
   WebViewDelegate* d = webview->delegate();
   if (d)
     d->WillCloseFrame(webview, webframe_);

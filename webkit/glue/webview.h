@@ -112,21 +112,8 @@ class WebView : public WebWidget {
 
   // ---- TODO(darin): remove to here ----
 
-  // Restores focus to the previously focused element.
-  // This method is invoked when the webview is shown after being
-  // hidden, and focus is to be restored. When WebView loses focus, it remembers
-  // the frame/element that had focus, so that when this method is invoked
-  // focus is then restored.
-  virtual void RestoreFocus() = 0;
-
   // Focus the first (last if reverse is true) focusable node.
   virtual void SetInitialFocus(bool reverse) = 0;
-
-  // Stores the focused node and clears it if |frame| is the focused frame.
-  // TODO(jcampan): http://b/issue?id=1157486 this is needed to work-around
-  // issues caused by the fix for bug #792423 and should be removed when that
-  // bug is fixed.
-  virtual void StoreFocusForFrame(WebFrame* frame) = 0;
 
   // Clears the focused node (and selection if a text field is focused) to
   // ensure that a text field on the page is not eating keystrokes we send it.

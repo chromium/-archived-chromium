@@ -73,7 +73,6 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   virtual void MouseCaptureLost();
   virtual void SetFocus(bool enable);
   virtual void ClearFocusedNode();
-  virtual void StoreFocusForFrame(WebFrame* frame);
   virtual bool ImeSetComposition(int string_type,
                                  int cursor_position,
                                  int target_start,
@@ -84,7 +83,6 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   virtual void SetTextDirection(WebTextDirection direction);
   virtual void StopLoading();
   virtual void SetBackForwardListSize(int size);
-  virtual void RestoreFocus();
   virtual void SetInitialFocus(bool reverse);
   virtual bool DownloadImage(int id, const GURL& image_url, int image_size);
   virtual void SetPreferences(const WebPreferences& preferences);
@@ -188,9 +186,6 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   // Mouse button down event.
   bool SendContextMenuEvent(const WebKit::WebKeyboardEvent& event);
 
-  // Releases references used to restore focus.
-  void ReleaseFocusReferences();
-
   // Notifies the WebView that a load has been committed.
   // is_new_navigation will be true if a new session history item should be
   // created for that load.
@@ -238,12 +233,6 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   WebKit::WebSize size_;
 
   WebKit::WebPoint last_mouse_position_;
-  // Reference to the Frame that last had focus. This is set once when
-  // we lose focus, and used when focus is gained to reinstall focus to
-  // the correct element.
-  RefPtr<WebCore::Frame> last_focused_frame_;
-  // Reference to the node that last had focus.
-  RefPtr<WebCore::Node> last_focused_node_;
   scoped_ptr<WebCore::Page> page_;
 
   webkit_glue::BackForwardListClientImpl back_forward_list_client_impl_;

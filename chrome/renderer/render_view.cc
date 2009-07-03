@@ -2144,20 +2144,8 @@ void RenderView::OnFind(int request_id,
       }
     }
 
-    // TODO(jcampan): http://b/issue?id=1157486 Remove StoreForFocus call once
-    //                we have the fix for 792423.
-    search_frame->GetView()->StoreFocusForFrame(search_frame);
     webview()->SetFocusedFrame(search_frame);
   } while (!result && search_frame != focused_frame);
-
-  // Make sure we don't leave any frame focused or the focus won't be restored
-  // properly in WebViewImpl::SetFocus().  Note that we are talking here about
-  // focused on the SelectionController, not FocusController.
-  // webview()->GetFocusedFrame() will still return the last focused frame (as
-  // it queries the FocusController).
-  // TODO(jcampan): http://b/issue?id=1157486 Remove next line once we have the
-  //                fix for 792423.
-  webview()->SetFocusedFrame(NULL);
 
   if (options.findNext) {
     // Force the main_frame to report the actual count.

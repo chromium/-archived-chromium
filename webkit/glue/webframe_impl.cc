@@ -1263,10 +1263,6 @@ void WebFrameImpl::SetFindEndstateFocusAndSelection() {
     if (!selection.isNone())
       return;
 
-    // We will be setting focus ourselves, so we want the view to forget its
-    // stored focus node so that it won't change it after we are done.
-    static_cast<WebViewImpl*>(GetView())->ReleaseFocusReferences();
-
     // Try to find the first focusable node up the chain, which will, for
     // example, focus links if we have found text within the link.
     Node* node = active_match_->firstNode();
