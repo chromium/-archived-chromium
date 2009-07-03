@@ -36,8 +36,13 @@ html[anim='false'] *,
   position: relative;
   padding: 0;
   margin-bottom: 34px;
+  height: 372px;
   -webkit-user-select: none;
   -webkit-transition: height .5s, opacity .5s;
+}
+
+.small #most-visited {
+  height: 294px;
 }
 
 @-webkit-keyframes 'thumbnail-enter' {
@@ -89,14 +94,14 @@ html[anim='false'] *,
 }
 
 .thumbnail,
-.thumbnail-container .title {
+.thumbnail-container > .title {
   width: 212px; /* natural size is 196 */
   height: 132px; /* 136 */
   -webkit-transition: width .5s, height .5s;
 }
 
 .small .thumbnail,
-.small .thumbnail-container .title {
+.small .thumbnail-container > .title {
   width: 150px;
   height: 93px;
 }
@@ -130,7 +135,7 @@ html[anim='false'] *,
   display: block;
 }
 
-.filler .thumbnail-wrapper .thumbnail {
+.filler .thumbnail {
   visibility: visible;
   border-color: hsl(0, 0%, 90%);
   background-color: hsl(0, 0%, 95%);
@@ -217,15 +222,14 @@ html[anim='false'] *,
 
 :link,
 :visited,
-.link,
-.thumbnail-container a {
+.link {
   cursor: pointer;
   text-decoration: underline;
   color: hsl(213, 90%, 24%);
 }
 
-.thumbnail-container .title,
-.small .thumbnail-container .title {
+.thumbnail-container > .title,
+.small .thumbnail-container > .title {
   line-height: 16px;
   height: 16px;
   margin: 0;
@@ -238,7 +242,7 @@ html[anim='false'] *,
   color: black;
 }
 
-.thumbnail-container .title div {
+.thumbnail-container > .title > div {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -251,7 +255,7 @@ html[anim='false'] *,
   padding-right: 0;
 }
 
-html[dir=rtl] .thumbnail-container .title div {
+html[dir=rtl] .thumbnail-container > .title > div {
   background-position-x: 100%;
   padding-left: 0;
   padding-right: 20px;
@@ -287,7 +291,7 @@ html[dir=rtl] .thumbnail-container .title div {
     );
 }
 
-.thumbnail-container:hover .edit-mode-border {
+.thumbnail-container:hover > .edit-mode-border {
   -webkit-animation: 'edit-mode-border-enter' 2.5s;
   background-color: hsla(213, 66%, 57%, 1);
   -webkit-box-shadow: 0px 2px 2px hsla(0, 0%, 0%, .5);
@@ -297,11 +301,11 @@ html[dir=rtl] .thumbnail-container .title div {
   -webkit-transition: none;
 }
 
-.dragging .title {
-  opacity: 0;
+.dragging > .title {
+  opacity: 0 !important;
 }
 
-.list .dragging .title {
+.list > .dragging > .title {
   opacity: 1;
 }
 
@@ -374,7 +378,7 @@ html[dir=rtl] .thumbnail-container .title div {
   width: auto;
 }
 
-.list .thumbnail-container {
+.list > .thumbnail-container {
   -webkit-box-sizing: border-box;
 }
 
@@ -387,7 +391,7 @@ html[dir=rtl] .thumbnail-container .title div {
   text-decoration: underline;
 }
 
-.list .title div {
+.list .title > div {
   color: rgb(6, 45, 117);
 }
 
@@ -529,7 +533,7 @@ html[dir='rtl'] #view-toolbar {
   text-align: left;
 }
 
-#view-toolbar input {
+#view-toolbar > input {
   -webkit-appearance: none;
   background-color: transparent;
   width: 19px;
@@ -548,14 +552,14 @@ html[dir='rtl'] #view-toolbar {
   white-space: nowrap;
 }
 
-#lower-sections .section {
+#lower-sections > .section {
   -webkit-transition: width .5s, opacity .5s, left .5s;
   -webkit-box-sizing: border-box;
   width: 460px; /* Set default size so we don't have to do a js layout at
                    load */
 }
 
-.small #lower-sections .section {
+.small #lower-sections > .section {
   width: 336px; /* Same here, see above */
 }
 

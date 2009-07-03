@@ -50,7 +50,7 @@ logEvent('log start');
 <link rel="stylesheet" href="new_new_tab.css">
 <link id="themecss" rel="stylesheet" href="chrome://theme/css/newtab.css">
 </head>
-<body class="loading"
+<body class="small loading"
       jsvalues=".style.fontFamily:fontfamily;.style.fontSize:fontsize">
 
 <div id="main">
@@ -61,21 +61,21 @@ logEvent('log start');
       ><input type=checkbox id="list-checkbox" jsvalues="title:showlist"
       ><input type="button" id="option-button"></div>
 
-<div id="option-menu" class="window-menu">
-  <div section="THUMB" show="true" jscontent="showthumbnails"
-       style="display:none"></div>
-  <div section="THUMB" show="false" jscontent="hidethumbnails"></div>
-  <div section="LIST" show="true" jscontent="showlist"></div>
-  <div section="LIST" show="false" jscontent="hidelist"
-       style="display:none"></div>
-  <div section="RECENT" show="true" jscontent="showrecent"
-       style="display:none"></div>
-  <div section="RECENT" show="false" jscontent="hiderecent"></div>
-  <div section="TIPS" show="true"
-       jscontent="showtips" style="display:none"></div>
-  <div section="TIPS" show="false"
-       jscontent="hidetips"></div>
-</div>
+  <div id="option-menu" class="window-menu">
+    <div section="THUMB" show="true" jscontent="showthumbnails"
+         style="display:none"></div>
+    <div section="THUMB" show="false" jscontent="hidethumbnails"></div>
+    <div section="LIST" show="true" jscontent="showlist"></div>
+    <div section="LIST" show="false" jscontent="hidelist"
+         style="display:none"></div>
+    <div section="RECENT" show="true" jscontent="showrecent"
+         style="display:none"></div>
+    <div section="RECENT" show="false" jscontent="hiderecent"></div>
+    <div section="TIPS" show="true"
+         jscontent="showtips" style="display:none"></div>
+    <div section="TIPS" show="false"
+         jscontent="hidetips"></div>
+  </div>
 
   <div id="notification">
     <span>&nbsp;</span>
@@ -83,7 +83,119 @@ logEvent('log start');
   </div>
 
   <div id="most-visited" jsskip="true">
-    <a class="thumbnail-container" style="display:none" id="thumbnail-template">
+    <a class="thumbnail-container filler">
+      <div class="edit-mode-border">
+        <div class="edit-bar">
+          <div class="pin"></div>
+          <div class="spacer"></div>
+          <div class="remove"></div>
+        </div>
+        <span class="thumbnail-wrapper">
+          <span class="thumbnail"></span>
+        </span>
+      </div>
+      <div class="title">
+        <div></div>
+      </div>
+    </a>
+
+    <a class="thumbnail-container filler" style="left:178px">
+      <div class="edit-mode-border">
+        <div class="edit-bar">
+          <div class="pin"></div>
+          <div class="spacer"></div>
+          <div class="remove"></div>
+        </div>
+        <span class="thumbnail-wrapper">
+          <span class="thumbnail"></span>
+        </span>
+      </div>
+      <div class="title">
+        <div></div>
+      </div>
+    </a>
+
+    <a class="thumbnail-container filler" style="left:356px">
+      <div class="edit-mode-border">
+        <div class="edit-bar">
+          <div class="pin"></div>
+          <div class="spacer"></div>
+          <div class="remove"></div>
+        </div>
+        <span class="thumbnail-wrapper">
+          <span class="thumbnail"></span>
+        </span>
+      </div>
+      <div class="title">
+        <div></div>
+      </div>
+    </a>
+
+    <a class="thumbnail-container filler" style="left:534px">
+      <div class="edit-mode-border">
+        <div class="edit-bar">
+          <div class="pin"></div>
+          <div class="spacer"></div>
+          <div class="remove"></div>
+        </div>
+        <span class="thumbnail-wrapper">
+          <span class="thumbnail"></span>
+        </span>
+      </div>
+      <div class="title">
+        <div></div>
+      </div>
+    </a>
+
+    <a class="thumbnail-container filler" style="top:147px">
+      <div class="edit-mode-border">
+        <div class="edit-bar">
+          <div class="pin"></div>
+          <div class="spacer"></div>
+          <div class="remove"></div>
+        </div>
+        <span class="thumbnail-wrapper">
+          <span class="thumbnail"></span>
+        </span>
+      </div>
+      <div class="title">
+        <div></div>
+      </div>
+    </a>
+
+    <a class="thumbnail-container filler" style="left:178px;top:147px">
+      <div class="edit-mode-border">
+        <div class="edit-bar">
+          <div class="pin"></div>
+          <div class="spacer"></div>
+          <div class="remove"></div>
+        </div>
+        <span class="thumbnail-wrapper">
+          <span class="thumbnail"></span>
+        </span>
+      </div>
+      <div class="title">
+        <div></div>
+      </div>
+    </a>
+
+    <a class="thumbnail-container filler" style="left:356px;top:147px">
+      <div class="edit-mode-border">
+        <div class="edit-bar">
+          <div class="pin"></div>
+          <div class="spacer"></div>
+          <div class="remove"></div>
+        </div>
+        <span class="thumbnail-wrapper">
+          <span class="thumbnail"></span>
+        </span>
+      </div>
+      <div class="title">
+        <div></div>
+      </div>
+    </a>
+
+    <a class="thumbnail-container filler" style="left:534px;top:147px">
       <div class="edit-mode-border">
         <div class="edit-bar">
           <div class="pin"></div>

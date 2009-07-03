@@ -84,7 +84,6 @@ function mostVisitedPages(data) {
 
   mostVisitedData = data;
   renderMostVisited(data);
-  layoutMostVisited();
 
   gotMostVisited = true;
   onDataLoaded();
@@ -105,10 +104,15 @@ function recentlyClosedTabs(data) {
 function onShownSections(mask) {
   logEvent('received shown sections');
   if (mask != shownSections) {
+
+    // Only invalidate most visited if needed.
+    if (mask & Section.THUMB != shownSections & Section.THUMB ||
+        mask & Section.LIST != shownSections & Section.LIST) {
+      mostVisited.invalidate();
+    }
+
     shownSections = mask;
-    // No need to relayout these unless changed.
     mostVisited.updateDisplayMode();
-    layoutMostVisited();
     layoutLowerSections();
     updateOptionMenu();
   }
@@ -125,94 +129,6 @@ function tips(data) {
   logEvent('received tips data');
   data.length = Math.min(data.length, 5);
   processData('#tip-items', data);
-}
-
-function layoutMostVisited() {
-  var d0 = Date.now();
-  var mostVisitedElement = $('most-visited');
-  var thumbnails = mostVisitedElement.querySelectorAll('.thumbnail-container');
-
-  if (thumbnails.length < 8) {
-    return;
-  }
-
-  var small = useSmallGrid();
-
-  var cols = 4;
-  var rows = 2;
-  var marginWidth = 10;
-  var marginHeight = 7;
-  var borderWidth = 4;
-  var thumbWidth = small ? 150 : 212;
-  var thumbHeight = small ? 93 : 132;
-  var w = thumbWidth + 2 * borderWidth + 2 * marginWidth;
-  var h = thumbHeight + 40 + 2 * marginHeight;
-  var sumWidth = cols * w  - 2 * marginWidth;
-  var sumHeight = rows * h;
-  var opacity = 1;
-
-  if (shownSections & Section.LIST) {
-    w = (sumWidth + 2 * marginWidth) / 2;
-    h = 45;
-    rows = 4;
-    cols = 2;
-    sumHeight = rows * h;
-    addClass(mostVisitedElement, 'list');
-  } else if (shownSections & Section.THUMB) {
-    removeClass(mostVisitedElement, 'list');
-    } else {
-    sumHeight = 0;
-    opacity = 0;
-  }
-
-  mostVisitedElement.style.height = sumHeight + 'px';
-  mostVisitedElement.style.opacity = opacity;
-  // We set overflow to hidden so that the most visited element does not
-  // "leak" when we hide and show it.
-  mostVisitedElement.style.overflow = 'hidden';
-
-  var rtl = document.documentElement.dir == 'rtl';
-
-  if (shownSections & Section.THUMB || shownSections & Section.LIST) {
-    for (var i = 0; i < thumbnails.length; i++) {
-      var t = thumbnails[i];
-
-      var row, col;
-      if (shownSections & Section.THUMB) {
-        row = Math.floor(i / cols);
-        col = i % cols;
-      } else {
-        col = Math.floor(i / rows);
-        row = i % rows;
-      }
-
-      if (shownSections & Section.THUMB) {
-        t.style.left = (rtl ?
-            sumWidth - col * w - thumbWidth - 2 * borderWidth :
-            col * w) + 'px';
-      } else {
-        t.style.left = (rtl ?
-            sumWidth - col * w - w + 2 * marginWidth :
-            col * w) + 'px';
-      }
-      t.style.top = row * h + 'px';
-
-      if (shownSections & Section.LIST) {
-        t.style.width = w - 2 * marginWidth + 'px';
-      } else {
-        t.style.width = '';
-      }
-    }
-  }
-
-  afterTransition(function() {
-    // Only set overflow to visible if the element is shown.
-    if (opacity) {
-      mostVisitedElement.style.overflow = '';
-    }
-  });
-
-  logEvent('layoutMostVisited: ' + (Date.now() - d0));
 }
 
 // This global variable is used to skip parts of the DOM tree for the global
@@ -238,8 +154,6 @@ function processData(selector, data) {
   }
 }
 
-var thumbnailTemplate;
-
 function getThumbnailClassName(data) {
   return 'thumbnail-container' +
       (data.pinned ? ' pinned' : '') +
@@ -248,18 +162,23 @@ function getThumbnailClassName(data) {
 
 function renderMostVisited(data) {
   var parent = $('most-visited');
-  if (!thumbnailTemplate) {
-    thumbnailTemplate = $('thumbnail-template');
-    thumbnailTemplate.parentNode.removeChild(thumbnailTemplate);
-  }
-
   var children = parent.children;
   for (var i = 0; i < data.length; i++) {
     var d = data[i];
-    var reuse = !!children[i];
-    var t = children[i] || thumbnailTemplate.cloneNode(true);
-    t.style.display = '';
-    t.className = getThumbnailClassName(d);
+    var t = children[i];
+
+    // If we have a filler continue
+    var oldClassName = t.className;
+    var newClassName = getThumbnailClassName(d);
+    if (oldClassName != newClassName) {
+      t.className = newClassName;
+    }
+
+    // No need to continue if this is a filler.
+    if (newClassName == 'thumbnail-container filler') {
+      continue;
+    }
+
     t.title = d.title;
     t.href = d.url;
     t.querySelector('.pin').title = localStrings.getString(d.pinned ?
@@ -276,9 +195,6 @@ function renderMostVisited(data) {
     titleDiv.textContent = d.title;
     titleDiv.style.backgroundImage = 'url(chrome://favicon/' + d.url + ')';
     titleDiv.dir = d.direction;
-    if (!reuse) {
-      parent.appendChild(t);
-    }
   }
 }
 
@@ -311,14 +227,16 @@ function handleWindowResize(e, opt_noUpdate) {
   var hasSmallClass = hasClass(body, 'small');
   if (hasSmallClass && !useSmallGrid()) {
     removeClass(body, 'small');
+    mostVisited.invalidate();
     if (!opt_noUpdate) {
-      layoutMostVisited();
+      mostVisited.layout();
       layoutLowerSections();
     }
   } else if (!hasSmallClass && useSmallGrid()) {
     addClass(body, 'small');
+    mostVisited.invalidate();
     if (!opt_noUpdate) {
-      layoutMostVisited();
+      mostVisited.layout();
       layoutLowerSections();
     }
   }
@@ -340,32 +258,44 @@ var shownSections = Section.THUMB | Section.RECENT | Section.TIPS;
 
 function showSection(section) {
   if (!(section & shownSections)) {
+    shownSections |= section;
+
     // THUMBS and LIST are mutually exclusive.
     if (section == Section.THUMB) {
-      hideSection(Section.LIST);
+      // hide LIST
+      shownSections &= ~Section.LIST;
+      mostVisited.invalidate();
     } else if (section == Section.LIST) {
-      hideSection(Section.THUMB);
+      // hide THUMB
+      shownSections &= ~Section.THUMB;
+      mostVisited.invalidate();
+    } else {
+      notifyLowerSectionForChange(section, false);
+      layoutLowerSections();
     }
 
-    shownSections |= section;
-    notifyLowerSectionForChange(section, false);
-
-    mostVisited.updateDisplayMode();
-    layoutMostVisited();
     updateOptionMenu();
-    layoutLowerSections();
+    mostVisited.updateDisplayMode();
+    mostVisited.layout();
   }
 }
 
 function hideSection(section) {
   if (section & shownSections) {
     shownSections &= ~section;
-    notifyLowerSectionForChange(section, true);
 
-    mostVisited.updateDisplayMode();
-    layoutMostVisited();
+    if (section & Section.THUMB || section & Section.LIST) {
+      mostVisited.invalidate();
+    }
+
+    if (section & Section.RECENT|| section & Section.TIPS) {
+      notifyLowerSectionForChange(section, true);
+      layoutLowerSections();
+    }
+
     updateOptionMenu();
-    layoutLowerSections();
+    mostVisited.updateDisplayMode();
+    mostVisited.layout();
   }
 }
 
@@ -500,6 +430,10 @@ var mostVisited = {
   },
 
   updateDisplayMode: function() {
+    if (!this.dirty_) {
+      return;
+    }
+
     var thumbCheckbox = $('thumb-checkbox');
     var listCheckbox = $('list-checkbox');
     var mostVisitedElement = $('most-visited');
@@ -521,6 +455,103 @@ var mostVisited = {
         shownSections & Section.THUMB ? 'hidethumbnails' : 'showthumbnails');
     listCheckbox.title = localStrings.getString(
         shownSections & Section.LIST ? 'hidelist' : 'showlist');
+  },
+
+  dirty_: false,
+
+  invalidate: function() {
+    this.dirty_ = true;
+  },
+
+  layout: function() {
+    if (!this.dirty_) {
+      return;
+    }
+    var d0 = Date.now();
+    var mostVisitedElement = $('most-visited');
+    var thumbnails = mostVisitedElement.children;
+
+    var small = useSmallGrid();
+
+    var cols = 4;
+    var rows = 2;
+    var marginWidth = 10;
+    var marginHeight = 7;
+    var borderWidth = 4;
+    var thumbWidth = small ? 150 : 212;
+    var thumbHeight = small ? 93 : 132;
+    var w = thumbWidth + 2 * borderWidth + 2 * marginWidth;
+    var h = thumbHeight + 40 + 2 * marginHeight;
+    var sumWidth = cols * w  - 2 * marginWidth;
+    var sumHeight = rows * h;
+    var opacity = 1;
+
+    if (shownSections & Section.LIST) {
+      w = (sumWidth + 2 * marginWidth) / 2;
+      h = 45;
+      rows = 4;
+      cols = 2;
+      sumHeight = rows * h;
+      addClass(mostVisitedElement, 'list');
+    } else if (shownSections & Section.THUMB) {
+      removeClass(mostVisitedElement, 'list');
+      } else {
+      sumHeight = 0;
+      opacity = 0;
+    }
+
+    mostVisitedElement.style.height = sumHeight + 'px';
+    mostVisitedElement.style.opacity = opacity;
+    // We set overflow to hidden so that the most visited element does not
+    // "leak" when we hide and show it.
+    if (!opacity) {
+      mostVisitedElement.style.overflow = 'hidden';
+    }
+
+    var rtl = document.documentElement.dir == 'rtl';
+
+    if (shownSections & Section.THUMB || shownSections & Section.LIST) {
+      for (var i = 0; i < thumbnails.length; i++) {
+        var t = thumbnails[i];
+
+        var row, col;
+        if (shownSections & Section.THUMB) {
+          row = Math.floor(i / cols);
+          col = i % cols;
+        } else {
+          col = Math.floor(i / rows);
+          row = i % rows;
+        }
+
+        if (shownSections & Section.THUMB) {
+          t.style.left = (rtl ?
+              sumWidth - col * w - thumbWidth - 2 * borderWidth :
+              col * w) + 'px';
+        } else {
+          t.style.left = (rtl ?
+              sumWidth - col * w - w + 2 * marginWidth :
+              col * w) + 'px';
+        }
+        t.style.top = row * h + 'px';
+
+        if (shownSections & Section.LIST) {
+          t.style.width = w - 2 * marginWidth + 'px';
+        } else {
+          t.style.width = '';
+        }
+      }
+    }
+
+    afterTransition(function() {
+      // Only set overflow to visible if the element is shown.
+      if (opacity) {
+        mostVisitedElement.style.overflow = '';
+      }
+    });
+
+    this.dirty_ = false;
+
+    logEvent('mostVisited.layout: ' + (Date.now() - d0));
   }
 };
 
@@ -592,12 +623,13 @@ function formatTabsText(numTabs) {
  */
 function onDataLoaded() {
   if (gotMostVisited && gotShownSections) {
+    mostVisited.layout();
     loading = false;
     // Remove class name in a timeout so that changes done in this JS thread are
     // not animated.
     window.setTimeout(function() {
       removeClass(document.body, 'loading');
-    }, 10);
+    }, 1);
   }
 }
 
@@ -854,11 +886,6 @@ OptionMenu.prototype = {
     }
 
     this.hideMenu();
-
-    layoutLowerSections();
-    mostVisited.updateDisplayMode();
-    layoutMostVisited();
-
     saveShownSections();
   }
 };
@@ -955,20 +982,15 @@ $('thumb-checkbox').addEventListener('change', function(e) {
   } else {
     hideSection(Section.THUMB);
   }
-  mostVisited.updateDisplayMode();
-  layoutMostVisited();
   saveShownSections();
 });
 
 $('list-checkbox').addEventListener('change', function(e) {
-  var newValue = shownSections;
   if (e.target.checked) {
     showSection(Section.LIST);
   } else {
     hideSection(Section.LIST);
   }
-  mostVisited.updateDisplayMode();
-  layoutMostVisited();
   saveShownSections();
 });
 
@@ -1027,7 +1049,8 @@ var dnd = {
     if (this.canDropOnElement(dropTarget)) {
       dropTarget.style.zIndex = 1;
       mostVisited.swapPosition(this.dragItem, dropTarget);
-      layoutMostVisited();
+      mostVisited.invalidate();
+      mostVisited.layout();
       e.preventDefault();
       if (this.dragEndTimer) {
         window.clearTimeout(this.dragEndTimer);
@@ -1055,7 +1078,8 @@ var dnd = {
       var self = this;
       this.dragEndTimer = window.setTimeout(function() {
         // These things needto happen after the drop event.
-        layoutMostVisited();
+        mostVisited.invalidate();
+        mostVisited.layout();
         self.dragItem = null;
       }, 10);
 
