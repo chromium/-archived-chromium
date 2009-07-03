@@ -9,11 +9,17 @@
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/escape.h"
+#include "third_party/skia/include/core/SkBitmap.h"
 #include "webkit/api/public/WebImage.h"
+#include "webkit/api/public/WebSize.h"
 #include "webkit/api/public/WebString.h"
 #include "webkit/api/public/WebURL.h"
 #include "webkit/glue/scoped_clipboard_writer_glue.h"
 #include "webkit/glue/webkit_glue.h"
+
+#if WEBKIT_USING_CG
+#include "skia/ext/skia_utils_mac.h"
+#endif
 
 using WebKit::WebClipboard;
 using WebKit::WebImage;
@@ -121,10 +127,15 @@ void WebClipboardImpl::writeImage(
     const WebImage& image, const WebURL& url, const WebString& title) {
   ScopedClipboardWriterGlue scw(ClipboardGetClipboard());
 
-#if defined(OS_WIN) || defined(OS_LINUX)
-  if (!image.isNull())
-    scw.WriteBitmapFromPixels(image.pixels(), image.size());
+  if (!image.isNull()) {
+#if WEBKIT_USING_SKIA
+    const SkBitmap& bitmap = image.getSkBitmap();
+#elif WEBKIT_USING_CG
+    const SkBitmap& bitmap = gfx::CGImageToSkBitmap(image.getCGImageRef());
 #endif
+    SkAutoLockPixels locked(bitmap);
+    scw.WriteBitmapFromPixels(bitmap.getPixels(), image.size());
+  }
 
   if (!url.isEmpty()) {
     scw.WriteBookmark(title, url.spec());

@@ -1,10 +1,10 @@
 /*
  * Copyright (C) 2009 Google Inc. All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
  *     * Neither the name of Google Inc. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -32,24 +32,24 @@
 #define WebImage_h
 
 #include "WebCommon.h"
-#include "WebSize.h"
 
 #if WEBKIT_USING_SKIA
-class SkBitmap;
+#include <SkBitmap.h>
+#elif WEBKIT_USING_CG
+typedef struct CGImage* CGImageRef;
 #endif
 
 namespace WebKit {
-
-    class WebImagePixels;
-    class WebImagePrivate;
+    class WebData;
+    struct WebSize;
 
     // A container for an ARGB bitmap.
     class WebImage {
     public:
         ~WebImage() { reset(); }
 
-        WebImage() : m_private(0) { }
-        WebImage(const WebImage& image) : m_private(0) { assign(image); }
+        WebImage() { init(); }
+        WebImage(const WebImage& image) { init(); assign(image); }
 
         WebImage& operator=(const WebImage& image)
         {
@@ -57,69 +57,50 @@ namespace WebKit {
             return *this;
         }
 
+        // Decodes the given image data.  If the image has multiple frames,
+        // then the frame whose size is desiredSize is returned.  Otherwise,
+        // the first frame is returned.
+        WEBKIT_API static WebImage fromData(const WebData&, const WebSize& desiredSize);
+
         WEBKIT_API void reset();
+        WEBKIT_API void assign(const WebImage&);
+
+        WEBKIT_API bool isNull() const;
         WEBKIT_API WebSize size() const;
 
-        WebImagePixels pixels() const;
-        bool isNull() const { return m_private == 0; }
-
 #if WEBKIT_USING_SKIA
-        WebImage(const SkBitmap& bitmap) : m_private(0)
-        {
-            assign(bitmap);
-        }
+        WebImage(const SkBitmap& bitmap) : m_bitmap(bitmap) { }
 
         WebImage& operator=(const SkBitmap& bitmap)
         {
-            assign(bitmap);
+            m_bitmap = bitmap;
             return *this;
         }
 
-        WEBKIT_API operator SkBitmap() const;
-#endif
+        SkBitmap& getSkBitmap() { return m_bitmap; }
+        const SkBitmap& getSkBitmap() const { return m_bitmap; }
 
     private:
-        friend class WebImagePixels;
+        void init() { }
+        SkBitmap m_bitmap;
 
-        WEBKIT_API void assign(const WebImage&);
-        WEBKIT_API const void* lockPixels();
-        WEBKIT_API void unlockPixels();
+#elif WEBKIT_USING_CG
+        WebImage(CGImageRef imageRef) { init(); assign(imageRef); }
 
-#if WEBKIT_USING_SKIA
-        WEBKIT_API void assign(const SkBitmap&);
-#endif
-
-        WebImagePrivate* m_private;
-    };
-
-    class WebImagePixels {
-    public:
-        WebImagePixels(WebImage* image) : m_image(image)
+        WebImage& operator=(CGImageRef imageRef)
         {
-            m_data = m_image->lockPixels();
+            assign(imageRef);
+            return *this;
         }
 
-        WebImagePixels(const WebImagePixels& other) : m_image(other.m_image)
-        {
-            m_data = m_image->lockPixels();
-        }
-
-        ~WebImagePixels() { m_image->unlockPixels(); }
-
-        const void* get() const { return m_data; }
-        operator const void*() const { return m_data; }
+        CGImageRef getCGImageRef() const { return m_imageRef; }
 
     private:
-        WebImagePixels& operator=(const WebImagePixels&);
-
-        WebImage* m_image;
-        const void* m_data;
+        void init() { m_imageRef = 0; }
+        void assign(CGImageRef);
+        CGImageRef m_imageRef;
+#endif
     };
-
-    inline WebImagePixels WebImage::pixels() const
-    {
-        return WebImagePixels(const_cast<WebImage*>(this));
-    }
 
 } // namespace WebKit
 

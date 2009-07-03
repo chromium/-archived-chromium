@@ -4272,6 +4272,7 @@
         'api/src/WebForm.cpp',
         'api/src/WebHistoryItem.cpp',
         'api/src/WebHTTPBody.cpp',
+        'api/src/WebImageCG.cpp',
         'api/src/WebImageSkia.cpp',
         'api/src/WebInputEvent.cpp',
         'api/src/WebKit.cpp',
@@ -4312,11 +4313,14 @@
           'include_dirs': [
             'api/public/mac',
           ],
-          'sources!': [
-            'api/src/WebImageSkia.cpp',
+          'sources/': [
+            ['exclude', 'Skia\\.cpp$'],
           ],
         }, { # else: OS!="mac"
-          'sources/': [['exclude', '/mac/']],
+          'sources/': [
+            ['exclude', '/mac/'],
+            ['exclude', 'CG\\.cpp$'],
+          ],
         }],
         ['OS=="win"', {
           'include_dirs': [

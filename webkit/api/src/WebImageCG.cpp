@@ -31,14 +31,15 @@
 #include "config.h"
 #include "WebImage.h"
 
+#include <CoreGraphics/CGImage.h>
+
 #include "WebData.h"
 #include "WebSize.h"
 
-#include "ImageSourceSkia.h"
-#include "NativeImageSkia.h"
+#include "ImageSource.h"
 #include "SharedBuffer.h"
-#include <wtf/OwnPtr.h>
 #include <wtf/PassRefPtr.h>
+#include <wtf/RetainPtr.h>
 
 using namespace WebCore;
 
@@ -46,36 +47,46 @@ namespace WebKit {
 
 WebImage WebImage::fromData(const WebData& data, const WebSize& desiredSize)
 {
-    ImageSourceSkia source;
-    source.setData(PassRefPtr<SharedBuffer>(data).get(), true, desiredSize);
+    // FIXME: ImageSource does not support picking a matching frame.  We'll
+    // likely need to enumerate the frames ourselves.
+
+    ImageSource source;
+    source.setData(PassRefPtr<SharedBuffer>(data).get(), true);
     if (!source.isSizeAvailable())
         return WebImage();
 
-    OwnPtr<NativeImageSkia> frame0(source.createFrameAtIndex(0));
-    if (!frame0.get())
+    RetainPtr<CGImageRef> frame0(AdoptCF, source.createFrameAtIndex(0));
+    if (!frame0)
         return WebImage();
 
-    return WebImage(*frame0);
+    return WebImage(frame0.get());
 }
 
 void WebImage::reset()
 {
-    m_bitmap.reset();
+    CGImageRelease(m_imageRef);
+    m_imageRef = 0;
 }
 
 void WebImage::assign(const WebImage& image)
 {
-    m_bitmap = image.m_bitmap;
+    assign(image.m_imageRef);
 }
 
 bool WebImage::isNull() const
 {
-    return m_bitmap.isNull();
+    return m_imageRef != 0;
 }
 
 WebSize WebImage::size() const
 {
-    return WebSize(m_bitmap.width(), m_bitmap.height());
+    return WebSize(CGImageGetWidth(m_imageRef), CGImageGetHeight(m_imageRef));
+}
+
+void WebImage::assign(CGImageRef imageRef)
+{
+    CGImageRelease(m_imageRef);
+    CGImageRetain(m_imageRef = imageRef);
 }
 
 } // namespace WebKit
