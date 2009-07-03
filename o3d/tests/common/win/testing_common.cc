@@ -161,7 +161,7 @@ int WINAPI WinMain(HINSTANCE instance,
   display_window->set_hwnd(g_window_handle);
   g_display_window = display_window;
   bool offscreen = (::GetEnvironmentVariableW(kOffScreenRenderer,
-                                              NULL, 0) == 0);
+                                              NULL, 0) != 0);
   if (offscreen) {
     success =
         g_renderer->Init(*g_display_window, true) == o3d::Renderer::SUCCESS;
