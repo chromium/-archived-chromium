@@ -1,0 +1,39 @@
+<html>
+<head>
+<script type="text/javascript">
+
+console.log('log');
+
+console.debug('debug');
+
+console.info('info');
+
+console.warn('warn');
+
+console.error('error');
+
+console.log('Message format number %i, %d and %f', 1, 2, 3.5);
+
+console.log('Message %s for %s', 'format', 'string');
+
+console.log('Object %o', {'foo' : 'bar' });
+
+for (var i = 0; i < 5; ++i) {
+  console.log('repeated');
+}
+
+for (var i = 0; i < 2; ++i) {
+  console.count('count');
+}
+
+console.group('group');
+console.groupEnd();
+
+console.time('timer');
+console.timeEnd('timer');
+
+</script>
+</head>
+<body>
+</body>
+</html>

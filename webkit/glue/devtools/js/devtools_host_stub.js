@@ -384,6 +384,11 @@ DevToolsHostStub.prototype.addResourceSourceToFrame = function(
 };
 
 
+DevToolsHostStub.prototype.addSourceToFrame = function(mimeType, source,
+    element) {
+};
+
+
 if (!window['DevToolsHost']) {
   window['RemoteDebuggerAgent'] = new RemoteDebuggerAgentStub();
   window['RemoteDebuggerCommandExecutor'] =

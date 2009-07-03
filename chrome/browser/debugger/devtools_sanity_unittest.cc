@@ -44,6 +44,7 @@ const int kActionDelayMs = 500;
 const wchar_t kSimplePage[] = L"files/devtools/simple_page.html";
 const wchar_t kJsPage[] = L"files/devtools/js_page.html";
 const wchar_t kDebuggerTestPage[] = L"files/devtools/debugger_test_page.html";
+const wchar_t kConsoleTestPage[] = L"files/devtools/console_test_page.html";
 
 class DevToolsSanityTest : public InProcessBrowserTest {
  public:
@@ -142,6 +143,16 @@ IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestProfilerTab) {
 // Tests scripts panel showing.
 IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestShowScriptsTab) {
   RunTest("testShowScriptsTab", kDebuggerTestPage);
+}
+
+// Tests console eval.
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestConsoleEval) {
+  RunTest("testConsoleEval", kConsoleTestPage);
+}
+
+// Tests console log.
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestConsoleLog) {
+  RunTest("testConsoleLog", kConsoleTestPage);
 }
 
 }  // namespace

@@ -53,6 +53,18 @@ TestSuite.prototype.assertTrue = function(value) {
 
 
 /**
+ * Contains assertion tests that string contains substring.
+ * @param {string} string Outer.
+ * @param {string} substring Inner.
+ */
+TestSuite.prototype.assertContains = function(string, substring) {
+  if (string.indexOf(substring) == -1) {
+    this.fail('Expected to: "' + string + '" to contain "' + substring + '"');
+  }
+};
+
+
+/**
  * Runs all global functions starting with 'test' as unit tests.
  */
 TestSuite.prototype.runAllTests = function() {
@@ -137,6 +149,18 @@ TestSuite.prototype.runTest = function(testName) {
 };
 
 
+/**
+ * @param {string} panelName Name of the panel to show.
+ */
+TestSuite.prototype.showPanel = function(panelName) {
+  // Open Scripts panel.
+  var toolbar = document.getElementById('toolbar');
+  var button = toolbar.getElementsByClassName(panelName)[0];
+  button.click();
+  this.assertEquals(WebInspector.panels[panelName],
+      WebInspector.currentPanel);
+};
+
 // UI Tests
 
 
@@ -180,8 +204,7 @@ TestSuite.prototype.testMainResource = function() {
  * Tests that resources tab is enabled when corresponding item is selected.
  */
 TestSuite.prototype.testEnableResourcesTab = function(controller) {
-  WebInspector.panels.elements.hide();
-  WebInspector.panels.resources.show();
+  this.showPanel('resources');
 
   var test = this;
   var oldAddResource = WebInspector.addResource;
@@ -208,15 +231,14 @@ TestSuite.prototype.testEnableResourcesTab = function(controller) {
  * Test that profiler works.
  */
 TestSuite.prototype.testProfilerTab = function(controller) {
-  var panel = WebInspector.panels.profiles;
-  WebInspector.panels.elements.hide();
-  panel.show();
+  this.showPanel('profiles');
 
   var oldAddProfile = WebInspector.addProfile;
   WebInspector.addProfile = function(profile) {
     WebInspector.addProfile = oldAddProfile;
     oldAddProfile.call(this, profile);
 
+    var panel = WebInspector.panels.profiles;
     panel.showProfile(profile);
     var node = panel.visibleView.profileDataGridTree.children[0];
     // Iterate over displayed functions and search for a function
@@ -276,21 +298,84 @@ TestSuite.prototype.testShowScriptsTab = function(controller) {
     if (parsedDebuggerTestJs && parsedDebuggerTestPageHtml) {
        controller.reportOk();
     }
+    controller.reportOk();
   };
 
-  // Open Scripts panel.
-  var toolbar = document.getElementById('toolbar');
-  var scriptsButton = toolbar.getElementsByClassName('scripts')[0];
-  scriptsButton.click();
-
-  this.assertEquals(WebInspector.panels.scripts, WebInspector.currentPanel);
+  this.showPanel('scripts');
 
   // Wait until all scripts are added to the debugger.
   controller.takeControl();
 };
 
 
+TestSuite.ConsoleEnter = {
+    keyIdentifier : 'Enter',
+    preventDefault : function() {},
+    stopPropagation : function() {}
+};
+
+
+/**
+ * Tests console eval.
+ */
+TestSuite.prototype.testConsoleEval = function(controller) {
+  var test = this;
+  var originalConsoleAddMessage = WebInspector.Console.prototype.addMessage;
+  WebInspector.Console.prototype.addMessage = function(commandResult) {
+    originalConsoleAddMessage.call(this, commandResult);
+    WebInspector.Console.prototype.addMessage = originalConsoleAddMessage;
+    test.assertEquals('123', commandResult.toMessageElement().textContent);
+    controller.reportOk();
+  };
+
+  WebInspector.console.visible = true;
+  WebInspector.console.prompt.text = '123';
+  WebInspector.console.promptElement.handleKeyEvent(TestSuite.ConsoleEnter);
+
+  controller.takeControl();
+};
+
+
+/**
+ * Tests console log.
+ */
+TestSuite.prototype.testConsoleLog = function(controller) {
+  WebInspector.console.visible = true;
+  var messages = WebInspector.console.messages;
+  var index = 0;
+
+  var test = this;
+  var assertNext = function(line, message, opt_level, opt_count, opt_substr) {
+    var elem = messages[index++].toMessageElement();
+    var clazz = elem.getAttribute('class');
+    var expectation = (opt_count || '') + 'console_test_page.html:' +
+        line + message;
+    if (opt_substr) {
+      test.assertContains(elem.textContent, expectation);
+    } else {
+      test.assertEquals(expectation, elem.textContent);
+    }
+    if (opt_level) {
+      test.assertContains(clazz, 'console-' + opt_level + '-level');
+    }
+  };
+
+  assertNext('5', 'log', 'log');
+  assertNext('7', 'debug', 'log');
+  assertNext('9', 'info', 'log');
+  assertNext('11', 'warn', 'warning');
+  assertNext('13', 'error', 'error');
+  assertNext('15', 'Message format number 1, 2 and 3.5');
+  assertNext('17', 'Message format for string');
+  assertNext('19', 'Object Object');
+  assertNext('22', 'repeated', 'log', 5);
+  assertNext('26', 'count: 1');
+  assertNext('26', 'count: 2');
+  assertNext('29', 'group', 'group-title');
+  index++;
+  assertNext('33', 'timer:', 'log', '', true);
+};
+
+
 var uiTests = new TestSuite();
-
-
 }
