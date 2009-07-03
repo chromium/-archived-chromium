@@ -544,7 +544,8 @@ devtools.Injected.prototype.wrapConsoleObject = function(obj) {
  */
 devtools.Injected.prototype.evaluate = function(expression) {
   try {
-    return [ this.wrapConsoleObject(window.eval(expression)), false ];
+    // Evaluate the expression in the global context of the inspected window.
+    return [ this.wrapConsoleObject(contentWindow.eval(expression)), false ];
   } catch (e) {
     return [ e.toString(), true ];
   }
