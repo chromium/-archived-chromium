@@ -23,11 +23,11 @@
 #include "chrome/browser/find_notification_details.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
-#include "chrome/browser/renderer_host/render_view_host_manager.h"
 #include "chrome/browser/tab_contents/constrained_window.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
+#include "chrome/browser/tab_contents/render_view_host_manager.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/common/gears_api.h"
 #include "chrome/common/navigation_types.h"
@@ -768,9 +768,12 @@ class TabContents : public PageNavigator,
   virtual void DidStartProvisionalLoadForFrame(RenderViewHost* render_view_host,
                                                bool is_main_frame,
                                                const GURL& url);
+  virtual void DidStartReceivingResourceResponse(
+      ResourceRequestDetails* details);
   virtual void DidRedirectProvisionalLoad(int32 page_id,
                                           const GURL& source_url,
                                           const GURL& target_url);
+  virtual void DidRedirectResource(ResourceRequestDetails* details);
   virtual void DidLoadResourceFromMemoryCache(
       const GURL& url,
       const std::string& frame_origin,

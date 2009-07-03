@@ -30,13 +30,14 @@
 #include "chrome/browser/renderer_host/cross_site_resource_handler.h"
 #include "chrome/browser/renderer_host/download_resource_handler.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/renderer_host/resource_request_details.h"
 #include "chrome/browser/renderer_host/safe_browsing_resource_handler.h"
 #include "chrome/browser/renderer_host/save_file_resource_handler.h"
 #include "chrome/browser/renderer_host/sync_resource_handler.h"
 #include "chrome/browser/ssl/ssl_client_auth_handler.h"
+#include "chrome/browser/ssl/ssl_manager.h"
 #include "chrome/browser/tab_contents/tab_util.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
@@ -107,6 +108,48 @@ const int kMaxPendingDataMessages = 20;
 // See delcaration of |max_outstanding_requests_cost_per_process_| for details.
 // This bound is 25MB, which allows for around 6000 outstanding requests.
 const int kMaxOutstandingRequestsCostPerProcess = 26214400;
+
+// A NotificationTask proxies a resource dispatcher notification from the IO
+// thread to the RenderViewHostDelegate on the UI thread. It should be
+// constructed on the IO thread and run in the UI thread.
+class NotificationTask : public Task {
+ public:
+  // Supply the originating URLRequest, a function on RenderViewHostDelegate
+  // to call, and the details to use as the parameter to the given function.
+  //
+  // This object will take ownership of the details pointer, which must be
+  // allocated on the heap.
+  NotificationTask(
+      URLRequest* request,
+      void (RenderViewHostDelegate::* function)(ResourceRequestDetails*),
+      ResourceRequestDetails* details)
+      : function_(function),
+        details_(details) {
+    if (!ResourceDispatcherHost::RenderViewForRequest(request,
+                                                      &render_process_host_id_,
+                                                      &render_view_host_id_))
+      NOTREACHED();
+  }
+
+  virtual void Run() {
+    RenderViewHost* rvh = RenderViewHost::FromID(render_process_host_id_,
+                                                 render_view_host_id_);
+    if (rvh)
+      (rvh->delegate()->*function_)(details_.get());
+  }
+
+ private:
+  int render_process_host_id_;
+  int render_view_host_id_;
+
+  // The function to call on RenderViewHostDelegate on the UI thread.
+  void (RenderViewHostDelegate::* function_)(ResourceRequestDetails*);
+
+  // The details for the notification.
+  scoped_ptr<ResourceRequestDetails> details_;
+
+  DISALLOW_COPY_AND_ASSIGN(NotificationTask);
+};
 
 // Consults the RendererSecurity policy to determine whether the
 // ResourceDispatcherHost should service this request.  A request might be
@@ -1325,46 +1368,6 @@ URLRequest* ResourceDispatcherHost::GetURLRequest(
   return i->second;
 }
 
-// A NotificationTask proxies a resource dispatcher notification from the IO
-// thread to the UI thread.  It should be constructed on the IO thread and run
-// in the UI thread.  Takes ownership of |details|.
-class NotificationTask : public Task {
- public:
-  NotificationTask(NotificationType type,
-                   URLRequest* request,
-                   ResourceRequestDetails* details)
-  : type_(type),
-    details_(details) {
-    if (!ResourceDispatcherHost::RenderViewForRequest(request,
-                                                      &process_id_,
-                                                      &tab_contents_id_))
-      NOTREACHED();
-  }
-
-  void Run() {
-    // Find the tab associated with this request.
-    TabContents* tab_contents =
-        tab_util::GetTabContentsByID(process_id_, tab_contents_id_);
-
-    if (tab_contents) {
-      // Issue the notification.
-      NotificationService::current()->Notify(
-          type_,
-          Source<NavigationController>(&tab_contents->controller()),
-          Details<ResourceRequestDetails>(details_.get()));
-    }
-  }
-
- private:
-  // These IDs let us find the correct tab on the UI thread.
-  int process_id_;
-  int tab_contents_id_;
-
-  // The type and details of the notification.
-  NotificationType type_;
-  scoped_ptr<ResourceRequestDetails> details_;
-};
-
 static int GetCertID(URLRequest* request, int process_id) {
   if (request->ssl_info().cert) {
     return CertStore::GetSharedInstance()->StoreCert(request->ssl_info().cert,
@@ -1388,10 +1391,10 @@ void ResourceDispatcherHost::NotifyResponseStarted(URLRequest* request,
   FOR_EACH_OBSERVER(Observer, observer_list_, OnRequestStarted(this, request));
 
   // Notify the observers on the UI thread.
-  ui_loop_->PostTask(FROM_HERE,
-      new NotificationTask(NotificationType::RESOURCE_RESPONSE_STARTED, request,
-                           new ResourceRequestDetails(request,
-                               GetCertID(request, process_id))));
+  ui_loop_->PostTask(FROM_HERE, new NotificationTask(request,
+      &RenderViewHostDelegate::DidStartReceivingResourceResponse,
+      new ResourceRequestDetails(request,
+         GetCertID(request, process_id))));
 }
 
 void ResourceDispatcherHost::NotifyResponseCompleted(
@@ -1400,13 +1403,6 @@ void ResourceDispatcherHost::NotifyResponseCompleted(
   // Notify the observers on the IO thread.
   FOR_EACH_OBSERVER(Observer, observer_list_,
                     OnResponseCompleted(this, request));
-
-  // Notify the observers on the UI thread.
-  ui_loop_->PostTask(FROM_HERE,
-      new NotificationTask(NotificationType::RESOURCE_RESPONSE_COMPLETED,
-                           request,
-                           new ResourceRequestDetails(request,
-                               GetCertID(request, process_id))));
 }
 
 void ResourceDispatcherHost::NotifyReceivedRedirect(URLRequest* request,
@@ -1420,8 +1416,8 @@ void ResourceDispatcherHost::NotifyReceivedRedirect(URLRequest* request,
 
   // Notify the observers on the UI thread.
   ui_loop_->PostTask(FROM_HERE,
-      new NotificationTask(NotificationType::RESOURCE_RECEIVED_REDIRECT,
-                           request,
+      new NotificationTask(request,
+                           &RenderViewHostDelegate::DidRedirectResource,
                            new ResourceRedirectDetails(request,
                                                        cert_id,
                                                        new_url)));

@@ -32,6 +32,7 @@
 #include "chrome/browser/plugin_installer.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
+#include "chrome/browser/renderer_host/resource_request_details.h"
 #include "chrome/browser/renderer_host/web_cache_manager.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/interstitial_page.h"
@@ -1716,6 +1717,14 @@ void TabContents::DidStartProvisionalLoadForFrame(
       Details<ProvisionalLoadDetails>(&details));
 }
 
+void TabContents::DidStartReceivingResourceResponse(
+    ResourceRequestDetails* details) {
+  NotificationService::current()->Notify(
+      NotificationType::RESOURCE_RESPONSE_STARTED,
+      Source<NavigationController>(&controller()),
+      Details<ResourceRequestDetails>(details));
+}
+
 void TabContents::DidRedirectProvisionalLoad(int32 page_id,
                                              const GURL& source_url,
                                              const GURL& target_url) {
@@ -1727,6 +1736,13 @@ void TabContents::DidRedirectProvisionalLoad(int32 page_id,
   if (!entry || entry->url() != source_url)
     return;
   entry->set_url(target_url);
+}
+
+void TabContents::DidRedirectResource(ResourceRequestDetails* details) {
+  NotificationService::current()->Notify(
+      NotificationType::RESOURCE_RECEIVED_REDIRECT,
+      Source<NavigationController>(&controller()),
+      Details<ResourceRequestDetails>(details));
 }
 
 void TabContents::DidLoadResourceFromMemoryCache(

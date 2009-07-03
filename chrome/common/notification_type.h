@@ -120,12 +120,6 @@ class NotificationType {
     // object are provided.
     RESOURCE_RESPONSE_STARTED,
 
-    // The response to a resource request has completed.  The source will be a
-    // Source<NavigationController> corresponding to the tab in which the
-    // request was issued.  Details in the form of a ResourceRequestDetails
-    // object are provided.
-    RESOURCE_RESPONSE_COMPLETED,
-
     // A redirect was received while requesting a resource.  The source will be
     // a Source<NavigationController> corresponding to the tab in which the
     // request was issued.  Details in the form of a ResourceRedirectDetails

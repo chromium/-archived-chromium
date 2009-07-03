@@ -24,6 +24,7 @@ class NavigationEntry;
 class Profile;
 class RenderProcessHost;
 class RenderViewHost;
+class ResourceRequestDetails;
 class SkBitmap;
 class TabContents;
 class WebKeyboardEvent;
@@ -221,10 +222,29 @@ class RenderViewHostDelegate {
                                                bool is_main_frame,
                                                const GURL& url) { }
 
+  // Notification by the resource loading system (not the renderer) that it has
+  // started receiving a resource response. This is different than
+  // DidStartProvisionalLoadForFrame above because this is called for every
+  // resource (images, automatically loaded subframes, etc.) and provisional
+  // loads are only for user-initiated navigations.
+  //
+  // The pointer ownership is NOT transferred.
+  virtual void DidStartReceivingResourceResponse(
+      ResourceRequestDetails* details) {}
+
   // Sent when a provisional load is redirected.
   virtual void DidRedirectProvisionalLoad(int32 page_id,
                                           const GURL& source_url,
                                           const GURL& target_url) { }
+
+  // Notification by the resource loading system (not the renderer) that a
+  // resource was redirected. This is different than DidRedirectProvisionalLoad
+  // above because this is called for every resource (images, automatically
+  // loaded subframes, etc.) and provisional loads are only for user-initiated
+  // navigations.
+  //
+  // The pointer ownership is NOT transferred.
+  virtual void DidRedirectResource(ResourceRequestDetails* details) {}
 
   // The RenderView loaded a resource from an in-memory cache.
   // |security_info| contains the security info if this resource was originally
