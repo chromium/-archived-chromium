@@ -248,6 +248,23 @@
       ],
     },
     {
+      'target_name': 'default_extensions',
+      'type': 'none',
+      'msvs_guid': 'DA9BAB64-91DC-419B-AFDE-6FF8C569E83A',
+      'conditions': [
+        ['OS=="win"', {
+          'copies': [
+            {
+              'destination': '<(PRODUCT_DIR)/extensions',
+              'files': [
+                'browser/extensions/default_extensions/external_extensions.json'
+              ]
+            }
+          ],
+        }],
+      ],
+    },
+    {
       'target_name': 'common',
       'type': '<(library)',
       'msvs_guid': '899F1280-3441-4D1F-BA04-CCD6208D9146',

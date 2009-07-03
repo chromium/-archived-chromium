@@ -27,10 +27,6 @@
 			InheritedPropertySheets=".\mini_installer_debug.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops"
 			>
 			<Tool
-				Name="VCPreBuildEventTool"
-				CommandLine="IF NOT EXIST &quot;$(OutDir)\Extensions&quot; mkdir &quot;$(OutDir)\Extensions&quot; &amp;&amp; copy /Y  &quot;$(SolutionDir)browser\extensions\external_extensions.json&quot; &quot;$(OutDir)\Extensions&quot;"
-			/>
-			<Tool
 				Name="Create Installer Archive"
 				LastChromeInstaller="$(LAST_CHROME_INSTALLER)"
 				SkipRebuildArchive="$(SKIP_REBUILD_CHROME_ARCHIVE)"
@@ -58,10 +54,6 @@
 			ConfigurationType="1"
 			InheritedPropertySheets=".\mini_installer_release.vsprops;$(SolutionDir)..\testing\using_gtest.vsprops"
 			>
-			<Tool
-				Name="VCPreBuildEventTool"
-				CommandLine="IF NOT EXIST &quot;$(OutDir)\Extensions&quot; mkdir &quot;$(OutDir)\Extensions&quot; &amp;&amp; copy /Y  &quot;$(SolutionDir)browser\extensions\external_extensions.json&quot; &quot;$(OutDir)\Extensions&quot;"
-			/>
 			<Tool
 				Name="Create Installer Archive"
 				LastChromeInstaller="$(LAST_CHROME_INSTALLER)"

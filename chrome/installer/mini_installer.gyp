@@ -19,6 +19,7 @@
           'dependencies': [
             '../chrome.gyp:chrome',
             '../chrome.gyp:chrome_dll',
+            '../chrome.gyp:default_extensions',
             '../../testing/gtest.gyp:gtest',
             'installer.gyp:setup',
           ],
