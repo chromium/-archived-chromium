@@ -60,6 +60,11 @@
     # Once all vsprops settings are migrated into gyp, this can go away.
     'msvs_use_common_release%': 1,
 
+    # TODO(bradnelson): eliminate this when possible.    
+    # To allow local gyp files to override additional linker options for msvs. 
+    # Yes(1) means set use the common linker options.        
+    'msvs_use_common_linker_extras%': 1,
+
     # TODO(sgk): eliminate this if possible.
     # It would be nicer to support this via a setting in 'target_defaults'
     # in chrome/app/locales/locales.gypi overriding the setting in the
@@ -483,8 +488,6 @@
               ['<(DEPTH)/third_party/platformsdk_win2008_6_1/files/Lib'],
           },
           'VCLinkerTool': {
-            'AdditionalOptions':
-              '/safeseh:NO /dynamicbase:NO /ignore:4199 /ignore:4221 /nxcompat',
             'AdditionalDependencies': [
               'wininet.lib',
               'version.lib',
@@ -496,11 +499,6 @@
             ],
             'AdditionalLibraryDirectories':
               ['<(DEPTH)/third_party/platformsdk_win2008_6_1/files/Lib'],
-            'DelayLoadDLLs': [
-              'dbghelp.dll',
-              'dwmapi.dll',
-              'uxtheme.dll',
-            ],
             'GenerateDebugInformation': 'true',
             'MapFileName': '$(OutDir)\\$(TargetName).map',
             'ImportLibrary': '$(OutDir)\\lib\\$(TargetName).lib',
@@ -543,6 +541,21 @@
         'defines': [
           '__STDC_FORMAT_MACROS',
         ],
+      },
+    }],
+    ['msvs_use_common_linker_extras', {
+      'target_defaults': {
+        'msvs_settings': {
+          'VCLinkerTool': {
+            'AdditionalOptions':
+              '/safeseh /dynamicbase /ignore:4199 /ignore:4221 /nxcompat',
+            'DelayLoadDLLs': [
+              'dbghelp.dll',
+              'dwmapi.dll',
+              'uxtheme.dll',
+            ],
+          },
+        },
       },
     }],
   ],

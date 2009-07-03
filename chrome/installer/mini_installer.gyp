@@ -5,6 +5,7 @@
     'lastchange_path': '<(SHARED_INTERMEDIATE_DIR)/build/LASTCHANGE',
     # 'branding_dir' is set in the 'conditions' section at the bottom.
     'msvs_use_common_release': 0,
+    'msvs_use_common_linker_extras': 0,
   },
   'includes': [
     '../../build/common.gypi',
