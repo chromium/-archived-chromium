@@ -155,7 +155,7 @@ WONTFIX SKIP : LayoutTests/http/tests/xmlhttprequest/svg-created-by-xhr-disallow
 WONTFIX : LayoutTests/svg/custom/embedded-svg-disallowed-in-dashboard.xml = FAIL
 WONTFIX : LayoutTests/svg/custom/manually-parsed-embedded-svg-disallowed-in-dashboard.html = FAIL
 WONTFIX : LayoutTests/svg/custom/manually-parsed-svg-disallowed-in-dashboard.html = FAIL
-WONTFIX : LayoutTests/svg/custom/svg-disallowed-in-dashboard-object.html = FAIL
+WONTFIX SKIP : LayoutTests/svg/custom/svg-disallowed-in-dashboard-object.html = FAIL
 
 // Chrome uses different keyboard accelerators from those used by Safari, so
 // these tests will always fail.
@@ -1046,9 +1046,9 @@ BUG10313 : LayoutTests/plugins/bindings-test.html = FAIL
 // U+2798 (Heavy SE Arrow) and U+2799 (Heavy Rightwards Arrow). See bug #2304.
 BUG10314 WIN : LayoutTests/css2.1/t0805-c5519-brdr-r-01-e.html = FAIL
 BUG10314 WIN : LayoutTests/css2.1/t0905-c5525-fltblck-00-d-ag.html = FAIL
-BUG10314 WIN LINUX MAC : LayoutTests/css2.1/t0905-c414-flt-fit-01-d-g.html = FAIL
-BUG10314 WIN LINUX MAC : LayoutTests/css2.1/t0905-c5525-flthw-00-c-g.html = FAIL
-BUG10314 WIN LINUX MAC : LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL
+BUG10314 WIN LINUX : LayoutTests/css2.1/t0905-c414-flt-fit-01-d-g.html = FAIL
+BUG10314 WIN LINUX : LayoutTests/css2.1/t0905-c5525-flthw-00-c-g.html = FAIL
+BUG10314 WIN LINUX : LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL
 
 // No glyph for U+FFFD (Replacement Character : black diamond with
 // question mark) in them
@@ -1221,16 +1221,13 @@ BUG10343 LINUX : LayoutTests/fast/text/atsui-kerning-and-ligatures.html = FAIL
 BUG10343 LINUX : LayoutTests/fast/text/atsui-partial-selection.html = FAIL
 BUG10343 LINUX : LayoutTests/fast/text/atsui-small-caps-punctuation-size.html = FAIL
 BUG10343 LINUX : LayoutTests/fast/text/cg-vs-atsui.html = FAIL
-BUG10343 LINUX MAC : LayoutTests/fast/text/international/complex-character-based-fallback.html = FAIL
+BUG10343 LINUX : LayoutTests/fast/text/international/complex-character-based-fallback.html = FAIL
 
 // Started timing out with agl's complext text change.  Page is verrry slow.
 BUG10343 LINUX : LayoutTests/fast/text/large-text-composed-char.html = TIMEOUT FAIL
 
 // Missing text -- slow font path unimplemented?
 BUG10344 LINUX : LayoutTests/fast/text/should-use-atsui.html = FAIL
-
-// Missing Hindi font.
-BUG10346 MAC : LayoutTests/fast/text/international/hindi-spacing.html = FAIL
 
 // We print to stderr when a failure happens while importing XSL;
 // should disable this in libxml.
@@ -2001,7 +1998,7 @@ BUG10465 LINUX : LayoutTests/fast/clip/overflow-border-radius-clip.html = FAIL
 BUG10468 MAC WIN LINUX : LayoutTests/fast/replaced/border-radius-clip.html = FAIL CRASH
   
 // New test, needs baseline. See WebKit 41978 (brettw)
-BUG10469 WIN LINUX MAC : LayoutTests/fast/text/complex-text-opacity.html = FAIL
+BUG10469 WIN LINUX : LayoutTests/fast/text/complex-text-opacity.html = FAIL
   
 // Needs rebaseline. See WebKit 41980
 BUG10470 WIN LINUX : LayoutTests/fast/transforms/transforms-with-zoom.html = FAIL
@@ -2082,7 +2079,6 @@ BUG9786 : LayoutTests/http/tests/security/cross-frame-access-document-direct.htm
 BUG9787 WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
 BUG9787 : LayoutTests/svg/W3C-SVG-1.1/coords-trans-01-b.svg = FAIL
 BUG9787 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
-BUG10479 LINUX : LayoutTests/fast/text/international/thai-offsetForPosition-inside-character.html = FAIL
 BUG10479 RELEASE MAC : LayoutTests/fast/dom/Window/window-object-cross-frame-calls.html = FAIL
 BUG10479 MAC : LayoutTests/svg/hixie/perf/001.xml = FAIL
 BUG10479 MAC : LayoutTests/svg/hixie/perf/002.xml = FAIL
@@ -2355,7 +2351,6 @@ BUG11264 WIN : LayoutTests/plugins/netscape-identifier-conversion.html = CRASH P
 
 // Regressions from WebKit Merge 43059:43114
 BUG11322 : LayoutTests/editing/text-iterator/basic-iteration.html = FAIL
-BUG11322 : LayoutTests/fast/js/regexp-range-bound-ffff.html = FAIL
 
 BUG11469 MAC : LayoutTests/fast/repaint/outline-shrinking.html = CRASH PASS
 
@@ -2589,7 +2584,6 @@ BUG11613 LINUX : chrome/fast/forms/basic-buttons.html = FAIL
 BUG11613 LINUX : chrome/fast/forms/basic-inputs.html = FAIL
 BUG11613 LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 BUG11613 LINUX : chrome/fast/forms/basic-textareas.html = FAIL
-BUG11613 MAC : LayoutTests/http/tests/security/cross-frame-access-call.html = FAIL
 BUG11613 WIN : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL
 BUG11613 WIN : LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
 
@@ -2603,7 +2597,6 @@ BUG11763 LINUX : LayoutTests/fast/layers/self-painting-outline.html = FAIL PASS
 // This test got moved (and the baselines have been moved accordingly), but now as a result
 // it seems to be failing?!
 BUG11795 : LayoutTests/http/tests/misc/favicon-as-image.html = FAIL
-BUG11795 MAC : LayoutTests/fast/images/favicon-as-image.html = FAIL
 
 // Already baselined for chromium-win, may need to be done for mac/linux as well.
 BUG11796 LINUX : LayoutTests/fast/forms/search-styled.html = FAIL
@@ -2636,7 +2629,7 @@ BUG12053 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test1.html = F
 BUG12053 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test2.html = FAIL
 BUG12053 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test3.html = FAIL
 BUG12053 MAC : LayoutTests/editing/execCommand/outdent-blockquote-test4.html = FAIL
-BUG12053 LINUX MAC : LayoutTests/fast/text/international/danda-space.html = FAIL
+BUG12053 LINUX : LayoutTests/fast/text/international/danda-space.html = FAIL
 
 // New test, added in http://trac.webkit.org/changeset/43793, fails for us.
 BUG12104 WIN LINUX : LayoutTests/fast/backgrounds/background-clip-text.html = FAIL
@@ -2709,9 +2702,6 @@ BUG14207 LINUX DEBUG : LayoutTests/tables/mozilla/bugs/bug28341.html = FAIL
 // Newly added test http://trac.webkit.org/changeset/44816
 BUG14673 : LayoutTests/http/tests/xmlhttprequest/cross-origin-no-authorization.html = FAIL CRASH
 
-// WebKit 44805:44837
-BUG14679 LINUX : LayoutTests/fast/backgrounds/animated-gif-as-background.html = FAIL
-
 // WebKit 44837:44872
 BUG14772 WIN LINUX : LayoutTests/fast/canvas/image-object-in-canvas.html = FAIL
 BUG14771 WIN LINUX : LayoutTests/svg/batik/filters/feTile.svg = FAIL
@@ -2733,8 +2723,6 @@ BUG14946 : LayoutTests/fast/js/date-toisostring.html = FAIL
 BUG14951 WIN LINUX : LayoutTests/fast/repaint/background-generated.html = FAIL
 
 // WebKit 44969:45017
-BUG15132 : LayoutTests/editing/execCommand/5142012-3.html = FAIL
-// more unexpected failures
 BUG15132 WIN LINUX : LayoutTests/editing/execCommand/5482023.html = FAIL
 BUG15132 WIN LINUX : LayoutTests/editing/inserting/editable-html-element.html = FAIL
 BUG15132 WIN LINUX : LayoutTests/editing/pasteboard/4989774.html = FAIL
@@ -2749,14 +2737,13 @@ BUG15125 MAC SKIP : chrome/fast/text/fake-italic.html = FAIL
 // WebKit 45017:45086
 BUG15217 : LayoutTests/fast/events/drag-to-navigate.html = TIMEOUT FAIL
 BUG15217 : LayoutTests/fast/js/dictionary-no-cache.html = FAIL
-BUG15217 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridDataSource-basic.html = TIMEOUT
 BUG15217 : LayoutTests/fast/events/prevent-drag-to-navigate.html = TIMEOUT
 BUG15217 : LayoutTests/fast/js/switch-behaviour.html = FAIL
 
 // WebKit 45086:45111
-BUG15270 : LayoutTests/svg/custom/js-update-image-and-display.svg = FAIL
-BUG15270 : LayoutTests/svg/custom/js-update-image-and-display2.svg = FAIL
-BUG15270 : LayoutTests/svg/custom/js-update-image-and-display3.svg = FAIL
+BUG15270 LINUX WIN : LayoutTests/svg/custom/js-update-image-and-display.svg = FAIL
+BUG15270 LINUX WIN : LayoutTests/svg/custom/js-update-image-and-display2.svg = FAIL
+BUG15270 LINUX WIN : LayoutTests/svg/custom/js-update-image-and-display3.svg = FAIL
 BUG15270 : LayoutTests/fast/js/excessive-comma-usage.html = FAIL
 BUG15270 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridColumns-basic.html = TIMEOUT
 
@@ -2791,8 +2778,8 @@ BUG15649 : LayoutTests/media/video-canvas-source.html = FAIL
 BUG15710 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridColumns-dom.html = TIMEOUT
 
 // Webkit 45403:45431
-BUG15733 : LayoutTests/compositing/repaint/content-into-overflow.html = FAIL
-BUG15733 : LayoutTests/compositing/repaint/overflow-into-content.html = FAIL
+BUG15733 LINUX WIN : LayoutTests/compositing/repaint/content-into-overflow.html = FAIL
+BUG15733 LINUX WIN : LayoutTests/compositing/repaint/overflow-into-content.html = FAIL
 
 // WebKit 45431:45444
 BUG15780 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridColumns-dom-attributes.html = FAIL TIMEOUT
@@ -2805,14 +2792,11 @@ BUG11613 LINUX : LayoutTests/fast/overflow/scrollRevealButton.html = FAIL
 BUG15837 : LayoutTests/http/tests/security/xssAuditor/script-tag-null-char.html = FAIL
 
 // WebKit 45473:45487
-BUG15873 : LayoutTests/fast/box-shadow/transform-fringing.html = FAIL
-BUG15873 : LayoutTests/fast/transforms/shadows.html = FAIL
-BUG15873 : LayoutTests/fast/block/float/crash-replaced-display-block.html = FAIL
-BUG15873 : LayoutTests/fast/canvas/translate-text.html = FAIL
+BUG15873 WIN LINUX : LayoutTests/fast/box-shadow/transform-fringing.html = FAIL
+BUG15873 WIN LINUX : LayoutTests/fast/transforms/shadows.html = FAIL
+BUG15873 WIN : LayoutTests/fast/canvas/translate-text.html = FAIL
 BUG15873 WIN : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
-BUG15873 : LayoutTests/fast/parser/badentity.xhtml = FAIL
-BUG15873 MAC WIN : LayoutTests/fast/text/stroking-decorations.html = FAIL
-BUG15873 WIN: LayoutTests/http/tests/security/local-video-poster-from-remote.html = FAIL
+BUG15873 WIN : LayoutTests/fast/text/stroking-decorations.html = FAIL
 BUG15873 SKIP : LayoutTests/fast/text/text-letter-spacing.html = FAIL
 
 // WebKit 45486:45473
