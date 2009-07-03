@@ -33,6 +33,9 @@ without changes to the corresponding grd file.  -->
       <include name="IDR_DOM_UI_CSS" file="resources\dom_ui.css" flattenhtml="true" type="BINDATA" />
       <include name="IDR_EXTENSIONS_UI_HTML" file="resources\extensions_ui.html" flattenhtml="true" type="BINDATA" />
       <include name="IDR_EXTENSIONS_TOOLSTRIP_CSS" file="resources\extensions_toolstrip.css" flattenhtml="true" type="BINDATA" />
+      <include name="IDR_PRINT_TAB_HTML" file="resources\print_tab.html" flattenhtml="true" type="BINDATA" />
+      <include name="IDR_PRINT_TAB_CSS" file="resources\print_tab.css" type="BINDATA" />
+      <include name="IDR_PRINT_TAB_JS" file="resources\print_tab.js" type="BINDATA" />
       <if expr="os == 'linux2'">
         <include name="IDR_LINUX_SPLASH_HTML_CHROMIUM" file="resources\linux-splash.html" flattenhtml="true" type="BINDATA" />
         <include name="IDR_LINUX_SPLASH_HTML_CHROME" file="resources\linux-splash-chrome.html" flattenhtml="true" type="BINDATA" />
