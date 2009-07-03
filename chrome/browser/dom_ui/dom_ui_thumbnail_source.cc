@@ -21,20 +21,15 @@ DOMUIThumbnailSource::DOMUIThumbnailSource(Profile* profile)
       store_(profile->GetThumbnailStore()) {
 }
 
-DOMUIThumbnailSource::~DOMUIThumbnailSource() {
-  store_->CancelPendingRequests(pending_requests_);
-}
-
 void DOMUIThumbnailSource::StartDataRequest(const std::string& path,
                                             int request_id) {
   if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kThumbnailStore)) {
     RefCountedBytes* data = NULL;
 
-    ThumbnailStore::GetStatus res = store_->GetPageThumbnail(GURL(path), &data);
-    if (res == ThumbnailStore::SUCCESS) {
+    if (store_->GetPageThumbnail(GURL(path), &data)) {
       // Got the thumbnail.
       SendResponse(request_id, data);
-    } else if (res == ThumbnailStore::FAIL) {
+    } else {
       // Don't have the thumbnail so return the default thumbnail.
       if (!default_thumbnail_.get()) {
         default_thumbnail_ = new RefCountedBytes;
@@ -42,12 +37,6 @@ void DOMUIThumbnailSource::StartDataRequest(const std::string& path,
             IDR_DEFAULT_THUMBNAIL, &default_thumbnail_->data);
       }
       SendResponse(request_id, default_thumbnail_);
-    } else if (res == ThumbnailStore::ASYNC) {
-      // Getting the redirect list for the url. Will return thumbnail later.
-      ThumbnailStore::ThumbnailDataCallback* cb =
-          NewCallback(this, &DOMUIThumbnailSource::ReturnData);
-      pending_requests_.insert(request_id);
-      store_->GetPageThumbnailAsync(GURL(path), request_id, cb);
     }
     return;
   }  // end --thumbnail-store switch
@@ -63,22 +52,6 @@ void DOMUIThumbnailSource::StartDataRequest(const std::string& path,
   } else {
     // Tell the caller that no thumbnail is available.
     SendResponse(request_id, NULL);
-  }
-}
-
-void DOMUIThumbnailSource::ReturnData(int request_id,
-                                      scoped_refptr<RefCountedBytes> data) {
-  pending_requests_.erase(request_id);
-  if (data.get() && !data->data.empty()) {
-    SendResponse(request_id, data);
-  } else {
-    if (!default_thumbnail_.get()) {
-      default_thumbnail_ = new RefCountedBytes;
-      ResourceBundle::GetSharedInstance().LoadImageResourceBytes(
-          IDR_DEFAULT_THUMBNAIL, &default_thumbnail_->data);
-    }
-
-    SendResponse(request_id, default_thumbnail_);
   }
 }
 

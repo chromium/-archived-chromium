@@ -21,16 +21,10 @@ class ThumbnailStore;
 class DOMUIThumbnailSource : public ChromeURLDataManager::DataSource {
  public:
   explicit DOMUIThumbnailSource(Profile* profile);
-  virtual ~DOMUIThumbnailSource();
 
   // Called when the network layer has requested a resource underneath
   // the path we registered.
   virtual void StartDataRequest(const std::string& path, int request_id);
-
-  // Used only when chromium is invoked with the --thumbnail-store switch.
-  // If StartDataRequest does not return thumbnail data synchronously, this
-  // method will be invoked when the thumbnail data becomes available.
-  virtual void ReturnData(int request_id, scoped_refptr<RefCountedBytes> data);
 
   virtual std::string GetMimeType(const std::string&) const {
     // We need to explicitly return a mime type, otherwise if the user tries to
@@ -45,9 +39,6 @@ class DOMUIThumbnailSource : public ChromeURLDataManager::DataSource {
  private:
   Profile* profile_;
   CancelableRequestConsumerT<int, 0> cancelable_consumer_;
-
-  // A set of outstanding request_id's. These are canceled on destruction.
-  std::set<int> pending_requests_;
 
   // The ThumbnailStore from which thumbnails are requested.
   scoped_refptr<ThumbnailStore> store_;

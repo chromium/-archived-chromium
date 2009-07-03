@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 #include <string.h>
-#include <algorithm>
 #include <iostream>
 #include <vector>
 
@@ -51,6 +50,7 @@ class ThumbnailStoreTest : public testing::Test {
   // The directory where ThumbnailStore will store data.
   FilePath file_path_;
 
+  scoped_refptr<ThumbnailStore> store_;
   scoped_ptr<SkBitmap> google_;
   scoped_ptr<SkBitmap> weewar_;
   scoped_refptr<RefCountedBytes> jpeg_google_;
@@ -88,6 +88,14 @@ void ThumbnailStoreTest::SetUp() {
       weewar_->height(),
       static_cast<int>(weewar_->rowBytes()), 90,
       &(jpeg_weewar_->data));
+
+  store_ = new ThumbnailStore;
+  store_->cache_initialized_ = true;
+  store_->file_path_ = file_path_;
+  store_->most_visited_urls_.reset(new std::vector<GURL>);
+  store_->most_visited_urls_->push_back(url1_);
+  store_->cache_.reset(new ThumbnailStore::Cache);
+  store_->redirect_urls_.reset(new history::RedirectMap);
 }
 
 void ThumbnailStoreTest::PrintPixelDiff(SkBitmap* image_a, SkBitmap* image_b) {
@@ -129,27 +137,23 @@ void ThumbnailStoreTest::PrintPixelDiff(SkBitmap* image_a, SkBitmap* image_b) {
 }
 
 TEST_F(ThumbnailStoreTest, UpdateThumbnail) {
-  scoped_refptr<ThumbnailStore> store = new ThumbnailStore;
   RefCountedBytes* read_image = NULL;
   ThumbnailScore score2(0.1, true, true);
+  store_->cache_->clear();
+  store_->redirect_urls_->clear();
 
-  store->file_path_ = file_path_;
-  store->cache_.reset(new ThumbnailStore::Cache);
-  store->cache_initialized_ = true;
-
-  // Store google_ with a low score, then weewar_ with a higher score
+  // store_ google_ with a low score, then weewar_ with a higher score
   // and check that weewar_ overwrote google_.
 
-  EXPECT_TRUE(store->SetPageThumbnail(url1_, *google_, score1_, false));
-  EXPECT_TRUE(store->SetPageThumbnail(url1_, *weewar_, score2, false));
+  EXPECT_TRUE(store_->SetPageThumbnail(url1_, *google_, score1_, false));
+  EXPECT_TRUE(store_->SetPageThumbnail(url1_, *weewar_, score2, false));
 
   // Set fake redirects list.
   scoped_ptr<std::vector<GURL> > redirects(new std::vector<GURL>);
   redirects->push_back(url1_);
-  store->redirect_urls_[url1_] = new RefCountedVector<GURL>(*redirects);
+  (*store_->redirect_urls_)[url1_] = new RefCountedVector<GURL>(*redirects);
 
-  EXPECT_EQ(store->GetPageThumbnail(url1_, &read_image),
-            ThumbnailStore::SUCCESS);
+  EXPECT_TRUE(store_->GetPageThumbnail(url1_, &read_image));
   EXPECT_EQ(read_image->data.size(), jpeg_weewar_->data.size());
   EXPECT_EQ(0, memcmp(&read_image->data[0], &jpeg_weewar_->data[0],
                       jpeg_weewar_->data.size()));
@@ -159,29 +163,24 @@ TEST_F(ThumbnailStoreTest, UpdateThumbnail) {
 
 TEST_F(ThumbnailStoreTest, RetrieveFromCache) {
   RefCountedBytes* read_image = NULL;
-  scoped_refptr<ThumbnailStore> store = new ThumbnailStore;
-
-  store->file_path_ = file_path_;
-  store->cache_.reset(new ThumbnailStore::Cache);
-  store->cache_initialized_ = true;
+  store_->cache_->clear();
+  store_->redirect_urls_->clear();
 
   // Retrieve a thumbnail/score for a page not in the cache.
 
-  EXPECT_EQ(store->GetPageThumbnail(url2_, &read_image),
-            ThumbnailStore::ASYNC);
+  EXPECT_FALSE(store_->GetPageThumbnail(url2_, &read_image));
 
-  // Store a thumbnail into the cache and retrieve it.
+  // store_ a thumbnail into the cache and retrieve it.
 
-  EXPECT_TRUE(store->SetPageThumbnail(url1_, *google_, score1_, false));
+  EXPECT_TRUE(store_->SetPageThumbnail(url1_, *google_, score1_, false));
 
   // Set fake redirects list.
   scoped_ptr<std::vector<GURL> > redirects(new std::vector<GURL>);
   redirects->push_back(url1_);
-  store->redirect_urls_[url1_] = new RefCountedVector<GURL>(*redirects);
+  (*store_->redirect_urls_)[url1_] = new RefCountedVector<GURL>(*redirects);
 
-  EXPECT_EQ(store->GetPageThumbnail(url1_, &read_image),
-            ThumbnailStore::SUCCESS);
-  EXPECT_TRUE(score1_.Equals((*store->cache_)[url1_].second));
+  EXPECT_TRUE(store_->GetPageThumbnail(url1_, &read_image));
+  EXPECT_TRUE(score1_.Equals((*store_->cache_)[url1_].second));
   EXPECT_TRUE(read_image->data.size() == jpeg_google_->data.size());
   EXPECT_EQ(0, memcmp(&read_image->data[0], &jpeg_google_->data[0],
                       jpeg_google_->data.size()));
@@ -191,23 +190,15 @@ TEST_F(ThumbnailStoreTest, RetrieveFromCache) {
 
 TEST_F(ThumbnailStoreTest, RetrieveFromDisk) {
   scoped_refptr<RefCountedBytes> read_image = new RefCountedBytes;
-  scoped_refptr<ThumbnailStore> store = new ThumbnailStore;
   ThumbnailScore score2;
+  store_->cache_->clear();
+  store_->redirect_urls_->clear();
 
-  store->file_path_ = file_path_;
-  store->cache_.reset(new ThumbnailStore::Cache);
-  store->cache_initialized_ = true;
+  // store_ a thumbnail onto the disk and retrieve it.
 
-  // Store a thumbnail onto the disk and retrieve it.
-
-  EXPECT_TRUE(store->SetPageThumbnail(url1_, *google_, score1_, false));
-
-  ThumbnailStore::Cache::iterator it = store->cache_->find(url1_);
-  DCHECK(it != store->cache_->end());
-
-  EXPECT_TRUE(store->WriteThumbnailToDisk(url1_, it->second.first,
-                                          it->second.second));
-  EXPECT_TRUE(store->GetPageThumbnailFromDisk(file_path_.AppendASCII(
+  EXPECT_TRUE(store_->SetPageThumbnail(url1_, *google_, score1_, false));
+  EXPECT_TRUE(store_->WriteThumbnailToDisk(url1_, jpeg_google_, score1_));
+  EXPECT_TRUE(store_->GetPageThumbnailFromDisk(file_path_.AppendASCII(
       MD5String(url1_.spec())), &url2_, read_image, &score2));
   EXPECT_TRUE(url1_ == url2_);
   EXPECT_TRUE(score1_.Equals(score2));
@@ -219,29 +210,26 @@ TEST_F(ThumbnailStoreTest, RetrieveFromDisk) {
 TEST_F(ThumbnailStoreTest, FollowRedirects) {
   RefCountedBytes* read_image = NULL;
   scoped_ptr<std::vector<GURL> > redirects(new std::vector<GURL>);
-  scoped_refptr<ThumbnailStore> store = new ThumbnailStore;
-
-  store->file_path_ = file_path_;
-  store->cache_.reset(new ThumbnailStore::Cache);
-  store->cache_initialized_ = true;
+  store_->cache_->clear();
+  store_->redirect_urls_->clear();
 
   GURL my_url("google");
   redirects->push_back(GURL("google.com"));
   redirects->push_back(GURL("www.google.com"));
   redirects->push_back(url1_);  // url1_ = http://www.google.com/
 
-  store->redirect_urls_[my_url] = new RefCountedVector<GURL>(*redirects);
-  EXPECT_TRUE(store->SetPageThumbnail(url1_, *google_, score1_, false));
-  EXPECT_EQ(store->GetPageThumbnail(my_url, &read_image),
-      ThumbnailStore::SUCCESS);
+  store_->most_visited_urls_->push_back(my_url);
+
+  (*store_->redirect_urls_)[my_url] = new RefCountedVector<GURL>(*redirects);
+  EXPECT_TRUE(store_->SetPageThumbnail(url1_, *google_, score1_, false));
+  EXPECT_TRUE(store_->GetPageThumbnail(my_url, &read_image));
 
   read_image->Release();
-  store->cache_->erase(store->cache_->find(url1_));
+  store_->cache_->erase(store_->cache_->find(url1_));
 
-  EXPECT_TRUE(store->SetPageThumbnail(GURL("google.com"), *google_, score1_,
+  EXPECT_TRUE(store_->SetPageThumbnail(GURL("google.com"), *google_, score1_,
       false));
-  EXPECT_EQ(store->GetPageThumbnail(my_url, &read_image),
-      ThumbnailStore::SUCCESS);
+  EXPECT_TRUE(store_->GetPageThumbnail(my_url, &read_image));
 
   read_image->Release();
 }
