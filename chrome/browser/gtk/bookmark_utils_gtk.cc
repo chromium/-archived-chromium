@@ -129,6 +129,8 @@ void ConfigureButtonForNode(const BookmarkNode* node, BookmarkModel* model,
   SetButtonTextColors(label);
   g_object_set_data(G_OBJECT(button), bookmark_utils::kBookmarkNode,
                     AsVoid(node));
+
+  gtk_widget_show_all(box);
 }
 
 std::string BuildTooltipFor(const BookmarkNode* node) {
