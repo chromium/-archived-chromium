@@ -9,6 +9,7 @@
 #include "base/sys_info.h"
 #include "base/values.h"
 #include "chrome/app/chrome_dll_resource.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/platform_util.h"
 #include "chrome/common/pref_names.h"
@@ -321,6 +322,30 @@ TEST_F(VisibleBrowserTest, WindowOpenClose) {
 
   if (i == 10)
     FAIL() << "failed to get error page title";
+}
+#endif
+
+#if defined(OS_WIN)  // only works on Windows for now: http:://crbug.com/15891
+class ShowModalDialogTest : public UITest {
+ public:
+  ShowModalDialogTest() {
+    launch_arguments_.AppendSwitch(switches::kDisablePopupBlocking);
+  }
+};
+
+TEST_F(ShowModalDialogTest, BasicTest) {
+  FilePath test_file(test_data_directory_);
+  test_file = test_file.AppendASCII("showmodaldialog.html");
+  NavigateToURL(net::FilePathToFileURL(test_file));
+
+  ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, action_timeout_ms()));
+
+  scoped_refptr<BrowserProxy> browser = automation()->GetBrowserWindow(1);
+  scoped_refptr<TabProxy> tab = browser->GetActiveTab();
+
+  std::wstring title;
+  ASSERT_TRUE(tab->GetTabTitle(&title));
+  ASSERT_EQ(title, L"ModalDialogTitle");
 }
 #endif
 

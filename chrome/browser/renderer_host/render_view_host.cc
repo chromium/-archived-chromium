@@ -818,7 +818,7 @@ void RenderViewHost::OnMsgShowWidget(int route_id,
 void RenderViewHost::OnMsgRunModal(IPC::Message* reply_msg) {
   DCHECK(!run_modal_reply_msg_);
   if (modal_dialog_count_++ == 0)
-    modal_dialog_event_->Reset();
+    modal_dialog_event_->Signal();
   run_modal_reply_msg_ = reply_msg;
 
   // TODO(darin): Bug 1107929: Need to inform our delegate to show this view in
