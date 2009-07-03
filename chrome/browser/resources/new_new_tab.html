@@ -230,8 +230,8 @@ logEvent('log start');
                     jsdisplay="type == 'tab'"
                     jsvalues="href:url;
                         title:title;
-                        .style.backgroundImage:'url(chrome://favicon/' + url +
-                            ')';
+                        .style.backgroundImage:'url(&quot;chrome://favicon/' +
+                            url + '&quot;)';
                         dir:direction;
                         .sessionId:sessionId"
                     jscontent="title"></a>
@@ -260,8 +260,8 @@ logEvent('log start');
               <a class="item" jsselect="$this"
                  jsdisplay="state != 'CANCELLED'"
                  jsvalues="href:file_path;title:url;
-                     .style.backgroundImage:'url(chrome://fileicon/' +
-                         file_path + ')';
+                     .style.backgroundImage:'url(&quot;chrome://fileicon/' +
+                         file_path + '&quot;)';
                      dir:direction;
                      .fileId:id"
                  jscontent="file_name"></a>
@@ -301,7 +301,8 @@ logEvent('log start');
 <div jsskip="true">
   <div class="window-menu" id="window-menu">
     <span class="item" jsselect="$this"
-        jsvalues=".style.backgroundImage:'url(chrome://favicon/' + url + ')';
+        jsvalues=".style.backgroundImage:'url(&quot;chrome://favicon/' + url +
+            '&quot;)';
             dir:direction;"
         jscontent="title"></span>
   </div>

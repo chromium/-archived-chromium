@@ -179,7 +179,6 @@ function renderMostVisited(data) {
       continue;
     }
 
-    t.title = d.title;
     t.href = d.url;
     t.querySelector('.pin').title = localStrings.getString(d.pinned ?
         'unpinthumbnailtooltip' : 'pinthumbnailtooltip');
@@ -190,10 +189,10 @@ function renderMostVisited(data) {
     // attack but setting style.backgroundImage = 'url(javascript:...)' does
     // not execute the JavaScript in WebKit.
     t.querySelector('.thumbnail-wrapper').style.backgroundImage =
-        'url(chrome://thumb/' + d.url + ')';
+        'url("chrome://thumb/' + d.url + '")';
     var titleDiv = t.querySelector('.title > div');
-    titleDiv.textContent = d.title;
-    titleDiv.style.backgroundImage = 'url(chrome://favicon/' + d.url + ')';
+    titleDiv.title = titleDiv.textContent = d.title;
+    titleDiv.style.backgroundImage = 'url("chrome://favicon/' + d.url + '")';
     titleDiv.dir = d.direction;
   }
 }
@@ -734,7 +733,7 @@ function OptionMenu(button, menu) {
   this.menu = menu;
   this.button.onmousedown = bind(this.handleMouseDown, this);
   this.button.onkeydown = bind(this.handleKeyDown, this);
-  this.boundHideMenu_ = bind(this.hideMenu, this);
+  this.boundHideMenu_ = bind(this.hide, this);
   this.boundMaybeHide_ = bind(this.maybeHide_, this);
   this.menu.onmouseover = bind(this.handleMouseOver, this);
   this.menu.onmouseout = bind(this.handleMouseOut, this);
@@ -742,7 +741,9 @@ function OptionMenu(button, menu) {
 }
 
 OptionMenu.prototype = {
-  showMenu: function() {
+  show: function() {
+    windowMenu.hide();
+
     this.menu.style.display = 'block';
     this.button.focus();
 
@@ -750,19 +751,17 @@ OptionMenu.prototype = {
     // user clicks outside the menu or tabs away or the whole window is blurred.
     document.addEventListener('focus', this.boundMaybeHide_, true);
     document.addEventListener('mousedown', this.boundMaybeHide_, true);
-    window.addEventListener('blur', this.boundHideMenu_);
   },
 
-  hideMenu: function() {
+  hide: function() {
     this.menu.style.display = 'none';
     this.setSelectedIndex(-1);
 
     document.removeEventListener('focus', this.boundMaybeHide_, true);
     document.removeEventListener('mousedown', this.boundMaybeHide_, true);
-    window.removeEventListener('blur', this.boundHide_);
   },
 
-  isMenuShown: function() {
+  isShown: function() {
     return this.menu.style.display == 'block';
   },
 
@@ -774,15 +773,15 @@ OptionMenu.prototype = {
    */
   maybeHide_: function(e) {
     if (!this.menu.contains(e.target) && !this.button.contains(e.target)) {
-      this.hideMenu();
+      this.hide();
     }
   },
 
   handleMouseDown: function(e) {
-    if (this.isMenuShown()) {
-      this.hideMenu();
+    if (this.isShown()) {
+      this.hide();
     } else {
-      this.showMenu();
+      this.show();
     }
   },
 
@@ -829,29 +828,35 @@ OptionMenu.prototype = {
 
     switch (e.keyIdentifier) {
       case 'Down':
-        if (!this.isMenuShown()) {
-          this.showMenu();
+        if (!this.isShown()) {
+          this.show();
         }
         selectNextVisible(1);
+        e.preventDefault();
         break;
       case 'Up':
-        if (!this.isMenuShown()) {
-          this.showMenu();
+        if (!this.isShown()) {
+          this.show();
         }
         selectNextVisible(-1);
+        e.preventDefault();
         break;
       case 'Esc':
       case 'U+001B': // Maybe this is remote desktop playing a prank?
-        this.hideMenu();
+        this.hide();
         break;
       case 'Enter':
-        if (this.isMenuShown()) {
+      case 'U+0020': // Space
+        if (this.isShown()) {
           if (item) {
             this.executeItem(item);
+          } else {
+            this.hide();
           }
         } else {
-          this.showMenu();
+          this.show();
         }
+        e.preventDefault();
         break;
     }
   },
@@ -885,12 +890,12 @@ OptionMenu.prototype = {
       hideSection(section);
     }
 
-    this.hideMenu();
+    this.hide();
     saveShownSections();
   }
 };
 
-new OptionMenu($('option-button'), $('option-menu'));
+var optionMenu = new OptionMenu($('option-button'), $('option-menu'));
 
 $('most-visited').addEventListener('click', function(e) {
   var target = e.target;
@@ -940,65 +945,112 @@ function maybeReopenTab(e) {
 
 recentTabs.addEventListener('mouseover', maybeShowWindowMenu);
 recentTabs.addEventListener('focus', maybeShowWindowMenu, true);
-recentTabs.addEventListener('mouseout', maybeHideWindowMenu);
-recentTabs.addEventListener('blur', maybeHideWindowMenu, true);
+
 
 function maybeShowWindowMenu(e) {
   var el = findAncestor(e.target, function(el) {
     return el.tabItems !== undefined;
   });
   if (el) {
-    showWindowMenu(el, el.tabItems);
+    windowMenu.show(e, el, el.tabItems);
   }
 }
 
-function maybeHideWindowMenu(e) {
-  var el = findAncestor(e.target, function(el) {
-    return el.tabItems !== undefined;
-  });
-  if (el) {
-    $('window-menu').style.display  = 'none';
+/**
+ * This object represents a window/tooltip representing a closed window. It is
+ * shown when hovering over a closed window item or when the item is focused. It
+ * gets hidden when blurred or when mousing out of the menu or the item.
+ * @param {Element} menuEl The element to use as the menu.
+ * @constructor
+ */
+function WindowMenu(menuEl) {
+  this.menuEl = menuEl;
+  var self = this;
+  this.boundHide_ = bind(this.hide, this);
+  menuEl.onmouseover = function() {
+    clearTimeout(self.timer);
+  };
+  menuEl.onmouseout = this.boundHide_;
+}
+
+WindowMenu.prototype = {
+  timer: 0,
+  show: function(e, linkEl, tabs) {
+    optionMenu.hide();
+
+    clearTimeout(this.timer);
+    processData('#window-menu', tabs);
+    var rect = linkEl.getBoundingClientRect();
+    var bodyRect = document.body.getBoundingClientRect()
+    var rtl = document.documentElement.dir == 'rtl';
+
+    this.menuEl.style.display = 'block';
+    this.menuEl.style.left = (rtl ?
+        rect.left + bodyRect.left + rect.width - this.menuEl.offsetWidth :
+        rect.left + bodyRect.left) + 'px';
+    this.menuEl.style.top = rect.top + bodyRect.top + rect.height + 'px';
+
+    if (e.type == 'focus') {
+      linkEl.onblur = this.boundHide_;
+    } else { // mouseover
+      linkEl.onmouseout = this.boundHide_;
+    }
+  },
+  hide: function() {
+    // Delay before hiding.
+    var self = this;
+    this.timer = setTimeout(function() {
+      self.menuEl.style.display  = 'none';
+    }, 100);
+  }
+};
+
+var windowMenu = new WindowMenu($('window-menu'));
+
+function getCheckboxHandler(section) {
+  return function(e) {
+    if (e.type == 'keydown') {
+      if (e.keyIdentifier == 'Enter') {
+        e.target.checked = !e.target.checked;
+      } else {
+        return;
+      }
+    }
+    if (e.target.checked) {
+      showSection(section);
+    } else {
+      hideSection(section);
+    }
+    saveShownSections();
   }
 }
 
-function showWindowMenu(el, tabs) {
-  var menuEl = $('window-menu');
-  processData('#window-menu', tabs);
-  var rect = el.getBoundingClientRect();
-  var bodyRect = document.body.getBoundingClientRect()
-  var rtl = document.documentElement.dir == 'rtl';
-
-  menuEl.style.display = 'block';
-  menuEl.style.left = (rtl ?
-      rect.left + bodyRect.left + rect.width - menuEl.offsetWidth :
-      rect.left + bodyRect.left) + 'px';
-  menuEl.style.top = rect.top + bodyRect.top + rect.height + 'px';
-
-}
-
-$('thumb-checkbox').addEventListener('change', function(e) {
-  if (e.target.checked) {
-    showSection(Section.THUMB);
-  } else {
-    hideSection(Section.THUMB);
-  }
-  saveShownSections();
-});
-
-$('list-checkbox').addEventListener('change', function(e) {
-  if (e.target.checked) {
-    showSection(Section.LIST);
-  } else {
-    hideSection(Section.LIST);
-  }
-  saveShownSections();
-});
+$('thumb-checkbox').addEventListener('change',
+                                     getCheckboxHandler(Section.THUMB));
+$('thumb-checkbox').addEventListener('keydown',
+                                     getCheckboxHandler(Section.THUMB));
+$('list-checkbox').addEventListener('change',
+                                    getCheckboxHandler(Section.LIST));
+$('list-checkbox').addEventListener('keydown',
+                                    getCheckboxHandler(Section.LIST));
 
 window.addEventListener('load', bind(logEvent, global, 'onload fired'));
 window.addEventListener('load', onDataLoaded);
 window.addEventListener('resize', handleWindowResize);
 document.addEventListener('DOMContentLoaded', bind(logEvent, global,
                                                    'domcontentloaded fired'));
+
+function hideAllMenus() {
+  windowMenu.hide();
+  optionMenu.hide();
+}
+
+window.addEventListener('blur', hideAllMenus);
+window.addEventListener('keydown', function(e) {
+  if (e.keyIdentifier == 'Alt' || e.keyIdentifier == 'Meta') {
+    hideAllMenus();
+  }
+}, true);
 
 // DnD
 
