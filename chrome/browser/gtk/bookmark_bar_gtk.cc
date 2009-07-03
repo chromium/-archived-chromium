@@ -38,7 +38,7 @@
 namespace {
 
 // The height of the bar.
-const int kBookmarkBarHeight = 33;
+const int kBookmarkBarHeight = 29;
 
 // Left-padding for the instructional text.
 const int kInstructionsPadding = 6;

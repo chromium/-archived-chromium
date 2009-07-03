@@ -47,7 +47,7 @@ namespace bookmark_utils {
 
 const char kBookmarkNode[] = "bookmark-node";
 
-const int kBarButtonPadding = 2;
+const int kBarButtonPadding = 4;
 
 GdkPixbuf* GetFolderIcon() {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
