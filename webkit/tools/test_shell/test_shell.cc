@@ -667,4 +667,12 @@ std::wstring GetWebKitLocale() {
   return L"en-US";
 }
 
+void CloseIdleConnections() {
+  // Used in benchmarking,  Ignored for test_shell.
+}
+
+void SetCacheMode(bool enabled) {
+  // Used in benchmarking,  Ignored for test_shell.
+}
+
 }  // namespace webkit_glue
