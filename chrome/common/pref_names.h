@@ -7,6 +7,8 @@
 #ifndef CHROME_COMMON_PREF_NAMES_H_
 #define CHROME_COMMON_PREF_NAMES_H_
 
+#include "build/build_config.h"
+
 namespace prefs {
 
 // Profile prefs
@@ -89,6 +91,9 @@ extern const wchar_t kPrintingPageHeaderRight[];
 extern const wchar_t kPrintingPageFooterLeft[];
 extern const wchar_t kPrintingPageFooterCenter[];
 extern const wchar_t kPrintingPageFooterRight[];
+#if defined(OS_LINUX)
+extern const wchar_t kUsesSystemTheme[];
+#endif
 extern const wchar_t kCurrentThemeID[];
 extern const wchar_t kCurrentThemeImages[];
 extern const wchar_t kCurrentThemeColors[];

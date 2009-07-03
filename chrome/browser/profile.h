@@ -188,6 +188,9 @@ class Profile {
   // Set the theme to the specified extension.
   virtual void SetTheme(Extension* extension) = 0;
 
+  // Set the theme to the machine's native theme.
+  virtual void SetNativeTheme() = 0;
+
   // Clear the theme and reset it to default.
   virtual void ClearTheme() = 0;
 
@@ -340,6 +343,7 @@ class ProfileImpl : public Profile,
   virtual DownloadManager* GetDownloadManager();
   virtual void InitThemes();
   virtual void SetTheme(Extension* extension);
+  virtual void SetNativeTheme();
   virtual void ClearTheme();
   virtual ThemeProvider* GetThemeProvider();
   virtual ThumbnailStore* GetThumbnailStore();

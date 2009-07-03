@@ -21,6 +21,7 @@
 #include "chrome/browser/gtk/go_button_gtk.h"
 #include "chrome/browser/gtk/gtk_chrome_button.h"
 #include "chrome/browser/gtk/gtk_dnd_util.h"
+#include "chrome/browser/gtk/gtk_theme_provider.h"
 #include "chrome/browser/gtk/location_bar_view_gtk.h"
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/standard_menus.h"
@@ -124,10 +125,12 @@ void BrowserToolbarGtk::Init(Profile* profile,
   gtk_box_pack_start(GTK_BOX(toolbar_), back_forward_hbox_, FALSE, FALSE, 0);
 
   reload_.reset(BuildToolbarButton(IDR_RELOAD, IDR_RELOAD_P, IDR_RELOAD_H, 0,
-      l10n_util::GetStringUTF8(IDS_TOOLTIP_RELOAD)));
+      l10n_util::GetStringUTF8(IDS_TOOLTIP_RELOAD),
+      GTK_STOCK_REFRESH));
 
   home_.reset(BuildToolbarButton(IDR_HOME, IDR_HOME_P, IDR_HOME_H, 0,
-                                 l10n_util::GetStringUTF8(IDS_TOOLTIP_HOME)));
+                                 l10n_util::GetStringUTF8(IDS_TOOLTIP_HOME),
+                                 GTK_STOCK_HOME));
   gtk_util::SetButtonTriggersNavigation(home_->widget());
   SetUpDragForHomeButton();
 
@@ -161,6 +164,9 @@ void BrowserToolbarGtk::Init(Profile* profile,
   gtk_box_pack_start(GTK_BOX(menus_hbox_), chrome_menu, FALSE, FALSE, 0);
 
   gtk_box_pack_start(GTK_BOX(toolbar_), menus_hbox_, FALSE, FALSE, 0);
+
+  // Force all the CustomDrawButtons to load the correct rendering style.
+  UserChangedTheme();
 
   gtk_widget_show_all(toolbar_);
 
@@ -274,6 +280,19 @@ void BrowserToolbarGtk::UpdateTabContents(TabContents* contents,
   location_bar_->Update(should_restore_state ? contents : NULL);
 }
 
+void BrowserToolbarGtk::UserChangedTheme() {
+  bool use_gtk = GtkThemeProvider::UseSystemThemeGraphics(profile_);
+  back_->SetUseSystemTheme(use_gtk);
+  forward_->SetUseSystemTheme(use_gtk);
+  reload_->SetUseSystemTheme(use_gtk);
+  home_->SetUseSystemTheme(use_gtk);
+
+  gtk_chrome_button_set_use_gtk_rendering(
+      GTK_CHROME_BUTTON(page_menu_button_.get()), use_gtk);
+  gtk_chrome_button_set_use_gtk_rendering(
+      GTK_CHROME_BUTTON(app_menu_button_.get()), use_gtk);
+}
+
 gfx::Rect BrowserToolbarGtk::GetPopupBounds() const {
   GtkWidget* star = star_->widget();
   GtkWidget* go = go_->widget();
@@ -297,9 +316,9 @@ gfx::Rect BrowserToolbarGtk::GetPopupBounds() const {
 
 CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
     int normal_id, int active_id, int highlight_id, int depressed_id,
-    const std::string& localized_tooltip) {
+    const std::string& localized_tooltip, const char* stock_id) {
   CustomDrawButton* button = new CustomDrawButton(normal_id, active_id,
-      highlight_id, depressed_id);
+      highlight_id, depressed_id, stock_id);
 
   gtk_widget_set_tooltip_text(button->widget(),
                               localized_tooltip.c_str());
@@ -332,7 +351,8 @@ GtkWidget* BrowserToolbarGtk::BuildToolbarMenuButton(
   owner->Own(button);
 
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  gtk_container_set_border_width(GTK_CONTAINER(button), 2);
+  if (!GtkThemeProvider::UseSystemThemeGraphics(profile_))
+    gtk_container_set_border_width(GTK_CONTAINER(button), 2);
   gtk_container_add(GTK_CONTAINER(button),
                     gtk_image_new_from_pixbuf(rb.GetPixbufNamed(icon_id)));
 

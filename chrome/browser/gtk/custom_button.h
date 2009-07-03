@@ -45,7 +45,8 @@ class CustomDrawButtonBase {
 };
 
 // CustomDrawButton is a plain button where all its various states are drawn
-// with static images.
+// with static images. In GTK rendering mode, it will show the standard button
+// with GTK |stock_id|.
 class CustomDrawButton {
  public:
   // The constructor takes 4 resource ids.  If a resource doesn't exist for a
@@ -53,7 +54,8 @@ class CustomDrawButton {
   CustomDrawButton(int normal_id,
                    int active_id,
                    int highlight_id,
-                   int depressed_id);
+                   int depressed_id,
+                   const char* stock_id);
   explicit CustomDrawButton(const std::string& filename);
   ~CustomDrawButton();
 
@@ -69,6 +71,12 @@ class CustomDrawButton {
   int width() const { return widget_->allocation.width; }
   int height() const { return widget_->allocation.height; }
 
+  // Sets properties on the GtkButton returned by widget(). By default, the
+  // button is very boring. This will either give it an image from the
+  // |gtk_stock_name_| if |use_gtk| is true or will use the chrome frame
+  // images.
+  void SetUseSystemTheme(bool use_gtk);
+
   // Set the state to draw. We will paint the widget as if it were in this
   // state.
   void SetPaintOverride(GtkStateType state);
@@ -80,15 +88,21 @@ class CustomDrawButton {
   static CustomDrawButton* CloseButton();
 
  private:
-  // Callback for expose, used to draw the custom graphics.
-  static gboolean OnExpose(GtkWidget* widget,
-                           GdkEventExpose* e,
-                           CustomDrawButton* obj);
+  // Callback for custom button expose, used to draw the custom graphics.
+  static gboolean OnCustomExpose(GtkWidget* widget,
+                                 GdkEventExpose* e,
+                                 CustomDrawButton* obj);
 
   // The actual button widget.
   OwnedWidgetGtk widget_;
 
   CustomDrawButtonBase button_base_;
+
+  // The stock icon name.
+  const char* gtk_stock_name_;
+
+  // Whether we have an expose signal handler we may need to remove.
+  bool has_expose_signal_handler_;
 
   DISALLOW_COPY_AND_ASSIGN(CustomDrawButton);
 };

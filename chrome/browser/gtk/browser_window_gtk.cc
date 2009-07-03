@@ -10,6 +10,7 @@
 #include "app/resource_bundle.h"
 #include "app/theme_provider.h"
 #include "base/base_paths_linux.h"
+#include "base/command_line.h"
 #include "base/gfx/gtk_util.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
@@ -34,6 +35,7 @@
 #include "chrome/browser/gtk/edit_search_engine_dialog.h"
 #include "chrome/browser/gtk/find_bar_gtk.h"
 #include "chrome/browser/gtk/go_button_gtk.h"
+#include "chrome/browser/gtk/gtk_theme_provider.h"
 #include "chrome/browser/gtk/import_dialog_gtk.h"
 #include "chrome/browser/gtk/infobar_container_gtk.h"
 #include "chrome/browser/gtk/keyword_editor_view.h"
@@ -713,6 +715,9 @@ void BrowserWindowGtk::UserChangedTheme() {
   SetBackgroundColor();
   gdk_window_invalidate_rect(GTK_WIDGET(window_)->window,
       &GTK_WIDGET(window_)->allocation, TRUE);
+
+  toolbar_->UserChangedTheme();
+  bookmark_bar_->UserChangedTheme(browser_->profile());
 }
 
 int BrowserWindowGtk::GetExtraRenderViewHeight() const {
@@ -1039,9 +1044,8 @@ void BrowserWindowGtk::InitWidgets() {
 
 void BrowserWindowGtk::SetBackgroundColor() {
   // TODO(tc): Handle active/inactive colors.
-
-  ThemeProvider* theme_provider = browser()->profile()->GetThemeProvider();
-
+  Profile* profile = browser()->profile();
+  ThemeProvider* theme_provider = profile->GetThemeProvider();
   SkColor frame_color;
   if (browser()->profile()->IsOffTheRecord()) {
     frame_color = theme_provider->GetColor(

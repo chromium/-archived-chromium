@@ -45,6 +45,10 @@ void gtk_chrome_button_set_paint_state(GtkChromeButton* button,
 // Revert to using the widget's current state for painting.
 void gtk_chrome_button_unset_paint_state(GtkChromeButton* button);
 
+// Whether we should use custom theme images or let GTK take care of it.
+void gtk_chrome_button_set_use_gtk_rendering(GtkChromeButton* button,
+                                             gboolean value);
+
 G_END_DECLS
 
 #endif  // CHROME_BROWSER_GTK_GTK_CHROME_BUTTON_H_

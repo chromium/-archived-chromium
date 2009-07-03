@@ -22,6 +22,7 @@
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/gtk_chrome_button.h"
 #include "chrome/browser/gtk/gtk_dnd_util.h"
+#include "chrome/browser/gtk/gtk_theme_provider.h"
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/tabs/tab_strip_gtk.h"
 #include "chrome/browser/metrics/user_metrics.h"
@@ -44,6 +45,13 @@ const int kInstructionsPadding = 6;
 
 // Color of the instructional text.
 const GdkColor kInstructionsColor = GDK_COLOR_RGB(128, 128, 142);
+
+void SetUseSystemThemeGraphicsOnToolbarItems(GtkToolItem* item, bool use_gtk) {
+  GtkWidget* child = gtk_bin_get_child(GTK_BIN(item));
+  if (GTK_IS_CHROME_BUTTON(child)) {
+    gtk_chrome_button_set_use_gtk_rendering(GTK_CHROME_BUTTON(child), use_gtk);
+  }
+}
 
 }  // namespace
 
@@ -167,6 +175,9 @@ void BookmarkBarGtk::Init(Profile* profile) {
 
   gtk_box_pack_start(GTK_BOX(bookmark_hbox_.get()), other_bookmarks_button_,
                      FALSE, FALSE, 0);
+
+  // Set the current theme state for all the buttons.
+  UserChangedTheme(profile);
   gtk_widget_set_size_request(bookmark_hbox_.get(), -1, 0);
 
   slide_animation_.reset(new SlideAnimation(this));
@@ -260,9 +271,11 @@ void BookmarkBarGtk::BookmarkNodeAdded(BookmarkModel* model,
   }
   DCHECK(index >= 0 && index <= GetBookmarkButtonCount());
 
+  GtkToolItem* item = CreateBookmarkToolItem(parent->GetChild(index));
   gtk_toolbar_insert(GTK_TOOLBAR(bookmark_toolbar_.get()),
-                     CreateBookmarkToolItem(parent->GetChild(index)),
-                     index);
+                     item, index);
+  bool use_gtk = GtkThemeProvider::UseSystemThemeGraphics(profile_);
+  SetUseSystemThemeGraphicsOnToolbarItems(item, use_gtk);
 
   SetInstructionState(parent);
 }
@@ -321,6 +334,10 @@ void BookmarkBarGtk::CreateAllBookmarkButtons(const BookmarkNode* node) {
     gtk_toolbar_insert(GTK_TOOLBAR(bookmark_toolbar_.get()), item, -1);
   }
 
+  // Now that we've made a bunch of toolbar items, we need to make sure they
+  // have the correct theme state.
+  UserChangedTheme(profile_);
+
   SetInstructionState(node);
 }
 
@@ -348,6 +365,19 @@ int BookmarkBarGtk::GetBookmarkButtonCount() {
 
 bool BookmarkBarGtk::IsAlwaysShown() {
   return profile_->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar);
+}
+
+void BookmarkBarGtk::UserChangedTheme(Profile* profile) {
+  bool use_gtk = GtkThemeProvider::UseSystemThemeGraphics(profile);
+
+  gtk_chrome_button_set_use_gtk_rendering(
+      GTK_CHROME_BUTTON(other_bookmarks_button_), use_gtk);
+
+  gtk_container_foreach(
+      GTK_CONTAINER(bookmark_toolbar_.get()),
+      reinterpret_cast<void (*)(GtkWidget*, void*)>(
+          SetUseSystemThemeGraphicsOnToolbarItems),
+      reinterpret_cast<void*>(use_gtk));
 }
 
 void BookmarkBarGtk::AnimationProgressed(const Animation* animation) {

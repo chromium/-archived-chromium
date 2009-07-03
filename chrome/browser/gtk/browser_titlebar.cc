@@ -144,7 +144,7 @@ void BrowserTitlebar::Init() {
 CustomDrawButton* BrowserTitlebar::BuildTitlebarButton(int image,
     int image_pressed, int image_hot, GtkWidget* box, int tooltip) {
   CustomDrawButton* button = new CustomDrawButton(image, image_pressed,
-      image_hot, 0);
+      image_hot, 0, NULL);
   gtk_widget_add_events(GTK_WIDGET(button->widget()), GDK_POINTER_MOTION_MASK);
   g_signal_connect(button->widget(), "clicked", G_CALLBACK(OnButtonClicked),
                    this);

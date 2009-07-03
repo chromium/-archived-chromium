@@ -78,6 +78,9 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
 
   ToolbarStarToggleGtk* star() { return star_.get(); }
 
+  // Alerts us that the theme changed, and we might need to change theme images.
+  void UserChangedTheme();
+
   // Implement AutocompletePopupPositioner, return the position of where the
   // Omnibox results popup should go (from the star to the go buttons).
   virtual gfx::Rect GetPopupBounds() const;
@@ -90,7 +93,8 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
                                        int active_id,
                                        int highlight_id,
                                        int depressed_id,
-                                       const std::string& localized_tooltip);
+                                       const std::string& localized_tooltip,
+                                       const char* stock_id);
 
   // Create the star button given the tooltip.  Returns the widget created.
   ToolbarStarToggleGtk* BuildStarButton(const std::string& localized_tooltip);

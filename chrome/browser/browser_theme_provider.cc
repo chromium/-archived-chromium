@@ -29,71 +29,78 @@
 #include "app/win_util.h"
 #endif
 
+
+namespace themes {
+
 // Strings used by themes to identify colors for different parts of our UI.
-static const char* kColorFrame = "frame";
-static const char* kColorFrameInactive = "frame_inactive";
-static const char* kColorFrameIncognito = "frame_incognito";
-static const char* kColorFrameIncognitoInactive =
-    "frame_incognito_inactive";
-static const char* kColorToolbar = "toolbar";
-static const char* kColorTabText = "tab_text";
-static const char* kColorBackgroundTabText = "background_tab_text";
-static const char* kColorBookmarkText = "bookmark_text";
-static const char* kColorNTPBackground = "ntp_background";
-static const char* kColorNTPText = "ntp_text";
-static const char* kColorNTPLink = "ntp_link";
-static const char* kColorNTPSection = "ntp_section";
-static const char* kColorNTPSectionText = "ntp_section_text";
-static const char* kColorNTPSectionLink = "ntp_section_link";
-static const char* kColorControlBackground = "control_background";
-static const char* kColorButtonBackground = "button_background";
+const char* kColorFrame = "frame";
+const char* kColorFrameInactive = "frame_inactive";
+const char* kColorFrameIncognito = "frame_incognito";
+const char* kColorFrameIncognitoInactive = "frame_incognito_inactive";
+const char* kColorToolbar = "toolbar";
+const char* kColorTabText = "tab_text";
+const char* kColorBackgroundTabText = "background_tab_text";
+const char* kColorBookmarkText = "bookmark_text";
+const char* kColorNTPBackground = "ntp_background";
+const char* kColorNTPText = "ntp_text";
+const char* kColorNTPLink = "ntp_link";
+const char* kColorNTPSection = "ntp_section";
+const char* kColorNTPSectionText = "ntp_section_text";
+const char* kColorNTPSectionLink = "ntp_section_link";
+const char* kColorControlBackground = "control_background";
+const char* kColorButtonBackground = "button_background";
 
 // Strings used by themes to identify tints to apply to different parts of
 // our UI. The frame tints apply to the frame color and produce the
 // COLOR_FRAME* colors.
-static const char* kTintButtons = "buttons";
-static const char* kTintFrame = "frame";
-static const char* kTintFrameInactive = "frame_inactive";
-static const char* kTintFrameIncognito = "frame_incognito";
-static const char* kTintFrameIncognitoInactive =
-    "frame_incognito_inactive";
-static const char* kTintBackgroundTab = "background_tab";
+const char* kTintButtons = "buttons";
+const char* kTintFrame = "frame";
+const char* kTintFrameInactive = "frame_inactive";
+const char* kTintFrameIncognito = "frame_incognito";
+const char* kTintFrameIncognitoInactive = "frame_incognito_inactive";
+const char* kTintBackgroundTab = "background_tab";
 
 // Strings used by themes to identify miscellaneous numerical properties.
-static const char* kDisplayPropertyNTPAlignment = "ntp_background_alignment";
+const char* kDisplayPropertyNTPAlignment = "ntp_background_alignment";
 
 // Strings used in alignment properties.
-static const char* kAlignmentTop = "top";
-static const char* kAlignmentBottom = "bottom";
-static const char* kAlignmentLeft = "left";
-static const char* kAlignmentRight = "right";
+const char* kAlignmentTop = "top";
+const char* kAlignmentBottom = "bottom";
+const char* kAlignmentLeft = "left";
+const char* kAlignmentRight = "right";
 
 // Default colors.
-static const SkColor kDefaultColorFrame = SkColorSetRGB(77, 139, 217);
-static const SkColor kDefaultColorFrameInactive = SkColorSetRGB(152, 188, 233);
-static const SkColor kDefaultColorFrameIncognito = SkColorSetRGB(83, 106, 139);
-static const SkColor kDefaultColorFrameIncognitoInactive =
+const SkColor kDefaultColorFrame = SkColorSetRGB(77, 139, 217);
+const SkColor kDefaultColorFrameInactive = SkColorSetRGB(152, 188, 233);
+const SkColor kDefaultColorFrameIncognito = SkColorSetRGB(83, 106, 139);
+const SkColor kDefaultColorFrameIncognitoInactive =
     SkColorSetRGB(126, 139, 156);
-static const SkColor kDefaultColorToolbar = SkColorSetRGB(210, 225, 246);
-static const SkColor kDefaultColorTabText = SkColorSetRGB(0, 0, 0);
-static const SkColor kDefaultColorBackgroundTabText = SkColorSetRGB(64, 64, 64);
-static const SkColor kDefaultColorBookmarkText = SkColorSetRGB(64, 64, 64);
-static const SkColor kDefaultColorNTPBackground = SkColorSetRGB(255, 255, 255);
-static const SkColor kDefaultColorNTPText = SkColorSetRGB(0, 0, 0);
-static const SkColor kDefaultColorNTPLink = SkColorSetRGB(0, 0, 204);
-static const SkColor kDefaultColorNTPSection = SkColorSetRGB(225, 236, 254);
-static const SkColor kDefaultColorNTPSectionText = SkColorSetRGB(0, 0, 0);
-static const SkColor kDefaultColorNTPSectionLink = SkColorSetRGB(0, 0, 204);
-static const SkColor kDefaultColorControlBackground = NULL;
-static const SkColor kDefaultColorButtonBackground = NULL;
+const SkColor kDefaultColorToolbar = SkColorSetRGB(210, 225, 246);
+const SkColor kDefaultColorTabText = SkColorSetRGB(0, 0, 0);
+const SkColor kDefaultColorBackgroundTabText = SkColorSetRGB(64, 64, 64);
+const SkColor kDefaultColorBookmarkText = SkColorSetRGB(64, 64, 64);
+const SkColor kDefaultColorNTPBackground = SkColorSetRGB(255, 255, 255);
+const SkColor kDefaultColorNTPText = SkColorSetRGB(0, 0, 0);
+const SkColor kDefaultColorNTPLink = SkColorSetRGB(0, 0, 204);
+const SkColor kDefaultColorNTPSection = SkColorSetRGB(225, 236, 254);
+const SkColor kDefaultColorNTPSectionText = SkColorSetRGB(0, 0, 0);
+const SkColor kDefaultColorNTPSectionLink = SkColorSetRGB(0, 0, 204);
+const SkColor kDefaultColorControlBackground = NULL;
+const SkColor kDefaultColorButtonBackground = NULL;
 
 // Default tints.
-static const skia::HSL kDefaultTintButtons = { -1, -1, -1 };
-static const skia::HSL kDefaultTintFrame = { -1, -1, -1 };
-static const skia::HSL kDefaultTintFrameInactive = { -1, 0.5f, 0.72f };
-static const skia::HSL kDefaultTintFrameIncognito = { -1, 0.2f, 0.35f };
-static const skia::HSL kDefaultTintFrameIncognitoInactive = { -1, 0.3f, 0.6f };
-static const skia::HSL kDefaultTintBackgroundTab = { -1, 0.5, 0.75 };
+const skia::HSL kDefaultTintButtons = { -1, -1, -1 };
+const skia::HSL kDefaultTintFrame = { -1, -1, -1 };
+const skia::HSL kDefaultTintFrameInactive = { -1, 0.5f, 0.72f };
+const skia::HSL kDefaultTintFrameIncognito = { -1, 0.2f, 0.35f };
+const skia::HSL kDefaultTintFrameIncognitoInactive = { -1, 0.3f, 0.6f };
+const skia::HSL kDefaultTintBackgroundTab = { -1, 0.5, 0.75 };
+}  // namespace themes
+
+// We really want every member of the previous namespace to be exposed
+// here. The alternative is to list every member of namespace themes in a using
+// directive.
+using namespace themes;
 
 // Default display properties.
 static const int kDefaultDisplayPropertyNTPAlignment =
@@ -288,19 +295,7 @@ void BrowserThemeProvider::SetTheme(Extension* extension) {
 }
 
 void BrowserThemeProvider::UseDefaultTheme() {
-  // Clear our image cache.
-  ClearCaches();
-
-  images_.clear();
-  colors_.clear();
-  tints_.clear();
-  display_properties_.clear();
-
-  SaveImageData(NULL);
-  SaveColorData();
-  SaveTintData();
-  SaveDisplayPropertyData();
-
+  ClearAllThemeData();
   NotifyThemeChanged();
   UserMetrics::RecordAction(L"Themes_Reset", profile_);
 }
@@ -560,6 +555,14 @@ std::string BrowserThemeProvider::AlignmentToString(int alignment) {
     return vertical_string;
 }
 
+void BrowserThemeProvider::SetColor(const char* key, const SkColor& color) {
+  colors_[kColorFrame] = color;
+}
+
+void BrowserThemeProvider::SetTint(const char* key, const skia::HSL& tint) {
+  tints_[key] = tint;
+}
+
 void BrowserThemeProvider::GenerateFrameColors() {
   // Generate any secondary frame colors that weren't provided.
   skia::HSL frame_hsl = { 0, 0, 0 };
@@ -611,6 +614,21 @@ void BrowserThemeProvider::GenerateFrameImages() {
     }
     ++iter;
   }
+}
+
+void BrowserThemeProvider::ClearAllThemeData() {
+  // Clear our image cache.
+  ClearCaches();
+
+  images_.clear();
+  colors_.clear();
+  tints_.clear();
+  display_properties_.clear();
+
+  SaveImageData(NULL);
+  SaveColorData();
+  SaveTintData();
+  SaveDisplayPropertyData();
 }
 
 SkBitmap* BrowserThemeProvider::GenerateBitmap(int id) {

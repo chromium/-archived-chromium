@@ -37,6 +37,10 @@ class ContentPageGtk : public OptionsPageBase {
   static void OnClearBrowsingDataButtonClicked(GtkButton* widget,
                                                ContentPageGtk* page);
 
+  // Callback for the GTK theme button.
+  static void OnGtkThemeButtonClicked(GtkButton* widget,
+                                      ContentPageGtk* page);
+
   // Callback for reset default theme button.
   static void OnResetDefaultThemeButtonClicked(GtkButton* widget,
                                                ContentPageGtk* page);

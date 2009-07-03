@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_GTK_BACK_FORWARD_BUTTON_GTK_
-#define CHROME_BROWSER_GTK_BACK_FORWARD_BUTTON_GTK_
+#ifndef CHROME_BROWSER_GTK_BACK_FORWARD_BUTTON_GTK_H_
+#define CHROME_BROWSER_GTK_BACK_FORWARD_BUTTON_GTK_H_
 
 #include "base/scoped_ptr.h"
 #include "base/task.h"
@@ -26,6 +26,9 @@ class BackForwardButtonGtk {
   void StoppedShowingMenu();
 
   GtkWidget* widget() { return button_->widget(); }
+
+  // Advises our CustomDrawButtons on how to render.
+  void SetUseSystemTheme(bool use_gtk);
 
  private:
   // Executes the browser command.
@@ -75,4 +78,4 @@ class BackForwardButtonGtk {
   DISALLOW_COPY_AND_ASSIGN(BackForwardButtonGtk);
 };
 
-#endif  // CHROME_BROWSER_GTK_BACK_FORWARD_BUTTON_GTK_
+#endif  // CHROME_BROWSER_GTK_BACK_FORWARD_BUTTON_GTK_H_

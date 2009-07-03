@@ -15,6 +15,7 @@
 #include "chrome/browser/alternate_nav_url_fetcher.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view_gtk.h"
 #include "chrome/browser/command_updater.h"
+#include "chrome/browser/gtk/gtk_theme_provider.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gtk_util.h"
 #include "chrome/common/page_transition_types.h"
@@ -116,10 +117,17 @@ void LocationBarViewGtk::Init() {
                    G_CALLBACK(&HandleExposeThunk), this);
 
   GtkWidget* align = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
-  gtk_alignment_set_padding(GTK_ALIGNMENT(align),
-                            kTopMargin + kBorderThickness,
-                            kBottomMargin + kBorderThickness,
-                            kEditLeftRightPadding, kEditLeftRightPadding);
+  // TODO(erg): Redo this so that it adjusts during theme changes.
+  if (GtkThemeProvider::UseSystemThemeGraphics(profile_)) {
+    gtk_alignment_set_padding(GTK_ALIGNMENT(align),
+                              0, 0,
+                              kEditLeftRightPadding, kEditLeftRightPadding);
+  } else {
+    gtk_alignment_set_padding(GTK_ALIGNMENT(align),
+                              kTopMargin + kBorderThickness,
+                              kBottomMargin + kBorderThickness,
+                              kEditLeftRightPadding, kEditLeftRightPadding);
+  }
   gtk_container_add(GTK_CONTAINER(align), location_entry_->widget());
   gtk_box_pack_start(GTK_BOX(hbox_.get()), align, TRUE, TRUE, 0);
 

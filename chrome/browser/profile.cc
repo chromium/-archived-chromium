@@ -45,6 +45,10 @@
 #include "grit/locale_settings.h"
 #include "net/base/force_tls_state.h"
 
+#if defined(OS_LINUX)
+#include "chrome/browser/gtk/gtk_theme_provider.h"
+#endif
+
 using base::Time;
 using base::TimeDelta;
 
@@ -116,6 +120,9 @@ void Profile::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterBooleanPref(prefs::kEnableSpellCheck, true);
   prefs->RegisterBooleanPref(prefs::kEnableAutoSpellCorrect, true);
   prefs->RegisterBooleanPref(prefs::kEnableUserScripts, false);
+#if defined(OS_LINUX)
+  prefs->RegisterBooleanPref(prefs::kUsesSystemTheme, false);
+#endif
   prefs->RegisterStringPref(prefs::kCurrentThemeID, L"");
   prefs->RegisterDictionaryPref(prefs::kCurrentThemeImages);
   prefs->RegisterDictionaryPref(prefs::kCurrentThemeColors);
@@ -285,6 +292,10 @@ class OffTheRecordProfileImpl : public Profile,
 
   virtual void SetTheme(Extension* extension) {
     GetOriginalProfile()->SetTheme(extension);
+  }
+
+  virtual void SetNativeTheme() {
+    GetOriginalProfile()->SetNativeTheme();
   }
 
   virtual void ClearTheme() {
@@ -922,7 +933,11 @@ bool ProfileImpl::HasCreatedDownloadManager() const {
 
 void ProfileImpl::InitThemes() {
   if (!created_theme_provider_) {
+#if defined(OS_LINUX)
+    scoped_refptr<BrowserThemeProvider> themes(new GtkThemeProvider);
+#else
     scoped_refptr<BrowserThemeProvider> themes(new BrowserThemeProvider);
+#endif
     themes->Init(this);
     created_theme_provider_ = true;
     theme_provider_.swap(themes);
@@ -932,6 +947,11 @@ void ProfileImpl::InitThemes() {
 void ProfileImpl::SetTheme(Extension* extension) {
   InitThemes();
   theme_provider_.get()->SetTheme(extension);
+}
+
+void ProfileImpl::SetNativeTheme() {
+  InitThemes();
+  theme_provider_.get()->SetNativeTheme();
 }
 
 void ProfileImpl::ClearTheme() {

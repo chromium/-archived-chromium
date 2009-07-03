@@ -5,6 +5,7 @@
 #include "chrome/browser/gtk/gtk_chrome_button.h"
 
 #include "base/basictypes.h"
+#include "base/gfx/gtk_util.h"
 #include "chrome/browser/gtk/nine_box.h"
 
 #include "grit/app_resources.h"
@@ -27,6 +28,10 @@ typedef struct _GtkChromeButtonPrivate GtkChromeButtonPrivate;
 
 struct _GtkChromeButtonPrivate {
   int paint_state;
+
+  // If true, we use images provided by the theme instead of GTK's default
+  // button rendering.
+  gboolean use_gtk_rendering;
 };
 
 G_DEFINE_TYPE(GtkChromeButton, gtk_chrome_button, GTK_TYPE_BUTTON)
@@ -66,6 +71,7 @@ static void gtk_chrome_button_class_init(GtkChromeButtonClass* button_class) {
 static void gtk_chrome_button_init(GtkChromeButton* button) {
   GtkChromeButtonPrivate* priv = GTK_CHROME_BUTTON_GET_PRIVATE(button);
   priv->paint_state = -1;
+  priv->use_gtk_rendering = FALSE;
 
   gtk_widget_set_app_paintable(GTK_WIDGET(button), TRUE);
 
@@ -78,19 +84,34 @@ static gboolean gtk_chrome_button_expose(GtkWidget* widget,
   int paint_state = priv->paint_state < 0 ?
                     GTK_WIDGET_STATE(widget) : priv->paint_state;
 
-  NineBox* nine_box = NULL;
-  if (paint_state == GTK_STATE_PRELIGHT)
-    nine_box = g_nine_box_prelight;
-  else if (paint_state == GTK_STATE_ACTIVE)
-    nine_box = g_nine_box_active;
+  if (priv->use_gtk_rendering) {
+    // We have the superclass handle this expose when we aren't using custom
+    // rendering AND we're in either the prelight or active state so that we
+    // get the button border for the current GTK theme drawn.
+    if (paint_state == GTK_STATE_PRELIGHT || paint_state == GTK_STATE_ACTIVE) {
+      (*GTK_WIDGET_CLASS(gtk_chrome_button_parent_class)->expose_event)
+          (widget, event);
+    } else {
+      // Otherwise, we're still responsible for rendering our children.
+      gtk_container_propagate_expose(GTK_CONTAINER(widget),
+                                     gtk_bin_get_child(GTK_BIN(widget)),
+                                     event);
+    }
+  } else {
+    NineBox* nine_box = NULL;
+    if (paint_state == GTK_STATE_PRELIGHT)
+      nine_box = g_nine_box_prelight;
+    else if (paint_state == GTK_STATE_ACTIVE)
+      nine_box = g_nine_box_active;
 
-  // Only draw theme graphics if we have some.
-  if (nine_box)
-    nine_box->RenderToWidget(widget);
+    // Only draw theme graphics if we have some.
+    if (nine_box)
+      nine_box->RenderToWidget(widget);
 
-  gtk_container_propagate_expose(GTK_CONTAINER(widget),
-                                 gtk_bin_get_child(GTK_BIN(widget)),
-                                 event);
+    gtk_container_propagate_expose(GTK_CONTAINER(widget),
+                                   gtk_bin_get_child(GTK_BIN(widget)),
+                                   event);
+  }
 
   return TRUE;  // Don't propagate, we are the default handler.
 }
@@ -116,6 +137,13 @@ void gtk_chrome_button_unset_paint_state(GtkChromeButton* button) {
   priv->paint_state = -1;
 
   gtk_widget_queue_draw(GTK_WIDGET(button));
+}
+
+void gtk_chrome_button_set_use_gtk_rendering(GtkChromeButton* button,
+                                             gboolean value) {
+  g_return_if_fail(GTK_IS_CHROME_BUTTON(button));
+  GtkChromeButtonPrivate *priv = GTK_CHROME_BUTTON_GET_PRIVATE(button);
+  priv->use_gtk_rendering = value;
 }
 
 G_END_DECLS

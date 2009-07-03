@@ -25,20 +25,24 @@ BackForwardButtonGtk::BackForwardButtonGtk(Browser* browser, bool is_forward)
       last_release_event_flags_(0),
       show_menu_factory_(this) {
   int normal, active, highlight, depressed, tooltip;
+  const char* stock;
   if (is_forward) {
     normal = IDR_FORWARD;
     active = IDR_FORWARD_P;
     highlight = IDR_FORWARD_H;
     depressed = IDR_FORWARD_D;
     tooltip = IDS_TOOLTIP_FORWARD;
+    stock = GTK_STOCK_GO_FORWARD;
   } else {
     normal = IDR_BACK;
     active = IDR_BACK_P;
     highlight = IDR_BACK_H;
     depressed = IDR_BACK_D;
     tooltip = IDS_TOOLTIP_BACK;
+    stock = GTK_STOCK_GO_BACK;
   }
-  button_.reset(new CustomDrawButton(normal, active, highlight, depressed));
+  button_.reset(new CustomDrawButton(normal, active, highlight, depressed,
+                                     stock));
   gtk_widget_set_tooltip_text(widget(),
                               l10n_util::GetStringUTF8(tooltip).c_str());
   menu_model_.reset(new BackForwardMenuModelGtk(browser,
@@ -70,6 +74,10 @@ BackForwardButtonGtk::~BackForwardButtonGtk() {
 
 void BackForwardButtonGtk::StoppedShowingMenu() {
   button_->UnsetPaintOverride();
+}
+
+void BackForwardButtonGtk::SetUseSystemTheme(bool use_gtk) {
+  button_->SetUseSystemTheme(use_gtk);
 }
 
 void BackForwardButtonGtk::ShowBackForwardMenu() {

@@ -67,6 +67,9 @@ class BookmarkBarGtk : public AnimationDelegate,
   // Returns true if the bookmarks bar preference is set to 'always show'.
   bool IsAlwaysShown();
 
+  // Alerts us that the theme changed, and we might need to change theme images.
+  void UserChangedTheme(Profile* profile);
+
   // AnimationDelegate implementation ------------------------------------------
   virtual void AnimationProgressed(const Animation* animation);
   virtual void AnimationEnded(const Animation* animation);

@@ -20,6 +20,71 @@ class Extension;
 class Profile;
 class DictionaryValue;
 
+namespace themes {
+
+// Strings used by themes to identify colors for different parts of our UI.
+extern const char* kColorFrame;
+extern const char* kColorFrameInactive;
+extern const char* kColorFrameIncognito;
+extern const char* kColorFrameIncognitoInactive;
+extern const char* kColorToolbar;
+extern const char* kColorTabText;
+extern const char* kColorBackgroundTabText;
+extern const char* kColorBookmarkText;
+extern const char* kColorNTPBackground;
+extern const char* kColorNTPText;
+extern const char* kColorNTPLink;
+extern const char* kColorNTPSection;
+extern const char* kColorNTPSectionText;
+extern const char* kColorNTPSectionLink;
+extern const char* kColorControlBackground;
+extern const char* kColorButtonBackground;
+
+// Strings used by themes to identify tints to apply to different parts of
+// our UI. The frame tints apply to the frame color and produce the
+// COLOR_FRAME* colors.
+extern const char* kTintButtons;
+extern const char* kTintFrame;
+extern const char* kTintFrameInactive;
+extern const char* kTintFrameIncognito;
+extern const char* kTintFrameIncognitoInactive;
+extern const char* kTintBackgroundTab;
+
+// Strings used by themes to identify miscellaneous numerical properties.
+extern const char* kDisplayPropertyNTPAlignment;
+
+// Strings used in alignment properties.
+extern const char* kAlignmentTop;
+extern const char* kAlignmentBottom;
+extern const char* kAlignmentLeft;
+extern const char* kAlignmentRight;
+
+// Default colors.
+extern const SkColor kDefaultColorFrame;
+extern const SkColor kDefaultColorFrameInactive;
+extern const SkColor kDefaultColorFrameIncognito;
+extern const SkColor kDefaultColorFrameIncognitoInactive;
+extern const SkColor kDefaultColorToolbar;
+extern const SkColor kDefaultColorTabText;
+extern const SkColor kDefaultColorBackgroundTabText;
+extern const SkColor kDefaultColorBookmarkText;
+extern const SkColor kDefaultColorNTPBackground;
+extern const SkColor kDefaultColorNTPText;
+extern const SkColor kDefaultColorNTPLink;
+extern const SkColor kDefaultColorNTPSection;
+extern const SkColor kDefaultColorNTPSectionText;
+extern const SkColor kDefaultColorNTPSectionLink;
+extern const SkColor kDefaultColorControlBackground;
+extern const SkColor kDefaultColorButtonBackground;
+
+extern const skia::HSL kDefaultTintButtons;
+extern const skia::HSL kDefaultTintFrame;
+extern const skia::HSL kDefaultTintFrameInactive;
+extern const skia::HSL kDefaultTintFrameIncognito;
+extern const skia::HSL kDefaultTintFrameIncognitoInactive;
+extern const skia::HSL kDefaultTintBackgroundTab;
+}  // namespace themes
+
 class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
                              public NonThreadSafe,
                              public ThemeProvider {
@@ -78,10 +143,14 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
 #endif
 
   // Set the current theme to the theme defined in |extension|.
-  void SetTheme(Extension* extension);
+  virtual void SetTheme(Extension* extension);
 
   // Reset the theme to default.
-  void UseDefaultTheme();
+  virtual void UseDefaultTheme();
+
+  // Set the current theme to the native theme. On some platforms, the native
+  // theme is the default theme.
+  virtual void SetNativeTheme() { UseDefaultTheme(); }
 
   // Convert a bitfield alignment into a string like "top left". Public so that
   // it can be used to generate CSS values. Takes a bitfield of AlignmentMasks.
@@ -90,6 +159,35 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
   // Parse alignments from something like "top left" into a bitfield of
   // AlignmentMasks
   static int StringToAlignment(const std::string &alignment);
+
+ protected:
+  // Sets an individual color value.
+  void SetColor(const char* id, const SkColor& color);
+
+  // Sets an individual tint value.
+  void SetTint(const char* id, const skia::HSL& tint);
+
+  // Generate any frame colors that weren't specified.
+  void GenerateFrameColors();
+
+  // Generate any frame images that weren't specified. The resulting images
+  // will be stored in our cache.
+  void GenerateFrameImages();
+
+  // Clears all the override fields and saves the dictionary.
+  void ClearAllThemeData();
+
+  // Load theme data from preferences.
+  virtual void LoadThemePrefs();
+
+  // Let all the browser views know that themes have changed.
+  void NotifyThemeChanged();
+
+  // Loads a bitmap from the theme, which may be tinted or
+  // otherwise modified, or an application default.
+  virtual SkBitmap* LoadThemeBitmap(int id);
+
+  Profile* profile() { return profile_; }
 
  private:
   typedef std::map<const int, std::string> ImageMap;
@@ -100,10 +198,6 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
   // Reads the image data from the theme file into the specified vector. Returns
   // true on success.
   bool ReadThemeFileData(int id, std::vector<unsigned char>* raw_data);
-
-  // Loads a bitmap from the theme, which may be tinted or
-  // otherwise modified, or an application default.
-  SkBitmap* LoadThemeBitmap(int id);
 
   // Returns the string key for the given tint |id| TINT_* enum value.
   const std::string GetTintKey(int id);
@@ -139,13 +233,6 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
   // strings, they are currently stored as integers.
   void SetDisplayPropertyData(DictionaryValue* display_properties);
 
-  // Generate any frame colors that weren't specified.
-  void GenerateFrameColors();
-
-  // Generate any frame images that weren't specified. The resulting images
-  // will be stored in our cache.
-  void GenerateFrameImages();
-
   // Create any images that aren't pregenerated (e.g. background tab images).
   SkBitmap* GenerateBitmap(int id);
 
@@ -155,12 +242,6 @@ class BrowserThemeProvider : public base::RefCounted<BrowserThemeProvider>,
   void SaveColorData();
   void SaveTintData();
   void SaveDisplayPropertyData();
-
-  // Let all the browser views know that themes have changed.
-  void NotifyThemeChanged();
-
-  // Load theme data from preferences.
-  void LoadThemePrefs();
 
   SkColor FindColor(const char* id, SkColor default_color);
 

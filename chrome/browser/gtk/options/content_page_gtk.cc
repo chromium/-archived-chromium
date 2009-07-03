@@ -171,6 +171,12 @@ GtkWidget* ContentPageGtk::InitBrowsingDataGroup() {
 GtkWidget* ContentPageGtk::InitThemesGroup() {
   GtkWidget* hbox = gtk_hbox_new(FALSE, gtk_util::kLabelSpacing);
 
+  // GTK theme button.
+  GtkWidget* gtk_theme_button = gtk_button_new_with_label("GTK Theme");
+  g_signal_connect(G_OBJECT(gtk_theme_button), "clicked",
+                   G_CALLBACK(OnGtkThemeButtonClicked), this);
+  gtk_box_pack_start(GTK_BOX(hbox), gtk_theme_button, FALSE, FALSE, 0);
+
   // Reset themes button.
   GtkWidget* themes_reset_button = gtk_button_new_with_label(
       l10n_util::GetStringUTF8(IDS_THEMES_RESET_BUTTON).c_str());
@@ -195,6 +201,14 @@ void ContentPageGtk::OnClearBrowsingDataButtonClicked(GtkButton* widget,
   ClearBrowsingDataDialogGtk::Show(
       GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(widget))),
       page->profile());
+}
+
+// static
+void ContentPageGtk::OnGtkThemeButtonClicked(GtkButton* widget,
+                                             ContentPageGtk* page) {
+  page->UserMetricsRecordAction(L"Options_GtkThemeSet",
+                                page->profile()->GetPrefs());
+  page->profile()->SetNativeTheme();
 }
 
 // static
