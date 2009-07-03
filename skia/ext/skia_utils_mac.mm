@@ -84,7 +84,8 @@ CGColorRef SkColorToCGColorRef(SkColor color) {
 }
 
 SkBitmap CGImageToSkBitmap(CGImageRef image) {
-  DCHECK(image != NULL);
+  if (!image)
+    return SkBitmap();
 
   int width = CGImageGetWidth(image);
   int height = CGImageGetHeight(image);
