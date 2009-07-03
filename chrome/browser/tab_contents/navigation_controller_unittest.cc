@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -738,7 +738,7 @@ TEST_F(NavigationControllerTest, Redirect) {
   EXPECT_EQ(controller().pending_entry_index(), -1);
   EXPECT_EQ(url1, controller().GetActiveEntry()->url());
 
-  ViewHostMsg_FrameNavigate_Params params;
+  ViewHostMsg_FrameNavigate_Params params = {0};
   params.page_id = 0;
   params.url = url2;
   params.transition = PageTransition::SERVER_REDIRECT;
@@ -779,7 +779,7 @@ TEST_F(NavigationControllerTest, NewSubframe) {
       NotificationType::NAV_ENTRY_COMMITTED));
 
   const GURL url2("http://foo2");
-  ViewHostMsg_FrameNavigate_Params params;
+  ViewHostMsg_FrameNavigate_Params params = {0};
   params.page_id = 1;
   params.url = url2;
   params.transition = PageTransition::MANUAL_SUBFRAME;
@@ -814,7 +814,7 @@ TEST_F(NavigationControllerTest, SubframeOnEmptyPage) {
 
   // Navigation controller currently has no entries.
   const GURL url("http://foo2");
-  ViewHostMsg_FrameNavigate_Params params;
+  ViewHostMsg_FrameNavigate_Params params = {0};
   params.page_id = 1;
   params.url = url;
   params.transition = PageTransition::AUTO_SUBFRAME;
@@ -839,7 +839,7 @@ TEST_F(NavigationControllerTest, AutoSubframe) {
       NotificationType::NAV_ENTRY_COMMITTED));
 
   const GURL url2("http://foo2");
-  ViewHostMsg_FrameNavigate_Params params;
+  ViewHostMsg_FrameNavigate_Params params = {0};
   params.page_id = 0;
   params.url = url2;
   params.transition = PageTransition::AUTO_SUBFRAME;
@@ -869,7 +869,7 @@ TEST_F(NavigationControllerTest, BackSubframe) {
 
   // First manual subframe navigation.
   const GURL url2("http://foo2");
-  ViewHostMsg_FrameNavigate_Params params;
+  ViewHostMsg_FrameNavigate_Params params = {0};
   params.page_id = 1;
   params.url = url2;
   params.transition = PageTransition::MANUAL_SUBFRAME;
@@ -953,7 +953,7 @@ TEST_F(NavigationControllerTest, InPage) {
 
   // First navigation.
   const GURL url2("http:////foo#a");
-  ViewHostMsg_FrameNavigate_Params params;
+  ViewHostMsg_FrameNavigate_Params params = {0};
   params.page_id = 1;
   params.url = url2;
   params.transition = PageTransition::LINK;
@@ -1116,7 +1116,7 @@ TEST_F(NavigationControllerTest, RestoreNavigate) {
   EXPECT_EQ(0, our_controller.GetEntryAtIndex(0)->page_id());
 
   // Say we navigated to that entry.
-  ViewHostMsg_FrameNavigate_Params params;
+  ViewHostMsg_FrameNavigate_Params params = {0};
   params.page_id = 0;
   params.url = url;
   params.transition = PageTransition::LINK;
@@ -1380,7 +1380,7 @@ TEST_F(NavigationControllerTest, SameSubframe) {
 
   // Navigate a subframe that would normally count as in-page.
   const GURL subframe("http://www.google.com/#");
-  ViewHostMsg_FrameNavigate_Params params;
+  ViewHostMsg_FrameNavigate_Params params = {0};
   params.page_id = 0;
   params.url = subframe;
   params.transition = PageTransition::AUTO_SUBFRAME;
