@@ -851,6 +851,8 @@
         'browser/dom_ui/html_dialog_ui.h',
         'browser/dom_ui/new_tab_ui.cc',
         'browser/dom_ui/new_tab_ui.h',
+        'browser/dom_ui/print_ui.cc',
+        'browser/dom_ui/print_ui.h',
         'browser/dom_ui/shown_sections_handler.cc',
         'browser/dom_ui/shown_sections_handler.h',
         'browser/dom_ui/tips_handler.cc',

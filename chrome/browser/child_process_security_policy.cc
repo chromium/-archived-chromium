@@ -98,6 +98,7 @@ ChildProcessSecurityPolicy::ChildProcessSecurityPolicy() {
   RegisterPseudoScheme(chrome::kAboutScheme);
   RegisterPseudoScheme(chrome::kJavaScriptScheme);
   RegisterPseudoScheme(chrome::kViewSourceScheme);
+  RegisterPseudoScheme(chrome::kPrintScheme);
 }
 
 ChildProcessSecurityPolicy::~ChildProcessSecurityPolicy() {
@@ -170,10 +171,11 @@ void ChildProcessSecurityPolicy::GrantRequestURL(int renderer_id, const GURL& ur
     return;  // The scheme has already been white-listed for every renderer.
 
   if (IsPseudoScheme(url.scheme())) {
-    // The view-source scheme is a special case of a pseudo URL that eventually
-    // results in requesting its embedded URL.
-    if (url.SchemeIs(chrome::kViewSourceScheme)) {
-      // URLs with the view-source scheme typically look like:
+    // The view-source and print schemes are a special case of a pseudo URL that
+    // eventually results in requesting its embedded URL.
+    if (url.SchemeIs(chrome::kViewSourceScheme) ||
+        url.SchemeIs(chrome::kPrintScheme)) {
+      // URLs with the view-source and print schemes typically look like:
       //   view-source:http://www.google.com/a
       // In order to request these URLs, the renderer needs to be able to
       // request the embedded URL.
@@ -254,9 +256,10 @@ bool ChildProcessSecurityPolicy::CanRequestURL(int renderer_id, const GURL& url)
   if (IsPseudoScheme(url.scheme())) {
     // There are a number of special cases for pseudo schemes.
 
-    if (url.SchemeIs(chrome::kViewSourceScheme)) {
-      // A view-source URL is allowed if the renderer is permitted to request
-      // the embedded URL.
+    if (url.SchemeIs(chrome::kViewSourceScheme) ||
+        url.SchemeIs(chrome::kPrintScheme)) {
+      // View-source and print URL's are allowed if the renderer is permitted
+      // to request the embedded URL.
       return CanRequestURL(renderer_id, GURL(url.path()));
     }
 

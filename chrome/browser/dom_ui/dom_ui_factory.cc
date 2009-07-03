@@ -9,6 +9,7 @@
 #include "chrome/browser/dom_ui/history_ui.h"
 #include "chrome/browser/dom_ui/html_dialog_ui.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
+#include "chrome/browser/dom_ui/print_ui.h"
 #include "chrome/browser/extensions/extensions_ui.h"
 #include "chrome/browser/extensions/extension_dom_ui.h"
 #include "chrome/common/url_constants.h"
@@ -38,6 +39,12 @@ static bool CreateDOMUI(const GURL& url, TabContents* tab_contents,
   if (url.SchemeIs(chrome::kExtensionScheme)) {
     if (new_ui)
       *new_ui = new ExtensionDOMUI(tab_contents);
+    return true;
+  }
+
+  if (url.SchemeIs(chrome::kPrintScheme)) {
+    if (new_ui)
+      *new_ui = new PrintUI(tab_contents);
     return true;
   }
 

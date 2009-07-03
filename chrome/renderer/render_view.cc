@@ -1485,7 +1485,8 @@ WindowOpenDisposition RenderView::DispositionForNavigationAction(
     if (BindingsPolicy::is_dom_ui_enabled(enabled_bindings_) ||
         BindingsPolicy::is_extension_enabled(enabled_bindings_) ||
         frame->GetInViewSourceMode() ||
-        url.SchemeIs(chrome::kViewSourceScheme)) {
+        url.SchemeIs(chrome::kViewSourceScheme) ||
+        url.SchemeIs(chrome::kPrintScheme)) {
       OpenURL(webview, url, GURL(), disposition);
       return IGNORE_ACTION;  // Suppress the load here.
     }

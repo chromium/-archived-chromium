@@ -21,6 +21,7 @@ const char kHttpScheme[] = "http";
 const char kHttpsScheme[] = "https";
 const char kJavaScriptScheme[] = "javascript";
 const char kMailToScheme[] = "mailto";
+const char kPrintScheme[] = "print";
 const char kUserScriptScheme[] = "chrome-user-script";
 const char kViewCacheScheme[] = "view-cache";
 const char kViewSourceScheme[] = "view-source";
