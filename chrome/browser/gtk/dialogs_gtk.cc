@@ -17,6 +17,14 @@
 #include "chrome/browser/shell_dialogs.h"
 #include "grit/generated_resources.h"
 
+// The size of the preview we display for selected image files. We set height
+// larger than width because generally there is more free space vertically
+// than horiztonally (setting the preview image will alway expand the width of
+// the dialog, but usually not the height). The image's aspect ratio will always
+// be preserved.
+static const int kPreviewWidth = 256;
+static const int kPreviewHeight = 512;
+
 // Implementation of SelectFileDialog that shows a Gtk common dialog for
 // choosing a file or folder.
 // This acts as a modal dialog. Ideally we want to only act modally for the
@@ -88,6 +96,10 @@ class SelectFileDialogImpl : public SelectFileDialog {
   static void OnSelectMultiFileDialogResponse(
       GtkWidget* dialog, gint response_id, SelectFileDialogImpl* dialog_impl);
 
+  // Callback for when we update the preview for the selection.
+  static void OnUpdatePreview(GtkFileChooser* chooser,
+                              SelectFileDialogImpl* dialog);
+
   // The listener to be notified of selection completion.
   Listener* listener_;
 
@@ -111,6 +123,9 @@ class SelectFileDialogImpl : public SelectFileDialog {
   // file so that we can display future dialogs with the same starting path.
   static FilePath* last_saved_path_;
   static FilePath* last_opened_path_;
+
+  // The GtkImage widget for showing previews of selected images.
+  GtkWidget* preview_;
 
   DISALLOW_COPY_AND_ASSIGN(SelectFileDialogImpl);
 };
@@ -187,6 +202,10 @@ void SelectFileDialogImpl::SelectFile(
       NOTIMPLEMENTED() << "Dialog type " << type << " not implemented.";
       return;
   }
+
+  preview_ = gtk_image_new();
+  g_signal_connect(dialog, "update-preview", G_CALLBACK(OnUpdatePreview), this);
+  gtk_file_chooser_set_preview_widget(GTK_FILE_CHOOSER(dialog), preview_);
 
   params_map_[dialog] = params;
   gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
@@ -408,4 +427,21 @@ void SelectFileDialogImpl::OnSelectMultiFileDialogResponse(
 
   g_slist_free(filenames);
   dialog_impl->MultiFilesSelected(dialog, filenames_fp);
+}
+
+// static
+void SelectFileDialogImpl::OnUpdatePreview(GtkFileChooser* chooser,
+                                           SelectFileDialogImpl* dialog) {
+  gchar* filename = gtk_file_chooser_get_preview_filename(chooser);
+  if (!filename)
+    return;
+  // This will preserve the image's aspect ratio.
+  GdkPixbuf* pixbuf = gdk_pixbuf_new_from_file_at_size(filename, kPreviewWidth,
+                                                       kPreviewHeight, NULL);
+  g_free(filename);
+  if (pixbuf) {
+    gtk_image_set_from_pixbuf(GTK_IMAGE(dialog->preview_), pixbuf);
+    g_object_unref(pixbuf);
+  }
+  gtk_file_chooser_set_preview_widget_active(chooser, pixbuf ? TRUE : FALSE);
 }
