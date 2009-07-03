@@ -218,6 +218,9 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnCloseIdleConnections();
   void OnSetCacheMode(bool enabled);
 
+  void OnGetFileSize(const FilePath& path, IPC::Message* reply_msg);
+  void ReplyGetFileSize(int64 result, void* param);
+
 #if defined(OS_LINUX)
   void SendDelayedReply(IPC::Message* reply_msg);
   void DoOnGetScreenInfo(gfx::NativeViewId view, IPC::Message* reply_msg);

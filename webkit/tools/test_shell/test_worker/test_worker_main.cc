@@ -76,6 +76,11 @@ class WorkerWebKitClientImpl : public webkit_glue::WebKitClientImpl {
     NOTREACHED();
   }
 
+  virtual bool getFileSize(const WebKit::WebString& path, long long& result) {
+    NOTREACHED();
+    return false;
+  }
+
   virtual WebKit::WebString defaultLocale() {
     NOTREACHED();
     return WebKit::WebString();

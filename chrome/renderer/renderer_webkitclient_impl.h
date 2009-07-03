@@ -33,6 +33,7 @@ class RendererWebKitClientImpl : public webkit_glue::WebKitClientImpl {
   virtual WebKit::WebString cookies(
       const WebKit::WebURL& url, const WebKit::WebURL& first_party_for_cookies);
   virtual void prefetchHostName(const WebKit::WebString&);
+  virtual bool getFileSize(const WebKit::WebString& path, long long& result);
   virtual WebKit::WebString defaultLocale();
   virtual void suddenTerminationChanged(bool enabled);
 

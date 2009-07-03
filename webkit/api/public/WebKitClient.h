@@ -82,6 +82,10 @@ namespace WebKit {
         // A suggestion to prefetch IP information for the given hostname.
         virtual void prefetchHostName(const WebString&) = 0;
 
+        // File ----------------------------------------------------------------
+
+        virtual bool getFileSize(const WebString& path, long long& result) = 0;
+
         // Returns a new WebURLLoader instance.
         virtual WebURLLoader* createURLLoader() = 0;
 

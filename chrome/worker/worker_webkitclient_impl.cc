@@ -52,6 +52,12 @@ void WorkerWebKitClientImpl::prefetchHostName(const WebKit::WebString&) {
   NOTREACHED();
 }
 
+bool WorkerWebKitClientImpl::getFileSize(const WebKit::WebString& path,
+                                         long long& result) {
+  NOTREACHED();
+  return false;
+}
+
 WebKit::WebString WorkerWebKitClientImpl::defaultLocale() {
   NOTREACHED();
   return WebKit::WebString();

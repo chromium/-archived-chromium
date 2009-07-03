@@ -114,6 +114,10 @@ class SandboxIPCProcess : public WebKitClient {
 
   virtual void prefetchHostName(const WebString&) { }
 
+  virtual bool getFileSize(const WebString& path, long long& result) {
+    return false;
+  }
+
   virtual WebURLLoader* createURLLoader() { return NULL; }
 
   virtual void getPluginList(bool refresh, WebPluginListBuilder*) { }

@@ -1413,6 +1413,11 @@ IPC_BEGIN_MESSAGES(ViewHost)
   IPC_MESSAGE_CONTROL1(ViewHostMsg_SetCacheMode,
                        bool /* enabled */)
 
+  // Get file size in bytes. Set result to -1 if failed to get the file size.
+  IPC_SYNC_MESSAGE_CONTROL1_1(ViewHostMsg_GetFileSize,
+                              FilePath /* path */,
+                              int64 /* result */)
+
   //---------------------------------------------------------------------------
   // Utility process host messages:
   // These are messages from the utility process to the browser.  They're here

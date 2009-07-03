@@ -10,6 +10,7 @@
 #include "base/histogram.h"
 #include "base/process_util.h"
 #include "base/thread.h"
+#include "chrome/browser/child_process_security_policy.h"
 #include "chrome/browser/chrome_plugin_browsing_context.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/extensions/extension_message_service.h"
@@ -19,6 +20,7 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/audio_renderer_host.h"
 #include "chrome/browser/renderer_host/browser_render_process_host.h"
+#include "chrome/browser/renderer_host/file_system_accessor.h"
 #include "chrome/browser/renderer_host/render_widget_helper.h"
 #include "chrome/browser/spellchecker.h"
 #include "chrome/browser/worker_host/worker_service.h"
@@ -323,6 +325,8 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
                           OnCloseIdleConnections)
       IPC_MESSAGE_HANDLER(ViewHostMsg_SetCacheMode,
                           OnSetCacheMode)
+      IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_GetFileSize,
+                                      OnGetFileSize)
 
       IPC_MESSAGE_UNHANDLED(
           handled = false)
@@ -912,4 +916,32 @@ void ResourceMessageFilter::OnSetCacheMode(bool enabled) {
   net::HttpCache::Mode mode = enabled ?
       net::HttpCache::NORMAL : net::HttpCache::DISABLE;
   request_context_->http_transaction_factory()->GetCache()->set_mode(mode);
+}
+
+void ResourceMessageFilter::OnGetFileSize(const FilePath& path,
+                                          IPC::Message* reply_msg) {
+  // Increase the ref count to ensure ResourceMessageFilter won't be destroyed
+  // before GetFileSize callback is done.
+  AddRef();
+
+  // Get file size only when the child process has been granted permission to
+  // upload the file.
+  if (ChildProcessSecurityPolicy::GetInstance()->CanUploadFile(
+      render_process_id_, path)) {
+    FileSystemAccessor::RequestFileSize(
+        path,
+        reply_msg,
+        NewCallback(this, &ResourceMessageFilter::ReplyGetFileSize));
+  } else {
+    ReplyGetFileSize(-1, reply_msg);
+  }
+}
+
+void ResourceMessageFilter::ReplyGetFileSize(int64 result, void* param) {
+  IPC::Message* reply_msg = static_cast<IPC::Message*>(param);
+  ViewHostMsg_GetFileSize::WriteReplyParams(reply_msg, result);
+  Send(reply_msg);
+
+  // Getting file size callback done, decrease the ref count.
+  Release();
 }

@@ -5,6 +5,7 @@
 #ifndef WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_WEBKIT_INIT_H_
 #define WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_WEBKIT_INIT_H_
 
+#include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
@@ -94,6 +95,11 @@ class TestShellWebKitInit : public webkit_glue::WebKitClientImpl {
   }
 
   virtual void prefetchHostName(const WebKit::WebString&) {
+  }
+
+  virtual bool getFileSize(const WebKit::WebString& path, long long& result) {
+    return file_util::GetFileSize(
+        FilePath(webkit_glue::WebStringToFilePathString(path)), &result);
   }
 
   virtual WebKit::WebData loadResource(const char* name) {

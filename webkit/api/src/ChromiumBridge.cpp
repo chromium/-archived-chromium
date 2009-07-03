@@ -148,6 +148,13 @@ void ChromiumBridge::prefetchDNS(const String& hostname)
     webKitClient()->prefetchHostName(hostname);
 }
 
+// File ------------------------------------------------------------------------
+
+bool ChromiumBridge::getFileSize(const String& path, long long& result)
+{
+  return webKitClient()->getFileSize(path, result);
+}
+
 // Font -----------------------------------------------------------------------
 
 #if PLATFORM(WIN_OS)

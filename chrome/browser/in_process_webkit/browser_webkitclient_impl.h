@@ -22,6 +22,7 @@ class BrowserWebKitClientImpl : public webkit_glue::WebKitClientImpl {
   virtual WebKit::WebString cookies(const WebKit::WebURL& url,
                                     const WebKit::WebURL& policy_url);
   virtual void prefetchHostName(const WebKit::WebString&);
+  virtual bool getFileSize(const WebKit::WebString& path, long long& result);
   virtual WebKit::WebString defaultLocale();
   virtual WebKit::WebThemeEngine* themeEngine();
   virtual WebKit::WebURLLoader* createURLLoader();
