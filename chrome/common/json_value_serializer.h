@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -28,6 +28,7 @@ class JSONStringValueSerializer : public ValueSerializer {
   JSONStringValueSerializer(const std::string& json_string)
       : json_string_(&const_cast<std::string&>(json_string)),
         initialized_with_const_string_(true),
+        pretty_print_(false),
         allow_trailing_comma_(false) {
   }
 
@@ -58,7 +59,7 @@ class JSONStringValueSerializer : public ValueSerializer {
   // If true, deserialization will allow trailing commas.
   bool allow_trailing_comma_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(JSONStringValueSerializer);
+  DISALLOW_COPY_AND_ASSIGN(JSONStringValueSerializer);
 };
 
 class JSONFileValueSerializer : public ValueSerializer {
