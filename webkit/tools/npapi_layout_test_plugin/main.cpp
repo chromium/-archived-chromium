@@ -372,6 +372,12 @@ int16 NPP_HandleEvent(NPP instance, void *event)
 
     fflush(stdout);
 #else
+
+#ifdef MAC_EVENT_CODE_DISABLED_DUE_TO_ERRORS
+// This code apparently never built on Mac, but Mac was previously
+// using the Linux branch.  It doesn't quite build.
+// warning: 'GlobalToLocal' is deprecated (declared at
+// .../Frameworks/QD.framework/Headers/QuickdrawAPI.h:2181)
     EventRecord* evt = static_cast<EventRecord*>(event);
     Point pt = { evt->where.v, evt->where.h };
     switch (evt->what) {
@@ -432,6 +438,8 @@ int16 NPP_HandleEvent(NPP instance, void *event)
         default:
             log(instance, "event %d", evt->what);
     }
+#endif  // MAC_EVENT_CODE_DISABLED_DUE_TO_ERRORS
+
 #endif
 
     return 0;
