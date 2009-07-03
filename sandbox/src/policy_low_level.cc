@@ -77,7 +77,7 @@ bool LowLevelPolicy::Done() {
 
   for (Mmap::iterator it = mmap.begin(); it != mmap.end(); ++it) {
     uint32 service = (*it).first;
-    if (service > kMaxServiceCount) {
+    if (service >= kMaxServiceCount) {
       return false;
     }
     policy_store_->entry[service] = current_buffer;
