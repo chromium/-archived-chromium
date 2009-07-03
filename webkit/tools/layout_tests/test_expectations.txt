@@ -1251,6 +1251,9 @@ BUG10666 LINUX : chrome/fast/forms/basic-selects.html = FAIL
 BUG15797 LINUX : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
 BUG15797 LINUX : LayoutTests/plugins/embed-attributes-setting.html = FAIL
 
+// Linux: mouse events are at the wrong coordinates for plugin.
+BUG15907 LINUX : LayoutTests/plugins/mouse-events.html = FAIL
+
 // Depends on plugin support.
 BUG10351 MAC : LayoutTests/fast/dom/Window/Plug-ins.html = FAIL
 BUG10351 MAC : LayoutTests/fast/js/navigator-mimeTypes-length.html = FAIL
@@ -1270,9 +1273,7 @@ BUG10351 MAC : LayoutTests/plugins/getintidentifier-special-values.html = FAIL
 BUG10351 MAC : LayoutTests/plugins/geturl-replace-query.html = TIMEOUT
 BUG10351 MAC : LayoutTests/plugins/inner-html-display-none.html = FAIL
 BUG10351 MAC : LayoutTests/plugins/invoke.html = FAIL
-// Linux: Need to hook up mouse event output in the layout test plugin.
-// Code's there, but #ifdef'd out temporarily.
-BUG10351 MAC LINUX : LayoutTests/plugins/mouse-events.html = FAIL
+BUG10351 MAC : LayoutTests/plugins/mouse-events.html = FAIL
 BUG10351 MAC : LayoutTests/plugins/netscape-destroy-plugin-script-objects.html = FAIL
 BUG10351 MAC : LayoutTests/plugins/netscape-dom-access.html = FAIL
 BUG10351 MAC : LayoutTests/plugins/netscape-get-property-return-value.html = FAIL
