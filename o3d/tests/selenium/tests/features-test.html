@@ -108,7 +108,7 @@ function checkFeatures(o3dElement, expectError) {
     function() { pack.createTexture2D(32, 32, o3d.Texture.R32F, 1, false); },
     function() { pack.createTexture2D(32, 32, o3d.Texture.ABGR16F, 1, false); },
     function() { pack.createTexture2D(32, 32, o3d.Texture.ABGR32F, 1, false); },
-    function() { createBuffer(pack, 65535); },
+    function() { createBuffer(pack, 65535); }
   ];
 
   for (var ii = 0; ii < functions.length; ++ii) {
