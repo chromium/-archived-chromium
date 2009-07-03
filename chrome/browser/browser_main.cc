@@ -89,7 +89,7 @@
 #include "chrome/browser/jankometer.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/net/url_fixer_upper.h"
-#include "chrome/browser/printing/print_job_manager.h"
+#include "chrome/browser/printing/printed_document.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/rlz/rlz.h"
 #include "chrome/browser/views/user_data_dir_dialog.h"
@@ -757,9 +757,9 @@ int BrowserMain(const MainFunctionParams& parameters) {
   }
   InstallJankometer(parsed_command_line);
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) && !defined(GOOGLE_CHROME_BUILD)
   if (parsed_command_line.HasSwitch(switches::kDebugPrint)) {
-    browser_process->print_job_manager()->set_debug_dump_path(
+    printing::PrintedDocument::set_debug_dump_path(
         parsed_command_line.GetSwitchValue(switches::kDebugPrint));
   }
 #endif

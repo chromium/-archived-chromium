@@ -527,12 +527,6 @@ class NotificationType {
 
     // Printing ----------------------------------------------------------------
 
-    // Notification from a PrintedDocument that it has been updated. It may be
-    // that a printed page has just been generated or that the document's
-    // number of pages has been calculated. Details is the new page or NULL if
-    // only the number of pages in the document has been updated.
-    PRINTED_DOCUMENT_UPDATED,
-
     // Notification from PrintJob that an event occured. It can be that a page
     // finished printing or that the print job failed. Details is
     // PrintJob::EventDetails.

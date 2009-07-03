@@ -96,6 +96,12 @@ class PrintedDocument : public base::RefCountedThreadSafe<PrintedDocument> {
   const std::wstring& time() const { return immutable_.time_; }
   const int cookie() const { return immutable_.cookie_; }
 
+  // Sets a path where to dump printing output files for debugging. If never set
+  // no files are generated.
+  static void set_debug_dump_path(const std::wstring& debug_dump_path);
+
+  static const std::wstring& debug_dump_path();
+
  private:
   // Array of EMF data for each print previewed page.
   typedef std::map<int, scoped_refptr<PrintedPage>> PrintedPages;
@@ -165,6 +171,8 @@ class PrintedDocument : public base::RefCountedThreadSafe<PrintedDocument> {
                          PageOverlays::HorizontalPosition x,
                          PageOverlays::VerticalPosition y,
                          const gfx::Font& font) const;
+
+  void DebugDump(const PrintedPage& page);
 
   // All writable data member access must be guarded by this lock. Needs to be
   // mutable since it can be acquired from const member functions.

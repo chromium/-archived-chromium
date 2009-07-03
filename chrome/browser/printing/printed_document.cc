@@ -9,19 +9,35 @@
 #include "app/gfx/font.h"
 #include "app/gfx/text_elider.h"
 #include "app/win_util.h"
+#include "base/file_util.h"
 #include "base/message_loop.h"
+#include "base/singleton.h"
+#include "base/string_util.h"
 #include "base/time.h"
 #include "chrome/browser/printing/page_number.h"
 #include "chrome/browser/printing/page_overlays.h"
 #include "chrome/browser/printing/printed_pages_source.h"
 #include "chrome/browser/printing/printed_page.h"
 #include "chrome/common/gfx/emf.h"
-#include "chrome/common/time_format.h"
-#include "chrome/common/notification_service.h"
 #include "printing/units.h"
 #include "skia/ext/platform_device.h"
 
 using base::Time;
+
+namespace {
+
+struct PrintDebugDumpPath {
+  PrintDebugDumpPath()
+    : enabled(false) {
+  }
+
+  bool enabled;
+  std::wstring debug_dump_path;
+};
+
+Singleton<PrintDebugDumpPath> g_debug_dump_info;
+
+}  // namespace
 
 namespace printing {
 
@@ -59,10 +75,7 @@ void PrintedDocument::SetPage(int page_number, gfx::Emf* emf, double shrink) {
       DCHECK_EQ(mutable_.shrink_factor, shrink);
     }
   }
-  NotificationService::current()->Notify(
-      NotificationType::PRINTED_DOCUMENT_UPDATED,
-      Source<PrintedDocument>(this),
-      Details<PrintedPage>(page));
+  DebugDump(*page);
 }
 
 bool PrintedDocument::GetPage(int page_number,
@@ -195,22 +208,16 @@ size_t PrintedDocument::MemoryUsage() const {
 }
 
 void PrintedDocument::set_page_count(int max_page) {
-  {
-    AutoLock lock(lock_);
-    DCHECK_EQ(0, mutable_.page_count_);
-    mutable_.page_count_ = max_page;
-    if (immutable_.settings_.ranges.empty()) {
-      mutable_.expected_page_count_ = max_page;
-    } else {
-      // If there is a range, don't bother since expected_page_count_ is already
-      // initialized.
-      DCHECK_NE(mutable_.expected_page_count_, 0);
-    }
+  AutoLock lock(lock_);
+  DCHECK_EQ(0, mutable_.page_count_);
+  mutable_.page_count_ = max_page;
+  if (immutable_.settings_.ranges.empty()) {
+    mutable_.expected_page_count_ = max_page;
+  } else {
+    // If there is a range, don't bother since expected_page_count_ is already
+    // initialized.
+    DCHECK_NE(mutable_.expected_page_count_, 0);
   }
-  NotificationService::current()->Notify(
-      NotificationType::PRINTED_DOCUMENT_UPDATED,
-      Source<PrintedDocument>(this),
-      NotificationService::NoDetails());
 }
 
 int PrintedDocument::page_count() const {
@@ -295,6 +302,35 @@ void PrintedDocument::PrintHeaderFooter(HDC context,
           static_cast<int>(output.size()));
   int res = RestoreDC(context, saved_state);
   DCHECK_NE(res, 0);
+}
+
+void PrintedDocument::DebugDump(const PrintedPage& page)
+{
+  if (!g_debug_dump_info->enabled)
+    return;
+
+  std::wstring filename;
+  filename += date();
+  filename += L"_";
+  filename += time();
+  filename += L"_";
+  filename += name();
+  filename += L"_";
+  filename += StringPrintf(L"%02d", page.page_number());
+  filename += L"_.emf";
+  file_util::ReplaceIllegalCharacters(&filename, '_');
+  std::wstring path(g_debug_dump_info->debug_dump_path);
+  file_util::AppendToPath(&path, filename);
+  page.emf()->SaveTo(path);
+}
+
+void PrintedDocument::set_debug_dump_path(const std::wstring& debug_dump_path) {
+  g_debug_dump_info->enabled = !debug_dump_path.empty();
+  g_debug_dump_info->debug_dump_path = debug_dump_path;
+}
+
+const std::wstring& PrintedDocument::debug_dump_path() {
+  return g_debug_dump_info->debug_dump_path;
 }
 
 PrintedDocument::Mutable::Mutable(PrintedPagesSource* source)

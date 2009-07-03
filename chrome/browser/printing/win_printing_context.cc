@@ -11,7 +11,7 @@
 #include "base/time.h"
 #include "base/time_format.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/printing/print_job_manager.h"
+#include "chrome/browser/printing/printed_document.h"
 #include "skia/ext/platform_device_win.h"
 
 using base::Time;
@@ -272,14 +272,7 @@ PrintingContext::Result PrintingContext::NewDocument(
   di.lpszDocName = document_name.c_str();
 
   // Is there a debug dump directory specified? If so, force to print to a file.
-  std::wstring debug_dump_path;
-  if (!g_browser_process || !g_browser_process->print_job_manager()) {
-    // Happens only inside a unit test.
-    debug_dump_path = L".";
-  } else {
-    debug_dump_path = g_browser_process->print_job_manager()->debug_dump_path();
-  }
-
+  std::wstring debug_dump_path = PrintedDocument::debug_dump_path();
   if (!debug_dump_path.empty()) {
     // Create a filename.
     std::wstring filename;

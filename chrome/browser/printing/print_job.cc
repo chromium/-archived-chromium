@@ -66,21 +66,6 @@ void PrintJob::Observe(NotificationType type,
                        const NotificationDetails& details) {
   DCHECK_EQ(ui_message_loop_, MessageLoop::current());
   switch (type.value) {
-    case NotificationType::PRINTED_DOCUMENT_UPDATED: {
-      DCHECK(Source<PrintedDocument>(source).ptr() ==
-             document_.get());
-
-      // This notification may happens even if no job is started (i.e. print
-      // preview)
-      if (is_job_pending_ == true &&
-          Source<PrintedDocument>(source).ptr() == document_.get() &&
-          Details<PrintedPage>(details).ptr() != NULL) {
-        // Are we waiting for a page to print? The worker will know.
-        worker_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-            worker_.get(), &PrintJobWorker::OnNewPage));
-      }
-      break;
-    }
     case NotificationType::PRINT_JOB_EVENT: {
       OnNotifyPrintJobEvent(*Details<JobEventDetails>(details).ptr());
       break;
@@ -229,17 +214,10 @@ PrintedDocument* PrintJob::document() const {
 void PrintJob::UpdatePrintedDocument(PrintedDocument* new_document) {
   if (document_.get() == new_document)
     return;
-  // Unregisters.
-  if (document_.get()) {
-    registrar_.Remove(this, NotificationType::PRINTED_DOCUMENT_UPDATED,
-                      Source<PrintedDocument>(document_.get()));
-  }
+
   document_ = new_document;
 
-  // Registers.
   if (document_.get()) {
-    registrar_.Add(this, NotificationType::PRINTED_DOCUMENT_UPDATED,
-                   Source<PrintedDocument>(document_.get()));
     settings_ = document_->settings();
   }
 
