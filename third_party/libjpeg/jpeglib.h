@@ -13,6 +13,10 @@
 #ifndef JPEGLIB_H
 #define JPEGLIB_H
 
+/* Begin chromium edits */
+#include "jpeglibmangler.h"
+/* End chromium edits */
+
 /*
  * First we include the configuration files that record how this
  * installation of the JPEG library is set up.  jconfig.h can be
