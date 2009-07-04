@@ -7,6 +7,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_details.h"
@@ -18,22 +19,22 @@
 #include "chrome/test/ui_test_utils.h"
 #include "net/base/net_util.h"
 
-// This file contains high-level regression tests for the extensions system. The
-// goal here is not to test everything in depth, but to run the system as close
-// as possible end-to-end to find any gaps in test coverage in the lower-level
-// unit tests.
+// This file contains high-level startup tests for the extensions system. We've
+// had many silly bugs where command line flags did not get propagated correctly
+// into the services, so we didn't start correctly.
 
 class ExtensionStartupTestBase
   : public InProcessBrowserTest, public NotificationObserver {
  public:
   ExtensionStartupTestBase()
       : enable_extensions_(false), enable_user_scripts_(false) {
-    EnableDOMAutomation();
   }
 
  protected:
   // InProcessBrowserTest
   virtual void SetUpCommandLine(CommandLine* command_line) {
+    EnableDOMAutomation();
+
     FilePath profile_dir;
     PathService::Get(chrome::DIR_USER_DATA, &profile_dir);
     profile_dir = profile_dir.AppendASCII("Default");
@@ -145,7 +146,7 @@ IN_PROC_BROWSER_TEST_F(ExtensionsStartupTest, Test) {
   // Test that the content script ran.
   bool result = false;
   ui_test_utils::ExecuteJavaScriptAndExtractBool(
-      browser()->GetSelectedTabContents(), L"",
+      browser()->GetSelectedTabContents()->render_view_host(), L"",
       L"window.domAutomationController.send("
       L"document.defaultView.getComputedStyle(document.body, null)."
       L"getPropertyValue('background-color') == 'rgb(245, 245, 220)')",
@@ -154,21 +155,10 @@ IN_PROC_BROWSER_TEST_F(ExtensionsStartupTest, Test) {
 
   result = false;
   ui_test_utils::ExecuteJavaScriptAndExtractBool(
-      browser()->GetSelectedTabContents(), L"",
+      browser()->GetSelectedTabContents()->render_view_host(), L"",
       L"window.domAutomationController.send(document.title == 'Modified')",
       &result);
   EXPECT_TRUE(result);
-
-  // Load an extension page into the tab area to make sure it works.
-  result = false;
-  ui_test_utils::NavigateToURL(
-      browser(),
-      GURL("chrome-extension://behllobkkfkfnphdnhnkndlbkcpglgmj/page.html"));
-  ui_test_utils::ExecuteJavaScriptAndExtractBool(
-      browser()->GetSelectedTabContents(), L"", L"testTabsAPI()", &result);
-  EXPECT_TRUE(result);
-
-  // TODO(aa): Move the stuff in ExtensionBrowserTest here?
 }
 
 
@@ -207,7 +197,7 @@ IN_PROC_BROWSER_TEST_F(ExtensionsStartupUserScriptTest, Test) {
   // Test that the user script ran.
   bool result = false;
   ui_test_utils::ExecuteJavaScriptAndExtractBool(
-      browser()->GetSelectedTabContents(), L"",
+      browser()->GetSelectedTabContents()->render_view_host(), L"",
       L"window.domAutomationController.send(document.title == 'Modified')",
       &result);
   EXPECT_TRUE(result);

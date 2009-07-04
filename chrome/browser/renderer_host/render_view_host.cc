@@ -15,6 +15,7 @@
 #include "chrome/browser/child_process_security_policy.h"
 #include "chrome/browser/cross_site_request_manager.h"
 #include "chrome/browser/debugger/devtools_manager.h"
+#include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
@@ -24,6 +25,7 @@
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/renderer_host/site_instance.h"
 #include "chrome/common/bindings_policy.h"
+#include "chrome/common/notification_details.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"
 #include "chrome/common/render_messages.h"
@@ -1043,6 +1045,12 @@ void RenderViewHost::OnMsgDidContentsPreferredWidthChange(int pref_width) {
 void RenderViewHost::OnMsgDomOperationResponse(
     const std::string& json_string, int automation_id) {
   delegate_->DomOperationResponse(json_string, automation_id);
+
+  // We also fire a notification for more loosely-coupled use cases.
+  DomOperationNotificationDetails details(json_string, automation_id);
+  NotificationService::current()->Notify(
+      NotificationType::DOM_OPERATION_RESPONSE, Source<RenderViewHost>(this),
+      Details<DomOperationNotificationDetails>(&details));
 }
 
 void RenderViewHost::OnMsgDOMUISend(

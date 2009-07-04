@@ -1862,14 +1862,6 @@ void TabContents::RequestOpenURL(const GURL& url, const GURL& referrer,
   }
 }
 
-void TabContents::DomOperationResponse(const std::string& json_string,
-                                       int automation_id) {
-  DomOperationNotificationDetails details(json_string, automation_id);
-  NotificationService::current()->Notify(
-      NotificationType::DOM_OPERATION_RESPONSE, Source<TabContents>(this),
-      Details<DomOperationNotificationDetails>(&details));
-}
-
 void TabContents::ProcessDOMUIMessage(const std::string& message,
                                       const std::string& content,
                                       int request_id,

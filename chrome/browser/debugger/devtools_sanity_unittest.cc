@@ -63,7 +63,7 @@ class DevToolsSanityTest : public InProcessBrowserTest {
     // files have been loaded) and has runTest method.
     ASSERT_TRUE(
         ui_test_utils::ExecuteJavaScriptAndExtractString(
-            client_contents_,
+            client_contents_->render_view_host(),
             L"",
             L"window.domAutomationController.send("
             L"'' + (window.uiTests && (typeof uiTests.runTest)));",
@@ -72,7 +72,7 @@ class DevToolsSanityTest : public InProcessBrowserTest {
     if (result == "function") {
       ASSERT_TRUE(
           ui_test_utils::ExecuteJavaScriptAndExtractString(
-              client_contents_,
+              client_contents_->render_view_host(),
               L"",
               UTF8ToWide(StringPrintf("uiTests.runTest('%s')", test_name.c_str())),
               &result));

@@ -14,8 +14,8 @@ class Browser;
 class DownloadManager;
 class GURL;
 class NavigationController;
+class RenderViewHost;
 class Value;
-class TabContents;
 
 // A collections of functions designed for use with InProcessBrowserTest.
 namespace ui_test_utils {
@@ -48,7 +48,7 @@ void NavigateToURLBlockUntilNavigationsComplete(Browser* browser,
 // Executes the passed |script| in the frame pointed to by |frame_xpath| (use
 // empty string for main frame) and returns the value the evaluation of the
 // script returned.  The caller owns the returned value.
-Value* ExecuteJavaScript(TabContents* tab_contents,
+Value* ExecuteJavaScript(RenderViewHost* render_view_host,
                          const std::wstring& frame_xpath,
                          const std::wstring& script);
 
@@ -59,15 +59,15 @@ Value* ExecuteJavaScript(TabContents* tab_contents,
 // evaluate to the expected type.
 // Note: In order for the domAutomationController to work, you must call
 // EnableDOMAutomation() in your test first.
-bool ExecuteJavaScriptAndExtractInt(TabContents* tab_contents,
+bool ExecuteJavaScriptAndExtractInt(RenderViewHost* render_view_host,
                                     const std::wstring& frame_xpath,
                                     const std::wstring& script,
                                     int* result);
-bool ExecuteJavaScriptAndExtractBool(TabContents* tab_contents,
+bool ExecuteJavaScriptAndExtractBool(RenderViewHost* render_view_host,
                                      const std::wstring& frame_xpath,
                                      const std::wstring& script,
                                      bool* result);
-bool ExecuteJavaScriptAndExtractString(TabContents* tab_contents,
+bool ExecuteJavaScriptAndExtractString(RenderViewHost* render_view_host,
                                        const std::wstring& frame_xpath,
                                        const std::wstring& script,
                                        std::string* result);

@@ -218,6 +218,7 @@ void InProcessBrowserTest::RunTestOnMainThreadLoop() {
       kInitialTimeoutInMS);
 
   RunTestOnMainThread();
+  CleanUpOnMainThread();
 
   BrowserList::const_iterator browser = BrowserList::begin();
   for (; browser != BrowserList::end(); ++browser)

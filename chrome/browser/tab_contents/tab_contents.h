@@ -794,8 +794,6 @@ class TabContents : public PageNavigator,
                                 const SkBitmap& image);
   virtual void RequestOpenURL(const GURL& url, const GURL& referrer,
                               WindowOpenDisposition disposition);
-  virtual void DomOperationResponse(const std::string& json_string,
-                                    int automation_id);
   virtual void ProcessDOMUIMessage(const std::string& message,
                                    const std::string& content,
                                    int request_id,

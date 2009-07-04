@@ -26,8 +26,8 @@
       'browser/extensions/extension_shelf_model_unittest.cc',
       'browser/extensions/extension_startup_unittest.cc',
       'browser/extensions/extension_browsertest.cc',
-      'browser/extensions/test_extension_loader.cc',
-      'browser/extensions/test_extension_loader.h',
+      'browser/extensions/extension_browsertest.h',
+      'browser/extensions/extension_browsertests_misc.cc',
       'browser/views/find_bar_win_browsertest.cc',
       # TODO(jam): http://crbug.com/15101 These tests fail on Linux and Mac.
       'browser/child_process_security_policy_browser_test.cc',
@@ -3471,7 +3471,6 @@
         'browser/extensions/extension_process_manager_unittest.cc',
         'browser/extensions/extension_ui_unittest.cc',
         'browser/extensions/extensions_service_unittest.cc',
-        'browser/extensions/test_extension_loader.cc',
         'browser/extensions/user_script_master_unittest.cc',
         'browser/find_backend_unittest.cc',
         'browser/google_url_tracker_unittest.cc',
@@ -3746,7 +3745,6 @@
             'browser/browser_unittest.cc',
             # Need to port browser/automation/ui_controls.h
             'browser/extensions/extension_process_manager_unittest.cc',
-            'browser/extensions/test_extension_loader.cc',
             'browser/importer/firefox_importer_unittest.cc',
             'browser/importer/importer_unittest.cc',
             'browser/login_prompt_unittest.cc',

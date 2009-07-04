@@ -28,6 +28,9 @@ class ExtensionShelf : public views::View,
   explicit ExtensionShelf(Browser* browser);
   virtual ~ExtensionShelf();
 
+  // Get the current model.
+  ExtensionShelfModel* model() { return model_.get(); }
+
   // Return the current active ExtensionShelfHandle (if any).
   BrowserBubble* GetHandle();
 

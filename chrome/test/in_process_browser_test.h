@@ -62,6 +62,10 @@ class InProcessBrowserTest : public testing::Test {
   // Override this to add command line flags specific to your test.
   virtual void SetUpCommandLine(CommandLine* command_line) {}
 
+  // Override this to add any custom cleanup code that needs to be done on the
+  // main thread before the browser is torn down.
+  virtual void CleanUpOnMainThread() {}
+
   // Allows subclasses to configure the host mapper. By default this blocks
   // requests to google.com as Chrome pings that on startup and we don't want to
   // do that during testing.

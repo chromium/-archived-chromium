@@ -173,7 +173,7 @@ IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, FindInPageFrames) {
 std::string FocusedOnPage(TabContents* tab_contents) {
   std::string result;
   ui_test_utils::ExecuteJavaScriptAndExtractString(
-      tab_contents,
+      tab_contents->render_view_host(),
       L"",
       L"window.domAutomationController.send(getFocusedElement());",
       &result);
@@ -214,7 +214,7 @@ IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, FindInPageEndState) {
   // Move the selection to link 1, after searching.
   std::string result;
   ui_test_utils::ExecuteJavaScriptAndExtractString(
-      tab_contents,
+      tab_contents->render_view_host(),
       L"",
       L"window.domAutomationController.send(selectLink1());",
       &result);

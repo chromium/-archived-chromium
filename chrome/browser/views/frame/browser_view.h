@@ -122,6 +122,9 @@ class BrowserView : public BrowserWindow,
   // Accessor for the TabStrip.
   TabStrip* tabstrip() const { return tabstrip_; }
 
+  // Accessor for the ExtensionShelf.
+  ExtensionShelf* extension_shelf() const { return extension_shelf_; }
+
   // Returns true if various window components are visible.
   bool IsToolbarVisible() const;
   bool IsTabStripVisible() const;

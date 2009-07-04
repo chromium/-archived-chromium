@@ -77,6 +77,10 @@ class CrashedExtensionInfobarDelegate : public ConfirmInfoBarDelegate {
 
 }  // namespace
 
+
+// static
+bool ExtensionHost::enable_dom_automation_ = false;
+
 ExtensionHost::ExtensionHost(Extension* extension, SiteInstance* site_instance,
                              const GURL& url)
     : extension_(extension),
@@ -86,6 +90,8 @@ ExtensionHost::ExtensionHost(Extension* extension, SiteInstance* site_instance,
   render_view_host_ = new RenderViewHost(
       site_instance, this, MSG_ROUTING_NONE, NULL);
   render_view_host_->AllowBindings(BindingsPolicy::EXTENSION);
+  if (enable_dom_automation_)
+    render_view_host_->AllowBindings(BindingsPolicy::DOM_AUTOMATION);
 }
 
 ExtensionHost::~ExtensionHost() {

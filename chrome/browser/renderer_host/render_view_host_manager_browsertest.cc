@@ -49,7 +49,7 @@ IN_PROC_BROWSER_TEST_F(RenderViewHostManagerTest,
   ASSERT_TRUE(contents);
   bool domui_responded = false;
   EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(
-      contents,
+      contents->render_view_host(),
       L"",
       L"window.domAutomationController.send(window.domui_responded_);",
       &domui_responded));
@@ -96,7 +96,7 @@ IN_PROC_BROWSER_TEST_F(RenderViewHostManagerTest,
   ASSERT_TRUE(contents);
   bool result = false;
   EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(
-      contents,
+      contents->render_view_host(),
       L"",
       L"window.onunload = function() { var do_nothing = 0; }; "
       L"window.domAutomationController.send(true);",

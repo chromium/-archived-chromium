@@ -75,9 +75,9 @@ class NavigationNotificationObserver : public NotificationObserver {
 
 class DOMOperationObserver : public NotificationObserver {
  public:
-  explicit DOMOperationObserver(TabContents* tab_contents) {
+  explicit DOMOperationObserver(RenderViewHost* render_view_host) {
     registrar_.Add(this, NotificationType::DOM_OPERATION_RESPONSE,
-                   Source<TabContents>(tab_contents));
+                   Source<RenderViewHost>(render_view_host));
     RunMessageLoop();
   }
 
@@ -230,16 +230,15 @@ void NavigateToURLBlockUntilNavigationsComplete(Browser* browser,
   WaitForNavigations(controller, number_of_navigations);
 }
 
-Value* ExecuteJavaScript(TabContents* tab_contents,
+Value* ExecuteJavaScript(RenderViewHost* render_view_host,
                          const std::wstring& frame_xpath,
                          const std::wstring& original_script) {
   // TODO(jcampan): we should make the domAutomationController not require an
   //                automation id.
   std::wstring script = L"window.domAutomationController.setAutomationId(0);" +
       original_script;
-  tab_contents->render_view_host()->ExecuteJavascriptInWebFrame(frame_xpath,
-                                                                script);
-  DOMOperationObserver dom_op_observer(tab_contents);
+  render_view_host->ExecuteJavascriptInWebFrame(frame_xpath, script);
+  DOMOperationObserver dom_op_observer(render_view_host);
   std::string json = dom_op_observer.response();
   // Wrap |json| in an array before deserializing because valid JSON has an
   // array or an object as the root.
@@ -259,36 +258,39 @@ Value* ExecuteJavaScript(TabContents* tab_contents,
   return result;
 }
 
-bool ExecuteJavaScriptAndExtractInt(TabContents* tab_contents,
+bool ExecuteJavaScriptAndExtractInt(RenderViewHost* render_view_host,
                                     const std::wstring& frame_xpath,
                                     const std::wstring& script,
                                     int* result) {
   DCHECK(result);
-  scoped_ptr<Value> value(ExecuteJavaScript(tab_contents, frame_xpath, script));
+  scoped_ptr<Value> value(ExecuteJavaScript(render_view_host, frame_xpath,
+                                            script));
   if (!value.get())
     return false;
 
   return value->GetAsInteger(result);
 }
 
-bool ExecuteJavaScriptAndExtractBool(TabContents* tab_contents,
+bool ExecuteJavaScriptAndExtractBool(RenderViewHost* render_view_host,
                                      const std::wstring& frame_xpath,
                                      const std::wstring& script,
                                      bool* result) {
   DCHECK(result);
-  scoped_ptr<Value> value(ExecuteJavaScript(tab_contents, frame_xpath, script));
+  scoped_ptr<Value> value(ExecuteJavaScript(render_view_host, frame_xpath,
+                                            script));
   if (!value.get())
     return false;
 
   return value->GetAsBoolean(result);
 }
 
-bool ExecuteJavaScriptAndExtractString(TabContents* tab_contents,
+bool ExecuteJavaScriptAndExtractString(RenderViewHost* render_view_host,
                                        const std::wstring& frame_xpath,
                                        const std::wstring& script,
                                        std::string* result) {
   DCHECK(result);
-  scoped_ptr<Value> value(ExecuteJavaScript(tab_contents, frame_xpath, script));
+  scoped_ptr<Value> value(ExecuteJavaScript(render_view_host, frame_xpath,
+                                            script));
   if (!value.get())
     return false;
 

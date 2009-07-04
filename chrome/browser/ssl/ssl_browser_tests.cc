@@ -232,8 +232,8 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestUnsafeContents) {
 
   int img_width;
   EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractInt(
-      tab, L"", L"window.domAutomationController.send(ImageWidth());",
-      &img_width));
+      tab->render_view_host(), L"",
+      L"window.domAutomationController.send(ImageWidth());", &img_width));
   // In order to check that the image was not loaded, we check its width.
   // The actual image (Google logo) is 114 pixels wide, we assume the broken
   // image is less than 100.
@@ -241,8 +241,8 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestUnsafeContents) {
 
   bool js_result = false;
   EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(
-      tab, L"", L"window.domAutomationController.send(IsFooSet());",
-      &js_result));
+      tab->render_view_host(), L"",
+      L"window.domAutomationController.send(IsFooSet());", &js_result));
   EXPECT_FALSE(js_result);
 }
 
@@ -260,7 +260,7 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestMixedContentsLoadedFromJS) {
   // Load the insecure image.
   bool js_result = false;
   EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(
-      tab, L"", L"loadBadImage();", &js_result));
+      tab->render_view_host(), L"", L"loadBadImage();", &js_result));
   EXPECT_TRUE(js_result);
 
   // We should now have mixed-contents.
@@ -578,8 +578,8 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestGoodFrameNavigation) {
 
   bool success = false;
   // Now navigate inside the frame.
-  EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(tab,
-      L"",
+  EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(
+      tab->render_view_host(), L"",
       L"window.domAutomationController.send(clickLink('goodHTTPSLink'));",
       &success));
   EXPECT_TRUE(success);
@@ -589,8 +589,8 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestGoodFrameNavigation) {
   CheckAuthenticatedState(tab, false, false);
 
   // Now let's hit a bad page.
-  EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(tab,
-      L"",
+  EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(
+      tab->render_view_host(), L"",
       L"window.domAutomationController.send(clickLink('badHTTPSLink'));",
       &success));
   EXPECT_TRUE(success);
@@ -605,7 +605,8 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestGoodFrameNavigation) {
   std::wstring is_frame_evil_js(
       L"window.domAutomationController"
       L".send(document.getElementById('evilDiv') != null);");
-  EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(tab,
+  EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(
+      tab->render_view_host(),
       content_frame_xpath,
       is_frame_evil_js,
       &is_content_evil));
@@ -617,7 +618,8 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestGoodFrameNavigation) {
   CheckAuthenticatedState(tab, false, false);
 
   // Navigate to a page served over HTTP.
-  EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(tab,
+  EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(
+      tab->render_view_host(),
       L"",
       L"window.domAutomationController.send(clickLink('HTTPLink'));",
       &success));
@@ -654,7 +656,8 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestBadFrameNavigation) {
 
   // Navigate to a good frame.
   bool success = false;
-  EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(tab,
+  EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(
+      tab->render_view_host(),
       L"",
       L"window.domAutomationController.send(clickLink('goodHTTPSLink'));",
       &success));
@@ -680,8 +683,8 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestUnauthenticatedFrameNavigation) {
 
   // Now navigate inside the frame to a secure HTTPS frame.
   bool success = false;
-  EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(tab,
-      L"",
+  EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(
+      tab->render_view_host(), L"",
       L"window.domAutomationController.send(clickLink('goodHTTPSLink'));",
       &success));
   EXPECT_TRUE(success);
@@ -691,7 +694,8 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestUnauthenticatedFrameNavigation) {
   CheckUnauthenticatedState(tab);
 
   // Now navigate to a bad HTTPS frame.
-  EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(tab,
+  EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(
+      tab->render_view_host(),
       L"",
       L"window.domAutomationController.send(clickLink('badHTTPSLink'));",
       &success));
@@ -707,8 +711,9 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestUnauthenticatedFrameNavigation) {
   std::wstring is_frame_evil_js(
       L"window.domAutomationController"
       L".send(document.getElementById('evilDiv') != null);");
-  EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(tab,
-      content_frame_xpath, is_frame_evil_js, &is_content_evil));
+  EXPECT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractBool(
+      tab->render_view_host(), content_frame_xpath, is_frame_evil_js,
+      &is_content_evil));
   EXPECT_FALSE(is_content_evil);
 }
 

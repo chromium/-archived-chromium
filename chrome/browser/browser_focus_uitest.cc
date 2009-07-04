@@ -339,7 +339,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FocusTraversal) {
       // Let's make sure the focus is on the expected element in the page.
       std::string actual;
       ASSERT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractString(
-          browser()->GetSelectedTabContents(),
+          browser()->GetSelectedTabContents()->render_view_host(),
           L"",
           L"window.domAutomationController.send(getFocusedElement());",
           &actual));
@@ -376,7 +376,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FocusTraversal) {
       // Let's make sure the focus is on the expected element in the page.
       std::string actual;
       ASSERT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractString(
-          browser()->GetSelectedTabContents(),
+          browser()->GetSelectedTabContents()->render_view_host(),
           L"",
           L"window.domAutomationController.send(getFocusedElement());",
           &actual));

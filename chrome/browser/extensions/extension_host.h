@@ -32,6 +32,9 @@ class ExtensionHost : public RenderViewHostDelegate,
                       public RenderViewHostDelegate::View,
                       public ExtensionFunctionDispatcher::Delegate {
  public:
+  // Enable DOM automation in created render view hosts.
+  static void EnableDOMAutomation() { enable_dom_automation_ = true; }
+
   ExtensionHost(Extension* extension, SiteInstance* site_instance,
                 const GURL& url);
   ~ExtensionHost();
@@ -104,6 +107,10 @@ class ExtensionHost : public RenderViewHostDelegate,
   virtual void UpdatePreferredWidth(int pref_width);
 
  private:
+  // Whether to allow DOM automation for created RenderViewHosts. This is used
+  // for testing.
+  static bool enable_dom_automation_;
+
   // ExtensionFunctionDispatcher::Delegate
   // If this ExtensionHost has a view, this returns the Browser that view is a
   // part of.  If this is a global background page, we use the active Browser

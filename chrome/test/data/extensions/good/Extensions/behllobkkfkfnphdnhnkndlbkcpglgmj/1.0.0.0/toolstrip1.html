@@ -1,41 +1,16 @@
-<style>
-body {
-  overflow: hidden;
-  margin: 0 0 0 0;
-}
-
-/* TODO: put the background style into body when
-   https://bugs.webkit.org/show_bug.cgi?id=18445 is fixed. */
-.content {
-  background: -webkit-gradient(linear, left top, left bottom, from(rgb(222, 234, 248)), to(rgb(237, 244, 252)));
-  padding: 1;
-  white-space: nowrap;
-}
-</style>
-<body>
-<div class="content">
 <script>
-  // ExtensionViewTest depends on this alert, even though it doesn't work in
-  // the real browser.
-  alert('Sir, I exist');
-  console.log('Sir, I exist');
+// This function is called from the C++ browser test. It does a basic sanity
+// test that we can call extension APIs.
+function testTabsAPI() {
+  console.log(chrome.tabs);
 
-  chromium.onconnect.addListener(function (port) {
-    port.onmessage.addListener(doOnMessage);
-    port.postMessage('extension onconnect: ' + port.tab.url);
+  chrome.tabs.getAllInWindow(null, function(tabs) {
+    window.domAutomationController.send(tabs.length == 1);
   });
-
-  function doOnMessage(msg, port) {
-    if (!port.didRespond) {
-      port.postMessage('extension msg ack: ' + msg);
-      port.didRespond = true;
-    }
-  }
+}
 </script>
 <select>
-<option>one</option>
-<option>two</option>
-<option>three</option>
+  <option>one</option>
+  <option>two</option>
+  <option>three</option>
 </select>
-</div>
-</body>

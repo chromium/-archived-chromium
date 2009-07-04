@@ -129,7 +129,11 @@ class ExtensionsService
                                ExtensionInstallCallback* callback);
 
   // Uninstalls the specified extension. Callers should only call this method
-  // with extensions that exist.
+  // with extensions that exist. |external_uninstall| is a magical parameter
+  // that is only used to send information to ExtensionPrefs, which external
+  // callers should never set to true.
+  // TODO(aa): Remove |external_uninstall| -- this information should be passed
+  // to ExtensionPrefs some other way.
   void UninstallExtension(const std::string& extension_id,
                           bool external_uninstall);
 

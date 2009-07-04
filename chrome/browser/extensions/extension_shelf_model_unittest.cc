@@ -3,11 +3,13 @@
 // found in the LICENSE file.
 
 #include "chrome/browser/browser.h"
+#include "chrome/browser/extensions/extension_browsertest.h"
 #include "chrome/browser/extensions/extension_host.h"
 #include "chrome/browser/extensions/extension_shelf_model.h"
 #include "chrome/browser/extensions/extensions_service.h"
-#include "chrome/browser/extensions/test_extension_loader.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/views/extensions/extension_shelf.h"
+#include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/extensions/extension_error_reporter.h"
@@ -26,29 +28,26 @@ const char* kExtensionId = "behllobkkfkfnphdnhnkndlbkcpglgmj";
 // It would be nice to refactor things so that ExtensionShelfModel,
 // ExtensionHost and ExtensionsService could run without so much of the browser
 // in place.
-class ExtensionShelfModelTest : public InProcessBrowserTest,
+class ExtensionShelfModelTest : public ExtensionBrowserTest,
                                 public ExtensionShelfModelObserver {
  public:
   virtual void SetUp() {
-    // Initialize the error reporter here, or BrowserMain will create it with
-    // the wrong MessageLoop.
-    ExtensionErrorReporter::Init(false);
     inserted_count_ = 0;
     removed_count_ = 0;
     moved_count_ = 0;
-
     InProcessBrowserTest::SetUp();
-  }
-
-  virtual void SetUpCommandLine(CommandLine* command_line) {
-    command_line->AppendSwitch(switches::kEnableExtensions);
   }
 
   virtual Browser* CreateBrowser(Profile* profile) {
     Browser* b = InProcessBrowserTest::CreateBrowser(profile);
-    model_ = new ExtensionShelfModel(b);
+    BrowserView* browser_view = static_cast<BrowserView*>(b->window());
+    model_ = browser_view->extension_shelf()->model();
     model_->AddObserver(this);
     return b;
+  }
+
+  virtual void CleanUpOnMainThread() {
+    model_->RemoveObserver(this);
   }
 
   virtual void ToolstripInsertedAt(ExtensionHost* toolstrip, int index) {
@@ -73,21 +72,11 @@ class ExtensionShelfModelTest : public InProcessBrowserTest,
   int moved_count_;
 };
 
-// TODO(erikkay): http://crbug.com/15291 disabled because fails on build-bot.
-IN_PROC_BROWSER_TEST_F(ExtensionShelfModelTest, DISABLED_Basic) {
-  // Get the path to our extension.
-  FilePath path;
-  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &path));
-  path = path.AppendASCII("extensions")
-      .AppendASCII("good")
-      .AppendASCII("Extensions")
-      .AppendASCII(kExtensionId).AppendASCII("1.0.0.0");
-  ASSERT_TRUE(file_util::DirectoryExists(path));  // sanity check
-
-  // Wait for the extension to load and grab a pointer to it.
-  TestExtensionLoader loader(browser()->profile());
-  Extension* extension = loader.Load(kExtensionId, path);
-  ASSERT_TRUE(extension);
+IN_PROC_BROWSER_TEST_F(ExtensionShelfModelTest, Basic) {
+  ASSERT_TRUE(LoadExtension(test_data_dir_.AppendASCII("good")
+                                          .AppendASCII("Extensions")
+                                          .AppendASCII(kExtensionId)
+                                          .AppendASCII("1.0.0.0")));
 
   // extension1 has two toolstrips
   EXPECT_EQ(inserted_count_, 2);
@@ -105,12 +94,4 @@ IN_PROC_BROWSER_TEST_F(ExtensionShelfModelTest, DISABLED_Basic) {
   EXPECT_EQ(one, model_->ToolstripAt(0));
   EXPECT_EQ(1, model_->count());
   EXPECT_EQ(removed_count_, 1);
-
-  // Tear down |model_| manually here rather than in the destructor or with
-  // a scoped_ptr.  InProcessBrowserTest doesn't give us a chance to clean
-  // up before the browser and all of its services have been shut down,
-  // and |model_| depends on these existing.
-  model_->RemoveObserver(this);
-  delete model_;
-  model_ = NULL;
 }
