@@ -311,7 +311,7 @@ VisitedLinkMaster::Hash VisitedLinkMaster::TryToAddURL(const GURL& url) {
   if (used_items_ / 8 > table_length_ / 10)
     return null_hash_;  // Table is more than 80% full.
 
-  return AddFingerprint(fingerprint);
+  return AddFingerprint(fingerprint, true);
 }
 
 void VisitedLinkMaster::AddURL(const GURL& url) {
@@ -400,7 +400,8 @@ void VisitedLinkMaster::DeleteURLs(const std::set<GURL>& urls) {
 
 // See VisitedLinkCommon::IsVisited which should be in sync with this algorithm
 VisitedLinkMaster::Hash VisitedLinkMaster::AddFingerprint(
-    Fingerprint fingerprint) {
+    Fingerprint fingerprint,
+    bool send_notifications) {
   if (!hash_table_ || table_length_ == 0) {
     NOTREACHED();  // Not initialized.
     return null_hash_;
@@ -417,8 +418,9 @@ VisitedLinkMaster::Hash VisitedLinkMaster::AddFingerprint(
       // End of probe sequence found, insert here.
       hash_table_[cur_hash] = fingerprint;
       used_items_++;
-      // Notify listener that a new visited link was added.
-      listener_->Add(fingerprint);
+      // If allowed, notify listener that a new visited link was added.
+      if (send_notifications)
+        listener_->Add(fingerprint);
       return cur_hash;
     }
 
@@ -503,7 +505,7 @@ bool VisitedLinkMaster::DeleteFingerprint(Fingerprint fingerprint,
   if (!shuffled_fingerprints->empty()) {
     // Need to add the new items back.
     for (size_t i = 0; i < shuffled_fingerprints->size(); i++)
-      AddFingerprint(shuffled_fingerprints[i]);
+      AddFingerprint(shuffled_fingerprints[i], false);
   }
 
   // Write the affected range to disk [deleted_hash, end_range].
@@ -804,7 +806,7 @@ void VisitedLinkMaster::ResizeTable(int32 new_size) {
   for (int32 i = 0; i < old_table_length; i++) {
     Fingerprint cur = old_hash_table[i];
     if (cur)
-      AddFingerprint(cur);
+      AddFingerprint(cur, false);
   }
 
   // On error unmapping, just forget about it since we can't do anything
@@ -902,13 +904,13 @@ void VisitedLinkMaster::OnTableRebuildComplete(
 
       // Add the stored fingerprints to the hash table.
       for (size_t i = 0; i < fingerprints.size(); i++)
-        AddFingerprint(fingerprints[i]);
+        AddFingerprint(fingerprints[i], false);
 
       // Also add anything that was added while we were asynchronously
       // generating the new table.
       for (std::set<Fingerprint>::iterator i = added_since_rebuild_.begin();
            i != added_since_rebuild_.end(); ++i)
-        AddFingerprint(*i);
+        AddFingerprint(*i, false);
       added_since_rebuild_.clear();
 
       // Now handle deletions.

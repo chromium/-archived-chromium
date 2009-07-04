@@ -206,11 +206,11 @@ TEST_F(VisitedLinkTest, Delete) {
   const VisitedLinkCommon::Fingerprint kFingerprint2 = kInitialSize * 2 + 14;
   const VisitedLinkCommon::Fingerprint kFingerprint3 = kInitialSize * 3 + 14;
   const VisitedLinkCommon::Fingerprint kFingerprint4 = kInitialSize * 4 + 14;
-  master_->AddFingerprint(kFingerprint0);  // @14
-  master_->AddFingerprint(kFingerprint1);  // @15
-  master_->AddFingerprint(kFingerprint2);  // @16
-  master_->AddFingerprint(kFingerprint3);  // @0
-  master_->AddFingerprint(kFingerprint4);  // @1
+  master_->AddFingerprint(kFingerprint0, false);  // @14
+  master_->AddFingerprint(kFingerprint1, false);  // @15
+  master_->AddFingerprint(kFingerprint2, false);  // @16
+  master_->AddFingerprint(kFingerprint3, false);  // @0
+  master_->AddFingerprint(kFingerprint4, false);  // @1
 
   // Deleting 14 should move the next value up one slot (we do not specify an
   // order).

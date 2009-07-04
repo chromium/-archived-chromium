@@ -220,10 +220,11 @@ class VisitedLinkMaster : public VisitedLinkCommon {
   // General table handling
   // ----------------------
 
-  // Called to add a fingerprint to the table. Returns the index of the
-  // inserted fingerprint or null_hash_ if there was a duplicate and this item
-  // was skippped.
-  Hash AddFingerprint(Fingerprint fingerprint);
+  // Called to add a fingerprint to the table. If |send_notifications| is true
+  // and the item is added successfully, Listener::Add will be invoked.
+  // Returns the index of the inserted fingerprint or null_hash_ if there was a
+  // duplicate and this item was skippped.
+  Hash AddFingerprint(Fingerprint fingerprint, bool send_notifications);
 
   // Deletes all fingerprints from the given vector from the current hash table
   // and syncs it to disk if there are changes. This does not update the
