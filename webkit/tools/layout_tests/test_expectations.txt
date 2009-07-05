@@ -2951,3 +2951,6 @@ BUG15892 MAC : chrome/fast/dom/messageport-gc.html = TIMEOUT
 
 // WebKit 45495:45535
 BUG15921 SKIP : LayoutTests/media/controls-strict.html = FAIL
+
+// Webkit 45535:45555
+BUG15977 : LayoutTests/svg/custom/createImageElement2.xhtml = FAIL
