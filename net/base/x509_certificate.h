@@ -75,7 +75,7 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
   // Principal represent an X.509 principal.
   struct Principal {
     Principal() { }
-    explicit Principal(std::string name) : common_name(name) { }
+    explicit Principal(const std::string& name) : common_name(name) { }
 
     // The different attributes for a principal.  They may be "".
     // Note that some of them can have several values.

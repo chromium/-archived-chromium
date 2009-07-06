@@ -27,7 +27,10 @@ const int kWaitForEventTime = 1000;
 class DirectoryWatcherTest : public testing::Test {
  public:
   // Implementation of DirectoryWatcher on Mac requires UI loop.
-  DirectoryWatcherTest() : loop_(MessageLoop::TYPE_UI) {
+  DirectoryWatcherTest()
+      : loop_(MessageLoop::TYPE_UI),
+        notified_delegates_(0),
+        expected_notified_delegates_(0) {
   }
 
   void OnTestDelegateFirstNotification(const FilePath& path) {

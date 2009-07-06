@@ -255,7 +255,7 @@ class Comparator {
   // A comparator can be refined by specifying what to do if the selected basis
   // for comparison is insufficient to establish an ordering.  This call adds
   // the indicated attribute as the new "least significant" basis of comparison.
-  void SetTiebreaker(Selector selector, const std::string required);
+  void SetTiebreaker(Selector selector, const std::string& required);
 
   // Indicate if this instance is set up to sort by the given Selector, thereby
   // putting that information in the SortGrouping, so it is not needed in each
@@ -268,10 +268,10 @@ class Comparator {
   void SetSubgroupTiebreaker(Selector selector);
 
   // Translate a keyword and restriction in URL path to a selector for sorting.
-  void ParseKeyphrase(const std::string key_phrase);
+  void ParseKeyphrase(const std::string& key_phrase);
 
   // Parse a query in an about:objects URL to decide on sort ordering.
-  bool ParseQuery(const std::string query);
+  bool ParseQuery(const std::string& query);
 
   // Output a header line that can be used to indicated what items will be
   // collected in the group.  It lists all (potentially) tested attributes and

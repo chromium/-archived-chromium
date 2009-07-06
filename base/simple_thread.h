@@ -152,7 +152,7 @@ class DelegateSimpleThreadPool : public DelegateSimpleThread::Delegate {
  public:
   typedef DelegateSimpleThread::Delegate Delegate;
 
-  DelegateSimpleThreadPool(const std::string name_prefix, int num_threads)
+  DelegateSimpleThreadPool(const std::string& name_prefix, int num_threads)
       : name_prefix_(name_prefix), num_threads_(num_threads),
         dry_(true, false) { }
   ~DelegateSimpleThreadPool();

@@ -83,7 +83,7 @@ bool IsPathAbsolute(const FilePath::StringType& path) {
 #endif  // FILE_PATH_USES_DRIVE_LETTERS
 }
 
-bool AreAllSeparators(FilePath::StringType input) {
+bool AreAllSeparators(const FilePath::StringType& input) {
   for (FilePath::StringType::const_iterator it = input.begin();
       it != input.end(); ++it) {
     if (!FilePath::IsSeparator(*it))

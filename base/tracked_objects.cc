@@ -765,7 +765,7 @@ bool Comparator::Acceptable(const Snapshot& sample) const {
   return true;
 }
 
-void Comparator::SetTiebreaker(Selector selector, const std::string required) {
+void Comparator::SetTiebreaker(Selector selector, const std::string& required) {
   if (selector == selector_ || NIL == selector)
     return;
   combined_selectors_ |= selector;
@@ -804,7 +804,7 @@ void Comparator::SetSubgroupTiebreaker(Selector selector) {
   }
 }
 
-void Comparator::ParseKeyphrase(const std::string key_phrase) {
+void Comparator::ParseKeyphrase(const std::string& key_phrase) {
   static std::map<const std::string, Selector> key_map;
   static bool initialized = false;
   if (!initialized) {
@@ -829,7 +829,7 @@ void Comparator::ParseKeyphrase(const std::string key_phrase) {
   SetTiebreaker(key_map[keyword], required);
 }
 
-bool Comparator::ParseQuery(const std::string query) {
+bool Comparator::ParseQuery(const std::string& query) {
   for (size_t i = 0; i < query.size();) {
     size_t slash_offset = query.find('/', i);
     ParseKeyphrase(query.substr(i, slash_offset - i));
