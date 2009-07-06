@@ -23,7 +23,7 @@
 #include "views/controls/label.h"
 
 // The amount of whitespace to have before the find button.
-static const int kWhiteSpaceAfterMatchCountLabel = 3;
+static const int kWhiteSpaceAfterMatchCountLabel = 1;
 
 // The margins around the search field and the close button.
 static const int kMarginLeftOfCloseButton = 3;
@@ -91,6 +91,7 @@ FindBarView::FindBarView(FindBarWin* container)
   find_text_->SetID(VIEW_ID_FIND_IN_PAGE_TEXT_FIELD);
   find_text_->SetFont(rb.GetFont(ResourceBundle::BaseFont));
   find_text_->set_default_width_in_chars(kDefaultCharWidth);
+  find_text_->SetController(this);
   AddChildView(find_text_);
 
   match_count_text_ = new views::Label();
@@ -209,7 +210,11 @@ void FindBarView::UpdateForResult(const FindNotificationDetails& result,
   find_previous_button_->SetEnabled(result.number_of_matches() > 0);
   find_next_button_->SetEnabled(result.number_of_matches() > 0);
 
-  Layout();  // The match_count label may have increased/decreased in size.
+  // The match_count label may have increased/decreased in size so we need to
+  // do a layout and repaint the dialog so that the find text field doesn't
+  // partially overlap the match-count label when it increases on no matches.
+  Layout();
+  SchedulePaint();
 }
 
 void FindBarView::SetFocusAndSelection() {
@@ -339,25 +344,32 @@ void FindBarView::Layout() {
 
   // Then the label showing the match count number.
   sz = match_count_text_->GetPreferredSize();
+  // We want to make sure the red "no-match" background almost completely fills
+  // up the amount of vertical space within the text box. We therefore fix the
+  // size relative to the button heights. We use the FindPrev button, which has
+  // a 1px outer whitespace margin, 1px border and we want to appear 1px below
+  // the border line so we subtract 3 for top and 3 for bottom.
+  sz.set_height(find_previous_button_->height() - 6);  // Subtract 3px x 2.
+
   // We extend the label bounds a bit to give the background highlighting a bit
   // of breathing room (margins around the text).
   sz.Enlarge(kMatchCountExtraWidth, 0);
   sz.set_width(std::max(kMatchCountMinWidth, static_cast<int>(sz.width())));
-  match_count_text_->SetBounds(find_previous_button_->x() -
-                                   kWhiteSpaceAfterMatchCountLabel -
-                                   sz.width(),
-                               (height() - sz.height()) / 2 + 1,
+  int match_count_x = find_previous_button_->x() -
+                      kWhiteSpaceAfterMatchCountLabel -
+                      sz.width();
+  match_count_text_->SetBounds(match_count_x,
+                               (height() - sz.height()) / 2,
                                sz.width(),
                                sz.height());
 
   // And whatever space is left in between, gets filled up by the find edit box.
   sz = find_text_->GetPreferredSize();
-  sz.set_width(match_count_text_->x() - kMarginLeftOfFindTextfield);
-  find_text_->SetBounds(match_count_text_->x() - sz.width(),
+  sz.set_width(match_count_x - kMarginLeftOfFindTextfield);
+  find_text_->SetBounds(match_count_x - sz.width(),
                         (height() - sz.height()) / 2 + 1,
                         sz.width(),
                         sz.height());
-  find_text_->SetController(this);
 
   // The focus forwarder view is a hidden view that should cover the area
   // between the find text box and the find button so that when the user clicks
@@ -437,7 +449,8 @@ void FindBarView::ContentsChanged(views::Textfield* sender,
   // initiate search (even though old searches might be in progress).
   if (!new_contents.empty()) {
     // The last two params here are forward (true) and case sensitive (false).
-    controller->tab_contents()->StartFinding(WideToUTF16(new_contents), true, false);
+    controller->tab_contents()->StartFinding(WideToUTF16(new_contents),
+                                             true, false);
   } else {
     // The textbox is empty so we reset.  true = clear selection on page.
     controller->tab_contents()->StopFinding(true);
