@@ -191,7 +191,7 @@ function renderMostVisited(data) {
     t.querySelector('.thumbnail-wrapper').style.backgroundImage =
         'url("chrome://thumb/' + d.url + '")';
     var titleDiv = t.querySelector('.title > div');
-    titleDiv.title = titleDiv.textContent = d.title;
+    titleDiv.xtitle = titleDiv.textContent = d.title;
     titleDiv.style.backgroundImage = 'url("chrome://favicon/' + d.url + '")';
     titleDiv.dir = d.direction;
   }
@@ -1051,6 +1051,20 @@ window.addEventListener('keydown', function(e) {
     hideAllMenus();
   }
 }, true);
+
+// Tooltip for elements that have text that overflows.
+document.addEventListener('mouseover', function(e) {
+  var el = findAncestor(e.target, function(el) {
+    return el.xtitle;
+  });
+  if (el && el.xtitle != el.title) {
+    if (el.scrollWidth > el.clientWidth) {
+      el.title = el.xtitle;
+    } else {
+      el.title = '';
+    }
+  }
+});
 
 // DnD
 

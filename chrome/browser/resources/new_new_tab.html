@@ -229,7 +229,7 @@ logEvent('log start');
                 <a class="item"
                     jsdisplay="type == 'tab'"
                     jsvalues="href:url;
-                        title:title;
+                        .xtitle:title;
                         .style.backgroundImage:'url(&quot;chrome://favicon/' +
                             url + '&quot;)';
                         dir:direction;
@@ -289,7 +289,7 @@ logEvent('log start');
         <div class="tips-container item-container">
           <a class="item" jsselect="$this"
               jsdisplay="url.length"
-              jsvalues="href:url;title:title"
+              jsvalues="href:url;.xtitle:title"
               jscontent="title"></a>
         </div>
       </div>
@@ -303,6 +303,7 @@ logEvent('log start');
     <span class="item" jsselect="$this"
         jsvalues=".style.backgroundImage:'url(&quot;chrome://favicon/' + url +
             '&quot;)';
+            .xtitle:title;
             dir:direction;"
         jscontent="title"></span>
   </div>
