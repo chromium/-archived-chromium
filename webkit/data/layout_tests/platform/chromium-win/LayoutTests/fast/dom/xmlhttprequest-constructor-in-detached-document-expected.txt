@@ -1,4 +1,4 @@
-CONSOLE MESSAGE: line 205: Uncaught TypeError: undefined is not a function
+CONSOLE MESSAGE: line 222: Uncaught TypeError: undefined is not a function
 Text for bug 25290: Crash when constructing XMLHttpRequest in a detached document.
 
 PASS
