@@ -1,9 +1,9 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_RLZ_RLZ_H__
-#define CHROME_BROWSER_RLZ_RLZ_H__
+#ifndef CHROME_BROWSER_RLZ_RLZ_H_
+#define CHROME_BROWSER_RLZ_RLZ_H_
 
 #include <string>
 
@@ -69,10 +69,11 @@ class RLZTracker {
   // This function is intended primarily for testing.
   static bool InitRlz(int directory_key);
 
-  // Like InitRlz() this function the RLZ library services for use in chrome.
-  // Besides binding the dll, it schedules a delayed task that performs the
-  // daily ping and registers the some events when 'first-run' is true.
-  static bool InitRlzDelayed(int directory_key, bool first_run);
+  // Like InitRlz() this function initializes the RLZ library services for use
+  // in chrome. Besides binding the dll, it schedules a delayed task (delayed
+  // by |delay| seconds) that performs the daily ping and registers some events
+  // when 'first-run' is true.
+  static bool InitRlzDelayed(int directory_key, bool first_run, int delay);
 
   // Records an RLZ event. Some events can be access point independent.
   // Returns false it the event could not be recorded. Requires write access
@@ -96,4 +97,4 @@ class RLZTracker {
   DISALLOW_IMPLICIT_CONSTRUCTORS(RLZTracker);
 };
 
-#endif  // CHROME_BROWSER_RLZ_RLZ_H__
+#endif  // CHROME_BROWSER_RLZ_RLZ_H_

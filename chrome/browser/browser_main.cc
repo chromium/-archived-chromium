@@ -51,6 +51,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/result_codes.h"
 #include "chrome/installer/util/google_update_settings.h"
+#include "chrome/installer/util/master_preferences.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/net_resources.h"
@@ -663,10 +664,12 @@ int BrowserMain(const MainFunctionParams& parameters) {
 
   win_util::ScopedCOMInitializer com_initializer;
 
+  int delay = 0;
+  installer_util::GetDistributionPingDelay(FilePath(), delay);
   // Init the RLZ library. This just binds the dll and schedules a task on the
   // file thread to be run sometime later. If this is the first run we record
   // the installation event.
-  RLZTracker::InitRlzDelayed(base::DIR_MODULE, is_first_run);
+  RLZTracker::InitRlzDelayed(base::DIR_MODULE, is_first_run, delay);
 #endif
 
   // Config the network module so it has access to resources.

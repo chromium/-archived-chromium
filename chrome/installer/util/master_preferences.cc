@@ -1,12 +1,13 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/installer/util/master_preferences.h"
 
 #include "base/file_util.h"
 #include "base/logging.h"
+#include "base/path_service.h"
 #include "chrome/common/json_value_serializer.h"
-#include "chrome/installer/util/master_preferences.h"
 
 namespace {
 
@@ -50,6 +51,8 @@ const wchar_t kDistroImportSearchPref[] = L"import_search_engine";
 const wchar_t kDistroImportHistoryPref[] = L"import_history";
 // Boolean pref that triggers silent import of the default browser bookmarks.
 const wchar_t kDistroImportBookmarksPref[] = L"import_bookmarks";
+// RLZ ping delay in seconds
+const wchar_t kDistroPingDelay[] = L"ping_delay";
 // Register Chrome as default browser for the current user.
 const wchar_t kMakeChromeDefaultForUser[] = L"make_chrome_default_for_user";
 // The following boolean prefs have the same semantics as the corresponding
@@ -73,6 +76,31 @@ const wchar_t kAltShortcutText[] = L"alternate_shortcut_text";
 const wchar_t kAltFirstRunBubble[] = L"oem_bubble";
 // Boolean pref that triggers silent import of the default browser homepage.
 const wchar_t kDistroImportHomePagePref[] = L"import_home_page";
+
+bool GetDistributionPingDelay(const FilePath& master_prefs_path,
+                              int& delay) {
+  FilePath master_prefs = master_prefs_path;
+  if (master_prefs.empty()) {
+    if (!PathService::Get(base::DIR_EXE, &master_prefs))
+      return false;
+    master_prefs = master_prefs.Append(installer_util::kDefaultMasterPrefs);
+  }
+
+  if (!file_util::PathExists(master_prefs))
+    return false;
+
+  scoped_ptr<DictionaryValue> json_root(
+      GetPrefsFromFile(master_prefs.ToWStringHack()));
+  if (!json_root.get())
+    return false;
+
+  DictionaryValue* distro = NULL;
+  if (!json_root->GetDictionary(L"distribution", &distro) ||
+      !distro->GetInteger(kDistroPingDelay, &delay))
+    return false;
+
+  return true;
+}
 
 int ParseDistributionPreferences(const std::wstring& master_prefs_path) {
   if (!file_util::PathExists(master_prefs_path))

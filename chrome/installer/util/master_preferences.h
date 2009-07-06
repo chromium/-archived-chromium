@@ -1,15 +1,17 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
 // This file contains functions processing master preference file used by
 // setup and first run.
 
-#ifndef CHROME_INSTALLER_UTIL_MASTER_PREFERENCES_H__
-#define CHROME_INSTALLER_UTIL_MASTER_PREFERENCES_H__
+#ifndef CHROME_INSTALLER_UTIL_MASTER_PREFERENCES_H_
+#define CHROME_INSTALLER_UTIL_MASTER_PREFERENCES_H_
 
 #include <string>
 #include <vector>
+
+#include "base/file_util.h"
 
 namespace installer_util {
 
@@ -60,6 +62,11 @@ enum MasterPrefResult {
   MASTER_PROFILE_IMPORT_HOME_PAGE              = 0x1 << 16
 };
 
+// This function gets ping delay (ping_delay in the sample above) from master
+// preferences.
+bool GetDistributionPingDelay(const FilePath& master_prefs_path,
+                              int& delay);
+
 // The master preferences is a JSON file with the same entries as the
 // 'Default\Preferences' file. This function parses the distribution
 // section of the preferences file.
@@ -81,7 +88,8 @@ enum MasterPrefResult {
 //      "system_level": false,
 //      "verbose_logging": true,
 //      "require_eula": true,
-//      "alternate_shortcut_text": false
+//      "alternate_shortcut_text": false,
+//      "ping_delay": 40
 //   },
 //   "browser": {
 //      "show_home_button": true
@@ -119,7 +127,6 @@ int ParseDistributionPreferences(const std::wstring& master_prefs_path);
 // preferences file does not contain such list the vector is empty.
 std::vector<std::wstring> ParseFirstRunTabs(
     const std::wstring& master_prefs_path);
-
 }
 
-#endif  // CHROME_INSTALLER_UTIL_MASTER_PREFERENCES_H__
+#endif  // CHROME_INSTALLER_UTIL_MASTER_PREFERENCES_H_

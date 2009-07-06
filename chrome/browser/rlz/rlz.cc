@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -287,13 +287,22 @@ bool RLZTracker::InitRlz(int directory_key) {
   return LoadRLZLibrary(directory_key);
 }
 
-bool RLZTracker::InitRlzDelayed(int directory_key, bool first_run) {
+bool RLZTracker::InitRlzDelayed(int directory_key, bool first_run, int delay) {
+  // Maximum and minimum delay we would allow to be set through master
+  // preferences. Somewhat arbitrary, may need to be adjusted in future.
+  const int kMaxDelay = 200 * 1000;
+  const int kMinDelay = 20 * 1000;
+
+  delay *= 1000;
+  delay = (delay < kMinDelay) ? kMinDelay : delay;
+  delay = (delay > kMaxDelay) ? kMaxDelay : delay;
+
   if (!OmniBoxUsageObserver::used())
     new OmniBoxUsageObserver();
+
   // Schedule the delayed init items.
-  const int kNinetySeconds = 90 * 1000;
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
-      new DelayedInitTask(directory_key, first_run), kNinetySeconds);
+      new DelayedInitTask(directory_key, first_run), delay);
   return true;
 }
 
