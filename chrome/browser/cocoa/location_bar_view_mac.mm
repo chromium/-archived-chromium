@@ -130,5 +130,5 @@ std::wstring LocationBarViewMac::GetTitle() const {
 }
 
 void LocationBarViewMac::Revert() {
-  NOTIMPLEMENTED();
+  edit_view_->RevertAll();
 }
