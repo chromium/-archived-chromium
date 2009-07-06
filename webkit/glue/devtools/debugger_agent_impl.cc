@@ -172,7 +172,7 @@ String DebuggerAgentImpl::ExecuteUtilityFunction(
   v8::TryCatch try_catch;
   v8::Handle<v8::Value> res_obj = function->Call(context->Global(), 2, args);
   if (try_catch.HasCaught()) {
-    *exception = WebCore::toWebCoreString(try_catch.Message()->Get());
+    *exception = WebCore::ToWebCoreString(try_catch.Message()->Get());
     return "";
   } else {
     v8::Handle<v8::String> res_json = v8::Handle<v8::String>::Cast(res_obj);
