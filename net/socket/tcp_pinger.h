@@ -41,9 +41,9 @@ class TCPPinger {
   }
 
   int Ping() {
-    // Default is 40 tries, each with a timeout of 250ms,
+    // Default is 10 tries, each with a timeout of 1000ms,
     // for a total max timeout of 10 seconds.
-    return Ping(base::TimeDelta::FromMilliseconds(250), 40);
+    return Ping(base::TimeDelta::FromMilliseconds(1000), 10);
   }
 
   int Ping(base::TimeDelta tryTimeout, int nTries) {
