@@ -153,8 +153,10 @@ class RegistryEntry {
     bool found = false;
     if (_is_string) {
       std::wstring read_value;
-      found = key.ReadValue(_name.c_str(), &read_value) &&
-              read_value == _value;
+      found = (key.ReadValue(_name.c_str(), &read_value)) &&
+              (read_value.size() == _value.size()) &&
+              (std::equal(_value.begin(), _value.end(), read_value.begin(),
+                          CaseInsensitiveCompare<wchar_t>()));
     } else {
       DWORD read_value;
       found = key.ReadValueDW(_name.c_str(), &read_value) &&
