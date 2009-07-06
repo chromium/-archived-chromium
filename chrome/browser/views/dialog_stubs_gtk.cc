@@ -79,4 +79,15 @@ void ShowNewProfileDialog() {
   NOTIMPLEMENTED();
 }
 
+void ShowTaskManager() {
+  NOTIMPLEMENTED();
+}
+
+void EditSearchEngine(gfx::NativeWindow parent,
+                      const TemplateURL* template_url,
+                      EditSearchEngineControllerDelegate* delegate,
+                      Profile* profile) {
+  NOTIMPLEMENTED();
+}
+
 }  // namespace browser

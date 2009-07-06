@@ -26,9 +26,12 @@
 #include "chrome/browser/ssl/ssl_manager.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 
-#if defined(OS_WIN)  // TODO(port): whittle this down as we port
+#if defined(TOOLKIT_VIEWS)  // TODO(port): whittle this down as we port
 #include "chrome/browser/task_manager.h"
 #include "chrome/browser/views/frame/browser_view.h"
+#endif
+
+#if defined(OS_WIN)
 #include "chrome/browser/views/keyword_editor_view.h"
 #endif
 
@@ -47,7 +50,7 @@ void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state) {
   chrome_browser_net::RegisterPrefs(local_state);
   bookmark_utils::RegisterPrefs(local_state);
   PageInfoWindow::RegisterPrefs(local_state);
-#if defined(OS_WIN)  // TODO(port): whittle this down as we port
+#if defined(TOOLKIT_VIEWS)  // TODO(port): whittle this down as we port
   BrowserView::RegisterBrowserViewPrefs(local_state);
   TaskManager::RegisterPrefs(local_state);
 #endif

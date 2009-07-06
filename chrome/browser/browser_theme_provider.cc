@@ -776,8 +776,8 @@ void BrowserThemeProvider::ClearCaches() {
   image_cache_.clear();
 }
 
-#if defined(OS_WIN)
+#if defined(TOOLKIT_VIEWS)
 void BrowserThemeProvider::FreePlatformCaches() {
-  // Windows has no platform image cache to clear.
+  // Views (Skia) has no platform image cache to clear.
 }
 #endif

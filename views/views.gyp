@@ -269,7 +269,6 @@
             'controls/scrollbar/native_scroll_bar.cc',
             'controls/button/radio_button.cc',
             'controls/separator.cc',
-            'controls/single_split_view.cc',
             'controls/tabbed_pane.cc',
             'controls/table/table_model.cc',
             'controls/table/table_view.cc',

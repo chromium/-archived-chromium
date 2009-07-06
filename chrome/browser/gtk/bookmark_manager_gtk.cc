@@ -548,7 +548,12 @@ void BookmarkManagerGtk::ResetOrganizeMenu(bool left) {
 
   organize_menu_.reset(new BookmarkContextMenu(window_, profile_, NULL, NULL,
       parent, nodes, BookmarkContextMenu::BOOKMARK_MANAGER_ORGANIZE_MENU));
+#if defined(TOOLKIT_GTK)
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(organize_), organize_menu_->menu());
+#else
+  // GTK+Views should implement this somehow.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void BookmarkManagerGtk::BuildLeftStore() {
@@ -1142,8 +1147,13 @@ gboolean BookmarkManagerGtk::OnRightTreeViewMotion(GtkWidget* tree_view,
 // static
 gboolean BookmarkManagerGtk::OnTreeViewButtonRelease(GtkWidget* tree_view,
     GdkEventButton* button, BookmarkManagerGtk* bm) {
+#if defined(TOOLKIT_GTK)
   if (button->button == 3)
     bm->organize_menu_->PopupAsContext(button->time);
+#else
+  // Implement on GTK+views.
+  NOTIMPLEMENTED();
+#endif
 
   if (bm->delaying_mousedown_ && (tree_view == bm->right_tree_view_)) {
     gtk_propagate_event(tree_view,

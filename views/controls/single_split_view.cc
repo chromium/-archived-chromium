@@ -24,9 +24,11 @@ SingleSplitView::SingleSplitView(View* leading,
       divider_offset_(-1) {
   AddChildView(leading);
   AddChildView(trailing);
+#if defined(OS_WIN)
   set_background(
       views::Background::CreateSolidBackground(
           skia::COLORREFToSkColor(GetSysColor(COLOR_3DFACE))));
+#endif
 }
 
 void SingleSplitView::Layout() {
