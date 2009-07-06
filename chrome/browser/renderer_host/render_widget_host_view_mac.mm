@@ -256,6 +256,13 @@ void RenderWidgetHostViewMac::Destroy() {
   [cocoa_view_ retain];
   [cocoa_view_ removeFromSuperview];
   [cocoa_view_ autorelease];
+
+  // We get this call just before |render_widget_host_| deletes
+  // itself.  But we are owned by |cocoa_view_|, which may be retained
+  // by some other code.  Examples are TabContentsViewMac's
+  // |latent_focus_view_| and TabWindowController's
+  // |cachedContentView_|.
+  render_widget_host_ = NULL;
 }
 
 // Called from the renderer to tell us what the tooltip text should be. It
@@ -395,7 +402,8 @@ void RenderWidgetHostViewMac::ShutdownHost() {
 - (void)mouseEvent:(NSEvent *)theEvent {
   const WebMouseEvent& event =
       WebInputEventFactory::mouseEvent(theEvent, self);
-  renderWidgetHostView_->render_widget_host_->ForwardMouseEvent(event);
+  if (renderWidgetHostView_->render_widget_host_)
+    renderWidgetHostView_->render_widget_host_->ForwardMouseEvent(event);
 }
 
 - (void)keyEvent:(NSEvent *)theEvent {
@@ -403,21 +411,31 @@ void RenderWidgetHostViewMac::ShutdownHost() {
   // http://b/issue?id=1192881 .
 
   NativeWebKeyboardEvent event(theEvent);
-  renderWidgetHostView_->render_widget_host_->ForwardKeyboardEvent(event);
+  if (renderWidgetHostView_->render_widget_host_)
+    renderWidgetHostView_->render_widget_host_->ForwardKeyboardEvent(event);
 }
 
 - (void)scrollWheel:(NSEvent *)theEvent {
   const WebMouseWheelEvent& event =
       WebInputEventFactory::mouseWheelEvent(theEvent, self);
-  renderWidgetHostView_->render_widget_host_->ForwardWheelEvent(event);
+  if (renderWidgetHostView_->render_widget_host_)
+    renderWidgetHostView_->render_widget_host_->ForwardWheelEvent(event);
 }
 
 - (void)setFrame:(NSRect)frameRect {
   [super setFrame:frameRect];
-  renderWidgetHostView_->render_widget_host_->WasResized();
+  if (renderWidgetHostView_->render_widget_host_)
+    renderWidgetHostView_->render_widget_host_->WasResized();
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
+  if (!renderWidgetHostView_->render_widget_host_) {
+    // TODO(shess): Consider using something more noticable?
+    [[NSColor whiteColor] set];
+    NSRectFill(dirtyRect);
+    return;
+  }
+
   DCHECK(renderWidgetHostView_->render_widget_host_->process()->HasConnection());
   DCHECK(!renderWidgetHostView_->about_to_validate_and_paint_);
 
@@ -509,29 +527,30 @@ void RenderWidgetHostViewMac::ShutdownHost() {
 }
 
 - (BOOL)canBecomeKeyView {
+  if (!renderWidgetHostView_->render_widget_host_)
+    return NO;
+
   return canBeKeyView_;
 }
 
 - (BOOL)acceptsFirstResponder {
+  if (!renderWidgetHostView_->render_widget_host_)
+    return NO;
+
   return canBeKeyView_;
 }
 
 - (BOOL)becomeFirstResponder {
-  if (![self superview]) {
-    // We're dead, so becoming first responder is probably a bad idea.
+  if (!renderWidgetHostView_->render_widget_host_)
     return NO;
-  }
 
   renderWidgetHostView_->render_widget_host_->Focus();
   return YES;
 }
 
 - (BOOL)resignFirstResponder {
-  if (![self superview]) {
-    // We're dead, so touching renderWidgetHostView_ is probably a bad
-    // idea.
+  if (!renderWidgetHostView_->render_widget_host_)
     return YES;
-  }
 
   if (closeOnDeactivate_)
     renderWidgetHostView_->KillSelf();

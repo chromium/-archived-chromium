@@ -104,7 +104,8 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
   // These member variables should be private, but the associated ObjC class
   // needs access to them and can't be made a friend.
 
-  // The associated Model.
+  // The associated Model.  Can be NULL if Destroy() is called when
+  // someone (other than superview) has retained |cocoa_view_|.
   RenderWidgetHost* render_widget_host_;
 
   // This is true when we are currently painting and thus should handle extra
