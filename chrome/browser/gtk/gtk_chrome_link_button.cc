@@ -8,7 +8,7 @@
 
 #include "base/logging.h"
 
-static const char* kLinkMarkup = "<u><span color=\"%s\">%s</span></u>";
+static const gchar* kLinkMarkup = "<u><span color=\"%s\">%s</span></u>";
 
 namespace {
 
@@ -24,6 +24,8 @@ void SetLinkButtonStyle() {
   gtk_rc_parse_string(
       "style \"chrome-link-button\" {"
       "  GtkButton::inner-border = {0, 0, 0, 0}"
+      "  GtkButton::child-displacement-x = 0"
+      "  GtkButton::child-displacement-y = 0"
       "  xthickness = 0"
       "  ythickness = 0"
       "}"
@@ -165,19 +167,37 @@ static void gtk_chrome_link_button_init(GtkChromeLinkButton* button) {
 }
 
 static void gtk_chrome_link_button_set_text(GtkChromeLinkButton* button,
-                                            const char* text) {
+                                            const char* text,
+                                            bool contains_markup) {
   // We should have only been called once or we'd leak the markups.
   DCHECK(!button->blue_markup && !button->red_markup);
 
-  button->blue_markup = g_markup_printf_escaped(kLinkMarkup, "blue", text);
-  button->red_markup = g_markup_printf_escaped(kLinkMarkup, "red", text);
+  if (!contains_markup) {
+    button->blue_markup = g_markup_printf_escaped(kLinkMarkup, "blue", text);
+    button->red_markup = g_markup_printf_escaped(kLinkMarkup, "red", text);
+  } else {
+    button->blue_markup = static_cast<gchar*>(
+        g_malloc(strlen(kLinkMarkup) + strlen("blue") + strlen(text) + 1));
+    sprintf(button->blue_markup, kLinkMarkup, "blue", text);
+
+    button->red_markup = static_cast<gchar*>(
+        g_malloc(strlen(kLinkMarkup) + strlen("red") + strlen(text) + 1));
+    sprintf(button->red_markup, kLinkMarkup, "red", text);
+  }
+
   gtk_label_set_markup(GTK_LABEL(button->label), button->blue_markup);
   button->is_blue = TRUE;
 }
 
 GtkWidget* gtk_chrome_link_button_new(const char* text) {
   GtkWidget* lb = GTK_WIDGET(g_object_new(GTK_TYPE_CHROME_LINK_BUTTON, NULL));
-  gtk_chrome_link_button_set_text(GTK_CHROME_LINK_BUTTON(lb), text);
+  gtk_chrome_link_button_set_text(GTK_CHROME_LINK_BUTTON(lb), text, false);
+  return lb;
+}
+
+GtkWidget* gtk_chrome_link_button_new_with_markup(const char* markup) {
+  GtkWidget* lb = GTK_WIDGET(g_object_new(GTK_TYPE_CHROME_LINK_BUTTON, NULL));
+  gtk_chrome_link_button_set_text(GTK_CHROME_LINK_BUTTON(lb), markup, true);
   return lb;
 }
 

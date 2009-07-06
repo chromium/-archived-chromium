@@ -5,14 +5,15 @@
 #include "chrome/browser/gtk/about_chrome_dialog.h"
 
 #include <gtk/gtk.h>
-#include <wchar.h>
 
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/file_version_info.h"
 #include "base/gfx/gtk_util.h"
-#include "chrome/common/chrome_constants.h"
+#include "chrome/browser/browser_list.h"
+#include "chrome/browser/gtk/gtk_chrome_link_button.h"
 #include "chrome/browser/profile.h"
+#include "chrome/common/chrome_constants.h"
 #include "chrome/common/gtk_util.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
@@ -21,39 +22,29 @@
 #include "webkit/glue/webkit_glue.h"
 
 namespace {
-// The pixel width of the version text field. Ideally, we'd like to have the
-// bounds set to the edge of the icon. However, the icon is not a view but a
-// part of the background, so we have to hard code the width to make sure
-// the version field doesn't overlap it.
-const int kVersionFieldWidth = 195;
 
 // The URLs that you navigate to when clicking the links in the About dialog.
-const wchar_t* const kChromiumUrl = L"http://www.chromium.org/";
-const wchar_t* const kAcknowledgements = L"about:credits";
-const wchar_t* const kTOS = L"about:terms";
+const char* const kAcknowledgements = "about:credits";
+const char* const kTOS = "about:terms";
 
 // Left or right margin.
 const int kPanelHorizMargin = 13;
 
 // Top or bottom margin.
-const int kPanelVertMargin = 13;
+const int kPanelVertMargin = 20;
+
+// Extra spacing between product name and version number.
+const int kExtraLineSpacing = 5;
 
 // These are used as placeholder text around the links in the text in the about
 // dialog.
-const wchar_t* kBeginLinkChr = L"BEGIN_LINK_CHR";
-const wchar_t* kBeginLinkOss = L"BEGIN_LINK_OSS";
-const wchar_t* kEndLinkChr = L"END_LINK_CHR";
-const wchar_t* kEndLinkOss = L"END_LINK_OSS";
-const wchar_t* kBeginLink = L"BEGIN_LINK";
-const wchar_t* kEndLink = L"END_LINK";
-
-void RemoveText(std::wstring* text, const wchar_t* to_remove) {
-  size_t start = text->find(to_remove, 0);
-  if (start != std::string::npos) {
-    size_t length =  wcslen(to_remove);
-    *text = text->substr(0, start) + text->substr(start + length);
-  }
-}
+const char* kBeginLinkChr = "BEGIN_LINK_CHR";
+const char* kBeginLinkOss = "BEGIN_LINK_OSS";
+// We don't actually use this one.
+// const char* kEndLinkChr = "END_LINK_CHR";
+const char* kEndLinkOss = "END_LINK_OSS";
+const char* kBeginLink = "BEGIN_LINK";
+const char* kEndLink = "END_LINK";
 
 void OnDialogResponse(GtkDialog* dialog, int response_id) {
   // We're done.
@@ -66,14 +57,26 @@ void FixLabelWrappingCallback(GtkWidget *label,
   gtk_widget_set_size_request(label, allocation->width, -1);
 }
 
-GtkWidget* MakeMarkupLabel(const char* format, const std::wstring& str) {
+GtkWidget* MakeMarkupLabel(const char* format, const std::string& str) {
   GtkWidget* label = gtk_label_new(NULL);
-  char* markup = g_markup_printf_escaped(
-      format, WideToUTF8(str).c_str());
+  char* markup = g_markup_printf_escaped(format, str.c_str());
   gtk_label_set_markup(GTK_LABEL(label), markup);
   g_free(markup);
 
+  // Left align it.
+  gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+
   return label;
+}
+
+void OnLinkButtonClick(GtkWidget* button, const char* url) {
+  BrowserList::GetLastActive()->
+      OpenURL(GURL(url), GURL(), NEW_WINDOW, PageTransition::LINK);
+}
+
+const char* GetChromiumUrl() {
+  static std::string url(l10n_util::GetStringUTF8(IDS_CHROMIUM_PROJECT_URL));
+  return url.c_str();
 }
 
 }  // namespace
@@ -116,21 +119,20 @@ void ShowAboutDialogForProfile(GtkWindow* parent, Profile* profile) {
                             kPanelVertMargin, kPanelVertMargin,
                             kPanelHorizMargin, kPanelHorizMargin);
 
-  GtkWidget* text_vbox = gtk_vbox_new(FALSE, 0);
+  GtkWidget* text_vbox = gtk_vbox_new(FALSE, kExtraLineSpacing);
 
   GtkWidget* product_label = MakeMarkupLabel(
       "<span font_desc=\"18\" weight=\"bold\" style=\"normal\">%s</span>",
-      l10n_util::GetString(IDS_PRODUCT_NAME));
+      l10n_util::GetStringUTF8(IDS_PRODUCT_NAME));
   gtk_box_pack_start(GTK_BOX(text_vbox), product_label, FALSE, FALSE, 0);
 
-  GtkWidget* version_label = MakeMarkupLabel(
-      "<span style=\"italic\">%s</span>",
-      current_version);
+  GtkWidget* version_label = gtk_label_new(WideToUTF8(current_version).c_str());
+  gtk_misc_set_alignment(GTK_MISC(version_label), 0.0, 0.5);
   gtk_label_set_selectable(GTK_LABEL(version_label), TRUE);
   gtk_box_pack_start(GTK_BOX(text_vbox), version_label, FALSE, FALSE, 0);
 
   gtk_container_add(GTK_CONTAINER(text_alignment), text_vbox);
-  gtk_box_pack_start(GTK_BOX(hbox), text_alignment, TRUE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(hbox), text_alignment, TRUE, TRUE, 0);
 
   GtkWidget* image_vbox = gtk_vbox_new(FALSE, 0);
   gtk_box_pack_end(GTK_BOX(image_vbox),
@@ -149,31 +151,82 @@ void ShowAboutDialogForProfile(GtkWindow* parent, Profile* profile) {
 
   GtkWidget* copyright_label = MakeMarkupLabel(
       "<span size=\"smaller\">%s</span>",
-      l10n_util::GetString(IDS_ABOUT_VERSION_COPYRIGHT));
+      l10n_util::GetStringUTF8(IDS_ABOUT_VERSION_COPYRIGHT));
   gtk_box_pack_start(GTK_BOX(vbox), copyright_label, TRUE, TRUE, 5);
 
-  // TODO(erg): Figure out how to really insert links. We could just depend on
-  // (or include the source of) libsexy's SexyUrlLabel gtk widget...
-  std::wstring license = l10n_util::GetString(IDS_ABOUT_VERSION_LICENSE);
-  RemoveText(&license, kBeginLinkChr);
-  RemoveText(&license, kBeginLinkOss);
-  RemoveText(&license, kBeginLink);
-  RemoveText(&license, kEndLinkChr);
-  RemoveText(&license, kEndLinkOss);
-  RemoveText(&license, kEndLink);
+  std::string license = l10n_util::GetStringUTF8(IDS_ABOUT_VERSION_LICENSE);
+  bool chromium_url_appears_first =
+      license.find(kBeginLinkChr) < license.find(kBeginLinkOss);
+  size_t link1 = license.find(kBeginLink);
+  DCHECK(link1 != std::string::npos);
+  size_t link1_end = license.find(kEndLink, link1);
+  DCHECK(link1_end != std::string::npos);
+  size_t link2 = license.find(kBeginLink, link1_end);
+  DCHECK(link2 != std::string::npos);
+  size_t link2_end = license.find(kEndLink, link2);
+  DCHECK(link1_end != std::string::npos);
 
-  GtkWidget* license_label = MakeMarkupLabel(
-      "<span size=\"smaller\">%s</span>", license);
+  GtkWidget* license_chunk1 = MakeMarkupLabel(
+      "<span size=\"smaller\">%s</span>",
+      license.substr(0, link1));
+  GtkWidget* license_chunk2 = MakeMarkupLabel(
+      "<span size=\"smaller\">%s</span>",
+      license.substr(link1_end + strlen(kEndLinkOss),
+                     link2 - link1_end - strlen(kEndLinkOss)));
+  GtkWidget* license_chunk3 = MakeMarkupLabel(
+      "<span size=\"smaller\">%s</span>",
+      license.substr(link2_end + strlen(kEndLinkOss)));
 
-  gtk_label_set_line_wrap(GTK_LABEL(license_label), TRUE);
-  gtk_misc_set_alignment(GTK_MISC(license_label), 0, 0);
-  gtk_box_pack_start(GTK_BOX(vbox), license_label, TRUE, TRUE, 0);
+  std::string first_link_text =
+      std::string("<span size=\"smaller\">") +
+      license.substr(link1 + strlen(kBeginLinkOss),
+                     link1_end - link1 - strlen(kBeginLinkOss)) +
+      std::string("</span>");
+  std::string second_link_text =
+      std::string("<span size=\"smaller\">") +
+      license.substr(link2 + strlen(kBeginLinkOss),
+                     link2_end - link2 - strlen(kBeginLinkOss)) +
+      std::string("</span>");
 
-  // Hack around Gtk's not-so-good label wrapping, as described here:
-  // http://blog.16software.com/dynamic-label-wrapping-in-gtk
-  g_signal_connect(G_OBJECT(license_label), "size-allocate",
-                   G_CALLBACK(FixLabelWrappingCallback), NULL);
+  GtkWidget* first_link =
+      gtk_chrome_link_button_new_with_markup(first_link_text.c_str());
+  GtkWidget* second_link =
+      gtk_chrome_link_button_new_with_markup(second_link_text.c_str());
+  if (!chromium_url_appears_first) {
+    GtkWidget* swap = second_link;
+    second_link = first_link;
+    first_link = swap;
+  }
 
+  g_signal_connect(chromium_url_appears_first ? first_link : second_link,
+                   "clicked", G_CALLBACK(OnLinkButtonClick),
+                   const_cast<char*>(GetChromiumUrl()));
+  g_signal_connect(chromium_url_appears_first ? second_link : first_link,
+                   "clicked", G_CALLBACK(OnLinkButtonClick),
+                   const_cast<char*>(kAcknowledgements));
+
+  GtkWidget* license_hbox = gtk_hbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(license_hbox), license_chunk1,
+                     FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(license_hbox), first_link,
+                     FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(license_hbox), license_chunk2,
+                     FALSE, FALSE, 0);
+
+  // Since there's no good way to dynamically wrap the license block, force
+  // a line break right before the second link (which matches en-US Windows
+  // chromium).
+  GtkWidget* license_hbox2 = gtk_hbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(license_hbox2), second_link,
+                     FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(license_hbox2), license_chunk3,
+                     FALSE, FALSE, 0);
+
+  GtkWidget* license_vbox = gtk_vbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(license_vbox), license_hbox, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(license_vbox), license_hbox2, FALSE, FALSE, 0);
+
+  gtk_box_pack_start(GTK_BOX(vbox), license_vbox, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(content_area), vbox, TRUE, TRUE, 0);
 
   g_signal_connect(dialog, "response", G_CALLBACK(OnDialogResponse), NULL);

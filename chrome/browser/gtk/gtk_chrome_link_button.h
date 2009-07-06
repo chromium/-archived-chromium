@@ -37,8 +37,8 @@ typedef struct _GtkChromeLinkButtonClass   GtkChromeLinkButtonClass;
 struct _GtkChromeLinkButton {
   GtkButton button;
   GtkWidget* label;
-  char* blue_markup;
-  char* red_markup;
+  gchar* blue_markup;
+  gchar* red_markup;
   gboolean is_blue;
   GdkCursor* hand_cursor;
   GdkEventButton* click_button_event;
@@ -48,7 +48,11 @@ struct _GtkChromeLinkButtonClass {
   GtkButtonClass parent_class;
 };
 
+// Make a link button with display text |text|.
 GtkWidget* gtk_chrome_link_button_new(const char* text);
+
+// As above, but don't escape markup in the text.
+GtkWidget* gtk_chrome_link_button_new_with_markup(const char* markup);
 
 // Call this from within a "clicked" handler to get the release event that
 // triggered the click. It will return NULL if the click was triggered by a
