@@ -281,6 +281,76 @@ void InterstitialPage::Observe(NotificationType type,
   }
 }
 
+RenderViewHostDelegate::View* InterstitialPage::GetViewDelegate() const {
+  return rvh_view_delegate_.get();
+}
+
+const GURL& InterstitialPage::GetURL() const {
+  return url_;
+}
+
+void InterstitialPage::RenderViewGone(RenderViewHost* render_view_host) {
+  // Our renderer died. This should not happen in normal cases.
+  // Just dismiss the interstitial.
+  DontProceed();
+}
+
+void InterstitialPage::DidNavigate(
+    RenderViewHost* render_view_host,
+    const ViewHostMsg_FrameNavigate_Params& params) {
+  // A fast user could have navigated away from the page that triggered the
+  // interstitial while the interstitial was loading, that would have disabled
+  // us. In that case we can dismiss ourselves.
+  if (!enabled_){
+    DontProceed();
+    return;
+  }
+
+  // The RenderViewHost has loaded its contents, we can show it now.
+  render_view_host_->view()->Show();
+  tab_->set_interstitial_page(this);
+
+  RenderWidgetHostView* rwh_view = tab_->render_view_host()->view();
+
+  // The RenderViewHost may already have crashed before we even get here.
+  if (rwh_view) {
+    // If the page has focus, focus the interstitial.
+    if (rwh_view->HasFocus())
+      Focus();
+
+    // Hide the original RVH since we're showing the interstitial instead.
+    rwh_view->Hide();
+  }
+
+  // Notify the tab we are not loading so the throbber is stopped. It also
+  // causes a NOTIFY_LOAD_STOP notification, that the AutomationProvider (used
+  // by the UI tests) expects to consider a navigation as complete. Without
+  // this, navigating in a UI test to a URL that triggers an interstitial would
+  // hang.
+  tab_->SetIsLoading(false, NULL);
+}
+
+void InterstitialPage::UpdateTitle(RenderViewHost* render_view_host,
+                                   int32 page_id,
+                                   const std::wstring& title) {
+  DCHECK(render_view_host == render_view_host_);
+  NavigationEntry* entry = tab_->controller().GetActiveEntry();
+  // If this interstitial is shown on an existing navigation entry, we'll need
+  // to remember its title so we can revert to it when hidden.
+  if (!new_navigation_ && !should_revert_tab_title_) {
+    original_tab_title_ = UTF16ToWideHack(entry->title());
+    should_revert_tab_title_ = true;
+  }
+  entry->set_title(WideToUTF16Hack(title));
+  tab_->NotifyNavigationStateChanged(TabContents::INVALIDATE_TAB);
+}
+
+void InterstitialPage::DomOperationResponse(const std::string& json_string,
+                                            int automation_id) {
+  if (enabled_)
+    CommandReceived(json_string);
+}
+
 RenderViewHost* InterstitialPage::CreateRenderViewHost() {
   RenderViewHost* render_view_host = new RenderViewHost(
       SiteInstance::CreateSiteInstance(tab()->profile()),
@@ -378,72 +448,6 @@ void InterstitialPage::Focus() {
 
 void InterstitialPage::FocusThroughTabTraversal(bool reverse) {
   render_view_host_->SetInitialFocus(reverse);
-}
-
-void InterstitialPage::DidNavigate(
-    RenderViewHost* render_view_host,
-    const ViewHostMsg_FrameNavigate_Params& params) {
-  // A fast user could have navigated away from the page that triggered the
-  // interstitial while the interstitial was loading, that would have disabled
-  // us. In that case we can dismiss ourselves.
-  if (!enabled_){
-    DontProceed();
-    return;
-  }
-
-  // The RenderViewHost has loaded its contents, we can show it now.
-  render_view_host_->view()->Show();
-  tab_->set_interstitial_page(this);
-
-  RenderWidgetHostView* rwh_view = tab_->render_view_host()->view();
-
-  // The RenderViewHost may already have crashed before we even get here.
-  if (rwh_view) {
-    // If the page has focus, focus the interstitial.
-    if (rwh_view->HasFocus())
-      Focus();
-
-    // Hide the original RVH since we're showing the interstitial instead.
-    rwh_view->Hide();
-  }
-
-  // Notify the tab we are not loading so the throbber is stopped. It also
-  // causes a NOTIFY_LOAD_STOP notification, that the AutomationProvider (used
-  // by the UI tests) expects to consider a navigation as complete. Without
-  // this, navigating in a UI test to a URL that triggers an interstitial would
-  // hang.
-  tab_->SetIsLoading(false, NULL);
-}
-
-void InterstitialPage::RenderViewGone(RenderViewHost* render_view_host) {
-  // Our renderer died. This should not happen in normal cases.
-  // Just dismiss the interstitial.
-  DontProceed();
-}
-
-void InterstitialPage::DomOperationResponse(const std::string& json_string,
-                                            int automation_id) {
-  if (enabled_)
-    CommandReceived(json_string);
-}
-
-void InterstitialPage::UpdateTitle(RenderViewHost* render_view_host,
-                                   int32 page_id,
-                                   const std::wstring& title) {
-  DCHECK(render_view_host == render_view_host_);
-  NavigationEntry* entry = tab_->controller().GetActiveEntry();
-  // If this interstitial is shown on an existing navigation entry, we'll need
-  // to remember its title so we can revert to it when hidden.
-  if (!new_navigation_ && !should_revert_tab_title_) {
-    original_tab_title_ = UTF16ToWideHack(entry->title());
-    should_revert_tab_title_ = true;
-  }
-  entry->set_title(WideToUTF16Hack(title));
-  tab_->NotifyNavigationStateChanged(TabContents::INVALIDATE_TAB);
-}
-
-RenderViewHostDelegate::View* InterstitialPage::GetViewDelegate() const {
-  return rvh_view_delegate_.get();
 }
 
 void InterstitialPage::Disable() {

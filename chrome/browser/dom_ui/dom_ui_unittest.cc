@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "chrome/browser/dom_ui/new_tab_ui.h"
-#include "chrome/browser/renderer_host/test_render_view_host.h"
+#include "chrome/browser/renderer_host/test/test_render_view_host.h"
 #include "chrome/common/url_constants.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

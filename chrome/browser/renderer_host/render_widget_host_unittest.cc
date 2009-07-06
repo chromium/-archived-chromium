@@ -9,7 +9,7 @@
 #include "base/shared_memory.h"
 #include "build/build_config.h"
 #include "chrome/browser/renderer_host/backing_store.h"
-#include "chrome/browser/renderer_host/test_render_view_host.h"
+#include "chrome/browser/renderer_host/test/test_render_view_host.h"
 #include "chrome/common/render_messages.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

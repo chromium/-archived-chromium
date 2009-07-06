@@ -8,7 +8,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/history/history.h"
-#include "chrome/browser/renderer_host/test_render_view_host.h"
+#include "chrome/browser/renderer_host/test/test_render_view_host.h"
 #include "chrome/browser/sessions/session_service.h"
 #include "chrome/browser/sessions/session_service_test_helper.h"
 #include "chrome/browser/sessions/session_types.h"

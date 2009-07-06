@@ -15,6 +15,7 @@
 #include "base/ref_counted.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/shell_dialogs.h"
+#include "googleurl/src/gurl.h"
 
 class SaveFileManager;
 class SaveItem;

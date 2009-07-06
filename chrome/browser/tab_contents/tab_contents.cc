@@ -50,6 +50,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/render_messages.h"
+#include "chrome/common/renderer_preferences.h"
 #include "chrome/common/url_constants.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
@@ -57,6 +58,8 @@
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
 #include "net/base/registry_controlled_domain.h"
+#include "webkit/glue/password_form.h"
+#include "webkit/glue/webpreferences.h"
 
 #if defined(OS_WIN)
 // For CRect
@@ -1862,6 +1865,10 @@ void TabContents::RequestOpenURL(const GURL& url, const GURL& referrer,
   }
 }
 
+void TabContents::DomOperationResponse(const std::string& json_string,
+                                       int automation_id) {
+}
+
 void TabContents::ProcessDOMUIMessage(const std::string& message,
                                       const std::string& content,
                                       int request_id,
@@ -2133,6 +2140,10 @@ void TabContents::OnCrossSiteResponse(int new_render_process_host_id,
                                       new_request_id);
 }
 
+void TabContents::OnCrossSiteNavigationCanceled() {
+  render_manager_.CrossSiteNavigationCanceled();
+}
+
 bool TabContents::CanBlur() const {
   return delegate() ? delegate()->CanBlur() : true;
 }
@@ -2205,6 +2216,13 @@ void TabContents::OnUserGesture() {
   controller_.OnUserGesture();
 }
 
+bool TabContents::IsExternalTabContainer() const {
+  if (!delegate())
+    return false;
+
+  return delegate()->IsExternalTabContainer();
+}
+
 void TabContents::OnFindReply(int request_id,
                               int number_of_matches,
                               const gfx::Rect& selection_rect,
@@ -2236,11 +2254,8 @@ void TabContents::OnFindReply(int request_id,
       Details<FindNotificationDetails>(&last_search_result_));
 }
 
-bool TabContents::IsExternalTabContainer() const {
-  if (!delegate())
-    return false;
-
-  return delegate()->IsExternalTabContainer();
+void TabContents::DidInsertCSS() {
+  // This RVHDelegate function is used for extensions and not us.
 }
 
 void TabContents::FileSelected(const FilePath& path,

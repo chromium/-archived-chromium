@@ -34,7 +34,6 @@
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/page_action.h"
 #include "chrome/common/property_bag.h"
-#include "chrome/common/renderer_preferences.h"
 #include "net/base/load_states.h"
 #include "webkit/glue/password_form.h"
 #include "webkit/glue/webpreferences.h"
@@ -78,6 +77,7 @@ class PageAction;
 class PasswordManager;
 class PluginInstaller;
 class Profile;
+struct RendererPreferences;
 class RenderViewHost;
 class TabContentsDelegate;
 class TabContentsFactory;
@@ -562,10 +562,6 @@ class TabContents : public PageNavigator,
     render_view_host()->SetPageEncoding(encoding);
   }
 
-  void CrossSiteNavigationCanceled() {
-    render_manager_.CrossSiteNavigationCanceled();
-  }
-
   void WindowMoveOrResizeStarted() {
     render_view_host()->WindowMoveOrResizeStarted();
   }
@@ -739,7 +735,6 @@ class TabContents : public PageNavigator,
 
   // RenderViewHostDelegate ----------------------------------------------------
 
-  virtual RendererPreferences GetRendererPrefs() const;
   virtual RenderViewHostDelegate::View* GetViewDelegate() const;
   virtual RenderViewHostDelegate::Save* GetSaveDelegate() const;
   virtual TabContents* GetAsTabContents();
@@ -794,6 +789,8 @@ class TabContents : public PageNavigator,
                                 const SkBitmap& image);
   virtual void RequestOpenURL(const GURL& url, const GURL& referrer,
                               WindowOpenDisposition disposition);
+  virtual void DomOperationResponse(const std::string& json_string,
+                                    int automation_id);
   virtual void ProcessDOMUIMessage(const std::string& message,
                                    const std::string& content,
                                    int request_id,
@@ -831,14 +828,16 @@ class TabContents : public PageNavigator,
   virtual void DidGetPrintedPagesCount(int cookie, int number_pages);
   virtual void DidPrintPage(const ViewHostMsg_DidPrintPage_Params& params);
   virtual GURL GetAlternateErrorPageURL() const;
+  virtual RendererPreferences GetRendererPrefs() const;
   virtual WebPreferences GetWebkitPrefs();
   virtual void OnMissingPluginStatus(int status);
   virtual void OnCrashedPlugin(const FilePath& plugin_path);
   virtual void OnCrashedWorker();
   virtual void OnJSOutOfMemory();
   virtual void ShouldClosePage(bool proceed);
-  void OnCrossSiteResponse(int new_render_process_host_id,
-                           int new_request_id);
+  virtual void OnCrossSiteResponse(int new_render_process_host_id,
+                                   int new_request_id);
+  virtual void OnCrossSiteNavigationCanceled();
   virtual bool CanBlur() const;
   virtual gfx::Rect GetRootWindowResizerRect() const;
   virtual void RendererUnresponsive(RenderViewHost* render_view_host,
@@ -849,12 +848,13 @@ class TabContents : public PageNavigator,
       int32 page_id,
       const webkit_glue::WebApplicationInfo& info);
   virtual void OnUserGesture();
+  virtual bool IsExternalTabContainer() const;
   virtual void OnFindReply(int request_id,
                            int number_of_matches,
                            const gfx::Rect& selection_rect,
                            int active_match_ordinal,
                            bool final_update);
-  virtual bool IsExternalTabContainer() const;
+  virtual void DidInsertCSS();
 
   // SelectFileDialog::Listener ------------------------------------------------
 

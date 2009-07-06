@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -6,18 +6,18 @@
 
 #include "chrome/browser/renderer_host/cross_site_resource_handler.h"
 
+#include "base/message_loop.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
-#include "chrome/browser/tab_contents/tab_util.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 
 namespace {
+
 // Task to notify the TabContents that a cross-site response has begun, so that
 // TabContents can tell the old page to run its onunload handler.
-class CrossSiteNotifyTabTask : public Task {
+class CrossSiteNotifyTask : public Task {
  public:
-  CrossSiteNotifyTabTask(int render_process_host_id,
-                         int render_view_id,
-                         int request_id)
+  CrossSiteNotifyTask(int render_process_host_id,
+                      int render_view_id,
+                      int request_id)
     : render_process_host_id_(render_process_host_id),
       render_view_id_(render_view_id),
       request_id_(request_id) {}
@@ -48,17 +48,18 @@ class CancelPendingRenderViewTask : public Task {
       render_view_id_(render_view_id) {}
 
   void Run() {
-    TabContents* tab_contents =
-        tab_util::GetTabContentsByID(render_process_host_id_, render_view_id_);
-    if (tab_contents)
-      tab_contents->CrossSiteNavigationCanceled();
+    RenderViewHost* view =
+        RenderViewHost::FromID(render_process_host_id_, render_view_id_);
+    if (view)
+      view->delegate()->OnCrossSiteNavigationCanceled();
   }
 
  private:
   int render_process_host_id_;
   int render_view_id_;
 };
-}
+
+}  // namespace
 
 CrossSiteResourceHandler::CrossSiteResourceHandler(
     ResourceHandler* handler,
@@ -250,9 +251,9 @@ void CrossSiteResourceHandler::StartCrossSiteTransition(
   // Tell the tab responsible for this request that a cross-site response is
   // starting, so that it can tell its old renderer to run its onunload
   // handler now.  We will wait to hear the corresponding ClosePage_ACK.
-  CrossSiteNotifyTabTask* task =
-      new CrossSiteNotifyTabTask(render_process_host_id_,
-                                 render_view_id_,
-                                 request_id);
+  CrossSiteNotifyTask* task =
+      new CrossSiteNotifyTask(render_process_host_id_,
+                              render_view_id_,
+                              request_id);
   rdh_->ui_loop()->PostTask(FROM_HERE, task);
 }

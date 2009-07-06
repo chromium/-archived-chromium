@@ -9,7 +9,7 @@
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "chrome/browser/profile_manager.h"
-#include "chrome/browser/renderer_host/test_render_view_host.h"
+#include "chrome/browser/renderer_host/test/test_render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"

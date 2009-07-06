@@ -14,7 +14,7 @@
 #include "base/path_service.h"
 #include "chrome/browser/blocked_popup_container.h"
 #include "chrome/browser/tab_contents/test_web_contents.h"
-#include "chrome/browser/renderer_host/test_render_view_host.h"
+#include "chrome/browser/renderer_host/test/test_render_view_host.h"
 #include "chrome/test/testing_profile.h"
 #include "net/base/net_util.h"
 

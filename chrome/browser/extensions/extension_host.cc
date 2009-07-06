@@ -165,25 +165,6 @@ void ExtensionHost::RenderViewGone(RenderViewHost* render_view_host) {
       Details<ExtensionHost>(this));
 }
 
-WebPreferences ExtensionHost::GetWebkitPrefs() {
-  PrefService* prefs = render_view_host()->process()->profile()->GetPrefs();
-  const bool kIsDomUI = true;
-  return RenderViewHostDelegateHelper::GetWebkitPrefs(prefs, kIsDomUI);
-}
-
-void ExtensionHost::RunJavaScriptMessage(
-    const std::wstring& message,
-    const std::wstring& default_prompt,
-    const GURL& frame_url,
-    const int flags,
-    IPC::Message* reply_msg,
-    bool* did_suppress_message) {
-  // Automatically cancel the javascript alert (otherwise the renderer hangs
-  // indefinitely).
-  *did_suppress_message = true;
-  render_view_host()->JavaScriptMessageBoxClosed(reply_msg, true, L"");
-}
-
 void ExtensionHost::DidStopLoading(RenderViewHost* render_view_host) {
   // TODO(aa): This is toolstrip-specific and should probably not be here.
   // ExtensionToolstrip in bookmark_bar_view.cc?
@@ -193,6 +174,32 @@ void ExtensionHost::DidStopLoading(RenderViewHost* render_view_host) {
   render_view_host->InsertCSSInWebFrame(L"", toolstrip_css.as_string());
 
   did_stop_loading_ = true;
+}
+
+void ExtensionHost::RunJavaScriptMessage(const std::wstring& message,
+                                         const std::wstring& default_prompt,
+                                         const GURL& frame_url,
+                                         const int flags,
+                                         IPC::Message* reply_msg,
+                                         bool* did_suppress_message) {
+  // Automatically cancel the javascript alert (otherwise the renderer hangs
+  // indefinitely).
+  *did_suppress_message = true;
+  render_view_host()->JavaScriptMessageBoxClosed(reply_msg, true, L"");
+}
+
+WebPreferences ExtensionHost::GetWebkitPrefs() {
+  PrefService* prefs = render_view_host()->process()->profile()->GetPrefs();
+  const bool kIsDomUI = true;
+  return RenderViewHostDelegateHelper::GetWebkitPrefs(prefs, kIsDomUI);
+}
+
+void ExtensionHost::ProcessDOMUIMessage(const std::string& message,
+                                        const std::string& content,
+                                        int request_id,
+                                        bool has_callback) {
+  extension_function_dispatcher_->HandleRequest(message, content, request_id,
+                                                has_callback);
 }
 
 void ExtensionHost::DidInsertCSS() {
@@ -302,14 +309,6 @@ Browser* ExtensionHost::GetBrowser() {
   // TODO(rafaelw): Delay creation of background_page until the browser
   // is available. http://code.google.com/p/chromium/issues/detail?id=13284
   return browser;
-}
-
-void ExtensionHost::ProcessDOMUIMessage(const std::string& message,
-                                        const std::string& content,
-                                        int request_id,
-                                        bool has_callback) {
-  extension_function_dispatcher_->HandleRequest(message, content, request_id,
-                                                has_callback);
 }
 
 void ExtensionHost::RenderViewCreated(RenderViewHost* render_view_host) {

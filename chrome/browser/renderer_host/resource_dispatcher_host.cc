@@ -37,7 +37,6 @@
 #include "chrome/browser/renderer_host/sync_resource_handler.h"
 #include "chrome/browser/ssl/ssl_client_auth_handler.h"
 #include "chrome/browser/ssl/ssl_manager.h"
-#include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
@@ -85,7 +84,8 @@ bool ResourceDispatcherHost::g_is_http_prioritization_enabled = true;
 class ResourceDispatcherHost::ShutdownTask : public Task {
  public:
   explicit ShutdownTask(ResourceDispatcherHost* resource_dispatcher_host)
-      : rdh_(resource_dispatcher_host) { }
+      : rdh_(resource_dispatcher_host) {
+  }
 
   void Run() {
     rdh_->OnShutdown();
@@ -255,7 +255,7 @@ void ResourceDispatcherHost::OnShutdown() {
 
 bool ResourceDispatcherHost::HandleExternalProtocol(int request_id,
                                                     int process_id,
-                                                    int tab_contents_id,
+                                                    int route_id,
                                                     const GURL& url,
                                                     ResourceType::Type type,
                                                     ResourceHandler* handler) {
@@ -263,7 +263,7 @@ bool ResourceDispatcherHost::HandleExternalProtocol(int request_id,
     return false;
 
   ui_loop_->PostTask(FROM_HERE, NewRunnableFunction(
-      &ExternalProtocolHandler::LaunchUrl, url, process_id, tab_contents_id));
+      &ExternalProtocolHandler::LaunchUrl, url, process_id, route_id));
 
   handler->OnResponseCompleted(request_id, URLRequestStatus(
                                                URLRequestStatus::FAILED,

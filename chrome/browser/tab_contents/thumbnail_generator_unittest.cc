@@ -5,7 +5,7 @@
 #include "base/basictypes.h"
 #include "chrome/browser/renderer_host/backing_store_manager.h"
 #include "chrome/browser/renderer_host/mock_render_process_host.h"
-#include "chrome/browser/renderer_host/test_render_view_host.h"
+#include "chrome/browser/renderer_host/test/test_render_view_host.h"
 #include "chrome/browser/tab_contents/thumbnail_generator.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"

@@ -5,6 +5,7 @@
 #ifndef CHROME_BROWSER_TAB_CONTENTS_INTERSTITIAL_PAGE_H_
 #define CHROME_BROWSER_TAB_CONTENTS_INTERSTITIAL_PAGE_H_
 
+#include <map>
 #include <string>
 
 #include "base/gfx/size.h"
@@ -91,29 +92,26 @@ class InterstitialPage : public NotificationObserver,
                        const NotificationDetails& details);
 
   // RenderViewHostDelegate implementation:
-  virtual const GURL& GetURL() const { return url_; }
-  virtual WebPreferences GetWebkitPrefs() {
-    return WebPreferences();
-  }
+  virtual View* GetViewDelegate() const;
+  virtual const GURL& GetURL() const;
+  virtual void RenderViewGone(RenderViewHost* render_view_host);
   virtual void DidNavigate(RenderViewHost* render_view_host,
                            const ViewHostMsg_FrameNavigate_Params& params);
-  virtual void RenderViewGone(RenderViewHost* render_view_host);
-  virtual void DomOperationResponse(const std::string& json_string,
-                                    int automation_id);
   virtual void UpdateTitle(RenderViewHost* render_view_host,
                            int32 page_id,
                            const std::wstring& title);
-  virtual View* GetViewDelegate() const;
+  virtual void DomOperationResponse(const std::string& json_string,
+                                    int automation_id);
 
   // Invoked when the page sent a command through DOMAutomation.
-  virtual void CommandReceived(const std::string& command) { }
+  virtual void CommandReceived(const std::string& command) {}
 
   // Invoked with the NavigationEntry that is going to be added to the
   // navigation controller.
   // Gives an opportunity to sub-classes to set states on the |entry|.
   // Note that this is only called if the InterstitialPage was constructed with
   // |create_navigation_entry| set to true.
-  virtual void UpdateEntry(NavigationEntry* entry) { }
+  virtual void UpdateEntry(NavigationEntry* entry) {}
 
   TabContents* tab() const { return tab_; }
   const GURL& url() const { return url_; }

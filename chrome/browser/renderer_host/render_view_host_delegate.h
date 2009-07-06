@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -9,33 +9,36 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "base/file_path.h"
-#include "base/gfx/rect.h"
-#include "base/logging.h"
-#include "chrome/common/native_web_keyboard_event.h"
-#include "chrome/common/renderer_preferences.h"
+#include "base/string16.h"
 #include "net/base/load_states.h"
-#include "webkit/glue/password_form.h"
-#include "webkit/glue/webpreferences.h"
 #include "webkit/glue/window_open_disposition.h"
 
 class AutofillForm;
+struct ContextMenuParams;
+class FilePath;
+class GURL;
+struct NativeWebKeyboardEvent;
 class NavigationEntry;
 class Profile;
+struct RendererPreferences;
 class RenderProcessHost;
 class RenderViewHost;
 class ResourceRequestDetails;
 class SkBitmap;
 class TabContents;
-class WebKeyboardEvent;
 struct ThumbnailScore;
-struct ContextMenuParams;
 struct ViewHostMsg_DidPrintPage_Params;
 struct ViewHostMsg_FrameNavigate_Params;
 struct WebDropData;
+class WebKeyboardEvent;
+struct WebPreferences;
 
 namespace base {
 class WaitableEvent;
+}
+
+namespace gfx {
+class Rect;
 }
 
 namespace IPC {
@@ -44,6 +47,7 @@ class Message;
 
 namespace webkit_glue {
 class AutofillForm;
+struct PasswordForm;
 struct WebApplicationInfo;
 }
 
@@ -153,74 +157,76 @@ class RenderViewHostDelegate {
                                               int32 status) = 0;
   };
 
-  // Returns the current delegate associated with a feature. May be NULL.
-  virtual View* GetViewDelegate() const { return NULL; }
-  virtual Save* GetSaveDelegate() const { return NULL; }
+  // Returns the current delegate associated with a feature. May return NULL if
+  // there is no corresponding delegate.
+  virtual View* GetViewDelegate() const;
+  virtual Save* GetSaveDelegate() const;
 
   // Gets the URL that is currently being displayed, if there is one.
-  virtual const GURL& GetURL() const = 0;
+  virtual const GURL& GetURL() const;
 
-  // Return this object cast to a TabContents, if it is one.
-  virtual TabContents* GetAsTabContents() { return NULL; }
+  // Return this object cast to a TabContents, if it is one. If the object is
+  // not a TabContents, returns NULL.
+  virtual TabContents* GetAsTabContents();
 
   // The RenderView is being constructed (message sent to the renderer process
   // to construct a RenderView).  Now is a good time to send other setup events
   // to the RenderView.  This precedes any other commands to the RenderView.
-  virtual void RenderViewCreated(RenderViewHost* render_view_host) { }
+  virtual void RenderViewCreated(RenderViewHost* render_view_host) {}
 
   // The RenderView has been constructed.
-  virtual void RenderViewReady(RenderViewHost* render_view_host) { }
+  virtual void RenderViewReady(RenderViewHost* render_view_host) {}
 
   // The RenderView died somehow (crashed or was killed by the user).
-  virtual void RenderViewGone(RenderViewHost* render_view_host) { }
+  virtual void RenderViewGone(RenderViewHost* render_view_host) {}
 
   // The RenderView was navigated to a different page.
   virtual void DidNavigate(RenderViewHost* render_view_host,
-                           const ViewHostMsg_FrameNavigate_Params& params) { }
+                           const ViewHostMsg_FrameNavigate_Params& params) {}
 
   // The state for the page changed and should be updated.
   virtual void UpdateState(RenderViewHost* render_view_host,
                            int32 page_id,
-                           const std::string& state) { }
+                           const std::string& state) {}
 
   // The page's title was changed and should be updated.
   virtual void UpdateTitle(RenderViewHost* render_view_host,
                            int32 page_id,
-                           const std::wstring& title) { }
+                           const std::wstring& title) {}
 
   // The page's encoding was changed and should be updated.
   virtual void UpdateEncoding(RenderViewHost* render_view_host,
-                              const std::wstring& encoding) { }
+                              const std::wstring& encoding) {}
 
   // The destination URL has changed should be updated
-  virtual void UpdateTargetURL(int32 page_id, const GURL& url) { }
+  virtual void UpdateTargetURL(int32 page_id, const GURL& url) {}
 
   // The thumbnail representation of the page changed and should be updated.
   virtual void UpdateThumbnail(const GURL& url,
                                const SkBitmap& bitmap,
-                               const ThumbnailScore& score) { }
+                               const ThumbnailScore& score) {}
 
   // Inspector settings were changes and should be persisted.
-  virtual void UpdateInspectorSettings(const std::wstring& raw_settings) { }
+  virtual void UpdateInspectorSettings(const std::wstring& raw_settings) {}
 
   // The page is trying to close the RenderView's representation in the client.
-  virtual void Close(RenderViewHost* render_view_host) { }
+  virtual void Close(RenderViewHost* render_view_host) {}
 
   // The page is trying to move the RenderView's representation in the client.
-  virtual void RequestMove(const gfx::Rect& new_bounds) { }
+  virtual void RequestMove(const gfx::Rect& new_bounds) {}
 
   // The RenderView began loading a new page. This corresponds to WebKit's
   // notion of the throbber starting.
-  virtual void DidStartLoading(RenderViewHost* render_view_host) { }
+  virtual void DidStartLoading(RenderViewHost* render_view_host) {}
 
   // The RenderView stopped loading a page. This corresponds to WebKit's
   // notion of the throbber stopping.
-  virtual void DidStopLoading(RenderViewHost* render_view_host) { }
+  virtual void DidStopLoading(RenderViewHost* render_view_host) {}
 
   // The RenderView is starting a provisional load.
   virtual void DidStartProvisionalLoadForFrame(RenderViewHost* render_view_host,
                                                bool is_main_frame,
-                                               const GURL& url) { }
+                                               const GURL& url) {}
 
   // Notification by the resource loading system (not the renderer) that it has
   // started receiving a resource response. This is different than
@@ -235,7 +241,7 @@ class RenderViewHostDelegate {
   // Sent when a provisional load is redirected.
   virtual void DidRedirectProvisionalLoad(int32 page_id,
                                           const GURL& source_url,
-                                          const GURL& target_url) { }
+                                          const GURL& target_url) {}
 
   // Notification by the resource loading system (not the renderer) that a
   // resource was redirected. This is different than DidRedirectProvisionalLoad
@@ -253,7 +259,7 @@ class RenderViewHostDelegate {
       const GURL& url,
       const std::string& frame_origin,
       const std::string& main_frame_origin,
-      const std::string& security_info) { }
+      const std::string& security_info) {}
 
   // The RenderView failed a provisional load with an error.
   virtual void DidFailProvisionalLoadWithError(
@@ -261,11 +267,11 @@ class RenderViewHostDelegate {
       bool is_main_frame,
       int error_code,
       const GURL& url,
-      bool showing_repost_interstitial) { }
+      bool showing_repost_interstitial) {}
 
   // The URL for the FavIcon of a page has changed.
   virtual void UpdateFavIconURL(RenderViewHost* render_view_host,
-                                int32 page_id, const GURL& icon_url) { }
+                                int32 page_id, const GURL& icon_url) {}
 
   // An image that was requested to be downloaded by DownloadImage has
   // completed.
@@ -273,51 +279,49 @@ class RenderViewHostDelegate {
                                 int id,
                                 const GURL& image_url,
                                 bool errored,
-                                const SkBitmap& image) { }
+                                const SkBitmap& image) {}
 
   // The page wants to open a URL with the specified disposition.
   virtual void RequestOpenURL(const GURL& url,
                               const GURL& referrer,
-                              WindowOpenDisposition disposition) { }
+                              WindowOpenDisposition disposition) {}
 
   // A DOM automation operation completed. The result of the operation is
   // expressed in a json string.
   virtual void DomOperationResponse(const std::string& json_string,
-                                    int automation_id) { }
+                                    int automation_id) {}
 
   // A message was sent from HTML-based UI.
   // By default we ignore such messages.
   virtual void ProcessDOMUIMessage(const std::string& message,
                                    const std::string& content,
                                    int request_id,
-                                   bool has_callback) { }
+                                   bool has_callback) {}
 
   // A message for external host. By default we ignore such messages.
   // |receiver| can be a receiving script and |message| is any
   // arbitrary string that makes sense to the receiver.
   virtual void ProcessExternalHostMessage(const std::string& message,
                                           const std::string& origin,
-                                          const std::string& target) {
-  }
+                                          const std::string& target) {}
 
-  // A document has been loaded in a frame.
-  virtual void DocumentLoadedInFrame() {
-  }
+  // Notification that a document has been loaded in a frame.
+  virtual void DocumentLoadedInFrame() {}
 
   // Navigate to the history entry for the given offset from the current
   // position within the NavigationController.  Makes no change if offset is
   // not valid.
-  virtual void GoToEntryAtOffset(int offset) { }
+  virtual void GoToEntryAtOffset(int offset) {}
 
   // The page requests the size of the back and forward lists
   // within the NavigationController.
   virtual void GetHistoryListCount(int* back_list_count,
-                                   int* forward_list_count) { }
+                                   int* forward_list_count) {}
 
   // A file chooser should be shown.
   virtual void RunFileChooser(bool multiple_files,
                               const string16& title,
-                              const FilePath& default_file) { }
+                              const FilePath& default_file) {}
 
   // A javascript message, confirmation or prompt should be shown.
   virtual void RunJavaScriptMessage(const std::wstring& message,
@@ -325,24 +329,21 @@ class RenderViewHostDelegate {
                                     const GURL& frame_url,
                                     const int flags,
                                     IPC::Message* reply_msg,
-                                    bool* did_suppress_message) { }
+                                    bool* did_suppress_message) {}
 
   virtual void RunBeforeUnloadConfirm(const std::wstring& message,
-                                      IPC::Message* reply_msg) { }
-
-  // Display this RenderViewHost in a modal fashion.
-  virtual void RunModal(IPC::Message* reply_msg) { }
+                                      IPC::Message* reply_msg) {}
 
   virtual void ShowModalHTMLDialog(const GURL& url, int width, int height,
                                    const std::string& json_arguments,
-                                   IPC::Message* reply_msg) { }
+                                   IPC::Message* reply_msg) {}
 
   // Password forms have been detected in the page.
   virtual void PasswordFormsSeen(
-      const std::vector<webkit_glue::PasswordForm>& forms) { }
+      const std::vector<webkit_glue::PasswordForm>& forms) {}
 
   // Forms fillable by autofill have been detected in the page.
-  virtual void AutofillFormSubmitted(const webkit_glue::AutofillForm& form) { }
+  virtual void AutofillFormSubmitted(const webkit_glue::AutofillForm& form) {}
 
   // Called to retrieve a list of suggestions from the web database given
   // the name of the field |field_name| and what the user has already typed in
@@ -353,118 +354,112 @@ class RenderViewHostDelegate {
   virtual void GetAutofillSuggestions(const std::wstring& field_name,
                                       const std::wstring& user_text,
                                       int64 node_id,
-                                      int request_id) { }
+                                      int request_id) {}
 
   // Called when the user has indicated that she wants to remove the specified
   // autofill suggestion from the database.
   virtual void RemoveAutofillEntry(const std::wstring& field_name,
-                                   const std::wstring& value) { }
+                                   const std::wstring& value) {}
 
   // Notification that the page has an OpenSearch description document.
   virtual void PageHasOSDD(RenderViewHost* render_view_host,
                            int32 page_id, const GURL& doc_url,
-                           bool autodetected) { }
+                           bool autodetected) {}
 
   // Notification that the render view has calculated the number of printed
   // pages.
-  virtual void DidGetPrintedPagesCount(int cookie, int number_pages) {
-    NOTREACHED();
-  }
+  virtual void DidGetPrintedPagesCount(int cookie, int number_pages) {}
 
   // Notification that the render view is done rendering one printed page. This
   // call is synchronous, the renderer is waiting on us because of the EMF
   // memory mapped data.
-  virtual void DidPrintPage(const ViewHostMsg_DidPrintPage_Params& params) {
-    NOTREACHED();
-  }
+  virtual void DidPrintPage(const ViewHostMsg_DidPrintPage_Params& params) {}
 
   // |url| is assigned to a server that can provide alternate error pages.  If
-  // unchanged, just use the error pages built into our webkit.
-  virtual GURL GetAlternateErrorPageURL() const {
-    return GURL();
-  }
+  // the returned URL is empty, the default error page built into WebKit will
+  // be used.
+  virtual GURL GetAlternateErrorPageURL() const;
 
   // Return a dummy RendererPreferences object that will be used by the renderer
   // associated with the owning RenderViewHost.
-  virtual RendererPreferences GetRendererPrefs() const {
-    return RendererPreferences();
-  }
+  virtual RendererPreferences GetRendererPrefs() const;
 
   // Returns a WebPreferences object that will be used by the renderer
   // associated with the owning render view host.
-  virtual WebPreferences GetWebkitPrefs() {
-    NOTREACHED();
-    return WebPreferences();
-  }
+  virtual WebPreferences GetWebkitPrefs();
 
   // Notification when default plugin updates status of the missing plugin.
-  virtual void OnMissingPluginStatus(int status) { }
+  virtual void OnMissingPluginStatus(int status) {}
 
   // Notification from the renderer that a plugin instance has crashed.
-  virtual void OnCrashedPlugin(const FilePath& plugin_path) { }
+  virtual void OnCrashedPlugin(const FilePath& plugin_path) {}
 
   // Notification that a worker process has crashed.
-  virtual void OnCrashedWorker() { }
+  virtual void OnCrashedWorker() {}
 
   // Notification from the renderer that JS runs out of memory.
-  virtual void OnJSOutOfMemory() { }
+  virtual void OnJSOutOfMemory() {}
 
   // Notification whether we should close the page, after an explicit call to
   // AttemptToClosePage.  This is called before a cross-site request or before
   // a tab/window is closed, to allow the appropriate renderer to approve or
   // deny the request.  |proceed| indicates whether the user chose to proceed.
-  virtual void ShouldClosePage(bool proceed) { }
+  virtual void ShouldClosePage(bool proceed) {}
 
   // Called by ResourceDispatcherHost when a response for a pending cross-site
   // request is received.  The ResourceDispatcherHost will pause the response
   // until the onunload handler of the previous renderer is run.
   virtual void OnCrossSiteResponse(int new_render_process_host_id,
-                                   int new_request_id) { }
+                                   int new_request_id) {}
 
-  // Whether this object can be blurred through a javascript
-  // obj.blur() call. ConstrainedWindows shouldn't be able to be
-  // blurred.
-  virtual bool CanBlur() const { return true; }
+  // Called the ResourceDispatcherHost's associate CrossSiteRequestHandler
+  // when a cross-site navigation has been canceled.
+  virtual void OnCrossSiteNavigationCanceled() {}
+
+  // Returns true if this this object can be blurred through a javascript
+  // obj.blur() call. ConstrainedWindows shouldn't be able to be blurred, but
+  // generally most other windows will be.
+  virtual bool CanBlur() const;
 
   // Return the rect where to display the resize corner, if any, otherwise
   // an empty rect.
-  virtual gfx::Rect GetRootWindowResizerRect() const { return gfx::Rect(); }
+  virtual gfx::Rect GetRootWindowResizerRect() const;
 
   // Notification that the renderer has become unresponsive. The
   // delegate can use this notification to show a warning to the user.
   virtual void RendererUnresponsive(RenderViewHost* render_view_host,
-                                    bool is_during_unload) { }
+                                    bool is_during_unload) {}
 
   // Notification that a previously unresponsive renderer has become
   // responsive again. The delegate can use this notification to end the
   // warning shown to the user.
-  virtual void RendererResponsive(RenderViewHost* render_view_host) { }
+  virtual void RendererResponsive(RenderViewHost* render_view_host) {}
 
   // Notification that the RenderViewHost's load state changed.
-  virtual void LoadStateChanged(const GURL& url, net::LoadState load_state) { }
+  virtual void LoadStateChanged(const GURL& url, net::LoadState load_state) {}
 
   // Notification that a request for install info has completed.
   virtual void OnDidGetApplicationInfo(
       int32 page_id,
-      const webkit_glue::WebApplicationInfo& app_info) { }
+      const webkit_glue::WebApplicationInfo& app_info) {}
 
   // Notification the user has made a gesture while focus was on the
   // page. This is used to avoid uninitiated user downloads (aka carpet
   // bombing), see DownloadRequestManager for details.
-  virtual void OnUserGesture() { }
+  virtual void OnUserGesture() {}
 
-  // If this view is used to host an external tab container.
-  virtual bool IsExternalTabContainer() const { return false; }
+  // Returns true if this view is used to host an external tab container.
+  virtual bool IsExternalTabContainer() const;
 
   // A find operation in the current page completed.
   virtual void OnFindReply(int request_id,
                            int number_of_matches,
                            const gfx::Rect& selection_rect,
                            int active_match_ordinal,
-                           bool final_update) { }
+                           bool final_update) {}
 
   // The RenderView has inserted one css file into page.
-  virtual void DidInsertCSS() { }
+  virtual void DidInsertCSS() {}
 };
 
 #endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_DELEGATE_H_

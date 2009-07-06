@@ -66,8 +66,8 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
 
    protected:
     explicit Receiver(ChildProcessInfo::ProcessType type)
-        : ChildProcessInfo(type) { }
-    virtual ~Receiver() { }
+        : ChildProcessInfo(type) {}
+    virtual ~Receiver() {}
   };
 
   // Holds the data we would like to associate with each request
@@ -183,7 +183,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
 
   class Observer {
    public:
-    virtual ~Observer() { }
+    virtual ~Observer() {}
     virtual void OnRequestStarted(ResourceDispatcherHost* resource_dispatcher,
                                   URLRequest* request) = 0;
     virtual void OnResponseCompleted(
@@ -199,7 +199,8 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
     GlobalRequestID() : process_id(-1), request_id(-1) {
     }
     GlobalRequestID(int process_id, int request_id)
-        : process_id(process_id), request_id(request_id) { }
+        : process_id(process_id), request_id(request_id) {
+    }
 
     int process_id;
     int request_id;
@@ -418,7 +419,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   // Internal function to finish an async IO which has completed.  Returns
   // true if there is more data to read (e.g. we haven't read EOF yet and
   // no errors have occurred).
-  bool CompleteRead(URLRequest *, int* bytes_read);
+  bool CompleteRead(URLRequest*, int* bytes_read);
 
   // Internal function to finish handling the ResponseStarted message.  Returns
   // true on success.
@@ -473,7 +474,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   // handled, the function returns true. False otherwise.
   bool HandleExternalProtocol(int request_id,
                               int process_id,
-                              int tab_contents_id,
+                              int route_id,
                               const GURL& url,
                               ResourceType::Type resource_type,
                               ResourceHandler* handler);

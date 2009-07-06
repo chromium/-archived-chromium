@@ -65,25 +65,24 @@ class ExtensionHost : public RenderViewHostDelegate,
   // process crashed.
   void RecoverCrashedExtension();
 
-  // RenderViewHostDelegate
+  // RenderViewHostDelegate implementation.
+  virtual RenderViewHostDelegate::View* GetViewDelegate() const;
   virtual const GURL& GetURL() const { return url_; }
   virtual void RenderViewCreated(RenderViewHost* render_view_host);
   virtual void RenderViewGone(RenderViewHost* render_view_host);
-  virtual WebPreferences GetWebkitPrefs();
-  virtual void RunJavaScriptMessage(
-      const std::wstring& message,
-      const std::wstring& default_prompt,
-      const GURL& frame_url,
-      const int flags,
-      IPC::Message* reply_msg,
-      bool* did_suppress_message);
   virtual void DidStopLoading(RenderViewHost* render_view_host);
-  virtual RenderViewHostDelegate::View* GetViewDelegate() const;
-  virtual void DidInsertCSS();
+  virtual WebPreferences GetWebkitPrefs();
   virtual void ProcessDOMUIMessage(const std::string& message,
                                    const std::string& content,
                                    int request_id,
                                    bool has_callback);
+  virtual void RunJavaScriptMessage(const std::wstring& message,
+                                    const std::wstring& default_prompt,
+                                    const GURL& frame_url,
+                                    const int flags,
+                                    IPC::Message* reply_msg,
+                                    bool* did_suppress_message);
+  virtual void DidInsertCSS();
 
   // RenderViewHostDelegate::View
   virtual void CreateNewWindow(int route_id,

@@ -4,7 +4,7 @@
 
 #include "chrome/browser/tab_contents/test_web_contents.h"
 
-#include "chrome/browser/renderer_host/test_render_view_host.h"
+#include "chrome/browser/renderer_host/test/test_render_view_host.h"
 
 TestTabContents::TestTabContents(Profile* profile, SiteInstance* instance)
     : TabContents(profile, instance, MSG_ROUTING_NONE, NULL),
