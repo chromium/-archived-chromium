@@ -1259,6 +1259,7 @@ HttpCache::HttpCache(HostResolver* host_resolver,
           host_resolver, proxy_service)),
       ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)),
       in_memory_cache_(false),
+      deleted_(false),
       cache_size_(cache_size) {
 }
 
@@ -1271,6 +1272,7 @@ HttpCache::HttpCache(HttpNetworkSession* session,
       network_layer_(HttpNetworkLayer::CreateFactory(session)),
       ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)),
       in_memory_cache_(false),
+      deleted_(false),
       cache_size_(cache_size) {
 }
 
@@ -1283,6 +1285,7 @@ HttpCache::HttpCache(HostResolver* host_resolver,
           host_resolver, proxy_service)),
       ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)),
       in_memory_cache_(true),
+      deleted_(false),
       cache_size_(cache_size) {
 }
 
@@ -1294,6 +1297,7 @@ HttpCache::HttpCache(HttpTransactionFactory* network_layer,
       disk_cache_(disk_cache),
       ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)),
       in_memory_cache_(false),
+      deleted_(false),
       cache_size_(0) {
 }
 
@@ -1314,6 +1318,9 @@ HttpCache::~HttpCache() {
   ActiveEntriesSet::iterator it = doomed_entries_.begin();
   for (; it != doomed_entries_.end(); ++it)
     delete *it;
+
+  // TODO(rvargas): remove this. I'm just tracking a few crashes.
+  deleted_ = true;
 }
 
 HttpTransaction* HttpCache::CreateTransaction() {
@@ -1571,6 +1578,10 @@ void HttpCache::DestroyEntry(ActiveEntry* entry) {
 HttpCache::ActiveEntry* HttpCache::ActivateEntry(
     const std::string& key,
     disk_cache::Entry* disk_entry) {
+  // TODO(rvargas): remove this code.
+  ActiveEntriesMap::iterator it = active_entries_.find(key);
+  CHECK(it == active_entries_.end());
+
   ActiveEntry* entry = new ActiveEntry(disk_entry);
   active_entries_[key] = entry;
   return entry;
@@ -1589,11 +1600,14 @@ void HttpCache::DeactivateEntry(ActiveEntry* entry) {
 
   ActiveEntriesMap::iterator it =
       active_entries_.find(entry->disk_entry->GetKey());
-  CHECK(it != active_entries_.end());
-  CHECK(it->second == entry);
-
-  if (local_entry.will_process_pending_queue || local_entry.doomed ||
-      local_entry.writer || readers_size || pending_size) {
+  if (it == active_entries_.end() || it->second != entry ||
+      local_entry.will_process_pending_queue || local_entry.doomed ||
+      local_entry.writer || readers_size || pending_size || deleted_) {
+    bool local_mem_flag = in_memory_cache_;
+    ActiveEntriesSet::iterator it2 = doomed_entries_.find(entry);
+    CHECK(it2 == doomed_entries_.end());
+    CHECK(!deleted_);
+    CHECK(local_mem_flag);
     CHECK(false);
   }
 
@@ -1645,6 +1659,11 @@ int HttpCache::AddTransactionToEntry(ActiveEntry* entry, Transaction* trans) {
   return trans->EntryAvailable(entry);
 }
 
+#if defined(OS_WIN)
+#pragma optimize("", off)
+#pragma warning(disable:4748)
+#endif
+// Avoid optimizing local_transaction out of the code.
 void HttpCache::DoneWithEntry(ActiveEntry* entry, Transaction* trans) {
   // If we already posted a task to move on to the next transaction and this was
   // the writer, there is nothing to cancel.
@@ -1654,12 +1673,21 @@ void HttpCache::DoneWithEntry(ActiveEntry* entry, Transaction* trans) {
   if (entry->writer) {
     // TODO(rvargas): convert this to a DCHECK.
     CHECK(trans == entry->writer);
+    // Get a local copy of the transaction, in preparation for a crash inside
+    // DeactivateEntry.
+    char local_transaction[sizeof(*trans)];
+    memcpy(local_transaction, trans, sizeof(*trans));
+
     // Assume that this is not a successful write.
     DoneWritingToEntry(entry, false);
   } else {
     DoneReadingFromEntry(entry, trans);
   }
 }
+#if defined(OS_WIN)
+#pragma warning(default:4748)
+#pragma optimize("", on)
+#endif
 
 void HttpCache::DoneWritingToEntry(ActiveEntry* entry, bool success) {
   DCHECK(entry->readers.empty());
