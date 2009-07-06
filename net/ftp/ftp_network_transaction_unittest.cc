@@ -235,15 +235,16 @@ class FtpNetworkTransactionTest : public PlatformTest {
     return info;
   }
 
-  void TransactionFailHelper(FtpMockControlSocket* ctrl_socket,
-                             const char* request,
-                             FtpMockControlSocket::State state,
-                             FtpMockControlSocket::State next_state,
-                             const char* response,
-                             int expected_result) {
-    ctrl_socket->InjectFailure(state, next_state, response);
-    StaticMockSocket data_socket1;
-    StaticMockSocket data_socket2;
+  void ExecuteTransaction(FtpMockControlSocket* ctrl_socket,
+                          const char* request,
+                          int expected_result) {
+    std::string mock_data("mock-data");
+    MockRead data_reads[] = {
+      MockRead(mock_data.c_str()),
+    };
+    // TODO(phajdan.jr): FTP transaction should not open two data sockets.
+    StaticMockSocket data_socket1(data_reads, NULL);
+    StaticMockSocket data_socket2(data_reads, NULL);
     mock_socket_factory_.AddMockSocket(ctrl_socket);
     mock_socket_factory_.AddMockSocket(&data_socket1);
     mock_socket_factory_.AddMockSocket(&data_socket2);
@@ -251,6 +252,25 @@ class FtpNetworkTransactionTest : public PlatformTest {
     ASSERT_EQ(ERR_IO_PENDING, transaction_.Start(&request_info, &callback_));
     EXPECT_EQ(expected_result, callback_.WaitForResult());
     EXPECT_EQ(FtpMockControlSocket::QUIT, ctrl_socket->state());
+    if (expected_result == OK) {
+      scoped_refptr<IOBuffer> io_buffer(new IOBuffer(kBufferSize));
+      memset(io_buffer->data(), 0, kBufferSize);
+      ASSERT_EQ(ERR_IO_PENDING,
+                transaction_.Read(io_buffer.get(), kBufferSize, &callback_));
+      EXPECT_EQ(static_cast<int>(mock_data.length()),
+                callback_.WaitForResult());
+      EXPECT_EQ(mock_data, std::string(io_buffer->data(), mock_data.length()));
+    }
+  }
+
+  void TransactionFailHelper(FtpMockControlSocket* ctrl_socket,
+                             const char* request,
+                             FtpMockControlSocket::State state,
+                             FtpMockControlSocket::State next_state,
+                             const char* response,
+                             int expected_result) {
+    ctrl_socket->InjectFailure(state, next_state, response);
+    ExecuteTransaction(ctrl_socket, request, expected_result);
   }
 
   scoped_refptr<FtpNetworkSession> session_;
@@ -270,47 +290,36 @@ TEST_F(FtpNetworkTransactionTest, FailedLookup) {
 
 TEST_F(FtpNetworkTransactionTest, DirectoryTransaction) {
   FtpMockControlSocketDirectoryListing ctrl_socket;
-  std::string test_string("mock-directory-listing");
-  MockRead data_reads[] = {
-    MockRead(test_string.c_str()),
-  };
-  // TODO(phajdan.jr): FTP transaction should not open two data sockets.
-  StaticMockSocket data_socket1;
-  StaticMockSocket data_socket2(data_reads, NULL);
-  mock_socket_factory_.AddMockSocket(&ctrl_socket);
-  mock_socket_factory_.AddMockSocket(&data_socket1);
-  mock_socket_factory_.AddMockSocket(&data_socket2);
-  FtpRequestInfo request_info = GetRequestInfo("ftp://host");
-  ASSERT_EQ(ERR_IO_PENDING, transaction_.Start(&request_info, &callback_));
-  EXPECT_EQ(OK, callback_.WaitForResult());
-  EXPECT_EQ(FtpMockControlSocket::QUIT, ctrl_socket.state());
-  scoped_refptr<IOBuffer> io_buffer(new IOBuffer(kBufferSize));
-  memset(io_buffer->data(), 0, kBufferSize);
-  EXPECT_EQ(ERR_IO_PENDING,
-            transaction_.Read(io_buffer.get(), kBufferSize, &callback_));
-  EXPECT_EQ(static_cast<int>(test_string.length()), callback_.WaitForResult());
-  EXPECT_EQ(test_string, std::string(io_buffer->data(), test_string.length()));
+  ExecuteTransaction(&ctrl_socket, "ftp://host", OK);
+}
+
+TEST_F(FtpNetworkTransactionTest, DirectoryTransactionShortReads2) {
+  FtpMockControlSocketDirectoryListing ctrl_socket;
+  ctrl_socket.set_short_read_limit(2);
+  ExecuteTransaction(&ctrl_socket, "ftp://host", OK);
+}
+
+TEST_F(FtpNetworkTransactionTest, DirectoryTransactionShortReads5) {
+  FtpMockControlSocketDirectoryListing ctrl_socket;
+  ctrl_socket.set_short_read_limit(5);
+  ExecuteTransaction(&ctrl_socket, "ftp://host", OK);
 }
 
 TEST_F(FtpNetworkTransactionTest, DownloadTransaction) {
   FtpMockControlSocketFileDownload ctrl_socket;
-  std::string test_string("mock-file-contents");
-  MockRead data_reads[] = {
-    MockRead(test_string.c_str()),
-  };
-  StaticMockSocket data_socket(data_reads, NULL);
-  mock_socket_factory_.AddMockSocket(&ctrl_socket);
-  mock_socket_factory_.AddMockSocket(&data_socket);
-  FtpRequestInfo request_info = GetRequestInfo("ftp://host/file");
-  ASSERT_EQ(ERR_IO_PENDING, transaction_.Start(&request_info, &callback_));
-  EXPECT_EQ(OK, callback_.WaitForResult());
-  EXPECT_EQ(FtpMockControlSocket::QUIT, ctrl_socket.state());
-  scoped_refptr<IOBuffer> io_buffer(new IOBuffer(kBufferSize));
-  memset(io_buffer->data(), 0, kBufferSize);
-  EXPECT_EQ(ERR_IO_PENDING,
-            transaction_.Read(io_buffer.get(), kBufferSize, &callback_));
-  EXPECT_EQ(static_cast<int>(test_string.length()), callback_.WaitForResult());
-  EXPECT_EQ(test_string, std::string(io_buffer->data(), test_string.length()));
+  ExecuteTransaction(&ctrl_socket, "ftp://host/file", OK);
+}
+
+TEST_F(FtpNetworkTransactionTest, DownloadTransactionShortReads2) {
+  FtpMockControlSocketFileDownload ctrl_socket;
+  ctrl_socket.set_short_read_limit(2);
+  ExecuteTransaction(&ctrl_socket, "ftp://host/file", OK);
+}
+
+TEST_F(FtpNetworkTransactionTest, DownloadTransactionShortReads5) {
+  FtpMockControlSocketFileDownload ctrl_socket;
+  ctrl_socket.set_short_read_limit(5);
+  ExecuteTransaction(&ctrl_socket, "ftp://host/file", OK);
 }
 
 TEST_F(FtpNetworkTransactionTest, DirectoryTransactionFailUser) {

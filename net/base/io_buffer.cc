@@ -13,7 +13,7 @@ IOBuffer::IOBuffer(int buffer_size) {
   data_ = new char[buffer_size];
 }
 void ReusedIOBuffer::SetOffset(int offset) {
-  DCHECK(offset > 0 && offset < size_);
+  DCHECK(offset >= 0 && offset < size_);
   data_ = base_->data() + offset;
 }
 
