@@ -193,11 +193,17 @@ void FindBarGtk::InitWidgets() {
   gtk_widget_modify_text(text_entry_, GTK_STATE_NORMAL, &kEntryTextColor);
 
   match_count_label_ = gtk_label_new(NULL);
+  // This line adds padding on the sides so that the label has even padding on
+  // all edges.
+  gtk_misc_set_padding(GTK_MISC(match_count_label_), 2, 0);
+  // This line makes sure the baseline of the label text matches the baseline of
+  // the entry text.
+  gtk_misc_set_alignment(GTK_MISC(match_count_label_), 0.5, 1.0);
   match_count_event_box_ = gtk_event_box_new();
   GtkWidget* match_count_centerer = gtk_vbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(match_count_centerer), match_count_event_box_,
                      TRUE, TRUE, 0);
-  gtk_container_set_border_width(GTK_CONTAINER(match_count_centerer), 3);
+  gtk_container_set_border_width(GTK_CONTAINER(match_count_centerer), 1);
   gtk_container_add(GTK_CONTAINER(match_count_event_box_), match_count_label_);
   UpdateMatchLabelAppearance(false);
 
