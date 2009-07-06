@@ -112,6 +112,11 @@ private:
   // Remove a request from the list of pending requests.
   void RemoveRequest(URLRequestChromeJob* job);
 
+  // Returns true if the job exists in |pending_requests_|. False otherwise.
+  // Called by ~URLRequestChromeJob to verify that |pending_requests_| is kept
+  // up to date.
+  bool HasPendingJob(URLRequestChromeJob* job) const;
+
   // Sent by Request::SendResponse.
   void DataAvailable(RequestID request_id,
                      scoped_refptr<RefCountedBytes> bytes);
