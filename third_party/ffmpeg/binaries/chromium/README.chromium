@@ -1,0 +1,12 @@
+Contains FFmpeg binaries suitable for Chromium.  Essentially a build of FFmpeg
+that only contains the following features:
+  Video codecs
+    - Theora
+  Audio codecs
+    - Vorbis
+  Container formats
+    - Ogg
+
+These were built using the instructions posted at:
+  http://src.chromium.org/viewvc/chrome/trunk/deps/third_party/ffmpeg/
+  http://src.chromium.org/viewvc/chrome/trunk/deps/third_party/mingw/

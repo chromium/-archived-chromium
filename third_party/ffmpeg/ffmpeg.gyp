@@ -170,6 +170,8 @@
       ],
     },
     {
+      # We prefer the Chrome binaries over the Chromium ones, which will get
+      # overwritten due to the order that the binaries are copied.
       'target_name': 'ffmpeg_binaries',
       'type': 'none',
       'msvs_guid': '4E4070E1-EFD9-4EF1-8634-3960956F6F10',
@@ -177,10 +179,14 @@
         ['OS=="win"', {
           'variables': {
             'source_files': [
-              'binaries/avcodec-52.dll',
-              'binaries/avformat-52.dll',
-              'binaries/avutil-50.dll',
-              'binaries/pthreadGC2.dll',
+              'binaries/chromium/avcodec-52.dll',
+              'binaries/chromium/avformat-52.dll',
+              'binaries/chromium/avutil-50.dll',
+              'binaries/chromium/pthreadGC2.dll',
+              'binaries/chrome/avcodec-52.dll',
+              'binaries/chrome/avformat-52.dll',
+              'binaries/chrome/avutil-50.dll',
+              'binaries/chrome/pthreadGC2.dll',
             ],
             'output_files': [
               '<(PRODUCT_DIR)/avcodec-52.dll',
@@ -193,9 +199,12 @@
         }], ['OS=="linux"', {
           'variables': {
             'source_files': [
-              'binaries/libavcodec.so.52',
-              'binaries/libavformat.so.52',
-              'binaries/libavutil.so.50',
+              'binaries/chromium/libavcodec.so.52',
+              'binaries/chromium/libavformat.so.52',
+              'binaries/chromium/libavutil.so.50',
+              'binaries/chrome/libavcodec.so.52',
+              'binaries/chrome/libavformat.so.52',
+              'binaries/chrome/libavutil.so.50',
             ],
             'output_files': [
               '<(PRODUCT_DIR)/libavcodec.so.52',
@@ -206,9 +215,12 @@
         }], ['OS=="mac"', {
           'variables': {
             'source_files': [
-              'binaries/libavcodec.52.dylib',
-              'binaries/libavformat.52.dylib',
-              'binaries/libavutil.50.dylib',
+              'binaries/chromium/libavcodec.52.dylib',
+              'binaries/chromium/libavformat.52.dylib',
+              'binaries/chromium/libavutil.50.dylib',
+              'binaries/chrome/libavcodec.52.dylib',
+              'binaries/chrome/libavformat.52.dylib',
+              'binaries/chrome/libavutil.50.dylib',
             ],
             'output_files': [
               '<(PRODUCT_DIR)/libavcodec.52.dylib',
