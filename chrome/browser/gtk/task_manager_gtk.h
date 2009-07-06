@@ -52,6 +52,9 @@ class TaskManagerGtk : public TaskManagerModelObserver {
   // Opens the context menu used to select the task manager columns.
   void ShowContextMenu();
 
+  // Activates the tab associated with the focused row.
+  void ActivateFocusedTab();
+
   // response signal handler that notifies us of dialog responses.
   static void OnResponse(GtkDialog* dialog, gint response_id,
                          TaskManagerGtk* task_manager);
@@ -59,6 +62,10 @@ class TaskManagerGtk : public TaskManagerModelObserver {
   // changed signal handler that is sent when the treeview selection changes.
   static void OnSelectionChanged(GtkTreeSelection* selection,
                                  TaskManagerGtk* task_manager);
+
+  // button-press-event handler that activates a process on double-click.
+  static gboolean OnButtonPressEvent(GtkWidget* widget, GdkEventButton* event,
+                                     TaskManagerGtk* task_manager);
 
   // button-release-event handler that opens the right-click context menu.
   static gboolean OnButtonReleaseEvent(GtkWidget* widget, GdkEventButton* event,

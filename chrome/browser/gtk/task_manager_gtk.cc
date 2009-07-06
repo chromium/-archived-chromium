@@ -59,7 +59,6 @@ TaskManagerColumn TaskManagerResourceIDToColumnID(int id) {
 }
 
 int TaskManagerColumnIDToResourceID(int id) {
-  printf("id: %d\n", id);
   switch (id) {
     case kTaskManagerPage:
       return IDS_TASK_MANAGER_PAGE_COLUMN;
@@ -326,6 +325,8 @@ void TaskManagerGtk::Init() {
   gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(treeview_), TRUE);
   gtk_tree_view_set_grid_lines(GTK_TREE_VIEW(treeview_),
                                GTK_TREE_VIEW_GRID_LINES_HORIZONTAL);
+  g_signal_connect(G_OBJECT(treeview_), "button-press-event",
+                   G_CALLBACK(OnButtonPressEvent), this);
   g_signal_connect(G_OBJECT(treeview_), "button-release-event",
                    G_CALLBACK(OnButtonReleaseEvent), this);
   gtk_widget_add_events(treeview_,
@@ -468,6 +469,17 @@ void TaskManagerGtk::ShowContextMenu() {
   menu_controller_->RunMenu();
 }
 
+void TaskManagerGtk::ActivateFocusedTab() {
+  GtkTreeSelection* selection = gtk_tree_view_get_selection(
+      GTK_TREE_VIEW(treeview_));
+
+  // If the user has just double clicked, only one item is selected.
+  GtkTreeModel* model;
+  GList* selected = gtk_tree_selection_get_selected_rows(selection, &model);
+  int row = GetRowNumForPath(reinterpret_cast<GtkTreePath*>(selected->data));
+  task_manager_->ActivateProcess(row);
+}
+
 // static
 void TaskManagerGtk::OnResponse(GtkDialog* dialog, gint response_id,
                                 TaskManagerGtk* task_manager) {
@@ -498,6 +510,16 @@ void TaskManagerGtk::OnSelectionChanged(GtkTreeSelection* selection,
   bool sensitive = (paths != NULL) && !selection_contains_browser_process;
   gtk_dialog_set_response_sensitive(GTK_DIALOG(task_manager->dialog_),
                                     kTaskManagerResponseKill, sensitive);
+}
+
+// static
+gboolean TaskManagerGtk::OnButtonPressEvent(GtkWidget* widget,
+                                            GdkEventButton* event,
+                                            TaskManagerGtk* task_manager) {
+  if (event->type == GDK_2BUTTON_PRESS)
+    task_manager->ActivateFocusedTab();
+
+  return FALSE;
 }
 
 // static
