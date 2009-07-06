@@ -110,6 +110,10 @@ class PluginProcessHost : public ChildProcessHost,
                      gfx::NativeWindow caller_window);
 #endif
 
+#if defined(OS_LINUX)
+  void OnMapNativeViewId(gfx::NativeViewId id, gfx::PluginWindowHandle* output);
+#endif
+
   virtual bool CanShutdown() { return sent_requests_.empty(); }
 
   struct ChannelRequest {

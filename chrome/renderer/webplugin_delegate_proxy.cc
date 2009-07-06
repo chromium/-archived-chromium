@@ -331,6 +331,12 @@ void WebPluginDelegateProxy::InstallMissingPlugin() {
 void WebPluginDelegateProxy::OnMessageReceived(const IPC::Message& msg) {
   IPC_BEGIN_MESSAGE_MAP(WebPluginDelegateProxy, msg)
     IPC_MESSAGE_HANDLER(PluginHostMsg_SetWindow, OnSetWindow)
+#if defined(OS_LINUX)
+    IPC_MESSAGE_HANDLER(PluginHostMsg_CreatePluginContainer,
+                        OnCreatePluginContainer)
+    IPC_MESSAGE_HANDLER(PluginHostMsg_DestroyPluginContainer,
+                        OnDestroyPluginContainer)
+#endif
 #if defined(OS_WIN)
     IPC_MESSAGE_HANDLER(PluginHostMsg_SetWindowlessPumpEvent,
                         OnSetWindowlessPumpEvent)
@@ -634,16 +640,25 @@ int WebPluginDelegateProxy::GetProcessId() {
   return channel_host_->peer_pid();
 }
 
-void WebPluginDelegateProxy::OnSetWindow(gfx::NativeViewId window_id) {
-#if defined(OS_WIN)
-  gfx::NativeView window = gfx::NativeViewFromId(window_id);
-  windowless_ = window == NULL;
+void WebPluginDelegateProxy::OnSetWindow(gfx::PluginWindowHandle window) {
+  windowless_ = window != static_cast<gfx::PluginWindowHandle>(0);
   if (plugin_)
     plugin_->SetWindow(window);
-#else
-  NOTIMPLEMENTED();
-#endif
 }
+
+#if defined(OS_LINUX)
+void WebPluginDelegateProxy::OnCreatePluginContainer(
+    gfx::PluginWindowHandle* container) {
+  RenderThread::current()->Send(new ViewHostMsg_CreatePluginContainer(
+      render_view_->routing_id(), container));
+}
+
+void WebPluginDelegateProxy::OnDestroyPluginContainer(
+    gfx::PluginWindowHandle container) {
+  RenderThread::current()->Send(new ViewHostMsg_DestroyPluginContainer(
+      render_view_->routing_id(), container));
+}
+#endif
 
 #if defined(OS_WIN)
   void WebPluginDelegateProxy::OnSetWindowlessPumpEvent(

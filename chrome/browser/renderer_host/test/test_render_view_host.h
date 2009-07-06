@@ -79,6 +79,11 @@ class TestRenderWidgetHostView : public RenderWidgetHostView {
                                   const std::vector<WebMenuItem>& items) {}
 #endif
 
+#if defined(OS_LINUX)
+  virtual gfx::PluginWindowHandle CreatePluginContainer() { return 0; }
+  virtual void DestroyPluginContainer(gfx::PluginWindowHandle container) { }
+#endif
+
   bool is_showing() const { return is_showing_; }
 
  private:

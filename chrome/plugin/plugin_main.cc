@@ -67,6 +67,22 @@ int PluginMain(const MainFunctionParams& parameters) {
                          MB_OK | MB_SETFOREGROUND);
   }
 #else
+#if defined(OS_LINUX)
+  {
+    // XEmbed plugins assume they are hosted in a Gtk application, so we need
+    // to initialize Gtk in the plugin process.
+    // TODO(evanm): hoist this up nearer to where we have argc/argv.
+    const std::vector<std::string>& args = parameters.command_line_.argv();
+    int argc = args.size();
+    scoped_array<const char *> argv(new const char *[argc + 1]);
+    for (int i = 0; i < argc; ++i) {
+      argv[i] = args[i].c_str();
+    }
+    argv[argc] = NULL;
+    const char **argv_pointer = argv.get();
+    gtk_init(&argc, const_cast<char***>(&argv_pointer));
+  }
+#endif
   NOTIMPLEMENTED() << " non-windows startup, plugin startup dialog etc.";
 #endif
 

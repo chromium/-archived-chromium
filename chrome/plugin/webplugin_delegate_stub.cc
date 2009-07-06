@@ -128,14 +128,15 @@ void WebPluginDelegateStub::OnInit(const PluginMsg_Init_Params& params,
   FilePath path = FilePath::FromWStringHack(
       command_line.GetSwitchValue(switches::kPluginPath));
 
+
+  gfx::PluginWindowHandle parent = NULL;
 #if defined(OS_WIN)
-  delegate_ = WebPluginDelegate::Create(
-      path, mime_type_, gfx::NativeViewFromId(params.containing_window));
-#else
-  NOTIMPLEMENTED() << " need to figure out nativeview id business";
-  delegate_ = WebPluginDelegate::Create(
-      path, mime_type_, NULL);
+  parent = gfx::NativeViewFromId(params.containing_window);
+#elif defined(OS_LINUX)
+  PluginThread::current()->Send(new PluginProcessHostMsg_MapNativeViewId(
+      params.containing_window, &parent));
 #endif
+  delegate_ = WebPluginDelegate::Create(path, mime_type_, parent);
 
   if (delegate_) {
     webplugin_ = new WebPluginProxy(channel_, instance_id_, delegate_);
