@@ -3638,7 +3638,7 @@
             '../third_party/cld/bar/toolbar/cld/i18n/encodings/compact_lang_det/compact_lang_det_unittest_small.cc',
           ],
         }],
-        ['OS=="linux" and toolkit_views==1', {
+        ['OS=="linux" and (toolkit_views==1 or linux2==1)', {
           'dependencies': [
             '../views/views.gyp:views',
           ],
