@@ -13,6 +13,7 @@
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/common/modal_dialog_event.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/common/page_zoom.h"
 #include "webkit/api/public/WebConsoleMessage.h"
 #include "webkit/glue/autofill_form.h"
@@ -73,7 +74,8 @@ struct WebApplicationInfo;
 //  if we want to bring that and other functionality down into this object so
 //  it can be shared by others.
 //
-class RenderViewHost : public RenderWidgetHost {
+class RenderViewHost : public RenderWidgetHost,
+                       public NotificationObserver {
  public:
   // Returns the RenderViewHost given its ID and the ID of its render process.
   // Returns NULL if the IDs do not correspond to a live RenderViewHost.
@@ -538,6 +540,11 @@ class RenderViewHost : public RenderWidgetHost {
 
   void UpdateBackForwardListCount();
 
+  // NotificationObserver implementation.
+  void Observe(NotificationType type,
+               const NotificationSource& source,
+               const NotificationDetails& details);
+
   // The SiteInstance associated with this RenderViewHost.  All pages drawn
   // in this RenderViewHost are part of this SiteInstance.  Should not change
   // over time.
@@ -592,6 +599,8 @@ class RenderViewHost : public RenderWidgetHost {
 
   // True if the render view can be shut down suddenly.
   bool sudden_termination_allowed_;
+
+  NotificationRegistrar registrar_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderViewHost);
 };
