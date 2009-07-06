@@ -1171,6 +1171,29 @@ devtools.CallFrame.doEvalInCallFrame =
 
 
 /**
+ * Returns variables visible on a given callframe.
+ * @param {devtools.CallFrame} callFrame Call frame to get variables for.
+ * @param {function(Object):undefined} callback Callback to report result to.
+ */
+devtools.CallFrame.getVariablesInScopeAsync = function(callFrame, callback) {
+  var result = {};
+  var scopeChain = callFrame.scopeChain;
+  var resolvedScopeCount = 0;
+  for (var i = 0; i < scopeChain.length; ++i) {
+    devtools.tools.getDebuggerAgent().resolveScope(scopeChain[i],
+        function(scopeObject) {
+          for (var property in scopeObject.resolvedValue) {
+            result[property] = true;
+          }
+          if (++resolvedScopeCount == scopeChain.length) {
+            callback(result);
+          }
+        });
+  }
+};
+
+
+/**
  * JSON based commands sent to v8 debugger.
  * @param {string} command Name of the command to execute.
  * @param {Object} opt_arguments Command-specific arguments map.

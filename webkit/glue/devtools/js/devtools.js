@@ -883,12 +883,22 @@ WebInspector.ScriptsPanel.prototype.__defineGetter__(
 
 WebInspector.Console.prototype.doEvalInWindow =
     function(expression, callback) {
+  if (!expression ) {
+    // Empty expression should evaluate to the global object for completions to
+    // work.
+    expression = "this";
+  }
   devtools.tools.evaluateJavaScript(expression, callback);
 };
 
 
 WebInspector.ScriptsPanel.prototype.doEvalInCallFrame =
     function(callFrame, expression, callback) {
+  if (!expression) {
+    // Empty expression should eval to scope roots for completions to work.
+    devtools.CallFrame.getVariablesInScopeAsync(callFrame, callback);
+    return;
+  }
   devtools.CallFrame.doEvalInCallFrame(callFrame, expression, callback);
 };
 
