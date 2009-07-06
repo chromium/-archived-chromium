@@ -198,6 +198,12 @@ class BlockedPopupContainer : public TabContentsDelegate,
   // string is hostname.  bool is whitelisted status.
   typedef std::map<std::string, bool> PopupHosts;
 
+  // Creates a BlockedPopupContainer, anchoring the container to the lower
+  // right corner using the given BlockedPopupContainerView. Use only for
+  // testing.
+  static BlockedPopupContainer* Create(TabContents* owner, Profile* profile,
+                                       BlockedPopupContainerView* view);
+
   // Hides the UI portion of the container.
   void HideSelf();
 
@@ -217,6 +223,7 @@ class BlockedPopupContainer : public TabContentsDelegate,
  private:
   friend class BlockedPopupContainerImpl;
   friend class BlockedPopupContainerTest;
+  friend class BlockedPopupContainerControllerTest;
 
   // string is hostname.
   typedef std::set<std::string> Whitelist;

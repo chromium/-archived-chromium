@@ -26,7 +26,7 @@
   scoped_ptr<BlockedPopupContainerView> bridge_;
   BlockedPopupContainer* container_;  // Weak. "owns" me.
   scoped_nsobject<NSView> view_;
-  IBOutlet NSTextField* label_;
+  IBOutlet NSPopUpButton* popupButton_;
 }
 
 // Initialize with the given popup container. Creates the C++ bridge object
@@ -45,8 +45,10 @@
 
 @interface BlockedPopupContainerController(ForTesting)
 - (NSView*)view;
-- (NSView*)label;
+- (NSPopUpButton*)popupButton;
 - (IBAction)closePopup:(id)sender;
+- (NSMenu*)buildMenu;
+- (void)setContainer:(BlockedPopupContainer*)container;
 @end
 
 #endif  // CHROME_BROWSER_VIEWS_BLOCKED_POPUP_CONTAINER_CONTROLLER_H_

@@ -6,6 +6,7 @@
 
 #include "app/app_paths.h"
 #include "base/path_service.h"
+#include "base/scoped_nsautorelease_pool.h"
 #import "chrome/browser/cocoa/blocked_popup_container_controller.h"
 #include "chrome/browser/cocoa/browser_test_helper.h"
 #import "chrome/browser/cocoa/cocoa_test_helper.h"
@@ -21,12 +22,18 @@ const std::string host1 = "host1";
 class BlockedPopupContainerControllerTest : public RenderViewHostTestHarness {
  public:
   virtual void SetUp() {
+    // This is all a bit convoluted because the standard factory Create() call
+    // doesn't give us access to the cocoa controller for testing (since it's
+    // an internal implementation detail). As a result, we need to create one
+    // separately and inject the bridge with a test-only Create() call.
+    // Unfortunate, but no way around it.
     RenderViewHostTestHarness::SetUp();
-    container_ = BlockedPopupContainer::Create(contents(), profile());
     cocoa_controller_ = [[BlockedPopupContainerController alloc]
-                          initWithContainer:container_];
+                          initWithContainer:nil];
     EXPECT_TRUE([cocoa_controller_ bridge]);
-    container_->set_view([cocoa_controller_ bridge]);
+    container_ = BlockedPopupContainer::Create(contents(), profile(),
+                                               [cocoa_controller_ bridge]);
+    [cocoa_controller_ setContainer:container_];
     contents_->set_blocked_popup_container(container_);
   }
 
@@ -54,6 +61,7 @@ class BlockedPopupContainerControllerTest : public RenderViewHostTestHarness {
     return net::FilePathToFileURL(filename);
   }
 
+  base::ScopedNSAutoreleasePool pool;
   BlockedPopupContainer* container_;
   BlockedPopupContainerController* cocoa_controller_;
 };
@@ -70,12 +78,24 @@ TEST_F(BlockedPopupContainerControllerTest, BasicPopupBlock) {
   EXPECT_FALSE(container_->IsHostWhitelisted(0));
 
   // Ensure the view has been displayed. If it has a superview, then ShowView()
-  // has been called on the bridge. If the label has a string, then
+  // has been called on the bridge. If the button has a string, then
   // UpdateLabel() has been called.
   EXPECT_TRUE([cocoa_controller_ view]);
   EXPECT_TRUE([[cocoa_controller_ view] superview]);
-  EXPECT_TRUE([[(NSTextField*)[cocoa_controller_ label]
-                stringValue] length] > 0);
+  EXPECT_TRUE([[[cocoa_controller_ popupButton] title] length] > 0);
+
+  // Validate the menu. It should have 4 items (the dummy title item, 1 poupup,
+  // a separator, 1 host).
+  NSMenu* menu = [cocoa_controller_ buildMenu];
+  EXPECT_TRUE(menu);
+  EXPECT_EQ([menu numberOfItems], 4);
+
+  // Change the whitelisting and make sure the host is checked.
+  container_->ToggleWhitelistingForHost(0);
+  menu = [cocoa_controller_ buildMenu];
+  EXPECT_TRUE(menu);
+  EXPECT_EQ([menu numberOfItems], 2);
+  EXPECT_EQ([[menu itemAtIndex:1] state], NSOnState);
 
   // Close the popup and verify it's no longer in the view hierarchy. This
   // means HideView() has been called.

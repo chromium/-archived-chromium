@@ -50,6 +50,7 @@ class BlockedPopupContainerViewBridge : public BlockedPopupContainerView {
 
 - (void)dealloc {
   [view_ removeFromSuperview];
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
   [super dealloc];
 }
 
@@ -77,13 +78,29 @@ class BlockedPopupContainerViewBridge : public BlockedPopupContainerView {
                                  0,
                                  startFrame.size.width - kCloseBoxSize,
                                  startFrame.size.height);
-  label_ = [[[NSTextField alloc] initWithFrame:labelFrame] autorelease];
-  [label_ setSelectable:NO];
-  [label_ setAutoresizingMask:NSViewWidthSizable];
-  [label_ setBordered:NO];
-  [label_ setBezeled:NO];
-  [label_ setDrawsBackground:NO];
-  [view_ addSubview:label_];
+  popupButton_ = [[[NSPopUpButton alloc] initWithFrame:labelFrame] autorelease];
+  [popupButton_ setAutoresizingMask:NSViewWidthSizable];
+  [popupButton_ setBordered:NO];
+  [popupButton_ setBezelStyle:NSTexturedRoundedBezelStyle];
+  [popupButton_ setPullsDown:YES];
+  // TODO(pinkerton): this doesn't work, not sure why.
+  [popupButton_ setPreferredEdge:NSMaxYEdge];
+  // TODO(pinkerton): no matter what, the arrows always draw in the middle
+  // of the button. We can turn off the arrows entirely, but then will the
+  // user ever know to click it? Leave them on for now.
+  //[[popupButton_ cell] setArrowPosition:NSPopUpNoArrow];
+  [[popupButton_ cell] setAltersStateOfSelectedItem:NO];
+  // If we don't add this, no title will ever display.
+  [popupButton_ addItemWithTitle:@"placeholder"];
+  [view_ addSubview:popupButton_];
+
+  // Register for notifications that the menu is about to display so we can
+  // fill it in lazily
+  [[NSNotificationCenter defaultCenter]
+      addObserver:self
+         selector:@selector(showMenu:)
+             name:NSPopUpButtonCellWillPopUpNotification
+           object:nil];
 
   // Create the close box and position at the left of the view.
   NSRect closeFrame = NSMakeRect(startFrame.size.width - kCloseBoxSize,
@@ -139,9 +156,14 @@ class BlockedPopupContainerViewBridge : public BlockedPopupContainerView {
 // Resize the view based on the new label contents. The autoresize mask will
 // take care of resizing everything else.
 - (void)resizeWithLabel:(NSString*)label {
+// TODO(pinkerton): fix this so that it measures the text so that it can
+// be localized.
 #if 0
-// TODO(pinkerton): fix this once the popup gets put in.
-  NSSize stringSize = [label sizeWithAttributes:nil];
+  NSDictionary* attributes =
+      [NSDictionary dictionaryWithObjectsAndKeys:
+        NSFontAttributeName, [NSFont systemFontOfSize:25],
+        nil];
+  NSSize stringSize = [label sizeWithAttributes:attributes];
   NSRect frame = [view_ frame];
   float originalWidth = frame.size.width;
   frame.size.width = stringSize.width + 16 + 5;
@@ -162,15 +184,116 @@ class BlockedPopupContainerViewBridge : public BlockedPopupContainerView {
         l10n_util::GetStringUTF16(IDS_POPUPS_UNBLOCKED));
   }
   [self resizeWithLabel:label];
-  [label_ setStringValue:label];
+  [popupButton_ setTitle:label];
+}
+
+// Called when the user selects an item from the popup menu. The tag, if below
+// |kImpossibleNumberOfPopups| will be the index into the container's popup
+// array. In that case, we should display the popup. If >=
+// |kImpossibleNumberOfPopups|, it represents a host that we should whitelist.
+// |sender| is the NSMenuItem that was chosen.
+- (void)menuAction:(id)sender {
+  size_t tag = static_cast<size_t>([sender tag]);
+  if (tag < BlockedPopupContainer::kImpossibleNumberOfPopups) {
+    container_->LaunchPopupAtIndex(tag);
+  } else {
+    size_t hostIndex = tag - BlockedPopupContainer::kImpossibleNumberOfPopups;
+    container_->ToggleWhitelistingForHost(hostIndex);
+  }
+}
+
+namespace {
+void GetURLAndTitleForPopup(
+    const BlockedPopupContainer* container,
+    size_t index,
+    string16* url,
+    string16* title) {
+  DCHECK(url);
+  DCHECK(title);
+  TabContents* tab_contents = container->GetTabContentsAt(index);
+  const GURL& tab_contents_url = tab_contents->GetURL().GetOrigin();
+  *url = UTF8ToUTF16(tab_contents_url.possibly_invalid_spec());
+  *title = tab_contents->GetTitle();
+}
+}  // namespace
+
+// Build a new popup menu from scratch. The menu contains the blocked popups
+// (tags being the popup's index), followed by the list of hosts from which
+// the popups were blocked (tags being |kImpossibleNumberOfPopups| + host
+// index). The hosts are used to toggle whitelisting for a site.
+- (NSMenu*)buildMenu {
+  NSMenu* menu = [[[NSMenu alloc] init] autorelease];
+
+  // For pop-down menus, the first item is what is displayed while tracking the
+  // menu and it remains there if nothing is selected. Set it to the
+  // current title.
+  NSString* currentTitle = [popupButton_ title];
+  scoped_nsobject<NSMenuItem> dummy(
+      [[NSMenuItem alloc] initWithTitle:currentTitle
+                                 action:nil
+                          keyEquivalent:@""]);
+  [menu addItem:dummy.get()];
+
+  // Add the list of blocked popups titles to the menu. We set the array index
+  // as the tag for use in the menu action rather than relying on the menu item
+  // index.
+  const size_t count = container_->GetBlockedPopupCount();
+  for (size_t i = 0; i < count; ++i) {
+    string16 url, title;
+    GetURLAndTitleForPopup(container_, i, &url, &title);
+    NSString* titleStr = base::SysUTF16ToNSString(
+        l10n_util::GetStringFUTF16(IDS_POPUP_TITLE_FORMAT, url, title));
+    scoped_nsobject<NSMenuItem> item(
+        [[NSMenuItem alloc] initWithTitle:titleStr
+                                   action:@selector(menuAction:)
+                            keyEquivalent:@""]);
+    [item setTag:i];
+    [item setTarget:self];
+    [menu addItem:item.get()];
+  }
+
+  // Add the list of hosts. We begin tagging these at
+  // |kImpossibleNumberOfPopups|. If whitelisting has already been enabled
+  // for a site, mark it with a checkmark.
+  std::vector<std::string> hosts(container_->GetHosts());
+  if (!hosts.empty() && count)
+    [menu addItem:[NSMenuItem separatorItem]];
+  for (size_t i = 0; i < hosts.size(); ++i) {
+    NSString* titleStr = base::SysUTF8ToNSString(
+        l10n_util::GetStringFUTF8(IDS_POPUP_HOST_FORMAT,
+                                  UTF8ToUTF16(hosts[i])));
+    scoped_nsobject<NSMenuItem> item(
+        [[NSMenuItem alloc] initWithTitle:titleStr
+                                   action:@selector(menuAction:)
+                            keyEquivalent:@""]);
+    if (container_->IsHostWhitelisted(i))
+      [item setState:NSOnState];
+    [item setTag:BlockedPopupContainer::kImpossibleNumberOfPopups + i];
+    [item setTarget:self];
+    [menu addItem:item.get()];
+  }
+
+  return menu;
+}
+
+// Called when the popup button is about to display the menu, giving us a
+// chance to fill in the contents.
+- (void)showMenu:(NSNotification*)notify {
+  NSMenu* menu = [self buildMenu];
+  [[notify object] setMenu:menu];
 }
 
 - (NSView*)view {
   return view_.get();
 }
 
-- (NSView*)label {
-  return label_;
+- (NSPopUpButton*)popupButton {
+  return popupButton_;
+}
+
+// Only used for testing.
+- (void)setContainer:(BlockedPopupContainer*)container {
+  container_ = container;
 }
 
 @end

@@ -22,6 +22,15 @@ BlockedPopupContainer* BlockedPopupContainer::Create(
 }
 
 // static
+BlockedPopupContainer* BlockedPopupContainer::Create(
+    TabContents* owner, Profile* profile, BlockedPopupContainerView* view) {
+  BlockedPopupContainer* container =
+      new BlockedPopupContainer(owner, profile->GetPrefs());
+  container->set_view(view);
+  return container;
+}
+
+// static
 void BlockedPopupContainer::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterListPref(prefs::kPopupWhitelistedHosts);
 }
