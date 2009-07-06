@@ -73,7 +73,9 @@ def main(args):
   for include_dir in include_dirs:
     command.extend(['-I', include_dir])
   command.append(generate_bindings)
-  command.extend(options)
+  # Remove any qouble qoutes that may have gotten in here. We know that none of
+  # the options will have meaningful double qoutes.
+  command.extend([option.replace('"', '') for option in options])
   command.extend(['--outputDir', cppdir, input])
 
   # Do it.  check_call is new in 2.5, so simulate its behavior with call and
