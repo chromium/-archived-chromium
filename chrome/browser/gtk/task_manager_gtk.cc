@@ -9,6 +9,7 @@
 #include "app/l10n_util.h"
 #include "base/gfx/gtk_util.h"
 #include "base/logging.h"
+#include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/common/gtk_util.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
@@ -57,6 +58,29 @@ TaskManagerColumn TaskManagerResourceIDToColumnID(int id) {
   }
 }
 
+int TaskManagerColumnIDToResourceID(int id) {
+  printf("id: %d\n", id);
+  switch (id) {
+    case kTaskManagerPage:
+      return IDS_TASK_MANAGER_PAGE_COLUMN;
+    case kTaskManagerPhysicalMem:
+      return IDS_TASK_MANAGER_PHYSICAL_MEM_COLUMN;
+    case kTaskManagerSharedMem:
+      return IDS_TASK_MANAGER_SHARED_MEM_COLUMN;
+    case kTaskManagerPrivateMem:
+      return IDS_TASK_MANAGER_PRIVATE_MEM_COLUMN;
+    case kTaskManagerCPU:
+      return IDS_TASK_MANAGER_CPU_COLUMN;
+    case kTaskManagerNetwork:
+      return IDS_TASK_MANAGER_NET_COLUMN;
+    case kTaskManagerProcessID:
+      return IDS_TASK_MANAGER_PROCESS_ID_COLUMN;
+    default:
+      NOTREACHED();
+      return -1;
+  }
+}
+
 // Should be used for all gtk_tree_view functions that require a column index on
 // input.
 //
@@ -74,6 +98,12 @@ void TreeViewColumnSetVisible(GtkWidget* treeview, TaskManagerColumn colid,
   GtkTreeViewColumn* column = gtk_tree_view_get_column(
       GTK_TREE_VIEW(treeview), TreeViewColumnIndexFromID(colid));
   gtk_tree_view_column_set_visible(column, visible);
+}
+
+bool TreeViewColumnIsVisible(GtkWidget* treeview, TaskManagerColumn colid) {
+  GtkTreeViewColumn* column = gtk_tree_view_get_column(
+      GTK_TREE_VIEW(treeview), TreeViewColumnIndexFromID(colid));
+  return gtk_tree_view_column_get_visible(column);
 }
 
 void TreeViewInsertColumnWithPixbuf(GtkWidget* treeview, int resid) {
@@ -123,6 +153,67 @@ gint GetRowNumForPath(GtkTreePath* path) {
 }
 
 }  // namespace
+
+class TaskManagerGtk::ContextMenuController : public MenuGtk::Delegate {
+ public:
+  explicit ContextMenuController(TaskManagerGtk* task_manager)
+      : task_manager_(task_manager) {
+    menu_.reset(new MenuGtk(this, false));
+    for (int i = kTaskManagerPage; i < kTaskManagerColumnCount - 1; i++) {
+      menu_->AppendCheckMenuItemWithLabel(
+          i, l10n_util::GetStringUTF8(TaskManagerColumnIDToResourceID(i)));
+    }
+
+    menu_->AppendCheckMenuItemWithLabel(kTaskManagerGoatsTeleported,
+                                        "Goats Teleported");
+  }
+
+  virtual ~ContextMenuController() {}
+
+  void RunMenu() {
+    menu_->PopupAsContext(gtk_get_current_event_time());
+  }
+
+  void Cancel() {
+    task_manager_ = NULL;
+    menu_->Cancel();
+  }
+
+ private:
+  // MenuGtk::Delegate implementation:
+  virtual bool IsCommandEnabled(int command_id) const {
+    if (!task_manager_)
+      return false;
+
+    return true;
+  }
+
+  virtual bool IsItemChecked(int command_id) const {
+    if (!task_manager_)
+      return false;
+
+    TaskManagerColumn colid = static_cast<TaskManagerColumn>(command_id);
+    return TreeViewColumnIsVisible(task_manager_->treeview_, colid);
+  }
+
+  virtual void ExecuteCommand(int command_id) {
+    if (!task_manager_)
+      return;
+
+    TaskManagerColumn colid = static_cast<TaskManagerColumn>(command_id);
+    bool visible = !TreeViewColumnIsVisible(task_manager_->treeview_, colid);
+    TreeViewColumnSetVisible(task_manager_->treeview_, colid, visible);
+  }
+
+  // The context menu.
+  scoped_ptr<MenuGtk> menu_;
+
+  // The TaskManager the context menu was brought up for. Set to NULL when the
+  // menu is canceled.
+  TaskManagerGtk* task_manager_;
+
+  DISALLOW_COPY_AND_ASSIGN(ContextMenuController);
+};
 
 TaskManagerGtk::TaskManagerGtk()
   : task_manager_(TaskManager::GetInstance()),
@@ -226,11 +317,19 @@ void TaskManagerGtk::Init() {
                       gtk_util::kContentAreaSpacing);
 
   g_signal_connect(G_OBJECT(dialog_), "response", G_CALLBACK(OnResponse), this);
+  g_signal_connect(G_OBJECT(dialog_), "button-release-event",
+                   G_CALLBACK(OnButtonReleaseEvent), this);
+  gtk_widget_add_events(dialog_,
+                        GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
 
   CreateTaskManagerTreeview();
   gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(treeview_), TRUE);
   gtk_tree_view_set_grid_lines(GTK_TREE_VIEW(treeview_),
                                GTK_TREE_VIEW_GRID_LINES_HORIZONTAL);
+  g_signal_connect(G_OBJECT(treeview_), "button-release-event",
+                   G_CALLBACK(OnButtonReleaseEvent), this);
+  gtk_widget_add_events(treeview_,
+                        GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
 
   // Hide some columns by default
   TreeViewColumnSetVisible(treeview_, kTaskManagerSharedMem, false);
@@ -362,6 +461,13 @@ void TaskManagerGtk::KillSelectedProcesses() {
   g_list_free(paths);
 }
 
+void TaskManagerGtk::ShowContextMenu() {
+  if (!menu_controller_.get())
+    menu_controller_.reset(new ContextMenuController(this));
+
+  menu_controller_->RunMenu();
+}
+
 // static
 void TaskManagerGtk::OnResponse(GtkDialog* dialog, gint response_id,
                                 TaskManagerGtk* task_manager) {
@@ -392,4 +498,18 @@ void TaskManagerGtk::OnSelectionChanged(GtkTreeSelection* selection,
   bool sensitive = (paths != NULL) && !selection_contains_browser_process;
   gtk_dialog_set_response_sensitive(GTK_DIALOG(task_manager->dialog_),
                                     kTaskManagerResponseKill, sensitive);
+}
+
+// static
+gboolean TaskManagerGtk::OnButtonReleaseEvent(GtkWidget* widget,
+                                              GdkEventButton* event,
+                                              TaskManagerGtk* task_manager) {
+  // We don't want to open the context menu in the treeview.
+  if (widget == task_manager->treeview_)
+    return TRUE;
+
+  if (event->button == 3)
+    task_manager->ShowContextMenu();
+
+  return FALSE;
 }
