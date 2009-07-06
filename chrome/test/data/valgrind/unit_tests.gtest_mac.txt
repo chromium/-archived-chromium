@@ -1,7 +1,3 @@
 # Times out too often
 # crbug.com/15817
 IPCSyncChannelTest.*
-
-# Disable BlockedPopupContainerControllerTest.
-# Remove after crbug.com/15818 is fixed
-BlockedPopupContainerControllerTest.*
