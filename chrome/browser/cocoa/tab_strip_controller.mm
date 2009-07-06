@@ -78,10 +78,15 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
 - (void)swapInTabAtIndex:(NSInteger)index {
   TabContentsController* controller = [tabContentsArray_ objectAtIndex:index];
 
-  // Resize the new view to fit the window
+  // Resize the new view to fit the window. Calling |view| may lazily
+  // instantiate the TabContentsController from the nib. Until we call
+  // |-ensureContentsVisible|, the controller doesn't install the RWHVMac into
+  // the view hierarchy. This is in order to avoid sending the renderer a
+  // spurious default size loaded from the nib during the call to |-view|.
   NSView* newView = [controller view];
   NSRect frame = [switchView_ bounds];
   [newView setFrame:frame];
+  [controller ensureContentsVisible];
 
   // Remove the old view from the view hierarchy. We know there's only one
   // child of |switchView_| because we're the one who put it there. There

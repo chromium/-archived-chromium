@@ -12,7 +12,11 @@ class TabContentsCommandObserver;
 class TabStripModel;
 
 // A class that controls the web contents of a tab. It manages displaying the
-// native view for a given TabContents in |contentsBox_|.
+// native view for a given TabContents in |contentsBox_|. Note that just
+// creating the class does not display the view in |contentsBox_|. We defer
+// inserting it until the box is the correct size to avoid multiple resize
+// messages to the renderer. You must call |-ensureContentsVisible| to display
+// the render widget host view.
 
 @interface TabContentsController : NSViewController {
  @private
@@ -31,6 +35,10 @@ class TabStripModel;
 // the selected tab. Handles things such as ensuring the toolbar is correctly
 // enabled.
 - (void)willBecomeSelectedTab;
+
+// Call when the tab view is properly sized and the render widget host view
+// should be put into the view hierarchy.
+- (void)ensureContentsVisible;
 
 // Called when the tab contents is updated in some non-descript way (the
 // notification from the model isn't specific). |updatedContents| could reflect

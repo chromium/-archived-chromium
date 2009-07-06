@@ -26,7 +26,9 @@
   [super dealloc];
 }
 
-- (void)awakeFromNib {
+// Call when the tab view is properly sized and the render widget host view
+// should be put into the view hierarchy.
+- (void)ensureContentsVisible {
   [contentsBox_ setContentView:contents_->GetNativeView()];
 }
 
