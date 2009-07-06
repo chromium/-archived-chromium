@@ -17,8 +17,7 @@ namespace media {
 const size_t AudioRendererBase::kDefaultMaxQueueSize = 16;
 
 AudioRendererBase::AudioRendererBase(size_t max_queue_size)
-    : decoder_(NULL),
-      max_queue_size_(max_queue_size),
+    : max_queue_size_(max_queue_size),
       data_offset_(0),
       initialized_(false),
       stopped_(false) {

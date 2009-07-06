@@ -93,7 +93,7 @@ class AudioRendererBase : public AudioRenderer {
   void ScheduleRead();
 
   // Audio decoder.
-  AudioDecoder* decoder_;
+  scoped_refptr<AudioDecoder> decoder_;
 
   // Maximum queue size, configuration parameter passed in during construction.
   size_t max_queue_size_;
