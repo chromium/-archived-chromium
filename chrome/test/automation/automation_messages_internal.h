@@ -895,14 +895,14 @@ IPC_BEGIN_MESSAGES(Automation)
 
   // Used to put the browser into "extension automation mode" for the
   // current profile, or turn off the mode.
-  IPC_SYNC_MESSAGE_ROUTED1_0(AutomationMsg_SetEnableExtensionAutomation,
-                             bool /* true to enable extension automation */)
+  IPC_MESSAGE_ROUTED1(AutomationMsg_SetEnableExtensionAutomation,
+                      bool /* true to enable extension automation */)
 
   // This message tells the browser to start using the new proxy configuration
   // represented by the given JSON string. The parameters used in the JSON
   // string are defined in automation_constants.h.
-  IPC_SYNC_MESSAGE_ROUTED1_0(AutomationMsg_SetProxyConfig,
-                             std::string /* proxy_config_json_string */)
+  IPC_MESSAGE_ROUTED1(AutomationMsg_SetProxyConfig,
+                      std::string /* proxy_config_json_string */)
 
   // Sets Download Shelf visibility for the specified browser.
   IPC_SYNC_MESSAGE_ROUTED2_0(AutomationMsg_SetShelfVisibility,
