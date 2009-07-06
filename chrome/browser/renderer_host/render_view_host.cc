@@ -719,6 +719,8 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
                         OnForwardToDevToolsAgent);
     IPC_MESSAGE_HANDLER(ViewHostMsg_ForwardToDevToolsClient,
                         OnForwardToDevToolsClient);
+    IPC_MESSAGE_HANDLER(ViewHostMsg_ActivateDevToolsWindow,
+                        OnActivateDevToolsWindow);
     IPC_MESSAGE_HANDLER(ViewHostMsg_CloseDevToolsWindow,
                         OnCloseDevToolsWindow);
     IPC_MESSAGE_HANDLER(ViewHostMsg_DockDevToolsWindow,
@@ -1198,6 +1200,10 @@ void RenderViewHost::OnForwardToDevToolsAgent(const IPC::Message& message) {
 
 void RenderViewHost::OnForwardToDevToolsClient(const IPC::Message& message) {
   DevToolsManager::GetInstance()->ForwardToDevToolsClient(this, message);
+}
+
+void RenderViewHost::OnActivateDevToolsWindow() {
+  DevToolsManager::GetInstance()->ActivateWindow(this);
 }
 
 void RenderViewHost::OnCloseDevToolsWindow() {

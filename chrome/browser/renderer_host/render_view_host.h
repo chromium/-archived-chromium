@@ -499,6 +499,7 @@ class RenderViewHost : public RenderWidgetHost {
   void OnUpdateInspectorSettings(const std::wstring& raw_settings);
   void OnForwardToDevToolsAgent(const IPC::Message& message);
   void OnForwardToDevToolsClient(const IPC::Message& message);
+  void OnActivateDevToolsWindow();
   void OnCloseDevToolsWindow();
   void OnDockDevToolsWindow();
   void OnUndockDevToolsWindow();

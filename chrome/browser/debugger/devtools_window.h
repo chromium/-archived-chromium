@@ -32,6 +32,7 @@ class DevToolsWindow : public DevToolsClientHost, public NotificationObserver {
 
   virtual ~DevToolsWindow();
   virtual void Show() = 0;
+  virtual void Activate() = 0;
   bool is_docked() { return docked_; };
   RenderViewHost* GetRenderViewHost();
 

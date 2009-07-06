@@ -93,6 +93,16 @@ void DevToolsManager::ForwardToDevToolsClient(RenderViewHost* inspected_rvh,
   client_host->SendMessageToClient(message);
 }
 
+void DevToolsManager::ActivateWindow(RenderViewHost* client_rvh) {
+  DevToolsClientHost* client_host = FindOnwerDevToolsClientHost(client_rvh);
+  if (!client_host) {
+    return;
+  }
+  DevToolsWindow* window = client_host->AsDevToolsWindow();
+  DCHECK(window);
+  window->Activate();
+}
+
 void DevToolsManager::CloseWindow(RenderViewHost* client_rvh) {
   DevToolsClientHost* client_host = FindOnwerDevToolsClientHost(client_rvh);
   if (!client_host) {

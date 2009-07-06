@@ -1101,6 +1101,9 @@ IPC_BEGIN_MESSAGES(ViewHost)
   IPC_MESSAGE_ROUTED1(ViewHostMsg_ForwardToDevToolsAgent,
                       IPC::Message /* one of DevToolsAgentMsg_XXX types */)
 
+  // Activates (brings to the front) corresponding dev tools window.
+  IPC_MESSAGE_ROUTED0(ViewHostMsg_ActivateDevToolsWindow)
+
   // Closes dev tools window that is inspecting current render_view_host.
   IPC_MESSAGE_ROUTED0(ViewHostMsg_CloseDevToolsWindow)
 

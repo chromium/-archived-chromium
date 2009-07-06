@@ -48,7 +48,8 @@ void DevToolsClient::SendDebuggerCommandToAgent(const std::string& command) {
 }
 
 void DevToolsClient::ActivateWindow() {
-  render_view_->TakeFocus(render_view_->webview(), false);
+  render_view_->Send(new ViewHostMsg_ActivateDevToolsWindow(
+      render_view_->routing_id()));
 }
 
 void DevToolsClient::CloseWindow() {

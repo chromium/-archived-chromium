@@ -47,6 +47,7 @@ class DevToolsManager : public DevToolsClientHost::CloseListener,
   void ForwardToDevToolsClient(RenderViewHost* inspected_rvh,
                                const IPC::Message& message);
 
+  void ActivateWindow(RenderViewHost* client_rvn);
   void CloseWindow(RenderViewHost* client_rvn);
   void DockWindow(RenderViewHost* client_rvn);
   void UndockWindow(RenderViewHost* client_rvn);

@@ -33,6 +33,7 @@ class FloatingWindow : public DevToolsWindow,
   FloatingWindow(Profile* profile);
   virtual ~FloatingWindow();
   virtual void Show();
+  virtual void Activate();
   virtual void InspectedTabClosing();
 
   // TabStripModelObserver implementation
@@ -49,6 +50,7 @@ class DockedWindow : public DevToolsWindow,
  public:
   DockedWindow(Profile* profile, BrowserWindow* window);
   virtual ~DockedWindow();
+  virtual void Activate() {}
   virtual void Show();
   virtual void InspectedTabClosing();
 
@@ -214,6 +216,12 @@ FloatingWindow::FloatingWindow(Profile* profile)
 }
 
 FloatingWindow::~FloatingWindow() {
+}
+
+void FloatingWindow::Activate() {
+  if (!browser_->window()->IsActive()) {
+    browser_->window()->Activate();
+  }
 }
 
 void FloatingWindow::Show() {
