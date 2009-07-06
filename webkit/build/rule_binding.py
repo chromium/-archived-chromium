@@ -19,6 +19,7 @@
 
 import errno
 import os
+import shlex
 import shutil
 import subprocess
 import sys
@@ -68,14 +69,20 @@ def main(args):
     if not include_dir in include_dirs:
       include_dirs.append(include_dir)
 
+  # The defines come in as one flat string. Split it up into distinct arguments.
+  if '--defines' in options:
+    defines_index = options.index('--defines')
+    if defines_index + 1 < len(options):
+      split_options = shlex.split(options[defines_index + 1])
+      if split_options:
+        options[defines_index + 1] = ' '.join(split_options)
+
   # Build up the command.
   command = ['perl', '-w']
   for include_dir in include_dirs:
     command.extend(['-I', include_dir])
   command.append(generate_bindings)
-  # Remove any qouble qoutes that may have gotten in here. We know that none of
-  # the options will have meaningful double qoutes.
-  command.extend([option.replace('"', '') for option in options])
+  command.extend(options)
   command.extend(['--outputDir', cppdir, input])
 
   # Do it.  check_call is new in 2.5, so simulate its behavior with call and
