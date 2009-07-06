@@ -4469,8 +4469,6 @@
         'glue/plugins/nphostapi.h',
         'glue/plugins/gtk_plugin_container.h',
         'glue/plugins/gtk_plugin_container.cc',
-        'glue/plugins/gtk_plugin_container_manager.h',
-        'glue/plugins/gtk_plugin_container_manager.cc',
         'glue/plugins/plugin_constants_win.h',
         'glue/plugins/plugin_host.cc',
         'glue/plugins/plugin_host.h',
@@ -4661,7 +4659,7 @@
           ],
         }, { # else: OS!="linux"
           'sources/': [['exclude', '_(linux|gtk)(_data)?\\.cc$'],
-                       ['exclude', r'/gtk_']],
+                       ['exclude', r'gtk_plugin_container\.(cc|h)']],
         }],
         ['OS!="mac"', {
           'sources/': [['exclude', '_mac\\.(cc|mm)$']]

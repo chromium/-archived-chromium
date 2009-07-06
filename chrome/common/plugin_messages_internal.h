@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/gfx/native_widget_types.h"
 #include "base/shared_memory.h"
 #include "build/build_config.h"
 #include "chrome/common/ipc_message_macros.h"
@@ -96,16 +95,6 @@ IPC_BEGIN_MESSAGES(PluginProcessHost)
                       std::string /* URL */,
                       int /* process id */,
                       HWND /* caller window */)
-#endif
-
-#if defined(OS_LINUX)
-  // On Linux, the mapping between NativeViewId and X window ids
-  // is known only to the browser.  This message lets the plugin process
-  // ask about a NativeViewId that was provided by the renderer.
-  // It will get 0 back if it's a bogus input.
-  IPC_SYNC_MESSAGE_CONTROL1_1(PluginProcessHostMsg_MapNativeViewId,
-                             gfx::NativeViewId /* input: native view id */,
-                             gfx::PluginWindowHandle /* output: X window id */)
 #endif
 
 IPC_END_MESSAGES(PluginProcessHost)
@@ -230,16 +219,7 @@ IPC_BEGIN_MESSAGES(PluginHost)
   // The window parameter is a handle to the window if the plugin is a windowed
   // plugin. It is NULL for windowless plugins.
   IPC_SYNC_MESSAGE_ROUTED1_0(PluginHostMsg_SetWindow,
-                             gfx::PluginWindowHandle /* window */)
-
-#if defined(OS_LINUX)
-  // Asks the renderer to create a plugin container (GtkSocket).
-  IPC_SYNC_MESSAGE_ROUTED0_1(PluginHostMsg_CreatePluginContainer,
-                             gfx::PluginWindowHandle /* container */)
-  // Asks the renderer to destroy a plugin container (GtkSocket).
-  IPC_SYNC_MESSAGE_ROUTED1_0(PluginHostMsg_DestroyPluginContainer,
-                             gfx::PluginWindowHandle /* container */)
-#endif
+                             gfx::NativeViewId /* window */)
 
 #if defined(OS_WIN)
   // The modal_loop_pump_messages_event parameter is an event handle which is

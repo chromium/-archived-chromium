@@ -20,7 +20,6 @@
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/file_version_info.h"
-#include "base/gfx/native_widget_types.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
@@ -57,10 +56,6 @@
 
 #if defined(OS_POSIX)
 #include "chrome/common/ipc_channel_posix.h"
-#endif
-
-#if defined(OS_LINUX)
-#include "base/gfx/gtk_native_view_id_manager.h"
 #endif
 
 static const char kDefaultPluginFinderURL[] =
@@ -293,14 +288,6 @@ void PluginProcessHost::AddWindow(HWND window) {
 
 #endif  // defined(OS_WIN)
 
-#if defined(OS_LINUX)
-void PluginProcessHost::OnMapNativeViewId(gfx::NativeViewId id,
-                                          gfx::PluginWindowHandle* output) {
-  *output = 0;
-  Singleton<GtkNativeViewManager>()->GetXIDForId(output, id);
-}
-#endif  // defined(OS_LINUX)
-
 PluginProcessHost::PluginProcessHost()
     : ChildProcessHost(
           PLUGIN_PROCESS,
@@ -450,10 +437,6 @@ void PluginProcessHost::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(PluginProcessHostMsg_PluginWindowDestroyed,
                         OnPluginWindowDestroyed)
     IPC_MESSAGE_HANDLER(PluginProcessHostMsg_DownloadUrl, OnDownloadUrl)
-#endif
-#if defined(OS_LINUX)
-    IPC_MESSAGE_HANDLER(PluginProcessHostMsg_MapNativeViewId,
-                        OnMapNativeViewId)
 #endif
     IPC_MESSAGE_UNHANDLED_ERROR()
   IPC_END_MESSAGE_MAP()

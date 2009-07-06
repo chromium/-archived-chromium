@@ -56,16 +56,12 @@ bool WebPluginProxy::Send(IPC::Message* msg) {
   return channel_->Send(msg);
 }
 
-#if defined(OS_LINUX)
-gfx::PluginWindowHandle WebPluginProxy::CreatePluginContainer() {
-  gfx::PluginWindowHandle container;
-  Send(new PluginHostMsg_CreatePluginContainer(route_id_, &container));
-  return container;
-}
-#endif
-
 void WebPluginProxy::SetWindow(gfx::PluginWindowHandle window) {
-  Send(new PluginHostMsg_SetWindow(route_id_, window));
+#if defined(OS_WIN)
+  Send(new PluginHostMsg_SetWindow(route_id_, gfx::IdFromNativeView(window)));
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 void WebPluginProxy::WillDestroyWindow(gfx::PluginWindowHandle window) {
@@ -73,8 +69,6 @@ void WebPluginProxy::WillDestroyWindow(gfx::PluginWindowHandle window) {
   PluginThread::current()->Send(
       new PluginProcessHostMsg_PluginWindowDestroyed(
           window, ::GetParent(window)));
-#elif defined(OS_LINUX)
-  Send(new PluginHostMsg_DestroyPluginContainer(route_id_, window));
 #else
   NOTIMPLEMENTED();
 #endif
@@ -281,6 +275,7 @@ void WebPluginProxy::HandleURLRequest(const char *method,
   if (!target && (0 == base::strcasecmp(method, "GET"))) {
     // Please refer to https://bugzilla.mozilla.org/show_bug.cgi?id=366082
     // for more details on this.
+#if defined(OS_WIN)
     if (delegate_->GetQuirks() &
         WebPluginDelegate::PLUGIN_QUIRK_BLOCK_NONSTANDARD_GETURL_REQUESTS) {
       GURL request_url(url);
@@ -290,6 +285,10 @@ void WebPluginProxy::HandleURLRequest(const char *method,
         return;
       }
     }
+#else
+    // TODO(port): we need a GetQuirks() on our delegate impl.
+    NOTIMPLEMENTED();
+#endif
   }
 
   PluginHostMsg_URLRequest_Params params;
@@ -403,6 +402,7 @@ void WebPluginProxy::UpdateGeometry(
     const gfx::Rect& clip_rect,
     const TransportDIB::Id& windowless_buffer_id,
     const TransportDIB::Id& background_buffer_id) {
+#if defined(OS_WIN)
   // TODO(port): this isn't correct usage of a TransportDIB; for now,
   // the caller temporarly just stuffs the handle into the HANDLE
   // field of the TransportDIB::Id so it should behave like the older
@@ -410,9 +410,8 @@ void WebPluginProxy::UpdateGeometry(
   gfx::Rect old = delegate_->GetRect();
   gfx::Rect old_clip_rect = delegate_->GetClipRect();
 
-  delegate_->UpdateGeometry(window_rect, clip_rect);
-#if defined(OS_WIN)
   bool moved = old.x() != window_rect.x() || old.y() != window_rect.y();
+  delegate_->UpdateGeometry(window_rect, clip_rect);
   if (windowless_buffer_id.handle) {
     // The plugin's rect changed, so now we have a new buffer to draw into.
     SetWindowlessBuffer(windowless_buffer_id.handle,

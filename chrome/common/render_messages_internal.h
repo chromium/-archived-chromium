@@ -929,13 +929,6 @@ IPC_BEGIN_MESSAGES(ViewHost)
                               IPC::ChannelHandle /* handle to channel */,
                               FilePath /* plugin_path */)
 
-#if defined(OS_LINUX)
-  IPC_SYNC_MESSAGE_ROUTED0_1(ViewHostMsg_CreatePluginContainer,
-                             gfx::PluginWindowHandle /* container */)
-  IPC_SYNC_MESSAGE_ROUTED1_0(ViewHostMsg_DestroyPluginContainer,
-                             gfx::PluginWindowHandle /* container */)
-#endif
-
   // Clipboard IPC messages
 
   // This message is used when the object list does not contain a bitmap.

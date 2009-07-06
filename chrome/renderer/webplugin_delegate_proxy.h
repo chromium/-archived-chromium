@@ -106,11 +106,7 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
 
   // Message handlers for messages that proxy WebPlugin methods, which
   // we translate into calls to the real WebPlugin.
-  void OnSetWindow(gfx::PluginWindowHandle window);
-#if defined(OS_LINUX)
-  void OnCreatePluginContainer(gfx::PluginWindowHandle* container);
-  void OnDestroyPluginContainer(gfx::PluginWindowHandle container);
-#endif
+  void OnSetWindow(gfx::NativeViewId window);
 #if defined(OS_WIN)
   void OnSetWindowlessPumpEvent(HANDLE modal_loop_pump_messages_event);
 #endif

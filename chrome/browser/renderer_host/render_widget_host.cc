@@ -120,12 +120,6 @@ IPC_DEFINE_MESSAGE_MAP(RenderWidgetHost)
   IPC_MESSAGE_HANDLER(ViewHostMsg_SetCursor, OnMsgSetCursor)
   IPC_MESSAGE_HANDLER(ViewHostMsg_ImeUpdateStatus, OnMsgImeUpdateStatus)
   IPC_MESSAGE_HANDLER_GENERIC(ViewHostMsg_ShowPopup, OnMsgShowPopup(msg))
-#if defined(OS_LINUX)
-  IPC_MESSAGE_HANDLER(ViewHostMsg_CreatePluginContainer,
-                      OnMsgCreatePluginContainer)
-  IPC_MESSAGE_HANDLER(ViewHostMsg_DestroyPluginContainer,
-                      OnMsgDestroyPluginContainer)
-#endif
   IPC_MESSAGE_UNHANDLED_ERROR()
 IPC_END_MESSAGE_MAP()
 
@@ -753,18 +747,6 @@ void RenderWidgetHost::OnMsgShowPopup(const IPC::Message& message) {
   NOTREACHED();
 #endif
 }
-
-#if defined(OS_LINUX)
-void RenderWidgetHost::OnMsgCreatePluginContainer(
-    gfx::PluginWindowHandle *container) {
-  *container = view_->CreatePluginContainer();
-}
-
-void RenderWidgetHost::OnMsgDestroyPluginContainer(
-    gfx::PluginWindowHandle container) {
-  view_->DestroyPluginContainer(container);
-}
-#endif
 
 void RenderWidgetHost::PaintBackingStoreRect(TransportDIB* bitmap,
                                              const gfx::Rect& bitmap_rect,

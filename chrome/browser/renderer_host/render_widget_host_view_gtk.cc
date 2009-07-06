@@ -34,8 +34,7 @@ using WebKit::WebInputEventFactory;
 class RenderWidgetHostViewGtkWidget {
  public:
   static GtkWidget* CreateNewWidget(RenderWidgetHostViewGtk* host_view) {
-    GtkWidget* widget = gtk_fixed_new();
-    gtk_fixed_set_has_window(GTK_FIXED(widget), TRUE);
+    GtkWidget* widget = gtk_drawing_area_new();
     gtk_widget_set_double_buffered(widget, FALSE);
 #if defined(NDEBUG)
     gtk_widget_modify_bg(widget, GTK_STATE_NORMAL, &gfx::kGdkWhite);
@@ -376,7 +375,6 @@ RenderWidgetHostViewGtk::~RenderWidgetHostViewGtk() {
 
 void RenderWidgetHostViewGtk::InitAsChild() {
   view_.Own(RenderWidgetHostViewGtkWidget::CreateNewWidget(this));
-  plugin_container_manager_.set_host_widget(view_.get());
   gtk_widget_show(view_.get());
 }
 
@@ -386,7 +384,6 @@ void RenderWidgetHostViewGtk::InitAsPopup(
   parent_ = parent_host_view->GetNativeView();
   GtkWidget* popup = gtk_window_new(GTK_WINDOW_POPUP);
   view_.Own(RenderWidgetHostViewGtkWidget::CreateNewWidget(this));
-  plugin_container_manager_.set_host_widget(view_.get());
   gtk_container_add(GTK_CONTAINER(popup), view_.get());
 
   // If we are not activatable, we don't want to grab keyboard input,
@@ -474,9 +471,10 @@ gfx::NativeView RenderWidgetHostViewGtk::GetNativeView() {
 
 void RenderWidgetHostViewGtk::MovePluginWindows(
     const std::vector<WebPluginGeometry>& plugin_window_moves) {
-  for (size_t i = 0; i < plugin_window_moves.size(); ++i) {
-    plugin_container_manager_.MovePluginContainer(plugin_window_moves[i]);
-  }
+  if (plugin_window_moves.empty())
+    return;
+
+  NOTIMPLEMENTED();
 }
 
 void RenderWidgetHostViewGtk::Focus() {
@@ -575,7 +573,6 @@ void RenderWidgetHostViewGtk::DidScrollRect(const gfx::Rect& rect, int dx,
 
 void RenderWidgetHostViewGtk::RenderViewGone() {
   Destroy();
-  plugin_container_manager_.set_host_widget(NULL);
 }
 
 void RenderWidgetHostViewGtk::Destroy() {
@@ -709,13 +706,4 @@ void RenderWidgetHostViewGtk::ReceivedSelectionText(GtkClipboard* clipboard,
       reinterpret_cast<RenderWidgetHostViewGtk*>(userdata);
   host_view->host_->Send(new ViewMsg_InsertText(host_view->host_->routing_id(),
                                                 UTF8ToUTF16(text)));
-}
-
-gfx::PluginWindowHandle RenderWidgetHostViewGtk::CreatePluginContainer() {
-  return plugin_container_manager_.CreatePluginContainer();
-}
-
-void RenderWidgetHostViewGtk::DestroyPluginContainer(
-    gfx::PluginWindowHandle container) {
-  plugin_container_manager_.DestroyPluginContainer(container);
 }

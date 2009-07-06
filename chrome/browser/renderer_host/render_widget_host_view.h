@@ -151,11 +151,6 @@ class RenderWidgetHostView {
                                   const std::vector<WebMenuItem>& items) = 0;
 #endif
 
-#if defined(OS_LINUX)
-  virtual gfx::PluginWindowHandle CreatePluginContainer() = 0;
-  virtual void DestroyPluginContainer(gfx::PluginWindowHandle container) = 0;
-#endif
-
   void set_activatable(bool activatable) {
     activatable_ = activatable;
   }

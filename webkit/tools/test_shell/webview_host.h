@@ -11,13 +11,14 @@
 #include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
 #include "webkit/tools/test_shell/webwidget_host.h"
-#if defined(OS_LINUX)
-#include "webkit/glue/plugins/gtk_plugin_container_manager.h"
-#endif
 
 struct WebPreferences;
 class WebView;
 class WebViewDelegate;
+
+#if defined(OS_LINUX)
+typedef struct _GtkSocket GtkSocket;
+#endif
 
 // This class is a simple NativeView-based host for a WebView
 class WebViewHost : public WebWidgetHost {
@@ -36,12 +37,13 @@ class WebViewHost : public WebWidgetHost {
   // embedders to use.
   GdkNativeWindow CreatePluginContainer();
 
+  // Map a GdkNativeWindow returned by CreatePluginContainer() back to
+  // the GtkWidget hosting it.  Used when we get a message back from the
+  // renderer indicating a plugin needs to move.
+  GtkWidget* MapIDToWidget(GdkNativeWindow id);
+
   // Called when a plugin has been destroyed.  Lets us clean up our side.
   void OnPluginWindowDestroyed(GdkNativeWindow id);
-
-  GtkPluginContainerManager* plugin_container_manager() {
-    return &plugin_container_manager_;
-  }
 #endif
 
  protected:
@@ -52,8 +54,16 @@ class WebViewHost : public WebWidgetHost {
 #endif
 
 #if defined(OS_LINUX)
-  // Helper class that creates and moves plugin containers.
-  GtkPluginContainerManager plugin_container_manager_;
+  // A map used for MapIDToWidget() above.
+  typedef std::map<GdkNativeWindow, GtkWidget*> NativeWindowToWidgetMap;
+  NativeWindowToWidgetMap native_window_to_widget_map_;
+
+  // Callback for when one of our plugins goes away.
+  static gboolean OnPlugRemovedThunk(GtkSocket* socket,
+                                     WebViewHost* web_view_host) {
+    return web_view_host->OnPlugRemoved(socket);
+  }
+  gboolean OnPlugRemoved(GtkSocket* socket);
 #endif
 };
 
