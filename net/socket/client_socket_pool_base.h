@@ -92,7 +92,11 @@ class ClientSocketPoolBase
   // ERR_IO_PENDING.
   struct Request {
     // HostResolver::RequestInfo has no default constructor, so fudge something.
-    Request() : resolve_info(std::string(), 0) {}
+    Request()
+        : handle(NULL),
+          callback(NULL),
+          priority(0),
+          resolve_info(std::string(), 0) {}
 
     Request(ClientSocketHandle* handle,
             CompletionCallback* callback,

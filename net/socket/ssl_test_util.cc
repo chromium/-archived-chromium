@@ -108,7 +108,7 @@ TestServerLauncher::TestServerLauncher() : process_handle_(NULL)
 
 namespace {
 
-void AppendToPythonPath(FilePath dir) {
+void AppendToPythonPath(const FilePath& dir) {
   // Do nothing if dir already on path.
 
 #if defined(OS_WIN)

@@ -132,7 +132,6 @@ class DynamicMockSocket : public MockSocket {
  private:
   MockRead read_;
   bool has_read_;
-  bool consumed_read_;
 
   // Max number of bytes we will read at a time. 0 means no limit.
   int short_read_limit_;
