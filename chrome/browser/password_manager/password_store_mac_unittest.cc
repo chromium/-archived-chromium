@@ -331,114 +331,93 @@ TEST_F(PasswordStoreMacTest, TestKeychainSearch) {
   }
 }
 
+// Changes just the origin path of |form|.
+static void SetPasswordFormPath(PasswordForm* form, const char* path) {
+  GURL::Replacements replacement;
+  std::string new_value(path);
+  replacement.SetPathStr(new_value);
+  form->origin = form->origin.ReplaceComponents(replacement);
+}
+
+// Changes just the signon_realm port of |form|.
+static void SetPasswordFormPort(PasswordForm* form, const char* port) {
+  GURL::Replacements replacement;
+  std::string new_value(port);
+  replacement.SetPortStr(new_value);
+  GURL signon_gurl = GURL(form->signon_realm);
+  form->signon_realm = signon_gurl.ReplaceComponents(replacement).spec();
+}
+
+// Changes just the signon_ream auth realm of |form|.
+static void SetPasswordFormRealm(PasswordForm* form, const char* realm) {
+  GURL::Replacements replacement;
+  std::string new_value(realm);
+  replacement.SetPathStr(new_value);
+  GURL signon_gurl = GURL(form->signon_realm);
+  form->signon_realm = signon_gurl.ReplaceComponents(replacement).spec();
+}
+
 TEST_F(PasswordStoreMacTest, TestKeychainExactSearch) {
-  // Test a web form entry (SCHEME_HTML).
-  {
-    PasswordForm search_form;
-    search_form.signon_realm = std::string("http://some.domain.com/");
-    search_form.origin = GURL("http://some.domain.com/insecure.html");
-    search_form.action = GURL("http://some.domain.com/submit.cgi");
-    search_form.username_element = std::wstring(L"username");
-    search_form.username_value = std::wstring(L"joe_user");
-    search_form.password_element = std::wstring(L"password");
-    search_form.preferred = true;
-    SecKeychainItemRef match;
-    match = internal_keychain_helpers::MatchingKeychainItem(*keychain_,
-                                                            search_form);
-    EXPECT_EQ(reinterpret_cast<SecKeychainItemRef>(2), match);
-    keychain_->Free(match);
+  MacKeychainPasswordFormAdapter keychainAdapter(keychain_);
 
-    // Make sure that the matching isn't looser than it should be.
-    PasswordForm wrong_username(search_form);
-    wrong_username.username_value = std::wstring(L"wrong_user");
-    match = internal_keychain_helpers::MatchingKeychainItem(*keychain_,
-                                                            wrong_username);
-    EXPECT_EQ(NULL, match);
+  PasswordFormData base_form_data[] = {
+    { PasswordForm::SCHEME_HTML, "http://some.domain.com/",
+      "http://some.domain.com/insecure.html",
+      NULL, NULL, NULL, NULL, L"joe_user", NULL, true, false, 0 },
+    { PasswordForm::SCHEME_BASIC, "http://some.domain.com:4567/low_security",
+      "http://some.domain.com:4567/insecure.html",
+      NULL, NULL, NULL, NULL, L"basic_auth_user", NULL, true, false, 0 },
+    { PasswordForm::SCHEME_DIGEST, "https://some.domain.com/high_security",
+      "https://some.domain.com",
+      NULL, NULL, NULL, NULL, L"digest_auth_user", NULL, true, true, 0 },
+  };
 
-    PasswordForm wrong_path(search_form);
-    wrong_path.origin = GURL("http://some.domain.com/elsewhere.html");
-    match = internal_keychain_helpers::MatchingKeychainItem(*keychain_,
-                                                            wrong_path);
-    EXPECT_EQ(NULL, match);
+  for (unsigned int i = 0; i < arraysize(base_form_data); ++i) {
+    // Create a base form and make sure we find a match.
+    scoped_ptr<PasswordForm> base_form(CreatePasswordFormFromData(
+        base_form_data[i]));
+    PasswordForm* match =
+        keychainAdapter.PasswordExactlyMatchingForm(*base_form);
+    EXPECT_TRUE(match != NULL);
+    if (match) {
+      EXPECT_EQ(base_form->scheme, match->scheme);
+      EXPECT_EQ(base_form->origin, match->origin);
+      EXPECT_EQ(base_form->username_value, match->username_value);
+      delete match;
+    }
 
-    PasswordForm wrong_scheme(search_form);
-    wrong_scheme.scheme = PasswordForm::SCHEME_BASIC;
-    match = internal_keychain_helpers::MatchingKeychainItem(*keychain_,
-                                                            wrong_scheme);
-    EXPECT_EQ(NULL, match);
+    // Make sure that the matching isn't looser than it should be by checking
+    // that slightly altered forms don't match.
+    std::vector<PasswordForm*> modified_forms;
 
-    // With no path, we should match the pathless Keychain entry.
-    PasswordForm no_path(search_form);
-    no_path.origin = GURL("http://some.domain.com/");
-    match = internal_keychain_helpers::MatchingKeychainItem(*keychain_,
-                                                            no_path);
-    EXPECT_EQ(reinterpret_cast<SecKeychainItemRef>(1), match);
-    keychain_->Free(match);
+    modified_forms.push_back(new PasswordForm(*base_form));
+    modified_forms.back()->username_value = std::wstring(L"wrong_user");
 
-    // We don't store blacklist entries in the keychain, and we want to ignore
-    // those stored by other browsers.
-    PasswordForm blacklist(search_form);
-    blacklist.blacklisted_by_user = true;
-    match = internal_keychain_helpers::MatchingKeychainItem(*keychain_,
-                                                            blacklist);
-    EXPECT_EQ(NULL, match);
-  }
+    modified_forms.push_back(new PasswordForm(*base_form));
+    SetPasswordFormPath(modified_forms.back(), "elsewhere.html");
 
-  // Test an http auth entry (SCHEME_BASIC, but SCHEME_DIGEST works is searched
-  // the same way, so this gives sufficient coverage of both).
-  {
-    PasswordForm search_form;
-    search_form.signon_realm =
-        std::string("http://some.domain.com:4567/low_security");
-    search_form.origin = GURL("http://some.domain.com:4567/insecure.html");
-    search_form.username_value = std::wstring(L"basic_auth_user");
-    search_form.scheme = PasswordForm::SCHEME_BASIC;
-    SecKeychainItemRef match;
-    match = internal_keychain_helpers::MatchingKeychainItem(*keychain_,
-                                                            search_form);
-    EXPECT_EQ(reinterpret_cast<SecKeychainItemRef>(7), match);
-    keychain_->Free(match);
+    modified_forms.push_back(new PasswordForm(*base_form));
+    modified_forms.back()->scheme = PasswordForm::SCHEME_OTHER;
 
-    // Make sure that the matching isn't looser than it should be.
-    PasswordForm wrong_username(search_form);
-    wrong_username.username_value = std::wstring(L"wrong_user");
-    match = internal_keychain_helpers::MatchingKeychainItem(*keychain_,
-                                                            wrong_username);
-    EXPECT_EQ(NULL, match);
+    modified_forms.push_back(new PasswordForm(*base_form));
+    SetPasswordFormPort(modified_forms.back(), "1234");
 
-    PasswordForm wrong_path(search_form);
-    wrong_path.origin = GURL("http://some.domain.com:4567/elsewhere.html");
-    match = internal_keychain_helpers::MatchingKeychainItem(*keychain_,
-                                                            wrong_path);
-    EXPECT_EQ(NULL, match);
+    modified_forms.push_back(new PasswordForm(*base_form));
+    modified_forms.back()->blacklisted_by_user = true;
 
-    PasswordForm wrong_scheme(search_form);
-    wrong_scheme.scheme = PasswordForm::SCHEME_DIGEST;
-    match = internal_keychain_helpers::MatchingKeychainItem(*keychain_,
-                                                            wrong_scheme);
-    EXPECT_EQ(NULL, match);
+    if (base_form->scheme == PasswordForm::SCHEME_BASIC ||
+        base_form->scheme == PasswordForm::SCHEME_DIGEST) {
+      modified_forms.push_back(new PasswordForm(*base_form));
+      SetPasswordFormRealm(modified_forms.back(), "incorrect");
+    }
 
-    PasswordForm wrong_port(search_form);
-    wrong_port.signon_realm =
-        std::string("http://some.domain.com:1234/low_security");
-    match = internal_keychain_helpers::MatchingKeychainItem(*keychain_,
-                                                            wrong_port);
-    EXPECT_EQ(NULL, match);
-
-    PasswordForm wrong_realm(search_form);
-    wrong_realm.signon_realm =
-        std::string("http://some.domain.com:4567/incorrect");
-    match = internal_keychain_helpers::MatchingKeychainItem(*keychain_,
-                                                            wrong_realm);
-    EXPECT_EQ(NULL, match);
-
-    // We don't store blacklist entries in the keychain, and we want to ignore
-    // those stored by other browsers.
-    PasswordForm blacklist(search_form);
-    blacklist.blacklisted_by_user = true;
-    match = internal_keychain_helpers::MatchingKeychainItem(*keychain_,
-                                                            blacklist);
-    EXPECT_EQ(NULL, match);
+    for (unsigned int j = 0; j < modified_forms.size(); ++j) {
+      PasswordForm* match =
+          keychainAdapter.PasswordExactlyMatchingForm(*modified_forms[j]);
+      EXPECT_EQ(NULL, match) << "In modified version " << j << " of base form "
+                             << i;
+    }
+    STLDeleteElements(&modified_forms);
   }
 }
 
@@ -479,19 +458,14 @@ TEST_F(PasswordStoreMacTest, TestKeychainAdd) {
     bool add_succeeded = keychainAdapter.AddLogin(*in_form);
     EXPECT_EQ(test_data[i].should_succeed, add_succeeded);
     if (add_succeeded) {
-      SecKeychainItemRef matching_item;
-      matching_item = internal_keychain_helpers::MatchingKeychainItem(
-          *keychain_, *in_form);
-      EXPECT_TRUE(matching_item != NULL);
-      PasswordForm out_form;
-      internal_keychain_helpers::FillPasswordFormFromKeychainItem(
-          *keychain_, matching_item, &out_form);
-      EXPECT_EQ(out_form.scheme, in_form->scheme);
-      EXPECT_EQ(out_form.signon_realm, in_form->signon_realm);
-      EXPECT_EQ(out_form.origin, in_form->origin);
-      EXPECT_EQ(out_form.username_value, in_form->username_value);
-      EXPECT_EQ(out_form.password_value, in_form->password_value);
-      keychain_->Free(matching_item);
+      scoped_ptr<PasswordForm> out_form(
+          keychainAdapter.PasswordExactlyMatchingForm(*in_form));
+      EXPECT_TRUE(out_form.get() != NULL);
+      EXPECT_EQ(out_form->scheme, in_form->scheme);
+      EXPECT_EQ(out_form->signon_realm, in_form->signon_realm);
+      EXPECT_EQ(out_form->origin, in_form->origin);
+      EXPECT_EQ(out_form->username_value, in_form->username_value);
+      EXPECT_EQ(out_form->password_value, in_form->password_value);
     }
     delete in_form;
   }

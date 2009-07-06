@@ -22,9 +22,16 @@ class MacKeychainPasswordFormAdapter {
   // created object.
   explicit MacKeychainPasswordFormAdapter(MacKeychain* keychain);
 
-  // Returns PasswordForms for each keychain entry matching |form|.
-  // Caller is responsible for deleting the returned forms.
+  // Returns PasswordForms for each keychain entry that could be used to fill
+  // |form|. Caller is responsible for deleting the returned forms.
   std::vector<webkit_glue::PasswordForm*> PasswordsMatchingForm(
+      const webkit_glue::PasswordForm& query_form);
+
+  // Returns the PasswordForm for the Keychain entry that matches |form| on all
+  // of the fields that uniquely identify a Keychain item, or NULL if there is
+  // no such entry.
+  // Caller is responsible for deleting the returned form.
+  webkit_glue::PasswordForm* PasswordExactlyMatchingForm(
       const webkit_glue::PasswordForm& query_form);
 
   // Creates a new keychain entry from |form|, or updates the password of an
@@ -38,11 +45,38 @@ class MacKeychainPasswordFormAdapter {
   std::vector<webkit_glue::PasswordForm*> CreateFormsFromKeychainItems(
       const std::vector<SecKeychainItemRef>& items);
 
-  // Searches |keychain| for all items usable for the given signon_realm, and
-  // puts them in |items|. The caller is responsible for calling keychain->Free
-  // on each of them when it is finished with them.
+  // Searches |keychain| for all items usable for the given form, and returns
+  // them. The caller is responsible for calling MacKeychain::Free on the
+  // returned items.
+  std::vector<SecKeychainItemRef> KeychainItemsForFillingForm(
+      const webkit_glue::PasswordForm& form);
+
+  // Searches |keychain| for the specific keychain entry that corresponds to the
+  // given form, and returns it (or NULL if no match is found).  The caller is
+  // responsible for calling MacKeychain::Free on on the returned item.
+  SecKeychainItemRef KeychainItemForForm(
+      const webkit_glue::PasswordForm& form);
+
+  // Returns the Keychain items matching the given signon_realm, scheme, and
+  // optionally path and username (either of both can be NULL).
+  // them. The caller is responsible for calling MacKeychain::Free on the
+  // returned items.
   std::vector<SecKeychainItemRef> MatchingKeychainItems(
-      const std::string& signon_realm,
+      const std::string& signon_realm, webkit_glue::PasswordForm::Scheme scheme,
+      const char* path, const char* username);
+
+  // Takes a PasswordForm's signon_realm and parses it into its component parts,
+  // which are returned though the appropriate out parameters.
+  // Returns true if it can be successfully parsed, in which case all out params
+  // that are non-NULL will be set. If there is no port, port will be 0.
+  // If the return value is false, the state of the out params is undefined.
+  bool ExtractSignonRealmComponents(const std::string& signon_realm,
+                                    std::string* server, int* port,
+                                    bool* is_secure,
+                                    std::string* security_domain);
+
+  // Returns the Keychain SecAuthenticationType type corresponding to |scheme|.
+  SecAuthenticationType AuthTypeForScheme(
       webkit_glue::PasswordForm::Scheme scheme);
 
   // Changes the password for keychain_item to |password|; returns true if the
@@ -61,12 +95,6 @@ class MacKeychainPasswordFormAdapter {
 };
 
 namespace internal_keychain_helpers {
-
-// Searches |keychain| for the specific keychain entry matching the given form,
-// and returns it (or NULL if no match is found).
-// The caller is responsible for calling keychain->Free on the returned item.
-SecKeychainItemRef MatchingKeychainItem(const MacKeychain& keychain,
-                                        const webkit_glue::PasswordForm& form);
 
 // Sets the fields of |form| based on the keychain data from |keychain_item|.
 // Fields that can't be determined from |keychain_item| will be unchanged.
