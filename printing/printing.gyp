@@ -15,12 +15,17 @@
       'type': '<(library)',
       'dependencies': [
         '../base/base.gyp:base',
+        '../base/base.gyp:base_gfx',
+        
       ],
       'msvs_guid': '9E5416B9-B91B-4029-93F4-102C1AD5CAF4',
       'include_dirs': [
         '..',
       ],
       'sources': [
+        'emf_win.cc',
+        'emf_win.h',
+        'native_metafile.h',
         'units.cc',
         'units.h',
       ],
@@ -49,7 +54,17 @@
         '../testing/gtest.gyp:gtestmain',
       ],
       'sources': [
+        'emf_win_unittest.cc',
         'units_unittest.cc',
+      ],
+      'conditions': [
+        ['OS!="linux"', {'sources/': [['exclude', '_linux_unittest\\.cc$']]}],
+        ['OS!="mac"', {'sources/': [['exclude', '_mac_unittest\\.(cc|mm?)$']]}],
+        ['OS!="win"', {
+          'sources/': [['exclude', '_win_unittest\\.cc$']]
+        }, {  # else: OS=="win"
+          'sources/': [['exclude', '_posix_unittest\\.cc$']]
+        }],
       ],
     },
   ],

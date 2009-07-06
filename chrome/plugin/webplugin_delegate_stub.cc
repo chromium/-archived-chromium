@@ -13,15 +13,12 @@
 #include "chrome/plugin/plugin_channel.h"
 #include "chrome/plugin/plugin_thread.h"
 #include "chrome/plugin/webplugin_proxy.h"
+#include "printing/native_metafile.h"
 #include "third_party/npapi/bindings/npapi.h"
 #include "third_party/npapi/bindings/npruntime.h"
 #include "skia/ext/platform_device.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webplugin_delegate.h"
-
-#if defined(OS_WIN)
-#include "chrome/common/gfx/emf.h"
-#endif
 
 class FinishDestructionTask : public Task {
  public:
@@ -230,26 +227,26 @@ void WebPluginDelegateStub::OnDidPaint() {
 void WebPluginDelegateStub::OnPrint(base::SharedMemoryHandle* shared_memory,
                                     size_t* size) {
 #if defined(OS_WIN)
-  gfx::Emf emf;
-  if (!emf.CreateDc(NULL, NULL)) {
+  printing::NativeMetafile metafile;
+  if (!metafile.CreateDc(NULL, NULL)) {
     NOTREACHED();
     return;
   }
-  HDC hdc = emf.hdc();
+  HDC hdc = metafile.hdc();
   skia::PlatformDevice::InitializeDC(hdc);
   delegate_->Print(hdc);
-  if (!emf.CloseDc()) {
+  if (!metafile.CloseDc()) {
     NOTREACHED();
     return;
   }
 
-  *size = emf.GetDataSize();
+  *size = metafile.GetDataSize();
   DCHECK(*size);
   base::SharedMemory shared_buf;
   CreateSharedBuffer(*size, &shared_buf, shared_memory);
 
   // Retrieve a copy of the data.
-  bool success = emf.GetData(shared_buf.memory(), *size);
+  bool success = metafile.GetData(shared_buf.memory(), *size);
   DCHECK(success);
 #else
   // TODO(port): plugin printing.

@@ -4,23 +4,21 @@
 
 #include "chrome/browser/printing/printed_page.h"
 
-#include "chrome/common/gfx/emf.h"
-
 namespace printing {
 
 PrintedPage::PrintedPage(int page_number,
-                         gfx::Emf* emf,
+                         NativeMetafile* native_metafile,
                          const gfx::Size& page_size)
     : page_number_(page_number),
-      emf_(emf),
+      native_metafile_(native_metafile),
       page_size_(page_size) {
 }
 
 PrintedPage::~PrintedPage() {
 }
 
-const gfx::Emf* PrintedPage::emf() const {
-  return emf_.get();
+const NativeMetafile* PrintedPage::native_metafile() const {
+  return native_metafile_.get();
 }
 
 }  // namespace printing

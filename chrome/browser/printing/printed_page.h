@@ -9,10 +9,7 @@
 #include "base/gfx/size.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
-
-namespace gfx {
-class Emf;
-}
+#include "printing/native_metafile.h"
 
 namespace printing {
 
@@ -25,13 +22,13 @@ namespace printing {
 class PrintedPage : public base::RefCountedThreadSafe<PrintedPage> {
  public:
   PrintedPage(int page_number,
-              gfx::Emf* emf,
+              NativeMetafile* native_metafile,
               const gfx::Size& page_size);
   ~PrintedPage();
 
   // Getters
   int page_number() const { return page_number_; }
-  const gfx::Emf* emf() const;
+  const NativeMetafile* native_metafile() const;
   const gfx::Size& page_size() const { return page_size_; }
 
  private:
@@ -39,7 +36,7 @@ class PrintedPage : public base::RefCountedThreadSafe<PrintedPage> {
   const int page_number_;
 
   // Actual paint data.
-  const scoped_ptr<gfx::Emf> emf_;
+  const scoped_ptr<NativeMetafile> native_metafile_;
 
   // The physical page size. To support multiple page formats inside on print
   // job.

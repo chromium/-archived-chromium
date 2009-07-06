@@ -8,7 +8,6 @@
 #include "chrome/browser/printing/printer_query.h"
 #include "chrome/browser/printing/printed_document.h"
 #include "chrome/browser/printing/printed_page.h"
-#include "chrome/common/gfx/emf.h"
 #include "chrome/common/notification_service.h"
 
 namespace printing {

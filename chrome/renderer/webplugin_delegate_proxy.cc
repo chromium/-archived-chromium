@@ -29,6 +29,7 @@
 #include "googleurl/src/gurl.h"
 #include "grit/generated_resources.h"
 #include "net/base/mime_util.h"
+#include "printing/native_metafile.h"
 #include "webkit/api/public/WebDragData.h"
 #include "webkit/api/public/WebString.h"
 #include "webkit/api/public/WebVector.h"
@@ -36,10 +37,6 @@
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webview.h"
-
-#if defined(OS_WIN)
-#include "chrome/common/gfx/emf.h"
-#endif
 
 #if defined(OS_POSIX)
 #include "chrome/common/ipc_channel_posix.h"
@@ -579,13 +576,13 @@ void WebPluginDelegateProxy::Print(gfx::NativeDrawingContext context) {
   }
 
 #if defined(OS_WIN)
-  gfx::Emf emf;
-  if (!emf.CreateFromData(memory.memory(), size)) {
+  printing::NativeMetafile metafile;
+  if (!metafile.CreateFromData(memory.memory(), size)) {
     NOTREACHED();
     return;
   }
   // Playback the buffer.
-  emf.Playback(context, NULL);
+  metafile.Playback(context, NULL);
 #else
   // TODO(port): plugin printing.
   NOTIMPLEMENTED();

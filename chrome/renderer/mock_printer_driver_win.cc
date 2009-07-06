@@ -6,7 +6,7 @@
 
 #include "base/gfx/gdi_util.h"
 #include "base/logging.h"
-#include "chrome/common/gfx/emf.h"
+#include "printing/emf_win.h"
 #include "chrome/renderer/mock_printer.h"
 #include "skia/ext/platform_device.h"
 
@@ -57,7 +57,7 @@ class EmfRenderer {
     }
   }
 
-  const void* Create(int width, int height, const gfx::Emf* emf) {
+  const void* Create(int width, int height, const printing::Emf* emf) {
     CHECK(!dc_ && !bitmap_);
 
     BITMAPV4HEADER header;
@@ -98,7 +98,7 @@ MockPrinterPage* MockPrinterDriverWin::LoadSource(const void* source_data,
                                                   size_t source_size) {
   // This code is mostly copied from the Image::LoadEMF() function in
   // "src/chrome/browser/printing/printing_layout_uitest.cc".
-  gfx::Emf emf;
+  printing::Emf emf;
   emf.CreateFromData(source_data, source_size);
   gfx::Rect rect(emf.GetBounds());
 

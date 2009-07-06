@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/common/gfx/emf.h"
+#include "printing/emf_win.h"
 
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 
-namespace gfx {
+namespace printing {
 
 Emf::Emf() : emf_(NULL), hdc_(NULL) {
 }
@@ -314,4 +314,4 @@ int CALLBACK Emf::Enumerator::EnhMetaFileProc(HDC hdc,
   return 1;
 }
 
-}  // namespace gfx
+}  // namespace printing

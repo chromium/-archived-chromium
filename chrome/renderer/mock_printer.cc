@@ -113,7 +113,7 @@ void MockPrinter::PrintPage(const ViewHostMsg_DidPrintPage_Params& params) {
   // We duplicate the given file handle when creating a base::SharedMemory
   // instance so that its destructor closes the copy.
   EXPECT_GT(params.data_size, 0U);
-  base::SharedMemory emf_data(params.emf_data_handle, true,
+  base::SharedMemory emf_data(params.metafile_data_handle, true,
                               GetCurrentProcess());
   emf_data.Map(params.data_size);
   MockPrinterPage* page_data = driver_.LoadSource(emf_data.memory(),

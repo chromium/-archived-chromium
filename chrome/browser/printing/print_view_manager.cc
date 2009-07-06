@@ -5,6 +5,7 @@
 #include "chrome/browser/printing/print_view_manager.h"
 
 #include "app/l10n_util.h"
+#include "base/scoped_ptr.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_job.h"
 #include "chrome/browser/printing/print_job_manager.h"
@@ -13,10 +14,10 @@
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/gfx/emf.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
 #include "grit/generated_resources.h"
+#include "printing/native_metafile.h"
 
 using base::TimeDelta;
 
@@ -95,23 +96,24 @@ void PrintViewManager::DidPrintPage(
     return;
   }
 
-  base::SharedMemory shared_buf(params.emf_data_handle, true);
+  base::SharedMemory shared_buf(params.metafile_data_handle, true);
   if (!shared_buf.Map(params.data_size)) {
     NOTREACHED() << "couldn't map";
     owner_.Stop();
     return;
   }
 
-  gfx::Emf* emf = new gfx::Emf;
-  if (!emf->CreateFromData(shared_buf.memory(), params.data_size)) {
-    NOTREACHED() << "Invalid EMF header";
-    delete emf;
+  scoped_ptr<NativeMetafile> metafile(new NativeMetafile());
+  if (!metafile->CreateFromData(shared_buf.memory(), params.data_size)) {
+    NOTREACHED() << "Invalid metafile header";
     owner_.Stop();
     return;
   }
 
   // Update the rendered document. It will send notifications to the listener.
-  document->SetPage(params.page_number, emf, params.actual_shrink);
+  document->SetPage(params.page_number,
+                    metafile.release(),
+                    params.actual_shrink);
   ShouldQuitFromInnerMessageLoop();
 }
 
@@ -301,7 +303,7 @@ void PrintViewManager::TerminatePrintJob(bool cancel) {
     return;
 
   if (cancel) {
-    // We don't need the EMF data anymore because the printing is canceled.
+    // We don't need the metafile data anymore because the printing is canceled.
     print_job_->Cancel();
     waiting_to_print_ = false;
     inside_inner_message_loop_ = false;

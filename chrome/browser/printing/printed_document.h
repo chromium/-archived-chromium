@@ -11,12 +11,12 @@
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/printing/print_settings.h"
+#include "printing/native_metafile.h"
 #include "googleurl/src/gurl.h"
 
 class MessageLoop;
 
 namespace gfx {
-class Emf;
 class Font;
 }
 
@@ -40,9 +40,9 @@ class PrintedDocument : public base::RefCountedThreadSafe<PrintedDocument> {
                   int cookie);
   ~PrintedDocument();
 
-  // Sets a page's data. 0-based. Takes emf ownership.
+  // Sets a page's data. 0-based. Takes metafile ownership.
   // Note: locks for a short amount of time.
-  void SetPage(int page_number, gfx::Emf* emf, double shrink);
+  void SetPage(int page_number, NativeMetafile* metafile, double shrink);
 
   // Retrieves a page. If the page is not available right now, it
   // requests to have this page be rendered and returns false.
@@ -103,7 +103,7 @@ class PrintedDocument : public base::RefCountedThreadSafe<PrintedDocument> {
   static const std::wstring& debug_dump_path();
 
  private:
-  // Array of EMF data for each print previewed page.
+  // Array of data for each print previewed page.
   typedef std::map<int, scoped_refptr<PrintedPage>> PrintedPages;
 
   // Contains all the mutable stuff. All this stuff MUST be accessed with the

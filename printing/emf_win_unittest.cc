@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/common/gfx/emf.h"
+#include "printing/emf_win.h"
 
 // For quick access.
 #include <wingdi.h>
@@ -10,8 +10,6 @@
 #include "base/basictypes.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
-#include "chrome/browser/printing/win_printing_context.h"
-#include "chrome/common/chrome_paths.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -37,7 +35,7 @@ TEST(EmfTest, DC) {
   static const int EMF_HEADER_SIZE = 128;
 
   // Simplest use case.
-  gfx::Emf emf;
+  printing::Emf emf;
   RECT rect = {100, 100, 200, 200};
   HDC hdc = CreateCompatibleDC(NULL);
   EXPECT_TRUE(hdc != NULL);
@@ -62,6 +60,10 @@ TEST(EmfTest, DC) {
   EXPECT_TRUE(DeleteDC(hdc));
 }
 
+// TODO(sverrir): Re-enable after win_printing_context has been moved here.
+/*
+#include "chrome/browser/printing/win_printing_context.h"
+#include "chrome/common/chrome_paths.h"
 
 // Disabled if no "UnitTest printer" exist. Useful to reproduce bug 1186598.
 TEST_F(EmfPrintingTest, Enumerate) {
@@ -81,7 +83,7 @@ TEST_F(EmfPrintingTest, Enumerate) {
   PathService::Get(chrome::DIR_TEST_DATA, &test_file);
 
   // Load any EMF with an image.
-  gfx::Emf emf;
+  printing::Emf emf;
   file_util::AppendToPath(&test_file, L"printing");
   file_util::AppendToPath(&test_file, L"test4.emf");
   std::string emf_data;
@@ -96,9 +98,9 @@ TEST_F(EmfPrintingTest, Enumerate) {
   context.NewDocument(L"EmfTest.Enumerate");
   context.NewPage();
   // Process one at a time.
-  gfx::Emf::Enumerator emf_enum(emf, context.context(),
+  printing::Emf::Enumerator emf_enum(emf, context.context(),
                                 &emf.GetBounds().ToRECT());
-  for (gfx::Emf::Enumerator::const_iterator itr = emf_enum.begin();
+  for (printing::Emf::Enumerator::const_iterator itr = emf_enum.begin();
        itr != emf_enum.end();
        ++itr) {
     // To help debugging.
@@ -112,3 +114,4 @@ TEST_F(EmfPrintingTest, Enumerate) {
   context.PageDone();
   context.DocumentDone();
 }
+*/

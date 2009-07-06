@@ -18,7 +18,6 @@
 #include "chrome/browser/printing/page_overlays.h"
 #include "chrome/browser/printing/printed_pages_source.h"
 #include "chrome/browser/printing/printed_page.h"
-#include "chrome/common/gfx/emf.h"
 #include "printing/units.h"
 #include "skia/ext/platform_device.h"
 
@@ -60,12 +59,14 @@ PrintedDocument::PrintedDocument(const PrintSettings& settings,
 PrintedDocument::~PrintedDocument() {
 }
 
-void PrintedDocument::SetPage(int page_number, gfx::Emf* emf, double shrink) {
+void PrintedDocument::SetPage(int page_number,
+                              NativeMetafile* metafile,
+                              double shrink) {
   // Notice the page_number + 1, the reason is that this is the value that will
   // be shown. Users dislike 0-based counting.
   scoped_refptr<PrintedPage> page(
       new PrintedPage(page_number + 1,
-          emf, immutable_.settings_.page_setup_pixels().physical_size()));
+          metafile, immutable_.settings_.page_setup_pixels().physical_size()));
   {
     AutoLock lock(lock_);
     mutable_.pages_[page_number] = page;
@@ -123,7 +124,7 @@ void PrintedDocument::RenderPrintedPage(const PrintedPage& page,
     BOOL res = ModifyWorldTransform(context, &xform, MWT_LEFTMULTIPLY);
     DCHECK_NE(res, 0);
 
-    if (!page.emf()->SafePlayback(context)) {
+    if (!page.native_metafile()->SafePlayback(context)) {
       NOTREACHED();
     }
 
@@ -176,7 +177,7 @@ bool PrintedDocument::IsComplete() const {
   for (; page != PageNumber::npos(); ++page) {
     PrintedPages::const_iterator itr = mutable_.pages_.find(page.ToInt());
     if (itr == mutable_.pages_.end() || !itr->second.get() ||
-        !itr->second->emf())
+        !itr->second->native_metafile())
       return false;
   }
   return true;
@@ -202,7 +203,7 @@ size_t PrintedDocument::MemoryUsage() const {
   }
   size_t total = 0;
   for (size_t i = 0; i < pages_copy.size(); ++i) {
-    total += pages_copy[i]->emf()->GetDataSize();
+    total += pages_copy[i]->native_metafile()->GetDataSize();
   }
   return total;
 }
@@ -321,7 +322,7 @@ void PrintedDocument::DebugDump(const PrintedPage& page)
   file_util::ReplaceIllegalCharacters(&filename, '_');
   std::wstring path(g_debug_dump_info->debug_dump_path);
   file_util::AppendToPath(&path, filename);
-  page.emf()->SaveTo(path);
+  page.native_metafile()->SaveTo(path);
 }
 
 void PrintedDocument::set_debug_dump_path(const std::wstring& debug_dump_path) {

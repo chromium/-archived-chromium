@@ -10,6 +10,7 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/renderer/render_view.h"
 #include "grit/generated_resources.h"
+#include "printing/native_metafile.h"
 #include "printing/units.h"
 #include "webkit/api/public/WebConsoleMessage.h"
 #include "webkit/api/public/WebScreenInfo.h"
@@ -19,7 +20,6 @@
 #include "webkit/glue/webframe.h"
 
 #if defined(OS_WIN)
-#include "chrome/common/gfx/emf.h"
 #include "skia/ext/vector_canvas.h"
 #endif
 
@@ -283,12 +283,11 @@ void PrintWebViewHelper::PrintPage(const ViewMsg_PrintPage_Params& params,
                                 const gfx::Size& canvas_size,
                                 WebFrame* frame) {
 #if defined(OS_WIN)
-  // Generate a memory-based EMF file. The EMF will use the current screen's
-  // DPI.
-  gfx::Emf emf;
+  // Generate a memory-based metafile. It will use the current screen's DPI.
+  printing::NativeMetafile metafile;
 
-  emf.CreateDc(NULL, NULL);
-  HDC hdc = emf.hdc();
+  metafile.CreateDc(NULL, NULL);
+  HDC hdc = metafile.hdc();
   DCHECK(hdc);
   skia::PlatformDevice::InitializeDC(hdc);
   // Since WebKit extends the page width depending on the magical shrink
@@ -344,17 +343,17 @@ void PrintWebViewHelper::PrintPage(const ViewMsg_PrintPage_Params& params,
   }
 #endif
 
-  // Done printing. Close the device context to retrieve the compiled EMF.
-  if (!emf.CloseDc()) {
-    NOTREACHED() << "EMF failed";
+  // Done printing. Close the device context to retrieve the compiled metafile.
+  if (!metafile.CloseDc()) {
+    NOTREACHED() << "metafile failed";
   }
 
-  // Get the size of the compiled EMF.
-  unsigned buf_size = emf.GetDataSize();
+  // Get the size of the compiled metafile.
+  unsigned buf_size = metafile.GetDataSize();
   DCHECK_GT(buf_size, 128u);
   ViewHostMsg_DidPrintPage_Params page_params;
   page_params.data_size = 0;
-  page_params.emf_data_handle = NULL;
+  page_params.metafile_data_handle = NULL;
   page_params.page_number = params.page_number;
   page_params.document_cookie = params.params.document_cookie;
   page_params.actual_shrink = shrink;
@@ -364,12 +363,12 @@ void PrintWebViewHelper::PrintPage(const ViewMsg_PrintPage_Params& params,
   // Windows 2000/XP: When a page in a spooled file exceeds approximately 350
   // MB, it can fail to print and not send an error message.
   if (buf_size < 350*1024*1024) {
-    // Allocate a shared memory buffer to hold the generated EMF data.
+    // Allocate a shared memory buffer to hold the generated metafile data.
     if (shared_buf.Create(L"", false, false, buf_size) &&
         shared_buf.Map(buf_size)) {
       // Copy the bits into shared memory.
-      if (emf.GetData(shared_buf.memory(), buf_size)) {
-        page_params.emf_data_handle = shared_buf.handle();
+      if (metafile.GetData(shared_buf.memory(), buf_size)) {
+        page_params.metafile_data_handle = shared_buf.handle();
         page_params.data_size = buf_size;
       } else {
         NOTREACHED() << "GetData() failed";
@@ -381,10 +380,11 @@ void PrintWebViewHelper::PrintPage(const ViewMsg_PrintPage_Params& params,
   } else {
     NOTREACHED() << "Buffer too large: " << buf_size;
   }
-  emf.CloseEmf();
-  if (Send(new ViewHostMsg_DuplicateSection(routing_id(),
-                                            page_params.emf_data_handle,
-                                            &page_params.emf_data_handle))) {
+  metafile.CloseEmf();
+  if (Send(new ViewHostMsg_DuplicateSection(
+      routing_id(),
+      page_params.metafile_data_handle,
+      &page_params.metafile_data_handle))) {
     Send(new ViewHostMsg_DidPrintPage(routing_id(), page_params));
   }
 #else  // defined(OS_WIN)

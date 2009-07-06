@@ -335,9 +335,9 @@ struct ViewMsg_PrintPages_Params {
 struct ViewHostMsg_DidPrintPage_Params {
   // A shared memory handle to the EMF data. This data can be quite large so a
   // memory map needs to be used.
-  base::SharedMemoryHandle emf_data_handle;
+  base::SharedMemoryHandle metafile_data_handle;
 
-  // Size of the EMF data.
+  // Size of the metafile data.
   unsigned data_size;
 
   // Cookie for the document to ensure correctness.
@@ -1490,14 +1490,14 @@ template <>
 struct ParamTraits<ViewHostMsg_DidPrintPage_Params> {
   typedef ViewHostMsg_DidPrintPage_Params param_type;
   static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.emf_data_handle);
+    WriteParam(m, p.metafile_data_handle);
     WriteParam(m, p.data_size);
     WriteParam(m, p.document_cookie);
     WriteParam(m, p.page_number);
     WriteParam(m, p.actual_shrink);
   }
   static bool Read(const Message* m, void** iter, param_type* p) {
-    return ReadParam(m, iter, &p->emf_data_handle) &&
+    return ReadParam(m, iter, &p->metafile_data_handle) &&
            ReadParam(m, iter, &p->data_size) &&
            ReadParam(m, iter, &p->document_cookie) &&
            ReadParam(m, iter, &p->page_number) &&

@@ -11,13 +11,13 @@
 #include "base/simple_thread.h"
 #include "base/win_util.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/gfx/emf.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/ui/ui_test.h"
 #include "chrome/browser/printing/printing_test.h"
 #include "net/url_request/url_request_unittest.h"
+#include "printing/native_metafile.h"
 
 namespace {
 
@@ -37,7 +37,7 @@ class Image {
     if (LowerCaseEqualsASCII(ext, "png")) {
       LoadPng(data);
     } else if (LowerCaseEqualsASCII(ext, "emf")) {
-      LoadEmf(data);
+      LoadMetafile(data);
     } else {
       EXPECT_TRUE(false);
     }
@@ -149,11 +149,11 @@ class Image {
     row_length_ = size_.width() * sizeof(uint32);
   }
 
-  void LoadEmf(const std::string& data) {
+  void LoadMetafile(const std::string& data) {
     ASSERT_FALSE(data.empty());
-    gfx::Emf emf;
-    emf.CreateFromData(data.data(), data.size());
-    gfx::Rect rect(emf.GetBounds());
+    printing::NativeMetafile metafile;
+    metafile.CreateFromData(data.data(), data.size());
+    gfx::Rect rect(metafile.GetBounds());
     // Create a temporary HDC and bitmap to retrieve the renderered data.
     HDC hdc = CreateCompatibleDC(NULL);
     BITMAPV4HEADER hdr;
@@ -170,7 +170,7 @@ class Image {
     EXPECT_TRUE(bitmap);
     EXPECT_TRUE(SelectObject(hdc, bitmap));
     skia::PlatformDevice::InitializeDC(hdc);
-    EXPECT_TRUE(emf.Playback(hdc, NULL));
+    EXPECT_TRUE(metafile.Playback(hdc, NULL));
     row_length_ = size_.width() * sizeof(uint32);
     size_t bytes = row_length_ * size_.height();
     ASSERT_TRUE(bytes);
@@ -200,7 +200,7 @@ class PrintingLayoutTest : public PrintingTest<UITest> {
  public:
   PrintingLayoutTest() {
     emf_path_ = browser_directory_.ToWStringHack();
-    file_util::AppendToPath(&emf_path_, L"emf_dumps");
+    file_util::AppendToPath(&emf_path_, L"metafile_dumps");
     launch_arguments_.AppendSwitchWithValue(L"debug-print",
                                             L'"' + emf_path_ + L'"');
     show_window_ = true;

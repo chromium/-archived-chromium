@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_GFX_EMF_H__
-#define CHROME_COMMON_GFX_EMF_H__
+#ifndef PRINTING_EMF_WIN_H__
+#define PRINTING_EMF_WIN_H__
 
 #include <windows.h>
 #include <vector>
@@ -11,8 +11,10 @@
 #include "base/basictypes.h"
 
 namespace gfx {
-
 class Rect;
+}
+
+namespace printing {
 
 // Simple wrapper class that manage an EMF data stream and its virtual HDC.
 class Emf {
@@ -174,6 +176,6 @@ class Emf::Enumerator {
   DISALLOW_EVIL_CONSTRUCTORS(Enumerator);
 };
 
-}  // namespace gfx
+}  // namespace printing
 
-#endif  // CHROME_COMMON_GFX_EMF_H__
+#endif  // PRINTING_EMF_WIN_H__
