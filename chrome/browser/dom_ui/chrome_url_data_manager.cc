@@ -199,6 +199,16 @@ void ChromeURLDataManager::RemoveFileSource(const std::string& source_name) {
   file_sources_.erase(source_name);
 }
 
+bool ChromeURLDataManager::HasPendingJob(URLRequestChromeJob* job) const {
+  for (PendingRequestMap::const_iterator i = pending_requests_.begin();
+       i != pending_requests_.end(); ++i) {
+    if (i->second == job)
+      return true;
+  }
+
+  return false;
+}
+
 bool ChromeURLDataManager::StartRequest(const GURL& url,
                                         URLRequestChromeJob* job) {
   // Parse the URL into a request for a source and path.
@@ -293,6 +303,7 @@ URLRequestChromeJob::URLRequestChromeJob(URLRequest* request)
     : URLRequestJob(request), data_offset_(0) {}
 
 URLRequestChromeJob::~URLRequestChromeJob() {
+  CHECK(!chrome_url_data_manager.HasPendingJob(this));
 }
 
 void URLRequestChromeJob::Start() {
@@ -320,6 +331,7 @@ void URLRequestChromeJob::DataAvailable(RefCountedBytes* bytes) {
     data_ = bytes;
     int bytes_read;
     if (pending_buf_.get()) {
+      CHECK(pending_buf_->data());
       CompleteRead(pending_buf_, pending_buf_size_, &bytes_read);
       pending_buf_ = NULL;
       NotifyReadComplete(bytes_read);
@@ -335,6 +347,7 @@ bool URLRequestChromeJob::ReadRawData(net::IOBuffer* buf, int buf_size,
   if (!data_.get()) {
     SetStatus(URLRequestStatus(URLRequestStatus::IO_PENDING, 0));
     DCHECK(!pending_buf_.get());
+    CHECK(buf->data());
     pending_buf_ = buf;
     pending_buf_size_ = buf_size;
     return false;  // Tell the caller we're still waiting for data.
