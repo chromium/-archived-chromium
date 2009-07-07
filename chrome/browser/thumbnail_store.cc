@@ -8,7 +8,6 @@
 #include <algorithm>
 
 #include "base/basictypes.h"
-#include "base/pickle.h"
 #include "base/file_util.h"
 #include "base/gfx/jpeg_codec.h"
 #include "base/md5.h"
@@ -18,51 +17,57 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/common/thumbnail_score.h"
+#include "chrome/common/sqlite_utils.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 
 
 ThumbnailStore::ThumbnailStore()
     : cache_(NULL),
-      cache_initialized_(false),
+      db_(NULL),
       hs_(NULL),
       url_blacklist_(NULL) {
 }
 
 ThumbnailStore::~ThumbnailStore() {
+  CommitCacheToDB(NULL);
 }
 
-void ThumbnailStore::Init(const FilePath& file_path, Profile* profile) {
-  file_path_ = file_path;
+void ThumbnailStore::Init(const FilePath& db_name,
+                          Profile* profile) {
+  // Load thumbnails already in the database.
+  g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &ThumbnailStore::InitializeFromDB,
+                        db_name, MessageLoop::current()));
+
+  // Take ownership of a reference to the HistoryService.
   hs_ = profile->GetHistoryService(Profile::EXPLICIT_ACCESS);
+
+  // Store a pointer to a persistent table of blacklisted URLs.
   url_blacklist_ = profile->GetPrefs()->
       GetMutableDictionary(prefs::kNTPMostVisitedURLsBlacklist);
 
-  g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &ThumbnailStore::GetAllThumbnailsFromDisk,
-                        file_path_, MessageLoop::current()));
-
+  // Get the list of most visited URLs and redirect information from the
+  // HistoryService.
   timer_.Start(base::TimeDelta::FromMinutes(30), this,
-               &ThumbnailStore::UpdateURLData);
+      &ThumbnailStore::UpdateURLData);
   UpdateURLData();
 }
 
 bool ThumbnailStore::SetPageThumbnail(const GURL& url,
                                       const SkBitmap& thumbnail,
-                                      const ThumbnailScore& score,
-                                      bool write_to_disk) {
-  if (!cache_initialized_)
+                                      const ThumbnailScore& score) {
+  if (!cache_.get())
     return false;
 
   if (!ShouldStoreThumbnailForURL(url) ||
       (cache_->find(url) != cache_->end() &&
-      !ShouldReplaceThumbnailWith((*cache_)[url].second, score)))
+      !ShouldReplaceThumbnailWith((*cache_)[url].score_, score)))
     return true;
 
   base::TimeTicks encode_start = base::TimeTicks::Now();
 
-  // Encode the SkBitmap to jpeg and add to cache.
+  // Encode the SkBitmap to jpeg.
   scoped_refptr<RefCountedBytes> jpeg_data = new RefCountedBytes;
   SkAutoLockPixels thumbnail_lock(thumbnail);
   bool encoded = JPEGCodec::Encode(
@@ -79,38 +84,31 @@ bool ThumbnailStore::SetPageThumbnail(const GURL& url,
     return false;
 
   // Update the cache_ with the new thumbnail.
-  (*cache_)[url] = std::make_pair(jpeg_data, score);
+  (*cache_)[url] = CacheEntry(jpeg_data, score, true);
 
-  // Write the new thumbnail data to disk in the background on file_thread.
-  if (write_to_disk) {
-    g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
-        NewRunnableMethod(this, &ThumbnailStore::WriteThumbnailToDisk, url,
-        jpeg_data, score));
-  }
   return true;
 }
 
 bool ThumbnailStore::GetPageThumbnail(
     const GURL& url,
     RefCountedBytes** data) {
-  if (!cache_initialized_ || IsURLBlacklisted(url))
+  if (!cache_.get() || IsURLBlacklisted(url))
     return false;
 
   // Look up the |url| in the redirect list to find the final destination
   // which is the key into the |cache_|.
   history::RedirectMap::iterator it = redirect_urls_->find(url);
-  if (it == redirect_urls_->end())
-    return false;
-
-  // Return the first available thumbnail starting at the end of the
-  // redirect list.
-  history::RedirectList::reverse_iterator rit;
-  for (rit = it->second->data.rbegin();
-       rit != it->second->data.rend(); ++rit) {
-    if (cache_->find(*rit) != cache_->end()) {
-      *data = (*cache_)[*rit].first;
-      (*data)->AddRef();
-      return true;
+  if (it != redirect_urls_->end()) {
+    // Return the first available thumbnail starting at the end of the
+    // redirect list.
+    history::RedirectList::reverse_iterator rit;
+    for (rit = it->second->data.rbegin();
+        rit != it->second->data.rend(); ++rit) {
+      if (cache_->find(*rit) != cache_->end()) {
+        *data = (*cache_)[*rit].data_.get();
+        (*data)->AddRef();
+        return true;
+      }
     }
   }
 
@@ -119,7 +117,7 @@ bool ThumbnailStore::GetPageThumbnail(
   if (cache_->find(url) == cache_->end())
     return false;
 
-  *data = (*cache_)[url].first;
+  *data = (*cache_)[url].data_.get();
   (*data)->AddRef();
   return true;
 }
@@ -141,14 +139,14 @@ void ThumbnailStore::OnURLDataAvailable(std::vector<GURL>* urls,
 }
 
 void ThumbnailStore::CleanCacheData() {
-  if (!cache_initialized_)
+  if (!cache_.get())
     return;
 
   // For each URL in the cache, search the RedirectMap for the originating URL.
   // If this URL is blacklisted or not in the most visited list, delete the
   // thumbnail data for it from the cache and from disk in the background.
   scoped_refptr<RefCountedVector<GURL> > old_urls = new RefCountedVector<GURL>;
-  for (ThumbnailStore::Cache::iterator cache_it = cache_->begin();
+  for (Cache::iterator cache_it = cache_->begin();
        cache_it != cache_->end();) {
     const GURL* url = NULL;
     for (history::RedirectMap::iterator it = redirect_urls_->begin();
@@ -171,145 +169,115 @@ void ThumbnailStore::CleanCacheData() {
 
   if (old_urls->data.size()) {
     g_browser_process->file_thread()->message_loop()->PostTask(FROM_HERE,
-        NewRunnableMethod(this, &ThumbnailStore::DeleteThumbnails, old_urls));
+        NewRunnableMethod(this, &ThumbnailStore::CommitCacheToDB, old_urls));
   }
 }
 
-void ThumbnailStore::DeleteThumbnails(
-    scoped_refptr<RefCountedVector<GURL> > thumbnail_urls) const {
-  for (std::vector<GURL>::iterator it = thumbnail_urls->data.begin();
-       it != thumbnail_urls->data.end(); ++it)
-    file_util::Delete(file_path_.AppendASCII(MD5String(it->spec())), false);
-}
+void ThumbnailStore::CommitCacheToDB(
+    scoped_refptr<RefCountedVector<GURL> > stale_urls) const {
+  if (!db_)
+    return;
 
-void ThumbnailStore::GetAllThumbnailsFromDisk(FilePath filepath,
-                                              MessageLoop* cb_loop) {
-  ThumbnailStore::Cache* cache = new ThumbnailStore::Cache;
-
-  // Create the specified directory if it does not exist.
-  if (!file_util::DirectoryExists(filepath)) {
-    file_util::CreateDirectory(filepath);
-  } else {
-    // Walk the directory and read the thumbnail data from disk.
-    FilePath path;
-    GURL url;
-    RefCountedBytes* data;
-    ThumbnailScore score;
-    file_util::FileEnumerator fenum(filepath, false,
-                                    file_util::FileEnumerator::FILES);
-
-    while (!(path = fenum.Next()).empty()) {
-      data = new RefCountedBytes;
-      if (GetPageThumbnailFromDisk(path, &url, data, &score))
-        (*cache)[url] = std::make_pair(data, score);
-      else
-        delete data;
+  // Delete old thumbnails.
+  if (stale_urls.get()) {
+    for (std::vector<GURL>::iterator it = stale_urls->data.begin();
+        it != stale_urls->data.end(); ++it) {
+      SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_,
+          "DELETE FROM thumbnails WHERE url=?");
+      statement->bind_string(0, it->spec());
+      if (statement->step() != SQLITE_DONE)
+        NOTREACHED();
     }
   }
+
+  // Update cached thumbnails.
+  for (Cache::iterator it = cache_->begin(); it != cache_->end(); ++it) {
+    if (!it->second.dirty_)
+      continue;
+
+    SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_,
+        "INSERT OR REPLACE INTO thumbnails "
+        "(url, boring_score, good_clipping, at_top, time_taken, data) "
+        "VALUES (?,?,?,?,?,?)");
+    statement->bind_string(0, it->first.spec());
+    statement->bind_double(1, it->second.score_.boring_score);
+    statement->bind_bool(2, it->second.score_.good_clipping);
+    statement->bind_bool(3, it->second.score_.at_top);
+    statement->bind_int64(4, it->second.score_.time_at_snapshot.
+                             ToInternalValue());
+    statement->bind_blob(5, &it->second.data_->data[0],
+                         static_cast<int>(it->second.data_->data.size()));
+    if (statement->step() != SQLITE_DONE)
+      DLOG(WARNING) << "Unable to insert thumbnail for URL";
+    else
+      it->second.dirty_ = false;
+  }
+}
+
+void ThumbnailStore::InitializeFromDB(const FilePath& db_name,
+                                      MessageLoop* cb_loop) {
+  if (OpenSqliteDb(db_name, &db_) != SQLITE_OK)
+    return;
+
+  // Use a large page size since the thumbnails we are storing are typically
+  // large, a small cache size since we cache in memory and don't go to disk
+  // often, and take exclusive access since nobody else uses this db.
+  sqlite3_exec(db_, "PRAGMA page_size=4096 "
+                    "PRAGMA cache_size=64 "
+                    "PRAGMA locking_mode=EXCLUSIVE", NULL, NULL, NULL);
+
+  statement_cache_ = new SqliteStatementCache;
+
+  // Use local DBCloseScoper so that if we cannot create the table and
+  // need to return, the |db_| and |statement_cache_| are closed properly.
+  history::DBCloseScoper scoper(&db_, &statement_cache_);
+
+  if (!DoesSqliteTableExist(db_, "thumbnails")) {
+    if (sqlite3_exec(db_, "CREATE TABLE thumbnails ("
+          "url LONGVARCHAR PRIMARY KEY,"
+          "boring_score DOUBLE DEFAULT 1.0,"
+          "good_clipping INTEGER DEFAULT 0,"
+          "at_top INTEGER DEFAULT 0,"
+          "time_taken INTEGER DEFAULT 0,"
+          "data BLOB)", NULL, NULL, NULL) != SQLITE_OK)
+      return;
+  }
+
+  statement_cache_->set_db(db_);
+
+  // Now we can use a DBCloseScoper at the object scope.
+  scoper.Detach();
+  close_scoper_.Attach(&db_, &statement_cache_);
+
+  if (cb_loop)
+    GetAllThumbnailsFromDisk(cb_loop);
+}
+
+void ThumbnailStore::GetAllThumbnailsFromDisk(MessageLoop* cb_loop) {
+  ThumbnailStore::Cache* cache = new ThumbnailStore::Cache;
+
+  SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_,
+      "SELECT * FROM thumbnails");
+
+  while (statement->step() == SQLITE_ROW) {
+    GURL url(statement->column_string(0));
+    ThumbnailScore score(statement->column_double(1),      // Boring score
+                         statement->column_bool(2),        // Good clipping
+                         statement->column_bool(3),        // At top
+                         base::Time::FromInternalValue(
+                            statement->column_int64(4)));  // Time taken
+    scoped_refptr<RefCountedBytes> data = new RefCountedBytes;
+    if (statement->column_blob_as_vector(5, &data->data))
+      (*cache)[url] = CacheEntry(data, score, false);
+  }
+
   cb_loop->PostTask(FROM_HERE,
       NewRunnableMethod(this, &ThumbnailStore::OnDiskDataAvailable, cache));
 }
 
-bool ThumbnailStore::GetPageThumbnailFromDisk(const FilePath& file,
-                                              GURL* url,
-                                              RefCountedBytes* data,
-                                              ThumbnailScore* score) const {
-  int64 file_size;
-  if (!file_util::GetFileSize(file, &file_size))
-    return false;
-
-  // Read the file into a buffer.
-  std::vector<char> file_data;
-  file_data.resize(static_cast<unsigned int>(file_size));
-  if (file_util::ReadFile(file, &file_data[0],
-                          static_cast<int>(file_size)) == -1)
-    return false;
-
-  // Unpack the url, ThumbnailScore and JPEG size from the buffer.
-  std::string url_string;
-  unsigned int jpeg_len;
-  void* iter = NULL;
-  Pickle packed(&file_data[0], static_cast<int>(file_size));
-
-  if (!packed.ReadString(&iter, &url_string) ||
-      !UnpackScore(score, packed, iter) ||
-      !packed.ReadUInt32(&iter, &jpeg_len))
-    return false;
-
-  // Store the url to the out parameter.
-  GURL temp_url(url_string);
-  url->Swap(&temp_url);
-
-  // Unpack the JPEG data from the buffer.
-  const char* jpeg_data = NULL;
-  int out_len;
-
-  if (!packed.ReadData(&iter, &jpeg_data, &out_len) ||
-      out_len != static_cast<int>(jpeg_len))
-    return false;
-
-  // Copy jpeg data to the out parameter.
-  data->data.resize(jpeg_len);
-  memcpy(&data->data[0], jpeg_data, jpeg_len);
-
-  return true;
-}
-
 void ThumbnailStore::OnDiskDataAvailable(ThumbnailStore::Cache* cache) {
-  if (cache) {
+  if (cache)
     cache_.reset(cache);
-    cache_initialized_ = true;
-  }
-}
-
-bool ThumbnailStore::WriteThumbnailToDisk(const GURL& url,
-                                          scoped_refptr<RefCountedBytes> data,
-                                          const ThumbnailScore& score) const {
-  Pickle packed;
-  FilePath file = file_path_.AppendASCII(MD5String(url.spec()));
-
-  // Pack the url, ThumbnailScore, and the JPEG data.
-  packed.WriteString(url.spec());
-  PackScore(score, &packed);
-  packed.WriteUInt32(data->data.size());
-  packed.WriteData(reinterpret_cast<char*>(&data->data[0]), data->data.size());
-
-  // Write the packed data to a file.
-  file_util::Delete(file, false);
-  return file_util::WriteFile(file,
-                              reinterpret_cast<const char*>(packed.data()),
-                              packed.size()) != -1;
-}
-
-void ThumbnailStore::PackScore(const ThumbnailScore& score,
-                               Pickle* packed) const {
-  // Pack the contents of the given ThumbnailScore into the given Pickle.
-  packed->WriteData(reinterpret_cast<const char*>(&score.boring_score),
-                    sizeof(score.boring_score));
-  packed->WriteBool(score.at_top);
-  packed->WriteBool(score.good_clipping);
-  packed->WriteInt64(score.time_at_snapshot.ToInternalValue());
-}
-
-bool ThumbnailStore::UnpackScore(ThumbnailScore* score, const Pickle& packed,
-                                 void*& iter) const {
-  // Unpack a ThumbnailScore from the given Pickle and iterator.
-  const char* boring = NULL;
-  int out_len;
-  int64 us;
-
-  if (!packed.ReadData(&iter, &boring, &out_len) ||
-      !packed.ReadBool(&iter, &score->at_top) ||
-      !packed.ReadBool(&iter, &score->good_clipping) ||
-      !packed.ReadInt64(&iter, &us))
-    return false;
-
-  if (out_len != sizeof(score->boring_score))
-    return false;
-
-  memcpy(&score->boring_score, boring, sizeof(score->boring_score));
-  score->time_at_snapshot = base::Time::FromInternalValue(us);
-  return true;
 }
 
 bool ThumbnailStore::ShouldStoreThumbnailForURL(const GURL& url) const {
@@ -333,6 +301,6 @@ std::wstring ThumbnailStore::GetDictionaryKeyForURL(
 
 bool ThumbnailStore::IsPopular(const GURL& url) const {
   return most_visited_urls_->end() != find(most_visited_urls_->begin(),
-                                          most_visited_urls_->end(),
-                                          url);
+                                           most_visited_urls_->end(),
+                                           url);
 }

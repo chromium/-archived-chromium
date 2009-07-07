@@ -15,17 +15,19 @@
 #include "base/timer.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/history.h"
+#include "chrome/browser/history/url_database.h"  // For DBCloseScoper
 #include "chrome/common/pref_names.h"
 #include "chrome/common/ref_counted_util.h"
+#include "chrome/common/sqlite_compiled_statement.h"
+#include "chrome/common/thumbnail_score.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
 class DictionaryValue;
 class GURL;
 class HistoryService;
-class Pickle;
 class Profile;
 class SkBitmap;
-struct ThumbnailScore;
+struct sqlite3;
 namespace base {
 class Time;
 }
@@ -38,17 +40,13 @@ class ThumbnailStore : public base::RefCountedThreadSafe<ThumbnailStore> {
   ~ThumbnailStore();
 
   // Must be called after creation but before other methods are called.
-  // file_path is a directory where a new database should be created
-  // or the location of an existing databse.
-  void Init(const FilePath& file_path, Profile* profile);
+  void Init(const FilePath& db_name,      // The location of the database.
+            Profile* profile);            // To get to the HistoryService.
 
   // Stores the given thumbnail and score with the associated url in the cache.
-  // If write_to_disk is true, the thumbnail data is written to disk on the
-  // file_thread.
   bool SetPageThumbnail(const GURL& url,
                         const SkBitmap& thumbnail,
-                        const ThumbnailScore& score,
-                        bool write_to_disk);
+                        const ThumbnailScore& score);
 
   // Sets *data to point to the thumbnail for the given url.
   // Returns false if no thumbnail available.
@@ -61,9 +59,22 @@ class ThumbnailStore : public base::RefCountedThreadSafe<ThumbnailStore> {
   FRIEND_TEST(ThumbnailStoreTest, FollowRedirects);
   friend class ThumbnailStoreTest;
 
+  struct CacheEntry {
+    scoped_refptr<RefCountedBytes> data_;
+    ThumbnailScore score_;
+    bool dirty_;
+
+    CacheEntry() : data_(NULL), score_(ThumbnailScore()), dirty_(false) {}
+    CacheEntry(RefCountedBytes* data,
+               const ThumbnailScore& score,
+               bool dirty)
+        : data_(data),
+          score_(score),
+          dirty_(dirty) {}
+  };
+
   // Data structure used to store thumbnail data in memory.
-  typedef std::map<GURL, std::pair<scoped_refptr<RefCountedBytes>,
-      ThumbnailScore> > Cache;
+  typedef std::map<GURL, CacheEntry> Cache;
 
   // Most visited URLs and their redirect lists -------------------------------
 
@@ -72,8 +83,7 @@ class ThumbnailStore : public base::RefCountedThreadSafe<ThumbnailStore> {
   // callback is OnURLDataAvailable.
   void UpdateURLData();
 
-  // The callback for UpdateURLData. The ThumbnailStore takes ownership of
-  // the most visited urls list and redirect lists passed in.
+  // The callback for UpdateURLData.
   void OnURLDataAvailable(std::vector<GURL>* urls,
                           history::RedirectMap* redirects);
 
@@ -84,43 +94,26 @@ class ThumbnailStore : public base::RefCountedThreadSafe<ThumbnailStore> {
   // visited sites.
   void CleanCacheData();
 
-  // Deletes thumbnail data from disk for the given list of urls.
-  void DeleteThumbnails(
-      scoped_refptr<RefCountedVector<GURL> > thumbnail_urls) const;
-
   // Disk operations ----------------------------------------------------------
+
+  // Initialize |db_| to the database specified in |db_name|.  If |cb_loop|
+  // is non-null, calls GetAllThumbnailsFromDisk.  Done on the file_thread.
+  void InitializeFromDB(const FilePath& db_name, MessageLoop* cb_loop);
 
   // Read all thumbnail data from the specified FilePath into a Cache object.
   // Done on the file_thread and returns to OnDiskDataAvailable on the thread
   // owning the specified MessageLoop.
-  void GetAllThumbnailsFromDisk(FilePath filepath, MessageLoop* cb_loop);
-
-  // Read the thumbnail data from the given file and stores it in the
-  // out parameters GURL, SkBitmap, and ThumbnailScore.
-  bool GetPageThumbnailFromDisk(const FilePath& file,
-                                GURL* url,
-                                RefCountedBytes* data,
-                                ThumbnailScore* score) const;
+  void GetAllThumbnailsFromDisk(MessageLoop* cb_loop);
 
   // Once thumbnail data from the disk is available from the file_thread,
   // this function is invoked on the main thread.  It takes ownership of the
   // Cache* passed in and retains this Cache* for the lifetime of the object.
   void OnDiskDataAvailable(Cache* cache);
 
-  // Write thumbnail data to disk for a given url.
-  bool WriteThumbnailToDisk(const GURL& url,
-                            scoped_refptr<RefCountedBytes> data,
-                            const ThumbnailScore& score) const;
-
-
-  // Pack the given ThumbnailScore into the given Pickle.
-  void PackScore(const ThumbnailScore& score, Pickle* packed) const;
-
-  // Unpack a ThumbnailScore from a given Pickle and associated iterator.
-  // Returns false is a ThumbnailScore could not be unpacked.
-  bool UnpackScore(ThumbnailScore* score,
-                   const Pickle& packed,
-                   void*& iter) const;
+  // Delete each URL in the given vector from the DB and write all dirty
+  // cache entries to the DB.
+  void CommitCacheToDB(
+      scoped_refptr<RefCountedVector<GURL> > stale_urls) const;
 
   // Decide whether to store data ---------------------------------------------
 
@@ -139,10 +132,11 @@ class ThumbnailStore : public base::RefCountedThreadSafe<ThumbnailStore> {
 
   // The Cache maintained by the object.
   scoped_ptr<Cache> cache_;
-  bool cache_initialized_;
 
-  // The location of the thumbnail store.
-  FilePath file_path_;
+  // The database holding the thumbnails on disk.
+  sqlite3* db_;
+  SqliteStatementCache* statement_cache_;
+  history::DBCloseScoper close_scoper_;
 
   // We hold a reference to the history service to query for most visited URLs
   // and redirect information.
