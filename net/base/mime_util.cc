@@ -66,6 +66,11 @@ static const MimeInfo primary_mappings[] = {
   { "image/gif", "gif" },
   { "image/jpeg", "jpeg,jpg" },
   { "image/png", "png" },
+  { "video/mp4", "mp4,m4v" },
+  { "audio/x-m4a", "m4a" },
+  { "audio/mp3", "mp3" },
+  { "video/ogg", "ogv,ogm" },
+  { "audio/ogg", "ogg,oga" },
   { "application/xhtml+xml", "xhtml,xht" }
 };
 
@@ -168,30 +173,23 @@ static const char* const supported_image_types[] = {
   "image/x-xbitmap"  // xbm
 };
 
-// TODO(hclam): Integrate this list with |secondary_mappings| above.
+// A list of media types: http://en.wikipedia.org/wiki/Internet_media_type
+// A comprehensive mime type list: http://plugindoc.mozdev.org/winmime.php
+
 static const char* const supported_media_types[] = {
   // Ogg.
-  "audio/ogg",
   "video/ogg",
+  "audio/ogg",
 
   // MPEG-4.
-  "application/mp4",
-  "audio/mp4",
-  "audio/x-m4a",
   "video/mp4",
   "video/x-m4v",
+  "audio/mp4",
+  "audio/x-m4a",
 
   // MP3.
-  // TODO(hclam): may add "audio/mpeg" and "audio/x-mp3".
   "audio/mp3",
-
-  // AAC.
-  "audio/aac",
-  "audio/x-aac"
-
-  // Generic MPEG mime-types.
-  "audio/mpeg",
-  "video/mpeg"
+  "audio/x-mp3",
 };
 
 // Note: does not include javascript types list (see supported_javascript_types)
