@@ -2767,7 +2767,7 @@ BUG15478 SKIP : LayoutTests/platform/qt/fast/events/event-sender-keydown-frame.h
 
 // WebKit 45270:45287
 BUG15490 DEBUG LINUX : LayoutTests/fast/overflow/overflow-rtl-inline-scrollbar.html= CRASH
-BUG15490 DEBUG LINUX : LayoutTests/editing/deleting/25322-1.html = CRASH
+BUG15490 LINUX : LayoutTests/editing/deleting/25322-1.html = PASS CRASH
 
 // Flaky for a while on DEBUG
 BUG15267 WIN LINUX DEBUG : LayoutTests/transitions/cancel-transition.html = PASS FAIL
