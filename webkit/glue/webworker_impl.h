@@ -125,6 +125,7 @@ class WebWorkerImpl: public WebCore::WorkerObjectProxy,
   // 'shadow page' - created to proxy loading requests from the worker.
   WTF::RefPtr<WebCore::ScriptExecutionContext> loading_document_;
   WebView* web_view_;
+  bool asked_to_terminate_;
 
   WTF::RefPtr<WebCore::WorkerThread> worker_thread_;
 

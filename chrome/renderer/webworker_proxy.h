@@ -43,6 +43,7 @@ class WebWorkerProxy : public WebKit::WebWorker,
   bool Send(IPC::Message* message);
 
   void OnDedicatedWorkerCreated();
+  void Disconnect();
 
   // The routing id used to reach WebWorkerClientProxy in the worker process.
   int route_id_;

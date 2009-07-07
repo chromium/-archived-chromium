@@ -25,15 +25,26 @@ WebWorkerProxy::WebWorkerProxy(
 }
 
 WebWorkerProxy::~WebWorkerProxy() {
-  if (queued_messages_.empty())
-    return;
+  Disconnect();
 
   for (size_t i = 0; i < queued_messages_.size(); ++i)
     delete queued_messages_[i];
+}
+
+void WebWorkerProxy::Disconnect() {
+  if (route_id_ == MSG_ROUTING_NONE)
+    return;
+
+  // So the messages from WorkerContext (like WorkerContextDestroyed) do not
+  // come after nobody is listening. Since Worker and WorkerContext can
+  // terminate independently, already sent messages may still be in the pipe.
+  child_thread_->RemoveRoute(route_id_);
 
   // Tell the browser to not start our queued worker.
-  if (route_id_ != MSG_ROUTING_NONE)
+  if (!queued_messages_.empty())
     child_thread_->Send(new ViewHostMsg_CancelCreateDedicatedWorker(route_id_));
+
+  route_id_ = MSG_ROUTING_NONE;
 }
 
 void WebWorkerProxy::startWorkerContext(
@@ -57,8 +68,7 @@ void WebWorkerProxy::startWorkerContext(
 void WebWorkerProxy::terminateWorkerContext() {
   if (route_id_ != MSG_ROUTING_NONE) {
     Send(new WorkerMsg_TerminateWorkerContext(route_id_));
-    child_thread_->RemoveRoute(route_id_);
-    route_id_ = MSG_ROUTING_NONE;
+    Disconnect();
   }
 }
 

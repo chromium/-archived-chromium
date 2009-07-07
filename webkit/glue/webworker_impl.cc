@@ -119,7 +119,8 @@ void InitializeWebKitStaticValues() {
 
 WebWorkerImpl::WebWorkerImpl(WebWorkerClient* client)
  : client_(client),
-   web_view_(NULL) {
+   web_view_(NULL),
+   asked_to_terminate_(false) {
   InitializeWebKitStaticValues();
 }
 
@@ -193,6 +194,10 @@ void WebWorkerImpl::startWorkerContext(const WebURL& script_url,
 }
 
 void WebWorkerImpl::terminateWorkerContext() {
+  if (asked_to_terminate_)
+    return;
+  asked_to_terminate_ = true;
+
   if (worker_thread_)
     worker_thread_->stop();
 }
@@ -207,6 +212,11 @@ void WebWorkerImpl::postMessageToWorkerContext(const WebString& message) {
 }
 
 void WebWorkerImpl::workerObjectDestroyed() {
+  // Worker object in the renderer was destroyed, perhaps a result of GC.
+  // For us, it's a signal to start terminating the WorkerContext too.
+  // TODO(dimich): when 'kill a worker' html5 spec algorithm is implemented, it
+  // should be used here instead of 'terminate a worker'.
+  terminateWorkerContext();
 }
 
 void WebWorkerImpl::DispatchTaskToMainThread(
