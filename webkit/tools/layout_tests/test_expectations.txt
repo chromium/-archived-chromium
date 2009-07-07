@@ -2957,3 +2957,8 @@ BUG15921 SKIP : LayoutTests/media/controls-strict.html = FAIL
 
 // Webkit 45535:45555
 BUG15977 : LayoutTests/svg/custom/createImageElement2.xhtml = FAIL
+
+// Webkit 45555:45558
+// This was removed from test_expectations when it was passing after the Webkit merge 45495:45535.
+// Not sure if this is a regression or some manner of flakiness.
+BUG11613 MAC : LayoutTests/http/tests/security/cross-frame-access-call.html = FAIL
