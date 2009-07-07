@@ -14,7 +14,7 @@
 BlockedPopupContainer* BlockedPopupContainer::Create(
     TabContents* owner, Profile* profile) {
   BlockedPopupContainer* container =
-      new BlockedPopupContainer(owner, profile->GetPrefs());
+      new BlockedPopupContainer(owner, profile);
   BlockedPopupContainerView* view =
       BlockedPopupContainerView::Create(container);
   container->set_view(view);
@@ -25,7 +25,7 @@ BlockedPopupContainer* BlockedPopupContainer::Create(
 BlockedPopupContainer* BlockedPopupContainer::Create(
     TabContents* owner, Profile* profile, BlockedPopupContainerView* view) {
   BlockedPopupContainer* container =
-      new BlockedPopupContainer(owner, profile->GetPrefs());
+      new BlockedPopupContainer(owner, profile);
   container->set_view(view);
   return container;
 }
@@ -346,11 +346,12 @@ void BlockedPopupContainer::EraseDataForPopupAndUpdateUI(
 // private:
 
 BlockedPopupContainer::BlockedPopupContainer(TabContents* owner,
-                                             PrefService* prefs)
+                                             Profile* profile)
     : owner_(owner),
-      prefs_(prefs),
+      prefs_(profile->GetPrefs()),
       has_been_dismissed_(false),
-      view_(NULL) {
+      view_(NULL),
+      profile_(profile) {
   // Copy whitelist pref into local member that's easier to use.
   const ListValue* whitelist_pref =
       prefs_->GetList(prefs::kPopupWhitelistedHosts);

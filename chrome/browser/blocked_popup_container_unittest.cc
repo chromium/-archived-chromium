@@ -53,7 +53,7 @@ class BlockedPopupContainerTest : public RenderViewHostTestHarness {
  protected:
   virtual void SetUp() {
     RenderViewHostTestHarness::SetUp();
-    container_ = new BlockedPopupContainer(contents(), profile()->GetPrefs());
+    container_ = new BlockedPopupContainer(contents(), profile());
     container_->set_view(&mock);
 
     contents_->set_blocked_popup_container(container_);

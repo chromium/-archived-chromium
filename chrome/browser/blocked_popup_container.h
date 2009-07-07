@@ -81,6 +81,9 @@ class BlockedPopupContainer : public TabContentsDelegate,
 
   static void RegisterUserPrefs(PrefService* prefs);
 
+  // Returns the profile associated with the Browser this container exists in.
+  Profile* profile() const { return profile_; }
+
   // Sets this BlockedPopupContainer's view. BlockedPopupContainer now owns
   // |view| and is responsible for calling Destroy() on it.
   void set_view(BlockedPopupContainerView* view) { view_ = view; }
@@ -229,7 +232,7 @@ class BlockedPopupContainer : public TabContentsDelegate,
   typedef std::set<std::string> Whitelist;
 
   // Creates a container for a certain TabContents:
-  BlockedPopupContainer(TabContents* owner, PrefService* prefs);
+  BlockedPopupContainer(TabContents* owner, Profile* profile);
 
   // Either hides the view if there are no popups, or updates the label if
   // there are.
@@ -266,6 +269,9 @@ class BlockedPopupContainer : public TabContentsDelegate,
 
   // Our platform specific view.
   BlockedPopupContainerView* view_;
+
+  // The profile for the browser associated with the container.
+  Profile* profile_;
 
   DISALLOW_IMPLICIT_CONSTRUCTORS(BlockedPopupContainer);
 };

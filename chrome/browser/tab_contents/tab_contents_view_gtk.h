@@ -18,6 +18,7 @@
 
 class BlockedPopupContainerViewGtk;
 class ConstrainedWindowGtk;
+class GtkThemeProperties;
 class RenderViewContextMenuGtk;
 class SadTabGtk;
 class WebDragDest;
@@ -84,6 +85,9 @@ class TabContentsViewGtk : public TabContentsView,
 
   // Tell webkit the drag is over.
   void DragEnded();
+
+  // Called when the theme is changed.
+  void UserChangedTheme(GtkThemeProperties* properties);
 
   // We keep track of the timestamp of the latest mousedown event.
   static gboolean OnMouseDown(GtkWidget* widget,

@@ -19,6 +19,7 @@
 #include "chrome/browser/gtk/constrained_window_gtk.h"
 #include "chrome/browser/gtk/gtk_dnd_util.h"
 #include "chrome/browser/gtk/gtk_floating_container.h"
+#include "chrome/browser/gtk/gtk_theme_provider.h"
 #include "chrome/browser/gtk/sad_tab_gtk.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_view_host_factory.h"
@@ -28,6 +29,7 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/gtk_util.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/notification_source.h"
 #include "chrome/common/notification_type.h"
 #include "webkit/glue/webdropdata.h"
@@ -120,7 +122,7 @@ class WebDragDest {
     g_signal_connect(widget, "drag-drop",
                      G_CALLBACK(OnDragDropThunk), this);
     g_signal_connect(widget, "drag-data-received",
-                     G_CALLBACK(OnDragDataReceivedThunk),this);
+                     G_CALLBACK(OnDragDataReceivedThunk), this);
 
     destroy_handler_ = g_signal_connect(widget, "destroy",
         G_CALLBACK(gtk_widget_destroyed), &widget_);
@@ -320,6 +322,8 @@ TabContentsViewGtk::TabContentsViewGtk(TabContents* tab_contents)
   gtk_widget_show(floating_.get());
   registrar_.Add(this, NotificationType::TAB_CONTENTS_CONNECTED,
                  Source<TabContents>(tab_contents));
+  registrar_.Add(this, NotificationType::BROWSER_THEME_CHANGED,
+                 NotificationService::AllSources());
 }
 
 TabContentsViewGtk::~TabContentsViewGtk() {
@@ -541,6 +545,11 @@ void TabContentsViewGtk::Observe(NotificationType type,
       sad_tab_.reset();
       break;
     }
+    case NotificationType::BROWSER_THEME_CHANGED: {
+      GtkThemeProperties properties(tab_contents()->profile());
+      UserChangedTheme(&properties);
+      break;
+    }
     default:
       NOTREACHED() << "Got a notification we didn't register for.";
       break;
@@ -657,6 +666,15 @@ void TabContentsViewGtk::OnDragEnd(GtkWidget* widget,
 }
 
 // -----------------------------------------------------------------------------
+
+void TabContentsViewGtk::UserChangedTheme(GtkThemeProperties* properties) {
+  if (popup_view_)
+    popup_view_->UserChangedTheme(properties);
+
+  // TODO(erg): Plumb the selected text color, etc from here all the way to
+  // RenderThemeChromiumLinux.cpp in WebKit through our associated
+  // RenderViewHost.
+}
 
 void TabContentsViewGtk::InsertIntoContentArea(GtkWidget* widget) {
   gtk_fixed_put(GTK_FIXED(fixed_), widget, 0, 0);

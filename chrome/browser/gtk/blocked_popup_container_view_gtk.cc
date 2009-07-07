@@ -9,6 +9,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/gtk_chrome_button.h"
+#include "chrome/browser/gtk/gtk_theme_provider.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view_gtk.h"
@@ -58,6 +59,14 @@ void BlockedPopupContainerViewGtk::GetURLAndTitleForPopup(
   const GURL& tab_contents_url = tab_contents->GetURL().GetOrigin();
   *url = UTF8ToUTF16(tab_contents_url.possibly_invalid_spec());
   *title = tab_contents->GetTitle();
+}
+
+void BlockedPopupContainerViewGtk::UserChangedTheme(
+    GtkThemeProperties* properties) {
+  use_gtk_rendering_ = properties->use_gtk_rendering;
+
+  gtk_chrome_button_set_use_gtk_rendering(
+      GTK_CHROME_BUTTON(menu_button_), use_gtk_rendering_);
 }
 
 // Overridden from BlockedPopupContainerView:
@@ -122,8 +131,12 @@ void BlockedPopupContainerViewGtk::ExecuteCommand(int id) {
 BlockedPopupContainerViewGtk::BlockedPopupContainerViewGtk(
     BlockedPopupContainer* container)
     : model_(container),
+      use_gtk_rendering_(false),
       close_button_(CustomDrawButton::CloseButton()) {
   Init();
+
+  GtkThemeProperties properties(container->profile());
+  UserChangedTheme(&properties);
 }
 
 void BlockedPopupContainerViewGtk::Init() {
@@ -185,13 +198,10 @@ void BlockedPopupContainerViewGtk::OnCloseButtonClicked(
 }
 
 gboolean BlockedPopupContainerViewGtk::OnContainerExpose(
-    GtkWidget* widget, GdkEventExpose* event) {
-  // TODO(erg): When evanm comes through the code, adding gtk theme support,
-  // what's here needs to go in a if block and the else should just paint the
-  // normal theme background with a border around the outsides.
+    GtkWidget* widget, GdkEventExpose* event,
+    BlockedPopupContainerViewGtk* container) {
   int width = widget->allocation.width;
   int height = widget->allocation.height;
-  int half_width = width / 2;
 
   // Clip to our damage rect
   cairo_t* cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
@@ -199,19 +209,29 @@ gboolean BlockedPopupContainerViewGtk::OnContainerExpose(
                   event->area.width, event->area.height);
   cairo_clip(cr);
 
-  // Draws our background gradient.
-  cairo_pattern_t* pattern = cairo_pattern_create_linear(
-      half_width, 0,  half_width, height);
-  cairo_pattern_add_color_stop_rgb(
-      pattern, 0.0,
-      kBackgroundColorTop[0], kBackgroundColorTop[1], kBackgroundColorTop[2]);
-  cairo_pattern_add_color_stop_rgb(
-      pattern, 1.0,
-      kBackgroundColorBottom[0], kBackgroundColorBottom[1],
-      kBackgroundColorBottom[2]);
-  cairo_set_source(cr, pattern);
-  cairo_paint(cr);
-  cairo_pattern_destroy(pattern);
+  if (!container->use_gtk_rendering_) {
+    // TODO(erg): We draw the gradient background only when GTK themes are
+    // off. This isn't a perfect solution as this isn't themed! The views
+    // version doesn't appear to be themed either, so at least for now,
+    // constants are OK.
+    int half_width = width / 2;
+    cairo_pattern_t* pattern = cairo_pattern_create_linear(
+        half_width, 0,  half_width, height);
+    cairo_pattern_add_color_stop_rgb(
+        pattern, 0.0,
+        kBackgroundColorTop[0], kBackgroundColorTop[1], kBackgroundColorTop[2]);
+    cairo_pattern_add_color_stop_rgb(
+        pattern, 1.0,
+        kBackgroundColorBottom[0], kBackgroundColorBottom[1],
+        kBackgroundColorBottom[2]);
+    cairo_set_source(cr, pattern);
+    cairo_paint(cr);
+    cairo_pattern_destroy(pattern);
+  }
+
+  // TODO(erg): We need to figure out the border situation, too. We aren't
+  // provided a color from the theme system and the Windows implementation
+  // still uses constants for color. See the status bubble, too.
 
   // Sets up our stroke pen.
   cairo_set_source_rgb(cr, kBorderColor[0], kBorderColor[1], kBorderColor[2]);
