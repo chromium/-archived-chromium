@@ -335,6 +335,19 @@ void InterstitialPage::UpdateTitle(RenderViewHost* render_view_host,
                                    const std::wstring& title) {
   DCHECK(render_view_host == render_view_host_);
   NavigationEntry* entry = tab_->controller().GetActiveEntry();
+  if (!entry) {
+    // Crash reports from the field indicate this can be NULL.
+    // This is unexpected as InterstitialPages constructed with the
+    // new_navigation flag set to true create a transient navigation entry
+    // (that is returned as the active entry). And the only case so far of
+    // interstitial created with that flag set to false is with the
+    // SafeBrowsingBlockingPage, when the resource triggering the interstitial
+    // is a sub-resource, meaning the main page has already been loaded and a
+    // navigation entry should have been created.
+    NOTREACHED();
+    return;
+  }
+
   // If this interstitial is shown on an existing navigation entry, we'll need
   // to remember its title so we can revert to it when hidden.
   if (!new_navigation_ && !should_revert_tab_title_) {
