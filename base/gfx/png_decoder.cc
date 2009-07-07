@@ -329,10 +329,12 @@ bool PNGDecoder::Decode(const std::vector<unsigned char>* data,
     for (int i = width * height * 4 - 4; i >= 0; i -= 4) {
       unsigned char alpha = decoded_data[i + 3];
       if (alpha != 0 && alpha != 255) {
+        SkColor premultiplied = SkPreMultiplyARGB(alpha,
+            decoded_data[i], decoded_data[i + 1], decoded_data[i + 2]);
         bitmap_data[i + 3] = alpha;
-        bitmap_data[i] = (decoded_data[i] * alpha) >> 8;
-        bitmap_data[i + 1] = (decoded_data[i + 1] * alpha) >> 8;
-        bitmap_data[i + 2] = (decoded_data[i + 2] * alpha) >> 8;
+        bitmap_data[i] = SkColorGetR(premultiplied);
+        bitmap_data[i + 1] = SkColorGetG(premultiplied);
+        bitmap_data[i + 2] = SkColorGetB(premultiplied);
       } else {
         bitmap_data[i + 3] = alpha;
         bitmap_data[i] = decoded_data[i];

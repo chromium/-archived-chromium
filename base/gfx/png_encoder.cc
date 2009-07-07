@@ -7,6 +7,7 @@
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
 #include "third_party/skia/include/core/SkBitmap.h"
+#include "third_party/skia/include/core/SkUnPreMultiply.h"
 
 extern "C" {
 #include "third_party/libpng/png.h"
@@ -214,9 +215,10 @@ bool PNGEncoder::EncodeBGRASkBitmap(const SkBitmap& input,
 
       int alpha = SkColorGetA(pixel);
       if (alpha != 0 && alpha != 255) {
-        divided[i + 0] = (SkColorGetR(pixel) << 8) / alpha;
-        divided[i + 1] = (SkColorGetG(pixel) << 8) / alpha;
-        divided[i + 2] = (SkColorGetB(pixel) << 8) / alpha;
+        SkColor unmultiplied = SkUnPreMultiply::PMColorToColor(pixel);
+        divided[i + 0] = SkColorGetR(unmultiplied);
+        divided[i + 1] = SkColorGetG(unmultiplied);
+        divided[i + 2] = SkColorGetB(unmultiplied);
         divided[i + 3] = alpha;
       } else {
         divided[i + 0] = SkColorGetR(pixel);
