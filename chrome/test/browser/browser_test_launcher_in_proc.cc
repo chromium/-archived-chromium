@@ -68,10 +68,13 @@ class InProcBrowserTestRunner : public browser_tests::BrowserTestRunner {
   bool RunTest(const std::string& test_name) {
     std::string filter_flag = StringPrintf("--gtest_filter=%s",
                                            test_name.c_str());
-    char* argv[2];
+    char* argv[3];
     argv[0] = const_cast<char*>("");
     argv[1] = const_cast<char*>(filter_flag.c_str());
-    return RunAsIs(2, argv) == 0;
+    // Always enable disabled tests.  This method is not called with disabled
+    // tests unless this flag was specified to the browser test executable.
+    argv[2] = "--gtest_also_run_disabled_tests";
+    return RunAsIs(3, argv) == 0;
   }
 
   // Calls-in to GTest with the arguments we were started with.

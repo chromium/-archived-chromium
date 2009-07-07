@@ -35,6 +35,9 @@ class OutOfProcBrowserTestRunner : public browser_tests::BrowserTestRunner {
   bool RunTest(const std::string& test_name) {
     const CommandLine* cmd_line = CommandLine::ForCurrentProcess();
     CommandLine new_cmd_line(cmd_line->argv());
+    // Always enable disabled tests.  This method is not called with disabled
+    // tests unless this flag was specified to the browser test executable.
+    new_cmd_line.AppendSwitch(L"gtest_also_run_disabled_tests");
     new_cmd_line.AppendSwitchWithValue(L"gtest_filter", ASCIIToWide(test_name));
     new_cmd_line.AppendSwitch(kChildProcessFlag);
 
