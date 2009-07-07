@@ -669,7 +669,7 @@ class MinidumpWriter {
           if (entry->found)
             goto popline;
           if (!strncmp(line, entry->info_name, strlen(entry->info_name))) {
-            char* value = strchr(line, ':');
+            const char* value = strchr(line, ':');
             if (!value)
               goto popline;
 
@@ -693,7 +693,7 @@ class MinidumpWriter {
 
         // special case for vendor_id
         if (!strncmp(line, vendor_id_name, vendor_id_name_length)) {
-          char* value = strchr(line, ':');
+          const char* value = strchr(line, ':');
           if (!value)
             goto popline;
 
