@@ -602,9 +602,6 @@ void BrowserView::Close() {
   for (; bubble != browser_bubbles_.end(); ++bubble) {
     (*bubble)->BrowserWindowClosed();
   }
-
-  g_browser_process->local_state()->SetInteger(
-      prefs::kDevToolsSplitLocation, contents_split_->divider_offset());
 }
 
 void BrowserView::Activate() {
@@ -1436,6 +1433,7 @@ void BrowserView::Init() {
 
   contents_container_ = new TabContentsContainer;
   devtools_container_ = new TabContentsContainer;
+  devtools_container_->SetVisible(false);
   contents_split_ = new views::SingleSplitView(
       contents_container_,
       devtools_container_,
@@ -1607,6 +1605,11 @@ void BrowserView::UpdateDevToolsForContents(TabContents* tab_contents) {
   TabContents* devtools_contents =
       DevToolsWindow::GetDevToolsContents(tab_contents);
   devtools_container_->ChangeTabContents(devtools_contents);
+  if (!devtools_contents && devtools_container_->IsVisible()) {
+    // Store split offset when hiding devtools window only.
+    g_browser_process->local_state()->SetInteger(
+        prefs::kDevToolsSplitLocation, contents_split_->divider_offset());
+  }
   devtools_container_->SetVisible(devtools_contents != NULL);
   contents_split_->Layout();
 }
