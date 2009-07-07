@@ -677,7 +677,8 @@ BUG13907 WIN : LayoutTests/media/video-src-source.html = PASS FAIL
 BUG13907 WIN : LayoutTests/media/video-size.html = PASS FAIL
 BUG13907 WIN : LayoutTests/media/video-src-plus-source.html = PASS FAIL
 // The following test may trigger a deadlock so it times-out.
-BUG13907 WIN : LayoutTests/media/remove-from-document.html = PASS TIMEOUT
+BUG13907 WIN : LayoutTests/media/remove-from-document.html = TIMEOUT
+BUG13907 WIN : LayoutTests/media/controls-styling.html = FAIL
 
 // Function arguments object is copied for each access.
 BUG941049 : LayoutTests/fast/js/kde/function_arguments.html = FAIL
