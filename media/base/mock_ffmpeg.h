@@ -18,6 +18,7 @@ class MockFFmpeg {
 
   MOCK_METHOD1(AVCodecFindDecoder, AVCodec*(enum CodecID id));
   MOCK_METHOD2(AVCodecOpen, int(AVCodecContext* avctx, AVCodec* codec));
+  MOCK_METHOD1(AVCodecClose, int(AVCodecContext* avctx));
   MOCK_METHOD2(AVCodecThreadInit, int(AVCodecContext* avctx, int threads));
   MOCK_METHOD1(AVCodecFlushBuffers, void(AVCodecContext* avctx));
   MOCK_METHOD0(AVCodecAllocFrame, AVFrame*());
@@ -30,6 +31,7 @@ class MockFFmpeg {
                                     AVInputFormat* input_format,
                                     int buffer_size,
                                     AVFormatParameters* parameters));
+  MOCK_METHOD1(AVCloseInputFile, void(AVFormatContext* format));
   MOCK_METHOD1(AVFindStreamInfo, int(AVFormatContext* format));
   MOCK_METHOD2(AVReadFrame, int(AVFormatContext* format, AVPacket* packet));
   MOCK_METHOD4(AVSeekFrame, int(AVFormatContext *format,

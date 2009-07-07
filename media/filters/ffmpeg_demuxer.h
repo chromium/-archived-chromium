@@ -161,7 +161,7 @@ class FFmpegDemuxer : public Demuxer {
   void StreamHasEnded();
 
   // FFmpeg context handle.
-  scoped_ptr_malloc<AVFormatContext, ScopedPtrAVFree> format_context_;
+  AVFormatContext* format_context_;
 
   // Latest timestamp read on the demuxer thread.
   base::TimeDelta current_timestamp_;

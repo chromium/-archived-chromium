@@ -115,6 +115,12 @@ class FFmpegDemuxerTest : public testing::Test {
     // Finish up any remaining tasks.
     message_loop_.RunAllPending();
 
+    // Release the reference to the demuxer.
+    demuxer_ = NULL;
+
+    // Filter host also holds a reference to demuxer, destroy it.
+    filter_host_.reset();
+
     // Reset MockFFmpeg.
     MockFFmpeg::set(NULL);
   }
@@ -125,7 +131,7 @@ class FFmpegDemuxerTest : public testing::Test {
         .WillOnce(DoAll(SetArgumentPointee<0>(&format_context_), Return(0)));
     EXPECT_CALL(*MockFFmpeg::get(), AVFindStreamInfo(&format_context_))
         .WillOnce(Return(0));
-    EXPECT_CALL(*MockFFmpeg::get(), AVFree(&format_context_));
+    EXPECT_CALL(*MockFFmpeg::get(), AVCloseInputFile(&format_context_));
   }
 
   // Initializes both MockFFmpeg and FFmpegDemuxer.
@@ -202,7 +208,7 @@ TEST_F(FFmpegDemuxerTest, Initialize_ParseFails) {
       .WillOnce(DoAll(SetArgumentPointee<0>(&format_context_), Return(0)));
   EXPECT_CALL(*MockFFmpeg::get(), AVFindStreamInfo(&format_context_))
       .WillOnce(Return(AVERROR_IO));
-  EXPECT_CALL(*MockFFmpeg::get(), AVFree(&format_context_));
+  EXPECT_CALL(*MockFFmpeg::get(), AVCloseInputFile(&format_context_));
 
   EXPECT_TRUE(demuxer_->Initialize(data_source_.get()));
   message_loop_.RunAllPending();

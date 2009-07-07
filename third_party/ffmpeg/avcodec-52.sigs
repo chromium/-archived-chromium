@@ -11,6 +11,7 @@ int av_new_packet(AVPacket *pkt, int size);
 int avcodec_decode_audio3(AVCodecContext *avctx, int16_t *samples, int *frame_size_ptr, AVPacket *avpkt);
 int avcodec_decode_video2(AVCodecContext *avctx, AVFrame *picture, int *got_picture_ptr, AVPacket *avpkt);
 int avcodec_open(AVCodecContext *avctx, AVCodec *codec);
+int avcodec_close(AVCodecContext *avctx);
 int avcodec_thread_init(AVCodecContext *s, int thread_count);
 void av_free_packet(AVPacket *pkt);
 void av_init_packet(AVPacket *pkt);

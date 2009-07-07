@@ -215,16 +215,40 @@ base::TimeDelta FFmpegDemuxerStream::ConvertTimestamp(int64 timestamp) {
 // FFmpegDemuxer
 //
 FFmpegDemuxer::FFmpegDemuxer()
-    : thread_id_(NULL) {
+    : format_context_(NULL),
+      thread_id_(NULL) {
 }
 
 FFmpegDemuxer::~FFmpegDemuxer() {
-  DCHECK(!format_context_.get());
-  // TODO(scherkus): I believe we need to use av_close_input_file() here
-  // instead of scoped_ptr_malloc calling av_free().
-  //
-  // Note that av_close_input_file() doesn't close the codecs so we need to
-  // figure out who's responsible for closing the them.
+  // In this destructor, we clean up resources held by FFmpeg. It is ugly to
+  // close the codec contexts here because the corresponding codecs are opened
+  // in the decoder filters. By reaching this point, all filters should have
+  // stopped, so this is the only safe place to do the global clean up.
+  // TODO(hclam): close the codecs in the corresponding decoders.
+  AutoLock auto_lock(FFmpegLock::get()->lock());
+  if (!format_context_)
+    return;
+
+  // Iterate each stream and destroy each one of them.
+  int streams = format_context_->nb_streams;
+  for (int i = 0; i < streams; ++i) {
+    AVStream* stream = format_context_->streams[i];
+
+    // The conditions for calling avcodec_close():
+    // 1. AVStream is alive.
+    // 2. AVCodecContext in AVStream is alive.
+    // 3. AVCodec in AVCodecContext is alive.
+    // Notice that closing a codec context without prior avcodec_open() will
+    // result in a crash in FFmpeg.
+    if (stream && stream->codec && stream->codec->codec) {
+      stream->discard = AVDISCARD_ALL;
+      avcodec_close(stream->codec);
+    }
+  }
+
+  // Then finally cleanup the format context.
+  av_close_input_file(format_context_);
+  format_context_ = NULL;
 }
 
 void FFmpegDemuxer::PostDemuxTask() {
@@ -281,7 +305,7 @@ void FFmpegDemuxer::InititalizeTask(DataSource* data_source) {
   std::string key = FFmpegGlue::get()->AddDataSource(data_source);
 
   // Open FFmpeg AVFormatContext.
-  DCHECK(!format_context_.get());
+  DCHECK(!format_context_);
   AVFormatContext* context = NULL;
   int result = av_open_input_file(&context, key.c_str(), NULL, 0, NULL);
 
@@ -293,16 +317,15 @@ void FFmpegDemuxer::InititalizeTask(DataSource* data_source) {
     return;
   }
 
-  // Assign to our scoped_ptr_malloc.
   DCHECK(context);
-  format_context_.reset(context);
+  format_context_ = context;
 
   // Serialize calls to av_find_stream_info().
   {
     AutoLock auto_lock(FFmpegLock::get()->lock());
 
     // Fully initialize AVFormatContext by parsing the stream a little.
-    result = av_find_stream_info(format_context_.get());
+    result = av_find_stream_info(format_context_);
     if (result < 0) {
       host_->Error(DEMUXER_ERROR_COULD_NOT_PARSE);
       return;
@@ -350,7 +373,7 @@ void FFmpegDemuxer::SeekTask(base::TimeDelta time) {
     flags |= AVSEEK_FLAG_BACKWARD;
   }
 
-  if (av_seek_frame(format_context_.get(), -1, time.InMicroseconds(),
+  if (av_seek_frame(format_context_, -1, time.InMicroseconds(),
                     flags) < 0) {
     // TODO(scherkus): signal error.
     NOTIMPLEMENTED();
@@ -367,7 +390,7 @@ void FFmpegDemuxer::DemuxTask() {
 
   // Allocate and read an AVPacket from the media.
   scoped_ptr<AVPacket> packet(new AVPacket());
-  int result = av_read_frame(format_context_.get(), packet.get());
+  int result = av_read_frame(format_context_, packet.get());
   if (result < 0) {
     // If we have reached the end of stream, tell the downstream filters about
     // the event.
@@ -420,9 +443,6 @@ void FFmpegDemuxer::StopTask() {
   for (iter = streams_.begin(); iter != streams_.end(); ++iter) {
     (*iter)->Stop();
   }
-
-  // Free our AVFormatContext.
-  format_context_.reset();
 }
 
 bool FFmpegDemuxer::StreamsHavePendingReads() {

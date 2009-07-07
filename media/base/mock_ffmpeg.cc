@@ -57,6 +57,10 @@ int avcodec_open(AVCodecContext* avctx, AVCodec* codec) {
   return media::MockFFmpeg::get()->AVCodecOpen(avctx, codec);
 }
 
+int avcodec_close(AVCodecContext* avctx) {
+  return media::MockFFmpeg::get()->AVCodecClose(avctx);
+}
+
 int avcodec_thread_init(AVCodecContext* avctx, int threads) {
   return media::MockFFmpeg::get()->AVCodecThreadInit(avctx, threads);
 }
@@ -81,6 +85,10 @@ int av_open_input_file(AVFormatContext** format, const char* filename,
   return media::MockFFmpeg::get()->AVOpenInputFile(format, filename,
                                                    input_format, buffer_size,
                                                    parameters);
+}
+
+void av_close_input_file(AVFormatContext* format) {
+  media::MockFFmpeg::get()->AVCloseInputFile(format);
 }
 
 int av_find_stream_info(AVFormatContext* format) {
