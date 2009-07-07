@@ -26,6 +26,7 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
 
   GURL url = server->TestServerPageW(kSimplePage);
   scoped_refptr<TabProxy> tabA(GetActiveTab());
+  ASSERT_TRUE(tabA.get());
   ASSERT_TRUE(tabA->NavigateToURL(url));
   WaitUntilTabCount(1);
 
@@ -47,6 +48,7 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
   // Open another tab (tab B).
   EXPECT_TRUE(browser->AppendTab(url));
   scoped_refptr<TabProxy> tabB(GetActiveTab());
+  ASSERT_TRUE(tabB.get());
 
   // Close tab B.
   EXPECT_TRUE(tabB->Close(true));
@@ -68,6 +70,7 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
   // Open another tab (tab C).
   EXPECT_TRUE(browser->AppendTab(url));
   scoped_refptr<TabProxy> tabC(GetActiveTab());
+  ASSERT_TRUE(tabC.get());
 
   // Close it.
   EXPECT_TRUE(tabC->Close(true));

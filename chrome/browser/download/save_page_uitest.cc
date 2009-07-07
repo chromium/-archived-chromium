@@ -103,6 +103,7 @@ TEST_F(SavePageTest, MAYBE_SaveHTMLOnly) {
   GURL url = URLRequestMockHTTPJob::GetMockUrl(
     UTF8ToWide(std::string(kTestDir) + "/" + file_name));
   scoped_refptr<TabProxy> tab(GetActiveTab());
+  ASSERT_TRUE(tab.get());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
 
@@ -125,6 +126,7 @@ TEST_F(SavePageTest, MAYBE_SaveCompleteHTML) {
   GURL url = URLRequestMockHTTPJob::GetMockUrl(
       UTF8ToWide(std::string(kTestDir) + "/" + file_name));
   scoped_refptr<TabProxy> tab(GetActiveTab());
+  ASSERT_TRUE(tab.get());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
 
@@ -148,6 +150,7 @@ TEST_F(SavePageTest, NoSave) {
   FilePath dir = save_dir_.AppendASCII("c_files");
 
   scoped_refptr<TabProxy> tab(GetActiveTab());
+  ASSERT_TRUE(tab.get());
   ASSERT_TRUE(tab->NavigateToURL(GURL("about:blank")));
   WaitUntilTabCount(1);
 
@@ -169,6 +172,7 @@ TEST_F(SavePageTest, MAYBE_FilenameFromPageTitle) {
   GURL url = URLRequestMockHTTPJob::GetMockUrl(
       UTF8ToWide(std::string(kTestDir) + "/" + file_name));
   scoped_refptr<TabProxy> tab(GetActiveTab());
+  ASSERT_TRUE(tab.get());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
 
@@ -201,6 +205,7 @@ TEST_F(SavePageTest, CleanFilenameFromPageTitle) {
   GURL url = URLRequestMockHTTPJob::GetMockUrl(
     UTF8ToWide(std::string(kTestDir) + "/" + file_name));
   scoped_refptr<TabProxy> tab(GetActiveTab());
+  ASSERT_TRUE(tab.get());
   ASSERT_TRUE(tab->NavigateToURL(url));
   WaitUntilTabCount(1);
 

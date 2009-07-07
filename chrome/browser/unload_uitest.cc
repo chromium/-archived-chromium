@@ -336,7 +336,7 @@ TEST_F(UnloadTest, BrowserCloseTwoSecondBeforeUnloadAlert) {
 TEST_F(UnloadTest, DISABLED_BrowserCloseTabWhenOtherTabHasListener) {
   NavigateToDataURL(CLOSE_TAB_WHEN_OTHER_TAB_HAS_LISTENER, L"only_one_unload");
   int window_count;
-  automation()->GetBrowserWindowCount(&window_count);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&window_count));
   ASSERT_EQ(2, window_count);
 
   scoped_refptr<BrowserProxy> popup_browser_proxy(
@@ -346,6 +346,7 @@ TEST_F(UnloadTest, DISABLED_BrowserCloseTabWhenOtherTabHasListener) {
   EXPECT_TRUE(popup_browser_proxy->GetTabCount(&popup_tab_count));
   EXPECT_EQ(1, popup_tab_count);
   scoped_refptr<TabProxy> popup_tab(popup_browser_proxy->GetActiveTab());
+  ASSERT_TRUE(popup_tab.get());
   std::wstring popup_title;
   ASSERT_TRUE(popup_tab.get() != NULL);
   EXPECT_TRUE(popup_tab->GetTabTitle(&popup_title));
@@ -359,6 +360,7 @@ TEST_F(UnloadTest, DISABLED_BrowserCloseTabWhenOtherTabHasListener) {
   EXPECT_TRUE(main_browser_proxy->GetTabCount(&main_tab_count));
   EXPECT_EQ(1, main_tab_count);
   scoped_refptr<TabProxy> main_tab(main_browser_proxy->GetActiveTab());
+  ASSERT_TRUE(main_tab.get());
   std::wstring main_title;
   ASSERT_TRUE(main_tab.get() != NULL);
   EXPECT_TRUE(main_tab->GetTabTitle(&main_title));

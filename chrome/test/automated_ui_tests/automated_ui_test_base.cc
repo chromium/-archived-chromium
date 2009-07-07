@@ -253,7 +253,10 @@ bool AutomatedUITestBase::OpenAndActivateNewBrowserWindow(
     return false;
   }
   int num_browser_windows;
-  automation()->GetBrowserWindowCount(&num_browser_windows);
+  if (!automation()->GetBrowserWindowCount(&num_browser_windows)) {
+    LogErrorMessage("failed_to_get_browser_window_count");
+    return false;
+  }
   // Get the most recently opened browser window and activate the tab
   // in order to activate this browser window.
   scoped_refptr<BrowserProxy> browser(

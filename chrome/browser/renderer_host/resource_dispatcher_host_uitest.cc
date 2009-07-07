@@ -91,6 +91,7 @@ TEST_F(ResourceDispatcherTest, SyncXMLHttpRequest) {
   scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   EXPECT_TRUE(browser_proxy.get());
   scoped_refptr<TabProxy> tab(browser_proxy->GetActiveTab());
+  ASSERT_TRUE(tab.get());
   tab->NavigateToURL(server->TestServerPageW(
       L"files/sync_xmlhttprequest.html"));
 
@@ -111,6 +112,7 @@ TEST_F(ResourceDispatcherTest, SyncXMLHttpRequest_Disallowed) {
   scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   EXPECT_TRUE(browser_proxy.get());
   scoped_refptr<TabProxy> tab(browser_proxy->GetActiveTab());
+  ASSERT_TRUE(tab.get());
   tab->NavigateToURL(server->TestServerPageW(
       L"files/sync_xmlhttprequest_disallowed.html"));
 
@@ -134,6 +136,7 @@ TEST_F(ResourceDispatcherTest, SyncXMLHttpRequest_DuringUnload) {
   scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   EXPECT_TRUE(browser_proxy.get());
   scoped_refptr<TabProxy> tab(browser_proxy->GetActiveTab());
+  ASSERT_TRUE(tab.get());
 
   tab->NavigateToURL(
       server->TestServerPageW(L"files/sync_xmlhttprequest_during_unload.html"));
@@ -171,6 +174,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteOnunloadCookie) {
   scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   EXPECT_TRUE(browser_proxy.get());
   scoped_refptr<TabProxy> tab(browser_proxy->GetActiveTab());
+  ASSERT_TRUE(tab.get());
 
   GURL url(server->TestServerPageW(L"files/onunload_cookie.html"));
   tab->NavigateToURL(url);
@@ -209,6 +213,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteAfterCrash) {
   scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   EXPECT_TRUE(browser_proxy.get());
   scoped_refptr<TabProxy> tab(browser_proxy->GetActiveTab());
+  ASSERT_TRUE(tab.get());
 
   // Cause the renderer to crash.
   // TODO(albertb): We need to disable this on Linux since
@@ -233,6 +238,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteNavigationNonBuffered) {
   scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   EXPECT_TRUE(browser_proxy.get());
   scoped_refptr<TabProxy> tab(browser_proxy->GetActiveTab());
+  ASSERT_TRUE(tab.get());
 
   // Start with an HTTP page.
   CheckTitleTest(L"content-sniffer-test0.html",
@@ -262,6 +268,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteNavigationErrorPage) {
   scoped_refptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   EXPECT_TRUE(browser_proxy.get());
   scoped_refptr<TabProxy> tab(browser_proxy->GetActiveTab());
+  ASSERT_TRUE(tab.get());
 
   GURL url(server->TestServerPageW(L"files/onunload_cookie.html"));
   tab->NavigateToURL(url);

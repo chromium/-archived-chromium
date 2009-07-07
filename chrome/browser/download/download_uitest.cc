@@ -313,7 +313,7 @@ TEST_F(DownloadTest, MAYBE_IncognitoDownload) {
   // count and shelf visibility.
   scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   int window_count = 0;
-  automation()->GetBrowserWindowCount(&window_count);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&window_count));
   ASSERT_EQ(1, window_count);
   EXPECT_EQ(1, GetTabCount());
   bool is_shelf_visible;
@@ -324,7 +324,7 @@ TEST_F(DownloadTest, MAYBE_IncognitoDownload) {
   ASSERT_TRUE(browser->RunCommand(IDC_NEW_INCOGNITO_WINDOW));
   scoped_refptr<BrowserProxy> incognito(automation()->GetBrowserWindow(1));
   scoped_refptr<TabProxy> tab(incognito->GetTab(0));
-  automation()->GetBrowserWindowCount(&window_count);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&window_count));
   ASSERT_EQ(2, window_count);
 
   // Download something.
@@ -339,7 +339,7 @@ TEST_F(DownloadTest, MAYBE_IncognitoDownload) {
 
   // Close the Incognito window and don't crash.
   ASSERT_TRUE(incognito->RunCommand(IDC_CLOSE_WINDOW));
-  automation()->GetBrowserWindowCount(&window_count);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&window_count));
   ASSERT_EQ(1, window_count);
 
   // Verify that the regular window does not have a download shelf.

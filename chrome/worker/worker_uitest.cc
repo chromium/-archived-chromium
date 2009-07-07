@@ -69,6 +69,7 @@ WorkerTest::~WorkerTest() {
 
 void WorkerTest::RunTest(const std::wstring& test_case) {
   scoped_refptr<TabProxy> tab(GetActiveTab());
+  ASSERT_TRUE(tab.get());
 
   GURL url = GetTestUrl(L"workers", test_case);
   ASSERT_TRUE(tab->NavigateToURL(url));
@@ -206,6 +207,7 @@ void WorkerTest::RunLayoutTest(const std::string& test_case_file_name,
 
   // Runs the new layout test.
   scoped_refptr<TabProxy> tab(GetActiveTab());
+  ASSERT_TRUE(tab.get());
   ASSERT_TRUE(tab->NavigateToURL(*new_test_url.get()));
   std::string escaped_value =
       WaitUntilCookieNonEmpty(tab.get(), *new_test_url.get(),
@@ -339,6 +341,7 @@ TEST_F(WorkerTest, LimitPerPage) {
   url = GURL(url.spec() + StringPrintf("?count=%d", max_workers_per_tab + 1));
 
   scoped_refptr<TabProxy> tab(GetActiveTab());
+  ASSERT_TRUE(tab.get());
   ASSERT_TRUE(tab->NavigateToURL(url));
 
   EXPECT_EQ(max_workers_per_tab + 1 + (UITest::in_process_renderer() ? 0 : 1),
@@ -354,6 +357,7 @@ TEST_F(WorkerTest, LimitTotal) {
   url = GURL(url.spec() + StringPrintf("?count=%d", max_workers_per_tab));
 
   scoped_refptr<TabProxy> tab(GetActiveTab());
+  ASSERT_TRUE(tab.get());
   ASSERT_TRUE(tab->NavigateToURL(url));
   scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   for (int i = 1; i < tab_count; ++i)

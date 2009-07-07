@@ -81,6 +81,7 @@ class TabRestoreUITest : public UITest {
     ASSERT_GT(tab_count, expected_tabstrip_index);
     scoped_refptr<TabProxy> restored_tab_proxy(
         browser_proxy->GetTab(expected_tabstrip_index));
+    ASSERT_TRUE(restored_tab_proxy.get());
     // Wait for the restored tab to finish loading.
     ASSERT_TRUE(restored_tab_proxy->WaitForTabToBeRestored(
         action_max_timeout_ms()));
@@ -149,6 +150,7 @@ TEST_F(TabRestoreUITest, Basic) {
 
   int closed_tab_index = tab_count - 1;
   scoped_refptr<TabProxy> new_tab(browser_proxy->GetTab(closed_tab_index));
+  ASSERT_TRUE(new_tab.get());
   // Make sure we're at url.
   new_tab->NavigateToURL(url1_);
   // Close the tab.
@@ -178,6 +180,7 @@ TEST_F(TabRestoreUITest, MiddleTab) {
   // Close one in the middle
   int closed_tab_index = starting_tab_count + 1;
   scoped_refptr<TabProxy> new_tab(browser_proxy->GetTab(closed_tab_index));
+  ASSERT_TRUE(new_tab.get());
   // Make sure we're at url.
   new_tab->NavigateToURL(url1_);
   // Close the tab.
@@ -213,6 +216,7 @@ TEST_F(TabRestoreUITest, DISABLED_RestoreToDifferentWindow) {
   // Close one in the middle
   int closed_tab_index = starting_tab_count + 1;
   scoped_refptr<TabProxy> new_tab(browser_proxy->GetTab(closed_tab_index));
+  ASSERT_TRUE(new_tab.get());
   // Make sure we're at url.
   new_tab->NavigateToURL(url1_);
   // Close the tab.
@@ -252,12 +256,14 @@ TEST_F(TabRestoreUITest, MAYBE_BasicRestoreFromClosedWindow) {
   // Close tabs until we only have one open.
   while (tab_count > 1) {
     scoped_refptr<TabProxy> tab_to_close(browser_proxy->GetTab(0));
+    ASSERT_TRUE(tab_to_close.get());
     tab_to_close->Close(true);
     ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
   }
 
   // Navigate to url1 then url2.
   scoped_refptr<TabProxy> tab_proxy(browser_proxy->GetTab(0));
+  ASSERT_TRUE(tab_proxy.get());
   tab_proxy->NavigateToURL(url1_);
   tab_proxy->NavigateToURL(url2_);
 
@@ -283,6 +289,7 @@ TEST_F(TabRestoreUITest, MAYBE_BasicRestoreFromClosedWindow) {
   browser_proxy = automation()->GetBrowserWindow(1);
   CheckActiveWindow(browser_proxy.get());
   tab_proxy = browser_proxy->GetActiveTab();
+  ASSERT_TRUE(tab_proxy.get());
   // And make sure the URLs matches.
   EXPECT_EQ(url2_, GetActiveTabURL(1));
   EXPECT_TRUE(tab_proxy->GoBack());
@@ -306,6 +313,7 @@ TEST_F(TabRestoreUITest, DISABLED_DontLoadRestoredTab) {
 
   // Close one of them.
   scoped_refptr<TabProxy> tab_to_close(browser_proxy->GetTab(0));
+  ASSERT_TRUE(tab_to_close.get());
   tab_to_close->Close(true);
   ASSERT_TRUE(browser_proxy->GetTabCount(&current_tab_count));
   ASSERT_EQ(current_tab_count, starting_tab_count + 1);
@@ -340,6 +348,7 @@ TEST_F(TabRestoreUITest, DISABLED_RestoreWindowAndTab) {
   // Close one in the middle
   int closed_tab_index = starting_tab_count + 1;
   scoped_refptr<TabProxy> new_tab(browser_proxy->GetTab(closed_tab_index));
+  ASSERT_TRUE(new_tab.get());
   // Make sure we're at url.
   new_tab->NavigateToURL(url1_);
   // Close the tab.
@@ -393,6 +402,7 @@ TEST_F(TabRestoreUITest, RestoreIntoSameWindow) {
 
   // Navigate the rightmost one to url2_ for easier identification.
   scoped_refptr<TabProxy> tab_proxy(browser_proxy->GetTab(tab_count - 1));
+  ASSERT_TRUE(tab_proxy.get());
   tab_proxy->NavigateToURL(url2_);
 
   // Create a new browser.
@@ -405,12 +415,14 @@ TEST_F(TabRestoreUITest, RestoreIntoSameWindow) {
   // Close all but one tab in the first browser, left to right.
   while (tab_count > 1) {
     scoped_refptr<TabProxy> tab_to_close(browser_proxy->GetTab(0));
+    ASSERT_TRUE(tab_to_close.get());
     tab_to_close->Close(true);
     ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
   }
 
   // Close the last tab, closing the browser.
   tab_proxy = browser_proxy->GetTab(0);
+  ASSERT_TRUE(tab_proxy.get());
   EXPECT_TRUE(tab_proxy->Close(true));
   ASSERT_TRUE(automation()->WaitForWindowCountToBecome(
       1, action_max_timeout_ms()));
@@ -453,6 +465,7 @@ TEST_F(TabRestoreUITest, RestoreWithExistingSiteInstance) {
   ASSERT_TRUE(browser_proxy->GetTabCount(&new_tab_count));
   EXPECT_EQ(++tab_count, new_tab_count);
   scoped_refptr<TabProxy> tab(browser_proxy->GetTab(tab_count - 1));
+  ASSERT_TRUE(tab.get());
 
   // Navigate to another same-site URL.
   tab->NavigateToURL(http_url2);
@@ -469,6 +482,7 @@ TEST_F(TabRestoreUITest, RestoreWithExistingSiteInstance) {
   // Restore the closed tab.
   RestoreTab(0, tab_count - 1);
   tab = browser_proxy->GetActiveTab();
+  ASSERT_TRUE(tab.get());
 
   // And make sure the URLs match.
   EXPECT_EQ(http_url2, GetActiveTabURL());
@@ -497,6 +511,7 @@ TEST_F(TabRestoreUITest, RestoreCrossSiteWithExistingSiteInstance) {
   ASSERT_TRUE(browser_proxy->GetTabCount(&new_tab_count));
   EXPECT_EQ(++tab_count, new_tab_count);
   scoped_refptr<TabProxy> tab(browser_proxy->GetTab(tab_count - 1));
+  ASSERT_TRUE(tab.get());
 
   // Navigate to more URLs, then a cross-site URL.
   tab->NavigateToURL(http_url2);
@@ -515,6 +530,7 @@ TEST_F(TabRestoreUITest, RestoreCrossSiteWithExistingSiteInstance) {
   // Restore the closed tab.
   RestoreTab(0, tab_count - 1);
   tab = browser_proxy->GetActiveTab();
+  ASSERT_TRUE(tab.get());
 
   // And make sure the URLs match.
   EXPECT_EQ(url1_, GetActiveTabURL());
@@ -545,11 +561,13 @@ TEST_F(TabRestoreUITest, RestoreWindow) {
   ASSERT_TRUE(browser_proxy->WaitForTabCountToBecome(initial_tab_count + 1,
                                                      action_max_timeout_ms()));
   scoped_refptr<TabProxy> new_tab(browser_proxy->GetTab(initial_tab_count));
+  ASSERT_TRUE(new_tab.get());
   new_tab->NavigateToURL(url1_);
   browser_proxy->AppendTab(url2_);
   ASSERT_TRUE(browser_proxy->WaitForTabCountToBecome(initial_tab_count + 2,
                                                      action_max_timeout_ms()));
   new_tab = browser_proxy->GetTab(initial_tab_count + 1);
+  ASSERT_TRUE(new_tab.get());
   new_tab->NavigateToURL(url2_);
 
   // Close the window.
@@ -572,12 +590,14 @@ TEST_F(TabRestoreUITest, RestoreWindow) {
 
   scoped_refptr<TabProxy> restored_tab_proxy(
         browser_proxy->GetTab(initial_tab_count));
+  ASSERT_TRUE(restored_tab_proxy.get());
   ASSERT_TRUE(restored_tab_proxy->WaitForTabToBeRestored(action_timeout_ms()));
   GURL url;
   ASSERT_TRUE(restored_tab_proxy->GetCurrentURL(&url));
   EXPECT_TRUE(url == url1_);
 
   restored_tab_proxy = browser_proxy->GetTab(initial_tab_count + 1);
+  ASSERT_TRUE(restored_tab_proxy.get());
   ASSERT_TRUE(restored_tab_proxy->WaitForTabToBeRestored(action_timeout_ms()));
   ASSERT_TRUE(restored_tab_proxy->GetCurrentURL(&url));
   EXPECT_TRUE(url == url2_);

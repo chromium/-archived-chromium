@@ -28,6 +28,7 @@ TEST_F(CrashRecoveryUITest, Reload) {
   std::wstring title1 = GetActiveTabTitle();
 
   scoped_refptr<TabProxy> tab(GetActiveTab());
+  ASSERT_TRUE(tab.get());
 
   // Cause the renderer to crash.
   // TODO: Need to port crash_service.exe.
@@ -65,6 +66,7 @@ TEST_F(CrashRecoveryUITest, LoadInNewTab) {
   EXPECT_EQ(title, GetActiveTabTitle());
 
   scoped_refptr<TabProxy> tab(GetActiveTab());
+  ASSERT_TRUE(tab.get());
 
   // Cause the renderer to crash.
   // TODO: Need to port crash_service.exe.

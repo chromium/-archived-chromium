@@ -209,6 +209,7 @@ class PageCyclerTest : public UITest {
     test_url = test_url.ReplaceComponents(replacements);
 
     scoped_refptr<TabProxy> tab(GetActiveTab());
+    ASSERT_TRUE(tab.get());
     tab->NavigateToURL(test_url);
 
     // Wait for the test to finish.

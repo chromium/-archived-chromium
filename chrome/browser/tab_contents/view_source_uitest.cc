@@ -46,6 +46,7 @@ TEST_F(ViewSourceTest, DoesBrowserRenderInViewSource) {
   GURL url = server->TestServerPageW(test_html_);
   url = GURL("view-source:" + url.spec());
   scoped_refptr<TabProxy> tab(GetActiveTab());
+  ASSERT_TRUE(tab.get());
   tab->NavigateToURL(url);
   PlatformThread::Sleep(sleep_timeout_ms());
 

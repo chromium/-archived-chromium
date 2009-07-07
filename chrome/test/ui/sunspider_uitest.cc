@@ -39,6 +39,7 @@ class SunSpiderTest : public UITest {
     GURL test_url(net::FilePathToFileURL(test_path));
 
     scoped_refptr<TabProxy> tab(GetActiveTab());
+    ASSERT_TRUE(tab.get());
     tab->NavigateToURL(test_url);
 
     // Wait for the test to finish.

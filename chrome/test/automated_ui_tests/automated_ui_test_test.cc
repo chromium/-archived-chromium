@@ -77,7 +77,7 @@ TEST_F(AutomatedUITestBase, MAYBE_CloseTab) {
   int num_browser_windows;
   int tab_count;
   NewTab();
-  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&num_browser_windows));
   ASSERT_EQ(1, num_browser_windows);
   active_browser()->GetTabCount(&tab_count);
   ASSERT_EQ(2, tab_count);
@@ -87,7 +87,7 @@ TEST_F(AutomatedUITestBase, MAYBE_CloseTab) {
   NewTab();
   active_browser()->GetTabCount(&tab_count);
   ASSERT_EQ(3, tab_count);
-  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&num_browser_windows));
   ASSERT_EQ(2, num_browser_windows);
 
   ASSERT_TRUE(CloseActiveTab());
@@ -97,12 +97,12 @@ TEST_F(AutomatedUITestBase, MAYBE_CloseTab) {
   active_browser()->GetTabCount(&tab_count);
   ASSERT_EQ(1, tab_count);
   num_browser_windows = 0;
-  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&num_browser_windows));
   ASSERT_EQ(2, num_browser_windows);
 
   // The browser window is closed by closing this tab.
   ASSERT_TRUE(CloseActiveTab());
-  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&num_browser_windows));
   ASSERT_EQ(1, num_browser_windows);
   // Active_browser_ is now the first created window.
   active_browser()->GetTabCount(&tab_count);
@@ -120,14 +120,14 @@ TEST_F(AutomatedUITestBase, MAYBE_CloseTab) {
 TEST_F(AutomatedUITestBase, OpenBrowserWindow) {
   int num_browser_windows;
   int tab_count;
-  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&num_browser_windows));
   ASSERT_EQ(1, num_browser_windows);
   active_browser()->GetTabCount(&tab_count);
   ASSERT_EQ(1, tab_count);
 
   scoped_refptr<BrowserProxy> browser_1;
   ASSERT_TRUE(OpenAndActivateNewBrowserWindow(&browser_1));
-  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&num_browser_windows));
   ASSERT_EQ(2, num_browser_windows);
   active_browser()->GetTabCount(&tab_count);
   ASSERT_EQ(1, tab_count);
@@ -139,7 +139,7 @@ TEST_F(AutomatedUITestBase, OpenBrowserWindow) {
 
   scoped_refptr<BrowserProxy> browser_2;
   ASSERT_TRUE(OpenAndActivateNewBrowserWindow(&browser_2));
-  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&num_browser_windows));
   ASSERT_EQ(3, num_browser_windows);
   active_browser()->GetTabCount(&tab_count);
   ASSERT_EQ(1, tab_count);
@@ -155,11 +155,11 @@ TEST_F(AutomatedUITestBase, OpenBrowserWindow) {
   bool application_closed;
   CloseBrowser(browser_1.get(), &application_closed);
   ASSERT_FALSE(application_closed);
-  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&num_browser_windows));
   ASSERT_EQ(2, num_browser_windows);
   CloseBrowser(browser_2.get(), &application_closed);
   ASSERT_FALSE(application_closed);
-  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&num_browser_windows));
   ASSERT_EQ(1, num_browser_windows);
 }
 
@@ -202,21 +202,21 @@ TEST_F(AutomatedUITestBase, MAYBE_CloseBrowserWindow) {
 TEST_F(AutomatedUITestBase, MAYBE_IncognitoWindow) {
   int num_browser_windows;
   int num_normal_browser_windows;
-  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&num_browser_windows));
   ASSERT_EQ(1, num_browser_windows);
   automation()->GetNormalBrowserWindowCount(&num_normal_browser_windows);
   ASSERT_EQ(1, num_normal_browser_windows);
 
   ASSERT_TRUE(GoOffTheRecord());
   ASSERT_TRUE(GoOffTheRecord());
-  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&num_browser_windows));
   ASSERT_EQ(3, num_browser_windows);
   automation()->GetNormalBrowserWindowCount(&num_normal_browser_windows);
   ASSERT_EQ(1, num_normal_browser_windows);
 
   // There is only one normal window so it will not be closed.
   ASSERT_FALSE(CloseActiveWindow());
-  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&num_browser_windows));
   ASSERT_EQ(3, num_browser_windows);
   automation()->GetNormalBrowserWindowCount(&num_normal_browser_windows);
   ASSERT_EQ(1, num_normal_browser_windows);
@@ -225,7 +225,7 @@ TEST_F(AutomatedUITestBase, MAYBE_IncognitoWindow) {
   ASSERT_TRUE(RunCommand(IDC_CLOSE_WINDOW));
   set_active_browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(RunCommand(IDC_CLOSE_WINDOW));
-  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&num_browser_windows));
   ASSERT_EQ(1, num_browser_windows);
 }
 
@@ -237,19 +237,19 @@ TEST_F(AutomatedUITestBase, MAYBE_OpenCloseBrowserWindowWithAccelerator) {
   // a unit test for those usage.
   ASSERT_TRUE(RunCommand(IDC_NEW_WINDOW));
   int num_browser_windows;
-  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&num_browser_windows));
   ASSERT_EQ(2, num_browser_windows);
   ASSERT_TRUE(RunCommand(IDC_NEW_WINDOW));
   ASSERT_TRUE(RunCommand(IDC_NEW_WINDOW));
   ASSERT_TRUE(RunCommand(IDC_NEW_WINDOW));
   ASSERT_TRUE(RunCommand(IDC_NEW_WINDOW));
   ASSERT_TRUE(RunCommand(IDC_NEW_WINDOW));
-  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&num_browser_windows));
   ASSERT_EQ(7, num_browser_windows);
 
   set_active_browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(RunCommand(IDC_CLOSE_WINDOW));
-  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&num_browser_windows));
   ASSERT_EQ(6, num_browser_windows);
   set_active_browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(RunCommand(IDC_CLOSE_WINDOW));
@@ -261,7 +261,7 @@ TEST_F(AutomatedUITestBase, MAYBE_OpenCloseBrowserWindowWithAccelerator) {
   ASSERT_TRUE(RunCommand(IDC_CLOSE_WINDOW));
   set_active_browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(RunCommand(IDC_CLOSE_WINDOW));
-  automation()->GetBrowserWindowCount(&num_browser_windows);
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&num_browser_windows));
   ASSERT_EQ(1, num_browser_windows);
 }
 

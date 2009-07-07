@@ -546,9 +546,12 @@ void UITest::CleanupAppProcesses() {
 
 scoped_refptr<TabProxy> UITest::GetActiveTab(int window_index) {
   EXPECT_GE(window_index, 0);
-  int window_count;
-  // Use EXPECT rather than ASSERT here because ASSERT_* returns void.
+  int window_count = -1;
+  // We have to use EXPECT rather than ASSERT here because ASSERT_* only works
+  // in functions that return void.
   EXPECT_TRUE(automation()->GetBrowserWindowCount(&window_count));
+  if (window_count == -1)
+    return NULL;
   EXPECT_GT(window_count, window_index);
   scoped_refptr<BrowserProxy> window_proxy(automation()->
       GetBrowserWindow(window_index));
@@ -895,12 +898,14 @@ void UITest::WaitForFinish(const std::string &name,
   cookie_name.append(test_complete_cookie);
 
   scoped_refptr<TabProxy> tab(GetActiveTab());
-
-  bool test_result = WaitUntilCookieValue(tab.get(), url,
-                                          cookie_name.c_str(),
-                                          kIntervalMilliSeconds, wait_time,
-                                          expected_cookie_value.c_str());
-  EXPECT_EQ(true, test_result);
+  EXPECT_TRUE(tab.get());
+  if (tab.get()) {
+    bool test_result = WaitUntilCookieValue(tab.get(), url,
+                                            cookie_name.c_str(),
+                                            kIntervalMilliSeconds, wait_time,
+                                            expected_cookie_value.c_str());
+    EXPECT_EQ(true, test_result);
+  }
 }
 
 void UITest::PrintResult(const std::string& measurement,

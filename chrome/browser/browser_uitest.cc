@@ -198,6 +198,7 @@ TEST_F(BrowserTest, DISABLED_JavascriptAlertActivatesTab) {
   int javascript_tab_index;
   ASSERT_TRUE(window->GetActiveTabIndex(&javascript_tab_index));
   scoped_refptr<TabProxy> javascript_tab = window->GetActiveTab();
+  ASSERT_TRUE(javascript_tab.get());
   // Switch back to the starting tab, then send the second tab a javascript
   // alert, which should force it to become active.
   ASSERT_TRUE(window->ActivateTab(start_index));
@@ -226,6 +227,7 @@ TEST_F(BrowserTest, NullOpenerRedirectForksProcess) {
   FilePath test_file(test_data_directory_);
   scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   scoped_refptr<TabProxy> tab(window->GetActiveTab());
+  ASSERT_TRUE(tab.get());
 
   // Start with a file:// url
   test_file = test_file.AppendASCII("title2.html");
@@ -268,6 +270,7 @@ TEST_F(BrowserTest, OtherRedirectsDontForkProcess) {
   FilePath test_file(test_data_directory_);
   scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   scoped_refptr<TabProxy> tab(window->GetActiveTab());
+  ASSERT_TRUE(tab.get());
 
   // Start with a file:// url
   test_file = test_file.AppendASCII("title2.html");
@@ -342,6 +345,7 @@ TEST_F(ShowModalDialogTest, BasicTest) {
 
   scoped_refptr<BrowserProxy> browser = automation()->GetBrowserWindow(1);
   scoped_refptr<TabProxy> tab = browser->GetActiveTab();
+  ASSERT_TRUE(tab.get());
 
   std::wstring title;
   ASSERT_TRUE(tab->GetTabTitle(&title));
