@@ -147,7 +147,10 @@ int main(int argc, const char** argv) {
   wav.subchunk1_size = 16;
   wav.subchunk2_size = bytes_written;
   fseek(output.get(), 0, SEEK_SET);
-  fwrite(&wav, sizeof(wav), 1, output.get());
+  if (fwrite(&wav, sizeof(wav), 1, output.get()) < 1) {
+    LOG(ERROR) << "could not write wav header.";
+    return 1;
+  }
 
   return 0;
 }
