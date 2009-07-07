@@ -254,8 +254,6 @@ TEST_F(ResourceDispatcherHostTest, TestMany) {
 // Tests whether messages get canceled properly. We issue three requests,
 // cancel one of them, and make sure that each sent the proper notifications.
 TEST_F(ResourceDispatcherHostTest, Cancel) {
-  ResourceDispatcherHost host(NULL);
-
   EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
 
   MakeTestRequest(0, 0, 1, URLRequestTestJob::test_url_1());
@@ -542,37 +540,35 @@ TEST_F(ResourceDispatcherHostTest, CalculateApproximateMemoryCost) {
 
 // Test the private helper method "IncrementOutstandingRequestsMemoryCost()".
 TEST_F(ResourceDispatcherHostTest, IncrementOutstandingRequestsMemoryCost) {
-  ResourceDispatcherHost host(NULL);
-
   // Add some counts for render_process_host=7
-  EXPECT_EQ(0, host.GetOutstandingRequestsMemoryCost(7));
-  EXPECT_EQ(1, host.IncrementOutstandingRequestsMemoryCost(1, 7));
-  EXPECT_EQ(2, host.IncrementOutstandingRequestsMemoryCost(1, 7));
-  EXPECT_EQ(3, host.IncrementOutstandingRequestsMemoryCost(1, 7));
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(7));
+  EXPECT_EQ(1, host_.IncrementOutstandingRequestsMemoryCost(1, 7));
+  EXPECT_EQ(2, host_.IncrementOutstandingRequestsMemoryCost(1, 7));
+  EXPECT_EQ(3, host_.IncrementOutstandingRequestsMemoryCost(1, 7));
 
   // Add some counts for render_process_host=3
-  EXPECT_EQ(0, host.GetOutstandingRequestsMemoryCost(3));
-  EXPECT_EQ(1, host.IncrementOutstandingRequestsMemoryCost(1, 3));
-  EXPECT_EQ(2, host.IncrementOutstandingRequestsMemoryCost(1, 3));
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(3));
+  EXPECT_EQ(1, host_.IncrementOutstandingRequestsMemoryCost(1, 3));
+  EXPECT_EQ(2, host_.IncrementOutstandingRequestsMemoryCost(1, 3));
 
   // Remove all the counts for render_process_host=7
-  EXPECT_EQ(3, host.GetOutstandingRequestsMemoryCost(7));
-  EXPECT_EQ(2, host.IncrementOutstandingRequestsMemoryCost(-1, 7));
-  EXPECT_EQ(1, host.IncrementOutstandingRequestsMemoryCost(-1, 7));
-  EXPECT_EQ(0, host.IncrementOutstandingRequestsMemoryCost(-1, 7));
-  EXPECT_EQ(0, host.GetOutstandingRequestsMemoryCost(7));
+  EXPECT_EQ(3, host_.GetOutstandingRequestsMemoryCost(7));
+  EXPECT_EQ(2, host_.IncrementOutstandingRequestsMemoryCost(-1, 7));
+  EXPECT_EQ(1, host_.IncrementOutstandingRequestsMemoryCost(-1, 7));
+  EXPECT_EQ(0, host_.IncrementOutstandingRequestsMemoryCost(-1, 7));
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(7));
 
   // Remove all the counts for render_process_host=3
-  EXPECT_EQ(2, host.GetOutstandingRequestsMemoryCost(3));
-  EXPECT_EQ(1, host.IncrementOutstandingRequestsMemoryCost(-1, 3));
-  EXPECT_EQ(0, host.IncrementOutstandingRequestsMemoryCost(-1, 3));
-  EXPECT_EQ(0, host.GetOutstandingRequestsMemoryCost(3));
+  EXPECT_EQ(2, host_.GetOutstandingRequestsMemoryCost(3));
+  EXPECT_EQ(1, host_.IncrementOutstandingRequestsMemoryCost(-1, 3));
+  EXPECT_EQ(0, host_.IncrementOutstandingRequestsMemoryCost(-1, 3));
+  EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(3));
 
   // When an entry reaches 0, it should be deleted.
-  EXPECT_TRUE(host.outstanding_requests_memory_cost_map_.end() ==
-      host.outstanding_requests_memory_cost_map_.find(7));
-  EXPECT_TRUE(host.outstanding_requests_memory_cost_map_.end() ==
-      host.outstanding_requests_memory_cost_map_.find(3));
+  EXPECT_TRUE(host_.outstanding_requests_memory_cost_map_.end() ==
+      host_.outstanding_requests_memory_cost_map_.find(7));
+  EXPECT_TRUE(host_.outstanding_requests_memory_cost_map_.end() ==
+      host_.outstanding_requests_memory_cost_map_.find(3));
 }
 
 // Test that when too many requests are outstanding for a particular
