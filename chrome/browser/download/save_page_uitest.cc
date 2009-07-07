@@ -28,7 +28,12 @@
 
 const char* const kTestDir = "save_page";
 
-const char* const kAppendedExtension = ".htm";
+const char* const kAppendedExtension =
+#if defined(OS_WIN)
+    ".htm";
+#else
+    ".html";
+#endif
 
 class SavePageTest : public UITest {
  protected:

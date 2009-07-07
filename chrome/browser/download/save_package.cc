@@ -63,6 +63,13 @@ namespace {
 // resource URL.
 const wchar_t kDefaultSaveName[] = L"saved_resource";
 
+const FilePath::CharType kDefaultHtmlExtension[] =
+#if defined(OS_WIN)
+    FILE_PATH_LITERAL("htm");
+#else
+    FILE_PATH_LITERAL("html");
+#endif
+
 // Maximum number of file ordinal number. I think it's big enough for resolving
 // name-conflict files which has same base file name.
 const int32 kMaxFileOrdinalNumber = 9999;
@@ -295,9 +302,11 @@ bool SavePackage::GenerateFilename(const std::string& disposition,
       file_path.RemoveExtension().BaseName().value();
   FilePath::StringType file_name_ext = file_path.Extension();
 
-  // If it is HTML resource, use ".htm" as its extension name.
-  if (need_html_ext)
-    file_name_ext = FILE_PATH_LITERAL(".htm");
+  // If it is HTML resource, use ".htm{l,}" as its extension.
+  if (need_html_ext) {
+    file_name_ext = FILE_PATH_LITERAL(".");
+    file_name_ext.append(kDefaultHtmlExtension);
+  }
 
   // Get safe pure file name.
   if (!GetSafePureFileName(saved_main_directory_path_, file_name_ext,
@@ -988,12 +997,13 @@ FilePath SavePackage::GetSuggestNameForSaveAs(
 
 FilePath SavePackage::EnsureHtmlExtension(const FilePath& name) {
   // If the file name doesn't have an extension suitable for HTML files,
-  // append ".htm".
+  // append one.
   FilePath::StringType ext = file_util::GetFileExtensionFromPath(name);
   std::string mime_type;
   if (!net::GetMimeTypeFromExtension(ext, &mime_type) ||
       !CanSaveAsComplete(mime_type)) {
-    return FilePath(name.value() + FILE_PATH_LITERAL(".htm"));
+    return FilePath(name.value() + FILE_PATH_LITERAL(".") +
+                    kDefaultHtmlExtension);
   }
   return name;
 }
@@ -1029,7 +1039,7 @@ void SavePackage::GetSaveInfo() {
     file_type_info.extension_description_overrides.push_back(
         WideToUTF16(l10n_util::GetString(IDS_SAVE_PAGE_DESC_COMPLETE)));
     file_type_info.include_all_files = false;
-    default_extension = FILE_PATH_LITERAL("htm");
+    default_extension = kDefaultHtmlExtension;
   } else {
     file_type_info.extensions.resize(1);
     file_type_info.extensions[0].push_back(suggested_path.Extension());

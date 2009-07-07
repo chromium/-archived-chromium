@@ -11,6 +11,14 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 #define FPL FILE_PATH_LITERAL
+#if defined(OS_WIN)
+#define HTML_EXTENSION ".htm"
+// This second define is needed because MSVC is broken.
+#define FPL_HTML_EXTENSION L".htm"
+#else
+#define HTML_EXTENSION ".html"
+#define FPL_HTML_EXTENSION ".html"
+#endif
 
 namespace {
 
@@ -52,7 +60,7 @@ class SavePackageTest : public testing::Test {
     PathService::Get(base::DIR_TEMP, &test_dir);
 
     save_package_success_ = new SavePackage(
-        test_dir.AppendASCII("testfile.htm"),
+        test_dir.AppendASCII("testfile" HTML_EXTENSION),
         test_dir.AppendASCII("testfile_files"));
 
     // We need to construct a path that is *almost* kMaxFilePathLength long
@@ -62,7 +70,7 @@ class SavePackageTest : public testing::Test {
     long_file_name.resize(kMaxFilePathLength - 9 - test_dir.value().length());
 
     save_package_fail_ = new SavePackage(
-        test_dir.AppendASCII(long_file_name + ".htm"),
+        test_dir.AppendASCII(long_file_name + HTML_EXTENSION),
         test_dir.AppendASCII(long_file_name + "_files"));
   }
 
@@ -103,7 +111,8 @@ static const struct {
   // name from disposition and url has been tested in DownloadManagerTest.
 
   // No useful information in disposition or URL, use default.
-  {"1.html", "http://www.savepage.com/", FPL("saved_resource.htm"), true},
+  {"1.html", "http://www.savepage.com/",
+    FPL("saved_resource") FPL_HTML_EXTENSION, true},
 
   // No duplicate occurs.
   {"filename=1.css", "http://www.savepage.com", FPL("1.css"), false},
@@ -187,12 +196,12 @@ static const struct {
   {FPL("filename.HTML"), FPL("filename.HTML")},
   {FPL("filename.htm"), FPL("filename.htm")},
   // ".htm" is added if the extension is improper for HTML.
-  {FPL("hello.world"), FPL("hello.world.htm")},
-  {FPL("hello.txt"), FPL("hello.txt.htm")},
-  {FPL("is.html.good"), FPL("is.html.good.htm")},
+  {FPL("hello.world"), FPL("hello.world") FPL_HTML_EXTENSION},
+  {FPL("hello.txt"), FPL("hello.txt") FPL_HTML_EXTENSION},
+  {FPL("is.html.good"), FPL("is.html.good") FPL_HTML_EXTENSION},
   // ".htm" is added if the name doesn't have an extension.
-  {FPL("helloworld"), FPL("helloworld.htm")},
-  {FPL("helloworld."), FPL("helloworld..htm")},
+  {FPL("helloworld"), FPL("helloworld") FPL_HTML_EXTENSION},
+  {FPL("helloworld."), FPL("helloworld.") FPL_HTML_EXTENSION},
 };
 
 TEST_F(SavePackageTest, TestEnsureHtmlExtension) {
