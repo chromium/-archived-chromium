@@ -9,6 +9,8 @@
 #include "chrome/browser/cocoa/browser_test_helper.h"
 #import "chrome/browser/cocoa/cocoa_test_helper.h"
 #import "chrome/browser/cocoa/toolbar_controller.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -19,8 +21,8 @@ class ToolbarControllerTest : public testing::Test {
   // Indexes that match the ordering returned by the private ToolbarController
   // |-toolbarViews| method.
   enum {
-    kBackIndex, kForwardIndex, kReloadIndex, kStarIndex, kGoIndex,
-    kLocationIndex,
+    kBackIndex, kForwardIndex, kReloadIndex, kHomeIndex, kStarIndex, kGoIndex,
+    kPageIndex, kWrenchIndex, kLocationIndex,
   };
 
   ToolbarControllerTest() {
@@ -48,7 +50,8 @@ class ToolbarControllerTest : public testing::Test {
               [[views objectAtIndex:kForwardIndex] isEnabled] ? true : false);
     EXPECT_EQ(updater->IsCommandEnabled(IDC_RELOAD),
               [[views objectAtIndex:kReloadIndex] isEnabled] ? true : false);
-    // TODO(pinkerton): Add IDC_HOME when we get a view for it
+    EXPECT_EQ(updater->IsCommandEnabled(IDC_HOME),
+              [[views objectAtIndex:kHomeIndex] isEnabled] ? true : false);
     EXPECT_EQ(updater->IsCommandEnabled(IDC_STAR),
               [[views objectAtIndex:kStarIndex] isEnabled] ? true : false);
   }
@@ -109,6 +112,50 @@ TEST_F(ToolbarControllerTest, LoadingState) {
   EXPECT_EQ([go tag], IDC_STOP);
   [bar_ setIsLoading:NO];
   EXPECT_EQ([go tag], IDC_GO);
+}
+
+// Check that toggling the state of the home button changes the visible
+// state of the home button and moves the other buttons accordingly.
+TEST_F(ToolbarControllerTest, ToggleHome) {
+  PrefService* prefs = helper_.profile()->GetPrefs();
+  bool showHome = prefs->GetBoolean(prefs::kShowHomeButton);
+  NSView* homeButton = [[bar_ toolbarViews] objectAtIndex:kHomeIndex];
+  EXPECT_EQ(showHome, ![homeButton isHidden]);
+
+  NSView* starButton = [[bar_ toolbarViews] objectAtIndex:kStarIndex];
+  NSView* locationBar = [[bar_ toolbarViews] objectAtIndex:kLocationIndex];
+  NSRect originalStarFrame = [starButton frame];
+  NSRect originalLocationBarFrame = [locationBar frame];
+
+  // Toggle the pref and make sure the button changed state and the other
+  // views moved.
+  prefs->SetBoolean(prefs::kShowHomeButton, !showHome);
+  EXPECT_EQ(showHome, [homeButton isHidden]);
+  EXPECT_NE(NSMinX(originalStarFrame), NSMinX([starButton frame]));
+  EXPECT_NE(NSMinX(originalLocationBarFrame), NSMinX([locationBar frame]));
+  EXPECT_NE(NSWidth(originalLocationBarFrame), NSWidth([locationBar frame]));
+}
+
+TEST_F(ToolbarControllerTest, TogglePageWrench) {
+  PrefService* prefs = helper_.profile()->GetPrefs();
+  bool showButtons = prefs->GetBoolean(prefs::kShowPageOptionsButtons);
+  NSView* pageButton = [[bar_ toolbarViews] objectAtIndex:kPageIndex];
+  NSView* wrenchButton = [[bar_ toolbarViews] objectAtIndex:kWrenchIndex];
+  EXPECT_EQ(showButtons, ![pageButton isHidden]);
+  EXPECT_EQ(showButtons, ![wrenchButton isHidden]);
+
+  NSView* goButton = [[bar_ toolbarViews] objectAtIndex:kGoIndex];
+  NSView* locationBar = [[bar_ toolbarViews] objectAtIndex:kLocationIndex];
+  NSRect originalGoFrame = [goButton frame];
+  NSRect originalLocationBarFrame = [locationBar frame];
+
+  // Toggle the pref and make sure the buttons changed state and the other
+  // views moved (or in the case of the location bar, it changed width).
+  prefs->SetBoolean(prefs::kShowPageOptionsButtons, !showButtons);
+  EXPECT_EQ(showButtons, [pageButton isHidden]);
+  EXPECT_EQ(showButtons, [wrenchButton isHidden]);
+  EXPECT_NE(NSMinX(originalGoFrame), NSMinX([goButton frame]));
+  EXPECT_NE(NSWidth(originalLocationBarFrame), NSWidth([locationBar frame]));
 }
 
 }  // namespace

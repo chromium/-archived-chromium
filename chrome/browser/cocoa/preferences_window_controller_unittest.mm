@@ -32,13 +32,10 @@ namespace {
 class PrefsControllerTest : public PlatformTest {
  public:
   PrefsControllerTest() {
-    // Since this is a platform-specific preference, it's not registered by
-    // any of the shared code. We have to register it ourselves.
-    PrefService* prefs = browser_helper_.profile()->GetPrefs();
-    prefs->RegisterBooleanPref(prefs::kShowPageOptionsButtons, false);
     // The metrics reporting pref is registerd on the local state object in
     // real builds, but we don't have one of those for unit tests. Register
     // it on prefs so we'll find it when we go looking.
+    PrefService* prefs = browser_helper_.profile()->GetPrefs();
     prefs->RegisterBooleanPref(prefs::kMetricsReportingEnabled, false);
 
     pref_controller_.reset([[PreferencesWindowController alloc]

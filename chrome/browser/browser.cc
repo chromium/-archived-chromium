@@ -1185,6 +1185,17 @@ void Browser::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterIntegerPref(prefs::kCookieBehavior,
                              net::CookiePolicy::ALLOW_ALL_COOKIES);
   prefs->RegisterBooleanPref(prefs::kShowHomeButton, false);
+#if defined(OS_MACOSX)
+  // This really belongs in platform code, but there's no good place to
+  // initialize it between the time when the AppController is created
+  // (where there's no profile) and the time the controller gets another
+  // crack at the start of the main event loop. By that time, BrowserInit
+  // has already created the browser window, and it's too late: we need the
+  // pref to be already initialized. Doing it here also saves us from having
+  // to hard-code pref registration in the several unit tests that use
+  // this preference.
+  prefs->RegisterBooleanPref(prefs::kShowPageOptionsButtons, false);
+#endif
   prefs->RegisterStringPref(prefs::kRecentlySelectedEncoding, L"");
   prefs->RegisterBooleanPref(prefs::kDeleteBrowsingHistory, true);
   prefs->RegisterBooleanPref(prefs::kDeleteDownloadHistory, true);

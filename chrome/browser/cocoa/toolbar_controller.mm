@@ -8,7 +8,13 @@
 #include "base/sys_string_conversions.h"
 #include "chrome/app/chrome_dll_resource.h"
 #import "chrome/browser/cocoa/location_bar_view_mac.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/toolbar_model.h"
+#include "chrome/common/notification_details.h"
+#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_type.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 
 // Names of images in the bundle for the star icon (normal and 'starred').
 static NSString* const kStarImageName = @"star";
@@ -40,7 +46,29 @@ static NSString* const kStarredImageName = @"starred";
 
 @interface ToolbarController(Private)
 - (void)initCommandStatus:(CommandUpdater*)commands;
+- (void)prefChanged:(std::wstring*)prefName;
 @end
+
+namespace ToolbarControllerInternal {
+
+// A C++ class registered for changes in preferences. Bridges the
+// notification back to the ToolbarController.
+class PrefObserverBridge : public NotificationObserver {
+ public:
+  PrefObserverBridge(ToolbarController* controller)
+      : controller_(controller) { }
+  // Overridden from NotificationObserver:
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details) {
+    if (type == NotificationType::PREF_CHANGED)
+      [controller_ prefChanged:Details<std::wstring>(details).ptr()];
+  }
+ private:
+  ToolbarController* controller_;  // weak, owns us
+};
+
+}  // namespace
 
 @implementation ToolbarController
 
@@ -73,6 +101,16 @@ static NSString* const kStarredImageName = @"starred";
   locationBarView_.reset(new LocationBarViewMac(locationBar_, commands_,
                                                 toolbarModel_, profile_));
   [locationBar_ setFont:[NSFont systemFontOfSize:[NSFont systemFontSize]]];
+
+  // Register pref observers for the optional home and page/options buttons
+  // and then add them to the toolbar them based on those prefs.
+  prefObserver_.reset(new ToolbarControllerInternal::PrefObserverBridge(self));
+  PrefService* prefs = profile_->GetPrefs();
+  showHomeButton_.Init(prefs::kShowHomeButton, prefs, prefObserver_.get());
+  showPageOptionButtons_.Init(prefs::kShowPageOptionsButtons, prefs,
+                              prefObserver_.get());
+  [self showOptionalHomeButton];
+  [self showOptionalPageWrenchButtons];
 }
 
 - (LocationBar*)locationBar {
@@ -97,7 +135,7 @@ static NSString* const kStarredImageName = @"starred";
       button = forwardButton_;
       break;
     case IDC_HOME:
-      // TODO(pinkerton): add home button
+      button = homeButton_;
       break;
     case IDC_STAR:
       button = starButton_;
@@ -112,9 +150,8 @@ static NSString* const kStarredImageName = @"starred";
   [backButton_ setEnabled:commands->IsCommandEnabled(IDC_BACK) ? YES : NO];
   [forwardButton_
       setEnabled:commands->IsCommandEnabled(IDC_FORWARD) ? YES : NO];
-  [reloadButton_
-      setEnabled:commands->IsCommandEnabled(IDC_RELOAD) ? YES : NO];
-  // TODO(pinkerton): Add home button.
+  [reloadButton_ setEnabled:commands->IsCommandEnabled(IDC_RELOAD) ? YES : NO];
+  [homeButton_ setEnabled:commands->IsCommandEnabled(IDC_HOME) ? YES : NO];
   [starButton_ setEnabled:commands->IsCommandEnabled(IDC_STAR) ? YES : NO];
 }
 
@@ -161,7 +198,92 @@ static NSString* const kStarredImageName = @"starred";
 // Returns an array of views in the order of the outlets above.
 - (NSArray*)toolbarViews {
   return [NSArray arrayWithObjects:backButton_, forwardButton_, reloadButton_,
-            starButton_, goButton_, locationBar_, nil];
+            homeButton_, starButton_, goButton_, pageButton_, wrenchButton_,
+            locationBar_, nil];
+}
+
+// Moves |rect| to the right by |delta|, keeping the right side fixed by
+// shrinking the width to compensate. Passing a negative value for |deltaX|
+// moves to the left and increases the width.
+- (NSRect)adjustRect:(NSRect)rect byAmount:(float)deltaX {
+  NSRect frame = NSOffsetRect(rect, deltaX, 0);
+  frame.size.width -= deltaX;
+  return frame;
+}
+
+// Computes the padding between the buttons that should have a separation from
+// the positions in the nib. Since the forward and reload buttons are always
+// visible, we use those buttons as the canonical spacing.
+- (float)interButtonSpacing {
+  NSRect forwardFrame = [forwardButton_ frame];
+  NSRect reloadFrame = [reloadButton_ frame];
+  DCHECK(NSMinX(reloadFrame) > NSMaxX(forwardFrame));
+  return NSMinX(reloadFrame) - NSMaxX(forwardFrame);
+}
+
+// Show or hide the home button based on the pref.
+- (void)showOptionalHomeButton {
+  BOOL hide = showHomeButton_.GetValue() ? NO : YES;
+  if (hide == [homeButton_ isHidden])
+    return;  // Nothing to do, view state matches pref state.
+
+  // Always shift the star and text field by the width of the home button plus
+  // the appropriate gap width. If we're hiding the button, we have to
+  // reverse the direction of the movement (to the left).
+  float moveX = [self interButtonSpacing] + [homeButton_ frame].size.width;
+  if (hide)
+    moveX *= -1;  // Reverse the direction of the move.
+
+  [starButton_ setFrame:NSOffsetRect([starButton_ frame], moveX, 0)];
+  [locationBar_ setFrame:[self adjustRect:[locationBar_ frame]
+                                 byAmount:moveX]];
+  [homeButton_ setHidden:hide];
+}
+
+// Show or hide the page and wrench buttons based on the pref.
+- (void)showOptionalPageWrenchButtons {
+  DCHECK([pageButton_ isHidden] == [wrenchButton_ isHidden]);
+  BOOL hide = showPageOptionButtons_.GetValue() ? NO : YES;
+  if (hide == [pageButton_ isHidden])
+    return;  // Nothing to do, view state matches pref state.
+
+  // Shift the go button and resize the text field by the width of the
+  // page/wrench buttons plus two times the gap width. If we're showing the
+  // buttons, we have to reverse the direction of movement (to the left). Unlike
+  // the home button above, we only ever have to resize the text field, we don't
+  // have to move it.
+  float moveX = 2 * [self interButtonSpacing] + NSWidth([pageButton_ frame]) +
+                  NSWidth([wrenchButton_ frame]);
+  if (!hide)
+    moveX *= -1;  // Reverse the direction of the move.
+  [goButton_ setFrame:NSOffsetRect([goButton_ frame], moveX, 0)];
+  NSRect locationFrame = [locationBar_ frame];
+  locationFrame.size.width += moveX;
+  [locationBar_ setFrame:locationFrame];
+
+  [pageButton_ setHidden:hide];
+  [wrenchButton_ setHidden:hide];
+}
+
+- (void)prefChanged:(std::wstring*)prefName {
+  if (!prefName) return;
+  if (*prefName == prefs::kShowHomeButton) {
+    [self showOptionalHomeButton];
+  } else if (*prefName == prefs::kShowPageOptionsButtons) {
+    [self showOptionalPageWrenchButtons];
+  }
+}
+
+- (IBAction)showPageMenu:(id)sender {
+  [NSMenu popUpContextMenu:pageMenu_
+                 withEvent:[NSApp currentEvent]
+                   forView:pageButton_];
+}
+
+- (IBAction)showWrenchMenu:(id)sender {
+  [NSMenu popUpContextMenu:wrenchMenu_
+                 withEvent:[NSApp currentEvent]
+                   forView:wrenchButton_];
 }
 
 @end

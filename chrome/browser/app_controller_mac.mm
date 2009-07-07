@@ -226,9 +226,6 @@
 
   bookmarkMenuBridge_.reset(new BookmarkMenuBridge());
 
-  // Register any Mac-specific preferences.
-  PrefService* prefs = [self defaultProfile]->GetPrefs();
-  prefs->RegisterBooleanPref(prefs::kShowPageOptionsButtons, false);
   [self setUpdateCheckInterval];
 
   // Build up the encoding menu, the order of the items differs based on the

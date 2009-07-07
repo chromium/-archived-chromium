@@ -58,11 +58,18 @@
                                               endingColor:end] autorelease];
   }
 
+  // Stroke the borders and appropriate fill gradient. If we're borderless,
+  // the only time we want to draw the inner gradient is if we're highlighted.
   [[NSColor colorWithCalibratedWhite:1.0 alpha:0.25] set];
-  [outerPath stroke];
-  [gradient drawInBezierPath:path angle:90.0];
-  [[NSColor colorWithCalibratedWhite:0.0 alpha:0.15] set];
-  [path stroke];
+  if ([self isBordered]) {
+    [outerPath stroke];
+    [gradient drawInBezierPath:path angle:90.0];
+    [[NSColor colorWithCalibratedWhite:0.0 alpha:0.15] set];
+    [path stroke];
+  } else {
+    if (highlighted)
+      [gradient drawInBezierPath:path angle:90.0];
+  }
 
   if (type == kLeftButtonWithShadowType) {
     NSRect borderRect, contentRect;

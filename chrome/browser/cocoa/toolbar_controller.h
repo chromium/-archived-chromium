@@ -10,10 +10,14 @@
 #include "base/scoped_ptr.h"
 #include "base/scoped_nsobject.h"
 #import "chrome/browser/cocoa/command_observer_bridge.h"
+#include "chrome/common/pref_member.h"
 
 class CommandUpdater;
 class LocationBar;
 class LocationBarViewMac;
+namespace ToolbarControllerInternal {
+class PrefObserverBridge;
+}
 class Profile;
 class TabContents;
 class ToolbarModel;
@@ -40,14 +44,25 @@ class ToolbarView;
   scoped_ptr<LocationBarViewMac> locationBarView_;
   scoped_nsobject<LocationBarFieldEditor> locationBarFieldEditor_;  // strong
 
+  // Used for monitoring the optional toolbar button prefs.
+  scoped_ptr<ToolbarControllerInternal::PrefObserverBridge> prefObserver_;
+  BooleanPrefMember showHomeButton_;
+  BooleanPrefMember showPageOptionButtons_;
+
+  IBOutlet NSMenu* pageMenu_;
+  IBOutlet NSMenu* wrenchMenu_;
+
   // The ordering is important for unit tests. If new items are added or the
   // ordering is changed, make sure to update |-toolbarViews| and the
   // corresponding enum in the unit tests.
   IBOutlet NSButton* backButton_;
   IBOutlet NSButton* forwardButton_;
   IBOutlet NSButton* reloadButton_;
+  IBOutlet NSButton* homeButton_;
   IBOutlet NSButton* starButton_;
   IBOutlet NSButton* goButton_;
+  IBOutlet NSButton* pageButton_;
+  IBOutlet NSButton* wrenchButton_;
   IBOutlet NSTextField* locationBar_;
 }
 
@@ -83,12 +98,19 @@ class ToolbarView;
 // state.
 - (void)setIsLoading:(BOOL)isLoading;
 
+// Actions for the optional menu buttons for the page and wrench menus. These
+// will show a menu while the mouse is down.
+- (IBAction)showPageMenu:(id)sender;
+- (IBAction)showWrenchMenu:(id)sender;
+
 @end
 
 // A set of private methods used by tests, in the absence of "friends" in ObjC.
 @interface ToolbarController(PrivateTestMethods)
 // Returns an array of views in the order of the outlets above.
 - (NSArray*)toolbarViews;
+- (void)showOptionalHomeButton;
+- (void)showOptionalPageWrenchButtons;
 @end
 
 #endif  // CHROME_BROWSER_COCOA_TOOLBAR_CONTROLLER_H_
