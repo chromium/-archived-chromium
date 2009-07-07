@@ -1929,7 +1929,11 @@ void TabContents::RunJavaScriptMessage(
   // Suppress javascript messages when requested and when inside a constrained
   // popup window (because that activates them and breaks them out of the
   // constrained window jail).
-  bool suppress_this_message = suppress_javascript_messages_;
+  // Also suppress messages when showing an interstitial. The interstitial is
+  // shown over the previous page, we don't want the hidden page dialogs to
+  // interfere with the interstitial.
+  bool suppress_this_message = suppress_javascript_messages_ ||
+                               showing_interstitial_page();
   if (delegate())
     suppress_this_message |=
         (delegate()->GetConstrainingContents(this) != this);

@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "app/message_box_flags.h"
 #include "base/logging.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
@@ -1255,4 +1256,37 @@ TEST_F(TabContentsTest, NewInterstitialDoesNotCancelPendingEntry) {
   EXPECT_EQ(TestInterstitialPage::CANCELED, state);
   EXPECT_FALSE(deleted2);
   EXPECT_EQ(TestInterstitialPage::UNDECIDED, state2);
+}
+
+// Tests that Javascript messages are not shown while an interstitial is
+// showing.
+TEST_F(TabContentsTest, NoJSMessageOnInterstitials) {
+  const char kUrl[] = "http://www.badguys.com/";
+  const GURL kGURL(kUrl);
+
+  // Start a navigation to a page
+  contents()->controller().LoadURL(kGURL, GURL(), PageTransition::TYPED);
+  // DidNavigate from the page
+  ViewHostMsg_FrameNavigate_Params params;
+  InitNavigateParams(&params, 1, kGURL);
+  contents()->TestDidNavigate(rvh(), params);
+
+  // Simulate showing an interstitial while the page is showing.
+  TestInterstitialPage::InterstitialState state =
+      TestInterstitialPage::UNDECIDED;
+  bool deleted = false;
+  TestInterstitialPage* interstitial =
+      new TestInterstitialPage(contents(), true, kGURL, &state, &deleted);
+  TestInterstitialPageStateGuard state_guard(interstitial);
+  interstitial->Show();
+  interstitial->TestDidNavigate(1, kGURL);
+
+  // While the interstitial is showing, let's simulate the hidden page
+  // attempting to show a JS message.
+  IPC::Message* dummy_message = new IPC::Message;
+  bool did_suppress_message = false;
+  contents()->RunJavaScriptMessage(L"This is an informative message", L"OK",
+      kGURL, MessageBoxFlags::kIsJavascriptAlert, dummy_message,
+      &did_suppress_message);
+  EXPECT_TRUE(did_suppress_message);
 }
