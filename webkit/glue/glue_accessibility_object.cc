@@ -294,44 +294,44 @@ bool GlueAccessibilityObject::State(int child_id, long* state) {
   if (!GetAccessibilityObjectForChild(child_id, child_obj))
     return false;
 
-  if (child_obj->isAnchor())
-    *state |= static_cast<long>(1 << WebAccessibility::STATE_LINKED);
-
-  if (child_obj->isHovered())
-    *state |= static_cast<long>(1 << WebAccessibility::STATE_HOTTRACKED);
-
-  if (!child_obj->isEnabled())
-    *state |= static_cast<long>(1 << WebAccessibility::STATE_UNAVAILABLE);
-
-  if (child_obj->isReadOnly())
-    *state |= static_cast<long>(1 << WebAccessibility::STATE_READONLY);
-
-  if (child_obj->isOffScreen())
-    *state |= static_cast<long>(1 << WebAccessibility::STATE_OFFSCREEN);
-
-  if (child_obj->isMultiSelect())
-    *state |= static_cast<long>(1 << WebAccessibility::STATE_MULTISELECTABLE);
-
-  if (child_obj->isPasswordField())
-    *state |= static_cast<long>(1 << WebAccessibility::STATE_PROTECTED);
-
-  if (child_obj->isIndeterminate())
-    *state |= static_cast<long>(1 << WebAccessibility::STATE_INDETERMINATE);
-
   if (child_obj->isChecked())
     *state |= static_cast<long>(1 << WebAccessibility::STATE_CHECKED);
 
-  if (child_obj->isPressed())
-    *state |= static_cast<long>(1 << WebAccessibility::STATE_PRESSED);
+  if (child_obj->canSetFocusAttribute())
+    *state |= static_cast<long>(1 << WebAccessibility::STATE_FOCUSABLE);
 
   if (child_obj->isFocused())
     *state |= static_cast<long>(1 << WebAccessibility::STATE_FOCUSED);
 
+  if (child_obj->isHovered())
+    *state |= static_cast<long>(1 << WebAccessibility::STATE_HOTTRACKED);
+
+  if (child_obj->isIndeterminate())
+    *state |= static_cast<long>(1 << WebAccessibility::STATE_INDETERMINATE);
+
+  if (child_obj->isAnchor())
+    *state |= static_cast<long>(1 << WebAccessibility::STATE_LINKED);
+
+  if (child_obj->isMultiSelect())
+    *state |= static_cast<long>(1 << WebAccessibility::STATE_MULTISELECTABLE);
+
+  if (child_obj->isOffScreen())
+    *state |= static_cast<long>(1 << WebAccessibility::STATE_OFFSCREEN);
+
+  if (child_obj->isPressed())
+    *state |= static_cast<long>(1 << WebAccessibility::STATE_PRESSED);
+
+  if (child_obj->isPasswordField())
+    *state |= static_cast<long>(1 << WebAccessibility::STATE_PROTECTED);
+
+  if (child_obj->isReadOnly())
+    *state |= static_cast<long>(1 << WebAccessibility::STATE_READONLY);
+
   if (child_obj->isVisited())
     *state |= static_cast<long>(1 << WebAccessibility::STATE_TRAVERSED);
 
-  if (child_obj->canSetFocusAttribute())
-    *state |= static_cast<long>(1 << WebAccessibility::STATE_FOCUSABLE);
+  if (!child_obj->isEnabled())
+    *state |= static_cast<long>(1 << WebAccessibility::STATE_UNAVAILABLE);
 
   // TODO(klink): Add selected and selectable states.
 
@@ -361,43 +361,60 @@ String GlueAccessibilityObject::description() const {
 }
 
 // Provides a conversion between the WebCore::AccessibilityRole and a
-// role supported on the Browser side. Static function.
+// role supported on the Browser side. Listed alphabetically by the
+// WebAccessibility role (except for default role). Static function.
 static WebAccessibility::Role SupportedRole(WebCore::AccessibilityRole role) {
   switch (role) {
+    case WebCore::CellRole:
+      return WebAccessibility::ROLE_CELL;
+    case WebCore::CheckBoxRole:
+      return WebAccessibility::ROLE_CHECKBUTTON;
+    case WebCore::ColumnRole:
+      return WebAccessibility::ROLE_COLUMN;
+    case WebCore::ColumnHeaderRole:
+      return WebAccessibility::ROLE_COLUMNHEADER;
+    case WebCore::ImageMapRole:
+    case WebCore::ImageRole:
+      return WebAccessibility::ROLE_GRAPHIC;
+    case WebCore::GroupRole:
+      return WebAccessibility::ROLE_GROUPING;
+    case WebCore::LinkRole:
+    case WebCore::WebCoreLinkRole:
+      return WebAccessibility::ROLE_LINK;
+    case WebCore::ListRole:
+      return WebAccessibility::ROLE_LIST;
+    case WebCore::ListBoxRole:
+      return WebAccessibility::ROLE_LISTBOX;
+    case WebCore::MenuButtonRole:
+    case WebCore::MenuItemRole:
+      return WebAccessibility::ROLE_MENUITEM;
+    case WebCore::MenuRole:
+      return WebAccessibility::ROLE_MENUPOPUP;
+    case WebCore::OutlineRole:
+      return WebAccessibility::ROLE_OUTLINE;
+    case WebCore::TabGroupRole:
+      return WebAccessibility::ROLE_PAGETABLIST;
+    case WebCore::ProgressIndicatorRole:
+      return WebAccessibility::ROLE_PROGRESSBAR;
     case WebCore::ButtonRole:
       return WebAccessibility::ROLE_PUSHBUTTON;
     case WebCore::RadioButtonRole:
       return WebAccessibility::ROLE_RADIOBUTTON;
-    case WebCore::CheckBoxRole:
-      return WebAccessibility::ROLE_CHECKBUTTON;
-    case WebCore::SliderRole:
-      return WebAccessibility::ROLE_SLIDER;
-    case WebCore::TabGroupRole:
-      return WebAccessibility::ROLE_PAGETABLIST;
-    case WebCore::TextFieldRole:
-    case WebCore::TextAreaRole:
-    case WebCore::ListMarkerRole:
-      return WebAccessibility::ROLE_TEXT;
-    case WebCore::StaticTextRole:
-      return WebAccessibility::ROLE_STATICTEXT;
-    case WebCore::OutlineRole:
-      return WebAccessibility::ROLE_OUTLINE;
-    case WebCore::ColumnRole:
-      return WebAccessibility::ROLE_COLUMN;
     case WebCore::RowRole:
       return WebAccessibility::ROLE_ROW;
-    case WebCore::GroupRole:
-      return WebAccessibility::ROLE_GROUPING;
-    case WebCore::ListRole:
-      return WebAccessibility::ROLE_LIST;
+    case WebCore::RowHeaderRole:
+      return WebAccessibility::ROLE_ROWHEADER;
+    case WebCore::SliderRole:
+      return WebAccessibility::ROLE_SLIDER;
+    case WebCore::StaticTextRole:
+      return WebAccessibility::ROLE_STATICTEXT;
     case WebCore::TableRole:
       return WebAccessibility::ROLE_TABLE;
-    case WebCore::LinkRole:
-    case WebCore::WebCoreLinkRole:
-      return WebAccessibility::ROLE_LINK;
-    case WebCore::ImageMapRole:
-    case WebCore::ImageRole:
-      return WebAccessibility::ROLE_GRAPHIC;
+    case WebCore::ListMarkerRole:
+    case WebCore::TextFieldRole:
+    case WebCore::TextAreaRole:
+      return WebAccessibility::ROLE_TEXT;
+    case WebCore::UnknownRole:
     default:
         // This is the default role.
       return WebAccessibility::ROLE_CLIENT;

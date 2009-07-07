@@ -59,47 +59,56 @@ class WebAccessibility {
     DIRECTION_LASTCHILD
   };
 
-  // This defines an enumeration of the supported accessibility roles in our
-  // Glue layer (used in GlueAccessibilityObject::Role). Any interface using
-  // roles must provide a conversion to its own roles (see e.g.
-  // BrowserAccessibility::get_accRole and BrowserAccessibility::MSAARole).
+  // This defines an enumeration (in alphabetical order) of the supported
+  // accessibility roles in our Glue layer (used in
+  // GlueAccessibilityObject::Role). Any interface using roles must provide a
+  // conversion to its own roles (see e.g. BrowserAccessibility::get_accRole and
+  // BrowserAccessibility::MSAARole).
   enum Role {
+    ROLE_CELL,
+    ROLE_CHECKBUTTON,
+    ROLE_CLIENT,
+    ROLE_COLUMN,
+    ROLE_COLUMNHEADER,
+    ROLE_GRAPHIC,
+    ROLE_GROUPING,
+    ROLE_LINK,
+    ROLE_LIST,
+    ROLE_LISTBOX,
+    ROLE_MENUITEM,
+    ROLE_MENUPOPUP,
+    ROLE_OUTLINE,
+    ROLE_PAGETABLIST,
+    ROLE_PROGRESSBAR,
     ROLE_PUSHBUTTON,
     ROLE_RADIOBUTTON,
-    ROLE_CHECKBUTTON,
-    ROLE_SLIDER,
-    ROLE_PAGETABLIST,
-    ROLE_TEXT,
-    ROLE_STATICTEXT,
-    ROLE_OUTLINE,
-    ROLE_COLUMN,
     ROLE_ROW,
-    ROLE_GROUPING,
-    ROLE_LIST,
+    ROLE_ROWHEADER,
+    ROLE_SLIDER,
+    ROLE_STATICTEXT,
     ROLE_TABLE,
-    ROLE_LINK,
-    ROLE_GRAPHIC,
-    ROLE_CLIENT
+    ROLE_TEXT
   };
 
-  // This defines an enumeration of the supported accessibility states in our
-  // Glue layer (used in GlueAccessibilityObject::State). Any interface using
-  // states must provide a conversion to its own states (see e.g.
-  // BrowserAccessibility::get_accState and BrowserAccessibility::MSAAState).
+  // This defines an enumeration (in alphabetical order) of the supported
+  // accessibility states in our Glue layer (used in
+  // GlueAccessibilityObject::State). Any interface using states must provide a
+  // conversion to its own states (see e.g. BrowserAccessibility::get_accState
+  // and BrowserAccessibility::MSAAState).
   enum State {
-    STATE_LINKED,
-    STATE_HOTTRACKED,
-    STATE_UNAVAILABLE,
-    STATE_READONLY,
-    STATE_OFFSCREEN,
-    STATE_MULTISELECTABLE,
-    STATE_PROTECTED,
-    STATE_INDETERMINATE,
     STATE_CHECKED,
-    STATE_PRESSED,
+    STATE_FOCUSABLE,
     STATE_FOCUSED,
+    STATE_HOTTRACKED,
+    STATE_INDETERMINATE,
+    STATE_LINKED,
+    STATE_MULTISELECTABLE,
+    STATE_OFFSCREEN,
+    STATE_PRESSED,
+    STATE_PROTECTED,
+    STATE_READONLY,
     STATE_TRAVERSED,
-    STATE_FOCUSABLE
+    STATE_UNAVAILABLE
   };
 
   // Parameters structure to hold a union of the possible accessibility function

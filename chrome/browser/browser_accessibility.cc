@@ -559,37 +559,50 @@ const WebAccessibility::OutParams& BrowserAccessibility::response() {
 
 long BrowserAccessibility::MSAARole(long browser_accessibility_role) {
   switch (browser_accessibility_role) {
-    case WebAccessibility::ROLE_PUSHBUTTON :
-      return ROLE_SYSTEM_PUSHBUTTON;
-    case WebAccessibility::ROLE_RADIOBUTTON :
-      return ROLE_SYSTEM_RADIOBUTTON;
-    case WebAccessibility::ROLE_CHECKBUTTON :
+    case WebAccessibility::ROLE_CELL:
+      return ROLE_SYSTEM_CELL;
+    case WebAccessibility::ROLE_CHECKBUTTON:
       return ROLE_SYSTEM_CHECKBUTTON;
-    case WebAccessibility::ROLE_SLIDER :
-      return ROLE_SYSTEM_SLIDER;
-    case WebAccessibility::ROLE_PAGETABLIST :
-      return ROLE_SYSTEM_PAGETABLIST;
-    case WebAccessibility::ROLE_TEXT :
-      return ROLE_SYSTEM_TEXT;
-    case WebAccessibility::ROLE_STATICTEXT :
-      return ROLE_SYSTEM_STATICTEXT;
-    case WebAccessibility::ROLE_OUTLINE :
-      return ROLE_SYSTEM_OUTLINE;
-    case WebAccessibility::ROLE_COLUMN :
+    case WebAccessibility::ROLE_COLUMN:
       return ROLE_SYSTEM_COLUMN;
-    case WebAccessibility::ROLE_ROW :
-      return ROLE_SYSTEM_ROW;
-    case WebAccessibility::ROLE_GROUPING :
-      return ROLE_SYSTEM_GROUPING;
-    case WebAccessibility::ROLE_LIST :
-      return ROLE_SYSTEM_LIST;
-    case WebAccessibility::ROLE_TABLE :
-      return ROLE_SYSTEM_TABLE;
-    case WebAccessibility::ROLE_LINK :
-      return ROLE_SYSTEM_LINK;
-    case WebAccessibility::ROLE_GRAPHIC :
+    case WebAccessibility::ROLE_COLUMNHEADER:
+      return ROLE_SYSTEM_COLUMNHEADER;
+    case WebAccessibility::ROLE_GRAPHIC:
       return ROLE_SYSTEM_GRAPHIC;
-    case WebAccessibility::ROLE_CLIENT :
+    case WebAccessibility::ROLE_GROUPING:
+      return ROLE_SYSTEM_GROUPING;
+    case WebAccessibility::ROLE_LINK:
+      return ROLE_SYSTEM_LINK;
+    case WebAccessibility::ROLE_LIST:
+    case WebAccessibility::ROLE_LISTBOX:
+      return ROLE_SYSTEM_LIST;
+    case WebAccessibility::ROLE_MENUITEM:
+      return ROLE_SYSTEM_MENUITEM;
+    case WebAccessibility::ROLE_MENUPOPUP:
+      return ROLE_SYSTEM_MENUPOPUP;
+    case WebAccessibility::ROLE_OUTLINE:
+      return ROLE_SYSTEM_OUTLINE;
+    case WebAccessibility::ROLE_PAGETABLIST:
+      return ROLE_SYSTEM_PAGETABLIST;
+    case WebAccessibility::ROLE_PROGRESSBAR:
+      return ROLE_SYSTEM_PROGRESSBAR;
+    case WebAccessibility::ROLE_PUSHBUTTON:
+      return ROLE_SYSTEM_PUSHBUTTON;
+    case WebAccessibility::ROLE_RADIOBUTTON:
+      return ROLE_SYSTEM_RADIOBUTTON;
+    case WebAccessibility::ROLE_ROW:
+      return ROLE_SYSTEM_ROW;
+    case WebAccessibility::ROLE_ROWHEADER:
+      return ROLE_SYSTEM_ROWHEADER;
+    case WebAccessibility::ROLE_SLIDER:
+      return ROLE_SYSTEM_SLIDER;
+    case WebAccessibility::ROLE_STATICTEXT:
+      return ROLE_SYSTEM_STATICTEXT;
+    case WebAccessibility::ROLE_TABLE:
+      return ROLE_SYSTEM_TABLE;
+    case WebAccessibility::ROLE_TEXT:
+      return ROLE_SYSTEM_TEXT;
+    case WebAccessibility::ROLE_CLIENT:
     default:
       // This is the default role for MSAA.
       return ROLE_SYSTEM_CLIENT;
@@ -599,48 +612,48 @@ long BrowserAccessibility::MSAARole(long browser_accessibility_role) {
 long BrowserAccessibility::MSAAState(long browser_accessibility_state) {
   long state = 0;
 
-  if ((browser_accessibility_state >> WebAccessibility::STATE_LINKED) & 1)
-      state |= STATE_SYSTEM_LINKED;
+  if ((browser_accessibility_state >> WebAccessibility::STATE_CHECKED) & 1)
+    state |= STATE_SYSTEM_CHECKED;
+
+  if ((browser_accessibility_state >> WebAccessibility::STATE_FOCUSABLE) & 1)
+    state |= STATE_SYSTEM_FOCUSABLE;
+
+  if ((browser_accessibility_state >> WebAccessibility::STATE_FOCUSED) & 1)
+    state |= STATE_SYSTEM_FOCUSED;
 
   if ((browser_accessibility_state >> WebAccessibility::STATE_HOTTRACKED) & 1)
-      state |= STATE_SYSTEM_HOTTRACKED;
-
-  if ((browser_accessibility_state >> WebAccessibility::STATE_UNAVAILABLE) & 1)
-      state |= STATE_SYSTEM_UNAVAILABLE;
-
-  if ((browser_accessibility_state >> WebAccessibility::STATE_READONLY) & 1)
-      state |= STATE_SYSTEM_READONLY;
-
-  if ((browser_accessibility_state >> WebAccessibility::STATE_OFFSCREEN) & 1)
-      state |= STATE_SYSTEM_OFFSCREEN;
-
-  if ((browser_accessibility_state >>
-       WebAccessibility::STATE_MULTISELECTABLE) & 1) {
-      state |= STATE_SYSTEM_MULTISELECTABLE;
-  }
-
-  if ((browser_accessibility_state >> WebAccessibility::STATE_PROTECTED) & 1)
-      state |= STATE_SYSTEM_PROTECTED;
+    state |= STATE_SYSTEM_HOTTRACKED;
 
   if ((browser_accessibility_state >>
        WebAccessibility::STATE_INDETERMINATE) & 1) {
-      state |= STATE_SYSTEM_INDETERMINATE;
+    state |= STATE_SYSTEM_INDETERMINATE;
   }
 
-  if ((browser_accessibility_state >> WebAccessibility::STATE_CHECKED) & 1)
-      state |= STATE_SYSTEM_CHECKED;
+  if ((browser_accessibility_state >> WebAccessibility::STATE_LINKED) & 1)
+    state |= STATE_SYSTEM_LINKED;
+
+  if ((browser_accessibility_state >>
+       WebAccessibility::STATE_MULTISELECTABLE) & 1) {
+    state |= STATE_SYSTEM_MULTISELECTABLE;
+  }
+
+  if ((browser_accessibility_state >> WebAccessibility::STATE_OFFSCREEN) & 1)
+    state |= STATE_SYSTEM_OFFSCREEN;
 
   if ((browser_accessibility_state >> WebAccessibility::STATE_PRESSED) & 1)
-      state |= STATE_SYSTEM_PRESSED;
+    state |= STATE_SYSTEM_PRESSED;
 
-  if ((browser_accessibility_state >> WebAccessibility::STATE_FOCUSED) & 1)
-      state |= STATE_SYSTEM_FOCUSED;
+  if ((browser_accessibility_state >> WebAccessibility::STATE_PROTECTED) & 1)
+    state |= STATE_SYSTEM_PROTECTED;
+
+  if ((browser_accessibility_state >> WebAccessibility::STATE_READONLY) & 1)
+    state |= STATE_SYSTEM_READONLY;
 
   if ((browser_accessibility_state >> WebAccessibility::STATE_TRAVERSED) & 1)
-      state |= STATE_SYSTEM_TRAVERSED;
+    state |= STATE_SYSTEM_TRAVERSED;
 
-  if ((browser_accessibility_state >> WebAccessibility::STATE_FOCUSABLE) & 1)
-      state |= STATE_SYSTEM_FOCUSABLE;
+  if ((browser_accessibility_state >> WebAccessibility::STATE_UNAVAILABLE) & 1)
+    state |= STATE_SYSTEM_UNAVAILABLE;
 
   return state;
 }
