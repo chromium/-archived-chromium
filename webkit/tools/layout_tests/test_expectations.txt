@@ -2800,7 +2800,7 @@ BUG15873 WIN LINUX : LayoutTests/fast/transforms/shadows.html = FAIL
 BUG15873 WIN : LayoutTests/fast/canvas/translate-text.html = FAIL
 BUG15873 WIN : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
 BUG15873 WIN : LayoutTests/fast/text/stroking-decorations.html = FAIL
-BUG15873 : LayoutTests/fast/text/text-letter-spacing.html = FAIL
+BUG15873 SKIP : LayoutTests/fast/text/text-letter-spacing.html = FAIL
 
 // WebKit 45486:45473
 BUG15892 MAC : LayoutTests/dom/svg/level3/xpath/Attribute_Nodes.svg = FAIL
