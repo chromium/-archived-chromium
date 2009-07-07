@@ -745,6 +745,7 @@ void BrowserWindowGtk::UserChangedTheme() {
   toolbar_->UserChangedTheme();
   GtkThemeProperties properties(browser_->profile());
   bookmark_bar_->UserChangedTheme(&properties);
+  status_bubble_->UserChangedTheme(&properties);
 }
 
 int BrowserWindowGtk::GetExtraRenderViewHeight() const {
@@ -1053,7 +1054,7 @@ void BrowserWindowGtk::InitWidgets() {
                      infobar_container_->widget(),
                      FALSE, FALSE, 0);
 
-  status_bubble_.reset(new StatusBubbleGtk());
+  status_bubble_.reset(new StatusBubbleGtk(browser_->profile()));
 
   contents_container_.reset(new TabContentsContainerGtk(status_bubble_.get()));
   contents_container_->AddContainerToBox(render_area_vbox_);

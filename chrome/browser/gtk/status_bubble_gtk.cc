@@ -9,6 +9,7 @@
 #include "base/gfx/gtk_util.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
+#include "chrome/browser/gtk/gtk_theme_provider.h"
 #include "chrome/browser/gtk/slide_animator_gtk.h"
 #include "chrome/common/gtk_util.h"
 #include "googleurl/src/gurl.h"
@@ -31,9 +32,12 @@ static const int kHideDelay = 250;
 
 }  // namespace
 
-StatusBubbleGtk::StatusBubbleGtk()
+StatusBubbleGtk::StatusBubbleGtk(Profile* profile)
     : timer_factory_(this) {
   InitWidgets();
+
+  GtkThemeProperties properties(profile);
+  UserChangedTheme(&properties);
 }
 
 StatusBubbleGtk::~StatusBubbleGtk() {
@@ -113,7 +117,6 @@ void StatusBubbleGtk::MouseMoved() {
 
 void StatusBubbleGtk::InitWidgets() {
   label_ = gtk_label_new(NULL);
-  gtk_widget_modify_fg(label_, GTK_STATE_NORMAL, &kTextColor);
 
   GtkWidget* padding = gtk_alignment_new(0, 0, 1, 1);
   gtk_alignment_set_padding(GTK_ALIGNMENT(padding),
@@ -121,12 +124,40 @@ void StatusBubbleGtk::InitWidgets() {
       kInternalLeftRightPadding, kInternalLeftRightPadding);
   gtk_container_add(GTK_CONTAINER(padding), label_);
 
-  GtkWidget* bg_box = gtk_event_box_new();
-  gtk_container_add(GTK_CONTAINER(bg_box), padding);
-  gtk_widget_modify_bg(bg_box, GTK_STATE_NORMAL, &kBackgroundColor);
+  bg_box_ = gtk_event_box_new();
+  gtk_container_add(GTK_CONTAINER(bg_box_), padding);
 
-  container_.Own(gtk_util::CreateGtkBorderBin(bg_box, &kFrameBorderColor,
+  container_.Own(gtk_util::CreateGtkBorderBin(bg_box_, &kFrameBorderColor,
           kBorderPadding, kBorderPadding, kBorderPadding, kBorderPadding));
   gtk_widget_set_name(container_.get(), "status-bubble");
   gtk_widget_set_app_paintable(container_.get(), TRUE);
+}
+
+void StatusBubbleGtk::UserChangedTheme(GtkThemeProperties* properties) {
+  if (properties->use_gtk_rendering) {
+    gtk_widget_modify_fg(label_, GTK_STATE_NORMAL, NULL);
+    gtk_widget_modify_bg(bg_box_, GTK_STATE_NORMAL, NULL);
+  } else {
+    // TODO(erg): This is the closest to "text that will look good on a
+    // toolbar" that I can find. Maybe in later iterations of the theme system,
+    // there will be a better color to pick.
+    GdkColor bookmark_text =
+        properties->GetGdkColor(BrowserThemeProvider::COLOR_BOOKMARK_TEXT);
+    gtk_widget_modify_fg(label_, GTK_STATE_NORMAL, &bookmark_text);
+
+    GdkColor toolbar_color =
+        properties->GetGdkColor(BrowserThemeProvider::COLOR_TOOLBAR);
+    gtk_widget_modify_bg(bg_box_, GTK_STATE_NORMAL, &toolbar_color);
+  }
+
+  // TODO(erg): I don't know what to do with the status bubble border
+  // (|container_|). There needs to be a border in GTK mode, and I'm not sure
+  // which BrowserThemeProvider::COLOR I'm supposed to use here since the Views
+  // implementation still uses constants in the equivalent, and it's used for
+  // alpha blending instead of drawing a real border.
+  //
+  // This doesn't really matter because this part of the UI needs to be
+  // rewritten per the UI review anyway; we should be matching windows with a
+  // semi-transparent, rounded border instead of our constantly
+  // CreateGtkBorderBin() usage.
 }

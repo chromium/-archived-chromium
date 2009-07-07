@@ -14,7 +14,9 @@
 #include "chrome/browser/status_bubble.h"
 #include "chrome/common/owned_widget_gtk.h"
 
+class GtkThemeProperties;
 class GURL;
+class Profile;
 
 // GTK implementation of StatusBubble. Unlike Windows, our status bubble
 // doesn't have the nice leave-the-window effect since we can't rely on the
@@ -22,7 +24,7 @@ class GURL;
 // We therefore position it absolutely in a GtkFixed, that we don't own.
 class StatusBubbleGtk : public StatusBubble {
  public:
-  StatusBubbleGtk();
+  StatusBubbleGtk(Profile* profile);
   virtual ~StatusBubbleGtk();
 
   // StatusBubble implementation.
@@ -40,6 +42,9 @@ class StatusBubbleGtk : public StatusBubble {
   // guarenteed to have its gtk_widget_name set to "status-bubble" for
   // identification.
   GtkWidget* widget() { return container_.get(); }
+
+  // Notification from the window that we should retheme ourself.
+  void UserChangedTheme(GtkThemeProperties* properties);
 
  private:
   // Sets the text of the label widget and controls visibility. (As contrasted
@@ -61,6 +66,10 @@ class StatusBubbleGtk : public StatusBubble {
 
   // The GtkLabel holding the text.
   GtkWidget* label_;
+
+  // The background event box. We keep this so we can change its background
+  // color.
+  GtkWidget* bg_box_;
 
   // The status text we want to display when there are no URLs to display.
   std::string status_text_;
