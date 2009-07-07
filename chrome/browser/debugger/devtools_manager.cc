@@ -128,7 +128,7 @@ void DevToolsManager::OpenDevToolsWindow(RenderViewHost* inspected_rvh) {
   if (!host) {
     bool docked = inspected_rvh->process()->profile()->GetPrefs()->
         GetBoolean(prefs::kDevToolsOpenDocked);
-    host = DevToolsWindow::CreateDevToolsWindow(
+    host = new DevToolsWindow(
         inspected_rvh->site_instance()->browsing_instance()->profile(),
         inspected_rvh,
         docked);
@@ -277,11 +277,5 @@ void DevToolsManager::ReopenWindow(RenderViewHost* client_rvh, bool docked) {
 
   DevToolsWindow* window = client_host->AsDevToolsWindow();
   DCHECK(window);
-  if (window->is_docked() == docked) {
-    return;
-  }
-
-  SendDetachToAgent(inspected_rvh);
-  UnregisterDevToolsClientHostFor(inspected_rvh);
-  OpenDevToolsWindow(inspected_rvh);
+  window->SetDocked(docked);
 }
