@@ -42,7 +42,8 @@ Alt404PageResourceFetcher::Alt404PageResourceFetcher(
 void Alt404PageResourceFetcher::OnURLFetchComplete(
     const WebURLResponse& response,
     const std::string& data) {
-  if (response.httpStatusCode() == 200) {
+  // A null response indicates a network error.
+  if (!response.isNull() && response.httpStatusCode() == 200) {
     // Only show server response if we got a 200.
     webframeloaderclient_->Alt404PageFinished(doc_loader_.get(), data);
   } else {

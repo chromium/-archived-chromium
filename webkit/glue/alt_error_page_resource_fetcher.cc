@@ -53,7 +53,8 @@ void AltErrorPageResourceFetcher::OnURLFetchComplete(
   if (!delegate)
     return;
 
-  if (response.httpStatusCode() == 200) {
+  // A null response indicates a network error.
+  if (!response.isNull() && response.httpStatusCode() == 200) {
     // We successfully got a response from the alternate error page server, so
     // load it.
     delegate->LoadNavigationErrorPage(web_frame_, failed_request_,
