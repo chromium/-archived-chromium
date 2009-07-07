@@ -60,7 +60,7 @@ small   event-test
 small   test-test
 small   serialization-test
 small   math-test
-small   features-test         except(*iexplore)
+small   features-test
 small   quaternion-test
 # TODO Temporarily removing until V8 bug is fixed
 small   v8-test
