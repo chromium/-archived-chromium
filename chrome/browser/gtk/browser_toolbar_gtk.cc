@@ -154,6 +154,10 @@ void BrowserToolbarGtk::Init(Profile* profile,
       l10n_util::GetStringUTF8(IDS_PAGEMENU_TOOLTIP),
       &page_menu_button_);
   page_menu_.reset(new MenuGtk(this, GetStandardPageMenu(), accel_group_));
+  g_signal_connect(page_menu_->widget(), "motion-notify-event",
+                   G_CALLBACK(OnPageAppMenuMouseMotion), this);
+  g_signal_connect(page_menu_->widget(), "move-current",
+                   G_CALLBACK(OnPageAppMenuMoveCurrent), this);
   gtk_box_pack_start(GTK_BOX(menus_hbox_), page_menu, FALSE, FALSE, 0);
 
   GtkWidget* chrome_menu = BuildToolbarMenuButton(IDR_MENU_CHROME,
@@ -161,6 +165,10 @@ void BrowserToolbarGtk::Init(Profile* profile,
           WideToUTF16(l10n_util::GetString(IDS_PRODUCT_NAME))),
       &app_menu_button_);
   app_menu_.reset(new MenuGtk(this, GetStandardAppMenu(), accel_group_));
+  g_signal_connect(app_menu_->widget(), "motion-notify-event",
+                   G_CALLBACK(OnPageAppMenuMouseMotion), this);
+  g_signal_connect(app_menu_->widget(), "move-current",
+                   G_CALLBACK(OnPageAppMenuMoveCurrent), this);
   gtk_box_pack_start(GTK_BOX(menus_hbox_), chrome_menu, FALSE, FALSE, 0);
 
   gtk_box_pack_start(GTK_BOX(toolbar_), menus_hbox_, FALSE, FALSE, 0);
@@ -377,6 +385,27 @@ void BrowserToolbarGtk::SetUpDragForHomeButton() {
                    G_CALLBACK(OnDragDataReceived), this);
 }
 
+void BrowserToolbarGtk::ChangeActiveMenu(GtkWidget* active_menu,
+    guint timestamp) {
+  MenuGtk* old_menu;
+  MenuGtk* new_menu;
+  GtkWidget* relevant_button;
+  if (active_menu == app_menu_->widget()) {
+    old_menu = app_menu_.get();
+    new_menu = page_menu_.get();
+    relevant_button = page_menu_button_.get();
+  } else {
+    old_menu = page_menu_.get();
+    new_menu = app_menu_.get();
+    relevant_button = app_menu_button_.get();
+  }
+
+  old_menu->Cancel();
+  gtk_chrome_button_set_paint_state(GTK_CHROME_BUTTON(relevant_button),
+                                    GTK_STATE_ACTIVE);
+  new_menu->Popup(relevant_button, 0, timestamp);
+}
+
 // static
 gboolean BrowserToolbarGtk::OnToolbarExpose(GtkWidget* widget,
                                             GdkEventExpose* e,
@@ -458,6 +487,40 @@ void BrowserToolbarGtk::OnDragDataReceived(GtkWidget* widget,
   if (!url_is_newtab) {
     toolbar->profile_->GetPrefs()->SetString(prefs::kHomePage,
                                              UTF8ToWide(url.spec()));
+  }
+}
+
+// static
+gboolean BrowserToolbarGtk::OnPageAppMenuMouseMotion(GtkWidget* menu,
+    GdkEventMotion* event, BrowserToolbarGtk* toolbar) {
+  if (gtk_util::WidgetContainsCursor(menu == toolbar->app_menu_->widget() ?
+                                     toolbar->page_menu_button_.get() :
+                                     toolbar->app_menu_button_.get())) {
+    toolbar->ChangeActiveMenu(menu, event->time);
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+// static
+void BrowserToolbarGtk::OnPageAppMenuMoveCurrent(GtkWidget* menu,
+    GtkMenuDirectionType dir, BrowserToolbarGtk* toolbar) {
+  GtkWidget* active_item = GTK_MENU_SHELL(menu)->active_menu_item;
+
+  switch (dir) {
+    case GTK_MENU_DIR_CHILD:
+      // The move is going to open a submenu; don't override default behavior.
+      if (active_item && gtk_menu_item_get_submenu(GTK_MENU_ITEM(active_item)))
+        break;
+      // Fall through.
+    case GTK_MENU_DIR_PARENT:
+      toolbar->ChangeActiveMenu(menu, gtk_get_current_event_time());
+      // This signal doesn't have a return value; we have to manually stop its
+      // propagation.
+      g_signal_stop_emission_by_name(menu, "move-current");
+    default:
+      break;
   }
 }
 

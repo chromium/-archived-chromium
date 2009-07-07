@@ -109,6 +109,10 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   // Connect signals for dragging a url onto the home button.
   void SetUpDragForHomeButton();
 
+  // Helper for the PageAppMenu event handlers. Pops down the currently active
+  // meun and pops up the other menu.
+  void ChangeActiveMenu(GtkWidget* active_menu, guint timestamp);
+
   // Gtk callback for the "expose-event" signal.
   static gboolean OnToolbarExpose(GtkWidget* widget, GdkEventExpose* e,
                                   BrowserToolbarGtk* toolbar);
@@ -132,6 +136,15 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
                                  GtkSelectionData* data,
                                  guint info, guint time,
                                  BrowserToolbarGtk* toolbar);
+
+  // These event handlers are used to fake menu-bar behavior in the page and
+  // app menus.
+  static gboolean OnPageAppMenuMouseMotion(GtkWidget* widget,
+                                           GdkEventMotion* event,
+                                           BrowserToolbarGtk* toolbar);
+  static void OnPageAppMenuMoveCurrent(GtkWidget* widget,
+                                       GtkMenuDirectionType dir,
+                                       BrowserToolbarGtk* toolbar);
 
   // Initialize the background NineBox.
   void InitNineBox();
