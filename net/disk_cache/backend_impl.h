@@ -7,6 +7,7 @@
 #ifndef NET_DISK_CACHE_BACKEND_IMPL_H_
 #define NET_DISK_CACHE_BACKEND_IMPL_H_
 
+#include "base/hash_tables.h"
 #include "base/timer.h"
 #include "net/disk_cache/block_files.h"
 #include "net/disk_cache/disk_cache.h"
@@ -99,10 +100,15 @@ class BackendImpl : public Backend {
   void RemoveEntry(EntryImpl* entry);
 
   // This method must be called whenever an entry is released for the last time.
-  void CacheEntryDestroyed();
+  // |address| is the cache address of the entry.
+  void CacheEntryDestroyed(Addr address);
+
+  // Returns true if the data stored by the provided |rankings| points to an
+  // open entry, false otherwise.
+  bool IsOpen(CacheRankingsBlock* rankings) const;
 
   // Returns the id being used on this run of the cache.
-  int32 GetCurrentEntryId();
+  int32 GetCurrentEntryId() const;
 
   // Returns the maximum size for a file to reside on the cache.
   int MaxFileSize() const;
@@ -169,6 +175,8 @@ class BackendImpl : public Backend {
   bool OpenPrevEntry(void** iter, Entry** prev_entry);
 
  private:
+  typedef base::hash_map<CacheAddr, EntryImpl*> EntriesMap;
+
   // Creates a new backing file for the cache index.
   bool CreateBackingStore(disk_cache::File* file);
   bool InitBackingStore(bool* file_created);
@@ -241,6 +249,7 @@ class BackendImpl : public Backend {
   uint32 mask_;  // Binary mask to map a hash to the hash table.
   int32 max_size_;  // Maximum data size for this instance.
   Eviction eviction_;  // Handler of the eviction algorithm.
+  EntriesMap open_entries_;  // Map of open entries.
   int num_refs_;  // Number of referenced cache entries.
   int max_refs_;  // Max number of referenced cache entries.
   int num_pending_io_;  // Number of pending IO operations.

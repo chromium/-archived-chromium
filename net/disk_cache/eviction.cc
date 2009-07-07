@@ -182,7 +182,8 @@ bool Eviction::EvictEntry(CacheRankingsBlock* node, bool empty) {
   }
 
   if (node->Data()->pointer) {
-    entry = EntryImpl::Update(entry);
+    // We ignore the failure; we're removing the entry anyway.
+    entry->Update();
   }
   ReportTrimTimes(entry);
   if (empty || !new_eviction_) {
@@ -400,7 +401,8 @@ bool Eviction::RemoveDeletedNode(CacheRankingsBlock* node) {
   }
 
   if (node->Data()->pointer) {
-    entry = EntryImpl::Update(entry);
+    // We ignore the failure; we're removing the entry anyway.
+    entry->Update();
   }
   entry->entry()->Data()->state = ENTRY_DOOMED;
   entry->Doom();

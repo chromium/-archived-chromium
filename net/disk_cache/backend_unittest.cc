@@ -57,7 +57,7 @@ class DiskCacheBackendTest : public DiskCacheTestWithCache {
   void BackendRecoverInsert();
   void BackendRecoverRemove();
   void BackendInvalidEntry2();
-  void BackendNotMarkedButDirty();
+  void BackendNotMarkedButDirty(const std::wstring& name);
   void BackendDoomAll();
   void BackendDoomAll2();
   void BackendInvalidRankings();
@@ -974,8 +974,8 @@ TEST_F(DiskCacheBackendTest, NewEvictionInvalidEntry2) {
 }
 
 // We want to be able to deal with abnormal dirty entries.
-void DiskCacheBackendTest::BackendNotMarkedButDirty() {
-  ASSERT_TRUE(CopyTestCache(L"dirty_entry"));
+void DiskCacheBackendTest::BackendNotMarkedButDirty(const std::wstring& name) {
+  ASSERT_TRUE(CopyTestCache(name));
   DisableFirstCleanup();
   InitCache();
 
@@ -986,12 +986,21 @@ void DiskCacheBackendTest::BackendNotMarkedButDirty() {
 }
 
 TEST_F(DiskCacheBackendTest, NotMarkedButDirty) {
-  BackendNotMarkedButDirty();
+  BackendNotMarkedButDirty(L"dirty_entry");
 }
 
 TEST_F(DiskCacheBackendTest, NewEvictionNotMarkedButDirty) {
   SetNewEviction();
-  BackendNotMarkedButDirty();
+  BackendNotMarkedButDirty(L"dirty_entry");
+}
+
+TEST_F(DiskCacheBackendTest, NotMarkedButDirty2) {
+  BackendNotMarkedButDirty(L"dirty_entry2");
+}
+
+TEST_F(DiskCacheBackendTest, NewEvictionNotMarkedButDirty2) {
+  SetNewEviction();
+  BackendNotMarkedButDirty(L"dirty_entry2");
 }
 
 // We want to be able to deal with messed up entries on disk.

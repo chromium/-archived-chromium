@@ -76,10 +76,10 @@ class EntryImpl : public Entry, public base::RefCounted<EntryImpl> {
   // Reloads the rankings node information.
   bool LoadNodeAddress();
 
-  // Reloads the data for this entry. If there is already an object in memory
-  // for the entry, the returned value is a pointer to that entry, otherwise
-  // it is the passed in entry. On failure returns NULL.
-  static EntryImpl* Update(EntryImpl* entry);
+  // Updates the stored data to reflect the run-time information for this entry.
+  // Returns false if the data could not be updated. The purpose of this method
+  // is to be able to detect entries that are currently in use.
+  bool Update();
 
   // Returns true if this entry is marked as dirty on disk.
   bool IsDirty(int32 current_id);

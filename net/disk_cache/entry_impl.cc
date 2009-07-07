@@ -128,7 +128,7 @@ EntryImpl::~EntryImpl() {
     }
   }
 
-  backend_->CacheEntryDestroyed();
+  backend_->CacheEntryDestroyed(entry_.address());
 }
 
 void EntryImpl::Doom() {
@@ -506,34 +506,27 @@ bool EntryImpl::LoadNodeAddress() {
   return node_.Load();
 }
 
-EntryImpl* EntryImpl::Update(EntryImpl* entry) {
-  DCHECK(entry->rankings()->HasData());
+bool EntryImpl::Update() {
+  DCHECK(node_.HasData());
 
-  RankingsNode* rankings = entry->rankings()->Data();
+  RankingsNode* rankings = node_.Data();
   if (rankings->pointer) {
-    // Already in memory. Prevent clearing the dirty flag on the destructor.
-    rankings->dirty = 0;
-    EntryImpl* real_node = reinterpret_cast<EntryImpl*>(rankings->pointer);
-    real_node->AddRef();
-    entry->Release();
-    return real_node;
+    // Nothing to do here, the entry was in memory.
+    DCHECK(rankings->pointer == this);
   } else {
-    rankings->dirty = entry->backend_->GetCurrentEntryId();
-    rankings->pointer = entry;
-    if (!entry->rankings()->Store()) {
-      entry->Release();
-      return NULL;
-    }
-    return entry;
+    rankings->dirty = backend_->GetCurrentEntryId();
+    rankings->pointer = this;
+    if (!node_.Store())
+      return false;
   }
+  return true;
 }
 
 bool EntryImpl::IsDirty(int32 current_id) {
   DCHECK(node_.HasData());
   // We are checking if the entry is valid or not. If there is a pointer here,
-  // |dirty| has to be the id of the cache that is using the entry (the one
-  // that created the pointer), 0 is not a valid id.
-  if (node_.Data()->pointer && !node_.Data()->dirty)
+  // we should not be checking the entry.
+  if (node_.Data()->pointer)
     return true;
 
   return node_.Data()->dirty && current_id != node_.Data()->dirty;

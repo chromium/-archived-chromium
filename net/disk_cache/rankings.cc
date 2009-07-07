@@ -223,14 +223,16 @@ bool Rankings::GetRanking(CacheRankingsBlock* rankings) {
 
   backend_->OnEvent(Stats::OPEN_RANKINGS);
 
-  if (backend_->GetCurrentEntryId() != rankings->Data()->dirty) {
+  if (backend_->GetCurrentEntryId() != rankings->Data()->dirty ||
+      !backend_->IsOpen(rankings)) {
     // We cannot trust this entry, but we cannot initiate a cleanup from this
     // point (we may be in the middle of a cleanup already). Just get rid of
     // the invalid pointer and continue; the entry will be deleted when detected
     // from a regular open/create path.
     rankings->Data()->pointer = NULL;
+    rankings->Data()->dirty = backend_->GetCurrentEntryId() - 1;
     if (!rankings->Data()->dirty)
-      rankings->Data()->dirty = backend_->GetCurrentEntryId() - 1;
+      rankings->Data()->dirty--;
     return true;
   }
 

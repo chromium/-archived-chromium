@@ -426,6 +426,9 @@ bool BackendImpl::CreateEntry(const std::string& key, Entry** entry) {
     return false;
   }
 
+  // We are not failing the operation; let's add this to the map.
+  open_entries_[entry_address.value()] = cache_entry;
+
   if (parent.get())
     parent->SetNextAddress(entry_address);
 
@@ -720,11 +723,26 @@ void BackendImpl::RemoveEntry(EntryImpl* entry) {
   DecreaseNumEntries();
 }
 
-void BackendImpl::CacheEntryDestroyed() {
+void BackendImpl::CacheEntryDestroyed(Addr address) {
+  EntriesMap::iterator it = open_entries_.find(address.value());
+  if (it != open_entries_.end())
+    open_entries_.erase(it);
   DecreaseNumRefs();
 }
 
-int32 BackendImpl::GetCurrentEntryId() {
+bool BackendImpl::IsOpen(CacheRankingsBlock* rankings) const {
+  DCHECK(rankings->HasData());
+  EntriesMap::const_iterator it =
+      open_entries_.find(rankings->Data()->contents);
+  if (it != open_entries_.end()) {
+    // We have this entry in memory.
+    return rankings->Data()->pointer == it->second;
+  }
+
+  return false;
+}
+
+int32 BackendImpl::GetCurrentEntryId() const {
   return data_->header.this_id;
 }
 
@@ -1035,6 +1053,16 @@ void BackendImpl::PrepareForRestart() {
 }
 
 int BackendImpl::NewEntry(Addr address, EntryImpl** entry, bool* dirty) {
+  EntriesMap::iterator it = open_entries_.find(address.value());
+  if (it != open_entries_.end()) {
+    // Easy job. This entry is already in memory.
+    EntryImpl* this_entry = it->second;
+    this_entry->AddRef();
+    *entry = this_entry;
+    *dirty = false;
+    return 0;
+  }
+
   scoped_refptr<EntryImpl> cache_entry(new EntryImpl(this, address));
   IncreaseNumRefs();
   *entry = NULL;
@@ -1063,6 +1091,10 @@ int BackendImpl::NewEntry(Addr address, EntryImpl** entry, bool* dirty) {
 
   if (!rankings_.SanityCheck(cache_entry->rankings(), false))
     return ERR_INVALID_LINKS;
+
+  // We only add clean entries to the map.
+  if (!*dirty)
+    open_entries_[address.value()] = cache_entry;
 
   cache_entry.swap(entry);
   return 0;
@@ -1119,11 +1151,17 @@ EntryImpl* BackendImpl::MatchEntry(const std::string& key, uint32 hash,
     }
 
     if (cache_entry->IsSameEntry(key, hash)) {
-      cache_entry = EntryImpl::Update(cache_entry);
+      if (!cache_entry->Update()) {
+        cache_entry->Release();
+        cache_entry = NULL;
+      }
       found = true;
       break;
     }
-    cache_entry = EntryImpl::Update(cache_entry);
+    if (!cache_entry->Update()) {
+      cache_entry->Release();
+      cache_entry = NULL;
+    }
     if (parent_entry)
       parent_entry->Release();
     parent_entry = cache_entry;
@@ -1279,9 +1317,11 @@ EntryImpl* BackendImpl::GetEnumeratedEntry(CacheRankingsBlock* next) {
 
     return NULL;
   }
+  if (!entry->Update())
+    return NULL;
 
   entry.swap(&temp);
-  return EntryImpl::Update(temp);  // Update returns an adref'd entry.
+  return temp;
 }
 
 bool BackendImpl::ResurrectEntry(EntryImpl* deleted_entry, Entry** entry) {
