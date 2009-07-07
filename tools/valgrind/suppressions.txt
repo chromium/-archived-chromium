@@ -421,16 +421,16 @@
    fun:_ZN10SkTypeface6CreateEPKcNS_5StyleE
 }
 {
-   # see http://crbug.com/10737	 
-   bug_10737	 
-   Memcheck:Leak	 
-   fun:calloc	 
-   fun:g_malloc0	 
-   fun:g_closure_new_simple	 
-   fun:g_cclosure_new	 
-   fun:_ZN16BrowserWindowGtk19ConnectAcceleratorsEv	 
-   fun:_ZN16BrowserWindowGtkC1EP7Browser	 
-   fun:_ZN13BrowserWindow19CreateBrowserWindowEP7Browser	 
+   # see http://crbug.com/10737
+   bug_10737
+   Memcheck:Leak
+   fun:calloc
+   fun:g_malloc0
+   fun:g_closure_new_simple
+   fun:g_cclosure_new
+   fun:_ZN16BrowserWindowGtk19ConnectAcceleratorsEv
+   fun:_ZN16BrowserWindowGtkC1EP7Browser
+   fun:_ZN13BrowserWindow19CreateBrowserWindowEP7Browser
 }
 {
    # real leak; see http://crbug.com/10738
