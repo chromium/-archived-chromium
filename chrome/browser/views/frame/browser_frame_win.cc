@@ -11,16 +11,20 @@
 #include "app/win_util.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/dock_info.h"
 #include "chrome/browser/views/frame/browser_non_client_frame_view.h"
 #include "chrome/browser/views/frame/browser_root_view.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/frame/glass_browser_frame_view.h"
 #include "chrome/browser/views/frame/opaque_browser_frame_view.h"
+#include "chrome/browser/views/tabs/browser_tab_strip.h"
 #include "grit/theme_resources.h"
+#include "views/screen.h"
 #include "views/window/window_delegate.h"
 
 // static
 static const int kClientEdgeThickness = 3;
+static const int kTabDragWindowAlpha = 200;
 
 // static (Factory method.)
 BrowserFrame* BrowserFrame::Create(BrowserView* browser_view,
@@ -36,6 +40,10 @@ BrowserFrame* BrowserFrame::Create(BrowserView* browser_view,
 BrowserFrameWin::BrowserFrameWin(BrowserView* browser_view, Profile* profile)
     : WindowWin(browser_view),
       browser_view_(browser_view),
+      saved_window_style_(0),
+      saved_window_ex_style_(0),
+      detached_drag_mode_(false),
+      drop_tabstrip_(NULL),
       root_view_(NULL),
       frame_initialized_(false),
       profile_(profile) {
@@ -80,6 +88,16 @@ void BrowserFrameWin::UpdateThrobber(bool running) {
   browser_frame_view_->UpdateThrobber(running);
 }
 
+void BrowserFrameWin::ContinueDraggingDetachedTab() {
+  detached_drag_mode_ = true;
+
+  // Set the frame to partially transparent.
+  UpdateWindowAlphaForTabDragging(detached_drag_mode_);
+
+  // Send the message directly, so that the window is positioned appropriately.
+  SendMessage(GetNativeWindow(), WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(0, 0));
+}
+
 ThemeProvider* BrowserFrameWin::GetThemeProviderForFrame() const {
   // This is implemented for a different interface than GetThemeProvider is,
   // but they mean the same things.
@@ -111,7 +129,26 @@ void BrowserFrameWin::OnEndSession(BOOL ending, UINT logoff) {
 }
 
 void BrowserFrameWin::OnEnterSizeMove() {
+  drop_tabstrip_ = NULL;
   browser_view_->WindowMoveOrResizeStarted();
+}
+
+void BrowserFrameWin::OnExitSizeMove() {
+  if (TabStrip2::Enabled()) {
+    if (detached_drag_mode_) {
+      detached_drag_mode_ = false;
+      if (drop_tabstrip_) {
+        gfx::Point screen_point = views::Screen::GetCursorScreenPoint();
+        BrowserTabStrip* tabstrip = browser_view_->bts();
+        gfx::Rect tsb = tabstrip->GetDraggedTabScreenBounds(screen_point);
+        drop_tabstrip_->AttachTab(tabstrip->DetachTab(0), screen_point, tsb);
+      } else {
+        UpdateWindowAlphaForTabDragging(detached_drag_mode_);
+        browser_view_->bts()->SendDraggedTabHome();
+      }
+    }
+  }
+  WidgetWin::OnExitSizeMove();
 }
 
 void BrowserFrameWin::OnInitMenuPopup(HMENU menu, UINT position,
@@ -228,6 +265,30 @@ LRESULT BrowserFrameWin::OnNCHitTest(const CPoint& pt) {
 }
 
 void BrowserFrameWin::OnWindowPosChanged(WINDOWPOS* window_pos) {
+  if (TabStrip2::Enabled()) {
+    if (detached_drag_mode_) {
+      // TODO(beng): move all to BrowserTabStrip...
+
+      // We check to see if the mouse cursor is in the magnetism zone of another
+      // visible TabStrip. If so, we should dock to it.
+      std::set<HWND> ignore_windows;
+      ignore_windows.insert(GetNativeWindow());
+
+      gfx::Point screen_point = views::Screen::GetCursorScreenPoint();
+      HWND local_window =
+          DockInfo::GetLocalProcessWindowAtPoint(screen_point, ignore_windows);
+      if (local_window) {
+        drop_tabstrip_ =
+            BrowserView::GetBrowserViewForNativeWindow(local_window)->bts();
+        if (TabStrip2::IsDragRearrange(drop_tabstrip_, screen_point)) {
+          ReleaseCapture();
+          return;
+        }
+      }
+      drop_tabstrip_ = NULL;
+    }
+  }
+
   // Windows lies to us about the position of the minimize button before a
   // window is visible. We use the position of the minimize button to place the
   // distributor logo in official builds. When the window is shown, we need to
@@ -242,6 +303,8 @@ void BrowserFrameWin::OnWindowPosChanged(WINDOWPOS* window_pos) {
     GetNonClientView()->Layout();
     GetNonClientView()->SchedulePaint();
   }
+
+  // Let the default window procedure handle - IMPORTANT!
   WindowWin::OnWindowPosChanged(window_pos);
 }
 
@@ -290,9 +353,29 @@ void BrowserFrameWin::UpdateDWMFrame() {
   }
   // In maximized mode, we only have a titlebar strip of glass, no side/bottom
   // borders.
-  if (!browser_view_->IsFullscreen()) {
+  if (!browser_view_->IsFullscreen() && !TabStrip2::Enabled()) {
     margins.cyTopHeight =
         GetBoundsForTabStrip(browser_view_->tabstrip()).bottom();
   }
   DwmExtendFrameIntoClientArea(GetNativeView(), &margins);
+}
+
+void BrowserFrameWin::UpdateWindowAlphaForTabDragging(bool dragging) {
+  HWND frame_hwnd = GetNativeWindow();
+  if (dragging) {
+    // Make the frame slightly transparent during the drag operation.
+    saved_window_style_ = ::GetWindowLong(frame_hwnd, GWL_STYLE);
+    saved_window_ex_style_ = ::GetWindowLong(frame_hwnd, GWL_EXSTYLE);
+    ::SetWindowLong(frame_hwnd, GWL_EXSTYLE,
+                    saved_window_ex_style_ | WS_EX_LAYERED);
+    // Remove the captions tyle so the window doesn't have window controls for a
+    // more "transparent" look.
+    ::SetWindowLong(frame_hwnd, GWL_STYLE,
+                    saved_window_style_ & ~WS_CAPTION);
+    SetLayeredWindowAttributes(frame_hwnd, RGB(0xFF, 0xFF, 0xFF),
+                               kTabDragWindowAlpha, LWA_ALPHA);
+  } else {
+    ::SetWindowLong(frame_hwnd, GWL_STYLE, saved_window_style_);
+    ::SetWindowLong(frame_hwnd, GWL_EXSTYLE, saved_window_ex_style_);
+  }
 }

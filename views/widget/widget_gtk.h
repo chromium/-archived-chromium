@@ -92,6 +92,8 @@ class WidgetGtk : public Widget, public MessageLoopForUI::Observer {
   virtual Widget* GetRootWidget() const;
   virtual bool IsVisible() const;
   virtual bool IsActive() const;
+  virtual void GenerateMousePressedForView(View* view,
+                                           const gfx::Point& point);
   virtual TooltipManager* GetTooltipManager();
   virtual bool GetAccelerator(int cmd_id, Accelerator* accelerator);
   virtual Window* GetWindow();

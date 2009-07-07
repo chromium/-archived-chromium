@@ -20,6 +20,7 @@ class Accelerator;
 class FocusManager;
 class RootView;
 class TooltipManager;
+class View;
 class Window;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -95,6 +96,11 @@ class Widget {
   virtual TooltipManager* GetTooltipManager() {
     return NULL;
   }
+
+  // Starts a drag operation for the specified view. |point| is a position in
+  // |view| coordinates that the drag was initiated from.
+  virtual void GenerateMousePressedForView(View* view,
+                                           const gfx::Point& point) = 0;
 
   // Returns the accelerator given a command id. Returns false if there is
   // no accelerator associated with a given id, which is a common condition.

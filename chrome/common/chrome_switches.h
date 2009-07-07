@@ -203,6 +203,8 @@ extern const wchar_t kEnableMonitorProfile[];
 
 extern const wchar_t kEnableXSSAuditor[];
 
+extern const wchar_t kEnableTabtastic2[];
+
 }  // namespace switches
 
 #endif  // CHROME_COMMON_CHROME_SWITCHES_H_

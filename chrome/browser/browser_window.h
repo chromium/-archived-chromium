@@ -195,6 +195,13 @@ class BrowserWindow {
   virtual void ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                               gfx::NativeWindow parent_window) = 0;
 
+  // Asks the window to continue a drag operation begun in a different browser
+  // window. |tab_bounds| are the bounds of the Tab view that was dragged from
+  // the source window, in screen coordinates. The corresponding Tab view in
+  // this new window will be positioned at these bounds for a seamless
+  // appearance.
+  virtual void ContinueDraggingDetachedTab(const gfx::Rect& tab_bounds) {}
+
   // BrowserThemeProvider calls this when a user has changed his or her theme,
   // indicating that it's time to redraw everything.
   virtual void UserChangedTheme() = 0;

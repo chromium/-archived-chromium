@@ -12,6 +12,7 @@
 class AeroGlassNonClientView;
 class BrowserNonClientFrameView;
 class BrowserRootView;
+class BrowserTabStrip;
 class BrowserView;
 class NonClientFrameView;
 class Profile;
@@ -40,6 +41,7 @@ class BrowserFrameWin : public BrowserFrame, public views::WindowWin {
   virtual int GetMinimizeButtonOffset() const;
   virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const;
   virtual void UpdateThrobber(bool running);
+  virtual void ContinueDraggingDetachedTab();
   virtual ThemeProvider* GetThemeProviderForFrame() const;
 
   // Overridden from views::Widget.
@@ -52,8 +54,9 @@ class BrowserFrameWin : public BrowserFrame, public views::WindowWin {
   // Overridden from views::WidgetWin:
   virtual bool AcceleratorPressed(views::Accelerator* accelerator);
   virtual bool GetAccelerator(int cmd_id, views::Accelerator* accelerator);
-  virtual void OnEnterSizeMove();
   virtual void OnEndSession(BOOL ending, UINT logoff);
+  virtual void OnEnterSizeMove();
+  virtual void OnExitSizeMove();
   virtual void OnInitMenuPopup(HMENU menu, UINT position, BOOL is_system_menu);
   virtual LRESULT OnMouseActivate(HWND window,
                                   UINT hittest_code,
@@ -76,6 +79,10 @@ class BrowserFrameWin : public BrowserFrame, public views::WindowWin {
   // Updates the DWM with the frame bounds.
   void UpdateDWMFrame();
 
+  // Update the window's pacity when entering and exiting detached dragging
+  // mode.
+  void UpdateWindowAlphaForTabDragging(bool dragging);
+
   // The BrowserView is our ClientView. This is a pointer to it.
   BrowserView* browser_view_;
 
@@ -90,6 +97,19 @@ class BrowserFrameWin : public BrowserFrame, public views::WindowWin {
   bool frame_initialized_;
 
   Profile* profile_;
+
+  // The window styles before we modified them for a tab dragging operation.
+  DWORD saved_window_style_;
+  DWORD saved_window_ex_style_;
+
+  // True if the window is currently being moved in a detached tab drag
+  // operation.
+  bool detached_drag_mode_;
+
+  // When this frame represents a detached tab being dragged, this is a TabStrip
+  // in another window that the tab being dragged would be docked to if the
+  // mouse were released, or NULL if there is no suitable TabStrip.
+  BrowserTabStrip* drop_tabstrip_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserFrameWin);
 };

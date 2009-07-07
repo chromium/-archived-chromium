@@ -368,6 +368,11 @@ bool WidgetGtk::IsActive() const {
   return gtk_window_is_active(GTK_WINDOW(widget_));
 }
 
+void WidgetGtk::GenerateMousePressedForView(View* view,
+                                            const gfx::Point& point) {
+  NOTIMPLEMENTED();
+}
+
 TooltipManager* WidgetGtk::GetTooltipManager() {
   return tooltip_manager_.get();
 }

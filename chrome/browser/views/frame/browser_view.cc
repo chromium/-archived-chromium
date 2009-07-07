@@ -39,6 +39,7 @@
 #include "chrome/browser/views/infobars/infobar_container.h"
 #include "chrome/browser/views/status_bubble_views.h"
 #include "chrome/browser/views/tab_contents/tab_contents_container.h"
+#include "chrome/browser/views/tabs/browser_tab_strip.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/browser/views/toolbar_star_toggle.h"
 #include "chrome/browser/views/toolbar_view.h"
@@ -430,7 +431,10 @@ int BrowserView::GetTabStripHeight() const {
   // We want to return tabstrip_->height(), but we might be called in the midst
   // of layout, when that hasn't yet been updated to reflect the current state.
   // So return what the tabstrip height _ought_ to be right now.
-  return IsTabStripVisible() ? tabstrip_->GetPreferredSize().height() : 0;
+  views::View* tabstrip =
+      TabStrip2::Enabled() ? static_cast<views::View*>(bts_)
+                           : static_cast<views::View*>(tabstrip_);
+  return IsTabStripVisible() ? tabstrip->GetPreferredSize().height() : 0;
 }
 
 gfx::Rect BrowserView::GetTabStripBounds() const {
@@ -940,6 +944,12 @@ void BrowserView::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
   browser::ShowHtmlDialogView(parent, browser_.get(), delegate);
 }
 
+void BrowserView::ContinueDraggingDetachedTab(const gfx::Rect& tab_bounds) {
+  DCHECK(TabStrip2::Enabled());
+  bts_->SetDraggedTabBounds(0, tab_bounds);
+  frame_->ContinueDraggingDetachedTab();
+}
+
 void BrowserView::UserChangedTheme() {
   frame_->GetWindow()->FrameTypeChanged();
   GetRootView()->ThemeChanged();
@@ -1218,7 +1228,7 @@ views::ClientView* BrowserView::CreateClientView(views::Window* window) {
 bool BrowserView::CanClose() const {
   // You cannot close a frame for which there is an active originating drag
   // session.
-  if (tabstrip_->IsDragSessionActive())
+  if (!TabStrip2::Enabled() && tabstrip_->IsDragSessionActive())
     return false;
 
   // Give beforeunload handlers the chance to cancel the close before we hide
@@ -1276,18 +1286,20 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
     View::ConvertPointToView(GetParent(), this, &point_in_view_coords);
 
     // See if the mouse pointer is within the bounds of the TabStrip.
-    gfx::Point point_in_tabstrip_coords(point);
-    View::ConvertPointToView(GetParent(), tabstrip_, &point_in_tabstrip_coords);
-    if (tabstrip_->HitTest(point_in_tabstrip_coords)) {
-      if (tabstrip_->PointIsWithinWindowCaption(point_in_tabstrip_coords))
-        return HTCAPTION;
-      return HTCLIENT;
+    if (!TabStrip2::Enabled()) {
+      gfx::Point point_in_tabstrip_coords(point);
+      View::ConvertPointToView(GetParent(), tabstrip_, &point_in_tabstrip_coords);
+      if (tabstrip_->HitTest(point_in_tabstrip_coords)) {
+        if (tabstrip_->PointIsWithinWindowCaption(point_in_tabstrip_coords))
+          return HTCAPTION;
+        return HTCLIENT;
+      }
     }
 
     // The top few pixels of the TabStrip are a drop-shadow - as we're pretty
     // starved of dragable area, let's give it to window dragging (this also
     // makes sense visually).
-    if (!IsMaximized() &&
+    if (!TabStrip2::Enabled() && !IsMaximized() &&
         (point_in_view_coords.y() < tabstrip_->y() + kTabShadowSize)) {
       // We return HTNOWHERE as this is a signal to our containing
       // NonClientView that it should figure out what the correct hit-test
@@ -1300,8 +1312,13 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
   // within the bounds of this view, the point is considered to be within the
   // client area.
   gfx::Rect bv_bounds = bounds();
-  bv_bounds.Offset(0, toolbar_->y());
-  bv_bounds.set_height(bv_bounds.height() - toolbar_->y());
+  if (TabStrip2::Enabled()) {
+    bv_bounds.Offset(0, bts_->y());
+    bv_bounds.set_height(bv_bounds.height() - bts_->y());
+  } else {
+    bv_bounds.Offset(0, toolbar_->y());
+    bv_bounds.set_height(bv_bounds.height() - toolbar_->y());
+  }
   if (bv_bounds.Contains(point))
     return HTCLIENT;
 
@@ -1325,11 +1342,14 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
 }
 
 gfx::Size BrowserView::GetMinimumSize() {
+  views::View* tabstrip =
+      TabStrip2::Enabled() ? static_cast<views::View*>(bts_)
+                           : static_cast<views::View*>(tabstrip_);
   // TODO(noname): In theory the tabstrip width should probably be
   // (OTR + tabstrip + caption buttons) width.
   gfx::Size tabstrip_size(
       browser_->SupportsWindowFeature(Browser::FEATURE_TABSTRIP) ?
-      tabstrip_->GetMinimumSize() : gfx::Size());
+      tabstrip->GetMinimumSize() : gfx::Size());
   gfx::Size toolbar_size(
       (browser_->SupportsWindowFeature(Browser::FEATURE_TOOLBAR) ||
        browser_->SupportsWindowFeature(Browser::FEATURE_LOCATIONBAR)) ?
@@ -1417,11 +1437,16 @@ void BrowserView::Init() {
   LoadAccelerators();
   SetAccessibleName(l10n_util::GetString(IDS_PRODUCT_NAME));
 
-  tabstrip_ = new TabStrip(browser_->tabstrip_model());
-  tabstrip_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TABSTRIP));
-  AddChildView(tabstrip_);
-  tabstrip_->InitTabStripButtons();
-  frame_->TabStripCreated(tabstrip_);
+  if (TabStrip2::Enabled()) {
+    bts_ = new BrowserTabStrip(browser_->tabstrip_model());
+    AddChildView(bts_);
+  } else {
+    tabstrip_ = new TabStrip(browser_->tabstrip_model());
+    tabstrip_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TABSTRIP));
+    AddChildView(tabstrip_);
+    tabstrip_->InitTabStripButtons();
+    frame_->TabStripCreated(tabstrip_);
+  }
 
   toolbar_ = new ToolbarView(browser_.get());
   AddChildView(toolbar_);
@@ -1469,18 +1494,30 @@ void BrowserView::InitSystemMenu() {
 #endif
 
 int BrowserView::LayoutTabStrip() {
-  gfx::Rect tabstrip_bounds = frame_->GetBoundsForTabStrip(tabstrip_);
-  tabstrip_->SetBackgroundOffset(
-      gfx::Point(tabstrip_bounds.x(), tabstrip_bounds.y()));
+  gfx::Rect tabstrip_bounds;
+  if (TabStrip2::Enabled()) {
+    tabstrip_bounds = gfx::Rect(0, 0, width(),
+                                bts_->GetPreferredSize().height());
+  } else {
+    tabstrip_bounds = frame_->GetBoundsForTabStrip(tabstrip_);
+    tabstrip_->SetBackgroundOffset(
+        gfx::Point(tabstrip_bounds.x(), tabstrip_bounds.y()));
+  }
   gfx::Point tabstrip_origin = tabstrip_bounds.origin();
   ConvertPointToView(GetParent(), this, &tabstrip_origin);
   tabstrip_bounds.set_origin(tabstrip_origin);
   bool visible = IsTabStripVisible();
   int y = visible ? tabstrip_bounds.y() : 0;
   int height = visible ? tabstrip_bounds.height() : 0;
-  tabstrip_->SetVisible(visible);
-  tabstrip_->SetBounds(tabstrip_bounds.x(), y, tabstrip_bounds.width(), height);
-  return y + height;
+  int bottom = y + height;
+  if (TabStrip2::Enabled()) {
+    gfx::Size btsps = bts_->GetPreferredSize();
+    bts_->SetBounds(tabstrip_bounds.x(), y, width(), btsps.height());
+  } else {
+    tabstrip_->SetVisible(visible);
+    tabstrip_->SetBounds(tabstrip_bounds.x(), y, tabstrip_bounds.width(), height);
+  }
+  return bottom;
 }
 
 int BrowserView::LayoutToolbar(int top) {
@@ -1796,7 +1833,8 @@ void BrowserView::LoadingAnimationCallback() {
     // will return false for fullscreen windows, but we still need to update
     // their animations (so that when they come out of fullscreen mode they'll
     // be correct).
-    tabstrip_->UpdateLoadingAnimations();
+    if (!TabStrip2::Enabled())
+      tabstrip_->UpdateLoadingAnimations();
   } else if (ShouldShowWindowIcon()) {
     // ... or in the window icon area for popups and app windows.
     TabContents* tab_contents = browser_->GetSelectedTabContents();

@@ -53,6 +53,9 @@ class BrowserFrame {
   // Tells the frame to update the throbber.
   virtual void UpdateThrobber(bool running) = 0;
 
+  // Tells the frame to continue a drag detached tab operation.
+  virtual void ContinueDraggingDetachedTab() = 0;
+
   // Returns the theme provider for this frame.
   virtual ThemeProvider* GetThemeProviderForFrame() const = 0;
 };

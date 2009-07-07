@@ -417,6 +417,9 @@ class Browser : public TabStripModelDelegate,
   virtual Browser* CreateNewStripWithContents(TabContents* detached_contents,
                                               const gfx::Rect& window_bounds,
                                               const DockInfo& dock_info);
+  virtual void ContinueDraggingDetachedTab(TabContents* contents,
+                                           const gfx::Rect& window_bounds,
+                                           const gfx::Rect& tab_bounds);
   virtual int GetDragActions() const;
   // Construct a TabContents for a given URL, profile and transition type.
   // If instance is not null, its process will be used to render the tab.

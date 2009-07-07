@@ -36,6 +36,10 @@ class TabStripDummyDelegate : public TabStripModelDelegate {
                                               const DockInfo& dock_info) {
     return NULL;
   }
+  virtual void ContinueDraggingDetachedTab(TabContents* contents,
+                                           const gfx::Rect& window_bounds,
+                                           const gfx::Rect& tab_bounds) {
+  }
   virtual int GetDragActions() const { return 0; }
   virtual TabContents* CreateTabContentsForURL(
       const GURL& url,

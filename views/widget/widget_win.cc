@@ -392,6 +392,14 @@ bool WidgetWin::IsActive() const {
   return win_util::IsWindowActive(GetNativeView());
 }
 
+void WidgetWin::GenerateMousePressedForView(View* view,
+                                            const gfx::Point& point) {
+  gfx::Point point_in_widget(point);
+  View::ConvertPointToWidget(view, &point_in_widget);
+  root_view_->SetMouseHandler(view);
+  ProcessMousePressed(point_in_widget.ToPOINT(), MK_LBUTTON, false, false);
+}
+
 TooltipManager* WidgetWin::GetTooltipManager() {
   return tooltip_manager_.get();
 }

@@ -532,4 +532,7 @@ const wchar_t kEnableMonitorProfile[] = L"enable-monitor-profile";
 // still experimental.
 const wchar_t kEnableXSSAuditor[] = L"enable-xss-auditor";
 
+// Enables the new Tabstrip on Windows.
+const wchar_t kEnableTabtastic2[] = L"enable-tabtastic2";
+
 }  // namespace switches

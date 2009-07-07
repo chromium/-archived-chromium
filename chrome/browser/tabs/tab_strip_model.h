@@ -130,6 +130,16 @@ class TabStripModelDelegate {
                                               const gfx::Rect& window_bounds,
                                               const DockInfo& dock_info) = 0;
 
+  // Creates a new Browser object and window containing the specified
+  // |contents|, and continues a drag operation that began within the source
+  // window's tab strip. |window_bounds| are the bounds of the source window in
+  // screen coordinates, used to place the new window, and |tab_bounds| are the
+  // bounds of the dragged Tab view in the source window, in screen coordinates,
+  // used to place the new Tab in the new window.
+  virtual void ContinueDraggingDetachedTab(TabContents* contents,
+                                           const gfx::Rect& window_bounds,
+                                           const gfx::Rect& tab_bounds) = 0;
+
   enum {
     TAB_MOVE_ACTION = 1,
     TAB_TEAROFF_ACTION = 2

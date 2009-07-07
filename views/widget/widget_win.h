@@ -159,6 +159,7 @@ class WidgetWin : public Widget,
     MSG_WM_ENDSESSION(OnEndSession)
     MSG_WM_ENTERSIZEMOVE(OnEnterSizeMove)
     MSG_WM_EXITMENULOOP(OnExitMenuLoop)
+    MSG_WM_EXITSIZEMOVE(OnExitSizeMove)
     MSG_WM_GETMINMAXINFO(OnGetMinMaxInfo)
     MSG_WM_HSCROLL(OnHScroll)
     MSG_WM_INITMENU(OnInitMenu)
@@ -225,6 +226,8 @@ class WidgetWin : public Widget,
   virtual Widget* GetRootWidget() const;
   virtual bool IsVisible() const;
   virtual bool IsActive() const;
+  virtual void GenerateMousePressedForView(View* view,
+                                           const gfx::Point& point);
   virtual TooltipManager* GetTooltipManager();
   virtual ThemeProvider* GetThemeProvider() const;
   virtual Window* GetWindow();
@@ -371,10 +374,11 @@ class WidgetWin : public Widget,
   }
   virtual void OnEndSession(BOOL ending, UINT logoff) { SetMsgHandled(FALSE); }
   virtual void OnEnterSizeMove() { SetMsgHandled(FALSE); }
+  virtual LRESULT OnEraseBkgnd(HDC dc);
   virtual void OnExitMenuLoop(BOOL is_track_popup_menu) {
     SetMsgHandled(FALSE);
   }
-  virtual LRESULT OnEraseBkgnd(HDC dc);
+  virtual void OnExitSizeMove() { SetMsgHandled(FALSE); }
   virtual LRESULT OnGetObject(UINT uMsg, WPARAM w_param, LPARAM l_param);
   virtual void OnGetMinMaxInfo(MINMAXINFO* minmax_info) {
     SetMsgHandled(FALSE);

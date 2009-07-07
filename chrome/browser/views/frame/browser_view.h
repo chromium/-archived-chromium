@@ -31,6 +31,7 @@
 class BookmarkBarView;
 class Browser;
 class BrowserBubble;
+class BrowserTabStrip;
 class DownloadShelfView;
 class EncodingMenuModel;
 class ExtensionShelf;
@@ -121,6 +122,7 @@ class BrowserView : public BrowserWindow,
 
   // Accessor for the TabStrip.
   TabStrip* tabstrip() const { return tabstrip_; }
+  BrowserTabStrip* bts() const { return bts_; }
 
   // Accessor for the ExtensionShelf.
   ExtensionShelf* extension_shelf() const { return extension_shelf_; }
@@ -238,6 +240,7 @@ class BrowserView : public BrowserWindow,
   virtual void ConfirmBrowserCloseWithPendingDownloads();
   virtual void ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                               gfx::NativeWindow parent_window);
+  virtual void ContinueDraggingDetachedTab(const gfx::Rect& tab_bounds);
   virtual void UserChangedTheme();
   virtual int GetExtraRenderViewHeight() const;
   virtual void TabContentsFocused(TabContents* source);
@@ -394,6 +397,9 @@ class BrowserView : public BrowserWindow,
 
   // The TabStrip.
   TabStrip* tabstrip_;
+
+  // The BrowserTabStrip.
+  BrowserTabStrip* bts_;
 
   // The Toolbar containing the navigation buttons, menus and the address bar.
   ToolbarView* toolbar_;
