@@ -79,7 +79,7 @@ static const struct {
 
 }
 
-void SpellChecker::SpellCheckLanguages(Languages* languages) {
+void SpellChecker::SpellCheckLanguages(std::vector<std::string>* languages) {
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(g_supported_spellchecker_languages);
        ++i)
     languages->push_back(g_supported_spellchecker_languages[i].language);
@@ -87,44 +87,47 @@ void SpellChecker::SpellCheckLanguages(Languages* languages) {
 
 // This function returns the language-region version of language name.
 // e.g. returns hi-IN for hi.
-SpellChecker::Language SpellChecker::GetSpellCheckLanguageRegion(
-    Language input_language) {
+std::string SpellChecker::GetSpellCheckLanguageRegion(
+    std::string input_language) {
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(g_supported_spellchecker_languages);
        ++i) {
-    Language language(g_supported_spellchecker_languages[i].language);
+    std::string language(
+        g_supported_spellchecker_languages[i].language);
     if (language ==  input_language)
-      return Language(g_supported_spellchecker_languages[i].language_region);
+      return std::string(
+          g_supported_spellchecker_languages[i].language_region);
   }
 
   return input_language;
 }
 
 
-SpellChecker::Language SpellChecker::GetLanguageFromLanguageRegion(
-    Language input_language) {
+std::string SpellChecker::GetLanguageFromLanguageRegion(
+    std::string input_language) {
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(g_supported_spellchecker_languages);
        ++i) {
-    Language language(g_supported_spellchecker_languages[i].language_region);
+    std::string language(
+        g_supported_spellchecker_languages[i].language_region);
     if (language ==  input_language)
-      return Language(g_supported_spellchecker_languages[i].language);
+      return std::string(g_supported_spellchecker_languages[i].language);
   }
 
   return input_language;
 }
 
-SpellChecker::Language SpellChecker::GetCorrespondingSpellCheckLanguage(
-    const Language& language) {
+std::string SpellChecker::GetCorrespondingSpellCheckLanguage(
+    const std::string& language) {
   // Look for exact match in the Spell Check language list.
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(g_supported_spellchecker_languages);
        ++i) {
     // First look for exact match in the language region of the list.
-    Language spellcheck_language(
+    std::string spellcheck_language(
         g_supported_spellchecker_languages[i].language);
     if (spellcheck_language == language)
       return language;
 
     // Next, look for exact match in the language_region part of the list.
-    Language spellcheck_language_region(
+    std::string spellcheck_language_region(
         g_supported_spellchecker_languages[i].language_region);
     if (spellcheck_language_region == language)
       return g_supported_spellchecker_languages[i].language;
@@ -137,10 +140,10 @@ SpellChecker::Language SpellChecker::GetCorrespondingSpellCheckLanguage(
   // 'az-Latn-AZ' vs 'az-Arab-AZ', either, but we don't use 3-part
   // locale ids with a script code in the middle, yet.
   // TODO(jungshik): Add a better fallback.
-  Language language_part(language, 0, language.find('-'));
+  std::string language_part(language, 0, language.find('-'));
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(g_supported_spellchecker_languages);
        ++i) {
-    Language spellcheck_language(
+    std::string spellcheck_language(
         g_supported_spellchecker_languages[i].language_region);
     if (spellcheck_language.substr(0, spellcheck_language.find('-')) ==
         language_part)
@@ -148,12 +151,12 @@ SpellChecker::Language SpellChecker::GetCorrespondingSpellCheckLanguage(
   }
 
   // No match found - return blank.
-  return Language();
+  return std::string();
 }
 
 int SpellChecker::GetSpellCheckLanguages(
     Profile* profile,
-    Languages* languages) {
+    std::vector<std::string>* languages) {
   StringPrefMember accept_languages_pref;
   StringPrefMember dictionary_language_pref;
   accept_languages_pref.Init(prefs::kAcceptLanguages, profile->GetPrefs(),
@@ -168,10 +171,10 @@ int SpellChecker::GetSpellCheckLanguages(
 
   // Now scan through the list of accept languages, and find possible mappings
   // from this list to the existing list of spell check languages.
-  Languages accept_languages;
+  std::vector<std::string> accept_languages;
   SplitString(WideToASCII(accept_languages_pref.GetValue()), ',',
               &accept_languages);
-  for (Languages::const_iterator i = accept_languages.begin();
+  for (std::vector<std::string>::const_iterator i = accept_languages.begin();
        i != accept_languages.end(); ++i) {
     std::string language = GetCorrespondingSpellCheckLanguage(*i);
     if (!language.empty() &&
@@ -331,7 +334,7 @@ void SpellChecker::set_file_is_downloading(bool value) {
 // This part of the code is used for spell checking.
 // ################################################################
 
-FilePath SpellChecker::GetVersionedFileName(const Language& input_language,
+FilePath SpellChecker::GetVersionedFileName(const std::string& input_language,
                                             const FilePath& dict_dir) {
   // The default dictionary version is 1-2. These versions have been augmented
   // with additional words found by the translation team.
@@ -380,7 +383,7 @@ FilePath SpellChecker::GetVersionedFileName(const Language& input_language,
 }
 
 SpellChecker::SpellChecker(const FilePath& dict_dir,
-                           const Language& language,
+                           const std::string& language,
                            URLRequestContext* request_context,
                            const FilePath& custom_dictionary_file_name)
     : custom_dictionary_file_name_(custom_dictionary_file_name),

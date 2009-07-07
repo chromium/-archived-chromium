@@ -16,14 +16,14 @@ bool SpellCheckerAvailable() {
 }
 
 // The following methods are just stubs to keep the linker happy.
-bool PlatformSupportsLanguage(const Language& current_language) {
+bool PlatformSupportsLanguage(const std::string& current_language) {
   return false;
 }
 
 void Init() {
 }
 
-void SetLanguage(const Language& lang_to_set) {
+void SetLanguage(const std::string& lang_to_set) {
 }
 
 bool CheckSpelling(const std::string& word_to_check) {

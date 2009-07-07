@@ -42,10 +42,6 @@ class MemoryMappedFile;
 // deleted on the I/O thread itself.
 class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
  public:
-  // ASCII string representing a language and/or region, e.g. "en-US".
-  typedef std::string Language;
-  typedef std::vector<Language> Languages;
-
   // Creates the spellchecker by reading dictionaries from the given directory,
   // and defaulting to the given language. Both strings must be provided.
   //
@@ -55,7 +51,7 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
   // can figure out the custom dictionary file. It is non empty only for unit
   // testing.
   SpellChecker(const FilePath& dict_dir,
-               const Language& language,
+               const std::string& language,
                URLRequestContext* request_context,
                const FilePath& custom_dictionary_file_name);
 
@@ -92,7 +88,7 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
   void AddWord(const std::wstring& word);
 
   // Get SpellChecker supported languages.
-  static void SpellCheckLanguages(Languages* languages);
+  static void SpellCheckLanguages(std::vector<std::string>* languages);
 
   // This function computes a vector of strings which are to be displayed in
   // the context menu over a text area for changing spell check languages. It
@@ -101,16 +97,16 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
   // has some dependencies in l10n util that need porting first.
   static int GetSpellCheckLanguages(
       Profile* profile,
-      Languages* languages);
+      std::vector<std::string>* languages);
 
   // This function returns the corresponding language-region code for the
   // spell check language. For example, for hi, it returns hi-IN.
-  static Language GetSpellCheckLanguageRegion(Language input_language);
+  static std::string GetSpellCheckLanguageRegion(std::string input_language);
 
   // This function returns ll (language code) from ll-RR where 'RR' (region
   // code) is redundant. However, if the region code matters, it's preserved.
   // That is, it returns 'hi' and 'en-GB' for 'hi-IN' and 'en-GB' respectively.
-  static Language GetLanguageFromLanguageRegion(Language input_language);
+  static std::string GetLanguageFromLanguageRegion(std::string input_language);
 
  private:
 
@@ -145,10 +141,11 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
 
   // Return the file name of the dictionary, including the path and the version
   // numbers.
-  FilePath GetVersionedFileName(const Language& language,
+  FilePath GetVersionedFileName(const std::string& language,
                                 const FilePath& dict_dir);
 
-  static Language GetCorrespondingSpellCheckLanguage(const Language& language);
+  static std::string GetCorrespondingSpellCheckLanguage(
+      const std::string& language);
 
   // Path to the spellchecker file.
   FilePath bdict_file_name_;

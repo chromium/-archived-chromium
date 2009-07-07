@@ -20,7 +20,7 @@ const unsigned int kShortLanguageCodeSize = 2;
 
 // A private utility function to convert hunspell language codes to os x
 // language codes.
-NSString* ConvertLanguageCodeToMac(const Language& lang_code) {
+NSString* ConvertLanguageCodeToMac(const std::string& lang_code) {
   NSString* whole_code = base::SysUTF8ToNSString(lang_code);
 
   if ([whole_code length] > kShortLanguageCodeSize) {
@@ -69,7 +69,7 @@ void Init() {
   [NSApplication sharedApplication];
 }
 
-bool PlatformSupportsLanguage(const Language& current_language) {
+bool PlatformSupportsLanguage(const std::string& current_language) {
   // First, convert Language to an osx lang code NSString.
   NSString* mac_lang_code = ConvertLanguageCodeToMac(current_language);
 
@@ -82,7 +82,7 @@ bool PlatformSupportsLanguage(const Language& current_language) {
   return [availableLanguages containsObject:mac_lang_code];
 }
 
-void SetLanguage(const Language& lang_to_set) {
+void SetLanguage(const std::string& lang_to_set) {
   NSString* NS_lang_to_set = ConvertLanguageCodeToMac(lang_to_set);
   [[NSSpellChecker sharedSpellChecker] setLanguage:NS_lang_to_set];
 }

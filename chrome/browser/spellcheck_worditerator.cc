@@ -60,8 +60,7 @@ SpellcheckCharAttribute::~SpellcheckCharAttribute() {
 // Sets the default language for this object.
 // This function retrieves the exemplar set to set up the default character
 // attributes.
-void SpellcheckCharAttribute::SetDefaultLanguage(
-    const SpellChecker::Language& language) {
+void SpellcheckCharAttribute::SetDefaultLanguage(const std::string& language) {
   UErrorCode status = U_ZERO_ERROR;
   ULocaleData* locale_data = ulocdata_open(language.c_str(), &status);
   if (U_FAILURE(status))

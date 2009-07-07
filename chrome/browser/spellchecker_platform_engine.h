@@ -24,9 +24,9 @@ void Init();
 // and checks the given language agains the languages that the current system
 // supports. If the platform-specific spellchecker supports the language,
 // then returns true, otherwise false.
-bool PlatformSupportsLanguage(const Language& current_language);
+bool PlatformSupportsLanguage(const std::string& current_language);
 // Sets the language for the platform-specific spellchecker.
-void SetLanguage(const Language& lang_to_set);
+void SetLanguage(const std::string& lang_to_set);
 // Checks the spelling of the given string, using the platform-specific
 // spellchecker. Returns true if the word is spelled correctly.
 bool CheckSpelling(const std::string& word_to_check);

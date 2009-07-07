@@ -182,7 +182,7 @@ void RenderViewContextMenu::AppendEditableItems() {
       l10n_util::GetStringUTF16(IDS_CONTENT_CONTEXT_SPELLCHECK_MENU));
 
   // Add Spell Check languages to sub menu.
-  SpellChecker::Languages spellcheck_languages;
+  std::vector<std::string> spellcheck_languages;
   SpellChecker::GetSpellCheckLanguages(profile_,
       &spellcheck_languages);
   DCHECK(spellcheck_languages.size() <
@@ -336,7 +336,7 @@ bool RenderViewContextMenu::ItemIsChecked(int id) const {
       (id >= IDC_SPELLCHECK_LANGUAGES_LAST))
     return false;
 
-  SpellChecker::Languages languages;
+  std::vector<std::string> languages;
   return SpellChecker::GetSpellCheckLanguages(profile_, &languages) ==
       (id - IDC_SPELLCHECK_LANGUAGES_FIRST);
 }
@@ -346,7 +346,7 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
   if (id >= IDC_SPELLCHECK_LANGUAGES_FIRST &&
       id < IDC_SPELLCHECK_LANGUAGES_LAST) {
     const size_t language_number = id - IDC_SPELLCHECK_LANGUAGES_FIRST;
-    SpellChecker::Languages languages;
+    std::vector<std::string> languages;
     SpellChecker::GetSpellCheckLanguages(profile_, &languages);
     if (language_number < languages.size()) {
       StringPrefMember dictionary_language;

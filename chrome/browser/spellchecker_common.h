@@ -11,9 +11,6 @@
 // Some constants and typedefs that are common to all spellchecker
 // files/classes/backends/platforms/whatever.
 
-typedef std::string Language;
-typedef std::vector<Language> Languages;
-
 static const int kMaxSuggestions = 5;  // Max number of dictionary suggestions.
 
 static const int kMaxAutoCorrectWordSize = 8;
