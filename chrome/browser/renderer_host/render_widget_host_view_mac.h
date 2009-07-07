@@ -35,10 +35,17 @@ class RWHVMEditCommandHelper;
   BOOL canBeKeyView_;
   BOOL closeOnDeactivate_;
   scoped_ptr<RWHVMEditCommandHelper> editCommand_helper_;
+
+  // These are part of the magic tooltip code from WebKit's WebHTMLView:
+  id trackingRectOwner_;              // (not retained)
+  void *trackingRectUserData_;
+  NSTrackingRectTag lastToolTipTag_;
+  NSString* toolTip_;
 }
 
 - (void)setCanBeKeyView:(BOOL)can;
 - (void)setCloseOnDeactivate:(BOOL)b;
+- (void)setToolTipAtMousePoint:(NSString *)string;
 
 @end
 
@@ -141,13 +148,8 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
   // true if the View is not visible.
   bool is_hidden_;
 
-  // Tooltips
   // The text to be shown in the tooltip, supplied by the renderer.
   std::wstring tooltip_text_;
-  // Used to display tooltips. We can't use the [NSView -setToolTip:] methods
-  // because we need to be able to show and hide the tooltip without the mouse
-  // leaving a region and NSView isn't set up for that to happen.
-  scoped_nsobject<ToolTip> tooltip_;
 
   // Factory used to safely scope delayed calls to ShutdownHost().
   ScopedRunnableMethodFactory<RenderWidgetHostViewMac> shutdown_factory_;
