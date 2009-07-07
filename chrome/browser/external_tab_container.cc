@@ -4,6 +4,8 @@
 
 #include "chrome/browser/external_tab_container.h"
 
+#include <string>
+
 #include "app/l10n_util.h"
 #include "app/win_util.h"
 #include "base/logging.h"
@@ -240,7 +242,7 @@ void ExternalTabContainer::ToolbarSizeChanged(TabContents* source,
 void ExternalTabContainer::ForwardMessageToExternalHost(
     const std::string& message, const std::string& origin,
     const std::string& target) {
-  if(automation_) {
+  if (automation_) {
     automation_->Send(
         new AutomationMsg_ForwardMessageToExternalHost(0, tab_handle_,
             message, origin, target));
@@ -271,7 +273,7 @@ bool ExternalTabContainer::HandleContextMenu(const ContextMenuParams& params) {
   POINT screen_pt = { params.x, params.y };
   MapWindowPoints(GetNativeView(), HWND_DESKTOP, &screen_pt, 1);
 
-  bool rtl = l10n_util::TextDirection() == l10n_util::RIGHT_TO_LEFT;
+  bool rtl = l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT;
   automation_->Send(
       new AutomationMsg_ForwardContextMenuToExternalHost(0, tab_handle_,
           external_context_menu_->GetMenuHandle(), screen_pt.x, screen_pt.y,
