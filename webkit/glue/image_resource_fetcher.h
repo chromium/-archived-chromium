@@ -39,7 +39,7 @@ class ImageResourceFetcher {
   void OnURLFetchComplete(const WebKit::WebURLResponse& response,
                           const std::string& data);
 
-  Callback* callback_;
+  scoped_ptr<Callback> callback_;
 
   // Unique identifier for the request.
   const int id_;

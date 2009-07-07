@@ -84,8 +84,10 @@ void ResourceFetcher::didFinishLoading(WebURLLoader* loader) {
   DCHECK(!completed_);
   completed_ = true;
 
-  if (callback_)
+  if (callback_.get()) {
     callback_->Run(response_, data_);
+    callback_.reset();
+  }
 }
 
 void ResourceFetcher::didFail(WebURLLoader* loader, const WebURLError& error) {
@@ -93,8 +95,10 @@ void ResourceFetcher::didFail(WebURLLoader* loader, const WebURLError& error) {
   completed_ = true;
 
   // Go ahead and tell our delegate that we're done.
-  if (callback_)
+  if (callback_.get()) {
     callback_->Run(WebURLResponse(), std::string());
+    callback_.reset();
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////

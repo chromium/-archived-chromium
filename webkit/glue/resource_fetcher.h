@@ -72,7 +72,7 @@ class ResourceFetcher : public WebKit::WebURLLoaderClient {
   GURL url_;
 
   // Callback when we're done
-  Callback* callback_;
+  scoped_ptr<Callback> callback_;
 
   // A copy of the original resource response
   WebKit::WebURLResponse response_;

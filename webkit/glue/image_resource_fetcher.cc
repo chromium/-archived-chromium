@@ -45,6 +45,7 @@ void ImageResourceFetcher::OnURLFetchComplete(
     // response as an image. The delegate will see a null image, indicating
     // that an error occurred.
   callback_->Run(this, bitmap);
+  callback_.reset();
 }
 
 }  // namespace webkit_glue
