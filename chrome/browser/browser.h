@@ -369,6 +369,9 @@ class Browser : public TabStripModelDelegate,
   void OpenImportSettingsDialog();
   void OpenAboutChromeDialog();
   void OpenHelpTab();
+#if defined(LINUX2)
+  void ShowControlPanel();
+#endif
 
   virtual void UpdateDownloadShelfVisibility(bool visible);
 

@@ -1162,6 +1162,14 @@ void Browser::OpenHelpTab() {
                 false, NULL);
 }
 
+#if defined(LINUX2)
+void Browser::ShowControlPanel() {
+  GURL url("http://localhost:8080");
+  AddTabWithURL(url, GURL(), PageTransition::AUTO_BOOKMARK, true, -1,
+                false, NULL);
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 // static
@@ -1362,6 +1370,9 @@ void Browser::ExecuteCommandWithDisposition(
     case IDC_IMPORT_SETTINGS:       OpenImportSettingsDialog();    break;
     case IDC_ABOUT:                 OpenAboutChromeDialog();       break;
     case IDC_HELP_PAGE:             OpenHelpTab();                 break;
+#if defined(LINUX2)
+    case IDC_CONTROL_PANEL:         ShowControlPanel();            break;
+#endif
 
     default:
       LOG(WARNING) << "Received Unimplemented Command: " << id;
@@ -2099,6 +2110,9 @@ void Browser::InitCommandState() {
   command_updater_.UpdateCommandEnabled(IDC_SHOW_BOOKMARK_MANAGER, true);
   command_updater_.UpdateCommandEnabled(IDC_SHOW_DOWNLOADS, true);
   command_updater_.UpdateCommandEnabled(IDC_HELP_PAGE, true);
+#if defined(LINUX2)
+  command_updater_.UpdateCommandEnabled(IDC_CONTROL_PANEL, true);
+#endif
 
   // Initialize other commands based on the window type.
   {

@@ -220,6 +220,14 @@ const struct AcceleratorMapping {
   { GDK_u, IDC_VIEW_SOURCE, GDK_CONTROL_MASK },
   { GDK_p, IDC_PRINT, GDK_CONTROL_MASK },
   { GDK_Escape, IDC_TASK_MANAGER, GDK_SHIFT_MASK },
+
+#if defined(LINUX2)
+  { GDK_f, IDC_FULLSCREEN,
+    GdkModifierType(GDK_CONTROL_MASK | GDK_MOD1_MASK) },
+  { GDK_Delete, IDC_TASK_MANAGER,
+    GdkModifierType(GDK_CONTROL_MASK | GDK_MOD1_MASK) },
+  { GDK_comma, IDC_CONTROL_PANEL, GdkModifierType(GDK_CONTROL_MASK) },
+#endif
 };
 
 int GetCommandId(guint accel_key, GdkModifierType modifier) {
