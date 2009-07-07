@@ -27,6 +27,7 @@ int ClientSocketHandle::Init(const std::string& group_name,
                              const HostResolver::RequestInfo& resolve_info,
                              int priority,
                              CompletionCallback* callback) {
+  CHECK(!group_name.empty());
   ResetInternal(true);
   group_name_ = group_name;
   int rv = pool_->RequestSocket(

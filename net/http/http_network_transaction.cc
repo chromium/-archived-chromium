@@ -592,7 +592,11 @@ int HttpNetworkTransaction::DoInitConnection() {
   if (proxy_mode_ != kHTTPProxy)
     connection_group.append(request_->url.GetOrigin().spec());
 
-  DCHECK(!connection_group.empty());
+  // TODO(willchan): Downgrade this back to a DCHECK after closing
+  // http://crbug.com/15374.
+  CHECK(!connection_group.empty()) << "URL: " << request_->url.GetOrigin()
+                                   << ", Host: " << host
+                                   << ", Port: " << port;
 
   HostResolver::RequestInfo resolve_info(host, port);
 
