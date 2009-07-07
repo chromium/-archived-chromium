@@ -96,6 +96,20 @@ o3djs.serialization.Deserializer = function(pack, json) {
    * @type {!Object}
    */
   this.createCallbacks = {
+    'o3djs.DestinationBuffer': function(deserializer, json) {
+      var object = deserializer.pack.createObject('o3d.VertexBuffer');
+      if ('custom' in json) {
+        for (var i = 0; i < json.custom.fields.length; ++i) {
+          var fieldInfo = json.custom.fields[i]
+          var field = object.createField(fieldInfo.type,
+                                         fieldInfo.numComponents);
+          deserializer.addObject(fieldInfo.id, field);
+        }
+        object.allocateElements(json.custom.numElements);
+      }
+      return object;
+    },
+
     'o3d.VertexBuffer': function(deserializer, json) {
       var object = deserializer.pack.createObject('o3d.VertexBuffer');
       if ('custom' in json) {

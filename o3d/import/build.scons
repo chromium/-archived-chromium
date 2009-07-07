@@ -64,6 +64,7 @@ else:
 collada_inputs = [
   'cross/collada.cc',
   'cross/collada_zip_archive.cc',
+  'cross/destination_buffer.cc',
   'cross/zip_archive.cc',
   'cross/gz_compressor.cc',
   'cross/file_output_stream_processor.cc',

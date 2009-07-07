@@ -929,6 +929,44 @@ g_suite.testShouldSetVertexBufferData = function() {
   g_test.assertEquals(12, field.size);
 };
 
+g_suite.testShouldSetDestinationBufferData = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3djs.DestinationBuffer': [
+        {
+          'custom':{
+            'numElements':1398,
+            'fields':[
+                     {
+                       'id':197809,
+                       'type':'o3d.FloatField',
+                       'numComponents':3},
+                     {
+                       'id':197813,
+                       'type':'o3d.FloatField',
+                       'numComponents':3}]
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  deserializer.archiveInfo = g_archiveInfo;
+  deserializer.run();
+
+  g_test.assertEquals(1, pack.objects.length);
+  var buffer = pack.objects[0];
+  g_test.assertEquals(1398, buffer.numElements);
+  g_test.assertEquals(2, buffer.fields.length);
+  var field = buffer.fields[0];
+  g_test.assertEquals('o3d.FloatField', field.className);
+  g_test.assertEquals(3, field.numComponents);
+  g_test.assertEquals(12, field.size);
+};
+
 g_suite.testShouldSetSourceBufferData = function() {
   var json = {
     version: o3djs.serialization.supportedVersion,

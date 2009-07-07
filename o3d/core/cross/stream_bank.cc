@@ -89,6 +89,9 @@ bool StreamBank::SetVertexStream(Stream::Semantic stream_semantic,
     O3D_ERROR(service_locator()) << "No buffer on field";
     return false;
   }
+
+  // Check that this buffer is renderable. StreamBanks are used to submit
+  // data to GPU so we can only allow GPU accessible buffers through here.
   if (!buffer->IsA(VertexBuffer::GetApparentClass())) {
     O3D_ERROR(service_locator()) << "Buffer is not a VertexBuffer";
     return false;

@@ -36,6 +36,7 @@
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/string_util.h"
+#include "core/cross/class_manager.h"
 #include "core/cross/curve.h"
 #include "core/cross/error.h"
 #include "core/cross/function.h"
@@ -53,6 +54,7 @@
 #include "import/cross/collada.h"
 #include "import/cross/collada_conditioner.h"
 #include "import/cross/collada_zip_archive.h"
+#include "import/cross/destination_buffer.h"
 #include "utils/cross/file_path_utils.h"
 
 #define COLLADA_NAMESPACE "collada"
@@ -145,6 +147,12 @@ bool Collada::Import(Pack* pack,
                          parent,
                          animation_input,
                          options);
+}
+
+void Collada::Init(ServiceLocator* service_locator) {
+  ClassManager* class_manager=
+      service_locator->GetService<o3d::ClassManager>();
+  class_manager->AddTypedClass<DestinationBuffer>();
 }
 
 // Parameters:
@@ -391,11 +399,13 @@ bool Collada::ImportDAEDocument(FCDocument* doc,
       FCDSceneNode* scene = doc->GetVisualSceneInstance();
       if (scene) {
         instance_root_ = CreateInstanceTree(scene);
-        ImportTree(instance_root_, parent, animation_input);
-        ImportTreeInstances(doc, instance_root_);
+        if (ImportTree(instance_root_, parent, animation_input)) {
+          if (ImportTreeInstances(doc, instance_root_)) {
+            status = true;
+          }
+        }
         delete instance_root_;
         instance_root_ = NULL;
-        status = true;
       }
     }
   }
@@ -796,7 +806,7 @@ NodeInstance *Collada::FindNodeInstanceFast(FCDSceneNode *node) {
 //   animation_input:  The float parameter used as the input to the animation
 //                     (if present). This is usually time. This can be null
 //                     if there is no animation.
-void Collada::ImportTree(NodeInstance *instance,
+bool Collada::ImportTree(NodeInstance *instance,
                          Transform* parent_transform,
                          ParamFloat* animation_input) {
   FCDSceneNode *node = instance->node();
@@ -807,17 +817,22 @@ void Collada::ImportTree(NodeInstance *instance,
   // recursively import the rest of the nodes in the tree
   const NodeInstance::NodeInstanceList &children = instance->children();
   for (size_t i = 0; i < children.size(); ++i) {
-    ImportTree(children[i], transform, animation_input);
+    if (!ImportTree(children[i], transform, animation_input)) {
+      return false;
+    }
   }
+  return true;
 }
 
-void Collada::ImportTreeInstances(FCDocument* doc,
+bool Collada::ImportTreeInstances(FCDocument* doc,
                                   NodeInstance *node_instance) {
   FCDSceneNode *node = node_instance->node();
   // recursively import the rest of the nodes in the tree
   const NodeInstance::NodeInstanceList &children = node_instance->children();
   for (size_t i = 0; i < children.size(); ++i) {
-    ImportTreeInstances(doc, children[i]);
+    if (!ImportTreeInstances(doc, children[i])) {
+      return false;
+    }
   }
 
   Transform* transform = node_instance->transform();
@@ -847,9 +862,19 @@ void Collada::ImportTreeInstances(FCDocument* doc,
       case FCDEntity::CONTROLLER: {
         FCDControllerInstance* controller_instance =
             static_cast<FCDControllerInstance*> (instance);
-        Shape* shape = GetSkinnedShape(doc, controller_instance, node_instance);
-        if (shape) {
-          transform->AddShape(shape);
+        FCDController* controller =
+            static_cast<FCDController*>(controller_instance->GetEntity());
+        if (controller) {
+          if (controller->IsSkin()) {
+            Shape* shape = GetSkinnedShape(doc,
+                                           controller_instance,
+                                           node_instance);
+            if (shape) {
+              transform->AddShape(shape);
+            } else {
+              return false;
+            }
+          }
         }
         break;
       }
@@ -858,6 +883,7 @@ void Collada::ImportTreeInstances(FCDocument* doc,
         break;
     }
   }
+  return true;
 }
 
 // Converts an FCollada vertex attribute semantic into an O3D
@@ -1318,8 +1344,22 @@ Shape* Collada::BuildSkinnedShape(FCDocument* doc,
     // skin everything. This is actually what was BuildShape was doing at the
     // time this code was written.
     const ElementRefArray& elements = shape->GetElementRefs();
-    if (elements.empty() || !elements[0]->IsA(Primitive::GetApparentClass())) {
+    if (elements.empty()) {
       return NULL;
+    }
+    // check that they all use the same StreamBank and are all Primitives
+    for (unsigned ii = 0; ii < elements.size(); ++ii) {
+      if (!elements[ii]->IsA(Primitive::GetApparentClass())) {
+        O3D_ERROR(service_locator_)
+            << "Element in Shape '" << shape->name() << "' is not a Primitive.";
+        return NULL;
+      }
+      if (down_cast<Primitive*>(elements[ii].Get())->stream_bank() !=
+          down_cast<Primitive*>(elements[0].Get())->stream_bank()) {
+        O3D_ERROR(service_locator_)
+            << "More than one StreamBank in Shape '" << shape->name() << "'.";
+        return NULL;
+      }
     }
     Primitive* primitive = down_cast<Primitive*>(elements[0].Get());
 
@@ -1412,16 +1452,29 @@ Shape* Collada::BuildSkinnedShape(FCDocument* doc,
     // so we can store the skinned vertices for the second instance. But we'd
     // like to share the COLOR and TEXCOORDS. To do that they need to be in
     // a separate VertexBuffer.
-    StreamBank* stream_bank = primitive->stream_bank();
-    SourceBuffer* buffer = pack_->Create<SourceBuffer>();
+    StreamBank* old_stream_bank = primitive->stream_bank();
+    StreamBank* new_stream_bank = pack_->Create<StreamBank>();
+    new_stream_bank->set_name(String("skinned_") + old_stream_bank->name());
+    Buffer* old_buffer = NULL;
+    SourceBuffer* source_buffer = pack_->Create<SourceBuffer>();
     VertexBuffer* shared_buffer = pack_->Create<VertexBuffer>();
+    DestinationBuffer* dest_buffer = pack_->Create<DestinationBuffer>();
     const StreamParamVector& source_stream_params =
-        stream_bank->vertex_stream_params();
-    std::vector<Field*> new_fields(source_stream_params.size(), NULL);
+        old_stream_bank->vertex_stream_params();
+    std::vector<Field*> source_fields(source_stream_params.size(), NULL);
+    std::vector<Field*> dest_fields(source_stream_params.size(), NULL);
     // first make all the fields.
     for (unsigned ii = 0; ii < source_stream_params.size(); ++ii) {
       const Stream& source_stream = source_stream_params[ii]->stream();
       const Field& field = source_stream.field();
+      if (old_buffer == NULL) {
+        old_buffer = field.buffer();
+      } else if (old_buffer != field.buffer()) {
+        O3D_ERROR(service_locator_)
+            << "More than 1 buffer used by StreamBank '"
+            << old_stream_bank->name().c_str()
+            << "' which the collada importer does not currently support";
+      }
       bool copied = false;
       if (field.IsA(FloatField::GetApparentClass()) &&
           (field.num_components() == 3 ||
@@ -1437,25 +1490,44 @@ Shape* Collada::BuildSkinnedShape(FCDocument* doc,
             if (num_source_vertices != num_vertices) {
               O3D_ERROR(service_locator_)
                   << "Number of vertices in stream_bank '"
-                  << stream_bank->name().c_str()
+                  << old_stream_bank->name().c_str()
                   << "' does not equal the number of vertices in the Skin '"
                   << skin->name().c_str() << "'";
               return NULL;
             }
-            new_fields[ii] = buffer->CreateField(FloatField::GetApparentClass(),
-                                                 num_source_components);
+            source_fields[ii] = source_buffer->CreateField(
+                FloatField::GetApparentClass(), num_source_components);
+            DCHECK(source_fields[ii]);
+            dest_fields[ii] = dest_buffer->CreateField(
+                FloatField::GetApparentClass(), num_source_components);
+            DCHECK(dest_fields[ii]);
+            if (!new_stream_bank->SetVertexStream(
+                source_stream.semantic(),
+                source_stream.semantic_index(),
+                dest_fields[ii],
+                0)) {
+              O3D_ERROR(service_locator_)
+                << "could not SetVertexStream on StreamBank '"
+                << new_stream_bank->name() << "'";
+              return NULL;
+            }
           }
         }
       }
       if (!copied) {
         // It's a shared field, copy it to the shared buffer.
-        new_fields[ii] = shared_buffer->CreateField(field.GetClass(),
-                                                    field.num_components());
+        source_fields[ii] = shared_buffer->CreateField(field.GetClass(),
+                                                       field.num_components());
+        new_stream_bank->SetVertexStream(source_stream.semantic(),
+                                         source_stream.semantic_index(),
+                                         source_fields[ii],
+                                         0);
       }
     }
 
-    if (!buffer->AllocateElements(num_vertices) ||
-        !shared_buffer->AllocateElements(num_vertices)) {
+    if (!source_buffer->AllocateElements(num_vertices) ||
+        !shared_buffer->AllocateElements(num_vertices) ||
+        !dest_buffer->AllocateElements(num_vertices)) {
       O3D_ERROR(service_locator_)
           << "Failed to allocate destination vertex buffer";
       return NULL;
@@ -1475,7 +1547,7 @@ Shape* Collada::BuildSkinnedShape(FCDocument* doc,
           case Stream::TANGENT: {
             copied = true;
             unsigned num_source_components = field.num_components();
-            Field* new_field = new_fields[ii];
+            Field* source_field = source_fields[ii];
 
             std::vector<float> data(num_vertices * num_source_components);
             field.GetAsFloats(0, &data[0], num_source_components,
@@ -1516,29 +1588,37 @@ Shape* Collada::BuildSkinnedShape(FCDocument* doc,
                 }
               }
             }
-            new_field->SetFromFloats(&data[0], num_source_components, 0,
-                                     num_vertices);
+            source_field->SetFromFloats(&data[0], num_source_components, 0,
+                                        num_vertices);
             // Bind streams
             skin_eval->SetVertexStream(source_stream.semantic(),
                                        source_stream.semantic_index(),
-                                       new_field,
+                                       source_field,
                                        0);
-            stream_bank->BindStream(skin_eval,
-                                    source_stream.semantic(),
-                                    source_stream.semantic_index());
+            new_stream_bank->BindStream(skin_eval,
+                                        source_stream.semantic(),
+                                        source_stream.semantic_index());
             break;
           }
         }
       }
       if (!copied) {
-        Field* new_field = new_fields[ii];
-        new_field->Copy(field);
-        field.buffer()->RemoveField(&source_stream.field());
-        stream_bank->SetVertexStream(source_stream.semantic(),
-                                     source_stream.semantic_index(),
-                                     new_field,
-                                     0);
+        Field* source_field = source_fields[ii];
+        source_field->Copy(field);
       }
+    }
+
+    // Set all primitives to use new stream bank.
+    for (unsigned ii = 0; ii < elements.size(); ++ii) {
+      down_cast<Primitive*>(elements[ii].Get())->set_stream_bank(
+          new_stream_bank);
+    }
+    pack_->RemoveObject(old_stream_bank);
+    if (old_buffer) {
+      source_buffer->set_name(String("source_") + old_buffer->name());
+      dest_buffer->set_name(String("skinned_") + old_buffer->name());
+      shared_buffer->set_name(String("shared_") + old_buffer->name());
+      pack_->RemoveObject(old_buffer);
     }
   }
   return shape;

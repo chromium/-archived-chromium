@@ -39,7 +39,7 @@
 #define O3D_SERIALIZER_CROSS_VERSION_H_
 
 namespace o3d {
-const int kSerializerVersion = 5;
+const int kSerializerVersion = 6;
 }
 
 #endif  // O3D_SERIALIZER_CROSS_VERSION_H_

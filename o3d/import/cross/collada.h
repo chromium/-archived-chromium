@@ -66,6 +66,7 @@ class FilePath;
 
 namespace o3d {
 
+class ClassManager;
 class ColladaZipArchive;
 class Effect;
 class IErrorStatus;
@@ -221,6 +222,9 @@ class Collada {
   std::vector<FilePath> GetOriginalDataFilenames() const;
   const std::string& GetOriginalData(const FilePath& filename) const;
 
+  // Init the Collada Importer.
+  static void Init(ServiceLocator* service_locator);
+
  private:
   // Imports the given ZIP file into the given pack.
   bool ImportZIP(const FilePath& filename, Transform* parent,
@@ -244,7 +248,7 @@ class Collada {
 
   // Recursively imports a tree of nodes from FCollada, rooted at the
   // given node, into the O3D scene.
-  void ImportTree(NodeInstance *instance,
+  bool ImportTree(NodeInstance *instance,
                   Transform* parent,
                   ParamFloat* animation_input);
 
@@ -252,7 +256,7 @@ class Collada {
   // rooted at the given node, into the O3D scene. This is a separate step
   // from ImportTree because various kinds of instances can reference other
   // parts of the tree.
-  void ImportTreeInstances(FCDocument* doc,
+  bool ImportTreeInstances(FCDocument* doc,
                            NodeInstance* instance);
 
   bool BuildFloatAnimation(ParamFloat* result,

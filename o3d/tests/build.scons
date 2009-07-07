@@ -217,6 +217,7 @@ tests = [
     'core/cross/vertex_source_test.cc',
     'core/cross/visitor_base_test.cc',
     'core/cross/weak_ptr_test.cc',
+    'import/cross/destination_buffer_test.cc',
     'import/cross/gz_compressor_test.cc',
     'import/cross/gz_decompressor_test.cc',
     'import/cross/memory_buffer_test.cc',
@@ -458,10 +459,10 @@ if ARGUMENTS.get('SYSTEM_TESTS_ENABLED', False):
 
   # Also require gl related libraries based on variant.
   system_tests_req += gl_requirements
-  
+
   # Require SwiftShader (only if it is available).
   system_tests_req += swiftshader_install
-  
+
   # Add requirements for system_tests.
   env.Requires(system_tests_install, system_tests_req)
 
@@ -542,7 +543,7 @@ selenium_good_to_go = True
 
 if run_env.Bit('mac'):
   plugin_path = '$ARTIFACTS_DIR/O3D.plugin'
-  
+
   if run_env['MAC_HERMETIC_FIREFOX_DIR']:
     # if we have a hermetic version of Firefox, then run it
     if os.path.exists(run_env.subst('$MAC_HERMETIC_FIREFOX_DIR')):
@@ -579,7 +580,7 @@ if run_env.Bit('mac'):
         cleanup_steps = [
             'rm -rf "$MAC_FIREFOX_DIR"',
         ]
-      
+
 
 def DeferSelenium(env):
   if not selenium_good_to_go:
@@ -604,7 +605,7 @@ def DeferSelenium(env):
             '--screenshotsdir=$ARTIFACTS_DIR/selenium/screenshots_firefox'])] +
         cleanup_steps,
     )
-  
+
   # Require SwiftShader (only if it is available).
   run_env.Requires(run_selenium_firefox, swiftshader_install)
 

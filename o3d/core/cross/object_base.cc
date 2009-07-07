@@ -44,6 +44,16 @@ ObjectBase::Class ObjectBase::class_ = {
   O3D_STRING_CONSTANT("ObjectBase"), NULL
 };
 
+const char* ObjectBase::Class::unqualified_name() const {
+  if (strncmp(
+      name_,
+      O3D_NAMESPACE O3D_NAMESPACE_SEPARATOR,
+      sizeof(O3D_NAMESPACE) + sizeof(O3D_NAMESPACE_SEPARATOR) - 2) == 0) {
+    return name_ + sizeof(O3D_NAMESPACE) + sizeof(O3D_NAMESPACE_SEPARATOR) - 2;
+  }
+  return name_;
+}
+
 ObjectBase::ObjectBase(ServiceLocator *service_locator)
     : id_(IdManager::CreateId()),
       service_locator_(service_locator) {

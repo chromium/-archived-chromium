@@ -94,6 +94,7 @@ bool Convert(const FilePath& in_filename,
   ErrorStatus error_status(&service_locator);
   Features features(&service_locator);
 
+  Collada::Init(&service_locator);
   features.Init("MaxCapabilities");
 
   // Collect error messages.
@@ -119,7 +120,8 @@ bool Convert(const FilePath& in_filename,
   collada_options.base_path = options.base_path;
   collada_options.up_axis = options.up_axis;
   Collada collada(pack.Get(), collada_options);
-  if (!collada.ImportFile(in_filename, root, param_float)) {
+  bool result = collada.ImportFile(in_filename, root, param_float);
+  if (!result || !error_collector.errors().empty()) {
     if (error_messages) {
       *error_messages += error_collector.errors();
     }

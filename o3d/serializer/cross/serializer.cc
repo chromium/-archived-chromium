@@ -47,6 +47,7 @@
 #include "core/cross/skin.h"
 #include "core/cross/texture.h"
 #include "core/cross/transform.h"
+#include "import/cross/destination_buffer.h"
 #include "import/cross/iarchive_generator.h"
 #include "import/cross/memory_buffer.h"
 #include "import/cross/memory_stream.h"
@@ -345,6 +346,7 @@ class CustomVisitor : public VisitorBase<CustomVisitor> {
                          BinaryArchiveManager* binary_archive_manager)
       : writer_(writer),
         binary_archive_manager_(binary_archive_manager) {
+    Enable<DestinationBuffer>(&CustomVisitor::Visit);
     Enable<Buffer>(&CustomVisitor::Visit);
     Enable<Curve>(&CustomVisitor::Visit);
     Enable<Primitive>(&CustomVisitor::Visit);
@@ -356,6 +358,31 @@ class CustomVisitor : public VisitorBase<CustomVisitor> {
   }
 
  private:
+  void Visit(DestinationBuffer* buffer) {
+    // NOTE: We don't call Visit<VertexBuffer*> because we don't want to
+    // serialize the contents of the Buffer. We only serialize its structure.
+    Visit(static_cast<NamedObject*>(buffer));
+    writer_->WritePropertyName("numElements");
+    Serialize(writer_, buffer->num_elements());
+    writer_->WritePropertyName("fields");
+    writer_->OpenArray();
+    const FieldRefArray& fields = buffer->fields();
+    for (size_t ii = 0; ii < fields.size(); ++ii) {
+      Field* field = fields[ii].Get();
+      writer_->BeginCompacting();
+      writer_->OpenObject();
+      writer_->WritePropertyName("id");
+      Serialize(writer_, field->id());
+      writer_->WritePropertyName("type");
+      Serialize(writer_, field->GetClassName());
+      writer_->WritePropertyName("numComponents");
+      Serialize(writer_, field->num_components());
+      writer_->CloseObject();
+      writer_->EndCompacting();
+    }
+    writer_->CloseArray();
+  }
+
   void Visit(Buffer* buffer) {
     Visit(static_cast<NamedObject*>(buffer));
 
@@ -585,6 +612,7 @@ class BinaryVisitor : public VisitorBase<BinaryVisitor> {
       : binary_archive_manager_(binary_archive_manager) {
     Enable<Curve>(&BinaryVisitor::Visit);
     Enable<IndexBuffer>(&BinaryVisitor::Visit);
+    Enable<DestinationBuffer>(&BinaryVisitor::Visit);
     Enable<VertexBufferBase>(&BinaryVisitor::Visit);
     Enable<Skin>(&BinaryVisitor::Visit);
   }
@@ -606,6 +634,11 @@ class BinaryVisitor : public VisitorBase<BinaryVisitor> {
         "curve-keys.bin",
         serialized_data,
         serialized_data.GetLength());
+  }
+
+  void Visit(DestinationBuffer* buffer) {
+    // Destination buffers should NOT have their contents serialized.
+    Visit(static_cast<Buffer*>(buffer));
   }
 
   void Visit(IndexBuffer* buffer) {

@@ -50,11 +50,12 @@
 #define O3D_STRING_CONSTANT(value)              \
   (O3D_NAMESPACE O3D_NAMESPACE_SEPARATOR value)
 
+
 // This macro declares the necessary functions for the type mechanism to work.
 // It needs to be used in each of the definition of any class that derives from
 // ObjectBase.
 // CLASS is the class being defined, BASE is its base class.
-#define O3D_DECL_CLASS(CLASS, BASE)                                      \
+#define O3D_OBJECT_BASE_DECL_CLASS(CLASS, BASE)                          \
  public:                                                                 \
   static const ObjectBase::Class *GetApparentClass() { return &class_; } \
   static const String GetApparentClassName() {                           \
@@ -72,10 +73,24 @@
 // This macro defines the class descriptor for the type mechanism. It needs to
 // be used once in the definition file of any class that derives from
 // ObjectBase.
+// CLASSNAME is the name to use to identify the class.
+// CLASS is the class being defined.
+// BASE is its base class.
+#define O3D_OBJECT_BASE_DEFN_CLASS(CLASSNAME, CLASS, BASE) \
+  ObjectBase::Class CLASS::class_ = { CLASSNAME, BASE::GetApparentClass() };
+
+// This macro declares the necessary functions for the type mechanism to work.
+// It needs to be used in each of the definition of any class that derives from
+// ObjectBase.
 // CLASS is the class being defined, BASE is its base class.
-#define O3D_DEFN_CLASS(CLASS, BASE)                           \
-  ObjectBase::Class CLASS::class_ =                           \
-  { O3D_STRING_CONSTANT(#CLASS), BASE::GetApparentClass() };
+#define O3D_DECL_CLASS(CLASS, BASE) O3D_OBJECT_BASE_DECL_CLASS(CLASS, BASE)
+
+// This macro defines the class descriptor for the type mechanism. It needs to
+// be used once in the definition file of any class that derives from
+// ObjectBase.
+// CLASS is the class being defined, BASE is its base class.
+#define O3D_DEFN_CLASS(CLASS, BASE) \
+  O3D_OBJECT_BASE_DEFN_CLASS(O3D_STRING_CONSTANT(#CLASS), CLASS, BASE)
 
 namespace o3d {
 
@@ -142,10 +157,7 @@ class ObjectBase : public RefCounted {
       return name_;
     }
 
-    const char* unqualified_name() const {
-      return name_ + sizeof(O3D_NAMESPACE) +
-          sizeof(O3D_NAMESPACE_SEPARATOR) - 2;
-    }
+    const char* unqualified_name() const;
 
    public:
     // The name of the class.
