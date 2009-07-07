@@ -317,7 +317,8 @@ function initStep2(clientElements) {
   g_currentTimeParam = paramObject.createParam('timeParam','ParamFloat');
 
   // Load effects and fill out options.
-  options = ''
+  options = '<select id="shaderSelect" name="shaderSelect"' +
+            ' onChange="changeShader()">'
   for(var s = 0; s < g_shaders.length; s++) {
     g_effects[s] = g_pack.createObject('Effect');
     var shaderString = 'shaders/' + g_shaders[s].file + '.shader';
@@ -325,7 +326,8 @@ function initStep2(clientElements) {
     options += '<option value="' + s + '"' + (s == 0 ? ' selected' : '') +
                '>' + g_shaders[s].name + '</option>';
   }
-  document.getElementById('shaderSelect').innerHTML = options;
+  options += '</select>';
+  document.getElementById('shaderDiv').innerHTML = options;
 
   var rampWidth = 64;
   var texture = g_pack.createTexture2D(
@@ -406,7 +408,6 @@ This example is useful for testing a shader or checking a scene. Clicking on the
 <div id="o3d" style="width: 100%; height: 80%;"></div>
 <!-- End of O3D plugin -->
 <p>
-<select id='shaderSelect' name='shaderSelect' onChange='changeShader()'>
-</select>
+<div id='shaderDiv'></div>
 </body>
 </html>
