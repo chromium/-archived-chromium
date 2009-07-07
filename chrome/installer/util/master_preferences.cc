@@ -79,6 +79,9 @@ const wchar_t kDistroImportHomePagePref[] = L"import_home_page";
 
 bool GetDistributionPingDelay(const FilePath& master_prefs_path,
                               int& delay) {
+  // 90 seconds is the default that we want to use in case master preferences
+  // is missing or corrupt.
+  delay = 90;
   FilePath master_prefs = master_prefs_path;
   if (master_prefs.empty()) {
     if (!PathService::Get(base::DIR_EXE, &master_prefs))
