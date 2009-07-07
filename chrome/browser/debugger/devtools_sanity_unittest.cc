@@ -41,10 +41,11 @@ class BrowserClosedObserver : public NotificationObserver {
 // action we take.
 const int kActionDelayMs = 500;
 
-const wchar_t kSimplePage[] = L"files/devtools/simple_page.html";
-const wchar_t kJsPage[] = L"files/devtools/js_page.html";
-const wchar_t kDebuggerTestPage[] = L"files/devtools/debugger_test_page.html";
 const wchar_t kConsoleTestPage[] = L"files/devtools/console_test_page.html";
+const wchar_t kDebuggerTestPage[] = L"files/devtools/debugger_test_page.html";
+const wchar_t kEvalTestPage[] = L"files/devtools/eval_test_page.html";
+const wchar_t kJsPage[] = L"files/devtools/js_page.html";
+const wchar_t kSimplePage[] = L"files/devtools/simple_page.html";
 
 class DevToolsSanityTest : public InProcessBrowserTest {
  public:
@@ -135,6 +136,11 @@ IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestEnableResourcesTab) {
   RunTest("testEnableResourcesTab", kSimplePage);
 }
 
+// Tests resource headers.
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestResourceHeaders) {
+  RunTest("testResourceHeaders", kDebuggerTestPage);
+}
+
 // Tests profiler panel.
 IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestProfilerTab) {
   RunTest("testProfilerTab", kJsPage);
@@ -153,6 +159,16 @@ IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestConsoleEval) {
 // Tests console log.
 IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestConsoleLog) {
   RunTest("testConsoleLog", kConsoleTestPage);
+}
+
+// Tests eval global values.
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, DISABLED_TestEvalGlobal) {
+  RunTest("testEvalGlobal", kEvalTestPage);
+}
+
+// Tests eval on call frame.
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, DISABLED_TestEvalCallFrame) {
+  RunTest("testEvalCallFrame", kEvalTestPage);
 }
 
 }  // namespace

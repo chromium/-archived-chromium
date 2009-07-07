@@ -79,14 +79,6 @@ TestSuite.prototype.runAllTests = function() {
 
 
 /**
- * Async tests use this one to report that they are completed.
- */
-TestSuite.prototype.reportOk = function() {
-  window.domAutomationController.send('[OK]');
-};
-
-
-/**
  * Manual controller for async tests.
  * @constructor.
  */
@@ -104,19 +96,28 @@ TestSuite.Controller.prototype.takeControl = function() {
   // Set up guard timer.
   var self = this;
   this.timerId_ = setTimeout(function() {
-    self.reportFailure('Timeout exceeded: 20 sec');
+    self.reportFailure_('Timeout exceeded: 20 sec');
   }, 20000);
+};
+
+
+/**
+ * Releases control over execution.
+ */
+TestSuite.Controller.prototype.releaseControl = function() {
+  this.controlTaken_ = false;
+  if (this.timerId_ != -1) {
+    this.timerId_ = -1;
+    clearTimeout(this.timerId_);
+  }
+  this.reportOk_();
 };
 
 
 /**
  * Async tests use this one to report that they are completed.
  */
-TestSuite.Controller.prototype.reportOk = function() {
-  if (this.timerId_ != -1) {
-    this.timerId_ = -1;
-    clearTimeout(this.timerId_);
-  }
+TestSuite.Controller.prototype.reportOk_ = function() {
   window.domAutomationController.send('[OK]');
 };
 
@@ -124,7 +125,7 @@ TestSuite.Controller.prototype.reportOk = function() {
 /**
  * Async tests use this one to report failures.
  */
-TestSuite.Controller.prototype.reportFailure = function(error) {
+TestSuite.Controller.prototype.reportFailure_ = function(error) {
   if (this.timerId_ != -1) {
     this.timerId_ = -1;
     clearTimeout(this.timerId_);
@@ -141,10 +142,10 @@ TestSuite.prototype.runTest = function(testName) {
   try {
     this[testName](controller);
     if (!controller.controlTaken_) {
-      controller.reportOk();
+      controller.reportOk_();
     }
   } catch (e) {
-    controller.reportFailure(e);
+    controller.reportFailure_(e);
   }
 };
 
@@ -215,7 +216,7 @@ TestSuite.prototype.testEnableResourcesTab = function(controller) {
     WebInspector.panels.resources.refresh();
     WebInspector.resources[identifier]._resourcesTreeElement.select();
 
-    controller.reportOk();
+    controller.releaseControl();
   };
 
   // Following call should lead to reload that we capture in the
@@ -228,11 +229,74 @@ TestSuite.prototype.testEnableResourcesTab = function(controller) {
 
 
 /**
+ * Tests resource headers.
+ */
+TestSuite.prototype.testResourceHeaders = function(controller) {
+  this.showPanel('resources');
+
+  var test = this;
+  var oldAddResource = WebInspector.addResource;
+  var oldUpdateResource = WebInspector.updateResource;
+
+  var requestOk = false;
+  var responseOk = false;
+  var timingOk = false;
+
+  WebInspector.addResource = function(identifier, payload) {
+    oldAddResource.call(this, identifier, payload);
+    var resource = this.resources[identifier];
+    if (resource.mainResource) {
+      // We are only interested in secondary resources in this test.
+      return;
+    }
+
+    var requestHeaders = JSON.stringify(resource.requestHeaders);
+    test.assertContains(requestHeaders, 'Accept');
+    requestOk = true;
+  };
+
+  WebInspector.updateResource = function(identifier, payload) {
+    oldUpdateResource.call(this, identifier, payload);
+    var resource = this.resources[identifier];
+    if (resource.mainResource) {
+      // We are only interested in secondary resources in this test.
+      return;
+    }
+
+    if (payload.didResponseChange) {
+      var responseHeaders = JSON.stringify(resource.responseHeaders);
+      test.assertContains(responseHeaders, 'Content-type');
+      test.assertContains(responseHeaders, 'Content-Length');
+      test.assertTrue(typeof resource.responseReceivedTime != 'undefnied');
+      responseOk = true;
+    }
+
+    if (payload.didTimingChange) {
+      test.assertTrue(typeof resource.startTime != 'undefnied');
+      timingOk = true;
+    }
+
+    if (payload.didCompletionChange) {
+      test.assertTrue(requestOk);
+      test.assertTrue(responseOk);
+      test.assertTrue(timingOk);
+      test.assertTrue(typeof resource.endTime != 'undefnied');
+      controller.releaseControl();
+    }
+  };
+
+  WebInspector.panels.resources._enableResourceTracking();
+  controller.takeControl();
+};
+
+
+/**
  * Test that profiler works.
  */
 TestSuite.prototype.testProfilerTab = function(controller) {
   this.showPanel('profiles');
 
+  var test = this;
   var oldAddProfile = WebInspector.addProfile;
   WebInspector.addProfile = function(profile) {
     WebInspector.addProfile = oldAddProfile;
@@ -246,12 +310,12 @@ TestSuite.prototype.testProfilerTab = function(controller) {
     // that we actually have profiled page's code.
     while (node) {
       if (node.functionName.indexOf("fib") != -1) {
-        controller.reportOk();
+        controller.releaseControl();
       }
       node = node.traverseNextNode(true, null, true);
     }
 
-    controller.reportFailure();
+    test.fail();
   };
 
   InspectorController.startProfiling();
@@ -269,36 +333,32 @@ TestSuite.prototype.testShowScriptsTab = function(controller) {
 
   // Intercept parsedScriptSource calls to check that all expected scripts are
   // added to the debugger.
-  var self = this;
+  var test = this;
   var originalParsedScriptSource = WebInspector.parsedScriptSource;
   WebInspector.parsedScriptSource = function(sourceID, sourceURL, source,
       startingLine) {
     if (sourceURL.search(/debugger_test_page.html$/) != -1) {
       if (parsedDebuggerTestPageHtml) {
-        controller.reportFailure('Unexpected parse event: ' + sourceURL);
-        return;
+        test.fail('Unexpected parse event: ' + sourceURL);
       }
       parsedDebuggerTestPageHtml = true;
     } else if (sourceURL.search(/debugger_test.js$/) != -1) {
       if (parsedDebuggerTestJs) {
-        controller.reportFailure('Unexpected parse event: ' + sourceURL);
-        return;
+        test.fail('Unexpected parse event: ' + sourceURL);
       }
       parsedDebuggerTestJs = true;
     } else {
-      controller.reportFailure('Unexpected script URL: ' + sourceURL);
+      test.fail('Unexpected script URL: ' + sourceURL);
     }
     originalParsedScriptSource.apply(this, arguments);
 
     if (!WebInspector.panels.scripts.visibleView) {
-      controller.reportFailure('No visible script view: ' + sourceURL);
-      return;
+      test.fail('No visible script view: ' + sourceURL);
     }
 
     if (parsedDebuggerTestJs && parsedDebuggerTestPageHtml) {
-       controller.reportOk();
+       controller.releaseControl();
     }
-    controller.reportOk();
   };
 
   this.showPanel('scripts');
@@ -308,11 +368,14 @@ TestSuite.prototype.testShowScriptsTab = function(controller) {
 };
 
 
-TestSuite.ConsoleEnter = {
-    keyIdentifier : 'Enter',
-    preventDefault : function() {},
-    stopPropagation : function() {}
+/**
+ * Key event with given key identifier.
+ */
+TestSuite.KeyEvent = function(key) {
+  this.keyIdentifier = key;
 };
+TestSuite.KeyEvent.prototype.preventDefault = function() {};
+TestSuite.KeyEvent.prototype.stopPropagation = function() {};
 
 
 /**
@@ -325,12 +388,13 @@ TestSuite.prototype.testConsoleEval = function(controller) {
     originalConsoleAddMessage.call(this, commandResult);
     WebInspector.Console.prototype.addMessage = originalConsoleAddMessage;
     test.assertEquals('123', commandResult.toMessageElement().textContent);
-    controller.reportOk();
+    controller.releaseControl();
   };
 
   WebInspector.console.visible = true;
   WebInspector.console.prompt.text = '123';
-  WebInspector.console.promptElement.handleKeyEvent(TestSuite.ConsoleEnter);
+  WebInspector.console.promptElement.handleKeyEvent(
+      new TestSuite.KeyEvent('Enter'));
 
   controller.takeControl();
 };
@@ -374,6 +438,35 @@ TestSuite.prototype.testConsoleLog = function(controller) {
   assertNext('29', 'group', 'group-title');
   index++;
   assertNext('33', 'timer:', 'log', '', true);
+};
+
+
+/**
+ * Tests eval of global objects.
+ */
+TestSuite.prototype.testEvalGlobal = function(controller) {
+  var test = this;
+  var originalConsoleAddMessage = WebInspector.Console.prototype.addMessage;
+  WebInspector.Console.prototype.addMessage = function(commandResult) {
+    originalConsoleAddMessage.call(this, commandResult);
+    WebInspector.Console.prototype.addMessage = originalConsoleAddMessage;
+    test.assertEquals('fooValue', commandResult.toMessageElement().textContent);
+    controller.releaseControl();
+  };
+
+  WebInspector.console.visible = true;
+  WebInspector.console.prompt.text = 'foo';
+  WebInspector.console.promptElement.handleKeyEvent(
+      new TestSuite.KeyEvent('Enter'));
+
+  controller.takeControl();
+};
+
+
+/**
+ * Tests eval on call frame.
+ */
+TestSuite.prototype.testEvalCallFrame = function(controller) {
 };
 
 

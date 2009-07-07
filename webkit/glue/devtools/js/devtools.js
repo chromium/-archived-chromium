@@ -907,6 +907,7 @@ WebInspector.ScriptsPanel.prototype.doEvalInCallFrame =
   var oldShow = WebInspector.ScriptsPanel.prototype.show;
   WebInspector.ScriptsPanel.prototype.show =  function() {
     devtools.tools.getDebuggerAgent().initializeScriptsCache();
+    this.enableToggleButton.addStyleClass('hidden');
     oldShow.call(this);
   };
 })();
@@ -950,6 +951,7 @@ WebInspector.ScriptsPanel.prototype.doEvalInCallFrame =
   var oldShow = WebInspector.ProfilesPanel.prototype.show;
   WebInspector.ProfilesPanel.prototype.show = function() {
     devtools.tools.getDebuggerAgent().initializeProfiling();
+    this.enableToggleButton.addStyleClass('hidden');
     oldShow.call(this);
     // Show is called on every show event of a panel, so
     // we only need to intercept it once.
