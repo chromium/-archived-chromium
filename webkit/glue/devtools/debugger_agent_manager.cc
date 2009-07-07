@@ -120,18 +120,33 @@ void DebuggerAgentManager::DebugDetach(DebuggerAgentImpl* debugger_agent) {
   }
   int host_id = debugger_agent->webdevtools_agent()->host_id();
   DCHECK(attached_agents_map_->get(host_id) == debugger_agent);
+  bool is_on_breakpoint = (FindAgentForCurrentV8Context() == debugger_agent);
   attached_agents_map_->remove(host_id);
 
   if (attached_agents_map_->isEmpty()) {
     delete attached_agents_map_;
     attached_agents_map_ = NULL;
     // Note that we do not empty handlers while in dispatch - we schedule
-    // continue and do removal once we are out of the dispatch.
+    // continue and do removal once we are out of the dispatch. Also there is
+    // no need to send continue command in this case since removing message
+    // handler will cause debugger unload and all breakpoints will be cleared.
     if (!in_host_dispatch_handler_) {
       v8::Debug::SetMessageHandler2(NULL);
       v8::Debug::SetHostDispatchHandler(NULL);
-    } else if (FindAgentForCurrentV8Context() == debugger_agent) {
-      // Force continue just in case to handle close while on a breakpoint.
+    }
+  } else {
+    // Remove all breakpoints set by the agent.
+    std::wstring clear_breakpoint_group_cmd(StringPrintf(
+        L"{\"seq\":1,\"type\":\"request\",\"command\":\"clearbreakpointgroup\","
+            L"\"arguments\":{\"groupId\":%d}}",
+        host_id));
+    SendCommandToV8(WideToUTF16(clear_breakpoint_group_cmd),
+                    new CallerIdWrapper());
+
+    if (is_on_breakpoint) {
+      // Force continue if detach happened in nessted message loop while
+      // debugger was paused on a breakpoint(as long as there are other
+      // attached agents v8 will wait for explicit'continue' message).
       SendContinueCommandToV8();
     }
   }

@@ -223,6 +223,7 @@ devtools.DebuggerAgent.prototype.addBreakpoint = function(sourceId, line) {
     breakpoints[line] = breakpointInfo;
 
     commandArguments = {
+      'groupId': this.contextId_,
       'type': 'script',
       'target': script.getUrl(),
       'line': line
@@ -237,6 +238,7 @@ devtools.DebuggerAgent.prototype.addBreakpoint = function(sourceId, line) {
     script.addBreakpointInfo(breakpointInfo);
 
     commandArguments = {
+      'groupId': this.contextId_,
       'type': 'scriptId',
       'target': sourceId,
       'line': line
