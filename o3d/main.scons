@@ -690,6 +690,9 @@ linux_env.Append(
     LINKFLAGS = ['-m32'],
     LIBS = ['pthread', 'rt'],
     NACL_HTP_LIBS = ['ssl', 'crypto'],
+    BUILD_COMPONENTS = [
+        'installer/linux'
+    ],
 )
 
 linux_cg_dir = ARGUMENTS.get('linux-cg-dir', 'hermetic')
