@@ -1119,6 +1119,10 @@ BUG13692 MAC : LayoutTests/fast/invalid/019.html = CRASH PASS
 // <body><canvas height=100></canvas></body> is 1 px taller than upstream.
 BUG13809 WIN LINUX : LayoutTests/fast/canvas/canvas-empty-image-pattern.html = FAIL
 
+// This test has been failing since the FocusController::setFocused API was
+// added in WebKit.
+BUG16018 : LayoutTests/fast/dom/HTMLDocument/hasFocus.html = FAIL
+
 // ----------------------------------------------------------------------------
 // NEW FOR THE MERGE
 //
@@ -2783,7 +2787,6 @@ BUG15733 LINUX WIN : LayoutTests/compositing/repaint/overflow-into-content.html 
 
 // WebKit 45431:45444
 BUG15780 : LayoutTests/fast/dom/HTMLDataGridElement/DataGridColumns-dom-attributes.html = FAIL TIMEOUT
-BUG15780 : LayoutTests/fast/dom/HTMLDocument/hasFocus.html = FAIL
 BUG10384 MAC : LayoutTests/fast/events/frame-tab-focus.html = CRASH FAIL
 BUG11613 LINUX : LayoutTests/fast/forms/tabbing-input-iframe.html = FAIL
 BUG11613 LINUX : LayoutTests/fast/overflow/scrollRevealButton.html = FAIL
