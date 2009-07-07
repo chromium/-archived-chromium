@@ -190,6 +190,11 @@ static const char* const supported_media_types[] = {
   // MP3.
   "audio/mp3",
   "audio/x-mp3",
+
+  // Generic MPEG mime-types.
+  // TODO(fbarchard): Remove these when layout tests stop using mpg.
+  "audio/mpeg",
+  "video/mpeg"
 };
 
 // Note: does not include javascript types list (see supported_javascript_types)
