@@ -1435,15 +1435,13 @@ void BrowserView::Init() {
   AddChildView(infobar_container_);
 
   contents_container_ = new TabContentsContainer;
-  set_contents_view(contents_container_);
-
   devtools_container_ = new TabContentsContainer;
   contents_split_ = new views::SingleSplitView(
       contents_container_,
       devtools_container_,
       views::SingleSplitView::VERTICAL_SPLIT);
-
   AddChildView(contents_split_);
+  set_contents_view(contents_split_);
 
   status_bubble_.reset(new StatusBubbleViews(GetWidget()));
 
