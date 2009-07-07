@@ -33,7 +33,6 @@ RenderViewHostManager::RenderViewHostManager(
       render_view_delegate_(render_view_delegate),
       render_view_host_(NULL),
       pending_render_view_host_(NULL),
-      pending_renderer_aborted_(false),
       interstitial_page_(NULL) {
   registrar_.Add(this, NotificationType::RENDER_VIEW_HOST_DELETED,
                  NotificationService::AllSources());
@@ -216,21 +215,11 @@ void RenderViewHostManager::RendererAbortedProvisionalLoad(
   // navigation events.  (That's necessary to support onunload anyway.)  Once
   // we've made that change, we won't create a pending renderer until we know
   // the response is not a download.
-
-  // There is one instance where we must be able to pre-emptively clean up a
-  // pending renderer: If a cross-site download is initiated from a chrome://
-  // url, and the browser then wants to close.
-  if (pending_render_view_host_) {
-    pending_renderer_aborted_ = true;
-  }
 }
 
 void RenderViewHostManager::ShouldClosePage(bool proceed) {
   // Should only see this while we have a pending renderer.  Otherwise, we
   // should ignore.
-  if (pending_render_view_host_ && pending_renderer_aborted_)
-    CancelPending();
-
   if (!pending_render_view_host_) {
     bool proceed_to_fire_unload;
     delegate_->BeforeUnloadFiredFromRenderManager(proceed,
@@ -600,7 +589,7 @@ void RenderViewHostManager::CancelPending() {
   RenderViewHost* pending_render_view_host = pending_render_view_host_;
   pending_render_view_host_ = NULL;
   pending_render_view_host->Shutdown();
-  pending_renderer_aborted_ = false;
+
   pending_dom_ui_.reset();
 }
 

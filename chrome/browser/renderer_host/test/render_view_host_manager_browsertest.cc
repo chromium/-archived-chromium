@@ -82,6 +82,8 @@ class BrowserClosedObserver : public NotificationObserver {
 // Test for crbug.com/12745. This tests that if a download is initiated from
 // a chrome:// page that has registered and onunload handler, the browser
 // will be able to close.
+// TODO(rafaelw): The fix for 12745 has now also been reverted. Another fix
+// must be found before this can be re-enabled.
 IN_PROC_BROWSER_TEST_F(RenderViewHostManagerTest,
                        DISABLED_BrowserCloseAfterDownload) {
   GURL downloads_url("chrome://downloads");
