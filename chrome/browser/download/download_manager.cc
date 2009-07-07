@@ -820,8 +820,6 @@ void DownloadManager::DownloadFinished(int32 download_id, int64 size) {
 
 void DownloadManager::DownloadRenamedToFinalName(int download_id,
                                                  const FilePath& full_path) {
-  if (Extension::IsExtension(full_path))
-    OpenChromeExtension(full_path);
 }
 
 void DownloadManager::ContinueDownloadFinished(DownloadItem* download) {
@@ -840,8 +838,7 @@ void DownloadManager::ContinueDownloadFinished(DownloadItem* download) {
 
   // Handle chrome extensions explicitly and skip the shell execute.
   if (Extension::IsExtension(download->full_path())) {
-    // Skip the shell execute. This will be handled in
-    // DownloadRenamedToFinalName
+    OpenChromeExtension(download->full_path());
     return;
   }
 
