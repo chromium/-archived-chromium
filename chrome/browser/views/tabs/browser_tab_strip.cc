@@ -54,7 +54,7 @@ class RemovingTabModel : public Tab2Model {
 // BrowserTabStrip, public:
 
 BrowserTabStrip::BrowserTabStrip(TabStripModel* model)
-    : TabStrip2(this),
+    : ALLOW_THIS_IN_INITIALIZER_LIST(TabStrip2(this)),
       model_(model) {
   model_->AddObserver(this);
 }

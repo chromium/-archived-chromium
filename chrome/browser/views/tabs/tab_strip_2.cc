@@ -24,8 +24,8 @@ static const int kHorizontalMoveThreshold = 16;  // pixels
 TabStrip2::TabStrip2(TabStrip2Model* model)
     : model_(model),
       last_move_screen_x_(0),
-      detach_factory_(this),
-      drag_start_factory_(this) {
+      ALLOW_THIS_IN_INITIALIZER_LIST(detach_factory_(this)),
+      ALLOW_THIS_IN_INITIALIZER_LIST(drag_start_factory_(this)) {
 }
 
 TabStrip2::~TabStrip2() {
