@@ -76,6 +76,8 @@
         'filters/audio_renderer_algorithm_base.h',
         'filters/audio_renderer_algorithm_default.cc',
         'filters/audio_renderer_algorithm_default.h',
+        'filters/audio_renderer_algorithm_ola.cc',
+        'filters/audio_renderer_algorithm_ola.h',
         'filters/audio_renderer_base.cc',
         'filters/audio_renderer_base.h',
         'filters/audio_renderer_impl.cc',
@@ -190,6 +192,16 @@
       ],
       'sources': [
         'bench/bench.cc',
+      ],
+    },
+    {
+      'target_name': 'wav_ola_test',
+      'type': 'executable',
+      'dependencies': [
+        'media',
+      ],
+      'sources': [
+        'tools/wav_ola_test.cc'
       ],
     },
   ],
