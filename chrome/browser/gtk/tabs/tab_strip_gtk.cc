@@ -1584,7 +1584,7 @@ CustomDrawButton* TabStripGtk::MakeNewTabButton() {
 #if defined(LINUX2)
 CustomDrawButton* TabStripGtk::MakeTabOverviewButton() {
   CustomDrawButton* button =
-      new CustomDrawButton(IDR_TAB_OVERVIEW_BUTTON_ICON, 0, 0, 0);
+      new CustomDrawButton(IDR_TAB_OVERVIEW_BUTTON_ICON, 0, 0, 0, NULL);
 
   g_signal_connect(G_OBJECT(button->widget()), "clicked",
                    G_CALLBACK(OnTabOverviewButtonClicked), this);

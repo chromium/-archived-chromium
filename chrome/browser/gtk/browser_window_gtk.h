@@ -12,6 +12,7 @@
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
 #include "base/timer.h"
+#include "build/build_config.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/common/notification_registrar.h"
@@ -30,6 +31,10 @@ class LocationBar;
 class StatusBubbleGtk;
 class TabContentsContainerGtk;
 class TabStripGtk;
+
+#ifdef LINUX2
+class PanelController;
+#endif
 
 // An implementation of BrowserWindow for GTK.
 // Cross-platform code will interact with this object when
@@ -148,6 +153,8 @@ class BrowserWindowGtk : public BrowserWindow,
   Browser* browser() {
     return browser_.get();
   }
+
+  GtkWindow* window() { return window_; }
 
  protected:
   virtual void DestroyBrowser();
@@ -292,6 +299,8 @@ class BrowserWindowGtk : public BrowserWindow,
 #if defined(LINUX2)
   // True if a drag is active. See description above setter for details.
   bool drag_active_;
+  // Controls interactions with the window manager for popup panels.
+  PanelController* panel_controller_;
 #endif
 
   // A map which translates an X Window ID into its respective GtkWindow.

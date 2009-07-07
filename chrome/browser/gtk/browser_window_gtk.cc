@@ -56,6 +56,7 @@
 #include "grit/theme_resources.h"
 
 #if defined(LINUX2)
+#include "chrome/browser/views/panel_controller.h"
 #include "chrome/browser/views/tabs/tab_overview_types.h"
 #endif
 
@@ -359,6 +360,7 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
        full_screen_(false),
 #if defined(LINUX2)
        drag_active_(false),
+       panel_controller_(NULL),
 #endif
        frame_cursor_(NULL) {
   use_custom_frame_.Init(prefs::kUseCustomChromeFrame,
@@ -456,8 +458,6 @@ gboolean BrowserWindowGtk::OnCustomFrameExpose(GtkWidget* widget,
 }
 
 void BrowserWindowGtk::Show() {
-  gtk_widget_show(GTK_WIDGET(window_));
-
   // The Browser associated with this browser window must become the active
   // browser at the time Show() is called. This is the natural behaviour under
   // Windows, but gtk_widget_show won't show the widget (and therefore won't
@@ -467,10 +467,17 @@ void BrowserWindowGtk::Show() {
   BrowserList::SetLastActive(browser());
 
 #if defined(LINUX2)
-  TabOverviewTypes::instance()->SetWindowType(
-      GTK_WIDGET(window_), TabOverviewTypes::WINDOW_TYPE_CHROME_TOPLEVEL,
-      NULL);
+  if (browser_->type() == Browser::TYPE_POPUP) {
+    panel_controller_ = new PanelController(this);
+  } else {
+    TabOverviewTypes::instance()->SetWindowType(
+        GTK_WIDGET(window_),
+        TabOverviewTypes::WINDOW_TYPE_CHROME_TOPLEVEL,
+        NULL);
+  }
 #endif
+
+  gtk_widget_show(GTK_WIDGET(window_));
 }
 
 void BrowserWindowGtk::SetBounds(const gfx::Rect& bounds) {
@@ -498,6 +505,12 @@ void BrowserWindowGtk::Close() {
   // destruction, set window_ to NULL before any handlers will run.
   window_ = NULL;
   gtk_widget_destroy(window);
+
+#if defined(LINUX2)
+  if (panel_controller_) {
+    panel_controller_->Close();
+  }
+#endif
 }
 
 void BrowserWindowGtk::Activate() {
@@ -533,6 +546,11 @@ void BrowserWindowGtk::SelectedTabToolbarSizeChanged(bool is_animating) {
 }
 
 void BrowserWindowGtk::UpdateTitleBar() {
+#if defined(LINUX2)
+  if (panel_controller_)
+    panel_controller_->UpdateTitleBar();
+#endif
+
   std::wstring title = browser_->GetCurrentPageTitle();
   gtk_window_set_title(window_, WideToUTF8(title).c_str());
   if (ShouldShowWindowIcon()) {
@@ -1003,7 +1021,14 @@ void BrowserWindowGtk::InitWidgets() {
 
   toolbar_.reset(new BrowserToolbarGtk(browser_.get(), this));
   toolbar_->Init(browser_->profile(), window_);
-  toolbar_->AddToolbarToBox(content_vbox_);
+  bool hide_tools = false;
+#if defined(LINUX2)
+  if (browser_->type() == Browser::TYPE_POPUP)
+    hide_tools = true;
+#endif
+
+  if (!hide_tools)
+    toolbar_->AddToolbarToBox(content_vbox_);
 
   bookmark_bar_.reset(new BookmarkBarGtk(browser_->profile(), browser_.get(),
                                          this));
@@ -1025,6 +1050,14 @@ void BrowserWindowGtk::InitWidgets() {
   contents_container_.reset(new TabContentsContainerGtk(status_bubble_.get()));
   contents_container_->AddContainerToBox(render_area_vbox_);
   gtk_widget_show_all(render_area_vbox_);
+
+#if defined(LINUX2)
+  if (browser_->type() == Browser::TYPE_POPUP) {
+    // The window manager needs the min size for popups
+    gtk_widget_set_size_request(
+        GTK_WIDGET(window_), bounds_.width(), bounds_.height());
+  }
+#endif
 
   // We have to realize the window before we try to apply a window shape mask.
   gtk_widget_realize(GTK_WIDGET(window_));

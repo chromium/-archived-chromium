@@ -444,16 +444,16 @@ std::wstring Browser::GetCurrentPageTitle() const {
   if (title.empty())
     title = l10n_util::GetString(IDS_TAB_UNTITLED_TITLE);
 
-#if defined(OS_WIN) || defined(OS_LINUX)
+#if defined(OS_MACOSX) || defined(LINUX2)
+  // On Mac, we don't want to suffix the page title with the application name.
+  return title;
+#elif defined(OS_WIN) || defined(OS_LINUX)
   int string_id = IDS_BROWSER_WINDOW_TITLE_FORMAT;
   // Don't append the app name to window titles when we're not displaying a
   // distributor logo for the frame.
   if (!ShouldShowDistributorLogo())
     string_id = IDS_BROWSER_WINDOW_TITLE_FORMAT_NO_LOGO;
   return l10n_util::GetStringF(string_id, title);
-#elif defined(OS_MACOSX)
-  // On Mac, we don't want to suffix the page title with the application name.
-  return title;
 #endif
 }
 
