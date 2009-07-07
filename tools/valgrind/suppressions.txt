@@ -609,3 +609,90 @@
    fun:_ZN7WebCore11ImageSource18createFrameAtIndexEj
    fun:_ZNK11webkit_glue12ImageDecoder6DecodeEPKhj
 }
+{
+   # very common in ui tests
+   bug_12863
+   Memcheck:Leak
+   fun:malloc
+   fun:g_malloc
+   fun:g_slice_alloc
+   fun:g_slice_alloc0
+   fun:g_type_create_instance
+   fun:g_object_constructor
+   fun:g_object_newv
+   fun:g_object_new_valist
+   fun:g_object_new
+   fun:gtk_event_box_new
+   fun:_ZN6TabGtkC1EPNS_11TabDelegateE
+   fun:_ZN11TabStripGtk13TabInsertedAtEP11TabContentsib
+   fun:_ZN13TabStripModel19InsertTabContentsAtEiP11TabContentsbb
+   fun:_ZN13TabStripModel14AddTabContentsEP11TabContentsibjb
+}
+{
+   # very common in ui tests
+   bug_16089
+   Memcheck:Leak
+   fun:*
+   fun:_ZN4base22LinuxDynamicThreadPool8PostTaskEP4Task
+   fun:_ZN10WorkerPool8PostTaskERKN15tracked_objects8LocationEP4Taskb
+   fun:_ZN3net12HostResolver3Job5StartEv
+}
+{
+   # very common in ui tests
+   bug_16091
+   Memcheck:Leak
+   fun:*
+   fun:_ZNSt6vectorIPN11MessageLoop19DestructionObserverESaIS2_EE13_M_insert_auxEN9__gnu_cxx17__normal_iteratorIPS2_S4_EERKS2_
+   fun:_ZN11MessageLoop22AddDestructionObserverEPNS_19DestructionObserverE
+   fun:_ZN4base20WaitableEventWatcher13StartWatchingEPNS_13WaitableEventEPNS0_8DelegateE
+   fun:_ZN3IPC11SyncChannel11SyncContext15OnChannelOpenedEv
+}
+{
+   # very common in ui tests
+   bug_16092
+   Memcheck:Leak
+   fun:*
+   fun:_ZN11MessageLoopC1ENS_4TypeE
+   fun:_ZN4base6Thread10ThreadMainEv
+}
+{
+   # very common in ui tests
+   bug_16092b
+   Memcheck:Leak
+   fun:*
+   fun:_ZNSt11_Deque_baseIN11MessageLoop11PendingTaskESaIS1_EE17_M_initialize_mapEj
+   fun:_ZN11MessageLoopC1ENS_4TypeE
+   fun:_ZN4base6Thread10ThreadMainEv
+}
+{
+   # very common in ui tests
+   bug_16093
+   Memcheck:Leak
+   ...
+   fun:getaddrinfo
+   fun:_ZN3netL16HostResolverProcERKSsPP8addrinfo
+   fun:_ZN3netL15ResolveAddrInfoEPNS_10HostMapperERKSsPP8addrinfo
+   fun:_ZN3net12HostResolver3Job8DoLookupEv
+}
+{
+   # very common in ui tests
+   bug_16095
+   Memcheck:Leak
+   ...
+   fun:_ZN11MessageLoop21AddToDelayedWorkQueueERKNS_11PendingTaskE
+   fun:_ZN11MessageLoop6DoWorkEv
+}
+{
+   # very common in ui tests
+   bug_16096
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZNSs4_Rep9_S_createEjjRKSaIcE
+   fun:_ZNSs4_Rep8_M_cloneERKSaIcEj
+   fun:_ZNSs7reserveEj
+   fun:_ZNSs6appendEPKcj
+   fun:_Z14StringAppendVTISsEvPT_PKNS0_10value_typeEPc
+   fun:_Z13StringAppendVPSsPKcPc
+   fun:_Z12StringPrintfPKcz
+   fun:_ZN12_GLOBAL__N_112WorkerThread10ThreadMainEv
+}
