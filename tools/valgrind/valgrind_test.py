@@ -136,6 +136,19 @@ class Valgrind(object):
   def Analyze(self):
     # Glob all the files in the "valgrind.tmp" directory
     filenames = glob.glob(self.TMP_DIR + "/valgrind.*")
+    # TODO(dkegel): use new xml suppressions feature when it lands
+    if self._generate_suppressions:
+      # Just concatenate all the output files.  Lame...
+      for filename in filenames:
+        print "## %s" % filename
+        f = file(filename)
+        while True:
+          line = f.readline()
+          if len(line) == 0:
+            break
+          print line, # comma means don't add newline
+        f.close()
+      return 0
     analyzer = valgrind_analyze.ValgrindAnalyze(self._source_dir, filenames, self._options.show_all_leaks)
     return analyzer.Report()
 
@@ -148,9 +161,6 @@ class Valgrind(object):
   def RunTestsAndAnalyze(self):
     self.PrepareForTest()
     self.Execute()
-    if self._generate_suppressions:
-      logging.info("Skipping analysis to let you look at the raw output...")
-      return 0
 
     retcode = self.Analyze()
     if retcode:
@@ -224,11 +234,8 @@ class ValgrindLinux(Valgrind):
       if not suppression_count:
         logging.warning("WARNING: NOT USING SUPPRESSIONS!")
 
-      if not self._generate_suppressions:
-        # We don't currently collect suppressions from individual log files,
-        # so let it all go to stdout.  This leads to occasional
-        # corruption; see above TODO.
-        proc += ["--log-file=" + self.TMP_DIR + "/valgrind.%p"]
+      proc += ["--log-file=" + self.TMP_DIR + "/valgrind.%p"]
+
     # The Valgrind command is constructed.
 
     if self._options.indirect:
