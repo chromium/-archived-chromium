@@ -63,6 +63,7 @@ class BrowserFrameWin : public BrowserFrame, public views::WindowWin {
   virtual LRESULT OnNCActivate(BOOL active);
   virtual LRESULT OnNCCalcSize(BOOL mode, LPARAM l_param);
   virtual LRESULT OnNCHitTest(const CPoint& pt);
+  virtual void OnWindowPosChanged(WINDOWPOS* window_pos);
 
   // Overridden from views::Window:
   virtual int GetShowState() const;

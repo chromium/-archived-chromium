@@ -227,6 +227,24 @@ LRESULT BrowserFrameWin::OnNCHitTest(const CPoint& pt) {
   return WindowWin::OnNCHitTest(pt);
 }
 
+void BrowserFrameWin::OnWindowPosChanged(WINDOWPOS* window_pos) {
+  // Windows lies to us about the position of the minimize button before a
+  // window is visible. We use the position of the minimize button to place the
+  // distributor logo in official builds. When the window is shown, we need to
+  // re-layout and schedule a paint for the non-client frame view so that the
+  // distributor logo has the correct position when the window becomes visible.
+  // This fixes bugs where the distributor logo appears to overlay the minimize
+  // button. http://crbug.com/15520
+  // Note that we will call Layout every time SetWindowPos is called with
+  // SWP_SHOWWINDOW, however callers typically are careful about not specifying
+  // this flag unless necessary to avoid flicker.
+  if (window_pos->flags & SWP_SHOWWINDOW) {
+    GetNonClientView()->Layout();
+    GetNonClientView()->SchedulePaint();
+  }
+  WindowWin::OnWindowPosChanged(window_pos);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserFrame, views::CustomFrameWindow overrides:
 
