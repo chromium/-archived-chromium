@@ -513,12 +513,10 @@ bool DoesBookmarkContainText(const BookmarkNode* node,
   return (node->is_url() && DoesBookmarkContainWords(node, words, languages));
 }
 
-void ApplyEditsWithNoGroupChange(BookmarkModel* model,
-                                 const BookmarkNode* parent,
-                                 const BookmarkNode* node,
-                                 const std::wstring& new_title,
-                                 const GURL& new_url,
-                                 BookmarkEditor::Handler* handler) {
+const BookmarkNode* ApplyEditsWithNoGroupChange(BookmarkModel* model,
+    const BookmarkNode* parent, const BookmarkNode* node,
+    const std::wstring& new_title, const GURL& new_url,
+    BookmarkEditor::Handler* handler) {
   const BookmarkNode* old_parent = node ? node->GetParent() : NULL;
   const int old_index = old_parent ? old_parent->IndexOfChild(node) : -1;
 
@@ -528,49 +526,49 @@ void ApplyEditsWithNoGroupChange(BookmarkModel* model,
 
     if (handler)
       handler->NodeCreated(node);
-    return;
+    return node;
   }
 
   // If we're not showing the tree we only need to modify the node.
   if (old_index == -1) {
     NOTREACHED();
-    return;
+    return node;
   }
 
   if (new_url != node->GetURL()) {
-    model->AddURLWithCreationTime(old_parent, old_index, new_title,
-                                  new_url, node->date_added());
+    const BookmarkNode* new_node = model->AddURLWithCreationTime(old_parent,
+        old_index, new_title, new_url, node->date_added());
     model->Remove(old_parent, old_index + 1);
+    return new_node;
   } else {
     model->SetTitle(node, new_title);
   }
+  return node;
 }
 
-void ApplyEditsWithPossibleGroupChange(BookmarkModel* model,
-                                       const BookmarkNode* new_parent,
-                                       const BookmarkNode* node,
-                                       const std::wstring& new_title,
-                                       const GURL& new_url,
-                                       BookmarkEditor::Handler* handler) {
+const BookmarkNode* ApplyEditsWithPossibleGroupChange(BookmarkModel* model,
+    const BookmarkNode* new_parent, const BookmarkNode* node,
+    const std::wstring& new_title, const GURL& new_url,
+    BookmarkEditor::Handler* handler) {
   const BookmarkNode* old_parent = node ? node->GetParent() : NULL;
   const int old_index = old_parent ? old_parent->IndexOfChild(node) : -1;
-
+  const BookmarkNode* return_node = node;
   if (node) {
     Time date_added = node->date_added();
     if (new_parent == node->GetParent()) {
       // The parent is the same.
       if (new_url != node->GetURL()) {
         model->Remove(old_parent, old_index);
-        model->AddURLWithCreationTime(old_parent, old_index,
-                                      new_title, new_url, date_added);
+        return_node = model->AddURLWithCreationTime(old_parent, old_index,
+            new_title, new_url, date_added);
       } else {
         model->SetTitle(node, new_title);
       }
     } else if (new_url != node->GetURL()) {
       // The parent and URL changed.
       model->Remove(old_parent, old_index);
-      model->AddURLWithCreationTime(new_parent, new_parent->GetChildCount(),
-                                    new_title, new_url, date_added);
+      return_node = model->AddURLWithCreationTime(new_parent,
+          new_parent->GetChildCount(), new_title, new_url, date_added);
     } else {
       // The parent and title changed. Move the node and change the title.
       model->Move(node, new_parent, new_parent->GetChildCount());
@@ -578,12 +576,13 @@ void ApplyEditsWithPossibleGroupChange(BookmarkModel* model,
     }
   } else {
     // We're adding a new URL.
-    node =
+    return_node =
         model->AddURL(new_parent, new_parent->GetChildCount(), new_title,
                       new_url);
     if (handler)
-      handler->NodeCreated(node);
+      handler->NodeCreated(return_node);
   }
+  return return_node;
 }
 
 // Formerly in BookmarkBarView

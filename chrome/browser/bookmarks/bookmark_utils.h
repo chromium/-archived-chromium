@@ -142,22 +142,28 @@ bool DoesBookmarkContainText(const BookmarkNode* node,
                              const std::wstring& languages);
 
 // Modifies a bookmark node (assuming that there's no magic that needs to be
-// done regarding moving from one folder to another).
-void ApplyEditsWithNoGroupChange(BookmarkModel* model,
-                                 const BookmarkNode* parent,
-                                 const BookmarkNode* node,
-                                 const std::wstring& new_title,
-                                 const GURL& new_url,
-                                 BookmarkEditor::Handler* handler);
+// done regarding moving from one folder to another).  If the URL changed or a
+// new node is explicitly being added, returns a pointer to the new node that
+// was created.  Otherwise the return value is identically |node|.
+const BookmarkNode* ApplyEditsWithNoGroupChange(
+    BookmarkModel* model,
+    const BookmarkNode* parent,
+    const BookmarkNode* node,
+    const std::wstring& new_title,
+    const GURL& new_url,
+    BookmarkEditor::Handler* handler);
 
 // Modifies a bookmark node assuming that the parent of the node may have
-// changed and the node will need to be removed and reinserted.
-void ApplyEditsWithPossibleGroupChange(BookmarkModel* model,
-                                       const BookmarkNode* new_parent,
-                                       const BookmarkNode* node,
-                                       const std::wstring& new_title,
-                                       const GURL& new_url,
-                                       BookmarkEditor::Handler* handler);
+// changed and the node will need to be removed and reinserted.  If the URL
+// changed or a new node is explicitly being added, returns a pointer to the
+// new node that was created.  Otherwise the return value is identically |node|.
+const BookmarkNode* ApplyEditsWithPossibleGroupChange(
+    BookmarkModel* model,
+    const BookmarkNode* new_parent,
+    const BookmarkNode* node,
+    const std::wstring& new_title,
+    const GURL& new_url,
+    BookmarkEditor::Handler* handler);
 
 // Toggles whether the bookmark bar is shown only on the new tab page or on
 // all tabs.  This is a preference modifier, not a visual modifier.
