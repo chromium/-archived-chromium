@@ -25,6 +25,13 @@ THISDIR = os.path.dirname(os.path.abspath(__file__))
 def PathFromBase(*pathies):
   return google.path_utils.FindUpward(THISDIR, *pathies)
 
+def RemoveLogFiles(folder, starts_with):
+  files = os.listdir(folder)
+  for file in files:
+    if file.startswith(starts_with) :
+      full_path = os.path.join(folder, file)
+      os.remove(full_path)
+
 class HttpdNotStarted(Exception):
   pass
 
@@ -103,6 +110,10 @@ class Lighttpd:
     access_log = os.path.join(self._output_dir, access_file_name)
     log_file_name = "error.log-" + time_str + ".txt"
     error_log = os.path.join(self._output_dir, log_file_name)
+
+    # Remove old log files. We only need to keep the last ones.
+    RemoveLogFiles(self._output_dir, "access.log-")
+    RemoveLogFiles(self._output_dir, "error.log-")
 
     # Write out the config
     f = file(base_conf_file, 'rb')
