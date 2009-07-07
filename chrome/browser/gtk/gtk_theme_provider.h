@@ -58,4 +58,20 @@ class GtkThemeProvider : public BrowserThemeProvider {
   GtkWidget* fake_window_;
 };
 
+// A Helper struct used throughout the GTK themeing code. It retrieves settings
+// from the Profile once at creation time, instead of at every access time. A
+// large motivation for making this struct is so that we only have to pass one
+// parameter around when configuring things due to a theme event. This way, we
+// can use a lot of GTK convenience features likt gtk_container_foreach().
+struct GtkThemeProperties {
+  GtkThemeProperties(Profile* profile);
+
+  // A wrapper around ThemeProvider::GetColor, transforming the result to a
+  // GdkColor.
+  GdkColor GetGdkColor(int id);
+
+  bool use_gtk_rendering;
+  ThemeProvider* provider;
+};
+
 #endif  // CHROME_BROWSER_GTK_GTK_THEME_PROVIDER_H_

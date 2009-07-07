@@ -21,6 +21,7 @@ class CustomContainerButton;
 class NineBox;
 class PageNavigator;
 class Profile;
+struct GtkThemeProperties;
 
 class BookmarkBarGtk : public AnimationDelegate,
                        public BookmarkModelObserver {
@@ -68,7 +69,7 @@ class BookmarkBarGtk : public AnimationDelegate,
   bool IsAlwaysShown();
 
   // Alerts us that the theme changed, and we might need to change theme images.
-  void UserChangedTheme(Profile* profile);
+  void UserChangedTheme(GtkThemeProperties* properties);
 
   // AnimationDelegate implementation ------------------------------------------
   virtual void AnimationProgressed(const Animation* animation);
@@ -210,6 +211,10 @@ class BookmarkBarGtk : public AnimationDelegate,
 
   // The other bookmarks button.
   GtkWidget* other_bookmarks_button_;
+
+  // The label inside |other_bookmarks_button_|. We keep a reference so we can
+  // change the text color.
+  GtkWidget* other_bookmarks_label_;
 
   // Whether we should ignore the next button release event (because we were
   // dragging).

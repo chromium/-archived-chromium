@@ -12,6 +12,7 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/gtk/gtk_chrome_button.h"
 #include "chrome/browser/gtk/gtk_dnd_util.h"
+#include "chrome/browser/gtk/gtk_theme_provider.h"
 #include "chrome/browser/profile.h"
 #include "grit/app_resources.h"
 #include "grit/generated_resources.h"
@@ -28,14 +29,6 @@ const size_t kMaxCharsOnAButton = 15;
 
 // Only used for the background of the drag widget.
 const GdkColor kBackgroundColor = GDK_COLOR_RGB(0xe6, 0xed, 0xf4);
-
-// Color of the button text, taken from TextButtonView.
-const GdkColor kEnabledColor = GDK_COLOR_RGB(6, 45, 117);
-const GdkColor kDisabledColor = GDK_COLOR_RGB(161, 161, 146);
-// TextButtonView uses 255, 255, 255 with opacity of 200. We don't support
-// transparent text though, so just use a slightly lighter version of
-// kEnabledColor.
-const GdkColor kHighlightColor = GDK_COLOR_RGB(56, 95, 167);
 
 void* AsVoid(const BookmarkNode* node) {
   return const_cast<BookmarkNode*>(node);
@@ -82,10 +75,15 @@ GdkPixbuf* GetPixbufForNode(const BookmarkNode* node, BookmarkModel* model) {
 }
 
 GtkWidget* GetDragRepresentation(const BookmarkNode* node,
-                                 BookmarkModel* model) {
+                                 BookmarkModel* model,
+                                 GtkThemeProperties* properties) {
   // Build a windowed representation for our button.
   GtkWidget* window = gtk_window_new(GTK_WINDOW_POPUP);
-  gtk_widget_modify_bg(window, GTK_STATE_NORMAL, &kBackgroundColor);
+  if (!properties->use_gtk_rendering) {
+    // TODO(erg): Theme wise, which color should I be picking here?
+    // COLOR_BUTTON_BACKGROUND doesn't match the default theme!
+    gtk_widget_modify_bg(window, GTK_STATE_NORMAL, &kBackgroundColor);
+  }
   gtk_widget_realize(window);
 
   GtkWidget* frame = gtk_frame_new(NULL);
@@ -94,7 +92,8 @@ GtkWidget* GetDragRepresentation(const BookmarkNode* node,
   gtk_widget_show(frame);
 
   GtkWidget* floating_button = gtk_chrome_button_new();
-  bookmark_utils::ConfigureButtonForNode(node, model, floating_button);
+  bookmark_utils::ConfigureButtonForNode(node, model, floating_button,
+                                         properties);
   gtk_container_add(GTK_CONTAINER(frame), floating_button);
   gtk_widget_show(floating_button);
 
@@ -102,7 +101,7 @@ GtkWidget* GetDragRepresentation(const BookmarkNode* node,
 }
 
 void ConfigureButtonForNode(const BookmarkNode* node, BookmarkModel* model,
-                            GtkWidget* button) {
+                            GtkWidget* button, GtkThemeProperties* properties) {
   GtkWidget* former_child = gtk_bin_get_child(GTK_BIN(button));
   if (former_child)
     gtk_container_remove(GTK_CONTAINER(button), former_child);
@@ -126,9 +125,12 @@ void ConfigureButtonForNode(const BookmarkNode* node, BookmarkModel* model,
   gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 0);
   gtk_container_add(GTK_CONTAINER(button), box);
 
-  SetButtonTextColors(label);
+  SetButtonTextColors(label, properties);
   g_object_set_data(G_OBJECT(button), bookmark_utils::kBookmarkNode,
                     AsVoid(node));
+
+  gtk_chrome_button_set_use_gtk_rendering(GTK_CHROME_BUTTON(button),
+                                          properties->use_gtk_rendering);
 
   gtk_widget_show_all(box);
 }
@@ -144,11 +146,20 @@ const BookmarkNode* BookmarkNodeForWidget(GtkWidget* widget) {
       g_object_get_data(G_OBJECT(widget), bookmark_utils::kBookmarkNode));
 }
 
-void SetButtonTextColors(GtkWidget* label) {
-  gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &kEnabledColor);
-  gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &kEnabledColor);
-  gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, &kHighlightColor);
-  gtk_widget_modify_fg(label, GTK_STATE_INSENSITIVE, &kDisabledColor);
+void SetButtonTextColors(GtkWidget* label, GtkThemeProperties* properties) {
+  if (properties->use_gtk_rendering) {
+    gtk_widget_modify_fg(label, GTK_STATE_NORMAL, NULL);
+    gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, NULL);
+    gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, NULL);
+    gtk_widget_modify_fg(label, GTK_STATE_INSENSITIVE, NULL);
+  } else {
+    GdkColor color = properties->GetGdkColor(
+        BrowserThemeProvider::COLOR_BOOKMARK_TEXT);
+    gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &color);
+    gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &color);
+    gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, &color);
+    gtk_widget_modify_fg(label, GTK_STATE_INSENSITIVE, &color);
+  }
 }
 
 // DnD-related -----------------------------------------------------------------

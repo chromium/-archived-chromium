@@ -13,6 +13,7 @@
 #include "chrome/browser/gtk/bookmark_context_menu.h"
 #include "chrome/browser/gtk/bookmark_utils_gtk.h"
 #include "chrome/browser/gtk/gtk_dnd_util.h"
+#include "chrome/browser/gtk/gtk_theme_provider.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
@@ -224,8 +225,9 @@ void BookmarkMenuController::OnMenuItemDragBegin(
   controller->ignore_button_release_ = true;
 
   const BookmarkNode* node = bookmark_utils::BookmarkNodeForWidget(menu_item);
-  GtkWidget* window = bookmark_utils::GetDragRepresentation(node,
-                                                            controller->model_);
+  GtkThemeProperties properties(controller->profile_);
+  GtkWidget* window = bookmark_utils::GetDragRepresentation(
+      node, controller->model_, &properties);
   gint x, y;
   gtk_widget_get_pointer(menu_item, &x, &y);
   gtk_drag_set_icon_widget(drag_context, window, x, y);

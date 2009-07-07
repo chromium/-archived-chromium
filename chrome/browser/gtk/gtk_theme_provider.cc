@@ -13,6 +13,7 @@
 #include "grit/theme_resources.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "third_party/skia/include/core/SkCanvas.h"
+#include "third_party/skia/include/core/SkColor.h"
 
 namespace {
 
@@ -152,3 +153,15 @@ void GtkThemeProvider::SetThemeTintFromGtk(const char* id, GdkColor* color,
   SetTint(id, hsl);
 }
 
+GtkThemeProperties::GtkThemeProperties(Profile* profile)
+    : use_gtk_rendering(GtkThemeProvider::UseSystemThemeGraphics(profile)),
+      provider(profile->GetThemeProvider()) {
+}
+
+GdkColor GtkThemeProperties::GetGdkColor(int id) {
+  SkColor color = provider->GetColor(id);
+  GdkColor gdkcolor =
+      GDK_COLOR_RGB(SkColorGetR(color), SkColorGetG(color),
+                    SkColorGetB(color));
+  return gdkcolor;
+}

@@ -46,13 +46,6 @@ const int kInstructionsPadding = 6;
 // Color of the instructional text.
 const GdkColor kInstructionsColor = GDK_COLOR_RGB(128, 128, 142);
 
-void SetUseSystemThemeGraphicsOnToolbarItems(GtkToolItem* item, bool use_gtk) {
-  GtkWidget* child = gtk_bin_get_child(GTK_BIN(item));
-  if (GTK_IS_CHROME_BUTTON(child)) {
-    gtk_chrome_button_set_use_gtk_rendering(GTK_CHROME_BUTTON(child), use_gtk);
-  }
-}
-
 }  // namespace
 
 BookmarkBarGtk::BookmarkBarGtk(Profile* profile, Browser* browser,
@@ -164,20 +157,20 @@ void BookmarkBarGtk::Init(Profile* profile) {
   ConnectFolderButtonEvents(other_bookmarks_button_);
 
   GtkWidget* image = gtk_image_new_from_pixbuf(folder_icon);
-  GtkWidget* label = gtk_label_new(
+  other_bookmarks_label_ = gtk_label_new(
       l10n_util::GetStringUTF8(IDS_BOOMARK_BAR_OTHER_BOOKMARKED).c_str());
-  bookmark_utils::SetButtonTextColors(label);
+  GtkThemeProperties properties(profile);
+  bookmark_utils::SetButtonTextColors(other_bookmarks_label_, &properties);
 
   GtkWidget* box = gtk_hbox_new(FALSE, bookmark_utils::kBarButtonPadding);
   gtk_box_pack_start(GTK_BOX(box), image, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(box), other_bookmarks_label_, FALSE, FALSE, 0);
   gtk_container_add(GTK_CONTAINER(other_bookmarks_button_), box);
 
   gtk_box_pack_start(GTK_BOX(bookmark_hbox_.get()), other_bookmarks_button_,
                      FALSE, FALSE, 0);
 
   // Set the current theme state for all the buttons.
-  UserChangedTheme(profile);
   gtk_widget_set_size_request(bookmark_hbox_.get(), -1, 0);
 
   slide_animation_.reset(new SlideAnimation(this));
@@ -274,8 +267,6 @@ void BookmarkBarGtk::BookmarkNodeAdded(BookmarkModel* model,
   GtkToolItem* item = CreateBookmarkToolItem(parent->GetChild(index));
   gtk_toolbar_insert(GTK_TOOLBAR(bookmark_toolbar_.get()),
                      item, index);
-  bool use_gtk = GtkThemeProvider::UseSystemThemeGraphics(profile_);
-  SetUseSystemThemeGraphicsOnToolbarItems(item, use_gtk);
 
   SetInstructionState(parent);
 }
@@ -309,7 +300,8 @@ void BookmarkBarGtk::BookmarkNodeChanged(BookmarkModel* model,
   GtkToolItem* item = gtk_toolbar_get_nth_item(
       GTK_TOOLBAR(bookmark_toolbar_.get()), index);
   GtkWidget* button = gtk_bin_get_child(GTK_BIN(item));
-  bookmark_utils::ConfigureButtonForNode(node, model, button);
+  GtkThemeProperties properties(profile_);
+  bookmark_utils::ConfigureButtonForNode(node, model, button, &properties);
 }
 
 void BookmarkBarGtk::BookmarkNodeFavIconLoaded(BookmarkModel* model,
@@ -333,10 +325,6 @@ void BookmarkBarGtk::CreateAllBookmarkButtons(const BookmarkNode* node) {
     GtkToolItem* item = CreateBookmarkToolItem(node->GetChild(i));
     gtk_toolbar_insert(GTK_TOOLBAR(bookmark_toolbar_.get()), item, -1);
   }
-
-  // Now that we've made a bunch of toolbar items, we need to make sure they
-  // have the correct theme state.
-  UserChangedTheme(profile_);
 
   SetInstructionState(node);
 }
@@ -367,17 +355,24 @@ bool BookmarkBarGtk::IsAlwaysShown() {
   return profile_->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar);
 }
 
-void BookmarkBarGtk::UserChangedTheme(Profile* profile) {
-  bool use_gtk = GtkThemeProvider::UseSystemThemeGraphics(profile);
-
+void BookmarkBarGtk::UserChangedTheme(GtkThemeProperties* properties) {
   gtk_chrome_button_set_use_gtk_rendering(
-      GTK_CHROME_BUTTON(other_bookmarks_button_), use_gtk);
+      GTK_CHROME_BUTTON(other_bookmarks_button_),
+      properties->use_gtk_rendering);
+  bookmark_utils::SetButtonTextColors(other_bookmarks_label_, properties);
 
-  gtk_container_foreach(
-      GTK_CONTAINER(bookmark_toolbar_.get()),
-      reinterpret_cast<void (*)(GtkWidget*, void*)>(
-          SetUseSystemThemeGraphicsOnToolbarItems),
-      reinterpret_cast<void*>(use_gtk));
+  if (model_) {
+    // Regenerate the bookmark bar with all new objects with their theme
+    // properties set correctly for the new theme.
+    RemoveAllBookmarkButtons();
+
+    const BookmarkNode* node = model_->GetBookmarkBarNode();
+    DCHECK(node && model_->other_node());
+    CreateAllBookmarkButtons(node);
+  } else {
+    DLOG(ERROR) << "Received a theme change notification while we don't have a "
+                << "BookmarkModel. Taking no action.";
+  }
 }
 
 void BookmarkBarGtk::AnimationProgressed(const Animation* animation) {
@@ -397,7 +392,8 @@ void BookmarkBarGtk::AnimationEnded(const Animation* animation) {
 
 GtkWidget* BookmarkBarGtk::CreateBookmarkButton(const BookmarkNode* node) {
   GtkWidget* button = gtk_chrome_button_new();
-  bookmark_utils::ConfigureButtonForNode(node, model_, button);
+  GtkThemeProperties properties(profile_);
+  bookmark_utils::ConfigureButtonForNode(node, model_, button, &properties);
 
   // The tool item is also a source for dragging
   gtk_drag_source_set(button, GDK_BUTTON1_MASK,
@@ -583,7 +579,9 @@ void BookmarkBarGtk::OnButtonDragBegin(GtkWidget* button,
   bar->dragged_node_ = node;
   DCHECK(bar->dragged_node_);
 
-  GtkWidget* window = bookmark_utils::GetDragRepresentation(node, bar->model_);
+  GtkThemeProperties properties(bar->profile_);
+  GtkWidget* window = bookmark_utils::GetDragRepresentation(node, bar->model_,
+                                                            &properties);
   gint x, y;
   gtk_widget_get_pointer(button, &x, &y);
   gtk_drag_set_icon_widget(drag_context, window, x, y);
