@@ -472,6 +472,10 @@ WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
   switch (Msg) {
     case WM_PAINT: {
       if (reentrance_count.get() > 1) {
+        // In Chrome, alert dialogs raised from JavaScript cause
+        // reentrant WM_PAINT messages to be dispatched and 100% CPU
+        // to be consumed unless we call this
+        ::ValidateRect(hWnd, NULL);
         break;  // Ignore this message; we're reentrant.
       }
       PAINTSTRUCT paint_struct;
