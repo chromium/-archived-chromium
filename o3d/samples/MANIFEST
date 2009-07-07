@@ -256,6 +256,7 @@ shaders/solid-color.shader
 shaders/tangent.shader
 shaders/texture-colormult.shader
 shaders/texture-only.shader
+shaders/toon.shader
 shaders/vertex-color.shader
 shaders/yuv2rgb.shader
 simpleviewer/assets/cube.o3dtgz
