@@ -17,6 +17,7 @@ class TestBrowserWindow : public BrowserWindow {
  public:
   explicit TestBrowserWindow(Browser* browser)
       : tab_strip_(browser->tabstrip_model()) {
+    tab_strip_.InitTabStripButtons();
   }
   ~TestBrowserWindow() {}
 

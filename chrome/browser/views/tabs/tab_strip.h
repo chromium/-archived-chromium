@@ -89,6 +89,9 @@ class TabStrip : public views::View,
   // Set the background offset used by inactive tabs to match the frame image.
   void SetBackgroundOffset(gfx::Point offset);
 
+  // Create the new tab button.
+  void InitTabStripButtons();
+
   // views::View overrides:
   virtual void PaintChildren(gfx::Canvas* canvas);
   virtual views::View* GetViewByID(int id) const;
@@ -104,6 +107,7 @@ class TabStrip : public views::View,
   virtual bool GetAccessibleName(std::wstring* name);
   virtual void SetAccessibleName(const std::wstring& name);
   virtual views::View* GetViewForPoint(const gfx::Point& point);
+  virtual void ThemeChanged();
 
  protected:
   // TabStripModelObserver implementation:
@@ -165,6 +169,9 @@ class TabStrip : public views::View,
 
   TabStrip();
   void Init();
+
+  // Set the images for the new tab button.
+  void LoadNewTabButtonImage();
 
   // Retrieves the Tab at the specified index. Take care in using this, you may
   // need to use GetTabAtAdjustForAnimation.
@@ -303,7 +310,6 @@ class TabStrip : public views::View,
   // The "New Tab" button.
   views::ImageButton* newtab_button_;
   gfx::Size newtab_button_size_;
-  gfx::Size actual_newtab_button_size_;
 
   // The current widths of various types of tabs.  We save these so that, as
   // users close tabs while we're holding them at the same size, we can lay out
@@ -323,6 +329,13 @@ class TabStrip : public views::View,
 
   // Storage of strings needed for accessibility.
   std::wstring accessible_name_;
+
+  // The size of the new tab button must be hardcoded because we need to be
+  // able to lay it out before we are able to get its image from the
+  // ThemeProvider.  It also makes sense to do this, because the size of the
+  // new tab button should not need to be calculated dynamically.
+  static const int kNewTabButtonWidth = 28;
+  static const int kNewTabButtonHeight = 18;
 
   // Used during a drop session of a url. Tracks the position of the drop as
   // well as a window used to highlight where the drop occurs.
