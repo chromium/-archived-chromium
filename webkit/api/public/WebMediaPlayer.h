@@ -1,10 +1,10 @@
 /*
  * Copyright (C) 2009 Google Inc. All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
  *     * Neither the name of Google Inc. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -67,7 +67,6 @@ namespace WebKit {
         // Playback controls.
         virtual void play() = 0;
         virtual void pause() = 0;
-        virtual void stop() = 0;
         virtual void seek(float seconds) = 0;
         virtual void setEndTime(float seconds) = 0;
         virtual void setRate(float) = 0;
@@ -88,7 +87,7 @@ namespace WebKit {
         // Dimension of the video.
         virtual WebSize naturalSize() const = 0;
 
-        // Getters fo playback state.
+        // Getters of playback state.
         virtual bool paused() const = 0;
         virtual bool seeking() const = 0;
         virtual float duration() const = 0;

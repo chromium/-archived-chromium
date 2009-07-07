@@ -9,28 +9,38 @@
 // of this class, so we need to be extra careful about concurrent access of
 // methods and members.
 //
-// Properties that are shared by main thread and media threads:
-//   CancelableTaskList tasks_;
-//   ^--- This property is shared for keeping records of the tasks posted to
-//        make sure there will be only one task for each task type that can
-//        exist in the main thread.
+// WebMediaPlayerImpl works with multiple objects, the most important ones are:
 //
-// Methods that are accessed in media threads:
-//   SetAudioRenderer()
-//   ^--- Called during the initialization of the pipeline, essentially from the
-//        the pipeline thread.
-//   SetVideoRenderer()
-//   ^--- Called during the initialization of the pipeline, essentially from the
-//        the pipeline thread.
-//   PostRepaintTask()
-//   ^--- Called from the video renderer thread to notify a video frame has
-//        been prepared.
-//   PostTask()
-//   ^--- A method that helps posting tasks to the main thread, it is
-//        accessed from main thread and media threads, it access the |tasks_|
-//        internally. Needs locking inside to avoid concurrent access to
-//        |tasks_|.
+// media::PipelineImpl
+//   The media playback pipeline.
 //
+// VideoRendererImpl
+//   Video renderer object.
+//
+// WebMediaPlayerImpl::Proxy
+//   Proxies methods calls from the media pipeline to WebKit.
+//
+// WebKit::WebMediaPlayerClient
+//   WebKit client of this media player object.
+//
+// The following diagram shows the relationship of these objects:
+//   (note: ref-counted reference is marked by a "r".)
+//
+// WebMediaPlayerImpl ------> PipelineImpl
+//    |            ^               | r
+//    |            |               v
+//    |            |        VideoRendererImpl
+//    |            |          ^ r
+//    |            |          |
+//    |      r     |    r     |
+//    .------>   Proxy  <-----.
+//    |
+//    |
+//    v
+// WebMediaPlayerClient
+//
+// Notice that Proxy and VideoRendererImpl are referencing each other. This
+// interdependency has to be treated carefully.
 //
 // Other issues:
 // During tear down of the whole browser or a tab, the DOM tree may not be
@@ -41,23 +51,22 @@
 // list of the main thread.
 
 #ifndef WEBKIT_GLUE_WEBMEDIAPLAYER_IMPL_H_
-#define WEBKTI_GLUE_WEBMEDIAPLAYER_IMPL_H_
+#define WEBKIT_GLUE_WEBMEDIAPLAYER_IMPL_H_
 
 #include <vector>
 
 #include "base/gfx/platform_canvas.h"
+#include "base/gfx/rect.h"
+#include "base/gfx/size.h"
 #include "base/lock.h"
 #include "base/message_loop.h"
+#include "base/ref_counted.h"
 #include "media/base/filters.h"
 #include "media/base/pipeline_impl.h"
 #include "webkit/api/public/WebMediaPlayer.h"
 #include "webkit/api/public/WebMediaPlayerClient.h"
 
-class AudioRendererImpl;
-class DataSourceImpl;
 class GURL;
-class RenderView;
-class VideoRendererImpl;
 
 namespace media {
 class FilterFactoryCollection;
@@ -65,13 +74,75 @@ class FilterFactoryCollection;
 
 namespace webkit_glue {
 
-// This typedef is used for WebMediaPlayerImpl::PostTask() and
-// NotifyWebMediaPlayerTask in the source file.
-typedef void (WebKit::WebMediaPlayerClient::*WebMediaPlayerClientMethod)();
+class VideoRendererImpl;
 
 class WebMediaPlayerImpl : public WebKit::WebMediaPlayer,
                            public MessageLoop::DestructionObserver {
  public:
+  // A proxy class that dispatches method calls from the media pipeline to
+  // WebKit. Since there are multiple threads in the media pipeline and there's
+  // need for the media pipeline to call to WebKit, e.g. repaint requests,
+  // initialization events, etc, we have this class to bridge all method calls
+  // from the media pipeline on different threads and serialize these calls
+  // on the render thread.
+  // Because of the nature of this object that it works with different threads,
+  // it is made ref-counted.
+  class Proxy : public base::RefCountedThreadSafe<Proxy> {
+   public:
+    Proxy(MessageLoop* render_loop,
+          WebMediaPlayerImpl* webmediaplayer);
+    virtual ~Proxy();
+
+    // Fire a repaint event to WebKit.
+    void Repaint();
+
+    // Report to WebKit that time has changed.
+    void TimeChanged();
+
+    // Report to WebKit that network state has changed.
+    void NetworkStateChanged(WebKit::WebMediaPlayer::NetworkState state);
+
+    // Report the WebKit that ready state has changed.
+    void ReadyStateChanged(WebKit::WebMediaPlayer::ReadyState state);
+
+    // Public methods to be called from video renderer.
+    void SetVideoRenderer(VideoRendererImpl* video_renderer);
+
+   private:
+    friend class WebMediaPlayerImpl;
+
+    // Invoke |webmediaplayer_| to perform a repaint.
+    void RepaintTask();
+
+    // Invoke |webmediaplayer_| to notify a time change event.
+    void TimeChangedTask();
+
+    // Saves the internal network state and notify WebKit to pick up the change.
+    void NetworkStateChangedTask(WebKit::WebMediaPlayer::NetworkState state);
+
+    // Saves the internal ready state and notify WebKit to pick the change.
+    void ReadyStateChangedTask(WebKit::WebMediaPlayer::ReadyState state);
+
+    void Paint(skia::PlatformCanvas* canvas, const gfx::Rect& dest_rect);
+
+    void SetSize(const gfx::Rect& rect);
+
+    // Detach from |webmediaplayer_|.
+    void Detach();
+
+    void PipelineInitializationCallback(bool success);
+
+    void PipelineSeekCallback(bool success);
+
+    // The render message loop where WebKit lives.
+    MessageLoop* render_loop_;
+    WebMediaPlayerImpl* webmediaplayer_;
+    scoped_refptr<VideoRendererImpl> video_renderer_;
+
+    Lock lock_;
+    int outstanding_repaints_;
+  };
+
   // Construct a WebMediaPlayerImpl with reference to the client, and media
   // filter factory collection. By providing the filter factory collection
   // the implementor can provide more specific media filters that does resource
@@ -102,7 +173,6 @@ class WebMediaPlayerImpl : public WebKit::WebMediaPlayer,
   // Playback controls.
   virtual void play();
   virtual void pause();
-  virtual void stop();
   virtual void seek(float seconds);
   virtual void setEndTime(float seconds);
   virtual void setRate(float rate);
@@ -152,42 +222,20 @@ class WebMediaPlayerImpl : public WebKit::WebMediaPlayer,
   // to it.
   virtual void WillDestroyCurrentMessageLoop();
 
-  // Notification from |pipeline_| when initialization has finished.
-  void OnPipelineInitialize(bool successful);
+  void Repaint();
 
-  // Notification from |pipeline_| when a seek has finished.
-  void OnPipelineSeek(bool successful);
+  void TimeChanged();
 
-  // Called from tasks posted to |main_loop_| from this object to remove
-  // reference of them.
-  void DidTask(CancelableTask* task);
+  void SetNetworkState(WebKit::WebMediaPlayer::NetworkState state);
 
-  // Public methods to be called from renderers and data source so that
-  // WebMediaPlayerImpl has references to them.
-  void SetVideoRenderer(VideoRendererImpl* video_renderer);
-
-  // Called from VideoRenderer to fire a repaint task to |main_loop_|.
-  void PostRepaintTask();
-
-  // Inline getters.
-  WebKit::WebMediaPlayerClient* client() { return client_; }
+  void SetReadyState(WebKit::WebMediaPlayer::ReadyState state);
 
  private:
-  // Methods for posting tasks and cancelling tasks. This method may lives in
-  // the main thread or the media threads.
-  void PostTask(int index, WebMediaPlayerClientMethod method);
+  // Destroy resources held.
+  void Destroy();
 
-  // Cancel all tasks currently live in |main_loop_|.
-  void CancelAllTasks();
-
-  // Indexes for tasks.
-  enum {
-    kRepaintTaskIndex = 0,
-    kReadyStateTaskIndex,
-    kNetworkStateTaskIndex,
-    kTimeChangedTaskIndex,
-    kLastTaskIndex
-  };
+  // Getter method to |client_|.
+  WebKit::WebMediaPlayerClient* GetClient();
 
   // TODO(hclam): get rid of these members and read from the pipeline directly.
   WebKit::WebMediaPlayer::NetworkState network_state_;
@@ -204,18 +252,9 @@ class WebMediaPlayerImpl : public WebKit::WebMediaPlayer,
   // the same lifetime as the pipeline.
   media::PipelineImpl pipeline_;
 
-  // We have the interface to VideoRenderer to delegate paint messages to it
-  // from WebKit.
-  scoped_refptr<VideoRendererImpl> video_renderer_;
-
   WebKit::WebMediaPlayerClient* client_;
 
-  // List of tasks for holding pointers to all tasks currently in the
-  // |main_loop_|. |tasks_| can be access from main thread or the media threads
-  // we need a lock for protecting it.
-  Lock task_lock_;
-  typedef std::vector<CancelableTask*> CancelableTaskList;
-  CancelableTaskList tasks_;
+  scoped_refptr<Proxy> proxy_;
 
   DISALLOW_COPY_AND_ASSIGN(WebMediaPlayerImpl);
 };

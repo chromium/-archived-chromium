@@ -22,14 +22,13 @@
 #include "media/base/filters.h"
 #include "media/filters/video_renderer_base.h"
 #include "webkit/api/public/WebMediaPlayer.h"
+#include "webkit/glue/webmediaplayer_impl.h"
 
 namespace webkit_glue {
 
-class WebMediaPlayerImpl;
-
 class VideoRendererImpl : public media::VideoRendererBase {
  public:
-  // Methods for painting called by the WebMediaPlayerDelegateImpl
+  // Methods for painting called by the WebMediaPlayerImpl::Proxy
 
   // This method is called with the same rect as the Paint method and could
   // be used by future implementations to implement an improved color space +
@@ -42,9 +41,9 @@ class VideoRendererImpl : public media::VideoRendererBase {
   virtual void Paint(skia::PlatformCanvas* canvas, const gfx::Rect& dest_rect);
 
   // Static method for creating factory for this object.
-  static media::FilterFactory* CreateFactory(WebMediaPlayerImpl* delegate) {
+  static media::FilterFactory* CreateFactory(WebMediaPlayerImpl::Proxy* proxy) {
     return new media::FilterFactoryImpl1<VideoRendererImpl,
-                                         WebMediaPlayerImpl*>(delegate);
+                                         WebMediaPlayerImpl::Proxy*>(proxy);
   }
 
   // FilterFactoryImpl1 implementation.
@@ -63,8 +62,8 @@ class VideoRendererImpl : public media::VideoRendererBase {
  private:
   // Only the filter factories can create instances.
   friend class media::FilterFactoryImpl1<VideoRendererImpl,
-                                         WebMediaPlayerImpl*>;
-  explicit VideoRendererImpl(WebMediaPlayerImpl* delegate);
+                                         WebMediaPlayerImpl::Proxy*>;
+  explicit VideoRendererImpl(WebMediaPlayerImpl::Proxy* proxy);
   virtual ~VideoRendererImpl() {}
 
   // Determine the conditions to perform fast paint. Returns true if we can do
@@ -87,7 +86,7 @@ class VideoRendererImpl : public media::VideoRendererBase {
                           SkIRect* dest_rect);
 
   // Pointer to our parent object that is called to request repaints.
-  WebMediaPlayerImpl* delegate_;
+  scoped_refptr<WebMediaPlayerImpl::Proxy> proxy_;
 
   // An RGB bitmap used to convert the video frames.
   SkBitmap bitmap_;

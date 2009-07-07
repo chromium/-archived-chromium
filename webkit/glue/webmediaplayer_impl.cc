@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "webkit/glue/webmediaplayer_impl.h"
+
 #include "base/command_line.h"
 #include "googleurl/src/gurl.h"
 #include "media/filters/ffmpeg_audio_decoder.h"
@@ -12,41 +14,148 @@
 #include "webkit/api/public/WebSize.h"
 #include "webkit/api/public/WebURL.h"
 #include "webkit/glue/media/video_renderer_impl.h"
-#include "webkit/glue/webmediaplayer_impl.h"
 
 using WebKit::WebCanvas;
 using WebKit::WebRect;
 using WebKit::WebSize;
 
+namespace {
+
+// Limits the maximum outstanding repaints posted on render thread.
+// This number of 50 is a guess, it does not take too much memory on the task
+// queue but gives up a pretty good latency on repaint.
+const int kMaxOutstandingRepaints = 50;
+
+}  // namespace
+
 namespace webkit_glue {
 
 /////////////////////////////////////////////////////////////////////////////
-// Task to be posted on main thread that fire WebMediaPlayerClient methods.
+// WebMediaPlayerImpl::Proxy implementation
 
-class NotifyWebMediaPlayerClientTask : public CancelableTask {
- public:
-  NotifyWebMediaPlayerClientTask(WebMediaPlayerImpl* media_player,
-                                 WebMediaPlayerClientMethod method)
-      : media_player_(media_player),
-        method_(method) {}
+WebMediaPlayerImpl::Proxy::Proxy(MessageLoop* render_loop,
+                                 WebMediaPlayerImpl* webmediaplayer)
+    : render_loop_(render_loop),
+      webmediaplayer_(webmediaplayer),
+      outstanding_repaints_(0) {
+  DCHECK(render_loop_);
+  DCHECK(webmediaplayer_);
+}
 
-  virtual void Run() {
-    if (media_player_) {
-      (media_player_->client()->*(method_))();
-      media_player_->DidTask(this);
-    }
+WebMediaPlayerImpl::Proxy::~Proxy() {
+  Detach();
+}
+
+void WebMediaPlayerImpl::Proxy::Repaint() {
+  AutoLock auto_lock(lock_);
+  if (outstanding_repaints_ < kMaxOutstandingRepaints) {
+    ++outstanding_repaints_;
+
+    render_loop_->PostTask(FROM_HERE,
+        NewRunnableMethod(this, &WebMediaPlayerImpl::Proxy::RepaintTask));
   }
+}
 
-  virtual void Cancel() {
-    media_player_ = NULL;
+void WebMediaPlayerImpl::Proxy::TimeChanged() {
+  render_loop_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &WebMediaPlayerImpl::Proxy::TimeChangedTask));
+}
+
+void WebMediaPlayerImpl::Proxy::NetworkStateChanged(
+    WebKit::WebMediaPlayer::NetworkState state) {
+  render_loop_->PostTask(FROM_HERE,
+      NewRunnableMethod(this,
+                        &WebMediaPlayerImpl::Proxy::NetworkStateChangedTask,
+                        state));
+}
+
+void WebMediaPlayerImpl::Proxy::ReadyStateChanged(
+    WebKit::WebMediaPlayer::ReadyState state) {
+  render_loop_->PostTask(FROM_HERE,
+      NewRunnableMethod(this,
+                        &WebMediaPlayerImpl::Proxy::ReadyStateChangedTask,
+                        state));
+}
+
+void WebMediaPlayerImpl::Proxy::RepaintTask() {
+  DCHECK(MessageLoop::current() == render_loop_);
+  {
+    AutoLock auto_lock(lock_);
+    --outstanding_repaints_;
+    DCHECK_GE(outstanding_repaints_, 0);
   }
+  if (webmediaplayer_)
+    webmediaplayer_->Repaint();
+}
 
- private:
-  WebMediaPlayerImpl* media_player_;
-  WebMediaPlayerClientMethod method_;
+void WebMediaPlayerImpl::Proxy::TimeChangedTask() {
+  DCHECK(MessageLoop::current() == render_loop_);
+  if (webmediaplayer_)
+    webmediaplayer_->TimeChanged();
+}
 
-  DISALLOW_COPY_AND_ASSIGN(NotifyWebMediaPlayerClientTask);
-};
+void WebMediaPlayerImpl::Proxy::NetworkStateChangedTask(
+    WebKit::WebMediaPlayer::NetworkState state) {
+  DCHECK(MessageLoop::current() == render_loop_);
+  if (webmediaplayer_)
+    webmediaplayer_->SetNetworkState(state);
+}
+
+void WebMediaPlayerImpl::Proxy::ReadyStateChangedTask(
+    WebKit::WebMediaPlayer::ReadyState state) {
+  DCHECK(MessageLoop::current() == render_loop_);
+  if (webmediaplayer_)
+    webmediaplayer_->SetReadyState(state);
+}
+
+void WebMediaPlayerImpl::Proxy::SetVideoRenderer(
+    VideoRendererImpl* video_renderer) {
+  video_renderer_ = video_renderer;
+}
+
+void WebMediaPlayerImpl::Proxy::Paint(skia::PlatformCanvas* canvas,
+                                      const gfx::Rect& dest_rect) {
+  DCHECK(MessageLoop::current() == render_loop_);
+  if (video_renderer_) {
+    video_renderer_->Paint(canvas, dest_rect);
+  }
+}
+
+void WebMediaPlayerImpl::Proxy::SetSize(const gfx::Rect& rect) {
+  DCHECK(MessageLoop::current() == render_loop_);
+  if (video_renderer_) {
+    video_renderer_->SetRect(rect);
+  }
+}
+
+void WebMediaPlayerImpl::Proxy::Detach() {
+  DCHECK(MessageLoop::current() == render_loop_);
+  webmediaplayer_ = NULL;
+  video_renderer_ = NULL;
+}
+
+void WebMediaPlayerImpl::Proxy::PipelineInitializationCallback(bool success) {
+  if (success) {
+    // Since we have initialized the pipeline, say we have everything.
+    // TODO(hclam): change this to report the correct status. Should also post
+    // a task to call to |webmediaplayer_|.
+    ReadyStateChanged(WebKit::WebMediaPlayer::HaveMetadata);
+    ReadyStateChanged(WebKit::WebMediaPlayer::HaveEnoughData);
+    NetworkStateChanged(WebKit::WebMediaPlayer::Loaded);
+  } else {
+    // TODO(hclam): should use pipeline_.GetError() to determine the state
+    // properly and reports error using MediaError.
+    // WebKit uses FormatError to indicate an error for bogus URL or bad file.
+    // Since we are at the initialization stage we can safely treat every error
+    // as format error. Should post a task to call to |webmediaplayer_|.
+    NetworkStateChanged(WebKit::WebMediaPlayer::FormatError);
+  }
+}
+
+void WebMediaPlayerImpl::Proxy::PipelineSeekCallback(bool success) {
+  if (success)
+    TimeChanged();
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // WebMediaPlayerImpl implementation
@@ -57,31 +166,27 @@ WebMediaPlayerImpl::WebMediaPlayerImpl(WebKit::WebMediaPlayerClient* client,
       ready_state_(WebKit::WebMediaPlayer::HaveNothing),
       main_loop_(NULL),
       filter_factory_(factory),
-      video_renderer_(NULL),
-      client_(client),
-      tasks_(kLastTaskIndex) {
-  // Add in the default filter factories.
-  filter_factory_->AddFactory(media::FFmpegDemuxer::CreateFilterFactory());
-  filter_factory_->AddFactory(media::FFmpegAudioDecoder::CreateFactory());
-  filter_factory_->AddFactory(media::FFmpegVideoDecoder::CreateFactory());
-  filter_factory_->AddFactory(media::NullAudioRenderer::CreateFilterFactory());
-  filter_factory_->AddFactory(VideoRendererImpl::CreateFactory(this));
-
-  DCHECK(client_);
-
+      client_(client) {
   // Saves the current message loop.
   DCHECK(!main_loop_);
   main_loop_ = MessageLoop::current();
 
   // Also we want to be notified of |main_loop_| destruction.
   main_loop_->AddDestructionObserver(this);
+
+  // Creates the proxy.
+  proxy_ = new Proxy(main_loop_, this);
+
+  // Add in the default filter factories.
+  filter_factory_->AddFactory(media::FFmpegDemuxer::CreateFilterFactory());
+  filter_factory_->AddFactory(media::FFmpegAudioDecoder::CreateFactory());
+  filter_factory_->AddFactory(media::FFmpegVideoDecoder::CreateFactory());
+  filter_factory_->AddFactory(media::NullAudioRenderer::CreateFilterFactory());
+  filter_factory_->AddFactory(VideoRendererImpl::CreateFactory(proxy_));
 }
 
 WebMediaPlayerImpl::~WebMediaPlayerImpl() {
-  pipeline_.Stop();
-
-  // Cancel all tasks posted on the |main_loop_|.
-  CancelAllTasks();
+  Destroy();
 
   // Finally tell the |main_loop_| we don't want to be notified of destruction
   // event.
@@ -91,29 +196,25 @@ WebMediaPlayerImpl::~WebMediaPlayerImpl() {
 }
 
 void WebMediaPlayerImpl::load(const WebKit::WebURL& url) {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
+  DCHECK(proxy_);
 
   // Initialize the pipeline.
-  if (network_state_ != WebKit::WebMediaPlayer::Loading) {
-    network_state_ = WebKit::WebMediaPlayer::Loading;
-    client_->networkStateChanged();
-  }
-  if (ready_state_ != WebKit::WebMediaPlayer::HaveNothing) {
-    ready_state_ = WebKit::WebMediaPlayer::HaveNothing;
-    client_->readyStateChanged();
-  }
-  pipeline_.Start(filter_factory_.get(), url.spec(),
-      NewCallback(this, &WebMediaPlayerImpl::OnPipelineInitialize));
+  SetNetworkState(WebKit::WebMediaPlayer::Loading);
+  SetReadyState(WebKit::WebMediaPlayer::HaveNothing);
+  pipeline_.Start(
+      filter_factory_.get(),
+      url.spec(),
+      NewCallback(proxy_.get(),
+                  &WebMediaPlayerImpl::Proxy::PipelineInitializationCallback));
 }
 
 void WebMediaPlayerImpl::cancelLoad() {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
-
-  // TODO(hclam): Calls to render_view_ to stop resource load
+  DCHECK(MessageLoop::current() == main_loop_);
 }
 
 void WebMediaPlayerImpl::play() {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
   // TODO(hclam): We should restore the previous playback rate rather than
   // having it at 1.0.
@@ -121,69 +222,63 @@ void WebMediaPlayerImpl::play() {
 }
 
 void WebMediaPlayerImpl::pause() {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
   pipeline_.SetPlaybackRate(0.0f);
 }
 
-void WebMediaPlayerImpl::stop() {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
-
-  // We can fire Stop() multiple times.
-  pipeline_.Stop();
-}
-
 void WebMediaPlayerImpl::seek(float seconds) {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
   // Try to preserve as much accuracy as possible.
   float microseconds = seconds * base::Time::kMicrosecondsPerSecond;
   if (seconds != 0)
   pipeline_.Seek(
       base::TimeDelta::FromMicroseconds(static_cast<int64>(microseconds)),
-      NewCallback(this, &WebMediaPlayerImpl::OnPipelineSeek));
+      NewCallback(proxy_.get(),
+                  &WebMediaPlayerImpl::Proxy::PipelineSeekCallback));
 }
 
 void WebMediaPlayerImpl::setEndTime(float seconds) {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
   // TODO(hclam): add method call when it has been implemented.
   return;
 }
 
 void WebMediaPlayerImpl::setRate(float rate) {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
   pipeline_.SetPlaybackRate(rate);
 }
 
 void WebMediaPlayerImpl::setVolume(float volume) {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
   pipeline_.SetVolume(volume);
 }
 
 void WebMediaPlayerImpl::setVisible(bool visible) {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
   // TODO(hclam): add appropriate method call when pipeline has it implemented.
   return;
 }
 
 bool WebMediaPlayerImpl::setAutoBuffer(bool autoBuffer) {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
   return false;
 }
 
 bool WebMediaPlayerImpl::totalBytesKnown() {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
   return pipeline_.GetTotalBytes() != 0;
 }
 
 bool WebMediaPlayerImpl::hasVideo() const {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
   size_t width, height;
   pipeline_.GetVideoSize(&width, &height);
@@ -191,7 +286,7 @@ bool WebMediaPlayerImpl::hasVideo() const {
 }
 
 WebKit::WebSize WebMediaPlayerImpl::naturalSize() const {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
   size_t width, height;
   pipeline_.GetVideoSize(&width, &height);
@@ -199,44 +294,44 @@ WebKit::WebSize WebMediaPlayerImpl::naturalSize() const {
 }
 
 bool WebMediaPlayerImpl::paused() const {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
   return pipeline_.GetPlaybackRate() == 0.0f;
 }
 
 bool WebMediaPlayerImpl::seeking() const {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
-  return tasks_[kTimeChangedTaskIndex] != NULL;
+  return false;
 }
 
 float WebMediaPlayerImpl::duration() const {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
   return static_cast<float>(pipeline_.GetDuration().InSecondsF());
 }
 
 float WebMediaPlayerImpl::currentTime() const {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
   return static_cast<float>(pipeline_.GetTime().InSecondsF());
 }
 
 int WebMediaPlayerImpl::dataRate() const {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
   // TODO(hclam): Add this method call if pipeline has it in the interface.
   return 0;
 }
 
 float WebMediaPlayerImpl::maxTimeBuffered() const {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
   return static_cast<float>(pipeline_.GetBufferedTime().InSecondsF());
 }
 
 float WebMediaPlayerImpl::maxTimeSeekable() const {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
   // TODO(scherkus): move this logic down into the pipeline.
   if (pipeline_.GetTotalBytes() == 0) {
@@ -249,110 +344,85 @@ float WebMediaPlayerImpl::maxTimeSeekable() const {
 }
 
 unsigned long long WebMediaPlayerImpl::bytesLoaded() const {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
   return pipeline_.GetBufferedBytes();
 }
 
 unsigned long long WebMediaPlayerImpl::totalBytes() const {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
 
   return pipeline_.GetTotalBytes();
 }
 
 void WebMediaPlayerImpl::setSize(const WebSize& size) {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
+  DCHECK(proxy_);
 
-  if (video_renderer_) {
-    // TODO(scherkus): Change API to use SetSize().
-    video_renderer_->SetRect(gfx::Rect(0, 0, size.width, size.height));
-  }
+  proxy_->SetSize(gfx::Rect(0, 0, size.width, size.height));
 }
 
 void WebMediaPlayerImpl::paint(WebCanvas* canvas,
                                const WebRect& rect) {
-  DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
+  DCHECK(MessageLoop::current() == main_loop_);
+  DCHECK(proxy_);
 
-  if (video_renderer_) {
-    video_renderer_->Paint(canvas, rect);
-  }
+  proxy_->Paint(canvas, rect);
 }
 
 void WebMediaPlayerImpl::WillDestroyCurrentMessageLoop() {
+  Destroy();
+  main_loop_ = NULL;
+}
+
+void WebMediaPlayerImpl::Repaint() {
+  DCHECK(MessageLoop::current() == main_loop_);
+  GetClient()->repaint();
+}
+
+void WebMediaPlayerImpl::TimeChanged() {
+  DCHECK(MessageLoop::current() == main_loop_);
+  GetClient()->timeChanged();
+}
+
+void WebMediaPlayerImpl::SetNetworkState(
+    WebKit::WebMediaPlayer::NetworkState state) {
+  DCHECK(MessageLoop::current() == main_loop_);
+  if (network_state_ != state) {
+    network_state_ = state;
+    GetClient()->networkStateChanged();
+  }
+}
+
+void WebMediaPlayerImpl::SetReadyState(
+    WebKit::WebMediaPlayer::ReadyState state) {
+  DCHECK(MessageLoop::current() == main_loop_);
+  if (ready_state_ != state) {
+    ready_state_ = state;
+    GetClient()->readyStateChanged();
+  }
+}
+
+void WebMediaPlayerImpl::Destroy() {
+  DCHECK(MessageLoop::current() == main_loop_);
+
+  // Make sure to kill the pipeline so there's no more media threads running.
+  // TODO(hclam): stopping the pipeline is synchronous so it might block
+  // stopping for a long time.
   pipeline_.Stop();
-}
 
-void WebMediaPlayerImpl::OnPipelineInitialize(bool successful) {
-  WebKit::WebMediaPlayer::ReadyState old_ready_state = ready_state_;
-  WebKit::WebMediaPlayer::NetworkState old_network_state = network_state_;
-  if (successful) {
-    // Since we have initialized the pipeline, say we have everything.
-    // TODO(hclam): change this to report the correct status.
-    ready_state_ = WebKit::WebMediaPlayer::HaveEnoughData;
-    network_state_ = WebKit::WebMediaPlayer::Loaded;
-  } else {
-    // TODO(hclam): should use pipeline_.GetError() to determine the state
-    // properly and reports error using MediaError.
-    // WebKit uses FormatError to indicate an error for bogus URL or bad file.
-    // Since we are at the initialization stage we can safely treat every error
-    // as format error.
-    network_state_ = WebKit::WebMediaPlayer::FormatError;
-  }
-
-  if (network_state_ != old_network_state) {
-    PostTask(kNetworkStateTaskIndex,
-             &WebKit::WebMediaPlayerClient::networkStateChanged);
-  }
-  if (ready_state_ != old_ready_state) {
-    PostTask(kReadyStateTaskIndex,
-             &WebKit::WebMediaPlayerClient::readyStateChanged);
+  // And then detach the proxy, it may live on the render thread for a little
+  // longer until all the tasks are finished.
+  if (proxy_) {
+    proxy_->Detach();
+    proxy_ = NULL;
   }
 }
 
-void WebMediaPlayerImpl::OnPipelineSeek(bool successful) {
-  PostTask(kTimeChangedTaskIndex,
-           &WebKit::WebMediaPlayerClient::timeChanged);
-}
-
-void WebMediaPlayerImpl::SetVideoRenderer(VideoRendererImpl* video_renderer) {
-  video_renderer_ = video_renderer;
-}
-
-void WebMediaPlayerImpl::DidTask(CancelableTask* task) {
-  AutoLock auto_lock(task_lock_);
-
-  for (size_t i = 0; i < tasks_.size(); ++i) {
-    if (tasks_[i] == task) {
-      tasks_[i] = NULL;
-      return;
-    }
-  }
-  NOTREACHED();
-}
-
-void WebMediaPlayerImpl::CancelAllTasks() {
-  AutoLock auto_lock(task_lock_);
-  // Loop through the list of tasks and cancel tasks that are still alive.
-  for (size_t i = 0; i < tasks_.size(); ++i) {
-    if (tasks_[i])
-      tasks_[i]->Cancel();
-  }
-}
-
-void WebMediaPlayerImpl::PostTask(int index,
-                                  WebMediaPlayerClientMethod method) {
-  DCHECK(main_loop_);
-
-  AutoLock auto_lock(task_lock_);
-  if (!tasks_[index]) {
-    CancelableTask* task = new NotifyWebMediaPlayerClientTask(this, method);
-    tasks_[index] = task;
-    main_loop_->PostTask(FROM_HERE, task);
-  }
-}
-
-void WebMediaPlayerImpl::PostRepaintTask() {
-  PostTask(kRepaintTaskIndex, &WebKit::WebMediaPlayerClient::repaint);
+WebKit::WebMediaPlayerClient* WebMediaPlayerImpl::GetClient() {
+  DCHECK(MessageLoop::current() == main_loop_);
+  DCHECK(client_);
+  return client_;
 }
 
 }  // namespace webkit_glue

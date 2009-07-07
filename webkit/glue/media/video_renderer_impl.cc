@@ -9,12 +9,12 @@
 
 namespace webkit_glue {
 
-VideoRendererImpl::VideoRendererImpl(WebMediaPlayerImpl* delegate)
-    : delegate_(delegate),
+  VideoRendererImpl::VideoRendererImpl(WebMediaPlayerImpl::Proxy* proxy)
+    : proxy_(proxy),
       last_converted_frame_(NULL) {
   // TODO(hclam): decide whether to do the following line in this thread or
   // in the render thread.
-  delegate_->SetVideoRenderer(this);
+  proxy->SetVideoRenderer(this);
 }
 
 // static
@@ -24,7 +24,6 @@ bool VideoRendererImpl::IsMediaFormatSupported(
   int height = 0;
   return ParseMediaFormat(media_format, &width, &height);
 }
-
 
 bool VideoRendererImpl::OnInitialize(media::VideoDecoder* decoder) {
   int width = 0;
@@ -44,11 +43,14 @@ bool VideoRendererImpl::OnInitialize(media::VideoDecoder* decoder) {
 }
 
 void VideoRendererImpl::OnStop() {
-  delegate_->SetVideoRenderer(NULL);
+  DCHECK(proxy_);
+  proxy_->SetVideoRenderer(NULL);
+  proxy_ = NULL;
 }
 
 void VideoRendererImpl::OnFrameAvailable() {
-  delegate_->PostRepaintTask();
+  DCHECK(proxy_);
+  proxy_->Repaint();
 }
 
 void VideoRendererImpl::SetRect(const gfx::Rect& rect) {
