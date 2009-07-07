@@ -149,11 +149,8 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
     new_test = new NPAPIClient::ExecuteJavascriptPopupWindowTargetPluginTest(
         instance, NPAPIClient::PluginClient::HostFunctions());
   } else if (test_name == "private") {
-// http://code.google.com/p/chromium/issues/detail?id=16149
-#if 0
     new_test = new NPAPIClient::PrivateTest(instance,
       NPAPIClient::PluginClient::HostFunctions());
-#endif
 #if defined(OS_WIN)
   // TODO(port): plugin_windowed_test.*.
   } else if (test_name == "hidden_plugin" ||

@@ -279,7 +279,7 @@ TEST_F(NPAPIIncognitoTester, PrivateEnabled) {
   if (UITest::in_process_renderer())
     return;
 
-  GURL url = GetTestUrl(L"npapi", L"private.html?secure");
+  GURL url = GetTestUrl(L"npapi", L"private.html?private");
   NavigateToURL(url);
   WaitForFinish("private", "1", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
