@@ -128,6 +128,11 @@ class WebFrame {
                                           bool replace,
                                           const GURL& fake_url) = 0;
 
+  // Called to associate the WebURLRequest with this frame.  The request will
+  // be modified to inherit parameters that allow it to be loaded.  This method
+  // ends up triggering WebViewDelegate::WillSendRequest.
+  virtual void DispatchWillSendRequest(WebKit::WebURLRequest* request) = 0;
+
   // Executes JavaScript in the web frame.
   virtual void ExecuteScript(const WebKit::WebScriptSource& source) = 0;
 

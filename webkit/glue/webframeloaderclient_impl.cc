@@ -79,6 +79,8 @@ using WebKit::WebVector;
 using WebKit::WrappedResourceRequest;
 using WebKit::WrappedResourceResponse;
 
+using webkit_glue::Alt404PageResourceFetcher;
+
 // Domain for internal error codes.
 static const char kInternalErrorDomain[] = "webkit_glue";
 

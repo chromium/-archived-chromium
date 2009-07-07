@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WEBKIT_GLUE_ALT_404_PAGE_RESOURCE_HANDLE_CLIENT_H__
-#define WEBKIT_GLUE_ALT_404_PAGE_RESOURCE_HANDLE_CLIENT_H__
+#ifndef WEBKIT_GLUE_ALT_404_PAGE_RESOURCE_HANDLE_CLIENT_H_
+#define WEBKIT_GLUE_ALT_404_PAGE_RESOURCE_HANDLE_CLIENT_H_
 
 #include <string>
 
@@ -14,18 +14,17 @@
 
 class WebFrameLoaderClient;
 
+namespace webkit_glue {
+
 // ResourceHandleClient implementation that is used for downloading alternate
 // 404 pages. Once downloading is done (or fails), the WebFrameLoaderClient is
 // notified.
-class Alt404PageResourceFetcher : public ResourceFetcher::Delegate {
+class Alt404PageResourceFetcher {
  public:
   Alt404PageResourceFetcher(WebFrameLoaderClient* webframeloaderclient,
                             WebCore::Frame* frame,
                             WebCore::DocumentLoader* doc_loader,
                             const GURL& url);
-
-  virtual void OnURLFetchComplete(const WebCore::ResourceResponse& response,
-                                  const std::string& data);
 
   // Stop any pending loads.
   void Cancel() {
@@ -34,6 +33,9 @@ class Alt404PageResourceFetcher : public ResourceFetcher::Delegate {
   }
 
  private:
+  void OnURLFetchComplete(const WebKit::WebURLResponse& response,
+                          const std::string& data);
+
   // Does the actual fetching.
   scoped_ptr<ResourceFetcherWithTimeout> fetcher_;
 
@@ -45,7 +47,9 @@ class Alt404PageResourceFetcher : public ResourceFetcher::Delegate {
   // original load.
   RefPtr<WebCore::DocumentLoader> doc_loader_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(Alt404PageResourceFetcher);
+  DISALLOW_COPY_AND_ASSIGN(Alt404PageResourceFetcher);
 };
 
-#endif  // WEBKIT_GLUE_ALT_404_PAGE_RESOURCE_HANDLE_CLIENT_H__
+}  // namespace webkit_glue
+
+#endif  // WEBKIT_GLUE_ALT_404_PAGE_RESOURCE_HANDLE_CLIENT_H_

@@ -16,13 +16,17 @@ MSVC_POP_WARNING();
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/window_open_disposition.h"
+
 namespace WebCore {
 class Frame;
 class HTMLFormElement;
 class Widget;
 }
 
+namespace webkit_glue {
 class Alt404PageResourceFetcher;
+}
+
 class WebFrameImpl;
 class WebPluginContainer;
 
@@ -227,7 +231,7 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
   WebFrameImpl* webframe_;
 
   // Resource fetcher for downloading an alternate 404 page.
-  scoped_ptr<Alt404PageResourceFetcher> alt_404_page_fetcher_;
+  scoped_ptr<webkit_glue::Alt404PageResourceFetcher> alt_404_page_fetcher_;
 
   bool postpone_loading_data_;
   std::string postponed_data_;

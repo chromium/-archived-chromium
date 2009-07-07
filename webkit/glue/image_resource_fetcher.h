@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WEBKIT_GLUE_IMAGE_RESOURCE_FETCHER_H__
-#define WEBKIT_GLUE_IMAGE_RESOURCE_FETCHER_H__
+#ifndef WEBKIT_GLUE_IMAGE_RESOURCE_FETCHER_H_
+#define WEBKIT_GLUE_IMAGE_RESOURCE_FETCHER_H_
 
 #include "base/basictypes.h"
 #include "webkit/glue/resource_fetcher.h"
@@ -11,34 +11,35 @@
 class SkBitmap;
 class WebViewImpl;
 
+namespace webkit_glue {
+
 // ImageResourceFetcher handles downloading an image for a webview. Once
 // downloading is done the hosting WebViewImpl is notified. ImageResourceFetcher
 // is used to download the favicon and images for web apps.
-class ImageResourceFetcher : public ResourceFetcher::Delegate {
+class ImageResourceFetcher {
  public:
-  ImageResourceFetcher(WebViewImpl* web_view,
+  typedef Callback2<ImageResourceFetcher*, const SkBitmap&>::Type Callback;
+
+  ImageResourceFetcher(const GURL& image_url,
+                       WebFrame* frame,
                        int id,
-                       const GURL& image_url,
-                       int image_size);
+                       int image_size,
+                       Callback* callback);
 
   virtual ~ImageResourceFetcher();
 
-  // ResourceFetcher::Delegate method. Decodes the image and invokes one of
-  // DownloadFailed or DownloadedImage.
-  virtual void OnURLFetchComplete(const WebCore::ResourceResponse& response,
-                                  const std::string& data);
-
   // URL of the image we're downloading.
   const GURL& image_url() const { return image_url_; }
-
-  // Hosting WebView.
-  WebViewImpl* web_view() const { return web_view_; }
 
   // Unique identifier for the request.
   int id() const { return id_; }
 
  private:
-  WebViewImpl* web_view_;
+  // ResourceFetcher::Callback. Decodes the image and invokes callback_.
+  void OnURLFetchComplete(const WebKit::WebURLResponse& response,
+                          const std::string& data);
+
+  Callback* callback_;
 
   // Unique identifier for the request.
   const int id_;
@@ -57,4 +58,6 @@ class ImageResourceFetcher : public ResourceFetcher::Delegate {
   DISALLOW_EVIL_CONSTRUCTORS(ImageResourceFetcher);
 };
 
-#endif  // WEBKIT_GLUE_IMAGE_RESOURCE_FETCHER_H__
+}  // namespace webkit_glue
+
+#endif  // WEBKIT_GLUE_IMAGE_RESOURCE_FETCHER_H_

@@ -9,40 +9,39 @@
 // ResourceFetcher::Delegate::OnURLFetchComplete will be called async after
 // the ResourceFetcher object is created.
 
-#ifndef WEBKIT_GLUE_RESOURCE_FETCHER_H__
-#define WEBKIT_GLUE_RESOURCE_FETCHER_H__
+#ifndef WEBKIT_GLUE_RESOURCE_FETCHER_H_
+#define WEBKIT_GLUE_RESOURCE_FETCHER_H_
 
 #include <string>
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
+#include "base/timer.h"
 #include "googleurl/src/gurl.h"
-
-#include "base/compiler_specific.h"
-
-MSVC_PUSH_WARNING_LEVEL(0);
-#include "Frame.h"
-#include "Timer.h"
-#include "ResourceHandleClient.h"
-#include "ResourceResponse.h"
-MSVC_POP_WARNING();
+#include "webkit/api/public/WebURLLoaderClient.h"
+#include "webkit/api/public/WebURLResponse.h"
 
 class GURL;
+class WebFrame;
 
-class ResourceFetcher : public WebCore::ResourceHandleClient {
+namespace WebKit {
+class WebURLLoader;
+class WebURLRequest;
+struct WebURLError;
+}
+
+namespace webkit_glue {
+
+class ResourceFetcher : public WebKit::WebURLLoaderClient {
  public:
-  class Delegate {
-   public:
-    // This will be called when the URL has been fetched, successfully or not.
-    // If there is a failure, response and data will both be empty.
-    // |response| and |data| are both valid until the URLFetcher instance is
-    // destroyed.
-    virtual void OnURLFetchComplete(const WebCore::ResourceResponse& response,
-                                    const std::string& data) = 0;
-  };
+  // This will be called when the URL has been fetched, successfully or not.
+  // If there is a failure, response and data will both be empty.  |response|
+  // and |data| are both valid until the URLFetcher instance is destroyed.
+  typedef Callback2<const WebKit::WebURLResponse&,
+                    const std::string&>::Type Callback;
 
-  // We need a frame and frame loader to make requests.
-  ResourceFetcher(const GURL& url, WebCore::Frame* frame, Delegate* d);
+  // We need a frame to make requests.
+  ResourceFetcher(const GURL& url, WebFrame* frame, Callback* d);
   ~ResourceFetcher();
 
   // Stop the request and don't call the callback.
@@ -50,40 +49,40 @@ class ResourceFetcher : public WebCore::ResourceHandleClient {
 
   bool completed() const { return completed_; }
 
-  // ResourceHandleClient methods
-  virtual void didReceiveResponse(WebCore::ResourceHandle* resource_handle,
-                                  const WebCore::ResourceResponse& response);
-
-  virtual void didReceiveData(WebCore::ResourceHandle* resource_handle,
-                              const char* data, int length, int total_length);
-
-  virtual void didFinishLoading(WebCore::ResourceHandle* resource_handle);
-
-  virtual void didFail(WebCore::ResourceHandle* resource_handle,
-                       const WebCore::ResourceError& error);
-
  protected:
-  // The parent ResourceHandle
-  RefPtr<WebCore::ResourceHandle> loader_;
+  // WebURLLoaderClient methods:
+  virtual void willSendRequest(
+      WebKit::WebURLLoader* loader, WebKit::WebURLRequest& new_request,
+      const WebKit::WebURLResponse& redirect_response);
+  virtual void didSendData(
+      WebKit::WebURLLoader* loader, unsigned long long bytes_sent,
+      unsigned long long total_bytes_to_be_sent);
+  virtual void didReceiveResponse(
+      WebKit::WebURLLoader* loader, const WebKit::WebURLResponse& response);
+  virtual void didReceiveData(
+      WebKit::WebURLLoader* loader, const char* data, int data_length,
+      long long total_data_length);
+  virtual void didFinishLoading(WebKit::WebURLLoader* loader);
+  virtual void didFail(
+      WebKit::WebURLLoader* loader, const WebKit::WebURLError& error);
+
+  scoped_ptr<WebKit::WebURLLoader> loader_;
 
   // URL we're fetching
   GURL url_;
 
   // Callback when we're done
-  Delegate* delegate_;
+  Callback* callback_;
 
   // A copy of the original resource response
-  WebCore::ResourceResponse response_;
+  WebKit::WebURLResponse response_;
 
   // Set to true once the request is compelte.
   bool completed_;
 
  private:
-  // If we fail to start the request, we still want to finish async.
-  typedef WebCore::Timer<ResourceFetcher> StartFailedTimer;
-
   // Start the actual download.
-  void Start(WebCore::Frame* frame);
+  void Start(WebFrame* frame);
 
   // Buffer to hold the content from the server.
   std::string data_;
@@ -93,20 +92,20 @@ class ResourceFetcher : public WebCore::ResourceHandleClient {
 // A resource fetcher with a timeout
 class ResourceFetcherWithTimeout : public ResourceFetcher {
  public:
-  ResourceFetcherWithTimeout(const GURL& url, WebCore::Frame* frame, double
-                             timeout_secs, Delegate* d);
+  ResourceFetcherWithTimeout(const GURL& url, WebFrame* frame,
+                             int timeout_secs, Callback* c);
   virtual ~ResourceFetcherWithTimeout() {}
 
  private:
-  typedef WebCore::Timer<ResourceFetcherWithTimeout> FetchTimer;
-
   // Callback for timer that limits how long we wait for the alternate error
   // page server.  If this timer fires and the request hasn't completed, we
   // kill the request.
-  void TimeoutFired(FetchTimer* timer);
+  void TimeoutFired();
 
   // Limit how long we wait for the alternate error page server.
-  scoped_ptr<FetchTimer> timeout_timer_;
+  base::OneShotTimer<ResourceFetcherWithTimeout> timeout_timer_;
 };
 
-#endif  // WEBKIT_GLUE_RESOURCE_FETCHER_H__
+}  // namespace webkit_glue
+
+#endif  // WEBKIT_GLUE_RESOURCE_FETCHER_H_

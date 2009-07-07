@@ -13,6 +13,7 @@
 #include "webkit/api/public/WebPoint.h"
 #include "webkit/api/public/WebSize.h"
 #include "webkit/glue/back_forward_list_client_impl.h"
+#include "webkit/glue/image_resource_fetcher.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webview.h"
@@ -43,7 +44,6 @@ class WebMouseWheelEvent;
 }
 
 class AutocompletePopupMenuClient;
-class ImageResourceFetcher;
 class SearchableFormData;
 class WebHistoryItemImpl;
 class WebDevToolsAgent;
@@ -206,11 +206,6 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   // Start a system drag and drop operation.
   void StartDragging(const WebKit::WebDragData& drag_data);
 
-  // ImageResourceFetcher callback.
-  void ImageResourceDownloadDone(ImageResourceFetcher* fetcher,
-                                 bool errored,
-                                 const SkBitmap& image);
-
   // Hides the autocomplete popup if it is showing.
   void HideAutoCompletePopup();
 
@@ -221,6 +216,10 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
  protected:
   friend class WebView;  // So WebView::Create can call our constructor
   friend class base::RefCounted<WebViewImpl>;
+
+  // ImageResourceFetcher::Callback.
+  void OnImageFetchComplete(webkit_glue::ImageResourceFetcher* fetcher,
+                            const SkBitmap& bitmap);
 
   WebViewImpl();
   ~WebViewImpl();
@@ -269,7 +268,7 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
 
   // Removes fetcher from the set of pending image fetchers and deletes it.
   // This is invoked after the download is completed (or fails).
-  void DeleteImageResourceFetcher(ImageResourceFetcher* fetcher);
+  void DeleteImageResourceFetcher(webkit_glue::ImageResourceFetcher* fetcher);
 
   // Converts |pos| from window coordinates to contents coordinates and gets
   // the HitTestResult for it.
@@ -277,7 +276,7 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
       const WebCore::IntPoint& pos);
 
   // ImageResourceFetchers schedule via DownloadImage.
-  std::set<ImageResourceFetcher*> image_fetchers_;
+  std::set<webkit_glue::ImageResourceFetcher*> image_fetchers_;
 
   // The point relative to the client area where the mouse was last pressed
   // down. This is used by the drag client to determine what was under the

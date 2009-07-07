@@ -7,12 +7,6 @@
 
 #include <string>
 
-#include "base/compiler_specific.h"
-
-MSVC_PUSH_WARNING_LEVEL(0);
-#include "Timer.h"
-MSVC_POP_WARNING();
-
 #include "base/scoped_ptr.h"
 #include "webkit/api/public/WebURLError.h"
 #include "webkit/api/public/WebURLRequest.h"
@@ -22,24 +16,26 @@ class ResourceFetcherWithTimeout;
 class WebFrameImpl;
 class WebView;
 
+namespace webkit_glue {
+
 // Used for downloading alternate dns error pages. Once downloading is done
 // (or fails), the webview delegate is notified.
-class AltErrorPageResourceFetcher : public ResourceFetcher::Delegate {
+class AltErrorPageResourceFetcher {
  public:
   AltErrorPageResourceFetcher(WebView* web_view,
+                              WebFrame* web_frame,
                               const WebKit::WebURLError& web_error,
-                              WebFrameImpl* web_frame,
                               const GURL& url);
   ~AltErrorPageResourceFetcher();
 
-  virtual void OnURLFetchComplete(const WebCore::ResourceResponse& response,
-                                  const std::string& data);
-
  private:
+  void OnURLFetchComplete(const WebKit::WebURLResponse& response,
+                          const std::string& data);
+
   // References to our owners
   WebView* web_view_;
+  WebFrame* web_frame_;
   WebKit::WebURLError web_error_;
-  WebFrameImpl* web_frame_;
   WebKit::WebURLRequest failed_request_;
 
   // Does the actual fetching.
@@ -47,5 +43,7 @@ class AltErrorPageResourceFetcher : public ResourceFetcher::Delegate {
 
   DISALLOW_COPY_AND_ASSIGN(AltErrorPageResourceFetcher);
 };
+
+}  // namespace webkit_glue
 
 #endif  // WEBKIT_GLUE_ALT_ERROR_PAGE_RESOURCE_FETCHER_H__

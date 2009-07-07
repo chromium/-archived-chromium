@@ -39,7 +39,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "PlatformString.h"
 MSVC_POP_WARNING();
 
-class AltErrorPageResourceFetcher;
 class ChromePrintContext;
 class WebDataSourceImpl;
 class WebPluginDelegate;
@@ -47,6 +46,10 @@ class WebView;
 class WebViewImpl;
 class WebTextInput;
 class WebTextInputImpl;
+
+namespace gfx {
+class BitmapPlatformDevice;
+}
 
 namespace WebCore {
 class Frame;
@@ -59,8 +62,8 @@ class SubstituteData;
 struct WindowFeatures;
 }
 
-namespace gfx {
-class BitmapPlatformDevice;
+namespace webkit_glue {
+class AltErrorPageResourceFetcher;
 }
 
 // Implementation of WebFrame, note that this is a reference counted object.
@@ -98,6 +101,7 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
       const GURL& error_page_url,
       bool replace,
       const GURL& fake_url);
+  virtual void DispatchWillSendRequest(WebKit::WebURLRequest* request);
   virtual void ExecuteScript(const WebKit::WebScriptSource& source);
   virtual void ExecuteScriptInNewContext(
       const WebKit::WebScriptSource* sources, int num_sources);
@@ -280,7 +284,7 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
                                          int request_id);
 
   // Resource fetcher for downloading an alternate DNS error page.
-  scoped_ptr<AltErrorPageResourceFetcher> alt_error_page_fetcher_;
+  scoped_ptr<webkit_glue::AltErrorPageResourceFetcher> alt_error_page_fetcher_;
 
   // Used to check for leaks of this object.
   static int live_object_count_;

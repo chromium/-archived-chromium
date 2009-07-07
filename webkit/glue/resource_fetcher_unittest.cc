@@ -2,27 +2,21 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "config.h"
-
-#include "base/compiler_specific.h"
-
-MSVC_PUSH_WARNING_LEVEL(0);
-#include "ResourceResponse.h"
-MSVC_POP_WARNING();
-#undef LOG
-
 #if defined(OS_LINUX)
 #include <gtk/gtk.h>
 #endif
 
+#include "webkit/api/public/WebURLResponse.h"
 #include "webkit/glue/unittest_test_server.h"
 #include "webkit/glue/webview.h"
-#include "webkit/glue/webframe_impl.h"
+#include "webkit/glue/webframe.h"
 #include "webkit/glue/resource_fetcher.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_shell_test.h"
 
-using WebCore::ResourceResponse;
+using WebKit::WebURLResponse;
+using webkit_glue::ResourceFetcher;
+using webkit_glue::ResourceFetcherWithTimeout;
 
 namespace {
 
@@ -39,7 +33,7 @@ class ResourceFetcherTests : public TestShellTest {
 static const int kMaxWaitTimeMs = 5000;
 static const int kWaitIntervalMs = 100;
 
-class FetcherDelegate : public ResourceFetcher::Delegate {
+class FetcherDelegate {
  public:
   FetcherDelegate()
       : timer_id_(0), completed_(false), time_elapsed_ms_(0) {
@@ -49,8 +43,12 @@ class FetcherDelegate : public ResourceFetcher::Delegate {
     CreateTimer(kWaitIntervalMs);
   }
 
-  virtual void OnURLFetchComplete(const ResourceResponse& response,
-                                  const std::string& data) {
+  ResourceFetcher::Callback* NewCallback() {
+    return ::NewCallback(this, &FetcherDelegate::OnURLFetchComplete);
+  }
+
+  void OnURLFetchComplete(const WebURLResponse& response,
+                          const std::string& data) {
     response_ = response;
     data_ = data;
     completed_ = true;
@@ -63,7 +61,7 @@ class FetcherDelegate : public ResourceFetcher::Delegate {
 
   int time_elapsed_ms() const { return time_elapsed_ms_; }
   std::string data() const { return data_; }
-  ResourceResponse response() const { return response_; }
+  const WebURLResponse& response() const { return response_; }
 
   // Wait for the request to complete or timeout.  We use a loop here b/c the
   // testing infrastructure (test_shell) can generate spurious calls to the
@@ -145,7 +143,7 @@ class FetcherDelegate : public ResourceFetcher::Delegate {
 #endif
   bool completed_;
   int time_elapsed_ms_;
-  ResourceResponse response_;
+  WebURLResponse response_;
   std::string data_;
 };
 
@@ -157,15 +155,12 @@ TEST_F(ResourceFetcherTests, ResourceFetcherDownload) {
       UnittestTestServer::CreateServer();
   ASSERT_TRUE(NULL != server.get());
 
-  WebFrame* web_frame = test_shell_->webView()->GetMainFrame();
-  // Not safe, but this is a unittest, so whatever.
-  WebFrameImpl* web_frame_impl = reinterpret_cast<WebFrameImpl*>(web_frame);
-  WebCore::Frame* frame = web_frame_impl->frame();
+  WebFrame* frame = test_shell_->webView()->GetMainFrame();
 
   GURL url = server->TestServerPage("files/test_shell/index.html");
   scoped_ptr<FetcherDelegate> delegate(new FetcherDelegate);
   scoped_ptr<ResourceFetcher> fetcher(new ResourceFetcher(
-      url, frame, delegate.get()));
+      url, frame, delegate->NewCallback()));
 
   delegate->WaitForResponse();
 
@@ -177,7 +172,7 @@ TEST_F(ResourceFetcherTests, ResourceFetcherDownload) {
   // Test 404 response.
   url = server->TestServerPage("files/thisfiledoesntexist.html");
   delegate.reset(new FetcherDelegate);
-  fetcher.reset(new ResourceFetcher(url, frame, delegate.get()));
+  fetcher.reset(new ResourceFetcher(url, frame, delegate->NewCallback()));
 
   delegate->WaitForResponse();
 
@@ -191,16 +186,13 @@ TEST_F(ResourceFetcherTests, ResourceFetcherDidFail) {
       UnittestTestServer::CreateServer();
   ASSERT_TRUE(NULL != server.get());
 
-  WebFrame* web_frame = test_shell_->webView()->GetMainFrame();
-  // Not safe, but this is a unittest, so whatever.
-  WebFrameImpl* web_frame_impl = reinterpret_cast<WebFrameImpl*>(web_frame);
-  WebCore::Frame* frame = web_frame_impl->frame();
+  WebFrame* frame = test_shell_->webView()->GetMainFrame();
 
   // Try to fetch a page on a site that doesn't exist.
   GURL url("http://localhost:1339/doesnotexist");
   scoped_ptr<FetcherDelegate> delegate(new FetcherDelegate);
   scoped_ptr<ResourceFetcher> fetcher(new ResourceFetcher(
-      url, frame, delegate.get()));
+      url, frame, delegate->NewCallback()));
 
   delegate->WaitForResponse();
 
@@ -217,17 +209,14 @@ TEST_F(ResourceFetcherTests, ResourceFetcherTimeout) {
       UnittestTestServer::CreateServer();
   ASSERT_TRUE(NULL != server.get());
 
-  WebFrame* web_frame = test_shell_->webView()->GetMainFrame();
-  // Not safe, but this is a unittest, so whatever.
-  WebFrameImpl* web_frame_impl = reinterpret_cast<WebFrameImpl*>(web_frame);
-  WebCore::Frame* frame = web_frame_impl->frame();
+  WebFrame* frame = test_shell_->webView()->GetMainFrame();
 
   // Grab a page that takes at least 1 sec to respond, but set the fetcher to
   // timeout in 0 sec.
   GURL url = server->TestServerPage("slow?1");
   scoped_ptr<FetcherDelegate> delegate(new FetcherDelegate);
   scoped_ptr<ResourceFetcher> fetcher(new ResourceFetcherWithTimeout(
-      url, frame, 0, delegate.get()));
+      url, frame, 0, delegate->NewCallback()));
 
   delegate->WaitForResponse();
 

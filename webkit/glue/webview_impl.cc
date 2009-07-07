@@ -127,6 +127,8 @@ using WebKit::WebPoint;
 using WebKit::WebRect;
 using WebKit::WebSize;
 
+using webkit_glue::ImageResourceFetcher;
+
 // Change the text zoom level by kTextSizeMultiplierRatio each time the user
 // zooms text in or out (ie., change by 20%).  The min and max values limit
 // text zoom to half and 3x the original text size.  These three values match
@@ -1343,11 +1345,13 @@ void WebViewImpl::SetInitialFocus(bool reverse) {
   }
 }
 
-bool WebViewImpl::DownloadImage(int id, const GURL& image_url, int image_size) {
+bool WebViewImpl::DownloadImage(int id, const GURL& image_url,
+                                int image_size) {
   if (!page_.get())
     return false;
-  image_fetchers_.insert(
-      new ImageResourceFetcher(this, id, image_url, image_size));
+  image_fetchers_.insert(new ImageResourceFetcher(
+      image_url, main_frame(), id, image_size,
+      NewCallback(this, &WebViewImpl::OnImageFetchComplete)));
   return true;
 }
 
@@ -1779,12 +1783,11 @@ void WebViewImpl::StartDragging(const WebDragData& drag_data) {
   }
 }
 
-void WebViewImpl::ImageResourceDownloadDone(ImageResourceFetcher* fetcher,
-                                            bool errored,
-                                            const SkBitmap& image) {
+void WebViewImpl::OnImageFetchComplete(ImageResourceFetcher* fetcher,
+                                       const SkBitmap& image) {
   if (delegate_) {
-    delegate_->DidDownloadImage(fetcher->id(), fetcher->image_url(), errored,
-                                image);
+    delegate_->DidDownloadImage(fetcher->id(), fetcher->image_url(),
+                                image.isNull(), image);
   }
   DeleteImageResourceFetcher(fetcher);
 }

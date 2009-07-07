@@ -14,13 +14,17 @@ MSVC_POP_WARNING();
 #include "webkit/glue/alt_404_page_resource_fetcher.h"
 
 #include "googleurl/src/gurl.h"
+#include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webframeloaderclient_impl.h"
 
 using WebCore::DocumentLoader;
+using WebKit::WebURLResponse;
+
+namespace webkit_glue {
 
 // Number of seconds to wait for the alternate 404 page server.  If it takes
 // too long, just show the original 404 page.
-static const double kDownloadTimeoutSec = 3.0;
+static const int kDownloadTimeoutSec = 3;
 
 Alt404PageResourceFetcher::Alt404PageResourceFetcher(
     WebFrameLoaderClient* webframeloaderclient,
@@ -30,12 +34,13 @@ Alt404PageResourceFetcher::Alt404PageResourceFetcher(
     : webframeloaderclient_(webframeloaderclient),
       doc_loader_(doc_loader) {
 
-  fetcher_.reset(new ResourceFetcherWithTimeout(url, frame,
-                                                kDownloadTimeoutSec, this));
+  fetcher_.reset(new ResourceFetcherWithTimeout(
+      url, WebFrameImpl::FromFrame(frame), kDownloadTimeoutSec,
+      NewCallback(this, &Alt404PageResourceFetcher::OnURLFetchComplete)));
 }
 
 void Alt404PageResourceFetcher::OnURLFetchComplete(
-    const WebCore::ResourceResponse& response,
+    const WebURLResponse& response,
     const std::string& data) {
   if (response.httpStatusCode() == 200) {
     // Only show server response if we got a 200.
@@ -45,3 +50,5 @@ void Alt404PageResourceFetcher::OnURLFetchComplete(
   }
   doc_loader_ = NULL;
 }
+
+}  // namespace webkit_glue

@@ -2,34 +2,28 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "config.h"
-
-#include "base/compiler_specific.h"
-
-MSVC_PUSH_WARNING_LEVEL(0);
-#include "ImageSourceSkia.h"
-MSVC_POP_WARNING();
-#undef LOG
-
 #include "webkit/glue/image_resource_fetcher.h"
 
 #include "base/gfx/size.h"
 #include "webkit/glue/image_decoder.h"
-#include "webkit/glue/webview_impl.h"
+#include "webkit/glue/webframe.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 
+namespace webkit_glue {
+
 ImageResourceFetcher::ImageResourceFetcher(
-    WebViewImpl* web_view,
-    int id,
     const GURL& image_url,
-    int image_size)
-    : web_view_(web_view),
+    WebFrame* frame,
+    int id,
+    int image_size,
+    Callback* callback)
+    : callback_(callback),
       id_(id),
       image_url_(image_url),
       image_size_(image_size) {
-  fetcher_.reset(new ResourceFetcher(image_url,
-                                     web_view->main_frame()->frame(),
-                                     this));
+  fetcher_.reset(new ResourceFetcher(
+      image_url, frame,
+      NewCallback(this, &ImageResourceFetcher::OnURLFetchComplete)));
 }
 
 ImageResourceFetcher::~ImageResourceFetcher() {
@@ -38,21 +32,19 @@ ImageResourceFetcher::~ImageResourceFetcher() {
 }
 
 void ImageResourceFetcher::OnURLFetchComplete(
-    const WebCore::ResourceResponse& response,
+    const WebKit::WebURLResponse& response,
     const std::string& data) {
-  SkBitmap image;
-  bool errored = false;
-  if (response.isNull()) {
-    errored = true;
-  } else if (response.httpStatusCode() == 200) {
+  SkBitmap bitmap;
+  if (!response.isNull() && response.httpStatusCode() == 200) {
     // Request succeeded, try to convert it to an image.
-    webkit_glue::ImageDecoder decoder(gfx::Size(image_size_, image_size_));
-    image = decoder.Decode(
+    ImageDecoder decoder(gfx::Size(image_size_, image_size_));
+    bitmap = decoder.Decode(
         reinterpret_cast<const unsigned char*>(data.data()), data.size());
   } // else case:
     // If we get here, it means no image from server or couldn't decode the
-    // response as an image. Need to notify the webview though, otherwise the
-    // browser will keep trying to download favicon (when this is used to
-    // download the favicon).
-  web_view_->ImageResourceDownloadDone(this, errored, image);
+    // response as an image. The delegate will see a null image, indicating
+    // that an error occurred.
+  callback_->Run(this, bitmap);
 }
+
+}  // namespace webkit_glue

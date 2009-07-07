@@ -195,6 +195,7 @@ using WebCore::RenderObject;
 using WebCore::ResourceError;
 using WebCore::ResourceHandle;
 using WebCore::ResourceRequest;
+using WebCore::ResourceResponse;
 using WebCore::VisibleSelection;
 using WebCore::ScriptValue;
 using WebCore::SecurityOrigin;
@@ -220,6 +221,8 @@ using WebKit::WebURL;
 using WebKit::WebURLError;
 using WebKit::WebURLRequest;
 using WebKit::WebURLResponse;
+
+using webkit_glue::AltErrorPageResourceFetcher;
 
 // Key for a StatsCounter tracking how many WebFrames are active.
 static const char* const kWebFrameActiveCount = "WebFrameActiveCount";
@@ -1562,7 +1565,14 @@ void WebFrameImpl::LoadAlternateHTMLErrorPage(const WebURLRequest& request,
                  replace);
 
   alt_error_page_fetcher_.reset(new AltErrorPageResourceFetcher(
-      GetWebViewImpl(), error, this, error_page_url));
+      GetWebViewImpl(), this, error, error_page_url));
+}
+
+void WebFrameImpl::DispatchWillSendRequest(WebURLRequest* request) {
+  ResourceResponse response;
+  frame_->loader()->client()->dispatchWillSendRequest(NULL, 0,
+      *webkit_glue::WebURLRequestToMutableResourceRequest(request),
+      response);
 }
 
 void WebFrameImpl::ExecuteScript(const WebScriptSource& source) {

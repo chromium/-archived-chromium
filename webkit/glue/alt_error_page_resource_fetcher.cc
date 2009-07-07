@@ -21,29 +21,33 @@ MSVC_POP_WARNING();
 #include "webkit/glue/webview.h"
 
 using WebKit::WebURLError;
+using WebKit::WebURLResponse;
+
+namespace webkit_glue {
 
 // Number of seconds to wait for the alternate error page server.  If it takes
 // too long, just use the local error page.
-static const double kDownloadTimeoutSec = 3.0;
+static const int kDownloadTimeoutSec = 3;
 
 AltErrorPageResourceFetcher::AltErrorPageResourceFetcher(
     WebView* web_view,
+    WebFrame* web_frame,
     const WebURLError& web_error,
-    WebFrameImpl* web_frame,
     const GURL& url)
     : web_view_(web_view),
       web_error_(web_error),
       web_frame_(web_frame) {
   failed_request_ = web_frame_->GetProvisionalDataSource()->request();
-  fetcher_.reset(new ResourceFetcherWithTimeout(url, web_frame->frame(),
-                                                kDownloadTimeoutSec, this));
+  fetcher_.reset(new ResourceFetcherWithTimeout(
+      url, web_frame, kDownloadTimeoutSec,
+      NewCallback(this, &AltErrorPageResourceFetcher::OnURLFetchComplete)));
 }
 
 AltErrorPageResourceFetcher::~AltErrorPageResourceFetcher() {
 }
 
 void AltErrorPageResourceFetcher::OnURLFetchComplete(
-    const WebCore::ResourceResponse& response,
+    const WebURLResponse& response,
     const std::string& data) {
   WebViewDelegate* delegate = web_view_->GetDelegate();
   if (!delegate)
@@ -59,3 +63,5 @@ void AltErrorPageResourceFetcher::OnURLFetchComplete(
                                       web_error_, std::string(), true);
   }
 }
+
+}  // namespace webkit_glue
