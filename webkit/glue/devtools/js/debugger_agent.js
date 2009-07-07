@@ -106,17 +106,11 @@ devtools.DebuggerAgent.ScopeType = {
  * Resets debugger agent to its initial state.
  */
 devtools.DebuggerAgent.prototype.reset = function() {
-  this.scriptsCacheInitialized_ = false;
   this.contextId_ = null;
   this.parsedScripts_ = {};
   this.requestNumberToBreakpointInfo_ = {};
   this.currentCallFrame_ = null;
   this.requestSeqToCallback_ = {};
-  if (WebInspector.panels &&
-      WebInspector.panels.scripts.element.parentElement) {
-    // Scripts panel has been enabled already.
-    devtools.tools.getDebuggerAgent().initializeScriptsCache();
-  }
 
   // Profiler isn't reset because it contains no data that is
   // specific for a particular V8 instance. All such data is
