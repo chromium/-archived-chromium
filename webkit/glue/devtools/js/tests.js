@@ -18,6 +18,8 @@ if (window.domAutomationController) {
  * @constructor
  */
 TestSuite = function() {
+  this.controlTaken_ = false;
+  this.timerId_ = -1;
 };
 
 
@@ -26,7 +28,11 @@ TestSuite = function() {
  * @param {string} message Failure description.
  */
 TestSuite.prototype.fail = function(message) {
-  throw message;
+  if (this.controlTaken_) {
+    this.reportFailure_(message);
+  } else {
+    throw message;
+  }
 };
 
 
@@ -65,33 +71,9 @@ TestSuite.prototype.assertContains = function(string, substring) {
 
 
 /**
- * Runs all global functions starting with 'test' as unit tests.
- */
-TestSuite.prototype.runAllTests = function() {
-  // For debugging purposes.
-  for (var name in this) {
-    if (name.substring(0, 4) == 'test' &&
-        typeof this[name] == 'function') {
-      this.runTest(name);
-    }
-  }
-};
-
-
-/**
- * Manual controller for async tests.
- * @constructor.
- */
-TestSuite.Controller = function() {
-  this.controlTaken_ = false;
-  this.timerId_ = -1;
-};
-
-
-/**
  * Takes control over execution.
  */
-TestSuite.Controller.prototype.takeControl = function() {
+TestSuite.prototype.takeControl = function() {
   this.controlTaken_ = true;
   // Set up guard timer.
   var self = this;
@@ -104,11 +86,10 @@ TestSuite.Controller.prototype.takeControl = function() {
 /**
  * Releases control over execution.
  */
-TestSuite.Controller.prototype.releaseControl = function() {
-  this.controlTaken_ = false;
+TestSuite.prototype.releaseControl = function() {
   if (this.timerId_ != -1) {
-    this.timerId_ = -1;
     clearTimeout(this.timerId_);
+    this.timerId_ = -1;
   }
   this.reportOk_();
 };
@@ -117,7 +98,7 @@ TestSuite.Controller.prototype.releaseControl = function() {
 /**
  * Async tests use this one to report that they are completed.
  */
-TestSuite.Controller.prototype.reportOk_ = function() {
+TestSuite.prototype.reportOk_ = function() {
   window.domAutomationController.send('[OK]');
 };
 
@@ -125,10 +106,10 @@ TestSuite.Controller.prototype.reportOk_ = function() {
 /**
  * Async tests use this one to report failures.
  */
-TestSuite.Controller.prototype.reportFailure_ = function(error) {
+TestSuite.prototype.reportFailure_ = function(error) {
   if (this.timerId_ != -1) {
-    this.timerId_ = -1;
     clearTimeout(this.timerId_);
+    this.timerId_ = -1;
   }
   window.domAutomationController.send('[FAILED] ' + error);
 };
@@ -138,14 +119,13 @@ TestSuite.Controller.prototype.reportFailure_ = function(error) {
  * Runs all global functions starting with 'test' as unit tests.
  */
 TestSuite.prototype.runTest = function(testName) {
-  var controller = new TestSuite.Controller();
   try {
-    this[testName](controller);
-    if (!controller.controlTaken_) {
-      controller.reportOk_();
+    this[testName]();
+    if (!this.controlTaken_) {
+      this.reportOk_();
     }
   } catch (e) {
-    controller.reportFailure_(e);
+    this.reportFailure_(e);
   }
 };
 
@@ -204,7 +184,7 @@ TestSuite.prototype.testMainResource = function() {
 /**
  * Tests that resources tab is enabled when corresponding item is selected.
  */
-TestSuite.prototype.testEnableResourcesTab = function(controller) {
+TestSuite.prototype.testEnableResourcesTab = function() {
   this.showPanel('resources');
 
   var test = this;
@@ -216,7 +196,7 @@ TestSuite.prototype.testEnableResourcesTab = function(controller) {
     WebInspector.panels.resources.refresh();
     WebInspector.resources[identifier]._resourcesTreeElement.select();
 
-    controller.releaseControl();
+    test.releaseControl();
   };
 
   // Following call should lead to reload that we capture in the
@@ -224,14 +204,14 @@ TestSuite.prototype.testEnableResourcesTab = function(controller) {
   WebInspector.panels.resources._enableResourceTracking();
 
   // We now have some time to report results to controller.
-  controller.takeControl();
+  this.takeControl();
 };
 
 
 /**
  * Tests resource headers.
  */
-TestSuite.prototype.testResourceHeaders = function(controller) {
+TestSuite.prototype.testResourceHeaders = function() {
   this.showPanel('resources');
 
   var test = this;
@@ -281,19 +261,19 @@ TestSuite.prototype.testResourceHeaders = function(controller) {
       test.assertTrue(responseOk);
       test.assertTrue(timingOk);
       test.assertTrue(typeof resource.endTime != 'undefnied');
-      controller.releaseControl();
+      test.releaseControl();
     }
   };
 
   WebInspector.panels.resources._enableResourceTracking();
-  controller.takeControl();
+  this.takeControl();
 };
 
 
 /**
  * Test that profiler works.
  */
-TestSuite.prototype.testProfilerTab = function(controller) {
+TestSuite.prototype.testProfilerTab = function() {
   this.showPanel('profiles');
 
   var test = this;
@@ -310,7 +290,7 @@ TestSuite.prototype.testProfilerTab = function(controller) {
     // that we actually have profiled page's code.
     while (node) {
       if (node.functionName.indexOf("fib") != -1) {
-        controller.releaseControl();
+        test.releaseControl();
       }
       node = node.traverseNextNode(true, null, true);
     }
@@ -320,14 +300,14 @@ TestSuite.prototype.testProfilerTab = function(controller) {
 
   InspectorController.startProfiling();
   window.setTimeout('InspectorController.stopProfiling();', 1000);
-  controller.takeControl();
+  this.takeControl();
 };
 
 
 /**
  * Tests that scripts tab can be open and populated with inspected scripts.
  */
-TestSuite.prototype.testShowScriptsTab = function(controller) {
+TestSuite.prototype.testShowScriptsTab = function() {
   var parsedDebuggerTestPageHtml = false;
   var parsedDebuggerTestJs = false;
 
@@ -357,14 +337,14 @@ TestSuite.prototype.testShowScriptsTab = function(controller) {
     }
 
     if (parsedDebuggerTestJs && parsedDebuggerTestPageHtml) {
-       controller.releaseControl();
+       test.releaseControl();
     }
   };
 
   this.showPanel('scripts');
 
   // Wait until all scripts are added to the debugger.
-  controller.takeControl();
+  this.takeControl();
 };
 
 
@@ -381,7 +361,7 @@ TestSuite.KeyEvent.prototype.stopPropagation = function() {};
 /**
  * Tests console eval.
  */
-TestSuite.prototype.testConsoleEval = function(controller) {
+TestSuite.prototype.testConsoleEval = function() {
   WebInspector.console.visible = true;
   WebInspector.console.prompt.text = '123';
   WebInspector.console.promptElement.handleKeyEvent(
@@ -393,17 +373,17 @@ TestSuite.prototype.testConsoleEval = function(controller) {
     originalConsoleAddMessage.call(this, commandResult);
     WebInspector.Console.prototype.addMessage = originalConsoleAddMessage;
     test.assertEquals('123', commandResult.toMessageElement().textContent);
-    controller.releaseControl();
+    test.releaseControl();
   };
 
-  controller.takeControl();
+  this.takeControl();
 };
 
 
 /**
  * Tests console log.
  */
-TestSuite.prototype.testConsoleLog = function(controller) {
+TestSuite.prototype.testConsoleLog = function() {
   WebInspector.console.visible = true;
   var messages = WebInspector.console.messages;
   var index = 0;
@@ -444,7 +424,7 @@ TestSuite.prototype.testConsoleLog = function(controller) {
 /**
  * Tests eval of global objects.
  */
-TestSuite.prototype.testEvalGlobal = function(controller) {
+TestSuite.prototype.testEvalGlobal = function() {
   WebInspector.console.visible = true;
   WebInspector.console.prompt.text = 'foo';
   WebInspector.console.promptElement.handleKeyEvent(
@@ -455,19 +435,47 @@ TestSuite.prototype.testEvalGlobal = function(controller) {
   WebInspector.Console.prototype.addMessage = function(commandResult) {
     originalConsoleAddMessage.call(this, commandResult);
     test.assertEquals('fooValue', commandResult.toMessageElement().textContent);
-    controller.releaseControl();
+    test.releaseControl();
   };
 
-  controller.takeControl();
+  this.takeControl();
 };
 
 
 /**
  * Tests eval on call frame.
  */
-TestSuite.prototype.testEvalCallFrame = function(controller) {
+TestSuite.prototype.testEvalCallFrame = function() {
 };
 
 
-var uiTests = new TestSuite();
+/**
+ * Test runner for the test suite.
+ */
+var uiTests = {};
+
+
+/**
+ * Run each test from the test suit on a fresh instance of the suite.
+ */
+uiTests.runAllTests = function() {
+  // For debugging purposes.
+  for (var name in TestSuite.prototype) {
+    if (name.substring(0, 4) == 'test' &&
+        typeof TestSuite.prototype[name] == 'function') {
+      uiTests.runTest(name);
+    }
+  }
+};
+
+
+/**
+ * Run specified test on a fresh instance of the test suite.
+ * @param {string} name Name of a test method from TestSuite class.
+ */
+uiTests.runTest = function(name) {
+  new TestSuite().runTest(name);
+};
+
+
 }
