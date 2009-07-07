@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/printing/win_printing_context.h"
+#include "printing/printing_context.h"
 
 #include <winspool.h>
 
@@ -10,8 +10,7 @@
 #include "base/message_loop.h"
 #include "base/time.h"
 #include "base/time_format.h"
-#include "chrome/browser/browser_process.h"
-#include "chrome/browser/printing/printed_document.h"
+#include "printing/printed_document.h"
 #include "skia/ext/platform_device_win.h"
 
 using base::Time;
@@ -144,8 +143,8 @@ PrintingContext::PrintingContext()
 #endif
       dialog_box_(NULL),
       dialog_box_dismissed_(false),
-      abort_printing_(false),
-      in_print_job_(false) {
+      in_print_job_(false),
+      abort_printing_(false) {
 }
 
 PrintingContext::~PrintingContext() {

@@ -2,15 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_PRINTING_PRINT_SETTINGS_H__
-#define CHROME_BROWSER_PRINTING_PRINT_SETTINGS_H__
+#ifndef PRINTING_PRINT_SETTINGS_H_
+#define PRINTING_PRINT_SETTINGS_H_
 
 #include "base/gfx/rect.h"
-#include "chrome/browser/printing/page_overlays.h"
-#include "chrome/browser/printing/page_range.h"
-#include "chrome/browser/printing/page_setup.h"
+#include "printing/page_overlays.h"
+#include "printing/page_range.h"
+#include "printing/page_setup.h"
 
-struct ViewMsg_Print_Params;
 typedef struct HDC__* HDC;
 typedef struct _devicemodeW DEVMODE;
 
@@ -37,10 +36,6 @@ class PrintSettings {
   // Set printer printable area in in pixels.
   void SetPrinterPrintableArea(gfx::Size const& physical_size_pixels,
                                gfx::Rect const& printable_area_pixels);
-
-  // Initializes the print parameters that needs to be sent to the renderer
-  // process.
-  void RenderParams(ViewMsg_Print_Params* params) const;
 
   // Equality operator.
   // NOTE: printer_name is NOT tested for equality since it doesn't affect the
@@ -109,4 +104,4 @@ class PrintSettings {
 
 }  // namespace printing
 
-#endif  // CHROME_BROWSER_PRINTING_PRINT_SETTINGS_H__
+#endif  // PRINTING_PRINT_SETTINGS_H_

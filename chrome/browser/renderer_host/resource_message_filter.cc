@@ -113,6 +113,27 @@ class WriteClipboardTask : public Task {
   scoped_ptr<Clipboard::ObjectMap> objects_;
 };
 
+void RenderParamsFromPrintSettings(const printing::PrintSettings& settings,
+                                   ViewMsg_Print_Params* params) {
+  DCHECK(params);
+#if defined(OS_WIN)
+  params->printable_size.SetSize(
+      settings.page_setup_pixels().content_area().width(),
+      settings.page_setup_pixels().content_area().height());
+  params->dpi = settings.dpi();
+  // Currently hardcoded at 1.25. See PrintSettings' constructor.
+  params->min_shrink = settings.min_shrink;
+  // Currently hardcoded at 2.0. See PrintSettings' constructor.
+  params->max_shrink = settings.max_shrink;
+  // Currently hardcoded at 72dpi. See PrintSettings' constructor.
+  params->desired_dpi = settings.desired_dpi;
+  // Always use an invalid cookie.
+  params->document_cookie = 0;
+  params->selection_only = settings.selection_only;
+#else
+  NOTIMPLEMENTED();
+#endif
+}
 
 }  // namespace
 
@@ -724,7 +745,7 @@ void ResourceMessageFilter::OnGetDefaultPrintSettingsReply(
   if (printer_query->last_status() != printing::PrintingContext::OK) {
     memset(&params, 0, sizeof(params));
   } else {
-    printer_query->settings().RenderParams(&params);
+    RenderParamsFromPrintSettings(printer_query->settings(), &params);
     params.document_cookie = printer_query->cookie();
   }
   ViewHostMsg_GetDefaultPrintSettings::WriteReplyParams(reply_msg, params);
@@ -781,7 +802,7 @@ void ResourceMessageFilter::OnScriptedPrintReply(
       !printer_query->settings().dpi()) {
     memset(&params, 0, sizeof(params));
   } else {
-    printer_query->settings().RenderParams(&params.params);
+    RenderParamsFromPrintSettings(printer_query->settings(), &params.params);
     params.params.document_cookie = printer_query->cookie();
     params.pages =
         printing::PageRange::GetPages(printer_query->settings().ranges);

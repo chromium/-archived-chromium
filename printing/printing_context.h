@@ -2,15 +2,20 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_PRINTING_WIN_PRINTING_CONTEXT_H__
-#define CHROME_BROWSER_PRINTING_WIN_PRINTING_CONTEXT_H__
+#ifndef PRINTING_PRINTING_CONTEXT_H_
+#define PRINTING_PRINTING_CONTEXT_H_
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <ocidl.h>
 #include <commdlg.h>
+#endif
+
 #include <string>
 
 #include "base/basictypes.h"
-#include "chrome/browser/printing/print_settings.h"
+#include "printing/print_settings.h"
 
 namespace printing {
 
@@ -29,9 +34,11 @@ class PrintingContext {
   PrintingContext();
   ~PrintingContext();
 
+#if defined(OS_WIN)
   // Asks the user what printer and format should be used to print. Updates the
   // context with the select device settings.
   Result AskUserForSettings(HWND window, int max_pages, bool has_selection);
+#endif
 
   // Selects the user's default printer and format. Updates the context with the
   // default device settings.
@@ -61,16 +68,18 @@ class PrintingContext {
   // document.
   Result DocumentDone();
 
-  // Cancels printing. Can be used in a multithreaded context. Takes effect
+  // Cancels printing. Can be used in a multi-threaded context. Takes effect
   // immediately.
   void Cancel();
 
   // Dismiss the Print... dialog box if shown.
   void DismissDialog();
 
+#if defined(OS_WIN)
   HDC context() {
     return hdc_;
   }
+#endif
 
   const PrintSettings& settings() const {
     return settings_;
@@ -84,6 +93,7 @@ class PrintingContext {
   // Does bookkeeping when an error occurs.
   PrintingContext::Result OnError();
 
+#if defined(OS_WIN)
   // Used in response to the user canceling the printing.
   static BOOL CALLBACK AbortProc(HDC hdc, int nCode);
 
@@ -110,6 +120,7 @@ class PrintingContext {
 
   // The selected printer context.
   HDC hdc_;
+#endif
 
   // Complete print context settings.
   PrintSettings settings_;
@@ -119,8 +130,10 @@ class PrintingContext {
   int page_number_;
 #endif
 
+#if defined(OS_WIN)
   // The dialog box for the time it is shown.
   volatile HWND dialog_box_;
+#endif
 
   // The dialog box has been dismissed.
   volatile bool dialog_box_dismissed_;
@@ -136,4 +149,4 @@ class PrintingContext {
 
 }  // namespace printing
 
-#endif  // CHROME_BROWSER_PRINTING_WIN_PRINTING_CONTEXT_H__
+#endif  // PRINTING_PRINTING_CONTEXT_H_

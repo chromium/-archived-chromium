@@ -9,7 +9,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_job.h"
 #include "chrome/browser/printing/print_job_manager.h"
-#include "chrome/browser/printing/printed_document.h"
 #include "chrome/browser/printing/printer_query.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
@@ -18,6 +17,7 @@
 #include "chrome/common/render_messages.h"
 #include "grit/generated_resources.h"
 #include "printing/native_metafile.h"
+#include "printing/printed_document.h"
 
 using base::TimeDelta;
 

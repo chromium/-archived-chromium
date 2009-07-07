@@ -6,9 +6,9 @@
 
 #include "chrome/browser/printing/print_job.h"
 #include "chrome/browser/printing/printer_query.h"
-#include "chrome/browser/printing/printed_document.h"
-#include "chrome/browser/printing/printed_page.h"
 #include "chrome/common/notification_service.h"
+#include "printing/printed_document.h"
+#include "printing/printed_page.h"
 
 namespace printing {
 

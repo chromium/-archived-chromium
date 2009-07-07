@@ -7,9 +7,9 @@
 #include "base/message_loop.h"
 #include "base/timer.h"
 #include "chrome/browser/printing/print_job_worker.h"
-#include "chrome/browser/printing/printed_document.h"
-#include "chrome/browser/printing/printed_page.h"
 #include "chrome/common/notification_service.h"
+#include "printing/printed_document.h"
+#include "printing/printed_page.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4355)  // 'this' : used in base member initializer list

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_PRINTING_PRINTED_PAGES_SOURCE_H__
-#define CHROME_BROWSER_PRINTING_PRINTED_PAGES_SOURCE_H__
+#ifndef PRINTING_PRINTED_PAGES_SOURCE_H_
+#define PRINTING_PRINTED_PAGES_SOURCE_H_
 
 #include <string>
 
@@ -26,4 +26,4 @@ class PrintedPagesSource {
 
 }  // namespace printing
 
-#endif  // CHROME_BROWSER_PRINTING_PRINTED_PAGES_SOURCE_H__
+#endif  // PRINTING_PRINTED_PAGES_SOURCE_H_

@@ -2,16 +2,19 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/at_exit.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
-#include "chrome/browser/printing/page_overlays.h"
-#include "chrome/browser/printing/print_settings.h"
-#include "chrome/browser/printing/printed_document.h"
-#include "chrome/browser/printing/printed_page.h"
-#include "chrome/browser/printing/printed_pages_source.h"
+#include "printing/page_overlays.h"
+#include "printing/print_settings.h"
+#include "printing/printed_document.h"
+#include "printing/printed_page.h"
+#include "printing/printed_pages_source.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
+
+base::AtExitManager global_at_exit_manager;
 
 class PageOverlaysTest : public testing::Test {
  private:

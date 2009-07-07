@@ -7,8 +7,8 @@
 
 #include "base/task.h"
 #include "base/thread.h"
-#include "chrome/browser/printing/page_number.h"
-#include "chrome/browser/printing/win_printing_context.h"
+#include "printing/page_number.h"
+#include "printing/printing_context.h"
 
 namespace printing {
 

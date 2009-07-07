@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_PRINTING_PAGE_NUMBER_H__
-#define CHROME_BROWSER_PRINTING_PAGE_NUMBER_H__
+#ifndef PRINTING_PAGE_NUMBER_H_
+#define PRINTING_PAGE_NUMBER_H_
 
 #include <ostream>
 
-#include "chrome/browser/printing/page_range.h"
+#include "printing/page_range.h"
 
 namespace printing {
 
@@ -70,4 +70,4 @@ inline typename std::basic_ostream<E,T>& operator<<(
 
 }  // namespace printing
 
-#endif  // CHROME_BROWSER_PRINTING_PAGE_NUMBER_H__
+#endif  // PRINTING_PAGE_NUMBER_H_

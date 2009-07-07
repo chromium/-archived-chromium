@@ -6,8 +6,8 @@
 #define CHROME_BROWSER_PRINTING_PRINT_VIEW_MANAGER_H_
 
 #include "base/ref_counted.h"
-#include "chrome/browser/printing/printed_pages_source.h"
 #include "chrome/common/notification_registrar.h"
+#include "printing/printed_pages_source.h"
 
 class RenderViewHost;
 class TabContents;

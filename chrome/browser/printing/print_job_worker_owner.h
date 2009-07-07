@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_PRINTING_PRINT_JOB_WORKER_OWNER_H__
 #define CHROME_BROWSER_PRINTING_PRINT_JOB_WORKER_OWNER_H__
 
-#include "chrome/browser/printing/win_printing_context.h"
+#include "printing/printing_context.h"
 
 class MessageLoop;
 

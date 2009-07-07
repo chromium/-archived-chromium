@@ -64,7 +64,7 @@ TEST(EmfTest, DC) {
 /*
 
 // DEPS check fails even if include is in a multi line comment:
-// #include "chrome/browser/printing/win_printing_context.h"
+// #include "printing/printing_context.h"
 // #include "chrome/common/chrome_paths.h"
 
 // Disabled if no "UnitTest printer" exist. Useful to reproduce bug 1186598.

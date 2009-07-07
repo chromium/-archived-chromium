@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/printing/printed_document.h"
+#include "printing/printed_document.h"
 
 #include <set>
 
@@ -14,10 +14,10 @@
 #include "base/singleton.h"
 #include "base/string_util.h"
 #include "base/time.h"
-#include "chrome/browser/printing/page_number.h"
-#include "chrome/browser/printing/page_overlays.h"
-#include "chrome/browser/printing/printed_pages_source.h"
-#include "chrome/browser/printing/printed_page.h"
+#include "printing/page_number.h"
+#include "printing/page_overlays.h"
+#include "printing/printed_pages_source.h"
+#include "printing/printed_page.h"
 #include "printing/units.h"
 #include "skia/ext/platform_device.h"
 

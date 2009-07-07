@@ -2,11 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/printing/print_settings.h"
+#include "printing/print_settings.h"
 
 #include "base/atomic_sequence_num.h"
 #include "base/logging.h"
-#include "chrome/common/render_messages.h"
 #include "printing/units.h"
 
 namespace printing {
@@ -92,22 +91,6 @@ void PrintSettings::SetPrinterPrintableArea(
   margins.right = margin_printer_units;
   margins.bottom = margin_printer_units;
   page_setup_pixels_.SetRequestedMargins(margins);
-}
-
-void PrintSettings::RenderParams(ViewMsg_Print_Params* params) const {
-  DCHECK(params);
-  params->printable_size.SetSize(page_setup_pixels_.content_area().width(),
-                                 page_setup_pixels_.content_area().height());
-  params->dpi = dpi_;
-  // Currently hardcoded at 1.25. See PrintSettings' constructor.
-  params->min_shrink = min_shrink;
-  // Currently hardcoded at 2.0. See PrintSettings' constructor.
-  params->max_shrink = max_shrink;
-  // Currently hardcoded at 72dpi. See PrintSettings' constructor.
-  params->desired_dpi = desired_dpi;
-  // Always use an invalid cookie.
-  params->document_cookie = 0;
-  params->selection_only = selection_only;
 }
 
 bool PrintSettings::Equals(const PrintSettings& rhs) const {

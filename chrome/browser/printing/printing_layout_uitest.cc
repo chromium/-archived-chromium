@@ -15,8 +15,8 @@
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/ui/ui_test.h"
-#include "chrome/browser/printing/printing_test.h"
 #include "net/url_request/url_request_unittest.h"
+#include "printing/printing_test.h"
 #include "printing/native_metafile.h"
 
 namespace {

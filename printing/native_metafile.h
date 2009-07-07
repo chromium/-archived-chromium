@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef PRINTING_NATIVE_METAFILE_H__
-#define PRINTING_NATIVE_METAFILE_H__
+#ifndef PRINTING_NATIVE_METAFILE_H_
+#define PRINTING_NATIVE_METAFILE_H_
 
 // Define a metafile format for the current platform.  We use this platform
 // independent define so we can define interfaces in platform agnostic manner.
@@ -25,12 +25,16 @@ typedef Emf NativeMetafile;
 #elif defined(OS_MACOSX)
 
 // TODO(port): Printing using PDF?
+// The mock class is here so we can compile.
+class NativeMetafile {};
 
 #elif defined(OS_LINUX)
 
 // TODO(port): Printing using PostScript?
+// The mock class is here so we can compile.
+class NativeMetafile {};
 
 #endif
 
 
-#endif  // PRINTING_NATIVE_METAFILE_H__
+#endif  // PRINTING_NATIVE_METAFILE_H_

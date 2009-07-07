@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_PRINTING_PRINTED_DOCUMENT_H__
-#define CHROME_BROWSER_PRINTING_PRINTED_DOCUMENT_H__
+#ifndef PRINTING_PRINTED_DOCUMENT_H_
+#define PRINTING_PRINTED_DOCUMENT_H_
 
 #include <map>
 
 #include "base/lock.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
-#include "chrome/browser/printing/print_settings.h"
-#include "printing/native_metafile.h"
 #include "googleurl/src/gurl.h"
+#include "printing/print_settings.h"
+#include "printing/native_metafile.h"
 
 class MessageLoop;
 
@@ -104,7 +104,7 @@ class PrintedDocument : public base::RefCountedThreadSafe<PrintedDocument> {
 
  private:
   // Array of data for each print previewed page.
-  typedef std::map<int, scoped_refptr<PrintedPage>> PrintedPages;
+  typedef std::map<int, scoped_refptr<PrintedPage> > PrintedPages;
 
   // Contains all the mutable stuff. All this stuff MUST be accessed with the
   // lock held.
@@ -189,4 +189,4 @@ class PrintedDocument : public base::RefCountedThreadSafe<PrintedDocument> {
 
 }  // namespace printing
 
-#endif  // CHROME_BROWSER_PRINTING_PRINTED_DOCUMENT_H__
+#endif  // PRINTING_PRINTED_DOCUMENT_H_

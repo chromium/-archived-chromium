@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef PRINTING_EMF_WIN_H__
-#define PRINTING_EMF_WIN_H__
+#ifndef PRINTING_EMF_WIN_H_
+#define PRINTING_EMF_WIN_H_
 
 #include <windows.h>
 #include <vector>
@@ -178,4 +178,4 @@ class Emf::Enumerator {
 
 }  // namespace printing
 
-#endif  // PRINTING_EMF_WIN_H__
+#endif  // PRINTING_EMF_WIN_H_

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_PRINTING_PRINTED_PAGE_H__
-#define CHROME_BROWSER_PRINTING_PRINTED_PAGE_H__
+#ifndef PRINTING_PRINTED_PAGE_H_
+#define PRINTING_PRINTED_PAGE_H_
 
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
@@ -47,4 +47,4 @@ class PrintedPage : public base::RefCountedThreadSafe<PrintedPage> {
 
 }  // namespace printing
 
-#endif  // CHROME_BROWSER_PRINTING_PRINTED_PAGE_H__
+#endif  // PRINTING_PRINTED_PAGE_H_

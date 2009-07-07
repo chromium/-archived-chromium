@@ -90,7 +90,6 @@
 #include "chrome/browser/jankometer.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/net/url_fixer_upper.h"
-#include "chrome/browser/printing/printed_document.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/rlz/rlz.h"
 #include "chrome/browser/views/user_data_dir_dialog.h"
@@ -103,6 +102,7 @@
 #include "net/base/sdch_manager.h"
 #include "net/base/winsock_init.h"
 #include "net/http/http_network_layer.h"
+#include "printing/printed_document.h"
 #include "sandbox/src/sandbox.h"
 #include "views/widget/accelerator_handler.h"
 #endif  // defined(OS_WIN)

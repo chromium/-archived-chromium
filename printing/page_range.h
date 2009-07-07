@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_PRINTING_PAGE_RANGE_H__
-#define CHROME_BROWSER_PRINTING_PAGE_RANGE_H__
+#ifndef PRINTING_PAGE_RANGE_H_
+#define PRINTING_PAGE_RANGE_H_
 
 #include <vector>
 
@@ -31,4 +31,4 @@ struct PageRange {
 
 }  // namespace printing
 
-#endif  // CHROME_BROWSER_PRINTING_PAGE_RANGE_H__
+#endif  // PRINTING_PAGE_RANGE_H_
