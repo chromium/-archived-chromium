@@ -35,7 +35,7 @@
 				<string key="NSClassName">NSApplication</string>
 			</object>
 			<object class="NSWindowTemplate" id="1005">
-				<int key="NSWindowStyleMask">15</int>
+				<int key="NSWindowStyleMask">9</int>
 				<int key="NSWindowBacking">2</int>
 				<string key="NSWindowRect">{{196, 264}, {480, 246}}</string>
 				<int key="NSWTFlags">536870912</int>
@@ -564,9 +564,9 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{445, 189}, {480, 246}}</string>
+					<string>{{441, 138}, {480, 246}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{445, 189}, {480, 246}}</string>
+					<string>{{441, 138}, {480, 246}}</string>
 					<reference ref="9"/>
 					<string>{196, 240}</string>
 					<string>{{357, 418}, {480, 270}}</string>
@@ -645,7 +645,7 @@
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">browser/cocoa/hung_renderer_dialog_cocoa.h</string>
+						<string key="minorKey">browser/cocoa/hung_renderer_controller.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">

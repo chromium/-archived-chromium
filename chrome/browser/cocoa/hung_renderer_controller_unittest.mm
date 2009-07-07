@@ -28,7 +28,8 @@ TEST_F(HungRendererControllerTest, TestShowAndClose) {
   // Doesn't test much functionality-wise, but makes sure we can
   // display and tear down a window.
   [hung_renderer_controller_ showWindow:nil];
-  [[hung_renderer_controller_ window] performClose:nil];
+  // Cannot call performClose:, because the close button is disabled.
+  [hung_renderer_controller_ close];
 }
 
 TEST_F(HungRendererControllerTest, TestKillButton) {

@@ -51,13 +51,15 @@ HungRendererController* g_instance = NULL;
   if (hungContents_)
     base::KillProcess(hungContents_->process()->process().handle(),
                       ResultCodes::HUNG, false);
-  [[self window] performClose:nil];
+  // Cannot call performClose:, because the close button is disabled.
+  [self close];
 }
 
 - (IBAction)wait:(id)sender {
   if (hungContents_ && hungContents_->render_view_host())
     hungContents_->render_view_host()->RestartHangMonitorTimeout();
-  [[self window] performClose:nil];
+  // Cannot call performClose:, because the close button is disabled.
+  [self close];
 }
 
 - (int)numberOfRowsInTableView:(NSTableView *)aTableView {
@@ -103,13 +105,7 @@ HungRendererController* g_instance = NULL;
   DCHECK(contents);
   DCHECK(hungContents_);
   if (hungContents_ && hungContents_->process() == contents->process()) {
-    // If you switch tabs with the dialog open,
-    // HungRendererDialog::EndForTabContents() is called after the
-    // RWHV is hidden.  performClose: runs a nested message loop,
-    // during which the RWHV is drawn at least once, failing a DCHECK
-    // that ensures it is never drawn while hidden.  The workaround
-    // here is to call close, which closes the window immediately with
-    // no nested message loop.
+    // Cannot call performClose:, because the close button is disabled.
     [self close];
   }
 }
