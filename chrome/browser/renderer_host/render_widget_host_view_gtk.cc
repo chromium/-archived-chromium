@@ -227,16 +227,16 @@ class RenderWidgetHostViewGtkWidget {
       int x = 0;
       int y = 0;
       gtk_widget_get_pointer(widget, &x, &y);
-      // If the mouse release happens outside our popup, force the popup to
+      // If the mouse event happens outside our popup, force the popup to
       // close.  We do this so a hung renderer doesn't prevent us from
       // releasing the x pointer grab.
       bool click_in_popup = x >= 0 && y >= 0 && x < widget->allocation.width &&
           y < widget->allocation.height;
-      // We can get mouse ups from outside the render view during drags even if
-      // we are not a popup, so only Shutdown if we are a popup (and
-      // host_view->parent_ is not null).
-      if (!host_view->parent_ && host_view->is_popup_first_mouse_release_ &&
-          !click_in_popup) {
+      // Only Shutdown on mouse downs. Mouse ups can occur outside the render
+      // view if the user drags for DnD or while using the scrollbar on a select
+      // dropdown. Don't shutdown if we are not a popup.
+      if (event->type != GDK_BUTTON_RELEASE && host_view->parent_ &&
+          !host_view->is_popup_first_mouse_release_ && !click_in_popup) {
         host_view->host_->Shutdown();
         return FALSE;
       }
