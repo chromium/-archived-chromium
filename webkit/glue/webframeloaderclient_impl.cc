@@ -1419,10 +1419,10 @@ void WebFrameLoaderClient::redirectDataToPlugin(Widget* pluginWidget) {
 Widget* WebFrameLoaderClient::createJavaAppletWidget(
                                            const IntSize& size,
                                            HTMLAppletElement* element,
-                                           const KURL& url,
+                                           const KURL& /* base_url */,
                                            const Vector<String>& param_names,
                                            const Vector<String>& param_values) {
-  return createPlugin(size, element, url, param_names, param_values,
+  return createPlugin(size, element, KURL(), param_names, param_values,
       "application/x-java-applet", false);
 }
 

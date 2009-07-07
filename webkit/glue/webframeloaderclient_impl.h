@@ -185,7 +185,7 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
   virtual WebCore::Widget* createJavaAppletWidget(
       const WebCore::IntSize&,
       WebCore::HTMLAppletElement*,
-      const WebCore::KURL& baseURL,
+      const WebCore::KURL& /* base_url */,
       const WTF::Vector<WebCore::String>& paramNames,
       const WTF::Vector<WebCore::String>& paramValues);
 
