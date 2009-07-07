@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/tabs/browser_tab_strip.h"
 
+#include "base/compiler_specific.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 
 namespace {

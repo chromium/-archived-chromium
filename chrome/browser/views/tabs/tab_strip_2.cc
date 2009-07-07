@@ -8,6 +8,7 @@
 #include "app/slide_animation.h"
 #include "app/win_util.h"
 #include "base/command_line.h"
+#include "base/compiler_specific.h"
 #include "base/message_loop.h"
 #include "chrome/common/chrome_switches.h"
 #include "views/animator.h"
