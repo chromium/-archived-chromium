@@ -626,7 +626,6 @@
    fun:_ZN6TabGtkC1EPNS_11TabDelegateE
    fun:_ZN11TabStripGtk13TabInsertedAtEP11TabContentsib
    fun:_ZN13TabStripModel19InsertTabContentsAtEiP11TabContentsbb
-   fun:_ZN13TabStripModel14AddTabContentsEP11TabContentsibjb
 }
 {
    # very common in ui tests
@@ -666,10 +665,10 @@
 }
 {
    # very common in ui tests
+   # two different leaks here, one common, one uncommon.
    bug_16093
    Memcheck:Leak
    ...
-   fun:getaddrinfo
    fun:_ZN3netL16HostResolverProcERKSsPP8addrinfo
    fun:_ZN3netL15ResolveAddrInfoEPNS_10HostMapperERKSsPP8addrinfo
    fun:_ZN3net12HostResolver3Job8DoLookupEv
@@ -695,4 +694,32 @@
    fun:_Z13StringAppendVPSsPKcPc
    fun:_Z12StringPrintfPKcz
    fun:_ZN12_GLOBAL__N_112WorkerThread10ThreadMainEv
+}
+{
+   # Somewhat common in ui tests.  See also bug 9245.
+   bug_16102
+   Memcheck:Leak
+   fun:realloc
+   fun:FcPatternObjectInsertElt
+   fun:FcConfigPatternAdd
+   fun:FcConfigSubstituteWithPat
+   fun:FcFontRenderPrepare
+   fun:FcFontSetMatch
+   fun:FcFontMatch
+}
+{
+   bug_16103
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN20ShownSectionsHandler22HandleGetShownSectionsEPK5Value
+   fun:_ZN12CallbackImplI20ShownSectionsHandlerMS0_FvPK5ValueE6Tuple1IS3_EE13RunWithParamsERKS7_
+   fun:_ZN5DOMUI19ProcessDOMUIMessageERKSsS1_ib
+   fun:_ZN11TabContents19ProcessDOMUIMessageERKSsS1_ib
+}
+{
+   bug_16104
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN7history20VisitSegmentDatabase17QuerySegmentUsageERKN4base4TimeEiPSt6vectorIP13PageUsageDataSaIS7_EE
+   fun:_ZN7history14HistoryBackend24QueryTopURLsAndRedirectsE13scoped_refptrI18CancelableRequest1I14CallbackRunnerI6Tuple2IPSt6vectorI4GURLSaIS6_EEPSt3mapIS6_S1_I16RefCountedVectorIS6_EESt4lessIS6_ESaISt4pairIKS6_SD_EEEEES4_IS8_SK_EEEi
 }
