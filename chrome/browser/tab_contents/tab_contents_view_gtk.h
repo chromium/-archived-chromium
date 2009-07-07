@@ -20,6 +20,7 @@ class BlockedPopupContainerViewGtk;
 class ConstrainedWindowGtk;
 class RenderViewContextMenuGtk;
 class SadTabGtk;
+class WebDragDest;
 typedef struct _GtkFloatingContainer GtkFloatingContainer;
 
 class TabContentsViewGtk : public TabContentsView,
@@ -140,6 +141,9 @@ class TabContentsViewGtk : public TabContentsView,
   scoped_ptr<WebDropData> drop_data_;
   // The mime type for the file contents of the current drag (if any).
   GdkAtom drag_file_mime_type_;
+  // The helper object that handles drag destination related interactions with
+  // GTK.
+  scoped_ptr<WebDragDest> drag_dest_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContentsViewGtk);
 };

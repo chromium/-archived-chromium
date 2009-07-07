@@ -102,6 +102,204 @@ void SetSizeRequest(GtkWidget* widget, gpointer userdata) {
 
 }  // namespace
 
+// A helper class that handles DnD for drops in the renderer. In GTK parlance,
+// this handles destination-side DnD, but not source-side DnD.
+class WebDragDest {
+ public:
+  explicit WebDragDest(TabContents* tab_contents, GtkWidget* widget)
+      : tab_contents_(tab_contents),
+        widget_(widget),
+        context_(NULL),
+        method_factory_(this) {
+    gtk_drag_dest_set(widget, static_cast<GtkDestDefaults>(0),
+                      NULL, 0, GDK_ACTION_COPY);
+    g_signal_connect(widget, "drag-motion",
+                     G_CALLBACK(OnDragMotionThunk), this);
+    g_signal_connect(widget, "drag-leave",
+                     G_CALLBACK(OnDragLeaveThunk), this);
+    g_signal_connect(widget, "drag-drop",
+                     G_CALLBACK(OnDragDropThunk), this);
+    g_signal_connect(widget, "drag-data-received",
+                     G_CALLBACK(OnDragDataReceivedThunk),this);
+
+    destroy_handler_ = g_signal_connect(widget, "destroy",
+        G_CALLBACK(gtk_widget_destroyed), &widget_);
+  }
+
+  ~WebDragDest() {
+    if (widget_) {
+      gtk_drag_dest_unset(widget_);
+      g_signal_handler_disconnect(widget_, destroy_handler_);
+    }
+  }
+
+  // This is called when the renderer responds to a drag motion event. We must
+  // update the system drag cursor.
+  void UpdateDragStatus(bool is_drop_target) {
+    if (context_) {
+      // TODO(estade): we might want to support other actions besides copy,
+      // but that would increase the cost of getting our drag success guess
+      // wrong.
+      gdk_drag_status(context_, GDK_ACTION_COPY, drag_over_time_);
+      is_drop_target_ = false;
+    }
+  }
+
+  // Informs the renderer when a system drag has left the render view.
+  // See OnDragLeave().
+  void DragLeave() {
+    tab_contents_->render_view_host()->DragTargetDragLeave();
+  }
+
+ private:
+  static gboolean OnDragMotionThunk(GtkWidget* widget,
+      GdkDragContext* drag_context, gint x, gint y, guint time,
+      WebDragDest* dest) {
+    return dest->OnDragMotion(drag_context, x, y, time);
+  }
+  static void OnDragLeaveThunk(GtkWidget* widget,
+      GdkDragContext* drag_context, guint time, WebDragDest* dest) {
+    dest->OnDragLeave(drag_context, time);
+  }
+  static gboolean OnDragDropThunk(GtkWidget* widget,
+      GdkDragContext* drag_context, gint x, gint y, guint time,
+      WebDragDest* dest) {
+    return dest->OnDragDrop(drag_context, x, y, time);
+  }
+  static void OnDragDataReceivedThunk(GtkWidget* widget,
+      GdkDragContext* drag_context, gint x, gint y,
+      GtkSelectionData* data, guint info, guint time, WebDragDest* dest) {
+    dest->OnDragDataReceived(drag_context, x, y, data, info, time);
+  }
+
+  // Called when a system drag crosses over the render view. As there is no drag
+  // enter event, we treat it as an enter event (and not a regular motion event)
+  // when |context_| is NULL.
+  gboolean OnDragMotion(GdkDragContext* context, gint x, gint y, guint time) {
+    if (context_ != context) {
+      context_ = context;
+      drop_data_.reset(new WebDropData);
+      data_requests_ = 0;
+      is_drop_target_ = false;
+
+      // TODO(estade): support other targets. When we start support URL drags,
+      // we'll have to worry about interstitial pages (see web_drop_target.cc).
+      data_requests_++;
+      gtk_drag_get_data(widget_, context,
+                        gdk_atom_intern("text/plain", FALSE), time);
+    } else if (data_requests_ == 0) {
+      tab_contents_->render_view_host()->
+          DragTargetDragOver(ClientPoint(), ScreenPoint());
+      drag_over_time_ = time;
+    }
+
+    // Pretend we are a drag destination because we don't want to wait for
+    // the renderer to tell us if we really are or not.
+    return TRUE;
+  }
+
+  // We make a series of requests for the drag data when the drag first enters
+  // the render view. This is the callback that is used to give us the data
+  // for each individual target. When |data_requests_| reaches 0, we know we
+  // have attained all the data, and we can finally tell the renderer about the
+  // drag.
+  void OnDragDataReceived(GdkDragContext* context, gint x, gint y,
+                          GtkSelectionData* data, guint info, guint time) {
+    // We might get the data from an old get_data() request that we no longer
+    // care about.
+    if (context != context_)
+      return;
+
+    data_requests_--;
+
+    // If the source can't provide us with valid data for a requested target,
+    // data->data will be NULL.
+    if (data->data) {
+      drop_data_->plain_text = UTF8ToUTF16(std::string(
+          reinterpret_cast<char*>(data->data), data->length));
+    }
+
+    if (data_requests_ == 0) {
+      // |x| and |y| are seemingly arbitrary at this point.
+      tab_contents_->render_view_host()->
+          DragTargetDragEnter(*drop_data_.get(), ClientPoint(), ScreenPoint());
+      drag_over_time_ = time;
+    }
+  }
+
+  // The drag has left our widget; forward this information to the renderer.
+  void OnDragLeave(GdkDragContext* context, guint time) {
+    // Set |context_| to NULL to make sure we will recognize the next DragMotion
+    // as an enter.
+    context_ = NULL;
+    drop_data_.reset();
+    // When GTK sends us a drag-drop signal, it is shortly (and synchronously)
+    // preceded by a drag-leave. The renderer doesn't like getting the signals
+    // in this order so delay telling it about the drag-leave till we are sure
+    // we are not getting a drop as well.
+    MessageLoop::current()->PostTask(FROM_HERE,
+        method_factory_.NewRunnableMethod(&WebDragDest::DragLeave));
+  }
+
+  // Called by GTK when the user releases the mouse, executing a drop.
+  gboolean OnDragDrop(GdkDragContext* context, gint x, gint y, guint time) {
+    // Cancel that drag leave!
+    method_factory_.RevokeAll();
+
+    tab_contents_->render_view_host()->
+        DragTargetDrop(ClientPoint(), ScreenPoint());
+
+    // The second parameter is just an educated guess, but at least we will
+    // get the drag-end animation right sometimes.
+    gtk_drag_finish(context, is_drop_target_, FALSE, time);
+    return TRUE;
+  }
+
+  // Get the current location of the mouse cursor, relative to the screen.
+  gfx::Point ScreenPoint() {
+    int x, y;
+    gdk_display_get_pointer(gtk_widget_get_display(widget_), NULL, &x, &y,
+                            NULL);
+    return gfx::Point(x, y);
+  }
+
+  // Get the current location of the mouse cursor, relative to the render view.
+  gfx::Point ClientPoint() {
+    int x, y;
+    gtk_widget_get_pointer(widget_, &x, &y);
+    return gfx::Point(x, y);
+  }
+
+  TabContents* tab_contents_;
+  // The render view.
+  GtkWidget* widget_;
+  // The current drag context for system drags over our render view, or NULL if
+  // there is no system drag or the system drag is not over our render view.
+  GdkDragContext* context_;
+  // The data for the current drag, or NULL if |context_| is NULL.
+  scoped_ptr<WebDropData> drop_data_;
+
+  // The number of outstanding drag data requests we have sent to the drag
+  // source.
+  int data_requests_;
+
+  // The last time we sent a message to the renderer related to a drag motion.
+  gint drag_over_time_;
+
+  // Whether the cursor is over a drop target, according to the last message we
+  // got from the renderer.
+  bool is_drop_target_;
+
+  // Handler ID for the destroy signal handler. We connect to the destroy
+  // signal handler so that we won't call dest_unset on it after it is
+  // destroyed, but we have to cancel the handler if we are destroyed before
+  // |widget_| is.
+  int destroy_handler_;
+
+  ScopedRunnableMethodFactory<WebDragDest> method_factory_;
+  DISALLOW_COPY_AND_ASSIGN(WebDragDest);
+};
+
 // static
 TabContentsView* TabContentsView::Create(TabContents* tab_contents) {
   return new TabContentsViewGtk(tab_contents);
@@ -199,10 +397,11 @@ RenderWidgetHostView* TabContentsViewGtk::CreateViewForWidget(
   g_signal_connect(content_view, "button-press-event",
                    G_CALLBACK(OnMouseDown), this);
 
-  // DnD signals.
+  // Renderer DnD.
   g_signal_connect(content_view, "drag-end", G_CALLBACK(OnDragEnd), this);
   g_signal_connect(content_view, "drag-data-get", G_CALLBACK(OnDragDataGet),
                    this);
+  drag_dest_.reset(new WebDragDest(tab_contents(), content_view));
 
   InsertIntoContentArea(content_view);
   return view;
@@ -292,7 +491,7 @@ void TabContentsViewGtk::RestoreFocus() {
 }
 
 void TabContentsViewGtk::UpdateDragCursor(bool is_drop_target) {
-  NOTIMPLEMENTED();
+  drag_dest_->UpdateDragStatus(is_drop_target);
 }
 
 void TabContentsViewGtk::GotFocus() {
