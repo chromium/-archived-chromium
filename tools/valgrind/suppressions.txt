@@ -421,6 +421,18 @@
    fun:_ZN10SkTypeface6CreateEPKcNS_5StyleE
 }
 {
+   # see http://crbug.com/10737	 
+   bug_10737	 
+   Memcheck:Leak	 
+   fun:calloc	 
+   fun:g_malloc0	 
+   fun:g_closure_new_simple	 
+   fun:g_cclosure_new	 
+   fun:_ZN16BrowserWindowGtk19ConnectAcceleratorsEv	 
+   fun:_ZN16BrowserWindowGtkC1EP7Browser	 
+   fun:_ZN13BrowserWindow19CreateBrowserWindowEP7Browser	 
+}
+{
    # real leak; see http://crbug.com/10738
    bug_10738
    Memcheck:Leak
@@ -634,7 +646,6 @@
    fun:*
    fun:_ZN4base22LinuxDynamicThreadPool8PostTaskEP4Task
    fun:_ZN10WorkerPool8PostTaskERKN15tracked_objects8LocationEP4Taskb
-   fun:_ZN3net12HostResolver3Job5StartEv
 }
 {
    # very common in ui tests
@@ -693,7 +704,6 @@
    fun:_Z14StringAppendVTISsEvPT_PKNS0_10value_typeEPc
    fun:_Z13StringAppendVPSsPKcPc
    fun:_Z12StringPrintfPKcz
-   fun:_ZN12_GLOBAL__N_112WorkerThread10ThreadMainEv
 }
 {
    # Somewhat common in ui tests.  See also bug 9245.
@@ -722,4 +732,20 @@
    fun:_Znwj
    fun:_ZN7history20VisitSegmentDatabase17QuerySegmentUsageERKN4base4TimeEiPSt6vectorIP13PageUsageDataSaIS7_EE
    fun:_ZN7history14HistoryBackend24QueryTopURLsAndRedirectsE13scoped_refptrI18CancelableRequest1I14CallbackRunnerI6Tuple2IPSt6vectorI4GURLSaIS6_EEPSt3mapIS6_S1_I16RefCountedVectorIS6_EESt4lessIS6_ESaISt4pairIKS6_SD_EEEEES4_IS8_SK_EEEi
+}
+{
+   bug_16128
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN3IPC11SyncChannelC1ERKSsNS_7Channel4ModeEPNS3_8ListenerEPNS_12ChannelProxy13MessageFilterEP11MessageLoopbPN4base13WaitableEventE
+   fun:_ZN11ChildThread4InitEv
+   fun:_ZN12RenderThread4InitEv
+}
+{
+   bug_16129
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_Z11NewCallbackI11WebViewImplPN11webkit_glue20ImageResourceFetcherERK8SkBitmapEPN9Callback2IT0_T1_E4TypeEPT_MSD_FvS8_S9_E
+   fun:_ZN11WebViewImpl13DownloadImageEiRK4GURLi
+   fun:_ZN10RenderView15OnDownloadImageEiRK4GURLi
 }
