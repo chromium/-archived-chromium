@@ -554,7 +554,8 @@ class MinidumpWriter {
             signature[i] ^= xor_buf[i];
           done += sizeof(xor_buf);
         }
-        cv_ptr += sizeof(uint32_t);  // Skip age field
+        my_memset(cv_ptr, 0, sizeof(uint32_t));  // Set age to 0 on Linux.
+        cv_ptr += sizeof(uint32_t);
       }
 
       // Write pdb_file_name
