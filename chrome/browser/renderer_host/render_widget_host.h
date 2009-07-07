@@ -392,6 +392,10 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // having to bring in render_messages.h in a header file.
   void OnMsgImeUpdateStatus(int control, const gfx::Rect& caret_rect);
   void OnMsgShowPopup(const IPC::Message& message);
+#if defined(OS_LINUX)
+  void OnMsgCreatePluginContainer(gfx::PluginWindowHandle *container);
+  void OnMsgDestroyPluginContainer(gfx::PluginWindowHandle container);
+#endif
 
   // Paints the given bitmap to the current backing store at the given location.
   void PaintBackingStoreRect(TransportDIB* dib,

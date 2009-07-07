@@ -124,9 +124,9 @@ NativeViewId IdFromNativeView(NativeView view);
   typedef unsigned long PluginWindowHandle;
 #else
   // On OS X we don't have windowed plugins.
-  // Use a gfx::NativeView so the previously-compiling code still works.
-  // TODO(evanm): remove this and use void* instead.
-  typedef gfx::NativeView PluginWindowHandle;
+  // We use a NULL/0 PluginWindowHandle in shared code to indicate there
+  // is no window present, so mirror that behavior here.
+  typedef bool PluginWindowHandle;
 #endif
 
 }  // namespace gfx

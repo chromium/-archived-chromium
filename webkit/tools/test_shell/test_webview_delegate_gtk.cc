@@ -23,7 +23,7 @@
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webview.h"
-#include "webkit/glue/plugins/gtk_plugin_container.h"
+#include "webkit/glue/plugins/gtk_plugin_container_manager.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/window_open_disposition.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
@@ -230,61 +230,9 @@ void TestWebViewDelegate::GetRootWindowResizerRect(WebWidget* webwidget,
 void TestWebViewDelegate::DidMove(WebWidget* webwidget,
                                   const WebPluginGeometry& move) {
   WebWidgetHost* host = GetHostForWidget(webwidget);
-
-  // The "window" on WebPluginGeometry is actually the XEmbed parent
-  // X window id.
-  GtkWidget* widget = ((WebViewHost*)host)->MapIDToWidget(move.window);
-  // If we don't know about this plugin (maybe we're shutting down the
-  // window?), ignore the message.
-  if (!widget)
-    return;
-  DCHECK(!GTK_WIDGET_NO_WINDOW(widget));
-  DCHECK(GTK_WIDGET_REALIZED(widget));
-
-  if (!move.visible) {
-    gtk_widget_hide(widget);
-    return;
-  } else {
-    gtk_widget_show(widget);
-  }
-
-  // Update the clipping region on the GdkWindow.
-  GdkRectangle clip_rect = move.clip_rect.ToGdkRectangle();
-  GdkRegion* clip_region = gdk_region_rectangle(&clip_rect);
-  gfx::SubtractRectanglesFromRegion(clip_region, move.cutout_rects);
-  gdk_window_shape_combine_region(widget->window, clip_region, 0, 0);
-  gdk_region_destroy(clip_region);
-
-  // Update the window position.  Resizing is handled by WebPluginDelegate.
-  // TODO(deanm): Verify that we only need to move and not resize.
-  // TODO(evanm): we should cache the last shape and position and skip all
-  // of this business in the common case where nothing has changed.
-  int current_x, current_y;
-
-  // Until the above TODO is resolved, we can grab the last position
-  // off of the GtkFixed with a bit of hackery.
-  GValue value = {0};
-  g_value_init(&value, G_TYPE_INT);
-  gtk_container_child_get_property(GTK_CONTAINER(host->view_handle()), widget,
-                                   "x", &value);
-  current_x = g_value_get_int(&value);
-  gtk_container_child_get_property(GTK_CONTAINER(host->view_handle()), widget,
-                                   "y", &value);
-  current_y = g_value_get_int(&value);
-  g_value_unset(&value);
-
-  if (move.window_rect.x() != current_x || move.window_rect.y() != current_y) {
-    // Calling gtk_fixed_move unnecessarily is a no-no, as it causes the parent
-    // window to repaint!
-    gtk_fixed_move(GTK_FIXED(host->view_handle()),
-                   widget,
-                   move.window_rect.x(),
-                   move.window_rect.y());
-  }
-
-  gtk_plugin_container_set_size(widget,
-                                move.window_rect.width(),
-                                move.window_rect.height());
+  GtkPluginContainerManager* plugin_container_manager =
+      static_cast<WebViewHost*>(host)->plugin_container_manager();
+  plugin_container_manager->MovePluginContainer(move);
 }
 
 void TestWebViewDelegate::RunModal(WebWidget* webwidget) {

@@ -266,6 +266,9 @@ bool WebPluginDelegateImpl::WindowedCreatePlugin() {
   // Xembed plugins need a window created for them browser-side.
   // Do that now.
   windowed_handle_ = plugin_->CreatePluginContainer();
+  if (!windowed_handle_)
+    return false;
+
   window_.window = reinterpret_cast<void*>(windowed_handle_);
 
   if (!window_.ws_info)

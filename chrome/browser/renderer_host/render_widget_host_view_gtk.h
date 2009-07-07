@@ -12,6 +12,7 @@
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/common/owned_widget_gtk.h"
 #include "chrome/common/render_messages.h"
+#include "webkit/glue/plugins/gtk_plugin_container_manager.h"
 #include "webkit/glue/webcursor.h"
 
 class RenderWidgetHost;
@@ -59,6 +60,8 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   virtual void PasteFromSelectionClipboard();
   virtual void ShowingContextMenu(bool showing);
   virtual BackingStore* AllocBackingStore(const gfx::Size& size);
+  virtual gfx::PluginWindowHandle CreatePluginContainer();
+  virtual void DestroyPluginContainer(gfx::PluginWindowHandle container);
 
   gfx::NativeView native_view() const { return view_.get(); }
 
@@ -137,6 +140,9 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   // This state is used when GtkIMContext signal handlers create Char events
   // because they don't use the GdkEventKey objects and cannot get the state.
   int im_modifier_state_;
+
+  // Helper class that lets us allocate plugin containers and move them.
+  GtkPluginContainerManager plugin_container_manager_;
 };
 
 #endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_VIEW_GTK_H_
