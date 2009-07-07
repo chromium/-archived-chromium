@@ -5,8 +5,6 @@
 #ifndef VIEWS_ANIMATOR_H_
 #define VIEWS_ANIMATOR_H_
 
-#include <xutility>
-
 #include "app/animation.h"
 #include "base/gfx/rect.h"
 #include "base/ref_counted.h"
@@ -65,10 +63,7 @@ class Animator : public AnimationDelegate {
   // combination of the above flags indicating what aspects of the bounds should
   // be animated.
   void AnimateToBounds(const gfx::Rect& bounds, int direction);
-  void AnimateToBounds(int x, int y, int width, int height, int direction) {
-    AnimateToBounds(gfx::Rect(x, y, std::max(0, width), std::max(0, height)),
-                    direction);
-  }
+  void AnimateToBounds(int x, int y, int width, int height, int direction);
 
   // Overridden from AnimationDelegate:
   virtual void AnimationEnded(const Animation* animation);

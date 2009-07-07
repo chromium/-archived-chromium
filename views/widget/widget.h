@@ -11,6 +11,7 @@ class ThemeProvider;
 
 namespace gfx {
 class Path;
+class Point;
 class Rect;
 }
 

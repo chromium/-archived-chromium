@@ -84,6 +84,12 @@ void Animator::AnimateToBounds(const gfx::Rect& bounds, int direction) {
   animation_->Show();
 }
 
+void Animator::AnimateToBounds(int x, int y, int width, int height,
+                               int direction) {
+  AnimateToBounds(gfx::Rect(x, y, std::max(0, width), std::max(0, height)),
+                  direction);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Animator, AnimationDelegate:
 
