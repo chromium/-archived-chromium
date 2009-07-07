@@ -321,6 +321,15 @@ void TaskManagerGtk::Init() {
   gtk_widget_add_events(dialog_,
                         GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
 
+  // Wrap the treeview widget in a scrolled window in order to have a frame.
+  GtkWidget* scrolled = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled),
+                                      GTK_SHADOW_ETCHED_IN);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled),
+                                 GTK_POLICY_NEVER, GTK_POLICY_NEVER);
+
+  gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog_)->vbox), scrolled);
+
   CreateTaskManagerTreeview();
   gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(treeview_), TRUE);
   gtk_tree_view_set_grid_lines(GTK_TREE_VIEW(treeview_),
@@ -345,7 +354,7 @@ void TaskManagerGtk::Init() {
   g_signal_connect(G_OBJECT(selection), "changed",
                    G_CALLBACK(OnSelectionChanged), this);
 
-  gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog_)->vbox), treeview_);
+  gtk_container_add(GTK_CONTAINER(scrolled), treeview_);
 
   gtk_window_resize(GTK_WINDOW(dialog_), kDefaultWidth, kDefaultHeight);
   gtk_widget_show_all(dialog_);
