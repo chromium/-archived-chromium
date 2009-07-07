@@ -128,10 +128,22 @@
                         '-fprofile-arcs' ],
             'link_settings': { 'libraries': [ '-lgcov' ] },
           }],
-        ]},
-      # TODO(jrg): options for code coverage on Windows
-      ],
-    ],
+          # Finally, for Windows, we simply turn on profiling.
+          ['OS=="win"', {
+            'msvs_settings': {
+              'VCLinkerTool': {
+                'Profile': 'true',
+              },
+	      'VCCLCompilerTool': {
+                # /Z7, not /Zi, so coverage is happyb
+                'DebugInformationFormat': '1',
+                'AdditionalOptions': '/Yd',
+              }
+            }
+         }],  # OS==win
+        ],  # conditions for coverage
+      }],  # coverage!=0
+    ],  # conditions for 'target_defaults'
     'default_configuration': 'Debug',
     'configurations': {
        # VCLinkerTool LinkIncremental values below:

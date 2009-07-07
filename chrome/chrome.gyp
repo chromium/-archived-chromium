@@ -4864,7 +4864,7 @@
       ]},  # 'targets'
     ],  # OS=="win"
     # TODO(jrg): add in Windows code coverage targets.
-    ['coverage!=0 and OS!="win"',
+    ['coverage!=0',
       { 'targets': [
         {
           'target_name': 'coverage',
@@ -4887,13 +4887,16 @@
               # requires the 'coverage' target be run from within
               # src/chrome.
               'message': 'Running coverage_posix.py to generate coverage numbers',
-              'inputs': [],
-              'outputs': [],
+              # MSVS must have an input file and an output file.
+              'inputs': [ '../tools/code_coverage/coverage_posix.py' ],
+              'outputs': [ '<(PRODUCT_DIR)/coverage.info' ],
               'action_name': 'coverage',
               'action': [ 'python',
                           '../tools/code_coverage/coverage_posix.py',
                           '--directory',
                           '<(PRODUCT_DIR)',
+                          '--src_root',
+                          '..',
                           '--',
                           '<@(_dependencies)'],
               # Use outputs of this action as inputs for the main target build.

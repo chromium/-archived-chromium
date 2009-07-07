@@ -3,10 +3,12 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Generate and process code coverage on POSIX systems.
+"""Generate and process code coverage.
 
-Written for and tested on Mac and Linux.  To use this script to
-generate coverage numbers, please run from within a gyp-generated
+TODO(jrg): rename this from coverage_posix.py to coverage_all.py!
+
+Written for and tested on Mac, Linux, and Windows.  To use this script
+to generate coverage numbers, please run from within a gyp-generated
 project.
 
 All platforms, to set up coverage:
@@ -53,6 +55,7 @@ class Coverage(object):
 
   def __init__(self, directory, options, args):
     super(Coverage, self).__init__()
+    logging.basicConfig(level=logging.DEBUG)
     self.directory = directory
     self.options = options
     self.args = args
@@ -60,14 +63,47 @@ class Coverage(object):
     self.output_directory = os.path.join(self.directory, 'coverage')
     if not os.path.exists(self.output_directory):
       os.mkdir(self.output_directory)
-    self.lcov_directory = os.path.join(sys.path[0],
-                                       '../../third_party/lcov/bin')
-    self.lcov = os.path.join(self.lcov_directory, 'lcov')
-    self.mcov = os.path.join(self.lcov_directory, 'mcov')
-    self.genhtml = os.path.join(self.lcov_directory, 'genhtml')
+    # The "final" lcov-format file
     self.coverage_info_file = os.path.join(self.directory, 'coverage.info')
+    # If needed, an intermediate VSTS-format file
+    self.vsts_output = os.path.join(self.directory, 'coverage.vsts')
+    # Needed for Windows.
+    self.src_root = options.src_root
+    self.FindPrograms()
     self.ConfirmPlatformAndPaths()
     self.tests = []
+
+  def FindInPath(self, program):
+    """Find program in our path.  Return abs path to it, or None."""
+    if not 'PATH' in os.environ:
+      logging.fatal('No PATH environment variable?')
+      sys.exit(1)
+    paths = os.environ['PATH'].split(os.pathsep)
+    for path in paths:
+      fullpath = os.path.join(path, program)
+      if os.path.exists(fullpath):
+        return fullpath
+    return None
+
+  def FindPrograms(self):
+    """Find programs we may want to run."""
+    if self.IsPosix():
+      self.lcov_directory = os.path.join(sys.path[0],
+                                         '../../third_party/lcov/bin')
+      self.lcov = os.path.join(self.lcov_directory, 'lcov')
+      self.mcov = os.path.join(self.lcov_directory, 'mcov')
+      self.genhtml = os.path.join(self.lcov_directory, 'genhtml')
+      self.programs = [self.lcov, self.mcov, self.genhtml]
+    else:
+      commands = ['vsperfcmd.exe', 'vsinstr.exe', 'coverage_analyzer.exe']
+      self.perf = self.FindInPath('vsperfcmd.exe')
+      self.instrument = self.FindInPath('vsinstr.exe')
+      self.analyzer = self.FindInPath('coverage_analyzer.exe')
+      if not self.perf or not self.instrument or not self.analyzer:
+        logging.fatal('Could not find Win performance commands.')
+        logging.fatal('Commands needed in PATH: ' + str(commands))
+        sys.exit(1)
+      self.programs = [self.perf, self.instrument, self.analyzer]
 
   def FindTests(self):
     """Find unit tests to run; set self.tests to this list.
@@ -86,27 +122,52 @@ class Coverage(object):
         self.tests += [os.path.join(self.directory, testname.split(':')[1])]
       else:
         self.tests += [os.path.join(self.directory, testname)]
-
-    # Needs to be run in the "chrome" directory?
-    # ut = os.path.join(self.directory, 'unit_tests')
-    # if os.path.exists(ut):
-    #  self.tests.append(ut)
     # Medium tests?
     # Not sure all of these work yet (e.g. page_cycler_tests)
     # self.tests += glob.glob(os.path.join(self.directory, '*_tests'))
 
+    # If needed, append .exe to tests since vsinstr.exe likes it that
+    # way.
+    if self.IsWindows():
+      for ind in range(len(self.tests)):
+        test = self.tests[ind]
+        test_exe = test + '.exe'
+        if not test.endswith('.exe') and os.path.exists(test_exe):
+          self.tests[ind] = test_exe
+
+    # Temporarily make Windows quick for bringup by filtering
+    # out all except base_unittests.  Easier than a chrome.cyp change.
+    # TODO(jrg): remove this
+    if self.IsWindows():
+      t2 = []
+      for test in self.tests:
+        if 'base_unittests' in test:
+          t2.append(test)
+      self.tests = t2
+
+
+
   def ConfirmPlatformAndPaths(self):
     """Confirm OS and paths (e.g. lcov)."""
-    if not self.IsPosix():
-      logging.fatal('Not posix.')
-      sys.exit(1)
-    programs = [self.lcov, self.genhtml]
-    if self.IsMac():
-      programs.append(self.mcov)
-    for program in programs:
+    for program in self.programs:
       if not os.path.exists(program):
-        logging.fatal('lcov program missing: ' + program)
+        logging.fatal('Program missing: ' + program)
         sys.exit(1)
+
+  def Run(self, cmdlist, ignore_error=False, ignore_retcode=None,
+          explanation=None):
+    """Run the command list; exit fatally on error."""
+    logging.info('Running ' + str(cmdlist))
+    retcode = subprocess.call(cmdlist)
+    if retcode:
+      if ignore_error or retcode == ignore_retcode:
+        logging.warning('COVERAGE: %s unhappy but errors ignored  %s' %
+                        (str(cmdlist), explanation or ''))
+      else:
+        logging.fatal('COVERAGE:  %s failed; return code: %d' %
+                      (str(cmdlist), retcode))
+        sys.exit(retcode)
+
 
   def IsPosix(self):
     """Return True if we are POSIX."""
@@ -118,12 +179,35 @@ class Coverage(object):
   def IsLinux(self):
     return sys.platform == 'linux2'
 
+  def IsWindows(self):
+    """Return True if we are Windows."""
+    return sys.platform in ('win32', 'cygwin')
+
   def ClearData(self):
     """Clear old gcda files"""
+    if not self.IsPosix():
+      return
     subprocess.call([self.lcov,
                      '--directory', self.directory_parent,
                      '--zerocounters'])
     shutil.rmtree(os.path.join(self.directory, 'coverage'))
+
+  def BeforeRunTests(self):
+    """Do things before running tests."""
+    if not self.IsWindows():
+      return
+    # Stop old counters if needed
+    cmdlist = [self.perf, '-shutdown']
+    self.Run(cmdlist, ignore_error=True)
+    # Instrument binaries
+    for fulltest in self.tests:
+      if os.path.exists(fulltest):
+        cmdlist = [self.instrument, '/COVERAGE', fulltest]
+        self.Run(cmdlist, ignore_retcode=4,
+                 explanation='OK with a multiple-instrument')
+    # Start new counters
+    cmdlist = [self.perf, '-start:coverage', '-output:' + self.vsts_output]
+    self.Run(cmdlist)
 
   def RunTests(self):
     """Run all unit tests."""
@@ -138,7 +222,8 @@ class Coverage(object):
 
       # If asked, make this REAL fast for testing.
       if self.options.fast_test:
-        cmdlist.append('--gtest_filter=RenderWidgetHost*')
+        # cmdlist.append('--gtest_filter=RenderWidgetHost*')
+        cmdlist.append('--gtest_filter=CommandLine*')
 
       retcode = subprocess.call(cmdlist)
       if retcode:
@@ -147,7 +232,17 @@ class Coverage(object):
         if self.options.strict:
           sys.exit(retcode)
 
-  def GenerateLcov(self):
+  def AfterRunTests(self):
+    """Do things right after running tests."""
+    if not self.IsWindows():
+      return
+    # Stop counters
+    cmdlist = [self.perf, '-shutdown']
+    self.Run(cmdlist)
+    full_output = self.vsts_output + '.coverage'
+    shutil.move(full_output, self.vsts_output)
+
+  def GenerateLcovPosix(self):
     """Convert profile data to lcov."""
     command = [self.mcov,
                '--directory', self.directory_parent,
@@ -159,6 +254,34 @@ class Coverage(object):
                     (command[0], retcode))
       if self.options.strict:
         sys.exit(retcode)
+
+  def GenerateLcovWindows(self):
+    """Convert VSTS format to lcov."""
+    lcov_file = self.vsts_output + '.lcov'
+    if os.path.exists(lcov_file):
+      os.remove(lcov_file)
+    # generates the file (self.vsts_output + ".lcov")
+
+    cmdlist = [self.analyzer,
+               '-sym_path=' + self.directory,
+               '-src_root=' + self.src_root,
+               self.vsts_output]
+    self.Run(cmdlist)
+    if not os.path.exists(lcov_file):
+      logging.fatal('Output file %s not created' % lcov_file)
+      sys.exit(1)
+    # So we name it appropriately
+    if os.path.exists(self.coverage_info_file):
+      os.remove(self.coverage_info_file)
+    logging.info('Renaming LCOV file to %s to be consistent' %
+                 self.coverage_info_file)
+    shutil.move(self.vsts_output + '.lcov', self.coverage_info_file)
+
+  def GenerateLcov(self):
+    if self.IsPosix():
+      self.GenerateLcovPosix()
+    else:
+      self.GenerateLcovWindows()
 
   def GenerateHtml(self):
     """Convert lcov to html."""
@@ -206,13 +329,20 @@ def main():
                     dest='strict',
                     default=False,
                     help='Be strict and die on test failure.')
+  parser.add_option('-S',
+                    '--src_root',
+                    dest='src_root',
+                    default='.',
+                    help='Source root (only used on Windows)')
   (options, args) = parser.parse_args()
   if not options.directory:
     parser.error('Directory not specified')
   coverage = Coverage(options.directory, options, args)
   coverage.ClearData()
   coverage.FindTests()
+  coverage.BeforeRunTests()
   coverage.RunTests()
+  coverage.AfterRunTests()
   coverage.GenerateLcov()
   if options.genhtml:
     coverage.GenerateHtml()
