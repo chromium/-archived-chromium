@@ -41,7 +41,7 @@ NPError PrivateTest::New(uint16 mode, int16 argc,
     std::string href_str(href_var.value.stringValue.UTF8Characters,
                          href_var.value.stringValue.UTF8Length);
     bool private_expected = href_str.find("?private") != href_str.npos;
-    if (private_expected != private_expected)
+    if (private_mode != private_expected)
       SetError("NPNVprivateModeBool returned incorrect value.");
 
     HostFunctions()->releasevariantvalue(&href_var);
