@@ -162,7 +162,7 @@ IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestConsoleLog) {
 }
 
 // Tests eval global values.
-IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, DISABLED_TestEvalGlobal) {
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestEvalGlobal) {
   RunTest("testEvalGlobal", kEvalTestPage);
 }
 

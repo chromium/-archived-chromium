@@ -382,6 +382,11 @@ TestSuite.KeyEvent.prototype.stopPropagation = function() {};
  * Tests console eval.
  */
 TestSuite.prototype.testConsoleEval = function(controller) {
+  WebInspector.console.visible = true;
+  WebInspector.console.prompt.text = '123';
+  WebInspector.console.promptElement.handleKeyEvent(
+      new TestSuite.KeyEvent('Enter'));
+
   var test = this;
   var originalConsoleAddMessage = WebInspector.Console.prototype.addMessage;
   WebInspector.Console.prototype.addMessage = function(commandResult) {
@@ -390,11 +395,6 @@ TestSuite.prototype.testConsoleEval = function(controller) {
     test.assertEquals('123', commandResult.toMessageElement().textContent);
     controller.releaseControl();
   };
-
-  WebInspector.console.visible = true;
-  WebInspector.console.prompt.text = '123';
-  WebInspector.console.promptElement.handleKeyEvent(
-      new TestSuite.KeyEvent('Enter'));
 
   controller.takeControl();
 };
@@ -445,19 +445,18 @@ TestSuite.prototype.testConsoleLog = function(controller) {
  * Tests eval of global objects.
  */
 TestSuite.prototype.testEvalGlobal = function(controller) {
-  var test = this;
-  var originalConsoleAddMessage = WebInspector.Console.prototype.addMessage;
-  WebInspector.Console.prototype.addMessage = function(commandResult) {
-    originalConsoleAddMessage.call(this, commandResult);
-    WebInspector.Console.prototype.addMessage = originalConsoleAddMessage;
-    test.assertEquals('fooValue', commandResult.toMessageElement().textContent);
-    controller.releaseControl();
-  };
-
   WebInspector.console.visible = true;
   WebInspector.console.prompt.text = 'foo';
   WebInspector.console.promptElement.handleKeyEvent(
       new TestSuite.KeyEvent('Enter'));
+
+  var test = this;
+  var originalConsoleAddMessage = WebInspector.Console.prototype.addMessage;
+  WebInspector.Console.prototype.addMessage = function(commandResult) {
+    originalConsoleAddMessage.call(this, commandResult);
+    test.assertEquals('fooValue', commandResult.toMessageElement().textContent);
+    controller.releaseControl();
+  };
 
   controller.takeControl();
 };
