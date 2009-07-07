@@ -782,6 +782,7 @@ willPositionSheet:(NSWindow *)sheet
   if (!browser_->profile()->IsOffTheRecord())
     return;
 
+  static const float kOffset = 4;
   NSString *incognitoPath = [mac_util::MainAppBundle()
                                 pathForResource:@"otr_icon"
                                          ofType:@"pdf"];
@@ -790,7 +791,8 @@ willPositionSheet:(NSWindow *)sheet
   const NSSize imageSize = [incognitoImage size];
   const NSRect tabFrame = [[self tabStripView] frame];
   NSRect incognitoFrame = tabFrame;
-  incognitoFrame.origin.x = NSMaxX(incognitoFrame) - imageSize.width;
+  incognitoFrame.origin.x = NSMaxX(incognitoFrame) - imageSize.width -
+                              kOffset;
   incognitoFrame.size = imageSize;
   scoped_nsobject<NSImageView> incognitoView(
       [[NSImageView alloc] initWithFrame:incognitoFrame]);
