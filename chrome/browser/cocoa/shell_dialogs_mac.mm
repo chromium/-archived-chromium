@@ -314,25 +314,29 @@ NSView* SelectFileDialogImpl::GetAccessoryView(const FileTypeInfo* file_types,
   bool isMulti = type == SelectFileDialog::SELECT_OPEN_MULTI_FILE;
 
   std::vector<FilePath> paths;
-  if (type == SelectFileDialog::SELECT_SAVEAS_FILE) {
-    paths.push_back(FilePath(base::SysNSStringToUTF8([panel filename])));
+  bool did_cancel = returnCode == NSCancelButton;
+  if (!did_cancel) {
+    if (type == SelectFileDialog::SELECT_SAVEAS_FILE) {
+      paths.push_back(FilePath(base::SysNSStringToUTF8([panel filename])));
 
-    NSView* accessoryView = [panel accessoryView];
-    if (accessoryView) {
-      NSPopUpButton* popup = [accessoryView viewWithTag:kFileTypePopupTag];
-      if (popup) {
-        index = [popup indexOfSelectedItem]+1;  // file type indexes are 1-based
+      NSView* accessoryView = [panel accessoryView];
+      if (accessoryView) {
+        NSPopUpButton* popup = [accessoryView viewWithTag:kFileTypePopupTag];
+        if (popup) {
+          // File type indexes are 1-based.
+          index = [popup indexOfSelectedItem] + 1;
+        }
       }
+    } else {
+      NSArray* filenames = [panel filenames];
+      for (NSString* filename in filenames)
+        paths.push_back(FilePath(base::SysNSStringToUTF8(filename)));
     }
-  } else {
-    NSArray* filenames = [panel filenames];
-    for (NSString* filename in filenames)
-      paths.push_back(FilePath(base::SysNSStringToUTF8(filename)));
   }
 
   selectFileDialogImpl_->FileWasSelected(panel,
                                          parentWindow,
-                                         returnCode==NSCancelButton,
+                                         did_cancel,
                                          isMulti,
                                          paths,
                                          index);
