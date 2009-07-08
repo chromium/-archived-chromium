@@ -159,16 +159,16 @@ void PluginList::LoadPlugins(bool refresh) {
   std::vector<FilePath> directories_to_scan;
   GetPluginDirectories(&directories_to_scan);
 
-  for (size_t i = 0; i < directories_to_scan.size(); ++i) {
-    LoadPluginsFromDir(directories_to_scan[i]);
-  }
+  for (size_t i = 0; i < extra_plugin_paths_.size(); ++i)
+    LoadPlugin(extra_plugin_paths_[i]);
 
   for (size_t i = 0; i < extra_plugin_dirs_.size(); ++i) {
     LoadPluginsFromDir(extra_plugin_dirs_[i]);
   }
 
-  for (size_t i = 0; i < extra_plugin_paths_.size(); ++i)
-    LoadPlugin(extra_plugin_paths_[i]);
+  for (size_t i = 0; i < directories_to_scan.size(); ++i) {
+    LoadPluginsFromDir(directories_to_scan[i]);
+  }
 
   LoadInternalPlugins();
 
