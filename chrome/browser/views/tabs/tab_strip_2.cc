@@ -6,16 +6,20 @@
 
 #include "app/gfx/canvas.h"
 #include "app/slide_animation.h"
-#include "app/win_util.h"
 #include "base/command_line.h"
 #include "base/compiler_specific.h"
 #include "base/message_loop.h"
+#include "build/build_config.h"
 #include "chrome/common/chrome_switches.h"
 #include "views/animator.h"
 #include "views/screen.h"
 #include "views/widget/widget.h"
 #include "views/window/non_client_view.h"
 #include "views/window/window.h"
+
+#if defined(OS_WIN)
+#include <windows.h>
+#endif
 
 static const int kHorizontalMoveThreshold = 16;  // pixels
 
@@ -144,7 +148,6 @@ bool TabStrip2::IsDragRearrange(TabStrip2* tabstrip,
   // prevent accidental detaches when rearranging horizontally.
   static const int kVerticalDetachMagnetism = 45;
 
-  bool rearrange = true;
   if (screen_point.x() < tabstrip_bounds_in_screen_coords.right() &&
       screen_point.x() >= tabstrip_bounds_in_screen_coords.x()) {
     int lower_threshold =
@@ -226,7 +229,9 @@ bool TabStrip2::DragTab(Tab2* tab, const views::MouseEvent& drag_event) {
     // mouse events will be sent to the appropriate window (the detached window)
     // and so that we don't recursively create nested message loops (dragging
     // is done by windows in a nested message loop).
+#if defined(OS_WIN)
     ReleaseCapture();
+#endif
     MessageLoop::current()->PostTask(FROM_HERE,
         detach_factory_.NewRunnableMethod(&TabStrip2::DragDetachTabImpl,
                                           tab, tab_index));
@@ -324,9 +329,11 @@ int TabStrip2::GetAnimateFlagsForLayoutSource(LayoutSource source) const {
     case LS_TAB_DRAG_REORDER:
     case LS_TAB_DRAG_NORMALIZE:
       return views::Animator::ANIMATE_X;
+    case LS_OTHER:
+    default:
+      DCHECK(source == LS_OTHER);
+      return views::Animator::ANIMATE_NONE;
   }
-  DCHECK(source == LS_OTHER);
-  return views::Animator::ANIMATE_NONE;
 }
 
 void TabStrip2::LayoutImpl(LayoutSource source) {

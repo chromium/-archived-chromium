@@ -7,6 +7,7 @@
 #include "app/gfx/canvas.h"
 #include "app/gfx/font.h"
 #include "app/gfx/path.h"
+#include "base/string_util.h"
 #include "views/animator.h"
 
 static const SkScalar kTabCapWidth = 15;
@@ -90,8 +91,8 @@ void Tab2::Paint(gfx::Canvas* canvas) {
   canvas->drawPath(path, paint);
 
   // TODO(beng): less ad-hoc
-  canvas->DrawStringInt(model_->GetTitle(this), gfx::Font(), SK_ColorBLACK,
-                        5, 3, 100, 20);
+  canvas->DrawStringInt(UTF16ToWideHack(model_->GetTitle(this)), gfx::Font(),
+                        SK_ColorBLACK, 5, 3, 100, 20);
 }
 
 bool Tab2::OnMousePressed(const views::MouseEvent& event) {
