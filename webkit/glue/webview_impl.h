@@ -7,6 +7,8 @@
 
 #include <set>
 
+#include "Page.h"
+
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
 #include "skia/ext/platform_canvas.h"
@@ -17,11 +19,6 @@
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webview.h"
-
-MSVC_PUSH_WARNING_LEVEL(0);
-#include "Page.h"
-#include "RenderTheme.h"
-MSVC_POP_WARNING();
 
 namespace WebCore {
 class ChromiumDataObject;

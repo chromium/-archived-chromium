@@ -5,6 +5,9 @@
 #include "config.h"
 #include "webkit/api/src/TemporaryGlue.h"
 
+#include <wtf/Assertions.h>
+#undef LOG
+
 #include "webkit/glue/webview_impl.h"
 
 using WebCore::Frame;
