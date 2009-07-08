@@ -8,7 +8,7 @@
 
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
-#import "chrome/app/breakpad_mac.h"
+//#import "chrome/app/breakpad_mac.h"
 
 namespace child_process_logging {
 
@@ -60,12 +60,14 @@ void SetActiveURLImpl(const GURL& url,
 }
 
 void SetActiveURL(const GURL& url) {
+/*
   // If Breakpad isn't initialized then bail.
   if (IsCrashReporterDisabled()) {
     return;
   }
 
   SetActiveURLImpl(url, SetCrashKeyValue, ClearCrashKeyValue);
+*/
 }
 
 }  // namespace child_process_logging
