@@ -316,6 +316,13 @@ o3djs.dump.getParamValueAsString = function(param, opt_prefix) {
   } else if (param.isAClassName('o3d.ParamDrawList')) {
     value = param.value;
     value = 'drawlist : "' + (value ? value.name : 'NULL') + '"';
+  } else if (param.isAClassName('o3d.ParamRenderSurface')) {
+    value = param.value;
+    value = 'renderSurface : "' + (value ? value.name : 'NULL') + '"';
+  } else if (param.isAClassName('o3d.ParamRenderDepthStencilSurface')) {
+    value = param.value;
+    value = 'renderDepthStencilSurface: "' + (value ? value.name : 'NULL') +
+            '"';
   } else if (param.isAClassName('o3d.ParamDrawContext')) {
     value = param.value;
     value = 'drawcontext : "' + (value ? value.name : 'NULL') + '"';
@@ -576,7 +583,10 @@ o3djs.dump.dumpRenderNodeTree = function(render_node, opt_prefix) {
   o3djs.dump.dumpRenderNode(render_node, opt_prefix);
 
   var child_prefix = opt_prefix + '    ';
-  var children = render_node.children;
+  // Get the list of children sorted by priority.
+  var children = render_node.children.sort(function(a, b) {
+        return a.priority - b.priority;
+      });
   for (var c = 0; c < children.length; c++) {
     o3djs.dump.dumpRenderNodeTree(children[c], child_prefix);
   }
