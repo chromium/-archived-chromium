@@ -62,7 +62,10 @@
     },
     'importer': {
       'filepath': '.*import.*',
-    }
+    },
+    'media': {
+      'filepath': 'media|Media|^third_party/ffmpeg/',
+    },
   },
 
   'WATCHLISTS': {
@@ -84,5 +87,8 @@
     'net': ['darin@chromium.org', 'willchan@chromium.org'],
     'installer': ['kuchhal@chromium.org'],
     'importer': ['kuchhal@chromium.org'],
+    'media': ['ajwong@chromium.org', 'fbarchard@chromium.org',
+              'hclam@chromium.org', 'kylep@chromium.org',
+              'scherkus@chromium.org'],
   },
 }
