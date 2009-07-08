@@ -14,7 +14,7 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/browser/views/frame/browser_view.h"
-#include "chrome/browser/views/tabs/tab_strip.h"
+#include "chrome/browser/views/tabs/tab_strip_wrapper.h"
 #include "grit/app_resources.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
@@ -200,7 +200,7 @@ OpaqueBrowserFrameView::~OpaqueBrowserFrameView() {
 // OpaqueBrowserFrameView, BrowserNonClientFrameView implementation:
 
 gfx::Rect OpaqueBrowserFrameView::GetBoundsForTabStrip(
-    TabStrip* tabstrip) const {
+    TabStripWrapper* tabstrip) const {
   int tabstrip_x = browser_view_->ShouldShowOffTheRecordAvatar() ?
       (otr_avatar_bounds_.right() + kOTRSideSpacing) :
       NonClientBorderThickness();
@@ -208,7 +208,8 @@ gfx::Rect OpaqueBrowserFrameView::GetBoundsForTabStrip(
       (frame_->GetWindow()->IsMaximized() ?
       kNewTabCaptionMaximizedSpacing : kNewTabCaptionRestoredSpacing);
   return gfx::Rect(tabstrip_x, NonClientTopBorderHeight(),
-                   std::max(0, tabstrip_width), tabstrip->GetPreferredHeight());
+                   std::max(0, tabstrip_width),
+                   tabstrip->GetPreferredHeight());
 }
 
 void OpaqueBrowserFrameView::UpdateThrobber(bool running) {
@@ -366,14 +367,14 @@ bool OpaqueBrowserFrameView::HitTest(const gfx::Point& l) const {
     return in_nonclient;
 
   // Otherwise claim it only if it's in a non-tab portion of the tabstrip.
-  if (l.y() > browser_view_->tabstrip()->bounds().bottom())
+  if (l.y() > browser_view_->tabstrip()->GetView()->bounds().bottom())
     return false;
 
   // We convert from our parent's coordinates since we assume we fill its bounds
   // completely. We need to do this since we're not a parent of the tabstrip,
   // meaning ConvertPointToView would otherwise return something bogus.
   gfx::Point tabstrip_point(l);
-  View::ConvertPointToView(GetParent(), browser_view_->tabstrip(),
+  View::ConvertPointToView(GetParent(), browser_view_->tabstrip()->GetView(),
                            &tabstrip_point);
   return browser_view_->tabstrip()->PointIsWithinWindowCaption(tabstrip_point);
 }

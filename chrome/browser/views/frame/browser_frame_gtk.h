@@ -26,9 +26,9 @@ class BrowserFrameGtk : public BrowserFrame,
 
   // BrowserFrame implementation.
   virtual views::Window* GetWindow();
-  virtual void TabStripCreated(TabStrip* tabstrip);
+  virtual void TabStripCreated(TabStripWrapper* tabstrip);
   virtual int GetMinimizeButtonOffset() const;
-  virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const;
+  virtual gfx::Rect GetBoundsForTabStrip(TabStripWrapper* tabstrip) const;
   virtual void UpdateThrobber(bool running);
   virtual void ContinueDraggingDetachedTab();
   virtual ThemeProvider* GetThemeProviderForFrame() const;

@@ -20,7 +20,7 @@ class GlassBrowserFrameView : public BrowserNonClientFrameView {
   virtual ~GlassBrowserFrameView();
 
   // Overridden from BrowserNonClientFrameView:
-  virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const;
+  virtual gfx::Rect GetBoundsForTabStrip(TabStripWrapper* tabstrip) const;
   virtual void UpdateThrobber(bool running);
 
   // Overridden from views::NonClientFrameView:

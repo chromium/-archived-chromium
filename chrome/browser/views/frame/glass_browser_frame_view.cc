@@ -9,7 +9,7 @@
 #include "app/theme_provider.h"
 #include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/views/frame/browser_view.h"
-#include "chrome/browser/views/tabs/tab_strip.h"
+#include "chrome/browser/views/tabs/tab_strip_wrapper.h"
 #include "grit/app_resources.h"
 #include "grit/theme_resources.h"
 #include "views/window/client_view.h"
@@ -79,7 +79,7 @@ GlassBrowserFrameView::~GlassBrowserFrameView() {
 // GlassBrowserFrameView, BrowserNonClientFrameView implementation:
 
 gfx::Rect GlassBrowserFrameView::GetBoundsForTabStrip(
-    TabStrip* tabstrip) const {
+    TabStripWrapper* tabstrip) const {
   int minimize_button_offset = frame_->GetMinimizeButtonOffset();
   int tabstrip_x = browser_view_->ShouldShowOffTheRecordAvatar() ?
       (otr_avatar_bounds_.right() + kOTRSideSpacing) :
@@ -95,7 +95,8 @@ gfx::Rect GlassBrowserFrameView::GetBoundsForTabStrip(
   if (UILayoutIsRightToLeft())
     tabstrip_width += tabstrip_x;
   return gfx::Rect(tabstrip_x, NonClientTopBorderHeight(),
-                   std::max(0, tabstrip_width), tabstrip->GetPreferredHeight());
+                   std::max(0, tabstrip_width),
+                   tabstrip->GetPreferredHeight());
 }
 
 void GlassBrowserFrameView::UpdateThrobber(bool running) {

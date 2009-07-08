@@ -6,6 +6,7 @@
 
 #include "base/compiler_specific.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/browser/views/tabs/tab_strip.h"  // for CreateTabStrip only.
 
 namespace {
 
@@ -146,4 +147,61 @@ void BrowserTabStrip::DetachTabAt(int index, const gfx::Rect& window_bounds,
   TabContents* contents = DetachTab(index);
   model_->delegate()->ContinueDraggingDetachedTab(contents, window_bounds,
                                                   tab_bounds);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// BrowserTabStrip, TabStripWrapper implementation:
+
+int BrowserTabStrip::GetPreferredHeight() {
+  return GetPreferredSize().height();
+}
+
+bool BrowserTabStrip::IsAnimating() const {
+  return false;
+}
+
+void BrowserTabStrip::SetBackgroundOffset(gfx::Point offset) {
+}
+
+bool BrowserTabStrip::PointIsWithinWindowCaption(
+    const gfx::Point& point) {
+  return false;
+}
+
+bool BrowserTabStrip::IsDragSessionActive() const {
+  return false;
+}
+
+bool BrowserTabStrip::IsCompatibleWith(TabStripWrapper* other) const {
+  return false;
+}
+
+void BrowserTabStrip::SetDraggedTabBounds(int tab_index,
+                                          const gfx::Rect& tab_bounds) {
+  TabStrip2::SetDraggedTabBounds(tab_index, tab_bounds);
+}
+
+void BrowserTabStrip::UpdateLoadingAnimations() {
+}
+
+views::View* BrowserTabStrip::GetView() {
+  return this;
+}
+
+BrowserTabStrip* BrowserTabStrip::AsBrowserTabStrip() {
+  return this;
+}
+
+TabStrip* BrowserTabStrip::AsTabStrip() {
+  return NULL;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// TabStripWrapper, public:
+
+// static
+TabStripWrapper* TabStripWrapper::CreateTabStrip(TabStripModel* model) {
+  if (TabStrip2::Enabled())
+    return new BrowserTabStrip(model);
+  return new TabStrip(model);
 }

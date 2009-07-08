@@ -14,7 +14,8 @@
 //             one.
 class BrowserTabStrip : public TabStrip2,
                         public TabStrip2Model,
-                        public TabStripModelObserver {
+                        public TabStripModelObserver,
+                        public TabStripWrapper {
  public:
   explicit BrowserTabStrip(TabStripModel* model);
   virtual ~BrowserTabStrip();
@@ -48,6 +49,20 @@ class BrowserTabStrip : public TabStrip2,
   virtual void DetachTabAt(int index,
                            const gfx::Rect& window_bounds,
                            const gfx::Rect& tab_bounds);
+
+  // Overridden from TabStripWrapper:
+  virtual int GetPreferredHeight();
+  virtual bool IsAnimating() const;
+  virtual void SetBackgroundOffset(gfx::Point offset);
+  virtual bool PointIsWithinWindowCaption(const gfx::Point& point);
+  virtual bool IsDragSessionActive() const;
+  virtual bool IsCompatibleWith(TabStripWrapper* other) const;
+  virtual void SetDraggedTabBounds(int tab_index,
+                                   const gfx::Rect& tab_bounds);
+  virtual void UpdateLoadingAnimations();
+  virtual views::View* GetView();
+  virtual BrowserTabStrip* AsBrowserTabStrip();
+  virtual TabStrip* AsTabStrip();
 
  private:
   TabStripModel* model_;

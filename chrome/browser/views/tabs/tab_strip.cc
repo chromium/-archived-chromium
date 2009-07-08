@@ -499,44 +499,8 @@ TabStrip::~TabStrip() {
   RemoveMessageLoopObserver();
 }
 
-int TabStrip::GetPreferredHeight() {
-  return GetPreferredSize().height();
-}
-
 bool TabStrip::CanProcessInputEvents() const {
   return !IsAnimating();
-}
-
-bool TabStrip::PointIsWithinWindowCaption(const gfx::Point& point) {
-  views::View* v = GetViewForPoint(point);
-
-  // If there is no control at this location, claim the hit was in the title
-  // bar to get a move action.
-  if (v == this)
-    return true;
-
-  // Check to see if the point is within the non-button parts of the new tab
-  // button. The button has a non-rectangular shape, so if it's not in the
-  // visual portions of the button we treat it as a click to the caption.
-  gfx::Point point_in_newtab_coords(point);
-  View::ConvertPointToView(this, newtab_button_, &point_in_newtab_coords);
-  if (newtab_button_->bounds().Contains(point) &&
-      !newtab_button_->HitTest(point_in_newtab_coords)) {
-    return true;
-  }
-
-  // All other regions, including the new Tab button, should be considered part
-  // of the containing Window's client area so that regular events can be
-  // processed for them.
-  return false;
-}
-
-bool TabStrip::IsCompatibleWith(TabStrip* other) {
-  return model_->profile() == other->model()->profile();
-}
-
-bool TabStrip::IsAnimating() const {
-  return active_animation_.get() != NULL;
 }
 
 void TabStrip::DestroyDragController() {
@@ -571,30 +535,6 @@ void TabStrip::DestroyDraggedSourceTab(Tab* tab) {
 gfx::Rect TabStrip::GetIdealBounds(int index) {
   DCHECK(index >= 0 && index < GetTabCount());
   return tab_data_.at(index).ideal_bounds;
-}
-
-void TabStrip::UpdateLoadingAnimations() {
-  for (int i = 0, index = 0; i < GetTabCount(); ++i, ++index) {
-    Tab* current_tab = GetTabAt(i);
-    if (current_tab->closing()) {
-      --index;
-    } else {
-      TabContents* contents = model_->GetTabContentsAt(index);
-      if (!contents || !contents->is_loading()) {
-        current_tab->ValidateLoadingAnimation(Tab::ANIMATION_NONE);
-      } else if (contents->waiting_for_response()) {
-        current_tab->ValidateLoadingAnimation(Tab::ANIMATION_WAITING);
-      } else {
-        current_tab->ValidateLoadingAnimation(Tab::ANIMATION_LOADING);
-      }
-    }
-  }
-}
-
-void TabStrip::SetBackgroundOffset(gfx::Point offset) {
-  int tab_count = GetTabCount();
-  for (int i = 0; i < tab_count; ++i)
-    GetTabAt(i)->SetBackgroundOffset(offset);
 }
 
 void TabStrip::InitTabStripButtons() {
@@ -780,6 +720,14 @@ views::View* TabStrip::GetViewForPoint(const gfx::Point& point) {
 void TabStrip::ThemeChanged() {
   LoadNewTabButtonImage();
 }
+
+void TabStrip::ViewHierarchyChanged(bool is_add,
+                                    views::View* parent,
+                                    views::View* child) {
+  if (is_add && child == this)
+    InitTabStripButtons();
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // TabStrip, TabStripModelObserver implementation:
@@ -1082,6 +1030,88 @@ void TabStrip::DidProcessEvent(GdkEvent* event) {
   }
 }
 #endif
+
+////////////////////////////////////////////////////////////////////////////////
+// TabStrip, TabStripWrapper implementation:
+
+int TabStrip::GetPreferredHeight() {
+  return GetPreferredSize().height();
+}
+
+bool TabStrip::IsAnimating() const {
+  return active_animation_.get() != NULL;
+}
+
+void TabStrip::SetBackgroundOffset(gfx::Point offset) {
+  int tab_count = GetTabCount();
+  for (int i = 0; i < tab_count; ++i)
+    GetTabAt(i)->SetBackgroundOffset(offset);
+}
+
+bool TabStrip::PointIsWithinWindowCaption(const gfx::Point& point) {
+  views::View* v = GetViewForPoint(point);
+
+  // If there is no control at this location, claim the hit was in the title
+  // bar to get a move action.
+  if (v == this)
+    return true;
+
+  // Check to see if the point is within the non-button parts of the new tab
+  // button. The button has a non-rectangular shape, so if it's not in the
+  // visual portions of the button we treat it as a click to the caption.
+  gfx::Point point_in_newtab_coords(point);
+  View::ConvertPointToView(this, newtab_button_, &point_in_newtab_coords);
+  if (newtab_button_->bounds().Contains(point) &&
+      !newtab_button_->HitTest(point_in_newtab_coords)) {
+    return true;
+  }
+
+  // All other regions, including the new Tab button, should be considered part
+  // of the containing Window's client area so that regular events can be
+  // processed for them.
+  return false;
+}
+
+bool TabStrip::IsDragSessionActive() const {
+  return drag_controller_.get() != NULL;
+}
+
+bool TabStrip::IsCompatibleWith(TabStripWrapper* other) const {
+  return model_->profile() == other->AsTabStrip()->model()->profile();
+}
+
+void TabStrip::SetDraggedTabBounds(int tab_index, const gfx::Rect& tab_bounds) {
+}
+
+void TabStrip::UpdateLoadingAnimations() {
+  for (int i = 0, index = 0; i < GetTabCount(); ++i, ++index) {
+    Tab* current_tab = GetTabAt(i);
+    if (current_tab->closing()) {
+      --index;
+    } else {
+      TabContents* contents = model_->GetTabContentsAt(index);
+      if (!contents || !contents->is_loading()) {
+        current_tab->ValidateLoadingAnimation(Tab::ANIMATION_NONE);
+      } else if (contents->waiting_for_response()) {
+        current_tab->ValidateLoadingAnimation(Tab::ANIMATION_WAITING);
+      } else {
+        current_tab->ValidateLoadingAnimation(Tab::ANIMATION_LOADING);
+      }
+    }
+  }
+}
+
+views::View* TabStrip::GetView() {
+  return this;
+}
+
+BrowserTabStrip* TabStrip::AsBrowserTabStrip() {
+  return NULL;
+}
+
+TabStrip* TabStrip::AsTabStrip() {
+  return this;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // TabStrip, private:

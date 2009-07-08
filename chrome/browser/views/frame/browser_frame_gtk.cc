@@ -42,7 +42,7 @@ views::Window* BrowserFrameGtk::GetWindow() {
   return this;
 }
 
-void BrowserFrameGtk::TabStripCreated(TabStrip* tabstrip) {
+void BrowserFrameGtk::TabStripCreated(TabStripWrapper* tabstrip) {
   root_view_->set_tabstrip(tabstrip);
 }
 
@@ -51,7 +51,7 @@ int BrowserFrameGtk::GetMinimizeButtonOffset() const {
   return 0;
 }
 
-gfx::Rect BrowserFrameGtk::GetBoundsForTabStrip(TabStrip* tabstrip) const {
+gfx::Rect BrowserFrameGtk::GetBoundsForTabStrip(TabStripWrapper* tabstrip) const {
   return browser_frame_view_->GetBoundsForTabStrip(tabstrip);
 }
 

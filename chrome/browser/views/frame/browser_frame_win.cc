@@ -64,7 +64,7 @@ views::Window* BrowserFrameWin::GetWindow() {
   return this;
 }
 
-void BrowserFrameWin::TabStripCreated(TabStrip* tabstrip) {
+void BrowserFrameWin::TabStripCreated(TabStripWrapper* tabstrip) {
   root_view_->set_tabstrip(tabstrip);
 }
 
@@ -80,7 +80,7 @@ int BrowserFrameWin::GetMinimizeButtonOffset() const {
   return minimize_button_corner.x;
 }
 
-gfx::Rect BrowserFrameWin::GetBoundsForTabStrip(TabStrip* tabstrip) const {
+gfx::Rect BrowserFrameWin::GetBoundsForTabStrip(TabStripWrapper* tabstrip) const {
   return browser_frame_view_->GetBoundsForTabStrip(tabstrip);
 }
 
@@ -139,12 +139,12 @@ void BrowserFrameWin::OnExitSizeMove() {
       detached_drag_mode_ = false;
       if (drop_tabstrip_) {
         gfx::Point screen_point = views::Screen::GetCursorScreenPoint();
-        BrowserTabStrip* tabstrip = browser_view_->bts();
+        BrowserTabStrip* tabstrip = browser_view_->tabstrip()->AsBrowserTabStrip();
         gfx::Rect tsb = tabstrip->GetDraggedTabScreenBounds(screen_point);
         drop_tabstrip_->AttachTab(tabstrip->DetachTab(0), screen_point, tsb);
       } else {
         UpdateWindowAlphaForTabDragging(detached_drag_mode_);
-        browser_view_->bts()->SendDraggedTabHome();
+        browser_view_->tabstrip()->AsBrowserTabStrip()->SendDraggedTabHome();
       }
     }
   }
@@ -278,8 +278,9 @@ void BrowserFrameWin::OnWindowPosChanged(WINDOWPOS* window_pos) {
       HWND local_window =
           DockInfo::GetLocalProcessWindowAtPoint(screen_point, ignore_windows);
       if (local_window) {
-        drop_tabstrip_ =
-            BrowserView::GetBrowserViewForNativeWindow(local_window)->bts();
+        BrowserView* browser_view =
+            BrowserView::GetBrowserViewForNativeWindow(local_window);
+        drop_tabstrip_ = browser_view->tabstrip()->AsBrowserTabStrip();
         if (TabStrip2::IsDragRearrange(drop_tabstrip_, screen_point)) {
           ReleaseCapture();
           return;

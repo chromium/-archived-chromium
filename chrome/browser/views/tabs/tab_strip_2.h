@@ -9,6 +9,7 @@
 
 #include "base/task.h"
 #include "chrome/browser/views/tabs/tab_2.h"
+#include "chrome/browser/views/tabs/tab_strip_wrapper.h"
 #include "views/animator.h"
 #include "views/view.h"
 

@@ -31,7 +31,6 @@
 class BookmarkBarView;
 class Browser;
 class BrowserBubble;
-class BrowserTabStrip;
 class DownloadShelfView;
 class EncodingMenuModel;
 class ExtensionShelf;
@@ -41,7 +40,7 @@ class InfoBarContainer;
 class LocationBarView;
 class StatusBubbleViews;
 class TabContentsContainer;
-class TabStrip;
+class TabStripWrapper;
 class ToolbarView;
 class ZoomMenuModel;
 
@@ -121,8 +120,7 @@ class BrowserView : public BrowserWindow,
   gfx::Rect GetTabStripBounds() const;
 
   // Accessor for the TabStrip.
-  TabStrip* tabstrip() const { return tabstrip_; }
-  BrowserTabStrip* bts() const { return bts_; }
+  TabStripWrapper* tabstrip() const { return tabstrip_; }
 
   // Accessor for the ExtensionShelf.
   ExtensionShelf* extension_shelf() const { return extension_shelf_; }
@@ -396,10 +394,7 @@ class BrowserView : public BrowserWindow,
   views::View* active_bookmark_bar_;
 
   // The TabStrip.
-  TabStrip* tabstrip_;
-
-  // The BrowserTabStrip.
-  BrowserTabStrip* bts_;
+  TabStripWrapper* tabstrip_;
 
   // The Toolbar containing the navigation buttons, menus and the address bar.
   ToolbarView* toolbar_;

@@ -9,6 +9,7 @@
 #include "base/message_loop.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/tabs/tab.h"
+#include "chrome/browser/views/tabs/tab_strip_wrapper.h"
 #include "views/controls/button/image_button.h"
 #include "views/view.h"
 #if defined(OS_WIN)
@@ -40,39 +41,19 @@ class TabStrip : public views::View,
                  public TabStripModelObserver,
                  public Tab::TabDelegate,
                  public views::ButtonListener,
-                 public MessageLoopForUI::Observer {
+                 public MessageLoopForUI::Observer,
+                 public TabStripWrapper {
  public:
   TabStrip(TabStripModel* model);
   virtual ~TabStrip();
-
-  // Returns the preferred height of this TabStrip. This is based on the
-  // typical height of its constituent tabs.
-  int GetPreferredHeight();
 
   // Returns true if the TabStrip can accept input events. This returns false
   // when the TabStrip is animating to a new state and as such the user should
   // not be allowed to interact with the TabStrip.
   bool CanProcessInputEvents() const;
 
-  // Returns true if the specified point (in TabStrip coordinates) is within a
-  // portion of the TabStrip that should be treated as the containing Window's
-  // titlebar for dragging purposes.
-  // TODO(beng): (Cleanup) should be const, but GetViewForPoint isn't, so fie!
-  bool PointIsWithinWindowCaption(const gfx::Point& point);
-
-  // Return true if this tab strip is compatible with the provided tab strip.
-  // Compatible tab strips can transfer tabs during drag and drop.
-  bool IsCompatibleWith(TabStrip* other);
-
-  // Returns true if Tabs in this TabStrip are currently changing size or
-  // position.
-  bool IsAnimating() const;
-
   // Accessors for the model and individual Tabs.
   TabStripModel* model() { return model_; }
-
-  // Returns true if there is an active drag session.
-  bool IsDragSessionActive() const { return drag_controller_.get() != NULL; }
 
   // Destroys the active drag controller.
   void DestroyDragController();
@@ -82,12 +63,6 @@ class TabStrip : public views::View,
 
   // Retrieve the ideal bounds for the Tab at the specified index.
   gfx::Rect GetIdealBounds(int index);
-
-  // Updates loading animations for the TabStrip.
-  void UpdateLoadingAnimations();
-
-  // Set the background offset used by inactive tabs to match the frame image.
-  void SetBackgroundOffset(gfx::Point offset);
 
   // Create the new tab button.
   void InitTabStripButtons();
@@ -108,8 +83,11 @@ class TabStrip : public views::View,
   virtual void SetAccessibleName(const std::wstring& name);
   virtual views::View* GetViewForPoint(const gfx::Point& point);
   virtual void ThemeChanged();
-
  protected:
+  virtual void ViewHierarchyChanged(bool is_add,
+                                    views::View* parent,
+                                    views::View* child);
+
   // TabStripModelObserver implementation:
   virtual void TabInsertedAt(TabContents* contents,
                              int index,
@@ -152,6 +130,20 @@ class TabStrip : public views::View,
   virtual void WillProcessEvent(GdkEvent* event);
   virtual void DidProcessEvent(GdkEvent* event);
 #endif
+
+  // TabStripWrapper implementation:
+  virtual int GetPreferredHeight();
+  virtual bool IsAnimating() const;
+  virtual void SetBackgroundOffset(gfx::Point offset);
+  virtual bool PointIsWithinWindowCaption(const gfx::Point& point);
+  virtual bool IsDragSessionActive() const;
+  virtual bool IsCompatibleWith(TabStripWrapper* other) const;
+  virtual void SetDraggedTabBounds(int tab_index,
+                                   const gfx::Rect& tab_bounds);
+  virtual void UpdateLoadingAnimations();
+  virtual views::View* GetView();
+  virtual BrowserTabStrip* AsBrowserTabStrip();
+  virtual TabStrip* AsTabStrip();
 
  private:
   class InsertTabAnimation;
