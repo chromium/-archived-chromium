@@ -43,6 +43,15 @@ std::wstring Accelerator::GetShortcutText() const {
   case VK_DELETE:
     string_id = IDS_APP_DELETE_KEY;
     break;
+  case VK_LEFT:
+    string_id = IDS_APP_LEFT_ARROW_KEY;
+    break;
+  case VK_RIGHT:
+    string_id = IDS_APP_RIGHT_ARROW_KEY;
+    break;
+  case VK_BACK:
+    string_id = IDS_APP_BACKSPACE_KEY;
+    break;
   case VK_F1:
     string_id = IDS_APP_F1_KEY;
     break;

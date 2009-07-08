@@ -304,6 +304,9 @@ need to be translated for each locale.-->
       <message name="IDS_APP_F11_KEY" desc="F11 key">
         F11
       </message>
+      <message name="IDS_APP_BACKSPACE_KEY" desc="Backspace key">
+        Backspace
+      </message>
 
       <!-- Shortcut Modifiers -->
       <message name="IDS_APP_CONTROL_MODIFIER" desc="Control key shortcut modifier">
