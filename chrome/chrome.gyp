@@ -1013,6 +1013,8 @@
         'browser/gtk/download_started_animation_gtk.cc',
         'browser/gtk/edit_search_engine_dialog.cc',
         'browser/gtk/edit_search_engine_dialog.h',
+        'browser/gtk/first_run_dialog.cc',
+        'browser/gtk/first_run_dialog.h',
         'browser/gtk/go_button_gtk.cc',
         'browser/gtk/go_button_gtk.h',
         'browser/gtk/gtk_chrome_button.cc',
