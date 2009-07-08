@@ -181,14 +181,21 @@ class WebDragDest {
     if (context_ != context) {
       context_ = context;
       drop_data_.reset(new WebDropData);
-      data_requests_ = 0;
       is_drop_target_ = false;
 
-      // TODO(estade): support other targets. When we start support URL drags,
-      // we'll have to worry about interstitial pages (see web_drop_target.cc).
-      data_requests_++;
-      gtk_drag_get_data(widget_, context,
-                        gdk_atom_intern("text/plain", FALSE), time);
+      static int supported_targets[] = {
+        GtkDndUtil::X_CHROME_TEXT_PLAIN,
+        GtkDndUtil::X_CHROME_TEXT_URI_LIST,
+        GtkDndUtil::X_CHROME_TEXT_HTML,
+        // TODO(estade): support image drags?
+      };
+
+      data_requests_ = arraysize(supported_targets);
+      for (size_t i = 0; i < arraysize(supported_targets); ++i) {
+        gtk_drag_get_data(widget_, context,
+                          GtkDndUtil::GetAtomForTarget(supported_targets[i]),
+                          time);
+      }
     } else if (data_requests_ == 0) {
       tab_contents_->render_view_host()->
           DragTargetDragOver(ClientPoint(), ScreenPoint());
@@ -214,14 +221,42 @@ class WebDragDest {
 
     data_requests_--;
 
-    // If the source can't provide us with valid data for a requested target,
-    // data->data will be NULL.
+    // Decode the data.
     if (data->data) {
-      drop_data_->plain_text = UTF8ToUTF16(std::string(
-          reinterpret_cast<char*>(data->data), data->length));
+      // If the source can't provide us with valid data for a requested target,
+      // data->data will be NULL.
+      if (data->target ==
+          GtkDndUtil::GetAtomForTarget(GtkDndUtil::X_CHROME_TEXT_PLAIN)) {
+        guchar* text = gtk_selection_data_get_text(data);
+        if (text) {
+          drop_data_->plain_text = UTF8ToUTF16(std::string(
+              reinterpret_cast<char*>(text), data->length));
+          g_free(text);
+        }
+      } else if (data->target ==
+          GtkDndUtil::GetAtomForTarget(GtkDndUtil::X_CHROME_TEXT_URI_LIST)) {
+        gchar** uris = gtk_selection_data_get_uris(data);
+        if (uris) {
+          for (gchar** uri_iter = uris; *uri_iter; uri_iter++) {
+            // TODO(estade): Can the filenames have a non-UTF8 encoding?
+            drop_data_->filenames.push_back(UTF8ToUTF16(*uri_iter));
+          }
+          // Also, write the first URI as the URL.
+          if (uris[0])
+            drop_data_->url = GURL(uris[0]);
+          g_strfreev(uris);
+        }
+      } else if (data->target ==
+          GtkDndUtil::GetAtomForTarget(GtkDndUtil::X_CHROME_TEXT_HTML)) {
+        // TODO(estade): Can the html have a non-UTF8 encoding?
+        drop_data_->text_html = UTF8ToUTF16(std::string(
+            reinterpret_cast<char*>(data->data), data->length));
+        // We leave the base URL empty.
+      }
     }
 
     if (data_requests_ == 0) {
+      // Tell the renderer about the drag.
       // |x| and |y| are seemingly arbitrary at this point.
       tab_contents_->render_view_host()->
           DragTargetDragEnter(*drop_data_.get(), ClientPoint(), ScreenPoint());
@@ -441,8 +476,7 @@ void TabContentsViewGtk::GetContainerBounds(gfx::Rect* out) const {
 }
 
 void TabContentsViewGtk::OnContentsDestroy() {
-  // TODO(estade): Windows uses this function cancel pending drag-n-drop drags.
-  // We don't have drags yet, so do nothing for now.
+  // TODO(estade): Windows uses this for some sort of plugin-related stuff.
 }
 
 void TabContentsViewGtk::SetPageTitle(const std::wstring& title) {
