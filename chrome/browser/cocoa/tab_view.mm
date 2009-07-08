@@ -254,7 +254,7 @@ static const double kDragStartDistance = 3.0;
   NSPoint origin = sourceWindowFrame_.origin;
   origin.x += (thisPoint.x - dragOrigin_.x);
   origin.y += (thisPoint.y - dragOrigin_.y);
-  
+
   if (tearProgress < 1) {
     // If the tear animation is not complete, call back to ourself with the
     // same event to animate even if the mouse isn't moving.
@@ -262,7 +262,7 @@ static const double kDragStartDistance = 3.0;
     [self performSelector:@selector(mouseDragged:)
                withObject:theEvent
                afterDelay:1.0f/30.0f];
-  
+
     origin.x = (1 - tearProgress) *  tearOrigin_.x + tearProgress * origin.x;
     origin.y = (1 - tearProgress) * tearOrigin_.y + tearProgress * origin.y;
   }
@@ -355,11 +355,17 @@ static const double kDragStartDistance = 3.0;
   [sourceController_ removePlaceholder];
 }
 
-- (void)otherMouseUp:(NSEvent*) theEvent {
+- (void)otherMouseUp:(NSEvent*)theEvent {
   // Support middle-click-to-close.
   if ([theEvent buttonNumber] == 2) {
     [controller_ closeTab:self];
   }
+}
+
+// Called when the user hits the right mouse button (or control-clicks) to
+// show a context menu.
+- (void)rightMouseDown:(NSEvent*)theEvent {
+  [NSMenu popUpContextMenu:[self menu] withEvent:theEvent forView:self];
 }
 
 @end

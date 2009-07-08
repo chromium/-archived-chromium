@@ -34,8 +34,9 @@ enum TabLoadingState {
 
 @interface TabController : NSViewController {
  @private
-  IBOutlet NSButton *backgroundButton_;
+  IBOutlet NSButton* backgroundButton_;
   IBOutlet NSView* iconView_;
+  IBOutlet NSMenu* contextMenu_;
   BOOL selected_;
   TabLoadingState loadingState_;
   id<TabControllerTarget> target_;  // weak, where actions are sent
@@ -58,6 +59,9 @@ enum TabLoadingState {
 // Closes the associated TabView by relaying the message to |target_| to
 // perform the close.
 - (IBAction)closeTab:(id)sender;
+
+// Dispatches the command in the tag to the registered target object.
+- (IBAction)commandDispatch:(id)sender;
 
 // Replace the current icon view with the given view. |iconView| will be
 // resized to the size of the current icon view.

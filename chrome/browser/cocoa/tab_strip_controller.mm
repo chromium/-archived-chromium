@@ -166,6 +166,21 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
   }
 }
 
+// Dispatch context menu commands for the given tab controller.
+- (void)commandDispatch:(TabStripModel::ContextMenuCommand)command
+          forController:(TabController*)controller {
+  int index = [self indexForTabView:[controller view]];
+  tabModel_->ExecuteContextMenuCommand(index, command);
+}
+
+// Returns YES if the specificed command should be enabled for the given
+// controller.
+- (BOOL)isCommandEnabled:(TabStripModel::ContextMenuCommand)command
+           forController:(TabController*)controller {
+  int index = [self indexForTabView:[controller view]];
+  return tabModel_->IsContextMenuCommandEnabled(index, command) ? YES : NO;
+}
+
 - (void)insertPlaceholderForTab:(TabView*)tab
                           frame:(NSRect)frame
                   yStretchiness:(CGFloat)yStretchiness {

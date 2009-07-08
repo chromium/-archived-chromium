@@ -55,6 +55,22 @@
   }
 }
 
+// Dispatches the command in the tag to the registered target object.
+- (IBAction)commandDispatch:(id)sender {
+  TabStripModel::ContextMenuCommand command =
+      static_cast<TabStripModel::ContextMenuCommand>([sender tag]);
+  [[self target] commandDispatch:command forController:self];
+}
+
+// Called for each menu item on its target, which would be this controller.
+// Returns YES if the menu item should be enabled. We ask the tab's
+// target for the proper answer.
+- (BOOL)validateMenuItem:(NSMenuItem*)item {
+  TabStripModel::ContextMenuCommand command =
+      static_cast<TabStripModel::ContextMenuCommand>([item tag]);
+  return [[self target] isCommandEnabled:command forController:self];
+}
+
 - (void)setTitle:(NSString *)title {
   [backgroundButton_ setToolTip:title];
   [super setTitle:title];
