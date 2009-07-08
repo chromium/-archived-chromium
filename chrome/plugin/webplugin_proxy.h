@@ -16,6 +16,7 @@
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/chrome_plugin_api.h"
 #include "chrome/common/transport_dib.h"
+#include "googleurl/src/gurl.h"
 #include "webkit/glue/webplugin.h"
 
 namespace base {
@@ -33,7 +34,8 @@ class WebPluginProxy : public WebPlugin {
   // marshalled WebPlugin calls.
   WebPluginProxy(PluginChannel* channel,
                  int route_id,
-                 WebPluginDelegate* delegate);
+                 WebPluginDelegate* delegate,
+                 const GURL& page_url);
   ~WebPluginProxy();
 
   // WebPlugin overrides
@@ -156,6 +158,8 @@ class WebPluginProxy : public WebPlugin {
   gfx::Rect damaged_rect_;
   bool waiting_for_paint_;
   scoped_ptr<base::WaitableEvent> modal_dialog_event_;
+  // The url of the main frame hosting the plugin.
+  GURL page_url_;
 
 #if defined(OS_WIN)
   // Variables used for desynchronized windowless plugin painting.  See note in

@@ -78,10 +78,10 @@ google_breakpad::CustomClientInfo* GetCustomInfo(const std::wstring& dll_path,
   google_breakpad::CustomInfoEntry plat_entry(L"plat", L"Win32");
   google_breakpad::CustomInfoEntry type_entry(L"ptype", type.c_str());
 
-  if (type == L"renderer") {
-    // If we're a renderer create entries for the URL. Currently we only allow
-    // each chunk to be 64 characters, which isn't enough for a URL. As a hack
-    // we create 8 entries and split the URL across the entries.
+  if (type == L"renderer" || type == L"plugin") {
+    // Create entries for the URL. Currently we only allow each chunk to be 64
+    // characters, which isn't enough for a URL. As a hack we create 8 entries
+    // and split the URL across the entries.
     google_breakpad::CustomInfoEntry url1(L"url-chunk-1", L"");
     google_breakpad::CustomInfoEntry url2(L"url-chunk-2", L"");
     google_breakpad::CustomInfoEntry url3(L"url-chunk-3", L"");
@@ -181,7 +181,7 @@ long WINAPI ChromeExceptionFilter(EXCEPTION_POINTERS* info) {
   return EXCEPTION_EXECUTE_HANDLER;
 }
 
-extern "C" void __declspec(dllexport) __cdecl SetActiveRendererURL(
+extern "C" void __declspec(dllexport) __cdecl SetActiveURL(
     const wchar_t* url_cstring) {
   DCHECK(url_cstring);
   if (!g_url_chunks)

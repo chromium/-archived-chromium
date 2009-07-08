@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/renderer/renderer_logging.h"
+#include "chrome/common/child_process_logging.h"
 
 #import <Foundation/Foundation.h>
 
@@ -10,15 +10,15 @@
 #include "googleurl/src/gurl.h"
 #import "chrome/app/breakpad_mac.h"
 
-namespace renderer_logging {
+namespace child_process_logging {
 
 const int kMaxNumCrashURLChunks = 8;
 const int kMaxNumURLChunkValueLength = 255;
 const char *kUrlChunkFormatStr = "url-chunk-%d";
 
-void SetActiveRendererURLImpl(const GURL& url,
-                              SetCrashKeyValueFuncPtr set_key_func,
-                              ClearCrashKeyValueFuncPtr clear_key_func) {
+void SetActiveURLImpl(const GURL& url,
+                      SetCrashKeyValueFuncPtr set_key_func,
+                      ClearCrashKeyValueFuncPtr clear_key_func) {
 
   NSString *kUrlChunkFormatStr_utf8 = [NSString
       stringWithUTF8String:kUrlChunkFormatStr];
@@ -59,13 +59,13 @@ void SetActiveRendererURLImpl(const GURL& url,
   }
 }
 
-void SetActiveRendererURL(const GURL& url) {
+void SetActiveURL(const GURL& url) {
   // If Breakpad isn't initialized then bail.
   if (IsCrashReporterDisabled()) {
     return;
   }
 
-  SetActiveRendererURLImpl(url, SetCrashKeyValue, ClearCrashKeyValue);
+  SetActiveURLImpl(url, SetCrashKeyValue, ClearCrashKeyValue);
 }
 
-}  // namespace renderer_logging
+}  // namespace child_process_logging

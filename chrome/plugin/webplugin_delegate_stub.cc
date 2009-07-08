@@ -7,6 +7,7 @@
 #include "build/build_config.h"
 
 #include "base/command_line.h"
+#include "chrome/common/child_process_logging.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/plugin/npobject_stub.h"
@@ -49,6 +50,8 @@ WebPluginDelegateStub::WebPluginDelegateStub(
 }
 
 WebPluginDelegateStub::~WebPluginDelegateStub() {
+  child_process_logging::ScopedActiveURLSetter url_setter(page_url_);
+
   if (channel_->in_send()) {
     // The delegate or an npobject is in the callstack, so don't delete it
     // right away.
@@ -64,6 +67,8 @@ WebPluginDelegateStub::~WebPluginDelegateStub() {
 }
 
 void WebPluginDelegateStub::OnMessageReceived(const IPC::Message& msg) {
+  child_process_logging::ScopedActiveURLSetter url_setter(page_url_);
+
   // A plugin can execute a script to delete itself in any of its NPP methods.
   // Hold an extra reference to ourself so that if this does occur and we're
   // handling a sync message, we don't crash when attempting to send a reply.
@@ -110,6 +115,9 @@ bool WebPluginDelegateStub::Send(IPC::Message* msg) {
 
 void WebPluginDelegateStub::OnInit(const PluginMsg_Init_Params& params,
                                    bool* result) {
+  page_url_ = params.page_url;
+  child_process_logging::ScopedActiveURLSetter url_setter(page_url_);
+
   *result = false;
   int argc = static_cast<int>(params.arg_names.size());
   if (argc != static_cast<int>(params.arg_values.size())) {
@@ -139,7 +147,8 @@ void WebPluginDelegateStub::OnInit(const PluginMsg_Init_Params& params,
   delegate_ = WebPluginDelegate::Create(path, mime_type_, parent);
 
   if (delegate_) {
-    webplugin_ = new WebPluginProxy(channel_, instance_id_, delegate_);
+    webplugin_ = new WebPluginProxy(
+        channel_, instance_id_, delegate_, page_url_);
 #if defined(OS_WIN)
     if (!webplugin_->SetModalDialogEvent(params.modal_dialog_event))
       return;
@@ -278,7 +287,8 @@ void WebPluginDelegateStub::OnGetPluginScriptableObject(int* route_id,
   // The stub will delete itself when the proxy tells it that it's released, or
   // otherwise when the channel is closed.
   new NPObjectStub(
-      object, channel_.get(), *route_id, webplugin_->modal_dialog_event());
+      object, channel_.get(), *route_id, webplugin_->modal_dialog_event(),
+      page_url_);
 
   // Release ref added by GetPluginScriptableObject (our stub holds its own).
   NPN_ReleaseObject(object);

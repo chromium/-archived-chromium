@@ -15,12 +15,15 @@
 
 #include "chrome/plugin/npobject_stub.h"
 
-struct _NPVariant;
-typedef _NPVariant NPVariant;
+class GURL;
 class NPObjectProxy;
 class PluginChannelBase;
+
+struct _NPVariant;
 struct NPIdentifier_Param;
 struct NPVariant_Param;
+
+typedef _NPVariant NPVariant;
 typedef void *NPIdentifier;
 
 namespace base {
@@ -50,13 +53,15 @@ void CreateNPVariantParam(const NPVariant& variant,
                           PluginChannelBase* channel,
                           NPVariant_Param* param,
                           bool release,
-                          base::WaitableEvent* modal_dialog_event);
+                          base::WaitableEvent* modal_dialog_event,
+                          const GURL& page_url);
 
 // Creates an NPVariant from the marshalled object.
 void CreateNPVariant(const NPVariant_Param& param,
                      PluginChannelBase* channel,
                      NPVariant* result,
-                     base::WaitableEvent* modal_dialog_event);
+                     base::WaitableEvent* modal_dialog_event,
+                     const GURL& page_url);
 
 #if defined(OS_WIN)
 // Given a plugin's HWND, returns an event associated with the TabContents
