@@ -491,7 +491,7 @@ ObjectBase::Ref VertexBuffer::Create(ServiceLocator* service_locator) {
 
 SourceBuffer::SourceBuffer(ServiceLocator* service_locator)
     : VertexBufferBase(service_locator),
-      buffer_(NULL) {
+      buffer_() {
 }
 
 SourceBuffer::~SourceBuffer() {
@@ -499,31 +499,28 @@ SourceBuffer::~SourceBuffer() {
 }
 
 void SourceBuffer::ConcreteFree() {
-  if (buffer_) {
-    delete [] buffer_;
-    buffer_ = NULL;
-  }
+  buffer_.reset();
 }
 
 bool SourceBuffer::ConcreteAllocate(size_t size_in_bytes) {
   ConcreteFree();
 
-  buffer_ = new char[size_in_bytes];
+  buffer_.reset(new char[size_in_bytes]);
 
   return true;
 }
 
 bool SourceBuffer::ConcreteLock(AccessMode access_mode, void **buffer_data) {
-  if (!buffer_) {
+  if (!buffer_.get()) {
     return false;
   }
 
-  *buffer_data = reinterpret_cast<void*>(buffer_);
+  *buffer_data = reinterpret_cast<void*>(buffer_.get());
   return true;
 }
 
 bool SourceBuffer::ConcreteUnlock() {
-  return buffer_ != NULL;
+  return buffer_.get() != NULL;
 }
 
 ObjectBase::Ref SourceBuffer::Create(ServiceLocator* service_locator) {

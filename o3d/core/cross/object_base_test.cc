@@ -70,4 +70,14 @@ TEST_F(ObjectBaseTest, ObjectIdOfNullIsZero) {
 TEST_F(ObjectBaseTest, ObjectIdOfObjectIsReturned) {
   ASSERT_EQ(pack_->id(), GetObjectId(pack_));
 }
+
+TEST_F(ObjectBaseTest, ObjectClassName) {
+  ASSERT_EQ(0,
+            strcmp(ObjectBase::GetApparentClass()->name(),
+                   "o3d.ObjectBase"));
+  ASSERT_EQ(0,
+            strcmp(ObjectBase::GetApparentClass()->unqualified_name(),
+                   "ObjectBase"));
+}
+
 }  // namespace o3d

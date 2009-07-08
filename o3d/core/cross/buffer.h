@@ -306,7 +306,7 @@ class SourceBuffer : public VertexBufferBase {
   friend class IClassManager;
   static ObjectBase::Ref Create(ServiceLocator* service_locator);
 
-  char* buffer_;  // The actual data for this buffer.
+  scoped_array<char> buffer_;  // The actual data for this buffer.
 
   O3D_DECL_CLASS(SourceBuffer, VertexBufferBase);
   DISALLOW_COPY_AND_ASSIGN(SourceBuffer);
