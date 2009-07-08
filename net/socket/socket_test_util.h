@@ -5,6 +5,7 @@
 #ifndef NET_SOCKET_SOCKET_TEST_UTIL_H_
 #define NET_SOCKET_SOCKET_TEST_UTIL_H_
 
+#include <deque>
 #include <string>
 #include <vector>
 
@@ -124,17 +125,22 @@ class DynamicMockSocket : public MockSocket {
   int short_read_limit() const { return short_read_limit_; }
   void set_short_read_limit(int limit) { short_read_limit_ = limit; }
 
+  void allow_unconsumed_reads(bool allow) { allow_unconsumed_reads_ = allow; }
+
  protected:
   // The next time there is a read from this socket, it will return |data|.
   // Before calling SimulateRead next time, the previous data must be consumed.
   void SimulateRead(const char* data);
 
  private:
-  MockRead read_;
-  bool has_read_;
+  std::deque<MockRead> reads_;
 
   // Max number of bytes we will read at a time. 0 means no limit.
   int short_read_limit_;
+
+  // If true, we'll not require the client to consume all data before we
+  // mock the next read.
+  bool allow_unconsumed_reads_;
 
   DISALLOW_COPY_AND_ASSIGN(DynamicMockSocket);
 };

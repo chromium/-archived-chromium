@@ -44,7 +44,9 @@ class FtpMockControlSocket : public DynamicMockSocket {
     QUIT
   };
 
-  FtpMockControlSocket() : failure_injection_state_(NONE) {
+  FtpMockControlSocket()
+      : failure_injection_state_(NONE),
+        multiline_welcome_(false) {
     Init();
   }
 
@@ -56,8 +58,12 @@ class FtpMockControlSocket : public DynamicMockSocket {
         return Verify("USER anonymous\r\n", data, PRE_PASSWD,
                       "331 Password needed\r\n");
       case PRE_PASSWD:
-        return Verify("PASS chrome@example.com\r\n", data, PRE_SYST,
-                      "230 Welcome\r\n");
+        {
+          const char* response_one = "230 Welcome\r\n";
+          const char* response_multi = "230 One\r\n230 Two\r\n230 Three\r\n";
+          return Verify("PASS chrome@example.com\r\n", data, PRE_SYST,
+                        multiline_welcome_ ? response_multi : response_one);
+        }
       case PRE_SYST:
         return Verify("SYST\r\n", data, PRE_PWD, "215 UNIX\r\n");
       case PRE_PWD:
@@ -95,6 +101,10 @@ class FtpMockControlSocket : public DynamicMockSocket {
     Init();
   }
 
+  void set_multiline_welcome(bool multiline) {
+    multiline_welcome_ = multiline;
+  }
+
  protected:
   void Init() {
     state_ = PRE_USER;
@@ -129,6 +139,9 @@ class FtpMockControlSocket : public DynamicMockSocket {
   State failure_injection_state_;
   State failure_injection_next_state_;
   const char* fault_response_;
+
+  // If true, we will send multiple 230 lines as response after PASS.
+  bool multiline_welcome_;
 
   DISALLOW_COPY_AND_ASSIGN(FtpMockControlSocket);
 };
@@ -293,6 +306,12 @@ TEST_F(FtpNetworkTransactionTest, DirectoryTransaction) {
   ExecuteTransaction(&ctrl_socket, "ftp://host", OK);
 }
 
+TEST_F(FtpNetworkTransactionTest, DirectoryTransactionMultilineWelcome) {
+  FtpMockControlSocketDirectoryListing ctrl_socket;
+  ctrl_socket.set_multiline_welcome(true);
+  ExecuteTransaction(&ctrl_socket, "ftp://host", OK);
+}
+
 TEST_F(FtpNetworkTransactionTest, DirectoryTransactionShortReads2) {
   FtpMockControlSocketDirectoryListing ctrl_socket;
   ctrl_socket.set_short_read_limit(2);
@@ -305,8 +324,24 @@ TEST_F(FtpNetworkTransactionTest, DirectoryTransactionShortReads5) {
   ExecuteTransaction(&ctrl_socket, "ftp://host", OK);
 }
 
+TEST_F(FtpNetworkTransactionTest, DirectoryTransactionMultilineWelcomeShort) {
+  FtpMockControlSocketDirectoryListing ctrl_socket;
+  // The client will not consume all three 230 lines. That's good, we want to
+  // test that scenario.
+  ctrl_socket.allow_unconsumed_reads(true);
+  ctrl_socket.set_multiline_welcome(true);
+  ctrl_socket.set_short_read_limit(5);
+  ExecuteTransaction(&ctrl_socket, "ftp://host", OK);
+}
+
 TEST_F(FtpNetworkTransactionTest, DownloadTransaction) {
   FtpMockControlSocketFileDownload ctrl_socket;
+  ExecuteTransaction(&ctrl_socket, "ftp://host/file", OK);
+}
+
+TEST_F(FtpNetworkTransactionTest, DownloadTransactionMultilineWelcome) {
+  FtpMockControlSocketFileDownload ctrl_socket;
+  ctrl_socket.set_multiline_welcome(true);
   ExecuteTransaction(&ctrl_socket, "ftp://host/file", OK);
 }
 

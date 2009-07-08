@@ -158,7 +158,11 @@ int FtpNetworkTransaction::ParseCtrlResponse(int* cut_pos) {
           return ERR_INVALID_RESPONSE;
         ctrl_responses_.push(ResponseLine(status_code, status_text));
         *cut_pos = i + 1;
+
+        // Prepare to handle the next line.
         scan_state = CODE;
+        status_code = 0;
+        status_text = "";
         break;
       default:
         NOTREACHED();
@@ -172,7 +176,6 @@ int FtpNetworkTransaction::ParseCtrlResponse(int* cut_pos) {
 // Used to prepare and send FTP commad.
 int FtpNetworkTransaction::SendFtpCommand(const std::string& command,
                                           Command cmd) {
-  response_message_buf_len_ = 0;
   command_sent_ = cmd;
   DLOG(INFO) << " >> " << command;
   const char* buf = command.c_str();
@@ -199,8 +202,29 @@ int FtpNetworkTransaction::ProcessCtrlResponses() {
     return rv;
   }
 
-  // TODO(phajdan.jr): Correctly handle multiple code 230 response lines after
-  // PASS command.
+  // Eat multiple 230 lines after PASS.
+  if (command_sent_ == COMMAND_PASS) {
+    while (ctrl_responses_.size() > 1) {
+      if (ctrl_responses_.front().code != 230)
+        break;
+      ctrl_responses_.pop();
+    }
+  }
+
+  // Make sure there are no 230's when we want to process SYST response.
+  if (command_sent_ == COMMAND_SYST) {
+    while (!ctrl_responses_.empty()) {
+      if (ctrl_responses_.front().code != 230)
+        break;
+      ctrl_responses_.pop();
+    }
+    if (ctrl_responses_.empty()) {
+      // Read more from control socket.
+      next_state_ = STATE_CTRL_READ;
+      return rv;
+    }
+  }
+
   if (ctrl_responses_.size() != 1)
     return Stop(ERR_INVALID_RESPONSE);
 

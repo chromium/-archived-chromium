@@ -248,33 +248,33 @@ void StaticMockSocket::Reset() {
 }
 
 DynamicMockSocket::DynamicMockSocket()
-    : read_(false, ERR_UNEXPECTED),
-      has_read_(false),
-      short_read_limit_(0) {
+    : short_read_limit_(0),
+      allow_unconsumed_reads_(false) {
 }
 
 MockRead DynamicMockSocket::GetNextRead() {
-  if (!has_read_)
+  if (reads_.empty())
     return MockRead(true, ERR_UNEXPECTED);
-  MockRead result = read_;
+  MockRead result = reads_.front();
   if (short_read_limit_ == 0 || result.data_len <= short_read_limit_) {
-    has_read_ = false;
+    reads_.pop_front();
   } else {
     result.data_len = short_read_limit_;
-    read_.data += result.data_len;
-    read_.data_len -= result.data_len;
+    reads_.front().data += result.data_len;
+    reads_.front().data_len -= result.data_len;
   }
   return result;
 }
 
 void DynamicMockSocket::Reset() {
-  has_read_ = false;
+  reads_.clear();
 }
 
 void DynamicMockSocket::SimulateRead(const char* data) {
-  EXPECT_FALSE(has_read_) << "Unconsumed read: " << read_.data;
-  read_ = MockRead(data);
-  has_read_ = true;
+  if (!allow_unconsumed_reads_) {
+    EXPECT_TRUE(reads_.empty()) << "Unconsumed read: " << reads_.front().data;
+  }
+  reads_.push_back(MockRead(data));
 }
 
 void MockClientSocketFactory::AddMockSocket(MockSocket* socket) {
