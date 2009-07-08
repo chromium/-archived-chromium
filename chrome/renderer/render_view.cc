@@ -358,7 +358,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_InsertText, OnInsertText)
     IPC_MESSAGE_HANDLER(ViewMsg_SetPageEncoding, OnSetPageEncoding)
     IPC_MESSAGE_HANDLER(ViewMsg_SetupDevToolsClient, OnSetupDevToolsClient)
-    IPC_MESSAGE_HANDLER(ViewMsg_DownloadImage, OnDownloadImage)
+    IPC_MESSAGE_HANDLER(ViewMsg_DownloadFavIcon, OnDownloadFavIcon)
     IPC_MESSAGE_HANDLER(ViewMsg_ScriptEvalRequest, OnScriptEvalRequest)
     IPC_MESSAGE_HANDLER(ViewMsg_CSSInsertRequest, OnCSSInsertRequest)
     IPC_MESSAGE_HANDLER(ViewMsg_AddMessageToConsole, OnAddMessageToConsole)
@@ -1988,27 +1988,28 @@ void RenderView::DidDownloadImage(int id,
                                   const GURL& image_url,
                                   bool errored,
                                   const SkBitmap& image) {
-  Send(new ViewHostMsg_DidDownloadImage(routing_id_, id, image_url, errored,
-                                        image));
+  Send(new ViewHostMsg_DidDownloadFavIcon(routing_id_, id, image_url, errored,
+                                          image));
 }
 
-
-void RenderView::OnDownloadImage(int id,
-                                 const GURL& image_url,
-                                 int image_size) {
+void RenderView::OnDownloadFavIcon(int id,
+                                   const GURL& image_url,
+                                   int image_size) {
   bool data_image_failed = false;
   if (image_url.SchemeIs("data")) {
     SkBitmap data_image = ImageFromDataUrl(image_url);
     data_image_failed = data_image.empty();
     if (!data_image_failed) {
-      Send(new ViewHostMsg_DidDownloadImage(routing_id_, id, image_url, false,
-                                            data_image));
+      Send(new ViewHostMsg_DidDownloadFavIcon(routing_id_, id, image_url, false,
+                                              data_image));
     }
   }
 
-  if (data_image_failed || !webview()->DownloadImage(id, image_url, image_size))
-    Send(new ViewHostMsg_DidDownloadImage(routing_id_, id, image_url, true,
-                                          SkBitmap()));
+  if (data_image_failed ||
+      !webview()->DownloadImage(id, image_url, image_size)) {
+    Send(new ViewHostMsg_DidDownloadFavIcon(routing_id_, id, image_url, true,
+                                            SkBitmap()));
+  }
 }
 
 SkBitmap RenderView::ImageFromDataUrl(const GURL& url) const {

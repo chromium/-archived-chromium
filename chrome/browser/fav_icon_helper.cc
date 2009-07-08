@@ -40,28 +40,6 @@ void FavIconHelper::FetchFavIcon(const GURL& url) {
   }
 }
 
-void FavIconHelper::SetFavIconURL(const GURL& icon_url) {
-  NavigationEntry* entry = GetEntry();
-  if (!entry)
-    return;
-
-  got_fav_icon_url_ = true;
-
-  if (!GetHistoryService())
-    return;
-
-  if (!fav_icon_expired_ && entry->favicon().is_valid() &&
-      entry->favicon().url() == icon_url) {
-    // We already have the icon, no need to proceed.
-    return;
-  }
-
-  entry->favicon().set_url(icon_url);
-
-  if (got_fav_icon_from_history_)
-    DownloadFavIconOrAskHistory(entry);
-}
-
 Profile* FavIconHelper::profile() {
   return tab_contents_->profile();
 }
@@ -124,6 +102,41 @@ void FavIconHelper::UpdateFavIcon(NavigationEntry* entry,
 
   entry->favicon().set_bitmap(image);
   tab_contents_->NotifyNavigationStateChanged(TabContents::INVALIDATE_TAB);
+}
+
+void FavIconHelper::UpdateFavIconURL(RenderViewHost* render_view_host,
+                                     int32 page_id,
+                                     const GURL& icon_url) {
+  NavigationEntry* entry = GetEntry();
+  if (!entry)
+    return;
+
+  got_fav_icon_url_ = true;
+
+  if (!GetHistoryService())
+    return;
+
+  if (!fav_icon_expired_ && entry->favicon().is_valid() &&
+      entry->favicon().url() == icon_url) {
+    // We already have the icon, no need to proceed.
+    return;
+  }
+
+  entry->favicon().set_url(icon_url);
+
+  if (got_fav_icon_from_history_)
+    DownloadFavIconOrAskHistory(entry);
+}
+
+void FavIconHelper::DidDownloadFavIcon(RenderViewHost* render_view_host,
+                                       int id,
+                                       const GURL& image_url,
+                                       bool errored,
+                                       const SkBitmap& image) {
+  if (errored)
+    FavIconDownloadFailed(id);
+  else
+    SetFavIcon(id, image_url, image);
 }
 
 NavigationEntry* FavIconHelper::GetEntry() {
@@ -235,12 +248,11 @@ void FavIconHelper::OnFavIconData(
 }
 
 void FavIconHelper::ScheduleDownload(NavigationEntry* entry) {
-  const int download_id = tab_contents_->render_view_host()->DownloadImage(
+  const int download_id = tab_contents_->render_view_host()->DownloadFavIcon(
       entry->favicon().url(), kFavIconSize);
-  if (!download_id) {
-    // Download request failed.
-    return;
-  }
+  if (!download_id)
+    return;  // Download request failed.
+
   // Download ids should be unique.
   DCHECK(download_requests_.find(download_id) == download_requests_.end());
   download_requests_[download_id] =

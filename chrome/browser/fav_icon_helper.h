@@ -12,6 +12,7 @@
 #include "base/scoped_ptr.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/history.h"
+#include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/common/ref_counted_util.h"
 #include "googleurl/src/gurl.h"
 
@@ -61,16 +62,12 @@ class TabContents;
 // at which point we update the favicon of the NavigationEntry and notify
 // the database to save the favicon.
 
-class FavIconHelper {
+class FavIconHelper : public RenderViewHostDelegate::FavIcon {
  public:
   explicit FavIconHelper(TabContents* tab_contents);
 
   // Initiates loading the favicon for the specified url.
   void FetchFavIcon(const GURL& url);
-
-  // Sets the url of the favicon for the specified page. This is invoked some
-  // time after FetchFavIcon.
-  void SetFavIconURL(const GURL& icon_url);
 
   // Sets the image data for the favicon. This is invoked asynchronously after
   // we request the TabContents to download the favicon.
@@ -99,6 +96,16 @@ class FavIconHelper {
     GURL url;
     GURL fav_icon_url;
   };
+
+  // RenderViewHostDelegate::Favicon implementation.
+  virtual void DidDownloadFavIcon(RenderViewHost* render_view_host,
+                                  int id,
+                                  const GURL& image_url,
+                                  bool errored,
+                                  const SkBitmap& image);
+  virtual void UpdateFavIconURL(RenderViewHost* render_view_host,
+                                int32 page_id,
+                                const GURL& icon_url);
 
   // Return the NavigationEntry for the active entry, or NULL if the active
   // entries URL does not match that of the URL last passed to FetchFavIcon.

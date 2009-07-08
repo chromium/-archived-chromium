@@ -94,6 +94,8 @@ class TabContents;
 class TabContents : public PageNavigator,
                     public NotificationObserver,
                     public RenderViewHostDelegate,
+                    public RenderViewHostDelegate::BrowserIntegration,
+                    public RenderViewHostDelegate::Resource,
                     public RenderViewHostManager::Delegate,
                     public SelectFileDialog::Listener {
  public:
@@ -736,8 +738,53 @@ class TabContents : public PageNavigator,
 
   // RenderViewHostDelegate ----------------------------------------------------
 
+  // RenderViewHostDelegate::BrowserIntegration implementation.
+  virtual void OnUserGesture();
+  virtual void OnFindReply(int request_id,
+                           int number_of_matches,
+                           const gfx::Rect& selection_rect,
+                           int active_match_ordinal,
+                           bool final_update);
+  virtual void GoToEntryAtOffset(int offset);
+  virtual void GetHistoryListCount(int* back_list_count,
+                                   int* forward_list_count);
+  virtual void OnMissingPluginStatus(int status);
+  virtual void OnCrashedPlugin(const FilePath& plugin_path);
+  virtual void OnCrashedWorker();
+  virtual void OnDidGetApplicationInfo(
+      int32 page_id,
+      const webkit_glue::WebApplicationInfo& info);
+
+  // RenderViewHostDelegate::Resource implementation.
+  virtual void DidStartProvisionalLoadForFrame(RenderViewHost* render_view_host,
+                                               bool is_main_frame,
+                                               const GURL& url);
+  virtual void DidStartReceivingResourceResponse(
+      ResourceRequestDetails* details);
+  virtual void DidRedirectProvisionalLoad(int32 page_id,
+                                          const GURL& source_url,
+                                          const GURL& target_url);
+  virtual void DidRedirectResource(ResourceRequestDetails* details);
+  virtual void DidLoadResourceFromMemoryCache(
+      const GURL& url,
+      const std::string& frame_origin,
+      const std::string& main_frame_origin,
+      const std::string& security_info);
+  virtual void DidFailProvisionalLoadWithError(
+      RenderViewHost* render_view_host,
+      bool is_main_frame,
+      int error_code,
+      const GURL& url,
+      bool showing_repost_interstitial);
+  virtual void DocumentLoadedInFrame();
+
+  // RenderViewHostDelegate implementation.
   virtual RenderViewHostDelegate::View* GetViewDelegate() const;
+  virtual RenderViewHostDelegate::BrowserIntegration*
+      GetBrowserIntegrationDelegate() const;
+  virtual RenderViewHostDelegate::Resource* GetResourceDelegate() const;
   virtual RenderViewHostDelegate::Save* GetSaveDelegate() const;
+  virtual RenderViewHostDelegate::FavIcon* GetFavIconDelegate() const;
   virtual TabContents* GetAsTabContents();
   virtual void RenderViewCreated(RenderViewHost* render_view_host);
   virtual void RenderViewReady(RenderViewHost* render_view_host);
@@ -761,33 +808,6 @@ class TabContents : public PageNavigator,
   virtual void RequestMove(const gfx::Rect& new_bounds);
   virtual void DidStartLoading(RenderViewHost* render_view_host);
   virtual void DidStopLoading(RenderViewHost* render_view_host);
-  virtual void DidStartProvisionalLoadForFrame(RenderViewHost* render_view_host,
-                                               bool is_main_frame,
-                                               const GURL& url);
-  virtual void DidStartReceivingResourceResponse(
-      ResourceRequestDetails* details);
-  virtual void DidRedirectProvisionalLoad(int32 page_id,
-                                          const GURL& source_url,
-                                          const GURL& target_url);
-  virtual void DidRedirectResource(ResourceRequestDetails* details);
-  virtual void DidLoadResourceFromMemoryCache(
-      const GURL& url,
-      const std::string& frame_origin,
-      const std::string& main_frame_origin,
-      const std::string& security_info);
-  virtual void DidFailProvisionalLoadWithError(
-      RenderViewHost* render_view_host,
-      bool is_main_frame,
-      int error_code,
-      const GURL& url,
-      bool showing_repost_interstitial);
-  virtual void UpdateFavIconURL(RenderViewHost* render_view_host,
-                                int32 page_id, const GURL& icon_url);
-  virtual void DidDownloadImage(RenderViewHost* render_view_host,
-                                int id,
-                                const GURL& image_url,
-                                bool errored,
-                                const SkBitmap& image);
   virtual void RequestOpenURL(const GURL& url, const GURL& referrer,
                               WindowOpenDisposition disposition);
   virtual void DomOperationResponse(const std::string& json_string,
@@ -796,13 +816,9 @@ class TabContents : public PageNavigator,
                                    const std::string& content,
                                    int request_id,
                                    bool has_callback);
-  virtual void DocumentLoadedInFrame();
   virtual void ProcessExternalHostMessage(const std::string& message,
                                           const std::string& origin,
                                           const std::string& target);
-  virtual void GoToEntryAtOffset(int offset);
-  virtual void GetHistoryListCount(int* back_list_count,
-                                   int* forward_list_count);
   virtual void RunFileChooser(bool multiple_files,
                               const string16& title,
                               const FilePath& default_file);
@@ -831,9 +847,6 @@ class TabContents : public PageNavigator,
   virtual GURL GetAlternateErrorPageURL() const;
   virtual RendererPreferences GetRendererPrefs() const;
   virtual WebPreferences GetWebkitPrefs();
-  virtual void OnMissingPluginStatus(int status);
-  virtual void OnCrashedPlugin(const FilePath& plugin_path);
-  virtual void OnCrashedWorker();
   virtual void OnJSOutOfMemory();
   virtual void ShouldClosePage(bool proceed);
   virtual void OnCrossSiteResponse(int new_render_process_host_id,
@@ -845,16 +858,7 @@ class TabContents : public PageNavigator,
                                     bool is_during_unload);
   virtual void RendererResponsive(RenderViewHost* render_view_host);
   virtual void LoadStateChanged(const GURL& url, net::LoadState load_state);
-  virtual void OnDidGetApplicationInfo(
-      int32 page_id,
-      const webkit_glue::WebApplicationInfo& info);
-  virtual void OnUserGesture();
   virtual bool IsExternalTabContainer() const;
-  virtual void OnFindReply(int request_id,
-                           int number_of_matches,
-                           const gfx::Rect& selection_rect,
-                           int active_match_ordinal,
-                           bool final_update);
   virtual void DidInsertCSS();
 
   // SelectFileDialog::Listener ------------------------------------------------

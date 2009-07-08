@@ -114,6 +114,9 @@ const int kMaxOutstandingRequestsCostPerProcess = 26214400;
 // constructed on the IO thread and run in the UI thread.
 class NotificationTask : public Task {
  public:
+  typedef void (RenderViewHostDelegate::Resource::* ResourceFunction)
+      (ResourceRequestDetails*);
+
   // Supply the originating URLRequest, a function on RenderViewHostDelegate
   // to call, and the details to use as the parameter to the given function.
   //
@@ -121,29 +124,34 @@ class NotificationTask : public Task {
   // allocated on the heap.
   NotificationTask(
       URLRequest* request,
-      void (RenderViewHostDelegate::* function)(ResourceRequestDetails*),
+      ResourceFunction function,
       ResourceRequestDetails* details)
       : function_(function),
         details_(details) {
     if (!ResourceDispatcherHost::RenderViewForRequest(request,
                                                       &render_process_host_id_,
-                                                      &render_view_host_id_))
+                                                      &render_view_host_id_)) {
       NOTREACHED();
+    }
   }
 
   virtual void Run() {
     RenderViewHost* rvh = RenderViewHost::FromID(render_process_host_id_,
                                                  render_view_host_id_);
-    if (rvh)
-      (rvh->delegate()->*function_)(details_.get());
+    if (rvh) {
+      RenderViewHostDelegate::Resource* resource_delegate =
+          rvh->delegate()->GetResourceDelegate();
+      if (resource_delegate)
+        (resource_delegate->*function_)(details_.get());
+    }
   }
 
  private:
   int render_process_host_id_;
   int render_view_host_id_;
 
-  // The function to call on RenderViewHostDelegate on the UI thread.
-  void (RenderViewHostDelegate::* function_)(ResourceRequestDetails*);
+  // The function to call on RenderViewHostDelegate::Resource on the UI thread.
+  ResourceFunction function_;
 
   // The details for the notification.
   scoped_ptr<ResourceRequestDetails> details_;
@@ -1392,7 +1400,7 @@ void ResourceDispatcherHost::NotifyResponseStarted(URLRequest* request,
 
   // Notify the observers on the UI thread.
   ui_loop_->PostTask(FROM_HERE, new NotificationTask(request,
-      &RenderViewHostDelegate::DidStartReceivingResourceResponse,
+      &RenderViewHostDelegate::Resource::DidStartReceivingResourceResponse,
       new ResourceRequestDetails(request,
          GetCertID(request, process_id))));
 }
@@ -1417,10 +1425,8 @@ void ResourceDispatcherHost::NotifyReceivedRedirect(URLRequest* request,
   // Notify the observers on the UI thread.
   ui_loop_->PostTask(FROM_HERE,
       new NotificationTask(request,
-                           &RenderViewHostDelegate::DidRedirectResource,
-                           new ResourceRedirectDetails(request,
-                                                       cert_id,
-                                                       new_url)));
+          &RenderViewHostDelegate::Resource::DidRedirectResource,
+          new ResourceRedirectDetails(request, cert_id, new_url)));
 }
 
 namespace {

@@ -36,8 +36,12 @@ class WorkerCrashTask : public Task {
   void Run() {
     RenderViewHost* host =
         RenderViewHost::FromID(render_process_id_, render_view_id_);
-    if (host)
-      host->delegate()->OnCrashedWorker();
+    if (host) {
+      RenderViewHostDelegate::BrowserIntegration* integration_delegate =
+          host->delegate()->GetBrowserIntegrationDelegate();
+      if (integration_delegate)
+        integration_delegate->OnCrashedWorker();
+    }
   }
 
  private:

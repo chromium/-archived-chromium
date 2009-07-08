@@ -262,9 +262,10 @@ class RenderViewHost : public RenderWidgetHost,
   void Delete();
   void SelectAll();
 
-  // Downloads an image notifying the delegate appropriately. The returned
-  // integer uniquely identifies the download for the lifetime of the browser.
-  int DownloadImage(const GURL& url, int image_size);
+  // Downloads an image notifying the FavIcon delegate appropriately. The
+  // returned integer uniquely identifies the download for the lifetime of the
+  // browser.
+  int DownloadFavIcon(const GURL& url, int image_size);
 
   // Requests application info for the specified page. This is an asynchronous
   // request. The delegate is notified by way of OnDidGetApplicationInfo when
@@ -457,10 +458,10 @@ class RenderViewHost : public RenderWidgetHost,
                       int active_match_ordinal,
                       bool final_update);
   void OnMsgUpdateFavIconURL(int32 page_id, const GURL& icon_url);
-  void OnMsgDidDownloadImage(int id,
-                             const GURL& image_url,
-                             bool errored,
-                             const SkBitmap& image_data);
+  void OnMsgDidDownloadFavIcon(int id,
+                               const GURL& image_url,
+                               bool errored,
+                               const SkBitmap& image_data);
   void OnMsgContextMenu(const ContextMenuParams& params);
   void OnMsgOpenURL(const GURL& url, const GURL& referrer,
                     WindowOpenDisposition disposition);
@@ -513,6 +514,7 @@ class RenderViewHost : public RenderWidgetHost,
 
   void OnUserMetricsRecordAction(const std::wstring& action);
   void OnMissingPluginStatus(int status);
+  void OnCrashedPlugin(const FilePath& plugin_path);
   void OnMessageReceived(IPC::Message* msg) { }
 
   void OnReceivedSavableResourceLinksForCurrentPage(

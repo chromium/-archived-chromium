@@ -1478,12 +1478,228 @@ void TabContents::GenerateKeywordIfNecessary(
   url_model->Add(new_url);
 }
 
+void TabContents::OnUserGesture() {
+  // See comment in RenderViewHostDelegate::OnUserGesture as to why we do this.
+  DownloadRequestManager* drm = g_browser_process->download_request_manager();
+  if (drm)
+    drm->OnUserGesture(this);
+  controller_.OnUserGesture();
+}
+
+void TabContents::OnFindReply(int request_id,
+                              int number_of_matches,
+                              const gfx::Rect& selection_rect,
+                              int active_match_ordinal,
+                              bool final_update) {
+  // Ignore responses for requests other than the one we have most recently
+  // issued. That way we won't act on stale results when the user has
+  // already typed in another query.
+  if (request_id != current_find_request_id_)
+    return;
+
+  if (number_of_matches == -1)
+    number_of_matches = last_search_result_.number_of_matches();
+  if (active_match_ordinal == -1)
+    active_match_ordinal = last_search_result_.active_match_ordinal();
+
+  gfx::Rect selection = selection_rect;
+  if (selection.IsEmpty())
+    selection = last_search_result_.selection_rect();
+
+  // Notify the UI, automation and any other observers that a find result was
+  // found.
+  last_search_result_ = FindNotificationDetails(request_id, number_of_matches,
+                                                selection, active_match_ordinal,
+                                                final_update);
+  NotificationService::current()->Notify(
+      NotificationType::FIND_RESULT_AVAILABLE,
+      Source<TabContents>(this),
+      Details<FindNotificationDetails>(&last_search_result_));
+}
+
+void TabContents::GoToEntryAtOffset(int offset) {
+  controller_.GoToOffset(offset);
+}
+
+void TabContents::GetHistoryListCount(int* back_list_count,
+                                      int* forward_list_count) {
+  int current_index = controller_.last_committed_entry_index();
+  *back_list_count = current_index;
+  *forward_list_count = controller_.entry_count() - current_index - 1;
+}
+
+void TabContents::OnMissingPluginStatus(int status) {
+#if defined(OS_WIN)
+// TODO(PORT): pull in when plug-ins work
+  GetPluginInstaller()->OnMissingPluginStatus(status);
+#endif
+}
+
+void TabContents::OnCrashedPlugin(const FilePath& plugin_path) {
+#if defined(OS_WIN)
+// TODO(PORT): pull in when plug-ins work
+  DCHECK(!plugin_path.value().empty());
+
+  std::wstring plugin_name = plugin_path.ToWStringHack();
+  scoped_ptr<FileVersionInfo> version_info(
+      FileVersionInfo::CreateFileVersionInfo(plugin_path));
+  if (version_info.get()) {
+    const std::wstring& product_name = version_info->product_name();
+    if (!product_name.empty())
+      plugin_name = product_name;
+  }
+  AddInfoBar(new SimpleAlertInfoBarDelegate(
+      this, l10n_util::GetStringF(IDS_PLUGIN_CRASHED_PROMPT, plugin_name),
+      NULL));
+#endif
+}
+
+void TabContents::OnCrashedWorker() {
+  AddInfoBar(new SimpleAlertInfoBarDelegate(
+      this, l10n_util::GetString(IDS_WEBWORKER_CRASHED_PROMPT),
+      NULL));
+}
+
+void TabContents::OnDidGetApplicationInfo(
+    int32 page_id,
+    const webkit_glue::WebApplicationInfo& info) {
+  if (pending_install_.page_id != page_id)
+    return;  // The user clicked create on a separate page. Ignore this.
+
+  pending_install_.callback_functor =
+      new GearsCreateShortcutCallbackFunctor(this);
+  GearsCreateShortcut(
+      info, pending_install_.title, pending_install_.url, pending_install_.icon,
+      NewCallback(pending_install_.callback_functor,
+                  &GearsCreateShortcutCallbackFunctor::Run));
+}
+
+void TabContents::DidStartProvisionalLoadForFrame(
+    RenderViewHost* render_view_host,
+    bool is_main_frame,
+    const GURL& url) {
+  ProvisionalLoadDetails details(is_main_frame,
+                                 controller_.IsURLInPageNavigation(url),
+                                 url, std::string(), false);
+  NotificationService::current()->Notify(
+      NotificationType::FRAME_PROVISIONAL_LOAD_START,
+      Source<NavigationController>(&controller_),
+      Details<ProvisionalLoadDetails>(&details));
+}
+
+void TabContents::DidStartReceivingResourceResponse(
+    ResourceRequestDetails* details) {
+  NotificationService::current()->Notify(
+      NotificationType::RESOURCE_RESPONSE_STARTED,
+      Source<NavigationController>(&controller()),
+      Details<ResourceRequestDetails>(details));
+}
+
+void TabContents::DidRedirectResource(ResourceRequestDetails* details) {
+  NotificationService::current()->Notify(
+      NotificationType::RESOURCE_RECEIVED_REDIRECT,
+      Source<NavigationController>(&controller()),
+      Details<ResourceRequestDetails>(details));
+}
+
+void TabContents::DidLoadResourceFromMemoryCache(
+    const GURL& url,
+    const std::string& frame_origin,
+    const std::string& main_frame_origin,
+    const std::string& security_info) {
+  // Send out a notification that we loaded a resource from our memory cache.
+  int cert_id = 0, cert_status = 0, security_bits = 0;
+  SSLManager::DeserializeSecurityInfo(security_info,
+                                      &cert_id, &cert_status,
+                                      &security_bits);
+  LoadFromMemoryCacheDetails details(url, frame_origin, main_frame_origin,
+                                     process()->pid(), cert_id, cert_status);
+
+  NotificationService::current()->Notify(
+      NotificationType::LOAD_FROM_MEMORY_CACHE,
+      Source<NavigationController>(&controller_),
+      Details<LoadFromMemoryCacheDetails>(&details));
+}
+
+void TabContents::DidFailProvisionalLoadWithError(
+    RenderViewHost* render_view_host,
+    bool is_main_frame,
+    int error_code,
+    const GURL& url,
+    bool showing_repost_interstitial) {
+  if (net::ERR_ABORTED == error_code) {
+    // EVIL HACK ALERT! Ignore failed loads when we're showing interstitials.
+    // This means that the interstitial won't be torn down properly, which is
+    // bad. But if we have an interstitial, go back to another tab type, and
+    // then load the same interstitial again, we could end up getting the first
+    // interstitial's "failed" message (as a result of the cancel) when we're on
+    // the second one.
+    //
+    // We can't tell this apart, so we think we're tearing down the current page
+    // which will cause a crash later one. There is also some code in
+    // RenderViewHostManager::RendererAbortedProvisionalLoad that is commented
+    // out because of this problem.
+    //
+    // http://code.google.com/p/chromium/issues/detail?id=2855
+    // Because this will not tear down the interstitial properly, if "back" is
+    // back to another tab type, the interstitial will still be somewhat alive
+    // in the previous tab type. If you navigate somewhere that activates the
+    // tab with the interstitial again, you'll see a flash before the new load
+    // commits of the interstitial page.
+    if (showing_interstitial_page()) {
+      LOG(WARNING) << "Discarding message during interstitial.";
+      return;
+    }
+
+    // This will discard our pending entry if we cancelled the load (e.g., if we
+    // decided to download the file instead of load it). Only discard the
+    // pending entry if the URLs match, otherwise the user initiated a navigate
+    // before the page loaded so that the discard would discard the wrong entry.
+    NavigationEntry* pending_entry = controller_.pending_entry();
+    if (pending_entry && pending_entry->url() == url) {
+      controller_.DiscardNonCommittedEntries();
+      // Update the URL display.
+      NotifyNavigationStateChanged(TabContents::INVALIDATE_URL);
+    }
+
+    render_manager_.RendererAbortedProvisionalLoad(render_view_host);
+  }
+
+  // Send out a notification that we failed a provisional load with an error.
+  ProvisionalLoadDetails details(is_main_frame,
+                                 controller_.IsURLInPageNavigation(url),
+                                 url, std::string(), false);
+  details.set_error_code(error_code);
+
+  NotificationService::current()->Notify(
+      NotificationType::FAIL_PROVISIONAL_LOAD_WITH_ERROR,
+      Source<NavigationController>(&controller_),
+      Details<ProvisionalLoadDetails>(&details));
+}
+
+void TabContents::DocumentLoadedInFrame() {
+  controller_.DocumentLoadedInFrame();
+}
+
 RenderViewHostDelegate::View* TabContents::GetViewDelegate() const {
   return view_.get();
 }
 
+RenderViewHostDelegate::BrowserIntegration*
+    TabContents::GetBrowserIntegrationDelegate() const {
+  return const_cast<TabContents*>(this);
+}
+
+RenderViewHostDelegate::Resource* TabContents::GetResourceDelegate() const {
+  return const_cast<TabContents*>(this);
+}
+
 RenderViewHostDelegate::Save* TabContents::GetSaveDelegate() const {
   return save_package_.get();  // May be NULL, but we can return NULL.
+}
+
+RenderViewHostDelegate::FavIcon* TabContents::GetFavIconDelegate() const {
+  return &const_cast<TabContents*>(this)->fav_icon_helper_;
 }
 
 RendererPreferences TabContents::GetRendererPrefs() const {
@@ -1709,27 +1925,6 @@ void TabContents::DidStopLoading(RenderViewHost* rvh) {
   SetIsLoading(false, details.get());
 }
 
-void TabContents::DidStartProvisionalLoadForFrame(
-    RenderViewHost* render_view_host,
-    bool is_main_frame,
-    const GURL& url) {
-  ProvisionalLoadDetails details(is_main_frame,
-                                 controller_.IsURLInPageNavigation(url),
-                                 url, std::string(), false);
-  NotificationService::current()->Notify(
-      NotificationType::FRAME_PROVISIONAL_LOAD_START,
-      Source<NavigationController>(&controller_),
-      Details<ProvisionalLoadDetails>(&details));
-}
-
-void TabContents::DidStartReceivingResourceResponse(
-    ResourceRequestDetails* details) {
-  NotificationService::current()->Notify(
-      NotificationType::RESOURCE_RESPONSE_STARTED,
-      Source<NavigationController>(&controller()),
-      Details<ResourceRequestDetails>(details));
-}
-
 void TabContents::DidRedirectProvisionalLoad(int32 page_id,
                                              const GURL& source_url,
                                              const GURL& target_url) {
@@ -1741,110 +1936,6 @@ void TabContents::DidRedirectProvisionalLoad(int32 page_id,
   if (!entry || entry->url() != source_url)
     return;
   entry->set_url(target_url);
-}
-
-void TabContents::DidRedirectResource(ResourceRequestDetails* details) {
-  NotificationService::current()->Notify(
-      NotificationType::RESOURCE_RECEIVED_REDIRECT,
-      Source<NavigationController>(&controller()),
-      Details<ResourceRequestDetails>(details));
-}
-
-void TabContents::DidLoadResourceFromMemoryCache(
-    const GURL& url,
-    const std::string& frame_origin,
-    const std::string& main_frame_origin,
-    const std::string& security_info) {
-  // Send out a notification that we loaded a resource from our memory cache.
-  int cert_id = 0, cert_status = 0, security_bits = 0;
-  SSLManager::DeserializeSecurityInfo(security_info,
-                                      &cert_id, &cert_status,
-                                      &security_bits);
-  LoadFromMemoryCacheDetails details(url, frame_origin, main_frame_origin,
-                                     process()->pid(), cert_id, cert_status);
-
-  NotificationService::current()->Notify(
-      NotificationType::LOAD_FROM_MEMORY_CACHE,
-      Source<NavigationController>(&controller_),
-      Details<LoadFromMemoryCacheDetails>(&details));
-}
-
-void TabContents::DidFailProvisionalLoadWithError(
-    RenderViewHost* render_view_host,
-    bool is_main_frame,
-    int error_code,
-    const GURL& url,
-    bool showing_repost_interstitial) {
-  if (net::ERR_ABORTED == error_code) {
-    // EVIL HACK ALERT! Ignore failed loads when we're showing interstitials.
-    // This means that the interstitial won't be torn down properly, which is
-    // bad. But if we have an interstitial, go back to another tab type, and
-    // then load the same interstitial again, we could end up getting the first
-    // interstitial's "failed" message (as a result of the cancel) when we're on
-    // the second one.
-    //
-    // We can't tell this apart, so we think we're tearing down the current page
-    // which will cause a crash later one. There is also some code in
-    // RenderViewHostManager::RendererAbortedProvisionalLoad that is commented
-    // out because of this problem.
-    //
-    // http://code.google.com/p/chromium/issues/detail?id=2855
-    // Because this will not tear down the interstitial properly, if "back" is
-    // back to another tab type, the interstitial will still be somewhat alive
-    // in the previous tab type. If you navigate somewhere that activates the
-    // tab with the interstitial again, you'll see a flash before the new load
-    // commits of the interstitial page.
-    if (showing_interstitial_page()) {
-      LOG(WARNING) << "Discarding message during interstitial.";
-      return;
-    }
-
-    // This will discard our pending entry if we cancelled the load (e.g., if we
-    // decided to download the file instead of load it). Only discard the
-    // pending entry if the URLs match, otherwise the user initiated a navigate
-    // before the page loaded so that the discard would discard the wrong entry.
-    NavigationEntry* pending_entry = controller_.pending_entry();
-    if (pending_entry && pending_entry->url() == url) {
-      controller_.DiscardNonCommittedEntries();
-      // Update the URL display.
-      NotifyNavigationStateChanged(TabContents::INVALIDATE_URL);
-    }
-
-    render_manager_.RendererAbortedProvisionalLoad(render_view_host);
-  }
-
-  // Send out a notification that we failed a provisional load with an error.
-  ProvisionalLoadDetails details(is_main_frame,
-                                 controller_.IsURLInPageNavigation(url),
-                                 url, std::string(), false);
-  details.set_error_code(error_code);
-
-  NotificationService::current()->Notify(
-      NotificationType::FAIL_PROVISIONAL_LOAD_WITH_ERROR,
-      Source<NavigationController>(&controller_),
-      Details<ProvisionalLoadDetails>(&details));
-}
-
-void TabContents::UpdateFavIconURL(RenderViewHost* render_view_host,
-                                   int32 page_id,
-                                   const GURL& icon_url) {
-  fav_icon_helper_.SetFavIconURL(icon_url);
-}
-
-void TabContents::DidDownloadImage(
-    RenderViewHost* render_view_host,
-    int id,
-    const GURL& image_url,
-    bool errored,
-    const SkBitmap& image) {
-  // A notification for downloading would be more flexible, but for now I'm
-  // forwarding to the two places that could possibly have initiated the
-  // request. If we end up with another place invoking DownloadImage, probably
-  // best to refactor out into notification service, or something similar.
-  if (errored)
-    fav_icon_helper_.FavIconDownloadFailed(id);
-  else
-    fav_icon_helper_.SetFavIcon(id, image_url, image);
 }
 
 void TabContents::RequestOpenURL(const GURL& url, const GURL& referrer,
@@ -1884,26 +1975,11 @@ void TabContents::ProcessDOMUIMessage(const std::string& message,
                                                 has_callback);
 }
 
-void TabContents::DocumentLoadedInFrame() {
-  controller_.DocumentLoadedInFrame();
-}
-
 void TabContents::ProcessExternalHostMessage(const std::string& message,
                                              const std::string& origin,
                                              const std::string& target) {
   if (delegate())
     delegate()->ForwardMessageToExternalHost(message, origin, target);
-}
-
-void TabContents::GoToEntryAtOffset(int offset) {
-  controller_.GoToOffset(offset);
-}
-
-void TabContents::GetHistoryListCount(int* back_list_count,
-                                      int* forward_list_count) {
-  int current_index = controller_.last_committed_entry_index();
-  *back_list_count = current_index;
-  *forward_list_count = controller_.entry_count() - current_index - 1;
 }
 
 void TabContents::RunFileChooser(bool multiple_files,
@@ -2094,38 +2170,6 @@ WebPreferences TabContents::GetWebkitPrefs() {
   return RenderViewHostDelegateHelper::GetWebkitPrefs(prefs, isDomUI);
 }
 
-void TabContents::OnMissingPluginStatus(int status) {
-#if defined(OS_WIN)
-// TODO(PORT): pull in when plug-ins work
-  GetPluginInstaller()->OnMissingPluginStatus(status);
-#endif
-}
-
-void TabContents::OnCrashedPlugin(const FilePath& plugin_path) {
-#if defined(OS_WIN)
-// TODO(PORT): pull in when plug-ins work
-  DCHECK(!plugin_path.value().empty());
-
-  std::wstring plugin_name = plugin_path.ToWStringHack();
-  scoped_ptr<FileVersionInfo> version_info(
-      FileVersionInfo::CreateFileVersionInfo(plugin_path));
-  if (version_info.get()) {
-    const std::wstring& product_name = version_info->product_name();
-    if (!product_name.empty())
-      plugin_name = product_name;
-  }
-  AddInfoBar(new SimpleAlertInfoBarDelegate(
-      this, l10n_util::GetStringF(IDS_PLUGIN_CRASHED_PROMPT, plugin_name),
-      NULL));
-#endif
-}
-
-void TabContents::OnCrashedWorker() {
-  AddInfoBar(new SimpleAlertInfoBarDelegate(
-      this, l10n_util::GetString(IDS_WEBWORKER_CRASHED_PROMPT),
-      NULL));
-}
-
 void TabContents::OnJSOutOfMemory() {
   AddInfoBar(new SimpleAlertInfoBarDelegate(
       this, l10n_util::GetString(IDS_JS_OUT_OF_MEMORY_PROMPT), NULL));
@@ -2198,64 +2242,11 @@ void TabContents::LoadStateChanged(const GURL& url,
     NotifyNavigationStateChanged(INVALIDATE_LOAD | INVALIDATE_TAB);
 }
 
-void TabContents::OnDidGetApplicationInfo(
-    int32 page_id,
-    const webkit_glue::WebApplicationInfo& info) {
-  if (pending_install_.page_id != page_id)
-    return;  // The user clicked create on a separate page. Ignore this.
-
-  pending_install_.callback_functor =
-      new GearsCreateShortcutCallbackFunctor(this);
-  GearsCreateShortcut(
-      info, pending_install_.title, pending_install_.url, pending_install_.icon,
-      NewCallback(pending_install_.callback_functor,
-                  &GearsCreateShortcutCallbackFunctor::Run));
-}
-
-void TabContents::OnUserGesture() {
-  // See comment in RenderViewHostDelegate::OnUserGesture as to why we do this.
-  DownloadRequestManager* drm = g_browser_process->download_request_manager();
-  if (drm)
-    drm->OnUserGesture(this);
-  controller_.OnUserGesture();
-}
-
 bool TabContents::IsExternalTabContainer() const {
   if (!delegate())
     return false;
 
   return delegate()->IsExternalTabContainer();
-}
-
-void TabContents::OnFindReply(int request_id,
-                              int number_of_matches,
-                              const gfx::Rect& selection_rect,
-                              int active_match_ordinal,
-                              bool final_update) {
-  // Ignore responses for requests other than the one we have most recently
-  // issued. That way we won't act on stale results when the user has
-  // already typed in another query.
-  if (request_id != current_find_request_id_)
-    return;
-
-  if (number_of_matches == -1)
-    number_of_matches = last_search_result_.number_of_matches();
-  if (active_match_ordinal == -1)
-    active_match_ordinal = last_search_result_.active_match_ordinal();
-
-  gfx::Rect selection = selection_rect;
-  if (selection.IsEmpty())
-    selection = last_search_result_.selection_rect();
-
-  // Notify the UI, automation and any other observers that a find result was
-  // found.
-  last_search_result_ = FindNotificationDetails(request_id, number_of_matches,
-                                                selection, active_match_ordinal,
-                                                final_update);
-  NotificationService::current()->Notify(
-      NotificationType::FIND_RESULT_AVAILABLE,
-      Source<TabContents>(this),
-      Details<FindNotificationDetails>(&last_search_result_));
 }
 
 void TabContents::DidInsertCSS() {

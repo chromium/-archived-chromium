@@ -13,7 +13,22 @@ RenderViewHostDelegate::View* RenderViewHostDelegate::GetViewDelegate() const {
   return NULL;
 }
 
+RenderViewHostDelegate::BrowserIntegration*
+RenderViewHostDelegate::GetBrowserIntegrationDelegate() const {
+  return NULL;
+}
+
+RenderViewHostDelegate::Resource*
+RenderViewHostDelegate::GetResourceDelegate() const {
+  return NULL;
+}
+
 RenderViewHostDelegate::Save* RenderViewHostDelegate::GetSaveDelegate() const {
+  return NULL;
+}
+
+RenderViewHostDelegate::FavIcon*
+RenderViewHostDelegate::GetFavIconDelegate() const {
   return NULL;
 }
 

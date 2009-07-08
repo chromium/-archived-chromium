@@ -509,7 +509,7 @@ class RenderView : public RenderWidget,
   void OnUpdateWebPreferences(const WebPreferences& prefs);
   void OnSetAltErrorPageURL(const GURL& gurl);
 
-  void OnDownloadImage(int id, const GURL& image_url, int image_size);
+  void OnDownloadFavIcon(int id, const GURL& image_url, int image_size);
 
   void OnGetApplicationInfo(int page_id);
 

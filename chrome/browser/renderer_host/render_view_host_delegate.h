@@ -65,6 +65,9 @@ struct WebApplicationInfo;
 //
 class RenderViewHostDelegate {
  public:
+  // View ----------------------------------------------------------------------
+  // Functions that can be routed directly to a view-specific class.
+
   class View {
    public:
     // The page is trying to open a new page (e.g. a popup window). The
@@ -134,7 +137,111 @@ class RenderViewHostDelegate {
     virtual void UpdatePreferredWidth(int pref_width) = 0;
   };
 
+  // BrowserIntegration --------------------------------------------------------
+  // Functions that integrate with other browser services.
+
+  class BrowserIntegration {
+   public:
+    // Notification the user has made a gesture while focus was on the
+    // page. This is used to avoid uninitiated user downloads (aka carpet
+    // bombing), see DownloadRequestManager for details.
+    virtual void OnUserGesture() = 0;
+
+    // A find operation in the current page completed.
+    virtual void OnFindReply(int request_id,
+                             int number_of_matches,
+                             const gfx::Rect& selection_rect,
+                             int active_match_ordinal,
+                             bool final_update) = 0;
+
+    // Navigate to the history entry for the given offset from the current
+    // position within the NavigationController.  Makes no change if offset is
+    // not valid.
+    virtual void GoToEntryAtOffset(int offset) = 0;
+
+    // The page requests the size of the back and forward lists
+    // within the NavigationController.
+    virtual void GetHistoryListCount(int* back_list_count,
+                                     int* forward_list_count) = 0;
+
+    // Notification when default plugin updates status of the missing plugin.
+    virtual void OnMissingPluginStatus(int status) = 0;
+
+    // Notification from the renderer that a plugin instance has crashed.
+    //
+    // BrowserIntegration isn't necessarily the best place for this, if you
+    // need to implement this function somewhere that doesn't need any other
+    // BrowserIntegration callbacks, feel free to move it elsewhere.
+    virtual void OnCrashedPlugin(const FilePath& plugin_path) = 0;
+
+    // Notification that a worker process has crashed.
+    virtual void OnCrashedWorker() = 0;
+
+    // Notification that a request for install info has completed.
+    virtual void OnDidGetApplicationInfo(
+        int32 page_id,
+        const webkit_glue::WebApplicationInfo& app_info) = 0;
+  };
+
+  // Resource ------------------------------------------------------------------
+  // Notifications of resource loading events.
+
+  class Resource {
+   public:
+    // The RenderView is starting a provisional load.
+    virtual void DidStartProvisionalLoadForFrame(
+        RenderViewHost* render_view_host,
+        bool is_main_frame,
+        const GURL& url) = 0;
+
+    // Notification by the resource loading system (not the renderer) that it
+    // has started receiving a resource response. This is different than
+    // DidStartProvisionalLoadForFrame above because this is called for every
+    // resource (images, automatically loaded subframes, etc.) and provisional
+    // loads are only for user-initiated navigations.
+    //
+    // The pointer ownership is NOT transferred.
+    virtual void DidStartReceivingResourceResponse(
+        ResourceRequestDetails* details) = 0;
+
+    // Sent when a provisional load is redirected.
+    virtual void DidRedirectProvisionalLoad(int32 page_id,
+                                            const GURL& source_url,
+                                            const GURL& target_url) = 0;
+
+    // Notification by the resource loading system (not the renderer) that a
+    // resource was redirected. This is different than
+    // DidRedirectProvisionalLoad above because this is called for every
+    // resource (images, automatically loaded subframes, etc.) and provisional
+    // loads are only for user-initiated navigations.
+    //
+    // The pointer ownership is NOT transferred.
+    virtual void DidRedirectResource(ResourceRequestDetails* details) = 0;
+
+    // The RenderView loaded a resource from an in-memory cache.
+    // |security_info| contains the security info if this resource was
+    // originally loaded over a secure connection.
+    virtual void DidLoadResourceFromMemoryCache(
+        const GURL& url,
+        const std::string& frame_origin,
+        const std::string& main_frame_origin,
+        const std::string& security_info) = 0;
+
+    // The RenderView failed a provisional load with an error.
+    virtual void DidFailProvisionalLoadWithError(
+        RenderViewHost* render_view_host,
+        bool is_main_frame,
+        int error_code,
+        const GURL& url,
+        bool showing_repost_interstitial) = 0;
+
+    // Notification that a document has been loaded in a frame.
+    virtual void DocumentLoadedInFrame() = 0;
+  };
+
+  // Save ----------------------------------------------------------------------
   // Interface for saving web pages.
+
   class Save {
    public:
     // Notification that we get when we receive all savable links of
@@ -157,10 +264,38 @@ class RenderViewHostDelegate {
                                               int32 status) = 0;
   };
 
+  // FavIcon -------------------------------------------------------------------
+  // Interface for the renderer to supply favicon information.
+
+  class FavIcon {
+   public:
+    // An image that was requested to be downloaded by DownloadImage has
+    // completed.
+    //
+    // TODO(brettw) this should be renamed DidDownloadFavIcon, and the RVH
+    // function, IPC message, and the RenderView function DownloadImage should
+    // all be named DownloadFavIcon.
+    virtual void DidDownloadFavIcon(RenderViewHost* render_view_host,
+                                    int id,
+                                    const GURL& image_url,
+                                    bool errored,
+                                    const SkBitmap& image) = 0;
+
+    // The URL for the FavIcon of a page has changed.
+    virtual void UpdateFavIconURL(RenderViewHost* render_view_host,
+                                  int32 page_id,
+                                  const GURL& icon_url) = 0;
+  };
+
+  // ---------------------------------------------------------------------------
+
   // Returns the current delegate associated with a feature. May return NULL if
   // there is no corresponding delegate.
   virtual View* GetViewDelegate() const;
+  virtual BrowserIntegration* GetBrowserIntegrationDelegate() const;
+  virtual Resource* GetResourceDelegate() const;
   virtual Save* GetSaveDelegate() const;
+  virtual FavIcon* GetFavIconDelegate() const;
 
   // Gets the URL that is currently being displayed, if there is one.
   virtual const GURL& GetURL() const;
@@ -223,64 +358,6 @@ class RenderViewHostDelegate {
   // notion of the throbber stopping.
   virtual void DidStopLoading(RenderViewHost* render_view_host) {}
 
-  // The RenderView is starting a provisional load.
-  virtual void DidStartProvisionalLoadForFrame(RenderViewHost* render_view_host,
-                                               bool is_main_frame,
-                                               const GURL& url) {}
-
-  // Notification by the resource loading system (not the renderer) that it has
-  // started receiving a resource response. This is different than
-  // DidStartProvisionalLoadForFrame above because this is called for every
-  // resource (images, automatically loaded subframes, etc.) and provisional
-  // loads are only for user-initiated navigations.
-  //
-  // The pointer ownership is NOT transferred.
-  virtual void DidStartReceivingResourceResponse(
-      ResourceRequestDetails* details) {}
-
-  // Sent when a provisional load is redirected.
-  virtual void DidRedirectProvisionalLoad(int32 page_id,
-                                          const GURL& source_url,
-                                          const GURL& target_url) {}
-
-  // Notification by the resource loading system (not the renderer) that a
-  // resource was redirected. This is different than DidRedirectProvisionalLoad
-  // above because this is called for every resource (images, automatically
-  // loaded subframes, etc.) and provisional loads are only for user-initiated
-  // navigations.
-  //
-  // The pointer ownership is NOT transferred.
-  virtual void DidRedirectResource(ResourceRequestDetails* details) {}
-
-  // The RenderView loaded a resource from an in-memory cache.
-  // |security_info| contains the security info if this resource was originally
-  // loaded over a secure connection.
-  virtual void DidLoadResourceFromMemoryCache(
-      const GURL& url,
-      const std::string& frame_origin,
-      const std::string& main_frame_origin,
-      const std::string& security_info) {}
-
-  // The RenderView failed a provisional load with an error.
-  virtual void DidFailProvisionalLoadWithError(
-      RenderViewHost* render_view_host,
-      bool is_main_frame,
-      int error_code,
-      const GURL& url,
-      bool showing_repost_interstitial) {}
-
-  // The URL for the FavIcon of a page has changed.
-  virtual void UpdateFavIconURL(RenderViewHost* render_view_host,
-                                int32 page_id, const GURL& icon_url) {}
-
-  // An image that was requested to be downloaded by DownloadImage has
-  // completed.
-  virtual void DidDownloadImage(RenderViewHost* render_view_host,
-                                int id,
-                                const GURL& image_url,
-                                bool errored,
-                                const SkBitmap& image) {}
-
   // The page wants to open a URL with the specified disposition.
   virtual void RequestOpenURL(const GURL& url,
                               const GURL& referrer,
@@ -304,19 +381,6 @@ class RenderViewHostDelegate {
   virtual void ProcessExternalHostMessage(const std::string& message,
                                           const std::string& origin,
                                           const std::string& target) {}
-
-  // Notification that a document has been loaded in a frame.
-  virtual void DocumentLoadedInFrame() {}
-
-  // Navigate to the history entry for the given offset from the current
-  // position within the NavigationController.  Makes no change if offset is
-  // not valid.
-  virtual void GoToEntryAtOffset(int offset) {}
-
-  // The page requests the size of the back and forward lists
-  // within the NavigationController.
-  virtual void GetHistoryListCount(int* back_list_count,
-                                   int* forward_list_count) {}
 
   // A file chooser should be shown.
   virtual void RunFileChooser(bool multiple_files,
@@ -388,15 +452,6 @@ class RenderViewHostDelegate {
   // associated with the owning render view host.
   virtual WebPreferences GetWebkitPrefs();
 
-  // Notification when default plugin updates status of the missing plugin.
-  virtual void OnMissingPluginStatus(int status) {}
-
-  // Notification from the renderer that a plugin instance has crashed.
-  virtual void OnCrashedPlugin(const FilePath& plugin_path) {}
-
-  // Notification that a worker process has crashed.
-  virtual void OnCrashedWorker() {}
-
   // Notification from the renderer that JS runs out of memory.
   virtual void OnJSOutOfMemory() {}
 
@@ -438,25 +493,8 @@ class RenderViewHostDelegate {
   // Notification that the RenderViewHost's load state changed.
   virtual void LoadStateChanged(const GURL& url, net::LoadState load_state) {}
 
-  // Notification that a request for install info has completed.
-  virtual void OnDidGetApplicationInfo(
-      int32 page_id,
-      const webkit_glue::WebApplicationInfo& app_info) {}
-
-  // Notification the user has made a gesture while focus was on the
-  // page. This is used to avoid uninitiated user downloads (aka carpet
-  // bombing), see DownloadRequestManager for details.
-  virtual void OnUserGesture() {}
-
   // Returns true if this view is used to host an external tab container.
   virtual bool IsExternalTabContainer() const;
-
-  // A find operation in the current page completed.
-  virtual void OnFindReply(int request_id,
-                           int number_of_matches,
-                           const gfx::Rect& selection_rect,
-                           int active_match_ordinal,
-                           bool final_update) {}
 
   // The RenderView has inserted one css file into page.
   virtual void DidInsertCSS() {}

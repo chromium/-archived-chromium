@@ -522,14 +522,14 @@ void RenderViewHost::SelectAll() {
   Send(new ViewMsg_SelectAll(routing_id()));
 }
 
-int RenderViewHost::DownloadImage(const GURL& url, int image_size) {
+int RenderViewHost::DownloadFavIcon(const GURL& url, int image_size) {
   if (!url.is_valid()) {
     NOTREACHED();
     return 0;
   }
   static int next_id = 1;
   int id = next_id++;
-  Send(new ViewMsg_DownloadImage(routing_id(), id, url, image_size));
+  Send(new ViewMsg_DownloadFavIcon(routing_id(), id, url, image_size));
   return id;
 }
 
@@ -725,7 +725,7 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
                         OnMsgDidFailProvisionalLoadWithError)
     IPC_MESSAGE_HANDLER(ViewHostMsg_Find_Reply, OnMsgFindReply)
     IPC_MESSAGE_HANDLER(ViewHostMsg_UpdateFavIconURL, OnMsgUpdateFavIconURL)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_DidDownloadImage, OnMsgDidDownloadImage)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_DidDownloadFavIcon, OnMsgDidDownloadFavIcon)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ContextMenu, OnMsgContextMenu)
     IPC_MESSAGE_HANDLER(ViewHostMsg_OpenURL, OnMsgOpenURL)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DidContentsPreferredWidthChange,
@@ -775,8 +775,7 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_UserMetricsRecordAction,
                         OnUserMetricsRecordAction)
     IPC_MESSAGE_HANDLER(ViewHostMsg_MissingPluginStatus, OnMissingPluginStatus);
-    IPC_MESSAGE_FORWARD(ViewHostMsg_CrashedPlugin, delegate_,
-                        RenderViewHostDelegate::OnCrashedPlugin);
+    IPC_MESSAGE_HANDLER(ViewHostMsg_CrashedPlugin, OnCrashedPlugin);
     IPC_MESSAGE_HANDLER(ViewHostMsg_SendCurrentPageAllSavableResourceLinks,
                         OnReceivedSavableResourceLinksForCurrentPage);
     IPC_MESSAGE_HANDLER(ViewHostMsg_SendSerializedHtmlData,
@@ -977,7 +976,12 @@ void RenderViewHost::OnMsgRequestMove(const gfx::Rect& pos) {
 void RenderViewHost::OnMsgDidRedirectProvisionalLoad(int32 page_id,
                                                      const GURL& source_url,
                                                      const GURL& target_url) {
-  delegate_->DidRedirectProvisionalLoad(page_id, source_url, target_url);
+  RenderViewHostDelegate::Resource* resource_delegate =
+      delegate_->GetResourceDelegate();
+  if (resource_delegate) {
+    resource_delegate->DidRedirectProvisionalLoad(page_id,
+                                                  source_url, target_url);
+  }
 }
 
 void RenderViewHost::OnMsgDidStartLoading() {
@@ -993,8 +997,12 @@ void RenderViewHost::OnMsgDidLoadResourceFromMemoryCache(
     const std::string& frame_origin,
     const std::string& main_frame_origin,
     const std::string& security_info) {
-  delegate_->DidLoadResourceFromMemoryCache(
-      url, frame_origin, main_frame_origin, security_info);
+  RenderViewHostDelegate::Resource* resource_delegate =
+      delegate_->GetResourceDelegate();
+  if (resource_delegate) {
+    resource_delegate->DidLoadResourceFromMemoryCache(
+        url, frame_origin, main_frame_origin, security_info);
+  }
 }
 
 void RenderViewHost::OnMsgDidStartProvisionalLoadForFrame(bool is_main_frame,
@@ -1003,8 +1011,12 @@ void RenderViewHost::OnMsgDidStartProvisionalLoadForFrame(bool is_main_frame,
   FilterURL(ChildProcessSecurityPolicy::GetInstance(),
             process()->pid(), &validated_url);
 
-  delegate_->DidStartProvisionalLoadForFrame(this, is_main_frame,
-                                             validated_url);
+  RenderViewHostDelegate::Resource* resource_delegate =
+      delegate_->GetResourceDelegate();
+  if (resource_delegate) {
+    resource_delegate->DidStartProvisionalLoadForFrame(this, is_main_frame,
+                                                       validated_url);
+  }
 }
 
 void RenderViewHost::OnMsgDidFailProvisionalLoadWithError(
@@ -1016,9 +1028,13 @@ void RenderViewHost::OnMsgDidFailProvisionalLoadWithError(
   FilterURL(ChildProcessSecurityPolicy::GetInstance(),
             process()->pid(), &validated_url);
 
-  delegate_->DidFailProvisionalLoadWithError(this, is_main_frame,
-                                             error_code, validated_url,
-                                             showing_repost_interstitial);
+  RenderViewHostDelegate::Resource* resource_delegate =
+      delegate_->GetResourceDelegate();
+  if (resource_delegate) {
+    resource_delegate->DidFailProvisionalLoadWithError(
+        this, is_main_frame, error_code, validated_url,
+        showing_repost_interstitial);
+  }
 }
 
 void RenderViewHost::OnMsgFindReply(int request_id,
@@ -1026,8 +1042,13 @@ void RenderViewHost::OnMsgFindReply(int request_id,
                                     const gfx::Rect& selection_rect,
                                     int active_match_ordinal,
                                     bool final_update) {
-  delegate_->OnFindReply(request_id, number_of_matches, selection_rect,
-                         active_match_ordinal, final_update);
+  RenderViewHostDelegate::BrowserIntegration* integration_delegate =
+      delegate_->GetBrowserIntegrationDelegate();
+  if (integration_delegate) {
+    integration_delegate->OnFindReply(request_id, number_of_matches,
+                                      selection_rect,
+                                      active_match_ordinal, final_update);
+  }
 
   // Send a notification to the renderer that we are ready to receive more
   // results from the scoping effort of the Find operation. The FindInPage
@@ -1040,15 +1061,20 @@ void RenderViewHost::OnMsgFindReply(int request_id,
 
 void RenderViewHost::OnMsgUpdateFavIconURL(int32 page_id,
                                            const GURL& icon_url) {
-  delegate_->UpdateFavIconURL(this, page_id, icon_url);
+  RenderViewHostDelegate::FavIcon* favicon_delegate =
+      delegate_->GetFavIconDelegate();
+  if (favicon_delegate)
+    favicon_delegate->UpdateFavIconURL(this, page_id, icon_url);
 }
 
-void RenderViewHost::OnMsgDidDownloadImage(
-    int id,
-    const GURL& image_url,
-    bool errored,
-    const SkBitmap& image) {
-  delegate_->DidDownloadImage(this, id, image_url, errored, image);
+void RenderViewHost::OnMsgDidDownloadFavIcon(int id,
+                                             const GURL& image_url,
+                                             bool errored,
+                                             const SkBitmap& image) {
+  RenderViewHostDelegate::FavIcon* favicon_delegate =
+      delegate_->GetFavIconDelegate();
+  if (favicon_delegate)
+    favicon_delegate->DidDownloadFavIcon(this, id, image_url, errored, image);
 }
 
 void RenderViewHost::OnMsgContextMenu(const ContextMenuParams& params) {
@@ -1060,7 +1086,8 @@ void RenderViewHost::OnMsgContextMenu(const ContextMenuParams& params) {
   // directly, don't show them in the context menu.
   ContextMenuParams validated_params(params);
   const int renderer_id = process()->pid();
-  ChildProcessSecurityPolicy* policy = ChildProcessSecurityPolicy::GetInstance();
+  ChildProcessSecurityPolicy* policy =
+      ChildProcessSecurityPolicy::GetInstance();
 
   // We don't validate |unfiltered_link_url| so that this field can be used
   // when users want to copy the original link URL.
@@ -1124,7 +1151,10 @@ void RenderViewHost::OnMsgForwardMessageToExternalHost(
 }
 
 void RenderViewHost::OnMsgDocumentLoadedInFrame() {
-  delegate_->DocumentLoadedInFrame();
+  RenderViewHostDelegate::Resource* resource_delegate =
+      delegate_->GetResourceDelegate();
+  if (resource_delegate)
+    resource_delegate->DocumentLoadedInFrame();
 }
 
 void RenderViewHost::DisassociateFromPopupCount() {
@@ -1136,7 +1166,10 @@ void RenderViewHost::PopupNotificationVisibilityChanged(bool visible) {
 }
 
 void RenderViewHost::OnMsgGoToEntryAtOffset(int offset) {
-  delegate_->GoToEntryAtOffset(offset);
+  RenderViewHostDelegate::BrowserIntegration* integration_delegate =
+      delegate_->GetBrowserIntegrationDelegate();
+  if (integration_delegate)
+    integration_delegate->GoToEntryAtOffset(offset);
 }
 
 void RenderViewHost::OnMsgSetTooltipText(const std::wstring& tooltip_text) {
@@ -1283,18 +1316,35 @@ void RenderViewHost::UnhandledKeyboardEvent(
 }
 
 void RenderViewHost::OnUserGesture() {
-  delegate_->OnUserGesture();
+  RenderViewHostDelegate::BrowserIntegration* integration_delegate =
+      delegate_->GetBrowserIntegrationDelegate();
+  if (integration_delegate)
+    integration_delegate->OnUserGesture();
 }
 
 void RenderViewHost::OnMissingPluginStatus(int status) {
-  delegate_->OnMissingPluginStatus(status);
+  RenderViewHostDelegate::BrowserIntegration* integration_delegate =
+      delegate_->GetBrowserIntegrationDelegate();
+  if (integration_delegate)
+    integration_delegate->OnMissingPluginStatus(status);
+}
+
+void RenderViewHost::OnCrashedPlugin(const FilePath& plugin_path) {
+  RenderViewHostDelegate::BrowserIntegration* integration_delegate =
+      delegate_->GetBrowserIntegrationDelegate();
+  if (integration_delegate)
+    integration_delegate->OnCrashedPlugin(plugin_path);
 }
 
 void RenderViewHost::UpdateBackForwardListCount() {
   int back_list_count = 0, forward_list_count = 0;
-  delegate_->GetHistoryListCount(&back_list_count, &forward_list_count);
-  Send(new ViewMsg_UpdateBackForwardListCount(
-      routing_id(), back_list_count, forward_list_count));
+  RenderViewHostDelegate::BrowserIntegration* integration_delegate =
+      delegate_->GetBrowserIntegrationDelegate();
+  if (integration_delegate) {
+    integration_delegate->GetHistoryListCount(&back_list_count, &forward_list_count);
+    Send(new ViewMsg_UpdateBackForwardListCount(
+         routing_id(), back_list_count, forward_list_count));
+  }
 }
 
 void RenderViewHost::GetAllSavableResourceLinksForCurrentPage(
@@ -1317,7 +1367,10 @@ void RenderViewHost::OnReceivedSavableResourceLinksForCurrentPage(
 void RenderViewHost::OnDidGetApplicationInfo(
     int32 page_id,
     const webkit_glue::WebApplicationInfo& info) {
-  delegate_->OnDidGetApplicationInfo(page_id, info);
+  RenderViewHostDelegate::BrowserIntegration* integration_delegate =
+      delegate_->GetBrowserIntegrationDelegate();
+  if (integration_delegate)
+    integration_delegate->OnDidGetApplicationInfo(page_id, info);
 }
 
 void RenderViewHost::GetSerializedHtmlDataForCurrentPageWithLocalLinks(

@@ -431,9 +431,9 @@ IPC_BEGIN_MESSAGES(View)
   // ViewHostMsg_DidGetApplicationInfo.
   IPC_MESSAGE_ROUTED1(ViewMsg_GetApplicationInfo, int32 /*page_id*/)
 
-  // Requests the renderer to download the specified image encode it as PNG
-  // and send the PNG data back ala ViewHostMsg_DidDownloadImage.
-  IPC_MESSAGE_ROUTED3(ViewMsg_DownloadImage,
+  // Requests the renderer to download the specified favicon image encode it as
+  // PNG and send the PNG data back ala ViewHostMsg_DidDownloadFavIcon.
+  IPC_MESSAGE_ROUTED3(ViewMsg_DownloadFavIcon,
                       int /* identifier for the request */,
                       GURL /* URL of the image */,
                       int /* Size of the image. Normally 0, but set if you have
@@ -1192,7 +1192,7 @@ IPC_BEGIN_MESSAGES(ViewHost)
                       int /* new_render_process_host_id */,
                       int /* new_request_id */)
 
-  IPC_MESSAGE_ROUTED4(ViewHostMsg_DidDownloadImage,
+  IPC_MESSAGE_ROUTED4(ViewHostMsg_DidDownloadFavIcon,
                       int /* Identifier of the request */,
                       GURL /* URL of the image */,
                       bool /* true if there was a network error */,
