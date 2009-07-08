@@ -2794,3 +2794,19 @@ BUG11613 MAC : LayoutTests/http/tests/security/cross-frame-access-call.html = FA
 
 // WebKit merge 45601:45610
 BUG16162 : LayoutTests/fast/loader/subframe-navigate-during-main-frame-load.html = FAIL
+
+// WebKit merge 45635:45640
+BUG16237 : LayoutTests/http/tests/security/xssAuditor/anchor-url-dom-write-location-inline-event-null-char.html = FAIL
+BUG16237 : LayoutTests/http/tests/security/xssAuditor/base-href-control-char.html = FAIL
+BUG16237 : LayoutTests/http/tests/security/xssAuditor/base-href-null-char.html = FAIL
+BUG16237 : LayoutTests/http/tests/security/xssAuditor/base-href-scheme-relative.html = FAIL
+BUG16237 : LayoutTests/http/tests/security/xssAuditor/base-href.html = FAIL
+BUG16237 : LayoutTests/http/tests/security/xssAuditor/embed-tag-control-char.html = FAIL
+BUG16237 : LayoutTests/http/tests/security/xssAuditor/embed-tag-null-char.html = FAIL
+BUG16237 : LayoutTests/http/tests/security/xssAuditor/embed-tag.html = FAIL
+BUG16237 : LayoutTests/http/tests/security/xssAuditor/link-onclick-null-char.html = FAIL
+BUG16237 : LayoutTests/http/tests/security/xssAuditor/object-embed-tag-control-char.html = FAIL
+BUG16237 : LayoutTests/http/tests/security/xssAuditor/object-embed-tag-null-char.html = FAIL
+BUG16237 : LayoutTests/http/tests/security/xssAuditor/object-embed-tag.html = FAIL
+BUG16237 : LayoutTests/http/tests/security/xssAuditor/object-tag.html = FAIL
+BUG16237 : LayoutTests/http/tests/security/xssAuditor/script-tag-with-source-null-char.html = FAIL
