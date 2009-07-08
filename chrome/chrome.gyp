@@ -20,6 +20,7 @@
     ],
     'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/chrome',
     'browser_tests_sources': [
+      'browser/crash_recovery_browsertest.cc',
       'browser/ssl/ssl_browser_tests.cc',
     ],
     'browser_tests_sources_win_specific': [
@@ -3235,7 +3236,6 @@
       'sources': [
         'app/chrome_main_uitest.cc',
         'browser/browser_uitest.cc',
-        'browser/crash_recovery_uitest.cc',
         'browser/download/download_uitest.cc',
         'browser/download/save_page_uitest.cc',
         'browser/errorpage_uitest.cc',
@@ -3309,7 +3309,6 @@
           'sources!': [
             # TODO(port)
             'app/chrome_main_uitest.cc',
-            'browser/crash_recovery_uitest.cc',
             'browser/login_prompt_uitest.cc',
             'browser/metrics/metrics_service_uitest.cc',
             # leaves an extra window on screen after test completes.

@@ -12,6 +12,7 @@
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
+#include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/notification_registrar.h"
@@ -120,7 +121,7 @@ class DownloadsCompleteObserver : public DownloadManager::Observer,
 
   // CheckAllDownloadsComplete will be called when the DownloadManager
   // fires it's ModelChanged() call, and also when incomplete downloads
-  // fire their OnDownloadUpdated(). 
+  // fire their OnDownloadUpdated().
   bool CheckAllDownloadsComplete() {
     if (downloads_.size() < wait_count_)
       return false;
@@ -208,6 +209,17 @@ void RunMessageLoop() {
   loop->SetNestableTasksAllowed(did_allow_task_nesting);
 }
 
+bool GetCurrentTabTitle(const Browser* browser, string16* title) {
+  TabContents* tab_contents = browser->GetSelectedTabContents();
+  if (!tab_contents)
+    return false;
+  NavigationEntry* last_entry = tab_contents->controller().GetActiveEntry();
+  if (!last_entry)
+    return false;
+  title->assign(last_entry->title());
+  return true;
+}
+
 void WaitForNavigation(NavigationController* controller) {
   WaitForNavigations(controller, 1);
 }
@@ -228,6 +240,15 @@ void NavigateToURLBlockUntilNavigationsComplete(Browser* browser,
       &browser->GetSelectedTabContents()->controller();
   browser->OpenURL(url, GURL(), CURRENT_TAB, PageTransition::TYPED);
   WaitForNavigations(controller, number_of_navigations);
+}
+
+bool ReloadCurrentTab(Browser* browser) {
+  browser->Reload();
+  TabContents* tab_contents = browser->GetSelectedTabContents();
+  if (!tab_contents)
+    return false;
+  WaitForNavigation(&tab_contents->controller());
+  return true;
 }
 
 Value* ExecuteJavaScript(RenderViewHost* render_view_host,

@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/string16.h"
 #include "chrome/common/notification_observer.h"
 
 class Browser;
@@ -25,6 +26,9 @@ namespace ui_test_utils {
 // process browser tests that need to block until a condition is met.
 void RunMessageLoop();
 
+// Puts the current tab title in |title|. Returns true on success.
+bool GetCurrentTabTitle(const Browser* browser, string16* title);
+
 // Waits for |controller| to complete a navigation. This blocks until
 // the navigation finishes.
 void WaitForNavigation(NavigationController* controller);
@@ -37,6 +41,10 @@ void WaitForNavigations(NavigationController* controller,
 // Navigates the selected tab of |browser| to |url|, blocking until the
 // navigation finishes.
 void NavigateToURL(Browser* browser, const GURL& url);
+
+// Reloads current tab contents and waits for navigation to finish.
+// Returns true on success.
+bool ReloadCurrentTab(Browser* browser);
 
 // Navigates the selected tab of |browser| to |url|, blocking until the
 // number of navigations specified complete.
