@@ -627,6 +627,7 @@ void Renderer::SetRenderSurfaces(RenderSurface* surface,
   if (surface != NULL || depth_surface != NULL) {
     SetRenderSurfacesPlatformSpecific(surface, depth_surface);
     current_render_surface_ = surface;
+    current_depth_surface_ = depth_surface;
     if (surface) {
       render_width_ = surface->width();
       render_height_ = surface->height();
@@ -637,6 +638,7 @@ void Renderer::SetRenderSurfaces(RenderSurface* surface,
   } else {
     SetBackBufferPlatformSpecific();
     current_render_surface_ = NULL;
+    current_depth_surface_ = NULL;
     render_width_ = width();
     render_height_ = height();
   }
