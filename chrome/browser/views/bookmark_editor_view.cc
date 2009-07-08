@@ -287,11 +287,13 @@ void BookmarkEditorView::Init() {
   }
 
   // Yummy layout code.
+  GridLayout* layout = CreatePanelGridLayout(this);
+  SetLayoutManager(layout);
+
   const int labels_column_set_id = 0;
   const int single_column_view_set_id = 1;
   const int buttons_column_set_id = 2;
-  GridLayout* layout = CreatePanelGridLayout(this);
-  SetLayoutManager(layout);
+
   ColumnSet* column_set = layout->AddColumnSet(labels_column_set_id);
   column_set->AddColumn(GridLayout::LEADING, GridLayout::CENTER, 0,
                         GridLayout::USE_PREF, 0, 0);
@@ -456,9 +458,8 @@ BookmarkEditorView::EditorNode* BookmarkEditorView::CreateRootNode() {
   const BookmarkNode* bb_root_node = bb_model_->root_node();
   CreateNodes(bb_root_node, root_node);
   DCHECK(root_node->GetChildCount() == 2);
-  DCHECK(bb_root_node->GetChild(0)->GetType() ==
-         history::StarredEntry::BOOKMARK_BAR);
-  DCHECK(bb_root_node->GetChild(1)->GetType() == history::StarredEntry::OTHER);
+  DCHECK(bb_root_node->GetChild(0)->GetType() == BookmarkNode::BOOKMARK_BAR);
+  DCHECK(bb_root_node->GetChild(1)->GetType() == BookmarkNode::OTHER_NODE);
   return root_node;
 }
 

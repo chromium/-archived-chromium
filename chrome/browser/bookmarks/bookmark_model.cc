@@ -44,17 +44,30 @@ void BookmarkNode::Initialize(int id) {
   id_ = id;
   loaded_favicon_ = false;
   favicon_load_handle_ = 0;
-  type_ = !url_.is_empty() ? history::StarredEntry::URL :
-          history::StarredEntry::BOOKMARK_BAR;
+  type_ = !url_.is_empty() ? URL : BOOKMARK_BAR;
   date_added_ = Time::Now();
 }
 
 void BookmarkNode::Reset(const history::StarredEntry& entry) {
-  DCHECK(entry.type != history::StarredEntry::URL ||
-         entry.url == url_);
+  DCHECK(entry.type != history::StarredEntry::URL || entry.url == url_);
 
   favicon_ = SkBitmap();
-  type_ = entry.type;
+  switch (entry.type) {
+    case history::StarredEntry::URL:
+      type_ = BookmarkNode::URL;
+      break;
+    case history::StarredEntry::USER_GROUP:
+      type_ = BookmarkNode::FOLDER;
+      break;
+    case history::StarredEntry::BOOKMARK_BAR:
+      type_ = BookmarkNode::BOOKMARK_BAR;
+      break;
+    case history::StarredEntry::OTHER:
+      type_ = BookmarkNode::OTHER_NODE;
+      break;
+    default:
+      NOTREACHED();
+  }
   date_added_ = entry.date_added;
   date_group_modified_ = entry.date_group_modified;
   SetTitle(entry.title);
@@ -287,7 +300,7 @@ const BookmarkNode* BookmarkModel::AddGroup(const BookmarkNode* parent,
                                             GURL());
   new_node->set_date_group_modified(Time::Now());
   new_node->SetTitle(title);
-  new_node->SetType(history::StarredEntry::USER_GROUP);
+  new_node->SetType(BookmarkNode::FOLDER);
 
   return AddNode(AsMutable(parent), index, new_node, false);
 }
@@ -318,7 +331,7 @@ const BookmarkNode* BookmarkModel::AddURLWithCreationTime(
   BookmarkNode* new_node = new BookmarkNode(generate_next_node_id(), url);
   new_node->SetTitle(title);
   new_node->set_date_added(creation_time);
-  new_node->SetType(history::StarredEntry::URL);
+  new_node->SetType(BookmarkNode::URL);
 
   {
     // Only hold the lock for the duration of the insert.
@@ -427,7 +440,7 @@ void BookmarkModel::RemoveNode(BookmarkNode* node,
     return;
   }
 
-  if (node->GetType() == history::StarredEntry::URL) {
+  if (node->GetType() == BookmarkNode::URL) {
     // NOTE: this is called in such a way that url_lock_ is already held. As
     // such, this doesn't explicitly grab the lock.
     NodesOrderedByURLSet::iterator i = nodes_ordered_by_url_set_.find(node);
@@ -558,7 +571,7 @@ BookmarkNode* BookmarkModel::AddNode(BookmarkNode* parent,
 
   index_->Add(node);
 
-  if (node->GetType() == history::StarredEntry::URL && !was_bookmarked) {
+  if (node->GetType() == BookmarkNode::URL && !was_bookmarked) {
     history::URLsStarredDetails details(true);
     details.changed_urls.insert(node->GetURL());
     NotificationService::current()->Notify(
@@ -578,7 +591,7 @@ const BookmarkNode* BookmarkModel::GetNodeByID(const BookmarkNode* node,
   if (node->id() == id)
     return node;
 
-  for (int i = 0; i < node->GetChildCount(); ++i) {
+  for (int i = 0, child_count = node->GetChildCount(); i < child_count; ++i) {
     const BookmarkNode* result = GetNodeByID(node->GetChild(i), id);
     if (result)
       return result;
@@ -592,7 +605,7 @@ bool BookmarkModel::IsValidIndex(const BookmarkNode* parent,
   return (parent && parent->is_folder() &&
           (index >= 0 && (index < parent->GetChildCount() ||
                           (allow_end && index == parent->GetChildCount()))));
-  }
+}
 
 void BookmarkModel::SetDateGroupModified(const BookmarkNode* parent,
                                          const Time time) {
@@ -648,7 +661,7 @@ void BookmarkModel::OnFavIconDataAvailable(
 }
 
 void BookmarkModel::LoadFavIcon(BookmarkNode* node) {
-  if (node->GetType() != history::StarredEntry::URL)
+  if (node->GetType() != BookmarkNode::URL)
     return;
 
   DCHECK(node->GetURL().is_valid());

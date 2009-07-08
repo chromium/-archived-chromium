@@ -138,7 +138,7 @@ Value* BookmarkCodec::EncodeNode(const BookmarkNode* node) {
   value->SetString(kNameKey, title);
   value->SetString(kDateAddedKey,
                    Int64ToWString(node->date_added().ToInternalValue()));
-  if (node->GetType() == history::StarredEntry::URL) {
+  if (node->GetType() == BookmarkNode::URL) {
     value->SetString(kTypeKey, kTypeURL);
     std::wstring url = UTF8ToWide(node->GetURL().possibly_invalid_spec());
     value->SetString(kURLKey, url);
@@ -203,8 +203,8 @@ bool BookmarkCodec::DecodeHelper(BookmarkNode* bb_node,
   // Need to reset the type as decoding resets the type to FOLDER. Similarly
   // we need to reset the title as the title is persisted and restored from
   // the file.
-  bb_node->SetType(history::StarredEntry::BOOKMARK_BAR);
-  other_folder_node->SetType(history::StarredEntry::OTHER);
+  bb_node->SetType(BookmarkNode::BOOKMARK_BAR);
+  other_folder_node->SetType(BookmarkNode::OTHER_NODE);
   bb_node->SetTitle(l10n_util::GetString(IDS_BOOMARK_BAR_FOLDER_NAME));
   other_folder_node->SetTitle(
       l10n_util::GetString(IDS_BOOMARK_BAR_OTHER_FOLDER_NAME));
@@ -266,7 +266,7 @@ bool BookmarkCodec::DecodeNode(const DictionaryValue& value,
 
     if (parent)
       parent->Add(parent->GetChildCount(), node);
-    node->SetType(history::StarredEntry::URL);
+    node->SetType(BookmarkNode::URL);
     UpdateChecksumWithUrlNode(id_string, title, url_string);
   } else {
     std::wstring last_modified_date;
@@ -288,7 +288,7 @@ bool BookmarkCodec::DecodeNode(const DictionaryValue& value,
       node->set_id(id);
     }
 
-    node->SetType(history::StarredEntry::USER_GROUP);
+    node->SetType(BookmarkNode::FOLDER);
     node->set_date_group_modified(Time::FromInternalValue(
         StringToInt64(WideToUTF16Hack(last_modified_date))));
 
@@ -296,6 +296,7 @@ bool BookmarkCodec::DecodeNode(const DictionaryValue& value,
       parent->Add(parent->GetChildCount(), node);
 
     UpdateChecksumWithFolderNode(id_string, title);
+
     if (!DecodeChildren(*static_cast<ListValue*>(child_values), node))
       return false;
   }

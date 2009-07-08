@@ -123,8 +123,8 @@ void ProfileWriter::AddBookmarkEntry(
 
       for (int index = 0; index < parent->GetChildCount(); ++index) {
         const BookmarkNode* node = parent->GetChild(index);
-        if ((node->GetType() == history::StarredEntry::BOOKMARK_BAR ||
-             node->GetType() == history::StarredEntry::USER_GROUP) &&
+        if ((node->GetType() == BookmarkNode::BOOKMARK_BAR ||
+             node->GetType() == BookmarkNode::FOLDER) &&
             node->GetTitle() == folder_name) {
           child = node;
           break;
@@ -301,7 +301,8 @@ std::wstring ProfileWriter::GenerateUniqueFolderName(
   // Build a set containing the folder names of the other folder.
   std::set<std::wstring> other_folder_names;
   const BookmarkNode* other = model->other_node();
-  for (int i = 0; i < other->GetChildCount(); ++i) {
+
+  for (int i = 0, child_count = other->GetChildCount(); i < child_count; ++i) {
     const BookmarkNode* node = other->GetChild(i);
     if (node->is_folder())
       other_folder_names.insert(node->GetTitle());

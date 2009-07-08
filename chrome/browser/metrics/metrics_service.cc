@@ -1716,7 +1716,7 @@ void MetricsService::LogChildProcessChange(
 static void CountBookmarks(const BookmarkNode* node,
                            int* bookmarks,
                            int* folders) {
-  if (node->GetType() == history::StarredEntry::URL)
+  if (node->GetType() == BookmarkNode::URL)
     (*bookmarks)++;
   else
     (*folders)++;

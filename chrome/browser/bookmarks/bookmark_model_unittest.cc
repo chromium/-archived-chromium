@@ -154,12 +154,12 @@ TEST_F(BookmarkModelTest, InitialState) {
   const BookmarkNode* bb_node = model.GetBookmarkBarNode();
   ASSERT_TRUE(bb_node != NULL);
   EXPECT_EQ(0, bb_node->GetChildCount());
-  EXPECT_EQ(history::StarredEntry::BOOKMARK_BAR, bb_node->GetType());
+  EXPECT_EQ(BookmarkNode::BOOKMARK_BAR, bb_node->GetType());
 
   const BookmarkNode* other_node = model.other_node();
   ASSERT_TRUE(other_node != NULL);
   EXPECT_EQ(0, other_node->GetChildCount());
-  EXPECT_EQ(history::StarredEntry::OTHER, other_node->GetType());
+  EXPECT_EQ(BookmarkNode::OTHER_NODE, other_node->GetType());
 
   EXPECT_TRUE(bb_node->id() != other_node->id());
 }
@@ -176,7 +176,7 @@ TEST_F(BookmarkModelTest, AddURL) {
   ASSERT_EQ(1, root->GetChildCount());
   ASSERT_EQ(title, new_node->GetTitle());
   ASSERT_TRUE(url == new_node->GetURL());
-  ASSERT_EQ(history::StarredEntry::URL, new_node->GetType());
+  ASSERT_EQ(BookmarkNode::URL, new_node->GetType());
   ASSERT_TRUE(new_node == model.GetMostRecentlyAddedNodeForURL(url));
 
   EXPECT_TRUE(new_node->id() != root->id() &&
@@ -193,7 +193,7 @@ TEST_F(BookmarkModelTest, AddGroup) {
 
   ASSERT_EQ(1, root->GetChildCount());
   ASSERT_EQ(title, new_node->GetTitle());
-  ASSERT_EQ(history::StarredEntry::USER_GROUP, new_node->GetType());
+  ASSERT_EQ(BookmarkNode::FOLDER, new_node->GetType());
 
   EXPECT_TRUE(new_node->id() != root->id() &&
               new_node->id() != model.other_node()->id());
@@ -474,7 +474,7 @@ TEST_F(BookmarkModelTest, NotifyURLsStarred) {
 namespace {
 
 // See comment in PopulateNodeFromString.
-typedef TreeNodeWithValue<history::StarredEntry::Type> TestNode;
+typedef TreeNodeWithValue<BookmarkNode::Type> TestNode;
 
 // Does the work of PopulateNodeFromString. index gives the index of the current
 // element in description to process.
@@ -492,7 +492,7 @@ static void PopulateNodeImpl(const std::vector<std::wstring>& description,
       static int next_group_id = 1;
       TestNode* new_node =
           new TestNode(IntToWString(next_group_id++),
-                       history::StarredEntry::USER_GROUP);
+                       BookmarkNode::FOLDER);
       parent->Add(parent->GetChildCount(), new_node);
       PopulateNodeImpl(description, index, new_node);
     } else if (element == L"]") {
@@ -506,7 +506,7 @@ static void PopulateNodeImpl(const std::vector<std::wstring>& description,
       DCHECK(element.find('[') == std::string::npos);
       DCHECK(element.find(']') == std::string::npos);
       parent->Add(parent->GetChildCount(),
-                  new TestNode(element, history::StarredEntry::URL));
+                  new TestNode(element, BookmarkNode::URL));
     }
   }
 }
@@ -542,7 +542,7 @@ static void PopulateBookmarkNode(TestNode* parent,
                                  const BookmarkNode* bb_node) {
   for (int i = 0; i < parent->GetChildCount(); ++i) {
     TestNode* child = parent->GetChild(i);
-    if (child->value == history::StarredEntry::USER_GROUP) {
+    if (child->value == BookmarkNode::FOLDER) {
       const BookmarkNode* new_bb_node =
           model->AddGroup(bb_node, i, child->GetTitle());
       PopulateBookmarkNode(child, model, new_bb_node);
@@ -578,17 +578,15 @@ class BookmarkModelTestWithProfile : public testing::Test,
       TestNode* expected_child = expected->GetChild(i);
       const BookmarkNode* actual_child = actual->GetChild(i);
       ASSERT_EQ(expected_child->GetTitle(), actual_child->GetTitle());
-      if (expected_child->value == history::StarredEntry::USER_GROUP) {
-        ASSERT_TRUE(actual_child->GetType() ==
-                    history::StarredEntry::USER_GROUP);
+      if (expected_child->value == BookmarkNode::FOLDER) {
+        ASSERT_TRUE(actual_child->GetType() == BookmarkNode::FOLDER);
         // Recurse throught children.
         VerifyModelMatchesNode(expected_child, actual_child);
         if (HasFatalFailure())
           return;
       } else {
         // No need to check the URL, just the title is enough.
-        ASSERT_TRUE(actual_child->GetType() ==
-                    history::StarredEntry::URL);
+        ASSERT_TRUE(actual_child->GetType() == BookmarkNode::URL);
       }
     }
   }
@@ -722,7 +720,7 @@ class BookmarkModelTestWithProfile2 : public BookmarkModelTestWithProfile {
     ASSERT_EQ(2, bbn->GetChildCount());
 
     const BookmarkNode* child = bbn->GetChild(0);
-    ASSERT_EQ(history::StarredEntry::URL, child->GetType());
+    ASSERT_EQ(BookmarkNode::URL, child->GetType());
     ASSERT_EQ(L"Google", child->GetTitle());
     ASSERT_TRUE(child->GetURL() == GURL("http://www.google.com"));
 
@@ -733,7 +731,7 @@ class BookmarkModelTestWithProfile2 : public BookmarkModelTestWithProfile {
 
     const BookmarkNode* parent = child;
     child = parent->GetChild(0);
-    ASSERT_EQ(history::StarredEntry::URL, child->GetType());
+    ASSERT_EQ(BookmarkNode::URL, child->GetType());
     ASSERT_EQ(L"Google Advertising", child->GetTitle());
     ASSERT_TRUE(child->GetURL() == GURL("http://www.google.com/intl/en/ads/"));
 
@@ -744,7 +742,7 @@ class BookmarkModelTestWithProfile2 : public BookmarkModelTestWithProfile {
 
     parent = child;
     child = parent->GetChild(0);
-    ASSERT_EQ(history::StarredEntry::URL, child->GetType());
+    ASSERT_EQ(BookmarkNode::URL, child->GetType());
     ASSERT_EQ(L"Google Business Solutions", child->GetTitle());
     ASSERT_TRUE(child->GetURL() == GURL("http://www.google.com/services/"));
 
@@ -757,7 +755,7 @@ class BookmarkModelTestWithProfile2 : public BookmarkModelTestWithProfile {
     ASSERT_EQ(0, child->GetChildCount());
 
     child = parent->GetChild(1);
-    ASSERT_EQ(history::StarredEntry::URL, child->GetType());
+    ASSERT_EQ(BookmarkNode::URL, child->GetType());
     ASSERT_EQ(L"About Google", child->GetTitle());
     ASSERT_TRUE(child->GetURL() ==
                 GURL("http://www.google.com/intl/en/about.html"));

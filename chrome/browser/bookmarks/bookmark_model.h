@@ -44,6 +44,12 @@ class BookmarkNode : public TreeNode<BookmarkNode> {
   friend class BookmarkModel;
 
  public:
+  enum Type {
+    URL,
+    FOLDER,
+    BOOKMARK_BAR,
+    OTHER_NODE
+  };
   // Creates a new node with the specified url and id of 0
   explicit BookmarkNode(const GURL& url);
   // Creates a new node with the specified url and id.
@@ -62,8 +68,8 @@ class BookmarkNode : public TreeNode<BookmarkNode> {
   void set_id(int id) { id_ = id; }
 
   // Returns the type of this node.
-  history::StarredEntry::Type GetType() const { return type_; }
-  void SetType(history::StarredEntry::Type type) { type_ = type; }
+  BookmarkNode::Type GetType() const { return type_; }
+  void SetType(BookmarkNode::Type type) { type_ = type; }
 
   // Returns the time the bookmark/group was added.
   const base::Time& date_added() const { return date_added_; }
@@ -80,10 +86,10 @@ class BookmarkNode : public TreeNode<BookmarkNode> {
 
   // Convenience for testing if this nodes represents a group. A group is
   // a node whose type is not URL.
-  bool is_folder() const { return type_ != history::StarredEntry::URL; }
+  bool is_folder() const { return type_ != URL; }
 
   // Is this a URL?
-  bool is_url() const { return type_ == history::StarredEntry::URL; }
+  bool is_url() const { return type_ == URL; }
 
   // Returns the favicon. In nearly all cases you should use the method
   // BookmarkModel::GetFavicon rather than this. BookmarkModel::GetFavicon
@@ -140,8 +146,7 @@ class BookmarkNode : public TreeNode<BookmarkNode> {
   const GURL url_;
 
   // Type of node.
-  // TODO(sky): bug 1256202, convert this into a type defined here.
-  history::StarredEntry::Type type_;
+  BookmarkNode::Type type_;
 
   // Date we were created.
   base::Time date_added_;
