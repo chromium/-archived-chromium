@@ -4,21 +4,23 @@
 
 #include "chrome/browser/in_process_webkit/webkit_thread.h"
 
+#include "base/command_line.h"
 #include "chrome/browser/in_process_webkit/browser_webkitclient_impl.h"
+#include "chrome/common/chrome_switches.h"
 #include "webkit/api/public/WebKit.h"
 
-base::LazyInstance<Lock> WebKitThread::global_webkit_lock_(
-    base::LINKER_INITIALIZED);
-int WebKitThread::global_webkit_ref_count_ = 0;
-WebKitThread::InternalWebKitThread* WebKitThread::global_webkit_thread_ = NULL;
+// This happens on the UI thread before the IO thread has been shut down.
+WebKitThread::WebKitThread() {
+  // The thread is started lazily by InitializeThread() on the IO thread.
+}
 
-WebKitThread::WebKitThread()
-    : cached_webkit_thread_(NULL) {
-  // The thread is started lazily by InitializeThread().
+// This happens on the UI thread after the IO thread has been shut down.
+WebKitThread::~WebKitThread() {
+  DCHECK(!ChromeThread::CurrentlyOn(ChromeThread::WEBKIT));
 }
 
 WebKitThread::InternalWebKitThread::InternalWebKitThread()
-    : base::Thread("WebKit"),
+    : ChromeThread(ChromeThread::WEBKIT),
       webkit_client_(NULL) {
 }
 
@@ -28,42 +30,24 @@ void WebKitThread::InternalWebKitThread::Init() {
   DCHECK(webkit_client_);
   WebKit::initialize(webkit_client_);
   // Don't do anything heavyweight here since this can block the IO thread from
-  // executing (since InitializeThread() is often called on the IO thread).
+  // executing (since InitializeThread() is called on the IO thread).
 }
 
 void WebKitThread::InternalWebKitThread::CleanUp() {
+  // Don't do anything heavyweight here since this can block the IO thread from
+  // executing (since the thread is shutdown from the IO thread).
   DCHECK(webkit_client_);
   WebKit::shutdown();
   delete webkit_client_;
-  webkit_client_ = NULL;
 }
 
-WebKitThread::~WebKitThread() {
-  AutoLock lock(global_webkit_lock_.Get());
-  if (cached_webkit_thread_) {
-    DCHECK(global_webkit_ref_count_ > 0);
-    if (--global_webkit_ref_count_ == 0) {
-      // TODO(jorlow): Make this safe.
-      DCHECK(MessageLoop::current() != global_webkit_thread_->message_loop());
-      global_webkit_thread_->Stop();
-      delete global_webkit_thread_;
-      global_webkit_thread_ = NULL;
-    }
-  }
-}
+MessageLoop* WebKitThread::InitializeThread() {
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess))
+    return NULL;
 
-void WebKitThread::InitializeThread() {
-  AutoLock lock(global_webkit_lock_.Get());
-  if (!cached_webkit_thread_) {
-    if (!global_webkit_thread_) {
-      global_webkit_thread_ = new InternalWebKitThread;
-      DCHECK(global_webkit_thread_);
-      bool started = global_webkit_thread_->Start();
-      DCHECK(started);
-    }
-    ++global_webkit_ref_count_;
-    // The cached version can be accessed outside of global_webkit_lock_.
-    cached_webkit_thread_ = global_webkit_thread_;
-  }
-  DCHECK(cached_webkit_thread_->IsRunning());
+  DCHECK(!webkit_thread_.get());
+  webkit_thread_.reset(new InternalWebKitThread);
+  bool started = webkit_thread_->Start();
+  DCHECK(started);
+  return webkit_thread_->message_loop();
 }

@@ -175,10 +175,7 @@ ResourceMessageFilter::ResourceMessageFilter(
 
 ResourceMessageFilter::~ResourceMessageFilter() {
   // This function should be called on the IO thread.
-  DCHECK(MessageLoop::current() ==
-         ChromeThread::GetMessageLoop(ChromeThread::IO));
-
-  dom_storage_dispatcher_host_->Shutdown();
+  DCHECK(ChromeThread::CurrentlyOn(ChromeThread::IO));
 
   // Let interested observers know we are being deleted.
   NotificationService::current()->Notify(
@@ -452,8 +449,7 @@ void ResourceMessageFilter::OnGetDataDir(std::wstring* data_dir) {
 
 void ResourceMessageFilter::OnPluginMessage(const FilePath& plugin_path,
                                             const std::vector<uint8>& data) {
-  DCHECK(MessageLoop::current() ==
-         ChromeThread::GetMessageLoop(ChromeThread::IO));
+  DCHECK(ChromeThread::CurrentlyOn(ChromeThread::IO));
 
   ChromePluginLib *chrome_plugin = ChromePluginLib::Find(plugin_path);
   if (chrome_plugin) {
@@ -466,8 +462,7 @@ void ResourceMessageFilter::OnPluginMessage(const FilePath& plugin_path,
 void ResourceMessageFilter::OnPluginSyncMessage(const FilePath& plugin_path,
                                                 const std::vector<uint8>& data,
                                                 std::vector<uint8> *retval) {
-  DCHECK(MessageLoop::current() ==
-         ChromeThread::GetMessageLoop(ChromeThread::IO));
+  DCHECK(ChromeThread::CurrentlyOn(ChromeThread::IO));
 
   ChromePluginLib *chrome_plugin = ChromePluginLib::Find(plugin_path);
   if (chrome_plugin) {

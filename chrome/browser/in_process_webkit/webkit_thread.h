@@ -10,36 +10,34 @@
 #include "base/logging.h"
 #include "base/ref_counted.h"
 #include "base/thread.h"
+#include "chrome/browser/chrome_thread.h"
 
 class BrowserWebKitClientImpl;
 
 // This is an object that represents WebKit's "main" thread within the browser
-// process.  You can create as many instances of this class as you'd like;
-// they'll all point to the same thread and you're guaranteed they'll
-// initialize in a thread-safe way, though WebKitThread instances should
-// probably be shared when it's easy to do so.  The first time you call
-// GetMessageLoop() or EnsureWebKitInitialized() the thread will be created
-// and WebKit initialized.  When the last instance of WebKitThread is
-// destroyed, WebKit is shut down and the thread is stopped.
-// THIS CLASS MUST NOT BE DEREFED TO 0 ON THE WEBKIT THREAD (for now).
-class WebKitThread : public base::RefCountedThreadSafe<WebKitThread> {
+// process.  It should be instantiated and destroyed on the UI thread
+// before/after the IO thread is created/destroyed.  All other usage should be
+// on the IO thread.  If the browser is being run in --single-process mode, a
+// thread will never be spun up, and GetMessageLoop() will always return NULL.
+class WebKitThread {
  public:
+  // Called from the UI thread.
   WebKitThread();
+  ~WebKitThread();
 
+  // Returns the message loop for the WebKit thread unless we're in
+  // --single-processuntil mode, in which case it'll return NULL.  Only call
+  // from the IO thread.  Only do fast-path work here.
   MessageLoop* GetMessageLoop() {
-    if (!cached_webkit_thread_)
-      InitializeThread();
-    return cached_webkit_thread_->message_loop();
-  }
-
-  void EnsureWebKitInitialized() {
-    if (!cached_webkit_thread_)
-      InitializeThread();
+    DCHECK(ChromeThread::CurrentlyOn(ChromeThread::IO));
+    if (!webkit_thread_.get())
+      return InitializeThread();
+    return webkit_thread_->message_loop();
   }
 
  private:
   // Must be private so that we can carefully control its lifetime.
-  class InternalWebKitThread : public base::Thread {
+  class InternalWebKitThread : public ChromeThread {
    public:
     InternalWebKitThread();
     virtual ~InternalWebKitThread() { }
@@ -52,22 +50,13 @@ class WebKitThread : public base::RefCountedThreadSafe<WebKitThread> {
     BrowserWebKitClientImpl* webkit_client_;
   };
 
-  friend class base::RefCountedThreadSafe<WebKitThread>;
-  ~WebKitThread();
+  // Returns the WebKit thread's message loop or NULL if we're in
+  // --single-process mode.  Do slow-path initialization work here.
+  MessageLoop* InitializeThread();
 
-  void InitializeThread();
-
-  // If this is set, then this object has incremented the global WebKit ref
-  // count and will shutdown the thread if it sees the ref count go to 0.
-  // It's assumed that once this is non-NULL, the pointer will be valid until
-  // destruction.
-  InternalWebKitThread* cached_webkit_thread_;
-
-  // If there are multiple WebKitThread object (should only be possible in
-  // unittests at the moment), make sure they all share one real thread.
-  static base::LazyInstance<Lock> global_webkit_lock_;
-  static int global_webkit_ref_count_;
-  static InternalWebKitThread* global_webkit_thread_;
+  // Pointer to the actual WebKitThread.  NULL if not yet started.  Only modify
+  // from the IO thread while the WebKit thread is not running.
+  scoped_ptr<InternalWebKitThread> webkit_thread_;
 
   DISALLOW_COPY_AND_ASSIGN(WebKitThread);
 };

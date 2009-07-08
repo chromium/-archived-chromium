@@ -9,6 +9,7 @@ static const char* chrome_thread_names[ChromeThread::ID_COUNT] = {
   "Chrome_IOThread",  // IO
   "Chrome_FileThread",  // FILE
   "Chrome_DBThread",  // DB
+  "Chrome_WebKitThread",  // WEBKIT
   "Chrome_HistoryThread",  // HISTORY
 #if defined(OS_LINUX)
   "Chrome_Background_X11Thread",  // BACKGROUND_X11
@@ -21,6 +22,7 @@ ChromeThread* ChromeThread::chrome_threads_[ID_COUNT] = {
   NULL,  // IO
   NULL,  // FILE
   NULL,  // DB
+  NULL,  // WEBKIT
   NULL,  // HISTORY
 #if defined(OS_LINUX)
   NULL,  // BACKGROUND_X11
@@ -50,4 +52,14 @@ MessageLoop* ChromeThread::GetMessageLoop(ID identifier) {
     return chrome_threads_[identifier]->message_loop();
 
   return NULL;
+}
+
+// static
+bool ChromeThread::CurrentlyOn(ID identifier) {
+  // MessageLoop::current() will return NULL if none is running.  This is often
+  // true when running under unit tests.  This behavior actually works out
+  // pretty convienently (as is mentioned in the header file comment), but it's
+  // worth noting here.
+  MessageLoop* message_loop = GetMessageLoop(identifier);
+  return MessageLoop::current() == message_loop;
 }
