@@ -1118,12 +1118,16 @@ void BrowserWindowGtk::UpdateWindowShape(int width, int height) {
     gtk_alignment_set_padding(GTK_ALIGNMENT(window_container_), 1,
         kFrameBorderThickness, kFrameBorderThickness, kFrameBorderThickness);
   } else {
-    // Disable rounded corners.  Simply passing in a NULL region doesn't
-    // seem to work on KWin, so manually set the shape to the whole window.
-    GdkRectangle rect = { 0, 0, width, height };
-    GdkRegion* mask = gdk_region_rectangle(&rect);
-    gdk_window_shape_combine_region(GTK_WIDGET(window_)->window, mask, 0, 0);
-    gdk_region_destroy(mask);
+    if (use_custom_frame_.GetValue()) {
+      // Disable rounded corners.  Simply passing in a NULL region doesn't
+      // seem to work on KWin, so manually set the shape to the whole window.
+      GdkRectangle rect = { 0, 0, width, height };
+      GdkRegion* mask = gdk_region_rectangle(&rect);
+      gdk_window_shape_combine_region(GTK_WIDGET(window_)->window, mask, 0, 0);
+      gdk_region_destroy(mask);
+    } else {
+      gdk_window_shape_combine_region(GTK_WIDGET(window_)->window, NULL, 0, 0);
+    }
     gtk_alignment_set_padding(GTK_ALIGNMENT(window_container_), 0, 0, 0, 0);
   }
 }
