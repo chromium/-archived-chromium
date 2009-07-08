@@ -167,7 +167,6 @@
         'filters/ffmpeg_glue_unittest.cc',
         'filters/ffmpeg_video_decoder_unittest.cc',
         'filters/file_data_source_unittest.cc',
-        'filters/video_decoder_unittest.cc',
       ],
       'conditions': [
         ['OS=="linux"', {
