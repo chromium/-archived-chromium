@@ -89,10 +89,19 @@ typedef intptr_t NativeViewId;
 // On Windows, these are both HWNDS so it's just a cast.
 // On Mac, for now, we pass the NSView pointer into the renderer
 // On Linux we use an opaque id
-#if defined(OS_WIN) || defined(OS_MACOSX)
+#if defined(OS_WIN)
 static inline NativeView NativeViewFromId(NativeViewId id) {
   return reinterpret_cast<NativeView>(id);
 }
+#elif defined(OS_MACOSX)
+
+// A recent CL removed the need for Mac to actually convert
+// NativeViewId to NativeView.  Until other platforms make changes,
+// the platform-independent code cannot be removed.  The following is
+// to discourage new platform-independent uses.
+
+#define NativeViewFromId(x) NATIVE_VIEW_FROM_ID_NOT_AVAILABLE_ON_MAC
+
 #elif defined(OS_LINUX)
 // A NativeView on Linux is a GtkWidget*. However, we can't go directly from an
 // X window ID to a GtkWidget. Thus, functions which handle NativeViewIds from
