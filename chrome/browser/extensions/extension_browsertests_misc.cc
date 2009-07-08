@@ -76,7 +76,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionBrowserTest, Shelf) {
 // Tests that installing and uninstalling extensions don't crash with an
 // incognito window open.
 // This test is disabled. see bug 16106.
-#if 0
 IN_PROC_BROWSER_TEST_F(ExtensionBrowserTest, Incognito) {
   // Open an incognito window to the extensions management page.  We just
   // want to make sure that we don't crash while playing with extensions when
@@ -87,7 +86,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionBrowserTest, Incognito) {
   ASSERT_TRUE(InstallExtension(test_data_dir_.AppendASCII("good.crx")));
   UninstallExtension("ldnnhddmnhbkjipkidpdiheffobcpfmf");
 }
-#endif
 
 // Tests that we can load extension pages into the tab area and they can call
 // extension APIs.

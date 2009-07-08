@@ -68,8 +68,14 @@ bool ExtensionBrowserTest::InstallExtension(const FilePath& path) {
   registrar_.Remove(this, NotificationType::EXTENSION_INSTALLED,
                     NotificationService::AllSources());
   size_t num_after = service->extensions()->size();
-  if (num_after != (num_before + 1))
+  if (num_after != (num_before + 1)) {
+    std::cout << "Num extensions before: " << IntToString(num_before)
+              << "num after: " << IntToString(num_after)
+              << "Installed extensions are:\n";
+    for (size_t i = 0; i < service->extensions()->size(); ++i)
+      std::cout << "  " << service->extensions()->at(i)->id() << "\n";
     return false;
+  }
 
   return WaitForExtensionHostsToLoad();
 }
@@ -89,8 +95,11 @@ bool ExtensionBrowserTest::WaitForExtensionHostsToLoad() {
   for (ExtensionProcessManager::const_iterator iter = manager->begin();
      iter != manager->end(); ++iter) {
     while (!(*iter)->did_stop_loading()) {
-      if ((base::Time::Now() - start_time).InMilliseconds() > kTimeoutMs)
+      if ((base::Time::Now() - start_time).InMilliseconds() > kTimeoutMs) {
+        std::cout << "Extension host did not load for URL: "
+                  << (*iter)->GetURL().spec();
         return false;
+      }
 
       MessageLoop::current()->PostDelayedTask(FROM_HERE,
           new MessageLoop::QuitTask, 200);

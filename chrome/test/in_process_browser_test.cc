@@ -124,6 +124,11 @@ void InProcessBrowserTest::SetUp() {
   command_line->AppendSwitchWithValue(switches::kBrowserSubprocessPath,
                                       subprocess_path);
 
+  // Enable warning level logging so that we can see when bad stuff happens.
+  command_line->AppendSwitch(switches::kEnableLogging);
+  command_line->AppendSwitchWithValue(switches::kLoggingLevel,
+                                      IntToWString(1));  // warning
+
   SandboxInitWrapper sandbox_wrapper;
   MainFunctionParams params(*command_line, sandbox_wrapper, NULL);
   params.ui_task =
