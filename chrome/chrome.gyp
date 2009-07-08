@@ -230,8 +230,8 @@
             '-D', '<(chrome_build)'
           ],
           'conditions': [
-            ['linux2==1', {
-              'action': ['-D', 'linux2'],
+            ['chromeos==1', {
+              'action': ['-D', 'chromeos'],
             }],
           ],
           'message': 'Generating resources from <(input_path)',
@@ -2080,7 +2080,7 @@
                 ['exclude', '^browser/tab_contents/render_view_context_menu_gtk.h'],
               ],
             }],
-            ['linux2==1',{
+            ['chromeos==1',{
               'sources/': [
                 ['include', 'browser/views/new_browser_window_widget.cc'],
                 ['include', 'browser/views/new_browser_window_widget.h'],
@@ -2552,7 +2552,7 @@
             },
           ],
         }],
-        ['OS=="linux" and (toolkit_views==1 or linux2==1)', {
+        ['OS=="linux" and (toolkit_views==1 or chromeos==1)', {
           'dependencies': [
             '../views/views.gyp:views',
           ],
@@ -3661,7 +3661,7 @@
             '../third_party/cld/bar/toolbar/cld/i18n/encodings/compact_lang_det/compact_lang_det_unittest_small.cc',
           ],
         }],
-        ['OS=="linux" and (toolkit_views==1 or linux2==1)', {
+        ['OS=="linux" and (toolkit_views==1 or chromeos==1)', {
           'dependencies': [
             '../views/views.gyp:views',
           ],

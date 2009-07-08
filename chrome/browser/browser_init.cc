@@ -60,7 +60,7 @@
 #include "base/win_util.h"
 #endif
 
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
 #include "chrome/browser/views/tabs/tab_overview_message_listener.h"
 #endif
 
@@ -341,7 +341,7 @@ bool LaunchBrowser(const CommandLine& command_line, Profile* profile,
     return false;
   }
 
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
   // Create the TabOverviewMessageListener so that it can listen for messages
   // regardless of what window has focus.
   TabOverviewMessageListener::instance();

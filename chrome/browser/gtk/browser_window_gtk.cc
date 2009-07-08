@@ -55,7 +55,7 @@
 #include "grit/app_resources.h"
 #include "grit/theme_resources.h"
 
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
 #include "chrome/browser/views/panel_controller.h"
 #include "chrome/browser/views/tabs/tab_overview_types.h"
 #endif
@@ -221,7 +221,7 @@ const struct AcceleratorMapping {
   { GDK_p, IDC_PRINT, GDK_CONTROL_MASK },
   { GDK_Escape, IDC_TASK_MANAGER, GDK_SHIFT_MASK },
 
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
   { GDK_f, IDC_FULLSCREEN,
     GdkModifierType(GDK_CONTROL_MASK | GDK_MOD1_MASK) },
   { GDK_Delete, IDC_TASK_MANAGER,
@@ -366,7 +366,7 @@ std::map<XID, GtkWindow*> BrowserWindowGtk::xid_map_;
 BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
     :  browser_(browser),
        full_screen_(false),
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
        drag_active_(false),
        panel_controller_(NULL),
 #endif
@@ -474,7 +474,7 @@ void BrowserWindowGtk::Show() {
   // the previous browser instead if we don't explicitly set it here.
   BrowserList::SetLastActive(browser());
 
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
   if (browser_->type() == Browser::TYPE_POPUP) {
     panel_controller_ = new PanelController(this);
   } else {
@@ -514,7 +514,7 @@ void BrowserWindowGtk::Close() {
   window_ = NULL;
   gtk_widget_destroy(window);
 
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
   if (panel_controller_) {
     panel_controller_->Close();
   }
@@ -554,7 +554,7 @@ void BrowserWindowGtk::SelectedTabToolbarSizeChanged(bool is_animating) {
 }
 
 void BrowserWindowGtk::UpdateTitleBar() {
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
   if (panel_controller_)
     panel_controller_->UpdateTitleBar();
 #endif
@@ -880,7 +880,7 @@ void BrowserWindowGtk::OnStateChanged(GdkWindowState state) {
 }
 
 bool BrowserWindowGtk::CanClose() const {
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
   if (drag_active_)
     return false;
 #endif
@@ -1054,7 +1054,7 @@ void BrowserWindowGtk::InitWidgets() {
   contents_container_->AddContainerToBox(render_area_vbox_);
   gtk_widget_show_all(render_area_vbox_);
 
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
   if (browser_->type() == Browser::TYPE_POPUP) {
     toolbar_->Hide();
     // The window manager needs the min size for popups

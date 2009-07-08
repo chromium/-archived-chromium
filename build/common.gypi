@@ -80,7 +80,7 @@
     # ~/.gyp/include.gypi .
     'toolkit_views%': 0,
 
-    'linux2%': 0,
+    'chromeos%': 0,
 
     'chrome_personalization%': 0,
   },
@@ -99,8 +99,8 @@
       ['toolkit_views==1', {
         'defines': ['TOOLKIT_VIEWS=1'],
       }],
-      ['linux2==1', {
-        'defines': ['LINUX2=1'],
+      ['chromeos==1', {
+        'defines': ['OS_CHROMEOS=1'],
       }],
       ['chrome_personalization==1', {
         'defines': ['CHROME_PERSONALIZATION=1'],

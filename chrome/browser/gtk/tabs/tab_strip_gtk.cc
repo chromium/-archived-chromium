@@ -23,7 +23,7 @@
 #include "grit/app_resources.h"
 #include "grit/theme_resources.h"
 
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
@@ -501,7 +501,7 @@ void TabStripGtk::Init() {
 
   newtab_button_.reset(MakeNewTabButton());
 
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
   tab_overview_button_.reset(MakeTabOverviewButton());
 #endif
 
@@ -543,7 +543,7 @@ void TabStripGtk::Layout() {
   }
 
   LayoutNewTabButton(static_cast<double>(tab_right), current_unselected_width_);
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
   gtk_fixed_move(GTK_FIXED(tabstrip_.get()), tab_overview_button_->widget(),
                  bounds_.width() - tab_overview_button_->width(), 0);
 #endif
@@ -985,7 +985,7 @@ void TabStripGtk::LayoutNewTabButton(double last_tab_right,
     // We're shrinking tabs, so we need to anchor the New Tab button to the
     // right edge of the TabStrip's bounds, rather than the right edge of the
     // right-most Tab, otherwise it'll bounce when animating.
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
     bounds.set_x(bounds_.width() - newtab_button_->width() -
                  tab_overview_button_->width());
 #else
@@ -1021,7 +1021,7 @@ void TabStripGtk::GetDesiredTabWidths(int tab_count,
     available_width = bounds_.width();
     available_width -=
         (kNewTabButtonHOffset + newtab_button_->width());
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
     available_width -= tab_overview_button_->width();
 #endif
   } else {
@@ -1453,7 +1453,7 @@ gboolean TabStripGtk::OnExpose(GtkWidget* widget, GdkEventExpose* event,
   gtk_container_propagate_expose(GTK_CONTAINER(tabstrip->tabstrip_.get()),
       tabstrip->newtab_button_->widget(), event);
 
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
   // Paint the tab overview button.
   gtk_container_propagate_expose(GTK_CONTAINER(tabstrip->tabstrip_.get()),
       tabstrip->tab_overview_button_->widget(), event);
@@ -1595,7 +1595,7 @@ CustomDrawButton* TabStripGtk::MakeNewTabButton() {
   return button;
 }
 
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
 CustomDrawButton* TabStripGtk::MakeTabOverviewButton() {
   CustomDrawButton* button =
       new CustomDrawButton(IDR_TAB_OVERVIEW_BUTTON_ICON, 0, 0, 0, NULL);

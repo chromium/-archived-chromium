@@ -257,7 +257,7 @@ TabContents::TabContents(Profile* profile,
   pending_install_.page_id = 0;
   pending_install_.callback_functor = NULL;
 
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
   // Make sure the thumbnailer is started before starting the render manager.
   // The thumbnailer will want to listen for RVH creations, one of which will
   // happen in RVHManager::Init.

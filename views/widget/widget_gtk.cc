@@ -81,7 +81,7 @@ void WidgetGtk::Init(GtkWidget* parent,
   // Force creation of the RootView if it hasn't been created yet.
   GetRootView();
 
-#if !defined(LINUX2)
+#if !defined(OS_CHROMEOS)
   default_theme_provider_.reset(new DefaultThemeProvider());
 #endif
 

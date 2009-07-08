@@ -444,7 +444,7 @@ std::wstring Browser::GetCurrentPageTitle() const {
   if (title.empty())
     title = l10n_util::GetString(IDS_TAB_UNTITLED_TITLE);
 
-#if defined(OS_MACOSX) || defined(LINUX2)
+#if defined(OS_MACOSX) || defined(OS_CHROMEOS)
   // On Mac, we don't want to suffix the page title with the application name.
   return title;
 #elif defined(OS_WIN) || defined(OS_LINUX)
@@ -1162,7 +1162,7 @@ void Browser::OpenHelpTab() {
                 false, NULL);
 }
 
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
 void Browser::ShowControlPanel() {
   GURL url("http://localhost:8080");
   AddTabWithURL(url, GURL(), PageTransition::AUTO_BOOKMARK, true, -1,
@@ -1381,7 +1381,7 @@ void Browser::ExecuteCommandWithDisposition(
     case IDC_IMPORT_SETTINGS:       OpenImportSettingsDialog();    break;
     case IDC_ABOUT:                 OpenAboutChromeDialog();       break;
     case IDC_HELP_PAGE:             OpenHelpTab();                 break;
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
     case IDC_CONTROL_PANEL:         ShowControlPanel();            break;
 #endif
 
@@ -2133,7 +2133,7 @@ void Browser::InitCommandState() {
   command_updater_.UpdateCommandEnabled(IDC_SHOW_BOOKMARK_MANAGER, true);
   command_updater_.UpdateCommandEnabled(IDC_SHOW_DOWNLOADS, true);
   command_updater_.UpdateCommandEnabled(IDC_HELP_PAGE, true);
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
   command_updater_.UpdateCommandEnabled(IDC_CONTROL_PANEL, true);
 #endif
 

@@ -32,7 +32,7 @@ class StatusBubbleGtk;
 class TabContentsContainerGtk;
 class TabStripGtk;
 
-#ifdef LINUX2
+#ifdef OS_CHROMEOS
 class PanelController;
 #endif
 
@@ -132,7 +132,7 @@ class BrowserWindowGtk : public BrowserWindow,
   // Add the find bar widget to the window hierarchy.
   void AddFindBar(FindBarGtk* findbar);
 
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
   // Sets whether a drag is active. If a drag is active the window will not
   // close.
   void set_drag_active(bool drag_active) { drag_active_ = drag_active; }
@@ -296,7 +296,7 @@ class BrowserWindowGtk : public BrowserWindow,
   // decorations.
   BooleanPrefMember use_custom_frame_;
 
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
   // True if a drag is active. See description above setter for details.
   bool drag_active_;
   // Controls interactions with the window manager for popup panels.

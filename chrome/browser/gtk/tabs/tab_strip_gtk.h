@@ -331,7 +331,7 @@ class TabStripGtk : public TabStripModelObserver,
   // Optionally a full Layout will be performed, specified by |layout|.
   void FinishAnimation(TabAnimation* animation, bool layout);
 
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
   // Creates and returns the tab overview button.
   CustomDrawButton* MakeTabOverviewButton();
 
@@ -379,7 +379,7 @@ class TabStripGtk : public TabStripModelObserver,
   // The New Tab button.
   scoped_ptr<CustomDrawButton> newtab_button_;
 
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
   // The tab overview button.
   scoped_ptr<CustomDrawButton> tab_overview_button_;
 #endif

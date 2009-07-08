@@ -369,7 +369,7 @@ class Browser : public TabStripModelDelegate,
   void OpenImportSettingsDialog();
   void OpenAboutChromeDialog();
   void OpenHelpTab();
-#if defined(LINUX2)
+#if defined(OS_CHROMEOS)
   void ShowControlPanel();
 #endif
 
