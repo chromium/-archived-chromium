@@ -117,6 +117,11 @@ class TabStripModelObserverBridge;
 // Returns fullscreen state.
 - (BOOL)isFullscreen;
 
+// Executes the command in the context of the current browser.
+// |command| is an integer value containing one of the constants defined in the
+// "chrome/app/chrome_dll_resource.h" file.
+- (void)executeCommand:(int)command;
+
 @end
 
 

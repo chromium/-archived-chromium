@@ -375,6 +375,13 @@ willPositionSheet:(NSWindow *)sheet
   browser_->ExecuteCommand(tag);
 }
 
+// Called when another part of the internal codebase needs to execute a
+// command.
+- (void)executeCommand:(int)command {
+  if (browser_->command_updater()->IsCommandEnabled(command))
+    browser_->ExecuteCommand(command);
+}
+
 - (LocationBar*)locationBar {
   return [toolbarController_ locationBar];
 }
