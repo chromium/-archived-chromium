@@ -1397,7 +1397,8 @@ void BrowserView::Layout() {
   FindBarController* find_controller = browser_->find_bar();
   if (find_controller)
     find_controller->find_bar()->MoveWindowIfNecessary(gfx::Rect(), true);
-  LayoutStatusBubble(bottom);
+  // Align status bubble with the bottom of the contents_container_.
+  LayoutStatusBubble(top + contents_container_->bounds().height());
   SchedulePaint();
 }
 
