@@ -4,6 +4,7 @@
 
 #include "chrome/plugin/npobject_stub.h"
 
+#include "chrome/common/child_process_logging.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/plugin/npobject_util.h"
 #include "chrome/plugin/plugin_channel_base.h"
@@ -15,13 +16,15 @@ NPObjectStub::NPObjectStub(
     NPObject* npobject,
     PluginChannelBase* channel,
     int route_id,
-    base::WaitableEvent* modal_dialog_event)
+    base::WaitableEvent* modal_dialog_event,
+    const GURL& page_url)
     : npobject_(npobject),
       channel_(channel),
       route_id_(route_id),
       valid_(true),
       web_plugin_delegate_proxy_(NULL),
-      modal_dialog_event_(modal_dialog_event) {
+      modal_dialog_event_(modal_dialog_event),
+      page_url_(page_url) {
   channel_->AddRoute(route_id, this, true);
 
   // We retain the object just as PluginHost does if everything was in-process.
@@ -42,6 +45,8 @@ bool NPObjectStub::Send(IPC::Message* msg) {
 }
 
 void NPObjectStub::OnMessageReceived(const IPC::Message& msg) {
+  child_process_logging::ScopedActiveURLSetter url_setter(page_url_);
+
   if (!valid_) {
     if (msg.is_sync()) {
       // The object could be garbage because the frame has gone away, so
@@ -117,7 +122,8 @@ void NPObjectStub::OnInvoke(bool is_default,
   NPVariant* args_var = new NPVariant[arg_count];
   for (int i = 0; i < arg_count; ++i) {
     CreateNPVariant(
-        args[i], local_channel, &(args_var[i]), modal_dialog_event_);
+        args[i], local_channel, &(args_var[i]), modal_dialog_event_,
+        page_url_);
   }
 
   if (is_default) {
@@ -153,7 +159,8 @@ void NPObjectStub::OnInvoke(bool is_default,
   delete[] args_var;
 
   CreateNPVariantParam(
-      result_var, local_channel, &result_param, true, modal_dialog_event_);
+      result_var, local_channel, &result_param, true, modal_dialog_event_,
+      page_url_);
   NPObjectMsg_Invoke::WriteReplyParams(reply_msg, result_param, return_value);
   local_channel->Send(reply_msg);
 }
@@ -190,7 +197,7 @@ void NPObjectStub::OnGetProperty(const NPIdentifier_Param& name,
   }
 
   CreateNPVariantParam(
-      result_var, channel_, property, true, modal_dialog_event_);
+      result_var, channel_, property, true, modal_dialog_event_, page_url_);
 }
 
 void NPObjectStub::OnSetProperty(const NPIdentifier_Param& name,
@@ -200,7 +207,8 @@ void NPObjectStub::OnSetProperty(const NPIdentifier_Param& name,
   VOID_TO_NPVARIANT(result_var);
   NPIdentifier id = CreateNPIdentifier(name);
   NPVariant property_var;
-  CreateNPVariant(property, channel_, &property_var, modal_dialog_event_);
+  CreateNPVariant(
+      property, channel_, &property_var, modal_dialog_event_, page_url_);
 
   if (IsPluginProcess()) {
     if (npobject_->_class->setProperty) {
@@ -281,7 +289,7 @@ void NPObjectStub::OnConstruct(const std::vector<NPVariant_Param>& args,
   NPVariant* args_var = new NPVariant[arg_count];
   for (int i = 0; i < arg_count; ++i) {
     CreateNPVariant(
-        args[i], local_channel, &(args_var[i]), modal_dialog_event_);
+        args[i], local_channel, &(args_var[i]), modal_dialog_event_, page_url_);
   }
 
   if (IsPluginProcess()) {
@@ -302,7 +310,8 @@ void NPObjectStub::OnConstruct(const std::vector<NPVariant_Param>& args,
   delete[] args_var;
 
   CreateNPVariantParam(
-      result_var, local_channel, &result_param, true, modal_dialog_event_);
+      result_var, local_channel, &result_param, true, modal_dialog_event_,
+      page_url_);
   NPObjectMsg_Invoke::WriteReplyParams(reply_msg, result_param, return_value);
   local_channel->Send(reply_msg);
 }
@@ -331,7 +340,8 @@ void NPObjectStub::OnEvaluate(const std::string& script,
 
   NPVariant_Param result_param;
   CreateNPVariantParam(
-      result_var, local_channel, &result_param, true, modal_dialog_event_);
+      result_var, local_channel, &result_param, true, modal_dialog_event_,
+      page_url_);
   NPObjectMsg_Evaluate::WriteReplyParams(reply_msg, result_param, return_value);
   local_channel->Send(reply_msg);
 }

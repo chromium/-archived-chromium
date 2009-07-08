@@ -10,6 +10,7 @@
 
 #include "base/ref_counted.h"
 #include "chrome/common/ipc_channel.h"
+#include "googleurl/src/gurl.h"
 #include "third_party/npapi/bindings/npruntime.h"
 
 class PluginChannelBase;
@@ -36,7 +37,8 @@ class NPObjectProxy : public IPC::Channel::Listener,
   static NPObject* Create(PluginChannelBase* channel,
                           int route_id,
                           intptr_t npobject_ptr,
-                          base::WaitableEvent* modal_dialog_event);
+                          base::WaitableEvent* modal_dialog_event,
+                          const GURL& page_url);
 
   // IPC::Message::Sender implementation:
   bool Send(IPC::Message* msg);
@@ -101,7 +103,8 @@ class NPObjectProxy : public IPC::Channel::Listener,
   NPObjectProxy(PluginChannelBase* channel,
                 int route_id,
                 intptr_t npobject_ptr,
-                base::WaitableEvent* modal_dialog_event);
+                base::WaitableEvent* modal_dialog_event,
+                const GURL& page_url);
 
   // IPC::Channel::Listener implementation:
   void OnMessageReceived(const IPC::Message& msg);
@@ -118,6 +121,9 @@ class NPObjectProxy : public IPC::Channel::Listener,
   int route_id_;
   intptr_t npobject_ptr_;
   base::WaitableEvent* modal_dialog_event_;
+
+  // The url of the main frame hosting the plugin.
+  GURL page_url_;
 };
 
 #endif  // CHROME_PLUGIN_NPOBJECT_PROXY_H_
