@@ -1031,14 +1031,7 @@ void BrowserWindowGtk::InitWidgets() {
 
   toolbar_.reset(new BrowserToolbarGtk(browser_.get(), this));
   toolbar_->Init(browser_->profile(), window_);
-  bool hide_tools = false;
-#if defined(LINUX2)
-  if (browser_->type() == Browser::TYPE_POPUP)
-    hide_tools = true;
-#endif
-
-  if (!hide_tools)
-    toolbar_->AddToolbarToBox(content_vbox_);
+  toolbar_->AddToolbarToBox(content_vbox_);
 
   bookmark_bar_.reset(new BookmarkBarGtk(browser_->profile(), browser_.get(),
                                          this));
@@ -1063,6 +1056,7 @@ void BrowserWindowGtk::InitWidgets() {
 
 #if defined(LINUX2)
   if (browser_->type() == Browser::TYPE_POPUP) {
+    toolbar_->Hide();
     // The window manager needs the min size for popups
     gtk_widget_set_size_request(
         GTK_WIDGET(window_), bounds_.width(), bounds_.height());
