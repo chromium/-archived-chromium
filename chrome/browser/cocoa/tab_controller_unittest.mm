@@ -51,6 +51,13 @@
                                    pressure:1.0];
   [window postEvent:up atStart:YES];
 }
+- (void)commandDispatch:(TabStripModel::ContextMenuCommand)command
+          forController:(TabController*)controller {
+}
+- (BOOL)isCommandEnabled:(TabStripModel::ContextMenuCommand)command
+           forController:(TabController*)controller {
+  return NO;
+}
 @end
 
 namespace {
