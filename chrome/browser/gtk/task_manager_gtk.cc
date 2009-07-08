@@ -4,6 +4,8 @@
 
 #include "chrome/browser/gtk/task_manager_gtk.h"
 
+#include <gdk/gdkkeysyms.h>
+
 #include <vector>
 
 #include "app/l10n_util.h"
@@ -312,6 +314,8 @@ void TaskManagerGtk::Init() {
       kTaskManagerResponseKill,
       NULL);
 
+  ConnectAccelerators();
+
   gtk_box_set_spacing(GTK_BOX(GTK_DIALOG(dialog_)->vbox),
                       gtk_util::kContentAreaSpacing);
 
@@ -360,6 +364,19 @@ void TaskManagerGtk::Init() {
   gtk_widget_show_all(dialog_);
 
   model_->SetObserver(this);
+}
+
+void TaskManagerGtk::ConnectAccelerators() {
+  GtkAccelGroup* accel_group = gtk_accel_group_new();
+  gtk_window_add_accel_group(GTK_WINDOW(dialog_), accel_group);
+
+  // Drop the initial ref on |accel_group| so |dialog_| will own it.
+  g_object_unref(accel_group);
+
+  gtk_accel_group_connect(accel_group,
+                          GDK_w, GDK_CONTROL_MASK, GtkAccelFlags(0),
+                          g_cclosure_new(G_CALLBACK(OnGtkAccelerator),
+                                         this, NULL));
 }
 
 void TaskManagerGtk::CreateTaskManagerTreeview() {
@@ -543,4 +560,21 @@ gboolean TaskManagerGtk::OnButtonReleaseEvent(GtkWidget* widget,
     task_manager->ShowContextMenu();
 
   return FALSE;
+}
+
+// static
+gboolean TaskManagerGtk::OnGtkAccelerator(GtkAccelGroup* accel_group,
+                                          GObject* acceleratable,
+                                          guint keyval,
+                                          GdkModifierType modifier,
+                                          TaskManagerGtk* task_manager) {
+  if (keyval == GDK_w && modifier == GDK_CONTROL_MASK) {
+    // The GTK_RESPONSE_DELETE_EVENT response must be sent before the widget
+    // is destroyed.  The deleted object will receive gtk signals otherwise.
+    gtk_dialog_response(GTK_DIALOG(task_manager->dialog_),
+                        GTK_RESPONSE_DELETE_EVENT);
+    gtk_widget_destroy(task_manager->dialog_);
+  }
+
+  return TRUE;
 }

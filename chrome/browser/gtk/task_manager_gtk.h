@@ -33,6 +33,9 @@ class TaskManagerGtk : public TaskManagerModelObserver {
   // Initializes the task manager dialog.
   void Init();
 
+  // Connects the ctrl-w accelerator to the dialog.
+  void ConnectAccelerators();
+
   // Sets up the treeview widget.
   void CreateTaskManagerTreeview();
 
@@ -70,6 +73,13 @@ class TaskManagerGtk : public TaskManagerModelObserver {
   // button-release-event handler that opens the right-click context menu.
   static gboolean OnButtonReleaseEvent(GtkWidget* widget, GdkEventButton* event,
                                        TaskManagerGtk* task_manager);
+
+  // Handles an accelerator being pressed.
+  static gboolean OnGtkAccelerator(GtkAccelGroup* accel_group,
+                                   GObject* acceleratable,
+                                   guint keyval,
+                                   GdkModifierType modifier,
+                                   TaskManagerGtk* task_manager);
 
   // The task manager.
   TaskManager* task_manager_;
