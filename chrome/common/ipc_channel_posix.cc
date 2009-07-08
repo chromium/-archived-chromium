@@ -89,12 +89,14 @@ class PipeMap {
 
   // Remove the mapping for the given channel id. No error is signaled if the
   // channel_id doesn't exist
-  void Remove(const std::string& channel_id) {
+  void RemoveAndClose(const std::string& channel_id) {
     AutoLock locked(lock_);
 
     ChannelToFDMap::iterator i = map_.find(channel_id);
-    if (i != map_.end())
+    if (i != map_.end()) {
+      HANDLE_EINTR(close(i->second));
       map_.erase(i);
+    }
   }
 
   // Insert a mapping from @channel_id to @fd. It's a fatal error to insert a
@@ -271,6 +273,11 @@ void AddChannelSocket(const std::string& name, int socket) {
 }
 
 // static
+void RemoveAndCloseChannelSocket(const std::string& name) {
+  Singleton<PipeMap>()->RemoveAndClose(name);
+}
+
+// static
 bool SocketPair(int* fd1, int* fd2) {
   int pipe_fds[2];
   if (socketpair(AF_UNIX, SOCK_STREAM, 0, pipe_fds) != 0) {
@@ -423,8 +430,7 @@ bool Channel::ChannelImpl::ProcessIncomingMessages() {
     DCHECK(bytes_read);
 
     if (client_pipe_ != -1) {
-      Singleton<PipeMap>()->Remove(pipe_name_);
-      HANDLE_EINTR(close(client_pipe_));
+      Singleton<PipeMap>()->RemoveAndClose(pipe_name_);
       client_pipe_ = -1;
     }
 
@@ -776,8 +782,7 @@ void Channel::ChannelImpl::Close() {
     pipe_ = -1;
   }
   if (client_pipe_ != -1) {
-    Singleton<PipeMap>()->Remove(pipe_name_);
-    HANDLE_EINTR(close(client_pipe_));
+    Singleton<PipeMap>()->RemoveAndClose(pipe_name_);
     client_pipe_ = -1;
   }
 
