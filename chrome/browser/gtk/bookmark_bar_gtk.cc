@@ -440,6 +440,12 @@ GtkToolItem* BookmarkBarGtk::CreateBookmarkToolItem(const BookmarkNode* node) {
 }
 
 void BookmarkBarGtk::ConnectFolderButtonEvents(GtkWidget* widget) {
+  gtk_drag_dest_set(widget, GTK_DEST_DEFAULT_ALL, NULL, 0, GDK_ACTION_MOVE);
+  GtkDndUtil::SetDestTargetListFromCodeMask(widget,
+                                            GtkDndUtil::X_CHROME_BOOKMARK_ITEM);
+  g_signal_connect(widget, "drag-data-received",
+                   G_CALLBACK(&OnFolderDragReceived), this);
+
   // Connect to 'button-release-event' instead of 'clicked' because we need
   // access to the modifier keys and we do different things on each
   // button.
@@ -643,6 +649,31 @@ gboolean BookmarkBarGtk::OnFolderButtonReleased(GtkWidget* sender,
 
   // Allow other handlers to run so the button state is updated correctly.
   return FALSE;
+}
+
+// static
+void BookmarkBarGtk::OnFolderDragReceived(GtkWidget* widget,
+    GdkDragContext* context, gint x, gint y, GtkSelectionData* selection_data,
+    guint target_type, guint time, BookmarkBarGtk* bar) {
+  gboolean dnd_success = FALSE;
+  gboolean delete_selection_data = FALSE;
+
+  const BookmarkNode* dest_node = bar->GetNodeForToolButton(widget);
+  DCHECK(dest_node->is_folder());
+  std::vector<const BookmarkNode*> nodes =
+      bookmark_utils::GetNodesFromSelection(context, selection_data,
+                                            target_type,
+                                            bar->profile_,
+                                            &delete_selection_data,
+                                            &dnd_success);
+  DCHECK(!nodes.empty());
+
+  for (std::vector<const BookmarkNode*>::iterator it = nodes.begin();
+       it != nodes.end(); ++it) {
+    bar->model_->Move(*it, dest_node, dest_node->GetChildCount());
+  }
+
+  gtk_drag_finish(context, dnd_success, delete_selection_data, time);
 }
 
 // static

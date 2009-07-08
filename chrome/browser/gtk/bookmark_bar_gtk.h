@@ -120,7 +120,6 @@ class BookmarkBarGtk : public AnimationDelegate,
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
                                              const BookmarkNode* node);
 
- private:
   GtkWidget* CreateBookmarkButton(const BookmarkNode* node);
   GtkToolItem* CreateBookmarkToolItem(const BookmarkNode* node);
 
@@ -158,6 +157,12 @@ class BookmarkBarGtk : public AnimationDelegate,
   static gboolean OnFolderButtonReleased(GtkWidget* sender,
                                          GdkEventButton* event,
                                          BookmarkBarGtk* bar);
+  static void OnFolderDragReceived(GtkWidget* widget,
+                                   GdkDragContext* context,
+                                   gint x, gint y,
+                                   GtkSelectionData* selection_data,
+                                   guint target_type, guint time,
+                                   BookmarkBarGtk* bar);
 
   // GtkToolbar callbacks
   static gboolean OnToolbarExpose(GtkWidget* widget, GdkEventExpose* event,
