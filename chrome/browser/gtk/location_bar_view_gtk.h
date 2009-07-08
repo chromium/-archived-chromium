@@ -92,6 +92,11 @@ class LocationBarViewGtk : public AutocompleteEditController,
   // hidden.
   void SetInfoText();
 
+  // Set the keyword text for the Search BLAH: keyword box.
+  void SetKeywordLabel(const std::wstring& keyword);
+  // Set the keyword text for the "Press tab to search BLAH" hint box.
+  void SetKeywordHintLabel(const std::wstring& keyword);
+
   // The outermost widget we want to be hosted.
   OwnedWidgetGtk hbox_;
 
@@ -102,6 +107,14 @@ class LocationBarViewGtk : public AutocompleteEditController,
   // Toolbar info text (EV cert info).
   GtkWidget* info_label_align_;
   GtkWidget* info_label_;
+
+  // Tab to search widgets.
+  GtkWidget* tab_to_search_;
+  GtkWidget* tab_to_search_label_;
+  GtkWidget* tab_to_search_hint_;
+  GtkWidget* tab_to_search_hint_leading_label_;
+  GtkWidget* tab_to_search_hint_icon_;
+  GtkWidget* tab_to_search_hint_trailing_label_;
 
   scoped_ptr<AutocompleteEditViewGtk> location_entry_;
 

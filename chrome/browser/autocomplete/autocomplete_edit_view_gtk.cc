@@ -459,6 +459,7 @@ gboolean AutocompleteEditViewGtk::HandleKeyPress(GtkWidget* widget,
   if (event->keyval == GDK_Return ||
       event->keyval == GDK_ISO_Enter ||
       event->keyval == GDK_KP_Enter ||
+      event->keyval == GDK_Tab ||
      (event->keyval == GDK_Escape && event->state == 0)) {
     // Handle IME. This is basically taken from GtkTextView and reworked a bit.
     GtkTextIter iter;
@@ -475,7 +476,13 @@ gboolean AutocompleteEditViewGtk::HandleKeyPress(GtkWidget* widget,
       }
     } else {
       // Ok, not handled by the IME, we can handle it.
-      if (event->keyval == GDK_Escape) {
+      if (event->keyval == GDK_Tab) {
+        if (model_->is_keyword_hint() && !model_->keyword().empty()) {
+          model_->AcceptKeyword();
+        } else {
+          return FALSE;  // Let GtkTextView handle the tab focus change.
+        }
+      } else if (event->keyval == GDK_Escape) {
         model_->OnEscapeKeyPressed();
       } else {
         bool alt_held = (event->state & GDK_MOD1_MASK);

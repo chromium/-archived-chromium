@@ -6,6 +6,7 @@
 
 #include <string>
 
+#include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "base/basictypes.h"
 #include "base/gfx/gtk_util.h"
@@ -16,9 +17,13 @@
 #include "chrome/browser/autocomplete/autocomplete_edit_view_gtk.h"
 #include "chrome/browser/command_updater.h"
 #include "chrome/browser/gtk/gtk_theme_provider.h"
+#include "chrome/browser/profile.h"
+#include "chrome/browser/search_engines/template_url.h"
+#include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gtk_util.h"
 #include "chrome/common/page_transition_types.h"
+#include "grit/generated_resources.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "webkit/glue/window_open_disposition.h"
 
@@ -48,11 +53,28 @@ const int kSecurityIconPaddingRight = 6;
 
 const int kEvTextPaddingRight = 4;
 
+const int kKeywordTopBottomPadding = 4;
+const int kKeywordLeftRightPadding = 4;
+
 // TODO(deanm): Eventually this should be painted with the background png
 // image, but for now we get pretty close by just drawing a solid border.
 const GdkColor kBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
-
 const GdkColor kEvTextColor = GDK_COLOR_RGB(0x00, 0x96, 0x14);  // Green.
+const GdkColor kKeywordBackgroundColor = GDK_COLOR_RGB(0xf0, 0xf4, 0xfa);
+const GdkColor kKeywordBorderColor = GDK_COLOR_RGB(0xcb, 0xde, 0xf7);
+
+// Returns the short name for a keyword.
+std::wstring GetKeywordName(Profile* profile,
+                            const std::wstring& keyword) {
+  // Make sure the TemplateURL still exists.
+  // TODO(sky): Once LocationBarView adds a listener to the TemplateURLModel
+  // to track changes to the model, this should become a DCHECK.
+  const TemplateURL* template_url =
+      profile->GetTemplateURLModel()->GetTemplateURLForKeyword(keyword);
+  if (template_url)
+    return template_url->AdjustedShortNameForLocaleDirection();
+  return std::wstring();
+}
 
 }  // namespace
 
@@ -70,6 +92,12 @@ LocationBarViewGtk::LocationBarViewGtk(CommandUpdater* command_updater,
       security_warning_icon_image_(NULL),
       info_label_align_(NULL),
       info_label_(NULL),
+      tab_to_search_(NULL),
+      tab_to_search_label_(NULL),
+      tab_to_search_hint_(NULL),
+      tab_to_search_hint_leading_label_(NULL),
+      tab_to_search_hint_icon_(NULL),
+      tab_to_search_hint_trailing_label_(NULL),
       profile_(NULL),
       command_updater_(command_updater),
       toolbar_model_(toolbar_model),
@@ -116,6 +144,24 @@ void LocationBarViewGtk::Init() {
   g_signal_connect(hbox_.get(), "expose-event",
                    G_CALLBACK(&HandleExposeThunk), this);
 
+  // Tab to search (the keyword box on the left hand side).
+  tab_to_search_label_ = gtk_label_new(NULL);
+  // We need an alignment to pad our box inside the edit area.
+  tab_to_search_ = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
+  gtk_alignment_set_padding(GTK_ALIGNMENT(tab_to_search_),
+      kKeywordTopBottomPadding, kKeywordTopBottomPadding,
+      kKeywordLeftRightPadding, kKeywordLeftRightPadding);
+
+  // This crazy stack of alignments and event boxes creates a box around the
+  // keyword text with a border, background color, and padding around the text.
+  gtk_container_add(GTK_CONTAINER(tab_to_search_),
+      gtk_util::CreateGtkBorderBin(
+        gtk_util::CreateGtkBorderBin(
+            tab_to_search_label_, &kKeywordBackgroundColor, 1, 1, 2, 2),
+        &kKeywordBorderColor, 1, 1, 1, 1));
+
+  gtk_box_pack_start(GTK_BOX(hbox_.get()), tab_to_search_, FALSE, FALSE, 0);
+
   GtkWidget* align = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
   // TODO(erg): Redo this so that it adjusts during theme changes.
   if (GtkThemeProvider::UseSystemThemeGraphics(profile_)) {
@@ -130,6 +176,25 @@ void LocationBarViewGtk::Init() {
   }
   gtk_container_add(GTK_CONTAINER(align), location_entry_->widget());
   gtk_box_pack_start(GTK_BOX(hbox_.get()), align, TRUE, TRUE, 0);
+
+  // Tab to search notification (the hint on the right hand side).
+  tab_to_search_hint_ = gtk_hbox_new(FALSE, 0);
+  tab_to_search_hint_leading_label_ = gtk_label_new(NULL);
+  tab_to_search_hint_icon_ = gtk_image_new_from_pixbuf(
+      rb.GetPixbufNamed(IDR_LOCATION_BAR_KEYWORD_HINT_TAB));
+  tab_to_search_hint_trailing_label_ = gtk_label_new(NULL);
+  gtk_box_pack_start(GTK_BOX(tab_to_search_hint_),
+                     tab_to_search_hint_leading_label_,
+                     FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(tab_to_search_hint_),
+                     tab_to_search_hint_icon_,
+                     FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(tab_to_search_hint_),
+                     tab_to_search_hint_trailing_label_,
+                     FALSE, FALSE, 0);
+  // tab_to_search_hint_ gets hidden initially in OnChanged.  Hiding it here
+  // doesn't work, someone is probably calling show_all on our parent box.
+  gtk_box_pack_end(GTK_BOX(hbox_.get()), tab_to_search_hint_, FALSE, FALSE, 4);
 
   // Pack info_label_ and security icons in hbox.  We hide/show them
   // by SetSecurityIcon() and SetInfoText().
@@ -205,8 +270,24 @@ void LocationBarViewGtk::OnAutocompleteAccept(const GURL& url,
 }
 
 void LocationBarViewGtk::OnChanged() {
-  // TODO(deanm): Here is where we would do layout when we have things like
-  // the keyword display, ssl icons, etc.
+  const std::wstring keyword(location_entry_->model()->keyword());
+  const bool is_keyword_hint = location_entry_->model()->is_keyword_hint();
+  const bool show_selected_keyword = !keyword.empty() && !is_keyword_hint;
+  const bool show_keyword_hint = !keyword.empty() && is_keyword_hint;
+
+  if (show_selected_keyword) {
+    SetKeywordLabel(keyword);
+    gtk_widget_show_all(tab_to_search_);
+  } else {
+    gtk_widget_hide_all(tab_to_search_);
+  }
+
+  if (show_keyword_hint) {
+    SetKeywordHintLabel(keyword);
+    gtk_widget_show_all(tab_to_search_hint_);
+  } else {
+    gtk_widget_hide_all(tab_to_search_hint_);
+  }
 }
 
 void LocationBarViewGtk::OnInputInProgress(bool in_progress) {
@@ -361,4 +442,50 @@ void LocationBarViewGtk::SetInfoText() {
   gtk_label_set_text(GTK_LABEL(info_label_), WideToUTF8(info_text).c_str());
   gtk_widget_set_tooltip_text(GTK_WIDGET(info_label_),
                               WideToUTF8(info_tooltip).c_str());
+}
+
+void LocationBarViewGtk::SetKeywordLabel(const std::wstring& keyword) {
+  if (keyword.empty())
+    return;
+
+  DCHECK(profile_);
+  if (!profile_->GetTemplateURLModel())
+    return;
+
+  const std::wstring short_name = GetKeywordName(profile_, keyword);
+  // TODO(deanm): Windows does some measuring of the text here and truncates
+  // it if it's too long?
+  std::wstring full_name(l10n_util::GetStringF(IDS_OMNIBOX_KEYWORD_TEXT,
+                                               short_name));
+  gtk_label_set_text(GTK_LABEL(tab_to_search_label_),
+                     WideToUTF8(full_name).c_str());
+}
+
+void LocationBarViewGtk::SetKeywordHintLabel(const std::wstring& keyword) {
+  if (keyword.empty())
+    return;
+
+  DCHECK(profile_);
+  if (!profile_->GetTemplateURLModel())
+    return;
+
+  std::vector<size_t> content_param_offsets;
+  const std::wstring keyword_hint(l10n_util::GetStringF(
+      IDS_OMNIBOX_KEYWORD_HINT, std::wstring(),
+      GetKeywordName(profile_, keyword), &content_param_offsets));
+
+  if (content_param_offsets.size() != 2) {
+    // See comments on an identical NOTREACHED() in search_provider.cc.
+    NOTREACHED();
+    return;
+  }
+
+  std::string leading(WideToUTF8(
+      keyword_hint.substr(0, content_param_offsets.front())));
+  std::string trailing(WideToUTF8(
+      keyword_hint.substr(content_param_offsets.front())));
+  gtk_label_set_text(GTK_LABEL(tab_to_search_hint_leading_label_),
+                     leading.c_str());
+  gtk_label_set_text(GTK_LABEL(tab_to_search_hint_trailing_label_),
+                     trailing.c_str());
 }
