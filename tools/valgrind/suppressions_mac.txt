@@ -292,3 +292,17 @@
    fun:CGContextDrawImage
    fun:_ZN3gfx17CGImageToSkBitmapEP7CGImage
 }
+
+{
+   # Tiny one-time leak, widely seen by valgind users; everyone suppresses this.
+   # See related discussion at http://gcc.gnu.org/bugzilla/show_bug.cgi?id=39366
+   plugin_bundle_global_leak
+   Memcheck:Leak
+   fun:malloc
+   fun:__cxa_get_globals
+   fun:__cxa_allocate_exception
+   fun:_ZN4dyld4loadEPKcRKNS_11LoadContextE
+   fun:dlopen
+   fun:dlopen
+   fun:_CFBundleDlfcnCheckLoaded
+}
