@@ -89,6 +89,13 @@ class ScopedComPtr : public scoped_refptr<Interface> {
     return ptr_->QueryInterface(p);
   }
 
+  // QI for times when the IID is not associated with the type.
+  HRESULT QueryInterface(const IID& iid, void** obj) {
+    DCHECK(obj != NULL);
+    DCHECK(ptr_ != NULL);
+    return ptr_->QueryInterface(iid, obj);
+  }
+
   // Queries |other| for the interface this object wraps and returns the
   // error code from the other->QueryInterface operation.
   HRESULT QueryFrom(IUnknown* object) {

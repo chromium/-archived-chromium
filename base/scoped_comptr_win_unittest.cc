@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/scoped_comptr_win.h"
+
 #include <shlobj.h>
 
-#include "base/scoped_comptr_win.h"
 #include "base/scoped_ptr.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -42,6 +43,12 @@ TEST(ScopedComPtrTest, ScopedComPtr) {
     ScopedComPtr<IMalloc> mem_alloc;
     EXPECT_TRUE(SUCCEEDED(CoGetMalloc(1, mem_alloc.Receive())));
 
+    ScopedComPtr<IUnknown> qi_test;
+    EXPECT_HRESULT_SUCCEEDED(mem_alloc.QueryInterface(IID_IUnknown,
+        reinterpret_cast<void**>(qi_test.Receive())));
+    EXPECT_TRUE(qi_test.get() != NULL);
+    qi_test.Release();
+
     // test ScopedComPtr& constructor
     ScopedComPtr<IMalloc> copy1(mem_alloc);
     EXPECT_TRUE(copy1.IsSameObject(mem_alloc));
@@ -73,6 +80,7 @@ TEST(ScopedComPtrTest, ScopedComPtrVector) {
   // Verify we don't get error C2558.
   typedef ScopedComPtr<Dummy, &dummy_iid> Ptr;
   std::vector<Ptr> bleh;
+
   scoped_ptr<Dummy> p(new Dummy);
   {
     Ptr p2(p.get());
@@ -84,14 +92,16 @@ TEST(ScopedComPtrTest, ScopedComPtrVector) {
     p3 = p2;
     EXPECT_EQ(p->adds, 3);
     EXPECT_EQ(p->releases, 1);
+    // To avoid hitting a reallocation.
+    bleh.reserve(1);
     bleh.push_back(p2);
-    EXPECT_EQ(p->adds, 5);
-    EXPECT_EQ(p->releases, 2);
+    EXPECT_EQ(p->adds, 4);
+    EXPECT_EQ(p->releases, 1);
     EXPECT_EQ(bleh[0], p.get());
     bleh.pop_back();
-    EXPECT_EQ(p->adds, 5);
-    EXPECT_EQ(p->releases, 3);
+    EXPECT_EQ(p->adds, 4);
+    EXPECT_EQ(p->releases, 2);
   }
-  EXPECT_EQ(p->adds, 5);
-  EXPECT_EQ(p->releases, 5);
+  EXPECT_EQ(p->adds, 4);
+  EXPECT_EQ(p->releases, 4);
 }
