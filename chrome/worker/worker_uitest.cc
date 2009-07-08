@@ -5,6 +5,7 @@
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/platform_thread.h"
 #include "base/string_util.h"
 #include "chrome/browser/worker_host/worker_service.h"
 #include "chrome/common/chrome_paths.h"
@@ -63,8 +64,27 @@ WorkerTest::WorkerTest()
 }
 
 WorkerTest::~WorkerTest() {
-  if (!temp_test_dir_.empty())
-    file_util::Delete(temp_test_dir_, true);
+  // The deletion might fail because HTTP server process might not been
+  // completely shut down yet and is still holding certain handle to it.
+  // To work around this problem, we try to repeat the deletion several
+  // times.
+  if (!temp_test_dir_.empty()) {
+    static const int kRetryNum = 10;
+    static const int kRetryDelayTimeMs = 500;
+
+    int retry_time = 0;
+    for (int i = 0; i < kRetryNum; ++i) {
+      file_util::Delete(temp_test_dir_, true);
+      if (!file_util::DirectoryExists(temp_test_dir_))
+        break;
+
+      PlatformThread::Sleep(kRetryDelayTimeMs);
+      retry_time += kRetryDelayTimeMs;
+    }
+
+    if (retry_time)
+      printf("Retrying %d ms to delete temp worker directory.\n", retry_time);
+  }
 }
 
 void WorkerTest::RunTest(const std::wstring& test_case) {
