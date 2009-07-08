@@ -35,9 +35,10 @@ FontConfigDirect::FontConfigDirect()
 // -----------------------------------------------------------------------------
 static bool IsFallbackFontAllowed(const std::string& family)
 {
-    return family == "Sans" ||
-           family == "Serif" ||
-           family == "Monospace";
+    const char* family_cstr = family.c_str();
+    return strcasecmp(family_cstr, "sans") == 0 ||
+           strcasecmp(family_cstr, "serif") == 0 ||
+           strcasecmp(family_cstr, "monospace") == 0;
 }
 
 bool FontConfigDirect::Match(std::string* result_family,
