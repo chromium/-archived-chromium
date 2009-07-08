@@ -165,9 +165,10 @@ nacl_imc_all_libs = [
 # All the libs required for HTP layer on the host.
 nacl_htp_all_libs = [
   nacl_imc_lib,
-  'google_nacl_npruntime', # The lib reguired for the NPAPI bridge.
+  'google_nacl_imc_c',
   'nrd_xfer',
   'gio',
+  'naclthread',
   ]
 
 binaries_env = base_env.Clone()
@@ -192,7 +193,7 @@ binaries_env.Append(
     # TODO: this is ugly, should all be rolling into builder.
     NACL_OBJ_ROOT = '$NACL_DIR/scons-out/$NACL_VARIANT/obj',
     NACL_LIB_DIR = '$NACL_DIR/scons-out/$NACL_VARIANT/lib',
-    NACL_HTP_LIBS = nacl_imc_all_libs,
+    NACL_HTP_LIBS = nacl_htp_all_libs,
 )
 
 # This function adds a path to a windows environment variable like PATH,
@@ -225,10 +226,7 @@ def AddNaclBuildCommand(env, variant, platforms):
   else:
     script_suffix = '.sh'
 
-  if variant == 'nacl':
-    build_libs = nacl_htp_all_libs
-  else :
-    build_libs = nacl_imc_all_libs
+  build_libs = nacl_htp_all_libs
 
   targets = ['$NACL_LIB_DIR/${LIBPREFIX}' + f + '${LIBSUFFIX}'
              for f in build_libs]
@@ -505,7 +503,7 @@ windows_cb_env.Append(
       'o3dCmdBuf_client',
       'o3dCmdBuf_common',
       'd3d9', 'dxerr', 'd3dx9'
-    ] + nacl_imc_all_libs
+    ] + nacl_htp_all_libs
 )
 
 windows_cb_debug_env = windows_cb_env.Clone(

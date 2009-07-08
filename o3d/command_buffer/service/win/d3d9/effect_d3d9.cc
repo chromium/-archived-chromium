@@ -351,11 +351,8 @@ bool EffectD3D9::GetStreamDesc(unsigned int index,
   if (size < sizeof(Desc))  // NOLINT
     return false;
 
-  Desc stream = streams_[index];
   Desc *desc = static_cast<Desc *>(data);
-  memset(desc, 0, sizeof(*desc));
-  desc->semantic = stream.semantic;
-  desc->semantic_index = stream.semantic_index;
+  *desc = streams_[index];
   return true;
 }
 
