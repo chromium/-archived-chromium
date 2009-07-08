@@ -8,9 +8,11 @@
 #include <gtk/gtk.h>
 #include <stdlib.h>
 
+#include "base/basictypes.h"
 #include "base/gfx/rect.h"
 #include "base/linux_util.h"
 #include "third_party/skia/include/core/SkBitmap.h"
+#include "third_party/skia/include/core/SkUnPreMultiply.h"
 
 namespace {
 
@@ -19,6 +21,7 @@ void FreePixels(guchar* pixels, gpointer data) {
 }
 
 }  // namespace
+
 namespace gfx {
 
 const GdkColor kGdkWhite = GDK_COLOR_RGB(0xff, 0xff, 0xff);
@@ -30,17 +33,40 @@ GdkPixbuf* GdkPixbufFromSkBitmap(const SkBitmap* bitmap) {
   int width = bitmap->width();
   int height = bitmap->height();
   int stride = bitmap->rowBytes();
-  const guchar* orig_data = static_cast<guchar*>(bitmap->getPixels());
-  guchar* data = base::BGRAToRGBA(orig_data, width, height, stride);
+
+  // SkBitmaps are premultiplied, we need to unpremultiply them.
+  const int kBytesPerPixel = 4;
+  uint8* divided = static_cast<uint8*>(malloc(height * stride));
+
+  for (int y = 0, i = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      uint32 pixel = bitmap->getAddr32(0, y)[x];
+
+      int alpha = SkColorGetA(pixel);
+      if (alpha != 0 && alpha != 255) {
+        SkColor unmultiplied = SkUnPreMultiply::PMColorToColor(pixel);
+        divided[i + 0] = SkColorGetR(unmultiplied);
+        divided[i + 1] = SkColorGetG(unmultiplied);
+        divided[i + 2] = SkColorGetB(unmultiplied);
+        divided[i + 3] = alpha;
+      } else {
+        divided[i + 0] = SkColorGetR(pixel);
+        divided[i + 1] = SkColorGetG(pixel);
+        divided[i + 2] = SkColorGetB(pixel);
+        divided[i + 3] = alpha;
+      }
+      i += kBytesPerPixel;
+    }
+  }
 
   // This pixbuf takes ownership of our malloc()ed data and will
   // free it for us when it is destroyed.
   GdkPixbuf* pixbuf = gdk_pixbuf_new_from_data(
-      data,
+      divided,
       GDK_COLORSPACE_RGB,  // The only colorspace gtk supports.
       true,  // There is an alpha channel.
       8,
-      width, height, stride, &FreePixels, data);
+      width, height, stride, &FreePixels, divided);
 
   bitmap->unlockPixels();
   return pixbuf;
