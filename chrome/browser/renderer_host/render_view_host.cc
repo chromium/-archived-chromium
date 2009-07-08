@@ -680,10 +680,11 @@ bool RenderViewHost::SuddenTerminationAllowed() const {
 // RenderViewHost, IPC message handlers:
 
 void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
-#if !defined(OS_LINUX)
+#if defined(OS_WIN)
   // On Windows there's a potential deadlock with sync messsages going in
   // a circle from browser -> plugin -> renderer -> browser.
   // On Linux we can avoid this by avoiding sync messages from browser->plugin.
+  // On Mac we avoid this by not supporting windowed plugins.
   if (msg.is_sync() && !msg.is_caller_pumping_messages()) {
     NOTREACHED() << "Can't send sync messages to UI thread without pumping "
         "messages in the renderer or else deadlocks can occur if the page "

@@ -103,6 +103,8 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
                                   int item_height,
                                   int selected_item,
                                   const std::vector<WebMenuItem>& items);
+  virtual gfx::Rect GetWindowRect();
+  virtual gfx::Rect GetRootWindowRect();
 
   void KillSelf();
 

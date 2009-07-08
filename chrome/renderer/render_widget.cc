@@ -852,7 +852,6 @@ void RenderWidget::DidMove(WebWidget* webwidget,
 
 WebScreenInfo RenderWidget::GetScreenInfo(WebWidget* webwidget) {
   WebScreenInfo results;
-  RenderThread::current()->Send(
-      new ViewHostMsg_GetScreenInfo(host_window_, &results));
+  Send(new ViewHostMsg_GetScreenInfo(routing_id_, host_window_, &results));
   return results;
 }

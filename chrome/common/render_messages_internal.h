@@ -756,6 +756,8 @@ IPC_BEGIN_MESSAGES(ViewHost)
   IPC_MESSAGE_ROUTED0(ViewHostMsg_Blur)
 
   // Returns the window location of the given window.
+  // TODO(shess): Provide a mapping from reply_msg->routing_id() to
+  // HWND so that we can eliminate the NativeViewId parameter.
   IPC_SYNC_MESSAGE_ROUTED1_1(ViewHostMsg_GetWindowRect,
                              gfx::NativeViewId /* window */,
                              gfx::Rect /* Out: Window location */)
@@ -966,11 +968,11 @@ IPC_BEGIN_MESSAGES(ViewHost)
 #endif  // defined(OS_WIN)
 
   // Returns WebScreenInfo corresponding to the view.
-  // TODO(darin): Change this to be a routed message so we don't need to pass
-  // the view id.
-  IPC_SYNC_MESSAGE_CONTROL1_1(ViewHostMsg_GetScreenInfo,
-                              gfx::NativeViewId /* native view id */,
-                              WebKit::WebScreenInfo /* results */)
+  // TODO(shess): Provide a mapping from reply_msg->routing_id() to
+  // HWND so that we can eliminate the NativeViewId parameter.
+  IPC_SYNC_MESSAGE_ROUTED1_1(ViewHostMsg_GetScreenInfo,
+                             gfx::NativeViewId /* view */,
+                             WebKit::WebScreenInfo /* results */)
 
   // Send the tooltip text for the current mouse position to the browser.
   IPC_MESSAGE_ROUTED1(ViewHostMsg_SetTooltipText,
@@ -1250,6 +1252,8 @@ IPC_BEGIN_MESSAGES(ViewHost)
                        bool /* enabled */)
 
   // Returns the window location of the window this widget is embeded.
+  // TODO(shess): Provide a mapping from reply_msg->routing_id() to
+  // HWND so that we can eliminate the NativeViewId parameter.
   IPC_SYNC_MESSAGE_ROUTED1_1(ViewHostMsg_GetRootWindowRect,
                              gfx::NativeViewId /* window */,
                              gfx::Rect /* Out: Window location */)

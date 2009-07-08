@@ -149,6 +149,12 @@ class RenderWidgetHostView {
                                   int item_height,
                                   int selected_item,
                                   const std::vector<WebMenuItem>& items) = 0;
+
+  // Get the view's position on the screen.
+  virtual gfx::Rect GetWindowRect() = 0;
+
+  // Get the view's window's position on the screen.
+  virtual gfx::Rect GetRootWindowRect() = 0;
 #endif
 
 #if defined(OS_LINUX)

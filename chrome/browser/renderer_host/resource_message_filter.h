@@ -129,7 +129,10 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnLoadFont(LOGFONT font);
 #endif
 
+#if !defined(OS_MACOSX)
+  // Not handled in the IO thread on Mac.
   void OnGetScreenInfo(gfx::NativeViewId window, IPC::Message* reply);
+#endif
   void OnGetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins);
   void OnGetPluginPath(const GURL& url,
                        const GURL& policy_url,
@@ -167,8 +170,11 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnClipboardReadAsciiText(IPC::Message* reply);
   void OnClipboardReadHTML(IPC::Message* reply);
 
+#if !defined(OS_MACOSX)
+  // Not handled in the IO thread on Mac.
   void OnGetWindowRect(gfx::NativeViewId window, IPC::Message* reply);
   void OnGetRootWindowRect(gfx::NativeViewId window, IPC::Message* reply);
+#endif
   void OnGetMimeTypeFromExtension(const FilePath::StringType& ext,
                                   std::string* mime_type);
   void OnGetMimeTypeFromFile(const FilePath& file_path,

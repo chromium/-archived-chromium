@@ -4,6 +4,7 @@
 
 #include "chrome/browser/renderer_host/test/test_render_view_host.h"
 
+#include "base/gfx/rect.h"
 #include "chrome/browser/renderer_host/backing_store.h"
 #include "chrome/browser/tab_contents/test_web_contents.h"
 #include "chrome/common/render_messages.h"
@@ -75,6 +76,16 @@ BackingStore* TestRenderWidgetHostView::AllocBackingStore(
     const gfx::Size& size) {
   return new BackingStore(rwh_, size);
 }
+
+#if defined(OS_MACOSX)
+gfx::Rect TestRenderWidgetHostView::GetWindowRect() {
+  return gfx::Rect();
+}
+
+gfx::Rect TestRenderWidgetHostView::GetRootWindowRect() {
+  return gfx::Rect();
+}
+#endif
 
 void RenderViewHostTestHarness::NavigateAndCommit(const GURL& url) {
   controller().LoadURL(url, GURL(), 0);

@@ -4,9 +4,16 @@
 
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/common/render_messages.h"
+#include "webkit/api/public/win/WebScreenInfoFactory.h"
+
+using WebKit::WebScreenInfo;
+using WebKit::WebScreenInfoFactory;
 
 // We get null window_ids passed into the two functions below; please see
 // http://crbug.com/9060 for more details.
+
+// TODO(shess): Provide a mapping from reply_msg->routing_id() to HWND
+// so that we can eliminate the NativeViewId parameter.
 
 void ResourceMessageFilter::OnGetWindowRect(gfx::NativeViewId window_id,
                                             IPC::Message* reply_msg) {
@@ -28,5 +35,13 @@ void ResourceMessageFilter::OnGetRootWindowRect(gfx::NativeViewId window_id,
   gfx::Rect rect(window_rect);
 
   ViewHostMsg_GetRootWindowRect::WriteReplyParams(reply_msg, rect);
+  Send(reply_msg);
+}
+
+void ResourceMessageFilter::OnGetScreenInfo(gfx::NativeViewId view,
+                                            IPC::Message* reply_msg) {
+  WebScreenInfo results =
+      WebScreenInfoFactory::screenInfo(gfx::NativeViewFromId(view));
+  ViewHostMsg_GetScreenInfo::WriteReplyParams(reply_msg, results);
   Send(reply_msg);
 }

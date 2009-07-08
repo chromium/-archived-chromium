@@ -338,6 +338,44 @@ void RenderWidgetHostViewMac::ShutdownHost() {
   // Do not touch any members at this point, |this| has been deleted.
 }
 
+namespace {
+
+// Adjusts an NSRect in screen coordinates to have an origin in the upper left,
+// and stuffs it into a gfx::Rect. This is likely incorrect for a multiple-
+// monitor setup.
+gfx::Rect NSRectToRect(const NSRect rect, NSScreen* screen) {
+  gfx::Rect new_rect(NSRectToCGRect(rect));
+  new_rect.set_y([screen frame].size.height - new_rect.y() - new_rect.height());
+  return new_rect;
+}
+
+}  // namespace
+
+gfx::Rect RenderWidgetHostViewMac::GetWindowRect() {
+  // TODO(shess): In case of !window, the view has been removed from
+  // the view hierarchy because the tab isn't main.  Could retrieve
+  // the information from the main tab for our window.
+  if (!cocoa_view_ || ![cocoa_view_ window]) {
+    return gfx::Rect();
+  }
+
+  NSRect bounds = [cocoa_view_ bounds];
+  bounds = [cocoa_view_ convertRect:bounds toView:nil];
+  bounds.origin = [[cocoa_view_ window] convertBaseToScreen:bounds.origin];
+  return NSRectToRect(bounds, [[cocoa_view_ window] screen]);
+}
+
+gfx::Rect RenderWidgetHostViewMac::GetRootWindowRect() {
+  // TODO(shess): In case of !window, the view has been removed from
+  // the view hierarchy because the tab isn't main.  Could retrieve
+  // the information from the main tab for our window.
+  if (!cocoa_view_ || ![cocoa_view_ window]) {
+    return gfx::Rect();
+  }
+
+  NSRect bounds = [[cocoa_view_ window] frame];
+  return NSRectToRect(bounds, [[cocoa_view_ window] screen]);
+}
 
 
 // RenderWidgetHostViewCocoa ---------------------------------------------------

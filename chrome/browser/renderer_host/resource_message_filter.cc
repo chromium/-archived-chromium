@@ -51,17 +51,7 @@
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
-#if defined(OS_WIN)
-#include "webkit/api/public/win/WebScreenInfoFactory.h"
-#elif defined(OS_MACOSX)
-#include "webkit/api/public/mac/WebScreenInfoFactory.h"
-#endif
-
 using WebKit::WebCache;
-using WebKit::WebScreenInfo;
-#if !defined(OS_LINUX)
-using WebKit::WebScreenInfoFactory;
-#endif
 
 namespace {
 
@@ -259,15 +249,19 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
     DCHECK(msg_is_ok);  // It should have been marked handled if it wasn't OK.
     handled = true;
     IPC_BEGIN_MESSAGE_MAP_EX(ResourceMessageFilter, message, msg_is_ok)
-      // On Linux we need to dispatch these messages to the UI2 thread because
-      // we cannot make X calls from the IO thread.  On other platforms, we can
-      // handle these calls directly.
+      // On Linux we need to dispatch these messages to the UI2 thread
+      // because we cannot make X calls from the IO thread.  Mac
+      // doesn't have windowed plug-ins so we handle the messages in
+      // the UI thread.  On Windows, we intercept the messages and
+      // handle them directly.
+#if !defined(OS_MACOSX)
       IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_GetScreenInfo,
                                       OnGetScreenInfo)
       IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_GetWindowRect,
                                       OnGetWindowRect)
       IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_GetRootWindowRect,
                                       OnGetRootWindowRect)
+#endif
 
       IPC_MESSAGE_HANDLER(ViewHostMsg_CreateWindow, OnMsgCreateWindow)
       IPC_MESSAGE_HANDLER(ViewHostMsg_CreateWidget, OnMsgCreateWidget)
@@ -521,18 +515,6 @@ void ResourceMessageFilter::OnLoadFont(LOGFONT font) {
   fonts[font_index] = font_handle;
   hdcs[font_index] = hdc;
   font_index = (font_index + 1) % kFontCacheSize;
-}
-#endif
-
-#if !defined(OS_LINUX)
-void ResourceMessageFilter::OnGetScreenInfo(gfx::NativeViewId view,
-                                            IPC::Message* reply_msg) {
-  // TODO(darin): Change this into a routed message so that we can eliminate
-  // the NativeViewId parameter.
-  WebScreenInfo results =
-      WebScreenInfoFactory::screenInfo(gfx::NativeViewFromId(view));
-  ViewHostMsg_GetScreenInfo::WriteReplyParams(reply_msg, results);
-  Send(reply_msg);
 }
 #endif
 

@@ -24,6 +24,11 @@
 #include "chrome/app/chrome_dll_resource.h"
 #endif  // defined(OS_WIN)
 
+#if defined (OS_MACOSX)
+#include "webkit/api/public/WebScreenInfo.h"
+#include "webkit/api/public/mac/WebScreenInfoFactory.h"
+#endif
+
 using base::Time;
 using base::TimeDelta;
 using base::TimeTicks;
@@ -32,6 +37,11 @@ using WebKit::WebInputEvent;
 using WebKit::WebKeyboardEvent;
 using WebKit::WebMouseEvent;
 using WebKit::WebMouseWheelEvent;
+
+#if defined (OS_MACOSX)
+using WebKit::WebScreenInfo;
+using WebKit::WebScreenInfoFactory;
+#endif
 
 // How long to (synchronously) wait for the renderer to respond with a
 // PaintRect message, when our backing-store is invalid, before giving up and
@@ -119,12 +129,16 @@ IPC_DEFINE_MESSAGE_MAP(RenderWidgetHost)
   IPC_MESSAGE_HANDLER(ViewHostMsg_Blur, OnMsgBlur)
   IPC_MESSAGE_HANDLER(ViewHostMsg_SetCursor, OnMsgSetCursor)
   IPC_MESSAGE_HANDLER(ViewHostMsg_ImeUpdateStatus, OnMsgImeUpdateStatus)
-  IPC_MESSAGE_HANDLER_GENERIC(ViewHostMsg_ShowPopup, OnMsgShowPopup(msg))
 #if defined(OS_LINUX)
   IPC_MESSAGE_HANDLER(ViewHostMsg_CreatePluginContainer,
                       OnMsgCreatePluginContainer)
   IPC_MESSAGE_HANDLER(ViewHostMsg_DestroyPluginContainer,
                       OnMsgDestroyPluginContainer)
+#elif defined(OS_MACOSX)
+  IPC_MESSAGE_HANDLER_GENERIC(ViewHostMsg_ShowPopup, OnMsgShowPopup(msg))
+  IPC_MESSAGE_HANDLER(ViewHostMsg_GetScreenInfo, OnMsgGetScreenInfo)
+  IPC_MESSAGE_HANDLER(ViewHostMsg_GetWindowRect, OnMsgGetWindowRect)
+  IPC_MESSAGE_HANDLER(ViewHostMsg_GetRootWindowRect, OnMsgGetRootWindowRect)
 #endif
   IPC_MESSAGE_UNHANDLED_ERROR()
 IPC_END_MESSAGE_MAP()
@@ -737,8 +751,18 @@ void RenderWidgetHost::OnMsgImeUpdateStatus(int control,
   }
 }
 
+#if defined(OS_LINUX)
+void RenderWidgetHost::OnMsgCreatePluginContainer(
+    gfx::PluginWindowHandle *container) {
+  *container = view_->CreatePluginContainer();
+}
+
+void RenderWidgetHost::OnMsgDestroyPluginContainer(
+    gfx::PluginWindowHandle container) {
+  view_->DestroyPluginContainer(container);
+}
+#elif defined(OS_MACOSX)
 void RenderWidgetHost::OnMsgShowPopup(const IPC::Message& message) {
-#if defined(OS_MACOSX)
   void* iter = NULL;
   ViewHostMsg_ShowPopup_Params validated_params;
   if (!IPC::ParamTraits<ViewHostMsg_ShowPopup_Params>::Read(&message, &iter,
@@ -749,20 +773,26 @@ void RenderWidgetHost::OnMsgShowPopup(const IPC::Message& message) {
                             validated_params.item_height,
                             validated_params.selected_item,
                             validated_params.popup_items);
-#else  // OS_WIN || OS_LINUX
-  NOTREACHED();
-#endif
 }
 
-#if defined(OS_LINUX)
-void RenderWidgetHost::OnMsgCreatePluginContainer(
-    gfx::PluginWindowHandle *container) {
-  *container = view_->CreatePluginContainer();
+void RenderWidgetHost::OnMsgGetScreenInfo(gfx::NativeViewId view,
+                                          WebScreenInfo* results) {
+  gfx::NativeView native_view = view_ ? view_->GetNativeView() : NULL;
+  *results = WebScreenInfoFactory::screenInfo(native_view);
 }
 
-void RenderWidgetHost::OnMsgDestroyPluginContainer(
-    gfx::PluginWindowHandle container) {
-  view_->DestroyPluginContainer(container);
+void RenderWidgetHost::OnMsgGetWindowRect(gfx::NativeViewId window_id,
+                                          gfx::Rect* results) {
+  if (view_) {
+    *results = view_->GetWindowRect();
+  }
+}
+
+void RenderWidgetHost::OnMsgGetRootWindowRect(gfx::NativeViewId window_id,
+                                              gfx::Rect* results) {
+  if (view_) {
+    *results = view_->GetRootWindowRect();
+  }
 }
 #endif
 
