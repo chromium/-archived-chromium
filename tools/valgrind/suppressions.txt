@@ -494,31 +494,6 @@
    fun:_ZN11MessageLoop7RunTaskEP4Task
 }
 {
-   # See http://crbug.com/10871
-   bug_10871
-   Memcheck:Leak
-   fun:_Znwj
-   fun:_ZNSs4_Rep9_S_createEjjRKSaIcE
-   fun:_ZNSs4_Rep8_M_cloneERKSaIcEj
-   fun:_ZNSs7reserveEj
-   fun:_ZNK4GURL27ResolveWithCharsetConverterERKSsPN9url_canon16CharsetConverterE
-   fun:_ZNK4GURL7ResolveERKSs
-   fun:_ZN17URLRequestHttpJob18IsRedirectResponseEP4GURLPi
-}
-{
-   # See http://crbug.com/10873
-   bug_10873
-   Memcheck:Leak
-   fun:_Znwj
-   fun:_ZNSs4_Rep9_S_createEjjRKSaIcE
-   fun:_ZNSs4_Rep8_M_cloneERKSaIcEj
-   fun:_ZNSs7reserveEj
-   fun:_ZNK4GURL17ReplaceComponentsERKN9url_canon12ReplacementsIcEE
-   fun:_ZN13URLRequestJob21NotifyHeadersCompleteEv
-   fun:_ZN17URLRequestHttpJob21NotifyHeadersCompleteEv
-   fun:_ZN17URLRequestHttpJob16OnStartCompletedEi
-}
-{
    # See http://crbug.com/11116
    bug_11116a
    Memcheck:Leak

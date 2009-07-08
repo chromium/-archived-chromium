@@ -41,7 +41,7 @@ class ResourceRequestDetails {
     filter_policy_ = info->filter_policy;
   }
 
-  ~ResourceRequestDetails() { }
+  virtual ~ResourceRequestDetails() { }
 
   const GURL& url() const { return url_; }
   const GURL& original_url() const { return original_url_; }
