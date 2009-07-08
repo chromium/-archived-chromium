@@ -66,11 +66,33 @@ namespace o3d {
 };  // RenderSurface
 
 %[
+  A Param which stores a RenderSurface.
+%]
+[nocpp, include="core/cross/render_surface.h"] class ParamRenderSurface : Param
+{%[
+    The RenderSurface stored by the Param.
+  %]
+  [getter, setter] RenderSurface? value_;
+};
+
+%[
   A RenderDepthStencilSurface represents a depth stencil render surface.
 %]
 [nocpp, include="core/cross/render_surface.h"]
 class RenderDepthStencilSurface
     : RenderSurfaceBase {
 };  // RenderDepthStencilSurface
+
+%[
+  A Param which stores a RenderDepthStencilSurface.
+%]
+[nocpp, include="core/cross/render_surface.h"]
+class ParamRenderDepthStencilSurface : Param
+{%[
+    The RenderDepthStencilSurface stored by the Param.
+  %]
+  [getter, setter] RenderDepthStencilSurface? value_;
+};
+
 
 }  // namespace o3d
