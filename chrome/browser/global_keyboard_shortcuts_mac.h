@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_GLOBAL_KEYBOARD_SHORTCUTS_MAC_H_
 #define CHROME_BROWSER_GLOBAL_KEYBOARD_SHORTCUTS_MAC_H_
 
-#include "base/basictypes.h";
+#include "base/basictypes.h"
 
 struct KeyboardShortcutData {
   bool command_key;

@@ -9,13 +9,13 @@
 TEST(GlobalKeyboardShortcuts, ShortCutsToCommand) {
   // Test that an invalid shortcut translates into an invalid command id.
   ASSERT_EQ(CommandForKeyboardShortcut(false, false, false, 0), -1);
-  
+
   // Check that all known keyboard shortcuts return valid results.
   size_t num_shortcuts = 0;
   const KeyboardShortcutData *it = GetKeyboardShortCutTable(&num_shortcuts);
   ASSERT_GT(num_shortcuts, 0U);
   for (size_t i = 0; i < num_shortcuts; ++i, ++it) {
-    int cmd_num = CommandForKeyboardShortcut(it->command_key, it->shift_key, 
+    int cmd_num = CommandForKeyboardShortcut(it->command_key, it->shift_key,
         it->cntrl_key, it->vkey_code);
     ASSERT_EQ(cmd_num, it->chrome_command);
   }

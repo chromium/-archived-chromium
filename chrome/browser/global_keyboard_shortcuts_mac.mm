@@ -14,9 +14,9 @@ const KeyboardShortcutData* GetKeyboardShortCutTable(size_t* num_entries) {
     {true,  true,  false, 33  /* [ */,       IDC_SELECT_PREVIOUS_TAB},
     {false, false, true,  116 /* pg_up */,   IDC_SELECT_PREVIOUS_TAB},
   };
-  
+
   *num_entries = arraysize(keyboard_shortcuts);
-  
+
   return keyboard_shortcuts;
 }
 
