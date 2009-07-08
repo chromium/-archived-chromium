@@ -171,6 +171,7 @@ class LayoutTestController : public CppBoundClass {
   void setPrivateBrowsingEnabled(const CppArgumentList& args, CppVariant* result);
 
   void setXSSAuditorEnabled(const CppArgumentList& args, CppVariant* result);
+  void queueScriptInIsolatedWorld(const CppArgumentList& args, CppVariant* result);
 
   // The fallback method is called when a nonexistent method is called on
   // the layout test controller object.
