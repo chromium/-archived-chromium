@@ -635,19 +635,11 @@ BUG13907 WIN : LayoutTests/media/video-click-dblckick-standalone.html = PASS TIM
 BUG13907 WIN : LayoutTests/media/video-currentTime-set.html = FAIL CRASH
 // This test crashes in debug build.
 BUG13907 WIN : LayoutTests/media/video-currentTime-set2.html = PASS FAIL CRASH TIMEOUT
-// This test crashes in debug build.
-BUG13907 WIN : LayoutTests/media/video-display-none-crash.html = CRASH
 // This test is flaky.
 BUG13907 WIN DEBUG : LayoutTests/media/video-dom-autobuffer.html = PASS FAIL
 // This test crashes in debug build.
 BUG13907 WIN : LayoutTests/media/video-document-types.html = FAIL CRASH
-// This test times out in release build, it is really flaky.
-BUG13907 WIN : LayoutTests/media/video-error-abort.html = FAIL TIMEOUT
 BUG13907 WIN : LayoutTests/media/video-loop.html = FAIL CRASH
-// This test crashes in debug build.
-BUG13907 WIN : LayoutTests/media/video-muted.html = FAIL CRASH TIMEOUT
-// This test is flaky and may not only happen in debug build.
-BUG13907 WIN DEBUG : LayoutTests/media/video-no-autoplay.html = FAIL
 // This test is flaky.
 BUG13907 WIN : LayoutTests/media/video-play-pause-events.html = FAIL CRASH
 // This test is flaky too.
@@ -655,29 +647,14 @@ BUG13907 WIN : LayoutTests/media/video-play-pause-exception.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-played-collapse.html = FAIL
 // This test crashes in debug build.
 BUG13907 WIN : LayoutTests/media/video-played.html = FAIL CRASH
-// This test is flaky in debug build.
-BUG13907 WIN DEBUG : LayoutTests/media/video-poster.html = TIMEOUT
 // This test is flaky.
 BUG13907 WIN : LayoutTests/media/video-seek-past-end-paused.html = PASS FAIL CRASH
 // This test crashes in debug build.
 BUG13907 WIN : LayoutTests/media/video-seek-past-end-playing.html = PASS FAIL CRASH TIMEOUT
 BUG13907 WIN : LayoutTests/media/video-size-intrinsic-scale.html = FAIL
 BUG13907 WIN : LayoutTests/media/video-src-remove.html = FAIL
-// This test is flaky.
-BUG13907 WIN DEBUG : LayoutTests/media/video-src.html = FAIL
-// Flaky test.
-BUG13907 WIN DEBUG : LayoutTests/media/video-timeupdate-during-playback.html = FAIL
-// This test is very flaky.
-BUG13907 WIN : LayoutTests/media/unsupported-rtsp.html = CRASH
 // These tests are flaky.
-BUG13907 WIN : LayoutTests/media/video-src-invalid-remove.html = FAIL
 BUG13097 WIN : LayoutTests/media/video-display-toggle.html = FAIL
-BUG13907 WIN : LayoutTests/media/video-src-change.html = FAIL
-BUG13907 WIN : LayoutTests/media/video-src-source.html = FAIL
-BUG13907 WIN : LayoutTests/media/video-size.html = FAIL
-BUG13907 WIN : LayoutTests/media/video-src-plus-source.html = FAIL
-// The following test may trigger a deadlock so it times-out.
-BUG13907 WIN : LayoutTests/media/remove-from-document.html = TIMEOUT
 BUG13907 WIN : LayoutTests/media/controls-styling.html = FAIL
 
 // Function arguments object is copied for each access.
