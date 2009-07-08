@@ -1834,7 +1834,19 @@ function onAllLoadingFinished() {
 
   showHint();
 
+  window.o3d_prepForSelenium = prepForSelenium;
   window.g_finished = true;  // for selenium testing.
+}
+
+// Put the demo in a consistent state.
+function prepForSelenium() {
+  // Turn off the perf monitor.
+  g_perfMon = null;
+
+  // Set the render targets to a fixed size.
+  g_renderTargetWidth = 256;
+  g_renderTargetHeight = 256;
+  setupRenderTargets();
 }
 
 /**

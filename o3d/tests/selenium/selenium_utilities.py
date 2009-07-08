@@ -269,6 +269,9 @@ class SeleniumTestCase(unittest.TestCase):
     # wait for it to initialize.
     self.session.wait_for_condition(ready_condition, timeout)
 
+    self.session.run_script(
+        "if (window.o3d_prepForSelenium) { window.o3d_prepForSelenium(); }")
+
     if assertion:
       self.assertEqual("true", self.session.get_eval(assertion))
 

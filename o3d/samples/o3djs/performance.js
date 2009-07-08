@@ -56,7 +56,7 @@ o3djs.performance.createPerformanceMonitor = function(
     targetFPSMin, targetFPSMax, increaseQuality, decreaseQuality, opt_options) {
   return new o3djs.performance.PerformanceMonitor(targetFPSMin, targetFPSMax,
       increaseQuality, decreaseQuality, opt_options);
-}
+};
 
 /**
  * A class that monitors performance [in terms of FPS] and helps to adjust the
@@ -77,20 +77,20 @@ o3djs.performance.PerformanceMonitor = function(
 
   /**
    * A function to increase quality/lower FPS.
-   * @type {function(): void} 
+   * @type {function(): void}
    */
   this.increaseQuality = increaseQuality;
 
   /**
    * A function to decrease quality/raise FPS.
-   * @type {function(): void} 
+   * @type {function(): void}
    */
   this.decreaseQuality = decreaseQuality;
 
   /**
    * The mean time taken per frame so far, in seconds.  This is only valid once
    * we've collected at least minSamples samples.
-   * @type {number} 
+   * @type {number}
    */
   this.meanFrameTime = 0;
 
@@ -99,14 +99,14 @@ o3djs.performance.PerformanceMonitor = function(
    * or equal to this.damping.  After that point, we no longer update
    * this.sampleCount, so it will clip at this.damping.
    *
-   * @type {number} 
+   * @type {number}
    */
   this.sampleCount = 0;
 
   /**
    * The minimum number of samples to collect before trying to adjust quality.
    *
-   * @type {number} 
+   * @type {number}
    */
   this.minSamples = opt_options.opt_minSamples || 60;
 
@@ -117,7 +117,7 @@ o3djs.performance.PerformanceMonitor = function(
    * between 60 and 600 are probably reasonable values, depending on your needs,
    * but the number must be no less than minSamples.
    *
-   * @type {number} 
+   * @type {number}
    */
   this.damping = opt_options.opt_damping || 120;
 
@@ -125,7 +125,7 @@ o3djs.performance.PerformanceMonitor = function(
    * The minimum number of samples to take in between adjustments, to cut down
    * on overshoot.  It defaults to 2 * minSamples.
    *
-   * @type {number} 
+   * @type {number}
    */
   this.delayCycles = opt_options.opt_delayCycles || 2 * this.minSamples;
 
@@ -137,7 +137,7 @@ o3djs.performance.PerformanceMonitor = function(
   if (this.damping < this.minSamples) {
     throw Error('Damping must be at least minSamples.');
   }
-}
+};
 
 /**
  * Options for the PerformanceMonitor.
@@ -171,8 +171,8 @@ o3djs.performance.PerformanceMonitor.prototype.onRender = function(seconds) {
   var test = true;
   if (this.sampleCount < this.damping) {
     if (this.sampleCount >= this.minSamples) {
-      this.scaleInput_ = 1 / (this.sampleCount + 1); 
-      this.scaleMean_ = this.sampleCount * this.scaleInput_; 
+      this.scaleInput_ = 1 / (this.sampleCount + 1);
+      this.scaleMean_ = this.sampleCount * this.scaleInput_;
     } else {
       test = false;
     }
@@ -191,5 +191,6 @@ o3djs.performance.PerformanceMonitor.prototype.onRender = function(seconds) {
       this.delayCyclesLeft_ = this.delayCycles;
     }
   }
-}
+};
+
 
