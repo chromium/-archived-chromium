@@ -950,6 +950,7 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_WindowExecuteCommand,
                         ExecuteBrowserCommand)
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowViewBounds, WindowGetViewBounds)
+    IPC_MESSAGE_HANDLER(AutomationMsg_SetWindowBounds, SetWindowBounds)
     IPC_MESSAGE_HANDLER(AutomationMsg_SetWindowVisible, SetWindowVisible)
 #if defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowClick, WindowSimulateClick)
@@ -1710,6 +1711,18 @@ void AutomationProvider::GetFocusedViewID(int handle, int* view_id) {
     views::View* focused_view = focus_manager->GetFocusedView();
     if (focused_view)
       *view_id = focused_view->GetID();
+  }
+}
+
+void AutomationProvider::SetWindowBounds(int handle, const gfx::Rect& bounds,
+                                         bool* success) {
+  *success = false;
+  if (window_tracker_->ContainsHandle(handle)) {
+    HWND hwnd = window_tracker_->GetResource(handle);
+    if (::MoveWindow(hwnd, bounds.x(), bounds.y(), bounds.width(),
+                     bounds.height(), true)) {
+      *success = true;
+    }
   }
 }
 

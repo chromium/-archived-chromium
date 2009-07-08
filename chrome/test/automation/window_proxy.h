@@ -82,6 +82,11 @@ class WindowProxy : public AutomationResourceProxy {
   bool GetViewBoundsWithTimeout(int view_id, gfx::Rect* bounds,
                                 bool screen_coordinates, uint32 timeout_ms,
                                 bool* is_timeout);
+
+  // Sets the position and size of the window. Returns true if setting the
+  // bounds was successful.
+  bool SetBounds(const gfx::Rect& bounds);
+
   // Gets the id of the view that currently has focus.  Returns true if the id
   // was retrieved.
   bool GetFocusedViewID(int* view_id);

@@ -106,6 +106,15 @@ bool WindowProxy::GetViewBoundsWithTimeout(int view_id, gfx::Rect* bounds,
   return result;
 }
 
+bool WindowProxy::SetBounds(const gfx::Rect& bounds) {
+  if (!is_valid())
+    return false;
+  bool result = false;
+  sender_->Send(new AutomationMsg_SetWindowBounds(0, handle_, bounds,
+                                                  &result));
+  return result;
+}
+
 bool WindowProxy::GetFocusedViewID(int* view_id) {
   if (!is_valid()) return false;
 

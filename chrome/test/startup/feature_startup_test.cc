@@ -3,12 +3,14 @@
 // found in the LICENSE file.
 
 #include "base/file_util.h"
+#include "base/gfx/rect.h"
 #include "base/path_service.h"
 #include "base/perftimer.h"
 #include "base/time.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/test/automation/browser_proxy.h"
+#include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/ui/ui_test.h"
 #include "net/base/net_util.h"
 
@@ -61,6 +63,7 @@ class NewTabUIStartupTest : public UITest {
       // first (the first is about:blank).
       scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
       ASSERT_TRUE(window.get());
+      ASSERT_TRUE(window->GetWindow().get()->SetBounds(gfx::Rect(1000, 1000)));
       int tab_count = -1;
       ASSERT_TRUE(window->GetTabCount(&tab_count));
       ASSERT_EQ(1, tab_count);

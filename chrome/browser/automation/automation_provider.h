@@ -180,6 +180,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
                               int handle,
                               wchar_t key,
                               int flags);
+  void SetWindowBounds(int handle, const gfx::Rect& bounds, bool* result);
   void SetWindowVisible(int handle, bool visible, bool* result);
   void IsWindowActive(int handle, bool* success, bool* is_active);
   void ActivateWindow(int handle);

@@ -257,6 +257,15 @@ IPC_BEGIN_MESSAGES(Automation)
   IPC_SYNC_MESSAGE_ROUTED3_2(AutomationMsg_WindowViewBounds, int, int,
                              bool, bool, gfx::Rect)
 
+  // This message sets the bounds of the window.
+  // Request:
+  //   int - the handle of the window to resize
+  //   gfx::Rect - the bounds of the window
+  // Response:
+  //   bool - true if the resize was successful
+  IPC_SYNC_MESSAGE_ROUTED2_1(AutomationMsg_SetWindowBounds, int, gfx::Rect,
+                             bool)
+
 #if defined(OS_WIN)
   // TODO(port): Port these messages.
   //

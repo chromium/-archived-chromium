@@ -47,6 +47,12 @@ void AutomationProvider::ActivateWindow(int handle) { NOTIMPLEMENTED(); }
 void AutomationProvider::SetWindowVisible(int handle, bool visible,
                                           bool* result) { NOTIMPLEMENTED(); }
 
+void AutomationProvider::SetWindowBounds(int handle, const gfx::Rect& bounds,
+                                         bool* success) {
+  NOTIMPLEMENTED();
+}
+
+
 void AutomationProvider::GetFocusedViewID(int handle, int* view_id) {
   NOTIMPLEMENTED();
 }
