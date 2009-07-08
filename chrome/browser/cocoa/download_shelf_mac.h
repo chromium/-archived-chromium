@@ -35,9 +35,6 @@ class DownloadShelfMac : public DownloadShelf {
   virtual void Close();
 
  private:
-  // The download items we have added to our shelf.
-  std::vector<DownloadItemMac*> download_items_;
-
   DownloadShelfController* shelf_controller_;  // weak, owns us
 };
 

@@ -4,10 +4,13 @@
 
 #import <Cocoa/Cocoa.h>
 
+#include "base/scoped_nsobject.h"
 #include "base/scoped_ptr.h"
 
+class BaseDownloadItemModel;
 class Browser;
 @class BrowserWindowController;
+@class DownloadItemController;
 class DownloadShelf;
 @class DownloadShelfView;
 
@@ -17,19 +20,21 @@ class DownloadShelf;
  @private
   IBOutlet NSTextView* showAllDownloadsLink_;
 
-  // Currently these two are always the same, but they mean slightly
-  // different things.  contentAreaHasOffset_ is an implementation
-  // detail of download shelf visibility.
+  // Currently these two are always the same, but they mean slightly different
+  // things. |contentAreaHasOffset_| is an implementation detail of the download
+  // shelf visibility.
   BOOL contentAreaHasOffset_;
   BOOL barIsVisible_;
 
   scoped_ptr<DownloadShelf> bridge_;
   NSView* contentArea_;
   int shelfHeight_;
+
+  // The download items we have added to our shelf.
+  scoped_nsobject<NSMutableArray> downloadItemControllers_;
 };
 
-- (id)initWithBrowser:(Browser*)browser
-    contentArea:(NSView*)content;
+- (id)initWithBrowser:(Browser*)browser contentArea:(NSView*)content;
 
 - (DownloadShelf*)bridge;
 - (BOOL)isVisible;
@@ -37,9 +42,7 @@ class DownloadShelf;
 - (IBAction)show:(id)sender;
 - (IBAction)hide:(id)sender;
 
-// TODO(thakis): this should internally build an item and get only
-// the model as parameter.
-- (void)addDownloadItem:(NSView*)view;
+- (void)addDownloadItem:(BaseDownloadItemModel*)model;
 
 // Resizes the download shelf based on the state of the content area.
 - (void)resizeDownloadShelf;

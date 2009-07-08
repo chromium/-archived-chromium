@@ -8,24 +8,6 @@
 #include "chrome/browser/cocoa/download_item_mac.h"
 #include "chrome/browser/download/download_item_model.h"
 
-namespace {
-
-// TODO(thakis): These are all temporary until there's a download item view
-
-// Border padding of a download item
-const int kDownloadItemBorderPadding = 4;
-
-// Width of a download item
-const int kDownloadItemWidth = 200;
-
-// Height of a download item
-const int kDownloadItemHeight = 32;
-
-// Horizontal padding between two download items
-const int kDownloadItemPadding = 10;
-
-}  // namespace
-
 DownloadShelfMac::DownloadShelfMac(Browser* browser,
                                    DownloadShelfController* controller)
     : DownloadShelf(browser),
@@ -34,20 +16,7 @@ DownloadShelfMac::DownloadShelfMac(Browser* browser,
 }
 
 void DownloadShelfMac::AddDownload(BaseDownloadItemModel* download_model) {
-
-  // TODO(thakis): we need to delete these at some point. There's no explicit
-  // mass delete on windows, figure out where they do it.
-
-  // TODO(thakis): This should just forward to the controller.
-
-  // TODO(thakis): RTL support?
-  int startX = kDownloadItemBorderPadding +
-      (kDownloadItemWidth + kDownloadItemPadding) * download_items_.size();
-  download_items_.push_back(new DownloadItemMac(download_model,
-      NSMakeRect(startX, kDownloadItemBorderPadding,
-                 kDownloadItemWidth, kDownloadItemHeight),
-      shelf_controller_));
-
+  [shelf_controller_ addDownloadItem:download_model];
   Show();
 }
 
