@@ -1057,7 +1057,6 @@
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8LocationCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8MessageChannelConstructor.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8MessagePortCustom.cpp',
-
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8NamedNodeMapCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8NamedNodesCollection.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8NamedNodesCollection.h',
@@ -1083,6 +1082,7 @@
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8XMLSerializerConstructor.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8XPathEvaluatorConstructor.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8XSLTProcessorCustom.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/DOMObjectsInclude.h',
         '../third_party/WebKit/WebCore/bindings/v8/ScheduledAction.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/ScheduledAction.h',
         '../third_party/WebKit/WebCore/bindings/v8/ScriptCachedFrameData.h',
@@ -1157,7 +1157,6 @@
         'extensions/v8/profiler_extension.h',
         'extensions/v8/benchmarking_extension.cc',
         'extensions/v8/benchmarking_extension.h',
-        'port/bindings/v8/DOMObjectsInclude.h',
         'port/bindings/v8/RGBColor.cpp',
         'port/bindings/v8/RGBColor.h',
         'port/bindings/v8/NPV8Object.cpp',
