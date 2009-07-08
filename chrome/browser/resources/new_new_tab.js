@@ -106,8 +106,8 @@ function onShownSections(mask) {
   if (mask != shownSections) {
 
     // Only invalidate most visited if needed.
-    if (mask & Section.THUMB != shownSections & Section.THUMB ||
-        mask & Section.LIST != shownSections & Section.LIST) {
+    if ((mask & Section.THUMB) != (shownSections & Section.THUMB) ||
+        (mask & Section.LIST) != (shownSections & Section.LIST)) {
       mostVisited.invalidate();
     }
 
@@ -213,31 +213,29 @@ function chromeSend(name, params, callbackName, callback) {
 }
 
 function useSmallGrid() {
-  return document.body.clientWidth <= 940;
+  return window.innerWidth <= 940;
 }
 
-function handleWindowResize(e, opt_noUpdate) {
-  var body = document.body;
-  if (!body || body.clientWidth < 10) {
+var LayoutMode = {
+  SMALL: 1,
+  NORMAL: 2
+};
+
+var layoutMode = useSmallGrid() ? LayoutMode.SMALL : LayoutMode.NORMAL;
+
+function handleWindowResize() {
+  if (window.innerWidth < 10) {
     // We're probably a background tab, so don't do anything.
     return;
   }
 
-  var hasSmallClass = hasClass(body, 'small');
-  if (hasSmallClass && !useSmallGrid()) {
-    removeClass(body, 'small');
+  var oldLayoutMode = layoutMode;
+  layoutMode = useSmallGrid() ? LayoutMode.SMALL : LayoutMode.NORMAL
+
+  if (layoutMode != oldLayoutMode){
     mostVisited.invalidate();
-    if (!opt_noUpdate) {
-      mostVisited.layout();
-      layoutLowerSections();
-    }
-  } else if (!hasSmallClass && useSmallGrid()) {
-    addClass(body, 'small');
-    mostVisited.invalidate();
-    if (!opt_noUpdate) {
-      mostVisited.layout();
-      layoutLowerSections();
-    }
+    mostVisited.layout();
+    layoutLowerSections();
   }
 }
 
@@ -513,6 +511,9 @@ var mostVisited = {
       for (var i = 0; i < thumbnails.length; i++) {
         var t = thumbnails[i];
 
+        // Remove temporary ID that was used during startup layout.
+        t.id = '';
+
         var row, col;
         if (shownSections & Section.THUMB) {
           row = Math.floor(i / cols);
@@ -680,7 +681,7 @@ function updateOptionMenu() {
 // We apply the size class here so that we don't trigger layout animations
 // onload.
 
-handleWindowResize(null, true);
+handleWindowResize();
 
 var localStrings = new LocalStrings();
 

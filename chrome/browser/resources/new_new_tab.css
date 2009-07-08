@@ -19,10 +19,6 @@ html[dir='rtl'] #main {
   background-position-x: 100%;
 }
 
-.small #main {
-  width: 692px;
-}
-
 html[anim='false'] *,
 .no-anim, .no-anim *,
 .loading * {
@@ -39,10 +35,6 @@ html[anim='false'] *,
   height: 372px;
   -webkit-user-select: none;
   -webkit-transition: height .5s, opacity .5s;
-}
-
-.small #most-visited {
-  height: 294px;
 }
 
 @-webkit-keyframes 'thumbnail-enter' {
@@ -93,17 +85,15 @@ html[anim='false'] *,
   -webkit-transition: left .5s, top .5s;
 }
 
+.list > .thumbnail-container {
+  -webkit-transition: left .5s, top .5s, width .5s;
+}
+
 .thumbnail,
 .thumbnail-container > .title {
   width: 212px; /* natural size is 196 */
   height: 132px; /* 136 */
   -webkit-transition: width .5s, height .5s;
-}
-
-.small .thumbnail,
-.small .thumbnail-container > .title {
-  width: 150px;
-  height: 93px;
 }
 
 .thumbnail-wrapper {
@@ -113,10 +103,6 @@ html[anim='false'] *,
   background-color: white;
   -webkit-border-radius: 5px;
   -webkit-transition: -webkit-background-size .5s;
-}
-
-.small .thumbnail-wrapper {
-  -webkit-background-size: 150px 93px;
 }
 
 .filler * {
@@ -228,8 +214,7 @@ html[anim='false'] *,
   color: hsl(213, 90%, 24%);
 }
 
-.thumbnail-container > .title,
-.small .thumbnail-container > .title {
+.thumbnail-container > .title {
   line-height: 16px;
   height: 16px;
   margin: 0;
@@ -238,7 +223,7 @@ html[anim='false'] *,
   font-weight:normal;
   padding: 0 3px;
   opacity: 1;
-  -webkit-transition: opacity .5s;
+  -webkit-transition: opacity .5s, width .5s;
   color: black;
 }
 
@@ -352,10 +337,6 @@ html[dir=rtl] .thumbnail-container > .title > div {
   text-overflow: ellipsis;
 }
 
-.small #notification > * {
-  max-width: 300px;
-}
-
 #notification:hover,
 #notification.show {
   opacity: 1;
@@ -373,22 +354,17 @@ html[dir=rtl] .thumbnail-container > .title > div {
   display: none;
 }
 
-.list .title,
-.small .list .title {
-  width: auto;
-}
-
 .list > .thumbnail-container {
   -webkit-box-sizing: border-box;
 }
 
-.list .title,
-.small .list .title {
+.list > .thumbnail-container > .title {
   font-size: 140%;
   line-height: 40px;
   height: 40px;
   color: hsl(213, 27%, 68%);
   text-decoration: underline;
+  width: 100%;
 }
 
 .list .title > div {
@@ -558,10 +534,6 @@ html[dir='rtl'] #view-toolbar {
                    load */
 }
 
-.small #lower-sections > .section {
-  width: 336px; /* Same here, see above */
-}
-
 #lower-sections .spacer {
   width: 20px;
   -webkit-transition: width .5s;
@@ -655,4 +627,80 @@ html[dir='rtl'] #option-menu {
 #option-menu > [selected] {
   background-color: hsla(213, 66%, 57%, 1);
   color: white;
+}
+
+/* Hard code thumbnail positions to improve initial layout speed */
+#t0, #t4 {
+  left: 0;
+}
+
+#t1, #t5 {
+  left: 240px;
+}
+
+#t2, #t6 {
+  left: 480px;
+}
+
+#t3, #t7 {
+  left: 720px;
+}
+
+#t4, #t5, #t6, #t7 {
+  top: 186px;
+}
+
+/* small */
+
+@media (max-width: 940px) {
+
+  #main {
+    width: 692px;
+  }
+
+  #most-visited {
+    height: 294px;
+  }
+
+  .thumbnail,
+  .thumbnail-container > .title {
+    width: 150px;
+    height: 93px;
+  }
+
+  .thumbnail-container > .title {
+    height: auto;
+  }
+
+  .thumbnail-wrapper {
+    -webkit-background-size: 150px 93px;
+  }
+
+  #notification > * {
+    max-width: 300px;
+  }
+
+  #lower-sections > .section {
+    width: 336px; /* Same here, see above */
+  }
+
+  #t0, #t4 {
+    left: 0;
+  }
+
+  #t1, #t5 {
+    left: 178px;
+  }
+
+  #t2, #t6 {
+    left: 356px;
+  }
+
+  #t3, #t7 {
+    left: 534px;
+  }
+
+  #t4, #t5, #t6, #t7 {
+    top: 147px;
+  }
 }
