@@ -1103,8 +1103,8 @@ int BackendImpl::NewEntry(Addr address, EntryImpl** entry, bool* dirty) {
 EntryImpl* BackendImpl::MatchEntry(const std::string& key, uint32 hash,
                                    bool find_parent) {
   Addr address(data_->table[hash & mask_]);
-  EntryImpl* cache_entry = NULL;
-  EntryImpl* parent_entry = NULL;
+  scoped_refptr<EntryImpl> cache_entry, parent_entry;
+  EntryImpl* tmp = NULL;
   bool found = false;
 
   for (;;) {
@@ -1118,7 +1118,8 @@ EntryImpl* BackendImpl::MatchEntry(const std::string& key, uint32 hash,
     }
 
     bool dirty;
-    int error = NewEntry(address, &cache_entry, &dirty);
+    int error = NewEntry(address, &tmp, &dirty);
+    cache_entry.swap(&tmp);
 
     if (error || dirty) {
       // This entry is dirty on disk (it was not properly closed): we cannot
@@ -1129,7 +1130,6 @@ EntryImpl* BackendImpl::MatchEntry(const std::string& key, uint32 hash,
 
       if (parent_entry) {
         parent_entry->SetNextAddress(child);
-        parent_entry->Release();
         parent_entry = NULL;
       } else {
         data_->table[hash & mask_] = child.value();
@@ -1139,7 +1139,6 @@ EntryImpl* BackendImpl::MatchEntry(const std::string& key, uint32 hash,
         // It is important to call DestroyInvalidEntry after removing this
         // entry from the table.
         DestroyInvalidEntry(address, cache_entry);
-        cache_entry->Release();
         cache_entry = NULL;
       } else {
         Trace("NewEntry failed on MatchEntry 0x%x", address.value());
@@ -1151,19 +1150,13 @@ EntryImpl* BackendImpl::MatchEntry(const std::string& key, uint32 hash,
     }
 
     if (cache_entry->IsSameEntry(key, hash)) {
-      if (!cache_entry->Update()) {
-        cache_entry->Release();
+      if (!cache_entry->Update())
         cache_entry = NULL;
-      }
       found = true;
       break;
     }
-    if (!cache_entry->Update()) {
-      cache_entry->Release();
+    if (!cache_entry->Update())
       cache_entry = NULL;
-    }
-    if (parent_entry)
-      parent_entry->Release();
     parent_entry = cache_entry;
     cache_entry = NULL;
     if (!parent_entry)
@@ -1172,17 +1165,14 @@ EntryImpl* BackendImpl::MatchEntry(const std::string& key, uint32 hash,
     address.set_value(parent_entry->GetNextAddress());
   }
 
-  if (parent_entry && (!find_parent || !found)) {
-    parent_entry->Release();
+  if (parent_entry && (!find_parent || !found))
     parent_entry = NULL;
-  }
 
-  if (cache_entry && (find_parent || !found)) {
-    cache_entry->Release();
+  if (cache_entry && (find_parent || !found))
     cache_entry = NULL;
-  }
 
-  return find_parent ? parent_entry : cache_entry;
+  find_parent ? parent_entry.swap(&tmp) : cache_entry.swap(&tmp);
+  return tmp;
 }
 
 // This is the actual implementation for OpenNextEntry and OpenPrevEntry.
