@@ -103,7 +103,7 @@ void DebuggerAgentImpl::ResetUtilityContext(
   v8::Handle<v8::Context> window_context =
       V8Proxy::context(document->frame());
   v8::Handle<v8::Object> window_global = window_context->Global();
-  v8::Handle<v8::Value> window_wrapper =
+  v8::Handle<v8::Object> window_wrapper =
       V8Proxy::lookupDOMWrapper(V8ClassIndex::DOMWINDOW, window_global);
 
   ASSERT(V8Proxy::convertDOMWrapperToNative<DOMWindow>(window_wrapper) ==
