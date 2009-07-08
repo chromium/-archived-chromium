@@ -138,8 +138,7 @@ void CreateNPVariantParam(const NPVariant& variant,
                           PluginChannelBase* channel,
                           NPVariant_Param* param,
                           bool release,
-                          base::WaitableEvent* modal_dialog_event,
-                          const GURL& page_url) {
+                          base::WaitableEvent* modal_dialog_event) {
   switch (variant.type) {
     case NPVariantType_Void:
       param->type = NPVARIANT_PARAM_VOID;
@@ -184,8 +183,7 @@ void CreateNPVariantParam(const NPVariant& variant,
           param->type = NPVARIANT_PARAM_OBJECT_ROUTING_ID;
           int route_id = channel->GenerateRouteID();
           new NPObjectStub(
-              variant.value.objectValue, channel, route_id, modal_dialog_event,
-              page_url);
+              variant.value.objectValue, channel, route_id, modal_dialog_event);
           param->npobject_routing_id = route_id;
           param->npobject_pointer =
               reinterpret_cast<intptr_t>(variant.value.objectValue);
@@ -206,8 +204,7 @@ void CreateNPVariantParam(const NPVariant& variant,
 void CreateNPVariant(const NPVariant_Param& param,
                      PluginChannelBase* channel,
                      NPVariant* result,
-                     base::WaitableEvent* modal_dialog_event,
-                     const GURL& page_url) {
+                     base::WaitableEvent* modal_dialog_event) {
   switch (param.type) {
     case NPVARIANT_PARAM_VOID:
       result->type = NPVariantType_Void;
@@ -240,8 +237,7 @@ void CreateNPVariant(const NPVariant_Param& param,
           NPObjectProxy::Create(channel,
                                 param.npobject_routing_id,
                                 param.npobject_pointer,
-                                modal_dialog_event,
-                                page_url);
+                                modal_dialog_event);
       break;
     case NPVARIANT_PARAM_OBJECT_POINTER:
       result->type = NPVariantType_Object;

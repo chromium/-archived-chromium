@@ -32,7 +32,6 @@
 struct PluginMsg_Init_Params {
   gfx::NativeViewId containing_window;
   GURL url;
-  GURL page_url;
   std::vector<std::string> arg_names;
   std::vector<std::string> arg_values;
 #if defined(OS_WIN)
@@ -110,7 +109,6 @@ struct ParamTraits<PluginMsg_Init_Params> {
   static void Write(Message* m, const param_type& p) {
     WriteParam(m, p.containing_window);
     WriteParam(m, p.url);
-    WriteParam(m, p.page_url);
     DCHECK(p.arg_names.size() == p.arg_values.size());
     WriteParam(m, p.arg_names);
     WriteParam(m, p.arg_values);
@@ -122,7 +120,6 @@ struct ParamTraits<PluginMsg_Init_Params> {
   static bool Read(const Message* m, void** iter, param_type* p) {
     return ReadParam(m, iter, &p->containing_window) &&
            ReadParam(m, iter, &p->url) &&
-           ReadParam(m, iter, &p->page_url) &&
            ReadParam(m, iter, &p->arg_names) &&
            ReadParam(m, iter, &p->arg_values) &&
 #if defined(OS_WIN)
@@ -135,8 +132,6 @@ struct ParamTraits<PluginMsg_Init_Params> {
     LogParam(p.containing_window, l);
     l->append(L", ");
     LogParam(p.url, l);
-    l->append(L", ");
-    LogParam(p.page_url, l);
     l->append(L", ");
     LogParam(p.arg_names, l);
     l->append(L", ");

@@ -49,13 +49,11 @@ NPObjectProxy::NPObjectProxy(
     PluginChannelBase* channel,
     int route_id,
     intptr_t npobject_ptr,
-    base::WaitableEvent* modal_dialog_event,
-    const GURL& page_url)
+    base::WaitableEvent* modal_dialog_event)
     : channel_(channel),
       route_id_(route_id),
       npobject_ptr_(npobject_ptr),
-      modal_dialog_event_(modal_dialog_event),
-      page_url_(page_url) {
+      modal_dialog_event_(modal_dialog_event) {
   channel_->AddRoute(route_id, this, true);
 }
 
@@ -70,12 +68,11 @@ NPObjectProxy::~NPObjectProxy() {
 NPObject* NPObjectProxy::Create(PluginChannelBase* channel,
                                 int route_id,
                                 intptr_t npobject_ptr,
-                                base::WaitableEvent* modal_dialog_event,
-                                const GURL& page_url) {
+                                base::WaitableEvent* modal_dialog_event) {
   NPObjectWrapper* obj = reinterpret_cast<NPObjectWrapper*>(
       NPN_CreateObject(0, &npclass_proxy_));
   obj->proxy = new NPObjectProxy(
-      channel, route_id, npobject_ptr, modal_dialog_event, page_url);
+      channel, route_id, npobject_ptr, modal_dialog_event);
 
   return reinterpret_cast<NPObject*>(obj);
 }
@@ -169,8 +166,7 @@ bool NPObjectProxy::NPInvokePrivate(NPP npp,
   for (unsigned int i = 0; i < arg_count; ++i) {
     NPVariant_Param param;
     CreateNPVariantParam(
-        args[i], channel_copy, &param, false, proxy->modal_dialog_event_,
-        proxy->page_url_);
+        args[i], channel_copy, &param, false, proxy->modal_dialog_event_);
     args_param.push_back(param);
   }
 
@@ -197,8 +193,7 @@ bool NPObjectProxy::NPInvokePrivate(NPP npp,
     return false;
 
   CreateNPVariant(
-      param_result, channel_copy, np_result, modal_dialog_event_handle,
-      proxy->page_url_);
+      param_result, channel_copy, np_result, modal_dialog_event_handle);
   return true;
 }
 
@@ -256,8 +251,7 @@ bool NPObjectProxy::NPGetProperty(NPObject *obj,
     return false;
 
   CreateNPVariant(
-      param, channel.get(), np_result, modal_dialog_event_handle,
-      proxy->page_url_);
+      param, channel.get(), np_result, modal_dialog_event_handle);
 
   return true;
 }
@@ -277,7 +271,7 @@ bool NPObjectProxy::NPSetProperty(NPObject *obj,
   NPVariant_Param value_param;
   CreateNPVariantParam(
       *value, proxy->channel(), &value_param, false,
-      proxy->modal_dialog_event_, proxy->page_url_);
+      proxy->modal_dialog_event_);
 
   proxy->Send(new NPObjectMsg_SetProperty(
       proxy->route_id(), name_param, value_param, &result));
@@ -364,8 +358,7 @@ bool NPObjectProxy::NPNConstruct(NPObject *obj,
   for (unsigned int i = 0; i < arg_count; ++i) {
     NPVariant_Param param;
     CreateNPVariantParam(
-        args[i], channel_copy, &param, false, proxy->modal_dialog_event_,
-        proxy->page_url_);
+        args[i], channel_copy, &param, false, proxy->modal_dialog_event_);
     args_param.push_back(param);
   }
 
@@ -387,8 +380,7 @@ bool NPObjectProxy::NPNConstruct(NPObject *obj,
     return false;
 
   CreateNPVariant(
-      param_result, channel_copy, np_result, modal_dialog_event_handle,
-      proxy->page_url_);
+      param_result, channel_copy, np_result, modal_dialog_event_handle);
   return true;
 }
 
@@ -433,8 +425,7 @@ bool NPObjectProxy::NPNEvaluate(NPP npp,
     return false;
 
   CreateNPVariant(
-      result_param, channel.get(), result_var, modal_dialog_event_handle,
-      proxy->page_url_);
+      result_param, channel.get(), result_var, modal_dialog_event_handle);
   return true;
 }
 

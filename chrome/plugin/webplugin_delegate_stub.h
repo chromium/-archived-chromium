@@ -13,9 +13,9 @@
 #include "base/task.h"
 #include "chrome/common/ipc_channel.h"
 #include "chrome/common/transport_dib.h"
-#include "googleurl/src/gurl.h"
 #include "third_party/npapi/bindings/npapi.h"
 
+class GURL;
 class PluginChannel;
 class WebPluginProxy;
 class WebPluginDelegate;
@@ -104,9 +104,6 @@ class WebPluginDelegateStub : public IPC::Channel::Listener,
 
   WebPluginDelegate* delegate_;
   WebPluginProxy* webplugin_;
-
-  // The url of the main frame hosting the plugin.
-  GURL page_url_;
 
   DISALLOW_IMPLICIT_CONSTRUCTORS(WebPluginDelegateStub);
 };

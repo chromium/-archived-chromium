@@ -14,11 +14,11 @@
 #include "base/ref_counted.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/renderer/plugin_channel_host.h"
-#include "googleurl/src/gurl.h"
 #include "skia/ext/platform_canvas.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webplugin_delegate.h"
 
+class GURL;
 struct NPObject;
 class NPObjectStub;
 struct NPVariant_Param;
@@ -203,9 +203,6 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   scoped_ptr<skia::PlatformCanvas> background_store_canvas_;
   // This lets us know which portion of the backing store has been painted into.
   gfx::Rect backing_store_painted_;
-
-  // The url of the main frame hosting the plugin.
-  GURL page_url_;
 
   DISALLOW_EVIL_CONSTRUCTORS(WebPluginDelegateProxy);
 };

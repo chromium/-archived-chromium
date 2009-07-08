@@ -13,7 +13,6 @@
 #include "base/singleton.h"
 #include "base/waitable_event.h"
 #include "build/build_config.h"
-#include "chrome/common/child_process_logging.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/plugin/npobject_proxy.h"
@@ -36,8 +35,7 @@ static ContextMap& GetContextMap() {
 WebPluginProxy::WebPluginProxy(
     PluginChannel* channel,
     int route_id,
-    WebPluginDelegate* delegate,
-    const GURL& page_url)
+    WebPluginDelegate* delegate)
     : channel_(channel),
       route_id_(route_id),
       cp_browsing_context_(0),
@@ -45,7 +43,6 @@ WebPluginProxy::WebPluginProxy(
       plugin_element_(NULL),
       delegate_(delegate),
       waiting_for_paint_(false),
-      page_url_(page_url),
       ALLOW_THIS_IN_INITIALIZER_LIST(runnable_method_factory_(this))
 {
 }
@@ -162,9 +159,10 @@ NPObject* WebPluginProxy::GetWindowScriptNPObject() {
   if (!success)
     return NULL;
 
-  window_npobject_ = NPObjectProxy::Create(
-      channel_, npobject_route_id, npobject_ptr, modal_dialog_event_.get(),
-      page_url_);
+  window_npobject_ = NPObjectProxy::Create(channel_,
+                                           npobject_route_id,
+                                           npobject_ptr,
+                                           modal_dialog_event_.get());
 
   return window_npobject_;
 }
@@ -181,9 +179,10 @@ NPObject* WebPluginProxy::GetPluginElement() {
   if (!success)
     return NULL;
 
-  plugin_element_ = NPObjectProxy::Create(
-      channel_, npobject_route_id, npobject_ptr, modal_dialog_event_.get(),
-      page_url_);
+  plugin_element_ = NPObjectProxy::Create(channel_,
+                                          npobject_route_id,
+                                          npobject_ptr,
+                                          modal_dialog_event_.get());
 
   return plugin_element_;
 }
@@ -519,8 +518,6 @@ void WebPluginProxy::InitiateHTTPRangeRequest(const char* url,
 }
 
 void WebPluginProxy::OnPaint(const gfx::Rect& damaged_rect) {
-  child_process_logging::ScopedActiveURLSetter url_setter(page_url_);
-
   Paint(damaged_rect);
   Send(new PluginHostMsg_InvalidateRect(route_id_, damaged_rect));
 }

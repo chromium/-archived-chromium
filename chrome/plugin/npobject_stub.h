@@ -12,7 +12,6 @@
 
 #include "base/ref_counted.h"
 #include "chrome/common/ipc_channel.h"
-#include "googleurl/src/gurl.h"
 
 namespace base {
 class WaitableEvent;
@@ -33,8 +32,7 @@ class NPObjectStub : public IPC::Channel::Listener,
   NPObjectStub(NPObject* npobject,
                PluginChannelBase* channel,
                int route_id,
-               base::WaitableEvent* modal_dialog_event,
-               const GURL& page_url);
+               base::WaitableEvent* modal_dialog_event);
   ~NPObjectStub();
 
   // IPC::Message::Sender implementation:
@@ -92,9 +90,6 @@ class NPObjectStub : public IPC::Channel::Listener,
   WebPluginDelegateProxy* web_plugin_delegate_proxy_;
 
   base::WaitableEvent* modal_dialog_event_;
-
-  // The url of the main frame hosting the plugin.
-  GURL page_url_;
 };
 
 #endif  // CHROME_PLUGIN_NPOBJECT_STUB_H_

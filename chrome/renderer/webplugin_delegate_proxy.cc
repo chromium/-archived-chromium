@@ -19,7 +19,6 @@
 #include "base/gfx/size.h"
 #include "base/gfx/native_widget_types.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/common/child_process_logging.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/plugin/npobject_proxy.h"
@@ -27,6 +26,7 @@
 #include "chrome/plugin/npobject_util.h"
 #include "chrome/renderer/render_thread.h"
 #include "chrome/renderer/render_view.h"
+#include "googleurl/src/gurl.h"
 #include "grit/generated_resources.h"
 #include "net/base/mime_util.h"
 #include "printing/native_metafile.h"
@@ -170,8 +170,7 @@ WebPluginDelegateProxy::WebPluginDelegateProxy(const std::string& mime_type,
       window_script_object_(NULL),
       sad_plugin_(NULL),
       invalidate_pending_(false),
-      transparent_(false),
-      page_url_(render_view_->webview()->GetMainFrame()->GetURL()) {
+      transparent_(false) {
 }
 
 WebPluginDelegateProxy::~WebPluginDelegateProxy() {
@@ -246,7 +245,6 @@ bool WebPluginDelegateProxy::Initialize(const GURL& url, char** argn,
   PluginMsg_Init_Params params;
   params.containing_window = render_view_->host_window();
   params.url = url;
-  params.page_url = page_url_;
   for (int i = 0; i < argc; ++i) {
     params.arg_names.push_back(argn[i]);
     params.arg_values.push_back(argv[i]);
@@ -331,8 +329,6 @@ void WebPluginDelegateProxy::InstallMissingPlugin() {
 }
 
 void WebPluginDelegateProxy::OnMessageReceived(const IPC::Message& msg) {
-  child_process_logging::ScopedActiveURLSetter url_setter(page_url_);
-
   IPC_BEGIN_MESSAGE_MAP(WebPluginDelegateProxy, msg)
     IPC_MESSAGE_HANDLER(PluginHostMsg_SetWindow, OnSetWindow)
 #if defined(OS_LINUX)
@@ -612,7 +608,7 @@ NPObject* WebPluginDelegateProxy::GetPluginScriptableObject() {
 
   npobject_ = NPObjectProxy::Create(
       channel_host_.get(), route_id, npobject_ptr,
-      render_view_->modal_dialog_event(), page_url_);
+      render_view_->modal_dialog_event());
 
   return NPN_RetainObject(npobject_);
 }
@@ -702,7 +698,7 @@ void WebPluginDelegateProxy::OnGetWindowScriptNPObject(
   // otherwise when the channel is closed.
   NPObjectStub* stub = new NPObjectStub(
       npobject, channel_host_.get(), route_id,
-      render_view_->modal_dialog_event(), page_url_);
+      render_view_->modal_dialog_event());
   window_script_object_ = stub;
   window_script_object_->set_proxy(this);
   *success = true;
@@ -722,7 +718,7 @@ void WebPluginDelegateProxy::OnGetPluginElement(
   // otherwise when the channel is closed.
   new NPObjectStub(
       npobject, channel_host_.get(), route_id,
-      render_view_->modal_dialog_event(), page_url_);
+      render_view_->modal_dialog_event());
   *success = true;
   *npobject_ptr = reinterpret_cast<intptr_t>(npobject);
 }
@@ -813,8 +809,7 @@ void WebPluginDelegateProxy::OnGetDragData(const NPVariant_Param& object,
 
   for (size_t i = 0; i < arraysize(results); ++i) {
     values->push_back(NPVariant_Param());
-    CreateNPVariantParam(
-        results[i], NULL, &values->back(), false, NULL, page_url_);
+    CreateNPVariantParam(results[i], NULL, &values->back(), false, NULL);
   }
 
   *success = true;

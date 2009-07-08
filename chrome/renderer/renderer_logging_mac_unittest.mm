@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/common/child_process_logging.h"
+#include "chrome/renderer/renderer_logging.h"
 
 #import <Foundation/Foundation.h>
 
@@ -10,7 +10,7 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 
-typedef PlatformTest ChildProcessLoggingTest;
+typedef PlatformTest RendererLoggingTest;
 
 namespace {
 
@@ -48,9 +48,9 @@ class MockBreakpadKeyValueStore {
   }
 
   bool VerifyDictionaryContents(const std::string &url) {
-    using child_process_logging::kMaxNumCrashURLChunks;
-    using child_process_logging::kMaxNumURLChunkValueLength;
-    using child_process_logging::kUrlChunkFormatStr;
+    using renderer_logging::kMaxNumCrashURLChunks;
+    using renderer_logging::kMaxNumURLChunkValueLength;
+    using renderer_logging::kUrlChunkFormatStr;
 
     int num_url_chunks = CountDictionaryEntries();
     EXPECT_TRUE(num_url_chunks <= kMaxNumCrashURLChunks);
@@ -80,21 +80,21 @@ class MockBreakpadKeyValueStore {
 
 }  // namespace
 
-// Call through to SetActiveURLImpl using the functions from
+// Call through to SetActiveRendererURLImpl using the functions from
 // MockBreakpadKeyValueStore.
-void SetActiveURLWithMock(const GURL& url) {
-  using child_process_logging::SetActiveURLImpl;
+void SetActiveRendererURLWithMock(const GURL& url) {
+  using renderer_logging::SetActiveRendererURLImpl;
 
   SetCrashKeyValueFuncPtr setFunc = MockBreakpadKeyValueStore::SetKeyValue;
   ClearCrashKeyValueFuncPtr clearFunc =
       MockBreakpadKeyValueStore::ClearKeyValue;
 
-  SetActiveURLImpl(url, setFunc, clearFunc);
+  SetActiveRendererURLImpl(url, setFunc, clearFunc);
 }
 
-TEST_F(ChildProcessLoggingTest, TestUrlSplitting) {
-  using child_process_logging::kMaxNumCrashURLChunks;
-  using child_process_logging::kMaxNumURLChunkValueLength;
+TEST_F(RendererLoggingTest, TestUrlSplitting) {
+  using renderer_logging::kMaxNumCrashURLChunks;
+  using renderer_logging::kMaxNumURLChunkValueLength;
 
   const std::string short_url("http://abc/");
   std::string long_url("http://");
@@ -110,29 +110,29 @@ TEST_F(ChildProcessLoggingTest, TestUrlSplitting) {
 
   // Check that Clearing NULL URL works.
   MockBreakpadKeyValueStore mock;
-  SetActiveURLWithMock(GURL());
+  SetActiveRendererURLWithMock(GURL());
   EXPECT_EQ(mock.CountDictionaryEntries(), 0);
 
   // Check that we can set a URL.
-  SetActiveURLWithMock(GURL(short_url.c_str()));
+  SetActiveRendererURLWithMock(GURL(short_url.c_str()));
   EXPECT_TRUE(mock.VerifyDictionaryContents(short_url));
   EXPECT_EQ(mock.CountDictionaryEntries(), 1);
-  SetActiveURLWithMock(GURL());
+  SetActiveRendererURLWithMock(GURL());
   EXPECT_EQ(mock.CountDictionaryEntries(), 0);
 
   // Check that we can replace a long url with a short url.
-  SetActiveURLWithMock(GURL(long_url.c_str()));
+  SetActiveRendererURLWithMock(GURL(long_url.c_str()));
   EXPECT_TRUE(mock.VerifyDictionaryContents(long_url));
-  SetActiveURLWithMock(GURL(short_url.c_str()));
+  SetActiveRendererURLWithMock(GURL(short_url.c_str()));
   EXPECT_TRUE(mock.VerifyDictionaryContents(short_url));
-  SetActiveURLWithMock(GURL());
+  SetActiveRendererURLWithMock(GURL());
   EXPECT_EQ(mock.CountDictionaryEntries(), 0);
 
 
   // Check that overflow works correctly.
-  SetActiveURLWithMock(GURL(overflow_url.c_str()));
+  SetActiveRendererURLWithMock(GURL(overflow_url.c_str()));
   EXPECT_TRUE(mock.VerifyDictionaryContents(
       overflow_url.substr(0, max_num_chars_stored_in_dump)));
-  SetActiveURLWithMock(GURL());
+  SetActiveRendererURLWithMock(GURL());
   EXPECT_EQ(mock.CountDictionaryEntries(), 0);
 }

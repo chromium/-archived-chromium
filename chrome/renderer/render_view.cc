@@ -23,7 +23,6 @@
 #include "base/string_util.h"
 #include "build/build_config.h"
 #include "chrome/common/bindings_policy.h"
-#include "chrome/common/child_process_logging.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/jstemplate_builder.h"
@@ -43,6 +42,7 @@
 #include "chrome/renderer/navigation_state.h"
 #include "chrome/renderer/print_web_view_helper.h"
 #include "chrome/renderer/render_process.h"
+#include "chrome/renderer/renderer_logging.h"
 #include "chrome/renderer/user_script_slave.h"
 #include "chrome/renderer/visitedlink_slave.h"
 #include "chrome/renderer/webplugin_delegate_proxy.h"
@@ -325,7 +325,7 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
 
 void RenderView::OnMessageReceived(const IPC::Message& message) {
   WebFrame* main_frame = webview() ? webview()->GetMainFrame() : NULL;
-  child_process_logging::ScopedActiveURLSetter url_setter(
+  renderer_logging::ScopedActiveRenderingURLSetter url_setter(
       main_frame ? main_frame->GetURL() : GURL());
 
   // If this is developer tools renderer intercept tools messages first.
@@ -626,7 +626,7 @@ void RenderView::OnNavigate(const ViewMsg_Navigate_Params& params) {
   if (!webview())
     return;
 
-  child_process_logging::ScopedActiveURLSetter url_setter(params.url);
+  renderer_logging::ScopedActiveRenderingURLSetter url_setter(params.url);
 
   AboutHandler::MaybeHandle(params.url);
 
