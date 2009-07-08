@@ -268,7 +268,19 @@ void ExtensionBrowserEventRouter::TabUpdated(TabContents* contents,
                                              bool did_navigate) {
   int tab_id = ExtensionTabUtil::GetTabId(contents);
   std::map<int, TabEntry>::iterator i = tab_entries_.find(tab_id);
-  CHECK(tab_entries_.end() != i);
+  if(tab_entries_.end() == i) {
+    // TODO(rafaelw): Unregister EBER on TAB_CONTENTS_DESTROYED in order
+    // not to receive NAV_ENTRY_COMMITTED from objects that are allocated
+    // at the same address as previously deleted TabContents.
+    //
+    // The problem here is that NAV_ENTRY_COMMITTED is issued by the navigation
+    // controller independently from tabstrip model. One should not rely upon
+    // TabStripModelObserver events when registering / unregistering
+    // tab contents events' handlers.
+    registrar_.Remove(this, NotificationType::NAV_ENTRY_COMMITTED,
+                      Source<NavigationController>(&contents->controller()));
+    return;
+  }
   TabEntry& entry = i->second;
 
   DictionaryValue* changed_properties = NULL;

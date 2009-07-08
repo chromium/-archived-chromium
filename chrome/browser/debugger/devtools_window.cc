@@ -91,13 +91,8 @@ void DevToolsWindow::InspectedTabClosing() {
     // Update dev tools to reflect removed dev tools window.
     inspected_window_->UpdateDevTools();
     // In case of docked tab_contents we own it, so delete here.
+    delete tab_contents_;
 
-    // Instead of deleting tab contents, we add it into the
-    // stub browser and initiate regular closure;
-    Browser* b = Browser::Create(profile_);
-    b->tabstrip_model()->AddTabContents(tab_contents_, -1, false,
-        PageTransition::START_PAGE, true);
-    b->CloseAllTabs();
     delete this;
   } else {
     // First, initiate self-destruct to free all the registrars.
