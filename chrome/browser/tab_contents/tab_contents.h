@@ -28,7 +28,6 @@
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/browser/tab_contents/render_view_host_manager.h"
-#include "chrome/common/url_constants.h"
 #include "chrome/common/gears_api.h"
 #include "chrome/common/navigation_types.h"
 #include "chrome/common/notification_registrar.h"
@@ -140,15 +139,8 @@ class TabContents : public PageNavigator,
   // NavigationController).
   Profile* profile() const { return controller_.profile(); }
 
-  // Returns whether this tab contents supports the provided URL.This method
-  // matches the tab contents type with the result of TypeForURL(). |url| points
-  // to the actual URL that will be used. It can be modified as needed.
-  bool SupportsURL(GURL* url);
-
   // Returns true if contains content rendered by an extension.
-  const bool HostsExtension() const {
-    return GetURL().SchemeIs(chrome::kExtensionScheme);
-  }
+  bool HostsExtension() const;
 
   // Returns the AutofillManager, creating it if necessary.
   AutofillManager* GetAutofillManager();

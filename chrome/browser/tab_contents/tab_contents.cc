@@ -410,9 +410,9 @@ void TabContents::RegisterUserPrefs(PrefService* prefs) {
                                      IDS_STATIC_ENCODING_LIST);
 }
 
-bool TabContents::SupportsURL(GURL* url) {
-  // TODO(brettw) remove this function.
-  return true;
+// Returns true if contains content rendered by an extension.
+bool TabContents::HostsExtension() const {
+  return GetURL().SchemeIs(chrome::kExtensionScheme);
 }
 
 AutofillManager* TabContents::GetAutofillManager() {
