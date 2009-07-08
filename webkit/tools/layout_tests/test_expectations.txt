@@ -656,6 +656,8 @@ BUG13907 WIN : LayoutTests/media/video-src-remove.html = FAIL
 // These tests are flaky.
 BUG13097 WIN : LayoutTests/media/video-display-toggle.html = FAIL
 BUG13907 WIN : LayoutTests/media/controls-styling.html = FAIL
+// This test is added in WebKit merge 45610:45621
+BUG13907 WIN : LayoutTests/media/controls-after-reload.html = TIMEOUT
 
 // Function arguments object is copied for each access.
 BUG941049 : LayoutTests/fast/js/kde/function_arguments.html = FAIL
