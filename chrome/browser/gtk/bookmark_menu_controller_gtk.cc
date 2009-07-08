@@ -12,6 +12,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/gtk/bookmark_context_menu.h"
 #include "chrome/browser/gtk/bookmark_utils_gtk.h"
+#include "chrome/browser/gtk/gtk_chrome_button.h"
 #include "chrome/browser/gtk/gtk_dnd_util.h"
 #include "chrome/browser/gtk/gtk_theme_provider.h"
 #include "chrome/browser/gtk/menu_gtk.h"
@@ -55,9 +56,12 @@ BookmarkMenuController::BookmarkMenuController(Browser* browser,
       page_navigator_(navigator),
       parent_window_(window),
       node_(node),
-      ignore_button_release_(false) {
+      ignore_button_release_(false),
+      triggering_widget_(NULL) {
   menu_.Own(gtk_menu_new());
   BuildMenu(node, start_child_index, menu_.get());
+  g_signal_connect(menu_.get(), "hide",
+                   G_CALLBACK(OnMenuHidden), this);
   gtk_widget_show_all(menu_.get());
 }
 
@@ -70,6 +74,9 @@ void BookmarkMenuController::Popup(GtkWidget* widget, gint button_type,
                                    guint32 timestamp) {
   profile_->GetBookmarkModel()->AddObserver(this);
 
+  triggering_widget_ = widget;
+  gtk_chrome_button_set_paint_state(GTK_CHROME_BUTTON(widget),
+                                    GTK_STATE_ACTIVE);
   gtk_menu_popup(GTK_MENU(menu_.get()), NULL, NULL,
                  &MenuGtk::MenuPositionFunc,
                  widget, button_type, timestamp);
@@ -157,6 +164,7 @@ void BookmarkMenuController::BuildMenu(const BookmarkNode* parent,
   }
 }
 
+// static
 gboolean BookmarkMenuController::OnButtonPressed(
     GtkWidget* sender,
     GdkEventButton* event,
@@ -181,6 +189,7 @@ gboolean BookmarkMenuController::OnButtonPressed(
   return FALSE;
 }
 
+// static
 gboolean BookmarkMenuController::OnButtonReleased(
     GtkWidget* sender,
     GdkEventButton* event,
@@ -206,6 +215,16 @@ gboolean BookmarkMenuController::OnButtonReleased(
   return FALSE;
 }
 
+// static
+void BookmarkMenuController::OnMenuHidden(GtkWidget* menu,
+    BookmarkMenuController* controller) {
+  if (controller->triggering_widget_) {
+    gtk_chrome_button_unset_paint_state(
+        GTK_CHROME_BUTTON(controller->triggering_widget_));
+  }
+}
+
+// static
 void BookmarkMenuController::OnMenuItemActivated(
     GtkMenuItem* menu_item, BookmarkMenuController* controller) {
   controller->NavigateToMenuItem(GTK_WIDGET(menu_item), CURRENT_TAB);

@@ -34,7 +34,7 @@ class BookmarkMenuController : public BaseBookmarkModelObserver {
                          bool show_other_folder);
   virtual ~BookmarkMenuController();
 
-  // Pops up the menu.
+  // Pops up the menu. |widget| must be a GtkChromeButton.
   void Popup(GtkWidget* widget, gint button_type, guint32 timestamp);
 
   // Overridden from BaseBookmarkModelObserver:
@@ -63,6 +63,10 @@ class BookmarkMenuController : public BaseBookmarkModelObserver {
   static gboolean OnButtonReleased(GtkWidget* sender,
                                    GdkEventButton* event,
                                    BookmarkMenuController* controller);
+
+  // We have to stop drawing |triggering_widget_| as active when the menu
+  // closes.
+  static void OnMenuHidden(GtkWidget* menu, BookmarkMenuController* controller);
 
   // We respond to the activate signal because things other than mouse button
   // events can trigger it.
@@ -104,6 +108,9 @@ class BookmarkMenuController : public BaseBookmarkModelObserver {
   // Whether we should ignore the next button release event (because we were
   // dragging).
   bool ignore_button_release_;
+
+  // The widget we are showing for (i.e. the bookmark bar folder button).
+  GtkWidget* triggering_widget_;
 
   // Mapping from node to GtkMenuItem menu id. This only contains entries for
   // nodes of type URL.
