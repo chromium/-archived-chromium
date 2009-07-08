@@ -3528,6 +3528,7 @@
         'browser/meta_table_helper_unittest.cc',
         'browser/metrics/metrics_log_unittest.cc',
         'browser/metrics/metrics_response_unittest.cc',
+        'browser/metrics/metrics_service_unittest.cc',
         'browser/net/chrome_url_request_context_unittest.cc',
         'browser/net/dns_host_info_unittest.cc',
         'browser/net/dns_master_unittest.cc',

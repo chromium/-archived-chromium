@@ -166,6 +166,7 @@
 #include "base/histogram.h"
 #include "base/path_service.h"
 #include "base/platform_thread.h"
+#include "base/rand_util.h"
 #include "base/string_util.h"
 #include "base/task.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
@@ -762,16 +763,29 @@ std::string MetricsService::GenerateClientID() {
   DCHECK(result == kGUIDSize);
 
   return WideToUTF8(guid_string.substr(1, guid_string.length() - 2));
+#elif defined(LINUX2)
+  uint64 sixteen_bytes[2] = { base::RandUint64(), base::RandUint64() };
+  return RandomBytesToGUIDString(sixteen_bytes);
 #else
-  // TODO(port): Implement for Mac and linux.
-  // Rather than actually implementing a random source, might this be a good
-  // time to implement http://code.google.com/p/chromium/issues/detail?id=2278
-  // ?  I think so!
+  // TODO(cmasone): enable the above for all OS_POSIX platforms once the
+  // first-run dialog text is all up to date.
   NOTIMPLEMENTED();
   return std::string();
 #endif
 }
 
+#if defined(OS_POSIX)
+// TODO(cmasone): Once we're comfortable this works, migrate Windows code to
+// use this as well.
+std::string MetricsService::RandomBytesToGUIDString(const uint64 bytes[2]) {
+  return StringPrintf("%08llX-%04llX-%04llX-%04llX-%012llX",
+                      bytes[0] >> 32,
+                      (bytes[0] >> 16) & 0x0000ffff,
+                      bytes[0] & 0x0000ffff,
+                      bytes[1] >> 48,
+                      bytes[1] & 0x0000ffffffffffffULL);
+}
+#endif
 
 //------------------------------------------------------------------------------
 // State save methods

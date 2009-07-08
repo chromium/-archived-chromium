@@ -22,6 +22,7 @@
 #include "chrome/browser/net/url_fetcher.h"
 #include "chrome/common/notification_registrar.h"
 #include "webkit/glue/webplugin.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 
 class BookmarkModel;
 class BookmarkNode;
@@ -159,6 +160,12 @@ class MetricsService : public NotificationObserver,
 
   // Generates a new client ID to use to identify self to metrics server.
   static std::string GenerateClientID();
+
+#if defined(OS_POSIX)
+  // Generates a new client ID to use to identify self to metrics server,
+  // given 128 bits of randomness.
+  static std::string RandomBytesToGUIDString(const uint64 bytes[2]);
+#endif
 
   // Schedule the next save of LocalState information.  This is called
   // automatically by the task that performs each save to schedule the next one.
@@ -475,6 +482,9 @@ class MetricsService : public NotificationObserver,
   // Indicate that a timer for sending the next log has already been queued.
   bool timer_pending_;
 
+  FRIEND_TEST(MetricsServiceTest, ClientIdGeneratesAllZeroes);
+  FRIEND_TEST(MetricsServiceTest, ClientIdGeneratesCorrectly);
+  FRIEND_TEST(MetricsServiceTest, ClientIdCorrectlyFormatted);
   DISALLOW_COPY_AND_ASSIGN(MetricsService);
 };
 
