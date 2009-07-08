@@ -47,7 +47,7 @@ class ImageButton : public CustomButton {
   SkBitmap images_[BS_COUNT];
 
   // The background image.
-  SkBitmap* background_image_;
+  scoped_ptr<SkBitmap> background_image_;
 
  private:
   // Image alignment.

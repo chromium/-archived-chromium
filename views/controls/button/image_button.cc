@@ -38,10 +38,10 @@ void ImageButton::SetBackground(SkColor color,
                                 SkBitmap* image,
                                 SkBitmap* mask) {
   if (!color && !image)
-    background_image_ = NULL;
+    background_image_.reset(NULL);
 
-  background_image_ = new SkBitmap(
-      skia::ImageOperations::CreateButtonBackground(color, *image, *mask));
+  background_image_.reset(new SkBitmap(
+      skia::ImageOperations::CreateButtonBackground(color, *image, *mask)));
 }
 
 void ImageButton::SetImageAlignment(HorizontalAlignment h_align,
@@ -79,8 +79,8 @@ void ImageButton::Paint(gfx::Canvas* canvas) {
     else if (v_alignment_ == ALIGN_BOTTOM)
       y = height() - img.height();
 
-    if (background_image_)
-      canvas->DrawBitmapInt(*background_image_, x, y);
+    if (background_image_.get())
+      canvas->DrawBitmapInt(*(background_image_.get()), x, y);
     canvas->DrawBitmapInt(img, x, y);
   }
   PaintFocusBorder(canvas);
