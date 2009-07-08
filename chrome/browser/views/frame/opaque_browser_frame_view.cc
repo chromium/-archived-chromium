@@ -10,6 +10,7 @@
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
 #include "app/theme_provider.h"
+#include "base/compiler_specific.h"
 #include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/frame/browser_frame.h"
@@ -107,10 +108,14 @@ const int kLogoCaptionSpacing = 7;
 OpaqueBrowserFrameView::OpaqueBrowserFrameView(BrowserFrame* frame,
                                                BrowserView* browser_view)
     : BrowserNonClientFrameView(),
-      minimize_button_(new views::ImageButton(this)),
-      maximize_button_(new views::ImageButton(this)),
-      restore_button_(new views::ImageButton(this)),
-      close_button_(new views::ImageButton(this)),
+      ALLOW_THIS_IN_INITIALIZER_LIST(
+          minimize_button_(new views::ImageButton(this))),
+      ALLOW_THIS_IN_INITIALIZER_LIST(
+          maximize_button_(new views::ImageButton(this))),
+      ALLOW_THIS_IN_INITIALIZER_LIST(
+          restore_button_(new views::ImageButton(this))),
+      ALLOW_THIS_IN_INITIALIZER_LIST(
+          close_button_(new views::ImageButton(this))),
       window_icon_(NULL),
       frame_(frame),
       browser_view_(browser_view) {
