@@ -320,3 +320,28 @@
    fun:CGContextDrawImage
    fun:_ZN3gfx17CGImageToSkBitmapEP7CGImage
 }
+{
+   bug_16209
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN18RenderWidgetHelper17AllocTransportDIBEmPN4base14FileDescriptorE
+   fun:_ZN21ResourceMessageFilter19OnAllocTransportDIBEmPN4base14FileDescriptorE
+   fun:_Z16DispatchToMethodI21ResourceMessageFilterMS0_FvmPN4base14FileDescriptorEEmS2_EvPT_T0_RK6Tuple1IT1_EPS9_IT2_E
+   fun:_ZN3IPC16MessageWithReplyI6Tuple1ImES1_IRN4base14FileDescriptorEEE8DispatchI21ResourceMessageFilterMS9_FvmPS4_EEEbPKNS_7MessageEPT_T0_
+   fun:_ZN21ResourceMessageFilter17OnMessageReceivedERKN3IPC7MessageE
+   fun:_ZN3IPC12ChannelProxy7Context10TryFiltersERKNS_7MessageE
+   fun:_ZN3IPC11SyncChannel11SyncContext17OnMessageReceivedERKNS_7MessageE
+}
+{
+   bug_16210
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN3IPC11SyncChannelC1ERKSsNS_7Channel4ModeEPNS3_8ListenerEPNS_12ChannelProxy13MessageFilterEP11MessageLoopbPN4base13WaitableEventE
+   fun:_ZN11ChildThread4InitEv
+   fun:_ZN12RenderThread4InitEv
+   fun:_ZN4base6Thread10ThreadMainEv
+   fun:_ZL10ThreadFuncPv
+   fun:_pthread_start
+   fun:thread_start
+}
+
