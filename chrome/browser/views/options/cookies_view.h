@@ -41,23 +41,23 @@ class CookiesView : public views::View,
   // Updates the display to show only the search results.
   void UpdateSearchResults();
 
-  // views::ButtonListener implementation:
+  // views::ButtonListener implementation.
   virtual void ButtonPressed(views::Button* sender);
 
-  // views::TableViewObserver implementation:
+  // views::TableViewObserver implementation.
   virtual void OnSelectionChanged();
 
   // Invoked when the user presses the delete key. Deletes the selected
   // cookies.
   virtual void OnTableViewDelete(views::TableView* table_view);
 
-  // views::Textfield::Controller implementation:
+  // views::Textfield::Controller implementation.
   virtual void ContentsChanged(views::Textfield* sender,
                                const std::wstring& new_contents);
   virtual bool HandleKeystroke(views::Textfield* sender,
                                const views::Textfield::Keystroke& key);
 
-  // views::WindowDelegate implementation:
+  // views::WindowDelegate implementation.
   virtual int GetDialogButtons() const {
     return MessageBoxFlags::DIALOGBUTTON_CANCEL;
   }
@@ -104,7 +104,6 @@ class CookiesView : public views::View,
 
   // The Cookies Table model
   scoped_ptr<CookiesTableModel> cookies_table_model_;
-  scoped_ptr<CookiesTableModel> search_table_model_;
 
   // The Profile for which Cookies are displayed
   Profile* profile_;
