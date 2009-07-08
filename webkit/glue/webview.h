@@ -171,6 +171,11 @@ class WebView : public WebWidget {
   // Show the JavaScript console.
   virtual void ShowJavaScriptConsole() = 0;
 
+  // Notifies the webview that a drag has been cancelled.
+  virtual void DragSourceCancelledAt(
+      const WebKit::WebPoint& client_point,
+      const WebKit::WebPoint& screen_point) = 0;
+
   // Notifies the webview that a drag has terminated.
   virtual void DragSourceEndedAt(
       const WebKit::WebPoint& client_point,

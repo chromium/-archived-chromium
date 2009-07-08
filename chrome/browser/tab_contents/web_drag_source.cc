@@ -48,8 +48,8 @@ void WebDragSource::OnDragSourceCancel() {
   gfx::Point client;
   gfx::Point screen;
   GetCursorPositions(source_wnd_, &client, &screen);
-  render_view_host_->DragSourceEndedAt(client.x(), client.y(),
-                                       screen.x(), screen.y());
+  render_view_host_->DragSourceCancelledAt(client.x(), client.y(),
+                                           screen.x(), screen.y());
 }
 
 void WebDragSource::OnDragSourceDrop() {

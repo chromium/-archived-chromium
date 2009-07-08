@@ -579,13 +579,22 @@ void RenderViewHost::CopyImageAt(int x, int y) {
   Send(new ViewMsg_CopyImageAt(routing_id(), x, y));
 }
 
+void RenderViewHost::DragSourceCancelledAt(
+    int client_x, int client_y, int screen_x, int screen_y) {
+  Send(new ViewMsg_DragSourceEndedOrMoved(
+      routing_id(),
+      gfx::Point(client_x, client_y),
+      gfx::Point(screen_x, screen_y),
+      true, true));
+}
+
 void RenderViewHost::DragSourceEndedAt(
     int client_x, int client_y, int screen_x, int screen_y) {
   Send(new ViewMsg_DragSourceEndedOrMoved(
       routing_id(),
       gfx::Point(client_x, client_y),
       gfx::Point(screen_x, screen_y),
-      true));
+      true, false));
 }
 
 void RenderViewHost::DragSourceMovedTo(
@@ -594,7 +603,7 @@ void RenderViewHost::DragSourceMovedTo(
       routing_id(),
       gfx::Point(client_x, client_y),
       gfx::Point(screen_x, screen_y),
-      false));
+      false, false));
 }
 
 void RenderViewHost::DragSourceSystemDragEnded() {

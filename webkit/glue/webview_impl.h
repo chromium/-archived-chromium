@@ -95,6 +95,9 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   virtual void CopyImageAt(int x, int y);
   virtual void InspectElement(int x, int y);
   virtual void ShowJavaScriptConsole();
+  virtual void DragSourceCancelledAt(
+      const WebKit::WebPoint& client_point,
+      const WebKit::WebPoint& screen_point);
   virtual void DragSourceEndedAt(
       const WebKit::WebPoint& client_point,
       const WebKit::WebPoint& screen_point);

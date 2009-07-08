@@ -1537,12 +1537,22 @@ void WebViewImpl::ShowJavaScriptConsole() {
   page_->inspectorController()->showPanel(InspectorController::ConsolePanel);
 }
 
-void WebViewImpl::DragSourceEndedAt(
+void WebViewImpl::DragSourceCancelledAt(
     const WebPoint& client_point,
     const WebPoint& screen_point) {
   PlatformMouseEvent pme(webkit_glue::WebPointToIntPoint(client_point),
                          webkit_glue::WebPointToIntPoint(screen_point),
                          NoButton, MouseEventMoved, 0, false, false, false,
+                         false, 0);
+  page_->mainFrame()->eventHandler()->dragSourceEndedAt(pme, DragOperationNone);
+}
+
+void WebViewImpl::DragSourceEndedAt(
+    const WebPoint& client_point,
+    const WebPoint& screen_point) {
+  PlatformMouseEvent pme(webkit_glue::WebPointToIntPoint(client_point),
+                         webkit_glue::WebPointToIntPoint(screen_point),
+                         LeftButton, MouseEventMoved, 0, false, false, false,
                          false, 0);
   page_->mainFrame()->eventHandler()->dragSourceEndedAt(pme, DragOperationCopy);
 }

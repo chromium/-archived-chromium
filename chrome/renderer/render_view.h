@@ -524,7 +524,7 @@ class RenderView : public RenderWidget,
 
   void OnDragSourceEndedOrMoved(const gfx::Point& client_point,
                                 const gfx::Point& screen_point,
-                                bool ended);
+                                bool ended, bool cancelled);
   void OnDragSourceSystemDragEnded();
   void OnInstallMissingPlugin();
   void OnFileChooserResponse(const std::vector<FilePath>& file_names);

@@ -291,6 +291,11 @@ class RenderViewHost : public RenderWidgetHost,
   // Copies the image at the specified point.
   void CopyImageAt(int x, int y);
 
+  // Notifies the renderer that a drag and drop was cancelled. This is
+  // necessary because the render may be the one that started the drag.
+  void DragSourceCancelledAt(
+      int client_x, int client_y, int screen_x, int screen_y);
+
   // Notifies the renderer that a drop occurred. This is necessary because the
   // render may be the one that started the drag.
   void DragSourceEndedAt(

@@ -2442,11 +2442,15 @@ void RenderView::OnReservePageIDRange(int size_of_range) {
 
 void RenderView::OnDragSourceEndedOrMoved(const gfx::Point& client_point,
                                           const gfx::Point& screen_point,
-                                          bool ended) {
-  if (ended)
-    webview()->DragSourceEndedAt(client_point, screen_point);
-  else
+                                          bool ended, bool cancelled) {
+  if (ended) {
+    if (cancelled)
+      webview()->DragSourceCancelledAt(client_point, screen_point);
+    else
+      webview()->DragSourceEndedAt(client_point, screen_point);
+  } else {
     webview()->DragSourceMovedTo(client_point, screen_point);
+  }
 }
 
 void RenderView::OnDragSourceSystemDragEnded() {
