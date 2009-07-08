@@ -52,16 +52,6 @@
       'export_dependent_settings': [
         'gtest.gyp:gtest',
       ],
-      'conditions': [
-        ['OS=="win"', {
-          'dependencies': [
-            '../third_party/boost/boost.gyp:boost_tuple',
-          ],
-          'export_dependent_settings': [
-            '../third_party/boost/boost.gyp:boost_tuple',
-          ]
-        }],
-      ],
     },
     {
       # Note that calling this "gmock_main" confuses the scons build,
