@@ -4,11 +4,14 @@
 
 #include "chrome/browser/renderer_host/render_crash_handler_host_linux.h"
 
+#include <dirent.h>
 #include <stdint.h>
-
-#include <unistd.h>
-#include <sys/uio.h>
 #include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/uio.h>
+#include <unistd.h>
+
+#include <vector>
 
 #include "base/eintr_wrapper.h"
 #include "base/format_macros.h"
@@ -21,6 +24,122 @@
 #include "breakpad/linux/minidump_writer.h"
 #include "chrome/app/breakpad_linux.h"
 #include "chrome/browser/chrome_thread.h"
+
+// expected prefix of the target of the /proc/self/fd/%d link for a socket
+static const char kSocketLinkPrefix[] = "socket:[";
+
+// Parse a symlink in /proc/pid/fd/$x and return the inode number of the
+// socket.
+//   inode_out: (output) set to the inode number on success
+//   path: e.g. /proc/1234/fd/5 (must be a UNIX domain socket descriptor)
+//   log: if true, log messages about failure details
+static bool ProcPathGetInode(uint64_t* inode_out, const char* path,
+                             bool log = false) {
+  char buf[256];
+  const ssize_t n = readlink(path, buf, sizeof(buf) - 1);
+  if (n == -1) {
+    if (log) {
+      LOG(WARNING) << "Failed to read the inode number for a socket from /proc"
+                      "(" << errno << ")";
+    }
+    return false;
+  }
+  buf[n] = 0;
+
+  if (memcmp(kSocketLinkPrefix, buf, sizeof(kSocketLinkPrefix) - 1)) {
+    if (log) {
+      LOG(WARNING) << "The descriptor passed from the crashing process wasn't a"
+                      " UNIX domain socket.";
+    }
+    return false;
+  }
+
+  char *endptr;
+  const unsigned long long int inode_ul =
+      strtoull(buf + sizeof(kSocketLinkPrefix) - 1, &endptr, 10);
+  if (*endptr != ']')
+    return false;
+
+  if (inode_ul == ULLONG_MAX) {
+    if (log) {
+      LOG(WARNING) << "Failed to parse a socket's inode number: the number was "
+                      "too large. Please report this bug: " << buf;
+    }
+    return false;
+  }
+
+  *inode_out = inode_ul;
+  return true;
+}
+
+// Return the inode number for the UNIX domain socket |fd|.
+static bool FileDescriptorGetInode(uint64_t* inode_out, int fd) {
+  char path[256];
+  if (snprintf(path, sizeof(path), "/proc/self/fd/%d", fd) < 0)
+    return false;
+
+  return ProcPathGetInode(inode_out, path, true);
+}
+
+// Find the process which holds the given socket, named by inode number. If
+// multiple processes hold the socket, this function returns false.
+static bool FindProcessHoldingSocket(pid_t* pid_out, uint64_t socket_inode) {
+  bool already_found = false;
+
+  DIR* proc = opendir("/proc");
+  if (!proc) {
+    LOG(WARNING) << "Cannot open /proc";
+    return false;
+  }
+
+  std::vector<pid_t> pids;
+
+  struct dirent* dent;
+  while ((dent = readdir(proc))) {
+    char *endptr;
+    const unsigned long int pid_ul = strtoul(dent->d_name, &endptr, 10);
+    if (pid_ul == ULONG_MAX || *endptr)
+      continue;
+    pids.push_back(pid_ul);
+  }
+  closedir(proc);
+
+  for (std::vector<pid_t>::const_iterator
+       i = pids.begin(); i != pids.end(); ++i) {
+    const pid_t current_pid = *i;
+    char buf[256];
+    if (snprintf(buf, sizeof(buf), "/proc/%d/fd", current_pid) < 0)
+      continue;
+    DIR* fd = opendir(buf);
+    if (!fd)
+      continue;
+
+    while ((dent = readdir(fd))) {
+      if (snprintf(buf, sizeof(buf), "/proc/%d/fd/%s", current_pid,
+                   dent->d_name) < 0) {
+        continue;
+      }
+
+      uint64_t fd_inode;
+      if (ProcPathGetInode(&fd_inode, buf)) {
+        if (fd_inode == socket_inode) {
+          if (already_found) {
+            closedir(fd);
+            return false;
+          }
+
+          already_found = true;
+          *pid_out = current_pid;
+          break;
+        }
+      }
+    }
+
+    closedir(fd);
+  }
+
+  return already_found;
+}
 
 // Since RenderCrashHandlerHostLinux is a singleton, it's only destroyed at the
 // end of the processes lifetime, which is greater in span then the lifetime of
@@ -158,6 +277,26 @@ void RenderCrashHandlerHostLinux::OnFileCanReadWithoutBlocking(int fd) {
                << " messages";
     if (signal_fd)
       HANDLE_EINTR(close(signal_fd));
+    return;
+  }
+
+  // Kernel bug workaround (broken in 2.6.30 at least):
+  // The kernel doesn't translate PIDs in SCM_CREDENTIALS across PID
+  // namespaces. Thus |crashing_pid| might be garbage from our point of view.
+  // In the future we can remove this workaround, but we have to wait a couple
+  // of years to be sure that it's worked its way out into the world.
+
+  uint64_t inode_number;
+  if (!FileDescriptorGetInode(&inode_number, signal_fd)) {
+    LOG(WARNING) << "Failed to get inode number for passed socket";
+    HANDLE_EINTR(close(signal_fd));
+    return;
+  }
+
+  if (!FindProcessHoldingSocket(&crashing_pid, inode_number - 1)) {
+    LOG(WARNING) << "Failed to find process holding other end of crash reply "
+                    "socket";
+    HANDLE_EINTR(close(signal_fd));
     return;
   }
 

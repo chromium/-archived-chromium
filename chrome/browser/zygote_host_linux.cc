@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 
 #include "base/command_line.h"
 #include "base/eintr_wrapper.h"
@@ -14,10 +15,17 @@
 #include "base/path_service.h"
 #include "base/pickle.h"
 #include "base/process_util.h"
+#include "base/string_util.h"
 #include "base/unix_domain_socket_posix.h"
 
 #include "chrome/browser/renderer_host/render_sandbox_host_linux.h"
+#include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
+
+// Previously we just looked for the binary next to the Chromium binary. But
+// this breaks people who do a build-all.
+// NOTE packagers: change this.
+static const char kSandboxBinary[] = "/opt/google/chrome/chrome-sandbox";
 
 ZygoteHost::ZygoteHost() {
   std::wstring chrome_path;
@@ -37,6 +45,27 @@ ZygoteHost::ZygoteHost() {
     const std::wstring prefix =
         browser_command_line.GetSwitchValue(switches::kZygoteCmdPrefix);
     cmd_line.PrependWrapper(prefix);
+  }
+
+  const std::string kSandboxPath =
+    WideToASCII(std::wstring(L"/var/run/") +
+                chrome::kBrowserProcessExecutableName +
+                L"-sandbox");
+
+  struct stat st;
+  if (stat(kSandboxBinary, &st) == 0) {
+    if (access(kSandboxBinary, X_OK) == 0 &&
+        (st.st_mode & S_ISUID) &&
+        (st.st_mode & S_IXOTH) &&
+        access(kSandboxPath.c_str(), F_OK) == 0) {
+      cmd_line.PrependWrapper(kSandboxBinary);
+    } else {
+      LOG(FATAL) << "The SUID sandbox helper binary was found, but is not "
+                    "configured correctly. Rather than run without sandboxing "
+                    "I'm aborting now. You need to make sure that "
+                 << kSandboxBinary << " is mode 4755 and that "
+                 << kSandboxPath << " exists";
+    }
   }
 
   // Start up the sandbox host process and get the file descriptor for the

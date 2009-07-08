@@ -13,6 +13,7 @@
 #include "base/eintr_wrapper.h"
 #include "base/global_descriptors_posix.h"
 #include "base/pickle.h"
+#include "base/rand_util.h"
 #include "base/unix_domain_socket_posix.h"
 
 #include "chrome/browser/zygote_host_linux.h"
@@ -207,6 +208,10 @@ static bool MaybeEnterChroot() {
       return false;
     const int fd = fd_long;
 
+    // Before entering the sandbox, "prime" any systems that need to open
+    // files and cache the results or the descriptors.
+    base::RandUint64();
+
     static const char kChrootMe = 'C';
     static const char kChrootMeSuccess = 'O';
 
@@ -221,8 +226,17 @@ static bool MaybeEnterChroot() {
     if (chdir("/") == -1)
       return false;
 
-    static const int kMagicSandboxIPCDescriptor = 4;
+    static const int kMagicSandboxIPCDescriptor = 5;
     SkiaFontConfigUseIPCImplementation(kMagicSandboxIPCDescriptor);
+
+    if (prctl(PR_GET_DUMPABLE, 0, 0, 0, 0)) {
+      LOG(ERROR) << "CRITICAL: The SUID sandbox is being used, but the chrome "
+                    "binary is also marked as readable. This means that the "
+                    "process starts up dumpable. That means that there's a "
+                    "window where another renderer process can ptrace this "
+                    "process and sequestrate it. This is a packaging error. "
+                    "Please report it as such.";
+    }
 
     prctl(PR_SET_DUMPABLE, 0, 0, 0, 0);
     if (prctl(PR_GET_DUMPABLE, 0, 0, 0, 0))

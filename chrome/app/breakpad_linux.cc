@@ -479,16 +479,12 @@ RendererCrashHandler(const void* crash_context, size_t crash_context_size,
              void* context) {
   const int fd = (int) context;
   int fds[2];
-  pipe(fds);
+  socketpair(AF_UNIX, SOCK_STREAM, 0, fds);
 
   // The length of the control message:
-  static const unsigned kControlMsgSize =
-      CMSG_SPACE(sizeof(int)) + CMSG_SPACE(sizeof(struct ucred));
+  static const unsigned kControlMsgSize = CMSG_SPACE(sizeof(int));
 
-  union {
-    struct kernel_msghdr msg;
-    struct msghdr sys_msg;
-  };
+  struct kernel_msghdr msg;
   my_memset(&msg, 0, sizeof(struct kernel_msghdr));
   struct kernel_iovec iov[3];
   iov[0].iov_base = const_cast<void*>(crash_context);
@@ -510,14 +506,6 @@ RendererCrashHandler(const void* crash_context, size_t crash_context_size,
   hdr->cmsg_type = SCM_RIGHTS;
   hdr->cmsg_len = CMSG_LEN(sizeof(int));
   *((int*) CMSG_DATA(hdr)) = fds[1];
-  hdr = CMSG_NXTHDR(&sys_msg, hdr);
-  hdr->cmsg_level = SOL_SOCKET;
-  hdr->cmsg_type = SCM_CREDENTIALS;
-  hdr->cmsg_len = CMSG_LEN(sizeof(struct ucred));
-  struct ucred *cred = reinterpret_cast<struct ucred*>(CMSG_DATA(hdr));
-  cred->uid = getuid();
-  cred->gid = getgid();
-  cred->pid = getpid();
 
   HANDLE_EINTR(sys_sendmsg(fd, &msg, 0));
   sys_close(fds[1]);
@@ -538,17 +526,21 @@ void EnableRendererCrashDumping() {
 }
 
 void InitCrashReporter() {
-  if (!GoogleUpdateSettings::GetCollectStatsConsent())
-    return;
-
   // Determine the process type and take appropriate action.
   const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
   const std::wstring process_type =
       parsed_command_line.GetSwitchValue(switches::kProcessType);
   if (process_type.empty()) {
+    if (!GoogleUpdateSettings::GetCollectStatsConsent())
+      return;
     EnableCrashDumping();
   } else if (process_type == switches::kRendererProcess ||
              process_type == switches::kZygoteProcess) {
+    // We might be chrooted in a zygote or renderer process so we cannot call
+    // GetCollectStatsConsent because that needs access the the user's home
+    // dir. Instead, we set a command line flag for these processes.
+    if (!parsed_command_line.HasSwitch(switches::kRendererCrashDump))
+      return;
     EnableRendererCrashDumping();
   }
 }

@@ -50,6 +50,7 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/common/result_codes.h"
 #include "chrome/renderer/render_process.h"
+#include "chrome/installer/util/google_update_settings.h"
 #include "grit/generated_resources.h"
 
 #if defined(OS_LINUX)
@@ -388,6 +389,11 @@ bool BrowserRenderProcessHost::Init() {
     cmd_line.PrependWrapper(prefix);
   }
 #endif  // OS_POSIX
+
+#if defined(OS_LINUX)
+  if (GoogleUpdateSettings::GetCollectStatsConsent())
+    cmd_line.AppendSwitch(switches::kRendererCrashDump);
+#endif
 
   cmd_line.AppendSwitchWithValue(switches::kProcessType,
                                  switches::kRendererProcess);

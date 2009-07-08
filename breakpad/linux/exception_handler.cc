@@ -258,6 +258,9 @@ bool ExceptionHandler::HandleSignal(int sig, siginfo_t* info, void* uc) {
   if (filter_ && !filter_(callback_context_))
     return false;
 
+  // Allow ourselves to be dumped.
+  sys_prctl(PR_SET_DUMPABLE, 1);
+
   CrashContext context;
   memcpy(&context.siginfo, info, sizeof(siginfo_t));
   memcpy(&context.context, uc, sizeof(struct ucontext));

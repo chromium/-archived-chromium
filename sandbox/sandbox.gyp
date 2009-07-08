@@ -7,6 +7,17 @@
     '../build/common.gypi',
   ],
   'conditions': [
+    [ 'OS=="linux"', {
+      'targets': [
+        {
+          'target_name': 'chrome-sandbox',
+          'type': 'executable',
+          'sources': [
+            'linux/suid/sandbox.cc',
+          ],
+        }
+      ],
+    }],
     [ 'OS=="win"', {
       'targets': [
         {
