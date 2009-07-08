@@ -1102,8 +1102,11 @@ void TabStrip::LoadNewTabButtonImage() {
 
   // If we don't have a theme provider yet, it means we do not have a
   // root view, and are therefore in a test.
-  if (tp == NULL)
+  bool in_test = false;
+  if (tp == NULL) {
     tp = new views::DefaultThemeProvider();
+    in_test = true;
+  }
 
   SkBitmap* bitmap = tp->GetBitmapNamed(IDR_NEWTAB_BUTTON);
   SkColor color = tp->GetColor(BrowserThemeProvider::COLOR_BUTTON_BACKGROUND);
@@ -1117,6 +1120,8 @@ void TabStrip::LoadNewTabButtonImage() {
                            tp->GetBitmapNamed(IDR_NEWTAB_BUTTON_H));
   newtab_button_->SetBackground(color, background,
                                 tp->GetBitmapNamed(IDR_NEWTAB_BUTTON_MASK));
+  if (in_test)
+    delete tp;
 }
 
 Tab* TabStrip::GetTabAt(int index) const {
