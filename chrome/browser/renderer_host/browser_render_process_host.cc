@@ -40,6 +40,7 @@
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/browser/renderer_host/web_cache_manager.h"
+#include "chrome/browser/spellchecker.h"
 #include "chrome/browser/visitedlink_master.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/chrome_descriptors.h"
@@ -66,7 +67,6 @@ using WebKit::WebCache;
 // TODO(port): see comment by the only usage of RenderViewHost in this file.
 #include "chrome/browser/renderer_host/render_view_host.h"
 
-#include "chrome/browser/spellchecker.h"
 
 // Once the above TODO is finished, then this block is all Windows-specific
 // files.
@@ -539,17 +539,11 @@ void BrowserRenderProcessHost::WidgetHidden() {
 }
 
 void BrowserRenderProcessHost::AddWord(const std::wstring& word) {
-#if !defined(OS_WIN)
-  // TODO(port): reimplement when we get the spell checker up and running on
-  // other platforms.
-  NOTIMPLEMENTED();
-#else
   base::Thread* io_thread = g_browser_process->io_thread();
   if (profile()->GetSpellChecker()) {
     io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
         profile()->GetSpellChecker(), &SpellChecker::AddWord, word));
   }
-#endif // !defined(OS_WIN)
 }
 
 void BrowserRenderProcessHost::AddVisitedLinks(
