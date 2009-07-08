@@ -22,6 +22,11 @@ namespace event_utils {
 // event_flags are the state in the GdkEvent structure.
 WindowOpenDisposition DispositionFromEventFlags(guint state);
 
+// Get the timestamp (milliseconds) out of a GdkEvent.
+// Returns 0 if the event has no timestamp.
+// TODO(evanm): see comments in jankometer.cc about using this.
+guint32 GetGdkEventTime(GdkEvent* event);
+
 }  // namespace event_utils
 
 namespace gtk_util {

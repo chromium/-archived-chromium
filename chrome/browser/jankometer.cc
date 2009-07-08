@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -16,8 +16,13 @@
 #include "base/thread.h"
 #include "base/time.h"
 #include "base/watchdog.h"
+#include "build/build_config.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/chrome_switches.h"
+
+#if defined(OS_LINUX)
+#include "chrome/common/gtk_util.h"
+#endif
 
 using base::TimeDelta;
 using base::TimeTicks;
@@ -109,7 +114,44 @@ class JankObserver : public base::RefCountedThreadSafe<JankObserver>,
       MessageLoopForUI::current()->RemoveObserver(this);
   }
 
-  void WillProcessMessage(const MSG& msg) {
+  // Called when a message has just begun processing, initializes
+  // per-message variables and timers.
+  void StartProcessingTimers() {
+    // Simulate arming when the message entered the queue.
+    total_time_watchdog_.ArmSomeTimeDeltaAgo(queueing_time_);
+    if (queueing_time_ > MaxMessageDelay_) {
+      // Message is too delayed.
+      queueing_delay_counter_.Increment();
+#if defined(OS_WIN)
+      if (kPlaySounds)
+        MessageBeep(MB_ICONASTERISK);
+#endif
+    }
+  }
+
+  // Called when a message has just finished processing, finalizes
+  // per-message variables and timers.
+  void EndProcessingTimers() {
+    total_time_watchdog_.Disarm();
+    TimeTicks now = TimeTicks::Now();
+    if (begin_process_message_ != TimeTicks()) {
+      TimeDelta processing_time = now - begin_process_message_;
+      process_times_.AddTime(processing_time);
+      total_times_.AddTime(queueing_time_ + processing_time);
+    }
+    if (now - begin_process_message_ >
+        TimeDelta::FromMilliseconds(kMaxMessageProcessingMs)) {
+      // Message took too long to process.
+      slow_processing_counter_.Increment();
+#if defined(OS_WIN)
+      if (kPlaySounds)
+        MessageBeep(MB_ICONHAND);
+#endif
+    }
+  }
+
+#if defined(OS_WIN)
+  virtual void WillProcessMessage(const MSG& msg) {
     begin_process_message_ = TimeTicks::Now();
 
     // GetMessageTime returns a LONG (signed 32-bit) and GetTickCount returns
@@ -123,38 +165,39 @@ class JankObserver : public base::RefCountedThreadSafe<JankObserver>,
     // to straddle the wraparound point, it will still be OK.
     DWORD cur_message_issue_time = static_cast<DWORD>(msg.time);
     DWORD cur_time = GetTickCount();
-    queueing_time_ = TimeDelta::FromMilliseconds(cur_time
-                                                 - cur_message_issue_time);
-    // Simulate arming when the message entered the queue.
-    total_time_watchdog_.ArmSomeTimeDeltaAgo(queueing_time_);
-    if (queueing_time_ > MaxMessageDelay_) {
-      // Message is too delayed.
-      queueing_delay_counter_.Increment();
-      if (kPlaySounds)
-        MessageBeep(MB_ICONASTERISK);
-    }
+    queueing_time_ =
+        base::TimeDelta::FromMilliseconds(cur_time - cur_message_issue_time);
+
+    StartProcessingTimers();
   }
 
-  void DidProcessMessage(const MSG& msg) {
-    total_time_watchdog_.Disarm();
-    TimeTicks now = TimeTicks::Now();
-    if (begin_process_message_ != TimeTicks()) {
-      TimeDelta processing_time = now - begin_process_message_;
-      process_times_.AddTime(processing_time);
-      total_times_.AddTime(queueing_time_ + processing_time);
-    }
-    if (now - begin_process_message_ >
-        TimeDelta::FromMilliseconds(kMaxMessageProcessingMs)) {
-      // Message took too long to process.
-      slow_processing_counter_.Increment();
-      if (kPlaySounds)
-        MessageBeep(MB_ICONHAND);
-    }
+  virtual void DidProcessMessage(const MSG& msg) {
+    EndProcessingTimers();
   }
+#elif defined(OS_LINUX)
+  virtual void WillProcessEvent(GdkEvent* event) {
+    begin_process_message_ = TimeTicks::Now();
+    // TODO(evanm): we want to set queueing_time_ using
+    // event_utils::GetGdkEventTime, but how do you convert that info
+    // into a delta?
+    // guint event_time = event_utils::GetGdkEventTime(event);
+    queueing_time_ = base::TimeDelta::FromMilliseconds(0);
+    StartProcessingTimers();
+  }
+
+  virtual void DidProcessEvent(GdkEvent* event) {
+    EndProcessingTimers();
+  }
+#endif
 
  private:
   const TimeDelta MaxMessageDelay_;
+
+  // Time at which the current message processing began.
   TimeTicks begin_process_message_;
+
+  // Time the current message spent in the queue -- delta between message
+  // construction time and message processing time.
   TimeDelta queueing_time_;
 
   // Counters for the two types of jank we measure.
@@ -173,7 +216,7 @@ JankObserver* io_observer = NULL;
 
 }  // namespace
 
-void InstallJankometer(const CommandLine &parsed_command_line) {
+void InstallJankometer(const CommandLine& parsed_command_line) {
   if (ui_observer || io_observer) {
     NOTREACHED() << "Initializing jank-o-meter twice";
     return;

@@ -204,6 +204,7 @@ Upgrade::TryResult ShowTryChromeDialog() {
 
 //--------------------------------------------------------------------------
 
+#if defined(OS_MACOSX)
 void InstallJankometer(const CommandLine&) {
   // http://code.google.com/p/chromium/issues/detail?id=8077
 }
@@ -211,6 +212,7 @@ void InstallJankometer(const CommandLine&) {
 void UninstallJankometer() {
   // http://code.google.com/p/chromium/issues/detail?id=8077
 }
+#endif
 
 //--------------------------------------------------------------------------
 

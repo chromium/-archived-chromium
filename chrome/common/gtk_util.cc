@@ -61,6 +61,79 @@ WindowOpenDisposition DispositionFromEventFlags(guint event_flags) {
   return false /*event.IsAltDown()*/ ? SAVE_TO_DISK : CURRENT_TAB;
 }
 
+guint32 GetGdkEventTime(GdkEvent* event) {
+  // The order of these entries in the switch statement match the GDK enum.
+  switch (event->type) {
+    case GDK_NOTHING:
+    case GDK_DELETE:
+    case GDK_DESTROY:
+    case GDK_EXPOSE:
+      return 0;
+
+    case GDK_MOTION_NOTIFY:
+      return reinterpret_cast<GdkEventMotion*>(event)->time;
+
+    case GDK_BUTTON_PRESS:
+    case GDK_2BUTTON_PRESS:
+    case GDK_3BUTTON_PRESS:
+    case GDK_BUTTON_RELEASE:
+      return reinterpret_cast<GdkEventButton*>(event)->time;
+
+    case GDK_KEY_PRESS:
+    case GDK_KEY_RELEASE:
+      return reinterpret_cast<GdkEventKey*>(event)->time;
+
+    case GDK_ENTER_NOTIFY:
+    case GDK_LEAVE_NOTIFY:
+      return reinterpret_cast<GdkEventCrossing*>(event)->time;
+
+    case GDK_FOCUS_CHANGE:
+    case GDK_CONFIGURE:
+    case GDK_MAP:
+    case GDK_UNMAP:
+      return 0;
+
+    case GDK_PROPERTY_NOTIFY:
+      return reinterpret_cast<GdkEventProperty*>(event)->time;
+
+    case GDK_SELECTION_CLEAR:
+    case GDK_SELECTION_REQUEST:
+    case GDK_SELECTION_NOTIFY:
+      return reinterpret_cast<GdkEventSelection*>(event)->time;
+
+    case GDK_PROXIMITY_IN:
+    case GDK_PROXIMITY_OUT:
+      return reinterpret_cast<GdkEventProximity*>(event)->time;
+
+    case GDK_DRAG_ENTER:
+    case GDK_DRAG_LEAVE:
+    case GDK_DRAG_MOTION:
+    case GDK_DRAG_STATUS:
+    case GDK_DROP_START:
+    case GDK_DROP_FINISHED:
+      return reinterpret_cast<GdkEventDND*>(event)->time;
+
+    case GDK_CLIENT_EVENT:
+    case GDK_VISIBILITY_NOTIFY:
+    case GDK_NO_EXPOSE:
+      return 0;
+
+    case GDK_SCROLL:
+      return reinterpret_cast<GdkEventScroll*>(event)->time;
+
+    case GDK_WINDOW_STATE:
+    case GDK_SETTING:
+      return 0;
+
+    case GDK_OWNER_CHANGE:
+      return reinterpret_cast<GdkEventOwnerChange*>(event)->time;
+
+    case GDK_GRAB_BROKEN:
+    default:
+      return 0;
+  }
+}
+
 }  // namespace event_utils
 
 namespace gtk_util {
