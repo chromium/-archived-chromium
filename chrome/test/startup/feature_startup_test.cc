@@ -63,7 +63,15 @@ class NewTabUIStartupTest : public UITest {
       // first (the first is about:blank).
       scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
       ASSERT_TRUE(window.get());
+
+      // We resize the window so that we hit the normal layout of the NTP and
+      // not the small layout mode.
+#if defined(OS_WIN)
+// TODO(port): SetBounds returns false when not implemented.
+// It is OK to comment out the resize since it will still be useful to test the
+// default size of the window.
       ASSERT_TRUE(window->GetWindow().get()->SetBounds(gfx::Rect(1000, 1000)));
+#endif
       int tab_count = -1;
       ASSERT_TRUE(window->GetTabCount(&tab_count));
       ASSERT_EQ(1, tab_count);
