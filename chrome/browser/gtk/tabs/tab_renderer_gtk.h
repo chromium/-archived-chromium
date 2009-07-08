@@ -121,6 +121,10 @@ class TabRendererGtk : public AnimationDelegate {
   // Loads the images to be used for the tab background.
   static void LoadTabImages();
 
+  // Sets the colors used for painting text on the tabs.
+  static void SetSelectedTitleColor(SkColor color);
+  static void SetUnselectedTitleColor(SkColor color);
+
   // Returns the bounds of the Tab.
   int x() const { return bounds_.x(); }
   int y() const { return bounds_.y(); }
@@ -257,6 +261,9 @@ class TabRendererGtk : public AnimationDelegate {
 
   static int close_button_width_;
   static int close_button_height_;
+
+  static SkColor selected_title_color_;
+  static SkColor unselected_title_color_;
 
   // The GtkDrawingArea we draw the tab on.
   OwnedWidgetGtk tab_;

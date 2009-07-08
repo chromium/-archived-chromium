@@ -15,6 +15,7 @@
 #include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/gtk_dnd_util.h"
+#include "chrome/browser/gtk/gtk_theme_provider.h"
 #include "chrome/browser/gtk/tabs/dragged_tab_controller_gtk.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -442,6 +443,11 @@ TabStripGtk::TabStripGtk(TabStripModel* model)
       model_(model),
       resize_layout_factory_(this),
       added_as_message_loop_observer_(false) {
+  ThemeProvider* theme_provider = model->profile()->GetThemeProvider();
+  TabRendererGtk::SetSelectedTitleColor(theme_provider->GetColor(
+      BrowserThemeProvider::COLOR_TAB_TEXT));
+  TabRendererGtk::SetUnselectedTitleColor(theme_provider->GetColor(
+      BrowserThemeProvider::COLOR_BACKGROUND_TAB_TEXT));
 }
 
 TabStripGtk::~TabStripGtk() {
@@ -631,6 +637,14 @@ gfx::Point TabStripGtk::GetTabStripOriginForWidget(GtkWidget* target) {
     y += target->allocation.y;
   }
   return gfx::Point(x, y);
+}
+
+void TabStripGtk::UserChangedTheme(GtkThemeProperties* properties) {
+  ThemeProvider* theme_provider = properties->provider;
+  TabRendererGtk::SetSelectedTitleColor(theme_provider->GetColor(
+      BrowserThemeProvider::COLOR_TAB_TEXT));
+  TabRendererGtk::SetUnselectedTitleColor(theme_provider->GetColor(
+      BrowserThemeProvider::COLOR_BACKGROUND_TAB_TEXT));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

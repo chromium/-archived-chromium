@@ -18,6 +18,7 @@
 
 class CustomDrawButton;
 class DraggedTabControllerGtk;
+class GtkThemeProperties;
 
 class TabStripGtk : public TabStripModelObserver,
                     public TabGtk::TabDelegate,
@@ -82,6 +83,9 @@ class TabStripGtk : public TabStripModelObserver,
   // Should only be called after both the tabstrip and |widget| have been
   // allocated.
   gfx::Point GetTabStripOriginForWidget(GtkWidget* widget);
+
+  // Alerts us that the theme changed, and we might need to change theme images.
+  void UserChangedTheme(GtkThemeProperties* properties);
 
  protected:
   // TabStripModelObserver implementation:

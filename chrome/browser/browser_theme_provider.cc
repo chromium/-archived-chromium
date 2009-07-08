@@ -556,7 +556,7 @@ std::string BrowserThemeProvider::AlignmentToString(int alignment) {
 }
 
 void BrowserThemeProvider::SetColor(const char* key, const SkColor& color) {
-  colors_[kColorFrame] = color;
+  colors_[key] = color;
 }
 
 void BrowserThemeProvider::SetTint(const char* key, const skia::HSL& tint) {

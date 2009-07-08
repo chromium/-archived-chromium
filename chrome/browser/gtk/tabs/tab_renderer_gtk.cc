@@ -29,8 +29,6 @@ const int kTitleCloseButtonSpacing = 5;
 const int kStandardTitleWidth = 175;
 const int kFavIconSize = 16;
 const int kDropShadowOffset = 2;
-const int kSelectedTitleColor = SK_ColorBLACK;
-const int kUnselectedTitleColor = SkColorSetRGB(64, 64, 64);
 
 // How long the hover state takes.
 const int kHoverDurationMs = 90;
@@ -95,6 +93,8 @@ gfx::Font* TabRendererGtk::title_font_ = NULL;
 int TabRendererGtk::title_font_height_ = 0;
 int TabRendererGtk::close_button_width_ = 0;
 int TabRendererGtk::close_button_height_ = 0;
+SkColor TabRendererGtk::selected_title_color_ = SK_ColorBLACK;
+SkColor TabRendererGtk::unselected_title_color_ = SkColorSetRGB(64, 64, 64);
 
 ////////////////////////////////////////////////////////////////////////////////
 // TabRendererGtk::LoadingAnimation, public:
@@ -302,6 +302,16 @@ void TabRendererGtk::LoadTabImages() {
   close_button_height_ = rb.GetBitmapNamed(IDR_TAB_CLOSE)->height();
 }
 
+// static
+void TabRendererGtk::SetSelectedTitleColor(SkColor color) {
+  selected_title_color_ = color;
+}
+
+// static
+void TabRendererGtk::SetUnselectedTitleColor(SkColor color) {
+  unselected_title_color_ = color;
+}
+
 void TabRendererGtk::SetBounds(const gfx::Rect& bounds) {
   gtk_widget_set_size_request(tab_.get(), bounds.width(), bounds.height());
   bounds_ = bounds;
@@ -421,8 +431,8 @@ void TabRendererGtk::Paint(gfx::Canvas* canvas) {
     Browser::FormatTitleForDisplay(&title);
   }
 
-  SkColor title_color = IsSelected() ? kSelectedTitleColor
-                                     : kUnselectedTitleColor;
+  SkColor title_color = IsSelected() ? selected_title_color_
+                                     : unselected_title_color_;
   canvas->DrawStringInt(title, *title_font_, title_color, title_bounds_.x(),
                         title_bounds_.y(), title_bounds_.width(),
                         title_bounds_.height());

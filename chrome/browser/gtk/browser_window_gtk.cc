@@ -746,6 +746,7 @@ void BrowserWindowGtk::UserChangedTheme() {
   GtkThemeProperties properties(browser_->profile());
   bookmark_bar_->UserChangedTheme(&properties);
   status_bubble_->UserChangedTheme(&properties);
+  tabstrip_->UserChangedTheme(&properties);
 }
 
 int BrowserWindowGtk::GetExtraRenderViewHeight() const {
