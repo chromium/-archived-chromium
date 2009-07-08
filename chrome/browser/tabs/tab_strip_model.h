@@ -73,9 +73,19 @@ class TabStripModelObserver {
                              bool user_gesture) { }
 
   // The specified TabContents at |from_index| was moved to |to_index|.
+  // TODO(sky): nuke and convert all to 4 arg variant.
   virtual void TabMoved(TabContents* contents,
                         int from_index,
                         int to_index) { }
+
+  // The specified TabContents at |from_index| was moved to |to_index|. If
+  // the pinned state of the tab is changing |pinned_state_changed| is true.
+  virtual void TabMoved(TabContents* contents,
+                        int from_index,
+                        int to_index,
+                        bool pinned_state_changed) {
+    TabMoved(contents, from_index, to_index);
+  }
 
   // The specified TabContents at |index| changed in some way. |contents| may
   // be an entirely different object and the old value is no longer available
@@ -91,6 +101,12 @@ class TabStripModelObserver {
   // hasn't come in yet).
   virtual void TabChangedAt(TabContents* contents, int index,
                             bool loading_only) { }
+
+  // Invoked when the pinned state of a tab changes.
+  // NOTE: this is only invoked if the tab doesn't move as a result of its
+  // pinned state changing. If the tab moves as a result, the observer is
+  // notified by way of the TabMoved method with |pinned_state_changed| true.
+  virtual void TabPinnedStateChanged(TabContents* contents, int index) { }
 
   // The TabStripModel now no longer has any "significant" (user created or
   // user manipulated) tabs. The implementer may use this as a trigger to try
@@ -202,6 +218,16 @@ class TabStripModelDelegate {
 //  them, as well as a higher level API for doing specific Browser-related
 //  tasks like adding new Tabs from just a URL, etc.
 //
+//  Each tab may additionally be pinned. The view typically renders pinned tabs
+//  differently. The model makes sure all pinned tabs are organized at the
+//  beginning of the tabstrip. Inserting a tab between pinned tabs
+//  implicitly makes the inserted tab pinned. Similarly moving a tab may pin or
+//  unpin the tab, again enforcing that all pinned tabs occur at the beginning
+//  of the tabstrip. Lastly, changing the pinned state of a tab moves the
+//  tab to be grouped with the pinned or unpinned tabs. For example, if the
+//  first two tabs are pinned, and the tenth tab is pinned, it is moved to
+//  become the third tab.
+//
 //  A TabStripModel has one delegate that it relies on to perform certain tasks
 //  like creating new TabStripModels (probably hosted in Browser windows) when
 //  required. See TabStripDelegate above for more information.
@@ -265,7 +291,8 @@ class TabStripModel : public NotificationObserver {
 
   // Adds the specified TabContents in the specified location. If
   // |inherit_group| is true, the new contents is linked to the current tab's
-  // group.
+  // group. If there are pinned tabs at or before |index|, then the newly
+  // inserted tab is pinned.
   void InsertTabContentsAt(int index,
                            TabContents* contents,
                            bool foreground,
@@ -309,6 +336,7 @@ class TabStripModel : public NotificationObserver {
   // If |select_after_move| is false, whatever tab was selected before the move
   // will still be selected, but it's index may have incremented or decremented
   // one slot.
+  // See class description for how pinning is effected by this.
   void MoveTabContentsAt(int index, int to_position, bool select_after_move);
 
   // Returns the currently selected TabContents, or NULL if there is none.
@@ -384,6 +412,20 @@ class TabStripModel : public NotificationObserver {
   // should be reset when _any_ selection change occurs in the model.
   bool ShouldResetGroupOnSelect(TabContents* contents) const;
 
+  // Changes the pinned state of the tab at |index|. See description above
+  // class for details on this.
+  void SetTabPinned(int index, bool pinned);
+
+  // Returns true if the tab at |index| is pinned.
+  bool IsTabPinned(int index) const;
+
+  // Returns the index of the first tab that is not pinned. This returns
+  // |count()| if all of the tabs are pinned, and 0 if no tabs are pinned.
+  int IndexOfFirstNonPinnedTab() const;
+
+  // Returns true if pinned tabs are enabled in the UI.
+  static bool IsTabPinningEnabled();
+
   // Command level API /////////////////////////////////////////////////////////
 
   // Adds a TabContents at the best position in the TabStripModel given the
@@ -430,6 +472,7 @@ class TabStripModel : public NotificationObserver {
     CommandCloseTabsToRight,
     CommandCloseTabsOpenedBy,
     CommandRestoreTab,
+    CommandTogglePinned,
     CommandLast
   };
 
@@ -476,6 +519,10 @@ class TabStripModel : public NotificationObserver {
   // waiting for the result of an onunload handler.
   bool InternalCloseTabContentsAt(int index, bool create_historical_tab);
 
+  void MoveTabContentsAtImpl(int index, int to_position,
+                             bool select_after_move,
+                             bool update_pinned_state);
+
   TabContents* GetContentsAt(int index) const;
 
   // The actual implementation of SelectTabContentsAt. Takes the previously
@@ -508,6 +555,26 @@ class TabStripModel : public NotificationObserver {
   // the TabContents is in the current TabStripModel, unless otherwise
   // specified in code.
   struct TabContentsData {
+    explicit TabContentsData(TabContents* a_contents)
+        : contents(a_contents),
+          reset_group_on_select(false),
+          pinned(false) {
+      SetGroup(NULL);
+    }
+
+    // Create a relationship between this TabContents and other TabContentses.
+    // Used to identify which TabContents to select next after one is closed.
+    void SetGroup(NavigationController* a_group) {
+      group = a_group;
+      opener = a_group;
+    }
+
+    // Forget the opener relationship so that when this TabContents is closed
+    // unpredictable re-selection does not occur.
+    void ForgetOpener() {
+      opener = NULL;
+    }
+
     TabContents* contents;
     // We use NavigationControllers here since they more closely model the
     // "identity" of a Tab, TabContents can change depending on the URL loaded
@@ -533,24 +600,8 @@ class TabStripModel : public NotificationObserver {
     // relationship is reset to avoid confusing close sequencing.
     bool reset_group_on_select;
 
-    explicit TabContentsData(TabContents* a_contents)
-        : contents(a_contents),
-          reset_group_on_select(false) {
-      SetGroup(NULL);
-    }
-
-    // Create a relationship between this TabContents and other TabContentses.
-    // Used to identify which TabContents to select next after one is closed.
-    void SetGroup(NavigationController* a_group) {
-      group = a_group;
-      opener = a_group;
-    }
-
-    // Forget the opener relationship so that when this TabContents is closed
-    // unpredictable re-selection does not occur.
-    void ForgetOpener() {
-      opener = NULL;
-    }
+    // Is the tab pinned?
+    bool pinned;
   };
 
   // The TabContents data currently hosted within this TabStripModel.

@@ -8,6 +8,7 @@
 enum WindowOpenDisposition {
   SUPPRESS_OPEN,
   CURRENT_TAB,
+  // Indicates that only one tab with the url should exist in the same window.
   SINGLETON_TAB,
   NEW_FOREGROUND_TAB,
   NEW_BACKGROUND_TAB,

@@ -203,6 +203,8 @@ extern const wchar_t kEnableMonitorProfile[];
 
 extern const wchar_t kEnableXSSAuditor[];
 
+extern const wchar_t kEnableTabPinning[];
+
 extern const wchar_t kRendererCrashDump[];
 
 extern const wchar_t kEnableTabtastic2[];

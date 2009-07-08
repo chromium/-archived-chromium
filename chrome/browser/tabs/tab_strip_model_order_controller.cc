@@ -24,6 +24,7 @@ int TabStripModelOrderController::DetermineInsertionIndex(
     PageTransition::Type transition,
     bool foreground) {
   int tab_count = tabstrip_->count();
+  int first_non_pinned_tab = tabstrip_->IndexOfFirstNonPinnedTab();
   if (!tab_count)
     return 0;
 
@@ -33,7 +34,8 @@ int TabStripModelOrderController::DetermineInsertionIndex(
       // tab, insert it adjacent to the tab that opened that link.
       // TODO(beng): (http://b/1085481) may want to open right of all locked
       //             tabs?
-      return tabstrip_->selected_index() + 1;
+      return std::max(first_non_pinned_tab,
+                      tabstrip_->selected_index() + 1);
     }
     NavigationController* opener =
         &tabstrip_->GetSelectedTabContents()->controller();
@@ -44,7 +46,7 @@ int TabStripModelOrderController::DetermineInsertionIndex(
     if (index != TabStripModel::kNoTab)
       return index + 1;
     // Otherwise insert adjacent to opener...
-    return tabstrip_->selected_index() + 1;
+    return std::max(first_non_pinned_tab, tabstrip_->selected_index() + 1);
   }
   // In other cases, such as Ctrl+T, open at the end of the strip.
   return tab_count;

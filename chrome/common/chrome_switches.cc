@@ -532,6 +532,9 @@ const wchar_t kEnableMonitorProfile[] = L"enable-monitor-profile";
 // still experimental.
 const wchar_t kEnableXSSAuditor[] = L"enable-xss-auditor";
 
+// Enables pinned tabs. Only suppored on Linux now.
+const wchar_t kEnableTabPinning[] = L"enable-pinned-tabs";
+
 // A flag, generated internally by Chrome for renderer command lines (Linux
 // only). It tells the renderer to enable crash dumping since it cannot access
 // the user's home directory to find out for itself.
