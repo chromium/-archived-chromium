@@ -15,8 +15,8 @@ goog.provide('devtools.DebuggerAgent');
 devtools.DebuggerAgent = function() {
   RemoteDebuggerAgent.DebuggerOutput =
       goog.bind(this.handleDebuggerOutput_, this);
-  RemoteDebuggerAgent.DidGetContextId =
-      goog.bind(this.didGetContextId_, this);
+  RemoteDebuggerAgent.SetContextId =
+      goog.bind(this.setContextId_, this);
   RemoteDebuggerAgent.DidIsProfilingStarted =
       goog.bind(this.didIsProfilingStarted_, this);
   RemoteDebuggerAgent.DidGetNextLogLines =
@@ -119,26 +119,18 @@ devtools.DebuggerAgent.prototype.reset = function() {
 
 
 /**
- * Requests scripts list if it has not been requested yet.
- */
-devtools.DebuggerAgent.prototype.initializeScriptsCache = function() {
-  if (!this.scriptsCacheInitialized_) {
-    this.scriptsCacheInitialized_ = true;
-    this.requestScripts();
-  }
-};
-
-
-/**
  * Asynchronously requests for all parsed script sources. Response will be
  * processed in handleScriptsResponse_.
  */
 devtools.DebuggerAgent.prototype.requestScripts = function() {
-  if (this.contextId_ === null) {
-    // Update context id first to filter the scripts.
-    RemoteDebuggerAgent.GetContextId();
+  if (this.contextId_) {
+    // We already have context id. This means that we are here from the
+    // very beginning of the page load cycle and hence will get all scripts
+    // via after-compile events. No need to request scripts for this session.
     return;
   }
+
+  RemoteDebuggerAgent.GetContextId();
   var cmd = new devtools.DebugCommand('scripts', {
     'includeSource': false
   });
@@ -545,13 +537,11 @@ devtools.DebuggerAgent.prototype.requestLookup_ = function(handles, callback) {
 
 
 /**
- * Handles GetContextId response.
+ * Sets debugger context id for scripts filtering.
  * @param {number} contextId Id of the inspected page global context.
  */
-devtools.DebuggerAgent.prototype.didGetContextId_ = function(contextId) {
+devtools.DebuggerAgent.prototype.setContextId_ = function(contextId) {
   this.contextId_ = contextId;
-  // Update scripts.
-  this.requestScripts();
 };
 
 
@@ -719,7 +709,7 @@ devtools.DebuggerAgent.prototype.handleSetBreakpointResponse_ = function(msg) {
  * @param {devtools.DebuggerMessage} msg
  */
 devtools.DebuggerAgent.prototype.handleAfterCompileEvent_ = function(msg) {
-  if (!this.scriptsCacheInitialized_) {
+  if (!this.contextId_) {
     // Ignore scripts delta if main request has not been issued yet.
     return;
   }

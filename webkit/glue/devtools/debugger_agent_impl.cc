@@ -55,7 +55,7 @@ void DebuggerAgentImpl::DebugBreak() {
 }
 
 void DebuggerAgentImpl::GetContextId() {
-  delegate_->DidGetContextId(webdevtools_agent_->host_id());
+  delegate_->SetContextId(webdevtools_agent_->host_id());
 }
 
 void DebuggerAgentImpl::StartProfiling() {

@@ -35,8 +35,8 @@ DEFINE_RPC_CLASS(DebuggerAgent, DEBUGGER_AGENT_STRUCT)
     METHOD4) \
   METHOD1(DebuggerOutput, std::string /* output text */) \
   \
-  /* Response to GetContextId. */ \
-  METHOD1(DidGetContextId, int /* context id */) \
+  /* Pushes debugger context id into the client. */ \
+  METHOD1(SetContextId, int /* context id */) \
   \
   /* Response to IsProfilingStarted. */ \
   METHOD1(DidIsProfilingStarted, bool /* is_started */) \

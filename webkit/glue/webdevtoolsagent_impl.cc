@@ -167,6 +167,10 @@ void WebDevToolsAgentImpl::DidCommitLoadForFrame(
 
 void WebDevToolsAgentImpl::WindowObjectCleared(WebFrameImpl* webframe) {
   DebuggerAgentManager::SetHostId(webframe, host_id_);
+  if (attached_) {
+    // Push context id into the client if it is already attached.
+    debugger_agent_delegate_stub_->SetContextId(host_id_);
+  }
 }
 
 void WebDevToolsAgentImpl::ForceRepaint() {
