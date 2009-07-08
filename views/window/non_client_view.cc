@@ -70,7 +70,7 @@ void NonClientView::UpdateFrame() {
 bool NonClientView::UseNativeFrame() const {
   // The frame view may always require a custom frame, e.g. Constrained Windows.
   if (frame_view_.get() && frame_view_->AlwaysUseCustomFrame())
-    return true;
+    return false;
   return frame_->ShouldUseNativeFrame();
 }
 
