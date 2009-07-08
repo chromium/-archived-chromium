@@ -60,13 +60,13 @@ bool ExtensionBrowserTest::InstallExtension(const FilePath& path) {
   service->set_show_extensions_prompts(false);
   size_t num_before = service->extensions()->size();
 
-  registrar_.Add(this, NotificationType::EXTENSION_INSTALLED,
+  registrar_.Add(this, NotificationType::EXTENSIONS_LOADED,
                  NotificationService::AllSources());
   service->InstallExtension(path);
   MessageLoop::current()->PostDelayedTask(FROM_HERE, new MessageLoop::QuitTask,
       kTimeoutMs);
   ui_test_utils::RunMessageLoop();
-  registrar_.Remove(this, NotificationType::EXTENSION_INSTALLED,
+  registrar_.Remove(this, NotificationType::EXTENSIONS_LOADED,
                     NotificationService::AllSources());
   size_t num_after = service->extensions()->size();
   if (num_after != (num_before + 1)) {
@@ -125,11 +125,6 @@ void ExtensionBrowserTest::Observe(NotificationType type,
                      const NotificationSource& source,
                      const NotificationDetails& details) {
   switch (type.value) {
-    case NotificationType::EXTENSION_INSTALLED:
-      std::cout << "Got EXTENSION_INSTALLED notification.\n";
-      MessageLoopForUI::current()->Quit();
-      break;
-
     case NotificationType::EXTENSIONS_LOADED:
       std::cout << "Got EXTENSION_LOADED notification.\n";
       MessageLoopForUI::current()->Quit();
