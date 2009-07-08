@@ -25,8 +25,14 @@ GdkAtom GtkDndUtil::GetAtomForTarget(int target) {
       return bookmark_atom;
 
     case X_CHROME_TEXT_PLAIN:
+      static GdkAtom text_atom = gdk_atom_intern(
+          const_cast<char*>("text/plain"), false);
+      return text_atom;
+
     case X_CHROME_TEXT_URI_LIST:
-      return NULL;
+      static GdkAtom uris_atom = gdk_atom_intern(
+          const_cast<char*>("text/uri-list"), false);
+      return uris_atom;
 
     default:
       NOTREACHED();

@@ -190,6 +190,24 @@ void WriteBookmarksToSelection(const std::vector<const BookmarkNode*>& nodes,
                              pickle.size());
       break;
     }
+    case GtkDndUtil::X_CHROME_TEXT_URI_LIST: {
+      gchar** uris = reinterpret_cast<gchar**>(malloc(sizeof(gchar*) *
+                                               (nodes.size() + 1)));
+      for (size_t i = 0; i < nodes.size(); ++i) {
+        // If the node is a folder, this will be empty. TODO(estade): figure out
+        // if there are any ramifications to passing an empty URI. After a
+        // lttle testing, it seems fine.
+        const GURL& url = nodes[i]->GetURL();
+        // This const cast should be safe as gtk_selection_data_set_uris()
+        // makes copies.
+        uris[i] = const_cast<gchar*>(url.spec().c_str());
+      }
+      uris[nodes.size()] = NULL;
+
+      gtk_selection_data_set_uris(selection_data, uris);
+      free(uris);
+      break;
+    }
     default: {
       DLOG(ERROR) << "Unsupported drag get type!";
     }
