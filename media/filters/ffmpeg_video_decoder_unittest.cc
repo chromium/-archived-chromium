@@ -9,6 +9,7 @@
 #include "media/base/filters.h"
 #include "media/base/mock_ffmpeg.h"
 #include "media/base/mock_filter_host.h"
+#include "media/base/mock_filters.h"
 #include "media/filters/ffmpeg_common.h"
 #include "media/filters/ffmpeg_interfaces.h"
 #include "media/filters/ffmpeg_video_decoder.h"
@@ -23,15 +24,18 @@ using ::testing::StrictMock;
 
 namespace media {
 
-class MockDemuxerStream : public DemuxerStream, public AVStreamProvider {
+class MockFFmpegDemuxerStream : public MockDemuxerStream,
+                                public AVStreamProvider {
  public:
-  // DemuxerStream interface.
-  MOCK_METHOD0(media_format, const MediaFormat&());
-  MOCK_METHOD1(Read, void(Callback1<Buffer*>::Type* read_callback));
-  MOCK_METHOD1(QueryInterface, void*(const char* interface_id));
+  MockFFmpegDemuxerStream() {}
 
-  // AVStreamProvider interface.
+  // AVStreamProvider implementation.
   MOCK_METHOD0(GetAVStream, AVStream*());
+
+ private:
+  virtual ~MockFFmpegDemuxerStream() {}
+
+  DISALLOW_COPY_AND_ASSIGN(MockFFmpegDemuxerStream);
 };
 
 // Class that just mocks the private functions.
@@ -83,7 +87,7 @@ class FFmpegVideoDecoderTest : public testing::Test {
     pipeline_.reset(new MockPipeline());
     filter_host_.reset(new MockFilterHost<VideoDecoder>(pipeline_.get(),
                                                         decoder_));
-    demuxer_ = new MockDemuxerStream();
+    demuxer_ = new MockFFmpegDemuxerStream();
 
     // Initialize FFmpeg fixtures.
     memset(&stream_, 0, sizeof(stream_));
@@ -118,7 +122,7 @@ class FFmpegVideoDecoderTest : public testing::Test {
   scoped_refptr<FFmpegVideoDecoder> decoder_;
   scoped_ptr<MockPipeline> pipeline_;
   scoped_ptr<MockFilterHost<VideoDecoder> > filter_host_;
-  scoped_refptr<MockDemuxerStream> demuxer_;
+  scoped_refptr<MockFFmpegDemuxerStream> demuxer_;
   scoped_refptr<DataBuffer> buffer_;
   scoped_refptr<DataBuffer> end_of_stream_buffer_;
   MessageLoop message_loop_;

@@ -245,7 +245,7 @@ class AudioDecoder : public MediaFilter {
   // Schedules a read.  Decoder takes ownership of the callback.
   //
   // TODO(scherkus): switch Read() callback to scoped_refptr<>.
-  virtual void Read(Callback1<Buffer*>::Type* read_callbasck) = 0;
+  virtual void Read(Callback1<Buffer*>::Type* read_callback) = 0;
 };
 
 
