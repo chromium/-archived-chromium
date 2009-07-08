@@ -5,6 +5,8 @@
 #ifndef CHROME_APP_BREAKPAD_MAC_H_
 #define CHROME_APP_BREAKPAD_MAC_H_
 
+extern "C" {
+
 // This header defines the Chrome entry points for Breakpad integration.
 
 // Initializes Breakpad.
@@ -33,5 +35,7 @@ void SetCrashKeyValue(NSString* key, NSString* value);
 void ClearCrashKeyValue(NSString* key);
 
 #endif  // __OBJC__
+
+}
 
 #endif  // CHROME_APP_BREAKPAD_MAC_H_
