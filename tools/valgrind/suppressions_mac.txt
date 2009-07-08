@@ -1,3 +1,16 @@
+# There are three kinds of suppressions in this file:
+# 1. Third party stuff we have no control over.
+#
+# 2. Intentional unit test errors, stuff that is somehow a false positive
+# in our own code, or stuff that is so trivial it's not worth fixing.
+#
+# 3. Suppressions for real chromium bugs that are not yet fixed.
+# These should all be in chromium's bug tracking system.
+# Periodically we should sweep this file and the bug tracker clean by
+# running overnight and removing outdated bugs/suppressions.
+#-----------------------------------------------------------------------
+
+# 1. Third party stuff we have no control over.
 {
    # See http://code.google.com/p/chromium/issues/detail?id=9565
    # This should have been handled by platform-specific suppression.
@@ -59,7 +72,7 @@
    obj:/System/Library/Components/CoreAudio.component/Contents/MacOS/CoreAudio
 }
 {
-   # Mac media_unittests.  See http://crbug.com/9351
+   # CoreAudio leak.  See http://crbug.com/9351
    bug_9351
    Memcheck:Leak
    fun:_Znwm
@@ -70,6 +83,108 @@
    fun:AudioHardwareGetProperty
    fun:_ZN15AudioManagerMac15HasAudioDevicesEv
 }
+{
+   # Filed with Apple as rdar://6915060; see http://crbug.com/11270
+   bug_11270
+   Memcheck:Leak
+   fun:calloc
+   fun:CMSSetLabCLUT
+}
+{
+   # ATI driver bug?  See http://crbug.com/11271
+   bug_11271
+   Memcheck:Leak
+   fun:calloc
+   fun:gldCreateBuffer
+   fun:gldPageoffBuffer
+   fun:gldGetString
+   fun:gldGetString
+   fun:gldGetString
+   fun:gldInitDispatch
+   fun:gldGetQueryInfo
+   fun:gldUpdateDispatch
+   fun:gldInitDispatch
+   fun:gliSetCurrentPluginDispatchTable
+   fun:gliAttachDrawableWithOptions
+   fun:cglSetContextScreen
+   fun:cglSetAnyDrawable
+   fun:CGLSetSurface
+   fun:view_draw
+   fun:view_display_link
+   fun:link_callback
+   fun:_ZN13CVDisplayLink9performIOEP11CVTimeStamp
+   fun:_ZN13CVDisplayLink11runIOThreadEv
+}
+{
+   # Mac leak in CMOpenOrNewAccess in unit_tests PlatformCanvas_SkLayer_Test,
+   # ToolbarControllerTest_FocusLocation_Test. See http://crbug.com/11333.
+   bug_11333
+   Memcheck:Leak
+   fun:malloc
+   fun:stdSmartNewPtr
+   fun:stdSmartNewHandle
+   fun:IOCreateAndOpen
+   fun:ScratchInit
+   fun:CMOpenOrNewAccess
+}
+{
+   # Mac unit_tests.  See http://crbug.com/11271
+   bug_12640a
+   Memcheck:Cond
+   fun:png_write_find_filter
+   fun:webkit_png_write_row
+   fun:_ZN10PNGEncoder6EncodeEPKhNS_11ColorFormatEiiibPSt6vectorIhSaIhEE
+   ...
+   fun:_ZN24ExtensionsServiceBackend24InstallOrUpdateExtensionERK8FilePathRKSsb
+}
+{
+   # OpenGL.framework init; filed with Apple as rdar://6986771
+   opengl_init_rdar_6986771
+   Memcheck:Cond
+   ...
+   fun:gl_context_init_client_state
+}
+{
+   # Reproducible just launching and quitting TextEdit; filed with Apple as rdar://7004347
+   tsm_leak_rdar_7004347
+   Memcheck:Leak
+   fun:malloc_zone_malloc
+   fun:_CFRuntimeCreateInstance
+   fun:__CFDictionaryInit
+   fun:utOpenActivateAllSelectedIMInDoc
+   fun:MyActivateTSMDocument
+   fun:ActivateTSMDocument
+}
+{
+   # Looks like an Apple bug; has no visual impact.
+   unitialized_rect_allocated_on_stack_when_reparenting_window_content_views
+   Memcheck:Cond
+   fun:NSRectClip
+   fun:-[NSThemeFrame drawOverlayRect:]
+   ...
+   fun:-[NSWindow makeKeyAndOrderFront:]
+   fun:-[BrowserWindowController setFullscreen:]
+   ...
+   fun:main
+}
+{
+   # Tiny one-time leak, widely seen by valgind users; everyone suppresses this.
+   # See related discussion at http://gcc.gnu.org/bugzilla/show_bug.cgi?id=39366
+   plugin_bundle_global_leak
+   Memcheck:Leak
+   fun:malloc
+   fun:__cxa_get_globals
+   fun:__cxa_allocate_exception
+   fun:_ZN4dyld4loadEPKcRKNS_11LoadContextE
+   fun:dlopen
+   fun:dlopen
+   fun:_CFBundleDlfcnCheckLoaded
+}
+
+# 2. Intentional unit test errors, stuff that is somehow a false positive
+# in our own code, or stuff that is so trivial it's not worth fixing.
+
+# 3. Suppressions for real chromium bugs that are not yet fixed.
 {
    # Mac test_shell_tests, see http://crbug.com/9561
    bug_9561
@@ -127,51 +242,6 @@
    fun:_ZNK15CMMConvRGBToRGB7ConvertER8CMM8BitsP14CMMRuntimeInfomm
 }
 {
-   # Mac unit_tests.  Leak in a system thread?  See http://crbug.com/11270
-   bug_11270
-   Memcheck:Leak
-   fun:calloc
-   fun:CMSSetLabCLUT
-}
-{
-   # Mac unit_tests.  See http://crbug.com/11271
-   bug_11271
-   Memcheck:Leak
-   fun:calloc
-   fun:gldCreateBuffer
-   fun:gldPageoffBuffer
-   fun:gldGetString
-   fun:gldGetString
-   fun:gldGetString
-   fun:gldInitDispatch
-   fun:gldGetQueryInfo
-   fun:gldUpdateDispatch
-   fun:gldInitDispatch
-   fun:gliSetCurrentPluginDispatchTable
-   fun:gliAttachDrawableWithOptions
-   fun:cglSetContextScreen
-   fun:cglSetAnyDrawable
-   fun:CGLSetSurface
-   fun:view_draw
-   fun:view_display_link
-   fun:link_callback
-   fun:_ZN13CVDisplayLink9performIOEP11CVTimeStamp
-   fun:_ZN13CVDisplayLink11runIOThreadEv
-}
-{
-   # Mac leak in CMOpenOrNewAccess in unit_tests PlatformCanvas_SkLayer_Test,
-   # ToolbarControllerTest_FocusLocation_Test. See http://crbug.com/11333.
-   # (was: http://crbug.com/9563 )
-   bug_11333
-   Memcheck:Leak
-   fun:malloc
-   fun:stdSmartNewPtr
-   fun:stdSmartNewHandle
-   fun:IOCreateAndOpen
-   fun:ScratchInit
-   fun:CMOpenOrNewAccess
-}
-{
    bug_12525
    Memcheck:Cond
    ...
@@ -192,16 +262,6 @@
    ...
    fun:ripc_DrawShading
    fun:CGContextDrawShading
-}
-{
-   # Mac unit_tests.  See http://crbug.com/11271
-   bug_12640a
-   Memcheck:Cond
-   fun:png_write_find_filter
-   fun:webkit_png_write_row
-   fun:_ZN10PNGEncoder6EncodeEPKhNS_11ColorFormatEiiibPSt6vectorIhSaIhEE
-   ...
-   fun:_ZN24ExtensionsServiceBackend24InstallOrUpdateExtensionERK8FilePathRKSsb
 }
 {
    bug_12640b
@@ -228,36 +288,6 @@
    fun:_ZN24ExtensionsServiceBackend14UnpackerClient30OnUnpackExtensionSucceededImplERK15DictionaryValueRKSt6vectorI6Tuple2I8SkBitmap8FilePathESaIS8_EE
 }
 {
-   # OpenGL.framework init; filed with Apple as rdar://6986771
-   opengl_init_rdar_6986771
-   Memcheck:Cond
-   ...
-   fun:gl_context_init_client_state
-}
-{
-   # Reproducible just launching and quitting TextEdit; filed with Apple as rdar://7004347
-   tsm_leak_rdar_7004347
-   Memcheck:Leak
-   fun:malloc_zone_malloc
-   fun:_CFRuntimeCreateInstance
-   fun:__CFDictionaryInit
-   fun:utOpenActivateAllSelectedIMInDoc
-   fun:MyActivateTSMDocument
-   fun:ActivateTSMDocument
-}
-{
-   # Looks like an Apple bug; has no visual impact.
-   unitialized_rect_allocated_on_stack_when_reparenting_window_content_views
-   Memcheck:Cond
-   fun:NSRectClip
-   fun:-[NSThemeFrame drawOverlayRect:]
-   ...
-   fun:-[NSWindow makeKeyAndOrderFront:]
-   fun:-[BrowserWindowController setFullscreen:]
-   ...
-   fun:main
-}
-{
    bug_15762
    Memcheck:Cond
    fun:_ZN7testing8internal11CmpHelperEQIjjEENS_15AssertionResultEPKcS4_RKT_RKT0_
@@ -274,35 +304,19 @@
    fun:_ZN7testing8UnitTest3RunEv
    fun:main
 }
-
 {
-   bug_15819
+   bug_15819a
    Memcheck:Cond
    fun:_ZNK10CMMMtxOnly10ConvertMinE10CMM3x3Type10CMM3x1TypeR12CMMMinBuffermm
    ...
    fun:CGContextDrawImage
    fun:_ZN3gfx17CGImageToSkBitmapEP7CGImage
 }
-
 {
-   bug_15819
+   bug_15819b
    Memcheck:Value4
    fun:_ZNK10CMMConvLut7ConvertER10CMMMinBitsP14CMMRuntimeInfomm
    ...
    fun:CGContextDrawImage
    fun:_ZN3gfx17CGImageToSkBitmapEP7CGImage
-}
-
-{
-   # Tiny one-time leak, widely seen by valgind users; everyone suppresses this.
-   # See related discussion at http://gcc.gnu.org/bugzilla/show_bug.cgi?id=39366
-   plugin_bundle_global_leak
-   Memcheck:Leak
-   fun:malloc
-   fun:__cxa_get_globals
-   fun:__cxa_allocate_exception
-   fun:_ZN4dyld4loadEPKcRKNS_11LoadContextE
-   fun:dlopen
-   fun:dlopen
-   fun:_CFBundleDlfcnCheckLoaded
 }
