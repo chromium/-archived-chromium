@@ -58,7 +58,7 @@ ZygoteHost::ZygoteHost() {
         (st.st_mode & S_ISUID) &&
         (st.st_mode & S_IXOTH) &&
         access(kSandboxPath.c_str(), F_OK) == 0) {
-      cmd_line.PrependWrapper(kSandboxBinary);
+      cmd_line.PrependWrapper(ASCIIToWide(kSandboxBinary));
     } else {
       LOG(FATAL) << "The SUID sandbox helper binary was found, but is not "
                     "configured correctly. Rather than run without sandboxing "
