@@ -9,11 +9,16 @@
 #include "base/gfx/point.h"
 #include "base/gfx/size.h"
 #include "base/task.h"
+#include "build/build_config.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "views/view.h"
 
 namespace views {
+#if defined(OS_WIN)
 class WidgetWin;
+#elif defined(OS_LINUX)
+class WidgetGtk;
+#endif
 }
 namespace gfx {
 class Point;

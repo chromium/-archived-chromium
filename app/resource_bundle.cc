@@ -170,7 +170,11 @@ void ResourceBundle::LoadFontsIfNecessary() {
     *small_font_ = base_font_->DeriveFont(-2);
 
     medium_font_.reset(new gfx::Font());
+#if defined(OS_LINUX) && defined(TOOLKIT_VIEWS)
+    *medium_font_ = base_font_->DeriveFont(2);
+#else
     *medium_font_ = base_font_->DeriveFont(3);
+#endif
 
     medium_bold_font_.reset(new gfx::Font());
     *medium_bold_font_ =

@@ -13,6 +13,8 @@
 #include "views/widget/widget.h"
 #if defined(OS_WIN)
 #include "views/widget/widget_win.h"
+#elif defined(OS_LINUX)
+#include "views/widget/widget_gtk.h"
 #endif
 
 const int kTransparentAlpha = 200;
@@ -57,7 +59,10 @@ DraggedTabView::DraggedTabView(TabContents* datasource,
     show_contents_on_drag_ = false;
   }
 #else
-  NOTIMPLEMENTED();
+  container_.reset(new views::WidgetGtk(views::WidgetGtk::TYPE_POPUP));
+  container_->set_delete_on_destroy(false);
+  container_->Init(NULL, gfx::Rect(0, 0, 0, 0));
+  container_->SetContentsView(this);
 #endif
 }
 
