@@ -624,11 +624,10 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // preferences are registered, since some of the code that the importer
   // touches reads preferences.
   if (is_first_run && !first_run_ui_bypass) {
-    OpenFirstRunDialog(profile, &process_singleton);
-    // If user cancelled the first run dialog box, the first run sentinel file
-    // didn't get created and we should exit Chrome.
-    if (FirstRun::IsChromeFirstRun())
+    if (!OpenFirstRunDialog(profile, &process_singleton)) {
+      // The user cancelled the first run dialog box, we should exit Chrome.
       return ResultCodes::NORMAL_EXIT;
+    }
   }
 #endif  // OS_POSIX
 

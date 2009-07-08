@@ -51,7 +51,7 @@ class Message;
 //---------------------------------------------------------------------------
 // These stubs are for Browser_main()
 
-void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton);
+bool OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton);
 
 void InstallJankometer(const CommandLine&);
 

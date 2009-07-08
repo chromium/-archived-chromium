@@ -28,6 +28,8 @@ class FirstRunView : public FirstRunViewBase,
   explicit FirstRunView(Profile* profile);
   virtual ~FirstRunView();
 
+  bool accepted() const { return accepted_;}
+
   // Overridden from views::View:
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
@@ -60,6 +62,10 @@ class FirstRunView : public FirstRunViewBase,
   views::Label* actions_shorcuts_;
   views::Link* customize_link_;
   bool customize_selected_;
+
+  // Whether the user accepted (pressed the "Start" button as opposed to
+  // "Cancel").
+  bool accepted_;
 
   DISALLOW_COPY_AND_ASSIGN(FirstRunView);
 };

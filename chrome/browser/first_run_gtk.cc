@@ -27,7 +27,7 @@ void DialogResponseCallback(GtkDialog* dialog, gint response,
 
 }  // namespace
 
-void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
+bool OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
 #if defined(GOOGLE_CHROME_BUILD)
   GtkWidget* dialog = gtk_dialog_new_with_buttons(
       "Google Chrome Dev Build",
@@ -111,7 +111,8 @@ void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
   MessageLoop::current()->Run();
   // End of above TODO.
 
-  if (response == GTK_RESPONSE_ACCEPT) {
+  bool accepted = (response == GTK_RESPONSE_ACCEPT);
+  if (accepted) {
     // Mark that first run has ran.
     FirstRun::CreateSentinel();
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check))) {
@@ -125,7 +126,9 @@ void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
   }
 
   gtk_widget_destroy(dialog);
+  return accepted;
 #else  // defined(GOOGLE_CHROME_BUILD)
   FirstRun::CreateSentinel();
+  return true;
 #endif
 }

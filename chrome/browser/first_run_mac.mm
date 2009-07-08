@@ -30,7 +30,7 @@ bool FirstRun::IsChromeFirstRun() {
 #endif  // defined(GOOGLE_CHROME_BUILD)
 }
 
-void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
+bool OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
 // OpenFirstRunDialog is a no-op on non-branded builds.
 #if defined(GOOGLE_CHROME_BUILD)
   // Breakpad should not be enabled on first run until the user has explicitly
@@ -56,4 +56,5 @@ void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton) {
     InitCrashProcessInfo();
   }
 #endif  // defined(GOOGLE_CHROME_BUILD)
+  return true;
 }

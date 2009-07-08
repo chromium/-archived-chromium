@@ -39,14 +39,13 @@ FirstRunView::FirstRunView(Profile* profile)
       actions_import_(NULL),
       actions_shorcuts_(NULL),
       customize_link_(NULL),
-      customize_selected_(false) {
+      customize_selected_(false),
+      accepted_(false) {
   importer_host_ = new ImporterHost();
   SetupControls();
 }
 
 FirstRunView::~FirstRunView() {
-  // Exit the message loop we were started with so that startup can continue.
-  MessageLoop::current()->Quit();
 }
 
 void FirstRunView::SetupControls() {
@@ -184,12 +183,15 @@ bool FirstRunView::Accept() {
   if (default_browser_->checked())
     SetDefaultBrowser();
 
+  accepted_ = true;
   FirstRunComplete();
+  MessageLoop::current()->PostTask(FROM_HERE, new MessageLoop::QuitTask());
   return true;
 }
 
 bool FirstRunView::Cancel() {
   UserMetrics::RecordAction(L"FirstRunDef_Cancel", profile_);
+  MessageLoop::current()->PostTask(FROM_HERE, new MessageLoop::QuitTask());
   return true;
 }
 

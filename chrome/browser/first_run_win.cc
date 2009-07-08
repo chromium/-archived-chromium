@@ -340,13 +340,17 @@ bool Upgrade::SwapNewChromeExeIfPresent() {
   return false;
 }
 
-void OpenFirstRunDialog(Profile* profile,
+bool OpenFirstRunDialog(Profile* profile,
                         ProcessSingleton* process_singleton) {
   DCHECK(profile);
   DCHECK(process_singleton);
 
+  // We need the FirstRunView to outlive its parent, as we retrieve the accept
+  // state from it after the dialog has been closed.
+  scoped_ptr<FirstRunView> first_run_view(new FirstRunView(profile));
+  first_run_view->SetParentOwned(false);
   views::Window* first_run_ui = views::Window::CreateChromeWindow(
-      NULL, gfx::Rect(), new FirstRunView(profile));
+      NULL, gfx::Rect(), first_run_view.get());
   DCHECK(first_run_ui);
 
   // We need to avoid dispatching new tabs when we are doing the import
@@ -363,6 +367,8 @@ void OpenFirstRunDialog(Profile* profile,
   // that keyboard accelerators (Enter, Esc, etc) work in the dialog box.
   MessageLoopForUI::current()->Run(g_browser_process->accelerator_handler());
   process_singleton->Unlock();
+
+  return first_run_view->accepted();
 }
 
 namespace {

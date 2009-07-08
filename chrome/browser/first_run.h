@@ -148,6 +148,8 @@ class FirstRunBrowserProcess : public BrowserProcessImpl {
 // |profile| and perhaps some other tasks.
 // |process_singleton| is used to lock the handling of CopyData messages
 // while the First Run UI is visible.
-void OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton);
+// Returns true if the user clicked "Start", false if the user pressed "Cancel"
+// or closed the dialog.
+bool OpenFirstRunDialog(Profile* profile, ProcessSingleton* process_singleton);
 
 #endif  // CHROME_BROWSER_FIRST_RUN_H_
