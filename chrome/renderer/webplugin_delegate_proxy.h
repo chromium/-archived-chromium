@@ -60,7 +60,7 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   virtual void DidFinishLoadWithReason(NPReason reason);
   virtual void SetFocus();
   virtual bool HandleInputEvent(const WebKit::WebInputEvent& event,
-                                WebCursor* cursor);
+                                WebKit::WebCursorInfo* cursor);
   virtual int GetProcessId();
 
   // IPC::Channel::Listener implementation:

@@ -237,7 +237,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   virtual void Focus(WebWidget* webwidget);
   virtual void Blur(WebWidget* webwidget);
   virtual void SetCursor(WebWidget* webwidget,
-                         const WebCursor& cursor);
+                         const WebKit::WebCursorInfo& cursor);
   virtual void GetWindowRect(WebWidget* webwidget, WebKit::WebRect* rect);
   virtual void SetWindowRect(WebWidget* webwidget,
                              const WebKit::WebRect& rect);

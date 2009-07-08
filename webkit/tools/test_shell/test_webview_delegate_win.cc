@@ -19,6 +19,7 @@
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
+#include "webkit/api/public/WebCursorInfo.h"
 #include "webkit/api/public/WebRect.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webframe.h"
@@ -34,6 +35,7 @@
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
+using WebKit::WebCursorInfo;
 using WebKit::WebRect;
 
 // WebViewDelegate -----------------------------------------------------------
@@ -97,9 +99,9 @@ void TestWebViewDelegate::CloseWidgetSoon(WebWidget* webwidget) {
 }
 
 void TestWebViewDelegate::SetCursor(WebWidget* webwidget,
-                                    const WebCursor& cursor) {
+                                    const WebCursorInfo& cursor_info) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
-    current_cursor_ = cursor;
+    current_cursor_.InitFromCursorInfo(cursor_info);
     HINSTANCE mod_handle = GetModuleHandle(NULL);
     host->SetCursor(current_cursor_.GetCursor(mod_handle));
   }

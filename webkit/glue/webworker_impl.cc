@@ -33,10 +33,11 @@
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/webworker_impl.h"
 
-using WebKit::WebWorker;
-using WebKit::WebWorkerClient;
+using WebKit::WebCursorInfo;
 using WebKit::WebString;
 using WebKit::WebURL;
+using WebKit::WebWorker;
+using WebKit::WebWorkerClient;
 
 #if ENABLE(WORKERS)
 
@@ -69,7 +70,7 @@ class WorkerWebViewDelegate : public WebViewDelegate {
   virtual void GetWindowRect(WebWidget *webwidget, WebKit::WebRect *rect) { }
   virtual bool IsHidden(WebWidget *webwidget) { return true; }
   virtual void RunModal(WebWidget *webwidget) { }
-  virtual void SetCursor(WebWidget *webwidget, const WebCursor &cursor) { }
+  virtual void SetCursor(WebWidget *webwidget, const WebCursorInfo &cursor) { }
   virtual void SetWindowRect(WebWidget *webwidget,
                              const WebKit::WebRect &rect) { }
   virtual void Show(WebWidget *webwidget, WindowOpenDisposition disposition) { }

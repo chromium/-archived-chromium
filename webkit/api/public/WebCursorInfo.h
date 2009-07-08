@@ -1,10 +1,10 @@
 /*
  * Copyright (C) 2009 Google Inc. All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
  *     * Neither the name of Google Inc. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -31,10 +31,12 @@
 #ifndef WebCursorInfo_h
 #define WebCursorInfo_h
 
-#error "This header file is still a work in progress; do not include!"
-
 #include "WebImage.h"
 #include "WebPoint.h"
+
+#if WEBKIT_IMPLEMENTATION
+namespace WebCore { class Cursor; }
+#endif
 
 #ifdef WIN32
 typedef struct HICON__* HICON;
@@ -91,7 +93,7 @@ namespace WebKit {
 
         Type type;
         WebPoint hotSpot;
-        WebImage customData;
+        WebImage customImage;
 
 #ifdef WIN32
         // On Windows, TypeCustom may alternatively reference an externally
@@ -99,6 +101,18 @@ namespace WebKit {
         // null, then customData should be ignored.  The WebCursorInfo is not
         // responsible for managing the lifetime of this cursor handle.
         HCURSOR externalHandle;
+#endif
+
+        explicit WebCursorInfo(Type type = TypePointer)
+            : type(type)
+        {
+#ifdef WIN32
+            externalHandle = 0;
+#endif
+        }
+
+#if WEBKIT_IMPLEMENTATION
+        explicit WebCursorInfo(const WebCore::Cursor&);
 #endif
     };
 

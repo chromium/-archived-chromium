@@ -36,6 +36,7 @@ MSVC_POP_WARNING();
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "googleurl/src/gurl.h"
+#include "webkit/api/public/WebCursorInfo.h"
 #include "webkit/api/public/WebInputEvent.h"
 #include "webkit/api/public/WebKit.h"
 #include "webkit/api/public/WebRect.h"
@@ -48,6 +49,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/webview_impl.h"
 #include "webkit/glue/webwidget_impl.h"
 
+using WebKit::WebCursorInfo;
 using WebKit::WebInputEvent;
 using WebKit::WebMouseEvent;
 using WebKit::WebRect;
@@ -603,7 +605,7 @@ void ChromeClientImpl::popupOpenedInternal(
                            popup_items);
 }
 
-void ChromeClientImpl::SetCursor(const WebCursor& cursor) {
+void ChromeClientImpl::SetCursor(const WebCursorInfo& cursor) {
   if (ignore_next_set_cursor_) {
     ignore_next_set_cursor_ = false;
     return;
@@ -614,7 +616,7 @@ void ChromeClientImpl::SetCursor(const WebCursor& cursor) {
     delegate->SetCursor(webview_, cursor);
 }
 
-void ChromeClientImpl::SetCursorForPlugin(const WebCursor& cursor) {
+void ChromeClientImpl::SetCursorForPlugin(const WebCursorInfo& cursor) {
   SetCursor(cursor);
   // Currently, Widget::setCursor is always called after this function in
   // EventHandler.cpp and since we don't want that we set a flag indicating

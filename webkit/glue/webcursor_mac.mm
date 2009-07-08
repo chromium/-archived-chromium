@@ -6,14 +6,15 @@
 
 #import <AppKit/AppKit.h>
 
-#include "config.h"
-#include "PlatformCursor.h"
-#include "RetainPtr.h"
-
-#undef LOG
 #include "base/logging.h"
+#include "base/scoped_cftyperef.h"
+#include "webkit/api/public/WebCursorInfo.h"
+#include "webkit/api/public/WebImage.h"
+#include "webkit/api/public/WebSize.h"
 
-using WebCore::PlatformCursor;
+using WebKit::WebCursorInfo;
+using WebKit::WebImage;
+using WebKit::WebSize;
 
 namespace {
 
@@ -27,149 +28,169 @@ NSCursor* LoadCursor(const char* name, int x, int y) {
                                   hotSpot:NSMakePoint(x, y)] autorelease];
 }
 
+CGImageRef CreateCGImageFromCustomData(const std::vector<char>& custom_data,
+                                       const gfx::Size& custom_size) {
+  scoped_cftyperef<CGColorSpaceRef> cg_color(CGColorSpaceCreateDeviceRGB());
+  // this is safe since we're not going to draw into the context we're creating
+  void* data = const_cast<char*>(&custom_data[0]);
+  // settings here match SetCustomData() below; keep in sync
+  scoped_cftyperef<CGContextRef> context(
+      CGBitmapContextCreate(data,
+                            custom_size.width(),
+                            custom_size.height(),
+                            8,
+                            custom_size.width()*4,
+                            cg_color.get(),
+                            kCGImageAlphaPremultipliedLast |
+                            kCGBitmapByteOrder32Big));
+  return CGBitmapContextCreateImage(context.get());
+}
+
 NSCursor* CreateCustomCursor(const std::vector<char>& custom_data,
                              const gfx::Size& custom_size,
                              const gfx::Point& hotspot) {
-  RetainPtr<CGColorSpace> cg_color(AdoptCF, CGColorSpaceCreateDeviceRGB());
-  // this is safe since we're not going to draw into the context we're creating
-  void* data = const_cast<void *>(static_cast<const void*>(&custom_data[0]));
-  // settings here match SetCustomData() below; keep in sync
-  RetainPtr<CGContextRef> context(AdoptCF, CGBitmapContextCreate(
-                                             data,
-                                             custom_size.width(),
-                                             custom_size.height(),
-                                             8,
-                                             custom_size.width()*4,
-                                             cg_color.get(),
-                                             kCGImageAlphaPremultipliedLast |
-                                             kCGBitmapByteOrder32Big));
-  RetainPtr<CGImage> cg_image(AdoptCF,
-                              CGBitmapContextCreateImage(context.get()));
+  scoped_cftyperef<CGImageRef> cg_image(
+      CreateCGImageFromCustomData(custom_data, custom_size));
 
-  RetainPtr<NSBitmapImageRep> ns_bitmap(
-      AdoptNS, [[NSBitmapImageRep alloc] initWithCGImage:cg_image.get()]);
-  RetainPtr<NSImage> cursor_image([[NSImage alloc] init]);
-  [cursor_image.get() addRepresentation:ns_bitmap.get()];
+  NSBitmapImageRep* ns_bitmap =
+      [[NSBitmapImageRep alloc] initWithCGImage:cg_image.get()];
+  NSImage* cursor_image = [[NSImage alloc] init];
   DCHECK(cursor_image);
-  return [[[NSCursor alloc] initWithImage:cursor_image.get()
-                                  hotSpot:NSMakePoint(hotspot.x(),
-                                                      hotspot.y())]
-          autorelease];
+  [cursor_image addRepresentation:ns_bitmap];
+  [ns_bitmap release];
+
+  NSCursor* cursor = [[NSCursor alloc] initWithImage:cursor_image
+                                             hotSpot:NSMakePoint(hotspot.x(),
+                                                                 hotspot.y())];
+  [cursor_image release];
+
+  return [cursor autorelease];
 }
 
-}
+}  // namespace
 
 // We're matching Safari's cursor choices; see platform/mac/CursorMac.mm
 NSCursor* WebCursor::GetCursor() const {
   switch (type_) {
-    case PlatformCursor::TypePointer:
+    case WebCursorInfo::TypePointer:
       return [NSCursor arrowCursor];
-    case PlatformCursor::TypeCross:
+    case WebCursorInfo::TypeCross:
       return LoadCursor("crossHairCursor", 11, 11);
-    case PlatformCursor::TypeHand:
+    case WebCursorInfo::TypeHand:
       return LoadCursor("linkCursor", 6, 1);
-    case PlatformCursor::TypeIBeam:
+    case WebCursorInfo::TypeIBeam:
       return [NSCursor IBeamCursor];
-    case PlatformCursor::TypeWait:
+    case WebCursorInfo::TypeWait:
       return LoadCursor("waitCursor", 7, 7);
-    case PlatformCursor::TypeHelp:
+    case WebCursorInfo::TypeHelp:
       return LoadCursor("helpCursor", 8, 8);
-    case PlatformCursor::TypeEastResize:
-    case PlatformCursor::TypeEastPanning:
+    case WebCursorInfo::TypeEastResize:
+    case WebCursorInfo::TypeEastPanning:
       return LoadCursor("eastResizeCursor", 14, 7);
-    case PlatformCursor::TypeNorthResize:
-    case PlatformCursor::TypeNorthPanning:
+    case WebCursorInfo::TypeNorthResize:
+    case WebCursorInfo::TypeNorthPanning:
       return LoadCursor("northResizeCursor", 7, 1);
-    case PlatformCursor::TypeNorthEastResize:
-    case PlatformCursor::TypeNorthEastPanning:
+    case WebCursorInfo::TypeNorthEastResize:
+    case WebCursorInfo::TypeNorthEastPanning:
       return LoadCursor("northEastResizeCursor", 14, 1);
-    case PlatformCursor::TypeNorthWestResize:
-    case PlatformCursor::TypeNorthWestPanning:
+    case WebCursorInfo::TypeNorthWestResize:
+    case WebCursorInfo::TypeNorthWestPanning:
       return LoadCursor("northWestResizeCursor", 0, 0);
-    case PlatformCursor::TypeSouthResize:
-    case PlatformCursor::TypeSouthPanning:
+    case WebCursorInfo::TypeSouthResize:
+    case WebCursorInfo::TypeSouthPanning:
       return LoadCursor("southResizeCursor", 7, 14);
-    case PlatformCursor::TypeSouthEastResize:
-    case PlatformCursor::TypeSouthEastPanning:
+    case WebCursorInfo::TypeSouthEastResize:
+    case WebCursorInfo::TypeSouthEastPanning:
       return LoadCursor("southEastResizeCursor", 14, 14);
-    case PlatformCursor::TypeSouthWestResize:
-    case PlatformCursor::TypeSouthWestPanning:
+    case WebCursorInfo::TypeSouthWestResize:
+    case WebCursorInfo::TypeSouthWestPanning:
       return LoadCursor("southWestResizeCursor", 1, 14);
-    case PlatformCursor::TypeWestResize:
-    case PlatformCursor::TypeWestPanning:
+    case WebCursorInfo::TypeWestResize:
+    case WebCursorInfo::TypeWestPanning:
       return LoadCursor("westResizeCursor", 1, 7);
-    case PlatformCursor::TypeNorthSouthResize:
+    case WebCursorInfo::TypeNorthSouthResize:
       return LoadCursor("northSouthResizeCursor", 7, 7);
-    case PlatformCursor::TypeEastWestResize:
+    case WebCursorInfo::TypeEastWestResize:
       return LoadCursor("eastWestResizeCursor", 7, 7);
-    case PlatformCursor::TypeNorthEastSouthWestResize:
+    case WebCursorInfo::TypeNorthEastSouthWestResize:
       return LoadCursor("northEastSouthWestResizeCursor", 7, 7);
-    case PlatformCursor::TypeNorthWestSouthEastResize:
+    case WebCursorInfo::TypeNorthWestSouthEastResize:
       return LoadCursor("northWestSouthEastResizeCursor", 7, 7);
-    case PlatformCursor::TypeColumnResize:
+    case WebCursorInfo::TypeColumnResize:
       return [NSCursor resizeLeftRightCursor];
-    case PlatformCursor::TypeRowResize:
+    case WebCursorInfo::TypeRowResize:
       return [NSCursor resizeUpDownCursor];
-    case PlatformCursor::TypeMiddlePanning:
-    case PlatformCursor::TypeMove:
+    case WebCursorInfo::TypeMiddlePanning:
+    case WebCursorInfo::TypeMove:
       return LoadCursor("moveCursor", 7, 7);
-    case PlatformCursor::TypeVerticalText:
+    case WebCursorInfo::TypeVerticalText:
       return LoadCursor("verticalTextCursor", 7, 7);
-    case PlatformCursor::TypeCell:
+    case WebCursorInfo::TypeCell:
       return LoadCursor("cellCursor", 7, 7);
-    case PlatformCursor::TypeContextMenu:
+    case WebCursorInfo::TypeContextMenu:
       return LoadCursor("contextMenuCursor", 3, 2);
-    case PlatformCursor::TypeAlias:
+    case WebCursorInfo::TypeAlias:
       return LoadCursor("aliasCursor", 11, 3);
-    case PlatformCursor::TypeProgress:
+    case WebCursorInfo::TypeProgress:
       return LoadCursor("progressCursor", 3, 2);
-    case PlatformCursor::TypeNoDrop:
+    case WebCursorInfo::TypeNoDrop:
       return LoadCursor("noDropCursor", 3, 1);
-    case PlatformCursor::TypeCopy:
+    case WebCursorInfo::TypeCopy:
       return LoadCursor("copyCursor", 3, 2);
-    case PlatformCursor::TypeNone:
+    case WebCursorInfo::TypeNone:
       return LoadCursor("noneCursor", 7, 7);
-    case PlatformCursor::TypeNotAllowed:
+    case WebCursorInfo::TypeNotAllowed:
       return LoadCursor("notAllowedCursor", 11, 11);
-    case PlatformCursor::TypeZoomIn:
+    case WebCursorInfo::TypeZoomIn:
       return LoadCursor("zoomInCursor", 7, 7);
-    case PlatformCursor::TypeZoomOut:
+    case WebCursorInfo::TypeZoomOut:
       return LoadCursor("zoomOutCursor", 7, 7);
-    case PlatformCursor::TypeCustom:
+    case WebCursorInfo::TypeCustom:
       return CreateCustomCursor(custom_data_, custom_size_, hotspot_);
   }
   NOTREACHED();
   return nil;
 }
 
-void WebCursor::SetCustomData(WebCore::Image* image) {
-  WebCore::NativeImagePtr image_ptr = image->nativeImageForCurrentFrame();
-  if (!image_ptr)
+void WebCursor::SetCustomData(const WebImage& image) {
+  if (image.isNull())
     return;
 
-  RetainPtr<CGColorSpace> cg_color(AdoptCF, CGColorSpaceCreateDeviceRGB());
+  scoped_cftyperef<CGColorSpaceRef> cg_color(
+      CGColorSpaceCreateDeviceRGB());
 
-  size_t size = CGImageGetHeight(image_ptr)*CGImageGetWidth(image_ptr)*4;
+  const WebSize& image_dimensions = image.size();
+  int image_width = image_dimensions.width;
+  int image_height = image_dimensions.height;
+
+  size_t size = image_height * image_width * 4;
   custom_data_.resize(size);
-  custom_size_.set_width(CGImageGetWidth(image_ptr));
-  custom_size_.set_height(CGImageGetHeight(image_ptr));
+  custom_size_.set_width(image_width);
+  custom_size_.set_height(image_height);
 
   // These settings match up with the code in CreateCustomCursor() above; keep
   // them in sync.
   // TODO(avi): test to ensure that the flags here are correct for RGBA
-  RetainPtr<CGContextRef> context(AdoptCF, CGBitmapContextCreate(
-                                               &custom_data_[0],
-                                               CGImageGetWidth(image_ptr),
-                                               CGImageGetHeight(image_ptr),
-                                               8,
-                                               CGImageGetWidth(image_ptr)*4,
-                                               cg_color.get(),
-                                               kCGImageAlphaPremultipliedLast |
-                                               kCGBitmapByteOrder32Big));
-  CGRect rect = CGRectMake(0, 0,
-                           CGImageGetWidth(image_ptr),
-                           CGImageGetHeight(image_ptr));
-  CGContextDrawImage(context.get(), rect, image_ptr);
+  scoped_cftyperef<CGContextRef> context(
+      CGBitmapContextCreate(&custom_data_[0],
+                            image_width,
+                            image_height,
+                            8,
+                            image_width * 4,
+                            cg_color.get(),
+                            kCGImageAlphaPremultipliedLast |
+                            kCGBitmapByteOrder32Big));
+  CGRect rect = CGRectMake(0, 0, image_width, image_height);
+  CGContextDrawImage(context.get(), rect, image.getCGImageRef());
+}
+
+void WebCursor::ImageFromCustomData(WebImage* image) const {
+  if (custom_data_.empty())
+    return;
+
+  scoped_cftyperef<CGImageRef> cg_image(
+      CreateCGImageFromCustomData(custom_data_, custom_size_));
+  *image = cg_image.get();
 }
 
 void WebCursor::InitPlatformData() {

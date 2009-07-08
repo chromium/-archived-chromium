@@ -4,28 +4,25 @@
 
 #include "webkit/glue/webcursor.h"
 
-#include "config.h"
-#include "NativeImageSkia.h"
-#include "PlatformCursor.h"
-
-#undef LOG
 #include "base/logging.h"
 #include "base/pickle.h"
+#include "webkit/api/public/WebCursorInfo.h"
+#include "webkit/api/public/WebImage.h"
+
+using WebKit::WebCursorInfo;
+using WebKit::WebImage;
 
 static const int kMaxCursorDimension = 1024;
 
 WebCursor::WebCursor()
-    : type_(WebCore::PlatformCursor::TypePointer) {
+    : type_(WebCursorInfo::TypePointer) {
   InitPlatformData();
 }
 
-WebCursor::WebCursor(const WebCore::PlatformCursor& platform_cursor)
-    : type_(platform_cursor.type()),
-      hotspot_(platform_cursor.hotSpot().x(), platform_cursor.hotSpot().y()) {
-  if (IsCustom())
-    SetCustomData(platform_cursor.customImage().get());
-
+WebCursor::WebCursor(const WebCursorInfo& cursor_info)
+    : type_(WebCursorInfo::TypePointer) {
   InitPlatformData();
+  InitFromCursorInfo(cursor_info);
 }
 
 WebCursor::~WebCursor() {
@@ -44,6 +41,32 @@ const WebCursor& WebCursor::operator=(const WebCursor& other) {
   Clear();
   Copy(other);
   return *this;
+}
+
+void WebCursor::InitFromCursorInfo(const WebCursorInfo& cursor_info) {
+  Clear();
+
+#if defined(OS_WIN)
+  if (cursor_info.externalHandle) {
+    InitFromExternalCursor(cursor_info.externalHandle);
+    return;
+  }
+#endif
+
+  type_ = cursor_info.type;
+  hotspot_ = cursor_info.hotSpot;
+  if (IsCustom())
+    SetCustomData(cursor_info.customImage);
+}
+
+void WebCursor::GetCursorInfo(WebCursorInfo* cursor_info) const {
+  cursor_info->type = static_cast<WebCursorInfo::Type>(type_);
+  cursor_info->hotSpot = hotspot_;
+  ImageFromCustomData(&cursor_info->customImage);
+
+#if defined(OS_WIN)
+  cursor_info->externalHandle = external_cursor_;
+#endif
 }
 
 bool WebCursor::Deserialize(const Pickle* pickle, void** iter) {
@@ -102,7 +125,7 @@ bool WebCursor::Serialize(Pickle* pickle) const {
 }
 
 bool WebCursor::IsCustom() const {
-  return type_ == WebCore::PlatformCursor::TypeCustom;
+  return type_ == WebCursorInfo::TypeCustom;
 }
 
 bool WebCursor::IsEqual(const WebCursor& other) const {
@@ -118,7 +141,7 @@ bool WebCursor::IsEqual(const WebCursor& other) const {
 }
 
 void WebCursor::Clear() {
-  type_ = WebCore::PlatformCursor::TypePointer;
+  type_ = WebCursorInfo::TypePointer;
   hotspot_.set_x(0);
   hotspot_.set_y(0);
   custom_size_.set_width(0);
@@ -135,23 +158,33 @@ void WebCursor::Copy(const WebCursor& other) {
   CopyPlatformData(other);
 }
 
-#if !defined(OS_MACOSX)
-// The Mac version of Chromium is built with PLATFORM(CG) while all other
-// versions are PLATFORM(SKIA). We'll keep this Skia implementation here for
-// common use and put the Mac implementation in webcursor_mac.mm.
-void WebCursor::SetCustomData(WebCore::Image* image) {
-  if (!image)
-    return;
-
-  WebCore::NativeImagePtr image_ptr = image->nativeImageForCurrentFrame();
-  if (!image_ptr)
+#if WEBKIT_USING_SKIA
+// The WEBKIT_USING_CG implementation is in webcursor_mac.mm.
+void WebCursor::SetCustomData(const WebImage& image) {
+  if (image.isNull())
     return;
 
   // Fill custom_data_ directly with the NativeImage pixels.
-  SkAutoLockPixels bitmap_lock(*image_ptr);
-  custom_data_.resize(image_ptr->getSize());
-  memcpy(&custom_data_[0], image_ptr->getPixels(), image_ptr->getSize());
-  custom_size_.set_width(image_ptr->width());
-  custom_size_.set_height(image_ptr->height());
+  const SkBitmap& bitmap = image.getSkBitmap();
+  SkAutoLockPixels bitmap_lock(bitmap);
+  custom_data_.resize(bitmap.getSize());
+  memcpy(&custom_data_[0], bitmap.getPixels(), bitmap.getSize());
+  custom_size_.set_width(bitmap.width());
+  custom_size_.set_height(bitmap.height());
+}
+
+void WebCursor::ImageFromCustomData(WebImage* image) const {
+  if (custom_data_.empty())
+    return;
+
+  SkBitmap bitmap;
+  bitmap.setConfig(SkBitmap::kARGB_8888_Config,
+                   custom_size_.width(),
+                   custom_size_.height());
+  if (!bitmap.allocPixels())
+    return;
+  memcpy(bitmap.getPixels(), &custom_data_[0], custom_data_.size());
+
+  image->assign(bitmap);
 }
 #endif

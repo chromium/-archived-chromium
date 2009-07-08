@@ -24,6 +24,7 @@
 #include "webkit/glue/plugins/plugin_stream_url.h"
 #include "webkit/glue/webkit_glue.h"
 
+using WebKit::WebCursorInfo;
 using WebKit::WebKeyboardEvent;
 using WebKit::WebInputEvent;
 using WebKit::WebMouseEvent;
@@ -400,7 +401,7 @@ void WebPluginDelegateImpl::SetFocus() {
 }
 
 bool WebPluginDelegateImpl::HandleInputEvent(const WebInputEvent& event,
-                                             WebCursor* cursor) {
+                                             WebCursorInfo* cursor) {
   DCHECK(windowless_) << "events should only be received in windowless mode";
   DCHECK(cursor != NULL);
   // TODO: convert event into a NPEvent, and call NPP_HandleEvent(np_event).

@@ -15,6 +15,7 @@
 #include "chrome/renderer/render_process.h"
 #include "skia/ext/platform_canvas.h"
 #include "third_party/skia/include/core/SkShader.h"
+#include "webkit/api/public/WebCursorInfo.h"
 #include "webkit/api/public/WebRect.h"
 #include "webkit/api/public/WebScreenInfo.h"
 #include "webkit/api/public/WebSize.h"
@@ -27,6 +28,7 @@
 #include "webkit/glue/webtextdirection.h"
 #include "webkit/glue/webwidget.h"
 
+using WebKit::WebCursorInfo;
 using WebKit::WebInputEvent;
 using WebKit::WebRect;
 using WebKit::WebScreenInfo;
@@ -561,7 +563,11 @@ void RenderWidget::DidScrollRect(WebWidget* webwidget, int dx, int dy,
       this, &RenderWidget::DoDeferredScroll));
 }
 
-void RenderWidget::SetCursor(WebWidget* webwidget, const WebCursor& cursor) {
+void RenderWidget::SetCursor(WebWidget* webwidget,
+                             const WebCursorInfo& cursor_info) {
+  // TODO(darin): Eliminate this temporary.
+  WebCursor cursor(cursor_info);
+
   // Only send a SetCursor message if we need to make a change.
   if (!current_cursor_.IsEqual(cursor)) {
     current_cursor_ = cursor;

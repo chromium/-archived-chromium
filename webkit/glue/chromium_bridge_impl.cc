@@ -31,11 +31,11 @@
 #include "build/build_config.h"
 #include "googleurl/src/url_util.h"
 #include "skia/ext/skia_utils_win.h"
+#include "webkit/api/public/WebCursorInfo.h"
 #include "webkit/api/public/WebScreenInfo.h"
 #include "webkit/glue/chrome_client_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/plugins/plugin_instance.h"
-#include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin_impl.h"
 #include "webkit/glue/webview_impl.h"
@@ -43,9 +43,10 @@
 #if defined(OS_WIN)
 #include <windows.h>
 #include <vssym32.h>
-
 #include "base/gfx/native_theme.h"
 #endif
+
+using WebKit::WebCursorInfo;
 
 namespace {
 
@@ -176,7 +177,7 @@ IntRect ChromiumBridge::screenAvailableRect(Widget* widget) {
 void ChromiumBridge::widgetSetCursor(Widget* widget, const Cursor& cursor) {
   ChromeClientImpl* chrome_client = ToChromeClient(widget);
   if (chrome_client)
-    chrome_client->SetCursor(WebCursor(cursor.impl()));
+    chrome_client->SetCursor(webkit_glue::CursorToWebCursorInfo(cursor));
 }
 
 void ChromiumBridge::widgetSetFocus(Widget* widget) {

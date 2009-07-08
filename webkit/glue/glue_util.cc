@@ -32,6 +32,7 @@
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "googleurl/src/gurl.h"
+#include "webkit/api/public/WebCursorInfo.h"
 #include "webkit/api/public/WebDragData.h"
 #include "webkit/api/public/WebForm.h"
 #include "webkit/api/public/WebHistoryItem.h"
@@ -228,6 +229,12 @@ WebCore::IntSize WebSizeToIntSize(const WebKit::WebSize& size) {
 
 WebKit::WebSize IntSizeToWebSize(const WebCore::IntSize& size) {
   return size;
+}
+
+// Cursor conversions ----------------------------------------------------------
+
+WebKit::WebCursorInfo CursorToWebCursorInfo(const WebCore::Cursor& cursor) {
+  return WebKit::WebCursorInfo(cursor);
 }
 
 // DragData conversions --------------------------------------------------------

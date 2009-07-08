@@ -15,6 +15,7 @@
 #include "base/string_util.h"
 #include "net/base/net_errors.h"
 #include "chrome/common/page_transition_types.h"
+#include "webkit/api/public/WebCursorInfo.h"
 #include "webkit/api/public/WebRect.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webdropdata.h"
@@ -30,6 +31,7 @@
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
+using WebKit::WebCursorInfo;
 using WebKit::WebRect;
 
 namespace {
@@ -145,8 +147,8 @@ void TestWebViewDelegate::CloseWidgetSoon(WebWidget* webwidget) {
 }
 
 void TestWebViewDelegate::SetCursor(WebWidget* webwidget,
-                                    const WebCursor& cursor) {
-  current_cursor_ = cursor;
+                                    const WebCursorInfo& cursor_info) {
+  current_cursor_.InitFromCursorInfo(cursor_info);
   GdkCursorType cursor_type = current_cursor_.GetCursorType();
   GdkCursor* gdk_cursor;
   if (cursor_type == GDK_CURSOR_IS_PIXMAP) {

@@ -7,6 +7,7 @@
 #import <Cocoa/Cocoa.h>
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
+#include "webkit/api/public/WebCursorInfo.h"
 #include "webkit/api/public/WebRect.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webview.h"
@@ -15,6 +16,7 @@
 #include "webkit/glue/webmenurunner_mac.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
+using WebKit::WebCursorInfo;
 using WebKit::WebRect;
 
 // WebViewDelegate -----------------------------------------------------------
@@ -123,8 +125,8 @@ void TestWebViewDelegate::CloseWidgetSoon(WebWidget* webwidget) {
 }
 
 void TestWebViewDelegate::SetCursor(WebWidget* webwidget,
-                                    const WebCursor& cursor) {
-  NSCursor* ns_cursor = cursor.GetCursor();
+                                    const WebCursorInfo& cursor_info) {
+  NSCursor* ns_cursor = WebCursor(cursor_info).GetCursor();
   [ns_cursor set];
 }
 

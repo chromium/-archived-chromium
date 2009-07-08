@@ -16,14 +16,15 @@
 #include "webkit/api/public/WebInputEvent.h"
 #include "webkit/default_plugin/plugin_impl.h"
 #include "webkit/glue/glue_util.h"
-#include "webkit/glue/webplugin.h"
 #include "webkit/glue/plugins/plugin_constants_win.h"
 #include "webkit/glue/plugins/plugin_instance.h"
 #include "webkit/glue/plugins/plugin_lib.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/plugins/plugin_stream_url.h"
 #include "webkit/glue/webkit_glue.h"
+#include "webkit/glue/webplugin.h"
 
+using WebKit::WebCursorInfo;
 using WebKit::WebKeyboardEvent;
 using WebKit::WebInputEvent;
 using WebKit::WebMouseEvent;
@@ -1106,9 +1107,9 @@ static bool NPEventFromWebInputEvent(const WebInputEvent& event,
 }
 
 bool WebPluginDelegateImpl::HandleInputEvent(const WebInputEvent& event,
-                                             WebCursor* cursor) {
+                                             WebCursorInfo* cursor_info) {
   DCHECK(windowless_) << "events should only be received in windowless mode";
-  DCHECK(cursor != NULL);
+  DCHECK(cursor_info != NULL);
 
   NPEvent np_event;
   if (!NPEventFromWebInputEvent(event, &np_event)) {
@@ -1153,7 +1154,7 @@ bool WebPluginDelegateImpl::HandleInputEvent(const WebInputEvent& event,
     // Snag a reference to the current cursor ASAP in case the plugin modified
     // it. There is a nasty race condition here with the multiprocess browser
     // as someone might be setting the cursor in the main process as well.
-    *cursor = current_windowless_cursor_;
+    current_windowless_cursor_.GetCursorInfo(cursor_info);
   }
 
   if (pop_user_gesture) {

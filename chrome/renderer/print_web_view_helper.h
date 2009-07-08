@@ -81,7 +81,8 @@ class PrintWebViewHelper : public WebViewDelegate {
   virtual void CloseWidgetSoon(WebWidget* webwidget) {}
   virtual void Focus(WebWidget* webwidget) {}
   virtual void Blur(WebWidget* webwidget) {}
-  virtual void SetCursor(WebWidget* webwidget, const WebCursor& cursor) {}
+  virtual void SetCursor(WebWidget* webwidget,
+                         const WebKit::WebCursorInfo& cursor) {}
   virtual void GetWindowRect(WebWidget* webwidget, WebKit::WebRect* rect);
   virtual void SetWindowRect(WebWidget* webwidget,
                              const WebKit::WebRect& rect) {}

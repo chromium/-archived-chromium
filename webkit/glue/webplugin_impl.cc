@@ -4,7 +4,6 @@
 
 #include "config.h"
 
-#include "Cursor.h"
 #include "Document.h"
 #include "DocumentLoader.h"
 #include "Event.h"
@@ -48,6 +47,7 @@
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "net/base/escape.h"
+#include "webkit/api/public/WebCursorInfo.h"
 #include "webkit/api/public/WebData.h"
 #include "webkit/api/public/WebHTTPBody.h"
 #include "webkit/api/public/WebInputEvent.h"
@@ -62,7 +62,6 @@
 #include "webkit/glue/event_conversion.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/multipart_response_delegate.h"
-#include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin_impl.h"
 #include "webkit/glue/plugins/plugin_host.h"
@@ -72,6 +71,7 @@
 #include "webkit/glue/webview_impl.h"
 #include "googleurl/src/gurl.h"
 
+using WebKit::WebCursorInfo;
 using WebKit::WebData;
 using WebKit::WebHTTPBody;
 using WebKit::WebInputEvent;
@@ -878,8 +878,8 @@ void WebPluginImpl::handleMouseEvent(WebCore::MouseEvent* event) {
   // TODO(pkasting): http://b/1119691 This conditional seems exactly backwards,
   // but it matches Safari's code, and if I reverse it, giving focus to a
   // transparent (windowless) plugin fails.
-  WebCursor cursor;
-  if (!delegate_->HandleInputEvent(web_event, &cursor))
+  WebCursorInfo cursor_info;
+  if (!delegate_->HandleInputEvent(web_event, &cursor_info))
     event->setDefaultHandled();
 
   WebCore::Page* page = parent_view->frame()->page();
@@ -892,7 +892,7 @@ void WebPluginImpl::handleMouseEvent(WebCore::MouseEvent* event) {
   // A windowless plugin can change the cursor in response to the WM_MOUSEMOVE
   // event. We need to reflect the changed cursor in the frame view as the
   // mouse is moved in the boundaries of the windowless plugin.
-  chrome_client->SetCursorForPlugin(cursor);
+  chrome_client->SetCursorForPlugin(cursor_info);
 }
 
 void WebPluginImpl::handleKeyboardEvent(WebCore::KeyboardEvent* event) {
@@ -900,8 +900,8 @@ void WebPluginImpl::handleKeyboardEvent(WebCore::KeyboardEvent* event) {
   if (!ToWebKeyboardEvent(*event, &web_event))
     return;
   // TODO(pkasting): http://b/1119691 See above.
-  WebCursor current_web_cursor;
-  if (!delegate_->HandleInputEvent(web_event, &current_web_cursor))
+  WebCursorInfo cursor_info;
+  if (!delegate_->HandleInputEvent(web_event, &cursor_info))
     event->setDefaultHandled();
 }
 

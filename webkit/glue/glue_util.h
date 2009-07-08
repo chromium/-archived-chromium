@@ -13,6 +13,7 @@ class GURL;
 namespace WebCore {
 class ChromiumDataObject;
 class CString;
+class Cursor;
 class HistoryItem;
 class HTMLFormElement;
 class IntPoint;
@@ -36,6 +37,7 @@ class WebString;
 class WebURL;
 class WebURLRequest;
 class WebURLResponse;
+struct WebCursorInfo;
 struct WebPoint;
 struct WebRect;
 struct WebSize;
@@ -114,6 +116,9 @@ WebKit::WebRect IntRectToWebRect(const WebCore::IntRect&);
 // WebSize <-> IntSize
 WebCore::IntSize WebSizeToIntSize(const WebKit::WebSize&);
 WebKit::WebSize IntSizeToWebSize(const WebCore::IntSize&);
+
+// WebCursorInfo <- Cursor
+WebKit::WebCursorInfo CursorToWebCursorInfo(const WebCore::Cursor&);
 
 // WebDragData <-> ChromiumDataObject
 WebKit::WebDragData ChromiumDataObjectToWebDragData(

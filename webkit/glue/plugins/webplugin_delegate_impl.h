@@ -16,16 +16,16 @@
 #include "base/ref_counted.h"
 #include "base/task.h"
 #include "third_party/npapi/bindings/npapi.h"
-#include "webkit/glue/webplugin_delegate.h"
 #include "webkit/glue/webcursor.h"
+#include "webkit/glue/webplugin_delegate.h"
 
 #if defined(OS_LINUX)
 typedef struct _GdkDrawable GdkPixmap;
 #endif
 
 namespace NPAPI {
-  class PluginInstance;
-};
+class PluginInstance;
+}
 
 // An implementation of WebPluginDelegate that proxies all calls to
 // the plugin process.
@@ -56,7 +56,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   // only called when windowless
   // See NPAPI NPP_HandleEvent for more information.
   virtual bool HandleInputEvent(const WebKit::WebInputEvent& event,
-                                WebCursor* cursor);
+                                WebKit::WebCursorInfo* cursor);
   virtual NPObject* GetPluginScriptableObject();
   virtual void DidFinishLoadWithReason(NPReason reason);
   virtual int GetProcessId();

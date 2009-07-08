@@ -39,6 +39,11 @@
 typedef struct CGImage* CGImageRef;
 #endif
 
+#if WEBKIT_IMPLEMENTATION
+namespace WebCore { class Image; }
+namespace WTF { template <typename T> class PassRefPtr; }
+#endif
+
 namespace WebKit {
     class WebData;
     struct WebSize;
@@ -67,6 +72,11 @@ namespace WebKit {
 
         WEBKIT_API bool isNull() const;
         WEBKIT_API WebSize size() const;
+
+#if WEBKIT_IMPLEMENTATION
+        WebImage(const WTF::PassRefPtr<WebCore::Image>&);
+        WebImage& operator=(const WTF::PassRefPtr<WebCore::Image>&);
+#endif
 
 #if WEBKIT_USING_SKIA
         WebImage(const SkBitmap& bitmap) : m_bitmap(bitmap) { }

@@ -34,6 +34,7 @@
 #include "WebData.h"
 #include "WebSize.h"
 
+#include "Image.h"
 #include "ImageSourceSkia.h"
 #include "NativeImageSkia.h"
 #include "SharedBuffer.h"
@@ -76,6 +77,21 @@ bool WebImage::isNull() const
 WebSize WebImage::size() const
 {
     return WebSize(m_bitmap.width(), m_bitmap.height());
+}
+
+WebImage::WebImage(const PassRefPtr<Image>& image)
+{
+    operator=(image);
+}
+
+WebImage& WebImage::operator=(const PassRefPtr<Image>& image)
+{
+    NativeImagePtr p;
+    if (image.get() && (p = image->nativeImageForCurrentFrame()))
+        assign(*p);
+    else
+        reset();
+    return *this;
 }
 
 } // namespace WebKit

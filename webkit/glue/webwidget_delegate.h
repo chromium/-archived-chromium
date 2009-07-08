@@ -12,12 +12,12 @@
 #include "webkit/glue/window_open_disposition.h"
 
 namespace WebKit {
+struct WebCursorInfo;
 struct WebRect;
 struct WebScreenInfo;
 }
 
 class WebWidget;
-class WebCursor;
 struct WebPluginGeometry;
 
 struct WebMenuItem {
@@ -88,7 +88,8 @@ class WebWidgetDelegate {
   virtual void Blur(WebWidget* webwidget) = 0;
 
   virtual void SetCursor(WebWidget* webwidget,
-                         const WebCursor& cursor) = 0;
+                         const WebKit::WebCursorInfo& cursor) = 0;
+
   // Returns the rectangle of the WebWidget in screen coordinates.
   virtual void GetWindowRect(WebWidget* webwidget, WebKit::WebRect* rect) = 0;
 

@@ -36,6 +36,7 @@
 #include "WebData.h"
 #include "WebSize.h"
 
+#include "Image.h"
 #include "ImageSource.h"
 #include "SharedBuffer.h"
 #include <wtf/PassRefPtr.h>
@@ -81,6 +82,22 @@ bool WebImage::isNull() const
 WebSize WebImage::size() const
 {
     return WebSize(CGImageGetWidth(m_imageRef), CGImageGetHeight(m_imageRef));
+}
+
+WebImage::WebImage(const PassRefPtr<Image>& image)
+    : m_imageRef(0)
+{
+    if (image.get())
+        assign(image->nativeImageForCurrentFrame());
+}
+
+WebImage& WebImage::operator=(const PassRefPtr<Image>& image)
+{
+    if (image.get())
+        assign(image->nativeImageForCurrentFrame());
+    else
+        reset();
+    return *this;
 }
 
 void WebImage::assign(CGImageRef imageRef)

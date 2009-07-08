@@ -30,9 +30,9 @@ class NSCursor;
 
 class Pickle;
 
-namespace WebCore {
-class Image;
-class PlatformCursor;
+namespace WebKit {
+class WebImage;
+struct WebCursorInfo;
 }
 
 // This class encapsulates a cross-platform description of a cursor.  Platform
@@ -42,12 +42,16 @@ class PlatformCursor;
 class WebCursor {
  public:
   WebCursor();
-  explicit WebCursor(const WebCore::PlatformCursor& platform_cursor);
+  explicit WebCursor(const WebKit::WebCursorInfo& cursor_info);
   ~WebCursor();
 
   // Copy constructor/assignment operator combine.
   WebCursor(const WebCursor& other);
   const WebCursor& operator=(const WebCursor& other);
+
+  // Conversion from/to WebCursorInfo.
+  void InitFromCursorInfo(const WebKit::WebCursorInfo& cursor_info);
+  void GetCursorInfo(WebKit::WebCursorInfo* cursor_info) const;
 
   // Serialization / De-serialization
   bool Deserialize(const Pickle* pickle, void** iter);
@@ -110,7 +114,8 @@ class WebCursor {
   // Platform specific cleanup.
   void CleanupPlatformData();
 
-  void SetCustomData(WebCore::Image* image);
+  void SetCustomData(const WebKit::WebImage& image);
+  void ImageFromCustomData(WebKit::WebImage* image) const;
 
   // WebCore::PlatformCursor type.
   int type_;

@@ -6,13 +6,10 @@
 
 #include <gdk/gdk.h>
 
-#include "config.h"
-#include "PlatformCursor.h"
-
-#undef LOG
 #include "base/logging.h"
+#include "webkit/api/public/WebCursorInfo.h"
 
-using WebCore::PlatformCursor;
+using WebKit::WebCursorInfo;
 
 namespace {
 
@@ -48,87 +45,87 @@ GdkCursorType WebCursor::GetCursorType() const {
   // of the default X theme, but beware that the user's cursor theme can
   // change everything.
   switch (type_) {
-    case PlatformCursor::TypePointer:
+    case WebCursorInfo::TypePointer:
       return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeCross:
+    case WebCursorInfo::TypeCross:
       return GDK_CROSS;
-    case PlatformCursor::TypeHand:
+    case WebCursorInfo::TypeHand:
       return GDK_HAND2;
-    case PlatformCursor::TypeIBeam:
+    case WebCursorInfo::TypeIBeam:
       return GDK_XTERM;
-    case PlatformCursor::TypeWait:
+    case WebCursorInfo::TypeWait:
       return GDK_WATCH;
-    case PlatformCursor::TypeHelp:
+    case WebCursorInfo::TypeHelp:
       return GDK_QUESTION_ARROW;
-    case PlatformCursor::TypeEastResize:
+    case WebCursorInfo::TypeEastResize:
       return GDK_RIGHT_SIDE;
-    case PlatformCursor::TypeNorthResize:
+    case WebCursorInfo::TypeNorthResize:
       return GDK_TOP_SIDE;
-    case PlatformCursor::TypeNorthEastResize:
+    case WebCursorInfo::TypeNorthEastResize:
       return GDK_TOP_RIGHT_CORNER;
-    case PlatformCursor::TypeNorthWestResize:
+    case WebCursorInfo::TypeNorthWestResize:
       return GDK_TOP_LEFT_CORNER;
-    case PlatformCursor::TypeSouthResize:
+    case WebCursorInfo::TypeSouthResize:
       return GDK_BOTTOM_SIDE;
-    case PlatformCursor::TypeSouthEastResize:
+    case WebCursorInfo::TypeSouthEastResize:
       return GDK_BOTTOM_RIGHT_CORNER;
-    case PlatformCursor::TypeSouthWestResize:
+    case WebCursorInfo::TypeSouthWestResize:
       return GDK_BOTTOM_LEFT_CORNER;
-    case PlatformCursor::TypeWestResize:
+    case WebCursorInfo::TypeWestResize:
       return GDK_LEFT_SIDE;
-    case PlatformCursor::TypeNorthSouthResize:
+    case WebCursorInfo::TypeNorthSouthResize:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeEastWestResize:
+    case WebCursorInfo::TypeEastWestResize:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeNorthEastSouthWestResize:
+    case WebCursorInfo::TypeNorthEastSouthWestResize:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeNorthWestSouthEastResize:
+    case WebCursorInfo::TypeNorthWestSouthEastResize:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeColumnResize:
+    case WebCursorInfo::TypeColumnResize:
       return GDK_SB_H_DOUBLE_ARROW;  // TODO(evanm): is this correct?
-    case PlatformCursor::TypeRowResize:
+    case WebCursorInfo::TypeRowResize:
       return GDK_SB_V_DOUBLE_ARROW;  // TODO(evanm): is this correct?
-    case PlatformCursor::TypeMiddlePanning:
+    case WebCursorInfo::TypeMiddlePanning:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeEastPanning:
+    case WebCursorInfo::TypeEastPanning:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeNorthPanning:
+    case WebCursorInfo::TypeNorthPanning:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeNorthEastPanning:
+    case WebCursorInfo::TypeNorthEastPanning:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeNorthWestPanning:
+    case WebCursorInfo::TypeNorthWestPanning:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeSouthPanning:
+    case WebCursorInfo::TypeSouthPanning:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeSouthEastPanning:
+    case WebCursorInfo::TypeSouthEastPanning:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeSouthWestPanning:
+    case WebCursorInfo::TypeSouthWestPanning:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeWestPanning:
+    case WebCursorInfo::TypeWestPanning:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeMove:
+    case WebCursorInfo::TypeMove:
       return GDK_FLEUR;
-    case PlatformCursor::TypeVerticalText:
+    case WebCursorInfo::TypeVerticalText:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeCell:
+    case WebCursorInfo::TypeCell:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeContextMenu:
+    case WebCursorInfo::TypeContextMenu:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeAlias:
+    case WebCursorInfo::TypeAlias:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeProgress:
+    case WebCursorInfo::TypeProgress:
       return GDK_WATCH;
-    case PlatformCursor::TypeNoDrop:
+    case WebCursorInfo::TypeNoDrop:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeCopy:
+    case WebCursorInfo::TypeCopy:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeNone:
+    case WebCursorInfo::TypeNone:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeNotAllowed:
+    case WebCursorInfo::TypeNotAllowed:
       NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
-    case PlatformCursor::TypeZoomIn:
-    case PlatformCursor::TypeZoomOut:
-    case PlatformCursor::TypeCustom:
+    case WebCursorInfo::TypeZoomIn:
+    case WebCursorInfo::TypeZoomOut:
+    case WebCursorInfo::TypeCustom:
       return GDK_CURSOR_IS_PIXMAP;
   }
   NOTREACHED();
@@ -137,13 +134,13 @@ GdkCursorType WebCursor::GetCursorType() const {
 
 GdkCursor* WebCursor::GetCustomCursor() const {
   switch (type_) {
-    case PlatformCursor::TypeZoomIn:
+    case WebCursorInfo::TypeZoomIn:
       return GetInlineCustomCursor(CustomCursorZoomIn);
-    case PlatformCursor::TypeZoomOut:
+    case WebCursorInfo::TypeZoomOut:
       return GetInlineCustomCursor(CustomCursorZoomOut);
   }
 
-  if (type_ != PlatformCursor::TypeCustom) {
+  if (type_ != WebCursorInfo::TypeCustom) {
     NOTREACHED();
     return NULL;
   }

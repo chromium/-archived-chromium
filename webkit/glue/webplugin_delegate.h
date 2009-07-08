@@ -15,12 +15,12 @@ struct NPObject;
 
 class FilePath;
 class GURL;
-class WebCursor;
 class WebPlugin;
 class WebPluginResourceClient;
 
 namespace WebKit {
 class WebInputEvent;
+struct WebCursorInfo;
 }
 
 namespace gfx {
@@ -88,7 +88,7 @@ class WebPluginDelegate {
   // For windowless plugins, gives them a user event like mouse/keyboard.
   // Returns whether the event was handled.
   virtual bool HandleInputEvent(const WebKit::WebInputEvent& event,
-                                WebCursor* cursor) = 0;
+                                WebKit::WebCursorInfo* cursor) = 0;
 
   // Gets the NPObject associated with the plugin for scripting.
   virtual NPObject* GetPluginScriptableObject() = 0;

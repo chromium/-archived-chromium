@@ -16,6 +16,7 @@
 #include "base/process_util.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
+#include "webkit/api/public/WebCursorInfo.h"
 #include "webkit/api/public/WebInputEvent.h"
 // #include "webkit/default_plugin/plugin_impl.h"
 #include "webkit/glue/glue_util.h"
@@ -31,6 +32,7 @@
 #include "third_party/npapi/bindings/npapi_x11.h"
 #endif
 
+using WebKit::WebCursorInfo;
 using WebKit::WebKeyboardEvent;
 using WebKit::WebInputEvent;
 using WebKit::WebMouseEvent;
@@ -794,7 +796,7 @@ static bool NPEventFromWebInputEvent(const WebInputEvent& event,
 }
 
 bool WebPluginDelegateImpl::HandleInputEvent(const WebInputEvent& event,
-                                             WebCursor* cursor) {
+                                             WebCursorInfo* cursor_info) {
   DCHECK(windowless_) << "events should only be received in windowless mode";
 
   if (first_event_time_ < 0.0)

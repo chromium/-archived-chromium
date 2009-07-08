@@ -11,7 +11,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "ChromeClientChromium.h"
 MSVC_POP_WARNING();
 
-class WebCursor;
 class WebViewImpl;
 
 namespace WebCore {
@@ -19,6 +18,10 @@ class HTMLParserQuirks;
 class PopupContainer;
 class SecurityOrigin;
 struct WindowFeatures;
+}
+
+namespace WebKit {
+struct WebCursorInfo;
 }
 
 // Handles window-level notifications from WebCore on behalf of a WebView.
@@ -132,8 +135,8 @@ class ChromeClientImpl : public WebCore::ChromeClientChromium {
                             const WebCore::IntRect& bounds,
                             bool activatable);
 
-  void SetCursor(const WebCursor& cursor);
-  void SetCursorForPlugin(const WebCursor& cursor);
+  void SetCursor(const WebKit::WebCursorInfo& cursor);
+  void SetCursorForPlugin(const WebKit::WebCursorInfo& cursor);
 
   virtual void formStateDidChange(const WebCore::Node*);
 

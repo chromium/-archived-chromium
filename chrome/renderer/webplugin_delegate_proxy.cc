@@ -30,6 +30,7 @@
 #include "grit/generated_resources.h"
 #include "net/base/mime_util.h"
 #include "printing/native_metafile.h"
+#include "webkit/api/public/WebCursorInfo.h"
 #include "webkit/api/public/WebDragData.h"
 #include "webkit/api/public/WebString.h"
 #include "webkit/api/public/WebVector.h"
@@ -42,6 +43,7 @@
 #include "chrome/common/ipc_channel_posix.h"
 #endif
 
+using WebKit::WebCursorInfo;
 using WebKit::WebInputEvent;
 using WebKit::WebDragData;
 using WebKit::WebVector;
@@ -627,16 +629,18 @@ void WebPluginDelegateProxy::SetFocus() {
 
 bool WebPluginDelegateProxy::HandleInputEvent(
     const WebInputEvent& event,
-    WebCursor* cursor) {
+    WebCursorInfo* cursor_info) {
   bool handled;
+  WebCursor cursor;
   // A windowless plugin can enter a modal loop in the context of a
   // NPP_HandleEvent call, in which case we need to pump messages to
   // the plugin. We pass of the corresponding event handle to the
   // plugin process, which is set if the plugin does enter a modal loop.
   IPC::SyncMessage* message = new PluginMsg_HandleInputEvent(
-      instance_id_, &event, &handled, cursor);
+      instance_id_, &event, &handled, &cursor);
   message->set_pump_messages_event(modal_loop_pump_messages_event_.get());
   Send(message);
+  cursor.GetCursorInfo(cursor_info);
   return handled;
 }
 

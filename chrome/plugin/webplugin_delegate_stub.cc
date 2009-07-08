@@ -18,8 +18,11 @@
 #include "third_party/npapi/bindings/npapi.h"
 #include "third_party/npapi/bindings/npruntime.h"
 #include "skia/ext/platform_device.h"
+#include "webkit/api/public/WebCursorInfo.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webplugin_delegate.h"
+
+using WebKit::WebCursorInfo;
 
 class FinishDestructionTask : public Task {
  public:
@@ -223,7 +226,9 @@ void WebPluginDelegateStub::OnHandleInputEvent(
     const WebKit::WebInputEvent *event,
     bool* handled,
     WebCursor* cursor) {
-  *handled = delegate_->HandleInputEvent(*event, cursor);
+  WebCursorInfo cursor_info;
+  *handled = delegate_->HandleInputEvent(*event, &cursor_info);
+  cursor->InitFromCursorInfo(cursor_info);
 }
 
 void WebPluginDelegateStub::OnPaint(const gfx::Rect& damaged_rect) {
