@@ -9,6 +9,7 @@
 #include "chrome/browser/profile.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/extensions/extension_error_reporter.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"
@@ -69,11 +70,21 @@ bool ExtensionBrowserTest::InstallExtension(const FilePath& path) {
                     NotificationService::AllSources());
   size_t num_after = service->extensions()->size();
   if (num_after != (num_before + 1)) {
-    std::cout << "Num extensions before: " << IntToString(num_before)
-              << "num after: " << IntToString(num_after)
-              << "Installed extensions are:\n";
+    std::cout << "Num extensions before: " << IntToString(num_before) << " "
+              << "num after: " << IntToString(num_after) << " "
+              << "Installed extensions follow:\n";
+
     for (size_t i = 0; i < service->extensions()->size(); ++i)
       std::cout << "  " << service->extensions()->at(i)->id() << "\n";
+
+    std::cout << "Errors follow:\n";
+    const std::vector<std::string>* errors =
+        ExtensionErrorReporter::GetInstance()->GetErrors();
+    for (std::vector<std::string>::const_iterator iter = errors->begin();
+         iter != errors->end(); ++iter) {
+      std::cout << *iter << "\n";
+    }
+
     return false;
   }
 
@@ -115,9 +126,15 @@ void ExtensionBrowserTest::Observe(NotificationType type,
                      const NotificationDetails& details) {
   switch (type.value) {
     case NotificationType::EXTENSION_INSTALLED:
-    case NotificationType::EXTENSIONS_LOADED:
+      std::cout << "Got EXTENSION_INSTALLED notification.\n";
       MessageLoopForUI::current()->Quit();
       break;
+
+    case NotificationType::EXTENSIONS_LOADED:
+      std::cout << "Got EXTENSION_LOADED notification.\n";
+      MessageLoopForUI::current()->Quit();
+      break;
+
     default:
       NOTREACHED();
       break;
