@@ -1493,11 +1493,11 @@ bool WebFrameLoaderClient::ActionSpecifiesDisposition(
 }
 
 NavigationGesture WebFrameLoaderClient::NavigationGestureForLastLoad() {
-  // TODO(timsteele): userGestureHint returns too many false positives
+  // TODO(timsteele): isProcessingUserGesture() returns too many false positives
   // (see bug 1051891) to trust it and assign NavigationGestureUser, so
   // for now we assign Unknown in those cases and Auto otherwise.
   // (Issue 874811 known false negative as well).
-  return webframe_->frame()->loader()->userGestureHint() ?
+  return webframe_->frame()->loader()->isProcessingUserGesture() ?
       NavigationGestureUnknown :
       NavigationGestureAuto;
 }
