@@ -40,21 +40,26 @@ TestSuite.prototype.fail = function(message) {
  * Equals assertion tests that expected == actual.
  * @param {Object} expected Expected object.
  * @param {Object} actual Actual object.
+ * @param {string} opt_message User message to print if the test fails.
  */
-TestSuite.prototype.assertEquals = function(expected, actual) {
+TestSuite.prototype.assertEquals = function(expected, actual, opt_message) {
   if (expected != actual) {
-    this.fail('Expected: "' + expected + '", but was "' + actual + '"');
+    var message = 'Expected: "' + expected + '", but was "' + actual + '"';
+    if (opt_message) {
+      message = opt_message + '(' + message + ')';
+    }
+    this.fail(message);
   }
 };
 
 
 /**
  * True assertion tests that value == true.
- * @param {Object} expected Expected object.
  * @param {Object} value Actual object.
+ * @param {string} opt_message User message to print if the test fails.
  */
-TestSuite.prototype.assertTrue = function(value) {
-  this.assertEquals(true, value);
+TestSuite.prototype.assertTrue = function(value, opt_message) {
+  this.assertEquals(true, value, opt_message);
 };
 
 
@@ -142,6 +147,42 @@ TestSuite.prototype.showPanel = function(panelName) {
       WebInspector.currentPanel);
 };
 
+
+/**
+ * Overrides the method with specified name until it's called first time.
+ * @param {Object} receiver An object whose method to override.
+ * @param {string} methodName Name of the method to override.
+ * @param {Function} override A function that should be called right after the
+ *     overriden method returns.
+ * @param {boolean} opt_sticky Whether restore original method after first run
+ *     or not.
+ */
+TestSuite.prototype.addSniffer = function(receiver, methodName, override,
+                                          opt_sticky) {
+  var orig = receiver[methodName];
+  if (typeof orig != 'function') {
+    this.fail('Cannot find method to override: ' + methodName);
+  }
+  var test = this;
+  receiver[methodName] = function(var_args) {
+    try {
+      var result = orig.apply(this, arguments);
+    } finally {
+      if (!opt_sticky) {
+        receiver[methodName] = orig;
+      }
+    }
+    // In case of exception the override won't be called.
+    try {
+      override.apply(this, arguments);
+    } catch (e) {
+      test.fail('Exception in overriden method "' + methodName + '": ' + e);
+    }
+    return result;
+  };
+};
+
+
 // UI Tests
 
 
@@ -188,16 +229,14 @@ TestSuite.prototype.testEnableResourcesTab = function() {
   this.showPanel('resources');
 
   var test = this;
-  var oldAddResource = WebInspector.addResource;
-  WebInspector.addResource = function(identifier, payload) {
-    WebInspector.addResource = oldAddResource;
-    oldAddResource.call(this, identifier, payload);
-    test.assertEquals('simple_page.html', payload.lastPathComponent);
-    WebInspector.panels.resources.refresh();
-    WebInspector.resources[identifier]._resourcesTreeElement.select();
+  this.addSniffer(WebInspector, 'addResource',
+      function(identifier, payload) {
+        test.assertEquals('simple_page.html', payload.lastPathComponent);
+        WebInspector.panels.resources.refresh();
+        WebInspector.resources[identifier]._resourcesTreeElement.select();
 
-    test.releaseControl();
-  };
+        test.releaseControl();
+      });
 
   // Following call should lead to reload that we capture in the
   // addResource override.
@@ -215,55 +254,53 @@ TestSuite.prototype.testResourceHeaders = function() {
   this.showPanel('resources');
 
   var test = this;
-  var oldAddResource = WebInspector.addResource;
-  var oldUpdateResource = WebInspector.updateResource;
 
   var requestOk = false;
   var responseOk = false;
   var timingOk = false;
 
-  WebInspector.addResource = function(identifier, payload) {
-    oldAddResource.call(this, identifier, payload);
-    var resource = this.resources[identifier];
-    if (resource.mainResource) {
-      // We are only interested in secondary resources in this test.
-      return;
-    }
+  this.addSniffer(WebInspector, 'addResource',
+      function(identifier, payload) {
+        var resource = this.resources[identifier];
+        if (resource.mainResource) {
+          // We are only interested in secondary resources in this test.
+          return;
+        }
 
-    var requestHeaders = JSON.stringify(resource.requestHeaders);
-    test.assertContains(requestHeaders, 'Accept');
-    requestOk = true;
-  };
+        var requestHeaders = JSON.stringify(resource.requestHeaders);
+        test.assertContains(requestHeaders, 'Accept');
+        requestOk = true;
+      }, true);
 
-  WebInspector.updateResource = function(identifier, payload) {
-    oldUpdateResource.call(this, identifier, payload);
-    var resource = this.resources[identifier];
-    if (resource.mainResource) {
-      // We are only interested in secondary resources in this test.
-      return;
-    }
+  this.addSniffer(WebInspector, 'updateResource',
+      function(identifier, payload) {
+        var resource = this.resources[identifier];
+        if (resource.mainResource) {
+          // We are only interested in secondary resources in this test.
+          return;
+        }
 
-    if (payload.didResponseChange) {
-      var responseHeaders = JSON.stringify(resource.responseHeaders);
-      test.assertContains(responseHeaders, 'Content-type');
-      test.assertContains(responseHeaders, 'Content-Length');
-      test.assertTrue(typeof resource.responseReceivedTime != 'undefnied');
-      responseOk = true;
-    }
+        if (payload.didResponseChange) {
+          var responseHeaders = JSON.stringify(resource.responseHeaders);
+          test.assertContains(responseHeaders, 'Content-type');
+          test.assertContains(responseHeaders, 'Content-Length');
+          test.assertTrue(typeof resource.responseReceivedTime != 'undefnied');
+          responseOk = true;
+        }
 
-    if (payload.didTimingChange) {
-      test.assertTrue(typeof resource.startTime != 'undefnied');
-      timingOk = true;
-    }
+        if (payload.didTimingChange) {
+          test.assertTrue(typeof resource.startTime != 'undefnied');
+          timingOk = true;
+        }
 
-    if (payload.didCompletionChange) {
-      test.assertTrue(requestOk);
-      test.assertTrue(responseOk);
-      test.assertTrue(timingOk);
-      test.assertTrue(typeof resource.endTime != 'undefnied');
-      test.releaseControl();
-    }
-  };
+        if (payload.didCompletionChange) {
+          test.assertTrue(requestOk);
+          test.assertTrue(responseOk);
+          test.assertTrue(timingOk);
+          test.assertTrue(typeof resource.endTime != 'undefnied');
+          test.releaseControl();
+        }
+      }, true);
 
   WebInspector.panels.resources._enableResourceTracking();
   this.takeControl();
@@ -277,26 +314,23 @@ TestSuite.prototype.testProfilerTab = function() {
   this.showPanel('profiles');
 
   var test = this;
-  var oldAddProfile = WebInspector.addProfile;
-  WebInspector.addProfile = function(profile) {
-    WebInspector.addProfile = oldAddProfile;
-    oldAddProfile.call(this, profile);
+  this.addSniffer(WebInspector, 'addProfile',
+      function(profile) {
+        var panel = WebInspector.panels.profiles;
+        panel.showProfile(profile);
+        var node = panel.visibleView.profileDataGridTree.children[0];
+        // Iterate over displayed functions and search for a function
+        // that is called 'fib' or 'eternal_fib'. If found, it will mean
+        // that we actually have profiled page's code.
+        while (node) {
+          if (node.functionName.indexOf("fib") != -1) {
+            test.releaseControl();
+          }
+          node = node.traverseNextNode(true, null, true);
+        }
 
-    var panel = WebInspector.panels.profiles;
-    panel.showProfile(profile);
-    var node = panel.visibleView.profileDataGridTree.children[0];
-    // Iterate over displayed functions and search for a function
-    // that is called 'fib' or 'eternal_fib'. If found, it will mean
-    // that we actually have profiled page's code.
-    while (node) {
-      if (node.functionName.indexOf("fib") != -1) {
-        test.releaseControl();
-      }
-      node = node.traverseNextNode(true, null, true);
-    }
-
-    test.fail();
-  };
+        test.fail();
+      });
 
   InspectorController.startProfiling();
   window.setTimeout('InspectorController.stopProfiling();', 1000);
@@ -314,36 +348,97 @@ TestSuite.prototype.testShowScriptsTab = function() {
   // Intercept parsedScriptSource calls to check that all expected scripts are
   // added to the debugger.
   var test = this;
-  var originalParsedScriptSource = WebInspector.parsedScriptSource;
-  WebInspector.parsedScriptSource = function(sourceID, sourceURL, source,
-      startingLine) {
-    if (sourceURL.search(/debugger_test_page.html$/) != -1) {
-      if (parsedDebuggerTestPageHtml) {
-        test.fail('Unexpected parse event: ' + sourceURL);
-      }
-      parsedDebuggerTestPageHtml = true;
-    } else if (sourceURL.search(/debugger_test.js$/) != -1) {
-      if (parsedDebuggerTestJs) {
-        test.fail('Unexpected parse event: ' + sourceURL);
-      }
-      parsedDebuggerTestJs = true;
-    } else {
-      test.fail('Unexpected script URL: ' + sourceURL);
-    }
-    originalParsedScriptSource.apply(this, arguments);
+  this.addSniffer(WebInspector, 'parsedScriptSource',
+      function(sourceID, sourceURL, source, startingLine) {
+        if (sourceURL.search(/debugger_test_page.html$/) != -1) {
+          if (parsedDebuggerTestPageHtml) {
+            test.fail('Unexpected parse event: ' + sourceURL);
+          }
+          parsedDebuggerTestPageHtml = true;
+        } else if (sourceURL.search(/debugger_test.js$/) != -1) {
+          if (parsedDebuggerTestJs) {
+            test.fail('Unexpected parse event: ' + sourceURL);
+          }
+          parsedDebuggerTestJs = true;
+        } else {
+          test.fail('Unexpected script URL: ' + sourceURL);
+        }
 
-    if (!WebInspector.panels.scripts.visibleView) {
-      test.fail('No visible script view: ' + sourceURL);
-    }
+        if (!WebInspector.panels.scripts.visibleView) {
+          test.fail('No visible script view: ' + sourceURL);
+        }
 
-    if (parsedDebuggerTestJs && parsedDebuggerTestPageHtml) {
-       test.releaseControl();
-    }
-  };
+        if (parsedDebuggerTestJs && parsedDebuggerTestPageHtml) {
+           test.releaseControl();
+        }
+      }, true /* sticky */);
 
   this.showPanel('scripts');
 
   // Wait until all scripts are added to the debugger.
+  this.takeControl();
+};
+
+
+/**
+ * Tests that a breakpoint can be set.
+ */
+TestSuite.prototype.testSetBreakpoint = function() {
+  var parsedDebuggerTestPageHtml = false;
+  var parsedDebuggerTestJs = false;
+
+  this.showPanel('scripts');
+
+  var scriptUrl = null;
+  var breakpointLine = 12;
+
+  var test = this;
+  var orig = devtools.DebuggerAgent.prototype.handleScriptsResponse_;
+  this.addSniffer(devtools.DebuggerAgent.prototype, 'handleScriptsResponse_',
+      function(msg) {
+        var scriptSelect = document.getElementById('scripts-files');
+        var scriptResource =
+            scriptSelect.options[scriptSelect.selectedIndex].representedObject;
+
+        test.assertTrue(scriptResource instanceof WebInspector.Resource);
+        test.assertTrue(!!scriptResource.url);
+        test.assertTrue(
+            scriptResource.url.search(/debugger_test_page.html$/) != -1,
+            'Main HTML resource should be selected.');
+
+        // Store for access from setbreakpoint handler.
+        scriptUrl = scriptResource.url;
+
+        var scriptsPanel = WebInspector.panels.scripts;
+
+        var view = scriptsPanel.visibleView;
+        test.assertTrue(view instanceof WebInspector.SourceView);
+
+        if (!view.sourceFrame._isContentLoaded()) {
+          test.addSniffer(view, '_sourceFrameSetupFinished', function(event) {
+            view._addBreakpoint(breakpointLine);
+            // Force v8 execution.
+            devtools.tools.evaluateJavaScript('javascript:void(0)');
+          });
+        } else {
+          view._addBreakpoint(breakpointLine);
+          // Force v8 execution.
+          devtools.tools.evaluateJavaScript('javascript:void(0)');
+        }
+      });
+
+  this.addSniffer(
+      devtools.DebuggerAgent.prototype,
+      'handleSetBreakpointResponse_',
+      function(msg) {
+        var bps = this.urlToBreakpoints_[scriptUrl];
+        test.assertTrue(!!bps, 'No breakpoints for line ' + breakpointLine);
+        var line = devtools.DebuggerAgent.webkitToV8LineNumber_(breakpointLine);
+        test.assertTrue(!!bps[line].getV8Id(),
+                        'Breakpoint id was not assigned.');
+        test.releaseControl();
+      });
+
   this.takeControl();
 };
 
@@ -368,13 +463,11 @@ TestSuite.prototype.testConsoleEval = function() {
       new TestSuite.KeyEvent('Enter'));
 
   var test = this;
-  var originalConsoleAddMessage = WebInspector.Console.prototype.addMessage;
-  WebInspector.Console.prototype.addMessage = function(commandResult) {
-    originalConsoleAddMessage.call(this, commandResult);
-    WebInspector.Console.prototype.addMessage = originalConsoleAddMessage;
-    test.assertEquals('123', commandResult.toMessageElement().textContent);
-    test.releaseControl();
-  };
+  this.addSniffer(WebInspector.Console.prototype, 'addMessage',
+      function(commandResult) {
+        test.assertEquals('123', commandResult.toMessageElement().textContent);
+        test.releaseControl();
+      });
 
   this.takeControl();
 };
@@ -431,12 +524,12 @@ TestSuite.prototype.testEvalGlobal = function() {
       new TestSuite.KeyEvent('Enter'));
 
   var test = this;
-  var originalConsoleAddMessage = WebInspector.Console.prototype.addMessage;
-  WebInspector.Console.prototype.addMessage = function(commandResult) {
-    originalConsoleAddMessage.call(this, commandResult);
-    test.assertEquals('fooValue', commandResult.toMessageElement().textContent);
-    test.releaseControl();
-  };
+  this.addSniffer(WebInspector.Console.prototype, 'addMessage',
+      function(commandResult) {
+        test.assertEquals('fooValue',
+                          commandResult.toMessageElement().textContent);
+        test.releaseControl();
+      });
 
   this.takeControl();
 };

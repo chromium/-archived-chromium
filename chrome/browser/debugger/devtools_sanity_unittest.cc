@@ -151,6 +151,11 @@ IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestShowScriptsTab) {
   RunTest("testShowScriptsTab", kDebuggerTestPage);
 }
 
+// Tests set breakpoint.
+IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestSetBreakpoint) {
+  RunTest("testSetBreakpoint", kDebuggerTestPage);
+}
+
 // Tests console eval.
 IN_PROC_BROWSER_TEST_F(DevToolsSanityTest, TestConsoleEval) {
   RunTest("testConsoleEval", kConsoleTestPage);
