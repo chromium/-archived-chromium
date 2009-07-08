@@ -8,7 +8,7 @@
 #include "build/build_config.h"
 #if defined(OS_WIN)
 #include <ws2tcpip.h>
-#else
+#elif defined(OS_POSIX)
 #include <netdb.h>
 #endif
 #include "base/compiler_specific.h"
@@ -375,12 +375,9 @@ int SOCKSClientSocket::DoHandshakeReadComplete(int result) {
 }
 
 #if defined(OS_LINUX)
-// Identical to posix system call getpeername().
-// Needed by ssl_client_socket_nss.
-int SOCKSClientSocket::GetPeerName(struct sockaddr *name, socklen_t *namelen) {
-  // Default implementation just permits some unit tests to link.
-  NOTREACHED();
-  return ERR_UNEXPECTED;
+int SOCKSClientSocket::GetPeerName(struct sockaddr* name,
+                                   socklen_t* namelen) {
+  return transport_->GetPeerName(name, namelen);
 }
 #endif
 

@@ -48,9 +48,8 @@ class SOCKSClientSocket : public ClientSocket {
   virtual int Write(IOBuffer* buf, int buf_len, CompletionCallback* callback);
 
 #if defined(OS_LINUX)
-  // Identical to posix system call getpeername().
   // Needed by ssl_client_socket_nss.
-  virtual int GetPeerName(struct sockaddr *name, socklen_t *namelen);
+  virtual int GetPeerName(struct sockaddr* name, socklen_t* namelen);
 #endif
 
  private:
