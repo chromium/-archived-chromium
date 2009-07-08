@@ -150,7 +150,7 @@ devtools.DebuggerAgent.prototype.requestScripts = function() {
 devtools.DebuggerAgent.prototype.resolveScriptSource = function(
     scriptId, callback) {
   var script = this.parsedScripts_[scriptId];
-  if (!script) {
+  if (!script || script.isUnresolved()) {
     callback(null);
     return;
   }
@@ -798,7 +798,7 @@ devtools.DebuggerAgent.prototype.handleBacktraceResponse_ = function(msg) {
   var frames = msg.getBody().frames;
   for (var i = frames.length - 1; i>=0; i--) {
     var nextFrame = frames[i];
-    var f = devtools.DebuggerAgent.formatCallFrame_(nextFrame, script, msg);
+    var f = this.formatCallFrame_(nextFrame, msg);
     f.caller = callerFrame;
     callerFrame = f;
   }
@@ -834,16 +834,20 @@ devtools.DebuggerAgent.prototype.evaluateInCallFrame_ = function(expression) {
 
 /**
  * @param {Object} stackFrame Frame json object from 'backtrace' response.
- * @param {Object} script Script json object from 'break' event.
  * @param {devtools.DebuggerMessage} msg Parsed 'backtrace' response.
  * @return {!devtools.CallFrame} Object containing information related to the
  *     call frame in the format expected by ScriptsPanel and its panes.
  */
-devtools.DebuggerAgent.formatCallFrame_ = function(stackFrame, script, msg) {
-  var sourceId = script.id;
-
+devtools.DebuggerAgent.prototype.formatCallFrame_ = function(stackFrame, msg) {
   var func = stackFrame.func;
   var sourceId = func.scriptId;
+  var existingScript = this.parsedScripts_[sourceId];
+  if (!existingScript) {
+    this.parsedScripts_[sourceId] = new devtools.ScriptInfo(
+        sourceId, null /* name */, 0 /* line */, 'unknown' /* type */,
+        true /* unresolved */);
+    WebInspector.parsedScriptSource(sourceId, null, null, 0);
+  }
   var funcName = func.name || func.inferredName || '(anonymous function)';
 
   var arguments = {};
@@ -998,13 +1002,16 @@ devtools.DebuggerAgent.v8ToWwebkitLineNumber_ = function(line) {
  * @param {string} contextType Type of the script's context:
  *     "page" - regular script from html page
  *     "injected" - extension content script
+ * @param {bool} opt_isUnresolved If true, script will not be resolved.
  * @constructor
  */
-devtools.ScriptInfo = function(scriptId, url, lineOffset, contextType) {
+devtools.ScriptInfo = function(
+    scriptId, url, lineOffset, contextType, opt_isUnresolved) {
   this.scriptId_ = scriptId;
   this.lineOffset_ = lineOffset;
   this.contextType_ = contextType;
   this.url_ = url;
+  this.isUnresolved_ = opt_isUnresolved;
 
   this.lineToBreakpointInfo_ = {};
 };
@@ -1031,6 +1038,14 @@ devtools.ScriptInfo.prototype.getContextType = function() {
  */
 devtools.ScriptInfo.prototype.getUrl = function() {
   return this.url_;
+};
+
+
+/**
+ * @return {?bool}
+ */
+devtools.ScriptInfo.prototype.isUnresolved = function() {
+  return this.isUnresolved_;
 };
 
 
