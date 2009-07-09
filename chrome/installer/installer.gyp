@@ -33,23 +33,26 @@
                 {
                   'destination': '<(PRODUCT_DIR)/installer/debian/',
                   'files': [
+                    'linux/internal/debian/build.sh',
                     'linux/internal/debian/changelog.template',
+                    'linux/internal/debian/control.template',
                     'linux/internal/debian/postinst',
                     'linux/internal/debian/postrm',
                     'linux/internal/debian/prerm',
-                    'linux/internal/debian/build.sh',
-                    'linux/internal/debian/control.template',
                   ]
                 },
                 {
                   'destination': '<(PRODUCT_DIR)/installer/common/',
                   'files': [
                     'linux/internal/common/apt.include',
-                    'linux/internal/common/repo.cron',
-                    'linux/internal/common/wrapper',
-                    'linux/internal/common/updater',
                     'linux/internal/common/desktop.template',
                     'linux/internal/common/google-chrome/google-chrome.info',
+                    'linux/internal/common/installer.include',
+                    'linux/internal/common/postinst.include',
+                    'linux/internal/common/prerm.include',
+                    'linux/internal/common/repo.cron',
+                    'linux/internal/common/updater',
+                    'linux/internal/common/wrapper',
                   ]
                 },
                 # System libs needed for 64-bit package building.
