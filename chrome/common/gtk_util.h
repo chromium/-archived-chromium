@@ -74,7 +74,8 @@ gfx::Point GetWidgetScreenPosition(GtkWidget* widget);
 // Returns the bounds of the specified widget in screen coordinates.
 gfx::Rect GetWidgetScreenBounds(GtkWidget* widget);
 
-// Converts a point in a widget to screen coordinates.
+// Converts a point in a widget to screen coordinates.  The point |p| is
+// relative to the widget's top-left origin.
 void ConvertWidgetPointToScreen(GtkWidget* widget, gfx::Point* p);
 
 // Initialize some GTK settings so that our dialogs are consistent.

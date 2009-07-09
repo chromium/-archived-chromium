@@ -1098,9 +1098,10 @@ void TabStripGtk::ResizeLayoutTabs() {
 }
 
 bool TabStripGtk::IsCursorInTabStripZone() const {
-  gfx::Rect bds = bounds();
-  gfx::Point tabstrip_topleft(bds.origin());
+  gfx::Point tabstrip_topleft;
   gtk_util::ConvertWidgetPointToScreen(tabstrip_.get(), &tabstrip_topleft);
+
+  gfx::Rect bds = bounds();
   bds.set_origin(tabstrip_topleft);
   bds.set_height(bds.height() + kTabStripAnimationVSlop);
 
