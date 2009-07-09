@@ -8,6 +8,7 @@
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_observer.h"
 
@@ -16,14 +17,14 @@ class InterstitialPage;
 class NavigationController;
 class NavigationEntry;
 class Profile;
-class RenderViewHostDelegate;
 class RenderWidgetHostView;
 class SiteInstance;
 
 // Manages RenderViewHosts for a TabContents. Normally there is only one and
 // it is easy to do. But we can also have transitions of processes (and hence
 // RenderViewHosts) that can get complex.
-class RenderViewHostManager {
+class RenderViewHostManager
+    : public RenderViewHostDelegate::RendererManagement {
  public:
   // Functions implemented by our owner that we need.
   //
@@ -126,22 +127,8 @@ class RenderViewHostManager {
   // Called when a renderer's main frame navigates.
   void DidNavigateMainFrame(RenderViewHost* render_view_host);
 
-  // Allows the TabContents to react when a cross-site response is ready to be
-  // delivered to a pending RenderViewHost.  We must first run the onunload
-  // handler of the old RenderViewHost before we can allow it to proceed.
-  void OnCrossSiteResponse(int new_render_process_host_id,
-                           int new_request_id);
-
-  // Notifies that the navigation that initiated a cross-site transition has
-  // been canceled.
-  void CrossSiteNavigationCanceled();
-
   // Called when a provisional load on the given renderer is aborted.
   void RendererAbortedProvisionalLoad(RenderViewHost* render_view_host);
-
-  // Actually implements this RenderViewHostDelegate function for the
-  // TabContents.
-  void ShouldClosePage(bool proceed);
 
   // Forwards the message to the RenderViewHost, which is the original one.
   void OnJavaScriptMessageBoxClosed(IPC::Message* reply_msg,
@@ -171,6 +158,12 @@ class RenderViewHostManager {
   InterstitialPage* interstitial_page() const {
     return interstitial_page_;
   }
+
+  // RenderViewHostDelegate::RendererManagement implementation.
+  virtual void ShouldClosePage(bool proceed);
+  virtual void OnCrossSiteResponse(int new_render_process_host_id,
+                                   int new_request_id);
+  virtual void OnCrossSiteNavigationCanceled();
 
  private:
   friend class TestTabContents;

@@ -9,26 +9,41 @@
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/webpreferences.h"
 
-RenderViewHostDelegate::View* RenderViewHostDelegate::GetViewDelegate() const {
+RenderViewHostDelegate::View* RenderViewHostDelegate::GetViewDelegate() {
+  return NULL;
+}
+
+RenderViewHostDelegate::RendererManagement*
+RenderViewHostDelegate::GetRendererManagementDelegate() {
   return NULL;
 }
 
 RenderViewHostDelegate::BrowserIntegration*
-RenderViewHostDelegate::GetBrowserIntegrationDelegate() const {
+RenderViewHostDelegate::GetBrowserIntegrationDelegate() {
   return NULL;
 }
 
 RenderViewHostDelegate::Resource*
-RenderViewHostDelegate::GetResourceDelegate() const {
+RenderViewHostDelegate::GetResourceDelegate() {
   return NULL;
 }
 
-RenderViewHostDelegate::Save* RenderViewHostDelegate::GetSaveDelegate() const {
+RenderViewHostDelegate::Save* RenderViewHostDelegate::GetSaveDelegate() {
+  return NULL;
+}
+
+RenderViewHostDelegate::Printing*
+RenderViewHostDelegate::GetPrintingDelegate() {
   return NULL;
 }
 
 RenderViewHostDelegate::FavIcon*
-RenderViewHostDelegate::GetFavIconDelegate() const {
+RenderViewHostDelegate::GetFavIconDelegate() {
+  return NULL;
+}
+
+RenderViewHostDelegate::Autofill*
+RenderViewHostDelegate::GetAutofillDelegate() {
   return NULL;
 }
 

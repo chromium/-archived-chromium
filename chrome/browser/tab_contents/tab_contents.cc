@@ -149,10 +149,6 @@ const wchar_t* kPrefsToObserve[] = {
 
 const int kPrefsToObserveLength = arraysize(kPrefsToObserve);
 
-// Limit on the number of suggestions to appear in the pop-up menu under an
-// text input element in a form.
-const int kMaxAutofillMenuItems = 6;
-
 // Returns true if the entry's transition type is FORM_SUBMIT.
 bool IsFormSubmit(const NavigationEntry* entry) {
   return (PageTransition::StripQualifier(entry->transition_type()) ==
@@ -413,12 +409,6 @@ void TabContents::RegisterUserPrefs(PrefService* prefs) {
 // Returns true if contains content rendered by an extension.
 bool TabContents::HostsExtension() const {
   return GetURL().SchemeIs(chrome::kExtensionScheme);
-}
-
-AutofillManager* TabContents::GetAutofillManager() {
-  if (autofill_manager_.get() == NULL)
-    autofill_manager_.reset(new AutofillManager(this));
-  return autofill_manager_.get();
 }
 
 PasswordManager* TabContents::GetPasswordManager() {
@@ -1681,25 +1671,40 @@ void TabContents::DocumentLoadedInFrame() {
   controller_.DocumentLoadedInFrame();
 }
 
-RenderViewHostDelegate::View* TabContents::GetViewDelegate() const {
+RenderViewHostDelegate::View* TabContents::GetViewDelegate() {
   return view_.get();
 }
 
+RenderViewHostDelegate::RendererManagement*
+TabContents::GetRendererManagementDelegate() {
+  return &render_manager_;
+}
+
 RenderViewHostDelegate::BrowserIntegration*
-    TabContents::GetBrowserIntegrationDelegate() const {
-  return const_cast<TabContents*>(this);
+    TabContents::GetBrowserIntegrationDelegate() {
+  return this;
 }
 
-RenderViewHostDelegate::Resource* TabContents::GetResourceDelegate() const {
-  return const_cast<TabContents*>(this);
+RenderViewHostDelegate::Resource* TabContents::GetResourceDelegate() {
+  return this;
 }
 
-RenderViewHostDelegate::Save* TabContents::GetSaveDelegate() const {
+RenderViewHostDelegate::Save* TabContents::GetSaveDelegate() {
   return save_package_.get();  // May be NULL, but we can return NULL.
 }
 
-RenderViewHostDelegate::FavIcon* TabContents::GetFavIconDelegate() const {
-  return &const_cast<TabContents*>(this)->fav_icon_helper_;
+RenderViewHostDelegate::Printing* TabContents::GetPrintingDelegate() {
+  return &printing_;
+}
+
+RenderViewHostDelegate::FavIcon* TabContents::GetFavIconDelegate() {
+  return &fav_icon_helper_;
+}
+
+RenderViewHostDelegate::Autofill* TabContents::GetAutofillDelegate() {
+  if (autofill_manager_.get() == NULL)
+    autofill_manager_.reset(new AutofillManager(this));
+  return autofill_manager_.get();
 }
 
 RendererPreferences TabContents::GetRendererPrefs() const {
@@ -2068,22 +2073,6 @@ void TabContents::PasswordFormsSeen(
   GetPasswordManager()->PasswordFormsSeen(forms);
 }
 
-void TabContents::AutofillFormSubmitted(
-    const webkit_glue::AutofillForm& form) {
-  GetAutofillManager()->AutofillFormSubmitted(form);
-}
-
-void TabContents::GetAutofillSuggestions(const std::wstring& field_name,
-    const std::wstring& user_text, int64 node_id, int request_id) {
-  GetAutofillManager()->FetchValuesForName(field_name, user_text,
-      kMaxAutofillMenuItems, node_id, request_id);
-}
-
-void TabContents::RemoveAutofillEntry(const std::wstring& field_name,
-                                      const std::wstring& value) {
-  GetAutofillManager()->RemoveValueForName(field_name, value);
-}
-
 // Checks to see if we should generate a keyword based on the OSDD, and if
 // necessary uses TemplateURLFetcher to download the OSDD and create a keyword.
 void TabContents::PageHasOSDD(RenderViewHost* render_view_host,
@@ -2153,14 +2142,6 @@ void TabContents::PageHasOSDD(RenderViewHost* render_view_host,
       autodetected);
 }
 
-void TabContents::DidGetPrintedPagesCount(int cookie, int number_pages) {
-  printing_.DidGetPrintedPagesCount(cookie, number_pages);
-}
-
-void TabContents::DidPrintPage(const ViewHostMsg_DidPrintPage_Params& params) {
-  printing_.DidPrintPage(params);
-}
-
 GURL TabContents::GetAlternateErrorPageURL() const {
   GURL url;
   // Disable alternate error pages when in OffTheRecord/Incognito mode.
@@ -2198,10 +2179,6 @@ void TabContents::OnCrossSiteResponse(int new_render_process_host_id,
   // handler of the old RenderViewHost before we can allow it to proceed.
   render_manager_.OnCrossSiteResponse(new_render_process_host_id,
                                       new_request_id);
-}
-
-void TabContents::OnCrossSiteNavigationCanceled() {
-  render_manager_.CrossSiteNavigationCanceled();
 }
 
 bool TabContents::CanBlur() const {

@@ -50,8 +50,12 @@ class CancelPendingRenderViewTask : public Task {
   void Run() {
     RenderViewHost* view =
         RenderViewHost::FromID(render_process_host_id_, render_view_id_);
-    if (view)
-      view->delegate()->OnCrossSiteNavigationCanceled();
+    if (view) {
+      RenderViewHostDelegate::RendererManagement* management_delegate =
+          view->delegate()->GetRendererManagementDelegate();
+      if (management_delegate)
+        management_delegate->OnCrossSiteNavigationCanceled();
+    }
   }
 
  private:

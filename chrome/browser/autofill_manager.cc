@@ -11,6 +11,10 @@
 #include "chrome/common/pref_service.h"
 #include "webkit/glue/autofill_form.h"
 
+// Limit on the number of suggestions to appear in the pop-up menu under an
+// text input element in a form.
+static const int kMaxAutofillMenuItems = 6;
+
 // static
 void AutofillManager::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterBooleanPref(prefs::kFormAutofillEnabled, true);
@@ -50,11 +54,10 @@ void AutofillManager::AutofillFormSubmitted(const webkit_glue::AutofillForm& for
   StoreFormEntriesInWebDatabase(form);
 }
 
-void AutofillManager::FetchValuesForName(const std::wstring& name,
-                                         const std::wstring& prefix,
-                                         int limit,
-                                         int64 node_id,
-                                         int request_id) {
+void AutofillManager::GetAutofillSuggestions(const std::wstring& name,
+                                             const std::wstring& prefix,
+                                             int64 node_id,
+                                             int request_id) {
   if (!*form_autofill_enabled_)
     return;
 
@@ -70,12 +73,12 @@ void AutofillManager::FetchValuesForName(const std::wstring& name,
   node_id_ = node_id;
   request_id_ = request_id;
 
-  pending_query_handle_ = web_data_service->
-      GetFormValuesForElementName(name, prefix, limit, this);
+  pending_query_handle_ = web_data_service->GetFormValuesForElementName(
+      name, prefix, kMaxAutofillMenuItems, this);
 }
 
-void AutofillManager::RemoveValueForName(const std::wstring& name,
-                                         const std::wstring& value) {
+void AutofillManager::RemoveAutofillEntry(const std::wstring& name,
+                                          const std::wstring& value) {
   WebDataService* web_data_service =
       profile()->GetWebDataService(Profile::EXPLICIT_ACCESS);
   if (!web_data_service) {

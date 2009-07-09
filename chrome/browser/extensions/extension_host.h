@@ -66,7 +66,7 @@ class ExtensionHost : public RenderViewHostDelegate,
   void RecoverCrashedExtension();
 
   // RenderViewHostDelegate implementation.
-  virtual RenderViewHostDelegate::View* GetViewDelegate() const;
+  virtual RenderViewHostDelegate::View* GetViewDelegate();
   virtual const GURL& GetURL() const { return url_; }
   virtual void RenderViewCreated(RenderViewHost* render_view_host);
   virtual void RenderViewGone(RenderViewHost* render_view_host);

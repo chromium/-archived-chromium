@@ -19,6 +19,7 @@
 #include "base/string16.h"
 #include "build/build_config.h"
 #include "chrome/browser/dom_ui/html_dialog_ui.h"
+#include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/skia/include/core/SkBitmap.h"
@@ -65,7 +66,7 @@ class ViewMsg_Print_Params;
 // http://code.google.com/p/chromium/issues/detail?id=9847
 namespace printing {
 
-class PrintViewManager {
+class PrintViewManager : public RenderViewHostDelegate::Printing {
  public:
   PrintViewManager(TabContents&) { }
   void Stop() { NOTIMPLEMENTED(); }
@@ -74,8 +75,12 @@ class PrintViewManager {
     NOTIMPLEMENTED();
     return true;  // Assume for now that all renderer crashes are important.
   }
-  void DidGetPrintedPagesCount(int, int) { NOTIMPLEMENTED(); }
-  void DidPrintPage(const ViewHostMsg_DidPrintPage_Params&) {
+
+  // RenderViewHostDelegate::Printing implementation.
+  virtual void DidGetPrintedPagesCount(int cookie, int number_pages) {
+    NOTIMPLEMENTED();
+  }
+  virtual void DidPrintPage(const ViewHostMsg_DidPrintPage_Params& params) {
     NOTIMPLEMENTED();
   }
 };

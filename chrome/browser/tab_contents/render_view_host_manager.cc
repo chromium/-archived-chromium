@@ -180,27 +180,6 @@ void RenderViewHostManager::DidNavigateMainFrame(
   }
 }
 
-void RenderViewHostManager::OnCrossSiteResponse(int new_render_process_host_id,
-                                                int new_request_id) {
-  // Should only see this while we have a pending renderer.
-  if (!cross_navigation_pending_)
-    return;
-  DCHECK(pending_render_view_host_);
-
-  // Tell the old renderer to run its onunload handler.  When it finishes, it
-  // will send a ClosePage_ACK to the ResourceDispatcherHost with the given
-  // IDs (of the pending RVH's request), allowing the pending RVH's response to
-  // resume.
-  render_view_host_->ClosePage(new_render_process_host_id, new_request_id);
-
-  // ResourceDispatcherHost has told us to run the onunload handler, which
-  // means it is not a download or unsafe page, and we are going to perform the
-  // navigation.  Thus, we no longer need to remember that the RenderViewHost
-  // is part of a pending cross-site request.
-  pending_render_view_host_->SetHasPendingCrossSiteRequest(false,
-                                                           new_request_id);
-}
-
 void RenderViewHostManager::RendererAbortedProvisionalLoad(
     RenderViewHost* render_view_host) {
   // We used to cancel the pending renderer here for cross-site downloads.
@@ -213,6 +192,17 @@ void RenderViewHostManager::RendererAbortedProvisionalLoad(
   // navigation events.  (That's necessary to support onunload anyway.)  Once
   // we've made that change, we won't create a pending renderer until we know
   // the response is not a download.
+}
+
+void RenderViewHostManager::OnJavaScriptMessageBoxClosed(
+    IPC::Message* reply_msg,
+    bool success,
+    const std::wstring& prompt) {
+  render_view_host_->JavaScriptMessageBoxClosed(reply_msg, success, prompt);
+}
+
+void RenderViewHostManager::OnJavaScriptMessageBoxWindowDestroyed() {
+  render_view_host_->JavaScriptMessageBoxWindowDestroyed();
 }
 
 void RenderViewHostManager::ShouldClosePage(bool proceed) {
@@ -245,15 +235,32 @@ void RenderViewHostManager::ShouldClosePage(bool proceed) {
   }
 }
 
-void RenderViewHostManager::OnJavaScriptMessageBoxClosed(
-    IPC::Message* reply_msg,
-    bool success,
-    const std::wstring& prompt) {
-  render_view_host_->JavaScriptMessageBoxClosed(reply_msg, success, prompt);
+void RenderViewHostManager::OnCrossSiteResponse(int new_render_process_host_id,
+                                                int new_request_id) {
+  // Should only see this while we have a pending renderer.
+  if (!cross_navigation_pending_)
+    return;
+  DCHECK(pending_render_view_host_);
+
+  // Tell the old renderer to run its onunload handler.  When it finishes, it
+  // will send a ClosePage_ACK to the ResourceDispatcherHost with the given
+  // IDs (of the pending RVH's request), allowing the pending RVH's response to
+  // resume.
+  render_view_host_->ClosePage(new_render_process_host_id, new_request_id);
+
+  // ResourceDispatcherHost has told us to run the onunload handler, which
+  // means it is not a download or unsafe page, and we are going to perform the
+  // navigation.  Thus, we no longer need to remember that the RenderViewHost
+  // is part of a pending cross-site request.
+  pending_render_view_host_->SetHasPendingCrossSiteRequest(false,
+                                                           new_request_id);
 }
 
-void RenderViewHostManager::OnJavaScriptMessageBoxWindowDestroyed() {
-  render_view_host_->JavaScriptMessageBoxWindowDestroyed();
+void RenderViewHostManager::OnCrossSiteNavigationCanceled() {
+  DCHECK(cross_navigation_pending_);
+  cross_navigation_pending_ = false;
+  if (pending_render_view_host_)
+    CancelPending();
 }
 
 bool RenderViewHostManager::ShouldTransitionCrossSite() {
@@ -284,9 +291,10 @@ bool RenderViewHostManager::ShouldSwapProcessesForNavigation(
   // Also, we must switch if one is an extension and the other is not the exact
   // same extension.
   if (cur_entry->url().SchemeIs(chrome::kExtensionScheme) ||
-      new_entry->url().SchemeIs(chrome::kExtensionScheme))
+      new_entry->url().SchemeIs(chrome::kExtensionScheme)) {
     if (cur_entry->url().GetOrigin() != new_entry->url().GetOrigin())
       return true;
+  }
 
   return false;
 }
@@ -576,11 +584,4 @@ void RenderViewHostManager::CancelPending() {
   pending_render_view_host->Shutdown();
 
   pending_dom_ui_.reset();
-}
-
-void RenderViewHostManager::CrossSiteNavigationCanceled() {
-  DCHECK(cross_navigation_pending_);
-  cross_navigation_pending_ = false;
-  if (pending_render_view_host_)
-    CancelPending();
 }

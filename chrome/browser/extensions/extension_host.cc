@@ -212,13 +212,13 @@ void ExtensionHost::DidInsertCSS() {
 #endif
 }
 
-RenderViewHostDelegate::View* ExtensionHost::GetViewDelegate() const {
+RenderViewHostDelegate::View* ExtensionHost::GetViewDelegate() {
   // TODO(erikkay) this is unfortunate.  The interface declares that this method
   // must be const (no good reason for it as far as I can tell) which means you
   // can't return self without doing this const_cast.  Either we need to change
   // the interface, or we need to split out the view delegate into another
   // object (which is how TabContents works).
-  return const_cast<ExtensionHost*>(this);
+  return this;
 }
 
 void ExtensionHost::CreateNewWindow(int route_id,

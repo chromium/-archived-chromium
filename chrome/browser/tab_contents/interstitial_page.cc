@@ -281,7 +281,7 @@ void InterstitialPage::Observe(NotificationType type,
   }
 }
 
-RenderViewHostDelegate::View* InterstitialPage::GetViewDelegate() const {
+RenderViewHostDelegate::View* InterstitialPage::GetViewDelegate() {
   return rvh_view_delegate_.get();
 }
 

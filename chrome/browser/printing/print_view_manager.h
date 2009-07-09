@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_PRINTING_PRINT_VIEW_MANAGER_H_
 
 #include "base/ref_counted.h"
+#include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/common/notification_registrar.h"
 #include "printing/printed_pages_source.h"
 
@@ -22,7 +23,8 @@ class PrintJobWorkerOwner;
 // Manages the print commands in relation to a TabContents. TabContents
 // delegates a few printing related commands to this instance.
 class PrintViewManager : public NotificationObserver,
-                         public PrintedPagesSource {
+                         public PrintedPagesSource,
+                         public RenderViewHostDelegate::Printing {
  public:
   PrintViewManager(TabContents& owner);
   virtual ~PrintViewManager();
@@ -34,17 +36,13 @@ class PrintViewManager : public NotificationObserver,
   // current state. Returns false if the renderer was not valuable.
   bool OnRenderViewGone(RenderViewHost* render_view_host);
 
-  // Received a notification from the renderer that the number of printed page
-  // has just been calculated..
-  void DidGetPrintedPagesCount(int cookie, int number_pages);
-
-  // Received a notification from the renderer that a printed page page is
-  // finished renderering.
-  void DidPrintPage(const ViewHostMsg_DidPrintPage_Params& params);
-
   // PrintedPagesSource implementation.
   virtual std::wstring RenderSourceName();
   virtual GURL RenderSourceUrl();
+
+  // RenderViewHostDelegate::Printing implementation.
+  virtual void DidGetPrintedPagesCount(int cookie, int number_pages);
+  virtual void DidPrintPage(const ViewHostMsg_DidPrintPage_Params& params);
 
   // NotificationObserver implementation.
   virtual void Observe(NotificationType type,

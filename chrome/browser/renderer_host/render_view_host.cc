@@ -368,7 +368,12 @@ int RenderViewHost::GetPendingRequestId() {
 
 void RenderViewHost::OnCrossSiteResponse(int new_render_process_host_id,
                                          int new_request_id) {
-  delegate_->OnCrossSiteResponse(new_render_process_host_id, new_request_id);
+  RenderViewHostDelegate::RendererManagement* management_delegate =
+      delegate_->GetRendererManagementDelegate();
+  if (management_delegate) {
+    management_delegate->OnCrossSiteResponse(new_render_process_host_id,
+                                             new_request_id);
+  }
 }
 
 void RenderViewHost::Stop() {
@@ -625,6 +630,8 @@ void RenderViewHost::GotFocus() {
 }
 
 bool RenderViewHost::CanBlur() const {
+  // TODO(brettw) is seems like this function is never implemented. It and the
+  // messages leading here should be removed.
   return delegate_->CanBlur();
 }
 
@@ -750,9 +757,8 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_UpdateDragCursor, OnUpdateDragCursor)
     IPC_MESSAGE_HANDLER(ViewHostMsg_TakeFocus, OnTakeFocus)
     IPC_MESSAGE_HANDLER(ViewHostMsg_PageHasOSDD, OnMsgPageHasOSDD)
-    IPC_MESSAGE_FORWARD(ViewHostMsg_DidGetPrintedPagesCount,
-                        delegate_,
-                        RenderViewHostDelegate::DidGetPrintedPagesCount)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_DidGetPrintedPagesCount,
+                        OnDidGetPrintedPagesCount)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DidPrintPage, DidPrintPage)
     IPC_MESSAGE_HANDLER(ViewHostMsg_AddMessageToConsole, OnAddMessageToConsole)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ForwardToDevToolsAgent,
@@ -1222,7 +1228,10 @@ void RenderViewHost::OnMsgPasswordFormsSeen(
 
 void RenderViewHost::OnMsgAutofillFormSubmitted(
     const webkit_glue::AutofillForm& form) {
-  delegate_->AutofillFormSubmitted(form);
+  RenderViewHostDelegate::Autofill* autofill_delegate =
+      delegate_->GetAutofillDelegate();
+  if (autofill_delegate)
+    autofill_delegate->AutofillFormSubmitted(form);
 }
 
 void RenderViewHost::OnMsgStartDragging(
@@ -1249,9 +1258,19 @@ void RenderViewHost::OnMsgPageHasOSDD(int32 page_id, const GURL& doc_url,
   delegate_->PageHasOSDD(this, page_id, doc_url, autodetected);
 }
 
+void RenderViewHost::OnDidGetPrintedPagesCount(int cookie, int number_pages) {
+  RenderViewHostDelegate::Printing* printing_delegate =
+      delegate_->GetPrintingDelegate();
+  if (printing_delegate)
+    printing_delegate->DidGetPrintedPagesCount(cookie, number_pages);
+}
+
 void RenderViewHost::DidPrintPage(
     const ViewHostMsg_DidPrintPage_Params& params) {
-  delegate_->DidPrintPage(params);
+  RenderViewHostDelegate::Printing* printing_delegate =
+      delegate_->GetPrintingDelegate();
+  if (printing_delegate)
+    printing_delegate->DidPrintPage(params);
 }
 
 void RenderViewHost::OnAddMessageToConsole(const std::wstring& message,
@@ -1383,19 +1402,31 @@ void RenderViewHost::OnMsgShouldCloseACK(bool proceed) {
   StopHangMonitorTimeout();
   DCHECK(is_waiting_for_unload_ack_);
   is_waiting_for_unload_ack_ = false;
-  delegate_->ShouldClosePage(proceed);
+
+  RenderViewHostDelegate::RendererManagement* management_delegate =
+      delegate_->GetRendererManagementDelegate();
+  if (management_delegate)
+    management_delegate->ShouldClosePage(proceed);
 }
 
 void RenderViewHost::OnQueryFormFieldAutofill(const std::wstring& field_name,
                                               const std::wstring& user_text,
                                               int64 node_id,
                                               int request_id) {
-  delegate_->GetAutofillSuggestions(field_name, user_text, node_id, request_id);
+  RenderViewHostDelegate::Autofill* autofill_delegate =
+      delegate_->GetAutofillDelegate();
+  if (autofill_delegate) {
+    autofill_delegate->GetAutofillSuggestions(field_name, user_text,
+                                              node_id, request_id);
+  }
 }
 
 void RenderViewHost::OnRemoveAutofillEntry(const std::wstring& field_name,
                                            const std::wstring& value) {
-  delegate_->RemoveAutofillEntry(field_name, value);
+  RenderViewHostDelegate::Autofill* autofill_delegate =
+      delegate_->GetAutofillDelegate();
+  if (autofill_delegate)
+    autofill_delegate->RemoveAutofillEntry(field_name, value);
 }
 
 void RenderViewHost::AutofillSuggestionsReturned(

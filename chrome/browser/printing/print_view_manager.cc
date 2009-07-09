@@ -56,6 +56,21 @@ bool PrintViewManager::OnRenderViewGone(RenderViewHost* render_view_host) {
   return true;
 }
 
+std::wstring PrintViewManager::RenderSourceName() {
+  std::wstring name(UTF16ToWideHack(owner_.GetTitle()));
+  if (name.empty())
+    name = l10n_util::GetString(IDS_DEFAULT_PRINT_DOCUMENT_TITLE);
+  return name;
+}
+
+GURL PrintViewManager::RenderSourceUrl() {
+  NavigationEntry* entry = owner_.controller().GetActiveEntry();
+  if (entry)
+    return entry->display_url();
+  else
+    return GURL();
+}
+
 void PrintViewManager::DidGetPrintedPagesCount(int cookie, int number_pages) {
   DCHECK_GT(cookie, 0);
   if (!OpportunisticallyCreatePrintJob(cookie))
@@ -115,21 +130,6 @@ void PrintViewManager::DidPrintPage(
                     metafile.release(),
                     params.actual_shrink);
   ShouldQuitFromInnerMessageLoop();
-}
-
-std::wstring PrintViewManager::RenderSourceName() {
-  std::wstring name(UTF16ToWideHack(owner_.GetTitle()));
-  if (name.empty())
-    name = l10n_util::GetString(IDS_DEFAULT_PRINT_DOCUMENT_TITLE);
-  return name;
-}
-
-GURL PrintViewManager::RenderSourceUrl() {
-  NavigationEntry* entry = owner_.controller().GetActiveEntry();
-  if (entry)
-    return entry->display_url();
-  else
-    return GURL();
 }
 
 void PrintViewManager::Observe(NotificationType type,

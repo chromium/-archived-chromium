@@ -92,7 +92,7 @@ class InterstitialPage : public NotificationObserver,
                        const NotificationDetails& details);
 
   // RenderViewHostDelegate implementation:
-  virtual View* GetViewDelegate() const;
+  virtual View* GetViewDelegate();
   virtual const GURL& GetURL() const;
   virtual void RenderViewGone(RenderViewHost* render_view_host);
   virtual void DidNavigate(RenderViewHost* render_view_host,

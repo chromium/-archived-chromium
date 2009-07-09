@@ -502,6 +502,7 @@ class RenderViewHost : public RenderWidgetHost,
   void OnUpdateDragCursor(bool is_drop_target);
   void OnTakeFocus(bool reverse);
   void OnMsgPageHasOSDD(int32 page_id, const GURL& doc_url, bool autodetected);
+  void OnDidGetPrintedPagesCount(int cookie, int number_pages);
   void DidPrintPage(const ViewHostMsg_DidPrintPage_Params& params);
   void OnAddMessageToConsole(const std::wstring& message,
                              int32 line_no,

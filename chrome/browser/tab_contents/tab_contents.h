@@ -142,9 +142,6 @@ class TabContents : public PageNavigator,
   // Returns true if contains content rendered by an extension.
   bool HostsExtension() const;
 
-  // Returns the AutofillManager, creating it if necessary.
-  AutofillManager* GetAutofillManager();
-
   // Returns the PasswordManager, creating it if necessary.
   PasswordManager* GetPasswordManager();
 
@@ -771,12 +768,16 @@ class TabContents : public PageNavigator,
   virtual void DocumentLoadedInFrame();
 
   // RenderViewHostDelegate implementation.
-  virtual RenderViewHostDelegate::View* GetViewDelegate() const;
+  virtual RenderViewHostDelegate::View* GetViewDelegate();
+  virtual RenderViewHostDelegate::RendererManagement*
+      GetRendererManagementDelegate();
   virtual RenderViewHostDelegate::BrowserIntegration*
-      GetBrowserIntegrationDelegate() const;
-  virtual RenderViewHostDelegate::Resource* GetResourceDelegate() const;
-  virtual RenderViewHostDelegate::Save* GetSaveDelegate() const;
-  virtual RenderViewHostDelegate::FavIcon* GetFavIconDelegate() const;
+      GetBrowserIntegrationDelegate();
+  virtual RenderViewHostDelegate::Resource* GetResourceDelegate();
+  virtual RenderViewHostDelegate::Save* GetSaveDelegate();
+  virtual RenderViewHostDelegate::Printing* GetPrintingDelegate();
+  virtual RenderViewHostDelegate::FavIcon* GetFavIconDelegate();
+  virtual RenderViewHostDelegate::Autofill* GetAutofillDelegate();
   virtual TabContents* GetAsTabContents();
   virtual void RenderViewCreated(RenderViewHost* render_view_host);
   virtual void RenderViewReady(RenderViewHost* render_view_host);
@@ -828,15 +829,8 @@ class TabContents : public PageNavigator,
                                    IPC::Message* reply_msg);
   virtual void PasswordFormsSeen(
       const std::vector<webkit_glue::PasswordForm>& forms);
-  virtual void AutofillFormSubmitted(const webkit_glue::AutofillForm& form);
-  virtual void GetAutofillSuggestions(const std::wstring& field_name,
-      const std::wstring& user_text, int64 node_id, int request_id);
-  virtual void RemoveAutofillEntry(const std::wstring& field_name,
-                                   const std::wstring& value);
   virtual void PageHasOSDD(RenderViewHost* render_view_host,
                            int32 page_id, const GURL& url, bool autodetected);
-  virtual void DidGetPrintedPagesCount(int cookie, int number_pages);
-  virtual void DidPrintPage(const ViewHostMsg_DidPrintPage_Params& params);
   virtual GURL GetAlternateErrorPageURL() const;
   virtual RendererPreferences GetRendererPrefs() const;
   virtual WebPreferences GetWebkitPrefs();
@@ -844,7 +838,6 @@ class TabContents : public PageNavigator,
   virtual void ShouldClosePage(bool proceed);
   virtual void OnCrossSiteResponse(int new_render_process_host_id,
                                    int new_request_id);
-  virtual void OnCrossSiteNavigationCanceled();
   virtual bool CanBlur() const;
   virtual gfx::Rect GetRootWindowResizerRect() const;
   virtual void RendererUnresponsive(RenderViewHost* render_view_host,

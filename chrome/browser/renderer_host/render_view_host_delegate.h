@@ -137,6 +137,29 @@ class RenderViewHostDelegate {
     virtual void UpdatePreferredWidth(int pref_width) = 0;
   };
 
+  // RendererManagerment -------------------------------------------------------
+  // Functions for managing switching of Renderers. For TabContents, this is
+  // implemented by the RenderViewHostManager
+
+  class RendererManagement {
+   public:
+    // Notification whether we should close the page, after an explicit call to
+    // AttemptToClosePage.  This is called before a cross-site request or before
+    // a tab/window is closed, to allow the appropriate renderer to approve or
+    // deny the request.  |proceed| indicates whether the user chose to proceed.
+    virtual void ShouldClosePage(bool proceed) = 0;
+
+    // Called by ResourceDispatcherHost when a response for a pending cross-site
+    // request is received.  The ResourceDispatcherHost will pause the response
+    // until the onunload handler of the previous renderer is run.
+    virtual void OnCrossSiteResponse(int new_render_process_host_id,
+                                     int new_request_id) = 0;
+
+    // Called the ResourceDispatcherHost's associate CrossSiteRequestHandler
+    // when a cross-site navigation has been canceled.
+    virtual void OnCrossSiteNavigationCanceled() = 0;
+  };
+
   // BrowserIntegration --------------------------------------------------------
   // Functions that integrate with other browser services.
 
@@ -264,6 +287,21 @@ class RenderViewHostDelegate {
                                               int32 status) = 0;
   };
 
+  // Printing ------------------------------------------------------------------
+
+  class Printing {
+   public:
+    // Notification that the render view has calculated the number of printed
+    // pages.
+    virtual void DidGetPrintedPagesCount(int cookie, int number_pages) = 0;
+
+    // Notification that the render view is done rendering one printed page.
+    // This call is synchronous, the renderer is waiting on us because of the
+    // EMF memory mapped data.
+    virtual void DidPrintPage(
+        const ViewHostMsg_DidPrintPage_Params& params) = 0;
+  };
+
   // FavIcon -------------------------------------------------------------------
   // Interface for the renderer to supply favicon information.
 
@@ -287,15 +325,44 @@ class RenderViewHostDelegate {
                                   const GURL& icon_url) = 0;
   };
 
+  // AutoFill ------------------------------------------------------------------
+  // Interface for autofill-related functions.
+
+  class Autofill {
+   public:
+    // Forms fillable by autofill have been detected in the page.
+    virtual void AutofillFormSubmitted(
+        const webkit_glue::AutofillForm& form) = 0;
+
+    // Called to retrieve a list of suggestions from the web database given
+    // the name of the field |field_name| and what the user has already typed
+    // in the field |user_text|.  Appeals to the database thead to perform the
+    // query. When the database thread is finished, the autofill manager
+    // retrieves the calling RenderViewHost and then passes the vector of
+    // suggestions to RenderViewHost::AutofillSuggestionsReturned.
+    virtual void GetAutofillSuggestions(const std::wstring& field_name,
+                                        const std::wstring& user_text,
+                                        int64 node_id,
+                                        int request_id) = 0;
+
+    // Called when the user has indicated that she wants to remove the specified
+    // autofill suggestion from the database.
+    virtual void RemoveAutofillEntry(const std::wstring& field_name,
+                                     const std::wstring& value) = 0;
+  };
+
   // ---------------------------------------------------------------------------
 
   // Returns the current delegate associated with a feature. May return NULL if
   // there is no corresponding delegate.
-  virtual View* GetViewDelegate() const;
-  virtual BrowserIntegration* GetBrowserIntegrationDelegate() const;
-  virtual Resource* GetResourceDelegate() const;
-  virtual Save* GetSaveDelegate() const;
-  virtual FavIcon* GetFavIconDelegate() const;
+  virtual View* GetViewDelegate();
+  virtual RendererManagement* GetRendererManagementDelegate();
+  virtual BrowserIntegration* GetBrowserIntegrationDelegate();
+  virtual Resource* GetResourceDelegate();
+  virtual Save* GetSaveDelegate();
+  virtual Printing* GetPrintingDelegate();
+  virtual FavIcon* GetFavIconDelegate();
+  virtual Autofill* GetAutofillDelegate();
 
   // Gets the URL that is currently being displayed, if there is one.
   virtual const GURL& GetURL() const;
@@ -410,38 +477,10 @@ class RenderViewHostDelegate {
   virtual void PasswordFormsSeen(
       const std::vector<webkit_glue::PasswordForm>& forms) {}
 
-  // Forms fillable by autofill have been detected in the page.
-  virtual void AutofillFormSubmitted(const webkit_glue::AutofillForm& form) {}
-
-  // Called to retrieve a list of suggestions from the web database given
-  // the name of the field |field_name| and what the user has already typed in
-  // the field |user_text|.  Appeals to the database thead to perform the query.
-  // When the database thread is finished, the autofill manager retrieves the
-  // calling RenderViewHost and then passes the vector of suggestions to
-  // RenderViewHost::AutofillSuggestionsReturned.
-  virtual void GetAutofillSuggestions(const std::wstring& field_name,
-                                      const std::wstring& user_text,
-                                      int64 node_id,
-                                      int request_id) {}
-
-  // Called when the user has indicated that she wants to remove the specified
-  // autofill suggestion from the database.
-  virtual void RemoveAutofillEntry(const std::wstring& field_name,
-                                   const std::wstring& value) {}
-
   // Notification that the page has an OpenSearch description document.
   virtual void PageHasOSDD(RenderViewHost* render_view_host,
                            int32 page_id, const GURL& doc_url,
                            bool autodetected) {}
-
-  // Notification that the render view has calculated the number of printed
-  // pages.
-  virtual void DidGetPrintedPagesCount(int cookie, int number_pages) {}
-
-  // Notification that the render view is done rendering one printed page. This
-  // call is synchronous, the renderer is waiting on us because of the EMF
-  // memory mapped data.
-  virtual void DidPrintPage(const ViewHostMsg_DidPrintPage_Params& params) {}
 
   // |url| is assigned to a server that can provide alternate error pages.  If
   // the returned URL is empty, the default error page built into WebKit will
@@ -458,22 +497,6 @@ class RenderViewHostDelegate {
 
   // Notification from the renderer that JS runs out of memory.
   virtual void OnJSOutOfMemory() {}
-
-  // Notification whether we should close the page, after an explicit call to
-  // AttemptToClosePage.  This is called before a cross-site request or before
-  // a tab/window is closed, to allow the appropriate renderer to approve or
-  // deny the request.  |proceed| indicates whether the user chose to proceed.
-  virtual void ShouldClosePage(bool proceed) {}
-
-  // Called by ResourceDispatcherHost when a response for a pending cross-site
-  // request is received.  The ResourceDispatcherHost will pause the response
-  // until the onunload handler of the previous renderer is run.
-  virtual void OnCrossSiteResponse(int new_render_process_host_id,
-                                   int new_request_id) {}
-
-  // Called the ResourceDispatcherHost's associate CrossSiteRequestHandler
-  // when a cross-site navigation has been canceled.
-  virtual void OnCrossSiteNavigationCanceled() {}
 
   // Returns true if this this object can be blurred through a javascript
   // obj.blur() call. ConstrainedWindows shouldn't be able to be blurred, but
