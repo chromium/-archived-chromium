@@ -559,14 +559,15 @@ void ExtensionsServiceBackend::GarbageCollectExtensions(
   // Nothing to clean up if it doesn't exist.
   if (!file_util::DirectoryExists(install_directory_))
     return;
-
-  file_util::AbsolutePath(&install_directory_);
+  
+  FilePath install_directory_absolute(install_directory_);
+  file_util::AbsolutePath(&install_directory_absolute);
 
   LOG(INFO) << "Loading installed extensions...";
 
   // Find all child directories in the install directory and load their
   // manifests. Post errors and results to the frontend.
-  file_util::FileEnumerator enumerator(install_directory_,
+  file_util::FileEnumerator enumerator(install_directory_absolute,
                                        false,  // Not recursive.
                                        file_util::FileEnumerator::DIRECTORIES);
   FilePath extension_path;
