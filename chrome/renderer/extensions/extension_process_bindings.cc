@@ -19,6 +19,8 @@ using bindings_utils::GetStringResource;
 using bindings_utils::ContextInfo;
 using bindings_utils::ContextList;
 using bindings_utils::GetContexts;
+using bindings_utils::GetPendingRequestMap;
+using bindings_utils::PendingRequest;
 using bindings_utils::ExtensionBase;
 
 namespace {
@@ -58,8 +60,10 @@ class ExtensionImpl : public ExtensionBase {
 
     if (name->Equals(v8::String::New("GetViews"))) {
       return v8::FunctionTemplate::New(GetViews);
+    } else if (name->Equals(v8::String::New("GetNextRequestId"))) {
+      return v8::FunctionTemplate::New(GetNextRequestId);
     } else if (names->find(*v8::String::AsciiValue(name)) != names->end()) {
-      return v8::FunctionTemplate::New(ExtensionBase::StartRequest, name);
+      return v8::FunctionTemplate::New(StartRequest, name);
     }
 
     return ExtensionBase::GetNativeFunction(name);
@@ -88,6 +92,40 @@ class ExtensionImpl : public ExtensionBase {
     }
     return views;
   }
+
+  static v8::Handle<v8::Value> GetNextRequestId(const v8::Arguments& args) {
+    static int next_request_id = 0;
+    return v8::Integer::New(next_request_id++);
+  }
+  
+  // Starts an API request to the browser, with an optional callback.  The
+  // callback will be dispatched to EventBindings::HandleResponse.
+  static v8::Handle<v8::Value> StartRequest(const v8::Arguments& args) {
+    // Get the current RenderView so that we can send a routed IPC message from
+    // the correct source.
+    RenderView* renderview = bindings_utils::GetRenderViewForCurrentContext();
+    if (!renderview)
+      return v8::Undefined();
+
+    if (args.Length() != 3 || !args[0]->IsString() || !args[1]->IsInt32() ||
+        !args[2]->IsBoolean())
+      return v8::Undefined();
+
+    std::string name = *v8::String::AsciiValue(args.Data());
+    std::string json_args = *v8::String::Utf8Value(args[0]);
+    int request_id = args[1]->Int32Value();
+    bool has_callback = args[2]->BooleanValue();
+
+    v8::Persistent<v8::Context> current_context =
+        v8::Persistent<v8::Context>::New(v8::Context::GetCurrent());
+    DCHECK(!current_context.IsEmpty());
+    GetPendingRequestMap()[request_id].reset(new PendingRequest(
+        current_context, *v8::String::AsciiValue(args.Data())));
+
+    renderview->SendExtensionRequest(name, json_args, request_id, has_callback);
+
+    return v8::Undefined();
+  }
 };
 
 }  // namespace
@@ -99,4 +137,25 @@ v8::Extension* ExtensionProcessBindings::Get() {
 void ExtensionProcessBindings::SetFunctionNames(
     const std::vector<std::string>& names) {
   ExtensionImpl::SetFunctionNames(names);
+}
+
+// static
+void ExtensionProcessBindings::HandleResponse(int request_id, bool success,
+                                              const std::string& response,
+                                              const std::string& error) {
+  PendingRequest* request = GetPendingRequestMap()[request_id].get();
+  if (!request)
+    return;  // The frame went away.
+
+  v8::HandleScope handle_scope;
+  v8::Handle<v8::Value> argv[5];
+  argv[0] = v8::Integer::New(request_id);
+  argv[1] = v8::String::New(request->name.c_str());
+  argv[2] = v8::Boolean::New(success);
+  argv[3] = v8::String::New(response.c_str());
+  argv[4] = v8::String::New(error.c_str());
+  bindings_utils::CallFunctionInContext(
+      request->context, "handleResponse", arraysize(argv), argv);
+
+  GetPendingRequestMap().erase(request_id);
 }

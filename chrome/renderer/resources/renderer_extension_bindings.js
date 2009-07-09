@@ -22,21 +22,26 @@ var chrome = chrome || {};
   // Port object.  Represents a connection to another script context through
   // which messages can be passed.
   chrome.Port = function(portId) {
-    if (ports[portId]) {
-      throw new Error("Port '" + portId + "' already exists.");
-    }
-    this.portId_ = portId;  // TODO(mpcomplete): readonly
+    this.portId_ = portId;
     this.onDisconnect = new chrome.Event();
     this.onMessage = new chrome.Event();
-    ports[portId] = this;
-
-    var port = this;
-    chromeHidden.onUnload.addListener(function() {
-      port.disconnect();
-    });
   };
 
   chromeHidden.Port = {};
+
+  // Hidden port creation function.  We don't want to expose an API that lets
+  // people add arbitrary port IDs to the port list.
+  chromeHidden.Port.createPort = function(portId) {
+    if (ports[portId]) {
+      throw new Error("Port '" + portId + "' already exists.");
+    }
+    var port = new chrome.Port(portId);
+    ports[portId] = port;
+    chromeHidden.onUnload.addListener(function() {
+      port.disconnect();
+    });
+    return port;
+  }
 
   // Called by native code when a channel has been opened to this context.
   chromeHidden.Port.dispatchOnConnect = function(portId, tab, extensionId) {
@@ -44,9 +49,9 @@ var chrome = chrome || {};
     // In addition to being an optimization, this also fixes a bug where if 2
     // channels were opened to and from the same process, closing one would
     // close both.
-    var connectEvent = "channel-connect:" + (extensionId || "");
+    var connectEvent = "channel-connect:" + extensionId;
     if (chromeHidden.Event.hasListener(connectEvent)) {
-      var port = new chrome.Port(portId);
+      var port = chromeHidden.Port.createPort(portId);
       if (tab) {
         tab = JSON.parse(tab);
       }
@@ -93,6 +98,7 @@ var chrome = chrome || {};
   // Extension object.
   chrome.Extension = function(id) {
     this.id_ = id;
+    this.onConnect = new chrome.Event('channel-connect:' + id);
   };
 
   // Opens a message channel to the extension.  Returns a Port for
@@ -101,7 +107,7 @@ var chrome = chrome || {};
     var portId = OpenChannelToExtension(this.id_);
     if (portId == -1)
       throw new Error("No such extension: '" + this.id_ + "'");
-    return new chrome.Port(portId);
+    return chromeHidden.Port.createPort(portId);
   };
 
   // Returns a resource URL that can be used to fetch a resource from this
@@ -109,4 +115,6 @@ var chrome = chrome || {};
   chrome.Extension.prototype.getURL = function(path) {
     return "chrome-extension://" + this.id_ + "/" + path;
   };
+
+  chrome.self = chrome.self || {};
 })();

@@ -4,6 +4,11 @@
   "name": "My extension 3",
   "description": "",
   "permissions": [],
-  "content_scripts": [],
+  "content_scripts": [
+    {
+      "matches": ["file://*"],
+      "js": ["page.js"]
+    }
+  ],
   "views": []
 }

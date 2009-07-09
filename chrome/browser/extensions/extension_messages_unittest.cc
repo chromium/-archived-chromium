@@ -13,6 +13,7 @@ static void DispatchOnConnect(int source_port_id, const std::string& tab_json) {
   ListValue args;
   args.Set(0, Value::CreateIntegerValue(source_port_id));
   args.Set(1, Value::CreateStringValue(tab_json));
+  args.Set(2, Value::CreateStringValue(""));  // extension ID is empty for tests
   RendererExtensionBindings::Invoke(
       ExtensionMessageService::kDispatchOnConnect, args);
 }

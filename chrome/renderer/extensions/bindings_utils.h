@@ -39,10 +39,6 @@ class ExtensionBase : public v8::Extension {
   // Returns a hidden variable for use by the bindings that is unreachable
   // by the page.
   static v8::Handle<v8::Value> GetChromeHidden(const v8::Arguments& args);
-
-  // Starts an API request to the browser, with an optional callback.  The
-  // callback will be dispatched to EventBindings::HandleResponse.
-  static v8::Handle<v8::Value> StartRequest(const v8::Arguments& args);
 };
 
 template<int kResourceId>

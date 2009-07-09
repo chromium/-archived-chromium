@@ -1403,14 +1403,21 @@ IPC_BEGIN_MESSAGES(ViewHost)
                               std::string /* extension_id */,
                               int /* port_id */)
 
+  // Get a port handle to the given tab's process.  The handle can be used for
+  // sending messages to the extension.
+  IPC_SYNC_MESSAGE_CONTROL2_1(ViewHostMsg_OpenChannelToTab,
+                              int /* routing_id */,
+                              int /* tab_id */,
+                              int /* port_id */)
+
   // Send a message to an extension process.  The handle is the value returned
-  // by ViewHostMsg_OpenChannelToExtension.
+  // by ViewHostMsg_OpenChannelTo*.
   IPC_MESSAGE_ROUTED2(ViewHostMsg_ExtensionPostMessage,
                       int /* port_id */,
                       std::string /* message */)
 
   // Send a message to an extension process.  The handle is the value returned
-  // by ViewHostMsg_OpenChannelToExtension.
+  // by ViewHostMsg_OpenChannelTo*.
   IPC_MESSAGE_CONTROL1(ViewHostMsg_ExtensionCloseChannel,
                        int /* port_id */)
 

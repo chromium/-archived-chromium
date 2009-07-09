@@ -44,34 +44,6 @@ v8::Handle<v8::Value> ExtensionBase::GetChromeHidden(
   return hidden;
 }
 
-v8::Handle<v8::Value> ExtensionBase::StartRequest(
-    const v8::Arguments& args) {
-  // Get the current RenderView so that we can send a routed IPC message from
-  // the correct source.
-  RenderView* renderview = bindings_utils::GetRenderViewForCurrentContext();
-  if (!renderview)
-    return v8::Undefined();
-
-  if (args.Length() != 3 || !args[0]->IsString() || !args[1]->IsInt32() ||
-      !args[2]->IsBoolean())
-    return v8::Undefined();
-
-  std::string name = *v8::String::AsciiValue(args.Data());
-  std::string json_args = *v8::String::Utf8Value(args[0]);
-  int request_id = args[1]->Int32Value();
-  bool has_callback = args[2]->BooleanValue();
-
-  v8::Persistent<v8::Context> current_context =
-      v8::Persistent<v8::Context>::New(v8::Context::GetCurrent());
-  DCHECK(!current_context.IsEmpty());
-  GetPendingRequestMap()[request_id].reset(new PendingRequest(
-      current_context, *v8::String::AsciiValue(args.Data())));
-
-  renderview->SendExtensionRequest(name, json_args, request_id, has_callback);
-
-  return v8::Undefined();
-}
-
 ContextList& GetContexts() {
   return Singleton<SingletonData>::get()->contexts;
 }

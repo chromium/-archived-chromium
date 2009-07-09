@@ -37,6 +37,7 @@
 #include "chrome/renderer/devtools_agent.h"
 #include "chrome/renderer/devtools_client.h"
 #include "chrome/renderer/extensions/event_bindings.h"
+#include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/localized_error.h"
 #include "chrome/renderer/media/audio_renderer_impl.h"
 #include "chrome/renderer/media/buffered_data_source.h"
@@ -2798,7 +2799,8 @@ void RenderView::OnExtensionResponse(int request_id,
                                      bool success,
                                      const std::string& response,
                                      const std::string& error) {
-  EventBindings::HandleResponse(request_id, success, response, error);
+  ExtensionProcessBindings::HandleResponse(
+      request_id, success, response, error);
 }
 
 // Dump all load time histograms.

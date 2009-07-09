@@ -9,6 +9,7 @@
 #include <set>
 #include <string>
 
+#include "base/linked_ptr.h"
 #include "base/lock.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/notification_registrar.h"
@@ -43,12 +44,8 @@ class ExtensionMessageService : public NotificationObserver {
 
   // --- UI thread only:
 
-  // Gets the process for the specified extension.
-  RenderProcessHost* GetProcessForExtension(const std::string& extension_id);
-
-  // Register an extension and its corresponding renderer process.
-  void RegisterExtension(const std::string& extension_id,
-                         int render_process_id);
+  // UI-thread specific initialization.  Does nothing if called more than once.
+  void Init();
 
   // Add or remove |render_process_pid| as a listener for |event_name|.
   void AddEventListener(std::string event_name, int render_process_id);
@@ -87,70 +84,53 @@ class ExtensionMessageService : public NotificationObserver {
   // message.
   int OpenChannelToExtension(int routing_id, const std::string& extension_id,
                              ResourceMessageFilter* source);
-
+  
  private:
-  // The connection between two ports.  It is possible that both ports
-  // refer to the same renderer.
+  // A messaging channel.  Since messages are broadcast, the channel can have
+  // multiple processes listening for messages.  Note that the opening port
+  // can also be among the receivers, if an extension toolstrip wants to talk
+  // to its tab (for example).
   struct MessageChannel {
-    IPC::Message::Sender* port1;
-    IPC::Message::Sender* port2;
+    typedef std::set<IPC::Message::Sender*> Ports;
+    Ports opener;  // only 1 opener, but we use a set to simplify logic
+    Ports receivers;
   };
 
   // A map of channel ID to its channel object.
-  typedef std::map<int, MessageChannel> MessageChannelMap;
+  typedef std::map<int, linked_ptr<MessageChannel> > MessageChannelMap;
 
   // Allocates a pair of port ids.
   // NOTE: this can be called from any thread.
   void AllocatePortIdPair(int* port1, int* port2);
 
-  // Gets the process ID for the specified extension.
-  // NOTE: this can be called from any thread.
-  int GetProcessIdForExtension(const std::string& extension_id);
-
   void CloseChannelImpl(MessageChannelMap::iterator channel_iter, int port_id);
-
-  int OpenChannelToExtensionImpl(const std::string& extension_id,
-                                 IPC::Message::Sender* source);
-
-  NotificationRegistrar registrar_;
 
   // The UI message loop, used for posting tasks.
   MessageLoop* ui_loop_;
 
-  // A map of extension ID to the render_process_id that the extension lives in.
-  typedef std::map<std::string, int> ProcessIDMap;
-  ProcessIDMap process_ids_;
+  // --- UI thread only:
 
-  // Protects the process_ids map, since it can be accessed on the IO thread
-  // or UI thread.  Be careful not to hold this lock when calling external
-  // code (especially sending messages) to avoid deadlock.
-  Lock process_ids_lock_;
+  // Handles channel creation and notifies the destination that a channel was
+  // opened.
+  void OpenChannelOnUIThread(int source_routing_id,
+      int source_port_id, int source_process_id,
+      const std::string& extension_id);
+
+  // Common between OpenChannelOnUIThread and OpenAutomationChannelToExtension.
+  void OpenChannelOnUIThreadImpl(
+    int source_routing_id, int source_port_id, int source_process_id,
+    IPC::Message::Sender* source, const std::string& extension_id);
+
+  NotificationRegistrar registrar_;
+
+  MessageChannelMap channels_;
 
   // A map between an event name and a set of process id's that are listening
   // to that event.
   typedef std::map<std::string, std::set<int> > ListenerMap;
   ListenerMap listeners_;
 
-  // --- UI thread only:
-
-  // UI-thread specific initialization.  Does nothing if called more than once.
-  void Init();
-
-  // Handles channel creation and notifies the destination that a channel was
-  // opened.
-  void OpenChannelOnUIThread(int source_routing_id,
-      int source_port_id, int source_process_id,
-      int dest_port_id, int dest_process_id,
-      const std::string& extension_id);
-
-  // Common between OpenChannelOnUIThread and
-  // OpenAutomationChannelToExtension.
-  void OpenChannelOnUIThreadImpl(
-    int source_routing_id, int source_port_id, int source_process_id,
-    IPC::Message::Sender* source, int dest_port_id, int dest_process_id,
-    const std::string& extension_id);
-
-  MessageChannelMap channels_;
+  // --- UI or IO thread:
 
   // True if Init has been called.
   bool initialized_;

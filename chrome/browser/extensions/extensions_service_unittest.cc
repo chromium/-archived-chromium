@@ -572,7 +572,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
   EXPECT_EQ(std::string(good2), loaded_[2]->id());
   EXPECT_EQ(std::string("My extension 3"), loaded_[2]->name());
   EXPECT_EQ(std::string(""), loaded_[2]->description());
-  EXPECT_EQ(0u, loaded_[2]->content_scripts().size());
+  EXPECT_EQ(1u, loaded_[2]->content_scripts().size());
   EXPECT_EQ(Extension::INTERNAL, loaded_[2]->location());
 };
 

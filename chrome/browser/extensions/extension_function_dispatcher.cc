@@ -183,12 +183,9 @@ ExtensionFunctionDispatcher::ExtensionFunctionDispatcher(
     url_(url),
     ALLOW_THIS_IN_INITIALIZER_LIST(peer_(new Peer(this))) {
   all_instances()->insert(this);
-  RenderProcessHost* process = render_view_host_->process();
-  ExtensionMessageService* message_service =
-      ExtensionMessageService::GetInstance(profile()->GetRequestContext());
-  DCHECK(process);
-  DCHECK(message_service);
-  message_service->RegisterExtension(extension_id(), process->pid());
+
+  // Ensure the message service is initialized.
+  ExtensionMessageService::GetInstance(profile()->GetRequestContext())->Init();
 }
 
 ExtensionFunctionDispatcher::~ExtensionFunctionDispatcher() {

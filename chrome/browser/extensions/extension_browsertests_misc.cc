@@ -17,8 +17,29 @@
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/extensions/extension_error_reporter.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/test/ui_test_utils.h"
+#include "net/base/net_util.h"
+
+// Looks for an ExtensionHost whose URL has the given path component (including
+// leading slash).  Also verifies that the expected number of hosts are loaded.
+static ExtensionHost* FindHostWithPath(ExtensionProcessManager* manager,
+                                       const std::string& path,
+                                       int expected_hosts) {
+  ExtensionHost* host = NULL;
+  int num_hosts = 0;
+  for (ExtensionProcessManager::const_iterator iter = manager->begin();
+       iter != manager->end(); ++iter) {
+    if ((*iter)->GetURL().path() == path) {
+      EXPECT_FALSE(host);
+      host = *iter;
+    }
+    num_hosts++;
+  }
+  EXPECT_EQ(expected_hosts, num_hosts);
+  return host;
+}
 
 // Tests that toolstrips initializes properly and can run basic extension js.
 IN_PROC_BROWSER_TEST_F(ExtensionBrowserTest, Toolstrip) {
@@ -31,17 +52,7 @@ IN_PROC_BROWSER_TEST_F(ExtensionBrowserTest, Toolstrip) {
   // extension has two toolstrips. Find the one that is hosting toolstrip1.html.
   ExtensionProcessManager* manager =
       browser()->profile()->GetExtensionProcessManager();
-  ExtensionHost* host = NULL;
-  int num_hosts = 0;
-  for (ExtensionProcessManager::const_iterator iter = manager->begin();
-       iter != manager->end(); ++iter) {
-    if ((*iter)->GetURL().path() == "/toolstrip1.html") {
-      ASSERT_FALSE(host);
-      host = *iter;
-    }
-    num_hosts++;
-  }
-  EXPECT_EQ(2, num_hosts);
+  ExtensionHost* host = FindHostWithPath(manager, "/toolstrip1.html", 2);
 
   // Tell it to run some JavaScript that tests that basic extension code works.
   bool result = false;
@@ -105,3 +116,102 @@ IN_PROC_BROWSER_TEST_F(ExtensionBrowserTest, TabContents) {
       L"testTabsAPI()", &result);
   EXPECT_TRUE(result);
 }
+
+// Tests that message passing between extensions and tabs works.
+IN_PROC_BROWSER_TEST_F(ExtensionBrowserTest, MessagingExtensionTab) {
+  ASSERT_TRUE(LoadExtension(
+      test_data_dir_.AppendASCII("good").AppendASCII("Extensions")
+                    .AppendASCII("bjafgdebaacbbbecmhlhpofkepfkgcpa")
+                    .AppendASCII("1.0")));
+
+  // Get the ExtensionHost that is hosting our background page.
+  ExtensionProcessManager* manager =
+      browser()->profile()->GetExtensionProcessManager();
+  ExtensionHost* host = FindHostWithPath(manager, "/background.html", 1);
+
+  // Load the tab that will communicate with our background page.
+  ui_test_utils::NavigateToURL(
+      browser(),
+      GURL("chrome-extension://bjafgdebaacbbbecmhlhpofkepfkgcpa/page.html"));
+
+  // First test that tab->extension messaging works.
+  bool result = false;
+  ui_test_utils::ExecuteJavaScriptAndExtractBool(
+      browser()->GetSelectedTabContents()->render_view_host(), L"",
+      L"testPostMessageFromTab()", &result);
+  EXPECT_TRUE(result);
+
+  // Now test extension->tab messaging, with disconnect events.
+  result = false;
+  ui_test_utils::ExecuteJavaScriptAndExtractBool(
+      host->render_view_host(), L"", L"testDisconnect()", &result);
+  EXPECT_TRUE(result);
+
+  result = false;
+  ui_test_utils::ExecuteJavaScriptAndExtractBool(
+      host->render_view_host(), L"", L"testPostMessage()", &result);
+  EXPECT_TRUE(result);
+
+  result = false;
+  ui_test_utils::ExecuteJavaScriptAndExtractBool(
+      host->render_view_host(), L"", L"testDisconnectOnClose()", &result);
+  EXPECT_TRUE(result);
+}
+
+// TODO(mpcomplete): reenable this when content script messaging is fixed:
+// http://code.google.com/p/chromium/issues/detail?id=16228.
+#if 0
+// Tests that message passing between extensions and content scripts works.
+IN_PROC_BROWSER_TEST_F(ExtensionBrowserTest, MessagingContentScript) {
+  ASSERT_TRUE(LoadExtension(
+      test_data_dir_.AppendASCII("good").AppendASCII("Extensions")
+                    .AppendASCII("bjafgdebaacbbbecmhlhpofkepfkgcpa")
+                    .AppendASCII("1.0")));
+
+  UserScriptMaster* master = browser()->profile()->GetUserScriptMaster();
+  if (!master->ScriptsReady()) {
+    // Wait for UserScriptMaster to finish its scan.
+    NotificationRegistrar registrar;
+    registrar.Add(this, NotificationType::USER_SCRIPTS_UPDATED,
+                  NotificationService::AllSources());
+    ui_test_utils::RunMessageLoop();
+  }
+  ASSERT_TRUE(master->ScriptsReady());
+
+  // Get the ExtensionHost that is hosting our background page.
+  ExtensionProcessManager* manager =
+      browser()->profile()->GetExtensionProcessManager();
+  ExtensionHost* host = FindHostWithPath(manager, "/background.html", 1);
+
+  // Load the tab whose content script will communicate with our background
+  // page.
+  FilePath test_file;
+  PathService::Get(chrome::DIR_TEST_DATA, &test_file);
+  test_file = test_file.AppendASCII("extensions")
+                       .AppendASCII("test_file.html");
+  ui_test_utils::NavigateToURL(browser(), net::FilePathToFileURL(test_file));
+
+  // First test that tab->extension messaging works.
+  bool result = false;
+  ui_test_utils::ExecuteJavaScriptAndExtractBool(
+      browser()->GetSelectedTabContents()->render_view_host(), L"",
+      L"testPostMessageFromTab()", &result);
+  EXPECT_TRUE(result);
+
+  // Now test extension->tab messaging, with disconnect events.
+  result = false;
+  ui_test_utils::ExecuteJavaScriptAndExtractBool(
+      host->render_view_host(), L"", L"testDisconnect()", &result);
+  EXPECT_TRUE(result);
+
+  result = false;
+  ui_test_utils::ExecuteJavaScriptAndExtractBool(
+      host->render_view_host(), L"", L"testPostMessage()", &result);
+  EXPECT_TRUE(result);
+
+  result = false;
+  ui_test_utils::ExecuteJavaScriptAndExtractBool(
+      host->render_view_host(), L"", L"testDisconnectOnClose()", &result);
+  EXPECT_TRUE(result);
+}
+#endif

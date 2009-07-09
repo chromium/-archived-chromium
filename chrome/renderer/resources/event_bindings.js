@@ -12,7 +12,6 @@ var chrome = chrome || {};
   native function GetChromeHidden();
   native function AttachEvent(eventName);
   native function DetachEvent(eventName);
-  native function GetNextRequestId();
 
   var chromeHidden = GetChromeHidden();
 
@@ -149,45 +148,6 @@ var chrome = chrome || {};
     delete attachedNamedEvents[this.eventName_];
   };
 
-  // Callback handling.
-  var callbacks = [];
-  chromeHidden.handleResponse = function(requestId, name,
-                                         success, response, error) {
-    try {
-      if (!success) {
-        if (!error)
-          error = "Unknown error."
-        console.error("Error during " + name + ": " + error);
-        return;
-      }
-
-      if (callbacks[requestId]) {
-        if (response) {
-          callbacks[requestId](JSON.parse(response));
-        } else {
-          callbacks[requestId]();
-        }
-      }
-    } finally {
-      delete callbacks[requestId];
-    }
-  };
-
-  // Send an API request and optionally register a callback.
-  chromeHidden.sendRequest = function(request, args, callback) {
-    // JSON.stringify doesn't support a root object which is undefined.
-    if (args === undefined)
-      args = null;
-    var sargs = JSON.stringify(args);
-    var requestId = GetNextRequestId();
-    var hasCallback = false;
-    if (callback) {
-      hasCallback = true;
-      callbacks[requestId] = callback;
-    }
-    request(sargs, requestId, hasCallback);
-  }
-
   // Special load events: we don't use the DOM unload because that slows
   // down tab shutdown.  On the other hand, onUnload might not always fire,
   // since Chrome will terminate renderers on shutdown (SuddenTermination).
@@ -202,5 +162,9 @@ var chrome = chrome || {};
     chromeHidden.onUnload.dispatch();
     for (var i in allAttachedEvents)
       allAttachedEvents[i].detach_();
+  }
+
+  chromeHidden.dispatchError = function(msg) {
+    console.error(msg);
   }
 })();

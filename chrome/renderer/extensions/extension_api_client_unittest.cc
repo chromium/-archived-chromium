@@ -7,7 +7,7 @@
 #include "base/string_util.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/renderer/extensions/event_bindings.h"
+#include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/extensions/renderer_extension_bindings.h"
 #include "chrome/test/render_view_test.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -91,7 +91,8 @@ TEST_F(ExtensionAPIClientTest, CallbackDispatching) {
   ASSERT_GE(callback_id, 0);
 
   // Now send the callback a response
-  EventBindings::HandleResponse(callback_id, true, "{\"foo\":\"bar\"}", "");
+  ExtensionProcessBindings::HandleResponse(
+      callback_id, true, "{\"foo\":\"bar\"}", "");
 
   // And verify that it worked
   ASSERT_EQ("pass", GetConsoleMessage());

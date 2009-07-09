@@ -1,0 +1,38 @@
+<script>
+chrome.extension.onConnect.addListener(function(port) {
+  port.onMessage.addListener(function(msg) {
+    if (msg.testPostMessageFromTab) {
+      port.postMessage({success: true});
+    }
+    // Ignore other messages since they are from us.
+  });
+});
+
+// Tests that postMessage to the tab and its response works.
+function testPostMessage() {
+  var port = chrome.extension.connect();
+  port.postMessage({testPostMessage: true});
+  port.onMessage.addListener(function(msg) {
+    window.domAutomationController.send(msg.success);
+    port.disconnect();
+  });
+}
+
+// Tests that we get the disconnect event when the tab disconnect.
+function testDisconnect() {
+  var port = chrome.extension.connect();
+  port.postMessage({testDisconnect: true});
+  port.onDisconnect.addListener(function() {
+    window.domAutomationController.send(true);
+  });
+}
+
+// Tests that we get the disconnect event when the tab context closes.
+function testDisconnectOnClose() {
+  var port = chrome.extension.connect();
+  port.postMessage({testDisconnectOnClose: true});
+  port.onDisconnect.addListener(function() {
+    window.domAutomationController.send(true);
+  });
+}
+</script>

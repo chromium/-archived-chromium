@@ -23,11 +23,11 @@
 // Since we have 2 ports for every channel, we just index channels by half the
 // port ID.
 #define GET_CHANNEL_ID(port_id) ((port_id) / 2)
-#define GET_CHANNEL_PORT1(channel_id) ((channel_id) * 2)
-#define GET_CHANNEL_PORT2(channel_id) ((channel_id) * 2 + 1)
+#define GET_CHANNEL_OPENER_ID(channel_id) ((channel_id) * 2)
+#define GET_CHANNEL_RECEIVERS_ID(channel_id) ((channel_id) * 2 + 1)
 
 // Port1 is always even, port2 is always odd.
-#define IS_PORT1_ID(port_id) (((port_id) & 1) == 0)
+#define IS_OPENER_PORT_ID(port_id) (((port_id) & 1) == 0)
 
 // Change even to odd and vice versa, to get the other side of a given channel.
 #define GET_OPPOSITE_PORT_ID(source_port_id) ((source_port_id) ^ 1)
@@ -78,6 +78,10 @@ static void DispatchEvent(IPC::Message::Sender* channel,
   args.Set(1, Value::CreateStringValue(event_args));
   channel->Send(new ViewMsg_ExtensionMessageInvoke(
       ExtensionMessageService::kDispatchEvent, args));
+}
+
+static std::string GetChannelConnectEvent(const std::string& extension_id) {
+  return StringPrintf("channel-connect:%s", extension_id.c_str());
 }
 
 }  // namespace
@@ -132,19 +136,6 @@ void ExtensionMessageService::Init() {
                  NotificationService::AllSources());
 }
 
-void ExtensionMessageService::RegisterExtension(
-    const std::string& extension_id, int render_process_id) {
-  DCHECK_EQ(MessageLoop::current()->type(), MessageLoop::TYPE_UI);
-
-  // Make sure we're initialized.
-  Init();
-
-  AutoLock lock(process_ids_lock_);
-  DCHECK(process_ids_.find(extension_id) == process_ids_.end() ||
-         process_ids_[extension_id] == render_process_id);
-  process_ids_[extension_id] = render_process_id;
-}
-
 void ExtensionMessageService::AddEventListener(std::string event_name,
                                                int render_process_id) {
   DCHECK_EQ(MessageLoop::current()->type(), MessageLoop::TYPE_UI);
@@ -166,41 +157,17 @@ void ExtensionMessageService::AllocatePortIdPair(int* port1, int* port2) {
   int port1_id = next_port_id_++;
   int port2_id = next_port_id_++;
 
-  DCHECK(IS_PORT1_ID(port1_id));
+  DCHECK(IS_OPENER_PORT_ID(port1_id));
   DCHECK(GET_OPPOSITE_PORT_ID(port1_id) == port2_id);
   DCHECK(GET_OPPOSITE_PORT_ID(port2_id) == port1_id);
   DCHECK(GET_CHANNEL_ID(port1_id) == GET_CHANNEL_ID(port2_id));
 
   int channel_id = GET_CHANNEL_ID(port1_id);
-  DCHECK(GET_CHANNEL_PORT1(channel_id) == port1_id);
-  DCHECK(GET_CHANNEL_PORT2(channel_id) == port2_id);
+  DCHECK(GET_CHANNEL_OPENER_ID(channel_id) == port1_id);
+  DCHECK(GET_CHANNEL_RECEIVERS_ID(channel_id) == port2_id);
 
   *port1 = port1_id;
   *port2 = port2_id;
-}
-
-int ExtensionMessageService::GetProcessIdForExtension(
-    const std::string& extension_id) {
-  AutoLock lock(process_ids_lock_);
-  ProcessIDMap::iterator process_id_it = process_ids_.find(
-      StringToLowerASCII(extension_id));
-  if (process_id_it == process_ids_.end())
-    return -1;
-  return process_id_it->second;
-}
-
-RenderProcessHost* ExtensionMessageService::GetProcessForExtension(
-    const std::string& extension_id) {
-  DCHECK_EQ(MessageLoop::current()->type(), MessageLoop::TYPE_UI);
-
-  int process_id = GetProcessIdForExtension(extension_id);
-  if (process_id == -1)
-    return NULL;
-
-  RenderProcessHost* host = RenderProcessHost::FromID(process_id);
-  DCHECK(host);
-
-  return host;
 }
 
 int ExtensionMessageService::OpenChannelToExtension(
@@ -208,12 +175,6 @@ int ExtensionMessageService::OpenChannelToExtension(
     ResourceMessageFilter* source) {
   DCHECK_EQ(MessageLoop::current(),
             ChromeThread::GetMessageLoop(ChromeThread::IO));
-
-  // Lookup the targeted extension process.
-  int process_id = GetProcessIdForExtension(extension_id);
-  if (process_id == -1)
-    return -1;
-
   DCHECK(initialized_);
 
   // Create a channel ID for both sides of the channel.
@@ -223,37 +184,49 @@ int ExtensionMessageService::OpenChannelToExtension(
 
   ui_loop_->PostTask(FROM_HERE,
       NewRunnableMethod(this, &ExtensionMessageService::OpenChannelOnUIThread,
-          routing_id, port1_id, source->GetProcessId(), port2_id, process_id,
-          extension_id));
+          routing_id, port1_id, source->GetProcessId(), extension_id));
 
   return port2_id;
 }
 
 void ExtensionMessageService::OpenChannelOnUIThread(
     int source_routing_id, int source_port_id, int source_process_id,
-    int dest_port_id, int dest_process_id, const std::string& extension_id) {
+    const std::string& extension_id) {
   RenderProcessHost* source = RenderProcessHost::FromID(source_process_id);
   OpenChannelOnUIThreadImpl(source_routing_id, source_port_id,
-                            source_process_id, source, dest_port_id,
-                            dest_process_id, extension_id);
+                            source_process_id, source, extension_id);
 }
 
 void ExtensionMessageService::OpenChannelOnUIThreadImpl(
     int source_routing_id, int source_port_id, int source_process_id,
-    IPC::Message::Sender* source, int dest_port_id, int dest_process_id,
-    const std::string& extension_id) {
+    IPC::Message::Sender* source, const std::string& extension_id) {
   DCHECK_EQ(MessageLoop::current()->type(), MessageLoop::TYPE_UI);
 
-  MessageChannel channel;
-  channel.port1 = source;
-  channel.port2 = RenderProcessHost::FromID(dest_process_id);
-  if (!channel.port1 || !channel.port2) {
-    // One of the processes could have been closed while posting this task.
+  if (!source)
+    return;  // Source closed while task was in flight.
+
+  linked_ptr<MessageChannel> channel(new MessageChannel);
+  channel->opener.insert(source);
+
+  // Get the list of processes that are listening for this extension's channel
+  // connect event.
+  std::string event_name = GetChannelConnectEvent(extension_id);
+  std::set<int>& pids = listeners_[event_name];
+  for (std::set<int>::iterator pid = pids.begin(); pid != pids.end(); ++pid) {
+    RenderProcessHost* renderer = RenderProcessHost::FromID(*pid);
+    if (!renderer)
+      continue;
+    channel->receivers.insert(renderer);
+  }
+  if (channel->receivers.empty()) {
+    // Either no one is listening, or all listeners have since closed.
+    // TODO(mpcomplete): should we notify the source?
     return;
   }
 
   channels_[GET_CHANNEL_ID(source_port_id)] = channel;
 
+  // Include info about the opener's tab (if it was a tab).
   std::string tab_json = "null";
   TabContents* contents = tab_util::GetTabContentsByID(source_process_id,
                                                        source_routing_id);
@@ -262,20 +235,18 @@ void ExtensionMessageService::OpenChannelOnUIThreadImpl(
     JSONWriter::Write(tab_value, false, &tab_json);
   }
 
-  // Send the process the id for the opposite port.
-  DispatchOnConnect(channel.port2, source_port_id, tab_json, extension_id);
+  // Broadcast the connect event to the receivers.  Give them the opener's
+  // port ID (the opener has the opposite port ID).
+  for (MessageChannel::Ports::iterator it = channel->receivers.begin();
+       it != channel->receivers.end(); ++it) {
+    DispatchOnConnect(*it, source_port_id, tab_json, extension_id);
+  }
 }
 
 int ExtensionMessageService::OpenAutomationChannelToExtension(
     int source_process_id, int routing_id, const std::string& extension_id,
     IPC::Message::Sender* source) {
   DCHECK_EQ(MessageLoop::current()->type(), MessageLoop::TYPE_UI);
-
-  // Lookup the targeted extension process.
-  int process_id = GetProcessIdForExtension(extension_id);
-  if (process_id == -1)
-    return -1;
-
   DCHECK(initialized_);
 
   int port1_id = -1;
@@ -289,7 +260,7 @@ int ExtensionMessageService::OpenAutomationChannelToExtension(
   //      information should be supplied by the caller for
   //      automation-initiated ports.
   OpenChannelOnUIThreadImpl(routing_id, port1_id, source_process_id,
-                            source, port2_id, process_id, extension_id);
+                            source, extension_id);
 
   return port2_id;
 }
@@ -304,38 +275,41 @@ void ExtensionMessageService::CloseChannel(int port_id) {
 }
 
 void ExtensionMessageService::CloseChannelImpl(
-    MessageChannelMap::iterator channel_iter, int port_id) {
+    MessageChannelMap::iterator channel_iter, int closing_port_id) {
   DCHECK_EQ(MessageLoop::current()->type(), MessageLoop::TYPE_UI);
 
   // Notify the other side.
-  if (port_id == GET_CHANNEL_PORT1(channel_iter->first)) {
-    DispatchOnDisconnect(channel_iter->second.port2,
-                         GET_OPPOSITE_PORT_ID(port_id));
-  } else {
-    DCHECK_EQ(port_id, GET_CHANNEL_PORT2(channel_iter->first));
-    DispatchOnDisconnect(channel_iter->second.port1,
-                         GET_OPPOSITE_PORT_ID(port_id));
+  MessageChannel::Ports* ports =
+      IS_OPENER_PORT_ID(closing_port_id) ?
+          &channel_iter->second->receivers : &channel_iter->second->opener;
+
+  for (MessageChannel::Ports::iterator it = ports->begin();
+       it != ports->end(); ++it) {
+    DispatchOnDisconnect(*it, GET_OPPOSITE_PORT_ID(closing_port_id));
   }
 
   channels_.erase(channel_iter);
 }
 
 void ExtensionMessageService::PostMessageFromRenderer(
-    int port_id, const std::string& message) {
+    int dest_port_id, const std::string& message) {
   DCHECK_EQ(MessageLoop::current()->type(), MessageLoop::TYPE_UI);
 
   MessageChannelMap::iterator iter =
-      channels_.find(GET_CHANNEL_ID(port_id));
+      channels_.find(GET_CHANNEL_ID(dest_port_id));
   if (iter == channels_.end())
     return;
-  MessageChannel& channel = iter->second;
 
   // Figure out which port the ID corresponds to.
-  IPC::Message::Sender* dest =
-      IS_PORT1_ID(port_id) ? channel.port1 : channel.port2;
+  MessageChannel::Ports* ports =
+      IS_OPENER_PORT_ID(dest_port_id) ?
+          &iter->second->opener : &iter->second->receivers;
+  int source_port_id = GET_OPPOSITE_PORT_ID(dest_port_id);
 
-  int source_port_id = GET_OPPOSITE_PORT_ID(port_id);
-  DispatchOnMessage(dest, message, source_port_id);
+  for (MessageChannel::Ports::iterator it = ports->begin();
+       it != ports->end(); ++it) {
+    DispatchOnMessage(*it, message, source_port_id);
+  }
 }
 
 void ExtensionMessageService::DispatchEventToRenderers(
@@ -369,26 +343,24 @@ void ExtensionMessageService::Observe(NotificationType type,
 
   RenderProcessHost* renderer = Source<RenderProcessHost>(source).ptr();
 
-  {
-    AutoLock lock(process_ids_lock_);
-    for (ProcessIDMap::iterator it = process_ids_.begin();
-         it != process_ids_.end(); ) {
-      ProcessIDMap::iterator current = it++;
-      if (current->second == renderer->pid()) {
-        process_ids_.erase(current);
-      }
-    }
-  }
-
   // Close any channels that share this renderer.  We notify the opposite
   // port that his pair has closed.
   for (MessageChannelMap::iterator it = channels_.begin();
        it != channels_.end(); ) {
     MessageChannelMap::iterator current = it++;
-    if (current->second.port1 == renderer) {
-      CloseChannelImpl(current, GET_CHANNEL_PORT1(current->first));
-    } else if (current->second.port2 == renderer) {
-      CloseChannelImpl(current, GET_CHANNEL_PORT2(current->first));
+    if (current->second->opener.count(renderer) > 0) {
+      CloseChannelImpl(current, GET_CHANNEL_OPENER_ID(current->first));
+    } else if (current->second->receivers.count(renderer) > 0) {
+      CloseChannelImpl(current, GET_CHANNEL_RECEIVERS_ID(current->first));
     }
+  }
+
+  // Remove this renderer from our listener maps.
+  for (ListenerMap::iterator it = listeners_.begin();
+       it != listeners_.end(); ) {
+    ListenerMap::iterator current = it++;
+    current->second.erase(renderer->pid());
+    if (current->second.empty())
+      listeners_.erase(current);
   }
 }

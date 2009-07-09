@@ -26,8 +26,11 @@ static const char kUserScriptHead[] = "(function (unsafeWindow) {\n";
 static const char kUserScriptTail[] = "\n})(window);";
 
 // Creates a convenient reference to a content script's parent extension.
+// TODO(mpcomplete): self.onConnect is deprecated.  Remove it at 1.0.
+// http://code.google.com/p/chromium/issues/detail?id=16356
 static const char kInitExtension[] =
-    "chrome.extension = new chrome.Extension('%s')";
+    "chrome.extension = new chrome.Extension('%s');"
+    "chrome.self.onConnect = chrome.extension.onConnect;";
 
 UserScriptSlave::UserScriptSlave()
     : shared_memory_(NULL),

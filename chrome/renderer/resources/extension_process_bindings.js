@@ -35,6 +35,7 @@ var chrome = chrome || {};
   native function MoveBookmark();
   native function SetBookmarkTitle();
   native function GetChromeHidden();
+  native function GetNextRequestId();
 
   if (!chrome)
     chrome = {};
@@ -72,7 +73,44 @@ var chrome = chrome || {};
     }
   }
 
-  var sendRequest = chromeHidden.sendRequest;
+  // Callback handling.
+  var callbacks = [];
+  chromeHidden.handleResponse = function(requestId, name,
+                                         success, response, error) {
+    try {
+      if (!success) {
+        if (!error)
+          error = "Unknown error."
+        console.error("Error during " + name + ": " + error);
+        return;
+      }
+
+      if (callbacks[requestId]) {
+        if (response) {
+          callbacks[requestId](JSON.parse(response));
+        } else {
+          callbacks[requestId]();
+        }
+      }
+    } finally {
+      delete callbacks[requestId];
+    }
+  };
+
+  // Send an API request and optionally register a callback.
+  function sendRequest(request, args, callback) {
+    // JSON.stringify doesn't support a root object which is undefined.
+    if (args === undefined)
+      args = null;
+    var sargs = JSON.stringify(args);
+    var requestId = GetNextRequestId();
+    var hasCallback = false;
+    if (callback) {
+      hasCallback = true;
+      callbacks[requestId] = callback;
+    }
+    request(sargs, requestId, hasCallback);
+  }
 
   //----------------------------------------------------------------------------
 
@@ -492,6 +530,9 @@ var chrome = chrome || {};
   chrome.self = chrome.self || {};
 
   chromeHidden.onLoad.addListener(function (extensionId) {
+    chrome.extension = new chrome.Extension(extensionId);
+    // TODO(mpcomplete): self.onConnect is deprecated.  Remove it at 1.0.
+    // http://code.google.com/p/chromium/issues/detail?id=16356
     chrome.self.onConnect = new chrome.Event("channel-connect:" + extensionId);
   });
 
