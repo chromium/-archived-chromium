@@ -188,7 +188,7 @@ void VideoRendererBase::ThreadMain() {
     OnFrameAvailable();
 
     // Determine the current and next presentation timestamps.
-    base::TimeDelta now = host_->GetPipelineStatus()->GetTime();
+    base::TimeDelta now = host_->GetTime();
     base::TimeDelta this_pts = current_frame_->GetTimestamp();
     base::TimeDelta next_pts;
     if (next_frame) {

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2008-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -24,31 +24,6 @@ namespace media {
 
 class FilterHost {
  public:
-  // The PipelineStatus class allows read-only access to the pipeline state.
-  // This is the same object that is used by the pipeline client to examine
-  // the state of the running pipeline.  The lifetime of the PipelineStatus
-  // interface is the same as the lifetime of the FilterHost interface, so
-  // it is acceptable for filters to use the returned pointer until their
-  // Stop method has been called.
-  virtual const PipelineStatus* GetPipelineStatus() const = 0;
-
-  // Registers a callback to receive global clock update notifications.  The
-  // callback will be called repeatedly and filters do not need to re-register
-  // after each invocation of the callback.  To remove the callback, filters
-  // may call this method passing NULL for the callback argument.
-  //
-  // Callback arguments:
-  //   base::TimeDelta - the new pipeline time, in microseconds.
-  virtual void SetTimeUpdateCallback(Callback1<base::TimeDelta>::Type* cb) = 0;
-
-  // Request that the time callback be called at the specified stream
-  // time.  This will set a timer specific to the filter that will be fired
-  // no sooner than the specified time based on the interpolated time.  Note
-  // that, becuase the callback will be made with the interpolated time, it is
-  // possible for time to move "backward" slightly when the audio device updates
-  // the pipeline time though the SetTime method.
-  virtual void ScheduleTimeUpdateCallback(base::TimeDelta time) = 0;
-
   // Filters must call this method to indicate that their initialization is
   // complete.  They may call this from within their Initialize() method or may
   // choose call it after processing some data.
@@ -58,8 +33,11 @@ class FilterHost {
   // method with PIPELINE_OK or PIPELINE_STOPPING (used internally by pipeline).
   virtual void Error(PipelineError error) = 0;
 
-  // Sets the current time.  Any filters that have registered a callback through
-  // the SetTimeUpdateCallback method will be notified of the change.
+  // Gets the current time in microseconds.
+  virtual base::TimeDelta GetTime() const = 0;
+
+  // Updates the current time.  Other filters should poll to examine the updated
+  // time.
   virtual void SetTime(base::TimeDelta time) = 0;
 
   // Get the duration of the media in microseconds.  If the duration has not

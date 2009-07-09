@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
+// Copyright (c) 2008-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -32,29 +32,25 @@ class PipelineImpl : public Pipeline {
   PipelineImpl();
   virtual ~PipelineImpl();
 
-  // Implementation of PipelineStatus methods.
-  virtual bool IsInitialized() const;
-  virtual base::TimeDelta GetDuration() const;
-  virtual base::TimeDelta GetBufferedTime() const;
-  virtual int64 GetTotalBytes() const;
-  virtual int64 GetBufferedBytes()const;
-  virtual void GetVideoSize(size_t* width_out, size_t* height_out) const;
-  virtual float GetVolume() const;
-  virtual float GetPlaybackRate() const;
-  virtual base::TimeDelta GetTime() const;
-  virtual base::TimeDelta GetInterpolatedTime() const;
-  virtual PipelineError GetError() const;
-  virtual bool IsRendered(const std::string& major_mime_type) const;
-
-  // Implementation of Pipeline methods.
+  // Pipeline implementation.
   virtual bool Start(FilterFactory* filter_factory,
-                     const std::string& url,
+                     const std::string& uri,
                      PipelineCallback* start_callback);
   virtual void Stop();
-  virtual void SetPlaybackRate(float rate);
-  virtual void Seek(base::TimeDelta time,
-                    PipelineCallback* seek_callback);
+  virtual void Seek(base::TimeDelta time, PipelineCallback* seek_callback);
+  virtual bool IsInitialized() const;
+  virtual bool IsRendered(const std::string& major_mime_type) const;
+  virtual float GetPlaybackRate() const;
+  virtual void SetPlaybackRate(float playback_rate);
+  virtual float GetVolume() const;
   virtual void SetVolume(float volume);
+  virtual base::TimeDelta GetTime() const;
+  virtual base::TimeDelta GetBufferedTime() const;
+  virtual base::TimeDelta GetDuration() const;
+  virtual int64 GetBufferedBytes() const;
+  virtual int64 GetTotalBytes() const;
+  virtual void GetVideoSize(size_t* width_out, size_t* height_out) const;
+  virtual PipelineError GetError() const;
 
  private:
   friend class FilterHostImpl;
@@ -117,7 +113,7 @@ class PipelineImpl : public Pipeline {
   int64 total_bytes_;
 
   // Lock used to serialize access for getter/setter methods.
-  Lock lock_;
+  mutable Lock lock_;
 
   // Video width and height.  Set by a FilterHostImpl object on behalf
   // of a filter.  The video_size_access_lock_ is used to make sure access
@@ -141,10 +137,6 @@ class PipelineImpl : public Pipeline {
   // Current playback time.  Set by a FilterHostImpl object on behalf of the
   // audio renderer filter.
   base::TimeDelta time_;
-
-  // Internal system timer at last time the SetTime method was called.  Used to
-  // compute interpolated time.
-  base::TimeTicks ticks_at_last_set_time_;
 
   // Status of the pipeline.  Initialized to PIPELINE_OK which indicates that
   // the pipeline is operating correctly. Any other value indicates that the
@@ -195,8 +187,8 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
              const std::string& url_media_source,
              PipelineCallback* init_complete_callback);
   void Stop();
-  void SetPlaybackRate(float rate);
   void Seek(base::TimeDelta time, PipelineCallback* seek_callback);
+  void SetPlaybackRate(float rate);
   void SetVolume(float volume);
 
   // Methods called by a FilterHostImpl object.  These methods may be called
@@ -215,10 +207,6 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
   // If the pipeline is running a nested message loop, it will be exited.
   void Error(PipelineError error);
 
-  // Called by a FilterHostImpl on behalf of a filter that calls the
-  // FilterHost::PostTask method.
-  void PostTask(Task* task);
-
   // Simple accessor used by the FilterHostImpl class to get access to the
   // pipeline object.
   PipelineImpl* pipeline() const { return pipeline_; }
@@ -231,6 +219,10 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
   PlatformThreadId thread_id() const { return thread_.thread_id(); }
 
  private:
+  // Only allow ourselves to be destroyed via ref-counting.
+  friend class base::RefCountedThreadSafe<PipelineThread>;
+  virtual ~PipelineThread();
+
   enum State {
     kCreated,
     kInitDataSource,
@@ -243,16 +235,6 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
     kStopped,
     kError,
   };
-
-  // Implementation of MessageLoop::DestructionObserver.  StartTask registers
-  // this class as a destruction observer on the thread's message loop.
-  // It is used to destroy the list of FilterHosts
-  // (and thus destroy the associated filters) when all tasks have been
-  // processed and the message loop has been quit.
-  virtual void WillDestroyCurrentMessageLoop();
-
-  friend class base::RefCountedThreadSafe<PipelineThread>;
-  virtual ~PipelineThread();
 
   // Simple method used to make sure the pipeline is running normally.
   bool IsPipelineOk() { return PIPELINE_OK == pipeline_->error_; }
@@ -267,6 +249,13 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
            state_ == kInitVideoRenderer;
   }
 
+  // Implementation of MessageLoop::DestructionObserver.  StartTask registers
+  // this class as a destruction observer on the thread's message loop.
+  // It is used to destroy the list of FilterHosts
+  // (and thus destroy the associated filters) when all tasks have been
+  // processed and the message loop has been quit.
+  virtual void WillDestroyCurrentMessageLoop();
+
   // The following "task" methods correspond to the public methods, but these
   // methods are run as the result of posting a task to the PipelineThread's
   // message loop.
@@ -280,13 +269,9 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
   void SetPlaybackRateTask(float rate);
   void SeekTask(base::TimeDelta time, PipelineCallback* seek_callback);
   void SetVolumeTask(float volume);
-  void SetTimeTask();
 
   // Internal methods used in the implementation of the pipeline thread.  All
   // of these methods are only called on the pipeline thread.
-
-  // Calls the Stop method on every filter in the pipeline
-  void StopFilters();
 
   // The following template functions make use of the fact that media filter
   // derived interfaces are self-describing in the sense that they all contain

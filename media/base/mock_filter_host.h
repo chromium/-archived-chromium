@@ -40,18 +40,6 @@ class MockFilterHost : public FilterHost {
 
   virtual ~MockFilterHost() {}
 
-  virtual const PipelineStatus* GetPipelineStatus() const {
-    return mock_pipeline_;
-  }
-
-  virtual void SetTimeUpdateCallback(Callback1<base::TimeDelta>::Type* cb) {
-    time_update_callback_.reset(cb);
-  }
-
-  virtual void ScheduleTimeUpdateCallback(base::TimeDelta time) {
-    scheduled_callback_time_ = time;
-  }
-
   virtual void InitializationComplete() {
     EXPECT_FALSE(initialized_);
     initialized_ = true;
@@ -62,6 +50,10 @@ class MockFilterHost : public FilterHost {
     error_ = error;
     mock_pipeline_->Error(error);
     wait_for_error_.Signal();
+  }
+
+  virtual base::TimeDelta GetTime() const {
+    return mock_pipeline_->GetTime();
   }
 
   virtual void SetTime(base::TimeDelta time) {
@@ -86,15 +78,6 @@ class MockFilterHost : public FilterHost {
 
   virtual void SetVideoSize(size_t width, size_t height) {
     mock_pipeline_->SetVideoSize(width, height);
-  }
-
-  // Used by unit tests to manipulate the filter.
-  base::TimeDelta GetScheduledCallbackTime() const {
-    return scheduled_callback_time_;
-  }
-
-  Callback1<base::TimeDelta>::Type* GetTimeUpdateCallback() const {
-    return time_update_callback_.get();
   }
 
   bool IsInitialized() const {
@@ -124,10 +107,6 @@ class MockFilterHost : public FilterHost {
  private:
   MockPipeline* mock_pipeline_;
   scoped_refptr<Filter> filter_;
-  scoped_ptr<Callback1<base::TimeDelta>::Type> time_update_callback_;
-
-  // Keeps track of the time passed into ScheduleTimeUpdateCallback().
-  base::TimeDelta scheduled_callback_time_;
 
   // Tracks if the filter has executed InitializationComplete().
   bool initialized_;

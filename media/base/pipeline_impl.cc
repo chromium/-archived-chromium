@@ -54,110 +54,6 @@ PipelineImpl::~PipelineImpl() {
   Stop();
 }
 
-bool PipelineImpl::IsInitialized() const {
-  AutoLock auto_lock(const_cast<Lock&>(lock_));
-  return initialized_;
-}
-
-base::TimeDelta PipelineImpl::GetDuration() const {
-  AutoLock auto_lock(const_cast<Lock&>(lock_));
-  return duration_;
-}
-
-base::TimeDelta PipelineImpl::GetBufferedTime() const {
-  AutoLock auto_lock(const_cast<Lock&>(lock_));
-  return buffered_time_;
-}
-
-int64 PipelineImpl::GetTotalBytes() const {
-  AutoLock auto_lock(const_cast<Lock&>(lock_));
-  return total_bytes_;
-}
-
-int64 PipelineImpl::GetBufferedBytes() const {
-  AutoLock auto_lock(const_cast<Lock&>(lock_));
-  return buffered_bytes_;
-}
-
-void PipelineImpl::GetVideoSize(size_t* width_out, size_t* height_out) const {
-  DCHECK(width_out);
-  DCHECK(height_out);
-  AutoLock auto_lock(const_cast<Lock&>(lock_));
-  *width_out = video_width_;
-  *height_out = video_height_;
-}
-
-float PipelineImpl::GetVolume() const {
-  AutoLock auto_lock(const_cast<Lock&>(lock_));
-  return volume_;
-}
-
-float PipelineImpl::GetPlaybackRate() const {
-  AutoLock auto_lock(const_cast<Lock&>(lock_));
-  return playback_rate_;
-}
-
-base::TimeDelta PipelineImpl::GetTime() const {
-  AutoLock auto_lock(const_cast<Lock&>(lock_));
-  return time_;
-}
-
-base::TimeDelta PipelineImpl::GetInterpolatedTime() const {
-  AutoLock auto_lock(const_cast<Lock&>(lock_));
-  base::TimeDelta time = time_;
-  if (playback_rate_ > 0.0f) {
-    base::TimeDelta delta = base::TimeTicks::Now() - ticks_at_last_set_time_;
-    if (playback_rate_ == 1.0f) {
-      time += delta;
-    } else {
-      int64 adjusted_delta = static_cast<int64>(delta.InMicroseconds() *
-                                                playback_rate_);
-      time += base::TimeDelta::FromMicroseconds(adjusted_delta);
-    }
-  }
-  return time;
-}
-
-void PipelineImpl::SetTime(base::TimeDelta time) {
-  AutoLock auto_lock(lock_);
-  time_ = time;
-  ticks_at_last_set_time_ = base::TimeTicks::Now();
-}
-
-void PipelineImpl::InternalSetPlaybackRate(float rate) {
-  AutoLock auto_lock(lock_);
-  if (playback_rate_ == 0.0f && rate > 0.0f) {
-    ticks_at_last_set_time_ = base::TimeTicks::Now();
-  }
-  playback_rate_ = rate;
-}
-
-PipelineError PipelineImpl::GetError() const {
-  AutoLock auto_lock(const_cast<Lock&>(lock_));
-  return error_;
-}
-
-bool PipelineImpl::IsRendered(const std::string& major_mime_type) const {
-  AutoLock auto_lock(const_cast<Lock&>(lock_));
-  bool is_rendered = (rendered_mime_types_.find(major_mime_type) !=
-                      rendered_mime_types_.end());
-  return is_rendered;
-}
-
-
-bool PipelineImpl::InternalSetError(PipelineError error) {
-  // Don't want callers to set an error of "OK".  STOPPING is a special value
-  // that should only be used internally by the StopTask() method.
-  DCHECK(PIPELINE_OK != error && PIPELINE_STOPPING != error);
-  AutoLock auto_lock(lock_);
-  bool changed_error = false;
-  if (PIPELINE_OK == error_) {
-    error_ = error;
-    changed_error = true;
-  }
-  return changed_error;
-}
-
 // Creates the PipelineThread and calls it's start method.
 bool PipelineImpl::Start(FilterFactory* factory,
                          const std::string& url,
@@ -192,17 +88,6 @@ void PipelineImpl::Stop() {
   ResetState();
 }
 
-void PipelineImpl::SetPlaybackRate(float rate) {
-  DCHECK(!IsPipelineThread());
-
-  if (IsPipelineOk() && rate >= 0.0f) {
-    pipeline_thread_->SetPlaybackRate(rate);
-  } else {
-    // It's OK for a client to call SetPlaybackRate(0.0f) if we're stopped.
-    DCHECK(rate == 0.0f && playback_rate_ == 0.0f);
-  }
-}
-
 void PipelineImpl::Seek(base::TimeDelta time,
                         PipelineCallback* seek_callback) {
   DCHECK(!IsPipelineThread());
@@ -214,6 +99,39 @@ void PipelineImpl::Seek(base::TimeDelta time,
   }
 }
 
+bool PipelineImpl::IsInitialized() const {
+  AutoLock auto_lock(lock_);
+  return initialized_;
+}
+
+bool PipelineImpl::IsRendered(const std::string& major_mime_type) const {
+  AutoLock auto_lock(lock_);
+  bool is_rendered = (rendered_mime_types_.find(major_mime_type) !=
+                      rendered_mime_types_.end());
+  return is_rendered;
+}
+
+float PipelineImpl::GetPlaybackRate() const {
+  AutoLock auto_lock(lock_);
+  return playback_rate_;
+}
+
+void PipelineImpl::SetPlaybackRate(float rate) {
+  DCHECK(!IsPipelineThread());
+
+  if (IsPipelineOk() && rate >= 0.0f) {
+    pipeline_thread_->SetPlaybackRate(rate);
+  } else {
+    // It's OK for a client to call SetPlaybackRate(0.0f) if we're stopped.
+    DCHECK(rate == 0.0f && playback_rate_ == 0.0f);
+  }
+}
+
+float PipelineImpl::GetVolume() const {
+  AutoLock auto_lock(lock_);
+  return volume_;
+}
+
 void PipelineImpl::SetVolume(float volume) {
   DCHECK(!IsPipelineThread());
 
@@ -222,6 +140,44 @@ void PipelineImpl::SetVolume(float volume) {
   } else {
     NOTREACHED();
   }
+}
+
+base::TimeDelta PipelineImpl::GetTime() const {
+  AutoLock auto_lock(lock_);
+  return time_;
+}
+
+base::TimeDelta PipelineImpl::GetBufferedTime() const {
+  AutoLock auto_lock(lock_);
+  return buffered_time_;
+}
+
+base::TimeDelta PipelineImpl::GetDuration() const {
+  AutoLock auto_lock(lock_);
+  return duration_;
+}
+
+int64 PipelineImpl::GetBufferedBytes() const {
+  AutoLock auto_lock(lock_);
+  return buffered_bytes_;
+}
+
+int64 PipelineImpl::GetTotalBytes() const {
+  AutoLock auto_lock(lock_);
+  return total_bytes_;
+}
+
+void PipelineImpl::GetVideoSize(size_t* width_out, size_t* height_out) const {
+  CHECK(width_out);
+  CHECK(height_out);
+  AutoLock auto_lock(lock_);
+  *width_out = video_width_;
+  *height_out = video_height_;
+}
+
+PipelineError PipelineImpl::GetError() const {
+  AutoLock auto_lock(lock_);
+  return error_;
 }
 
 void PipelineImpl::ResetState() {
@@ -238,7 +194,6 @@ void PipelineImpl::ResetState() {
   playback_rate_    = 0.0f;
   error_            = PIPELINE_OK;
   time_             = base::TimeDelta();
-  ticks_at_last_set_time_ = base::TimeTicks::Now();
   rendered_mime_types_.clear();
 }
 
@@ -277,6 +232,29 @@ void PipelineImpl::SetVideoSize(size_t width, size_t height) {
   video_height_ = height;
 }
 
+void PipelineImpl::SetTime(base::TimeDelta time) {
+  AutoLock auto_lock(lock_);
+  time_ = time;
+}
+
+void PipelineImpl::InternalSetPlaybackRate(float rate) {
+  AutoLock auto_lock(lock_);
+  playback_rate_ = rate;
+}
+
+bool PipelineImpl::InternalSetError(PipelineError error) {
+  // Don't want callers to set an error of "OK".  STOPPING is a special value
+  // that should only be used internally by the StopTask() method.
+  DCHECK(PIPELINE_OK != error && PIPELINE_STOPPING != error);
+  AutoLock auto_lock(lock_);
+  bool changed_error = false;
+  if (PIPELINE_OK == error_) {
+    error_ = error;
+    changed_error = true;
+  }
+  return changed_error;
+}
+
 void PipelineImpl::InsertRenderedMimeType(const std::string& major_mime_type) {
   AutoLock auto_lock(lock_);
   rendered_mime_types_.insert(major_mime_type);
@@ -288,7 +266,6 @@ void PipelineImpl::InsertRenderedMimeType(const std::string& major_mime_type) {
 PipelineThread::PipelineThread(PipelineImpl* pipeline)
     : pipeline_(pipeline),
       thread_("PipelineThread"),
-      time_update_callback_scheduled_(false),
       state_(kCreated) {
 }
 
@@ -308,7 +285,8 @@ bool PipelineThread::Start(FilterFactory* filter_factory,
     filter_factory_ = filter_factory;
     url_ = url;
     init_callback_.reset(init_complete_callback);
-    PostTask(NewRunnableMethod(this, &PipelineThread::StartTask));
+    message_loop()->PostTask(FROM_HERE,
+        NewRunnableMethod(this, &PipelineThread::StartTask));
     return true;
   }
   return false;
@@ -319,7 +297,8 @@ bool PipelineThread::Start(FilterFactory* filter_factory,
 // stopped.
 void PipelineThread::Stop() {
   if (thread_.IsRunning()) {
-    PostTask(NewRunnableMethod(this, &PipelineThread::StopTask));
+    message_loop()->PostTask(FROM_HERE,
+        NewRunnableMethod(this, &PipelineThread::StopTask));
     thread_.Stop();
   }
   DCHECK(filter_hosts_.empty());
@@ -327,37 +306,36 @@ void PipelineThread::Stop() {
 }
 
 // Called on client's thread.
-void PipelineThread::SetPlaybackRate(float rate) {
-  PostTask(NewRunnableMethod(this, &PipelineThread::SetPlaybackRateTask, rate));
+void PipelineThread::Seek(base::TimeDelta time,
+                          PipelineCallback* seek_callback) {
+  message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &PipelineThread::SeekTask, time, seek_callback));
 }
 
 // Called on client's thread.
-void PipelineThread::Seek(base::TimeDelta time,
-                          PipelineCallback* seek_callback) {
-  PostTask(NewRunnableMethod(this, &PipelineThread::SeekTask, time,
-                             seek_callback));
+void PipelineThread::SetPlaybackRate(float rate) {
+  message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &PipelineThread::SetPlaybackRateTask, rate));
 }
 
 // Called on client's thread.
 void PipelineThread::SetVolume(float volume) {
-  PostTask(NewRunnableMethod(this, &PipelineThread::SetVolumeTask, volume));
+  message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &PipelineThread::SetVolumeTask, volume));
 }
 
+// Called from any thread.
 void PipelineThread::InitializationComplete(FilterHostImpl* host) {
   if (IsPipelineOk()) {
     // Continue the start task by proceeding to the next stage.
-    PostTask(NewRunnableMethod(this, &PipelineThread::StartTask));
+    message_loop()->PostTask(FROM_HERE,
+        NewRunnableMethod(this, &PipelineThread::StartTask));
   }
 }
 
-// Called from any thread.  Updates the pipeline time and schedules a task to
-// call back to filters that have registered a callback for time updates.
+// Called from any thread.  Updates the pipeline time.
 void PipelineThread::SetTime(base::TimeDelta time) {
   pipeline()->SetTime(time);
-  if (!time_update_callback_scheduled_) {
-    time_update_callback_scheduled_ = true;
-    PostTask(NewRunnableMethod(this, &PipelineThread::SetTimeTask));
-  }
 }
 
 // Called from any thread.  Sets the pipeline |error_| member and schedules a
@@ -368,16 +346,18 @@ void PipelineThread::Error(PipelineError error) {
   // If this method returns false, then an error has already happened, so no
   // reason to run the StopTask again.  It's going to happen.
   if (pipeline()->InternalSetError(error)) {
-    PostTask(NewRunnableMethod(this, &PipelineThread::StopTask));
+    message_loop()->PostTask(FROM_HERE,
+        NewRunnableMethod(this, &PipelineThread::StopTask));
   }
 }
 
-// This is a helper method to post task on message_loop(). This method is only
-// called from this class or from Pipeline.
-void PipelineThread::PostTask(Task* task) {
-  message_loop()->PostTask(FROM_HERE, task);
+// Called as a result of destruction of the thread.
+//
+// TODO(scherkus): this can block the client due to synchronous Stop() API call.
+void PipelineThread::WillDestroyCurrentMessageLoop() {
+  STLDeleteElements(&filter_hosts_);
+  STLDeleteElements(&filter_threads_);
 }
-
 
 // Main initialization method called on the pipeline thread.  This code attempts
 // to use the specified filter factory to build a pipeline.
@@ -603,29 +583,6 @@ void PipelineThread::SetVolumeTask(float volume) {
   }
 }
 
-void PipelineThread::SetTimeTask() {
-  DCHECK_EQ(PlatformThread::CurrentId(), thread_.thread_id());
-
-  time_update_callback_scheduled_ = false;
-  for (FilterHostVector::iterator iter = filter_hosts_.begin();
-       iter != filter_hosts_.end();
-       ++iter) {
-    (*iter)->RunTimeUpdateCallback(pipeline_->time_);
-  }
-}
-
-template <class Filter>
-void PipelineThread::GetFilter(scoped_refptr<Filter>* filter_out) const {
-  DCHECK_EQ(PlatformThread::CurrentId(), thread_.thread_id());
-
-  *filter_out = NULL;
-  for (FilterHostVector::const_iterator iter = filter_hosts_.begin();
-       iter != filter_hosts_.end() && NULL == *filter_out;
-       iter++) {
-    (*iter)->GetFilter(filter_out);
-  }
-}
-
 template <class Filter, class Source>
 void PipelineThread::CreateFilter(FilterFactory* filter_factory,
                                   Source source,
@@ -723,12 +680,16 @@ bool PipelineThread::CreateRenderer() {
   return false;
 }
 
-// Called as a result of destruction of the thread.
-//
-// TODO(scherkus): this can block the client due to synchronous Stop() API call.
-void PipelineThread::WillDestroyCurrentMessageLoop() {
-  STLDeleteElements(&filter_hosts_);
-  STLDeleteElements(&filter_threads_);
+template <class Filter>
+void PipelineThread::GetFilter(scoped_refptr<Filter>* filter_out) const {
+  DCHECK_EQ(PlatformThread::CurrentId(), thread_.thread_id());
+
+  *filter_out = NULL;
+  for (FilterHostVector::const_iterator iter = filter_hosts_.begin();
+       iter != filter_hosts_.end() && NULL == *filter_out;
+       iter++) {
+    (*iter)->GetFilter(filter_out);
+  }
 }
 
 }  // namespace media
