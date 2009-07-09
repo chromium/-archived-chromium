@@ -107,7 +107,7 @@ static const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
   }
   image_.reset([[CIImage alloc] initWithBitmapImageRep:rep]);
 
-#if 0
+#if 1
 // TODO(pinkerton): The invalidation of the view to trigger re-draw causes
 // the entire title-bar to redraw (you can see it with QuartzDebug). For some
 // reason, setting isOpaque on this view, or any of its parent views, doesn't
