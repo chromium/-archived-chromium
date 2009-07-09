@@ -3333,6 +3333,7 @@
           ],
           'dependencies': [
             'crash_service',  # run time dependency
+            'security_tests',  # run time dependency
             'test_support_common',
             '../google_update/google_update.gyp:google_update',
             '../views/views.gyp:views',
@@ -4685,6 +4686,7 @@
           'dependencies': [
             'chrome_resources',
             'chrome_strings',
+            'security_tests',  # run time dependency
             'test_support_common',
             'test_support_ui',
             '../skia/skia.gyp:skia',
