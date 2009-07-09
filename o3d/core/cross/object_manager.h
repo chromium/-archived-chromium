@@ -39,6 +39,7 @@
 #include "core/cross/object_base.h"
 #include "core/cross/named_object.h"
 #include "core/cross/service_implementation.h"
+#include "core/cross/service_dependency.h"
 #include "core/cross/types.h"
 #include "core/cross/error.h"
 
@@ -50,7 +51,6 @@ class Pack;
 // lists of objects can be found based on various criteria.
 class ObjectManager {
  public:
-
   static const InterfaceId kInterfaceId;
 
   explicit ObjectManager(ServiceLocator* service_locator);
@@ -183,8 +183,11 @@ class ObjectManager {
   // Destroys all registered packs.
   void DestroyAllPacks();
 
- private:
+  size_t GetNumObjects() const {
+    return object_map_.size();
+  }
 
+ private:
   typedef std::vector<SmartPointer<Pack> > PackRefArray;
 
   // Dictionary of Objects indexed by their unique ID

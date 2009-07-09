@@ -42,6 +42,7 @@ cross_inputs = [
     'cross/class_manager.cc',
     'cross/clear_buffer.cc',
     'cross/client.cc',
+    'cross/client_info.cc',
     'cross/core_metrics.cc',
     'cross/counter.cc',
     'cross/counter_manager.cc',

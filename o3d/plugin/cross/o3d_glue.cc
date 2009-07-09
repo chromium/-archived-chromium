@@ -39,6 +39,7 @@
 #include <string>
 #include <algorithm>
 #include "core/cross/renderer.h"
+#include "core/cross/client_info.h"
 #include "plugin/cross/o3d_glue.h"
 #include "plugin/cross/config.h"
 #include "plugin/cross/stream_manager.h"
@@ -97,6 +98,7 @@ PluginObject::PluginObject(NPP npp)
     : npp_(npp),
       evaluation_counter_(&service_locator_),
       class_manager_(&service_locator_),
+      client_info_manager_(&service_locator_),
       object_manager_(&service_locator_),
       profiler_(&service_locator_),
       fullscreen_(false),
@@ -393,6 +395,13 @@ bool PluginObject::WantsRedraw() {
   // If we're rendering on-demand, then a call to client->render() should
   // only force a redraw one time
   return wants_redraw_;
+}
+
+bool PluginObject::SetRendererIsSoftware(bool state) {
+  renderer_is_software_ = state;
+  ClientInfoManager* client_info_manager =
+      service_locator()->GetService<ClientInfoManager>();
+  client_info_manager->SetSoftwareRenderer(state);
 }
 
 #endif  // OS_MACOSX

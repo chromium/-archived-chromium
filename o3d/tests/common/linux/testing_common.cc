@@ -34,6 +34,7 @@
 // used in the unit tests.  Defines WinMain and a WindowProc for running
 // the GUnit tests
 
+#include "core/cross/client_info.h"
 #include "core/cross/class_manager.h"
 #include "core/cross/evaluation_counter.h"
 #include "core/cross/install_check.h"
@@ -89,6 +90,7 @@ int main(int argc, char *argv[]) {
 
   o3d::EvaluationCounter evaluation_counter(g_service_locator);
   o3d::ClassManager class_manager(g_service_locator);
+  o3d::ClientInfoManager client_info_manager(g_service_locator);
   o3d::ObjectManager object_manager(g_service_locator);
   o3d::Profiler profiler(g_service_locator);
   o3d::Features features(g_service_locator);

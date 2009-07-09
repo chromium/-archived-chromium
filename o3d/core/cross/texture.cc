@@ -34,7 +34,9 @@
 
 #include "core/cross/precompile.h"
 #include "core/cross/texture.h"
+#include "core/cross/bitmap.h"
 #include "core/cross/renderer.h"
+#include "core/cross/client_info.h"
 #include "core/cross/error.h"
 
 namespace o3d {
@@ -64,6 +66,11 @@ Texture2D::Texture2D(ServiceLocator* service_locator,
   RegisterReadOnlyParamRef(kHeightParamName, &height_param_);
   width_param_->set_read_only_value(width);
   height_param_->set_read_only_value(height);
+
+  ClientInfoManager* client_info_manager =
+      service_locator->GetService<ClientInfoManager>();
+  client_info_manager->AdjustTextureMemoryUsed(
+    static_cast<int>(Bitmap::GetMipChainSize(width, height, format, levels)));
 }
 
 Texture2D::~Texture2D() {
@@ -72,6 +79,14 @@ Texture2D::~Texture2D() {
         << "Texture2D \"" << name()
         << "\" was never unlocked before being destroyed.";
   }
+
+  ClientInfoManager* client_info_manager =
+      service_locator()->GetService<ClientInfoManager>();
+  client_info_manager->AdjustTextureMemoryUsed(
+    -static_cast<int>(Bitmap::GetMipChainSize(width(),
+                                              height(),
+                                              format(),
+                                              levels())));
 }
 
 ObjectBase::Ref Texture2D::Create(ServiceLocator* service_locator) {
@@ -116,6 +131,14 @@ TextureCUBE::TextureCUBE(ServiceLocator* service_locator,
   }
   RegisterReadOnlyParamRef(kEdgeLengthParamName, &edge_length_param_);
   edge_length_param_->set_read_only_value(edge_length);
+
+  ClientInfoManager* client_info_manager =
+      service_locator->GetService<ClientInfoManager>();
+  client_info_manager->AdjustTextureMemoryUsed(
+    static_cast<int>(Bitmap::GetMipChainSize(edge_length,
+                                             edge_length,
+                                             format,
+                                             levels)) * 6);
 }
 
 TextureCUBE::~TextureCUBE() {
@@ -127,6 +150,14 @@ TextureCUBE::~TextureCUBE() {
       break;  // No need to report it more than once.
     }
   }
+
+  ClientInfoManager* client_info_manager =
+      service_locator()->GetService<ClientInfoManager>();
+  client_info_manager->AdjustTextureMemoryUsed(
+    -static_cast<int>(Bitmap::GetMipChainSize(edge_length(),
+                                              edge_length(),
+                                              format(),
+                                              levels()) * 6));
 }
 
 ObjectBase::Ref TextureCUBE::Create(ServiceLocator* service_locator) {

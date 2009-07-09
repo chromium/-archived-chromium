@@ -59,6 +59,7 @@
 #include "core/cross/service_locator.h"
 #include "core/cross/evaluation_counter.h"
 #include "core/cross/class_manager.h"
+#include "core/cross/client_info.h"
 #include "core/cross/features.h"
 #include "core/cross/object_manager.h"
 #include "core/cross/error.h"
@@ -80,6 +81,7 @@ using o3d::Id;
 using o3d::ObjectBase;
 using o3d::Client;
 using o3d::ClassManager;
+using o3d::ClientInfoManager;
 using o3d::EvaluationCounter;
 using o3d::Features;
 using o3d::EvaluationCounter;
@@ -124,6 +126,7 @@ class PluginObject: public NPObject {
   ServiceLocator service_locator_;
   EvaluationCounter evaluation_counter_;
   ClassManager class_manager_;
+  ClientInfoManager client_info_manager_;
   ObjectManager object_manager_;
   Profiler profiler_;
   bool fullscreen_;  // Are we rendered fullscreen or in the plugin region?

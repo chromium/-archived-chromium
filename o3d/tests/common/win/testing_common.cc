@@ -42,6 +42,7 @@
 #include "core/cross/install_check.h"
 #include "core/cross/service_locator.h"
 #include "core/cross/evaluation_counter.h"
+#include "core/cross/client_info.h"
 #include "core/cross/class_manager.h"
 #include "core/cross/features.h"
 #include "core/cross/object_manager.h"
@@ -145,6 +146,7 @@ int WINAPI WinMain(HINSTANCE instance,
 
   o3d::EvaluationCounter evaluation_counter(g_service_locator);
   o3d::ClassManager class_manager(g_service_locator);
+  o3d::ClientInfoManager client_info_manager(g_service_locator);
   o3d::ObjectManager object_manager(g_service_locator);
   o3d::Profiler profiler(g_service_locator);
   o3d::Features features(g_service_locator);

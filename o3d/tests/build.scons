@@ -172,6 +172,7 @@ tests = [
     'core/cross/buffer_test.cc',
     'core/cross/class_manager_test.cc',
     'core/cross/client_test.cc',
+    'core/cross/client_info_test.cc',
     'core/cross/counter_test.cc',
     'core/cross/curve_test.cc',
     'core/cross/draw_element_test.cc',

@@ -39,6 +39,7 @@
 #include "base/scoped_ptr.h"
 #include "core/cross/class_manager.h"
 #include "core/cross/client.h"
+#include "core/cross/client_info.h"
 #include "core/cross/effect.h"
 #include "core/cross/error.h"
 #include "core/cross/features.h"
@@ -89,6 +90,7 @@ bool Convert(const FilePath& in_filename,
   ServiceLocator service_locator;
   EvaluationCounter evaluation_counter(&service_locator);
   ClassManager class_manager(&service_locator);
+  ClientInfoManager client_info_manager(&service_locator);
   ObjectManager object_manager(&service_locator);
   Profiler profiler(&service_locator);
   ErrorStatus error_status(&service_locator);

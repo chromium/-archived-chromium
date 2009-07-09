@@ -34,6 +34,7 @@
 
 #include "core/cross/precompile.h"
 #include "core/cross/buffer.h"
+#include "core/cross/client_info.h"
 #include "core/cross/renderer.h"
 #include "core/cross/features.h"
 #include "core/cross/error.h"
@@ -108,10 +109,23 @@ Buffer::Buffer(ServiceLocator* service_locator)
 }
 
 Buffer::~Buffer() {
+  AdjustBufferMemoryInfo(false);
   for (unsigned ii = 0; ii < fields_.size(); ++ii) {
     if (!fields_[ii].IsNull()) {
       fields_[ii]->ClearBuffer();
     }
+  }
+}
+
+void Buffer::AdjustBufferMemoryInfo(bool add) {
+  // Only count VRAM/hardware buffers.
+  if (IsA(VertexBuffer::GetApparentClass()) ||
+      IsA(IndexBuffer::GetApparentClass())) {
+    size_t size_in_bytes = num_elements_ * stride_;
+    ClientInfoManager* client_info_manager =
+        service_locator()->GetService<ClientInfoManager>();
+    client_info_manager->AdjustBufferMemoryUsed(
+        static_cast<int>(size_in_bytes) * (add ? 1 : -1));
   }
 }
 
@@ -152,25 +166,33 @@ bool Buffer::AllocateElements(unsigned num_elements) {
     return false;
   }
 
+  bool success = true;
   if (!ConcreteAllocate(size_in_bytes)) {
-    num_elements_ = 0;
-    return false;
+    num_elements = 0;
+    size_in_bytes = 0;
+    success = false;
   }
 
   num_elements_ = num_elements;
-  return true;
+
+  AdjustBufferMemoryInfo(true);
+
+  return success;
 }
 
 void Buffer::Free() {
   if (num_elements_ > 0) {
     ConcreteFree();
+    AdjustBufferMemoryInfo(false);
     num_elements_ = 0;
   }
 }
 
 bool Buffer::ReshuffleBuffer(unsigned int new_stride, Field* field_to_remove) {
   if (new_stride == 0) {
+    AdjustBufferMemoryInfo(false);
     ConcreteFree();
+    stride_ = 0;
     return true;
   }
   if (num_elements_) {
@@ -202,6 +224,7 @@ bool Buffer::ReshuffleBuffer(unsigned int new_stride, Field* field_to_remove) {
     // Copy the reorganized data into a new buffer.
     {
       ConcreteFree();
+      AdjustBufferMemoryInfo(false);
       if (!ConcreteAllocate(size_in_bytes)) {
         num_elements_ = 0;
         O3D_ERROR(service_locator())
@@ -214,6 +237,7 @@ bool Buffer::ReshuffleBuffer(unsigned int new_stride, Field* field_to_remove) {
       // is completed (see CreateField, RemoveField) for when we create a new
       // buffer with no fields yet.
       stride_ = new_stride;
+      AdjustBufferMemoryInfo(true);
       BufferLockHelper helper(this);
       void* destination = helper.GetData(Buffer::WRITE_ONLY);
       if (!destination) {

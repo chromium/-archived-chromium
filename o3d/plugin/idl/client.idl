@@ -94,6 +94,33 @@ class Renderer {
 };
 
 %[
+  The ClientInfo is used to get information about the client.
+%]
+[binding_model=by_value, include="core/cross/client_info.h", nocpp, glue_iface]
+class ClientInfo {
+  %[
+    The number of objects the client is currently tracking.
+    You can use this to check that you are correctly freeing resources.
+  %]
+  [getter] int num_objects;
+
+  %[
+    The amount of texture memory used.
+  %]
+  [getter] int texture_memory_used;
+
+  %[
+    The amount of texture memory used.
+  %]
+  [getter] int buffer_memory_used;
+
+  %[
+    Whether or not O3D is using the software renderer.
+  %]
+  [getter] bool software_renderer;
+};
+
+%[
   The Client class is the main point of entry to O3D.  It defines methods
   for creating and deleting packs. Each new object created by the Client is
   assigned a unique ID.
@@ -234,6 +261,12 @@ class Client {
     clicks there again, we'll go back to full-screen display.
   %]
   [userglue, plugin_data] void CancelFullscreenDisplay();
+
+  %[
+    Gets info about the client.
+  %]
+  [userglue_getter, getter, plugin_data]
+  ClientInfo client_info;
 
   %[
     Whether content is displayed in full-screen mode or in a plugin window.  The
@@ -525,6 +558,14 @@ class Client {
     o3d::ObjectBaseArray userglue_getter_objects_(
         o3d::Client* self) {
       return self->GetByClass<o3d::ObjectBase>();
+    }
+    o3d::ClientInfo userglue_getter_client_info(
+        void *plugin_data, o3d::Client *self) {
+      glue::_o3d::PluginObject *plugin =
+          static_cast<glue::_o3d::PluginObject*>(plugin_data);
+      o3d::ClientInfoManager* client_info_manager =
+          plugin->service_locator()->GetService<o3d::ClientInfoManager>();
+      return client_info_manager->client_info();
     }
     std::vector<o3d::DisplayMode> userglue_method_GetDisplayModes(
         void *plugin_data, o3d::Client *self) {

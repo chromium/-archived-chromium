@@ -212,6 +212,8 @@ class Buffer : public NamedObject {
   //   field_to_remove: address of field. If NULL no field is removed.
   bool ReshuffleBuffer(unsigned int new_stride, Field* field_to_remove);
 
+  void AdjustBufferMemoryInfo(bool add);
+
   Features* features_;
 
   // Fields.

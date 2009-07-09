@@ -30,42 +30,29 @@
  */
 
 
-#ifndef O3D_CORE_CROSS_SERVICE_IMPLEMENTATION_H_
-#define O3D_CORE_CROSS_SERVICE_IMPLEMENTATION_H_
+// This file contains the ClientInfoManager implementation
 
+#include "core/cross/precompile.h"
+#include "core/cross/client_info.h"
 #include <vector>
-
-#include "base/basictypes.h"
-#include "core/cross/service_locator.h"
+#include "base/string_util.h"
+#include "core/cross/types.h"
+#include "core/cross/service_dependency.h"
+#include "core/cross/object_manager.h"
 
 namespace o3d {
 
-// Adds a service class to a ServiceLocator. The service is available through
-// the ServiceLocator for as long as the ServiceImplementation is instantiated
-// A service implementing multiple interfaces may be registered with multiple
-// ServiceImplementation objects.
-template <typename Interface>
-class ServiceImplementation {
- public:
-  ServiceImplementation(ServiceLocator* service_locator, Interface* service)
-      : service_locator_(service_locator),
-        service_(service) {
-    service_locator_->AddService(Interface::kInterfaceId, service_);
-  }
+const InterfaceId ClientInfoManager::kInterfaceId =
+    InterfaceTraits<ClientInfoManager>::kInterfaceId;
 
-  ~ServiceImplementation() {
-    service_locator_->RemoveService(Interface::kInterfaceId, service_);
-  }
+ClientInfoManager::ClientInfoManager(ServiceLocator* service_locator)
+    : service_(service_locator, this) {
+}
 
-  ServiceLocator* service_locator() const {
-    return service_locator_;
-  }
+const ClientInfo& ClientInfoManager::client_info() {
+  ServiceDependency<ObjectManager> object_manager_(service_.service_locator());
+  client_info_.num_objects_ = object_manager_->GetNumObjects();
+  return client_info_;
+}
 
- private:
-  ServiceLocator* service_locator_;
-  Interface* service_;
-  DISALLOW_COPY_AND_ASSIGN(ServiceImplementation);
-};
 }  // namespace o3d
-
-#endif  // O3D_CORE_CROSS_SERVICE_IMPLEMENTATION_H_

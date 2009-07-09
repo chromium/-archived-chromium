@@ -43,6 +43,7 @@
 #include "core/cross/renderer_platform.h"
 #include "core/cross/semantic_manager.h"
 #include "core/cross/service_dependency.h"
+#include "core/cross/client_info.h"
 #include "core/cross/shape.h"
 #include "core/cross/features.h"
 #include "core/cross/types.h"
@@ -366,7 +367,7 @@ bool IsForceSoftwareRendererEnabled() {
                           &key))) {
     return false;
   }
-  
+
   bool enabled = false;
   DWORD type;
   DWORD value;
@@ -398,6 +399,7 @@ Renderer::InitStatus InitializeD3D9Context(
     D3DPRESENT_PARAMETERS* d3d_present_parameters,
     bool fullscreen,
     Features* features,
+    ServiceLocator* service_locator,
     int* out_width,
     int* out_height) {
 
@@ -411,7 +413,7 @@ Renderer::InitStatus InitializeD3D9Context(
     // Create a hardware device.
     status_hardware = CreateDirect3D(Direct3DCreate9, d3d, features);
   }
-  
+
   if (status_hardware != Renderer::SUCCESS) {
     Renderer::InitStatus status_software = CreateDirect3D(
         Direct3DCreate9Software, d3d, features);
@@ -430,6 +432,10 @@ Renderer::InitStatus InitializeD3D9Context(
     }
 
     SetupSoftwareRenderer(*d3d);
+
+    ClientInfoManager* client_info_manager =
+        service_locator->GetService<ClientInfoManager>();
+    client_info_manager->SetSoftwareRenderer(true);
   }
 
   D3DDISPLAYMODE d3ddm;
@@ -978,6 +984,7 @@ Renderer::InitStatus RendererD3D9::InitPlatformSpecific(
       &d3d_present_parameters_,
       fullscreen_,
       features(),
+      service_locator(),
       &width,
       &height);
   if (init_status != SUCCESS) {
