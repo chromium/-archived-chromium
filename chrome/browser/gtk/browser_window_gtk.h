@@ -310,6 +310,11 @@ class BrowserWindowGtk : public BrowserWindow,
   // custom frame border.  We set it to NULL if we want the default cursor.
   GdkCursor* frame_cursor_;
 
+  // True if the window manager thinks the window is active.  Not all window
+  // managers keep track of this state (_NET_ACTIVE_WINDOW), in which case
+  // this will always be true.
+  bool is_active_;
+
   DISALLOW_COPY_AND_ASSIGN(BrowserWindowGtk);
 };
 

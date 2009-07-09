@@ -12,6 +12,7 @@
 #include "base/base_paths_linux.h"
 #include "base/command_line.h"
 #include "base/gfx/gtk_util.h"
+#include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
@@ -26,6 +27,7 @@
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/gtk/about_chrome_dialog.h"
+#include "chrome/browser/gtk/active_window_watcher.h"
 #include "chrome/browser/gtk/bookmark_bar_gtk.h"
 #include "chrome/browser/gtk/bookmark_manager_gtk.h"
 #include "chrome/browser/gtk/browser_titlebar.h"
@@ -79,6 +81,9 @@ const int kTopResizeAdjust = 1;
 // In the window corners, the resize areas don't actually expand bigger, but
 // the 16 px at the end of each edge triggers diagonal resizing.
 const int kResizeAreaCornerSize = 16;
+
+base::LazyInstance<ActiveWindowWatcher>
+    g_active_window_watcher(base::LINKER_INITIALIZED);
 
 gboolean MainWindowConfigured(GtkWindow* window, GdkEventConfigure* event,
                               BrowserWindowGtk* browser_win) {
@@ -370,7 +375,8 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
        drag_active_(false),
        panel_controller_(NULL),
 #endif
-       frame_cursor_(NULL) {
+       frame_cursor_(NULL),
+       is_active_(true) {
   use_custom_frame_.Init(prefs::kUseCustomChromeFrame,
       browser_->profile()->GetPrefs(), this);
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
@@ -390,6 +396,10 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
 
   registrar_.Add(this, NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
                  NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::ACTIVE_WINDOW_CHANGED,
+                 NotificationService::AllSources());
+  // Make sure the ActiveWindowWatcher instance exists (it's a lazy instance).
+  g_active_window_watcher.Get();
 }
 
 BrowserWindowGtk::~BrowserWindowGtk() {
@@ -412,19 +422,23 @@ void BrowserWindowGtk::HandleAccelerator(guint keyval,
 gboolean BrowserWindowGtk::OnCustomFrameExpose(GtkWidget* widget,
                                                GdkEventExpose* event,
                                                BrowserWindowGtk* window) {
-  // TODO(tc): This will have to be dynamic once themes are supported.  Maybe
-  // detect the theme install and delete the pointer?
   static NineBox* custom_frame_border = NULL;
   static NineBox* default_background = NULL;
+  static NineBox* default_background_inactive = NULL;
   static NineBox* default_background_otr = NULL;
+  static NineBox* default_background_otr_inactive = NULL;
 
   ThemeProvider* theme_provider =
       window->browser()->profile()->GetThemeProvider();
   if (!default_background) {
     default_background = new NineBox(theme_provider,
         0, IDR_THEME_FRAME, 0, 0, 0, 0, 0, 0, 0);
+    default_background_inactive = new NineBox(theme_provider,
+        0, IDR_THEME_FRAME_INACTIVE, 0, 0, 0, 0, 0, 0, 0);
     default_background_otr = new NineBox(theme_provider,
         0, IDR_THEME_FRAME_INCOGNITO, 0, 0, 0, 0, 0, 0, 0);
+    default_background_otr_inactive = new NineBox(theme_provider,
+        0, IDR_THEME_FRAME_INCOGNITO_INACTIVE, 0, 0, 0, 0, 0, 0, 0);
   }
 
   // Draw the default background.
@@ -432,8 +446,14 @@ gboolean BrowserWindowGtk::OnCustomFrameExpose(GtkWidget* widget,
   cairo_rectangle(cr, event->area.x, event->area.y, event->area.width,
                   event->area.height);
   cairo_clip(cr);
-  NineBox* image = window->browser()->profile()->IsOffTheRecord()
-      ? default_background_otr : default_background;
+  NineBox* image = NULL;
+  if (window->IsActive()) {
+    image = window->browser()->profile()->IsOffTheRecord()
+        ? default_background_otr : default_background;
+  } else {
+    image = window->browser()->profile()->IsOffTheRecord()
+        ? default_background_otr_inactive : default_background_inactive;
+  }
   image->RenderTopCenterStrip(cr, 0, 0, widget->allocation.width);
   cairo_destroy(cr);
 
@@ -526,8 +546,7 @@ void BrowserWindowGtk::Activate() {
 }
 
 bool BrowserWindowGtk::IsActive() const {
-  NOTIMPLEMENTED();
-  return true;
+  return is_active_;
 }
 
 void BrowserWindowGtk::FlashFrame() {
@@ -771,17 +790,39 @@ void BrowserWindowGtk::ConfirmBrowserCloseWithPendingDownloads() {
 void BrowserWindowGtk::Observe(NotificationType type,
                                const NotificationSource& source,
                                const NotificationDetails& details) {
-  if (type == NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED) {
-    MaybeShowBookmarkBar(browser_->GetSelectedTabContents(), true);
-  } else if (type == NotificationType::PREF_CHANGED) {
-    std::wstring* pref_name = Details<std::wstring>(details).ptr();
-    if (*pref_name == prefs::kUseCustomChromeFrame) {
-      UpdateCustomFrame();
-    } else {
-      NOTREACHED() << "Got a pref change notification we didn't register for!";
+  switch (type.value) {
+    case NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED:
+      MaybeShowBookmarkBar(browser_->GetSelectedTabContents(), true);
+      break;
+
+    case NotificationType::PREF_CHANGED: {
+      std::wstring* pref_name = Details<std::wstring>(details).ptr();
+      if (*pref_name == prefs::kUseCustomChromeFrame) {
+        UpdateCustomFrame();
+      } else {
+        NOTREACHED() << "Got pref change notification we didn't register for!";
+      }
+      break;
     }
-  } else {
-    NOTREACHED() << "Got a notification we didn't register for!";
+
+    case NotificationType::ACTIVE_WINDOW_CHANGED: {
+      const GdkWindow* active_window = Details<const GdkWindow>(details).ptr();
+      bool is_active = (GTK_WIDGET(window_)->window == active_window);
+      bool changed = (is_active != is_active_);
+      is_active_ = is_active;
+      if (changed) {
+        SetBackgroundColor();
+        gdk_window_invalidate_rect(GTK_WIDGET(window_)->window,
+                                   &GTK_WIDGET(window_)->allocation, TRUE);
+        // For some reason, the above two calls cause the window shape to be
+        // lost so reset it.
+        UpdateWindowShape(bounds_.width(), bounds_.height());
+      }
+      break;
+    }
+
+    default:
+      NOTREACHED() << "Got a notification we didn't register for!";
   }
 }
 
@@ -1084,13 +1125,18 @@ void BrowserWindowGtk::SetBackgroundColor() {
   // TODO(tc): Handle active/inactive colors.
   Profile* profile = browser()->profile();
   ThemeProvider* theme_provider = profile->GetThemeProvider();
-  SkColor frame_color;
-  if (browser()->profile()->IsOffTheRecord()) {
-    frame_color = theme_provider->GetColor(
-        BrowserThemeProvider::COLOR_FRAME_INCOGNITO);
+  int frame_color_id;
+  if (IsActive()) {
+    frame_color_id = browser()->profile()->IsOffTheRecord()
+        ? BrowserThemeProvider::COLOR_FRAME_INCOGNITO
+        : BrowserThemeProvider::COLOR_FRAME;
   } else {
-    frame_color = theme_provider->GetColor(BrowserThemeProvider::COLOR_FRAME);
+    frame_color_id = browser()->profile()->IsOffTheRecord()
+        ? BrowserThemeProvider::COLOR_FRAME_INCOGNITO_INACTIVE
+        : BrowserThemeProvider::COLOR_FRAME_INACTIVE;
   }
+
+  SkColor frame_color = theme_provider->GetColor(frame_color_id);
 
   // Paint the frame color on the left, right and bottom.
   GdkColor frame_color_gdk = GDK_COLOR_RGB(SkColorGetR(frame_color),
@@ -1118,6 +1164,7 @@ void BrowserWindowGtk::UpdateWindowShape(int width, int height) {
     gtk_alignment_set_padding(GTK_ALIGNMENT(window_container_), 1,
         kFrameBorderThickness, kFrameBorderThickness, kFrameBorderThickness);
   } else {
+    // XFCE disables the system decorations if there's an xshape set.
     if (use_custom_frame_.GetValue()) {
       // Disable rounded corners.  Simply passing in a NULL region doesn't
       // seem to work on KWin, so manually set the shape to the whole window.

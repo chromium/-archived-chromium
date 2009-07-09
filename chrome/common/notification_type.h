@@ -207,6 +207,10 @@ class NotificationType {
     // The user has changed the browser theme.
     BROWSER_THEME_CHANGED,
 
+    // Fired when the active window changes.  This is currently only used on
+    // Linux.
+    ACTIVE_WINDOW_CHANGED,
+
     // Tabs --------------------------------------------------------------------
 
     // This notification is sent after a tab has been appended to the
