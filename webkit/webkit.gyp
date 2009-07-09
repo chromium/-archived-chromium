@@ -637,7 +637,8 @@
             ],
           },
           'action': ['python', 'build/rule_binding.py', '<(RULE_INPUT_PATH)', '<(INTERMEDIATE_DIR)/bindings', '<(SHARED_INTERMEDIATE_DIR)/webkit/bindings', '--', '<@(_inputs)', '--', '--defines', '<(feature_defines) LANGUAGE_JAVASCRIPT V8_BINDING', '--generator', 'V8', '<@(generator_include_dirs)'],
-          'process_outputs_as_sources': 1,
+          # They are included by DerivedSourcesAllInOne.cpp instead.
+          'process_outputs_as_sources': 0,
           'message': 'Generating binding from <(RULE_INPUT_PATH)',
         },
       ],
@@ -1005,6 +1006,9 @@
         '../third_party/WebKit/WebCore/xml/XPathResult.idl',
         '../third_party/WebKit/WebCore/xml/XSLTProcessor.idl',
         'port/bindings/v8/UndetectableHTMLCollection.idl',
+
+        # This file includes all the .cpp files generated from the above idl.
+        '../third_party/WebKit/WebCore/bindings/v8/DerivedSourcesAllInOne.cpp',
 
         # V8 bindings not generated from .idl source.
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8AttrCustom.cpp',
@@ -3847,7 +3851,7 @@
         # of their enclosing directories and tags at the ends of their
         # filenames.
         ['exclude', '/(android|cairo|cf|cg|curl|gtk|linux|mac|opentype|posix|qt|soup|symbian|win|wx)/'],
-        ['exclude', '(?<!Chromium)(AllInOne|Android|Cairo|CF|CG|Curl|Gtk|Linux|Mac|OpenType|POSIX|Posix|Qt|Safari|Soup|Symbian|Win|Wx)\\.(cpp|mm?)$'],
+        ['exclude', '(?<!Chromium)(SVGAllInOne|Android|Cairo|CF|CG|Curl|Gtk|Linux|Mac|OpenType|POSIX|Posix|Qt|Safari|Soup|Symbian|Win|Wx)\\.(cpp|mm?)$'],
 
         # JSC-only.
         ['exclude', '/third_party/WebKit/WebCore/inspector/JavaScript[^/]*\\.cpp$'],
