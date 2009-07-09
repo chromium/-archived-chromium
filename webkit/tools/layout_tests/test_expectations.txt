@@ -2814,3 +2814,8 @@ BUG16237 : LayoutTests/http/tests/security/xssAuditor/script-tag-with-source-nul
 // WebKit merge 45652:45659
 BUG16289 MAC WIN : LayoutTests/fast/forms/slider-mouse-events.html = FAIL
 
+// WebKit merge 45659:45664
+BUG16355 WIN : LayoutTests/media/audio-delete-while-slider-thumb-clicked.html = TIMEOUT
+BUG16355 WIN : LayoutTests/media/audio-delete-while-step-button-clicked.html = TIMEOUT
+BUG16355 LINUX : LayoutTests/fast/forms/slider-delete-while-dragging-thumb.html = FAIL
+
