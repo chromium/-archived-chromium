@@ -166,7 +166,11 @@ void PrintJobWorker::OnNewPage() {
     // Is the page available?
     scoped_refptr<PrintedPage> page;
     if (!document_->GetPage(page_number_.ToInt(), &page)) {
-      // The page is implicitly requested.
+      // We need to wait for the page to be available.
+      MessageLoop::current()->PostDelayedTask(
+          FROM_HERE,
+          NewRunnableMethod(this, &PrintJobWorker::OnNewPage),
+          500);
       break;
     }
     // The page is there, print it.
