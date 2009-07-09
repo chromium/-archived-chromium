@@ -27,7 +27,8 @@ class TabContents;
 class ToolbarModel;
 
 class LocationBarViewGtk : public AutocompleteEditController,
-                           public LocationBar {
+                           public LocationBar,
+                           public LocationBarTesting {
  public:
   LocationBarViewGtk(CommandUpdater* command_updater,
                      ToolbarModel* toolbar_model,
@@ -71,6 +72,10 @@ class LocationBarViewGtk : public AutocompleteEditController,
   virtual AutocompleteEditView* location_entry() {
     return location_entry_.get();
   }
+  virtual LocationBarTesting* GetLocationBarForTesting() { return this; }
+
+  // Implement the LocationBarTesting interface.
+  virtual int PageActionVisibleCount();
 
   // Translation between a security level and the background color.  Both the
   // location bar and edit have to manage and match the background color.
@@ -130,10 +135,10 @@ class LocationBarViewGtk : public AutocompleteEditController,
   // the LocationBar interface via GetInputString().
   std::wstring location_input_;
 
-  // The user's desired disposition for how their input should be opened
+  // The user's desired disposition for how their input should be opened.
   WindowOpenDisposition disposition_;
 
-  // The transition type to use for the navigation
+  // The transition type to use for the navigation.
   PageTransition::Type transition_;
 
   DISALLOW_COPY_AND_ASSIGN(LocationBarViewGtk);

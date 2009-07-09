@@ -43,6 +43,9 @@ class TestLocationBar : public LocationBar {
   virtual AutocompleteEditView* location_entry() {
     return NULL;
   }
+  virtual LocationBarTesting* GetLocationBarForTesting() {
+    return NULL;
+  }
 
  private:
 

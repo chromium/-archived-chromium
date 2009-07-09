@@ -41,6 +41,7 @@ class Profile;
 //
 /////////////////////////////////////////////////////////////////////////////
 class LocationBarView : public LocationBar,
+                        public LocationBarTesting,
                         public views::View,
                         public AutocompleteEditController {
  public:
@@ -132,6 +133,10 @@ class LocationBarView : public LocationBar,
   virtual AutocompleteEditView* location_entry() {
     return location_entry_.get();
   }
+  virtual LocationBarTesting* GetLocationBarForTesting() { return this; }
+
+  // Overridden from LocationBarTesting:
+  virtual int PageActionVisibleCount();
 
   static const int kVertMargin;
   static const SkColor kBackgroundColorByLevel[];

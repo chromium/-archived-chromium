@@ -17,6 +17,7 @@
 #include "webkit/glue/window_open_disposition.h"
 
 class AutocompleteEditView;
+class LocationBarTesting;
 class TabContents;
 
 class LocationBar {
@@ -60,6 +61,15 @@ class LocationBar {
 
   // Returns a pointer to the text entry view.
   virtual AutocompleteEditView* location_entry() = 0;
+
+  // Returns a pointer to the testing interface.
+  virtual LocationBarTesting* GetLocationBarForTesting() = 0;
+};
+
+class LocationBarTesting {
+ public:
+  // Returns the number of visible page actions in the Omnibox.
+  virtual int PageActionVisibleCount() = 0;
 };
 
 #endif  // CHROME_BROWSER_LOCATION_BAR_H_

@@ -1,14 +1,14 @@
 {
   "name": "RSS Subscription Extension",
   "description": "Adds one-click subscription to your toolbar",
-  "version": "1.0",
+  "version": "1.1",
   "permissions": [
     "http://*/*"
   ],
   "background_page": "background.html",
   "content_scripts": [
     {
-      "matches": ["http://*/*"],
+      "matches": ["http://*/*", "file://*.*"],
       "js": ["feed_finder.js"]
     }
   ],

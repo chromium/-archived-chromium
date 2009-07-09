@@ -117,6 +117,140 @@ IN_PROC_BROWSER_TEST_F(ExtensionBrowserTest, TabContents) {
   EXPECT_TRUE(result);
 }
 
+// Tests that we can load page actions in the Omnibox.
+IN_PROC_BROWSER_TEST_F(ExtensionBrowserTest, PageAction) {
+  ASSERT_TRUE(LoadExtension(
+      test_data_dir_.AppendASCII("samples")
+                    .AppendASCII("subscribe_page_action")));
+
+  ASSERT_TRUE(WaitForPageActionVisibilityChangeTo(0));
+
+  // Navigate to the feed page.
+  FilePath test_dir;
+  PathService::Get(chrome::DIR_TEST_DATA, &test_dir);
+  FilePath feed = test_dir.AppendASCII("feeds")
+                          .AppendASCII("feed.html");
+
+  ui_test_utils::NavigateToURL(browser(), net::FilePathToFileURL(feed));
+
+  // We should now have one page action ready to go in the LocationBar.
+  ASSERT_TRUE(WaitForPageActionVisibilityChangeTo(1));
+
+  FilePath no_feed = test_dir.AppendASCII("feeds")
+                             .AppendASCII("nofeed.html");
+
+  // Make sure the page action goes away.
+  ui_test_utils::NavigateToURL(browser(), net::FilePathToFileURL(no_feed));
+  ASSERT_TRUE(WaitForPageActionVisibilityChangeTo(0));
+}
+
+GURL GetFeedUrl(const std::string& feed_page) {
+  FilePath test_dir;
+  PathService::Get(chrome::DIR_TEST_DATA, &test_dir);
+
+  FilePath subscribe;
+  subscribe = test_dir.AppendASCII("extensions")
+                      .AppendASCII("samples")
+                      .AppendASCII("subscribe_page_action")
+                      .AppendASCII("subscribe.html");
+  subscribe = subscribe.StripTrailingSeparators();
+
+  FilePath feed_dir = test_dir.AppendASCII("feeds")
+                              .AppendASCII(feed_page.c_str());
+
+  return GURL(net::FilePathToFileURL(subscribe).spec() +
+              std::string("?") +
+              net::FilePathToFileURL(feed_dir).spec());
+}
+
+static const wchar_t* jscript_feed_title =
+    L"window.domAutomationController.send("
+    L"  document.getElementById('title') ? "
+    L"    document.getElementById('title').textContent : "
+    L"    \"element 'title' not found\""
+    L");";
+static const wchar_t* jscript_anchor =
+    L"window.domAutomationController.send("
+    L"  document.getElementById('anchor_0') ? "
+    L"    document.getElementById('anchor_0').textContent : "
+    L"    \"element 'anchor_0' not found\""
+    L");";
+static const wchar_t* jscript_desc =
+    L"window.domAutomationController.send("
+    L"  document.getElementById('desc_0') ? "
+    L"    document.getElementById('desc_0').textContent : "
+    L"    \"element 'desc_0' not found\""
+    L");";
+static const wchar_t* jscript_error =
+    L"window.domAutomationController.send("
+    L"  document.getElementById('error') ? "
+    L"    document.getElementById('error').textContent : "
+    L"    \"No error\""
+    L");";
+
+void GetParsedFeedData(Browser* browser, std::string* feed_title,
+                       std::string* item_title, std::string* item_desc,
+                       std::string* error) {
+  ui_test_utils::ExecuteJavaScriptAndExtractString(
+      browser->GetSelectedTabContents()->render_view_host(), L"",
+      jscript_feed_title, feed_title);
+  ui_test_utils::ExecuteJavaScriptAndExtractString(
+      browser->GetSelectedTabContents()->render_view_host(), L"",
+      jscript_anchor, item_title);
+  ui_test_utils::ExecuteJavaScriptAndExtractString(
+      browser->GetSelectedTabContents()->render_view_host(), L"",
+      jscript_desc, item_desc);
+  ui_test_utils::ExecuteJavaScriptAndExtractString(
+      browser->GetSelectedTabContents()->render_view_host(), L"",
+      jscript_error, error);
+}
+
+// Tests that we can parse feeds.
+IN_PROC_BROWSER_TEST_F(ExtensionBrowserTest, ParseFeed) {
+  std::string feed_title;
+  std::string item_title;
+  std::string item_desc;
+  std::string error;
+
+  ui_test_utils::NavigateToURL(browser(), GetFeedUrl("feed1.xml"));
+  GetParsedFeedData(browser(), &feed_title, &item_title, &item_desc, &error);
+  EXPECT_STREQ("Feed for 'MyFeedTitle'", feed_title.c_str());
+  EXPECT_STREQ("Title 1", item_title.c_str());
+  EXPECT_STREQ("Desc", item_desc.c_str());
+  EXPECT_STREQ("No error", error.c_str());
+
+  ui_test_utils::NavigateToURL(browser(), GetFeedUrl("feed2.xml"));
+  GetParsedFeedData(browser(), &feed_title, &item_title, &item_desc, &error);
+  EXPECT_STREQ("Feed for 'MyFeed2'", feed_title.c_str());
+  EXPECT_STREQ("My item title1", item_title.c_str());
+  EXPECT_STREQ("This is a summary.", item_desc.c_str());
+  EXPECT_STREQ("No error", error.c_str());
+
+  // Try a feed that doesn't exist.
+  ui_test_utils::NavigateToURL(browser(), GetFeedUrl("feed_nonexistant.xml"));
+  GetParsedFeedData(browser(), &feed_title, &item_title, &item_desc, &error);
+  EXPECT_STREQ("Feed for 'Unknown feed name'", feed_title.c_str());
+  EXPECT_STREQ("element 'anchor_0' not found", item_title.c_str());
+  EXPECT_STREQ("element 'desc_0' not found", item_desc.c_str());
+  EXPECT_STREQ("Not a valid feed", error.c_str());
+
+  // Try an empty feed.
+  ui_test_utils::NavigateToURL(browser(), GetFeedUrl("feed_invalid1.xml"));
+  GetParsedFeedData(browser(), &feed_title, &item_title, &item_desc, &error);
+  EXPECT_STREQ("Feed for 'Unknown feed name'", feed_title.c_str());
+  EXPECT_STREQ("element 'anchor_0' not found", item_title.c_str());
+  EXPECT_STREQ("element 'desc_0' not found", item_desc.c_str());
+  EXPECT_STREQ("Not a valid feed", error.c_str());
+
+  // Try a garbage feed.
+  ui_test_utils::NavigateToURL(browser(), GetFeedUrl("feed_invalid2.xml"));
+  GetParsedFeedData(browser(), &feed_title, &item_title, &item_desc, &error);
+  EXPECT_STREQ("Feed for 'Unknown feed name'", feed_title.c_str());
+  EXPECT_STREQ("element 'anchor_0' not found", item_title.c_str());
+  EXPECT_STREQ("element 'desc_0' not found", item_desc.c_str());
+  EXPECT_STREQ("Not a valid feed", error.c_str());
+}
+
 // Tests that message passing between extensions and tabs works.
 IN_PROC_BROWSER_TEST_F(ExtensionBrowserTest, MessagingExtensionTab) {
   ASSERT_TRUE(LoadExtension(

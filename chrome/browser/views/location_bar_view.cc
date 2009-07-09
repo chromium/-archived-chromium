@@ -1153,7 +1153,8 @@ class LocationBarView::PageActionImageView::ImageLoadingTracker
   }
 
   void OnImageLoaded(SkBitmap* image, int index) {
-    view_->OnImageLoaded(image, index);
+    if (view_)
+      view_->OnImageLoaded(image, index);
     delete image;
     if (--image_count_ == 0)
       Release();  // We are no longer needed.
@@ -1365,4 +1366,13 @@ void LocationBarView::SaveStateToContents(TabContents* contents) {
 
 void LocationBarView::Revert() {
   location_entry_->RevertAll();
+}
+
+int LocationBarView::PageActionVisibleCount() {
+  int result = 0;
+  for (size_t i = 0; i < page_action_image_views_.size(); i++) {
+    if (page_action_image_views_[i]->IsVisible())
+      ++result;
+  }
+  return result;
 }

@@ -132,3 +132,8 @@ std::wstring LocationBarViewMac::GetTitle() const {
 void LocationBarViewMac::Revert() {
   edit_view_->RevertAll();
 }
+
+int LocationBarViewMac::PageActionVisibleCount() {
+  NOTIMPLEMENTED();
+  return -1;
+}

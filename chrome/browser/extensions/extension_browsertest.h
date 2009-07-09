@@ -25,6 +25,9 @@ class ExtensionBrowserTest
   bool InstallExtension(const FilePath& path);
   void UninstallExtension(const std::string& extension_id);
 
+  // Wait for the number of visible page actions to change to |count|.
+  bool WaitForPageActionVisibilityChangeTo(int count);
+
   bool loaded_;
   bool installed_;
   FilePath test_data_dir_;

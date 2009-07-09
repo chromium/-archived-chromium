@@ -4,6 +4,8 @@
 #include "base/file_path.h"
 #include "base/path_service.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_window.h"
+#include "chrome/browser/location_bar.h"
 #include "chrome/browser/extensions/extension_host.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/profile.h"
@@ -94,6 +96,29 @@ bool ExtensionBrowserTest::InstallExtension(const FilePath& path) {
 void ExtensionBrowserTest::UninstallExtension(const std::string& extension_id) {
   ExtensionsService* service = browser()->profile()->GetExtensionsService();
   service->UninstallExtension(extension_id, false);
+}
+
+bool ExtensionBrowserTest::WaitForPageActionVisibilityChangeTo(
+    int count) {
+  base::Time start_time = base::Time::Now();
+  while (true) {
+    LocationBarTesting* loc_bar =
+        browser()->window()->GetLocationBar()->GetLocationBarForTesting();
+
+    int visible = loc_bar->PageActionVisibleCount();
+    if (visible == count)
+      return true;
+
+    if ((base::Time::Now() - start_time).InMilliseconds() > kTimeoutMs)
+      return false;
+
+    std::cout << "Timed out waiting for page actions to become visible."
+              << "Currently visible page actions: " << IntToString(visible);
+
+    MessageLoop::current()->PostDelayedTask(FROM_HERE,
+                                            new MessageLoop::QuitTask, 200);
+    ui_test_utils::RunMessageLoop();
+  }
 }
 
 bool ExtensionBrowserTest::WaitForExtensionHostsToLoad() {

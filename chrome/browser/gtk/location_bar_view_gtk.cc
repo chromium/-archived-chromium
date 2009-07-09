@@ -357,6 +357,11 @@ void LocationBarViewGtk::Revert() {
   location_entry_->RevertAll();
 }
 
+int LocationBarViewGtk::PageActionVisibleCount() {
+  NOTIMPLEMENTED();
+  return -1;
+}
+
 gboolean LocationBarViewGtk::HandleExpose(GtkWidget* widget,
                                           GdkEventExpose* event) {
   GdkDrawable* drawable = GDK_DRAWABLE(event->window);

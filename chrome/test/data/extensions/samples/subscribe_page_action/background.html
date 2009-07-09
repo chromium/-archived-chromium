@@ -91,6 +91,12 @@
             // feed URL.
             chrome.tabs.create({url: "subscribe.html?" + feedUrl,
                                windowId: windowId});
+          } else {
+            console.log("Ignoring execute event.");
+            console.log("PageActionId: " + reply.pageActionId + " == " +
+                                           pageActionId);
+            console.log("TabUrl      : " + reply.data.tabUrl + " == " +
+                                           pageUrl);
           }
         }
       });

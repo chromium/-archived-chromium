@@ -20,7 +20,8 @@ class ToolbarModel;
 // the location bar text field, which handles most of the work.
 
 class LocationBarViewMac : public AutocompleteEditController,
-                           public LocationBar {
+                           public LocationBar,
+                           public LocationBarTesting {
  public:
   LocationBarViewMac(NSTextField* field,
                      CommandUpdater* command_updater,
@@ -28,7 +29,7 @@ class LocationBarViewMac : public AutocompleteEditController,
                      Profile* profile);
   virtual ~LocationBarViewMac();
 
-  // Overridden from LocationBar
+  // Overridden from LocationBar:
   virtual void ShowFirstRunBubble(bool use_OEM_bubble) { NOTIMPLEMENTED(); }
   virtual std::wstring GetInputString() const;
   virtual WindowOpenDisposition GetWindowOpenDisposition() const;
@@ -44,6 +45,10 @@ class LocationBarViewMac : public AutocompleteEditController,
   virtual AutocompleteEditView* location_entry() {
     return edit_view_.get();
   }
+  virtual LocationBarTesting* GetLocationBarForTesting() { return this; }
+
+  // Overriden from LocationBarTesting:
+  virtual int PageActionVisibleCount();
 
   // Updates the location bar.  Resets the bar's permanent text and
   // security style, and if |should_restore_state| is true, restores
@@ -62,17 +67,17 @@ class LocationBarViewMac : public AutocompleteEditController,
  private:
   scoped_ptr<AutocompleteEditViewMac> edit_view_;
 
-  CommandUpdater* command_updater_;  // weak, owned by Browser
+  CommandUpdater* command_updater_;  // Weak, owned by Browser.
 
   // When we get an OnAutocompleteAccept notification from the autocomplete
   // edit, we save the input string so we can give it back to the browser on
   // the LocationBar interface via GetInputString().
   std::wstring location_input_;
 
-  // The user's desired disposition for how their input should be opened
+  // The user's desired disposition for how their input should be opened.
   WindowOpenDisposition disposition_;
 
-  // The transition type to use for the navigation
+  // The transition type to use for the navigation.
   PageTransition::Type transition_;
 
   DISALLOW_COPY_AND_ASSIGN(LocationBarViewMac);
