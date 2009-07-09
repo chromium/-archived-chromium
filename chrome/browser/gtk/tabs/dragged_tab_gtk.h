@@ -86,18 +86,11 @@ class DraggedTabGtk : public AnimationDelegate {
   // Sets the shape mask for the container window to emulate a transparent
   // container window.  This is used if compositing is not available for the
   // screen.
-  void SetContainerShapeMask(const SkBitmap& dragged_contents);
+  // |pixbuf| is the pixbuf for the tab only (not the render view).
+  void SetContainerShapeMask(GdkPixbuf* pixbuf);
 
-  // Paints the tab when it's attached to a tabstrip.
-  SkBitmap PaintAttachedTab();
-
-  // Paints the tab when it's not attached to any tabstrip.
-  SkBitmap PaintDetachedView();
-
-  // Paints a screenshot of the dragged contents from the backing store into
-  // |canvas|.
-  void PaintScreenshotIntoCanvas(gfx::Canvas* canvas,
-                                 const gfx::Rect& target_bounds);
+  // Paints the tab. The returned pixbuf belongs to the caller.
+  GdkPixbuf* PaintTab();
 
   // expose-event handler that notifies when the tab needs to be redrawn.
   static gboolean OnExposeEvent(GtkWidget* widget, GdkEventExpose* event,

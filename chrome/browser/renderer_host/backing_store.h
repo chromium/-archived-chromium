@@ -23,6 +23,7 @@
 class RenderWidgetHost;
 class SkBitmap;
 class TransportDIB;
+typedef struct _GdkDrawable GdkDrawable;
 
 // BackingStore ----------------------------------------------------------------
 
@@ -73,6 +74,11 @@ class BackingStore {
   // Paints the server-side backing store data to a SkBitmap. On failure, the
   // return bitmap will be isNull().
   SkBitmap PaintRectToBitmap(const gfx::Rect& rect);
+#endif
+
+#if defined(TOOLKIT_GTK)
+  // Paint the backing store into the target's |dest_rect|.
+  void PaintToRect(const gfx::Rect& dest_rect, GdkDrawable* target);
 #endif
 
   // Paints the bitmap from the renderer onto the backing store.

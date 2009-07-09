@@ -14,12 +14,13 @@
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/gtk/tabs/tab_renderer_gtk.h"
 #include "chrome/common/gtk_util.h"
+#include "chrome/common/x11_util.h"
 #include "third_party/skia/include/core/SkShader.h"
 
 namespace {
 
 // The size of the dragged window frame.
-const int kDragFrameBorderSize = 2;
+const int kDragFrameBorderSize = 1;
 const int kTwiceDragFrameBorderSize = 2 * kDragFrameBorderSize;
 
 // Used to scale the dragged window sizes.
@@ -29,7 +30,9 @@ const int kAnimateToBoundsDurationMs = 150;
 
 const gdouble kTransparentAlpha = (200.0f / 255.0f);
 const gdouble kOpaqueAlpha = 1.0f;
-const SkColor kDraggedTabBorderColor = SkColorSetRGB(103, 129, 162);
+const double kDraggedTabBorderColor[] = { 103.0 / 0xff,
+                                          129.0 / 0xff,
+                                          162.0 / 0xff };
 
 }  // namespace
 
@@ -196,7 +199,7 @@ void DraggedTabGtk::SetContainerColorMap() {
 void DraggedTabGtk::SetContainerTransparency() {
   cairo_t* cairo_context = gdk_cairo_create(container_->window);
   if (!cairo_context)
-      return;
+    return;
 
   // Make the background of the dragged tab window fully transparent.  All of
   // the content of the window (child widgets) will be completely opaque.
@@ -209,9 +212,7 @@ void DraggedTabGtk::SetContainerTransparency() {
   cairo_destroy(cairo_context);
 }
 
-void DraggedTabGtk::SetContainerShapeMask(const SkBitmap& dragged_contents) {
-  GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(&dragged_contents);
-
+void DraggedTabGtk::SetContainerShapeMask(GdkPixbuf* pixbuf) {
   // Create a 1bpp bitmap the size of |container_|.
   gfx::Size size = bounds().size();
   GdkPixmap* pixmap = gdk_pixmap_new(NULL, size.width(), size.height(), 1);
@@ -223,100 +224,97 @@ void DraggedTabGtk::SetContainerShapeMask(const SkBitmap& dragged_contents) {
   // Blit the rendered bitmap into a pixmap.  Any pixel set in the pixmap will
   // be opaque in the container window.
   cairo_set_operator(cairo_context, CAIRO_OPERATOR_SOURCE);
+  if (!attached_)
+    cairo_scale(cairo_context, kScalingFactor, kScalingFactor);
   gdk_cairo_set_source_pixbuf(cairo_context, pixbuf, 0, 0);
   cairo_paint(cairo_context);
+
+  if (!attached_) {
+    // Make the render area depiction opaque (leaving enough room for the
+    // border).
+    cairo_identity_matrix(cairo_context);
+    cairo_set_source_rgba(cairo_context, 1.0f, 1.0f, 1.0f, 1.0f);
+    int tab_height = kScalingFactor * gdk_pixbuf_get_height(pixbuf) -
+                     kDragFrameBorderSize;
+    cairo_rectangle(cairo_context,
+                    0, tab_height,
+                    size.width(), size.height() - tab_height);
+    cairo_fill(cairo_context);
+  }
+
   cairo_destroy(cairo_context);
 
   // Set the shape mask.
   gdk_window_shape_combine_mask(container_->window, pixmap, 0, 0);
-  g_object_unref(pixbuf);
   g_object_unref(pixmap);
 }
 
-SkBitmap DraggedTabGtk::PaintAttachedTab() {
-  return renderer_->PaintBitmap();
-}
-
-SkBitmap DraggedTabGtk::PaintDetachedView() {
-  gfx::Size ps = GetPreferredSize();
-  gfx::Canvas scale_canvas(ps.width(), ps.height(), false);
-  SkBitmap& bitmap_device = const_cast<SkBitmap&>(
-      scale_canvas.getTopPlatformDevice().accessBitmap(true));
-  bitmap_device.eraseARGB(0, 0, 0, 0);
-
-  scale_canvas.FillRectInt(kDraggedTabBorderColor, 0,
-      attached_tab_size_.height() - kDragFrameBorderSize,
-      ps.width(), ps.height() - attached_tab_size_.height());
-  int image_x = kDragFrameBorderSize;
-  int image_y = attached_tab_size_.height();
-  int image_w = ps.width() - kTwiceDragFrameBorderSize;
-  int image_h =
-      ps.height() - kTwiceDragFrameBorderSize - attached_tab_size_.height();
-  scale_canvas.FillRectInt(SK_ColorBLACK, image_x, image_y, image_w, image_h);
-  PaintScreenshotIntoCanvas(&scale_canvas,
-      gfx::Rect(image_x, image_y, image_w, image_h));
-  renderer_->Paint(&scale_canvas);
-
-  SkIRect subset;
-  subset.set(0, 0, ps.width(), ps.height());
-  SkBitmap mipmap = scale_canvas.ExtractBitmap();
-  mipmap.buildMipMap(true);
-
-  SkShader* bitmap_shader =
-      SkShader::CreateBitmapShader(mipmap, SkShader::kClamp_TileMode,
-                                   SkShader::kClamp_TileMode);
-
-  SkMatrix shader_scale;
-  shader_scale.setScale(kScalingFactor, kScalingFactor);
-  bitmap_shader->setLocalMatrix(shader_scale);
-
-  SkPaint paint;
-  paint.setShader(bitmap_shader);
-  paint.setAntiAlias(true);
-  bitmap_shader->unref();
-
-  SkRect rc;
-  rc.fLeft = 0;
-  rc.fTop = 0;
-  rc.fRight = SkIntToScalar(ps.width());
-  rc.fBottom = SkIntToScalar(ps.height());
-  gfx::Canvas canvas(ps.width(), ps.height(), false);
-  canvas.drawRect(rc, paint);
-
-  return canvas.ExtractBitmap();
-}
-
-void DraggedTabGtk::PaintScreenshotIntoCanvas(gfx::Canvas* canvas,
-                                              const gfx::Rect& target_bounds) {
-  // A drag could be initiated before the backing store is created.
-  if (!backing_store_)
-    return;
-
-  gfx::Rect rect(0, 0, target_bounds.width(), target_bounds.height());
-  SkBitmap bitmap = backing_store_->PaintRectToBitmap(rect);
-  if (!bitmap.isNull())
-    canvas->DrawBitmapInt(bitmap, target_bounds.x(), target_bounds.y());
+GdkPixbuf* DraggedTabGtk::PaintTab() {
+  SkBitmap bitmap = renderer_->PaintBitmap();
+  return gfx::GdkPixbufFromSkBitmap(&bitmap);
 }
 
 // static
 gboolean DraggedTabGtk::OnExposeEvent(GtkWidget* widget,
                                       GdkEventExpose* event,
                                       DraggedTabGtk* dragged_tab) {
-  SkBitmap bmp;
-  if (dragged_tab->attached_) {
-    bmp = dragged_tab->PaintAttachedTab();
-  } else {
-    bmp = dragged_tab->PaintDetachedView();
-  }
-
+  GdkPixbuf* pixbuf = dragged_tab->PaintTab();
   if (gtk_util::IsScreenComposited()) {
     dragged_tab->SetContainerTransparency();
   } else {
-    dragged_tab->SetContainerShapeMask(bmp);
+    dragged_tab->SetContainerShapeMask(pixbuf);
   }
 
-  gfx::CanvasPaint canvas(event, false);
-  canvas.DrawBitmapInt(bmp, 0, 0);
+  // Only used when not attached.
+  int tab_height = kScalingFactor * gdk_pixbuf_get_height(pixbuf);
+  int tab_width = kScalingFactor * gdk_pixbuf_get_width(pixbuf);
+
+  // Draw the render area.
+  if (dragged_tab->backing_store_ && !dragged_tab->attached_) {
+    // This leaves room for the border.
+    dragged_tab->backing_store_->PaintToRect(
+        gfx::Rect(kDragFrameBorderSize, tab_height,
+                  widget->allocation.width - kTwiceDragFrameBorderSize,
+                  widget->allocation.height - tab_height -
+                  kDragFrameBorderSize),
+        GDK_DRAWABLE(widget->window));
+  }
+
+  cairo_t* cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+  // Draw the border.
+  if (!dragged_tab->attached_) {
+    cairo_set_line_width(cr, kDragFrameBorderSize);
+    cairo_set_source_rgb(cr, kDraggedTabBorderColor[0],
+                             kDraggedTabBorderColor[1],
+                             kDraggedTabBorderColor[2]);
+    // |offset| is the distance from the edge of the image to the middle of
+    // the border line.
+    double offset = kDragFrameBorderSize / 2.0 - 0.5;
+    double left_x = offset;
+    double top_y = tab_height - kDragFrameBorderSize + offset;
+    double right_x = widget->allocation.width - offset;
+    double bottom_y = widget->allocation.height - offset;
+    double middle_x = tab_width + offset;
+
+    // We don't use cairo_rectangle() because we don't want to draw the border
+    // under the tab itself.
+    cairo_move_to(cr, left_x, top_y);
+    cairo_line_to(cr, left_x, bottom_y);
+    cairo_line_to(cr, right_x, bottom_y);
+    cairo_line_to(cr, right_x, top_y);
+    cairo_line_to(cr, middle_x, top_y);
+    cairo_stroke(cr);
+  }
+
+  // Draw the tab.
+  if (!dragged_tab->attached_)
+    cairo_scale(cr, kScalingFactor, kScalingFactor);
+  gdk_cairo_set_source_pixbuf(cr, pixbuf, 0, 0);
+  cairo_paint(cr);
+
+  cairo_destroy(cr);
+
+  g_object_unref(pixbuf);
 
   // We've already drawn the tab, so don't propagate the expose-event signal.
   return TRUE;

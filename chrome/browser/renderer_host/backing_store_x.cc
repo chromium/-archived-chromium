@@ -7,6 +7,10 @@
 #include <stdlib.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#if defined(TOOLKIT_GTK)
+#include <cairo-xlib.h>
+#include <gtk/gtk.h>
+#endif
 
 #include <algorithm>
 #include <utility>
@@ -335,6 +339,31 @@ void BackingStore::ShowRect(const gfx::Rect& rect, XID target) {
             rect.x(), rect.y(), rect.width(), rect.height(),
             rect.x(), rect.y());
 }
+
+#if defined(TOOLKIT_GTK)
+void BackingStore::PaintToRect(const gfx::Rect& rect, GdkDrawable* target) {
+  cairo_surface_t* surface = cairo_xlib_surface_create(
+      display_, pixmap_, static_cast<Visual*>(visual_),
+      size_.width(), size_.height());
+  cairo_t* cr = gdk_cairo_create(target);
+
+  cairo_translate(cr, rect.x(), rect.y());
+  double x_scale = static_cast<double>(rect.width()) / size_.width();
+  double y_scale = static_cast<double>(rect.height()) / size_.height();
+  cairo_scale(cr, x_scale, y_scale);
+
+  cairo_pattern_t* pattern = cairo_pattern_create_for_surface(surface);
+  cairo_pattern_set_filter(pattern, CAIRO_FILTER_BEST);
+  cairo_set_source(cr, pattern);
+  cairo_pattern_destroy(pattern);
+
+  cairo_identity_matrix(cr);
+
+  cairo_rectangle(cr, rect.x(), rect.y(), rect.width(), rect.height());
+  cairo_fill(cr);
+  cairo_destroy(cr);
+}
+#endif
 
 SkBitmap BackingStore::PaintRectToBitmap(const gfx::Rect& rect) {
   base::TimeTicks begin_time = base::TimeTicks::Now();
