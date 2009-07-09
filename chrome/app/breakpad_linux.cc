@@ -467,10 +467,10 @@ void EnableCrashDumping() {
                                         true /* install handlers */);
 }
 
-// This is defined in chrome/renderer/renderer_logging_linux.cc, it's the
+// This is defined in chrome/common/child_process_logging_linux.cc, it's the
 // static string containing the current active URL. We send this in the crash
 // report.
-namespace renderer_logging {
+namespace child_process_logging {
 extern std::string active_url;
 }
 
@@ -491,8 +491,8 @@ RendererCrashHandler(const void* crash_context, size_t crash_context_size,
   iov[0].iov_len = crash_context_size;
   iov[1].iov_base = const_cast<char*>(google_update::linux_guid.data());
   iov[1].iov_len = google_update::linux_guid.size();
-  iov[2].iov_base = const_cast<char*>(renderer_logging::active_url.data());
-  iov[2].iov_len = renderer_logging::active_url.size();
+  iov[2].iov_base = const_cast<char*>(child_process_logging::active_url.data());
+  iov[2].iov_len = child_process_logging::active_url.size();
 
   msg.msg_iov = iov;
   msg.msg_iovlen = 3;
