@@ -67,8 +67,8 @@ class FFmpegDemuxerTest : public testing::Test {
     DCHECK(demuxer_);
 
     // Inject a filter host and message loop and prepare a data source.
-    demuxer_->SetFilterHost(&host_);
-    demuxer_->SetMessageLoop(&message_loop_);
+    demuxer_->set_host(&host_);
+    demuxer_->set_message_loop(&message_loop_);
     data_source_ = new StrictMock<MockDataSource>();
 
     // Initialize FFmpeg fixtures.

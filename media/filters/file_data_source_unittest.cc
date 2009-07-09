@@ -43,7 +43,7 @@ TEST(FileDataSourceTest, OpenFile) {
   EXPECT_CALL(host, InitializationComplete());
 
   scoped_refptr<FileDataSource> filter = new FileDataSource();
-  filter->SetFilterHost(&host);
+  filter->set_host(&host);
   EXPECT_TRUE(filter->Initialize(TestFileURL()));
 }
 
@@ -56,7 +56,7 @@ TEST(FileDataSourceTest, ReadData) {
   // Create our mock filter host and initialize the data source.
   NiceMock<MockFilterHost> host;
   scoped_refptr<FileDataSource> filter = new FileDataSource();
-  filter->SetFilterHost(&host);
+  filter->set_host(&host);
   EXPECT_TRUE(filter->Initialize(TestFileURL()));
 
   EXPECT_TRUE(filter->GetSize(&size));

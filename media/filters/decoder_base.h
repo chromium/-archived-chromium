@@ -26,18 +26,18 @@ class DecoderBase : public Decoder {
 
   // MediaFilter implementation.
   virtual void Stop() {
-    message_loop()->PostTask(FROM_HERE,
+    this->message_loop()->PostTask(FROM_HERE,
         NewRunnableMethod(this, &DecoderBase::StopTask));
   }
 
   virtual void Seek(base::TimeDelta time) {
-    message_loop()->PostTask(FROM_HERE,
+    this->message_loop()->PostTask(FROM_HERE,
         NewRunnableMethod(this, &DecoderBase::SeekTask, time));
   }
 
   // Decoder implementation.
   virtual bool Initialize(DemuxerStream* demuxer_stream) {
-    message_loop()->PostTask(FROM_HERE,
+    this->message_loop()->PostTask(FROM_HERE,
         NewRunnableMethod(this, &DecoderBase::InitializeTask, demuxer_stream));
     return true;
   }
@@ -46,7 +46,7 @@ class DecoderBase : public Decoder {
 
   // Audio or video decoder.
   virtual void Read(ReadCallback* read_callback) {
-    message_loop()->PostTask(FROM_HERE,
+    this->message_loop()->PostTask(FROM_HERE,
         NewRunnableMethod(this, &DecoderBase::ReadTask, read_callback));
   }
 
@@ -57,7 +57,7 @@ class DecoderBase : public Decoder {
     // TODO(scherkus): change the callback format to pass a scoped_refptr<> or
     // better yet see if we can get away with not using reference counting.
     scoped_refptr<Buffer> buffer_ref = buffer;
-    message_loop()->PostTask(FROM_HERE,
+    this->message_loop()->PostTask(FROM_HERE,
         NewRunnableMethod(this, &DecoderBase::ReadCompleteTask, buffer_ref));
   }
 
@@ -116,12 +116,6 @@ class DecoderBase : public Decoder {
   MediaFormat media_format_;
 
  private:
-  // GCC doesn't let us access superclass member variables directly, so use
-  // a helper to get around the situation.
-  //
-  // TODO(scherkus): another reason to add protected accessors to MediaFilter.
-  FilterHost* host() const { return Decoder::host_; }
-  MessageLoop* message_loop() const { return Decoder::message_loop_; }
   bool IsStopped() { return state_ == STOPPED; }
 
   void StopTask() {
@@ -159,14 +153,14 @@ class DecoderBase : public Decoder {
 
     // Delegate to subclass first.
     if (!OnInitialize(demuxer_stream_)) {
-      host()->Error(PIPELINE_ERROR_DECODE);
+      this->host()->Error(PIPELINE_ERROR_DECODE);
       return;
     }
 
     // TODO(scherkus): subclass shouldn't mutate superclass media format.
     DCHECK(!media_format_.empty()) << "Subclass did not set media_format_";
     state_ = INITIALIZED;
-    host()->InitializationComplete();
+    this->host()->InitializationComplete();
   }
 
   void ReadTask(ReadCallback* read_callback) {

@@ -538,7 +538,7 @@ bool BufferedDataSource::Initialize(const std::string& url) {
 
   // Make sure we support the scheme of the URL.
   if (!IsSchemeSupported(url_)) {
-    host_->Error(media::PIPELINE_ERROR_NETWORK);
+    host()->Error(media::PIPELINE_ERROR_NETWORK);
     return false;
   }
 
@@ -565,12 +565,12 @@ bool BufferedDataSource::Initialize(const std::string& url) {
   if (resource_loader) {
     if (net::ERR_IO_PENDING != resource_loader->Start(
             NewCallback(this, &BufferedDataSource::InitialRequestStarted))) {
-      host_->Error(media::PIPELINE_ERROR_NETWORK);
+      host()->Error(media::PIPELINE_ERROR_NETWORK);
       return false;
     }
     return true;
   }
-  host_->Error(media::PIPELINE_ERROR_NETWORK);
+  host()->Error(media::PIPELINE_ERROR_NETWORK);
   return false;
 }
 
@@ -671,7 +671,7 @@ bool BufferedDataSource::IsSeekable() {
 void BufferedDataSource::HandleError(media::PipelineError error) {
   AutoLock auto_lock(lock_);
   if (!stopped_) {
-    host_->Error(error);
+    host()->Error(error);
   }
 }
 
@@ -695,13 +695,13 @@ void BufferedDataSource::OnInitialRequestStarted(int error) {
     if (error == net::OK) {
       total_bytes_ = buffered_resource_loader_->content_length();
       if (IsSeekable()) {
-        host_->SetTotalBytes(total_bytes_);
+        host()->SetTotalBytes(total_bytes_);
         // TODO(hclam): report the amount of bytes buffered accurately.
-        host_->SetBufferedBytes(total_bytes_);
+        host()->SetBufferedBytes(total_bytes_);
       }
-      host_->InitializationComplete();
+      host()->InitializationComplete();
     } else {
-      host_->Error(media::PIPELINE_ERROR_NETWORK);
+      host()->Error(media::PIPELINE_ERROR_NETWORK);
     }
   }
 }

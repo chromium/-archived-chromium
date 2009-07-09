@@ -194,7 +194,7 @@ void AudioRendererImpl::OnStateChanged(AudioOutputStream::State state,
 
   switch (state) {
     case AudioOutputStream::STATE_ERROR:
-      host_->Error(media::PIPELINE_ERROR_AUDIO_HARDWARE);
+      host()->Error(media::PIPELINE_ERROR_AUDIO_HARDWARE);
       break;
     // TODO(hclam): handle these events.
     case AudioOutputStream::STATE_STARTED:
