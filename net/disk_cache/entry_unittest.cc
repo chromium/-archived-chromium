@@ -38,6 +38,7 @@ class DiskCacheEntryTest : public DiskCacheTestWithCache {
   void BasicSparseIO(bool async);
   void HugeSparseIO(bool async);
   void GetAvailableRange();
+  void DoomSparseEntry();
 };
 
 void DiskCacheEntryTest::InternalSyncIO() {
@@ -826,7 +827,7 @@ TEST_F(DiskCacheEntryTest, MemoryOnlyDoomedEntry) {
 
 // Test that child entries in a memory cache backend are not visible from
 // enumerations.
-TEST_F(DiskCacheEntryTest, MemoryOnlyEnumerationWithSlaveEntries) {
+TEST_F(DiskCacheEntryTest, MemoryOnlyEnumerationWithSparseEntries) {
   SetMemoryOnlyMode();
   InitCache();
 
@@ -1127,4 +1128,60 @@ TEST_F(DiskCacheEntryTest, MemoryOnlyMisalignedGetAvailableRange) {
   EXPECT_EQ(50000, start);
 
   entry->Close();
+}
+
+void DiskCacheEntryTest::DoomSparseEntry() {
+  std::string key1("the first key");
+  std::string key2("the second key");
+  disk_cache::Entry *entry1, *entry2;
+  ASSERT_TRUE(cache_->CreateEntry(key1, &entry1));
+  ASSERT_TRUE(cache_->CreateEntry(key2, &entry2));
+
+  const int kSize = 4 * 1024;
+  scoped_refptr<net::IOBuffer> buf = new net::IOBuffer(kSize);
+  CacheTestFillBuffer(buf->data(), kSize, false);
+
+  int64 offset = 1024;
+  // Write to a bunch of ranges.
+  for (int i = 0; i < 12; i++) {
+    EXPECT_EQ(kSize, entry1->WriteSparseData(offset, buf, kSize, NULL));
+    // Keep the second map under the default size.
+    if (i < 9)
+      EXPECT_EQ(kSize, entry2->WriteSparseData(offset, buf, kSize, NULL));
+    offset *= 4;
+  }
+
+  if (memory_only_)
+    EXPECT_EQ(2, cache_->GetEntryCount());
+  else
+    EXPECT_EQ(15, cache_->GetEntryCount());
+
+  // Doom the first entry while it's still open.
+  entry1->Doom();
+  entry1->Close();
+  entry2->Close();
+
+  // Doom the second entry after it's fully saved.
+  EXPECT_TRUE(cache_->DoomEntry(key2));
+
+  // Make sure we do all needed work. This may fail for entry2 if between Close
+  // and DoomEntry the system decides to remove all traces of the file from the
+  // system cache so we don't see that there is pending IO.
+  MessageLoop::current()->RunAllPending();
+
+  if (memory_only_)
+    EXPECT_EQ(0, cache_->GetEntryCount());
+  else
+    EXPECT_EQ(0, cache_->GetEntryCount());
+}
+
+TEST_F(DiskCacheEntryTest, DoomSparseEntry) {
+  InitCache();
+  DoomSparseEntry();
+}
+
+TEST_F(DiskCacheEntryTest, DISABLED_MemoryOnlyDoomSparseEntry) {
+  SetMemoryOnlyMode();
+  InitCache();
+  DoomSparseEntry();
 }

@@ -5,12 +5,14 @@
 #include "net/disk_cache/sparse_control.h"
 
 #include "base/logging.h"
+#include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/time.h"
 #include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
 #include "net/disk_cache/backend_impl.h"
 #include "net/disk_cache/entry_impl.h"
+#include "net/disk_cache/file.h"
 
 using base::Time;
 
@@ -21,6 +23,106 @@ const int kSparseIndex = 2;
 
 // Stream of the sparse data.
 const int kSparseData = 1;
+
+// We can have up to 64k children.
+const int kMaxMapSize = 8 * 1024;
+
+// Returns the name of of a child entry given the base_name and signature of the
+// parent and the child_id.
+// If the entry is called entry_name, child entries will be named something
+// like Range_entry_name:XXX:YYY where XXX is the entry signature and YYY is the
+// number of the particular child.
+std::string GenerateChildName(const std::string& base_name, int64 signature,
+                              int64 child_id) {
+  return StringPrintf("Range_%s:%llx:%llx", base_name.c_str(), signature,
+                      child_id);
+}
+
+// This class deletes the children of a sparse entry.
+class ChildrenDeleter
+    : public base::RefCounted<ChildrenDeleter>,
+      public disk_cache::FileIOCallback {
+ public:
+  ChildrenDeleter(disk_cache::BackendImpl* backend, const std::string& name)
+      : backend_(backend), name_(name) {}
+
+  virtual void OnFileIOComplete(int bytes_copied);
+
+  // Two ways of deleting the children: if we have the children map, use Start()
+  // directly, otherwise pass the data address to ReadData().
+  void Start(char* buffer, int len);
+  void ReadData(disk_cache::Addr address, int len);
+
+ private:
+  void DeleteChildren();
+
+  disk_cache::BackendImpl* backend_;
+  std::string name_;
+  disk_cache::Bitmap children_map_;
+  int64 signature_;
+  scoped_array<char> buffer_;
+  DISALLOW_EVIL_CONSTRUCTORS(ChildrenDeleter);
+};
+
+// This is the callback of the file operation.
+void ChildrenDeleter::OnFileIOComplete(int bytes_copied) {
+  char* buffer = buffer_.release();
+  Start(buffer, bytes_copied);
+}
+
+void ChildrenDeleter::Start(char* buffer, int len) {
+  buffer_.reset(buffer);
+  if (len < static_cast<int>(sizeof(disk_cache::SparseData)))
+    return Release();
+
+  // Just copy the information from |buffer|, delete |buffer| and start deleting
+  // the child entries.
+  disk_cache::SparseData* data =
+      reinterpret_cast<disk_cache::SparseData*>(buffer);
+  signature_ = data->header.signature;
+
+  int num_bits = (len - sizeof(disk_cache::SparseHeader)) * 8;
+  children_map_.Resize(num_bits, false);
+  children_map_.SetMap(data->bitmap, num_bits / 32);
+  buffer_.reset();
+
+  DeleteChildren();
+}
+
+void ChildrenDeleter::ReadData(disk_cache::Addr address, int len) {
+  DCHECK(address.is_block_file());
+  disk_cache::File* file(backend_->File(address));
+  if (!file)
+    return Release();
+
+  size_t file_offset = address.start_block() * address.BlockSize() +
+                       disk_cache::kBlockHeaderSize;
+
+  buffer_.reset(new char[len]);
+  bool completed;
+  if (!file->Read(buffer_.get(), len, file_offset, this, &completed))
+    return Release();
+
+  if (completed)
+    OnFileIOComplete(len);
+
+  // And wait until OnFileIOComplete gets called.
+}
+
+void ChildrenDeleter::DeleteChildren() {
+  int child_id = 0;
+  if (!children_map_.FindNextSetBit(&child_id)) {
+    // We are done. Just delete this object.
+    return Release();
+  }
+  std::string child_name = GenerateChildName(name_, signature_, child_id);
+  backend_->DoomEntry(child_name);
+  children_map_.Set(child_id, false);
+
+  // Post a task to delete the next child.
+  MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
+      this, &ChildrenDeleter::DeleteChildren));
+}
 
 }
 
@@ -118,10 +220,43 @@ int SparseControl::GetAvailableRange(int64 offset, int len, int64* start) {
   return result < 0 ? result : 0;  // Don't mask error codes to the caller.
 }
 
+// Static
+void SparseControl::DeleteChildren(EntryImpl* entry) {
+  DCHECK(entry->GetEntryFlags() & PARENT_ENTRY);
+  int data_len = entry->GetDataSize(kSparseIndex);
+  if (data_len < static_cast<int>(sizeof(SparseData)) ||
+      entry->GetDataSize(kSparseData))
+    return;
+
+  int map_len = data_len - sizeof(SparseHeader);
+  if (map_len > kMaxMapSize || map_len % 4)
+    return;
+
+  char* buffer;
+  Addr address;
+  entry->GetData(kSparseIndex, &buffer, &address);
+  if (!buffer && !address.is_initialized())
+    return;
+
+  ChildrenDeleter* deleter = new ChildrenDeleter(entry->backend_,
+                                                 entry->GetKey());
+  // The object will self destruct when finished.
+  deleter->AddRef();
+
+  if (buffer) {
+    MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
+        deleter, &ChildrenDeleter::Start, buffer, data_len));
+  } else {
+    MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
+        deleter, &ChildrenDeleter::ReadData, address, data_len));
+  }
+}
+
 // We are going to start using this entry to store sparse data, so we have to
 // initialize our control info.
 int SparseControl::CreateSparseEntry() {
-  // TODO(rvargas): Set/check a flag in EntryStore.
+  if (CHILD_ENTRY & entry_->GetEntryFlags())
+    return net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
 
   memset(&sparse_header_, 0, sizeof(sparse_header_));
   sparse_header_.signature = Time::Now().ToInternalValue();
@@ -139,6 +274,8 @@ int SparseControl::CreateSparseEntry() {
     DLOG(ERROR) << "Unable to save sparse_header_";
     return net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
   }
+
+  entry_->SetEntryFlags(PARENT_ENTRY);
   return net::OK;
 }
 
@@ -150,11 +287,12 @@ int SparseControl::OpenSparseEntry(int data_len) {
   if (entry_->GetDataSize(kSparseData))
     return net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
 
-  // TODO(rvargas): Set/check a flag in EntryStore.
+  if (!(PARENT_ENTRY & entry_->GetEntryFlags()))
+    return net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
 
   // Dont't go over board with the bitmap. 8 KB gives us offsets up to 64 GB.
   int map_len = data_len - sizeof(sparse_header_);
-  if (map_len > 8 * 1024 || map_len % 4)
+  if (map_len > kMaxMapSize || map_len % 4)
     return net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
 
   scoped_refptr<net::IOBuffer> buf =
@@ -216,7 +354,11 @@ bool SparseControl::OpenChild() {
     return true;
   }
 
-  // TODO(rvargas): Set/check a flag in EntryStore.
+  EntryImpl* child = static_cast<EntryImpl*>(child_);
+  if (!(CHILD_ENTRY & child->GetEntryFlags())) {
+    result_ = net::ERR_CACHE_OPERATION_NOT_SUPPORTED;
+    return false;
+  }
 
   scoped_refptr<net::WrappedIOBuffer> buf =
       new net::WrappedIOBuffer(reinterpret_cast<char*>(&child_data_));
@@ -250,17 +392,14 @@ void SparseControl::CloseChild() {
   child_ = NULL;
 }
 
-// If this entry is called entry_name, child entreies will be named something
-// like Range_entry_name:XXX:YYY where XXX is the entry signature and YYY is the
-// number of the particular child.
 std::string SparseControl::GenerateChildKey() {
-  return StringPrintf("Range_%s:%llx:%llx", entry_->GetKey().c_str(),
-                      sparse_header_.signature, offset_ >> 20);
+  return GenerateChildName(entry_->GetKey(), sparse_header_.signature,
+                           offset_ >> 20);
 }
 
 bool SparseControl::ChildPresent() {
   int child_bit = static_cast<int>(offset_ >> 20);
-  if (children_map_.Size() < child_bit)
+  if (children_map_.Size() <= child_bit)
     return false;
 
   return children_map_.Get(child_bit);
@@ -326,6 +465,10 @@ void SparseControl::UpdateRange(int result) {
 }
 
 void SparseControl::InitChildData() {
+  // We know the real type of child_.
+  EntryImpl* child = static_cast<EntryImpl*>(child_);
+  child->SetEntryFlags(CHILD_ENTRY);
+
   memset(&child_data_, 0, sizeof(child_data_));
   child_data_.header = sparse_header_;
 

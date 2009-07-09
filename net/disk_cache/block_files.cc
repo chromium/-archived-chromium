@@ -261,7 +261,10 @@ bool BlockFiles::OpenBlockFile(int index) {
 }
 
 MappedFile* BlockFiles::GetFile(Addr address) {
-  CHECK(block_files_.size() >= 4);
+  DCHECK(block_files_.size() >= 4);
+  DCHECK(address.is_block_file() || !address.is_initialized());
+  if (!address.is_initialized())
+    return NULL;
 
   int file_index = address.FileNumber();
   if (static_cast<unsigned int>(file_index) >= block_files_.size() ||

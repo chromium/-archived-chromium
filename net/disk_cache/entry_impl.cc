@@ -453,6 +453,11 @@ void EntryImpl::InternalDoom() {
 void EntryImpl::DeleteEntryData(bool everything) {
   DCHECK(doomed_ || !everything);
 
+  if (GetEntryFlags() & PARENT_ENTRY) {
+    // We have some child entries that must go away.
+    SparseControl::DeleteChildren(this);
+  }
+
   if (GetDataSize(0))
     CACHE_UMA(COUNTS, "DeleteHeader", 0, GetDataSize(0));
   if (GetDataSize(1))
@@ -832,6 +837,38 @@ int EntryImpl::InitSparseData() {
   if (net::OK != result)
     sparse_.reset();
   return result;
+}
+
+void EntryImpl::SetEntryFlags(uint32 flags) {
+  entry_.Data()->flags |= flags;
+  entry_.set_modified();
+}
+
+uint32 EntryImpl::GetEntryFlags() {
+  return entry_.Data()->flags;
+}
+
+void EntryImpl::GetData(int index, char** buffer, Addr* address) {
+  if (user_buffers_[index].get()) {
+    // The data is already in memory, just copy it an we're done.
+    int data_len = entry_.Data()->data_size[index];
+    DCHECK(data_len <= kMaxBlockSize);
+    *buffer = new char[data_len];
+    memcpy(*buffer, user_buffers_[index].get(), data_len);
+    return;
+  }
+
+  // Bad news: we'd have to read the info from disk so instead we'll just tell
+  // the caller where to read from.
+  *buffer = NULL;
+  address->set_value(entry_.Data()->data_addr[index]);
+  if (address->is_initialized()) {
+    // Prevent us from deleting the block from the backing store.
+    backend_->ModifyStorageSize(entry_.Data()->data_size[index] -
+                                    unreported_size_[index], 0);
+    entry_.Data()->data_addr[index] = 0;
+    entry_.Data()->data_size[index] = 0;
+  }
 }
 
 void EntryImpl::ReportIOTime(Operation op, const base::Time& start) {

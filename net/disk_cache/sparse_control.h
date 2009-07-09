@@ -63,6 +63,9 @@ class SparseControl {
   // Implements Entry::GetAvailableRange().
   int GetAvailableRange(int64 offset, int len, int64* start);
 
+  // Deletes the children entries of |entry|.
+  static void DeleteChildren(EntryImpl* entry);
+
  private:
   // Creates a new sparse entry or opens an aready created entry from disk.
   // These methods just read / write the required info from disk for the current

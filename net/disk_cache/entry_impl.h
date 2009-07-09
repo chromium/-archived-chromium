@@ -150,6 +150,22 @@ class EntryImpl : public Entry, public base::RefCounted<EntryImpl> {
   // Initializes the sparse control object. Returns a net error code.
   int InitSparseData();
 
+  // Adds the provided |flags| to the current EntryFlags for this entry.
+  void SetEntryFlags(uint32 flags);
+
+  // Returns the current EntryFlags for this entry.
+  uint32 GetEntryFlags();
+
+  // Gets the data stored at the given index. If the information is in memory,
+  // a buffer will be allocated and the data will be copied to it (the caller
+  // can find out the size of the buffer before making this call). Otherwise,
+  // the cache address of the data will be returned, and that address will be
+  // removed from the regular book keeping of this entry so the caller is
+  // responsible for deleting the block (or file) from the backing store at some
+  // point; there is no need to report any storage-size change, only to do the
+  // actual cleanup.
+  void GetData(int index, char** buffer, Addr* address);
+
   // Generates a histogram for the time spent working on this operation.
   void ReportIOTime(Operation op, const base::Time& start);
 

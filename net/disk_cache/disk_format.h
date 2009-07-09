@@ -123,7 +123,8 @@ struct EntryStore {
   CacheAddr   long_key;           // Optional address of a long key.
   int32       data_size[4];       // We can store up to 4 data streams for each
   CacheAddr   data_addr[4];       // entry.
-  int32       pad[6];
+  uint32      flags;              // Any combination of EntryFlags.
+  int32       pad[5];
   char        key[256 - 24 * 4];  // null terminated
 };
 
@@ -136,6 +137,12 @@ enum EntryState {
   ENTRY_NORMAL = 0,
   ENTRY_EVICTED,    // The entry was recently evicted from the cache.
   ENTRY_DOOMED      // The entry was doomed.
+};
+
+// Flags that can be applied to an entry.
+enum EntryFlags {
+  PARENT_ENTRY = 1,         // This entry has children (sparse) entries.
+  CHILD_ENTRY = 1 << 1      // Child entry that stores sparse data.
 };
 
 #pragma pack(push, 4)
