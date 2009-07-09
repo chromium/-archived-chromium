@@ -96,7 +96,10 @@ void BrowserToolbarGtk::Init(Profile* profile,
 
   show_home_button_.Init(prefs::kShowHomeButton, profile->GetPrefs(), this);
 
+  event_box_ = gtk_event_box_new();
+
   toolbar_ = gtk_hbox_new(FALSE, kToolbarWidgetSpacing);
+  gtk_container_add(GTK_CONTAINER(event_box_), toolbar_);
   gtk_container_set_border_width(GTK_CONTAINER(toolbar_), 4);
   // Demand we're always at least kToolbarHeight tall.
   // -1 for width means "let GTK do its normal sizing".
@@ -176,7 +179,7 @@ void BrowserToolbarGtk::Init(Profile* profile,
   // Force all the CustomDrawButtons to load the correct rendering style.
   UserChangedTheme();
 
-  gtk_widget_show_all(toolbar_);
+  gtk_widget_show_all(event_box_);
 
   if (show_home_button_.GetValue()) {
     gtk_widget_show(home_->widget());
@@ -186,7 +189,7 @@ void BrowserToolbarGtk::Init(Profile* profile,
 }
 
 void BrowserToolbarGtk::AddToolbarToBox(GtkWidget* box) {
-  gtk_box_pack_start(GTK_BOX(box), toolbar_, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(box), event_box_, FALSE, FALSE, 0);
 }
 
 void BrowserToolbarGtk::Show() {

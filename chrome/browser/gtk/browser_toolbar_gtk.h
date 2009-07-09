@@ -49,7 +49,7 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
 
   // Getter for the containing widget.
   GtkWidget* widget() {
-    return toolbar_;
+    return event_box_;
   }
 
   virtual LocationBar* GetLocationBar() const;
@@ -151,6 +151,12 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
 
   // Ninebox for the toolbar background
   scoped_ptr<NineBox> background_ninebox_;
+
+  // An event box that holds |toolbar_|. We need the toolbar to have its own
+  // GdkWindow when we use the GTK drawing because otherwise the color from our
+  // parent GdkWindow will leak through with some theme engines (such as
+  // Clearlooks).
+  GtkWidget* event_box_;
 
   // Gtk widgets. The toolbar is an hbox with each of the other pieces of the
   // toolbar placed side by side.
