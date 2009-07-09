@@ -30,7 +30,7 @@ class MockDataSource : public DataSource {
 
   // DataSource implementation.
   MOCK_METHOD1(Initialize, bool(const std::string& url));
-  MOCK_METHOD0(media_format, const MediaFormat&());
+  const MediaFormat& media_format() { return media_format_; }
   MOCK_METHOD2(Read, size_t(uint8* data, size_t size));
   MOCK_METHOD1(GetPosition, bool(int64* position_out));
   MOCK_METHOD1(SetPosition, bool(int64 position));
@@ -41,6 +41,8 @@ class MockDataSource : public DataSource {
   virtual ~MockDataSource() {}
 
  private:
+  MediaFormat media_format_;
+
   DISALLOW_COPY_AND_ASSIGN(MockDataSource);
 };
 
@@ -70,7 +72,7 @@ class MockDemuxerStream : public DemuxerStream {
   MockDemuxerStream() {}
 
   // DemuxerStream implementation.
-  MOCK_METHOD0(media_format, const MediaFormat&());
+  const MediaFormat& media_format() { return media_format_; }
   MOCK_METHOD1(Read, void(Callback1<Buffer*>::Type* read_callback));
   MOCK_METHOD1(QueryInterface, void*(const char* interface_id));
 
@@ -78,6 +80,8 @@ class MockDemuxerStream : public DemuxerStream {
   virtual ~MockDemuxerStream() {}
 
  private:
+  MediaFormat media_format_;
+
   DISALLOW_COPY_AND_ASSIGN(MockDemuxerStream);
 };
 
@@ -92,13 +96,15 @@ class MockVideoDecoder : public VideoDecoder {
 
   // VideoDecoder implementation.
   MOCK_METHOD1(Initialize, bool(DemuxerStream* demuxer_stream));
-  MOCK_METHOD0(media_format, const MediaFormat&());
+  const MediaFormat& media_format() { return media_format_; }
   MOCK_METHOD1(Read, void(Callback1<VideoFrame*>::Type* read_callback));
 
  protected:
   virtual ~MockVideoDecoder() {}
 
  private:
+  MediaFormat media_format_;
+
   DISALLOW_COPY_AND_ASSIGN(MockVideoDecoder);
 };
 
@@ -113,13 +119,15 @@ class MockAudioDecoder : public AudioDecoder {
 
   // AudioDecoder implementation.
   MOCK_METHOD1(Initialize, bool(DemuxerStream* demuxer_stream));
-  MOCK_METHOD0(media_format, const MediaFormat&());
+  const MediaFormat& media_format() { return media_format_; }
   MOCK_METHOD1(Read, void(Callback1<Buffer*>::Type* read_callback));
 
  protected:
   virtual ~MockAudioDecoder() {}
 
  private:
+  MediaFormat media_format_;
+
   DISALLOW_COPY_AND_ASSIGN(MockAudioDecoder);
 };
 
