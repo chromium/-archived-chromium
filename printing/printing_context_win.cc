@@ -288,7 +288,10 @@ PrintingContext::Result PrintingContext::NewDocument(
     di.lpszOutput = debug_dump_path.c_str();
   }
 
-  DCHECK_EQ(MessageLoop::current()->NestableTasksAllowed(), false);
+  // No message loop running in unit tests.
+  DCHECK(!MessageLoop::current() ? true :
+      !MessageLoop::current()->NestableTasksAllowed());
+
   // Begin a print job by calling the StartDoc function.
   // NOTE: StartDoc() starts a message loop. That causes a lot of problems with
   // IPC. Make sure recursive task processing is disabled.

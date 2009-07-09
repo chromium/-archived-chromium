@@ -8,8 +8,10 @@
 #include <wingdi.h>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "printing/printing_context.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -60,13 +62,6 @@ TEST(EmfTest, DC) {
   EXPECT_TRUE(DeleteDC(hdc));
 }
 
-// TODO(sverrir): Re-enable after win_printing_context has been moved here.
-/*
-
-// DEPS check fails even if include is in a multi line comment:
-// #include "printing/printing_context.h"
-// #include "chrome/common/chrome_paths.h"
-
 // Disabled if no "UnitTest printer" exist. Useful to reproduce bug 1186598.
 TEST_F(EmfPrintingTest, Enumerate) {
   if (IsTestCaseDisabled())
@@ -81,15 +76,16 @@ TEST_F(EmfPrintingTest, Enumerate) {
   printing::PrintingContext context;
   EXPECT_EQ(context.InitWithSettings(settings), printing::PrintingContext::OK);
 
-  std::wstring test_file;
-  PathService::Get(chrome::DIR_TEST_DATA, &test_file);
-
+  FilePath emf_file;
+  EXPECT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &emf_file));
+  emf_file = emf_file.Append(FILE_PATH_LITERAL("printing"))
+                     .Append(FILE_PATH_LITERAL("test"))
+                     .Append(FILE_PATH_LITERAL("data"))
+                     .Append(FILE_PATH_LITERAL("test4.emf"));
   // Load any EMF with an image.
   printing::Emf emf;
-  file_util::AppendToPath(&test_file, L"printing");
-  file_util::AppendToPath(&test_file, L"test4.emf");
   std::string emf_data;
-  file_util::ReadFileToString(test_file, &emf_data);
+  file_util::ReadFileToString(emf_file, &emf_data);
   ASSERT_TRUE(emf_data.size());
   EXPECT_TRUE(emf.CreateFromData(&emf_data[0], emf_data.size()));
 
@@ -116,4 +112,4 @@ TEST_F(EmfPrintingTest, Enumerate) {
   context.PageDone();
   context.DocumentDone();
 }
-*/
+
