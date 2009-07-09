@@ -40,8 +40,8 @@ Resources\Inspector\*.*: %(VersionDir)s\Resources\Inspector
 Resources\Inspector\Images\*.*: %(VersionDir)s\Resources\Inspector\Images
 servers\*.dll: %(VersionDir)s\
 Extensions\*.*: %(VersionDir)s\Extensions\
-
-[GOOGLE_CHROME]
 av*.dll: %(VersionDir)s\
 pthreadGC2.dll: %(VersionDir)s\
+
+[GOOGLE_CHROME]
 rlz.dll: %(VersionDir)s\
