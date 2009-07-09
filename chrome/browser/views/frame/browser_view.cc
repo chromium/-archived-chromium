@@ -1483,10 +1483,12 @@ void BrowserView::InitSystemMenu() {
 #endif
 
 int BrowserView::LayoutTabStrip() {
-  gfx::Rect tabstrip_bounds;
-  tabstrip_bounds = frame_->GetBoundsForTabStrip(tabstrip_);
+  gfx::Rect tabstrip_bounds = frame_->GetBoundsForTabStrip(tabstrip_);
+  gfx::Rect toolbar_bounds = GetToolbarBounds();
   tabstrip_->SetBackgroundOffset(
-      gfx::Point(tabstrip_bounds.x(), tabstrip_bounds.y()));
+      gfx::Point(tabstrip_bounds.x() - toolbar_bounds.x(),
+                 tabstrip_bounds.y()));
+
   gfx::Point tabstrip_origin = tabstrip_bounds.origin();
   ConvertPointToView(GetParent(), this, &tabstrip_origin);
   tabstrip_bounds.set_origin(tabstrip_origin);

@@ -422,8 +422,9 @@ void FindBarWin::AnimationEnded(const Animation* animation) {
 
 void FindBarWin::GetThemePosition(gfx::Rect* bounds) {
   *bounds = GetDialogPosition(gfx::Rect());
+  gfx::Rect toolbar_bounds = browser_view_->GetToolbarBounds();
   gfx::Rect tab_strip_bounds = browser_view_->GetTabStripBounds();
-  bounds->Offset(-tab_strip_bounds.x(), -tab_strip_bounds.y());
+  bounds->Offset(-toolbar_bounds.x(), -tab_strip_bounds.y());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

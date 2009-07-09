@@ -626,10 +626,10 @@ void BookmarkBarView::Paint(gfx::Canvas* canvas) {
   } else {
     gfx::Rect bounds = GetBounds(views::View::APPLY_MIRRORING_TRANSFORMATION);
 
-    // +1 is for toolbar outdent.
     canvas->TileImageInt(*GetThemeProvider()->
         GetBitmapNamed(IDR_THEME_TOOLBAR),
-        bounds.x() + 1, bounds.y(), 0, 0, width(), height());
+        GetParent()->GetBounds(views::View::APPLY_MIRRORING_TRANSFORMATION).x()
+        + bounds.x(), bounds.y(), 0, 0, width(), height());
     canvas->FillRectInt(ResourceBundle::toolbar_separator_color,
                         0, height() - 1, width(), 1);
   }

@@ -722,7 +722,7 @@ void OpaqueBrowserFrameView::PaintToolbarBackground(gfx::Canvas* canvas) {
   SkBitmap* theme_toolbar = tp->GetBitmapNamed(IDR_THEME_TOOLBAR);
 
   canvas->TileImageInt(*theme_toolbar,
-      0, strip_height - 1,  // crop src
+      toolbar_bounds.x() - 1, strip_height - 1,  // crop src
       toolbar_bounds.x() - 1, toolbar_bounds.y() + 2,
       toolbar_bounds.width() + 2, theme_toolbar->height());
 
