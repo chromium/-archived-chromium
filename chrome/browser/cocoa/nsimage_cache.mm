@@ -31,7 +31,8 @@ NSImage *ImageNamed(NSString *name) {
     if (path) {
       @try {
         result = [[[NSImage alloc] initWithContentsOfFile:path] autorelease];
-        [image_cache setObject:result forKey:name];
+        if (result)
+          [image_cache setObject:result forKey:name];
       }
       @catch (id err) {
         DLOG(ERROR) << "Failed to load the image for name '"
@@ -42,7 +43,7 @@ NSImage *ImageNamed(NSString *name) {
     }
   }
 
-  // TODO: if we put ever limit the cache size, this should retain & autorelease
+  // TODO: if we ever limit the cache size, this should retain & autorelease
   // the image.
   return result;
 }
