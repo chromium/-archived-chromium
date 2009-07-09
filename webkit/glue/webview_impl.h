@@ -144,7 +144,7 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   static WebViewImpl* FromPage(WebCore::Page* page);
 
   WebViewDelegate* delegate() {
-    return delegate_.get();
+    return delegate_;
   }
 
   // Returns the page object associated with this view.  This may be NULL when
@@ -228,7 +228,7 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
                        WebCore::Frame* frame,
                        const WebCore::PlatformKeyboardEvent& e);
 
-  scoped_refptr<WebViewDelegate> delegate_;
+  WebViewDelegate* delegate_;
   WebKit::WebSize size_;
 
   WebKit::WebPoint last_mouse_position_;

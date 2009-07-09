@@ -247,12 +247,6 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   virtual void RunModal(WebWidget* webwidget);
   virtual bool IsHidden(WebWidget* webwidget);
   virtual WebKit::WebScreenInfo GetScreenInfo(WebWidget* webwidget);
-  virtual void AddRef() {
-    base::RefCounted<TestWebViewDelegate>::AddRef();
-  }
-  virtual void Release() {
-    base::RefCounted<TestWebViewDelegate>::Release();
-  }
 
   void SetSmartInsertDeleteEnabled(bool enabled);
   void SetSelectTrailingWhitespaceEnabled(bool enabled);

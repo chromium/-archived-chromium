@@ -46,8 +46,6 @@ using WebKit::WebWorkerClient;
 class WorkerWebViewDelegate : public WebViewDelegate {
  public:
   WorkerWebViewDelegate() {}
-  virtual void AddRef() { }
-  virtual void Release() { }
   virtual void Blur(WebWidget *webwidget) { }
   virtual void CloseWidgetSoon(WebWidget *webwidget) { }
   virtual void DidInvalidateRect(WebWidget *webwidget,

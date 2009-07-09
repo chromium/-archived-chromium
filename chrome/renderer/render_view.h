@@ -49,17 +49,12 @@ class FilePath;
 class GURL;
 class NavigationState;
 class PrintWebViewHelper;
-class RenderThread;
-class ResourceDispatcher;
 class WebFrame;
 class WebPluginDelegate;
 class WebPluginDelegateProxy;
 class WebDevToolsAgentDelegate;
-struct FindInPageRequest;
 struct ThumbnailScore;
 struct ViewMsg_Navigate_Params;
-struct ViewMsg_PrintPage_Params;
-struct ViewMsg_Print_Params;
 struct ViewMsg_UploadFile_Params;
 struct WebDropData;
 
@@ -73,9 +68,9 @@ struct FileUploadData;
 
 namespace WebKit {
 class WebDragData;
-struct WebFindOptions;
 class WebMediaPlayer;
 class WebMediaPlayerClient;
+struct WebFindOptions;
 }
 
 // We need to prevent a page from trying to create infinite popups. It is not

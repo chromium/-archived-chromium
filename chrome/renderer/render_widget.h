@@ -51,14 +51,6 @@ class RenderWidget : public IPC::Channel::Listener,
     return webwidget_;
   }
 
-  // Implementing RefCounting required for WebWidgetDelegate
-  virtual void AddRef() {
-    base::RefCounted<RenderWidget>::AddRef();
-  }
-  virtual void Release() {
-    base::RefCounted<RenderWidget>::Release();
-  }
-
   // IPC::Channel::Listener
   virtual void OnMessageReceived(const IPC::Message& msg);
 
