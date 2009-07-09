@@ -83,16 +83,6 @@ class RenderWidgetHostViewGtkWidget {
     g_signal_connect(host_view->im_context_, "commit",
                      G_CALLBACK(InputMethodCommit), host_view);
 
-    GtkTargetList* target_list = gtk_target_list_new(NULL, 0);
-    gtk_target_list_add_text_targets(target_list, 0);
-    gint num_targets = 0;
-    GtkTargetEntry* targets = gtk_target_table_new_from_list(target_list,
-                                                             &num_targets);
-    gtk_selection_clear_targets(widget, GDK_SELECTION_PRIMARY);
-    gtk_selection_add_targets(widget, GDK_SELECTION_PRIMARY, targets,
-                              num_targets);
-    gtk_target_list_unref(target_list);
-    gtk_target_table_free(targets, num_targets);
     return widget;
   }
 
