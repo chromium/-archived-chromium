@@ -220,6 +220,13 @@ bool WebPluginDelegateProxy::Initialize(const GURL& url, char** argn,
   }
 
 #if defined(OS_POSIX)
+  if (channel_handle.name.empty()) {
+    // We got an invalid handle. Possibly the plugin process is stale? In any
+    // case, don't try to connect to it, the empty name represents the host
+    // channel, and connecting to it again does bad things.
+    return false;
+  }
+
   // If we received a ChannelHandle, register it now.
   if (channel_handle.socket.fd >= 0)
     IPC::AddChannelSocket(channel_handle.name, channel_handle.socket.fd);
