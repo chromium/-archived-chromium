@@ -40,11 +40,18 @@
 #include "core/mac/display_window_mac.h"
 #include "plugin/mac/graphics_utils_mac.h"
 
+#if !defined(O3D_INTERNAL_PLUGIN)
 BreakpadRef gBreakpadRef =  NULL;
+#endif
 
 using glue::_o3d::PluginObject;
 using o3d::DisplayWindowMac;
 
+@interface NSWindowController (plugin_hack)
+- (id)selectedTab;
+@end
+
+namespace o3d {
 
 // Returns the version number of the running Mac browser, as parsed from
 // the short version string in the plist of the app's bundle.
@@ -103,10 +110,6 @@ bool GetBrowserVersionInfo(int *returned_major,
 // to a void*, as the plain .cc files don't like the type id, and we actually
 // only care whether the value changes or not.
 
-
-@interface NSWindowController (plugin_hack)
-- (id)selectedTab;
-@end
 
 void ReleaseSafariBrowserWindow(void* browserWindow) {
   NSWindow* cocoaWindow = (NSWindow*) browserWindow;
@@ -890,13 +893,13 @@ void PluginObject::GetDisplayModes(std::vector<o3d::DisplayMode> *modes) {
     int refresh_rate = 0;
     int bpp = 0;
 
-    if (ExtractDisplayModeData([mac_modes objectAtIndex:i],
+    if (o3d::ExtractDisplayModeData([mac_modes objectAtIndex:i],
         &width,
         &height,
         &refresh_rate,
         &bpp) && bpp == 32)
       modes_found.push_back(o3d::DisplayMode(width, height, refresh_rate,
-                                             i + kO3D_MODE_OFFSET));
+                                             i + o3d::kO3D_MODE_OFFSET));
   }
 
   modes->swap(modes_found);
@@ -949,13 +952,14 @@ bool PluginObject::RequestFullscreenDisplay() {
     mac_fullscreen_state_ = NULL;
   }
 
-  SetFullscreenMacWindow(CreateFullscreenWindow(NULL,
-                                                this,
-                                                fullscreen_region_mode_id_));
+  SetFullscreenMacWindow(o3d::CreateFullscreenWindow(
+      NULL,
+      this,
+      fullscreen_region_mode_id_));
   Rect bounds = {0,0,0,0};
   GetWindowBounds(GetFullscreenMacWindow(), kWindowContentRgn, &bounds);
 
-  SetWindowForAGLContext(mac_agl_context_, GetFullscreenMacWindow());
+  o3d::SetWindowForAGLContext(mac_agl_context_, GetFullscreenMacWindow());
   aglDisable(mac_agl_context_, AGL_BUFFER_RECT);
   renderer()->SetClientOriginOffset(0, 0);
   renderer_->Resize(bounds.right - bounds.left, bounds.bottom - bounds.top);
@@ -963,11 +967,11 @@ bool PluginObject::RequestFullscreenDisplay() {
   fullscreen_ = true;
   client()->SendResizeEvent(renderer_->width(), renderer_->height(), true);
 
-  SetFullscreenOverlayMacWindow(CreateOverlayWindow());
+  SetFullscreenOverlayMacWindow(o3d::CreateOverlayWindow());
   ShowWindow(mac_fullscreen_overlay_window_);
-  SlideWindowToRect(mac_fullscreen_overlay_window_,
-                    Rect2CGRect(GetOverlayWindowRect(true)),
-                    kTransitionTime);
+  o3d::SlideWindowToRect(mac_fullscreen_overlay_window_,
+                         o3d::Rect2CGRect(o3d::GetOverlayWindowRect(true)),
+                         kTransitionTime);
 
   // Hide the overlay text 4 seconds from now.
   time_to_hide_overlay_ = [NSDate timeIntervalSinceReferenceDate] + 4.0;
@@ -980,9 +984,9 @@ void PluginObject::CancelFullscreenDisplay() {
   if (!GetFullscreenMacWindow())
     return;
 
-  SetWindowForAGLContext(mac_agl_context_, mac_window_);
+  o3d::SetWindowForAGLContext(mac_agl_context_, mac_window_);
 
-  CleanupFullscreenWindow(this);
+  o3d::CleanupFullscreenWindow(this);
 
   renderer_->Resize(prev_width_, prev_height_);
   aglSetInteger(mac_agl_context_, AGL_BUFFER_RECT, last_buffer_rect_);
@@ -1013,9 +1017,10 @@ void PluginObject::FullscreenIdle() {
       (time_to_hide_overlay_ != 0.0) &&
       (time_to_hide_overlay_ < [NSDate timeIntervalSinceReferenceDate])) {
     time_to_hide_overlay_ = 0.0;
-    SlideWindowToRect(mac_fullscreen_overlay_window_,
-                      Rect2CGRect(GetOverlayWindowRect(false)),
-                      kTransitionTime);
+    o3d::SlideWindowToRect(mac_fullscreen_overlay_window_,
+                           o3d::Rect2CGRect(o3d::GetOverlayWindowRect(false)),
+                           kTransitionTime);
   }
 }
 
+}  // namespace o3d

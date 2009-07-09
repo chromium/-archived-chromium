@@ -32,6 +32,8 @@
 
 #include "plugin/mac/graphics_utils_mac.h"
 
+namespace o3d {
+
 // Slide a window to a different rect, asynchronously, over a period of time.
 void SlideWindowToRect(WindowRef the_window,
                        CGRect destination_rect,
@@ -128,3 +130,5 @@ void PaintRoundedCGRect(CGContextRef context,
   else
     CGContextStrokePath(context);
 }
+
+}  // namespace o3d

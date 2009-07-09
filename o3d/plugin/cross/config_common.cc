@@ -52,6 +52,8 @@
 
 using glue::_o3d::GetServiceLocator;
 
+namespace o3d {
+
 // Gets the value of "navigator.userAgent" in the JavaScript context, which
 // contains the user agent string.
 std::string GetUserAgent(NPP npp) {
@@ -213,3 +215,4 @@ bool CheckConfig(NPP npp) {
   if (!CheckUserAgent(npp, user_agent)) return false;
   return true;
 }
+}  // namespace o3d

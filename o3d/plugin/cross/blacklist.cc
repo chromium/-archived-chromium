@@ -35,6 +35,8 @@
 #include "plugin/cross/config.h"
 #include "base/logging.h"
 
+namespace o3d {
+
 // Checks the driver GUID against the blacklist file.  Returns true if there's a
 // match [this driver is blacklisted] or if an IO error occurred.  Check the
 // state of input_file to determine which it was.
@@ -68,3 +70,4 @@ bool IsDriverBlacklisted(std::ifstream *input_file, unsigned int guid) {
   CHECK(input_file->eof());
   return false;
 }
+}  // namespace o3d

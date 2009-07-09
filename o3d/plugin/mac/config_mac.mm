@@ -45,6 +45,7 @@
 #include "plugin/cross/plugin_metrics.h"
 #include "plugin_mac.h"
 
+namespace o3d {
 
 // Trivial little functions to check for the OS version boundaries we care about
 // and keep the result cached so they are cheap to call repeatedly.
@@ -328,3 +329,5 @@ bool GetUserAgentMetrics(NPP npp) {
 
   return true;
 }
+
+}  // namespace o3d

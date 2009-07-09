@@ -54,9 +54,10 @@
 #include "plugin/mac/plugin_mac.h"
 #include "plugin/mac/graphics_utils_mac.h"
 
-
+#if !defined(O3D_INTERNAL_PLUGIN)
 o3d::PluginLogging* g_logger = NULL;
 bool g_logging_initialized = false;
+#endif
 
 using glue::_o3d::PluginObject;
 using glue::StreamManager;
@@ -68,7 +69,6 @@ namespace {
 // plugin, that's not possible, so we allocate it dynamically and
 // destroy it explicitly.
 scoped_ptr<base::AtExitManager> g_at_exit_manager;
-}  // end anonymous namespace
 
 // if defined, in AGL mode we do double buffered drawing
 // #define USE_AGL_DOUBLE_BUFFER
@@ -81,7 +81,7 @@ scoped_ptr<base::AtExitManager> g_at_exit_manager;
 #undef USE_AGL_DOUBLE_BUFFER
 #endif
 
-static void DrawPlugin(PluginObject* obj) {
+void DrawPlugin(PluginObject* obj) {
   obj->client()->RenderClient();
 #ifdef USE_AGL_DOUBLE_BUFFER
   // In AGL mode, we have to call aglSwapBuffers to guarantee that our
@@ -91,16 +91,12 @@ static void DrawPlugin(PluginObject* obj) {
 #endif
 }
 
-void RenderOnDemandCallbackHandler::Run() {
-  obj_->SetWantsRedraw(true);
-}
-
-static unsigned char GetMacEventKeyChar(const EventRecord *the_event) {
+unsigned char GetMacEventKeyChar(const EventRecord *the_event) {
   unsigned char the_char = the_event->message & charCodeMask;
   return the_char;
 }
 
-static unsigned char GetMacEventKeyCode(const EventRecord *the_event) {
+unsigned char GetMacEventKeyCode(const EventRecord *the_event) {
   unsigned char the_key_code = (the_event->message & keyCodeMask) >> 8;
   return the_key_code;
 }
@@ -111,7 +107,7 @@ static unsigned char GetMacEventKeyCode(const EventRecord *the_event) {
 // These values are defined in NSEvent.h.
 // Map the ones we care about to the more commonly understood values in
 // the Mac system header Events.h, eg kUpArrowCharCode is 30.
-static int TranslateMacUnicodeControlChar(int theChar) {
+int TranslateMacUnicodeControlChar(int theChar) {
   switch(theChar) {
     case NSUpArrowFunctionKey:
       return kUpArrowCharCode;
@@ -130,7 +126,7 @@ static int TranslateMacUnicodeControlChar(int theChar) {
 // web standard.
 // Also in the browser world the enter key gets mapped to be the same as the
 // return key.
-static int TranslateMacControlCharToWebChar(int theChar) {
+int TranslateMacControlCharToWebChar(int theChar) {
   switch(theChar) {
     case kUpArrowCharCode:
       return 38;
@@ -150,11 +146,11 @@ static int TranslateMacControlCharToWebChar(int theChar) {
 // Given an instance, and some event data, calls Javascript methods
 // placed on the object tag so that the keystrokes can be handled in
 // Javascript.
-static void DispatchKeyboardEvent(PluginObject* obj,
-                                  EventKind kind,
-                                  int theChar,
-                                  int theKeyCode,
-                                  EventModifiers mods) {
+void DispatchKeyboardEvent(PluginObject* obj,
+                           EventKind kind,
+                           int theChar,
+                           int theKeyCode,
+                           EventModifiers mods) {
   theChar = TranslateMacUnicodeControlChar(theChar);
   theChar = TranslateMacControlCharToWebChar(theChar);
   int upperChar = (theChar >= 'a' && theChar <='z') ? theChar - 32 : theChar;
@@ -212,8 +208,8 @@ static void DispatchKeyboardEvent(PluginObject* obj,
 // Given an instance, and a MacOS keyboard event, calls Javascript methods
 // placed on the object tag so that the keystrokes can be handled in
 // Javascript.
-static void DispatchMacKeyboardEvent(PluginObject* obj,
-                                     EventRecord* the_event) {
+void DispatchMacKeyboardEvent(PluginObject* obj,
+                              EventRecord* the_event) {
   DispatchKeyboardEvent(obj,
                         the_event->what,
                         GetMacEventKeyChar(the_event),
@@ -223,8 +219,8 @@ static void DispatchMacKeyboardEvent(PluginObject* obj,
 
 
 
-static void HandleMouseEvent(PluginObject* obj,
-                             EventRecord* the_event) {
+void HandleMouseEvent(PluginObject* obj,
+                      EventRecord* the_event) {
   DCHECK(obj);
   DCHECK(obj->client());
   int screen_x = the_event->where.h;
@@ -305,8 +301,8 @@ static void HandleMouseEvent(PluginObject* obj,
 // These events come from the new Cocoa revision of the NPAPI spec,
 // currently implemented only in Safari.
 // See https://wiki.mozilla.org/Mac:NPAPI_Event_Models
-static void HandleCocoaMouseEvent(PluginObject* obj,
-                                  NPCocoaEvent* the_event) {
+void HandleCocoaMouseEvent(PluginObject* obj,
+                           NPCocoaEvent* the_event) {
   DCHECK(obj);
   DCHECK(obj->client());
   int screen_x = the_event->data.mouse.pluginX;
@@ -376,7 +372,7 @@ static void HandleCocoaMouseEvent(PluginObject* obj,
   if ((the_event->type == NPCocoaEventMouseDown) ||
       (the_event->type == NPCocoaEventMouseUp)) {
     event.set_button(
-        MacOSMouseButtonNumberToO3DButton(
+        o3d::MacOSMouseButtonNumberToO3DButton(
             the_event->data.mouse.buttonNumber));
   }
 
@@ -396,7 +392,7 @@ static void HandleCocoaMouseEvent(PluginObject* obj,
 // Not all bits have a representation in the target type, eg NSFunctionKeyMask
 // but we just need to convert the basic modifiers that need to be passed on
 // to Javascript.
-static EventModifiers CocoaToEventRecordModifiers(NSUInteger inMods) {
+EventModifiers CocoaToEventRecordModifiers(NSUInteger inMods) {
   EventModifiers outMods = 0;
 
   // NSEvent distinuishes between the shift key being down and the capslock key,
@@ -507,6 +503,225 @@ enum nsPluginEventType {
   nsPluginEventType_Idle = 0
 };
 
+NPError InitializePlugin() {
+#if !defined(O3D_INTERNAL_PLUGIN)
+  if (!o3d::SetupOutOfMemoryHandler())
+    return NPERR_MODULE_LOAD_FAILED_ERROR;
+
+  o3d::InitializeBreakpad();
+
+#ifdef CFTIMER
+  o3d::gRenderTimer.Start();
+#endif  // CFTIMER
+
+  // Initialize the AtExitManager so that base singletons can be
+  // destroyed properly.
+  g_at_exit_manager.reset(new base::AtExitManager());
+
+  // Turn on the logging.
+  CommandLine::Init(0, NULL);
+  InitLogging("debug.log",
+              logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG,
+              logging::DONT_LOCK_LOG_FILE,
+              logging::APPEND_TO_OLD_LOG_FILE);
+
+  DLOG(INFO) << "NP_Initialize";
+
+  o3d::SetupOutOfMemoryHandler();
+#endif  // O3D_INTERNAL_PLUGIN
+
+  return NPERR_NO_ERROR;
+}
+
+// Negotiates the best plugin event model, sets the browser to use that,
+// and updates the PluginObject so we can remember which one we chose.
+// We favor the newer Cocoa-based model, but can cope with browsers that
+// only support the original event model, or indeed can't even understand
+// what we are asking for.
+// However, right at the minute, we shun the Cocoa event model because its
+// NPP_SetWindow messages don't contain a WindowRef or NSWindow so we would
+// not get enough info to create our AGL context. We'll go back to
+// preferring Cocoa once we have worked out how to deal with that.
+// Cannot actually fail -
+void Mac_SetBestEventModel(NPP instance, PluginObject* obj) {
+  NPError err = NPERR_NO_ERROR;
+  NPEventModel event_model = NPEventModelCarbon;
+  NPBool supportsCocoaEventModel = FALSE;
+  NPBool supportsCarbonEventModel = FALSE;
+
+  // See if browser supports Cocoa event model.
+  err = NPN_GetValue(instance,
+                     NPNVsupportsCocoaBool,
+                     &supportsCocoaEventModel);
+  if (err != NPERR_NO_ERROR) {
+    supportsCocoaEventModel = FALSE;
+    err = NPERR_NO_ERROR;  // browser doesn't support switchable event models
+  }
+
+  // See if browser supports Carbon event model.
+  err = NPN_GetValue(instance,
+                     NPNVsupportsCarbonBool,
+                     &supportsCarbonEventModel);
+  if (err != NPERR_NO_ERROR) {
+    supportsCarbonEventModel = FALSE;
+    err = NPERR_NO_ERROR;
+  }
+
+  // Now we've collected our data, the decision phase begins.
+
+  // If we didn't successfully get TRUE for either question, the browser
+  // just does not know about the new switchable event models, so must only
+  // support the old Carbon event model.
+  if (!(supportsCocoaEventModel || supportsCarbonEventModel)) {
+    supportsCarbonEventModel = TRUE;
+    obj->event_model_ = NPEventModelCarbon;
+  }
+
+  // Default to Carbon event model, because the new version of the
+  // Cocoa event model spec does not supply sufficient window
+  // information in its Cocoa NPP_SetWindow calls for us to bind an
+  // AGL context to the browser window.
+  NPEventModel model_to_use =
+      (supportsCarbonEventModel) ? NPEventModelCarbon : NPEventModelCocoa;
+  NPN_SetValue(instance, NPPVpluginEventModel,
+               reinterpret_cast<void*>(model_to_use));
+  obj->event_model_ = model_to_use;
+}
+
+
+// Negotiates the best plugin drawing model, sets the browser to use that,
+// and updates the PluginObject so we can remember which one we chose.
+// Returns NPERR_NO_ERROR (0) if successful, otherwise an NPError code.
+NPError Mac_SetBestDrawingModel(NPP instance, PluginObject* obj) {
+  NPError err = NPERR_NO_ERROR;
+  NPBool supportsCoreGraphics = FALSE;
+  NPBool supportsOpenGL = FALSE;
+  NPBool supportsQuickDraw = FALSE;
+  NPDrawingModel drawing_model = NPDrawingModelQuickDraw;
+
+  // test for direct OpenGL support
+  err = NPN_GetValue(instance,
+                     NPNVsupportsOpenGLBool,
+                     &supportsOpenGL);
+  if (err != NPERR_NO_ERROR)
+    supportsOpenGL = FALSE;
+
+  // test for QuickDraw support
+  err = NPN_GetValue(instance,
+                     NPNVsupportsQuickDrawBool,
+                     &supportsQuickDraw);
+  if (err != NPERR_NO_ERROR)
+    supportsQuickDraw = FALSE;
+
+  // Test for Core Graphics support
+  err = NPN_GetValue(instance,
+                     NPNVsupportsCoreGraphicsBool,
+                     &supportsCoreGraphics);
+  if (err != NPERR_NO_ERROR)
+    supportsCoreGraphics = FALSE;
+
+
+  // In order of preference. Preference is now determined by compatibility,
+  // not by modernity, and so is the opposite of the order I first used.
+  if (supportsQuickDraw && !(obj->event_model_ == NPEventModelCocoa)) {
+    drawing_model = NPDrawingModelQuickDraw;
+  } else if (supportsCoreGraphics) {
+    drawing_model = NPDrawingModelCoreGraphics;
+  } else if (supportsOpenGL) {
+    drawing_model = NPDrawingModelOpenGL;
+  } else {
+    // This case is for browsers that didn't even understand the question
+    // eg FF2, so drawing models are not supported, just assume QuickDraw.
+    obj->drawing_model_ = NPDrawingModelQuickDraw;
+    return NPERR_NO_ERROR;
+  }
+
+  err = NPN_SetValue(instance, NPPVpluginDrawingModel,
+                     reinterpret_cast<void*>(drawing_model));
+  if (err != NPERR_NO_ERROR)
+    return err;
+
+  obj->drawing_model_ = drawing_model;
+
+  return NPERR_NO_ERROR;
+}
+}  // end anonymous namespace
+
+#if defined(O3D_INTERNAL_PLUGIN)
+namespace o3d {
+#else
+extern "C" {
+#endif
+
+NPError OSCALL NP_Initialize(NPNetscapeFuncs* browserFuncs) {
+  HANDLE_CRASHES;
+  NPError retval = InitializeNPNApi(browserFuncs);
+  if (retval != NPERR_NO_ERROR) return retval;
+  return InitializePlugin();
+}
+
+#if !defined(O3D_INTERNAL_PLUGIN)
+
+// Wrapper that discards the return value to match the expected type of
+// NPP_ShutdownUPP.
+void NPP_ShutdownWrapper() {
+  NP_Shutdown();
+}
+
+// This code is needed to support browsers based on a slightly dated version
+// of the NPAPI such as Firefox 2, and Camino 1.6. These browsers expect there
+// to be a main() to call to do basic setup.
+int main(NPNetscapeFuncs* browserFuncs,
+         NPPluginFuncs* pluginFuncs,
+         NPP_ShutdownUPP* shutdownProc) {
+  HANDLE_CRASHES;
+  NPError error = NP_Initialize(browserFuncs);
+  if (error == NPERR_NO_ERROR)
+    error = NP_GetEntryPoints(pluginFuncs);
+  *shutdownProc = NPP_ShutdownWrapper;
+
+  return error;
+}
+
+#endif  // O3D_INTERNAL_PLUGIN
+
+NPError OSCALL NP_Shutdown(void) {
+#if !defined(O3D_INTERNAL_PLUGIN)
+  HANDLE_CRASHES;
+  DLOG(INFO) << "NP_Shutdown";
+
+  if (g_logger) {
+    // Do a last sweep to aggregate metrics before we shut down
+    g_logger->ProcessMetrics(true, false);
+    delete g_logger;
+    g_logger = NULL;
+    g_logging_initialized = false;
+    stats_report::g_global_metrics.Uninitialize();
+  }
+
+  CommandLine::Terminate();
+
+#ifdef CFTIMER
+  o3d::gRenderTimer.Stop();
+#endif
+
+  // Force all base singletons to be destroyed.
+  g_at_exit_manager.reset(NULL);
+
+  o3d::ShutdownBreakpad();
+#endif  // O3D_INTERNAL_PLUGIN
+
+  return NPERR_NO_ERROR;
+}
+
+}  // namespace o3d / extern "C"
+
+
+namespace o3d {
+
+NPError PlatformNPPGetValue(NPP instance, NPPVariable variable, void *value) {
+  return NPERR_INVALID_PARAM;
+}
 
 bool HandleMacEvent(EventRecord* the_event, NPP instance) {
   PluginObject* obj = static_cast<PluginObject*>(instance->pdata);
@@ -594,332 +809,136 @@ bool HandleMacEvent(EventRecord* the_event, NPP instance) {
   return handled;
 }
 
-NPError PlatformNPPGetValue(NPP instance, NPPVariable variable, void *value) {
-  return NPERR_INVALID_PARAM;
+void RenderOnDemandCallbackHandler::Run() {
+  obj_->SetWantsRedraw(true);
 }
 
-extern "C" {
-  NPError InitializePlugin() {
-    if (!o3d::SetupOutOfMemoryHandler())
-      return NPERR_MODULE_LOAD_FAILED_ERROR;
+NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode, int16 argc,
+                char* argn[], char* argv[], NPSavedData* saved) {
+  HANDLE_CRASHES;
 
-    InitializeBreakpad();
+  NPError err = NPERR_NO_ERROR;
 
-#ifdef CFTIMER
-    gRenderTimer.Start();
-#endif  // CFTIMER
-
-    // Initialize the AtExitManager so that base singletons can be
-    // destroyed properly.
-    g_at_exit_manager.reset(new base::AtExitManager());
-
-    // Turn on the logging.
-    CommandLine::Init(0, NULL);
-    InitLogging("debug.log",
-                logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG,
-                logging::DONT_LOCK_LOG_FILE,
-                logging::APPEND_TO_OLD_LOG_FILE);
-
-    DLOG(INFO) << "NP_Initialize";
-
-    o3d::SetupOutOfMemoryHandler();
-
-    return NPERR_NO_ERROR;
+#if !defined(O3D_INTERNAL_PLUGIN)
+  if (!g_logging_initialized) {
+    GetUserAgentMetrics(instance);
+    GetUserConfigMetrics();
+    // Create usage stats logs object
+    g_logger = o3d::PluginLogging::InitializeUsageStatsLogging();
+    g_logging_initialized = true;
   }
+#endif  // O3D_INTERNAL_PLUGIN
 
-  NPError OSCALL NP_Initialize(NPNetscapeFuncs* browserFuncs) {
-    HANDLE_CRASHES;
-    NPError retval = InitializeNPNApi(browserFuncs);
-    if (retval != NPERR_NO_ERROR) return retval;
-    return InitializePlugin();
-  }
+  PluginObject* pluginObject = glue::_o3d::PluginObject::Create(
+      instance);
+  instance->pdata = pluginObject;
+  glue::_o3d::InitializeGlue(instance);
+  pluginObject->Init(argc, argn, argv);
 
-  // Wrapper that discards the return value to match the expected type of
-  // NPP_ShutdownUPP.
-  void NPP_ShutdownWrapper() {
-    NP_Shutdown();
-  }
+  Mac_SetBestEventModel(instance,
+                        static_cast<PluginObject*>(instance->pdata));
 
-  // This code is needed to support browsers based on a slightly dated version
-  // of the NPAPI such as Firefox 2, and Camino 1.6. These browsers expect there
-  // to be a main() to call to do basic setup.
-  int main(NPNetscapeFuncs* browserFuncs,
-           NPPluginFuncs* pluginFuncs,
-           NPP_ShutdownUPP* shutdownProc) {
-    HANDLE_CRASHES;
-    NPError error = NP_Initialize(browserFuncs);
-    if (error == NPERR_NO_ERROR)
-      error = NP_GetEntryPoints(pluginFuncs);
-    *shutdownProc = NPP_ShutdownWrapper;
+  err = Mac_SetBestDrawingModel(
+      instance, static_cast<PluginObject*>(instance->pdata));
+  if (err != NPERR_NO_ERROR)
+    return err;
+  return NPERR_NO_ERROR;
+}
 
-    return error;
-  }
-
-  NPError OSCALL NP_Shutdown(void) {
-    HANDLE_CRASHES;
-    DLOG(INFO) << "NP_Shutdown";
-
-    if (g_logger) {
-      // Do a last sweep to aggregate metrics before we shut down
-      g_logger->ProcessMetrics(true, false);
-      delete g_logger;
-      g_logger = NULL;
-      g_logging_initialized = false;
-      stats_report::g_global_metrics.Uninitialize();
-    }
-
-    CommandLine::Terminate();
-
-#ifdef CFTIMER
-    gRenderTimer.Stop();
-#endif
-
-    // Force all base singletons to be destroyed.
-    g_at_exit_manager.reset(NULL);
-
-    ShutdownBreakpad();
-
-    return NPERR_NO_ERROR;
-  }
-
-  // Negotiates the best plugin event model, sets the browser to use that,
-  // and updates the PluginObject so we can remember which one we chose.
-  // We favor the newer Cocoa-based model, but can cope with browsers that
-  // only support the original event model, or indeed can't even understand
-  // what we are asking for.
-  // However, right at the minute, we shun the Cocoa event model because its
-  // NPP_SetWindow messages don't contain a WindowRef or NSWindow so we would
-  // not get enough info to create our AGL context. We'll go back to
-  // preferring Cocoa once we have worked out how to deal with that.
-  // Cannot actually fail -
-  static void Mac_SetBestEventModel(NPP instance, PluginObject* obj) {
-    NPError err = NPERR_NO_ERROR;
-    NPEventModel event_model = NPEventModelCarbon;
-    NPBool supportsCocoaEventModel = FALSE;
-    NPBool supportsCarbonEventModel = FALSE;
-
-    // See if browser supports Cocoa event model.
-    err = NPN_GetValue(instance,
-                       NPNVsupportsCocoaBool,
-                       &supportsCocoaEventModel);
-    if (err != NPERR_NO_ERROR) {
-      supportsCocoaEventModel = FALSE;
-      err = NPERR_NO_ERROR;  // browser doesn't support switchable event models
-    }
-
-    // See if browser supports Carbon event model.
-    err = NPN_GetValue(instance,
-                       NPNVsupportsCarbonBool,
-                       &supportsCarbonEventModel);
-    if (err != NPERR_NO_ERROR) {
-      supportsCarbonEventModel = FALSE;
-      err = NPERR_NO_ERROR;
-    }
-
-    // Now we've collected our data, the decision phase begins.
-
-    // If we didn't successfully get TRUE for either question, the browser
-    // just does not know about the new switchable event models, so must only
-    // support the old Carbon event model.
-    if (!(supportsCocoaEventModel || supportsCarbonEventModel)) {
-      supportsCarbonEventModel = TRUE;
-      obj->event_model_ = NPEventModelCarbon;
-    }
-
-    // Default to Carbon event model, because the new version of the
-    // Cocoa event model spec does not supply sufficient window
-    // information in its Cocoa NPP_SetWindow calls for us to bind an
-    // AGL context to the browser window.
-    NPEventModel model_to_use =
-        (supportsCarbonEventModel) ? NPEventModelCarbon : NPEventModelCocoa;
-    NPN_SetValue(instance, NPPVpluginEventModel,
-                 reinterpret_cast<void*>(model_to_use));
-    obj->event_model_ = model_to_use;
-  }
-
-
-  // Negotiates the best plugin drawing model, sets the browser to use that,
-  // and updates the PluginObject so we can remember which one we chose.
-  // Returns NPERR_NO_ERROR (0) if successful, otherwise an NPError code.
-  static NPError Mac_SetBestDrawingModel(NPP instance, PluginObject* obj) {
-    NPError err = NPERR_NO_ERROR;
-    NPBool supportsCoreGraphics = FALSE;
-    NPBool supportsOpenGL = FALSE;
-    NPBool supportsQuickDraw = FALSE;
-    NPDrawingModel drawing_model = NPDrawingModelQuickDraw;
-
-    // test for direct OpenGL support
-    err = NPN_GetValue(instance,
-                       NPNVsupportsOpenGLBool,
-                       &supportsOpenGL);
-    if (err != NPERR_NO_ERROR)
-      supportsOpenGL = FALSE;
-
-    // test for QuickDraw support
-    err = NPN_GetValue(instance,
-                       NPNVsupportsQuickDrawBool,
-                       &supportsQuickDraw);
-    if (err != NPERR_NO_ERROR)
-      supportsQuickDraw = FALSE;
-
-    // Test for Core Graphics support
-    err = NPN_GetValue(instance,
-                       NPNVsupportsCoreGraphicsBool,
-                       &supportsCoreGraphics);
-    if (err != NPERR_NO_ERROR)
-      supportsCoreGraphics = FALSE;
-
-
-    // In order of preference. Preference is now determined by compatibility,
-    // not by modernity, and so is the opposite of the order I first used.
-    if (supportsQuickDraw && !(obj->event_model_ == NPEventModelCocoa)) {
-      drawing_model = NPDrawingModelQuickDraw;
-    } else if (supportsCoreGraphics) {
-      drawing_model = NPDrawingModelCoreGraphics;
-    } else if (supportsOpenGL) {
-      drawing_model = NPDrawingModelOpenGL;
-    } else {
-      // This case is for browsers that didn't even understand the question
-      // eg FF2, so drawing models are not supported, just assume QuickDraw.
-      obj->drawing_model_ = NPDrawingModelQuickDraw;
-      return NPERR_NO_ERROR;
-    }
-
-    err = NPN_SetValue(instance, NPPVpluginDrawingModel,
-                       reinterpret_cast<void*>(drawing_model));
-    if (err != NPERR_NO_ERROR)
-      return err;
-
-    obj->drawing_model_ = drawing_model;
-
-    return NPERR_NO_ERROR;
-  }
-
-
-  NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode, int16 argc,
-                  char* argn[], char* argv[], NPSavedData* saved) {
-    HANDLE_CRASHES;
-
-    NPError err = NPERR_NO_ERROR;
-
-    if (!g_logging_initialized) {
-      GetUserAgentMetrics(instance);
-      GetUserConfigMetrics();
-      // Create usage stats logs object
-      g_logger = o3d::PluginLogging::InitializeUsageStatsLogging();
-      g_logging_initialized = true;
-    }
-
-    PluginObject* pluginObject = glue::_o3d::PluginObject::Create(
-        instance);
-    instance->pdata = pluginObject;
-    glue::_o3d::InitializeGlue(instance);
-    pluginObject->Init(argc, argn, argv);
-
-    Mac_SetBestEventModel(instance,
-                          static_cast<PluginObject*>(instance->pdata));
-
-    err = Mac_SetBestDrawingModel(
-        instance, static_cast<PluginObject*>(instance->pdata));
-    if (err != NPERR_NO_ERROR)
-      return err;
-    return NPERR_NO_ERROR;
-  }
-
-  NPError NPP_Destroy(NPP instance, NPSavedData** save) {
-    HANDLE_CRASHES;
-    PluginObject* obj = static_cast<PluginObject*>(instance->pdata);
-    if (obj) {
+NPError NPP_Destroy(NPP instance, NPSavedData** save) {
+  HANDLE_CRASHES;
+  PluginObject* obj = static_cast<PluginObject*>(instance->pdata);
+  if (obj) {
 #if defined(CFTIMER)
-      gRenderTimer.RemoveInstance(instance);
+    o3d::gRenderTimer.RemoveInstance(instance);
 #endif
 
-      obj->TearDown();
-      NPN_ReleaseObject(obj);
-      instance->pdata = NULL;
-    }
+    obj->TearDown();
+    NPN_ReleaseObject(obj);
+    instance->pdata = NULL;
+  }
 
+  return NPERR_NO_ERROR;
+}
+
+bool CheckForAGLError() {
+  return aglGetError() != AGL_NO_ERROR;
+}
+
+
+NPError NPP_SetWindow(NPP instance, NPWindow* window) {
+  HANDLE_CRASHES;
+  PluginObject* obj = static_cast<PluginObject*>(instance->pdata);
+  WindowRef new_window = NULL;
+
+  assert(window != NULL);
+
+  if (window->window == NULL)
     return NPERR_NO_ERROR;
-  }
 
-  static bool CheckForAGLError() {
-    return aglGetError() != AGL_NO_ERROR;
-  }
+  obj->last_plugin_loc_.h = window->x;
+  obj->last_plugin_loc_.v = window->y;
 
-
-  NPError NPP_SetWindow(NPP instance, NPWindow* window) {
-    HANDLE_CRASHES;
-    PluginObject* obj = static_cast<PluginObject*>(instance->pdata);
-    WindowRef new_window = NULL;
-
-    assert(window != NULL);
-
-    if (window->window == NULL)
-      return NPERR_NO_ERROR;
-
-    obj->last_plugin_loc_.h = window->x;
-    obj->last_plugin_loc_.v = window->y;
-
-    switch (obj->drawing_model_) {
-      case NPDrawingModelOpenGL: {
-        NP_GLContext* np_gl = reinterpret_cast<NP_GLContext*>(window->window);
+  switch (obj->drawing_model_) {
+    case NPDrawingModelOpenGL: {
+      NP_GLContext* np_gl = reinterpret_cast<NP_GLContext*>(window->window);
+      if (obj->event_model_ == NPEventModelCocoa) {
+        NSWindow * ns_window = reinterpret_cast<NSWindow*>(np_gl->window);
+        new_window = reinterpret_cast<WindowRef>([ns_window windowRef]);
+      } else {
+        new_window = np_gl->window;
+      }
+      obj->mac_2d_context_ = NULL;
+      obj->mac_cgl_context_ = np_gl->context;
+      break;
+    }
+    case NPDrawingModelCoreGraphics: {
+      // Safari 4 sets window->window to NULL when in Cocoa event mode.
+      if (window->window != NULL) {
+        NP_CGContext* np_cg = reinterpret_cast<NP_CGContext*>(window->window);
         if (obj->event_model_ == NPEventModelCocoa) {
-          NSWindow * ns_window = reinterpret_cast<NSWindow*>(np_gl->window);
+          NSWindow * ns_window = reinterpret_cast<NSWindow*>(np_cg->window);
           new_window = reinterpret_cast<WindowRef>([ns_window windowRef]);
         } else {
-          new_window = np_gl->window;
+          new_window = np_cg->window;
         }
-        obj->mac_2d_context_ = NULL;
-        obj->mac_cgl_context_ = np_gl->context;
-        break;
+        obj->mac_2d_context_ = np_cg->context;
       }
-      case NPDrawingModelCoreGraphics: {
-        // Safari 4 sets window->window to NULL when in Cocoa event mode.
-        if (window->window != NULL) {
-          NP_CGContext* np_cg = reinterpret_cast<NP_CGContext*>(window->window);
-          if (obj->event_model_ == NPEventModelCocoa) {
-            NSWindow * ns_window = reinterpret_cast<NSWindow*>(np_cg->window);
-            new_window = reinterpret_cast<WindowRef>([ns_window windowRef]);
-          } else {
-            new_window = np_cg->window;
-          }
-          obj->mac_2d_context_ = np_cg->context;
-        }
-        break;
-      }
-      case NPDrawingModelQuickDraw: {
-        NP_Port* np_qd = reinterpret_cast<NP_Port*>(window->window);
-        obj->mac_2d_context_ = np_qd->port;
-        if (np_qd->port)
-          new_window = GetWindowFromPort(np_qd->port);
-        break;
-      }
-      default:
-        return NPERR_INCOMPATIBLE_VERSION_ERROR;
-        break;
+      break;
     }
+    case NPDrawingModelQuickDraw: {
+      NP_Port* np_qd = reinterpret_cast<NP_Port*>(window->window);
+      obj->mac_2d_context_ = np_qd->port;
+      if (np_qd->port)
+        new_window = GetWindowFromPort(np_qd->port);
+      break;
+    }
+    default:
+      return NPERR_INCOMPATIBLE_VERSION_ERROR;
+      break;
+  }
 
-    // Whether the target window has changed.
-    bool window_changed = new_window != obj->mac_window_;
+  // Whether the target window has changed.
+  bool window_changed = new_window != obj->mac_window_;
 
-    // Whether we already had a window before this call.
-    bool had_a_window = obj->mac_window_ != NULL;
+  // Whether we already had a window before this call.
+  bool had_a_window = obj->mac_window_ != NULL;
 
-    obj->mac_window_ = new_window;
+  obj->mac_window_ = new_window;
 
-    if (obj->drawing_model_ == NPDrawingModelOpenGL) {
-      CGLSetCurrentContext(obj->mac_cgl_context_);
-    } else if (!had_a_window && obj->mac_agl_context_ == NULL) {  // setup AGL context
-      AGLPixelFormat myAGLPixelFormat = NULL;
+  if (obj->drawing_model_ == NPDrawingModelOpenGL) {
+    CGLSetCurrentContext(obj->mac_cgl_context_);
+  } else if (!had_a_window && obj->mac_agl_context_ == NULL) {  // setup AGL context
+    AGLPixelFormat myAGLPixelFormat = NULL;
 
-    // We need to spec out a few similar but different sets of renderer
-    // specifications - define some macros to lessen the duplication.
+  // We need to spec out a few similar but different sets of renderer
+  // specifications - define some macros to lessen the duplication.
 #define O3D_DEPTH_SETTINGS AGL_RGBA, AGL_DEPTH_SIZE, 24,
 #define O3D_STENCIL_SETTINGS AGL_STENCIL_SIZE, 8,
 #define O3D_HARDWARE_RENDERER AGL_ACCELERATED, AGL_NO_RECOVERY,
 #define O3D_SOFTWARE_RENDERER AGL_RENDERER_ID, AGL_RENDERER_GENERIC_FLOAT_ID,
 #define O3D_MULTISAMPLE AGL_MULTISAMPLE, \
-    AGL_SAMPLE_BUFFERS_ARB, 1, AGL_SAMPLES_ARB, 4, AGL_MULTISAMPLE,
+  AGL_SAMPLE_BUFFERS_ARB, 1, AGL_SAMPLES_ARB, 4, AGL_MULTISAMPLE,
 #define O3D_END AGL_NONE
 
 #ifdef USE_AGL_DOUBLE_BUFFER
@@ -928,229 +947,230 @@ extern "C" {
 #define O3D_DOUBLE_BUFFER_SETTINGS
 #endif
 
-      if (!UseSoftwareRenderer()) {
-        // Try to create a hardware context with the following
-        // specification
-        GLint attributes[] = {
+    if (!UseSoftwareRenderer()) {
+      // Try to create a hardware context with the following
+      // specification
+      GLint attributes[] = {
+        O3D_DEPTH_SETTINGS
+        O3D_STENCIL_SETTINGS
+        O3D_DOUBLE_BUFFER_SETTINGS
+        O3D_HARDWARE_RENDERER
+        O3D_MULTISAMPLE
+        O3D_END
+      };
+      myAGLPixelFormat = aglChoosePixelFormat(NULL,
+                                              0,
+                                              attributes);
+
+      // If this fails, then don't try to be as ambitious
+      // (so don't ask for multi-sampling), but still require hardware
+      if (myAGLPixelFormat == NULL) {
+        GLint low_end_attributes[] = {
           O3D_DEPTH_SETTINGS
           O3D_STENCIL_SETTINGS
           O3D_DOUBLE_BUFFER_SETTINGS
           O3D_HARDWARE_RENDERER
-          O3D_MULTISAMPLE
           O3D_END
         };
         myAGLPixelFormat = aglChoosePixelFormat(NULL,
                                                 0,
-                                                attributes);
-
-        // If this fails, then don't try to be as ambitious
-        // (so don't ask for multi-sampling), but still require hardware
-        if (myAGLPixelFormat == NULL) {
-          GLint low_end_attributes[] = {
-            O3D_DEPTH_SETTINGS
-            O3D_STENCIL_SETTINGS
-            O3D_DOUBLE_BUFFER_SETTINGS
-            O3D_HARDWARE_RENDERER
-            O3D_END
-          };
-          myAGLPixelFormat = aglChoosePixelFormat(NULL,
-                                                  0,
-                                                  low_end_attributes);
-        }
+                                                low_end_attributes);
       }
+    }
 
-      if (myAGLPixelFormat == NULL) {
-        // Fallback to software renderer either if the vendorID/gpuID
-        // is known to be problematic, or if the hardware context failed
-        // to get created
-        //
-        // Note that we don't request multisampling since it's too slow.
-        GLint software_renderer_attributes[] = {
-          O3D_DEPTH_SETTINGS
-          O3D_STENCIL_SETTINGS
-          O3D_DOUBLE_BUFFER_SETTINGS
-          O3D_SOFTWARE_RENDERER
-          O3D_END
-        };
-        myAGLPixelFormat = aglChoosePixelFormat(NULL,
-                                                0,
-                                                software_renderer_attributes);
+    if (myAGLPixelFormat == NULL) {
+      // Fallback to software renderer either if the vendorID/gpuID
+      // is known to be problematic, or if the hardware context failed
+      // to get created
+      //
+      // Note that we don't request multisampling since it's too slow.
+      GLint software_renderer_attributes[] = {
+        O3D_DEPTH_SETTINGS
+        O3D_STENCIL_SETTINGS
+        O3D_DOUBLE_BUFFER_SETTINGS
+        O3D_SOFTWARE_RENDERER
+        O3D_END
+      };
+      myAGLPixelFormat = aglChoosePixelFormat(NULL,
+                                              0,
+                                              software_renderer_attributes);
 
-        obj->SetRendererIsSoftware(true);
-      }
+      obj->SetRendererIsSoftware(true);
+    }
 
-      if (myAGLPixelFormat == NULL || CheckForAGLError())
-        return NPERR_MODULE_LOAD_FAILED_ERROR;
+    if (myAGLPixelFormat == NULL || CheckForAGLError())
+      return NPERR_MODULE_LOAD_FAILED_ERROR;
 
-      obj->mac_agl_context_ = aglCreateContext(myAGLPixelFormat, NULL);
+    obj->mac_agl_context_ = aglCreateContext(myAGLPixelFormat, NULL);
 
-      if (CheckForAGLError())
-        return NPERR_MODULE_LOAD_FAILED_ERROR;
+    if (CheckForAGLError())
+      return NPERR_MODULE_LOAD_FAILED_ERROR;
 
-      aglDestroyPixelFormat(myAGLPixelFormat);
+    aglDestroyPixelFormat(myAGLPixelFormat);
 
-      if (!SetWindowForAGLContext(obj->mac_agl_context_, obj->mac_window_))
-        return NPERR_MODULE_LOAD_FAILED_ERROR;
+    if (!SetWindowForAGLContext(obj->mac_agl_context_, obj->mac_window_))
+      return NPERR_MODULE_LOAD_FAILED_ERROR;
 
-      aglSetCurrentContext(obj->mac_agl_context_);
+    aglSetCurrentContext(obj->mac_agl_context_);
 
-      GetOpenGLMetrics();
+    GetOpenGLMetrics();
 
 #ifdef USE_AGL_DOUBLE_BUFFER
-      GLint swapInterval = 1;   // request synchronization
-      aglSetInteger(obj->mac_agl_context_, AGL_SWAP_INTERVAL, &swapInterval);
+    GLint swapInterval = 1;   // request synchronization
+    aglSetInteger(obj->mac_agl_context_, AGL_SWAP_INTERVAL, &swapInterval);
 #endif
-    }
+  }
 
-    int clipHeight = window->clipRect.bottom - window->clipRect.top;
-    int clipWidth = window->clipRect.right - window->clipRect.left;
+  int clipHeight = window->clipRect.bottom - window->clipRect.top;
+  int clipWidth = window->clipRect.right - window->clipRect.left;
 
-    int x_offset = window->clipRect.left - window->x;
-    int y_offset = window->clipRect.top - window->y;
-    int gl_x_origin = x_offset;
-    int gl_y_origin = window->clipRect.bottom - (window->y + window->height);
+  int x_offset = window->clipRect.left - window->x;
+  int y_offset = window->clipRect.top - window->y;
+  int gl_x_origin = x_offset;
+  int gl_y_origin = window->clipRect.bottom - (window->y + window->height);
 
-    // Firefox calls us with an empty cliprect all the time, toggling our
-    // cliprect back and forth between empty and the normal value, particularly
-    // during scrolling.
-    // As we need to make our AGL surface track the clip rect, honoring all of
-    // these calls would result in spectacular flashing.
-    // The goal here is to try to spot the calls we can safely ignore.
-    // The bogus empty cliprects always have left and top of the real clip.
-    // A null cliprect should always be honored ({0,0,0,0} means a hidden tab),
-    // as should the first ever call to this function,
-    // or an attempt to change the window.
-    // The call at the end of a scroll step is also honored.
-    // Otherwise, skip this change and do not hide our context.
-    bool is_empty_cliprect = (clipHeight <= 0 || clipWidth <= 0);
-    bool is_null_cliprect = (window->clipRect.bottom == 0 &&
-                             window->clipRect.top == 0 &&
-                             window->clipRect.left == 0 &&
-                             window->clipRect.right == 0);
+  // Firefox calls us with an empty cliprect all the time, toggling our
+  // cliprect back and forth between empty and the normal value, particularly
+  // during scrolling.
+  // As we need to make our AGL surface track the clip rect, honoring all of
+  // these calls would result in spectacular flashing.
+  // The goal here is to try to spot the calls we can safely ignore.
+  // The bogus empty cliprects always have left and top of the real clip.
+  // A null cliprect should always be honored ({0,0,0,0} means a hidden tab),
+  // as should the first ever call to this function,
+  // or an attempt to change the window.
+  // The call at the end of a scroll step is also honored.
+  // Otherwise, skip this change and do not hide our context.
+  bool is_empty_cliprect = (clipHeight <= 0 || clipWidth <= 0);
+  bool is_null_cliprect = (window->clipRect.bottom == 0 &&
+                           window->clipRect.top == 0 &&
+                           window->clipRect.left == 0 &&
+                           window->clipRect.right == 0);
 
-    if (is_empty_cliprect && (!is_null_cliprect) &&
-        had_a_window && (!window_changed) && !obj->ScrollIsInProgress()) {
-      return NPERR_NO_ERROR;
-    }
-
-    // Workaround - the Apple software renderer crashes if you set the drawing
-    // area to 0x0, so use 1x1.
-    if (is_empty_cliprect && obj->RendererIsSoftware())
-      clipWidth = clipHeight = 1;
-
-    // update size and location of the agl context
-    if (obj->mac_agl_context_) {
-
-      // We already had a window, and now we've got a different window -
-      // this can happen when the user drags out a tab in Safari into its own
-      // window.
-      if (had_a_window && window_changed)
-        SetWindowForAGLContext(obj->mac_agl_context_, obj->mac_window_);
-
-      aglSetCurrentContext(obj->mac_agl_context_);
-
-      Rect windowRect = {0, 0, 0, 0};
-      if (obj->drawing_model_ == NPDrawingModelQuickDraw)
-        GetWindowBounds(obj->mac_window_, kWindowContentRgn, &windowRect);
-      else
-        GetWindowBounds(obj->mac_window_, kWindowStructureRgn, &windowRect);
-
-      int windowHeight = windowRect.bottom - windowRect.top;
-
-      // These are in window coords, the weird bit being that agl wants the
-      // location of the bottom of the GL context in y flipped coords,
-      // eg 100 would mean the bottom of the GL context was 100 up from the
-      // bottom of the window.
-      obj->last_buffer_rect_[0] = window->x + x_offset;
-      obj->last_buffer_rect_[1] = (windowHeight - (window->y + clipHeight))
-                                  - y_offset;  // this param is y flipped
-      obj->last_buffer_rect_[2] = clipWidth;
-      obj->last_buffer_rect_[3] = clipHeight;
-      obj->mac_surface_hidden_ = false;
-
-      // If in fullscreen, just remember the desired change in geometry so
-      // we restore to the right rectangle.
-      if (obj->GetFullscreenMacWindow() != NULL)
-        return NPERR_NO_ERROR;
-
-      aglSetInteger(obj->mac_agl_context_, AGL_BUFFER_RECT,
-                      obj->last_buffer_rect_);
-      aglEnable(obj->mac_agl_context_, AGL_BUFFER_RECT);
-    }
-
-    // Renderer is already initialized from a previous call to this function,
-    // just update size and position and return.
-    if (had_a_window) {
-      if (obj->renderer()) {
-        obj->renderer()->SetClientOriginOffset(gl_x_origin, gl_y_origin);
-        obj->Resize(window->width, window->height);
-      }
-      return NPERR_NO_ERROR;
-    }
-
-    // Create and assign the graphics context.
-    o3d::DisplayWindowMac default_display;
-    default_display.set_agl_context(obj->mac_agl_context_);
-    default_display.set_cgl_context(obj->mac_cgl_context_);
-
-    obj->CreateRenderer(default_display);
-
-    // if the renderer cannot be created (maybe the features are not supported)
-    // then we can proceed no further
-    if (!obj->renderer()) {
-      if (obj->mac_agl_context_) {
-        ::aglDestroyContext(obj->mac_agl_context_);
-        obj->mac_agl_context_ = NULL;
-      }
-    }
-
-    obj->client()->Init();
-    obj->client()->SetRenderOnDemandCallback(
-        new RenderOnDemandCallbackHandler(obj));
-
-    if (obj->renderer()) {
-      obj->renderer()->SetClientOriginOffset(gl_x_origin, gl_y_origin);
-      obj->Resize(window->width, window->height);
-
-#ifdef CFTIMER
-      // now that the grahics context is setup, add this instance to the timer
-      // list so it gets drawn repeatedly
-      gRenderTimer.AddInstance(instance);
-#endif  // CFTIMER
-    }
-
+  if (is_empty_cliprect && (!is_null_cliprect) &&
+      had_a_window && (!window_changed) && !obj->ScrollIsInProgress()) {
     return NPERR_NO_ERROR;
   }
 
-  // Called when the browser has finished attempting to stream data to
-  // a file as requested. If fname == NULL the attempt was not successful.
-  void NPP_StreamAsFile(NPP instance, NPStream* stream, const char* fname) {
-    HANDLE_CRASHES;
-    PluginObject* obj = static_cast<PluginObject*>(instance->pdata);
-    StreamManager* stream_manager = obj->stream_manager();
+  // Workaround - the Apple software renderer crashes if you set the drawing
+  // area to 0x0, so use 1x1.
+  if (is_empty_cliprect && obj->RendererIsSoftware())
+    clipWidth = clipHeight = 1;
 
-    // Some browsers give us an absolute HFS path in fname, some give us an
-    // absolute Posix path, so convert to Posix if needed.
-    if ((!fname) || (fname[0] == '/') || !fname[0]) {
-      stream_manager->SetStreamFile(stream, fname);
-    } else {
-      const char* converted_fname = CreatePosixFilePathFromHFSFilePath(fname);
-      if (converted_fname == NULL)
-        return;  // TODO should also log error if we ever get here
-      stream_manager->SetStreamFile(stream, converted_fname);
-      delete converted_fname;
+  // update size and location of the agl context
+  if (obj->mac_agl_context_) {
+
+    // We already had a window, and now we've got a different window -
+    // this can happen when the user drags out a tab in Safari into its own
+    // window.
+    if (had_a_window && window_changed)
+      SetWindowForAGLContext(obj->mac_agl_context_, obj->mac_window_);
+
+    aglSetCurrentContext(obj->mac_agl_context_);
+
+    Rect windowRect = {0, 0, 0, 0};
+    if (obj->drawing_model_ == NPDrawingModelQuickDraw)
+      GetWindowBounds(obj->mac_window_, kWindowContentRgn, &windowRect);
+    else
+      GetWindowBounds(obj->mac_window_, kWindowStructureRgn, &windowRect);
+
+    int windowHeight = windowRect.bottom - windowRect.top;
+
+    // These are in window coords, the weird bit being that agl wants the
+    // location of the bottom of the GL context in y flipped coords,
+    // eg 100 would mean the bottom of the GL context was 100 up from the
+    // bottom of the window.
+    obj->last_buffer_rect_[0] = window->x + x_offset;
+    obj->last_buffer_rect_[1] = (windowHeight - (window->y + clipHeight))
+                                - y_offset;  // this param is y flipped
+    obj->last_buffer_rect_[2] = clipWidth;
+    obj->last_buffer_rect_[3] = clipHeight;
+    obj->mac_surface_hidden_ = false;
+
+    // If in fullscreen, just remember the desired change in geometry so
+    // we restore to the right rectangle.
+    if (obj->GetFullscreenMacWindow() != NULL)
+      return NPERR_NO_ERROR;
+
+    aglSetInteger(obj->mac_agl_context_, AGL_BUFFER_RECT,
+                    obj->last_buffer_rect_);
+    aglEnable(obj->mac_agl_context_, AGL_BUFFER_RECT);
+  }
+
+  // Renderer is already initialized from a previous call to this function,
+  // just update size and position and return.
+  if (had_a_window) {
+    if (obj->renderer()) {
+      obj->renderer()->SetClientOriginOffset(gl_x_origin, gl_y_origin);
+      obj->Resize(window->width, window->height);
+    }
+    return NPERR_NO_ERROR;
+  }
+
+  // Create and assign the graphics context.
+  o3d::DisplayWindowMac default_display;
+  default_display.set_agl_context(obj->mac_agl_context_);
+  default_display.set_cgl_context(obj->mac_cgl_context_);
+
+  obj->CreateRenderer(default_display);
+
+  // if the renderer cannot be created (maybe the features are not supported)
+  // then we can proceed no further
+  if (!obj->renderer()) {
+    if (obj->mac_agl_context_) {
+      ::aglDestroyContext(obj->mac_agl_context_);
+      obj->mac_agl_context_ = NULL;
     }
   }
 
-  int16 NPP_HandleEvent(NPP instance, void* event) {
-    HANDLE_CRASHES;
-    PluginObject* obj = static_cast<PluginObject*>(instance->pdata);
-    if (obj->event_model_ == NPEventModelCarbon) {
-      EventRecord* theEvent = static_cast<EventRecord*>(event);
-      return HandleMacEvent(theEvent, instance) ? 1 : 0;
-    } else if (obj->event_model_ == NPEventModelCocoa){
-      return HandleCocoaEvent(instance, (NPCocoaEvent*)event) ? 1 : 0;
-    }
-    return 0;
+  obj->client()->Init();
+  obj->client()->SetRenderOnDemandCallback(
+      new RenderOnDemandCallbackHandler(obj));
+
+  if (obj->renderer()) {
+    obj->renderer()->SetClientOriginOffset(gl_x_origin, gl_y_origin);
+    obj->Resize(window->width, window->height);
+
+#ifdef CFTIMER
+    // now that the grahics context is setup, add this instance to the timer
+    // list so it gets drawn repeatedly
+    gRenderTimer.AddInstance(instance);
+#endif  // CFTIMER
   }
-};  // end extern "C"
+
+  return NPERR_NO_ERROR;
+}
+
+// Called when the browser has finished attempting to stream data to
+// a file as requested. If fname == NULL the attempt was not successful.
+void NPP_StreamAsFile(NPP instance, NPStream* stream, const char* fname) {
+  HANDLE_CRASHES;
+  PluginObject* obj = static_cast<PluginObject*>(instance->pdata);
+  StreamManager* stream_manager = obj->stream_manager();
+
+  // Some browsers give us an absolute HFS path in fname, some give us an
+  // absolute Posix path, so convert to Posix if needed.
+  if ((!fname) || (fname[0] == '/') || !fname[0]) {
+    stream_manager->SetStreamFile(stream, fname);
+  } else {
+    const char* converted_fname = CreatePosixFilePathFromHFSFilePath(fname);
+    if (converted_fname == NULL)
+      return;  // TODO should also log error if we ever get here
+    stream_manager->SetStreamFile(stream, converted_fname);
+    delete converted_fname;
+  }
+}
+
+int16 NPP_HandleEvent(NPP instance, void* event) {
+  HANDLE_CRASHES;
+  PluginObject* obj = static_cast<PluginObject*>(instance->pdata);
+  if (obj->event_model_ == NPEventModelCarbon) {
+    EventRecord* theEvent = static_cast<EventRecord*>(event);
+    return HandleMacEvent(theEvent, instance) ? 1 : 0;
+  } else if (obj->event_model_ == NPEventModelCocoa){
+    return HandleCocoaEvent(instance, (NPCocoaEvent*)event) ? 1 : 0;
+  }
+  return 0;
+}
+
+}  //  namespace o3d

@@ -35,129 +35,141 @@
 using glue::_o3d::PluginObject;
 using glue::StreamManager;
 
+#if !defined(O3D_INTERNAL_PLUGIN)
+
 int BreakpadEnabler::scope_count_ = 0;
 
 // Used for breakpad crash handling
 ExceptionManager *g_exception_manager = NULL;
 
+#endif  // O3D_INTERNAL_PLUGIN
+
+namespace o3d {
+
+char *NP_GetMIMEDescription(void) {
+  return O3D_PLUGIN_MIME_TYPE "::O3D MIME";
+}
+
+NPError NP_GetValue(void *instance, NPPVariable variable, void *value) {
+  switch (variable) {
+    case NPPVpluginNameString:
+      *static_cast<char **>(value) = O3D_PLUGIN_NAME;
+      break;
+    case NPPVpluginDescriptionString:
+      *static_cast<char **>(value) = O3D_PLUGIN_DESCRIPTION;
+      break;
+    default:
+      return NPERR_INVALID_PARAM;
+      break;
+  }
+  return NPERR_NO_ERROR;
+}
+
+NPError NPP_NewStream(NPP instance, NPMIMEType type, NPStream *stream,
+                      NPBool seekable, uint16 *stype) {
+  HANDLE_CRASHES;
+  PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
+  StreamManager *stream_manager = obj->stream_manager();
+  if (stream_manager->NewStream(stream, stype)) {
+    return NPERR_NO_ERROR;
+  } else {
+    // TODO: find out which error we should return
+    return NPERR_INVALID_PARAM;
+  }
+}
+
+NPError NPP_DestroyStream(NPP instance, NPStream *stream, NPReason reason) {
+  HANDLE_CRASHES;
+  PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
+  StreamManager *stream_manager = obj->stream_manager();
+  if (stream_manager->DestroyStream(stream, reason)) {
+    return NPERR_NO_ERROR;
+  } else {
+    // TODO: find out which error we should return
+    return NPERR_INVALID_PARAM;
+  }
+}
+
+int32 NPP_WriteReady(NPP instance, NPStream *stream) {
+  HANDLE_CRASHES;
+  PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
+  StreamManager *stream_manager = obj->stream_manager();
+  return stream_manager->WriteReady(stream);
+}
+
+int32 NPP_Write(NPP instance, NPStream *stream, int32 offset, int32 len,
+                void *buffer) {
+  HANDLE_CRASHES;
+  PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
+  StreamManager *stream_manager = obj->stream_manager();
+  return stream_manager->Write(stream, offset, len, buffer);
+}
+
+void NPP_Print(NPP instance, NPPrint *platformPrint) {
+  HANDLE_CRASHES;
+}
+
+void NPP_URLNotify(NPP instance, const char *url, NPReason reason,
+                   void *notifyData) {
+  HANDLE_CRASHES;
+  PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
+  StreamManager *stream_manager = obj->stream_manager();
+  stream_manager->URLNotify(url, reason, notifyData);
+}
+
+NPError NPP_GetValue(NPP instance, NPPVariable variable, void *value) {
+  HANDLE_CRASHES;
+  switch (variable) {
+    case NPPVpluginScriptableNPObject: {
+      void **v = static_cast<void **>(value);
+      PluginObject *obj = static_cast<PluginObject *>(instance->pdata);
+      // Return value is expected to be retained
+      GLUE_PROFILE_START(instance, "retainobject");
+      NPN_RetainObject(obj);
+      GLUE_PROFILE_STOP(instance, "retainobject");
+      *v = obj;
+      break;
+    }
+    default: {
+      NPError ret = PlatformNPPGetValue(instance, variable, value);
+      if (ret == NPERR_INVALID_PARAM)
+        ret = o3d::NP_GetValue(instance, variable, value);
+      return ret;
+    }
+  }
+  return NPERR_NO_ERROR;
+}
+
+NPError NPP_SetValue(NPP instance, NPNVariable variable, void *value) {
+  HANDLE_CRASHES;
+  return NPERR_GENERIC_ERROR;
+}
+}  // namespace o3d
+
+#if defined(O3D_INTERNAL_PLUGIN)
+namespace o3d {
+#else
 extern "C" {
-  char *NP_GetMIMEDescription(void) {
-    return O3D_PLUGIN_MIME_TYPE "::O3D MIME";
-  }
+#endif
 
-  NPError NP_GetValue(void *instance, NPPVariable variable, void *value) {
-    switch (variable) {
-      case NPPVpluginNameString:
-        *static_cast<char **>(value) = O3D_PLUGIN_NAME;
-        break;
-      case NPPVpluginDescriptionString:
-        *static_cast<char **>(value) = O3D_PLUGIN_DESCRIPTION;
-        break;
-      default:
-        return NPERR_INVALID_PARAM;
-        break;
-    }
-    return NPERR_NO_ERROR;
-  }
+NPError OSCALL NP_GetEntryPoints(NPPluginFuncs *pluginFuncs) {
+  HANDLE_CRASHES;
+  pluginFuncs->version = 11;
+  pluginFuncs->size = sizeof(*pluginFuncs);
+  pluginFuncs->newp = o3d::NPP_New;
+  pluginFuncs->destroy = o3d::NPP_Destroy;
+  pluginFuncs->setwindow = o3d::NPP_SetWindow;
+  pluginFuncs->newstream = o3d::NPP_NewStream;
+  pluginFuncs->destroystream = o3d::NPP_DestroyStream;
+  pluginFuncs->asfile = o3d::NPP_StreamAsFile;
+  pluginFuncs->writeready = o3d::NPP_WriteReady;
+  pluginFuncs->write = o3d::NPP_Write;
+  pluginFuncs->print = o3d::NPP_Print;
+  pluginFuncs->event = o3d::NPP_HandleEvent;
+  pluginFuncs->urlnotify = o3d::NPP_URLNotify;
+  pluginFuncs->getvalue = o3d::NPP_GetValue;
+  pluginFuncs->setvalue = o3d::NPP_SetValue;
 
-  NPError OSCALL NP_GetEntryPoints(NPPluginFuncs *pluginFuncs) {
-    HANDLE_CRASHES;
-    pluginFuncs->version = 11;
-    pluginFuncs->size = sizeof(*pluginFuncs);
-    pluginFuncs->newp = NPP_New;
-    pluginFuncs->destroy = NPP_Destroy;
-    pluginFuncs->setwindow = NPP_SetWindow;
-    pluginFuncs->newstream = NPP_NewStream;
-    pluginFuncs->destroystream = NPP_DestroyStream;
-    pluginFuncs->asfile = NPP_StreamAsFile;
-    pluginFuncs->writeready = NPP_WriteReady;
-    pluginFuncs->write = NPP_Write;
-    pluginFuncs->print = NPP_Print;
-    pluginFuncs->event = NPP_HandleEvent;
-    pluginFuncs->urlnotify = NPP_URLNotify;
-    pluginFuncs->getvalue = NPP_GetValue;
-    pluginFuncs->setvalue = NPP_SetValue;
-
-    return NPERR_NO_ERROR;
-  }
-
-  NPError NPP_NewStream(NPP instance, NPMIMEType type, NPStream *stream,
-                        NPBool seekable, uint16 *stype) {
-    HANDLE_CRASHES;
-    PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
-    StreamManager *stream_manager = obj->stream_manager();
-    if (stream_manager->NewStream(stream, stype)) {
-      return NPERR_NO_ERROR;
-    } else {
-      // TODO: find out which error we should return
-      return NPERR_INVALID_PARAM;
-    }
-  }
-
-  NPError NPP_DestroyStream(NPP instance, NPStream *stream, NPReason reason) {
-    HANDLE_CRASHES;
-    PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
-    StreamManager *stream_manager = obj->stream_manager();
-    if (stream_manager->DestroyStream(stream, reason)) {
-      return NPERR_NO_ERROR;
-    } else {
-      // TODO: find out which error we should return
-      return NPERR_INVALID_PARAM;
-    }
-  }
-
-  int32 NPP_WriteReady(NPP instance, NPStream *stream) {
-    HANDLE_CRASHES;
-    PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
-    StreamManager *stream_manager = obj->stream_manager();
-    return stream_manager->WriteReady(stream);
-  }
-
-  int32 NPP_Write(NPP instance, NPStream *stream, int32 offset, int32 len,
-                  void *buffer) {
-    HANDLE_CRASHES;
-    PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
-    StreamManager *stream_manager = obj->stream_manager();
-    return stream_manager->Write(stream, offset, len, buffer);
-  }
-
-  void NPP_Print(NPP instance, NPPrint *platformPrint) {
-    HANDLE_CRASHES;
-  }
-
-  void NPP_URLNotify(NPP instance, const char *url, NPReason reason,
-                     void *notifyData) {
-    HANDLE_CRASHES;
-    PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
-    StreamManager *stream_manager = obj->stream_manager();
-    stream_manager->URLNotify(url, reason, notifyData);
-  }
-
-  NPError NPP_GetValue(NPP instance, NPPVariable variable, void *value) {
-    HANDLE_CRASHES;
-    switch (variable) {
-      case NPPVpluginScriptableNPObject: {
-        void **v = static_cast<void **>(value);
-        PluginObject *obj = static_cast<PluginObject *>(instance->pdata);
-        // Return value is expected to be retained
-        GLUE_PROFILE_START(instance, "retainobject");
-        NPN_RetainObject(obj);
-        GLUE_PROFILE_STOP(instance, "retainobject");
-        *v = obj;
-        break;
-      }
-      default: {
-        NPError ret = PlatformNPPGetValue(instance, variable, value);
-        if (ret == NPERR_INVALID_PARAM)
-          ret = NP_GetValue(instance, variable, value);
-        return ret;
-      }
-    }
-    return NPERR_NO_ERROR;
-  }
-
-  NPError NPP_SetValue(NPP instance, NPNVariable variable, void *value) {
-    HANDLE_CRASHES;
-    return NPERR_GENERIC_ERROR;
-  }
-}  // extern "C"
+  return NPERR_NO_ERROR;
+}
+}  // namespace o3d / extern "C"

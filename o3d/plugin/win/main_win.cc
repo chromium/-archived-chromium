@@ -59,16 +59,30 @@ o3d::PluginLogging* g_logger = NULL;
 bool g_logging_initialized = false;
 o3d::BluescreenDetector *g_bluescreen_detector = NULL;
 
+#if !defined(O3D_INTERNAL_PLUGIN)
+extern "C" BOOL WINAPI DllMain(HINSTANCE instance,
+                               DWORD reason,
+                               LPVOID reserved) {
+  if (reason == DLL_PROCESS_DETACH) {
+     // Teardown V8 when the plugin dll is unloaded.
+     // NOTE: NP_Shutdown would have been a good place for this code but
+     //       unfortunately it looks like it gets called even when the dll
+     //       isn't really unloaded.  This is a problem since after calling
+     //       V8::Dispose(), V8 cannot be initialized again.
+     bool v8_disposed = v8::V8::Dispose();
+     if (!v8_disposed)
+       DLOG(ERROR) << "Failed to release V8 resources.";
+     return true;
+  }
+  return true;
+}
+#endif  // O3D_INTERNAL_PLUGIN
+
 namespace {
 // We would normally make this a stack variable in main(), but in a
 // plugin, that's not possible, so we allocate it dynamically and
 // destroy it explicitly.
 scoped_ptr<base::AtExitManager> g_at_exit_manager;
-}  // end anonymous namespace
-
-void RenderOnDemandCallbackHandler::Run() {
-  ::InvalidateRect(obj_->GetHWnd(), NULL, TRUE);
-}
 
 static int HandleKeyboardEvent(PluginObject *obj,
                                HWND hWnd,
@@ -148,11 +162,11 @@ static int HandleKeyboardEvent(PluginObject *obj,
   return 0;
 }
 
-static void HandleMouseEvent(PluginObject *obj,
-                             HWND hWnd,
-                             UINT Msg,
-                             WPARAM wParam,
-                             LPARAM lParam) {
+void HandleMouseEvent(PluginObject *obj,
+                      HWND hWnd,
+                      UINT Msg,
+                      WPARAM wParam,
+                      LPARAM lParam) {
   DCHECK(obj);
   DCHECK(obj->client());
   bool fake_dblclick = false;
@@ -326,12 +340,12 @@ static void HandleMouseEvent(PluginObject *obj,
 }
 
 // This returns 0 on success, 1 on failure, to match WindowProc.
-static LRESULT ForwardEvent(PluginObject *obj,
-                            HWND hWnd,
-                            UINT Msg,
-                            WPARAM wParam,
-                            LPARAM lParam,
-                            bool translateCoords) {
+LRESULT ForwardEvent(PluginObject *obj,
+                     HWND hWnd,
+                     UINT Msg,
+                     WPARAM wParam,
+                     LPARAM lParam,
+                     bool translateCoords) {
   DCHECK(obj);
   DCHECK(obj->GetPluginHWnd());
   HWND dest_hwnd = obj->GetParentHWnd();
@@ -398,7 +412,7 @@ static LRESULT ForwardEvent(PluginObject *obj,
   return !::PostMessage(dest_hwnd, Msg, wParam, lParam);
 }
 
-static LRESULT HandleDragAndDrop(PluginObject *obj, WPARAM wParam) {
+LRESULT HandleDragAndDrop(PluginObject *obj, WPARAM wParam) {
   HDROP hDrop = reinterpret_cast<HDROP>(wParam);
   UINT num_files = ::DragQueryFile(hDrop, 0xFFFFFFFF, NULL, 0);
   if (!num_files) {
@@ -457,8 +471,7 @@ static LRESULT HandleDragAndDrop(PluginObject *obj, WPARAM wParam) {
   return 1;
 }
 
-static LRESULT CALLBACK
-WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
   PluginObject *obj = PluginObject::GetPluginProperty(hWnd);
   if (obj == NULL) {                   // It's not my window
     return 1;  // 0 often means we handled it.
@@ -644,345 +657,324 @@ WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
   return 0;
 }
 
+NPError InitializePlugin() {
+#if !defined(O3D_INTERNAL_PLUGIN)
+  if (!o3d::SetupOutOfMemoryHandler())
+    return NPERR_MODULE_LOAD_FAILED_ERROR;
+
+  // Setup crash handler
+  if (!g_exception_manager) {
+    g_exception_manager = new ExceptionManager(false);
+    g_exception_manager->StartMonitoring();
+  }
+
+  // Initialize the AtExitManager so that base singletons can be
+  // destroyed properly.
+  g_at_exit_manager.reset(new base::AtExitManager());
+
+  // Turn on the logging.
+  CommandLine::Init(0, NULL);
+  InitLogging(L"debug.log",
+              logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG,
+              logging::DONT_LOCK_LOG_FILE,
+              logging::APPEND_TO_OLD_LOG_FILE);
+#endif  // O3D_INTERNAL_PLUGIN
+
+  DLOG(INFO) << "NP_Initialize";
+
+  return NPERR_NO_ERROR;
+}
+
+void CleanupFullscreenWindow(PluginObject *obj) {
+  DCHECK(obj->GetFullscreenHWnd());
+  obj->StorePluginProperty(obj->GetPluginHWnd(), obj);
+  ::DestroyWindow(obj->GetFullscreenHWnd());
+  obj->SetFullscreenHWnd(NULL);
+}
+
+void CleanupAllWindows(PluginObject *obj) {
+  DCHECK(obj->GetHWnd());
+  DCHECK(obj->GetPluginHWnd());
+  ::KillTimer(obj->GetHWnd(), 0);
+  if (obj->GetFullscreenHWnd()) {
+    CleanupFullscreenWindow(obj);
+  }
+  PluginObject::ClearPluginProperty(obj->GetHWnd());
+  ::SetWindowLongPtr(obj->GetPluginHWnd(),
+                     GWL_WNDPROC,
+                     reinterpret_cast<LONG_PTR>(
+                         obj->GetDefaultPluginWindowProc()));
+  obj->SetPluginHWnd(NULL);
+  obj->SetHWnd(NULL);
+}
+
+HWND CreateFullscreenWindow(PluginObject *obj,
+                            int mode_id) {
+  o3d::DisplayMode mode;
+  if (!obj->renderer()->GetDisplayMode(mode_id, &mode)) {
+    return NULL;
+  }
+  CHECK(mode.width() > 0 && mode.height() > 0);
+
+  HINSTANCE instance =
+      reinterpret_cast<HINSTANCE>(
+          ::GetWindowLongPtr(obj->GetPluginHWnd(), GWLP_HINSTANCE));
+  WNDCLASSEX *wcx = obj->GetFullscreenWindowClass(instance, WindowProc);
+  HWND hWnd = CreateWindowEx(NULL,
+                             wcx->lpszClassName,
+                             L"O3D Test Fullscreen Window",
+                             WS_POPUP,
+                             0, 0,
+                             mode.width(),
+                             mode.height(),
+                             NULL,
+                             NULL,
+                             instance,
+                             NULL);
+
+  ShowWindow(hWnd, SW_SHOW);
+  return hWnd;
+}
+}  // namespace anonymous
+
+#if defined(O3D_INTERNAL_PLUGIN)
+namespace o3d {
+#else
+extern "C" {
+#endif
+
+NPError OSCALL NP_Initialize(NPNetscapeFuncs *browserFuncs) {
+  HANDLE_CRASHES;
+  NPError retval = InitializeNPNApi(browserFuncs);
+  if (retval != NPERR_NO_ERROR) return retval;
+  return InitializePlugin();
+}
+
+NPError OSCALL NP_Shutdown(void) {
+  HANDLE_CRASHES;
+  DLOG(INFO) << "NP_Shutdown";
+
+#if !defined(O3D_INTERNAL_PLUGIN)
+
+  if (g_logger) {
+    // Do a last sweep to aggregate metrics before we shut down
+    g_logger->ProcessMetrics(true, false);
+    delete g_logger;
+    g_logger = NULL;
+    g_logging_initialized = false;
+    stats_report::g_global_metrics.Uninitialize();
+  }
+
+  CommandLine::Terminate();
+
+  // Force all base singletons to be destroyed.
+  g_at_exit_manager.reset(NULL);
+
+  // TODO : This is commented out until we can determine if
+  // it's safe to shutdown breakpad at this stage (Gears, for
+  // example, never deletes...)
+  // Shutdown breakpad
+  // delete g_exception_manager;
+
+  // Strictly speaking, on windows, it's not really necessary to call
+  // Stop(), but we do so for completeness
+  if (g_bluescreen_detector) {
+    g_bluescreen_detector->Stop();
+    delete g_bluescreen_detector;
+    g_bluescreen_detector = NULL;
+  }
+
+#endif  // O3D_INTERNAL_PLUGIN
+
+  return NPERR_NO_ERROR;
+}
+}  // extern "C" / namespace o3d
+
+namespace o3d {
+void RenderOnDemandCallbackHandler::Run() {
+  ::InvalidateRect(obj_->GetHWnd(), NULL, TRUE);
+}
+
+NPError NPP_New(NPMIMEType pluginType,
+                NPP instance,
+                uint16 mode,
+                int16 argc,
+                char *argn[],
+                char *argv[],
+                NPSavedData *saved) {
+  HANDLE_CRASHES;
+
+#if !defined(O3D_INTERNAL_PLUGIN)
+  if (!g_logging_initialized) {
+    // Get user config metrics. These won't be stored though unless the user
+    // opts-in for usagestats logging
+    GetUserAgentMetrics(instance);
+    GetUserConfigMetrics();
+    // Create usage stats logs object
+    g_logger = o3d::PluginLogging::InitializeUsageStatsLogging();
+    if (g_logger) {
+      // Setup blue-screen detection
+      g_bluescreen_detector = new o3d::BluescreenDetector();
+      g_bluescreen_detector->Start();
+    }
+    g_logging_initialized = true;
+  }
+#endif
+
+  PluginObject* pluginObject = glue::_o3d::PluginObject::Create(
+      instance);
+  instance->pdata = pluginObject;
+  glue::_o3d::InitializeGlue(instance);
+  pluginObject->Init(argc, argn, argv);
+  return NPERR_NO_ERROR;
+}
+
+NPError NPP_Destroy(NPP instance, NPSavedData **save) {
+  HANDLE_CRASHES;
+  PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
+  if (obj) {
+    if (obj->GetHWnd()) {
+      CleanupAllWindows(obj);
+    }
+
+    obj->TearDown();
+    NPN_ReleaseObject(obj);
+    instance->pdata = NULL;
+  }
+
+  return NPERR_NO_ERROR;
+}
+
 NPError PlatformNPPGetValue(NPP instance, NPPVariable variable, void *value) {
   return NPERR_INVALID_PARAM;
 }
 
-extern "C" {
-  BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
-    if (reason == DLL_PROCESS_DETACH) {
-       // Teardown V8 when the plugin dll is unloaded.
-       // NOTE: NP_Shutdown would have been a good place for this code but
-       //       unfortunately it looks like it gets called even when the dll
-       //       isn't really unloaded.  This is a problem since after calling
-       //       V8::Dispose(), V8 cannot be initialized again.
-       bool v8_disposed = v8::V8::Dispose();
-       if (!v8_disposed)
-         DLOG(ERROR) << "Failed to release V8 resources.";
-       return true;
+NPError NPP_SetWindow(NPP instance, NPWindow *window) {
+  HANDLE_CRASHES;
+  PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
+
+  HWND hWnd = static_cast<HWND>(window->window);
+  if (!hWnd) {
+    // Chrome calls us this way before NPP_Destroy.
+    if (obj->GetHWnd()) {
+      CleanupAllWindows(obj);
     }
-    return true;
-  }
-  
-  NPError InitializePlugin() {
-    if (!o3d::SetupOutOfMemoryHandler())
-      return NPERR_MODULE_LOAD_FAILED_ERROR;
-
-    // Setup crash handler
-    if (!g_exception_manager) {
-      g_exception_manager = new ExceptionManager(false);
-      g_exception_manager->StartMonitoring();
-    }
-
-    // Initialize the AtExitManager so that base singletons can be
-    // destroyed properly.
-    g_at_exit_manager.reset(new base::AtExitManager());
-
-    // Turn on the logging.
-    CommandLine::Init(0, NULL);
-    InitLogging(L"debug.log",
-                logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG,
-                logging::DONT_LOCK_LOG_FILE,
-                logging::APPEND_TO_OLD_LOG_FILE);
-
-    DLOG(INFO) << "NP_Initialize";
-
-    // Limit the current thread to one processor (the current one). This ensures
-    // that timing code runs on only one processor, and will not suffer any ill
-    // effects from power management. See "Game Timing and Multicore Processors"
-    // in the DirectX docs for more details
-    {
-      HANDLE current_process_handle = GetCurrentProcess();
-
-      // Get the processor affinity mask for this process
-      DWORD_PTR process_affinity_mask = 0;
-      DWORD_PTR system_affinity_mask = 0;
-
-      if (GetProcessAffinityMask(current_process_handle,
-                                 &process_affinity_mask,
-                                 &system_affinity_mask) != 0 &&
-          process_affinity_mask) {
-        // Find the lowest processor that our process is allows to run against
-        DWORD_PTR affinity_mask = (process_affinity_mask &
-                                   ((~process_affinity_mask) + 1));
-
-        // Set this as the processor that our thread must always run against
-        // This must be a subset of the process affinity mask
-        HANDLE hCurrentThread = GetCurrentThread();
-        if (INVALID_HANDLE_VALUE != hCurrentThread) {
-          SetThreadAffinityMask(hCurrentThread, affinity_mask);
-          CloseHandle(hCurrentThread);
-        }
-      }
-
-      CloseHandle(current_process_handle);
-    }
-
     return NPERR_NO_ERROR;
   }
-
-  NPError OSCALL NP_Initialize(NPNetscapeFuncs *browserFuncs) {
-    HANDLE_CRASHES;
-    NPError retval = InitializeNPNApi(browserFuncs);
-    if (retval != NPERR_NO_ERROR) return retval;
-    return InitializePlugin();
-  }
-
-  NPError OSCALL NP_Shutdown(void) {
-    HANDLE_CRASHES;
-    DLOG(INFO) << "NP_Shutdown";
-    if (g_logger) {
-      // Do a last sweep to aggregate metrics before we shut down
-      g_logger->ProcessMetrics(true, false);
-      delete g_logger;
-      g_logger = NULL;
-      g_logging_initialized = false;
-      stats_report::g_global_metrics.Uninitialize();
-    }
-
-    CommandLine::Terminate();
-
-    // Force all base singletons to be destroyed.
-    g_at_exit_manager.reset(NULL);
-
-    // TODO : This is commented out until we can determine if
-    // it's safe to shutdown breakpad at this stage (Gears, for
-    // example, never deletes...)
-    // Shutdown breakpad
-    // delete g_exception_manager;
-
-    // Strictly speaking, on windows, it's not really necessary to call
-    // Stop(), but we do so for completeness
-    if (g_bluescreen_detector) {
-      g_bluescreen_detector->Stop();
-      delete g_bluescreen_detector;
-      g_bluescreen_detector = NULL;
-    }
-
+  if (obj->GetHWnd() == hWnd) {
     return NPERR_NO_ERROR;
   }
-
-  NPError NPP_New(NPMIMEType pluginType,
-                  NPP instance,
-                  uint16 mode,
-                  int16 argc,
-                  char *argn[],
-                  char *argv[],
-                  NPSavedData *saved) {
-    HANDLE_CRASHES;
-
-    if (!g_logging_initialized) {
-      // Get user config metrics. These won't be stored though unless the user
-      // opts-in for usagestats logging
-      GetUserAgentMetrics(instance);
-      GetUserConfigMetrics();
-      // Create usage stats logs object
-      g_logger = o3d::PluginLogging::InitializeUsageStatsLogging();
-      if (g_logger) {
-        // Setup blue-screen detection
-        g_bluescreen_detector = new o3d::BluescreenDetector();
-        g_bluescreen_detector->Start();
-      }
-      g_logging_initialized = true;
-    }
-    PluginObject* pluginObject = glue::_o3d::PluginObject::Create(
-        instance);
-    instance->pdata = pluginObject;
-    glue::_o3d::InitializeGlue(instance);
-    pluginObject->Init(argc, argn, argv);
-    return NPERR_NO_ERROR;
-  }
-
-  void CleanupFullscreenWindow(PluginObject *obj) {
-    DCHECK(obj->GetFullscreenHWnd());
-    obj->StorePluginProperty(obj->GetPluginHWnd(), obj);
-    ::DestroyWindow(obj->GetFullscreenHWnd());
-    obj->SetFullscreenHWnd(NULL);
-  }
-
-  void CleanupAllWindows(PluginObject *obj) {
-    DCHECK(obj->GetHWnd());
+  if (obj->fullscreen()) {
+    // We can get here if the user alt+tabs away from the fullscreen plugin
+    // window or JavaScript resizes the plugin window.
     DCHECK(obj->GetPluginHWnd());
-    ::KillTimer(obj->GetHWnd(), 0);
-    if (obj->GetFullscreenHWnd()) {
-      CleanupFullscreenWindow(obj);
-    }
-    PluginObject::ClearPluginProperty(obj->GetHWnd());
-    ::SetWindowLongPtr(obj->GetPluginHWnd(),
-                       GWL_WNDPROC,
-                       reinterpret_cast<LONG_PTR>(
-                           obj->GetDefaultPluginWindowProc()));
-    obj->SetPluginHWnd(NULL);
-    obj->SetHWnd(NULL);
-  }
-
-  NPError NPP_Destroy(NPP instance, NPSavedData **save) {
-    HANDLE_CRASHES;
-    PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
-    if (obj) {
-      if (obj->GetHWnd()) {
-        CleanupAllWindows(obj);
-      }
-
-      obj->TearDown();
-      NPN_ReleaseObject(obj);
-      instance->pdata = NULL;
-    }
-
+    DCHECK(obj->GetFullscreenHWnd());
+    DCHECK(obj->GetPluginHWnd() == hWnd);
     return NPERR_NO_ERROR;
   }
+  DCHECK(!obj->GetPluginHWnd());
+  obj->SetPluginHWnd(hWnd);
+  obj->SetParentHWnd(::GetParent(hWnd));
+  PluginObject::StorePluginProperty(hWnd, obj);
+  obj->SetDefaultPluginWindowProc(
+      reinterpret_cast<WNDPROC>(
+          ::SetWindowLongPtr(hWnd,
+                             GWL_WNDPROC,
+                             reinterpret_cast<LONG_PTR>(WindowProc))));
 
-  bool PluginObject::GetDisplayMode(int mode_id, o3d::DisplayMode *mode) {
-    return renderer()->GetDisplayMode(mode_id, mode);
-  }
+  // create and assign the graphics context
+  DisplayWindowWindows default_display;
+  default_display.set_hwnd(obj->GetHWnd());
 
+  obj->CreateRenderer(default_display);
+  obj->client()->Init();
+  obj->client()->SetRenderOnDemandCallback(
+      new RenderOnDemandCallbackHandler(obj));
 
-  HWND CreateFullscreenWindow(PluginObject *obj,
-                              int mode_id) {
-    o3d::DisplayMode mode;
-    if (!obj->renderer()->GetDisplayMode(mode_id, &mode)) {
-      return NULL;
-    }
-    CHECK(mode.width() > 0 && mode.height() > 0);
+  // we set the timer to 10ms or 100fps. At the time of this comment
+  // the renderer does a vsync the max fps it will run will be the refresh
+  // rate of the monitor or 100fps, which ever is lower.
+  ::SetTimer(obj->GetHWnd(), 0, 10, NULL);
 
-    HINSTANCE instance =
-        reinterpret_cast<HINSTANCE>(
-            ::GetWindowLongPtr(obj->GetPluginHWnd(), GWLP_HINSTANCE));
-    WNDCLASSEX *wcx = obj->GetFullscreenWindowClass(instance, WindowProc);
-    HWND hWnd = CreateWindowEx(NULL,
-                               wcx->lpszClassName,
-                               L"O3D Test Fullscreen Window",
-                               WS_POPUP,
-                               0, 0,
-                               mode.width(),
-                               mode.height(),
-                               NULL,
-                               NULL,
-                               instance,
-                               NULL);
+  return NPERR_NO_ERROR;
+}
 
-    ShowWindow(hWnd, SW_SHOW);
-    return hWnd;
-  }
+// Called when the browser has finished attempting to stream data to
+// a file as requested. If fname == NULL the attempt was not successful.
+void NPP_StreamAsFile(NPP instance, NPStream *stream, const char *fname) {
+  HANDLE_CRASHES;
+  PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
+  StreamManager *stream_manager = obj->stream_manager();
 
-  // TODO: Where should this really live?  It's platform-specific, but in
-  // PluginObject, which mainly lives in cross/o3d_glue.h+cc.
-  bool PluginObject::RequestFullscreenDisplay() {
-    bool success = false;
-    DCHECK(GetPluginHWnd());
-    if (!fullscreen_ && renderer_ && fullscreen_region_valid_) {
-      DCHECK(renderer_->fullscreen() == fullscreen_);
-      DCHECK(!GetFullscreenHWnd());
-      HWND drawing_hwnd =
-        CreateFullscreenWindow(this, fullscreen_region_mode_id_);
-      if (drawing_hwnd) {
-        ::KillTimer(GetHWnd(), 0);
-        SetFullscreenHWnd(drawing_hwnd);
-        StorePluginPropertyUnsafe(drawing_hwnd, this);
+  stream_manager->SetStreamFile(stream, fname);
+}
 
-        DisplayWindowWindows display;
-        display.set_hwnd(GetHWnd());
-        if (renderer_->SetFullscreen(true, display,
-              fullscreen_region_mode_id_)) {
-          fullscreen_ = true;
-          client()->SendResizeEvent(renderer_->width(), renderer_->height(),
-              true);
-          success = true;
-        } else {
-          CleanupFullscreenWindow(this);
-        }
-        prev_width_ = renderer_->width();
-        prev_height_ = renderer_->height();
-        ::SetTimer(GetHWnd(), 0, 10, NULL);
-      } else {
-        LOG(ERROR) << "Failed to create fullscreen window.";
-      }
-    }
-    return success;
-  }
+int16 NPP_HandleEvent(NPP instance, void *event) {
+  HANDLE_CRASHES;
+  return 0;
+}
+}  // namespace o3d
 
-  void PluginObject::CancelFullscreenDisplay() {
-    DCHECK(GetPluginHWnd());
-    if (fullscreen_) {
-      DCHECK(renderer());
-      DCHECK(renderer()->fullscreen());
+namespace glue {
+namespace _o3d {
+bool PluginObject::GetDisplayMode(int mode_id, o3d::DisplayMode *mode) {
+  return renderer()->GetDisplayMode(mode_id, mode);
+}
+
+// TODO: Where should this really live?  It's platform-specific, but in
+// PluginObject, which mainly lives in cross/o3d_glue.h+cc.
+bool PluginObject::RequestFullscreenDisplay() {
+  bool success = false;
+  DCHECK(GetPluginHWnd());
+  if (!fullscreen_ && renderer_ && fullscreen_region_valid_) {
+    DCHECK(renderer_->fullscreen() == fullscreen_);
+    DCHECK(!GetFullscreenHWnd());
+    HWND drawing_hwnd =
+      CreateFullscreenWindow(this, fullscreen_region_mode_id_);
+    if (drawing_hwnd) {
       ::KillTimer(GetHWnd(), 0);
+      SetFullscreenHWnd(drawing_hwnd);
+      StorePluginPropertyUnsafe(drawing_hwnd, this);
+
       DisplayWindowWindows display;
-      display.set_hwnd(GetPluginHWnd());
-      if (!renderer_->SetFullscreen(false, display, 0)) {
-        LOG(FATAL) << "Failed to get the renderer out of fullscreen mode!";
+      display.set_hwnd(GetHWnd());
+      if (renderer_->SetFullscreen(true, display,
+            fullscreen_region_mode_id_)) {
+        fullscreen_ = true;
+        client()->SendResizeEvent(renderer_->width(), renderer_->height(),
+            true);
+        success = true;
+      } else {
+        CleanupFullscreenWindow(this);
       }
-      CleanupFullscreenWindow(this);
       prev_width_ = renderer_->width();
       prev_height_ = renderer_->height();
-      client()->SendResizeEvent(prev_width_, prev_height_, false);
       ::SetTimer(GetHWnd(), 0, 10, NULL);
-      fullscreen_ = false;
+    } else {
+      LOG(ERROR) << "Failed to create fullscreen window.";
     }
   }
+  return success;
+}
 
-  NPError NPP_SetWindow(NPP instance, NPWindow *window) {
-    HANDLE_CRASHES;
-    PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
-
-    HWND hWnd = static_cast<HWND>(window->window);
-    if (!hWnd) {
-      // Chrome calls us this way before NPP_Destroy.
-      if (obj->GetHWnd()) {
-        CleanupAllWindows(obj);
-      }
-      return NPERR_NO_ERROR;
+void PluginObject::CancelFullscreenDisplay() {
+  DCHECK(GetPluginHWnd());
+  if (fullscreen_) {
+    DCHECK(renderer());
+    DCHECK(renderer()->fullscreen());
+    ::KillTimer(GetHWnd(), 0);
+    DisplayWindowWindows display;
+    display.set_hwnd(GetPluginHWnd());
+    if (!renderer_->SetFullscreen(false, display, 0)) {
+      LOG(FATAL) << "Failed to get the renderer out of fullscreen mode!";
     }
-    if (obj->GetHWnd() == hWnd) {
-      return NPERR_NO_ERROR;
-    }
-    if (obj->fullscreen()) {
-      // We can get here if the user alt+tabs away from the fullscreen plugin
-      // window or JavaScript resizes the plugin window.
-      DCHECK(obj->GetPluginHWnd());
-      DCHECK(obj->GetFullscreenHWnd());
-      DCHECK(obj->GetPluginHWnd() == hWnd);
-      return NPERR_NO_ERROR;
-    }
-    DCHECK(!obj->GetPluginHWnd());
-    obj->SetPluginHWnd(hWnd);
-    obj->SetParentHWnd(::GetParent(hWnd));
-    PluginObject::StorePluginProperty(hWnd, obj);
-    obj->SetDefaultPluginWindowProc(
-        reinterpret_cast<WNDPROC>(
-            ::SetWindowLongPtr(hWnd,
-                               GWL_WNDPROC,
-                               reinterpret_cast<LONG_PTR>(WindowProc))));
-
-    // create and assign the graphics context
-    DisplayWindowWindows default_display;
-    default_display.set_hwnd(obj->GetHWnd());
-
-    obj->CreateRenderer(default_display);
-    obj->client()->Init();
-    obj->client()->SetRenderOnDemandCallback(
-        new RenderOnDemandCallbackHandler(obj));
-
-    // we set the timer to 10ms or 100fps. At the time of this comment
-    // the renderer does a vsync the max fps it will run will be the refresh
-    // rate of the monitor or 100fps, which ever is lower.
-    ::SetTimer(obj->GetHWnd(), 0, 10, NULL);
-
-    return NPERR_NO_ERROR;
+    CleanupFullscreenWindow(this);
+    prev_width_ = renderer_->width();
+    prev_height_ = renderer_->height();
+    client()->SendResizeEvent(prev_width_, prev_height_, false);
+    ::SetTimer(GetHWnd(), 0, 10, NULL);
+    fullscreen_ = false;
   }
-
-  // Called when the browser has finished attempting to stream data to
-  // a file as requested. If fname == NULL the attempt was not successful.
-  void NPP_StreamAsFile(NPP instance, NPStream *stream, const char *fname) {
-    HANDLE_CRASHES;
-    PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
-    StreamManager *stream_manager = obj->stream_manager();
-
-    stream_manager->SetStreamFile(stream, fname);
-  }
-
-  int16 NPP_HandleEvent(NPP instance, void *event) {
-    HANDLE_CRASHES;
-    return 0;
-  }
-}  // end extern "C"
+}
+}  // namespace _o3d
+}  // namespace glue

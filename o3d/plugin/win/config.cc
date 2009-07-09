@@ -57,6 +57,8 @@
 #include "core/cross/install_check.h"
 #include "third_party/nixysa/files/static_glue/npapi/common.h"
 
+namespace o3d {
+
 // Check Windows version.
 bool CheckOSVersion(NPP npp) {
   OSVERSIONINFOEX version = {sizeof(OSVERSIONINFOEX)};  // NOLINT
@@ -232,3 +234,4 @@ bool GetUserAgentMetrics(NPP npp) {
   }
   return true;
 }
+}  // namespace o3d

@@ -36,6 +36,8 @@
 #include <Cocoa/Cocoa.h>
 #include <AGL/agl.h>
 
+namespace o3d {
+
 void SlideWindowToRect(WindowRef the_window,
                        CGRect destination_rect,
                        double transition_duration_seconds);
@@ -52,5 +54,7 @@ CGRect Rect2CGRect(const Rect &inRect);
 
 void PaintRoundedCGRect(CGContextRef context, CGRect rect,
                         float radius, bool fill);
+
+}  // namespace o3d
 
 #endif  //  O3D_PLUGIN_MAC_GRAPHICS_UTILS_MAC_H_

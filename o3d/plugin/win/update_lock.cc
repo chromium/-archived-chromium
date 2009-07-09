@@ -32,8 +32,12 @@
 
 #include "update_lock.h"
 
+#if !defined(O3D_INTERNAL_PLUGIN)
+
 namespace {
 // Instantiate a global object to indicate that the application is running.
 update_lock::HandleWrapper g_update_lock(update_lock::LockFromUpdates());
 
 }  // anonymous namespace
+
+#endif  // O3D_INTERNAL_PLUGIN

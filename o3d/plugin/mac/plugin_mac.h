@@ -41,6 +41,7 @@
 // Just for o3d::Event::Button at the moment.
 #include "core/cross/event.h"
 
+namespace o3d {
 
 // RenderTimer maintains an animation timer (nominally running at 60fps)
 //
@@ -100,5 +101,7 @@ bool GetBrowserVersionInfo(int *returned_major,
                            int *returned_bugfix);
 
 bool UseSoftwareRenderer();
+
+}  // namespace o3d
 
 #endif  // O3D_PLUGIN_MAC_PLUGIN_MAC_H_

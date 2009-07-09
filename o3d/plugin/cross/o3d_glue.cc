@@ -167,7 +167,7 @@ PluginObject::PluginObject(NPP npp)
   globals_npobject_ = glue::CreateStaticNPObject(npp);
   client_npobject_ =
       glue::namespace_o3d::class_Client::GetNPObject(npp, client_);
-  user_agent_ = GetUserAgent(npp);
+  user_agent_ = o3d::GetUserAgent(npp);
 }
 
 PluginObject::~PluginObject() {
@@ -205,7 +205,7 @@ void PluginObject::TearDown() {
   ClearPluginProperty(hWnd_);
 #endif  // OS_WIN
 #ifdef OS_MACOSX
-  ReleaseSafariBrowserWindow(mac_cocoa_window_);
+  o3d::ReleaseSafariBrowserWindow(mac_cocoa_window_);
 #endif
   UnmapAll();
 
@@ -231,7 +231,7 @@ void PluginObject::TearDown() {
 }
 
 void PluginObject::CreateRenderer(const o3d::DisplayWindow& display_window) {
-  if (!CheckConfig(npp_)) {
+  if (!o3d::CheckConfig(npp_)) {
     renderer_init_status_ = o3d::Renderer::GPU_NOT_UP_TO_SPEC;
   } else {
     renderer_ = o3d::Renderer::CreateDefaultRenderer(&service_locator_);
@@ -279,10 +279,10 @@ void PluginObject::MacEventReceived() {
     CFRelease(previousTime);
   }
   if (!mac_cocoa_window_) {
-    mac_cocoa_window_ = SafariBrowserWindowForWindowRef(mac_window_);
+    mac_cocoa_window_ = o3d::SafariBrowserWindowForWindowRef(mac_window_);
   }
   mac_window_selected_tab_ =
-      SelectedTabForSafariBrowserWindow(mac_cocoa_window_);
+      o3d::SelectedTabForSafariBrowserWindow(mac_cocoa_window_);
 }
 
 // Returns the time elapsed since the MacEventReceived function was last called.
@@ -306,10 +306,10 @@ bool PluginObject::DetectTabHiding() {
     return false;
 
   if (!mac_cocoa_window_) {
-    mac_cocoa_window_ = SafariBrowserWindowForWindowRef(mac_window_);
+    mac_cocoa_window_ = o3d::SafariBrowserWindowForWindowRef(mac_window_);
   }
 
-  return SelectedTabForSafariBrowserWindow(mac_cocoa_window_) !=
+  return o3d::SelectedTabForSafariBrowserWindow(mac_cocoa_window_) !=
       mac_window_selected_tab_;
 }
 
@@ -550,8 +550,8 @@ static bool PluginGetProperty(NPObject *header, NPIdentifier name,
   if (name == property_ids[PROP_GPU_CONFIG]) {
     // Gets the GPU config (VendorID, DeviceID, name) as a string.
     // NOTE: this should probably be removed before we ship.
-    GPUDevice device;
-    bool result = GetGPUDevice(npp, &device);
+    o3d::GPUDevice device;
+    bool result = o3d::GetGPUDevice(npp, &device);
     if (!result) return false;
     std::string return_value = std::string("VendorID = 0x");
     char id_text[9];

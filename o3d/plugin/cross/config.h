@@ -40,6 +40,8 @@
 #include <string>
 #include "plugin/cross/o3d_glue.h"
 
+namespace o3d {
+
 // Returns the user agent string.
 // Arguments:
 //   npp: plugin instance.
@@ -111,5 +113,7 @@ bool GetUserConfigMetrics();
 bool GetUserAgentMetrics(NPP npp);
 
 bool GetOpenGLMetrics();
+
+}  // namespace o3d
 
 #endif  // O3D_PLUGIN_CROSS_CONFIG_H_

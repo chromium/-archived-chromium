@@ -43,7 +43,10 @@
 #include <fstream>
 #include <iostream>
 
+#if !defined(O3D_INTERNAL_PLUGIN)
 #include "breakpad/win/exception_handler_win32.h"
+#endif  // O3D_INTERNAL_PLUGIN
+
 #include "core/cross/renderer.h"
 #include "core/cross/renderer_platform.h"
 #include "plugin/cross/o3d_glue.h"
@@ -52,20 +55,11 @@
 #include "third_party/nixysa/files/static_glue/npapi/common.h"
 #include "third_party/nixysa/files/static_glue/npapi/npn_api.h"
 
+#if defined(O3D_INTERNAL_PLUGIN)
+#define HANDLE_CRASHES void(0)
+#else  // O3D_INTERNAL_PLUGIN
+
 extern ExceptionManager *g_exception_manager;
-
-class RenderOnDemandCallbackHandler
-    : public o3d::Client::RenderOnDemandCallback {
- public:
-  explicit RenderOnDemandCallbackHandler(glue::_o3d::PluginObject* obj)
-      : obj_(obj) {
-  }
-
-  // This function is implemented for each platform.
-  virtual void Run();
- private:
-  glue::_o3d::PluginObject* obj_;
-};
 
 // BreakpadEnabler is a simple class to keep track of whether or not
 // we're executing code that we want to handle crashes for
@@ -92,54 +86,71 @@ class BreakpadEnabler {
   static int  scope_count_;
 };
 
+#endif  // O3D_INTERNAL_PLUGIN
 
+#if defined(O3D_INTERNAL_PLUGIN)
 namespace o3d {
-void WriteLogString(const char* text, int length);
-}  // end namespace o3d
-
-NPError PlatformNPPGetValue(NPP instance, NPPVariable variable, void *value);
-
-// NPAPI declarations.  Some of these are only implemented in the
-// platform-specific versions of "main.cc".
-
+#else
 extern "C" {
+#endif
   NPError OSCALL NP_Shutdown(void);
   NPError OSCALL NP_GetEntryPoints(NPPluginFuncs *pluginFuncs);
-  NPError NPP_Destroy(NPP instance, NPSavedData **save);
-  NPError NPP_DestroyStream(NPP instance, NPStream *stream, NPReason reason);
-  NPError NPP_GetValue(NPP instance, NPPVariable variable, void *value);
+}
 
-  NPError NPP_New(NPMIMEType pluginType,
-                  NPP instance,
-                  uint16 mode,
-                  int16 argc,
-                  char *argn[],
-                  char *argv[],
-                  NPSavedData *saved);
+namespace o3d {
 
-  NPError NPP_NewStream(NPP instance,
-                        NPMIMEType type,
-                        NPStream *stream,
-                        NPBool seekable,
-                        uint16 *stype);
+class RenderOnDemandCallbackHandler
+    : public o3d::Client::RenderOnDemandCallback {
+ public:
+  explicit RenderOnDemandCallbackHandler(glue::_o3d::PluginObject* obj)
+      : obj_(obj) {
+  }
 
-  NPError NPP_SetValue(NPP instance, NPNVariable variable, void *value);
-  NPError NPP_SetWindow(NPP instance, NPWindow *window);
+  // This function is implemented for each platform.
+  virtual void Run();
+ private:
+  glue::_o3d::PluginObject* obj_;
+};
 
-  int32 NPP_Write(NPP instance,
-                  NPStream *stream,
-                  int32 offset,
-                  int32 len,
-                  void *buffer);
+void WriteLogString(const char* text, int length);
+NPError NPP_Destroy(NPP instance, NPSavedData **save);
+NPError NPP_DestroyStream(NPP instance, NPStream *stream, NPReason reason);
+NPError NPP_GetValue(NPP instance, NPPVariable variable, void *value);
 
-  int32 NPP_WriteReady(NPP instance, NPStream *stream);
-  void NPP_Print(NPP instance, NPPrint *platformPrint);
-  void NPP_StreamAsFile(NPP instance, NPStream *stream, const char *fname);
+NPError NPP_New(NPMIMEType pluginType,
+                NPP instance,
+                uint16 mode,
+                int16 argc,
+                char *argn[],
+                char *argv[],
+                NPSavedData *saved);
 
-  void NPP_URLNotify(NPP instance,
-                     const char *url,
-                     NPReason reason,
-                     void *notifyData);
-};  // end extern "C"
+NPError NPP_NewStream(NPP instance,
+                      NPMIMEType type,
+                      NPStream *stream,
+                      NPBool seekable,
+                      uint16 *stype);
+
+NPError PlatformNPPGetValue(NPP instance, NPPVariable variable, void *value);
+NPError NPP_SetValue(NPP instance, NPNVariable variable, void *value);
+NPError NPP_SetWindow(NPP instance, NPWindow *window);
+
+int32 NPP_Write(NPP instance,
+                NPStream *stream,
+                int32 offset,
+                int32 len,
+                void *buffer);
+
+int32 NPP_WriteReady(NPP instance, NPStream *stream);
+void NPP_Print(NPP instance, NPPrint *platformPrint);
+int16 NPP_HandleEvent(NPP instance, void *event);
+
+void NPP_StreamAsFile(NPP instance, NPStream *stream, const char *fname);
+
+void NPP_URLNotify(NPP instance,
+                   const char *url,
+                   NPReason reason,
+                   void *notifyData);
+};  // namespace o3d
 
 #endif  // O3D_PLUGIN_CROSS_MAIN_H_

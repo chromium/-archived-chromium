@@ -56,17 +56,11 @@ scoped_ptr<base::AtExitManager> g_at_exit_manager;
 
 bool g_xembed_support = false;
 
-}  // end anonymous namespace
-
 static void DrawPlugin(PluginObject *obj) {
   // Limit drawing to no more than once every timer tick.
   if (!obj->draw_) return;
   obj->client()->RenderClient();
   obj->draw_ = false;
-}
-
-void RenderOnDemandCallbackHandler::Run() {
-  DrawPlugin(obj_);
 }
 
 // Xt support functions
@@ -576,6 +570,226 @@ static gboolean GtkTimeoutCallback(gpointer user_data) {
   return TRUE;
 }
 
+NPError PlatformNPPGetValue(NPP instance, NPPVariable variable, void *value) {
+  switch (variable) {
+    case NPPVpluginNeedsXEmbed:
+      *static_cast<NPBool *>(value) = g_xembed_support;
+      return NPERR_NO_ERROR;
+    default:
+      return NPERR_INVALID_PARAM;
+  }
+  return NPERR_NO_ERROR;
+}
+
+NPError InitializePlugin() {
+  if (!o3d::SetupOutOfMemoryHandler())
+    return NPERR_MODULE_LOAD_FAILED_ERROR;
+
+  // Initialize the AtExitManager so that base singletons can be
+  // destroyed properly.
+  g_at_exit_manager.reset(new base::AtExitManager());
+
+  CommandLine::Init(0, NULL);
+  InitLogging("debug.log",
+              logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG,
+              logging::DONT_LOCK_LOG_FILE,
+              logging::APPEND_TO_OLD_LOG_FILE);
+
+  DLOG(INFO) << "NP_Initialize";
+
+  // Check for XEmbed support in the browser.
+  NPBool xembed_support = 0;
+  NPError err = NPN_GetValue(NULL, NPNVSupportsXEmbedBool, &xembed_support);
+  if (err != NPERR_NO_ERROR)
+    xembed_support = 0;
+
+  if (xembed_support) {
+    // Check for Gtk2 toolkit support in the browser.
+    NPNToolkitType toolkit = static_cast<NPNToolkitType>(0);
+    err = NPN_GetValue(NULL, NPNVToolkit, &toolkit);
+    if (err != NPERR_NO_ERROR || toolkit != NPNVGtk2)
+      xembed_support = 0;
+  }
+  g_xembed_support = xembed_support != 0;
+
+  return NPERR_NO_ERROR;
+}
+
+}  // end anonymous namespace
+
+#if defined(O3D_INTERNAL_PLUGIN)
+namespace o3d {
+#else
+extern "C" {
+#endif
+
+NPError OSCALL NP_Initialize(NPNetscapeFuncs *browserFuncs,
+                             NPPluginFuncs *pluginFuncs) {
+  NPError retval = InitializeNPNApi(browserFuncs);
+  if (retval != NPERR_NO_ERROR) return retval;
+  NP_GetEntryPoints(pluginFuncs);
+  return InitializePlugin();
+}
+
+NPError OSCALL NP_Shutdown(void) {
+  HANDLE_CRASHES;
+  DLOG(INFO) << "NP_Shutdown";
+
+  CommandLine::Terminate();
+
+  // Force all base singletons to be destroyed.
+  g_at_exit_manager.reset(NULL);
+
+  return NPERR_NO_ERROR;
+}
+
+}  // namespace o3d / extern "C"
+
+namespace o3d {
+
+void RenderOnDemandCallbackHandler::Run() {
+  DrawPlugin(obj_);
+}
+
+NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode, int16 argc,
+                char *argn[], char *argv[], NPSavedData *saved) {
+  HANDLE_CRASHES;
+
+  PluginObject* pluginObject = glue::_o3d::PluginObject::Create(
+      instance);
+  instance->pdata = pluginObject;
+  glue::_o3d::InitializeGlue(instance);
+  pluginObject->Init(argc, argn, argv);
+
+  // Get the metrics for the system setup
+  GetUserConfigMetrics();
+  return NPERR_NO_ERROR;
+}
+
+NPError NPP_Destroy(NPP instance, NPSavedData **save) {
+  HANDLE_CRASHES;
+  PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
+  if (obj) {
+    if (obj->xt_widget_) {
+      // NOTE: This crashes. Not sure why, possibly the widget has
+      // already been destroyed, but we haven't received a SetWindow(NULL).
+      // XtRemoveEventHandler(obj->xt_widget_, ExposureMask, False,
+      //                     LinuxExposeHandler, obj);
+      obj->xt_widget_ = NULL;
+    }
+    if (obj->xt_interval_) {
+      XtRemoveTimeOut(obj->xt_interval_);
+      obj->xt_interval_ = 0;
+    }
+    if (obj->timeout_id_) {
+      g_source_remove(obj->timeout_id_);
+      obj->timeout_id_ = 0;
+    }
+    if (obj->gtk_container_) {
+      gtk_widget_destroy(obj->gtk_container_);
+      gtk_widget_unref(obj->gtk_container_);
+      obj->gtk_container_ = NULL;
+    }
+    obj->window_ = 0;
+    obj->display_ = NULL;
+
+    obj->TearDown();
+    NPN_ReleaseObject(obj);
+    instance->pdata = NULL;
+  }
+
+  return NPERR_NO_ERROR;
+}
+
+
+NPError NPP_SetWindow(NPP instance, NPWindow *window) {
+  HANDLE_CRASHES;
+  PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
+
+  NPSetWindowCallbackStruct *cb_struct =
+      static_cast<NPSetWindowCallbackStruct *>(window->ws_info);
+  Window xwindow = reinterpret_cast<Window>(window->window);
+  if (xwindow != obj->window_) {
+    Display *display = cb_struct->display;
+    Window drawable = xwindow;
+    if (g_xembed_support) {
+      // We asked for a XEmbed plugin, the xwindow is a GtkSocket, we create
+      // a GtkPlug to go into it.
+      obj->gtk_container_ = gtk_plug_new(xwindow);
+      gtk_widget_set_double_buffered(obj->gtk_container_, FALSE);
+      gtk_widget_add_events(obj->gtk_container_,
+                            GDK_BUTTON_PRESS_MASK |
+                            GDK_BUTTON_RELEASE_MASK |
+                            GDK_SCROLL_MASK |
+                            GDK_KEY_PRESS_MASK |
+                            GDK_KEY_RELEASE_MASK |
+                            GDK_POINTER_MOTION_MASK |
+                            GDK_EXPOSURE_MASK |
+                            GDK_ENTER_NOTIFY_MASK |
+                            GDK_LEAVE_NOTIFY_MASK);
+      g_signal_connect(G_OBJECT(obj->gtk_container_), "event",
+                       G_CALLBACK(GtkEventCallback), obj);
+      gtk_widget_show(obj->gtk_container_);
+      drawable = GDK_WINDOW_XID(obj->gtk_container_->window);
+      obj->timeout_id_ = g_timeout_add(10, GtkTimeoutCallback, obj);
+    } else {
+      // No XEmbed support, the xwindow is a Xt Widget.
+      Widget widget = XtWindowToWidget(display, xwindow);
+      if (!widget) {
+        DLOG(ERROR) << "window is not a Widget";
+        return NPERR_MODULE_LOAD_FAILED_ERROR;
+      }
+      obj->xt_widget_ = widget;
+      XtAddEventHandler(widget, ExposureMask, 0, LinuxExposeHandler, obj);
+      XtAddEventHandler(widget, KeyPressMask|KeyReleaseMask, 0,
+                        LinuxKeyHandler, obj);
+      XtAddEventHandler(widget, ButtonPressMask|ButtonReleaseMask, 0,
+                        LinuxMouseButtonHandler, obj);
+      XtAddEventHandler(widget, PointerMotionMask, 0,
+                        LinuxMouseMoveHandler, obj);
+      XtAddEventHandler(widget, EnterWindowMask|LeaveWindowMask, 0,
+                        LinuxEnterLeaveHandler, obj);
+      obj->xt_app_context_ = XtWidgetToApplicationContext(widget);
+      obj->xt_interval_ =
+          XtAppAddTimeOut(obj->xt_app_context_, 10, LinuxTimer, obj);
+    }
+
+    // Create and assign the graphics context.
+    o3d::DisplayWindowLinux default_display;
+    default_display.set_display(display);
+    default_display.set_window(drawable);
+
+    obj->CreateRenderer(default_display);
+    obj->client()->Init();
+    obj->client()->SetRenderOnDemandCallback(
+        new RenderOnDemandCallbackHandler(obj));
+    obj->display_ = display;
+    obj->window_ = xwindow;
+  }
+  obj->Resize(window->width, window->height);
+
+  return NPERR_NO_ERROR;
+}
+
+// Called when the browser has finished attempting to stream data to
+// a file as requested. If fname == NULL the attempt was not successful.
+void NPP_StreamAsFile(NPP instance, NPStream *stream, const char *fname) {
+  HANDLE_CRASHES;
+  PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
+  StreamManager *stream_manager = obj->stream_manager();
+
+  stream_manager->SetStreamFile(stream, fname);
+}
+
+int16 NPP_HandleEvent(NPP instance, void *event) {
+  HANDLE_CRASHES;
+  return 0;
+}
+}  // namespace o3d
+
+namespace glue {
+namespace _o3d {
+
 bool PluginObject::GetDisplayMode(int id, o3d::DisplayMode *mode) {
   return false;
 }
@@ -590,205 +804,5 @@ bool  PluginObject::RequestFullscreenDisplay() {
 void PluginObject::CancelFullscreenDisplay() {
   // TODO: Unimplemented.
 }
-
-NPError PlatformNPPGetValue(NPP instance, NPPVariable variable, void *value) {
-  switch (variable) {
-    case NPPVpluginNeedsXEmbed:
-      *static_cast<NPBool *>(value) = g_xembed_support;
-      return NPERR_NO_ERROR;
-    default:
-      return NPERR_INVALID_PARAM;
-  }
-  return NPERR_NO_ERROR;
-}
-
-extern "C" {
-  NPError InitializePlugin() {
-    if (!o3d::SetupOutOfMemoryHandler())
-      return NPERR_MODULE_LOAD_FAILED_ERROR;
-
-    // Initialize the AtExitManager so that base singletons can be
-    // destroyed properly.
-    g_at_exit_manager.reset(new base::AtExitManager());
-
-    CommandLine::Init(0, NULL);
-    InitLogging("debug.log",
-                logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG,
-                logging::DONT_LOCK_LOG_FILE,
-                logging::APPEND_TO_OLD_LOG_FILE);
-
-    DLOG(INFO) << "NP_Initialize";
-
-    // Check for XEmbed support in the browser.
-    NPBool xembed_support = 0;
-    NPError err = NPN_GetValue(NULL, NPNVSupportsXEmbedBool, &xembed_support);
-    if (err != NPERR_NO_ERROR)
-      xembed_support = 0;
-
-    if (xembed_support) {
-      // Check for Gtk2 toolkit support in the browser.
-      NPNToolkitType toolkit = static_cast<NPNToolkitType>(0);
-      err = NPN_GetValue(NULL, NPNVToolkit, &toolkit);
-      if (err != NPERR_NO_ERROR || toolkit != NPNVGtk2)
-        xembed_support = 0;
-    }
-    g_xembed_support = xembed_support != 0;
-
-    return NPERR_NO_ERROR;
-  }
-
-  NPError OSCALL NP_Initialize(NPNetscapeFuncs *browserFuncs,
-                               NPPluginFuncs *pluginFuncs) {
-    NPError retval = InitializeNPNApi(browserFuncs);
-    if (retval != NPERR_NO_ERROR) return retval;
-    NP_GetEntryPoints(pluginFuncs);
-    return InitializePlugin();
-  }
-
-  NPError OSCALL NP_Shutdown(void) {
-    HANDLE_CRASHES;
-    DLOG(INFO) << "NP_Shutdown";
-
-    CommandLine::Terminate();
-
-    // Force all base singletons to be destroyed.
-    g_at_exit_manager.reset(NULL);
-
-    return NPERR_NO_ERROR;
-  }
-
-  NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode, int16 argc,
-                  char *argn[], char *argv[], NPSavedData *saved) {
-    HANDLE_CRASHES;
-
-    PluginObject* pluginObject = glue::_o3d::PluginObject::Create(
-        instance);
-    instance->pdata = pluginObject;
-    glue::_o3d::InitializeGlue(instance);
-    pluginObject->Init(argc, argn, argv);
-
-    // Get the metrics for the system setup
-    GetUserConfigMetrics();
-    return NPERR_NO_ERROR;
-  }
-
-  NPError NPP_Destroy(NPP instance, NPSavedData **save) {
-    HANDLE_CRASHES;
-    PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
-    if (obj) {
-      if (obj->xt_widget_) {
-        // NOTE: This crashes. Not sure why, possibly the widget has
-        // already been destroyed, but we haven't received a SetWindow(NULL).
-        // XtRemoveEventHandler(obj->xt_widget_, ExposureMask, False,
-        //                     LinuxExposeHandler, obj);
-        obj->xt_widget_ = NULL;
-      }
-      if (obj->xt_interval_) {
-        XtRemoveTimeOut(obj->xt_interval_);
-        obj->xt_interval_ = 0;
-      }
-      if (obj->timeout_id_) {
-        g_source_remove(obj->timeout_id_);
-        obj->timeout_id_ = 0;
-      }
-      if (obj->gtk_container_) {
-        gtk_widget_destroy(obj->gtk_container_);
-        gtk_widget_unref(obj->gtk_container_);
-        obj->gtk_container_ = NULL;
-      }
-      obj->window_ = 0;
-      obj->display_ = NULL;
-
-      obj->TearDown();
-      NPN_ReleaseObject(obj);
-      instance->pdata = NULL;
-    }
-
-    return NPERR_NO_ERROR;
-  }
-
-
-  NPError NPP_SetWindow(NPP instance, NPWindow *window) {
-    HANDLE_CRASHES;
-    PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
-
-    NPSetWindowCallbackStruct *cb_struct =
-        static_cast<NPSetWindowCallbackStruct *>(window->ws_info);
-    Window xwindow = reinterpret_cast<Window>(window->window);
-    if (xwindow != obj->window_) {
-      Display *display = cb_struct->display;
-      Window drawable = xwindow;
-      if (g_xembed_support) {
-        // We asked for a XEmbed plugin, the xwindow is a GtkSocket, we create
-        // a GtkPlug to go into it.
-        obj->gtk_container_ = gtk_plug_new(xwindow);
-        gtk_widget_set_double_buffered(obj->gtk_container_, FALSE);
-        gtk_widget_add_events(obj->gtk_container_,
-                              GDK_BUTTON_PRESS_MASK |
-                              GDK_BUTTON_RELEASE_MASK |
-                              GDK_SCROLL_MASK |
-                              GDK_KEY_PRESS_MASK |
-                              GDK_KEY_RELEASE_MASK |
-                              GDK_POINTER_MOTION_MASK |
-                              GDK_EXPOSURE_MASK |
-                              GDK_ENTER_NOTIFY_MASK |
-                              GDK_LEAVE_NOTIFY_MASK);
-        g_signal_connect(G_OBJECT(obj->gtk_container_), "event",
-                         G_CALLBACK(GtkEventCallback), obj);
-        gtk_widget_show(obj->gtk_container_);
-        drawable = GDK_WINDOW_XID(obj->gtk_container_->window);
-        obj->timeout_id_ = g_timeout_add(10, GtkTimeoutCallback, obj);
-      } else {
-        // No XEmbed support, the xwindow is a Xt Widget.
-        Widget widget = XtWindowToWidget(display, xwindow);
-        if (!widget) {
-          DLOG(ERROR) << "window is not a Widget";
-          return NPERR_MODULE_LOAD_FAILED_ERROR;
-        }
-        obj->xt_widget_ = widget;
-        XtAddEventHandler(widget, ExposureMask, 0, LinuxExposeHandler, obj);
-        XtAddEventHandler(widget, KeyPressMask|KeyReleaseMask, 0,
-                          LinuxKeyHandler, obj);
-        XtAddEventHandler(widget, ButtonPressMask|ButtonReleaseMask, 0,
-                          LinuxMouseButtonHandler, obj);
-        XtAddEventHandler(widget, PointerMotionMask, 0,
-                          LinuxMouseMoveHandler, obj);
-        XtAddEventHandler(widget, EnterWindowMask|LeaveWindowMask, 0,
-                          LinuxEnterLeaveHandler, obj);
-        obj->xt_app_context_ = XtWidgetToApplicationContext(widget);
-        obj->xt_interval_ =
-            XtAppAddTimeOut(obj->xt_app_context_, 10, LinuxTimer, obj);
-      }
-
-      // Create and assign the graphics context.
-      o3d::DisplayWindowLinux default_display;
-      default_display.set_display(display);
-      default_display.set_window(drawable);
-
-      obj->CreateRenderer(default_display);
-      obj->client()->Init();
-      obj->client()->SetRenderOnDemandCallback(
-          new RenderOnDemandCallbackHandler(obj));
-      obj->display_ = display;
-      obj->window_ = xwindow;
-    }
-    obj->Resize(window->width, window->height);
-
-    return NPERR_NO_ERROR;
-  }
-
-  // Called when the browser has finished attempting to stream data to
-  // a file as requested. If fname == NULL the attempt was not successful.
-  void NPP_StreamAsFile(NPP instance, NPStream *stream, const char *fname) {
-    HANDLE_CRASHES;
-    PluginObject *obj = static_cast<PluginObject*>(instance->pdata);
-    StreamManager *stream_manager = obj->stream_manager();
-
-    stream_manager->SetStreamFile(stream, fname);
-  }
-
-  int16 NPP_HandleEvent(NPP instance, void *event) {
-    HANDLE_CRASHES;
-    return 0;
-  }
-};  // end extern "C"
+}  // namespace _o3d
+}  // namespace glue

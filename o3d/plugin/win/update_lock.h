@@ -33,6 +33,8 @@
 #ifndef O3D_PLUGIN_WIN_UPDATE_LOCK_H_
 #define O3D_PLUGIN_WIN_UPDATE_LOCK_H_
 
+#if !defined(O3D_INTERNAL_PLUGIN)
+
 #include <windows.h>
 #include "base/basictypes.h"
 
@@ -95,6 +97,8 @@ HANDLE LockFromUpdates() {
   return CreateEvent(security_attributes, FALSE, FALSE, kRunningEventName);
 }
 }  // namespace update_lock
+
+#endif  // O3D_INTERNAL_PLUGIN
 
 #endif  // O3D_PLUGIN_WIN_UPDATE_LOCK_H_
 
