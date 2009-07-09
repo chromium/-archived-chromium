@@ -66,13 +66,9 @@ class FFmpegDemuxerTest : public testing::Test {
     demuxer_ = factory_->Create<FFmpegDemuxer>(media_format);
     DCHECK(demuxer_);
 
-    // Provide a message loop.
+    // Inject a filter host and message loop and prepare a data source.
+    demuxer_->SetFilterHost(&host_);
     demuxer_->SetMessageLoop(&message_loop_);
-
-    // Prepare a filter host and data source for the demuxer.
-    pipeline_.reset(new MockPipeline());
-    filter_host_.reset(new old_mocks::MockFilterHost<Demuxer>(pipeline_.get(),
-                                                              demuxer_));
     data_source_ = new StrictMock<MockDataSource>();
 
     // Initialize FFmpeg fixtures.
@@ -119,9 +115,6 @@ class FFmpegDemuxerTest : public testing::Test {
     // Release the reference to the demuxer.
     demuxer_ = NULL;
 
-    // Filter host also holds a reference to demuxer, destroy it.
-    filter_host_.reset();
-
     // Reset MockFFmpeg.
     MockFFmpeg::set(NULL);
   }
@@ -138,19 +131,25 @@ class FFmpegDemuxerTest : public testing::Test {
   // Initializes both MockFFmpeg and FFmpegDemuxer.
   void InitializeDemuxer() {
     InitializeDemuxerMocks();
+
+    // We expect a successful initialization.
+    EXPECT_CALL(host_, InitializationComplete());
+
+    // Since we ignore data streams, the duration should be equal to the longest
+    // supported stream's duration (audio, in this case).
+    base::TimeDelta expected_duration =
+        base::TimeDelta::FromMicroseconds(kDurations[AV_STREAM_AUDIO]);
+    EXPECT_CALL(host_, SetDuration(expected_duration));
+
     EXPECT_TRUE(demuxer_->Initialize(data_source_.get()));
     message_loop_.RunAllPending();
-    EXPECT_TRUE(filter_host_->WaitForInitialized());
-    EXPECT_TRUE(filter_host_->IsInitialized());
-    EXPECT_EQ(PIPELINE_OK, pipeline_->GetError());
   }
 
   // Fixture members.
   scoped_refptr<FilterFactory> factory_;
   scoped_refptr<FFmpegDemuxer> demuxer_;
-  scoped_ptr<MockPipeline> pipeline_;
-  scoped_ptr<old_mocks::MockFilterHost<Demuxer> > filter_host_;
   scoped_refptr<StrictMock<MockDataSource> > data_source_;
+  StrictMock<MockFilterHost> host_;
   MessageLoop message_loop_;
 
   // FFmpeg fixtures.
@@ -196,11 +195,10 @@ TEST_F(FFmpegDemuxerTest, Initialize_OpenFails) {
   // Simulate av_open_input_file() failing.
   EXPECT_CALL(*MockFFmpeg::get(), AVOpenInputFile(_, _, NULL, 0, NULL))
       .WillOnce(Return(-1));
+  EXPECT_CALL(host_, Error(DEMUXER_ERROR_COULD_NOT_OPEN));
 
   EXPECT_TRUE(demuxer_->Initialize(data_source_.get()));
   message_loop_.RunAllPending();
-  EXPECT_TRUE(filter_host_->WaitForError(DEMUXER_ERROR_COULD_NOT_OPEN));
-  EXPECT_FALSE(filter_host_->IsInitialized());
 }
 
 TEST_F(FFmpegDemuxerTest, Initialize_ParseFails) {
@@ -210,11 +208,10 @@ TEST_F(FFmpegDemuxerTest, Initialize_ParseFails) {
   EXPECT_CALL(*MockFFmpeg::get(), AVFindStreamInfo(&format_context_))
       .WillOnce(Return(AVERROR_IO));
   EXPECT_CALL(*MockFFmpeg::get(), AVCloseInputFile(&format_context_));
+  EXPECT_CALL(host_, Error(DEMUXER_ERROR_COULD_NOT_PARSE));
 
   EXPECT_TRUE(demuxer_->Initialize(data_source_.get()));
   message_loop_.RunAllPending();
-  EXPECT_TRUE(filter_host_->WaitForError(DEMUXER_ERROR_COULD_NOT_PARSE));
-  EXPECT_FALSE(filter_host_->IsInitialized());
 }
 
 TEST_F(FFmpegDemuxerTest, Initialize_NoStreams) {
@@ -223,12 +220,11 @@ TEST_F(FFmpegDemuxerTest, Initialize_NoStreams) {
     SCOPED_TRACE("");
     InitializeDemuxerMocks();
   }
+  EXPECT_CALL(host_, Error(DEMUXER_ERROR_NO_SUPPORTED_STREAMS));
   format_context_.nb_streams = 0;
 
   EXPECT_TRUE(demuxer_->Initialize(data_source_.get()));
   message_loop_.RunAllPending();
-  EXPECT_TRUE(filter_host_->WaitForError(DEMUXER_ERROR_NO_SUPPORTED_STREAMS));
-  EXPECT_FALSE(filter_host_->IsInitialized());
 }
 
 TEST_F(FFmpegDemuxerTest, Initialize_DataStreamOnly) {
@@ -237,13 +233,12 @@ TEST_F(FFmpegDemuxerTest, Initialize_DataStreamOnly) {
     SCOPED_TRACE("");
     InitializeDemuxerMocks();
   }
+  EXPECT_CALL(host_, Error(DEMUXER_ERROR_NO_SUPPORTED_STREAMS));
   EXPECT_EQ(format_context_.streams[0], &streams_[AV_STREAM_DATA]);
   format_context_.nb_streams = 1;
 
   EXPECT_TRUE(demuxer_->Initialize(data_source_.get()));
   message_loop_.RunAllPending();
-  EXPECT_TRUE(filter_host_->WaitForError(DEMUXER_ERROR_NO_SUPPORTED_STREAMS));
-  EXPECT_FALSE(filter_host_->IsInitialized());
 }
 
 TEST_F(FFmpegDemuxerTest, Initialize_Successful) {
@@ -254,11 +249,6 @@ TEST_F(FFmpegDemuxerTest, Initialize_Successful) {
 
   // Verify that our demuxer streams were created from our AVStream structures.
   EXPECT_EQ(DS_STREAM_MAX, static_cast<int>(demuxer_->GetNumberOfStreams()));
-
-  // Since we ignore data streams, the duration should be equal to the longest
-  // supported stream's duration (audio, in this case).
-  EXPECT_EQ(kDurations[AV_STREAM_AUDIO],
-            pipeline_->GetDuration().InMicroseconds());
 
   // First stream should be video and support the FFmpegDemuxerStream interface.
   scoped_refptr<DemuxerStream> stream = demuxer_->GetStream(DS_STREAM_VIDEO);

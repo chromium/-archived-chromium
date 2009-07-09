@@ -32,9 +32,10 @@ class MockFFmpegDemuxerStream : public MockDemuxerStream,
   // AVStreamProvider implementation.
   MOCK_METHOD0(GetAVStream, AVStream*());
 
- private:
+ protected:
   virtual ~MockFFmpegDemuxerStream() {}
 
+ private:
   DISALLOW_COPY_AND_ASSIGN(MockFFmpegDemuxerStream);
 };
 
@@ -77,17 +78,13 @@ class FFmpegVideoDecoderTest : public testing::Test {
     decoder_ = factory_->Create<FFmpegVideoDecoder>(media_format);
     DCHECK(decoder_);
 
-    // Provide a message loop.
+    // Inject a filter host and message loop and prepare a demuxer stream.
+    decoder_->SetFilterHost(&host_);
     decoder_->SetMessageLoop(&message_loop_);
+    demuxer_ = new StrictMock<MockFFmpegDemuxerStream>();
 
     // Manually set the thread id for tests that don't initialize the decoder.
     decoder_->set_thread_id(PlatformThread::CurrentId());
-
-    // Prepare a filter host, pipeline and demuxer for the video decoder.
-    pipeline_.reset(new MockPipeline());
-    filter_host_.reset(
-        new old_mocks::MockFilterHost<VideoDecoder>(pipeline_.get(), decoder_));
-    demuxer_ = new MockFFmpegDemuxerStream();
 
     // Initialize FFmpeg fixtures.
     memset(&stream_, 0, sizeof(stream_));
@@ -120,11 +117,10 @@ class FFmpegVideoDecoderTest : public testing::Test {
   // Fixture members.
   scoped_refptr<FilterFactory> factory_;
   scoped_refptr<FFmpegVideoDecoder> decoder_;
-  scoped_ptr<MockPipeline> pipeline_;
-  scoped_ptr<old_mocks::MockFilterHost<VideoDecoder> > filter_host_;
-  scoped_refptr<MockFFmpegDemuxerStream> demuxer_;
+  scoped_refptr<StrictMock<MockFFmpegDemuxerStream> > demuxer_;
   scoped_refptr<DataBuffer> buffer_;
   scoped_refptr<DataBuffer> end_of_stream_buffer_;
+  StrictMock<MockFilterHost> host_;
   MessageLoop message_loop_;
 
   // FFmpeg fixtures.
@@ -168,11 +164,10 @@ TEST_F(FFmpegVideoDecoderTest, Initialize_QueryInterfaceFails) {
   // Test QueryInterface returning NULL.
   EXPECT_CALL(*demuxer_, QueryInterface(AVStreamProvider::interface_id()))
       .WillOnce(ReturnNull());
+  EXPECT_CALL(host_, Error(PIPELINE_ERROR_DECODE));
 
   EXPECT_TRUE(decoder_->Initialize(demuxer_));
   message_loop_.RunAllPending();
-  EXPECT_TRUE(filter_host_->WaitForError(PIPELINE_ERROR_DECODE));
-  EXPECT_FALSE(filter_host_->IsInitialized());
 }
 
 TEST_F(FFmpegVideoDecoderTest, Initialize_FindDecoderFails) {
@@ -184,11 +179,10 @@ TEST_F(FFmpegVideoDecoderTest, Initialize_FindDecoderFails) {
       .WillOnce(Return(&stream_));
   EXPECT_CALL(*MockFFmpeg::get(), AVCodecFindDecoder(CODEC_ID_NONE))
       .WillOnce(ReturnNull());
+  EXPECT_CALL(host_, Error(PIPELINE_ERROR_DECODE));
 
   EXPECT_TRUE(decoder_->Initialize(demuxer_));
   message_loop_.RunAllPending();
-  EXPECT_TRUE(filter_host_->WaitForError(PIPELINE_ERROR_DECODE));
-  EXPECT_FALSE(filter_host_->IsInitialized());
 }
 
 TEST_F(FFmpegVideoDecoderTest, Initialize_InitThreadFails) {
@@ -202,11 +196,10 @@ TEST_F(FFmpegVideoDecoderTest, Initialize_InitThreadFails) {
       .WillOnce(Return(&codec_));
   EXPECT_CALL(*MockFFmpeg::get(), AVCodecThreadInit(&codec_context_, 2))
       .WillOnce(Return(-1));
+  EXPECT_CALL(host_, Error(PIPELINE_ERROR_DECODE));
 
   EXPECT_TRUE(decoder_->Initialize(demuxer_));
   message_loop_.RunAllPending();
-  EXPECT_TRUE(filter_host_->WaitForError(PIPELINE_ERROR_DECODE));
-  EXPECT_FALSE(filter_host_->IsInitialized());
 }
 
 TEST_F(FFmpegVideoDecoderTest, Initialize_OpenDecoderFails) {
@@ -222,11 +215,10 @@ TEST_F(FFmpegVideoDecoderTest, Initialize_OpenDecoderFails) {
       .WillOnce(Return(0));
   EXPECT_CALL(*MockFFmpeg::get(), AVCodecOpen(&codec_context_, &codec_))
       .WillOnce(Return(-1));
+  EXPECT_CALL(host_, Error(PIPELINE_ERROR_DECODE));
 
   EXPECT_TRUE(decoder_->Initialize(demuxer_));
   message_loop_.RunAllPending();
-  EXPECT_TRUE(filter_host_->WaitForError(PIPELINE_ERROR_DECODE));
-  EXPECT_FALSE(filter_host_->IsInitialized());
 }
 
 TEST_F(FFmpegVideoDecoderTest, Initialize_Successful) {
@@ -242,12 +234,10 @@ TEST_F(FFmpegVideoDecoderTest, Initialize_Successful) {
       .WillOnce(Return(0));
   EXPECT_CALL(*MockFFmpeg::get(), AVCodecOpen(&codec_context_, &codec_))
       .WillOnce(Return(0));
+  EXPECT_CALL(host_, InitializationComplete());
 
   EXPECT_TRUE(decoder_->Initialize(demuxer_));
   message_loop_.RunAllPending();
-  EXPECT_TRUE(filter_host_->WaitForInitialized());
-  EXPECT_TRUE(filter_host_->IsInitialized());
-  EXPECT_EQ(PIPELINE_OK, pipeline_->GetError());
 
   // Test that the output media format is an uncompressed video surface that
   // matches the dimensions specified by FFmpeg.

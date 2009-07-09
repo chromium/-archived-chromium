@@ -13,6 +13,7 @@
 #ifndef MEDIA_BASE_MOCK_FILTERS_H_
 #define MEDIA_BASE_MOCK_FILTERS_H_
 
+#include "media/base/factory.h"
 #include "media/base/filters.h"
 #include "testing/gmock/include/gmock/gmock.h"
 
@@ -163,8 +164,6 @@ class MockAudioRenderer : public AudioRenderer {
 
 // FilterFactory that returns canned instances of mock filters.  You can set
 // expectations on the filters and then pass the factory into a pipeline.
-//
-// TODO(scherkus): add the other filter types.
 class MockFilterFactory : public FilterFactory {
  public:
   MockFilterFactory()
