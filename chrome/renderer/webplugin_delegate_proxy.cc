@@ -877,9 +877,8 @@ void WebPluginDelegateProxy::PaintSadPlugin(gfx::NativeDrawingContext hdc,
                          std::max(0, (height - sad_plugin_->height())/2));
   }
 
-  skia::PlatformDevice& device = canvas.getTopPlatformDevice();
-
 #if defined(OS_WIN)
+  skia::PlatformDevice& device = canvas.getTopPlatformDevice();
   device.drawToHDC(hdc, plugin_rect_.x(), plugin_rect_.y(), NULL);
 #elif defined(OS_LINUX)
   // Though conceptually we've been handed a cairo_surface_t* and we
@@ -888,6 +887,7 @@ void WebPluginDelegateProxy::PaintSadPlugin(gfx::NativeDrawingContext hdc,
   // and would have done the following copy anyway.
   // TODO(evanm): revisit when we have printing hooked up, as that might
   // change our usage of cairo.
+  skia::PlatformDevice& device = canvas.getTopPlatformDevice();
   cairo_t* cairo = cairo_create(hdc);
   cairo_surface_t* source_surface = device.beginPlatformPaint();
   cairo_set_source_surface(cairo, source_surface, plugin_rect_.x(), plugin_rect_.y());
