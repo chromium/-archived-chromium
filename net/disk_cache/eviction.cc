@@ -66,6 +66,7 @@ void Eviction::Init(BackendImpl* backend) {
   new_eviction_ = backend->new_eviction_;
   first_trim_ = true;
   trimming_ = false;
+  delay_trim_ = false;
 }
 
 void Eviction::TrimCache(bool empty) {
@@ -76,6 +77,9 @@ void Eviction::TrimCache(bool empty) {
   if (backend_->disabled_ || trimming_)
     return;
 
+  if (!empty && backend_->IsLoaded())
+    return PostDelayedTrim();
+
   trimming_ = true;
   Time start = Time::Now();
   Rankings::ScopedRankingsBlock node(rankings_);
@@ -83,7 +87,6 @@ void Eviction::TrimCache(bool empty) {
       rankings_->GetPrev(node.get(), Rankings::NO_USE));
   DCHECK(next.get());
   int target_size = empty ? 0 : max_size_;
-  int deleted = 0;
   while (header_->num_bytes > target_size && next.get()) {
     node.reset(next.release());
     next.reset(rankings_->GetPrev(node.get(), Rankings::NO_USE));
@@ -92,14 +95,14 @@ void Eviction::TrimCache(bool empty) {
       if (!EvictEntry(node.get(), empty))
         continue;
 
-      if (!empty)
+      if (!empty) {
         backend_->OnEvent(Stats::TRIM_ENTRY);
-      if (++deleted == 4 && !empty) {
-#if defined(OS_WIN)
-        MessageLoop::current()->PostTask(FROM_HERE,
-            factory_.NewRunnableMethod(&Eviction::TrimCache, false));
-        break;
-#endif
+
+        if ((Time::Now() - start).InMilliseconds() > 20) {
+          MessageLoop::current()->PostTask(FROM_HERE,
+              factory_.NewRunnableMethod(&Eviction::TrimCache, false));
+          break;
+        }
       }
     }
   }
@@ -139,6 +142,20 @@ void Eviction::OnDoomEntry(EntryImpl* entry) {
 void Eviction::OnDestroyEntry(EntryImpl* entry) {
   if (new_eviction_)
     return OnDestroyEntryV2(entry);
+}
+
+void Eviction::PostDelayedTrim() {
+  // Prevent posting multiple tasks.
+  if (delay_trim_)
+    return;
+  delay_trim_ = true;
+  MessageLoop::current()->PostDelayedTask(FROM_HERE,
+      factory_.NewRunnableMethod(&Eviction::DelayedTrim), 1000);
+}
+
+void Eviction::DelayedTrim() {
+  delay_trim_ = false;
+  TrimCache(false);
 }
 
 void Eviction::ReportTrimTimes(EntryImpl* entry) {
@@ -211,6 +228,9 @@ void Eviction::TrimCacheV2(bool empty) {
   if (backend_->disabled_ || trimming_)
     return;
 
+  if (!empty && backend_->IsLoaded())
+    return PostDelayedTrim();
+
   trimming_ = true;
   Time start = Time::Now();
 
@@ -248,7 +268,6 @@ void Eviction::TrimCacheV2(bool empty) {
   Rankings::ScopedRankingsBlock node(rankings_);
 
   int target_size = empty ? 0 : max_size_;
-  int deleted = 0;
   for (; list < kListsToSearch; list++) {
     while (header_->num_bytes > target_size && next[list].get()) {
       node.reset(next[list].release());
@@ -259,7 +278,7 @@ void Eviction::TrimCacheV2(bool empty) {
         if (!EvictEntry(node.get(), empty))
           continue;
 
-        if (++deleted == 4 && !empty) {
+        if (!empty && (Time::Now() - start).InMilliseconds() > 20) {
           MessageLoop::current()->PostTask(FROM_HERE,
               factory_.NewRunnableMethod(&Eviction::TrimCache, false));
           break;

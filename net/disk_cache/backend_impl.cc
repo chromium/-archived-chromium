@@ -766,13 +766,18 @@ void BackendImpl::TooMuchStorageRequested(int32 size) {
   stats_.ModifyStorageStats(0, size);
 }
 
-std::string BackendImpl::HistogramName(const char* name, int experiment) {
+bool BackendImpl::IsLoaded() const {
+  CACHE_UMA(COUNTS, "PendingIO", GetSizeGroup(), num_pending_io_);
+  return num_pending_io_ > 10;
+}
+
+std::string BackendImpl::HistogramName(const char* name, int experiment) const {
   if (!experiment)
     return StringPrintf("DiskCache.%d.%s", cache_type_, name);
   return StringPrintf("DiskCache.%d.%s_%d", cache_type_, name, experiment);
 }
 
-int BackendImpl::GetSizeGroup() {
+int BackendImpl::GetSizeGroup() const {
   if (disabled_)
     return 0;
 
@@ -859,13 +864,21 @@ void BackendImpl::OnEvent(Stats::Counters an_event) {
 
 void BackendImpl::OnStatsTimer() {
   stats_.OnEvent(Stats::TIMER);
-  int64 current = stats_.GetCounter(Stats::OPEN_ENTRIES);
   int64 time = stats_.GetCounter(Stats::TIMER);
+  int64 current = stats_.GetCounter(Stats::OPEN_ENTRIES);
 
-  current = current * (time - 1) + num_refs_;
-  current /= time;
-  stats_.SetCounter(Stats::OPEN_ENTRIES, current);
-  stats_.SetCounter(Stats::MAX_ENTRIES, max_refs_);
+  // OPEN_ENTRIES is a sampled average of the number of open entries, avoiding
+  // the bias towards 0.
+  if (num_refs_ && (current != num_refs_)) {
+    int64 diff = (num_refs_ - current) / 50;
+    if (!diff)
+      diff = num_refs_ > current ? 1 : -1;
+    current = current + diff;
+    stats_.SetCounter(Stats::OPEN_ENTRIES, current);
+    stats_.SetCounter(Stats::MAX_ENTRIES, max_refs_);
+  }
+
+  CACHE_UMA(COUNTS, "NumberOfReferences", 0, num_refs_);
 
   if (!data_)
     first_timer_ = false;

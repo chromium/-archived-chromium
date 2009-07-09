@@ -40,6 +40,8 @@ class Eviction {
   void OnDestroyEntry(EntryImpl* entry);
 
  private:
+  void PostDelayedTrim();
+  void DelayedTrim();
   void ReportTrimTimes(EntryImpl* entry);
   Rankings::List GetListForEntry(EntryImpl* entry);
   bool EvictEntry(CacheRankingsBlock* node, bool empty);
@@ -68,6 +70,7 @@ class Eviction {
   bool new_eviction_;
   bool first_trim_;
   bool trimming_;
+  bool delay_trim_;
   ScopedRunnableMethodFactory<Eviction> factory_;
 
   DISALLOW_COPY_AND_ASSIGN(Eviction);
