@@ -95,4 +95,10 @@ TEST_F(BrowserWindowControllerTest, TestNormal) {
   controller_.release();
 }
 
+TEST_F(BrowserWindowControllerTest, BookmarkBarControllerIndirection) {
+  EXPECT_FALSE([controller_ isBookmarkBarVisible]);
+  [controller_ toggleBookmarkBar];
+  EXPECT_TRUE([controller_ isBookmarkBarVisible]);
+}
+
 /* TODO(???): test other methods of BrowserWindowController */

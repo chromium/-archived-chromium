@@ -10,8 +10,10 @@
 #include "base/scoped_ptr.h"
 #include "base/scoped_nsobject.h"
 #import "chrome/browser/cocoa/command_observer_bridge.h"
+#import "chrome/browser/cocoa/bookmark_bar_controller.h"
 #include "chrome/common/pref_member.h"
 
+@class BookmarkBarView;
 class CommandUpdater;
 class LocationBar;
 class LocationBarViewMac;
@@ -32,8 +34,10 @@ class ToolbarView;
 - (void)performCut:(NSPasteboard*)pb;
 @end
 
-// A controller for the toolbar in the browser window. Manages updating the
-// state for location bar and back/fwd/reload/go buttons.
+// A controller for the toolbar in the browser window. Manages
+// updating the state for location bar and back/fwd/reload/go buttons.
+// Manages the bookmark bar and it's position in the window relative to
+// the web content view.
 
 @interface ToolbarController : NSViewController<CommandObserverProtocol> {
  @private
@@ -43,6 +47,9 @@ class ToolbarView;
   scoped_ptr<CommandObserverBridge> commandObserver_;
   scoped_ptr<LocationBarViewMac> locationBarView_;
   scoped_nsobject<LocationBarFieldEditor> locationBarFieldEditor_;  // strong
+  scoped_nsobject<BookmarkBarController> bookmarkBarController_;
+  id<BookmarkURLOpener> bookmarkBarDelegate_;  // weak
+  NSView* webContentView_;  // weak; where the web goes
 
   // Used for monitoring the optional toolbar button prefs.
   scoped_ptr<ToolbarControllerInternal::PrefObserverBridge> prefObserver_;
@@ -64,13 +71,16 @@ class ToolbarView;
   IBOutlet NSButton* pageButton_;
   IBOutlet NSButton* wrenchButton_;
   IBOutlet NSTextField* locationBar_;
+  IBOutlet BookmarkBarView* bookmarkBarView_;
 }
 
 // Initialize the toolbar and register for command updates. The profile is
 // needed for initializing the location bar.
 - (id)initWithModel:(ToolbarModel*)model
            commands:(CommandUpdater*)commands
-            profile:(Profile*)profile;
+            profile:(Profile*)profile
+     webContentView:(NSView*)webContentView
+   bookmarkDelegate:(id<BookmarkURLOpener>)delegate;
 
 // Get the C++ bridge object representing the location bar for this tab.
 - (LocationBar*)locationBar;
@@ -97,6 +107,9 @@ class ToolbarView;
 // Called to update the loading state. Handles updating the go/stop button
 // state.
 - (void)setIsLoading:(BOOL)isLoading;
+
+// Return the bookmark bar controller.
+- (BookmarkBarController*)bookmarkBarController;
 
 // Actions for the optional menu buttons for the page and wrench menus. These
 // will show a menu while the mouse is down.

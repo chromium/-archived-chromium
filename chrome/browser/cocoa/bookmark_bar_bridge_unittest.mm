@@ -26,17 +26,16 @@ typedef std::pair<GURL,WindowOpenDisposition> OpenInfo;
   BookmarkBarController<BookmarkURLOpener> {
  @public
   scoped_nsobject<NSMutableArray> callbacks_;
-
   std::vector<OpenInfo> opens_;
 }
 @end
 
 @implementation FakeBookmarkBarController
 
-- (id)initWithProfile:(Profile*)profile
-          contentArea:(NSView*)content {
+- (id)initWithProfile:(Profile*)profile view:(NSView*)view {
   if ((self = [super initWithProfile:profile
-                         contentView:content
+                                view:(BookmarkBarView*)view
+                      webContentView:nil
                             delegate:self])) {
     callbacks_.reset([[NSMutableArray alloc] init]);
   }
@@ -103,9 +102,12 @@ TEST_F(BookmarkBarBridgeTest, TestRedirect) {
   Profile *profile = browser_test_helper_.profile();
   BookmarkModel *model = profile->GetBookmarkModel();
 
+  scoped_nsobject<NSView> view([[NSView alloc]
+                                 initWithFrame:NSMakeRect(0,0,10,10)]);
+  [view.get() setHidden:YES];
   scoped_nsobject<FakeBookmarkBarController>
     controller([[FakeBookmarkBarController alloc] initWithProfile:profile
-                                                      contentArea:view_]);
+                                                             view:view.get()]);
   EXPECT_TRUE(controller.get());
   scoped_ptr<BookmarkBarBridge> bridge(new BookmarkBarBridge(controller.get(),
                                                              model));

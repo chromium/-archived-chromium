@@ -74,13 +74,17 @@ class PrefObserverBridge : public NotificationObserver {
 
 - (id)initWithModel:(ToolbarModel*)model
            commands:(CommandUpdater*)commands
-            profile:(Profile*)profile {
+            profile:(Profile*)profile
+     webContentView:(NSView*)webContentView
+   bookmarkDelegate:(id<BookmarkURLOpener>)delegate {
   DCHECK(model && commands && profile);
   if ((self = [super initWithNibName:@"Toolbar"
                               bundle:mac_util::MainAppBundle()])) {
     toolbarModel_ = model;
     commands_ = commands;
     profile_ = profile;
+    bookmarkBarDelegate_ = delegate;
+    webContentView_ = webContentView;
 
     // Register for notifications about state changes for the toolbar buttons
     commandObserver_.reset(new CommandObserverBridge(self, commands));
@@ -111,6 +115,13 @@ class PrefObserverBridge : public NotificationObserver {
                               prefObserver_.get());
   [self showOptionalHomeButton];
   [self showOptionalPageWrenchButtons];
+
+  // Create a sub-controller for the bookmark bar.
+  bookmarkBarController_.reset([[BookmarkBarController alloc]
+                                   initWithProfile:profile_
+                                              view:bookmarkBarView_
+                                    webContentView:webContentView_
+                                          delegate:bookmarkBarDelegate_]);
 }
 
 - (LocationBar*)locationBar {
@@ -178,6 +189,10 @@ class PrefObserverBridge : public NotificationObserver {
   [goButton_ setTag:tag];
 }
 
+- (BookmarkBarController*)bookmarkBarController {
+  return bookmarkBarController_.get();
+}
+
 - (id)customFieldEditorForObject:(id)obj {
   if (obj == locationBar_) {
     // Lazilly construct Field editor, Cocoa UI code always runs on the
@@ -199,7 +214,7 @@ class PrefObserverBridge : public NotificationObserver {
 - (NSArray*)toolbarViews {
   return [NSArray arrayWithObjects:backButton_, forwardButton_, reloadButton_,
             homeButton_, starButton_, goButton_, pageButton_, wrenchButton_,
-            locationBar_, nil];
+            locationBar_, bookmarkBarView_, nil];
 }
 
 // Moves |rect| to the right by |delta|, keeping the right side fixed by

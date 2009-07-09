@@ -17,12 +17,18 @@
 
 @interface BookmarkBarController(Private)
 - (void)applyContentAreaOffset:(BOOL)apply immediately:(BOOL)immediately;
-- (void)positionBar;
 - (void)showBookmarkBar:(BOOL)enable immediately:(BOOL)immediately;
 @end
 
 namespace {
+
+// Our height, when opened.
 const int kBookmarkBarHeight = 30;
+// How much to adjust our parent view.
+const int kBookmarkBarSuperviewHeightAdjustment = 25;
+// How much to adjust the web frame.
+const int kBookmarkBarWebframeHeightAdjustment = 25;
+
 // Magic numbers from Cole
 const CGFloat kDefaultBookmarkWidth = 150.0;
 const CGFloat kBookmarkVerticalPadding = 2.0;
@@ -32,61 +38,33 @@ const CGFloat kBookmarkHorizontalPadding = 8.0;
 @implementation BookmarkBarController
 
 - (id)initWithProfile:(Profile*)profile
-          contentView:(NSView*)content
+                 view:(BookmarkBarView*)view
+       webContentView:(NSView*)webContentView
              delegate:(id<BookmarkURLOpener>)delegate {
   if ((self = [super init])) {
     bookmarkModel_ = profile->GetBookmarkModel();
-    contentView_ = content;
+    bookmarkBarView_ = view;
+    // We default to NOT open, which means height=0.
+    DCHECK([view isHidden]);  // OK to change
+    NSRect frame = [view frame];
+    frame.size.height = 0;
+    [view setFrame:frame];
+
+    // Make sure the nodes stay bottom-aligned.
+    [bookmarkBarView_ setAutoresizingMask:(NSViewWidthSizable |
+                                           NSViewMinYMargin)];
+    webContentView_ = webContentView;
     delegate_ = delegate;
     // Be sure to enable the bar before trying to show it...
     barIsEnabled_ = YES;
-    // Create and initialize the view's position. Show it if appropriate.
-    // TODO(jrg): put it in a nib if necessary.
-    NSRect frame = NSMakeRect(0, 0, 0, 30);
-    bookmarkBarView_ = [[BookmarkBarView alloc] initWithFrame:frame];
-    [self positionBar];
     preferences_ = profile->GetPrefs();
     if (preferences_->GetBoolean(prefs::kShowBookmarkBar))
-      [self showBookmarkBar:YES immediately:NO];
-    [[[contentView_ window] contentView] addSubview:bookmarkBarView_];
+      [self showBookmarkBar:YES immediately:YES];
   }
   // Don't pass ourself along until our init is done.
   // Thus, this call is (almost) last.
   bridge_.reset(new BookmarkBarBridge(self, bookmarkModel_));
   return self;
-}
-
-- (void)dealloc {
-  [bookmarkBarView_ release];
-  [super dealloc];
-}
-
-// Initializes the bookmark bar at the top edge of |contentArea_| and the
-// view's visibility to match the pref. This doesn't move the content view at
-// all, you need to call |-showBookmarkBar:| to do that.
-- (void)positionBar {
-  // Hide or show bar based on initial visibility and set the resize flags.
-  [bookmarkBarView_ setAutoresizingMask:NSViewWidthSizable | NSViewMinYMargin];
-  [bookmarkBarView_ setHidden:!barShouldBeShown_];
-
-  // Set the bar's height to zero and position it at the top of the
-  // content area, within the window's content view (as opposed to the
-  // tab strip, which is a sibling). We'll enlarge it and slide the
-  // content area down when we need to show this strip.
-  NSRect contentFrame = [contentView_ frame];
-  NSRect barFrame = NSMakeRect(0, NSMaxY(contentFrame),
-                               contentFrame.size.width, 0);
-  [bookmarkBarView_ setFrame:barFrame];
-}
-
-// Called when the contentView's frame changes.  Enlarge the view to
-// stay with the top of the contentView.
-- (void)resizeBookmarkBar {
-  NSRect barFrame = [bookmarkBarView_ frame];
-  const int maxY = NSMaxY(barFrame);
-  barFrame.origin.y = NSMaxY([contentView_ frame]);
-  barFrame.size.height = maxY - barFrame.origin.y;
-  [bookmarkBarView_ setFrame:barFrame];
 }
 
 // Show or hide the bar based on the value of |show|. Handles
@@ -96,14 +74,14 @@ const CGFloat kBookmarkHorizontalPadding = 8.0;
 // bar will show it if relevant using other mechanisms (the pref) to
 // determine desired state.
 - (void)showBookmarkBar:(BOOL)show immediately:(BOOL)immediately {
-  if (barIsEnabled_) {
+  if (barIsEnabled_ && (barShouldBeShown_ != show)) {
     contentViewHasOffset_ = show;
     [bookmarkBarView_ setHidden:show ? NO : YES];
-    [self applyContentAreaOffset:show immediately:immediately];
     barShouldBeShown_ = show;
     if (show) {
       [self loaded:bookmarkModel_];
     }
+    [self applyContentAreaOffset:show immediately:immediately];
   }
 }
 
@@ -111,6 +89,13 @@ const CGFloat kBookmarkHorizontalPadding = 8.0;
 // bookmark bar.  If apply==YES, always make room (the contentView_ is
 // "full size").  If apply==NO we are trying to undo an offset.  If no
 // offset there is nothing to undo.
+//
+// TODO(jrg): it is awkward we change the sizes of views for our
+// parent and siblings; ideally they change their own sizes.
+//
+// TODO(jrg): unlike windows, we process events while an animator is
+// running.  Thus, if you resize the window while the bookmark bar is
+// animating, you'll mess things up.  Fix.
 - (void)applyContentAreaOffset:(BOOL)apply immediately:(BOOL)immediately {
   if (bookmarkBarView_ == nil) {
     // We're too early, but awakeFromNib will call me again.
@@ -121,21 +106,40 @@ const CGFloat kBookmarkHorizontalPadding = 8.0;
     return;
   }
 
-  NSRect frame = [contentView_ frame];
-  if (apply)
-    frame.size.height -= kBookmarkBarHeight;
-  else
+  // None of these locals are members of the Hall of Justice.
+  NSView* superview = [bookmarkBarView_ superview];
+  NSRect superframe = [superview frame];
+  NSRect frame = [bookmarkBarView_ frame];
+  NSRect webframe = [webContentView_ frame];
+  if (apply) {
+    superframe.size.height += kBookmarkBarSuperviewHeightAdjustment;
+    superframe.origin.y -= kBookmarkBarSuperviewHeightAdjustment;
     frame.size.height += kBookmarkBarHeight;
-
-  if (immediately) {
-    [contentView_ setFrame:frame];
-    [contentView_ setNeedsDisplay:YES];
+    webframe.size.height -= kBookmarkBarWebframeHeightAdjustment;
   } else {
-    [[contentView_ animator] setFrame:frame];
+    superframe.size.height -= kBookmarkBarSuperviewHeightAdjustment;
+    superframe.origin.y += kBookmarkBarSuperviewHeightAdjustment;
+    frame.size.height -= kBookmarkBarHeight;
+    webframe.size.height += kBookmarkBarWebframeHeightAdjustment;
+  }
+
+  // TODO(jrg): Animators can be a little fussy.  Setting these three
+  // off can sometimes causes races where the finish isn't as
+  // expected.  Fix, or clean out the animators as an option.
+  // Odd racing is FAR worse than a lack of an animator.
+  if (1 /* immediately */) {
+    [superview setFrame:superframe];
+    [webContentView_ setFrame:webframe];
+    [bookmarkBarView_ setFrame:frame];
+  } else {
+    [[superview animator] setFrame:superframe];
+    [[webContentView_ animator] setFrame:webframe];
+    [[bookmarkBarView_ animator] setFrame:frame];
   }
 
   [bookmarkBarView_ setNeedsDisplay:YES];
-  [contentView_ setNeedsDisplay:YES];
+  [superview setNeedsDisplay:YES];
+  [webContentView_ setNeedsDisplay:YES];
 }
 
 - (BOOL)isBookmarkBarVisible {
@@ -173,12 +177,13 @@ const CGFloat kBookmarkHorizontalPadding = 8.0;
 // has a different disposition.
 - (void)openBookmark:(id)sender {
   const BookmarkNode* node = static_cast<const BookmarkNode*>(
-      [[[sender cell]representedObject]pointerValue]);
+      [[[sender cell] representedObject] pointerValue]);
   DCHECK(node);
   [delegate_ openBookmarkURL:node->GetURL() disposition:CURRENT_TAB];
 }
 
 // Return an autoreleased NSCell suitable for a bookmark button.
+// TODO(jrg): move much of the cell config into the BookmarkButtonCell class.
 - (NSCell *)cellForBookmarkNode:(const BookmarkNode*)node frame:(NSRect)frame {
   NSString* title = base::SysWideToNSString(node->GetTitle());
   NSButtonCell *cell = [[[BookmarkButtonCell alloc] initTextCell:nil]
@@ -206,7 +211,6 @@ const CGFloat kBookmarkHorizontalPadding = 8.0;
   [cell setFont:[NSFont systemFontOfSize:[NSFont smallSystemFontSize]]];
   [cell setWraps:NO];
   [cell setLineBreakMode:NSLineBreakByTruncatingMiddle];
-  [cell setBordered:NO];
   return cell;
 }
 
@@ -229,7 +233,6 @@ const CGFloat kBookmarkHorizontalPadding = 8.0;
 // Add all items from the given model to our bookmark bar.
 // TODO(jrg): lots of things!
 //  - bookmark folders (e.g. menu from the button)
-//  - favicos
 //  - button and menu on the right for when bookmarks don't all fit on the
 //    screen
 //  - ...
@@ -339,6 +342,10 @@ const CGFloat kBookmarkHorizontalPadding = 8.0;
 
 - (NSView*)view {
   return bookmarkBarView_;
+}
+
+- (void)setDelegate:(id<BookmarkURLOpener>)delegate {
+  delegate_ = delegate;
 }
 
 @end

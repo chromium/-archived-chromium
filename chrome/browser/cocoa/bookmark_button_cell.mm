@@ -6,6 +6,13 @@
 
 @implementation BookmarkButtonCell
 
+- (id)initTextCell:(NSString *)string {
+  if ((self = [super initTextCell:string])) {
+    [self setBordered:NO];
+  }
+  return self;
+}
+
 - (NSSize)cellSizeForBounds:(NSRect)aRect {
   NSSize size = [super cellSizeForBounds:aRect];
   size.width += 2;

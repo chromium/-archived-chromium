@@ -158,19 +158,11 @@ willPositionSheet:(NSWindow *)sheet
     toolbarController_.reset([[ToolbarController alloc]
                                initWithModel:browser->toolbar_model()
                                     commands:browser->command_updater()
-                                     profile:browser->profile()]);
+                                     profile:browser->profile()
+                              webContentView:[self tabContentArea]
+                            bookmarkDelegate:self]);
     [self positionToolbar];
-
-    // After we've adjusted the toolbar, create a controller for the bookmark
-    // bar. It will show/hide itself based on the global preference and handle
-    // positioning itself (if visible) above the content area, which is why
-    // we need to do it after we've placed the toolbar.
-    bookmarkBarController_.reset([[BookmarkBarController alloc]
-                                initWithProfile:browser_->profile()
-                                    contentView:[self tabContentArea]
-                                       delegate:self]);
-
-   [self fixWindowGradient];
+    [self fixWindowGradient];
 
     // Create the bridge for the status bubble.
     statusBubble_.reset(new StatusBubbleMac([self window]));
@@ -582,12 +574,12 @@ willPositionSheet:(NSWindow *)sheet
 }
 
 - (BOOL)isBookmarkBarVisible {
-  return [bookmarkBarController_ isBookmarkBarVisible];
+  return [[toolbarController_ bookmarkBarController] isBookmarkBarVisible];
 
 }
 
 - (void)toggleBookmarkBar {
-  [bookmarkBarController_ toggleBookmarkBar];
+  [[toolbarController_ bookmarkBarController] toggleBookmarkBar];
 }
 
 - (BOOL)isDownloadShelfVisible {
@@ -619,7 +611,7 @@ willPositionSheet:(NSWindow *)sheet
   if (fullscreen) {
     // Disable showing of the bookmark bar.  This does not toggle the
     // preference.
-    [bookmarkBarController_ setBookmarkBarEnabled:NO];
+    [[toolbarController_ bookmarkBarController] setBookmarkBarEnabled:NO];
     // Make room for more content area.
     [self removeToolbar];
     // Hide the menubar, and allow it to un-hide when moving the mouse
@@ -629,7 +621,7 @@ willPositionSheet:(NSWindow *)sheet
   } else {
     SetSystemUIMode(kUIModeNormal, 0);
     [self positionToolbar];
-    [bookmarkBarController_ setBookmarkBarEnabled:YES];
+    [[toolbarController_ bookmarkBarController] setBookmarkBarEnabled:YES];
   }
 }
 
@@ -821,8 +813,6 @@ willPositionSheet:(NSWindow *)sheet
 - (void)tabContentAreaFrameChanged:(id)sender {
   // TODO(rohitrao): This is triggered by window resizes also.  Make
   // sure we aren't doing anything wasteful in those cases.
-  [bookmarkBarController_ resizeBookmarkBar];
-
   [downloadShelfController_ resizeDownloadShelf];
 
   [findBarCocoaController_ positionFindBarView:[self tabContentArea]];
@@ -878,7 +868,6 @@ willPositionSheet:(NSWindow *)sheet
   NSArray* views = [super viewsToMoveToOverlay];
   NSArray* browserViews =
       [NSArray arrayWithObjects:[toolbarController_ view],
-                                [bookmarkBarController_ view],
                                 nil];
   return [views arrayByAddingObjectsFromArray:browserViews];
 }

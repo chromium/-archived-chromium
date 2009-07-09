@@ -45,12 +45,10 @@ class PrefService;
   BOOL barIsEnabled_;
 
   // The view of the bookmark bar itself.
-  // Not made into a scoped_nsobject since I may move it into a nib.
-  // (See TODO in initWithProfile: in bookmark_bar_controller.mm).
-  IBOutlet BookmarkBarView* bookmarkBarView_;
+  // Owned by the toolbar view, its parent view.
+  BookmarkBarView* bookmarkBarView_;  // weak
 
-  // The tab content area for the window (where the web goes)
-  IBOutlet NSView* contentView_;
+  NSView* webContentView_;  // weak; where the web goes
 
   // Bridge from Chrome-style C++ notifications (e.g. derived from
   // BookmarkModelObserver)
@@ -61,15 +59,13 @@ class PrefService;
 }
 
 // Initializes the controller with the given browser profile and
-// content view.  We use |content| as a parent view for the bookmark
+// content view.  We use |webContentView| as the view for the bookmark
 // bar view and for geometry management.  |delegate| is used for
-// opening URLs.
+// opening URLs.  |view| is expected to be hidden.
 - (id)initWithProfile:(Profile*)profile
-          contentView:(NSView*)content
+                 view:(BookmarkBarView*)view
+       webContentView:(NSView*)webContentView
              delegate:(id<BookmarkURLOpener>)delegate;
-
-// Resizes the bookmark bar based on the state of the content area.
-- (void)resizeBookmarkBar;
 
 // Returns whether or not the bookmark bar is visible.
 - (BOOL)isBookmarkBarVisible;
@@ -103,10 +99,14 @@ class PrefService;
 @end
 
 
-// These APIs should only be used by unit tests, in place of "friend" classes.
+// These APIs should only be used by unit tests (or used internally).
 @interface BookmarkBarController(TestingAPI)
 // Access to the bookmark bar's view represented by this controller.
 - (NSView*)view;
+// Set the delegate for a unit test.
+- (void)setDelegate:(id<BookmarkURLOpener>)delegate;
+// Action for our bookmark buttons.
+- (void)openBookmark:(id)sender;
 @end
 
 #endif  // CHROME_BROWSER_COCOA_BOOKMARK_BAR_CONTROLLER_H_

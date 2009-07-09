@@ -22,7 +22,7 @@ class ToolbarControllerTest : public testing::Test {
   // |-toolbarViews| method.
   enum {
     kBackIndex, kForwardIndex, kReloadIndex, kHomeIndex, kStarIndex, kGoIndex,
-    kPageIndex, kWrenchIndex, kLocationIndex,
+    kPageIndex, kWrenchIndex, kLocationIndex, kBookmarkIndex,
   };
 
   ToolbarControllerTest() {
@@ -35,7 +35,9 @@ class ToolbarControllerTest : public testing::Test {
     bar_.reset(
         [[ToolbarController alloc] initWithModel:browser->toolbar_model()
                                         commands:browser->command_updater()
-                                         profile:helper_.profile()]);
+                                         profile:helper_.profile()
+                                  webContentView:nil
+                                bookmarkDelegate:nil]);
     EXPECT_TRUE([bar_ view]);
     NSView* parent = [cocoa_helper_.window() contentView];
     [parent addSubview:[bar_ view]];
@@ -66,6 +68,12 @@ TEST_F(ToolbarControllerTest, InitialState) {
   CommandUpdater* updater = helper_.browser()->command_updater();
   CompareState(updater, [bar_ toolbarViews]);
 }
+
+// Make sure awakeFromNib created a bookmarkBarController
+TEST_F(ToolbarControllerTest, AwakeFromNibCreatesBMBController) {
+  EXPECT_TRUE([bar_ bookmarkBarController]);
+}
+
 
 // Make some changes to the enabled state of a few of the buttons and ensure
 // that we're still in sync.
