@@ -22,6 +22,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/browser_theme_provider.h"
 #include "chrome/browser/debugger/devtools_window.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/find_bar.h"
@@ -1448,6 +1449,10 @@ void BrowserView::Init() {
       contents_container_,
       devtools_container_,
       views::SingleSplitView::VERTICAL_SPLIT);
+  SkColor bg_color = GetWidget()->GetThemeProvider()->
+      GetColor(BrowserThemeProvider::COLOR_TOOLBAR);
+  contents_split_->set_background(
+      views::Background::CreateSolidBackground(bg_color));
   AddChildView(contents_split_);
   set_contents_view(contents_split_);
 
