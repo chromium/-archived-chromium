@@ -88,6 +88,7 @@ class ChromeTests:
       "test_shell": self.TestTestShell, "test_shell_tests": self.TestTestShell,
       "ui": self.TestUI,                "ui_tests": self.TestUI,
       "unit": self.TestUnit,            "unit_tests": self.TestUnit,
+      "app": self.TestApp,               "app_unittests": self.TestApp,
     }
 
     if test not in self._test_list:
@@ -256,6 +257,9 @@ class ChromeTests:
 
   def TestUnit(self):
     return self.SimpleTest("chrome", "unit_tests")
+
+  def TestApp(self):
+    return self.SimpleTest("chrome", "app_tests")
 
   def TestUI(self):
     return self.SimpleTest("chrome", "ui_tests",
