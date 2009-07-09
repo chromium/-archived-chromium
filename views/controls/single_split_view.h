@@ -20,6 +20,9 @@ class SingleSplitView : public views::View {
 
   SingleSplitView(View* leading, View* trailing, Orientation orientation);
 
+  virtual void DidChangeBounds(const gfx::Rect& previous,
+                               const gfx::Rect& current);
+
   virtual void Layout();
 
   // SingleSplitView's preferred size is the sum of the preferred widths
@@ -35,6 +38,13 @@ class SingleSplitView : public views::View {
     divider_offset_ = divider_offset;
   }
   int divider_offset() { return divider_offset_; }
+
+  // Sets whether the leading component is resized when the split views size
+  // changes. The default is true. A value of false results in the trailing
+  // component resizing on a bounds change.
+  void set_resize_leading_on_bounds_change(bool resize) {
+    resize_leading_on_bounds_change_ = resize;
+  }
 
  protected:
   virtual bool OnMousePressed(const MouseEvent& event);
@@ -69,6 +79,8 @@ class SingleSplitView : public views::View {
 
   // Position of the divider.
   int divider_offset_;
+
+  bool resize_leading_on_bounds_change_;
 
   DISALLOW_COPY_AND_ASSIGN(SingleSplitView);
 };

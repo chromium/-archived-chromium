@@ -21,7 +21,8 @@ SingleSplitView::SingleSplitView(View* leading,
                                  View* trailing,
                                  Orientation orientation)
     : is_horizontal_(orientation == HORIZONTAL_SPLIT),
-      divider_offset_(-1) {
+      divider_offset_(-1),
+      resize_leading_on_bounds_change_(true) {
   AddChildView(leading);
   AddChildView(trailing);
 #if defined(OS_WIN)
@@ -29,6 +30,20 @@ SingleSplitView::SingleSplitView(View* leading,
       views::Background::CreateSolidBackground(
           skia::COLORREFToSkColor(GetSysColor(COLOR_3DFACE))));
 #endif
+}
+
+void SingleSplitView::DidChangeBounds(const gfx::Rect& previous,
+                                      const gfx::Rect& current) {
+  if (resize_leading_on_bounds_change_) {
+    if (is_horizontal_)
+      divider_offset_ += current.width() - previous.width();
+    else
+      divider_offset_ += current.height() - previous.height();
+
+    if (divider_offset_ < 0)
+      divider_offset_ = kDividerSize;
+  }
+  View::DidChangeBounds(previous, current);
 }
 
 void SingleSplitView::Layout() {

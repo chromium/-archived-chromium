@@ -184,6 +184,7 @@ BookmarkManagerView::BookmarkManagerView(Profile* profile)
 
   split_view_ = new views::SingleSplitView(tree_view_, table_view_,
       views::SingleSplitView::HORIZONTAL_SPLIT);
+  split_view_->set_resize_leading_on_bounds_change(false);
   split_view_->set_background(
       views::Background::CreateSolidBackground(kBackgroundColorBottom));
 
