@@ -308,6 +308,7 @@ class ValgrindMac(ValgrindLinux):
         saved_test_command = test_command + '.stripped'
         os.rename(test_command, saved_test_command)
         shutil.copyfile(dsym_file, test_command)
+        shutil.copymode(saved_test_command, test_command)
 
     if needs_dsymutil:
       if self._options.generate_dsym:
