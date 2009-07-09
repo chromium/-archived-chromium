@@ -686,7 +686,7 @@ linux_env.Append(
     ],
     CCFLAGS = ['-Wstrict-aliasing', '-m32'],
     LINKFLAGS = ['-m32'],
-    LIBS = ['pthread', 'rt'],
+    LIBS = ['pthread', 'rt', 'dl'],
     NACL_HTP_LIBS = ['ssl', 'crypto'],
     BUILD_COMPONENTS = [
         'installer/linux'
