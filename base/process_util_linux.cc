@@ -261,7 +261,7 @@ size_t ProcessMetrics::GetPagefileUsage() const {
 }
 
 size_t ProcessMetrics::GetPeakPagefileUsage() const {
-  NOTIMPLEMENTED();
+  // http://crbug.com/16251
   return 0;
 }
 
@@ -278,17 +278,17 @@ size_t ProcessMetrics::GetWorkingSetSize() const {
 }
 
 size_t ProcessMetrics::GetPeakWorkingSetSize() const {
-  NOTIMPLEMENTED();
+  // http://crbug.com/16251
   return 0;
 }
 
 size_t ProcessMetrics::GetPrivateBytes() const {
-  NOTIMPLEMENTED();
+  // http://crbug.com/16251
   return 0;
 }
 
 bool ProcessMetrics::GetWorkingSetKBytes(WorkingSetKBytes* ws_usage) const {
-  NOTIMPLEMENTED();
+  // http://crbug.com/16251
   return false;
 }
 
