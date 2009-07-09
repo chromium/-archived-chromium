@@ -3407,7 +3407,6 @@
         '../third_party/WebKit/WebCore/storage/SessionStorageArea.h',
         '../third_party/WebKit/WebCore/storage/Storage.cpp',
         '../third_party/WebKit/WebCore/storage/Storage.h',
-        '../third_party/WebKit/WebCore/storage/StorageArea.cpp',
         '../third_party/WebKit/WebCore/storage/StorageArea.h',
         '../third_party/WebKit/WebCore/storage/StorageEvent.cpp',
         '../third_party/WebKit/WebCore/storage/StorageEvent.h',
