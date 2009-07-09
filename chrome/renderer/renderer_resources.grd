@@ -19,6 +19,7 @@ without changes to the corresponding grd file. mp6 -->
       <include name="IDR_JSON_SCHEMA_JS" file="resources\json_schema.js" type="BINDATA" />
       <include name="IDR_NET_ERROR_HTML" file="resources\neterror.html" type="BINDATA" />
       <include name="IDR_RENDERER_EXTENSION_BINDINGS_JS" file="resources\renderer_extension_bindings.js" type="BINDATA" />
+      <include name="IDR_SAD_PLUGIN" file="resources\sadplugin.png" type="BINDATA" />
     </includes>
   </release>
 </grit>

@@ -8,8 +8,6 @@
 
 #define IDR_MAINFRAME                   101
 
-#define IDR_SAD_PLUGIN                  1000
-
 // Values around 1600 are used by installer/setup/build/
 
 #define IDD_IPC_SETTINGS                3000

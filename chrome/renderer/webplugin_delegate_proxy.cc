@@ -18,7 +18,6 @@
 #include "base/string_util.h"
 #include "base/gfx/size.h"
 #include "base/gfx/native_widget_types.h"
-#include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/child_process_logging.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/render_messages.h"
@@ -28,6 +27,7 @@
 #include "chrome/renderer/render_thread.h"
 #include "chrome/renderer/render_view.h"
 #include "grit/generated_resources.h"
+#include "grit/renderer_resources.h"
 #include "net/base/mime_util.h"
 #include "printing/native_metafile.h"
 #include "webkit/api/public/WebCursorInfo.h"
@@ -855,7 +855,6 @@ void WebPluginDelegateProxy::OnGetCPBrowsingContext(uint32* context) {
 
 void WebPluginDelegateProxy::PaintSadPlugin(gfx::NativeDrawingContext hdc,
                                             const gfx::Rect& rect) {
-#if defined(OS_WIN)
   const int width = plugin_rect_.width();
   const int height = plugin_rect_.height();
 
@@ -878,11 +877,25 @@ void WebPluginDelegateProxy::PaintSadPlugin(gfx::NativeDrawingContext hdc,
                          std::max(0, (height - sad_plugin_->height())/2));
   }
 
-  canvas.getTopPlatformDevice().drawToHDC(
-      hdc, plugin_rect_.x(), plugin_rect_.y(), NULL);
+  skia::PlatformDevice& device = canvas.getTopPlatformDevice();
+
+#if defined(OS_WIN)
+  device.drawToHDC(hdc, plugin_rect_.x(), plugin_rect_.y(), NULL);
+#elif defined(OS_LINUX)
+  // Though conceptually we've been handed a cairo_surface_t* and we
+  // could've just hooked up the canvas to draw directly onto it, our
+  // canvas implementation currently uses cairo as a dumb pixel buffer
+  // and would have done the following copy anyway.
+  // TODO(evanm): revisit when we have printing hooked up, as that might
+  // change our usage of cairo.
+  cairo_t* cairo = cairo_create(hdc);
+  cairo_surface_t* source_surface = device.beginPlatformPaint();
+  cairo_set_source_surface(cairo, source_surface, plugin_rect_.x(), plugin_rect_.y());
+  cairo_paint(cairo);
+  cairo_destroy(cairo);
+  // We have no endPlatformPaint() on the Linux PlatformDevice.
+  // The surface is owned by the device.
 #else
-  // TODO(port): it ought to be possible to refactor this to be shared between
-  // platforms.  It's just the final drawToHDC that kills us.
   NOTIMPLEMENTED();
 #endif
 }
