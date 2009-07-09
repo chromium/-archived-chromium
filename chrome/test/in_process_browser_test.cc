@@ -107,6 +107,9 @@ void InProcessBrowserTest::SetUp() {
   // tests aren't intended to test the sandbox, so we turn it off.
   command_line->AppendSwitch(switches::kNoSandbox);
 
+  // Don't show the first run ui.
+  command_line->AppendSwitch(switches::kNoFirstRun);
+
   // Single-process mode is not set in BrowserMain so it needs to be processed
   // explicitlty.
   original_single_process_ = RenderProcessHost::run_renderer_in_process();
