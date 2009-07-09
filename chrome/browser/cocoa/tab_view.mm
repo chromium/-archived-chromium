@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/browser/cocoa/nsimage_cache.h"
 #include "chrome/browser/cocoa/tab_controller.h"
 #include "chrome/browser/cocoa/tab_view.h"
 #include "chrome/browser/cocoa/tab_window_controller.h"
@@ -47,13 +48,13 @@
 - (void)mouseEntered:(NSEvent *)theEvent {
   // We only set up one tracking area, so we know any mouseEntered:
   // messages are for close button mouseovers.
-  [closeButton_ setImage:[NSImage imageNamed:@"close_bar_h"]];
+  [closeButton_ setImage:nsimage_cache::ImageNamed(@"close_bar_h.pdf")];
 }
 
 - (void)mouseExited:(NSEvent *)theEvent {
   // We only set up one tracking area, so we know any mouseExited:
   // messages are for close button mouseovers.
-  [closeButton_ setImage:[NSImage imageNamed:@"close_bar"]];
+  [closeButton_ setImage:nsimage_cache::ImageNamed(@"close_bar.pdf")];
 }
 
 // Determines which view a click in our frame actually hit. It's either this

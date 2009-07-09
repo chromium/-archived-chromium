@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/mac_util.h"
+#include "chrome/browser/cocoa/nsimage_cache.h"
 #import "chrome/browser/cocoa/tab_controller.h"
 #import "chrome/browser/cocoa/tab_controller_target.h"
 
@@ -41,7 +42,7 @@
 
 // Called when the tab's nib is done loading and all outlets are hooked up.
 - (void)awakeFromNib {
-  [(id)iconView_ setImage:[NSImage imageNamed:@"nav"]];
+  [(id)iconView_ setImage:nsimage_cache::ImageNamed(@"nav.pdf")];
   [[self view] addSubview:backgroundButton_
                positioned:NSWindowBelow
                relativeTo:nil];

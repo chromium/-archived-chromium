@@ -9,6 +9,7 @@
 #include "base/sys_string_conversions.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/cocoa/nsimage_cache.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #import "chrome/browser/cocoa/tab_strip_view.h"
@@ -487,9 +488,9 @@ NSString* const kTabStripNumberOfTabsChanged = @"kTabStripNumberOfTabsChanged";
   // over.
   if (contents) {
     static NSImage* throbberWaitingImage =
-        [[NSImage imageNamed:@"throbber_waiting"] retain];
+        [nsimage_cache::ImageNamed(@"throbber_waiting.png") retain];
     static NSImage* throbberLoadingImage =
-        [[NSImage imageNamed:@"throbber"] retain];
+        [nsimage_cache::ImageNamed(@"throbber.png") retain];
 
     TabController* tabController = [tabArray_ objectAtIndex:index];
 

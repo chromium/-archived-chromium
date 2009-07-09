@@ -6,6 +6,7 @@
 
 #include "app/l10n_util.h"
 #include "base/sys_string_conversions.h"
+#include "chrome/browser/cocoa/nsimage_cache.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "grit/generated_resources.h"
@@ -109,8 +110,8 @@ class BlockedPopupContainerViewBridge : public BlockedPopupContainerView {
                                  kCloseBoxSize);
   NSButton* close = [[[NSButton alloc] initWithFrame:closeFrame] autorelease];
   [close setAutoresizingMask:NSViewMinXMargin];
-  [close setImage:[NSImage imageNamed:@"close_bar"]];
-  [close setAlternateImage:[NSImage imageNamed:@"close_bar_p"]];
+  [close setImage:nsimage_cache::ImageNamed(@"close_bar.pdf")];
+  [close setAlternateImage:nsimage_cache::ImageNamed(@"close_bar_p.pdf")];
   [close setBordered:NO];
   [close setTarget:self];
   [close setAction:@selector(closePopup:)];

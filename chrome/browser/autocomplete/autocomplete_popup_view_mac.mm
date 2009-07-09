@@ -8,6 +8,7 @@
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view_mac.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
+#include "chrome/browser/cocoa/nsimage_cache.h"
 
 namespace {
 
@@ -40,28 +41,28 @@ static const NSColor* DescriptionTextColor() {
 // gtk code.
 NSImage* MatchIcon(const AutocompleteMatch& match) {
   if (match.starred) {
-    return [NSImage imageNamed:@"o2_star.png"];
+    return nsimage_cache::ImageNamed(@"o2_star.png");
   }
 
   switch (match.type) {
     case AutocompleteMatch::URL_WHAT_YOU_TYPED:
     case AutocompleteMatch::NAVSUGGEST: {
-      return [NSImage imageNamed:@"o2_globe.png"];
+      return nsimage_cache::ImageNamed(@"o2_globe.png");
     }
     case AutocompleteMatch::HISTORY_URL:
     case AutocompleteMatch::HISTORY_TITLE:
     case AutocompleteMatch::HISTORY_BODY:
     case AutocompleteMatch::HISTORY_KEYWORD: {
-      return [NSImage imageNamed:@"o2_history.png"];
+      return nsimage_cache::ImageNamed(@"o2_history.png");
     }
     case AutocompleteMatch::SEARCH_WHAT_YOU_TYPED:
     case AutocompleteMatch::SEARCH_HISTORY:
     case AutocompleteMatch::SEARCH_SUGGEST:
     case AutocompleteMatch::SEARCH_OTHER_ENGINE: {
-      return [NSImage imageNamed:@"o2_search.png"];
+      return nsimage_cache::ImageNamed(@"o2_search.png");
     }
     case AutocompleteMatch::OPEN_HISTORY_PAGE: {
-      return [NSImage imageNamed:@"o2_more.png"];
+      return nsimage_cache::ImageNamed(@"o2_more.png");
     }
     default:
       NOTREACHED();
@@ -141,11 +142,11 @@ NSAttributedString* AutocompletePopupViewMac::MatchText(
     NSAttributedString* emDash =
         [[[NSAttributedString alloc] initWithString:rawEmDash
                                          attributes:attributes] autorelease];
- 
+
     NSAttributedString* description =
         DecorateMatchedString(match.description, match.description_class,
                               DescriptionTextColor(), font);
- 
+
     [as appendAttributedString:emDash];
     [as appendAttributedString:description];
   }
@@ -277,7 +278,7 @@ void AutocompletePopupViewMac::UpdatePopupAppearance() {
   // because the popup doesn't need any of the field-like aspects of
   // field_.  The edit view could expose helper methods for attaching
   // the window to the field.
-  
+
   // Locate |field_| on the screen.
   NSRect r = [field_ convertRect:[field_ bounds] toView:nil];
   r.origin = [[field_ window] convertBaseToScreen:r.origin];
@@ -306,7 +307,7 @@ void AutocompletePopupViewMac::UpdatePopupAppearance() {
     [[field_ window] addChildWindow:popup_ ordered:NSWindowAbove];
   }
 }
- 
+
 // This is only called by model in SetSelectedLine() after updating
 // everything.  Popup should already be visible.
 void AutocompletePopupViewMac::PaintUpdatesNow() {

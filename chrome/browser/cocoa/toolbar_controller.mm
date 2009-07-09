@@ -8,6 +8,7 @@
 #include "base/sys_string_conversions.h"
 #include "chrome/app/chrome_dll_resource.h"
 #import "chrome/browser/cocoa/location_bar_view_mac.h"
+#include "chrome/browser/cocoa/nsimage_cache.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/common/notification_details.h"
@@ -17,8 +18,8 @@
 #include "chrome/common/pref_service.h"
 
 // Names of images in the bundle for the star icon (normal and 'starred').
-static NSString* const kStarImageName = @"star";
-static NSString* const kStarredImageName = @"starred";
+static NSString* const kStarImageName = @"star.pdf";
+static NSString* const kStarredImageName = @"starred.pdf";
 
 @implementation LocationBarFieldEditor
 - (void)copy:(id)sender {
@@ -175,17 +176,17 @@ class PrefObserverBridge : public NotificationObserver {
   NSString* starImageName = kStarImageName;
   if (isStarred)
     starImageName = kStarredImageName;
-  [starButton_ setImage:[NSImage imageNamed:starImageName]];
+  [starButton_ setImage:nsimage_cache::ImageNamed(starImageName)];
 }
 
 - (void)setIsLoading:(BOOL)isLoading {
-  NSString* imageName = @"go";
+  NSString* imageName = @"go.pdf";
   NSInteger tag = IDC_GO;
   if (isLoading) {
-    imageName = @"stop";
+    imageName = @"stop.pdf";
     tag = IDC_STOP;
   }
-  [goButton_ setImage:[NSImage imageNamed:imageName]];
+  [goButton_ setImage:nsimage_cache::ImageNamed(imageName)];
   [goButton_ setTag:tag];
 }
 
