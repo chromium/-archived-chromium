@@ -50,7 +50,7 @@ WebPluginDelegate* TestWebViewDelegate::CreatePluginDelegate(
     const std::string& mime_type,
     const std::string& clsid,
     std::string* actual_mime_type) {
-  HWND hwnd = gfx::NativeViewFromId(GetContainingView(webview));
+  HWND hwnd = shell_->webViewHost()->view_handle();
   if (!hwnd)
     return NULL;
 

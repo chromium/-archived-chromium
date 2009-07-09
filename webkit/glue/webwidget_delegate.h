@@ -7,7 +7,6 @@
 
 #include <vector>
 
-#include "base/gfx/native_widget_types.h"
 #include "base/string16.h"
 #include "webkit/glue/window_open_disposition.h"
 
@@ -38,9 +37,6 @@ struct WebMenuItem {
 
 class WebWidgetDelegate {
  public:
-  // Returns the view in which the WebWidget is embedded.
-  virtual gfx::NativeViewId GetContainingView(WebWidget* webwidget) = 0;
-
   // Called when a region of the WebWidget needs to be re-painted.
   virtual void DidInvalidateRect(WebWidget* webwidget,
                                  const WebKit::WebRect& rect) = 0;

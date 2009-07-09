@@ -418,11 +418,6 @@ WebKit::WebScreenInfo PrintWebViewHelper::GetScreenInfo(WebWidget* webwidget) {
   return info;
 }
 
-gfx::NativeViewId PrintWebViewHelper::GetContainingView(WebWidget* webwidget) {
-  NOTREACHED();
-  return gfx::NativeViewId();
-}
-
 bool PrintWebViewHelper::IsHidden(WebWidget* webwidget) {
   NOTREACHED();
   return true;

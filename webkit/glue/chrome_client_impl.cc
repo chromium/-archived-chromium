@@ -479,8 +479,7 @@ WebCore::IntRect ChromeClientImpl::windowToScreen(
 }
 
 PlatformWidget ChromeClientImpl::platformWindow() const {
-  WebViewDelegate* delegate = webview_->delegate();
-  return delegate ? delegate->GetContainingView(webview_) : NULL;
+  return NULL;
 }
 
 void ChromeClientImpl::contentsSizeChanged(WebCore::Frame* frame, const

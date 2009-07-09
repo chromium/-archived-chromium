@@ -483,10 +483,6 @@ void RenderWidget::DoDeferredScroll() {
 ///////////////////////////////////////////////////////////////////////////////
 // WebWidgetDelegate
 
-gfx::NativeViewId RenderWidget::GetContainingView(WebWidget* webwidget) {
-  return host_window_;
-}
-
 void RenderWidget::DidInvalidateRect(WebWidget* webwidget,
                                      const WebRect& rect) {
   // We only want one pending DoDeferredPaint call at any time...

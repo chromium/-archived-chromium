@@ -56,9 +56,6 @@ class WorkerWebViewDelegate : public WebViewDelegate {
   virtual void DidScrollRect(WebWidget *webwidget, int dx, int dy,
                              const WebKit::WebRect &clip_rect) { }
   virtual void Focus(WebWidget *webwidget) { }
-  virtual gfx::NativeViewId GetContainingView(WebWidget *webwidget) {
-    return gfx::NativeViewId();
-  }
   virtual void GetRootWindowRect(WebWidget *webwidget,
                                  WebKit::WebRect *rect) { }
   virtual void GetRootWindowResizerRect(WebWidget *webwidget,

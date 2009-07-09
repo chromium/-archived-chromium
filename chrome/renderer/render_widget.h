@@ -66,7 +66,6 @@ class RenderWidget : public IPC::Channel::Listener,
   virtual bool Send(IPC::Message* msg);
 
   // WebWidgetDelegate
-  virtual gfx::NativeViewId GetContainingView(WebWidget* webwidget);
   virtual void DidInvalidateRect(WebWidget* webwidget,
                                  const WebKit::WebRect& rect);
   virtual void DidScrollRect(WebWidget* webwidget, int dx, int dy,

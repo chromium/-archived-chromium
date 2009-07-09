@@ -744,15 +744,6 @@ void TestWebViewDelegate::SetUserStyleSheetLocation(const GURL& location) {
 
 // WebWidgetDelegate ---------------------------------------------------------
 
-gfx::NativeViewId TestWebViewDelegate::GetContainingView(WebWidget* webwidget) {
-  // For test shell, we pack a NativeView pointer into the NativeViewId since
-  // everything is single process.
-  if (WebWidgetHost* host = GetHostForWidget(webwidget))
-    return gfx::IdFromNativeView(host->view_handle());
-
-  return NULL;
-}
-
 void TestWebViewDelegate::DidInvalidateRect(WebWidget* webwidget,
                                             const WebRect& rect) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget))

@@ -222,7 +222,6 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   virtual int GetHistoryForwardListCount();
 
   // WebWidgetDelegate
-  virtual gfx::NativeViewId GetContainingView(WebWidget* webwidget);
   virtual void DidInvalidateRect(WebWidget* webwidget,
                                  const WebKit::WebRect& rect);
   virtual void DidScrollRect(WebWidget* webwidget, int dx, int dy,

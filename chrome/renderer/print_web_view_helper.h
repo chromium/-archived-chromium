@@ -67,7 +67,6 @@ class PrintWebViewHelper : public WebViewDelegate {
 
   // WebViewDeletegate
   virtual void DidStopLoading(WebView* webview);
-  virtual gfx::NativeViewId GetContainingView(WebWidget* webwidget);
   virtual void DidInvalidateRect(WebWidget* webwidget,
                                  const WebKit::WebRect& rect) {}
   virtual void DidScrollRect(WebWidget* webwidget, int dx, int dy,
