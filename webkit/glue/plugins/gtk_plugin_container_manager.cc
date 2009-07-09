@@ -128,8 +128,8 @@ GtkWidget* GtkPluginContainerManager::MapIDToWidget(gfx::PluginWindowHandle id) 
   return NULL;
 }
 
-gboolean GtkPluginContainerManager::UnrealizeCallback(GtkWidget* widget,
-                                                   void* user_data) {
+void GtkPluginContainerManager::UnrealizeCallback(GtkWidget* widget,
+                                                  void* user_data) {
   // This is the last chance to get the XID for the widget. Remove it from the
   // map here.
   GtkPluginContainerManager* plugin_container_manager =

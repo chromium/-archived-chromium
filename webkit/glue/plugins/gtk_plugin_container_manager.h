@@ -36,7 +36,7 @@ class GtkPluginContainerManager {
 
   // Callback for when the plugin container loses its XID, so that it can be
   // removed from plugin_window_to_widget_map_.
-  static gboolean UnrealizeCallback(GtkWidget *widget, void *user_data);
+  static void UnrealizeCallback(GtkWidget *widget, void *user_data);
 
   // Parent of the plugin containers.
   GtkWidget* host_widget_;
