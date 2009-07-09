@@ -1120,6 +1120,8 @@
         '../third_party/WebKit/WebCore/bindings/v8/V8DOMMap.h',
         '../third_party/WebKit/WebCore/bindings/v8/V8EventListenerList.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/V8EventListenerList.h',
+        '../third_party/WebKit/WebCore/bindings/v8/V8GCController.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/V8GCController.h',
         '../third_party/WebKit/WebCore/bindings/v8/V8Helpers.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/V8Helpers.h',
         '../third_party/WebKit/WebCore/bindings/v8/V8Index.cpp',
