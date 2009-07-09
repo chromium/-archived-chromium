@@ -17,14 +17,14 @@
 
 DOMUIThumbnailSource::DOMUIThumbnailSource(Profile* profile)
     : DataSource(chrome::kChromeUIThumbnailPath, MessageLoop::current()),
-      profile_(profile),
-      store_(profile->GetThumbnailStore()) {
+      profile_(profile) {
 }
 
 void DOMUIThumbnailSource::StartDataRequest(const std::string& path,
                                             int request_id) {
   if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kThumbnailStore)) {
     RefCountedBytes* data = NULL;
+    scoped_refptr<ThumbnailStore> store_ = profile_->GetThumbnailStore();
 
     if (store_->GetPageThumbnail(GURL(path), &data)) {
       // Got the thumbnail.

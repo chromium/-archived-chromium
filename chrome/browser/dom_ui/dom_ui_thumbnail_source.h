@@ -40,9 +40,6 @@ class DOMUIThumbnailSource : public ChromeURLDataManager::DataSource {
   Profile* profile_;
   CancelableRequestConsumerT<int, 0> cancelable_consumer_;
 
-  // The ThumbnailStore from which thumbnails are requested.
-  scoped_refptr<ThumbnailStore> store_;
-
   // Raw PNG representation of the thumbnail to show when the thumbnail
   // database doesn't have a thumbnail for a webpage.
   scoped_refptr<RefCountedBytes> default_thumbnail_;

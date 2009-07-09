@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include <string.h>
+#include <algorithm>
 #include <iostream>
 #include <vector>
 
@@ -12,12 +13,13 @@
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/gfx/jpeg_codec.h"
-#include "base/md5.h"
 #include "base/path_service.h"
 #include "base/ref_counted.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/ref_counted_util.h"
 #include "chrome/common/thumbnail_score.h"
+#include "chrome/common/sqlite_compiled_statement.h"
+#include "chrome/common/sqlite_utils.h"
 #include "chrome/tools/profiles/thumbnail-inl.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -30,9 +32,10 @@ inline unsigned int diff(unsigned int a, unsigned int b) {
 
 class ThumbnailStoreTest : public testing::Test {
  public:
-  ThumbnailStoreTest() : score1_(.5, true, false),
-    url1_("http://www.google.com/"), url2_("http://www.elgoog.com") {
+  ThumbnailStoreTest() : score_(.5, true, false),
+                         url_("http://www.google.com/") {
   }
+
   ~ThumbnailStoreTest() {
   }
 
@@ -40,33 +43,32 @@ class ThumbnailStoreTest : public testing::Test {
   void SetUp();
 
   void TearDown() {
-    file_util::Delete(file_path_.AppendASCII(url1_.host()), false);
-    file_util::Delete(file_path_.AppendASCII(url2_.host()), false);
+    file_util::Delete(db_name_, false);
   }
 
   // Compute the max difference over all pixels for each RGBA component.
   void PrintPixelDiff(SkBitmap* image_a, SkBitmap* image_b);
 
   // The directory where ThumbnailStore will store data.
-  FilePath file_path_;
+  FilePath db_name_;
 
   scoped_refptr<ThumbnailStore> store_;
   scoped_ptr<SkBitmap> google_;
   scoped_ptr<SkBitmap> weewar_;
   scoped_refptr<RefCountedBytes> jpeg_google_;
   scoped_refptr<RefCountedBytes> jpeg_weewar_;
-  ThumbnailScore score1_;
-  GURL url1_, url2_;
+  ThumbnailScore score_;
+  GURL url_;
   base::Time time_;
 };
 
 void ThumbnailStoreTest::SetUp() {
-  if (!file_util::GetTempDir(&file_path_))
+  if (!file_util::GetTempDir(&db_name_))
     FAIL();
 
   // Delete any old thumbnail files if they exist.
-  file_util::Delete(file_path_.AppendASCII(url1_.host()), false);
-  file_util::Delete(file_path_.AppendASCII(url2_.host()), false);
+  db_name_ = db_name_.AppendASCII("ThumbnailDB");
+  file_util::Delete(db_name_, false);
 
   google_.reset(JPEGCodec::Decode(kGoogleThumbnail, sizeof(kGoogleThumbnail)));
   weewar_.reset(JPEGCodec::Decode(kWeewarThumbnail, sizeof(kWeewarThumbnail)));
@@ -90,12 +92,12 @@ void ThumbnailStoreTest::SetUp() {
       &(jpeg_weewar_->data));
 
   store_ = new ThumbnailStore;
-  store_->cache_initialized_ = true;
-  store_->file_path_ = file_path_;
-  store_->most_visited_urls_.reset(new std::vector<GURL>);
-  store_->most_visited_urls_->push_back(url1_);
+
   store_->cache_.reset(new ThumbnailStore::Cache);
   store_->redirect_urls_.reset(new history::RedirectMap);
+
+  store_->most_visited_urls_.reset(new std::vector<GURL>);
+  store_->most_visited_urls_->push_back(url_);
 }
 
 void ThumbnailStoreTest::PrintPixelDiff(SkBitmap* image_a, SkBitmap* image_b) {
@@ -139,21 +141,14 @@ void ThumbnailStoreTest::PrintPixelDiff(SkBitmap* image_a, SkBitmap* image_b) {
 TEST_F(ThumbnailStoreTest, UpdateThumbnail) {
   RefCountedBytes* read_image = NULL;
   ThumbnailScore score2(0.1, true, true);
-  store_->cache_->clear();
-  store_->redirect_urls_->clear();
 
   // store_ google_ with a low score, then weewar_ with a higher score
   // and check that weewar_ overwrote google_.
 
-  EXPECT_TRUE(store_->SetPageThumbnail(url1_, *google_, score1_, false));
-  EXPECT_TRUE(store_->SetPageThumbnail(url1_, *weewar_, score2, false));
+  EXPECT_TRUE(store_->SetPageThumbnail(url_, *google_, score_));
+  EXPECT_TRUE(store_->SetPageThumbnail(url_, *weewar_, score2));
 
-  // Set fake redirects list.
-  scoped_ptr<std::vector<GURL> > redirects(new std::vector<GURL>);
-  redirects->push_back(url1_);
-  (*store_->redirect_urls_)[url1_] = new RefCountedVector<GURL>(*redirects);
-
-  EXPECT_TRUE(store_->GetPageThumbnail(url1_, &read_image));
+  EXPECT_TRUE(store_->GetPageThumbnail(url_, &read_image));
   EXPECT_EQ(read_image->data.size(), jpeg_weewar_->data.size());
   EXPECT_EQ(0, memcmp(&read_image->data[0], &jpeg_weewar_->data[0],
                       jpeg_weewar_->data.size()));
@@ -163,24 +158,16 @@ TEST_F(ThumbnailStoreTest, UpdateThumbnail) {
 
 TEST_F(ThumbnailStoreTest, RetrieveFromCache) {
   RefCountedBytes* read_image = NULL;
-  store_->cache_->clear();
-  store_->redirect_urls_->clear();
 
   // Retrieve a thumbnail/score for a page not in the cache.
 
-  EXPECT_FALSE(store_->GetPageThumbnail(url2_, &read_image));
+  EXPECT_FALSE(store_->GetPageThumbnail(GURL("nonexistent"), &read_image));
 
-  // store_ a thumbnail into the cache and retrieve it.
+  // Store a thumbnail into the cache and retrieve it.
 
-  EXPECT_TRUE(store_->SetPageThumbnail(url1_, *google_, score1_, false));
-
-  // Set fake redirects list.
-  scoped_ptr<std::vector<GURL> > redirects(new std::vector<GURL>);
-  redirects->push_back(url1_);
-  (*store_->redirect_urls_)[url1_] = new RefCountedVector<GURL>(*redirects);
-
-  EXPECT_TRUE(store_->GetPageThumbnail(url1_, &read_image));
-  EXPECT_TRUE(score1_.Equals((*store_->cache_)[url1_].second));
+  EXPECT_TRUE(store_->SetPageThumbnail(url_, *google_, score_));
+  EXPECT_TRUE(store_->GetPageThumbnail(url_, &read_image));
+  EXPECT_TRUE(score_.Equals((*store_->cache_)[url_].score_));
   EXPECT_TRUE(read_image->data.size() == jpeg_google_->data.size());
   EXPECT_EQ(0, memcmp(&read_image->data[0], &jpeg_google_->data[0],
                       jpeg_google_->data.size()));
@@ -189,46 +176,47 @@ TEST_F(ThumbnailStoreTest, RetrieveFromCache) {
 }
 
 TEST_F(ThumbnailStoreTest, RetrieveFromDisk) {
-  scoped_refptr<RefCountedBytes> read_image = new RefCountedBytes;
-  ThumbnailScore score2;
-  store_->cache_->clear();
-  store_->redirect_urls_->clear();
+  EXPECT_TRUE(store_->SetPageThumbnail(url_, *google_, score_));
 
-  // store_ a thumbnail onto the disk and retrieve it.
+  // Write the thumbnail to disk and retrieve it.
 
-  EXPECT_TRUE(store_->SetPageThumbnail(url1_, *google_, score1_, false));
-  EXPECT_TRUE(store_->WriteThumbnailToDisk(url1_, jpeg_google_, score1_));
-  EXPECT_TRUE(store_->GetPageThumbnailFromDisk(file_path_.AppendASCII(
-      MD5String(url1_.spec())), &url2_, read_image, &score2));
-  EXPECT_TRUE(url1_ == url2_);
-  EXPECT_TRUE(score1_.Equals(score2));
-  EXPECT_TRUE(read_image->data.size() == jpeg_google_->data.size());
-  EXPECT_EQ(0, memcmp(&read_image->data[0], &jpeg_google_->data[0],
+  store_->InitializeFromDB(db_name_, NULL);
+  store_->CommitCacheToDB(NULL);  // Write to the DB (dirty bit sould be set)
+  store_->cache_->clear();        // Clear it from the cache.
+
+  // Read from the DB.
+  SQLITE_UNIQUE_STATEMENT(statement, *store_->statement_cache_,
+      "SELECT * FROM thumbnails");
+  EXPECT_TRUE(statement->step() == SQLITE_ROW);
+  GURL url(statement->column_string(0));
+  ThumbnailScore score(statement->column_double(1),
+                       statement->column_bool(2),
+                       statement->column_bool(3),
+                       base::Time::FromInternalValue(
+                          statement->column_int64(4)));
+  scoped_refptr<RefCountedBytes> data = new RefCountedBytes;
+  EXPECT_TRUE(statement->column_blob_as_vector(5, &data->data));
+
+  EXPECT_TRUE(url == url_);
+  EXPECT_TRUE(score.Equals(score_));
+  EXPECT_TRUE(data->data.size() == jpeg_google_->data.size());
+  EXPECT_EQ(0, memcmp(&data->data[0], &jpeg_google_->data[0],
                       jpeg_google_->data.size()));
 }
 
 TEST_F(ThumbnailStoreTest, FollowRedirects) {
   RefCountedBytes* read_image = NULL;
-  scoped_ptr<std::vector<GURL> > redirects(new std::vector<GURL>);
-  store_->cache_->clear();
-  store_->redirect_urls_->clear();
+  std::vector<GURL> redirects;
 
   GURL my_url("google");
-  redirects->push_back(GURL("google.com"));
-  redirects->push_back(GURL("www.google.com"));
-  redirects->push_back(url1_);  // url1_ = http://www.google.com/
+  redirects.push_back(GURL("google.com"));
+  redirects.push_back(GURL("www.google.com"));
+  redirects.push_back(url_);  // url_ = http://www.google.com/
+  (*store_->redirect_urls_)[my_url] = new RefCountedVector<GURL>(redirects);
 
   store_->most_visited_urls_->push_back(my_url);
 
-  (*store_->redirect_urls_)[my_url] = new RefCountedVector<GURL>(*redirects);
-  EXPECT_TRUE(store_->SetPageThumbnail(url1_, *google_, score1_, false));
-  EXPECT_TRUE(store_->GetPageThumbnail(my_url, &read_image));
-
-  read_image->Release();
-  store_->cache_->erase(store_->cache_->find(url1_));
-
-  EXPECT_TRUE(store_->SetPageThumbnail(GURL("google.com"), *google_, score1_,
-      false));
+  EXPECT_TRUE(store_->SetPageThumbnail(GURL("google.com"), *google_, score_));
   EXPECT_TRUE(store_->GetPageThumbnail(my_url, &read_image));
 
   read_image->Release();
