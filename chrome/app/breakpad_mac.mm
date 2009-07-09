@@ -13,6 +13,7 @@
 #import "base/scoped_nsautorelease_pool.h"
 #include "base/sys_string_conversions.h"
 #import "breakpad/src/client/mac/Framework/Breakpad.h"
+#include "chrome/common/child_process_logging.h"
 #include "chrome/installer/util/google_update_settings.h"
 
 extern "C" {
@@ -110,6 +111,10 @@ void InitCrashReporter() {
   NSString* prod_name_str = [info_dictionary objectForKey:@BREAKPAD_PRODUCT];
   SetCrashKeyValue(@"prod", prod_name_str);
   SetCrashKeyValue(@"plat", @"OS X");
+
+  // Enable child process crashes to include the page url.
+  child_process_logging::SetCrashKeyFunctions(
+      SetCrashKeyValue, ClearCrashKeyValue);
 }
 
 void InitCrashProcessInfo() {

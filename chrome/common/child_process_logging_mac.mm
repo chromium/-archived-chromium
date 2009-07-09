@@ -8,13 +8,21 @@
 
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
-//#import "chrome/app/breakpad_mac.h"
 
 namespace child_process_logging {
 
 const int kMaxNumCrashURLChunks = 8;
 const int kMaxNumURLChunkValueLength = 255;
 const char *kUrlChunkFormatStr = "url-chunk-%d";
+
+static SetCrashKeyValueFuncPtr g_set_key_func;
+static ClearCrashKeyValueFuncPtr g_clear_key_func;
+
+void SetCrashKeyFunctions(SetCrashKeyValueFuncPtr set_key_func,
+                          ClearCrashKeyValueFuncPtr clear_key_func) {
+  g_set_key_func = set_key_func;
+  g_clear_key_func = clear_key_func;
+}
 
 void SetActiveURLImpl(const GURL& url,
                       SetCrashKeyValueFuncPtr set_key_func,
@@ -60,14 +68,8 @@ void SetActiveURLImpl(const GURL& url,
 }
 
 void SetActiveURL(const GURL& url) {
-/*
-  // If Breakpad isn't initialized then bail.
-  if (IsCrashReporterDisabled()) {
-    return;
-  }
-
-  SetActiveURLImpl(url, SetCrashKeyValue, ClearCrashKeyValue);
-*/
+  if (g_set_key_func && g_clear_key_func)
+    SetActiveURLImpl(url, g_set_key_func, g_clear_key_func);
 }
 
 }  // namespace child_process_logging

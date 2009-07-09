@@ -33,7 +33,6 @@ class ScopedActiveURLSetter {
 }  // namespace child_process_logging
 
 #if defined(OS_MACOSX) && __OBJC__
-// Exported for testing purposes.
 
 @class NSString;
 
@@ -41,6 +40,8 @@ typedef void (*SetCrashKeyValueFuncPtr)(NSString*, NSString*);
 typedef void (*ClearCrashKeyValueFuncPtr)(NSString*);
 
 namespace child_process_logging {
+void SetCrashKeyFunctions(SetCrashKeyValueFuncPtr set_key_func,
+                          ClearCrashKeyValueFuncPtr clear_key_func);
 void SetActiveURLImpl(const GURL& url,
                       SetCrashKeyValueFuncPtr set_key_func,
                       ClearCrashKeyValueFuncPtr clear_key_func);
