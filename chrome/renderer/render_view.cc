@@ -2875,22 +2875,50 @@ void RenderView::DumpLoadHistograms() const {
   UMA_HISTOGRAM_CUSTOM_TIMES("Renderer4.BeginToFinish",
       finish - begin, kBeginToFinishMin,
       kBeginToFinishMax, kBeginToFinishBucketCount);
+  UMA_HISTOGRAM_CUSTOM_TIMES("Renderer4.StartToFinish",
+      finish - start, kBeginToFinishMin,
+      kBeginToFinishMax, kBeginToFinishBucketCount);
+  if (!request.is_null())
+    UMA_HISTOGRAM_CUSTOM_TIMES("Renderer4.RequestToFinish",
+        finish - request, kBeginToFinishMin,
+        kBeginToFinishMax, kBeginToFinishBucketCount);
 
   static bool use_dns_histogram(FieldTrialList::Find("DnsImpact") &&
       !FieldTrialList::Find("DnsImpact")->group_name().empty());
-  if (use_dns_histogram)
+  if (use_dns_histogram) {
     UMA_HISTOGRAM_CUSTOM_TIMES(
         FieldTrial::MakeName("Renderer4.BeginToFinish", "DnsImpact").data(),
         finish - begin, kBeginToFinishMin,
         kBeginToFinishMax, kBeginToFinishBucketCount);
+    UMA_HISTOGRAM_CUSTOM_TIMES(
+        FieldTrial::MakeName("Renderer4.StartToFinish", "DnsImpact").data(),
+        finish - start, kBeginToFinishMin,
+        kBeginToFinishMax, kBeginToFinishBucketCount);
+    if (!request.is_null())
+      UMA_HISTOGRAM_CUSTOM_TIMES(
+          FieldTrial::MakeName("Renderer4.RequestToFinish", "DnsImpact").data(),
+          finish - request, kBeginToFinishMin,
+          kBeginToFinishMax, kBeginToFinishBucketCount);
+  }
 
   static bool use_sdch_histogram(FieldTrialList::Find("GlobalSdch") &&
       !FieldTrialList::Find("GlobalSdch")->group_name().empty());
-  if (use_sdch_histogram)
+  if (use_sdch_histogram) {
     UMA_HISTOGRAM_CUSTOM_TIMES(
         FieldTrial::MakeName("Renderer4.BeginToFinish", "GlobalSdch").data(),
         finish - begin, kBeginToFinishMin,
         kBeginToFinishMax, kBeginToFinishBucketCount);
+    UMA_HISTOGRAM_CUSTOM_TIMES(
+        FieldTrial::MakeName("Renderer4.StartToFinish", "GlobalSdch").data(),
+        finish - start, kBeginToFinishMin,
+        kBeginToFinishMax, kBeginToFinishBucketCount);
+    if (!request.is_null())
+      UMA_HISTOGRAM_CUSTOM_TIMES(
+          FieldTrial::MakeName("Renderer4.RequestToFinish",
+                               "GlobalSdch").data(),
+          finish - request, kBeginToFinishMin,
+          kBeginToFinishMax, kBeginToFinishBucketCount);
+  }
 
   UMA_HISTOGRAM_MEDIUM_TIMES("Renderer4.CommitToFinish", finish - commit);
 
