@@ -220,6 +220,9 @@ class RenderWidgetHostViewGtkWidget {
   static gboolean ButtonPressReleaseEvent(
       GtkWidget* widget, GdkEventButton* event,
       RenderWidgetHostViewGtk* host_view) {
+    if (!(event->button == 1 || event->button == 2 || event->button == 3))
+      return FALSE;  // We do not forward any other buttons to the renderer.
+
     // We want to translate the coordinates of events that do not originate
     // from this widget to be relative to the top left of the widget.
     GtkWidget* event_widget = gtk_get_event_widget(
@@ -253,7 +256,7 @@ class RenderWidgetHostViewGtkWidget {
     if (event->type == GDK_BUTTON_PRESS && !GTK_WIDGET_HAS_FOCUS(widget))
       gtk_widget_grab_focus(widget);
 
-    return FALSE;
+    return TRUE;  // We did handle the mouse event.
   }
 
   static gboolean MouseMoveEvent(GtkWidget* widget, GdkEventMotion* event,
