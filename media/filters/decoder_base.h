@@ -116,12 +116,6 @@ class DecoderBase : public Decoder {
   MediaFormat media_format_;
 
  private:
-  // GCC doesn't let us access superclass member variables directly, so use
-  // a helper to get around the situation.
-  //
-  // TODO(scherkus): another reason to add protected accessors to MediaFilter.
-  FilterHost* host() const { return Decoder::host_; }
-  MessageLoop* message_loop() const { return Decoder::message_loop_; }
   bool IsStopped() { return state_ == STOPPED; }
 
   void StopTask() {

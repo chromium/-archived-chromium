@@ -58,24 +58,32 @@ class MediaFilter : public base::RefCountedThreadSafe<MediaFilter> {
  public:
   MediaFilter() : host_(NULL), message_loop_(NULL) {}
 
-  // Sets the protected member |host_|. This is the first method called by
+  // Sets the private member |host_|. This is the first method called by
   // the FilterHost after a filter is created.  The host holds a strong
   // reference to the filter.  The reference held by the host is guaranteed
   // to be released before the host object is destroyed by the pipeline.
-  virtual void SetFilterHost(FilterHost* host) {
+  virtual void set_host(FilterHost* host) {
     DCHECK(host);
     DCHECK(!host_);
     host_ = host;
   }
 
-  // Sets the protected member |message_loop_|, which is used by filters for
+  virtual FilterHost* host() {
+    return host_;
+  }
+
+  // Sets the private member |message_loop_|, which is used by filters for
   // processing asynchronous tasks and maintaining synchronized access to
   // internal data members.  The message loop should be running and exceed the
   // lifetime of the filter.
-  virtual void SetMessageLoop(MessageLoop* message_loop) {
+  virtual void set_message_loop(MessageLoop* message_loop) {
     DCHECK(message_loop);
     DCHECK(!message_loop_);
     message_loop_ = message_loop;
+  }
+
+  virtual MessageLoop* message_loop() {
+    return message_loop_;
   }
 
   // The pipeline is being stopped either as a result of an error or because
@@ -95,11 +103,10 @@ class MediaFilter : public base::RefCountedThreadSafe<MediaFilter> {
   friend class base::RefCountedThreadSafe<MediaFilter>;
   virtual ~MediaFilter() {}
 
-  // TODO(scherkus): make these private with public/protected accessors.
+ private:
   FilterHost* host_;
   MessageLoop* message_loop_;
 
- private:
   DISALLOW_COPY_AND_ASSIGN(MediaFilter);
 };
 

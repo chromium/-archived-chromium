@@ -105,15 +105,15 @@ class MockDataSource : public DataSource {
     media_format_.SetAsString(MediaFormat::kMimeType,
                               mime_type::kApplicationOctetStream);
     media_format_.SetAsString(MediaFormat::kURL, url);
-    host_->SetTotalBytes(config_->media_total_bytes);
+    host()->SetTotalBytes(config_->media_total_bytes);
     switch (config_->data_source_behavior) {
       case MOCK_DATA_SOURCE_NORMAL_INIT:
-        host_->InitializationComplete();
+        host()->InitializationComplete();
         return true;
       case MOCK_DATA_SOURCE_NEVER_INIT:
         return true;
       case MOCK_DATA_SOURCE_URL_ERROR_IN_INIT:
-        host_->Error(PIPELINE_ERROR_URL_NOT_FOUND);
+        host()->Error(PIPELINE_ERROR_URL_NOT_FOUND);
         return false;
       case MOCK_DATA_SOURCE_INIT_RETURN_FALSE:
         return false;
@@ -234,7 +234,7 @@ class MockDemuxer : public Demuxer {
 
   // Implementation of Demuxer.
   virtual bool Initialize(DataSource* data_source) {
-    host_->InitializationComplete();
+    host()->InitializationComplete();
     return true;
   }
 
@@ -299,7 +299,7 @@ class MockAudioDecoder : public AudioDecoder {
 
   // Implementation of AudioDecoder.
   virtual bool Initialize(DemuxerStream* stream) {
-    host_->InitializationComplete();
+    host()->InitializationComplete();
     return true;
   }
 
@@ -338,7 +338,7 @@ class MockAudioRenderer : public AudioRenderer {
 
   // Implementation of AudioRenderer.
   virtual bool Initialize(AudioDecoder* decoder) {
-    host_->InitializationComplete();
+    host()->InitializationComplete();
     return true;
   }
 
@@ -404,7 +404,7 @@ class MockVideoDecoder : public VideoDecoder {
 
   // Implementation of VideoDecoder.
   virtual bool Initialize(DemuxerStream* stream) {
-    host_->InitializationComplete();
+    host()->InitializationComplete();
     return true;
   }
 
@@ -436,7 +436,7 @@ class MockVideoDecoder : public VideoDecoder {
                                   config_->frame_duration,
                                   &frame);
       if (!frame) {
-        host_->Error(PIPELINE_ERROR_OUT_OF_MEMORY);
+        host()->Error(PIPELINE_ERROR_OUT_OF_MEMORY);
         ADD_FAILURE();
       } else {
         mock_frame_time_ += config_->frame_duration;
@@ -475,8 +475,8 @@ class MockVideoRenderer : public VideoRenderer {
 
   // Implementation of VideoRenderer.
   virtual bool Initialize(VideoDecoder* decoder) {
-    host_->SetVideoSize(config_->video_width, config_->video_height);
-    host_->InitializationComplete();
+    host()->SetVideoSize(config_->video_width, config_->video_height);
+    host()->InitializationComplete();
     return true;
   }
 

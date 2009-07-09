@@ -156,7 +156,7 @@ const MediaFormat& FFmpegDemuxerStream::media_format() {
 
 void FFmpegDemuxerStream::Read(Callback1<Buffer*>::Type* read_callback) {
   DCHECK(read_callback);
-  demuxer_->message_loop_->PostTask(FROM_HERE,
+  demuxer_->message_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(this, &FFmpegDemuxerStream::ReadTask, read_callback));
 }
 
@@ -252,13 +252,13 @@ FFmpegDemuxer::~FFmpegDemuxer() {
 }
 
 void FFmpegDemuxer::PostDemuxTask() {
-  message_loop_->PostTask(FROM_HERE,
+  message_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(this, &FFmpegDemuxer::DemuxTask));
 }
 
 void FFmpegDemuxer::Stop() {
   // Post a task to notify the streams to stop as well.
-  message_loop_->PostTask(FROM_HERE,
+  message_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(this, &FFmpegDemuxer::StopTask));
 }
 
@@ -267,12 +267,12 @@ void FFmpegDemuxer::Seek(base::TimeDelta time) {
   // operation is completed and filters behind the demuxer is good to issue
   // more reads, but we are posting a task here, which makes the seek operation
   // asynchronous, should change how seek works to make it fully asynchronous.
-  message_loop_->PostTask(FROM_HERE,
+  message_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(this, &FFmpegDemuxer::SeekTask, time));
 }
 
 bool FFmpegDemuxer::Initialize(DataSource* data_source) {
-  message_loop_->PostTask(FROM_HERE,
+  message_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(this, &FFmpegDemuxer::InititalizeTask, data_source));
   return true;
 }
@@ -313,7 +313,7 @@ void FFmpegDemuxer::InititalizeTask(DataSource* data_source) {
   FFmpegGlue::get()->RemoveDataSource(data_source);
 
   if (result < 0) {
-    host_->Error(DEMUXER_ERROR_COULD_NOT_OPEN);
+    host()->Error(DEMUXER_ERROR_COULD_NOT_OPEN);
     return;
   }
 
@@ -327,7 +327,7 @@ void FFmpegDemuxer::InititalizeTask(DataSource* data_source) {
     // Fully initialize AVFormatContext by parsing the stream a little.
     result = av_find_stream_info(format_context_);
     if (result < 0) {
-      host_->Error(DEMUXER_ERROR_COULD_NOT_PARSE);
+      host()->Error(DEMUXER_ERROR_COULD_NOT_PARSE);
       return;
     }
   }
@@ -349,13 +349,13 @@ void FFmpegDemuxer::InititalizeTask(DataSource* data_source) {
     }
   }
   if (streams_.empty()) {
-    host_->Error(DEMUXER_ERROR_NO_SUPPORTED_STREAMS);
+    host()->Error(DEMUXER_ERROR_NO_SUPPORTED_STREAMS);
     return;
   }
 
   // Good to go: set the duration and notify we're done initializing.
-  host_->SetDuration(max_duration);
-  host_->InitializationComplete();
+  host()->SetDuration(max_duration);
+  host()->InitializationComplete();
 }
 
 void FFmpegDemuxer::SeekTask(base::TimeDelta time) {
