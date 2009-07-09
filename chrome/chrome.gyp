@@ -20,6 +20,7 @@
     ],
     'grit_out_dir': '<(SHARED_INTERMEDIATE_DIR)/chrome',
     'browser_tests_sources': [
+      'browser/browser_browsertest.cc',
       'browser/crash_recovery_browsertest.cc',
       'browser/ssl/ssl_browser_tests.cc',
     ],
@@ -4144,6 +4145,8 @@
             'test_support_common',
             '../skia/skia.gyp:skia',
             '../testing/gtest.gyp:gtest',
+            '../third_party/icu38/icu38.gyp:icui18n',
+            '../third_party/icu38/icu38.gyp:icuuc',
           ],
           'include_dirs': [
             '..',
@@ -4498,6 +4501,8 @@
             'renderer',
             '../skia/skia.gyp:skia',
             '../testing/gtest.gyp:gtest',
+            '../third_party/icu38/icu38.gyp:icui18n',
+            '../third_party/icu38/icu38.gyp:icuuc',
           ],
           'include_dirs': [
             '..',

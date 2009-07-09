@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "app/l10n_util.h"
 #include "base/file_path.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/string_util.h"
@@ -24,21 +23,6 @@
 
 namespace {
 
-// Given a page title, returns the expected window caption string.
-std::wstring WindowCaptionFromPageTitle(std::wstring page_title) {
-#if defined(OS_WIN) || defined(OS_LINUX)
-  if (page_title.empty())
-    return l10n_util::GetString(IDS_PRODUCT_NAME);
-
-  return l10n_util::GetStringF(IDS_BROWSER_WINDOW_TITLE_FORMAT, page_title);
-#elif defined(OS_MACOSX)
-  // On Mac, we don't want to suffix the page title with the application name.
-  if (page_title.empty())
-    return l10n_util::GetString(IDS_BROWSER_WINDOW_MAC_TAB_UNTITLED);
-  return page_title;
-#endif
-}
-
 class BrowserTest : public UITest {
  protected:
 #if defined(OS_WIN)
@@ -51,38 +35,6 @@ class BrowserTest : public UITest {
     return window_handle;
   }
 #endif
-
-  std::wstring GetWindowTitle() {
-    scoped_refptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
-    scoped_refptr<WindowProxy> window(browser->GetWindow());
-
-    string16 title;
-    EXPECT_TRUE(window->GetWindowTitle(&title));
-    return UTF16ToWide(title);
-  }
-
-  // In RTL locales wrap the page title with RTL embedding characters so that it
-  // matches the value returned by GetWindowTitle().
-  std::wstring LocaleWindowCaptionFromPageTitle(
-      const std::wstring& expected_title) {
-    std::wstring page_title = WindowCaptionFromPageTitle(expected_title);
-#if defined(OS_WIN)
-    string16  browser_locale;
-
-    EXPECT_TRUE(automation()->GetBrowserLocale(&browser_locale));
-
-    const std::string& locale_utf8 = UTF16ToUTF8(browser_locale);
-    if (l10n_util::GetTextDirectionForLocale(locale_utf8.c_str()) ==
-        l10n_util::RIGHT_TO_LEFT) {
-      l10n_util::WrapStringWithLTRFormatting(&page_title);
-    }
-
-    return page_title;
-#else
-    // Do we need to use the above code on POSIX as well?
-    return page_title;
-#endif
-  }
 };
 
 class VisibleBrowserTest : public UITest {
@@ -91,34 +43,6 @@ class VisibleBrowserTest : public UITest {
     show_window_ = true;
   }
 };
-
-// Launch the app on a page with no title, check that the app title was set
-// correctly.
-TEST_F(BrowserTest, NoTitle) {
-  FilePath test_file(test_data_directory_);
-  test_file = test_file.AppendASCII("title1.html");
-
-  NavigateToURL(net::FilePathToFileURL(test_file));
-  // The browser lazily updates the title.
-  PlatformThread::Sleep(sleep_timeout_ms());
-  EXPECT_EQ(LocaleWindowCaptionFromPageTitle(L"title1.html"), GetWindowTitle());
-  EXPECT_EQ(L"title1.html", GetActiveTabTitle());
-}
-
-// Launch the app, navigate to a page with a title, check that the app title
-// was set correctly.
-TEST_F(BrowserTest, Title) {
-  FilePath test_file(test_data_directory_);
-  test_file = test_file.AppendASCII("title2.html");
-
-  NavigateToURL(net::FilePathToFileURL(test_file));
-  // The browser lazily updates the title.
-  PlatformThread::Sleep(sleep_timeout_ms());
-
-  const std::wstring test_title(L"Title Of Awesomeness");
-  EXPECT_EQ(LocaleWindowCaptionFromPageTitle(test_title), GetWindowTitle());
-  EXPECT_EQ(test_title, GetActiveTabTitle());
-}
 
 // Create 34 tabs and verify that a lot of processes have been created. The
 // exact number of processes depends on the amount of memory. Previously we
