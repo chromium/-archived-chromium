@@ -29,8 +29,12 @@
       <if expr="os == 'linux2'">
         <include name="IDR_LINUX_CHECKBOX_OFF" file="resources\linux-checkbox-off.png" type="BINDATA" />
         <include name="IDR_LINUX_CHECKBOX_ON" file="resources\linux-checkbox-on.png" type="BINDATA" />
+        <include name="IDR_LINUX_CHECKBOX_DISABLED_OFF" file="resources\linux-checkbox-disabled-off.png" type="BINDATA" />
+        <include name="IDR_LINUX_CHECKBOX_DISABLED_ON" file="resources\linux-checkbox-disabled-on.png" type="BINDATA" />
         <include name="IDR_LINUX_RADIO_OFF" file="resources\linux-radio-off.png" type="BINDATA" />
         <include name="IDR_LINUX_RADIO_ON" file="resources\linux-radio-on.png" type="BINDATA" />
+        <include name="IDR_LINUX_RADIO_DISABLED_OFF" file="resources\linux-radio-disabled-off.png" type="BINDATA" />
+        <include name="IDR_LINUX_RADIO_DISABLED_ON" file="resources\linux-radio-disabled-on.png" type="BINDATA" />
       </if>
 
       <include name="IDC_ALIAS" file="resources\aliasb.cur" type="CURSOR" />

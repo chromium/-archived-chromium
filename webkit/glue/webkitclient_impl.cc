@@ -107,8 +107,12 @@ WebData WebKitClientImpl::loadResource(const char* name) {
 #if defined(OS_LINUX)
     { "linuxCheckboxOff", IDR_LINUX_CHECKBOX_OFF },
     { "linuxCheckboxOn", IDR_LINUX_CHECKBOX_ON },
+    { "linuxCheckboxDisabledOff", IDR_LINUX_CHECKBOX_DISABLED_OFF },
+    { "linuxCheckboxDisabledOn", IDR_LINUX_CHECKBOX_DISABLED_ON },
     { "linuxRadioOff", IDR_LINUX_RADIO_OFF },
     { "linuxRadioOn", IDR_LINUX_RADIO_ON },
+    { "linuxRadioDisabledOff", IDR_LINUX_RADIO_DISABLED_OFF },
+    { "linuxRadioDisabledOn", IDR_LINUX_RADIO_DISABLED_ON },
 #endif
   };
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(resources); ++i) {
