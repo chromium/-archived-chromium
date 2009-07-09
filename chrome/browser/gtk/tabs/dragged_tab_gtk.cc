@@ -39,7 +39,8 @@ const SkColor kDraggedTabBorderColor = SkColorSetRGB(103, 129, 162);
 DraggedTabGtk::DraggedTabGtk(TabContents* datasource,
                              const gfx::Point& mouse_tab_offset,
                              const gfx::Size& contents_size)
-    : renderer_(new TabRendererGtk),
+    : backing_store_(NULL),
+      renderer_(new TabRendererGtk),
       attached_(false),
       mouse_tab_offset_(mouse_tab_offset),
       attached_tab_size_(TabRendererGtk::GetMinimumSelectedSize()),
