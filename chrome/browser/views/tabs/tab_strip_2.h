@@ -99,7 +99,6 @@ class TabStrip2 : public views::View,
   // Overridden from views::View:
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
-  virtual void Paint(gfx::Canvas* canvas);
 
  private:
   virtual void PaintChildren(gfx::Canvas* canvas);

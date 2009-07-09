@@ -258,10 +258,6 @@ void TabStrip2::Layout() {
   LayoutImpl(LS_OTHER);
 }
 
-void TabStrip2::Paint(gfx::Canvas* canvas) {
-  canvas->FillRectInt(SK_ColorBLUE, 0, 0, width(), height());
-}
-
 void TabStrip2::PaintChildren(gfx::Canvas* canvas) {
   // Paint the tabs in reverse order, so they stack to the left.
   Tab2* selected_tab = NULL;
