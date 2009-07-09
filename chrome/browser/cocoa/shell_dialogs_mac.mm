@@ -326,6 +326,8 @@ NSView* SelectFileDialogImpl::GetAccessoryView(const FileTypeInfo* file_types,
           // File type indexes are 1-based.
           index = [popup indexOfSelectedItem] + 1;
         }
+      } else {
+        index = 1;
       }
     } else {
       NSArray* filenames = [panel filenames];
