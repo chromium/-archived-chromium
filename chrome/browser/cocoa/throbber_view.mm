@@ -107,28 +107,16 @@ static const float kAnimationIntervalSeconds = 0.03;  // 30ms, same as windows
   }
   image_.reset([[CIImage alloc] initWithBitmapImageRep:rep]);
 
-#if 1
-// TODO(pinkerton): The invalidation of the view to trigger re-draw causes
-// the entire title-bar to redraw (you can see it with QuartzDebug). For some
-// reason, setting isOpaque on this view, or any of its parent views, doesn't
-// help. As a result, enabling this timer causes new tab to take a very long
-// time on a loaded machine, crushing our perf bot when it's under load. For
-// now, I'm disabling the timer so we draw the first frame of the animation,
-// but nothing more. There are a couple of ways we can fix this:
-// 1) Try to figure out why the invalidate is invalidating the entire title bar
-// 2) Find some way to draw only the pixels we want and nothing else, but I
-// don't know how we'd do that.
-    if (numFrames_ > 1) {
-      // Start a timer for the animation frames.
-      target_.reset([[TimerTarget alloc] initWithThrobber:self]);
-      timer_ =
-          [NSTimer scheduledTimerWithTimeInterval:kAnimationIntervalSeconds
-                                           target:target_.get()
-                                         selector:@selector(animate:)
-                                         userInfo:nil
-                                          repeats:YES];
-    }
-#endif
+  if (numFrames_ > 1) {
+    // Start a timer for the animation frames.
+    target_.reset([[TimerTarget alloc] initWithThrobber:self]);
+    timer_ =
+        [NSTimer scheduledTimerWithTimeInterval:kAnimationIntervalSeconds
+                                         target:target_.get()
+                                       selector:@selector(animate:)
+                                       userInfo:nil
+                                        repeats:YES];
+  }
 }
 
 @end
