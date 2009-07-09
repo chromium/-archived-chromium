@@ -123,6 +123,8 @@ RenderViewHost::RenderViewHost(SiteInstance* instance,
 }
 
 RenderViewHost::~RenderViewHost() {
+  delegate()->RenderViewDeleted(this);
+
   DevToolsManager* devtools_manager = DevToolsManager::GetInstance();
   if (devtools_manager)  // NULL in tests
     devtools_manager->UnregisterDevToolsClientHostFor(this);
@@ -130,11 +132,6 @@ RenderViewHost::~RenderViewHost() {
   // Be sure to clean up any leftover state from cross-site requests.
   Singleton<CrossSiteRequestManager>()->SetHasPendingCrossSiteRequest(
       process()->pid(), routing_id(), false);
-
-  NotificationService::current()->Notify(
-      NotificationType::RENDER_VIEW_HOST_DELETED,
-      Source<RenderViewHost>(this),
-      NotificationService::NoDetails());
 }
 
 void RenderViewHost::Observe(NotificationType type,

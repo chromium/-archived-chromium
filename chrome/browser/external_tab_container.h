@@ -7,6 +7,7 @@
 
 #include <vector>
 
+#include "chrome/browser/automation/automation_resource_message_filter.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/notification_registrar.h"
@@ -27,7 +28,8 @@ class ExternalTabContainer : public TabContentsDelegate,
                              public views::WidgetWin,
                              public views::KeystrokeListener {
  public:
-  explicit ExternalTabContainer(AutomationProvider* automation);
+  ExternalTabContainer(AutomationProvider* automation,
+      AutomationResourceMessageFilter* filter);
   ~ExternalTabContainer();
 
   TabContents* tab_contents() const { return tab_contents_; }
@@ -139,6 +141,12 @@ class ExternalTabContainer : public TabContentsDelegate,
   std::vector<int> disabled_context_menu_ids_;
 
   scoped_ptr<RenderViewContextMenuExternalWin> external_context_menu_;
+
+  // A message filter to load resources via automation
+  AutomationResourceMessageFilter* automation_resource_message_filter_;
+
+  // If all the url requests for this tab are to be loaded via automation.
+  bool load_requests_via_automation_;
 
   DISALLOW_COPY_AND_ASSIGN(ExternalTabContainer);
 };

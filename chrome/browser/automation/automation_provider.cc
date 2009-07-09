@@ -806,10 +806,12 @@ AutomationProvider::~AutomationProvider() {
 }
 
 void AutomationProvider::ConnectToChannel(const std::string& channel_id) {
+  automation_resource_message_filter_ = new AutomationResourceMessageFilter;
   channel_.reset(
-    new IPC::SyncChannel(channel_id, IPC::Channel::MODE_CLIENT, this, NULL,
-                         g_browser_process->io_thread()->message_loop(),
-                         true, g_browser_process->shutdown_event()));
+      new IPC::SyncChannel(channel_id, IPC::Channel::MODE_CLIENT, this,
+                           automation_resource_message_filter_,
+                           g_browser_process->io_thread()->message_loop(),
+                           true, g_browser_process->shutdown_event()));
   scoped_ptr<FileVersionInfo> file_version_info(
       FileVersionInfo::CreateFileVersionInfoForCurrentModule());
   std::string version_string;
@@ -2390,8 +2392,8 @@ void AutomationProvider::CreateExternalTab(HWND parent,
   *tab_handle = 0;
   *tab_container_window = NULL;
   *tab_window = NULL;
-  ExternalTabContainer *external_tab_container =
-      new ExternalTabContainer(this);
+  ExternalTabContainer* external_tab_container =
+      new ExternalTabContainer(this, automation_resource_message_filter_);
   Profile* profile = incognito? profile_->GetOffTheRecordProfile() : profile_;
   external_tab_container->Init(profile, parent, dimensions, style);
   TabContents* tab_contents = external_tab_container->tab_contents();

@@ -1714,6 +1714,11 @@ TabContents* TabContents::GetAsTabContents() {
 }
 
 void TabContents::RenderViewCreated(RenderViewHost* render_view_host) {
+  NotificationService::current()->Notify(
+      NotificationType::RENDER_VIEW_HOST_CREATED_FOR_TAB,
+      Source<TabContents>(this),
+      Details<RenderViewHost>(render_view_host));
+
   NavigationEntry* entry = controller_.GetActiveEntry();
   if (!entry)
     return;
@@ -1762,6 +1767,13 @@ void TabContents::RenderViewGone(RenderViewHost* rvh) {
 
   // Hide any visible hung renderer warning for this web contents' process.
   HungRendererDialog::HideForTabContents(this);
+}
+
+void TabContents::RenderViewDeleted(RenderViewHost* rvh) {
+  NotificationService::current()->Notify(
+      NotificationType::RENDER_VIEW_HOST_DELETED,
+      Source<TabContents>(this),
+      Details<RenderViewHost>(rvh));
 }
 
 void TabContents::DidNavigate(RenderViewHost* rvh,

@@ -781,6 +781,7 @@ class TabContents : public PageNavigator,
   virtual void RenderViewCreated(RenderViewHost* render_view_host);
   virtual void RenderViewReady(RenderViewHost* render_view_host);
   virtual void RenderViewGone(RenderViewHost* render_view_host);
+  virtual void RenderViewDeleted(RenderViewHost* render_view_host);
   virtual void DidNavigate(RenderViewHost* render_view_host,
                            const ViewHostMsg_FrameNavigate_Params& params);
   virtual void UpdateState(RenderViewHost* render_view_host,

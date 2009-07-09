@@ -101,10 +101,25 @@ bool URLRequestInterceptJob::GetCharset(std::string* charset) {
   return request_->response_headers()->GetCharset(charset);
 }
 
-bool URLRequestInterceptJob::GetContentEncoding(std::string* encoding_type) {
-  // TODO(darin): what if there are multiple content encodings?
-  return request_->response_headers()->EnumerateHeader(NULL, "Content-Encoding",
-                                                       encoding_type);
+bool URLRequestInterceptJob::GetContentEncodings(
+    std::vector<Filter::FilterType>* encoding_types) {
+  DCHECK(encoding_types->empty());
+  if (!request_->response_headers())
+    return false;
+
+  std::string encoding_type;
+  void* iter = NULL;
+  while (request_->response_headers()->EnumerateHeader(
+      &iter, "Content-Encoding", &encoding_type)) {
+    encoding_types->push_back(Filter::ConvertEncodingToType(encoding_type));
+  }
+
+  // Even if encoding types are empty, there is a chance that we need to add
+  // some decoding, as some proxies strip encoding completely. In such cases,
+  // we may need to add (for example) SDCH filtering (when the context suggests
+  // it is appropriate).
+  Filter::FixupEncodingTypes(*this, encoding_types);
+  return !encoding_types->empty();
 }
 
 void URLRequestInterceptJob::GetResponseInfo(net::HttpResponseInfo* info) {

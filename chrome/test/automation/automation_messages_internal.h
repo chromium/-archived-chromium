@@ -944,4 +944,33 @@ IPC_BEGIN_MESSAGES(Automation)
                       int /* selected_command */)
 #endif  // OS_WIN
 
+  // A URL request to be fetched via automation
+  IPC_MESSAGE_ROUTED3(AutomationMsg_RequestStart,
+                      int /* tab_handle */,
+                      int /* request_id */,
+                      IPC::AutomationURLRequest /* request */)
+
+  // Read data from a URL request to be fetched via automation
+  IPC_MESSAGE_ROUTED3(AutomationMsg_RequestRead,
+                      int /* tab_handle */,
+                      int /* request_id */,
+                      int /* bytes_to_read */)
+
+  // Response to a AutomationMsg_RequestStart message
+  IPC_MESSAGE_ROUTED3(AutomationMsg_RequestStarted,
+                      int /* tab_handle */,
+                      int /* request_id */,
+                      IPC::AutomationURLResponse /* response */)
+
+  // Data read via automation
+  IPC_MESSAGE_ROUTED3(AutomationMsg_RequestData,
+                      int /* tab_handle */,
+                      int /* request_id */,
+                      std::string /* data */)
+
+  IPC_MESSAGE_ROUTED3(AutomationMsg_RequestEnd,
+                      int /* tab_handle */,
+                      int /* request_id */,
+                      URLRequestStatus /* status */)
+
 IPC_END_MESSAGES(Automation)

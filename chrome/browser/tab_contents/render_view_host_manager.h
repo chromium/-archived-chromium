@@ -23,7 +23,7 @@ class SiteInstance;
 // Manages RenderViewHosts for a TabContents. Normally there is only one and
 // it is easy to do. But we can also have transitions of processes (and hence
 // RenderViewHosts) that can get complex.
-class RenderViewHostManager : public NotificationObserver {
+class RenderViewHostManager {
  public:
   // Functions implemented by our owner that we need.
   //
@@ -171,10 +171,6 @@ class RenderViewHostManager : public NotificationObserver {
   InterstitialPage* interstitial_page() const {
     return interstitial_page_;
   }
-
-  virtual void Observe(NotificationType type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details);
 
  private:
   friend class TestTabContents;

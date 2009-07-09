@@ -34,8 +34,6 @@ RenderViewHostManager::RenderViewHostManager(
       render_view_host_(NULL),
       pending_render_view_host_(NULL),
       interstitial_page_(NULL) {
-  registrar_.Add(this, NotificationType::RENDER_VIEW_HOST_DELETED,
-                 NotificationService::AllSources());
 }
 
 RenderViewHostManager::~RenderViewHostManager() {
@@ -258,18 +256,6 @@ void RenderViewHostManager::OnJavaScriptMessageBoxWindowDestroyed() {
   render_view_host_->JavaScriptMessageBoxWindowDestroyed();
 }
 
-void RenderViewHostManager::Observe(NotificationType type,
-                                    const NotificationSource& source,
-                                    const NotificationDetails& details) {
-  // Debugging code to help isolate
-  // http://code.google.com/p/chromium/issues/detail?id=6316 . We should never
-  // reference a RVH that is about to be deleted.
-  RenderViewHost* deleted_rvh = Source<RenderViewHost>(source).ptr();
-  CHECK(deleted_rvh);
-  CHECK(render_view_host_ != deleted_rvh);
-  CHECK(pending_render_view_host_ != deleted_rvh);
-}
-
 bool RenderViewHostManager::ShouldTransitionCrossSite() {
   // True if we are using process-per-site-instance (default) or
   // process-per-site (kProcessPerSite).
@@ -301,7 +287,6 @@ bool RenderViewHostManager::ShouldSwapProcessesForNavigation(
       new_entry->url().SchemeIs(chrome::kExtensionScheme))
     if (cur_entry->url().GetOrigin() != new_entry->url().GetOrigin())
       return true;
-      
 
   return false;
 }

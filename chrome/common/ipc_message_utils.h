@@ -21,6 +21,7 @@
 #include "chrome/common/ipc_sync_message.h"
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/common/transport_dib.h"
+#include "net/url_request/url_request_status.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/window_open_disposition.h"
 
@@ -942,6 +943,58 @@ struct ParamTraits<TransportDIB::Id> {
   }
 };
 #endif
+
+// Traits for URLRequestStatus
+template <>
+struct ParamTraits<URLRequestStatus> {
+  typedef URLRequestStatus param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, static_cast<int>(p.status()));
+    WriteParam(m, p.os_error());
+  }
+  static bool Read(const Message* m, void** iter, param_type* r) {
+    int status, os_error;
+    if (!ReadParam(m, iter, &status) ||
+        !ReadParam(m, iter, &os_error))
+      return false;
+    r->set_status(static_cast<URLRequestStatus::Status>(status));
+    r->set_os_error(os_error);
+    return true;
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    std::wstring status;
+    switch (p.status()) {
+     case URLRequestStatus::SUCCESS:
+      status = L"SUCCESS";
+      break;
+     case URLRequestStatus::IO_PENDING:
+      status = L"IO_PENDING ";
+      break;
+     case URLRequestStatus::HANDLED_EXTERNALLY:
+      status = L"HANDLED_EXTERNALLY";
+      break;
+     case URLRequestStatus::CANCELED:
+      status = L"CANCELED";
+      break;
+     case URLRequestStatus::FAILED:
+      status = L"FAILED";
+      break;
+     default:
+      status = L"UNKNOWN";
+      break;
+    }
+    if (p.status() == URLRequestStatus::FAILED)
+      l->append(L"(");
+
+    LogParam(status, l);
+
+    if (p.status() == URLRequestStatus::FAILED) {
+      l->append(L", ");
+      LogParam(p.os_error(), l);
+      l->append(L")");
+    }
+  }
+};
 
 template <>
 struct ParamTraits<Message> {

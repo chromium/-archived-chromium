@@ -284,10 +284,10 @@ class NotificationType {
     TAB_CONTENTS_DESTROYED,
 
     // A RenderViewHost was created for a TabContents. The source is the
-    // RenderViewHostManager who owns it, and the details is the RenderViewHost
-    // pointer. Note that the source will be NULL in some cases for testing,
-    // when there is no RVHManager.
+    // associated TabContents, and the details is the RenderViewHost
+    // pointer.
     RENDER_VIEW_HOST_CREATED_FOR_TAB,
+
 
     // Stuff inside the tabs ---------------------------------------------------
 
@@ -328,6 +328,9 @@ class NotificationType {
     // This is sent when a RenderWidgetHost is being destroyed. The source is
     // the RenderWidgetHost, the details are not used.
     RENDER_WIDGET_HOST_DESTROYED,
+
+    // Sent from ~RenderViewHost. The source is the RenderViewHost.
+    RENDER_VIEW_HOST_DELETED,
 
     // Indicates a RenderWidgetHost has been hidden or restored. The source is
     // the RWH whose visibility changed, the details is a bool set to true if
@@ -591,9 +594,6 @@ class NotificationType {
     EXTENSION_SHELF_MODEL_CHANGED,
 
     // Debugging ---------------------------------------------------------------
-
-    // Sent from ~RenderViewHost. The source is the RenderViewHost.
-    RENDER_VIEW_HOST_DELETED,
 
     // Count (must be last) ----------------------------------------------------
     // Used to determine the number of notification types.  Not valid as

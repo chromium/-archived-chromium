@@ -19,6 +19,7 @@
 #include "base/scoped_ptr.h"
 #include "chrome/browser/automation/automation_autocomplete_edit_tracker.h"
 #include "chrome/browser/automation/automation_browser_tracker.h"
+#include "chrome/browser/automation/automation_resource_message_filter.h"
 #include "chrome/browser/automation/automation_tab_tracker.h"
 #include "chrome/browser/automation/automation_window_tracker.h"
 #include "chrome/browser/browser_list.h"
@@ -487,6 +488,8 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   LoginHandlerMap login_handler_map_;
   PortContainerMap port_containers_;
   NotificationObserverList notification_observer_list_;
+  scoped_refptr<AutomationResourceMessageFilter>
+      automation_resource_message_filter_;
 
   // Handle for an in-process redirect query. We expect only one redirect query
   // at a time (we should have only one caller, and it will block while waiting

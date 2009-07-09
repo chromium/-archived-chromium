@@ -31,14 +31,16 @@ static const wchar_t kWindowObjectKey[] = L"ChromeWindowObject";
 // member variables are now obsolete and we don't use them.
 // We need to remove them.
 ExternalTabContainer::ExternalTabContainer(
-    AutomationProvider* automation)
+    AutomationProvider* automation, AutomationResourceMessageFilter* filter)
     : automation_(automation),
       tab_contents_(NULL),
       external_accel_table_(NULL),
       external_accel_entry_count_(0),
       tab_contents_container_(NULL),
       tab_handle_(0),
-      ignore_next_load_notification_(false) {
+      ignore_next_load_notification_(false),
+      automation_resource_message_filter_(filter),
+      load_requests_via_automation_(false) {
 }
 
 ExternalTabContainer::~ExternalTabContainer() {
@@ -86,6 +88,11 @@ bool ExternalTabContainer::Init(Profile* profile,
                  Source<NavigationController>(controller));
   registrar_.Add(this, NotificationType::LOAD_STOP,
                  Source<NavigationController>(controller));
+  registrar_.Add(this, NotificationType::RENDER_VIEW_HOST_CREATED_FOR_TAB,
+                 Source<TabContents>(tab_contents_));
+  registrar_.Add(this, NotificationType::RENDER_VIEW_HOST_DELETED,
+                 Source<TabContents>(tab_contents_));
+
   NotificationService::current()->Notify(
       NotificationType::EXTERNAL_TAB_CREATED,
       Source<NavigationController>(controller),
@@ -350,6 +357,27 @@ void ExternalTabContainer::Observe(NotificationType type,
       ignore_next_load_notification_ = true;
       break;
     }
+    case NotificationType::RENDER_VIEW_HOST_CREATED_FOR_TAB: {
+      if (load_requests_via_automation_) {
+        RenderViewHost* rvh = Details<RenderViewHost>(details).ptr();
+        if (rvh) {
+          AutomationResourceMessageFilter::RegisterRenderView(
+              rvh->process()->pid(), rvh->routing_id(), tab_handle_,
+              automation_resource_message_filter_);
+        }
+      }
+      break;
+    }
+    case NotificationType::RENDER_VIEW_HOST_DELETED: {
+      if (load_requests_via_automation_) {
+        RenderViewHost* rvh = Details<RenderViewHost>(details).ptr();
+        if (rvh) {
+          AutomationResourceMessageFilter::UnRegisterRenderView(
+              rvh->process()->pid(), rvh->routing_id());
+        }
+      }
+      break;
+    }
     default:
       NOTREACHED();
   }
@@ -407,6 +435,7 @@ bool ExternalTabContainer::ProcessKeyStroke(HWND window, UINT message,
 // ExternalTabContainer, private:
 
 void ExternalTabContainer::Uninitialize(HWND window) {
+  registrar_.RemoveAll();
   if (tab_contents_) {
     NotificationService::current()->Notify(
         NotificationType::EXTERNAL_TAB_CLOSED,

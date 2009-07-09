@@ -315,6 +315,10 @@ class RenderViewHostDelegate {
   // The RenderView died somehow (crashed or was killed by the user).
   virtual void RenderViewGone(RenderViewHost* render_view_host) {}
 
+  // The RenderView is going to be deleted. This is called when each
+  // RenderView is going to be destroyed
+  virtual void RenderViewDeleted(RenderViewHost* render_view_host) { }
+
   // The RenderView was navigated to a different page.
   virtual void DidNavigate(RenderViewHost* render_view_host,
                            const ViewHostMsg_FrameNavigate_Params& params) {}

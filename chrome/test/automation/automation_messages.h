@@ -223,6 +223,78 @@ struct ParamTraits<Reposition_Params> {
 };
 #endif  // defined(OS_WIN)
 
+struct AutomationURLRequest {
+  std::string url;
+  std::string method;
+  std::string referrer;
+  std::string extra_request_headers;
+};
+
+// Traits for AutomationURLRequest structure to pack/unpack.
+template <>
+struct ParamTraits<AutomationURLRequest> {
+  typedef AutomationURLRequest param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.url);
+    WriteParam(m, p.method);
+    WriteParam(m, p.referrer);
+    WriteParam(m, p.extra_request_headers);
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    return ReadParam(m, iter, &p->url) &&
+           ReadParam(m, iter, &p->method) &&
+           ReadParam(m, iter, &p->referrer) &&
+           ReadParam(m, iter, &p->extra_request_headers);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"(");
+    LogParam(p.url, l);
+    l->append(L", ");
+    LogParam(p.method, l);
+    l->append(L", ");
+    LogParam(p.referrer, l);
+    l->append(L", ");
+    LogParam(p.extra_request_headers, l);
+    l->append(L")");
+  }
+};
+
+struct AutomationURLResponse {
+  std::string mime_type;
+  std::string headers;
+  int64 content_length;
+  base::Time last_modified;
+};
+
+// Traits for AutomationURLRequest structure to pack/unpack.
+template <>
+struct ParamTraits<AutomationURLResponse> {
+  typedef AutomationURLResponse param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.mime_type);
+    WriteParam(m, p.headers);
+    WriteParam(m, p.content_length);
+    WriteParam(m, p.last_modified);
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    return ReadParam(m, iter, &p->mime_type) &&
+           ReadParam(m, iter, &p->headers) &&
+           ReadParam(m, iter, &p->content_length) &&
+           ReadParam(m, iter, &p->last_modified);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"(");
+    LogParam(p.mime_type, l);
+    l->append(L", ");
+    LogParam(p.headers, l);
+    l->append(L", ");
+    LogParam(p.content_length, l);
+    l->append(L", ");
+    LogParam(p.last_modified, l);
+    l->append(L")");
+  }
+};
+
 }  // namespace IPC
 
 #define MESSAGES_INTERNAL_FILE \
