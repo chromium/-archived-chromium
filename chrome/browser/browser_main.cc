@@ -676,26 +676,23 @@ int BrowserMain(const MainFunctionParams& parameters) {
   scoped_refptr<FieldTrial> sdch_trial =
       new FieldTrial("GlobalSdch", kSDCH_DIVISOR);
 
-  bool need_to_init_sdch = true;
-  std::string switch_domain("");
+  // Use default of "" so that all domains are supported.
+  std::string sdch_supported_domain("");
   if (parsed_command_line.HasSwitch(switches::kSdchFilter)) {
-    switch_domain =
+    sdch_supported_domain =
         WideToASCII(parsed_command_line.GetSwitchValue(switches::kSdchFilter));
   } else {
     sdch_trial->AppendGroup("_global_disable_sdch",
                             kSDCH_PROBABILITY_PER_GROUP);
     int sdch_enabled = sdch_trial->AppendGroup("_global_enable_sdch",
                                                kSDCH_PROBABILITY_PER_GROUP);
-    need_to_init_sdch = (sdch_enabled == sdch_trial->group());
+    if (sdch_enabled != sdch_trial->group())
+      sdch_supported_domain = "never_enabled_sdch_for_any_domain";
   }
 
-  scoped_ptr<SdchManager> sdch_manager;  // Singleton database.
-  if (need_to_init_sdch) {
-    sdch_manager.reset(new SdchManager);
-    sdch_manager->set_sdch_fetcher(new SdchDictionaryFetcher);
-    // Use default of "" so that all domains are supported.
-    sdch_manager->EnableSdchSupport(switch_domain);
-  }
+  SdchManager sdch_manager;  // Singleton database.
+  sdch_manager.set_sdch_fetcher(new SdchDictionaryFetcher);
+  sdch_manager.EnableSdchSupport(sdch_supported_domain);
 
   MetricsService* metrics = NULL;
   if (!parsed_command_line.HasSwitch(switches::kDisableMetrics)) {
