@@ -114,15 +114,13 @@ void MockRenderThread::OnGetDefaultPrintSettings(ViewMsg_Print_Params* params) {
     printer_->GetDefaultPrintSettings(params);
 }
 
-void MockRenderThread::OnScriptedPrint(gfx::NativeViewId host_window,
-                                       int cookie,
-                                       int expected_pages_count,
-                                       bool has_selection,
-                                       ViewMsg_PrintPages_Params* settings) {
+void MockRenderThread::OnScriptedPrint(
+    const ViewHostMsg_ScriptedPrint_Params& params,
+    ViewMsg_PrintPages_Params* settings) {
   if (printer_.get()) {
-    printer_->ScriptedPrint(cookie,
-                            expected_pages_count,
-                            has_selection,
+    printer_->ScriptedPrint(params.cookie,
+                            params.expected_pages_count,
+                            params.has_selection,
                             settings);
   }
 }

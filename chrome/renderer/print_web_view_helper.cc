@@ -157,15 +157,25 @@ void PrintWebViewHelper::Print(WebFrame* frame, bool script_initiated) {
 
       // Ask the browser to show UI to retrieve the final print settings.
       ViewMsg_PrintPages_Params print_settings;
+
+      ViewHostMsg_ScriptedPrint_Params params;
+
+      // The routing id is sent across as it is needed to look up the
+      // corresponding RenderViewHost instance to signal and reset the
+      // pump messages event.
+      params.routing_id = routing_id();
       // host_window_ may be NULL at this point if the current window is a popup
       // and the print() command has been issued from the parent. The receiver
       // of this message has to deal with this.
-      msg = new ViewHostMsg_ScriptedPrint(routing_id(),
-                                          render_view_->host_window(),
-                                          default_settings.document_cookie,
-                                          expected_pages_count,
-                                          frame->HasSelection(),
+      params.host_window_id = render_view_->host_window();
+      params.cookie = default_settings.document_cookie;
+      params.has_selection = frame->HasSelection();
+      params.expected_pages_count = expected_pages_count;
+
+      msg = new ViewHostMsg_ScriptedPrint(params,
                                           &print_settings);
+      msg->set_pump_messages_event(render_view_->modal_dialog_event());
+
       if (Send(msg)) {
         msg = NULL;
 

@@ -397,6 +397,15 @@ struct ViewHostMsg_ShowPopup_Params {
   std::vector<WebMenuItem> popup_items;
 };
 
+// Parameters for the IPC message ViewHostMsg_ScriptedPrint
+struct ViewHostMsg_ScriptedPrint_Params {
+  int routing_id;
+  gfx::NativeViewId host_window_id;
+  int cookie;
+  int expected_pages_count;
+  bool has_selection;
+};
+
 namespace IPC {
 
 template <>
@@ -1912,6 +1921,41 @@ struct ParamTraits<ViewHostMsg_ShowPopup_Params> {
     l->append(L")");
   }
 };
+
+// Traits for ViewHostMsg_ScriptedPrint_Params.
+template <>
+struct ParamTraits<ViewHostMsg_ScriptedPrint_Params> {
+  typedef ViewHostMsg_ScriptedPrint_Params param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.routing_id);
+    WriteParam(m, p.host_window_id);
+    WriteParam(m, p.cookie);
+    WriteParam(m, p.expected_pages_count);
+    WriteParam(m, p.has_selection);
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    return
+        ReadParam(m, iter, &p->routing_id) &&
+        ReadParam(m, iter, &p->host_window_id) &&
+        ReadParam(m, iter, &p->cookie) &&
+        ReadParam(m, iter, &p->expected_pages_count) &&
+        ReadParam(m, iter, &p->has_selection);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"(");
+    LogParam(p.routing_id, l);
+    l->append(L", ");
+    LogParam(p.host_window_id, l);
+    l->append(L", ");
+    LogParam(p.cookie, l);
+    l->append(L", ");
+    LogParam(p.expected_pages_count, l);
+    l->append(L", ");
+    LogParam(p.has_selection, l);
+    l->append(L")");
+  }
+};
+
 
 }  // namespace IPC
 

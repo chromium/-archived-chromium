@@ -265,6 +265,36 @@ void RenderWidgetHelper::OnCreateWidgetOnUI(
     host->CreateNewWidget(route_id, activatable);
 }
 
+void RenderWidgetHelper::SignalModalDialogEvent(int routing_id) {
+  ui_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(
+          this, &RenderWidgetHelper::SignalModalDialogEventOnUI,
+          routing_id));
+}
+
+void RenderWidgetHelper::SignalModalDialogEventOnUI(int routing_id) {
+  RenderViewHost* host = RenderViewHost::FromID(render_process_id_,
+                                                routing_id);
+  if (host) {
+    host->SignalModalDialogEvent();
+  }
+}
+
+void RenderWidgetHelper::ResetModalDialogEvent(int routing_id) {
+  ui_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(
+          this, &RenderWidgetHelper::ResetModalDialogEventOnUI,
+          routing_id));
+}
+
+void RenderWidgetHelper::ResetModalDialogEventOnUI(int routing_id) {
+  RenderViewHost* host = RenderViewHost::FromID(render_process_id_,
+                                                routing_id);
+  if (host) {
+    host->ResetModalDialogEvent();
+  }
+}
+
 #if defined(OS_MACOSX)
 TransportDIB* RenderWidgetHelper::MapTransportDIB(TransportDIB::Id dib_id) {
   AutoLock locked(allocated_dibs_lock_);

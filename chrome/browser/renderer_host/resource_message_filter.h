@@ -48,6 +48,8 @@ namespace WebKit {
 struct WebScreenInfo;
 }
 
+struct ViewHostMsg_ScriptedPrint_Params;
+
 // This class filters out incoming IPC messages for network requests and
 // processes them on the IPC thread.  As a result, network requests are not
 // delayed by costly UI processing that may be occuring on the main thread of
@@ -204,13 +206,11 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   // A javascript code requested to print the current page. The renderer host
   // have to show to the user the print dialog and returns the selected print
   // settings.
-  void OnScriptedPrint(gfx::NativeViewId host_window,
-                       int cookie,
-                       int expected_pages_count,
-                       bool has_selection,
+  void OnScriptedPrint(const ViewHostMsg_ScriptedPrint_Params& params,
                        IPC::Message* reply_msg);
   void OnScriptedPrintReply(
       scoped_refptr<printing::PrinterQuery> printer_query,
+      int routing_id,
       IPC::Message* reply_msg);
 #endif
   // Browser side transport DIB allocation

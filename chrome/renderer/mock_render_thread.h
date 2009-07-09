@@ -14,6 +14,7 @@
 
 struct ViewMsg_Print_Params;
 struct ViewMsg_PrintPages_Params;
+struct ViewHostMsg_ScriptedPrint_Params;
 
 // This class is very simple mock of RenderThread. It simulates an IPC channel
 // which supports only two messages:
@@ -89,10 +90,7 @@ class MockRenderThread : public RenderThreadBase {
   void OnGetDefaultPrintSettings(ViewMsg_Print_Params* setting);
 
   // The RenderView expects final print settings from the user.
-  void OnScriptedPrint(gfx::NativeViewId host_window,
-                       int cookie,
-                       int expected_pages_count,
-                       bool has_selection,
+  void OnScriptedPrint(const ViewHostMsg_ScriptedPrint_Params& params,
                        ViewMsg_PrintPages_Params* settings);
 
   void OnDidGetPrintedPagesCount(int cookie, int number_pages);

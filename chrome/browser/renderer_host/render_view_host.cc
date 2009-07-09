@@ -559,8 +559,7 @@ void RenderViewHost::JavaScriptMessageBoxClosed(IPC::Message* reply_msg,
 }
 
 void RenderViewHost::JavaScriptMessageBoxWindowDestroyed() {
- if (--modal_dialog_count_ == 0)
-   modal_dialog_event_->Reset();
+ ResetModalDialogEvent();
 }
 
 void RenderViewHost::ModalHTMLDialogClosed(IPC::Message* reply_msg,
@@ -568,8 +567,7 @@ void RenderViewHost::ModalHTMLDialogClosed(IPC::Message* reply_msg,
   if (is_waiting_for_unload_ack_)
     StartHangMonitorTimeout(TimeDelta::FromMilliseconds(kUnloadTimeoutMS));
 
-  if (--modal_dialog_count_ == 0)
-    modal_dialog_event_->Reset();
+  ResetModalDialogEvent();
 
   ViewHostMsg_ShowModalHTMLDialog::WriteReplyParams(reply_msg, json_retval);
   Send(reply_msg);
@@ -812,8 +810,7 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
 void RenderViewHost::Shutdown() {
   // If we are being run modally (see RunModal), then we need to cleanup.
   if (run_modal_reply_msg_) {
-    if (--modal_dialog_count_ == 0)
-      modal_dialog_event_->Reset();
+    ResetModalDialogEvent();
     Send(run_modal_reply_msg_);
     run_modal_reply_msg_ = NULL;
   }
@@ -865,8 +862,7 @@ void RenderViewHost::OnMsgShowWidget(int route_id,
 
 void RenderViewHost::OnMsgRunModal(IPC::Message* reply_msg) {
   DCHECK(!run_modal_reply_msg_);
-  if (modal_dialog_count_++ == 0)
-    modal_dialog_event_->Signal();
+  SignalModalDialogEvent();
   run_modal_reply_msg_ = reply_msg;
 
   // TODO(darin): Bug 1107929: Need to inform our delegate to show this view in
@@ -1200,8 +1196,7 @@ void RenderViewHost::OnMsgRunJavaScriptMessage(
     const int flags,
     IPC::Message* reply_msg) {
   StopHangMonitorTimeout();
-  if (modal_dialog_count_++ == 0)
-    modal_dialog_event_->Signal();
+  SignalModalDialogEvent();
   delegate_->RunJavaScriptMessage(message, default_prompt, frame_url, flags,
                                   reply_msg,
                                   &are_javascript_messages_suppressed_);
@@ -1211,8 +1206,7 @@ void RenderViewHost::OnMsgRunBeforeUnloadConfirm(const GURL& frame_url,
                                                  const std::wstring& message,
                                                  IPC::Message* reply_msg) {
   StopHangMonitorTimeout();
-  if (modal_dialog_count_++ == 0)
-    modal_dialog_event_->Signal();
+  SignalModalDialogEvent();
   delegate_->RunBeforeUnloadConfirm(message, reply_msg);
 }
 
@@ -1220,8 +1214,7 @@ void RenderViewHost::OnMsgShowModalHTMLDialog(
     const GURL& url, int width, int height, const std::string& json_arguments,
     IPC::Message* reply_msg) {
   StopHangMonitorTimeout();
-  if (modal_dialog_count_++ == 0)
-    modal_dialog_event_->Signal();
+  SignalModalDialogEvent();
   delegate_->ShowModalHTMLDialog(url, width, height, json_arguments, reply_msg);
 }
 
@@ -1508,4 +1501,14 @@ void RenderViewHost::OnAccessibilityFocusChange(int acc_obj_id) {
 
 void RenderViewHost::OnCSSInserted() {
   delegate_->DidInsertCSS();
+}
+
+void RenderViewHost::SignalModalDialogEvent() {
+  if (modal_dialog_count_++ == 0)
+    modal_dialog_event_->Signal();
+}
+
+void RenderViewHost::ResetModalDialogEvent() {
+ if (--modal_dialog_count_ == 0)
+   modal_dialog_event_->Reset();
 }

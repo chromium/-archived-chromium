@@ -409,6 +409,9 @@ class RenderViewHost : public RenderWidgetHost,
                              const std::string& response,
                              const std::string& error);
 
+  void SignalModalDialogEvent();
+  void ResetModalDialogEvent();
+
  protected:
   // RenderWidgetHost protected overrides.
   virtual void UnhandledKeyboardEvent(const NativeWebKeyboardEvent& event);

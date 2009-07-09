@@ -737,15 +737,13 @@ void ResourceMessageFilter::OnGetDefaultPrintSettingsReply(
 
 #if defined(OS_WIN)
 
-void ResourceMessageFilter::OnScriptedPrint(gfx::NativeViewId host_window_id,
-                                            int cookie,
-                                            int expected_pages_count,
-                                            bool has_selection,
-                                            IPC::Message* reply_msg) {
-  HWND host_window = gfx::NativeViewFromId(host_window_id);
+void ResourceMessageFilter::OnScriptedPrint(
+    const ViewHostMsg_ScriptedPrint_Params& params,
+    IPC::Message* reply_msg) {
+  HWND host_window = gfx::NativeViewFromId(params.host_window_id);
 
   scoped_refptr<printing::PrinterQuery> printer_query;
-  print_job_manager_->PopPrinterQuery(cookie, &printer_query);
+  print_job_manager_->PopPrinterQuery(params.cookie, &printer_query);
   if (!printer_query.get()) {
     printer_query = new printing::PrinterQuery;
   }
@@ -754,6 +752,7 @@ void ResourceMessageFilter::OnScriptedPrint(gfx::NativeViewId host_window_id,
       this,
       &ResourceMessageFilter::OnScriptedPrintReply,
       printer_query,
+      params.routing_id,
       reply_msg);
   // Shows the Print... dialog box. This is asynchronous, only the IPC message
   // sender will hang until the Print dialog is dismissed.
@@ -764,15 +763,19 @@ void ResourceMessageFilter::OnScriptedPrint(gfx::NativeViewId host_window_id,
     host_window = GetAncestor(host_window, GA_ROOTOWNER);
   }
   DCHECK(host_window);
+
+  render_widget_helper_->SignalModalDialogEvent(params.routing_id);
+
   printer_query->GetSettings(printing::PrinterQuery::ASK_USER,
                              host_window,
-                             expected_pages_count,
-                             has_selection,
+                             params.expected_pages_count,
+                             params.has_selection,
                              task);
 }
 
 void ResourceMessageFilter::OnScriptedPrintReply(
     scoped_refptr<printing::PrinterQuery> printer_query,
+    int routing_id,
     IPC::Message* reply_msg) {
   ViewMsg_PrintPages_Params params;
   if (printer_query->last_status() != printing::PrintingContext::OK ||
@@ -791,6 +794,7 @@ void ResourceMessageFilter::OnScriptedPrintReply(
   } else {
     printer_query->StopWorker();
   }
+  render_widget_helper_->ResetModalDialogEvent(routing_id);
 }
 
 #endif  // OS_WIN

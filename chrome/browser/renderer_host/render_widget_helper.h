@@ -138,6 +138,12 @@ class RenderWidgetHelper :
   void FreeTransportDIB(TransportDIB::Id dib_id);
 #endif
 
+  // Helper functions to signal and reset the modal dialog event, used to
+  // signal the renderer that it needs to pump messages while waiting for
+  // sync calls to return. These functions proxy the request to the UI thread.
+  void SignalModalDialogEvent(int routing_id);
+  void ResetModalDialogEvent(int routing_id);
+
  private:
   // A class used to proxy a paint message.  PaintMsgProxy objects are created
   // on the IO thread and destroyed on the UI thread.
@@ -180,6 +186,9 @@ class RenderWidgetHelper :
   Lock allocated_dibs_lock_;
   std::map<TransportDIB::Id, int> allocated_dibs_;
 #endif
+
+  void SignalModalDialogEventOnUI(int routing_id);
+  void ResetModalDialogEventOnUI(int routing_id);
 
   // A map of live paint messages.  Must hold pending_paints_lock_ to access.
   // The PaintMsgProxy objects are not owned by this map.  (See PaintMsgProxy
