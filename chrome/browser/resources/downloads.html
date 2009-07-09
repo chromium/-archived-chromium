@@ -108,7 +108,7 @@ html[dir='rtl'] .progress {
   display:none;
   padding-right:16px;
   max-width:450px;
-  text-overflow:ellipsis;
+  word-break: break-all;
 }
 html[dir='rtl'] .name {
   padding-right:0px;
@@ -117,6 +117,7 @@ html[dir='rtl'] .name {
 .download .status {
   display:inline;
   color:#999;
+  white-space:nowrap;
 }
 .download .url {
   color:#080;
@@ -477,10 +478,10 @@ Download.prototype.update = function(download) {
     }
 
     showInline(this.nodeFileLink_, this.state_ == Download.States.COMPLETE);
-    // nodeFileName_ has to be inline-block to avoid the 'interaction' with 
+    // nodeFileName_ has to be inline-block to avoid the 'interaction' with
     // nodeStatus_. If both are inline, it appears that their text contents
     // are merged before the bidi algorithm is applied leading to an
-    // undesirable reordering. http://crbug.com/13216 
+    // undesirable reordering. http://crbug.com/13216
     showInlineBlock(this.nodeFileName_, this.state_ != Download.States.COMPLETE);
 
     if (this.state_ == Download.States.IN_PROGRESS) {
