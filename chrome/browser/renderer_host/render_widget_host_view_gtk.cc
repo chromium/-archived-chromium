@@ -246,7 +246,9 @@ class RenderWidgetHostViewGtkWidget {
     if (event->type == GDK_BUTTON_PRESS && !GTK_WIDGET_HAS_FOCUS(widget))
       gtk_widget_grab_focus(widget);
 
-    return TRUE;  // We did handle the mouse event.
+    // Although we did handle the mouse event, we need to let other handlers
+    // run (in particular the one installed by TabContentsViewGtk).
+    return FALSE;
   }
 
   static gboolean MouseMoveEvent(GtkWidget* widget, GdkEventMotion* event,
