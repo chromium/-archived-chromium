@@ -2812,5 +2812,5 @@ BUG16237 : LayoutTests/http/tests/security/xssAuditor/object-tag.html = FAIL
 BUG16237 : LayoutTests/http/tests/security/xssAuditor/script-tag-with-source-null-char.html = FAIL
 
 // WebKit merge 45652:45659
-BUG16289 : LayoutTests/fast/forms/slider-mouse-events.html = FAIL
+BUG16289 MAC WIN : LayoutTests/fast/forms/slider-mouse-events.html = FAIL
 
