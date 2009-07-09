@@ -411,10 +411,17 @@ static int ParseType2Msg(const void* in_buf, uint32 in_len, Type2Msg* msg) {
   cursor += sizeof(NTLM_TYPE2_MARKER);
 
   // read target name security buffer
-  msg->target_len = ReadUint16(cursor);
+  uint32 target_len = ReadUint16(cursor);
   ReadUint16(cursor);  // discard next 16-bit value
   uint32 offset = ReadUint32(cursor);  // get offset from in_buf
-  msg->target = ((const uint8*) in_buf) + offset;
+  msg->target_len = 0;
+  msg->target = NULL;
+  // Check the offset / length combo is in range of the input buffer, including
+  // integer overflow checking.
+  if (offset + target_len > offset && offset + target_len <= in_len) {
+    msg->target_len = target_len;
+    msg->target = ((const uint8*) in_buf) + offset;
+  }
 
   // read flags
   msg->flags = ReadUint32(cursor);
