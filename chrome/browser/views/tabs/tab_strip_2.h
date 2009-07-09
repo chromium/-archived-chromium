@@ -24,7 +24,12 @@ class TabStrip2Model {
  public:
   // Get presentation state for a particular Tab2.
   virtual string16 GetTitle(int index) const = 0;
+  virtual SkBitmap GetIcon(int index) const = 0;
   virtual bool IsSelected(int index) const = 0;
+  virtual bool ShouldShowIcon(int index) const = 0;
+  virtual bool IsLoading(int index) const = 0;
+  virtual bool IsCrashed(int index) const = 0;
+  virtual bool IsIncognito(int index) const = 0;
 
   // The Tab2 at the specified index has been selected.
   virtual void SelectTabAt(int index) = 0;
@@ -89,8 +94,14 @@ class TabStrip2 : public views::View,
 
   // Overridden from Tab2Model:
   virtual string16 GetTitle(Tab2* tab) const;
+  virtual SkBitmap GetIcon(Tab2* tab) const;
   virtual bool IsSelected(Tab2* tab) const;
+  virtual bool ShouldShowIcon(Tab2* tab) const;
+  virtual bool IsLoading(Tab2* tab) const;
+  virtual bool IsCrashed(Tab2* tab) const;
+  virtual bool IsIncognito(Tab2* tab) const;
   virtual void SelectTab(Tab2* tab);
+  virtual void CloseTab(Tab2* tab);
   virtual void CaptureDragInfo(Tab2* tab, const views::MouseEvent& drag_event);
   virtual bool DragTab(Tab2* tab, const views::MouseEvent& drag_event);
   virtual void DragEnded(Tab2* tab);

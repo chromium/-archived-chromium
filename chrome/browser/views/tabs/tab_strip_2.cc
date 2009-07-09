@@ -167,12 +167,36 @@ string16 TabStrip2::GetTitle(Tab2* tab) const {
   return model_->GetTitle(GetTabIndex(tab));
 }
 
+SkBitmap TabStrip2::GetIcon(Tab2* tab) const {
+  return model_->GetIcon(GetTabIndex(tab));
+}
+
 bool TabStrip2::IsSelected(Tab2* tab) const {
   return model_->IsSelected(GetTabIndex(tab));
 }
 
+bool TabStrip2::ShouldShowIcon(Tab2* tab) const {
+  return model_->ShouldShowIcon(GetTabIndex(tab));
+}
+
+bool TabStrip2::IsLoading(Tab2* tab) const {
+  return model_->IsLoading(GetTabIndex(tab));
+}
+
+bool TabStrip2::IsCrashed(Tab2* tab) const {
+  return model_->IsCrashed(GetTabIndex(tab));
+}
+
+bool TabStrip2::IsIncognito(Tab2* tab) const {
+  return model_->IsIncognito(GetTabIndex(tab));
+}
+
 void TabStrip2::SelectTab(Tab2* tab) {
   model_->SelectTabAt(GetTabIndex(tab));
+}
+
+void TabStrip2::CloseTab(Tab2* tab) {
+  NOTREACHED();
 }
 
 void TabStrip2::CaptureDragInfo(Tab2* tab,

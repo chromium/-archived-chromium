@@ -42,7 +42,12 @@ class BrowserTabStrip : public TabStrip2,
 
   // Overridden from TabStrip2Model:
   virtual string16 GetTitle(int index) const;
+  virtual SkBitmap GetIcon(int index) const;
   virtual bool IsSelected(int index) const;
+  virtual bool ShouldShowIcon(int index) const;
+  virtual bool IsLoading(int index) const;
+  virtual bool IsCrashed(int index) const;
+  virtual bool IsIncognito(int index) const;
   virtual void SelectTabAt(int index);
   virtual bool CanDragTabs() const;
   virtual void MoveTabAt(int index, int to_index);

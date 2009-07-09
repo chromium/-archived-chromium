@@ -5,6 +5,7 @@
 #include "chrome/browser/views/tabs/browser_tab_strip.h"
 
 #include "base/compiler_specific.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/tabs/tab_strip.h"  // for CreateTabStrip only.
 
@@ -21,13 +22,24 @@ namespace {
 class RemovingTabModel : public Tab2Model {
  public:
   explicit RemovingTabModel(TabContents* source)
-      : title_(source->GetTitle()) {
+      : title_(source->GetTitle()),
+        icon_(source->GetFavIcon()),
+        should_show_icon_(source->ShouldDisplayFavIcon()),
+        is_loading_(source->is_loading()),
+        is_crashed_(source->is_crashed()),
+        is_incognito_(source->profile()->IsOffTheRecord()) {
   }
 
   // Overridden from Tab2Model:
   virtual string16 GetTitle(Tab2* tab) const { return title_; }
+  virtual SkBitmap GetIcon(Tab2* tab) const { return icon_; }
   virtual bool IsSelected(Tab2* tab) const { return false; }
+  virtual bool ShouldShowIcon(Tab2* tab) const { return should_show_icon_; }
+  virtual bool IsLoading(Tab2* tab) const { return is_loading_; }
+  virtual bool IsCrashed(Tab2* tab) const { return is_crashed_; }
+  virtual bool IsIncognito(Tab2* tab) const { return is_incognito_; }
   virtual void SelectTab(Tab2* tab) { NOTREACHED(); }
+  virtual void CloseTab(Tab2* tab) { NOTREACHED(); }
   virtual void CaptureDragInfo(Tab2* tab,
                                const views::MouseEvent& drag_event) {
     NOTREACHED();
@@ -45,7 +57,13 @@ class RemovingTabModel : public Tab2Model {
   }
 
  private:
+  // Captured display state.
   string16 title_;
+  SkBitmap icon_;
+  bool should_show_icon_;
+  bool is_loading_;
+  bool is_crashed_;
+  bool is_incognito_;
 
   DISALLOW_COPY_AND_ASSIGN(RemovingTabModel);
 };
@@ -126,8 +144,28 @@ string16 BrowserTabStrip::GetTitle(int index) const {
   return model_->GetTabContentsAt(index)->GetTitle();
 }
 
+SkBitmap BrowserTabStrip::GetIcon(int index) const {
+  return model_->GetTabContentsAt(index)->GetFavIcon();
+}
+
 bool BrowserTabStrip::IsSelected(int index) const {
   return model_->selected_index() == index;
+}
+
+bool BrowserTabStrip::ShouldShowIcon(int index) const {
+  return model_->GetTabContentsAt(index)->ShouldDisplayFavIcon();
+}
+
+bool BrowserTabStrip::IsLoading(int index) const {
+  return model_->GetTabContentsAt(index)->is_loading();
+}
+
+bool BrowserTabStrip::IsCrashed(int index) const {
+  return model_->GetTabContentsAt(index)->is_crashed();
+}
+
+bool BrowserTabStrip::IsIncognito(int index) const {
+  return model_->GetTabContentsAt(index)->profile()->IsOffTheRecord();
 }
 
 void BrowserTabStrip::SelectTabAt(int index) {
