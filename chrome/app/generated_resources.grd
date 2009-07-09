@@ -3164,6 +3164,9 @@ each locale. -->
       <message name="IDS_THEMES_GROUP_NAME" desc="The title of the themes group">
         Themes:
       </message>
+      <message name="IDS_THEMES_GTK_BUTTON" desc="The button to choose GTK colors and icons as the current theme.">
+        Set to GTK+ theme
+      </message>
       <message name="IDS_THEMES_RESET_BUTTON" desc="The button to reset your theme">
         Reset to default theme
       </message>

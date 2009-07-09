@@ -172,7 +172,8 @@ GtkWidget* ContentPageGtk::InitThemesGroup() {
   GtkWidget* hbox = gtk_hbox_new(FALSE, gtk_util::kLabelSpacing);
 
   // GTK theme button.
-  GtkWidget* gtk_theme_button = gtk_button_new_with_label("GTK Theme");
+  GtkWidget* gtk_theme_button = gtk_button_new_with_label(
+      l10n_util::GetStringUTF8(IDS_THEMES_GTK_BUTTON).c_str());
   g_signal_connect(G_OBJECT(gtk_theme_button), "clicked",
                    G_CALLBACK(OnGtkThemeButtonClicked), this);
   gtk_box_pack_start(GTK_BOX(hbox), gtk_theme_button, FALSE, FALSE, 0);
