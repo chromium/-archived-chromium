@@ -39,6 +39,7 @@
 #include "PlatformString.h"
 #include "ScriptController.h"
 #include "V8CustomBinding.h"
+#include "V8GCController.h"
 #include "V8Helpers.h"
 #include "V8NPUtils.h"
 #include "V8Proxy.h"
@@ -60,7 +61,7 @@ static void FreeV8NPObject(NPObject* npobj)
 {
     V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
 #ifndef NDEBUG
-    V8Proxy::unregisterGlobalHandle(object, object->v8Object);
+    V8GCController::unregisterGlobalHandle(object, object->v8Object);
 #endif
     object->v8Object.Dispose();
     free(object);
@@ -113,7 +114,7 @@ NPObject* npCreateV8ScriptObject(NPP npp, v8::Handle<v8::Object> object, WebCore
     V8NPObject* obj = reinterpret_cast<V8NPObject*>(NPN_CreateObject(npp, &V8NPObjectClass));
     obj->v8Object = v8::Persistent<v8::Object>::New(object);
 #ifndef NDEBUG
-    V8Proxy::registerGlobalHandle(WebCore::NPOBJECT, obj, obj->v8Object);
+    V8GCController::registerGlobalHandle(WebCore::NPOBJECT, obj, obj->v8Object);
 #endif
     obj->rootObject = root;
     return reinterpret_cast<NPObject*>(obj);
