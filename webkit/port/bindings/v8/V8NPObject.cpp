@@ -63,10 +63,10 @@ static v8::Handle<v8::Value> npObjectInvokeImpl(const v8::Arguments& args, Invok
     if (V8HTMLAppletElement::HasInstance(args.Holder()) || V8HTMLEmbedElement::HasInstance(args.Holder())
         || V8HTMLObjectElement::HasInstance(args.Holder())) {
         // The holder object is a subtype of HTMLPlugInElement.
-        HTMLPlugInElement* element = V8Proxy::convertDOMWrapperToNode<HTMLPlugInElement>(args.Holder());
+        HTMLPlugInElement* element = V8DOMWrapper::convertDOMWrapperToNode<HTMLPlugInElement>(args.Holder());
         ScriptInstance scriptInstance = element->getInstance();
         if (scriptInstance)
-            npObject = V8Proxy::convertToNativeObject<NPObject>(V8ClassIndex::NPOBJECT, scriptInstance->instance());
+            npObject = V8DOMWrapper::convertToNativeObject<NPObject>(V8ClassIndex::NPOBJECT, scriptInstance->instance());
         else
             npObject = 0;
     } else {
@@ -75,7 +75,7 @@ static v8::Handle<v8::Value> npObjectInvokeImpl(const v8::Arguments& args, Invok
         if (args.Holder()->InternalFieldCount() != V8Custom::kNPObjectInternalFieldCount)
           return throwError("NPMethod called on non-NPObject", V8Proxy::ReferenceError);
 
-        npObject = V8Proxy::convertToNativeObject<NPObject>(V8ClassIndex::NPOBJECT, args.Holder());
+        npObject = V8DOMWrapper::convertToNativeObject<NPObject>(V8ClassIndex::NPOBJECT, args.Holder());
     }
 
     // Verify that our wrapper wasn't using a NPObject which
@@ -158,7 +158,7 @@ static v8::Handle<v8::Value> npObjectGetProperty(v8::Local<v8::Object> self,
                                                  NPIdentifier identifier,
                                                  v8::Local<v8::Value> key)
 {
-    NPObject* npObject = V8Proxy::convertToNativeObject<NPObject>(V8ClassIndex::NPOBJECT, self);
+    NPObject* npObject = V8DOMWrapper::convertToNativeObject<NPObject>(V8ClassIndex::NPOBJECT, self);
 
     // Verify that our wrapper wasn't using a NPObject which
     // has already been deleted.
@@ -231,7 +231,7 @@ static v8::Handle<v8::Value> npObjectSetProperty(v8::Local<v8::Object> self,
                                                  NPIdentifier identifier,
                                                  v8::Local<v8::Value> value)
 {
-    NPObject* npObject = V8Proxy::convertToNativeObject<NPObject>(V8ClassIndex::NPOBJECT, self);
+    NPObject* npObject = V8DOMWrapper::convertToNativeObject<NPObject>(V8ClassIndex::NPOBJECT, self);
 
     // Verify that our wrapper wasn't using a NPObject which
     // has already been deleted.
@@ -365,7 +365,7 @@ void forgetV8ObjectForNPObject(NPObject* object)
     if (staticNPObjectMap.contains(object)) {
         v8::HandleScope scope;
         v8::Persistent<v8::Object> handle(staticNPObjectMap.get(object));
-        WebCore::V8Proxy::setDOMWrapper(handle, WebCore::V8ClassIndex::NPOBJECT, 0);
+        V8DOMWrapper::setDOMWrapper(handle, WebCore::V8ClassIndex::NPOBJECT, 0);
         staticNPObjectMap.forget(object);
         NPN_ReleaseObject(object);
     }

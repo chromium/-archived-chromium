@@ -88,6 +88,7 @@ inline v8::Local<v8::Value> GetEvent(const v8::Handle<v8::Context>& context) {
 }
 
 static bool DragEventData(NPObject* npobj, int* event_id, WebDragData* data) {
+  using WebCore::V8DOMWrapper;
   using WebCore::V8Proxy;
 
   if (npobj == NULL)
@@ -102,13 +103,13 @@ static bool DragEventData(NPObject* npobj, int* event_id, WebDragData* data) {
 
   // Get the current WebCore event.
   v8::Handle<v8::Value> current_event(GetEvent(context));
-  WebCore::Event* event = V8Proxy::convertToNativeEvent(current_event);
+  WebCore::Event* event = V8DOMWrapper::convertToNativeEvent(current_event);
   if (event == NULL)
     return false;
 
   // Check that the given npobj is that event.
   V8NPObject* object = reinterpret_cast<V8NPObject*>(npobj);
-  WebCore::Event* given = V8Proxy::convertToNativeEvent(object->v8Object);
+  WebCore::Event* given = V8DOMWrapper::convertToNativeEvent(object->v8Object);
   if (given != event)
     return false;
 

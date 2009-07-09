@@ -49,6 +49,8 @@ using WebCore::toV8Context;
 using WebCore::toV8Proxy;
 using WebCore::V8ClassIndex;
 using WebCore::V8Custom;
+using WebCore::V8DOMWrapper;
+using WebCore::V8GCController;
 using WebCore::V8Proxy;
 
 // FIXME(mbelshe): comments on why use malloc and free.
@@ -61,7 +63,7 @@ static void FreeV8NPObject(NPObject* npobj)
 {
     V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
 #ifndef NDEBUG
-    WebCore::V8GCController::unregisterGlobalHandle(object, object->v8Object);
+    V8GCController::unregisterGlobalHandle(object, object->v8Object);
 #endif
     object->v8Object.Dispose();
     free(object);
@@ -106,7 +108,7 @@ NPObject* npCreateV8ScriptObject(NPP npp, v8::Handle<v8::Object> object, WebCore
         object->GetInternalField(V8Custom::kDOMWrapperTypeIndex)->IsNumber() &&
         object->GetInternalField(V8Custom::kDOMWrapperTypeIndex)->Uint32Value() == V8ClassIndex::NPOBJECT) {
 
-        NPObject* rv = V8Proxy::convertToNativeObject<NPObject>(V8ClassIndex::NPOBJECT, object);
+        NPObject* rv = V8DOMWrapper::convertToNativeObject<NPObject>(V8ClassIndex::NPOBJECT, object);
         NPN_RetainObject(rv);
         return rv;
     }
@@ -114,7 +116,7 @@ NPObject* npCreateV8ScriptObject(NPP npp, v8::Handle<v8::Object> object, WebCore
     V8NPObject* obj = reinterpret_cast<V8NPObject*>(NPN_CreateObject(npp, &V8NPObjectClass));
     obj->v8Object = v8::Persistent<v8::Object>::New(object);
 #ifndef NDEBUG
-    WebCore::V8GCController::registerGlobalHandle(WebCore::NPOBJECT, obj, obj->v8Object);
+    V8GCController::registerGlobalHandle(WebCore::NPOBJECT, obj, obj->v8Object);
 #endif
     obj->rootObject = root;
     return reinterpret_cast<NPObject*>(obj);

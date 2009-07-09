@@ -44,6 +44,7 @@ using WebCore::Page;
 using WebCore::ScriptValue;
 using WebCore::String;
 using WebCore::V8ClassIndex;
+using WebCore::V8DOMWrapper;
 using WebCore::V8Proxy;
 using WebKit::WebDataSource;
 using WebKit::WebURLRequest;
@@ -322,7 +323,7 @@ v8::Handle<v8::Value> WebDevToolsAgentImpl::JsGetNodeForId(
   WebDevToolsAgentImpl* agent = static_cast<WebDevToolsAgentImpl*>(
       v8::External::Cast(*args.Data())->Value());
   Node* node = agent->dom_agent_impl_->GetNodeForId(node_id);
-  return V8Proxy::convertToV8Object(V8ClassIndex::NODE, node);
+  return V8DOMWrapper::convertToV8Object(V8ClassIndex::NODE, node);
 }
 
 // static

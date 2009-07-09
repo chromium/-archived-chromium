@@ -1613,10 +1613,11 @@ void WebFrameImpl::ExecuteScriptInNewContext(
         sources_in[i].startLine));
   }
 
-  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kIsolatedWorld))
-    frame_->script()->evaluateInNewWorld(sources);
-  else
-    frame_->script()->evaluateInNewContext(sources);
+  // OOPS!  Do not check in.
+  // if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kIsolatedWorld))
+  frame_->script()->evaluateInNewWorld(sources);
+  // else
+  //   frame_->script()->evaluateInNewContext(sources);
 }
 
 std::wstring WebFrameImpl::GetName() {

@@ -33,6 +33,7 @@ using WebCore::String;
 using WebCore::V8ClassIndex;
 using WebCore::V8Custom;
 using WebCore::V8DOMWindow;
+using WebCore::V8DOMWrapper;;
 using WebCore::V8Proxy;
 
 DebuggerAgentImpl::DebuggerAgentImpl(
@@ -104,9 +105,9 @@ void DebuggerAgentImpl::ResetUtilityContext(
       V8Proxy::context(document->frame());
   v8::Handle<v8::Object> window_global = window_context->Global();
   v8::Handle<v8::Object> window_wrapper =
-      V8Proxy::lookupDOMWrapper(V8ClassIndex::DOMWINDOW, window_global);
+      V8DOMWrapper::lookupDOMWrapper(V8ClassIndex::DOMWINDOW, window_global);
 
-  ASSERT(V8Proxy::convertDOMWrapperToNative<DOMWindow>(window_wrapper) ==
+  ASSERT(V8DOMWrapper::convertDOMWrapperToNative<DOMWindow>(window_wrapper) ==
       document->frame()->domWindow());
 
   // Create a new environment using an empty template for the shadow
