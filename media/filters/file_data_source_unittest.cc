@@ -6,34 +6,14 @@
 
 #include "base/base_paths.h"
 #include "base/file_path.h"
-#include "base/file_util.h"
 #include "base/string_util.h"
-#include "base/task.h"
-#include "base/waitable_event.h"
-#include "media/base/buffers.h"
-#include "media/base/pipeline_impl.h"
-#include "media/base/media_format.h"
-#include "media/base/filters.h"
-#include "media/base/factory.h"
-#include "media/base/filter_host.h"
 #include "media/base/mock_filter_host.h"
-#include "media/base/mock_pipeline.h"
 #include "media/filters/file_data_source.h"
-#include "media/base/mock_media_filters.h"
-#include "testing/gtest/include/gtest/gtest.h"
 
-using media::FileDataSource;
-using media::FilterFactory;
-using media::FilterFactoryCollection;
-using media::MediaFormat;
-using media::MockFilterHost;
-using media::MockPipeline;
-using media::PipelineImpl;
-using media::old_mocks::InitializationHelper;
-using media::old_mocks::MockFilterConfig;
-using media::old_mocks::MockFilterFactory;
+using ::testing::NiceMock;
+using ::testing::StrictMock;
 
-namespace {
+namespace media {
 
 // Returns a path to the test file which contains the string "0123456789"
 // without the quotes or any trailing space or null termination.  The file lives
@@ -55,42 +35,29 @@ std::string TestFileURL() {
 #endif
 }
 
-}  // namespace
-
-// Use the "real" pipeline to open the file.
+// Test that FileDataSource call the appropriate methods on its filter host.
 TEST(FileDataSourceTest, OpenFile) {
-  PipelineImpl pipeline;
-  MockFilterConfig config;
-  config.has_video = false;
-  scoped_refptr<FilterFactoryCollection> c = new FilterFactoryCollection();
-  c->AddFactory(FileDataSource::CreateFactory());
-  c->AddFactory(new MockFilterFactory(&config));
-  InitializationHelper h;
-  h.Start(&pipeline, c, TestFileURL());
-  EXPECT_EQ(pipeline.GetTotalBytes(), 10);
-  EXPECT_EQ(pipeline.GetBufferedBytes(), 10);
-  pipeline.Stop();
+  StrictMock<MockFilterHost> host;
+  EXPECT_CALL(host, SetTotalBytes(10));
+  EXPECT_CALL(host, SetBufferedBytes(10));
+  EXPECT_CALL(host, InitializationComplete());
+
+  scoped_refptr<FileDataSource> filter = new FileDataSource();
+  filter->SetFilterHost(&host);
+  EXPECT_TRUE(filter->Initialize(TestFileURL()));
 }
 
 // Use the mock filter host to directly call the Read and GetPosition methods.
 TEST(FileDataSourceTest, ReadData) {
-  MediaFormat url_format;
   int64 position;
   int64 size;
   uint8 ten_bytes[10];
-  std::string url = TestFileURL();
-  url_format.SetAsString(MediaFormat::kMimeType, media::mime_type::kURL);
-  url_format.SetAsString(MediaFormat::kURL, url);
 
-  // Create our data source.
-  scoped_refptr<FilterFactory> factory = FileDataSource::CreateFactory();
-  FileDataSource* filter = factory->Create<FileDataSource>(url_format);
-  EXPECT_TRUE(filter);
-
-  // Create our mock pipeline and filter host and initialize the data source.
-  MockPipeline pipeline;
-  MockFilterHost<FileDataSource> mock_host(&pipeline, filter);
-  EXPECT_TRUE(filter->Initialize(url));
+  // Create our mock filter host and initialize the data source.
+  NiceMock<MockFilterHost> host;
+  scoped_refptr<FileDataSource> filter = new FileDataSource();
+  filter->SetFilterHost(&host);
+  EXPECT_TRUE(filter->Initialize(TestFileURL()));
 
   EXPECT_TRUE(filter->GetSize(&size));
   EXPECT_EQ(10, size);
@@ -112,3 +79,5 @@ TEST(FileDataSourceTest, ReadData) {
   EXPECT_TRUE(filter->GetPosition(&position));
   EXPECT_EQ(10, position);
 }
+
+}  // namespace media

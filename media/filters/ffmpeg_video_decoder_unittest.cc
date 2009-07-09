@@ -85,8 +85,8 @@ class FFmpegVideoDecoderTest : public testing::Test {
 
     // Prepare a filter host, pipeline and demuxer for the video decoder.
     pipeline_.reset(new MockPipeline());
-    filter_host_.reset(new MockFilterHost<VideoDecoder>(pipeline_.get(),
-                                                        decoder_));
+    filter_host_.reset(
+        new old_mocks::MockFilterHost<VideoDecoder>(pipeline_.get(), decoder_));
     demuxer_ = new MockFFmpegDemuxerStream();
 
     // Initialize FFmpeg fixtures.
@@ -121,7 +121,7 @@ class FFmpegVideoDecoderTest : public testing::Test {
   scoped_refptr<FilterFactory> factory_;
   scoped_refptr<FFmpegVideoDecoder> decoder_;
   scoped_ptr<MockPipeline> pipeline_;
-  scoped_ptr<MockFilterHost<VideoDecoder> > filter_host_;
+  scoped_ptr<old_mocks::MockFilterHost<VideoDecoder> > filter_host_;
   scoped_refptr<MockFFmpegDemuxerStream> demuxer_;
   scoped_refptr<DataBuffer> buffer_;
   scoped_refptr<DataBuffer> end_of_stream_buffer_;

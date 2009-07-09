@@ -71,7 +71,8 @@ class FFmpegDemuxerTest : public testing::Test {
 
     // Prepare a filter host and data source for the demuxer.
     pipeline_.reset(new MockPipeline());
-    filter_host_.reset(new MockFilterHost<Demuxer>(pipeline_.get(), demuxer_));
+    filter_host_.reset(new old_mocks::MockFilterHost<Demuxer>(pipeline_.get(),
+                                                              demuxer_));
     data_source_ = new StrictMock<MockDataSource>();
 
     // Initialize FFmpeg fixtures.
@@ -148,7 +149,7 @@ class FFmpegDemuxerTest : public testing::Test {
   scoped_refptr<FilterFactory> factory_;
   scoped_refptr<FFmpegDemuxer> demuxer_;
   scoped_ptr<MockPipeline> pipeline_;
-  scoped_ptr<MockFilterHost<Demuxer> > filter_host_;
+  scoped_ptr<old_mocks::MockFilterHost<Demuxer> > filter_host_;
   scoped_refptr<StrictMock<MockDataSource> > data_source_;
   MessageLoop message_loop_;
 

@@ -1,11 +1,13 @@
 // Copyright (c) 2009 The Chromium Authors. All rights reserved.  Use of this
 // source code is governed by a BSD-style license that can be found in the
 // LICENSE file.
-
-// The corresponding FilterHost implementation for MockPipeline.  Maintains a
-// reference to the parent MockPipeline and a reference to the Filter its
-// hosting.  Common usage is to check if the hosted filter has initialized by
-// calling IsInitialized().
+//
+// A FilterHost implementation based on gmock.  Combined with setting a message
+// loop on a filter, permits single-threaded testing of filters without
+// requiring a pipeline.
+//
+// TODO(scherkus): Remove old_mocks::MockFilterHost as soon as other tests have
+// transitioned over to the new gmock-based MockFilterHost.
 
 #ifndef MEDIA_BASE_MOCK_FILTER_HOST_H_
 #define MEDIA_BASE_MOCK_FILTER_HOST_H_
@@ -19,10 +21,33 @@
 #include "media/base/filters.h"
 #include "media/base/media_format.h"
 #include "media/base/mock_pipeline.h"
+#include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace media {
 
+class MockFilterHost : public FilterHost {
+ public:
+  MockFilterHost() {}
+
+  // FilterHost implementation.
+  MOCK_METHOD0(InitializationComplete, void());
+  MOCK_METHOD1(Error, void(PipelineError error));
+  MOCK_CONST_METHOD0(GetTime, base::TimeDelta());
+  MOCK_METHOD1(SetTime, void(base::TimeDelta time));
+  MOCK_METHOD1(SetDuration, void(base::TimeDelta duration));
+  MOCK_METHOD1(SetBufferedTime, void(base::TimeDelta buffered_time));
+  MOCK_METHOD1(SetTotalBytes, void(int64 total_bytes));
+  MOCK_METHOD1(SetBufferedBytes, void(int64 buffered_bytes));
+  MOCK_METHOD2(SetVideoSize, void(size_t width, size_t height));
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(MockFilterHost);
+};
+
+namespace old_mocks {
+
+// This version is deprecated.
 template <class Filter>
 class MockFilterHost : public FilterHost {
  public:
@@ -120,6 +145,8 @@ class MockFilterHost : public FilterHost {
 
   DISALLOW_COPY_AND_ASSIGN(MockFilterHost);
 };
+
+}  // namespace old_mocks
 
 }  // namespace media
 
