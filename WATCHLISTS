@@ -52,7 +52,10 @@
       'filepath': 'webkit/.*',
     },
     'plugin': {
-      'filepath': 'chrome/browser/plugin.*|chrome/plugin/.*|chrome/common/plugin.*',
+      'filepath': 'chrome/browser/plugin.*|chrome/plugin/.*|chrome/common/plugin.*|webkit/glue/webplugin.*|webkit/glue/plugins/.*',
+    },
+    'worker': {
+      'filepath': 'chrome/browser/worker_host/.*|chrome/worker/.*|chrome/common/worker_messages.*|webkit/glue/webworker.*',
     },
     'net': {
       'filepath': 'net/.*',
@@ -66,6 +69,9 @@
     'media': {
       'filepath': 'media|Media|^third_party/ffmpeg/',
     },
+    'ipc': {
+      'filepath': 'chrome/common/ipc.*',
+    },
   },
 
   'WATCHLISTS': {
@@ -77,11 +83,12 @@
     'browser': ['ben@chromium.org'],
     'download': ['paul@chromium.org'],
     'history': ['brettw@chromium.org'],
-    'renderer': ['darin@chromium.org', 'brettw@chromium.org'],
+    'renderer': ['darin@chromium.org', 'brettw@chromium.org', 'jam@chromium.org'],
     'safe_browsing': ['paul@chromium.org'],
     'tab_contents': ['brettw@chromium.org'],
     'webkit': ['darin@chromium.org'],
-    'plugin': ['darin@chromium.org'],
+    'plugin': ['darin@chromium.org', 'jam@chromium.org'],
+    'worker': ['jam@chromium.org'],
     'extension': ['erikkay@chromium.org'],
     'purify': ['erikkay@chromium.org'],
     'net': ['darin@chromium.org', 'willchan@chromium.org'],
@@ -90,5 +97,6 @@
     'media': ['ajwong@chromium.org', 'fbarchard@chromium.org',
               'hclam@chromium.org', 'kylep@chromium.org',
               'scherkus@chromium.org'],
+    'ipc': ['jam@chromium.org'],
   },
 }
