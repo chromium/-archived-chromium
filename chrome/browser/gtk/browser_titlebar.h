@@ -59,6 +59,10 @@ class BrowserTitlebar : public MenuGtk::Delegate {
                                        GdkEventWindowState* event,
                                        BrowserTitlebar* titlebar);
 
+  // Callback for mousewheel events.
+  static gboolean OnScroll(GtkWidget* widget, GdkEventScroll* event,
+                           BrowserTitlebar* titlebar);
+
   // Callback for min/max/close buttons.
   static void OnButtonClicked(GtkWidget* button, BrowserTitlebar* window);
 

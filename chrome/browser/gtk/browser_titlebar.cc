@@ -10,6 +10,7 @@
 
 #include "app/resource_bundle.h"
 #include "app/l10n_util.h"
+#include "base/gfx/gtk_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
@@ -76,7 +77,8 @@ BrowserTitlebar::BrowserTitlebar(BrowserWindowGtk* browser_window,
 void BrowserTitlebar::Init() {
   // The widget hierarchy is shown below.
   //
-  // +- HBox (container_) -----------------------------------------------------+
+  // +- EventBox (container_) -------------------------------------------------+
+  // +- HBox (container_hbox) -------------------------------------------------+
   // |+- Algn. -++- Alignment --------------++- VBox (titlebar_buttons_box_) -+|
   // ||+ Image +||   (titlebar_alignment_)  ||+- HBox -----------------------+||
   // |||spy_guy|||                          |||+- button -++- button -+      |||
@@ -85,7 +87,14 @@ void BrowserTitlebar::Init() {
   // ||+-------+||+------------------------+||+------------------------------+||
   // |+---------++--------------------------++--------------------------------+|
   // +-------------------------------------------------------------------------+
-  container_ = gtk_hbox_new(FALSE, 0);
+  GtkWidget* container_hbox = gtk_hbox_new(FALSE, 0);
+
+  container_ = gtk_event_box_new();
+  gtk_event_box_set_visible_window(GTK_EVENT_BOX(container_), FALSE);
+  gtk_container_add(GTK_CONTAINER(container_), container_hbox);
+
+  g_signal_connect(G_OBJECT(container_), "scroll-event",
+                   G_CALLBACK(OnScroll), this);
 
   g_signal_connect(window_, "window-state-event",
                    G_CALLBACK(OnWindowStateChanged), this);
@@ -100,12 +109,12 @@ void BrowserTitlebar::Init() {
         kOTRBottomSpacing, kOTRSideSpacing, kOTRSideSpacing);
     gtk_widget_set_size_request(spy_guy, -1, 0);
     gtk_container_add(GTK_CONTAINER(spy_frame), spy_guy);
-    gtk_box_pack_start(GTK_BOX(container_), spy_frame, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(container_hbox), spy_frame, FALSE, FALSE, 0);
   }
 
   // We use an alignment to control the titlebar height.
   titlebar_alignment_ = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
-  gtk_box_pack_start(GTK_BOX(container_), titlebar_alignment_, TRUE,
+  gtk_box_pack_start(GTK_BOX(container_hbox), titlebar_alignment_, TRUE,
                      TRUE, 0);
 
   // Put the tab strip in the titlebar.
@@ -135,7 +144,7 @@ void BrowserTitlebar::Init() {
   gtk_widget_size_request(close_button_->widget(), &req);
   close_button_default_width_ = req.width;
 
-  gtk_box_pack_end(GTK_BOX(container_), titlebar_buttons_box_, FALSE,
+  gtk_box_pack_end(GTK_BOX(container_hbox), titlebar_buttons_box_, FALSE,
                    FALSE, 0);
 
   gtk_widget_show_all(container_);
@@ -193,6 +202,20 @@ gboolean BrowserTitlebar::OnWindowStateChanged(GtkWindow* window,
   }
   titlebar->UpdateTitlebarAlignment();
   return FALSE;
+}
+
+// static
+gboolean BrowserTitlebar::OnScroll(GtkWidget* widget, GdkEventScroll* event,
+                                   BrowserTitlebar* titlebar) {
+  TabStripModel* tabstrip_model =
+      titlebar->browser_window_->browser()->tabstrip_model();
+  if (event->direction == GDK_SCROLL_LEFT ||
+      event->direction == GDK_SCROLL_UP) {
+    tabstrip_model->SelectPreviousTab();
+  } else {
+    tabstrip_model->SelectNextTab();
+  }
+  return TRUE;
 }
 
 // static
