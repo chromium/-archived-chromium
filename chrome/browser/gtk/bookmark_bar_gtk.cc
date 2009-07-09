@@ -155,6 +155,9 @@ void BookmarkBarGtk::Init(Profile* profile) {
   // we can have finer control over its label.
   other_bookmarks_button_ = gtk_chrome_button_new();
   ConnectFolderButtonEvents(other_bookmarks_button_);
+  gtk_chrome_button_set_use_gtk_rendering(
+      GTK_CHROME_BUTTON(other_bookmarks_button_),
+      GtkThemeProvider::UseSystemThemeGraphics(profile));
 
   GtkWidget* image = gtk_image_new_from_pixbuf(folder_icon);
   other_bookmarks_label_ = gtk_label_new(
