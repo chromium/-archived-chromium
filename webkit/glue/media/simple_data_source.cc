@@ -63,7 +63,7 @@ bool SimpleDataSource::Initialize(const std::string& url) {
   // Validate the URL.
   SetURL(GURL(url));
   if (!url_.is_valid() || !IsSchemeSupported(url_)) {
-    host()->Error(media::PIPELINE_ERROR_NETWORK);
+    host_->Error(media::PIPELINE_ERROR_NETWORK);
     return false;
   }
 
@@ -145,15 +145,15 @@ void SimpleDataSource::OnCompletedRequest(const URLRequestStatus& status,
     size_ = data_.length();
   }
   if (!status.is_success()) {
-    host()->Error(media::PIPELINE_ERROR_NETWORK);
+    host_->Error(media::PIPELINE_ERROR_NETWORK);
     return;
   }
 
   // We're initialized!
   state_ = INITIALIZED;
-  host()->SetTotalBytes(size_);
-  host()->SetBufferedBytes(size_);
-  host()->InitializationComplete();
+  host_->SetTotalBytes(size_);
+  host_->SetBufferedBytes(size_);
+  host_->InitializationComplete();
 }
 
 std::string SimpleDataSource::GetURLForDebugging() {

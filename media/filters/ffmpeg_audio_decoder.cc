@@ -67,7 +67,7 @@ bool FFmpegAudioDecoder::OnInitialize(DemuxerStream* demuxer_stream) {
   // Prepare the output buffer.
   output_buffer_.reset(static_cast<uint8*>(av_malloc(kOutputBufferSize)));
   if (!output_buffer_.get()) {
-    host()->Error(PIPELINE_ERROR_OUT_OF_MEMORY);
+    host_->Error(PIPELINE_ERROR_OUT_OF_MEMORY);
     return false;
   }
   return true;
@@ -101,7 +101,7 @@ void FFmpegAudioDecoder::OnDecode(Buffer* input) {
   if (result < 0 ||
       output_buffer_size < 0 ||
       static_cast<size_t>(output_buffer_size) > kOutputBufferSize) {
-    host()->Error(PIPELINE_ERROR_DECODE);
+    host_->Error(PIPELINE_ERROR_DECODE);
     return;
   }
 

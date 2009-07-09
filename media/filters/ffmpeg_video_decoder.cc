@@ -337,7 +337,7 @@ VideoSurface::Format FFmpegVideoDecoder::GetSurfaceFormat(
 }
 
 void FFmpegVideoDecoder::SignalPipelineError() {
-  host()->Error(PIPELINE_ERROR_DECODE);
+  host_->Error(PIPELINE_ERROR_DECODE);
   state_ = kDecodeFinished;
 }
 

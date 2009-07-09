@@ -32,15 +32,15 @@ bool FileDataSource::Initialize(const std::string& url) {
   }
   if (!file_) {
     file_size_ = 0;
-    host()->Error(PIPELINE_ERROR_URL_NOT_FOUND);
+    host_->Error(PIPELINE_ERROR_URL_NOT_FOUND);
     return false;
   }
   media_format_.SetAsString(MediaFormat::kMimeType,
                             mime_type::kApplicationOctetStream);
   media_format_.SetAsString(MediaFormat::kURL, url);
-  host()->SetTotalBytes(file_size_);
-  host()->SetBufferedBytes(file_size_);
-  host()->InitializationComplete();
+  host_->SetTotalBytes(file_size_);
+  host_->SetBufferedBytes(file_size_);
+  host_->InitializationComplete();
   return true;
 }
 

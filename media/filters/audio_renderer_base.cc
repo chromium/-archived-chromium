@@ -89,10 +89,10 @@ void AudioRendererBase::OnReadComplete(Buffer* buffer_in) {
     if (queue_.empty()) {
       // If we say we have initialized but buffer queue is empty, raise an
       // error.
-      host()->Error(PIPELINE_ERROR_NO_DATA);
+      host_->Error(PIPELINE_ERROR_NO_DATA);
     } else {
       initialized_ = true;
-      host()->InitializationComplete();
+      host_->InitializationComplete();
     }
   }
 }
@@ -210,7 +210,7 @@ size_t AudioRendererBase::FillBuffer(uint8* dest,
     // finer time update events.
     if (playback_delay < last_fill_buffer_time)
       last_fill_buffer_time -= playback_delay;
-    host()->SetTime(last_fill_buffer_time);
+    host_->SetTime(last_fill_buffer_time);
   }
 
   return dest_written;

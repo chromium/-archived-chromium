@@ -79,8 +79,8 @@ class FFmpegVideoDecoderTest : public testing::Test {
     DCHECK(decoder_);
 
     // Inject a filter host and message loop and prepare a demuxer stream.
-    decoder_->set_filter_host(&host_);
-    decoder_->set_message_loop(&message_loop_);
+    decoder_->SetFilterHost(&host_);
+    decoder_->SetMessageLoop(&message_loop_);
     demuxer_ = new StrictMock<MockFFmpegDemuxerStream>();
 
     // Manually set the thread id for tests that don't initialize the decoder.

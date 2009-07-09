@@ -104,7 +104,7 @@ bool VideoRendererBase::Initialize(VideoDecoder* decoder) {
   int height = 0;
   if (!ParseMediaFormat(decoder->media_format(), &width, &height))
     return false;
-  host()->SetVideoSize(width, height);
+  host_->SetVideoSize(width, height);
 
   // Initialize the subclass.
   // TODO(scherkus): do we trust subclasses not to do something silly while
@@ -188,7 +188,7 @@ void VideoRendererBase::ThreadMain() {
     OnFrameAvailable();
 
     // Determine the current and next presentation timestamps.
-    base::TimeDelta now = host()->GetTime();
+    base::TimeDelta now = host_->GetTime();
     base::TimeDelta this_pts = current_frame_->GetTimestamp();
     base::TimeDelta next_pts;
     if (next_frame) {
@@ -248,11 +248,11 @@ void VideoRendererBase::OnReadComplete(VideoFrame* frame) {
     if (frames_.empty()) {
       // We should have initialized but there's no decoded frames in the queue.
       // Raise an error.
-      host()->Error(PIPELINE_ERROR_NO_DATA);
+      host_->Error(PIPELINE_ERROR_NO_DATA);
     } else {
       state_ = INITIALIZED;
       current_frame_ = frames_.front();
-      host()->InitializationComplete();
+      host_->InitializationComplete();
     }
   }
 }

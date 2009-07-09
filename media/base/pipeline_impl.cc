@@ -604,7 +604,7 @@ void PipelineThread::CreateFilter(FilterFactory* filter_factory,
         NOTREACHED() << "Could not start filter thread";
         Error(PIPELINE_ERROR_INITIALIZATION_FAILED);
       } else {
-        filter->set_message_loop(thread->message_loop());
+        filter->SetMessageLoop(thread->message_loop());
         filter_threads_.push_back(thread.release());
       }
     }
@@ -612,7 +612,7 @@ void PipelineThread::CreateFilter(FilterFactory* filter_factory,
     // Creating a thread could have failed, verify we're still OK.
     if (IsPipelineOk()) {
       filter_hosts_.push_back(host.get());
-      filter->set_host(host.release());
+      filter->SetFilterHost(host.release());
       if (!filter->Initialize(source)) {
         Error(PIPELINE_ERROR_INITIALIZATION_FAILED);
       }
