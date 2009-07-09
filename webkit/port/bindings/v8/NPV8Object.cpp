@@ -61,7 +61,7 @@ static void FreeV8NPObject(NPObject* npobj)
 {
     V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
 #ifndef NDEBUG
-    V8GCController::unregisterGlobalHandle(object, object->v8Object);
+    WebCore::V8GCController::unregisterGlobalHandle(object, object->v8Object);
 #endif
     object->v8Object.Dispose();
     free(object);
@@ -114,7 +114,7 @@ NPObject* npCreateV8ScriptObject(NPP npp, v8::Handle<v8::Object> object, WebCore
     V8NPObject* obj = reinterpret_cast<V8NPObject*>(NPN_CreateObject(npp, &V8NPObjectClass));
     obj->v8Object = v8::Persistent<v8::Object>::New(object);
 #ifndef NDEBUG
-    V8GCController::registerGlobalHandle(WebCore::NPOBJECT, obj, obj->v8Object);
+    WebCore::V8GCController::registerGlobalHandle(WebCore::NPOBJECT, obj, obj->v8Object);
 #endif
     obj->rootObject = root;
     return reinterpret_cast<NPObject*>(obj);
