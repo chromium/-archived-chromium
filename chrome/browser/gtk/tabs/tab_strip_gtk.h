@@ -288,6 +288,11 @@ class TabStripGtk : public TabStripModelObserver,
   // during animations, so we can't use current_unselected_width_.
   void LayoutNewTabButton(double last_tab_right, double unselected_width);
 
+#if defined(OS_CHROMEOS)
+  // Positions the tab overview button.
+  void LayoutTabOverviewButton();
+#endif
+
   // -- Link Drag & Drop ------------------------------------------------------
 
   // Returns the bounds to render the drop at, in screen coordinates. Sets

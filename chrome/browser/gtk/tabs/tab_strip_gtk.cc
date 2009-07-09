@@ -544,8 +544,7 @@ void TabStripGtk::Layout() {
 
   LayoutNewTabButton(static_cast<double>(tab_right), current_unselected_width_);
 #if defined(OS_CHROMEOS)
-  gtk_fixed_move(GTK_FIXED(tabstrip_.get()), tab_overview_button_->widget(),
-                 bounds_.width() - tab_overview_button_->width(), 0);
+  LayoutTabOverviewButton();
 #endif
   gtk_widget_queue_draw(tabstrip_.get());
 }
@@ -1000,6 +999,13 @@ void TabStripGtk::LayoutNewTabButton(double last_tab_right,
                  bounds.x(), bounds.y());
 }
 
+#if defined OS_CHROMEOS
+void TabStripGtk::LayoutTabOverviewButton() {
+  gtk_fixed_move(GTK_FIXED(tabstrip_.get()), tab_overview_button_->widget(),
+                 bounds_.width() - tab_overview_button_->width(), 0);
+}
+#endif
+
 void TabStripGtk::GetDesiredTabWidths(int tab_count,
                                       double* unselected_width,
                                       double* selected_width) const {
@@ -1373,6 +1379,9 @@ void TabStripGtk::AnimationLayout(double unselected_width) {
     tab_x = end_of_tab + kTabHOffset;
   }
   LayoutNewTabButton(tab_x, unselected_width);
+#if defined(OS_CHROMEOS)
+  LayoutTabOverviewButton();
+#endif
   gtk_widget_queue_draw(tabstrip_.get());
 }
 
