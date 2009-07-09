@@ -2049,6 +2049,8 @@
                 ['include', '^browser/gtk/download_started_animation_gtk.h'],
                 ['include', '^browser/gtk/edit_search_engine_dialog.cc'],
                 ['include', '^browser/gtk/edit_search_engine_dialog.h'],
+                ['include', '^browser/gtk/first_run_dialog.cc'],
+                ['include', '^browser/gtk/first_run_dialog.h'],
                 ['include', '^browser/gtk/focus_store_gtk.cc'],
                 ['include', '^browser/gtk/focus_store_gtk.h'],
                 ['include', '^browser/gtk/gtk_dnd_util.cc'],
