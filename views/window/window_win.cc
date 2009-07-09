@@ -1371,7 +1371,8 @@ void WindowWin::GetWindowBoundsAndMaximizedState(gfx::Rect* bounds,
     DCHECK(succeeded);
     *bounds = gfx::Rect(wp.rcNormalPosition);
     // Convert normal position from workarea coordinates to screen coordinates.
-    bounds->Offset(mi.rcWork.left, mi.rcWork.top);
+    bounds->Offset(mi.rcWork.left - mi.rcMonitor.left,
+                   mi.rcWork.top - mi.rcMonitor.top);
   }
 
   if (maximized != NULL)
