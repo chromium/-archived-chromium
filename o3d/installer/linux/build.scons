@@ -116,7 +116,7 @@ if subprocess.Popen(["which", "dpkg-buildpackage"],
     env.Command(targets, None,
         """dir=$OBJ_ROOT/installer/linux/""" + deb_build_tree + """ && \
            cd $$dir && \
-           dpkg-buildpackage -b -uc -aamd64 -D && \
+           dpkg-buildpackage -b -uc -aamd64 -D -rfakeroot && \
            cd $$OLDPWD && \
            mv $$dir/../""" + package_file_name + """.deb \
                $$(dirname $TARGET) && \
