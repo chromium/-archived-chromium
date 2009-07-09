@@ -49,6 +49,10 @@ CGImageRef CreateCGImageFromCustomData(const std::vector<char>& custom_data,
 NSCursor* CreateCustomCursor(const std::vector<char>& custom_data,
                              const gfx::Size& custom_size,
                              const gfx::Point& hotspot) {
+  // CG throws a cocoa exception if we try to create an empty image, which
+  // results in an infinite loop.  This CHECK ensures that we crash instead.
+  CHECK(!custom_data.empty());
+
   scoped_cftyperef<CGImageRef> cg_image(
       CreateCGImageFromCustomData(custom_data, custom_size));
 

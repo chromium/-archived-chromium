@@ -76,7 +76,7 @@ void WebImage::assign(const WebImage& image)
 
 bool WebImage::isNull() const
 {
-    return m_imageRef != 0;
+    return m_imageRef == 0;
 }
 
 WebSize WebImage::size() const
