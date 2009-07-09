@@ -221,7 +221,8 @@ std::string UTF16ToUTF8(const string16& utf16);
 # define UTF16ToWideHack UTF16ToWide
 #endif
 
-// Defines the error handling modes of WideToCodepage and CodepageToWide.
+// Defines the error handling modes of UTF16ToCodepage, CodepageToUTF16,
+// WideToCodepage and CodepageToWide.
 class OnStringUtilConversionError {
  public:
   enum Type {
@@ -231,11 +232,29 @@ class OnStringUtilConversionError {
     // The offending characters are skipped and the conversion will proceed as
     // if they did not exist.
     SKIP,
+
+    // When converting to Unicode, the offending byte sequences are substituted
+    // by Unicode replacement character (U+FFFD). When converting from Unicode,
+    // this is the same as SKIP.
+    SUBSTITUTE,
   };
 
  private:
   OnStringUtilConversionError();
 };
+
+// Converts between UTF-16 strings and the encoding specified.  If the
+// encoding doesn't exist or the encoding fails (when on_error is FAIL),
+// returns false.
+bool UTF16ToCodepage(const string16& utf16,
+                     const char* codepage_name,
+                     OnStringUtilConversionError::Type on_error,
+                     std::string* encoded);
+
+bool CodepageToUTF16(const std::string& encoded,
+                     const char* codepage_name,
+                     OnStringUtilConversionError::Type on_error,
+                     string16* utf16);
 
 // Converts between wide strings and the encoding specified.  If the
 // encoding doesn't exist or the encoding fails (when on_error is FAIL),

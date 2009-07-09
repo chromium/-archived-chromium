@@ -13,7 +13,29 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
+
+// Given a null-terminated string of wchar_t with each wchar_t representing
+// a UTF-16 code unit, returns a string16 made up of wchar_t's in the input.
+// Each wchar_t should be <= 0xFFFF and a non-BMP character (> U+FFFF)
+// should be represented as a surrogate pair (two UTF-16 units)
+// *even* where wchar_t is 32-bit (Linux and Mac).
+//
+// This is to help write tests for functions with string16 params until
+// the C++ 0x UTF-16 literal is well-supported by compilers.
+string16 BuildString16(const wchar_t* s) {
+#if defined(WCHAR_T_IS_UTF16)
+  return string16(s);
+#elif defined(WCHAR_T_IS_UTF32)
+  string16 u16;
+  while (*s != 0) {
+    DCHECK(static_cast<unsigned int>(*s) <= 0xFFFFu);
+    u16.push_back(*s++);
+  }
+  return u16;
+#endif
 }
+
+}  // namespace
 
 static const struct trim_case {
   const wchar_t* input;
@@ -459,104 +481,162 @@ TEST(StringUtilTest, ConvertCodepageUTF8) {
   }
 }
 
-TEST(StringUtilTest, ConvertBetweenCodepageAndWide) {
-  static const struct {
-    const char* codepage_name;
-    const char* encoded;
-    OnStringUtilConversionError::Type on_error;
-    bool success;
-    const wchar_t* wide;
-  } kConvertCodepageCases[] = {
-    // Test a case where the input can no be decoded, using both SKIP and FAIL
-    // error handling rules. "A7 41" is valid, but "A6" isn't.
-    {"big5",
-     "\xA7\x41\xA6",
-     OnStringUtilConversionError::FAIL,
-     false,
-     L""},
-    {"big5",
-     "\xA7\x41\xA6",
-     OnStringUtilConversionError::SKIP,
-     true,
-     L"\x4F60"},
-    // Arabic (ISO-8859)
-    {"iso-8859-6",
-     "\xC7\xEE\xE4\xD3\xF1\xEE\xE4\xC7\xE5\xEF" " "
-     "\xD9\xEE\xE4\xEE\xEA\xF2\xE3\xEF\xE5\xF2",
-     OnStringUtilConversionError::FAIL,
-     true,
-     L"\x0627\x064E\x0644\x0633\x0651\x064E\x0644\x0627\x0645\x064F" L" "
-     L"\x0639\x064E\x0644\x064E\x064A\x0652\x0643\x064F\x0645\x0652"},
-    // Chinese Simplified (GB2312)
-    {"gb2312",
-     "\xC4\xE3\xBA\xC3",
-     OnStringUtilConversionError::FAIL,
-     true,
-     L"\x4F60\x597D"},
-    // Chinese Traditional (BIG5)
-    {"big5",
-     "\xA7\x41\xA6\x6E",
-     OnStringUtilConversionError::FAIL,
-     true,
-     L"\x4F60\x597D"},
-    // Greek (ISO-8859)
-    {"iso-8859-7",
-     "\xE3\xE5\xE9\xDC" " " "\xF3\xEF\xF5",
-     OnStringUtilConversionError::FAIL,
-     true,
-     L"\x03B3\x03B5\x03B9\x03AC" L" " L"\x03C3\x03BF\x03C5"},
-    // Hebrew (Windows)
-    {"windows-1255", /* to be replaced with "iso-8859-8-I"? */
-     "\xF9\xD1\xC8\xEC\xE5\xC9\xED",
-     OnStringUtilConversionError::FAIL,
-     true,
-     L"\x05E9\x05C1\x05B8\x05DC\x05D5\x05B9\x05DD"},
-    // Hindi Devanagari (ISCII)
-    {"iscii-dev",
-     "\xEF\x42" "\xC6\xCC\xD7\xE8\xB3\xDA\xCF",
-     OnStringUtilConversionError::FAIL,
-     true,
-     L"\x0928\x092E\x0938\x094D\x0915\x093E\x0930"},
-    // Korean (EUC)
-    {"euc-kr",
-     "\xBE\xC8\xB3\xE7\xC7\xCF\xBC\xBC\xBF\xE4",
-     OnStringUtilConversionError::FAIL,
-     true,
-     L"\xC548\xB155\xD558\xC138\xC694"},
-    // Japanese (EUC)
-    {"euc-jp",
-     "\xA4\xB3\xA4\xF3\xA4\xCB\xA4\xC1\xA4\xCF",
-     OnStringUtilConversionError::FAIL,
-     true,
-     L"\x3053\x3093\x306B\x3061\x306F"},
-    // Japanese (ISO-2022)
-    {"iso-2022-jp",
-     "\x1B\x24\x42" "\x24\x33\x24\x73\x24\x4B\x24\x41\x24\x4F" "\x1B\x28\x42",
-     OnStringUtilConversionError::FAIL,
-     true,
-     L"\x3053\x3093\x306B\x3061\x306F"},
-    // Japanese (Shift-JIS)
-    {"sjis",
-     "\x82\xB1\x82\xF1\x82\xC9\x82\xBF\x82\xCD",
-     OnStringUtilConversionError::FAIL,
-     true,
-     L"\x3053\x3093\x306B\x3061\x306F"},
-    // Russian (KOI8)
-    {"koi8-r",
-     "\xDA\xC4\xD2\xC1\xD7\xD3\xD4\xD7\xD5\xCA\xD4\xC5",
-     OnStringUtilConversionError::FAIL,
-     true,
-     L"\x0437\x0434\x0440\x0430\x0432\x0441\x0442\x0432"
-     L"\x0443\x0439\x0442\x0435"},
-    // Thai (ISO-8859)
-    {"windows-874", /* to be replaced with "iso-8859-11". */
-     "\xCA\xC7\xD1\xCA\xB4\xD5" "\xA4\xC3\xD1\xBA",
-     OnStringUtilConversionError::FAIL,
-     true,
-     L"\x0E2A\x0E27\x0E31\x0E2A\x0E14\x0E35"
-     L"\x0E04\x0E23\x0e31\x0E1A"},
-  };
+// kConverterCodepageCases is not comprehensive. There are a number of cases
+// to add if we really want to have a comprehensive coverage of various
+// codepages and their 'idiosyncrasies'. Currently, the only implementation
+// for CodepageTo* and *ToCodepage uses ICU, which has a very extensive
+// set of tests for the charset conversion. So, we can get away with a
+// relatively small number of cases listed below.
+//
+// Note about |u16_wide| in the following struct.
+// On Windows, the field is always identical to |wide|. On Mac and Linux,
+// it's identical as long as there's no character outside the
+// BMP (<= U+FFFF). When there is, it is different from |wide| and
+// is not a real wide string (UTF-32 string) in that each wchar_t in
+// the string is a UTF-16 code unit zero-extended to be 32-bit
+// even when the code unit belongs to a surrogate pair.
+// For instance, a Unicode string (U+0041 U+010000) is represented as
+// L"\x0041\xD800\xDC00" instead of L"\x0041\x10000".
+// To avoid the clutter, |u16_wide| will be set to NULL
+// if it's identical to |wide| on *all* platforms.
 
+static const struct {
+  const char* codepage_name;
+  const char* encoded;
+  OnStringUtilConversionError::Type on_error;
+  bool success;
+  const wchar_t* wide;
+  const wchar_t* u16_wide;
+} kConvertCodepageCases[] = {
+  // Test a case where the input cannot be decoded, using SKIP, FAIL
+  // and SUBSTITUTE error handling rules. "A7 41" is valid, but "A6" isn't.
+  {"big5",
+   "\xA7\x41\xA6",
+   OnStringUtilConversionError::FAIL,
+   false,
+   L"",
+   NULL},
+  {"big5",
+   "\xA7\x41\xA6",
+   OnStringUtilConversionError::SKIP,
+   true,
+   L"\x4F60",
+   NULL},
+  {"big5",
+   "\xA7\x41\xA6",
+   OnStringUtilConversionError::SUBSTITUTE,
+   true,
+   L"\x4F60\xFFFD",
+   NULL},
+  // Arabic (ISO-8859)
+  {"iso-8859-6",
+   "\xC7\xEE\xE4\xD3\xF1\xEE\xE4\xC7\xE5\xEF" " "
+   "\xD9\xEE\xE4\xEE\xEA\xF2\xE3\xEF\xE5\xF2",
+   OnStringUtilConversionError::FAIL,
+   true,
+   L"\x0627\x064E\x0644\x0633\x0651\x064E\x0644\x0627\x0645\x064F" L" "
+   L"\x0639\x064E\x0644\x064E\x064A\x0652\x0643\x064F\x0645\x0652",
+   NULL},
+  // Chinese Simplified (GB2312)
+  {"gb2312",
+   "\xC4\xE3\xBA\xC3",
+   OnStringUtilConversionError::FAIL,
+   true,
+   L"\x4F60\x597D",
+   NULL},
+  // Chinese (GB18030) : 4 byte sequences mapped to BMP characters
+  {"gb18030",
+   "\x81\x30\x84\x36\xA1\xA7",
+   OnStringUtilConversionError::FAIL,
+   true,
+   L"\x00A5\x00A8",
+   NULL},
+  // Chinese (GB18030) : A 4 byte sequence mapped to plane 2 (U+20000)
+  {"gb18030",
+   "\x95\x32\x82\x36\xD2\xBB",
+   OnStringUtilConversionError::FAIL,
+   true,
+#if defined(WCHAR_T_IS_UTF16)
+   L"\xD840\xDC00\x4E00",
+#else
+   L"\x20000\x4E00",
+#endif
+   L"\xD840\xDC00\x4E00"},
+  {"big5",
+   "\xA7\x41\xA6\x6E",
+   OnStringUtilConversionError::FAIL,
+   true,
+   L"\x4F60\x597D",
+   NULL},
+  // Greek (ISO-8859)
+  {"iso-8859-7",
+   "\xE3\xE5\xE9\xDC" " " "\xF3\xEF\xF5",
+   OnStringUtilConversionError::FAIL,
+   true,
+   L"\x03B3\x03B5\x03B9\x03AC" L" " L"\x03C3\x03BF\x03C5",
+   NULL},
+  // Hebrew (Windows)
+  {"windows-1255",
+   "\xF9\xD1\xC8\xEC\xE5\xC9\xED",
+   OnStringUtilConversionError::FAIL,
+   true,
+   L"\x05E9\x05C1\x05B8\x05DC\x05D5\x05B9\x05DD",
+   NULL},
+  // Hindi Devanagari (ISCII)
+  {"iscii-dev",
+   "\xEF\x42" "\xC6\xCC\xD7\xE8\xB3\xDA\xCF",
+   OnStringUtilConversionError::FAIL,
+   true,
+   L"\x0928\x092E\x0938\x094D\x0915\x093E\x0930",
+   NULL},
+  // Korean (EUC)
+  {"euc-kr",
+   "\xBE\xC8\xB3\xE7\xC7\xCF\xBC\xBC\xBF\xE4",
+   OnStringUtilConversionError::FAIL,
+   true,
+   L"\xC548\xB155\xD558\xC138\xC694",
+   NULL},
+  // Japanese (EUC)
+  {"euc-jp",
+   "\xA4\xB3\xA4\xF3\xA4\xCB\xA4\xC1\xA4\xCF\xB0\xEC\x8F\xB0\xA1\x8E\xA6",
+   OnStringUtilConversionError::FAIL,
+   true,
+   L"\x3053\x3093\x306B\x3061\x306F\x4E00\x4E02\xFF66",
+   NULL},
+  // Japanese (ISO-2022)
+  {"iso-2022-jp",
+   "\x1B$B" "\x24\x33\x24\x73\x24\x4B\x24\x41\x24\x4F\x30\x6C" "\x1B(B"
+   "ab" "\x1B(J" "\x5C\x7E#$" "\x1B(B",
+   OnStringUtilConversionError::FAIL,
+   true,
+   L"\x3053\x3093\x306B\x3061\x306F\x4E00" L"ab\x00A5\x203E#$",
+   NULL},
+  // Japanese (Shift-JIS)
+  {"sjis",
+   "\x82\xB1\x82\xF1\x82\xC9\x82\xBF\x82\xCD\x88\xEA\xA6",
+   OnStringUtilConversionError::FAIL,
+   true,
+   L"\x3053\x3093\x306B\x3061\x306F\x4E00\xFF66",
+   NULL},
+  // Russian (KOI8)
+  {"koi8-r",
+   "\xDA\xC4\xD2\xC1\xD7\xD3\xD4\xD7\xD5\xCA\xD4\xC5",
+   OnStringUtilConversionError::FAIL,
+   true,
+   L"\x0437\x0434\x0440\x0430\x0432\x0441\x0442\x0432"
+   L"\x0443\x0439\x0442\x0435",
+   NULL},
+  // Thai (windows-874)
+  {"windows-874",
+   "\xCA\xC7\xD1\xCA\xB4\xD5" "\xA4\xC3\xD1\xBA",
+   OnStringUtilConversionError::FAIL,
+   true,
+   L"\x0E2A\x0E27\x0E31\x0E2A\x0E14\x0E35"
+   L"\x0E04\x0E23\x0e31\x0E1A",
+   NULL},
+};
+
+TEST(StringUtilTest, ConvertBetweenCodepageAndWide) {
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kConvertCodepageCases); ++i) {
     std::wstring wide;
     bool success = CodepageToWide(kConvertCodepageCases[i].encoded,
@@ -567,7 +647,9 @@ TEST(StringUtilTest, ConvertBetweenCodepageAndWide) {
     EXPECT_EQ(kConvertCodepageCases[i].wide, wide);
 
     // When decoding was successful and nothing was skipped, we also check the
-    // reverse conversion.
+    // reverse conversion. Not all conversions are round-trippable, but
+    // kConverterCodepageCases does not have any one-way conversion at the
+    // moment.
     if (success &&
         kConvertCodepageCases[i].on_error ==
             OnStringUtilConversionError::FAIL) {
@@ -590,6 +672,11 @@ TEST(StringUtilTest, ConvertBetweenCodepageAndWide) {
   EXPECT_TRUE(WideToCodepage(L"Chinese\xff27", "iso-8859-1",
                              OnStringUtilConversionError::SKIP, &encoded));
   EXPECT_STREQ("Chinese", encoded.c_str());
+  // From Unicode, SUBSTITUTE is the same as SKIP for now.
+  EXPECT_TRUE(WideToCodepage(L"Chinese\xff27", "iso-8859-1",
+                             OnStringUtilConversionError::SUBSTITUTE,
+                             &encoded));
+  EXPECT_STREQ("Chinese", encoded.c_str());
 
 #if defined(WCHAR_T_IS_UTF16)
   // When we're in UTF-16 mode, test an invalid UTF-16 character in the input.
@@ -609,6 +696,36 @@ TEST(StringUtilTest, ConvertBetweenCodepageAndWide) {
   // Invalid codepages should fail.
   EXPECT_FALSE(WideToCodepage(L"Hello, world", "awesome-8571-2",
                               OnStringUtilConversionError::SKIP, &encoded));
+}
+
+TEST(StringUtilTest, ConvertBetweenCodepageAndUTF16) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kConvertCodepageCases); ++i) {
+    string16 utf16;
+    bool success = CodepageToUTF16(kConvertCodepageCases[i].encoded,
+                                   kConvertCodepageCases[i].codepage_name,
+                                   kConvertCodepageCases[i].on_error,
+                                   &utf16);
+    string16 utf16_expected;
+    if (kConvertCodepageCases[i].u16_wide == NULL)
+      utf16_expected = BuildString16(kConvertCodepageCases[i].wide);
+    else
+      utf16_expected = BuildString16(kConvertCodepageCases[i].u16_wide);
+    EXPECT_EQ(kConvertCodepageCases[i].success, success);
+    EXPECT_EQ(utf16_expected, utf16);
+
+    // When decoding was successful and nothing was skipped, we also check the
+    // reverse conversion. See also the corresponding comment in
+    // ConvertBetweenCodepageAndWide.
+    if (success &&
+        kConvertCodepageCases[i].on_error ==
+            OnStringUtilConversionError::FAIL) {
+      std::string encoded;
+      success = UTF16ToCodepage(utf16, kConvertCodepageCases[i].codepage_name,
+                                kConvertCodepageCases[i].on_error, &encoded);
+      EXPECT_EQ(kConvertCodepageCases[i].success, success);
+      EXPECT_EQ(kConvertCodepageCases[i].encoded, encoded);
+    }
+  }
 }
 
 TEST(StringUtilTest, ConvertASCII) {

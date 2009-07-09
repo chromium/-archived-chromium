@@ -7,6 +7,7 @@
 #include "base/compiler_specific.h"
 #include "base/file_version_info.h"
 #include "base/message_loop.h"
+#include "base/sys_string_conversions.h"
 #include "net/base/escape.h"
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
@@ -16,6 +17,46 @@
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_error_job.h"
+#include "unicode/ucsdet.h"
+
+namespace {
+
+// A very simple-minded character encoding detection.
+// TODO(jungshik): We can apply more heuristics here (e.g. using various hints
+// like TLD, the UI language/default encoding of a client, etc). In that case,
+// this should be pulled out of here and moved somewhere in base because there
+// can be other use cases.
+std::string DetectEncoding(const char*input, size_t len) {
+  if (IsStringASCII(std::string(input, len)))
+    return std::string();
+  UErrorCode status = U_ZERO_ERROR;
+  UCharsetDetector* detector = ucsdet_open(&status);
+  ucsdet_setText(detector, input, static_cast<int32_t>(len), &status);
+  const UCharsetMatch* match = ucsdet_detect(detector, &status);
+  const char* encoding = ucsdet_getName(match, &status);
+  // Should we check the quality of the match? A rather arbitrary number is
+  // assigned by ICU and it's hard to come up with a lower limit.
+  if (U_FAILURE(status))
+    return std::string();
+  return encoding;
+}
+
+string16 RawByteSequenceToFilename(const char* raw_filename,
+                                   const std::string& encoding) {
+  if (encoding.empty())
+    return ASCIIToUTF16(raw_filename);
+
+  // Try the detected encoding before falling back to the native codepage.
+  // Using the native codepage does not make much sense, but we don't have
+  // much else to resort to.
+  string16 filename;
+  if (!CodepageToUTF16(raw_filename, encoding.c_str(),
+                       OnStringUtilConversionError::SUBSTITUTE, &filename))
+    filename = WideToUTF16Hack(base::SysNativeMBToWide(raw_filename));
+  return filename;
+}
+
+}  // namespace
 
 URLRequestNewFtpJob::URLRequestNewFtpJob(URLRequest* request)
     : URLRequestJob(request),
@@ -69,17 +110,36 @@ bool URLRequestNewFtpJob::ReadRawData(net::IOBuffer* buf,
   if (response_info_ == NULL) {
      response_info_ = transaction_->GetResponseInfo();
     if (response_info_->is_directory_listing) {
-      // Unescape the URL path and pass the raw 8bit directly to the browser.
-      directory_html_ = net::GetDirectoryListingHeader(
+      std::string escaped_path =
           UnescapeURLComponent(request_->url().path(),
-          UnescapeRule::SPACES | UnescapeRule::URL_SPECIAL_CHARS));
+          UnescapeRule::SPACES | UnescapeRule::URL_SPECIAL_CHARS);
+      string16 path_utf16;
+      // Per RFC 2640, FTP servers should use UTF-8 or its proper subset ASCII,
+      // but many old FTP servers use legacy encodings. Try UTF-8 first and
+      // detect the encoding.
+      if (IsStringUTF8(escaped_path)) {
+        path_utf16 = UTF8ToUTF16(escaped_path);
+      } else {
+        std::string encoding = DetectEncoding(escaped_path.c_str(),
+                                              escaped_path.size());
+        // Try the detected encoding. If it fails, resort to the
+        // OS native encoding.
+        if (encoding.empty() ||
+            !CodepageToUTF16(escaped_path, encoding.c_str(),
+                             OnStringUtilConversionError::SUBSTITUTE,
+                             &path_utf16))
+          path_utf16 = WideToUTF16Hack(base::SysNativeMBToWide(escaped_path));
+      }
+
+      directory_html_ = net::GetDirectoryListingHeader(path_utf16);
       // If this isn't top level directory (i.e. the path isn't "/",)
       // add a link to the parent directory.
       if (request_->url().path().length() > 1)
-        directory_html_.append(net::GetDirectoryListingEntry("..",
-                                                             false,
-                                                             0,
-                                                             base::Time()));
+        directory_html_.append(
+            net::GetDirectoryListingEntry(ASCIIToUTF16(".."),
+                                          std::string(),
+                                          false, 0,
+                                          base::Time()));
     }
   }
   if (!directory_html_.empty()) {
@@ -121,6 +181,20 @@ int URLRequestNewFtpJob::ProcessFtpDir(net::IOBuffer *buf,
   std::string file_entry;
   std::string line;
   buf->data()[bytes_read] = 0;
+
+  // If all we've seen so far is ASCII, encoding_ is empty. Try to detect the
+  // encoding. We don't do the separate UTF-8 check here because the encoding
+  // detection with a longer chunk (as opposed to the relatively short path
+  // component of the url) is unlikely to mistake UTF-8 for a legacy encoding.
+  // If it turns out to be wrong, a separate UTF-8 check has to be added.
+  //
+  // TODO(jungshik): UTF-8 has to be 'enforced' without any heuristics when
+  // we're talking to an FTP server compliant to RFC 2640 (that is, its response
+  // to FEAT command includes 'UTF8').
+  // See http://wiki.filezilla-project.org/Character_Set
+  if (encoding_.empty())
+    encoding_ = DetectEncoding(buf->data(), bytes_read);
+
   int64 file_size;
   std::istringstream iss(buf->data());
   while (getline(iss, line)) {
@@ -144,6 +218,7 @@ int URLRequestNewFtpJob::ProcessFtpDir(net::IOBuffer *buf,
         et.day_of_week = result.fe_time.tm_wday;
 
         file_entry.append(net::GetDirectoryListingEntry(
+            RawByteSequenceToFilename(result.fe_fname, encoding_),
             result.fe_fname, true, 0, base::Time::FromLocalExploded(et)));
         break;
       case net::FTP_TYPE_FILE:
@@ -163,6 +238,7 @@ int URLRequestNewFtpJob::ProcessFtpDir(net::IOBuffer *buf,
         // It returns wrong date/time (Differnce is 1 day and 17 Hours).
         if (StringToInt64(result.fe_size, &file_size))
           file_entry.append(net::GetDirectoryListingEntry(
+              RawByteSequenceToFilename(result.fe_fname, encoding_),
               result.fe_fname, false, file_size,
               base::Time::FromLocalExploded(et)));
         break;

@@ -59,6 +59,7 @@ class URLRequestNewFtpJob : public URLRequestJob {
 
   std::string directory_html_;
   bool read_in_progress_;
+  std::string encoding_;
 
   // Keep a reference to the url request context to be sure it's not deleted
   // before us.

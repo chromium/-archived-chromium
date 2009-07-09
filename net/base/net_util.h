@@ -14,6 +14,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/string16.h"
 #include "net/base/escape.h"
 
 struct addrinfo;
@@ -147,12 +148,24 @@ std::string CanonicalizeHost(const std::string& host,
 std::string CanonicalizeHost(const std::wstring& host,
                              url_canon::CanonHostInfo* host_info);
 
-// Call these functions to get the html for a directory listing.
-// They will pass non-7bit-ascii characters unescaped, allowing
-// the browser to interpret the encoding (utf8, etc).
-std::string GetDirectoryListingHeader(const std::string& title);
-std::string GetDirectoryListingEntry(const std::string& name, bool is_dir,
-                                     int64 size, const base::Time& modified);
+// Call these functions to get the html snippet for a directory listing.
+// The return values of both functions are in UTF-8.
+std::string GetDirectoryListingHeader(const string16& title);
+
+// Given the name of a file in a directory (ftp or local) and
+// other information (is_dir, size, modification time), it returns
+// the html snippet to add the entry for the file to the directory listing.
+// Currently, it's a script tag containing a call to a Javascript function
+// |addRow|.
+//
+// Its 1st parameter is derived from |name| and is the Javascript-string
+// escaped form of |name| (i.e \uXXXX). The 2nd parameter is the url-escaped
+// |raw_bytes| if it's not empty. If empty, the 2nd parameter is the
+// url-escaped |name| in UTF-8.
+std::string GetDirectoryListingEntry(const string16& name,
+                                     const std::string& raw_bytes,
+                                     bool is_dir, int64 size,
+                                     base::Time modified);
 
 // If text starts with "www." it is removed, otherwise text is returned
 // unmodified.

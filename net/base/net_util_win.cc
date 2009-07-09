@@ -57,33 +57,13 @@ bool FileURLToFilePath(const GURL& url, FilePath* file_path) {
   }
   file_path_str.assign(UTF8ToWide(path));
 
-  // Now we have an unescaped filename, but are still not sure about its
-  // encoding. For example, each character could be part of a UTF-8 string.
-  if (file_path_str.empty() || !IsString8Bit(file_path_str)) {
-    // assume our 16-bit encoding is correct if it won't fit into an 8-bit
-    // string
-    return true;
-  }
-
-  // Convert our narrow string into the native wide path.
-  std::string narrow;
-  if (!WideToLatin1(file_path_str, &narrow)) {
-    NOTREACHED() << "Should have filtered out non-8-bit strings above.";
-    return false;
-  }
-  if (IsStringUTF8(narrow)) {
-    // Our string actually looks like it could be UTF-8, convert to 8-bit
-    // UTF-8 and then to the corresponding wide string.
-    file_path_str = UTF8ToWide(narrow);
-  } else {
-    // Our wide string contains only 8-bit characters and it's not UTF-8, so
-    // we assume it's in the native codepage.
-    file_path_str = base::SysNativeMBToWide(narrow);
-  }
-
-  // Fail if 8-bit -> wide conversion failed and gave us an empty string back
-  // (we already filtered out empty strings above).
-  return !file_path_str.empty();
+  // We used to try too hard and see if |path| made up entirely of
+  // the 1st 256 characters in the Unicode was a zero-extended UTF-16.
+  // If so, we converted it to 'Latin-1' and checked if the result was UTF-8.
+  // If the check passed, we converted the result to UTF-8.
+  // Otherwise, we treated the result as the native OS encoding.
+  // However, that led to http://crbug.com/4619 and http://crbug.com/14153
+  return true;
 }
 
 }  // namespace net

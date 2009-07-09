@@ -407,18 +407,32 @@ TEST(NetUtilTest, FileURLConversion) {
      "file://some%20computer/foo/bar.txt"}, // UNC
     {L"D:\\Name;with%some symbols*#",
      "file:///D:/Name%3Bwith%25some%20symbols*%23"},
+    // issue 14153: To be tested with the OS default codepage other than 1252.
+    {L"D:\\latin1\\caf\x00E9\x00DD.txt",
+     "file:///D:/latin1/caf%C3%A9%C3%9D.txt"},
+    {L"D:\\otherlatin\\caf\x0119.txt",
+     "file:///D:/otherlatin/caf%C4%99.txt"},
+    {L"D:\\greek\\\x03B1\x03B2\x03B3.txt",
+     "file:///D:/greek/%CE%B1%CE%B2%CE%B3.txt"},
     {L"D:\\Chinese\\\x6240\x6709\x4e2d\x6587\x7f51\x9875.doc",
      "file:///D:/Chinese/%E6%89%80%E6%9C%89%E4%B8%AD%E6%96%87%E7%BD%91"
          "%E9%A1%B5.doc"},
+    {L"D:\\plane1\\\xD835\xDC00\xD835\xDC01.txt",  // Math alphabet "AB"
+     "file:///D:/plane1/%F0%9D%90%80%F0%9D%90%81.txt"},
 #elif defined(OS_POSIX)
     {L"/foo/bar.txt", "file:///foo/bar.txt"},
     {L"/foo/BAR.txt", "file:///foo/BAR.txt"},
     {L"/C:/foo/bar.txt", "file:///C:/foo/bar.txt"},
     {L"/some computer/foo/bar.txt", "file:///some%20computer/foo/bar.txt"},
     {L"/Name;with%some symbols*#", "file:///Name%3Bwith%25some%20symbols*%23"},
+    {L"/latin1/caf\x00E9\x00DD.txt", "file:///latin1/caf%C3%A9%C3%9D.txt"},
+    {L"/otherlatin/caf\x0119.txt", "file:///otherlatin/caf%C4%99.txt"},
+    {L"/greek/\x03B1\x03B2\x03B3.txt", "file:///greek/%CE%B1%CE%B2%CE%B3.txt"},
     {L"/Chinese/\x6240\x6709\x4e2d\x6587\x7f51\x9875.doc",
      "file:///Chinese/%E6%89%80%E6%9C%89%E4%B8%AD%E6%96%87%E7%BD"
          "%91%E9%A1%B5.doc"},
+    {L"/plane1/\x1D400\x1D401.txt",  // Math alphabet "AB"
+     "file:///plane1/%F0%9D%90%80%F0%9D%90%81.txt"},
 #endif
   };
 
@@ -473,21 +487,6 @@ TEST(NetUtilTest, FileURLConversion) {
     net::FileURLToFilePath(GURL(url_cases[i].url), &output);
     EXPECT_EQ(url_cases[i].file, output.ToWStringHack());
   }
-
-  // Here, we test that UTF-8 encoded strings get decoded properly, even when
-  // they might be stored with wide characters.  On posix systems, just treat
-  // this as a stream of bytes.
-  const wchar_t utf8[] = L"file:///d:/Chinese/\xe6\x89\x80\xe6\x9c\x89\xe4\xb8"
-                         L"\xad\xe6\x96\x87\xe7\xbd\x91\xe9\xa1\xb5.doc";
-#if defined(OS_WIN)
-  const wchar_t wide[] =
-      L"D:\\Chinese\\\x6240\x6709\x4e2d\x6587\x7f51\x9875.doc";
-#elif defined(OS_POSIX)
-  const wchar_t wide[] = L"/d:/Chinese/\xe6\x89\x80\xe6\x9c\x89\xe4\xb8\xad\xe6"
-                         L"\x96\x87\xe7\xbd\x91\xe9\xa1\xb5.doc";
-#endif
-  EXPECT_TRUE(net::FileURLToFilePath(GURL(WideToUTF8(utf8)), &output));
-  EXPECT_EQ(wide, output.ToWStringHack());
 
   // Unfortunately, UTF8ToWide discards invalid UTF8 input.
 #ifdef BUG_878908_IS_FIXED
@@ -862,7 +861,8 @@ TEST(NetUtilTest, GetSuggestedFilename) {
 namespace {
 
 struct GetDirectoryListingEntryCase {
-  const char* name;
+  const wchar_t* name;
+  const char* raw_bytes;
   bool is_dir;
   int64 filesize;
   base::Time time;
@@ -872,22 +872,50 @@ struct GetDirectoryListingEntryCase {
 }  // namespace
 TEST(NetUtilTest, GetDirectoryListingEntry) {
   const GetDirectoryListingEntryCase test_cases[] = {
-    {"Foo",
+    {L"Foo",
+     "",
      false,
      10000,
      base::Time(),
      "<script>addRow(\"Foo\",\"Foo\",0,\"9.8 kB\",\"\");</script>\n"},
-    {"quo\"tes",
+    {L"quo\"tes",
+     "",
      false,
      10000,
      base::Time(),
      "<script>addRow(\"quo\\\"tes\",\"quo%22tes\",0,\"9.8 kB\",\"\");</script>"
          "\n"},
+    {L"quo\"tes",
+     "quo\"tes",
+     false,
+     10000,
+     base::Time(),
+     "<script>addRow(\"quo\\\"tes\",\"quo%22tes\",0,\"9.8 kB\",\"\");</script>"
+         "\n"},
+    // U+D55C0 U+AE00. raw_bytes is empty (either a local file with
+    // UTF-8/UTF-16 encoding or a remote file on an ftp server using UTF-8
+    {L"\xD55C\xAE00.txt",
+     "",
+     false,
+     10000,
+     base::Time(),
+     "<script>addRow(\"\\uD55C\\uAE00.txt\",\"%ED%95%9C%EA%B8%80.txt\""
+         ",0,\"9.8 kB\",\"\");</script>\n"},
+    // U+D55C0 U+AE00. raw_bytes is the corresponding EUC-KR sequence:
+    // a local or remote file in EUC-KR.
+    {L"\xD55C\xAE00.txt",
+     "\xC7\xD1\xB1\xDB.txt",
+     false,
+     10000,
+     base::Time(),
+     "<script>addRow(\"\\uD55C\\uAE00.txt\",\"%C7%D1%B1%DB.txt\""
+         ",0,\"9.8 kB\",\"\");</script>\n"},
   };
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(test_cases); ++i) {
     const std::string results = net::GetDirectoryListingEntry(
-        test_cases[i].name,
+        WideToUTF16(test_cases[i].name),
+        test_cases[i].raw_bytes,
         test_cases[i].is_dir,
         test_cases[i].filesize,
         test_cases[i].time);

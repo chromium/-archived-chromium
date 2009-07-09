@@ -860,7 +860,7 @@ std::string CanonicalizeHost(const std::wstring& host,
   return CanonicalizeHost(converted_host, host_info);
 }
 
-std::string GetDirectoryListingHeader(const std::string& title) {
+std::string GetDirectoryListingHeader(const string16& title) {
   static const StringPiece header(NetModule::GetResource(IDR_DIR_HEADER_HTML));
   if (header.empty()) {
     NOTREACHED() << "expected resource not found";
@@ -874,15 +874,21 @@ std::string GetDirectoryListingHeader(const std::string& title) {
   return result;
 }
 
-std::string GetDirectoryListingEntry(const std::string& name,
+std::string GetDirectoryListingEntry(const string16& name,
+                                     const std::string& raw_bytes,
                                      bool is_dir,
                                      int64 size,
-                                     const Time& modified) {
+                                     Time modified) {
   std::string result;
   result.append("<script>addRow(");
   string_escape::JsonDoubleQuote(name, true, &result);
   result.append(",");
-  string_escape::JsonDoubleQuote(EscapePath(name), true, &result);
+  if (raw_bytes.empty()) {
+    string_escape::JsonDoubleQuote(EscapePath(UTF16ToUTF8(name)),
+                                   true, &result);
+  } else {
+    string_escape::JsonDoubleQuote(EscapePath(raw_bytes), true, &result);
+  }
   if (is_dir) {
     result.append(",1,");
   } else {

@@ -7,6 +7,7 @@
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
+#include "base/sys_string_conversions.h"
 #include "base/time.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/io_buffer.h"
@@ -104,9 +105,15 @@ void URLRequestFileDirJob::OnListFile(
   // can catch errors from DirectoryLister and show an error page.
   if (!wrote_header_) {
 #if defined(OS_WIN)
-    const std::string& title = WideToUTF8(dir_path_.value());
+    const string16& title = dir_path_.value();
 #elif defined(OS_POSIX)
-    const std::string& title = dir_path_.value();
+    // TODO(jungshik): Add SysNativeMBToUTF16 to sys_string_conversions.
+    // On Mac, need to add NFKC->NFC conversion either here or in file_path.
+    // On Linux, the file system encoding is not defined, but we assume that
+    // SysNativeMBToWide takes care of it at least for now. We can try something
+    // more sophisticated if necessary later.
+    const string16& title = WideToUTF16(
+        base::SysNativeMBToWide(dir_path_.value()));
 #endif
     data_.append(net::GetDirectoryListingHeader(title));
     wrote_header_ = true;
@@ -119,14 +126,16 @@ void URLRequestFileDirJob::OnListFile(
       data.nFileSizeLow;
 
   data_.append(net::GetDirectoryListingEntry(
-      WideToUTF8(data.cFileName),
+      data.cFileName, std::string(),
       (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? true : false,
       size,
       base::Time::FromFileTime(local_time)));
 
 #elif defined(OS_POSIX)
+  // TOOD(jungshik): The same issue as for the directory name.
   data_.append(net::GetDirectoryListingEntry(
-      data.filename.c_str(),
+      WideToUTF16(base::SysNativeMBToWide(data.filename)),
+      data.filename,
       S_ISDIR(data.stat.st_mode),
       data.stat.st_size,
       base::Time::FromTimeT(data.stat.st_mtime)));

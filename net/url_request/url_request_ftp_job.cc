@@ -9,6 +9,7 @@
 
 #include "base/message_loop.h"
 #include "base/string_util.h"
+#include "base/sys_string_conversions.h"
 #include "base/time.h"
 #include "net/base/auth.h"
 #include "net/base/escape.h"
@@ -388,11 +389,21 @@ void URLRequestFtpJob::OnFindFile(DWORD last_error) {
         (static_cast<unsigned __int64>(find_data_.nFileSizeHigh) << 32) |
         find_data_.nFileSizeLow;
 
-    // We don't know the encoding, and can't assume utf8, so pass the 8bit
-    // directly to the browser for it to decide.
+    // We don't know the encoding used on an FTP server, but we
+    // use FtpFindFirstFileA, which I guess does NOT preserve
+    // the raw byte sequence because it's implemented in terms
+    // of FtpFindFirstFileW. Without the raw byte sequence, we
+    // can't apply the encoding detection or other heuristics
+    // to determine/guess the encoding. Neither can we use UTF-8
+    // used by a RFC-2640-compliant FTP server. In some cases (e.g.
+    // the default code page is an SBCS with almost all bytes assigned.
+    // In lucky cases, it's even possible with a DBCS), it's possible
+    // to recover the raw byte sequence in most cases. We can do
+    // some more here, but it's not worth the effort because  we're
+    // going to replace this class with URLRequestNewFtpJob.
     string file_entry = net::GetDirectoryListingEntry(
-        find_data_.cFileName, false, size,
-        base::Time::FromFileTime(find_data_.ftLastWriteTime));
+        base::SysNativeMBToWide(find_data_.cFileName), std::string(),
+        false, size, base::Time::FromFileTime(find_data_.ftLastWriteTime));
     WriteData(&file_entry, true);
 
     FindNextFile();
@@ -407,14 +418,20 @@ void URLRequestFtpJob::OnStartDirectoryTraversal() {
   state_ = GETTING_DIRECTORY;
 
   // Unescape the URL path and pass the raw 8bit directly to the browser.
+  //
+  // Here we can try to detect the encoding although it may not be very
+  // reliable because it's not likely to be long enough. Because this class
+  // will be replaced by URLRequestNewFtpJob and is used only on Windows,
+  // we use SysNativeMBToWide as a stopgap measure.
   string html = net::GetDirectoryListingHeader(
-      UnescapeURLComponent(request_->url().path(),
-          UnescapeRule::SPACES | UnescapeRule::URL_SPECIAL_CHARS));
+      base::SysNativeMBToWide(UnescapeURLComponent(request_->url().path(),
+          UnescapeRule::SPACES | UnescapeRule::URL_SPECIAL_CHARS)));
 
   // If this isn't top level directory (i.e. the path isn't "/",) add a link to
   // the parent directory.
   if (request_->url().path().length() > 1)
-    html.append(net::GetDirectoryListingEntry("..", false, 0, base::Time()));
+    html.append(net::GetDirectoryListingEntry(L"..", std::string(),
+          false, 0, base::Time()));
 
   WriteData(&html, true);
 
