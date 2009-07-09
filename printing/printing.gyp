@@ -89,6 +89,7 @@
         'page_range_unittest.cc',
         'page_setup_unittest.cc',
         'printing_context_win_unittest.cc',
+        'run_all_unittests.cc',
         'units_unittest.cc',
       ],
       'conditions': [
