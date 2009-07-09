@@ -198,6 +198,7 @@ bool FirstRunView::Cancel() {
 // Notification from the customize dialog that the user accepted. Since all
 // the work is done there we got nothing else to do.
 void FirstRunView::CustomizeAccepted() {
+  accepted_ = true;
   window()->Close();
 }
 

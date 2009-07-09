@@ -596,7 +596,6 @@ int BrowserMain(const MainFunctionParams& parameters) {
   if (is_first_run && !first_run_ui_bypass) {
     if (!OpenFirstRunDialog(profile, &process_singleton)) {
       // The user cancelled the first run dialog box, we should exit Chrome.
-
       return ResultCodes::NORMAL_EXIT;
     }
   }
