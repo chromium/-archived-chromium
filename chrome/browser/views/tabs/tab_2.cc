@@ -457,7 +457,7 @@ void Tab2::PaintIcon(gfx::Canvas* canvas) {
 
 void Tab2::PaintTitle(gfx::Canvas* canvas) {
   // Paint the Title.
-  std::wstring title = model_->GetTitle(this);
+  string16 title = model_->GetTitle(this);
   if (title.empty()) {
     if (model_->IsLoading(this))
       title = l10n_util::GetString(IDS_TAB_LOADING_TITLE);
