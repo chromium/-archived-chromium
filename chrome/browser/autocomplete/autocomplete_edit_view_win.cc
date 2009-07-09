@@ -1178,21 +1178,24 @@ void AutocompleteEditViewWin::OnCopy() {
     return;
 
   ScopedClipboardWriter scw(g_browser_process->clipboard());
-  scw.WriteText(text);
-
   // Check if the user is copying the whole address bar.  If they are, we
   // assume they are trying to copy a URL and write this to the clipboard as a
   // hyperlink.
-  if (static_cast<int>(text.length()) < GetTextLength())
-    return;
-
-  // The entire control is selected.  Let's see what the user typed.  We can't
-  // use model_->CurrentTextIsURL() or model_->GetDataForURLExport() because
-  // right now the user is probably holding down control to cause the copy,
-  // which will screw up our calculation of the desired_tld.
-  GURL url;
-  if (model_->GetURLForText(text, &url))
-    scw.WriteHyperlink(text, url.spec());
+  if (static_cast<int>(text.length()) >= GetTextLength()) {
+    // The entire control is selected.  Let's see what the user typed.  We
+    // can't use model_->CurrentTextIsURL() or model_->GetDataForURLExport()
+    // because right now the user is probably holding down control to cause the
+    // copy, which will screw up our calculation of the desired_tld.
+    GURL url;
+    if (model_->GetURLForText(text, &url)) {
+      // We should write URL instead of text as text may contain non ASCII
+      // characters and the text may change when it is pasted.
+      scw.WriteText(UTF8ToWide(url.spec()));
+      scw.WriteHyperlink(text, url.spec());
+      return;
+    }
+  }
+  scw.WriteText(text);
 }
 
 void AutocompleteEditViewWin::OnCut() {
