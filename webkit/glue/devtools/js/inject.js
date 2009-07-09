@@ -63,7 +63,8 @@ devtools.Injected.prototype.getObjectForId_ = function(id) {
  * @param {Array.<string>} path Path to the nested object.
  * @param {number} protoDepth Depth of the actual proto to inspect.
  * @return {Array.<Object>} Array where each property is represented
- *     by the tree entries [{string} type, {string} name, {Object} value].
+ *     by the four entries [{string} type, {string} name, {Object} value,
+ *     {string} objectClassNameOrFunctionSignature].
  */
 devtools.Injected.prototype.getProperties =
     function(nodeId, path, protoDepth) {
@@ -97,15 +98,29 @@ devtools.Injected.prototype.getProperties =
        !obj.hasOwnProperty(name)) {
       continue;
     }
-    var type = typeof obj[name];
+    var value = obj[name];
+    var type = typeof value;
     result.push(type);
     result.push(name);
     if (type == 'string') {
-      var str = obj[name];
+      var str = value;
       result.push(str.length > 99 ? str.substr(0, 99) + '...' : str);
-    } else if (type != 'object' && type != 'function') {
-      result.push(obj[name]);
+      result.push(undefined);
+    } else if (type == 'function') {
+      result.push(undefined);
+      var str = Function.prototype.toString.call(value);
+      // Cut function signature (everything before first ')').
+      var signatureLength = str.search(/\)/);
+      str = str.substr(0, signatureLength + 1);
+      // Collapse each group of consecutive whitespaces into one whitespaces
+      // and add body brackets.
+      str = str.replace(/\s+/g, ' ') + ' {}';
+      result.push(str);
+    } else if (type == 'object') {
+      result.push(undefined);
+      result.push(this.getClassName_(value));
     } else {
+      result.push(value);
       result.push(undefined);
     }
   }
@@ -126,10 +141,18 @@ devtools.Injected.prototype.getPrototypes = function(nodeId) {
 
   var result = [];
   for (var prototype = node; prototype; prototype = prototype.__proto__) {
-    var description = Object.prototype.toString.call(prototype);
-    result.push(description.replace(/^\[object (.*)\]$/i, '$1'));
+    result.push(this.getClassName_(prototype));
   }
   return result;
+};
+
+
+/**
+ * @param {Object|Function|null} value An object whose class name to return.
+ * @return {string} The value class name.
+ */
+devtools.Injected.prototype.getClassName_ = function(value) {
+  return (value == null) ? 'null' : value.constructor.name;
 };
 
 

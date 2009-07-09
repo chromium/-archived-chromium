@@ -562,20 +562,6 @@ WebInspector.ScriptView.prototype.didResolveScriptSource_ = function() {
 
 
 /**
- * Dummy object used during properties inspection.
- * @see WebInspector.didGetNodePropertiesAsync_
- */
-WebInspector.dummyObject_ = { 'foo' : 'bar' };
-
-
-/**
- * Dummy function used during properties inspection.
- * @see WebInspector.didGetNodePropertiesAsync_
- */
-WebInspector.dummyFunction_ = function() {};
-
-
-/**
  * Callback function used with the getNodeProperties.
  */
 WebInspector.didGetNodePropertiesAsync_ = function(treeOutline, constructor,
@@ -585,29 +571,37 @@ WebInspector.didGetNodePropertiesAsync_ = function(treeOutline, constructor,
   var obj = {};
   obj.devtools$$nodeId_ = nodeId;
   obj.devtools$$path_ = path;
-  for (var i = 0; i < props.length; i += 3) {
+  for (var i = 0; i < props.length; i += 4) {
     var type = props[i];
     var name = props[i + 1];
     var value = props[i + 2];
+    var className = props[i + 3];
     properties.push(name);
-    if (type == 'object') {
+    if (type == 'object' || type == 'function') {
       // fake object is going to be replaced on expand.
-      obj[name] = WebInspector.dummyObject_;
-    } else if (type == 'function') {
-      // fake function is going to be replaced on expand.
-      obj[name] = WebInspector.dummyFunction_;
+      obj[name] = new WebInspector.UnresolvedPropertyValue(type, className);
     } else {
       obj[name] = value;
     }
   }
   properties.sort();
-
   treeOutline.removeChildren();
 
   for (var i = 0; i < properties.length; ++i) {
     var propertyName = properties[i];
     treeOutline.appendChild(new constructor(obj, propertyName));
   }
+};
+
+
+/**
+ * @param {string} type Type of the the property value('object' or 'function').
+ * @param {string} className Class name of the property value.
+ * @constructor
+ */
+WebInspector.UnresolvedPropertyValue = function(type, className) {
+  this.type = type;
+  this.className = className;
 };
 
 
@@ -987,6 +981,10 @@ WebInspector.UIString = function(string) {
 (function OverrideObjectDescribe() {
   var oldDescribe = Object.describe;
   Object.describe = function(obj, abbreviated) {
+    if (obj instanceof WebInspector.UnresolvedPropertyValue) {
+      return obj.className;
+    }
+
     var result = oldDescribe.call(Object, obj, abbreviated);
     if (result == 'Object' && obj.className) {
       return obj.className;
