@@ -135,15 +135,16 @@ class RenderWidgetHostViewGtkWidget {
       // 2. The given key event is not a control-key event but printable
       //    characters aren't assigned to the event, (e.g. alt+d, etc.)
       // Create a Char event manually from this key event and send it to the
-      // renderer only when this event is a control-key event because
-      // control-key events should be processed by WebKit.
+      // renderer when this Char event contains a printable character which
+      // should be processed by WebKit.
       // TODO(hbono): Windows Chrome sends a Char event with its isSystemKey
       // value true for the above case 2. We should emulate this behavior?
       if (event->type == GDK_KEY_PRESS &&
           !gdk_keyval_to_unicode(event->keyval)) {
         NativeWebKeyboardEvent wke(event);
         wke.type = WebKit::WebInputEvent::Char;
-        host_view->GetRenderWidgetHost()->ForwardKeyboardEvent(wke);
+        if (wke.text[0])
+          host_view->GetRenderWidgetHost()->ForwardKeyboardEvent(wke);
       }
     }
 
