@@ -286,10 +286,6 @@ TEST_F(AutomationProxyTest, NavigateToURLWithTimeout1) {
   std::wstring title;
   ASSERT_TRUE(tab->GetTabTitle(&title));
   ASSERT_STREQ(L"Title Of Awesomeness", title.c_str());
-
-  tab->NavigateToURLWithTimeout(net::FilePathToFileURL(filename),
-                                1, &is_timeout);
-  ASSERT_TRUE(is_timeout);
 }
 
 TEST_F(AutomationProxyTest, NavigateToURLWithTimeout2) {
