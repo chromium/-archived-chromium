@@ -414,23 +414,23 @@ class ExtensionUpdaterTest : public testing::Test {
 // actual test code to live in ExtenionUpdaterTest methods instead of TEST_F
 // subclasses where friendship with ExtenionUpdater is not inherited.
 
-TEST(ExtensionUpdaterTest, TestXmlParsing) {
+TEST(ExtensionUpdaterTest, DISABLED_TestXmlParsing) {
   ExtensionUpdaterTest::TestXmlParsing();
 }
 
-TEST(ExtensionUpdaterTest, TestDetermineUpdates) {
+TEST(ExtensionUpdaterTest, DISABLED_TestDetermineUpdates) {
   ExtensionUpdaterTest::TestDetermineUpdates();
 }
 
-TEST(ExtensionUpdaterTest, TestMultipleManifestDownloading) {
+TEST(ExtensionUpdaterTest, DISABLED_TestMultipleManifestDownloading) {
   ExtensionUpdaterTest::TestMultipleManifestDownloading();
 }
 
-TEST(ExtensionUpdaterTest, TestSingleExtensionDownloading) {
+TEST(ExtensionUpdaterTest, DISABLED_TestSingleExtensionDownloading) {
   ExtensionUpdaterTest::TestSingleExtensionDownloading();
 }
 
-TEST(ExtensionUpdaterTest, TestMultipleExtensionDownloading) {
+TEST(ExtensionUpdaterTest, DISABLED_TestMultipleExtensionDownloading) {
   ExtensionUpdaterTest::TestMultipleExtensionDownloading();
 }
 
