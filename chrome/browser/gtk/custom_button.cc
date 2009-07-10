@@ -6,28 +6,43 @@
 
 #include "app/l10n_util.h"
 #include "app/resource_bundle.h"
+#include "app/theme_provider.h"
 #include "base/basictypes.h"
 #include "base/gfx/gtk_util.h"
-
+#include "chrome/common/notification_service.h"
 #include "grit/theme_resources.h"
 
-CustomDrawButtonBase::CustomDrawButtonBase(
-    int normal_id,
-    int active_id,
-    int highlight_id,
-    int depressed_id)
-    : paint_override_(-1) {
-  // Load the button images from the resource bundle.
-  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  pixbufs_[GTK_STATE_NORMAL] =
-      normal_id ? rb.GetRTLEnabledPixbufNamed(normal_id) : NULL;
-  pixbufs_[GTK_STATE_ACTIVE] =
-      active_id ? rb.GetRTLEnabledPixbufNamed(active_id) : NULL;
-  pixbufs_[GTK_STATE_PRELIGHT] =
-      highlight_id ? rb.GetRTLEnabledPixbufNamed(highlight_id) : NULL;
-  pixbufs_[GTK_STATE_SELECTED] = NULL;
-  pixbufs_[GTK_STATE_INSENSITIVE] =
-      depressed_id ? rb.GetRTLEnabledPixbufNamed(depressed_id) : NULL;
+CustomDrawButtonBase::CustomDrawButtonBase(ThemeProvider* theme_provider,
+    int normal_id, int active_id, int highlight_id, int depressed_id)
+    : paint_override_(-1),
+      normal_id_(normal_id),
+      active_id_(active_id),
+      highlight_id_(highlight_id),
+      depressed_id_(depressed_id),
+      theme_provider_(theme_provider) {
+  if (theme_provider) {
+    // Load images by pretending that we got a BROWSER_THEME_CHANGED
+    // notification.
+    Observe(NotificationType::BROWSER_THEME_CHANGED,
+            NotificationService::AllSources(),
+            NotificationService::NoDetails());
+
+    registrar_.Add(this,
+                   NotificationType::BROWSER_THEME_CHANGED,
+                   NotificationService::AllSources());
+  } else {
+    // Load the button images from the resource bundle.
+    ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+    pixbufs_[GTK_STATE_NORMAL] =
+        normal_id ? rb.GetRTLEnabledPixbufNamed(normal_id) : NULL;
+    pixbufs_[GTK_STATE_ACTIVE] =
+        active_id ? rb.GetRTLEnabledPixbufNamed(active_id) : NULL;
+    pixbufs_[GTK_STATE_PRELIGHT] =
+        highlight_id ? rb.GetRTLEnabledPixbufNamed(highlight_id) : NULL;
+    pixbufs_[GTK_STATE_SELECTED] = NULL;
+    pixbufs_[GTK_STATE_INSENSITIVE] =
+        depressed_id ? rb.GetRTLEnabledPixbufNamed(depressed_id) : NULL;
+  }
 }
 
 CustomDrawButtonBase::~CustomDrawButtonBase() {
@@ -61,22 +76,49 @@ gboolean CustomDrawButtonBase::OnExpose(GtkWidget* widget, GdkEventExpose* e) {
   return TRUE;
 }
 
-CustomDrawButton::CustomDrawButton(
-    int normal_id,
-    int active_id,
-    int highlight_id,
-    int depressed_id,
-    const char* stock_id)
-    : button_base_(normal_id, active_id, highlight_id, depressed_id),
+void CustomDrawButtonBase::Observe(NotificationType type,
+    const NotificationSource& source, const NotificationDetails& details) {
+  DCHECK(theme_provider_);
+  DCHECK(NotificationType::BROWSER_THEME_CHANGED == type);
+
+  // TODO(tc): Add GetRTLEnabledPixbufNamed to ThemeProviderGtk.
+  pixbufs_[GTK_STATE_NORMAL] =
+      normal_id_ ? theme_provider_->GetPixbufNamed(normal_id_) : NULL;
+  pixbufs_[GTK_STATE_ACTIVE] =
+      active_id_ ? theme_provider_->GetPixbufNamed(active_id_) : NULL;
+  pixbufs_[GTK_STATE_PRELIGHT] =
+      highlight_id_ ? theme_provider_->GetPixbufNamed(highlight_id_) : NULL;
+  pixbufs_[GTK_STATE_SELECTED] = NULL;
+  pixbufs_[GTK_STATE_INSENSITIVE] =
+      depressed_id_ ? theme_provider_->GetPixbufNamed(depressed_id_) : NULL;
+}
+
+CustomDrawButton::CustomDrawButton(int normal_id, int active_id,
+    int highlight_id, int depressed_id, const char* stock_id)
+    : button_base_(NULL, normal_id, active_id, highlight_id, depressed_id),
       gtk_stock_name_(stock_id),
       has_expose_signal_handler_(false) {
-  widget_.Own(gtk_button_new());
-  GTK_WIDGET_UNSET_FLAGS(widget_.get(), GTK_CAN_FOCUS);
-  SetUseSystemTheme(false);
+  Init();
+}
+
+CustomDrawButton::CustomDrawButton(ThemeProvider* theme_provider,
+    int normal_id, int active_id, int highlight_id, int depressed_id,
+    const char* stock_id)
+    : button_base_(theme_provider, normal_id, active_id, highlight_id,
+                   depressed_id),
+      gtk_stock_name_(stock_id),
+      has_expose_signal_handler_(false) {
+  Init();
 }
 
 CustomDrawButton::~CustomDrawButton() {
   widget_.Destroy();
+}
+
+void CustomDrawButton::Init() {
+  widget_.Own(gtk_button_new());
+  GTK_WIDGET_UNSET_FLAGS(widget_.get(), GTK_CAN_FOCUS);
+  SetUseSystemTheme(false);
 }
 
 void CustomDrawButton::SetUseSystemTheme(bool use_gtk) {

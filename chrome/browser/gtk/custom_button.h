@@ -11,7 +11,11 @@
 
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
+#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/common/owned_widget_gtk.h"
+
+class ThemeProvider;
 
 // These classes implement two kinds of custom-drawn buttons.  They're
 // used on the toolbar and the bookmarks bar.
@@ -19,12 +23,16 @@
 // CustomDrawButtonBase provides the base for building a custom drawn button.
 // It handles managing the pixbufs containing all the static images used to draw
 // the button.  It also manages painting these pixbufs.
-class CustomDrawButtonBase {
+class CustomDrawButtonBase : public NotificationObserver {
  public:
-  CustomDrawButtonBase(int normal_id,
+  // If the images come from ResourceBundle rather than the theme provider,
+  // pass in NULL for |theme_provider|.
+  CustomDrawButtonBase(ThemeProvider* theme_provider,
+                       int normal_id,
                        int active_id,
                        int highlight_id,
                        int depressed_id);
+
   ~CustomDrawButtonBase();
 
   GdkPixbuf* pixbufs(int i) const { return pixbufs_[i]; }
@@ -33,6 +41,11 @@ class CustomDrawButtonBase {
 
   void set_paint_override(int state) { paint_override_ = state; }
 
+  // Provide NotificationObserver implementation.
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
+
  private:
   // We store one GdkPixbuf* for each possible state of the button;
   // INSENSITIVE is the last available state;
@@ -40,6 +53,17 @@ class CustomDrawButtonBase {
 
   // If non-negative, the state to paint the button.
   int paint_override_;
+
+  // We need to remember the image ids that the user passes in and the theme
+  // provider so we can reload images if the user changes theme.
+  int normal_id_;
+  int active_id_;
+  int highlight_id_;
+  int depressed_id_;
+  ThemeProvider* theme_provider_;
+
+  // Used to listen for theme change notifications.
+  NotificationRegistrar registrar_;
 
   DISALLOW_COPY_AND_ASSIGN(CustomDrawButtonBase);
 };
@@ -56,8 +80,18 @@ class CustomDrawButton {
                    int highlight_id,
                    int depressed_id,
                    const char* stock_id);
-  explicit CustomDrawButton(const std::string& filename);
+
+  // Same as above, but uses themed (and possibly tinted) images.
+  CustomDrawButton(ThemeProvider* theme_provider,
+                   int normal_id,
+                   int active_id,
+                   int highlight_id,
+                   int depressed_id,
+                   const char* stock_id);
+
   ~CustomDrawButton();
+
+  void Init();
 
   GtkWidget* widget() const { return widget_.get(); }
 
