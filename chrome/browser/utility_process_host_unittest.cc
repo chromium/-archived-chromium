@@ -106,8 +106,10 @@ TEST_F(UtilityProcessHostTest, ExtensionUnpacker) {
   scoped_refptr<TestUtilityProcessHostClient> client(
       new TestUtilityProcessHostClient(&message_loop_));
   ResourceDispatcherHost rdh(NULL);
-  TestUtilityProcessHost process_host(client.get(), &message_loop_, &rdh);
-  process_host.StartExtensionUnpacker(
+  TestUtilityProcessHost* process_host =
+      new TestUtilityProcessHost(client.get(), &message_loop_, &rdh);
+  // process_host will delete itself when it's done.
+  process_host->StartExtensionUnpacker(
       temp_extension_dir.AppendASCII("theme.crx"));
   message_loop_.Run();
   EXPECT_TRUE(client->success());
