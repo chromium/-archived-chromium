@@ -213,7 +213,8 @@ class ExtensionsServiceTest
                                      prefs_.get(),
                                      extensions_install_dir,
                                      &loop_,
-                                     &loop_);
+                                     &loop_,
+                                     false);
     service_->SetExtensionsEnabled(true);
     service_->set_show_extensions_prompts(false);
 
@@ -1063,7 +1064,7 @@ TEST_F(ExtensionsServiceTest, LoadExtension) {
 
   FilePath no_manifest = extensions_path
       .AppendASCII("bad")
-      //.AppendASCII("Extensions")
+      // .AppendASCII("Extensions")
       .AppendASCII("cccccccccccccccccccccccccccccccc")
       .AppendASCII("1");
   service_->LoadExtension(no_manifest);
@@ -1145,7 +1146,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
 
   // Reloading extensions should find our externally registered extension
   // and install it.
-  service_->CheckForUpdates();
+  service_->CheckForExternalUpdates();
   loop_.RunAllPending();
 
   ASSERT_EQ(0u, GetErrors().size());
@@ -1172,7 +1173,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
   reg_provider->UpdateOrAddExtension(good_crx, "1.0.0.1", source_path);
 
   loaded_.clear();
-  service_->CheckForUpdates();
+  service_->CheckForExternalUpdates();
   loop_.RunAllPending();
   ASSERT_EQ(0u, GetErrors().size());
   ASSERT_EQ(1u, loaded_.size());
@@ -1192,7 +1193,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
   ASSERT_FALSE(file_util::PathExists(install_path));
 
   loaded_.clear();
-  service_->CheckForUpdates();
+  service_->CheckForExternalUpdates();
   loop_.RunAllPending();
   ASSERT_EQ(0u, loaded_.size());
   ValidatePrefKeyCount(1);
@@ -1205,7 +1206,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallRegistry) {
   prefs_->ScheduleSavePersistentPrefs();
 
   loaded_.clear();
-  service_->CheckForUpdates();
+  service_->CheckForExternalUpdates();
   loop_.RunAllPending();
   ASSERT_EQ(1u, loaded_.size());
   ValidatePrefKeyCount(1);
@@ -1249,7 +1250,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
 
   // Checking for updates should find our externally registered extension
   // and install it.
-  service_->CheckForUpdates();
+  service_->CheckForExternalUpdates();
   loop_.RunAllPending();
 
   ASSERT_EQ(0u, GetErrors().size());
@@ -1276,7 +1277,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   pref_provider->UpdateOrAddExtension(good_crx, "1.0.0.1", source_path);
 
   loaded_.clear();
-  service_->CheckForUpdates();
+  service_->CheckForExternalUpdates();
   loop_.RunAllPending();
   ASSERT_EQ(0u, GetErrors().size());
   ASSERT_EQ(1u, loaded_.size());
@@ -1296,7 +1297,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   ASSERT_FALSE(file_util::PathExists(install_path));
 
   loaded_.clear();
-  service_->CheckForUpdates();
+  service_->CheckForExternalUpdates();
   loop_.RunAllPending();
   ASSERT_EQ(0u, loaded_.size());
   ValidatePrefKeyCount(1);
@@ -1308,7 +1309,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   prefs_->ScheduleSavePersistentPrefs();
 
   loaded_.clear();
-  service_->CheckForUpdates();
+  service_->CheckForExternalUpdates();
   loop_.RunAllPending();
   ASSERT_EQ(1u, loaded_.size());
   ValidatePrefKeyCount(1);
@@ -1331,7 +1332,7 @@ TEST_F(ExtensionsServiceTest, ExternalInstallPref) {
   SetExtensionsEnabled(false);
 
   pref_provider->UpdateOrAddExtension(good_crx, "1.0", source_path);
-  service_->CheckForUpdates();
+  service_->CheckForExternalUpdates();
   loop_.RunAllPending();
 
   ASSERT_EQ(0u, loaded_.size());
@@ -1433,7 +1434,7 @@ TEST(ExtensionsServiceTestSimple, Enabledness) {
   // By default, we are disabled.
   command_line.reset(new CommandLine(L""));
   service = new ExtensionsService(&profile, command_line.get(),
-      profile.GetPrefs(), install_dir, &loop, &loop);
+      profile.GetPrefs(), install_dir, &loop, &loop, false);
   EXPECT_FALSE(service->extensions_enabled());
   service->Init();
   loop.RunAllPending();
@@ -1443,7 +1444,7 @@ TEST(ExtensionsServiceTestSimple, Enabledness) {
   recorder.set_ready(false);
   command_line->AppendSwitch(switches::kEnableExtensions);
   service = new ExtensionsService(&profile, command_line.get(),
-      profile.GetPrefs(), install_dir, &loop, &loop);
+      profile.GetPrefs(), install_dir, &loop, &loop, false);
   EXPECT_TRUE(service->extensions_enabled());
   service->Init();
   loop.RunAllPending();
@@ -1452,7 +1453,7 @@ TEST(ExtensionsServiceTestSimple, Enabledness) {
   recorder.set_ready(false);
   profile.GetPrefs()->SetBoolean(prefs::kEnableExtensions, true);
   service = new ExtensionsService(&profile, command_line.get(),
-      profile.GetPrefs(), install_dir, &loop, &loop);
+      profile.GetPrefs(), install_dir, &loop, &loop, false);
   EXPECT_TRUE(service->extensions_enabled());
   service->Init();
   loop.RunAllPending();
@@ -1461,7 +1462,7 @@ TEST(ExtensionsServiceTestSimple, Enabledness) {
   recorder.set_ready(false);
   command_line.reset(new CommandLine(L""));
   service = new ExtensionsService(&profile, command_line.get(),
-      profile.GetPrefs(), install_dir, &loop, &loop);
+      profile.GetPrefs(), install_dir, &loop, &loop, false);
   EXPECT_TRUE(service->extensions_enabled());
   service->Init();
   loop.RunAllPending();

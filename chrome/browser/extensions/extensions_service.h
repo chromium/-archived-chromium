@@ -26,6 +26,7 @@ class Browser;
 class DictionaryValue;
 class Extension;
 class ExtensionsServiceBackend;
+class ExtensionUpdater;
 class GURL;
 class MessageLoop;
 class PrefService;
@@ -95,12 +96,16 @@ class ExtensionsService
   // installed to.
   static const char* kInstallDirectoryName;
 
+  // If auto-updates are turned on, default to running every 5 hours.
+  static const int kDefaultUpdateFrequencySeconds = 60 * 60 * 5;
+
   ExtensionsService(Profile* profile,
                     const CommandLine* command_line,
                     PrefService* prefs,
                     const FilePath& install_directory,
                     MessageLoop* frontend_loop,
-                    MessageLoop* backend_loop);
+                    MessageLoop* backend_loop,
+                    bool autoupdate_enabled);
   virtual ~ExtensionsService();
 
   // Gets the list of currently installed extensions.
@@ -144,7 +149,7 @@ class ExtensionsService
   void LoadAllExtensions();
 
   // Check for updates (or potentially new extensions from external providers)
-  void CheckForUpdates();
+  void CheckForExternalUpdates();
 
   // Unload the specified extension.
   void UnloadExtension(const std::string& extension_id);
@@ -244,6 +249,9 @@ class ExtensionsService
 
   // Is the service ready to go?
   bool ready_;
+
+  // Our extension updater, if updates are turned on.
+  scoped_refptr<ExtensionUpdater> updater_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionsService);
 };
@@ -348,9 +356,10 @@ class ExtensionsServiceBackend
   // Install a crx file at |extension_path|. If |expected_id| is not empty, it's
   // verified against the extension's manifest before installation. If the
   // extension is already installed, install the new version only if its version
-  // number is greater than the current installed version.
+  // number is greater than the current installed version. If |silent| is true,
+  // the confirmation dialog will not pop up.
   void InstallOrUpdateExtension(const FilePath& extension_path,
-                                const std::string& expected_id);
+                                const std::string& expected_id, bool silent);
 
   // Validates the signature of the extension in |extension_path|. Returns true
   // and the public key (in |key|) if the signature validates, false otherwise.
@@ -360,13 +369,15 @@ class ExtensionsServiceBackend
   // |temp_extension_dir| by our utility process.  If |expected_id| is not
   // empty, it's verified against the extension's manifest before installation.
   // |manifest| and |images| are parsed information from the extension that
-  // we want to write to disk in the browser process.
+  // we want to write to disk in the browser process. If |silent| is true, there
+  // will be no install confirmation dialog.
   void OnExtensionUnpacked(
       const FilePath& extension_path,
       const FilePath& temp_extension_dir,
       const std::string expected_id,
       const DictionaryValue& manifest,
-      const std::vector< Tuple2<SkBitmap, FilePath> >& images);
+      const std::vector< Tuple2<SkBitmap, FilePath> >& images,
+      bool silent);
 
   // Notify the frontend that there was an error loading an extension.
   void ReportExtensionLoadError(const FilePath& extension_path,

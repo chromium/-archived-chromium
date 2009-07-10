@@ -25,6 +25,7 @@
 #include "chrome/browser/extensions/extension_creator.h"
 #include "chrome/browser/extensions/extension_browser_event_router.h"
 #include "chrome/browser/extensions/extension_process_manager.h"
+#include "chrome/browser/extensions/extension_updater.h"
 #include "chrome/browser/extensions/external_extension_provider.h"
 #include "chrome/browser/extensions/external_pref_extension_provider.h"
 #include "chrome/browser/profile.h"
@@ -88,9 +89,11 @@ class ExtensionsServiceBackend::UnpackerClient
   UnpackerClient(ExtensionsServiceBackend* backend,
                  const FilePath& extension_path,
                  const std::string& public_key,
-                 const std::string& expected_id)
+                 const std::string& expected_id,
+                 bool silent)
     : backend_(backend), extension_path_(extension_path),
-      public_key_(public_key), expected_id_(expected_id), got_response_(false) {
+      public_key_(public_key), expected_id_(expected_id), got_response_(false),
+      silent_(silent) {
   }
 
   // Starts the unpack task.  We call back to the backend when the task is done,
@@ -167,7 +170,7 @@ class ExtensionsServiceBackend::UnpackerClient
     FilePath extension_dir = temp_extension_path_.DirName().AppendASCII(
         ExtensionsServiceBackend::kTempExtensionName);
     backend_->OnExtensionUnpacked(extension_path_, extension_dir,
-                                  expected_id_, manifest, images);
+                                  expected_id_, manifest, images, silent_);
     Cleanup();
   }
 
@@ -211,6 +214,9 @@ class ExtensionsServiceBackend::UnpackerClient
   // True if we got a response from the utility process and have cleaned up
   // already.
   bool got_response_;
+
+  // True if the install should be done with no confirmation dialog.
+  bool silent_;
 };
 
 ExtensionsService::ExtensionsService(Profile* profile,
@@ -218,7 +224,8 @@ ExtensionsService::ExtensionsService(Profile* profile,
                                      PrefService* prefs,
                                      const FilePath& install_directory,
                                      MessageLoop* frontend_loop,
-                                     MessageLoop* backend_loop)
+                                     MessageLoop* backend_loop,
+                                     bool autoupdate_enabled)
     : extension_prefs_(new ExtensionPrefs(prefs, install_directory)),
       backend_loop_(backend_loop),
       install_directory_(install_directory),
@@ -231,6 +238,16 @@ ExtensionsService::ExtensionsService(Profile* profile,
   else if (profile->GetPrefs()->GetBoolean(prefs::kEnableExtensions))
     extensions_enabled_ = true;
 
+  // Set up the ExtensionUpdater
+  if (autoupdate_enabled) {
+    int update_frequency = kDefaultUpdateFrequencySeconds;
+    if (command_line->HasSwitch(switches::kExtensionsUpdateFrequency)) {
+      update_frequency = StringToInt(WideToASCII(command_line->GetSwitchValue(
+          switches::kExtensionsUpdateFrequency)));
+    }
+    updater_ = new ExtensionUpdater(this, update_frequency, backend_loop_);
+  }
+
   backend_ = new ExtensionsServiceBackend(
           install_directory_, g_browser_process->resource_dispatcher_host(),
           frontend_loop, extensions_enabled());
@@ -238,6 +255,9 @@ ExtensionsService::ExtensionsService(Profile* profile,
 
 ExtensionsService::~ExtensionsService() {
   UnloadAllExtensions();
+  if (updater_.get()) {
+    updater_->Stop();
+  }
 }
 
 void ExtensionsService::SetExtensionsEnabled(bool enabled) {
@@ -248,7 +268,7 @@ void ExtensionsService::SetExtensionsEnabled(bool enabled) {
 
 void ExtensionsService::Init() {
   DCHECK(!ready_);
-  DCHECK(extensions_.size() == 0);
+  DCHECK_EQ(extensions_.size(), 0u);
 
   // Start up the extension event routers.
   ExtensionBrowserEventRouter::GetInstance()->Init();
@@ -257,7 +277,7 @@ void ExtensionsService::Init() {
 
   // TODO(erikkay) this should probably be deferred to a future point
   // rather than running immediately at startup.
-  CheckForUpdates();
+  CheckForExternalUpdates();
 
   // TODO(erikkay) this should probably be deferred as well.
   GarbageCollectExtensions();
@@ -332,7 +352,7 @@ void ExtensionsService::LoadAllExtensions() {
       new InstalledExtensions(extension_prefs_.get())));
 }
 
-void ExtensionsService::CheckForUpdates() {
+void ExtensionsService::CheckForExternalUpdates() {
   // This installs or updates externally provided extensions.
   std::set<std::string> killed_extensions;
   extension_prefs_->GetKilledExtensionIds(&killed_extensions);
@@ -390,6 +410,9 @@ void ExtensionsService::GarbageCollectExtensions() {
 
 void ExtensionsService::OnLoadedInstalledExtensions() {
   ready_ = true;
+  if (updater_.get()) {
+    updater_->Start();
+  }
   NotificationService::current()->Notify(
       NotificationType::EXTENSIONS_READY,
       Source<ExtensionsService>(this),
@@ -559,7 +582,7 @@ void ExtensionsServiceBackend::GarbageCollectExtensions(
   // Nothing to clean up if it doesn't exist.
   if (!file_util::DirectoryExists(install_directory_))
     return;
-  
+
   FilePath install_directory_absolute(install_directory_);
   file_util::AbsolutePath(&install_directory_absolute);
 
@@ -909,7 +932,7 @@ void ExtensionsServiceBackend::InstallExtension(
   frontend_ = frontend;
   alert_on_error_ = true;
 
-  InstallOrUpdateExtension(extension_path, std::string());
+  InstallOrUpdateExtension(extension_path, std::string(), false);
 }
 
 void ExtensionsServiceBackend::UpdateExtension(const std::string& id,
@@ -920,17 +943,18 @@ void ExtensionsServiceBackend::UpdateExtension(const std::string& id,
   frontend_ = frontend;
   alert_on_error_ = alert_on_error;
 
-  InstallOrUpdateExtension(extension_path, id);
+  InstallOrUpdateExtension(extension_path, id, true);
 }
 
 void ExtensionsServiceBackend::InstallOrUpdateExtension(
-    const FilePath& extension_path, const std::string& expected_id) {
+    const FilePath& extension_path, const std::string& expected_id,
+    bool silent) {
   std::string actual_public_key;
   if (!ValidateSignature(extension_path, &actual_public_key))
     return;  // Failures reported within ValidateSignature().
 
   UnpackerClient* client = new UnpackerClient(
-      this, extension_path, actual_public_key, expected_id);
+      this, extension_path, actual_public_key, expected_id, silent);
   client->Start();
 }
 
@@ -1028,7 +1052,8 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
     const FilePath& temp_extension_dir,
     const std::string expected_id,
     const DictionaryValue& manifest,
-    const std::vector< Tuple2<SkBitmap, FilePath> >& images) {
+    const std::vector< Tuple2<SkBitmap, FilePath> >& images,
+    bool silent) {
   Extension extension;
   std::string error;
   if (!extension.InitFromValue(manifest,
@@ -1056,8 +1081,9 @@ void ExtensionsServiceBackend::OnExtensionUnpacked(
 
   // TODO(extensions): Make better extensions UI. http://crbug.com/12116
 
-  // We don't show the install dialog for themes or external extensions.
-  if (!extension.IsTheme() && frontend_->show_extensions_prompts()) {
+  // We don't show the install dialog for themes, updates, or external
+  // extensions.
+  if (!extension.IsTheme() && !silent && frontend_->show_extensions_prompts()) {
 #if defined(OS_WIN)
     if (!Extension::IsExternalLocation(location) &&
         win_util::MessageBox(GetForegroundWindow(),
@@ -1260,7 +1286,7 @@ void ExtensionsServiceBackend::CheckVersionAndInstallExtension(
     const std::string& id, const Version* extension_version,
     const FilePath& extension_path) {
   if (ShouldInstall(id, extension_version))
-    InstallOrUpdateExtension(FilePath(extension_path), id);
+    InstallOrUpdateExtension(FilePath(extension_path), id, false);
 }
 
 bool ExtensionsServiceBackend::LookupExternalExtension(

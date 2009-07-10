@@ -392,6 +392,9 @@ const wchar_t kEnableUserScripts[]             = L"enable-user-scripts";
 // Enable extensions.
 const wchar_t kEnableExtensions[]              = L"enable-extensions";
 
+// Frequency in seconds for Extensions auto-update.
+const wchar_t kExtensionsUpdateFrequency[] = L"extensions-update-frequency";
+
 // Install the extension specified in the argument.  This is for MIME type
 // handling so that users can double-click on an extension.
 const wchar_t kInstallExtension[]              = L"install-extension";

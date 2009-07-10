@@ -565,7 +565,8 @@ void ProfileImpl::InitExtensions() {
       GetPrefs(),
       GetPath().AppendASCII(ExtensionsService::kInstallDirectoryName),
       MessageLoop::current(),
-      g_browser_process->file_thread()->message_loop());
+      g_browser_process->file_thread()->message_loop(),
+      true);
 
   extensions_service_->Init();
 }
