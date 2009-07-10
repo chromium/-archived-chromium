@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -78,6 +78,7 @@
 #include "chrome/common/ipc_message.h"
 #include "media/audio/audio_output.h"
 #include "media/audio/simple_sources.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 
 class AudioManager;
 class MessageLoop;
@@ -86,7 +87,6 @@ struct ViewHostMsg_Audio_CreateStream;
 class AudioRendererHost : public base::RefCountedThreadSafe<AudioRendererHost> {
  private:
   class IPCAudioSource;
-  friend class AudioRendererHost::IPCAudioSource;
  public:
   // Called from UI thread from the owner of this object.
   explicit AudioRendererHost(MessageLoop* message_loop);
@@ -114,101 +114,30 @@ class AudioRendererHost : public base::RefCountedThreadSafe<AudioRendererHost> {
   // If it was, message_was_ok will be false iff the message was corrupt.
   bool OnMessageReceived(const IPC::Message& message, bool* message_was_ok);
 
- private:
-  //---------------------------------------------------------------------------
-  // Methods called on IO thread.
-  // Returns true if the message is an audio related message and should be
-  // handled by this class.
-  bool IsAudioRendererHostMessage(const IPC::Message& message);
-
-  // Audio related IPC message handlers.
-  // Creates an audio output stream with the specified format. If this call is
-  // successful this object would keep an internal entry of the stream for the
-  // required properties. See IPCAudioSource::CreateIPCAudioSource for more
-  // details.
-  void OnCreateStream(const IPC::Message& msg, int stream_id,
-                      const ViewHostMsg_Audio_CreateStream& params);
-
-  // Starts buffering for the audio output stream. Delegates the start method
-  // call to the corresponding IPCAudioSource::Start.
-  // ViewMsg_NotifyAudioStreamStateChanged with
-  // AudioOutputStream::AUDIO_STREAM_ERROR is sent back to renderer if the
-  // required IPCAudioSource is not found.
-  void OnStartStream(const IPC::Message& msg, int stream_id);
-
-  // Pauses the audio output stream. Delegates the pause method call to the
-  // corresponding IPCAudioSource::Pause, ViewMsg_NotifyAudioStreamStateChanged
-  // with AudioOutputStream::AUDIO_STREAM_ERROR is sent back to renderer if the
-  // required IPCAudioSource is not found.
-  void OnPauseStream(const IPC::Message& msg, int stream_id);
-
-  // Closes the audio output stream, delegates the close method call to the
-  // corresponding IPCAudioSource::Close, no returning IPC message to renderer
-  // upon success and failure.
-  void OnCloseStream(const IPC::Message& msg, int stream_id);
-
-  // Set the volume for the stream specified. Delegates the SetVolume method
-  // call to IPCAudioSource. No returning IPC message to renderer upon success.
-  // ViewMsg_NotifyAudioStreamStateChanged with
-  // AudioOutputStream::AUDIO_STREAM_ERROR is sent back to renderer if the
-  // required IPCAudioSource is not found.
-  void OnSetVolume(const IPC::Message& msg, int stream_id,
-                   double left_channel, double right_channel);
-
-  // Gets the volume of the stream specified, delegates to corresponding
-  // IPCAudioSource::GetVolume, see the method for more details.
-  // ViewMsg_NotifyAudioStreamStateChanged with
-  // AudioOutputStream::AUDIO_STREAM_ERROR is sent back to renderer if the
-  // required IPCAudioSource is not found.
-  void OnGetVolume(const IPC::Message& msg, int stream_id);
-
-  // Notify packet has been prepared for stream, delegates to corresponding
-  // IPCAudioSource::NotifyPacketReady, see the method for more details.
-  // ViewMsg_NotifyAudioStreamStateChanged with
-  // AudioOutputStream::AUDIO_STREAM_ERROR is sent back to renderer if the
-  // required IPCAudioSource is not found.
-  void OnNotifyPacketReady(const IPC::Message& msg, int stream_id,
-                           size_t packet_size);
-
-  // Called on IO thread when this object is created and initialized.
-  void OnInitialized();
-
-  // Called on IO thread when this object needs to be destroyed and after
-  // Destroy() is called from owner of this class in UI thread.
-  void OnDestroyed();
-
-  // Sends IPC messages using ipc_sender_.
-  void OnSend(IPC::Message* message);
-
-  // Closes the source, deletes it and removes it from the internal map.
-  // Destruction of source and associated stream should always be done by this
-  // method. *DO NOT* call this method from other than IPCAudioSource and from
-  // this class.
-  void OnDestroySource(IPCAudioSource* source);
-
-  // A helper method that destroy all IPCAudioSource and associated audio
-  // output streams.
-  void DestroyAllSources();
-
-  // A helper method to look up a IPCAudioSource with a tuple of render view id
-  // and stream id. Returns NULL if not found.
-  IPCAudioSource* Lookup(int render_view_id, int stream_id);
-
+ protected:
   //---------------------------------------------------------------------------
   // Helper methods called from IPCAudioSource or from this class, since
   // methods in IPCAudioSource maybe called from hardware audio threads, these
   // methods make sure the actual tasks happen on IO thread.
+  // These methods are virtual protected so we can mock these methods to test
+  // IPCAudioSource.
 
   // A helper method to send an IPC message to renderer process on IO thread.
-  void Send(IPC::Message* message);
+  virtual void Send(IPC::Message* message);
 
   // A helper method for sending error IPC messages.
-  void SendErrorMessage(int32 render_view_id, int32 stream_id, int info);
+  virtual void SendErrorMessage(int32 render_view_id,
+                                int32 stream_id,
+                                int info);
 
   // A helper method for calling OnDestroySource on IO thread.
-  void DestroySource(IPCAudioSource* source);
+  virtual void DestroySource(IPCAudioSource* source);
 
-  MessageLoop* io_loop() { return io_loop_; }
+ private:
+  friend class AudioRendererHost::IPCAudioSource;
+  friend class AudioRendererHostTest;
+  FRIEND_TEST(AudioRendererHostTest, CreateMockStream);
+  FRIEND_TEST(AudioRendererHostTest, MockStreamDataConversation);
 
   // The container for AudioOutputStream and serves the audio packet received
   // via IPC.
@@ -324,6 +253,88 @@ class AudioRendererHost : public base::RefCountedThreadSafe<AudioRendererHost> {
     // - |push_source_|
     Lock lock_;
   };
+
+  //---------------------------------------------------------------------------
+  // Methods called on IO thread.
+  // Returns true if the message is an audio related message and should be
+  // handled by this class.
+  bool IsAudioRendererHostMessage(const IPC::Message& message);
+
+  // Audio related IPC message handlers.
+  // Creates an audio output stream with the specified format. If this call is
+  // successful this object would keep an internal entry of the stream for the
+  // required properties. See IPCAudioSource::CreateIPCAudioSource() for more
+  // details.
+  void OnCreateStream(const IPC::Message& msg, int stream_id,
+                      const ViewHostMsg_Audio_CreateStream& params);
+
+  // Starts buffering for the audio output stream. Delegates the start method
+  // call to the corresponding IPCAudioSource::Start().
+  // ViewMsg_NotifyAudioStreamStateChanged with
+  // AudioOutputStream::AUDIO_STREAM_ERROR is sent back to renderer if the
+  // required IPCAudioSource is not found.
+  void OnStartStream(const IPC::Message& msg, int stream_id);
+
+  // Pauses the audio output stream. Delegates the pause method call to the
+  // corresponding IPCAudioSource::Pause(),
+  // ViewMsg_NotifyAudioStreamStateChanged with
+  // AudioOutputStream::AUDIO_STREAM_ERROR is sent back to renderer if the
+  // required IPCAudioSource is not found.
+  void OnPauseStream(const IPC::Message& msg, int stream_id);
+
+  // Closes the audio output stream, delegates the close method call to the
+  // corresponding IPCAudioSource::Close(), no returning IPC message to renderer
+  // upon success and failure.
+  void OnCloseStream(const IPC::Message& msg, int stream_id);
+
+  // Set the volume for the stream specified. Delegates the SetVolume() method
+  // call to IPCAudioSource. No returning IPC message to renderer upon success.
+  // ViewMsg_NotifyAudioStreamStateChanged with
+  // AudioOutputStream::AUDIO_STREAM_ERROR is sent back to renderer if the
+  // required IPCAudioSource is not found.
+  void OnSetVolume(const IPC::Message& msg, int stream_id,
+                   double left_channel, double right_channel);
+
+  // Gets the volume of the stream specified, delegates to corresponding
+  // IPCAudioSource::GetVolume(), see the method for more details.
+  // ViewMsg_NotifyAudioStreamStateChanged with
+  // AudioOutputStream::AUDIO_STREAM_ERROR is sent back to renderer if the
+  // required IPCAudioSource is not found.
+  void OnGetVolume(const IPC::Message& msg, int stream_id);
+
+  // Notify packet has been prepared for stream, delegates to corresponding
+  // IPCAudioSource::NotifyPacketReady(), see the method for more details.
+  // ViewMsg_NotifyAudioStreamStateChanged with
+  // AudioOutputStream::AUDIO_STREAM_ERROR is sent back to renderer if the
+  // required IPCAudioSource is not found.
+  void OnNotifyPacketReady(const IPC::Message& msg, int stream_id,
+                           size_t packet_size);
+
+  // Called on IO thread when this object is created and initialized.
+  void OnInitialized();
+
+  // Called on IO thread when this object needs to be destroyed and after
+  // Destroy() is called from owner of this class in UI thread.
+  void OnDestroyed();
+
+  // Sends IPC messages using ipc_sender_.
+  void OnSend(IPC::Message* message);
+
+  // Closes the source, deletes it and removes it from the internal map.
+  // Destruction of source and associated stream should always be done by this
+  // method. *DO NOT* call this method from other than IPCAudioSource and from
+  // this class.
+  void OnDestroySource(IPCAudioSource* source);
+
+  // A helper method that destroy all IPCAudioSource and associated audio
+  // output streams.
+  void DestroyAllSources();
+
+  // A helper method to look up a IPCAudioSource with a tuple of render view id
+  // and stream id. Returns NULL if not found.
+  IPCAudioSource* Lookup(int render_view_id, int stream_id);
+
+  MessageLoop* io_loop() { return io_loop_; }
 
   int process_id_;
   base::ProcessHandle process_handle_;

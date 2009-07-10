@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -70,10 +70,12 @@ AudioRendererHost::IPCAudioSource::IPCAudioSource(
       buffer_capacity_(buffer_capacity),
       state_(AudioOutputStream::STATE_CREATED),
       push_source_(hardware_packet_size),
-      outstanding_request_(false) {
+      outstanding_request_(false),
+      last_copied_bytes_(0) {
 }
 
 AudioRendererHost::IPCAudioSource::~IPCAudioSource() {
+  DCHECK_EQ(AudioOutputStream::STATE_STOPPED, state_);
 }
 
 // static
@@ -253,7 +255,7 @@ void AudioRendererHost::IPCAudioSource::NotifyPacketReady(
     AutoLock auto_lock(lock_);
     outstanding_request_ = false;
 #ifdef IPC_MESSAGE_LOG_ENABLED
-    if (IPC::Logging::current()->Enabled()) {
+    if (IPC::Logging::current() && IPC::Logging::current()->Enabled()) {
       RecordRoundTripLatency(base::Time::Now() - outstanding_request_time_);
     }
 #endif
@@ -339,6 +341,7 @@ AudioRendererHost::AudioRendererHost(MessageLoop* message_loop)
 }
 
 AudioRendererHost::~AudioRendererHost() {
+  DCHECK(sources_.empty());
 }
 
 void AudioRendererHost::Destroy() {
@@ -491,7 +494,7 @@ void AudioRendererHost::OnNotifyPacketReady(const IPC::Message& msg,
     SendErrorMessage(msg.routing_id(), stream_id, 0);
   }
 #ifdef IPC_MESSAGE_LOG_ENABLED
-  if (IPC::Logging::current()->Enabled()) {
+  if (IPC::Logging::current() && IPC::Logging::current()->Enabled()) {
     RecordReceiveLatency(base::Time::FromInternalValue(msg.received_time()) -
                          base::Time::FromInternalValue(msg.sent_time()));
     RecordProcessTime(base::Time::Now() -
