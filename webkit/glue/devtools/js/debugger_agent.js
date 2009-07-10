@@ -87,6 +87,13 @@ devtools.DebuggerAgent = function() {
    * @type {Object}
    */
   this.urlToBreakpoints_ = {};
+
+
+  /**
+   * Exception message that is shown to user while on exception break.
+   * @type {WebInspector.ConsoleMessage}
+   */
+  this.currentExceptionMessage_ = null;
 };
 
 
@@ -303,8 +310,66 @@ devtools.DebuggerAgent.prototype.stepOverStatement = function() {
  * breakpoint or an exception.
  */
 devtools.DebuggerAgent.prototype.resumeExecution = function() {
+  this.clearExceptionMessage_();
   var cmd = new devtools.DebugCommand('continue');
   devtools.DebuggerAgent.sendCommand_(cmd);
+};
+
+
+/**
+ * Creates exception message and schedules it for addition to the resource upon
+ * backtrace availability.
+ * @param {string} url Resource url.
+ * @param {number} line Resource line number.
+ * @param {string} message Exception text.
+ */
+devtools.DebuggerAgent.prototype.createExceptionMessage_ = function(
+    url, line, message) {
+  this.currentExceptionMessage_ = new WebInspector.ConsoleMessage(
+      WebInspector.ConsoleMessage.MessageSource.JS,
+      WebInspector.ConsoleMessage.MessageLevel.Error,
+      line,
+      url,
+      0 /* group level */,
+      1 /* repeat count */,
+      '[Exception] ' + message);
+};
+
+
+/**
+ * Shows pending exception message that is created with createExceptionMessage_
+ * earlier.
+ */
+devtools.DebuggerAgent.prototype.showPendingExceptionMessage_ = function() {
+  if (!this.currentExceptionMessage_) {
+    return;
+  }
+  var msg = this.currentExceptionMessage_;
+  var resource = WebInspector.resourceURLMap[msg.url];
+  if (resource) {
+    msg.resource = resource;
+    WebInspector.panels.resources.addMessageToResource(resource, msg);
+  } else {
+    this.currentExceptionMessage_ = null;
+  }
+};
+
+
+/**
+ * Clears exception message from the resource.
+ */
+devtools.DebuggerAgent.prototype.clearExceptionMessage_ = function() {
+  if (this.currentExceptionMessage_) {
+    var messageElement =
+        this.currentExceptionMessage_._resourceMessageLineElement;
+    var bubble = messageElement.parentElement;
+    bubble.removeChild(messageElement);
+    if (!bubble.firstChild) {
+      // Last message in bubble removed.
+      bubble.parentElement.removeChild(bubble);
+    }
+    this.currentExceptionMessage_ = null;
+  }
 };
 
 
@@ -514,6 +579,7 @@ devtools.DebuggerAgent.sendCommand_ = function(cmd) {
  * @param {string} action 'in', 'out' or 'next' action.
  */
 devtools.DebuggerAgent.prototype.stepCommand_ = function(action) {
+  this.clearExceptionMessage_();
   var cmd = new devtools.DebugCommand('continue', {
     'stepaction': action,
     'stepcount': 1
@@ -626,6 +692,8 @@ devtools.DebuggerAgent.prototype.handleExceptionEvent_ = function(msg) {
     this.currentCallFrame_.sourceID = sourceId;
     this.currentCallFrame_.line = line;
     this.currentCallFrame_.script = body.script;
+
+    this.createExceptionMessage_(body.script.name, line, body.exception.text);
     this.requestBacktrace_();
   } else {
     this.resumeExecution();
@@ -806,6 +874,7 @@ devtools.DebuggerAgent.prototype.handleBacktraceResponse_ = function(msg) {
   this.currentCallFrame_ = f;
 
   WebInspector.pausedScript();
+  this.showPendingExceptionMessage_();
   DevToolsHost.activateWindow();
 };
 
