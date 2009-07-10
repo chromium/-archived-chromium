@@ -61,7 +61,7 @@ IN_PROC_BROWSER_TEST_F(BrowserTest, NoTitle) {
   ui_test_utils::NavigateToURL(browser(),
                                ui_test_utils::GetTestUrl(L".", L"title1.html"));
   EXPECT_EQ(LocaleWindowCaptionFromPageTitle(L"title1.html"),
-            browser()->GetCurrentPageTitle());
+            UTF16ToWideHack(browser()->GetCurrentPageTitle()));
   string16 tab_title;
   ASSERT_TRUE(ui_test_utils::GetCurrentTabTitle(browser(), &tab_title));
   EXPECT_EQ(ASCIIToUTF16("title1.html"), tab_title);
