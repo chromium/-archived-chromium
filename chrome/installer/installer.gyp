@@ -276,7 +276,7 @@
         },
         {
           'target_name': 'installer_util_strings',
-          'type': 'none',
+          'type': 'dummy_executable',
           'msvs_guid': '0026A376-C4F1-4575-A1BA-578C69F07013',
           'actions': [
             {

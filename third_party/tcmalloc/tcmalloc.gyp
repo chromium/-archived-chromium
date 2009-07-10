@@ -75,13 +75,7 @@
     },
     {
       'target_name': 'libcmt',
-      'conditions': [
-        ['OS=="win"', {
-          'type': 'utility',
-        },{
-          'type': 'none',
-        }],
-      ],
+      'type': 'none',
       'actions': [
         {
           'action_name': 'libcmt',
