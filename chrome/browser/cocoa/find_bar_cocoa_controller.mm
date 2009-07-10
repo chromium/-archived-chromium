@@ -114,7 +114,9 @@
 }
 
 - (void)clearResults:(const FindNotificationDetails&)results {
-  [findText_ setStringValue:@""];
+  // Just call updateUIForFindResult, which will take care of clearing
+  // the search text and the results label.
+  [self updateUIForFindResult:results withText:string16()];
 }
 
 - (void)updateUIForFindResult:(const FindNotificationDetails&)result
@@ -134,17 +136,14 @@
   [nextButton_ setEnabled:buttonsEnabled];
 
   // Update the results label.
-  // TODO(rohitrao): The part of the webkit glue that computes match
-  // ordinals is wrapped in OS_WIN.  Figure out why and remove it,
-  // otherwise match counts won't work on Mac and Linux.
+  BOOL validRange = result.active_match_ordinal() != -1 &&
+                    result.number_of_matches() != -1;
   NSString* searchString = [findText_ stringValue];
-  if ([searchString length] > 0) {
-    if (result.active_match_ordinal() >= 0 && result.number_of_matches() >= 0) {
-      [resultsLabel_ setStringValue:base::SysWideToNSString(
-            l10n_util::GetStringF(IDS_FIND_IN_PAGE_COUNT,
-                                  IntToWString(result.active_match_ordinal()),
-                                  IntToWString(result.number_of_matches())))];
-    }
+  if ([searchString length] > 0 && validRange) {
+    [resultsLabel_ setStringValue:base::SysWideToNSString(
+          l10n_util::GetStringF(IDS_FIND_IN_PAGE_COUNT,
+                                IntToWString(result.active_match_ordinal()),
+                                IntToWString(result.number_of_matches())))];
   } else {
     // If there was no text entered, we don't show anything in the result count
     // area.
