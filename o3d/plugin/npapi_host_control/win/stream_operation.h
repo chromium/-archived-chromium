@@ -122,10 +122,9 @@ class ATL_NO_VTABLE StreamOperation :
     return notify_data_;
   }
 
-  // Call to request that the streaming operation terminate early.  After this
-  // has been called, no further data notifications will take place.  The next,
-  // and last notification will be through
-  // IBindStatusCallback::OnStopBinding(...).
+  // Call to request that the streaming operation terminate early. As soon as
+  // the streaming thread sees the request has been cancelled, it aborts its
+  // binding.
   HRESULT RequestCancellation();
 
 BEGIN_COM_MAP(StreamOperation)

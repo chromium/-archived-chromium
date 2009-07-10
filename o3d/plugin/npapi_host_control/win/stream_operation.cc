@@ -267,6 +267,11 @@ HRESULT STDMETHODCALLTYPE StreamOperation::OnProgress(ULONG ulProgress,
                                                       ULONG ulProgressMax,
                                                       ULONG ulStatusCode,
                                                       LPCWSTR szStatusText) {
+  if (cancel_requested_) {
+    binding_->Abort();
+    return S_OK;
+  }
+
   // Capture URL re-directs and MIME-type status notifications.
   switch (ulStatusCode) {
     case BINDSTATUS_BEGINDOWNLOADDATA:
@@ -366,6 +371,7 @@ HRESULT STDMETHODCALLTYPE StreamOperation::OnDataAvailable(
 
   // Don't bother processing any data if the stream has been canceled.
   if (cancel_requested_) {
+    binding_->Abort();
     return S_OK;
   }
 
@@ -749,8 +755,5 @@ HRESULT StreamOperation::RequestCancellation() {
   ATLASSERT(binding_ &&
             "Cancellation request on a stream that has not been bound.");
   cancel_requested_ = true;
-  if (binding_) {
-    return binding_->Abort();
-  }
   return S_OK;
 }
