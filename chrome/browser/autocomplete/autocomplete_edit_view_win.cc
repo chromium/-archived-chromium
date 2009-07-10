@@ -417,6 +417,7 @@ AutocompleteEditViewWin::AutocompleteEditViewWin(
       tracking_double_click_(false),
       double_click_time_(0),
       can_discard_mousemove_(false),
+      ignore_ime_messages_(false),
       font_(font),
       possible_drag_(false),
       in_drag_(false),
@@ -634,8 +635,15 @@ void AutocompleteEditViewWin::SetWindowTextAndCaretPos(const std::wstring& text,
     // control. To avoid this, we force the IME to cancel any outstanding
     // compositions here.  This is harmless in Vista and in cases where the IME
     // isn't composing.
+
+    // NOTE: We MUST ignore messages like WM_IME_COMPOSITION that may be sent as
+    // a result of doing this.  Until the SetWindowText() call below, the
+    // underlying edit (on XP) has out-of-date text in it; for problems this can
+    // cause, see OnImeComposition().
+    ignore_ime_messages_ = true;
     ImmNotifyIME(imm_context, NI_COMPOSITIONSTR, CPS_CANCEL, 0);
     ImmReleaseContext(m_hWnd, imm_context);
+    ignore_ime_messages_ = false;
   }
 
   SetWindowText(text.c_str());
@@ -1225,6 +1233,17 @@ LRESULT AutocompleteEditViewWin::OnGetObject(UINT uMsg,
 LRESULT AutocompleteEditViewWin::OnImeComposition(UINT message,
                                                   WPARAM wparam,
                                                   LPARAM lparam) {
+  if (ignore_ime_messages_) {
+    // This message was sent while we're in the middle of meddling with the
+    // underlying edit control.  If we handle it below, OnAfterPossibleChange()
+    // can get bogus text for the edit, and rerun autocomplete, destructively
+    // modifying the result set that we're in the midst of using.  For example,
+    // if SetWindowTextAndCaretPos() was called due to the user clicking an
+    // entry in the popup, we're in the middle of executing SetSelectedLine(),
+    // and changing the results can cause checkfailures.
+    return DefWindowProc(message, wparam, lparam);
+  }
+
   ScopedFreeze freeze(this, GetTextObjectModel());
   OnBeforePossibleChange();
   LRESULT result = DefWindowProc(message, wparam, lparam);
@@ -1244,7 +1263,9 @@ LRESULT AutocompleteEditViewWin::OnImeComposition(UINT message,
 LRESULT AutocompleteEditViewWin::OnImeNotify(UINT message,
                                              WPARAM wparam,
                                              LPARAM lparam) {
-  if (wparam == IMN_SETOPENSTATUS) {
+  // NOTE: I'm not sure this is ever reached with |ignore_ime_messages_| set,
+  // but if it is, the safe thing to do is to only call DefWindowProc().
+  if (!ignore_ime_messages_ && (wparam == IMN_SETOPENSTATUS)) {
     // A user has activated (or deactivated) IMEs (but not started a
     // composition).
     // Some IMEs get confused when we accept keywords while they are composing

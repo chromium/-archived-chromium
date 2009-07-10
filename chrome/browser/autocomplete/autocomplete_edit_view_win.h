@@ -420,6 +420,10 @@ class AutocompleteEditViewWin
   // unnecessary event.  See detailed comments in OnMouseMove().
   bool can_discard_mousemove_;
 
+  // Used to prevent IME message handling in the midst of updating the edit
+  // text.  See comments where this is used.
+  bool ignore_ime_messages_;
+
   // Variables for tracking state before and after a possible change.
   std::wstring text_before_change_;
   CHARRANGE sel_before_change_;
