@@ -2819,3 +2819,7 @@ BUG16355 WIN : LayoutTests/media/audio-delete-while-slider-thumb-clicked.html = 
 BUG16355 WIN : LayoutTests/media/audio-delete-while-step-button-clicked.html = TIMEOUT
 BUG16355 LINUX : LayoutTests/fast/forms/slider-delete-while-dragging-thumb.html = FAIL
 
+// Tests that rely on cross-process MessagePorts
+BUG16410 : LayoutTests/fast/workers/worker-cloneport.html = FAIL CRASH
+BUG16410 : LayoutTests/fast/workers/worker-messageport-gc.html = FAIL CRASH
+BUG16410 : LayoutTests/fast/workers/worker-messageport.html = FAIL CRASH
