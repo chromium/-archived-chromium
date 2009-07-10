@@ -135,7 +135,13 @@ void ExtensionHost::CreateRenderView(RenderWidgetHostView* host_view) {
 void ExtensionHost::RecoverCrashedExtension() {
   DCHECK(!IsRenderViewLive());
 #if defined(TOOLKIT_VIEWS)
-  view_->RecoverCrashedExtension();
+  if (view_.get()) {
+    view_->RecoverCrashedExtension();
+  } else {
+    CreateRenderView(NULL);
+  }
+#else
+  CreateRenderView(NULL);
 #endif
   if (IsRenderViewLive()) {
     NotificationService::current()->Notify(
