@@ -54,6 +54,27 @@ void PluginThread::OnControlMessageReceived(const IPC::Message& msg) {
 
 void PluginThread::Init() {
   lazy_tls.Pointer()->Set(this);
+#if defined(OS_LINUX)
+  {
+    // XEmbed plugins assume they are hosted in a Gtk application, so we need
+    // to initialize Gtk in the plugin process.
+    const std::vector<std::string>& args =
+        CommandLine::ForCurrentProcess()->argv();
+    int argc = args.size();
+    scoped_array<char *> argv(new char *[argc + 1]);
+    for (size_t i = 0; i < args.size(); ++i) {
+      // TODO(piman@google.com): can gtk_init modify argv? Just being safe
+      // here.
+      argv[i] = strdup(args[i].c_str());
+    }
+    argv[argc] = NULL;
+    char **argv_pointer = argv.get();
+    gtk_init(&argc, &argv_pointer);
+    for (size_t i = 0; i < args.size(); ++i) {
+      free(argv[i]);
+    }
+  }
+#endif
   ChildThread::Init();
 
   PatchNPNFunctions();
