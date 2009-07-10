@@ -92,8 +92,13 @@ def FindPlatformSDK():
           _winreg.HKEY_LOCAL_MACHINE,
           'SOFTWARE\\Microsoft\\Microsoft SDKs\\Windows\\v6.0A\\WinSDKBuild')
     except WindowsError:
-      print 'The Windows SDK version 6.0 or later needs to be installed'
-      sys.exit(1)
+      try:
+        winsdk_key = _winreg.OpenKey(
+            _winreg.HKEY_LOCAL_MACHINE,
+            'SOFTWARE\\Microsoft\\Microsoft SDKs\\Windows\\v6.0A\\VistaClientHeadersLibs')
+      except WindowsError:
+        print 'The Windows SDK version 6.0 or later needs to be installed'
+        sys.exit(1)
   try:
     winsdk_dir, value_type = _winreg.QueryValueEx(winsdk_key,
                                                   'InstallationFolder')
