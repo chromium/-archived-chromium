@@ -2,8 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// http://code.google.com/p/chromium/wiki/LinuxSUIDSandbox
+
 #include <asm/unistd.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <sched.h>
 #include <signal.h>
 #include <stdarg.h>
@@ -22,7 +25,6 @@
 #define CLONE_NEWPID 0x20000000
 #endif
 
-static const char kSandboxPath[] = "/var/run/chrome-sandbox";
 static const char kChromeBinary[] = "/opt/google/chrome/chrome";
 static const char kSandboxDescriptorEnvironmentVarName[] = "SBX_D";
 
@@ -62,6 +64,23 @@ static int CloneChrootHelperProcess() {
   }
 
   if (pid == 0) {
+    // We create a temp directory for our chroot. Nobody should ever write into
+    // it, so it's root:root 0555.
+    char kTempDirectoryTemplate[] = "/tmp/chrome-sandbox-chroot-XXXXXX";
+    const char* temp_dir = mkdtemp(kTempDirectoryTemplate);
+    if (!temp_dir)
+      FatalError("Failed to create temp directory for chroot");
+
+    const int chroot_dir_fd = open(temp_dir, O_DIRECTORY | O_RDONLY);
+    if (chroot_dir_fd < 0) {
+      rmdir(temp_dir);
+      FatalError("Failed to open chroot temp directory");
+    }
+
+    rmdir(temp_dir);
+    fchown(chroot_dir_fd, 0, 0);
+    fchmod(chroot_dir_fd, 0555);
+
     // We share our files structure with an untrusted process. As a security in
     // depth measure, we make sure that we can't open anything by mistake.
     // TODO: drop CAP_SYS_RESOURCE
@@ -87,25 +106,41 @@ static int CloneChrootHelperProcess() {
     if (msg != kMsgChrootMe)
       FatalError("Unknown message from sandboxed process");
 
-    if (chdir(kSandboxPath))
-      FatalError("Cannot chdir into %s", kSandboxPath);
+    if (fchdir(chroot_dir_fd))
+      FatalError("Cannot chdir into chroot temp directory");
 
     struct stat st;
     if (stat(".", &st))
       FatalError("stat");
 
     if (st.st_uid || st.st_gid || st.st_mode & S_IWOTH)
-      FatalError("Bad permissions on chroot directory (%s)", kSandboxPath);
+      FatalError("Bad permissions on chroot temp directory");
 
     if (chroot("."))
-      FatalError("Cannot chroot into %s", kSandboxPath);
+      FatalError("Cannot chroot into temp directory");
 
     if (chdir("/"))
       FatalError("Cannot chdir to / after chroot");
 
     const char reply = kMsgChrootSuccessful;
     do {
-      bytes = write(sv[0], &reply, 1);
+      struct msghdr msg = {0};
+      struct iovec iov = {(char *) &reply, 1};
+
+      msg.msg_iov = &iov;
+      msg.msg_iovlen = 1;
+
+      char control_buffer[CMSG_SPACE(sizeof(int))];
+      msg.msg_control = control_buffer;
+      msg.msg_controllen = sizeof(control_buffer);
+      struct cmsghdr* cmsg = CMSG_FIRSTHDR(&msg);
+      cmsg->cmsg_level = SOL_SOCKET;
+      cmsg->cmsg_type = SCM_RIGHTS;
+      cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+      memcpy(CMSG_DATA(cmsg), &chroot_dir_fd, sizeof(int));
+      msg.msg_controllen = cmsg->cmsg_len;
+
+      bytes = sendmsg(sv[0], &msg, 0);
     } while (bytes == -1 && errno == EINTR);
 
     if (bytes != 1)

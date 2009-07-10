@@ -47,24 +47,17 @@ ZygoteHost::ZygoteHost() {
     cmd_line.PrependWrapper(prefix);
   }
 
-  const std::string kSandboxPath =
-    WideToASCII(std::wstring(L"/var/run/") +
-                chrome::kBrowserProcessExecutableName +
-                L"-sandbox");
-
   struct stat st;
   if (stat(kSandboxBinary, &st) == 0) {
     if (access(kSandboxBinary, X_OK) == 0 &&
         (st.st_mode & S_ISUID) &&
-        (st.st_mode & S_IXOTH) &&
-        access(kSandboxPath.c_str(), F_OK) == 0) {
+        (st.st_mode & S_IXOTH)) {
       cmd_line.PrependWrapper(ASCIIToWide(kSandboxBinary));
     } else {
       LOG(FATAL) << "The SUID sandbox helper binary was found, but is not "
                     "configured correctly. Rather than run without sandboxing "
                     "I'm aborting now. You need to make sure that "
-                 << kSandboxBinary << " is mode 4755 and that "
-                 << kSandboxPath << " exists";
+                 << kSandboxBinary << " is mode 4755.";
     }
   }
 

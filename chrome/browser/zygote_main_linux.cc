@@ -215,16 +215,35 @@ static bool MaybeEnterChroot() {
     static const char kChrootMe = 'C';
     static const char kChrootMeSuccess = 'O';
 
-    if (HANDLE_EINTR(write(fd, &kChrootMe, 1)) != 1)
+    if (HANDLE_EINTR(write(fd, &kChrootMe, 1)) != 1) {
+      LOG(ERROR) << "Failed to write to chroot pipe: " << errno;
       return false;
+    }
 
     char reply;
-    if (HANDLE_EINTR(read(fd, &reply, 1)) != 1)
+    std::vector<int> fds;
+    if (!base::RecvMsg(fd, &reply, 1, &fds)) {
+      LOG(ERROR) << "Failed to read from chroot pipe: " << errno;
       return false;
-    if (reply != kChrootMeSuccess)
+    }
+    if (reply != kChrootMeSuccess) {
+      LOG(ERROR) << "Error code reply from chroot helper";
+      for (size_t i = 0; i < fds.size(); ++i)
+        HANDLE_EINTR(close(fds[i]));
       return false;
-    if (chdir("/") == -1)
+    }
+    if (fds.size() != 1) {
+      LOG(ERROR) << "Bad number of file descriptors from chroot helper";
+      for (size_t i = 0; i < fds.size(); ++i)
+        HANDLE_EINTR(close(fds[i]));
       return false;
+    }
+    if (fchdir(fds[0]) == -1) {
+      LOG(ERROR) << "Failed to chdir to root directory: " << errno;
+      HANDLE_EINTR(close(fds[0]));
+      return false;
+    }
+    HANDLE_EINTR(close(fds[0]));
 
     static const int kMagicSandboxIPCDescriptor = 5;
     SkiaFontConfigUseIPCImplementation(kMagicSandboxIPCDescriptor);
@@ -243,8 +262,10 @@ static bool MaybeEnterChroot() {
     // exists at this point and we can set the non-dumpable flag which is
     // inherited by all our renderer children.
     prctl(PR_SET_DUMPABLE, 0, 0, 0, 0);
-    if (prctl(PR_GET_DUMPABLE, 0, 0, 0, 0))
+    if (prctl(PR_GET_DUMPABLE, 0, 0, 0, 0)) {
+      LOG(ERROR) << "Failed to set non-dumpable flag";
       return false;
+    }
   } else {
     SkiaFontConfigUseDirectImplementation();
   }
