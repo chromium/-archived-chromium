@@ -139,21 +139,25 @@ static int gdkEventToWindowsKeyCode(const GdkEventKey* event)
         0,                 // 0x3E: GDK_Shift_R
     };
 
-    // |windowKeyCode| shouldn't change even when we change the keyboard
-    // layout, e.g. when we type an 'A' key of a US keyboard on the French
-    // layout, |windowsKeyCode| should be VK_A. On the other hand,
-    // |event->keyval| may change when we change the keyboard layout (the
-    // GdkKeymap object attached to the GdkDisplay object), e.g. when we type
-    // an 'A' key of a US keyboard on the French (or Hebrew) layout,
-    // |event->keyval| becomes GDK_q (or GDK_hebrew_shin).
+    // |windowsKeyCode| has to include a valid virtual-key code even when we
+    // use non-US layouts, e.g. even when we type an 'A' key of a US keyboard
+    // on the Hebrew layout, |windowsKeyCode| should be VK_A.
+    // On the other hand, |event->keyval| value depends on the current
+    // GdkKeymap object, i.e. when we type an 'A' key of a US keyboard on
+    // the Hebrew layout, |event->keyval| becomes GDK_hebrew_shin and this
+    // WebCore::windowsKeyCodeForKeyEvent() call returns 0.
     // To improve compatibilty with Windows, we use |event->hardware_keycode|
-    // for retrieving its Windows key-code for the keys that can be changed by
-    // GdkKeymap objects (keyboard-layout drivers).
+    // for retrieving its Windows key-code for the keys when the
+    // WebCore::windowsKeyCodeForEvent() call returns 0.
     // We shouldn't use |event->hardware_keycode| for keys that GdkKeymap
     // objects cannot change because |event->hardware_keycode| doesn't change
     // even when we change the layout options, e.g. when we swap a control
     // key and a caps-lock key, GTK doesn't swap their
     // |event->hardware_keycode| values but swap their |event->keyval| values.
+    int windowsKeyCode = WebCore::windowsKeyCodeForKeyEvent(event->keyval);
+    if (windowsKeyCode)
+        return windowsKeyCode;
+
     const int tableSize = sizeof(hardwareCodeToGDKKeyval) / sizeof(hardwareCodeToGDKKeyval[0]);
     if (event->hardware_keycode < tableSize) {
         int keyval = hardwareCodeToGDKKeyval[event->hardware_keycode];
