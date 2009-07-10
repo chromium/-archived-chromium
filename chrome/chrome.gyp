@@ -2601,7 +2601,6 @@
               },
             }],
             ['mac_breakpad==1', {
-              # Only include breakpad in official builds.
               'variables': {
                 # A real .dSYM is needed for dump_syms to operate on.
                 'mac_real_dsym': 1,
@@ -3975,27 +3974,38 @@
     },
   ],
   'conditions': [
-    # We set feature variables so the different parts that need to check for
-    # the mac build use of breakpad/keystone, check that flag instead of coding
-    # it based on branding.
-    # We need the Mac app name on disk, so we stick this into a variable so
-    # the different places that need it can use the common variable.
-    # NOTE: chrome/app/theme/chromium/BRANDING and
-    # chrome/app/theme/google_chrome/BRANDING have the short names, etc.;
-    # but extracting from there still means xcodeproject are out of date until
-    # the next project regeneration.
-    ['OS=="mac" and branding=="Chrome"', {
-      'variables': {
-        'mac_breakpad%': 1,
-        'mac_keystone%': 1,
-        'mac_product_name%': 'Google Chrome',
-      }
-    }, {
-      'variables': {
-        'mac_breakpad%': 0,
-        'mac_keystone%': 0,
-        'mac_product_name%': 'Chromium',
-      }
+    ['OS=="mac"', {
+      'conditions': [
+        # We need the Mac app name on disk, so we stick this into a variable so
+        # the different places that need it can use the common variable.
+        # NOTE: chrome/app/theme/chromium/BRANDING and
+        # chrome/app/theme/google_chrome/BRANDING have the short names, etc.;
+        # but extracting from there still means xcodeproject are out of date until
+        # the next project regeneration.
+        ['branding=="Chrome"', {
+          'variables': {
+            'mac_product_name%': 'Google Chrome',
+          }
+        }, {
+          'variables': {
+            'mac_product_name%': 'Chromium',
+          }
+        }],
+        # We set feature variables so the different parts of the gyp file use
+        # these vars in conditions instead of repeating the check of branding
+        # and buildtype.
+        ['branding=="Chrome" and buildtype=="Official"', {
+          'variables': {
+            'mac_breakpad%': 1,
+            'mac_keystone%': 1,
+          }
+        }, {
+          'variables': {
+            'mac_breakpad%': 0,
+            'mac_keystone%': 0,
+          }
+        }],
+      ],
     }],
     ['OS=="linux"', {
       'conditions': [
