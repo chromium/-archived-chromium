@@ -163,10 +163,10 @@ class Browser : public TabStripModelDelegate,
   SkBitmap GetCurrentPageIcon() const;
 
   // Gets the title of the page in the selected tab.
-  std::wstring GetCurrentPageTitle() const;
+  string16 GetCurrentPageTitle() const;
 
   // Prepares a title string for display (removes embedded newlines, etc).
-  static void FormatTitleForDisplay(std::wstring* title);
+  static void FormatTitleForDisplay(string16* title);
 
   // Returns true if the frame should show a distributor logo for this Browser.
   bool ShouldShowDistributorLogo() const;

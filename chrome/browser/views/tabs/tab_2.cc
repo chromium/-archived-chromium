@@ -460,9 +460,9 @@ void Tab2::PaintTitle(gfx::Canvas* canvas) {
   string16 title = model_->GetTitle(this);
   if (title.empty()) {
     if (model_->IsLoading(this))
-      title = l10n_util::GetString(IDS_TAB_LOADING_TITLE);
+      title = l10n_util::GetStringUTF16(IDS_TAB_LOADING_TITLE);
     else
-      title = l10n_util::GetString(IDS_TAB_UNTITLED_TITLE);
+      title = l10n_util::GetStringUTF16(IDS_TAB_UNTITLED_TITLE);
   } else {
     Browser::FormatTitleForDisplay(&title);
   }
@@ -472,9 +472,9 @@ void Tab2::PaintTitle(gfx::Canvas* canvas) {
           BrowserThemeProvider::COLOR_TAB_TEXT :
           BrowserThemeProvider::COLOR_BACKGROUND_TAB_TEXT);
 
-  canvas->DrawStringInt(title, *title_font, title_color, title_bounds_.x(),
-                        title_bounds_.y(), title_bounds_.width(),
-                        title_bounds_.height());
+  canvas->DrawStringInt(UTF16ToWideHack(title), *title_font, title_color,
+                        title_bounds_.x(), title_bounds_.y(),
+                        title_bounds_.width(), title_bounds_.height());
 }
 
 void Tab2::PaintTabBackground(gfx::Canvas* canvas) {

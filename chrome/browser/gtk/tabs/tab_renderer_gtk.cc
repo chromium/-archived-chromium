@@ -196,7 +196,7 @@ TabRendererGtk::~TabRendererGtk() {
 void TabRendererGtk::UpdateData(TabContents* contents, bool loading_only) {
   DCHECK(contents);
   if (!loading_only) {
-    data_.title = UTF16ToWideHack(contents->GetTitle());
+    data_.title = contents->GetTitle();
     data_.off_the_record = contents->profile()->IsOffTheRecord();
     data_.crashed = contents->is_crashed();
     data_.favicon = contents->GetFavIcon();
@@ -322,7 +322,7 @@ void TabRendererGtk::SetBounds(const gfx::Rect& bounds) {
 // TabRendererGtk, protected:
 
 std::wstring TabRendererGtk::GetTitle() const {
-  return data_.title;
+  return UTF16ToWideHack(data_.title);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -420,12 +420,12 @@ void TabRendererGtk::Paint(gfx::Canvas* canvas) {
   }
 
   // Paint the Title.
-  std::wstring title = data_.title;
+  string16 title = data_.title;
   if (title.empty()) {
     if (data_.loading) {
-      title = l10n_util::GetString(IDS_TAB_LOADING_TITLE);
+      title = l10n_util::GetStringUTF16(IDS_TAB_LOADING_TITLE);
     } else {
-      title = l10n_util::GetString(IDS_TAB_UNTITLED_TITLE);
+      title = l10n_util::GetStringUTF16(IDS_TAB_UNTITLED_TITLE);
     }
   } else {
     Browser::FormatTitleForDisplay(&title);
@@ -433,9 +433,9 @@ void TabRendererGtk::Paint(gfx::Canvas* canvas) {
 
   SkColor title_color = IsSelected() ? selected_title_color_
                                      : unselected_title_color_;
-  canvas->DrawStringInt(title, *title_font_, title_color, title_bounds_.x(),
-                        title_bounds_.y(), title_bounds_.width(),
-                        title_bounds_.height());
+  canvas->DrawStringInt(UTF16ToWideHack(title), *title_font_, title_color,
+                        title_bounds_.x(), title_bounds_.y(),
+                        title_bounds_.width(), title_bounds_.height());
 }
 
 SkBitmap TabRendererGtk::PaintBitmap() {

@@ -578,8 +578,8 @@ void BrowserWindowGtk::UpdateTitleBar() {
     panel_controller_->UpdateTitleBar();
 #endif
 
-  std::wstring title = browser_->GetCurrentPageTitle();
-  gtk_window_set_title(window_, WideToUTF8(title).c_str());
+  string16 title = browser_->GetCurrentPageTitle();
+  gtk_window_set_title(window_, UTF16ToUTF8(title).c_str());
   if (ShouldShowWindowIcon()) {
     // TODO(tc): If we're showing a title bar, we should update the app icon.
   }

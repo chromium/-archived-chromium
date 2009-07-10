@@ -431,18 +431,18 @@ SkBitmap Browser::GetCurrentPageIcon() const {
   return contents ? contents->GetFavIcon() : SkBitmap();
 }
 
-std::wstring Browser::GetCurrentPageTitle() const {
+string16 Browser::GetCurrentPageTitle() const {
   TabContents* contents = tabstrip_model_.GetSelectedTabContents();
-  std::wstring title;
+  string16 title;
 
   // |contents| can be NULL because GetCurrentPageTitle is called by the window
   // during the window's creation (before tabs have been added).
   if (contents) {
-    title = UTF16ToWideHack(contents->GetTitle());
+    title = contents->GetTitle();
     FormatTitleForDisplay(&title);
   }
   if (title.empty())
-    title = l10n_util::GetString(IDS_TAB_UNTITLED_TITLE);
+    title = l10n_util::GetStringUTF16(IDS_TAB_UNTITLED_TITLE);
 
 #if defined(OS_MACOSX) || defined(OS_CHROMEOS)
   // On Mac, we don't want to suffix the page title with the application name.
@@ -453,17 +453,17 @@ std::wstring Browser::GetCurrentPageTitle() const {
   // distributor logo for the frame.
   if (!ShouldShowDistributorLogo())
     string_id = IDS_BROWSER_WINDOW_TITLE_FORMAT_NO_LOGO;
-  return l10n_util::GetStringF(string_id, title);
+  return l10n_util::GetStringFUTF16(string_id, title);
 #endif
 }
 
 // static
-void Browser::FormatTitleForDisplay(std::wstring* title) {
+void Browser::FormatTitleForDisplay(string16* title) {
   size_t current_index = 0;
   size_t match_index;
   while ((match_index = title->find(L'\n', current_index)) !=
          std::wstring::npos) {
-    title->replace(match_index, 1, L"");
+    title->replace(match_index, 1, EmptyString16());
     current_index = match_index;
   }
 }

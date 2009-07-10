@@ -9,6 +9,7 @@
 #include "app/slide_animation.h"
 #include "app/throb_animation.h"
 #include "base/gfx/point.h"
+#include "base/string16.h"
 #include "views/controls/button/image_button.h"
 #include "views/view.h"
 
@@ -165,7 +166,7 @@ class TabRenderer : public views::View,
   // corresponding objects in the underlying model.
   struct TabData {
     SkBitmap favicon;
-    std::wstring title;
+    string16 title;
     bool loading;
     bool crashed;
     bool off_the_record;

@@ -13,6 +13,7 @@
 #include "app/slide_animation.h"
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
+#include "base/string16.h"
 #include "chrome/common/owned_widget_gtk.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 
@@ -160,7 +161,7 @@ class TabRendererGtk : public AnimationDelegate {
   // corresponding objects in the underlying model.
   struct TabData {
     SkBitmap favicon;
-    std::wstring title;
+    string16 title;
     bool loading;
     bool crashed;
     bool off_the_record;
