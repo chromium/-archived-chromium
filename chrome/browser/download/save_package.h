@@ -236,11 +236,13 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
                             saved_failed_items_.size());
   }
 
+  // Retrieve the preference for the directory to save pages to.
+  static FilePath GetSaveDirPreference(PrefService* prefs);
+
   // Helper function for preparing suggested name for the SaveAs Dialog. The
-  // suggested name is composed of the default save path and the web document's
-  // title.
-  static FilePath GetSuggestNameForSaveAs(
-      PrefService* prefs, const FilePath& name, bool can_save_as_complete);
+  // suggested name is determined by the web document's title.
+  static FilePath GetSuggestedNameForSaveAs(const FilePath& name,
+                                            bool can_save_as_complete);
 
   // Ensure that the file name has a proper extension for HTML by adding ".htm"
   // if necessary.
@@ -306,6 +308,7 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
   scoped_refptr<SelectFileDialog> select_file_dialog_;
 
   friend class SavePackageTest;
+
   DISALLOW_COPY_AND_ASSIGN(SavePackage);
 };
 

@@ -953,46 +953,40 @@ void SavePackage::SetShouldPromptUser(bool should_prompt) {
   g_should_prompt_for_filename = should_prompt;
 }
 
-// static
-FilePath SavePackage::GetSuggestNameForSaveAs(
-    PrefService* prefs, const FilePath& name, bool can_save_as_complete) {
-  // Check whether the preference has the preferred directory for saving file.
-  // If not, initialize it with default directory.
-  if (!prefs->IsPrefRegistered(prefs::kSaveFileDefaultDirectory)) {
-    FilePath default_save_path;
-    if (!prefs->IsPrefRegistered(prefs::kDownloadDefaultDirectory)) {
-      if (!PathService::Get(chrome::DIR_DEFAULT_DOWNLOADS,
-                            &default_save_path)) {
-        NOTREACHED();
+// static.
+FilePath SavePackage::GetSuggestedNameForSaveAs(const FilePath& name,
+                                                bool can_save_as_complete) {
+  // If the name is a URL, try to use the last path component or if there is
+  // none, the domain as the file name.
+  FilePath name_with_proper_ext = name;
+  GURL url(WideToUTF8(name_with_proper_ext.ToWStringHack()));
+  if (url.is_valid()) {
+    std::string url_path;
+    std::vector<std::string> url_parts;
+    SplitString(url.path(), '/', &url_parts);
+    if (!url_parts.empty()) {
+      for (int i = static_cast<int>(url_parts.size()) - 1; i >= 0; --i) {
+        url_path = url_parts[i];
+        if (!url_path.empty())
+          break;
       }
-    } else {
-      StringPrefMember default_download_path;
-      default_download_path.Init(prefs::kDownloadDefaultDirectory,
-                                 prefs, NULL);
-      default_save_path = FilePath::FromWStringHack(
-                          default_download_path.GetValue());
     }
-    prefs->RegisterFilePathPref(prefs::kSaveFileDefaultDirectory,
-                                default_save_path);
+    if (url_path.empty())
+      url_path = url.host();
+    name_with_proper_ext = FilePath::FromWStringHack(UTF8ToWide(url_path));
   }
 
-  // Get the directory from preference.
-  StringPrefMember save_file_path;
-  save_file_path.Init(prefs::kSaveFileDefaultDirectory, prefs, NULL);
-  DCHECK(!(*save_file_path).empty());
-
   // Ask user for getting final saving name.
-  FilePath name_with_proper_ext =
-      can_save_as_complete ? EnsureHtmlExtension(name) : name;
+  if (can_save_as_complete)
+    name_with_proper_ext = EnsureHtmlExtension(name_with_proper_ext);
+
   std::wstring file_name = name_with_proper_ext.ToWStringHack();
   // TODO(port): we need a version of ReplaceIllegalCharacters() that takes
   // FilePaths.
   file_util::ReplaceIllegalCharacters(&file_name, L' ');
   TrimWhitespace(file_name, TRIM_ALL, &file_name);
-  FilePath suggest_name = FilePath::FromWStringHack(save_file_path.GetValue());
-  suggest_name = suggest_name.Append(FilePath::FromWStringHack(file_name));
 
-  return suggest_name;
+  return FilePath::FromWStringHack(file_name);
 }
 
 FilePath SavePackage::EnsureHtmlExtension(const FilePath& name) {
@@ -1006,6 +1000,38 @@ FilePath SavePackage::EnsureHtmlExtension(const FilePath& name) {
                     kDefaultHtmlExtension);
   }
   return name;
+}
+
+// static.
+// Check whether the preference has the preferred directory for saving file. If
+// not, initialize it with default directory.
+FilePath SavePackage::GetSaveDirPreference(PrefService* prefs) {
+  DCHECK(prefs);
+
+  if (!prefs->IsPrefRegistered(prefs::kSaveFileDefaultDirectory)) {
+    FilePath default_save_path;
+    if (!prefs->IsPrefRegistered(prefs::kDownloadDefaultDirectory)) {
+      if (!PathService::Get(chrome::DIR_DEFAULT_DOWNLOADS,
+                            &default_save_path)) {
+        NOTREACHED();
+      }
+    } else {
+      StringPrefMember default_download_path;
+      default_download_path.Init(prefs::kDownloadDefaultDirectory,
+                                 prefs, NULL);
+      default_save_path =
+          FilePath::FromWStringHack(default_download_path.GetValue());
+    }
+    prefs->RegisterFilePathPref(prefs::kSaveFileDefaultDirectory,
+                                default_save_path);
+  }
+
+  // Get the directory from preference.
+  StringPrefMember save_file_path;
+  save_file_path.Init(prefs::kSaveFileDefaultDirectory, prefs, NULL);
+  DCHECK(!(*save_file_path).empty());
+
+  return FilePath::FromWStringHack(*save_file_path);
 }
 
 void SavePackage::GetSaveInfo() {
@@ -1022,9 +1048,10 @@ void SavePackage::GetSaveInfo() {
 
   FilePath title =
       FilePath::FromWStringHack(UTF16ToWideHack(tab_contents_->GetTitle()));
+  FilePath save_dir =
+      GetSaveDirPreference(tab_contents_->profile()->GetPrefs());
   FilePath suggested_path =
-      GetSuggestNameForSaveAs(tab_contents_->profile()->GetPrefs(), title,
-                              can_save_as_complete);
+      save_dir.Append(GetSuggestedNameForSaveAs(title, can_save_as_complete));
 
   // If the contents can not be saved as complete-HTML, do not show the
   // file filters.
