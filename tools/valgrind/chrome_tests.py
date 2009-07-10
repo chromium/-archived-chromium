@@ -259,7 +259,7 @@ class ChromeTests:
     return self.SimpleTest("chrome", "unit_tests")
 
   def TestApp(self):
-    return self.SimpleTest("chrome", "app_tests")
+    return self.SimpleTest("chrome", "app_unittests")
 
   def TestUI(self):
     return self.SimpleTest("chrome", "ui_tests",
