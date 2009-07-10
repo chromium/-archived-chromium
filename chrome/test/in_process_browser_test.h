@@ -74,6 +74,9 @@ class InProcessBrowserTest : public testing::Test {
   // Invoked when a test is not finishing in a timely manner.
   void TimedOut();
 
+  // Sets Initial Timeout value.
+  void SetInitialTimeoutInMS(int initial_timeout);
+
   // Starts an HTTP server.
   HTTPTestServer* StartHTTPServer();
 
@@ -117,6 +120,9 @@ class InProcessBrowserTest : public testing::Test {
 
   // Saved to restore the value of RenderProcessHost::run_renderer_in_process.
   bool original_single_process_;
+
+  // Initial timeout value in ms.
+  int initial_timeout_;
 
   DISALLOW_COPY_AND_ASSIGN(InProcessBrowserTest);
 };

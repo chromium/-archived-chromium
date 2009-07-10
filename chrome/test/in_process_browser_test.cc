@@ -33,8 +33,8 @@ extern int BrowserMain(const MainFunctionParams&);
 
 const wchar_t kUnitTestShowWindows[] = L"show-windows";
 
-// Delay for the time-out at which we stop the inner-message loop the first
-// time.
+// Default delay for the time-out at which we stop the
+// inner-message loop the first time.
 const int kInitialTimeoutInMS = 30000;
 
 // Delay for sub-sequent time-outs once the initial time-out happened.
@@ -62,7 +62,8 @@ InProcessBrowserTest::InProcessBrowserTest()
       show_window_(false),
       dom_automation_enabled_(false),
       single_process_(false),
-      original_single_process_(false) {
+      original_single_process_(false),
+      initial_timeout_(kInitialTimeoutInMS) {
 }
 
 void InProcessBrowserTest::SetUp() {
@@ -223,7 +224,7 @@ void InProcessBrowserTest::RunTestOnMainThreadLoop() {
   // Start the timeout timer to prevent hangs.
   MessageLoopForUI::current()->PostDelayedTask(FROM_HERE,
       NewRunnableMethod(this, &InProcessBrowserTest::TimedOut),
-      kInitialTimeoutInMS);
+      initial_timeout_);
 
   RunTestOnMainThread();
   CleanUpOnMainThread();
@@ -257,4 +258,9 @@ void InProcessBrowserTest::TimedOut() {
       kSubsequentTimeoutInMS);
 
   MessageLoopForUI::current()->Quit();
+}
+
+void InProcessBrowserTest::SetInitialTimeoutInMS(int timeout_value) {
+  DCHECK_GT(timeout_value, 0);
+  initial_timeout_ = timeout_value;
 }
