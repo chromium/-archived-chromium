@@ -307,8 +307,9 @@ class TabStripGtk : public TabStripModelObserver,
   void SetDropIndex(int index, bool drop_before);
 
   // Determines whether the data is acceptable by the tabstrip and opens a new
-  // tab with the data as URL if it is.
-  void CompleteDrop(guchar* data);
+  // tab with the data as URL if it is.  Returns true if the drop was
+  // successful.
+  bool CompleteDrop(guchar* data);
 
   // Returns the image to use for indicating a drop on a tab. If is_down is
   // true, this returns an arrow pointing down.

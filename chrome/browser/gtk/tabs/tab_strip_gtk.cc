@@ -494,8 +494,6 @@ void TabStripGtk::Init() {
                    G_CALLBACK(OnDragDrop), this);
   g_signal_connect(G_OBJECT(tabstrip_.get()), "drag-leave",
                    G_CALLBACK(OnDragLeave), this);
-  g_signal_connect(G_OBJECT(tabstrip_.get()), "drag-failed",
-                   G_CALLBACK(OnDragFailed), this);
   g_signal_connect(G_OBJECT(tabstrip_.get()), "drag-data-received",
                    G_CALLBACK(OnDragDataReceived), this);
 
@@ -1224,19 +1222,19 @@ void TabStripGtk::SetDropIndex(int index, bool drop_before) {
                     drop_bounds.width(), drop_bounds.height());
 }
 
-void TabStripGtk::CompleteDrop(guchar* data) {
+bool TabStripGtk::CompleteDrop(guchar* data) {
   if (!drop_info_.get())
-    return;
+    return false;
 
   const int drop_index = drop_info_->drop_index;
   const bool drop_before = drop_info_->drop_before;
 
-  // Hide the drop indicator.
-  SetDropIndex(-1, false);
+  // Destroy the drop indicator.
+  drop_info_.reset();
 
   GURL url(reinterpret_cast<char*>(data));
   if (!url.is_valid())
-    return;
+    return false;
 
   if (drop_before) {
     // Insert a new tab.
@@ -1251,6 +1249,8 @@ void TabStripGtk::CompleteDrop(guchar* data) {
         url, GURL(), PageTransition::GENERATED);
     model_->SelectTabContentsAt(drop_index, true);
   }
+
+  return true;
 }
 
 // static
@@ -1272,13 +1272,12 @@ TabStripGtk::DropInfo::DropInfo(int drop_index, bool drop_before,
   g_signal_connect(G_OBJECT(container), "expose-event",
                    G_CALLBACK(OnExposeEvent), this);
   gtk_widget_add_events(container, GDK_STRUCTURE_MASK);
-  gtk_widget_show_all(container);
-
-  drop_arrow = GetDropArrowImage(point_down);
-
   gtk_window_move(GTK_WINDOW(container), 0, 0);
   gtk_window_resize(GTK_WINDOW(container),
                     drop_indicator_width, drop_indicator_height);
+  gtk_widget_show_all(container);
+
+  drop_arrow = GetDropArrowImage(point_down);
 }
 
 TabStripGtk::DropInfo::~DropInfo() {
@@ -1550,17 +1549,8 @@ gboolean TabStripGtk::OnDragDrop(GtkWidget* widget, GdkDragContext* context,
 // static
 gboolean TabStripGtk::OnDragLeave(GtkWidget* widget, GdkDragContext* context,
                                   guint time, TabStripGtk* tabstrip) {
-  // Hide the drop indicator.
-  tabstrip->SetDropIndex(-1, false);
-  return FALSE;
-}
-
-// static
-gboolean TabStripGtk::OnDragFailed(GtkWidget* widget, GdkDragContext* context,
-                                   GtkDragResult result,
-                                   TabStripGtk* tabstrip) {
-  // Hide the drop indicator.
-  tabstrip->SetDropIndex(-1, false);
+  // Destroy the drop indicator.
+  tabstrip->drop_info_.reset();
   return FALSE;
 }
 
@@ -1571,12 +1561,14 @@ gboolean TabStripGtk::OnDragDataReceived(GtkWidget* widget,
                                          GtkSelectionData* data,
                                          guint info, guint time,
                                          TabStripGtk* tabstrip) {
+  bool success = false;
+
   // TODO(jhawkins): Parse URI lists.
   if (info == GtkDndUtil::X_CHROME_TEXT_PLAIN) {
-    tabstrip->CompleteDrop(data->data);
-    gtk_drag_finish(context, TRUE, TRUE, time);
+    success = tabstrip->CompleteDrop(data->data);
   }
 
+  gtk_drag_finish(context, success, success, time);
   return TRUE;
 }
 
