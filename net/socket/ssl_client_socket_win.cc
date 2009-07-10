@@ -543,6 +543,10 @@ int SSLClientSocketWin::Read(IOBuffer* buf, int buf_len,
   }
 
   DCHECK(!user_buf_);
+  // http://crbug.com/16371: We're seeing |buf->data()| return NULL.  See if the
+  // user is passing in an IOBuffer with a NULL |data_|.
+  CHECK(buf);
+  CHECK(buf->data());
   user_buf_ = buf;
   user_buf_len_ = buf_len;
 

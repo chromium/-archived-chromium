@@ -354,6 +354,11 @@ int HttpNetworkTransaction::Read(IOBuffer* buf, int buf_len,
     return ERR_TUNNEL_CONNECTION_FAILED;
   }
 
+  // http://crbug.com/16371: We're seeing |user_buf_->data()| return NULL.
+  // See if the user is passing in an IOBuffer with a NULL |data_|.
+  CHECK(buf);
+  CHECK(buf->data());
+
   read_buf_ = buf;
   read_buf_len_ = buf_len;
 
@@ -811,6 +816,10 @@ int HttpNetworkTransaction::DoReadHeaders() {
 
   int buf_len = header_buf_capacity_ - header_buf_len_;
   header_buf_->set_data(header_buf_len_);
+
+  // http://crbug.com/16371: We're seeing |user_buf_->data()| return NULL.
+  // See if the user is passing in an IOBuffer with a NULL |data_|.
+  CHECK(header_buf_->data());
 
   return http_stream_->Read(header_buf_, buf_len, &io_callback_);
 }
