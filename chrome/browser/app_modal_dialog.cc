@@ -50,6 +50,13 @@ void AppModalDialog::Observe(NotificationType type,
     CloseModalDialog();
 }
 
+void AppModalDialog::SendCloseNotification() {
+  NotificationService::current()->Notify(
+      NotificationType::APP_MODAL_DIALOG_CLOSED,
+      Source<AppModalDialog>(this),
+      NotificationService::NoDetails());
+}
+
 void AppModalDialog::InitNotifications() {
   // Make sure we get navigation notifications so we know when our parent
   // contents will disappear or navigate to a different page.
@@ -70,6 +77,11 @@ void AppModalDialog::ShowModalDialog() {
 
   tab_contents_->Activate();
   CreateAndShowDialog();
+
+  NotificationService::current()->Notify(
+      NotificationType::APP_MODAL_DIALOG_SHOWN,
+      Source<AppModalDialog>(this),
+      NotificationService::NoDetails());
 }
 
 void AppModalDialog::OnCancel() {
@@ -85,6 +97,8 @@ void AppModalDialog::OnCancel() {
     tab_contents_->OnJavaScriptMessageBoxClosed(reply_msg_, false,
                                                 std::wstring());
   }
+
+  SendCloseNotification();
 }
 
 void AppModalDialog::OnAccept(const std::wstring& prompt_text,
@@ -98,10 +112,14 @@ void AppModalDialog::OnAccept(const std::wstring& prompt_text,
     if (suppress_js_messages)
       tab_contents()->set_suppress_javascript_messages(true);
   }
+
+  SendCloseNotification();
 }
 
 void AppModalDialog::OnClose() {
- if (tab_contents_) {
-   tab_contents_->OnJavaScriptMessageBoxWindowDestroyed();
- }
+  if (tab_contents_) {
+    tab_contents_->OnJavaScriptMessageBoxWindowDestroyed();
+  }
+
+  SendCloseNotification();
 }

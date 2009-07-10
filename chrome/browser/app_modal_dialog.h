@@ -95,6 +95,9 @@ class AppModalDialog : public NotificationObserver {
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
+  // Sends APP_MODAL_DIALOG_CLOSED notification.
+  void SendCloseNotification();
+
   NotificationRegistrar registrar_;
 
   // A reference to the platform native dialog box.

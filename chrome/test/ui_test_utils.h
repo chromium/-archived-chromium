@@ -11,6 +11,7 @@
 #include "base/string16.h"
 #include "chrome/common/notification_observer.h"
 
+class AppModalDialog;
 class Browser;
 class DownloadManager;
 class GURL;
@@ -85,6 +86,10 @@ GURL GetTestUrl(const std::wstring& dir, const std::wstring file);
 // Creates an observer that waits for |download_manager| to report that it
 // has a total of |count| downloads that have been handles
 void WaitForDownloadCount(DownloadManager* download_manager, size_t count);
+
+// Blocks until an application modal dialog is showns and returns it.
+AppModalDialog* WaitForAppModalDialog();
+
 }
 
 #endif  // CHROME_TEST_UI_TEST_UTILS_H_

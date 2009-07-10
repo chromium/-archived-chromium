@@ -113,25 +113,6 @@ TEST_F(BrowserTest, WindowsSessionEnd) {
 }
 #endif
 
-// This test is flakey, see bug 5668 for details.
-TEST_F(BrowserTest, DISABLED_JavascriptAlertActivatesTab) {
-  scoped_refptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
-  int start_index;
-  ASSERT_TRUE(window->GetActiveTabIndex(&start_index));
-  ASSERT_TRUE(window->AppendTab(GURL("about:blank")));
-  int javascript_tab_index;
-  ASSERT_TRUE(window->GetActiveTabIndex(&javascript_tab_index));
-  scoped_refptr<TabProxy> javascript_tab = window->GetActiveTab();
-  ASSERT_TRUE(javascript_tab.get());
-  // Switch back to the starting tab, then send the second tab a javascript
-  // alert, which should force it to become active.
-  ASSERT_TRUE(window->ActivateTab(start_index));
-  ASSERT_TRUE(
-      javascript_tab->NavigateToURLAsync(GURL("javascript:alert('Alert!')")));
-  ASSERT_TRUE(window->WaitForTabToBecomeActive(javascript_tab_index,
-                                               action_max_timeout_ms()));
-}
-
 // Test that scripts can fork a new renderer process for a tab in a particular
 // case (which matches following a link in Gmail).  The script must open a new
 // tab, set its window.opener to null, and redirect it to a cross-site URL.

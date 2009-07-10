@@ -5,9 +5,11 @@
 #include <string>
 
 #include "app/l10n_util.h"
+#include "chrome/browser/app_modal_dialog.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/common/page_transition_types.h"
 #include "chrome/test/in_process_browser_test.h"
 #include "chrome/test/ui_test_utils.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -78,4 +80,21 @@ IN_PROC_BROWSER_TEST_F(BrowserTest, Title) {
   string16 tab_title;
   ASSERT_TRUE(ui_test_utils::GetCurrentTabTitle(browser(), &tab_title));
   EXPECT_EQ(WideToUTF16(test_title), tab_title);
+}
+
+IN_PROC_BROWSER_TEST_F(BrowserTest, JavascriptAlertActivatesTab) {
+  GURL url(ui_test_utils::GetTestUrl(L".", L"title1.html"));
+  ui_test_utils::NavigateToURL(browser(), url);
+  browser()->AddTabWithURL(url, GURL(), PageTransition::TYPED,
+                           true, 0, false, NULL);
+  EXPECT_EQ(2, browser()->tab_count());
+  EXPECT_EQ(0, browser()->selected_index());
+  TabContents* second_tab = browser()->GetTabContentsAt(1);
+  ASSERT_TRUE(second_tab);
+  second_tab->render_view_host()->ExecuteJavascriptInWebFrame(L"",
+      L"alert('Activate!');");
+  AppModalDialog* alert = ui_test_utils::WaitForAppModalDialog();
+  alert->CloseModalDialog();
+  EXPECT_EQ(2, browser()->tab_count());
+  EXPECT_EQ(1, browser()->selected_index());
 }

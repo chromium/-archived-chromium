@@ -194,6 +194,41 @@ class DownloadsCompleteObserver : public DownloadManager::Observer,
   DISALLOW_COPY_AND_ASSIGN(DownloadsCompleteObserver);
 };
 
+// Used to block until an application modal dialog is shown.
+class AppModalDialogObserver : public NotificationObserver {
+ public:
+  AppModalDialogObserver() {}
+
+  AppModalDialog* WaitForAppModalDialog() {
+    registrar_.Add(this, NotificationType::APP_MODAL_DIALOG_SHOWN,
+                   NotificationService::AllSources());
+    dialog_ = NULL;
+    ui_test_utils::RunMessageLoop();
+    DCHECK(dialog_);
+    return dialog_;
+  }
+
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details) {
+    if (type == NotificationType::APP_MODAL_DIALOG_SHOWN) {
+      registrar_.Remove(this, NotificationType::APP_MODAL_DIALOG_SHOWN,
+                        NotificationService::AllSources());
+      dialog_ = Source<AppModalDialog>(source).ptr();
+      MessageLoopForUI::current()->Quit();
+    } else {
+      NOTREACHED();
+    }
+  }
+
+ private:
+  NotificationRegistrar registrar_;
+
+  AppModalDialog* dialog_;
+
+  DISALLOW_COPY_AND_ASSIGN(AppModalDialogObserver);
+};
+
 }  // namespace
 
 void RunMessageLoop() {
@@ -328,6 +363,11 @@ GURL GetTestUrl(const std::wstring& dir, const std::wstring file) {
 
 void WaitForDownloadCount(DownloadManager* download_manager, size_t count) {
   DownloadsCompleteObserver download_observer(download_manager, count);
+}
+
+AppModalDialog* WaitForAppModalDialog() {
+  AppModalDialogObserver observer;
+  return observer.WaitForAppModalDialog();
 }
 
 }  // namespace ui_test_utils

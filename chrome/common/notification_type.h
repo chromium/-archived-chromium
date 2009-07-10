@@ -215,6 +215,16 @@ class NotificationType {
     // Linux.
     ACTIVE_WINDOW_CHANGED,
 
+    // Application-modal dialogs -----------------------------------------------
+
+    // Sent after an application-modal dialog has been shown. The source
+    // is the dialog.
+    APP_MODAL_DIALOG_SHOWN,
+
+    // Sent after an application-modal dialog has been closed. The source
+    // is the dialog.
+    APP_MODAL_DIALOG_CLOSED,
+
     // Tabs --------------------------------------------------------------------
 
     // This notification is sent after a tab has been appended to the
