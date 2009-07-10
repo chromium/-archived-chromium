@@ -20,25 +20,24 @@
 namespace media {
 
 class FilterHostImpl;
-class PipelineInternal;
+class PipelineThread;
 
 // Class which implements the Media::Pipeline contract.  The majority of the
-// actual code for this object lives in the PipelineInternal class, which is
+// actual code for this object lives in the PipelineThread class, which is
 // responsible for actually building and running the pipeline.  This object
 // is basically a simple container for state information, and is responsible
-// for creating and communicating with the PipelineInternal object.
+// for creating and communicating with the PipelineThread object.
 class PipelineImpl : public Pipeline {
  public:
-  PipelineImpl(MessageLoop* message_loop);
+  PipelineImpl();
   virtual ~PipelineImpl();
 
   // Pipeline implementation.
   virtual bool Start(FilterFactory* filter_factory,
                      const std::string& uri,
                      PipelineCallback* start_callback);
-  virtual void Stop(PipelineCallback* stop_callback);
+  virtual void Stop();
   virtual void Seek(base::TimeDelta time, PipelineCallback* seek_callback);
-  virtual bool IsRunning() const;
   virtual bool IsInitialized() const;
   virtual bool IsRendered(const std::string& major_mime_type) const;
   virtual float GetPlaybackRate() const;
@@ -55,7 +54,7 @@ class PipelineImpl : public Pipeline {
 
  private:
   friend class FilterHostImpl;
-  friend class PipelineInternal;
+  friend class PipelineThread;
 
   // Reset the state of the pipeline object to the initial state.  This method
   // is used by the constructor, and the Stop method.
@@ -65,6 +64,10 @@ class PipelineImpl : public Pipeline {
   // acceptable to post a task to.  It must exist, be initialized, and there
   // must not be an error.
   bool IsPipelineOk() const;
+
+  // Returns true if we're currently executing on the pipeline thread.  Mostly
+  // used in DCHECKs.
+  bool IsPipelineThread() const;
 
   // Methods called by FilterHostImpl to update pipeline state.
   void SetDuration(base::TimeDelta duration);
@@ -80,17 +83,14 @@ class PipelineImpl : public Pipeline {
   // alone, and returns false.
   bool InternalSetError(PipelineError error);
 
-  // Method called by the |pipeline_internal_| to insert a mime type into
+  // Method called by the |pipeline_thread_| to insert a mime type into
   // the |rendered_mime_types_| set.
   void InsertRenderedMimeType(const std::string& major_mime_type);
 
-  // Message loop used to execute pipeline tasks.
-  MessageLoop* message_loop_;
-
-  // Holds a ref counted reference to the PipelineInternal object associated
-  // with this pipeline.  Prior to the call to the Start() method, this member
-  // will be NULL, since we are not running.
-  scoped_refptr<PipelineInternal> pipeline_internal_;
+  // Holds a ref counted reference to the PipelineThread object associated
+  // with this pipeline.  Prior to the call to the Start method, this member
+  // will be NULL, since no thread is running.
+  scoped_refptr<PipelineThread> pipeline_thread_;
 
   // After calling Start, if all of the required filters are created and
   // initialized, this member will be set to true by the pipeline thread.
@@ -124,14 +124,14 @@ class PipelineImpl : public Pipeline {
   // Current volume level (from 0.0f to 1.0f).  The volume reflects the last
   // value the audio filter was called with SetVolume, so there will be a short
   // period of time between the client calling SetVolume on the pipeline and
-  // this value being updated.  Set by the PipelineInternal just prior to
-  // calling the audio renderer.
+  // this value being updated.  Set by the PipelineThread just prior to calling
+  // the audio renderer.
   float volume_;
 
   // Current playback rate (>= 0.0f).  This member reflects the last value
   // that the filters in the pipeline were called with, so there will be a short
   // period of time between the client calling SetPlaybackRate and this value
-  // being updated.  Set by the PipelineInternal just prior to calling filters.
+  // being updated.  Set by the PipelineThread just prior to calling filters.
   float playback_rate_;
 
   // Current playback time.  Set by a FilterHostImpl object on behalf of the
@@ -152,12 +152,12 @@ class PipelineImpl : public Pipeline {
 };
 
 
-// PipelineInternal contains most of the logic involved with running the
-// media pipeline. Filters are created and called on the message loop injected
-// into this object. PipelineInternal works like a state machine to perform
-// asynchronous initialization. Initialization is done in multiple passes by
-// InitializeTask(). In each pass a different filter is created and chained with
-// a previously created filter.
+// The PipelineThread contains most of the logic involved with running the
+// media pipeline. Filters are created and called on a dedicated thread owned
+// by this object. This object works like a state machine to perform
+// asynchronous initialization. Initialization is done in multiple passes in
+// StartTask(). In each pass a different filter is created and chained with a
+// previously created filter.
 //
 // Here's a state diagram that describes the lifetime of this object.
 //
@@ -172,20 +172,21 @@ class PipelineImpl : public Pipeline {
 // transition to the "Error" state from any state. If Stop() is called during
 // initialization, this object will transition to "Stopped" state.
 
-class PipelineInternal : public base::RefCountedThreadSafe<PipelineInternal> {
+class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
+                       public MessageLoop::DestructionObserver {
  public:
   // Methods called by PipelineImpl object on the client's thread.  These
   // methods post a task to call a corresponding xxxTask() method on the
-  // message loop.  For example, Seek posts a task to call SeekTask.
-  explicit PipelineInternal(PipelineImpl* pipeline, MessageLoop* message_loop);
+  // pipeline thread.  For example, Seek posts a task to call SeekTask.
+  explicit PipelineThread(PipelineImpl* pipeline);
 
   // After Start() is called, a task of StartTask() is posted on the pipeline
   // thread to perform initialization. See StartTask() to learn more about
   // initialization.
-  void Start(FilterFactory* filter_factory,
+  bool Start(FilterFactory* filter_factory,
              const std::string& url_media_source,
-             PipelineCallback* start_callback);
-  void Stop(PipelineCallback* stop_callback);
+             PipelineCallback* init_complete_callback);
+  void Stop();
   void Seek(base::TimeDelta time, PipelineCallback* seek_callback);
   void SetPlaybackRate(float rate);
   void SetVolume(float volume);
@@ -208,18 +209,19 @@ class PipelineInternal : public base::RefCountedThreadSafe<PipelineInternal> {
 
   // Simple accessor used by the FilterHostImpl class to get access to the
   // pipeline object.
-  //
-  // TODO(scherkus): I think FilterHostImpl should not be talking to
-  // PipelineImpl but rather PipelineInternal.
   PipelineImpl* pipeline() const { return pipeline_; }
 
-  // Returns true if the pipeline has fully initialized.
-  bool IsInitialized() { return state_ == kStarted; }
+  // Accessor used to post messages to thread's message loop.
+  MessageLoop* message_loop() const { return thread_.message_loop(); }
+
+  // Accessor used by PipelineImpl to check if we're executing on the pipeline
+  // thread.
+  PlatformThreadId thread_id() const { return thread_.thread_id(); }
 
  private:
   // Only allow ourselves to be destroyed via ref-counting.
-  friend class base::RefCountedThreadSafe<PipelineInternal>;
-  virtual ~PipelineInternal();
+  friend class base::RefCountedThreadSafe<PipelineThread>;
+  virtual ~PipelineThread();
 
   enum State {
     kCreated,
@@ -247,29 +249,23 @@ class PipelineInternal : public base::RefCountedThreadSafe<PipelineInternal> {
            state_ == kInitVideoRenderer;
   }
 
+  // Implementation of MessageLoop::DestructionObserver.  StartTask registers
+  // this class as a destruction observer on the thread's message loop.
+  // It is used to destroy the list of FilterHosts
+  // (and thus destroy the associated filters) when all tasks have been
+  // processed and the message loop has been quit.
+  virtual void WillDestroyCurrentMessageLoop();
+
   // The following "task" methods correspond to the public methods, but these
-  // methods are run as the result of posting a task to the PipelineInternal's
+  // methods are run as the result of posting a task to the PipelineThread's
   // message loop.
-  void StartTask(FilterFactory* filter_factory,
-                 const std::string& url,
-                 PipelineCallback* start_callback);
 
-  // InitializeTask() performs initialization in multiple passes. It is executed
-  // as a result of calling Start() or InitializationComplete() that advances
-  // initialization to the next state. It works as a hub of state transition for
-  // initialization.
-  void InitializeTask();
-
-  // StopTask() and ErrorTask() are similar but serve different purposes:
-  //   - Both destroy the filter chain.
-  //   - Both will execute |start_callback| if the pipeline was initializing.
-  //   - StopTask() resets the pipeline to a fresh state, where as ErrorTask()
-  //     leaves the pipeline as is for client inspection.
-  //   - StopTask() can be scheduled by the client calling Stop(), where as
-  //     ErrorTask() is scheduled as a result of a filter calling Error().
-  void StopTask(PipelineCallback* stop_callback);
-  void ErrorTask(PipelineError error);
-
+  // StartTask() is a special task that performs initialization in multiple
+  // passes. It is executed as a result of calling Start() or
+  // InitializationComplete() that advances initialization to the next state. It
+  // works as a hub of state transition for initialization.
+  void StartTask();
+  void StopTask();
   void SetPlaybackRateTask(float rate);
   void SeekTask(base::TimeDelta time, PipelineCallback* seek_callback);
   void SetVolumeTask(float volume);
@@ -306,8 +302,8 @@ class PipelineInternal : public base::RefCountedThreadSafe<PipelineInternal> {
                     Source source,
                     const MediaFormat& source_media_format);
 
-  // Creates a Filter and initializes it with the given |source|.  If a Filter
-  // could not be created or an error occurred, this method returns NULL and the
+  // Creates a Filter and initilizes it with the given |source|.  If a Filter
+  // could not be created or an error occurred, this metod returns NULL and the
   // pipeline's |error_| member will contain a specific error code.  Note that
   // the Source could be a filter or a DemuxerStream, but it must support the
   // GetMediaFormat() method.
@@ -343,15 +339,16 @@ class PipelineInternal : public base::RefCountedThreadSafe<PipelineInternal> {
   template <class Filter>
   void GetFilter(scoped_refptr<Filter>* filter_out) const;
 
-  // Stops every filters, filter host and filter thread and releases all
-  // references to them.
-  void DestroyFilters();
+  // Pointer to the pipeline that owns this PipelineThread.
+  PipelineImpl* const pipeline_;
 
-  // Pointer to the pipeline that owns this PipelineInternal.
-  PipelineImpl* pipeline_;
+  // The actual thread.
+  base::Thread thread_;
 
-  // Message loop used to execute pipeline tasks.
-  MessageLoop* message_loop_;
+  // Used to avoid scheduling multiple time update tasks.  If this member is
+  // true then a task that will call the SetTimeTask() method is in the message
+  // loop's queue.
+  bool time_update_callback_scheduled_;
 
   // Member that tracks the current state.
   State state_;
@@ -362,19 +359,17 @@ class PipelineInternal : public base::RefCountedThreadSafe<PipelineInternal> {
   // URL for the data source as passed in by Start().
   std::string url_;
 
-  // Callbacks for various pipeline operations.
-  scoped_ptr<PipelineCallback> start_callback_;
-  scoped_ptr<PipelineCallback> seek_callback_;
-  scoped_ptr<PipelineCallback> stop_callback_;
+  // Initialization callback as passed in by Start().
+  scoped_ptr<PipelineCallback> init_callback_;
 
-  // Vector of FilterHostImpl objects that contain the filters for the pipeline.
+  // Vector of FilterHostImpl objects that contian the filters for the pipeline.
   typedef std::vector<FilterHostImpl*> FilterHostVector;
   FilterHostVector filter_hosts_;
 
   typedef std::vector<base::Thread*> FilterThreadVector;
   FilterThreadVector filter_threads_;
 
-  DISALLOW_COPY_AND_ASSIGN(PipelineInternal);
+  DISALLOW_COPY_AND_ASSIGN(PipelineThread);
 };
 
 }  // namespace media

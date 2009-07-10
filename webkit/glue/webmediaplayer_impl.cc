@@ -143,7 +143,7 @@ void WebMediaPlayerImpl::Proxy::PipelineInitializationCallback(bool success) {
     ReadyStateChanged(WebKit::WebMediaPlayer::HaveEnoughData);
     NetworkStateChanged(WebKit::WebMediaPlayer::Loaded);
   } else {
-    // TODO(hclam): should use pipeline_->GetError() to determine the state
+    // TODO(hclam): should use pipeline_.GetError() to determine the state
     // properly and reports error using MediaError.
     // WebKit uses FormatError to indicate an error for bogus URL or bad file.
     // Since we are at the initialization stage we can safely treat every error
@@ -166,18 +166,10 @@ WebMediaPlayerImpl::WebMediaPlayerImpl(WebKit::WebMediaPlayerClient* client,
       ready_state_(WebKit::WebMediaPlayer::HaveNothing),
       main_loop_(NULL),
       filter_factory_(factory),
-      pipeline_thread_("PipelineThread"),
       client_(client) {
   // Saves the current message loop.
   DCHECK(!main_loop_);
   main_loop_ = MessageLoop::current();
-
-  // Create the pipeline and its thread.
-  if (!pipeline_thread_.Start()) {
-    NOTREACHED() << "Could not start PipelineThread";
-  } else {
-    pipeline_.reset(new media::PipelineImpl(pipeline_thread_.message_loop()));
-  }
 
   // Also we want to be notified of |main_loop_| destruction.
   main_loop_->AddDestructionObserver(this);
@@ -210,7 +202,7 @@ void WebMediaPlayerImpl::load(const WebKit::WebURL& url) {
   // Initialize the pipeline.
   SetNetworkState(WebKit::WebMediaPlayer::Loading);
   SetReadyState(WebKit::WebMediaPlayer::HaveNothing);
-  pipeline_->Start(
+  pipeline_.Start(
       filter_factory_.get(),
       url.spec(),
       NewCallback(proxy_.get(),
@@ -226,13 +218,13 @@ void WebMediaPlayerImpl::play() {
 
   // TODO(hclam): We should restore the previous playback rate rather than
   // having it at 1.0.
-  pipeline_->SetPlaybackRate(1.0f);
+  pipeline_.SetPlaybackRate(1.0f);
 }
 
 void WebMediaPlayerImpl::pause() {
   DCHECK(MessageLoop::current() == main_loop_);
 
-  pipeline_->SetPlaybackRate(0.0f);
+  pipeline_.SetPlaybackRate(0.0f);
 }
 
 void WebMediaPlayerImpl::seek(float seconds) {
@@ -241,7 +233,7 @@ void WebMediaPlayerImpl::seek(float seconds) {
   // Try to preserve as much accuracy as possible.
   float microseconds = seconds * base::Time::kMicrosecondsPerSecond;
   if (seconds != 0)
-  pipeline_->Seek(
+  pipeline_.Seek(
       base::TimeDelta::FromMicroseconds(static_cast<int64>(microseconds)),
       NewCallback(proxy_.get(),
                   &WebMediaPlayerImpl::Proxy::PipelineSeekCallback));
@@ -257,13 +249,13 @@ void WebMediaPlayerImpl::setEndTime(float seconds) {
 void WebMediaPlayerImpl::setRate(float rate) {
   DCHECK(MessageLoop::current() == main_loop_);
 
-  pipeline_->SetPlaybackRate(rate);
+  pipeline_.SetPlaybackRate(rate);
 }
 
 void WebMediaPlayerImpl::setVolume(float volume) {
   DCHECK(MessageLoop::current() == main_loop_);
 
-  pipeline_->SetVolume(volume);
+  pipeline_.SetVolume(volume);
 }
 
 void WebMediaPlayerImpl::setVisible(bool visible) {
@@ -282,14 +274,14 @@ bool WebMediaPlayerImpl::setAutoBuffer(bool autoBuffer) {
 bool WebMediaPlayerImpl::totalBytesKnown() {
   DCHECK(MessageLoop::current() == main_loop_);
 
-  return pipeline_->GetTotalBytes() != 0;
+  return pipeline_.GetTotalBytes() != 0;
 }
 
 bool WebMediaPlayerImpl::hasVideo() const {
   DCHECK(MessageLoop::current() == main_loop_);
 
   size_t width, height;
-  pipeline_->GetVideoSize(&width, &height);
+  pipeline_.GetVideoSize(&width, &height);
   return width != 0 && height != 0;
 }
 
@@ -297,14 +289,14 @@ WebKit::WebSize WebMediaPlayerImpl::naturalSize() const {
   DCHECK(MessageLoop::current() == main_loop_);
 
   size_t width, height;
-  pipeline_->GetVideoSize(&width, &height);
+  pipeline_.GetVideoSize(&width, &height);
   return WebKit::WebSize(width, height);
 }
 
 bool WebMediaPlayerImpl::paused() const {
   DCHECK(MessageLoop::current() == main_loop_);
 
-  return pipeline_->GetPlaybackRate() == 0.0f;
+  return pipeline_.GetPlaybackRate() == 0.0f;
 }
 
 bool WebMediaPlayerImpl::seeking() const {
@@ -316,13 +308,13 @@ bool WebMediaPlayerImpl::seeking() const {
 float WebMediaPlayerImpl::duration() const {
   DCHECK(MessageLoop::current() == main_loop_);
 
-  return static_cast<float>(pipeline_->GetDuration().InSecondsF());
+  return static_cast<float>(pipeline_.GetDuration().InSecondsF());
 }
 
 float WebMediaPlayerImpl::currentTime() const {
   DCHECK(MessageLoop::current() == main_loop_);
 
-  return static_cast<float>(pipeline_->GetTime().InSecondsF());
+  return static_cast<float>(pipeline_.GetTime().InSecondsF());
 }
 
 int WebMediaPlayerImpl::dataRate() const {
@@ -335,32 +327,32 @@ int WebMediaPlayerImpl::dataRate() const {
 float WebMediaPlayerImpl::maxTimeBuffered() const {
   DCHECK(MessageLoop::current() == main_loop_);
 
-  return static_cast<float>(pipeline_->GetBufferedTime().InSecondsF());
+  return static_cast<float>(pipeline_.GetBufferedTime().InSecondsF());
 }
 
 float WebMediaPlayerImpl::maxTimeSeekable() const {
   DCHECK(MessageLoop::current() == main_loop_);
 
   // TODO(scherkus): move this logic down into the pipeline.
-  if (pipeline_->GetTotalBytes() == 0) {
+  if (pipeline_.GetTotalBytes() == 0) {
     return 0.0f;
   }
-  double total_bytes = static_cast<double>(pipeline_->GetTotalBytes());
-  double buffered_bytes = static_cast<double>(pipeline_->GetBufferedBytes());
-  double duration = static_cast<double>(pipeline_->GetDuration().InSecondsF());
+  double total_bytes = static_cast<double>(pipeline_.GetTotalBytes());
+  double buffered_bytes = static_cast<double>(pipeline_.GetBufferedBytes());
+  double duration = static_cast<double>(pipeline_.GetDuration().InSecondsF());
   return static_cast<float>(duration * (buffered_bytes / total_bytes));
 }
 
 unsigned long long WebMediaPlayerImpl::bytesLoaded() const {
   DCHECK(MessageLoop::current() == main_loop_);
 
-  return pipeline_->GetBufferedBytes();
+  return pipeline_.GetBufferedBytes();
 }
 
 unsigned long long WebMediaPlayerImpl::totalBytes() const {
   DCHECK(MessageLoop::current() == main_loop_);
 
-  return pipeline_->GetTotalBytes();
+  return pipeline_.GetTotalBytes();
 }
 
 void WebMediaPlayerImpl::setSize(const WebSize& size) {
@@ -415,9 +407,9 @@ void WebMediaPlayerImpl::Destroy() {
   DCHECK(MessageLoop::current() == main_loop_);
 
   // Make sure to kill the pipeline so there's no more media threads running.
-  // TODO(hclam): stopping the pipeline might block for a long time.
-  pipeline_->Stop(NULL);
-  pipeline_thread_.Stop();
+  // TODO(hclam): stopping the pipeline is synchronous so it might block
+  // stopping for a long time.
+  pipeline_.Stop();
 
   // And then detach the proxy, it may live on the render thread for a little
   // longer until all the tasks are finished.

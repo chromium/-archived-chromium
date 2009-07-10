@@ -7,11 +7,11 @@
 namespace media {
 
 void FilterHostImpl::InitializationComplete() {
-  pipeline_internal_->InitializationComplete(this);
+  pipeline_thread_->InitializationComplete(this);
 }
 
 void FilterHostImpl::Error(PipelineError error) {
-  pipeline_internal_->Error(error);
+  pipeline_thread_->Error(error);
 }
 
 base::TimeDelta FilterHostImpl::GetTime() const {
@@ -19,7 +19,7 @@ base::TimeDelta FilterHostImpl::GetTime() const {
 }
 
 void FilterHostImpl::SetTime(base::TimeDelta time) {
-  pipeline_internal_->SetTime(time);
+  pipeline_thread_->SetTime(time);
 }
 
 void FilterHostImpl::SetDuration(base::TimeDelta duration) {

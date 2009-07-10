@@ -11,7 +11,6 @@
 
 #include "base/scoped_ptr.h"
 #include "base/singleton.h"
-#include "base/thread.h"
 
 class WtlVideoRenderer;
 
@@ -91,7 +90,6 @@ class Movie : public Singleton<Movie> {
   virtual ~Movie();
 
   scoped_ptr<PipelineImpl> pipeline_;
-  scoped_ptr<base::Thread> thread_;
 
   bool enable_audio_;
   bool enable_swscaler_;

@@ -27,15 +27,15 @@ class FilterHostImpl : public FilterHost {
   virtual void SetVideoSize(size_t width, size_t height);
 
   // These methods are public, but are intended for use by the
-  // PipelineInternal class only.
+  // PipelineThread class only.
 
   // Creates a FilterHostImpl object and populates the |filter_type_| member
   // by calling the Filter class's static filter_type() method.  This ensures
   // that the GetFilter method can safely cast the filter interface from the
   // MediaFilter base class interface to the specific Filter interface.
   template <class Filter>
-  FilterHostImpl(PipelineInternal* pipeline_internal, Filter* filter)
-      : pipeline_internal_(pipeline_internal),
+  FilterHostImpl(PipelineThread* pipeline_thread, Filter* filter)
+      : pipeline_thread_(pipeline_thread),
         filter_type_(Filter::filter_type()),
         filter_(filter),
         stopped_(false) {
@@ -54,16 +54,15 @@ class FilterHostImpl : public FilterHost {
   // Stops the filter.
   void Stop();
 
-  // Used by the PipelineInternal to call Seek() and SetRate() methods on
-  // filters.
+  // Used by the PipelineThread to call Seek and SetRate methods on filters.
   MediaFilter* media_filter() const { return filter_; }
 
  private:
   // Useful method for getting the pipeline.
-  PipelineImpl* pipeline() const { return pipeline_internal_->pipeline(); }
+  PipelineImpl* pipeline() const { return pipeline_thread_->pipeline(); }
 
-  // PipelineInternal that owns this FilterHostImpl.
-  PipelineInternal* const pipeline_internal_;
+  // PipelineThread that owns this FilterHostImpl.
+  PipelineThread* const pipeline_thread_;
 
   // The FilterType of the filter this host contains.
   FilterType const filter_type_;

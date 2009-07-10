@@ -14,53 +14,45 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 using ::testing::DoAll;
-using ::testing::Mock;
 using ::testing::Return;
 using ::testing::StrictMock;
 
 namespace media {
 
-// Used for setting expectations on pipeline callbacks.  Using a StrictMock
-// also lets us test for missing callbacks.
-class CallbackHelper {
- public:
-  CallbackHelper() {}
-  virtual ~CallbackHelper() {}
+typedef std::vector<MockDemuxerStream*> MockDemuxerStreamVector;
 
-  MOCK_METHOD1(OnInitialize, void(bool result));
-  MOCK_METHOD1(OnSeek, void(bool result));
-  MOCK_METHOD1(OnStop, void(bool result));
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(CallbackHelper);
-};
-
-// TODO(scherkus): even though some filters are initialized on separate
-// threads these test aren't flaky... why?  It's because filters' Initialize()
-// is executed on |message_loop_| and the mock filters instantly call
-// InitializationComplete(), which keeps the pipeline humming along.  If
-// either filters don't call InitializationComplete() immediately or filter
-// initialization is moved to a separate thread this test will become flaky.
 class PipelineImplTest : public ::testing::Test {
  public:
   PipelineImplTest()
-      : pipeline_(&message_loop_),
-        mocks_(new MockFilterFactory()) {
+      : mocks_(new MockFilterFactory()),
+        initialize_result_(false),
+        seek_result_(false),
+        initialize_event_(false, false),
+        seek_event_(false, false) {
   }
 
   virtual ~PipelineImplTest() {
-    if (!pipeline_.IsRunning()) {
-      return;
-    }
-
-    // Expect a stop callback if we were started.
-    EXPECT_CALL(callbacks_, OnStop(true));
-    pipeline_.Stop(NewCallback(reinterpret_cast<CallbackHelper*>(&callbacks_),
-                               &CallbackHelper::OnStop));
-    message_loop_.RunAllPending();
+    // Force the pipeline to shut down its thread.
+    pipeline_.Stop();
   }
 
  protected:
+  // Called by tests after they have finished setting up MockFilterConfig.
+  // Initializes the pipeline and returns true if the initialization callback
+  // was executed, false otherwise.
+  bool InitializeAndWait() {
+    pipeline_.Start(mocks_, "",
+                    NewCallback(this, &PipelineImplTest::OnInitialize));
+    return initialize_event_.TimedWait(base::TimeDelta::FromMilliseconds(500));
+  }
+
+  // Issues a seek on the pipeline and returns true if the seek callback was
+  // executed, false otherwise.
+  bool SeekAndWait(const base::TimeDelta& time) {
+    pipeline_.Seek(time, NewCallback(this, &PipelineImplTest::OnSeek));
+    return seek_event_.TimedWait(base::TimeDelta::FromMilliseconds(500));
+  }
+
   // Sets up expectations to allow the data source to initialize.
   void InitializeDataSource() {
     EXPECT_CALL(*mocks_->data_source(), Initialize(""))
@@ -70,7 +62,6 @@ class PipelineImplTest : public ::testing::Test {
   }
 
   // Sets up expectations to allow the demuxer to initialize.
-  typedef std::vector<MockDemuxerStream*> MockDemuxerStreamVector;
   void InitializeDemuxer(MockDemuxerStreamVector* streams) {
     EXPECT_CALL(*mocks_->demuxer(), Initialize(mocks_->data_source()))
         .WillOnce(DoAll(InitializationComplete(mocks_->demuxer()),
@@ -119,24 +110,27 @@ class PipelineImplTest : public ::testing::Test {
     EXPECT_CALL(*mocks_->audio_renderer(), Stop());
   }
 
-  // Sets up expectations on the callback and initializes the pipeline.  Called
-  // afters tests have set expectations any filters they wish to use.
-  void InitializePipeline(bool callback_result) {
-    // Expect an initialization callback.
-    EXPECT_CALL(callbacks_, OnInitialize(callback_result));
-    pipeline_.Start(mocks_, "",
-                    NewCallback(reinterpret_cast<CallbackHelper*>(&callbacks_),
-                                &CallbackHelper::OnInitialize));
-    message_loop_.RunAllPending();
-  }
-
   // Fixture members.
-  StrictMock<CallbackHelper> callbacks_;
-  MessageLoop message_loop_;
-  PipelineImpl pipeline_;
+  media::PipelineImpl pipeline_;
   scoped_refptr<media::MockFilterFactory> mocks_;
+  bool initialize_result_;
+  bool seek_result_;
 
  private:
+  void OnInitialize(bool result) {
+    initialize_result_ = result;
+    initialize_event_.Signal();
+  }
+
+  void OnSeek(bool result) {
+    seek_result_ = result;
+    seek_event_.Signal();
+  }
+
+  // Used to wait for callbacks.
+  base::WaitableEvent initialize_event_;
+  base::WaitableEvent seek_event_;
+
   DISALLOW_COPY_AND_ASSIGN(PipelineImplTest);
 };
 
@@ -146,29 +140,20 @@ TEST_F(PipelineImplTest, NeverInitializes) {
   EXPECT_CALL(*mocks_->data_source(), Stop());
 
   // This test hangs during initialization by never calling
-  // InitializationComplete().  StrictMock<> will ensure that the callback is
-  // never executed.
-  pipeline_.Start(mocks_, "",
-                  NewCallback(reinterpret_cast<CallbackHelper*>(&callbacks_),
-                              &CallbackHelper::OnInitialize));
-  message_loop_.RunAllPending();
-
+  // InitializationComplete().  Make sure we tear down the pipeline properly.
+  ASSERT_FALSE(InitializeAndWait());
+  EXPECT_FALSE(initialize_result_);
   EXPECT_FALSE(pipeline_.IsInitialized());
-  EXPECT_EQ(PIPELINE_OK, pipeline_.GetError());
-
-  // Because our callback will get executed when the test tears down, we'll
-  // verify that nothing has been called, then set our expectation for the call
-  // made during tear down.
-  Mock::VerifyAndClear(&callbacks_);
-  EXPECT_CALL(callbacks_, OnInitialize(false));
+  EXPECT_EQ(media::PIPELINE_OK, pipeline_.GetError());
 }
 
 TEST_F(PipelineImplTest, RequiredFilterMissing) {
   mocks_->set_creation_successful(false);
 
-  InitializePipeline(false);
+  ASSERT_TRUE(InitializeAndWait());
+  EXPECT_FALSE(initialize_result_);
   EXPECT_FALSE(pipeline_.IsInitialized());
-  EXPECT_EQ(PIPELINE_ERROR_REQUIRED_FILTER_MISSING,
+  EXPECT_EQ(media::PIPELINE_ERROR_REQUIRED_FILTER_MISSING,
             pipeline_.GetError());
 }
 
@@ -179,9 +164,10 @@ TEST_F(PipelineImplTest, URLNotFound) {
                       Return(false)));
   EXPECT_CALL(*mocks_->data_source(), Stop());
 
-  InitializePipeline(false);
+  ASSERT_TRUE(InitializeAndWait());
+  EXPECT_FALSE(initialize_result_);
   EXPECT_FALSE(pipeline_.IsInitialized());
-  EXPECT_EQ(PIPELINE_ERROR_URL_NOT_FOUND, pipeline_.GetError());
+  EXPECT_EQ(media::PIPELINE_ERROR_URL_NOT_FOUND, pipeline_.GetError());
 }
 
 TEST_F(PipelineImplTest, NoStreams) {
@@ -189,9 +175,10 @@ TEST_F(PipelineImplTest, NoStreams) {
   InitializeDataSource();
   InitializeDemuxer(&streams);
 
-  InitializePipeline(false);
+  ASSERT_TRUE(InitializeAndWait());
+  EXPECT_FALSE(initialize_result_);
   EXPECT_FALSE(pipeline_.IsInitialized());
-  EXPECT_EQ(PIPELINE_ERROR_COULD_NOT_RENDER, pipeline_.GetError());
+  EXPECT_EQ(media::PIPELINE_ERROR_COULD_NOT_RENDER, pipeline_.GetError());
 }
 
 TEST_F(PipelineImplTest, AudioStream) {
@@ -205,9 +192,10 @@ TEST_F(PipelineImplTest, AudioStream) {
   InitializeAudioDecoder(stream);
   InitializeAudioRenderer();
 
-  InitializePipeline(true);
+  ASSERT_TRUE(InitializeAndWait());
+  EXPECT_TRUE(initialize_result_);
   EXPECT_TRUE(pipeline_.IsInitialized());
-  EXPECT_EQ(PIPELINE_OK, pipeline_.GetError());
+  EXPECT_EQ(media::PIPELINE_OK, pipeline_.GetError());
   EXPECT_TRUE(pipeline_.IsRendered(media::mime_type::kMajorTypeAudio));
   EXPECT_FALSE(pipeline_.IsRendered(media::mime_type::kMajorTypeVideo));
 }
@@ -223,9 +211,10 @@ TEST_F(PipelineImplTest, VideoStream) {
   InitializeVideoDecoder(stream);
   InitializeVideoRenderer();
 
-  InitializePipeline(true);
+  ASSERT_TRUE(InitializeAndWait());
+  EXPECT_TRUE(initialize_result_);
   EXPECT_TRUE(pipeline_.IsInitialized());
-  EXPECT_EQ(PIPELINE_OK, pipeline_.GetError());
+  EXPECT_EQ(media::PIPELINE_OK, pipeline_.GetError());
   EXPECT_FALSE(pipeline_.IsRendered(media::mime_type::kMajorTypeAudio));
   EXPECT_TRUE(pipeline_.IsRendered(media::mime_type::kMajorTypeVideo));
 }
@@ -246,9 +235,10 @@ TEST_F(PipelineImplTest, AudioVideoStream) {
   InitializeVideoDecoder(video_stream);
   InitializeVideoRenderer();
 
-  InitializePipeline(true);
+  ASSERT_TRUE(InitializeAndWait());
+  EXPECT_TRUE(initialize_result_);
   EXPECT_TRUE(pipeline_.IsInitialized());
-  EXPECT_EQ(PIPELINE_OK, pipeline_.GetError());
+  EXPECT_EQ(media::PIPELINE_OK, pipeline_.GetError());
   EXPECT_TRUE(pipeline_.IsRendered(media::mime_type::kMajorTypeAudio));
   EXPECT_TRUE(pipeline_.IsRendered(media::mime_type::kMajorTypeVideo));
 }
@@ -278,15 +268,10 @@ TEST_F(PipelineImplTest, Seek) {
   EXPECT_CALL(*mocks_->video_decoder(), Seek(expected));
   EXPECT_CALL(*mocks_->video_renderer(), Seek(expected));
 
-  // We expect a successful seek callback.
-  EXPECT_CALL(callbacks_, OnSeek(true));
-
   // Initialize then seek!
-  InitializePipeline(true);
-  pipeline_.Seek(expected,
-                 NewCallback(reinterpret_cast<CallbackHelper*>(&callbacks_),
-                             &CallbackHelper::OnSeek));
-  message_loop_.RunAllPending();
+  ASSERT_TRUE(InitializeAndWait());
+  EXPECT_TRUE(SeekAndWait(expected));
+  EXPECT_TRUE(seek_result_);
 }
 
 TEST_F(PipelineImplTest, SetVolume) {
@@ -305,8 +290,9 @@ TEST_F(PipelineImplTest, SetVolume) {
   EXPECT_CALL(*mocks_->audio_renderer(), SetVolume(expected));
 
   // Initialize then set volume!
-  InitializePipeline(true);
+  ASSERT_TRUE(InitializeAndWait());
   pipeline_.SetVolume(expected);
 }
 
 }  // namespace media
+

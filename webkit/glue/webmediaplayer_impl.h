@@ -248,9 +248,9 @@ class WebMediaPlayerImpl : public WebKit::WebMediaPlayer,
   // A collection of factories for creating filters.
   scoped_refptr<media::FilterFactoryCollection> filter_factory_;
 
-  // The actual pipeline and the thread it runs on.
-  scoped_ptr<media::PipelineImpl> pipeline_;
-  base::Thread pipeline_thread_;
+  // The actual pipeline. We do it a composition here because we expect to have
+  // the same lifetime as the pipeline.
+  media::PipelineImpl pipeline_;
 
   WebKit::WebMediaPlayerClient* client_;
 
