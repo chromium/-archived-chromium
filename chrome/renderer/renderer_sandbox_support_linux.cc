@@ -32,14 +32,6 @@ std::string getFontFamilyForCharacters(const uint16_t* utf16, size_t num_utf16) 
     reply.ReadString(&pickle_iter, &family_name);
   }
 
-  if (!family_name.size()) {
-    LOG(ERROR) << "Starting code point dump:";
-    for (size_t i = 0; i < num_utf16; ++i)
-        LOG(ERROR) << "  " << utf16[i];
-    LOG(FATAL) << "Bug caught: requested font family for " << num_utf16
-               << " code points and got an empty string on return";
-  }
-
   return family_name;
 }
 
