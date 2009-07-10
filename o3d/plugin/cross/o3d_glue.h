@@ -218,7 +218,7 @@ class PluginObject: public NPObject {
   bool scroll_is_in_progress_;
 
   bool RendererIsSoftware() {return renderer_is_software_;}
-  bool SetRendererIsSoftware(bool state) {renderer_is_software_ = state;}
+  bool SetRendererIsSoftware(bool state);
   bool renderer_is_software_;
 
   NPDrawingModel drawing_model_;
