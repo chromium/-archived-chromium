@@ -150,6 +150,13 @@ void ExtensionBrowserEventRouter::TabCreatedAt(TabContents* contents,
 
   registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED,
                  Source<NavigationController>(&contents->controller()));
+  
+  // Observing TAB_CONTENTS_DESTROYED is necessary because it's
+  // possible for tabs to be created, detached and then destroyed without 
+  // ever having been re-attached and closed. This happens in the case of
+  // a devtools TabContents that is opened in window, docked, then closed.
+  registrar_.Add(this, NotificationType::TAB_CONTENTS_DESTROYED,
+                 Source<TabContents>(contents));
 }
 
 void ExtensionBrowserEventRouter::TabInsertedAt(TabContents* contents,
@@ -220,7 +227,9 @@ void ExtensionBrowserEventRouter::TabClosingAt(TabContents* contents,
   DCHECK(removed_count > 0);
 
   registrar_.Remove(this, NotificationType::NAV_ENTRY_COMMITTED,
-                    Source<NavigationController>(&contents->controller()));
+      Source<NavigationController>(&contents->controller()));
+  registrar_.Remove(this, NotificationType::TAB_CONTENTS_DESTROYED,
+      Source<TabContents>(contents));
 }
 
 void ExtensionBrowserEventRouter::TabSelectedAt(TabContents* old_contents,
@@ -268,19 +277,7 @@ void ExtensionBrowserEventRouter::TabUpdated(TabContents* contents,
                                              bool did_navigate) {
   int tab_id = ExtensionTabUtil::GetTabId(contents);
   std::map<int, TabEntry>::iterator i = tab_entries_.find(tab_id);
-  if(tab_entries_.end() == i) {
-    // TODO(rafaelw): Unregister EBER on TAB_CONTENTS_DESTROYED in order
-    // not to receive NAV_ENTRY_COMMITTED from objects that are allocated
-    // at the same address as previously deleted TabContents.
-    //
-    // The problem here is that NAV_ENTRY_COMMITTED is issued by the navigation
-    // controller independently from tabstrip model. One should not rely upon
-    // TabStripModelObserver events when registering / unregistering
-    // tab contents events' handlers.
-    registrar_.Remove(this, NotificationType::NAV_ENTRY_COMMITTED,
-                      Source<NavigationController>(&contents->controller()));
-    return;
-  }
+  DCHECK(tab_entries_.end() != i);
   TabEntry& entry = i->second;
 
   DictionaryValue* changed_properties = NULL;
@@ -310,6 +307,13 @@ void ExtensionBrowserEventRouter::Observe(NotificationType type,
     NavigationController* source_controller =
         Source<NavigationController>(source).ptr();
     TabUpdated(source_controller->tab_contents(), true);
+  } else if (type == NotificationType::TAB_CONTENTS_DESTROYED) {
+    // Tab was destroyed after being detached (without being re-attached).
+    TabContents* contents = Source<TabContents>(source).ptr();
+    registrar_.Remove(this, NotificationType::NAV_ENTRY_COMMITTED,
+        Source<NavigationController>(&contents->controller()));
+    registrar_.Remove(this, NotificationType::TAB_CONTENTS_DESTROYED,
+        Source<TabContents>(contents));
   } else {
     NOTREACHED();
   }
