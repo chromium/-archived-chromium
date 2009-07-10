@@ -99,7 +99,7 @@ SkBitmap CGImageToSkBitmap(CGImageRef image) {
   // happens right-side up. Skia has an upper-left origin and CG has a lower-
   // left one.
   CGContextScaleCTM(context, 1.0, -1.0);
-  CGContextTranslateCTM(context, 1, -height);
+  CGContextTranslateCTM(context, 0, -height);
 
   // We want to copy transparent pixels from |image|, instead of blending it
   // onto uninitialized pixels.
