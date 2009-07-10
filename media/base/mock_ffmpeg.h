@@ -16,6 +16,10 @@ class MockFFmpeg {
   MockFFmpeg();
   virtual ~MockFFmpeg();
 
+  MOCK_METHOD0(AVCodecInit, void());
+  MOCK_METHOD1(AVRegisterProtocol, int(URLProtocol* protocol));
+  MOCK_METHOD0(AVRegisterAll, void());
+
   MOCK_METHOD1(AVCodecFindDecoder, AVCodec*(enum CodecID id));
   MOCK_METHOD2(AVCodecOpen, int(AVCodecContext* avctx, AVCodec* codec));
   MOCK_METHOD1(AVCodecClose, int(AVCodecContext* avctx));
@@ -51,6 +55,9 @@ class MockFFmpeg {
   static void set(MockFFmpeg* instance);
   static MockFFmpeg* get();
 
+  // Returns the URLProtocol registered by the FFmpegGlue singleton.
+  static URLProtocol* protocol();
+
   // AVPacket destructor for packets allocated by av_new_packet().
   static void DestructPacket(AVPacket* packet);
 
@@ -60,6 +67,7 @@ class MockFFmpeg {
 
  private:
   static MockFFmpeg* instance_;
+  static URLProtocol* protocol_;
 
   // Tracks the number of packets allocated by calls to av_read_frame() and
   // av_free_packet().  We crash the unit test if this is not zero at time of

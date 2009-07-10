@@ -7,12 +7,36 @@
 #include "base/logging.h"
 #include "media/filters/ffmpeg_common.h"
 
+using ::testing::_;
+using ::testing::AtMost;
+using ::testing::DoAll;
+using ::testing::Return;
+using ::testing::SaveArg;
+
 namespace media {
 
 MockFFmpeg* MockFFmpeg::instance_ = NULL;
+URLProtocol* MockFFmpeg::protocol_ = NULL;
 
 MockFFmpeg::MockFFmpeg()
     : outstanding_packets_(0) {
+  // If we haven't assigned our static copy of URLProtocol, set up expectations
+  // to catch the URLProtocol registered when the singleton instance of
+  // FFmpegGlue is created.
+  //
+  // TODO(scherkus): this feels gross and I need to think of a way to better
+  // inject/mock singletons.
+  if (!protocol_) {
+    EXPECT_CALL(*this, AVCodecInit())
+        .Times(AtMost(1))
+        .WillOnce(Return());
+    EXPECT_CALL(*this, AVRegisterProtocol(_))
+        .Times(AtMost(1))
+        .WillOnce(DoAll(SaveArg<0>(&protocol_), Return(0)));
+    EXPECT_CALL(*this, AVRegisterAll())
+        .Times(AtMost(1))
+        .WillOnce(Return());
+  }
 }
 
 MockFFmpeg::~MockFFmpeg() {
@@ -40,6 +64,11 @@ MockFFmpeg* MockFFmpeg::get() {
 }
 
 // static
+URLProtocol* MockFFmpeg::protocol() {
+  return protocol_;
+}
+
+// static
 void MockFFmpeg::DestructPacket(AVPacket* packet) {
   delete [] packet->data;
   packet->data = NULL;
@@ -48,6 +77,18 @@ void MockFFmpeg::DestructPacket(AVPacket* packet) {
 
 // FFmpeg stubs that delegate to the FFmpegMock instance.
 extern "C" {
+
+void avcodec_init() {
+  media::MockFFmpeg::get()->AVCodecInit();
+}
+
+int av_register_protocol(URLProtocol* protocol) {
+  return media::MockFFmpeg::get()->AVRegisterProtocol(protocol);
+}
+
+void av_register_all() {
+  media::MockFFmpeg::get()->AVRegisterAll();
+}
 
 AVCodec* avcodec_find_decoder(enum CodecID id) {
   return media::MockFFmpeg::get()->AVCodecFindDecoder(id);

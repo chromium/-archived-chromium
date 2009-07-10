@@ -19,6 +19,27 @@
 
 namespace media {
 
+// Use this template to test for object destruction by setting expectations on
+// the method OnDestroy().
+//
+// TODO(scherkus): not sure about the naming...  perhaps contribute this back
+// to gmock itself!
+template<class MockClass>
+class Destroyable : public MockClass {
+ public:
+  Destroyable() {}
+
+  MOCK_METHOD0(OnDestroy, void());
+
+ protected:
+  virtual ~Destroyable() {
+    OnDestroy();
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(Destroyable);
+};
+
 class MockDataSource : public DataSource {
  public:
   MockDataSource() {}
@@ -70,6 +91,12 @@ class MockDemuxer : public Demuxer {
 class MockDemuxerStream : public DemuxerStream {
  public:
   MockDemuxerStream() {}
+
+  // Sets the mime type of this object's media format, which is usually checked
+  // to determine the type of decoder to create.
+  explicit MockDemuxerStream(const std::string& mime_type) {
+    media_format_.SetAsString(MediaFormat::kMimeType, mime_type);
+  }
 
   // DemuxerStream implementation.
   const MediaFormat& media_format() { return media_format_; }
@@ -175,7 +202,8 @@ class MockAudioRenderer : public AudioRenderer {
 class MockFilterFactory : public FilterFactory {
  public:
   MockFilterFactory()
-      : data_source_(new MockDataSource()),
+      : creation_successful_(true),
+        data_source_(new MockDataSource()),
         demuxer_(new MockDemuxer()),
         video_decoder_(new MockVideoDecoder()),
         audio_decoder_(new MockAudioDecoder()),
@@ -184,6 +212,11 @@ class MockFilterFactory : public FilterFactory {
   }
 
   virtual ~MockFilterFactory() {}
+
+  // Controls whether the Create() method is successful or not.
+  void set_creation_successful(bool creation_successful) {
+    creation_successful_ = creation_successful;
+  }
 
   // Mock accessors.
   MockDataSource* data_source() const { return data_source_; }
@@ -195,6 +228,10 @@ class MockFilterFactory : public FilterFactory {
 
  protected:
   MediaFilter* Create(FilterType filter_type, const MediaFormat& media_format) {
+    if (!creation_successful_) {
+      return NULL;
+    }
+
     switch (filter_type) {
       case FILTER_DATA_SOURCE:
         return data_source_;
@@ -215,6 +252,7 @@ class MockFilterFactory : public FilterFactory {
   }
 
  private:
+  bool creation_successful_;
   scoped_refptr<MockDataSource> data_source_;
   scoped_refptr<MockDemuxer> demuxer_;
   scoped_refptr<MockVideoDecoder> video_decoder_;
@@ -224,6 +262,17 @@ class MockFilterFactory : public FilterFactory {
 
   DISALLOW_COPY_AND_ASSIGN(MockFilterFactory);
 };
+
+// Helper gmock action that calls InitializationComplete() on behalf of the
+// provided filter.
+ACTION_P(InitializationComplete, filter) {
+  filter->host()->InitializationComplete();
+}
+
+// Helper gmock action that calls Error() on behalf of the provided filter.
+ACTION_P2(Error, filter, error) {
+  filter->host()->Error(error);
+}
 
 }  // namespace media
 

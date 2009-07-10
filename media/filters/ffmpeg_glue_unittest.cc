@@ -2,65 +2,81 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "media/base/filters.h"
-#include "media/base/mock_media_filters.h"
+#include "media/base/mock_ffmpeg.h"
+#include "media/base/mock_filters.h"
 #include "media/filters/ffmpeg_common.h"
 #include "media/filters/ffmpeg_glue.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-// FFmpeg mocks to remove dependency on having the DLLs present.
-extern "C" {
-static bool g_avcodec_init = false;
-static URLProtocol* g_protocol = NULL;
-static bool g_av_register_all = false;
+using ::testing::_;
+using ::testing::DoAll;
+using ::testing::InSequence;
+using ::testing::Return;
+using ::testing::SetArgumentPointee;
+using ::testing::StrictMock;
 
-void avcodec_init() {
-  EXPECT_FALSE(g_avcodec_init);
-  g_avcodec_init = true;
-}
+namespace media {
 
-int av_register_protocol(URLProtocol* protocol) {
-  EXPECT_FALSE(g_protocol);
-  g_protocol = protocol;
-  return 0;
-}
+class FFmpegGlueTest : public ::testing::Test {
+ public:
+  FFmpegGlueTest() {
+    MockFFmpeg::set(&mock_ffmpeg_);
+  }
 
-void av_register_all() {
-  EXPECT_FALSE(g_av_register_all);
-  g_av_register_all = true;
-}
-}  // extern "C"
+  virtual ~FFmpegGlueTest() {
+    MockFFmpeg::set(NULL);
+  }
 
-TEST(FFmpegGlueTest, InitializeFFmpeg) {
+  // Helper to open a URLContext pointing to the given mocked data source.
+  // Callers are expected to close the context at the end of their test.
+  virtual void OpenContext(MockDataSource* data_source, URLContext* context) {
+    // IsSeekable() is called when opening.
+    EXPECT_CALL(*data_source, IsSeekable()).WillOnce(Return(false));
+
+    // Add the data source to the glue layer and open a context.
+    std::string key = FFmpegGlue::get()->AddDataSource(data_source);
+    memset(context, 0, sizeof(*context));
+    EXPECT_EQ(0, protocol_->url_open(context, key.c_str(), 0));
+    FFmpegGlue::get()->RemoveDataSource(data_source);
+  }
+
+ protected:
+  // Fixture members.
+  MockFFmpeg mock_ffmpeg_;
+  static URLProtocol* protocol_;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(FFmpegGlueTest);
+};
+
+URLProtocol* FFmpegGlueTest::protocol_ = NULL;
+
+TEST_F(FFmpegGlueTest, InitializeFFmpeg) {
   // Singleton should initialize FFmpeg.
-  media::FFmpegGlue* glue = media::FFmpegGlue::get();
+  FFmpegGlue* glue = FFmpegGlue::get();
   EXPECT_TRUE(glue);
-  EXPECT_TRUE(g_avcodec_init);
-  EXPECT_TRUE(g_protocol);
-  EXPECT_TRUE(g_av_register_all);
+
+  // Assign our static copy of URLProtocol for the rest of the tests.
+  protocol_ = MockFFmpeg::protocol();
 
   // Make sure URLProtocol was filled out correctly.
-  EXPECT_STREQ("http", g_protocol->name);
-  EXPECT_TRUE(g_protocol->url_close);
-  EXPECT_TRUE(g_protocol->url_open);
-  EXPECT_TRUE(g_protocol->url_read);
-  EXPECT_TRUE(g_protocol->url_seek);
-  EXPECT_TRUE(g_protocol->url_write);
+  EXPECT_STREQ("http", protocol_->name);
+  EXPECT_TRUE(protocol_->url_close);
+  EXPECT_TRUE(protocol_->url_open);
+  EXPECT_TRUE(protocol_->url_read);
+  EXPECT_TRUE(protocol_->url_seek);
+  EXPECT_TRUE(protocol_->url_write);
 }
 
-TEST(FFmpegGlueTest, AddRemoveGetDataSource) {
+TEST_F(FFmpegGlueTest, AddRemoveGetDataSource) {
   // Prepare testing data.
-  media::FFmpegGlue* glue = media::FFmpegGlue::get();
+  FFmpegGlue* glue = FFmpegGlue::get();
 
   // Create our data sources and add them to the glue layer.
-  bool deleted_a = false;
-  bool deleted_b = false;
-  media::old_mocks::MockFilterConfig config_a;
-  media::old_mocks::MockFilterConfig config_b;
-  scoped_refptr<media::old_mocks::MockDataSource> data_source_a
-      = new media::old_mocks::MockDataSource(&config_a, &deleted_a);
-  scoped_refptr<media::old_mocks::MockDataSource> data_source_b
-      = new media::old_mocks::MockDataSource(&config_b, &deleted_b);
+  scoped_refptr<StrictMock<Destroyable<MockDataSource> > > data_source_a
+      = new StrictMock<Destroyable<MockDataSource> >();
+  scoped_refptr<StrictMock<Destroyable<MockDataSource> > > data_source_b
+      = new StrictMock<Destroyable<MockDataSource> >();
 
   // Make sure the keys are unique.
   std::string key_a = glue->AddDataSource(data_source_a);
@@ -70,8 +86,8 @@ TEST(FFmpegGlueTest, AddRemoveGetDataSource) {
   EXPECT_NE(key_a, key_b);
 
   // Our keys should return our data sources.
-  scoped_refptr<media::DataSource> data_source_c;
-  scoped_refptr<media::DataSource> data_source_d;
+  scoped_refptr<DataSource> data_source_c;
+  scoped_refptr<DataSource> data_source_d;
   glue->GetDataSource(key_a, &data_source_c);
   glue->GetDataSource(key_b, &data_source_d);
   EXPECT_EQ(data_source_a, data_source_c);
@@ -84,8 +100,13 @@ TEST(FFmpegGlueTest, AddRemoveGetDataSource) {
   glue->GetDataSource(key_a2, &data_source_c);
   EXPECT_EQ(data_source_a, data_source_c);
 
-  // Removes the data sources and then releases our references.  They should be
-  // deleted.
+  // Removes the data sources then releases our references.  They should be
+  // destroyed.
+  InSequence s;
+  EXPECT_CALL(*data_source_a, OnDestroy());
+  EXPECT_CALL(*data_source_b, OnDestroy());
+  EXPECT_CALL(mock_ffmpeg_, CheckPoint(0));
+
   glue->RemoveDataSource(data_source_a);
   glue->GetDataSource(key_a, &data_source_c);
   EXPECT_FALSE(data_source_c);
@@ -94,23 +115,21 @@ TEST(FFmpegGlueTest, AddRemoveGetDataSource) {
   glue->RemoveDataSource(data_source_b);
   glue->GetDataSource(key_b, &data_source_d);
   EXPECT_FALSE(data_source_d);
-  EXPECT_FALSE(deleted_a);
-  EXPECT_FALSE(deleted_b);
   data_source_a = NULL;
   data_source_b = NULL;
-  EXPECT_TRUE(deleted_a);
-  EXPECT_TRUE(deleted_b);
+
+  // Data sources should be deleted by this point.
+  mock_ffmpeg_.CheckPoint(0);
 }
 
-TEST(FFmpegGlueTest, OpenClose) {
+TEST_F(FFmpegGlueTest, OpenClose) {
   // Prepare testing data.
-  media::FFmpegGlue* glue = media::FFmpegGlue::get();
+  FFmpegGlue* glue = FFmpegGlue::get();
 
   // Create our data source and add them to the glue layer.
-  bool deleted = false;
-  media::old_mocks::MockFilterConfig config;
-  scoped_refptr<media::old_mocks::MockDataSource> data_source
-      = new media::old_mocks::MockDataSource(&config, &deleted);
+  scoped_refptr<StrictMock<Destroyable<MockDataSource> > > data_source
+      = new StrictMock<Destroyable<MockDataSource> >();
+  EXPECT_CALL(*data_source, IsSeekable()).WillOnce(Return(false));
   std::string key = glue->AddDataSource(data_source);
 
   // Prepare FFmpeg URLContext structure.
@@ -118,192 +137,174 @@ TEST(FFmpegGlueTest, OpenClose) {
   memset(&context, 0, sizeof(context));
 
   // Test opening a URLContext with a data source that doesn't exist.
-  EXPECT_EQ(AVERROR_IO, g_protocol->url_open(&context, "foobar", 0));
+  EXPECT_EQ(AVERROR_IO, protocol_->url_open(&context, "foobar", 0));
 
   // Test opening a URLContext with our data source.
-  EXPECT_EQ(0, g_protocol->url_open(&context, key.c_str(), 0));
+  EXPECT_EQ(0, protocol_->url_open(&context, key.c_str(), 0));
   EXPECT_EQ(URL_RDONLY, context.flags);
   EXPECT_EQ(data_source, context.priv_data);
-  EXPECT_FALSE(context.is_streamed);
+  EXPECT_TRUE(context.is_streamed);
+
+  // We're going to remove references one by one until the last reference is
+  // held by FFmpeg.  Once we close the URLContext, the data source should be
+  // destroyed.
+  InSequence s;
+  EXPECT_CALL(mock_ffmpeg_, CheckPoint(0));
+  EXPECT_CALL(mock_ffmpeg_, CheckPoint(1));
+  EXPECT_CALL(*data_source, OnDestroy());
+  EXPECT_CALL(mock_ffmpeg_, CheckPoint(2));
 
   // Remove the data source from the glue layer, releasing a reference.
   glue->RemoveDataSource(data_source);
-  EXPECT_FALSE(deleted);
+  mock_ffmpeg_.CheckPoint(0);
 
   // Remove our own reference -- URLContext should maintain a reference.
   data_source = NULL;
-  EXPECT_FALSE(deleted);
+  mock_ffmpeg_.CheckPoint(1);
 
   // Close the URLContext, which should release the final reference.
-  EXPECT_EQ(0, g_protocol->url_close(&context));
-  EXPECT_TRUE(deleted);
+  EXPECT_EQ(0, protocol_->url_close(&context));
+  mock_ffmpeg_.CheckPoint(2);
 }
 
-TEST(FFmpegGlueTest, ReadingWriting) {
-  // Prepare testing data.
-  media::FFmpegGlue* glue = media::FFmpegGlue::get();
-  const size_t kBufferSize = 16;
-  unsigned char buffer[kBufferSize];
-
-  // Configure MockDataSource to be 8 characters long and fill reads with
-  // periods.  Therefore our expected string should be a character of 8 periods.
-  const int kExpectedSize = 8;
-  media::old_mocks::MockFilterConfig config;
-  config.media_total_bytes = kExpectedSize;
-  config.data_source_value = '.';
-  const char kExpected[] = "........";
-  COMPILE_ASSERT(kExpectedSize == (arraysize(kExpected) - 1), string_length);
-
-  // Create our data source and add them to the glue layer.
-  bool deleted = false;
-  scoped_refptr<media::old_mocks::MockDataSource> data_source
-      = new media::old_mocks::MockDataSource(&config, &deleted);
-  std::string key = glue->AddDataSource(data_source);
-
-  // Open our data source and then remove it from the glue layer.
+TEST_F(FFmpegGlueTest, Write) {
+  scoped_refptr<StrictMock<MockDataSource> > data_source
+      = new StrictMock<MockDataSource>();
   URLContext context;
-  memset(&context, 0, sizeof(context));
-  EXPECT_EQ(0, g_protocol->url_open(&context, key.c_str(), 0));
-  glue->RemoveDataSource(data_source);
-  EXPECT_FALSE(deleted);
+  OpenContext(data_source, &context);
 
-  // Writing should always fail.
-  EXPECT_EQ(AVERROR_IO, g_protocol->url_write(&context, NULL, 0));
-  EXPECT_EQ(AVERROR_IO, g_protocol->url_write(&context, buffer, 0));
-  EXPECT_EQ(AVERROR_IO, g_protocol->url_write(&context, buffer, -1));
-  EXPECT_EQ(AVERROR_IO, g_protocol->url_write(&context, buffer, kBufferSize));
-  EXPECT_EQ(0, data_source->position());
+  const int kBufferSize = 16;
+  uint8 buffer[kBufferSize];
 
-  // Reading should return same amount of bytes if <= kExpectedSize.
-  EXPECT_EQ(0, g_protocol->url_read(&context, buffer, 0));
-  EXPECT_EQ(kExpectedSize / 2,
-            g_protocol->url_read(&context, buffer, kExpectedSize / 2));
-  EXPECT_EQ(kExpectedSize,
-            g_protocol->url_read(&context, buffer, kExpectedSize));
-  buffer[kExpectedSize] = '\0';
-  EXPECT_STREQ(kExpected, reinterpret_cast<char*>(buffer));
+  // Writing should always fail and never call the data source.
+  EXPECT_EQ(AVERROR_IO, protocol_->url_write(&context, NULL, 0));
+  EXPECT_EQ(AVERROR_IO, protocol_->url_write(&context, buffer, 0));
+  EXPECT_EQ(AVERROR_IO, protocol_->url_write(&context, buffer, kBufferSize));
 
-  // Test reading more than kExpectedSize for simulating EOF.
-  EXPECT_EQ(kExpectedSize, g_protocol->url_read(&context, buffer, kBufferSize));
-  buffer[kExpectedSize] = '\0';
-  EXPECT_STREQ(kExpected, reinterpret_cast<char*>(buffer));
-
-  // Close our data source.
-  EXPECT_EQ(0, g_protocol->url_close(&context));
-  EXPECT_FALSE(deleted);
-
-  // Remove our own reference, which should release the final reference.
-  data_source = NULL;
-  EXPECT_TRUE(deleted);
+  // Destroy the data source.
+  protocol_->url_close(&context);
 }
 
-TEST(FFmpegGlueTest, Seeking) {
-  // Prepare testing data.
-  media::FFmpegGlue* glue = media::FFmpegGlue::get();
-  const int64 kSize = 32;
-
-  // Create our data source and add them to the glue layer.
-  bool deleted = false;
-  media::old_mocks::MockFilterConfig config;
-  config.media_total_bytes = kSize;
-  scoped_refptr<media::old_mocks::MockDataSource> data_source
-      = new media::old_mocks::MockDataSource(&config, &deleted);
-  std::string key = glue->AddDataSource(data_source);
-
-  // Open our data source and then remove it from the glue layer.
+TEST_F(FFmpegGlueTest, Read) {
+  scoped_refptr<StrictMock<MockDataSource> > data_source
+      = new StrictMock<MockDataSource>();
   URLContext context;
-  memset(&context, 0, sizeof(context));
-  EXPECT_EQ(0, g_protocol->url_open(&context, key.c_str(), 0));
-  glue->RemoveDataSource(data_source);
-  EXPECT_FALSE(deleted);
+  OpenContext(data_source, &context);
 
-  // Test SEEK_SET operations.
-  config.media_total_bytes = -1;
-  EXPECT_EQ(AVERROR_IO, g_protocol->url_seek(&context, 0, SEEK_SET));
+  const int kBufferSize = 16;
+  uint8 buffer[kBufferSize];
 
-  config.media_total_bytes = kSize;
-  EXPECT_TRUE(data_source->SetPosition(0));
-  EXPECT_EQ(0, g_protocol->url_seek(&context, 0, SEEK_SET));
-  EXPECT_TRUE(data_source->SetPosition(5));
-  EXPECT_EQ(0, g_protocol->url_seek(&context, 0, SEEK_SET));
-  EXPECT_EQ(0, data_source->position());
-  EXPECT_EQ(AVERROR_IO, g_protocol->url_seek(&context, -5, SEEK_SET));
-  EXPECT_EQ(0, data_source->position());
-  EXPECT_EQ(kSize, g_protocol->url_seek(&context, kSize, SEEK_SET));
-  EXPECT_EQ(kSize, data_source->position());
-  EXPECT_EQ(AVERROR_IO, g_protocol->url_seek(&context, kSize+1, SEEK_SET));
-  EXPECT_EQ(kSize, data_source->position());
+  // Reads are for the most part straight-through calls to Read().
+  InSequence s;
+  EXPECT_CALL(*data_source, Read(buffer, 0))
+      .WillOnce(Return(0));
+  EXPECT_CALL(*data_source, Read(buffer, kBufferSize))
+      .WillOnce(Return(kBufferSize));
+  EXPECT_CALL(*data_source, Read(buffer, kBufferSize))
+      .WillOnce(Return(DataSource::kReadError));
 
-  // Test SEEK_CUR operations.
-  config.media_total_bytes = -1;
-  EXPECT_EQ(AVERROR_IO, g_protocol->url_seek(&context, 0, SEEK_CUR));
+  EXPECT_EQ(0, protocol_->url_read(&context, buffer, 0));
+  EXPECT_EQ(kBufferSize, protocol_->url_read(&context, buffer, kBufferSize));
+  EXPECT_EQ(AVERROR_IO, protocol_->url_read(&context, buffer, kBufferSize));
 
-  config.media_total_bytes = kSize;
-  EXPECT_TRUE(data_source->SetPosition(0));
-  EXPECT_EQ(0, g_protocol->url_seek(&context, 0, SEEK_CUR));
-  EXPECT_TRUE(data_source->SetPosition(5));
-  EXPECT_EQ(5, g_protocol->url_seek(&context, 0, SEEK_CUR));
-  EXPECT_EQ(0, g_protocol->url_seek(&context, -5, SEEK_CUR));
-  EXPECT_EQ(0, data_source->position());
-  EXPECT_EQ(AVERROR_IO, g_protocol->url_seek(&context, -1, SEEK_CUR));
-  EXPECT_EQ(kSize, g_protocol->url_seek(&context, kSize, SEEK_CUR));
-  EXPECT_EQ(kSize, data_source->position());
-  EXPECT_EQ(AVERROR_IO, g_protocol->url_seek(&context, 1, SEEK_CUR));
-  EXPECT_EQ(kSize, data_source->position());
-
-  // Test SEEK_END operations.
-  config.media_total_bytes = -1;
-  EXPECT_EQ(AVERROR_IO, g_protocol->url_seek(&context, 0, SEEK_END));
-
-  config.media_total_bytes = kSize;
-  EXPECT_TRUE(data_source->SetPosition(0));
-  EXPECT_EQ(kSize, g_protocol->url_seek(&context, 0, SEEK_END));
-  EXPECT_EQ(kSize, data_source->position());
-  EXPECT_EQ(kSize-5, g_protocol->url_seek(&context, -5, SEEK_END));
-  EXPECT_EQ(kSize-5, data_source->position());
-  EXPECT_EQ(0, g_protocol->url_seek(&context, -kSize, SEEK_END));
-  EXPECT_EQ(0, data_source->position());
-  EXPECT_EQ(AVERROR_IO, g_protocol->url_seek(&context, 1, SEEK_END));
-  EXPECT_EQ(0, data_source->position());
-
-  // Test AVSEEK_SIZE operation.
-  config.media_total_bytes = -1;
-  EXPECT_EQ(AVERROR_IO, g_protocol->url_seek(&context, 0, AVSEEK_SIZE));
-
-  config.media_total_bytes = kSize;
-  EXPECT_TRUE(data_source->SetPosition(0));
-  EXPECT_EQ(kSize, g_protocol->url_seek(&context, 0, AVSEEK_SIZE));
-
-  // Close our data source.
-  EXPECT_EQ(0, g_protocol->url_close(&context));
-  EXPECT_FALSE(deleted);
-
-  // Remove our own reference, which should release the final reference.
-  data_source = NULL;
-  EXPECT_TRUE(deleted);
+  // Destroy the data source.
+  protocol_->url_close(&context);
 }
 
-TEST(FFmpegGlueTest, Destructor) {
-  // Prepare testing data.
-  media::FFmpegGlue* glue = media::FFmpegGlue::get();
+TEST_F(FFmpegGlueTest, Seek) {
+  scoped_refptr<StrictMock<MockDataSource> > data_source
+      = new StrictMock<MockDataSource>();
+  URLContext context;
+  OpenContext(data_source, &context);
 
-  // We use a static bool since ~FFmpegGlue() will set it to true sometime
-  // after this function exits.
-  static bool deleted = false;
+  // SEEK_SET should be a straight-through call to SetPosition(), which when
+  // successful will return the result from GetPosition().
+  InSequence s;
+  EXPECT_CALL(*data_source, SetPosition(-16))
+      .WillOnce(Return(false));
 
+  EXPECT_CALL(*data_source, SetPosition(16))
+      .WillOnce(Return(true));
+  EXPECT_CALL(*data_source, GetPosition(_))
+      .WillOnce(DoAll(SetArgumentPointee<0>(8), Return(true)));
+
+  EXPECT_EQ(AVERROR_IO, protocol_->url_seek(&context, -16, SEEK_SET));
+  EXPECT_EQ(8, protocol_->url_seek(&context, 16, SEEK_SET));
+
+  // SEEK_CUR should call GetPosition() first, and if it succeeds add the offset
+  // to the result then call SetPosition()+GetPosition().
+  EXPECT_CALL(*data_source, GetPosition(_))
+      .WillOnce(Return(false));
+
+  EXPECT_CALL(*data_source, GetPosition(_))
+      .WillOnce(DoAll(SetArgumentPointee<0>(8), Return(true)));
+  EXPECT_CALL(*data_source, SetPosition(16))
+      .WillOnce(Return(false));
+
+  EXPECT_CALL(*data_source, GetPosition(_))
+      .WillOnce(DoAll(SetArgumentPointee<0>(8), Return(true)));
+  EXPECT_CALL(*data_source, SetPosition(16))
+      .WillOnce(Return(true));
+  EXPECT_CALL(*data_source, GetPosition(_))
+      .WillOnce(DoAll(SetArgumentPointee<0>(16), Return(true)));
+
+  EXPECT_EQ(AVERROR_IO, protocol_->url_seek(&context, 8, SEEK_CUR));
+  EXPECT_EQ(AVERROR_IO, protocol_->url_seek(&context, 8, SEEK_CUR));
+  EXPECT_EQ(16, protocol_->url_seek(&context, 8, SEEK_CUR));
+
+  // SEEK_END should call GetSize() first, and if it succeeds add the offset
+  // to the result then call SetPosition()+GetPosition().
+  EXPECT_CALL(*data_source, GetSize(_))
+      .WillOnce(Return(false));
+
+  EXPECT_CALL(*data_source, GetSize(_))
+      .WillOnce(DoAll(SetArgumentPointee<0>(16), Return(true)));
+  EXPECT_CALL(*data_source, SetPosition(8))
+      .WillOnce(Return(false));
+
+  EXPECT_CALL(*data_source, GetSize(_))
+      .WillOnce(DoAll(SetArgumentPointee<0>(16), Return(true)));
+  EXPECT_CALL(*data_source, SetPosition(8))
+      .WillOnce(Return(true));
+  EXPECT_CALL(*data_source, GetPosition(_))
+      .WillOnce(DoAll(SetArgumentPointee<0>(8), Return(true)));
+
+  EXPECT_EQ(AVERROR_IO, protocol_->url_seek(&context, -8, SEEK_END));
+  EXPECT_EQ(AVERROR_IO, protocol_->url_seek(&context, -8, SEEK_END));
+  EXPECT_EQ(8, protocol_->url_seek(&context, -8, SEEK_END));
+
+  // AVSEEK_SIZE should be a straight-through call to GetSize().
+  EXPECT_CALL(*data_source, GetSize(_))
+      .WillOnce(Return(false));
+
+  EXPECT_CALL(*data_source, GetSize(_))
+      .WillOnce(DoAll(SetArgumentPointee<0>(16), Return(true)));
+
+  EXPECT_EQ(AVERROR_IO, protocol_->url_seek(&context, 0, AVSEEK_SIZE));
+  EXPECT_EQ(16, protocol_->url_seek(&context, 0, AVSEEK_SIZE));
+
+  // Destroy the data source.
+  protocol_->url_close(&context);
+}
+
+TEST_F(FFmpegGlueTest, Destroy) {
   // Create our data source and add them to the glue layer.
-  media::old_mocks::MockFilterConfig config;
-  scoped_refptr<media::old_mocks::MockDataSource> data_source
-      = new media::old_mocks::MockDataSource(&config, &deleted);
-  std::string key = glue->AddDataSource(data_source);
+  scoped_refptr<StrictMock<Destroyable<MockDataSource> > > data_source
+      = new StrictMock<Destroyable<MockDataSource> >();
+  std::string key = FFmpegGlue::get()->AddDataSource(data_source);
 
-  // Remove our own reference.
+  // We should expect the data source to get destroyed when the unit test
+  // exits.
+  InSequence s;
+  EXPECT_CALL(mock_ffmpeg_, CheckPoint(0));
+  EXPECT_CALL(*data_source, OnDestroy());
+
+  // Remove our own reference, we shouldn't be destroyed yet.
   data_source = NULL;
-  EXPECT_FALSE(deleted);
+  mock_ffmpeg_.CheckPoint(0);
 
   // ~FFmpegGlue() will be called when this unit test finishes execution.  By
   // leaving something inside FFmpegGlue's map we get to test our cleanup code.
-  //
-  // MockDataSource will be holding onto a bad MockFilterConfig pointer at this
-  // point but since no one is calling it everything will be ok.
 }
+
+}  // namespace media
