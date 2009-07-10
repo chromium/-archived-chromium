@@ -229,15 +229,19 @@ static bool MaybeEnterChroot() {
     static const int kMagicSandboxIPCDescriptor = 5;
     SkiaFontConfigUseIPCImplementation(kMagicSandboxIPCDescriptor);
 
-    if (prctl(PR_GET_DUMPABLE, 0, 0, 0, 0)) {
-      LOG(ERROR) << "CRITICAL: The SUID sandbox is being used, but the chrome "
-                    "binary is also marked as readable. This means that the "
-                    "process starts up dumpable. That means that there's a "
-                    "window where another renderer process can ptrace this "
-                    "process and sequestrate it. This is a packaging error. "
-                    "Please report it as such.";
-    }
-
+    // Previously, we required that the binary be non-readable. This causes the
+    // kernel to mark the process as non-dumpable at startup. The thinking was
+    // that, although we were putting the renderers into a PID namespace (with
+    // the SUID sandbox), they would nonetheless be in the /same/ PID
+    // namespace. So they could ptrace each other unless they were non-dumpable.
+    //
+    // If the binary was readable, then there would be a window between process
+    // startup and the point where we set the non-dumpable flag in which a
+    // compromised renderer could ptrace attach.
+    //
+    // However, now that we have a zygote model, only the (trusted) zygote
+    // exists at this point and we can set the non-dumpable flag which is
+    // inherited by all our renderer children.
     prctl(PR_SET_DUMPABLE, 0, 0, 0, 0);
     if (prctl(PR_GET_DUMPABLE, 0, 0, 0, 0))
       return false;
