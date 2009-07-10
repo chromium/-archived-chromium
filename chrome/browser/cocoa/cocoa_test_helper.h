@@ -7,6 +7,7 @@
 
 #import <Cocoa/Cocoa.h>
 
+#include "base/debug_util.h"
 #include "base/file_path.h"
 #include "base/mac_util.h"
 #include "base/path_service.h"
@@ -42,7 +43,11 @@ class CocoaTestHelper {
                                               styleMask:0
                                                 backing:NSBackingStoreBuffered
                                                   defer:NO]);
-    [window_ orderFront:nil];
+    if (DebugUtil::BeingDebugged()) {
+      [window_ orderFront:nil];
+    } else {
+      [window_ orderBack:nil];
+    }
 
     // Set the duration of AppKit-evaluated animations (such as frame changes)
     // to zero for testing purposes. That way they take effect immediately.
