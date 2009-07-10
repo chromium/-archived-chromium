@@ -13,6 +13,7 @@ extern "C" {
 #include "base/logging.h"
 #include "base/singleton.h"
 #include "base/scoped_ptr.h"
+#include "base/string_util.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
 #include "chrome/browser/views/tabs/tab_overview_types.h"
@@ -95,7 +96,7 @@ PanelController::PanelController(BrowserWindowGtk* browser_window)
 
 void PanelController::UpdateTitleBar() {
   title_content_->title_label()->SetText(
-      browser_window_->browser()->GetCurrentPageTitle());
+      UTF16ToWideHack(browser_window_->browser()->GetCurrentPageTitle()));
 }
 
 bool PanelController::TitleMousePressed(const views::MouseEvent& event) {
