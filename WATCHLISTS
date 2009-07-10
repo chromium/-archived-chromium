@@ -72,6 +72,9 @@
     'ipc': {
       'filepath': 'chrome/common/ipc.*',
     },
+    'linux-sandboxing': {
+      'filepath': 'sandbox/linux/.*',
+    },
   },
 
   'WATCHLISTS': {
@@ -98,5 +101,6 @@
               'hclam@chromium.org', 'kylep@chromium.org',
               'scherkus@chromium.org'],
     'ipc': ['jam@chromium.org'],
+    'linux-sandboxing': ['agl@chromium.org'],
   },
 }
