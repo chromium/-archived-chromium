@@ -122,6 +122,10 @@ class BookmarkManagerGtk : public BookmarkModelObserver,
   // separately depending on whether the path column is showing.
   void SaveColumnConfiguration();
 
+  // Flush the saved mousedown. Should only be called when |delaying_mousedown_|
+  // is true.
+  void SendDelayedMousedown();
+
   GtkTreeSelection* left_selection() {
     return gtk_tree_view_get_selection(GTK_TREE_VIEW(left_tree_view_));
   }
@@ -246,10 +250,13 @@ class BookmarkManagerGtk : public BookmarkModelObserver,
 
   scoped_refptr<SelectFileDialog> select_file_dialog_;
 
-  // These two variables used for the workaround for http://crbug.com/15240.
+  // These variables are used for the workaround for http://crbug.com/15240.
   // The last mouse down we got. Only valid while |delaying_mousedown| is true.
   GdkEventButton mousedown_event_;
   bool delaying_mousedown_;
+  // This is true while we are propagating a delayed mousedown. It is used to
+  // tell the button press handler to ignore the event.
+  bool sending_delayed_mousedown_;
 };
 
 #endif  // CHROME_BROWSER_GTK_BOOKMARK_MANAGER_GTK_H_

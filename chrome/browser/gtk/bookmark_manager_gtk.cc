@@ -305,7 +305,8 @@ BookmarkManagerGtk::BookmarkManagerGtk(Profile* profile)
       organize_is_for_left_(true),
       search_factory_(this),
       select_file_dialog_(SelectFileDialog::Create(this)),
-      delaying_mousedown_(false) {
+      delaying_mousedown_(false),
+      sending_delayed_mousedown_(false) {
   InitWidgets();
   g_signal_connect(window_, "destroy",
                    G_CALLBACK(OnWindowDestroy), this);
@@ -762,6 +763,14 @@ void BookmarkManagerGtk::SaveColumnConfiguration() {
   }
 }
 
+void BookmarkManagerGtk::SendDelayedMousedown() {
+  sending_delayed_mousedown_ = true;
+  gtk_propagate_event(right_tree_view_,
+                      reinterpret_cast<GdkEvent*>(&mousedown_event_));
+  sending_delayed_mousedown_ = false;
+  delaying_mousedown_ = false;
+}
+
 bool BookmarkManagerGtk::RecursiveFind(GtkTreeModel* model, GtkTreeIter* iter,
                                        int target) {
   GValue value = { 0, };
@@ -1099,12 +1108,21 @@ void BookmarkManagerGtk::OnRightTreeViewFocusIn(GtkTreeView* tree_view,
 // static
 gboolean BookmarkManagerGtk::OnRightTreeViewButtonPress(GtkWidget* tree_view,
     GdkEventButton* event, BookmarkManagerGtk* bm) {
-  // Always let the cached mousedown sent from OnTreeViewButtonRelease through.
-  if (bm->delaying_mousedown_)
+  // Always let cached mousedown events through.
+  if (bm->sending_delayed_mousedown_) {
     return FALSE;
+  }
 
   if (event->button != 1)
     return FALSE;
+
+  // If a user double clicks, we will get two button presses in a row without
+  // any intervening mouse up, hence we must flush delayed mousedowns here as
+  // well as in the button release handler.
+  if (bm->delaying_mousedown_) {
+    bm->SendDelayedMousedown();
+    return FALSE;
+  }
 
   GtkTreePath* path;
   gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(tree_view),
@@ -1157,11 +1175,8 @@ gboolean BookmarkManagerGtk::OnTreeViewButtonRelease(GtkWidget* tree_view,
   NOTIMPLEMENTED();
 #endif
 
-  if (bm->delaying_mousedown_ && (tree_view == bm->right_tree_view_)) {
-    gtk_propagate_event(tree_view,
-                        reinterpret_cast<GdkEvent*>(&bm->mousedown_event_));
-    bm->delaying_mousedown_ = false;
-  }
+  if (bm->delaying_mousedown_ && (tree_view == bm->right_tree_view_))
+    bm->SendDelayedMousedown();
 
   return FALSE;
 }
