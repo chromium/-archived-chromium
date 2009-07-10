@@ -12,7 +12,6 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/gtk/back_forward_menu_model_gtk.h"
 #include "chrome/browser/gtk/menu_gtk.h"
-#include "chrome/browser/profile.h"
 #include "chrome/common/gtk_util.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
@@ -42,8 +41,8 @@ BackForwardButtonGtk::BackForwardButtonGtk(Browser* browser, bool is_forward)
     tooltip = IDS_TOOLTIP_BACK;
     stock = GTK_STOCK_GO_BACK;
   }
-  button_.reset(new CustomDrawButton(browser_->profile()->GetThemeProvider(),
-      normal, active, highlight, depressed, stock));
+  button_.reset(new CustomDrawButton(normal, active, highlight, depressed,
+                                     stock));
   gtk_widget_set_tooltip_text(widget(),
                               l10n_util::GetStringUTF8(tooltip).c_str());
   menu_model_.reset(new BackForwardMenuModelGtk(browser,

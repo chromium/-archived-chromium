@@ -328,8 +328,8 @@ gfx::Rect BrowserToolbarGtk::GetPopupBounds() const {
 CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
     int normal_id, int active_id, int highlight_id, int depressed_id,
     const std::string& localized_tooltip, const char* stock_id) {
-  CustomDrawButton* button = new CustomDrawButton(profile_->GetThemeProvider(),
-      normal_id, active_id, highlight_id, depressed_id, stock_id);
+  CustomDrawButton* button = new CustomDrawButton(normal_id, active_id,
+      highlight_id, depressed_id, stock_id);
 
   gtk_widget_set_tooltip_text(button->widget(),
                               localized_tooltip.c_str());
