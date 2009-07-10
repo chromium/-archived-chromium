@@ -478,6 +478,7 @@ class RenderView : public RenderWidget,
   void OnSetupDevToolsClient();
   void OnCancelDownload(int32 download_id);
   void OnFind(int request_id, const string16&, const WebKit::WebFindOptions&);
+  void OnDeterminePageText();
   void OnZoom(int function);
   void OnInsertText(const string16& text);
   void OnSetPageEncoding(const std::wstring& encoding_name);
@@ -777,6 +778,9 @@ class RenderView : public RenderWidget,
 
   // The text selection the last time DidChangeSelection got called.
   std::string last_selection_;
+
+  // Set to true if request for capturing page text has been made.
+  bool determine_page_text_after_loading_stops_;
 
   // Holds state pertaining to a navigation that we initiated.  This is held by
   // the WebDataSource::ExtraData attribute.  We use pending_navigation_state_

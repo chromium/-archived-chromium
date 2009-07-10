@@ -191,6 +191,14 @@ IPC_BEGIN_MESSAGES(View)
                       string16 /* search_text */,
                       WebKit::WebFindOptions)
 
+  // Send from the browser to the rendered to get the text content of the page.
+  IPC_MESSAGE_ROUTED0(ViewMsg_DeterminePageText)
+
+  // Send from the renderer to the browser to return the text content of the
+  // page.
+  IPC_MESSAGE_ROUTED1(ViewMsg_DeterminePageText_Reply,
+                      std::wstring /* the language */)
+
   // Sent when the headers are available for a resource request.
   IPC_MESSAGE_ROUTED2(ViewMsg_Resource_ReceivedResponse,
                       int /* request_id */,

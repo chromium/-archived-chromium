@@ -615,6 +615,52 @@ bool RemoveTabFunction::RunImpl() {
   return true;
 }
 
+bool GetTabLanguageFunction::RunImpl() {
+  int tab_id = 0;
+  Browser* browser = NULL;
+  TabContents* contents = NULL;
+
+  // If |tab_id| is specified, look for it. Otherwise default to selected tab
+  // in the current window.
+  if (!args_->IsType(Value::TYPE_NULL)) {
+    EXTENSION_FUNCTION_VALIDATE(args_->GetAsInteger(&tab_id));
+    if (!GetTabById(tab_id, profile(), &browser, NULL, &contents, NULL,
+        &error_)) {
+      return false;
+    }
+    if (!browser || !contents)
+      return false;
+  } else {
+    browser = dispatcher()->GetBrowser();
+    if (!browser)
+      return false;
+    contents = browser->tabstrip_model()->GetSelectedTabContents();
+    if (!contents)
+      return false;
+  }
+
+  // Figure out what language |contents| contains. This sends an async call via
+  // the browser to the renderer to determine the language of the tab the
+  // renderer has. The renderer sends back the language of the tab after the
+  // tab loads (it may be delayed) to the browser, which in turn notifies this
+  // object that the language has been received.
+  contents->GetPageLanguage();
+  registrar_.Add(this, NotificationType::TAB_LANGUAGE_DETERMINED,
+      NotificationService::AllSources());
+  AddRef();  // balanced in Observe()
+  return true;
+}
+
+void GetTabLanguageFunction::Observe(NotificationType type,
+                                     const NotificationSource& source,
+                                     const NotificationDetails& details) {
+  DCHECK(type == NotificationType::TAB_LANGUAGE_DETERMINED);
+  std::string language(*Details<std::string>(details).ptr());
+  result_.reset(Value::CreateStringValue(language.c_str()));
+  SendResponse(true);
+  Release();  // balanced in Run()
+}
+
 // static helpers
 
 // if |populate| is true, each window gets a list property |tabs| which contains

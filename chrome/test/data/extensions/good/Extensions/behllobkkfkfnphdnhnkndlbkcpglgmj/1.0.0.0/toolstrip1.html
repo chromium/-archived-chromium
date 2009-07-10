@@ -8,6 +8,16 @@ function testTabsAPI() {
     window.domAutomationController.send(tabs.length == 1);
   });
 }
+
+// This function is called from the C++ browser test. It tests the getLanguage
+// function to make sure it can be used as an extension API. This will pass if
+// the browser navigates to a page in French language before this is called.
+function testTabsLanguageAPI() {
+  chrome.tabs.getLanguage(null, function(language) {
+    window.domAutomationController.send(language == 'FRENCH');
+  });
+}
+
 </script>
 <select>
   <option>one</option>

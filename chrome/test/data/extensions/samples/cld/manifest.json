@@ -1,0 +1,6 @@
+{
+  "name": "CLD",
+  "description": "Returns language of a tab",
+  "version": "0.1",
+  "toolstrips": ["toolstrip.html"]
+}

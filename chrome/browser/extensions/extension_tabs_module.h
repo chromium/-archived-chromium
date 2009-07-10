@@ -8,6 +8,8 @@
 #include <string>
 
 #include "chrome/browser/extensions/extension_function.h"
+#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_registrar.h"
 
 class Browser;
 class DictionaryValue;
@@ -85,6 +87,16 @@ class MoveTabFunction : public SyncExtensionFunction {
 };
 class RemoveTabFunction : public SyncExtensionFunction {
   virtual bool RunImpl();
+};
+class GetTabLanguageFunction : public AsyncExtensionFunction,
+                               public NotificationObserver {
+  virtual bool RunImpl();
+
+ private:
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
+  NotificationRegistrar registrar_;
 };
 
 #endif  // CHROME_BROWSER_EXTENSIONS_EXTENSION_TABS_MODULE_H__

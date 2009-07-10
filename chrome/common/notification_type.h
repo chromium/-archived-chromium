@@ -204,6 +204,10 @@ class NotificationType {
     // is the InfoBubble.
     INFO_BUBBLE_CREATED,
 
+    // Sent after a call to RenderViewHost::DeterminePageLanguage. The details
+    // are Details<std::string> and the source is Source<RenderViewHost>.
+    TAB_LANGUAGE_DETERMINED,
+
     // The user has changed the browser theme.
     BROWSER_THEME_CHANGED,
 

@@ -98,6 +98,8 @@ void FactoryRegistry::ResetFunctions() {
       &NewExtensionFunction<MoveTabFunction>;
   factories_[tabs::kRemoveTabFunction] =
       &NewExtensionFunction<RemoveTabFunction>;
+  factories_[tabs::kGetTabLanguageFunction] =
+      &NewExtensionFunction<GetTabLanguageFunction>;
 
   // Page Actions.
   factories_[page_actions::kEnablePageActionFunction] =

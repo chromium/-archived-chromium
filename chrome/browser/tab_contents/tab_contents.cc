@@ -976,6 +976,10 @@ void TabContents::StopFinding(bool clear_selection) {
   render_view_host()->StopFinding(clear_selection);
 }
 
+void TabContents::GetPageLanguage() {
+  render_view_host()->GetPageLanguage();
+}
+
 void TabContents::OnJavaScriptMessageBoxClosed(IPC::Message* reply_msg,
                                                bool success,
                                                const std::wstring& prompt) {

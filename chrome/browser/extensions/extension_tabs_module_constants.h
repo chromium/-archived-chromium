@@ -64,6 +64,7 @@ extern const char kCreateTabFunction[];
 extern const char kUpdateTabFunction[];
 extern const char kMoveTabFunction[];
 extern const char kRemoveTabFunction[];
+extern const char kGetTabLanguageFunction[];
 
 };  // namespace extension_tabs_module_constants
 

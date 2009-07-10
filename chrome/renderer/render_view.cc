@@ -192,7 +192,8 @@ RenderView::RenderView(RenderThreadBase* render_thread)
       popup_notification_visible_(false),
       delay_seconds_for_form_state_sync_(kDefaultDelaySecondsForFormStateSync),
       preferred_width_(0),
-      send_preferred_width_changes_(false) {
+      send_preferred_width_changes_(false),
+      determine_page_text_after_loading_stops_(false) {
 }
 
 RenderView::~RenderView() {
@@ -355,6 +356,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_CopyImageAt, OnCopyImageAt)
     IPC_MESSAGE_HANDLER(ViewMsg_ExecuteEditCommand, OnExecuteEditCommand)
     IPC_MESSAGE_HANDLER(ViewMsg_Find, OnFind)
+    IPC_MESSAGE_HANDLER(ViewMsg_DeterminePageText, OnDeterminePageText)
     IPC_MESSAGE_HANDLER(ViewMsg_Zoom, OnZoom)
     IPC_MESSAGE_HANDLER(ViewMsg_InsertText, OnInsertText)
     IPC_MESSAGE_HANDLER(ViewMsg_SetPageEncoding, OnSetPageEncoding)
@@ -495,6 +497,12 @@ void RenderView::CapturePageInfo(int load_id, bool preliminary_capture) {
   if (contents.size()) {
     // Send the text to the browser for indexing.
     Send(new ViewHostMsg_PageContents(url, load_id, contents));
+  }
+
+  // Send over text content of this page to the browser.
+  if (determine_page_text_after_loading_stops_) {
+    determine_page_text_after_loading_stops_ = false;
+    Send(new ViewMsg_DeterminePageText_Reply(routing_id_, contents));
   }
 
   // thumbnail
@@ -2197,6 +2205,23 @@ void RenderView::OnFind(int request_id,
       search_frame = webview()->GetNextFrameAfter(search_frame, true);
     } while (search_frame != main_frame);
   }
+}
+
+void RenderView::OnDeterminePageText() {
+  if (!is_loading_) {
+    if (!webview())
+      return;
+    WebFrame* main_frame = webview()->GetMainFrame();
+    std::wstring contents;
+    CaptureText(main_frame, &contents);
+    Send(new ViewMsg_DeterminePageText_Reply(routing_id_, contents));
+    determine_page_text_after_loading_stops_ = false;
+    return;
+  }
+
+  // We set |determine_page_text_after_loading_stops_| true here so that,
+  // after page has been loaded completely, the text in the page is captured.
+  determine_page_text_after_loading_stops_ = true;
 }
 
 void RenderView::ReportFindInPageMatchCount(int count, int request_id,

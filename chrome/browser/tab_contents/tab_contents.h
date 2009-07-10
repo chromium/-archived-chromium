@@ -493,6 +493,9 @@ class TabContents : public PageNavigator,
     return last_search_result_;
   }
 
+  // Get the most probable language of the text content in the tab.
+  void GetPageLanguage();
+
   // Misc state & callbacks ----------------------------------------------------
 
   // Set whether the contents should block javascript message boxes or not.

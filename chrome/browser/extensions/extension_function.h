@@ -93,7 +93,14 @@ class AsyncExtensionFunction : public ExtensionFunction {
   virtual void SetArgs(const std::string& args);
   virtual const std::string GetResult();
   virtual const std::string GetError() { return error_; }
-  virtual void Run() = 0;
+  virtual void Run() {
+    if (!RunImpl())
+      SendResponse(false);
+  }
+
+  // Derived classes should implement this method to do their work and return
+  // success/failure.
+  virtual bool RunImpl() = 0;
 
  protected:
   void SendResponse(bool success);
@@ -107,7 +114,7 @@ class AsyncExtensionFunction : public ExtensionFunction {
   Value* args_;
 
   // The result of the API. This should be populated by the derived class before
-  // Run() returns.
+  // SendResponse() is called.
   scoped_ptr<Value> result_;
 
   // Any detailed error from the API. This should be populated by the derived
