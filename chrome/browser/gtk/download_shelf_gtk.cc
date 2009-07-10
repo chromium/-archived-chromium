@@ -14,6 +14,7 @@
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/download_item_gtk.h"
 #include "chrome/browser/gtk/gtk_chrome_link_button.h"
+#include "chrome/browser/gtk/gtk_theme_provider.h"
 #include "chrome/browser/gtk/slide_animator_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gtk_util.h"
@@ -37,9 +38,6 @@ const int kLeftPadding = 2;
 
 // Padding between the right side of the shelf and the close button.
 const int kRightPadding = 10;
-
-// The background color of the shelf.
-const GdkColor kBackgroundColor = GDK_COLOR_RGB(230, 237, 244);
 
 // Border color (the top pixel of the shelf).
 const GdkColor kBorderColor = GDK_COLOR_RGB(214, 214, 214);
@@ -74,14 +72,13 @@ DownloadShelfGtk::DownloadShelfGtk(Browser* browser, GtkWidget* parent)
   // Subtract 1 from top spacing to account for top border.
   gtk_alignment_set_padding(GTK_ALIGNMENT(padding),
       kTopBottomPadding - 1, kTopBottomPadding, kLeftPadding, kRightPadding);
-  GtkWidget* padding_bg = gtk_event_box_new();
-  gtk_container_add(GTK_CONTAINER(padding_bg), padding);
+  padding_bg_ = gtk_event_box_new();
+  gtk_container_add(GTK_CONTAINER(padding_bg_), padding);
   gtk_container_add(GTK_CONTAINER(padding), hbox_.get());
-  gtk_widget_modify_bg(padding_bg, GTK_STATE_NORMAL, &kBackgroundColor);
 
   GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(vbox), top_border, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(vbox), padding_bg, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(vbox), padding_bg_, FALSE, FALSE, 0);
 
   // Put the shelf in an event box so it gets its own window, which makes it
   // easier to get z-ordering right.
@@ -120,6 +117,10 @@ DownloadShelfGtk::DownloadShelfGtk(Browser* browser, GtkWidget* parent)
                                            SlideAnimatorGtk::UP,
                                            kShelfAnimationDurationMs,
                                            false, NULL));
+
+  GtkThemeProperties properties(browser->profile());
+  UserChangedTheme(&properties);
+
   gtk_widget_show_all(shelf_.get());
 
   // Stick ourselves at the bottom of the parent browser.
@@ -167,6 +168,16 @@ void DownloadShelfGtk::Close() {
 
 int DownloadShelfGtk::GetHeight() const {
   return slide_widget_->widget()->allocation.height;
+}
+
+void DownloadShelfGtk::UserChangedTheme(GtkThemeProperties* properties) {
+  GdkColor color = properties->GetGdkColor(BrowserThemeProvider::COLOR_TOOLBAR);
+  gtk_widget_modify_bg(padding_bg_, GTK_STATE_NORMAL, &color);
+
+  for (std::vector<DownloadItemGtk*>::iterator it = download_items_.begin();
+       it != download_items_.end(); ++it) {
+    (*it)->UserChangedTheme(properties);
+  }
 }
 
 void DownloadShelfGtk::RemoveDownloadItem(DownloadItemGtk* download_item) {

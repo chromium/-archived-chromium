@@ -766,6 +766,9 @@ void BrowserWindowGtk::UserChangedTheme() {
   bookmark_bar_->UserChangedTheme(&properties);
   status_bubble_->UserChangedTheme(&properties);
   tabstrip_->UserChangedTheme(&properties);
+  if (download_shelf_.get()) {
+    download_shelf_->UserChangedTheme(&properties);
+  }
 }
 
 int BrowserWindowGtk::GetExtraRenderViewHeight() const {

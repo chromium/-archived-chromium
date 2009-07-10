@@ -16,6 +16,7 @@
 class BaseDownloadItemModel;
 class DownloadShelfContextMenuGtk;
 class DownloadShelfGtk;
+class GtkThemeProperties;
 class NineBox;
 class SkBitmap;
 class SlideAnimation;
@@ -36,6 +37,9 @@ class DownloadItemGtk : public DownloadItem::Observer,
 
   // AnimationDelegate implementation.
   virtual void AnimationProgressed(const Animation* animation);
+
+  // Changes the color of the background shelf.
+  void UserChangedTheme(GtkThemeProperties* properties);
 
   // Called when the icon manager has finished loading the icon. We take
   // ownership of |icon_bitmap|.
@@ -61,6 +65,13 @@ class DownloadItemGtk : public DownloadItem::Observer,
 
   // Ask the icon manager to asynchronously start loading the icon for the file.
   void LoadIcon();
+
+  // Sets the name label to the correct color.
+  void UpdateNameLabel();
+
+  // Sets the text with the correct color if |status_label| exists.
+  void UpdateStatusLabel(GtkWidget* status_label,
+                         const std::string& status_text);
 
   static void InitNineBoxes();
 
@@ -121,12 +132,18 @@ class DownloadItemGtk : public DownloadItem::Observer,
   // The GtkLabel that holds the status text.
   GtkWidget* status_label_;
 
+  // The current text of status label
+  std::string status_text_;
+
   // The widget that creates a dropdown menu when pressed.
   GtkWidget* menu_button_;
 
   // Whether the menu is currently showing for |menu_button_|. Affects how we
   // draw the button.
   bool menu_showing_;
+
+  // Whether we should use the GTK text color
+  bool use_gtk_colors_;
 
   // The widget that contains the animation progress and the file's icon
   // (as well as the complete animation).

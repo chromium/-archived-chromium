@@ -13,12 +13,14 @@
 #include "base/basictypes.h"
 #include "base/string_util.h"
 #include "base/time.h"
+#include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/download_shelf.h"
 #include "chrome/browser/download/download_util.h"
 #include "chrome/browser/gtk/download_shelf_gtk.h"
+#include "chrome/browser/gtk/gtk_theme_provider.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/standard_menus.h"
@@ -167,6 +169,8 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
                                  BaseDownloadItemModel* download_model)
     : parent_shelf_(parent_shelf),
       menu_showing_(false),
+      use_gtk_colors_(GtkThemeProvider::UseSystemThemeGraphics(
+                          parent_shelf->browser()->profile())),
       progress_angle_(download_util::kStartAngleDegrees),
       download_model_(download_model),
       bounding_widget_(parent_shelf->GetRightBoundingWidget()),
@@ -195,14 +199,7 @@ DownloadItemGtk::DownloadItemGtk(DownloadShelfGtk* parent_shelf,
   // use gfx::Font() to draw the text. This is why we need to add so
   // much padding when we set the size request. We need to either use gfx::Font
   // or somehow extend TextElider.
-  std::wstring elided_filename = gfx::ElideFilename(
-      get_download()->GetFileName(),
-      gfx::Font(), kTextWidth);
-  gchar* label_markup =
-      g_markup_printf_escaped(kLabelColorMarkup, kFilenameColor,
-                              WideToUTF8(elided_filename).c_str());
-  gtk_label_set_markup(GTK_LABEL(name_label_), label_markup);
-  g_free(label_markup);
+  UpdateNameLabel();
 
   status_label_ = gtk_label_new(NULL);
   // Left align and vertically center the labels.
@@ -394,6 +391,7 @@ void DownloadItemGtk::OnDownloadUpdated(DownloadItem* download) {
   }
 
   std::wstring status_text = download_model_->GetStatusText();
+  status_text_ = WideToUTF8(status_text);
   // Remove the status text label.
   if (status_text.empty()) {
     gtk_widget_destroy(status_label_);
@@ -401,11 +399,7 @@ void DownloadItemGtk::OnDownloadUpdated(DownloadItem* download) {
     return;
   }
 
-  gchar* label_markup =
-      g_markup_printf_escaped(kLabelColorMarkup, kStatusColor,
-                              WideToUTF8(status_text).c_str());
-  gtk_label_set_markup(GTK_LABEL(status_label_), label_markup);
-  g_free(label_markup);
+  UpdateStatusLabel(status_label_, status_text_);
 }
 
 void DownloadItemGtk::AnimationProgressed(const Animation* animation) {
@@ -460,6 +454,13 @@ void DownloadItemGtk::StopDownloadProgress() {
   progress_timer_.Stop();
 }
 
+void DownloadItemGtk::UserChangedTheme(GtkThemeProperties* properties) {
+  use_gtk_colors_ = properties->use_gtk_rendering;
+
+  UpdateNameLabel();
+  UpdateStatusLabel(status_label_, status_text_);
+}
+
 // Icon loading functions.
 
 void DownloadItemGtk::OnLoadIconComplete(IconManager::Handle handle,
@@ -473,6 +474,40 @@ void DownloadItemGtk::LoadIcon() {
   im->LoadIcon(get_download()->full_path(),
                IconLoader::SMALL, &icon_consumer_,
                NewCallback(this, &DownloadItemGtk::OnLoadIconComplete));
+}
+
+void DownloadItemGtk::UpdateNameLabel() {
+  std::wstring elided_filename = gfx::ElideFilename(
+      get_download()->GetFileName(),
+      gfx::Font(), kTextWidth);
+  if (use_gtk_colors_) {
+    gtk_label_set_markup(GTK_LABEL(name_label_),
+                         WideToUTF8(elided_filename).c_str());
+  } else {
+    gchar* label_markup =
+        g_markup_printf_escaped(kLabelColorMarkup, kFilenameColor,
+                                WideToUTF8(elided_filename).c_str());
+    gtk_label_set_markup(GTK_LABEL(name_label_), label_markup);
+    g_free(label_markup);
+  }
+}
+
+void DownloadItemGtk::UpdateStatusLabel(GtkWidget* status_label,
+                                        const std::string& status_text) {
+  if (status_label) {
+    if (use_gtk_colors_) {
+      gtk_label_set_label(GTK_LABEL(status_label), status_text.c_str());
+    } else {
+      // TODO(erg): I am not sure which ThemeProvider color I'm supposed to use
+      // here. I am also not sure if using set_markup is the correct course of
+      // action compared to modifying the GtkStyle->text[].
+      gchar* label_markup =
+          g_markup_printf_escaped(kLabelColorMarkup, kStatusColor,
+                                  status_text.c_str());
+      gtk_label_set_markup(GTK_LABEL(status_label), label_markup);
+      g_free(label_markup);
+    }
+  }
 }
 
 // static

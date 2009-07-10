@@ -18,6 +18,7 @@ class BaseDownloadItemModel;
 class Browser;
 class CustomDrawButton;
 class DownloadItemGtk;
+class GtkThemeProperties;
 class SlideAnimatorGtk;
 
 class DownloadShelfGtk : public DownloadShelf {
@@ -35,6 +36,9 @@ class DownloadShelfGtk : public DownloadShelf {
 
   // Returns the current height of the shelf.
   int GetHeight() const;
+
+  // Changes the color of the background shelf.
+  void UserChangedTheme(GtkThemeProperties* properties);
 
  private:
   // Remove |download_item| from the download shelf and delete it.
@@ -57,6 +61,9 @@ class DownloadShelfGtk : public DownloadShelf {
   // |shelf_| is the second highest level widget. See the constructor
   // for an explanation of the widget layout.
   OwnedWidgetGtk shelf_;
+
+  // A GtkEventBox which we color.
+  GtkWidget* padding_bg_;
 
   // This hbox holds the link text and download icon. It also holds the
   // distinction of being the leftmost non-download item widget on the shelf.

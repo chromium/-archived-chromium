@@ -47,6 +47,8 @@ class DownloadShelf {
   // Closes the shelf.
   virtual void Close() = 0;
 
+  Browser* browser() { return browser_; }
+
  protected:
   Browser* browser_;
 
