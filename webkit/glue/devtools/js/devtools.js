@@ -900,7 +900,7 @@ WebInspector.ScriptsPanel.prototype.doEvalInCallFrame =
 (function() {
   var oldShow = WebInspector.ScriptsPanel.prototype.show;
   WebInspector.ScriptsPanel.prototype.show =  function() {
-    devtools.tools.getDebuggerAgent().requestScripts();
+    devtools.tools.getDebuggerAgent().initUI();
     this.enableToggleButton.addStyleClass('hidden');
     oldShow.call(this);
   };

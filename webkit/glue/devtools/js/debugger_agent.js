@@ -126,10 +126,18 @@ devtools.DebuggerAgent.prototype.reset = function() {
 
 
 /**
- * Asynchronously requests for all parsed script sources. Response will be
- * processed in handleScriptsResponse_.
+ * Initializes scripts UI. Asynchronously requests for all parsed scripts
+ * if necessary. Response will be processed in handleScriptsResponse_.
  */
-devtools.DebuggerAgent.prototype.requestScripts = function() {
+devtools.DebuggerAgent.prototype.initUI = function() {
+  // There can be a number of scripts from after-compile events that are
+  // pending addition into the UI.
+  for (var scriptId in this.parsedScripts_) {
+    var script = this.parsedScripts_[scriptId];
+    WebInspector.parsedScriptSource(scriptId, script.getUrl(),
+        undefined /* script source */, script.getLineOffset());
+  }
+
   if (this.contextId_) {
     // We already have context id. This means that we are here from the
     // very beginning of the page load cycle and hence will get all scripts
@@ -659,6 +667,9 @@ devtools.DebuggerAgent.prototype.handleDebuggerOutput_ = function(output) {
  * @param {devtools.DebuggerMessage} msg
  */
 devtools.DebuggerAgent.prototype.handleBreakEvent_ = function(msg) {
+  // Force scrips panel to be shown first.
+  WebInspector.currentPanel = WebInspector.panels.scripts;
+
   var body = msg.getBody();
 
   var line = devtools.DebuggerAgent.v8ToWwebkitLineNumber_(body.sourceLine);
@@ -674,9 +685,10 @@ devtools.DebuggerAgent.prototype.handleBreakEvent_ = function(msg) {
  * @param {devtools.DebuggerMessage} msg
  */
 devtools.DebuggerAgent.prototype.handleExceptionEvent_ = function(msg) {
+  // Force scrips panel to be shown first.
+  WebInspector.currentPanel = WebInspector.panels.scripts;
+
   var body = msg.getBody();
-  debugPrint('Uncaught exception in ' + body.script.name + ':' +
-             body.sourceLine + '\n' + body.sourceLineText);
   if (this.pauseOnExceptions_) {
     var body = msg.getBody();
 
@@ -836,8 +848,11 @@ devtools.DebuggerAgent.prototype.addScriptInfo_ = function(script, msg) {
   var contextType = context.data.type;
   this.parsedScripts_[script.id] = new devtools.ScriptInfo(
       script.id, script.name, script.lineOffset, contextType);
-  WebInspector.parsedScriptSource(
-      script.id, script.name, script.source, script.lineOffset);
+  if (WebInspector.panels.scripts.element.parentElement) {
+    // Only report script as parsed after scripts panel has been shown.
+    WebInspector.parsedScriptSource(
+        script.id, script.name, script.source, script.lineOffset);
+  }
 };
 
 
