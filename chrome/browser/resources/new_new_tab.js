@@ -1055,6 +1055,12 @@ window.addEventListener('keydown', function(e) {
 
 // Tooltip for elements that have text that overflows.
 document.addEventListener('mouseover', function(e) {
+  // We don't want to do this while we are dragging because it makes things very
+  // janky
+  if (dnd.dragItem) {
+    return;
+  }
+
   var el = findAncestor(e.target, function(el) {
     return el.xtitle;
   });
