@@ -82,23 +82,22 @@ def CheckTryJobExecution(input_api, output_api):
     values = [item.split('|', 2) for item in connection.read().splitlines()]
     connection.close()
     statuses = map(lambda x: x[1], values)
+    message = None
     if 'failure' in statuses:
       failures = filter(lambda x: x[1] != 'success', values)
       long_text = '\n'.join("% 5s: % 7s %s" % (item[0], item[1], item[2])
                             for item in failures)
-      # TODO(maruel): Change to a PresubmitPromptWarning once the try server is
-      # stable enough and it seems to work fine.
-      message = 'You had try job failures. Are you sure you want to check-in?'
-      outputs.append(output_api.PresubmitNotifyResult(message=message,
-                                                      long_text=long_text))
+      message = 'You had try job failures. Are you sure you want to check-in?\n'
     elif 'pending' in statuses or len(values) != 3:
       long_text = '\n'.join("% 5s: % 7s %s" % (item[0], item[1], item[2])
                             for item in values)
-      # TODO(maruel): Change to a PresubmitPromptWarning once the try server is
-      # stable enough and it seems to work fine.
-      message = 'You should try the patch first (and wait for it to finish).'
-      outputs.append(output_api.PresubmitNotifyResult(message=message,
-                                                      long_text=long_text))
+      message = 'You should try the patch first (and wait for it to finish).\n'
+    if message:
+      message += (
+          'Is try server wrong or broken? Please notify maruel@chromium.org. '
+          'Thanks.\n')
+      outputs.append(output_api.PresubmitPromptWarning(message=message,
+                                                       long_text=long_text))
   except input_api.urllib2.HTTPError, e:
     if e.code == 404:
       # Fallback to no try job.
