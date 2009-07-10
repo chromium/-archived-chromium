@@ -79,11 +79,16 @@ TEST_F(FindBarCocoaControllerTest, SetFindText) {
       NSOrderedSame,
       [[findText stringValue] compare:base::SysUTF8ToNSString(kFindText)]);
 
-  // Clear the find text.  |details| isn't used by our implementation
-  // of clearResults, so it's ok to pass in an empty |details|.
+  // Call clearResults, which doesn't actually clear the find text but
+  // simply sets it back to what it was before.  This is silly, but
+  // matches the behavior on other platforms.  |details| isn't used by
+  // our implementation of clearResults, so it's ok to pass in an
+  // empty |details|.
   FindNotificationDetails details;
   [controller_ clearResults:details];
-  EXPECT_EQ(0U, [[findText stringValue] length]);
+  EXPECT_EQ(
+      NSOrderedSame,
+      [[findText stringValue] compare:base::SysUTF8ToNSString(kFindText)]);
 }
 
 TEST_F(FindBarCocoaControllerTest, ResultLabelUpdatesCorrectly) {
