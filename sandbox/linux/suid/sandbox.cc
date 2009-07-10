@@ -78,8 +78,7 @@ static int CloneChrootHelperProcess() {
     }
 
     rmdir(temp_dir);
-    fchown(chroot_dir_fd, 0, 0);
-    fchmod(chroot_dir_fd, 0555);
+    fchown(chroot_dir_fd, 0 /* root */, 0 /* root */);
 
     // We share our files structure with an untrusted process. As a security in
     // depth measure, we make sure that we can't open anything by mistake.
@@ -108,6 +107,7 @@ static int CloneChrootHelperProcess() {
 
     if (fchdir(chroot_dir_fd))
       FatalError("Cannot chdir into chroot temp directory");
+    fchmod(chroot_dir_fd, 0000 /* no-access */);
 
     struct stat st;
     if (stat(".", &st))
@@ -124,23 +124,7 @@ static int CloneChrootHelperProcess() {
 
     const char reply = kMsgChrootSuccessful;
     do {
-      struct msghdr msg = {0};
-      struct iovec iov = {(char *) &reply, 1};
-
-      msg.msg_iov = &iov;
-      msg.msg_iovlen = 1;
-
-      char control_buffer[CMSG_SPACE(sizeof(int))];
-      msg.msg_control = control_buffer;
-      msg.msg_controllen = sizeof(control_buffer);
-      struct cmsghdr* cmsg = CMSG_FIRSTHDR(&msg);
-      cmsg->cmsg_level = SOL_SOCKET;
-      cmsg->cmsg_type = SCM_RIGHTS;
-      cmsg->cmsg_len = CMSG_LEN(sizeof(int));
-      memcpy(CMSG_DATA(cmsg), &chroot_dir_fd, sizeof(int));
-      msg.msg_controllen = cmsg->cmsg_len;
-
-      bytes = sendmsg(sv[0], &msg, 0);
+      bytes = write(sv[0], &reply, 1);
     } while (bytes == -1 && errno == EINTR);
 
     if (bytes != 1)

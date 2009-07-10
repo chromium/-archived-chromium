@@ -221,29 +221,15 @@ static bool MaybeEnterChroot() {
     }
 
     char reply;
-    std::vector<int> fds;
-    if (!base::RecvMsg(fd, &reply, 1, &fds)) {
+    if (HANDLE_EINTR(read(fd, &reply, 1)) != 1) {
       LOG(ERROR) << "Failed to read from chroot pipe: " << errno;
       return false;
     }
+
     if (reply != kChrootMeSuccess) {
       LOG(ERROR) << "Error code reply from chroot helper";
-      for (size_t i = 0; i < fds.size(); ++i)
-        HANDLE_EINTR(close(fds[i]));
       return false;
     }
-    if (fds.size() != 1) {
-      LOG(ERROR) << "Bad number of file descriptors from chroot helper";
-      for (size_t i = 0; i < fds.size(); ++i)
-        HANDLE_EINTR(close(fds[i]));
-      return false;
-    }
-    if (fchdir(fds[0]) == -1) {
-      LOG(ERROR) << "Failed to chdir to root directory: " << errno;
-      HANDLE_EINTR(close(fds[0]));
-      return false;
-    }
-    HANDLE_EINTR(close(fds[0]));
 
     static const int kMagicSandboxIPCDescriptor = 5;
     SkiaFontConfigUseIPCImplementation(kMagicSandboxIPCDescriptor);
