@@ -770,7 +770,7 @@ struct ParamTraits<IPC::ChannelHandle> {
         ;
   }
   static void Log(const param_type& p, std::wstring* l) {
-    l->append(StringPrintf(L"ChannelHandle(%s", p.name.c_str()));
+    l->append(ASCIIToWide(StringPrintf("ChannelHandle(%s", p.name.c_str())));
 #if defined(OS_POSIX)
     ParamTraits<base::FileDescriptor>::Log(p.socket, l);
 #endif
