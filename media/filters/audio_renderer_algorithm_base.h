@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// AudioRendererAlgorithmBase provides an interface for algorithms that
-// modify playback speed. ARAB owns its own deque of Buffers because
-// subclasses may need more than one to produce output. Subclasses
-// must implement the following method:
+// AudioRendererAlgorithmBase provides an interface for algorithms that modify
+// playback speed. ARAB owns a BufferQueue which hides Buffer boundaries from
+// subclasses and allows them to access data by byte. Subclasses must implement
+// the following method:
 //
 //   FillBuffer() - fills the buffer passed to it & returns how many bytes
 //                  copied.
@@ -19,11 +19,6 @@
 // Exectution of ARAB is thread-unsafe. This class should be used as
 // the guts of AudioRendererBase, which should lock calls into us so
 // enqueues and processes do not cause an unpredictable |queue_| size.
-//
-// Most of ARAB is nonvirtual as the only subclasses we expect are those to
-// define FillBuffer(). |queue_| management and common property management
-// should not have to change for subclasses, so both are implemented here
-// non-virtually.
 
 #ifndef MEDIA_FILTERS_AUDIO_RENDERER_ALGORITHM_BASE_H_
 #define MEDIA_FILTERS_AUDIO_RENDERER_ALGORITHM_BASE_H_
@@ -33,6 +28,7 @@
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
+#include "media/base/buffer_queue.h"
 
 namespace media {
 
@@ -53,17 +49,16 @@ class AudioRendererAlgorithmBase {
                           float initial_playback_rate,
                           RequestReadCallback* callback);
 
-  // Implement this strategy method in derived classes.
-  // Fills |buffer_out| with possibly scaled data from our |queue_|.
-  // |buffer_out| must be initialized and have a datasize.
-  // Returns the number of bytes copied into |buffer_out|.
+  // Implement this strategy method in derived classes. Fills |buffer_out| with
+  // possibly scaled data from our |queue_|. |buffer_out| must be initialized
+  // and have a datasize. Returns the number of bytes copied into |buffer_out|.
   virtual size_t FillBuffer(DataBuffer* buffer_out) = 0;
 
   // Clears |queue_|.
   virtual void FlushBuffers();
 
-  // Enqueues a buffer. It is called from the owner
-  // of the algorithm after a read completes.
+  // Enqueues a buffer. It is called from the owner of the algorithm after a
+  // read completes.
   virtual void EnqueueBuffer(Buffer* buffer_in);
 
   // Getter/setter for |playback_rate_|.
@@ -71,14 +66,18 @@ class AudioRendererAlgorithmBase {
   virtual void set_playback_rate(float new_rate);
 
  protected:
+  // Advances |queue_|'s internal pointer by |bytes|.
+  void AdvanceInputPosition(size_t bytes);
+
+  // Tries to copy |bytes| bytes from |queue_| to |dest|. Returns the number of
+  // bytes successfully copied.
+  size_t CopyFromInput(uint8* dest, size_t bytes);
+
   // Returns whether |queue_| is empty.
   virtual bool IsQueueEmpty();
 
-  // Returns a reference to the first element of the |queue_|.
-  virtual scoped_refptr<Buffer> FrontQueue();
-
-  // Pops the front of the |queue_| and schedules a read.
-  virtual void PopFrontQueue();
+  // Returns the number of bytes left in |queue_|.
+  virtual size_t QueueSize();
 
   // Number of audio channels.
   virtual int channels();
@@ -98,7 +97,6 @@ class AudioRendererAlgorithmBase {
   scoped_ptr<RequestReadCallback> request_read_callback_;
 
   // Queued audio data.
-  typedef std::deque< scoped_refptr<Buffer> > BufferQueue;
   BufferQueue queue_;
 
   DISALLOW_COPY_AND_ASSIGN(AudioRendererAlgorithmBase);

@@ -25,9 +25,6 @@ class AudioRendererAlgorithmDefault : public AudioRendererAlgorithmBase {
   virtual size_t FillBuffer(DataBuffer* buffer_out);
 
  private:
-  // Remembers the amount of remaining audio data for the front buffer.
-  size_t data_offset_;
-
   DISALLOW_COPY_AND_ASSIGN(AudioRendererAlgorithmDefault);
 };
 

@@ -4,11 +4,10 @@
 
 // AudioRendererAlgorithmOLA [ARAO] is the pitch-preservation implementation of
 // AudioRendererAlgorithmBase [ARAB]. For speeds greater than 1.0f, FillBuffer()
-// consumes more input data than output data requested and crossfades
-// samples to fill |buffer_out|. For speeds less than 1.0f, FillBuffer()
-// consumers less input data than output data requested and draws overlapping
-// samples from the input data to fill |buffer_out|. As ARAB is thread-unsafe,
-// so is ARAO.
+// consumes more input data than output data requested and crossfades samples
+// to fill |buffer_out|. For speeds less than 1.0f, FillBuffer() consumers less
+// input data than output data requested and draws overlapping samples from the
+// input data to fill |buffer_out|. As ARAB is thread-unsafe, so is ARAO.
 
 #ifndef MEDIA_FILTERS_AUDIO_RENDERER_ALGORITHM_OLA_H_
 #define MEDIA_FILTERS_AUDIO_RENDERER_ALGORITHM_OLA_H_
@@ -27,20 +26,11 @@ class AudioRendererAlgorithmOLA : public AudioRendererAlgorithmBase {
   // AudioRendererAlgorithmBase implementation
   virtual size_t FillBuffer(DataBuffer* buffer_out);
 
-  virtual void FlushBuffers();
-
   virtual void set_playback_rate(float new_rate);
 
  private:
-  // Advances our input position by |bytes| bytes.
-  void AdvanceInput(size_t bytes);
-
   // Aligns |value| to a channel and sample boundary.
   void AlignToSampleBoundary(size_t* value);
-
-  // Copies |length| bytes from our buffers to |dest|. Returns how many bytes
-  // of data were copied.
-  size_t CopyInput(uint8* dest, size_t length);
 
   // Crossfades |samples| samples of |dest| with the data in |src|. Assumes
   // there is room in |dest| and enough data in |src|. Type is the datatype
@@ -49,18 +39,9 @@ class AudioRendererAlgorithmOLA : public AudioRendererAlgorithmBase {
   template <class Type>
   void Crossfade(int samples, const Type* src, Type* dest);
 
-  // Returns true if |saved_buf_| is NULL and the queue is empty.
-  bool IsInputFinished();
-
-  // Stores the front element of the queue so we can peek at the second one.
-  scoped_refptr<Buffer> saved_buf_;
-
-  // Remembers the amount of remaining audio data for our |saved_buf_|.
-  size_t data_offset_;
-
-  // Members for ease of calculation in FillBuffer(). These members are
-  // based on |playback_rate_|, but are stored seperately so they don't
-  // have to be recalculated on every call to FillBuffer().
+  // Members for ease of calculation in FillBuffer(). These members are based
+  // on |playback_rate_|, but are stored seperately so they don't have to be
+  // recalculated on every call to FillBuffer().
   size_t input_step_;
   size_t output_step_;
 
