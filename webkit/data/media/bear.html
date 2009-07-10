@@ -1,0 +1,15 @@
+<html>
+<body>
+<video autoplay="true" id="v"></video>
+<script>
+  layoutTestController.waitUntilDone();
+
+  var v = document.getElementById('v');
+  v.addEventListener('load', function() {
+    window.setTimeout("layoutTestController.notifyDone();", 1000);
+  }, false);
+  v.src = 'bear_silent.ogv';
+  v.load();
+</script>
+</body>
+</html>
