@@ -70,6 +70,8 @@
 
 #if defined(OS_LINUX)
 #include "chrome/app/breakpad_linux.h"
+// TODO(estade): remove this when the linux splash is removed.
+#include "chrome/browser/session_startup_pref.h"
 #endif
 
 // TODO(port): several win-only methods have been pulled out of this, but
@@ -532,6 +534,17 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // Now that local state and user prefs have been loaded, make the two pref
   // services aware of all our preferences.
   browser::RegisterAllPrefs(user_prefs, local_state);
+
+#if defined(OS_LINUX)
+  // UI tests expect that the browser will show the home page on startup.
+  if (!parsed_command_line.HasSwitch(switches::kHomePage)) {
+    // TODO(port): Remove ifdef when the Linux splash page is not needed.
+    SessionStartupPref startup_pref =
+        SessionStartupPref(SessionStartupPref::URLS);
+    startup_pref.urls.push_back(GURL("about:linux-splash"));
+    SessionStartupPref::SetStartupPref(profile, startup_pref);
+  }
+#endif
 
   // Now that all preferences have been registered, set the install date
   // for the uninstall metrics if this is our first run. This only actually

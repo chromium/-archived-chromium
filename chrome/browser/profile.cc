@@ -522,12 +522,6 @@ ProfileImpl::ProfileImpl(const FilePath& path)
     blacklist_ = new Blacklist(path);
   }
 
-#if defined(OS_LINUX)
-  // TODO(port): Remove ifdef when the Linux splash page is not needed.
-  prefs->transient()->SetString(prefs::kHomePage, "about:linux-splash");
-  prefs->transient()->SetBoolean(prefs::kHomePageIsNewTabPage, false);
-#endif
-
   // Listen for theme installation.
   registrar_.Add(this, NotificationType::THEME_INSTALLED,
                  NotificationService::AllSources());
