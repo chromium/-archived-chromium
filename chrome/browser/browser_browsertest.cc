@@ -74,7 +74,7 @@ IN_PROC_BROWSER_TEST_F(BrowserTest, Title) {
                                ui_test_utils::GetTestUrl(L".", L"title2.html"));
   const std::wstring test_title(L"Title Of Awesomeness");
   EXPECT_EQ(LocaleWindowCaptionFromPageTitle(test_title),
-            browser()->GetCurrentPageTitle());
+            UTF16ToWideHack(browser()->GetCurrentPageTitle()));
   string16 tab_title;
   ASSERT_TRUE(ui_test_utils::GetCurrentTabTitle(browser(), &tab_title));
   EXPECT_EQ(WideToUTF16(test_title), tab_title);
