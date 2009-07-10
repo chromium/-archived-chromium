@@ -107,6 +107,8 @@ medium  zsorting                          screenshot pdiff_threshold(39500)
 #large   box2d-3d/box2d-3d                timeout(45000) except(*googlechrome)
 large   simpleviewer/simpleviewer         screenshot pdiff_threshold(100)
 large   trends/trends                     timeout(30000)
+medium  GoogleIO-2009/step09              screenshot pdiff_threshold(1900)
+large   GoogleIO-2009/step14              screenshot pdiff_threshold(4900)
 
 # -- tests below this line are tests for which there is a python
 #    function to custom run the test. As such, only the 'except' and

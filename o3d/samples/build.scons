@@ -254,7 +254,8 @@ z_up_env = env.Clone(UP_AXIS='0,0,1')
 models = [
   {'path': 'beachdemo/convert_assets/beachdemo.zip', 'env': z_up_env},
   {'path': 'beachdemo/convert_assets/beach-low-poly.dae', 'env': z_up_env},
-
+  {'path': 'GoogleIO-2009/convert_assets/background.zip', 'env': y_up_env},
+  {'path': 'GoogleIO-2009/convert_assets/character.zip', 'env': y_up_env},
 
   {'path': 'home-configurators/convert_cbassets/House_Roofless.kmz',
       'env': z_up_env},
