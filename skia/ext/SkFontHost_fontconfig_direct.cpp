@@ -76,6 +76,10 @@ bool FontConfigDirect::Match(std::string* result_family,
     fcvalue.u.i = is_italic && *is_italic ? FC_SLANT_ITALIC : FC_SLANT_ROMAN;
     FcPatternAdd(pattern, FC_SLANT, fcvalue, 0);
 
+    fcvalue.type = FcTypeBool;
+    fcvalue.u.b = FcTrue;
+    FcPatternAdd(pattern, FC_SCALABLE, fcvalue, 0);
+
     FcConfigSubstitute(0, pattern, FcMatchPattern);
     FcDefaultSubstitute(pattern);
 
@@ -113,16 +117,6 @@ bool FontConfigDirect::Match(std::string* result_family,
     FcResult result;
     FcPattern* match = FcFontMatch(0, pattern, &result);
     if (!match) {
-        FcPatternDestroy(pattern);
-        return false;
-    }
-
-    // Skip non-scalable fonts. They don't work with FT_Set_Char_Size()
-    // in SkFontHost_FreeType.cpp.
-    FcBool scalable = FcFalse;
-    FcPatternGetBool(match, FC_SCALABLE, 0, &scalable);
-    if (scalable != FcTrue) {
-        FcPatternDestroy(match);
         FcPatternDestroy(pattern);
         return false;
     }

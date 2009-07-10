@@ -58,6 +58,10 @@ WebString WebFontInfo::familyForChars(const WebUChar* characters, size_t numChar
     fcvalue.u.c = cset;
     FcPatternAdd(pattern, FC_CHARSET, fcvalue, 0);
 
+    fcvalue.type = FcTypeBool;
+    fcvalue.u.b = FcTrue;
+    FcPatternAdd(pattern, FC_SCALABLE, fcvalue, 0);
+
     FcConfigSubstitute(0, pattern, FcMatchPattern);
     FcDefaultSubstitute(pattern);
 
