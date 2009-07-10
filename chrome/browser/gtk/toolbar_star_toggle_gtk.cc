@@ -8,14 +8,17 @@
 #include "base/gfx/rect.h"
 #include "chrome/browser/gtk/bookmark_bubble_gtk.h"
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
+#include "chrome/browser/profile.h"
 #include "grit/theme_resources.h"
 
 ToolbarStarToggleGtk::ToolbarStarToggleGtk(BrowserToolbarGtk* host)
     : host_(host),
       widget_(gtk_button_new()),
       is_starred_(false),
-      unstarred_(IDR_STAR, IDR_STAR_P, IDR_STAR_H, IDR_STAR_D),
-      starred_(IDR_STARRED, IDR_STARRED_P, IDR_STARRED_H, 0) {
+      unstarred_(host->profile()->GetThemeProvider(), IDR_STAR, IDR_STAR_P,
+                 IDR_STAR_H, IDR_STAR_D),
+      starred_(host->profile()->GetThemeProvider(), IDR_STARRED, IDR_STARRED_P,
+               IDR_STARRED_H, 0) {
   gtk_widget_set_size_request(widget_.get(),
                              gdk_pixbuf_get_width(unstarred_.pixbufs(0)),
                              gdk_pixbuf_get_height(unstarred_.pixbufs(0)));

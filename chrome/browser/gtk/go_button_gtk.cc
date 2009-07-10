@@ -10,6 +10,7 @@
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/gtk/location_bar_view_gtk.h"
+#include "chrome/browser/profile.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
@@ -21,8 +22,10 @@ GoButtonGtk::GoButtonGtk(LocationBarViewGtk* location_bar, Browser* browser)
       intended_mode_(MODE_GO),
       visible_mode_(MODE_GO),
       state_(BS_NORMAL),
-      go_(IDR_GO, IDR_GO_P, IDR_GO_H, 0),
-      stop_(IDR_STOP, IDR_STOP_P, IDR_STOP_H, 0),
+      go_(browser ? browser->profile()->GetThemeProvider() : NULL,
+          IDR_GO, IDR_GO_P, IDR_GO_H, 0),
+      stop_(browser ? browser->profile()->GetThemeProvider() : NULL,
+            IDR_STOP, IDR_STOP_P, IDR_STOP_H, 0),
       widget_(gtk_button_new()) {
   gtk_widget_set_size_request(widget_.get(),
                               gdk_pixbuf_get_width(go_.pixbufs(0)),
