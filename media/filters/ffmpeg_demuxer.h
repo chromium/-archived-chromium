@@ -128,9 +128,6 @@ class FFmpegDemuxer : public Demuxer {
   virtual scoped_refptr<DemuxerStream> GetStream(int stream_id);
 
  private:
-  // Allow FFmpegDemuxerStream to post tasks to our message loop.
-  friend class FFmpegDemuxerStream;
-
   // Only allow a factory to create this class.
   friend class FilterFactoryImpl0<FFmpegDemuxer>;
   FFmpegDemuxer();
@@ -180,9 +177,6 @@ class FFmpegDemuxer : public Demuxer {
   typedef std::vector< scoped_refptr<FFmpegDemuxerStream> > StreamVector;
   StreamVector streams_;
   StreamVector packet_streams_;
-
-  // Used for debugging.
-  PlatformThreadId thread_id_;
 
   DISALLOW_COPY_AND_ASSIGN(FFmpegDemuxer);
 };

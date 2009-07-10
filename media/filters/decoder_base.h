@@ -65,8 +65,7 @@ class DecoderBase : public Decoder {
   DecoderBase()
       : pending_reads_(0),
         seeking_(false),
-        state_(UNINITIALIZED),
-        thread_id_(NULL) {
+        state_(UNINITIALIZED) {
   }
 
   virtual ~DecoderBase() {
@@ -79,7 +78,7 @@ class DecoderBase : public Decoder {
   // It places an output buffer in the result queue.  It must be called from
   // within the OnDecode method.
   void EnqueueResult(Output* output) {
-    DCHECK_EQ(PlatformThread::CurrentId(), thread_id_);
+    DCHECK_EQ(MessageLoop::current(), this->message_loop());
     if (!IsStopped()) {
       result_queue_.push_back(output);
     }
@@ -108,18 +107,14 @@ class DecoderBase : public Decoder {
   // the EnequeueResult() method from within this method.
   virtual void OnDecode(Buffer* input) = 0;
 
-  // Used for subclasses who friend unit tests and need to set the thread id.
-  virtual void set_thread_id(PlatformThreadId thread_id) {
-    thread_id_ = thread_id;
-  }
-
   MediaFormat media_format_;
 
  private:
   bool IsStopped() { return state_ == STOPPED; }
 
   void StopTask() {
-    DCHECK_EQ(PlatformThread::CurrentId(), thread_id_);
+    DCHECK_EQ(MessageLoop::current(), this->message_loop());
+
     // Delegate to the subclass first.
     OnStop();
 
@@ -130,7 +125,8 @@ class DecoderBase : public Decoder {
   }
 
   void SeekTask(base::TimeDelta time) {
-    DCHECK_EQ(PlatformThread::CurrentId(), thread_id_);
+    DCHECK_EQ(MessageLoop::current(), this->message_loop());
+
     // Delegate to the subclass first.
     OnSeek(time);
 
@@ -143,13 +139,10 @@ class DecoderBase : public Decoder {
   }
 
   void InitializeTask(DemuxerStream* demuxer_stream) {
+    DCHECK_EQ(MessageLoop::current(), this->message_loop());
     DCHECK(state_ == UNINITIALIZED);
     DCHECK(!demuxer_stream_);
-    DCHECK(!thread_id_ || thread_id_ == PlatformThread::CurrentId());
     demuxer_stream_ = demuxer_stream;
-
-    // Grab the thread id for debugging.
-    thread_id_ = PlatformThread::CurrentId();
 
     // Delegate to subclass first.
     if (!OnInitialize(demuxer_stream_)) {
@@ -164,7 +157,8 @@ class DecoderBase : public Decoder {
   }
 
   void ReadTask(ReadCallback* read_callback) {
-    DCHECK_EQ(PlatformThread::CurrentId(), thread_id_);
+    DCHECK_EQ(MessageLoop::current(), this->message_loop());
+
     // TODO(scherkus): should reply with a null operation (empty buffer).
     if (IsStopped()) {
       delete read_callback;
@@ -183,7 +177,7 @@ class DecoderBase : public Decoder {
   }
 
   void ReadCompleteTask(scoped_refptr<Buffer> buffer) {
-    DCHECK_EQ(PlatformThread::CurrentId(), thread_id_);
+    DCHECK_EQ(MessageLoop::current(), this->message_loop());
     DCHECK_GT(pending_reads_, 0u);
     --pending_reads_;
     if (IsStopped()) {
@@ -226,7 +220,7 @@ class DecoderBase : public Decoder {
   // Attempts to fulfill a single pending read by dequeuing a buffer and read
   // callback pair and executing the callback.
   void FulfillPendingRead() {
-    DCHECK_EQ(PlatformThread::CurrentId(), thread_id_);
+    DCHECK_EQ(MessageLoop::current(), this->message_loop());
     if (read_queue_.empty() || result_queue_.empty()) {
       return;
     }
@@ -275,9 +269,6 @@ class DecoderBase : public Decoder {
     STOPPED,
   };
   State state_;
-
-  // Used for debugging.
-  PlatformThreadId thread_id_;
 
   DISALLOW_COPY_AND_ASSIGN(DecoderBase);
 };

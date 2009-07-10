@@ -83,9 +83,6 @@ class FFmpegVideoDecoderTest : public testing::Test {
     decoder_->set_message_loop(&message_loop_);
     demuxer_ = new StrictMock<MockFFmpegDemuxerStream>();
 
-    // Manually set the thread id for tests that don't initialize the decoder.
-    decoder_->set_thread_id(PlatformThread::CurrentId());
-
     // Initialize FFmpeg fixtures.
     memset(&stream_, 0, sizeof(stream_));
     memset(&codec_context_, 0, sizeof(codec_context_));
