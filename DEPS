@@ -84,6 +84,11 @@ deps_os = {
     "src/third_party/WebKit/WebKit/mac":
       Var("webkit_trunk") + "/WebKit/mac@" + Var("webkit_revision"),
   },
+  "unix": {
+    # Linux, really.
+    "src/third_party/xdg-utils":
+      "/trunk/deps/third_party/xdg-utils@20073",
+  },
 }
 
 

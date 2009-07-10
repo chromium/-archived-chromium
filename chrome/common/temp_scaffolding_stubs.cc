@@ -138,20 +138,6 @@ void AutomationProvider::OnMessageFromExternalHost(
 
 //--------------------------------------------------------------------------
 
-#if defined(OS_LINUX)
-bool ShellIntegration::SetAsDefaultBrowser() {
-  // http://code.google.com/p/chromium/issues/detail?id=11972
-  return true;
-}
-
-bool ShellIntegration::IsDefaultBrowser() {
-  // http://code.google.com/p/chromium/issues/detail?id=11972
-  return true;
-}
-#endif
-
-//--------------------------------------------------------------------------
-
 
 // static
 bool FirstRun::ProcessMasterPreferences(const FilePath& user_data_dir,

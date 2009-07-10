@@ -1434,6 +1434,7 @@
         'browser/shell_integration.cc',
         'browser/shell_integration.h',
         'browser/shell_integration_mac.mm',
+        'browser/shell_integration_linux.cc',
         'browser/spellcheck_worditerator.cc',
         'browser/spellcheck_worditerator.h',
         'browser/spellchecker.cc',
@@ -2551,7 +2552,19 @@
           'copies': [
             {
               'destination': '<(PRODUCT_DIR)',
-              'files': ['<(INTERMEDIATE_DIR)/repack/chrome.pak'],
+              'files': ['<(INTERMEDIATE_DIR)/repack/chrome.pak',
+                        'tools/build/linux/chrome-wrapper',
+                        '../third_party/xdg-utils/scripts/xdg-settings',
+                        ],
+              # The wrapper script above may need to generate a .desktop file,
+              # which requires an icon. So, copy one next to the script.
+              'conditions': [
+                ['branding=="Chrome"', {
+                  'files': ['app/theme/google_chrome/product_logo_48.png']
+                }, { # else: 'branding!="Chrome"
+                  'files': ['app/theme/chromium/product_logo_48.png']
+                }],
+              ],
             },
             {
               'destination': '<(PRODUCT_DIR)/locales',
