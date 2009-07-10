@@ -48,6 +48,9 @@ class AudioRendererAlgorithmOLA : public AudioRendererAlgorithmBase {
   // Length for crossfade in bytes.
   size_t crossfade_size_;
 
+  // Window size, in bytes (calculated from audio properties).
+  size_t window_size_;
+
   DISALLOW_COPY_AND_ASSIGN(AudioRendererAlgorithmOLA);
 };
 

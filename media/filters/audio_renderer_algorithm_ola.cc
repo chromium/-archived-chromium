@@ -11,13 +11,14 @@
 
 namespace media {
 
-// Default window size in bytes.
-// TODO(kylep): base the window size in seconds, not bytes.
-const size_t kDefaultWindowSize = 4096;
+// Default window and crossfade lengths in seconds.
+const double kDefaultWindowLength = 0.08;
+const double kDefaultCrossfadeLength = 0.008;
 
 AudioRendererAlgorithmOLA::AudioRendererAlgorithmOLA()
     : input_step_(0),
-      output_step_(0) {
+      output_step_(0),
+      window_size_(0) {
 }
 
 AudioRendererAlgorithmOLA::~AudioRendererAlgorithmOLA() {
@@ -47,7 +48,7 @@ size_t AudioRendererAlgorithmOLA::FillBuffer(DataBuffer* buffer_out) {
   // on the UI side or in set_playback_rate().
   while (dest_remaining >= output_step_ + crossfade_size_) {
     // If we don't have enough data to completely finish this loop, quit.
-    if (QueueSize() < kDefaultWindowSize)
+    if (QueueSize() < window_size_)
       break;
 
     // Copy bulk of data to output (including some to crossfade to the next
@@ -89,7 +90,7 @@ size_t AudioRendererAlgorithmOLA::FillBuffer(DataBuffer* buffer_out) {
 
     // Advance pointers again.
     AdvanceInputPosition(crossfade_size);
-    dest += crossfade_size;
+    dest += crossfade_size_;
   }
   return dest_written;
 }
@@ -97,21 +98,32 @@ size_t AudioRendererAlgorithmOLA::FillBuffer(DataBuffer* buffer_out) {
 void AudioRendererAlgorithmOLA::set_playback_rate(float new_rate) {
   AudioRendererAlgorithmBase::set_playback_rate(new_rate);
 
+  // Calculate the window size from our default length and our audio properties.
+  // Precision is not an issue because we will round this to a sample boundary.
+  // This will not overflow because each parameter is checked in Initialize().
+  window_size_ = static_cast<size_t>(sample_rate()
+                                     * sample_bytes()
+                                     * channels()
+                                     * kDefaultWindowLength);
+
   // Adjusting step sizes to accomodate requested playback rate.
   if (playback_rate() > 1.0f) {
-    input_step_ = kDefaultWindowSize;
+    input_step_ = window_size_;
     output_step_ = static_cast<size_t>(ceil(
-        static_cast<float>(kDefaultWindowSize / playback_rate())));
+        static_cast<float>(window_size_ / playback_rate())));
   } else {
     input_step_ = static_cast<size_t>(ceil(
-        static_cast<float>(kDefaultWindowSize * playback_rate())));
-    output_step_ = kDefaultWindowSize;
+        static_cast<float>(window_size_ * playback_rate())));
+    output_step_ = window_size_;
   }
   AlignToSampleBoundary(&input_step_);
   AlignToSampleBoundary(&output_step_);
 
   // Calculate length for crossfading.
-  crossfade_size_ = kDefaultWindowSize / 10;
+  crossfade_size_ = static_cast<size_t>(sample_rate()
+                                        * sample_bytes()
+                                        * channels()
+                                        * kDefaultCrossfadeLength);
   AlignToSampleBoundary(&crossfade_size_);
 
   // To keep true to playback rate, modify the steps.

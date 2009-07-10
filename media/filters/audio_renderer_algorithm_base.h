@@ -45,6 +45,7 @@ class AudioRendererAlgorithmBase {
 
   // Checks validity of audio parameters and takes ownership of |callback|.
   virtual void Initialize(int channels,
+                          int sample_rate,
                           int sample_bits,
                           float initial_playback_rate,
                           RequestReadCallback* callback);
@@ -82,12 +83,16 @@ class AudioRendererAlgorithmBase {
   // Number of audio channels.
   virtual int channels();
 
+  // Sample rate in hertz.
+  virtual int sample_rate();
+
   // Number of bytes per sample per channel.
   virtual int sample_bytes();
 
  private:
   // Audio properties.
   int channels_;
+  int sample_rate_;
   int sample_bytes_;
 
   // Used by algorithm to scale output.

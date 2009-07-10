@@ -23,7 +23,7 @@ using file_util::ScopedFILE;
 using media::AudioRendererAlgorithmOLA;
 using media::DataBuffer;
 
-const size_t kDefaultWindowSize = 4096;
+const double kDefaultWindowLength = 0.08;
 
 struct WavHeader {
   int32 riff;
@@ -42,15 +42,16 @@ struct WavHeader {
 // Dummy class to feed data to OLA algorithm. Necessary to create callback.
 class Dummy {
  public:
-  Dummy(FILE* in, AudioRendererAlgorithmOLA* ola)
+  Dummy(FILE* in, AudioRendererAlgorithmOLA* ola, size_t window_size)
       : input_(in),
-        ola_(ola) {
+        ola_(ola),
+        window_size_(window_size) {
   }
 
   void ReadDataForAlg() {
     scoped_refptr<DataBuffer> b(new DataBuffer());
-    uint8* buf = b->GetWritableData(kDefaultWindowSize);
-    if (fread(buf, 1, kDefaultWindowSize, input_) > 0) {
+    uint8* buf = b->GetWritableData(window_size_);
+    if (fread(buf, 1, window_size_, input_) > 0) {
       ola_->EnqueueBuffer(b.get());
     }
   }
@@ -58,6 +59,7 @@ class Dummy {
  private:
   FILE* input_;
   AudioRendererAlgorithmOLA* ola_;
+  size_t window_size_;
 
   DISALLOW_COPY_AND_ASSIGN(Dummy);
 };
@@ -104,11 +106,17 @@ int main(int argc, const char** argv) {
     return 1;
   }
 
+  size_t window_size = static_cast<size_t>(wav.sample_rate
+                                           * (wav.bit_rate / 8)
+                                           * wav.channels
+                                           * kDefaultWindowLength);
+
   // Instantiate dummy class and callback to feed data to |ola|.
-  Dummy guy(input.get(), &ola);
+  Dummy guy(input.get(), &ola, window_size);
   AudioRendererAlgorithmOLA::RequestReadCallback* cb =
       NewCallback(&guy, &Dummy::ReadDataForAlg);
   ola.Initialize(wav.channels,
+                 wav.sample_rate,
                  wav.bit_rate,
                  static_cast<float>(playback_rate),
                  cb);
@@ -129,7 +137,7 @@ int main(int argc, const char** argv) {
 
   // Create buffer to be filled by |ola|.
   scoped_refptr<DataBuffer> buffer(new DataBuffer());
-  uint8* buf = buffer->GetWritableData(kDefaultWindowSize);
+  uint8* buf = buffer->GetWritableData(window_size);
 
   // Keep track of bytes written to disk and bytes copied to |b|.
   size_t bytes_written = 0;

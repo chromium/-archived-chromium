@@ -15,6 +15,7 @@ const size_t kDefaultMaxQueueSizeInBytes = 65536;
 
 AudioRendererAlgorithmBase::AudioRendererAlgorithmBase()
     : channels_(0),
+      sample_rate_(0),
       sample_bytes_(0),
       playback_rate_(0.0f) {
 }
@@ -22,15 +23,22 @@ AudioRendererAlgorithmBase::AudioRendererAlgorithmBase()
 AudioRendererAlgorithmBase::~AudioRendererAlgorithmBase() {}
 
 void AudioRendererAlgorithmBase::Initialize(int channels,
+                                            int sample_rate,
                                             int sample_bits,
                                             float initial_playback_rate,
                                             RequestReadCallback* callback) {
   DCHECK_GT(channels, 0);
+  DCHECK_LE(channels, 6) << "We only support <=6 channel audio.";
+  DCHECK_GT(sample_rate, 0);
+  DCHECK_LE(sample_rate, 256000)
+      << "We only support sample rates at or below 256000Hz.";
   DCHECK_GT(sample_bits, 0);
-  DCHECK(callback);
+  DCHECK_LE(sample_bits, 32) << "We only support 8, 16, 32 bit audio.";
   DCHECK_EQ(sample_bits % 8, 0) << "We only support 8, 16, 32 bit audio.";
+  DCHECK(callback);
 
   channels_ = channels;
+  sample_rate_ = sample_rate;
   sample_bytes_ = sample_bits / 8;
   request_read_callback_.reset(callback);
 
@@ -86,6 +94,10 @@ size_t AudioRendererAlgorithmBase::QueueSize() {
 
 int AudioRendererAlgorithmBase::channels() {
   return channels_;
+}
+
+int AudioRendererAlgorithmBase::sample_rate() {
+  return sample_rate_;
 }
 
 int AudioRendererAlgorithmBase::sample_bytes() {
