@@ -592,7 +592,7 @@ std::string HttpUtil::GenerateAcceptLanguageHeader(
       // q=1.0 is implicit.
       lang_list_with_q = language;
     } else {
-      DCHECK(qvalue10 >= 0 && qvalue10 < 10);
+      DCHECK_LT(qvalue10, 10U);
       StringAppendF(&lang_list_with_q, ",%s;q=0.%d", language.c_str(),
                     qvalue10);
     }

@@ -45,12 +45,12 @@ void SdchManager::ClearBlacklistings() {
 }
 
 // static
-void SdchManager::ClearDomainBlacklisting(std::string domain) {
+void SdchManager::ClearDomainBlacklisting(const std::string& domain) {
   Global()->blacklisted_domains_.erase(StringToLowerASCII(domain));
 }
 
 // static
-int SdchManager::BlackListDomainCount(std::string domain) {
+int SdchManager::BlackListDomainCount(const std::string& domain) {
   if (Global()->blacklisted_domains_.end() ==
       Global()->blacklisted_domains_.find(domain))
     return 0;
@@ -58,7 +58,7 @@ int SdchManager::BlackListDomainCount(std::string domain) {
 }
 
 // static
-int SdchManager::BlacklistDomainExponential(std::string domain) {
+int SdchManager::BlacklistDomainExponential(const std::string& domain) {
   if (Global()->exponential_blacklist_count.end() ==
       Global()->exponential_blacklist_count.find(domain))
     return 0;
@@ -428,7 +428,7 @@ bool SdchManager::Dictionary::CanSet(const std::string& domain,
 }
 
 // static
-bool SdchManager::Dictionary::CanUse(const GURL referring_url) {
+bool SdchManager::Dictionary::CanUse(const GURL& referring_url) {
   if (!SdchManager::Global()->IsInSupportedDomain(referring_url))
     return false;
   /*

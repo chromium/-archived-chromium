@@ -184,7 +184,7 @@ class SdchManager {
 
     // Security method to check if we can use a dictionary to decompress a
     // target that arrived with a reference to this dictionary.
-    bool CanUse(const GURL referring_url);
+    bool CanUse(const GURL& referring_url);
 
     // Compare paths to see if they "match" for dictionary use.
     static bool PathMatch(const std::string& path,
@@ -256,13 +256,13 @@ class SdchManager {
   static void ClearBlacklistings();
 
   // Unit test only, this function resets the blacklisting count for a domain.
-  static void ClearDomainBlacklisting(std::string domain);
+  static void ClearDomainBlacklisting(const std::string& domain);
 
   // Unit test only: indicate how many more times a domain will be blacklisted.
-  static int BlackListDomainCount(std::string domain);
+  static int BlackListDomainCount(const std::string& domain);
 
   // Unit test only: Indicate what current blacklist increment is for a domain.
-  static int BlacklistDomainExponential(std::string domain);
+  static int BlacklistDomainExponential(const std::string& domain);
 
   // Check to see if SDCH is enabled (globally), and the given URL is in a
   // supported domain (i.e., not blacklisted, and either the specific supported
