@@ -809,6 +809,10 @@ void BrowserWindowGtk::Observe(NotificationType type,
     }
 
     case NotificationType::ACTIVE_WINDOW_CHANGED: {
+      // Do nothing if we're in the process of closing the browser window.
+      if (!window_)
+        break;
+
       const GdkWindow* active_window = Details<const GdkWindow>(details).ptr();
       bool is_active = (GTK_WIDGET(window_)->window == active_window);
       bool changed = (is_active != is_active_);
