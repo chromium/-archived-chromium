@@ -29,6 +29,10 @@ class UITestSuite : public ChromeTestSuite {
 
   static const wchar_t kUseExistingBrowser[];
   static const wchar_t kTestTimeout[];
+  static const wchar_t kBatchCount[];
+  static const wchar_t kBatchIndex[];
+  static const char kGTestTotalShards[];
+  static const char kGTestShardIndex[];
 };
 
 #endif  // CHROME_TEST_UI_UI_TEST_SUITE_H_

@@ -15,6 +15,12 @@ const wchar_t UITestSuite::kUseExistingBrowser[] = L"use-existing-browser";
 // Timeout for the test in milliseconds.  UI tests only.
 const wchar_t UITestSuite::kTestTimeout[] = L"test-timeout";
 
+// Parameters to run test in parallel.  UI tests only.
+const wchar_t UITestSuite::kBatchCount[] = L"batch-count";
+const wchar_t UITestSuite::kBatchIndex[] = L"batch-index";
+const char UITestSuite::kGTestTotalShards[] = "GTEST_TOTAL_SHARDS=";
+const char UITestSuite::kGTestShardIndex[] = "GTEST_SHARD_INDEX=";
+
 
 UITestSuite::UITestSuite(int argc, char** argv)
     : ChromeTestSuite(argc, argv) {
@@ -50,6 +56,34 @@ void UITestSuite::Initialize() {
   if (!test_timeout.empty()) {
     UITest::set_test_timeout_ms(StringToInt(WideToUTF16Hack(test_timeout)));
   }
+
+#if defined(OS_WIN)
+  int batch_count = 0;
+  int batch_index = 0;
+  std::wstring batch_count_str =
+      parsed_command_line.GetSwitchValue(UITestSuite::kBatchCount);
+  if (!batch_count_str.empty()) {
+    batch_count = StringToInt(WideToUTF16Hack(batch_count_str));
+  }
+  std::wstring batch_index_str =
+      parsed_command_line.GetSwitchValue(UITestSuite::kBatchIndex);
+  if (!batch_index_str.empty()) {
+    batch_index = StringToInt(WideToUTF16Hack(batch_index_str));
+  }
+  if (batch_count > 0 && batch_index >= 0 && batch_index < batch_count) {
+    // Running UI test in parallel. Gtest supports running tests in shards,
+    // and every UI test instance is running with different user data dir.
+    // Thus all we need to do is to set up environment variables for gtest.
+    // See http://code.google.com/p/googletest/wiki/GoogleTestAdvancedGuide.
+    std::string batch_count_env(UITestSuite::kGTestTotalShards);
+    batch_count_env.append(WideToASCII(batch_count_str));
+    std::string batch_index_env(UITestSuite::kGTestShardIndex);
+    batch_index_env.append(WideToASCII(batch_index_str));
+    _putenv(batch_count_env.c_str());
+    _putenv(batch_index_env.c_str());
+  }
+#endif
+
   std::wstring js_flags =
     parsed_command_line.GetSwitchValue(switches::kJavaScriptFlags);
   if (!js_flags.empty()) {
