@@ -1122,7 +1122,6 @@ void BrowserWindowGtk::InitWidgets() {
 }
 
 void BrowserWindowGtk::SetBackgroundColor() {
-  // TODO(tc): Handle active/inactive colors.
   Profile* profile = browser()->profile();
   ThemeProvider* theme_provider = profile->GetThemeProvider();
   int frame_color_id;
