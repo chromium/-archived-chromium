@@ -269,6 +269,7 @@ class ExtensionUpdaterTest : public testing::Test {
     EXPECT_EQ(1u, updateable.size());
     EXPECT_EQ(0, updateable[0]);
     STLDeleteElements(&updates);
+    STLDeleteElements(&tmp);
   }
 
   static void TestMultipleManifestDownloading() {
@@ -414,23 +415,23 @@ class ExtensionUpdaterTest : public testing::Test {
 // actual test code to live in ExtenionUpdaterTest methods instead of TEST_F
 // subclasses where friendship with ExtenionUpdater is not inherited.
 
-TEST(ExtensionUpdaterTest, DISABLED_TestXmlParsing) {
+TEST(ExtensionUpdaterTest, TestXmlParsing) {
   ExtensionUpdaterTest::TestXmlParsing();
 }
 
-TEST(ExtensionUpdaterTest, DISABLED_TestDetermineUpdates) {
+TEST(ExtensionUpdaterTest, TestDetermineUpdates) {
   ExtensionUpdaterTest::TestDetermineUpdates();
 }
 
-TEST(ExtensionUpdaterTest, DISABLED_TestMultipleManifestDownloading) {
+TEST(ExtensionUpdaterTest, TestMultipleManifestDownloading) {
   ExtensionUpdaterTest::TestMultipleManifestDownloading();
 }
 
-TEST(ExtensionUpdaterTest, DISABLED_TestSingleExtensionDownloading) {
+TEST(ExtensionUpdaterTest, TestSingleExtensionDownloading) {
   ExtensionUpdaterTest::TestSingleExtensionDownloading();
 }
 
-TEST(ExtensionUpdaterTest, DISABLED_TestMultipleExtensionDownloading) {
+TEST(ExtensionUpdaterTest, TestMultipleExtensionDownloading) {
   ExtensionUpdaterTest::TestMultipleExtensionDownloading();
 }
 

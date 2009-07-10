@@ -466,7 +466,8 @@ bool ExtensionUpdater::Parse(const std::string& manifest_xml,
       return false;
     }
   }
-  tmp_results.release(results);
+  results->insert(results->end(), tmp_results.begin(), tmp_results.end());
+  tmp_results.get().clear();
 
   return true;
 }
