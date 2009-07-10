@@ -175,7 +175,6 @@ static void GLibLogHandler(const gchar* log_domain,
                              "allocate widget with width") &&
              !GTK_CHECK_VERSION(2, 16, 1)) {
     // http://crbug.com/11133
-    LOG(ERROR) << "Bug 11133";
   } else if (strstr(message, "Theme file for default has no") ||
              strstr(message, "Theme directory")) {
     LOG(ERROR) << "GTK theme error: " << message;

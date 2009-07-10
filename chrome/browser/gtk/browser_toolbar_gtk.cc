@@ -45,7 +45,7 @@ namespace {
 const int kToolbarHeight = 37;
 
 // Interior spacing between toolbar widgets.
-const int kToolbarWidgetSpacing = 6;
+const int kToolbarWidgetSpacing = 4;
 
 // The amount of space between the bottom of the star and the top of the
 // Omnibox results popup window.  We want a two pixel space between the bottom

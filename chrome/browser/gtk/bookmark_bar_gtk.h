@@ -77,11 +77,11 @@ class BookmarkBarGtk : public AnimationDelegate,
 
  private:
   // Helper function which generates GtkToolItems for |bookmark_toolbar_|.
-  void CreateAllBookmarkButtons(const BookmarkNode* node);
+  void CreateAllBookmarkButtons();
 
   // Sets the visibility of the instructional text based on whether there are
-  // any bookmarks in |node|. |node| is assumed to be the bookmarks bar node.
-  void SetInstructionState(const BookmarkNode* boomarks_bar_node);
+  // any bookmarks in the bookmark bar node.
+  void SetInstructionState();
 
   // Helper function which destroys all the bookmark buttons in the GtkToolbar.
   void RemoveAllBookmarkButtons();
@@ -93,7 +93,7 @@ class BookmarkBarGtk : public AnimationDelegate,
 
   // Overridden from BookmarkModelObserver:
 
-  // Invoked when the bookmark bar model has finished loading. Creates a button
+  // Invoked when the bookmark model has finished loading. Creates a button
   // for each of the children of the root node from the model.
   virtual void Loaded(BookmarkModel* model);
 
@@ -216,10 +216,6 @@ class BookmarkBarGtk : public AnimationDelegate,
 
   // The other bookmarks button.
   GtkWidget* other_bookmarks_button_;
-
-  // The label inside |other_bookmarks_button_|. We keep a reference so we can
-  // change the text color.
-  GtkWidget* other_bookmarks_label_;
 
   // Whether we should ignore the next button release event (because we were
   // dragging).

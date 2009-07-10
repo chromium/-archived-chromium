@@ -85,8 +85,6 @@ void BookmarkBarGtk::SetProfile(Profile* profile) {
   if (model_)
     model_->RemoveObserver(this);
 
-  gtk_widget_set_sensitive(other_bookmarks_button_, false);
-
   // TODO(erg): Handle extensions
 
   model_ = profile_->GetBookmarkModel();
@@ -103,10 +101,6 @@ void BookmarkBarGtk::SetPageNavigator(PageNavigator* navigator) {
 }
 
 void BookmarkBarGtk::Init(Profile* profile) {
-  // Load the default images from the resource bundle.
-  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  static GdkPixbuf* folder_icon = rb.GetPixbufNamed(IDR_BOOKMARK_BAR_FOLDER);
-
   bookmark_hbox_.Own(gtk_hbox_new(FALSE, 0));
 
   instructions_ = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
@@ -155,21 +149,6 @@ void BookmarkBarGtk::Init(Profile* profile) {
   // we can have finer control over its label.
   other_bookmarks_button_ = gtk_chrome_button_new();
   ConnectFolderButtonEvents(other_bookmarks_button_);
-  gtk_chrome_button_set_use_gtk_rendering(
-      GTK_CHROME_BUTTON(other_bookmarks_button_),
-      GtkThemeProvider::UseSystemThemeGraphics(profile));
-
-  GtkWidget* image = gtk_image_new_from_pixbuf(folder_icon);
-  other_bookmarks_label_ = gtk_label_new(
-      l10n_util::GetStringUTF8(IDS_BOOMARK_BAR_OTHER_BOOKMARKED).c_str());
-  GtkThemeProperties properties(profile);
-  bookmark_utils::SetButtonTextColors(other_bookmarks_label_, &properties);
-
-  GtkWidget* box = gtk_hbox_new(FALSE, bookmark_utils::kBarButtonPadding);
-  gtk_box_pack_start(GTK_BOX(box), image, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(box), other_bookmarks_label_, FALSE, FALSE, 0);
-  gtk_container_add(GTK_CONTAINER(other_bookmarks_button_), box);
-
   gtk_box_pack_start(GTK_BOX(bookmark_hbox_.get()), other_bookmarks_button_,
                      FALSE, FALSE, 0);
 
@@ -230,13 +209,9 @@ void BookmarkBarGtk::Loaded(BookmarkModel* model) {
   // shutdown. Do nothing.
   if (!instructions_)
     return;
+
   RemoveAllBookmarkButtons();
-
-  const BookmarkNode* node = model_->GetBookmarkBarNode();
-  DCHECK(node && model_->other_node());
-  CreateAllBookmarkButtons(node);
-
-  gtk_widget_set_sensitive(other_bookmarks_button_, true);
+  CreateAllBookmarkButtons();
 }
 
 void BookmarkBarGtk::BookmarkModelBeingDeleted(BookmarkModel* model) {
@@ -271,7 +246,7 @@ void BookmarkBarGtk::BookmarkNodeAdded(BookmarkModel* model,
   gtk_toolbar_insert(GTK_TOOLBAR(bookmark_toolbar_.get()),
                      item, index);
 
-  SetInstructionState(parent);
+  SetInstructionState();
 }
 
 void BookmarkBarGtk::BookmarkNodeRemoved(BookmarkModel* model,
@@ -288,7 +263,7 @@ void BookmarkBarGtk::BookmarkNodeRemoved(BookmarkModel* model,
   gtk_container_remove(GTK_CONTAINER(bookmark_toolbar_.get()),
                        to_remove);
 
-  SetInstructionState(parent);
+  SetInstructionState();
 }
 
 void BookmarkBarGtk::BookmarkNodeChanged(BookmarkModel* model,
@@ -319,22 +294,28 @@ void BookmarkBarGtk::BookmarkNodeChildrenReordered(BookmarkModel* model,
 
   // Purge and rebuild the bar.
   RemoveAllBookmarkButtons();
-  CreateAllBookmarkButtons(node);
+  CreateAllBookmarkButtons();
 }
 
-void BookmarkBarGtk::CreateAllBookmarkButtons(const BookmarkNode* node) {
+void BookmarkBarGtk::CreateAllBookmarkButtons() {
+  const BookmarkNode* node = model_->GetBookmarkBarNode();
+  DCHECK(node && model_->other_node());
+
   // Create a button for each of the children on the bookmark bar.
   for (int i = 0; i < node->GetChildCount(); ++i) {
     GtkToolItem* item = CreateBookmarkToolItem(node->GetChild(i));
     gtk_toolbar_insert(GTK_TOOLBAR(bookmark_toolbar_.get()), item, -1);
   }
 
-  SetInstructionState(node);
+  GtkThemeProperties properties(profile_);
+  bookmark_utils::ConfigureButtonForNode(model_->other_node(),
+      model_, other_bookmarks_button_, &properties);
+
+  SetInstructionState();
 }
 
-void BookmarkBarGtk::SetInstructionState(
-    const BookmarkNode* boomarks_bar_node) {
-  show_instructions_ = (boomarks_bar_node->GetChildCount() == 0);
+void BookmarkBarGtk::SetInstructionState() {
+  show_instructions_ = (model_->GetBookmarkBarNode()->GetChildCount() == 0);
   if (show_instructions_) {
     gtk_widget_show_all(instructions_);
   } else {
@@ -359,19 +340,11 @@ bool BookmarkBarGtk::IsAlwaysShown() {
 }
 
 void BookmarkBarGtk::UserChangedTheme(GtkThemeProperties* properties) {
-  gtk_chrome_button_set_use_gtk_rendering(
-      GTK_CHROME_BUTTON(other_bookmarks_button_),
-      properties->use_gtk_rendering);
-  bookmark_utils::SetButtonTextColors(other_bookmarks_label_, properties);
-
   if (model_) {
     // Regenerate the bookmark bar with all new objects with their theme
     // properties set correctly for the new theme.
     RemoveAllBookmarkButtons();
-
-    const BookmarkNode* node = model_->GetBookmarkBarNode();
-    DCHECK(node && model_->other_node());
-    CreateAllBookmarkButtons(node);
+    CreateAllBookmarkButtons();
   } else {
     DLOG(ERROR) << "Received a theme change notification while we don't have a "
                 << "BookmarkModel. Taking no action.";

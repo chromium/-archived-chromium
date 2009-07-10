@@ -30,6 +30,15 @@ const size_t kMaxCharsOnAButton = 15;
 // Only used for the background of the drag widget.
 const GdkColor kBackgroundColor = GDK_COLOR_RGB(0xe6, 0xed, 0xf4);
 
+// Padding between the chrome button highlight border and the contents (favicon,
+// text).
+// TODO(estade): we need to adjust the top and bottom padding, but first we need
+// to give the bookmark bar more space (at the expense of the toolbar).
+const int kButtonPaddingTop = 0;
+const int kButtonPaddingBottom = 0;
+const int kButtonPaddingLeft = 2;
+const int kButtonPaddingRight = 0;
+
 void* AsVoid(const BookmarkNode* node) {
   return const_cast<BookmarkNode*>(node);
 }
@@ -40,6 +49,7 @@ namespace bookmark_utils {
 
 const char kBookmarkNode[] = "bookmark-node";
 
+// Spacing between the buttons on the bar.
 const int kBarButtonPadding = 4;
 
 GdkPixbuf* GetFolderIcon() {
@@ -123,7 +133,13 @@ void ConfigureButtonForNode(const BookmarkNode* node, BookmarkModel* model,
   GtkWidget* box = gtk_hbox_new(FALSE, kBarButtonPadding);
   gtk_box_pack_start(GTK_BOX(box), image, FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 0);
-  gtk_container_add(GTK_CONTAINER(button), box);
+
+  GtkWidget* alignment = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
+  gtk_alignment_set_padding(GTK_ALIGNMENT(alignment),
+      kButtonPaddingTop, kButtonPaddingBottom,
+      kButtonPaddingLeft, kButtonPaddingRight);
+  gtk_container_add(GTK_CONTAINER(alignment), box);
+  gtk_container_add(GTK_CONTAINER(button), alignment);
 
   SetButtonTextColors(label, properties);
   g_object_set_data(G_OBJECT(button), bookmark_utils::kBookmarkNode,
@@ -132,7 +148,7 @@ void ConfigureButtonForNode(const BookmarkNode* node, BookmarkModel* model,
   gtk_chrome_button_set_use_gtk_rendering(GTK_CHROME_BUTTON(button),
                                           properties->use_gtk_rendering);
 
-  gtk_widget_show_all(box);
+  gtk_widget_show_all(alignment);
 }
 
 std::string BuildTooltipFor(const BookmarkNode* node) {
