@@ -1904,6 +1904,13 @@ void TabContents::UpdateInspectorSettings(const std::wstring& raw_settings) {
 }
 
 void TabContents::Close(RenderViewHost* rvh) {
+  // If we close the tab while we're in the middle of a drag, we'll crash.
+  // Instead, cancel the drag and close it as soon as the drag ends.
+  if (view()->IsDoingDrag()) {
+    view()->CancelDragAndCloseTab();
+    return;
+  }
+
   // Ignore this if it comes from a RenderViewHost that we aren't showing.
   if (delegate() && rvh == render_view_host())
     delegate()->CloseContents(this);

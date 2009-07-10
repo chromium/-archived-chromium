@@ -138,6 +138,14 @@ class TabContentsView : public RenderViewHostDelegate::View {
     return preferred_width_;
   }
 
+  // If we try to close the tab while a drag is in progress, we crash.  These
+  // methods allow the tab contents to determine if a drag is in progress and
+  // postpone the tab closing.
+  virtual bool IsDoingDrag() const {
+    return false;
+  }
+  virtual void CancelDragAndCloseTab() {}
+
  protected:
   TabContentsView() {}  // Abstract interface.
 

@@ -8,6 +8,7 @@
 
 #include "app/gfx/canvas_paint.h"
 #include "app/os_exchange_data.h"
+#include "base/time.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/browser.h"  // TODO(beng): this dependency is awful.
 #include "chrome/browser/browser_process.h"
@@ -54,7 +55,8 @@ TabContentsView* TabContentsView::Create(TabContents* tab_contents) {
 TabContentsViewWin::TabContentsViewWin(TabContents* tab_contents)
     : TabContentsView(tab_contents),
       ignore_next_char_event_(false),
-      focus_manager_(NULL) {
+      focus_manager_(NULL),
+      close_tab_after_drag_ends_(false) {
   last_focused_view_storage_id_ =
       views::ViewStorage::GetSharedInstance()->CreateStorageID();
 }
@@ -67,6 +69,8 @@ TabContentsViewWin::~TabContentsViewWin() {
   views::ViewStorage* view_storage = views::ViewStorage::GetSharedInstance();
   if (view_storage->RetrieveView(last_focused_view_storage_id_) != NULL)
     view_storage->RemoveView(last_focused_view_storage_id_);
+
+  DCHECK(!drag_source_.get());
 }
 
 void TabContentsViewWin::Unparent() {
@@ -174,8 +178,8 @@ void TabContentsViewWin::StartDragging(const WebDropData& drop_data) {
   if (!drop_data.plain_text.empty())
     data->SetString(drop_data.plain_text);
 
-  scoped_refptr<WebDragSource> drag_source(
-      new WebDragSource(GetNativeView(), tab_contents()->render_view_host()));
+  drag_source_ = new WebDragSource(GetNativeView(),
+                                   tab_contents()->render_view_host());
 
   DWORD effects;
 
@@ -183,8 +187,14 @@ void TabContentsViewWin::StartDragging(const WebDropData& drop_data) {
   // updates while in the system DoDragDrop loop.
   bool old_state = MessageLoop::current()->NestableTasksAllowed();
   MessageLoop::current()->SetNestableTasksAllowed(true);
-  DoDragDrop(data, drag_source, DROPEFFECT_COPY | DROPEFFECT_LINK, &effects);
+  DoDragDrop(data, drag_source_, DROPEFFECT_COPY | DROPEFFECT_LINK, &effects);
   MessageLoop::current()->SetNestableTasksAllowed(old_state);
+
+  drag_source_ = NULL;
+  if (close_tab_after_drag_ends_) {
+    close_tab_timer_.Start(base::TimeDelta::FromMilliseconds(0), this,
+                           &TabContentsViewWin::CloseTab);
+  }
 
   if (tab_contents()->render_view_host())
     tab_contents()->render_view_host()->DragSourceSystemDragEnded();
@@ -334,6 +344,19 @@ void TabContentsViewWin::RestoreFocus() {
   }
 }
 
+bool TabContentsViewWin::IsDoingDrag() const {
+  return drag_source_.get() != NULL;
+}
+
+void TabContentsViewWin::CancelDragAndCloseTab() {
+  DCHECK(IsDoingDrag());
+  // We can't close the tab while we're in the drag and
+  // |drag_source_->CancelDrag()| is async.  Instead, set a flag to cancel
+  // the drag and when the drag nested message loop ends, close the tab.
+  drag_source_->CancelDrag();
+  close_tab_after_drag_ends_ = true;
+}
+
 void TabContentsViewWin::UpdateDragCursor(bool is_drop_target) {
   drop_target_->set_is_drop_target(is_drop_target);
 }
@@ -420,6 +443,10 @@ views::FocusManager* TabContentsViewWin::GetFocusManager() {
   // that would prevent that code being executed in the unit-test case.
   // DCHECK(focus_manager_);
   return focus_manager_;
+}
+
+void TabContentsViewWin::CloseTab() {
+  tab_contents()->Close(tab_contents()->render_view_host());
 }
 
 void TabContentsViewWin::ShowContextMenu(const ContextMenuParams& params) {

@@ -7,12 +7,14 @@
 
 #include "base/gfx/size.h"
 #include "base/scoped_ptr.h"
+#include "base/timer.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "views/widget/widget_win.h"
 
 class RenderViewContextMenuWin;
 class SadTabView;
 struct WebDropData;
+class WebDragSource;
 class WebDropTarget;
 
 // Windows-specific implementation of the TabContentsView. It is a HWND that
@@ -47,6 +49,8 @@ class TabContentsViewWin : public TabContentsView,
   virtual void SetInitialFocus();
   virtual void StoreFocus();
   virtual void RestoreFocus();
+  virtual bool IsDoingDrag() const;
+  virtual void CancelDragAndCloseTab();
 
   // Backend implementation of RenderViewHostDelegate::View.
   virtual void ShowContextMenu(const ContextMenuParams& params);
@@ -60,6 +64,9 @@ class TabContentsViewWin : public TabContentsView,
   virtual views::FocusManager* GetFocusManager();
 
  private:
+  // A helper method for closing the tab.
+  void CloseTab();
+
   // Windows events ------------------------------------------------------------
 
   // Overrides from WidgetWin.
@@ -114,6 +121,18 @@ class TabContentsViewWin : public TabContentsView,
   // The FocusManager associated with this tab.  Stored as it is not directly
   // accessible when unparented.
   views::FocusManager* focus_manager_;
+
+  // |drag_source_| is our callback interface passed to the system when we
+  // want to initiate a drag and drop operation.  We use it to tell if a
+  // drag operation is happening.
+  scoped_refptr<WebDragSource> drag_source_;
+
+  // Set to true if we want to close the tab after the system drag operation
+  // has finished.
+  bool close_tab_after_drag_ends_;
+
+  // Used to close the tab after the stack has unwound.
+  base::OneShotTimer<TabContentsViewWin> close_tab_timer_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContentsViewWin);
 };

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // BaseDragSource, public:
 
-BaseDragSource::BaseDragSource() : ref_count_(0) {
+BaseDragSource::BaseDragSource() : ref_count_(0), cancel_drag_(false) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -15,6 +15,9 @@ BaseDragSource::BaseDragSource() : ref_count_(0) {
 
 HRESULT BaseDragSource::QueryContinueDrag(BOOL escape_pressed,
                                           DWORD key_state) {
+  if (cancel_drag_)
+    return DRAGDROP_S_CANCEL;
+
   if (escape_pressed) {
     OnDragSourceCancel();
     return DRAGDROP_S_CANCEL;

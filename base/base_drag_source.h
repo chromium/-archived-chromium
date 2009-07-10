@@ -23,6 +23,13 @@ class BaseDragSource : public IDropSource {
   BaseDragSource();
   virtual ~BaseDragSource() { }
 
+  // Stop the drag operation at the next chance we get.  This doesn't
+  // synchronously stop the drag (since Windows is controlling that),
+  // but lets us tell Windows to cancel the drag the next chance we get.
+  void CancelDrag() {
+    cancel_drag_ = true;
+  }
+
   // IDropSource implementation:
   HRESULT __stdcall QueryContinueDrag(BOOL escape_pressed, DWORD key_state);
   HRESULT __stdcall GiveFeedback(DWORD effect);
@@ -39,6 +46,9 @@ class BaseDragSource : public IDropSource {
 
  private:
   LONG ref_count_;
+
+  // Set to true if we want to cancel the drag operation.
+  bool cancel_drag_;
 
   DISALLOW_EVIL_CONSTRUCTORS(BaseDragSource);
 };
