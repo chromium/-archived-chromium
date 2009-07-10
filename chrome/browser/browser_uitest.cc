@@ -261,6 +261,7 @@ class ShowModalDialogTest : public UITest {
 };
 
 TEST_F(ShowModalDialogTest, BasicTest) {
+  // Test that a modal dialog is shown.
   FilePath test_file(test_data_directory_);
   test_file = test_file.AppendASCII("showmodaldialog.html");
   NavigateToURL(net::FilePathToFileURL(test_file));
@@ -274,6 +275,12 @@ TEST_F(ShowModalDialogTest, BasicTest) {
   std::wstring title;
   ASSERT_TRUE(tab->GetTabTitle(&title));
   ASSERT_EQ(title, L"ModalDialogTitle");
+
+  // Test that window.close() works.  Since we don't have a way of executing a
+  // JS function on the page through TabProxy, reload it and use an unload
+  // handler that closes the page.
+  ASSERT_EQ(tab->Reload(), AUTOMATION_MSG_NAVIGATION_SUCCESS);
+  ASSERT_TRUE(automation()->WaitForWindowCountToBecome(1, action_timeout_ms()));
 }
 #endif
 

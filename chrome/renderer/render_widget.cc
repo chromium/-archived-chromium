@@ -636,7 +636,7 @@ void RenderWidget::CloseWidgetSoon(WebWidget* webwidget) {
   // could be closed before the JS finishes executing.  So instead, post a
   // message back to the message loop, which won't run until the JS is
   // complete, and then the Close message can be sent.
-  MessageLoop::current()->PostNonNestableTask(FROM_HERE, NewRunnableMethod(
+  MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
       this, &RenderWidget::DoDeferredClose));
 }
 
