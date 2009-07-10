@@ -56,41 +56,31 @@ class Pipeline {
   // construct a filter chain.  Returns true if successful, false otherwise
   // (i.e., pipeline already started).  Note that a return value of true
   // only indicates that the initialization process has started successfully.
-  // Pipeline initialization is an inherently asynchronous process.  Clients
-  // should not call SetPlaybackRate(), Seek(), or SetVolume() until
-  // initialization is complete.  Clients can either poll the IsInitialized()
-  // method (which is discouraged) or use the |start_callback| as described
-  // below.
+  // Pipeline initialization is an inherently asynchronous process.  Clients can
+  // either poll the IsInitialized() method (discouraged) or use the
+  // |start_callback| as described below.
   //
   // This method is asynchronous and can execute a callback when completed.
   // If the caller provides a |start_callback|, it will be called when the
   // pipeline initialization completes.  If successful, the callback's bool
   // parameter will be true.  If the callback is called with false, then the
-  // client can use the GetError() method to obtain more information about the
-  // reason initialization failed.  The prototype for the client callback is:
-  //    void Client::PipelineInitComplete(bool init_was_successful);
-  //
-  // Note that clients must not call the Stop method from within the
-  // |start_callback|.  Other methods, including SetPlaybackRate(), Seek(), and
-  // SetVolume() may be called.  The client will be called on a thread owned by
-  // the pipeline class, not on the thread that originally called the Start()
-  // method.
+  // client can use GetError() to obtain more information about the reason
+  // initialization failed.
   virtual bool Start(FilterFactory* filter_factory,
                      const std::string& url,
                      PipelineCallback* start_callback) = 0;
 
-  // Stops the pipeline and resets to an uninitialized state.  This method
-  // will block the calling thread until the pipeline has been completely
-  // torn down and reset to an uninitialized state.  After calling Stop(), it
-  // is acceptable to call Start() again since Stop() leaves the pipeline
-  // in a state identical to a newly created pipeline.
+  // Asynchronously stops the pipeline and resets it to an uninitialized state.
+  // If provided, |stop_callback| will be executed when the pipeline has been
+  // completely torn down and reset to an uninitialized state.  It is acceptable
+  // to call Start() again once the callback has finished executing.
   //
-  // Stop() must be called before destroying the pipeline.
+  // Stop() must be called before destroying the pipeline.  Clients can
+  // determine whether Stop() must be called by checking IsRunning().
   //
-  // TODO(scherkus): it shouldn't be acceptable to call Start() again after you
-  // Stop() a pipeline -- it should be destroyed and replaced with a new
-  // instance.
-  virtual void Stop() = 0;
+  // TODO(scherkus): ideally clients would destroy the pipeline after calling
+  // Stop() and create a new pipeline as needed.
+  virtual void Stop(PipelineCallback* stop_callback) = 0;
 
   // Attempt to seek to the position specified by time.  |seek_callback| will be
   // executed when the all filters in the pipeline have processed the seek.
@@ -98,9 +88,14 @@ class Pipeline {
   // (i.e., streaming media).
   virtual void Seek(base::TimeDelta time, PipelineCallback* seek_callback) = 0;
 
-  // Returns the current initialization state of the pipeline.  Note that this
-  // will be set to true prior to a executing |init_complete_callback| if
-  // initialization is successful.
+  // Returns true if the pipeline has been started via Start().  If IsRunning()
+  // returns true, it is expected that Stop() will be called before destroying
+  // the pipeline.
+  virtual bool IsRunning() const = 0;
+
+  // Returns true if the pipeline has been started and fully initialized to a
+  // point where playback controls will be respected.  Note that it is possible
+  // for a pipeline to be started but not initialized (i.e., an error occurred).
   virtual bool IsInitialized() const = 0;
 
   // If the |major_mime_type| exists in the pipeline and is being rendered, this

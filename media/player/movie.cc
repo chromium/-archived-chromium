@@ -79,7 +79,9 @@ bool Movie::Open(const wchar_t* url, WtlVideoRenderer* video_renderer) {
   factories->AddFactory(
       new media::InstanceFilterFactory<WtlVideoRenderer>(video_renderer));
 
-  pipeline_.reset(new PipelineImpl());
+  thread_.reset(new base::Thread("PipelineThread"));
+  thread_->Start();
+  pipeline_.reset(new PipelineImpl(thread_->message_loop()));
 
   // Create and start our pipeline.
   pipeline_->Start(factories.get(), WideToUTF8(std::wstring(url)), NULL);
@@ -194,8 +196,10 @@ bool Movie::GetOpenMpEnable() {
 // Teardown.
 void Movie::Close() {
   if (pipeline_.get()) {
-    pipeline_->Stop();
+    pipeline_->Stop(NULL);
+    thread_->Stop();
     pipeline_.reset();
+    thread_.reset();
   }
 }
 
