@@ -65,6 +65,9 @@ PREFIX : passwordformdommanager::findpasswordformfields___passwordformdommanager
 # 12156
 SUBSTRING : views::focuswindowcallback___base::messagepumpforui::dorunloop
 
+# 16276
+PREFIX : v8::internal::jsobject::locallookup___v8::internal::jsobject::lookup___v8::internal::object::lookup
+
 # 9947
 SUBSTRING : webcore::frameloader::didreceiveresponse___webcore::resourceloader::didreceiveresponse___webcore::subresourceloader::didreceiveresponse___webcore::resourceloader::didreceiveresponse___webcore::resourcehandleinternal::onreceivedresponse
 
