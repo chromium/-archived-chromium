@@ -4,6 +4,3 @@ include_rules = [
   "+net",
   "+skia",
 ]
-
-
-
