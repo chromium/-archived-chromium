@@ -4,6 +4,7 @@
   ],
   'targets': [
     {
+      
       'target_name': 'gtk_clipboard_dump',
       'type': 'executable',
       'dependencies': [
@@ -12,6 +13,8 @@
       'sources': [
         'gtk_clipboard_dump.cc',
       ],
+      
+      
     },
   ],
 }
